@@ -1,0 +1,46 @@
+schema_version = 1
+target_arch = "aarch64"
+initial_base = "asahi-alarm"
+# Candidate inventory only: none of these packages has been built by this project.
+
+[[packages]]
+name = "cachyos-hyprland-settings"
+phase = "desktop-overlay"
+status = "candidate"
+source = "https://github.com/CachyOS/CachyOS-PKGBUILDS/tree/master/cachyos-hyprland-settings"
+next_step = "Pin source; audit license, dependencies, file ownership, and current Hyprland compatibility."
+
+[[packages]]
+name = "cachyos-fish-config"
+phase = "desktop-overlay"
+status = "candidate"
+source = "https://github.com/CachyOS/CachyOS-PKGBUILDS/tree/master/cachyos-fish-config"
+next_step = "Confirm current recipe, license, and ARM-available dependencies."
+
+[[packages]]
+name = "cachyos-zsh-config"
+phase = "desktop-overlay"
+status = "candidate"
+source = "https://github.com/CachyOS/CachyOS-PKGBUILDS/tree/master/cachyos-zsh-config"
+next_step = "Confirm current recipe, license, and ARM-available dependencies."
+
+[[packages]]
+name = "cachyos-settings"
+phase = "settings-audit"
+status = "candidate"
+source = "https://github.com/CachyOS/CachyOS-PKGBUILDS/tree/master/cachyos-settings"
+next_step = "Review each setting for Apple hardware, Asahi power management, and existing service conflicts before selection."
+
+[[packages]]
+name = "cachyos-kernel-manager"
+phase = "later-tools"
+status = "deferred"
+source = "https://github.com/CachyOS/CachyOS-PKGBUILDS/tree/master/cachyos-kernel-manager"
+next_step = "Audit chwd dependency and kernel/boot management assumptions; preserve linux-asahi."
+
+[[packages]]
+name = "chwd"
+phase = "later-tools"
+status = "deferred"
+source = "https://github.com/CachyOS/CachyOS-PKGBUILDS/tree/master/chwd"
+next_step = "Determine whether Apple needs this tool at all; do not infer suitability from a changed architecture field."
