@@ -18,6 +18,7 @@ Kernel experiments and CPU-specific optimization follow a measured, working base
 
 ## Project files
 
+- [Project goal](goal.md): the long-term purpose and ambition.
 - [Roadmap](docs/roadmap.md): implementation milestones and completion criteria.
 - [Agent work plan](docs/agent-work.md): bounded parallel tasks and integration responsibilities.
 - [Hardware validation](docs/hardware-validation.md): evidence required before support claims.
