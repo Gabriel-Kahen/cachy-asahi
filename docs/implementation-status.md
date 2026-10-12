@@ -4,7 +4,26 @@ October 12, 2026. This record tracks the complete `outline.md` scope; an impleme
 
 The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with owned tasks and corrective next actions in `docs/backlog.md`. The destination now explicitly requires the maintained ARM package repository, native performance engineering, integrated Apple stack, broader Cachy system experience, and complete installation/release lifecycle. Both Air sizes, published final measurements, independent onboarding/contribution, subsequent full-port maintenance release, other-ARM reuse and actual upstream submissions remain required; an early overlay release or feasibility decision would not complete the goal. This scope update does not change any recorded execution result.
 
-Latest coordinator update, October 12, 19:16 UTC. KSM4 `38294468323`, from
+Latest coordinator update, October 12, 19:43 UTC. Updater5 `38296615950` passes
+86-file committed-source authentication, then fails worker1. Its bound diagnostic
+identifies entry-guard/unexpected-mount before controller validation or compiler
+launch. Parent/container returns are 1; scoped cleanup and recovery pass. All
+15 public records and the independent actual-run review verify. Standard Moby
+mount omissions are reproduced in source fixtures; the actual rejected path is
+not exported. A narrow checked mount/private-IPC correction is in development.
+Guest4 `38297144571` remains FAIL after the original integration and other broader
+components pass. Root verifies 33 bundles, 1,623 members, 27 exports, 1,180 files
+and 31 summary bindings. Its precleanup process event records client SIGABRT
+with the compositor alive; the bound client log records a fatal SVG icon-loading
+error. Cleanup passes and no frame is accepted. Independent actual-run review
+and loader/dependency diagnosis are active. Kernel resource diagnostics pass
+93 stage and 209 job checks and are held for peer review. Repository deadline
+and mode/inode corrections pass 131 handoff and 24 provenance tests plus 68
+independent controls; their integration is pending. Installer's latest review
+closes the terminal SIGTERM/flush bugs but leaves interrupted capsule disposal
+open. Complete release, both M2 sizes, 16K behavior and measurements remain open.
+
+Prior coordinator update, October 12, 19:16 UTC. KSM4 `38294468323`, from
 `0722dd9`, remains FAIL. Request 6 returns the expected 341-package inventory
 before reply delivery fails with BrokenPipeError. Natural producer poll and
 runner return are unobserved; cleanup reaps code 1. The recorded absence flags
