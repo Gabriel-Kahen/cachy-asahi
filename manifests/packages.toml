@@ -141,10 +141,12 @@ license = "GPL-2.0-or-later"
 audit = "docs/workstreams/ksmctl.md"
 selected_for_development = true
 selected_for_release = false
-native_build = "NOT RUN"
+native_build = "PASS"
+native_build_commit = "108302cff3d7be59800747773017cad688489904"
+native_evidence = "docs/reviews/native-development-run-review.md"
 installation = "NOT RUN"
 hardware_validation = "NOT RUN"
-next_step = "Build/rebuild and exercise the read-only status candidate on the refreshed native snapshot; required safe KSM management and measured target policy remain separate unfinished work."
+next_step = "Two clean native ARM builds and exact byte/payload/metadata comparison passed. Close reviewed lifecycle controller findings, then exercise native install/status/removal; safe KSM management and measured target policy remain unfinished."
 
 [[packages]]
 name = "cachy-asahi-update"

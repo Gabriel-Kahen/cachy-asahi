@@ -440,3 +440,58 @@ and logs: `/tmp/cachy-desktop-copied-g_ui08ll/{regression.json,ci-tests.txt,inte
 No shared lock/Git/dispatch was mutated by this worker; coordinator owns the
 seventh native freeze and actual execution. The publication correction has only
 local replay/source-test acceptance here.
+
+## Repository private-root ldconfig launcher correction
+
+The release owner source-audited pacman `7.1.0.r9.g54d9411` at commit
+`54d94116164b0b2202c6061c4a59c6f3e70820d8`: its built-in private-root ldconfig
+runs after commit and can emit errors while the transaction still returns zero.
+The owner separately implemented exact six-cap observations, positive ancillary
+error rejection and the bound missing-database-signature case. That source audit
+and the seventh-run inventory changes do not establish error-free native execution.
+
+The CI launcher now has a fixed boolean `repository_ldconfig` option requiring
+root, the exact repository nonce-name shape and default root capabilities. Only
+`Controller.repository()` opts in. It adds exactly `SYS_CHROOT`; the existing
+rootcaps interface still refuses that capability, lifecycle retains its separate
+KILL opt-in, and all other launch capabilities, read-only/network/NNP/cgroup/mount
+and resource limits remain as before. No arbitrary extra-capability parameter was
+introduced. Three new regressions cover the added argument, refusal boundaries
+and the actual repository launch against the owner's exact `0x400cb` guard.
+
+Worktree suites pass **334 CI/137 integration tests, zero skips**. A bounded
+independent reviewer found no material defect and passed all six focused
+capability/launch tests. Reviewed CI source hashes are:
+
+| File | SHA-256 |
+| --- | --- |
+| `scripts/ci/integration.py` | `cb6145d94e1b384d2fedc459fbc4b94fe6a53bcb0834d0e90c2ab5a56dd61eb1` |
+| `scripts/ci/test_integration.py` | `62fa9a3843721ccd63fa7b9a4a577cefc1df8db80984255ed4d57b0b2ab046de` |
+
+The owned ephemeral candidate at
+`/tmp/cachy-repository-chroot-copied-atuj7npt/integration.lock.json` hashes to
+`9cfbd847bd2969aadf700b1ebb9943680b064b0ec6570726cdd9389aa31db0bb`.
+Actual freeze/snapshot/copied preflight passed with **159 source files and the
+exact unchanged 125 generated fixture records**. Only the launcher/tests and
+release owner's repository/tests differ from the historical `be5363` map.
+Coordinator adoption, committed Git/fresh-checkout proof, development packet
+rebind and corrected native execution remain pending. This worker wrote no shared
+lock, Git state or dispatch and made no Docker/host package/trust mutation.
+
+Copied suites also passed **334 CI/137 integration tests, zero skips**. The final
+receipt is `/tmp/cachy-repository-chroot-copied-atuj7npt/regression.json`. A final
+read confirmed all 159 selected worktree bytes/modes match the ephemeral candidate.
+The corrected CI launcher and tests are **HELD at the reviewed hashes above**
+for coordinator adoption and the subsequent combined packet rebind.
+
+Coordinator adoption: root independently regenerated the same `9cfbd847...`
+159-source/125-fixture lock and checked every current selected byte and mode.
+Root repeated the full **334 CI / 137 integration tests**, zero skips; the real
+temporary GPG fixture required the permitted local socket environment. The
+[independent launch/diagnostic review](../reviews/repository-chroot-review.md)
+passed 26 focused tests, 320 single-bit capability deviations, NNP rejection and
+replays of the retained actual positive/missing-signature diagnostics.
+The shared initial lock is now adopted. Commit/fresh-checkout proof and the
+corrected actual native trial follow separately. The broader packet remains
+historical until its client, virtual and ARM-C01 corrections are jointly frozen;
+it is not needed to execute the corrected original integration alone.

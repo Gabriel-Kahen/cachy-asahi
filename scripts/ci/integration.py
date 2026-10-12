@@ -426,8 +426,12 @@ def artifact(directory, name):
     return path, {'name': name, 'version': info['pkgver'][0], 'sha256': expected, 'payload_sha256': payload}
 
 
-def command(image, name, binds, *, root=False, writable=False, tmpfs=None, env=None, rootcaps=None):
+def command(image, name, binds, *, root=False, writable=False, tmpfs=None, env=None, rootcaps=None,
+            repository_ldconfig=False):
     need(re.fullmatch(r'sha256:[0-9a-f]{64}', image or ''), 'immutable local image required')
+    need(type(repository_ldconfig) is bool and (not repository_ldconfig or
+         (root and rootcaps is None and re.fullmatch(r'cachy-asahi-repository-[0-9a-f]{32}', name))),
+         'repository ldconfig requires its dedicated root launch')
     args = ['docker', 'run', '--name', name, '--pull=never', '--platform=linux/arm64',
             '--user', '0:0' if root else f'{os.getuid()}:{os.getgid()}',
             '--network=none', '--cgroupns=private', '--cap-drop=ALL', '--security-opt=no-new-privileges',
@@ -435,6 +439,8 @@ def command(image, name, binds, *, root=False, writable=False, tmpfs=None, env=N
     if root:
         capabilities = tuple(CAPS if rootcaps is None else rootcaps)
         need(len(capabilities) == len(set(capabilities)) and set(capabilities) <= set((*CAPS, 'KILL')), 'unreviewed root capabilities')
+        if repository_ldconfig:
+            capabilities += ('SYS_CHROOT',)
         for capability in capabilities:
             args += ['--cap-add=' + capability]
     if not writable:
@@ -947,6 +953,7 @@ class Controller:
         native.save(inputs / 'manifest.json', self.repository_contract)
         cmd = command(self.image, 'cachy-asahi-repository-' + nonce,
                       [(inputs, '/inputs', True), (runner, '/runner', True), (raw, '/out', False)], root=True,
+                      repository_ldconfig=True,
                       tmpfs={'/scratch': 'rw,nosuid,nodev,exec,size=6g,mode=0700', '/test-home': 'rw,nosuid,nodev,exec,size=128m,mode=0700'},
                       env={'CACHY_ASAHI_REPOSITORY_CONTAINER': '1', 'CACHY_ASAHI_DISPOSABLE_REPOSITORY': nonce, 'CACHY_ASAHI_IMAGE_ID': self.image})
         cmd += ['-B', '/runner/repository.py', '--inputs', '/inputs/manifest.json', '--inputs-sha256', native.sha(inputs / 'manifest.json'), '--allow-disposable-repository-test']

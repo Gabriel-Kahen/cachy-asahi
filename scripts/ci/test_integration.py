@@ -144,6 +144,60 @@ class Boundaries(unittest.TestCase):
         with self.assertRaises(ValueError):
             i.command(**base, rootcaps=('SYS_ADMIN',))
 
+    def test_repository_ldconfig_adds_only_chroot_and_preserves_isolation(self):
+        base = dict(image='sha256:' + 'a' * 64, name='cachy-asahi-repository-' + 'b' * 32,
+                    binds=[(self.root, '/inputs', True)], root=True)
+        default = i.command(**base)
+        repository = i.command(**base, repository_ldconfig=True)
+        self.assertEqual([arg for arg in repository if arg != '--cap-add=SYS_CHROOT'], default)
+        self.assertEqual(repository.count('--cap-add=SYS_CHROOT'), 1)
+        self.assertNotIn('--cap-add=KILL', repository)
+        for arg in ('--read-only', '--network=none', '--cap-drop=ALL',
+                    '--security-opt=no-new-privileges', '--cgroupns=private', '--pids-limit=512'):
+            self.assertIn(arg, repository)
+
+    def test_repository_ldconfig_refuses_other_launches_and_custom_caps(self):
+        base = dict(image='sha256:' + 'a' * 64, name='cachy-asahi-repository-' + 'b' * 32,
+                    binds=[(self.root, '/inputs', True)], root=True)
+        for change in ({'root': False}, {'name': 'cachy-asahi-lifecycle-' + 'b' * 32},
+                       {'rootcaps': (*i.CAPS, 'KILL')}, {'repository_ldconfig': 'yes'}):
+            with self.subTest(change=change), self.assertRaises(ValueError):
+                i.command(**(base | {'repository_ldconfig': True} | change))
+        with self.assertRaises(ValueError):
+            i.command(**base, rootcaps=(*i.CAPS, 'SYS_CHROOT'))
+
+    def test_repository_controller_launch_matches_exact_owner_privilege_guard(self):
+        controller = self.controller()
+        controller.archives = self.root / 'archives'; controller.archives.mkdir()
+        controller.source = self.root / 'source'
+        runner = controller.source / 'scripts/integration/repository.py'
+        runner.parent.mkdir(parents=True)
+        shutil.copyfile(Path(__file__).resolve().parents[1] / 'integration/repository.py', runner)
+        controller.native_out = self.root / 'native'; controller.native_out.mkdir()
+        (controller.native_out / 'packages.lock').write_text('base 1-1\n')
+        controller.image = 'sha256:' + 'a' * 64
+        controller.commit = 'b' * 40
+        controller.rows = {'baseline': [], 'upgrade': []}
+        raw = self.root / 'raw'; raw.mkdir()
+        def execute(command, log):
+            bits = {'CHOWN': 0, 'DAC_OVERRIDE': 1, 'FOWNER': 3, 'SETGID': 6, 'SETUID': 7, 'SYS_CHROOT': 18}
+            capabilities = [arg.removeprefix('--cap-add=') for arg in command if arg.startswith('--cap-add=')]
+            self.assertEqual(set(capabilities), set(bits))
+            self.assertEqual(len(capabilities), 6)
+            mask = sum(1 << bits[name] for name in capabilities)
+            owner_spec = importlib.util.spec_from_file_location('repository_guard', runner)
+            owner = importlib.util.module_from_spec(owner_spec); owner_spec.loader.exec_module(owner)
+            observed = ''.join(f'{name}:\t{mask if name in ("CapEff", "CapPrm", "CapBnd") else 0:x}\n'
+                               for name in owner.CAP_FIELDS) + 'NoNewPrivs:\t1\n'
+            self.assertEqual(owner.privileges(observed)['CapEff'], 0x400cb)
+            for arg in ('--read-only', '--network=none', '--security-opt=no-new-privileges'):
+                self.assertIn(arg, command)
+            i.native.save(raw / 'result.json', {'status': 'PASS'})
+        with patch.object(i, 'execute_container', side_effect=execute) as launched, \
+             patch.object(i, 'retain_outer_log'), patch.object(i.repository_projection, 'project', return_value={'status': 'PASS'}):
+            controller.repository(raw)
+        launched.assert_called_once()
+
     def test_mount_refuses_host_system_and_tags(self):
         for image, target in [('latest', '/inputs'), ('sha256:' + 'a' * 64, '/etc')]:
             with self.assertRaises(ValueError):

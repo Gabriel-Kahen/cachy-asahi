@@ -138,15 +138,48 @@ class RepositoryTests(unittest.TestCase):
             with self.subTest(path=path), self.assertRaises(r.Refused):r.validate_mounts(bad)
 
     def test_all_actual_capability_sets_and_no_new_privileges_required(self):
-        good = '\n'.join(f'{name}:\t{r.SAFE_CAPS:x}' for name in r.CAP_FIELDS) + '\nNoNewPrivs:\t1\n'
+        good = '\n'.join(f'{name}:\t{r.SAFE_CAPS if name in {"CapEff", "CapPrm", "CapBnd"} else 0:x}' for name in r.CAP_FIELDS) + '\nNoNewPrivs:\t1\n'
         self.assertEqual(r.privileges(good)['CapEff'], r.SAFE_CAPS)
         for field in r.CAP_FIELDS:
+            value = r.SAFE_CAPS if field in {'CapEff', 'CapPrm', 'CapBnd'} else 0
             for forbidden in (1 << 5, 1 << 21, 1 << 27, 1 << 31):
-                bad = good.replace(f'{field}:\t{r.SAFE_CAPS:x}', f'{field}:\t{r.SAFE_CAPS | forbidden:x}')
-                with self.subTest(field=field, bit=forbidden), self.assertRaisesRegex(r.Refused, 'five-cap'):
+                bad = good.replace(f'{field}:\t{value:x}', f'{field}:\t{value | forbidden:x}')
+                with self.subTest(field=field, bit=forbidden), self.assertRaisesRegex(r.Refused, 'six-cap'):
                     r.privileges(bad)
-            with self.assertRaises(r.Refused):r.privileges(good.replace(f'{field}:\t{r.SAFE_CAPS:x}', ''))
+            with self.assertRaises(r.Refused):r.privileges(good.replace(f'{field}:\t{value:x}', ''))
         with self.assertRaisesRegex(r.Refused, 'no-new-privileges'):r.privileges(good.replace('NoNewPrivs:\t1', 'NoNewPrivs:\t0'))
+
+    def test_sys_chroot_is_required_only_in_exact_repository_effective_permitted_bounding_mask(self):
+        self.assertEqual(r.SAFE_CAPS, 0x400cb)
+        good = '\n'.join(f'{name}:\t{r.SAFE_CAPS if name in {"CapEff", "CapPrm", "CapBnd"} else 0:x}' for name in r.CAP_FIELDS) + '\nNoNewPrivs:\t1\n'
+        for field in ('CapEff', 'CapPrm', 'CapBnd'):
+            with self.subTest(field=field), self.assertRaisesRegex(r.Refused, 'six-cap'):
+                r.privileges(good.replace(f'{field}:\t{r.SAFE_CAPS:x}', f'{field}:\tcb'))
+        for field in ('CapInh', 'CapAmb'):
+            with self.subTest(field=field), self.assertRaisesRegex(r.Refused, 'six-cap'):
+                r.privileges(good.replace(f'{field}:\t0', f'{field}:\t40000'))
+
+    def test_zero_exit_native_ancillary_errors_cannot_pass_positive_pacman(self):
+        self.runner.keys['verifier'] = {'home': self.runner.home / 'verifier'}
+        actual = b'installing cachy-asahi-setup...\ncould not change the root directory (Operation not permitted)\nerror: command failed to execute correctly\n'
+        for output in (actual, b'upgrading fixture...\nerror: command failed to execute correctly\n',
+                       b'upgrading fixture...\ncould not change the root directory (Operation not permitted)\n'):
+            result = subprocess.CompletedProcess([], 0, output)
+            with self.subTest(output=output), mock.patch.object(r.subprocess, 'run', return_value=result):
+                with self.assertRaisesRegex(r.Refused, 'ancillary execution diagnostic'):
+                    self.runner.pacman('trusted-full-install', ['-Syyu', '--noscriptlet'])
+            self.assertEqual((self.runner.out / self.runner.receipts[-1]['log']).read_bytes(), output)
+
+    def test_positive_diagnostics_checks_query_stderr_without_filtering_inventory(self):
+        self.runner.keys['verifier'] = {'home': self.runner.home / 'verifier'}
+        result = subprocess.CompletedProcess([], 0, b'runtime 1-1\n', b'error: command failed to execute correctly\n')
+        with mock.patch.object(r.subprocess, 'run', return_value=result):
+            with self.assertRaisesRegex(r.Refused, 'ancillary execution diagnostic'):
+                self.runner.pacman('query', ['-Q'])
+        result.stderr = b'warning: optional TEST fixture notice\n'
+        with mock.patch.object(r.subprocess, 'run', return_value=result):
+            self.assertEqual(self.runner.pacman('query', ['-Q']), 'runtime 1-1\n')
+        self.assertEqual(self.runner.receipts[-1]['positive_diagnostics'], 'PASS')
 
     def test_device_socket_and_standard_identity_exposure_refused(self):
         good = {'devices': {path: {'kind': 'char', 'major': major, 'minor': minor}
@@ -173,7 +206,7 @@ class RepositoryTests(unittest.TestCase):
         self.assertEqual(observed['sockets'], ['/dev/sock'])
 
     def test_full_guard_bad_mount_caps_and_devices_refuse_before_input_or_commands(self):
-        good_status = '\n'.join(f'{name}:\t{r.SAFE_CAPS:x}' for name in r.CAP_FIELDS) + '\nNoNewPrivs:\t1\n'
+        good_status = '\n'.join(f'{name}:\t{r.SAFE_CAPS if name in {"CapEff", "CapPrm", "CapBnd"} else 0:x}' for name in r.CAP_FIELDS) + '\nNoNewPrivs:\t1\n'
         good_exposure = {'devices': {p: {'kind': 'char', 'major': major, 'minor': minor}
                                     for p, (major, minor) in r.STANDARD_DEVICES.items()}, 'sockets': []}
         bad_mount = self.mount_contract()
@@ -181,7 +214,7 @@ class RepositoryTests(unittest.TestCase):
         bad_exposure = copy.deepcopy(good_exposure)
         bad_exposure['devices']['/dev/gpu'] = {'kind': 'char', 'major': 226, 'minor': 0}
         cases = ((bad_mount, good_status, good_exposure, 'unexpected/nested'),
-                 (self.mount_contract(), good_status.replace(f'CapBnd:\t{r.SAFE_CAPS:x}', 'CapBnd:\t200000'), good_exposure, 'five-cap'),
+                 (self.mount_contract(), good_status.replace(f'CapBnd:\t{r.SAFE_CAPS:x}', 'CapBnd:\t200000'), good_exposure, 'six-cap'),
                  (self.mount_contract(), good_status, bad_exposure, 'device'))
         args = argparse.Namespace(allow_disposable_repository_test=True, inputs='/inputs/manifest.json')
         env = {'CACHY_ASAHI_REPOSITORY_CONTAINER': '1', 'CACHY_ASAHI_DISPOSABLE_REPOSITORY': 'a' * 32,
@@ -254,6 +287,139 @@ class RepositoryTests(unittest.TestCase):
         result.stdout = b'invalid PGP signature\n'
         with mock.patch.object(r.subprocess, 'run', return_value=result):
             self.runner.command('right-failure', ['mock'], expected=1, signature_failure=True)
+
+    def missing_database_fixture(self):
+        self.runner.config = self.runner.scratch / 'pacman.conf'
+        self.runner.target = self.runner.scratch / 'system'
+        reference = self.runner.scratch / 'repos/updated-B'
+        reference.mkdir(parents=True)
+        for name in ('integration.db.tar.gz', 'integration.files.tar.gz', 'original.pkg.tar.xz', 'probe.pkg.tar.xz'):
+            (reference / name).write_bytes(b'SYNTHETIC TEST ' + name.encode())
+            (reference / (name + '.sig')).write_bytes(b'SYNTHETIC TEST signature ' + name.encode())
+        for alias, target in (('integration.db', 'integration.db.tar.gz'), ('integration.db.sig', 'integration.db.tar.gz.sig'),
+                              ('integration.files', 'integration.files.tar.gz'), ('integration.files.sig', 'integration.files.tar.gz.sig')):
+            (reference / alias).symlink_to(target)
+        repository = reference.parent / 'missing-database-signature-B'
+        shutil.copytree(reference, repository, symlinks=True)
+        for name in ('integration.db.sig', 'integration.db.tar.gz.sig'):
+            (repository / name).unlink()
+        self.runner.config.write_text(r.STRICT_OPTIONS + r.STRICT_REPOSITORY)
+        self.runner.keys['verifier'] = {'home': self.runner.home / 'verifier'}
+        self.runner.select(repository)
+        return repository, reference, self.runner.missing_database_inputs(repository, reference)
+
+    def missing_database_output(self):
+        return (":: Synchronizing package databases...\n integration downloading...\n"
+                "error: failed retrieving file 'integration.db.sig' from disk : Could not open file "
+                + str(self.runner.scratch / 'repos/active/integration.db.sig')
+                + '\nerror: failed to synchronize all databases (download library error)\n')
+
+    def test_native_missing_database_signature_diagnostic_is_exact(self):
+        # Verbatim four-line diagnostic from native38214941784, with no execution.
+        actual = (":: Synchronizing package databases...\n integration downloading...\n"
+                  "error: failed retrieving file 'integration.db.sig' from disk : Could not open file /scratch/repos/active/integration.db.sig\n"
+                  "error: failed to synchronize all databases (download library error)\n")
+        with mock.patch.object(self.runner, 'scratch', Path('/scratch')):
+            self.runner.missing_database_diagnostic(actual)
+            for bad in (actual.replace('integration.db.sig', 'integration.db'),
+                        actual.replace('integration.db.sig', 'original.pkg.tar.xz.sig'),
+                        actual.replace('/scratch/repos/active/', '/scratch/repos/other/'),
+                        actual.replace('from disk', 'from example.invalid'),
+                        actual.replace('Could not open file', 'Connection refused'),
+                        'error: failed to synchronize all databases (download library error)\n',
+                        actual + 'error: missing dependency\n'):
+                with self.subTest(output=bad), self.assertRaisesRegex(r.Refused, 'exact selected local'):
+                    self.runner.missing_database_diagnostic(bad)
+
+    def test_typed_missing_database_rejection_retains_after_invariants_and_raw_log(self):
+        repository, _, proof = self.missing_database_fixture()
+        before = ({'runtime': '1-1'}, {'owned': {'type': 'regular', 'sha256': 'a' * 64}})
+        result = subprocess.CompletedProcess([], 1, self.missing_database_output().encode())
+        with mock.patch.object(self.runner, 'snapshot', side_effect=[before, before]) as snapshot, \
+                mock.patch.object(r.subprocess, 'run', return_value=result):
+            self.runner.transaction(r.MISSING_DATABASE_CASE, repository, reject=True, missing_database=proof)
+        self.assertEqual(snapshot.call_args_list[-1].args, (r.MISSING_DATABASE_CASE + '-after',))
+        self.assertEqual(self.runner.cases[-1]['rejection_contract'], proof)
+        receipt = self.runner.receipts[-1]
+        self.assertEqual(receipt['signature_rejection_kind'], 'missing-required-local-database-signature')
+        self.assertEqual((self.runner.out / receipt['log']).read_bytes(), result.stdout)
+        self.assertEqual(r.sha(self.runner.out / receipt['log']), receipt['sha256'])
+
+    def test_missing_database_case_rejects_mutation_of_any_other_bytes(self):
+        repository, reference, proof = self.missing_database_fixture()
+        for path in (repository / 'integration.db.tar.gz', repository / 'original.pkg.tar.xz',
+                     repository / 'original.pkg.tar.xz.sig', reference / 'integration.files.tar.gz'):
+            old = path.read_bytes()
+            path.write_bytes(old + b'changed')
+            with self.subTest(path=path), self.assertRaises(r.Refused):
+                self.runner.validate_missing_database(proof)
+            path.write_bytes(old)
+        (repository / 'integration.db').unlink()
+        (repository / 'integration.db').symlink_to('integration.files.tar.gz')
+        with self.assertRaises(r.Refused):self.runner.validate_missing_database(proof)
+
+    def test_missing_database_requires_strict_config_selected_endpoint_and_absent_signatures(self):
+        repository, _, proof = self.missing_database_fixture()
+        self.runner.config.write_text((r.STRICT_OPTIONS + r.STRICT_REPOSITORY).replace('Required', 'Optional'))
+        with self.assertRaisesRegex(r.Refused, 'strict local'):self.runner.validate_missing_database(proof)
+        self.runner.config.write_text(r.STRICT_OPTIONS + r.STRICT_REPOSITORY)
+        active = repository.parent / 'active'
+        active.unlink()
+        active.symlink_to('updated-B')
+        with self.assertRaisesRegex(r.Refused, 'selected'):self.runner.validate_missing_database(proof)
+        active.unlink()
+        active.symlink_to(repository.name)
+        (repository / 'integration.db.sig').symlink_to('missing-target')
+        with self.assertRaises(r.Refused):self.runner.validate_missing_database(proof)
+
+    def test_typed_rejection_is_not_available_to_other_cases_or_operations(self):
+        _, _, proof = self.missing_database_fixture()
+        for label, options, reject in (('missing-package-signature-rejected', ['-Syyu', '--noscriptlet'], True),
+                                       (r.MISSING_DATABASE_CASE, ['-Q'], True),
+                                       (r.MISSING_DATABASE_CASE, ['-Syyu', '--noscriptlet'], False)):
+            with mock.patch.object(r.subprocess, 'run') as command:
+                with self.assertRaisesRegex(r.Refused, 'case-specific'):
+                    self.runner.pacman(label, options, reject=reject, missing_database=proof)
+                command.assert_not_called()
+
+    def test_wrong_negative_diagnostic_still_records_after_snapshot(self):
+        repository, _, proof = self.missing_database_fixture()
+        before = ({'runtime': '1-1'}, {})
+        result = subprocess.CompletedProcess([], 1, b'error: missing dependency\n')
+        with mock.patch.object(self.runner, 'snapshot', side_effect=[before, before]) as snapshot, \
+                mock.patch.object(r.subprocess, 'run', return_value=result):
+            with self.assertRaisesRegex(r.Refused, 'exact selected local'):
+                self.runner.transaction(r.MISSING_DATABASE_CASE, repository, reject=True, missing_database=proof)
+        self.assertEqual(snapshot.call_count, 2)
+        self.assertEqual(self.runner.cases, [])
+
+    def test_database_bytes_must_remain_bound_after_failed_command(self):
+        repository, _, proof = self.missing_database_fixture()
+        result = subprocess.CompletedProcess([], 1, self.missing_database_output().encode())
+        def mutate(*args, **kwargs):
+            (repository / 'integration.db.tar.gz').write_bytes(b'changed during negative transaction')
+            return result
+        with mock.patch.object(r.subprocess, 'run', side_effect=mutate):
+            with self.assertRaises(r.Refused):
+                self.runner.pacman(r.MISSING_DATABASE_CASE, ['-Syyu', '--noscriptlet'], reject=True, missing_database=proof)
+
+    def test_missing_database_diagnostic_cannot_replace_nonzero_exit_requirement(self):
+        _, _, proof = self.missing_database_fixture()
+        result = subprocess.CompletedProcess([], 0, self.missing_database_output().encode())
+        with mock.patch.object(r.subprocess, 'run', return_value=result):
+            with self.assertRaisesRegex(r.Refused, 'unexpected exit 0'):
+                self.runner.pacman(r.MISSING_DATABASE_CASE, ['-Syyu', '--noscriptlet'], reject=True, missing_database=proof)
+
+    def test_typed_missing_database_negative_still_rejects_inventory_or_payload_mutation(self):
+        repository, _, proof = self.missing_database_fixture()
+        before = ({'runtime': '1-1'}, {'owned': {'type': 'regular', 'sha256': 'a' * 64}})
+        after = ({'runtime': '2-1'}, {'owned': {'type': 'regular', 'sha256': 'b' * 64}})
+        result = subprocess.CompletedProcess([], 1, self.missing_database_output().encode())
+        with mock.patch.object(self.runner, 'snapshot', side_effect=[before, after]), \
+                mock.patch.object(r.subprocess, 'run', return_value=result):
+            with self.assertRaisesRegex(r.Refused, 'changed inventory/payload'):
+                self.runner.transaction(r.MISSING_DATABASE_CASE, repository, reject=True, missing_database=proof)
+        self.assertEqual(self.runner.cases, [])
 
     def test_negative_transaction_cannot_change_installed_state(self):
         before = ('fixture 1-1\n', {'path': {'sha256': 'a' * 64}})

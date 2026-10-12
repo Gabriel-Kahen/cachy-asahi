@@ -23,7 +23,7 @@ ORIGINALS = {'cachy-asahi-hyprland-settings', 'cachy-asahi-fish-config',
 FIXTURE = 'cachy-asahi-repository-test-fixture'
 PAYLOAD = 'usr/share/cachy-asahi-repository-TEST/fixture.txt'
 DIGEST = re.compile(r'[0-9a-f]{64}\Z')
-SAFE_CAPS = sum(1 << bit for bit in (0, 1, 3, 6, 7))  # CHOWN/DAC_OVERRIDE/FOWNER/SETGID/SETUID only.
+SAFE_CAPS = sum(1 << bit for bit in (0, 1, 3, 6, 7, 18))  # Also SYS_CHROOT for libalpm's copied-root ldconfig.
 CAP_FIELDS = ('CapEff', 'CapPrm', 'CapBnd', 'CapInh', 'CapAmb')
 BIND_FILESYSTEMS = {'ext4', 'xfs', 'btrfs', 'tmpfs', 'overlay', 'fuse-overlayfs'}
 RUNTIME_FILES = {'/etc/hosts', '/etc/hostname', '/etc/resolv.conf'}
@@ -44,6 +44,10 @@ STANDARD_MOUNTS = {
 }
 STANDARD_DEVICES = {'/dev/null': (1, 3), '/dev/zero': (1, 5), '/dev/full': (1, 7),
                     '/dev/random': (1, 8), '/dev/urandom': (1, 9), '/dev/tty': (5, 0), '/dev/pts/ptmx': (5, 2)}
+STRICT_OPTIONS = ('[options]\nArchitecture = aarch64\nSigLevel = Required TrustedOnly\n'
+                  'LocalFileSigLevel = Required TrustedOnly\nParallelDownloads = 1\n')
+STRICT_REPOSITORY = '[integration]\nSigLevel = Required TrustedOnly\nServer = file:///scratch/repos/active\n'
+MISSING_DATABASE_CASE = 'missing-database-signature-rejected'
 
 
 class Refused(Exception):
@@ -117,7 +121,8 @@ def privileges(text):
     need(all(re.fullmatch(r'[0-9a-fA-F]+', rows.get(name, '').strip()) for name in CAP_FIELDS), 'all five actual capability observations required')
     need(rows.get('NoNewPrivs', '').strip() == '1', 'actual no-new-privileges required')
     result = {name: int(rows[name].strip(), 16) for name in CAP_FIELDS}
-    need(all(not value & ~SAFE_CAPS for value in result.values()), 'capabilities exceed five-cap repository mask')
+    need(all(result[name] == SAFE_CAPS for name in ('CapEff', 'CapPrm', 'CapBnd'))
+         and result['CapInh'] == result['CapAmb'] == 0, 'actual six-cap repository mask required')
     result['NoNewPrivs'] = 1
     return result
 
@@ -301,7 +306,8 @@ class Integration:
         if observed is not None:
             self.result['guard'] = observed
 
-    def command(self, label, argv, *, env=None, expected=0, signature_failure=False, binary=False, stdout_only=False):
+    def command(self, label, argv, *, env=None, expected=0, signature_failure=False, binary=False, stdout_only=False,
+                clean_diagnostics=False):
         process = subprocess.run([str(a) for a in argv], env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE if stdout_only else subprocess.STDOUT, timeout=300)
         output = process.stdout.decode(errors='replace')
         filename = f'{len(self.receipts):03d}-{label}.txt'
@@ -319,6 +325,11 @@ class Integration:
         if signature_failure:
             need(re.search(r'(signature|public key|unknown trust|untrusted|revoked)', output, re.I),
                  f'{label}: failure lacks signature/trust diagnostic')
+        if clean_diagnostics:
+            diagnostics = output + (process.stderr.decode(errors='replace') if stdout_only else '')
+            need(re.search(r'^(?:error\s*:|could not change (?:the root directory|directory)\b)', diagnostics, re.I | re.M) is None,
+                 f'{label}: positive command has error/ancillary execution diagnostic')
+            receipt['positive_diagnostics'] = 'PASS'
         return process.stdout if binary else output
 
     def gpg(self, home):
@@ -446,14 +457,82 @@ class Integration:
             shutil.rmtree(cache)
         cache.mkdir()
 
-    def pacman(self, label, options, *, reject=False):
+    def repository_bytes(self, directory):
+        """Bind every flat repository byte and only the known repo-add aliases."""
+        directory = Path(directory)
+        need(directory.parent == self.scratch / 'repos' and directory.is_dir() and not directory.is_symlink(),
+             'missing-database case requires a private local repository')
+        aliases = {'integration.db': 'integration.db.tar.gz', 'integration.db.sig': 'integration.db.tar.gz.sig',
+                   'integration.files': 'integration.files.tar.gz', 'integration.files.sig': 'integration.files.tar.gz.sig'}
+        result = {}
+        for path in directory.iterdir():
+            need(len(result) < 32, 'repository entry bound exceeded')
+            mode = path.lstat().st_mode
+            if stat.S_ISLNK(mode):
+                target = os.readlink(path)
+                need(aliases.get(path.name) == target and (directory / target).is_file()
+                     and not (directory / target).is_symlink(), 'unexpected repository alias')
+                result[path.name] = {'alias': target, 'sha256': sha(path)}
+            else:
+                need(stat.S_ISREG(mode), 'unexpected repository entry type')
+                result[path.name] = {'sha256': sha(path)}
+        return result
+
+    def missing_database_inputs(self, repository, reference):
+        need(Path(repository).name == 'missing-database-signature-B' and Path(reference).name == 'updated-B',
+             'missing-database case source differs')
+        original = self.repository_bytes(reference)
+        omitted = {'integration.db.tar.gz.sig', 'integration.db.sig'}
+        need(omitted <= set(original) and original.get('integration.db', {}).get('alias') == 'integration.db.tar.gz',
+             'signed reference database/alias required')
+        expected = {name: row for name, row in original.items() if name not in omitted}
+        need(self.repository_bytes(repository) == expected, 'missing-database case changed other repository bytes')
+        return {'kind': 'missing-required-local-database-signature', 'repository': str(repository),
+                'reference': str(reference), 'reference_bytes': original, 'repository_bytes': expected,
+                'missing': sorted(omitted)}
+
+    def validate_missing_database(self, proof):
+        need(set(proof) == {'kind', 'repository', 'reference', 'reference_bytes', 'repository_bytes', 'missing'}
+             and proof['kind'] == 'missing-required-local-database-signature'
+             and proof['missing'] == ['integration.db.sig', 'integration.db.tar.gz.sig'], 'unknown database rejection contract')
+        repository, reference = Path(proof['repository']), Path(proof['reference'])
+        need(self.missing_database_inputs(repository, reference) == proof, 'missing-database case inputs changed')
+        active = self.scratch / 'repos/active'
+        need(active.is_symlink() and os.readlink(active) == repository.name, 'selected missing-database endpoint differs')
+        need(self.config.read_text() == STRICT_OPTIONS + STRICT_REPOSITORY, 'strict local repository signatures required')
+        for name in proof['missing']:
+            path = repository / name
+            need(not path.exists() and not path.is_symlink(), 'database signature must be explicitly absent')
+
+    def missing_database_diagnostic(self, output):
+        # Exact local required-signature retrieval failure; no generic download-error exception.
+        path = re.escape(str(self.scratch / 'repos/active/integration.db.sig'))
+        pattern = (r':: Synchronizing package databases\.\.\.\n integration downloading\.\.\.\n'
+                   r"error: failed retrieving file 'integration\.db\.sig' from disk[ ]*: Could not open file "
+                   + path + r'\nerror: failed to synchronize all databases \(download library error\)\n')
+        need(re.fullmatch(pattern, output) is not None, 'missing-database case lacks exact selected local signature diagnostic')
+
+    def pacman(self, label, options, *, reject=False, missing_database=None):
+        if missing_database is not None:
+            need(label == MISSING_DATABASE_CASE and reject and options == ['-Syyu', '--noscriptlet'],
+                 'typed missing-database rejection is case-specific')
+            self.validate_missing_database(missing_database)
         local_query = bool(options and options[0] in {'-Q', '-Ql', '-Qk', '-Dk'})
         argv = ['pacman', '--config', self.query_config if local_query else self.config, '--root', self.target,
                 '--dbpath', self.target / 'var/lib/pacman', '--cachedir', self.scratch / 'cache',
                 '--gpgdir', self.keys['verifier']['home'], '--hookdir', self.scratch / 'masked-hooks',
                 '--logfile', self.out / 'pacman.log', '--noconfirm', '--color', 'never', *options]
-        return self.command(label, argv, expected='nonzero' if reject else 0, signature_failure=reject,
-                            stdout_only=local_query)
+        try:
+            output = self.command(label, argv, expected='nonzero' if reject else 0,
+                                  signature_failure=reject and missing_database is None, stdout_only=local_query,
+                                  clean_diagnostics=not reject)
+            if missing_database is not None:
+                self.missing_database_diagnostic(output)
+                self.receipts[-1]['signature_rejection_kind'] = missing_database['kind']
+            return output
+        finally:
+            if missing_database is not None:
+                self.validate_missing_database(missing_database)
 
     def inventory(self, label):
         rows = package_inventory(self.pacman(label, ['-Q']))
@@ -500,7 +579,7 @@ class Integration:
             need(not path.exists() and not path.is_symlink(), 'obsolete installed fixture payload was not removed')
 
     def transaction(self, label, repository, *, downgrade=False, reject=False, explicit=False,
-                    expected_packages=None, fixture_version=None):
+                    expected_packages=None, fixture_version=None, missing_database=None):
         need(reject or (expected_packages is not None and set(expected_packages) == ORIGINALS and fixture_version in {'1-1', '2-1'}),
              'successful transaction requires all four expected original versions/payloads')
         before = self.snapshot(label + '-before')
@@ -508,15 +587,21 @@ class Integration:
         opts = ['-Syyuu' if downgrade else '-Syyu', '--noscriptlet']
         if explicit:
             opts += sorted(ORIGINALS | {FIXTURE})
-        self.pacman(label, opts, reject=reject)
-        after = self.snapshot(label + '-after')
-        if reject:
-            need(before == after, label + ': rejected transaction changed inventory/payload')
-        else:
+        try:
+            kwargs = {'missing_database': missing_database} if missing_database is not None else {}
+            self.pacman(label, opts, reject=reject, **kwargs)
+        finally:
+            after = self.snapshot(label + '-after')
+            if reject:
+                need(before == after, label + ': rejected transaction changed inventory/payload')
+        if not reject:
             self.installed(expected_packages, fixture_version)
             need((self.target / PAYLOAD).read_text() == f'SYNTHETIC TEST fixture version {fixture_version[0]}\n',
                  'changed/rolled-back TEST fixture content differs')
-        self.cases.append({'name': label, 'result': 'PASS', 'expected_signature_rejection': reject})
+        case = {'name': label, 'result': 'PASS', 'expected_signature_rejection': reject}
+        if missing_database is not None:
+            case['rejection_contract'] = missing_database
+        self.cases.append(case)
 
     def copy_base(self):
         source_bytes = 0
@@ -549,10 +634,9 @@ class Integration:
                     if not mask.exists() and not mask.is_symlink():
                         mask.symlink_to('/dev/null')
         # Explicit paths, required signatures and a single local repository; no caller pacman config.
-        options = ('[options]\nArchitecture = aarch64\nSigLevel = Required TrustedOnly\n'
-                   'LocalFileSigLevel = Required TrustedOnly\nParallelDownloads = 1\n')
+        options = STRICT_OPTIONS
         self.query_config.write_text(options)  # No registered sync DB can trigger import prompts.
-        self.config.write_text(options + '[integration]\nSigLevel = Required TrustedOnly\nServer = file:///scratch/repos/active\n')
+        self.config.write_text(options + STRICT_REPOSITORY)
         shutil.copyfile(self.config, self.out / 'TEST-pacman.conf')
         shutil.copyfile(self.query_config, self.out / 'TEST-query-pacman.conf')
 
@@ -676,7 +760,8 @@ class Integration:
                 path = missing_database / name
                 if path.exists() or path.is_symlink():
                     path.unlink()
-            self.transaction('missing-database-signature-rejected', missing_database, reject=True)
+            proof = self.missing_database_inputs(missing_database, b)
+            self.transaction(MISSING_DATABASE_CASE, missing_database, reject=True, missing_database=proof)
             # Import revocation locally; never export the sensitive standalone certificate.
             old = self.keys['signer-A']
             certificate = old['home'] / 'openpgp-revocs.d' / (old['fingerprint'] + '.rev')

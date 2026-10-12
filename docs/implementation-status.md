@@ -48,9 +48,11 @@ The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with 
   the original broad private source packet remains uncleared. See
   `docs/port/desktop-coverage.md` and `docs/workstreams/port-resolution.md`.
 - Cachy-update's actual Rust tray and shell updater have a development recipe,
-  adapted behavior and independently authored licensed icons. All 167 registry
-  archive checksums match; unresolved dependency notices, embedded-input and
-  build-script review still block its accepted build. The separate KSM status
+  adapted behavior and independently authored licensed icons. Its reviewed Linux
+  source/dependency/build-script closure and portable materializer are committed
+  with exact input pins. All 167 registry archive checksums match; four historical
+  macOS notice blockers remain excluded and refused. The separate hosted wrapper
+  and actual Rust compilation are still pending. The separate KSM status
   candidate retains GPL provenance and passes local read-only/page-size fixture
   tests. Two clean native package builds now reproduce byte-for-byte in the first
   broader trial. Native installation/removal and required management functionality
