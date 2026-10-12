@@ -4,40 +4,57 @@ October 12, 2026. This record tracks the complete `outline.md` scope; an impleme
 
 The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with owned tasks and corrective next actions in `docs/backlog.md`. The destination now explicitly requires the maintained ARM package repository, native performance engineering, integrated Apple stack, broader Cachy system experience, and complete installation/release lifecycle. Both Air sizes, published final measurements, independent onboarding/contribution, subsequent full-port maintenance release, other-ARM reuse and actual upstream submissions remain required; an early overlay release or feasibility decision would not complete the goal. This scope update does not change any recorded execution result.
 
-Latest coordinator update, October 12, 21:07 UTC. The revised roadmap requires
-R1–R5 and M5–M9; full-port acceptance remains open. Updater7 `38307993177`, from `f7217a1`, is FAIL. The alias correction
-advances past tool resolution and validates the controller, then its compile-gate
-command returns1 before compiler launch. All16 exported public records and
-scoped cleanup/recovery verify; raw child error remains unexported. The exact
-86-file committed closure is4,206,723 bytes. Kernel's three-capability equivalence
-fix is committed at `25b0213`;117-file/inline bootstrap proof passes and native
-trial `38308563102` is running. Kernel6 remains FAIL with cleanup FAIL and its
-actual CapAdd values unknown.
+Latest coordinator update, October 12, 22:03 UTC. The revised roadmap requires
+R1–R5 and M5–M9; full-port acceptance remains open. Updater7 `38307993177`, from
+`f7217a1`, remains FAIL after controller validation: the compile gate returns1
+before compiler launch. All16 public records and scoped cleanup/recovery verify.
+Independent review reproduces stale observer pins; the minimal correction is
+committed/published at `ea9ab8c`, with an exact86-file Git/source proof covering
+4,213,032 bytes. Updater8 `38314402583` is dispatched; its result is pending.
+Kernel7 `38308563102`, from `25b0213`, passes producer, provision and native logic
+probe. The baseline Docker START query returns1; independent worker exit,
+compiler invocation and inner cause remain UNKNOWN. Candidate is NOT RUN;
+scoped cleanup and daemon preservation PASS. A bounded fixed inner-result
+projection is selected for source development. Earlier kernel failures remain.
 
-KSM5 `38303811300` is FAIL: inventory request6 returns0 with the exact341-package
-digest after67,529ms, then reply fails. Actual precleanup producer exit is1;
-mutation remains UNCERTAIN and cleanup FAIL. The original caller exception was
-not exported. A finite180-second adaptation for this exact inventory command,
-clipped to the existing producer deadline, is selected for source development.
-All other commands, acceptance checks and cleanup reserves stay required.
+KSM5 `38303811300` remains FAIL: exact341-package inventory returns after
+67,529ms, then reply fails; precleanup producer exit1, mutation UNCERTAIN and
+cleanup FAIL. The proposed180-second caller adaptation preserves existing
+6600/1650/8460 limits. Its323 author methods pass, but peer review reproduces a
+missing refusal when the same granted function has changed code. A bounded
+code/globals/closure custody correction is assigned before registration.
 
-Installer's original-default tmpfs smoke also fails errno22 at the evidence-FD
-bind; no package method runs. Independent harmless namespace trials reproduce
-inherited-FD mount identity mismatch and a same-directory reopen correction.
-The implementation is active; tiny/full transactions remain unaccepted. Camera
-cancellation source is adopted after30 fresh tests and independent causal/signal
-controls; runtime/backend admission remains absent.
-FDK observer cleanup and callback startup findings require correction before
-adoption. Repository loader correction is adopted source-only; complete adapter
-graph review and actual external-authority callbacks are active.
+Installer evidence namespace, runtime-fixture and writable-adoption corrections
+pass source review. Actual smoke04 passes the readonly barrier and signed tiny
+pair. The expanded current01 trial fails private authentication before commit:
+GPG reports a socket path too long under the long project fixture path. Its nine
+guards pass;16 other transaction methods are NOT RUN. Fresh current02 uses the
+original short default/tmp fixtures and passes all26 selected methods:17 actual
+tiny transaction cases plus nine source/isolation/timeout guards,0 skips,
+22 worker invocations,10 committed and11 commit-started. Parent namespaces and
+protected host metadata remain unchanged. The root process scan is limited to
+the old project fixture path and cannot certify default/tmp process absence;
+fixture teardown and the actual process-group timeout check are separate evidence.
+Independent actual-record review and a bounded path-refusal proposal are active.
+This admits only the selected disposable any/x86 fixtures; real ARM/full-port
+installation and M2 checks are NOT RUN. Historical failures remain recorded.
 
-S01 holds29 source models and a read-only old-Python archive observation matching
-all3,198 ownership paths. At most259 of261 package tuples are available; exact
-NetworkManager/Perl gaps and full image correspondence remain open. A bounded
-read-only image-reader adapter is in development. Opt-in Zsh addon source is committed at `c45a44f` after audited MIT notices,
-12-file hold and isolated x86 ZLE controls; native integration remains pending.
-SVG/Glycin preflight source is held for independent review. No complete install, supported release, both-M2,
-16K, or final performance/power gate is closed.
+Camera cancellation source is committed after independent review; runtime/backend
+admission remains absent. FDK descriptor identity-query repair is active before
+source adoption. Repository adapter correction is held with61 fresh methods and
+an exact243-file source replay,0 actors; independent review is active. Callback
+source is held; actual external authority and future original-only160-file view
+remain unadmitted. Opt-in Zsh addon source is committed at `c45a44f`; same-job
+native adapter source implementation is active. SVG preflight source is committed
+at `0fd7a20`; actual guest integration/decode remain pending.
+
+S01's four original source findings are corrected, with38 core and47 reader
+methods passing. Independent review identifies interrupted descriptor/child/pipe
+disposal and combined-ledger custody gaps; bounded correction is assigned before
+actual image reading. Coverage remains at most259/261, with exact NetworkManager
+and Perl gaps,26 signer-fact gaps, installed trust false and full payload
+correspondence unaccepted. No supported release, both-M2,16K or final
+performance/power gate is closed.
 
 Prior coordinator update, October 12, 19:43 UTC. Updater5 `38296615950` passes
 86-file committed-source authentication, then fails worker1. Its bound diagnostic
