@@ -91,6 +91,8 @@ DIAGNOSTIC_CODES = {
     'guest-ipc-probe-event-refused',
     'guest-ipc-readiness-protocol-refused',
     'guest-phase-event-refused',
+    'guest-process-state-event-refused',
+    'guest-process-state-order-refused',
     'guest-session-frame-proof-refused',
     'guest-session-log-binding-refused',
     'guest-session-log-event-refused',
@@ -579,6 +581,97 @@ def no_reported_config_error_text(value):
            len(value) == 1 and type(value[0]) is str and value[0] == '')
 
 
+def process_diagnostic_order(events):
+    """Failure observations require their actual IPC/monitor prefix; never grant success."""
+    if not any(row['event'] == 'process_state' for row in events):
+        return
+    ipc = {stage: {'attempt': 0, 'elapsed': 0, 'ready': False, 'valid': True,
+                   'correlated': False, 'monitor': False} for stage in ('minimal', 'overlay')}
+    awaiting, observed, completed = None, None, set()
+    before = None
+    essential = []
+    argv = ['/usr/bin/hyprctl', '-j', 'configerrors']
+    for row in events:
+        kind = row['event']
+        correlated = False
+        if observed is not None:
+            stage, boundary = observed
+            if kind == 'process_state':
+                require(boundary == 'before_cleanup' and row['boundary'] == 'after_cleanup' and
+                        row['stage'] == stage, 'guest-process-state-order-refused')
+                for role in ('client', 'compositor'):
+                    prior, later = before[role], row[role]
+                    require(prior['state'] != 'exited' or later['state'] == 'unavailable' or
+                            later['state'] == 'exited' and later['returncode'] == prior['returncode'],
+                            'guest-process-state-order-refused')
+                    require(prior['logging'] not in ('output_overflow', 'drain_error') or later['logging'] != 'ok',
+                            'guest-process-state-order-refused')
+                observed = (stage, 'after_cleanup')
+            else:
+                require(kind == 'guest_failed' or kind == 'session_log' and row['stage'] == stage,
+                        'guest-process-state-order-refused')
+                # A delivered after snapshot immediately follows before; a partial failure may omit it.
+                observed = (stage, 'terminal')
+            continue
+        if awaiting is not None:
+            stage, reply = awaiting
+            match = kind == 'command' and row['argv'] == argv and type(row['returncode']) is int and \
+                    all(row[field] == reply[field] for field in ('returncode', 'error', 'stdout', 'stderr'))
+            ipc[stage]['correlated'] = match
+            ipc[stage]['valid'] = ipc[stage]['valid'] and match
+            correlated = match
+            awaiting = None
+        if kind == 'ipc_probe':
+            state = ipc[row['stage']]
+            prefix = [('boot', None), ('gbm_pass', None)]
+            if row['stage'] == 'overlay':
+                prefix += [('frame_ready', 'minimal'), ('phase_pass', 'minimal')]
+            state['valid'] = state['valid'] and essential == prefix and not state['ready'] and \
+                    row['attempt'] == state['attempt'] + 1 and state['elapsed'] <= row['elapsed_ms'] < 180000
+            state['attempt'], state['elapsed'] = row['attempt'], row['elapsed_ms']
+            if row['returncode'] == 6:
+                state['valid'] = state['valid'] and row['error'] is None and row['stderr'] == '' and \
+                        row['stdout'] == "Hyprland IPC didn't respond in time\n\nCouldn't read (6)\n"
+            else:
+                try:
+                    ready = row['returncode'] == 0 and row['error'] is None and row['stderr'] == '' and \
+                            no_reported_config_error_text(json.loads(row['stdout']))
+                except (ValueError, TypeError):
+                    ready = False
+                state['valid'] = state['valid'] and ready
+                state['ready'] = ready
+                awaiting = (row['stage'], row)
+        elif kind == 'command' and row['argv'] == argv:
+            require(correlated, 'guest-process-state-order-refused')
+        elif kind == 'command' and row['argv'] == ['/usr/bin/hyprctl', '-j', 'monitors']:
+            for state in ipc.values():
+                if state['correlated'] and state['valid']:
+                    try:
+                        monitors = json.loads(row['stdout'])
+                        positive = type(monitors) is list and any(type(m) is dict and
+                                   type(m.get('width')) is int and m['width'] > 0 and
+                                   type(m.get('height')) is int and m['height'] > 0 for m in monitors)
+                    except (ValueError, TypeError):
+                        positive = False
+                    state['monitor'] = type(row['returncode']) is int and row['returncode'] == 0 and \
+                            row['error'] is None and type(row['stderr']) is str and positive
+        elif kind == 'phase_pass':
+            require(row['stage'] in ('minimal', 'overlay'), 'guest-process-state-order-refused')
+            completed.add(row['stage'])
+        elif kind == 'guest_failed':
+            require(False, 'guest-process-state-order-refused')
+        elif kind == 'process_state':
+            state = ipc[row['stage']]
+            require(row['boundary'] == 'before_cleanup' and state['valid'] and state['ready'] and
+                    state['correlated'] and state['monitor'] and row['stage'] not in completed and
+                    (row['stage'] == 'minimal' or 'minimal' in completed),
+                    'guest-process-state-order-refused')
+            observed = (row['stage'], row['boundary'])
+            before = row
+        if kind not in ('command', 'session_log', 'ipc_probe', 'process_state'):
+            essential.append((kind, row.get('stage')))
+
+
 def read_events(path, policy, *, data=None):
     """Inspect the known encoded terminal records before any public copying."""
     data = read_regular(path, LIMIT) if data is None else data
@@ -601,10 +694,22 @@ def read_events(path, policy, *, data=None):
         'guest_failed': {'event', 'error', 'hardware_validation'},
         'command': {'event', 'argv', 'returncode', 'error', 'stdout', 'stderr'},
         'ipc_probe': {'event', 'stage', 'attempt', 'elapsed_ms', 'returncode', 'error', 'stdout', 'stderr'},
+        'process_state': {'event', 'stage', 'boundary', 'client', 'compositor'},
         'session_log': {'event', 'stage', 'filename', 'sha256', 'base64'}}
     for event in events:
         require(isinstance(event.get('event'), str) and event['event'] in schemas and
                 set(event) == schemas[event['event']], 'unknown-guest-event-fields-refused')
+        if event['event'] == 'process_state':
+            require(event['stage'] in ('minimal', 'overlay') and
+                    event['boundary'] in ('before_cleanup', 'after_cleanup'), 'guest-process-state-event-refused')
+            for role in ('client', 'compositor'):
+                row = event[role]
+                require(type(row) is dict and set(row) == {'state', 'returncode', 'logging'} and
+                        row['state'] in ('alive', 'exited', 'unavailable') and
+                        row['logging'] in ('ok', 'output_overflow', 'drain_error', 'unavailable') and
+                        (row['state'] == 'exited' and type(row['returncode']) is int and -64 <= row['returncode'] <= 255 or
+                         row['state'] in ('alive', 'unavailable') and row['returncode'] is None),
+                        'guest-process-state-event-refused')
         if event['event'] == 'ipc_probe':
             require(event['stage'] in ('minimal', 'overlay') and
                     type(event['attempt']) is int and 1 <= event['attempt'] <= 24 and
@@ -633,6 +738,7 @@ def read_events(path, policy, *, data=None):
             normalized = ''.join(c for c in normalized if ord(c) >= 32 or c in '\n\r\t')
             require(not policy.PRIVATE_CONTENT.search(text) and not policy.PRIVATE_CONTENT.search(normalized),
                     'private-guest-session-log-refused')
+    process_diagnostic_order(events)
     return events, hashlib.sha256(data).hexdigest()
 
 

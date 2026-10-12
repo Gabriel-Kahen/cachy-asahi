@@ -117,13 +117,52 @@ def terminate(process):
         process.wait(timeout=5)
 
 
+def process_observation(process, collector, errors, finished=None):
+    row = {'state': 'unavailable', 'returncode': None, 'logging': 'unavailable'}
+    if process is not None:
+        try:
+            code = process.poll()
+            require(code is None or type(code) is int and -64 <= code <= 255, 'invalid process observation')
+            row.update(state='alive' if code is None else 'exited', returncode=code)
+        except BaseException as exc:
+            errors.append(exc)
+    if collector is not None:
+        try:
+            error = collector.error
+            if error is None or type(error) is str:
+                row['logging'] = ('output_overflow' if error == 'output overflow' else
+                                  'ok' if error is None and finished is not False else 'drain_error')
+        except BaseException as exc:
+            errors.append(exc)
+    return row
+
+
 def phase(stage, config, env, root):
     log = root / (stage + '.log')
     compositor, client = None, None
     collectors = []
+    compositor_collector = client_collector = None
+    before_cleanup = None
+    cleanup_errors = []
+    client_retained = False
     instances = Path(env['XDG_RUNTIME_DIR']) / 'hypr'
     previous = set(instances.glob('*'))
     private_log = None
+    def observations(errors, finished=None):
+        return {role: process_observation(process, collector, errors,
+                                         None if finished is None else finished.get(id(collector), False))
+                for role, process, collector in (('client', client, client_collector),
+                                                 ('compositor', compositor, compositor_collector))}
+    def alive():
+        nonlocal before_cleanup
+        errors = []
+        rows = observations(errors)
+        if errors or any(row['state'] != 'alive' for row in rows.values()):
+            before_cleanup = rows
+            if errors:
+                raise errors[0]
+            return False
+        return True
     def check_logs(check_size=True):
         nonlocal private_log
         created = set(instances.glob('*')) - previous
@@ -138,6 +177,7 @@ def phase(stage, config, env, root):
     try:
         collector = LoggedProcess(['/usr/bin/Hyprland', '--config', str(config)], log, env=env)
         collectors.append(collector)
+        compositor_collector = collector
         compositor = collector.process
         env = wait_for_ipc(stage, compositor, env, log, check_logs)
         monitors = json.loads(command(['/usr/bin/hyprctl', '-j', 'monitors'], env))
@@ -150,13 +190,14 @@ def phase(stage, config, env, root):
         collector = LoggedProcess(['/usr/bin/wofi', '--normal-window', '--show', 'dmenu', '--prompt', 'Generic ARM software proof', '--width', '420', '--height', '220'],
                                   client_log, env=env, stdin=subprocess.PIPE)
         collectors.append(collector)
+        client_collector = collector
         client = collector.process
         client.stdin.write(b'cachy-asahi software proof\nNo Apple hardware claim\n')
         client.stdin.close()
         deadline = time.monotonic() + 45
         while time.monotonic() < deadline:
             check_logs()
-            require(client.poll() is None and compositor.poll() is None, 'client/compositor exited before frame')
+            require(alive(), 'client/compositor exited before frame')
             require(log.stat().st_size <= MAX_LOG and client_log.stat().st_size <= MAX_LOG, 'session/client log overflow')
             clients = json.loads(command(['/usr/bin/hyprctl', '-j', 'clients'], env))
             if any(c.get('pid') == client.pid and c.get('mapped') is True and
@@ -170,7 +211,7 @@ def phase(stage, config, env, root):
         until = time.monotonic() + 15
         while time.monotonic() < until:
             check_logs()
-            require(client.poll() is None and compositor.poll() is None and
+            require(alive() and
                     log.stat().st_size <= MAX_LOG and client_log.stat().st_size <= MAX_LOG,
                     'session failed/overflowed during capture window')
             time.sleep(.25)
@@ -178,32 +219,64 @@ def phase(stage, config, env, root):
         client = None
         collectors[-1].finish()
         retained(client_log, stage)
+        client_retained = True
         command(['/usr/bin/hyprctl', 'dispatch', 'exit'], env)
         compositor.wait(timeout=15)
         require(compositor.returncode == 0, 'unclean compositor shutdown')
         emit('phase_pass', stage=stage)
     finally:
         failure = sys.exc_info()[1]
-        cleanup_errors = []
-        if client and client.poll() is None:
+        diagnostic = failure is not None and client is not None
+        before_emitted = False
+        if diagnostic:
+            if before_cleanup is None:
+                before_cleanup = observations(cleanup_errors)
             try:
-                terminate(client)
-            except Exception as exc:
+                emit('process_state', stage=stage, boundary='before_cleanup', **before_cleanup)
+                before_emitted = True
+            except BaseException as exc:
                 cleanup_errors.append(exc)
-        if compositor and compositor.poll() is None:
+        for role, process in (('client', client), ('compositor', compositor)):
+            if process is None:
+                continue
             try:
-                terminate(compositor)
-            except Exception as exc:
+                running = before_cleanup[role]['state'] != 'exited' if diagnostic else process.poll() is None
+                if running:
+                    terminate(process)
+            except BaseException as exc:
                 cleanup_errors.append(exc)
+        finished = {}
         for collector in collectors:
             try:
                 collector.finish()
-            except Exception as exc:
+                finished[id(collector)] = True
+            except BaseException as exc:
+                finished[id(collector)] = False
                 cleanup_errors.append(exc)
+        if diagnostic:
+            after_cleanup = observations(cleanup_errors, finished)
+            if before_emitted:
+                try:
+                    emit('process_state', stage=stage, boundary='after_cleanup', **after_cleanup)
+                except BaseException as exc:
+                    cleanup_errors.append(exc)
+            if not client_retained:
+                try:
+                    require(after_cleanup['client']['state'] == 'exited' and finished.get(id(client_collector)),
+                            'client log reaping/drain incomplete')
+                    data = log_bytes(client_log)
+                    require(len(data) <= MAX_LOG, 'client log overflow')
+                    retained_data(data, client_log.name, stage)
+                except BaseException as exc:
+                    cleanup_errors.append(exc)
+                    try:
+                        retained_data(b'client log unavailable\n', stage + '-client.log', stage)
+                    except BaseException as diagnostic_error:
+                        cleanup_errors.append(diagnostic_error)
         if log.exists():
             try:
                 retained(log, stage)
-            except Exception as exc:
+            except BaseException as exc:
                 cleanup_errors.append(exc)
         # Fixed file only, after reaping. Never export an instance directory.
         private_retained = False
@@ -216,18 +289,18 @@ def phase(stage, config, env, root):
             retained(destination, stage)
             private_retained = True
             require(len(data) <= MAX_LOG, 'private compositor log overflow')
-        except Exception as exc:
+        except BaseException as exc:
             cleanup_errors.append(exc)
             if not private_retained:
                 try:
                     retained_data(('private compositor log retention failed: ' + type(exc).__name__ + '\n').encode(),
                                   stage + '-compositor.log', stage)
-                except Exception as diagnostic_error:
+                except BaseException as diagnostic_error:
                     cleanup_errors.append(diagnostic_error)
         if cleanup_errors:
             try:
                 print('guest secondary cleanup failures: ' + ','.join(type(exc).__name__ for exc in cleanup_errors), flush=True)
-            except Exception as diagnostic_error:
+            except BaseException as diagnostic_error:
                 cleanup_errors.append(diagnostic_error)
         if cleanup_errors and failure is None:
             raise cleanup_errors[0]

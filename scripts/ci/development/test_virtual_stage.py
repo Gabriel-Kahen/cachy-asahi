@@ -30,6 +30,12 @@ ACTUAL_MINIMAL_IPC_PROBES = [
      'error': None, 'stdout': ACTUAL_EMPTY_CONFIGERRORS, 'stderr': ''}]
 CONFIGERRORS_REJECTED_PARSED = [[' '], ['\t'], ['\n'], ['\u00a0'], ['real error'], ['', 'real error'],
     ['real error', ''], ['', ''], [['']], [None], [False], [True], [0], {}, None, False, True, '', '[]']
+# Actual run 38283691844 events SHA 4bf9e9d66a1b5e5f7479aafefd1928e44d9743804ae79d02003cae561693a448.
+ACTUAL_FRAME_EXIT_IPC_PROBES = [
+    dict(ACTUAL_MINIMAL_IPC_PROBES[0], elapsed_ms=9441),
+    dict(ACTUAL_MINIMAL_IPC_PROBES[1], elapsed_ms=15573),
+    dict(ACTUAL_MINIMAL_IPC_PROBES[0], attempt=3, elapsed_ms=21716),
+    dict(ACTUAL_MINIMAL_IPC_PROBES[2], attempt=4, elapsed_ms=23097)]
 
 
 # Exact public baseline metadata/signatures from native run 38218102399.
@@ -1309,6 +1315,264 @@ finally:
                 self.assertFalse((self.output / 'virtual-public/minimal-frame').exists())
                 self.assertFalse((self.output / 'virtual-public/overlay-frame').exists())
                 shutil.rmtree(self.output)
+
+    @staticmethod
+    def process_role(state='alive', returncode=None, logging='ok'):
+        return {'state': state, 'returncode': returncode, 'logging': logging}
+
+    def process_snapshot(self, stage='minimal', boundary='before_cleanup', **roles):
+        return {'event': 'process_state', 'stage': stage, 'boundary': boundary,
+                'client': self.process_role('exited', 0), 'compositor': self.process_role()} | roles
+
+    def process_failure_fixture(self, events, stage='minimal', before=None, after=None):
+        """Failure-only host diagnostics; independently sampled roles are not death order."""
+        index = self.event_index(events, 'ipc_probe')
+        events[index:index + 2] = [*copy.deepcopy(ACTUAL_FRAME_EXIT_IPC_PROBES),
+                                  self.ipc_command(stdout=ACTUAL_EMPTY_CONFIGERRORS)]
+        prefix = events[:self.event_index(events, 'frame_ready', stage)]
+        prefix.extend([{'event': 'command', 'argv': ['/usr/bin/hyprctl', '-j', 'monitors'],
+                        'returncode': 0, 'error': None, 'stdout': '[{"width":1024,"height":768}]\n', 'stderr': ''},
+                       {'event': 'command', 'argv': ['/usr/bin/hyprctl', '-j', 'clients'],
+                        'returncode': 0, 'error': None, 'stdout': '[]\n', 'stderr': ''}])
+        data = b'client log unavailable after failed capture or drain\n'
+        prefix.extend([before or self.process_snapshot(stage),
+                       after or self.process_snapshot(stage, 'after_cleanup',
+                        client=self.process_role('exited', 0), compositor=self.process_role('exited', -15)),
+                       {'event': 'session_log', 'stage': stage, 'filename': stage + '-client.log',
+                        'sha256': sha(data), 'base64': base64.b64encode(data).decode()},
+                       {'event': 'guest_failed', 'error': 'client/compositor exited before frame', 'hardware_validation': 'NOT RUN'}])
+        events[:] = prefix
+
+    def test_process_failure_only_snapshots_and_fixed_client_logs_retain_independent_states(self):
+        cases = [
+            ('client-only', self.process_role('exited', 0), self.process_role()),
+            ('compositor-only', self.process_role(), self.process_role('exited', -11)),
+            ('both-exited', self.process_role('exited', 0), self.process_role('exited', 255)),
+            ('exit-lower-bound', self.process_role('exited', -64), self.process_role()),
+            ('post-unavailable-after-known-exit', self.process_role('exited', 0), self.process_role()),
+            ('both-alive', self.process_role(), self.process_role()),
+            ('cancellation-unavailable', self.process_role('unavailable', None, 'unavailable'), self.process_role()),
+            ('both-unavailable', self.process_role('unavailable', None, 'unavailable'), self.process_role('unavailable', None, 'unavailable')),
+            ('logger-overflow', self.process_role(logging='output_overflow'), self.process_role()),
+            ('logger-drain-error', self.process_role(), self.process_role(logging='drain_error'))]
+        for stage in ('minimal', 'overlay'):
+            for label, client, compositor in cases:
+                with self.subTest(stage=stage, case=label):
+                    captured = []
+                    def diagnostics(out):
+                        events = json.loads((out / 'guest-events.json').read_bytes())
+                        # After polls are not assumed to reveal which process naturally exited first.
+                        after = self.process_snapshot(stage, 'after_cleanup', client=copy.deepcopy(client),
+                                                      compositor=copy.deepcopy(compositor))
+                        if label == 'post-unavailable-after-known-exit':
+                            after = self.process_snapshot(stage, 'after_cleanup',
+                                client=self.process_role('unavailable', None, 'unavailable'),
+                                compositor=self.process_role('unavailable', None, 'unavailable'))
+                        self.process_failure_fixture(events, stage, self.process_snapshot(stage, client=client,
+                                                       compositor=compositor), after)
+                        captured.extend(copy.deepcopy(events)); self.failed_events_owner(out, events)
+                    self.ipc_case(diagnostics, 1)
+                    result = self.run_adapter()
+                    self.assertEqual(result['status'], 'FAIL')
+                    public = self.output / 'virtual-public/events/guest-events.json'
+                    self.assertTrue(public.is_file(), result.get('error_code'))
+                    self.assertEqual(json.loads(public.read_bytes()), captured)
+                    self.assertFalse((self.output / 'virtual-public/minimal-frame').exists())
+                    self.assertFalse((self.output / 'virtual-public/overlay-frame').exists())
+                    shutil.rmtree(self.output)
+
+    def test_process_before_only_partial_failure_is_retained_but_never_success(self):
+        for truncated in (False, True):
+            for success_receipt in (False, True):
+                with self.subTest(truncated=truncated, success_receipt=success_receipt):
+                    captured = []
+                    def partial(out):
+                        events = json.loads((out / 'guest-events.json').read_bytes())
+                        self.process_failure_fixture(events)
+                        events[:] = [event for event in events if not
+                                     (event['event'] == 'process_state' and event['boundary'] == 'after_cleanup')]
+                        if truncated:
+                            events[:] = events[:self.event_index(events, 'process_state') + 1]
+                        captured.extend(copy.deepcopy(events))
+                        if success_receipt:
+                            self.put_json(out / 'guest-events.json', events)
+                            self.mutate(out / 'result.json', lambda receipt: receipt.update(guest_events_sha256=v.digest(out / 'guest-events.json')))
+                        else:
+                            self.failed_events_owner(out, events)
+                    self.ipc_case(partial, 0 if success_receipt else 1)
+                    result = self.run_adapter(); self.assertEqual(result['status'], 'FAIL')
+                    if not success_receipt:
+                        self.assertEqual(json.loads((self.output / 'virtual-public/events/guest-events.json').read_bytes()), captured)
+                    self.assertFalse((self.output / 'virtual-public/minimal-frame').exists())
+                    self.assertFalse((self.output / 'virtual-public/overlay-frame').exists())
+                    shutil.rmtree(self.output)
+
+    def test_process_snapshot_closed_schema_role_types_ranges_and_privacy_refuse_before_copy(self):
+        snapshot = self.process_snapshot()
+        variants = [('missing-' + field, {key: value for key, value in snapshot.items() if key != field}) for field in snapshot]
+        variants += [('extra-outer', snapshot | {'exception': 'password=PROCESS_PRIVATE_SENTINEL'}),
+                     ('invalid-stage', snapshot | {'stage': 'native'}), ('bool-stage', snapshot | {'stage': False}),
+                     ('invalid-boundary', snapshot | {'boundary': 'natural_exit'}), ('bool-boundary', snapshot | {'boundary': True})]
+        for role in ('client', 'compositor'):
+            changes = [('state', 'unknown'), ('state', False), ('returncode', False), ('returncode', 0.0),
+                       ('returncode', -65), ('returncode', 256), ('logging', 'password=PROCESS_PRIVATE_SENTINEL'),
+                       ('logging', 'drain_error: raw exception'), ('logging', False), ('logging', None)]
+            for key, value in changes:
+                row = copy.deepcopy(snapshot); row[role] = self.process_role('exited', 0) | {key: value}
+                variants.append((role + '-' + key + '-' + str(value), row))
+            for state, code in (('alive', 0), ('unavailable', -9), ('exited', None)):
+                row = copy.deepcopy(snapshot); row[role] = self.process_role(state, code)
+                variants.append((role + '-inconsistent-' + state, row))
+            for key in ('state', 'returncode', 'logging'):
+                row = copy.deepcopy(snapshot); del row[role][key]; variants.append((role + '-missing-' + key, row))
+            for bad in (None, False, [], 'password=PROCESS_PRIVATE_SENTINEL'):
+                variants.append((role + '-wrong-container', snapshot | {role: bad}))
+            row = copy.deepcopy(snapshot); row[role]['pid'] = 123; variants.append((role + '-extra-field', row))
+        for boundary in ('before_cleanup', 'after_cleanup'):
+            for label, row in variants:
+                with self.subTest(boundary=boundary, case=label):
+                    def malformed(out):
+                        events = json.loads((out / 'guest-events.json').read_bytes())
+                        malformed_row = copy.deepcopy(row)
+                        if 'boundary' in malformed_row and not label.endswith('boundary'):
+                            malformed_row['boundary'] = boundary
+                        self.process_failure_fixture(events, **{'before' if boundary == 'before_cleanup' else 'after': malformed_row})
+                        self.failed_events_owner(out, events)
+                    self.ipc_case(malformed, 1)
+                    self.assertEqual(self.run_adapter()['status'], 'FAIL')
+                    self.assertFalse((self.output / 'virtual-public/events').exists())
+                    self.assertNotIn('PROCESS_PRIVATE_SENTINEL', (self.output / 'adapter-status/result.json').read_text())
+                    shutil.rmtree(self.output)
+
+    def test_process_failed_context_requires_raw_ipc_monitors_and_closed_terminal_order(self):
+        def pre(events): return self.event_index(events, 'process_state')
+        def ipc(events): return self.event_index(events, 'ipc_probe')
+        def monitors(events): return next(i for i, event in enumerate(events) if event.get('argv') == ['/usr/bin/hyprctl', '-j', 'monitors'])
+        mutations = [
+            ('after-only', lambda events: events.pop(pre(events))),
+            ('reversed', lambda events: (events.__setitem__(pre(events), self.process_snapshot(boundary='after_cleanup')),
+                                        events.__setitem__(pre(events) + 1, self.process_snapshot()))),
+            ('duplicate-pre', lambda events: events.insert(pre(events), self.process_snapshot())),
+            ('duplicate-after', lambda events: events.insert(pre(events) + 2, self.process_snapshot(boundary='after_cleanup'))),
+            ('switch-stage', lambda events: events[pre(events) + 1].update(stage='overlay')),
+            ('wrong-pre-stage', lambda events: events[pre(events)].update(stage='overlay')),
+            ('known-client-exit-becomes-alive', lambda events: events[pre(events) + 1].update(client=self.process_role())),
+            ('known-client-exit-changes-code', lambda events: events[pre(events) + 1]['client'].update(returncode=-15)),
+            ('known-client-logger-overflow-clears', lambda events: events[pre(events)]['client'].update(logging='output_overflow')),
+            ('known-compositor-logger-drain-error-clears', lambda events: events[pre(events)]['compositor'].update(logging='drain_error')),
+            ('raw-ready-command-mismatch', lambda events: events[ipc(events) + 4].update(stdout='[""]\n')),
+            ('missing-ready-command', lambda events: events.pop(ipc(events) + 4)),
+            ('retry-gap', lambda events: events[ipc(events)].update(attempt=2)),
+            ('retry-fatal', lambda events: events[ipc(events)].update(error='timeout')),
+            ('late-ready', lambda events: events[ipc(events) + 3].update(elapsed_ms=180000)),
+            ('ready-errors', lambda events: events[ipc(events) + 3].update(stdout='["error"]')),
+            ('missing-monitors', lambda events: events.pop(monitors(events))),
+            ('zero-monitor', lambda events: events[monitors(events)].update(stdout='[{"width":0,"height":768}]')),
+            ('bool-monitor', lambda events: events[monitors(events)].update(stdout='[{"width":true,"height":768}]')),
+            ('empty-monitors', lambda events: events[monitors(events)].update(stdout='[]')),
+            ('malformed-monitors', lambda events: events[monitors(events)].update(stdout='not JSON')),
+            ('failed-monitors', lambda events: events[monitors(events)].update(returncode=6)),
+            ('guest-failed-before-pre', lambda events: events.insert(pre(events), events.pop())),
+            ('extra-config-command-before-pre', lambda events: events.insert(pre(events), self.ipc_command(stdout=ACTUAL_EMPTY_CONFIGERRORS))),
+            ('malformed-phase-stage-before-pre', lambda events: events.insert(pre(events), {'event': 'phase_pass', 'stage': 'unknown'})),
+            ('bool-phase-stage-before-pre', lambda events: events.insert(pre(events), {'event': 'phase_pass', 'stage': False})),
+            ('wrong-stage-log', lambda events: events[pre(events) + 2].update(stage='overlay', filename='overlay-client.log')),
+            ('wrong-client-log-hash', lambda events: events[pre(events) + 2].update(sha256='0' * 64)),
+            ('malformed-client-log-base64', lambda events: events[pre(events) + 2].update(base64='!')),
+            ('unknown-client-log-filename', lambda events: events[pre(events) + 2].update(filename='private-client-tree.log')),
+            ('extra-client-log-field', lambda events: events[pre(events) + 2].update(exception='unreviewed')),
+            ('command-after-pre', lambda events: events.insert(pre(events) + 1, self.ipc_command())),
+            ('probe-after-pre', lambda events: events.insert(pre(events) + 1, self.ipc_probe())),
+            ('frame-after-pre', lambda events: events.insert(pre(events) + 1, {'event': 'frame_ready', 'stage': 'minimal',
+                         'monitors': [{'width': 1, 'height': 1}], 'clients': [{'pid': 1, 'mapped': True, 'size': [1, 1]}]})),
+            ('phase-after-pre', lambda events: events.insert(pre(events) + 1, {'event': 'phase_pass', 'stage': 'minimal'})),
+            ('pass-after-pre', lambda events: events.append({'event': 'guest_pass', 'nonce': 'e' * 32,
+                         'software_session': 'PASS', 'hardware_validation': 'NOT RUN', 'graphics_acceleration': 'NOT RUN'})),
+        ]
+        for label, data in (('private-client-log', b'password=PROCESS_PRIVATE_SENTINEL\n'),
+                            ('ansi-private-client-log', b'pass\x1b[32mword=PROCESS_PRIVATE_SENTINEL\n'),
+                            ('overflow-client-log', b'x' * (1024 ** 2 + 1))):
+            mutations.append((label, lambda events, data=data: events[pre(events) + 2].update(
+                               sha256=sha(data), base64=base64.b64encode(data).decode())))
+        cases = [(label, 'minimal', mutation) for label, mutation in mutations]
+        cases.append(('overlay-without-minimal-phase', 'overlay',
+                      lambda events: events.pop(self.event_index(events, 'phase_pass'))))
+        cases.append(('after-delivered-after-client-log', 'minimal',
+                      lambda events: events.insert(pre(events) + 2, events.pop(pre(events) + 1))))
+        for label, stage, mutation in cases:
+            with self.subTest(stage=stage, case=label):
+                def invalid(out):
+                    events = json.loads((out / 'guest-events.json').read_bytes())
+                    self.process_failure_fixture(events, stage)
+                    mutation(events)
+                    self.failed_events_owner(out, events)
+                self.ipc_case(invalid, 1)
+                self.assertEqual(self.run_adapter()['status'], 'FAIL')
+                self.assertFalse((self.output / 'virtual-public/events').exists())
+                self.assertFalse((self.output / 'virtual-public/minimal-frame').exists())
+                self.assertFalse((self.output / 'virtual-public/overlay-frame').exists())
+                shutil.rmtree(self.output)
+
+    def test_process_snapshots_never_promote_any_complete_success_claim(self):
+        for client in (self.process_role(), self.process_role('exited', 0), self.process_role('unavailable', None, 'unavailable')):
+            with self.subTest(client=client):
+                def claim(out):
+                    events = json.loads((out / 'guest-events.json').read_bytes())
+                    self.process_failure_fixture(events, before=self.process_snapshot(client=client))
+                    events[:] = events[:-1] + [{'event': 'guest_pass', 'nonce': 'e' * 32, 'software_session': 'PASS',
+                               'hardware_validation': 'NOT RUN', 'graphics_acceleration': 'NOT RUN'}]
+                    self.put_json(out / 'guest-events.json', events)
+                    self.mutate(out / 'result.json', lambda receipt: receipt.update(guest_events_sha256=v.digest(out / 'guest-events.json')))
+                self.ipc_case(claim)
+                self.assertEqual(self.run_adapter()['status'], 'FAIL')
+                self.assertFalse((self.output / 'virtual-public/minimal-frame').exists())
+                self.assertFalse((self.output / 'virtual-public/overlay-frame').exists())
+                shutil.rmtree(self.output)
+
+    def test_historical_snapshot_free_ten_thirteen_and_thirtyfive_event_failures_remain_diagnostics(self):
+        for count in (10, 13, 35):
+            for success_receipt in (False, True):
+                with self.subTest(count=count, success_receipt=success_receipt):
+                    captured = []
+                    def historical(out):
+                        original = json.loads((out / 'guest-events.json').read_bytes())
+                        events = [original[0]]
+                        for argv in (['/usr/bin/modprobe', 'virtio_gpu'], ['/usr/bin/udevadm', 'settle', '--timeout=30'],
+                                     ['/usr/bin/dmesg'], ['/usr/bin/pacman', '-Q'], ['/usr/local/bin/gbm-probe', '/dev/dri/card0']):
+                            events.append({'event': 'command', 'argv': argv, 'returncode': 0, 'error': None,
+                                           'stdout': 'bounded historical diagnostic', 'stderr': ''})
+                        events.append(original[1])
+                        if count == 10:
+                            events.append(self.ipc_command(returncode=6, stdout=ACTUAL_MINIMAL_IPC_PROBES[0]['stdout']))
+                            log_names = ['minimal.log']
+                        else:
+                            events.extend(copy.deepcopy(ACTUAL_MINIMAL_IPC_PROBES if count == 13 else ACTUAL_FRAME_EXIT_IPC_PROBES))
+                            log_names = ['minimal.log', 'minimal-compositor.log']
+                            if count == 35:
+                                events.append(self.ipc_command(stdout=ACTUAL_EMPTY_CONFIGERRORS))
+                                events.append({'event': 'command', 'argv': ['/usr/bin/hyprctl', '-j', 'monitors'],
+                                               'returncode': 0, 'error': None, 'stdout': '[{"width":1024,"height":768}]', 'stderr': ''})
+                                events.extend({'event': 'command', 'argv': ['/usr/bin/hyprctl', '-j', 'clients'],
+                                               'returncode': 0, 'error': None, 'stdout': '[]\n', 'stderr': ''} for _ in range(19))
+                        for name in log_names:
+                            data = b'bounded historical log\n'
+                            events.append({'event': 'session_log', 'stage': 'minimal', 'filename': name,
+                                           'sha256': sha(data), 'base64': base64.b64encode(data).decode()})
+                        events.append({'event': 'guest_failed', 'error': 'historical failed phase', 'hardware_validation': 'NOT RUN'})
+                        self.assertEqual(len(events), count)
+                        captured.extend(copy.deepcopy(events))
+                        if success_receipt:
+                            self.put_json(out / 'guest-events.json', events)
+                            self.mutate(out / 'result.json', lambda receipt: receipt.update(guest_events_sha256=v.digest(out / 'guest-events.json')))
+                        else:
+                            self.failed_events_owner(out, events)
+                    self.ipc_case(historical, 0 if success_receipt else 1)
+                    self.assertEqual(self.run_adapter()['status'], 'FAIL')
+                    if not success_receipt:
+                        self.assertEqual(json.loads((self.output / 'virtual-public/events/guest-events.json').read_bytes()), captured)
+                    self.assertFalse((self.output / 'virtual-public/minimal-frame').exists())
+                    self.assertFalse((self.output / 'virtual-public/overlay-frame').exists())
+                    shutil.rmtree(self.output)
 
     def test_ipc_ready_and_exact_retry_recovery_publish_correlated_evidence(self):
         timeout_reply = "Hyprland IPC didn't respond in time\n\nCouldn't read (6)\n"

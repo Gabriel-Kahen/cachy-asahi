@@ -381,7 +381,7 @@ class GuestConfigErrors(unittest.TestCase):
 
 class GuestDiagnostics(unittest.TestCase):
     def diagnostic_phase(self, phase_failure=None, cleanup_failure=None, invalid_capture=False,
-                         closed_log=None, closed_summary=False):
+                         closed_log=None, closed_summary=False, dispatch_failure=None):
         """Exercise phase cleanup with controlled first failures and sink refusal."""
         with tempfile.TemporaryDirectory(prefix='virtual-diagnostic-') as temporary:
             root = Path(temporary); runtime = root / 'runtime'; runtime.mkdir()
@@ -405,6 +405,7 @@ class GuestDiagnostics(unittest.TestCase):
             def command(argv, _env):
                 if argv[-1] == 'monitors': return '[{"width":1,"height":1}]'
                 if argv[-1] == 'clients': return '[{"pid":42,"mapped":true,"size":[1,1]}]'
+                if dispatch_failure is not None: raise dispatch_failure
                 return ''
             delivered, refused = [], []
             channel_failure = BrokenPipeError('log channel closed')
@@ -478,6 +479,200 @@ class GuestDiagnostics(unittest.TestCase):
         self.assertEqual([row['filename'] for row in delivered if row['event'] == 'session_log'],
                          ['minimal-client.log', 'minimal.log'])
         self.assertEqual(len(refused), 2)
+
+
+class GuestProcessDiagnostics(unittest.TestCase):
+    def failed_phase(self, statuses=(1, None), original=None, logging=None, finish_error=None,
+                     poll_error=None, reap_error=None, invalid_log=False, missing_log=False,
+                     refused_boundary=None, refused_client_log=False, refused_all_logs=False,
+                     emission_error=None, logging_observation_error=None, lost_collector_process=False):
+        with tempfile.TemporaryDirectory(prefix='virtual-process-diagnostic-') as temporary:
+            root = Path(temporary); runtime = root / 'runtime'; runtime.mkdir()
+            wayland = socket.socket(socket.AF_UNIX); wayland.bind(str(runtime / 'wayland-0'))
+            client, compositor = Mock(), Mock(); client.pid = 42
+            values = {'client': statuses[0], 'compositor': statuses[1]}
+            timeline, delivered, refused, body_failed = [], [], [], [False]
+            collectors = {'client': Mock(process=client, error=logging),
+                          'compositor': Mock(process=compositor, error=None)}
+            if logging_observation_error is not None:
+                def error_attribute(_collector):
+                    if body_failed[0]: raise logging_observation_error
+                    return logging
+                type(collectors['client']).error = property(error_attribute)
+            def poll(role):
+                timeline.append(('poll', role, values[role]))
+                if role == 'client' and poll_error and body_failed[0]: raise poll_error
+                return values[role]
+            client.poll.side_effect = lambda: poll('client')
+            compositor.poll.side_effect = lambda: poll('compositor')
+            private = runtime / 'hypr' / 'new' / 'hyprland.log'
+            def launch(argv, path, **options):
+                if path.name == 'minimal.log':
+                    path.write_bytes(b'compositor stdout\n'); private.parent.mkdir(parents=True)
+                    private.write_bytes(b'private compositor bytes\n'); return collectors['compositor']
+                self.assertEqual(argv, ['/usr/bin/wofi', '--normal-window', '--show', 'dmenu', '--prompt',
+                                       'Generic ARM software proof', '--width', '420', '--height', '220'])
+                self.assertEqual(options['stdin'], subprocess.PIPE)
+                path.write_bytes(b'actual client stdout and stderr\n')
+                if invalid_log: path.unlink(); path.symlink_to(root / 'minimal.log')
+                if lost_collector_process:
+                    def process_attribute(_collector):
+                        if body_failed[0]: raise RuntimeError('collector process attribute unavailable')
+                        return client
+                    type(collectors['client']).process = property(process_attribute)
+                return collectors['client']
+            def command(argv, _env):
+                if argv[-1] == 'monitors': return '[{"width":1024,"height":768}]'
+                body_failed[0] = True
+                if missing_log: (root / 'minimal-client.log').unlink()
+                if original is not None: raise original
+                self.fail('exited processes must fail before clients query')
+            def terminate(process):
+                role = 'client' if process is client else 'compositor'; timeline.append(('terminate', role))
+                if role == 'client' and reap_error: raise reap_error
+                values[role] = -15
+            def finish(role):
+                timeline.append(('finish', role))
+                if role == 'client' and finish_error: raise finish_error
+            for role, collector in collectors.items():
+                collector.finish.side_effect = lambda role=role: finish(role)
+            def emit(event, **row):
+                timeline.append(('emit', event, row.get('boundary')))
+                if event == 'process_state' and row['boundary'] == refused_boundary or \
+                        event == 'session_log' and (refused_all_logs or
+                            row['filename'] == 'minimal-client.log' and refused_client_log):
+                    refused.append({'event': event, **row})
+                    raise emission_error if emission_error is not None else BrokenPipeError('diagnostic sink closed')
+                delivered.append({'event': event, **row})
+            try:
+                with patch('guest.LoggedProcess', side_effect=launch), \
+                        patch('guest.wait_for_ipc', return_value={'XDG_RUNTIME_DIR': str(runtime)}), \
+                        patch('guest.command', side_effect=command), patch('guest.terminate', side_effect=terminate), \
+                        patch('guest.time.monotonic', return_value=0), patch('guest.time.sleep'), \
+                        patch('guest.emit', side_effect=emit), patch('guest.print'):
+                    try: guest.phase('minimal', root / 'config', {'XDG_RUNTIME_DIR': str(runtime)}, root)
+                    except BaseException as exc: failure = exc
+                    else: self.fail('expected failed phase')
+            finally: wayland.close()
+            self.assertEqual(client.stdin.write.call_args.args,
+                             (b'cachy-asahi software proof\nNo Apple hardware claim\n',))
+            client.stdin.close.assert_called_once()
+            for collector in collectors.values(): collector.finish.assert_called_once()
+            return failure, delivered, refused, timeline
+
+    def test_client_compositor_and_both_exits_keep_both_natural_polls_before_cleanup(self):
+        for statuses in ((1, None), (None, 2), (1, 2)):
+            with self.subTest(statuses=statuses):
+                failure, delivered, _, timeline = self.failed_phase(statuses=statuses)
+                self.assertEqual(str(failure), 'client/compositor exited before frame')
+                states = [row for row in delivered if row['event'] == 'process_state']
+                self.assertEqual([row['boundary'] for row in states], ['before_cleanup', 'after_cleanup'])
+                self.assertTrue(all(set(row) == {'event', 'stage', 'boundary', 'client', 'compositor'} for row in states))
+                for role, code in zip(('client', 'compositor'), statuses):
+                    self.assertEqual(states[0][role], {'state': 'alive' if code is None else 'exited',
+                                                     'returncode': code, 'logging': 'ok'})
+                    self.assertEqual(states[1][role], {'state': 'exited', 'returncode': -15 if code is None else code,
+                                                     'logging': 'ok'})
+                first_cleanup = next((i for i, row in enumerate(timeline) if row[0] in ('terminate', 'finish')))
+                self.assertEqual({row[1] for row in timeline[:first_cleanup] if row[0] == 'poll'},
+                                 {'client', 'compositor'})
+                logs = [row for row in delivered if row['event'] == 'session_log' and row['filename'] == 'minimal-client.log']
+                self.assertEqual(len(logs), 1)
+                self.assertEqual(base64.b64decode(logs[0]['base64']), b'actual client stdout and stderr\n')
+
+    def test_alive_failure_and_cancellation_keep_original_identity_and_unavailable_explicit(self):
+        for original, observation in ((ValueError('first client query failure'), None),
+                                      (KeyboardInterrupt('original cancellation'), RuntimeError('poll observation failed'))):
+            with self.subTest(original=type(original).__name__):
+                failure, delivered, _, timeline = self.failed_phase(statuses=(None, None), original=original,
+                                                                     poll_error=observation)
+                self.assertIs(failure, original)
+                states = [row for row in delivered if row['event'] == 'process_state']
+                self.assertEqual(states[0]['compositor']['state'], 'alive')
+                self.assertEqual(states[0]['client']['state'], 'unavailable' if observation else 'alive')
+                self.assertIsNone(states[0]['client']['returncode'])
+                self.assertTrue(any(row[:2] == ('poll', 'compositor') for row in timeline))
+
+    def test_closed_logging_status_and_unavailable_client_log_preserve_primary_failure(self):
+        cases = ((None, RuntimeError('finish incomplete'), 'drain_error'),
+                 ('output overflow', RuntimeError('overflow'), 'output_overflow'),
+                 ('private exception detail', RuntimeError('drain failed'), 'drain_error'))
+        for error, finish, expected in cases:
+            with self.subTest(logging=expected):
+                original = ValueError('original client query failure')
+                failure, delivered, _, _ = self.failed_phase(statuses=(None, None), original=original,
+                                                              logging=error, finish_error=finish)
+                self.assertIs(failure, original)
+                states = [row for row in delivered if row['event'] == 'process_state']
+                self.assertEqual(states[-1]['client']['logging'], expected)
+                self.assertNotIn('private exception detail', json.dumps(states))
+                log = next(row for row in delivered if row['event'] == 'session_log' and row['filename'] == 'minimal-client.log')
+                self.assertEqual(base64.b64decode(log['base64']), b'client log unavailable\n')
+
+    def test_client_capture_and_reaping_refusals_emit_only_fixed_unavailable_log(self):
+        for options in ({'invalid_log': True}, {'missing_log': True}, {'reap_error': RuntimeError('reap failed')}):
+            with self.subTest(options=options):
+                original = ValueError('first client query failure')
+                failure, delivered, _, _ = self.failed_phase(statuses=(None, None), original=original, **options)
+                self.assertIs(failure, original)
+                log = next(row for row in delivered if row['event'] == 'session_log' and row['filename'] == 'minimal-client.log')
+                marker = b'client log unavailable\n'
+                self.assertEqual(base64.b64decode(log['base64']), marker)
+                self.assertEqual(log['sha256'], hashlib.sha256(marker).hexdigest())
+
+    def test_refused_emission_preserves_failure_and_claims_no_undelivered_snapshot_or_log(self):
+        for boundary in ('before_cleanup', 'after_cleanup', None):
+            with self.subTest(boundary=boundary):
+                original = KeyboardInterrupt('original cancellation')
+                failure, delivered, refused, _ = self.failed_phase(statuses=(None, None), original=original,
+                    refused_boundary=boundary, refused_client_log=boundary is None)
+                self.assertIs(failure, original)
+                states = [row['boundary'] for row in delivered if row['event'] == 'process_state']
+                self.assertEqual(states, [] if boundary == 'before_cleanup' else ['before_cleanup']
+                                 if boundary == 'after_cleanup' else ['before_cleanup', 'after_cleanup'])
+                if boundary is None:
+                    self.assertFalse(any(row['event'] == 'session_log' and row['filename'] == 'minimal-client.log'
+                                         for row in delivered))
+                self.assertTrue(refused)
+
+    def test_unavailable_logging_observation_and_diagnostic_cancellation_preserve_first_failure(self):
+        original = ValueError('first client query failure')
+        failure, delivered, _, _ = self.failed_phase(statuses=(None, None), original=original,
+            logging_observation_error=KeyboardInterrupt('logging observation cancelled'))
+        self.assertIs(failure, original)
+        states = [row for row in delivered if row['event'] == 'process_state']
+        self.assertEqual([row['client']['logging'] for row in states], ['unavailable', 'unavailable'])
+        failure, delivered, refused, _ = self.failed_phase(statuses=(None, None), original=original,
+            refused_all_logs=True, emission_error=KeyboardInterrupt('diagnostic retention cancelled'))
+        self.assertIs(failure, original)
+        self.assertFalse(any(row['event'] == 'session_log' for row in delivered))
+        self.assertGreaterEqual(len(refused), 4)
+
+    def test_invalid_observed_returncodes_are_explicitly_unavailable(self):
+        for code in (False, True, -65, 256, '1'):
+            with self.subTest(code=code):
+                failure, delivered, _, _ = self.failed_phase(statuses=(code, None))
+                self.assertEqual(str(failure), 'invalid process observation')
+                state = next(row for row in delivered if row['event'] == 'process_state')
+                self.assertEqual(state['client'], {'state': 'unavailable', 'returncode': None, 'logging': 'ok'})
+                self.assertEqual(state['compositor']['state'], 'alive')
+
+    def test_unsupported_logger_values_and_lost_collector_attribute_do_not_replace_primary(self):
+        original = ValueError('first client query failure')
+        failure, delivered, _, _ = self.failed_phase(statuses=(None, None), original=original,
+                                                    logging=False, lost_collector_process=True)
+        self.assertIs(failure, original)
+        states = [row for row in delivered if row['event'] == 'process_state']
+        self.assertEqual([row['client']['logging'] for row in states], ['unavailable', 'unavailable'])
+        self.assertEqual([row['client']['state'] for row in states], ['alive', 'exited'])
+
+    def test_dispatch_failure_after_intentional_client_disposal_has_no_natural_exit_snapshots(self):
+        original = ValueError('first dispatch failure')
+        failure, delivered, _, _, _, process, _ = GuestDiagnostics().diagnostic_phase(dispatch_failure=original)
+        self.assertIs(failure, original); self.assertIsNotNone(process.poll())
+        self.assertFalse(any(row['event'] == 'process_state' for row in delivered))
+        self.assertEqual([row['filename'] for row in delivered if row['event'] == 'session_log'],
+                         ['minimal-client.log', 'minimal.log', 'minimal-compositor.log'])
 
 
 class Capabilities(unittest.TestCase):
