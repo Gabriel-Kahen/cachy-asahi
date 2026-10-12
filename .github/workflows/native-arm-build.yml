@@ -3,17 +3,21 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: Probe runner, authenticate frozen inputs, or build four reviewed recipes twice
+        description: Probe, audit, original builds, or frozen development-only integration
         required: true
         default: probe
         type: choice
-        options: [probe, audit, build]
+        options: [probe, audit, build, integration]
       inputs_sha256:
         description: Reviewed SHA-256 of scripts/ci/inputs.lock.json (audit/build)
         type: string
         default: ''
       recipes_sha256:
         description: Reviewed SHA-256 of scripts/ci/recipes.lock.json (build)
+        type: string
+        default: ''
+      integration_sha256:
+        description: Reviewed SHA-256 of scripts/ci/integration.lock.json (integration)
         type: string
         default: ''
 permissions:
@@ -31,6 +35,7 @@ jobs:
       BUILD_MODE: ${{ inputs.mode }}
       INPUTS_SHA256: ${{ inputs.inputs_sha256 }}
       RECIPES_SHA256: ${{ inputs.recipes_sha256 }}
+      INTEGRATION_SHA256: ${{ inputs.integration_sha256 }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1, verified upstream ref
         with:
@@ -48,12 +53,26 @@ jobs:
           python3 scripts/ci/native_arm.py "$BUILD_MODE"
           --inputs-sha256 "$INPUTS_SHA256"
           --recipes-sha256 "$RECIPES_SHA256"
+          --integration-sha256 "$INTEGRATION_SHA256"
+          --integration-output "$RUNNER_TEMP/integration-evidence"
           --cache "$RUNNER_TEMP/alarm-cache"
           --output "$RUNNER_TEMP/native-evidence"
       - name: Retain bounded evidence and package artifacts in free workflow logs
         if: always()
         run: |
-          python3 scripts/ci/log_evidence.py "$RUNNER_TEMP/native-probe"
+          evidence_status=0
+          python3 scripts/ci/log_evidence.py "$RUNNER_TEMP/native-probe" || evidence_status=1
           if [ -d "$RUNNER_TEMP/native-evidence" ]; then
-            python3 scripts/ci/log_evidence.py "$RUNNER_TEMP/native-evidence"
+            python3 scripts/ci/log_evidence.py "$RUNNER_TEMP/native-evidence" || evidence_status=1
           fi
+          if [ -d "$RUNNER_TEMP/integration-evidence/public" ]; then
+            for stage in "$RUNNER_TEMP/integration-evidence/public"/*; do
+              if [ -d "$stage" ]; then
+                python3 scripts/ci/log_evidence.py "$stage" || evidence_status=1
+              fi
+            done
+            if [ -f "$RUNNER_TEMP/integration-evidence/public/summary/result.json" ]; then
+              cat "$RUNNER_TEMP/integration-evidence/public/summary/result.json"
+            fi
+          fi
+          exit "$evidence_status"

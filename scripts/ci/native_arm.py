@@ -356,15 +356,19 @@ def build(inputs, cache, out, reviews):
                 out / (Path(path).name + f'-{attempt}-driver.log'), 360)
         run([sys.executable, str(ROOT / 'scripts/build/compare.py'), str(out / (Path(path).name + '-1')),
              str(out / (Path(path).name + '-2')), '--require-bytes'], out / (Path(path).name + '-compare.json'), 120)
+    return image
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('mode', choices=('probe', 'audit', 'build', 'freeze-recipes'))
+    parser.add_argument('mode', choices=('probe', 'audit', 'build', 'integration', 'freeze-recipes'))
     parser.add_argument('--inputs', type=Path, default=ROOT / 'scripts/ci/inputs.lock.json')
     parser.add_argument('--inputs-sha256')
     parser.add_argument('--recipes', type=Path, default=ROOT / 'scripts/ci/recipes.lock.json')
     parser.add_argument('--recipes-sha256')
+    parser.add_argument('--integration', type=Path, default=ROOT / 'scripts/ci/integration.lock.json')
+    parser.add_argument('--integration-sha256')
+    parser.add_argument('--integration-output', type=Path)
     parser.add_argument('--cache', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
     args = parser.parse_args()
@@ -384,7 +388,8 @@ def main():
             inputs = load_pinned(args.inputs, args.inputs_sha256)
             save(out / 'inputs.lock.json', inputs)
             reviews = None
-            if args.mode == 'build':
+            integration_lock = None
+            if args.mode in ('build', 'integration'):
                 probe(out)
                 reviews = load_pinned(args.recipes, args.recipes_sha256)
                 expected_names = sorted(RECIPES)
@@ -398,12 +403,28 @@ def main():
                     if report['errors'] or report['input_sha256'] != hashes:
                         raise ValueError('current recipes differ from the reviewed set')
                 setup_sync()
+                if args.mode == 'integration':
+                    import integration
+                    if args.integration_output is None:
+                        raise ValueError('separate new integration output required')
+                    integration.output_boundaries(ROOT, out, args.cache, args.integration_output)
+                    integration_lock = integration.preflight(ROOT, args.integration, args.integration_sha256,
+                                                             args.recipes_sha256, inputs['source_date_epoch'])
+                    accepted_commit = os.environ.get('GITHUB_SHA', '')
+                    if not re.fullmatch(r'[0-9a-f]{40}', accepted_commit) or run(['git', 'rev-parse', 'HEAD']) != accepted_commit:
+                        raise ValueError('accepted workflow checkout commit must match GITHUB_SHA')
             record['verified_signed_packages'] = audit(inputs, args.cache.resolve(), out)
             record['status'] = 'signed-input-audit-pass'
-            if args.mode == 'build':
+            if args.mode in ('build', 'integration'):
                 record['status'] = 'building'
-                build(inputs, args.cache.resolve(), out, reviews)
+                image = build(inputs, args.cache.resolve(), out, reviews)
                 record.update(status='native-builds-and-byte-comparison-pass', native_build='PASS')
+                if args.mode == 'integration':
+                    controller = integration.Controller(image, out, args.integration_output.resolve(), integration_lock, accepted_commit)
+                    if not controller.run():
+                        raise ValueError('native virtual integration failed; inspect separate sanitized stage evidence')
+                    record.update(status='native-builds-and-virtual-integration-pass', virtual_integration='PASS',
+                                  integration_sha256=args.integration_sha256)
         return 0
     except (OSError, ValueError, KeyError, subprocess.SubprocessError, tarfile.TarError) as error:
         record.update(status='failed', error=str(error))

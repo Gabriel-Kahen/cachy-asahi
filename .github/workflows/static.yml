@@ -24,6 +24,7 @@ jobs:
           python3 -m unittest discover -s tests -v
           python3 -m unittest discover -s scripts/setup -p 'test_*.py' -v
           python3 -m unittest discover -s scripts/ci -p 'test_*.py' -v
+          python3 -m unittest discover -s scripts/integration -p 'test_*.py' -v
           python3 -m unittest discover -s scripts/hardware -p 'test_*.py' -v
           python3 -m unittest discover -s scripts/release -p 'test_*.py' -v
           python3 -m unittest discover -s scripts/benchmarks -p 'test_*.py' -v
