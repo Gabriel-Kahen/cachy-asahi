@@ -71,3 +71,51 @@ The handoff retains complete per-row archive/signature references, exact primary
 Root independently rehashes all422 retained archive/signature files (598,951,672bytes), validates exact211 plan/catalog/image/missing-row associations, byte counts/regular-file/link controls and the producer's actual fresh GPG exit/status/expected-primary observations. Receipt `984f0740060b87d01be968acd849a634a06c857ffffc1f04b7f7b7938157d4a0` and handoff are cross-bound; `artifacts/platform/baseline-acquisition-20261012/root-acquisition-review.json`. Root did not replay cryptography: these are actual acquisition/verifier observations plus independent retained-byte/status binding. Allseven unresolved names remain explicit.
 
 The earlier description of the GRUB filename as epoch-omitted was inaccurate: the exact retained community catalog declares `grub-2.2.16-3-aarch64.pkg.tar.xz` for full version `2:2.16-3`, a dotted epoch representation. No alternate filename/URL was guessed or downloaded. A narrowly reviewed helper correction is being implemented, preserving full signed package identity checks. Merging the211 archives with the406 prior payload inputs totals1,298,106,720 compressedbytes and exceeds the historical1GiB audit ceiling; an explicit2GiB compressed-input policy revision is under source review, with every per-archive/decoded/node/deadline/link guard preserved. The actual full merged payload audit has not run. Installed image/runtime, source grants, full recovery/custody and hardware acceptance remain open.
+
+
+## Completed GRUB acquisition and merged payload audit
+
+The preceding seven-gap/406-payload sections remain historical. After coordinator acceptance and commit `9140bcaf939bd15b82a2a8c3f020b842c9f03c48` of the narrowly reviewed filename/accounting correction, **GRUB acquisition/authentication passed as data, and all 618 supplied archives passed inert payload inspection**. The new aggregate remains **FAIL / exit 1** because six exact baseline versions are unavailable. No failed historical receipt, catalog, package version or old payload report was overwritten or reclassified.
+
+Execution used a fresh local committed source clone, with 15 delegated helper/test files independently matched to actual Git bytes/modes and no preexisting PYC. The two corrected executable pins are authentication `6af079cf10f8ebcc9416bf64bca4336ea03dbbf13f99ebd98a83808365f2fe59` and payload audit `a7cb3a1c469f88fdb37d17e2414eb283bc53e0ef7211d0723af2b9037fa7689c`. Private wrappers, exact schemas, all source/input references and returned/captured report bytes are hash-bound in the new handoff.
+
+### Actual one-pair GRUB result
+
+Only the exact retained catalog URL for `grub-2.2.16-3-aarch64.pkg.tar.xz` and its `.sig` were fetched. Full VERSION remains `2:2.16-3`, aarch64. The archive is 9,800,024 bytes, SHA256 `e43b968d72cde70752ca82450a72fb65644c1a324c03eaee820446c9ba5827da`. Its 119-byte detached signature has post-download observed SHA256 `98762011b9ff9bf3d139f05bb652a2cb564641eca7021f0dffd056f2df89affd`; the exact catalog lacks embedded PGPSIG, so no signature prehash was invented.
+
+Actual isolated public-only GPGV returned exit 0 and VALIDSIG for pinned primary `12CE6799A94A3F1B5DDFFE88F576553597FB8FEB`. The retained notice is a good signature from the Asahi Alarm keychain master; independent key-owner trust is still not accepted. Full signed PKGINFO name, epoch-bearing version, architecture, dependencies, provides, conflicts, replaces and declared licenses matched the exact catalog record. No source grant, runtime dependency, bootloader installation or boot compatibility is inferred.
+
+Acquisition plus verification/inspection took 1.124 seconds under the 30 MiB/five-minute task bound. Six final private files total 9,967,864 bytes, all mode 0600; no GPG scratch home or partial download remains. No additional network request, stale URL guess, default keyring mutation or package execution occurred. Receipt: `artifacts/platform/baseline-acquisition-20261012/grub/acquisition-receipt.json`, SHA256 `a1d7c7fddb4027b18adfad10d9e23edfa9a55715f83e365b8912fad86f8acaac`.
+
+### Actual 618-archive data audit
+
+The new contract preserves the exact original 406 archive references, transaction and ownership/final metadata references, then adds the 211 validated baseline cache rows and the authenticated GRUB reference. Original authentication provenance is retained separately; the 211 earlier GPG checks were bound by their actual receipts/statuses and signature-byte hashes rather than claimed as replayed. GRUB alone received new cryptographic verification in this task. All 618 archives were freshly checksum-checked and streamed as inert payload data by the unchanged committed reader.
+
+| Actual result | Value |
+| --- | ---: |
+| Selected final packages | 624 |
+| Supplied / successfully inspected archives | 618 / 618 |
+| Failed inspection or package metadata/file-list mismatch | 0 |
+| Missing exact-version archives | 6 |
+| Compressed input bytes | 1,307,906,744 |
+| Decoded bytes consumed | 5,624,033,280 |
+| Observed nodes | 134,548 |
+| Observed non-directory overlaps | 0 |
+| Link observations | 15,158 |
+| Packages with inert hooks/scriptlets | 51 |
+
+The six gaps are unchanged exact old versions: `groff` 1.24.1-1, `libnm` 1.58.1-1, `nss` 3.130-1, `openssh` 10.5p1-1, and `vim` / `vim-runtime` 9.2.1046-1. None was substituted with a current package. Their absence alone causes the actual helper-equivalent exit 1; the complete 618-row report and failure status are retained.
+
+There are 13,301 links to observed archive targets and 1,848 same-archive regular-file hardlinks. Four `ex-vi-compat` links target declared `usr/bin/vim` whose payload remains unavailable. Five targets are not declared in this proposed archive namespace: three CA certificate links to `etc/ca-certificates/extracted/tls-ca-bundle.pem`, `etc/mtab` to `proc/self/mounts`, and `var/lock` to `run/lock`. The audit records these as unobserved targets; generated/runtime behavior was not exercised. No cycle, escape, non-directory-ancestor or unsafe-hardlink finding was reported. All target filesystem/link and hook execution flags remain false.
+
+The data process completed in 51.226 seconds with a 2 GiB address-space limit and a 20-minute outer envelope. No cap was raised: compressed aggregate 2 GiB, each archive 300,000,000 bytes, decoded per archive 1 GiB / aggregate 8 GiB, node/deadline/link limits and the helper's existing 64 MiB output bound all remained intact. Its 44,964,520-byte report fits that output bound. The unchanged filesystem output guard writes inside the fresh source clone; the report was then copied into the new owned private directory and rehashed byte-identically. Retained new primary data plus the temporary clone report totaled 100,372,750 bytes including the handoff, below the 256 MiB private-data ceiling. These elapsed values establish task bounds, not performance improvement.
+
+| New private evidence | SHA256 |
+| --- | --- |
+| `baseline-payload-audit-20261012/payload-inputs.json` | `fedd63e28006f391ae4abe19633690d36853b27a0bda2722c8ae2e3d7f289369` |
+| `baseline-payload-audit-20261012/authentication-bindings.json` | `e7d8119e70324b989216c1460f5441ce98f5e96ceaf1dc19877baf5ace035467` |
+| `baseline-payload-audit-20261012/execution-journal.json` | `b7e77a42ef944d6c74175cf3a833c5ab55b8d81fc7c4bcc29aac60c8c9a1ae0e` |
+| `baseline-payload-audit-20261012/payload-report.json` | `e518010b43cd81366688642efc209466cacd61e241f281d510ee46738a82a72f` |
+| `baseline-payload-audit-20261012/handoff.json` | `a198c200e9c8072a444c4a2192f71c8b80829e3350151663404a3fc4237963ce` |
+
+The historical 406 report, 218-gap report and old source/authentication observations were rehashed unchanged. The coordinated Python alternative and original strict transaction retain their prior adoption/acceptance status. The new report does not authenticate installed image bytes or repository database ownership, execute hooks, test ABI/import behavior, close corresponding-source/license grants, prove complete recovery or accept a target transaction. Installation, production publication, Asahi/M2/physical 16K execution and hardware/performance acceptance remain unestablished. Only the assigned new private artifact paths and this append-only section were written; no implementation, shared lock, project Git, mount, module or host package mutation occurred.
