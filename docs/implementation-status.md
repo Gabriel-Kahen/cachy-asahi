@@ -28,6 +28,11 @@ The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with 
 - Authenticated input cache and full audit retained privately at `/home/gabe/.local/share/cachy-asahi/private-inputs/`; upstream bytes are not published in Git.
 - Free standard native ARM CI is implemented for the verified public repository, with a manual probe followed by hash-bound builds. [Actual execution record](validation/native-arm.md): static CI and the native ARM VM probe passed; first job failed metadata order; corrected full rerun passed all four native build pairs and byte comparisons, with retained evidence. Static CI has documented shell/release skips, separate from the full local test run.
 - Read-only SSH attempt to configured `gabepi` timed out. No target Mac connection found in local SSH configuration.
+- A source-only Asahi kernel checksum correction is actually submitted as
+  [upstream draft PR #99](https://github.com/asahi-alarm/PKGBUILDs/pull/99).
+  Independent checksum/diff/syntax review passed; compilation and hardware were
+  not tested, and maintainer acceptance is not claimed. See the
+  [submission record](upstream/linux-asahi-config-checksums.md).
 
 ## Complete-port development and connected native integration
 
@@ -36,8 +41,11 @@ The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with 
   This is a private print-only libalpm transaction, not an installed Asahi
   target. The original 232/233 authentication failure is preserved. A separate
   refreshed proposal authenticates all 233 additions after explicitly adopting
-  the builder Perl refresh and proposing a new FDK archive; FDK source/license
-  clearance and native installation remain incomplete. See
+  the builder Perl refresh and proposing a new FDK archive. A separate FDK
+  source-built candidate now has a reviewed complete selected-source packet,
+  independently reconstructed inputs and 75 passing portable checks. Native
+  builds, provider substitution, PipeWire runtime and installation remain open;
+  the original broad private source packet remains uncleared. See
   `docs/port/desktop-coverage.md` and `docs/workstreams/port-resolution.md`.
 - Cachy-update's actual Rust tray and shell updater have a development recipe,
   adapted behavior and independently authored licensed icons. All 167 registry
