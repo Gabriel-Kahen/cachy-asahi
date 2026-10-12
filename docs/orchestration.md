@@ -109,3 +109,17 @@ reviewed. Desktop owner corrected only metadata order to observed native output,
 retaining failure evidence; package code/payload stayed unchanged. Coordinator
 refroze all four recipes as `20d846cdf289bfc233b0051bf33b677fd6e94e9f05d91a33595a2829a196fa63`.
 Strict checks remain intact and the whole set must be rerun.
+
+## Verified native build checkpoint
+
+Corrected source `ebd5812640b0b69f5c09a47752b739e37e338754`, hosted ARM run
+`38189520114`, completed all four original packages in eight distinct clean
+native containers. All pairs have identical archive bytes, payload and build
+metadata. Coordinator independently rechecked retained inputs/logs/archives and
+strict comparison outputs. Receipt/evidence paths are `docs/validation/native-arm.md`
+and its JSON summary. Development manifest native-build fields advance to PASS;
+release selection stays false and installation/hardware stay NOT RUN.
+The actual Asahi target dependency transaction, both exact M2 machines,
+measurements, real signed release/recovery, independent onboarding and ongoing
+maintenance remain unfinished. Generic native success does not close M0/M1
+target-selection gates or the complete outline.

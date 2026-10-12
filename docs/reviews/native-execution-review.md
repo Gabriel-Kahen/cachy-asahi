@@ -207,3 +207,124 @@ comparison policy, recipe/input locks, Git state or workflow dispatch. Corrected
 and newly pinned source needs another actual complete run before package/native
 milestone acceptance. No further material inconsistency was found in the reviewed
 stage records; all target/M2/release acceptance gates remain separate.
+
+## Complete corrected native build and rebuild acceptance
+
+Independently reviewed successful [run 38189520114](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38189520114).
+Read-only GitHub run/job metadata confirms attempt 1 at source commit
+`ebd5812640b0b69f5c09a47752b739e37e338754`, `ubuntu-24.04-arm`, all steps
+successful, created/updated `2026-10-12T00:50:02Z` / `2026-10-12T00:53:14Z`.
+
+**Accepted:** actual native ARM builds and byte-identical second clean-container
+builds of all four original development packages at this exact committed source,
+input/recipe lock and builder image. No material inconsistency was found in the
+independently checked provenance, logs, archives or comparisons. This supersedes
+the prior attempt's failed package result only for the corrected source/run;
+the earlier failure remains part of the execution history.
+
+### Input and environment binding
+
+Reconstructed the actual log-framed bundle, stripping only GitHub's tab/timestamp
+prefix and log-segment BOM, then checked its exact hash/size and retained archive.
+All 259 safe regular members match their decoded bytes:
+
+```text
+bundle: 8797f4f8b52d0f2a84dbbce3589f331b1a913f1fad413877bb1a861775f287e3
+bytes: 1232758
+```
+
+Retained decoded directory:
+`artifacts/ci/38189520114/decoded/native-evidence/`.
+
+| Binding | Verified value |
+| --- | --- |
+| Input lock, exact committed bytes | `7d53775b2de6136d531a7f20059088def7bbb11ad8baef58e75cd5826e3a2b41` |
+| Recipe lock, exact committed bytes | `20d846cdf289bfc233b0051bf33b677fd6e94e9f05d91a33595a2829a196fa63` |
+| Bootstrap script, exact committed bytes | `1a48dfe768fa40595d84648750b1ada3c2a0c56fb2f00fa961e0e6d8fa6034ef` |
+| Immutable image, export/ID/provenance match | `sha256:7a3a68aef1b1cbb2aa8ae81e05b08fd1e9c948c222053ae4957f57554fe4d4f0` |
+| Exact 341-package inventory | `7f40e51da419514c3ffe4fc9ed5bd9d6f242e576a585347c4799cd20bfd32104` |
+| Source date epoch | `1791748800` |
+
+Rechecked all 249 final-run signature receipts for completeness, successful GPG
+return, one complete pinned-primary `VALIDSIG` each and absence of invalid-key/
+signature/error statuses. All 248 signed package metadata records match their
+lock fields; the authenticated rootfs inventory and derived final 341-package
+inventory match the retained locks. This retains the preceding receipt-review
+limit: original large vendor binaries were not downloaded or cryptographically
+reverified by this reviewer.
+
+Runner records agree on native `aarch64` Linux host/server, non-root execution,
+default local Docker socket and 4,096-byte pages. All eight actual container
+environment logs independently report `aarch64`, page size 4,096 and makepkg
+7.1.0. Each command uses this exact immutable image, `linux/arm64`, user
+`1001:1001`, network disabled, read-only root, dropped capabilities and
+no-new-privileges.
+
+### Eight independently checked builds
+
+For every build, independently:
+
+- Checked zero exit status and `built-package-static-pass`, native mode, image,
+  inventory and entry-script bindings; every input/saved-file/archive checksum
+  matches retained bytes.
+- Matched the recipe snapshot to the frozen recipe map. Recomputed effective
+  generated-metadata binding, parsed the actual xz archive, checked package
+  contents and bound artifact identity/relations and `.BUILDINFO` recipe hash.
+  Recomputed inspection output matches saved `validation.json`, with no errors.
+- Confirmed the actual log reaches package creation and “Finished making”.
+  `.BUILDINFO` records all 341 exact installed name/version/architecture values
+  and the fixed build epoch.
+- Matched `clean_environment_id` to the actual Docker `--name` argument. All
+  eight recorded identities are distinct:
+
+| Package | First clean container | Second clean container |
+| --- | --- | --- |
+| Hyprland settings | `cachy-asahi-fbaf95b2064ee540` | `cachy-asahi-b581054ddfb05be8` |
+| Fish config | `cachy-asahi-4fb9be43014e1a8f` | `cachy-asahi-b987af2d88e44b7e` |
+| Zsh config | `cachy-asahi-44526e086ae670bd` | `cachy-asahi-86d570fd6302efe9` |
+| Setup helper | `cachy-asahi-c273b3294dde6149` | `cachy-asahi-05ac55fc2fb40984` |
+
+### Independently recomputed repeat comparisons
+
+Loaded the build/package validation tools only after checking their local bytes
+against the exact run commit. Recomputed all four comparisons directly from the
+retained archives and provenance. Each matches the saved comparison record:
+`contents-reproduced`, no errors, and `bytes_equal`, `pkginfo_equal`,
+`buildinfo_equal` and `installed_contents_equal` all true.
+
+Each pair has the same independently computed archive SHA-256:
+
+| Archive | SHA-256 for both builds |
+| --- | --- |
+| `cachy-asahi-hyprland-settings-0.1.0-1-any.pkg.tar.xz` | `6acf6de12396a0f9a6f37a192ea451eb42f7da1ad4d22b80ac84083a232fce79` |
+| `cachy-asahi-fish-config-0.1.0-1-any.pkg.tar.xz` | `d2b18a1639c1062a56e5a796c27a4e7767edf1677eab745a8df72c45e6e3e9ce` |
+| `cachy-asahi-zsh-config-0.1.0-1-any.pkg.tar.xz` | `4362eb85db3798b88addda4d6f4cc0fa94572dc4449b36aff37be521f230e9dc` |
+| `cachy-asahi-setup-0.1.0-2-any.pkg.tar.xz` | `c2b51a0d1c7be0af726f2e03a877d87cef5f9b01188def2ae6c6a2f7512a4b26` |
+
+Both setup archives contain the corrected helper payload hash
+`a6251142b9c7e54796285c1a301fb590599d8aaa1625ea0bfebd7fc21622fdc2`.
+All four archives are data/Python `arch=any` packages with no ELF payload; native
+execution here validates ARM build tools/recipe checks, not a newly compiled ARM
+binary. There is no compiled-payload 16 KiB-page claim.
+
+### Acceptance limits
+
+The observed result correctly reports
+`native-builds-and-byte-comparison-pass`, `native_build=PASS`, and
+`hardware_validation=NOT RUN`. The two fresh containers per package share one
+provisioned image and hosted runner. This establishes the recorded two-container
+build/rebuild result, not independent machine replication, long-term hosted-image
+stability or separate physical hardware attestation.
+
+The generic ALARM builder and 4 KiB ARM VM do not validate the chosen Asahi target
+transaction, M2/16 KiB runtime, package installation/removal, real-user setup,
+session/graphics/audio/sleep behavior, boot recovery, power/performance, either
+Air size, or supported onboarding. These overlay archives were not signed or
+promoted into a stable repository by this build; vendor dependency signatures
+do not sign overlay artifacts. Coordinator milestone/release reconciliation
+must retain the acceptance matrix's additional requirements.
+
+The reviewer edited only this document and performed local read/static archive
+inspection/comparison plus read-only GitHub metadata requests. No source/Git
+change, workflow dispatch, new build, package installation or vendor-input
+download occurred.

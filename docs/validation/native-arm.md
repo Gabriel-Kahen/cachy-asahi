@@ -60,3 +60,49 @@ Verified log, bundle, signature/input/bootstrap/build diagnostics are retained a
 `artifacts/ci/38189058133/`. Later packages and byte comparisons did not run.
 Both M2 Air models, 16K-page execution, install/removal, platform transaction,
 performance, real signed updates and full-goal acceptance remain `NOT RUN`.
+
+## Corrected full rerun
+
+Desktop owner changed only `.SRCINFO` ordering to the observed native output,
+SHA-256 `feeb68da93a0a81f274125e00588c98ad5e7b9772377172a0973c06d5cf94c89`.
+All effective metadata and PKGBUILD/payload hashes are unchanged. The unchanged
+strict checker rejects the original and accepts the correction. Source/static
+inspection passed; coordinator re-froze the complete set.
+
+[Run 38189520114](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38189520114)
+executes source `ebd5812640b0b69f5c09a47752b739e37e338754`, the same signed
+input lock and corrected recipe lock
+`20d846cdf289bfc233b0051bf33b677fd6e94e9f05d91a33595a2829a196fa63`.
+Result: **PASS for native package builds and byte comparison**. All four
+packages completed two fresh native container builds. Every pair has identical
+archive bytes, installed contents, `.PKGINFO` and `.BUILDINFO`. All eight
+container IDs are distinct. Coordinator rechecked the downloaded records,
+retained snapshot/evidence hashes, archive inspection and strict comparisons;
+results match the job's recorded comparisons. These local rechecks are not
+additional native builds. This rerun does not erase the first failed attempt.
+
+The actual resulting builder image is
+`sha256:7a3a68aef1b1cbb2aa8ae81e05b08fd1e9c948c222053ae4957f57554fe4d4f0`,
+with the same exact 341-package inventory. The image is generated in the hosted
+job; its recorded immutable ID is not a published/pullable registry image.
+Across-job image byte reproducibility is not asserted; each package pair used
+one identical image and fixed source-date epoch.
+
+Native-evidence bundle: SHA-256
+`8797f4f8b52d0f2a84dbbce3589f331b1a913f1fad413877bb1a861775f287e3`,
+1232758 bytes. Full workflow log, verified bundle, source snapshots, raw build
+logs, provenance, comparison reports and all eight original archives remain in
+`artifacts/ci/38189520114/`. A compact public receipt is
+[native-arm-summary.json](native-arm-summary.json). The signed original build
+input bytes remain in the private retained cache documented above.
+
+These are `arch=any` original data/stdlib-script packages, built on native ARM.
+They introduce no ELF objects. This result does not validate the chosen Asahi
+target transaction, M2/16K runtime, installation/removal, desktop session,
+performance, release trust or hardware gates. No supported release is selected.
+
+Independent final review accepted all four native package builds and exact archive
+rebuilds after checking the logged bundle, all eight provenance records, source
+and installed inventory bindings, artifact contents and comparisons. No material
+inconsistency was found. See [final native review](../reviews/native-execution-review.md).
+This acceptance is limited to the documented hosted ARM package execution.

@@ -1,6 +1,71 @@
 # Other-ARM reuse: read-only package inspection
 
-Status on October 11, 2026: **procedure source-audited; x86 reference inspection passed; execution on another native ARM target (physical board or hosted ARM VM) NOT RUN**. The coordinator's read-only SSH inventory attempt against `gabepi` timed out, so its board model, userspace architecture and installed prerequisites are unverified. Do not infer these from its hostname. This document supplies the reuse part of [A10](acceptance.md); upstream submission and response evidence remain a separate requirement.
+Status on October 11, 2026 local (October 12 UTC): **recipe/package inspection, native build/provenance capture and byte comparison EXECUTED on a separate hosted ARM VM in run 38189520114**. The original standalone CLI inspection of the old x86 Fish archive and physical-board execution remain NOT RUN. A10 upstream submission remains NOT RUN; full A10 is incomplete. The coordinator's read-only SSH inventory attempt against `gabepi` timed out, so its board model, userspace architecture and installed prerequisites are unverified. Do not infer these from its hostname. This document supplies the reuse part of [A10](acceptance.md); upstream submission and response evidence remain a separate requirement.
+
+## Actual component reuse: native ARM CI run 38189520114
+
+[The successful GitHub job](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38189520114) executed source commit `ebd5812640b0b69f5c09a47752b739e37e338754` on the standard `ubuntu-24.04-arm` hosted **native ARM VM**, separate from the intended Mac targets. Build execution was October 11, 2026, approximately 20:52–20:53 America/New_York; original UTC timestamps are retained in provenance. The coordinator dispatched the job and retained its logs/bundle. This documentation task checked the retained evidence; it did not dispatch or rerun the native job.
+
+This is a useful executed alternative to the earlier proposed standalone inspector demonstration: the same portable recipe/artifact-inspection API, isolated build/provenance runner and build comparison component ran on another ARM target. **No standalone `package_checks.py artifacts` CLI command on the old x86 `.pkg.tar.zst` archive is claimed.** The executed inputs were the four reviewed original recipes and their newly produced native `.pkg.tar.xz` artifacts. In `build.py`, `recipe()` and `package()` are imported from `package_checks.py` and called on the ARM VM host; each resulting artifact inspection is retained in `validation.json`. `compare.py` also reinspects both actual outputs, verifies retained provenance/input hashes and requires byte equality.
+
+### Executed environment and source
+
+`runner.json` records Linux/aarch64, four observed Neoverse-N2 CPUs, Python 3.12.3, image `ubuntu24-arm64` version `20261004.142.1`, kernel `6.17.0-1022-azure`, UID/GID 1001 and local Docker UNIX socket `/var/run/docker.sock`, with aarch64 daemon. The containers record aarch64 and **4096-byte pages**, makepkg/pacman 7.1.0 and the frozen package inventory. No QEMU/binfmt setup was used. This is provider/job/runtime provenance; it does not attest physical Mac peripherals or 16K-page execution. `runner.json`'s `native_build: NOT RUN` is the pre-build probe snapshot; final `result.json` and eight completed build records establish the later execution. Preserve that chronology rather than modifying the original record.
+
+The authenticated generic ALARM userspace image was `sha256:7a3a68aef1b1cbb2aa8ae81e05b08fd1e9c948c222053ae4957f57554fe4d4f0`. Input lock SHA-256 `7d53775b2de6136d531a7f20059088def7bbb11ad8baef58e75cd5826e3a2b41`, corrected recipe lock `20d846cdf289bfc233b0051bf33b677fd6e94e9f05d91a33595a2829a196fa63`, actual 341-package lock `7f40e51da419514c3ffe4fc9ed5bd9d6f242e576a585347c4799cd20bfd32104`. Its bootstrap was confined to a disposable builder, with required signatures, scriptlets disabled and hooks masked; it is not an Asahi base installation or target transaction. Full trust/input details belong to [the CI contract](native-arm-ci.md) and [native execution record](validation/native-arm.md).
+
+Component bytes were independently fetched from that immutable source commit and hashed during this documentation review:
+
+| Component at executed commit | SHA-256 |
+| --- | --- |
+| [CI driver](https://github.com/Gabriel-Kahen/cachy-asahi/blob/ebd5812640b0b69f5c09a47752b739e37e338754/scripts/ci/native_arm.py) | `1a48dfe768fa40595d84648750b1ada3c2a0c56fb2f00fa961e0e6d8fa6034ef` |
+| [Build/provenance runner](https://github.com/Gabriel-Kahen/cachy-asahi/blob/ebd5812640b0b69f5c09a47752b739e37e338754/scripts/build/build.py) | `e520b37e5dfc285914203cfab99daecc80543505fef7ded6704b3fb06f001d45` |
+| [Build comparison](https://github.com/Gabriel-Kahen/cachy-asahi/blob/ebd5812640b0b69f5c09a47752b739e37e338754/scripts/build/compare.py) | `d75d9177cb741d7ae8e13466aa4b9e96587470b88749735ef2923f9a4446748d` |
+| [Recipe/artifact inspector](https://github.com/Gabriel-Kahen/cachy-asahi/blob/ebd5812640b0b69f5c09a47752b739e37e338754/scripts/checks/package_checks.py) | `e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8` |
+| [Container entry](https://github.com/Gabriel-Kahen/cachy-asahi/blob/ebd5812640b0b69f5c09a47752b739e37e338754/scripts/build/container-entry.sh) | `89723f0a0b2ef80391160f451e877f15fb1e0c4d9a4fec6dbbb8e0d66d8d0f24` |
+| [Executed workflow](https://github.com/Gabriel-Kahen/cachy-asahi/blob/ebd5812640b0b69f5c09a47752b739e37e338754/.github/workflows/native-arm-build.yml) | `258a57b53a8a6cfe9490012daed7093d6940e83c4c37bb960e528249bee5ff5c` |
+
+### Actual commands and inspection boundary
+
+The workflow called `python3 scripts/ci/native_arm.py build` with the two reviewed lock digests above, cache `$RUNNER_TEMP/alarm-cache` and output `$RUNNER_TEMP/native-evidence`. The pinned driver calls `build.py` twice per recipe with `--mode native`, immutable image, `--source-date-epoch 1791748800`, recorded `packages.lock`, recipe-review JSON and `--timeout 300`; then calls `compare.py FIRST SECOND --require-bytes`. These high-level argument descriptions come from the executed pinned workflow/driver. The driver does not separately log its resolved `sys.executable` string, so no invented absolute Python executable is presented as a verbatim record.
+
+For Fish attempt 1, the **actual captured Docker argv** from `provenance.json` is shown below, formatted with shell quoting. This is a historical record of the disposable runner paths, not a command to execute on the development host:
+
+```text
+docker run --rm --name cachy-asahi-4fb9be43014e1a8f --pull=never --platform linux/arm64 --user 1001:1001 --cap-drop=ALL --security-opt=no-new-privileges --read-only --pids-limit 512 --memory 4g --cpus 4 --network none --tmpfs /tmp:rw,nosuid,nodev,exec,size=4g --env CACHY_ASAHI_CONTAINER=1 --env SOURCE_DATE_EPOCH=1791748800 --mount type=bind,src=/home/runner/work/_temp/native-evidence/cachy-asahi-fish-config-1/inputs,dst=/inputs,readonly --mount type=bind,src=/home/runner/work/_temp/native-evidence/cachy-asahi-fish-config-1/artifacts,dst=/out --mount type=bind,src=/home/runner/work/cachy-asahi/cachy-asahi/scripts/build/container-entry.sh,dst=/builder-entry.sh,readonly --mount type=bind,src=/home/runner/work/_temp/native-evidence/cachy-asahi-fish-config-1/expected-packages.lock,dst=/expected-packages.lock,readonly --entrypoint /bin/bash sha256:7a3a68aef1b1cbb2aa8ae81e05b08fd1e9c948c222053ae4957f57554fe4d4f0 /builder-entry.sh
+```
+
+The container entry executed `makepkg --printsrcinfo`, `makepkg --verifysource --noconfirm`, and `makepkg --cleanbuild --clean --force --log --noconfirm` in its `/tmp/work` working directory, after checking native architecture/non-root identity and the exact package lock. The Fish build log records source checksum PASS, `check()` and `package()` execution and package creation. After that container exited, the ARM-host build runner performed its imported static recipe/artifact checks and wrote `validation.json`; it did not invoke a fabricated standalone inspector CLI. Build attempt 1/2 used distinct clean container IDs `cachy-asahi-4fb9be43014e1a8f` / `cachy-asahi-b987af2d88e44b7e`. All other packages likewise used distinct IDs. Both environments per package used the same immutable image and hosted VM; independent physical builder execution is not claimed.
+
+### Native artifacts and reports actually retained
+
+Every row below has two `built-package-static-pass` native records with exit 0, empty validation errors, and comparison flags `installed_contents_equal`, `pkginfo_equal`, `buildinfo_equal`, `bytes_equal` all true. These packages declare `arch=any` and contain no ELF; native execution is evidenced by the actual builder/provenance, not that declaration.
+
+| Native archive (both attempts identical) | SHA-256 | Recipe PKGBUILD SHA-256 |
+| --- | --- | --- |
+| `cachy-asahi-hyprland-settings-0.1.0-1-any.pkg.tar.xz` | `6acf6de12396a0f9a6f37a192ea451eb42f7da1ad4d22b80ac84083a232fce79` | `4c55f488c5b886a88a277c058afde5266e4cefd3e348847f89801aef8d841bcc` |
+| `cachy-asahi-setup-0.1.0-2-any.pkg.tar.xz` | `c2b51a0d1c7be0af726f2e03a877d87cef5f9b01188def2ae6c6a2f7512a4b26` | `1d4326ccfa5b0a68b4eb82351c29a99ca2c0ad8af7503e84aa01bcd3dd1cbe68` |
+| `cachy-asahi-fish-config-0.1.0-1-any.pkg.tar.xz` | `d2b18a1639c1062a56e5a796c27a4e7767edf1677eab745a8df72c45e6e3e9ce` | `a3f0e5f693a48126086ff0e8279d8d833efb8e625dfa4644fdfd2c04ff0175fa` |
+| `cachy-asahi-zsh-config-0.1.0-1-any.pkg.tar.xz` | `4362eb85db3798b88addda4d6f4cc0fa94572dc4449b36aff37be521f230e9dc` | `a0d86c532654f01edac764ad39d1173bb981a13752ad0216ea49907cd49b53e1` |
+
+Local raw evidence root: `artifacts/ci/38189520114/decoded/native-evidence/`. The decoded bundle and job logs are retained locally; these paths are not assumed publicly downloadable. The native-evidence archive SHA-256 is `8797f4f8b52d0f2a84dbbce3589f331b1a913f1fad413877bb1a861775f287e3`. Important raw record hashes:
+
+| Record under evidence root | SHA-256 |
+| --- | --- |
+| `runner.json` | `d954427e1436b0a76909d2733c6168ccbc3cdc04ebf429e4fc0c11bc5b999eed` |
+| `result.json` | `c3f6571e36159aff2595e63fc7b7d6d84121c92ad3ec00c4697aeec5209c9703` |
+| `cachy-asahi-fish-config-1/provenance.json` | `5663b5043703423145ef7a30bca628680a3d8dc4ca698069d411769158400798` |
+| `cachy-asahi-fish-config-2/provenance.json` | `3a1f885fa0e7c02aaa80ddb8bd3a4752feea48e7188856da172a661b7f015105` |
+| `cachy-asahi-fish-config-1/validation.json` (same for attempt 2) | `9ab6a82aef06d38111db029ee0dd5bf22cf3cd6f4d2bfe8db99cef0f683f115f` |
+| `cachy-asahi-fish-config-compare.json` | `b525b54dbffdfe7dd37a84d11bb3028719b1eb7f74803bc12dd18a8e501e60b7` |
+
+The Fish native report contains 12 members and no ELF; its provenance binds the native archive, reviewed recipe inputs, `.BUILDINFO`, package lock, generated metadata, environment/configuration and build log. This documentation review independently rehashed **every retained file/input/artifact recorded by all eight build records**, matched the input maps to the immutable four-recipe lock, confirmed distinct container IDs/equal actual artifact hashes and checked all four comparison outputs. A bounded read-only peer review independently checked 230 recorded file/input/artifact hashes, all eight results, recipe-lock bindings, four comparisons, the captured Docker argv and local-date conversion. It corrected the documented container working directory and stale uncommitted-source wording. This does not replace the coordinator's broader independent source/trust/release review, which was underway when this record was written.
+
+**A10 scope:** the component-execution portion now has concrete native-other-ARM evidence and usable source/contracts: original recipes were inspected, built and compared on a non-Mac ARM VM. The coordinator can record that narrow reuse subrequirement from this executed route after its review. Full A10 remains incomplete because useful upstream submission remains unexecuted. The old standalone inspection of the retained x86 Fish archive, physical-board execution, M2/16K-page behavior, target installation/removal, performance and stable-release acceptance are separate and are not earned by this job. Continued availability of retained source/input/artifact/log bytes remains an operator responsibility.
+
+## Earlier standalone inspector runbook (NOT RUN on ARM)
+
+The following procedure remains useful for a small standalone reuse exercise. Its old x86 Fish `.pkg.tar.zst` input is distinct from the successful job's newly built native `.pkg.tar.xz` artifacts. The successful job above supplies the actual executed reuse alternative; none of the commands below is retroactively reported as executed on ARM.
 
 ## Smallest useful demonstration
 
@@ -12,7 +77,7 @@ The chosen package was assembled on **x86_64**, declares `arch=any`, and contain
 
 - An identified native ARM Linux execution environment with aarch64/arm64 userspace, reached through an existing approved access path. For a physical board, record board/model and CPU plus the operator's execution attestation. For a hosted VM, record provider, runner/job identity, VM/image context and the corroborated native execution evidence below. `uname`, an ARM image or a runner label alone does not establish execution or exclude emulation.
 - Already installed Python 3.11+ (stdlib only), `zstd`, Bash, and `sha256sum`; ordinary user access and free space for an input bundle and evidence directory. `diff` is optional. **No pacman, makepkg, Docker, libarchive/bsdtar, Fish, root access or package installation is needed for this inspector demonstration.** Missing prerequisites block this procedure; it does not install them.
-- Retain the immutable bytes below, their MIT license and the package's assembly record. This source snapshot has not yet been committed by the coordinator; hashes identify the actual reviewed bytes. Add the coordinator's final source commit when available, and re-freeze if any hash changes.
+- Retain the immutable bytes below, their MIT license and the package's assembly record. These inspector, LICENSE and assembly-record bytes are present at source commit `ebd5812640b0b69f5c09a47752b739e37e338754`; their listed hashes identify the reviewed inputs. The archive is retained separately as ignored local storage. Preserve that committed source reference and re-freeze if any input hash changes.
 
 | Bundle file | Source and SHA-256 |
 | --- | --- |
@@ -105,9 +170,9 @@ PY
 
 Add a separate operator/reviewer record containing: run IDs, declared execution context (`native-physical-arm` or `native-hosted-arm-vm`), actual board/model/CPU or provider/VM/runner identity, evidence supporting native execution, access method, source commit (or the exact source-hash freeze), input-bundle location/hash, actual command/exit status, environment/evidence paths and hashes, result and limitations. Do not fabricate the missing fields from the proposed `gabepi` target. Preserve failures as FAIL with diagnostics; unreachable target or absent prerequisites are NOT RUN with blocker and next action.
 
-## Native hosted ARM VM alternative (NOT RUN)
+## Native hosted ARM VM alternative for standalone inspection (NOT RUN)
 
-A separate native ARM builder is a valid other-ARM target for **component execution**. GitHub currently documents `ubuntu-24.04-arm` as a standard Arm64 Linux VM runner for public repositories; its general-availability announcement describes native ARM execution. This supplies a candidate provider route, not a completed run. The native ARM CI worker owns the workflow and provider/free-route audit; the coordinator owns any push, dispatch or input upload. This documentation task performs none of those actions. [GitHub runner reference](https://docs.github.com/en/actions/reference/runners/github-hosted-runners), [native ARM availability](https://github.blog/changelog/2025-08-07-arm64-hosted-runners-for-public-repositories-are-generally-available/)
+A separate native ARM builder is a valid other-ARM target for **component execution**. GitHub currently documents `ubuntu-24.04-arm` as a standard Arm64 Linux VM runner for public repositories; its general-availability announcement describes native ARM execution. This was the candidate provider route for the standalone inspection proposal; the separate native build/inspection/compare route above has now actually executed. Standalone execution of the old archive is still NOT RUN. The native ARM CI worker owns the workflow and provider/free-route audit; the coordinator owns any push, dispatch or input upload. This documentation task performs none of those actions. [GitHub runner reference](https://docs.github.com/en/actions/reference/runners/github-hosted-runners), [native ARM availability](https://github.blog/changelog/2025-08-07-arm64-hosted-runners-for-public-repositories-are-generally-available/)
 
 For a reviewed, actually executed `ubuntu-24.04-arm` job:
 
@@ -161,11 +226,18 @@ An independent reviewer should verify the frozen inputs, actual native execution
 
 | Item | Status | Next action |
 | --- | --- | --- |
-| Frozen inspector and real package | Retained locally; x86 retained-archive inspection PASS | Preserve transferable bundle and add final source commit |
+| Frozen inspector and real package | Retained locally; source commit recorded; x86 inspection PASS | Preserve transferable bundle and committed source reference |
 | Physical-board access/identity | NOT RUN; `gabepi` inventory timed out | Restore authorized access or choose the native hosted-VM alternative |
-| Native hosted ARM VM | NOT RUN; runner route under CI-worker audit | Coordinator reviews provider/workflow/input transport, then records actual authorized job execution |
-| Target prerequisites and first execution | NOT RUN | Inventory already installed tools; run the target block if prerequisites exist |
-| Independent review and reuse acceptance | NOT RUN | Assign reviewer, retain actual job/target result; record a repeat separately if performed |
+| Hosted VM build/inspection/compare reuse | EXECUTED in run 38189520114 | Coordinator and independent reviewer accepted source/provenance/artifact/comparison evidence; target/release gates unchanged |
+| Standalone old-archive inspector CLI on ARM | NOT RUN | Optional additional demonstration; cannot be inferred from the native build route |
+| Physical/standalone target execution | NOT RUN | Inventory tools and run the standalone block only if this additional exercise is chosen |
+| Component reuse acceptance | PASS for hosted ARM build/inspection/compare components; independent review accepted | Retained records and final review in docs/validation/native-arm.md and docs/reviews/native-execution-review.md |
 | Actual useful upstream submission/response | NOT RUN in this document | Review the separately prepared upstream draft and record its actual external status when submitted |
 
-No ARM target was contacted by this documentation task. No package was installed, built or published by it, and no system configuration was changed. The local reference inspection is the only new execution evidence here.
+This documentation task did not contact an ARM target, dispatch CI, install/build/publish packages or change system configuration. The coordinator's actual hosted-ARM CI execution is now recorded above; this task newly checked its retained evidence. The earlier x86 reference and standalone proposal remain explicitly distinguished.
+
+Coordinator signoff after worker handoff: independent final native review and
+coordinator archive/evidence comparison accepted the executed build/inspection/compare
+components on the identified hosted ARM VM. This supplies A10's component-reuse
+portion. A10 overall remains incomplete because upstream submission is not executed;
+the old-archive standalone proposal and both physical M2 records remain untested.

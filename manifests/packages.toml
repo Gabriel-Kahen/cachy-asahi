@@ -72,10 +72,12 @@ license = "MIT"
 audit = "docs/audits/desktop.md"
 selected_for_development = true
 selected_for_release = false
-native_build = "NOT RUN"
+native_build = "PASS"
+native_build_commit = "ebd5812640b0b69f5c09a47752b739e37e338754"
+native_evidence = "docs/validation/native-arm.md"
 installation = "NOT RUN"
 hardware_validation = "NOT RUN"
-next_step = "Complete independent review, freeze the Asahi-compatible dependency transaction, then run two clean native ARM builds and exact-M2 configuration lifecycle checks."
+next_step = "Native build pair passed; freeze the actual Asahi-compatible target dependency transaction and execute exact-M2 configuration/session lifecycle checks."
 
 [[packages]]
 name = "cachy-asahi-fish-config"
@@ -87,10 +89,12 @@ license = "MIT"
 audit = "docs/audits/tools-defaults.md"
 selected_for_development = true
 selected_for_release = false
-native_build = "NOT RUN"
+native_build = "PASS"
+native_build_commit = "ebd5812640b0b69f5c09a47752b739e37e338754"
+native_evidence = "docs/validation/native-arm.md"
 installation = "NOT RUN"
 hardware_validation = "NOT RUN"
-next_step = "Review opt-in helpers, retain a complete base dependency transaction and run two clean native ARM builds plus target installation/removal."
+next_step = "Native build pair passed; retain the actual Asahi target transaction and execute package/helper installation/removal on both Air sizes."
 
 [[packages]]
 name = "cachy-asahi-zsh-config"
@@ -102,10 +106,12 @@ license = "MIT"
 audit = "docs/audits/tools-defaults.md"
 selected_for_development = true
 selected_for_release = false
-native_build = "NOT RUN"
+native_build = "PASS"
+native_build_commit = "ebd5812640b0b69f5c09a47752b739e37e338754"
+native_evidence = "docs/validation/native-arm.md"
 installation = "NOT RUN"
 hardware_validation = "NOT RUN"
-next_step = "Review completion/prompt opt-in behavior, freeze base dependency transaction and run two clean native ARM builds plus target installation/removal."
+next_step = "Native build pair passed; freeze the actual Asahi target transaction and execute completion/prompt installation/removal on both Air sizes."
 
 [[packages]]
 name = "cachy-asahi-setup"
@@ -117,7 +123,9 @@ license = "MIT"
 audit = "docs/setup-tooling.md"
 selected_for_development = true
 selected_for_release = false
-native_build = "NOT RUN"
+native_build = "PASS"
+native_build_commit = "ebd5812640b0b69f5c09a47752b739e37e338754"
+native_evidence = "docs/validation/native-arm.md"
 installation = "NOT RUN"
 hardware_validation = "NOT RUN"
-next_step = "Complete independent recovery review and canonical/package synchronization, then run two clean native ARM builds and exact-model setup/removal/recovery checks."
+next_step = "Source/recovery review, synchronization and native build pair passed; execute exact-model package/setup/removal/recovery and independent onboarding."

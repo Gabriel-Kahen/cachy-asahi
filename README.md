@@ -6,7 +6,7 @@ Initial target: an M2 MacBook Air running Asahi Arch Linux ARM and Hyprland. The
 
 ## Status
 
-Implementation is underway in six coordinated workstreams: desktop packaging, shells/defaults, ARM build/validation and setup, signed releases/recovery, performance measurement, and native ARM CI. Four original configuration/setup packages, baseline capture, build inspection, release recovery and measurement tooling are implemented and locally tested. No clean native ARM package builds, supported installer, custom kernel, stable release, or M2 hardware validation has been established. This is an independent project, not an official CachyOS or Asahi distribution.
+Implementation is underway in six coordinated workstreams: desktop packaging, shells/defaults, ARM build/validation and setup, signed releases/recovery, performance measurement, and native ARM CI. Four original configuration/setup packages, baseline capture, build inspection, release recovery and measurement tooling are implemented and locally tested. All four packages passed two clean native ARM container builds with byte-identical archives; see [actual execution](docs/validation/native-arm.md). Target installation, a supported installer, stable release and M2 hardware validation remain unfinished. This is an independent project, not an official CachyOS or Asahi distribution.
 
 See [implementation status](docs/implementation-status.md) for the complete outline's execution gates and [coordination](docs/orchestration.md) for worker ownership. Candidate recipes and tools are development artifacts until their gates pass.
 
