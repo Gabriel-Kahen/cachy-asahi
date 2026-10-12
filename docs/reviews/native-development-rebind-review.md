@@ -89,3 +89,15 @@ bytes/modes match the reviewed map. It adopts packet
 `11485cec14ab676b5cd44d977ace0372beec33432be84d67c6232b2fc07170ac`,
 with initial `9503d058…` and ARM `8e0d982e…`; original 125 fixtures are unchanged.
 A fresh committed runtime preflight is still required before dispatch.
+
+The final committed checkpoint is
+`ce3dd476cb5cbbfd8f2ec6efdfb16caced9d98c8`. Actual runtime preflight in a
+fresh detached checkout now passes, including the packet's committed Git
+binding, all 211 source bytes/modes, seven metadata pins and nested initial
+maps. An external snapshot also passes closed inventory/byte/mode validation.
+[Coordinator proof](../../artifacts/reviews/broader-final-source-git-proof-20261012.json)
+records these checks. The corrected native
+[run38237127237](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38237127237)
+was created at 10:33:59 UTC, using that exact source and packet11485.
+It was in progress when recorded. This dispatch grants no new native or
+hardware PASS; the original failed runs retain their evidence.
