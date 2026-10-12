@@ -1,0 +1,61 @@
+# Separate native development controller review
+
+Independent bounded review on 2026-10-12 of `scripts/ci/development/` and `.github/workflows/native-arm-development.yml`. Read the current roadmap and package inventory first. Only this document was edited. Temporary source/JSON/process fixtures and portable tests were used; no Git mutation, shared source/manifest/lock edit, Docker operation, download, installation, account/trust change or native workflow occurred.
+
+**Status: in-flight source review; two reproduced defects corrected. Final packet/Git/copied-tree signoff is pending the coordinator's new initial checkpoint and development freeze. Native development execution remains NOT RUN.**
+
+## Reproduced findings and correction checks
+
+**ND1 — cancellation can lose a spawned child.** At common helper SHA `63550f174cfe3d9931f77d28183432ff6a770a072736b5f0ec0a503f3fae9fc6`, `command()` blocked TERM/INT through Popen assignment but omitted the controller's SIGALRM cancellation signal. An isolated real sleeper was spawned; the reviewer injected real SIGALRM after Popen constructed it and before the outer assignment. KeyboardInterrupt propagated with `process is None`, and the sleeper remained alive. The reviewer killed/reaped that owned fixture afterward. The corrected helper includes all three signals in registration deferral and cleanup protection, restores the child's original mask before execution, and passes the exact real-child reproducer: the child is reaped before return and the caller's handler is restored. Current corrected helper SHA is `b62ec5f3c106589ff431af5ae88733cc30a0819a8a884257d75af3db8a52307d`.
+
+**ND2 — fixture origin is mistaken for workflow source.** The new initial-artifact receiver initially required `fixture-manifest.source_commit` to equal the workflow summary's source commit. The unchanged generator deliberately uses the frozen `recipe_source_commit`. Actual retained fifth-run JSON reproduced refusal: manifest origin `ebd5812640b0b69f5c09a47752b739e37e338754`, workflow source `e75ead78a89ff7f84b864a032b34ea6f49c028d5`, error `fixture-source-binding-refused`. This would block all three initial binary/public-artifact bundles for a new workflow commit. The correction binds generated manifest bytes/mode, recipe origin, recipe-lock hash, generator bytes/mode, epoch and reviewed base recipe input maps to the authenticated initial lock. Export and signer manifests retain the separate workflow source identity. The exact retained-JSON case subsequently passes and a rewritten origin is refused. The receiver's tests now use distinct origin/workflow commits. Internal recipe input filenames containing `dependency` are validated as safe pinned source paths; public artifact paths retain the sensitive-path filter.
+
+The receiver's earlier RSA-only draft changed during review; the current pure parser accepts the producer's RSA and EdDSA-22 SHA-256 signature shapes, bounded packet lengths and expected MPI counts, while rejecting secret/partial/trailing packet data. Retained fifth-run GPG status confirms repository signatures use algorithm 22/digest 8. This is receipt-bound public syntax inspection, not a new cryptographic verification claim.
+
+## Source closure and checkpoint boundary
+
+`packet.py` enumerates the initial source tree independently, preserves the exact initial source/generated-fixture maps, includes experiment/virtual/client trees, exactly 15 reviewed KSM inputs, all development Python files/tests, seven metadata pins and the separate workflow. It rejects unknown development file types, package initializers, symlink/nonregular/hardlinked source, unsupported modes, Python caches and oversized inputs. Runtime checks current and selected Git path sets, bytes/modes, the packet's own committed blob/mode, HEAD and complete GITHUB_SHA. Read-only Git operations disable replacement/environment overrides. Candidate generation alone does not satisfy committed acceptance.
+
+Before the later initial-stage corrections, an owned clean selected-source copy passed actual `scan()`, metadata bindings and `snapshot()` checks: **208 files**, 3,741,213 selected bytes, canonical source-map SHA `c2194ff93b74710a487a3b8b3e85c781b3cb59adbb42dc7b24128000d01f1999`. It contained the initial 157 sources/125 fixture records, experiment 7, virtual 11, client 4, development 11 and KSM 15 files. The new receiver test appeared afterward. This historical intermediate copy is not the final packet.
+
+Direct scanning of the shared worktree correctly refuses existing Python caches. The reviewer removed no shared caches; clean-copy fixtures omitted those generated caches explicitly. Later, a fresh clean copy correctly refused `initial-source-map-drift`: integration/repository source and tests changed, and desktop projection source/tests appeared. The coordinator confirmed this is an intentional correction following the sixth actual run and specifically lifted the earlier worktree hold. The historical committed `932cf45` checkpoint remains distinct; current worktree bytes must not be described as preserving it.
+
+At this review the initial lock still hashes to `e8fad9905d743c3287fbed9ca4041272e925bc4ba4aab339ecdc4430d05b3dac` and describes **157 source files/125 generated fixture files**. The coordinator will produce the reviewed **159-source** initial checkpoint before final development freeze/signoff. No production guard was weakened to permit the in-flight mismatch; no final packet lock was supplied to this review.
+
+A later read-only cache-free selected-file inventory contained **211 files**, 3,845,084 bytes: experiments 7, virtual 11, client 4, development 12 and KSM 15 files, plus the now-159-file initial selection and remaining metadata/workflow inputs. Its canonical map SHA was `96138982b8ff954834f09e6b2f33e889a884f5a40c7da8c404bca97b6b375968`. This is an observed inventory, not an accepted packet: actual `scan()` still refuses the old initial-lock mismatch.
+
+## Same-job prerequisites, result authority and cleanup
+
+The development callback consumes the initial controller's images before its final owned-image cleanup. KSM/ARM/client adapters require actual original native build PASS, immutable builder identity and bootstrap/input/inventory hash bindings for the exact 341-package base. Virtual additionally requires accepted lifecycle readiness, exact 341+4 original inventory/payload/archive identities, sanitized immutable-image and fresh verification receipts, and the actual 345-package image. Missing prerequisites remain named NOT RUN/FAIL; counts alone are insufficient.
+
+The new aggregate retains initial exit/result/cleanup authority and every required consumer result. Independent consumer success cannot erase initial failure. One failed consumer does not suppress unrelated bounded stages. Captured virtual output becomes `CAPTURED_REQUIRES_VISUAL_REVIEW`; it does not become compositor/visual/hardware PASS. Cancellation, uncertain cleanup, publication failure and interrupted status persistence remain failures, with an independently retained terminal summary.
+
+The reviewed helpers use finite command/stream limits, owned process groups, TERM cleanup grace then force-stop/reap, and a controlled environment omitting credential/Python/Docker overrides. KSM recovery checks recorded argv, image, exact mounts and observed container identity before removal. ARM verifies the owner's cleanup and bounded artifact archive. Virtual checks the complete five owned cleanup records, exact nonce/image/source/contracts, guest event protocol and frame hashes before binary retention. The source workflow uses the public native ARM runner, serialized concurrency, pinned checkout, read-only repository permissions and a 180-minute ceiling. It now runs original CI boundary tests and the separate development tests after source verification and before provisioning.
+
+## Publication boundary
+
+Public roots are exact per-adapter selectors, not arbitrary descendants or a private-workspace walk. Existing generic credential/control/path filtering remains unchanged. KSM includes pinned GPL source and reviewed package outputs; ARM includes the exact validated development archive; virtual includes only bound frames and deliberately projected text/events. Initial fixture archives, signer public certificate/eight signatures and repository TEST outputs now use a separate receipt/hash/byte-bound receiver, including exact directory/file sets, public-only certificate packets and bounded detached signatures. Private keyrings, guest disks, image roots and raw source caches are not public selectors. Failed/oversize required bundles fail the aggregate. Original native evidence alone retains the preexisting context/public-GPG exclusion.
+
+## Verification snapshot and limits
+
+Independent development suite progressed from **130 PASS** to **131 PASS** after ND1, then **143 PASS, zero skips** after the new receiver and ND2 corrections. An intermediate 143-test run had three receiver errors while its internal recipe-path checks were being edited; the later 12 receiver tests and complete 143-test run pass. Tests use isolated files/processes and mocked Docker/native operations. Source-packet tests exercise copied bytes/modes, added paths, Git/packet/HEAD drift, hidden executables and metadata substitutions. Coordinator-produced final committed/clean-copy acceptance is still required.
+
+After the controller passed both text and opaque receipt approvals to its public checker, an additional independent fixture exercised the actual `publish()`, initial receiver, public checker and tar bundler together. All three synthetic initial producer bundles passed, including `TEST-pacman.conf`, public certificates and RSA/EdDSA signatures; visual review remained pending. Host subprocesses were forbidden during this fixture. It checks adapter/publication compatibility, not cryptography or native producers.
+
+| Reviewed current source | SHA-256 |
+| --- | --- |
+| `base_stages.py` | `5437be7b90053b52b5b536d08994d22bbfa33df10590f230f7bb4dcc9beb32a0` |
+| `common.py` | `b62ec5f3c106589ff431af5ae88733cc30a0819a8a884257d75af3db8a52307d` |
+| `controller.py` | `91c2c53bdeb7bc2d8feaa0839c535787fcbe98a0fcd051aa006bd8b96e824512` |
+| `initial_artifacts.py` | `3fc41f124176b15310a2f1133a52bfe780d797b3df82dc5eb4ef0536e84678c5` |
+| `packet.py` | `d18824fd498f0faa74f640d46dfeb669c2a6cd915e7a9f79fe54dcc832ac4ca8` |
+| `virtual_stage.py` | `7c86de11ca4e6be74b211873a73344c2220b8cf65b390bd2d23ec8a4ca1c6da6` |
+| `test_base_stages.py` | `6eeac4cb7a62b8733325bacb776e7dcedb23b958a9db650c20706278471b989b` |
+| `test_common.py` | `18771b0d0e3518d8febdc53ea74b3b562ac2f9a2bd989e7c915fd002dacdfe96` |
+| `test_controller.py` | `09d2f42d026f2efb9e1bf3d6f899891df167f47e4618f5f7f86d49e14ab9467f` |
+| `test_initial_artifacts.py` | `7d129b99b29e61cc9a8a774f725b3b18315fd42dbcf3b90c11dc1433f3ea819b` |
+| `test_packet.py` | `fbfbd8a73924a6b17caa1f6ee234f5693d9dedf8b93a20adc1bd32e66e766c7a` |
+| `test_virtual_stage.py` | `9a19a1451df97d10a5cc2ecd7bd714bfa796c350bdbd9ea3690508810ea47f29` |
+| `.github/workflows/native-arm-development.yml` | `15c31fce0d3828737a168e155a3634efc5b1e99f05b2d38f7e7726e0b723932c` |
+
+No additional material development-source defect was reproduced after ND1/ND2 corrections. This is an in-flight review snapshot, not signoff for a committed executable packet. No native development execution, KSM runtime behavior, guest/visual result, production signing/publication, physical M2/16K/acceleration/power, performance or full R1–R5 acceptance is established here.
