@@ -104,6 +104,88 @@ class ImageCleanupTests(unittest.TestCase):
             self.assertEqual(common.load(self.journal)['image_id'], self.derived)
         self.assertFalse(any('--force' in argv or 'prune' in argv for argv in self.calls))
 
+    def api_commit(self, result, status=201):
+        """Exercise the actual wire client and held config helper, without Docker."""
+        tmp = tempfile.TemporaryDirectory(); self.addCleanup(tmp.cleanup)
+        path = Path(tmp.name) / 'owned-api.sock'
+        server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        server.bind(str(path)); server.listen(2); server.settimeout(2)
+        self.addCleanup(server.close)
+        requests, errors, guards = [], [], []
+        def respond():
+            try:
+                for code, value in ((404, {'message': 'No such image'}), (status, result)):
+                    channel, _ = server.accept()
+                    with channel:
+                        channel.settimeout(2); data = bytearray()
+                        while b'\r\n\r\n' not in data:
+                            chunk = channel.recv(65536)
+                            if not chunk: raise EOFError('incomplete fixture request headers')
+                            data.extend(chunk)
+                        header, body = bytes(data).split(b'\r\n\r\n', 1)
+                        lines = header.decode().split('\r\n')
+                        headers = dict(line.split(': ', 1) for line in lines[1:])
+                        length = int(headers['Content-Length'])
+                        while len(body) < length:
+                            chunk = channel.recv(length - len(body))
+                            if not chunk: raise EOFError('incomplete fixture request body')
+                            body += chunk
+                        requests.append((lines[0], headers, body))
+                        encoded = json.dumps(value).encode()
+                        channel.sendall(b'HTTP/1.1 ' + str(code).encode() + b' Fixture\r\nContent-Type: application/json\r\nContent-Length: ' +
+                                        str(len(encoded)).encode() + b'\r\n\r\n' + encoded)
+            except BaseException as error: errors.append(error)
+        thread = threading.Thread(target=respond); thread.start()
+        self.addCleanup(lambda: thread.join(timeout=3))
+        self.broker.socket = path
+        self.broker.runner = SimpleNamespace(deadline=time.monotonic() + 5)
+        self.broker._local = lambda runner: guards.append('local')
+        self.broker._info = lambda runner: guards.append('info')
+        self.state.update(tag_present=True, id_present=True)
+        try:
+            return image.commit(self.broker, Path(__file__).resolve().parents[3], self.journal)
+        finally:
+            thread.join(timeout=3)
+            self.assertFalse(thread.is_alive()); self.assertEqual(errors, [])
+            self.assertEqual(guards, ['local', 'info'] * 4)
+            self.assertEqual(len(requests), 2)
+            self.assertEqual(requests[0][0], 'GET /v1.48/images/cachy-asahi-kernel-private%3A' + self.nonce + '/json HTTP/1.1')
+            self.assertEqual(requests[0][2], b'')
+            self.assertEqual(requests[1][0], 'POST /v1.48/commit?container=' + 'd' * 64 +
+                             '&pause=true&repo=cachy-asahi-kernel-private&tag=' + self.nonce + ' HTTP/1.1')
+            payload = json.loads(requests[1][2])
+            expected = {key: self.config.get(key) for key in image.FIELDS}
+            if expected['Entrypoint'] in (None, [], ['']):
+                expected['Entrypoint'] = ['']
+                if expected['Cmd'] is None: expected['Cmd'] = []
+            self.assertEqual(payload, expected); self.assertEqual(len(payload), 12)
+            self.assertEqual(requests[1][1]['Content-Type'], 'application/json')
+            self.assertEqual(int(requests[1][1]['Content-Length']), len(requests[1][2]))
+
+    def test_api148_exact_requests_config_and_immutable_response(self):
+        self.config.update(Entrypoint=['/entry'], Cmd=['argument'], WorkingDir='/work',
+            Labels={'owned': 'yes'}, Volumes={'/data': {}}, ExposedPorts={'8080/tcp': {}},
+            StopSignal='SIGTERM', Shell=['/bin/sh', '-c'], Healthcheck={'Test': ['NONE'], 'Retries': 1},
+            ArgsEscaped=False, Unsupported='not projected')
+        record = self.api_commit({'Id': self.derived})
+        self.assertEqual((record['status'], record['image_id']), ('DERIVED_CONFIG_VERIFIED', self.derived))
+        self.assertEqual(common.load(self.journal), record)
+        self.assertEqual(image.cleanup(self.broker, self.journal)['status'], 'PASS')
+
+    def test_api148_empty_entrypoint_uses_held_helper_sentinel(self):
+        record = self.api_commit({'Id': self.derived})
+        self.assertEqual(record['accepted_config']['Entrypoint'], None)
+        self.assertEqual(record['accepted_config']['Cmd'], None)
+
+    def test_api148_unexpected_commit_response_retains_uncertain_journal(self):
+        for status, result in ((200, {'Id': self.derived}), (201, {'Id': self.derived, 'extra': True}),
+                               (201, {'Id': 'mutable-tag'})):
+            with self.subTest(status=status, result=result):
+                with self.assertRaisesRegex(ValueError, 'immutable derived image response required'):
+                    self.api_commit(result, status)
+                self.assertEqual(common.load(self.journal)['status'], 'COMMIT_ATTEMPTED')
+                self.assertIsNone(common.load(self.journal)['image_id'])
+
 
 class ImageWireTests(unittest.TestCase):
     def server(self, response, trickle=False):

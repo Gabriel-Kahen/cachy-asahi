@@ -121,9 +121,21 @@ Public-only key/trust state, download cache and build scratch stay on tmpfs.
 The controller commits one nonce-owned private image and restores the accepted
 base's twelve effective Docker configuration fields. Added root environment
 variables/labels are deliberately absent: Docker merges those fields at commit.
+Commit and tag inspection requests use fixed Docker API 1.48. The hosted job
+requires the actual daemon minimum/maximum range to include that version;
+requests do not negotiate another version. The accepted helper's twelve-field
+projection and empty-entrypoint sentinel are unchanged.
 Provisioning identity is bound in the exact command. The derived image must
 have the base RootFS layer prefix plus one layer, ARM64/Linux identity and a
 bounded size increase. The accepted base image is never removed.
+
+Owned containers start with `docker start --attach <exact-ID>`. Docker start
+does not support `--sig-proxy`; the copied flag has been removed. Audited Docker
+CLI sources forward signals for non-TTY attachment, so cancellation may also
+signal the exact owned container. The supervisor still kills/reaps its owned
+CLI process group and the broker verifies/removes its journaled containers.
+Source audit, parser checks and local process fixtures do not establish actual
+daemon behavior. See [the compatibility record](kernel-docker-compatibility.md).
 
 Three fresh nonroot containers run the source-derived C logic probe, full
 baseline kernel build and full patched candidate kernel build. Each has a
@@ -193,6 +205,11 @@ repository, installation, boot or benchmark acceptance is inferred from PASS.
   there is no skipped variant or partial-pair PASS. Generic ARM compilation
   would still leave kernel execution, exact M2 Air hardware checks and
   performance measurements pending.
+
+The API/start correction leaves the previous 24-file source lock held. The
+coordinator must rebind that lock and the dependent job packet, then prove the
+committed source bytes/modes before dispatch. A previous lock or source review
+does not authenticate these changed files.
 
 The controller is MIT-licensed; the broker and runtime retain attribution to
 the reviewed FDK implementation. The source-derived extracted-C fixture is

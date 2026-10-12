@@ -22,6 +22,7 @@ import runtime
 SETUP, PARALLEL, KERNEL_ENVELOPE, CLEANUP, GUARD = 300, 2050, 18240, 150, 20
 DEADLINE = SETUP + PARALLEL + KERNEL_ENVELOPE + CLEANUP + GUARD
 BASE_SHA = '89bdb06fea1862b5a6e02b77a4b98f6e04755b02327d875a716bd792929f3a4f'
+KERNEL_API_VERSION = '1.48'
 HOST_ENV = ('GITHUB_SHA', 'GITHUB_REPOSITORY', 'GITHUB_RUN_ID', 'GITHUB_RUN_ATTEMPT',
             'RUNNER_ARCH', 'RUNNER_OS', 'ImageVersion', 'ImageOS')
 
@@ -162,7 +163,8 @@ class Docker:
         versions = version.stdout.decode().strip().split()
         packet.need(len(versions) == 2 and all(re.fullmatch('[0-9]{1,2}\\.[0-9]{1,3}', v) for v in versions), 'Docker-API-range')
         maximum, minimum = (tuple(map(int, value.split('.'))) for value in versions)
-        packet.need(minimum <= (1, 49) <= maximum, 'held-kernel-API-unavailable')
+        required = tuple(map(int, KERNEL_API_VERSION.split('.')))
+        packet.need(minimum <= required <= maximum, 'held-kernel-API-unavailable')
         self.daemon = identity
         return identity
 

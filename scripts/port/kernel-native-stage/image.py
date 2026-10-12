@@ -14,6 +14,7 @@ from urllib.parse import quote, urlencode
 
 from common import load, module, need, save, unique
 
+API_VERSION = '1.48'
 FIELDS = ('User', 'Env', 'Entrypoint', 'Cmd', 'WorkingDir', 'Labels', 'Volumes', 'ExposedPorts',
           'StopSignal', 'Shell', 'Healthcheck', 'ArgsEscaped')
 
@@ -71,7 +72,7 @@ def wire(path, method, target, body, deadline):
 def request(broker, method, path, body=None):
     broker._local(broker.runner); broker._info(broker.runner)
     deadline = min(broker.runner.deadline, time.monotonic() + 180)
-    status, result = wire(str(broker.socket), method, '/v1.49' + path, body, deadline)
+    status, result = wire(str(broker.socket), method, '/v' + API_VERSION + path, body, deadline)
     broker._local(broker.runner); broker._info(broker.runner)
     return status, result
 

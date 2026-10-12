@@ -4,8 +4,10 @@ This is a source implementation for coordinator review and packet registration.
 **Hosted execution, original producer execution in this job, native ARM fixture
 execution and both full kernel compilations have not run.** Kernel execution,
 installation, M2 validation and performance measurement remain pending. No
-shared lock, original producer, frozen kernel stage, platform tuple or recipe
-was changed by this implementation.
+shared lock, original producer, platform tuple or recipe was changed by this
+implementation. The separate API/start compatibility correction updates the
+kernel image client and broker; its source maps require coordinator rebind
+before execution. See [the compatibility record](kernel-docker-compatibility.md).
 
 The manual [workflow](../../.github/workflows/native-arm-kernel.yml) runs only
 in the public `Gabriel-Kahen/cachy-asahi` repository on `ubuntu-24.04-arm`.
@@ -33,7 +35,7 @@ The immutable pins are:
 | Original signed inputs | `3c16c37d1b12cc84a88572e82ab8ad59e7f3b5ed0d08f09ddf72a69f4711d650` |
 | Original four recipes | `20d846cdf289bfc233b0051bf33b677fd6e94e9f05d91a33595a2829a196fa63` |
 | Accepted 341-package inventory | `89bdb06fea1862b5a6e02b77a4b98f6e04755b02327d875a716bd792929f3a4f` |
-| Frozen kernel24 source lock | `53d5c0dba0102413256552da3534b553ce5591ceaa747980e579d4fa1359bc5d` |
+| Kernel24 source lock before API/start correction; rebind pending | `53d5c0dba0102413256552da3534b553ce5591ceaa747980e579d4fa1359bc5d` |
 | Separate signed fifteen-package extension | `cf4d6eaa80ab15f1b1359d161b7b07e187f37df6071e5f628e235cb9689a93d6` |
 
 The coordinator must create and independently review
@@ -63,7 +65,10 @@ The host must be a disposable hosted ARM Linux VM with an ordinary nonzero
 UID/GID, zero effective/permitted capabilities, a root-owned canonical local
 `/run/docker.sock`, and the canonical hashed `/usr/bin/docker`. Docker must be
 native ARM/Linux, rootful, use host UID mapping and cgroup v2, and support the
-held controller's Docker API1.49 within its advertised minimum/maximum range.
+controller's fixed Docker API 1.48 within its actual advertised minimum/maximum
+range. The job reads both values from the same locally pinned daemon and refuses
+a maximum below 1.48, a minimum above 1.48 or a malformed range. It does not
+negotiate a different request version.
 Its initial image
 and container inventories must be empty; an occupied daemon is refused.
 Require at least 15 GiB reported physical memory, 14 GiB available memory and
@@ -196,5 +201,9 @@ The original71/source-helper audit and read-only fixed105-file Git proof passed.
 The new job/workflow/doc remain pending the coordinator's committed source and
 external packet registration. Final test counts and exact source hashes are
 recorded in the handoff; source review does not replace the required hosted run.
+
+The API/start correction has not regenerated the 24-file kernel lock or job packet.
+Their previous pins remain held until the coordinator integrates the reviewed
+source changes, rebinds both closures and proves the committed Git bytes/modes.
 The new Python helpers retain MIT attribution to the held runtime. Existing
 kernel/package source licenses and publication limits remain unchanged.

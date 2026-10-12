@@ -2,13 +2,59 @@
 import json
 import os
 from pathlib import Path
+import signal
 import subprocess
+import sys
 import tempfile
 import time
 import unittest
 from unittest.mock import Mock, patch
 
 import broker
+
+
+FAKE_CLI = r'''#!/usr/bin/python3
+import json,os,signal,sys,time
+from pathlib import Path
+root=Path(os.environ['HOME']);path=root/'state.json';state=json.loads(path.read_text())
+args=sys.argv[1:];assert args[:2]==['--host','unix:///run/docker.sock'];args=args[2:]
+state['calls'].append(args)
+def save():path.write_text(json.dumps(state))
+save()
+if args[:2]==['image','inspect']:
+ assert args[2]==state['item']['Image']
+ print(json.dumps([{'Id':args[2],'Architecture':'arm64','Os':'linux',
+                   'Config':{'Env':['PATH=/usr/bin:/bin'],'Labels':{}}}]))
+elif args[:2]==['container','ls']:
+ item=state.get('container')
+ if item and args[-1] in ('id='+item['Id'],'name=^'+item['Name']+'$'):
+  print(json.dumps({'ID':item['Id'],'Names':item['Name'][1:]}))
+elif args[:1]==['create']:
+ assert args==state['create']
+ row=json.loads((root/'journal-build').read_text())['containers'][0]
+ assert row['create_attempted'] and row['id'] is None
+ state['container']=state['item'];save();print(state['item']['Id'])
+elif args[:2]==['container','inspect']:
+ assert state['container']['Id']==args[2];print(json.dumps([state['container']]))
+elif args[:1]==['start']:
+ if args!=['start','--attach',state['item']['Id']]:
+  print('unknown start flag');raise SystemExit(125)
+ assert state['container']['Id']==args[2]
+ if state['stop']!='success':
+  pid=os.fork()
+  if pid==0:
+   signal.signal(signal.SIGTERM,signal.SIG_IGN)
+   (root/'descendant-ready').write_text(str(os.getpid()));time.sleep(60);os._exit(0)
+  def forward(number,frame):
+   (root/'forwarded').write_text(str(number));os.kill(pid,number)
+  signal.signal(signal.SIGTERM,forward)
+  while not (root/'descendant-ready').exists():time.sleep(.01)
+  (root/'start-ready').write_text(str(os.getpid()));time.sleep(60)
+ print('kernel fixture output')
+elif args[:3]==['container','rm','--force']:
+ assert args[3]==state['container']['Id'];del state['container'];save();print(args[3])
+else:raise SystemExit(9)
+'''
 
 
 class BrokerPolicy(unittest.TestCase):
@@ -107,6 +153,95 @@ class BrokerPolicy(unittest.TestCase):
               patch.object(value, '_find', return_value=None)):
             result = value.cleanup()
         self.assertEqual((result['status'], result['absence_verified']), ('FAIL', False))
+
+    def attached_start(self, stop):
+        # Only CLI process lifetime is real; daemon identity/local checks are fixture-bound.
+        self.mounts['/out'] = str(self.root / 'output-baseline')
+        Path(self.mounts['/out']).mkdir()
+        value = self.instance(); row, item = self.inspect_row(value)
+        row['cmd'] = ['-I', '-B', '/code/scripts/port/kernel-native-stage/worker.py', 'baseline']
+        item['Config']['Cmd'] = row['cmd']
+        binary = self.root / 'fake-docker'; binary.write_text(FAKE_CLI); binary.chmod(0o755)
+        create = ['create', *value._options(row['name'], row['env'], self.mounts), value.image, *row['cmd']]
+        state_path = self.root / 'state.json'
+        state_path.write_text(json.dumps({'calls': [], 'item': item, 'create': create, 'stop': str(stop)}))
+        config = self.root / 'config'; config.mkdir(mode=0o700)
+        env = {'PATH': '/usr/bin:/bin', 'HOME': str(self.root), 'DOCKER_CONFIG': str(config)}
+        result_path = self.root / 'attached-result.json'
+        helper = '''import json,sys
+from pathlib import Path
+sys.path.insert(0,%r)
+import broker
+from runtime import Runner,Cancelled,cancellation_handlers
+root=Path(%r);env=%r
+value=broker.Broker(Runner(20,env,root/'logs'),Runner(1,env,root/'cleanup-logs'),
+ %r,'b'*64,'unix:///run/docker.sock',%r,1000,1000,root/'journal-build',%r,expected_mounts=%r)
+value._local=lambda runner:{}
+value._info=lambda runner:{'id':'native-fixture-daemon','architecture':'aarch64'}
+value.initialize()
+with cancellation_handlers():
+ try:
+  result=value.launch('baseline',%r,%r,%r);failure=None;rc=result.returncode
+ except Cancelled:failure='cancelled';rc=None
+ except ValueError as error:failure=str(error);rc=None
+Path(%r).write_text(json.dumps({'failure':failure,'returncode':rc,'cleanup':value.last_cleanup}))
+''' % (str(Path(broker.__file__).parent), str(self.root), env, str(binary), value.image,
+       self.nonce, self.mounts, self.mounts, self.env('baseline'), 1 if stop == 'timeout' else 15,
+       str(result_path))
+        process = subprocess.Popen([sys.executable, '-I', '-B', '-c', helper], env=env,
+                                   stdout=subprocess.PIPE, stderr=subprocess.STDOUT, start_new_session=True)
+        try:
+            if stop != 'success':
+                end = time.monotonic() + 5
+                while not (self.root / 'start-ready').exists():
+                    self.assertIsNone(process.poll()); self.assertLess(time.monotonic(), end)
+                    time.sleep(.01)
+                if stop != 'timeout':
+                    os.kill(process.pid, stop)
+            output = process.communicate(timeout=10)[0]
+            self.assertEqual(process.returncode, 0, output)
+            result = json.loads(result_path.read_bytes())
+            expected = None if stop == 'success' else 'command-timeout' if stop == 'timeout' else 'cancelled'
+            self.assertEqual(result['failure'], expected)
+            if stop == 'success':
+                self.assertEqual(result['returncode'], 0)
+            self.assertEqual(result['cleanup']['status'], 'PASS')
+            self.assertIs(result['cleanup']['absence_verified'], True)
+            state = json.loads(state_path.read_bytes())
+            self.assertNotIn('container', state)
+            self.assertEqual([call for call in state['calls'] if call[0] == 'start'],
+                             [['start', '--attach', item['Id']]])
+            self.assertEqual([call for call in state['calls'] if call[:2] == ['container', 'rm']],
+                             [['container', 'rm', '--force', item['Id']]])
+            if stop != 'success':
+                self.assertEqual(int((self.root / 'forwarded').read_text()), signal.SIGTERM)
+                for marker in ('start-ready', 'descendant-ready'):
+                    with self.assertRaises(ProcessLookupError):
+                        os.kill(int((self.root / marker).read_text()), 0)
+        finally:
+            if process.poll() is None:
+                os.killpg(process.pid, signal.SIGKILL); process.wait(timeout=2)
+            process.stdout.close()
+
+    def test_attached_start_accepts_exact_cli_profile_and_removes_owned_container(self):
+        self.attached_start('success')
+
+    def test_fake_cli_rejects_unsupported_start_flag(self):
+        self.attached_start('success')
+        result = subprocess.run([str(self.root / 'fake-docker'), '--host', 'unix:///run/docker.sock',
+                                 'start', '--attach', '--sig-proxy=false', 'e' * 64],
+                                env={'HOME': str(self.root)}, stdout=subprocess.PIPE,
+                                stderr=subprocess.STDOUT, timeout=2)
+        self.assertEqual((result.returncode, result.stdout), (125, b'unknown start flag\n'))
+
+    def test_attached_start_sigint_reaps_cli_descendant_and_removes_owned_container(self):
+        self.attached_start(signal.SIGINT)
+
+    def test_attached_start_sigterm_reaps_cli_descendant_and_removes_owned_container(self):
+        self.attached_start(signal.SIGTERM)
+
+    def test_attached_start_timeout_reaps_cli_descendant_and_removes_owned_container(self):
+        self.attached_start('timeout')
 
 
 if __name__ == '__main__':

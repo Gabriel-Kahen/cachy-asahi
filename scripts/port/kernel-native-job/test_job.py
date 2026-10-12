@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: MIT
 from contextlib import contextmanager
+import ast
 import json
 import os
 import signal
@@ -47,16 +48,27 @@ class JobContracts(unittest.TestCase):
         self.args.deadline = 21600
         with self.assertRaises(ValueError): job.ordinary(self.args)
 
-    def test_daemon_must_support_held_kernel_API_149(self):
+    def test_daemon_actual_range_must_include_fixed_kernel_API_148(self):
         info = {'ID': 'fixture-daemon-id', 'Architecture': 'aarch64', 'OSType': 'linux',
             'CgroupVersion': '2', 'SecurityOptions': ['name=seccomp']}
         docker = job.Docker(self.args)
-        for raw, accepted in ((b'1.51 1.24', True), (b'1.48 1.24', False), (b'1.52 1.50', False), (b'unknown', False)):
+        for raw, accepted in ((b'1.51 1.24', True), (b'1.48 1.24', True), (b'1.48 1.48', True),
+                              (b'1.47 1.24', False), (b'1.52 1.49', False), (b'1.48 1.49', False),
+                              (b'unknown', False), (b'1.48', False), (b'1.48 1.24 extra', False),
+                              (b'1.48.0 1.24', False)):
             responses = [SimpleNamespace(returncode=0, stdout=json.dumps(info).encode()), SimpleNamespace(returncode=0, stdout=raw)]
             with patch.object(docker, 'call', side_effect=responses):
                 if accepted: self.assertEqual(docker.info(Mock())['id'], info['ID'])
                 else:
                     with self.assertRaises(ValueError): docker.info(Mock())
+
+    def test_job_guard_and_kernel_wire_pin_the_same_fixed_API(self):
+        path = Path(job.__file__).resolve().parents[1] / 'kernel-native-stage/image.py'
+        source = ast.parse(path.read_text())
+        values = [ast.literal_eval(node.value) for node in source.body if isinstance(node, ast.Assign)
+                  and any(isinstance(target, ast.Name) and target.id == 'API_VERSION' for target in node.targets)]
+        self.assertEqual(values, [job.KERNEL_API_VERSION])
+        self.assertEqual(job.KERNEL_API_VERSION, '1.48')
 
     def test_acquisition_uses_actual_held_receipt_and_exact_seven_paths(self):
         out = self.root / 'acquire'; out.mkdir()

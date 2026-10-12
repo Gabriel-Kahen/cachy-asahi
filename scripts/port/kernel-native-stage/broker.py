@@ -414,7 +414,7 @@ class Broker:
             row['id'] = identifier
             self._write(record)
             self._inspect(identifier, row)
-            return self._operation(['start', '--attach', '--sig-proxy=false', row['id']], timeout=timeout)
+            return self._operation(['start', '--attach', row['id']], timeout=timeout)
         finally:
             failed = sys.exc_info()[0] is not None
             if failed or not persist:
