@@ -87,7 +87,7 @@
     },
     "scripts/port/repository-client-phase-stage/evidence/retained-public-38259350917.json": {
       "bytes": 73515,
-      "mode": 384,
+      "mode": 420,
       "sha256": "942d1887d106735d21501b7aa34a74e3053fc458a4abe5cfed24df844a9b1665"
     },
     "scripts/port/repository-client-phase-stage/evidence/retained-public-38259350917.log": {
@@ -205,6 +205,14 @@
   "root_url_phase_adoption": {
     "author_collector_tests": 141,
     "author_phase_tests": 111,
+    "git_mode_correction": {
+      "bytes_and_sha256": "unchanged",
+      "committed_nonexecutable_mode": 420,
+      "historical_copy_mode": 384,
+      "historical_review_lock_sha256": "0af3a8d5bb35fb44acab153618e65c1dfd4781fdb4ad54b5bcddb1010f662217",
+      "path": "scripts/port/repository-client-phase-stage/evidence/retained-public-38259350917.json",
+      "reason": "Git records executable/nonexecutecutable classes, not0600; this is already public-only observation data, not private custody"
+    },
     "handoff_sha256": "853de997a61ac7e98c3e4c39585c6ae4153935312dcde3a7d823fe9378afa0f0",
     "historical_review_lock_sha256": "6f8cb2911414512e4f7f1533aa20bcf4deef179fd6aea72fc0c75a3ec321fe53",
     "historical_source_map_sha256": "f1d874afae8143ef737eee31b66ef0dee8175741bbaefee53585c36a679166b9",
