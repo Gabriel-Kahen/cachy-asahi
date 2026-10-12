@@ -1,9 +1,9 @@
 {
   "files": {
     ".github/workflows/native-arm-kernel.yml": {
-      "bytes": 13372,
+      "bytes": 13373,
       "mode": 420,
-      "sha256": "40a16f84d2a52f0574b71bb1baffdc6069429b2e27345870795f0351c34d0e4c"
+      "sha256": "1ff6d9c5711b527992499405e23130f10924d524514322942de199b3deabfba4"
     },
     "AGENTS.md": {
       "bytes": 1334,
@@ -466,9 +466,9 @@
       "sha256": "fa8b0584abf0fa7cb03337e7368fe67b5168a379a30f9b69e0e61c3cbb6f8c9c"
     },
     "scripts/port/kernel-native-job/test_public.py": {
-      "bytes": 47145,
+      "bytes": 47146,
       "mode": 420,
-      "sha256": "ed92e3b63b636a980c6831cdb6805b70881361c5208641a52e12adeabb699b41"
+      "sha256": "7cdf4eac53c5fdc2b3f0d09185a0214477f0da98401c9198a46f6dde8f57276e"
     },
     "scripts/port/kernel-native-job/test_runtime.py": {
       "bytes": 12796,

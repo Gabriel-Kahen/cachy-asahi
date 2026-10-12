@@ -766,7 +766,7 @@ class BootstrapTests(unittest.TestCase):
     def test_workflow_finite_manual_shape_and_reserves(self):
         text = WORKFLOW.read_text()
         for expected in ('workflow_dispatch:', "github.repository == 'Gabriel-Kahen/cachy-asahi'", 'github.event.repository.private == false',
-                         'runs-on: ubuntu-24.04-arm', 'contents: read', 'group: native-arm-build', 'cancel-in-progress: false',
+                         'runs-on: ubuntu-24.04-arm', 'contents: read', 'group: native-arm-kernel', 'cancel-in-progress: false',
                          'persist-credentials: false', '--deadline 20760', 'if: always()', 'run: *trusted-bootstrap',
                          'actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1'):
             self.assertIn(expected, text)
