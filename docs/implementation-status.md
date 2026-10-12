@@ -34,8 +34,10 @@ The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with 
 - The generic ARM desktop/application preview resolves 45 minimum roots to a
   574-package inventory without replacing the 341-package builder baseline.
   This is a private print-only libalpm transaction, not an installed Asahi
-  target. Of 233 added archives, 232 were authenticated; the missing original
-  `libfdk-aac` archive leaves the aggregate incomplete. See
+  target. The original 232/233 authentication failure is preserved. A separate
+  refreshed proposal authenticates all 233 additions after explicitly adopting
+  the builder Perl refresh and proposing a new FDK archive; FDK source/license
+  clearance and native installation remain incomplete. See
   `docs/port/desktop-coverage.md` and `docs/workstreams/port-resolution.md`.
 - Cachy-update's actual Rust tray and shell updater have a development recipe,
   adapted behavior and independently authored licensed icons. All 167 registry
@@ -53,12 +55,16 @@ The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with 
 - The offline development release client passes 37 local tests with temporary
   real GPG signatures and independent race regressions. Production trust,
   supported release promotion and native onboarding remain separate gates.
-- Connected V01–V09 execution has two retained native failures. The first
+- Connected V01–V09 execution has three retained native failures. The first
   passed 211 host boundary tests but refused an incorrect source freeze. The
   corrected run passed 213 host tests, runner probe and full-source preflight,
-  then failed fetching superseded pinned Perl inputs. New builds, installed
-  lifecycle, repository transactions, onboarding and desktop stages did not
-  begin. See [the actual execution record](validation/virtual-arm.md).
+  then failed fetching superseded pinned Perl inputs. The third authenticated
+  the refreshed inputs, reproduced all four original native build pairs and
+  passed 349 locked-userspace tests with no skips. Its fixture generation and
+  integration suite failed on omitted locked audit inputs, and the desktop
+  configuration verifier aborted. Installed lifecycle, repository transactions,
+  onboarding and installed desktop stages did not begin. See
+  [the actual execution record](validation/virtual-arm.md).
 
 These are distinct development results. No complete-port milestone or hardware
 acceptance is granted by their local test counts or source reviews.

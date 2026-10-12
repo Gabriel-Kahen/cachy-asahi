@@ -112,3 +112,48 @@ and reports bounded filenames/HTTP statuses without response bodies or URL
 credentials. The coordinator reran all **217 local CI tests**, with no skips.
 All eight original package builds and the connected integration batch must run
 against the new snapshot before any new execution acceptance.
+
+## Third actual attempt: rebuilt packages pass, integration fails
+
+- Source: `70f08aaad0b03f343f533fa220a3d6cf6b35ae66`.
+- [Native run 38200957061](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38200957061): **FAIL overall**.
+- Input, recipe and integration identities are the refreshed hashes above.
+
+All 501 inputs were acquired and byte-checked; the rootfs and all 248 dependency
+archives passed signature authentication. Native bootstrap produced the exact
+341-package inventory, SHA-256
+`89bdb06fea1862b5a6e02b77a4b98f6e04755b02327d875a716bd792929f3a4f`.
+All four original packages passed two distinct clean native build runs, archive
+inspection and byte/payload/PKGINFO/BUILDINFO equality. The coordinator repeated
+the strict comparisons against the retained artifacts; this is independent
+receipt/artifact verification, not another set of ARM builds.
+
+Fixture generation then failed because the copied source omitted mandatory
+recipe-lock audit inputs under the Fish/Zsh/setup `evidence/` directories.
+The source scanner's blanket exclusion corrected ignored archive leakage but
+also removed 25 locked recipe files. A correction must retain those exact pinned
+inputs and prove fixture generation from the copied source itself before a new
+dispatch. Source preflight on the full checkout alone did not test this boundary.
+
+The locked native userspace separately passed seven full suites: build/check
+33, collector 3, release 19, benchmarks 28, setup 40, CI 217 and synchronization
+9: **349 tests passed, zero skips**. The integration suite attempted 116 tests
+and failed with 15 missing-input errors; it is not a passed suite. The desktop
+local checker also failed: Hyprland's configuration verifier exited on signal 6.
+Its terminal output was rejected by the generic text exporter's control-byte
+guard, so the precise diagnostic was not retained. Both runtime failure and
+diagnostic loss require correction; neither can be converted into a skipped
+check or an accepted desktop result.
+
+Signing, installed lifecycle, repository transactions, onboarding and installed
+desktop stages are **NOT RUN** because fixture generation failed. Sanitized
+summary and available failed-suite diagnostics are retained. Raw logs and
+strictly decoded bundles are under `artifacts/ci/38200957061/`:
+
+| Bundle | SHA-256 | Bytes |
+| --- | --- | --- |
+| Native probe | `52e8c7de04c40d67f8909a25d499527f041310de5a67fe8d91d2a8494f1425e5` | 1769 |
+| Native package build evidence | `6ddc7ad98c220a678b3d388fc45d5f9a5bdc05c338ad948cac36e7c5ceb8b07c` | 1256108 |
+| Failed fixtures | `c52171e663f506920bd0251f5094a8b421f87bc2b8a9151f45567e20d33d9368` | 900 |
+| Native source suites | `7aca4898e30be8e53a1c13a0e31474c1590e83e69f553d2f8a64909da5d2d075` | 20984 |
+| Failed integration summary | `4c040aee5dc36a50e8f445780a4e4380f4c6c5518c3b9c0f685be3b8a42768f3` | 982 |
