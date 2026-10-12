@@ -179,3 +179,19 @@ native_build = "NOT RUN"
 installation = "NOT RUN"
 hardware_validation = "NOT RUN"
 next_step = "Build/rebuild the reviewed selected-source packet natively, then verify the explicit libfdk-aac provider substitution and PipeWire AAC integration before selecting a release transaction."
+
+[[packages]]
+name = "cachy-asahi-zsh-autosuggestions"
+phase = "complete-port-tools"
+status = "candidate"
+source = "https://github.com/zsh-users/zsh-autosuggestions"
+upstream_commit = "85919cd1ffa7d2d5412f6d3fe437ebdbeeec4fc5"
+recipe = "packages/shells/cachy-asahi-zsh-autosuggestions/PKGBUILD"
+license = "MIT"
+audit = "docs/workstreams/zsh-autosuggestions.md"
+selected_for_development = true
+selected_for_release = false
+native_build = "NOT RUN"
+installation = "NOT RUN"
+hardware_validation = "NOT RUN"
+next_step = "Reviewed source and isolated x86 ZLE controls pass; two native ARM build attempts and package lifecycle remain required. Register a bounded addon consumer in the existing development job."
