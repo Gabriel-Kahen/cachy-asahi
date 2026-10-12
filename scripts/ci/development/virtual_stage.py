@@ -32,7 +32,8 @@ ACQUISITION_SECONDS = 600
 READ_TIMEOUT = 15
 OWNER_TIMEOUT = 3420  # Owner's 3300-second trial plus bounded finalization.
 PACKET_FILES = {'controller.py', 'audit_tooling.py', 'common.py', 'guest.py',
-                'prepare.py', 'run.py', 'gbm_probe.c', 'tooling.lock.json', 'tooling-audit.json'}
+                'prepare.py', 'run.py', 'gbm_probe.c', 'image_decode_probe.c',
+                'image_decode_report.py', 'tooling.lock.json', 'tooling-audit.json'}
 ALIASES = {'base_inputs_lock', 'base_lock', 'installed_lock', 'lifecycle_receipt',
            'installed_image_receipt', 'committed_config', 'committed_verification',
            'commit_receipt', 'tooling_lock', 'tooling_audit'}
@@ -90,6 +91,10 @@ DIAGNOSTIC_CODES = {
     'guest-gbm-identity-refused',
     'guest-ipc-probe-event-refused',
     'guest-ipc-readiness-protocol-refused',
+    'guest-image-decode-event-refused',
+    'guest-image-decode-order-refused',
+    'guest-image-decode-binding-refused',
+    'authenticated-workflow-identity-required',
     'guest-phase-event-refused',
     'guest-process-state-event-refused',
     'guest-process-state-order-refused',
@@ -199,6 +204,27 @@ def load_module(path, name):
     return module
 
 
+def image_decoder(root=None, expected_pin=None):
+    """Load only the selected packet file, never an ambient module search path."""
+    root = Path(__file__).resolve().parents[3] if root is None else Path(root)
+    path = root / 'scripts/virtual/image_decode_report.py'
+    source = read_regular(path)
+    if expected_pin is not None:
+        require(type(expected_pin) is str and PIN.fullmatch(expected_pin) and
+                hashlib.sha256(source).hexdigest() == expected_pin, 'virtual-source-packet-drift')
+    spec = importlib.util.spec_from_file_location('development_virtual_image_decode_report', path)
+    module = importlib.util.module_from_spec(spec)
+    exec(compile(source, str(path), 'exec'), module.__dict__)
+    return module
+
+
+def workflow_identity():
+    values = {name: os.environ.get('GITHUB_' + name.upper()) for name in ('run_id', 'run_attempt')}
+    require(all(type(values[key]) is str and re.fullmatch(r'[1-9][0-9]{0,' + str(maximum - 1) + '}', values[key])
+                for key, maximum in (('run_id', 20), ('run_attempt', 10))), 'authenticated-workflow-identity-required')
+    return values
+
+
 def inventory(path):
     rows = {}
     for line in read_regular(path).decode('utf-8').splitlines():
@@ -227,7 +253,8 @@ def source_packet(controller, root):
     require(declarations.get('ALIASES') == ALIASES and declarations.get('LOCK_PIN') == accepted['tooling.lock.json']
             and declarations.get('AUDIT_PIN') == accepted['tooling-audit.json']
             and declarations.get('AUDITOR_PIN') == accepted['audit_tooling.py'] and
-            declarations.get('CORE') == {n: accepted[n] for n in ('common.py', 'guest.py', 'prepare.py', 'run.py', 'gbm_probe.c')},
+            declarations.get('CORE') == {n: accepted[n] for n in ('common.py', 'guest.py', 'prepare.py', 'run.py', 'gbm_probe.c',
+                                                                  'image_decode_probe.c', 'image_decode_report.py')},
             'virtual-owner-constants-differ')
     return accepted, declarations
 
@@ -360,6 +387,7 @@ def preflight(controller, root):
                 'audit_tooling_sha256': constants['AUDITOR_PIN'], 'controller_sha256': accepted['controller.py'],
                 'baseline': signed_rows, 'files': {n: {'path': 'metadata/' + n + paths[n].suffix, 'sha256': hashes[n]} for n in paths},
                 'cache_dir': 'tooling-cache'}
+    contract.update(workflow_identity())
     prerequisite.update(installed_image_id=controller.installed, installed_package_count=345,
                         baseline_source_commit=source, virtual_source_packet='PASS', tooling_audit='PASS')
     return prerequisite, contract, paths, blobs
@@ -581,6 +609,51 @@ def no_reported_config_error_text(value):
            len(value) == 1 and type(value[0]) is str and value[0] == '')
 
 
+def image_decode_order(events, decoder, nonce=None, *, required=False):
+    """The observation follows minimal readiness and precedes any client query."""
+    seen, raw, awaiting, ready, monitor = False, None, None, False, False
+    essential = []
+    ipc_argv = ['/usr/bin/hyprctl', '-j', 'configerrors']
+    for row in events:
+        kind = row['event']
+        if awaiting is not None:
+            require(kind == 'command' and row.get('argv') == ipc_argv and
+                    all(row.get(field) == awaiting[field] for field in ('returncode', 'error', 'stdout', 'stderr')),
+                    'guest-ipc-readiness-protocol-refused')
+            ready = awaiting['stage'] == 'minimal'
+            awaiting = None
+        if kind == 'ipc_probe' and row['returncode'] == 0:
+            try:
+                accepted = row['error'] is None and row['stderr'] == '' and no_reported_config_error_text(json.loads(row['stdout']))
+            except (ValueError, TypeError):
+                accepted = False
+            if accepted:
+                awaiting = row
+        if kind == 'command' and row.get('argv') == ['/usr/bin/hyprctl', '-j', 'monitors']:
+            try:
+                values = json.loads(row['stdout'])
+                monitor = ready and row['returncode'] == 0 and row['error'] is None and type(values) is list and any(
+                    type(m) is dict and type(m.get('width')) is int and m['width'] > 0 and
+                    type(m.get('height')) is int and m['height'] > 0 for m in values)
+            except (ValueError, TypeError):
+                monitor = False
+        if kind == 'image_decode_probe':
+            require(ready, 'guest-ipc-readiness-protocol-refused')
+            require(not seen and monitor and essential == [('boot', None), ('gbm_pass', None)],
+                    'guest-image-decode-order-refused')
+            try:
+                raw = decoder.validate_event(row, nonce if nonce is not None else row['nonce'])
+            except (ValueError, TypeError, KeyError):
+                require(False, 'guest-image-decode-event-refused')
+            seen = True
+        elif kind == 'command' and row.get('argv') == ['/usr/bin/hyprctl', '-j', 'clients']:
+            require(seen and raw is not None, 'guest-image-decode-order-refused')
+        if kind not in ('command', 'session_log', 'ipc_probe', 'process_state', 'image_decode_probe'):
+            essential.append((kind, row.get('stage')))
+    require(not required or seen and raw is not None, 'guest-image-decode-event-refused')
+    return raw
+
+
 def process_diagnostic_order(events):
     """Failure observations require their actual IPC/monitor prefix; never grant success."""
     if not any(row['event'] == 'process_state' for row in events):
@@ -668,11 +741,11 @@ def process_diagnostic_order(events):
                     'guest-process-state-order-refused')
             observed = (row['stage'], row['boundary'])
             before = row
-        if kind not in ('command', 'session_log', 'ipc_probe', 'process_state'):
+        if kind not in ('command', 'session_log', 'ipc_probe', 'process_state', 'image_decode_probe'):
             essential.append((kind, row.get('stage')))
 
 
-def read_events(path, policy, *, data=None):
+def read_events(path, policy, *, data=None, decoder=None, nonce=None):
     """Inspect the known encoded terminal records before any public copying."""
     data = read_regular(path, LIMIT) if data is None else data
     require(type(data) is bytes and len(data) <= LIMIT, 'bounded-guest-event-list-required')
@@ -695,10 +768,17 @@ def read_events(path, policy, *, data=None):
         'command': {'event', 'argv', 'returncode', 'error', 'stdout', 'stderr'},
         'ipc_probe': {'event', 'stage', 'attempt', 'elapsed_ms', 'returncode', 'error', 'stdout', 'stderr'},
         'process_state': {'event', 'stage', 'boundary', 'client', 'compositor'},
-        'session_log': {'event', 'stage', 'filename', 'sha256', 'base64'}}
+        'session_log': {'event', 'stage', 'filename', 'sha256', 'base64'},
+        'image_decode_probe': {'event', 'nonce', 'stage', 'elapsed_ms', 'returncode', 'error', 'report_sha256', 'report_base64'}}
     for event in events:
         require(isinstance(event.get('event'), str) and event['event'] in schemas and
                 set(event) == schemas[event['event']], 'unknown-guest-event-fields-refused')
+        if event['event'] == 'image_decode_probe':
+            try:
+                raw = (decoder or image_decoder()).validate_event(event, nonce if nonce is not None else event['nonce'])
+            except (ValueError, TypeError, KeyError):
+                require(False, 'guest-image-decode-event-refused')
+            require(raw is None or not policy.PRIVATE_CONTENT.search(raw.decode('ascii')), 'guest-image-decode-event-refused')
         if event['event'] == 'process_state':
             require(event['stage'] in ('minimal', 'overlay') and
                     event['boundary'] in ('before_cleanup', 'after_cleanup'), 'guest-process-state-event-refused')
@@ -738,14 +818,20 @@ def read_events(path, policy, *, data=None):
             normalized = ''.join(c for c in normalized if ord(c) >= 32 or c in '\n\r\t')
             require(not policy.PRIVATE_CONTENT.search(text) and not policy.PRIVATE_CONTENT.search(normalized),
                     'private-guest-session-log-refused')
+    # Historical early failures remain diagnostic-only without a probe. Any new
+    # probe is fully ordered, even when a later application failure is retained.
+    if any(row['event'] == 'image_decode_probe' for row in events):
+        image_decode_order(events, decoder or image_decoder(), nonce)
     process_diagnostic_order(events)
     return events, hashlib.sha256(data).hexdigest()
 
 
-def event_protocol(path, expected_sha256, nonce, policy, *, data=None):
-    events, actual_sha256 = read_events(path, policy, data=data)
+def event_protocol(path, expected_sha256, nonce, policy, *, data=None, decoder=None):
+    decoder = decoder or image_decoder()
+    events, actual_sha256 = read_events(path, policy, data=data, decoder=decoder, nonce=nonce)
     require(actual_sha256 == expected_sha256, 'guest-events-binding-refused')
     require(len(events) >= 7, 'complete-guest-event-protocol-required')
+    image_decode_order(events, decoder, nonce, required=True)
     essential = []
     ipc = {stage: {'attempt': 0, 'elapsed_ms': 0, 'ready': False, 'correlated': False}
            for stage in ('minimal', 'overlay')}
@@ -754,7 +840,7 @@ def event_protocol(path, expected_sha256, nonce, policy, *, data=None):
     for event in events:
         require(isinstance(event, dict), 'guest-event-object-required')
         kind = event.get('event')
-        require(kind in ('boot', 'gbm_pass', 'frame_ready', 'phase_pass', 'guest_pass', 'command', 'session_log', 'ipc_probe'),
+        require(kind in ('boot', 'gbm_pass', 'frame_ready', 'phase_pass', 'guest_pass', 'command', 'session_log', 'ipc_probe', 'image_decode_probe'),
                 'guest-event-kind-refused')
         require('nonce' not in event or event['nonce'] == nonce, 'guest-event-nonce-refused')
         correlated = awaiting is not None
@@ -829,7 +915,7 @@ def event_protocol(path, expected_sha256, nonce, policy, *, data=None):
                 require(ready, 'guest-ipc-readiness-protocol-refused')
                 state['ready'] = True
                 awaiting = event
-        if kind not in ('command', 'session_log', 'ipc_probe'):
+        if kind not in ('command', 'session_log', 'ipc_probe', 'image_decode_probe'):
             essential.append((kind, event.get('stage')))
     require(awaiting is None and all(row['correlated'] for row in ipc.values()),
             'guest-ipc-readiness-protocol-refused')
@@ -954,6 +1040,54 @@ def capability_receipt(root, contract, receipt):
     return projected
 
 
+def image_decode_binding(contract, receipt, events, decoder):
+    """Derive context from selected controller authority, never producer context."""
+    require(all(type(contract.get(key)) is str and re.fullmatch(r'[1-9][0-9]{0,' + str(maximum - 1) + '}', contract[key]) and
+                receipt.get(key) == contract[key] for key, maximum in (('run_id', 20), ('run_attempt', 10))),
+            'guest-image-decode-binding-refused')
+    attempts = [row for row in events if row['event'] == 'image_decode_probe']
+    require(len(attempts) <= 1, 'guest-image-decode-order-refused')
+    preparation = receipt.get('image_decode_preparation')
+    observation = receipt.get('image_decode_observation')
+    if preparation is None:
+        require(not attempts and observation is None, 'guest-image-decode-binding-refused')
+        return
+    keys = {'schema_version', 'helper_sha256', 'guest_image_sha256', 'package_inventory_sha256',
+            'asset_sha256', 'guest_contract_sha256', 'prepare_receipt_sha256'}
+    require(type(preparation) is dict and set(preparation) == keys and type(preparation['schema_version']) is int and
+            preparation['schema_version'] == 1 and all(type(preparation[key]) is str and PIN.fullmatch(preparation[key])
+            for key in keys - {'schema_version'}) and preparation['asset_sha256'] == decoder.ASSET_SHA256 and
+            preparation['prepare_receipt_sha256'] == receipt.get('prepare_receipt_sha256'),
+            'guest-image-decode-binding-refused')
+    tooling = receipt.get('stages', {}).get('tooling', {})
+    guest = receipt.get('guest', {})
+    require(type(tooling.get('image_id')) is str and re.fullmatch(r'sha256:[0-9a-f]{64}', tooling['image_id']) and
+            tooling.get('package_inventory_sha256') == preparation['package_inventory_sha256'] and
+            ('prepare_receipt_sha256' not in guest or guest['prepare_receipt_sha256'] == preparation['prepare_receipt_sha256']),
+            'guest-image-decode-binding-refused')
+    if attempts:
+        nonce = guest.get('nonce')
+        require(type(nonce) is str and re.fullmatch(r'[0-9a-f]{32}', nonce), 'guest-image-decode-binding-refused')
+        image_decode_order(events, decoder, nonce)
+    if not attempts or attempts[0]['error'] is not None:
+        require(observation is None, 'guest-image-decode-binding-refused')
+        return
+    raw = image_decode_order(events, decoder, nonce)
+    expected = {'source_sha256': contract['core_sha256']['image_decode_probe.c'],
+                'image_sha256': preparation['guest_image_sha256'], 'tooling_sha256': tooling['image_id'][7:],
+                'guest_sha256': contract['core_sha256']['guest.py'], 'helper_sha256': preparation['helper_sha256'],
+                'runtime_sha256': contract['core_sha256']['common.py'],
+                'package_inventory_sha256': preparation['package_inventory_sha256'],
+                'asset_sha256': preparation['asset_sha256'], 'run_id': contract['run_id'], 'run_attempt': contract['run_attempt']}
+    require(type(observation) is dict and set(observation) == {'binding', 'observation'}, 'guest-image-decode-binding-refused')
+    try:
+        validated = decoder.parse_bound_report(raw, observation['binding'], expected,
+                    expected_report_sha256=attempts[0]['report_sha256'])
+    except (ValueError, TypeError, KeyError):
+        require(False, 'guest-image-decode-binding-refused')
+    require(validated == observation, 'guest-image-decode-binding-refused')
+
+
 def receive(root, output, contract, code, result):
     owner = output / 'owner-public'
     receipt_bytes = read_regular(owner / 'result.json', 8 * 1024**2)
@@ -971,15 +1105,18 @@ def receive(root, output, contract, code, result):
             and receipt.get('controller_contract_sha256') == digest(output / 'inputs/controller-contract.json') and
             receipt.get('source_sha256') == contract['core_sha256'] | {'controller.py': contract['controller_sha256'],
                 'audit_tooling.py': contract['audit_tooling_sha256']} and receipt.get('inputs') == contract['files'], 'virtual-owner-binding-refused')
+    decoder = image_decoder(root, contract['core_sha256']['image_decode_report.py'])
     exporter = load_module(root / 'scripts/ci/integration_export.py', 'development_virtual_exporter')
     event_file = owner / 'guest-events.json'
-    event_bytes, event_sha256 = None, None
+    event_bytes, event_sha256, events = None, None, []
     if event_file.exists() or event_file.is_symlink():
         event_bytes = read_regular(event_file, LIMIT)
-        events, event_sha256 = read_events(event_file, exporter, data=event_bytes)
+        events, event_sha256 = read_events(event_file, exporter, data=event_bytes, decoder=decoder,
+                                         nonce=receipt.get('guest', {}).get('nonce'))
         require(not any(event['event'] in ('boot', 'gbm_pass', 'frame_ready', 'phase_pass', 'guest_pass') for event in events)
                 or capabilities is not None and len(capabilities) == 4 and
                 all(row['status'] == 'PASS' for row in capabilities), 'qemu-capability-success-required')
+    image_decode_binding(contract, receipt, events, decoder)
     public = output / 'virtual-public'; public.mkdir(mode=0o700, exist_ok=True)
     selected = output / 'selected'; selected.mkdir(mode=0o700, exist_ok=True)
     good = True
@@ -1033,7 +1170,7 @@ def receive(root, output, contract, code, result):
             {'cachy-virtual-' + s + '-' + nonce for s in ('tooling', 'verify', 'prepare', 'run')} and
             len([r for r in cleanup if r.get('private_tag') == 'cachy-virtual-private-' + nonce + ':fixture'
                  and r.get('image_id') == guest['image_id']]) == 1, 'virtual-complete-owned-cleanup-required')
-    event_protocol(owner / 'guest-events.json', receipt['guest_events_sha256'], nonce, exporter, data=event_bytes)
+    event_protocol(owner / 'guest-events.json', receipt['guest_events_sha256'], nonce, exporter, data=event_bytes, decoder=decoder)
     # Binary publication requires the complete accepted capture binding. Text
     # failure diagnostics remain independently subject to the generic filter.
     frames = {stage: frame(owner / (stage + '.ppm'), receipt['frames'][stage], stage)

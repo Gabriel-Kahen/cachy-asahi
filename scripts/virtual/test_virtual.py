@@ -21,7 +21,305 @@ from unittest.mock import Mock
 import audit_tooling
 import common
 import guest
+import image_decode_report
 import run
+
+
+class GuestImageDecode(unittest.TestCase):
+    nonce = 'a' * 32
+
+    def report(self):
+        from test_image_decode_probe import fixture
+        row = fixture()
+        row['asset'].update(size=1042, sha256=guest.ASSET_SHA256)
+        row['cache'].update(status='missing', size=None, sha256=None, errno=2)
+        return row
+
+    def result(self, row=None, **change):
+        return {'returncode': 0, 'error': None,
+                'stdout': json.dumps(row or self.report(), separators=(',', ':')) + '\n',
+                'stderr': 'private diagnostic\n'} | change
+
+    @contextmanager
+    def capture(self, root, result=None, clock=None, uid=23001, gid=23001):
+        clock = clock or [0.0]
+        with patch('guest.os.geteuid', return_value=uid), patch('guest.os.getegid', return_value=gid), \
+                patch('guest.image_decode_identity') as identity, \
+                patch('guest.bounded', return_value=result or self.result()) as process, \
+                patch('guest.time.monotonic', side_effect=lambda: clock[0]), patch('guest.emit') as events:
+            yield identity, process, events, clock
+
+    def test_decode_error_and_missing_cache_are_exact_observations_with_same_environment(self):
+        for success in (False, True):
+            row = self.report()
+            if success: row['decode'].update(status='success', width=16, height=16, error_domain=None, error_code=None)
+            result = self.result(row)
+            with self.subTest(success=success), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary); env = {'WAYLAND_DISPLAY': 'wayland-0', 'DBUS_SESSION_BUS_ADDRESS': 'fixture'}
+                with self.capture(root, result) as (identity, process, events, clock):
+                    clock[0] = 5
+                    self.assertEqual(guest.image_decode_preflight(env, root, self.nonce), row)
+                identity.assert_called_once_with(self.nonce)
+                self.assertIs(process.call_args.kwargs['env'], env)
+                self.assertEqual(process.call_args.args, (['/usr/local/bin/image-decode-probe'],))
+                self.assertEqual(process.call_args.kwargs['timeout'], 14)
+                self.assertEqual(process.call_args.kwargs['limit'], 16384)
+                events.assert_called_once()
+                event = {'event': events.call_args.args[0], **events.call_args.kwargs}
+                raw = image_decode_report.validate_event(event, self.nonce)
+                self.assertEqual(raw, result['stdout'].encode('ascii'))
+                self.assertEqual(event['elapsed_ms'], 0)
+                self.assertNotIn('private diagnostic', json.dumps(event))
+                self.assertEqual((root / 'image-decode-stderr.log').read_text(), result['stderr'])
+
+    def test_transport_protocol_identity_and_combined_limit_fail_closed(self):
+        changed_asset = self.report(); changed_asset['asset']['sha256'] = 'b' * 64
+        cases = [(self.result(error='timeout', returncode=-9), 'timeout'),
+                 (self.result(error='output overflow', returncode=-9), 'output-overflow'),
+                 (self.result(returncode=-6), 'protocol'), (self.result(returncode=False), 'protocol'),
+                 (self.result(error=False), 'protocol'), (self.result(stdout='\ufffd'), 'protocol'),
+                 (self.result(stdout='not JSON'), 'protocol'),
+                 (self.result(stdout='{}'), 'protocol'), (self.result(changed_asset), 'identity'),
+                 (self.result(stdout='x' * 16384, stderr='x'), 'output-overflow'),
+                 (self.result(stderr=None), 'protocol'), (self.result() | {'private': 'x'}, 'protocol')]
+        for result, error in cases:
+            with self.subTest(error=error, result=result), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                with self.capture(root, result) as (_, process, events, _), self.assertRaises(ValueError):
+                    guest.image_decode_preflight({}, root, self.nonce)
+                process.assert_called_once(); events.assert_called_once()
+                event = {'event': events.call_args.args[0], **events.call_args.kwargs}
+                self.assertIsNone(image_decode_report.validate_event(event, self.nonce))
+                self.assertEqual(event['error'], error)
+                self.assertIsNone(event['elapsed_ms']); self.assertIsNone(event['report_sha256'])
+                self.assertIsNone(event['report_base64'])
+
+    def test_wrong_user_or_installed_identity_never_launches(self):
+        for uid, gid, drift in ((0, 0, False), (23001, 0, False), (0, 23001, False), (23001, 23001, True)):
+            with self.subTest(uid=uid, gid=gid, drift=drift), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                with self.capture(root, uid=uid, gid=gid) as (identity, process, events, _):
+                    if drift: identity.side_effect = ValueError('private identity drift')
+                    with self.assertRaisesRegex(ValueError, 'failed: identity'):
+                        guest.image_decode_preflight({}, root, self.nonce)
+                process.assert_not_called()
+                self.assertEqual(events.call_args.kwargs['error'], 'identity')
+                self.assertNotIn('private identity', str(events.call_args))
+
+    def test_launch_and_cleanup_exceptions_publish_no_report(self):
+        for exception, error in ((OSError('launch detail'), 'launch'),
+                                 (subprocess.TimeoutExpired('fixture', 5), 'cleanup'),
+                                 (RuntimeError('reap detail'), 'cleanup')):
+            with self.subTest(error=error), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                with self.capture(root) as (_, process, events, _):
+                    process.side_effect = exception
+                    with self.assertRaisesRegex(ValueError, 'failed: ' + error):
+                        guest.image_decode_preflight({}, root, self.nonce)
+                self.assertEqual(events.call_args.kwargs['error'], error)
+                self.assertIsNone(events.call_args.kwargs['returncode'])
+                self.assertIsNone(events.call_args.kwargs['report_sha256'])
+
+    def test_absolute_deadline_reserves_cleanup_and_rejects_late_capture_or_validation(self):
+        for moment in ('identity', 'capture', 'parse', 'event'):
+            with self.subTest(moment=moment), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                with self.capture(root) as (identity, process, events, clock):
+                    def early(_nonce): clock[0] = 14.1
+                    def late(*_args, **_options): clock[0] = 20; return self.result()
+                    def parse(raw):
+                        row = image_decode_report.parse_report(raw)
+                        if moment == 'parse': clock[0] = 20.01
+                        return row
+                    def validate(row, nonce):
+                        raw = image_decode_report.validate_event(row, nonce)
+                        if moment == 'event': clock[0] = 20.01
+                        return raw
+                    if moment == 'identity': identity.side_effect = early
+                    if moment == 'capture': process.side_effect = late
+                    with patch('guest.parse_report', side_effect=parse), patch('guest.validate_event', side_effect=validate), \
+                            self.assertRaisesRegex(ValueError, 'failed: deadline'):
+                        guest.image_decode_preflight({}, root, self.nonce)
+                self.assertEqual(process.call_count, 0 if moment == 'identity' else 1)
+                self.assertEqual(events.call_args.kwargs['error'], 'deadline')
+                self.assertIsNone(events.call_args.kwargs['elapsed_ms'])
+
+    def test_work_budget_uses_remaining_absolute_time_without_widening(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            with self.capture(root) as (identity, process, events, clock):
+                def verify(_nonce): clock[0] = 1.5
+                def work(*_args, **_options): clock[0] = 19.5; return self.result()
+                identity.side_effect = verify; process.side_effect = work
+                guest.image_decode_preflight({}, root, self.nonce)
+            self.assertEqual(process.call_args.kwargs['timeout'], 12.5)
+            self.assertEqual(events.call_args.kwargs['elapsed_ms'], 19500)
+
+    def test_second_attempt_is_refused_before_spawn_even_after_first_failed(self):
+        for failure in (False, True):
+            with self.subTest(failure=failure), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                with self.capture(root, self.result(returncode=-6) if failure else None) as (_, process, events, _):
+                    if failure:
+                        with self.assertRaises(ValueError): guest.image_decode_preflight({}, root, self.nonce)
+                    else: guest.image_decode_preflight({}, root, self.nonce)
+                    with self.assertRaises(FileExistsError): guest.image_decode_preflight({}, root, self.nonce)
+                process.assert_called_once(); events.assert_called_once()
+
+    def test_failed_diagnostic_sink_or_private_log_keeps_first_probe_refusal(self):
+        for boundary in ('event', 'log'):
+            with self.subTest(boundary=boundary), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                if boundary == 'log': (root / 'image-decode-stderr.log').write_text('existing private fixture')
+                with self.capture(root, self.result(error='timeout', returncode=-9)) as (_, process, events, _):
+                    if boundary == 'event': events.side_effect = BrokenPipeError('closed diagnostic channel')
+                    with self.assertRaisesRegex(ValueError, 'failed: timeout'):
+                        guest.image_decode_preflight({}, root, self.nonce)
+                process.assert_called_once(); events.assert_called_once()
+                self.assertEqual(events.call_args.kwargs['error'], 'timeout')
+
+    @contextmanager
+    def installed(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary); prefix = root / guest.DECODE_ROOT.relative_to('/')
+            prefix.mkdir(parents=True)
+            hashes = {}
+            for key, name in (('helper_sha256', 'usr/local/bin/image-decode-probe'),
+                              ('parser_sha256', str((guest.DECODE_ROOT / 'image_decode_report.py').relative_to('/'))),
+                              ('guest_sha256', str((guest.DECODE_ROOT / 'guest.py').relative_to('/'))),
+                              ('runtime_sha256', str((guest.DECODE_ROOT / 'common.py').relative_to('/')))):
+                path = root / name; path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_bytes(name.encode()); path.chmod(0o755 if key == 'helper_sha256' else 0o644)
+                hashes[key] = common.digest(path)
+            asset = root / guest.ASSET_PATH.lstrip('/'); asset.parent.mkdir(parents=True)
+            asset.write_bytes(b'fixed fixture asset'); asset.chmod(0o644)
+            asset_hash = common.digest(asset)
+            (prefix / 'runtime.lock').write_text('fixture-package 1-1\n'); (prefix / 'runtime.lock').chmod(0o644)
+            row = {'schema_version': 1, 'scope': 'fixed-adwaita-svg-guest-contract', 'attempt': 1,
+                   'nonce': self.nonce, 'source_sha256': image_decode_report.C_SHA256,
+                   'core_sha256': 'c' * 64, 'tooling_sha256': 'd' * 64,
+                   'asset_sha256': asset_hash,
+                   'package_inventory_sha256': image_decode_report.inventory_sha256({'fixture-package': '1-1'}), **hashes}
+            common.save(prefix / 'image-decode-contract.json', row); (prefix / 'image-decode-contract.json').chmod(0o644)
+            with patch('guest.ASSET_SHA256', asset_hash), patch('image_decode_report.ASSET_SHA256', asset_hash):
+                yield root, prefix, row
+
+    def test_boot_and_user_identity_bind_files_fixed_asset_nonce_and_inventory(self):
+        with self.installed() as (root, prefix, row):
+            self.assertEqual(guest.image_decode_identity(self.nonce, installed=root,
+                             actual_inventory={'fixture-package': '1-1'}), row)
+            with self.assertRaisesRegex(ValueError, 'nonce'):
+                guest.image_decode_identity('b' * 32, installed=root)
+            with self.assertRaisesRegex(ValueError, 'installed inventory'):
+                guest.image_decode_identity(self.nonce, installed=root, actual_inventory={'extra': '1-1'})
+        for name in ('image_decode_report.py', 'guest.py', 'common.py', 'runtime.lock',
+                     'usr/local/bin/image-decode-probe', guest.ASSET_PATH):
+            with self.subTest(name=name), self.installed() as (root, prefix, row):
+                path = root / name.lstrip('/') if '/' in name else prefix / name
+                path.write_bytes(b'fixture-package 2-1\n' if name == 'runtime.lock' else b'drift')
+                with self.assertRaises(ValueError): guest.image_decode_identity(self.nonce, installed=root)
+
+    def test_identity_refuses_duplicate_contract_symlink_fifo_writable_and_oversize_files(self):
+        with self.installed() as (root, prefix, row):
+            path = prefix / 'image-decode-contract.json'
+            text = path.read_text(); path.write_text(text.rstrip()[:-1] + ',"nonce":"' + self.nonce + '"}')
+            with self.assertRaisesRegex(ValueError, 'duplicate'):
+                guest.image_decode_identity(self.nonce, installed=root)
+        for kind in ('symlink', 'fifo', 'writable', 'oversize', 'mode'):
+            with self.subTest(kind=kind), self.installed() as (root, prefix, row):
+                helper = root / 'usr/local/bin/image-decode-probe'
+                if kind in ('symlink', 'fifo'): helper.unlink()
+                if kind == 'symlink': helper.symlink_to(prefix / 'guest.py')
+                if kind == 'fifo': os.mkfifo(helper)
+                if kind == 'writable': helper.chmod(0o777)
+                if kind == 'oversize':
+                    with helper.open('wb') as stream: stream.truncate(16 * 1024**2 + 1)
+                if kind == 'mode': helper.chmod(0o644)
+                with self.assertRaises((ValueError, OSError)):
+                    guest.image_decode_identity(self.nonce, installed=root)
+
+    def test_preflight_placement_and_failure_reap_compositor_without_wofi_or_pass(self):
+        for stage in ('minimal', 'overlay'):
+            with self.subTest(stage=stage), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary); runtime = root / 'runtime'; runtime.mkdir()
+                wayland = socket.socket(socket.AF_UNIX); wayland.bind(str(runtime / 'wayland-0'))
+                self.addCleanup(wayland.close)
+                compositor = Mock(); compositor.poll.return_value = None
+                collector = Mock(process=compositor); calls = []; env = {'XDG_RUNTIME_DIR': str(runtime)}
+                def launch(argv, path, **options):
+                    calls.append(argv[0]); path.write_text('fixture log\n')
+                    if argv[0] == '/usr/bin/wofi': raise ValueError('stop before client actor')
+                    return collector
+                def preflight(actual_env, actual_root, nonce):
+                    calls.append('preflight'); self.assertIs(actual_env, env)
+                    self.assertEqual(actual_env['WAYLAND_DISPLAY'], 'wayland-0')
+                    self.assertEqual(actual_root, root); self.assertEqual(nonce, self.nonce)
+                    raise ValueError('original preflight refusal')
+                def terminate(process):
+                    self.assertIs(process, compositor); compositor.poll.return_value = -15
+                with patch('guest.LoggedProcess', side_effect=launch), patch('guest.wait_for_ipc', return_value=env), \
+                        patch('guest.command', return_value='[{"width":1,"height":1}]'), \
+                        patch('guest.image_decode_preflight', side_effect=preflight) as probe, \
+                        patch('guest.terminate', side_effect=terminate) as reap, patch('guest.emit') as events, \
+                        self.assertRaisesRegex(ValueError, 'preflight refusal' if stage == 'minimal' else 'before client actor'):
+                    guest.phase(stage, root / 'config', env, root, nonce=self.nonce)
+                self.assertEqual(calls, ['/usr/bin/Hyprland', 'preflight'] if stage == 'minimal' else
+                                 ['/usr/bin/Hyprland', '/usr/bin/wofi'])
+                self.assertEqual(probe.call_count, 1 if stage == 'minimal' else 0)
+                reap.assert_called_once_with(compositor); collector.finish.assert_called_once()
+                self.assertNotIn('frame_ready', [call.args[0] for call in events.call_args_list])
+                self.assertNotIn('phase_pass', [call.args[0] for call in events.call_args_list])
+
+    def test_boot_inventory_identity_failure_precedes_seatd_and_nonroot_actor(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            common.save(root / 'contract.json', {'nonce': self.nonce, 'baseline': []})
+            (root / 'runtime.lock').write_text('fixture-package 1-1\n')
+            def path(name):
+                return root / Path(name).name
+            def command(argv):
+                return 'fixture-package 1-1\n' if argv == ['/usr/bin/pacman', '-Q'] else ''
+            original = ValueError('installed probe identity differs')
+            with patch('guest.guest_guard'), patch('guest.Path', side_effect=path), \
+                    patch('guest.platform.release', return_value='7.2.10-1-aarch64-ARCH'), \
+                    patch('guest.os.sysconf', return_value=4096), patch('guest.emit'), \
+                    patch('guest.command', side_effect=command), \
+                    patch('guest.image_decode_identity', side_effect=original) as identity, \
+                    patch('guest.subprocess.Popen') as seatd, patch('guest.subprocess.run') as user, \
+                    self.assertRaises(ValueError) as caught:
+                guest.boot()
+            self.assertIs(caught.exception, original)
+            identity.assert_called_once_with(self.nonce, actual_inventory={'fixture-package': '1-1'})
+            seatd.assert_not_called(); user.assert_not_called()
+
+    def test_valid_observation_precedes_same_env_client_and_survives_original_phase_failure(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary); runtime = root / 'runtime'; runtime.mkdir()
+            wayland = socket.socket(socket.AF_UNIX); wayland.bind(str(runtime / 'wayland-0'))
+            self.addCleanup(wayland.close)
+            env = {'XDG_RUNTIME_DIR': str(runtime)}; compositor = Mock(); compositor.poll.return_value = None
+            collector = Mock(process=compositor); collector.finish.side_effect = RuntimeError('secondary cleanup')
+            original = ValueError('original client launch failure'); client_env = []
+            def launch(argv, path, **options):
+                if argv[0] == '/usr/bin/wofi':
+                    client_env.append(options['env']); raise original
+                path.write_text('fixture compositor\n'); return collector
+            def terminate(process): compositor.poll.return_value = -15
+            with self.capture(root) as (_, process, events, _), \
+                    patch('guest.LoggedProcess', side_effect=launch), patch('guest.wait_for_ipc', return_value=env), \
+                    patch('guest.command', return_value='[{"width":1,"height":1}]'), \
+                    patch('guest.terminate', side_effect=terminate), patch('guest.print'), \
+                    self.assertRaises(ValueError) as caught:
+                guest.phase('minimal', root / 'config', env, root, nonce=self.nonce)
+            self.assertIs(caught.exception, original)
+            self.assertEqual(client_env, [env]); self.assertIs(client_env[0], process.call_args.kwargs['env'])
+            self.assertEqual(client_env[0]['WAYLAND_DISPLAY'], 'wayland-0')
+            delivered = [{'event': call.args[0], **call.kwargs} for call in events.call_args_list]
+            self.assertEqual(delivered[0]['event'], 'image_decode_probe')
+            self.assertIsNotNone(image_decode_report.validate_event(delivered[0], self.nonce))
+            self.assertNotIn('frame_ready', [row['event'] for row in delivered])
+            self.assertNotIn('phase_pass', [row['event'] for row in delivered])
+            self.assertIsNotNone(compositor.poll()); collector.finish.assert_called_once()
 
 
 class GuestIPC(unittest.TestCase):
@@ -420,6 +718,7 @@ class GuestDiagnostics(unittest.TestCase):
             try:
                 with patch('guest.LoggedProcess', side_effect=launch), \
                         patch('guest.wait_for_ipc', side_effect=phase_failure, return_value=env), \
+                        patch('guest.image_decode_preflight'), \
                         patch('guest.command', side_effect=command), patch('guest.terminate', side_effect=reap), \
                         patch('guest.time.monotonic', side_effect=[0, 0, 0, 16]), \
                         patch('guest.emit', side_effect=emit), \
@@ -547,6 +846,7 @@ class GuestProcessDiagnostics(unittest.TestCase):
             try:
                 with patch('guest.LoggedProcess', side_effect=launch), \
                         patch('guest.wait_for_ipc', return_value={'XDG_RUNTIME_DIR': str(runtime)}), \
+                        patch('guest.image_decode_preflight'), \
                         patch('guest.command', side_effect=command), patch('guest.terminate', side_effect=terminate), \
                         patch('guest.time.monotonic', return_value=0), patch('guest.time.sleep'), \
                         patch('guest.emit', side_effect=emit), patch('guest.print'):

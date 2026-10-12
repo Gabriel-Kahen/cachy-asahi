@@ -12,6 +12,8 @@ import socket
 import subprocess
 import time
 from common import GIB, MAX_LOG, IMAGE_SHA, bounded, check_runtime, contract, digest, free_bytes, guard, json_load, pinned, require, save, LoggedProcess
+from image_decode_report import (parse_bound_report, validate_build, validate_context,
+                                 validate_event)
 
 
 CAPABILITY_LIMIT = 128 * 1024
@@ -27,6 +29,79 @@ CAPABILITY_REASONS = {'timeout', 'output-limit', 'process-failed', 'capability-m
 
 class ProofInterrupted(ValueError):
     pass
+
+
+def image_decode_context(c, prepared, proof_sha256):
+    """Derive expected pins from the selected contract and retained preparation."""
+    require(prepared.get('status') == 'PREPARED' and prepared.get('image_id') == c['image_id'] and
+            prepared.get('nonce') == c['nonce'] and prepared.get('contract_sha256') == proof_sha256,
+            'image decode preparation authority differs')
+    selected = validate_build(prepared['image_decode_build'], c, proof_sha256,
+                              prepared['package_inventory'])
+    context = {key: selected[key] for key in ('source_sha256', 'tooling_sha256',
+               'guest_sha256', 'helper_sha256', 'runtime_sha256',
+               'package_inventory_sha256', 'asset_sha256')}
+    context.update(image_sha256=prepared['guest_image_sha256'],
+                   run_id=c['run_id'], run_attempt=c['run_attempt'])
+    validate_context(context)
+    return context
+
+
+def image_decode_observation(events, context, nonce, *, allow_failed=False):
+    """Validate capture/order before binding; observation never supplies PASS."""
+    rows = [(index, event) for index, event in enumerate(events)
+            if event.get('event') == 'image_decode_probe']
+    require(len(rows) == 1, 'exactly one image decode attempt required')
+    index, event = rows[0]
+    before = events[:index]
+    probes = [i for i, row in enumerate(before) if row.get('event') == 'ipc_probe' and
+              row.get('stage') == 'minimal' and row.get('returncode') == 0 and
+              row.get('error') is None and row.get('stderr') == '']
+    require(probes and probes[-1] + 1 < len(before), 'image decode attempt lacks correlated IPC readiness')
+    ready, reply = before[probes[-1]], before[probes[-1] + 1]
+    require(reply.get('event') == 'command' and reply.get('argv') == ['/usr/bin/hyprctl', '-j', 'configerrors'] and
+            all(reply.get(key) == ready.get(key) for key in ('returncode', 'error', 'stdout', 'stderr')) and
+            json.loads(ready.get('stdout', 'null')) in ([], ['']), 'image decode IPC reply differs')
+    monitors = [row for row in before[probes[-1] + 2:] if row.get('event') == 'command' and
+                row.get('argv') == ['/usr/bin/hyprctl', '-j', 'monitors'] and
+                row.get('returncode') == 0 and row.get('error') is None and row.get('stderr') == '']
+    require(monitors, 'image decode attempt lacks monitor readiness')
+    monitor_rows = json.loads(monitors[-1].get('stdout', 'null'))
+    require(type(monitor_rows) is list and any(type(row) is dict and
+            type(row.get('width')) is int and row['width'] > 0 and
+            type(row.get('height')) is int and row['height'] > 0 for row in monitor_rows),
+            'image decode attempt lacks positive monitor')
+    require(any(row.get('event') == 'gbm_pass' and row.get('nonce') == nonce for row in before) and
+            not any(row.get('event') in ('frame_ready', 'phase_pass', 'guest_pass', 'process_state') or
+                    row.get('event') == 'command' and row.get('argv') == ['/usr/bin/hyprctl', '-j', 'clients']
+                    for row in before), 'image decode attempt ordering differs')
+    raw = validate_event(event, nonce)
+    if raw is None and allow_failed:
+        return None
+    require(raw is not None, 'image decode transport failed')
+    binding = {'schema_version': 1, 'scope': 'supervisor-bound-image-decode-observation',
+               'observation_only': True, 'context': context,
+               'report_sha256': event['report_sha256']}
+    return parse_bound_report(raw, binding, context, expected_report_sha256=event['report_sha256'])
+
+
+def validate_guest_completion(event, nonce, gbm, passed, report):
+    require(gbm and 'image_decode_observation' in report and
+            set(report['frames']) == {'minimal', 'overlay'} and
+            passed == {'minimal', 'overlay'} and event.get('nonce') == nonce,
+            'incomplete guest proof')
+
+
+def parse_guest_event(raw):
+    def unique(rows):
+        value = {}
+        for key, item in rows:
+            require(key not in value, 'duplicate guest event key')
+            value[key] = item
+        return value
+    event = json.loads(raw, object_pairs_hook=unique)
+    require(type(event) is dict, 'guest event object required')
+    return event
 
 
 def capability_projection(rows):
@@ -195,13 +270,16 @@ def main():
     old_alarm = signal.signal(signal.SIGALRM, interrupt)
     signal.setitimer(signal.ITIMER_REAL, 1200)
     try:
-        check_runtime(c)
-        require(set(c.get('runner_sha256', {})) == {'common.py', 'guest.py', 'prepare.py', 'run.py', 'gbm_probe.c'}, 'complete reviewed runner source map required')
+        runtime = check_runtime(c)
+        require(set(c.get('runner_sha256', {})) == {'common.py', 'guest.py', 'prepare.py', 'run.py', 'gbm_probe.c',
+                                                 'image_decode_report.py', 'image_decode_probe.c'}, 'complete reviewed runner source map required')
         for name, sha in c['runner_sha256'].items():
             require(digest(Path('/runner/virtual') / name) == sha, 'runner source differs')
         prep = json_load(pinned('/inputs', args.prepare_receipt, args.prepare_receipt_sha256))
         require(prep.get('status') == 'PREPARED' and prep.get('image_id') == c['image_id'] and
                 prep.get('nonce') == c['nonce'] and prep.get('contract_sha256') == args.contract_sha256, 'prepared image receipt differs')
+        require(prep.get('package_inventory') == runtime, 'prepared package inventory differs')
+        decode_context = image_decode_context(c, prep, args.contract_sha256)
         disk = pinned('/inputs', 'prepared/guest.raw', prep['guest_image_sha256'])
         image = pinned('/inputs', 'prepared/Image', prep['kernel_sha256'])
         require(prep['kernel_sha256'] == IMAGE_SHA and disk.stat().st_size == 8 * GIB, 'wrong direct kernel/raw disk')
@@ -258,7 +336,7 @@ def main():
                         prefix = b'CACHY_ASAHI_EVENT '
                         if not line.startswith(prefix):
                             continue
-                        event = json.loads(line[len(prefix):])
+                        event = parse_guest_event(line[len(prefix):])
                         report['events'].append(event)
                         kind = event.get('event')
                         require(kind != 'guest_failed', 'guest failed: ' + str(event.get('error')))
@@ -269,9 +347,13 @@ def main():
                         elif kind == 'gbm_pass':
                             require(boot and event.get('nonce') == c['nonce'] and event.get('probe', {}).get('status') == 'PASS', 'software GBM event invalid')
                             gbm = True
+                        elif kind == 'image_decode_probe':
+                            require(boot and gbm, 'image decode attempt precedes guest readiness')
+                            report['image_decode_observation'] = image_decode_observation(report['events'], decode_context, c['nonce'])
                         elif kind == 'frame_ready':
                             stage = event.get('stage')
-                            require(gbm and qmp and stage in ('minimal', 'overlay') and stage not in report['frames'], 'invalid/duplicate frame phase')
+                            require(gbm and qmp and 'image_decode_observation' in report and
+                                    stage in ('minimal', 'overlay') and stage not in report['frames'], 'invalid/duplicate frame phase')
                             frame = output / (stage + '.ppm')
                             qmp.execute('screendump', {'filename': str(frame), 'device': 'gpu', 'head': 0, 'format': 'ppm'})
                             report['frames'][stage] = inspect_ppm(frame)
@@ -279,7 +361,7 @@ def main():
                             require(event.get('stage') in report['frames'], 'phase passed without captured frame')
                             passed.add(event['stage'])
                         elif kind == 'guest_pass':
-                            require(gbm and passed == {'minimal', 'overlay'} and event.get('nonce') == c['nonce'], 'incomplete guest proof')
+                            validate_guest_completion(event, c['nonce'], gbm, passed, report)
                             report['software_session_ipc'] = 'PASS'
                             report['software_compositor'] = 'REVIEW REQUIRED'
                             report['frame_proof'] = 'REVIEW REQUIRED'

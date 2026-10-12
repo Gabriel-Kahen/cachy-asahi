@@ -13,13 +13,16 @@ import stat
 import subprocess
 import sys
 import time
-from common import bounded, LoggedProcess
+from common import bounded, inventory, LoggedProcess
+from image_decode_report import (ASSET_PATH, ASSET_SHA256, MAX_REPORT,
+                                 decode, inventory_sha256, parse_report, validate_guest_contract, validate_event)
 
 PREFIX = 'CACHY_ASAHI_EVENT '
 MAX_LOG = 1024 ** 2
 IPC_ARGV = ['/usr/bin/hyprctl', '-j', 'configerrors']
 IPC_TIMEOUT_REPLY = "Hyprland IPC didn't respond in time\n\nCouldn't read (6)\n"
 IPC_ATTEMPTS = 24
+DECODE_ROOT = Path('/usr/local/share/virtual-proof')
 
 
 def require(ok, message):
@@ -43,6 +46,121 @@ def command(argv, env=None, timeout=30):
     emit('command', argv=argv, **result)
     require(result['error'] is None and result['returncode'] == 0, 'command failed/overflowed: ' + argv[0])
     return result['stdout']
+
+
+def identity_bytes(path, maximum):
+    descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+    with os.fdopen(descriptor, 'rb') as stream:
+        metadata = os.fstat(stream.fileno())
+        require(stat.S_ISREG(metadata.st_mode) and metadata.st_size <= maximum and
+                not metadata.st_mode & 0o022, 'protected bounded probe identity required')
+        data = stream.read(maximum + 1)
+        require(len(data) <= maximum, 'probe identity overflow')
+        return data
+
+
+def image_decode_identity(nonce, *, installed=Path('/'), actual_inventory=None):
+    """Check the prepared installed files; the outer image binding stays external."""
+    prefix = installed / DECODE_ROOT.relative_to('/')
+    path = prefix / 'image-decode-contract.json'
+    contract = validate_guest_contract(decode(identity_bytes(path, MAX_REPORT)))
+    require(contract['nonce'] == nonce, 'probe nonce identity differs')
+    files = {'helper_sha256': (installed / 'usr/local/bin/image-decode-probe', 16 * 1024**2),
+             'parser_sha256': (prefix / 'image_decode_report.py', MAX_LOG),
+             'guest_sha256': (prefix / 'guest.py', MAX_LOG),
+             'runtime_sha256': (prefix / 'common.py', MAX_LOG)}
+    for key, (source, maximum) in files.items():
+        require(hashlib.sha256(identity_bytes(source, maximum)).hexdigest() == contract[key],
+                'probe installed identity differs')
+    require(stat.S_IMODE(files['helper_sha256'][0].stat().st_mode) == 0o755,
+            'probe executable mode differs')
+    require(hashlib.sha256(identity_bytes(installed / ASSET_PATH.lstrip('/'), 256 * 1024)).hexdigest() ==
+            ASSET_SHA256 == contract['asset_sha256'], 'probe fixed asset identity differs')
+    prepared_inventory = inventory(identity_bytes(prefix / 'runtime.lock', MAX_LOG).decode('ascii'))
+    require(inventory_sha256(prepared_inventory) == contract['package_inventory_sha256'],
+            'probe prepared inventory identity differs')
+    if actual_inventory is not None:
+        require(inventory_sha256(actual_inventory) == contract['package_inventory_sha256'],
+                'probe installed inventory identity differs')
+    return contract
+
+
+def image_decode_preflight(env, root, nonce):
+    """One observation before Wofi, with cleanup included in the acceptance deadline."""
+    start = time.monotonic()
+    deadline = start + 20
+    row = {'event': 'image_decode_probe', 'nonce': nonce, 'stage': 'minimal',
+           'elapsed_ms': None, 'returncode': None, 'error': None,
+           'report_sha256': None, 'report_base64': None}
+    require(type(nonce) is str and re.fullmatch('[0-9a-f]{32}', nonce), 'probe nonce required')
+    # Refuse a second attempt before launching anything, including after a failure.
+    with (root / 'image-decode-attempt').open('xb') as marker:
+        marker.write(b'one fixed probe attempt\n')
+    error = 'identity'
+    try:
+        require(os.geteuid() == os.getegid() == 23001, 'probe fixture UID/GID required')
+        image_decode_identity(nonce)
+        remaining = deadline - time.monotonic()
+        error = 'deadline'
+        require(remaining > 6, 'probe acceptance deadline')
+        error = 'launch'
+        try:
+            result = bounded(['/usr/local/bin/image-decode-probe'], env=env,
+                             timeout=min(14, remaining - 6), limit=MAX_REPORT)
+        except subprocess.TimeoutExpired:
+            error = 'cleanup'
+            raise
+        except OSError:
+            raise
+        except BaseException:
+            error = 'cleanup'
+            raise
+        error = 'protocol'
+        require(type(result) is dict and set(result) == {'returncode', 'error', 'stdout', 'stderr'} and
+                type(result['returncode']) is int and -64 <= result['returncode'] <= 255 and
+                type(result['stdout']) is type(result['stderr']) is str and
+                (result['error'] is None or type(result['error']) is str and
+                 result['error'] in ('timeout', 'output overflow')), 'invalid bounded probe result')
+        row['returncode'] = result['returncode']
+        error = 'output-overflow'
+        require(len(result['stdout'].encode('utf-8')) + len(result['stderr'].encode('utf-8')) <= MAX_REPORT,
+                'probe output overflow')
+        transport_error = {'timeout': 'timeout', 'output overflow': 'output-overflow'}.get(result['error'])
+        if transport_error is None:
+            error = 'deadline'
+            require(time.monotonic() < deadline, 'probe acceptance deadline')
+        error = transport_error or 'cleanup'
+        # Stderr stays in the owned private evidence directory, never an event.
+        with (root / 'image-decode-stderr.log').open('x', encoding='utf-8') as stream:
+            stream.write(result['stderr'])
+        if transport_error is not None:
+            raise ValueError('bounded probe failed')
+        error = 'protocol'
+        require(result['returncode'] == 0 and result['stdout'].isascii(), 'invalid probe transport')
+        raw = result['stdout'].encode('ascii')
+        observation = parse_report(raw)
+        error = 'identity'
+        require(observation['asset']['status'] == 'ok' and
+                observation['asset']['sha256'] == ASSET_SHA256 and observation['asset']['size'] == 1042,
+                'probe reported fixed asset differs')
+        row.update(report_sha256=hashlib.sha256(raw).hexdigest(),
+                   report_base64=base64.b64encode(raw).decode('ascii'))
+        error = 'deadline'
+        elapsed = time.monotonic() - start
+        require(0 <= elapsed < 20, 'probe acceptance deadline')
+        row['elapsed_ms'] = int(elapsed * 1000)
+        validate_event(row, nonce)
+        require(time.monotonic() < deadline, 'probe acceptance deadline')
+    except BaseException:
+        row.update(error=error, elapsed_ms=None, report_sha256=None, report_base64=None)
+        try:
+            emit('image_decode_probe', **{key: value for key, value in row.items() if key != 'event'})
+        except BaseException:
+            # A closed diagnostic channel cannot replace the first probe refusal.
+            pass
+        raise ValueError('image decode preflight failed: ' + error) from None
+    emit('image_decode_probe', **{key: value for key, value in row.items() if key != 'event'})
+    return observation
 
 
 def retained(path, stage):
@@ -137,7 +255,7 @@ def process_observation(process, collector, errors, finished=None):
     return row
 
 
-def phase(stage, config, env, root):
+def phase(stage, config, env, root, *, nonce=None):
     log = root / (stage + '.log')
     compositor, client = None, None
     collectors = []
@@ -186,6 +304,8 @@ def phase(stage, config, env, root):
         wayland = [p for p in wayland if p.is_socket()]
         require(len(wayland) == 1, 'expected one private Wayland socket')
         env['WAYLAND_DISPLAY'] = wayland[0].name
+        if stage == 'minimal':
+            image_decode_preflight(env, root, nonce)
         client_log = root / (stage + '-client.log')
         collector = LoggedProcess(['/usr/bin/wofi', '--normal-window', '--show', 'dmenu', '--prompt', 'Generic ARM software proof', '--width', '420', '--height', '220'],
                                   client_log, env=env, stdin=subprocess.PIPE)
@@ -330,7 +450,7 @@ def run_user():
                           ('overlay', '/usr/share/cachy-asahi/hyprland/hyprland.lua')]:
         runtime = Path(env['XDG_RUNTIME_DIR'])
         require(not any(runtime.glob('wayland-*')), 'stale Wayland output from earlier phase')
-        phase(stage, Path(config), env, root)
+        phase(stage, Path(config), env, root, nonce=nonce)
     emit('guest_pass', nonce=nonce, software_session='PASS', hardware_validation='NOT RUN', graphics_acceleration='NOT RUN')
 
 
@@ -346,6 +466,7 @@ def boot():
     actual = command(['/usr/bin/pacman', '-Q'])
     expected = Path('/usr/local/share/virtual-proof/runtime.lock').read_text()
     require(actual.strip() == expected.strip(), 'guest installed inventory differs from prepared full image')
+    image_decode_identity(contract['nonce'], actual_inventory=inventory(actual))
     for row in contract['baseline']:
         for name, value in row['payload_sha256'].items():
             require(hashlib.sha256((Path('/') / name).read_bytes()).hexdigest() == value, 'guest original overlay payload differs')

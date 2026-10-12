@@ -6,142 +6,14 @@ import json
 from pathlib import Path
 import re
 import unittest
+import base64
+import struct
+import tempfile
+from unittest import mock
+import image_decode_report as report
 
-MAX_REPORT = 16384
-ASSET_PATH = '/usr/share/icons/Adwaita/scalable/status/image-missing.svg'
-CACHE_PATH = '/usr/share/mime/mime.cache'
-HASH = re.compile(r'[0-9a-f]{64}\Z')
-FORMAT_NAME = re.compile(r'[A-Za-z0-9][A-Za-z0-9_.+ -]{0,63}\Z')
-MIME = re.compile(r'[A-Za-z0-9][A-Za-z0-9!#$&^_.+-]*/[A-Za-z0-9][A-Za-z0-9!#$&^_.+-]*\Z')
-CONTEXT_HASHES = frozenset(('source_sha256', 'image_sha256', 'tooling_sha256',
-    'guest_sha256', 'helper_sha256', 'runtime_sha256', 'package_inventory_sha256', 'asset_sha256'))
-CONTEXT_KEYS = CONTEXT_HASHES | {'run_id', 'run_attempt'}
-
-
-def need(ok, reason):
-    if not ok:
-        raise ValueError(reason)
-
-
-def integer(value, lower, upper):
-    return type(value) is int and lower <= value <= upper
-
-
-def shape(value, keys):
-    need(type(value) is dict and set(value) == set(keys), 'closed object required')
-
-
-def decode(raw):
-    need(type(raw) is bytes and 0 < len(raw) <= MAX_REPORT, 'bounded report bytes required')
-    text = raw.decode('utf-8')
-    depth = 0; quoted = escaped = False
-    for char in text:
-        if quoted:
-            if escaped: escaped = False
-            elif char == '\\': escaped = True
-            elif char == '"': quoted = False
-        elif char == '"': quoted = True
-        elif char in '[{':
-            depth += 1; need(depth <= 8, 'JSON depth bound')
-        elif char in ']}': depth -= 1
-    def unique(rows):
-        value = {}
-        for key, item in rows:
-            need(key not in value, 'duplicate JSON key'); value[key] = item
-        return value
-    def no_number(_): raise ValueError('integer JSON numbers required')
-    try:
-        value = json.loads(text, object_pairs_hook=unique, parse_float=no_number, parse_constant=no_number)
-    except (RecursionError, UnicodeError) as error:
-        raise ValueError('invalid JSON') from error
-    pending = [value]; count = 0
-    while pending:
-        item = pending.pop(); count += 1; need(count <= 512, 'JSON node bound')
-        if type(item) is dict: pending.extend(item.values())
-        elif type(item) is list: pending.extend(item)
-    return value
-
-
-def parse_report(raw):
-    """Validate helper observations without interpreting them as acceptance."""
-    row = decode(raw)
-    shape(row, ('schema_version', 'scope', 'observation_only', 'asset', 'cache',
-                'content_type', 'formats', 'decode'))
-    need(type(row['schema_version']) is int and row['schema_version'] == 1 and type(row['scope']) is str and
-         row['scope'] == 'fixed-adwaita-svg-observation' and row['observation_only'] is True,
-         'observation schema required')
-    for key, maximum in (('asset', 256 * 1024), ('cache', 16 * 1024**2)):
-        file = row[key]; shape(file, ('status', 'size', 'sha256', 'errno'))
-        need(type(file['status']) is str and file['status'] in
-             ('ok', 'missing', 'refused', 'io-error', 'changed') and
-             integer(file['errno'], 0, 2**31 - 1), 'file observation fields')
-        if file['status'] == 'ok':
-            need(integer(file['size'], 0, maximum) and type(file['sha256']) is str and
-                 HASH.fullmatch(file['sha256']) and file['errno'] == 0, 'stable file observation')
-        else:
-            need(file['size'] is file['sha256'] is None, 'unavailable file has no content identity')
-            need(file['status'] != 'missing' or file['errno'] == 2, 'missing errno')
-            need(file['status'] != 'io-error' or file['errno'] > 0, 'I/O errno')
-    content = row['content_type']; shape(content, ('status', 'value', 'uncertain', 'is_svg'))
-    need(type(content['status']) is str and content['status'] in ('observed', 'not-attempted'), 'content status')
-    need((content['status'] == 'observed') == (row['asset']['status'] == 'ok'), 'content attempt relation')
-    if content['status'] == 'observed':
-        need(row['asset']['status'] == 'ok' and type(content['value']) is str and
-             len(content['value']) <= 128 and MIME.fullmatch(content['value']) and
-             type(content['uncertain']) is type(content['is_svg']) is bool, 'content observation')
-    else:
-        need(all(content[key] is None for key in ('value', 'uncertain', 'is_svg')), 'unobserved content fields')
-    formats = row['formats']; shape(formats, ('status', 'entries'))
-    need(type(formats['status']) is str and formats['status'] in ('observed', 'limit', 'name-refused') and
-         type(formats['entries']) is list and len(formats['entries']) <= 64, 'format bounds')
-    descriptors = []
-    for entry in formats['entries']:
-        shape(entry, ('name', 'disabled'))
-        need(type(entry['name']) is str and FORMAT_NAME.fullmatch(entry['name']) and
-             type(entry['disabled']) is bool, 'format fields')
-        descriptors.append((entry['name'], entry['disabled']))
-    need(descriptors == sorted(descriptors), 'sorted format descriptors')
-    need(formats['status'] == 'observed' or not descriptors, 'refused formats must be empty')
-    result = row['decode']; shape(result, ('status', 'width', 'height', 'error_domain', 'error_code'))
-    need(type(result['status']) is str and result['status'] in ('success', 'error', 'not-attempted'), 'decode status')
-    need((result['status'] != 'not-attempted') == (row['asset']['status'] == 'ok'), 'decode attempt relation')
-    if result['status'] == 'success':
-        need(integer(result['width'], 1, 32768) and integer(result['height'], 1, 32768) and
-             result['error_domain'] is result['error_code'] is None, 'successful decode fields')
-    elif result['status'] == 'error':
-        need(result['width'] is result['height'] is None and integer(result['error_domain'], 0, 2**32 - 1) and
-             integer(result['error_code'], -(2**31), 2**31 - 1), 'decode error fields')
-    else:
-        need(all(result[key] is None for key in ('width', 'height', 'error_domain', 'error_code')), 'unattempted decode fields')
-    return row
-
-
-def validate_context(context):
-    shape(context, CONTEXT_KEYS)
-    need(all(type(context[key]) is str and HASH.fullmatch(context[key]) for key in CONTEXT_HASHES), 'external context pins')
-    need(type(context['run_id']) is str and re.fullmatch(r'[0-9]{1,20}', context['run_id']) and
-         type(context['run_attempt']) is str and re.fullmatch(r'[0-9]{1,10}', context['run_attempt']), 'external run binding')
-
-
-def parse_bound_report(raw, binding, expected_context, *, expected_report_sha256):
-    """Proposed matching API; expected values must come from a trusted supervisor.
-
-    Matching these values does not authenticate a producer or adopt this probe.
-    """
-    shape(binding, ('schema_version', 'scope', 'observation_only', 'context', 'report_sha256'))
-    need(type(binding['schema_version']) is int and binding['schema_version'] == 1 and type(binding['scope']) is str and
-         binding['scope'] == 'supervisor-bound-image-decode-observation' and binding['observation_only'] is True,
-         'binding schema')
-    validate_context(binding['context']); validate_context(expected_context)
-    need(binding['context'] == expected_context, 'external context mismatch')
-    need(type(expected_report_sha256) is str and HASH.fullmatch(expected_report_sha256) and
-         type(binding['report_sha256']) is str and binding['report_sha256'] == expected_report_sha256,
-         'external report pin required')
-    observation = parse_report(raw)
-    need(hashlib.sha256(raw).hexdigest() == expected_report_sha256, 'report capture mismatch')
-    if observation['asset']['status'] == 'ok':
-        need(observation['asset']['sha256'] == expected_context['asset_sha256'], 'external asset pin mismatch')
-    return {'binding': copy.deepcopy(binding), 'observation': observation}
+from image_decode_report import (MAX_REPORT, ASSET_PATH, CACHE_PATH, CONTEXT_HASHES, CONTEXT_KEYS,
+    need, decode, parse_report, parse_bound_report)
 
 
 def fixture():
@@ -329,6 +201,257 @@ class SourceControls(unittest.TestCase):
         for data in bad:
             self.assertNotEqual(data, raw)
             with self.assertRaises(ValueError): source_controls(data)
+
+
+
+def guest_fixture():
+    row = {key: 'c' * 64 for key in report.GUEST_HASHES}
+    row.update(schema_version=1, scope='fixed-adwaita-svg-guest-contract', nonce='d' * 32,
+               attempt=1, asset_sha256=report.ASSET_SHA256, source_sha256=report.C_SHA256)
+    return row
+
+
+def identity_fixture(path):
+    return {'path': path, 'resolved_path': path, 'sha256': 'c' * 64, 'bytes': 1, 'mode': 0o644}
+
+
+def build_fixture():
+    c = {'nonce': 'd' * 32, 'source_commit': 'a' * 40, 'image_id': 'sha256:' + 'c' * 64,
+         'baseline_image_id': 'sha256:' + 'b' * 64, 'tooling_lock_sha256': 'a' * 64,
+         'tooling_audit_sha256': 'b' * 64, 'run_id': '38307993177', 'run_attempt': '1',
+         'runner_sha256': {key: 'c' * 64 for key in report.CORE_FILES}}
+    c['runner_sha256']['image_decode_probe.c'] = report.C_SHA256
+    packages = {'glib2': '2.90.1-1', 'gdk-pixbuf2': '2.44.8-1'}
+    guest = guest_fixture(); guest.update(core_sha256=report.core_sha256(c['runner_sha256']),
+                                        package_inventory_sha256=report.inventory_sha256(packages))
+    header_paths = ['/usr/include/gdk-pixbuf-2.0/gdk-pixbuf/gdk-pixbuf.h',
+        '/usr/include/glib-2.0/gio/gio.h', '/usr/include/glib-2.0/glib.h', '/usr/include/glib-2.0/glib/gtypes.h',
+        '/usr/include/glib-2.0/gobject/gobject.h', '/usr/lib/glib-2.0/include/glibconfig.h']
+    build = {'status': 'BUILT', 'guest_contract': guest,
+        'guest_contract_sha256': report.canonical_sha256(guest), 'source_commit': c['source_commit'],
+        'proof_contract_sha256': 'e' * 64, 'run_id': c['run_id'], 'run_attempt': c['run_attempt'],
+        'helper': {'bytes': 256, 'sha256': 'c' * 64, 'mode': 0o755},
+        'elf': {'class': 64, 'encoding': 'little-endian', 'machine': 183, 'type': 'DYN', 'entry': 0,
+                'load_segments': [{'offset': 0, 'virtual_address': 0, 'file_size': 256,
+                                   'memory_size': 256, 'alignment': 16384}], 'compatible_16k': True},
+        'provenance': {'baseline_image_id': c['baseline_image_id'], 'tooling_lock_sha256': c['tooling_lock_sha256'],
+            'tooling_audit_sha256': c['tooling_audit_sha256'], 'compiler': identity_fixture('/usr/bin/cc'),
+            'pkg_config': identity_fixture('/usr/bin/pkg-config'),
+            'headers': [identity_fixture(path) for path in sorted(header_paths)],
+            'pc_files': [identity_fixture('/usr/lib/pkgconfig/' + name + '.pc') for name in report.PC_NAMES],
+            'pkg_config_argv': list(report.PKG_ARGV), 'pkg_config_stdout_sha256': 'e' * 64,
+            'flags': ['-I/usr/include/glib-2.0', '-lgio-2.0'],
+            'compile_argv': list(report.COMPILE_PREFIX) + ['-I/usr/include/glib-2.0', '-lgio-2.0'],
+            'compile_log_sha256': 'f' * 64}}
+    return build, c, packages
+
+
+class GuestContractTests(unittest.TestCase):
+    def test_closed_guest_contract_all_pins_and_fixed_inputs(self):
+        self.assertEqual(report.validate_guest_contract(guest_fixture()), guest_fixture())
+        for key in report.GUEST_KEYS:
+            row = guest_fixture(); row.pop(key)
+            with self.subTest(key=key), self.assertRaises(ValueError): report.validate_guest_contract(row)
+        for key, value in (('attempt', True), ('schema_version', True), ('source_sha256', 'c' * 64),
+                           ('asset_sha256', 'c' * 64), ('nonce', 'd' * 31), ('image_sha256', 'c' * 64)):
+            row = guest_fixture(); row[key] = value
+            with self.subTest(key=key), self.assertRaises(ValueError): report.validate_guest_contract(row)
+
+    def test_inventory_and_core_reproducible_without_self_image_hash(self):
+        packages = {'b': '2', 'a': '1'}
+        self.assertEqual(report.inventory_sha256(packages), hashlib.sha256(b'a 1\nb 2\n').hexdigest())
+        self.assertEqual(report.inventory_sha256(packages), report.inventory_sha256({'a': '1', 'b': '2'}))
+        for bad in ({}, {'a\nb': '1'}, {'a': True}, {'a': '1 2'}):
+            with self.subTest(bad=bad), self.assertRaises(ValueError): report.inventory_sha256(bad)
+        mapping = {key: 'c' * 64 for key in report.CORE_FILES}
+        self.assertEqual(report.core_sha256(mapping), report.canonical_sha256(mapping))
+        with self.assertRaises(ValueError): report.core_sha256(dict(mapping, unexpected='c' * 64))
+        self.assertNotIn('image_sha256', report.GUEST_KEYS)
+
+    def test_event_decode_error_and_missing_cache_are_observations(self):
+        row = fixture(); row['cache'].update(status='missing', size=None, sha256=None, errno=2)
+        raw = encoded(row)
+        event = {'event': 'image_decode_probe', 'nonce': 'd' * 32, 'stage': 'minimal', 'elapsed_ms': 20000,
+                 'returncode': 0, 'error': None, 'report_sha256': hashlib.sha256(raw).hexdigest(),
+                 'report_base64': base64.b64encode(raw).decode('ascii')}
+        self.assertEqual(report.validate_event(event, 'd' * 32), raw)
+        for key, value in (('elapsed_ms', True), ('elapsed_ms', 20001), ('returncode', True),
+            ('returncode', 1), ('error', 'private'), ('nonce', 'a' * 32), ('stage', 'overlay'),
+            ('report_sha256', 'c' * 64), ('report_base64', event['report_base64'] + '='), ('private', 'text')):
+            bad = dict(event); bad[key] = value
+            with self.subTest(key=key), self.assertRaises(ValueError): report.validate_event(bad, 'd' * 32)
+        for raw in (b'\xff', b'{}', b' ' * 16385):
+            bad = dict(event, report_base64=base64.b64encode(raw).decode(), report_sha256=hashlib.sha256(raw).hexdigest())
+            with self.subTest(raw=raw[:10]), self.assertRaises(ValueError): report.validate_event(bad, 'd' * 32)
+
+    def test_event_failures_never_publish_report_or_invent_elapsed(self):
+        event = {'event': 'image_decode_probe', 'nonce': 'd' * 32, 'stage': 'minimal', 'elapsed_ms': None,
+                 'returncode': None, 'error': 'launch', 'report_sha256': None, 'report_base64': None}
+        for error in report.ERRORS:
+            self.assertIsNone(report.validate_event(dict(event, error=error), 'd' * 32))
+        for key, value in (('elapsed_ms', 20000), ('report_sha256', 'a' * 64), ('report_base64', 'e30='),
+                           ('returncode', True), ('returncode', -65), ('returncode', 256)):
+            bad = dict(event); bad[key] = value
+            with self.subTest(key=key), self.assertRaises(ValueError): report.validate_event(bad, 'd' * 32)
+
+
+class BuildReceiptTests(unittest.TestCase):
+    def check(self, build, c, packages):
+        return report.validate_build(build, c, 'e' * 64, packages)
+
+    def test_same_image_closed_receipt_binds_external_context(self):
+        build, c, packages = build_fixture()
+        self.assertEqual(self.check(build, c, packages), build['guest_contract'])
+        for key in report.BUILD_KEYS:
+            bad = copy.deepcopy(build); bad.pop(key)
+            with self.subTest(key=key), self.assertRaises(ValueError): self.check(bad, c, packages)
+        for key in report.GUEST_HASHES:
+            bad = copy.deepcopy(build); bad['guest_contract'][key] = 'f' * 64
+            bad['guest_contract_sha256'] = report.canonical_sha256(bad['guest_contract'])
+            with self.subTest(key=key), self.assertRaises(ValueError): self.check(bad, c, packages)
+
+    def test_rehashed_receipt_cannot_substitute_workflow_source_or_tooling(self):
+        build, c, packages = build_fixture()
+        for key, value in (('run_id', '9'), ('run_attempt', '2'), ('source_commit', 'f' * 40),
+                           ('proof_contract_sha256', 'f' * 64), ('status', 'PASS')):
+            bad = copy.deepcopy(build); bad[key] = value
+            with self.subTest(key=key), self.assertRaises(ValueError): self.check(bad, c, packages)
+        for key, value in (('baseline_image_id', 'sha256:' + 'f' * 64), ('tooling_lock_sha256', 'f' * 64),
+            ('tooling_audit_sha256', 'f' * 64), ('pkg_config_argv', ['/usr/bin/false']), ('flags', ['-Wl,evil']),
+            ('compile_argv', ['/usr/bin/cc']), ('private', 'text')):
+            bad = copy.deepcopy(build); bad['provenance'][key] = value
+            with self.subTest(key=key), self.assertRaises(ValueError): self.check(bad, c, packages)
+        with self.assertRaises(ValueError): self.check(build, c, dict(packages, extra='1'))
+        bad_c = dict(c, image_id='c' * 64)
+        with self.assertRaises(ValueError): self.check(build, bad_c, packages)
+
+    def test_header_pc_binary_and_elf_refusals(self):
+        build, c, packages = build_fixture()
+        for mutate in (lambda b: b['helper'].update(mode=True), lambda b: b['helper'].update(mode=0o644),
+            lambda b: b['helper'].update(sha256='f' * 64), lambda b: b['helper'].update(bytes=0),
+            lambda b: b['elf'].update(machine=62), lambda b: b['elf'].update(compatible_16k=False),
+            lambda b: b['elf']['load_segments'][0].update(alignment=4096),
+            lambda b: b['elf']['load_segments'][0].update(offset=16384),
+            lambda b: b['provenance']['pc_files'].pop(),
+            lambda b: b['provenance']['headers'].reverse(),
+            lambda b: b['provenance'].update(headers=[row for row in b['provenance']['headers']
+                                                     if row['path'] != '/usr/include/glib-2.0/glib.h']),
+            lambda b: b['provenance']['headers'][0].update(resolved_path='/tmp/old-archive.h'),
+            lambda b: b['provenance']['headers'].append(dict(b['provenance']['headers'][0]))):
+            bad = copy.deepcopy(build); mutate(bad)
+            with self.subTest(bad=bad), self.assertRaises(ValueError): self.check(bad, c, packages)
+
+    def test_actual_elf_parser_on_inert_bytes_and_bad_alignment(self):
+        import prepare
+        raw = bytearray(256); raw[:7] = b'\x7fELF\x02\x01\x01'
+        struct.pack_into('<HHIQQQIHHH', raw, 16, 3, 183, 1, 0, 64, 0, 0, 64, 56, 1)
+        struct.pack_into('<IIQQQQQQ', raw, 64, 1, 5, 0, 0, 0, 256, 256, 16384)
+        with tempfile.TemporaryDirectory(prefix='image-decode-elf-') as directory:
+            path = Path(directory) / 'inert.elf'; path.write_bytes(raw)
+            self.assertTrue(prepare.elf_facts(path)['compatible_16k'])
+            for offset, value in ((5, 2), (18, 62), (113, 16)):
+                bad = bytearray(raw); bad[offset] = value; path.write_bytes(bad)
+                with self.subTest(offset=offset), self.assertRaises(ValueError): prepare.elf_facts(path)
+            path.write_bytes(raw[:80])
+            with self.assertRaises(ValueError): prepare.elf_facts(path)
+
+    def test_build_refuses_missing_authority_before_new_actors(self):
+        import prepare
+        _, c, packages = build_fixture()
+        for key, value in (('run_id', None), ('run_attempt', True), ('image_id', 'c' * 64),
+                           ('baseline_image_id', None)):
+            bad = dict(c); bad[key] = value; command = mock.Mock()
+            with self.subTest(key=key), self.assertRaises(ValueError):
+                prepare.build_image_decode(Path('/out/prepared/root'), bad, packages, 'e' * 64, command, {})
+            command.assert_not_called()
+        bad = copy.deepcopy(c); bad['runner_sha256']['image_decode_probe.c'] = 'f' * 64; command = mock.Mock()
+        with self.assertRaises(ValueError):
+            prepare.build_image_decode(Path('/out/prepared/root'), bad, packages, 'e' * 64, command, {})
+        command.assert_not_called()
+
+    def test_build_budgets_keep_original_deadline_and_cleanup_reserve(self):
+        import prepare
+        with mock.patch.object(prepare.time, 'monotonic', return_value=100):
+            self.assertEqual(prepare.decode_build_budget(100, 15), 15)
+            self.assertEqual(prepare.decode_build_budget(100, 60), 60)
+        with mock.patch.object(prepare.time, 'monotonic', return_value=1293):
+            self.assertEqual(prepare.decode_build_budget(100, 60), 2)
+        for now in (1295, 1300, 1301):
+            with mock.patch.object(prepare.time, 'monotonic', return_value=now), self.assertRaises(ValueError):
+                prepare.decode_build_budget(100, 15)
+
+    def test_build_uses_same_image_inputs_selected_flags_and_records_inert_elf(self):
+        import prepare
+        _, c, packages = build_fixture()
+        raw = bytearray(256); raw[:7] = b'\x7fELF\x02\x01\x01'
+        struct.pack_into('<HHIQQQIHHH', raw, 16, 3, 183, 1, 0, 64, 0, 0, 64, 56, 1)
+        struct.pack_into('<IIQQQQQQ', raw, 64, 1, 5, 0, 0, 0, 256, 256, 16384)
+        with tempfile.TemporaryDirectory(prefix='image-decode-build-model-') as directory:
+            folder = Path(directory)
+            def mapped(path):
+                path = str(path)
+                return folder / path.lstrip('/') if path.startswith(('/usr/', '/runner/', '/out/')) else Path(path)
+            for header in report.CRITICAL_HEADERS | {'/usr/include/glib-2.0/glib/gtypes.h'}:
+                path = mapped(header); path.parent.mkdir(parents=True, exist_ok=True); path.write_bytes(b'inert header')
+            parser = mapped('/runner/virtual/image_decode_report.py'); parser.parent.mkdir(parents=True)
+            parser.write_bytes(b'# inert parser bytes; parent main verifies actual source pins\n')
+            root = mapped('/out/prepared/root'); helper = root / 'usr/local/bin/image-decode-probe'
+            helper.parent.mkdir(parents=True); asset = root / report.ASSET_PATH.lstrip('/')
+            asset.parent.mkdir(parents=True); asset.write_bytes(b'inert labelled asset')
+            captured = []; ledger = {'fixture_changes': [], 'commands': []}
+            def command(argv, **options):
+                captured.append((list(argv), options))
+                ledger['commands'].append({'log_sha256': 'f' * 64})
+                if argv[0] == '/usr/bin/cc': helper.write_bytes(raw)
+                return {'stdout': '-I/usr/include/glib-2.0 -lgio-2.0\n', 'stderr': '', 'returncode': 0, 'error': None}
+            actual_digest = prepare.digest
+            def fixture_digest(path):
+                return report.ASSET_SHA256 if path == asset else actual_digest(path)
+            def fixture_identity(path):
+                path = str(path)
+                if path.startswith(str(folder)): path = '/' + str(Path(path).relative_to(folder))
+                return identity_fixture(path)
+            with mock.patch.object(prepare, 'Path', side_effect=mapped), \
+                 mock.patch.object(prepare, 'file_identity', side_effect=fixture_identity), \
+                 mock.patch.object(prepare, 'digest', side_effect=fixture_digest):
+                prepare.build_image_decode(root, c, packages, 'e' * 64, command, ledger)
+            self.assertEqual(captured[0], (list(report.PKG_ARGV), {'timeout': 15, 'limit': 16384, 'decode_build': True}))
+            self.assertEqual(captured[1], (list(report.COMPILE_PREFIX) + ['-I/usr/include/glib-2.0', '-lgio-2.0'],
+                                          {'timeout': 60, 'decode_build': True}))
+            receipt = ledger['image_decode_build']
+            self.assertEqual(report.validate_build(receipt, c, 'e' * 64, packages), receipt['guest_contract'])
+            self.assertEqual(receipt['helper']['sha256'], hashlib.sha256(raw).hexdigest())
+            self.assertTrue(receipt['elf']['compatible_16k'])
+            self.assertNotIn('image_sha256', receipt['guest_contract'])
+            contract = root / 'usr/local/share/virtual-proof/image-decode-contract.json'
+            self.assertEqual(hashlib.sha256(contract.read_bytes()).hexdigest(), receipt['guest_contract_sha256'])
+            self.assertTrue(report.CRITICAL_HEADERS <= {row['path'] for row in receipt['provenance']['headers']})
+
+    def test_same_image_capture_accepts_packaged_hardlinks_and_refuses_drift(self):
+        import prepare
+        from types import SimpleNamespace
+        # Labelled immutable-image path, with real finite hardlink fixture stats; no target image access.
+        with tempfile.TemporaryDirectory(prefix='image-decode-provenance-') as directory:
+            first = Path(directory) / 'compiler'; second = Path(directory) / 'cc'
+            first.write_bytes(b'inert packaged compiler bytes'); second.hardlink_to(first)
+            before = first.stat(); self.assertEqual(before.st_nlink, 2)
+            selected = mock.MagicMock(); selected.__str__.return_value = '/usr/bin/cc'
+            resolved = mock.MagicMock(); resolved.__str__.return_value = '/usr/bin/aarch64-gcc'
+            selected.resolve.return_value = resolved; resolved.stat.side_effect = [before, before]
+            pin = hashlib.sha256(first.read_bytes()).hexdigest()
+            with mock.patch.object(prepare, 'Path', return_value=selected), \
+                 mock.patch.object(prepare, 'digest', return_value=pin):
+                row = prepare.file_identity('/usr/bin/cc')
+            self.assertEqual(row['sha256'], pin); self.assertEqual(row['resolved_path'], '/usr/bin/aarch64-gcc')
+            after = SimpleNamespace(**{key: getattr(before, key) for key in
+                ('st_mode', 'st_size', 'st_dev', 'st_ino', 'st_mtime_ns', 'st_ctime_ns')})
+            after.st_size += 1; resolved.stat.side_effect = [before, after]
+            with mock.patch.object(prepare, 'Path', return_value=selected), \
+                 mock.patch.object(prepare, 'digest', return_value=pin), self.assertRaises(ValueError):
+                prepare.file_identity('/usr/bin/cc')
+            resolved.__str__.return_value = '/tmp/older-archive/compiler'
+            with mock.patch.object(prepare, 'Path', return_value=selected), self.assertRaises(ValueError):
+                prepare.file_identity('/usr/bin/cc')
 
 
 if __name__ == '__main__':

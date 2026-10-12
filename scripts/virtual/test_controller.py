@@ -17,6 +17,35 @@ import common
 import controller as c
 
 
+def decode_capture():
+    """Finite report model; no decoder or guest actor."""
+    import run
+    from image_decode_report import ASSET_SHA256, CONTEXT_HASHES
+    from test_image_decode_probe import fixture, encoded
+    row = fixture(); row['asset']['sha256'] = ASSET_SHA256
+    raw = encoded(row)
+    nonce = 'd' * 32
+    context = {key: 'a' * 64 for key in CONTEXT_HASHES}
+    context.update(asset_sha256=ASSET_SHA256, run_id='123', run_attempt='1')
+    event = {'event': 'image_decode_probe', 'nonce': nonce, 'stage': 'minimal',
+             'elapsed_ms': 12, 'returncode': 0, 'error': None,
+             'report_sha256': hashlib.sha256(raw).hexdigest(),
+             'report_base64': base64.b64encode(raw).decode('ascii')}
+    events = [{'event': 'gbm_pass', 'nonce': nonce},
+              {'event': 'ipc_probe', 'stage': 'minimal', 'attempt': 1, 'elapsed_ms': 1,
+               'returncode': 0, 'error': None, 'stdout': '[]', 'stderr': ''},
+              {'event': 'command', 'argv': ['/usr/bin/hyprctl', '-j', 'configerrors'],
+               'returncode': 0, 'error': None, 'stdout': '[]', 'stderr': ''},
+              {'event': 'command', 'argv': ['/usr/bin/hyprctl', '-j', 'monitors'],
+               'returncode': 0, 'error': None, 'stdout': '[{"width":1024,"height":768}]', 'stderr': ''}, event]
+    return nonce, context, events, run.image_decode_observation(events, context, nonce)
+
+
+def decode_core():
+    return c.CORE | {name: common.digest(Path(c.__file__).with_name(name))
+                     for name in ('run.py', 'image_decode_report.py')}
+
+
 class GuardTests(unittest.TestCase):
     def setUp(self):
         c.CANCELLED = False
@@ -190,6 +219,7 @@ class GuardTests(unittest.TestCase):
             base, derived = 'sha256:' + 'a' * 64, 'sha256:' + 'b' * 64
             cfg = c.config({'User': 'alarm'})
             contract = {'installed_image_id': base, 'source_commit': 'c' * 40,
+                        'run_id': '123', 'run_attempt': '1',
                         'controller_sha256': common.digest(Path(c.__file__)), 'files': files, 'baseline': rows}
             path = inputs / 'contract.json'; common.save(path, contract); output = root / 'output'
             loaded = {'committed_config': {'committed_config': cfg}, 'tooling_lock': {'keyring_files': [], 'packages': []}}
@@ -212,10 +242,11 @@ class GuardTests(unittest.TestCase):
                         'contract_sha256': common.digest(childpath), 'image_id': image, 'nonce': child['nonce'],
                         'packages': {'synthetic': '1-1'}, 'package_inventory_sha256': '0' * 64, 'private_cleanup': 'PASS'})
                 elif any(a.endswith('/prepare.py') for a in argv):
-                    (target / 'prepared').mkdir(); common.save(target / 'prepared/prepare.json', {'status': 'PREPARED'})
+                    (target / 'prepared').mkdir(); common.save(target / 'prepared/prepare.json',
+                        {'status': 'PREPARED', 'package_inventory': {'synthetic': '1-1'}})
                 else:
                     (target / 'proof').mkdir(); common.save(target / 'proof/result.json', {'status': 'CAPTURED_REQUIRES_VISUAL_REVIEW'})
-            def cancel(*_):
+            def cancel(*_, **__):
                 signal.getsignal(signal.SIGTERM)(signal.SIGTERM, None)
             with patch('controller.native_guard', return_value={}), patch('controller.validate_input', return_value=(loaded, paths, cache)), \
                     patch('controller.command', side_effect=command), patch('controller.run_container', side_effect=stage), \
@@ -224,7 +255,8 @@ class GuardTests(unittest.TestCase):
                     patch.object(c, 'CORE', {name: common.digest(Path(c.__file__).with_name(name)) for name in c.CORE}), \
                     patch.object(c, 'AUDITOR_PIN', common.digest(Path(c.__file__).with_name('audit_tooling.py'))), \
                     patch('controller.project', side_effect=cancel), patch.object(sys, 'argv', ['controller.py', '--contract', str(path),
-                    '--contract-sha256', common.digest(path), '--output', str(output)]):
+                    '--contract-sha256', common.digest(path), '--output', str(output)]), \
+                    patch('controller.prepared_decode_authority', return_value=({}, {})):
                 self.assertFalse(c.main())
             self.assertTrue(c.CANCELLED)
             self.assertEqual(common.json_load(output / 'result.json')['status'], 'FAIL')
@@ -307,13 +339,15 @@ class InputTests(unittest.TestCase):
         for row in tooling['packages']:
             audit['packages'].setdefault(row['name'], {'archive_sha256': row['sha256'], 'hooks': {}})
         common.save(files['tooling_audit'], audit)
-        cls.candidate_core = {name: common.digest(source / name) for name in c.CORE}
+        cls.candidate_core = {name: common.digest(source / name) for name in
+                              set(c.CORE) | {'image_decode_report.py', 'image_decode_probe.c'}}
         cls.candidate_auditor = common.digest(source / 'audit_tooling.py')
         cls.candidate_lock = common.digest(files['tooling_lock'])
         cls.candidate_audit = common.digest(files['tooling_audit'])
         cls.cache_inputs = {r['filename']: r for r in tooling['keyring_files'] +
                             [i for row in tooling['packages'] for i in (row, c.audit_tooling.signature(row))]}
         cls.contract = {'schema_version': 1, 'execution': 'native-aarch64-controller-qemu-tcg-guest', 'source_commit': '2' * 40,
+                        'run_id': '123', 'run_attempt': '1',
                         'baseline_source_commit': baseline_commit, 'installed_image_id': installed_image, 'baseline': rows,
                         'controller_sha256': common.digest(Path(c.__file__)), 'core_sha256': cls.candidate_core, 'audit_tooling_sha256': cls.candidate_auditor,
                         'cache_dir': 'tooling-cache', 'files': {key: {'path': p.relative_to(cls.root).as_posix(), 'sha256': common.digest(p)} for key, p in files.items()}}
@@ -386,13 +420,17 @@ class ProjectionTests(unittest.TestCase):
                            'base64': base64.b64encode(log).decode()}, {'event': 'phase_pass', 'stage': stage}]
             binding = {'contract_sha256': 'a' * 64, 'prepare_receipt_sha256': 'b' * 64,
                        'image_id': 'sha256:' + 'c' * 64, 'nonce': 'd' * 32}
+            _, context, prefix, observation = decode_capture()
+            events = prefix + events
             common.save(raw / 'result.json', {'status': 'CAPTURED_REQUIRES_VISUAL_REVIEW', **binding,
+                        'image_decode_observation': observation,
                         'events': [*events, {'event': 'unknown_private_event', 'stdout': 'PRIVATE KEY'}],
                         'private_path': '/private/keyring', 'frames': {}})
-            report = {}; c.project(raw, out, report)
+            with patch.object(c, 'CORE', decode_core()):
+                report = {}; c.project(raw, out, report, image_decode_context=context)
             retained = common.json_load(out / 'guest-events.json')
             self.assertEqual(retained, events)
-            self.assertEqual([e['returncode'] for e in retained if e['event'] == 'ipc_probe'], [6, 0, 6, 0])
+            self.assertEqual([e['returncode'] for e in retained[len(prefix):] if e['event'] == 'ipc_probe'], [6, 0, 6, 0])
             for event in retained:
                 if event['event'] == 'session_log':
                     self.assertEqual(hashlib.sha256(base64.b64decode(event['base64'])).hexdigest(), event['sha256'])
@@ -477,16 +515,153 @@ class ProjectionTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory); raw = root / 'raw'; raw.mkdir(); out = root / 'out'; out.mkdir()
             frame = raw / 'minimal.ppm'; frame.write_bytes(b'P6\n1 1\n255\n\x00\x00\x00')
+            nonce, context, events, observation = decode_capture()
             common.save(raw / 'result.json', {'status': 'CAPTURED_REQUIRES_VISUAL_REVIEW', 'frame_proof': 'REVIEW REQUIRED',
-                                             'events': [{'event': 'phase_pass', 'stage': 'minimal'}],
+                                             'nonce': nonce, 'image_decode_observation': observation,
+                                             'events': [*events, {'event': 'phase_pass', 'stage': 'minimal'}],
                                              'frames': {'minimal': {'filename': frame.name, 'sha256': common.digest(frame), 'visual_review': 'NOT RUN'}}})
             (raw / 'private-keys-v1.d').mkdir(); (raw / 'guest.raw').write_bytes(b'private')
-            report = {}; c.project(raw, out, report)
+            with patch.object(c, 'CORE', decode_core()):
+                report = {}; c.project(raw, out, report, image_decode_context=context)
             self.assertEqual(report['guest']['frame_proof'], 'REVIEW REQUIRED')
             self.assertEqual(set(p.name for p in out.iterdir()), {'guest-events.json', 'minimal.ppm'})
             frame.write_bytes(b'tamper')
-            with self.assertRaises(common.Refused):
-                c.project(raw, out, {})
+            with patch.object(c, 'CORE', decode_core()), self.assertRaises(common.Refused):
+                c.project(raw, out, {}, image_decode_context=context)
+
+
+class ImageDecodeOuterTests(unittest.TestCase):
+    def test_duplicate_uart_keys_refused_before_reserialization(self):
+        import run
+        self.assertEqual(run.parse_guest_event(b'{"event":"command","argv":[]}'), {'event': 'command', 'argv': []})
+        for raw in (b'{"event":"image_decode_probe","event":"guest_pass"}',
+                    b'{"event":"command","nested":{"nonce":"a","nonce":"b"}}', b'[]'):
+            with self.subTest(raw=raw), self.assertRaises(ValueError): run.parse_guest_event(raw)
+
+    def test_expected_context_comes_from_selected_prepare_not_result(self):
+        import run
+        from test_image_decode_probe import build_fixture
+        build, proof, packages = build_fixture()
+        prepared = {'status': 'PREPARED', 'image_id': proof['image_id'], 'nonce': proof['nonce'],
+                    'contract_sha256': 'e' * 64, 'package_inventory': packages,
+                    'guest_image_sha256': 'f' * 64, 'image_decode_build': build}
+        context = run.image_decode_context(proof, prepared, 'e' * 64)
+        self.assertEqual(context['image_sha256'], 'f' * 64)
+        self.assertEqual(context['helper_sha256'], build['helper']['sha256'])
+        self.assertNotIn('image_sha256', build['guest_contract'])
+        self.assertEqual(context['run_id'], proof['run_id'])
+        mutations = [lambda p: p.update(status='FAILED'), lambda p: p.update(image_id='sha256:' + '0' * 64),
+                     lambda p: p.update(nonce='0' * 32), lambda p: p.update(contract_sha256='0' * 64),
+                     lambda p: p['package_inventory'].update(extra='1'),
+                     lambda p: p['image_decode_build']['helper'].update(sha256='0' * 64),
+                     lambda p: p['image_decode_build']['guest_contract'].update(source_sha256='0' * 64),
+                     lambda p: p['image_decode_build'].update(run_attempt='99')]
+        for change in mutations:
+            changed = copy.deepcopy(prepared); change(changed)
+            with self.subTest(change=change), self.assertRaises(ValueError):
+                run.image_decode_context(proof, changed, 'e' * 64)
+
+    def test_probe_requires_original_readiness_order_and_one_attempt(self):
+        import run
+        nonce, context, events, _ = decode_capture()
+        cases = [[], events + [events[-1]], events[1:], events[:1] + events[2:],
+                 events[:2] + [{'event': 'command', 'argv': ['wrong']}] + events[2:],
+                 events[:-1] + [{'event': 'frame_ready', 'stage': 'minimal'}] + events[-1:],
+                 events[:-1] + [{'event': 'command', 'argv': ['/usr/bin/hyprctl', '-j', 'clients']}] + events[-1:]]
+        bad_monitor = copy.deepcopy(events); bad_monitor[-2]['stdout'] = '[{"width":0,"height":0}]'
+        cases.append(bad_monitor)
+        for changed in cases:
+            with self.subTest(events=changed), self.assertRaises(ValueError):
+                run.image_decode_observation(changed, context, nonce)
+
+    def test_valid_decode_error_and_missing_cache_stay_observations(self):
+        import run
+        from test_image_decode_probe import fixture, encoded
+        from image_decode_report import ASSET_SHA256
+        nonce, context, events, _ = decode_capture()
+        row = fixture(); row['asset']['sha256'] = ASSET_SHA256
+        row['cache'].update(status='missing', size=None, sha256=None, errno=2)
+        row['decode'].update(status='error', width=None, height=None, error_domain=1, error_code=2)
+        raw = encoded(row); event = dict(events[-1], report_sha256=hashlib.sha256(raw).hexdigest(),
+                                       report_base64=base64.b64encode(raw).decode('ascii'))
+        observation = run.image_decode_observation(events[:-1] + [event], context, nonce)
+        self.assertEqual(observation['observation']['decode']['status'], 'error')
+        self.assertEqual(observation['observation']['cache']['status'], 'missing')
+        self.assertEqual(set(observation), {'binding', 'observation'})
+
+    def project_model(self, result, context):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory); raw = root / 'raw'; out = root / 'out'; raw.mkdir(); out.mkdir()
+            common.save(raw / 'result.json', result)
+            with patch.object(c, 'CORE', decode_core()):
+                report = {}; c.project(raw, out, report, image_decode_context=context)
+            return report, common.json_load(out / 'guest-events.json')
+
+    def test_later_failed_guest_preserves_bound_observation(self):
+        nonce, context, events, observation = decode_capture()
+        result = {'status': 'FAILED', 'nonce': nonce, 'events': events + [{'event': 'guest_failed', 'error': 'later failure'}],
+                  'image_decode_observation': observation, 'frames': {}}
+        report, retained = self.project_model(result, context)
+        self.assertEqual(report['guest']['status'], 'FAILED')
+        self.assertEqual(report['image_decode_observation'], observation)
+        self.assertEqual(retained, result['events'])
+        self.assertEqual(report['frames'], {})
+
+    def test_result_self_binding_and_every_context_mutation_refused(self):
+        nonce, context, events, observation = decode_capture()
+        result = {'status': 'FAILED', 'nonce': nonce, 'events': events,
+                  'image_decode_observation': observation, 'frames': {}}
+        for key in context:
+            changed = copy.deepcopy(result)
+            changed['image_decode_observation']['binding']['context'][key] = '9' if key in ('run_id', 'run_attempt') else '0' * 64
+            with self.subTest(key=key), self.assertRaises(ValueError):
+                self.project_model(changed, context)
+        with self.assertRaises(common.Refused): self.project_model(result, None)
+
+    def test_closed_transport_failure_is_retained_but_cannot_capture(self):
+        nonce, context, events, _ = decode_capture()
+        failed = dict(events[-1], error='timeout', returncode=-9, elapsed_ms=None,
+                      report_sha256=None, report_base64=None)
+        result = {'status': 'FAILED', 'nonce': nonce, 'events': events[:-1] + [failed], 'frames': {}}
+        report, retained = self.project_model(result, context)
+        self.assertNotIn('image_decode_observation', report)
+        self.assertEqual(retained[-1], failed)
+        with self.assertRaises(ValueError): self.project_model(dict(result, status='CAPTURED_REQUIRES_VISUAL_REVIEW'), context)
+
+    def test_capture_without_probe_and_duplicate_private_or_late_report_refused(self):
+        nonce, context, events, observation = decode_capture()
+        result = {'status': 'CAPTURED_REQUIRES_VISUAL_REVIEW', 'nonce': nonce,
+                  'events': events, 'image_decode_observation': observation, 'frames': {}}
+        mutations = [lambda r: r.update(events=[]),
+                     lambda r: r['events'].append(copy.deepcopy(r['events'][-1])),
+                     lambda r: r['events'][-1].update(private_path='/private/key'),
+                     lambda r: r['events'][-1].update(elapsed_ms=20001),
+                     lambda r: r['events'][-1].update(report_sha256='0' * 64)]
+        for change in mutations:
+            changed = copy.deepcopy(result); change(changed)
+            with self.subTest(change=change), self.assertRaises(ValueError): self.project_model(changed, context)
+
+    def test_projector_sources_are_pinned_and_original_core_literals_await_root(self):
+        core = decode_core()
+        with patch.object(c, 'CORE', core): self.assertTrue(callable(c.reviewed_decode_run().image_decode_context))
+        for key in ('run.py', 'image_decode_report.py'):
+            with patch.object(c, 'CORE', core | {key: '0' * 64}), self.assertRaises(common.Refused): c.reviewed_decode_run()
+
+    def test_guest_requires_observation_frames_and_original_gates(self):
+        import run
+        nonce, _, _, observation = decode_capture()
+        report = {'frames': {'minimal': {}, 'overlay': {}}, 'image_decode_observation': observation}
+        event = {'event': 'guest_pass', 'nonce': nonce}
+        run.validate_guest_completion(event, nonce, True, {'minimal', 'overlay'}, report)
+        cases = [(False, {'minimal', 'overlay'}, report, event),
+                 (True, {'minimal'}, report, event),
+                 (True, {'minimal', 'overlay'}, {'frames': report['frames']}, event),
+                 (True, {'minimal', 'overlay'}, dict(report, frames={}), event),
+                 (True, {'minimal', 'overlay'}, dict(report, frames={'minimal': {}}), event),
+                 (True, {'minimal', 'overlay'}, report, dict(event, nonce='0' * 32))]
+        for gbm, passed, changed, candidate in cases:
+            with self.subTest(gbm=gbm, passed=passed, report=changed), self.assertRaises(common.Refused):
+                run.validate_guest_completion(candidate, nonce, gbm, passed, changed)
 
 
 if __name__ == '__main__':

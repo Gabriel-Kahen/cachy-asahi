@@ -12,9 +12,15 @@ import sys
 import time
 import signal
 import stat
+import shlex
+import struct
+import re
+from image_decode_report import (ASSET_PATH, ASSET_SHA256, HEADER_ROOTS, PC_NAMES, PKG_ARGV,
+    COMPILE_PREFIX, C_SHA256, core_sha256, inventory_sha256, canonical_sha256, validate_elf, validate_build)
 from common import GIB, IMAGE_SHA, KERNEL, Refused, check_runtime, contract, digest, free_bytes, guard, require, save, allocated, bounded
 
-ASSETS = ('common.py', 'guest.py', 'prepare.py', 'run.py', 'gbm_probe.c')
+ASSETS = ('common.py', 'guest.py', 'prepare.py', 'run.py', 'gbm_probe.c',
+          'image_decode_probe.c', 'image_decode_report.py')
 UNIT = '''[Unit]
 Description=Bounded generic ARM software guest proof
 Requires=basic.target systemd-udevd.service systemd-udev-trigger.service
@@ -54,6 +60,118 @@ def stage_size(paths):
     return sum(int(line.split()[0]) for line in result.splitlines())
 
 
+def decode_build_budget(start, timeout):
+    remaining = 1200 - (time.monotonic() - start)
+    require(remaining > 5, 'original preparation budget exhausted before decode build')
+    return min(timeout, remaining - 5)
+
+
+def file_identity(path):
+    """Read bytes from the current immutable image; packaged hardlinks are valid."""
+    path = Path(path)
+    resolved = path.resolve(strict=True)
+    require(str(path).startswith('/usr/') and str(resolved).startswith('/usr/'), 'build input outside image /usr')
+    before = resolved.stat()
+    require(stat.S_ISREG(before.st_mode) and 0 < before.st_size <= 16 * 1024**2,
+            'bounded regular build input required')
+    sha = digest(resolved)
+    after = resolved.stat()
+    require((before.st_dev, before.st_ino, before.st_size, before.st_mtime_ns, before.st_ctime_ns) ==
+            (after.st_dev, after.st_ino, after.st_size, after.st_mtime_ns, after.st_ctime_ns),
+            'build input changed during capture')
+    return {'path': str(path), 'resolved_path': str(resolved), 'sha256': sha,
+            'bytes': before.st_size, 'mode': stat.S_IMODE(before.st_mode)}
+
+
+def elf_facts(path):
+    size = path.stat().st_size
+    require(64 <= size <= 16 * 1024**2, 'bounded ELF helper required')
+    raw = path.read_bytes()
+    require(len(raw) == size and raw[:7] == b'\x7fELF\x02\x01\x01', 'ELF64 little endian v1 required')
+    kind, machine, version, entry, phoff, _, _, ehsize, phsize, phcount = struct.unpack_from('<HHIQQQIHHH', raw, 16)
+    require(kind in (2, 3) and machine == 183 and version == 1 and ehsize == 64 and
+            phsize == 56 and 1 <= phcount <= 128 and phoff >= 64 and phoff + phsize * phcount <= size,
+            'bounded AArch64 ELF header required')
+    segments = []
+    for offset in range(phoff, phoff + phsize * phcount, phsize):
+        ptype, _, file_offset, address, _, filesz, memsz, alignment = struct.unpack_from('<IIQQQQQQ', raw, offset)
+        if ptype == 1:
+            segments.append({'offset': file_offset, 'virtual_address': address,
+                'file_size': filesz, 'memory_size': memsz, 'alignment': alignment})
+    compatible = bool(segments) and all(row['alignment'] >= 16384 and
+        row['offset'] % 16384 == row['virtual_address'] % 16384 for row in segments)
+    row = {'class': 64, 'encoding': 'little-endian', 'machine': machine,
+           'type': {2: 'EXEC', 3: 'DYN'}[kind], 'entry': entry,
+           'load_segments': segments, 'compatible_16k': compatible}
+    validate_elf(row, size)
+    return row
+
+
+def build_image_decode(root, c, runtime, proof_sha256, command, report):
+    # Refuse missing authority before invoking either new build command.
+    core_sha256(c['runner_sha256'])
+    require(c['runner_sha256']['image_decode_probe.c'] == C_SHA256 and
+            re.fullmatch(r'[0-9a-f]{64}', proof_sha256) and
+            type(c.get('image_id')) is str and re.fullmatch(r'sha256:[0-9a-f]{64}', c['image_id']) and
+            type(c.get('baseline_image_id')) is str and re.fullmatch(r'sha256:[0-9a-f]{64}', c['baseline_image_id']),
+            'selected source/proof/immutable image authority required')
+    require(all(type(c.get(key)) is str and re.fullmatch(r'[0-9]{1,' + str(maximum) + '}', c[key])
+                for key, maximum in (('run_id', 20), ('run_attempt', 10))),
+            'authenticated workflow identity required before build')
+    provenance = {'baseline_image_id': c['baseline_image_id'],
+        'tooling_lock_sha256': c['tooling_lock_sha256'], 'tooling_audit_sha256': c['tooling_audit_sha256'],
+        'compiler': file_identity('/usr/bin/cc'), 'pkg_config': file_identity('/usr/bin/pkg-config'),
+        'headers': [], 'pc_files': [], 'pkg_config_argv': list(PKG_ARGV)}
+    for directory in HEADER_ROOTS:
+        headers = sorted(Path(directory).rglob('*.h'))
+        require(headers and len(provenance['headers']) + len(headers) <= 4096, 'same-image headers required')
+        provenance['headers'].extend(file_identity(path) for path in headers)
+    provenance['headers'].sort(key=lambda row: row['path'])
+    provenance['pc_files'] = sorted((file_identity('/usr/lib/pkgconfig/' + name + '.pc')
+                                   for name in PC_NAMES), key=lambda row: row['path'])
+    result = command(list(PKG_ARGV), timeout=15, limit=16384, decode_build=True)
+    require(result['stdout'].isascii(), 'pkg-config stdout must be ASCII')
+    stdout = result['stdout'].encode('ascii')
+    flags = shlex.split(result['stdout'])
+    require(flags and len(flags) <= 128 and all(0 < len(flag) <= 1024 and flag.isascii() and
+            all(32 < ord(char) < 127 for char in flag) and flag.startswith(('-I', '-L', '-l', '-D', '-pthread'))
+            for flag in flags), 'finite pkg-config flags required')
+    provenance.update(pkg_config_stdout_sha256=hashlib.sha256(stdout).hexdigest(), flags=flags,
+                      compile_argv=list(COMPILE_PREFIX) + flags)
+    require(root == Path('/out/prepared/root'), 'fixed image decode output root')
+    command(provenance['compile_argv'], timeout=60, decode_build=True)
+    provenance['compile_log_sha256'] = report['commands'][-1]['log_sha256']
+    helper = root / 'usr/local/bin/image-decode-probe'
+    require(not helper.is_symlink() and helper.is_file() and helper.stat().st_nlink == 1,
+            'new regular image decode helper required')
+    helper.chmod(0o755)
+    identity = {'bytes': helper.stat().st_size, 'sha256': digest(helper), 'mode': stat.S_IMODE(helper.stat().st_mode)}
+    elf = elf_facts(helper)
+    runners = c['runner_sha256']
+    guest = {'schema_version': 1, 'scope': 'fixed-adwaita-svg-guest-contract', 'nonce': c['nonce'], 'attempt': 1,
+        'source_sha256': runners['image_decode_probe.c'], 'parser_sha256': runners['image_decode_report.py'],
+        'helper_sha256': identity['sha256'], 'guest_sha256': runners['guest.py'],
+        'runtime_sha256': runners['common.py'], 'core_sha256': core_sha256(runners),
+        'tooling_sha256': c['image_id'].removeprefix('sha256:'),
+        'package_inventory_sha256': inventory_sha256(runtime), 'asset_sha256': ASSET_SHA256}
+    asset = root / ASSET_PATH.lstrip('/')
+    require(asset.is_file() and all(not part.is_symlink() for part in (asset, *asset.parents)) and
+            digest(asset) == ASSET_SHA256, 'independently selected staged SVG asset differs')
+    receipt = {'status': 'BUILT', 'guest_contract': guest, 'guest_contract_sha256': canonical_sha256(guest),
+        'source_commit': c['source_commit'], 'proof_contract_sha256': proof_sha256,
+        'run_id': c['run_id'], 'run_attempt': c['run_attempt'], 'helper': identity,
+        'elf': elf, 'provenance': provenance}
+    validate_build(receipt, c, proof_sha256, runtime)
+    shared = 'usr/local/share/virtual-proof/'
+    changed(root, shared + 'image_decode_report.py', Path('/runner/virtual/image_decode_report.py').read_bytes(), report)
+    changed(root, shared + 'image-decode-contract.json',
+            (json.dumps(guest, sort_keys=True, separators=(',', ':')) + '\n').encode('ascii'), report)
+    report['fixture_changes'].append({'path': 'usr/local/bin/image-decode-probe',
+        'after_sha256': identity['sha256'], 'mode': oct(identity['mode']),
+        'source_sha256': runners['image_decode_probe.c']})
+    report['image_decode_build'] = receipt
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument('--contract', type=Path, default=Path('/inputs/virtual-contract.json'))
@@ -77,16 +195,24 @@ def main():
     old_alarm = signal.signal(signal.SIGALRM, interrupt)
     signal.setitimer(signal.ITIMER_REAL, 1200)
     root = output / 'root'
-    def command(argv, timeout=180):
+    def command(argv, timeout=180, *, limit=None, decode_build=False):
         require(time.monotonic() - start < 1200, '20-minute preparation deadline')
         log = output / ('command-%03d.log' % len(report['commands']))
         record = {'argv': argv, 'log': log.name, 'returncode': None}
         report['commands'].append(record)
-        result = bounded(argv, log=log, timeout=min(timeout, max(1, 1200 - (time.monotonic() - start))))
+        remaining = 1200 - (time.monotonic() - start)
+        if decode_build:
+            result = bounded(argv, log=log, timeout=decode_build_budget(start, timeout),
+                             **({'limit': limit} if limit is not None else {}))
+        else:
+            result = bounded(argv, log=log, timeout=min(timeout, max(1, remaining)))
         record['returncode'] = result['returncode']
         record['error'] = result['error']
         record['log_sha256'] = digest(log)
         require(result['error'] is None and result['returncode'] == 0, 'preparation command failed/overflowed: ' + argv[0])
+        if decode_build:
+            require(time.monotonic() - start < 1200, 'decode build exceeded original preparation deadline')
+        return result
     try:
         runtime = check_runtime(c)
         require(set(c.get('runner_sha256', {})) == set(ASSETS), 'complete reviewed runner asset map required')
@@ -142,6 +268,7 @@ def main():
         (root / 'usr/local/bin').mkdir(parents=True, exist_ok=True)
         command(['/usr/bin/cc', '-std=c11', '-O2', '-Wall', '-Wextra', '-Werror', '/runner/virtual/gbm_probe.c', '-o', str(root / 'usr/local/bin/gbm-probe'), *flags])
         report['fixture_changes'].append({'path': 'usr/local/bin/gbm-probe', 'after_sha256': digest(root / 'usr/local/bin/gbm-probe'), 'source_sha256': c['runner_sha256']['gbm_probe.c']})
+        build_image_decode(root, c, runtime, args.contract_sha256, command, report)
         command(['/usr/bin/depmod', '-b', str(root), KERNEL])
         for path in (root / 'usr/lib/modules' / KERNEL).glob('modules.*'):
             report['fixture_changes'].append({'path': str(path.relative_to(root)), 'after_sha256': digest(path), 'reason': 'guest-only depmod metadata'})

@@ -90,6 +90,9 @@ def native_guard():
 
 def validate_input(c, root):
     require(c.get('schema_version') == 1 and c.get('execution') == 'native-aarch64-controller-qemu-tcg-guest', 'wrong controller contract')
+    require(type(c.get('run_id')) is str and re.fullmatch('[1-9][0-9]{0,19}', c['run_id']) and
+            type(c.get('run_attempt')) is str and re.fullmatch('[1-9][0-9]{0,9}', c['run_attempt']),
+            'authenticated workflow run/attempt required')
     require(re.fullmatch('sha256:[0-9a-f]{64}', c.get('installed_image_id', '')) and
             re.fullmatch('[0-9a-f]{40}', c.get('source_commit', '')) and
             re.fullmatch('[0-9a-f]{40}', c.get('baseline_source_commit', '')), 'immutable installed image/source commit required')
@@ -411,7 +414,31 @@ def run_container(args, log, image, root, writable, temporary, timeout, cleanups
     require(not CANCELLED, 'controller cancelled during container cleanup')
 
 
-def project(raw, target, report):
+def reviewed_decode_run():
+    """Load only the selected runtime/parser source for outer validation."""
+    for name in ('run.py', 'image_decode_report.py'):
+        source = Path(__file__).with_name(name); regular(source)
+        require(name in CORE and digest(source) == CORE[name], 'image decode validation source differs')
+    source = Path(__file__).with_name('run.py')
+    module = types.ModuleType('_reviewed_virtual_decode_run'); module.__file__ = str(source)
+    exec(compile(source.read_bytes(), str(source), 'exec'), module.__dict__)
+    return module
+
+
+def prepared_decode_authority(proof, prepared, proof_sha256, prepare_sha256):
+    context = reviewed_decode_run().image_decode_context(proof, prepared, proof_sha256)
+    require(type(prepare_sha256) is str and re.fullmatch('[0-9a-f]{64}', prepare_sha256),
+            'preparation receipt pin required')
+    row = {'schema_version': 1, 'helper_sha256': context['helper_sha256'],
+           'guest_image_sha256': context['image_sha256'],
+           'package_inventory_sha256': context['package_inventory_sha256'],
+           'asset_sha256': context['asset_sha256'],
+           'guest_contract_sha256': prepared['image_decode_build']['guest_contract_sha256'],
+           'prepare_receipt_sha256': prepare_sha256}
+    return context, row
+
+
+def project(raw, target, report, *, image_decode_context=None):
     """Explicit guest records + matching public PPM; no generic private-tree exporter."""
     if not raw.exists():
         return
@@ -433,8 +460,22 @@ def project(raw, target, report):
         report['guest'] = {k: result.get(k) for k in ('status', 'execution', 'contract_sha256', 'prepare_receipt_sha256', 'image_id',
                           'nonce', 'software_compositor', 'software_session_ipc', 'frame_proof', 'hardware_validation',
                           'graphics_acceleration', 'm2_16k_pages', 'performance', 'elapsed_seconds', 'error', 'logging_error', 'logs')}
-        allowed = {'boot', 'gbm_pass', 'frame_ready', 'phase_pass', 'guest_pass', 'guest_failed', 'command', 'session_log', 'ipc_probe', 'process_state'}
+        allowed = {'boot', 'gbm_pass', 'frame_ready', 'phase_pass', 'guest_pass', 'guest_failed', 'command', 'session_log', 'ipc_probe', 'process_state', 'image_decode_probe'}
         events = [e for e in result.get('events', []) if e.get('event') in allowed]
+        decode_events = [e for e in events if e['event'] == 'image_decode_probe']
+        require(len(decode_events) <= 1, 'duplicate image decode observation')
+        if decode_events:
+            require(image_decode_context is not None, 'independent image decode preparation authority required')
+            observation = reviewed_decode_run().image_decode_observation(
+                events, image_decode_context, result.get('nonce'), allow_failed=True)
+            require(result.get('image_decode_observation') == observation, 'image decode result/event differs')
+            if observation is not None:
+                report['image_decode_observation'] = observation
+            else:
+                require(result.get('status') == 'FAILED', 'failed image decode transport cannot establish capture')
+        else:
+            require(result.get('image_decode_observation') is None and
+                    result.get('status') != 'CAPTURED_REQUIRES_VISUAL_REVIEW', 'image decode observation required before capture')
         encoded = json.dumps(events).encode()
         require(len(encoded) <= 16 * 1024 ** 2 and b'PRIVATE KEY' not in encoded, 'guest public evidence rejected')
         save(target / 'guest-events.json', events)
@@ -490,10 +531,12 @@ def main():
     report = {'schema_version': 1, 'purpose': 'bounded-generic-arm-software-proof', 'status': 'FAIL', 'native_host': host,
               'execution': 'native-aarch64-controller; qemu-tcg-generic-aarch64-guest', 'hardware_validation': 'NOT RUN',
               'controller_contract_sha256': args.contract_sha256, 'source_commit': c['source_commit'],
+              'run_id': c['run_id'], 'run_attempt': c['run_attempt'],
               'source_sha256': CORE | {'controller.py': c['controller_sha256'], 'audit_tooling.py': AUDITOR_PIN},
               'inputs': c['files'], 'baseline_image': c['installed_image_id'], 'cleanup': [], 'stages': {}, 'resources': {}}
     derived, name_tooling, private_tag = None, None, None
     commit_uncertain = False
+    decode_context = None
     start = time.monotonic()
     def interrupted(*_):
         global CANCELLED
@@ -579,6 +622,7 @@ def main():
                                          'private_cleanup': verified['private_cleanup'], 'committed_config_sha256': report['baseline_config_sha256']}
             proof = {'schema_version': 1, 'execution': 'qemu-tcg-generic-aarch64', 'nonce': nonce, 'image_id': derived,
                      'source_commit': c['source_commit'], 'output_uid': os.getuid(), 'output_gid': os.getgid(),
+                     'baseline_image_id': c['installed_image_id'], 'run_id': c['run_id'], 'run_attempt': c['run_attempt'],
                      'baseline_handoff': 'lifecycle.json', 'baseline_handoff_sha256': c['files']['lifecycle_receipt']['sha256'],
                      'base_runtime_lock': 'base-packages.lock', 'base_runtime_lock_sha256': c['files']['base_lock']['sha256'],
                      'tooling_lock': 'tooling.lock.json', 'tooling_lock_sha256': LOCK_PIN,
@@ -594,8 +638,11 @@ def main():
             run_container(argv, raw / 'prepare-container.log', derived, True, False, True, 1260, report['cleanup'])
             prepared = json_load(preparation / 'prepared/prepare.json')
             require(prepared['status'] == 'PREPARED', 'preparation failed')
+            require(prepared.get('package_inventory') == verified['packages'], 'prepared tooling inventory differs')
             report['stages']['preparation'] = {k: prepared.get(k) for k in ('status', 'resources', 'extended_attributes', 'elapsed_seconds', 'error')}
             report['prepare_receipt_sha256'] = digest(preparation / 'prepared/prepare.json')
+            decode_context, report['image_decode_preparation'] = prepared_decode_authority(
+                proof, prepared, report['proof_contract_sha256'], report['prepare_receipt_sha256'])
             shutil.move(str(preparation / 'prepared'), str(inputs / 'prepared'))
             runtime = raw / 'runtime'; runtime.mkdir()
             argv = container_args(derived, 'cachy-virtual-run-' + nonce, inputs, runner, runtime)
@@ -620,7 +667,7 @@ def main():
                 if CANCELLED or any(r['status'] != 'PASS' for r in report['cleanup']):
                     report['status'] = 'FAIL'; report['cleanup_error'] = 'owned container/image removal not verified'
                 try:
-                    project(raw / 'runtime/proof', output, report)
+                    project(raw / 'runtime/proof', output, report, image_decode_context=decode_context)
                 except Exception as exc:
                     report['status'] = 'FAIL'
                     report['projection_error'] = str(exc)

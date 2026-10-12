@@ -60,6 +60,7 @@ class VirtualStage(unittest.TestCase):
         self.c = SimpleNamespace(native_out=self.native, work=self.work, image='sha256:' + 'a' * 64,
             installed='sha256:' + 'c' * 64, commit='b' * 40,
             report={'stages': {'lifecycle': {'status': 'PASS'}, 'desktop': {'status': 'FAIL'}, 'onboarding': {'status': 'FAIL'}}})
+        patch.dict(v.os.environ, {'GITHUB_RUN_ID': '38300000000', 'GITHUB_RUN_ATTEMPT': '1'}).start()
         self.base_map = {f'base-{n:03d}': '1-1' for n in range(341)}
         self.put(self.native / 'packages.lock', self.lock(self.base_map))
         self.put(self.native / 'image-id', self.c.image.encode())
@@ -129,9 +130,10 @@ class VirtualStage(unittest.TestCase):
             'base_package_count': 341, 'expected_package_count': 362, 'keyring_files': keys, 'packages': packages})
         self.put_json(self.owner / 'tooling-audit.json', {'status': 'PASS', 'tooling_lock_sha256': v.digest(self.owner / 'tooling.lock.json'),
                                                        'packages': {r['name']: {} for r in packages}})
-        for name in ('common.py', 'guest.py', 'prepare.py', 'run.py', 'gbm_probe.c', 'audit_tooling.py'):
+        for name in ('common.py', 'guest.py', 'prepare.py', 'run.py', 'gbm_probe.c', 'image_decode_probe.c', 'audit_tooling.py'):
             self.put(self.owner / name, (name + '\n').encode())
         shutil.copyfile(HERE.parents[1] / 'virtual/run.py', self.owner / 'run.py')
+        shutil.copyfile(HERE.parents[1] / 'virtual/image_decode_report.py', self.owner / 'image_decode_report.py')
         self.rebind()
         exporter = self.root / 'scripts/ci/integration_export.py'; exporter.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(HERE.parent / 'integration_export.py', exporter)
@@ -158,7 +160,8 @@ class VirtualStage(unittest.TestCase):
         return {'filename': name, 'url': 'https://example.invalid/' + name, 'size': len(data), 'sha256': sha(data)}
 
     def rebind(self):
-        core = {n: v.digest(self.owner / n) for n in ('common.py', 'guest.py', 'prepare.py', 'run.py', 'gbm_probe.c')}
+        core = {n: v.digest(self.owner / n) for n in ('common.py', 'guest.py', 'prepare.py', 'run.py', 'gbm_probe.c',
+                                                    'image_decode_probe.c', 'image_decode_report.py')}
         self.put(self.owner / 'controller.py', ('LOCK_PIN = ' + repr(v.digest(self.owner / 'tooling.lock.json')) + '\n' +
             'AUDIT_PIN = ' + repr(v.digest(self.owner / 'tooling-audit.json')) + '\n' +
             'AUDITOR_PIN = ' + repr(v.digest(self.owner / 'audit_tooling.py')) + '\nCORE = ' + repr(core) + '\nALIASES = ' + repr(v.ALIASES) + '\n').encode())
@@ -184,8 +187,10 @@ class VirtualStage(unittest.TestCase):
              'verified_pixels': 4096, 'expected_rgba': [255, 0, 255, 255],
              'scanout': 'NOT_RUN', 'm2_hardware': 'NOT_RUN', 'performance': 'NOT_RUN'}}]
         for stage in ('minimal', 'overlay'):
-            events.extend([self.ipc_probe(stage), self.ipc_command(),
-                           {'event': 'frame_ready', 'stage': stage, 'monitors': [{'width': 8, 'height': 1}],
+            events.extend([self.ipc_probe(stage), self.ipc_command()])
+            if stage == 'minimal':
+                events.extend([self.monitor_command(), self.decode_event()])
+            events.extend([{'event': 'frame_ready', 'stage': stage, 'monitors': [{'width': 8, 'height': 1}],
                             'clients': [{'pid': 100, 'mapped': True, 'size': [8, 1]}]},
                            {'event': 'phase_pass', 'stage': stage}])
         events.append({'event': 'guest_pass', 'nonce': 'e' * 32, 'software_session': 'PASS',
@@ -198,6 +203,7 @@ class VirtualStage(unittest.TestCase):
             frames[stage] = {'filename': stage + '.ppm', 'sha256': sha(ppm), 'width': 8, 'height': 1,
                              'distinct_rgb_values': 8, 'visual_review': 'NOT RUN'}
         receipt = {'schema_version': 1, 'purpose': 'bounded-generic-arm-software-proof',
+            'run_id': contract['run_id'], 'run_attempt': contract['run_attempt'],
             'status': 'CAPTURED_REQUIRES_VISUAL_REVIEW', 'source_commit': contract['source_commit'],
             'baseline_image': contract['installed_image_id'], 'controller_contract_sha256': v.digest(contract_path),
             'source_sha256': contract['core_sha256'] | {'controller.py': contract['controller_sha256'],
@@ -213,7 +219,20 @@ class VirtualStage(unittest.TestCase):
                       'frame_proof': 'REVIEW REQUIRED', 'hardware_validation': 'NOT RUN', 'graphics_acceleration': 'NOT RUN',
                       'm2_16k_pages': 'NOT RUN', 'performance': 'NOT RUN'},
             'frames': frames, 'guest_events_sha256': v.digest(out / 'guest-events.json'),
-            'stages': {'tooling': {'status': 'READY', 'package_count': 366, 'image_id': 'sha256:' + 'd' * 64}, 'preparation': {'status': 'PREPARED'}}}
+            'stages': {'tooling': {'status': 'READY', 'package_count': 366, 'image_id': 'sha256:' + 'd' * 64,
+                                  'package_inventory_sha256': '9' * 64}, 'preparation': {'status': 'PREPARED'}}}
+        receipt['image_decode_preparation'] = {'schema_version': 1, 'helper_sha256': '8' * 64,
+            'guest_image_sha256': '7' * 64, 'package_inventory_sha256': '9' * 64,
+            'asset_sha256': v.image_decoder().ASSET_SHA256, 'guest_contract_sha256': '6' * 64,
+            'prepare_receipt_sha256': 'e' * 64}
+        context = {'source_sha256': contract['core_sha256']['image_decode_probe.c'], 'image_sha256': '7' * 64,
+            'tooling_sha256': 'd' * 64, 'guest_sha256': contract['core_sha256']['guest.py'], 'helper_sha256': '8' * 64,
+            'runtime_sha256': contract['core_sha256']['common.py'], 'package_inventory_sha256': '9' * 64,
+            'asset_sha256': v.image_decoder().ASSET_SHA256, 'run_id': contract['run_id'], 'run_attempt': contract['run_attempt']}
+        raw = self.decode_raw()
+        receipt['image_decode_observation'] = {'binding': {'schema_version': 1,
+            'scope': 'supervisor-bound-image-decode-observation', 'observation_only': True,
+            'context': context, 'report_sha256': sha(raw)}, 'observation': json.loads(raw)}
         rows = self.capabilities()
         receipt['qemu_capabilities'] = rows
         receipt['qemu_capabilities_sha256'] = self.capability_sha(rows)
@@ -225,6 +244,28 @@ class VirtualStage(unittest.TestCase):
         self.put(out / 'key-init.log', b'never export this either\n')
         self.put(log, b'controlled launcher output\n')
         return 0
+
+    @staticmethod
+    def monitor_command():
+        return {'event': 'command', 'argv': ['/usr/bin/hyprctl', '-j', 'monitors'], 'returncode': 0,
+                'error': None, 'stdout': '[{"width":8,"height":1}]\n', 'stderr': ''}
+
+    @staticmethod
+    def decode_raw():
+        return json.dumps({'schema_version': 1, 'scope': 'fixed-adwaita-svg-observation', 'observation_only': True,
+            'asset': {'status': 'ok', 'size': 1042, 'sha256': v.image_decoder().ASSET_SHA256, 'errno': 0},
+            'cache': {'status': 'missing', 'size': None, 'sha256': None, 'errno': 2},
+            'content_type': {'status': 'observed', 'value': 'image/svg+xml', 'uncertain': False, 'is_svg': True},
+            'formats': {'status': 'observed', 'entries': [{'name': 'svg', 'disabled': False}]},
+            'decode': {'status': 'error', 'width': None, 'height': None, 'error_domain': 1, 'error_code': 0}},
+            separators=(',', ':')).encode()
+
+    @classmethod
+    def decode_event(cls):
+        raw = cls.decode_raw()
+        return {'event': 'image_decode_probe', 'nonce': 'e' * 32, 'stage': 'minimal', 'elapsed_ms': 15,
+                'returncode': 0, 'error': None, 'report_sha256': sha(raw),
+                'report_base64': base64.b64encode(raw).decode()}
 
     @staticmethod
     def ipc_probe(stage='minimal', **changes):
@@ -434,6 +475,7 @@ class VirtualStage(unittest.TestCase):
     def failed_capability_owner(self, out, rows=None, fields=True):
         def failed(receipt):
             receipt.update(status='FAIL', frames={}, guest={'status': 'FAILED', 'hardware_validation': 'NOT RUN'})
+            receipt.pop('image_decode_observation', None)
             receipt.pop('qemu_capabilities', None); receipt.pop('qemu_capabilities_sha256', None)
             if fields:
                 receipt.update(qemu_capabilities=rows, qemu_capabilities_sha256=self.capability_sha(rows))
@@ -602,7 +644,7 @@ class VirtualStage(unittest.TestCase):
         self.assertEqual(result['status'], 'FAIL'); self.assertTrue(fired)
         public = self.output / 'virtual-public/events/guest-events.json'
         self.assertEqual(json.loads(public.read_bytes()), [])
-        self.assertEqual(len(success_events), 11)
+        self.assertEqual(len(success_events), 13)
 
     def test_deleted_raw_result_events_do_not_discard_validated_snapshots(self):
         self.owner_mutation(lambda out: self.failed_capability_owner(out, fields=False), 1)
@@ -620,7 +662,10 @@ class VirtualStage(unittest.TestCase):
         self.owner_mutation(lambda out: self.failed_capability_owner(out, fields=False), 1)
         original = v.load_module
         def exporter(path, name):
-            module = original(path, name); operation = module.export_evidence
+            module = original(path, name)
+            if name != 'development_virtual_exporter':
+                return module
+            operation = module.export_evidence
             def mutate(selected, target):
                 result = operation(selected, target)
                 if (target / 'result.json').exists():
@@ -1216,9 +1261,13 @@ finally:
 
     def failed_events_owner(self, out, events):
         self.put_json(out / 'guest-events.json', events)
-        self.mutate(out / 'result.json', lambda receipt: receipt.update(status='FAIL', frames={},
-                    guest={'status': 'FAILED', 'hardware_validation': 'NOT RUN'},
-                    guest_events_sha256=v.digest(out / 'guest-events.json')))
+        def failed(receipt):
+            receipt.update(status='FAIL', frames={}, guest={'status': 'FAILED', 'hardware_validation': 'NOT RUN',
+                            'nonce': 'e' * 32, 'prepare_receipt_sha256': receipt['prepare_receipt_sha256']},
+                           guest_events_sha256=v.digest(out / 'guest-events.json'))
+            if not any(row['event'] == 'image_decode_probe' and row['error'] is None for row in events):
+                receipt.pop('image_decode_observation', None)
+        self.mutate(out / 'result.json', failed)
 
     def ipc_case(self, action, code=0):
         if self.output.exists():
@@ -1870,12 +1919,175 @@ finally:
             v.source_packet(SimpleNamespace(virtual_packet_sha256=accepted), self.root)
         declarations = {'LOCK_PIN': accepted['tooling.lock.json'], 'AUDIT_PIN': accepted['tooling-audit.json'],
                         'AUDITOR_PIN': accepted['audit_tooling.py'], 'ALIASES': v.ALIASES,
-                        'CORE': {name: accepted[name] for name in ('common.py', 'guest.py', 'prepare.py', 'run.py', 'gbm_probe.c')}}
+                        'CORE': {name: accepted[name] for name in ('common.py', 'guest.py', 'prepare.py', 'run.py', 'gbm_probe.c',
+                                                                  'image_decode_probe.c', 'image_decode_report.py')}}
         with (self.owner / 'controller.py').open('a') as stream:
             stream.write('\n' + '\n'.join(name + ' = ' + repr(value) for name, value in declarations.items()))
             stream.write('\nraise RuntimeError("owner-must-not-be-imported")\n')
         accepted['controller.py'] = v.digest(self.owner / 'controller.py')
         v.source_packet(SimpleNamespace(virtual_packet_sha256=accepted), self.root)
+
+    def decode_case(self, action, code=0):
+        if self.output.exists():
+            shutil.rmtree(self.output)
+        self.owner_mutation(action, code)
+        return self.run_adapter()
+
+    def test_image_decode_valid_error_and_missing_cache_remain_observations(self):
+        result = self.run_adapter()
+        self.assertEqual(result['status'], 'PASS', result.get('error_code'))
+        receipt = v.read_json(self.output / 'virtual-public/result/result.json')
+        observation = receipt['image_decode_observation']['observation']
+        self.assertEqual(observation['cache']['status'], 'missing')
+        self.assertEqual(observation['decode']['status'], 'error')
+        self.assertTrue((self.output / 'virtual-public/minimal-frame/minimal.ppm').is_file())
+        self.assertEqual(receipt['run_id'], '38300000000')
+
+    def test_image_decode_missing_event_or_envelope_cannot_supply_pass(self):
+        actions = [lambda out: self.altered_events(out, lambda rows: rows.__setitem__(slice(None),
+                        [row for row in rows if row['event'] != 'image_decode_probe'])),
+                   lambda out: self.mutate(out / 'result.json', lambda row: row.pop('image_decode_observation')),
+                   lambda out: self.mutate(out / 'result.json', lambda row: row.pop('image_decode_preparation'))]
+        for action in actions:
+            with self.subTest(action=actions.index(action)):
+                result = self.decode_case(action)
+                self.assertEqual(result['status'], 'FAIL')
+                self.assertFalse((self.output / 'virtual-public/minimal-frame').exists())
+
+    def test_image_decode_event_closed_types_bytes_and_deadline_refuse_before_copy(self):
+        changes = [{'private': 'password=DECODE_PRIVATE_SENTINEL'}, {'stage': 'overlay'}, {'nonce': '0' * 32},
+                   {'elapsed_ms': True}, {'elapsed_ms': 20001}, {'returncode': False}, {'error': 'stderr'},
+                   {'report_sha256': '0' * 64}, {'report_base64': '!!!!'},
+                   {'report_base64': base64.b64encode(b' ' * 16385).decode()},
+                   {'report_base64': base64.b64encode(b'\xff').decode()}]
+        for change in changes:
+            with self.subTest(change=change):
+                result = self.decode_case(lambda out: self.altered_events(out,
+                    lambda rows: next(row for row in rows if row['event'] == 'image_decode_probe').update(change)))
+                self.assertEqual(result['status'], 'FAIL')
+                self.assertFalse((self.output / 'virtual-public/events').exists())
+
+    def test_image_decode_single_attempt_and_readiness_placement_are_required(self):
+        def place(rows, mode):
+            row = rows.pop(self.event_index(rows, 'image_decode_probe'))
+            if mode == 'duplicate':
+                rows.insert(self.event_index(rows, 'frame_ready'), row)
+                rows.insert(self.event_index(rows, 'frame_ready'), copy.deepcopy(row))
+            elif mode == 'ipc-adjacency':
+                rows.insert(self.event_index(rows, 'ipc_probe') + 1, row)
+            elif mode == 'before-monitor':
+                index = next(i for i, item in enumerate(rows) if item.get('argv') == ['/usr/bin/hyprctl', '-j', 'monitors'])
+                rows.insert(index, row)
+            elif mode == 'after-frame':
+                rows.insert(self.event_index(rows, 'frame_ready') + 1, row)
+            else:
+                index = self.event_index(rows, 'frame_ready')
+                rows.insert(index, {'event': 'command', 'argv': ['/usr/bin/hyprctl', '-j', 'clients'],
+                    'returncode': 0, 'error': None, 'stdout': '[]\n', 'stderr': ''})
+                rows.insert(index + 1, row)
+        for mode in ('duplicate', 'ipc-adjacency', 'before-monitor', 'after-frame', 'after-clients'):
+            with self.subTest(mode=mode):
+                result = self.decode_case(lambda out: self.altered_events(out, lambda rows: place(rows, mode)))
+                self.assertEqual(result['status'], 'FAIL')
+                self.assertFalse((self.output / 'virtual-public/events').exists())
+
+    def test_image_decode_each_external_context_field_and_envelope_are_independent(self):
+        keys = v.image_decoder().CONTEXT_KEYS
+        for key in keys:
+            with self.subTest(key=key):
+                def forge(out):
+                    def change(row):
+                        row['image_decode_observation']['binding']['context'][key] = '2' if key.startswith('run_') else '0' * 64
+                    self.mutate(out / 'result.json', change)
+                result = self.decode_case(forge)
+                self.assertEqual(result['error_code'], 'guest-image-decode-binding-refused')
+                self.assertFalse((self.output / 'virtual-public/result').exists())
+        for change in (lambda row: row['image_decode_observation'].update(status='PASS'),
+                       lambda row: row['image_decode_observation']['observation']['decode'].update(error_code=7),
+                       lambda row: row['image_decode_observation']['binding'].update(report_sha256='0' * 64)):
+            self.assertEqual(self.decode_case(lambda out: self.mutate(out / 'result.json', change))['status'], 'FAIL')
+
+    def test_image_decode_preparation_closed_shape_crosspins_and_workflow_identity(self):
+        changes = [lambda row: row['image_decode_preparation'].update(extra='private'),
+                   lambda row: row['image_decode_preparation'].pop('guest_contract_sha256'),
+                   lambda row: row['image_decode_preparation'].update(schema_version=True),
+                   lambda row: row['image_decode_preparation'].update(asset_sha256='0' * 64),
+                   lambda row: row['image_decode_preparation'].update(prepare_receipt_sha256='0' * 64),
+                   lambda row: row['image_decode_preparation'].update(package_inventory_sha256='0' * 64),
+                   lambda row: row['stages']['tooling'].update(package_inventory_sha256='0' * 64),
+                   lambda row: row.update(run_id='999'), lambda row: row.update(run_attempt='2'),
+                   lambda row: row.pop('run_id')]
+        for index, change in enumerate(changes):
+            with self.subTest(change=index):
+                result = self.decode_case(lambda out: self.mutate(out / 'result.json', change))
+                self.assertEqual(result['error_code'], 'guest-image-decode-binding-refused')
+                self.assertFalse((self.output / 'virtual-public/result').exists())
+
+    def test_image_decode_failed_transport_is_retained_without_observation_or_pass(self):
+        for error in sorted(v.image_decoder().ERRORS):
+            with self.subTest(error=error):
+                def failed(out):
+                    rows = json.loads((out / 'guest-events.json').read_bytes())
+                    index = self.event_index(rows, 'image_decode_probe')
+                    rows[index].update(elapsed_ms=None, returncode=None, error=error, report_sha256=None, report_base64=None)
+                    rows[:] = rows[:index + 1] + [{'event': 'guest_failed', 'error': 'preflight failed', 'hardware_validation': 'NOT RUN'}]
+                    self.failed_events_owner(out, rows)
+                result = self.decode_case(failed, 1)
+                self.assertEqual(result['status'], 'FAIL')
+                public = v.read_json(self.output / 'virtual-public/result/result.json')
+                self.assertNotIn('image_decode_observation', public)
+                self.assertFalse((self.output / 'virtual-public/minimal-frame').exists())
+
+    def test_image_decode_valid_observation_retained_after_app_failure_without_frames(self):
+        def failed(out):
+            rows = json.loads((out / 'guest-events.json').read_bytes())
+            self.process_failure_fixture(rows)
+            self.failed_events_owner(out, rows)
+        result = self.decode_case(failed, 1)
+        self.assertEqual(result['status'], 'FAIL')
+        receipt = v.read_json(self.output / 'virtual-public/result/result.json')
+        self.assertIn('image_decode_observation', receipt)
+        self.assertFalse((self.output / 'virtual-public/minimal-frame').exists())
+
+    def test_image_decode_parser_is_loaded_from_selected_file_with_digest(self):
+        pin = v.digest(self.owner / 'image_decode_report.py')
+        with patch.dict(sys.modules, {'image_decode_report': SimpleNamespace(validate_event=lambda *_: b'FORGED')}):
+            decoder = v.image_decoder(self.root, pin)
+            self.assertEqual(decoder.validate_event(self.decode_event(), 'e' * 32), self.decode_raw())
+        original = v.read_regular
+        def replace_after_read(path, *args, **kwargs):
+            source = original(path, *args, **kwargs)
+            if Path(path) == self.owner / 'image_decode_report.py':
+                self.put(path, b'raise RuntimeError("not admitted")\n')
+            return source
+        with patch.object(v, 'read_regular', side_effect=replace_after_read):
+            decoder = v.image_decoder(self.root, pin)
+            self.assertEqual(decoder.validate_event(self.decode_event(), 'e' * 32), self.decode_raw())
+        self.put(self.owner / 'image_decode_report.py', b'raise RuntimeError("not admitted")\n')
+        with self.assertRaisesRegex(ValueError, 'virtual-source-packet-drift'):
+            v.image_decoder(self.root, pin)
+
+    def test_image_decode_encoded_private_format_is_refused_before_copy(self):
+        def private(out):
+            raw = json.loads(self.decode_raw())
+            raw['formats']['entries'] = [{'name': 'password=DECODE_PRIVATE_SENTINEL', 'disabled': False}]
+            encoded = json.dumps(raw, separators=(',', ':')).encode()
+            def change(rows):
+                next(row for row in rows if row['event'] == 'image_decode_probe').update(
+                    report_sha256=sha(encoded), report_base64=base64.b64encode(encoded).decode())
+            self.altered_events(out, change)
+        result = self.decode_case(private)
+        self.assertEqual(result['status'], 'FAIL')
+        self.assertFalse((self.output / 'virtual-public/events').exists())
+
+    def test_workflow_identity_missing_or_malformed_never_gets_local_fallback(self):
+        for key, value in (('GITHUB_RUN_ID', ''), ('GITHUB_RUN_ID', '0'), ('GITHUB_RUN_ID', '01'),
+                           ('GITHUB_RUN_ID', '1' * 21), ('GITHUB_RUN_ATTEMPT', '1' * 11), ('GITHUB_RUN_ATTEMPT', 'x')):
+            with self.subTest(key=key, value=value), patch.dict(v.os.environ, {key: value}):
+                with self.assertRaisesRegex(ValueError, 'authenticated-workflow-identity-required'):
+                    v.workflow_identity()
+        with patch.dict(v.os.environ, {}, clear=True):
+            with self.assertRaises(ValueError): v.workflow_identity()
 
 
 class BoundedTransport(unittest.TestCase):
