@@ -4,6 +4,34 @@ October 12, 2026. This record tracks the complete `outline.md` scope; an impleme
 
 The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with owned tasks and corrective next actions in `docs/backlog.md`. The destination now explicitly requires the maintained ARM package repository, native performance engineering, integrated Apple stack, broader Cachy system experience, and complete installation/release lifecycle. Both Air sizes, published final measurements, independent onboarding/contribution, subsequent full-port maintenance release, other-ARM reuse and actual upstream submissions remain required; an early overlay release or feasibility decision would not complete the goal. This scope update does not change any recorded execution result.
 
+Latest coordinator checkpoint, October 12: the records below retain earlier
+attempts; the following supersedes their pending-work descriptions without
+changing those attempts' outcomes.
+
+- Corrected FDK trial `38248011223` passes source/native preflight and records
+  all 501 acquisitions PASS, then fails after the last original-comparison
+  diagnostic. Seven public files pass independent strict verification; FDK
+  compilation remains NOT RUN. The exact subsequent failure is under review.
+  See [the actual execution record](reviews/native-fdk-execution-38248011223.md).
+- The updater storage/recovery correction is committed at `9d9b514`: 200 tests
+  pass in independent fresh copies, five additional storage/cleanup schedules
+  pass, and actual Git/source verification binds 85 files / 3,978,947 bytes.
+  Package/root pins are unchanged. Its revised storage policy has no measured
+  build-fit result; workflow adoption and a corrected native retry are pending.
+- The actual inert platform audit inspects all 618 supplied archives with no
+  metadata/file-list mismatch or observed non-directory overlap; aggregate
+  closure still fails for six exact older versions. Five of those versions now
+  have separately authenticated archives and metadata. A new bounded payload
+  audit is underway; OpenSSH remains unaccepted at this checkpoint. Image
+  authentication, installed ABI/hooks, source grants and M2 recovery remain open.
+- The corrected kernel stage source lock is independently matched and committed.
+  Its API/start source checks pass 103 job and 86 stage tests with zero skips.
+  Manual workflow registration is merged through PR4. Finite failure diagnostics
+  are being completed before final job-packet registration and native execution.
+  The concrete KSM executor and virtual publication corrections are implemented
+  but still undergoing source-review closure. No native execution or hardware
+  acceptance is inferred from these implementations.
+
 | Stage | Source implementation | Required execution evidence | Acceptance |
 | --- | --- | --- | --- |
 | 0 Baseline | Collector, acceptance method and MIT license implemented; base choice retained | Native ARM VM builder executed; exact Asahi base snapshot and M2 Air inventories remain | INCOMPLETE |
