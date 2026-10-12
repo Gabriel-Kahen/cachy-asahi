@@ -4,7 +4,7 @@ October 12, 2026. This record tracks the complete `outline.md` scope; an impleme
 
 The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with owned tasks and corrective next actions in `docs/backlog.md`. The destination now explicitly requires the maintained ARM package repository, native performance engineering, integrated Apple stack, broader Cachy system experience, and complete installation/release lifecycle. Both Air sizes, published final measurements, independent onboarding/contribution, subsequent full-port maintenance release, other-ARM reuse and actual upstream submissions remain required; an early overlay release or feasibility decision would not complete the goal. This scope update does not change any recorded execution result.
 
-Latest coordinator checkpoint, October 12: the records below retain earlier
+Latest coordinator checkpoint, October 12 at 12:49 UTC: the records below retain earlier
 attempts; the following supersedes their pending-work descriptions without
 changing those attempts' outcomes.
 
@@ -17,12 +17,14 @@ changing those attempts' outcomes.
   pass in independent fresh copies, five additional storage/cleanup schedules
   pass, and actual Git/source verification binds 85 files / 3,978,947 bytes.
   Package/root pins are unchanged. Its revised storage policy has no measured
-  build-fit result; workflow adoption and a corrected native retry are pending.
-- The actual inert platform audit inspects all 618 supplied archives with no
-  metadata/file-list mismatch or observed non-directory overlap; aggregate
-  closure still fails for six exact older versions. Five of those versions now
-  have separately authenticated archives and metadata. A new bounded payload
-  audit is underway; OpenSSH remains unaccepted at this checkpoint. Image
+  build-fit result. Workflow adoption passes381 consumer fixtures and syntax/
+  clock checks; corrected native trial38251407975 is running at90d8a242.
+- All six missing exact older versions now have authenticated archives and
+  metadata; six additional independent root GPG checks pass. The new actual
+  inert platform audit passes624/624 supplied archives with no missing archive,
+  metadata/file-list mismatch or observed non-directory overlap. Five runtime/
+  generated link targets remain unobserved. Historical406/618/623 failed audits
+  remain unchanged. This closes the missing archive-data gap only. Image
   authentication, installed ABI/hooks, source grants and M2 recovery remain open.
 - The corrected kernel stage source lock is independently matched and committed.
   Its API/start source checks pass 103 job and 86 stage tests with zero skips.
