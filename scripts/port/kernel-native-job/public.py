@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: MIT
 """Publish one finite status record; never traverse or publish build evidence."""
 import argparse
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -9,11 +10,12 @@ import re
 import stat
 
 MAX_BYTES = 16 * 1024
-KEYS = {'schema_version', 'stage', 'status', 'phase', 'cancelled', 'source_commit',
+LEGACY_KEYS = {'schema_version', 'stage', 'status', 'phase', 'cancelled', 'source_commit',
         'packet_sha256', 'producer', 'kernel_probe', 'baseline', 'candidate', 'cleanup',
         'native_compilation', 'kernel_runtime', 'hardware', 'installation', 'performance',
         'binary_publication', 'selected_for_release', 'first_failed_phase', 'failure_reason',
         'producer_exit', 'acquisition_exit', 'resources', 'daemon_baseline'}
+KEYS = LEGACY_KEYS | {'kernel_child'}
 REASONS = {
     'NONE': {'NONE'},
     'preflight': {'PREFLIGHT_REJECTED', 'HOST_CAPABILITIES', 'HOST_MEMORY_RESERVE',
@@ -141,6 +143,92 @@ def daemon_baseline(value):
              row['producer_mutation'] == 'COMPLETE_ACCEPTED')
 
 
+
+# Pure duplicated schema: cross-boundary tests keep the child/receiver agreement exact.
+CHILD_LIMIT = 4096
+
+CHILD_ACTIONS = ('provision', 'probe', 'baseline', 'candidate')
+
+CHILD_PREDICATES = frozenset(('SNAPSHOT', 'ACCEPTED_BASE', 'DEPENDENCY_PACKET', 'PROVISION_INITIALIZE', 'PROVISION_COMMAND', 'PROVISION_RECEIPT', 'DERIVED_IMAGE', 'BUILD_INITIALIZE', 'PROBE_COMMAND', 'PROBE_RECEIPT', 'BASELINE_COMMAND', 'BASELINE_RECEIPT', 'BASELINE_CONFIG', 'CANDIDATE_COMMAND', 'CANDIDATE_RECEIPT', 'PAIR_ACCEPTANCE', 'CLEANUP', 'FINALIZATION', 'COMPLETE'))
+
+CHILD_CATEGORIES = frozenset(('NONE', 'CANCELLED', 'DEADLINE', 'TIMEOUT', 'OUTPUT_BOUND', 'IO', 'INVALID_DATA', 'COMMAND_NONZERO', 'UNCLASSIFIED'))
+
+CHILD_CLEANUP_CATEGORIES = CHILD_CATEGORIES | {'ABSENCE_UNVERIFIED', 'UNCERTAIN_MUTATION'}
+
+CHILD_BINDING_KEYS = frozenset(('source_commit', 'stage_lock_sha256', 'output_name_sha256', 'run_id', 'run_attempt', 'nonce', 'accepted_result_sha256', 'bootstrap_sha256', 'inputs_sha256', 'base_inventory_sha256'))
+
+CHILD_DIAG_KEYS = frozenset(('schema_version', 'current_predicate', 'first_failed_predicate', 'failure_category', 'commands', 'cleanup'))
+
+def child_encoded(value):
+    data = json.dumps(value, sort_keys=True, separators=(',', ':'), allow_nan=False).encode()
+    need(len(data) <= CHILD_LIMIT)
+    return data
+
+def child_validate_exit(row):
+    need(type(row) is dict and set(row) == {'kind', 'code'} and (type(row['kind']) is str))
+    if row['kind'] in ('NOT_RUN', 'UNOBSERVED'):
+        need(row['code'] is None)
+    else:
+        need(row == exit_record(row['code']))
+    return row
+
+def child_validate_fields(row):
+    need(type(row['schema_version']) is int and row['schema_version'] == 1)
+    need(type(row['current_predicate']) is str and row['current_predicate'] in CHILD_PREDICATES)
+    need(type(row['first_failed_predicate']) is str and row['first_failed_predicate'] in CHILD_PREDICATES | {'NONE'})
+    need(type(row['failure_category']) is str and row['failure_category'] in CHILD_CATEGORIES)
+    need((row['first_failed_predicate'] == 'NONE') == (row['failure_category'] == 'NONE'))
+    need(type(row['commands']) is dict and set(row['commands']) == set(CHILD_ACTIONS))
+    for value in row['commands'].values():
+        child_validate_exit(value)
+    clean = row['cleanup']
+    need(type(clean) is dict and set(clean) == {'status', 'category'})
+    need(type(clean['status']) is str and clean['status'] in ('NOT_RUN', 'PASS', 'FAIL'))
+    need(type(clean['category']) is str and clean['category'] in CHILD_CLEANUP_CATEGORIES)
+    need((clean['status'] != 'FAIL') == (clean['category'] == 'NONE'))
+    if row['current_predicate'] == 'COMPLETE':
+        need(row['first_failed_predicate'] == 'NONE' and clean['status'] == 'PASS' and all((value == exit_record(0) for value in row['commands'].values())))
+
+def child_validate_public(row):
+    need(type(row) is dict and set(row) == CHILD_DIAG_KEYS | {'binding_sha256'})
+    need(type(row['binding_sha256']) is str and re.fullmatch('[0-9a-f]{64}', row['binding_sha256']))
+    child_encoded(row)
+    child_validate_fields(row)
+    return row
+
+def child_project(row):
+    need(type(row) is dict and set(row) == CHILD_DIAG_KEYS | {'binding'})
+    child_encoded(row)
+    child_validate_fields(row)
+    binding = row['binding']
+    need(type(binding) is dict and set(binding) == CHILD_BINDING_KEYS)
+    for name in CHILD_BINDING_KEYS - {'source_commit', 'run_id', 'run_attempt', 'nonce'}:
+        need(type(binding[name]) is str and re.fullmatch('[0-9a-f]{64}', binding[name]))
+    need(type(binding['source_commit']) is str and re.fullmatch('[0-9a-f]{40}', binding['source_commit']))
+    need(type(binding['nonce']) is str and re.fullmatch('[0-9a-f]{32}', binding['nonce']))
+    for name in ('run_id', 'run_attempt'):
+        need(binding[name] is None or (type(binding[name]) is str and re.fullmatch('[0-9]{1,20}', binding[name])))
+    result = {key: row[key] for key in CHILD_DIAG_KEYS}
+    result['binding_sha256'] = hashlib.sha256(child_encoded(binding)).hexdigest()
+    return child_validate_public(result)
+
+
+def kernel_child(row):
+    need(type(row) is dict and set(row) == {'availability', 'exit', 'diagnostics'})
+    need(type(row['availability']) is str and row['availability'] in
+         {'NOT_RUN', 'UNAVAILABLE', 'UNVERIFIED', 'VERIFIED'})
+    child_validate_exit(row['exit'])
+    if row['availability'] == 'VERIFIED':
+        child_validate_public(row['diagnostics'])
+        need(row['exit']['kind'] != 'NOT_RUN')
+    else:
+        need(row['diagnostics'] is None)
+    if row['availability'] == 'NOT_RUN':
+        need(row['exit'] == {'kind': 'NOT_RUN', 'code': None})
+    else:
+        need(row['exit']['kind'] != 'NOT_RUN')
+
+
 def read(path):
     path = Path(path)
     need(path.is_absolute() and '..' not in path.parts and
@@ -183,8 +271,9 @@ def project(data, commit, pin, outcome):
          type(pin) is str and re.fullmatch('[0-9a-f]{64}', pin) and
          outcome in {'success', 'failure', 'cancelled', 'skipped', ''})
     value = decode(data)
-    need(set(value) == KEYS and type(value['schema_version']) is int and
-         value['schema_version'] == 3 and value['stage'] == 'kernel-native-development-job' and
+    need(type(value['schema_version']) is int and
+         ((value['schema_version'] == 3 and set(value) == LEGACY_KEYS) or
+          (value['schema_version'] == 4 and set(value) == KEYS)) and value['stage'] == 'kernel-native-development-job' and
          type(value['cancelled']) is bool and value['selected_for_release'] is False and
          value['source_commit'] == commit and value['packet_sha256'] == pin)
     need(value['status'] in {'PASS', 'FAIL'} and value['phase'] in PHASES and
@@ -196,12 +285,18 @@ def project(data, commit, pin, outcome):
          value['performance'] == 'NOT MEASURED')
     diagnostics(value)
     daemon_baseline(value)
+    if value['schema_version'] == 4:
+        kernel_child(value['kernel_child'])
     accepted = (value['phase'] == 'complete' and not value['cancelled'] and
                 value['first_failed_phase'] == 'NONE' and value['failure_reason'] == 'NONE' and
                 all(value[name] == exit_record(0) for name in ('producer_exit', 'acquisition_exit')) and
                 value['cleanup'] == 'PASS' and
                 all(value[name] == 'PASS' for name in CHILDREN) and
                 value['native_compilation'] == 'PASS')
+    if value['schema_version'] == 4 and value['status'] == 'PASS':
+        child = value['kernel_child']
+        need(child['availability'] == 'VERIFIED' and child['exit'] == exit_record(0) and
+             child['diagnostics']['current_predicate'] == 'COMPLETE')
     need(value['status'] != 'PASS' or accepted)
     # A stale PASS left before cancellation or a later step failure is not accepted.
     if outcome != 'success' or value['status'] != 'PASS':

@@ -779,5 +779,60 @@ class BootstrapTests(unittest.TestCase):
         self.assertIn("stream.write('KERNEL_JOB_BOOTSTRAP_SOURCE='", text)
 
 
+
+class Schema4ChildTests(unittest.TestCase):
+    def current(self):
+        value = receipt(); value['schema_version'] = 4
+        diagnostic = {'schema_version': 1, 'binding_sha256': 'f' * 64, 'current_predicate': 'COMPLETE',
+            'first_failed_predicate': 'NONE', 'failure_category': 'NONE',
+            'commands': {name: public.exit_record(0) for name in public.CHILD_ACTIONS},
+            'cleanup': {'status': 'PASS', 'category': 'NONE'}}
+        value['kernel_child'] = {'availability': 'VERIFIED', 'exit': public.exit_record(0), 'diagnostics': diagnostic}
+        return value
+
+    def test_schema3_historical_semantics_and_new_schema4_bound_success_are_separate(self):
+        self.assertEqual(public.project(encoded(receipt()), COMMIT, PIN, 'success'), receipt())
+        value = self.current(); self.assertEqual(public.project(encoded(value), COMMIT, PIN, 'success'), value)
+        for outcome in ('failure', 'cancelled', 'skipped', ''):
+            row = public.project(encoded(value), COMMIT, PIN, outcome)
+            self.assertEqual(row['status'], 'FAIL')
+            self.assertEqual(row['native_compilation'], 'NOT ACCEPTED')
+            self.assertEqual(row['kernel_child'], value['kernel_child'])
+
+    def test_current_pass_requires_actual_zero_exit_verified_complete_diagnostic(self):
+        changes = (lambda r: r.pop('kernel_child'), lambda r: r['kernel_child'].update(exit=public.exit_record(1)),
+            lambda r: r['kernel_child'].update(exit={'kind': 'UNOBSERVED', 'code': None}),
+            lambda r: r['kernel_child'].update(availability='UNVERIFIED', diagnostics=None),
+            lambda r: r['kernel_child']['diagnostics'].update(current_predicate='PROVISION_COMMAND'),
+            lambda r: r['kernel_child']['diagnostics']['commands'].update(candidate=public.exit_record(125)),
+            lambda r: r['kernel_child']['diagnostics']['cleanup'].update(status='FAIL', category='UNCERTAIN_MUTATION'))
+        for change in changes:
+            value = self.current(); change(value)
+            with self.subTest(change=change), self.assertRaises(ValueError): public.project(encoded(value), COMMIT, PIN, 'success')
+
+    def test_truthful_missing_child_keeps_observed_outer_first_cause(self):
+        for availability in ('UNAVAILABLE', 'UNVERIFIED'):
+            value = self.current(); value.update(status='FAIL', phase='cleanup', native_compilation='NOT RUN',
+                kernel_probe='NOT RUN', baseline='NOT RUN', candidate='NOT RUN', cleanup='FAIL',
+                first_failed_phase='kernel', failure_reason='KERNEL_EXIT')
+            value['kernel_child'] = {'availability': availability, 'exit': public.exit_record(1), 'diagnostics': None}
+            result = public.project(encoded(value), COMMIT, PIN, 'failure')
+            self.assertEqual((result['first_failed_phase'], result['failure_reason']), ('kernel', 'KERNEL_EXIT'))
+            self.assertEqual(result['kernel_child'], value['kernel_child'])
+            self.assertEqual(result['native_compilation'], 'NOT RUN')
+
+    def test_diagnostic_unknown_keys_raw_text_types_and_partial_groups_refused(self):
+        changes = (lambda r: r['kernel_child'].update(raw='secret/path'),
+            lambda r: r['kernel_child'].update(exit={'kind': 'EXIT_ZERO', 'code': True}),
+            lambda r: r['kernel_child']['diagnostics'].update(raw='secret/path'),
+            lambda r: r['kernel_child']['diagnostics'].update(binding_sha256='secret'),
+            lambda r: r['kernel_child']['diagnostics'].update(failure_category='private error'),
+            lambda r: r['kernel_child']['diagnostics']['commands'].pop('baseline'),
+            lambda r: r['kernel_child']['diagnostics'].update(schema_version=True),
+            lambda r: r['kernel_child'].update(availability='UNAVAILABLE'))
+        for change in changes:
+            value = self.current(); change(value)
+            with self.subTest(change=change), self.assertRaises(ValueError): public.project(encoded(value), COMMIT, PIN, 'success')
+
 if __name__ == '__main__':
     unittest.main()

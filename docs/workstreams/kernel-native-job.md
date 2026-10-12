@@ -1,6 +1,15 @@
 # Standalone hosted native kernel job
 
-This baseline-preservation correction is source implementation pending
+The current child-diagnostics correction is source implementation pending
+independent review and coordinator rebind; see
+[the exact diagnostic contract](kernel-child-diagnostics-correction.md).
+Actual run 38270726379 accepted the original producer and acquisition, then
+failed at `kernel/KERNEL_EXIT`. Its schema-3 record retains cleanup FAIL,
+baseline preservation/owned absence UNVERIFIED, and no established child
+compiler invocation. The first child predicate is unknown. This correction
+does not reinterpret that trial or change cleanup timers.
+
+The earlier baseline-preservation correction was source implementation pending
 independent review and coordinator rebind. Historical run 38253531983 executed
 commit `dcc170af543f3238f33efc0c623811d6620affaa` with the 115-file packet
 `afdb5a4947acf71e511fe1266921d68149561aedb4ec5b030e841112e827d9e2` and
@@ -8,8 +17,9 @@ failed at `source/DAEMON_OCCUPIED`, before either child ran. The old guard
 short-circuited image inventory and used the same fallback for query failures;
 that evidence does not establish image/container counts or preservation.
 Its resource readings passed the initial guards. Original producer execution
-in this job and both full kernel compilations remain NOT RUN, as do kernel
-execution, installation and M2 validation; performance remains NOT MEASURED.
+did not run in that first trial. Both full kernel compilations remain unaccepted;
+kernel execution, installation and M2 validation remain NOT RUN; performance
+remains NOT MEASURED.
 The old 130-test/schema 2/kernel24 e47/job115 afdb evidence remains historical.
 The new six source/test candidates and two guides are not authenticated by those
 old locks. Original producer, platform tuple, recipes, workflow, packet.py,
@@ -227,9 +237,12 @@ performance stays NOT MEASURED and release selection stays false.
 
 ## Closed failure diagnostics
 
-Schema version 3 has exactly 25 top-level keys: the previous 24 fields plus
-`daemon_baseline`. Versions 1/2 or missing/extra diagnostic fields are refused by
-this candidate; their historical evidence is retained unchanged. The
+Historical schema version 3 has exactly 25 top-level keys: the previous 24 fields
+plus `daemon_baseline`. Current schema 4 adds only `kernel_child`, for 26 keys.
+The projector retains the exact schema-3 validation/outcome semantics for
+historical records; schema 4 additionally requires bound verified child
+diagnostics and an actual zero child return for PASS. Versions 1/2 and
+missing/extra fields are refused. Historical evidence is retained unchanged. The
 16 KiB public-record bound, source/packet binding and actual native-step outcome
 gate are unchanged. Diagnostics grant no execution or hardware acceptance.
 

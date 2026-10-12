@@ -17,6 +17,7 @@ from common import BASE_SHA, INPUTS_SHA, PREFIX, SOURCE, code_contract, digest, 
 from runtime import Cancelled, Runner, cancellation_handlers, defer_signals
 from broker import Broker
 import image
+import evidence as child_evidence
 
 HELPERS = ('scripts/ci/native_arm.py', 'scripts/ci/commit_image.py', 'scripts/port/fdk-native-stage/evidence.py')
 HELD = ('harness.py', 'verify_build.py', 'candidate.json')
@@ -80,7 +81,7 @@ def copy_pin(source, target, pin, limit):
     return {'sha256': pin, 'bytes': total}
 
 
-def packet(args, code, private, lock):
+def packet(args, code, private, lock, nonce):
     dependencies = load(code / (PREFIX + 'dependencies.json'), lock['files'][PREFIX + 'dependencies.json']['sha256'])
     candidate = load(code / (SOURCE + 'candidate.json'))
     need(dependencies['base_inventory_sha256'] == BASE_SHA and dependencies['base_inputs_lock_sha256'] == INPUTS_SHA and
@@ -117,7 +118,7 @@ def packet(args, code, private, lock):
     for key in dependencies['keyring_files']:
         name = key['filename']; need(Path(name).name == name, 'flat key name required')
         rows[name] = copy_pin(args.key_dir / name, inputs / name, key['sha256'], 1024**2)
-    contract = {'schema_version': 1, 'nonce': secrets.token_hex(32)[:32], 'uid': os.getuid(), 'gid': os.getgid(),
+    contract = {'schema_version': 1, 'nonce': nonce, 'uid': os.getuid(), 'gid': os.getgid(),
                 'files': lock['files'], 'inputs': rows, 'base_inventory': base.decode(), 'source_commit': args.source_commit,
                 'dependencies_sha256': lock['files'][PREFIX + 'dependencies.json']['sha256'],
                 'candidate_sha256': lock['files'][SOURCE + 'candidate.json']['sha256']}
@@ -128,9 +129,15 @@ def finish(output, report):
     # Public output is an explicit finite status projection, never binaries or
     # arbitrary private tree content. Consumers use it only after stage exit.
     def write():
+        diagnostics = child_evidence.project(report['diagnostics'])
+        if report['status'] == 'PASS':
+            need(diagnostics['current_predicate'] == 'COMPLETE' and
+                 report['native_kernel_compilation'] == 'PASS' and report['cleanup']['status'] == 'PASS',
+                 'complete child diagnostics required')
         save(output / 'private/result.json', report)
         public = {key: report[key] for key in ('status', 'phase', 'cancelled', 'source_commit',
             'native_kernel_compilation', 'kernel_execution', 'hardware_validation', 'performance', 'cleanup')}
+        public['diagnostics'] = diagnostics
         save(output / 'public/status.json', public)
     def invalidate():
         # Remove only these owned terminal receipts before failure rewrites.
@@ -141,6 +148,7 @@ def finish(output, report):
         with defer_signals() as events: write()
         if events:
             report.update(status='FAIL', cancelled=True)
+            child_evidence.failure(report['diagnostics'], 'CANCELLED', 'FINALIZATION')
             invalidate()
             with defer_signals(): write()
     except BaseException:
@@ -171,19 +179,32 @@ def execute(args):
     report = {'status': 'FAIL', 'phase': 'snapshot', 'cancelled': False, 'source_commit': args.source_commit,
               'native_kernel_compilation': 'NOT RUN', 'kernel_execution': 'NOT RUN',
               'hardware_validation': 'NOT RUN', 'performance': 'NOT MEASURED', 'cleanup': {'status': 'NOT RUN'}}
+    nonce = secrets.token_hex(16)
+    binding = {'source_commit': args.source_commit, 'stage_lock_sha256': args.lock_sha256,
+        'output_name_sha256': hashlib.sha256(args.output.name.encode()).hexdigest(),
+        'run_id': os.environ.get('GITHUB_RUN_ID'), 'run_attempt': os.environ.get('GITHUB_RUN_ATTEMPT'),
+        'nonce': nonce, 'accepted_result_sha256': args.accepted_result_sha256,
+        'bootstrap_sha256': args.bootstrap_sha256, 'inputs_sha256': INPUTS_SHA,
+        'base_inventory_sha256': BASE_SHA}
+    report.update(stage_lock_sha256=args.lock_sha256, nonce=nonce,
+                  diagnostics=child_evidence.initial(binding))
     finish(args.output, report)  # Interrupted/abandoned stages start authoritatively FAIL.
     brokers, provisioner = [], None
     image_journal = private / 'derived-image.json'
+    def checkpoint(predicate):
+        report['diagnostics']['current_predicate'] = predicate
+        finish(args.output, report)
     try:
         code = snapshot(args, lock, private, runner)
+        checkpoint('ACCEPTED_BASE')
         base_helper = module('kernel_accepted_base', code / HELPERS[2])
         bootstrap = load(args.bootstrap, args.bootstrap_sha256)
         result = load(args.accepted_result, args.accepted_result_sha256)
         regular(args.inputs)
         report['accepted_base'] = base_helper.accepted_base(bootstrap, args.base_packages.read_bytes(), args.inputs.read_bytes(),
             result, args.image, args.source_commit, lock['files']['scripts/ci/native_arm.py']['sha256'])
-        inputs, contract, dependencies = packet(args, code, private, lock)
-        nonce = contract['nonce']
+        checkpoint('DEPENDENCY_PACKET')
+        inputs, contract, dependencies = packet(args, code, private, lock, nonce)
         save(inputs / 'contract.json', contract)
         report['dependency_packet_sha256'] = contract['dependencies_sha256']
         report['expected_inventory_sha256'] = dependencies['expected_inventory_sha256']
@@ -196,28 +217,39 @@ def execute(args):
             save(inputs / 'contract.json', contract)
             worker_env = {'PATH': '/usr/bin:/bin', 'HOME': '/tmp/home', 'LC_ALL': 'C', 'KERNEL_STAGE_NONCE': nonce,
                           'KERNEL_STAGE_ACTION': action, 'KERNEL_STAGE_CONTRACT_SHA256': digest(inputs / 'contract.json')}
+            report['diagnostics']['commands'][action] = {'kind': 'UNOBSERVED', 'code': None}
+            checkpoint(action.upper() + '_COMMAND')
             command_result = broker.launch(action, mounts, worker_env, 7800 if action in ('baseline', 'candidate') else 900,
                                            persist=action == 'provision')
+            report['diagnostics']['commands'][action] = child_evidence.exit_record(command_result.returncode)
+            if command_result.returncode != 0:
+                child_evidence.failure(report['diagnostics'], 'COMMAND_NONZERO')
             need(command_result.returncode == 0, 'kernel worker exit failed')
+            checkpoint(action.upper() + '_RECEIPT')
             receipt = load(out / 'result.json')
             need(receipt['status'] == 'PASS' and receipt['action'] == action and receipt['nonce'] == nonce and
                  not receipt.get('cancelled'), 'kernel worker receipt differs')
             report[action] = receipt
             return receipt
+        checkpoint('PROVISION_INITIALIZE')
         provisioner = Broker(runner, cleanup, args.docker, args.docker_sha256, args.endpoint, args.image,
             os.getuid(), os.getgid(), private / 'provision-containers.json', nonce, role='provision')
         brokers.append(provisioner); report['daemon'] = provisioner.initialize()
         launch(provisioner, 'provision')
         report['phase'] = 'derive'
+        checkpoint('DERIVED_IMAGE')
         derived = image.commit(provisioner, code, image_journal); report['derived_image'] = derived
+        checkpoint('BUILD_INITIALIZE')
         builds = Broker(runner, cleanup, args.docker, args.docker_sha256, args.endpoint, derived['image_id'],
             os.getuid(), os.getgid(), private / 'build-containers.json', nonce)
         brokers.append(builds); builds.initialize(expected_daemon=report['daemon'])
         launch(builds, 'probe')
         baseline = launch(builds, 'baseline')
+        checkpoint('BASELINE_CONFIG')
         config_file = private / 'output-baseline/generated-config.txt'; regular(config_file, 1024**2)
         contract['inputs']['baseline-config'] = copy_pin(config_file, inputs / 'baseline-config', digest(config_file), 1024**2)
         candidate = launch(builds, 'candidate')
+        checkpoint('PAIR_ACCEPTANCE')
         need(baseline['tools'] == candidate['tools'] == report['probe']['tools'], 'paired toolchain changed')
         need(baseline['generated_config_delta'] == candidate['generated_config_delta'], 'paired config deltas changed')
         need(digest(config_file) == digest(private / 'output-candidate/generated-config.txt'), 'paired generated config differs')
@@ -225,23 +257,42 @@ def execute(args):
         report.update(status='PASS', phase='complete', native_kernel_compilation='PASS')
     except (Cancelled, KeyboardInterrupt):
         report.update(status='FAIL', cancelled=True)
+        child_evidence.failure(report['diagnostics'], 'CANCELLED')
     except Exception as error:
         report.update(status='FAIL', error_type=type(error).__name__)
+        child_evidence.failure(report['diagnostics'], child_evidence.error_category(error))
     finally:
         with defer_signals() as events:
+            report['diagnostics']['current_predicate'] = 'CLEANUP'
             clean = []
+            cleanup_errors = []
             for broker in reversed(brokers):
                 try: clean.append(broker.cleanup())
-                except BaseException: clean.append({'status': 'FAIL', 'absence_verified': False})
+                except BaseException as error:
+                    clean.append({'status': 'FAIL', 'absence_verified': False})
+                    cleanup_errors.append(child_evidence.error_category(error, isinstance(error, Cancelled)))
             if provisioner is not None:
                 try: clean.append(image.cleanup(provisioner, image_journal))
-                except BaseException: clean.append({'status': 'FAIL', 'absence_verified': False})
+                except BaseException as error:
+                    clean.append({'status': 'FAIL', 'absence_verified': False})
+                    cleanup_errors.append(child_evidence.error_category(error, isinstance(error, Cancelled)))
             report['cleanup'] = {'status': 'PASS' if clean and all(r.get('status') == 'PASS' and r.get('absence_verified') is True for r in clean) else 'FAIL', 'records': clean}
             if events or any(row.get('cancelled') for row in clean): report.update(status='FAIL', cancelled=True)
             if report['cleanup']['status'] != 'PASS': report['status'] = 'FAIL'
+            category = ('NONE' if report['cleanup']['status'] == 'PASS' else
+                'CANCELLED' if report['cancelled'] else cleanup_errors[0] if cleanup_errors else
+                child_evidence.cleanup_category(clean))
+            report['diagnostics']['cleanup'] = {'status': report['cleanup']['status'], 'category': category}
+            if report['cancelled']:
+                child_evidence.failure(report['diagnostics'], 'CANCELLED')
+            elif report['cleanup']['status'] != 'PASS':
+                child_evidence.failure(report['diagnostics'], 'INVALID_DATA')
+            elif report['status'] == 'PASS':
+                report['diagnostics']['current_predicate'] = 'COMPLETE'
             finish(args.output, report)
         if events:
             report.update(status='FAIL', cancelled=True)
+            child_evidence.failure(report['diagnostics'], 'CANCELLED', 'FINALIZATION')
             finish(args.output, report)
     return int(report['status'] != 'PASS')
 

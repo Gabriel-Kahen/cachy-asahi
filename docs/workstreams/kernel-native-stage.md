@@ -1,8 +1,14 @@
 # Separate native kernel trial
 
-This stage is implemented for review; **native ARM kernel compilation, native
-ARM fixture execution, kernel execution, installation, M2 validation and
-performance measurements have not run**. Its dependency authentication and
+This stage is implemented for review; **native ARM kernel compilation and
+fixture execution remain unaccepted; kernel execution, installation and M2
+validation have not run; performance remains NOT MEASURED**. Actual trial
+38270726379 failed after the outer producer was accepted, without an exported
+first child predicate or evidence establishing a compiler invocation. Cleanup
+FAIL remains authoritative. The source-only
+[child diagnostic correction](kernel-child-diagnostics-correction.md) adds
+finite observations without changing existing timer, broker or image policy.
+Its dependency authentication and
 source/application audits ran locally. It does not change the accepted platform
 tuple, original builder snapshot, boot configuration or shared release manifests.
 The coordinator owns Git integration, workflow integration and dispatch.
@@ -202,6 +208,12 @@ Only a fixed status projection enters `public/status.json`. Private receipts,
 bounded logs and the fixture's finite text allowlist remain in owned ignored
 storage. Kernel/fixture executables are not publicly exported. No package,
 repository, installation, boot or benchmark acceptance is inferred from PASS.
+The new diagnostic object is limited to 4 KiB. Its private binding covers the
+source commit, stage lock, output-name hash, run/attempt, child nonce, accepted
+result/bootstrap and unchanged original input/inventory hashes. The public
+projection publishes only their canonical binding digest, finite predicate and
+category codes, typed actual command returns and typed cleanup status. See the
+linked contract for exact fields and source-rebind requirements.
 
 ## Actual evidence and limits
 

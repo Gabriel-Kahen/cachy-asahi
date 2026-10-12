@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: MIT
 from contextlib import contextmanager
 import ast
+import importlib.util
 import json
 import os
 import signal
@@ -13,6 +14,10 @@ from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
 import job
+
+spec = importlib.util.spec_from_file_location('kernel_child_evidence_fixture',
+    Path(__file__).resolve().parents[1] / 'kernel-native-stage/evidence.py')
+child_evidence = importlib.util.module_from_spec(spec); spec.loader.exec_module(child_evidence)
 
 
 class JobContracts(unittest.TestCase):
@@ -221,12 +226,36 @@ class JobContracts(unittest.TestCase):
         fake.call.side_effect = [SimpleNamespace(returncode=0, stdout=json.dumps([row]).encode()),
             SimpleNamespace(returncode=0, stdout=b''), SimpleNamespace(returncode=1, stdout=b'No such image')]
         phases = []; self.parallel_override = None
+        self.child_receipt_change = None; self.child_exit = 0
         def runner(seconds, env, logs):
             instance = Mock(deadline=job.snapshot_clock() + seconds); instance.run_many.return_value = [SimpleNamespace(returncode=0), SimpleNamespace(returncode=0)]
             if seconds == job.PARALLEL and self.parallel_override is not None:
                 if isinstance(self.parallel_override, BaseException): instance.run_many.side_effect = self.parallel_override
                 else: instance.run_many.return_value = self.parallel_override
             instance.run.return_value = SimpleNamespace(returncode=0, stdout=b'')
+            if seconds == job.KERNEL_ENVELOPE:
+                def child(command, **kwargs):
+                    out = Path(command[command.index('--output') + 1]); (out / 'private').mkdir(parents=True)
+                    bind = {'source_commit': self.args.source_commit, 'stage_lock_sha256': job.packet.KERNEL_SHA,
+                        'output_name_sha256': job.packet.sha(out.name.encode()), 'run_id': '1', 'run_attempt': '1',
+                        'nonce': '9' * 32, 'accepted_result_sha256': job.packet.sha(job.packet.read(accepted / 'result.json')),
+                        'bootstrap_sha256': job.packet.sha(job.packet.read(accepted / 'bootstrap.json')),
+                        'inputs_sha256': job.packet.INPUTS_SHA, 'base_inventory_sha256': job.BASE_SHA}
+                    diagnostic = child_evidence.initial(bind)
+                    diagnostic.update(current_predicate='COMPLETE',
+                        commands={name: child_evidence.exit_record(0) for name in child_evidence.ACTIONS},
+                        cleanup={'status': 'PASS', 'category': 'NONE'})
+                    record = {'source_commit': self.args.source_commit, 'stage_lock_sha256': job.packet.KERNEL_SHA,
+                        'nonce': bind['nonce'], 'status': 'PASS', 'phase': 'complete', 'cancelled': False,
+                        'native_kernel_compilation': 'PASS', 'kernel_execution': 'NOT RUN',
+                        'hardware_validation': 'NOT RUN', 'performance': 'NOT MEASURED',
+                        'cleanup': {'status': 'PASS'}, 'diagnostics': diagnostic}
+                    for name in ('probe', 'baseline', 'candidate'):
+                        record[name] = {'status': 'PASS', 'action': name, 'cancelled': False, 'nonce': bind['nonce']}
+                    if callable(self.child_receipt_change): self.child_receipt_change(record)
+                    if self.child_receipt_change is not False: job.save(out / 'private/result.json', record)
+                    return SimpleNamespace(returncode=self.child_exit, stdout=b'')
+                instance.run.side_effect = child
             phases.append((seconds, instance)); return instance
         def source(*args, **kwargs): args[5].mkdir(parents=True); return {'status': 'PASS'}
         self.patches = [patch.object(job, '__file__', str(self.root / 'scripts/port/kernel-native-job/job.py')),
@@ -253,13 +282,69 @@ class JobContracts(unittest.TestCase):
             self.args.packet_sha256, 'success'), public_record)
         return public_record, private_record
 
+    def test_actual_child_nonzero_retains_inner_predicate_and_outer_first_failure(self):
+        self.controller_fixture(); self.child_exit = 1
+        def failed(record):
+            record.update(status='FAIL', phase='provision', native_kernel_compilation='NOT RUN',
+                          cleanup={'status': 'FAIL'})
+            for name in ('probe', 'baseline', 'candidate'): record.pop(name)
+            row = record['diagnostics']; row['current_predicate'] = 'PROVISION_COMMAND'
+            row['commands'] = {name: {'kind': 'NOT_RUN', 'code': None} for name in child_evidence.ACTIONS}
+            row['commands']['provision'] = child_evidence.exit_record(125)
+            row['cleanup'] = {'status': 'FAIL', 'category': 'UNCERTAIN_MUTATION'}
+            child_evidence.failure(row, 'COMMAND_NONZERO')
+        self.child_receipt_change = failed
+        with patch.object(job, 'kernel_owned_absence', side_effect=ValueError('owned-absence-unverified')):
+            self.assertEqual(job.execute(self.args), 1)
+        status, _ = self.failure_receipts('kernel', 'KERNEL_EXIT')
+        self.assertEqual(status['kernel_child']['availability'], 'VERIFIED')
+        self.assertEqual(status['kernel_child']['exit'], job.public.exit_record(1))
+        self.assertEqual(status['kernel_child']['diagnostics']['commands']['provision'], job.public.exit_record(125))
+        self.assertEqual(status['kernel_child']['diagnostics']['first_failed_predicate'], 'PROVISION_COMMAND')
+        self.assertEqual(status['kernel_probe'], 'NOT RUN'); self.assertEqual(status['native_compilation'], 'NOT RUN')
+        self.assertEqual(status['cleanup'], 'FAIL')
+        self.assertEqual(status['daemon_baseline']['owned_absence'], 'UNVERIFIED')
+
+    def test_returned_child_failure_without_receipt_does_not_invent_child_predicate(self):
+        self.controller_fixture(); self.child_exit = 1; self.child_receipt_change = False
+        self.assertEqual(job.execute(self.args), 1)
+        status, _ = self.failure_receipts('kernel', 'KERNEL_EXIT')
+        self.assertEqual(status['kernel_child'], {'availability': 'UNAVAILABLE',
+            'exit': job.public.exit_record(1), 'diagnostics': None})
+
+    def test_zero_child_without_bound_diagnostics_cannot_accept_terminal_pair(self):
+        self.controller_fixture(); self.child_receipt_change = lambda row: row.pop('diagnostics')
+        self.assertEqual(job.execute(self.args), 1)
+        status, _ = self.failure_receipts('kernel', 'KERNEL_RECEIPT_REJECTED')
+        self.assertEqual(status['kernel_child'], {'availability': 'UNVERIFIED',
+            'exit': job.public.exit_record(0), 'diagnostics': None})
+        self.assertNotEqual(status['native_compilation'], 'PASS')
+        self.assertEqual((status['kernel_probe'], status['baseline'], status['candidate']), ('NOT RUN',) * 3)
+        self.assertEqual(status['cleanup'], 'FAIL')
+
+    def test_missing_capture_cannot_be_promoted_by_later_file_creation(self):
+        self.controller_fixture(); self.child_exit = 1; self.child_receipt_change = False
+        actual = job.child_observation; captures = []
+        def capture(args, output, invocation, row):
+            captures.append(output)
+            result = actual(args, output, invocation, row)
+            job.save(output / 'private/result.json', {'diagnostics': 'later secret receipt'})
+            return result
+        with patch.object(job, 'child_observation', side_effect=capture):
+            self.assertEqual(job.execute(self.args), 1)
+        status, _ = self.failure_receipts('kernel', 'KERNEL_EXIT')
+        self.assertEqual(len(captures), 1)
+        self.assertEqual((status['kernel_child']['availability'], status['kernel_child']['diagnostics']), ('UNAVAILABLE', None))
+
     def next_output(self, index):
         self.args.output = self.args.output.with_name('job-case-' + str(index))
 
     def test_initial_schema_has_no_invented_resource_or_exit_observations(self):
         status = job.initial(self.args)
-        self.assertEqual(set(status), job.public.KEYS); self.assertEqual(len(status), 25)
-        self.assertEqual(status['schema_version'], 3)
+        self.assertEqual(set(status), job.public.KEYS); self.assertEqual(len(status), 26)
+        self.assertEqual(status['schema_version'], 4)
+        self.assertEqual(status['kernel_child'], {'availability': 'NOT_RUN',
+            'exit': {'kind': 'NOT_RUN', 'code': None}, 'diagnostics': None})
         self.assertEqual(status['resources'], {name: None for name in job.public.RESOURCE_KEYS})
         for name in ('producer_exit', 'acquisition_exit'):
             self.assertEqual(status[name], {'kind': 'NOT_RUN', 'code': None})
@@ -763,6 +848,8 @@ with patch.object(job, 'finish', side_effect=finish), patch.object(signal, 'pthr
             'accepted_base': {'image_id': self.image}, 'cleanup': clean}
         job.save(out / 'private/result.json', record)
         self.assertTrue(job.kernel_owned_absence(out, self.args.source_commit, self.image, daemon))
+        with patch.object(job.packet, 'load', side_effect=AssertionError('second receipt read')):
+            self.assertTrue(job.kernel_owned_absence(out, self.args.source_commit, self.image, daemon, record))
         changes = (lambda r: r['cleanup'].update(status='FAIL'), lambda r: r['cleanup'].update(records=[]),
             lambda r: r['cleanup']['records'][0].update(absence_verified=False),
             lambda r: r['cleanup']['records'][0].update(uncertain_commit=True),
@@ -1077,5 +1164,129 @@ class BaselineContracts(unittest.TestCase):
         with patch.object(job, 'save', side_effect=save):
             with self.assertRaisesRegex(ValueError, 'deadline-exhausted'): baseline.start(self.runner)
         self.assertFalse(baseline.ready); self.assertIsNone(self.summary['pre_identity_sha256'])
+
+
+class ChildObservationTests(unittest.TestCase):
+    def setUp(self):
+        JobContracts.setUp(self)
+        self.accepted = self.root / 'accepted'; self.accepted.mkdir()
+        for name in ('result.json', 'bootstrap.json'): job.save(self.accepted / name, {'fixture': name})
+        self.output = self.root / 'artifacts/kernel-native-stage' / ('hosted-job-' + '1' * 32)
+        (self.output / 'private').mkdir(parents=True)
+        self.path = self.output / 'private/result.json'
+        bind = {'source_commit': self.args.source_commit, 'stage_lock_sha256': job.packet.KERNEL_SHA,
+            'output_name_sha256': job.packet.sha(self.output.name.encode()), 'run_id': '1', 'run_attempt': '2',
+            'nonce': '9' * 32, 'accepted_result_sha256': job.packet.sha(job.packet.read(self.accepted / 'result.json')),
+            'bootstrap_sha256': job.packet.sha(job.packet.read(self.accepted / 'bootstrap.json')),
+            'inputs_sha256': job.packet.INPUTS_SHA, 'base_inventory_sha256': job.BASE_SHA}
+        diagnostic = child_evidence.initial(bind)
+        self.invocation = {key: value for key, value in bind.items() if key != 'nonce'}
+        diagnostic['current_predicate'] = 'PROVISION_COMMAND'
+        diagnostic['commands']['provision'] = child_evidence.exit_record(125)
+        child_evidence.failure(diagnostic, 'COMMAND_NONZERO')
+        diagnostic['cleanup'] = {'status': 'FAIL', 'category': 'UNCERTAIN_MUTATION'}
+        self.record = {'source_commit': self.args.source_commit, 'stage_lock_sha256': job.packet.KERNEL_SHA,
+            'nonce': bind['nonce'], 'status': 'FAIL', 'phase': 'provision', 'cancelled': False,
+            'native_kernel_compilation': 'NOT RUN', 'kernel_execution': 'NOT RUN', 'hardware_validation': 'NOT RUN',
+            'performance': 'NOT MEASURED', 'cleanup': {'status': 'FAIL'}, 'diagnostics': diagnostic}
+        self.env = patch.dict(job.os.environ, {'GITHUB_RUN_ID': '1', 'GITHUB_RUN_ATTEMPT': '2'})
+        self.env.start(); self.addCleanup(self.env.stop)
+
+    def observe(self, code=1):
+        row = {'availability': 'UNAVAILABLE', 'exit': job.public.exit_record(code), 'diagnostics': None}
+        result = job.child_observation(self.args, self.output, self.invocation, row)
+        return result, row
+
+    def test_actual_child_exit_and_worker_exit_remain_separate_with_bound_first_predicate(self):
+        job.save(self.path, self.record); record, row = self.observe()
+        self.assertEqual(record, self.record)
+        self.assertEqual(row['exit'], job.public.exit_record(1))
+        self.assertEqual(row['diagnostics']['commands']['provision'], job.public.exit_record(125))
+        self.assertEqual(row['diagnostics']['first_failed_predicate'], 'PROVISION_COMMAND')
+        self.assertEqual(row['diagnostics']['cleanup']['category'], 'UNCERTAIN_MUTATION')
+        self.assertNotIn('binding', row['diagnostics']); self.assertNotIn('nonce', row['diagnostics'])
+        job.public.kernel_child(row)
+
+    def test_inputs_bind_frozen_actual_invocation_not_mutable_post_return_files(self):
+        command = job.kernel_command(self.args, self.root, self.image, self.accepted, {}, self.output)
+        frozen = job.child_binding(command, {'GITHUB_RUN_ID': '1', 'GITHUB_RUN_ATTEMPT': '2'})
+        self.assertEqual(frozen, self.invocation)
+        job.save(self.accepted / 'result.json', {'later': 'unaccepted result'})
+        job.save(self.path, self.record)
+        self.assertEqual(self.observe()[1]['availability'], 'VERIFIED')
+        self.record['diagnostics']['binding']['accepted_result_sha256'] = job.packet.sha(job.packet.read(self.accepted / 'result.json'))
+        job.save(self.path, self.record)
+        self.assertEqual(self.observe()[1]['availability'], 'UNVERIFIED')
+        command += ['--accepted-result-sha256', 'f' * 64]
+        with self.assertRaises(ValueError): job.child_binding(command, {})
+
+    def test_missing_and_unbound_receipts_are_unavailable_or_unverified(self):
+        result, row = self.observe(); self.assertIsNone(result); self.assertEqual(row['availability'], 'UNAVAILABLE')
+        variants = (lambda r: r.pop('diagnostics'), lambda r: r['diagnostics']['binding'].update(source_commit='f' * 40),
+            lambda r: r['diagnostics']['binding'].update(stage_lock_sha256='f' * 64),
+            lambda r: r['diagnostics']['binding'].update(run_id='3'),
+            lambda r: r['diagnostics']['binding'].update(run_attempt='3'),
+            lambda r: r['diagnostics']['binding'].update(output_name_sha256='f' * 64),
+            lambda r: r['diagnostics']['binding'].update(accepted_result_sha256='f' * 64),
+            lambda r: r['diagnostics']['binding'].update(bootstrap_sha256='f' * 64),
+            lambda r: r['diagnostics']['binding'].update(inputs_sha256='f' * 64),
+            lambda r: r['diagnostics']['binding'].update(base_inventory_sha256='f' * 64),
+            lambda r: r.update(nonce='f' * 32), lambda r: r.update(stage_lock_sha256='f' * 64),
+            lambda r: r['cleanup'].update(status='PASS'), lambda r: r['diagnostics'].update(raw_error='secret/path'))
+        for change in variants:
+            record = json.loads(json.dumps(self.record)); change(record); job.save(self.path, record)
+            with self.subTest(change=change):
+                result, row = self.observe(); self.assertIsNone(result)
+                self.assertEqual((row['availability'], row['diagnostics']), ('UNVERIFIED', None))
+                self.assertEqual(row['exit'], job.public.exit_record(1))
+
+    def test_file_type_mode_owner_and_links_are_not_receipt_authority(self):
+        job.save(self.path, self.record); self.path.chmod(0o644)
+        self.assertEqual(self.observe()[1]['availability'], 'UNVERIFIED')
+        self.path.chmod(0o600)
+        with patch.object(job.os, 'getuid', return_value=job.os.getuid() + 1):
+            self.assertEqual(self.observe()[1]['availability'], 'UNVERIFIED')
+        link = self.path.with_name('hardlink'); link.hardlink_to(self.path)
+        self.assertEqual(self.observe()[1]['availability'], 'UNVERIFIED'); link.unlink()
+        self.path.unlink(); self.path.symlink_to(self.accepted / 'result.json')
+        self.assertEqual(self.observe()[1]['availability'], 'UNVERIFIED')
+
+    def test_receipt_changed_after_capture_is_refused_not_republished(self):
+        job.save(self.path, self.record); original = job.packet.read; changed = False
+        def read(path, *args):
+            nonlocal changed
+            data = original(path, *args)
+            if path == self.path and not changed:
+                changed = True; self.path.write_bytes(data + b' ')
+            return data
+        with patch.object(job.packet, 'read', side_effect=read):
+            result, row = self.observe()
+        self.assertIsNone(result); self.assertEqual(row['availability'], 'UNVERIFIED')
+
+    def test_verified_projection_reuses_captured_bytes_without_reading_receipt_again(self):
+        job.save(self.path, self.record); original = job.packet.read; reads = []
+        def read(path, *args):
+            reads.append(path); return original(path, *args)
+        with patch.object(job.packet, 'read', side_effect=read):
+            result, row = self.observe()
+        self.assertEqual(reads.count(self.path), 1)
+        self.path.write_text('{"unvalidated":"secret"}')
+        self.assertEqual(row['diagnostics']['first_failed_predicate'], 'PROVISION_COMMAND')
+        self.assertEqual(result['diagnostics'], self.record['diagnostics'])
+
+    def test_pending_receipt_can_attest_no_first_failure_without_inventing_completion(self):
+        row = json.loads(json.dumps(self.record)); row['cleanup'] = {'status': 'NOT RUN'}
+        row['diagnostics'] = child_evidence.initial(row['diagnostics']['binding'])
+        job.save(self.path, row); record, observed = self.observe(-15)
+        self.assertIsNotNone(record); self.assertEqual(observed['exit'], job.public.exit_record(-15))
+        self.assertEqual(observed['diagnostics']['first_failed_predicate'], 'NONE')
+        self.assertEqual(observed['diagnostics']['commands']['baseline'], {'kind': 'NOT_RUN', 'code': None})
+
+    def test_false_complete_status_or_missing_variant_nonce_cannot_be_verified(self):
+        row = json.loads(json.dumps(self.record)); row.update(status='PASS', phase='complete', cleanup={'status': 'PASS'})
+        d = child_evidence.initial(row['diagnostics']['binding']); d.update(current_predicate='COMPLETE',
+            commands={name: child_evidence.exit_record(0) for name in child_evidence.ACTIONS}, cleanup={'status': 'PASS', 'category': 'NONE'})
+        row['diagnostics'] = d; job.save(self.path, row)
+        self.assertEqual(self.observe(0)[1]['availability'], 'UNVERIFIED')
 
 if __name__ == '__main__': unittest.main()

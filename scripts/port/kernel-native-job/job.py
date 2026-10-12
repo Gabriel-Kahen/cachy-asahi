@@ -44,7 +44,7 @@ def save(path, value):
 
 
 def initial(args):
-    return {'schema_version': 3, 'stage': 'kernel-native-development-job', 'status': 'FAIL',
+    return {'schema_version': 4, 'stage': 'kernel-native-development-job', 'status': 'FAIL',
         'phase': 'preflight', 'cancelled': False, 'source_commit': args.source_commit,
         'packet_sha256': args.packet_sha256, 'producer': 'NOT RUN', 'kernel_probe': 'NOT RUN',
         'baseline': 'NOT RUN', 'candidate': 'NOT RUN', 'cleanup': 'FAIL', 'native_compilation': 'NOT RUN',
@@ -53,6 +53,7 @@ def initial(args):
         'first_failed_phase': 'NONE', 'failure_reason': 'NONE',
         'producer_exit': {'kind': 'NOT_RUN', 'code': None},
         'acquisition_exit': {'kind': 'NOT_RUN', 'code': None},
+        'kernel_child': {'availability': 'NOT_RUN', 'exit': {'kind': 'NOT_RUN', 'code': None}, 'diagnostics': None},
         'resources': {key: None for key in ('mem_total_bytes', 'mem_available_bytes',
             'initial_free_disk_bytes', 'pre_kernel_free_disk_bytes')},
         'daemon_baseline': {'initial_container_count': None, 'initial_image_id_count': None,
@@ -444,8 +445,8 @@ def kernel_command(args, private, image, accepted, paths, kernel_output):
     return command
 
 
-def kernel_status(kernel_output, commit):
-    record = packet.load(kernel_output / 'private/result.json')
+def kernel_status(kernel_output, commit, record=None):
+    record = packet.load(kernel_output / 'private/result.json') if record is None else record
     packet.need(record.get('source_commit') == commit and record.get('status') == 'PASS' and
         record.get('phase') == 'complete' and record.get('cancelled') is False and
         record.get('native_kernel_compilation') == 'PASS' and record.get('kernel_execution') ==
@@ -457,9 +458,60 @@ def kernel_status(kernel_output, commit):
     return record
 
 
-def kernel_progress(kernel_output, commit):
+def child_binding(command, env):
+    def argument(name):
+        packet.need(command.count(name) == 1, 'kernel-child-invocation')
+        return command[command.index(name) + 1]
+    return {'source_commit': argument('--source-commit'), 'stage_lock_sha256': argument('--lock-sha256'),
+        'output_name_sha256': packet.sha(Path(argument('--output')).name.encode()),
+        'run_id': env.get('GITHUB_RUN_ID'), 'run_attempt': env.get('GITHUB_RUN_ATTEMPT'),
+        'accepted_result_sha256': argument('--accepted-result-sha256'),
+        'bootstrap_sha256': argument('--bootstrap-sha256'), 'inputs_sha256': packet.INPUTS_SHA,
+        'base_inventory_sha256': BASE_SHA}
+
+
+def child_observation(args, kernel_output, invocation, row):
+    """Capture once and bind the finite child projection to this exact invocation."""
+    path = kernel_output / 'private/result.json'
+    try:
+        info = path.lstat()
+        packet.need(stat.S_ISREG(info.st_mode) and info.st_uid == os.getuid() and
+            stat.S_IMODE(info.st_mode) == 0o600 and info.st_nlink == 1, 'kernel-child-owner')
+        record = packet.decode(packet.read(path, 4 * 1024**2))
+        after = path.lstat()
+        identity = lambda value: (value.st_dev, value.st_ino, value.st_uid, value.st_gid,
+            value.st_mode, value.st_nlink, value.st_size, value.st_mtime_ns, value.st_ctime_ns)
+        packet.need(identity(info) == identity(after), 'kernel-child-read-race')
+        diagnostic = record['diagnostics']
+        projected = public.child_project(diagnostic)
+        expected = dict(invocation, nonce=record['nonce'])
+        packet.need(diagnostic['binding'] == expected and record['source_commit'] == args.source_commit and
+            expected['source_commit'] == args.source_commit and expected['stage_lock_sha256'] == packet.KERNEL_SHA and
+            expected['output_name_sha256'] == packet.sha(kernel_output.name.encode()) and
+            record['stage_lock_sha256'] == packet.KERNEL_SHA and record['status'] in ('PASS', 'FAIL') and
+            type(record['cancelled']) is bool and record['kernel_execution'] == record['hardware_validation'] == 'NOT RUN' and
+            record['performance'] == 'NOT MEASURED' and
+            diagnostic['cleanup']['status'] == {'NOT RUN': 'NOT_RUN', 'PASS': 'PASS', 'FAIL': 'FAIL'}.get(record['cleanup']['status']) and
+            (record['status'] == 'PASS') == (diagnostic['current_predicate'] == 'COMPLETE') and
+            (not record['cancelled'] or diagnostic['first_failed_predicate'] != 'NONE'), 'kernel-child-binding')
+        if record['status'] == 'PASS':
+            packet.need(record['phase'] == 'complete' and not record['cancelled'] and
+                record['native_kernel_compilation'] == 'PASS' and
+                all(record[name].get('status') == 'PASS' and record[name].get('action') == name and
+                    record[name].get('cancelled') is False and record[name].get('nonce') == record['nonce']
+                    for name in ('probe', 'baseline', 'candidate')), 'kernel-child-completion')
+        row.update(availability='VERIFIED', diagnostics=projected)
+        return record
+    except FileNotFoundError:
+        row.update(availability='UNAVAILABLE', diagnostics=None)
+    except Exception:
+        row.update(availability='UNVERIFIED', diagnostics=None)
+    return None
+
+
+def kernel_progress(kernel_output, commit, record=None):
     """Retain only source-bound completed/failed acceptance from a partial stage."""
-    record = packet.load(kernel_output / 'private/result.json')
+    record = packet.load(kernel_output / 'private/result.json') if record is None else record
     phase = record.get('phase')
     packet.need(record.get('source_commit') == commit and record.get('status') in ('PASS', 'FAIL') and
         type(record.get('cancelled')) is bool and phase in
@@ -482,8 +534,8 @@ def kernel_progress(kernel_output, commit):
 
 
 
-def kernel_owned_absence(kernel_output, commit, image, daemon):
-    record = packet.load(kernel_output / 'private/result.json')
+def kernel_owned_absence(kernel_output, commit, image, daemon, record=None):
+    record = packet.load(kernel_output / 'private/result.json') if record is None else record
     clean = record.get('cleanup', {})
     packet.need(record.get('source_commit') == commit and record.get('status') in ('PASS', 'FAIL') and
         record.get('kernel_execution') == record.get('hardware_validation') == 'NOT RUN' and
@@ -563,6 +615,7 @@ def work(args, terminal, start):
     status = initial(args); evidence = {'status': dict(status), 'source': None, 'commands': []}
     finish(args.output, status, evidence)
     docker = None; image = None; producer_finished = False; kernel_output = None; baseline = None
+    child_record = None; invocation = None; child_captured = False
     env = {'PATH': '/usr/bin:/bin', 'HOME': str(private / 'home'), 'DOCKER_CONFIG': str(private / 'docker-config'),
         'DOCKER_HOST': args.docker_endpoint, 'DOCKER_BUILDKIT': '0', 'LC_ALL': 'C', 'LANG': 'C.UTF-8', 'PYTHONDONTWRITEBYTECODE': '1',
         **{key: os.environ[key] for key in HOST_ENV if key in os.environ}}
@@ -632,15 +685,21 @@ def work(args, terminal, start):
         packet.need(not kernel_parent.is_symlink() and kernel_parent == kernel_parent.resolve(), 'kernel-output-parent')
         kernel_output = kernel_parent / ('hosted-job-' + secrets.token_hex(16))
         command = kernel_command(args, private, image, accepted, paths, kernel_output)
+        invocation = child_binding(command, env)
         evidence['commands'].append(command); evidence['kernel_output'] = str(kernel_output)
         status['phase'] = 'kernel'
         context = ('kernel', 'KERNEL_RUN_FAILED')
         phase = runtime.Runner(KERNEL_ENVELOPE, env, private / 'kernel-logs')
+        status['kernel_child'].update(availability='UNAVAILABLE', exit={'kind': 'UNOBSERVED', 'code': None})
         result = phase.run(command, timeout=KERNEL_ENVELOPE, log='kernel-controller.log')
+        status['kernel_child']['exit'] = public.exit_record(result.returncode)
+        child_record = child_observation(args, kernel_output, invocation, status['kernel_child'])
+        child_captured = True
         context = ('kernel', 'KERNEL_EXIT')
         packet.need(result.returncode == 0, 'kernel-controller-failed')
         context = ('kernel', 'KERNEL_RECEIPT_REJECTED')
-        evidence['kernel'] = kernel_status(kernel_output, args.source_commit)
+        packet.need(child_record is not None, 'kernel-child-diagnostics-unverified')
+        evidence['kernel'] = kernel_status(kernel_output, args.source_commit, child_record)
         status.update(kernel_probe='PASS', baseline='PASS', candidate='PASS', native_compilation='PASS', status='PASS')
     except (runtime.Cancelled, KeyboardInterrupt):
         status.update(status='FAIL', cancelled=True)
@@ -658,8 +717,12 @@ def work(args, terminal, start):
     finally:
         with runtime.defer_signals() as events:
             if kernel_output is not None:
+                if not child_captured and status['kernel_child']['exit']['kind'] != 'NOT_RUN':
+                    child_record = child_observation(args, kernel_output, invocation, status['kernel_child'])
+                    child_captured = True
                 try:
-                    progress = kernel_progress(kernel_output, args.source_commit)
+                    packet.need(child_record is not None, 'kernel-child-diagnostics-unverified')
+                    progress = kernel_progress(kernel_output, args.source_commit, child_record)
                     # A validated complete stage stays PASS until outer cleanup.
                     if status['native_compilation'] == 'PASS': progress.pop('native_compilation', None)
                     status.update(progress); evidence['kernel_progress'] = progress
@@ -672,7 +735,8 @@ def work(args, terminal, start):
                 evidence['cleanup'] = cleanup_base(docker, cleanup, private, image, producer_finished, baseline)
                 packet.need(evidence['cleanup']['status'] == 'PASS', 'owned-absence-unverified')
                 if kernel_output is not None:
-                    kernel_owned_absence(kernel_output, args.source_commit, image, docker.daemon)
+                    packet.need(child_record is not None, 'kernel-child-diagnostics-unverified')
+                    kernel_owned_absence(kernel_output, args.source_commit, image, docker.daemon, child_record)
                 status['daemon_baseline']['owned_absence'] = 'PASS'
                 status['cleanup'] = 'PASS'
             except BaseException as error:
