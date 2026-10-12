@@ -5,6 +5,7 @@ An ownership assertion is not native evidence. These validators require a future
 accepted same-job executor to bind the records to operations it actually ran.
 """
 from pathlib import Path
+import math
 import re
 import time
 
@@ -37,13 +38,20 @@ class Deadline:
         return min(maximum, remaining)
 
 
-def producer_command(root, private, python='/usr/bin/python3', *, inputs_sha, recipes_sha):
+def producer_command(root, private, python='/usr/bin/python3', *, inputs_sha, recipes_sha, producer_end=None):
     root, private = safe_paths(root, private)
     need(HASH.fullmatch(inputs_sha) and HASH.fullmatch(recipes_sha), 'producer-source-pins')
-    return [python, '-B', str(root / 'scripts/ci/native_arm.py'), 'build', '--inputs',
+    command = [python, '-B', str(root / 'scripts/ci/native_arm.py'), 'build', '--inputs',
             str(root / 'scripts/ci/inputs.lock.json'), '--inputs-sha256', inputs_sha, '--recipes',
             str(root / 'scripts/ci/recipes.lock.json'), '--recipes-sha256', recipes_sha,
             '--cache', str(private / 'cache'), '--output', str(private / 'producer')]
+    if producer_end is None:
+        return command
+    need(type(producer_end) in (int, float) and math.isfinite(producer_end) and producer_end > 0,
+         'producer-finite-cutoff')
+    return command[:2] + [str(root / 'scripts/port/ksm-native-job/producer_driver.py'),
+        *command[3:], '--', '--producer-end', str(producer_end),
+        '--producer-output', str(private / 'producer'), '--inventory-seconds', '180']
 
 
 def safe_paths(root, private):

@@ -397,7 +397,8 @@ def pipeline(snapshot, source, private, owner, service, runner, endpoint_observa
     report['phase'] = 'producer'
     producer_end = time.monotonic() + allowance(runner.deadline, 6600, 1650)
     baseline_observe(owner, 'before_producer', producer_end)
-    command = consumer.producer_command(source, private, inputs_sha=job.INPUTS_SHA, recipes_sha=job.RECIPES_SHA)
+    command = consumer.producer_command(source, private, inputs_sha=job.INPUTS_SHA,
+        recipes_sha=job.RECIPES_SHA, producer_end=producer_end)
     command.insert(1, '-I'); command.insert(3, '-S')
     report['producer_mutation'] = 'UNCERTAIN'
     observation = runtime.RunObservation()

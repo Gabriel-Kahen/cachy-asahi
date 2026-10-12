@@ -572,13 +572,13 @@
     },
     "scripts/port/ksm-native-job/consumer.py": {
       "mode": "0644",
-      "sha256": "53323c45a63d7bbf989c33421dfb521ef29b4a3fff1d42c670ae4aca2a81f15e",
-      "size_bytes": 8696
+      "sha256": "2c801ac981df837397f5384639455f45b938e64bac461d97616007fb00f77ee2",
+      "size_bytes": 9154
     },
     "scripts/port/ksm-native-job/executor.py": {
       "mode": "0644",
-      "sha256": "4a37f501827091be5cea9262814379f8487f474c7c967754c7a467ddada08440",
-      "size_bytes": 38098
+      "sha256": "60714ead249a6d431b6b73186c75067c911c1f3de5988e0c7a70a54f5849fc60",
+      "size_bytes": 38133
     },
     "scripts/port/ksm-native-job/executor_contract.py": {
       "mode": "0644",
@@ -665,6 +665,11 @@
       "sha256": "f57c9cf24807b3070b0087eb173b163f41e0de32fd235cf4f4b6a9998b18ca18",
       "size_bytes": 7855
     },
+    "scripts/port/ksm-native-job/producer_driver.py": {
+      "mode": "0644",
+      "sha256": "876b10952eec2e3a5a05058c7a7dee59d9d2f783c34b047a6598ef2515c1c069",
+      "size_bytes": 23561
+    },
     "scripts/port/ksm-native-job/public.py": {
       "mode": "0644",
       "sha256": "1d9ecb0b710daa3ce65f915e937fd51d0c935712f9600e8b5942e0a30a55f244",
@@ -672,8 +677,8 @@
     },
     "scripts/port/ksm-native-job/required_paths.py": {
       "mode": "0644",
-      "sha256": "47e1f0eaa37ec4c9c90baa9742a56a51cc83c4f60ab26c19b65b2a8a55101e34",
-      "size_bytes": 9438
+      "sha256": "716201c3f5d7768e0b0f1e30ce49c3b9f5708ae2dafc0648147ac1975222a117",
+      "size_bytes": 9551
     },
     "scripts/port/ksm-native-job/runtime.py": {
       "mode": "0644",
@@ -734,6 +739,11 @@
       "mode": "0644",
       "sha256": "74df5f301be5f3c5f56a896175d8cf4fd05d7e4779142eceb8de972806d5994f",
       "size_bytes": 4501
+    },
+    "scripts/port/ksm-native-job/test_producer_driver.py": {
+      "mode": "0644",
+      "sha256": "137dc4f0ab1142eab1bc2b0083e0035ec88170299d394c40fa5183db31fc833a",
+      "size_bytes": 30739
     },
     "scripts/port/ksm-native-job/test_public.py": {
       "mode": "0644",

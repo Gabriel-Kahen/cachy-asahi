@@ -28,6 +28,8 @@ EXPECTED_PATHS = frozenset((
     'scripts/port/ksm-native-job/test_executor_contract.py',
     'scripts/port/ksm-native-job/test_runtime.py',
     'scripts/port/ksm-native-job/test_shim.py',
+    'scripts/port/ksm-native-job/producer_driver.py',
+    'scripts/port/ksm-native-job/test_producer_driver.py',
     'scripts/port/ksm-native-job/test_packet_integration.py',
     'scripts/port/ksm-native-job/source-test-results.json',
     'scripts/port/ksm-native-job/source-checkpoint.json',
