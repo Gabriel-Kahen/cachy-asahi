@@ -110,7 +110,7 @@
     },
     "scripts/port/fdk-native-stage/broker.py": {
       "mode": 420,
-      "sha256": "6480333ea4f6267cd55019fd7928077392bb5c052583dc07d582fc64620f20fd"
+      "sha256": "46e9abff104c46595d6e2dd5139827874d3ade2cd99d3ed3a846466e84e63bb1"
     },
     "scripts/port/fdk-native-stage/evidence.py": {
       "mode": 420,
@@ -134,7 +134,7 @@
     },
     "scripts/port/fdk-native-stage/test_broker.py": {
       "mode": 420,
-      "sha256": "6a7f0e15b0c76b96c8c28c2e4fa0bc68a3084ee8574d3b8c5bd8abb9040b7f5c"
+      "sha256": "7aad860f04a30e3d356a15902bde37357e6a9c3be89c5aaf371dacc18e48b174"
     },
     "scripts/port/fdk-native-stage/test_evidence.py": {
       "mode": 420,

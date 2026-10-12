@@ -533,7 +533,7 @@
     "scripts/port/fdk-native-job/packet.py": {
       "bytes": 8171,
       "mode": 420,
-      "sha256": "2c37ba658ded0ff4c08e48d61120f3e977d1217b48d3a9cde5d3d496542ed09e"
+      "sha256": "ae345e3608c0a99a6f372cd8b925c5fa5610f9b53037933768f214305c2ffbe9"
     },
     "scripts/port/fdk-native-job/producer.py": {
       "bytes": 17782,
@@ -541,9 +541,9 @@
       "sha256": "e01ea63606b044e71cfb159d156c3a92fb6f31004f23923557bee8fa745b65a1"
     },
     "scripts/port/fdk-native-job/test_base_broker.py": {
-      "bytes": 20801,
+      "bytes": 28141,
       "mode": 420,
-      "sha256": "0f7de1db5d0b6e45e8e5eda5b0e6699e97d666705ad1d5d083b8a772c11a58d9"
+      "sha256": "c9c491236814ad8735dff1df613e49fe9a04c3b871970de1ac889defc133e3bb"
     },
     "scripts/port/fdk-native-job/test_evidence.py": {
       "bytes": 24275,
@@ -571,9 +571,9 @@
       "sha256": "1872c5e662bcd8e93c57d09a963d17ead7c6aff26c73065409a0e595908acacc"
     },
     "scripts/port/fdk-native-stage/broker.py": {
-      "bytes": 26388,
+      "bytes": 26367,
       "mode": 420,
-      "sha256": "6480333ea4f6267cd55019fd7928077392bb5c052583dc07d582fc64620f20fd"
+      "sha256": "46e9abff104c46595d6e2dd5139827874d3ade2cd99d3ed3a846466e84e63bb1"
     },
     "scripts/port/fdk-native-stage/evidence.py": {
       "bytes": 14007,
@@ -593,7 +593,7 @@
     "scripts/port/fdk-native-stage/stage.lock.json": {
       "bytes": 6518,
       "mode": 420,
-      "sha256": "a7048064c0c20abd246a466035313abaf65590f3ed10d0f7927b21a346200ad6"
+      "sha256": "b83ddb865d7651c748258ac570e64fb824caf5bced8b1f415694dff7f5c187f5"
     },
     "scripts/port/fdk-native-stage/stage.py": {
       "bytes": 13660,
@@ -606,9 +606,9 @@
       "sha256": "b569ff9ae69eb56e9b9635c3ed0849eaebbfa516f48304ade1790f802532bb63"
     },
     "scripts/port/fdk-native-stage/test_broker.py": {
-      "bytes": 22976,
+      "bytes": 27088,
       "mode": 420,
-      "sha256": "6a7f0e15b0c76b96c8c28c2e4fa0bc68a3084ee8574d3b8c5bd8abb9040b7f5c"
+      "sha256": "7aad860f04a30e3d356a15902bde37357e6a9c3be89c5aaf371dacc18e48b174"
     },
     "scripts/port/fdk-native-stage/test_evidence.py": {
       "bytes": 26827,
