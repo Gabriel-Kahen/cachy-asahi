@@ -1,0 +1,702 @@
+#!/usr/bin/env python3
+"""One finite private updater trial; public output contains guarded JSON only."""
+import argparse
+import hashlib
+import json
+import os
+from pathlib import Path
+import platform
+import re
+import shutil
+import signal
+import stat
+import sys
+import tempfile
+import time
+import types
+
+sys.dont_write_bytecode = True
+HERE = Path(__file__).resolve().parent
+ROOT = HERE.parents[2]
+PACKAGE = 'packages/tools/cachy-asahi-update/'
+READY_SHA = 'ff879da588419fc0f90ef6a27c8afc528c3f6a557ef2c060544d1b5e99ade4e2'
+BUDGET = {'total_seconds':6900, 'raw_retention_seconds':7100, 'materialize_seconds':910,
+          'freeze_seconds':120, 'native_seconds':5400, 'projection_seconds':60,
+          'export_seconds':60, 'cleanup_seconds':180, 'private_bytes':8*1024**3,
+          'private_members':200000, 'source_bytes':32*1024**2,
+          'minimum_output_free_bytes':10*1024**3, 'minimum_docker_free_bytes':8*1024**3}
+ENDPOINT = 'unix:///run/docker.sock'
+
+
+def need(value, code):
+    if not value: raise ValueError(code)
+
+
+def digest(data): return hashlib.sha256(data).hexdigest()
+
+
+def regular(path, limit=4*1024**2):
+    path=Path(path)
+    need(not any(p.is_symlink() for p in (path,*path.parents)), 'symlink-input')
+    fd=os.open(path,os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK)
+    try:
+        before=os.fstat(fd)
+        need(stat.S_ISREG(before.st_mode) and before.st_nlink==1 and before.st_size<=limit, 'bounded-input')
+        with os.fdopen(fd,'rb',closefd=False) as stream: data=stream.read(limit+1)
+        after=os.fstat(fd)
+        need((before.st_dev,before.st_ino,before.st_size,before.st_mtime_ns,before.st_ctime_ns)==
+             (after.st_dev,after.st_ino,after.st_size,after.st_mtime_ns,after.st_ctime_ns)
+             and len(data)==before.st_size, 'input-race')
+        return data
+    finally: os.close(fd)
+
+
+def unique(rows):
+    value={}
+    for k,v in rows:
+        need(k not in value,'duplicate-key');value[k]=v
+    return value
+
+
+def load(path): return json.loads(regular(path),object_pairs_hook=unique)
+
+
+def save(path,value):
+    fd,name=tempfile.mkstemp(prefix='.receipt-',dir=path.parent)
+    try:
+        with os.fdopen(fd,'w') as stream:
+            json.dump(value,stream,sort_keys=True,indent=2);stream.write('\n');stream.flush();os.fsync(stream.fileno())
+        os.replace(name,path)
+        fd=os.open(path.parent,os.O_RDONLY|os.O_DIRECTORY)
+        try: os.fsync(fd)
+        finally: os.close(fd)
+    finally: Path(name).unlink(missing_ok=True)
+
+
+def module(path, expected=None):
+    """Execute verified source bytes directly; never consume .pyc caches."""
+    raw=regular(path,32*1024**2)
+    if expected: need(digest(raw)==expected,'module-pin')
+    name='updater_stage_'+path.stem.replace('-','_')
+    result=types.ModuleType(name);result.__file__=str(path);sys.modules[name]=result
+    exec(compile(raw,str(path),'exec'),result.__dict__)
+    return result
+
+
+def ordinary():
+    need(os.getuid()==os.geteuid()>0 and os.getgid()==os.getegid()>0,'ordinary-user-required')
+
+
+def host():
+    ordinary();need(platform.system()=='Linux' and platform.machine() in ('aarch64','arm64'),'native-host-required')
+    with Path('/proc/sys/kernel/random/boot_id').open('rb') as stream:raw=stream.read(129)
+    need(len(raw)<=128,'host-boot-id-bound');boot=raw.decode().strip()
+    need(re.fullmatch('[0-9a-f-]{36}',boot),'host-boot-id')
+    sock=Path('/run/docker.sock').lstat();need(stat.S_ISSOCK(sock.st_mode),'local-daemon-socket')
+    return {'system':'Linux','machine':platform.machine(),'release':platform.release(),
+            'boot_id_sha256':digest(boot.encode()),'uid':os.getuid(),'gid':os.getgid(),
+            'docker_socket_identity':{'device':sock.st_dev,'inode':sock.st_ino}}
+
+
+def tools():
+    result={}
+    for name in ('python','docker','git','gpg','gpgconf'):
+        raw=sys.executable if name=='python' else shutil.which(name,path='/usr/bin:/bin')
+        need(raw,'host-tool-missing');path=Path(raw).resolve(strict=True)
+        result[name]={'path':str(path),'sha256':digest(regular(path,256*1024**2))}
+    return result
+
+
+def tool_check(value):
+    need(type(value) is dict and set(value)=={'python','docker','git','gpg','gpgconf'},'host-tool-set')
+    for row in value.values():
+        need(type(row) is dict and set(row)=={'path','sha256'} and Path(row['path']).is_absolute(), 'host-tool-record')
+        need(digest(regular(Path(row['path']),256*1024**2))==row['sha256'],'host-tool-drift')
+
+
+def stage_files(root):
+    prefix='scripts/port/updater-native-stage/'
+    return sorted(p.relative_to(root).as_posix() for p in (root/prefix).rglob('*')
+                  if p.is_file() and '__pycache__' not in p.parts and p.name not in ('stage.lock.json','source.lock.json'))
+
+
+def freeze(root,commit,ready,output,bootstrap_source_sha=None,bootstrap_stage_sha=None):
+    """Data-only freeze on the selected native host after the sources are committed."""
+    need(ready==READY_SHA,'reviewed-checkpoint-required')
+    need(re.fullmatch('[0-9a-f]{64}',bootstrap_stage_sha or '') and
+         digest(regular(HERE/'stage.py'))==bootstrap_stage_sha,'bootstrap-stage-pin')
+    need(re.fullmatch('[0-9a-f]{64}',bootstrap_source_sha or ''),'bootstrap-source-pin')
+    source=module(HERE/'source.py',bootstrap_source_sha)
+    contract={'schema_version':1,'scope':'finite private native updater trial','budget':BUDGET,
+              'host':host(),'docker_endpoint':ENDPOINT,'tools':tools(),
+              'source':source.collect(root,commit,stage_files(root),ready)}
+    need(output.is_absolute() and output.is_relative_to('/tmp') and not output.exists()
+         and output.parent.resolve(strict=True)==output.parent,'fresh-controller-path')
+    save(output,contract)
+    return digest(regular(output))
+
+
+def authenticate(root,controller,expected):
+    raw=regular(controller)
+    need(re.fullmatch('[0-9a-f]{64}',expected or '') and digest(raw)==expected,'controller-pin')
+    value=json.loads(raw,object_pairs_hook=unique)
+    need(type(value) is dict and set(value)=={'schema_version','scope','budget','host','docker_endpoint','tools','source'}
+         and value['schema_version']==1 and value['budget']==BUDGET and value['docker_endpoint']==ENDPOINT
+         and value['source']['ready_sha256']==READY_SHA,'controller-schema')
+    need(value['host']==host(),'host-binding');tool_check(value['tools'])
+    rows=value['source']['files'];prefix='scripts/port/updater-native-stage/'
+    need(digest(regular(HERE/'stage.py'))==rows[prefix+'stage.py']['sha256'],'controller-self-pin')
+    source=module(HERE/'source.py',rows[prefix+'source.py']['sha256'])
+    source.verify(root,value['source'])
+    return value,source
+
+
+def snapshot(root,target,contract):
+    target.mkdir(mode=0o700)
+    for name,row in contract['files'].items():
+        data=regular(root/name,32*1024**2);need(digest(data)==row['sha256'],'source-copy-drift')
+        dest=target/name;dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes(data);dest.chmod(row['file_mode'])
+    verify_snapshot(target,contract)
+
+
+def verify_snapshot(target,contract):
+    found=set()
+    for p in target.rglob('*'):
+        need(not p.is_symlink(),'snapshot-link')
+        if p.is_dir(): continue
+        name=p.relative_to(target).as_posix();need(name in contract['files'],'snapshot-extra')
+        row=contract['files'][name];data=regular(p,32*1024**2)
+        need(digest(data)==row['sha256'] and stat.S_IMODE(p.stat().st_mode)==row['file_mode'],'snapshot-byte-mode')
+        found.add(name)
+    need(found==set(contract['files']),'snapshot-missing')
+
+
+def disk_check(root):
+    count=size=0
+    for directory,dirs,names in os.walk(root,followlinks=False):
+        for name in dirs+names:
+            path=Path(directory)/name;info=path.lstat();count+=1
+            need(count<=BUDGET['private_members'],'private-member-budget')
+            need(info.st_uid==os.getuid(),'private-foreign-owner')
+            # Source extraction may contain symlink data; do not dereference it.
+            if stat.S_ISREG(info.st_mode) or stat.S_ISLNK(info.st_mode):size+=info.st_size
+            need(size<=BUDGET['private_bytes'],'private-disk-budget')
+    return {'members':count,'bytes':size}
+
+
+def environment(private,contract):
+    return {'PATH':str(private/'bin')+':/usr/bin:/bin','HOME':str(private/'home'),
+            'LC_ALL':'C.UTF-8','TZ':'UTC','PYTHONDONTWRITEBYTECODE':'1','PYTHONNOUSERSITE':'1',
+            'DOCKER_HOST':ENDPOINT,'DOCKER_CONTEXT':'default',
+            'CACHY_ASAHI_BROKER_CONTROLLER':str(private/'broker-controller.json'),
+            'CACHY_ASAHI_BROKER_CONTROLLER_SHA256':digest(regular(private/'broker-controller.json'))}
+
+
+def scoped_gpg_home(private):
+    home=private/'native/gpg'
+    for path in (private,private/'native',home):
+        if not path.exists() and not path.is_symlink():return None
+        info=path.lstat()
+        need(stat.S_ISDIR(info.st_mode) and info.st_uid==os.getuid() and not path.is_symlink()
+             and path.resolve(strict=True)==path,'scoped-gpg-home')
+    need(home.is_relative_to(private) and stat.S_IMODE(home.stat().st_mode)==0o700,'scoped-gpg-home')
+    return home
+
+
+def ownership_save(output,owner):
+    save(output/'ownership.json',owner)
+
+
+def launches_verified(owner):
+    rows=owner['launch_intents'];children=owner['children']
+    need(type(rows) is list and len(rows)<=16,'process-intent-count')
+    linked=[]
+    for row in rows:
+        need(type(row) is dict and set(row)=={'phase','status','child_index'} and
+             type(row['phase']) is str and re.fullmatch('[a-z-]{1,40}',row['phase']) and
+             row['status'] in ('REGISTERED','ABSENT'),'ambiguous-process-launch')
+        index=row['child_index']
+        if index is None:need(row['status']=='ABSENT','ambiguous-process-launch')
+        else:
+            need(type(index) is int and 0<=index<len(children) and index not in linked,'process-intent-index')
+            linked.append(index)
+            if row['status']=='ABSENT':need(children[index]['complete'],'process-absence-mismatch')
+    need(set(linked)==set(range(len(children))),'unlinked-process-record')
+
+
+def tracked_process(owner,output,runner,phase,argv,stdout,stderr,deadline,env,cwd,on_tick=None):
+    intent={'phase':phase,'status':'INTENT','child_index':None};item={}
+    need(len(owner['launch_intents'])<16,'process-intent-count')
+    owner['launch_intents'].append(intent);ownership_save(output,owner)
+    def spawned(identity):
+        need(len(owner['children'])<16,'stage-process-count')
+        intent.update(status='REGISTERED',child_index=len(owner['children']))
+        owner['children'].append(dict(identity,complete=False));ownership_save(output,owner)
+    try:
+        item=runner(argv,stdout,stderr,deadline,env,cwd,on_tick=on_tick,on_spawn=spawned)
+        return item
+    except BaseException as error:
+        item=getattr(error,'receipt',{})
+        raise
+    finally:
+        if intent['child_index'] is not None:
+            owner['children'][intent['child_index']]['complete']=item.get('group_absent',False)
+        if item.get('group_absent',False):intent['status']='ABSENT'
+        ownership_save(output,owner)
+
+
+def install_signals(previous,handler):
+    mask=signal.pthread_sigmask(signal.SIG_BLOCK,set(previous))
+    try:
+        for number in previous:signal.signal(number,handler)
+        signal.pthread_sigmask(signal.SIG_SETMASK,mask)
+        return mask
+    except BaseException:
+        try:
+            for number,old in previous.items():
+                for _ in range(2):
+                    try:signal.signal(number,old);break
+                    except BaseException:pass
+        finally:
+            for _ in range(2):
+                try:signal.pthread_sigmask(signal.SIG_SETMASK,mask);break
+                except BaseException:pass
+        raise
+
+
+def finish_signals(previous,cancelled,commit,mask):
+    """Drain pending cancellation and restore caller state on every failure."""
+    failed=False
+    try:
+        try:
+            signal.pthread_sigmask(signal.SIG_BLOCK,set(previous))
+            for _ in range(8):
+                pending=signal.sigpending() & set(previous)
+                if pending:
+                    cancelled.extend(s for s in pending if s not in cancelled)
+                    signal.sigtimedwait(set(previous),0)
+                    continue
+                if cancelled:commit(False)
+                if not (signal.sigpending() & set(previous)):break
+            else:raise ValueError('pending-signal-bound')
+        except BaseException:failed=True
+        if failed:
+            if not cancelled:cancelled.append(0)
+            commit(True)
+    finally:
+        try:
+            for number,handler in previous.items():
+                for _ in range(2):
+                    try:signal.signal(number,handler);break
+                    except BaseException:failed=True
+        finally:
+            for _ in range(2):
+                try:signal.pthread_sigmask(signal.SIG_SETMASK,mask);break
+                except BaseException:failed=True
+    if failed:
+        if not cancelled:cancelled.append(0)
+        commit(True)
+
+
+def public_summary(receipt):
+    """Fixed scalar/hash/typed lifecycle fields; no host paths, argv or raw logs."""
+    allowed=('schema_version','status','phase','controller_sha256','ready_sha256','source_commit',
+             'candidate_sha256','native_compilation','publication','hardware','elapsed_seconds',
+             'failure_class','private_data_removed','raw_retention_within_budget','cleanup_status',
+             'cancelled','public_bundle_sha256')
+    return {k:receipt[k] for k in allowed if k in receipt}
+
+
+def process_identity(pid):
+    raw=Path(f'/proc/{pid}/stat').read_text()
+    fields=raw[raw.rfind(')')+2:].split()
+    uid=re.search(r'^Uid:\s+(\d+)',Path(f'/proc/{pid}/status').read_text(),re.M)
+    need(uid and int(uid[1])==os.getuid(),'process-owner')
+    return {'pid':pid,'start_ticks':int(fields[19])}
+
+
+def stop_record(record,deadline):
+    """Recovery refuses a reused PID or a live group whose leader is ambiguous."""
+    need(set(record)=={'pid','group','start_ticks','complete'} and all(type(record[k]) is int and record[k]>1
+         for k in ('pid','group','start_ticks')) and record['pid']==record['group'],'process-record')
+    need(type(record['complete']) is bool,'process-record')
+    if record['complete']:return {'status':'PASS','group_absent':True,'absence_already_attested':True}
+    def exists():
+        try:os.killpg(record['group'],0);return True
+        except ProcessLookupError:return False
+    if not exists():return {'status':'PASS','group_absent':True}
+    try:current=process_identity(record['pid'])
+    except FileNotFoundError:return {'status':'FAIL','reason_code':'ambiguous-group-leader'}
+    if current!={'pid':record['pid'],'start_ticks':record['start_ticks']}:
+        return {'status':'FAIL','reason_code':'reused-process-id'}
+    os.killpg(record['group'],signal.SIGTERM);grace=min(deadline,time.monotonic()+10)
+    while exists() and time.monotonic()<grace:time.sleep(.05)
+    if exists():
+        try:need(process_identity(record['pid'])==current,'reused-process-id')
+        except FileNotFoundError:return {'status':'FAIL','reason_code':'ambiguous-group-leader'}
+        os.killpg(record['group'],signal.SIGKILL)
+        while exists() and time.monotonic()<min(deadline,grace+3):time.sleep(.05)
+    return {'status':'FAIL' if exists() else 'PASS','group_absent':not exists()}
+
+
+def revoke_terminal(output,prefix='terminal'):
+    current=output/(prefix+'-public')
+    if current.exists():
+        need(not current.is_symlink() and current.resolve(strict=True)==current
+             and current.stat().st_uid==os.getuid(),'terminal-output-identity')
+        for name in ('terminal.json','export-manifest.json'):
+            path=current/name
+            if path.exists() or path.is_symlink():regular(path);path.unlink()
+
+
+def publish_terminal(output,receipt,guard,revision,prefix='terminal'):
+    staged=output/(prefix+'-input')
+    current=output/(prefix+'-public')
+    try:
+        staged.mkdir(mode=0o700,exist_ok=True)
+        save(staged/'terminal.json',public_summary(receipt))
+        next_output=output/(prefix+'-guard-'+str(revision))
+        need(guard.export_evidence(staged,next_output)['evidence_export']=='PASS','terminal-guard-failed')
+        current.mkdir(mode=0o700,exist_ok=True)
+        # A consumer reads only after exit; commit the manifest after its receipt.
+        os.replace(next_output/'terminal.json',current/'terminal.json')
+        os.replace(next_output/'export-manifest.json',current/'export-manifest.json')
+        next_output.rmdir()
+    except BaseException:
+        # Failed replacement must never leave an older terminal PASS public.
+        revoke_terminal(output,prefix)
+        raise
+
+
+def pipeline(root,controller,controller_sha,output,runner=None):
+    contract,source=authenticate(root,controller,controller_sha)
+    rows=contract['source']['files'];prefix='scripts/port/updater-native-stage/'
+    runtime=module(HERE/'runtime.py',rows[prefix+'runtime.py']['sha256'])
+    broker=module(HERE/'broker.py',rows[prefix+'broker.py']['sha256'])
+    run_process=runner or runtime.run_process
+    need(output.is_absolute() and output.is_relative_to('/tmp') and output.parent.resolve(strict=True)==output.parent
+         and not output.exists() and not output.is_symlink(),'fresh-stage-output')
+    need(shutil.disk_usage(output.parent).free>=BUDGET['minimum_output_free_bytes'],'output-free-disk')
+    output.mkdir(mode=0o700);start=time.monotonic();deadline=start+BUDGET['total_seconds']
+    nonce=os.urandom(16).hex();private=None;env=None;failure=None;cancelled=[]
+    guard=module(root/'scripts/ci/integration_export.py',rows['scripts/ci/integration_export.py']['sha256'])
+    receipt={'schema_version':1,'status':'RUNNING','phase':'private-registration','controller_sha256':controller_sha,
+             'ready_sha256':READY_SHA,'source_commit':contract['source']['source_commit'],
+             'native_compilation':'NOT RUN','publication':'NOT ACCEPTED','hardware':'NOT RUN',
+             'private_data_removed':False,'cleanup_status':'NOT RUN','raw_retention_within_budget':False,'processes':{}}
+    info=output.stat()
+    owner={'schema_version':1,'controller_sha256':controller_sha,'source_commit':receipt['source_commit'],
+           'host':contract['host'],'nonce':nonce,'uid':os.getuid(),
+           'output_identity':{'device':info.st_dev,'inode':info.st_ino},'stage':process_identity(os.getpid()),
+           'started_monotonic':start,'private_record':None,'children':[],
+           'cleanup_verified':False,'private_removed':False,'launch_intents':[]}
+    ownership_save(output,owner)
+    signals={signal.SIGTERM,signal.SIGINT}
+    if signal.getitimer(signal.ITIMER_REAL)[0] or callable(signal.getsignal(signal.SIGALRM)):signals.add(signal.SIGALRM)
+    previous={s:signal.getsignal(s) for s in signals}
+    def defer(signum,_frame):
+        if signum not in cancelled:cancelled.append(signum)
+    original_mask=install_signals(previous,defer)
+    def final_cancel(failed):
+        receipt['cancelled']=True
+        receipt['status']='FAIL' if failed or receipt['status']=='FAIL' or receipt['cleanup_status']!='PASS' else 'CANCELLED'
+        try:save(output/'result.json',receipt)
+        finally:publish_terminal(output,receipt,guard,2,prefix='terminal')
+    try:
+        save(output/'result.json',receipt)
+        try:
+            private=output/'private'
+            runtime.owned_create(output,'private',nonce)
+            owner['private_record']=runtime.owned_record(output,'private',nonce);ownership_save(output,owner)
+            for name in ('home','logs','bin'): (private/name).mkdir(mode=0o700)
+            copied=private/'source';snapshot(root,copied,contract['source'])
+            alias=private/'bin/docker'
+            broker_raw=regular(copied/(prefix+'broker.py'))
+            need(broker_raw.startswith(b'#!/usr/bin/env python3\n'),'broker-entrypoint')
+            alias.write_bytes(('#!'+contract['tools']['python']['path']+'\n').encode()+broker_raw.split(b'\n',1)[1]);alias.chmod(0o755)
+            broker_contract={'schema_version':1,'nonce':nonce,'root':str(private),
+                             'real_docker':contract['tools']['docker']['path'],
+                             'real_docker_sha256':contract['tools']['docker']['sha256'],
+                             'docker_endpoint':ENDPOINT,'deadline_monotonic':deadline,
+                             'docker_socket_identity':contract['host']['docker_socket_identity']}
+            save(private/'broker-controller.json',broker_contract);env=environment(private,contract)
+            python=contract['tools']['python']['path'];package=copied/PACKAGE
+            materialized=private/'materialized';candidate=private/'candidate';native=private/'native'
+            storage=None;storage_free=None;last_tick=0
+            def command(phase,argv,seconds):
+                receipt['phase']=phase;save(output/'result.json',receipt)
+                need(not cancelled,'stage-cancelled');verify_snapshot(copied,contract['source']);tool_check(contract['tools'])
+                def tick():
+                    nonlocal last_tick
+                    need(not cancelled,'stage-cancelled')
+                    now=time.monotonic()
+                    if now-last_tick>=1:
+                        last_tick=now;disk_check(private)
+                        sock=Path('/run/docker.sock').lstat()
+                        need({'device':sock.st_dev,'inode':sock.st_ino}==contract['host']['docker_socket_identity'],
+                             'daemon-socket-changed')
+                        if storage is not None:
+                            need(storage_free-shutil.disk_usage(storage).free<=BUDGET['minimum_docker_free_bytes'],
+                                 'docker-storage-budget')
+                try:
+                    item=tracked_process(owner,output,run_process,phase,argv,
+                                         private/'logs'/f'{phase}.stdout',private/'logs'/f'{phase}.stderr',
+                                         min(deadline,time.monotonic()+seconds),env,copied,tick)
+                    receipt['processes'][phase]=item
+                except BaseException as error:
+                    receipt['processes'][phase]=getattr(error,'receipt',{'status':'FAIL','reason_code':'stage-process-failed'})
+                    raise
+                need(item['status']=='PASS','stage-process-failed')
+            command('native-daemon',[str(alias),'info','--format','{{json .}}'],30)
+            daemon=load(private/'logs/native-daemon.stdout')
+            need(daemon.get('Architecture') in ('aarch64','arm64'),'native-daemon-required')
+            storage=Path(daemon['DockerRootDir']);need(storage.is_absolute() and storage.resolve(strict=True)==storage,
+                                                    'daemon-storage-directory')
+            storage_free=shutil.disk_usage(storage).free
+            need(storage_free>=BUDGET['minimum_docker_free_bytes'],'docker-free-disk')
+            if storage.stat().st_dev==output.stat().st_dev:
+                need(storage_free>=BUDGET['minimum_output_free_bytes']+BUDGET['minimum_docker_free_bytes'],
+                     'combined-free-disk')
+            lock_sha=digest(regular(package/'runner-inputs.lock.json'))
+            # The unchanged built-in worker inherits our owned session. Its CLI
+            # applies the original resource limits; no separate-session supervisor.
+            materialized.mkdir(mode=0o700)
+            save(materialized/'materializer-result.json',{'schema_version':1,'scope':'private source materialization',
+                 'status':'RUNNING','phase':'launch-data-worker','runner_inputs_sha256':lock_sha})
+            command('materialize',[python,'-I','-B',str(package/'materialize-inputs.py'),'--child','--output',str(materialized),
+                                  '--pins-sha256',lock_sha],BUDGET['materialize_seconds'])
+            need(load(materialized/'materializer-result.json')['status']=='PASS','materialization-not-passed')
+            source_archive=materialized/'private-sanitized/cachy-update-e2b1b7144be71cf392809f48d1440f8da1d9c81a-sanitized.tar.gz'
+            vendor=materialized/'private-cache/cachy-update-vendor.tar.gz'
+            command('freeze',[python,'-I','-B',str(package/'updater-native.py'),'freeze','--source',str(source_archive),
+                              '--vendor',str(vendor),'--output',str(candidate)],BUDGET['freeze_seconds'])
+            candidate_sha=digest(regular(candidate/'candidate.json'));receipt['candidate_sha256']=candidate_sha
+            command('native-pair',[python,'-I','-B',str(package/'updater-native.py'),'build','--candidate',str(candidate/'candidate.json'),
+                                   '--candidate-sha256',candidate_sha,'--cache',str(private/'archives'),'--output',str(native)],BUDGET['native_seconds'])
+            need(load(native/'result.json')['native_pair']=='PASS','native-pair-not-passed')
+            source.verify(root,contract['source']);verify_snapshot(copied,contract['source'])
+            receipt['native_compilation']='PASS PRIVATE NATIVE PAIR'
+        except BaseException as error:
+            failure=error;receipt['failure_class']=type(error).__name__
+            if owner['private_record'] is None and getattr(error,'receipt',{}).get('registered'):
+                owner['private_record']=runtime.owned_record(output,'private',nonce);ownership_save(output,owner)
+            if type(error).__name__ in ('RuntimeCancelled','KeyboardInterrupt','BuildCancelled','SourceCancelled'):
+                if not cancelled:cancelled.append(0)
+            if cancelled:receipt['status']='CANCELLED'
+            else:receipt['status']='FAIL'
+        finally:
+            # Project, guard and bundle in bounded owned processes while the
+            # authenticated source snapshot remains available for all helpers.
+            try:
+                if private is not None and private.is_dir():
+                    copied=private/'source'
+                    empty=private/'empty-raw';empty.mkdir(mode=0o700)
+                    raw=private/'native' if (private/'native').is_dir() else empty
+                    materialized=private/'materialized' if (private/'materialized').is_dir() else None
+                    public_env=env or {'PATH':'/usr/bin:/bin','HOME':str(private/'home'),'LC_ALL':'C.UTF-8'}
+                    for operation,input_path,output_path,module_name,phase in (
+                        ('project',raw,output/'projected',PACKAGE+'public-evidence.py','public-projection'),
+                        ('guard',output/'projected',output/'guarded','scripts/ci/integration_export.py','public-guard'),
+                        ('bundle',output/'guarded',output/'public-evidence.tar.gz','scripts/ci/log_evidence.py','public-bundle')):
+                        receipt['phase']=phase;save(output/'result.json',receipt)
+                        verify_snapshot(copied,contract['source']);tool_check(contract['tools'])
+                        argv=[contract['tools']['python']['path'],'-I','-B',str(copied/(prefix+'public_worker.py')),
+                              '--operation',operation,'--module',str(copied/module_name),
+                              '--module-sha256',rows[module_name]['sha256'],'--stage-output',str(output),
+                              '--input',str(input_path),'--output',str(output_path)]
+                        if operation=='project' and materialized is not None:argv+=['--materialized',str(materialized)]
+                        item=tracked_process(owner,output,run_process,phase,argv,
+                                             private/'logs'/f'{phase}.stdout',private/'logs'/f'{phase}.stderr',
+                                             min(deadline,time.monotonic()+BUDGET['projection_seconds' if operation=='project' else 'export_seconds']),
+                                             public_env,copied)
+                        receipt['processes'][phase]=item;need(item['status']=='PASS','public-process-failed')
+                        status=load(private/'logs'/f'{phase}.stdout')
+                        need(status=={'status':'PASS','operation':operation},'public-worker-receipt')
+                    need(load(output/'projected/projection.json')['projection']=='PASS','public-projection-failed')
+                    need(load(output/'guarded/export-manifest.json')['evidence_export']=='PASS','credential-guard-failed')
+                    receipt['public_bundle_sha256']=digest(regular(output/'public-evidence.tar.gz',8*1024**2))
+                    receipt['public_projection']='PASS';receipt['credential_guard']='PASS'
+            except BaseException as error:
+                if type(error).__name__ in ('RuntimeCancelled','KeyboardInterrupt','BuildCancelled','SourceCancelled') and not cancelled:cancelled.append(0)
+                failure=failure or error;receipt.update(status='FAIL',public_projection='FAIL',failure_class=type(error).__name__)
+            receipt['phase']='owned-cleanup';save(output/'result.json',receipt)
+            cleanup_deadline=min(start+BUDGET['raw_retention_seconds'],time.monotonic()+BUDGET['cleanup_seconds'])
+            cleanup_safe=False
+            try:
+                if private is not None:
+                    launches_verified(owner)
+                    stopped=[stop_record(row,cleanup_deadline) for row in reversed(owner['children'])]
+                    receipt['process_cleanup']=stopped
+                    need(all(row['status']=='PASS' for row in stopped),'owned-process-cleanup-unverified')
+                    receipt['docker_cleanup']=broker.cleanup(private,nonce,contract['tools']['docker']['path'],ENDPOINT,cleanup_deadline)
+                    need(receipt['docker_cleanup']['status']=='PASS','docker-cleanup-failed')
+                    home=scoped_gpg_home(private)
+                    if home is not None:
+                        item=tracked_process(owner,output,run_process,'gpg-cleanup',
+                                         [contract['tools']['gpgconf']['path'],'--homedir',str(home),'--kill','all'],
+                                         private/'logs/gpg-cleanup.stdout',private/'logs/gpg-cleanup.stderr',
+                                         min(cleanup_deadline,time.monotonic()+15),env,private)
+                        need(item['status']=='PASS','gpg-cleanup-failed')
+                    launches_verified(owner)
+                    need(all(row['complete'] for row in owner['children']),'owned-process-cleanup-unverified')
+                    cleanup_safe=True
+            except BaseException as error:
+                if type(error).__name__ in ('RuntimeCancelled','KeyboardInterrupt','BuildCancelled','SourceCancelled') and not cancelled:cancelled.append(0)
+                failure=failure or error;receipt.update(status='FAIL',failure_class=type(error).__name__)
+            finally:
+                if private is not None and cleanup_safe:
+                    removal=runtime.owned_remove(output,'private',nonce,cleanup_deadline)
+                    receipt['private_cleanup']=removal;receipt['private_data_removed']=removal.get('removed',False)
+                    if removal['status']=='CANCELLED' and not cancelled:cancelled.append(0)
+                    if removal['status']!='PASS':
+                        failure=failure or ValueError('private-cleanup-failed');receipt['status']='FAIL'
+            receipt['raw_retention_within_budget']=time.monotonic()-start<=BUDGET['raw_retention_seconds']
+            receipt['cleanup_status']='PASS' if receipt['private_data_removed'] and receipt.get('docker_cleanup',{}).get('status')=='PASS' else 'FAIL'
+            owner.update(cleanup_verified=receipt['cleanup_status']=='PASS',private_removed=receipt['private_data_removed'])
+            ownership_save(output,owner)
+            if failure is None and receipt['cleanup_status']=='PASS' and receipt['raw_retention_within_budget']:receipt['status']='PASS'
+            elif receipt['status']=='RUNNING':receipt['status']='FAIL'
+            receipt['cancelled']=bool(cancelled)
+            if cancelled and receipt['cleanup_status']=='PASS':receipt['status']='CANCELLED'
+            receipt.update(phase='finalized',elapsed_seconds=int(time.monotonic()-start));save(output/'result.json',receipt)
+            def cancel_status():
+                receipt['cancelled']=bool(cancelled)
+                if cancelled and receipt['cleanup_status']=='PASS':receipt['status']='CANCELLED'
+            # Cancellation is monotonic: after the first terminal commit, repeat
+            # once if a save/export boundary observed a newly deferred signal.
+            for revision in range(2):
+                cancel_status();before=(receipt['status'],receipt['cancelled'])
+                try:publish_terminal(output,receipt,guard,revision)
+                except BaseException as error:receipt.update(status='FAIL',failure_class=type(error).__name__)
+                cancel_status();save(output/'result.json',receipt);cancel_status()
+                if before==(receipt['status'],receipt['cancelled']):break
+    except BaseException as error:
+        receipt.update(status='FAIL',failure_class=type(error).__name__)
+        revoke_terminal(output,prefix='terminal')
+        raise
+    finally:
+        finish_signals(previous,cancelled,final_cancel,original_mask)
+    return receipt
+
+
+def recover(root,controller,controller_sha,output,owner_sha):
+    """Always-step recovery: explicit external ownership pin, no active/reused PID grant."""
+    contract,_source=authenticate(root,controller,controller_sha)
+    need(output.is_absolute() and output.is_relative_to('/tmp') and output.resolve(strict=True)==output
+         and output.stat().st_uid==os.getuid() and stat.S_IMODE(output.stat().st_mode)==0o700,'recovery-output')
+    raw=regular(output/'ownership.json');need(re.fullmatch('[0-9a-f]{64}',owner_sha or '')
+                                            and digest(raw)==owner_sha,'ownership-pin')
+    owner=json.loads(raw,object_pairs_hook=unique);info=output.stat()
+    fields={'schema_version','controller_sha256','source_commit','host','nonce','uid','output_identity',
+            'stage','started_monotonic','private_record','children','cleanup_verified','private_removed',
+            'launch_intents'}
+    need(type(owner) is dict and set(owner)==fields and owner['schema_version']==1 and
+         owner['controller_sha256']==controller_sha and owner['source_commit']==contract['source']['source_commit']
+         and owner['host']==contract['host'] and type(owner['uid']) is int and owner['uid']==os.getuid()
+         and owner['output_identity']=={'device':info.st_dev,'inode':info.st_ino}
+         and re.fullmatch('[0-9a-f]{32}',owner['nonce']) and type(owner['children']) is list
+         and len(owner['children'])<=16 and type(owner['cleanup_verified']) is bool
+         and type(owner['private_removed']) is bool,'ownership-schema')
+    need(type(owner['stage']) is dict and set(owner['stage'])=={'pid','start_ticks'}
+         and all(type(v) is int and v>1 for v in owner['stage'].values()),'stage-process-record')
+    try:original=process_identity(owner['stage']['pid'])
+    except FileNotFoundError:original=None
+    need(original!=owner['stage'],'original-stage-still-active')
+    prefix='scripts/port/updater-native-stage/';rows=contract['source']['files']
+    runtime=module(HERE/'runtime.py',rows[prefix+'runtime.py']['sha256'])
+    broker=module(HERE/'broker.py',rows[prefix+'broker.py']['sha256'])
+    guard=module(root/'scripts/ci/integration_export.py',rows['scripts/ci/integration_export.py']['sha256'])
+    private=output/'private';deadline=time.monotonic()+BUDGET['cleanup_seconds'];cancelled=[]
+    signals={signal.SIGTERM,signal.SIGINT}
+    if signal.getitimer(signal.ITIMER_REAL)[0] or callable(signal.getsignal(signal.SIGALRM)):signals.add(signal.SIGALRM)
+    previous={s:signal.getsignal(s) for s in signals}
+    def defer(signum,_frame):
+        if signum not in cancelled:cancelled.append(signum)
+    original_mask=install_signals(previous,defer)
+    receipt={'schema_version':1,'status':'FAIL','phase':'recovery','controller_sha256':controller_sha,
+             'ready_sha256':READY_SHA,'source_commit':owner['source_commit'],'native_compilation':'NOT ATTESTED BY RECOVERY',
+             'publication':'NOT ACCEPTED','hardware':'NOT RUN','private_data_removed':False,'cleanup_status':'FAIL'}
+    def final_cancel(failed):
+        receipt['cancelled']=True
+        receipt['status']='FAIL' if failed or receipt['status']=='FAIL' or receipt['cleanup_status']!='PASS' else 'CANCELLED'
+        try:save(output/'recovery-result.json',receipt)
+        finally:publish_terminal(output,receipt,guard,2,prefix='recovery-terminal')
+    try:
+        save(output/'recovery-result.json',receipt)
+        try:
+            if not private.exists():
+                need(owner['cleanup_verified'] and owner['private_removed'],'missing-raw-cleanup-unverified')
+                receipt.update(status='PASS',private_data_removed=True,cleanup_status='PASS')
+            else:
+                runtime.owned_adopt(output,'private',owner['nonce'],owner['private_record'])
+                launches_verified(owner)
+                stopped=[stop_record(row,deadline) for row in reversed(owner['children'])]
+                receipt['process_cleanup']=stopped
+                need(all(row['status']=='PASS' for row in stopped),'owned-process-cleanup-unverified')
+                docker=broker.cleanup(private,owner['nonce'],contract['tools']['docker']['path'],ENDPOINT,deadline)
+                receipt['docker_cleanup']=docker;need(docker['status']=='PASS','docker-cleanup-unverified')
+                home=scoped_gpg_home(private)
+                if home is not None:
+                    env={'PATH':'/usr/bin:/bin','HOME':str(private/'home'),'LC_ALL':'C.UTF-8'}
+                    suffix=os.urandom(4).hex()
+                    item=tracked_process(owner,output,runtime.run_process,'recovery-gpg',
+                                        [contract['tools']['gpgconf']['path'],'--homedir',str(home),'--kill','all'],
+                                        private/'logs'/('recovery-gpg-'+suffix+'.stdout'),private/'logs'/('recovery-gpg-'+suffix+'.stderr'),
+                                        min(deadline,time.monotonic()+15),env,private)
+                    need(item['status']=='PASS','gpg-cleanup-failed')
+                removed=runtime.owned_remove(output,'private',owner['nonce'],deadline)
+                receipt['private_cleanup']=removed;receipt['private_data_removed']=removed['removed']
+                need(removed['status']=='PASS','owned-private-removal-unverified')
+                receipt.update(status='PASS',cleanup_status='PASS')
+                owner.update(cleanup_verified=True,private_removed=True);ownership_save(output,owner)
+            elapsed=time.monotonic()-owner['started_monotonic']
+            receipt['raw_retention_within_budget']=0<=elapsed<=BUDGET['raw_retention_seconds']
+            need(receipt['raw_retention_within_budget'],'raw-retention-budget-exceeded')
+        except BaseException as error:
+            if type(error).__name__=='RuntimeCancelled' and not cancelled:cancelled.append(0)
+            receipt.update(status='FAIL',failure_class=type(error).__name__)
+        finally:
+            receipt['cancelled']=bool(cancelled)
+            if cancelled and receipt['cleanup_status']=='PASS':receipt['status']='CANCELLED'
+            receipt['phase']='finalized';save(output/'recovery-result.json',receipt)
+            for revision in range(2):
+                if cancelled and receipt['cleanup_status']=='PASS':receipt['status']='CANCELLED';receipt['cancelled']=True
+                before=(receipt['status'],receipt['cancelled'])
+                try:publish_terminal(output,receipt,guard,revision,prefix='recovery-terminal')
+                except BaseException as error:receipt.update(status='FAIL',failure_class=type(error).__name__)
+                if cancelled and receipt['cleanup_status']=='PASS':receipt['status']='CANCELLED';receipt['cancelled']=True
+                save(output/'recovery-result.json',receipt)
+                if cancelled and receipt['cleanup_status']=='PASS':receipt['status']='CANCELLED';receipt['cancelled']=True
+                if before==(receipt['status'],receipt['cancelled']):break
+    except BaseException as error:
+        receipt.update(status='FAIL',failure_class=type(error).__name__)
+        revoke_terminal(output,prefix='recovery-terminal')
+        raise
+    finally:
+        finish_signals(previous,cancelled,final_cancel,original_mask)
+    return receipt
+
+
+if __name__=='__main__':
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('mode',choices=('freeze','run','cleanup'))
+    parser.add_argument('--root',type=Path,default=ROOT)
+    parser.add_argument('--source-commit');parser.add_argument('--ready-sha256',default=READY_SHA)
+    parser.add_argument('--bootstrap-source-sha256');parser.add_argument('--bootstrap-stage-sha256')
+    parser.add_argument('--controller',type=Path);parser.add_argument('--controller-sha256')
+    parser.add_argument('--ownership-sha256')
+    parser.add_argument('--output',type=Path,required=True)
+    args=parser.parse_args()
+    try:
+        if args.mode=='freeze':
+            checksum=freeze(args.root,args.source_commit,args.ready_sha256,args.output,
+                            args.bootstrap_source_sha256,args.bootstrap_stage_sha256)
+            print(json.dumps({'source_freeze':'PASS','controller_sha256':checksum,'native_compilation':'NOT RUN'}))
+        elif args.mode=='run':
+            result=pipeline(args.root,args.controller,args.controller_sha256,args.output)
+            print(json.dumps(public_summary(result),sort_keys=True));sys.exit(0 if result['status']=='PASS' else 1)
+        else:
+            result=recover(args.root,args.controller,args.controller_sha256,args.output,args.ownership_sha256)
+            print(json.dumps(public_summary(result),sort_keys=True));sys.exit(0 if result['status']=='PASS' else 1)
+    except BaseException as error:
+        print(json.dumps({'status':'FAIL','failure_class':type(error).__name__}));sys.exit(1)
