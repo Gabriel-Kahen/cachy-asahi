@@ -10,13 +10,13 @@ import sys
 import types
 
 ROOT = Path(__file__).resolve().parents[3]
-COLLECTOR_MAP_SHA256 = 'd8d85ebe1461533265732aa8a2f89fda9c90797603ff8e73403caac605f3f594'
+COLLECTOR_MAP_SHA256 = '26eeddc56574c5475df67841c1ac8120900deabe1478f6d1fa7cd290f64f63a9'
 COLLECTOR = {
     'entry.py': '5889e0358bd0a04122e6cfcb061337f1dc415b064ba92f46ae47893a5747e0c8',
     'worker.py': '9a513a59da3cbb58d54c236759e3299072e14194e4d297df911072daa241b060',
     'common.py': '92ca41005397c6cccfd70497646c0de1f2ac88a697e0fcbec4165bf5326cfc08',
     'base.py': '94a8e2898b062a0efd0f567d1f4f472bd04d6ff5a1573cd09f3bf8d1f556cddd',
-    'provenance.py': '772f23676ec047117a2d6089e33afb60d7d552d3a03d62543d505183b611345b',
+    'provenance.py': '42d18ff6cfa68d7d0a704d0612cbf505f8652b5c24bf6ae69d833b43c08ad02b',
     'crypto.py': 'a3568741238738646593b2c972589f4ae92381611c88dea1c1c234c0e59a46f0',
     'orchestrator.py': '9323498b61d3cedbb0f99bd45564a3f26572ed7e560d75f260eef932c7f957ff',
 }

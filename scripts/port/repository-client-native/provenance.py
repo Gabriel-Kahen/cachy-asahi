@@ -5,6 +5,7 @@ import io
 from pathlib import Path
 import re
 import tarfile
+import unicodedata
 
 from common import bounded_tar_payload, digest, encoded, decode, need, pinned, mapped, relative
 
@@ -14,6 +15,24 @@ COMMIT = re.compile(r'[0-9a-f]{40}\Z')
 REQUIRED = {'build.log', 'validation.json', 'expected-packages.lock', 'artifacts/packages.lock',
             'artifacts/generated.SRCINFO', 'artifacts/environment.txt', 'artifacts/config.sha256',
             'artifacts/makepkg.conf', 'artifacts/pacman.conf'}
+
+
+def package_url(data, parsed):
+    """Only a single exact empty optional URL is equivalent to omission."""
+    values = parsed.get('url', [])
+    need(len(values) <= 1, 'duplicate-url-field')
+    physical = []
+    for line in data.decode().split('\n'):
+        name, separator, value = line.partition(' = ')
+        if name.strip() == 'url':
+            need(name == 'url' and separator, 'malformed-package-url')
+            physical.append(value)
+    need(physical == values, 'malformed-package-url')
+    if values == ['']:
+        parsed.pop('url')
+    else:
+        need(all(value and not any(char.isspace() or unicodedata.category(char) in ('Cc', 'Cf') for char in value)
+                 for value in values), 'malformed-url-value')
 
 
 def package_bytes(raw):
@@ -62,8 +81,9 @@ def package_bytes(raw):
             continue
         need(' = ' in line, 'malformed package metadata')
         key, value = line.split(' = ', 1)
-        need(value and re.fullmatch(r'[a-z][a-z0-9_]*', key), 'invalid package field')
+        need((value or key == 'url') and re.fullmatch(r'[a-z][a-z0-9_]*', key), 'invalid package field')
         info.setdefault(key, []).append(value)
+    package_url(members['.PKGINFO'], info)
     for key in ('pkgname', 'pkgver', 'arch'):
         need(len(info.get(key, [])) == 1, 'package identity missing/duplicate')
     need(info['pkgname'][0] in ORIGINALS and info['arch'][0] in ('any', 'aarch64') and

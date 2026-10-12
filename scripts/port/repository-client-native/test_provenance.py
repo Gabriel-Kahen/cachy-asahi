@@ -11,6 +11,37 @@ import common
 import provenance
 
 
+def check_retained_archives(native_root, module=provenance):
+    """Explicit actual-data regression; absent or changed retained bytes fail."""
+    native_root = Path(native_root)
+    accepted = {}
+    dependencies = {'cachy-asahi-fish-config': ['fish', 'coreutils'], 'cachy-asahi-zsh-config': ['zsh'],
+                    'cachy-asahi-hyprland-settings': ['hyprland>=0.56.2', 'hyprland<0.57.0', 'alacritty', 'wofi',
+                                                    'swaylock', 'wireplumber', 'brightnessctl'],
+                    'cachy-asahi-setup': ['python>=3.11']}
+    for name, version, size, pin in (
+        ('cachy-asahi-fish-config', '0.1.0-1', 5400, '22e6e3ca4f23b73434c4aed284016914652900c33e845516621c0eb8b176d64e'),
+        ('cachy-asahi-zsh-config', '0.1.0-1', 6240, '1bcb8e7fde6da28bc817f252bee5c7084cd22ec4153512eaf5bb47bd83e90faa'),
+        ('cachy-asahi-hyprland-settings', '0.1.0-1', 8780, '5d33320b55c2b3c778b94c128980c2d07d3fbcf466b3ab91ad8a706ff538ee81'),
+        ('cachy-asahi-setup', '0.1.0-2', 14128, '40e392b4af6485d8518993073c1fe643eda60053312aeb618dfa9a6c9bee3489'),
+    ):
+        filename = name + '-' + version + '-any.pkg.tar.xz'
+        raw = common.read(native_root / (name + '-1') / 'artifacts' / filename)
+        common.need(len(raw) == size and common.digest(raw) == pin, 'retained archive external pin differs')
+        package, members = module.package_bytes(raw)
+        common.need((package['name'], package['version'], package['arch'], package['license']) ==
+                    (name, version, 'any', ['MIT']), 'retained package identity/license differs')
+        common.need(package['depend'] == dependencies[name] and
+                    all(package[key] == [] for key in ('provides', 'conflict', 'replaces')),
+                    'retained package relations differ')
+        common.need(common.digest(members['usr/share/licenses/' + name + '/LICENSE']) ==
+                    '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7', 'retained license differs')
+        if name in ('cachy-asahi-fish-config', 'cachy-asahi-zsh-config'):
+            common.need(members['.PKGINFO'].split(b'\n').count(b'url = ') == 1, 'retained empty URL relation differs')
+        accepted[name] = {'sha256': pin, 'bytes': size, 'depend': package['depend']}
+    return {'archives': accepted, 'scope': 'retained package parsing only', 'native_execution': 'NOT RUN'}
+
+
 class Fixture:
     """Fabricated observations are never eligible native evidence."""
     def __init__(self, root, role='baseline'):
@@ -91,6 +122,70 @@ class Fixture:
         self.request['files'] = {name: {'sha256': common.digest(raw), 'bytes': len(raw)} for name, raw in self.files.items()}
         raw, base = common.encoded(self.request), common.encoded(self.base)
         return provenance.consume(self.root, raw, common.digest(raw), base, common.digest(base))
+
+
+class PackageURL(unittest.TestCase):
+    INFO = ('pkgname = cachy-asahi-fish-config\npkgver = 1-1\narch = any\nlicense = MIT\n'
+            'depend = fish\ndepend = coreutils\nprovides = helper\nconflict = other-helper\nreplaces = old-helper\n')
+
+    def package(self, fields='', *, info=None):
+        return provenance.package_bytes(Fixture.archive({'.PKGINFO': ((self.INFO if info is None else info) + fields).encode(),
+                                                        'usr/share/fixture': b'UNCHANGED TEST payload'}))
+
+    def test_single_empty_url_and_omission_have_same_metadata(self):
+        absent, _ = self.package()
+        empty, members = self.package('url = \n')
+        self.assertEqual(empty, absent)
+        self.assertTrue(members['.PKGINFO'].endswith(b'url = \n'))
+
+    def test_nonempty_url_preserves_identity_relations_and_members(self):
+        absent, _ = self.package()
+        url = 'https://Example.test/A%2fb?x=Q#fragment'
+        actual, members = self.package('url = ' + url + '\n')
+        self.assertEqual(actual, absent)
+        self.assertTrue(members['.PKGINFO'].endswith(('url = ' + url + '\n').encode()))
+        self.assertEqual(actual['depend'], ['fish', 'coreutils'])
+        self.assertEqual(actual['provides'], ['helper'])
+        self.assertEqual(actual['conflict'], ['other-helper'])
+        self.assertEqual(actual['replaces'], ['old-helper'])
+        self.assertEqual(actual['license'], ['MIT'])
+
+    def test_duplicate_urls_refused_even_when_equal_or_empty(self):
+        for fields in ('url = \nurl = \n', 'url = https://x\nurl = https://x\n',
+                       'url = \nurl = https://x\n', 'url = https://x\nurl = https://y\n'):
+            with self.subTest(fields=fields), self.assertRaises(common.Refused): self.package(fields)
+
+    def test_other_empty_fields_stay_refused(self):
+        for key in ('pkgname', 'pkgver', 'arch', 'license', 'depend', 'provides', 'conflict', 'replaces', 'pkgdesc', 'builddate'):
+            with self.subTest(key=key), self.assertRaisesRegex(common.Refused, 'invalid package field'):
+                self.package(key + ' = \n')
+
+    def test_malformed_url_keys_and_separators_refused(self):
+        for fields in (' url = https://x\n', 'url  = https://x\n', 'url\t = https://x\n',
+                       'url=https://x\n', 'url =https://x\n', 'url= https://x\n'):
+            with self.subTest(fields=fields), self.assertRaises(common.Refused): self.package(fields)
+
+    def test_whitespace_padding_and_unicode_controls_refused(self):
+        for char in (' ', '\t', '\v', '\f', '\x00', '\x1b', '\x7f', '\x85', '\xa0', '\u200b', '\u202e', '\u2066'):
+            for value in (char, 'https://x' + char, 'https://' + char + 'x'):
+                with self.subTest(value=value), self.assertRaises(common.Refused): self.package('url = ' + value + '\n')
+
+    def test_raw_cr_and_unicode_line_separator_erasure_refused(self):
+        for fields in ('url = \r\n', 'url = https://x\r\n', 'url = https://x\r',
+                       'url = https://x\u2028', 'url = https://x\u2029', 'url = https://x\x1c'):
+            with self.subTest(fields=fields), self.assertRaises(common.Refused): self.package(fields)
+
+    def test_url_cannot_weaken_identity_license_or_hook_checks(self):
+        for info in (self.INFO.replace('arch = any', 'arch = x86_64'), self.INFO.replace('license = MIT', 'license = GPL'),
+                     self.INFO + 'pkgname = cachy-asahi-fish-config\n'):
+            with self.subTest(info=info), self.assertRaises(common.Refused): self.package('url = \n', info=info)
+        raw = Fixture.archive({'.PKGINFO': (self.INFO + 'url = \n').encode(), '.INSTALL': b'TEST hook'})
+        with self.assertRaises(common.Refused): provenance.package_bytes(raw)
+
+    def test_url_like_description_remains_opaque(self):
+        absent, members = self.package('pkgdesc = url = \n')
+        self.assertEqual(absent['name'], 'cachy-asahi-fish-config')
+        self.assertTrue(members['.PKGINFO'].endswith(b'pkgdesc = url = \n'))
 
 
 class Consume(unittest.TestCase):
