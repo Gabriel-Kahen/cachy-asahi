@@ -208,8 +208,9 @@ policy activation or memory/performance claim belongs to this build stage.
 ## ARM-C01 stage invocation and retention
 
 Use the independently reviewed [ARM-C01 source lock](../../scripts/experiments/stage.lock.json),
-SHA-256 `98617adc3dd70fb71a9734d7f38840f553b795ce05322d5b95598f20d5aec4a5`.
-Copy and rehash it into `INPUTS/arm-c01-source.lock.json`; set `ARM_SOURCE_PIN` to
+SHA-256 `8e0d982e136f8f1c79bebbeca8448f48a8466e95dbb8695042e7528a26f731ca`.
+This coordinator-adopted lock binds the corrected strict decoder/exporter
+[held source review](../reviews/arm-c01-native-correction-review.md). Copy and rehash it into `INPUTS/arm-c01-source.lock.json`; set `ARM_SOURCE_PIN` to
 that full hash. Before future wiring, the coordinator checks every frozen file
 and mode against its accepted Git packet and clean checkout. Reproducing the
 candidate lock, when needed, is a separate local operation:
@@ -246,17 +247,23 @@ Reserve a 1,000-second outer launcher allowance for the 900-second stage trial,
 bounded cleanup and export. It has 2 CPUs/4GiB RAM, 256
 PIDs and owned 2GiB tmpfs; child root/inputs are read-only, capability-free and
 network-free. Require four clean artifact sets, both byte-rebuild pairs, actual
-LTO evidence and the complete 336 positive plus 32 rejection checks, with the
-strict owner receiver consuming actual command/input/configuration records.
+LTO evidence and the exact 505-command graph: 336 positive cross-decodes,
+32 strict corruption rejections, four strict valid decodes, four sample CRC
+rejections and four separate sample truncation observations. Strict invalid-input
+exit 2 is required; resource/internal exit 3 fails. The strict owner receiver
+consumes actual command/input/configuration records.
 The closed source review does not replace those actual native execution checks.
 Require CLI exit zero and final `result.json` status PASS, verified owned
 container absence and evidence export PASS before accepting the stage.
 
 Retain adapter `public/` text evidence and `public-status/` separately. Its concrete
 `public-artifacts/` contains `development-ARM-C01-outputs.tar.gz` and
-`archive-manifest.json`, explicitly bound to strict receiver hashes: 38 approved
-files (four builds' 12 binaries/archives and 16 notices/configuration files,
-nine public corpus files and their manifest). The adapter enforces 64MiB
+`archive-manifest.json`, explicitly bound to strict receiver hashes: 79 approved
+files (the original 38 binaries/archives/configuration/corpus members, exact MIT
+`strict-gzip.c`, four strict binaries and 36 strict output files). Strict driver
+records bind compile/ELF commands and logs, declared/effective flags and archive
+hashes; output records bind driver, corpus input, stdout hash/size and exact exit.
+Successful cross-decode bytes remain unretained producer hash checks. The adapter enforces 64MiB
 uncompressed and 8MiB compressed limits. Require that entire explicit directory
 also fits the publication wrapper's 16MiB expanded/8MiB compressed bundle limits;
 oversize required material fails retention. Do not replace this implemented
@@ -554,3 +561,49 @@ must finish the ARM owner correction, freeze its compatible source envelope and
 rebind the combined packet before another broader trial. This worker performed
 no shared lock/Git/dispatch, Docker or network operation. The corrected virtual
 native trial and visual/hardware/performance acceptance remain **NOT RUN**.
+
+
+## Corrected ARM receiver source checkpoint
+
+The base-only development receiver is adapted to the coordinator-adopted ARM
+lock `8e0d982e…` and the held runner `12576d39…`/stage `0ec75669…`. It requires
+the successful matching launcher/native receipts, exact 505-command plan,
+79-member archive, all strict driver/output manifest records and the producer's
+exact public projection. All 16 projected configuration files match their
+archived bytes. Command logs are checked against recorded size/hash; extra
+self-manifested logs or files refuse. Declared/effective flags, common feature
+suffixes, ELF/load-layout/LTO observations, both rebuild pairs, native environment
+and tool pins, corpus/dataflow and finite strict/sample acceptance are checked
+without executing binaries or replaying commands.
+
+The receiver imports only the six-file source envelope's authenticated ARM/corpus
+helpers. To verify source-derived public material without retained private inputs,
+this worker independently rehashed the existing exact zlib archive `bb329a0a…`
+and audited `zlib-1.3.2/README` (5,291 bytes, SHA-256
+`4026d921213bb2e311d8d42b44ef53361c102d5d45ae32f93f8e52eaee8d068f`)
+and `LICENSE` (1,002 bytes, SHA-256
+`e32ff4e00d9d94930537635291da39e7e612703334bf6fde8c7f1686fe8a45a2`).
+Literal receiver pins bind the archived heldout bytes and all four licenses;
+the pinned corpus generator then rederives the exact corpus. This is read-only
+selected-source auditing, not a native upstream build or cryptographic attestation.
+Captured JSON refuses duplicate fields, nonfinite constants and numeric overflow.
+Archive verification bounds compressed/expanded/payload bytes and rejects
+foreign/duplicate members, metadata/PAX, wrong modes and changed member bytes.
+
+Focused **40 tests PASS, zero skips**, with ResourceWarning treated as an error,
+retained `/tmp/cachy-arm-receiver-focused-tests.log`. Tests use the owner's
+complete synthetic command/receipt/archive producer and explicitly mock upstream
+source/selected-source constants; no fixture binary is presented as a native
+build. Resealed adversarial cases cover strict source/binary/output substitution,
+compiler/ELF/config/dataflow drift, exit-3 substitution, launcher failures, extra
+logs, environment/source pins, JSON and global archive metadata. The full
+development suite passed **163 tests, zero skips**, also with ResourceWarning
+treated as an error, in 61.387 seconds; log
+`/tmp/cachy-arm-receiver-development-tests.log`. The six ARM source files and
+unchanged exporter match the adopted lock's exact hashes/modes; both receiver
+Python files pass AST parsing. The coordinator's independent source/Git/packet
+rebind remains pending. Historical broad packet `e37b732f…` is stale and
+must not execute the corrected sources. Corrected native ARM execution, 16K
+execution, M2 hardware, release selection and performance acceptance remain
+**NOT RUN**. No shared lock, Git, workflow or host/system mutation was performed
+by this receiver worker.

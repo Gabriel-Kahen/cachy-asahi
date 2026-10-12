@@ -1,5 +1,6 @@
 """Development base-stage regressions: command/download/package execution mocked."""
 import copy
+from contextlib import ExitStack
 import hashlib
 import importlib.util
 import io
@@ -132,29 +133,47 @@ class BaseStages(unittest.TestCase):
         self.command.side_effect = command
 
     def arm_receipts(self, owner):
-        files = {f'{variant}-{attempt}/{name}': b'public fixture' for variant in ('baseline', 'lto') for attempt in (1, 2)
-                 for name in ('libz.a', 'example', 'minigzip', 'Makefile.txt', 'zconf.h.txt', 'configure.log.txt', 'LICENSE.txt')}
-        files.update({'corpus/' + name: b'public corpus' for name in ('empty.bin', 'onebyte.bin', 'repeated.txt', 'allbytes.bin',
-             'incompressible.bin', 'heldout-source.bin', 'gzip-reference.gz', 'corrupt-crc.gz', 'truncated-trailer.gz', 'manifest.json')})
-        artifacts = owner / 'public-artifacts'; artifacts.mkdir()
-        archive = artifacts / 'development-ARM-C01-outputs.tar.gz'
-        with tarfile.open(archive, 'w:gz') as tar:
-            for name, data in files.items():
-                member = tarfile.TarInfo(name); member.size = len(data)
-                member.mode = 0o755 if name.endswith(('/example', '/minigzip')) else 0o644
-                tar.addfile(member, io.BytesIO(data))
-        manifest = {'image_id': self.controller.image, 'source_commit': self.controller.commit, 'source_sha256': b.ZLIB_SHA,
-                    'files': {name: hashlib.sha256(data).hexdigest() for name, data in files.items()},
-                    'uncompressed_bytes': sum(map(len, files.values())), 'bundle_sha256': b.digest(archive), 'bundle_bytes': archive.stat().st_size}
-        b.save(artifacts / 'archive-manifest.json', manifest)
+        # Actual source producer/graph/exporter with synthetic binaries and source.
+        # No native commands, network, host transaction or build is performed.
+        fixture = b.load_module(self.real_root / 'scripts/experiments/test_arm_c01.py', 'development_arm_fixture')
+        with patch.dict(sys.modules, {'arm_c01': fixture.a}):
+            stage = b.load_module(self.real_root / 'scripts/experiments/stage.py', 'development_arm_stage_fixture')
+        raw_root = owner / 'fixture'; raw_root.mkdir()
+        with ExitStack() as stack:
+            context = SimpleNamespace(root=raw_root, enterContext=stack.enter_context)
+            raw, contract, native, _, commands = fixture.ReceiverTests.receipt(context)
+            contract.update(image=self.controller.image, source_commit=self.controller.commit,
+                            packages_sha256=b.digest(self.native / 'packages.lock'))
+            (raw_root / 'inputs/packages.lock').write_text(self.lock)
+            commands[0].update(log_sha256=hashlib.sha256(self.lock.encode()).hexdigest(), log_bytes=len(self.lock))
+            (raw / commands[0]['log']).write_text(self.lock)
+            fixture.a.save(raw / 'commands.json', commands)
+            fixture.a.save(raw / 'result.json', native)
+            verified = fixture.a.verify_result(raw, contract)
+            manifest = stage.export_artifacts(raw, owner / 'public-artifacts', verified)
+            # Only the archive/source constant is mocked by the fixture. Restore
+            # the externally pinned source label for this mocked producer handoff.
+            native['contract']['source_sha256'] = b.ZLIB_SHA
+            manifest['source_sha256'] = b.ZLIB_SHA
+            fixture.a.save(raw / 'result.json', native)
+            fixture.a.save(raw_root / 'result.json', {'purpose': fixture.a.PURPOSE, 'status': 'PASS',
+                'image': self.controller.image, 'contract': contract,
+                'controller_group_cleanup': 'PASS', 'container_cleanup': 'PASS',
+                'receiver_verification': {**verified['receiver_verification'], 'source_sha256': b.ZLIB_SHA},
+                'hardware_validation': 'NOT RUN', 'performance_acceptance': 'NOT RUN', 'selected_for_release': False})
+            (raw_root / '004-container.log').write_bytes(b'synthetic successful container log; no execution')
+            selected = owner / 'selected'
+            stage.project_evidence(raw_root, selected)
+        patch.object(b, 'ARM_README_SHA', hashlib.sha256((raw / 'corpus/heldout-source.bin').read_bytes()).hexdigest()).start()
+        patch.object(b, 'ARM_LICENSE_SHA', hashlib.sha256((raw / 'baseline-1/LICENSE.txt').read_bytes()).hexdigest()).start()
+        self.assertTrue(b.text_public(self.real_root, selected, owner / 'public'))
+        b.save(owner / 'public-artifacts/archive-manifest.json', manifest)
         result = {'purpose': 'ARM-C01-same-job-followup', 'status': 'PASS', 'source_commit': self.controller.commit,
             'source_lock_sha256': b.ARM_PIN, 'source_sha256': b.ZLIB_SHA, 'evidence_export': 'PASS', 'launcher_cleanup': 'PASS',
             'image_handoff': {'kind': 'accepted-base-image', 'image_id': self.controller.image, 'package_count': 341},
             'container_cleanup': {'status': 'PASS', 'absence_verified': True}, 'development_artifacts': manifest,
-            'receiver_verification': {'status': 'PASS', 'command_count': 485, 'build_count': 4, 'cross_decode_count': 336,
-                'rejection_count': 32, 'source_sha256': b.ZLIB_SHA, 'packages_sha256': b.digest(self.native / 'packages.lock')}}
+            'receiver_verification': {**verified['receiver_verification'], 'source_sha256': b.ZLIB_SHA}}
         b.save(owner / 'result.json', result)
-        self.write_export(owner / 'public', {'result.json': {'status': 'PASS'}})
         self.write_export(owner / 'public-status', {'result.json': result})
 
     def test_base_failure_refuses_both_stages_before_commands_or_fetch(self):
@@ -339,6 +358,224 @@ class BaseStages(unittest.TestCase):
             result = b.read_json(owner / 'result.json'); result['development_artifacts'] = manifest
             b.save(owner / 'result.json', result); shutil.rmtree(owner / 'public-status')
             self.write_export(owner / 'public-status', {'result.json': result})
+            with self.subTest(mutation=mutation), self.assertRaises(ValueError):
+                b.verify_arm(owner, self.controller, prerequisite)
+
+    def seal_arm(self, owner, result=None, manifest=None):
+        """Reseal outer hashes so rejection must come from semantic verification."""
+        if result is None:
+            result = b.read_json(owner / 'result.json')
+        if manifest is not None:
+            b.save(owner / 'public-artifacts/archive-manifest.json', manifest)
+            result['development_artifacts'] = manifest
+        b.save(owner / 'result.json', result)
+        shutil.rmtree(owner / 'public-status')
+        self.write_export(owner / 'public-status', {'result.json': result})
+        public = owner / 'public'
+        projection = b.read_json(public / 'projection.json')
+        projection['files'] = {name: b.digest(public / name) for name in projection['files'] if (public / name).exists()}
+        b.save(public / 'projection.json', projection)
+        files = {path.relative_to(public).as_posix(): path.read_bytes() for path in public.rglob('*')
+                 if path.is_file() and path.name != 'export-manifest.json'}
+        shutil.rmtree(public); self.write_export(public, files)
+
+    def change_arm_archive(self, owner, name, value=None, mode=None, remove=False):
+        archive = owner / 'public-artifacts/development-ARM-C01-outputs.tar.gz'
+        with tarfile.open(archive, 'r:gz') as source:
+            contents = [(member, source.extractfile(member).read()) for member in source]
+        manifest = b.read_json(owner / 'public-artifacts/archive-manifest.json')
+        changed = []
+        for member, data in contents:
+            if member.name == name:
+                if remove:
+                    manifest['files'].pop(name); continue
+                if value is not None:
+                    data = value; member.size = len(data)
+                    manifest['files'][name] = hashlib.sha256(data).hexdigest()
+                if mode is not None:
+                    member.mode = mode
+            changed.append((member, data))
+        with tarfile.open(archive, 'w:gz') as target:
+            for member, data in changed:
+                target.addfile(member, io.BytesIO(data))
+        manifest.update(bundle_sha256=b.digest(archive), bundle_bytes=archive.stat().st_size,
+                        uncompressed_bytes=sum(len(data) for _, data in changed), member_count=len(changed))
+        self.seal_arm(owner, manifest=manifest)
+
+    def test_corrected_arm_archive_requires_all_79_members_and_505_commands(self):
+        self.arm_inputs(); b.run_arm(self.controller, self.root, self.output, self.cache)
+        result = b.read_json(self.owner / 'result.json')
+        self.assertEqual(result['receiver_verification']['command_count'], 505)
+        manifest = result['development_artifacts']
+        self.assertEqual(manifest['member_count'], 79)
+        self.assertEqual(len(manifest['strict_driver_evidence']['builds']), 4)
+        self.assertEqual(len(manifest['strict_driver_evidence']['outputs']), 36)
+        self.assertEqual(b.verify_arm(self.owner, self.controller, b.base_prerequisite(self.controller)), result)
+
+    def test_arm_strict_members_cannot_be_omitted_substituted_or_made_nonexecutable(self):
+        self.arm_inputs(); prerequisite = b.base_prerequisite(self.controller)
+        cases = [('strict-gzip.c', b'changed C source', None, False),
+                 ('baseline-1/strict-gzip', b'changed binary', None, False),
+                 ('baseline-1/strict-gzip', None, 0o644, False),
+                 ('baseline-1-strict-valid.bin', b'wrong decoded bytes', None, False),
+                 ('baseline-1-reject-truncated-trailer-baseline-1.bin', None, None, True)]
+        for number, (name, data, mode, remove) in enumerate(cases):
+            owner = self.base / ('strict-member-' + str(number)); owner.mkdir(); self.arm_receipts(owner)
+            self.change_arm_archive(owner, name, data, mode, remove)
+            with self.subTest(name=name, mode=mode), self.assertRaises(ValueError):
+                b.verify_arm(owner, self.controller, prerequisite)
+
+    def test_arm_strict_compiler_elf_manifest_and_command_bindings_refuse_resealed_forgery(self):
+        self.arm_inputs(); prerequisite = b.base_prerequisite(self.controller)
+        for mutation in ('compiler-flag', 'declared-flags', 'effective-flags', 'elf', 'driver-source', 'output-input', 'output-exit', 'manifest-extra'):
+            owner = self.base / mutation; owner.mkdir(); self.arm_receipts(owner)
+            manifest = b.read_json(owner / 'public-artifacts/archive-manifest.json')
+            driver = manifest['strict_driver_evidence']['builds'][0]
+            output = manifest['strict_driver_evidence']['outputs'][0]
+            if mutation == 'compiler-flag':
+                driver['compile']['argv'].append('-O3')
+            elif mutation == 'declared-flags':
+                driver['cflags'] += ' -O3'
+            elif mutation == 'effective-flags':
+                driver['configured_flags']['CFLAGS'] += ' -O3'
+            elif mutation == 'elf':
+                driver['elf']['loads'][0]['alignment'] = 4096
+            elif mutation == 'driver-source':
+                driver['source_sha256'] = '0' * 64
+            elif mutation == 'output-input':
+                output['stdin']['sha256'] = '0' * 64
+            elif mutation == 'output-exit':
+                output['command']['exit_code'] = 3
+            else:
+                manifest['extra'] = 'unapproved'
+            self.seal_arm(owner, manifest=manifest)
+            with self.subTest(mutation=mutation), self.assertRaises(ValueError):
+                b.verify_arm(owner, self.controller, prerequisite)
+
+    def test_arm_resource_exit3_cannot_substitute_for_strict_corruption_exit2(self):
+        self.arm_inputs(); prerequisite = b.base_prerequisite(self.controller)
+        owner = self.base / 'api-error'; owner.mkdir(); self.arm_receipts(owner)
+        commands = json.loads((owner / 'public/commands.json').read_text())
+        row = next(row for row in commands if '-reject-' in row['name'])
+        row.update(exit_code=3, allowed_exit_codes=[3])
+        b.save(owner / 'public/commands.json', commands)
+        native = b.read_json(owner / 'public/native-result.json')
+        native['correctness'][0]['rejected_exit'] = 3
+        b.save(owner / 'public/native-result.json', native)
+        manifest = b.read_json(owner / 'public-artifacts/archive-manifest.json')
+        manifest['strict_driver_evidence']['outputs'][0]['command']['exit_code'] = 3
+        self.seal_arm(owner, manifest=manifest)
+        with self.assertRaisesRegex(ValueError, 'arm-command-exit-failed'):
+            b.verify_arm(owner, self.controller, prerequisite)
+
+    def test_arm_changed_projected_command_log_or_dataflow_refused_after_rehash(self):
+        self.arm_inputs(); prerequisite = b.base_prerequisite(self.controller)
+        for mutation in ('log-bytes', 'stdin', 'command-order', 'command-flag', 'native-source', 'old-count', 'sample-promoted'):
+            owner = self.base / ('graph-' + mutation); owner.mkdir(); self.arm_receipts(owner)
+            commands = json.loads((owner / 'public/commands.json').read_text())
+            native = b.read_json(owner / 'public/native-result.json')
+            result = b.read_json(owner / 'result.json')
+            if mutation == 'log-bytes':
+                row = next(row for row in commands if row['name'].endswith('-strict-compile'))
+                (owner / 'public' / row['log']).write_bytes(b'changed compile log')
+            elif mutation == 'stdin':
+                next(row for row in commands if '-reject-' in row['name'])['stdin']['sha256'] = '0' * 64
+            elif mutation == 'command-order':
+                commands[0], commands[1] = commands[1], commands[0]
+            elif mutation == 'command-flag':
+                next(row for row in commands if row['name'].endswith('-strict-compile'))['argv'].append('-O3')
+            elif mutation == 'native-source':
+                native['contract']['runner_sha256'] = '0' * 64
+            elif mutation == 'old-count':
+                result['receiver_verification']['command_count'] = 485
+            else:
+                native['sample_truncation'][0].update(status='PASS', rejection_acceptance='PASS')
+            b.save(owner / 'public/commands.json', commands)
+            b.save(owner / 'public/native-result.json', native)
+            self.seal_arm(owner, result=result)
+            with self.subTest(mutation=mutation), self.assertRaises(ValueError):
+                b.verify_arm(owner, self.controller, prerequisite)
+
+    def test_arm_source_derived_readme_and_license_pins_reject_resealed_substitution(self):
+        self.arm_inputs(); prerequisite = b.base_prerequisite(self.controller)
+        for name in ('corpus/heldout-source.bin', 'baseline-1/LICENSE.txt'):
+            owner = self.base / ('source-pin-' + Path(name).name); owner.mkdir(); self.arm_receipts(owner)
+            self.change_arm_archive(owner, name, b'substituted pinned source bytes')
+            with self.subTest(name=name), self.assertRaisesRegex(ValueError, 'arm-source-(readme|license)-failed'):
+                b.verify_arm(owner, self.controller, prerequisite)
+
+    def test_arm_public_json_duplicates_nonfinite_and_overflow_refused(self):
+        self.arm_inputs(); prerequisite = b.base_prerequisite(self.controller)
+        for value in ('"status":"FAIL","status":"PASS"', '"unchecked":NaN', '"unchecked":1e400'):
+            owner = self.base / ('json-' + str(len(list(self.base.iterdir())))); owner.mkdir(); self.arm_receipts(owner)
+            path = owner / 'public/native-result.json'
+            path.write_bytes(b'{' + value.encode() + b',' + path.read_bytes().lstrip()[1:])
+            self.seal_arm(owner)
+            with self.subTest(value=value), self.assertRaises(ValueError):
+                b.verify_arm(owner, self.controller, prerequisite)
+
+    def test_arm_complete_environment_and_global_archive_metadata_refused_when_forged(self):
+        self.arm_inputs(); prerequisite = b.base_prerequisite(self.controller)
+        for mutation in ('tool-missing', 'tool-path', 'empty-release', 'global-pax'):
+            owner = self.base / ('environment-' + mutation); owner.mkdir(); self.arm_receipts(owner)
+            manifest = b.read_json(owner / 'public-artifacts/archive-manifest.json')
+            result = b.read_json(owner / 'result.json')
+            if mutation == 'global-pax':
+                archive = owner / 'public-artifacts/development-ARM-C01-outputs.tar.gz'
+                with tarfile.open(archive, 'r:gz') as source:
+                    contents = [(member, source.extractfile(member).read()) for member in source]
+                with tarfile.open(archive, 'w:gz', pax_headers={'comment': 'unapproved global text'}) as target:
+                    for member, data in contents:
+                        target.addfile(member, io.BytesIO(data))
+                manifest.update(bundle_sha256=b.digest(archive), bundle_bytes=archive.stat().st_size)
+            else:
+                path = owner / 'public/environment.json'; env = b.read_json(path)
+                if mutation == 'tool-missing':
+                    env['tool_files'].pop(next(iter(env['tool_files'])))
+                elif mutation == 'tool-path':
+                    next(iter(env['tool_files'].values()))['path'] = '/tmp/foreign-tool'
+                else:
+                    env['kernel']['release'] = ''
+                b.save(path, env)
+                native = b.read_json(owner / 'public/native-result.json')
+                native['environment_sha256'] = b.digest(path)
+                result['receiver_verification']['environment_sha256'] = b.digest(path)
+                b.save(owner / 'public/native-result.json', native)
+            self.seal_arm(owner, result=result, manifest=manifest)
+            with self.subTest(mutation=mutation), self.assertRaises(ValueError):
+                b.verify_arm(owner, self.controller, prerequisite)
+
+    def test_arm_launcher_missing_failed_foreign_or_changed_contract_is_refused(self):
+        self.arm_inputs(); prerequisite = b.base_prerequisite(self.controller)
+        for mutation in ('missing', 'status', 'image', 'contract', 'cleanup'):
+            owner = self.base / ('launcher-' + mutation); owner.mkdir(); self.arm_receipts(owner)
+            path = owner / 'public/launcher-result.json'
+            launcher = b.read_json(path)
+            if mutation == 'missing':
+                path.unlink()
+            elif mutation == 'status':
+                launcher['status'] = 'FAIL'
+            elif mutation == 'image':
+                launcher['image'] = 'sha256:' + 'f' * 64
+            elif mutation == 'contract':
+                launcher['contract']['source_commit'] = 'f' * 40
+            else:
+                launcher['controller_group_cleanup'] = 'FAIL'
+            if mutation != 'missing':
+                b.save(path, launcher)
+            self.seal_arm(owner)
+            with self.subTest(mutation=mutation), self.assertRaises((ValueError, FileNotFoundError)):
+                b.verify_arm(owner, self.controller, prerequisite)
+
+    def test_arm_extra_self_manifested_log_or_configuration_drift_is_refused(self):
+        self.arm_inputs(); prerequisite = b.base_prerequisite(self.controller)
+        for mutation in ('extra-log', 'config'):
+            owner = self.base / ('selector-' + mutation); owner.mkdir(); self.arm_receipts(owner)
+            if mutation == 'extra-log':
+                (owner / 'public/unrecorded.log').write_bytes(b'unapproved self manifested log')
+            else:
+                (owner / 'public/baseline-1/Makefile.txt').write_bytes(b'changed configuration')
+            self.seal_arm(owner)
             with self.subTest(mutation=mutation), self.assertRaises(ValueError):
                 b.verify_arm(owner, self.controller, prerequisite)
 

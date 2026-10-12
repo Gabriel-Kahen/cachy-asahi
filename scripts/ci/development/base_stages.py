@@ -5,14 +5,18 @@ These adapters never install onto the host or change initial integration status.
 Only explicit owner receipts and reviewed GPL/package/experiment material are
 public. Native/hardware acceptance requires actual execution, never these tests.
 """
+import gzip
 import hashlib
+import io
 import importlib.util
 import json
+import math
 import os
 from contextlib import contextmanager
 from pathlib import Path, PurePosixPath
 import re
 import signal
+import shlex
 import stat
 import sys
 import tarfile
@@ -25,11 +29,14 @@ from common import base_prerequisite, command, copy_regular, digest, read_json, 
 
 KSM = 'cachy-asahi-ksmctl'
 KSM_PIN = 'f933ccfcfb52ca97ea809d904344f6ec72eb5907ef458b5c2e7f7f1797dc1d44'
-ARM_PIN = '98617adc3dd70fb71a9734d7f38840f553b795ce05322d5b95598f20d5aec4a5'
+ARM_PIN = '8e0d982e136f8f1c79bebbeca8448f48a8466e95dbb8695042e7528a26f731ca'
 EXPORT_PIN = '1ae8aded5ab461b280ca1ff82047f6766d58efacf7a09c83dc84515ac7d2216c'
 ZLIB_URL = 'https://zlib.net/zlib-1.3.2.tar.gz'
 ZLIB_SHA = 'bb329a0a2cd0274d05519d61c667c062e06990d72e125ee2dfa8de64f0119d16'
 ZLIB_SIZE = 1502830
+# Selected bytes independently audited from the exact ZLIB_SHA archive.
+ARM_README_SHA = '4026d921213bb2e311d8d42b44ef53361c102d5d45ae32f93f8e52eaee8d068f'
+ARM_LICENSE_SHA = 'e32ff4e00d9d94930537635291da39e7e612703334bf6fde8c7f1686fe8a45a2'
 EPOCH = 1791748800
 PIN = re.compile(r'[0-9a-f]{64}\Z')
 TEXT_LIMIT = 4 * 1024**2
@@ -481,8 +488,212 @@ def arm_lock(root):
     return root / 'scripts/experiments/stage.lock.json'
 
 
+
+def arm_policy():
+    """Import only the exact reviewed ARM helper and corpus; never execute a trial."""
+    root = Path(__file__).resolve().parents[3]
+    lock = read_json(arm_lock(root))
+    previous = sys.modules.get('corpus')
+    try:
+        sys.modules['corpus'] = load_module(root / 'scripts/experiments/corpus.py', 'development_arm_corpus')
+        return load_module(root / 'scripts/experiments/arm_c01.py', 'development_arm_policy'), lock
+    finally:
+        if previous is None:
+            sys.modules.pop('corpus', None)
+        else:
+            sys.modules['corpus'] = previous
+
+
+def arm_json(data):
+    def unique(rows):
+        value = {}
+        for key, item in rows:
+            require(key not in value, 'arm-duplicate-json-field'); value[key] = item
+        return value
+    def finite(value):
+        number = float(value)
+        require(math.isfinite(number), 'arm-nonfinite-json'); return number
+    return json.loads(data, object_pairs_hook=unique, parse_float=finite,
+                      parse_constant=lambda _: require(False, 'arm-nonfinite-json'))
+
+
+def arm_read_json(path):
+    value = arm_json(read_regular(path))
+    require(isinstance(value, dict), 'arm-json-object-required')
+    return value
+
+
+def verify_arm_evidence(public, manifest, retained, controller, prerequisite, receiver):
+    """Check the public recorded graph and retained strict bytes, without replay."""
+    arm, lock = arm_policy()
+    native = arm_read_json(public / 'native-result.json')
+    contract = native.get('contract', {})
+    launcher = arm_read_json(public / 'launcher-result.json')
+    require(launcher.get('purpose') == arm.PURPOSE and launcher.get('status') == 'PASS'
+            and launcher.get('image') == controller.image and launcher.get('contract') == contract
+            and launcher.get('controller_group_cleanup') == launcher.get('container_cleanup') == 'PASS'
+            and launcher.get('receiver_verification') == receiver and not launcher.get('cancelled')
+            and launcher.get('hardware_validation') == launcher.get('performance_acceptance') == 'NOT RUN'
+            and launcher.get('selected_for_release') is False, 'arm-launcher-receipt-failed')
+    require(contract.get('purpose') == arm.PURPOSE and contract.get('source_commit') == controller.commit
+            and contract.get('image') == controller.image and contract.get('source_sha256') == ZLIB_SHA
+            and contract.get('packages_sha256') == prerequisite['packages_sha256']
+            and contract.get('runner_sha256') == lock['source_files']['arm_c01.py']['sha256']
+            and contract.get('corpus_sha256') == lock['source_files']['corpus.py']['sha256'], 'arm-native-contract-failed')
+    require(native.get('status') == 'PASS' and native.get('purpose') == arm.PURPOSE
+            and native.get('cleanup') == 'PASS' and native.get('selected_for_release') is False
+            and native.get('hardware_validation') == native.get('performance_acceptance') == 'NOT RUN'
+            and native.get('reproducibility') == {'baseline': 'PASS', 'lto': 'PASS'}, 'arm-native-result-failed')
+    require(set(manifest) == {'purpose', 'development_only', 'selected_for_release', 'source_commit', 'source_sha256',
+            'image_id', 'hardware_validation', 'performance_acceptance', 'scope', 'files', 'member_count',
+            'strict_driver_evidence', 'uncompressed_bytes', 'bundle_sha256', 'bundle_bytes'}, 'arm-artifact-fields-failed')
+    require(manifest.get('purpose') == 'ARM-C01-same-job-followup' and manifest.get('development_only') is True
+            and manifest.get('selected_for_release') is False
+            and manifest.get('hardware_validation') == manifest.get('performance_acceptance') == 'NOT RUN', 'arm-artifact-scope-failed')
+    require(retained['strict-gzip.c'] == arm.STRICT_DRIVER
+            and native.get('strict_driver_source_sha256') == arm.STRICT_SHA, 'arm-strict-source-failed')
+    environment = arm_read_json(public / 'environment.json')
+    require(digest(public / 'environment.json') == native.get('environment_sha256') == receiver.get('environment_sha256'), 'arm-environment-binding-failed')
+    arm.guard(environment['observed'], contract['nonce'])
+    require(environment.get('kernel', {}).get('system') == 'Linux'
+            and environment['kernel'].get('machine') in ('aarch64', 'arm64')
+            and type(environment.get('page_size')) is int and environment['page_size'] >= 4096
+            and not environment['page_size'] & (environment['page_size'] - 1), 'arm-native-environment-failed')
+    require(isinstance(environment.get('kernel', {}).get('release'), str) and environment['kernel']['release']
+            and isinstance(environment.get('python'), str) and environment['python']
+            and isinstance(environment.get('zlib_runtime'), str) and environment['zlib_runtime'], 'arm-environment-fields-failed')
+    tools = environment.get('tool_files', {})
+    require(set(tools) == set(arm.TOOLS), 'arm-environment-tools-failed')
+    for row in tools.values():
+        path = PurePosixPath(row['path'])
+        require(set(row) == {'path', 'sha256'} and path.is_absolute() and path.is_relative_to('/usr')
+                and '..' not in path.parts and PIN.fullmatch(row['sha256']), 'arm-environment-tool-pin-failed')
+    require(hashlib.sha256(retained['corpus/heldout-source.bin']).hexdigest() == ARM_README_SHA, 'arm-source-readme-failed')
+    for prefix in ('baseline-1', 'baseline-2', 'lto-1', 'lto-2'):
+        require(hashlib.sha256(retained[prefix + '/LICENSE.txt']).hexdigest() == ARM_LICENSE_SHA, 'arm-source-license-failed')
+    corpus = arm_read_json(public / 'corpus-manifest.json')
+    require(retained['corpus/manifest.json'] == read_regular(public / 'corpus-manifest.json')
+            and manifest['files']['corpus/manifest.json'] == native.get('corpus_manifest_sha256'), 'arm-corpus-binding-failed')
+    with tempfile.TemporaryDirectory(prefix='cachy-arm-public-corpus-') as temporary:
+        expected = arm.corpus.create(Path(temporary) / 'corpus', retained['corpus/heldout-source.bin'])
+        require(corpus == expected, 'arm-corpus-generator-failed')
+        for path in (Path(temporary) / 'corpus').iterdir():
+            require(retained['corpus/' + path.name] == path.read_bytes(), 'arm-corpus-bytes-failed')
+    plans = arm.command_plan(corpus)
+    commands = arm_json(read_regular(public / 'commands.json'))
+    require(isinstance(commands, list) and len(commands) == len(plans) == 505, 'arm-command-count-failed')
+    bindings = {'/tmp/corpus/' + row['path']: {'path': '/tmp/corpus/' + row['path'], 'sha256': row['sha256'], 'bytes': row['bytes']} for row in corpus['files']}
+    by_name, original = {}, {}
+    for number, (row, plan) in enumerate(zip(commands, plans), 1):
+        require(all(row.get(key) == plan[key] for key in ('name', 'argv', 'cwd', 'environment'))
+                and row.get('status') == row.get('cleanup') == 'PASS' and not row.get('cancelled'), 'arm-command-plan-failed')
+        code = row.get('exit_code')
+        codes = [2] if plan['reject'] else list(range(1, 256)) if plan['sample'] else [0, 1] if plan['observe'] else [0]
+        require(type(code) is int and code in codes and row.get('allowed_exit_codes') == codes, 'arm-command-exit-failed')
+        name = f"{number:03d}-" + plan['name'] + '.log'
+        projected = name.replace('-dependencies.log', '-link-inputs.log')
+        require(row.get('producer_log') == name and row.get('log') == projected, 'arm-command-log-name-failed')
+        data = read_regular(public / projected, TEXT_LIMIT)
+        require(type(row.get('log_bytes')) is int and len(data) == row['log_bytes']
+                and hashlib.sha256(data).hexdigest() == row.get('log_sha256'), 'arm-command-log-failed')
+        require(row.get('stdin') == (None if plan['source'] is None else bindings.get(plan['source']))
+                and (plan['source'] is None or plan['source'] in bindings), 'arm-command-stdin-failed')
+        output = row.get('stdout')
+        if plan['target'] is None:
+            require(output is None, 'arm-command-stdout-failed')
+        else:
+            require(isinstance(output, dict) and set(output) == {'path', 'sha256', 'bytes'}
+                    and output['path'] == plan['target'] and PIN.fullmatch(output['sha256'])
+                    and type(output['bytes']) is int and 0 <= output['bytes'] <= 32 * 1024**2
+                    and plan['target'] not in bindings, 'arm-command-stdout-failed')
+            bindings[plan['target']] = output
+            if plan['reject'] or plan['name'].endswith('-strict-valid'):
+                data = retained[Path(plan['target']).name]
+                require(len(data) == output['bytes'] and hashlib.sha256(data).hexdigest() == output['sha256'], 'arm-strict-output-failed')
+        by_name[plan['name']] = row
+        original[plan['name']] = {**row, 'log': name}
+    expected = {'launcher-result.json', 'launcher-container.log', 'native-result.json', 'environment.json', 'corpus-manifest.json'}
+    expected |= {row['log'] for row in commands}
+    configs = {prefix + '/' + name for prefix in ('baseline-1', 'baseline-2', 'lto-1', 'lto-2')
+               for name in ('LICENSE.txt', 'Makefile.txt', 'zconf.h.txt', 'configure.log.txt')}
+    expected |= configs
+    projection = arm_read_json(public / 'projection.json')
+    require(projection == {'purpose': 'ARM-C01-same-job-followup', 'raw_binary_and_corpus_exported': False,
+            'files': {name: digest(public / name) for name in expected}}, 'arm-projection-binding-failed')
+    require({path.relative_to(public).as_posix() for path in public.rglob('*') if path.is_file()}
+            == expected | {'commands.json', 'projection.json', 'export-manifest.json'}, 'arm-public-selector-failed')
+    for name in configs:
+        require(read_regular(public / name) == retained[name], 'arm-public-config-drift')
+    require(hashlib.sha256(read_regular(public / by_name['inventory']['log'])).hexdigest() == prerequisite['packages_sha256'], 'arm-observed-inventory-failed')
+    builds = native.get('builds', [])
+    require([(row['variant'], row['attempt']) for row in builds] == [(v, n) for v in ('baseline', 'lto') for n in (1, 2)], 'arm-build-set-failed')
+    drivers = []
+    keys = ('name', 'argv', 'cwd', 'environment', 'exit_code', 'log', 'log_sha256', 'log_bytes')
+    for build in builds:
+        prefix = f"{build['variant']}-{build['attempt']}"
+        cflags, ldflags = arm.build_flags(build['variant'])
+        effective = arm.configured_flags(retained[prefix + '/Makefile.txt'], retained[prefix + '/configure.log.txt'], build['variant'])
+        require((build.get('cflags'), build.get('ldflags')) == (cflags, ldflags) and build.get('configured_flags') == effective, 'arm-build-flags-failed')
+        require(build.get('artifacts') == {name: manifest['files'][prefix + '/' + name] for name in ('libz.a', 'example', 'minigzip')}
+                and build.get('generated_configuration_sha256') == {name: manifest['files'][prefix + '/' + name + '.txt'] for name in arm.CONFIG_FILES}, 'arm-build-hashes-failed')
+        elf = arm.elf_layout(read_regular(public / by_name[prefix + '-strict-elf']['log']))
+        require(build.get('strict_driver') == {'source_sha256': arm.STRICT_SHA, 'binary_sha256': manifest['files'][prefix + '/strict-gzip'], 'elf': elf}
+                and build.get('elf') == arm.elf_layout(read_regular(public / by_name[prefix + '-elf']['log'])), 'arm-build-elf-failed')
+        sections = read_regular(public / by_name[prefix + '-archive-sections']['log'])
+        require((b'.gnu.lto_' in sections) == (build['variant'] == 'lto'), 'arm-build-lto-failed')
+        drivers.append({'binary': prefix + '/strict-gzip', 'sha256': manifest['files'][prefix + '/strict-gzip'],
+            'source': 'strict-gzip.c', 'source_sha256': arm.STRICT_SHA, 'archive': prefix + '/libz.a',
+            'cflags': cflags, 'ldflags': ldflags, 'configured_flags': effective, 'elf': elf,
+            'compile': {key: original[prefix + '-strict-compile'][key] for key in keys},
+            'elf_command': {key: original[prefix + '-strict-elf'][key] for key in keys}})
+    features = [shlex.split(row['configured_flags']['CFLAGS'])[len(shlex.split(arm.build_flags(row['variant'])[0])):] for row in builds]
+    require(all(flags == features[0] for flags in features), 'arm-configured-feature-flags-failed')
+    for variant in ('baseline', 'lto'):
+        pair = [row for row in builds if row['variant'] == variant]
+        require(pair[0]['artifacts'] == pair[1]['artifacts'] and pair[0]['strict_driver'] == pair[1]['strict_driver'], 'arm-rebuild-pair-failed')
+    outputs = [{'member': Path(plan['target']).name,
+        'role': 'strict-rejection-partial-output' if plan['reject'] else 'strict-valid-output',
+        'driver': str(PurePosixPath(plan['argv'][0]).relative_to('/out')),
+        'input': 'corpus/' + Path(plan['source']).name,
+        'stdin': by_name[plan['name']]['stdin'], 'stdout': by_name[plan['name']]['stdout'],
+        'command': {key: original[plan['name']][key] for key in keys}}
+        for plan in plans if plan['reject'] or plan['name'].endswith('-strict-valid')]
+    require(manifest.get('strict_driver_evidence') == {'source': 'strict-gzip.c', 'source_sha256': arm.STRICT_SHA,
+        'license': 'MIT', 'builds': drivers, 'outputs': outputs,
+        'command_log_location': 'separate public evidence archive',
+        'cross_decode_bytes': 'not retained; producer hash checks in public receipt'}, 'arm-strict-manifest-failed')
+    positive, rejected = [row for row in native['correctness'] if 'level' in row], [row for row in native['correctness'] if 'rejected_exit' in row]
+    prefixes = [row['binary'].split('/')[0] for row in drivers]
+    wanted = {(prefix, row['path'], level, decoder) for prefix in prefixes for row in corpus['files'] if row['kind'] == 'input' for level in (1, 6, 9) for decoder in prefixes}
+    require(len(positive) == 336 and {(r['build'], r['input'], r['level'], r['decoder']) for r in positive} == wanted
+            and len(native['correctness']) == 368 and len(rejected) == 32, 'arm-correctness-set-failed')
+    inputs = {row['path']: row for row in corpus['files']}
+    for row in positive:
+        output = by_name[f"{row['build']}-{Path(row['input']).stem}-{row['level']}-decode-{row['decoder']}"]['stdout']
+        require(row.get('status') == 'PASS' and row.get('decoded_sha256') == output['sha256'] == inputs[row['input']]['sha256']
+                and output['bytes'] == inputs[row['input']]['bytes'], 'arm-cross-decode-failed')
+    wanted = {(prefix, row['path'], decoder) for prefix in prefixes for row in corpus['files'] if row['kind'] == 'corrupt' for decoder in prefixes}
+    require({(r['build'], r['input'], r['decoder']) for r in rejected} == wanted, 'arm-rejection-set-failed')
+    for row in rejected:
+        name = row['build'] + '-reject-' + Path(row['input']).stem + '-' + row['decoder']
+        require(row.get('driver') == 'strict-zlib-inflate' and row.get('rejected_exit') == by_name[name]['exit_code'] == 2, 'arm-strict-rejection-failed')
+    for key, suffix in (('strict_valid', 'strict-valid'), ('sample_crc', 'sample-crc'), ('sample_truncation', 'sample-truncation')):
+        rows = native.get(key, [])
+        require(len(rows) == 4 and {row['decoder'] for row in rows} == set(prefixes), 'arm-sample-set-failed')
+        for row in rows:
+            command = by_name[row['decoder'] + '-' + suffix]
+            if key == 'strict_valid':
+                require(row.get('status') == 'PASS' and row.get('decoded_sha256') == command['stdout']['sha256'] == hashlib.sha256(arm.corpus.GZIP_PAYLOAD).hexdigest()
+                        and command['stdout']['bytes'] == len(arm.corpus.GZIP_PAYLOAD), 'arm-strict-valid-failed')
+            elif key == 'sample_crc':
+                require(row.get('status') == 'PASS' and row.get('exit_code') == command['exit_code'], 'arm-sample-crc-failed')
+            else:
+                require(row.get('status') == 'OBSERVED' and row.get('rejection_acceptance') == 'NOT CLAIMED'
+                        and row.get('exit_code') == command['exit_code'], 'arm-sample-observation-failed')
+
+
 def verify_arm(owner, controller, prerequisite):
-    result = read_json(owner / 'result.json')
+    result = arm_read_json(owner / 'result.json')
     require(result.get('status') == 'PASS' and result.get('purpose') == 'ARM-C01-same-job-followup'
             and result.get('source_commit') == controller.commit and result.get('source_lock_sha256') == ARM_PIN
             and result.get('source_sha256') == ZLIB_SHA and result.get('evidence_export') == 'PASS'
@@ -492,38 +703,57 @@ def verify_arm(owner, controller, prerequisite):
     require(cleanup.get('status') == 'PASS' and cleanup.get('absence_verified') is True
             and not cleanup.get('cancelled') and not cleanup.get('cleanup_uncertain'), 'arm-owner-cleanup-failed')
     receiver = result.get('receiver_verification', {})
-    require(receiver.get('status') == 'PASS' and receiver.get('command_count') == 485 and receiver.get('build_count') == 4
-            and receiver.get('cross_decode_count') == 336 and receiver.get('rejection_count') == 32
+    require(receiver.get('status') == 'PASS' and receiver.get('command_count') == 505 and receiver.get('build_count') == 4
+            and receiver.get('cross_decode_count') == 336 and receiver.get('rejection_count') == 32 and receiver.get('strict_valid_count') == 4
+            and receiver.get('sample_crc_count') == receiver.get('sample_truncation_observation_count') == 4
             and receiver.get('source_sha256') == ZLIB_SHA and receiver.get('packages_sha256') == prerequisite['packages_sha256'], 'arm-owner-receiver-failed')
-    verify_export(owner / 'public'); verify_export(owner / 'public-status')
-    require(read_json(owner / 'public-status/result.json') == result, 'arm-public-status-drift')
+    for directory in (owner / 'public', owner / 'public-status'):
+        exported = verify_export(directory)
+        arm_read_json(directory / 'export-manifest.json')
+        for row in exported['accepted']:
+            if Path(row['path']).suffix == '.json':
+                arm_json(read_regular(directory / row['path'], TEXT_LIMIT))
+    require(arm_read_json(owner / 'public-status/result.json') == result, 'arm-public-status-drift')
     artifacts = owner / 'public-artifacts'
     require({p.name for p in artifacts.iterdir()} == {'development-ARM-C01-outputs.tar.gz', 'archive-manifest.json'}, 'arm-artifact-directory-invalid')
-    manifest = read_json(artifacts / 'archive-manifest.json')
+    manifest = arm_read_json(artifacts / 'archive-manifest.json')
     require(manifest == result.get('development_artifacts') and manifest.get('image_id') == controller.image
             and manifest.get('source_commit') == controller.commit and manifest.get('source_sha256') == ZLIB_SHA,
             'arm-artifact-binding-failed')
     approved = manifest.get('files', {})
     names = {f'{variant}-{attempt}/{name}' for variant in ('baseline', 'lto') for attempt in (1, 2)
-             for name in ('libz.a', 'example', 'minigzip', 'Makefile.txt', 'zconf.h.txt', 'configure.log.txt', 'LICENSE.txt')}
+             for name in ('libz.a', 'example', 'minigzip', 'strict-gzip', 'Makefile.txt', 'zconf.h.txt', 'configure.log.txt', 'LICENSE.txt')}
     names |= {'corpus/' + name for name in ('empty.bin', 'onebyte.bin', 'repeated.txt', 'allbytes.bin', 'incompressible.bin',
                                           'heldout-source.bin', 'gzip-reference.gz', 'corrupt-crc.gz', 'truncated-trailer.gz', 'manifest.json')}
+    names |= {'strict-gzip.c'} | {f'{producer}-reject-{fixture}-{decoder}.bin'
+        for producer in ('baseline-1', 'baseline-2', 'lto-1', 'lto-2')
+        for fixture in ('corrupt-crc', 'truncated-trailer')
+        for decoder in ('baseline-1', 'baseline-2', 'lto-1', 'lto-2')}
+    names |= {prefix + '-strict-valid.bin' for prefix in ('baseline-1', 'baseline-2', 'lto-1', 'lto-2')}
+    require(manifest.get('member_count') == 79 and len(names) == 79, 'arm-artifact-count-failed')
     require(set(approved) == names and all(PIN.fullmatch(value) for value in approved.values()), 'arm-artifact-allowlist-failed')
     archive = artifacts / 'development-ARM-C01-outputs.tar.gz'; info = regular(archive, 8 * 1024**2)
     require(info.st_size == manifest.get('bundle_bytes') and digest(archive) == manifest.get('bundle_sha256'), 'arm-artifact-archive-drift')
-    total, seen = 0, set()
-    with tarfile.open(archive, 'r|gz') as stream:
+    total, seen, retained = 0, set(), {}
+    limit = 64 * 1024**2 + 128 * 1024  # finite member headers/padding in addition to payload
+    with gzip.GzipFile(fileobj=io.BytesIO(read_regular(archive, 8 * 1024**2))) as compressed:
+        expanded = compressed.read(limit + 1)
+    require(len(expanded) <= limit, 'arm-artifact-expanded-bound')
+    with tarfile.open(fileobj=io.BytesIO(expanded), mode='r|') as stream:
         for member in stream:
+            require(not stream.pax_headers, 'arm-artifact-global-metadata-refused')
             require(member.name in names and member.name not in seen and member.isfile()
-                    and member.uid == member.gid == 0 and 0 <= member.size <= 8 * 1024**2,
+                    and member.uid == member.gid == 0 and member.mtime == 0 and not member.uname and not member.gname
+                    and not member.pax_headers and 0 <= member.size <= (32 * 1024**2 if member.name.endswith('.bin') else 8 * 1024**2),
                     'arm-artifact-member-refused')
-            require(member.mode == (0o755 if member.name.endswith(('/example', '/minigzip')) else 0o644),
+            require(member.mode == (0o755 if member.name.endswith(('/example', '/minigzip', '/strict-gzip')) else 0o644),
                     'arm-artifact-member-mode-refused')
             total += member.size; require(total <= 64 * 1024**2, 'arm-artifact-byte-bound')
             data = stream.extractfile(member).read(member.size + 1)
             require(len(data) == member.size and hashlib.sha256(data).hexdigest() == approved[member.name], 'arm-artifact-member-drift')
-            seen.add(member.name)
+            seen.add(member.name); retained[member.name] = data
     require(seen == names and total == manifest.get('uncompressed_bytes'), 'arm-artifact-incomplete')
+    verify_arm_evidence(owner / 'public', manifest, retained, controller, prerequisite, receiver)
     return result
 
 

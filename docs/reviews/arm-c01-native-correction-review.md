@@ -68,3 +68,17 @@ Independent final aggregate: **100 tests PASS, zero skips**, 5.638 seconds, reta
 The adapter retains per-member input/output bounds, 64 MiB total uncompressed and 8 MiB compressed archive limits, exact member counts, single regular files, fixed names and reproducible archive metadata. The generic credential exporter is unchanged at `1ae8aded5ab461b280ca1ff82047f6766d58efacf7a09c83dc84515ac7d2216c`, matching the historical lock's exporter pin; no private-state/root/image export or generic filter exception was introduced. Compile/ELF command logs remain in the separate public evidence archive. Successful cross-decode bytes remain unretained and are explicitly described as producer hash checks, not replayed evidence. Original sample CLI diagnostics remain separate observations.
 
 **Final disposition: PASS for bounded held-source readiness; no remaining material defect reproduced.** The source lock `98617adc3dd70fb71a9734d7f38840f553b795ce05322d5b95598f20d5aec4a5` is historical and is not acceptance of the corrected bytes; the coordinator owns its refresh and the subsequent executed-source/Git binding. Actual run `38218102399` remains FAIL. Corrected native execution, 16K execution, M2 hardware, release selection and performance acceptance remain pending/NOT RUN.
+
+## Development receiver source integration
+
+The corrected receiver requires all 505 recorded commands and the exact
+79-member artifact set, including strict inflater sources, binaries and outputs.
+Its reviewed source hashes are `4d478301d3b77dae737aa882a0d4f2d5cddb7724463f1eab6673f78bad81549f`
+(base adapter) and `986a8ae3ac894de1a12ef0fb21b1eb9908ebf0ddbabc978cab075a28a0703f00`
+(tests), bound to corrected ARM lock `8e0d982e136f8f1c79bebbeca8448f48a8466e95dbb8695042e7528a26f731ca`.
+The coordinator independently passes all 40 focused tests without skips,
+with ResourceWarning treated as an error, in 56.326 seconds. The owner reports
+163 complete development tests and 40 independent peer tests passing.
+Initial/broader source-map reconciliation and an actual corrected native
+execution remain required; this accepts the bounded receiver source only.
+The historical native truncation failure and M2 performance NOT RUN remain.
