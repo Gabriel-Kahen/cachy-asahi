@@ -2,6 +2,8 @@
 
 An experimental CachyOS package and configuration overlay for Asahi Linux on Apple Silicon.
 
+Long-term goal: a complete maintained CachyOS-derived ARM distribution covering signed package builds, native performance engineering, Apple hardware integration, CachyOS tools/desktop, and the full installation/update/recovery lifecycle. The overlay is the first delivery stage; see [the five responsibilities](goal.md#five-responsibilities-of-the-complete-port).
+
 Initial target: an M2 MacBook Air running Asahi Arch Linux ARM and Hyprland. The 13-inch and 15-inch models require separate hardware validation.
 
 ## Status
@@ -40,6 +42,6 @@ Kernel experiments and CPU-specific optimization follow a measured, working base
 
 ## Development boundaries
 
-The first deliverable is an overlay for an existing installation. A macOS partitioning installer, complete optimized ARM repositories, and a replacement Asahi kernel are later decisions.
+The first deliverable is an overlay for an existing installation. Broader ARM repositories, applicable Cachy management tools, measured ARM tuning, maintained Asahi integration and complete installation/releases are required later milestones. A custom macOS partitioner and replacement of Asahi's hardware stack are implementation choices, not requirements for their own sake.
 
 Original project code and documentation use the [MIT license](LICENSE). Third-party material retains its own terms; audit upstream licenses and notices before redistribution. The initial original templates do not resolve the license gaps found in excluded CachyOS assets.

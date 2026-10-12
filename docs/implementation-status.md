@@ -2,7 +2,7 @@
 
 October 11, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
-The concurrently revised outline's full-goal requirements are mapped in `docs/acceptance.md`, with owned tasks and corrective next actions in `docs/backlog.md`. Both Air sizes, published final measurements, independent onboarding/contribution, subsequent maintenance release, other-ARM reuse and actual upstream submissions remain required; an early overlay release would not complete the goal.
+The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with owned tasks and corrective next actions in `docs/backlog.md`. The destination now explicitly requires the maintained ARM package repository, native performance engineering, integrated Apple stack, broader Cachy system experience, and complete installation/release lifecycle. Both Air sizes, published final measurements, independent onboarding/contribution, subsequent full-port maintenance release, other-ARM reuse and actual upstream submissions remain required; an early overlay release or feasibility decision would not complete the goal. This scope update does not change any recorded execution result.
 
 | Stage | Source implementation | Required execution evidence | Acceptance |
 | --- | --- | --- | --- |
@@ -13,8 +13,9 @@ The concurrently revised outline's full-goal requirements are mapped in `docs/ac
 | 4 M3 updates | Signed staging/release tooling passes local synthetic/ephemeral-key tests and independent review | Real signed artifacts, consistent upgrades, induced-failure recovery on target | NOT RUN |
 | 5 M4 performance | Frozen-plan measurement, telemetry and comparison harness implemented; six source findings independently resolved | Repeated controlled before/after timing, power, suspend drain, thermal and functional evidence | NOT RUN |
 | 6 Maintained system | Installation/contributor drafts, release policy and packaged setup/removal helper implemented | Independent clean install, subsequent release, accountable maintainers | NOT RUN |
-| 7 Full-goal closure and ARM reuse | Separate model records; actual native builder reuse and upstream drafts recorded | Both Air sizes, final reports, reusable component on another ARM target, actual upstream work | NOT RUN |
-| 8 Distribution decision | Provisional overlay decision documented; final decision awaits sustained operation | Coverage/cost/maintenance audit; separate tested installer track if justified | NOT RUN |
+| 7 Overlay qualification and ARM reuse | Separate model records; actual native builder reuse and upstream drafts recorded | Both Air sizes, overlay reports, reusable component on another ARM target, actual upstream work | NOT RUN |
+| 8 Complete ARM port (M5–M8) | Initial overlay tooling/builds provide the foundation; broader package/tool/platform/install scope remains planned | R1–R5 implementation, coverage/capacity plan and A12–A15 evidence | NOT RUN |
+| 9 Full-port acceptance and maintenance (M9) | Acceptance contract now covers all five responsibilities | Same-release both-size final validation, independent installation/recovery and subsequent complete-port release | NOT RUN |
 
 ## Verified local work
 

@@ -2,7 +2,23 @@
 
 Build a fast, polished, dependable Linux experience for Apple Silicon that brings CachyOS's performance philosophy and Hyprland desktop to the MacBook. Make the M2 MacBook Air a first-class Linux development machine, then turn what we learn into a foundation other Apple Silicon and ARM projects can use.
 
-The ambition is a maintained system people can install, work on every day, update confidently, and help improve. The initial package overlay is the first step toward that system.
+The destination is a complete, maintained CachyOS-derived ARM distribution running natively on Apple Silicon, with the M2 MacBook Air as its first reference platform. Own the package builds, ARM performance engineering, Apple platform integration, CachyOS system experience, and installation/release lifecycle together. The initial package overlay is the first step toward that distribution, not the final scope of the repository.
+
+## Five responsibilities of the complete port
+
+These are long-term requirements, not optional extensions after an overlay release. Each must have an accountable owner, implementation milestones, and acceptance evidence.
+
+| ID | Responsibility | What this repository must deliver |
+| --- | --- | --- |
+| R1 | Maintained ARM package repository | CachyOS-derived aarch64 recipes, reviewed patches and tools, clean builds, signed packages and metadata, retrievable provenance, consistent dependencies, and repeated maintenance/security updates. Define the supported base, desktop, application set and complete dependency closure; expand coverage beyond the initial configuration packages. |
+| R2 | ARM performance engineering | M2-appropriate compiler settings, selected LTO/PGO and compatible kernel/default experiments, with correctness, responsiveness, energy and thermal measurements. Publish final-system results and retain only justified changes. An x86 result or a changed compiler flag is not an ARM performance result. |
+| R3 | Integrated Apple hardware stack | Maintain a tested Asahi boot/kernel/firmware/Mesa/audio combination with our ARM packages and applicable Cachy changes. Own compatibility, update handling, regression fixes and recovery on both M2 Air sizes while collaborating with the platform maintainers. |
+| R4 | CachyOS system experience | Port or adapt the applicable CachyOS management tools, system defaults, shell configurations and Hyprland desktop. Provide Apple-aware hardware/kernel management and preserve user configuration; document architecture-specific exclusions and replacements. |
+| R5 | Complete installation and maintenance | A reproducible new-user installation path, repository trust setup, coordinated upgrades, exercised failure recovery, release artifacts and notes, named ongoing maintainers, and subsequent supported releases on both Air sizes. |
+
+R1 does not require rebuilding every package in Arch before the first port release. It requires an explicit release package set, a maintained source of its dependencies, and ownership of the Cachy-derived packages we ship. R3 builds on Asahi's hardware work; a platform-specific Asahi-derived kernel is compatible with this destination. R5 may integrate the established Asahi installer rather than inventing a new macOS partitioner, but the complete installation journey must be tested.
+
+Publish the project's status as independent and its port as unofficial unless CachyOS accepts it as an edition. Official recognition is a separate collaboration outcome; obtaining it cannot substitute for the five engineering requirements. Resolve naming, source licenses and repository distribution arrangements before publication under the relevant identity.
 
 ## The experience we want to deliver
 
@@ -26,7 +42,7 @@ Grow from a small overlay into a dependable ARM build and release pipeline. Main
 
 Make installation, upgrade, removal, and recovery repeatable. Coordinate the graphics and desktop stack so users receive a tested combination. Develop release checks that catch packaging failures automatically, supported by real-machine testing for behavior that a build server cannot establish.
 
-Over time, this infrastructure should make a fuller CachyOS-derived Apple Silicon distribution practical. Pursue collaboration with CachyOS and an official ARM foundation as those opportunities become available.
+Use this infrastructure to deliver the complete CachyOS-derived Apple Silicon port. Capacity and feasibility reviews determine the implementation approach and identify blockers; they do not make the destination optional. Pursue collaboration with CachyOS and an official ARM foundation as those opportunities become available, while recording the selected base and its maintenance obligations explicitly.
 
 ## Build with the upstream projects
 
@@ -44,6 +60,7 @@ Success is measured in working packages and verified user experience. Compilatio
 
 ## What success looks like
 
+- All five responsibilities R1–R5 are fulfilled on the same maintained release; a configuration overlay or a feasibility report alone does not complete the goal.
 - A new user can follow the installation guide and reach a usable desktop on a supported MacBook.
 - A developer can rebuild the selected packages from documented inputs and inspect their provenance.
 - The desktop remains responsive under load, with published performance and power measurements.
@@ -52,4 +69,4 @@ Success is measured in working packages and verified user experience. Compilatio
 - Contributors can pick up bounded tasks, reproduce failures, and land improvements without relying on undocumented knowledge.
 - Other ARM projects can reuse parts of our work, and upstream projects receive fixes that reduce everyone's maintenance burden.
 
-This document describes the destination. The repository currently contains a scaffold; built packages, releases, performance improvements, and hardware support must each be established with evidence. The [roadmap](docs/roadmap.md) defines the first steps toward that destination.
+This document describes the destination. Implementation and native ARM package builds are underway; target installation, supported releases, performance improvements and hardware acceptance must each be established with evidence. The [implementation status](docs/implementation-status.md) records actual progress. The [roadmap](docs/roadmap.md) and [development sequence](outline.md) cover the route from the initial overlay through all five responsibilities.

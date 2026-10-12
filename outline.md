@@ -1,10 +1,10 @@
 # Development outline for cachy-asahi
 
-Turn the ambition in [goal.md](goal.md) into a maintained Apple Silicon Linux system, beginning with the small overlay defined in [docs/roadmap.md](docs/roadmap.md). Develop independent pieces in parallel, then integrate them through shared package, hardware, and release gates.
+Turn the five responsibilities R1–R5 in [goal.md](goal.md) into a complete, maintained CachyOS-derived ARM distribution on Apple Silicon, beginning with the small overlay defined in [docs/roadmap.md](docs/roadmap.md). Develop independent pieces in parallel, then integrate them through shared package, hardware, and release gates.
 
-**Starting point:** repository scaffold only. Packages, installer behavior, hardware support, and performance improvements remain unverified. This outline proposes work; it does not mark any milestone complete.
+**Current evidence:** implementation and four native ARM package build pairs are recorded in [implementation status](docs/implementation-status.md). Exact Asahi target integration, supported releases, hardware behavior and performance remain unfinished. This sequence defines required work; it does not mark any milestone complete.
 
-**Completion rule:** an initial overlay release is an intermediate result. Completing the goal requires the evidence in section 11, including both M2 Air sizes and published final-system performance/power results. A plan cannot guarantee hardware behavior, access to resources, or upstream agreements; unresolved core requirements remain unfinished work.
+**Completion rule:** an initial overlay release and a distribution feasibility decision are intermediate results. Completing the goal requires R1–R5 on the same maintained port release and the evidence in section 11, including both M2 Air sizes and published final-system performance/power results. A plan cannot guarantee hardware behavior, access to resources, or upstream agreements; unresolved core requirements remain unfinished work. Official CachyOS recognition is an external outcome, separate from technical acceptance.
 
 ## 1. Development sequence and dependencies
 
@@ -17,12 +17,21 @@ Turn the ambition in [goal.md](goal.md) into a maintained Apple Silicon Linux sy
 | 4. Make updates dependable (M3) | Signed repository, tested upgrade and recovery | Reviewed artifacts for update prototypes; integrated overlay for full acceptance | Repository tooling, dependency checks, recovery procedures, failure tests |
 | 5. Run performance experiments (M4) | Individually justified optimizations | Research/build design from audited inputs; target experiments after stable hardware/recovery gates | Isolated package/default/compiler experiments; separate kernel research |
 | 6. Deliver a maintained supported system | Documented installation, releases, maintenance and support process | Hardware and update gates; early overlay release may precede final acceptance | User guides, contributor tooling, release operations, usability review |
-| 7. Complete the goal and expand the foundation | Both Air sizes, published measurements, demonstrated reuse and upstream work | Stable reference release; each track starts when its specific inputs are available | Second-size closure, final benchmarks, ARM reuse, upstream fixes |
-| 8. Evaluate a fuller distribution | An evidence-backed decision and, if justified, staged implementation | Sustainable overlay, release capacity, platform integration plan | Repository coverage audit, installer design, upstream collaboration |
+| 7. Qualify the overlay and reusable foundation | Both Air sizes, overlay measurements, demonstrated reuse and upstream work | Stable reference release; each track starts when its specific inputs are available | Second-size closure, baseline benchmarks, ARM reuse, upstream fixes |
+| 8. Implement the complete ARM port (M5–M8) | Maintained ARM repository, expanded Cachy tools, measured ARM tuning, integrated platform and complete installation | Recorded coverage/capacity/ownership plan; each track's reviewed inputs | Package/dependency expansion, compiler experiments, management-tool ports, platform updates, installer integration |
+| 9. Accept and maintain the complete port (M9) | R1–R5 pass together; independent install and subsequent full-port release | Integrated port candidate and section 11 evidence | Final both-size measurements, lifecycle/recovery checks, documentation, maintenance operations |
 
 The first release's critical path is **base decision and per-package audits → reviewed desktop slice → early hardware integration → complete selected package set → integrated upgrade/recovery acceptance → release**. Baseline capture must precede changes to the test machine, but hardware availability need not block source audits or clean builds. Milestone exit gates certify the integrated result; they are not blanket barriers to starting independent work.
 
-The full-goal critical path additionally includes **both-size validation + final measurements + independent onboarding + repeat maintenance release + demonstrated ARM reuse/upstream work → final acceptance**. Start those tracks as soon as their inputs exist. A fuller distribution and a new installer are later decisions, not substitutes for completing the supported system.
+The full-goal critical path additionally includes **release coverage and capacity plan → maintained ARM package/dependency set + adapted Cachy tools + measured ARM tuning + coordinated Asahi integration → complete installation → both-size final validation/measurements + independent onboarding + subsequent full-port release + demonstrated ARM reuse/upstream work → R1–R5 acceptance**. Start independent tracks as soon as their inputs exist. The complete port is required; whether installation uses the established Asahi installer or new tooling is an implementation choice.
+
+| Responsibility | Initial foundation | Complete-port work | Acceptance |
+| --- | --- | --- | --- |
+| R1 ARM repository | M0/M1 package audits/builds; M3 signed overlay | M5 release-defined base/desktop/app dependency coverage and maintained ARM builds | A05/A06/A12 |
+| R2 ARM performance | M4 isolated experiments and baseline methods | M7 M2-specific package/compiler/kernel/default evaluation | A07/A14 |
+| R3 Apple integration | M2 protected-stack validation; M3 recovery | M7 maintained boot/kernel/firmware/graphics/audio compatibility | A02/A06/A14 |
+| R4 Cachy system experience | M0–M2 initial desktop/shell slice | M6 broader applicable tools and Apple-aware management | A04/A13 |
+| R5 Installation and maintenance | M2/M3 lifecycle; stage 6 maintained overlay | M8 complete install path; M9 integrated subsequent releases | A03/A06/A08/A15 |
 
 ## 2. Stage 0: establish the baseline
 
@@ -122,17 +131,21 @@ Workers may develop independent experiments concurrently. Serialize benchmark ru
 
 **Gate:** users can install, work, update, and recover through the published supported path; contributors can reproduce builds and failures; maintainers have exercised a subsequent release. This can deliver a maintained overlay before a standalone distribution exists; full-goal completion still requires section 11.
 
-## 9. Stages 7–8: expand the foundation and evaluate a distribution
+## 9. Stages 7–9: implement and accept the complete ARM port
 
 - Add machines only as upstream platform support and validation capacity permit. Give each model its own baseline, compatibility record, support status, and release checks.
-- Complete the second M2 Air size, final-system reports, and remaining section 11 requirements before full-goal signoff. Keep additional Mac models in a capability/resource-based backlog rather than making every Apple model a prerequisite.
+- Qualify the overlay on the second M2 Air size and retain its reports as the reference for later port changes. Repeat final acceptance on the actual complete-port release. Keep additional Mac models in a capability/resource-based backlog rather than making every Apple model a prerequisite.
 - Design reusable ARM build/provenance/repository boundaries during M1, then demonstrate at least one component on another ARM target. Packaging/build reuse can use a separate ARM builder; it does not require certifying another machine's desktop.
 - Investigate upstream gaps as they are found, submit useful reproducible bug reports and applicable fixes, and track responses and retained local patches. Coordinate version requirements and credit sources; upstream merge decisions and official affiliation remain external outcomes and cannot be guaranteed.
-- Evaluate an official ARM foundation as opportunities arise. Audit package coverage, rebuild cost, dependency maintenance, licensing, signing, release staffing, and platform integration before committing to a fuller distribution.
-- If justified, proceed incrementally: broaden the signed package set, validate the base/repository combination, then design installation media or a macOS installation integration with explicit partitioning, boot, upgrade, and recovery checks.
-- Give any new installer a separate implementation and hardware acceptance track. Release it only after supported-machine installation and failure recovery are exercised; retain the proven overlay route during development.
+- Record the port's base/repository model, release-defined package coverage, rebuild cost, dependency maintenance, licensing, signing, release staffing and platform ownership. Evaluate an official ARM foundation as opportunities arise. A missing resource creates a corrective task; a feasibility review selects the route to the full port and cannot declare the goal complete at the overlay.
+- **M5 / R1:** expand beyond configuration packages to the port's supported base, Hyprland desktop, tools and representative development applications. Record the complete dependency closure and each dependency's maintained source, track Cachy recipe/patch updates, build reviewed aarch64 packages, publish signed consistent snapshots, and demonstrate a security/dependency maintenance update. Rebuild or explicitly source dependencies from the chosen ARM base; do not silently present untouched base packages as project-optimized artifacts.
+- **M6 / R4:** audit and adapt applicable Cachy management applications, settings and shell/desktop bundles. Resolve licensing and ARM dependencies, implement Apple-aware kernel/boot and hardware management, and document x86-only exclusions/replacements. An original template can be an intermediate artifact but does not prove the Cachy functionality has been ported.
+- **M7 / R2–R3:** evaluate M2-specific compiler settings, selected LTO/PGO, compatible kernel changes and defaults. Integrate only measured wins, preserve the validated Asahi platform and a known-good recovery kernel, and test coordinated boot/firmware/kernel/Mesa/audio updates. Publish baseline-versus-final results even if an experiment does not improve performance; no fixed speedup or battery advantage is promised.
+- **M8 / R5:** implement the complete installation path from macOS/Asahi prerequisites to the port's signed package set and first desktop login. Reuse upstream installation components where appropriate; a custom partitioner is not required. Exercise interrupted setup, fresh/existing configuration, trust bootstrap, upgrades and failure recovery on both sizes, with an independent new user.
+- **M9 / R1–R5:** freeze a full-port candidate, repeat section 11 acceptance against that exact artifact/version set, and deliver a subsequent maintained full-port release through the same process. Overlay results carry forward only where their inputs and tested behavior remain applicable; they cannot certify a changed kernel, package set or install route.
+- Give any new installer a separate implementation and hardware acceptance track. Release it only after supported-machine installation and failure recovery are exercised; retain the proven overlay route during development. Record CachyOS collaboration and publication arrangements without implying official status.
 
-**Gate:** all section 11 evidence is present for full-goal acceptance; model expansion preserves the reference guarantees. Record the fuller-distribution feasibility decision with package coverage, capacity/cost, platform ownership, installer constraints, and a justified implementation backlog or blocker. A new distribution is pursued only with sustainable infrastructure and tested installation/recovery.
+**Gate:** R1–R5 and all section 11 requirements pass on the shipped complete port, with sustainable infrastructure, tested installation/recovery and a subsequent release. A coverage/capacity decision or maintained overlay alone cannot pass this gate. Official upstream recognition and support for additional Mac models remain separately tracked outcomes.
 
 ## 10. Parallel development and integration rules
 
@@ -161,11 +174,11 @@ Use one coordinator and initially three focused workers, following [docs/agent-w
 | Suspend/power/thermal tests | Reserve uninterrupted controlled windows; keep unrelated workloads out of measurement runs |
 | Coordinator and reviewers | Review small artifacts continuously; keep independent audit/build/docs tasks runnable during hardware tests |
 
-**Immediate next batch:** the coordinator records the acceptance/resource matrix; the desktop worker audits the Hyprland dependency closure; the tools worker audits Fish/Zsh and defaults; the build worker prepares clean builds and inspection. Begin the audited desktop slice as soon as its dependencies are ready, then exercise it on the reference machine while finishing the remaining package set.
+**Immediate next batch:** the coordinator closes exact-machine access and captures the chosen Asahi target snapshot/transaction; build and desktop owners reconcile the four native-built candidates with that target before installation. Record each machine's baseline/recovery preparation and exercise the reviewed desktop slice as soon as its dependencies are ready. In parallel, audit M5 package/dependency coverage, M6 applicable Cachy tool functionality, and the M8 installation route. Existing source/build evidence remains recorded; full-port audits need not wait for hardware access, but target acceptance does.
 
 ## 11. Full-goal acceptance and evidence
 
-Create the following records during implementation; these paths are proposed deliverables, not files already present. Link evidence to source commits, release IDs, package checksums, and exact machine/version records. Assign the roles below to named contributors; one person may hold several roles, and agent assignments may rotate.
+Maintain the following records during implementation; existing files record progress and do not establish acceptance by their presence. Link evidence to source commits, release IDs, package checksums, and exact machine/version records. Assign the roles below to named contributors; one person may hold several roles, and agent assignments may rotate. [docs/acceptance.md](docs/acceptance.md) is the detailed contract for R1–R5.
 
 | Requirement | Accountable role | Deliverable and completion evidence |
 | --- | --- | --- |
@@ -179,8 +192,12 @@ Create the following records during implementation; these paths are proposed del
 | Maintenance continues beyond one release | Ongoing maintainer/release owner | Named maintenance coverage, dependency/security monitoring, signing-key lifecycle, issue/support process, and a second stable release exercising the same build/promotion/update checks |
 | Contributors can reproduce and improve the system | Coordinator/documentation owner | Bounded task backlog, contributor instructions and an independent contribution exercised through build, review and integrated validation |
 | Other ARM work benefits and upstream work is returned | Reuse/upstream owner | A reusable component executed on another ARM target with instructions/results; useful findings/reproductions and applicable fixes actually submitted upstream, with external acceptance status recorded |
-| Future distribution work has an actionable foundation | Coordinator | A written feasibility decision and scoped next steps; official collaboration and wider model support tracked honestly as conditional external/resource outcomes |
+| R1 maintained ARM distribution package coverage | Build/release owner | Explicit release package set and dependency closure, broader Cachy-derived aarch64 artifacts, signed repository snapshots, clean rebuild/provenance records and an exercised maintenance update |
+| R4 applicable Cachy tools and management are ported | Tools/desktop owner | Reviewed functionality/coverage matrix, licensed working ARM ports or documented replacements, Apple-aware kernel/boot/hardware management and tested user configuration lifecycle |
+| R2–R3 native tuning and platform integration are maintained | Performance/platform owner | Evaluated M2-specific build/default/kernel choices, correctness and measured tradeoffs, supported coordinated Asahi platform update and known-good recovery |
+| R5 complete-port installation and repeat release | Installation/release owner | Independent end-to-end new-user install on both Air sizes, final-port lifecycle/failure recovery evidence and a subsequent full-port maintenance release |
+| Distribution implementation has an actionable resource plan | Coordinator | Coverage/capacity/platform/installer plan with owned corrective tasks; feasibility does not replace implementation, and official recognition remains external |
 
 **Final signoff:** every required matrix entry passes with linked evidence on the shipped release. `FAIL`, `NOT RUN`, missing hardware, untested recovery, unpublished measurements, or missing ongoing maintenance coverage prevent full-goal completion. Optional platform limits and future expansion remain explicit; they cannot conceal a failed core requirement. Reassess resource feasibility at each milestone and resolve blockers through implementation, upstream work, a base-design correction, or an explicit goal change.
 
-The completed deliverable is a maintained, installable and measured system with a repeatable release process. Continued maintenance remains ongoing work rather than a claim that future regressions are impossible.
+The completed deliverable is a maintained, installable and measured CachyOS-derived ARM distribution that fulfills R1–R5 on M2 Air, with a repeatable release process. Continued maintenance remains ongoing work rather than a claim that future regressions are impossible.
