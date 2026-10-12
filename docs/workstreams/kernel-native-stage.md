@@ -127,7 +127,23 @@ requests do not negotiate another version. The accepted helper's twelve-field
 projection and empty-entrypoint sentinel are unchanged.
 Provisioning identity is bound in the exact command. The derived image must
 have the base RootFS layer prefix plus one layer, ARM64/Linux identity and a
-bounded size increase. The accepted base image is never removed.
+bounded size increase. Before POST, the helper captures all current immutable
+image IDs twice and requires equal canonical sets around the nonce-tag absence
+check. Each query has a 30-second timeout within the existing stage deadline,
+a 128-KiB output limit and at most 256 raw rows. Multiple tags can repeat an ID;
+the saved `protected_image_ids` array is sorted and unique. It includes the
+accepted base, preloaded images and existing intermediates. Missing base,
+inventory churn, malformed rows or exhausted bounds refuse POST.
+
+The file and parent directory of the ownership journal are fsynced before POST.
+Cleanup requires its closed schema, private owner/mode, single-link regular
+file, bounded captured bytes and complete protected-ID array. Older journals
+without that array cannot authorize removal. A returned or recovered ID already
+in the protected set causes FAIL before any tag or ID deletion. The POST may
+already have attached the private tag to that existing ID; the helper retains
+FAIL and does not attempt a speculative rollback. This is a cooperative
+observed-preservation boundary, not prevention of concurrent daemon mutations.
+The standalone stage CLI is unchanged; the protected set is captured locally.
 
 Owned containers start with `docker start --attach <exact-ID>`. Docker start
 does not support `--sig-proxy`; the copied flag has been removed. Audited Docker
@@ -169,8 +185,12 @@ deletion. Container and derived-image journals precede uncertain mutations.
 An attempted image commit without a known immutable ID remains uncertain FAIL
 when the nonce tag is absent: the daemon may complete the POST later. If that
 tag appears, cleanup verifies and journals the recovered ID before removal and
-requires absence of both the private tag and immutable ID. Another tag that
-prevents ID removal keeps cleanup at FAIL; cleanup never prunes global images.
+requires absence of both the private tag and immutable ID. Every image removal
+uses `--no-prune` without force, protecting untagged ancestors as well as explicit
+protected-ID targets. The accepted base is not a removal target. Another tag
+that prevents ID removal keeps cleanup at FAIL. Full legacy build-cache/layer
+absence remains NOT ESTABLISHED; scoped removal does not establish an empty
+daemon. Original producer uncertainty remains a separate hosted-job failure.
 Normal cancellation defers signals during bounded cleanup, and cleanup failure
 forces final FAIL. An initial FAIL receipt prevents an abandoned/hard-killed
 stage from leaving an earlier PASS authoritative. Hard kill or host loss can
@@ -206,8 +226,8 @@ repository, installation, boot or benchmark acceptance is inferred from PASS.
   would still leave kernel execution, exact M2 Air hardware checks and
   performance measurements pending.
 
-The API/start correction leaves the previous 24-file source lock held. The
-coordinator must rebind that lock and the dependent job packet, then prove the
+The API/start and protected-image corrections leave the previous 24-file source
+lock held. The coordinator must rebind that lock and the dependent job packet, then prove the
 committed source bytes/modes before dispatch. A previous lock or source review
 does not authenticate these changed files.
 

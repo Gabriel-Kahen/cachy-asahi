@@ -28,7 +28,7 @@ COMMIT, PIN = 'a' * 40, 'b' * 64
 
 
 def receipt():
-    return {'schema_version': 2, 'stage': 'kernel-native-development-job', 'status': 'PASS',
+    return {'schema_version': 3, 'stage': 'kernel-native-development-job', 'status': 'PASS',
             'phase': 'complete', 'cancelled': False, 'source_commit': COMMIT, 'packet_sha256': PIN,
             'producer': 'PASS', 'kernel_probe': 'PASS', 'baseline': 'PASS', 'candidate': 'PASS',
             'cleanup': 'PASS', 'native_compilation': 'PASS', 'kernel_runtime': 'NOT RUN',
@@ -36,7 +36,19 @@ def receipt():
             'binary_publication': 'NOT RUN', 'selected_for_release': False,
             'first_failed_phase': 'NONE', 'failure_reason': 'NONE',
             'producer_exit': public.exit_record(0), 'acquisition_exit': public.exit_record(0),
-            'resources': {name: None for name in public.RESOURCE_KEYS}}
+            'resources': {name: None for name in public.RESOURCE_KEYS},
+            'daemon_baseline': {'initial_container_count': 0, 'initial_image_id_count': 3,
+                                'pre_identity_sha256': 'c' * 64, 'post_identity_sha256': 'c' * 64,
+                                'preservation': 'PASS', 'owned_absence': 'PASS',
+                                'producer_mutation': 'COMPLETE_ACCEPTED',
+                                'legacy_build_cache': 'NOT_ESTABLISHED'}}
+
+
+def initial_baseline():
+    return {'initial_container_count': None, 'initial_image_id_count': None,
+            'pre_identity_sha256': None, 'post_identity_sha256': None,
+            'preservation': 'NOT_RUN', 'owned_absence': 'NOT_RUN',
+            'producer_mutation': 'NOT_STARTED', 'legacy_build_cache': 'NOT_ESTABLISHED'}
 
 
 def encoded(value):
@@ -80,6 +92,7 @@ class ProjectionTests(unittest.TestCase):
         value = receipt(); value.update(status='FAIL', phase='preflight', cleanup='FAIL', native_compilation='NOT RUN')
         value.update({key: 'NOT RUN' for key in public.CHILDREN})
         value.update({key: {'kind': 'NOT_RUN', 'code': None} for key in ('producer_exit', 'acquisition_exit')})
+        value['daemon_baseline'] = initial_baseline()
         result = public.project(encoded(value), COMMIT, PIN, 'failure')
         public.record_failure(value, 'outcome', 'NATIVE_FAILURE')
         self.assertEqual(result, value)
@@ -122,6 +135,7 @@ class DiagnosticTests(unittest.TestCase):
         public.record_failure(value, 'parallel', 'PRODUCER_EXIT')
         value.update(phase='cleanup', producer='FAIL', cleanup='FAIL')
         value['producer_exit'] = public.exit_record(1)
+        value['daemon_baseline']['producer_mutation'] = 'UNCERTAIN'
         return value
 
     def refuse(self, value):
@@ -129,10 +143,12 @@ class DiagnosticTests(unittest.TestCase):
             public.project(encoded(value), COMMIT, PIN, 'success')
 
     def test_exact_schema_requires_every_diagnostic_field(self):
-        for key in ('first_failed_phase', 'failure_reason', 'producer_exit', 'acquisition_exit', 'resources'):
+        for key in ('first_failed_phase', 'failure_reason', 'producer_exit', 'acquisition_exit', 'resources',
+                    'daemon_baseline'):
             with self.subTest(key=key):
                 value = receipt(); del value[key]; self.refuse(value)
         value = receipt(); value['schema_version'] = 1; self.refuse(value)
+        value = receipt(); value['schema_version'] = 2; self.refuse(value)
 
     def test_failure_phase_and_reason_are_closed_related_enums(self):
         for phase, reason in (('PRIVATE PATH', 'CANCELLED'), ('parallel', 'SECRET ERROR'),
@@ -151,8 +167,18 @@ class DiagnosticTests(unittest.TestCase):
                     if phase == 'parallel':
                         if reason in {'PRODUCER_EXIT', 'BOTH_CHILDREN_EXIT'}:
                             value['producer_exit'] = public.exit_record(1)
+                            value.update(cleanup='FAIL', producer='FAIL')
+                            value['daemon_baseline']['producer_mutation'] = 'UNCERTAIN'
                         if reason in {'ACQUISITION_EXIT', 'BOTH_CHILDREN_EXIT'}:
                             value['acquisition_exit'] = public.exit_record(-15)
+                    if phase == 'source' and reason in {'DAEMON_CONTAINERS_PRESENT', 'DAEMON_BASELINE_UNVERIFIED'}:
+                        value.update(cleanup='FAIL', producer='NOT RUN',
+                                     producer_exit={'kind': 'NOT_RUN', 'code': None}, daemon_baseline=initial_baseline())
+                        value['daemon_baseline']['preservation'] = 'UNVERIFIED'
+                        if reason == 'DAEMON_CONTAINERS_PRESENT': value['daemon_baseline']['initial_container_count'] = 1
+                    if phase == 'producer' and reason == 'PRODUCER_BASELINE_ID_COLLISION':
+                        value.update(cleanup='FAIL', producer='FAIL')
+                        value['daemon_baseline']['producer_mutation'] = 'COMPLETE_REJECTED'
                     projected = public.project(encoded(value), COMMIT, PIN, 'success')
                     self.assertEqual((projected['first_failed_phase'], projected['failure_reason']), (phase, reason))
 
@@ -180,6 +206,7 @@ class DiagnosticTests(unittest.TestCase):
 
     def test_pending_receipt_outcome_never_invents_child_codes(self):
         value = receipt(); value.update(status='FAIL', phase='preflight', native_compilation='NOT RUN')
+        value['cleanup'] = 'FAIL'; value['daemon_baseline'] = initial_baseline()
         value.update({key: 'NOT RUN' for key in public.CHILDREN})
         value.update({key: {'kind': 'NOT_RUN', 'code': None} for key in ('producer_exit', 'acquisition_exit')})
         projected = public.project(encoded(value), COMMIT, PIN, 'cancelled')
@@ -250,6 +277,7 @@ class DiagnosticTests(unittest.TestCase):
     def test_cancelled_cause_allows_already_observed_child_results(self):
         value = receipt(); public.record_failure(value, 'parallel', 'CANCELLED')
         value['cancelled'] = True; value['producer_exit'] = public.exit_record(-15)
+        value.update(cleanup='FAIL', producer='FAIL'); value['daemon_baseline']['producer_mutation'] = 'UNCERTAIN'
         result = public.project(encoded(value), COMMIT, PIN, 'cancelled')
         self.assertEqual(result['producer_exit'], public.exit_record(-15))
         self.assertEqual(result['failure_reason'], 'CANCELLED')
@@ -270,6 +298,216 @@ class DiagnosticTests(unittest.TestCase):
                                     (b'"mem_total_bytes": null', b'"mem_total_bytes": null, "mem_total_bytes": 0')):
             with self.subTest(needle=needle), self.assertRaises(ValueError):
                 public.project(raw.replace(needle, replacement, 1), COMMIT, PIN, 'success')
+
+
+class DaemonBaselineTests(unittest.TestCase):
+    def project(self, row, outcome='success', **changes):
+        value = receipt(); value.update(changes); value['daemon_baseline'] = row
+        return public.project(encoded(value), COMMIT, PIN, outcome)
+
+    def refuse(self, row, **changes):
+        with self.assertRaises(ValueError): self.project(row, **changes)
+
+    def test_exact_summary_shape_and_no_raw_metadata(self):
+        row = receipt()['daemon_baseline']
+        for key in public.DAEMON_BASELINE_KEYS:
+            poisoned = row.copy(); del poisoned[key]
+            with self.subTest(missing=key): self.refuse(poisoned)
+        for key in ('Config', 'RepoTags', 'path', 'images', 'daemon_id', 'error'):
+            poisoned = row.copy(); poisoned[key] = 'PRIVATE TOKEN'
+            with self.subTest(extra=key): self.refuse(poisoned)
+        for row in (None, [], 'PRIVATE TOKEN'):
+            self.refuse(row)
+
+    def test_initial_unobserved_summary_preserves_nulls(self):
+        value = receipt(); value.update(status='FAIL', phase='preflight', cleanup='FAIL',
+                                         native_compilation='NOT RUN', daemon_baseline=initial_baseline())
+        value.update({key: 'NOT RUN' for key in public.CHILDREN})
+        value.update({key: {'kind': 'NOT_RUN', 'code': None} for key in ('producer_exit', 'acquisition_exit')})
+        result = public.project(encoded(value), COMMIT, PIN, 'failure')
+        self.assertEqual(result['daemon_baseline'], initial_baseline())
+        self.assertIsNone(result['daemon_baseline']['initial_container_count'])
+        self.assertIsNone(result['daemon_baseline']['initial_image_id_count'])
+
+    def test_positive_empty_baseline_is_distinct_from_unobserved(self):
+        row = receipt()['daemon_baseline']; row['initial_image_id_count'] = 0
+        value = self.project(row)
+        self.assertEqual(value['status'], 'PASS')
+        self.assertEqual(value['daemon_baseline']['initial_image_id_count'], 0)
+        self.assertIsNotNone(value['daemon_baseline']['pre_identity_sha256'])
+
+    def test_image_count_accepts_exact_boundary_and_refuses_numeric_poison(self):
+        for count in (0, 256):
+            row = receipt()['daemon_baseline']; row['initial_image_id_count'] = count
+            self.assertEqual(self.project(row)['status'], 'PASS')
+        for key in ('initial_container_count', 'initial_image_id_count'):
+            for count in (-1, 257, False, True, 0.0, '0', [], {}):
+                row = receipt()['daemon_baseline']; row[key] = count
+                with self.subTest(key=key, count=count): self.refuse(row)
+
+    def test_initial_presence_never_accepts_preservation_or_cleanup_pass(self):
+        for count in (1, 256, None):
+            row = receipt()['daemon_baseline']; row['initial_container_count'] = count
+            with self.subTest(count=count): self.refuse(row)
+        row = initial_baseline(); row.update(initial_container_count=1, initial_image_id_count=4,
+                                              preservation='UNVERIFIED')
+        value = self.project(row, 'failure', status='FAIL', cleanup='FAIL', producer='NOT RUN',
+                             producer_exit={'kind': 'NOT_RUN', 'code': None},
+                             first_failed_phase='source', failure_reason='DAEMON_CONTAINERS_PRESENT')
+        self.assertEqual(value['daemon_baseline']['initial_container_count'], 1)
+        self.assertIsNone(value['daemon_baseline']['pre_identity_sha256'])
+
+    def test_query_failure_never_synthesizes_zero_or_digest(self):
+        row = initial_baseline(); row['preservation'] = 'UNVERIFIED'
+        value = self.project(row, 'failure', status='FAIL', cleanup='FAIL', producer='NOT RUN',
+                             producer_exit={'kind': 'NOT_RUN', 'code': None},
+                             first_failed_phase='source', failure_reason='DAEMON_BASELINE_UNVERIFIED')
+        self.assertEqual(value['daemon_baseline'], row)
+        for key in ('initial_container_count', 'initial_image_id_count'):
+            poisoned = receipt()['daemon_baseline']; poisoned[key] = None
+            self.refuse(poisoned)
+
+    def test_initial_presence_reason_requires_positive_observation(self):
+        for count in (None, 0):
+            row = initial_baseline(); row.update(initial_container_count=count, preservation='UNVERIFIED')
+            with self.subTest(count=count):
+                self.refuse(row, status='FAIL', cleanup='FAIL', producer='NOT RUN',
+                            producer_exit={'kind': 'NOT_RUN', 'code': None},
+                            first_failed_phase='source', failure_reason='DAEMON_CONTAINERS_PRESENT')
+
+    def test_initial_query_failure_reason_cannot_claim_preservation_pass(self):
+        self.refuse(receipt()['daemon_baseline'], status='FAIL', cleanup='FAIL',
+                    first_failed_phase='source', failure_reason='DAEMON_BASELINE_UNVERIFIED')
+
+    def test_borrowed_iid_collision_cannot_claim_accepted_or_unknown_mutation(self):
+        for mutation in ('COMPLETE_ACCEPTED', 'UNCERTAIN', 'NOT_STARTED'):
+            row = receipt()['daemon_baseline']; row['producer_mutation'] = mutation
+            with self.subTest(mutation=mutation):
+                self.refuse(row, status='FAIL', cleanup='FAIL', first_failed_phase='producer',
+                            failure_reason='PRODUCER_BASELINE_ID_COLLISION')
+        row = receipt()['daemon_baseline']; row['producer_mutation'] = 'COMPLETE_REJECTED'
+        value = self.project(row, 'failure', status='FAIL', cleanup='FAIL', producer='FAIL',
+                             first_failed_phase='producer', failure_reason='PRODUCER_BASELINE_ID_COLLISION')
+        self.assertEqual(value['daemon_baseline']['producer_mutation'], 'COMPLETE_REJECTED')
+        self.refuse(row, status='FAIL', cleanup='FAIL', producer_exit={'kind': 'UNOBSERVED', 'code': None},
+                    first_failed_phase='producer', failure_reason='PRODUCER_BASELINE_ID_COLLISION')
+
+    def test_digest_grammar_and_missing_observation_are_refused(self):
+        for key in ('pre_identity_sha256', 'post_identity_sha256'):
+            for digest in (None, '', 'c' * 63, 'c' * 65, 'C' * 64, 'g' * 64,
+                           'sha256:' + 'c' * 64, True, 0, [], {}):
+                row = receipt()['daemon_baseline']; row[key] = digest
+                with self.subTest(key=key, digest=digest): self.refuse(row)
+
+    def test_positive_changed_projection_is_fail_not_unverified(self):
+        row = receipt()['daemon_baseline']; row['post_identity_sha256'] = 'd' * 64
+        self.refuse(row)
+        row['preservation'] = 'FAIL'
+        value = self.project(row, 'failure', status='FAIL', cleanup='FAIL',
+                             first_failed_phase='cleanup', failure_reason='DAEMON_BASELINE_CHANGED')
+        self.assertEqual(value['daemon_baseline']['preservation'], 'FAIL')
+        for state in ('NOT_RUN', 'UNVERIFIED'):
+            row['preservation'] = state
+            with self.subTest(state=state): self.refuse(row, status='FAIL', cleanup='FAIL')
+
+    def test_equal_projection_cannot_claim_positive_changed_failure(self):
+        row = receipt()['daemon_baseline']; row['preservation'] = 'FAIL'
+        self.refuse(row, status='FAIL', cleanup='FAIL')
+
+    def test_unknown_final_observation_is_not_a_pre_kernel_digest(self):
+        row = receipt()['daemon_baseline']; row.update(post_identity_sha256=None, preservation='UNVERIFIED')
+        value = self.project(row, 'failure', status='FAIL', cleanup='FAIL',
+                             first_failed_phase='cleanup', failure_reason='DAEMON_BASELINE_UNVERIFIED')
+        self.assertIsNone(value['daemon_baseline']['post_identity_sha256'])
+        self.assertIsNotNone(value['daemon_baseline']['pre_identity_sha256'])
+        self.refuse(row)
+
+    def test_closed_summary_enums_and_cache_claim(self):
+        for key in ('preservation', 'owned_absence', 'producer_mutation', 'legacy_build_cache'):
+            for item in ('SECRET', '', True, 0, [], {}):
+                row = receipt()['daemon_baseline']; row[key] = item
+                with self.subTest(key=key, item=item): self.refuse(row)
+        row = receipt()['daemon_baseline']; row['legacy_build_cache'] = 'PASS'; self.refuse(row)
+
+    def test_uncertain_or_rejected_producer_never_cleanup_pass(self):
+        for mutation in ('UNCERTAIN', 'COMPLETE_REJECTED', 'NOT_STARTED'):
+            row = receipt()['daemon_baseline']; row['producer_mutation'] = mutation
+            changes = ({'producer': 'NOT RUN', 'producer_exit': {'kind': 'NOT_RUN', 'code': None}}
+                       if mutation == 'NOT_STARTED' else {'producer': 'FAIL'})
+            with self.subTest(mutation=mutation):
+                self.refuse(row, status='FAIL', **changes)
+                value = self.project(row, 'failure', status='FAIL', cleanup='FAIL',
+                                     first_failed_phase='cleanup', failure_reason='CLEANUP_FAILED', **changes)
+                self.assertEqual(value['daemon_baseline']['producer_mutation'], mutation)
+
+    def test_not_started_mutation_cannot_hide_observed_producer(self):
+        row = receipt()['daemon_baseline']; row['producer_mutation'] = 'NOT_STARTED'
+        self.refuse(row, status='FAIL', cleanup='FAIL')
+        self.refuse(row, status='FAIL', cleanup='FAIL', producer='NOT RUN')
+
+    def test_complete_rejected_requires_zero_exit_and_failed_acceptance(self):
+        row = receipt()['daemon_baseline']; row['producer_mutation'] = 'COMPLETE_REJECTED'
+        for producer in ('PASS', 'NOT RUN'):
+            with self.subTest(producer=producer):
+                self.refuse(row, status='FAIL', cleanup='FAIL', producer=producer)
+        for result in ({'kind': 'NOT_RUN', 'code': None}, {'kind': 'UNOBSERVED', 'code': None},
+                       public.exit_record(1), public.exit_record(-15)):
+            with self.subTest(result=result):
+                self.refuse(row, status='FAIL', cleanup='FAIL', producer='FAIL', producer_exit=result,
+                            first_failed_phase='producer', failure_reason='PRODUCER_RECEIPT_REJECTED')
+        value = self.project(row, 'failure', status='FAIL', cleanup='FAIL', producer='FAIL',
+                             first_failed_phase='producer', failure_reason='PRODUCER_RECEIPT_REJECTED')
+        self.assertEqual(value['producer_exit'], public.exit_record(0))
+        self.assertEqual(value['daemon_baseline']['producer_mutation'], 'COMPLETE_REJECTED')
+
+    def test_uncertain_mutation_rejects_fabricated_producer_pass(self):
+        row = receipt()['daemon_baseline']; row['producer_mutation'] = 'UNCERTAIN'
+        self.refuse(row, status='FAIL', cleanup='FAIL', first_failed_phase='parallel',
+                    failure_reason='PARALLEL_RUN_FAILED')
+        for producer in ('FAIL', 'NOT RUN'):
+            result = self.project(row, 'failure', status='FAIL', cleanup='FAIL', producer=producer,
+                                  first_failed_phase='parallel', failure_reason='PARALLEL_RUN_FAILED')
+            self.assertEqual(result['daemon_baseline']['producer_mutation'], 'UNCERTAIN')
+
+    def test_owned_absence_required_separately_from_preservation(self):
+        for absence in ('FAIL', 'UNVERIFIED', 'NOT_RUN'):
+            row = receipt()['daemon_baseline']; row['owned_absence'] = absence
+            with self.subTest(absence=absence):
+                self.refuse(row, status='FAIL')
+                self.assertEqual(self.project(row, 'failure', status='FAIL', cleanup='FAIL',
+                                 first_failed_phase='cleanup', failure_reason='OWNED_ABSENCE_UNVERIFIED')
+                                 ['daemon_baseline']['owned_absence'], absence)
+
+    def test_complete_accepted_producer_needs_receipt_and_zero_exit(self):
+        row = receipt()['daemon_baseline']
+        self.refuse(row, status='FAIL', cleanup='FAIL', producer='FAIL')
+        self.refuse(row, status='FAIL', cleanup='FAIL', producer_exit={'kind': 'UNOBSERVED', 'code': None})
+        self.refuse(row, status='FAIL', cleanup='FAIL', producer_exit=public.exit_record(-15),
+                    first_failed_phase='parallel', failure_reason='CANCELLED')
+
+    def test_outcome_downgrade_preserves_positive_baseline_without_cache_claim(self):
+        row = receipt()['daemon_baseline']
+        for outcome in ('failure', 'cancelled', 'skipped', ''):
+            value = self.project(row, outcome)
+            self.assertEqual(value['status'], 'FAIL')
+            self.assertEqual(value['daemon_baseline'], row)
+            self.assertEqual(value['daemon_baseline']['legacy_build_cache'], 'NOT_ESTABLISHED')
+
+    def test_baseline_failure_does_not_replace_earlier_parallel_cause(self):
+        value = receipt(); value.update(status='FAIL', cleanup='FAIL', producer='FAIL')
+        public.record_failure(value, 'parallel', 'PARALLEL_TIMEOUT')
+        value['daemon_baseline'].update(producer_mutation='UNCERTAIN', preservation='UNVERIFIED',
+                                         owned_absence='UNVERIFIED', post_identity_sha256=None)
+        public.record_failure(value, 'cleanup', 'DAEMON_BASELINE_UNVERIFIED')
+        projected = public.project(encoded(value), COMMIT, PIN, 'cancelled')
+        self.assertEqual(projected['first_failed_phase'], 'parallel')
+        self.assertEqual(projected['failure_reason'], 'PARALLEL_TIMEOUT')
+        self.assertEqual(projected['daemon_baseline']['producer_mutation'], 'UNCERTAIN')
+
+    def test_nested_baseline_duplicate_refused(self):
+        raw = encoded(receipt()).replace(b'"preservation": "PASS"',
+                                         b'"preservation": "PASS", "preservation": "UNVERIFIED"', 1)
+        with self.assertRaises(ValueError): public.project(raw, COMMIT, PIN, 'success')
 
 
 class FileTests(unittest.TestCase):
@@ -311,6 +549,7 @@ class FileTests(unittest.TestCase):
     def test_failed_diagnostic_emits_one_bounded_record(self):
         value = receipt(); public.record_failure(value, 'parallel', 'BOTH_CHILDREN_EXIT')
         value.update(phase='cleanup', producer='FAIL', cleanup='FAIL')
+        value['daemon_baseline']['producer_mutation'] = 'UNCERTAIN'
         value['producer_exit'], value['acquisition_exit'] = public.exit_record(255), public.exit_record(-64)
         value['resources'] = dict.fromkeys(public.RESOURCE_KEYS, 2**60)
         self.path.write_bytes(encoded(value))

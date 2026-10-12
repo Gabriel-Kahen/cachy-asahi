@@ -1,7 +1,10 @@
 # SPDX-License-Identifier: MIT
 import json
+import os
 from pathlib import Path
 import socket
+import stat
+import sys
 from types import SimpleNamespace
 import tempfile
 import threading
@@ -11,6 +14,7 @@ from unittest.mock import patch
 
 import image
 import common
+from runtime import Cancelled, Runner, cancellation_handlers
 
 
 class ImageCleanupTests(unittest.TestCase):
@@ -21,16 +25,24 @@ class ImageCleanupTests(unittest.TestCase):
         self.nonce = 'a' * 32; self.tag = 'cachy-asahi-kernel-private:' + self.nonce
         self.config = {'Env': ['PATH=/usr/bin:/bin'], 'User': 'alarm'}
         self.state = {'tag_present': False, 'id_present': False}; self.calls = []
+        self.inventory_rows = [self.base]
         self.broker = SimpleNamespace(role='provision', nonce=self.nonce, image=self.base,
             image_config=self.config, _operation=self.operation,
+            runner=SimpleNamespace(run=self.inventory_run), _info=lambda runner: None,
+            _raw=lambda argv, runner, timeout: runner.run(argv, timeout=timeout),
             _journal=lambda: {'containers': [{'id': 'd' * 64, 'name': 'owned-provision'}]},
             _inspect=lambda *args: 'd' * 64)
+
+    def inventory_run(self, argv, **kwargs):
+        self.calls.append(argv)
+        self.assertEqual(kwargs, {'limit': 128 * 1024, 'timeout': 30})
+        return SimpleNamespace(returncode=0, stdout=('\n'.join(self.inventory_rows) + '\n').encode())
 
     def operation(self, argv, **kwargs):
         self.calls.append(argv)
         if argv[:2] == ['image', 'ls']:
             return SimpleNamespace(returncode=0, stdout=(self.derived + '\n').encode() if self.state['tag_present'] else b'')
-        reference = argv[2]
+        reference = argv[-1]
         if argv[:2] == ['image', 'inspect']:
             exists = reference == self.base or (self.state['tag_present'] if reference == self.tag else self.state['id_present'])
             if not exists: return SimpleNamespace(returncode=1, stdout=b'Error: No such image')
@@ -40,6 +52,7 @@ class ImageCleanupTests(unittest.TestCase):
                    'Size': 100 if base else 200}
             return SimpleNamespace(returncode=0, stdout=json.dumps([row]).encode())
         if argv[:2] == ['image', 'rm']:
+            self.assertEqual(argv[2], '--no-prune')
             persisted = common.load(self.journal)
             self.assertEqual(persisted['image_id'], self.derived)
             if reference == self.tag: self.state['tag_present'] = False
@@ -54,6 +67,179 @@ class ImageCleanupTests(unittest.TestCase):
         with patch.object(image, 'request', side_effect=request), patch.object(image, 'module', return_value=SimpleNamespace(commit_config=lambda config: {})):
             with self.assertRaises(TimeoutError): image.commit(self.broker, Path('/owned/code'), self.journal)
         self.assertEqual(common.load(self.journal)['status'], 'COMMIT_ATTEMPTED')
+
+    def commit_result(self, identifier):
+        def request(*args):
+            return (404, {}) if args[1] == 'GET' else (201, {'Id': identifier})
+        with patch.object(image, 'request', side_effect=request), \
+                patch.object(image, 'module', return_value=SimpleNamespace(commit_config=lambda config: {})):
+            return image.commit(self.broker, Path('/owned/code'), self.journal)
+
+    def test_precommit_protects_baseline_base_and_intermediates(self):
+        self.inventory_rows = ['sha256:' + 'f' * 64, self.base, 'sha256:' + 'e' * 64, self.base]
+        self.attempt_unknown_commit()
+        self.assertEqual(common.load(self.journal)['protected_image_ids'], sorted(set(self.inventory_rows)))
+
+    def test_returned_existing_id_is_retained_but_never_removed(self):
+        for identifier in (self.base, self.derived):
+            with self.subTest(identifier=identifier):
+                self.journal.unlink(missing_ok=True)
+                self.inventory_rows = [self.base, self.derived]
+                with self.assertRaisesRegex(ValueError, 'already protected'):
+                    self.commit_result(identifier)
+                self.assertEqual(common.load(self.journal)['image_id'], identifier)
+                with self.assertRaisesRegex(ValueError, 'already protected'):
+                    image.cleanup(self.broker, self.journal)
+        self.assertFalse(any(argv[:2] == ['image', 'rm'] for argv in self.calls))
+
+    def test_recovered_existing_id_cannot_remove_its_new_private_tag(self):
+        self.inventory_rows = [self.base, self.derived]
+        self.attempt_unknown_commit(); self.state.update(tag_present=True, id_present=True)
+        with self.assertRaisesRegex(ValueError, 'already protected'):
+            image.cleanup(self.broker, self.journal)
+        self.assertTrue(self.state['tag_present'])
+        self.assertIsNone(common.load(self.journal)['image_id'])
+        self.assertFalse(any(argv[:2] == ['image', 'rm'] for argv in self.calls))
+
+    def test_inventory_churn_refuses_post_without_mutation_journal(self):
+        first = (self.base + '\n').encode()
+        second = (self.base + '\nsha256:' + 'e' * 64 + '\n').encode()
+        responses = [SimpleNamespace(returncode=0, stdout=data) for data in (first, second)]
+        with patch.object(self.broker.runner, 'run', side_effect=responses), \
+                patch.object(image, 'request', return_value=(404, {})) as request, \
+                patch.object(image, 'module', return_value=SimpleNamespace(commit_config=lambda config: {})):
+            with self.assertRaisesRegex(ValueError, 'changed before commit'):
+                image.commit(self.broker, Path('/owned/code'), self.journal)
+        self.assertEqual(request.call_count, 1)
+        self.assertFalse(self.journal.exists())
+
+    def test_inventory_failure_malformed_and_overflow_refuse_post(self):
+        cases = [(1, b''), (0, b'x' * (128 * 1024 + 1)),
+                 (0, ((self.base + '\n') * 257).encode()), (0, b'mutable-tag\n'),
+                 (0, self.base.encode()), (0, (self.base + '\r\n').encode()),
+                 (0, b'\xff\n'), (0, b''), (0, ('sha256:' + 'e' * 64 + '\n').encode())]
+        for code, data in cases:
+            with self.subTest(code=code, bytes=len(data)), \
+                    patch.object(self.broker.runner, 'run', return_value=SimpleNamespace(returncode=code, stdout=data)), \
+                    patch.object(image, 'request') as request:
+                with self.assertRaises(ValueError): image.commit(self.broker, Path('/owned/code'), self.journal)
+                request.assert_not_called()
+                self.assertFalse(self.journal.exists())
+
+    def test_existing_nonce_tag_cannot_start_commit(self):
+        with patch.object(image, 'request', return_value=(200, {})) as request:
+            with self.assertRaisesRegex(ValueError, 'new private image tag'):
+                image.commit(self.broker, Path('/owned/code'), self.journal)
+        self.assertEqual(request.call_count, 1)
+        self.assertFalse(self.journal.exists())
+
+    def test_protection_journal_file_and_directory_are_synced_before_post(self):
+        synced = []; original = os.fsync
+        def fsync(descriptor):
+            synced.append(stat.S_IFMT(os.fstat(descriptor).st_mode)); original(descriptor)
+        def request(*args):
+            if args[1] == 'GET': return 404, {}
+            self.assertIn(stat.S_IFREG, synced); self.assertIn(stat.S_IFDIR, synced)
+            self.assertEqual(common.load(self.journal)['protected_image_ids'], [self.base])
+            self.assertEqual(stat.S_IMODE(self.journal.stat().st_mode), 0o600)
+            raise TimeoutError('unknown POST')
+        with patch.object(image.os, 'fsync', side_effect=fsync), \
+                patch.object(image, 'request', side_effect=request), \
+                patch.object(image, 'module', return_value=SimpleNamespace(commit_config=lambda config: {})):
+            with self.assertRaises(TimeoutError): image.commit(self.broker, Path('/owned/code'), self.journal)
+
+    def test_malformed_protection_journal_never_authorizes_removal(self):
+        self.attempt_unknown_commit()
+        original = common.load(self.journal)
+        cases = [None, [], [self.base, self.base], ['mutable-tag'], ['sha256:' + 'e' * 64],
+                 [self.base] * 257, ['sha256:' + 'f' * 64, self.base]]
+        for ids in cases:
+            with self.subTest(ids=ids):
+                record = dict(original); record['protected_image_ids'] = ids; common.save(self.journal, record)
+                with self.assertRaises(ValueError): image.cleanup(self.broker, self.journal)
+        record = dict(original); del record['protected_image_ids']; common.save(self.journal, record)
+        with self.assertRaises(ValueError): image.cleanup(self.broker, self.journal)
+        self.assertFalse(any(argv[:2] == ['image', 'rm'] for argv in self.calls))
+
+    def test_journal_owner_mode_links_and_byte_bound_refuse(self):
+        self.attempt_unknown_commit()
+        self.journal.chmod(0o644)
+        with self.assertRaises(ValueError): image.cleanup(self.broker, self.journal)
+        self.journal.chmod(0o600)
+        link = self.journal.with_name('second-link'); os.link(self.journal, link)
+        with self.assertRaises(ValueError): image.cleanup(self.broker, self.journal)
+        link.unlink(); self.journal.write_bytes(b'x' * (128 * 1024 + 1))
+        with self.assertRaises(ValueError): image.cleanup(self.broker, self.journal)
+        self.journal.unlink(); self.journal.symlink_to(self.journal.with_name('missing'))
+        with self.assertRaises(ValueError): image.cleanup(self.broker, self.journal)
+
+    def test_all_removal_paths_preserve_untagged_ancestors(self):
+        self.attempt_unknown_commit(); self.state.update(tag_present=True, id_present=True)
+        ancestors = {self.base, 'sha256:' + 'e' * 64}; original = self.operation
+        def daemon(argv, **kwargs):
+            if argv[:2] == ['image', 'rm'] and '--no-prune' not in argv:
+                ancestors.clear()  # Simulate Moby's default parent pruning.
+            return original(argv, **kwargs)
+        self.broker._operation = daemon
+        self.assertEqual(image.cleanup(self.broker, self.journal)['status'], 'PASS')
+        self.assertEqual(ancestors, {self.base, 'sha256:' + 'e' * 64})
+        removals = [argv for argv in self.calls if argv[:2] == ['image', 'rm']]
+        self.assertEqual(removals, [['image', 'rm', '--no-prune', self.tag],
+                                   ['image', 'rm', '--no-prune', self.derived]])
+
+    def test_inventory_cancellation_leaves_no_commit_journal_or_post(self):
+        with patch.object(self.broker.runner, 'run', side_effect=Cancelled()), patch.object(image, 'request') as request:
+            with self.assertRaises(Cancelled): image.commit(self.broker, Path('/owned/code'), self.journal)
+            request.assert_not_called()
+        self.assertFalse(self.journal.exists())
+
+    def test_post_cancellation_retains_protection_and_unknown_fail(self):
+        def request(*args):
+            if args[1] == 'GET': return 404, {}
+            raise Cancelled()
+        with patch.object(image, 'request', side_effect=request), \
+                patch.object(image, 'module', return_value=SimpleNamespace(commit_config=lambda config: {})):
+            with self.assertRaises(Cancelled): image.commit(self.broker, Path('/owned/code'), self.journal)
+        self.assertEqual(common.load(self.journal)['protected_image_ids'], [self.base])
+        self.assertEqual(image.cleanup(self.broker, self.journal)['status'], 'FAIL')
+
+    def test_inventory_actual_process_output_and_aggregate_deadline_bounds(self):
+        for code, seconds, message in (("import sys;sys.stdout.write('x'*131073)", 2, 'output-bound'),
+                                       ('import time;time.sleep(10)', .06, 'command-timeout')):
+            with self.subTest(code=code):
+                self.broker.runner = Runner(seconds, {'PATH': '/usr/bin:/bin', 'LC_ALL': 'C'},
+                                            self.journal.parent / ('logs-' + str(seconds)))
+                self.broker._raw = lambda argv, runner, timeout: runner.run(
+                    [sys.executable, '-I', '-B', '-c', code], timeout=timeout)
+                began = time.monotonic()
+                with self.assertRaisesRegex(ValueError, message): image.inventory(self.broker)
+                self.assertLess(time.monotonic() - began, 1)
+
+    def test_actual_term_during_inventory_cleans_child_without_commit(self):
+        self.broker.runner = Runner(2, {'PATH': '/usr/bin:/bin', 'LC_ALL': 'C'}, self.journal.parent / 'term-logs')
+        self.broker._raw = lambda argv, runner, timeout: runner.run([sys.executable, '-I', '-B', '-c',
+            'import os,signal,time;os.kill(os.getppid(),signal.SIGTERM);time.sleep(10)'], timeout=timeout)
+        began = time.monotonic()
+        with cancellation_handlers(), patch.object(image, 'request') as request:
+            with self.assertRaises(Cancelled): image.commit(self.broker, Path('/owned/code'), self.journal)
+            request.assert_not_called()
+        self.assertFalse(self.journal.exists())
+        self.assertLess(time.monotonic() - began, 1)
+
+    def test_cancelled_recovered_tag_removal_retains_id_for_safe_retry(self):
+        self.attempt_unknown_commit(); self.state.update(tag_present=True, id_present=True)
+        original = self.operation
+        def remove_then_cancel(argv, **kwargs):
+            result = original(argv, **kwargs)
+            if argv == ['image', 'rm', '--no-prune', self.tag]: raise Cancelled()
+            return result
+        self.broker._operation = remove_then_cancel
+        with self.assertRaises(Cancelled): image.cleanup(self.broker, self.journal)
+        self.assertEqual(common.load(self.journal)['image_id'], self.derived)
+        self.assertEqual(common.load(self.journal)['protected_image_ids'], [self.base])
+        self.assertFalse(self.state['tag_present']); self.assertTrue(self.state['id_present'])
+        self.broker._operation = original
+        self.assertEqual(image.cleanup(self.broker, self.journal)['status'], 'PASS')
 
     def test_uncertain_post_empty_tag_cannot_claim_absence_before_late_arrival(self):
         self.attempt_unknown_commit()
@@ -91,7 +277,7 @@ class ImageCleanupTests(unittest.TestCase):
         self.attempt_unknown_commit(); self.state.update(tag_present=True, id_present=True)
         original = self.operation
         def other_tag_conflict(argv, **kwargs):
-            if argv == ['image', 'rm', self.derived]:
+            if argv == ['image', 'rm', '--no-prune', self.derived]:
                 self.calls.append(argv)
                 return SimpleNamespace(returncode=1, stdout=b'image remains referenced by another tag')
             return original(argv, **kwargs)
@@ -106,6 +292,7 @@ class ImageCleanupTests(unittest.TestCase):
 
     def api_commit(self, result, status=201):
         """Exercise the actual wire client and held config helper, without Docker."""
+        self.journal.unlink(missing_ok=True)
         tmp = tempfile.TemporaryDirectory(); self.addCleanup(tmp.cleanup)
         path = Path(tmp.name) / 'owned-api.sock'
         server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
@@ -138,7 +325,7 @@ class ImageCleanupTests(unittest.TestCase):
         thread = threading.Thread(target=respond); thread.start()
         self.addCleanup(lambda: thread.join(timeout=3))
         self.broker.socket = path
-        self.broker.runner = SimpleNamespace(deadline=time.monotonic() + 5)
+        self.broker.runner = SimpleNamespace(deadline=time.monotonic() + 5, run=self.inventory_run)
         self.broker._local = lambda runner: guards.append('local')
         self.broker._info = lambda runner: guards.append('info')
         self.state.update(tag_present=True, id_present=True)
@@ -147,7 +334,8 @@ class ImageCleanupTests(unittest.TestCase):
         finally:
             thread.join(timeout=3)
             self.assertFalse(thread.is_alive()); self.assertEqual(errors, [])
-            self.assertEqual(guards, ['local', 'info'] * 4)
+            self.assertEqual(guards, ['info', 'info'] + ['local', 'info'] * 2 +
+                             ['info', 'info'] + ['local', 'info'] * 2)
             self.assertEqual(len(requests), 2)
             self.assertEqual(requests[0][0], 'GET /v1.48/images/cachy-asahi-kernel-private%3A' + self.nonce + '/json HTTP/1.1')
             self.assertEqual(requests[0][2], b'')

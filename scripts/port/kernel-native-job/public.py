@@ -13,21 +13,24 @@ KEYS = {'schema_version', 'stage', 'status', 'phase', 'cancelled', 'source_commi
         'packet_sha256', 'producer', 'kernel_probe', 'baseline', 'candidate', 'cleanup',
         'native_compilation', 'kernel_runtime', 'hardware', 'installation', 'performance',
         'binary_publication', 'selected_for_release', 'first_failed_phase', 'failure_reason',
-        'producer_exit', 'acquisition_exit', 'resources'}
+        'producer_exit', 'acquisition_exit', 'resources', 'daemon_baseline'}
 REASONS = {
     'NONE': {'NONE'},
     'preflight': {'PREFLIGHT_REJECTED', 'HOST_CAPABILITIES', 'HOST_MEMORY_RESERVE',
                   'HOST_DISK_RESERVE', 'HOST_TOOL_UNAVAILABLE', 'CANCELLED'},
     'source': {'SOURCE_REJECTED', 'DOCKER_REJECTED', 'DAEMON_OCCUPIED',
-               'PRODUCER_TIME_RESERVE', 'CANCELLED'},
+               'PRODUCER_TIME_RESERVE', 'CANCELLED', 'DAEMON_CONTAINERS_PRESENT',
+               'DAEMON_BASELINE_UNVERIFIED'},
     'parallel': {'PRODUCER_EXIT', 'ACQUISITION_EXIT', 'BOTH_CHILDREN_EXIT', 'PARALLEL_TIMEOUT',
                  'PARALLEL_OUTPUT_BOUND', 'PARALLEL_RUN_FAILED', 'CANCELLED'},
-    'producer': {'PRODUCER_RECEIPT_REJECTED', 'CANCELLED'},
+    'producer': {'PRODUCER_RECEIPT_REJECTED', 'CANCELLED', 'PRODUCER_BASELINE_ID_COLLISION',
+                 'DAEMON_BASELINE_CHANGED', 'DAEMON_BASELINE_UNVERIFIED'},
     'acquisition': {'ACQUISITION_RECEIPT_REJECTED', 'CANCELLED'},
     'kernel': {'KERNEL_TIME_RESERVE', 'KERNEL_DISK_RESERVE', 'KERNEL_OUTPUT_REJECTED',
                'KERNEL_EXIT', 'KERNEL_TIMEOUT', 'KERNEL_OUTPUT_BOUND', 'KERNEL_RUN_FAILED',
                'KERNEL_RECEIPT_REJECTED', 'CANCELLED'},
-    'cleanup': {'CLEANUP_FAILED', 'CANCELLED'},
+    'cleanup': {'CLEANUP_FAILED', 'CANCELLED', 'DAEMON_BASELINE_CHANGED',
+                'DAEMON_BASELINE_UNVERIFIED', 'OWNED_ABSENCE_UNVERIFIED'},
     'finalization': {'CANCELLED', 'PUBLICATION_FAILED'},
     'outcome': {'NATIVE_FAILURE', 'NATIVE_CANCELLED', 'NATIVE_SKIPPED', 'NATIVE_UNAVAILABLE'},
 }
@@ -35,6 +38,9 @@ FIRST_PHASES = set(REASONS)
 PHASES = {'preflight', 'source', 'producer', 'kernel', 'cleanup', 'complete'}
 RESOURCE_KEYS = {'mem_total_bytes', 'mem_available_bytes', 'initial_free_disk_bytes',
                  'pre_kernel_free_disk_bytes'}
+DAEMON_BASELINE_KEYS = {'initial_container_count', 'initial_image_id_count',
+                        'pre_identity_sha256', 'post_identity_sha256', 'preservation',
+                        'owned_absence', 'producer_mutation', 'legacy_build_cache'}
 CHILDREN = ('producer', 'kernel_probe', 'baseline', 'candidate')
 
 
@@ -88,6 +94,53 @@ def diagnostics(value):
     need(not value['cancelled'] or value['first_failed_phase'] != 'NONE')
 
 
+def daemon_baseline(value):
+    row = value['daemon_baseline']
+    need(type(row) is dict and set(row) == DAEMON_BASELINE_KEYS)
+    for name in ('initial_container_count', 'initial_image_id_count'):
+        item = row[name]
+        need(item is None or type(item) is int and 0 <= item <= 256)
+    for name in ('pre_identity_sha256', 'post_identity_sha256'):
+        item = row[name]
+        need(item is None or type(item) is str and re.fullmatch('[0-9a-f]{64}', item))
+    for name in ('preservation', 'owned_absence'):
+        need(type(row[name]) is str and row[name] in {'NOT_RUN', 'PASS', 'FAIL', 'UNVERIFIED'})
+    need(type(row['producer_mutation']) is str and row['producer_mutation'] in
+         {'NOT_STARTED', 'COMPLETE_ACCEPTED', 'COMPLETE_REJECTED', 'UNCERTAIN'} and
+         row['legacy_build_cache'] == 'NOT_ESTABLISHED')
+    pre, post = row['pre_identity_sha256'], row['post_identity_sha256']
+    initial = row['initial_container_count'] == 0 and row['initial_image_id_count'] is not None
+    need(pre is None or initial)
+    need(post is None or pre is not None)
+    if row['preservation'] in {'PASS', 'FAIL'}:
+        need(initial and pre is not None and post is not None and
+             (pre == post) == (row['preservation'] == 'PASS'))
+    else:
+        need(post is None)
+    if row['producer_mutation'] == 'NOT_STARTED':
+        need(value['producer'] == 'NOT RUN' and
+             value['producer_exit'] == {'kind': 'NOT_RUN', 'code': None})
+    if row['producer_mutation'] == 'COMPLETE_ACCEPTED':
+        need(initial and pre is not None and value['producer'] == 'PASS' and
+             value['producer_exit'] == exit_record(0))
+    if row['producer_mutation'] == 'COMPLETE_REJECTED':
+        need(value['producer'] == 'FAIL' and value['producer_exit'] == exit_record(0))
+    if row['producer_mutation'] == 'UNCERTAIN':
+        need(value['producer'] != 'PASS')
+    if value['first_failed_phase'] == 'source':
+        if value['failure_reason'] == 'DAEMON_CONTAINERS_PRESENT':
+            need(type(row['initial_container_count']) is int and row['initial_container_count'] > 0 and
+                 row['producer_mutation'] == 'NOT_STARTED')
+        if value['failure_reason'] == 'DAEMON_BASELINE_UNVERIFIED':
+            need(row['preservation'] == 'UNVERIFIED' and row['producer_mutation'] == 'NOT_STARTED')
+    if (value['first_failed_phase'], value['failure_reason']) == ('producer', 'PRODUCER_BASELINE_ID_COLLISION'):
+        need(initial and pre is not None and row['producer_mutation'] == 'COMPLETE_REJECTED' and
+             value['producer_exit'] == exit_record(0))
+    if value['cleanup'] == 'PASS':
+        need(row['preservation'] == 'PASS' and row['owned_absence'] == 'PASS' and
+             row['producer_mutation'] == 'COMPLETE_ACCEPTED')
+
+
 def read(path):
     path = Path(path)
     need(path.is_absolute() and '..' not in path.parts and
@@ -131,7 +184,7 @@ def project(data, commit, pin, outcome):
          outcome in {'success', 'failure', 'cancelled', 'skipped', ''})
     value = decode(data)
     need(set(value) == KEYS and type(value['schema_version']) is int and
-         value['schema_version'] == 2 and value['stage'] == 'kernel-native-development-job' and
+         value['schema_version'] == 3 and value['stage'] == 'kernel-native-development-job' and
          type(value['cancelled']) is bool and value['selected_for_release'] is False and
          value['source_commit'] == commit and value['packet_sha256'] == pin)
     need(value['status'] in {'PASS', 'FAIL'} and value['phase'] in PHASES and
@@ -142,6 +195,7 @@ def project(data, commit, pin, outcome):
              ('kernel_runtime', 'hardware', 'installation', 'binary_publication')) and
          value['performance'] == 'NOT MEASURED')
     diagnostics(value)
+    daemon_baseline(value)
     accepted = (value['phase'] == 'complete' and not value['cancelled'] and
                 value['first_failed_phase'] == 'NONE' and value['failure_reason'] == 'NONE' and
                 all(value[name] == exit_record(0) for name in ('producer_exit', 'acquisition_exit')) and

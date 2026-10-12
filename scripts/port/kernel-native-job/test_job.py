@@ -169,21 +169,26 @@ class JobContracts(unittest.TestCase):
 
     def test_unknown_producer_mutation_empty_inventory_is_not_cleanup_pass(self):
         docker = Mock(); docker.inventory.return_value = set()
-        result = job.cleanup_base(docker, Mock(), self.root, None, False)
+        result = job.cleanup_base(docker, Mock(), self.root, None, False, Mock())
         self.assertEqual(result['status'], 'FAIL'); self.assertTrue(result['producer_mutation_uncertain'])
         docker.call.assert_not_called()
 
     def test_only_journaled_base_id_can_be_removed_and_absence_is_required(self):
         docker = Mock(daemon={'id': 'daemon'}); docker.inventory.return_value = set()
-        job.save(self.root / 'base-ownership.json', {'image_id': self.image, 'daemon': docker.daemon, 'producer_finished': True})
+        baseline = Mock(record={'source_commit': self.args.source_commit, 'identity_sha256': 'b' * 64, 'nonce': 'e' * 32})
+        baseline.protected.return_value = set()
+        job.save(self.root / 'base-ownership.json', {'image_id': self.image, 'daemon': docker.daemon,
+            'producer_finished': True, 'source_commit': self.args.source_commit,
+            'producer_sha256': job.packet.HELPERS['scripts/ci/native_arm.py'][0],
+            'baseline_identity_sha256': 'b' * 64, 'nonce': 'e' * 32})
         row = {'Id': self.image, 'Architecture': 'arm64', 'Os': 'linux'}
         docker.call.side_effect = [SimpleNamespace(returncode=0, stdout=json.dumps([row]).encode()),
             SimpleNamespace(returncode=0, stdout=b''), SimpleNamespace(returncode=1, stdout=b'No such image')]
-        self.assertEqual(job.cleanup_base(docker, Mock(), self.root, self.image, True)['status'], 'PASS')
-        self.assertEqual(docker.call.call_args_list[1].args[1], ['image', 'rm', self.image])
+        self.assertEqual(job.cleanup_base(docker, Mock(), self.root, self.image, True, baseline)['status'], 'PASS')
+        self.assertEqual(docker.call.call_args_list[1].args[1], ['image', 'rm', '--no-prune', self.image])
         docker.call.side_effect = [SimpleNamespace(returncode=0, stdout=json.dumps([row]).encode()),
             SimpleNamespace(returncode=1, stdout=b'image in use')]
-        with self.assertRaises(ValueError): job.cleanup_base(docker, Mock(), self.root, self.image, True)
+        with self.assertRaises(ValueError): job.cleanup_base(docker, Mock(), self.root, self.image, True, baseline)
 
     def test_finish_public_is_allowlist_and_late_cancel_preserves_fail(self):
         out = self.args.output; (out / 'private').mkdir(parents=True); (out / 'public').mkdir()
@@ -207,14 +212,17 @@ class JobContracts(unittest.TestCase):
     def controller_fixture(self):
         accepted = self.root / 'accepted'; accepted.mkdir()
         job.save(accepted / 'bootstrap.json', {'status': 'fixture'}); job.save(accepted / 'result.json', {'status': 'fixture'})
-        fake = Mock(); fake.info.return_value = {'id': 'fixture-daemon'}; fake.daemon = fake.info.return_value
+        fake = Mock(); fake.info.return_value = {'id': 'fixture-daemon', 'architecture': 'aarch64'}; fake.daemon = fake.info.return_value
         fake.inventory.return_value = set()
+        fake.pins = [(1, 2, 0, 0, 0o100755), (1, 3, 0, 0, 0o140660)]
+        fake.image.return_value = {'id': self.image, 'architecture': 'arm64', 'os': 'linux', 'config': {},
+            'rootfs': {'type': 'layers', 'layers': []}, 'size': 1, 'parent': None, 'repo_tags': [], 'repo_digests': []}
         row = {'Id': self.image, 'Architecture': 'arm64', 'Os': 'linux'}
         fake.call.side_effect = [SimpleNamespace(returncode=0, stdout=json.dumps([row]).encode()),
             SimpleNamespace(returncode=0, stdout=b''), SimpleNamespace(returncode=1, stdout=b'No such image')]
         phases = []; self.parallel_override = None
         def runner(seconds, env, logs):
-            instance = Mock(); instance.run_many.return_value = [SimpleNamespace(returncode=0), SimpleNamespace(returncode=0)]
+            instance = Mock(deadline=job.snapshot_clock() + seconds); instance.run_many.return_value = [SimpleNamespace(returncode=0), SimpleNamespace(returncode=0)]
             if seconds == job.PARALLEL and self.parallel_override is not None:
                 if isinstance(self.parallel_override, BaseException): instance.run_many.side_effect = self.parallel_override
                 else: instance.run_many.return_value = self.parallel_override
@@ -222,13 +230,14 @@ class JobContracts(unittest.TestCase):
             phases.append((seconds, instance)); return instance
         def source(*args, **kwargs): args[5].mkdir(parents=True); return {'status': 'PASS'}
         self.patches = [patch.object(job, '__file__', str(self.root / 'scripts/port/kernel-native-job/job.py')),
-            patch.dict(job.os.environ, {'GITHUB_WORKSPACE': str(self.root)}),
+            patch.dict(job.os.environ, {'GITHUB_WORKSPACE': str(self.root), 'GITHUB_RUN_ID': '1', 'GITHUB_RUN_ATTEMPT': '1'}),
             patch.object(job, 'ordinary'), patch.object(job.packet, 'verify', side_effect=source),
             patch.object(job, 'Docker', return_value=fake), patch.object(job.runtime, 'Runner', side_effect=runner),
             patch.object(job, 'accepted_producer', return_value=(self.image, accepted)),
             patch.object(job, 'acquired_paths', return_value={key: self.root / key for key in
                 ('archive', 'config', 'patch', 'bio-baseline', 'bio-candidate', 'package-cache', 'key-dir')}),
             patch.object(job, 'kernel_status', return_value={'status': 'PASS'}),
+            patch.object(job, 'kernel_owned_absence', return_value=True),
             patch.object(job.shutil, 'disk_usage', return_value=SimpleNamespace(free=30 * 1024**3))]
         for item in self.patches: item.start(); self.addCleanup(item.stop)
         return fake, phases
@@ -249,8 +258,8 @@ class JobContracts(unittest.TestCase):
 
     def test_initial_schema_has_no_invented_resource_or_exit_observations(self):
         status = job.initial(self.args)
-        self.assertEqual(set(status), job.public.KEYS); self.assertEqual(len(status), 24)
-        self.assertEqual(status['schema_version'], 2)
+        self.assertEqual(set(status), job.public.KEYS); self.assertEqual(len(status), 25)
+        self.assertEqual(status['schema_version'], 3)
         self.assertEqual(status['resources'], {name: None for name in job.public.RESOURCE_KEYS})
         for name in ('producer_exit', 'acquisition_exit'):
             self.assertEqual(status[name], {'kind': 'NOT_RUN', 'code': None})
@@ -430,7 +439,7 @@ class JobContracts(unittest.TestCase):
         status = job.packet.load(self.args.output / 'public/status.json')
         self.assertEqual((status['status'], status['baseline'], status['candidate'], status['native_compilation']),
             ('FAIL', 'PASS', 'PASS', 'NOT ACCEPTED'))
-        self.failure_receipts('cleanup', 'CLEANUP_FAILED')
+        self.failure_receipts('cleanup', 'OWNED_ABSENCE_UNVERIFIED')
 
     def main_argv(self):
         return ['--execute-native', '--source-root', str(self.args.source_root), '--source-commit', self.args.source_commit,
@@ -593,5 +602,480 @@ with patch.object(job, 'finish', side_effect=finish), patch.object(signal, 'pthr
             self.assertEqual(job.execute(self.args), 0)
         self.assertEqual([seconds for seconds, _ in phases], [job.SETUP, job.PARALLEL, job.KERNEL_ENVELOPE, job.CLEANUP])
 
+
+
+    def populated_controller(self, borrowed=None):
+        fake, phases = self.controller_fixture()
+        baseline_id = borrowed or 'sha256:' + 'e' * 64
+        rows = {baseline_id: {'id': baseline_id, 'architecture': 'amd64', 'os': 'linux',
+            'config': {'Env': ['TOKEN=private-baseline']}, 'rootfs': {'type': 'layers', 'layers': []},
+            'size': 5, 'parent': None, 'repo_tags': ['borrowed:a', 'borrowed:b'], 'repo_digests': []}}
+        new = json.loads(json.dumps(fake.image.return_value))
+        fake.image.side_effect = lambda runner, image: json.loads(json.dumps(rows[image]))
+        fake.inventory.side_effect = lambda runner, kind: set(rows) if kind == 'image' else set()
+        accepted = job.accepted_producer.return_value
+        def accept(*args):
+            if self.image not in rows: rows[self.image] = new
+            return accepted
+        job.accepted_producer.side_effect = accept
+        def call(runner, argv):
+            if argv[:2] == ['image', 'rm']:
+                del rows[argv[-1]]; return SimpleNamespace(returncode=0, stdout=b'')
+            if argv[:2] == ['image', 'inspect']:
+                if argv[-1] in rows:
+                    return SimpleNamespace(returncode=0, stdout=json.dumps([{'Id': argv[-1], 'Architecture': 'arm64', 'Os': 'linux'}]).encode())
+                return SimpleNamespace(returncode=1, stdout=b'No such image')
+            raise AssertionError(argv)
+        fake.call.side_effect = call
+        return fake, phases, rows, baseline_id
+
+    def test_controller_accepts_preserved_populated_baseline_without_exporting_metadata(self):
+        fake, _, rows, baseline_id = self.populated_controller()
+        self.assertEqual(job.execute(self.args), 0)
+        status = job.packet.load(self.args.output / 'public/status.json'); summary = status['daemon_baseline']
+        self.assertEqual(summary['initial_image_id_count'], 1)
+        self.assertEqual((summary['preservation'], summary['owned_absence'], summary['producer_mutation']),
+            ('PASS', 'PASS', 'COMPLETE_ACCEPTED'))
+        self.assertEqual(summary['pre_identity_sha256'], summary['post_identity_sha256'])
+        self.assertEqual(set(rows), {baseline_id})
+        self.assertNotIn('private-baseline', json.dumps(status)); self.assertNotIn('borrowed:a', json.dumps(status))
+        removals = [row.args[1] for row in fake.call.call_args_list if row.args[1][:2] == ['image', 'rm']]
+        self.assertEqual(removals, [['image', 'rm', '--no-prune', self.image]])
+
+    def test_controller_borrowed_producer_IID_refuses_kernel_and_all_image_removal(self):
+        fake, phases, rows, baseline_id = self.populated_controller(self.image)
+        self.assertEqual(job.execute(self.args), 1)
+        status, _ = self.failure_receipts('producer', 'PRODUCER_BASELINE_ID_COLLISION')
+        self.assertEqual(status['producer'], 'FAIL')
+        self.assertEqual(status['daemon_baseline']['producer_mutation'], 'COMPLETE_REJECTED')
+        self.assertEqual(status['daemon_baseline']['preservation'], 'PASS')
+        self.assertEqual([seconds for seconds, _ in phases], [job.SETUP, job.PARALLEL, job.CLEANUP])
+        self.assertIn(baseline_id, rows); fake.call.assert_not_called()
+        self.assertFalse((self.args.output / 'private/base-ownership.json').exists())
+
+    def test_controller_known_new_base_does_not_delete_unexplained_image_ids(self):
+        fake, _, rows, baseline_id = self.populated_controller()
+        original = job.accepted_producer.side_effect; foreign = 'sha256:' + 'f' * 64
+        def accept(*args):
+            accepted = original(*args); row = json.loads(json.dumps(rows[baseline_id])); row['id'] = foreign
+            row['repo_tags'] = []; rows[foreign] = row; return accepted
+        job.accepted_producer.side_effect = accept
+        self.assertEqual(job.execute(self.args), 0)
+        self.assertEqual(set(rows), {baseline_id, foreign})
+        summary = job.packet.load(self.args.output / 'public/status.json')['daemon_baseline']
+        self.assertEqual(summary['legacy_build_cache'], 'NOT_ESTABLISHED')
+        self.assertFalse(any(call.args[1][-1] == foreign for call in fake.call.call_args_list))
+
+    def test_controller_postproducer_retag_refuses_kernel_and_preservation(self):
+        _, phases, rows, baseline_id = self.populated_controller()
+        original = job.accepted_producer.side_effect
+        def accept(*args):
+            result = original(*args); rows[baseline_id]['repo_tags'] = ['changed:a']; return result
+        job.accepted_producer.side_effect = accept
+        self.assertEqual(job.execute(self.args), 1)
+        status, _ = self.failure_receipts('producer', 'DAEMON_BASELINE_CHANGED')
+        self.assertEqual(status['daemon_baseline']['preservation'], 'FAIL')
+        self.assertEqual(status['daemon_baseline']['producer_mutation'], 'COMPLETE_REJECTED')
+        self.assertEqual(status['cleanup'], 'FAIL'); self.assertEqual(status['baseline'], 'NOT RUN')
+        self.assertEqual([seconds for seconds, _ in phases], [job.SETUP, job.PARALLEL, job.CLEANUP])
+
+    def test_initial_nonempty_containers_and_image_failure_have_distinct_typed_counts(self):
+        fake, phases = self.controller_fixture()
+        fake.inventory.side_effect = lambda runner, kind: {'a' * 64} if kind == 'container' else set()
+        self.assertEqual(job.execute(self.args), 1)
+        status, _ = self.failure_receipts('source', 'DAEMON_CONTAINERS_PRESENT')
+        self.assertEqual(status['daemon_baseline']['initial_container_count'], 1)
+        self.assertEqual(status['daemon_baseline']['initial_image_id_count'], 0)
+        self.assertEqual(status['daemon_baseline']['producer_mutation'], 'NOT_STARTED')
+        self.assertFalse(any(seconds == job.PARALLEL for seconds, _ in phases))
+        self.next_output(2)
+        def inventory(runner, kind):
+            if kind == 'image': raise ValueError('malformed-query')
+            return set()
+        fake.inventory.side_effect = inventory
+        self.assertEqual(job.execute(self.args), 1)
+        status, _ = self.failure_receipts('source', 'DAEMON_BASELINE_UNVERIFIED')
+        self.assertEqual(status['daemon_baseline']['initial_container_count'], 0)
+        self.assertIsNone(status['daemon_baseline']['initial_image_id_count'])
+
+    def test_baseline_journal_is_durable_before_either_child_launch(self):
+        _, phases = self.controller_fixture(); factory = job.runtime.Runner.side_effect
+        def runner(seconds, env, logs):
+            instance = factory(seconds, env, logs)
+            if seconds == job.PARALLEL:
+                def children(*args, **kwargs):
+                    path = self.args.output / 'private/daemon-baseline.json'
+                    record = job.packet.load(path)
+                    self.assertEqual(record['observations'][0]['stage'], 'before_producer')
+                    self.assertEqual(path.stat().st_mode & 0o777, 0o600)
+                    self.assertEqual(record['source_commit'], self.args.source_commit)
+                    return [SimpleNamespace(returncode=0), SimpleNamespace(returncode=0)]
+                instance.run_many.side_effect = children
+            return instance
+        job.runtime.Runner.side_effect = runner
+        self.assertEqual(job.execute(self.args), 0)
+        self.assertEqual([seconds for seconds, _ in phases], [job.SETUP, job.PARALLEL, job.KERNEL_ENVELOPE, job.CLEANUP])
+
+    def test_kernel_owned_absence_failure_cannot_publish_base_only_cleanup_PASS(self):
+        self.controller_fixture()
+        with patch.object(job, 'kernel_owned_absence', side_effect=ValueError('kernel-owned-absence-unverified')):
+            self.assertEqual(job.execute(self.args), 1)
+        status, _ = self.failure_receipts('cleanup', 'OWNED_ABSENCE_UNVERIFIED')
+        self.assertEqual(status['native_compilation'], 'NOT ACCEPTED')
+        self.assertEqual(status['daemon_baseline']['preservation'], 'PASS')
+        self.assertEqual(status['daemon_baseline']['owned_absence'], 'UNVERIFIED')
+
+    def test_final_baseline_query_failure_cannot_publish_preservation_or_cleanup_PASS(self):
+        fake, _, _, _ = self.populated_controller(); original = fake.call.side_effect; removed = False
+        def call(runner, argv):
+            nonlocal removed
+            result = original(runner, argv)
+            if argv[:2] == ['image', 'rm']: removed = True
+            return result
+        fake.call.side_effect = call; original_image = fake.image.side_effect
+        def image(runner, identifier):
+            if removed: raise ValueError('inventory-disconnected')
+            return original_image(runner, identifier)
+        fake.image.side_effect = image
+        self.assertEqual(job.execute(self.args), 1)
+        status, _ = self.failure_receipts('cleanup', 'DAEMON_BASELINE_UNVERIFIED')
+        self.assertEqual(status['daemon_baseline']['owned_absence'], 'PASS')
+        self.assertEqual(status['daemon_baseline']['preservation'], 'UNVERIFIED')
+        self.assertIsNone(status['daemon_baseline']['post_identity_sha256'])
+
+    def test_unknown_async_producer_is_not_repaired_by_final_preservation_PASS(self):
+        _, _ = self.controller_fixture(); self.parallel_override = job.runtime.Cancelled(15)
+        self.assertEqual(job.execute(self.args), 1)
+        status, _ = self.failure_receipts('parallel', 'CANCELLED', True)
+        self.assertEqual(status['daemon_baseline']['preservation'], 'PASS')
+        self.assertEqual(status['daemon_baseline']['producer_mutation'], 'UNCERTAIN')
+        self.assertEqual(status['daemon_baseline']['owned_absence'], 'UNVERIFIED')
+        self.assertEqual(status['cleanup'], 'FAIL')
+
+    def test_kernel_scoped_absence_receiver_requires_bound_positive_records(self):
+        out = self.root / 'kernel-clean'; (out / 'private').mkdir(parents=True)
+        daemon = {'id': 'fixture-daemon', 'architecture': 'aarch64'}
+        clean = {'status': 'PASS', 'records': [
+            {'status': 'PASS', 'absence_verified': True, 'cancelled': False, 'errors': []},
+            {'status': 'PASS', 'absence_verified': True, 'commit_attempted': True}]}
+        record = {'source_commit': self.args.source_commit, 'status': 'FAIL', 'kernel_execution': 'NOT RUN',
+            'hardware_validation': 'NOT RUN', 'performance': 'NOT MEASURED', 'daemon': daemon,
+            'accepted_base': {'image_id': self.image}, 'cleanup': clean}
+        job.save(out / 'private/result.json', record)
+        self.assertTrue(job.kernel_owned_absence(out, self.args.source_commit, self.image, daemon))
+        changes = (lambda r: r['cleanup'].update(status='FAIL'), lambda r: r['cleanup'].update(records=[]),
+            lambda r: r['cleanup']['records'][0].update(absence_verified=False),
+            lambda r: r['cleanup']['records'][0].update(uncertain_commit=True),
+            lambda r: r['cleanup']['records'][0].update(cancelled=True), lambda r: r.update(source_commit='f' * 40),
+            lambda r: r['accepted_base'].update(image_id='sha256:' + 'f' * 64), lambda r: r.update(daemon={}),
+            lambda r: r['cleanup'].update(records=r['cleanup']['records'][:1]),
+            lambda r: r['cleanup'].update(records=r['cleanup']['records'][:1] * 2),
+            lambda r: r['cleanup']['records'][0].update(errors=['failed-absence']),
+            lambda r: r['cleanup']['records'][1].update(commit_attempted=1))
+        for change in changes:
+            altered = json.loads(json.dumps(record)); change(altered); job.save(out / 'private/result.json', altered)
+            with self.assertRaisesRegex(ValueError, 'kernel-owned-absence-unverified'):
+                job.kernel_owned_absence(out, self.args.source_commit, self.image, daemon)
+
+
+    def test_actual_TERM_during_producer_receipt_acceptance_retains_bound_uncertain_FAIL(self):
+        _, phases = self.controller_fixture()
+        def receipt(*args): os.kill(os.getpid(), signal.SIGTERM)
+        job.accepted_producer.side_effect = receipt
+        self.assertEqual(job.execute(self.args), 1)
+        status, _ = self.failure_receipts('producer', 'CANCELLED', True)
+        self.assertEqual(status['producer'], 'FAIL')
+        self.assertEqual(status['daemon_baseline']['producer_mutation'], 'UNCERTAIN')
+        self.assertEqual(status['producer_exit'], {'kind': 'EXIT_ZERO', 'code': 0})
+        self.assertEqual(status['cleanup'], 'FAIL')
+        self.assertFalse(any(seconds == job.KERNEL_ENVELOPE for seconds, _ in phases))
+
+    def test_actual_TERM_after_owned_base_acceptance_retains_closed_rejected_state(self):
+        self.controller_fixture(); original = job.Baseline.observe
+        def observe(baseline, runner, stage):
+            if stage == 'before_kernel': os.kill(os.getpid(), signal.SIGTERM)
+            return original(baseline, runner, stage)
+        with patch.object(job.Baseline, 'observe', observe): self.assertEqual(job.execute(self.args), 1)
+        status, _ = self.failure_receipts('producer', 'CANCELLED', True)
+        self.assertEqual(status['producer'], 'FAIL')
+        self.assertEqual(status['daemon_baseline']['producer_mutation'], 'COMPLETE_REJECTED')
+        self.assertEqual(status['cleanup'], 'FAIL')
+
+
+    def test_actual_TERM_at_state_transition_boundaries_always_retains_bound_FAIL(self):
+        fake, _, _, _ = self.populated_controller()
+        targets = ((job.Baseline.start.__code__, 'self.ready = True'),
+            (job.work.__code__, "status.update(producer_exit={'kind': 'UNOBSERVED'"),
+            (job.work.__code__, "status['daemon_baseline']['producer_mutation'] = 'COMPLETE_ACCEPTED'"))
+        import inspect
+        for index, (code, fragment) in enumerate(targets):
+            with self.subTest(boundary=fragment):
+                self.next_output('transition-' + str(index)); injected = False
+                lines, offset = inspect.getsourcelines(code)
+                target = next(offset + i for i, line in enumerate(lines) if fragment in line)
+                previous = sys.gettrace()
+                def trace(frame, event, arg):
+                    nonlocal injected
+                    if frame.f_code is code and event == 'line' and frame.f_lineno == target and not injected:
+                        injected = True; os.kill(os.getpid(), signal.SIGTERM)
+                    return trace
+                try:
+                    sys.settrace(trace); self.assertEqual(job.execute(self.args), 1)
+                finally: sys.settrace(previous)
+                self.assertTrue(injected)
+                status = job.packet.load(self.args.output / 'public/status.json')
+                private = job.packet.load(self.args.output / 'private/result.json')
+                self.assertTrue(status['cancelled']); self.assertEqual(status['status'], 'FAIL')
+                self.assertEqual(private['status'], status)
+                self.assertEqual(job.public.project(json.dumps(status).encode(), self.args.source_commit,
+                    self.args.packet_sha256, 'success'), status)
+
+
+class BaselineContracts(unittest.TestCase):
+    setUp = JobContracts.setUp
+
+    def metadata(self, identifier, tags=None, arch='arm64', parent=''):
+        return {'Id': identifier, 'Architecture': arch, 'Os': 'linux', 'Config': {'Env': ['SAMPLE=private'],
+            'Labels': {'fixture': 'preserve'}, 'UnknownFutureKey': [1, True, None]},
+            'RootFS': {'Type': 'layers', 'Layers': ['sha256:' + '1' * 64]}, 'Size': 123,
+            'Parent': parent, 'RepoTags': tags or [], 'RepoDigests': []}
+
+    def fixture(self, images=None):
+        self.images = images or {}; self.containers = set(); self.removals = []; self.query_failure = {}
+        self.daemon = job.Docker(self.args)
+        self.daemon.daemon = {'id': 'fixture-daemon', 'architecture': 'aarch64'}
+        self.daemon.pins = [(1, 2, 0, 0, 0o100755), (1, 3, 0, 0, 0o140660)]
+        self.daemon.local = Mock(); self.daemon.info = Mock(return_value=self.daemon.daemon)
+        def call(runner, argv):
+            code, output = 0, b''
+            if argv[0] in ('container', 'image') and argv[1] == 'ls':
+                kind = argv[0]
+                if kind in self.query_failure: return self.query_failure[kind]
+                values = self.containers if kind == 'container' else self.images
+                output = ('\n'.join(sorted(values)) + ('\n' if values else '')).encode()
+            elif argv[:2] == ['image', 'inspect']:
+                if argv[2] in self.images: output = json.dumps([self.images[argv[2]]]).encode()
+                else: code, output = 1, b'No such image'
+            elif argv[:2] == ['image', 'rm']:
+                self.removals.append(argv)
+                row = self.images.pop(argv[-1])
+                # Model the documented ancestor deletion default; the test must
+                # preserve an untagged ancestor through explicit no-prune.
+                if '--no-prune' not in argv and row['Parent'] in self.images: del self.images[row['Parent']]
+            else: raise AssertionError(argv)
+            return SimpleNamespace(returncode=code, stdout=output)
+        self.daemon.call = Mock(side_effect=call)
+        self.summary = job.initial(self.args)['daemon_baseline']
+        self.baseline = job.Baseline(self.args, self.daemon, self.root, self.summary)
+        self.runner = Mock(deadline=job.snapshot_clock() + 60)
+        self.env = patch.dict(job.os.environ, {'GITHUB_RUN_ID': '123', 'GITHUB_RUN_ATTEMPT': '2'})
+        self.env.start(); self.addCleanup(self.env.stop)
+        return self.baseline
+
+    def journal_base(self, identifier):
+        job.save(self.root / 'base-ownership.json', {'image_id': identifier, 'daemon': self.daemon.daemon,
+            'producer_finished': True, 'source_commit': self.args.source_commit,
+            'producer_sha256': job.packet.HELPERS['scripts/ci/native_arm.py'][0],
+            'baseline_identity_sha256': self.baseline.record['identity_sha256'],
+            'nonce': self.baseline.record['nonce']})
+
+    def test_full_borrowed_metadata_and_foreign_dangling_images_are_preserved(self):
+        foreign, dangling = 'sha256:' + 'f' * 64, 'sha256:' + 'e' * 64
+        baseline = self.fixture({foreign: self.metadata(foreign, ['fixture:a', 'fixture:b'], 'amd64'),
+            dangling: self.metadata(dangling)})
+        baseline.start(self.runner)
+        self.assertEqual(baseline.protected(), {foreign, dangling})
+        self.assertEqual(self.summary['initial_container_count'], 0)
+        self.assertEqual(self.summary['initial_image_id_count'], 2)
+        self.assertEqual(baseline.record['images'][1]['config']['UnknownFutureKey'], [1, True, None])
+        record = job.packet.load(baseline.path)
+        self.assertEqual(record, baseline.record); self.assertEqual(record['run_id'], '123')
+        self.assertEqual(baseline.path.stat().st_mode & 0o777, 0o600)
+        self.images[self.image] = self.metadata(self.image)
+        baseline.observe(self.runner, 'before_kernel')
+        del self.images[self.image]
+        baseline.observe(self.runner, 'after_cleanup')
+        self.assertEqual(self.summary['preservation'], 'PASS')
+        self.assertEqual(self.summary['pre_identity_sha256'], self.summary['post_identity_sha256'])
+        self.assertFalse(self.removals)
+
+    def test_empty_baseline_is_positive_and_unowned_new_ids_are_never_removed(self):
+        baseline = self.fixture(); baseline.start(self.runner)
+        self.images[self.image] = self.metadata(self.image)
+        baseline.observe(self.runner, 'before_kernel'); baseline.observe(self.runner, 'after_cleanup')
+        self.assertEqual(self.summary['preservation'], 'PASS'); self.assertFalse(self.removals)
+        self.assertEqual(self.summary['legacy_build_cache'], 'NOT_ESTABLISHED')
+        self.assertEqual(baseline.record['observations'][-1]['image_id_count'], 1)
+
+    def test_container_presence_does_not_short_circuit_the_image_query(self):
+        baseline = self.fixture(); self.containers.add('a' * 64)
+        with self.assertRaisesRegex(ValueError, 'baseline-containers-present'): baseline.start(self.runner)
+        self.assertEqual(self.summary['initial_container_count'], 1)
+        self.assertEqual(self.summary['initial_image_id_count'], 0)
+        self.assertEqual([call.args[1][0] for call in self.daemon.call.call_args_list], ['container', 'image'])
+        self.assertFalse(baseline.path.exists())
+
+    def test_inventory_query_parse_and_bounds_keep_null_distinct_from_zero(self):
+        for index, result in enumerate((SimpleNamespace(returncode=1, stdout=b'query-failed'),
+            SimpleNamespace(returncode=0, stdout=b'bad-ID'), SimpleNamespace(returncode=0, stdout=b'a' * (128 * 1024 + 1)),
+            SimpleNamespace(returncode=0, stdout=(('sha256:' + 'e' * 64 + '\n') * 257).encode()))):
+            with self.subTest(index=index):
+                baseline = self.fixture(); self.query_failure['image'] = result
+                with self.assertRaises(ValueError): baseline.start(self.runner)
+                self.assertEqual(self.summary['initial_container_count'], 0)
+                self.assertIsNone(self.summary['initial_image_id_count'])
+                self.assertIsNone(self.summary['pre_identity_sha256'])
+                self.assertFalse(baseline.ready)
+                self.env.stop()
+
+    def test_failed_container_query_still_observes_valid_image_count(self):
+        baseline = self.fixture(); self.query_failure['container'] = SimpleNamespace(returncode=1, stdout=b'failure')
+        with self.assertRaises(ValueError): baseline.start(self.runner)
+        self.assertIsNone(self.summary['initial_container_count'])
+        self.assertEqual(self.summary['initial_image_id_count'], 0)
+
+    def test_duplicate_image_rows_deduplicate_ids_without_losing_references(self):
+        baseline = self.fixture({self.image: self.metadata(self.image, ['sample:a', 'sample:b'])})
+        original = self.daemon.call.side_effect
+        def call(runner, argv):
+            result = original(runner, argv)
+            if argv[:2] == ['image', 'ls']: result.stdout *= 2
+            return result
+        self.daemon.call.side_effect = call; baseline.start(self.runner)
+        self.assertEqual(self.summary['initial_image_id_count'], 1)
+        self.assertEqual(baseline.record['images'][0]['repo_tags'], ['sample:a', 'sample:b'])
+
+    def test_same_id_retag_config_layer_and_size_drift_refuse_preservation(self):
+        changes = (lambda row: row.update(RepoTags=['retagged:latest']),
+            lambda row: row['Config'].update(Env=['CHANGED=yes']),
+            lambda row: row['RootFS'].update(Layers=['sha256:' + '2' * 64]), lambda row: row.update(Size=124))
+        for index, change in enumerate(changes):
+            with self.subTest(index=index):
+                baseline = self.fixture({self.image: self.metadata(self.image, ['original:a'])})
+                baseline.start(self.runner); change(self.images[self.image])
+                with self.assertRaisesRegex(ValueError, 'baseline-changed'): baseline.observe(self.runner, 'after_cleanup')
+                self.assertEqual(self.summary['preservation'], 'FAIL')
+                self.assertNotEqual(self.summary['pre_identity_sha256'], self.summary['post_identity_sha256'])
+                baseline.path.unlink(); self.env.stop()
+
+    def test_positive_missing_baseline_id_is_changed_not_an_absence_success(self):
+        baseline = self.fixture({self.image: self.metadata(self.image)})
+        baseline.start(self.runner); del self.images[self.image]
+        with self.assertRaisesRegex(ValueError, 'baseline-changed'): baseline.observe(self.runner, 'after_cleanup')
+        self.assertEqual(self.summary['preservation'], 'FAIL')
+
+    def test_capture_repeats_full_metadata_and_refuses_same_id_reference_churn(self):
+        baseline = self.fixture({self.image: self.metadata(self.image, ['original:a'])})
+        original = self.daemon.image; calls = 0
+        def image(runner, identifier):
+            nonlocal calls
+            row = original(runner, identifier); calls += 1
+            if calls == 1: self.images[identifier]['RepoTags'] = ['changed:a']
+            return row
+        self.daemon.image = image
+        with self.assertRaisesRegex(ValueError, 'baseline-capture-drift'): baseline.start(self.runner)
+        self.assertFalse(baseline.path.exists()); self.assertIsNone(self.summary['pre_identity_sha256'])
+
+    def test_journal_tamper_owner_mode_and_daemon_identity_cannot_authorize_cleanup(self):
+        baseline = self.fixture(); baseline.start(self.runner)
+        record = job.packet.load(baseline.path); record['nonce'] = 'e' * 32; job.save(baseline.path, record)
+        with self.assertRaisesRegex(ValueError, 'baseline-journal-binding'): baseline.protected()
+        job.save(baseline.path, baseline.record); baseline.path.chmod(0o644)
+        with self.assertRaisesRegex(ValueError, 'baseline-journal-binding'): baseline.protected()
+        baseline.path.chmod(0o600); self.daemon.daemon = {'id': 'another-daemon', 'architecture': 'arm64'}
+        with self.assertRaisesRegex(ValueError, 'baseline-daemon-binding'): baseline.protected()
+
+    def test_metadata_overflow_bad_types_duplicate_refs_and_JSON_keys_are_refused(self):
+        variants = (lambda r: r.update(Size=True), lambda r: r.update(Parent=False),
+            lambda r: r.update(RepoTags=['a'] * 257), lambda r: r.update(RepoTags=['a', 'a']),
+            lambda r: r['Config'].update(Value='a' * 65537), lambda r: r.update(Config={'Value': float('nan')}))
+        for change in variants:
+            with self.subTest(change=change):
+                baseline = self.fixture({self.image: self.metadata(self.image)}); change(self.images[self.image])
+                with self.assertRaises(ValueError): baseline.start(self.runner)
+                self.assertFalse(baseline.path.exists()); self.env.stop()
+        self.fixture()
+        self.daemon.call.return_value = SimpleNamespace(returncode=0,
+            stdout=b'[{"Id":"x","Id":"y"}]'); self.daemon.call.side_effect = None
+        with self.assertRaisesRegex(ValueError, 'packet-json-duplicate'): self.daemon.image(self.runner, self.image)
+
+    def test_bounded_JSON_depth_nodes_and_aggregate_canonical_bytes(self):
+        nested = {}; current = nested
+        for _ in range(17): current['next'] = {}; current = current['next']
+        for value in (nested, {'many': [None] * 8192}):
+            with self.assertRaisesRegex(ValueError, 'baseline-JSON-bound'): job.bounded_json(value)
+        images = {}
+        for index in range(70):
+            identifier = 'sha256:' + format(index, '064x'); images[identifier] = self.metadata(identifier)
+            images[identifier]['Config']['Large'] = 'x' * 65000
+        baseline = self.fixture(images)
+        with self.assertRaisesRegex(ValueError, 'baseline-aggregate-bound'): baseline.start(self.runner)
+        self.assertFalse(baseline.path.exists())
+
+    def test_empty_rootfs_omitted_layers_is_supported_without_dropping_Config(self):
+        row = self.metadata(self.image); row['RootFS'] = {'Type': 'layers'}; row['Config'] = None
+        baseline = self.fixture({self.image: row}); baseline.start(self.runner)
+        self.assertEqual(baseline.record['images'][0]['rootfs']['layers'], [])
+        self.assertIsNone(baseline.record['images'][0]['config'])
+
+    def test_reference_bound_is_combined_across_tags_and_digests(self):
+        row = self.metadata(self.image, ['tag:' + str(i) for i in range(128)])
+        row['RepoDigests'] = ['repo@sha256:' + format(i, '064x') for i in range(128)]
+        baseline = self.fixture({self.image: row}); baseline.start(self.runner)
+        baseline.path.unlink(); row['RepoDigests'].append('extra@sha256:' + 'f' * 64)
+        baseline = self.fixture({self.image: row})
+        with self.assertRaisesRegex(ValueError, 'baseline-image-references'): baseline.start(self.runner)
+        self.assertFalse(baseline.path.exists())
+
+    def test_duplicate_reference_bound_to_different_ids_refuses_capture(self):
+        foreign = 'sha256:' + 'e' * 64
+        baseline = self.fixture({self.image: self.metadata(self.image, ['same:tag']), foreign: self.metadata(foreign, ['same:tag'])})
+        with self.assertRaisesRegex(ValueError, 'baseline-reference-binding'): baseline.start(self.runner)
+
+    def test_ancestor_survives_no_prune_and_only_new_journaled_id_is_removed(self):
+        parent = 'sha256:' + 'e' * 64
+        baseline = self.fixture({parent: self.metadata(parent)}); baseline.start(self.runner)
+        self.images[self.image] = self.metadata(self.image, parent=parent); self.journal_base(self.image)
+        result = job.cleanup_base(self.daemon, self.runner, self.root, self.image, True, baseline)
+        baseline.observe(self.runner, 'after_cleanup')
+        self.assertEqual(result['status'], 'PASS'); self.assertIn(parent, self.images)
+        self.assertEqual(self.removals, [['image', 'rm', '--no-prune', self.image]])
+        self.assertEqual(self.summary['preservation'], 'PASS')
+
+    def test_borrowed_id_cannot_be_deleted_even_with_fabricated_base_ownership(self):
+        baseline = self.fixture({self.image: self.metadata(self.image)}); baseline.start(self.runner)
+        self.journal_base(self.image)
+        with self.assertRaisesRegex(ValueError, 'baseline-ID-collision'):
+            job.cleanup_base(self.daemon, self.runner, self.root, self.image, True, baseline)
+        self.assertFalse(self.removals); self.assertIn(self.image, self.images)
+
+    def test_uncertain_producer_cannot_turn_empty_inventory_into_cleanup_pass(self):
+        baseline = self.fixture(); baseline.start(self.runner)
+        result = job.cleanup_base(self.daemon, self.runner, self.root, None, False, baseline)
+        baseline.observe(self.runner, 'after_cleanup')
+        self.assertEqual(result['status'], 'FAIL'); self.assertTrue(result['producer_mutation_uncertain'])
+        self.assertEqual(self.summary['preservation'], 'PASS'); self.assertFalse(self.removals)
+
+    def test_actual_TERM_during_capture_keeps_image_query_unstarted_and_no_journal(self):
+        baseline = self.fixture(); original = self.daemon.call.side_effect
+        def call(runner, argv):
+            if argv[0] == 'container': os.kill(os.getpid(), signal.SIGTERM)
+            return original(runner, argv)
+        self.daemon.call.side_effect = call
+        with job.runtime.cancellation_handlers(), self.assertRaises(job.runtime.Cancelled): baseline.start(self.runner)
+        self.assertFalse(baseline.path.exists()); self.assertFalse(self.removals)
+        self.assertIsNone(self.summary['initial_image_id_count'])
+
+    def test_snapshot_deadline_cannot_be_extended_by_observation_or_receipt_save(self):
+        baseline = self.fixture(); self.runner.deadline = job.snapshot_clock() - 1
+        with self.assertRaisesRegex(ValueError, 'deadline-exhausted'): baseline.start(self.runner)
+        self.assertFalse(baseline.path.exists())
+        self.runner.deadline = job.snapshot_clock() + 60
+        original = job.save
+        def save(path, record):
+            original(path, record); self.runner.deadline = job.snapshot_clock() - 1
+        with patch.object(job, 'save', side_effect=save):
+            with self.assertRaisesRegex(ValueError, 'deadline-exhausted'): baseline.start(self.runner)
+        self.assertFalse(baseline.ready); self.assertIsNone(self.summary['pre_identity_sha256'])
 
 if __name__ == '__main__': unittest.main()

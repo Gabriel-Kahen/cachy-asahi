@@ -53,7 +53,7 @@
     },
     "scripts/port/kernel-native-stage/image.py": {
       "mode": 420,
-      "sha256": "09f737f54afaaeff475a1dfe7811dae4705b465aca1b1fce33d5dc4a69a49be9"
+      "sha256": "55f989c33e78b6664c47bbf937cf517bb7adaa78ccc75878379580ab2c2c96fc"
     },
     "scripts/port/kernel-native-stage/regression.py": {
       "mode": 493,
@@ -81,7 +81,7 @@
     },
     "scripts/port/kernel-native-stage/test_image.py": {
       "mode": 420,
-      "sha256": "fe3fd91867c216fc71bfee9aae63f68af4fda98074e6ea767e7f1b2477aa03b4"
+      "sha256": "cd55800cf8bd1b4cb24c647545c26da24f812924c5bbe7a36f789d1fe6a99614"
     },
     "scripts/port/kernel-native-stage/test_regression.py": {
       "mode": 420,

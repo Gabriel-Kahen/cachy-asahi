@@ -1,13 +1,21 @@
 # Standalone hosted native kernel job
 
-This is a source implementation for coordinator review and packet registration.
-**Hosted execution, original producer execution in this job, native ARM fixture
-execution and both full kernel compilations have not run.** Kernel execution,
-installation, M2 validation and performance measurement remain pending. No
-shared lock, original producer, platform tuple or recipe was changed by this
-implementation. The separate API/start compatibility correction updates the
-kernel image client and broker; its source maps require coordinator rebind
-before execution. See [the compatibility record](kernel-docker-compatibility.md).
+This baseline-preservation correction is source implementation pending
+independent review and coordinator rebind. Historical run 38253531983 executed
+commit `dcc170af543f3238f33efc0c623811d6620affaa` with the 115-file packet
+`afdb5a4947acf71e511fe1266921d68149561aedb4ec5b030e841112e827d9e2` and
+failed at `source/DAEMON_OCCUPIED`, before either child ran. The old guard
+short-circuited image inventory and used the same fallback for query failures;
+that evidence does not establish image/container counts or preservation.
+Its resource readings passed the initial guards. Original producer execution
+in this job and both full kernel compilations remain NOT RUN, as do kernel
+execution, installation and M2 validation; performance remains NOT MEASURED.
+The old 130-test/schema 2/kernel24 e47/job115 afdb evidence remains historical.
+The new six source/test candidates and two guides are not authenticated by those
+old locks. Original producer, platform tuple, recipes, workflow, packet.py,
+locks and Git are unchanged by this correction. See the selected
+[baseline contract](kernel-daemon-baseline-proposal.md) and historical
+[API/start compatibility record](kernel-docker-compatibility.md).
 
 The manual [workflow](../../.github/workflows/native-arm-kernel.yml) runs only
 in the public `Gabriel-Kahen/cachy-asahi` repository on `ubuntu-24.04-arm`.
@@ -25,8 +33,8 @@ kernel stage and its source lock, original input/recipe locks, and this job's
 Python sources, workflow and guide. Overlap gives 105 fixed existing files;
 new source files are added to the finite closure. The complete map is limited
 to 256 files, 8 MiB per file and 32 MiB total. Directory walks stop at 1,024
-entries/depth16. Files must be single-link regular files with ordinary directory
-ancestors and mode0644/0755. Private captured receipts may use mode0600.
+entries/depth 16. Files must be single-link regular files with ordinary directory
+ancestors and mode 0644/0755. Private captured receipts may use mode 0600.
 
 The immutable pins are:
 
@@ -38,11 +46,11 @@ The immutable pins are:
 | Coordinator-held kernel24 source lock after API/start correction | `e47d873cd1f8ff542ec1ffd3a5de4b51db4d890f28bc6f1dddbc27d989db0d5a` |
 | Separate signed fifteen-package extension | `cf4d6eaa80ab15f1b1359d161b7b07e187f37df6071e5f628e235cb9689a93d6` |
 
-The coordinator must create and independently review
+The coordinator must rebind and independently review
 `scripts/port/kernel-native-job/packet.lock.json`, commit every included source
 file and register the workflow. The workflow requires the external packet hash
-with no default. This task supplies `packet.preview(root)` and source fixtures,
-but does not register a packet, mutate Git or dispatch a job.
+with no default. The existing `packet.preview(root)` and source fixtures support that proof;
+this correction does not register a new packet, mutate Git or dispatch a job.
 
 Before executing repository code, an inline standard-library bootstrap captures
 and authenticates the packet and every source row, compares actual Git blobs and
@@ -69,8 +77,11 @@ controller's fixed Docker API 1.48 within its actual advertised minimum/maximum
 range. The job reads both values from the same locally pinned daemon and refuses
 a maximum below 1.48, a minimum above 1.48 or a malformed range. It does not
 negotiate a different request version.
-Its initial image
-and container inventories must be empty; an occupied daemon is refused.
+Initial container and image queries run independently with typed bounds.
+Containers must be empty. Existing images are captured as protected borrowed
+baseline B before the unchanged producer starts; failure to observe them is
+UNVERIFIED, never an empty population. This is observed preservation on a
+cooperative disposable VM, not enforced isolation against outside writers.
 Require at least 15 GiB reported physical memory, 14 GiB available memory and
 30 GiB initial free disk, with at least 8 GiB disk left before the kernel stage.
 Existing Git, GPG, lscpu, zstd, Docker and Python executables are required.
@@ -126,15 +137,15 @@ The six-hour hosted ceiling is allocated explicitly:
 | Hosted overhead guard | 60 |
 | Total | 21,600 |
 
-Inside the job envelope: source/host setup300 seconds; original producer and
-parallel acquisition2,050; held kernel work18,000 plus outer cleanup/signal
-margin240; base cleanup150; guard20. Before each phase, remaining wall time
+Inside the job envelope: source/host setup 300 seconds; original producer and
+parallel acquisition 2,050; held kernel work 18,000 plus outer cleanup/signal
+margin 240; base cleanup 150; guard 20. Before each phase, remaining wall time
 must cover that phase and every later reserve. Insufficient time refuses launch.
 The job clock starts before output creation and the initial durable receipt;
 startup time consumes the same execution envelope.
 These are caps and refusal rules, not guarantees that downloads or compilation
 will finish. Slow original acquisition or package builds fail visibly rather
-than reducing the held kernel's five-hour/two7,200-second build budgets.
+than reducing the held kernel's five-hour/two 7,200-second build budgets.
 
 The process supervisor tracks both producer/acquisition groups before pending
 cancellation can run, applies one aggregate parallel deadline, stops the peer
@@ -154,20 +165,46 @@ query is empty; the job never starts the kernel stage. The disposable VM's
 teardown is the final residue boundary. No standalone recovery interface or
 complete Docker build-cache acceptance is claimed here.
 
-A completed accepted producer's immutable base ID and daemon identity are
-journaled before use. Cleanup can remove only that ID without force, verifies
-its inspection identity and subsequent absence, and requires no remaining
-containers. Held kernel cleanup must also have passed for overall PASS.
-Additional private Docker build-cache/intermediate state remains on the
-disposable VM; it is never globally pruned or published. Unknown producer
-mutations, failed image removal, daemon loss, kernel-controller timeout or
-cancellation force FAIL. Kernel-controller recovery beyond its held normal
-cleanup remains a coordinator-owned gap.
+A bounded private journal binds source/packet/run/attempt/nonce, daemon and
+CLI/socket identities to B's complete Config, architecture/OS, RootFS layers,
+size, parent and all tag/digest references. Each query is capped at 128 KiB,
+256 raw inventory rows/unique IDs; Config depth 16/nodes8,192/strings64 KiB,
+256 references per ID of at most 512 bytes, and aggregate canonical projection
+4 MiB. The receipt is at most 8 MiB, mode 0600, job-owned/single-link/no-symlink,
+fsynced and atomically replaced before either child launch. Two complete bounded
+passes must agree; counts alone cannot hide retagging or metadata drift.
+An omitted empty RootFS Layers normalizes to []; full Config may be null and
+unknown fields are preserved. Every observation uses its existing phase deadline.
+
+An accepted producer IID must be absent from B and positively inspected as
+ARM64/Linux before it can become a cleanup candidate. Cached baseline collisions
+fail with no base ownership, deletion or kernel launch. Positive B observation
+is repeated after producer acceptance and after scoped cleanup. Unknown newly
+observed IDs never become owned through inventory subtraction and are never
+deleted; cache/layer absence remains NOT_ESTABLISHED. A failed/interrupted
+producer remains UNCERTAIN even if later inventories are empty or preserved.
+
+Only the newly accepted, journaled immutable base ID may be removed, with an
+immediate protected-ID exclusion, `--no-prune` and no force. The kernel helper
+journals all pre-commit IDs (B, base and intermediates) before POST and refuses
+returned/recovered collisions without speculative tag deletion. Every derived
+tag/ID removal also disables ancestor pruning. The full accepted Config12,
+layers, size, native architecture, nonce, recovery and uncertain-POST rules stay
+mandatory. Positive base absence, empty containers and source/image/daemon-bound
+kernel scoped cleanup records must all be established before owned absence PASS.
+Final B identity/reference equality is separately required for cleanup PASS.
+Missing final observation is UNVERIFIED; positively changed state is FAIL.
+
+No global prune, preloaded-image removal, privileged daemon or host service
+change runs. VM teardown does not replace scoped absence or baseline evidence.
+These snapshots cannot prove absence of transient outside mutation or arbitrary
+internal legacy cache changes. Shared/adversarial daemon enforcement would need
+a separate reviewed transport/isolation closure; KSM216 is reference-only.
 
 Initial authoritative FAIL receipts are written before work. Final publication
 uses a finite allowlist; late cancellation rewrites FAIL, and publication errors
 invalidate the two owned terminal receipt paths. The public helper reads only
-one ordinary owned `public/status.json`, at most16 KiB. Both receipts remain FAIL
+one ordinary owned `public/status.json`, at most 16 KiB. Both receipts remain FAIL
 while completed acceptance is held in memory through INT/TERM handler
 restoration and final unmasking. An observed cancellation restores both prior
 handlers before returning failure; termination by a restored default handler
@@ -190,9 +227,9 @@ performance stays NOT MEASURED and release selection stays false.
 
 ## Closed failure diagnostics
 
-Schema version 2 has exactly 24 top-level keys: the original 19 status fields plus
-`first_failed_phase`, `failure_reason`, `producer_exit`, `acquisition_exit` and
-`resources`. Version 1 or missing/extra diagnostic fields are refused. The
+Schema version 3 has exactly 25 top-level keys: the previous 24 fields plus
+`daemon_baseline`. Versions 1/2 or missing/extra diagnostic fields are refused by
+this candidate; their historical evidence is retained unchanged. The
 16 KiB public-record bound, source/packet binding and actual native-step outcome
 gate are unchanged. Diagnostics grant no execution or hardware acceptance.
 
@@ -208,14 +245,34 @@ and other exceptions use the current operation's fixed fallback.
 | --- | --- |
 | `NONE` | `NONE` |
 | `preflight` | `PREFLIGHT_REJECTED`, `HOST_CAPABILITIES`, `HOST_MEMORY_RESERVE`, `HOST_DISK_RESERVE`, `HOST_TOOL_UNAVAILABLE`, `CANCELLED` |
-| `source` | `SOURCE_REJECTED`, `DOCKER_REJECTED`, `DAEMON_OCCUPIED`, `PRODUCER_TIME_RESERVE`, `CANCELLED` |
+| `source` | `SOURCE_REJECTED`, `DOCKER_REJECTED`, `DAEMON_OCCUPIED` (historical fallback), `DAEMON_CONTAINERS_PRESENT`, `DAEMON_BASELINE_UNVERIFIED`, `PRODUCER_TIME_RESERVE`, `CANCELLED` |
 | `parallel` | `PRODUCER_EXIT`, `ACQUISITION_EXIT`, `BOTH_CHILDREN_EXIT`, `PARALLEL_TIMEOUT`, `PARALLEL_OUTPUT_BOUND`, `PARALLEL_RUN_FAILED`, `CANCELLED` |
-| `producer` | `PRODUCER_RECEIPT_REJECTED`, `CANCELLED` |
+| `producer` | `PRODUCER_RECEIPT_REJECTED`, `PRODUCER_BASELINE_ID_COLLISION`, `DAEMON_BASELINE_CHANGED`, `DAEMON_BASELINE_UNVERIFIED`, `CANCELLED` |
 | `acquisition` | `ACQUISITION_RECEIPT_REJECTED`, `CANCELLED` |
 | `kernel` | `KERNEL_TIME_RESERVE`, `KERNEL_DISK_RESERVE`, `KERNEL_OUTPUT_REJECTED`, `KERNEL_EXIT`, `KERNEL_TIMEOUT`, `KERNEL_OUTPUT_BOUND`, `KERNEL_RUN_FAILED`, `KERNEL_RECEIPT_REJECTED`, `CANCELLED` |
-| `cleanup` | `CLEANUP_FAILED`, `CANCELLED` |
+| `cleanup` | `CLEANUP_FAILED`, `DAEMON_BASELINE_CHANGED`, `DAEMON_BASELINE_UNVERIFIED`, `OWNED_ABSENCE_UNVERIFIED`, `CANCELLED` |
 | `finalization` | `CANCELLED`, `PUBLICATION_FAILED` |
 | `outcome` | `NATIVE_FAILURE`, `NATIVE_CANCELLED`, `NATIVE_SKIPPED`, `NATIVE_UNAVAILABLE` |
+
+`daemon_baseline` has exactly eight keys: initial container/image ID counts,
+pre/post protected identity hashes, preservation, owned absence, producer
+mutation, and legacy cache status. Counts are null or actual integers 0–256;
+hashes are null or lowercase 64-hex. No raw Config, reference or daemon output
+enters this public record. Preservation and owned absence use
+NOT_RUN/PASS/FAIL/UNVERIFIED; mutation uses NOT_STARTED/COMPLETE_ACCEPTED/
+COMPLETE_REJECTED/UNCERTAIN; cache is only NOT_ESTABLISHED. Preservation PASS
+requires positive equal pre/final hashes, initially empty containers and a known
+image population; the empty projection has a real digest, not null.
+
+NOT_STARTED binds producer NOT RUN and unobserved launch (NOT_RUN/null).
+COMPLETE_REJECTED requires producer FAIL and an observed zero exit; receipt or
+ownership rejection does not authorize deletion. Cancellation before owned
+acceptance remains UNCERTAIN even with an observed zero exit. COMPLETE_ACCEPTED
+requires producer PASS, zero exit, a new IID and positive post-producer B proof.
+Cleanup PASS additionally requires preservation/owned absence PASS and accepted
+complete producer mutation. Actual exits and the immutable first cause survive
+all later cleanup/cancellation outcomes. Counts from a successful initial query
+remain known even when its independently queried peer failed.
 
 Each parallel child has exactly `kind` and `code`. Observed return codes are
 classified as `EXIT_ZERO`/0, `EXIT_NONZERO`/1–255 or `EXIT_SIGNAL`/−64–−1.
@@ -251,17 +308,16 @@ publication and public outcome gating. Runtime fixtures execute only tiny local
 processes. No test creates a hosted producer, provisions Docker, compiles a
 kernel or executes it.
 
-The original71/source-helper audit and read-only fixed105-file Git proof passed.
+The original 71/source-helper audit and read-only fixed 105-file Git proof passed.
 The new job/workflow/doc remain pending the coordinator's committed source and
 external packet registration. Final test counts and exact source hashes are
 recorded in the handoff; source review does not replace the required hosted run.
 
-The coordinator's API/start rebind reviewed the unchanged 24-file kernel lock above
-and the prior 115-file packet hash
-`062e026abdc1ee4c5ee4460c8c9ab122f177e84c12debf03166f1ee70d7f5e9e`.
-This diagnostic correction changes only job/public code, their tests and this
-guide. The coordinator owns its subsequent job-packet rebind and committed
-Git proof. Kernel sources, packet.py, locks and workflow are untouched by this
-correction; the previous packet does not authenticate these changed bytes.
-The new Python helpers retain MIT attribution to the held runtime. Existing
-kernel/package source licenses and publication limits remain unchanged.
+The coordinator's API/start and diagnostic work produced the historical kernel24
+lock above and job115 afdb packet used by run 38253531983. This correction
+changes job/public/image code, their three test files, the two existing guides
+and selected proposal. The coordinator owns subsequent kernel24 rebind,
+packet.py's literal dependent pin, job packet and committed Git/mode/bootstrap
+proof. Those registration files remain held; their old rows intentionally do
+not authenticate the candidate source. The new helpers retain MIT attribution;
+existing kernel/package source licenses and publication limits are unchanged.

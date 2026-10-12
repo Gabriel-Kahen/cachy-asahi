@@ -13,6 +13,7 @@ import stat
 import sys
 import tempfile
 import time
+from time import monotonic as snapshot_clock
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import packet
@@ -43,7 +44,7 @@ def save(path, value):
 
 
 def initial(args):
-    return {'schema_version': 2, 'stage': 'kernel-native-development-job', 'status': 'FAIL',
+    return {'schema_version': 3, 'stage': 'kernel-native-development-job', 'status': 'FAIL',
         'phase': 'preflight', 'cancelled': False, 'source_commit': args.source_commit,
         'packet_sha256': args.packet_sha256, 'producer': 'NOT RUN', 'kernel_probe': 'NOT RUN',
         'baseline': 'NOT RUN', 'candidate': 'NOT RUN', 'cleanup': 'FAIL', 'native_compilation': 'NOT RUN',
@@ -53,7 +54,11 @@ def initial(args):
         'producer_exit': {'kind': 'NOT_RUN', 'code': None},
         'acquisition_exit': {'kind': 'NOT_RUN', 'code': None},
         'resources': {key: None for key in ('mem_total_bytes', 'mem_available_bytes',
-            'initial_free_disk_bytes', 'pre_kernel_free_disk_bytes')}}
+            'initial_free_disk_bytes', 'pre_kernel_free_disk_bytes')},
+        'daemon_baseline': {'initial_container_count': None, 'initial_image_id_count': None,
+            'pre_identity_sha256': None, 'post_identity_sha256': None, 'preservation': 'NOT_RUN',
+            'owned_absence': 'NOT_RUN', 'producer_mutation': 'NOT_STARTED',
+            'legacy_build_cache': 'NOT_ESTABLISHED'}}
 
 
 def failure_reason(error, phase, fallback):
@@ -63,6 +68,10 @@ def failure_reason(error, phase, fallback):
         ('preflight', 'host-memory-reserve'): 'HOST_MEMORY_RESERVE',
         ('preflight', 'host-disk-reserve'): 'HOST_DISK_RESERVE',
         ('preflight', 'host-tool-unavailable'): 'HOST_TOOL_UNAVAILABLE',
+        ('source', 'baseline-containers-present'): 'DAEMON_CONTAINERS_PRESENT',
+        ('producer', 'baseline-ID-collision'): 'PRODUCER_BASELINE_ID_COLLISION',
+        ('producer', 'baseline-changed'): 'DAEMON_BASELINE_CHANGED',
+        ('cleanup', 'baseline-changed'): 'DAEMON_BASELINE_CHANGED',
         ('parallel', 'command-timeout'): 'PARALLEL_TIMEOUT',
         ('parallel', 'deadline-exhausted'): 'PARALLEL_TIMEOUT',
         ('parallel', 'output-bound'): 'PARALLEL_OUTPUT_BOUND',
@@ -208,10 +217,168 @@ class Docker:
     def inventory(self, runner, kind):
         result = self.call(runner, [kind, 'ls', '--all', '--no-trunc', '--format', '{{.ID}}'])
         packet.need(result.returncode == 0, 'Docker-inventory-query')
+        packet.need(type(result.stdout) is bytes and len(result.stdout) <= 128 * 1024, 'Docker-inventory-bound')
         values = result.stdout.decode().splitlines()
         regex = 'sha256:[0-9a-f]{64}' if kind == 'image' else '[0-9a-f]{64}'
         packet.need(len(values) <= 256 and all(re.fullmatch(regex, value) for value in values), 'Docker-inventory-bound')
         return set(values)
+
+
+
+    def image(self, runner, image):
+        result = self.call(runner, ['image', 'inspect', image])
+        packet.need(result.returncode == 0 and type(result.stdout) is bytes and
+            len(result.stdout) <= 128 * 1024, 'baseline-image-query')
+        rows = packet.decode(b'{"rows":' + result.stdout + b'}')['rows']
+        required = {'Id', 'Architecture', 'Os', 'Config', 'RootFS', 'Size', 'RepoTags', 'RepoDigests'}
+        packet.need(type(rows) is list and len(rows) == 1 and type(rows[0]) is dict and
+            required <= set(rows[0]) and rows[0]['Id'] == image, 'baseline-image-identity')
+        row = rows[0]
+        references = []
+        for key in ('RepoTags', 'RepoDigests'):
+            values = row[key] if row[key] is not None else []
+            packet.need(type(values) is list and len(values) <= 256 and
+                all(type(v) is str and 0 < len(v.encode()) <= 512 for v in values) and
+                len(set(values)) == len(values), 'baseline-image-references')
+            references.append(sorted(values))
+        packet.need(sum(map(len, references)) <= 256, 'baseline-image-references')
+        rootfs = row['RootFS']
+        packet.need(type(rootfs) is dict and 'Type' in rootfs and set(rootfs) <= {'Type', 'Layers'},
+            'baseline-image-rootfs')
+        rootfs = dict(rootfs, Layers=rootfs.get('Layers', []))
+        packet.need(
+            type(rootfs['Type']) is str and 0 < len(rootfs['Type'].encode()) <= 64 and
+            type(rootfs['Layers']) is list and len(rootfs['Layers']) <= 256 and
+            all(type(v) is str and re.fullmatch('sha256:[0-9a-f]{64}', v) for v in rootfs['Layers']),
+            'baseline-image-rootfs')
+        parent = row.get('Parent')
+        if type(parent) is str and parent == '': parent = None
+        packet.need(parent is None or type(parent) is str and re.fullmatch('sha256:[0-9a-f]{64}', parent),
+            'baseline-image-parent')
+        packet.need(all(type(row[k]) is str and 0 < len(row[k].encode()) <= 64 for k in ('Architecture', 'Os')) and
+            type(row['Size']) is int and 0 <= row['Size'] <= 2**60 and (row['Config'] is None or type(row['Config']) is dict),
+            'baseline-image-metadata')
+        bounded_json(row['Config'])
+        return {'id': image, 'architecture': row['Architecture'], 'os': row['Os'], 'config': row['Config'],
+            'rootfs': {'type': rootfs['Type'], 'layers': rootfs['Layers']}, 'size': row['Size'],
+            'parent': parent, 'repo_tags': references[0], 'repo_digests': references[1]}
+
+
+def canonical(value):
+    return json.dumps(value, sort_keys=True, separators=(',', ':'), ensure_ascii=False, allow_nan=False).encode()
+
+
+def bounded_json(value):
+    nodes = 0
+    def visit(item, depth):
+        nonlocal nodes
+        nodes += 1
+        packet.need(nodes <= 8192 and depth <= 16, 'baseline-JSON-bound')
+        if type(item) is dict:
+            for key, child in item.items():
+                packet.need(type(key) is str, 'baseline-JSON-key')
+                visit(key, depth + 1); visit(child, depth + 1)
+        elif type(item) is list:
+            for child in item: visit(child, depth + 1)
+        elif type(item) is str:
+            packet.need(len(item.encode()) <= 65536, 'baseline-JSON-string')
+        else:
+            packet.need(item is None or type(item) in (bool, int, float), 'baseline-JSON-value')
+    visit(value, 0)
+    canonical(value)  # Reject non-finite JSON numbers.
+
+
+class Baseline:
+    """Positive observations on a cooperative VM, never ownership from inventory deltas."""
+    def __init__(self, args, docker, private, summary):
+        self.args, self.docker, self.path, self.summary = args, docker, private / 'daemon-baseline.json', summary
+        self.record, self.ready = None, False
+
+    def inventories(self, runner, initial=False):
+        values, errors = {}, []
+        for kind, key in (('container', 'initial_container_count'), ('image', 'initial_image_id_count')):
+            try:
+                values[kind] = self.docker.inventory(runner, kind)
+                if initial: self.summary[key] = len(values[kind])
+            except (runtime.Cancelled, KeyboardInterrupt): raise
+            except Exception as error: errors.append(error)
+        if errors: raise errors[0]
+        return values['container'], values['image']
+
+    def projection(self, runner, protected=None):
+        self.docker.info(runner)
+        containers, ids = self.inventories(runner)
+        packet.need(not containers, 'baseline-containers-present')
+        rows, bindings, total = [], {}, 2
+        for image in sorted(ids if protected is None else ids & protected):
+            row = self.docker.image(runner, image)
+            for ref in row['repo_tags'] + row['repo_digests']:
+                packet.need(ref not in bindings or bindings[ref] == image, 'baseline-reference-binding')
+                bindings[ref] = image
+            total += len(canonical(row)) + bool(rows)
+            packet.need(total <= 4 * 1024**2, 'baseline-aggregate-bound')
+            rows.append(row)
+        return rows, ids
+
+    def within(self, runner):
+        packet.need(type(runner.deadline) in (int, float) and snapshot_clock() < runner.deadline, 'deadline-exhausted')
+
+    def capture(self, runner, protected=None):
+        self.within(runner)
+        before, ids = self.projection(runner, protected)
+        after, final = self.projection(runner, protected)
+        packet.need(before == after and ids == final, 'baseline-capture-drift')
+        self.within(runner)
+        return after, final
+
+    def verify(self):
+        info = self.path.lstat()
+        packet.need(stat.S_ISREG(info.st_mode) and stat.S_IMODE(info.st_mode) == 0o600 and
+            info.st_uid == os.getuid() and info.st_nlink == 1 and self.record is not None and
+            packet.load(self.path) == self.record, 'baseline-journal-binding')
+        self.docker.local()
+        packet.need(self.record['cli_socket_identity'] == [list(row) for row in self.docker.pins] and
+            self.record['daemon_id'] == self.docker.daemon['id'] and
+            self.record['daemon_architecture'] == self.docker.daemon['architecture'], 'baseline-daemon-binding')
+
+    def observation(self, stage, rows, ids):
+        return {'stage': stage, 'monotonic_ns': time.monotonic_ns(), 'container_count': 0,
+            'image_id_count': len(ids), 'identity_sha256': packet.sha(canonical(rows))}
+
+    def start(self, runner):
+        self.summary['preservation'] = 'UNVERIFIED'
+        containers, ids = self.inventories(runner, True)
+        packet.need(not containers, 'baseline-containers-present')
+        rows, observed = self.capture(runner)
+        packet.need(ids == observed, 'baseline-capture-drift')
+        nonce = secrets.token_hex(16)
+        run, attempt = os.environ.get('GITHUB_RUN_ID', ''), os.environ.get('GITHUB_RUN_ATTEMPT', '')
+        packet.need(all(re.fullmatch('[0-9]{1,20}', value) for value in (run, attempt)), 'baseline-run-binding')
+        self.record = {'schema_version': 1, 'source_commit': self.args.source_commit,
+            'packet_sha256': self.args.packet_sha256, 'run_id': run, 'run_attempt': attempt, 'nonce': nonce,
+            'daemon_id': self.docker.daemon['id'], 'daemon_architecture': self.docker.daemon['architecture'],
+            'docker_cli_sha256': self.args.docker_sha256,
+            'cli_socket_identity': [list(row) for row in self.docker.pins], 'containers': [], 'images': rows,
+            'identity_sha256': packet.sha(canonical(rows)),
+            'observations': [self.observation('before_producer', rows, observed)]}
+        save(self.path, self.record); self.verify(); self.within(runner)
+        self.summary['pre_identity_sha256'] = self.record['identity_sha256']
+        self.ready = True
+
+    def protected(self):
+        packet.need(self.ready, 'baseline-not-established')
+        self.verify()
+        return {row['id'] for row in self.record['images']}
+
+    def observe(self, runner, stage):
+        self.verify()
+        rows, ids = self.capture(runner, self.protected())
+        row = self.observation(stage, rows, ids)
+        self.record['observations'].append(row); save(self.path, self.record); self.within(runner)
+        if stage == 'after_cleanup':
+            self.summary['post_identity_sha256'] = row['identity_sha256']
+            self.summary['preservation'] = 'PASS' if row['identity_sha256'] == self.record['identity_sha256'] else 'FAIL'
+        packet.need(row['identity_sha256'] == self.record['identity_sha256'], 'baseline-changed')
 
 
 def producer_command(snapshot, private):
@@ -314,19 +481,49 @@ def kernel_progress(kernel_output, commit):
     return progress
 
 
-def cleanup_base(docker, runner, private, image, producer_finished):
+
+def kernel_owned_absence(kernel_output, commit, image, daemon):
+    record = packet.load(kernel_output / 'private/result.json')
+    clean = record.get('cleanup', {})
+    packet.need(record.get('source_commit') == commit and record.get('status') in ('PASS', 'FAIL') and
+        record.get('kernel_execution') == record.get('hardware_validation') == 'NOT RUN' and
+        record.get('performance') == 'NOT MEASURED' and record.get('daemon') == daemon and
+        record.get('accepted_base', {}).get('image_id') == image and
+        type(clean) is dict and set(clean) == {'status', 'records'} and clean['status'] == 'PASS' and
+        type(clean['records']) is list and 2 <= len(clean['records']) <= 3 and
+        all(type(row) is dict and row.get('status') == 'PASS' and row.get('absence_verified') is True and
+            not row.get('cancelled', False) and not row.get('uncertain_commit', False) for row in clean['records']),
+        'kernel-owned-absence-unverified')
+    images = [row for row in clean['records'] if 'commit_attempted' in row]
+    containers = [row for row in clean['records'] if 'commit_attempted' not in row]
+    packet.need(len(images) == 1 and 1 <= len(containers) <= 2 and
+        set(images[0]) == {'status', 'absence_verified', 'commit_attempted'} and
+        type(images[0]['commit_attempted']) is bool and
+        all(set(row) == {'status', 'absence_verified', 'cancelled', 'errors'} and
+            row['cancelled'] is False and row['errors'] == [] for row in containers),
+        'kernel-owned-absence-unverified')
+    return True
+
+def cleanup_base(docker, runner, private, image, producer_finished, baseline):
     docker.info(runner)
     if image is not None:
         # Only the exact immutable image from a completed accepted producer.
+        protected = baseline.protected()
+        packet.need(image not in protected, 'baseline-ID-collision')
         journal = packet.load(private / 'base-ownership.json')
         packet.need(journal['image_id'] == image and journal['daemon'] == docker.daemon and
-            journal['producer_finished'] is True, 'base-image-ownership')
+            journal['producer_finished'] is True and
+            journal['source_commit'] == baseline.record['source_commit'] and
+            journal['producer_sha256'] == packet.HELPERS['scripts/ci/native_arm.py'][0] and
+            journal['baseline_identity_sha256'] == baseline.record['identity_sha256'] and
+            journal['nonce'] == baseline.record['nonce'], 'base-image-ownership')
         queried = docker.call(runner, ['image', 'inspect', image])
         if queried.returncode == 0:
             rows = json.loads(queried.stdout)
             packet.need(len(rows) == 1 and rows[0]['Id'] == image and rows[0]['Architecture'] == 'arm64' and
                 rows[0]['Os'] == 'linux', 'base-image-inspection')
-            removed = docker.call(runner, ['image', 'rm', image])
+            packet.need(image not in baseline.protected(), 'baseline-ID-collision')
+            removed = docker.call(runner, ['image', 'rm', '--no-prune', image])
             packet.need(removed.returncode == 0, 'base-image-removal')
             queried = docker.call(runner, ['image', 'inspect', image])
         packet.need(queried.returncode != 0 and b'No such image' in queried.stdout, 'base-image-absence')
@@ -336,7 +533,7 @@ def cleanup_base(docker, runner, private, image, producer_finished):
     return {'status': 'PASS' if producer_finished and image is not None and not containers else 'FAIL',
         'base_image_absence': image is not None, 'containers_currently_absent': not containers,
         'producer_mutation_uncertain': not producer_finished,
-        'Docker_build_cache': 'private disposable VM; not pruned or independently accepted'}
+        'Docker_build_cache': 'NOT_ESTABLISHED'}
 
 
 def execute(args):
@@ -365,7 +562,7 @@ def work(args, terminal, start):
     for name in ('home', 'docker-config'): (private / name).mkdir(mode=0o700)
     status = initial(args); evidence = {'status': dict(status), 'source': None, 'commands': []}
     finish(args.output, status, evidence)
-    docker = None; image = None; producer_finished = False; kernel_output = None
+    docker = None; image = None; producer_finished = False; kernel_output = None; baseline = None
     env = {'PATH': '/usr/bin:/bin', 'HOME': str(private / 'home'), 'DOCKER_CONFIG': str(private / 'docker-config'),
         'DOCKER_HOST': args.docker_endpoint, 'DOCKER_BUILDKIT': '0', 'LC_ALL': 'C', 'LANG': 'C.UTF-8', 'PYTHONDONTWRITEBYTECODE': '1',
         **{key: os.environ[key] for key in HOST_ENV if key in os.environ}}
@@ -379,8 +576,9 @@ def work(args, terminal, start):
         evidence['source'] = packet.verify(root, args.packet, args.packet_sha256, args.source_commit, setup, snapshot)
         context = ('source', 'DOCKER_REJECTED')
         docker = Docker(args); evidence['daemon'] = docker.info(setup)
-        context = ('source', 'DAEMON_OCCUPIED')
-        packet.need(not docker.inventory(setup, 'container') and not docker.inventory(setup, 'image'), 'fresh-disposable-Docker-required')
+        context = ('source', 'DAEMON_BASELINE_UNVERIFIED')
+        baseline = Baseline(args, docker, private, status['daemon_baseline'])
+        baseline.start(setup)
         context = ('source', 'PRODUCER_TIME_RESERVE')
         packet.need(DEADLINE - (time.monotonic() - start) >= PARALLEL + KERNEL_ENVELOPE + CLEANUP + GUARD, 'producer-time-reserve')
         status['phase'] = 'producer'
@@ -392,6 +590,7 @@ def work(args, terminal, start):
         phase = runtime.Runner(PARALLEL, env, private / 'phase-logs')
         evidence['commands'] = commands
         save(private / 'producer-started.json', {'commands': commands, 'daemon': docker.daemon, 'producer_finished': False})
+        status['daemon_baseline']['producer_mutation'] = 'UNCERTAIN'
         status.update(producer_exit={'kind': 'UNOBSERVED', 'code': None},
             acquisition_exit={'kind': 'UNOBSERVED', 'code': None})
         results = phase.run_many(commands, timeout=PARALLEL, lognames=('original-producer.log', 'kernel-acquisition.log'))
@@ -405,10 +604,19 @@ def work(args, terminal, start):
             public.record_failure(status, 'parallel', reason)
         packet.need(not any(failed), 'producer-or-acquisition-failed')
         context = ('producer', 'PRODUCER_RECEIPT_REJECTED')
-        image, accepted = accepted_producer(private, args.source_commit); producer_finished = True
-        save(private / 'base-ownership.json', {'image_id': image, 'daemon': docker.daemon, 'producer_finished': True,
-            'source_commit': args.source_commit, 'producer_sha256': packet.HELPERS['scripts/ci/native_arm.py'][0]})
+        status['daemon_baseline']['producer_mutation'] = 'COMPLETE_REJECTED'
+        candidate, accepted = accepted_producer(private, args.source_commit)
+        packet.need(candidate not in baseline.protected(), 'baseline-ID-collision')
+        observed = docker.image(phase, candidate)
+        packet.need(observed['architecture'] == 'arm64' and observed['os'] == 'linux', 'producer-image-profile')
+        save(private / 'base-ownership.json', {'image_id': candidate, 'daemon': docker.daemon, 'producer_finished': True,
+            'source_commit': args.source_commit, 'producer_sha256': packet.HELPERS['scripts/ci/native_arm.py'][0],
+            'nonce': baseline.record['nonce'], 'baseline_identity_sha256': baseline.record['identity_sha256']})
+        image, producer_finished = candidate, True
+        context = ('producer', 'DAEMON_BASELINE_UNVERIFIED')
+        baseline.observe(phase, 'before_kernel')
         status['producer'] = 'PASS'
+        status['daemon_baseline']['producer_mutation'] = 'COMPLETE_ACCEPTED'
         context = ('kernel', 'KERNEL_TIME_RESERVE')
         packet.need(DEADLINE - (time.monotonic() - start) >= KERNEL_ENVELOPE + CLEANUP + GUARD, 'kernel-time-reserve')
         context = ('kernel', 'KERNEL_DISK_RESERVE')
@@ -436,9 +644,16 @@ def work(args, terminal, start):
         status.update(kernel_probe='PASS', baseline='PASS', candidate='PASS', native_compilation='PASS', status='PASS')
     except (runtime.Cancelled, KeyboardInterrupt):
         status.update(status='FAIL', cancelled=True)
+        mutation = status['daemon_baseline']['producer_mutation']
+        if mutation == 'COMPLETE_REJECTED':
+            status['producer'] = 'FAIL'
+            if not producer_finished: status['daemon_baseline']['producer_mutation'] = 'UNCERTAIN'
+        elif mutation == 'COMPLETE_ACCEPTED':
+            status['producer'] = 'PASS'
         public.record_failure(status, context[0], 'CANCELLED')
     except Exception as error:
         status['status'] = 'FAIL'; evidence['error_type'] = type(error).__name__
+        if context[0] == 'producer' and status['producer'] != 'PASS': status['producer'] = 'FAIL'
         public.record_failure(status, context[0], failure_reason(error, *context))
     finally:
         with runtime.defer_signals() as events:
@@ -454,13 +669,33 @@ def work(args, terminal, start):
             try:
                 packet.need(docker is not None, 'Docker-not-initialized')
                 cleanup = runtime.Runner(CLEANUP, env, private / 'cleanup-logs')
-                evidence['cleanup'] = cleanup_base(docker, cleanup, private, image, producer_finished)
-                status['cleanup'] = evidence['cleanup']['status']
+                evidence['cleanup'] = cleanup_base(docker, cleanup, private, image, producer_finished, baseline)
+                packet.need(evidence['cleanup']['status'] == 'PASS', 'owned-absence-unverified')
+                if kernel_output is not None:
+                    kernel_owned_absence(kernel_output, args.source_commit, image, docker.daemon)
+                status['daemon_baseline']['owned_absence'] = 'PASS'
+                status['cleanup'] = 'PASS'
             except BaseException as error:
                 status['cleanup'] = 'FAIL'; evidence['cleanup'] = {'status': 'FAIL', 'absence_verified': False}
+                status['daemon_baseline']['owned_absence'] = 'UNVERIFIED'
+                if not isinstance(error, (runtime.Cancelled, KeyboardInterrupt)):
+                    public.record_failure(status, 'cleanup', 'OWNED_ABSENCE_UNVERIFIED')
                 if isinstance(error, (runtime.Cancelled, KeyboardInterrupt)):
                     status['cancelled'] = True
                     public.record_failure(status, 'cleanup', 'CANCELLED')
+            try:
+                packet.need(baseline is not None and baseline.ready, 'baseline-not-established')
+                baseline.observe(cleanup, 'after_cleanup')
+            except BaseException as error:
+                status['cleanup'] = 'FAIL'
+                if status['daemon_baseline']['preservation'] != 'FAIL':
+                    status['daemon_baseline'].update(preservation='UNVERIFIED', post_identity_sha256=None)
+                if isinstance(error, (runtime.Cancelled, KeyboardInterrupt)):
+                    status['cancelled'] = True
+                    public.record_failure(status, 'cleanup', 'CANCELLED')
+                else:
+                    public.record_failure(status, 'cleanup', failure_reason(error, 'cleanup', 'DAEMON_BASELINE_UNVERIFIED'))
+            if status['daemon_baseline']['producer_mutation'] != 'COMPLETE_ACCEPTED': status['cleanup'] = 'FAIL'
             if status['cleanup'] != 'PASS': public.record_failure(status, 'cleanup', 'CLEANUP_FAILED')
             if events:
                 status.update(status='FAIL', cancelled=True)
