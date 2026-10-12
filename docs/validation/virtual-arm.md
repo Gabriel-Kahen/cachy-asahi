@@ -222,3 +222,49 @@ Raw logs and strict decoded bundles are retained under
 | Repository failure | `af3d73af4660fdaf84b63c103e3e2ad58bc927c64d0bc03d09ddb49e9e18a164` | 49780 |
 | Native source suites | `b49b0d8597b40ae020fa1a57880ece34315058068f62ec656d18dd04acd6d84f` | 28185 |
 | Failed integration summary | `014df15d60d70fdffa6e5eaff6919ab9da362e17bf7f499d7a3960aff187f783` | 989 |
+
+## Fifth actual attempt: precise handoff and repository refusals
+
+- Source: `e75ead78a89ff7f84b864a032b34ea6f49c028d5`.
+- [Native run 38205521065](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38205521065): **FAIL overall**.
+- Integration lock: `a115acf811a40274eb3fd76b7c0029d0f943c114fc9e382a2b297cb481c9de40`, binding 153 source files and 125 fixture files.
+- Signed input lock remains `3c16c37d1b12cc84a88572e82ab8ad59e7f3b5ed0d08f09ddf72a69f4711d650`; original recipe lock remains `20d846cdf289bfc233b0051bf33b677fd6e94e9f05d91a33595a2829a196fa63`.
+
+Original and changed fixture package build pairs, archive comparisons and TEST
+signing passed. All **499 locked native source tests passed, zero skips**. The
+lifecycle component again passed and emitted READY for its 345-package inventory.
+All eight strictly validated package-inventory projections exported successfully;
+the generic credential guard remains unchanged.
+
+The outer lifecycle verifier refused the committed image at
+`derived-config-verification`, with refusal code `lifecycle-config` and differences
+in exactly `Cmd`, `Entrypoint` and `Labels`. The bounded diagnostic names fields
+without exposing environment values. This identifies the failed boundary; it
+does not yet establish the cause or accept a corrected image. Empty command
+metadata must actually be restored and independently verified before installed
+onboarding, desktop or subsequent stages can use this image.
+
+Repository execution progressed past the copied-base inventory to
+`repo-add-baseline-A`. Its retained log reports that `mktemp` could not create
+`/tmp/repo-tools.XXXXXXXXXX` on the read-only filesystem. Repository creation,
+installation, upgrade, negative cases and rollback are not accepted. A bounded
+private writable temporary directory is required while retaining the read-only
+container root. The repository result's package-name dictionary also triggered
+the generic credential heuristic; publication needs a validated semantic
+inventory projection, not a relaxed text guard.
+
+Installed onboarding and desktop stages were **NOT RUN**. No verified installed
+image is available from this failed execution for the virtual guest or installed
+ARM experiment. Raw logs and independently decoded bundles are retained under
+`artifacts/ci/38205521065/`:
+
+| Bundle | SHA-256 | Bytes |
+| --- | --- | --- |
+| Native probe | `65a1d8cb36bbb76b82a2b1c80fa2b35ef1a46632b65caf4015b8e9cac4bf13ca` | 1770 |
+| Native package builds | `50bbd4e16711ee68e13db889caed9004db53bd58e6f660d3d49187301260a2b6` | 1256124 |
+| Fixture archives | `a72e7635681015e68f1da37929971560e6877daf4fe8b3bdd1116c85d612d59b` | 35963 |
+| Fixtures | `f979a113e6c73922abeb26a46c5b4c3ced59859ee9b28a36143bc6edeaf4dc98` | 59543 |
+| Lifecycle | `153a1dd23128c148014dd521c4ea79d9b7cf2aaeeb4b8e0666504e07c1c8e86e` | 60840 |
+| Repository failure | `5c9c70312bc201a156f4cdf043e0303178da40090c4fa1f29b52195ad41afc69` | 47188 |
+| Native source suites | `1d46142c9d5576b4b9b2b4e264e05aa73a3a35b239bc740f0e858c057e506940` | 28851 |
+| Failed integration summary | `f466b3057659ab944dac82370fc16e9bff8b80ec648e48f03f51d9dcc1d7cb04` | 1016 |

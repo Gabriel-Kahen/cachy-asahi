@@ -46,7 +46,8 @@ The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with 
   candidate retains GPL provenance and passes local read-only/page-size fixture
   tests; native builds and required management functionality remain unfinished.
 - ARM-C01 implements two baseline and two LTO zlib builds with cross-decoder,
-  corruption, artifact and cleanup checks; 54 local tests passed. Native build,
+  corruption, artifact, receipt-binding and cancellation checks; 91 local tests
+  and independent review passed. Native build,
   timing and M2 performance remain NOT RUN.
 - A disposable generic virtual desktop route and controller are implemented,
   with 19 separately authenticated tooling packages and 29 local tests, including
@@ -56,7 +57,7 @@ The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with 
 - The offline development release client passes 37 local tests with temporary
   real GPG signatures and independent race regressions. Production trust,
   supported release promotion and native onboarding remain separate gates.
-- Connected V01–V09 execution has four retained native failures. The first
+- Connected V01–V09 execution has five retained native failures. The first
   passed 211 host boundary tests but refused an incorrect source freeze. The
   corrected run passed 213 host tests, runner probe and full-source preflight,
   then failed fetching superseded pinned Perl inputs. The third authenticated
@@ -67,7 +68,14 @@ The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with 
   onboarding and installed desktop stages did not begin. The fourth run passed
   fixture builds/signing, all 474 native source tests without skips, and the
   signed lifecycle component. The outer installed-image handoff and repository
-  stages still failed; neither installed onboarding nor desktop ran. See
+  stages still failed; neither installed onboarding nor desktop ran. The fifth
+  run passed all 499 native source tests without skips, package build pairs,
+  signing and the lifecycle component. Its validated package inventory exports
+  passed, but the committed-image verifier rejected differences in Cmd,
+  Entrypoint and Labels. Repository creation reached repo-add, which could not
+  create its temporary directory on the read-only root. Installed onboarding
+  and desktop still did not run. Both failures require corrected source and
+  another actual native execution. See
   [the actual execution record](validation/virtual-arm.md).
 
 These are distinct development results. No complete-port milestone or hardware
@@ -76,7 +84,11 @@ acceptance is granted by their local test counts or source reviews.
 ## Open inputs
 
 - Exact M2 reference machine connection/access; 13-inch and 15-inch have independent gates.
-- Chosen Asahi target snapshot/transaction remains unidentified; native CI package build/comparison results are now verified.
+- An upstream minimal-image candidate now has a retained 261-package inventory
+  and seven separately authenticated current platform archives. Its image
+  authentication, kernel source correspondence, complete target transaction and
+  protected-stack integration remain unaccepted; generic native CI package
+  build/comparison results are separately verified.
 - Original project license is MIT. Excluded upstream configurations have separately recorded unresolved license notices.
 - Final review and selection against the actual Asahi target dependency set; four original development candidates are selected, with no release selection.
 - Release signing identity/custody and hosting destination, after package and hardware gates permit publication.
