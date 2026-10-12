@@ -6,6 +6,7 @@ import json
 import tarfile
 import tempfile
 import unittest
+import urllib.error
 from pathlib import Path
 from unittest.mock import patch
 
@@ -114,6 +115,68 @@ class FetchTests(TempCase):
         with patch.object(native.urllib.request, 'urlopen', return_value=self.response(b'payload')):
             self.assertEqual(native.fetch(pin('payload'), self.base).read_bytes(), b'payload')
         self.assertEqual(partial.read_bytes(), b'another download')
+
+    def test_http_error_identifies_exact_input_without_url_or_response_contents(self):
+        name = 'perl-5.42.2-2-aarch64.pkg.tar.xz'
+        item = pin(name)
+        item['url'] = 'https://user:PRIVATE_PASSWORD@example.invalid/' + name + '?token=PRIVATE_TOKEN'
+        error = urllib.error.HTTPError(item['url'], 404, 'PRIVATE_RESPONSE_TEXT', {}, io.BytesIO(b'PRIVATE_RESPONSE_BODY'))
+        with patch.object(native.urllib.request, 'urlopen', side_effect=error):
+            with self.assertRaises(native.AcquisitionError) as raised:
+                native.fetch(item, self.base)
+        self.assertIn(name, str(raised.exception)); self.assertIn('HTTP 404', str(raised.exception))
+        self.assertNotIn('PRIVATE_', str(raised.exception))
+        self.assertEqual(raised.exception.http_status, 404)
+        self.assertEqual(list(self.base.iterdir()), [])
+
+    def test_transport_failure_suppresses_private_reason_and_removes_partial(self):
+        with patch.object(native.urllib.request, 'urlopen', side_effect=urllib.error.URLError('PRIVATE_REASON')):
+            with self.assertRaises(native.AcquisitionError) as raised:
+                native.fetch(pin('payload'), self.base)
+        self.assertIn('payload', str(raised.exception))
+        self.assertNotIn('PRIVATE_REASON', str(raised.exception))
+        self.assertEqual(list(self.base.iterdir()), [])
+
+    def test_all_acquisition_results_survive_http_failure_before_gpg(self):
+        name = 'perl-5.42.2-2-aarch64.pkg.tar.xz'
+        def signed(filename):
+            return dict(pin(filename), signature_sha256=hashlib.sha256(b'signature').hexdigest(), signature_size=9)
+        inputs = {'keyring_files': [], 'rootfs': signed('rootfs.tar.gz'), 'packages': [signed(name)]}
+        out = self.base / 'out'; out.mkdir()
+        def opener(url, **kwargs):
+            filename = url.rsplit('/', 1)[1]
+            if filename.startswith('perl-'):
+                raise urllib.error.HTTPError(url + '?token=PRIVATE_TOKEN', 404, 'PRIVATE_BODY', {}, io.BytesIO(b'PRIVATE_BODY'))
+            return self.response(b'signature' if filename.endswith('.sig') else b'payload', url)
+        with patch.object(native.urllib.request, 'urlopen', side_effect=opener), \
+             patch.object(native, 'run', side_effect=AssertionError('GPG must not run')) as gpg:
+            with self.assertRaises(ValueError) as raised:
+                native.audit(inputs, self.base / 'cache', out)
+        self.assertIn(name + ' (HTTP 404)', str(raised.exception))
+        self.assertIn(name + '.sig (HTTP 404)', str(raised.exception))
+        gpg.assert_not_called(); self.assertFalse((out / 'gpg').exists())
+        receipt = json.loads((out / 'acquisition.json').read_text())
+        self.assertEqual(receipt['acquisition'], 'FAIL')
+        self.assertEqual(receipt['signature_authentication'], 'NOT RUN')
+        self.assertEqual(receipt['counts'], {'total': 4, 'pass': 2, 'fail': 2, 'pending': 0})
+        for filename in (name, name + '.sig'):
+            self.assertEqual(receipt['inputs'][filename]['http_status'], 404)
+        self.assertEqual(receipt['inputs']['rootfs.tar.gz']['status'], 'PASS')
+        self.assertNotIn('PRIVATE_', (out / 'acquisition.json').read_text())
+
+    def test_cache_failure_retains_every_result_and_does_not_refresh_pins(self):
+        cache = self.base / 'cache'; cache.mkdir()
+        (cache / 'bad').write_bytes(b'PRIVATE_CORRUPT_CACHE')
+        (cache / 'good').write_bytes(b'payload')
+        items = [pin('bad'), pin('good')]
+        with patch.object(native.urllib.request, 'urlopen', side_effect=AssertionError('network not authorized')):
+            with self.assertRaises(ValueError):
+                native.acquire(items, cache, self.base)
+        receipt = json.loads((self.base / 'acquisition.json').read_text())
+        self.assertEqual(receipt['counts'], {'total': 2, 'pass': 1, 'fail': 1, 'pending': 0})
+        self.assertEqual(receipt['inputs']['bad']['expected_sha256'], items[0]['sha256'])
+        self.assertEqual((cache / 'bad').read_bytes(), b'PRIVATE_CORRUPT_CACHE')
+        self.assertNotIn('PRIVATE_CORRUPT_CACHE', (self.base / 'acquisition.json').read_text())
 
 
 class MetadataTests(TempCase):

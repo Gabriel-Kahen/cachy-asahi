@@ -13,6 +13,7 @@ import subprocess
 import sys
 import tarfile
 import tempfile
+import urllib.error
 import urllib.request
 from pathlib import Path
 
@@ -55,10 +56,21 @@ def load_pinned(path, expected):
     return json.loads(data)
 
 
-def fetch(item, cache):
-    name = item['filename']
-    if Path(name).name != name or name in ('.', '..'):
+class AcquisitionError(ValueError):
+    def __init__(self, name, category, http_status=None):
+        self.filename, self.category, self.http_status = name, category, http_status
+        detail = f'HTTP {http_status}' if http_status is not None else category
+        super().__init__(f'input acquisition failed: {name}: {detail}')
+
+
+def input_name(value):
+    if not isinstance(value, str) or not re.fullmatch(r'[A-Za-z0-9._+@:~-]{1,255}', value) or value in ('.', '..'):
         raise ValueError('unsafe cache filename')
+    return value
+
+
+def fetch(item, cache):
+    name = input_name(item['filename'])
     check_pin(item['sha256'])
     if not isinstance(item['size'], int) or not 0 <= item['size'] <= 2 * 1024**3:
         raise ValueError('invalid input size')
@@ -85,8 +97,70 @@ def fetch(item, cache):
             raise ValueError(f'download checksum/size mismatch: {name}')
         partial.rename(target)
         return target
+    except urllib.error.HTTPError as error:
+        code = error.code if type(error.code) is int and 100 <= error.code <= 599 else None
+        # Close the response body without retaining/printing it, including in
+        # HTTPError's implicit-cleanup warning after the failed future is released.
+        try:
+            error.close()
+        except OSError:
+            pass
+        raise AcquisitionError(name, 'HTTP failure', code) from None
+    except (urllib.error.URLError, TimeoutError):
+        raise AcquisitionError(name, 'HTTPS transport failure') from None
     finally:
         partial.unlink(missing_ok=True)
+
+
+def acquire(items, cache, out):
+    """Persist each transport/pin result before any signature authentication."""
+    names = [input_name(item['filename']) for item in items]
+    if len(names) != len(set(names)) or len(names) > 1024:
+        raise ValueError('duplicate/oversized acquisition input set')
+    records = {item['filename']: {'status': 'PENDING', 'expected_sha256': check_pin(item['sha256']),
+                                 'expected_bytes': item['size']} for item in items}
+    receipt = {'schema_version': 1, 'acquisition': 'IN_PROGRESS', 'signature_authentication': 'NOT RUN',
+               'inputs': records, 'counts': {'total': len(items), 'pass': 0, 'fail': 0, 'pending': len(items)}}
+
+    def persist():
+        descriptor, name = tempfile.mkstemp(prefix='acquisition.', suffix='.partial', dir=out)
+        temporary = Path(name)
+        try:
+            with os.fdopen(descriptor, 'w') as stream:
+                json.dump(receipt, stream, sort_keys=True, indent=2); stream.write('\n')
+                stream.flush(); os.fsync(stream.fileno())
+            temporary.replace(out / 'acquisition.json')
+        finally:
+            temporary.unlink(missing_ok=True)
+
+    persist()
+    try:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
+            futures = {pool.submit(fetch, item, cache): item['filename'] for item in items}
+            for future in concurrent.futures.as_completed(futures):
+                name = futures[future]
+                try:
+                    future.result()
+                    records[name]['status'] = 'PASS'
+                    receipt['counts']['pass'] += 1
+                except Exception as error:
+                    records[name].update(status='FAIL', error_type=type(error).__name__,
+                                         error='transport, cache or pinned-byte validation failed')
+                    if isinstance(error, AcquisitionError):
+                        records[name].update(error=error.category, http_status=error.http_status)
+                    receipt['counts']['fail'] += 1
+                receipt['counts']['pending'] -= 1
+                persist()
+        receipt['acquisition'] = 'FAIL' if receipt['counts']['fail'] else 'PASS'
+    finally:
+        persist()
+    if receipt['counts']['fail']:
+        failed = sorted(name for name, row in records.items() if row['status'] == 'FAIL')
+        shown = [name + (f' (HTTP {records[name]["http_status"]})' if records[name].get('http_status') else '')
+                 for name in failed[:20]]
+        raise ValueError(f'{len(failed)} input acquisitions failed: ' + ', '.join(shown) +
+                         '; complete per-input results in acquisition.json')
+    return receipt
 
 
 def signature_item(item):
@@ -192,8 +266,7 @@ def audit(inputs, cache, out):
     names = [item['filename'] for item in items]
     if len(set(names)) != len(names):
         raise ValueError('duplicate download filename')
-    with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
-        list(pool.map(lambda item: fetch(item, cache), items))
+    acquire(items, cache, out)
     keyhome = out / 'gpg'
     keyhome.mkdir(mode=0o700)
     gpg = ['gpg', '--batch', '--no-options', '--homedir', str(keyhome), '--no-auto-key-retrieve']

@@ -89,3 +89,26 @@ Builds, signing, installed lifecycle, repository transactions, onboarding,
 desktop checks and locked-userspace suites remain **NOT RUN in this attempt**.
 The source-preflight correction has actual native evidence; the connected
 integration batch still has no passing execution.
+
+## Explicit builder snapshot refresh
+
+The coordinator adopted authenticated Perl `5.42.3-1` after independently
+rehashing the archive/signature, repeating exact-primary GPG verification in a
+temporary public-only context, and comparing the complete signed `.PKGINFO`.
+The migration proposal records 341 generic metadata entries and 1,582 satisfied
+dependency relations with no missing relation, conflict or removal. All other
+original rootfs, key and package bytes are retained. This is an explicit retained
+transaction refresh, not a claim that every package came from today's sync DB.
+
+- New signed input lock: `3c16c37d1b12cc84a88572e82ab8ad59e7f3b5ed0d08f09ddf72a69f4711d650`.
+- Migration proposal: `d39c1b744ea54e282663e99932d58976336496426f7c3c6fd12b94526ff09a8f`.
+- New integration lock: `b27a30d06aaa0870017adb1e37fe38c78384eea23234c6b8290d1b7536c785e2`.
+- Original recipe lock remains `20d846cdf289bfc233b0051bf33b677fd6e94e9f05d91a33595a2829a196fa63`.
+
+The complete original input lock is preserved in `input-snapshots/` under its
+original digest. Both earlier execution records remain bound to that old lock.
+The acquisition adapter now atomically retains every input's outcome before GPG
+and reports bounded filenames/HTTP statuses without response bodies or URL
+credentials. The coordinator reran all **217 local CI tests**, with no skips.
+All eight original package builds and the connected integration batch must run
+against the new snapshot before any new execution acceptance.

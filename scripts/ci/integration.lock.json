@@ -772,7 +772,7 @@
     },
     "scripts/ci/inputs.lock.json": {
       "mode": 420,
-      "sha256": "7d53775b2de6136d531a7f20059088def7bbb11ad8baef58e75cd5826e3a2b41"
+      "sha256": "3c16c37d1b12cc84a88572e82ab8ad59e7f3b5ed0d08f09ddf72a69f4711d650"
     },
     "scripts/ci/installed_handoff.py": {
       "mode": 420,
@@ -792,7 +792,7 @@
     },
     "scripts/ci/native_arm.py": {
       "mode": 420,
-      "sha256": "566a537220e4734775cb88467b65d87d827b1b07bb286135070d74f8c3f8a57a"
+      "sha256": "2443ba8a5e7635bbb4d312072c8913a56e06f26764555c7a779533b655982947"
     },
     "scripts/ci/recipes.lock.json": {
       "mode": 420,
@@ -824,7 +824,7 @@
     },
     "scripts/ci/test_native_arm.py": {
       "mode": 420,
-      "sha256": "3899cceaca0adca7ce2329ed5ba4c12f98f2cd16ee34e187aabed6e7631cb4a0"
+      "sha256": "34f0e7873d3a9ff4b69abeb9bdb8d7a86b0e9a16fdcf5bcfb7f000eb6b9cc9ae"
     },
     "scripts/ci/test_sign_fixture.py": {
       "mode": 420,
