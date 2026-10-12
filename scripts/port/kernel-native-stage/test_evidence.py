@@ -106,7 +106,7 @@ class ChildEvidenceTests(unittest.TestCase):
 
 class OperationEvidenceTests(unittest.TestCase):
     receiver = ChildEvidenceTests.receiver
-    def test_schema1_has_exact_historical_bytes_and_schema2_is_closed(self):
+    def test_schema1_has_exact_historical_bytes_and_schema3_is_closed(self):
         legacy = evidence.initial(binding())
         expected = {'schema_version': 1, 'binding': binding(), 'current_predicate': 'SNAPSHOT',
             'first_failed_predicate': 'NONE', 'failure_category': 'NONE',
@@ -114,7 +114,7 @@ class OperationEvidenceTests(unittest.TestCase):
             'cleanup': {'status': 'NOT_RUN', 'category': 'NONE'}}
         self.assertEqual(evidence.encoded(legacy), evidence.encoded(expected))
         fresh = evidence.initial(binding(), evidence.Trace())
-        self.assertEqual(fresh['schema_version'], 2)
+        self.assertEqual(fresh['schema_version'], 3)
         self.assertEqual(self.receiver().child_project(fresh), evidence.project(fresh))
         for row in (dict(legacy, operation=fresh['operation']), {k:v for k,v in fresh.items() if k != 'operation'}):
             for validate in (evidence.project, self.receiver().child_project):
@@ -201,6 +201,52 @@ class OperationEvidenceTests(unittest.TestCase):
         self.assertLessEqual(len(evidence.encoded(row)),4096)
         row['binding']['run_id']='1'*5000
         with self.assertRaises(ValueError):evidence.project(row)
+
+
+
+class ResourceSchemaTests(unittest.TestCase):
+    receiver = ChildEvidenceTests.receiver
+    def diagnostic(self):
+        trace=evidence.Trace();trace.current['action']='provision'
+        with trace.scope('INSPECT_RESOURCES'):
+            trace.resources_refused({'Memory':'private-secret'},{'Memory':14},())
+            trace.fail(ValueError('docker-container-resources'))
+        row=evidence.initial(binding(),trace);row.update(current_predicate='PROVISION_COMMAND')
+        evidence.failure(row,'INVALID_DATA');return row
+
+    def test_new_closed_projection_matches_receiver_and_stays_bounded(self):
+        row=self.diagnostic();out=evidence.project(row)
+        self.assertEqual(out,self.receiver().child_project(row));self.assertEqual(out['schema_version'],3)
+        self.assertLessEqual(len(evidence.encoded(out)),4096);self.assertNotIn('private-secret',json.dumps(out))
+        self.assertEqual(out['operation']['first_failure']['resource_mismatch'],{'field':'Memory','kind':'TYPE'})
+
+    def test_mismatch_unknown_keys_values_types_context_and_missing_slots_refuse(self):
+        bads=[{'field':'private-secret','kind':'VALUE'},{'field':'Memory','kind':'private-secret'},
+            {'field':True,'kind':'VALUE'},{'field':'Memory','kind':False},
+            {'field':'Memory','kind':'VALUE','actual':'private-secret'},['private-secret'],
+            {'field':'Devices','kind':'MISSING'},{'field':'Memory','kind':'PRESENT'}]
+        for bad in bads:
+            row=self.diagnostic();row['operation']['first_failure']['resource_mismatch']=bad
+            for project in (evidence.project,self.receiver().child_project):
+                with self.subTest(bad=bad),self.assertRaises(ValueError):project(row)
+        for slot in ('current','first_failure'):
+            row=self.diagnostic();row['operation'][slot].pop('resource_mismatch')
+            for project in (evidence.project,self.receiver().child_project):
+                with self.assertRaises(ValueError):project(row)
+        row=self.diagnostic();row['operation']['first_failure']['gate']='INSPECT_OWNERSHIP'
+        for project in (evidence.project,self.receiver().child_project):
+            with self.assertRaises(ValueError):project(row)
+
+    def test_legacy_shapes_stay_exact_and_schema3_missing_cannot_be_downgraded_silently(self):
+        modern=self.diagnostic();legacy=__import__('copy').deepcopy(modern);legacy['schema_version']=2
+        for row in legacy['operation'].values():
+            if row is not None:row.pop('resource_mismatch')
+        self.assertEqual(evidence.project(legacy),self.receiver().child_project(legacy))
+        legacy['operation']['current']['resource_mismatch']=None
+        for project in (evidence.project,self.receiver().child_project):
+            with self.assertRaises(ValueError):project(legacy)
+        modern['schema_version']=2
+        with self.assertRaises(ValueError):evidence.project(modern)
 
 
 if __name__ == '__main__': unittest.main()

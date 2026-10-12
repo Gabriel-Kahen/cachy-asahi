@@ -242,7 +242,7 @@ class JobContracts(unittest.TestCase):
                         'nonce': '9' * 32, 'accepted_result_sha256': job.packet.sha(job.packet.read(accepted / 'result.json')),
                         'bootstrap_sha256': job.packet.sha(job.packet.read(accepted / 'bootstrap.json')),
                         'inputs_sha256': job.packet.INPUTS_SHA, 'base_inventory_sha256': job.BASE_SHA}
-                    diagnostic = child_evidence.initial(bind)
+                    diagnostic = child_evidence.initial(bind, child_evidence.Trace())
                     diagnostic.update(current_predicate='COMPLETE',
                         commands={name: child_evidence.exit_record(0) for name in child_evidence.ACTIONS},
                         cleanup={'status': 'PASS', 'category': 'NONE'})
@@ -1285,7 +1285,7 @@ class ChildObservationTests(unittest.TestCase):
 
     def test_false_complete_status_or_missing_variant_nonce_cannot_be_verified(self):
         row = json.loads(json.dumps(self.record)); row.update(status='PASS', phase='complete', cleanup={'status': 'PASS'})
-        d = child_evidence.initial(row['diagnostics']['binding']); d.update(current_predicate='COMPLETE',
+        d = child_evidence.initial(row['diagnostics']['binding'], child_evidence.Trace()); d.update(current_predicate='COMPLETE',
             commands={name: child_evidence.exit_record(0) for name in child_evidence.ACTIONS}, cleanup={'status': 'PASS', 'category': 'NONE'})
         row['diagnostics'] = d; job.save(self.path, row)
         self.assertEqual(self.observe(0)[1]['availability'], 'UNVERIFIED')
@@ -1299,7 +1299,7 @@ class OperationChildObservationTests(unittest.TestCase):
         trace=child_evidence.Trace();trace.current['action']='provision';trace.begin('CREATE');trace.returned(125)
         with trace.scope('QUERY_RETURN'):trace.fail(ValueError('kernel worker exit failed'),'COMMAND_NONZERO')
         with trace.scope('CLEANUP_ABSENCE','cleanup'):trace.fail(ValueError('unknown'),'UNCERTAIN_MUTATION')
-        self.record['diagnostics'].update(schema_version=2,operation=trace.snapshot())
+        self.record['diagnostics'].update(schema_version=3,operation=trace.snapshot())
         job.save(self.path,self.record)
         result,row=self.observe(1)
         self.assertEqual(row['availability'],'VERIFIED')
@@ -1312,6 +1312,44 @@ class OperationChildObservationTests(unittest.TestCase):
         self.assertEqual(row['diagnostics'],snapshot)
         with patch.object(job.packet,'read',side_effect=AssertionError('must not reread')):
             job.public.child_validate_public(row['diagnostics'])
+
+
+
+class ModernResourceChildTests(unittest.TestCase):
+    setUp = ChildObservationTests.setUp
+    observe = ChildObservationTests.observe
+    def complete(self):
+        row=copy.deepcopy(self.record);d=child_evidence.initial(row['diagnostics']['binding'],child_evidence.Trace())
+        d.update(current_predicate='COMPLETE',commands={name:child_evidence.exit_record(0) for name in child_evidence.ACTIONS},cleanup={'status':'PASS','category':'NONE'})
+        row.update(status='PASS',phase='complete',cancelled=False,native_kernel_compilation='PASS',cleanup={'status':'PASS'},diagnostics=d)
+        for name in ('probe','baseline','candidate'):row[name]={'status':'PASS','action':name,'cancelled':False,'nonce':row['nonce']}
+        return row
+    def test_bound_complete_requires_three_and_missing_resource_field_never_verifies(self):
+        original=self.complete();job.save(self.path,original)
+        self.assertEqual(self.observe(0)[1]['availability'],'VERIFIED')
+        for version in (1,2,3):
+            row=copy.deepcopy(original);d=row['diagnostics'];d['schema_version']=version
+            if version==1:d.pop('operation')
+            elif version==2:
+                for slot in d['operation'].values():
+                    if slot is not None:slot.pop('resource_mismatch')
+            else:d['operation']['current'].pop('resource_mismatch')
+            job.save(self.path,row);self.assertEqual(self.observe(0)[1]['availability'],'UNVERIFIED')
+
+    def test_resource_diagnostic_capture_stays_bound_and_immutable_after_file_drift(self):
+        trace=child_evidence.Trace();trace.current['action']='provision'
+        with trace.scope('INSPECT_RESOURCES'):
+            trace.resources_refused({'Memory':'private-secret'},{'Memory':14},())
+            trace.fail(ValueError('docker-container-resources'))
+        row=copy.deepcopy(self.record);d=child_evidence.initial(row['diagnostics']['binding'],trace)
+        d.update(current_predicate='PROVISION_COMMAND');child_evidence.failure(d,'INVALID_DATA')
+        d['cleanup']={'status':'FAIL','category':'ABSENCE_UNVERIFIED'};row['diagnostics']=d
+        job.save(self.path,row);record,observed=self.observe(1);self.assertIsNotNone(record)
+        frozen=copy.deepcopy(observed['diagnostics']);self.path.write_text('{"raw":"private-secret"}')
+        record['diagnostics']['operation']['first_failure']['resource_mismatch']['field']='NanoCpus'
+        self.assertEqual(observed['diagnostics'],frozen)
+        with patch.object(job.packet,'read',side_effect=AssertionError('no second capture')):job.public.child_validate_public(frozen)
+        self.assertEqual(frozen['operation']['first_failure']['resource_mismatch'],{'field':'Memory','kind':'TYPE'})
 
 
 if __name__ == '__main__': unittest.main()

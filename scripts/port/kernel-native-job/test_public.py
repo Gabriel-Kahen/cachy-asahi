@@ -783,7 +783,7 @@ class BootstrapTests(unittest.TestCase):
 class Schema4ChildTests(unittest.TestCase):
     def current(self):
         value = receipt(); value['schema_version'] = 4
-        diagnostic = {'schema_version': 1, 'binding_sha256': 'f' * 64, 'current_predicate': 'COMPLETE',
+        diagnostic = {'schema_version': 3, 'operation': {'current': dict(action='NONE',gate='NONE',predicate='NONE',category='NONE',query='NONE', query_return={'kind':'NOT_RUN','code':None},daemon_return={'kind':'NOT_RUN','code':None},create='NOT_ATTEMPTED',start='NOT_ATTEMPTED',resource_mismatch=None), 'first_failure':None,'cleanup_failure':None}, 'binding_sha256': 'f' * 64, 'current_predicate': 'COMPLETE',
             'first_failed_predicate': 'NONE', 'failure_category': 'NONE',
             'commands': {name: public.exit_record(0) for name in public.CHILD_ACTIONS},
             'cleanup': {'status': 'PASS', 'category': 'NONE'}}
@@ -841,11 +841,11 @@ class Schema4OperationTests(unittest.TestCase):
     def operation(self):
         return {'current':dict(action='NONE',gate='NONE',predicate='NONE',category='NONE',query='NONE',
             query_return={'kind':'NOT_RUN','code':None},daemon_return={'kind':'NOT_RUN','code':None},
-            create='NOT_ATTEMPTED',start='NOT_ATTEMPTED'),'first_failure':None,'cleanup_failure':None}
+            create='NOT_ATTEMPTED',start='NOT_ATTEMPTED',resource_mismatch=None),'first_failure':None,'cleanup_failure':None}
 
-    def test_closed_diagnostic2_does_not_replace_native_outcome_or_actual_exit_gate(self):
+    def test_closed_diagnostic3_does_not_replace_native_outcome_or_actual_exit_gate(self):
         value=self.current();row=value['kernel_child']['diagnostics']
-        row.update(schema_version=2,operation=self.operation())
+        row.update(schema_version=3,operation=self.operation())
         self.assertEqual(public.project(encoded(value),COMMIT,PIN,'success'),value)
         for outcome in ('failure','cancelled','skipped',''):
             result=public.project(encoded(value),COMMIT,PIN,outcome)
@@ -857,10 +857,45 @@ class Schema4OperationTests(unittest.TestCase):
             with self.assertRaises(ValueError):public.project(encoded(bad),COMMIT,PIN,'success')
 
     def test_schema1_and2_are_exact_shapes_not_optional_field_waivers(self):
-        value=self.current();d=value['kernel_child']['diagnostics'];d['operation']=self.operation()
+        value=self.current();d=value['kernel_child']['diagnostics'];d['schema_version']=1;d['operation']=self.operation()
         with self.assertRaises(ValueError):public.project(encoded(value),COMMIT,PIN,'success')
         d.pop('operation');d['schema_version']=2
         with self.assertRaises(ValueError):public.project(encoded(value),COMMIT,PIN,'success')
+
+
+
+class ModernResourcePublicTests(unittest.TestCase):
+    current = Schema4ChildTests.current
+    def test_legacy_complete_cannot_grant_modern_pass_but_exact_historical_failure_remains(self):
+        for version in (1,2):
+            value=self.current();d=value['kernel_child']['diagnostics'];d['schema_version']=version
+            if version==1:d.pop('operation')
+            else:
+                for row in d['operation'].values():
+                    if row is not None:row.pop('resource_mismatch')
+            with self.assertRaises(ValueError):public.project(encoded(value),COMMIT,PIN,'success')
+            value.update(status='FAIL',first_failed_phase='kernel',failure_reason='KERNEL_EXIT',cleanup='FAIL')
+            value['kernel_child']['exit']=public.exit_record(1)
+            self.assertEqual(public.project(encoded(value),COMMIT,PIN,'failure')['status'],'FAIL')
+
+    def test_all_three_resource_slots_are_required_and_raw_poison_never_projects(self):
+        stale=self.current()
+        stale['kernel_child']['diagnostics']['operation']['current'].update(gate='INSPECT_RESOURCES',
+            predicate='docker-container-resources',category='INVALID_DATA',resource_mismatch={'field':'Memory','kind':'TYPE'})
+        with self.assertRaises(ValueError):public.project(encoded(stale),COMMIT,PIN,'success')
+        value=self.current();d=value['kernel_child']['diagnostics'];op=d['operation']
+        failed=copy.deepcopy(op['current']);failed.update(action='provision',gate='INSPECT_RESOURCES',
+            predicate='docker-container-resources',category='INVALID_DATA',resource_mismatch={'field':'Memory','kind':'TYPE'})
+        op.update(current=copy.deepcopy(failed),first_failure=copy.deepcopy(failed),cleanup_failure=dict(failed,action='cleanup'))
+        value.update(status='FAIL',first_failed_phase='kernel',failure_reason='KERNEL_EXIT',cleanup='FAIL')
+        d.update(current_predicate='CLEANUP',first_failed_predicate='PROVISION_COMMAND',failure_category='INVALID_DATA',cleanup={'status':'FAIL','category':'ABSENCE_UNVERIFIED'})
+        value['kernel_child']['exit']=public.exit_record(1)
+        self.assertEqual(public.project(encoded(value),COMMIT,PIN,'failure')['kernel_child']['diagnostics'],d)
+        for slot in ('current','first_failure','cleanup_failure'):
+            bad=copy.deepcopy(value);bad['kernel_child']['diagnostics']['operation'][slot].pop('resource_mismatch')
+            with self.assertRaises(ValueError):public.project(encoded(bad),COMMIT,PIN,'failure')
+            bad=copy.deepcopy(value);bad['kernel_child']['diagnostics']['operation'][slot]['resource_mismatch']['actual']='private-secret'
+            with self.assertRaises(ValueError):public.project(encoded(bad),COMMIT,PIN,'failure')
 
 
 if __name__ == '__main__':

@@ -406,9 +406,13 @@ class Broker:
         if self.role != 'provision':
             forbidden += ('CapAdd',)
         with scope(self.observer, 'INSPECT_RESOURCES'):
-            need(all(host.get(key) == value for key, value in required.items()) and
-                 not any(host.get(key) for key in forbidden),
-                 'docker-container-resources')
+            try:
+                need(all(host.get(key) == value for key, value in required.items()) and
+                     not any(host.get(key) for key in forbidden),
+                     'docker-container-resources')
+            except ValueError:
+                if type(self.observer) is Trace: self.observer.resources_refused(host, required, forbidden)
+                raise
         with scope(self.observer, 'INSPECT_MOUNTS'):
             actual = {mount['Destination']: (mount['Source'], mount['RW']) for mount in item['Mounts']
                       if mount['Type'] == 'bind'}

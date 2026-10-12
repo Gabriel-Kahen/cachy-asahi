@@ -25,7 +25,7 @@ class StageDataTests(unittest.TestCase):
         self.report = {'status': 'PASS', 'phase': 'complete', 'cancelled': False, 'source_commit': 'a' * 40,
             'native_kernel_compilation': 'PASS', 'kernel_execution': 'NOT RUN', 'hardware_validation': 'NOT RUN',
             'performance': 'NOT MEASURED', 'cleanup': {'status': 'PASS'}}
-        diagnostic = evidence.initial(binding())
+        diagnostic = evidence.initial(binding(), evidence.Trace())
         diagnostic.update(current_predicate='COMPLETE',
             commands={name: evidence.exit_record(0) for name in evidence.ACTIONS},
             cleanup={'status': 'PASS', 'category': 'NONE'})
@@ -255,7 +255,7 @@ class OperationCheckpointTests(unittest.TestCase):
                                     ('validate-provision','LAUNCH_VALIDATE',True)]:
             report,row,calls,_=self.run_fixture(fault)
             first=row['operation']['first_failure']
-            self.assertEqual(report['status'],'FAIL');self.assertEqual(row['schema_version'],2)
+            self.assertEqual(report['status'],'FAIL');self.assertEqual(row['schema_version'],3)
             self.assertEqual(row['first_failed_predicate'],'PROVISION_COMMAND')
             self.assertEqual(first['gate'],gate);self.assertEqual(first['action'],'provision')
             self.assertEqual(any(kind=='launch' for kind,_ in calls),called)
@@ -276,7 +276,7 @@ class OperationFinalizationTests(unittest.TestCase):
 
     def test_diagnostic2_late_cancel_revokes_complete_and_records_finite_failure(self):
         trace=evidence.Trace()
-        self.report['diagnostics'].update(schema_version=2,operation=trace.snapshot())
+        self.report['diagnostics'].update(schema_version=3,operation=trace.snapshot())
         @contextmanager
         def deferred():yield [15]
         with patch.object(stage,'defer_signals',deferred):
@@ -287,6 +287,24 @@ class OperationFinalizationTests(unittest.TestCase):
         failure=row['diagnostics']['operation']['first_failure']
         self.assertEqual((failure['gate'],failure['category']),('FINALIZATION','CANCELLED'))
         self.assertNotIn('cancelled',json.dumps(failure))
+
+
+
+class ModernDiagnosticPublicationTests(unittest.TestCase):
+    setUp = StageDataTests.setUp
+    def test_legacy_complete_or_missing_resource_field_cannot_publish_modern_pass(self):
+        import copy
+        original=copy.deepcopy(self.report)
+        for version in (1,2,3):
+            self.report=copy.deepcopy(original)
+            d=self.report['diagnostics'];d['schema_version']=version
+            if version==1:d.pop('operation')
+            elif version==2:
+                for row in d['operation'].values():
+                    if row is not None:row.pop('resource_mismatch')
+            else:d['operation']['current'].pop('resource_mismatch')
+            with self.subTest(version=version),self.assertRaises(ValueError):stage.finish(self.root,self.report)
+            self.assertFalse((self.root/'public/status.json').exists())
 
 
 if __name__ == '__main__':

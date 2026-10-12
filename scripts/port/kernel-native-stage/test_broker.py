@@ -463,5 +463,73 @@ class ReturnedNonzeroDiagnostics(unittest.TestCase):
         self.assertEqual(result['cleanup_failure']['predicate'],'docker-owned-remove')
 
 
+
+class ResourceMismatchObservations(unittest.TestCase):
+    setUp = BrokerPolicy.setUp
+    instance = BrokerPolicy.instance
+    env = BrokerPolicy.env
+    inspect_row = BrokerPolicy.inspect_row
+    provision_inspect = BrokerPolicy.provision_inspect
+
+    def refused(self, field, kind, *, cleanup=False, value=None, remove=False):
+        subject,row,item=self.provision_inspect();item=__import__('copy').deepcopy(item)
+        subject.observer=broker.Trace();subject.observer.current['action']='cleanup' if cleanup else 'provision'
+        if remove:del item['HostConfig'][field]
+        else:item['HostConfig'][field]=value
+        with patch.object(subject,'_operation',return_value=subprocess.CompletedProcess([],0,json.dumps([item]).encode())) as query:
+            with self.assertRaisesRegex(ValueError,'^docker-container-resources$'):subject._inspect(row['id'],row,cleanup=cleanup)
+        self.assertEqual(query.call_count,1);snapshot=subject.observer.snapshot()
+        target='cleanup_failure' if cleanup else 'first_failure'
+        self.assertEqual(snapshot[target]['resource_mismatch'],{'field':field,'kind':kind})
+        self.assertNotIn('private-secret',json.dumps(snapshot));return subject,snapshot
+
+    def test_all_required_missing_type_value_labels_are_closed(self):
+        _,_,item=self.provision_inspect()
+        for field,expected in item['HostConfig'].items():
+            with self.subTest(field=field):
+                self.refused(field,'MISSING',remove=True)
+                self.refused(field,'TYPE',value=None)
+                changed=(not expected if type(expected) is bool else expected+1 if type(expected) is int
+                         else 'private-secret' if type(expected) is str else ['private-secret'] if type(expected) is list
+                         else {'private-secret':'private-secret'})
+                self.refused(field,'VALUE',value=changed)
+
+    def test_forbidden_presence_and_build_capadd_are_observations_not_permission(self):
+        for field in ('Devices','DeviceRequests','Binds','VolumesFrom','Links','PortBindings','GroupAdd'):
+            self.refused(field,'PRESENT',value=['private-secret'])
+        subject=self.instance();subject.observer=broker.Trace();subject.observer.current['action']='baseline'
+        row,item=self.inspect_row(subject);item['HostConfig']['CapAdd']=['private-secret']
+        with patch.object(subject,'_operation',return_value=subprocess.CompletedProcess([],0,json.dumps([item]).encode())):
+            with self.assertRaisesRegex(ValueError,'^docker-container-resources$'):subject._inspect(row['id'],row)
+        self.assertEqual(subject.observer.snapshot()['first_failure']['resource_mismatch'],{'field':'CapAdd','kind':'PRESENT'})
+
+    def test_only_original_refusal_annotates_and_first_conjunct_order_is_preserved(self):
+        subject,row,item=self.provision_inspect();subject.observer=broker.Trace()
+        item['HostConfig']['AutoRemove']=0  # Existing equality accepts bool/int representation; no new type gate.
+        item['HostConfig']['Devices']=[]
+        with patch.object(subject,'_operation',return_value=subprocess.CompletedProcess([],0,json.dumps([item]).encode())),\
+             patch.object(subject.observer,'resources_refused') as annotate:
+            self.assertEqual(subject._inspect(row['id'],row),row['id']);annotate.assert_not_called()
+        self.assertIsNone(subject.observer.snapshot()['current']['resource_mismatch'])
+        subject,row,item=self.provision_inspect();subject.observer=broker.Trace();subject.observer.current['action']='provision'
+        del item['HostConfig']['AutoRemove'];item['HostConfig']['Devices']=['private-secret']
+        with patch.object(subject,'_operation',return_value=subprocess.CompletedProcess([],0,json.dumps([item]).encode())):
+            with self.assertRaises(ValueError):subject._inspect(row['id'],row)
+        self.assertEqual(subject.observer.snapshot()['first_failure']['resource_mismatch'],{'field':'AutoRemove','kind':'MISSING'})
+
+    def test_first_last_and_cleanup_are_independent_and_later_scope_clears_only_current(self):
+        subject,first=self.refused('Memory','TYPE',value='private-secret')
+        with broker.scope(subject.observer,'CHECKPOINT_WRITE'):
+            self.assertIsNone(subject.observer.snapshot()['current']['resource_mismatch'])
+        row,item=self.provision_inspect()[1:];item['HostConfig']['PidsLimit']=1
+        subject.observer.current['action']='cleanup'
+        with patch.object(subject,'_operation',return_value=subprocess.CompletedProcess([],0,json.dumps([item]).encode())):
+            with self.assertRaises(ValueError):subject._inspect(row['id'],row,cleanup=True)
+        final=subject.observer.snapshot()
+        self.assertEqual(final['first_failure'],first['first_failure'])
+        self.assertEqual(final['cleanup_failure']['resource_mismatch'],{'field':'PidsLimit','kind':'VALUE'})
+        self.assertIsNone(final['current']['resource_mismatch'])  # Existing outer scope is no longer the resource leaf.
+
+
 if __name__ == '__main__':
     unittest.main()

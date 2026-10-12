@@ -495,7 +495,7 @@ def child_observation(args, kernel_output, invocation, row):
             (record['status'] == 'PASS') == (diagnostic['current_predicate'] == 'COMPLETE') and
             (not record['cancelled'] or diagnostic['first_failed_predicate'] != 'NONE'), 'kernel-child-binding')
         if record['status'] == 'PASS':
-            packet.need(record['phase'] == 'complete' and not record['cancelled'] and
+            packet.need(diagnostic['schema_version'] == 3 and record['phase'] == 'complete' and not record['cancelled'] and
                 record['native_kernel_compilation'] == 'PASS' and
                 all(record[name].get('status') == 'PASS' and record[name].get('action') == name and
                     record[name].get('cancelled') is False and record[name].get('nonce') == record['nonce']

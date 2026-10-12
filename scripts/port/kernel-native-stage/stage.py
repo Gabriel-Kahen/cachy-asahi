@@ -131,7 +131,7 @@ def finish(output, report):
     def write():
         diagnostics = child_evidence.project(report['diagnostics'])
         if report['status'] == 'PASS':
-            need(diagnostics['current_predicate'] == 'COMPLETE' and
+            need(diagnostics['schema_version'] == 3 and diagnostics['current_predicate'] == 'COMPLETE' and
                  report['native_kernel_compilation'] == 'PASS' and report['cleanup']['status'] == 'PASS',
                  'complete child diagnostics required')
         save(output / 'private/result.json', report)

@@ -4,7 +4,20 @@ October 12, 2026. This record tracks the complete `outline.md` scope; an impleme
 
 The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with owned tasks and corrective next actions in `docs/backlog.md`. The destination now explicitly requires the maintained ARM package repository, native performance engineering, integrated Apple stack, broader Cachy system experience, and complete installation/release lifecycle. Both Air sizes, published final measurements, independent onboarding/contribution, subsequent full-port maintenance release, other-ARM reuse and actual upstream submissions remain required; an early overlay release or feasibility decision would not complete the goal. This scope update does not change any recorded execution result.
 
-Latest coordinator update, October 12, 19:43 UTC. Updater5 `38296615950` passes
+Latest coordinator update, October 12, 20:08 UTC. The updated goal, outline and
+roadmap remain authoritative: R1–R5 and M5–M9 are required. Kernel resource
+diagnostics pass independent source review: 93 fresh stage tests, 195 fresh
+selected job tests and 53 resource-refusal cases; the author's full 209-test
+job run is separately retained. Root registers the exact 26/117 closure
+`92e6ae63`/`5112e5b9`, preserving resource enforcement and all prior failures.
+Committed-source proof and a successor native trial are pending. Repository
+deadline/custody correction passes independent review; primary adapter and
+external authority integration remain pending. Updater default-mount/private-IPC
+source changes await combined peer review. Actual guest, KSM, FDK and installer
+corrective work continues in parallel. Full installation, releases, both M2
+sizes, 16K behavior and final performance/power measurements remain open.
+
+Prior coordinator update, October 12, 19:43 UTC. Updater5 `38296615950` passes
 86-file committed-source authentication, then fails worker1. Its bound diagnostic
 identifies entry-guard/unexpected-mount before controller validation or compiler
 launch. Parent/container returns are 1; scoped cleanup and recovery pass. All

@@ -156,11 +156,14 @@ CHILD_OP_ACTIONS = frozenset(('NONE', 'provision', 'probe', 'baseline', 'candida
 CHILD_GATES = frozenset(('NONE', 'UNKNOWN', 'CHECKPOINT_WRITE', 'LAUNCH_VALIDATE', 'JOURNAL_READ', 'JOURNAL_WRITE', 'NAME_RESERVE', 'FIND_NAME', 'FIND_ID', 'CREATE_ATTEMPT', 'CREATE_ID', 'CREATE_JOURNAL', 'INSPECT_OWNERSHIP', 'INSPECT_RESOURCES', 'INSPECT_MOUNTS', 'INSPECT_COMMAND', 'LOCAL_PRE', 'DAEMON_PRE', 'QUERY_EXEC', 'QUERY_RETURN', 'LOCAL_POST', 'DAEMON_POST', 'DAEMON_CONNECT', 'DAEMON_RESPONSE', 'DAEMON_METADATA', 'START_ATTEMPT', 'IMAGE_JOURNAL', 'IMAGE_INVENTORY', 'IMAGE_COMMIT', 'IMAGE_INSPECT', 'IMAGE_CONFIG', 'IMAGE_REMOVE', 'CLEANUP_RESOLVE', 'CLEANUP_REMOVE', 'CLEANUP_ABSENCE', 'FINALIZATION'))
 CHILD_QUERIES = frozenset(('NONE', 'UNKNOWN', 'INFO', 'IMAGE_INSPECT', 'FIND_NAME', 'FIND_ID', 'CREATE', 'CONTAINER_INSPECT', 'START', 'REMOVE', 'IMAGE_INVENTORY', 'IMAGE_TAG_INSPECT', 'IMAGE_ID_INSPECT', 'IMAGE_COMMIT', 'IMAGE_REMOVE'))
 CHILD_OBS_KEYS = frozenset(('action', 'gate', 'predicate', 'category', 'query', 'query_return', 'daemon_return', 'create', 'start'))
+CHILD_RESOURCE_REQUIRED = frozenset(('AutoRemove', 'Privileged', 'ReadonlyRootfs', 'NetworkMode', 'IpcMode', 'PidMode', 'CgroupnsMode', 'Memory', 'MemorySwap', 'NanoCpus', 'PidsLimit', 'CapDrop', 'SecurityOpt', 'Tmpfs', 'CapAdd'))
+CHILD_RESOURCE_FORBIDDEN = frozenset(('Devices', 'DeviceRequests', 'Binds', 'VolumesFrom', 'Links', 'PortBindings', 'GroupAdd'))
+CHILD_RESOURCE_KINDS = frozenset(('MISSING', 'TYPE', 'VALUE', 'PRESENT'))
 CHILD_REFUSALS = frozenset(('API HTTP framing differs', 'API aggregate timeout', 'API connect failed', 'API content length differs', 'API send failed', 'API socket failed', 'API wire budget exceeded', 'accepted base missing from protected inventory', 'base image query failed', 'bounded API JSON response required', 'bounded API request required', 'command-timeout', 'deadline-exhausted', 'derived image ID was already protected', 'derived image config/identity differs', 'derived image query failed', 'derived layer size exceeds3GiB budget', 'docker-binary-drift', 'docker-binary-path', 'docker-binary-pin', 'docker-capture-command', 'docker-cleanup-failed', 'docker-config', 'docker-container-command', 'docker-container-mounts', 'docker-container-ownership', 'docker-container-resources', 'docker-create-absence-uncertain', 'docker-create-unknown', 'docker-daemon-chunk-framing', 'docker-daemon-connect', 'docker-daemon-drift', 'docker-daemon-http-framing', 'docker-daemon-http-invalid', 'docker-daemon-http-status', 'docker-daemon-http-trailing', 'docker-daemon-http-truncated', 'docker-daemon-output-bound', 'docker-daemon-send', 'docker-daemon-timeout', 'docker-duplicate-json-key', 'docker-endpoint', 'docker-environment', 'docker-expected-daemon', 'docker-home', 'docker-host-uid-mapping-required', 'docker-image-binding', 'docker-image-drift', 'docker-image-pin', 'docker-image-query', 'docker-image-volumes', 'docker-input-size', 'docker-journal-binding', 'docker-journal-container', 'docker-journal-path', 'docker-journal-size', 'docker-kernel-action', 'docker-kernel-environment', 'docker-kernel-mount-map', 'docker-kernel-mount-path', 'docker-kernel-timeout', 'docker-local-pin-drift', 'docker-name-reservation', 'docker-native-daemon', 'docker-nonce', 'docker-ordinary-user', 'docker-owned-absence', 'docker-owned-inspect', 'docker-owned-list', 'docker-owned-remove', 'docker-regular-input', 'docker-reserved-name-exists', 'docker-role', 'docker-rootful-socket', 'docker-uninitialized', 'immutable derived image response required', 'invalid-argv', 'invalid-environment', 'invalid-output-bound', 'invalid-time-bound', 'journal build command differs', 'journal mount ownership differs', 'journal name is not nonce-owned', 'journal provision command differs', 'journal role/action differs', 'kernel probe requires bound worker and exact input map', 'kernel worker exit failed', 'new owned image journal required', 'new private image tag required', 'nonfinite owned image journal', 'one derived layer on exact accepted image required', 'one exact image required', 'one exact provision container required', 'output-bound', 'owned image ID absence unverified', 'owned image ID removal failed', 'owned image absence query failed', 'owned image accepted config differs', 'owned image identity differs', 'owned image journal changed during capture', 'owned image journal differs', 'owned image journal exceeded bound', 'owned image journal file differs', 'owned image journal path differs', 'owned image journal schema differs', 'owned image query differs', 'owned image removal failed', 'owned private tag still present', 'owned provision broker required', 'private image journal parent required', 'process-cleanup', 'protected image inventory changed before commit', 'protected image inventory malformed or oversized', 'protected image inventory query failed or exceeded bound', 'protected image journal differs', 'threaded-runner', 'unsafe-log-directory', 'unsafe-log-path'))
 
 def child_diagnostic_keys(row):
-    need(type(row) is dict and type(row.get('schema_version')) is int and (row['schema_version'] in (1, 2)))
-    return CHILD_DIAG_KEYS | ({'operation'} if row['schema_version'] == 2 else set())
+    need(type(row) is dict and type(row.get('schema_version')) is int and (row['schema_version'] in (1, 2, 3)))
+    return CHILD_DIAG_KEYS | ({'operation'} if row['schema_version'] >= 2 else set())
 
 def child_validate_return(row):
     if type(row) is dict and set(row) == {'kind', 'code'} and (row['kind'] == 'HTTP_STATUS'):
@@ -168,8 +171,8 @@ def child_validate_return(row):
     else:
         child_validate_exit(row)
 
-def child_validate_observation(row):
-    need(type(row) is dict and set(row) == CHILD_OBS_KEYS)
+def child_validate_observation(row, version=3):
+    need(type(row) is dict and set(row) == CHILD_OBS_KEYS | ({'resource_mismatch'} if version == 3 else set()))
     for key, values in (('action', CHILD_OP_ACTIONS), ('gate', CHILD_GATES), ('query', CHILD_QUERIES), ('predicate', CHILD_REFUSALS | {'NONE', 'UNKNOWN'}), ('category', CHILD_CLEANUP_CATEGORIES), ('create', {'NOT_ATTEMPTED', 'UNKNOWN', 'CID_OBSERVED'}), ('start', {'NOT_ATTEMPTED', 'UNKNOWN', 'EXIT_OBSERVED'})):
         need(type(row[key]) is str and row[key] in values)
     need(row['category'] in CHILD_CATEGORIES or row['action'] == 'cleanup')
@@ -179,13 +182,18 @@ def child_validate_observation(row):
     need(row['daemon_return']['kind'] in ('NOT_RUN', 'UNOBSERVED', 'HTTP_STATUS'))
     need(row['query_return']['kind'] != 'HTTP_STATUS' or row['query'] in ('IMAGE_COMMIT', 'IMAGE_TAG_INSPECT'))
     need(row['query'] not in ('IMAGE_COMMIT', 'IMAGE_TAG_INSPECT') or row['query_return']['kind'] in ('NOT_RUN', 'UNOBSERVED', 'HTTP_STATUS'))
+    if version == 3 and row['resource_mismatch'] is not None:
+        mismatch = row['resource_mismatch']
+        need(type(mismatch) is dict and set(mismatch) == {'field', 'kind'} and (type(mismatch['field']) is str) and (mismatch['field'] in CHILD_RESOURCE_REQUIRED | CHILD_RESOURCE_FORBIDDEN) and (type(mismatch['kind']) is str) and (mismatch['kind'] in CHILD_RESOURCE_KINDS))
+        need(mismatch['kind'] == 'PRESENT' and mismatch['field'] in CHILD_RESOURCE_FORBIDDEN | {'CapAdd'} or (mismatch['kind'] != 'PRESENT' and mismatch['field'] in CHILD_RESOURCE_REQUIRED))
+        need(row['gate'] == 'INSPECT_RESOURCES' and row['predicate'] == 'docker-container-resources' and (row['category'] != 'NONE'))
 
-def child_validate_operation(row):
+def child_validate_operation(row, version=3):
     need(type(row) is dict and set(row) == {'current', 'first_failure', 'cleanup_failure'})
-    child_validate_observation(row['current'])
+    child_validate_observation(row['current'], version)
     for name in ('first_failure', 'cleanup_failure'):
         if row[name] is not None:
-            child_validate_observation(row[name])
+            child_validate_observation(row[name], version)
             need(row[name]['category'] != 'NONE')
     if row['cleanup_failure'] is not None:
         need(row['cleanup_failure']['action'] == 'cleanup')
@@ -208,8 +216,8 @@ def child_validate_exit(row):
 
 def child_validate_fields(row):
     child_diagnostic_keys(row)
-    if row['schema_version'] == 2:
-        child_validate_operation(row['operation'])
+    if row['schema_version'] >= 2:
+        child_validate_operation(row['operation'], row['schema_version'])
     need(type(row['current_predicate']) is str and row['current_predicate'] in CHILD_PREDICATES)
     need(type(row['first_failed_predicate']) is str and row['first_failed_predicate'] in CHILD_PREDICATES | {'NONE'})
     need(type(row['failure_category']) is str and row['failure_category'] in CHILD_CATEGORIES)
@@ -224,6 +232,7 @@ def child_validate_fields(row):
     need((clean['status'] != 'FAIL') == (clean['category'] == 'NONE'))
     if row['current_predicate'] == 'COMPLETE':
         need((row['schema_version'] == 1 or (row['operation']['first_failure'] is None and row['operation']['cleanup_failure'] is None)) and row['first_failed_predicate'] == 'NONE' and (clean['status'] == 'PASS') and all((value == exit_record(0) for value in row['commands'].values())))
+        if row['schema_version'] == 3: need(row['operation']['current']['resource_mismatch'] is None)
 
 def child_validate_public(row):
     need(type(row) is dict and set(row) == child_diagnostic_keys(row) | {'binding_sha256'})
@@ -331,7 +340,7 @@ def project(data, commit, pin, outcome):
     if value['schema_version'] == 4 and value['status'] == 'PASS':
         child = value['kernel_child']
         need(child['availability'] == 'VERIFIED' and child['exit'] == exit_record(0) and
-             child['diagnostics']['current_predicate'] == 'COMPLETE')
+             child['diagnostics']['schema_version'] == 3 and child['diagnostics']['current_predicate'] == 'COMPLETE')
     need(value['status'] != 'PASS' or accepted)
     # A stale PASS left before cancellation or a later step failure is not accepted.
     if outcome != 'success' or value['status'] != 'PASS':
