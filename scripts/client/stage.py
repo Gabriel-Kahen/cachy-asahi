@@ -30,7 +30,7 @@ GUARD_SHA = '4bfec1387f87768e5b37475d6172bde302ef52c01c68f81297435048be7f2100'
 PACKAGES_SHA = '89bdb06fea1862b5a6e02b77a4b98f6e04755b02327d875a716bd792929f3a4f'
 FROZEN = {
     'scripts/client/client.py': '3025aa0e167c836e31c949e0915d4ee82a1007dc0fada598b4895240c82f5f97',
-    'scripts/client/test_client.py': 'a1a6a844ad4c0fd394a407529c5c7039f2a9e2bb43b63ee90a4e1e925701e144',
+    'scripts/client/test_client.py': '11d475979806af12a514c9e860f614f22b6b4517078f97fceacc18c13563afd8',
     'scripts/release/release.py': '418c850e8a44ae71517e074f86f46f5999f5fe7433ca6798de945f318191a918',
     'scripts/release/test_release.py': 'fc24466be0f058a395705c923b12d7b0b7764a2321f63aba549117e9a034d773',
 }

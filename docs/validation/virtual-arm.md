@@ -418,3 +418,49 @@ lifecycle: 65,604 bytes,
 `e9eb6cb7bd88c6a1a6431d04739e66527e18f9275481c90ef1b86460d8b132b1`.
 These results establish no supported release, production signing trust,
 full independent installation journey, measured optimization or M2 acceptance.
+
+## First broader native development trial
+
+The complete 211-source development packet
+`e37b732f9c332d6b532c8fcb2a90b005ab5c06ac84387d9d928c3580651b18ba`
+was committed at `108302cff3d7be59800747773017cad688489904`. Independent
+committed-blob/mode checks and a fresh detached clone passed; all 143 controller
+tests passed without skips. The workflow was registered through the one-file
+[project PR #1](https://github.com/Gabriel-Kahen/cachy-asahi/pull/1), merged
+at 07:28:02 UTC on October 12. Its merge adds only the reviewed workflow to the
+updated default branch; execution uses the explicitly selected feature commit.
+
+[Run 38218102399](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38218102399)
+started at 07:30:25 UTC and completed at 07:35:28 UTC: **FAIL overall**.
+The checkout/source preflight and controller boundary checks passed. The original
+integration retained its repository FAIL, while original builds, fixtures,
+signing, installed lifecycle, software onboarding and desktop configuration
+checks reported PASS. The corrected repository successor was not in this run.
+
+The same-job consumers produced these separate results:
+
+- **KSM build pair PASS:** two actual clean native package builds produced
+  `cachy-asahi-ksmctl-0.1.0-1-any.pkg.tar.xz`, SHA256
+  `4ed661e2d9a4668c946aee385179b7a14167e2c2a627f6945021e4f315771faa`.
+  The recorded comparison reports identical bytes, payload, PKGINFO and BUILDINFO,
+  with both owned container absences verified. This does not establish native
+  installation/removal, management writes, hardware or performance acceptance.
+- **ARM-C01 FAIL:** four actual baseline/LTO zlib builds completed; 88 recorded
+  cross-decoder checks passed before the trial failed. The terminal failure is
+  retained; complete experiment acceptance and timing remain open.
+- **Release client FAIL:** all 37 selected tests ran without skips; 36 passed.
+  The checkpoint-permission fixture assumed a permissive umask although the native
+  worker deliberately uses 077. The correction explicitly constructs the unsafe
+  0644 fixture; it does not weaken checkpoint privacy validation.
+- **Virtual desktop NOT RUN:** the prerequisite receiver refused the trial before
+  acquisition/guest launch. No captured guest frames or desktop runtime are claimed.
+
+Root retained the complete workflow log and strictly decoded all 23 bundles,
+checking compressed lengths/hashes, fixed archive roots, safe unique regular-file
+paths and extraction bounds: 1,084 members. Evidence is under
+`artifacts/ci/38218102399/`, with `root-decode-verification.json` and the separate
+terminal development summary. The final summary bundle is 2,395 bytes, SHA256
+`01297f05ee10c7eaddde55a0267fcd03f55f8844c9ff9b6762b5c58ce70d046d`.
+Independent detailed execution review and successor corrections remain separate
+from this historical FAIL. Both M2 Air records and all full-port release gates
+remain open.

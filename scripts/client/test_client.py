@@ -159,6 +159,7 @@ class PortableTests(unittest.TestCase):
     def test_checkpoint_private_mode_symlink_and_malformed(self):
         path = self.state / c.CHECKPOINT
         path.write_bytes(c.encoded(self.value))
+        path.chmod(0o644)  # Explicitly unsafe, including under the native worker's 077 umask.
         with c.state_directory(self.state, False) as fd:
             with self.assertRaisesRegex(c.Error, 'private 0600'):
                 c.checkpoint(fd)

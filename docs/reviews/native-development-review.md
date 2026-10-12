@@ -2,7 +2,7 @@
 
 Independent bounded review on 2026-10-12 of `scripts/ci/development/` and `.github/workflows/native-arm-development.yml`. Read the current roadmap and package inventory first. Only this document was edited. Temporary source/JSON/process fixtures and portable tests were used; no Git mutation, shared source/manifest/lock edit, Docker operation, download, installation, account/trust change or native workflow occurred.
 
-**Status: in-flight source review; two reproduced defects corrected. Final packet/Git/copied-tree signoff is pending the coordinator's new initial checkpoint and development freeze. Native development execution remains NOT RUN.**
+**Final disposition for historical commit `108302cff3d7be59800747773017cad688489904`: source/Git/copied-tree closure PASS; two reproduced defects corrected. Native development stage acceptance remains pending, and the known initial repository failure remains FAIL.** The earlier sections below retain the in-flight observations that preceded this committed checkpoint; the final verification is appended at the end.
 
 ## Reproduced findings and correction checks
 
@@ -59,3 +59,15 @@ After the controller passed both text and opaque receipt approvals to its public
 | `.github/workflows/native-arm-development.yml` | `15c31fce0d3828737a168e155a3634efc5b1e99f05b2d38f7e7726e0b723932c` |
 
 No additional material development-source defect was reproduced after ND1/ND2 corrections. This is an in-flight review snapshot, not signoff for a committed executable packet. No native development execution, KSM runtime behavior, guest/visual result, production signing/publication, physical M2/16K/acceleration/power, performance or full R1–R5 acceptance is established here.
+
+## Final committed source/Git/copy verification
+
+Reviewed the historical broader checkpoint `108302cff3d7be59800747773017cad688489904`, development packet SHA `e37b732f9c332d6b532c8fcb2a90b005ab5c06ac84387d9d928c3580651b18ba`, and initial lock SHA `be5363dfb9f11b39f42fc419bebaa9cbaa11780fce1aa5cde2cedc25629766bb`. The packet contains **211 source files**, including the corrected initial **159-source/125-fixture** map. These are the accepted historical source bytes; current repository edits belong to the next correction and were not substituted into this verification.
+
+Independently read the packet's committed Git blob and verified SHA-256 and mode `100644`. Using the unchanged reviewed `packet.py`, actual `verify_git()` checked the exact selected path set and all 211 committed blobs/modes, the packet's own committed blob/mode, HEAD and the complete source commit. The 13 source/workflow hashes in the table above match both committed packet rows and the owner's clean file bytes. Workflow SHA remains `15c31fce0d3828737a168e155a3634efc5b1e99f05b2d38f7e7726e0b723932c`.
+
+The actual clean tree `/tmp/cachy-development-copied-final-iccxg3xv/clean` passes the unchanged `scan()`, initial-lock/map and seven-metadata-pin bindings against that committed packet. Its selected source bytes total **3,845,391**, sorted compact-JSON source-map SHA `a890068c2217a77e3d34847fdd41a208c983b09e90fe0e50bcfe49e3f148f473`. The exact packet protocol fields, development-only/release/hardware flags and owner's candidate packet hash also match. No current-worktree preflight guard was relaxed or mocked to accept the next repository edits.
+
+Read and hash-validated the coordinator's real fresh-detached Git/controller `--check-only` proof at `artifacts/reviews/development-git-proof-20261012.json`. Its commit, packet, 211-file count, PASS and zero-skip/143-test fields agree. The referenced committed test log hashes to `26d7e937a7e3fb4bd7c60326362002a05433129a60c37e22fbb6e65b737cac34`, contains 143 explicit passing outcomes, and ends with `OK`, without skip/failure/error outcomes. The owner's earlier copied-tree test log independently matches its receipt hash `bddc632f93eb0f16a46a95a406948ea8752043a2842b1eee330e7d709b5fa1fe`. Its earlier `runtime_git_preflight: NOT RUN - candidate not committed` remains historically accurate; the later retained fresh-detached proof supplies committed acceptance.
+
+**Source/Git/copy signoff: PASS for this exact historical checkpoint.** The coordinator reported live run `38218102399` using this commit with source preflight and frozen boundary tests passed; that report is not evidence of successful stage execution. The known initial repository failure remains FAIL, and native development acceptance remains pending actual hash-bound build/transaction/cleanup/publication results. KSM runtime, guest capture/visual review, production trust/publication, physical M2/16K/acceleration/power, performance and complete R1–R5 acceptance are unchanged by source signoff. No source, Git, lock, workflow or native execution was changed by this reviewer.

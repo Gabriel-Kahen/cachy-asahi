@@ -1,6 +1,6 @@
 # Implementation and acceptance status
 
-October 11, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
+October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
 The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with owned tasks and corrective next actions in `docs/backlog.md`. The destination now explicitly requires the maintained ARM package repository, native performance engineering, integrated Apple stack, broader Cachy system experience, and complete installation/release lifecycle. Both Air sizes, published final measurements, independent onboarding/contribution, subsequent full-port maintenance release, other-ARM reuse and actual upstream submissions remain required; an early overlay release or feasibility decision would not complete the goal. This scope update does not change any recorded execution result.
 
@@ -52,11 +52,14 @@ The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with 
   archive checksums match; unresolved dependency notices, embedded-input and
   build-script review still block its accepted build. The separate KSM status
   candidate retains GPL provenance and passes local read-only/page-size fixture
-  tests; native builds and required management functionality remain unfinished.
+  tests. Two clean native package builds now reproduce byte-for-byte in the first
+  broader trial. Native installation/removal and required management functionality
+  remain unfinished.
 - ARM-C01 implements two baseline and two LTO zlib builds with cross-decoder,
   corruption, artifact, receipt-binding and cancellation checks; 91 local tests
-  and independent review passed. Native build,
-  timing and M2 performance remain NOT RUN.
+  and independent review passed. The first native attempt compiled all four
+  baseline/LTO builds, then failed during correctness checking. Timing and M2
+  performance remain NOT RUN; partial compilation does not accept the experiment.
 - A disposable generic virtual desktop route and controller are implemented,
   with 19 separately authenticated tooling packages and 29 local tests, including
   independently reproduced cancellation corrections. Actual
