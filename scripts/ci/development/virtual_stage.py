@@ -13,6 +13,7 @@ import json
 import os
 from pathlib import Path, PurePosixPath
 import re
+import shutil
 import sys
 import signal
 import stat
@@ -112,6 +113,12 @@ DIAGNOSTIC_CODES = {
     'original-payload-invalid',
     'output-boundary-overlap',
     'private-guest-session-log-refused',
+    'qemu-capability-binding-refused',
+    'qemu-capability-record-refused',
+    'qemu-capability-source-refused',
+    'qemu-capability-success-required',
+    'qemu-guest-claim-refused',
+    'virtual-public-copy-drift',
     'regular-bounded-input-required',
     'reviewed-tooling-audit-required',
     'signed-baseline-cached-signer-authority-required',
@@ -322,8 +329,10 @@ def preflight(controller, root):
     frozen.update({r['name']: r['version'] for r in upstream['packages']})
     require(base == frozen and hashes['base_inputs_lock'] == lock['base_inputs_lock_sha256'], 'authenticated-base-binding-refused')
     packages = lock['packages']
-    require(len(packages) == 19 and len({r['name'] for r in packages}) == 19 and lock['base_package_count'] == 341
-            and lock['expected_package_count'] == 360 and audit.get('status') == 'PASS' and
+    require(len(packages) == 21 and len({r['name'] for r in packages}) == 21 and lock['base_package_count'] == 341
+            and lock['expected_package_count'] == 362 and
+            {'qemu-hw-display-virtio-gpu', 'qemu-hw-display-virtio-gpu-pci'} <= {r['name'] for r in packages} and
+            audit.get('status') == 'PASS' and
             audit.get('tooling_lock_sha256') == hashes['tooling_lock'] and
             set(audit['packages']) == {r['name'] for r in packages} and
             not (set(base) | OVERLAYS) & {r['name'] for r in packages}, 'reviewed-tooling-audit-required')
@@ -333,7 +342,7 @@ def preflight(controller, root):
     for row in packages:
         blobs += [row, {'filename': row['filename'] + '.sig', 'url': row['url'] + '.sig',
                         'sha256': row['signature_sha256'], 'size': row['signature_size']}]
-    require(len(blobs) == 41 and len({r['filename'] for r in blobs}) == 41, 'exact-tooling-inputs-required')
+    require(len(blobs) == 45 and len({r['filename'] for r in blobs}) == 45, 'exact-tooling-inputs-required')
     for row in blobs:
         require('/' not in relative(row['filename']) and re.fullmatch(r'[A-Za-z0-9._+@:~\-]{1,255}', row['filename']) and
                 isinstance(row['sha256'], str) and PIN.fullmatch(row['sha256']) and type(row['size']) is int and
@@ -484,7 +493,7 @@ def acquire(root, cache, inputs, blobs, receipts):
         receipts.extend({'filename': row['filename'], 'status': 'FAIL',
                          'error_code': 'tooling-acquisition-cancelled' if cancelled else 'tooling-acquisition-incomplete'}
                         for row in blobs[len(receipts):])
-    require(len(receipts) == 41 and all(r['status'] == 'PIN_MATCH' for r in receipts), 'tooling-acquisition-failed')
+    require(len(receipts) == 45 and all(r['status'] == 'PIN_MATCH' for r in receipts), 'tooling-acquisition-failed')
 
 
 def public_paths(output):
@@ -493,12 +502,57 @@ def public_paths(output):
     return [str(p.absolute()) for p in paths if p.is_dir() and not p.is_symlink()]
 
 
-def text_projection(exporter, source, target, selected, name=None):
+def text_projection(exporter, source, target, selected, name=None, data=None):
     selected.mkdir(mode=0o700)
     # The generic exporter owns the complete content/private/control policy.
-    copy_pinned(source, selected / (name or source.name), digest(source), 8 * 1024**2)
-    result = exporter.export_evidence(selected, target)
-    return result.get('evidence_export') == 'PASS'
+    data = read_regular(source, 8 * 1024**2) if data is None else data
+    require(type(data) is bytes and len(data) <= 8 * 1024**2, 'regular-bounded-input-required')
+    name = name or source.name
+    (selected / name).write_bytes(data)
+    require(not target.exists() and not target.is_symlink(), 'new-safe-output-required')
+    published = []
+
+    def verify(folder, result):
+        require(read_regular(folder / 'export-manifest.json') ==
+                (json.dumps(result, sort_keys=True, indent=2) + '\n').encode(), 'virtual-public-copy-drift')
+        names = {'export-manifest.json'}
+        if result.get('evidence_export') == 'PASS':
+            names.add(name)
+            require(result.get('accepted') == [{'path': name, 'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()}]
+                    and read_regular(folder / name, 8 * 1024**2) == data, 'virtual-public-copy-drift')
+        else:
+            require(result.get('accepted') == [], 'virtual-public-copy-drift')
+        require({p.name for p in folder.iterdir()} == names, 'virtual-public-copy-drift')
+
+    try:
+        with tempfile.TemporaryDirectory(prefix='virtual-text-export-', dir=selected.parent) as temporary:
+            staged = Path(temporary) / 'public'
+            result = exporter.export_evidence(selected, staged)
+            require(read_regular(selected / name, 8 * 1024**2) == data, 'virtual-public-copy-drift')
+            verify(staged, result)
+            identity = staged.stat()
+            with defer_finalization() as cancelled:
+                staged.rename(target)
+                published.append((target, selected / 'invalid-public', (identity.st_dev, identity.st_ino)))
+            if cancelled:
+                raise KeyboardInterrupt()
+            verify(target, result)
+        return result.get('evidence_export') == 'PASS'
+    except BaseException as error:
+        retract_publications(published, isinstance(error, KeyboardInterrupt))
+        raise
+
+
+def captured_json(data):
+    def unique(rows):
+        result = {}
+        for key, value in rows:
+            require(key not in result, 'duplicate-json-field'); result[key] = value
+        return result
+    value = json.loads(data.decode('utf-8'), object_pairs_hook=unique,
+                       parse_constant=lambda _: require(False, 'nonfinite-json'))
+    require(type(value) is dict, 'json-object-required')
+    return value
 
 
 def frame(path, row, stage):
@@ -516,9 +570,10 @@ def frame(path, row, stage):
     return data
 
 
-def read_events(path, policy):
+def read_events(path, policy, *, data=None):
     """Inspect the known encoded terminal records before any public copying."""
-    data = read_regular(path, LIMIT)
+    data = read_regular(path, LIMIT) if data is None else data
+    require(type(data) is bytes and len(data) <= LIMIT, 'bounded-guest-event-list-required')
     def unique(rows):
         result = {}
         for key, value in rows:
@@ -555,8 +610,8 @@ def read_events(path, policy):
     return events, hashlib.sha256(data).hexdigest()
 
 
-def event_protocol(path, expected_sha256, nonce, policy):
-    events, actual_sha256 = read_events(path, policy)
+def event_protocol(path, expected_sha256, nonce, policy, *, data=None):
+    events, actual_sha256 = read_events(path, policy, data=data)
     require(actual_sha256 == expected_sha256, 'guest-events-binding-refused')
     require(len(events) >= 7, 'complete-guest-event-protocol-required')
     essential = []
@@ -613,17 +668,145 @@ def event_protocol(path, expected_sha256, nonce, policy):
 @contextmanager
 def defer_finalization():
     events = []
-    previous = {sig: signal.signal(sig, lambda *_: events.append(True)) for sig in (signal.SIGINT, signal.SIGTERM)}
+    signals = {signal.SIGINT, signal.SIGTERM}
+    mask = signal.pthread_sigmask(signal.SIG_BLOCK, signals)
+    previous = {}
     try:
+        for sig in (signal.SIGINT, signal.SIGTERM):
+            previous[sig] = signal.getsignal(sig)
+            signal.signal(sig, lambda *_: events.append(True))
+        signal.pthread_sigmask(signal.SIG_SETMASK, mask)
         yield events
     finally:
-        for sig, handler in previous.items():
-            signal.signal(sig, handler)
+        signal.pthread_sigmask(signal.SIG_BLOCK, signals)
+        try:
+            for sig, handler in previous.items():
+                signal.signal(sig, handler)
+            for sig in (signal.sigpending() & signals) - mask:
+                signal.sigwait({sig})
+                events.append(True)
+        finally:
+            signal.pthread_sigmask(signal.SIG_SETMASK, mask)
+
+
+def retract_publications(publications, interrupted=False):
+    """Quarantine every owned target before deletion; preserve cancellation and foreign paths."""
+    quarantines, errors = [], []
+    with defer_finalization() as cancelled:
+        for target, quarantine, identity in publications:
+            try:
+                observed = target.lstat()
+                require((observed.st_dev, observed.st_ino) == identity and
+                        not quarantine.exists() and not quarantine.is_symlink(), 'virtual-public-copy-drift')
+                target.rename(quarantine)
+                quarantines.append(quarantine)
+            except (OSError, ValueError):
+                errors.append(True)
+        for quarantine in quarantines:
+            try:
+                shutil.rmtree(quarantine)
+            except OSError:
+                errors.append(True)
+    if interrupted or cancelled:
+        raise KeyboardInterrupt() from None
+    require(not errors, 'virtual-public-copy-drift')
+
+
+def capability_validator(root, pin):
+    """Compile only the captured authenticated data validator, never owner imports."""
+    source = Path(root) / 'scripts/virtual/run.py'
+    raw = read_regular(source, LIMIT)
+    require(type(pin) is str and PIN.fullmatch(pin) and hashlib.sha256(raw).hexdigest() == pin,
+            'qemu-capability-source-refused')
+    constants = {'CAPABILITIES', 'CAPABILITY_LIMIT', 'CAPABILITY_REASONS'}
+    namespace = {'require': require, 're': re}
+    functions = []
+    for node in ast.parse(raw.decode('utf-8')).body:
+        if isinstance(node, ast.Assign) and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name):
+            name = node.targets[0].id
+            if name in constants:
+                require(name not in namespace, 'qemu-capability-source-refused')
+                value = node.value
+                if name == 'CAPABILITY_LIMIT' and isinstance(value, ast.BinOp) and isinstance(value.op, ast.Mult):
+                    left, right = ast.literal_eval(value.left), ast.literal_eval(value.right)
+                    require(type(left) is int and type(right) is int, 'qemu-capability-source-refused')
+                    namespace[name] = left * right
+                else:
+                    namespace[name] = ast.literal_eval(value)
+        elif isinstance(node, ast.FunctionDef) and node.name == 'capability_projection':
+            require(not node.decorator_list and not node.args.defaults and not node.args.kw_defaults and
+                    node.returns is None and not node.args.posonlyargs and not node.args.kwonlyargs and
+                    node.args.vararg is None and node.args.kwarg is None and len(node.args.args) == 1 and
+                    node.args.args[0].arg == 'rows' and node.args.args[0].annotation is None and
+                    not getattr(node, 'type_params', []),
+                    'qemu-capability-source-refused')
+            functions.append(node)
+    require(constants <= namespace.keys() and len(functions) == 1, 'qemu-capability-source-refused')
+    exec(compile(ast.Module(body=functions, type_ignores=[]), str(source), 'exec'), namespace)
+    return namespace['capability_projection']
+
+
+def capability_receipt(root, contract, receipt):
+    """Check diagnostics before any public copy; partial observations never grant capture."""
+    pair = {'qemu_capabilities', 'qemu_capabilities_sha256'}
+    fields = pair & receipt.keys()
+    guest = receipt.get('guest', {})
+    require(type(guest) is dict and type(receipt.get('frames', {})) is dict, 'qemu-guest-claim-refused')
+    claims = {'status': {'FAILED', 'NOT RUN', 'PASS', 'CAPTURED_REQUIRES_VISUAL_REVIEW'},
+              'software_compositor': {'NOT RUN', 'PASS', 'REVIEW REQUIRED'},
+              'software_session_ipc': {'NOT RUN', 'PASS'},
+              'frame_proof': {'NOT RUN', 'PASS', 'REVIEW REQUIRED'}}
+    for name, values in claims.items():
+        require(name not in guest or type(guest[name]) is str and guest[name] in values,
+                'qemu-guest-claim-refused')
+    captured = receipt.get('status') in ('PASS', 'CAPTURED_REQUIRES_VISUAL_REVIEW') or bool(receipt.get('frames')) or \
+               guest.get('status') in ('PASS', 'CAPTURED_REQUIRES_VISUAL_REVIEW') or \
+               any(guest.get(name) in ('PASS', 'REVIEW REQUIRED') for name in
+                   ('software_compositor', 'software_session_ipc', 'frame_proof'))
+    require(not fields or fields == pair, 'qemu-capability-binding-refused')
+    if not fields:
+        require(not captured, 'qemu-capability-success-required')
+        return None
+    rows, pin = receipt['qemu_capabilities'], receipt['qemu_capabilities_sha256']
+    require(type(pin) is str and PIN.fullmatch(pin), 'qemu-capability-binding-refused')
+    validate = capability_validator(root, contract['core_sha256']['run.py'])
+    try:
+        projected = validate(rows)
+    except (ValueError, TypeError, KeyError, IndexError):
+        raise ValueError('qemu-capability-record-refused') from None
+    require(projected == rows and hashlib.sha256((json.dumps(rows, sort_keys=True, indent=2) + '\n').encode()).hexdigest() == pin,
+            'qemu-capability-binding-refused')
+    require(not captured or len(rows) == 4 and all(row['status'] == 'PASS' for row in rows),
+            'qemu-capability-success-required')
+    return projected
 
 
 def receive(root, output, contract, code, result):
     owner = output / 'owner-public'
+    receipt_bytes = read_regular(owner / 'result.json', 8 * 1024**2)
+    receipt = captured_json(receipt_bytes)
+    cleanup = receipt.get('cleanup')
+    cleanup_ok = isinstance(cleanup, list) and bool(cleanup) and all(isinstance(r, dict) and
+                 r.get('status') == 'PASS' and r.get('absence_verified') is True and
+                 not r.get('commit_outcome_uncertain', False) for r in cleanup)
+    result['owner_cleanup'] = {'status': 'PASS' if cleanup_ok else 'FAIL',
+                              'records': len(cleanup) if isinstance(cleanup, list) else 0,
+                              'private_workspace_cleanup': 'PASS' if receipt.get('private_workspace_cleanup') == 'PASS' else 'FAIL'}
+    capabilities = capability_receipt(root, contract, receipt)
+    require(receipt.get('schema_version') == 1 and receipt.get('purpose') == 'bounded-generic-arm-software-proof' and
+            receipt.get('source_commit') == contract['source_commit'] and receipt.get('baseline_image') == contract['installed_image_id']
+            and receipt.get('controller_contract_sha256') == digest(output / 'inputs/controller-contract.json') and
+            receipt.get('source_sha256') == contract['core_sha256'] | {'controller.py': contract['controller_sha256'],
+                'audit_tooling.py': contract['audit_tooling_sha256']} and receipt.get('inputs') == contract['files'], 'virtual-owner-binding-refused')
     exporter = load_module(root / 'scripts/ci/integration_export.py', 'development_virtual_exporter')
+    event_file = owner / 'guest-events.json'
+    event_bytes, event_sha256 = None, None
+    if event_file.exists() or event_file.is_symlink():
+        event_bytes = read_regular(event_file, LIMIT)
+        events, event_sha256 = read_events(event_file, exporter, data=event_bytes)
+        require(not any(event['event'] in ('boot', 'gbm_pass', 'frame_ready', 'phase_pass', 'guest_pass') for event in events)
+                or capabilities is not None and len(capabilities) == 4 and
+                all(row['status'] == 'PASS' for row in capabilities), 'qemu-capability-success-required')
     public = output / 'virtual-public'; public.mkdir(mode=0o700, exist_ok=True)
     selected = output / 'selected'; selected.mkdir(mode=0o700, exist_ok=True)
     good = True
@@ -631,9 +814,10 @@ def receive(root, output, contract, code, result):
         if directory == 'events':
             continue
         source = owner / name
-        if source.exists() or source.is_symlink():
+        if directory == 'result' or source.exists() or source.is_symlink():
             try:
-                good = text_projection(exporter, source, public / directory, selected / directory) and good
+                good = text_projection(exporter, source, public / directory, selected / directory,
+                                       data=receipt_bytes if directory == 'result' else None) and good
             except Exception:
                 good = False
     launch = output / 'private-launcher.log'
@@ -642,35 +826,20 @@ def receive(root, output, contract, code, result):
             good = text_projection(exporter, launch, public / 'launcher', selected / 'launcher', 'launcher.log') and good
         except Exception:
             good = False
-    event_file = owner / 'guest-events.json'
-    if event_file.exists() or event_file.is_symlink():
+    if event_bytes is not None:
         try:
-            read_events(event_file, exporter)
-            good = text_projection(exporter, event_file, public / 'events', selected / 'events') and good
+            good = text_projection(exporter, event_file, public / 'events', selected / 'events', data=event_bytes) and good
         except Exception:
             good = False
-    receipt = read_json(owner / 'result.json', 8 * 1024**2)
-    cleanup = receipt.get('cleanup')
-    cleanup_ok = isinstance(cleanup, list) and bool(cleanup) and all(isinstance(r, dict) and
-                 r.get('status') == 'PASS' and r.get('absence_verified') is True and
-                 not r.get('commit_outcome_uncertain', False) for r in cleanup)
-    result['owner_cleanup'] = {'status': 'PASS' if cleanup_ok else 'FAIL',
-                              'records': len(cleanup) if isinstance(cleanup, list) else 0,
-                              'private_workspace_cleanup': 'PASS' if receipt.get('private_workspace_cleanup') == 'PASS' else 'FAIL'}
     require(good, 'virtual-public-export-refused')
-    require(receipt.get('schema_version') == 1 and receipt.get('purpose') == 'bounded-generic-arm-software-proof' and
-            receipt.get('source_commit') == contract['source_commit'] and receipt.get('baseline_image') == contract['installed_image_id']
-            and receipt.get('controller_contract_sha256') == digest(output / 'inputs/controller-contract.json') and
-            receipt.get('source_sha256') == contract['core_sha256'] | {'controller.py': contract['controller_sha256'],
-                'audit_tooling.py': contract['audit_tooling_sha256']} and receipt.get('inputs') == contract['files'], 'virtual-owner-binding-refused')
     require(code == 0 and receipt.get('status') == 'CAPTURED_REQUIRES_VISUAL_REVIEW' and cleanup_ok and
             receipt.get('private_workspace_cleanup') == 'PASS', 'virtual-owner-acceptance-failed')
     require(set(receipt.get('frames', {})) == {'minimal', 'overlay'} and
-            digest(owner / 'guest-events.json') == receipt.get('guest_events_sha256') and
+            event_sha256 == receipt.get('guest_events_sha256') and
             (public / 'events/export-manifest.json').is_file() and (public / 'result/export-manifest.json').is_file(),
             'virtual-capture-evidence-required')
     require(receipt.get('stages', {}).get('tooling', {}).get('status') == 'READY' and
-            receipt['stages']['tooling'].get('package_count') == 364 and
+            receipt['stages']['tooling'].get('package_count') == 366 and
             receipt.get('stages', {}).get('preparation', {}).get('status') == 'PREPARED', 'virtual-stage-receipts-required')
     guest = receipt.get('guest', {})
     require(guest.get('status') == 'CAPTURED_REQUIRES_VISUAL_REVIEW' and
@@ -691,19 +860,37 @@ def receive(root, output, contract, code, result):
             {'cachy-virtual-' + s + '-' + nonce for s in ('tooling', 'verify', 'prepare', 'run')} and
             len([r for r in cleanup if r.get('private_tag') == 'cachy-virtual-private-' + nonce + ':fixture'
                  and r.get('image_id') == guest['image_id']]) == 1, 'virtual-complete-owned-cleanup-required')
-    event_protocol(owner / 'guest-events.json', receipt['guest_events_sha256'], nonce, exporter)
+    event_protocol(owner / 'guest-events.json', receipt['guest_events_sha256'], nonce, exporter, data=event_bytes)
     # Binary publication requires the complete accepted capture binding. Text
     # failure diagnostics remain independently subject to the generic filter.
     frames = {stage: frame(owner / (stage + '.ppm'), receipt['frames'][stage], stage)
               for stage in ('minimal', 'overlay')}
-    for stage, data in frames.items():
-        row = receipt['frames'][stage]
-        folder = selected / (stage + '-frame'); folder.mkdir(mode=0o700)
-        (folder / (stage + '.ppm')).write_bytes(data)
-        save(folder / 'receipt.json', {'filename': stage + '.ppm', 'sha256': hashlib.sha256(data).hexdigest(),
-             'bytes': len(data), 'width': row['width'], 'height': row['height'], 'visual_review': 'NOT RUN'})
-        require(read_regular(folder / (stage + '.ppm'), 8 * 1024**2) == data, 'frame-copy-drift')
-        folder.rename(public / (stage + '-frame'))
+    published_frames = []
+    try:
+        for stage, data in frames.items():
+            row = receipt['frames'][stage]
+            folder = selected / (stage + '-frame'); folder.mkdir(mode=0o700)
+            (folder / (stage + '.ppm')).write_bytes(data)
+            binding = {'filename': stage + '.ppm', 'sha256': hashlib.sha256(data).hexdigest(),
+                 'bytes': len(data), 'width': row['width'], 'height': row['height'], 'visual_review': 'NOT RUN'}
+            binding_bytes = (json.dumps(binding, sort_keys=True, indent=2) + '\n').encode()
+            save(folder / 'receipt.json', binding)
+            def verify_frame(path):
+                require(read_regular(path / (stage + '.ppm'), 8 * 1024**2) == data and
+                        read_regular(path / 'receipt.json') == binding_bytes and
+                        {p.name for p in path.iterdir()} == {stage + '.ppm', 'receipt.json'}, 'frame-copy-drift')
+            verify_frame(folder)
+            identity = folder.stat()
+            target = public / (stage + '-frame')
+            with defer_finalization() as cancelled:
+                folder.rename(target)
+                published_frames.append((target, selected / (target.name + '-failed'), (identity.st_dev, identity.st_ino)))
+            if cancelled:
+                raise KeyboardInterrupt()
+            verify_frame(target)
+    except BaseException as error:
+        retract_publications(published_frames, isinstance(error, KeyboardInterrupt))
+        raise
     result.update(status='PASS', owner_status='CAPTURED_REQUIRES_VISUAL_REVIEW', visual_review='REQUIRED')
 
 
@@ -748,28 +935,36 @@ def run_virtual(controller, root, output, cache):
     except Exception as error:
         result['error_code'] = diagnostic(error, 'virtual-prerequisite-refused' if result['status'] == 'NOT RUN' else 'virtual-stage-failed')
     finally:
-        # Repeated TERM/INT cannot escape before cleanup/status evidence is sealed.
-        with defer_finalization() as events:
-            if launched and result['status'] != 'PASS' and not (output / 'virtual-public').exists():
-                try:
-                    receive(root, output, contract, None, result)
-                except KeyboardInterrupt:
-                    events.append(True)
-                except Exception:
-                    pass
-            if events:
-                result.update(status='FAIL', error_code='cancelled')
-            result['public'] = public_paths(output)
-            save(status / 'acquisition.json', {'status': 'PIN_MATCH' if len(acquisitions) == 41 and
-                 all(r['status'] == 'PIN_MATCH' for r in acquisitions) else 'NOT COMPLETE', 'inputs': acquisitions,
-                 'execution': 'ATTEMPTED' if acquisition_started else 'NOT RUN', 'planned_inputs': 41 if contract is not None else 0,
-                 'signature_authentication': 'Owner performs trust and signature verification inside its isolated container'})
-            if events:
-                result.update(status='FAIL', error_code='cancelled')
-            save(status / 'result.json', {k: v for k, v in result.items() if k != 'public'})
-            if events:
-                result.update(status='FAIL', error_code='cancelled')
+        try:
+            # Defer repeated TERM/INT while cleanup and status evidence is sealed.
+            with defer_finalization() as events:
+                if launched and result['status'] != 'PASS' and not (output / 'virtual-public').exists():
+                    try:
+                        receive(root, output, contract, None, result)
+                    except KeyboardInterrupt:
+                        events.append(True)
+                    except Exception:
+                        pass
+                if events:
+                    result.update(status='FAIL', error_code='cancelled')
+                result['public'] = public_paths(output)
+                save(status / 'acquisition.json', {'status': 'PIN_MATCH' if len(acquisitions) == 45 and
+                     all(r['status'] == 'PIN_MATCH' for r in acquisitions) else 'NOT COMPLETE', 'inputs': acquisitions,
+                     'execution': 'ATTEMPTED' if acquisition_started else 'NOT RUN', 'planned_inputs': 45 if contract is not None else 0,
+                     'signature_authentication': 'Owner performs trust and signature verification inside its isolated container'})
+                if events:
+                    result.update(status='FAIL', error_code='cancelled')
                 save(status / 'result.json', {k: v for k, v in result.items() if k != 'public'})
-        if events:
-            raise KeyboardInterrupt()
+                if events:
+                    result.update(status='FAIL', error_code='cancelled')
+                    save(status / 'result.json', {k: v for k, v in result.items() if k != 'public'})
+            if events:
+                raise KeyboardInterrupt()
+        except KeyboardInterrupt:
+            # A restored Python handler can interrupt the context's final unmask.
+            with defer_finalization():
+                result.update(status='FAIL', error_code='cancelled')
+                result['public'] = public_paths(output)
+                save(status / 'result.json', {k: v for k, v in result.items() if k != 'public'})
+            raise
     return result

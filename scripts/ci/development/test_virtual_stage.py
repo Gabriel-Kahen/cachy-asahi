@@ -6,6 +6,8 @@ import json
 import io
 from pathlib import Path
 import shutil
+import signal
+import subprocess
 import sys
 import tempfile
 from types import SimpleNamespace
@@ -99,17 +101,18 @@ class VirtualStage(unittest.TestCase):
         for name in ('archlinuxarm.gpg', 'archlinuxarm-trusted', 'archlinuxarm-revoked'):
             keys.append(self.blob(name))
         packages = []
-        for n in range(19):
+        for n in range(21):
             row = self.blob(f'tooling-{n:02d}-1-1-aarch64.pkg.tar.xz')
             signature = self.blob(row['filename'] + '.sig')
-            row.update(name=f'tooling-{n:02d}', version='1-1', signature_sha256=signature['sha256'], signature_size=signature['size'])
+            row.update(name=('qemu-hw-display-virtio-gpu' if n == 19 else 'qemu-hw-display-virtio-gpu-pci' if n == 20 else f'tooling-{n:02d}'), version='1-1', signature_sha256=signature['sha256'], signature_size=signature['size'])
             packages.append(row)
         self.put_json(self.owner / 'tooling.lock.json', {'base_inputs_lock_sha256': v.digest(self.native / 'inputs.lock.json'),
-            'base_package_count': 341, 'expected_package_count': 360, 'keyring_files': keys, 'packages': packages})
+            'base_package_count': 341, 'expected_package_count': 362, 'keyring_files': keys, 'packages': packages})
         self.put_json(self.owner / 'tooling-audit.json', {'status': 'PASS', 'tooling_lock_sha256': v.digest(self.owner / 'tooling.lock.json'),
                                                        'packages': {r['name']: {} for r in packages}})
         for name in ('common.py', 'guest.py', 'prepare.py', 'run.py', 'gbm_probe.c', 'audit_tooling.py'):
             self.put(self.owner / name, (name + '\n').encode())
+        shutil.copyfile(HERE.parents[1] / 'virtual/run.py', self.owner / 'run.py')
         self.rebind()
         exporter = self.root / 'scripts/ci/integration_export.py'; exporter.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(HERE.parent / 'integration_export.py', exporter)
@@ -152,7 +155,7 @@ class VirtualStage(unittest.TestCase):
         self.assertEqual(argv[argv.index('--contract-sha256') + 1], v.digest(contract_path))
         self.assertEqual(contract['baseline'], self.signed_rows)
         self.assertEqual(set(contract['files']), v.ALIASES)
-        self.assertEqual(len(list((contract_path.parent / 'tooling-cache').iterdir())), 41)
+        self.assertEqual(len(list((contract_path.parent / 'tooling-cache').iterdir())), 45)
         out = Path(argv[argv.index('--output') + 1]); out.mkdir()
         events = [
             {'event': 'boot', 'nonce': 'e' * 32, 'arch': 'aarch64', 'page_size': 4096,
@@ -190,7 +193,10 @@ class VirtualStage(unittest.TestCase):
                       'frame_proof': 'REVIEW REQUIRED', 'hardware_validation': 'NOT RUN', 'graphics_acceleration': 'NOT RUN',
                       'm2_16k_pages': 'NOT RUN', 'performance': 'NOT RUN'},
             'frames': frames, 'guest_events_sha256': v.digest(out / 'guest-events.json'),
-            'stages': {'tooling': {'status': 'READY', 'package_count': 364, 'image_id': 'sha256:' + 'd' * 64}, 'preparation': {'status': 'PREPARED'}}}
+            'stages': {'tooling': {'status': 'READY', 'package_count': 366, 'image_id': 'sha256:' + 'd' * 64}, 'preparation': {'status': 'PREPARED'}}}
+        rows = self.capabilities()
+        receipt['qemu_capabilities'] = rows
+        receipt['qemu_capabilities_sha256'] = self.capability_sha(rows)
         self.put_json(out / 'result.json', receipt)
         self.put(out / 'qemu.log', b'QEMU diagnostic\n')
         for stage in ('tooling', 'verify', 'prepare', 'runtime'):
@@ -199,6 +205,15 @@ class VirtualStage(unittest.TestCase):
         self.put(out / 'key-init.log', b'never export this either\n')
         self.put(log, b'controlled launcher output\n')
         return 0
+
+    def capabilities(self):
+        return [{'check': name, 'status': 'PASS', 'returncode': 0, 'reason': None,
+                 'stdout_sha256': sha(b'finite help'), 'stdout_bytes': 11,
+                 'stderr_sha256': sha(b''), 'stderr_bytes': 0}
+                for name in ('version', 'tcg', 'virt-machine', 'virtio-gpu-pci')]
+
+    def capability_sha(self, rows):
+        return sha((json.dumps(rows, sort_keys=True, indent=2) + '\n').encode())
 
     def run_adapter(self):
         return v.run_virtual(self.c, self.root, self.output, self.cache)
@@ -232,7 +247,7 @@ class VirtualStage(unittest.TestCase):
         self.assertTrue(all('signature_sha256' in row for row in contract['baseline']))
         self.assertEqual(result['phase'], 'complete')
         acquisition = v.read_json(self.output / 'adapter-status/acquisition.json')
-        self.assertEqual(acquisition['execution'], 'ATTEMPTED'); self.assertEqual(acquisition['planned_inputs'], 41)
+        self.assertEqual(acquisition['execution'], 'ATTEMPTED'); self.assertEqual(acquisition['planned_inputs'], 45)
 
     def test_actual_retained_unsigned_vs_signed_rows_and_signature_bytes_bind(self):
         self.assertNotEqual(ACTUAL_UNSIGNED_BASELINE, ACTUAL_SIGNED_BASELINE)
@@ -328,7 +343,7 @@ class VirtualStage(unittest.TestCase):
         result = self.run_adapter(); self.assertEqual(result['status'], 'FAIL')
         self.assertEqual(result['phase'], 'acquisition'); self.assertEqual(result['error_code'], 'tooling-acquisition-failed')
         receipt = v.read_json(self.output / 'adapter-status/acquisition.json')
-        self.assertEqual(receipt['execution'], 'ATTEMPTED'); self.assertEqual(receipt['planned_inputs'], 41)
+        self.assertEqual(receipt['execution'], 'ATTEMPTED'); self.assertEqual(receipt['planned_inputs'], 45)
         records = {row['filename']: row for row in receipt['inputs']}
         self.assertEqual(records['archlinuxarm.gpg']['error_code'], 'tooling-http-failed')
         self.assertEqual(records['archlinuxarm.gpg']['http_status'], 503)
@@ -373,14 +388,637 @@ class VirtualStage(unittest.TestCase):
 
     def test_success_retains_only_explicit_public_capture_and_diagnostics(self):
         result = self.run_adapter()
-        self.assertEqual(result['status'], 'PASS'); self.assertEqual(self.fetch.call_count, 41)
+        self.assertEqual(result['status'], 'PASS'); self.assertEqual(self.fetch.call_count, 45)
         self.assertEqual(result['owner_status'], 'CAPTURED_REQUIRES_VISUAL_REVIEW')
         self.assertEqual(result['visual_review'], 'REQUIRED'); self.assertEqual(result['hardware_validation'], 'NOT RUN')
         self.assertEqual({Path(p).name for p in result['public']}, {'adapter-status', *v.PUBLIC_DIRS})
         published = [p.name for directory in result['public'] for p in Path(directory).iterdir()]
         self.assertNotIn('unknown.txt', published); self.assertNotIn('key-init.log', published)
         acquisition = v.read_json(self.output / 'adapter-status/acquisition.json')
-        self.assertEqual(len(acquisition['inputs']), 41); self.assertEqual(acquisition['status'], 'PIN_MATCH')
+        self.assertEqual(len(acquisition['inputs']), 45); self.assertEqual(acquisition['status'], 'PIN_MATCH')
+
+    def failed_capability_owner(self, out, rows=None, fields=True):
+        def failed(receipt):
+            receipt.update(status='FAIL', frames={}, guest={'status': 'FAILED', 'hardware_validation': 'NOT RUN'})
+            receipt.pop('qemu_capabilities', None); receipt.pop('qemu_capabilities_sha256', None)
+            if fields:
+                receipt.update(qemu_capabilities=rows, qemu_capabilities_sha256=self.capability_sha(rows))
+        self.mutate(out / 'result.json', failed)
+        self.put_json(out / 'guest-events.json', [])
+
+    def test_21_package_closure_requires_both_modules_and_refuses_historical_19(self):
+        lock_path, audit_path = self.owner / 'tooling.lock.json', self.owner / 'tooling-audit.json'
+        original = v.read_json(lock_path)
+        for change in ('historical', 'missing-gpu', 'missing-pci'):
+            lock = copy.deepcopy(original)
+            if change == 'historical':
+                lock['packages'] = lock['packages'][:-2]; lock['expected_package_count'] = 360
+            else:
+                name = 'qemu-hw-display-virtio-gpu' + ('-pci' if change == 'missing-pci' else '')
+                next(row for row in lock['packages'] if row['name'] == name)['name'] = 'unrelated-module'
+            self.put_json(lock_path, lock)
+            self.put_json(audit_path, {'status': 'PASS', 'tooling_lock_sha256': v.digest(lock_path),
+                                      'packages': {row['name']: {} for row in lock['packages']}})
+            self.rebind()
+            with self.subTest(case=change):
+                result = self.assert_prerequisite_refused()
+                self.assertEqual(result['error_code'], 'reviewed-tooling-audit-required')
+            shutil.rmtree(self.output)
+
+    def test_capability_prefix_failure_and_started_state_retained_only_as_failure(self):
+        for state in ('FAIL', 'STARTING'):
+            rows = self.capabilities()[:3]
+            if state == 'FAIL': rows[-1].update(status='FAIL', reason='capability-missing')
+            else:
+                rows[-1] = {key: None for key in rows[-1]}
+                rows[-1].update(check='virt-machine', status='STARTING')
+            self.owner_mutation(lambda out: self.failed_capability_owner(out, rows), 1)
+            result = self.run_adapter()
+            self.assertEqual(result['status'], 'FAIL'); self.assertEqual(result['owner_cleanup']['status'], 'PASS')
+            public = v.read_json(self.output / 'virtual-public/result/result.json')
+            self.assertEqual(public['qemu_capabilities'], rows)
+            self.assertEqual(public['qemu_capabilities_sha256'], self.capability_sha(rows))
+            self.assertFalse((self.output / 'virtual-public/minimal-frame').exists())
+            self.assertFalse((self.output / 'virtual-public/overlay-frame').exists())
+            shutil.rmtree(self.output)
+
+    def test_failed_receipt_without_new_fields_retained_without_capture_or_19_acceptance(self):
+        self.owner_mutation(lambda out: self.failed_capability_owner(out, fields=False), 1)
+        result = self.run_adapter()
+        self.assertEqual(result['status'], 'FAIL'); self.assertEqual(self.fetch.call_count, 45)
+        public = v.read_json(self.output / 'virtual-public/result/result.json')
+        self.assertNotIn('qemu_capabilities', public); self.assertEqual(public['status'], 'FAIL')
+
+    def test_uncaptured_cancel_or_launch_failure_keeps_null_stream_observations(self):
+        for reason in ('cancelled', 'launch-failed'):
+            row = {key: None for key in self.capabilities()[0]}
+            row.update(check='version', status='FAIL', reason=reason)
+            self.owner_mutation(lambda out: self.failed_capability_owner(out, [row]), 1)
+            result = self.run_adapter(); self.assertEqual(result['status'], 'FAIL')
+            public = v.read_json(self.output / 'virtual-public/result/result.json')
+            self.assertEqual(public['qemu_capabilities'], [row])
+            self.assertIsNone(public['qemu_capabilities'][0]['stdout_sha256'])
+            shutil.rmtree(self.output)
+
+    def test_capture_requires_all_four_pass_before_any_public_result_or_frames(self):
+        variants = [[], self.capabilities()[:3], self.capabilities()]
+        variants[-1][-1].update(status='FAIL', reason='capability-missing')
+        for rows in variants:
+            self.owner_mutation(lambda out: self.mutate(out / 'result.json', lambda receipt:
+                receipt.update(qemu_capabilities=rows, qemu_capabilities_sha256=self.capability_sha(rows))))
+            result = self.run_adapter()
+            self.assertEqual(result['error_code'], 'qemu-capability-success-required')
+            self.assertEqual(result['status'], 'FAIL')
+            self.assertFalse((self.output / 'virtual-public').exists())
+            shutil.rmtree(self.output)
+        def missing(out):
+            self.mutate(out / 'result.json', lambda receipt: (receipt.pop('qemu_capabilities'),
+                                                             receipt.pop('qemu_capabilities_sha256')))
+        self.owner_mutation(missing)
+        self.assertEqual(self.run_adapter()['error_code'], 'qemu-capability-success-required')
+
+    def test_guest_pass_events_cannot_hide_behind_failed_partial_capabilities(self):
+        def change(out):
+            events = json.loads(v.read_regular(out / 'guest-events.json'))
+            rows = self.capabilities()[:1]; rows[0].update(status='FAIL', reason='capability-missing')
+            self.failed_capability_owner(out, rows)
+            self.put_json(out / 'guest-events.json', events)
+        self.owner_mutation(change, 1)
+        result = self.run_adapter()
+        self.assertEqual(result['error_code'], 'qemu-capability-success-required')
+        self.assertFalse((self.output / 'virtual-public').exists())
+
+    def test_capability_pair_symmetry_and_canonical_hash_required_before_copy(self):
+        changes = [lambda receipt: receipt.pop('qemu_capabilities'),
+                   lambda receipt: receipt.pop('qemu_capabilities_sha256'),
+                   lambda receipt: receipt.update(qemu_capabilities_sha256='0' * 64),
+                   lambda receipt: receipt.update(qemu_capabilities_sha256=True),
+                   lambda receipt: receipt.update(qemu_capabilities_sha256=sha(json.dumps(receipt['qemu_capabilities']).encode()))]
+        for change in changes:
+            self.owner_mutation(lambda out: self.mutate(out / 'result.json', change))
+            result = self.run_adapter()
+            self.assertEqual(result['error_code'], 'qemu-capability-binding-refused')
+            self.assertFalse((self.output / 'virtual-public').exists())
+            shutil.rmtree(self.output)
+
+    def test_failure_array_unknown_strings_keys_types_and_order_never_reach_public(self):
+        original = self.capabilities()[:1]; original[0].update(status='FAIL', reason='capability-missing')
+        variants = ['PRIVATE_SOURCE_TEXT', ['PRIVATE_SOURCE_TEXT'], {'private': 'PRIVATE_SOURCE_TEXT'},
+                    [dict(original[0], stdout='PRIVATE_SOURCE_TEXT')], [dict(original[0], reason='PRIVATE_SOURCE_TEXT')],
+                    [dict(original[0], returncode=True)], [dict(original[0], stdout_bytes=False)],
+                    [dict(original[0], stdout_bytes=393217)], [dict(original[0], check='virtio-gpu-pci')],
+                    [dict(original[0], stderr_sha256='PRIVATE_SOURCE_TEXT')],
+                    [dict(original[0], status='PASS')], self.capabilities()[::-1],
+                    self.capabilities() + [self.capabilities()[-1]]]
+        for rows in variants:
+            self.owner_mutation(lambda out: self.failed_capability_owner(out, rows), 1)
+            result = self.run_adapter()
+            self.assertEqual(result['status'], 'FAIL')
+            self.assertEqual(result['error_code'], 'qemu-capability-record-refused')
+            self.assertFalse((self.output / 'virtual-public').exists())
+            self.assertNotIn('PRIVATE_SOURCE_TEXT', (self.output / 'adapter-status/result.json').read_text())
+            shutil.rmtree(self.output)
+
+    def test_capability_source_drift_refuses_before_compilation_or_public_copy(self):
+        def drift(out):
+            with (self.owner / 'run.py').open('ab') as stream:
+                stream.write(b'\nraise RuntimeError("PRIVATE_SOURCE_TEXT")\n')
+        self.owner_mutation(drift)
+        result = self.run_adapter()
+        self.assertEqual(result['error_code'], 'qemu-capability-source-refused')
+        self.assertFalse((self.output / 'virtual-public').exists())
+
+    def test_captured_validator_executes_no_owner_imports_or_top_level_code(self):
+        with (self.owner / 'run.py').open('a') as stream:
+            stream.write('\nimport nonexistent_unreviewed_module\nraise RuntimeError("must-not-execute")\n')
+        validate = v.capability_validator(self.root, v.digest(self.owner / 'run.py'))
+        self.assertEqual(validate(self.capabilities()), self.capabilities())
+        for data in [{'check': 'version'}, 'PRIVATE_SOURCE_TEXT']:
+            with self.assertRaises(ValueError): validate(data)
+
+    def test_result_changed_after_validation_publishes_only_captured_failure_bytes(self):
+        rows = self.capabilities()[:1]; rows[0].update(status='FAIL', reason='capability-missing')
+        self.owner_mutation(lambda out: self.failed_capability_owner(out, rows), 1)
+        original = v.capability_receipt; captured = []
+        def mutate(root, contract, receipt):
+            result = original(root, contract, receipt)
+            path = self.output / 'owner-public/result.json'; captured.append(path.read_bytes())
+            self.mutate(path, lambda value: value.update(status='CAPTURED_REQUIRES_VISUAL_REVIEW',
+                         qemu_capabilities='UNVALIDATED_RAW_TEXT', qemu_capabilities_sha256=True))
+            return result
+        with patch.object(v, 'capability_receipt', side_effect=mutate): result = self.run_adapter()
+        self.assertEqual(result['status'], 'FAIL')
+        public = self.output / 'virtual-public/result/result.json'
+        self.assertEqual(public.read_bytes(), captured[0])
+        self.assertNotIn('UNVALIDATED_RAW_TEXT', public.read_text())
+
+    def test_events_changed_after_validation_publish_only_captured_empty_list(self):
+        success_events = []
+        def failed(out):
+            success_events.extend(json.loads((out / 'guest-events.json').read_bytes()))
+            self.failed_capability_owner(out, self.capabilities()[:1])
+        self.owner_mutation(failed, 1)
+        original = v.read_events; fired = []
+        def mutate(path, policy, **kwargs):
+            result = original(path, policy, **kwargs)
+            if not fired:
+                fired.append(True); self.put_json(path, success_events)
+            return result
+        with patch.object(v, 'read_events', side_effect=mutate): result = self.run_adapter()
+        self.assertEqual(result['status'], 'FAIL'); self.assertTrue(fired)
+        public = self.output / 'virtual-public/events/guest-events.json'
+        self.assertEqual(json.loads(public.read_bytes()), [])
+        self.assertEqual(len(success_events), 7)
+
+    def test_deleted_raw_result_events_do_not_discard_validated_snapshots(self):
+        self.owner_mutation(lambda out: self.failed_capability_owner(out, fields=False), 1)
+        original = v.text_projection; removed = []
+        def remove(exporter, source, target, selected, name=None, data=None):
+            if source.name in ('result.json', 'guest-events.json'):
+                self.assertIsInstance(data, bytes); source.unlink(); removed.append(source.name)
+            return original(exporter, source, target, selected, name, data)
+        with patch.object(v, 'text_projection', side_effect=remove): result = self.run_adapter()
+        self.assertEqual(result['status'], 'FAIL'); self.assertEqual(len(removed), 2)
+        self.assertEqual(v.read_json(self.output / 'virtual-public/result/result.json')['status'], 'FAIL')
+        self.assertEqual(json.loads((self.output / 'virtual-public/events/guest-events.json').read_bytes()), [])
+
+    def test_exporter_copy_mutation_never_publishes_unvalidated_result(self):
+        self.owner_mutation(lambda out: self.failed_capability_owner(out, fields=False), 1)
+        original = v.load_module
+        def exporter(path, name):
+            module = original(path, name); operation = module.export_evidence
+            def mutate(selected, target):
+                result = operation(selected, target)
+                if (target / 'result.json').exists():
+                    self.put_json(target / 'result.json', {'status': 'CAPTURED_REQUIRES_VISUAL_REVIEW',
+                                                          'qemu_capabilities': 'UNVALIDATED_RAW_TEXT'})
+                return result
+            module.export_evidence = mutate; return module
+        with patch.object(v, 'load_module', side_effect=exporter): result = self.run_adapter()
+        self.assertEqual(result['error_code'], 'virtual-public-export-refused')
+        self.assertFalse((self.output / 'virtual-public/result').exists())
+
+    def test_postrename_copy_mutation_retracts_owned_invalid_public_directory(self):
+        self.owner_mutation(lambda out: self.failed_capability_owner(out, fields=False), 1)
+        rename = Path.rename; fired = []
+        def mutate(source, target):
+            result = rename(source, target)
+            if Path(target) == self.output / 'virtual-public/result':
+                fired.append(True)
+                self.put_json(Path(target) / 'result.json', {'qemu_capabilities': ['UNVALIDATED_RAW_TEXT'],
+                                                          'qemu_capabilities_sha256': True})
+            return result
+        with patch.object(Path, 'rename', mutate): result = self.run_adapter()
+        self.assertTrue(fired); self.assertEqual(result['status'], 'FAIL')
+        self.assertFalse((self.output / 'virtual-public/result').exists())
+        self.assertFalse((self.output / 'virtual-public/minimal-frame').exists())
+
+    def test_postrename_unexpected_members_retract_accepted_and_refused_exports(self):
+        exporter = v.load_module(self.root / 'scripts/ci/integration_export.py', 'member_fixture_exporter')
+        rename = Path.rename
+        for accepted in (True, False):
+            for kind in ('file', 'directory', 'symlink'):
+                with self.subTest(accepted=accepted, kind=kind):
+                    output = self.base / f'members-{accepted}-{kind}'
+                    source = output / 'snapshot.log'; source.parent.mkdir()
+                    data = b'bounded diagnostic\n' if accepted else b'-----BEGIN PRIVATE KEY-----\n'
+                    source.write_bytes(data)
+                    target, selected = output / 'virtual-public/result', output / 'selected/result'
+                    target.parent.mkdir(); selected.parent.mkdir()
+                    changed = []
+                    def inject(path, destination):
+                        result = rename(path, destination)
+                        if Path(destination) == target:
+                            changed.append(True)
+                            extra = target / 'unexpected'
+                            if kind == 'directory': extra.mkdir()
+                            elif kind == 'symlink': extra.symlink_to(source)
+                            else: extra.write_bytes(b'unvalidated public bytes')
+                        return result
+                    with patch.object(Path, 'rename', inject), self.assertRaises(ValueError):
+                        v.text_projection(exporter, source, target, selected, data=data)
+                    self.assertTrue(changed)
+                    self.assertFalse(target.exists())
+                    self.assertNotIn(str(target), v.public_paths(output))
+
+    def publication_signal_child(self, phase, sig):
+        # Signals affect only this bounded child, never the unittest/controller process.
+        script = r"""
+import json, os, signal, sys
+from pathlib import Path
+from unittest.mock import patch
+sys.path.insert(0, sys.argv[1])
+import test_virtual_stage as fixture
+v = fixture.v
+case = fixture.VirtualStage('test_success_retains_only_explicit_public_capture_and_diagnostics')
+case.setUp()
+phase, sig = sys.argv[2], int(sys.argv[3])
+def interrupted(*_):
+    raise KeyboardInterrupt()
+previous = {s: signal.signal(s, interrupted) for s in (signal.SIGINT, signal.SIGTERM)}
+try:
+    if phase != 'frame':
+        case.owner_mutation(lambda out: case.failed_capability_owner(out, fields=False), 1)
+    target = case.output / 'virtual-public' / ('minimal-frame' if phase == 'frame' else 'result')
+    rename, remove = Path.rename, fixture.shutil.rmtree
+    fired, retracted = [], []
+    def inject(path, destination):
+        result = rename(path, destination)
+        if Path(destination) == target:
+            fired.append(True)
+            if phase == 'frame':
+                (target / 'minimal.ppm').write_bytes(b'corrupt captured frame')
+            else:
+                case.put_json(target / 'result.json', {'qemu_capabilities': 'UNVALIDATED_RAW_TEXT'})
+            if phase != 'retraction': os.kill(os.getpid(), sig)
+        return result
+    def repeated(path, *args, **kwargs):
+        if Path(path) == case.output / 'selected/result/invalid-public':
+            retracted.append(True)
+            for pending in (signal.SIGINT, signal.SIGTERM, signal.SIGINT, signal.SIGTERM):
+                os.kill(os.getpid(), pending)
+        return remove(path, *args, **kwargs)
+    cancelled = False
+    with patch.object(Path, 'rename', inject), patch.object(v.shutil, 'rmtree', side_effect=repeated):
+        try: case.run_adapter()
+        except KeyboardInterrupt: cancelled = True
+    receipt = v.read_json(case.output / 'adapter-status/result.json')
+    assert fired and cancelled, (fired, cancelled)
+    assert receipt['status'] == 'FAIL' and receipt['error_code'] == 'cancelled', receipt
+    assert not target.exists() and not target.is_symlink(), str(target)
+    assert str(target) not in v.public_paths(case.output), v.public_paths(case.output)
+    assert all(signal.getsignal(s) is interrupted for s in previous), 'signal handler not restored'
+    if phase == 'retraction': assert retracted, 'retraction injection did not run'
+    if phase == 'frame':
+        assert not (case.output / 'virtual-public/overlay-frame').exists()
+    print(json.dumps({'phase': phase, 'signal': sig, 'cancelled': cancelled,
+                      'retracted': bool(retracted), 'handler_restore': True,
+                      'target_absent': True, 'native_execution': 'NOT RUN'}))
+finally:
+    for s, handler in previous.items(): signal.signal(s, handler)
+    case.doCleanups()
+"""
+        child = subprocess.run([sys.executable, '-I', '-B', '-Werror::ResourceWarning', '-c',
+                                script, str(HERE), phase, str(sig)], capture_output=True,
+                               text=True, timeout=10)
+        self.assertEqual(child.returncode, 0, child.stderr)
+        return json.loads(child.stdout)
+
+    def test_real_signals_after_text_and_frame_rename_retract_before_registration(self):
+        for phase in ('text', 'frame'):
+            for sig in (signal.SIGINT, signal.SIGTERM):
+                with self.subTest(phase=phase, signal=sig):
+                    receipt = self.publication_signal_child(phase, sig)
+                    self.assertTrue(receipt['target_absent'])
+                    self.assertTrue(receipt['handler_restore'])
+
+    def test_repeated_real_signals_during_retraction_restore_handlers_and_finish(self):
+        receipt = self.publication_signal_child('retraction', signal.SIGINT)
+        self.assertTrue(receipt['retracted'])
+        self.assertTrue(receipt['cancelled'])
+
+    def test_repeated_cancel_during_invalid_copy_retraction_finishes_cleanup(self):
+        self.owner_mutation(lambda out: self.failed_capability_owner(out, fields=False), 1)
+        rename, remove = Path.rename, shutil.rmtree
+        destination = self.output / 'virtual-public/result'; fired = []
+        def corrupt(source, target):
+            result = rename(source, target)
+            if Path(target) == destination:
+                self.put_json(destination / 'result.json', {'qemu_capabilities': 'UNVALIDATED_RAW_TEXT'})
+            return result
+        def cancel(path, *args, **kwargs):
+            if Path(path) == self.output / 'selected/result/invalid-public':
+                fired.append(True)
+                signal.getsignal(signal.SIGTERM)(signal.SIGTERM, None)
+                signal.getsignal(signal.SIGINT)(signal.SIGINT, None)
+            return remove(path, *args, **kwargs)
+        with patch.object(Path, 'rename', corrupt), patch.object(v.shutil, 'rmtree', side_effect=cancel), \
+                self.assertRaises(KeyboardInterrupt):
+            self.run_adapter()
+        self.assertTrue(fired); self.assertFalse(destination.exists())
+        self.assertEqual(v.read_json(self.output / 'adapter-status/result.json')['status'], 'FAIL')
+
+    def test_failed_invalid_copy_deletion_keeps_quarantine_out_of_public_allowlist(self):
+        self.owner_mutation(lambda out: self.failed_capability_owner(out, fields=False), 1)
+        rename, remove = Path.rename, shutil.rmtree
+        destination = self.output / 'virtual-public/result'
+        def corrupt(source, target):
+            result = rename(source, target)
+            if Path(target) == destination:
+                self.put_json(destination / 'result.json', {'qemu_capabilities': 'UNVALIDATED_RAW_TEXT'})
+            return result
+        def fail(path, *args, **kwargs):
+            if Path(path) == self.output / 'selected/result/invalid-public':
+                raise OSError('controlled quarantine deletion failure')
+            return remove(path, *args, **kwargs)
+        with patch.object(Path, 'rename', corrupt), patch.object(v.shutil, 'rmtree', side_effect=fail):
+            result = self.run_adapter()
+        self.assertEqual(result['status'], 'FAIL'); self.assertFalse(destination.exists())
+        self.assertTrue((self.output / 'selected/result/invalid-public/result.json').is_file())
+        self.assertNotIn(str(destination), result['public'])
+
+    def test_frame_publication_checks_bytes_receipt_and_closed_members_before_after_rename(self):
+        for phase in ('before', 'after'):
+            for kind in ('bytes', 'receipt', 'file', 'directory', 'symlink'):
+                if self.output.exists(): shutil.rmtree(self.output)
+                with self.subTest(phase=phase, corruption=kind):
+                    save, rename = v.save, Path.rename
+                    fired = []
+                    def corrupt(folder):
+                        fired.append(True)
+                        if kind == 'bytes': (folder / 'minimal.ppm').write_bytes(b'changed frame')
+                        elif kind == 'receipt': self.put_json(folder / 'receipt.json', {'status': 'UNVALIDATED'})
+                        elif kind == 'directory': (folder / 'extra').mkdir()
+                        elif kind == 'symlink': (folder / 'extra').symlink_to(folder / 'minimal.ppm')
+                        else: (folder / 'extra').write_bytes(b'unvalidated member')
+                    def saved(path, value):
+                        result = save(path, value)
+                        if phase == 'before' and Path(path) == self.output / 'selected/minimal-frame/receipt.json':
+                            corrupt(Path(path).parent)
+                        return result
+                    def renamed(path, target):
+                        result = rename(path, target)
+                        if phase == 'after' and Path(target) == self.output / 'virtual-public/minimal-frame':
+                            corrupt(Path(target))
+                        return result
+                    with patch.object(v, 'save', side_effect=saved), patch.object(Path, 'rename', renamed):
+                        result = self.run_adapter()
+                    self.assertTrue(fired); self.assertEqual(result['status'], 'FAIL')
+                    for stage in ('minimal', 'overlay'):
+                        target = self.output / 'virtual-public' / (stage + '-frame')
+                        self.assertFalse(target.exists())
+                        self.assertNotIn(str(target), result['public'])
+                    shutil.rmtree(self.output)
+
+    def cleanup_signal_child(self, mode, sig):
+        script = r"""
+import json, os, signal, sys
+from pathlib import Path
+from unittest.mock import patch
+sys.path.insert(0, sys.argv[1])
+import test_virtual_stage as fixture
+v = fixture.v
+case = fixture.VirtualStage('test_success_retains_only_explicit_public_capture_and_diagnostics')
+case.setUp()
+mode, sig = sys.argv[2], int(sys.argv[3])
+def interrupted(*_): raise KeyboardInterrupt()
+previous = {s: signal.signal(s, interrupted) for s in (signal.SIGINT, signal.SIGTERM)}
+mask = signal.pthread_sigmask(signal.SIG_BLOCK, [])
+fired, quarantines, deleted = [], [], []
+rename, remove, install = Path.rename, v.shutil.rmtree, signal.signal
+try:
+    if mode.startswith('handler'):
+        def installing(s, handler):
+            result = install(s, handler)
+            frame, callers = sys._getframe(), set()
+            while frame:
+                callers.add(frame.f_code.co_name); frame = frame.f_back
+            outer = 'run_virtual' in callers and not {'receive', 'text_projection'} & callers
+            if s == signal.SIGINT and not fired and (
+                mode.endswith('restore') and handler is interrupted and (mode == 'handler-restore' or outer) or
+                not mode.endswith('restore') and handler is not interrupted and (mode == 'handler-entry' or outer)):
+                fired.append(True); os.kill(os.getpid(), sig)
+            return result
+        escaped = False
+        with patch.object(v.signal, 'signal', side_effect=installing):
+            try:
+                if mode in ('handler-entry', 'handler-restore'):
+                    with v.defer_finalization() as pending: body = True
+                    assert body, 'guarded body was skipped'
+                else: case.run_adapter()
+            except KeyboardInterrupt: escaped = True
+        if mode == 'handler-entry': assert not escaped and pending, 'setup interruption was not deferred'
+        elif mode == 'handler-restore': assert escaped or pending, 'restoration cancellation was lost'
+        else:
+            assert escaped, 'outer final cancellation did not propagate'
+            receipt = v.read_json(case.output / 'adapter-status/result.json')
+            assert receipt['status'] == 'FAIL' and receipt['error_code'] == 'cancelled', receipt
+            assert (case.output / 'adapter-status/acquisition.json').is_file()
+    else:
+        overlay = case.output / 'virtual-public/overlay-frame'
+        def renamed(path, target):
+            result = rename(path, target)
+            if Path(path).parent == case.output / 'virtual-public' and Path(path).name.endswith('-frame'):
+                quarantines.append(Path(path).name)
+            if Path(target) == overlay:
+                fired.append(True)
+                (overlay / 'overlay.ppm').write_bytes(b'corrupt overlay')
+                os.kill(os.getpid(), sig)
+            return result
+        def deleting(path, *args, **kwargs):
+            if Path(path).name.startswith('minimal-frame') and 'selected' in Path(path).parts:
+                deleted.append(True)
+                for pending in (signal.SIGINT, signal.SIGTERM) * 3: os.kill(os.getpid(), pending)
+                raise OSError('controlled first quarantine deletion failure')
+            return remove(path, *args, **kwargs)
+        cancelled = False
+        with patch.object(Path, 'rename', renamed), patch.object(v.shutil, 'rmtree', side_effect=deleting):
+            try: case.run_adapter()
+            except KeyboardInterrupt: cancelled = True
+        assert deleted, 'controlled deletion failure was not exercised'
+        assert set(quarantines) == {'minimal-frame', 'overlay-frame'}, quarantines
+        assert cancelled, 'deletion error swallowed cancellation'
+        receipt = v.read_json(case.output / 'adapter-status/result.json')
+        assert receipt['status'] == 'FAIL' and receipt['error_code'] == 'cancelled', receipt
+        for stage in ('minimal', 'overlay'):
+            target = case.output / 'virtual-public' / (stage + '-frame')
+            assert not target.exists() and str(target) not in v.public_paths(case.output)
+    assert fired, 'injection schedule not reached'
+    assert all(signal.getsignal(s) is interrupted for s in previous), 'handler restoration failed'
+    assert signal.pthread_sigmask(signal.SIG_BLOCK, []) == mask, 'signal mask restoration failed'
+    print(json.dumps({'mode': mode, 'signal': sig, 'mask_restore': True, 'handler_restore': True,
+                      'quarantines': quarantines, 'native_execution': 'NOT RUN'}))
+finally:
+    for s, handler in previous.items(): install(s, handler)
+    signal.pthread_sigmask(signal.SIG_SETMASK, mask)
+    case.doCleanups()
+"""
+        child = subprocess.run([sys.executable, '-I', '-B', '-Werror::ResourceWarning', '-c',
+                                script, str(HERE), mode, str(sig)], capture_output=True,
+                               text=True, timeout=10)
+        self.assertEqual(child.returncode, 0, child.stderr)
+        return json.loads(child.stdout)
+
+    def test_real_signals_during_first_handler_install_and_outer_finalization_are_guarded(self):
+        for mode in ('handler-entry', 'handler-restore', 'handler-final-entry', 'handler-final-restore'):
+            for sig in (signal.SIGINT, signal.SIGTERM):
+                with self.subTest(mode=mode, signal=sig):
+                    self.cleanup_signal_child(mode, sig)
+
+    def test_all_frame_quarantines_attempted_despite_delete_failure_and_repeated_cancel(self):
+        for sig in (signal.SIGINT, signal.SIGTERM):
+            with self.subTest(signal=sig):
+                receipt = self.cleanup_signal_child('frames-delete-error', sig)
+                self.assertEqual(set(receipt['quarantines']), {'minimal-frame', 'overlay-frame'})
+
+    def test_final_unmask_and_recovery_cancellation_durably_seal_failure(self):
+        script = r"""
+import hashlib, json, os, signal, sys
+from pathlib import Path
+from unittest.mock import patch
+sys.path.insert(0, sys.argv[1])
+import test_virtual_stage as fixture
+v = fixture.v
+case = fixture.VirtualStage('test_success_retains_only_explicit_public_capture_and_diagnostics')
+case.setUp()
+sig, repeated = int(sys.argv[2]), int(sys.argv[3])
+source = Path(v.__file__).read_bytes()
+def interrupted(*_): raise KeyboardInterrupt()
+previous = {s: signal.signal(s, interrupted) for s in (signal.SIGINT, signal.SIGTERM)}
+original = signal.pthread_sigmask
+mask = original(signal.SIG_BLOCK, [])
+fired = []
+def unmask(how, selected):
+    frame, callers = sys._getframe(), set()
+    while frame:
+        callers.add(frame.f_code.co_name); frame = frame.f_back
+    outer = 'run_virtual' in callers and not {'receive', 'text_projection', 'retract_publications'} & callers
+    receipt = case.output / 'adapter-status/result.json'
+    if outer and 'defer_finalization' in callers and receipt.exists() and how == signal.SIG_SETMASK and \
+            signal.getsignal(signal.SIGTERM) is interrupted and len(fired) < 1 + repeated:
+        fired.append(v.read_json(receipt)['status'])
+        os.kill(os.getpid(), sig)
+    return original(how, selected)
+try:
+    escaped = False
+    with patch.object(v.signal, 'pthread_sigmask', side_effect=unmask):
+        try: case.run_adapter()
+        except KeyboardInterrupt: escaped = True
+    receipt = v.read_json(case.output / 'adapter-status/result.json')
+    acquisition = v.read_json(case.output / 'adapter-status/acquisition.json')
+    assert escaped and fired, 'final unmask cancellation did not execute'
+    assert receipt['status'] == 'FAIL' and receipt['error_code'] == 'cancelled', receipt
+    assert len(fired) == 1 + repeated, fired
+    if repeated: assert fired[-1] == 'FAIL', 'recovery did not seal FAIL before second unmask'
+    assert acquisition['status'] == 'PIN_MATCH' and len(acquisition['inputs']) == 45
+    assert receipt['hardware_validation'] == 'NOT RUN'
+    assert all(signal.getsignal(s) is interrupted for s in previous), 'caller handlers changed'
+    assert original(signal.SIG_BLOCK, []) == mask, 'caller mask changed'
+    assert Path(v.__file__).read_bytes() == source, 'source changed'
+    print(json.dumps({'signal': sig, 'unmask_receipt_states': fired, 'status': receipt['status'],
+                      'error_code': receipt['error_code'], 'escaped': escaped,
+                      'source_sha256': hashlib.sha256(source).hexdigest(), 'native_execution': 'NOT RUN'}))
+finally:
+    for s, handler in previous.items(): signal.signal(s, handler)
+    original(signal.SIG_SETMASK, mask)
+    case.doCleanups()
+"""
+        for sig in (signal.SIGINT, signal.SIGTERM):
+            for repeated in (False, True):
+                with self.subTest(signal=sig, repeated=repeated):
+                    child = subprocess.run([sys.executable, '-I', '-B', '-Werror::ResourceWarning', '-c',
+                        script, str(HERE), str(sig), str(int(repeated))], capture_output=True,
+                        text=True, timeout=10)
+                    self.assertEqual(child.returncode, 0, child.stderr)
+                    self.assertEqual(json.loads(child.stdout)['status'], 'FAIL')
+
+    def test_retraction_preserves_foreign_replacement_and_existing_quarantine(self):
+        self.owner_mutation(lambda out: self.failed_capability_owner(out, fields=False), 1)
+        rename = Path.rename
+        destination = self.output / 'virtual-public/result'
+        existing = self.output / 'selected/result/invalid-public'
+        moved = self.base / 'removed-owned-public'
+        def replace(path, target):
+            result = rename(path, target)
+            if Path(target) == destination:
+                existing.mkdir(); (existing / 'foreign-marker').write_bytes(b'existing quarantine')
+                rename(destination, moved)
+                destination.mkdir(); (destination / 'foreign-marker').write_bytes(b'foreign replacement')
+            return result
+        with patch.object(Path, 'rename', replace): result = self.run_adapter()
+        self.assertEqual(result['status'], 'FAIL')
+        self.assertEqual((destination / 'foreign-marker').read_bytes(), b'foreign replacement')
+        self.assertEqual((existing / 'foreign-marker').read_bytes(), b'existing quarantine')
+        self.assertTrue((moved / 'result.json').is_file())
+
+    def test_every_failed_owner_success_or_review_claim_requires_all_four_pass(self):
+        changes = [('status', 'PASS'), ('status', 'CAPTURED_REQUIRES_VISUAL_REVIEW'),
+                   ('software_compositor', 'PASS'), ('software_compositor', 'REVIEW REQUIRED'),
+                   ('software_session_ipc', 'PASS'), ('frame_proof', 'PASS'), ('frame_proof', 'REVIEW REQUIRED')]
+        for field, value in changes:
+            def failed(out):
+                rows = self.capabilities()[:1]; rows[0].update(status='FAIL', reason='capability-missing')
+                self.failed_capability_owner(out, rows)
+                self.mutate(out / 'result.json', lambda receipt: receipt['guest'].update({field: value}))
+            self.owner_mutation(failed, 1)
+            result = self.run_adapter()
+            with self.subTest(field=field, value=value):
+                self.assertEqual(result['error_code'], 'qemu-capability-success-required')
+                self.assertFalse((self.output / 'virtual-public').exists())
+            shutil.rmtree(self.output)
+
+    def test_guest_claim_boolean_unknown_or_container_shapes_refuse_before_copy(self):
+        for field, value in [('software_compositor', True), ('software_session_ipc', []),
+                             ('frame_proof', {'status': 'PASS'}), ('status', 'PRIVATE_RAW_TEXT'),
+                             ('software_compositor', 'PRIVATE_RAW_TEXT')]:
+            def failed(out):
+                self.failed_capability_owner(out, fields=False)
+                self.mutate(out / 'result.json', lambda receipt: receipt['guest'].update({field: value}))
+            self.owner_mutation(failed, 1)
+            result = self.run_adapter(); self.assertEqual(result['error_code'], 'qemu-guest-claim-refused')
+            self.assertFalse((self.output / 'virtual-public').exists()); shutil.rmtree(self.output)
+
+    def test_late_second_frame_failure_retracts_first_published_frame(self):
+        original = v.save
+        def fail(path, value):
+            if Path(path).parent.name == 'overlay-frame' and Path(path).name == 'receipt.json':
+                raise OSError('controlled late frame failure')
+            return original(path, value)
+        with patch.object(v, 'save', side_effect=fail): result = self.run_adapter()
+        self.assertEqual(result['status'], 'FAIL')
+        self.assertFalse((self.output / 'virtual-public/minimal-frame').exists())
+        self.assertFalse((self.output / 'virtual-public/overlay-frame').exists())
+
+    def test_validator_source_ambiguous_or_executing_signature_refused(self):
+        path = self.owner / 'run.py'; original = path.read_bytes()
+        variants = [original + b'\ndef capability_projection(rows): return rows\n',
+                    original.replace(b'def capability_projection(rows):', b'def capability_projection(rows=__import__("unknown_module")):'),
+                    original.replace(b'def capability_projection(rows):', b'def capability_projection(rows: __import__("unknown_module")):'),
+                    original.replace(b'CAPABILITY_LIMIT = 128 * 1024', b'CAPABILITY_LIMIT = __import__("unknown_module")')]
+        for raw in variants:
+            self.put(path, raw)
+            with self.assertRaises(ValueError): v.capability_validator(self.root, sha(raw))
+        self.put(path, original)
 
     def test_all_acquisition_results_collected_after_one_failure(self):
         def fetch(row, cache, deadline):
@@ -389,9 +1027,9 @@ class VirtualStage(unittest.TestCase):
             return self.mock_fetch(row, cache)
         self.fetch.side_effect = fetch
         result = self.run_adapter(); self.assertEqual(result['status'], 'FAIL')
-        self.assertEqual(self.fetch.call_count, 41); self.command.assert_not_called()
+        self.assertEqual(self.fetch.call_count, 45); self.command.assert_not_called()
         receipt = v.read_json(self.output / 'adapter-status/acquisition.json')
-        self.assertEqual(len(receipt['inputs']), 41); self.assertEqual(sum(r['status'] == 'FAIL' for r in receipt['inputs']), 1)
+        self.assertEqual(len(receipt['inputs']), 45); self.assertEqual(sum(r['status'] == 'FAIL' for r in receipt['inputs']), 1)
         self.assertNotIn('do-not-export', (self.output / 'adapter-status/result.json').read_text())
 
     def owner_mutation(self, action, code=0):
@@ -517,7 +1155,7 @@ class VirtualStage(unittest.TestCase):
         with self.assertRaises(KeyboardInterrupt):
             self.run_adapter()
         receipt = v.read_json(self.output / 'adapter-status/acquisition.json')
-        self.assertEqual(len(receipt['inputs']), 41)
+        self.assertEqual(len(receipt['inputs']), 45)
         self.assertEqual(sum(r['status'] == 'PIN_MATCH' for r in receipt['inputs']), 2)
         self.assertTrue(all(r['error_code'] == 'tooling-acquisition-cancelled' for r in receipt['inputs'][2:]))
         self.command.assert_not_called()
@@ -532,7 +1170,7 @@ class VirtualStage(unittest.TestCase):
             result = self.run_adapter()
         self.assertEqual(result['status'], 'FAIL'); self.assertEqual(self.fetch.call_count, 1)
         receipt = v.read_json(self.output / 'adapter-status/acquisition.json')
-        self.assertEqual(len(receipt['inputs']), 41)
+        self.assertEqual(len(receipt['inputs']), 45)
         self.assertTrue(all(r['error_code'] == 'tooling-acquisition-deadline' for r in receipt['inputs']))
         self.command.assert_not_called()
 
@@ -613,7 +1251,7 @@ class VirtualStage(unittest.TestCase):
         self.assertEqual(result['status'], 'FAIL')
         self.assertEqual(list(external.iterdir()), [])
         self.fetch.assert_not_called(); self.command.assert_not_called()
-        self.assertEqual(len(v.read_json(self.output / 'adapter-status/acquisition.json')['inputs']), 41)
+        self.assertEqual(len(v.read_json(self.output / 'adapter-status/acquisition.json')['inputs']), 45)
 
     def test_repeated_late_cancel_is_deferred_then_fail_receipt_rewritten(self):
         original_save = v.save
@@ -635,13 +1273,24 @@ class VirtualStage(unittest.TestCase):
             self.run_adapter()
         receipt = v.read_json(self.output / 'adapter-status/result.json')
         self.assertEqual(receipt['status'], 'FAIL'); self.assertEqual(receipt['error_code'], 'cancelled')
-        self.assertEqual(len(v.read_json(self.output / 'adapter-status/acquisition.json')['inputs']), 41)
+        self.assertEqual(len(v.read_json(self.output / 'adapter-status/acquisition.json')['inputs']), 45)
         self.assertTrue((self.output / 'virtual-public/result/result.json').is_file())
 
-    def test_actual_source_literals_match_current_files_without_importing_owner(self):
-        root = HERE.parents[2]
-        accepted = {name: v.digest(root / 'scripts/virtual' / name) for name in v.PACKET_FILES}
-        v.source_packet(SimpleNamespace(virtual_packet_sha256=accepted), root)
+    def test_candidate_literal_drafts_bind_actual_source_without_importing_owner(self):
+        actual = HERE.parents[2] / 'scripts/virtual'
+        for name in v.PACKET_FILES - {'tooling.lock.json', 'tooling-audit.json'}:
+            shutil.copyfile(actual / name, self.owner / name)
+        accepted = {name: v.digest(self.owner / name) for name in v.PACKET_FILES}
+        with self.assertRaises(ValueError):
+            v.source_packet(SimpleNamespace(virtual_packet_sha256=accepted), self.root)
+        declarations = {'LOCK_PIN': accepted['tooling.lock.json'], 'AUDIT_PIN': accepted['tooling-audit.json'],
+                        'AUDITOR_PIN': accepted['audit_tooling.py'], 'ALIASES': v.ALIASES,
+                        'CORE': {name: accepted[name] for name in ('common.py', 'guest.py', 'prepare.py', 'run.py', 'gbm_probe.c')}}
+        with (self.owner / 'controller.py').open('a') as stream:
+            stream.write('\n' + '\n'.join(name + ' = ' + repr(value) for name, value in declarations.items()))
+            stream.write('\nraise RuntimeError("owner-must-not-be-imported")\n')
+        accepted['controller.py'] = v.digest(self.owner / 'controller.py')
+        v.source_packet(SimpleNamespace(virtual_packet_sha256=accepted), self.root)
 
 
 class BoundedTransport(unittest.TestCase):
