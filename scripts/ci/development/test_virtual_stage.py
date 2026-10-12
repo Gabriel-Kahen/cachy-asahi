@@ -18,6 +18,19 @@ HERE = Path(__file__).parent.resolve()
 sys.path.insert(0, str(HERE))
 import virtual_stage as v
 
+# Actual retained run 38274341668 guest-events SHA ab406dd9607b7039420dc89d39c037039abd65e273b72336f64805331dcc1422.
+# Only these observed probes are reused in host fixtures; the actual run failed without frames.
+ACTUAL_EMPTY_CONFIGERRORS = '[\n\t""\n]\n\n'
+ACTUAL_MINIMAL_IPC_PROBES = [
+    {'event': 'ipc_probe', 'stage': 'minimal', 'attempt': 1, 'elapsed_ms': 9679, 'returncode': 6,
+     'error': None, 'stdout': "Hyprland IPC didn't respond in time\n\nCouldn't read (6)\n", 'stderr': ''},
+    {'event': 'ipc_probe', 'stage': 'minimal', 'attempt': 2, 'elapsed_ms': 15807, 'returncode': 6,
+     'error': None, 'stdout': "Hyprland IPC didn't respond in time\n\nCouldn't read (6)\n", 'stderr': ''},
+    {'event': 'ipc_probe', 'stage': 'minimal', 'attempt': 3, 'elapsed_ms': 21315, 'returncode': 0,
+     'error': None, 'stdout': ACTUAL_EMPTY_CONFIGERRORS, 'stderr': ''}]
+CONFIGERRORS_REJECTED_PARSED = [[' '], ['\t'], ['\n'], ['\u00a0'], ['real error'], ['', 'real error'],
+    ['real error', ''], ['', ''], [['']], [None], [False], [True], [0], {}, None, False, True, '', '[]']
+
 
 # Exact public baseline metadata/signatures from native run 38218102399.
 # Inline fixtures keep frozen tests independent of ignored artifact directories.
@@ -1205,6 +1218,97 @@ finally:
         if self.output.exists():
             shutil.rmtree(self.output)
         self.owner_mutation(action, code)
+
+    def empty_configerrors_fixture(self, events, minimal_stdout=ACTUAL_EMPTY_CONFIGERRORS, overlay_stdout='[]\n'):
+        """Complete host fixture around actual probes; no native-frame claim."""
+        index = self.event_index(events, 'ipc_probe')
+        probes = copy.deepcopy(ACTUAL_MINIMAL_IPC_PROBES)
+        probes[-1]['stdout'] = minimal_stdout
+        events[index:index + 2] = [*probes, self.ipc_command(stdout=minimal_stdout)]
+        index = self.event_index(events, 'ipc_probe', 'overlay')
+        events[index]['stdout'] = overlay_stdout
+        events[index + 1]['stdout'] = overlay_stdout
+
+    def test_actual_empty_configerrors_probe_contract_passes_only_as_complete_host_fixture(self):
+        for minimal_stdout in ('[]\n', ACTUAL_EMPTY_CONFIGERRORS):
+            for overlay_stdout in ('[]\n', ACTUAL_EMPTY_CONFIGERRORS):
+                with self.subTest(minimal=minimal_stdout, overlay=overlay_stdout):
+                    captured = []
+                    def complete(events):
+                        self.empty_configerrors_fixture(events, minimal_stdout, overlay_stdout)
+                        captured.extend(copy.deepcopy(events))
+                    self.ipc_case(lambda out: self.altered_events(out, complete))
+                    result = self.run_adapter()
+                    self.assertEqual(result['status'], 'PASS', result.get('error_code'))
+                    public = json.loads((self.output / 'virtual-public/events/guest-events.json').read_bytes())
+                    self.assertEqual(public, captured)
+                    probes = [event for event in public if event['event'] == 'ipc_probe' and event['stage'] == 'minimal']
+                    self.assertEqual([event['returncode'] for event in probes], [6, 6, 0])
+                    self.assertEqual([event['elapsed_ms'] for event in probes], [9679, 15807, 21315])
+                    if minimal_stdout == ACTUAL_EMPTY_CONFIGERRORS:
+                        self.assertEqual(probes, ACTUAL_MINIMAL_IPC_PROBES)
+                    self.assertEqual(result['visual_review'], 'REQUIRED')
+                    self.assertEqual(result['hardware_validation'], 'NOT RUN')
+                    self.assertTrue((self.output / 'virtual-public/minimal-frame').is_dir())
+                    self.assertTrue((self.output / 'virtual-public/overlay-frame').is_dir())
+                    shutil.rmtree(self.output)
+
+    def test_no_reported_error_text_predicate_accepts_only_two_exact_parsed_shapes(self):
+        for value in ([], ['']):
+            self.assertTrue(v.no_reported_config_error_text(value))
+        self.assertEqual(len(CONFIGERRORS_REJECTED_PARSED), 19)
+        for value in CONFIGERRORS_REJECTED_PARSED:
+            with self.subTest(value=value):
+                self.assertFalse(v.no_reported_config_error_text(value))
+
+    def test_empty_configerrors_compatibility_rejects_all_nineteen_payloads_before_frames(self):
+        for value in CONFIGERRORS_REJECTED_PARSED:
+            with self.subTest(value=value):
+                def malformed(events):
+                    self.empty_configerrors_fixture(events, json.dumps(value))
+                self.ipc_case(lambda out: self.altered_events(out, malformed))
+                result = self.run_adapter()
+                self.assertEqual(result['status'], 'FAIL')
+                self.assertEqual(result['error_code'], 'guest-ipc-readiness-protocol-refused')
+                self.assertFalse((self.output / 'virtual-public/minimal-frame').exists())
+                self.assertFalse((self.output / 'virtual-public/overlay-frame').exists())
+                shutil.rmtree(self.output)
+
+    def test_empty_configerrors_compatibility_keeps_transport_time_correlation_and_frame_gates(self):
+        def ready(events): return self.event_index(events, 'ipc_probe') + 2
+        changes = [('error', 'timeout'), ('error', 'output overflow'), ('stderr', 'warning'),
+                   ('returncode', 6), ('returncode', -9), ('returncode', False), ('returncode', 0.0),
+                   ('elapsed_ms', 180000), ('elapsed_ms', 600000), ('elapsed_ms', 15806),
+                   ('attempt', 4), ('attempt', 25), ('attempt', True), ('stage', 'overlay')]
+        mutations = [(key + '-' + str(value), lambda events, key=key, value=value:
+                      events[ready(events)].update(**{key: value})) for key, value in changes]
+        mutations += [
+            ('malformed-json', lambda events: events[ready(events)].update(stdout='[""')),
+            ('missing-correlation', lambda events: events.pop(ready(events) + 1)),
+            ('changed-raw-correlation', lambda events: events[ready(events) + 1].update(stdout='[""]\n')),
+            ('extra-correlation', lambda events: events.insert(ready(events) + 2, self.ipc_command(stdout=ACTUAL_EMPTY_CONFIGERRORS))),
+            ('command-error', lambda events: events[ready(events) + 1].update(error='timeout')),
+            ('command-stderr', lambda events: events[ready(events) + 1].update(stderr='warning')),
+            ('overlay-before-minimal', lambda events: events[self.event_index(events, 'ipc_probe')].update(stage='overlay')),
+            ('missing-minimal-frame', lambda events: events.pop(self.event_index(events, 'frame_ready'))),
+            ('missing-overlay-frame', lambda events: events.pop(self.event_index(events, 'frame_ready', 'overlay'))),
+            ('missing-phase', lambda events: events.pop(self.event_index(events, 'phase_pass'))),
+            ('unmapped-client', lambda events: events[self.event_index(events, 'frame_ready')]['clients'][0].update(mapped=False)),
+            ('no-client', lambda events: events[self.event_index(events, 'frame_ready')].update(clients=[])),
+            ('zero-client-size', lambda events: events[self.event_index(events, 'frame_ready')]['clients'][0].update(size=[0, 1])),
+            ('no-monitor', lambda events: events[self.event_index(events, 'frame_ready')].update(monitors=[])),
+            ('zero-monitor-size', lambda events: events[self.event_index(events, 'frame_ready')]['monitors'][0].update(width=0)),
+        ]
+        for label, mutation in mutations:
+            with self.subTest(case=label):
+                def invalid(events):
+                    self.empty_configerrors_fixture(events)
+                    mutation(events)
+                self.ipc_case(lambda out: self.altered_events(out, invalid))
+                self.assertEqual(self.run_adapter()['status'], 'FAIL')
+                self.assertFalse((self.output / 'virtual-public/minimal-frame').exists())
+                self.assertFalse((self.output / 'virtual-public/overlay-frame').exists())
+                shutil.rmtree(self.output)
 
     def test_ipc_ready_and_exact_retry_recovery_publish_correlated_evidence(self):
         timeout_reply = "Hyprland IPC didn't respond in time\n\nCouldn't read (6)\n"

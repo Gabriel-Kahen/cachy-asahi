@@ -62,6 +62,11 @@ def log_bytes(path):
         return stream.read(MAX_LOG + 1)
 
 
+def no_reported_config_error_text(value):
+    return type(value) is list and (value == [] or
+            len(value) == 1 and type(value[0]) is str and value[0] == '')
+
+
 def wait_for_ipc(stage, compositor, env, log, check_logs):
     """A bound/listening socket precedes Hyprland's event loop; require a reply."""
     start = time.monotonic()
@@ -90,7 +95,8 @@ def wait_for_ipc(stage, compositor, env, log, check_logs):
             check_logs()
             require(log.stat().st_size <= MAX_LOG, 'compositor log overflow')
             if result['error'] is None and result['returncode'] == 0:
-                require(result['stderr'] == '' and json.loads(result['stdout']) == [], 'runtime config errors')
+                require(result['stderr'] == '' and no_reported_config_error_text(json.loads(result['stdout'])),
+                        'runtime config errors')
                 emit('command', argv=IPC_ARGV, **result)
                 return probe_env
             require(result == {'returncode': 6, 'error': None, 'stdout': IPC_TIMEOUT_REPLY, 'stderr': ''},

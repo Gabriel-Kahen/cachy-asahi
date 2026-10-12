@@ -573,6 +573,12 @@ def frame(path, row, stage):
     return data
 
 
+def no_reported_config_error_text(value):
+    """Accept only the two empty-text reply shapes; upstream error counts are lossy."""
+    return type(value) is list and (value == [] or
+           len(value) == 1 and type(value[0]) is str and value[0] == '')
+
+
 def read_events(path, policy, *, data=None):
     """Inspect the known encoded terminal records before any public copying."""
     data = read_regular(path, LIMIT) if data is None else data
@@ -711,7 +717,7 @@ def event_protocol(path, expected_sha256, nonce, policy, *, data=None):
                 require(event['returncode'] == 0 and event['error'] is None and event['stderr'] == '',
                         'guest-ipc-readiness-protocol-refused')
                 try:
-                    ready = json.loads(event['stdout']) == []
+                    ready = no_reported_config_error_text(json.loads(event['stdout']))
                 except (ValueError, TypeError):
                     ready = False
                 require(ready, 'guest-ipc-readiness-protocol-refused')

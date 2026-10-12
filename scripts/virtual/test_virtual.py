@@ -299,6 +299,86 @@ class GuestIPC(unittest.TestCase):
             self.assertEqual(events.call_args.kwargs['error'], 'timeout')
 
 
+class GuestConfigErrors(unittest.TestCase):
+    ACTUAL_READY = '[\n\t""\n]\n\n'
+    NEGATIVES = [[' '], ['\t'], ['\n'], ['\u00a0'], ['real error'], ['', 'real error'],
+                 ['real error', ''], ['', ''], [['']], [None], [False], [True], [0],
+                 {}, None, False, True, '', '[]']
+
+    def test_no_reported_error_text_predicate_has_exact_two_shapes(self):
+        for value in ([], ['']):
+            with self.subTest(value=value): self.assertTrue(guest.no_reported_config_error_text(value))
+        class ListSubclass(list): pass
+        class StringSubclass(str): pass
+        for value in self.NEGATIVES + [ListSubclass(), [StringSubclass('')], ()]:
+            with self.subTest(value=value): self.assertFalse(guest.no_reported_config_error_text(value))
+
+    def test_actual_three_probe_sequence_preserves_stdout_and_ready_command_correlation(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            compositor, env, log = GuestIPC.simple_fixture(self, Path(temporary)); clock = [0.0]
+            results = [{'returncode': 6, 'error': None, 'stdout': guest.IPC_TIMEOUT_REPLY, 'stderr': ''},
+                       {'returncode': 6, 'error': None, 'stdout': guest.IPC_TIMEOUT_REPLY, 'stderr': ''},
+                       {'returncode': 0, 'error': None, 'stdout': self.ACTUAL_READY, 'stderr': ''}]
+            times = iter((9.679, 15.807, 21.315)); remaining = iter(results)
+            def probe(argv, **options):
+                self.assertEqual(argv, guest.IPC_ARGV)
+                self.assertEqual(options['limit'], guest.MAX_LOG)
+                self.assertEqual(options['timeout'], 30)
+                clock[0] = next(times)
+                return next(remaining)
+            with patch('guest.bounded', side_effect=probe) as probes, patch('guest.emit') as events, \
+                    patch('guest.time.monotonic', side_effect=lambda: clock[0]), patch('guest.time.sleep'):
+                ready = guest.wait_for_ipc('minimal', compositor, env, log, Mock())
+            self.assertEqual(ready['HYPRLAND_INSTANCE_SIGNATURE'], 'fixture')
+            self.assertEqual(probes.call_count, 3)
+            rows = [call.kwargs for call in events.call_args_list if call.args == ('ipc_probe',)]
+            self.assertEqual(rows, [dict(stage='minimal', attempt=i, elapsed_ms=elapsed, **result)
+                                    for i, elapsed, result in zip((1, 2, 3), (9679, 15807, 21315), results)])
+            self.assertEqual([call.args for call in events.call_args_list],
+                             [('ipc_probe',)] * 3 + [('command',)])
+            self.assertEqual(events.call_args.kwargs, dict(argv=guest.IPC_ARGV, **results[-1]))
+
+    def test_nineteen_negative_payloads_and_malformed_json_never_become_ready_commands(self):
+        payloads = [json.dumps(value) for value in self.NEGATIVES] + ['not JSON', '[""] trailing']
+        self.assertEqual(len(self.NEGATIVES), 19)
+        for stdout in payloads:
+            with self.subTest(stdout=stdout), tempfile.TemporaryDirectory() as temporary:
+                compositor, env, log = GuestIPC.simple_fixture(self, Path(temporary))
+                result = {'returncode': 0, 'error': None, 'stdout': stdout, 'stderr': ''}
+                with patch('guest.bounded', return_value=result) as probe, patch('guest.emit') as events, \
+                        self.assertRaises(ValueError):
+                    guest.wait_for_ipc('minimal', compositor, env, log, Mock())
+                probe.assert_called_once(); self.assertEqual(events.call_count, 1)
+                self.assertEqual(events.call_args.args, ('ipc_probe',))
+                self.assertEqual(events.call_args.kwargs['stdout'], stdout)
+
+    def test_new_ready_text_keeps_transport_deadline_liveness_and_byte_guards(self):
+        changes = ({'returncode': 6}, {'returncode': False}, {'error': 'timeout'},
+                   {'error': 'output overflow'}, {'stderr': 'warning'}, {'stdout': '["" ]' * 100})
+        for change in changes:
+            with self.subTest(change=change), tempfile.TemporaryDirectory() as temporary:
+                compositor, env, log = GuestIPC.simple_fixture(self, Path(temporary)); log.write_text('')
+                result = {'returncode': 0, 'error': None, 'stdout': self.ACTUAL_READY, 'stderr': ''} | change
+                with patch('guest.MAX_LOG', 64), patch('guest.bounded', return_value=result), \
+                        patch('guest.emit') as events, self.assertRaises(ValueError):
+                    guest.wait_for_ipc('minimal', compositor, env, log, Mock())
+                self.assertNotIn(('command',), [call.args for call in events.call_args_list])
+                self.assertEqual(events.call_count, 0 if type(result['returncode']) is not int or
+                                 len(result['stdout'].encode()) + len(result['stderr'].encode()) > 64 else 1)
+        for late, dead in ((True, False), (False, True)):
+            with self.subTest(late=late, dead=dead), tempfile.TemporaryDirectory() as temporary:
+                compositor, env, log = GuestIPC.simple_fixture(self, Path(temporary)); clock = [0.0]
+                def probe(_argv, **_options):
+                    clock[0] = 180.0001 if late else 1
+                    if dead: compositor.poll.return_value = 1
+                    return {'returncode': 0, 'error': None, 'stdout': self.ACTUAL_READY, 'stderr': ''}
+                with patch('guest.time.monotonic', side_effect=lambda: clock[0]), \
+                        patch('guest.bounded', side_effect=probe), patch('guest.emit') as events, \
+                        self.assertRaisesRegex(ValueError, 'IPC deadline' if late else 'exited during IPC'):
+                    guest.wait_for_ipc('minimal', compositor, env, log, Mock())
+                self.assertEqual([call.args for call in events.call_args_list], [('ipc_probe',)])
+
+
 class GuestDiagnostics(unittest.TestCase):
     def diagnostic_phase(self, phase_failure=None, cleanup_failure=None, invalid_capture=False,
                          closed_log=None, closed_summary=False):

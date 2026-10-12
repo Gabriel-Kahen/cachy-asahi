@@ -1732,11 +1732,11 @@
     },
     "scripts/ci/development/test_virtual_stage.py": {
       "mode": 420,
-      "sha256": "525939d5f33a7d0f9af0cdb068b11aa409e5349bc021bafd00ddc7e9d0c4215d"
+      "sha256": "ed947a7aab205c7fb47ccc682ecdd11319ad316b6530beea09a268ea4cb7e10f"
     },
     "scripts/ci/development/virtual_stage.py": {
       "mode": 420,
-      "sha256": "0673893986bca97958d0cfab83e5caaf76844671484b471fc88a4cb7e68f562b"
+      "sha256": "b116c5cc99245d3548481823554e4307dafcd21bd47d21fceece054296d6cc79"
     },
     "scripts/ci/freeze.py": {
       "mode": 420,
@@ -1960,7 +1960,7 @@
     },
     "scripts/virtual/controller.py": {
       "mode": 420,
-      "sha256": "879b72ecbd3803e8745e99baa99c4e42c441af209234579620f50840b681614b"
+      "sha256": "aeb4a9b9b050e084b0352f46a05807b8a3e42c76224d09c4f1a1e7383a1629de"
     },
     "scripts/virtual/gbm_probe.c": {
       "mode": 420,
@@ -1968,7 +1968,7 @@
     },
     "scripts/virtual/guest.py": {
       "mode": 420,
-      "sha256": "3ca0e95ed89cd21edc96b09e1bc98138e0addbd4b99fc9a3ba41f22ea562ddda"
+      "sha256": "84b29d91c50ad7172009135283c05e405c9c1ecf08cfcad45ff3208d048834c3"
     },
     "scripts/virtual/prepare.py": {
       "mode": 420,
@@ -1984,7 +1984,7 @@
     },
     "scripts/virtual/test_virtual.py": {
       "mode": 420,
-      "sha256": "b2064b20a05c89b690d14d30819dbcacf9fc1de6fe9f13106900f0f0693161f9"
+      "sha256": "a57f3491c73f5ec6d5ea87d85dea5d06f0e0b91ca40c209510f0c9cd951b9033"
     },
     "scripts/virtual/tooling-audit.json": {
       "mode": 420,
