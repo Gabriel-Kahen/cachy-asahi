@@ -1,12 +1,15 @@
-"""Pure receipt/packet fixtures; no GPG, package commands, Docker or network."""
+"""Receipt/packet fixtures plus isolated TEST GPG; no package commands or network."""
 import base64
 import copy
 import hashlib
+import io
 import json
 import os
 from pathlib import Path
 import shutil
 import sys
+import subprocess
+import tarfile
 import tempfile
 import unittest
 
@@ -23,9 +26,9 @@ def sha(data):
     return hashlib.sha256(data).hexdigest()
 
 
-def sig(algorithm=1):
+def sig(algorithm=1, digest=8):
     mpis = b'\0\x01\x01' if algorithm == 1 else b'\x01\x07\x40' + b'\x01' * 32 + b'\x01\0' + b'\x01' * 32
-    body = bytes((4, 0, algorithm, 8)) + b'\0\0\0\0ab' + mpis
+    body = bytes((4, 0, algorithm, digest)) + b'\0\0\0\0ab' + mpis
     return bytes((0xc2, len(body))) + body
 
 
@@ -234,6 +237,103 @@ class InitialArtifacts(unittest.TestCase):
         for data in (b'\xc5\x01x', b'\xc2\xe0' + sig(), sig() + sig(), sig()[:-1], b'PRIVATE KEY'):
             with self.assertRaises(ValueError): a.signature(data, policy)
         a.signature(sig(), policy); a.signature(sig(22), policy)
+
+    def test_sha512_exact_database_paths_and_producer_kind_only(self):
+        policy = a.public_policy(self.root)
+        self.assertEqual(len(a.DATABASE_SIGNATURES), 22)
+        for name in a.DATABASE_SIGNATURES:
+            for algorithm in (1, 22):
+                for digest in (8, 10):
+                    a.signature(sig(algorithm, digest), policy, kind='repository-public-artifacts', name=name)
+        wrong = ('TEST-repository-aliases.json.sig',
+                 'TEST-repositories/baseline-A/cachy-asahi-setup-0.1.0-1-any.pkg.tar.xz.sig',
+                 'TEST-repositories/foreign/integration.db.tar.gz.sig',
+                 'TEST-repositories/baseline-A/integration.db.tar.xz.sig',
+                 'TEST-repositories/baseline-A/integration.files.tar.zst.sig',
+                 'TEST-repositories/baseline-A/../baseline-A/integration.db.tar.gz.sig',
+                 'TEST-repositories/missing-database-signature-B/integration.db.sig')
+        for name in wrong:
+            with self.subTest(name=name), self.assertRaises(ValueError):
+                a.signature(sig(22, 10), policy, kind='repository-public-artifacts', name=name)
+        for kind in (None, 'signer-public-artifacts', 'fixture-archives'):
+            with self.subTest(kind=kind), self.assertRaises(ValueError):
+                a.signature(sig(22, 10), policy, kind=kind, name=next(iter(a.DATABASE_SIGNATURES)))
+        for digest in (1, 2, 9, 11):
+            with self.subTest(digest=digest), self.assertRaises(ValueError):
+                a.signature(sig(22, digest), policy, kind='repository-public-artifacts', name=next(iter(a.DATABASE_SIGNATURES)))
+
+    def test_sha512_database_still_requires_complete_packet_and_mpis(self):
+        policy = a.public_policy(self.root)
+        name = 'TEST-repositories/baseline-A/integration.db.tar.gz.sig'
+        valid = sig(22, 10)
+        for data in (valid + valid, valid + b'x', valid[:-1], b'\xc2\xe0' + valid,
+                     valid[:-34] + b'\x00\x00' + valid[-32:], sig(1, 10)[:-1] + b'\x00'):
+            with self.subTest(data=data), self.assertRaises(ValueError):
+                a.signature(data, policy, kind='repository-public-artifacts', name=name)
+
+    def repository_bytes(self, name, data):
+        self.put(self.repository / name, data)
+        self.put(self.evidence / 'work/repository-raw' / name, data)
+        self.mutate(self.evidence / 'work/repository-raw/result.json',
+                    lambda x: x['evidence_sha256'].update({name: sha(data)}))
+        self.mutate(self.repository / 'public-artifact-manifest.json',
+                    lambda x: x['files'].update({name: {'sha256': sha(data), 'bytes': len(data)}}))
+
+    def test_real_isolated_gpg_sha512_database_receipt_and_negative_bindings(self):
+        home = self.base / 'gnupg-test'; home.mkdir(mode=0o700)
+        gpg = ['gpg', '--no-options', '--homedir', str(home), '--batch', '--no-tty',
+               '--pinentry-mode', 'loopback', '--passphrase', '']
+        def run(args, expected=0):
+            result = subprocess.run(gpg + args, capture_output=True, timeout=60)
+            self.assertEqual(result.returncode, expected, result.stderr.decode(errors='replace'))
+            return result.stdout
+        try:
+            run(['--quick-generate-key', 'CACHY-ASAHI TEST ONLY <test@invalid.example>', 'ed25519', 'sign', '1d'])
+            database = self.base / 'integration.db.tar.gz'
+            with tarfile.open(database, 'w:gz') as archive:
+                data = b'%NAME%\ncachy-asahi-test\n\n%VERSION%\n1-1\n'
+                entry = tarfile.TarInfo('cachy-asahi-test-1-1/desc'); entry.size = len(data)
+                archive.addfile(entry, io.BytesIO(data))
+            for digest in ('SHA512', 'SHA256'):
+                output = self.base / (digest + '.sig')
+                run(['--digest-algo', digest, '--output', str(output), '--detach-sign', str(database)])
+                status = run(['--status-fd', '1', '--verify', str(output), str(database)])
+                valid = [line.split() for line in status.decode().splitlines() if line.startswith('[GNUPG:] VALIDSIG ')]
+                self.assertEqual(len(valid), 1); self.assertEqual(valid[0][9], '10' if digest == 'SHA512' else '8')
+            data = (self.base / 'SHA512.sig').read_bytes()
+            policy = a.public_policy(self.root)
+            # The old SHA256-only default reproduces the native-log mismatch.
+            with self.assertRaises(ValueError): a.signature(data, policy)
+            name = 'TEST-repositories/baseline-A/integration.db.tar.gz.sig'
+            self.repository_bytes(name[:-4], database.read_bytes())
+            self.repository_bytes(name, data)
+            self.assertIn(name, self.receive(self.repository)['opaque_approved'])
+            for alias in ('integration.db.sig', 'integration.files.tar.gz.sig', 'integration.files.sig'):
+                self.repository_bytes('TEST-repositories/baseline-A/' + alias, data)
+            self.receive(self.repository)
+            receipt = self.evidence / 'work/repository-raw/result.json'
+            self.mutate(receipt, lambda x: x['evidence_sha256'].update({name: '0' * 64}))
+            with self.assertRaises(ValueError): self.receive(self.repository)
+            self.repository_bytes(name, data + b'trailing')
+            with self.assertRaises(ValueError): self.receive(self.repository)
+            self.repository_bytes(name, data)
+            alias = 'TEST-repository-aliases.json.sig'
+            self.repository_bytes(alias, data)
+            with self.assertRaises(ValueError): self.receive(self.repository)
+            self.repository_bytes(alias, (self.base / 'SHA256.sig').read_bytes())
+            self.receive(self.repository)
+            package = 'TEST-repositories/baseline-A/cachy-asahi-setup-0.1.0-1-any.pkg.tar.xz.sig'
+            self.repository_bytes(package, data)
+            with self.assertRaises(ValueError): self.receive(self.repository)
+            # GPG verifies the signed bytes; the receiver independently checks
+            # packet syntax and receipt hashes and never performs GPG verification.
+            database.write_bytes(database.read_bytes() + b'changed')
+            result = subprocess.run(gpg + ['--status-fd', '1', '--verify', str(self.base / 'SHA512.sig'),
+                                          str(database)], capture_output=True, timeout=60)
+            self.assertNotEqual(result.returncode, 0); self.assertIn(b'[GNUPG:] BADSIG ', result.stdout)
+        finally:
+            subprocess.run(['gpgconf', '--homedir', str(home), '--kill', 'all'],
+                           capture_output=True, check=True, timeout=30)
 
     def test_repository_wrong_nonce_script_source_or_cleanup_refused(self):
         path = self.evidence / 'work/repository-raw/result.json'; original = a.read_json(path)

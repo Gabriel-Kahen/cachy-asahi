@@ -22,6 +22,13 @@ ORIGINALS = set(RECIPES)
 LABELS = {'baseline-A', 'updated-B', 'tampered-package-B', 'tampered-database-B',
           'missing-database-signature-B', 'missing-package-signature-B'}
 CERTS = {'TEST-signer-A-public.asc', 'TEST-signer-B-public.asc', 'TEST-verifier-public.asc', 'TEST-signer-A-revoked-public.asc'}
+# repo-add signs these gzip databases; its normalized signature symlinks are
+# exported as receipt-bound regular copies. The negative case removes both DB
+# signatures. Packages and the alias record retain the SHA256-only policy.
+DATABASE_SIGNATURES = frozenset('TEST-repositories/' + label + '/' + name
+    for label in LABELS for name in ('integration.db.tar.gz.sig', 'integration.db.sig',
+                                     'integration.files.tar.gz.sig', 'integration.files.sig')
+    if label != 'missing-database-signature-B' or name.startswith('integration.files'))
 PUBLIC_SOURCE_AUDITS = {'runtime-dependency-observation.json', 'arm-dependency-audit.json', 'dependency-observation.json'}
 PIN = re.compile(r'[0-9a-f]{64}\Z')
 FILE_LIMIT, TOTAL_LIMIT = 8 * 1024**2, 12 * 1024**2
@@ -58,7 +65,7 @@ def relative(name, policy, sensitive=True):
     return path
 
 
-def signature(data, policy):
+def signature(data, policy, *, kind=None, name=None):
     require(0 < len(data) <= 8192 and not policy['PRIVATE_CONTENT'].search(data.decode('latin-1')), 'private-or-unbounded-signature')
     header, offset = data[0], 1
     require(header & 128 and (header & 63 if header & 64 else (header >> 2) & 15) == 2, 'signature-packet-required')
@@ -79,8 +86,9 @@ def signature(data, policy):
         width = (1, 2, 4, 0)[header & 3]
         require(width and offset + width <= len(data), 'indeterminate-signature-refused')
         size = int.from_bytes(data[offset:offset + width], 'big'); offset += width
-    require(size >= 13 and offset + size == len(data) and data[offset:offset + 2] == bytes((4, 0)) and data[offset + 2] in (1, 22) and data[offset + 3] == 8,
-            'one-binary-reviewed-sha256-signature-required')
+    hashes = (8, 10) if kind == 'repository-public-artifacts' and name in DATABASE_SIGNATURES else (8,)
+    require(size >= 13 and offset + size == len(data) and data[offset:offset + 2] == bytes((4, 0)) and data[offset + 2] in (1, 22) and data[offset + 3] in hashes,
+            'one-binary-reviewed-path-digest-signature-required')
     body = data[offset:]; position = 4
     for _ in range(2):
         require(position + 2 <= len(body), 'truncated-signature-subpackets')
@@ -263,7 +271,7 @@ def receive(root, evidence, directory):
             require(b'PRIVATE KEY' not in data and not policy['PRIVATE_CONTENT'].search(data.decode('ascii')), 'private-certificate-refused')
             certificate(root, data); opaque[name] = record
         elif name.endswith('.sig'):
-            signature(data, policy); opaque[name] = record
+            signature(data, policy, kind=kind, name=name); opaque[name] = record
         elif name.endswith(('.json', '.conf')):
             content = data.decode('utf-8')
             require(not policy['PRIVATE_CONTENT'].search(content) and not any(ord(c) < 32 and c not in '\n\r\t' for c in content), 'private-or-control-text-refused')

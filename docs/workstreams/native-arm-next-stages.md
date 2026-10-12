@@ -607,3 +607,47 @@ must not execute the corrected sources. Corrected native ARM execution, 16K
 execution, M2 hardware, release selection and performance acceptance remain
 **NOT RUN**. No shared lock, Git, workflow or host/system mutation was performed
 by this receiver worker.
+
+## Repository database signature receiver correction
+
+October 12, 2026. The repository producer's retained native logs use OpenPGP
+digest 10 (SHA512) for repo-add database signatures, while the broader artifact
+receiver required digest 8 (SHA256) for every detached signature. The receiver
+now admits digests 8 and 10 only for `repository-public-artifacts` and 22 exact
+producer paths: `TEST-repositories/{reviewed-label}/integration.db.tar.gz.sig`,
+`integration.files.tar.gz.sig`, and their normalized regular-copy aliases
+`integration.db.sig` and `integration.files.sig`. The six labels remain the
+existing finite `LABELS`; the missing-database-signature-B case excludes both DB
+signature names. The held producer invokes repo-add with gzip databases and
+copies those symlink aliases into public regular files. No xz/zst, foreign label,
+package, signer-export or `TEST-repository-aliases.json.sig` path gains SHA512
+acceptance. All other detached signatures still require SHA256.
+
+Packet version/type, RSA or legacy Ed25519 algorithm, single complete packet,
+subpacket bounds, MPI framing, private-marker checks, original producer bytes,
+manifest hashes, source/role authority and finite directory limits remain
+required. The receiver performs structural parsing and receipt binding; it does
+not import keys or independently verify signatures with GPG.
+
+All 12 retained run38227121568 archives were inspected: repository signature
+binaries and the complete repository public-artifact bundle are absent; the
+signer bundle retains eight package signatures. An owned temporary 0700 GPG
+home produced real TEST Ed25519 detached SHA512/SHA256 signatures over a gzip
+database. The committed pre-correction parser refused the SHA512 bytes; the
+corrected DB scope accepted them. Explicit-homedir GPG separately verified both
+signatures and rejected changed signed bytes. The test key/agent were removed;
+only public fixture bytes/status and proof remain at
+`/tmp/cachy-database-signature-policy-l1ok2yfd/proof.json`.
+
+Focused **15 tests PASS, zero skips** and full development **166 tests PASS,
+zero skips** (61.206 seconds), with ResourceWarning treated as an error. Tests
+cover the complete path/kind matrix, unsupported digests, coherent wrong-path
+manifests, receipt hash drift, trailing/partial/truncated packets and malformed
+MPIs. Logs are `/tmp/cachy-signature-policy-focused.log` and
+`/tmp/cachy-signature-policy-development.log`. Both changed Python files pass
+AST parsing. These are source and isolated fixture checks; receipt-bound native
+DB binary acceptance, corrected native execution and M2 hardware remain
+**NOT RUN**. Coordinator review and 211-source-packet rebinding remain pending;
+the unaccepted `67287…` candidate must not execute these changed sources.
+No other broader module, workflow, shared lock, Git or dispatch was changed by
+this receiver worker.
