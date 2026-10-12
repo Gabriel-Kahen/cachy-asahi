@@ -499,3 +499,35 @@ bundles and `root-execution-verification.json` under `artifacts/ci/38221511121/`
 Summary bundle: 1,020 bytes, SHA256
 `0101a166f065703aea2dec15fdc42e9e2da4ca5b697933e5d1a576e49640e64b`.
 No full-port release, production trust or hardware gate advances from this run.
+
+## Native recovery completes; public projection remains open
+
+The reviewed private sync reset is committed at
+`5ce7802387bc257ce2da4d7a9902a09d1ebc4d2d`, initial lock
+`19d4662735c096a90417a92e501f45a8ffd7d4cc3b5bd97a7d088b95aaffe815`.
+Root repeated 334 CI/154 integration tests without skips and verified all 159
+committed blobs/modes plus a fresh detached preflight; all 125 fixture records
+are unchanged. Directory, symlink and ancestor replacements refuse the reset.
+
+[Run 38227121568](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38227121568)
+was created at 09:00:39 UTC on October 12, 2026 and completed at 09:05:16 UTC:
+**FAIL overall, repository component PASS**. All eleven repository cases passed,
+including revoked-A rejection, the exact private sync reset and the final healthy-B
+upgrade with clean diagnostics and bound fresh-B cache hashes. All 620 native
+source tests passed without skips. Root independently checked all four original
+byte/payload/PKGINFO/BUILDINFO pairs and final owned-image absence. Other integration
+components passed their existing software scopes.
+
+The aggregate fails only during repository evidence export: the unchanged generic
+filter rejects nine filenames containing `cache` or `dependency`. These are the
+new reset receipt, its before/after snapshots and inventory logs, plus the final
+database-consistency logs. The CI owner must validate their exact known-purpose
+bindings and project safe names/references; no generic sensitive-path exception
+is authorized. The raw component records complete transactions, but the exported
+reset receipt is absent, so its recorded raw hash alone is not independent public
+receipt-byte evidence. A complete integration PASS remains pending the correction.
+
+Root retained 12 checksum-verified bundles and `root-execution-verification.json`
+under `artifacts/ci/38227121568/`. Summary: 997 bytes, SHA256
+`0438a62cec19b2d396a93abb497e388e24c394cf5576af268bfde2e13c6cd97c`.
+Production repository trust, full-port acceptance and hardware remain open.
