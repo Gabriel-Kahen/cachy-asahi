@@ -1,0 +1,163 @@
+{
+  "schema_version": 1,
+  "status": "finite-source-audit-and-one-exact-application-complete",
+  "selected_candidate": "BIO-SLAB-01",
+  "baseline": {
+    "commit": "94fb23346d522edf53722357c426a3e58030beea",
+    "version": "7.1.13.asahi3-2",
+    "source_archive_sha256": "874ef68d04ac8c831b90bb01a387cfabb58fceb60842c49a0d0e58bcd6c146ad",
+    "embedded_config_sha256": "ae1d4ce855bd435b62c8fb213cbcf2d4eefd47b62274792c4a6bf299848b3876",
+    "matched_recipe_config_sha256": "a66145c1b93002e47ae6a9ab09698b4ae4f202cdad09da5e87a6abad080a66aa",
+    "config_delta": "Embedded CONFIG_PAHOLE_VERSION=132 vs historical supplied131; all otherlines identical per retained correspondence. Do not confuse original config with reproduced generated config.",
+    "source_url": "https://github.com/AsahiLinux/linux/tree/94fb23346d522edf53722357c426a3e58030beea",
+    "correspondence": "scripts/platform/kernel-correspondence.json"
+  },
+  "pinned_scope": {
+    "CachyOS/kernel-patches": "17bb0bb818d283d0dc6e0280a2e9d5b95e66808b",
+    "CachyOS/linux-cachyos": "59f65f1b18e642888ec3415d01aec86c0c15bf0e",
+    "CachyOS/linux7.1/fixes": "eeb430fda7ca459865df848512a165b4e5d99f57",
+    "CachyOS/linux7.1/mglru": "6f80b5c9567fe190f6b17efd4c998907f9fdb778",
+    "observation": "7.1/kernel-patches tree contains misc and scheduler patches; primary README says core changes are topic merges in CachyOS/linux. No moving master patch is applied."
+  },
+  "upstream_lineage": {
+    "commit": "447cfed6d700bfbd5a7120f8ea5821a0e1191667",
+    "url": "https://github.com/torvalds/linux/commit/447cfed6d700bfbd5a7120f8ea5821a0e1191667",
+    "patch_sha256": "49c7dbe38abb785ddee9b511b477099ced71204677a5de5a32d20b9694b4339a",
+    "mail_url": "https://patch.msgid.link/20260709020145.4011533-1-joseph.qi@linux.alibaba.com",
+    "hunk_byte_identical": true,
+    "metadata_warning": "GitHub commit verification observed via API; no independent cryptographic owner trust verified."
+  },
+  "candidates": [
+    {
+      "id": "BIO-SLAB-01",
+      "commit": "0d61333f6e03e8fa4620e33e1bac4c644a9412c6",
+      "upstream_commit": "447cfed6d700bfbd5a7120f8ea5821a0e1191667",
+      "paths": [
+        "block/bio.c"
+      ],
+      "decision": "SELECTED: sole source correctness experiment",
+      "reason": "An empty per-CPU BIO cache falls directly to mempool fallback; a non-sleeping allocation returns NULL without trying slab. The eight-line hunk shares the existing slab attempt with the cache-miss path. Cache-hit path and allocation flags remain unchanged.",
+      "config": "CONFIG_BLOCK=y; no new Kconfig symbol; CONFIG_NVME_APPLE=y inherits common block allocation.",
+      "interactions": "Apple NVMe storage consumers may observe fewer avoidable allocation failures; full kernel/runtime behavior remains unverified. No Apple NVMe, DART, SART, RTKit, device tree, boot, AGX, MCA, AOP, speaker protection, cpufreq, thermal or PMGR code/config changes. Graphics/audio can be affected indirectly by storage and memory pressure; explicit native storage correctness and low-latency audio-under-I/O checks remain necessary.",
+      "page_size": "No literal 4096, PAGE_SIZE, PAGE_SHIFT, page-table, DMA geometry or ABI change; 16K baseline is preserved. This source observation is not 16K execution evidence.",
+      "license": "block/bio.c SPDX GPL-2.0 and existing Jens Axboe copyright; Linux COPYING GPL-2.0-only WITH Linux-syscall-note; original patch author Joseph Qi, Suggested-by/Reviewed-by Christoph Hellwig retained.",
+      "patch_receipt": "bio-application.json",
+      "patch_file": "artifacts/kernel-candidates/upstream-audit/0d61333f6e03e8fa4620e33e1bac4c644a9412c6.patch",
+      "patch_bytes": 2249,
+      "patch_sha256": "d6564155f9cb9cabc2c281b39c92c8231086a6fce855aa685c9f3709e1f04674",
+      "source_url": "https://github.com/CachyOS/linux/commit/0d61333f6e03e8fa4620e33e1bac4c644a9412c6.patch"
+    },
+    {
+      "id": "USB-C0-02",
+      "commit": "63f0e52c5da93e5199320037c242984b55401f3f",
+      "paths": [
+        "drivers/usb/core/message.c"
+      ],
+      "decision": "NOT SELECTED: finite secondary correctness candidate",
+      "reason": "Nineteen added lines truncate converted descriptor strings at C0/DEL, preserving bytes >=0x80; generic usb_string affects product/manufacturer/serial consumers. Baseline has no truncation loop. Broader external-device naming/identity semantics than selected BIO hunk.",
+      "config": "CONFIG_USB=y, CONFIG_USB_XHCI_PLATFORM=m, CONFIG_USB_DWC3_APPLE=m.",
+      "interactions": "Touches common USB device identity before HID/userspace seats; could change peripheral serial IDs, cached strings and matching. Apple controller drivers unchanged, but external USB audio, keyboards, docks and reconnect/resume behavior would need tests. No 4K/page-size literal.",
+      "license": "SPDX GPL-2.0, file explicitly states GPLv2 only; Taylor Hewetson author/signoff retained.",
+      "patch_file": "artifacts/kernel-candidates/upstream-audit/63f0e52c5da93e5199320037c242984b55401f3f.patch",
+      "patch_bytes": 2600,
+      "patch_sha256": "f4c0022a580021b9b54cbf5499c5cddc37423e71d6db0575ab19f9baf79d2f90",
+      "source_url": "https://github.com/CachyOS/linux/commit/63f0e52c5da93e5199320037c242984b55401f3f.patch"
+    },
+    {
+      "id": "UDMABUF-SG-03",
+      "commit": "f9490d6abf76e99efc8f8435181d5f7f7871cd19",
+      "paths": [
+        "drivers/dma-buf/udmabuf.c"
+      ],
+      "decision": "EXCLUDED from baseline experiment",
+      "reason": "Forty-nine-line change replaces folio+offset scatterlist with tail-page array and sg_alloc_table_from_pages. Larger DMA/mapping change; CONFIG_UDMABUF is not set, so enabling the feature would add a second variable.",
+      "config": "CONFIG_DMA_SHARED_BUFFER=y but CONFIG_UDMABUF is not set.",
+      "interactions": "No direct Asahi AGX patch, but shared DMA-buffer mappings, contiguous segments, PAGE_SHIFT and IOMMU interactions merit physical16K/DART/graphics validation if ever enabled. Never substitute PAGE_SIZE=4096.",
+      "license": "SPDX GPL-2.0; Jason Gunthorpe author/signoff and reported issue link retained.",
+      "patch_file": "artifacts/kernel-candidates/upstream-audit/f9490d6abf76e99efc8f8435181d5f7f7871cd19.patch",
+      "patch_bytes": 5389,
+      "patch_sha256": "f33beab1a542215ca834e35b9409e204707f369b7ae08222e5c828f4b16775c9",
+      "source_url": "https://github.com/CachyOS/linux/commit/f9490d6abf76e99efc8f8435181d5f7f7871cd19.patch"
+    },
+    {
+      "id": "MGLRU-WRITEBACK-04",
+      "commit": "6f80b5c9567fe190f6b17efd4c998907f9fdb778",
+      "paths": [
+        "mm/vmscan.c"
+      ],
+      "decision": "DEFER: unsuitable first correctness experiment",
+      "reason": "Ninety-two-line shared reclaim/writeback-statistic/throttling change affects MGLRU and non-MGLRU; CONFIG_LRU_GEN is not set does not prove patch inactive. Upstream reproducer needs loop/dm-delay mounted filesystem and broad reclaim stress, exceeding bounded source-only experiment.",
+      "config": "CONFIG_LRU_GEN is not set; CONFIG_TRANSPARENT_HUGEPAGE is not set. Preserve both.",
+      "interactions": "Global reclaim/dirty writeback can affect AGX allocation, audio underruns, Apple NVMe pressure and thermal/power behavior. No architecture-specific diff, but 16K allocation stress and suspend/resume are unresolved.",
+      "license": "SPDX GPL-2.0; existing Linus Torvalds copyright and source notices retained.",
+      "patch_file": "artifacts/kernel-candidates/upstream-audit/6f80b5c9567fe190f6b17efd4c998907f9fdb778.patch",
+      "patch_bytes": 6853,
+      "patch_sha256": "61931b7a197464d18c56c915b11706f1d247f9bba4d4051004b99676779bb847",
+      "source_url": "https://github.com/CachyOS/linux/commit/6f80b5c9567fe190f6b17efd4c998907f9fdb778.patch"
+    },
+    {
+      "id": "CACHY-DEFAULTS-05",
+      "commit": "59f65f1b18e642888ec3415d01aec86c0c15bf0e",
+      "paths": [
+        "linux-cachyos/PKGBUILD"
+      ],
+      "decision": "NO DEFAULTS CHANGE SELECTED",
+      "reason": "Default HZ1000/full preempt overlaps retained Asahi CONFIG_HZ1000/CONFIG_PREEMPT=y; it is not a new measured gain. Cachy THP=always, O3, ThinLTO, full tickless, scheduler/config and native x86 CPU selections are not approved substitutions. THP is disabled in retained16K config.",
+      "config": "Keep ARM64_16K_PAGES=y, ARCH_APPLE=y, HZ1000, PREEMPT=y, schedutil default, THP off and Asahi driver selections exact.",
+      "interactions": "Changing ticks/preemption/THP/compiler affects audio latency, graphics memory/reclaim, boot and battery/thermal behavior. Recipe is arch x86_64 and enables X86_NATIVE_CPU by default; never run it as an ARM recipe or infer generic means ARM.",
+      "license": "Recipe declares GPL-2.0-only but repository LICENSE.md is GPLv3; no recipe code/config copied or executed. This audit does not resolve repository-wide packaging-license ambiguity.",
+      "source_url": "https://github.com/CachyOS/linux-cachyos/blob/59f65f1b18e642888ec3415d01aec86c0c15bf0e/linux-cachyos/PKGBUILD",
+      "source_sha256": "64fd9dcb8e5220f3b2dac61b53fa65bb2f6e329a47f3bb229d450c0fb8c5478b"
+    }
+  ],
+  "pc_exclusions": [
+    "No complete CachyOS kernel/config replacement or CONFIG_CACHY blanket defaults",
+    "No X86_NATIVE_CPU/GENERIC_CPU/MZEN4/x86-64-v3/v4/native flags",
+    "No AMD pstate, Intel i915/xe, NVIDIA, DMI/ACPI/WMI/handheld or PC hardware detection assumptions",
+    "Cachy T2/apple-bce support refers to Intel Mac/T2 platform, not Apple silicon/M2 integration",
+    "No BORE/PRJC/BMQ/SCX scheduler replacement in selected experiment",
+    "No PC kernel-manager, bootloader, firmware or host configuration/service/sysctl mutation"
+  ],
+  "recovery_constraints": [
+    "Protected linux-asahi/m1n1/U-Boot/firmware/audio/graphics platform tuple unchanged",
+    "Keep accepted baseline kernel/config and boot entries byte-identical; experimental output must use unique version and separate package/boot entry only after packaging and physical-recovery review",
+    "Before any later physical trial verify recovery boot and collect baseline on each M2Air13/M2Air15 separately",
+    "Patch apply/build/emulation never marks boot/audio/graphics/suspend/battery/performance/hardware PASS"
+  ],
+  "bounded_verification_suggestion": [
+    "Source-level old/new bio_alloc_bioset flow test with stubbed allocator/cache: cachehit means0slabattempt; cacheempty+slabsuccess means success even withoutDIRECT_RECLAIM; miss+slabfail+nonreclaim meansNULL; reclaim fallback and nrvecs>BIO_INLINE_VECS preserve bvec/free behavior. Label x86 host flow test distinctly.",
+    "Native build object/fullkernel in owned output against exactmatched recipe/config/toolchain and same flags; inspect effective config diff retaining16K/Apple/DART/audio/graphics; no install target. Baseline/candidate sameinputs except eight-line patch and isolated uniqueoutput names.",
+    "Physical16K/M2 storage integrity/repeated I/O, allocation pressure, audio duringI/O, AGX rendering, sleep/resume and recovery tests remain NOT RUN. No performance claim until paired documented baseline measurements."
+  ],
+  "limits": {
+    "build": "NOT RUN",
+    "native_execution": "NOT RUN",
+    "hardware": "NOT RUN",
+    "performance": "NOT MEASURED",
+    "full_source_license_closure": "NOT CLAIMED; selected blockfile/license/notice evidence only",
+    "download_cap_bytes": 20971520,
+    "retained_evidence_bytes_before_report": 1361815
+  },
+  "license_evidence": [
+    {
+      "path": "COPYING",
+      "sha256": "fb5a425bd3b3cd6071a3a9aff9909a859e7c1158d54d32e07658398cd67eb6a0",
+      "url": "https://raw.githubusercontent.com/AsahiLinux/linux/94fb23346d522edf53722357c426a3e58030beea/COPYING"
+    },
+    {
+      "path": "LICENSES/preferred/GPL-2.0",
+      "sha256": "8780e78a1a737e127f25a65f6d95269bffd36158dc261114de7859b490bfc5aa",
+      "url": "https://raw.githubusercontent.com/AsahiLinux/linux/94fb23346d522edf53722357c426a3e58030beea/LICENSES/preferred/GPL-2.0"
+    },
+    {
+      "path": "LICENSES/exceptions/Linux-syscall-note",
+      "sha256": "8e378ab93586eb55135d3bc119cce787f7324f48394777d00c34fa3d0be3303f",
+      "url": "https://raw.githubusercontent.com/AsahiLinux/linux/94fb23346d522edf53722357c426a3e58030beea/LICENSES/exceptions/Linux-syscall-note"
+    },
+    {
+      "path": "Documentation/process/license-rules.rst",
+      "sha256": "635a61aa47349007033c64fcdf403d33be35040b62284494bbbd4a9b546ec06d",
+      "url": "https://raw.githubusercontent.com/AsahiLinux/linux/94fb23346d522edf53722357c426a3e58030beea/Documentation/process/license-rules.rst"
+    }
+  ]
+}

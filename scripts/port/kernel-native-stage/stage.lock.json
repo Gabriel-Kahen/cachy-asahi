@@ -1,0 +1,105 @@
+{
+  "base_inputs_sha256": "3c16c37d1b12cc84a88572e82ab8ad59e7f3b5ed0d08f09ddf72a69f4711d650",
+  "base_inventory_sha256": "89bdb06fea1862b5a6e02b77a4b98f6e04755b02327d875a716bd792929f3a4f",
+  "development_only": true,
+  "files": {
+    "scripts/ci/commit_image.py": {
+      "mode": 420,
+      "sha256": "716e9aac5bd472e58da53e5def54a169f01b2c8bc7ac1fbae849f68532cf8a5c"
+    },
+    "scripts/ci/native_arm.py": {
+      "mode": 420,
+      "sha256": "a8b6ed8971a38089a4499dcec605477c4e48d7a47c3de485d205f6a44678b898"
+    },
+    "scripts/port/fdk-native-stage/evidence.py": {
+      "mode": 420,
+      "sha256": "0b134a59d623b638922b70ebf6b4f65b9a32d77ef682d4be08f488b0fd3c5a1c"
+    },
+    "scripts/port/kernel-candidates/candidate.json": {
+      "mode": 420,
+      "sha256": "d26f691006a24f76db11f2f353e0ec10d93425ce2b6f8970a446b7bd34c98617"
+    },
+    "scripts/port/kernel-candidates/harness.py": {
+      "mode": 493,
+      "sha256": "f2d6fc62d28b0c189469ca7cf8293f10c574ecd0459c33c013bf1a271b8a5ebf"
+    },
+    "scripts/port/kernel-candidates/verify_build.py": {
+      "mode": 493,
+      "sha256": "2813838d6528a61f24c46e334790db4f3a378fe155b9aecc7068850ec3645b91"
+    },
+    "scripts/port/kernel-native-stage/acquisition.py": {
+      "mode": 493,
+      "sha256": "ad4517e3906a059a4a5d73780ebdeff91e1b560cda9afdbc88c676c37f5734bf"
+    },
+    "scripts/port/kernel-native-stage/broker.py": {
+      "mode": 420,
+      "sha256": "6e04f8928a7fb5548f27b321f43b3b1c23d8dde5d4f3b21c3a069259d9ca92df"
+    },
+    "scripts/port/kernel-native-stage/common.py": {
+      "mode": 420,
+      "sha256": "acc0b86bcca8b76de0b515aa90f5f484f7e81a39ce4b267dc37ec48e9c68e28b"
+    },
+    "scripts/port/kernel-native-stage/dependencies.json": {
+      "mode": 420,
+      "sha256": "cf4d6eaa80ab15f1b1359d161b7b07e187f37df6071e5f628e235cb9689a93d6"
+    },
+    "scripts/port/kernel-native-stage/dependency_audit.py": {
+      "mode": 493,
+      "sha256": "6fd158e4f28383d13d231b5b7d224589ac7332605323a8930b7644ef3248bd4f"
+    },
+    "scripts/port/kernel-native-stage/embedded-config.txt": {
+      "mode": 420,
+      "sha256": "ae1d4ce855bd435b62c8fb213cbcf2d4eefd47b62274792c4a6bf299848b3876"
+    },
+    "scripts/port/kernel-native-stage/image.py": {
+      "mode": 420,
+      "sha256": "df0f95c7e769e1b05e3af5b428dd8cf63d3f34a9f44fa030598afad0bcd060e2"
+    },
+    "scripts/port/kernel-native-stage/regression.py": {
+      "mode": 493,
+      "sha256": "23f2b7fd17e34ab268e4468071b2ef52e9f4703c11dff1d6297594a11934a59b"
+    },
+    "scripts/port/kernel-native-stage/runtime.py": {
+      "mode": 420,
+      "sha256": "6d733a1c70fb2dc37723527bd19a5947e77b354f2a5b0bdfec7c5c96f2de74e4"
+    },
+    "scripts/port/kernel-native-stage/stage.py": {
+      "mode": 493,
+      "sha256": "708116b803012f64651e6d1183e3055aa93df3134b4bb3a86bcb52e24e1ae13e"
+    },
+    "scripts/port/kernel-native-stage/test_acquisition.py": {
+      "mode": 420,
+      "sha256": "786f5bb957079e60f08f6203d37985664d6cf166db6c93dc855276a964a8b00f"
+    },
+    "scripts/port/kernel-native-stage/test_broker.py": {
+      "mode": 420,
+      "sha256": "92ca13fa5fe78a27af280ecac417b4ddeb01f7a0d1333342c67c8c6642531b0f"
+    },
+    "scripts/port/kernel-native-stage/test_dependency_audit.py": {
+      "mode": 420,
+      "sha256": "f04251d08135424a30cb522adb28b3712303452d371d34782e7763841db82362"
+    },
+    "scripts/port/kernel-native-stage/test_image.py": {
+      "mode": 420,
+      "sha256": "5a8b04be1e785a96a72acd301acc57591d4aa89aa3ca56d95b8ab1b85cdef04a"
+    },
+    "scripts/port/kernel-native-stage/test_regression.py": {
+      "mode": 420,
+      "sha256": "fb18d186aa1c4f2026fe772db99a438966e04725eaad3904bbd000fdffbaae38"
+    },
+    "scripts/port/kernel-native-stage/test_stage.py": {
+      "mode": 420,
+      "sha256": "75fc82482547a428ea15d112dfc4af4e67f04d875b69966741c1b6add3debbaa"
+    },
+    "scripts/port/kernel-native-stage/test_worker.py": {
+      "mode": 420,
+      "sha256": "43f8a3c5e3ae8da2eddc956692c025b3459842cff3d46c015d92fc75ab22e30d"
+    },
+    "scripts/port/kernel-native-stage/worker.py": {
+      "mode": 493,
+      "sha256": "0586aa8803d34179713cf143f09e2d0395a8ee22d80fd55befbdee44352b19c0"
+    }
+  },
+  "purpose": "KERNEL-NATIVE-C01",
+  "schema_version": 1
+}
