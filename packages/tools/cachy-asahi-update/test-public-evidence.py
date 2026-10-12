@@ -797,5 +797,32 @@ class ParentDiagnosticTests(unittest.TestCase):
             self.assertNotIn(POISON, ''.join(path.read_text() for path in (root / 'public').iterdir()))
 
 
+class ElfPredicateProjectionTests(unittest.TestCase):
+    def test_exact_fixed_leaf_enum_only_preserves_closed_failure_schema(self):
+        leaves = {'UNKNOWN','elf-read-symlink','elf-read-type-link-size','elf-read-bound','elf-read-drift',
+                  'elf-header','elf-machine','elf-program-headers','elf-load-alignment','elf-load-bounds','elf-load-absent'}
+        helper_spec = importlib.util.spec_from_file_location('leaf_projection_recorder', BASE / 'worker-diagnostic.py')
+        helper = importlib.util.module_from_spec(helper_spec); helper_spec.loader.exec_module(helper)
+        build_spec = importlib.util.spec_from_file_location('leaf_projection_build', BASE / 'worker-build.py')
+        build = importlib.util.module_from_spec(build_spec); build_spec.loader.exec_module(build)
+        self.assertEqual(build.ELF_PREDICATES, leaves)
+        self.assertEqual(public.DIAGNOSTIC_PREDICATES, helper.PREDICATES)
+        self.assertEqual({p for p in helper.PREDICATES if p == 'UNKNOWN' or p.startswith('elf-')}, leaves)
+        with tempfile.TemporaryDirectory() as temporary:
+            recorder = helper.Recorder(Path(temporary)); recorder.operation = 'compile-elf'
+            recorder.fail('elf-header', ValueError(POISON)); original = recorder.snapshot()
+        for tag in leaves:
+            value = copy.deepcopy(original); value['first_failure']['predicate'] = tag
+            self.assertEqual(public.diagnostic(value), value)
+            self.assertFalse(public.accepted_worker_diagnostic(value))
+            self.assertLessEqual(len(public.diagnostic_encoded(value)), 4096)
+            self.assertNotIn(POISON, json.dumps(value))
+        for tag in ('elf-unregistered', POISON, True, None):
+            value = copy.deepcopy(original); value['first_failure']['predicate'] = tag
+            with self.subTest(tag=tag), self.assertRaises(ValueError): public.diagnostic(value)
+        value = copy.deepcopy(original); value['elf_header'] = {'machine':183}
+        with self.assertRaises(ValueError): public.diagnostic(value)
+
+
 if __name__ == '__main__':
     unittest.main()

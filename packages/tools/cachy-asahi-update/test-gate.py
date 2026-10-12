@@ -249,6 +249,7 @@ class GateTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 gate.elf_gate(data)
 
+
     def test_shipped_module_bytes_match_gate_and_policy_pins(self):
         policy = json.loads((HERE / 'build-policy.json').read_bytes())
         actual = {name: gate.sha((HERE / name).read_bytes()) for name in gate.MODULE_PINS}
@@ -355,6 +356,24 @@ class GateTests(unittest.TestCase):
                     stop.assert_not_called()
                     for spec in specs.values():
                         spec.loader.exec_module.assert_not_called()
+
+
+class ElfLeafTests(unittest.TestCase):
+    def test_all_six_existing_refusal_sites_preserve_message_and_fixed_leaf(self):
+        cases = []
+        for field, offset, value, tag, message in (
+            ('<H', 18, 62, 'elf-machine', 'aarch64 ELF required'),
+            ('<H', 54, 1, 'elf-program-headers', 'invalid ELF program headers'),
+            ('<Q', 112, 4096, 'elf-load-alignment', 'ELF LOAD cannot satisfy 16K alignment'),
+            ('<Q', 96, 121, 'elf-load-bounds', 'ELF LOAD outside file'),
+            ('<I', 64, 0, 'elf-load-absent', 'ELF LOAD headers absent')):
+            data = elf(); struct.pack_into(field, data, offset, value); cases.append((data, tag, message))
+        cases.append((b'bad header', 'elf-header', 'compiled ELF64 little-endian tray required'))
+        gate.elf(bytes(elf()))
+        for data, tag, message in cases:
+            with self.subTest(tag=tag), self.assertRaises(ValueError) as caught: gate.elf(bytes(data))
+            self.assertEqual(str(caught.exception), message)
+            self.assertEqual(caught.exception.updater_elf_predicate, tag)
 
 
 if __name__ == '__main__':

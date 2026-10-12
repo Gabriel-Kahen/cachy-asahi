@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 """Synthetic Cargo output validation only; never execute Cargo or compiled code."""
 import copy
+import ast
 import hashlib
 import importlib.util
 import json
 from pathlib import Path
 import shutil
+import struct
 import tempfile
 import types
 import unittest
@@ -119,7 +121,7 @@ class DiagnosticBuildTests(unittest.TestCase):
                 (output / 'cargo-build.stdout').write_text('\n'.join(json.dumps(event) for event in events))
                 (output / 'cargo-build.stderr').write_bytes(b'')
             if stem == 'elf-inspection': (output / 'elf-inspection.stdout').write_bytes(b'synthetic readelf fixture')
-        def regular(path, limit):
+        def regular(path, limit, *, elf_observation=False):
             if self.fault == 'binary-drift' and len(self.commands) == 3: return b'changed fixture'
             return path.read_bytes()
         worker = types.SimpleNamespace(TARGET='aarch64-unknown-linux-gnu', set_diagnostic=lambda value: None,
@@ -233,6 +235,125 @@ class DiagnosticBuildTests(unittest.TestCase):
             '--target','aarch64-unknown-linux-gnu','--jobs','2','--message-format=json-render-diagnostics','-vv',
             '--manifest-path',str(self.work / 'Cargo.toml')])
         self.assertEqual(self.commands[2][0][:4], ['/usr/bin/readelf','-h','-l','-d'])
+
+
+class ElfObservationTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(); self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name); self.binary = self.root / 'binary'
+        self.output = self.root / 'out'; self.output.mkdir(mode=0o700)
+        base = Path(__file__).parent
+        self.gate = worker_build.module('leaf_gate', base / 'build-gate.py')
+        self.worker = worker_build.module('leaf_worker', base / 'worker-metadata.py')
+        self.helper = worker_build.module('leaf_recorder', base / 'worker-diagnostic.py')
+        self.public = worker_build.module('leaf_public', base / 'public-evidence.py')
+        tree = ast.parse((base / 'worker-build.py').read_bytes())
+        block = next(n for n in ast.walk(tree) if isinstance(n, ast.Try) and n.body and
+                     isinstance(n.body[0], ast.Assign) and any(isinstance(t, ast.Name) and t.id == 'binary_data' for t in n.body[0].targets))
+        self.code = compile(ast.fix_missing_locations(ast.Module([block], type_ignores=[])), 'captured-compile-elf-reporting', 'exec')
+
+    def data(self, tag=None):
+        data = bytearray(120); data[:6] = b'\x7fELF\x02\x01'
+        struct.pack_into('<H', data, 18, 183); struct.pack_into('<Q', data, 32, 64)
+        struct.pack_into('<HH', data, 54, 56, 1); struct.pack_into('<IIQQQQQQ', data, 64, 1, 5, 0, 0, 0, 120, 120, 16384)
+        changes = {'elf-machine': ('<H',18,62), 'elf-program-headers': ('<H',54,1),
+                   'elf-load-alignment': ('<Q',112,4096), 'elf-load-bounds': ('<Q',96,121), 'elf-load-absent': ('<I',64,0)}
+        if tag == 'elf-header': data[0] = 0
+        elif tag: struct.pack_into(*changes[tag][:1], data, *changes[tag][1:])
+        return bytes(data)
+
+    def invoke(self, diagnostic, gate=None):
+        scope = dict(worker_build.__dict__, worker=self.worker, gate=gate or self.gate,
+                     binary=self.binary, diagnostic=diagnostic)
+        exec(self.code, scope)
+        return scope['binary_data']
+
+    def test_all_six_source_leaf_tags_reach_bounded_real_recorder_and_projector(self):
+        for tag in ('elf-header','elf-machine','elf-program-headers','elf-load-alignment','elf-load-bounds','elf-load-absent'):
+            output = self.root / tag; output.mkdir(mode=0o700); rec = self.helper.Recorder(output)
+            self.binary.write_bytes(self.data(tag))
+            with self.subTest(tag=tag), self.assertRaises(ValueError) as caught:
+                with rec.step('compile-elf'): self.invoke(rec)
+            row = rec.snapshot(); self.assertEqual(caught.exception.updater_elf_predicate, tag)
+            self.assertEqual(row['first_failure']['predicate'], tag); self.assertFalse(row['compilation_accepted'])
+            self.assertEqual(self.public.diagnostic(row), row)
+            self.assertLessEqual(len(self.helper.encoded(row)), 4096)
+        self.binary.write_bytes(self.data()); diagnostic = types.SimpleNamespace(fail=mock.Mock(side_effect=OSError()))
+        self.assertEqual(self.invoke(diagnostic), self.data()); diagnostic.fail.assert_not_called()
+
+    def test_reporting_failure_preserves_original_refusal_and_control(self):
+        self.binary.write_bytes(self.data('elf-header'))
+        for report_error in (OSError('private report unavailable'), KeyboardInterrupt('private cancellation')):
+            diagnostic = types.SimpleNamespace(fail=mock.Mock(side_effect=report_error))
+            expected = ValueError if isinstance(report_error, Exception) else KeyboardInterrupt
+            with self.subTest(control=expected.__name__), self.assertRaises(expected) as caught: self.invoke(diagnostic)
+            original = diagnostic.fail.call_args.args[1]
+            self.assertEqual(original.updater_elf_predicate, 'elf-header')
+            self.assertIs(caught.exception, original if expected is ValueError else report_error)
+
+    def test_first_failure_and_write_failed_remain_sticky(self):
+        rec = self.helper.Recorder(self.output); rec.operation = 'metadata-source'; rec.fail('source-pins', ValueError('prior refusal'))
+        first = rec.snapshot()['first_failure']; self.binary.write_bytes(self.data('elf-header'))
+        with mock.patch.object(self.helper.os, 'replace', side_effect=OSError('private write unavailable')):
+            with self.assertRaises(ValueError):
+                with rec.step('compile-elf'): self.invoke(rec)
+        row = rec.snapshot(); self.assertEqual(row['first_failure'], first)
+        self.assertTrue(row['diagnostic_write_failed']); self.assertFalse(row['compilation_accepted'])
+        self.helper.validate(row)
+
+    def test_nonleaf_or_opaque_predicate_stays_unknown(self):
+        self.binary.write_bytes(self.data())
+        for tag in ('raw/private/path', 'source-pins', True, None):
+            error = ValueError('untyped gate error'); error.updater_elf_predicate = tag
+            diagnostic = types.SimpleNamespace(fail=mock.Mock())
+            gate = types.SimpleNamespace(elf=mock.Mock(side_effect=error))
+            with self.subTest(tag=tag), self.assertRaises(ValueError) as caught: self.invoke(diagnostic, gate)
+            self.assertIs(caught.exception, error); self.assertEqual(diagnostic.fail.call_args.args[0], 'UNKNOWN')
+
+    def test_descriptor_fault_old_red_new_original_identity_without_getter(self):
+        calls = []
+        class Poison(ValueError):
+            @property
+            def updater_elf_predicate(self):
+                calls.append(True); raise RuntimeError('controlled descriptor refusal')
+        error = Poison('original source refusal')
+        with self.assertRaises(RuntimeError): getattr(error, 'updater_elf_predicate', 'UNKNOWN')
+        self.assertEqual(calls, [True]); calls.clear(); self.binary.write_bytes(self.data())
+        diagnostic = types.SimpleNamespace(fail=mock.Mock()); gate = types.SimpleNamespace(elf=mock.Mock(side_effect=error))
+        with self.assertRaises(Poison) as caught: self.invoke(diagnostic, gate)
+        self.assertIs(caught.exception, error); self.assertEqual(calls, [])
+        self.assertEqual(diagnostic.fail.call_args.args, ('UNKNOWN', error))
+
+    def test_exact_instance_plain_tag_positive_and_class_or_extra_state_unknown(self):
+        self.binary.write_bytes(self.data())
+        class ClassTag(ValueError): updater_elf_predicate = 'elf-header'
+        plain = ValueError('issued shape'); plain.updater_elf_predicate = 'elf-header'
+        extra = ValueError('unissued extra state'); extra.updater_elf_predicate = 'elf-header'; extra.other = None
+        subclass = ClassTag('class tag'); subclass.updater_elf_predicate = 'elf-machine'
+        for error, expected in ((plain,'elf-header'),(ClassTag('class only'),'UNKNOWN'),(subclass,'UNKNOWN'),(extra,'UNKNOWN'),(ValueError('no tag'),'UNKNOWN')):
+            diagnostic = types.SimpleNamespace(fail=mock.Mock()); gate = types.SimpleNamespace(elf=mock.Mock(side_effect=error))
+            with self.subTest(expected=expected), self.assertRaises(type(error)) as caught: self.invoke(diagnostic, gate)
+            self.assertIs(caught.exception, error); self.assertEqual(diagnostic.fail.call_args.args, (expected,error))
+
+    def test_hostile_tag_value_key_or_dictionary_never_executes(self):
+        calls = []; self.binary.write_bytes(self.data())
+        class Hostile:
+            def __hash__(self): calls.append('hash'); raise RuntimeError('hostile tag hash')
+            def __eq__(self, other): calls.append('eq'); raise RuntimeError('hostile tag equality')
+            def __str__(self): calls.append('str'); raise RuntimeError('hostile tag conversion')
+        class HostileKey:
+            def __hash__(self): return hash('updater_elf_predicate')
+            def __eq__(self, other): calls.append('key'); raise RuntimeError('hostile key equality')
+        class HostileDict(dict):
+            def items(self): calls.append('items'); raise RuntimeError('hostile dictionary lookup')
+        value = ValueError('opaque tag'); value.updater_elf_predicate = Hostile()
+        key = ValueError('opaque key'); key.__dict__ = {HostileKey():'elf-header'}
+        dictionary = ValueError('opaque dictionary'); dictionary.__dict__ = HostileDict(updater_elf_predicate='elf-header')
+        for error in (value,key,dictionary):
+            diagnostic = types.SimpleNamespace(fail=mock.Mock()); gate = types.SimpleNamespace(elf=mock.Mock(side_effect=error))
+            with self.assertRaises(ValueError) as caught: self.invoke(diagnostic, gate)
+            self.assertIs(caught.exception,error); self.assertEqual(diagnostic.fail.call_args.args,('UNKNOWN',error))
+        self.assertEqual(calls,[])
 
 
 if __name__ == '__main__':

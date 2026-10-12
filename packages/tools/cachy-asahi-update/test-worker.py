@@ -950,5 +950,47 @@ class ActualRecorderTests(unittest.TestCase):
                 self.cleanup_control('before-wait',code,before_wait=True)
 
 
+class RegularElfLeafTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(); self.addCleanup(self.temp.cleanup)
+        self.path = Path(self.temp.name) / 'binary'; self.path.write_bytes(b'abcd')
+
+    def refused(self, tag):
+        with self.assertRaises(ValueError) as caught: worker.regular(self.path, 4, elf_observation=True)
+        self.assertEqual(caught.exception.updater_elf_predicate, tag)
+        return caught.exception
+
+    def test_symlink_tag_only_in_explicit_elf_read(self):
+        held = self.path.with_name('held'); self.path.rename(held); self.path.symlink_to(held)
+        self.refused('elf-read-symlink')
+        with self.assertRaises(ValueError) as caught: worker.regular(self.path, 4)
+        self.assertFalse(hasattr(caught.exception, 'updater_elf_predicate'))
+
+    def test_type_link_size_tag_preserves_original_checks(self):
+        alias = self.path.with_name('alias'); os.link(self.path, alias)
+        self.refused('elf-read-type-link-size')
+        self.assertEqual(worker.regular(self.path, 4, singly_linked=False), b'abcd')
+        alias.unlink(); self.path.write_bytes(b'oversized')
+        self.refused('elf-read-type-link-size')
+        self.path.unlink(); self.path.mkdir()
+        self.refused('elf-read-type-link-size')
+
+    def test_read_bound_tag_on_growth_after_initial_stat(self):
+        read = worker.os.read; first = []
+        def grow(fd, count):
+            if not first: self.path.write_bytes(b'abcde'); first.append(True)
+            return read(fd, count)
+        with mock.patch.object(worker.os, 'read', side_effect=grow): self.refused('elf-read-bound')
+
+    def test_read_drift_tag_after_same_length_read(self):
+        read = worker.os.read; calls = []
+        def drift(fd, count):
+            calls.append(True)
+            if len(calls) == 2:
+                before = self.path.stat(); os.utime(self.path, ns=(before.st_atime_ns, before.st_mtime_ns + 1))
+            return read(fd, count)
+        with mock.patch.object(worker.os, 'read', side_effect=drift): self.refused('elf-read-drift')
+
+
 if __name__ == '__main__':
     unittest.main()

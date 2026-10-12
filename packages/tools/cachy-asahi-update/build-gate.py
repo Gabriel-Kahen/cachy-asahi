@@ -27,7 +27,7 @@ EVIDENCE = {
 INVENTORY = "d5e2b02a4af36b763c24c0eded8d4b7326874448996f94126fbfc3f787946271"
 MODULE_PINS = {
     "linux-closure.py": "a73d7ba17018d2fd359e630675b7ca207965b01eca358f7574a80f690124d2a2",
-    "worker-metadata.py": "4acc1fa076884b28973cf13b966030081dc6e5b030072332365b7a4485231f48",
+    "worker-metadata.py": "76ecbd345f571366ee9e11df8df96bbc6f9be5500b626920b5eaa203ab155572",
 }
 
 
@@ -218,14 +218,18 @@ def compile_inputs(args, policy, worker_module, closure):
 
 
 def elf_gate(data):
+    def fail(message, predicate):
+        error = ValueError(message)
+        error.updater_elf_predicate = predicate
+        raise error
     if len(data) < 64 or data[:6] != b'\x7fELF\x02\x01':
-        raise ValueError('compiled ELF64 little-endian tray required')
+        fail('compiled ELF64 little-endian tray required', 'elf-header')
     if struct.unpack_from('<H', data, 18)[0] != 183:
-        raise ValueError('aarch64 ELF required')
+        fail('aarch64 ELF required', 'elf-machine')
     offset = struct.unpack_from('<Q', data, 32)[0]
     width, count = struct.unpack_from('<HH', data, 54)
     if width != 56 or not count or offset + count * width > len(data):
-        raise ValueError('invalid ELF program headers')
+        fail('invalid ELF program headers', 'elf-program-headers')
     loads = 0
     for index in range(count):
         kind, flags, file_offset, virtual, physical, file_size, memory_size, alignment = struct.unpack_from(
@@ -233,11 +237,11 @@ def elf_gate(data):
         if kind == 1:
             loads += 1
             if alignment < 16384 or file_offset % 16384 != virtual % 16384:
-                raise ValueError('ELF LOAD cannot satisfy 16K alignment')
+                fail('ELF LOAD cannot satisfy 16K alignment', 'elf-load-alignment')
             if file_offset + file_size > len(data) or file_size > memory_size:
-                raise ValueError('ELF LOAD outside file')
+                fail('ELF LOAD outside file', 'elf-load-bounds')
     if not loads:
-        raise ValueError('ELF LOAD headers absent')
+        fail('ELF LOAD headers absent', 'elf-load-absent')
 
 
 

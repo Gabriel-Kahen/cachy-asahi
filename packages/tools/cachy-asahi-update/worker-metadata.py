@@ -197,25 +197,29 @@ def guard(facts):
         refuse('finite worker CPU/memory/PID limits required', 'worker-limits')
 
 
-def regular(path, limit, singly_linked=True):
+def regular(path, limit, singly_linked=True, *, elf_observation=False):
+    def fail(message, predicate):
+        error = ValueError(message)
+        if elf_observation: error.updater_elf_predicate = predicate
+        raise error
     for parent in (path, *path.parents):
         if parent.is_symlink():
-            raise ValueError('input symlink refused')
+            fail('input symlink refused', 'elf-read-symlink')
     fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
     try:
         info = os.fstat(fd)
         if (not stat.S_ISREG(info.st_mode) or (singly_linked and info.st_nlink != 1)
                 or info.st_size > limit):
-            raise ValueError('bounded singly-linked regular input required')
+            fail('bounded singly-linked regular input required', 'elf-read-type-link-size')
         data = bytearray()
         while chunk := os.read(fd, min(65536, limit + 1 - len(data))):
             data.extend(chunk)
             if len(data) > limit:
-                raise ValueError('input exceeded bound')
+                fail('input exceeded bound', 'elf-read-bound')
         after = os.fstat(fd)
         fields = ('st_dev', 'st_ino', 'st_size', 'st_mtime_ns', 'st_ctime_ns', 'st_nlink')
         if len(data) != info.st_size or any(getattr(info, k) != getattr(after, k) for k in fields):
-            raise ValueError('input changed while reading')
+            fail('input changed while reading', 'elf-read-drift')
         return bytes(data)
     finally:
         os.close(fd)

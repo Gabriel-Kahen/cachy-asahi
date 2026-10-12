@@ -8,6 +8,10 @@ from pathlib import Path
 import shutil
 import signal
 
+ELF_PREDICATES = frozenset(('UNKNOWN', 'elf-read-symlink', 'elf-read-type-link-size',
+    'elf-read-bound', 'elf-read-drift', 'elf-header', 'elf-machine',
+    'elf-program-headers', 'elf-load-alignment', 'elf-load-bounds', 'elf-load-absent'))
+
 
 def module(name, path):
     spec = importlib.util.spec_from_file_location(name, path)
@@ -122,8 +126,21 @@ def build(args):
         binary = target_dir / worker.TARGET / 'release/arch-update-tray'
         with diagnostic.step('compile-elf'):
             gate = module('updater_compile_elf_gate', base / 'build-gate.py')
-            binary_data = worker.regular(binary, 64 * 1024 * 1024)
-            gate.elf(binary_data)
+            try:
+                binary_data = worker.regular(binary, 64 * 1024 * 1024, elf_observation=True)
+                gate.elf(binary_data)
+            except ValueError as error:
+                predicate = 'UNKNOWN'
+                try:
+                    if type(error) is ValueError:
+                        state = vars(error)
+                        if type(state) is dict and len(state) == 1:
+                            key, value = next(iter(state.items()))
+                            if type(key) is str and key == 'updater_elf_predicate' and type(value) is str and value in ELF_PREDICATES:
+                                predicate = value
+                    diagnostic.fail(predicate, error)
+                except Exception: pass  # Reporting cannot replace the original refusal.
+                raise
         with diagnostic.step('compile-units'):
             units = unit_evidence(metadata, (output / 'cargo-build.stdout').read_bytes(), binary, diagnostic)
             (output / 'compilation-units.json').write_text(json.dumps(units, indent=2) + '\n')
