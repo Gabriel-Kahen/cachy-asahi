@@ -42,7 +42,7 @@ class Boundaries(unittest.TestCase):
         paths = list(i.SOURCE_FILES)
         for name in ('fixtures', 'lifecycle', 'repository', 'onboarding', 'desktop'):
             paths += [f'scripts/integration/{name}.py', f'scripts/integration/test_{name}.py']
-        for name in ('integration', 'integration_export', 'sign_fixture', 'installed_handoff', 'source_suites', 'verify_derived'):
+        for name in ('integration', 'integration_export', 'sign_fixture', 'installed_handoff', 'source_suites', 'verify_derived', 'lifecycle_inventory'):
             paths += [f'scripts/ci/{name}.py', f'scripts/ci/test_{name}.py']
         for name in paths:
             path = self.root / name; path.parent.mkdir(parents=True, exist_ok=True); path.write_text('reviewed source')
@@ -50,7 +50,7 @@ class Boundaries(unittest.TestCase):
 
     def test_independent_followup_sources_are_excluded_from_initial_snapshot(self):
         self.source_tree()
-        for directory in ('scripts/virtual', 'scripts/client', 'scripts/experiments', 'scripts/port', 'scripts/platform', 'packages/tools'):
+        for directory in ('scripts/virtual', 'scripts/client', 'scripts/experiments', 'scripts/port', 'scripts/platform', 'packages/tools', 'packages/libraries'):
             path = self.root / directory; path.mkdir(parents=True); (path / 'moving.py').write_text('active independent source')
         result = i.scan(self.root)
         self.assertFalse(any(name.endswith('moving.py') for name in result))
@@ -324,6 +324,38 @@ class Boundaries(unittest.TestCase):
             i.safe_public(raw, self.root / 'public', work)
         self.assertFalse((self.root / 'public/000-gpg-unreviewed-status.txt').exists())
 
+    def test_lifecycle_inventory_projection_retains_full_rows_original_and_public_hashes(self):
+        raw, work = self.root / 'raw', self.root / 'work'; raw.mkdir(); work.mkdir()
+        base = {'base': '1-1', 'libsecret': '0.21.8.2-1'}
+        original = [{'name': name, 'version': '1-1'} for name in i.native.RECIPES]
+        upgrade = [{'name': name, 'version': '2-1'} for name in i.native.RECIPES]
+        authority = {'base': base, 'baseline': base | {r['name']: r['version'] for r in original},
+                     'upgrade': base | {r['name']: r['version'] for r in upgrade}}
+        original_hashes = {}
+        for stage, kind in i.lifecycle_inventory.STAGES.items():
+            path = raw / 'lifecycle' / (stage + '-inventory.json'); path.parent.mkdir(exist_ok=True)
+            i.native.save(path, authority[kind]); original_hashes[path.relative_to(raw).as_posix()] = i.native.sha(path)
+        i.safe_public(raw, self.root / 'public', work, lifecycle_authority=(base, original, upgrade))
+        receipt = json.loads((self.root / 'public/inventory-projections.json').read_text())
+        self.assertEqual(set(receipt['files']), set(original_hashes))
+        for name, digest in original_hashes.items():
+            target = self.root / 'public' / name
+            projected = json.loads(target.read_text())
+            self.assertEqual(projected['original_sha256'], digest)
+            self.assertEqual({r['name']: r['version'] for r in projected['packages']}, authority[projected['authority']])
+            self.assertEqual(receipt['files'][name]['projected_sha256'], i.native.sha(target))
+            self.assertEqual(i.native.sha(raw / name), digest)
+        self.assertEqual(json.loads((self.root / 'public/export-manifest.json').read_text())['evidence_export'], 'PASS')
+
+    def test_unknown_inventory_and_malformed_known_content_do_not_bypass_generic_guard(self):
+        raw, work = self.root / 'raw', self.root / 'work'; raw.mkdir(); work.mkdir()
+        path = raw / 'lifecycle/unlisted-inventory.json'; path.parent.mkdir(); path.write_text('{"password":"credential-fixture"}')
+        original = [{'name': name, 'version': '1-1'} for name in i.native.RECIPES]
+        upgrade = [{'name': name, 'version': '2-1'} for name in i.native.RECIPES]
+        with self.assertRaises(ValueError):
+            i.safe_public(raw, self.root / 'public', work, lifecycle_authority=({'base':'1-1'}, original, upgrade))
+        self.assertFalse((self.root / 'public/lifecycle/unlisted-inventory.json').exists())
+
     def test_explicit_public_signature_export_rehashes_and_rejects_secret_paths(self):
         raw = self.root / 'raw'; raw.mkdir()
         signature = raw / 'TEST.sig'; signature.write_bytes(b'\x88\x00public-detached-signature-fixture')
@@ -467,6 +499,80 @@ class Boundaries(unittest.TestCase):
 
     def test_verified_commit_contract(self):
         i.verify_commit(*self.commit_inputs())
+
+    def test_handoff_refusal_code_is_explicit_and_unknown_codes_cannot_be_published(self):
+        values = self.commit_inputs(); values[0]['status'] = 'FAIL'
+        with self.assertRaises(i.HandoffRefusal) as raised:
+            i.verify_commit(*values)
+        self.assertEqual(raised.exception.code, 'handoff-ready')
+        with self.assertRaises(ValueError):
+            i.HandoffRefusal('untrusted-credential-value')
+        controller = self.controller()
+        def refused(raw):
+            i.handoff_need(False, 'lifecycle-config')
+        self.assertFalse(controller.stage('lifecycle', refused))
+        self.assertEqual(controller.report['stages']['lifecycle']['refusal_code'], 'lifecycle-config')
+
+    def test_handoff_lock_regularity_has_a_safe_specific_refusal_code(self):
+        values = self.commit_inputs()
+        os.link(values[3], self.root / 'installed-link')
+        with self.assertRaises(i.HandoffRefusal) as raised:
+            i.verify_commit(*values)
+        self.assertEqual(raised.exception.code, 'handoff-installed-lock-regular')
+        self.assertNotIn(str(self.root), str(raised.exception))
+
+    def lifecycle_fixture(self):
+        controller = self.controller(); controller.commit = 'b' * 40
+        controller.image = 'sha256:' + 'e' * 64; controller.installed = None
+        controller.native_out = self.root / 'native'; controller.native_out.mkdir()
+        (controller.native_out / 'packages.lock').write_text('base 1-1\n')
+        controller.source = self.root / 'source'
+        for name in ('integration/lifecycle.py', 'ci/installed_handoff.py', 'ci/verify_derived.py'):
+            path = controller.source / 'scripts' / name; path.parent.mkdir(parents=True, exist_ok=True); path.write_text('reviewed source')
+        controller.archives = self.root / 'archives'; controller.archives.mkdir()
+        controller.rows = {stage: [{'name': name, 'version': '1-1' if stage == 'baseline' else '2-1',
+                                   'archive': f'{stage}/{name}.pkg.tar.xz', 'sha256': 'a' * 64,
+                                   'payload_sha256': {f'usr/share/{name}': 'b' * 64}}
+                                  for name in i.native.RECIPES] for stage in ('baseline', 'upgrade')}
+        controller.signed = self.root / 'signed'
+        certificate = controller.signed / 'public/public-key.asc'; certificate.parent.mkdir(parents=True); certificate.write_text('TEST-only fixture')
+        for rows in controller.rows.values():
+            for row in rows:
+                archive = controller.archives / row['archive']; archive.parent.mkdir(parents=True, exist_ok=True); archive.write_bytes(b'TEST-only archive')
+                path = controller.signed / 'public/signatures' / (row['archive'] + '.sig')
+                path.parent.mkdir(parents=True, exist_ok=True); path.write_bytes(b'TEST-only signature')
+        controller.sign_receipt = {'fingerprint': 'f' * 40}
+        raw = self.root / 'raw'; raw.mkdir()
+        def execute(command, log, *args, **kwargs):
+            log.write_text('')
+            i.native.save(raw / 'commit-receipt.json', {'installed_packages_sha256': 'a' * 64})
+        return controller, raw, execute
+
+    def test_lifecycle_config_refusal_retains_only_changed_key_names_and_cleanup(self):
+        controller, raw, execute = self.lifecycle_fixture()
+        base_config = {'User': 'alarm', 'Env': ['PUBLIC=1'], 'Cmd': ['/bin/bash']}
+        private = 'deliberately-sensitive-config-fixture'
+        derived_config = {**base_config, 'Env': ['password=' + private], 'Cmd': ['/bin/sh']}
+        derived = 'sha256:' + 'a' * 64
+        def query(command, *args, **kwargs):
+            if command[:3] == ['docker', 'container', 'inspect']:
+                return json.dumps([{'State': {'Status': 'exited', 'ExitCode': 0}, 'Image': controller.image}])
+            if command[:2] == ['docker', 'commit']:
+                return derived
+            return json.dumps([{'Id': command[-1], 'Architecture': 'arm64',
+                                'Config': base_config if command[-1] == controller.image else derived_config}])
+        with patch.object(i, 'execute_container', side_effect=execute), patch.object(i, 'verify_commit'), \
+             patch.object(i.native, 'run', side_effect=query), patch.object(i, 'remove_container', return_value={'status': 'PASS'}), \
+             self.assertRaises(i.HandoffRefusal):
+            controller.lifecycle(raw)
+        diagnostic = json.loads((raw / 'handoff-controller.json').read_text())
+        self.assertEqual(diagnostic['refusal_code'], 'lifecycle-config')
+        self.assertEqual(diagnostic['config_difference_fields'], ['Cmd', 'Env'])
+        self.assertEqual(diagnostic['phase'], 'derived-config-verification')
+        self.assertFalse((raw / 'committed-config.json').exists())
+        self.assertNotIn(private, ''.join(path.read_text() for path in raw.glob('*.json')))
+        self.assertNotIn(hashlib.sha256(private.encode()).hexdigest(), (raw / 'handoff-controller.json').read_text())
+        self.assertEqual(json.loads((raw / 'container-removal.json').read_text())['status'], 'PASS')
 
     def test_commit_refuses_failed_partial_or_wrong_binding(self):
         for key, value in [('status', 'FAIL'), ('private_cleanup', 'NOT RUN'), ('checks', []), ('nonce', '0' * 32),

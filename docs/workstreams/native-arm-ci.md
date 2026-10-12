@@ -242,3 +242,58 @@ with the original fixture map unchanged. Its temporary receipt is
 `/tmp/cachy-ci-corrected-preflight-73wlhr1u/regression.json`; the shared integration
 lock was not edited. No corrected native run, shared refreeze, Git action, host
 package/account/key change or physical check was performed by this worker.
+
+### Run 38202483407 lifecycle/export correction
+
+Actual retained run 38202483407 remains **FAIL**. Original four recipes and all
+four changed fixtures each built twice and passed byte comparisons; TEST signing
+and its nine public exports passed. Native source suites passed all **474 tests,
+zero skips**, including the desktop source verifier. Lifecycle itself reports
+PASS/all checks PASS/`baseline_handoff_ready=true`; the handoff receipt is READY
+with 345 packages. The overall lifecycle stage still failed with ValueError before
+committed-config/installed-image/read-side verification receipts, and the exporter
+independently rejected eight package inventory maps. Neither component PASS nor
+READY establishes an accepted derived image or complete integration result.
+
+Exact exporter diagnosis: the credential-field heuristic matches `secret` at
+the end of the legitimate `libsecret` package key followed by a colon. The host
+now projects only the eight known inventory paths after strict regular-file,
+JSON/schema/token and complete accepted stage-inventory equality checks. It
+exports explicit name/version rows, original SHA-256/byte count, and separate
+public projection hashes/byte counts. Reinstalled inventory correctly binds the
+upgrade fixture versions. Unknown inventory paths and other text still pass the
+unchanged generic guard; malformed or unreviewed maps cannot use the projection.
+
+All `verify_commit` assertions replayed successfully from retained public
+contracts/signature/archive rows and a reconstructed 345-row lock whose SHA-256
+exactly matches the READY receipt. The deleted raw lock metadata and Docker
+inspection replies were not recoverable, so the primary runtime refusal remains
+unresolved. New fixed refusal codes and operation/Config-field-name diagnostics
+will retain that exact distinction without exception text or arbitrary Env
+values/hashes. No Docker Config constraint was weakened to guess a cause.
+
+Source-only inventory reconstruction from the actual 341-row native lock and
+retained original/upgrade archive rows passed all eight projections through the
+unchanged exporter; receipt `/tmp/cachy-ci-inventory-replay-8lohzwnz/regression.json`.
+Those bytes are explicitly reconstructed, not recovered original JSON evidence.
+The derived-image guard also closes the reported device/socket alias gap with a
+bounded ordinary-filesystem metadata scan before contract/query execution; 12
+focused verifier tests pass. The new library candidate is excluded alongside
+tools from the initial snapshot while its separate maintained-port stage is
+active; every original locked recipe/evidence input remains required.
+
+The repository owner's separate cache-directory correction is outside this
+worker's edits. No shared lock, Git action, native dispatch, package/account/key
+mutation or hardware check was performed for this correction. Coordinator must
+review/refreeze the stable combined sources before the next native attempt.
+
+Final local verification: **250 CI tests PASS**, including 42 controller, 13
+inventory-projection and 12 derived-verifier tests, with zero skips. An actual
+ephemeral freeze and copied-tree preflight passed for 153 source files; all 125
+fixture hashes/modes still match the prior original fixture map. Both copied-tree
+suites passed: 250 CI tests and 117 integration tests, zero skips. Temporary
+receipt/logs: `/tmp/cachy-ci-lifecycle-copied-qjdjv2e9/`. This local test lock is
+`a115acf811a40274eb3fd76b7c0029d0f943c114fc9e382a2b297cb481c9de40`;
+the shared `be827...` integration lock and original `20d846...` recipe lock remain
+unchanged. Corrected native execution and acceptance remain pending coordinator
+review/refreeze/dispatch; the primary fourth-run handoff refusal is unresolved.

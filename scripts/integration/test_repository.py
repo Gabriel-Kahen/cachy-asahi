@@ -273,6 +273,40 @@ class RepositoryTests(unittest.TestCase):
         self.assertEqual(argv[argv.index('--gpgdir') + 1], str(self.runner.home / 'verifier'))
         self.assertFalse(any(x in argv for x in ('--nodeps', '--overwrite', '--dbonly', '/etc/pacman.conf')))
 
+    def test_copied_base_inventory_has_cache_before_repository_selection(self):
+        # Real read-only pacman query against a tiny private copied-root fixture.
+        # Before the fix, copy_base left --cachedir absent and this query failed.
+        if not shutil.which('pacman'):
+            self.skipTest('read-only copied-root query requires installed pacman')
+        self.runner.target = self.runner.scratch / 'system'
+        self.runner.config = self.runner.scratch / 'pacman.conf'
+        verifier = self.runner.home / 'verifier'
+        verifier.mkdir()
+        self.runner.keys['verifier'] = {'home': verifier}
+        calls = []
+        def copied(source, target, **options):
+            calls.append(source)
+            target.mkdir()
+            if source == '/var/lib/pacman/local':
+                (target / 'ALPM_DB_VERSION').write_bytes(Path('/var/lib/pacman/local/ALPM_DB_VERSION').read_bytes())
+                package = target / 'runtime-1-1'
+                package.mkdir()
+                (package / 'desc').write_text('%NAME%\nruntime\n\n%VERSION%\n1-1\n\n%ARCH%\nany\n\n')
+        with mock.patch.object(r.os, 'walk', return_value=[]), mock.patch.object(r.shutil, 'copytree', side_effect=copied):
+            self.runner.copy_base()
+        self.assertEqual(calls, ['/usr', '/etc', '/var/lib/pacman/local'])
+        self.assertFalse((self.runner.scratch / 'repos').exists())
+        self.assertEqual(self.runner.pacman('copied-base-inventory', ['-Q']), 'runtime 1-1\n')
+        self.assertIn('warning:', (self.runner.out / self.runner.receipts[-1]['log']).read_text())
+        self.assertTrue((self.runner.scratch / 'cache').is_dir())
+        self.assertEqual(list((self.runner.scratch / 'cache').iterdir()), [])
+        config = self.runner.config.read_text()
+        self.assertIn('SigLevel = Required TrustedOnly', config)
+        self.assertIn('LocalFileSigLevel = Required TrustedOnly', config)
+        argv = self.runner.receipts[-1]['argv']
+        self.assertEqual(argv[argv.index('--cachedir') + 1], str(self.runner.scratch / 'cache'))
+        self.assertEqual(argv[argv.index('--dbpath') + 1], str(self.runner.target / 'var/lib/pacman'))
+
     def test_exit_zero_unchanged_upgrade_cannot_pass(self):
         self.runner.base_versions = {'runtime': '1'}
         self.runner.owned = {r.PAYLOAD}

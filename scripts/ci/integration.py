@@ -17,6 +17,7 @@ import tempfile
 
 import native_arm as native
 from integration_export import export_evidence, SENSITIVE_PATH
+import lifecycle_inventory
 from package_checks import package
 
 ROOT = native.ROOT
@@ -39,6 +40,27 @@ CANCEL_REQUESTED = False
 
 class Cancelled(ValueError):
     pass
+
+
+HANDOFF_CODES = {'handoff-ready', 'handoff-contract', 'handoff-container', 'handoff-originals',
+                 'handoff-cleanup', 'handoff-checks', 'handoff-required-checks', 'handoff-inventory',
+                 'lifecycle-stopped-container', 'lifecycle-derived-identity', 'lifecycle-config',
+                 'lifecycle-test-env', 'lifecycle-derived-verification', 'lifecycle-base-user', 'lifecycle-base-workdir',
+                 'handoff-installed-lock-regular', 'handoff-base-lock-regular'}
+HANDOFF_CODES |= {'handoff-input-' + key.replace('_', '-') for key in
+                 ('source_commit', 'lifecycle_contract_sha256', 'lifecycle_script_sha256', 'base_packages_sha256')}
+
+
+class HandoffRefusal(ValueError):
+    def __init__(self, code):
+        need(code in HANDOFF_CODES, 'unreviewed handoff refusal code')
+        self.code = code
+        super().__init__(code)
+
+
+def handoff_need(condition, code):
+    if not condition:
+        raise HandoffRefusal(code)
 
 
 def interrupt(signum, frame):
@@ -143,9 +165,9 @@ def image_config(config):
 
 
 def commit_command(container, config):
-    need(re.fullmatch(r'[A-Za-z0-9:_-]+', config.get('User', '')), 'reviewed base USER required')
+    handoff_need(re.fullmatch(r'[A-Za-z0-9:_-]+', config.get('User', '')), 'lifecycle-base-user')
     workdir = config.get('WorkingDir') or '/'
-    need(workdir.startswith('/') and '\n' not in workdir, 'reviewed base WORKDIR required')
+    handoff_need(workdir.startswith('/') and '\n' not in workdir, 'lifecycle-base-workdir')
     return ['docker', 'commit', '--pause=true', '--change', 'USER ' + config['User'],
             '--change', 'WORKDIR ' + workdir, '--change', 'ENTRYPOINT ' + json.dumps(config.get('Entrypoint') or []),
             '--change', 'CMD ' + json.dumps(config.get('Cmd') or []), container]
@@ -214,7 +236,7 @@ def scan(root):
         for current, dirs, files in os.walk(root / name, followlinks=False):
             dirs[:] = sorted(d for d in dirs if d != '__pycache__' and
                              not (Path(current) == root / 'scripts' and d in ('virtual', 'client', 'experiments', 'port', 'platform')) and
-                             not (Path(current) == root / 'packages' and d == 'tools'))
+                             not (Path(current) == root / 'packages' and d in ('tools', 'libraries')))
             for directory in dirs:
                 need(not (Path(current) / directory).is_symlink(), 'symlink source directory')
             for filename in sorted(files):
@@ -238,7 +260,7 @@ def scan(root):
     for name in ('fixtures', 'lifecycle', 'repository', 'onboarding', 'desktop'):
         need(f'scripts/integration/{name}.py' in result and f'scripts/integration/test_{name}.py' in result,
              f'missing integration source/tests: {name}')
-    for name in ('integration', 'integration_export', 'sign_fixture', 'installed_handoff', 'source_suites', 'verify_derived'):
+    for name in ('integration', 'integration_export', 'sign_fixture', 'installed_handoff', 'source_suites', 'verify_derived', 'lifecycle_inventory'):
         need(f'scripts/ci/{name}.py' in result and f'scripts/ci/test_{name}.py' in result,
              f'missing CI adapter/source tests: {name}')
     need(locked <= result.keys(), 'reviewed recipe inputs missing from source snapshot')
@@ -448,11 +470,13 @@ def repository_public_logs(raw):
     return projected
 
 
-def safe_public(raw, public, work):
+def safe_public(raw, public, work, *, lifecycle_authority=None):
     """Select deliberately public owner receipts; identify every excluded binary."""
     selected = work / 'selected'; selected.mkdir()
     excluded = []
     projections = repository_public_logs(raw)
+    inventories = lifecycle_inventory.projections(raw, *lifecycle_authority) if lifecycle_authority is not None else {}
+    inventory_receipt = {}
     count, total = 0, 0
     for current, dirs, names in os.walk(raw, followlinks=False):
         for name in sorted(dirs.copy()):
@@ -480,7 +504,13 @@ def safe_public(raw, public, work):
                 continue
             size = path.stat().st_size; total += size
             need(size <= 4 * 1024**2 and total <= 16 * 1024**2, 'component receipt exceeds public bound')
-            data = path.read_bytes()
+            data = inventories[relative_name] if relative_name in inventories else path.read_bytes()
+            if relative_name in inventories:
+                row = json.loads(data)
+                inventory_receipt[relative_name] = {key: row[key] for key in ('stage', 'authority', 'original_sha256', 'original_bytes', 'package_count')}
+                inventory_receipt[relative_name].update(projected_sha256=hashlib.sha256(data).hexdigest(), projected_bytes=len(data))
+                total += len(data) - size
+                need(total <= 16 * 1024**2, 'projected component receipt exceeds public bound')
             if path.suffix == '.json':
                 value = json.loads(data)
                 # Repository command args contain ephemeral TEST passphrase options.
@@ -496,6 +526,10 @@ def safe_public(raw, public, work):
             dest.write_bytes(data)
     native.save(selected / 'excluded-public-material.json', {'excluded': excluded, 'public_log_projection': projections,
                                                           'private_state_exported': False})
+    if inventory_receipt:
+        native.save(selected / 'inventory-projections.json', {'schema_version': 1,
+                    'purpose': 'validated-lifecycle-package-inventories', 'files': inventory_receipt,
+                    'generic_content_guard': 'UNCHANGED', 'raw_inventory_bytes_exported': False})
     receipt = export_evidence(selected, public)
     need(receipt['evidence_export'] == 'PASS', 'public evidence exporter rejected component output')
 
@@ -528,6 +562,8 @@ class Controller:
                 self.cancelled = True
             status.update(error='component command or verification failed; review sanitized check records',
                           error_type=type(error).__name__)
+            if isinstance(error, HandoffRefusal):
+                status['refusal_code'] = error.code
         finally:
             with defer_signals():
                 self.finalize_stage(name, raw, staging, status)
@@ -540,7 +576,16 @@ class Controller:
         try:
             native.save(raw / 'component-status.json', status.copy())
             try:
-                safe_public(raw, self.public / name, staging)
+                authority = None
+                if name == 'lifecycle' and (raw / 'lifecycle').is_dir():
+                    base_lock = self.native_out / 'packages.lock'; regular(base_lock)
+                    base = {}
+                    for line in base_lock.read_text().splitlines():
+                        columns = line.split(' ')
+                        need(len(columns) == 2 and columns[0] not in base, 'invalid accepted base inventory')
+                        base[columns[0]] = columns[1]
+                    authority = (base, self.rows['baseline'], self.rows['upgrade'])
+                safe_public(raw, self.public / name, staging, lifecycle_authority=authority)
                 if name == 'fixtures' and status['status'] == 'PASS':
                     self.export_archives()
                 if name == 'signer' and status['status'] == 'PASS':
@@ -691,6 +736,11 @@ class Controller:
         shutil.copyfile(self.signed / 'public/result.json', raw / 'test-signature-receipt.json')
 
     def lifecycle(self, raw):
+        diagnostic = {'status': 'FAIL', 'phase': 'base-config-query'}
+        def phase(name):
+            diagnostic['phase'] = name
+            native.save(raw / 'handoff-controller.json', diagnostic)
+        phase('base-config-query')
         base_config = json.loads(native.run(['docker', 'image', 'inspect', self.image], timeout=60))[0]['Config']
         inputs = self.work / 'lifecycle-inputs'; shutil.copytree(self.archives, inputs)
         runner = self.work / 'lifecycle-runner'; runner.mkdir()
@@ -730,18 +780,27 @@ class Controller:
                 '--contract-sha256', native.sha(inputs / 'commit.json')]
         container = 'cachy-asahi-handoff-' + nonce
         try:
+            phase('lifecycle-container')
             execute_container(cmd, raw / 'container.log', keep=True)
             receipt = json.loads((raw / 'commit-receipt.json').read_text())
+            phase('handoff-receipt-verification')
             verify_commit(receipt, commit, contract, raw / 'installed-packages.lock', inputs / 'base-packages.lock')
+            phase('stopped-container-query')
             observed = json.loads(native.run(['docker', 'container', 'inspect', container], timeout=60))[0]
-            need(observed['State']['Status'] == 'exited' and observed['State']['ExitCode'] == 0 and observed['Image'] == self.image,
-                 'stopped successful exact lifecycle container required before commit')
+            handoff_need(observed['State']['Status'] == 'exited' and observed['State']['ExitCode'] == 0 and observed['Image'] == self.image,
+                         'lifecycle-stopped-container')
+            phase('image-commit')
             derived = native.run(commit_command(container, base_config), timeout=120)
+            phase('derived-image-query')
             inspect = json.loads(native.run(['docker', 'image', 'inspect', derived], timeout=60))[0]
-            need(re.fullmatch(r'sha256:[0-9a-f]{64}', derived) and inspect['Id'] == derived and inspect['Architecture'] == 'arm64', 'derived immutable native image required')
-            need(image_config(inspect['Config']) == image_config(base_config), 'committed image config differs from accepted base')
-            need(not any(row.startswith(('CACHY_ASAHI_DISPOSABLE_LIFECYCLE=', 'CACHY_ASAHI_IMAGE_ID='))
-                         for row in (inspect['Config'].get('Env') or [])), 'test identity persisted in committed image')
+            handoff_need(re.fullmatch(r'sha256:[0-9a-f]{64}', derived) and inspect['Id'] == derived and inspect['Architecture'] == 'arm64',
+                         'lifecycle-derived-identity')
+            accepted, actual = image_config(base_config), image_config(inspect['Config'])
+            diagnostic['config_difference_fields'] = sorted(key for key in accepted if accepted[key] != actual[key])
+            phase('derived-config-verification')
+            handoff_need(not diagnostic['config_difference_fields'], 'lifecycle-config')
+            handoff_need(not any(row.startswith(('CACHY_ASAHI_DISPOSABLE_LIFECYCLE=', 'CACHY_ASAHI_IMAGE_ID='))
+                         for row in (inspect['Config'].get('Env') or [])), 'lifecycle-test-env')
             native.save(raw / 'committed-config.json', {'status': 'PASS', 'base_image': self.image, 'image_id': derived,
                         'accepted_base_config': image_config(base_config), 'committed_config': image_config(inspect['Config']),
                         'test_identity_in_image_env': False})
@@ -756,23 +815,33 @@ class Controller:
                                  [(verify_inputs, '/inputs', True), (runner, '/runner', True), (verify_out, '/out', False)],
                                  root=True)
             verify_cmd += ['-B', '/runner/verify_derived.py', '--contract-sha256', native.sha(verify_inputs / 'verify.json')]
+            phase('fresh-derived-verification')
             execute_container(verify_cmd, raw / 'committed-image.log', 300)
             verified = json.loads((verify_out / 'result.json').read_text())
-            need(verified.get('status') == 'PASS' and verified.get('image_id') == derived and
-                 verified.get('installed_packages_sha256') == receipt['installed_packages_sha256'], 'committed image independent verification failed')
+            handoff_need(verified.get('status') == 'PASS' and verified.get('image_id') == derived and
+                         verified.get('installed_packages_sha256') == receipt['installed_packages_sha256'], 'lifecycle-derived-verification')
             self.installed = derived; self.installed_lock = raw / 'installed-packages.lock'
             shutil.copyfile(self.installed_lock, raw / 'installed-packages.txt')
             native.save(raw / 'installed-image.json', {'image_id': derived, 'base_image': self.image, 'container': container,
                                                      'source_commit': self.commit, 'lock_sha256': native.sha(self.installed_lock),
                                                      'commit_receipt_sha256': native.sha(raw / 'commit-receipt.json'), 'hardware_validation': 'NOT RUN'})
+            diagnostic.update(status='PASS', phase='accepted-installed-image')
+        except (OSError, ValueError, KeyError, subprocess.SubprocessError) as error:
+            diagnostic['error_type'] = type(error).__name__
+            if isinstance(error, HandoffRefusal):
+                diagnostic['refusal_code'] = error.code
+            raise
         finally:
             original_failure = sys.exc_info()[0] is not None
             cleanup = remove_container(container)
             native.save(raw / 'container-removal.json', cleanup)
             if cleanup['status'] != 'PASS':
                 self.installed = None
+                diagnostic.update(status='FAIL', cleanup='FAIL')
                 if not original_failure:
+                    native.save(raw / 'handoff-controller.json', diagnostic)
                     need(False, 'lifecycle container removal not verified')
+            native.save(raw / 'handoff-controller.json', diagnostic)
 
     def repository(self, raw):
         inputs = self.work / 'repository-inputs'; shutil.copytree(self.archives, inputs)
@@ -914,27 +983,30 @@ def owned_tmpfs(size):
 
 def verify_commit(receipt, commit, contract, installed_lock, base_lock):
     """No image commit is authorized by a mere zero process exit."""
-    need(receipt.get('schema_version') == 1 and receipt.get('purpose') == commit['purpose'] and receipt.get('status') == 'READY', 'sanitized READY handoff required')
+    handoff_need(receipt.get('schema_version') == 1 and receipt.get('purpose') == commit['purpose'] and receipt.get('status') == 'READY', 'handoff-ready')
     for field in ('source_commit', 'lifecycle_contract_sha256', 'lifecycle_script_sha256', 'base_packages_sha256'):
-        need(receipt.get(field) == commit[field], 'handoff input binding differs')
-    need(receipt.get('commit_contract_sha256') == hashlib.sha256((json.dumps(commit, indent=2, sort_keys=True) + '\n').encode()).hexdigest(), 'commit contract binding differs')
-    need(receipt.get('image_id') == contract['image_id'] and receipt.get('nonce') == contract['nonce'], 'handoff container binding differs')
+        handoff_need(receipt.get(field) == commit[field], 'handoff-input-' + field.replace('_', '-'))
+    handoff_need(receipt.get('commit_contract_sha256') == hashlib.sha256((json.dumps(commit, indent=2, sort_keys=True) + '\n').encode()).hexdigest(), 'handoff-contract')
+    handoff_need(receipt.get('image_id') == contract['image_id'] and receipt.get('nonce') == contract['nonce'], 'handoff-container')
     versions = {r['name']: r['version'] for r in contract['baseline']}
     payload = {r['name']: r['payload_sha256'] for r in contract['baseline']}
-    need(receipt.get('package_versions') == versions and receipt.get('payload_sha256') == payload, 'handoff original package binding differs')
-    need(receipt.get('private_cleanup') == 'PASS; no private contents or hashes recorded', 'private cleanup not verified')
+    handoff_need(receipt.get('package_versions') == versions and receipt.get('payload_sha256') == payload, 'handoff-originals')
+    handoff_need(receipt.get('private_cleanup') == 'PASS; no private contents or hashes recorded', 'handoff-cleanup')
     checks = receipt.get('checks')
-    need(isinstance(checks, list) and bool(checks) and all(r.get('status') == 'PASS' for r in checks), 'handoff assertions incomplete')
+    handoff_need(isinstance(checks, list) and bool(checks) and all(r.get('status') == 'PASS' for r in checks), 'handoff-checks')
     required = {'successful-lifecycle-handoff', 'lifecycle-receipt-binding', 'exact-base-plus-originals-inventory',
                 'complete-pacman-owned-payload', 'original-payload-hash', 'private-keyring-removed',
                 'only-empty-alarm-home', 'system-gnupg-state-removed', 'image-tmp-view-empty'}
-    need(required <= {row.get('check') for row in checks}, 'required handoff assertions missing')
-    for path in (installed_lock, base_lock):
-        regular(path)
+    handoff_need(required <= {row.get('check') for row in checks}, 'handoff-required-checks')
+    for path, code in ((installed_lock, 'handoff-installed-lock-regular'), (base_lock, 'handoff-base-lock-regular')):
+        try:
+            regular(path)
+        except (OSError, ValueError):
+            raise HandoffRefusal(code) from None
     rows = dict(line.split(' ', 1) for line in base_lock.read_text().splitlines()) | versions
     expected = ''.join(f'{name} {value}\n' for name, value in sorted(rows.items()))
-    need(installed_lock.read_text() == expected and receipt.get('installed_packages_sha256') == native.sha(installed_lock)
-         and receipt.get('installed_package_count') == len(rows), 'derived package inventory differs')
+    handoff_need(installed_lock.read_text() == expected and receipt.get('installed_packages_sha256') == native.sha(installed_lock)
+         and receipt.get('installed_package_count') == len(rows), 'handoff-inventory')
 
 
 def main():

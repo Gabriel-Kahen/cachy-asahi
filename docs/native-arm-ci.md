@@ -182,7 +182,7 @@ production publication or performance gates. All remain independently unrun.
 Initial-stage source snapshots include all exact inputs named by the reviewed
 original recipe lock, including 25 historical evidence files, and other package
 audit text. Generated package archives and unlocked ignored logs are excluded;
-the active virtual/client/experiments/port/platform and packages/tools follow-up
+the active virtual/client/experiments/port/platform and packages/tools/libraries follow-up
 trees have separate later freezes. A missing locked input fails the source scan.
 Both freeze and preflight copy and rehash the complete snapshot, then generate
 deterministic fixtures from that copied tree before any native mutation. Original
@@ -195,6 +195,25 @@ exported. The existing private-content policy runs before projection and the
 generic exporter remains unchanged. Desktop children receive an owned mode0700
 XDG_RUNTIME_DIR under the guarded tmpfs HOME. Verification remains enabled;
 this environment correction does not establish the cause of an earlier abort.
+
+Lifecycle package inventories have a separate explicit host projection. Exactly
+eight known stage paths must contain only valid package/version maps equal to the
+complete accepted base, base-plus-originals or base-plus-upgrade inventory.
+Reinstallation uses upgrade versions, matching the lifecycle producer. Public
+row lists preserve every package/version and bind original hashes/byte counts;
+a separate projection receipt binds public hashes/byte counts. Unknown paths or
+unreviewed schema/content still face the unchanged generic credential guard.
+This resolves the `libsecret` field-name false positive without relaxing it.
+
+Handoff refusal codes come from a fixed reviewed set; controller diagnostics
+retain the failing operation and changed Config field names only. No arbitrary
+Env values, hashes of those values or exception text are published on refusal.
+The derived verifier now scans ordinary filesystem metadata without following
+symlinks or opening nodes, after mount/native guards and before contract reads.
+It refuses every socket, block device and unexpected character node, including
+alternate names. Exact standard character devices and matching Docker PTYs are
+allowed. The bounded point-in-time namespace scan does not claim protection
+against a malicious daemon, inherited descriptors or abstract sockets.
 
 
 ### Corrective source review and freeze status

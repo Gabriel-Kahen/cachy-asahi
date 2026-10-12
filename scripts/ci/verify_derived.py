@@ -13,6 +13,10 @@ import subprocess
 
 INPUTS = Path('/inputs')
 BIND_FS = {'ext4', 'xfs', 'btrfs', 'tmpfs', 'overlay', 'fuse-overlayfs'}
+DEVICE_NODES = {'/dev/null': (1, 3), '/dev/zero': (1, 5), '/dev/full': (1, 7),
+                '/dev/random': (1, 8), '/dev/urandom': (1, 9), '/dev/tty': (5, 0),
+                '/dev/pts/ptmx': (5, 2)}
+EXPOSURE_LIMIT = 250000
 
 STANDARD_FS = {'/proc': ('proc', 'rw'), '/sys': ('sysfs', 'ro'), '/sys/fs/cgroup': ('cgroup2', 'ro'),
                '/dev': ('tmpfs', 'rw'), '/dev/pts': ('devpts', 'rw'), '/dev/shm': ('tmpfs', 'rw'), '/dev/mqueue': ('mqueue', 'rw')}
@@ -32,6 +36,43 @@ def need(condition, message):
 def sha(path):
     with path.open('rb') as stream:
         return hashlib.file_digest(stream, 'sha256').hexdigest()
+
+
+def runtime_exposure():
+    """Inspect ordinary filesystem metadata only, after mount validation.
+
+    Kernel pseudo trees have their separate exact mount/mask checks. Do not
+    follow symlinks or open nodes. This is a point-in-time namespace check,
+    not proof against a malicious daemon, inherited FDs or abstract sockets.
+    """
+    def failed(_error):
+        raise ValueError('runtime exposure inventory could not be completed')
+
+    count = 0
+    try:
+        for current, dirs, files in os.walk('/', topdown=True, followlinks=False, onerror=failed):
+            if current == '/':
+                dirs[:] = [name for name in dirs if name not in ('proc', 'sys')]
+            directory_names = set(dirs)
+            retained = []
+            for name in dirs + files:
+                count += 1
+                need(count <= EXPOSURE_LIMIT, 'runtime exposure inventory exceeds bound')
+                path = Path(current) / name
+                info = path.lstat()
+                need(not stat.S_ISSOCK(info.st_mode), 'runtime sockets refused')
+                if stat.S_ISCHR(info.st_mode) or stat.S_ISBLK(info.st_mode):
+                    identity = (os.major(info.st_rdev), os.minor(info.st_rdev))
+                    match = re.fullmatch(r'/dev/pts/([0-9]{1,4})', str(path))
+                    number = int(match[1]) if match else -1
+                    pty = 0 <= number < 2048 and identity == (136 + number // 256, number % 256)
+                    need(stat.S_ISCHR(info.st_mode) and
+                         (DEVICE_NODES.get(str(path)) == identity or pty), 'unexpected runtime device refused')
+                if name in directory_names and stat.S_ISDIR(info.st_mode):
+                    retained.append(name)
+            dirs[:] = retained
+    except OSError:
+        failed(None)
 
 
 def guard():
@@ -58,6 +99,7 @@ def guard():
         elif point in table and expected == ('tmpfs', 'ro'):
             need(Path(point).is_dir() and not Path(point).is_symlink() and not any(Path(point).iterdir()), 'empty readonly kernel mask required')
     need(not any(Path(p).exists() for p in ('/dev/dri', '/dev/snd', '/dev/input', '/dev/kvm', '/run/docker.sock', '/var/run/docker.sock')), 'devices/host sockets refused')
+    runtime_exposure()
 
 
 def validate_mounts(table):

@@ -282,11 +282,11 @@ class Integration:
         if observed is not None:
             self.result['guard'] = observed
 
-    def command(self, label, argv, *, env=None, expected=0, signature_failure=False, binary=False):
-        process = subprocess.run([str(a) for a in argv], env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=300)
+    def command(self, label, argv, *, env=None, expected=0, signature_failure=False, binary=False, stdout_only=False):
+        process = subprocess.run([str(a) for a in argv], env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE if stdout_only else subprocess.STDOUT, timeout=300)
         output = process.stdout.decode(errors='replace')
         filename = f'{len(self.receipts):03d}-{label}.txt'
-        (self.out / filename).write_bytes(process.stdout)
+        (self.out / filename).write_bytes(process.stdout + (process.stderr if stdout_only else b''))
         self.receipts.append({'label': label, 'argv': [str(a) for a in argv], 'exit_code': process.returncode,
                               'log': filename, 'sha256': sha(self.out / filename), 'expected': expected})
         need(expected is None or (process.returncode == 0 if expected == 0 else process.returncode != 0),
@@ -424,7 +424,8 @@ class Integration:
                 '--dbpath', self.target / 'var/lib/pacman', '--cachedir', self.scratch / 'cache',
                 '--gpgdir', self.keys['verifier']['home'], '--hookdir', self.scratch / 'masked-hooks',
                 '--logfile', self.out / 'pacman.log', '--noconfirm', '--color', 'never', *options]
-        return self.command(label, argv, expected=1 if reject else 0, signature_failure=reject)
+        return self.command(label, argv, expected=1 if reject else 0, signature_failure=reject,
+                            stdout_only=bool(options and options[0] in {'-Q', '-Ql'}))
 
     def snapshot(self, label):
         inventory = self.pacman('inventory-' + label, ['-Q'])
@@ -502,6 +503,8 @@ class Integration:
         database.mkdir(parents=True)
         shutil.copytree('/var/lib/pacman/local', database / 'local', symlinks=True)
         (database / 'sync').mkdir()
+        # Pacman validates --cachedir even for -Q, before select() runs.
+        (self.scratch / 'cache').mkdir()
         (self.scratch / 'masked-hooks').mkdir()
         for directory in (self.target / 'usr/share/libalpm/hooks', self.target / 'etc/pacman.d/hooks'):
             if directory.exists():
