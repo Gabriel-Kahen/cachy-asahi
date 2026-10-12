@@ -1,0 +1,199 @@
+{
+  "actual_results": {
+    "codec_smoke": "NOT RUN",
+    "hardware": "NOT RUN",
+    "installation": "NOT RUN",
+    "legal_approval": "NOT CLAIMED",
+    "native_build": "NOT RUN",
+    "patent_clearance": "NOT CLAIMED",
+    "publication": "NOT RUN",
+    "selected_archive_bytes": 2701495,
+    "selected_archive_files": 900,
+    "selected_implementation_files": 898
+  },
+  "binary_materials": {
+    "COPYRIGHTS-and-LICENSES": "a0a52a99bef6dea5c370711f17ed1c02e8b0989a4c167f4e54a36368987428c0",
+    "NOTICE.classic": "95ec80da40b4af12ad4c4f3158c9cfb80f2479f3246e4260cb600827cc8c7836",
+    "NOTICE.xhe-aac": "bf3e762249027586195def2b2e904901b42c8b7fab455fc66bf365f70d08de6d"
+  },
+  "build_system": {
+    "actual_compilation": "NOT RUN",
+    "author": "cachy-asahi contributors",
+    "classic_translation_units": 170,
+    "date": "2026-10-12",
+    "future_source_packet": "selected900file codec archive plus all original MIT layout/build/stage/package/test/check/selection/reconstruction inputs; no upstream scaffold executed/copied",
+    "layout_sha256": "1ca4cdc6d8070216cc7797f91d254ce6abd2eefbe3c1457beeeb47862b6599dc",
+    "license": "MIT",
+    "selected_implementation_files": 898,
+    "upstream_scaffold_executed": false,
+    "xhe_translation_units": 225
+  },
+  "codec_patches": [],
+  "copyright_conditions": [
+    {
+      "actual_signed_package": "classic NOTICE present; xHE NOTICE absent despite xHE binary",
+      "condition": "Retain complete license text in source and binary documentation/materials",
+      "id": "copyright-grants",
+      "prepared_inputs": [
+        "NOTICE.classic",
+        "NOTICE.xhe-aac",
+        "COPYRIGHTS-and-LICENSES"
+      ]
+    },
+    {
+      "actual_publication": "NOT RUN; recipient source distribution must accompany release",
+      "condition": "Make complete codec source and all modifications available free of charge to binary recipients",
+      "id": "source-copies",
+      "prepared_inputs": [
+        "selected-source-manifest.json",
+        "selected codec archive",
+        "complete project recipe/reconstruction source bundle"
+      ]
+    },
+    {
+      "condition": "No Fraunhofer endorsement without prior written permission",
+      "id": "no-endorsement",
+      "proposed_behavior": "factual attribution only; independent project identity"
+    },
+    {
+      "condition": "No copyright licence fee for use/copy/distribution of codec or modifications",
+      "id": "no-copyright-license-fee",
+      "proposed_behavior": "free source copies and no codec copyright-licence fee"
+    },
+    {
+      "condition": "Prominent change/date and third-party modified-version wording for modified codec versions",
+      "id": "modified-source-notices",
+      "proposed_behavior": "codec sources unmodified; only packaging/notice correction. Any future codec patches require explicit changes/date and required wording"
+    },
+    {
+      "condition": "No patent licence granted; use only for purposes authorized by appropriate patent licences",
+      "id": "patents",
+      "status": "outside copyright grant; no blanket patent clearance or jurisdiction claim"
+    }
+  ],
+  "fresh_runner_producer": {
+    "actual_result": "PASS: fetched exact upstream bytes and recreated selected1c4ade archive on2026-10-12",
+    "interface": "python -B select-source.py --fetch-upstream --output <new external archive>",
+    "native_compilation": "NOT RUN",
+    "transport": "bounded HTTPS into memory only; no broad archive persisted; no upstream execution",
+    "upstream_bytes": 4707099,
+    "upstream_sha256": "ac9682b35f6e5f75e1f008a5ba2636ba6c9c77c70b78377b53992559e8bda806",
+    "upstream_url": "https://codeload.github.com/mstorsjo/fdk-aac/tar.gz/a68a51aa45d86a43c7b228e3d45624af09dcdd8d"
+  },
+  "historical_private_checks": {
+    "added_grant_files": 1,
+    "codec_smoke": "NOT RUN (source added only)",
+    "hardware": "NOT RUN",
+    "legal_approval": "NOT CLAIMED",
+    "native_build": "NOT RUN",
+    "packet_bytes": 3861432,
+    "performance": "NOT MEASURED",
+    "publication": "NOT RUN",
+    "selected_codec_archive_bytes": 2701495,
+    "selected_codec_archive_files": 900,
+    "upstream_source_files": 1190
+  },
+  "historical_private_packet": {
+    "extraction_directory": "fdk-aac-3.0.0",
+    "filename": "fdk-aac-3.0.0-cachy-source.tar.gz",
+    "prepared_source_bytes": 3861432,
+    "prepared_source_sha256": "1244e51941011bb63433b022f8bc247a28cf374749a2c3fb30f73fae42c88c49",
+    "source_commit": "a68a51aa45d86a43c7b228e3d45624af09dcdd8d",
+    "transport": "private candidate only; whole packet not cleared for redistribution",
+    "upstream_canonical_source_sha256": "bb97dce7e1492fe9c1373896e3bcae221ad5f2b76f95b5ee568b90499461212e"
+  },
+  "notice_bundle_correction": {
+    "codec_source_changed": false,
+    "earlier_audit_bundle_sha256": "418b67fd8c3d25a9d62824b200b4743783e87d37e36bd49f1c079266b28f997a",
+    "earlier_issue": "UTF8 replacement decoding corrupted a Latin1 PPC copyright header",
+    "new_behavior": "all9 complete header comment blocks copied rawbyteforbyte; encoding note identifies original Latin1 PPC block",
+    "shared_audit_not_modified_by_this_worker": true
+  },
+  "package_contract": {
+    "Apple_platform_changes": [],
+    "actual_provider_transaction": "NOT RUN",
+    "arch": "aarch64",
+    "baseline341_changes": [],
+    "conflicts": [
+      "libfdk-aac"
+    ],
+    "name": "cachy-asahi-fdk-aac",
+    "proposed_graph_count": 574,
+    "provides": [
+      "libfdk-aac=3.0.0",
+      "libfdk-aac.so=2-64",
+      "libfdk-xhe-aac.so=0-64"
+    ],
+    "replaces": [],
+    "runtime_dependencies": [
+      "glibc"
+    ],
+    "version": "3.0.0-1"
+  },
+  "schema_version": 1,
+  "selected_manifest_sha256": "d4e5eafb975c7721b8cfafb392dd8c13274d0bddc2ef8a92c4554b066db75cae",
+  "shared_audit_corrections_required": [
+    "old noticebundle418b67... corrupts original Latin1 PPC copyright bytes; owned corrected rawbundlea0a52... does not change codec source",
+    "prepare_source.py records prefixed manifest paths whereas retained manifest uses relative paths; generator/manifest reproducibility needs coordinator reconciliation"
+  ],
+  "source_delivery": "complete selected source/reconstruction/recipe bundle prepared locally; supply free with binary releases; public hosting/delivery NOT RUN",
+  "source_packet": {
+    "bytes": 2701495,
+    "codec_source_modifications": [],
+    "extraction_directory": "fdk-aac-3.0.0",
+    "filename": "fdk-aac-3.0.0-selected-source.tar.gz",
+    "full_notice_files": 2,
+    "implementation_files": 898,
+    "private_full_packet_included": false,
+    "sha256": "1c4ade00f624c1e6f9e988cd17868a5e3faa78fea2522e9c302a89866d04cdd7",
+    "source_commit": "a68a51aa45d86a43c7b228e3d45624af09dcdd8d",
+    "source_scope": "complete selected two-library implementations, not all upstream software"
+  },
+  "source_packet_exclusions": {
+    "paths": [
+      {
+        "bytes": 492288,
+        "path": "cpp/documentation/aacDecoder.pdf",
+        "sha256": "06283ad243e1d2dbb49be9c42b4161131f10939fd00eca2fb7e851c9b6753f56"
+      },
+      {
+        "bytes": 443831,
+        "path": "cpp/documentation/aacEncoder.pdf",
+        "sha256": "4b4d99151132dc11c5e643ef6254ba0f8e0a0f7722b5a5e63cc9f834607bd8ba"
+      },
+      {
+        "bytes": 33428,
+        "path": "rust/bitstreams/input.rawpkts",
+        "sha256": "6be5e5e23b90dc968de0e376130b70e083221f64ed2ba959afc607015f6954c6"
+      }
+    ],
+    "reason": "PDF manuals explicitly prohibit reproduction without publisher permission; raw packet test vector rights not established. These are not codec or selected Autotools build source; examples/Rust tests disabled/not built. Preserve every remaining source file byte unchanged."
+  },
+  "source_rights_blocker": "No needed defaultGNU Linux aarch64 implementation source lacking an established grant was found; independent recipient packet review/native completeness/public delivery remain required",
+  "status": "selected corresponding-source packet prepared; recorded grant scope audited; native build/install/publication NOT RUN",
+  "upstream": {
+    "annotated_tag_object": "a53bfb8e62714f74612e4b85e679dbeb6b971606",
+    "archive_bytes": 4707099,
+    "archive_sha256": "ac9682b35f6e5f75e1f008a5ba2636ba6c9c77c70b78377b53992559e8bda806",
+    "canonical_git_archive_b2": "a7171040e5e4ba76319698565473610b954a791cace26468e3293567cbbf61b9e75eb0a400d4f5da62062ce0afe00c58751808c7958f3f229031a3d3ce69679a",
+    "canonical_git_archive_bytes": 24381440,
+    "canonical_git_archive_sha256": "bb97dce7e1492fe9c1373896e3bcae221ad5f2b76f95b5ee568b90499461212e",
+    "commit": "a68a51aa45d86a43c7b228e3d45624af09dcdd8d",
+    "immutable_archive_url": "https://codeload.github.com/mstorsjo/fdk-aac/tar.gz/a68a51aa45d86a43c7b228e3d45624af09dcdd8d",
+    "matches_immutable_arch_recipe_b2": true,
+    "prepared_codec_source": {
+      "extraction_directory": "fdk-aac-3.0.0",
+      "filename": "fdk-aac-3.0.0-cachy-source.tar.gz",
+      "prepared_source_bytes": 3861432,
+      "prepared_source_sha256": "1244e51941011bb63433b022f8bc247a28cf374749a2c3fb30f73fae42c88c49",
+      "source_commit": "a68a51aa45d86a43c7b228e3d45624af09dcdd8d",
+      "transport": "private retained source packet; future free corresponding-source distribution required",
+      "upstream_canonical_source_sha256": "bb97dce7e1492fe9c1373896e3bcae221ad5f2b76f95b5ee568b90499461212e"
+    },
+    "repository": "https://github.com/mstorsjo/fdk-aac",
+    "source_file_manifest_sha256": "5e30cae766deaa0221a3418bac5a407d86e27f23589cec3bcfab33882c21c161",
+    "tag": "v3.0.0",
+    "upstream_tag_signature": "NOT VERIFIED"
+  },
+  "whole_packet_redistribution": "historical private full packet NOT CLEARED and excluded; selected packet contains only recorded individual-grant codec files and two original notices"
+}

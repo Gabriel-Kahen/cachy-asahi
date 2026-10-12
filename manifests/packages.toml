@@ -129,3 +129,19 @@ native_evidence = "docs/validation/native-arm.md"
 installation = "NOT RUN"
 hardware_validation = "NOT RUN"
 next_step = "Source/recovery review, synchronization and native build pair passed; execute exact-model package/setup/removal/recovery and independent onboarding."
+
+[[packages]]
+name = "cachy-asahi-fdk-aac"
+phase = "complete-port-libraries"
+status = "candidate"
+source = "https://github.com/mstorsjo/fdk-aac"
+upstream_commit = "a68a51aa45d86a43c7b228e3d45624af09dcdd8d"
+recipe = "packages/libraries/cachy-asahi-fdk-aac/PKGBUILD"
+license = "LicenseRef-Fraunhofer; LicenseRef-Fraunhofer-xHE-AAC; MIT"
+audit = "docs/workstreams/fdk-aac.md"
+selected_for_development = true
+selected_for_release = false
+native_build = "NOT RUN"
+installation = "NOT RUN"
+hardware_validation = "NOT RUN"
+next_step = "Build/rebuild the reviewed selected-source packet natively, then verify the explicit libfdk-aac provider substitution and PipeWire AAC integration before selecting a release transaction."

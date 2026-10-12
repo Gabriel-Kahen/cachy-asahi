@@ -1,0 +1,57 @@
+# SPDX-License-Identifier: MIT
+# Copyright (C) 2026 cachy-asahi contributors
+# Independently written recipe; codec source and original grants are unchanged.
+pkgname=cachy-asahi-fdk-aac
+pkgver=3.0.0
+pkgrel=1
+pkgdesc='Source-built classic and xHE FDK AAC libraries with complete notices'
+arch=('aarch64')
+url='https://github.com/mstorsjo/fdk-aac'
+license=('LicenseRef-Fraunhofer' 'LicenseRef-Fraunhofer-xHE-AAC' 'MIT')
+depends=('glibc')
+makedepends=('gcc' 'python' 'binutils')
+provides=('libfdk-aac=3.0.0' 'libfdk-aac.so=2-64' 'libfdk-xhe-aac.so=0-64')
+conflicts=('libfdk-aac')
+options=('!staticlibs' '!debug')
+source=('fdk-aac-3.0.0-selected-source.tar.gz' 'NOTICE.classic' 'NOTICE.xhe-aac' 'COPYRIGHTS-and-LICENSES' 'LICENSE.MIT' 'README.md' 'PUBLICATION.md' 'source-provenance.json' 'selected-source-manifest.json' 'source_check.py' 'materialize.py' 'select-source.py' 'publication.py' 'check-built.py' 'codec-smoke.c' 'test_source.py' 'build-codec.py' 'build-layout.json' 'stage.py' 'test_build.py' 'test_publication.py')
+sha256sums=(1c4ade00f624c1e6f9e988cd17868a5e3faa78fea2522e9c302a89866d04cdd7 95ec80da40b4af12ad4c4f3158c9cfb80f2479f3246e4260cb600827cc8c7836 bf3e762249027586195def2b2e904901b42c8b7fab455fc66bf365f70d08de6d a0a52a99bef6dea5c370711f17ed1c02e8b0989a4c167f4e54a36368987428c0 4d263ff2b095160e3b9244a132d248234241b83eed71b849decef6a3ba3fa795 210b83d98056a7f7d66423217ae8c4a9cf34cf967b6651e7796a298e4a10a828 cbff12075810ab82ad33712598cb01e197580aeb9656eae08524d7835841b4f3 ec6dc0a993ebcc8c93856d1068a30f7f179168837b291a87cdb633b2b84db762 d4e5eafb975c7721b8cfafb392dd8c13274d0bddc2ef8a92c4554b066db75cae 022edc82397d2d72187b66663fb135c0b66f83e5d58044d94d05ebaa077b124a e34511778a075f1eca1f16ca0d4d4665fce4e47a047f8fc036b5ad5b81890ac3 5e6aba85357514576f8102b48955045b16ca3be57fda33e69962b41ca7c3559e c8c0faf88a7d05a0b21c979c21597b7b9a8ca5480079f56e4272f4f9cbe30b98 f6d1e1ca8cb85da4d2555de82a08624960dfd70b00eea09dfa35e61645d694f9 70735f85644927e0427d12fbda21d6515fdab1bb9c19b5105abe654218b9af96 a37d8abfdb029c2a3c68af0411e817f512192cea6bc4a1ae0a25ddce75679d78 728c63c7f0054e52a5a2e8bc23aa40c4e32b37467e4fd758baa8232f914c8eeb 1ca4cdc6d8070216cc7797f91d254ce6abd2eefbe3c1457beeeb47862b6599dc ef987ac2cdf9abacd52dc44cc57d62d033a4adce7c4ec09b411d91ff5470448b e482e1aed976e56b48dac8bf411160839745c54a4b3be843360b04934f5c0f4b 5898ed034da3b66f9dc93182861e5b964c894b79f803af33c949d04784761f35)
+
+prepare() {
+    [[ ${CACHY_ASAHI_CONTAINER:-} == 1 && $CARCH == aarch64 ]] || return 2
+    python -B "$startdir/source_check.py" "$startdir/fdk-aac-3.0.0-selected-source.tar.gz"
+}
+
+build() {
+    [[ ${CACHY_ASAHI_CONTAINER:-} == 1 && $CARCH == aarch64 ]] || return 2
+    python -B "$startdir/build-codec.py" --source "$srcdir/fdk-aac-3.0.0" --output "$srcdir/codec-build"
+    cp "$srcdir/codec-build/build-commands.json" /out/fdk-build-commands.json
+}
+
+check() {
+    [[ ${CACHY_ASAHI_CONTAINER:-} == 1 && $CARCH == aarch64 ]] || return 2
+    # The builder's immutable input snapshot excludes makepkg logs/src/pkg.
+    python -B /inputs/test_source.py
+    python -B /inputs/test_build.py
+    python -B /inputs/test_publication.py
+    cd "$srcdir/codec-build"
+    python -B "$startdir/check-built.py"
+    cc -std=c11 -Wall -Wextra -Werror \
+        -I"$srcdir/fdk-aac-3.0.0/cpp/libAACenc/include" \
+        -I"$srcdir/fdk-aac-3.0.0/cpp/libAACdec/include" \
+        -I"$srcdir/fdk-aac-3.0.0/cpp/libSYS/include" \
+        -I"$srcdir/fdk-aac-3.0.0/xhe-aac/xHEAACEnc/include" \
+        "$startdir/codec-smoke.c" -L. -lfdk-aac -lfdk-xhe-aac -o "$srcdir/codec-smoke"
+    LD_LIBRARY_PATH="$srcdir/codec-build" timeout 60 "$srcdir/codec-smoke"
+}
+
+package() {
+    [[ ${CACHY_ASAHI_CONTAINER:-} == 1 && $CARCH == aarch64 ]] || return 2
+    python -B "$startdir/stage.py" --source "$srcdir/fdk-aac-3.0.0" --build "$srcdir/codec-build" --package "$pkgdir"
+    install -Dm644 "$startdir/NOTICE.classic" "$pkgdir/usr/share/licenses/$pkgname/NOTICE.classic"
+    install -Dm644 "$startdir/NOTICE.xhe-aac" "$pkgdir/usr/share/licenses/$pkgname/NOTICE.xhe-aac"
+    install -Dm644 "$startdir/COPYRIGHTS-and-LICENSES" "$pkgdir/usr/share/licenses/$pkgname/COPYRIGHTS-and-LICENSES"
+    install -Dm644 "$startdir/LICENSE.MIT" "$pkgdir/usr/share/licenses/$pkgname/LICENSE.MIT"
+    install -Dm644 "$startdir/README.md" "$pkgdir/usr/share/doc/$pkgname/README.md"
+    install -Dm644 "$startdir/PUBLICATION.md" "$pkgdir/usr/share/doc/$pkgname/PUBLICATION.md"
+    install -Dm644 "$startdir/source-provenance.json" "$pkgdir/usr/share/doc/$pkgname/source-provenance.json"
+}
