@@ -1,6 +1,6 @@
 # Native ARM same-job development wiring
 
-October 12, 2026. **Separate controller/workflow implemented; independent source review and copied-source regression checks PASS. Committed development packet/Git acceptance is pending. Native development execution NOT RUN.**
+October 12, 2026. **Separate controller/workflow implemented and committed. First native development trial completed FAIL; targeted source corrections are in progress. Hardware and visual acceptance remain NOT RUN.**
 The current initial job owns the reviewed four-package integration. These later
 stages use a separately reviewed source packet toward required R1–R5/M5–M9; their source tests
 do not establish native execution, full-port delivery, M2 compatibility or gains.
@@ -429,3 +429,128 @@ fresh-checkout preflight, then dispatch. Development sources and workflow are no
 **HELD at the recorded hashes**. Native development execution remains **NOT RUN**;
 virtual capture remains subject to visual review, and all hardware/performance/
 production/full-port gates remain open.
+
+Coordinator follow-up: the reviewed candidate `e37b732f…` was committed as
+`108302c`, retaining the historical initial `be5363`/159-source map. Coordinator
+fresh detached controller `--check-only` Git preflight and the complete
+143-test development suite are in progress at this update. The first broader
+trial is planned against the known initial repository FAIL; its aggregate must
+retain FAIL while reporting independently accepted base/installed-image consumer
+results. Current release-owner repository corrections are a subsequent coordinated
+initial-lock/development-packet update. This worker's 12 development modules and
+workflow remain held; no alternate initial or workflow predicate is substituted.
+
+Successor source correction: the coordinator accepted the pinned libalpm audit
+and assigned the repository-only launcher change. The fixed launch option now
+adds exactly `SYS_CHROOT`; no generic rootcap allowance or other stage launch was
+expanded. The actual repository command matches the owner's exact `0x400cb`
+effective/permitted/bounding contract, with zero inheritable/ambient and NNP=1.
+Peer review found no material defect. Worktree and copied suites each passed
+**334 CI/137 integration tests, zero skips**. The ephemeral successor initial
+candidate hashes to
+`9cfbd847bd2969aadf700b1ebb9943680b064b0ec6570726cdd9389aa31db0bb`, still
+159 sources/unchanged 125 fixtures; its copied preflight passed. Its complete
+receipt is `/tmp/cachy-repository-chroot-copied-atuj7npt/regression.json`.
+The original CI launcher/tests are held, and coordinator shared-lock adoption and
+211-file development packet rebind remain pending. The committed `108302c` packet
+continues to describe the historical `be5363` source map, not this successor.
+Corrected native repository execution remains NOT RUN.
+
+## First actual broader trial and virtual prerequisite diagnosis
+
+Coordinator-run **38218102399**, source
+`108302cff3d7be59800747773017cad688489904` and packet `e37b732f…`, completed
+**FAIL**. Its strict decoded public bundles are retained at
+`artifacts/ci/38218102399/development-decoded`. The authoritative aggregate
+preserves initial repository FAIL and independently records KSM PASS, ARM-C01
+FAIL, client FAIL and virtual NOT RUN. KSM completed its two native builds;
+ARM-C01 and the client case are assigned to their owners. Publication and final
+owned-image removal/absence passed. This is no full-port or hardware acceptance.
+
+The actual virtual adapter receipt reports `virtual-prerequisite-refused` with
+an empty prerequisite object; acquisition reports NOT COMPLETE with **zero input
+outcomes**. Inspection of its retained unsigned fixture archive rows and the
+committed-image verification rows reproduces the precise mismatch: all five
+original fields are equal for all four originals, while the verified rows also
+contain the TEST signer's `signature_sha256` annotation. The initial controller
+writes `fixtures-raw/archives.json` before `lifecycle()` annotates its in-memory
+rows during TEST signing. The adapter's exact equality compares the earlier
+unsigned rows with the later signed verification rows and refuses before network
+acquisition. The virtual owner independently requires its contract baseline to
+match the full signed verification rows, so dropping the annotation would merely
+move the refusal later.
+
+The local retained-JSON/source reproduction is
+`/tmp/cachy-virtual-prerequisite-38218102399-5u2ejp9l/reproduction.json`; it records
+all four row differences and evidence file hashes. It performs no native trial,
+Docker operation or network fetch. The correction is limited to the virtual
+adapter/tests: preserve the full signed baseline while independently binding
+all original fields, each detached-signature hash and signer archive/signature
+receipt; publish finite diagnostic codes/phases without exception contents.
+Ten other development Python files and the workflow still match their committed
+historical packet. The four corrected initial sources remain held pending
+coordinator acceptance and a separately reviewed combined packet rebind.
+
+## Virtual signed-baseline source correction checkpoint
+
+The corrected adapter keeps the full six-field signed baseline in the owner
+contract. It requires exact equality of all five original fixture fields and
+accepts only the `signature_sha256` annotation. Each annotation matches the
+bounded, singly-linked public signature submitted in `lifecycle-inputs`, the
+archive/signature pair in the TEST signer receipt, its exact primary VALIDSIG
+fingerprint and the controller's already accepted cached signer receipt. Missing
+cached authority, a substituted signature plus its recomputed annotation, changed
+original fields, extra fields, symlinks and private markers refuse. The existing
+actual 341/345 inventory, image/source, Config, READY and cleanup gates remain.
+This reconciles producer records; it performs no new cryptographic verification.
+
+The adapter now retains only exact finite refusal codes, with fixed fallbacks for
+arbitrary exception contents. Its phase is one of preflight, input-copy,
+acquisition, owner-execution, owner-receive or complete. Acquisition records
+explicit execution NOT RUN versus ATTEMPTED and planned input count, so an empty
+preflight receipt does not imply a transport failure. Per-input transport/hash
+failures retain fixed codes without URL/error text. ResourceWarning checks also
+confirm HTTP error response bodies are closed. The actual retained unsigned and
+signed rows, public RSA signature bytes and signer receipt are inline regression
+fixtures; tests do not depend on an `artifacts/` directory in a fresh checkout.
+
+**58 focused tests PASS, zero skips**, independently repeated at the stable hashes
+below with ResourceWarning treated as an error. Peer review found no remaining
+material blocker. The copied focused suite also passes. The first complete
+153-test worktree and copied runs each report **two failures and one error** in
+held ARM base-adapter tests:
+
+- `test_arm_success_uses_explicit_base_mode_and_retains_only_owner_public_bundles`
+- `test_cancelled_owner_still_retains_failure_and_propagates_for_initial_cleanup`
+- `test_recovery_rejects_private_accepted_text_even_with_updated_self_hash`
+
+A separate actual read-only `arm_lock(root)` call reproduces `arm-source-drift`.
+The ARM owner's in-flight `arm_c01.py` and `test_arm_c01.py` differ from the
+unchanged accepted `98617adc…` lock. The first two tests therefore never reach
+their mocked owner; the third subsequently has no `self.owner`. No held base
+adapter, test or source gate was changed to bypass this refusal. In the owned
+copy only, restoring those two files to accepted commit
+`108302cff3d7be59800747773017cad688489904` produces **153 full development tests
+PASS, zero skips**. This isolated compatibility proof does not certify the
+current in-flight shared ARM graph.
+
+| Held corrected virtual source | SHA-256 |
+| --- | --- |
+| `scripts/ci/development/virtual_stage.py` | `21d8a28c8da2e0aaf1a5d7780ce101ce11ad36894d81eed45d994b04126c4f6b` |
+| `scripts/ci/development/test_virtual_stage.py` | `903be792d8442d1c701bb14b91819dd52a02a9201be6407908e3919c6e1296f2` |
+
+Receipt/source-copy map and all test logs are retained at
+`/tmp/cachy-development-virtual-copied-pb5fpu70/`; the current full-suite log is
+`development-tests.txt` and the isolated accepted-ARM full-suite log is
+`development-accepted-arm-tests.txt`. Both virtual files are **HELD**. Ten other
+development Python files and the workflow match their committed historical
+packet; all 159 initial files match successor `9cfbd847…`.
+
+Coordinator adopted the initial successor and committed it as `a03c071` after
+independent 334 CI/137 integration tests and source review. Corrected initial
+run `38221511121` is in progress; no terminal result is supplied here. Historical
+broad packet `e37b732f…` remains stale for the current source graph. The coordinator
+must finish the ARM owner correction, freeze its compatible source envelope and
+rebind the combined packet before another broader trial. This worker performed
+no shared lock/Git/dispatch, Docker or network operation. The corrected virtual
+native trial and visual/hardware/performance acceptance remain **NOT RUN**.

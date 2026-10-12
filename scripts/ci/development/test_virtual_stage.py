@@ -17,6 +17,13 @@ sys.path.insert(0, str(HERE))
 import virtual_stage as v
 
 
+# Exact public baseline metadata/signatures from native run 38218102399.
+# Inline fixtures keep frozen tests independent of ignored artifact directories.
+ACTUAL_UNSIGNED_BASELINE = [{'archive': 'baseline/cachy-asahi-fish-config-0.1.0-1-any.pkg.tar.xz', 'name': 'cachy-asahi-fish-config', 'payload_sha256': {'usr/share/cachy-asahi/fish/config.fish': '223df59fe83948e1d83676f4571cd2d4ce186862adf1cc23da6d5bbd28370a1c', 'usr/share/licenses/cachy-asahi-fish-config/LICENSE': '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7', 'usr/share/licenses/cachy-asahi-fish-config/NOTICE': '19eb85ed65396056e59782ddf80fb5285ee26cad5ddf77ccb378936a2d5601c9'}, 'sha256': '22e6e3ca4f23b73434c4aed284016914652900c33e845516621c0eb8b176d64e', 'version': '0.1.0-1'}, {'archive': 'baseline/cachy-asahi-hyprland-settings-0.1.0-1-any.pkg.tar.xz', 'name': 'cachy-asahi-hyprland-settings', 'payload_sha256': {'usr/share/cachy-asahi/hyprland/hyprland.lua': 'f900ffbfdea86acc686299fd9ef88a235fb4822f7177afe75a43369ca48d158b', 'usr/share/cachy-asahi/hyprland/mako.conf': 'c6ab55ae475611bf2df2b7120b97a924eed5d65c149561d4da4f12b5b8c25504', 'usr/share/cachy-asahi/hyprland/waybar.css': 'a97930965a4e622adc920491c7d433a803173bb6e644c4c3c88efb79187e11d5', 'usr/share/cachy-asahi/hyprland/waybar.json': '4c7adb2deb0403fefc4562d39105635cebfc44ce88e44fe84c4a90a00b2be3c0', 'usr/share/doc/cachy-asahi-hyprland-settings/README.md': '3edac178cb92d6d06b21fe4832bbbce5f7a55ed4dde8925ac0815c5350e2c525', 'usr/share/licenses/cachy-asahi-hyprland-settings/LICENSE': '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7', 'usr/share/licenses/cachy-asahi-hyprland-settings/NOTICE': '7c108a66b5a4807f8fe7696ef1b1011386b37774fb94e674dd37c7e1dec7b9e4'}, 'sha256': '5d33320b55c2b3c778b94c128980c2d07d3fbcf466b3ab91ad8a706ff538ee81', 'version': '0.1.0-1'}, {'archive': 'baseline/cachy-asahi-setup-0.1.0-2-any.pkg.tar.xz', 'name': 'cachy-asahi-setup', 'payload_sha256': {'usr/bin/cachy-asahi-setup': 'a6251142b9c7e54796285c1a301fb590599d8aaa1625ea0bfebd7fc21622fdc2', 'usr/share/doc/cachy-asahi-setup/README.md': '434328ca04e757a2dc8bba78bea82c6ed52da64b139e88666a3ec2db52ba0e56', 'usr/share/licenses/cachy-asahi-setup/LICENSE': '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7', 'usr/share/licenses/cachy-asahi-setup/NOTICE': '2c28b96b5e4dca86c8a71aa0df728a049820d5951812f20241be96e7000d9744'}, 'sha256': '40e392b4af6485d8518993073c1fe643eda60053312aeb618dfa9a6c9bee3489', 'version': '0.1.0-2'}, {'archive': 'baseline/cachy-asahi-zsh-config-0.1.0-1-any.pkg.tar.xz', 'name': 'cachy-asahi-zsh-config', 'payload_sha256': {'usr/share/cachy-asahi/zsh/README.md': '19a9df455ad2c42b01eb184bdfb0b14402fe372e397fa91cc0ee28dd766bb65d', 'usr/share/cachy-asahi/zsh/config.zsh': '7639b938dca689c445b64cc307148e2d3f85c5399d51c8ce69072dcf835baa6f', 'usr/share/licenses/cachy-asahi-zsh-config/LICENSE': '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7', 'usr/share/licenses/cachy-asahi-zsh-config/NOTICE': '20f1a90870566d337745019d5c465db48e14a566df3222c48a3320dc441e4de8'}, 'sha256': '1bcb8e7fde6da28bc817f252bee5c7084cd22ec4153512eaf5bb47bd83e90faa', 'version': '0.1.0-1'}]
+ACTUAL_SIGNED_BASELINE = [{'archive': 'baseline/cachy-asahi-fish-config-0.1.0-1-any.pkg.tar.xz', 'name': 'cachy-asahi-fish-config', 'payload_sha256': {'usr/share/cachy-asahi/fish/config.fish': '223df59fe83948e1d83676f4571cd2d4ce186862adf1cc23da6d5bbd28370a1c', 'usr/share/licenses/cachy-asahi-fish-config/LICENSE': '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7', 'usr/share/licenses/cachy-asahi-fish-config/NOTICE': '19eb85ed65396056e59782ddf80fb5285ee26cad5ddf77ccb378936a2d5601c9'}, 'sha256': '22e6e3ca4f23b73434c4aed284016914652900c33e845516621c0eb8b176d64e', 'signature_sha256': '888c95b7b852ae820c41e4b96aa12b336f655e98b6984a03b4d60af39b66c22b', 'version': '0.1.0-1'}, {'archive': 'baseline/cachy-asahi-hyprland-settings-0.1.0-1-any.pkg.tar.xz', 'name': 'cachy-asahi-hyprland-settings', 'payload_sha256': {'usr/share/cachy-asahi/hyprland/hyprland.lua': 'f900ffbfdea86acc686299fd9ef88a235fb4822f7177afe75a43369ca48d158b', 'usr/share/cachy-asahi/hyprland/mako.conf': 'c6ab55ae475611bf2df2b7120b97a924eed5d65c149561d4da4f12b5b8c25504', 'usr/share/cachy-asahi/hyprland/waybar.css': 'a97930965a4e622adc920491c7d433a803173bb6e644c4c3c88efb79187e11d5', 'usr/share/cachy-asahi/hyprland/waybar.json': '4c7adb2deb0403fefc4562d39105635cebfc44ce88e44fe84c4a90a00b2be3c0', 'usr/share/doc/cachy-asahi-hyprland-settings/README.md': '3edac178cb92d6d06b21fe4832bbbce5f7a55ed4dde8925ac0815c5350e2c525', 'usr/share/licenses/cachy-asahi-hyprland-settings/LICENSE': '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7', 'usr/share/licenses/cachy-asahi-hyprland-settings/NOTICE': '7c108a66b5a4807f8fe7696ef1b1011386b37774fb94e674dd37c7e1dec7b9e4'}, 'sha256': '5d33320b55c2b3c778b94c128980c2d07d3fbcf466b3ab91ad8a706ff538ee81', 'signature_sha256': '3d90ca1056a8a4d924eef841554e53e5d390953c2c1afcf3aaa868c2e8ba2709', 'version': '0.1.0-1'}, {'archive': 'baseline/cachy-asahi-setup-0.1.0-2-any.pkg.tar.xz', 'name': 'cachy-asahi-setup', 'payload_sha256': {'usr/bin/cachy-asahi-setup': 'a6251142b9c7e54796285c1a301fb590599d8aaa1625ea0bfebd7fc21622fdc2', 'usr/share/doc/cachy-asahi-setup/README.md': '434328ca04e757a2dc8bba78bea82c6ed52da64b139e88666a3ec2db52ba0e56', 'usr/share/licenses/cachy-asahi-setup/LICENSE': '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7', 'usr/share/licenses/cachy-asahi-setup/NOTICE': '2c28b96b5e4dca86c8a71aa0df728a049820d5951812f20241be96e7000d9744'}, 'sha256': '40e392b4af6485d8518993073c1fe643eda60053312aeb618dfa9a6c9bee3489', 'signature_sha256': '9f0eca6793dd1793a5c2c855168c0204541b32d1362cbdcbdee77960c7258db9', 'version': '0.1.0-2'}, {'archive': 'baseline/cachy-asahi-zsh-config-0.1.0-1-any.pkg.tar.xz', 'name': 'cachy-asahi-zsh-config', 'payload_sha256': {'usr/share/cachy-asahi/zsh/README.md': '19a9df455ad2c42b01eb184bdfb0b14402fe372e397fa91cc0ee28dd766bb65d', 'usr/share/cachy-asahi/zsh/config.zsh': '7639b938dca689c445b64cc307148e2d3f85c5399d51c8ce69072dcf835baa6f', 'usr/share/licenses/cachy-asahi-zsh-config/LICENSE': '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7', 'usr/share/licenses/cachy-asahi-zsh-config/NOTICE': '20f1a90870566d337745019d5c465db48e14a566df3222c48a3320dc441e4de8'}, 'sha256': '1bcb8e7fde6da28bc817f252bee5c7084cd22ec4153512eaf5bb47bd83e90faa', 'signature_sha256': 'f14c777438033fa4852cd30fdfa43619040f4e24d9ca3b3a3eb75f051774da64', 'version': '0.1.0-1'}]
+ACTUAL_BASELINE_SIGNATURES = {'baseline/cachy-asahi-fish-config-0.1.0-1-any.pkg.tar.xz': b"\x89\x013\x04\x00\x01\x08\x00\x1d\x16!\x04R\xee\xbd\t\xed\x80M\xd5`\x82o\x82s\r7{\x03\xa6`D\x05\x02j\xcc\x8d|\x00\n\t\x10s\r7{\x03\xa6`D+i\x08\x00\xab\xff\xa8Q\x94\x97\x9b\x8e\xbb\x86\xea%\x90\x8b\xf0\xb7\xf7R\xda\x8b&\x03\x14\x9d2\x96w\xe5\xcf\x87\xed\x01\xb97\x91C-\xe6_\xbdz~\x80h$\xfdD\xc4)\xe7\xf9\x9b\xc2\xdb\x95\xc8\xbe`\xe7\x1e\x8f\xfe\x01TH'\x03\xeb\xa9F\x86\xc9\xa4O\x1c\xe7\xfb4\xf0\xe3\x0f\\\xff<(P\x08\xbd\xe1\xdd\xadf\xb2\x8a\xe6\x9dE\xea\x85\xa9\x8d\x94\n\x91c\xdd\xff\x89p\x0f \n\xb4\xe2Er\x95{\xd2GL\xf9\xe6\xb7\xc9\x8b\xd7\xba\xa47:&\xde\xd0jk\x8e\xd6\x01\xb6\xbe\xcb\xc8\xbf\xfak\xeb\x9d\xad\x15\xf0\x7fX\xfd'\x81\xf9\xe7\xbb\x89\x06$\x1a\x85\x99\x8dX\xee\xbeS\x8d\x00\xae\x0e\xb7\xe5\xb7\x85\xf5_=\xf7\xd31\xb0\xc3\x1a\xaf\x8a:%\x08}$\xfd\x02P\x1b\r\xaa`#S\xac\x12oFm\x84\xe2\xd25I\xc2NC\x88\xcf\x10\ne\xd8\xc3\xa8\xf5\xe6%\xf9V\xa6X\x1b\x90i[\x05\xa0\xcc\xa6\x7fB6*\xeb\xf8?\xbarS\x98W^\xab'RL", 'baseline/cachy-asahi-hyprland-settings-0.1.0-1-any.pkg.tar.xz': b'\x89\x013\x04\x00\x01\x08\x00\x1d\x16!\x04R\xee\xbd\t\xed\x80M\xd5`\x82o\x82s\r7{\x03\xa6`D\x05\x02j\xcc\x8d|\x00\n\t\x10s\r7{\x03\xa6`D\xe7(\x07\xfe+\xf3]\xc9\x12\x07\xc4[\x8e\xd8X\xb40\xe7 \xcb)6}\xd4b\\\x9e*\xd4\xc2\xb7\xa5?O\xac\x11@\x16\x06ZU\x04\xd8R\xd3\x012\xf7\x82\x83\xa1\x87\xcb\x11*\x1c\xb0q8hV\xb6\xe0\xca\xb8\xef\x93\xdep\x12Q\x90\x19\x010\x89\xc1:\xb0.\xe0M\x95/\x1a\x84\x19_\x8b\xb9\x86\xeb\x9c\x01X\xad\x01\xe6r\x12E8i\x1e,\xfd\x91\xdbU\xbf\xd5\xc0\xdd\xda\x0et\xc7\xfbT\xd7\xd4\xa4\xb4\x8flR\xfdtKB)\xf9\xb2\xcf]s4\x91\xd8S\xc4!Pn\xef\xd1\xe2\xa8\x06\xd5\x9aVj\xb8\xfd\xbf\xc2\x83\xc3S\xfas\xcc\xae\xc8\x1b\xbf>\n\x1cgk\xf7d\xc9ey\xd58\x04:\xed\r\x1b\xba\xd6eX\x91"\x82\x8cXt\x12X/jS\xf0\xbf\x82M\xa4\x1b\xd7\x8f\xe7\xaf\x10\'\xba/\\N\x98\xcf\x1b\xbe\x03\x18\x11\xfa8\xa8-\xb1\xff\xdd\x8d\xc4t\x88\xcd\xfc\x06=Q\xe7\x08\xf8NV[\xff\xb6\xbf\x7f_.4\x1e+\x84v\xd00]=\xaf', 'baseline/cachy-asahi-setup-0.1.0-2-any.pkg.tar.xz': b'\x89\x013\x04\x00\x01\x08\x00\x1d\x16!\x04R\xee\xbd\t\xed\x80M\xd5`\x82o\x82s\r7{\x03\xa6`D\x05\x02j\xcc\x8d|\x00\n\t\x10s\r7{\x03\xa6`Dx.\x08\x00\xa0]A(\x9f\x0c\xfc\xa1F\xe3\xb4Y\xd7\xb5)\x90\x07\xe6\xac\x19|\xf4"\x0eT\xaa\x02\xd3\xbe\x07!\xa05\\\x91\xb1\xf7\xf4I\xe9\x86\x8f\x17\x1d\xe2\x1e\xcb\x8e\x92\xa6\x7f\x84\x89\xe5\xf0>\xb9S\xef\x7f\x87\xda\xd9\x8a.I\xab\xb0\xac\xc8\xbcx\'\xf7b$\xe1\x91Z+\xe4\xcf\x18T\x98\x8a\r\x99dm\x81\xc0T\xc6\xb3\xedw\xe4\xdf\xab+f\x0c%\x06\xeaH\xc7\x1b\xae\x03\x9362\xf2\xfe"\xf4\x0f9\tG\x0b\xd8\x9a\xbb\x91\xec\xd9\x88\x95\x8c\xe1*\xde\xfb\xc5\xa0\xb4V?9o\xef",\xd4\xc1\r\x19\x8fm\xa8\x98*\x1ch\x15\xe7\xa4\xb6\x8f\x98f\xac\xd0\x9bjR\xa4\xc2\x93\xac\xcc\x90lJ\x0f\xd2&\xb7N\x93\x8c%\x90\xd3\xcb"\rNu;EY\xean\x1b<u\xde\xe4\xba\x1f\n\x162\x1f[\x9f\xf5\x05h\x93(Ma\xf9\xf6\xa1\x14\xc3\xbb\xc1L[\xd1\x98M\x99\xf9\xef_\x96\xa9V\xa5K\xae)T22/\xc8\xd9+n\xf1 \xef\xd1\xa6\xa3(\xd8', 'baseline/cachy-asahi-zsh-config-0.1.0-1-any.pkg.tar.xz': b'\x89\x013\x04\x00\x01\x08\x00\x1d\x16!\x04R\xee\xbd\t\xed\x80M\xd5`\x82o\x82s\r7{\x03\xa6`D\x05\x02j\xcc\x8d|\x00\n\t\x10s\r7{\x03\xa6`D\x9d\xbb\x07\xffG\x8d(\xc1\r\\\xeb\xfe\xfc\xef\x90\x18\x97>L\x8eV\xe9i\x1c\xe2 bc\x99\xc6F\xeb=0\xed\x88\x80HY\xdf\x10\xb7yXI\x0c\xb5"\t\xdbG \xb4\x99Z\x89\x11<\x98\xf6P\x82\x1e\xbb\xc5\xef\xcc\xe7\xaf\xd9y\xd6J\xfd\x19(\xfe\xe3M@\xec\xdb\xf0\x1c\x95\xediq\x18\xee5|\x06\xcc\x0f\x8c\xe4\x05\xa5\xd6}t\x1a\xa4P\xb2\xef\xe2\x89\xb5\xec`\x94\xc2l^\xe0m\xa0\x83\xccO\xf2\xbb\xc9~\\\x9a\xccj\xc6\x14\xc8{\xd3n@\x9b\x1f\x87#T\xabA\xd0?n\x12\xab=\xc4\xe0C\x03`\xca\xe6\xb1\x90\x1cgT\x94\x92h\x9a8\xf7|td^\xd8\x92DLZ\xbe\x0e\xbb\x01\x06\xf4\n\x02L\xd1t\xfc`B\xeb\xa0\xee46\x87f\xdc\x1e\xa3e\x01\xba2\x9a\xf0\x94\xf9\xa1\x06F\xe6\xfe\x14l\x81\xcb\xbe\x14\x06\xc4\xa3{\x95\xc4\x1d[\r\xfd\xcf\xa9\x16\x9e\xc9le\x8fk\t\x04.\x0fd5}\x91oy\x8ba[\xf3R\xf2\xf4?\x9a\xa9B'}
+ACTUAL_SIGNER_RECEIPT = {'contract': {'entry_sha256': '430a52245fb2adb6a6c9fb68ee256570ca1c5468863f5e0f3b04145e0d9dcf85', 'helpers_sha256': {'runner/native_arm.py': 'a8b6ed8971a38089a4499dcec605477c4e48d7a47c3de485d205f6a44678b898', 'scripts/checks/package_checks.py': 'e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8'}, 'image_id': 'sha256:a7989a21d249515b0f16d7a83118d698f4c67e35af6f5ae9274ec457c6664ef0', 'manifest_sha256': 'dff20c842fa3974004c035e4218a0a62047f2c015fb82ae198647cdc17a8abea', 'nonce': '396c355cccd6a190184f191a8c9d6f69', 'purpose': 'TEST-ONLY-integration-signatures', 'schema_version': 1}, 'expiry': 1791876860, 'fingerprint': '52EEBD09ED804DD560826F82730D377B03A66044', 'guard': {'arch': 'aarch64', 'capabilities': {'CapAmb': 0, 'CapBnd': 0, 'CapEff': 0, 'CapInh': 0, 'CapPrm': 0}, 'caps': 0, 'device_nodes': {'/dev/full': {'kind': 'char', 'major': 1, 'minor': 7}, '/dev/null': {'kind': 'char', 'major': 1, 'minor': 3}, '/dev/pts/ptmx': {'kind': 'char', 'major': 5, 'minor': 2}, '/dev/random': {'kind': 'char', 'major': 1, 'minor': 8}, '/dev/tty': {'kind': 'char', 'major': 5, 'minor': 0}, '/dev/urandom': {'kind': 'char', 'major': 1, 'minor': 9}, '/dev/zero': {'kind': 'char', 'major': 1, 'minor': 5}}, 'docker_marker': True, 'docker_socket': False, 'interfaces': ['lo'], 'mounts': {'/': {'fs': 'overlay', 'options': ['ro', 'relatime'], 'root': '/'}, '/dev': {'fs': 'tmpfs', 'options': ['rw', 'nosuid'], 'root': '/'}, '/dev/mqueue': {'fs': 'mqueue', 'options': ['rw', 'nosuid', 'nodev', 'noexec', 'relatime'], 'root': '/'}, '/dev/pts': {'fs': 'devpts', 'options': ['rw', 'nosuid', 'noexec', 'relatime'], 'root': '/'}, '/dev/shm': {'fs': 'tmpfs', 'options': ['rw', 'nosuid', 'nodev', 'noexec', 'relatime'], 'root': '/'}, '/etc/hostname': {'fs': 'ext4', 'options': ['ro', 'relatime'], 'root': '/var/lib/docker/containers/4825f1b658810d1dea9850bb132f12e6d8d2a348743db6ec847ce63eef9b3a06/hostname'}, '/etc/hosts': {'fs': 'ext4', 'options': ['ro', 'relatime'], 'root': '/var/lib/docker/containers/4825f1b658810d1dea9850bb132f12e6d8d2a348743db6ec847ce63eef9b3a06/hosts'}, '/etc/resolv.conf': {'fs': 'ext4', 'options': ['ro', 'relatime'], 'root': '/var/lib/docker/containers/4825f1b658810d1dea9850bb132f12e6d8d2a348743db6ec847ce63eef9b3a06/resolv.conf'}, '/inputs': {'fs': 'ext4', 'options': ['ro', 'relatime'], 'root': '/home/runner/work/_temp/development-evidence/integration/work/test-signatures/inputs'}, '/out': {'fs': 'ext4', 'options': ['rw', 'relatime'], 'root': '/home/runner/work/_temp/development-evidence/integration/work/test-signatures/public'}, '/proc': {'fs': 'proc', 'options': ['rw', 'nosuid', 'nodev', 'noexec', 'relatime'], 'root': '/'}, '/proc/acpi': {'fs': 'tmpfs', 'options': ['ro', 'relatime'], 'root': '/'}, '/proc/bus': {'fs': 'proc', 'options': ['ro', 'nosuid', 'nodev', 'noexec', 'relatime'], 'root': '/bus'}, '/proc/fs': {'fs': 'proc', 'options': ['ro', 'nosuid', 'nodev', 'noexec', 'relatime'], 'root': '/fs'}, '/proc/interrupts': {'fs': 'tmpfs', 'options': ['rw', 'nosuid'], 'root': '/null'}, '/proc/irq': {'fs': 'proc', 'options': ['ro', 'nosuid', 'nodev', 'noexec', 'relatime'], 'root': '/irq'}, '/proc/kcore': {'fs': 'tmpfs', 'options': ['rw', 'nosuid'], 'root': '/null'}, '/proc/keys': {'fs': 'tmpfs', 'options': ['rw', 'nosuid'], 'root': '/null'}, '/proc/latency_stats': {'fs': 'tmpfs', 'options': ['rw', 'nosuid'], 'root': '/null'}, '/proc/scsi': {'fs': 'tmpfs', 'options': ['ro', 'relatime'], 'root': '/'}, '/proc/sys': {'fs': 'proc', 'options': ['ro', 'nosuid', 'nodev', 'noexec', 'relatime'], 'root': '/sys'}, '/proc/sysrq-trigger': {'fs': 'proc', 'options': ['ro', 'nosuid', 'nodev', 'noexec', 'relatime'], 'root': '/sysrq-trigger'}, '/proc/timer_list': {'fs': 'tmpfs', 'options': ['rw', 'nosuid'], 'root': '/null'}, '/sys': {'fs': 'sysfs', 'options': ['ro', 'nosuid', 'nodev', 'noexec', 'relatime'], 'root': '/'}, '/sys/firmware': {'fs': 'tmpfs', 'options': ['ro', 'relatime'], 'root': '/'}, '/sys/fs/cgroup': {'fs': 'cgroup2', 'options': ['ro', 'nosuid', 'nodev', 'noexec', 'relatime'], 'root': '/'}, '/tmp': {'fs': 'tmpfs', 'options': ['rw', 'nosuid', 'nodev', 'relatime'], 'root': '/'}}, 'no_new_privs': 1, 'nonce': '396c355cccd6a190184f191a8c9d6f69', 'sockets': [], 'uid': 1001, 'user': 'alarm'}, 'hardware_status': 'NOT RUN', 'production_credentials_used': False, 'public_certificate_sha256': '40344cfa5a1ae6f53c3d275c1d3026c94e4e6b4ab66a4026e600169e0c86a597', 'purpose': 'TEST-ONLY-integration-signatures', 'signatures': {'baseline/cachy-asahi-fish-config-0.1.0-1-any.pkg.tar.xz': {'archive_sha256': '22e6e3ca4f23b73434c4aed284016914652900c33e845516621c0eb8b176d64e', 'signature_sha256': '888c95b7b852ae820c41e4b96aa12b336f655e98b6984a03b4d60af39b66c22b', 'status': '[GNUPG:] NEWSIG\n[GNUPG:] KEY_CONSIDERED 52EEBD09ED804DD560826F82730D377B03A66044 0\n[GNUPG:] SIG_ID NfOK0pXKniPdNqmcrSqrVj8Jr9E 2026-10-12 1791790460\n[GNUPG:] GOODSIG 730D377B03A66044 CACHY-ASAHI TEST ONLY 396c355cccd6a190184f191a8c9d6f69 <test-only@invalid.example>\n[GNUPG:] VALIDSIG 52EEBD09ED804DD560826F82730D377B03A66044 2026-10-12 1791790460 0 4 0 1 8 00 52EEBD09ED804DD560826F82730D377B03A66044\n[GNUPG:] TRUST_ULTIMATE 0 pgp\n'}, 'baseline/cachy-asahi-hyprland-settings-0.1.0-1-any.pkg.tar.xz': {'archive_sha256': '5d33320b55c2b3c778b94c128980c2d07d3fbcf466b3ab91ad8a706ff538ee81', 'signature_sha256': '3d90ca1056a8a4d924eef841554e53e5d390953c2c1afcf3aaa868c2e8ba2709', 'status': '[GNUPG:] NEWSIG\n[GNUPG:] KEY_CONSIDERED 52EEBD09ED804DD560826F82730D377B03A66044 0\n[GNUPG:] SIG_ID H3cOQIGxTsA7XqB7chf/OaIwN1Y 2026-10-12 1791790460\n[GNUPG:] GOODSIG 730D377B03A66044 CACHY-ASAHI TEST ONLY 396c355cccd6a190184f191a8c9d6f69 <test-only@invalid.example>\n[GNUPG:] VALIDSIG 52EEBD09ED804DD560826F82730D377B03A66044 2026-10-12 1791790460 0 4 0 1 8 00 52EEBD09ED804DD560826F82730D377B03A66044\n[GNUPG:] TRUST_ULTIMATE 0 pgp\n'}, 'baseline/cachy-asahi-setup-0.1.0-2-any.pkg.tar.xz': {'archive_sha256': '40e392b4af6485d8518993073c1fe643eda60053312aeb618dfa9a6c9bee3489', 'signature_sha256': '9f0eca6793dd1793a5c2c855168c0204541b32d1362cbdcbdee77960c7258db9', 'status': '[GNUPG:] NEWSIG\n[GNUPG:] KEY_CONSIDERED 52EEBD09ED804DD560826F82730D377B03A66044 0\n[GNUPG:] SIG_ID MMH8Y7o8zKtVS99XgsRRopV2h/E 2026-10-12 1791790460\n[GNUPG:] GOODSIG 730D377B03A66044 CACHY-ASAHI TEST ONLY 396c355cccd6a190184f191a8c9d6f69 <test-only@invalid.example>\n[GNUPG:] VALIDSIG 52EEBD09ED804DD560826F82730D377B03A66044 2026-10-12 1791790460 0 4 0 1 8 00 52EEBD09ED804DD560826F82730D377B03A66044\n[GNUPG:] TRUST_ULTIMATE 0 pgp\n'}, 'baseline/cachy-asahi-zsh-config-0.1.0-1-any.pkg.tar.xz': {'archive_sha256': '1bcb8e7fde6da28bc817f252bee5c7084cd22ec4153512eaf5bb47bd83e90faa', 'signature_sha256': 'f14c777438033fa4852cd30fdfa43619040f4e24d9ca3b3a3eb75f051774da64', 'status': '[GNUPG:] NEWSIG\n[GNUPG:] KEY_CONSIDERED 52EEBD09ED804DD560826F82730D377B03A66044 0\n[GNUPG:] SIG_ID v/zNZ/DJd6I/nL+JhfZ0oyqp5DE 2026-10-12 1791790460\n[GNUPG:] GOODSIG 730D377B03A66044 CACHY-ASAHI TEST ONLY 396c355cccd6a190184f191a8c9d6f69 <test-only@invalid.example>\n[GNUPG:] VALIDSIG 52EEBD09ED804DD560826F82730D377B03A66044 2026-10-12 1791790460 0 4 0 1 8 00 52EEBD09ED804DD560826F82730D377B03A66044\n[GNUPG:] TRUST_ULTIMATE 0 pgp\n'}, 'upgrade/cachy-asahi-fish-config-0.1.1-1-any.pkg.tar.xz': {'archive_sha256': 'dbda251c19cbab7d6e43cb73ff1c0d9399ef0fe24e445a445662b6a96c53650d', 'signature_sha256': 'fe924da36bc3fec70f35a0310a1c95e96ba651db66418dc4c5143821a631e832', 'status': '[GNUPG:] NEWSIG\n[GNUPG:] KEY_CONSIDERED 52EEBD09ED804DD560826F82730D377B03A66044 0\n[GNUPG:] SIG_ID NdUVayFjaDw4cawOqyQ30oJE7DQ 2026-10-12 1791790460\n[GNUPG:] GOODSIG 730D377B03A66044 CACHY-ASAHI TEST ONLY 396c355cccd6a190184f191a8c9d6f69 <test-only@invalid.example>\n[GNUPG:] VALIDSIG 52EEBD09ED804DD560826F82730D377B03A66044 2026-10-12 1791790460 0 4 0 1 8 00 52EEBD09ED804DD560826F82730D377B03A66044\n[GNUPG:] TRUST_ULTIMATE 0 pgp\n'}, 'upgrade/cachy-asahi-hyprland-settings-0.1.1-1-any.pkg.tar.xz': {'archive_sha256': 'f4e77696d566cf93222a663e930cf5ede81acaa8b95d1293ec0db017a1cc24b6', 'signature_sha256': '9f27b5d212c4b63ed62bd449193af72af4c5de95db06a53461bc559ac726d669', 'status': '[GNUPG:] NEWSIG\n[GNUPG:] KEY_CONSIDERED 52EEBD09ED804DD560826F82730D377B03A66044 0\n[GNUPG:] SIG_ID GzHJRXhbG0iJnqNgni1PC69E5HE 2026-10-12 1791790460\n[GNUPG:] GOODSIG 730D377B03A66044 CACHY-ASAHI TEST ONLY 396c355cccd6a190184f191a8c9d6f69 <test-only@invalid.example>\n[GNUPG:] VALIDSIG 52EEBD09ED804DD560826F82730D377B03A66044 2026-10-12 1791790460 0 4 0 1 8 00 52EEBD09ED804DD560826F82730D377B03A66044\n[GNUPG:] TRUST_ULTIMATE 0 pgp\n'}, 'upgrade/cachy-asahi-setup-0.1.1-1-any.pkg.tar.xz': {'archive_sha256': 'f546668d61d11925c91d228588ab3b8e480cd88db5262a74d61974e6db176c6a', 'signature_sha256': 'ac8d59805dc65e91a4517ab9902c078d69c5d8c844577516023147cdfe949972', 'status': '[GNUPG:] NEWSIG\n[GNUPG:] KEY_CONSIDERED 52EEBD09ED804DD560826F82730D377B03A66044 0\n[GNUPG:] SIG_ID nHyGuXl2WfFDvte/xG4mRHbgXR8 2026-10-12 1791790460\n[GNUPG:] GOODSIG 730D377B03A66044 CACHY-ASAHI TEST ONLY 396c355cccd6a190184f191a8c9d6f69 <test-only@invalid.example>\n[GNUPG:] VALIDSIG 52EEBD09ED804DD560826F82730D377B03A66044 2026-10-12 1791790460 0 4 0 1 8 00 52EEBD09ED804DD560826F82730D377B03A66044\n[GNUPG:] TRUST_ULTIMATE 0 pgp\n'}, 'upgrade/cachy-asahi-zsh-config-0.1.1-1-any.pkg.tar.xz': {'archive_sha256': 'b418d410a7c2ffa65b2a31c3546d18b976ea7b2ca2f7e3d7074c95389f317083', 'signature_sha256': 'ac604a7061b5f35c7ff9216ea4e4e4a5891c7c9da2860562930311610e851f06', 'status': '[GNUPG:] NEWSIG\n[GNUPG:] KEY_CONSIDERED 52EEBD09ED804DD560826F82730D377B03A66044 0\n[GNUPG:] SIG_ID sO0vZ6I4MiIerKGrf1RcbiLIGBs 2026-10-12 1791790460\n[GNUPG:] GOODSIG 730D377B03A66044 CACHY-ASAHI TEST ONLY 396c355cccd6a190184f191a8c9d6f69 <test-only@invalid.example>\n[GNUPG:] VALIDSIG 52EEBD09ED804DD560826F82730D377B03A66044 2026-10-12 1791790460 0 4 0 1 8 00 52EEBD09ED804DD560826F82730D377B03A66044\n[GNUPG:] TRUST_ULTIMATE 0 pgp\n'}}, 'status': 'TEST-SIGNATURES PASS'}
+
 def sha(data):
     return hashlib.sha256(data).hexdigest()
 
@@ -44,9 +51,25 @@ class VirtualStage(unittest.TestCase):
         for name in sorted(v.OVERLAYS):
             data = name.encode(); archive = 'baseline/' + name + '-1-1-any.pkg.tar.zst'
             self.rows.append({'name': name, 'version': '1-1', 'archive': archive, 'sha256': sha(data),
-                              'payload_sha256': {'usr/share/' + name + '/setting': sha(data)}, 'original_extra': 'retained'})
+                              'payload_sha256': {'usr/share/' + name + '/setting': sha(data)}})
             self.put(self.work / 'archive-inputs' / archive, data)
         self.put_json(self.work / 'fixtures-raw/archives.json', {'baseline': self.rows})
+        self.signed_rows = copy.deepcopy(self.rows)
+        for row in self.signed_rows:
+            data = b'\xc2\x01\x04' + row['name'].encode()
+            row['signature_sha256'] = sha(data)
+            self.put(self.work / 'lifecycle-inputs' / (row['archive'] + '.sig'), data)
+        fingerprint = 'A' * 40
+        status = '[GNUPG:] VALIDSIG ' + fingerprint + ' 2026-10-12 123 456 4 0 1 8 00 ' + fingerprint
+        self.signer_receipt = {'status': 'TEST-SIGNATURES PASS', 'purpose': 'TEST-ONLY-integration-signatures',
+            'production_credentials_used': False, 'hardware_status': 'NOT RUN', 'fingerprint': fingerprint,
+            'contract': {'image_id': self.c.image}, 'signatures': {}}
+        for row in self.signed_rows:
+            record = {'archive_sha256': row['sha256'], 'signature_sha256': row['signature_sha256'], 'status': status}
+            self.signer_receipt['signatures'][row['archive']] = record
+            self.signer_receipt['signatures'][row['archive'].replace('baseline/', 'upgrade/')] = record.copy()
+        self.put_json(self.work / 'signer-raw/test-signature-receipt.json', self.signer_receipt)
+        self.c.sign_receipt = copy.deepcopy(self.signer_receipt)
         self.versions = {r['name']: r['version'] for r in self.rows}
         self.payload = {r['name']: r['payload_sha256'] for r in self.rows}
         self.handoff = self.work / 'lifecycle-raw'
@@ -68,7 +91,7 @@ class VirtualStage(unittest.TestCase):
             'accepted_base_config': {'Entrypoint': [], 'Labels': {}}, 'committed_config': {'Entrypoint': [], 'Labels': {}},
             'test_identity_in_image_env': False})
         self.put_json(self.handoff / 'committed-image/result.json', {'status': 'PASS', 'image_id': self.c.installed,
-            'source_commit': self.c.commit, 'baseline': self.rows,
+            'source_commit': self.c.commit, 'baseline': self.signed_rows,
             'installed_packages_sha256': v.digest(self.handoff / 'installed-packages.lock')})
         self.owner = self.root / 'scripts/virtual'; self.owner.mkdir(parents=True)
         self.blob_data = {}
@@ -127,7 +150,7 @@ class VirtualStage(unittest.TestCase):
         self.assertEqual(argv[1], '-B')
         contract_path = Path(argv[argv.index('--contract') + 1]); contract = v.read_json(contract_path)
         self.assertEqual(argv[argv.index('--contract-sha256') + 1], v.digest(contract_path))
-        self.assertEqual(contract['baseline'], self.rows)
+        self.assertEqual(contract['baseline'], self.signed_rows)
         self.assertEqual(set(contract['files']), v.ALIASES)
         self.assertEqual(len(list((contract_path.parent / 'tooling-cache').iterdir())), 41)
         out = Path(argv[argv.index('--output') + 1]); out.mkdir()
@@ -199,6 +222,118 @@ class VirtualStage(unittest.TestCase):
             stream.write(b"LOCK_PIN = '" + b'0' * 64 + b"'\n")
         self.c.virtual_packet_sha256['controller.py'] = v.digest(self.owner / 'controller.py')
         self.assert_prerequisite_refused()
+
+    def test_producer_signed_annotations_preserved_in_contract(self):
+        self.assertNotEqual(self.rows, self.signed_rows)
+        result = self.run_adapter()
+        self.assertEqual(result['status'], 'PASS')
+        contract = v.read_json(self.output / 'inputs/controller-contract.json')
+        self.assertEqual(contract['baseline'], self.signed_rows)
+        self.assertTrue(all('signature_sha256' in row for row in contract['baseline']))
+        self.assertEqual(result['phase'], 'complete')
+        acquisition = v.read_json(self.output / 'adapter-status/acquisition.json')
+        self.assertEqual(acquisition['execution'], 'ATTEMPTED'); self.assertEqual(acquisition['planned_inputs'], 41)
+
+    def test_actual_retained_unsigned_vs_signed_rows_and_signature_bytes_bind(self):
+        self.assertNotEqual(ACTUAL_UNSIGNED_BASELINE, ACTUAL_SIGNED_BASELINE)
+        for name, data in ACTUAL_BASELINE_SIGNATURES.items():
+            self.put(self.work / 'lifecycle-inputs' / (name + '.sig'), data)
+        self.put_json(self.work / 'signer-raw/test-signature-receipt.json', ACTUAL_SIGNER_RECEIPT)
+        observed = v.signed_baseline(ACTUAL_UNSIGNED_BASELINE, ACTUAL_SIGNED_BASELINE, self.work, ACTUAL_SIGNER_RECEIPT['contract']['image_id'], ACTUAL_SIGNER_RECEIPT)
+        self.assertEqual(observed, ACTUAL_SIGNED_BASELINE)
+        self.assertEqual([row['payload_sha256'] for row in observed], [row['payload_sha256'] for row in ACTUAL_UNSIGNED_BASELINE])
+        self.fetch.assert_not_called(); self.command.assert_not_called()
+
+    def test_signed_original_version_archive_hash_payload_or_extra_drift_refused(self):
+        path = self.handoff / 'committed-image/result.json'; original = v.read_json(path)
+        changes = [lambda row: row.update(version='2-1'), lambda row: row.update(archive='baseline/other.pkg.tar.xz'),
+                   lambda row: row.update(sha256='0' * 64), lambda row: row['payload_sha256'].clear(),
+                   lambda row: row.update(extra='unreviewed')]
+        for change in changes:
+            value = copy.deepcopy(original); change(value['baseline'][0]); self.put_json(path, value)
+            result = self.assert_prerequisite_refused()
+            self.assertEqual(result['error_code'], 'signed-baseline-original-binding-refused')
+            self.assertEqual(result['phase'], 'preflight')
+            acquisition = v.read_json(self.output / 'adapter-status/acquisition.json')
+            self.assertEqual(acquisition['inputs'], []); self.assertEqual(acquisition['execution'], 'NOT RUN')
+            self.assertEqual(acquisition['planned_inputs'], 0)
+            shutil.rmtree(self.output)
+
+    def test_forged_signature_annotation_missing_pin_or_changed_blob_refused(self):
+        path = self.handoff / 'committed-image/result.json'; original = v.read_json(path)
+        for value, expected in [('0' * 64, 'signed-baseline-signer-archive-binding-refused'),
+                                ('bad', 'signed-baseline-signer-archive-binding-refused')]:
+            altered = copy.deepcopy(original); altered['baseline'][0]['signature_sha256'] = value; self.put_json(path, altered)
+            self.assertEqual(self.assert_prerequisite_refused()['error_code'], expected)
+            shutil.rmtree(self.output)
+        self.put_json(path, original)
+        self.put(self.work / 'lifecycle-inputs' / (self.rows[0]['archive'] + '.sig'), b'\xc2\x01\x05changed')
+        self.assertEqual(self.assert_prerequisite_refused()['error_code'], 'signed-baseline-signature-binding-refused')
+
+    def test_missing_cached_signer_authority_refused_before_acquisition(self):
+        del self.c.sign_receipt
+        result = self.assert_prerequisite_refused()
+        self.assertEqual(result['error_code'], 'signed-baseline-cached-signer-authority-required')
+        self.assertEqual(result['phase'], 'preflight')
+        self.assertEqual(v.read_json(self.output / 'adapter-status/acquisition.json')['execution'], 'NOT RUN')
+
+    def test_substituted_signature_blob_and_rehashed_annotation_cannot_bypass_signer_receipt(self):
+        path = self.work / 'lifecycle-inputs' / (self.rows[0]['archive'] + '.sig')
+        changed = b'\xc2\x01\x04substituted'
+        self.put(path, changed)
+        self.mutate(self.handoff / 'committed-image/result.json', lambda x: x['baseline'][0].update(signature_sha256=sha(changed)))
+        self.assertEqual(self.assert_prerequisite_refused()['error_code'], 'signed-baseline-signer-archive-binding-refused')
+
+    def test_wrong_signer_image_status_archive_validsig_or_cached_receipt_refused(self):
+        path = self.work / 'signer-raw/test-signature-receipt.json'; original = v.read_json(path)
+        for mutation, expected in [(lambda x: x['contract'].update(image_id='sha256:' + '0' * 64), 'signed-baseline-signer-receipt-refused'),
+                                   (lambda x: x.update(status='PASS'), 'signed-baseline-signer-receipt-refused'),
+                                   (lambda x: x['signatures'][self.rows[0]['archive']].update(archive_sha256='0' * 64), 'signed-baseline-signer-archive-binding-refused'),
+                                   (lambda x: x['signatures'][self.rows[0]['archive']].update(status='[GNUPG:] BADSIG bad'), 'signed-baseline-signer-status-refused')]:
+            value = copy.deepcopy(original); mutation(value); self.put_json(path, value)
+            self.c.sign_receipt = copy.deepcopy(value)
+            self.assertEqual(self.assert_prerequisite_refused()['error_code'], expected)
+            shutil.rmtree(self.output)
+        self.put_json(path, original)
+        self.c.sign_receipt = {**original, 'expiry': 1}
+        self.assertEqual(self.assert_prerequisite_refused()['error_code'], 'signed-baseline-cached-signer-receipt-refused')
+
+    def test_signed_signature_symlink_and_private_marker_refused_before_acquisition(self):
+        path = self.work / 'lifecycle-inputs' / (self.rows[0]['archive'] + '.sig'); data = path.read_bytes()
+        path.unlink(); path.symlink_to(self.base / 'absent')
+        self.assert_prerequisite_refused(); shutil.rmtree(self.output); path.unlink()
+        self.put(path, b'-----BEGIN PGP PRIVATE KEY BLOCK-----')
+        self.assertEqual(self.assert_prerequisite_refused()['error_code'], 'signed-baseline-public-signature-required')
+
+    def test_diagnostics_allow_exact_fixed_codes_only_never_embedded_exception_text(self):
+        fallback = 'virtual-prerequisite-refused'
+        code = 'signed-baseline-signature-binding-refused'
+        self.assertEqual(v.diagnostic(ValueError(code), fallback), code)
+        for value in ('prefix ' + code + ' password=private', code + ': password=private', 'Bearer private-value'):
+            self.assertEqual(v.diagnostic(ValueError(value), fallback), fallback)
+        with patch.object(v, 'preflight', side_effect=ValueError(code + ': password=private')):
+            result = self.run_adapter()
+        self.assertEqual(result['error_code'], fallback)
+        self.assertNotIn('password', (self.output / 'adapter-status/result.json').read_text())
+        self.assertEqual(v.read_json(self.output / 'adapter-status/acquisition.json')['execution'], 'NOT RUN')
+
+    def test_acquisition_http_and_pin_refusals_retain_fixed_transport_codes(self):
+        def fetch(row, cache, deadline):
+            if row['filename'] == 'archlinuxarm.gpg':
+                raise v.urllib.error.HTTPError(row['url'], 503, 'password=never-retain', {}, None)
+            if row['filename'] == 'archlinuxarm-trusted':
+                raise ValueError('tooling-pin-differs')
+            return self.mock_fetch(row, cache)
+        self.fetch.side_effect = fetch
+        result = self.run_adapter(); self.assertEqual(result['status'], 'FAIL')
+        self.assertEqual(result['phase'], 'acquisition'); self.assertEqual(result['error_code'], 'tooling-acquisition-failed')
+        receipt = v.read_json(self.output / 'adapter-status/acquisition.json')
+        self.assertEqual(receipt['execution'], 'ATTEMPTED'); self.assertEqual(receipt['planned_inputs'], 41)
+        records = {row['filename']: row for row in receipt['inputs']}
+        self.assertEqual(records['archlinuxarm.gpg']['error_code'], 'tooling-http-failed')
+        self.assertEqual(records['archlinuxarm.gpg']['http_status'], 503)
+        self.assertEqual(records['archlinuxarm-trusted']['error_code'], 'tooling-pin-differs')
+        self.assertNotIn('password', json.dumps(receipt))
 
     def test_lifecycle_failure_refuses_without_fetch(self):
         self.c.report['stages']['lifecycle']['status'] = 'FAIL'; self.assert_prerequisite_refused()

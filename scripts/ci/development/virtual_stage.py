@@ -19,6 +19,7 @@ import stat
 import tempfile
 import time
 import urllib.request
+import urllib.error
 from urllib.parse import urlsplit
 
 from common import (base_prerequisite, command, copy_pinned, digest, read_json,
@@ -46,6 +47,127 @@ GATES = {'successful-lifecycle-handoff', 'lifecycle-receipt-binding', 'exact-bas
 PIN = re.compile(r'[0-9a-f]{64}\Z')
 NAME = re.compile(r'[a-zA-Z0-9][a-zA-Z0-9@._+\-]*\Z')
 VERSION = re.compile(r'[a-zA-Z0-9][a-zA-Z0-9:._+~\-]*\Z')
+
+
+DIAGNOSTIC_CODES = {
+    'accepted-source-commit-required',
+    'actual-bootstrap-binding-required',
+    'actual-builder-required',
+    'actual-installed-image-required',
+    'authenticated-base-binding-refused',
+    'bounded-guest-event-list-required',
+    'clean-handoff-gates-required',
+    'clean-handoff-receipt-required',
+    'committed-config-binding-refused',
+    'committed-verification-binding-refused',
+    'complete-guest-event-protocol-required',
+    'copy-changed',
+    'copy-pin-differs',
+    'duplicate-guest-event-field',
+    'duplicate-json-field',
+    'empty-package-inventory',
+    'exact-345-baseline-required',
+    'exact-authenticated-341-base-required',
+    'exact-key-inputs-required',
+    'exact-tooling-inputs-required',
+    'existing-safe-cache-required',
+    'finite-command-bounds-required',
+    'frame-binding-refused',
+    'frame-content-refused',
+    'frame-copy-drift',
+    'frame-format-refused',
+    'full-pin-required',
+    'guest-boot-identity-refused',
+    'guest-command-event-refused',
+    'guest-completion-event-refused',
+    'guest-event-kind-refused',
+    'guest-event-nonce-refused',
+    'guest-event-object-required',
+    'guest-event-order-or-completeness-refused',
+    'guest-events-binding-refused',
+    'guest-frame-event-refused',
+    'guest-gbm-identity-refused',
+    'guest-phase-event-refused',
+    'guest-session-frame-proof-refused',
+    'guest-session-log-binding-refused',
+    'guest-session-log-event-refused',
+    'guest-software-gbm-proof-refused',
+    'input-changed',
+    'input-hash-bound-exceeded',
+    'input-parent-invalid',
+    'input-path-invalid',
+    'input-pin-differs',
+    'installed-image-binding-refused',
+    'invalid-package-inventory',
+    'json-object-required',
+    'lifecycle-handoff-required',
+    'native-original-builds-required',
+    'new-safe-output-required',
+    'nonfinite-guest-event',
+    'nonfinite-json',
+    'original-archive-drift',
+    'original-archive-invalid',
+    'original-four-baseline-required',
+    'original-lifecycle-binding-refused',
+    'original-payload-invalid',
+    'output-boundary-overlap',
+    'private-guest-session-log-refused',
+    'regular-bounded-input-required',
+    'reviewed-tooling-audit-required',
+    'signed-baseline-cached-signer-authority-required',
+    'signed-baseline-cached-signer-receipt-refused',
+    'signed-baseline-original-binding-refused',
+    'signed-baseline-public-signature-required',
+    'signed-baseline-required',
+    'signed-baseline-signature-binding-refused',
+    'signed-baseline-signature-pin-refused',
+    'signed-baseline-signer-archive-binding-refused',
+    'signed-baseline-signer-receipt-refused',
+    'signed-baseline-signer-status-refused',
+    'stage-deadline-exceeded',
+    'stage-log-bound-exceeded',
+    'tooling-acquisition-deadline',
+    'tooling-acquisition-failed',
+    'tooling-cache-collision',
+    'tooling-cache-drift',
+    'tooling-http-failed',
+    'tooling-input-invalid',
+    'tooling-insecure-redirect',
+    'tooling-origin-refused',
+    'tooling-pin-differs',
+    'tooling-size-differs',
+    'tooling-total-bound-exceeded',
+    'tooling-transport-failed',
+    'tooling-transport-timeout',
+    'unknown-guest-event-fields-refused',
+    'unsafe-input-name',
+    'virtual-capture-evidence-required',
+    'virtual-complete-owned-cleanup-required',
+    'virtual-guest-proof-binding-refused',
+    'virtual-input-unavailable',
+    'virtual-owner-acceptance-failed',
+    'virtual-owner-binding-refused',
+    'virtual-owner-constants-differ',
+    'virtual-public-export-refused',
+    'virtual-source-packet-drift',
+    'virtual-source-packet-not-accepted',
+    'virtual-stage-receipts-required',
+}
+
+
+def diagnostic(error, fallback):
+    """Only exact fixed codes survive; exception text is never a diagnostic."""
+    if isinstance(error, urllib.error.HTTPError):
+        return 'tooling-http-failed'
+    if isinstance(error, TimeoutError):
+        return 'tooling-transport-timeout'
+    if isinstance(error, urllib.error.URLError):
+        return 'tooling-transport-failed'
+    if isinstance(error, OSError):
+        return 'virtual-input-unavailable'
+    if isinstance(error, ValueError) and len(error.args) == 1 and isinstance(error.args[0], str) and error.args[0] in DIAGNOSTIC_CODES:
+        return error.args[0]
+    return fallback
 
 
 def relative(value):
@@ -98,6 +220,43 @@ def source_packet(controller, root):
     return accepted, declarations
 
 
+def signed_baseline(rows, observed, work, image, expected_receipt):
+    """Accept only the lifecycle producer's verified signature annotation."""
+    require(isinstance(expected_receipt, dict) and expected_receipt, 'signed-baseline-cached-signer-authority-required')
+    receipt = read_json(Path(work) / 'signer-raw/test-signature-receipt.json')
+    require(receipt.get('status') == 'TEST-SIGNATURES PASS' and receipt.get('purpose') == 'TEST-ONLY-integration-signatures' and
+            receipt.get('production_credentials_used') is False and receipt.get('hardware_status') == 'NOT RUN' and
+            receipt.get('contract', {}).get('image_id') == image and
+            isinstance(receipt.get('signatures'), dict) and len(receipt['signatures']) == 8 and
+            re.fullmatch(r'[0-9A-F]{40}', receipt.get('fingerprint', '')),
+            'signed-baseline-signer-receipt-refused')
+    require(receipt == expected_receipt, 'signed-baseline-cached-signer-receipt-refused')
+    core = {'name', 'version', 'archive', 'sha256', 'payload_sha256'}
+    require(isinstance(observed, list) and len(observed) == len(rows) == 4, 'signed-baseline-required')
+    for original, signed in zip(rows, observed):
+        require(isinstance(original, dict) and set(original) == core and isinstance(signed, dict) and
+                set(signed) == core | {'signature_sha256'} and {k: signed[k] for k in core} == original,
+                'signed-baseline-original-binding-refused')
+        pin = signed['signature_sha256']
+        record = receipt['signatures'].get(original['archive'])
+        require(isinstance(record, dict) and set(record) == {'archive_sha256', 'signature_sha256', 'status'} and
+                record['archive_sha256'] == original['sha256'] and record['signature_sha256'] == pin and
+                isinstance(record['status'], str), 'signed-baseline-signer-archive-binding-refused')
+        statuses = [line.split()[1:] for line in record['status'].splitlines() if line.startswith('[GNUPG:] ')]
+        valid = [r for r in statuses if r and r[0] == 'VALIDSIG']
+        require(len(valid) == 1 and len(valid[0]) == 11 and valid[0][1] == valid[0][-1] == receipt['fingerprint'] and
+                not any(r and r[0] in ('EXPSIG', 'EXPKEYSIG', 'REVKEYSIG', 'BADSIG', 'ERRSIG', 'NO_PUBKEY') for r in statuses),
+                'signed-baseline-signer-status-refused')
+        require(isinstance(pin, str) and PIN.fullmatch(pin), 'signed-baseline-signature-pin-refused')
+        path = Path(work) / 'lifecycle-inputs' / (relative(original['archive']) + '.sig')
+        data = read_regular(path, 8192)
+        require(data and b'PRIVATE KEY' not in data and data[0] & 128 and
+                (data[0] & 63 if data[0] & 64 else (data[0] >> 2) & 15) == 2,
+                'signed-baseline-public-signature-required')
+        require(hashlib.sha256(data).hexdigest() == pin, 'signed-baseline-signature-binding-refused')
+    return observed
+
+
 def preflight(controller, root):
     accepted, constants = source_packet(controller, root)
     prerequisite = base_prerequisite(controller)
@@ -146,8 +305,9 @@ def preflight(controller, root):
             committed.get('accepted_base_config') == committed.get('committed_config') and
             committed.get('test_identity_in_image_env') is False, 'committed-config-binding-refused')
     require(verified.get('status') == 'PASS' and verified.get('image_id') == controller.installed and
-            verified.get('source_commit') == source and verified.get('baseline') == rows and
+            verified.get('source_commit') == source and
             verified.get('installed_packages_sha256') == hashes['installed_lock'], 'committed-verification-binding-refused')
+    signed_rows = signed_baseline(rows, verified.get('baseline'), work, controller.image, getattr(controller, 'sign_receipt', None))
     require(receipt.get('status') == 'READY' and receipt.get('purpose') == 'sanitized-baseline-image-handoff' and
             receipt.get('source_commit') == source and receipt.get('package_versions') == versions and
             receipt.get('payload_sha256') == payload and receipt.get('installed_package_count') == 345 and
@@ -184,7 +344,7 @@ def preflight(controller, root):
                 'installed_image_id': controller.installed, 'source_commit': controller.commit,
                 'baseline_source_commit': source, 'core_sha256': constants['CORE'],
                 'audit_tooling_sha256': constants['AUDITOR_PIN'], 'controller_sha256': accepted['controller.py'],
-                'baseline': rows, 'files': {n: {'path': 'metadata/' + n + paths[n].suffix, 'sha256': hashes[n]} for n in paths},
+                'baseline': signed_rows, 'files': {n: {'path': 'metadata/' + n + paths[n].suffix, 'sha256': hashes[n]} for n in paths},
                 'cache_dir': 'tooling-cache'}
     prerequisite.update(installed_image_id=controller.installed, installed_package_count=345,
                         baseline_source_commit=source, virtual_source_packet='PASS', tooling_audit='PASS')
@@ -303,8 +463,17 @@ def acquire(root, cache, inputs, blobs, receipts):
                     complete = True
                 except AcquisitionDeadline:
                     receipts.append({'filename': row['filename'], 'status': 'FAIL', 'error_code': 'tooling-acquisition-deadline'})
-                except Exception:
-                    receipts.append({'filename': row['filename'], 'status': 'FAIL', 'error_code': 'tooling-acquisition-failed'})
+                except Exception as error:
+                    if isinstance(error, urllib.error.HTTPError):
+                        try:
+                            error.close()
+                        except OSError:
+                            pass
+                    code = diagnostic(error, 'tooling-acquisition-failed')
+                    record = {'filename': row['filename'], 'status': 'FAIL', 'error_code': code}
+                    if isinstance(error, urllib.error.HTTPError) and type(error.code) is int and 100 <= error.code <= 599:
+                        record['http_status'] = error.code
+                    receipts.append(record)
                 finally:
                     if not complete and not existed:
                         target.unlink(missing_ok=True)
@@ -546,33 +715,38 @@ def run_virtual(controller, root, output, cache):
         require(not output.is_relative_to(other) and not other.is_relative_to(output), 'output-boundary-overlap')
     output.mkdir(mode=0o700, parents=True)
     status = output / 'adapter-status'; status.mkdir(mode=0o700)
-    result = {'status': 'NOT RUN', 'prerequisite': {}, 'public': [], 'hardware_validation': 'NOT RUN',
+    result = {'status': 'NOT RUN', 'phase': 'preflight', 'prerequisite': {}, 'public': [], 'hardware_validation': 'NOT RUN',
               'performance_acceptance': 'NOT RUN', 'visual_review': 'NOT RUN', 'selected_for_release': False}
-    acquisitions, contract, launched = [], None, False
+    acquisitions, contract, launched, acquisition_started = [], None, False, False
     try:
         if not getattr(controller, 'virtual_packet_sha256', None):
             result['error_code'] = 'virtual-source-packet-not-accepted'
             return result
         result['prerequisite'], contract, paths, blobs = preflight(controller, root)
-        result['status'] = 'FAIL'
+        result.update(status='FAIL', phase='input-copy')
         inputs = output / 'inputs'; inputs.mkdir(mode=0o700)
         for alias, path in paths.items():
             item = contract['files'][alias]
             copy_pinned(path, inputs / item['path'], item['sha256'])
         for row in contract['baseline']:
             copy_pinned(Path(controller.work) / 'archive-inputs' / row['archive'], inputs / row['archive'], row['sha256'], BLOB_LIMIT)
+        result['phase'] = 'acquisition'
+        acquisition_started = True
         acquire(root, cache, inputs, blobs, acquisitions)
         save(inputs / 'controller-contract.json', contract)
+        result['phase'] = 'owner-execution'
         launched = True
         code = command([sys.executable, '-B', root / 'scripts/virtual/controller.py', '--contract',
                         inputs / 'controller-contract.json', '--contract-sha256', digest(inputs / 'controller-contract.json'),
                         '--output', output / 'owner-public'], output / 'private-launcher.log', OWNER_TIMEOUT)
+        result['phase'] = 'owner-receive'
         receive(root, output, contract, code, result)
+        result['phase'] = 'complete'
     except KeyboardInterrupt:
         result.update(status='FAIL', error_code='cancelled')
         raise
-    except Exception:
-        result['error_code'] = 'virtual-prerequisite-refused' if result['status'] == 'NOT RUN' else 'virtual-stage-failed'
+    except Exception as error:
+        result['error_code'] = diagnostic(error, 'virtual-prerequisite-refused' if result['status'] == 'NOT RUN' else 'virtual-stage-failed')
     finally:
         # Repeated TERM/INT cannot escape before cleanup/status evidence is sealed.
         with defer_finalization() as events:
@@ -588,6 +762,7 @@ def run_virtual(controller, root, output, cache):
             result['public'] = public_paths(output)
             save(status / 'acquisition.json', {'status': 'PIN_MATCH' if len(acquisitions) == 41 and
                  all(r['status'] == 'PIN_MATCH' for r in acquisitions) else 'NOT COMPLETE', 'inputs': acquisitions,
+                 'execution': 'ATTEMPTED' if acquisition_started else 'NOT RUN', 'planned_inputs': 41 if contract is not None else 0,
                  'signature_authentication': 'Owner performs trust and signature verification inside its isolated container'})
             if events:
                 result.update(status='FAIL', error_code='cancelled')
