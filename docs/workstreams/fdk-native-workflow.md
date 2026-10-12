@@ -240,3 +240,19 @@ and workflow SHA256
 It was queued when recorded. No corrected producer or FDK build PASS is yet
 claimed; the prior trial remains FAIL. The existing shared native builder
 concurrency group serializes this job with other project native trials.
+
+The corrected trial completed **FAIL** at 09:38:08 UTC. Checkout, actual
+committed-packet verification and native prerequisites passed; all 501 input
+acquisitions passed. The fixed public diagnostic is
+`producer-base-probe-runner-failed`: a delegated base-probe call raised before
+FDK compilation. The exact Docker call/predicate remains unknown from this
+bounded result; GPG failure is not inferred. FDK is **NOT RUN**, cancellation
+is false and owned-image absence is true. The final public encoding step passed.
+
+The coordinator strictly decoded and revalidated the seven captured public
+files using the reviewed workflow consumer. The public bundle is 85,516 bytes,
+SHA256 `2a87313a9fd7d63fd2a6ddc48ac4fa8edb734a09de6ea2ac04e43dcbd2776d68`.
+[Retained verification](../../artifacts/ci/38230760444/root-public-verification.json)
+binds every selected file's actual bytes/hash, source/packet identities and the
+501 acquisition outcomes. A bounded producer-owner investigation is underway;
+no blind rerun or native build acceptance follows from diagnostic publication.

@@ -131,6 +131,11 @@ The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with 
   bytes and finite phase diagnostics; 104 tests pass in both the workspace and
   exact copied 128-file packet, with committed Git byte/mode proof. Corrected
   workflow consumption and a new hosted execution remain pending.
+- The corrected FDK trial, `38230760444`, passes source/native prerequisites
+  and all 501 acquisitions, then fails with the bounded diagnostic
+  `producer-base-probe-runner-failed`. Its seven public files independently
+  revalidate and owned-image absence is confirmed. The precise delegated Docker
+  call/predicate remains under investigation; FDK compilation is NOT RUN.
 - The updater native controller is committed after 136 source tests and
   independent process-cleanup review. Its 85-file committed closure is verified;
   native Rust compilation remains NOT RUN. The separate workflow is undergoing
