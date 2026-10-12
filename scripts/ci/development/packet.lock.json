@@ -986,7 +986,7 @@
     },
     "scripts/ci/integration.py": {
       "mode": 420,
-      "sha256": "3633427707da0f93f9f3900cc1036596815f85000bf53e7ea2c6fbd22bbb3be2"
+      "sha256": "5ceaa566f1084b25e8ebbbe8585b577de64595f70035e89943e87fbb83c6becf"
     },
     "scripts/ci/integration_export.py": {
       "mode": 420,
@@ -1010,7 +1010,7 @@
     },
     "scripts/ci/repository_projection.py": {
       "mode": 420,
-      "sha256": "05c581300ba807f9e38495863054e159ae7464ea7becc496da15806a60b4404b"
+      "sha256": "e249c0454ff4b207ce7c402f928815a62cf7ed3b43ad0b66eb5ae3467ef36d07"
     },
     "scripts/ci/sign_fixture.py": {
       "mode": 420,
@@ -1038,7 +1038,7 @@
     },
     "scripts/ci/test_integration.py": {
       "mode": 420,
-      "sha256": "dde5c23742fe8a06d753adc54402e4956c31e74f482d87f55d28b3d8bebdca56"
+      "sha256": "ec4f03f1195a5336d1bbb070f67c383910c401f50fb6de0203d04304dbe34a2f"
     },
     "scripts/ci/test_integration_export.py": {
       "mode": 420,
@@ -1054,7 +1054,7 @@
     },
     "scripts/ci/test_repository_projection.py": {
       "mode": 420,
-      "sha256": "6b6f0076ed297b6d152a8b0dc434725e320318a576ac745a995a6dcd9f8c3c50"
+      "sha256": "cca61a7542b29888e9cfa41d30e9a32e25099008e173d7bec8d91cdda0c6591d"
     },
     "scripts/ci/test_sign_fixture.py": {
       "mode": 420,
@@ -1098,7 +1098,7 @@
     },
     "scripts/integration/repository.py": {
       "mode": 420,
-      "sha256": "72a604cf7ed99f9711755ef318ce9ce62af263006918c3a03d69c906830c5173"
+      "sha256": "49c87f41bbb2fe1288251f16019f12aaeabb98d81ff5339387873e88e903b940"
     },
     "scripts/integration/test_desktop.py": {
       "mode": 420,
@@ -1118,7 +1118,7 @@
     },
     "scripts/integration/test_repository.py": {
       "mode": 420,
-      "sha256": "d920f0f86208a1ab12e22153e0e5b5d765eeb520ef27f7a74913e3c2fad862e5"
+      "sha256": "a7857437d1cf3e513720351299d241d7a6c97d3f58f0ef9b4bc92655dffd7274"
     },
     "scripts/release/release.py": {
       "mode": 493,
@@ -1144,9 +1144,9 @@
   "metadata_pins": {
     "manifests/reviewed/ksmctl.json": "f933ccfcfb52ca97ea809d904344f6ec72eb5907ef458b5c2e7f7f1797dc1d44",
     "scripts/ci/inputs.lock.json": "3c16c37d1b12cc84a88572e82ab8ad59e7f3b5ed0d08f09ddf72a69f4711d650",
-    "scripts/ci/integration.lock.json": "be5363dfb9f11b39f42fc419bebaa9cbaa11780fce1aa5cde2cedc25629766bb",
+    "scripts/ci/integration.lock.json": "9503d0583417956ef39da5e862eb9abd2f2d01cbdfffcfe26a25da25c53bbc35",
     "scripts/ci/recipes.lock.json": "20d846cdf289bfc233b0051bf33b677fd6e94e9f05d91a33595a2829a196fa63",
-    "scripts/experiments/stage.lock.json": "98617adc3dd70fb71a9734d7f38840f553b795ce05322d5b95598f20d5aec4a5",
+    "scripts/experiments/stage.lock.json": "8e0d982e136f8f1c79bebbeca8448f48a8466e95dbb8695042e7528a26f731ca",
     "scripts/virtual/tooling-audit.json": "3a7c30ba244a874625da994f896ae080a2b60f092b04f5f2d6caa70239e4f41d",
     "scripts/virtual/tooling.lock.json": "7d7df36348ab70fded74fbcb6803e8a16bfece1fc29d439ca8ed1805a867bd25"
   },
@@ -1692,7 +1692,7 @@
     },
     "scripts/ci/development/base_stages.py": {
       "mode": 420,
-      "sha256": "5437be7b90053b52b5b536d08994d22bbfa33df10590f230f7bb4dcc9beb32a0"
+      "sha256": "4d478301d3b77dae737aa882a0d4f2d5cddb7724463f1eab6673f78bad81549f"
     },
     "scripts/ci/development/common.py": {
       "mode": 420,
@@ -1704,7 +1704,7 @@
     },
     "scripts/ci/development/initial_artifacts.py": {
       "mode": 420,
-      "sha256": "3fc41f124176b15310a2f1133a52bfe780d797b3df82dc5eb4ef0536e84678c5"
+      "sha256": "f4e1702b83750b72149aecb17737875e46f5db020452585517421c9aa0249bd9"
     },
     "scripts/ci/development/packet.py": {
       "mode": 420,
@@ -1712,7 +1712,7 @@
     },
     "scripts/ci/development/test_base_stages.py": {
       "mode": 420,
-      "sha256": "6eeac4cb7a62b8733325bacb776e7dcedb23b958a9db650c20706278471b989b"
+      "sha256": "986a8ae3ac894de1a12ef0fb21b1eb9908ebf0ddbabc978cab075a28a0703f00"
     },
     "scripts/ci/development/test_common.py": {
       "mode": 420,
@@ -1724,7 +1724,7 @@
     },
     "scripts/ci/development/test_initial_artifacts.py": {
       "mode": 420,
-      "sha256": "7d129b99b29e61cc9a8a774f725b3b18315fd42dbcf3b90c11dc1433f3ea819b"
+      "sha256": "0cd1264c2c6e0ddc0d561481c0d98531cf3bfc9a4cc5672c6aea346dfd4e6124"
     },
     "scripts/ci/development/test_packet.py": {
       "mode": 420,
@@ -1732,11 +1732,11 @@
     },
     "scripts/ci/development/test_virtual_stage.py": {
       "mode": 420,
-      "sha256": "9a19a1451df97d10a5cc2ecd7bd714bfa796c350bdbd9ea3690508810ea47f29"
+      "sha256": "903be792d8442d1c701bb14b91819dd52a02a9201be6407908e3919c6e1296f2"
     },
     "scripts/ci/development/virtual_stage.py": {
       "mode": 420,
-      "sha256": "7c86de11ca4e6be74b211873a73344c2220b8cf65b390bd2d23ec8a4ca1c6da6"
+      "sha256": "21d8a28c8da2e0aaf1a5d7780ce101ce11ad36894d81eed45d994b04126c4f6b"
     },
     "scripts/ci/freeze.py": {
       "mode": 420,
@@ -1752,11 +1752,11 @@
     },
     "scripts/ci/integration.lock.json": {
       "mode": 420,
-      "sha256": "be5363dfb9f11b39f42fc419bebaa9cbaa11780fce1aa5cde2cedc25629766bb"
+      "sha256": "9503d0583417956ef39da5e862eb9abd2f2d01cbdfffcfe26a25da25c53bbc35"
     },
     "scripts/ci/integration.py": {
       "mode": 420,
-      "sha256": "3633427707da0f93f9f3900cc1036596815f85000bf53e7ea2c6fbd22bbb3be2"
+      "sha256": "5ceaa566f1084b25e8ebbbe8585b577de64595f70035e89943e87fbb83c6becf"
     },
     "scripts/ci/integration_export.py": {
       "mode": 420,
@@ -1780,7 +1780,7 @@
     },
     "scripts/ci/repository_projection.py": {
       "mode": 420,
-      "sha256": "05c581300ba807f9e38495863054e159ae7464ea7becc496da15806a60b4404b"
+      "sha256": "e249c0454ff4b207ce7c402f928815a62cf7ed3b43ad0b66eb5ae3467ef36d07"
     },
     "scripts/ci/sign_fixture.py": {
       "mode": 420,
@@ -1808,7 +1808,7 @@
     },
     "scripts/ci/test_integration.py": {
       "mode": 420,
-      "sha256": "dde5c23742fe8a06d753adc54402e4956c31e74f482d87f55d28b3d8bebdca56"
+      "sha256": "ec4f03f1195a5336d1bbb070f67c383910c401f50fb6de0203d04304dbe34a2f"
     },
     "scripts/ci/test_integration_export.py": {
       "mode": 420,
@@ -1824,7 +1824,7 @@
     },
     "scripts/ci/test_repository_projection.py": {
       "mode": 420,
-      "sha256": "6b6f0076ed297b6d152a8b0dc434725e320318a576ac745a995a6dcd9f8c3c50"
+      "sha256": "cca61a7542b29888e9cfa41d30e9a32e25099008e173d7bec8d91cdda0c6591d"
     },
     "scripts/ci/test_sign_fixture.py": {
       "mode": 420,
@@ -1848,11 +1848,11 @@
     },
     "scripts/client/stage.py": {
       "mode": 420,
-      "sha256": "00d4f5fb14158c22da1575f0527e59791d60536bff4f365b6b60995942c6c73d"
+      "sha256": "dc0c75969ed79548c3eb0ab1692f57ebffe7464d9192e591cdcf61aeaeb77154"
     },
     "scripts/client/test_client.py": {
       "mode": 420,
-      "sha256": "a1a6a844ad4c0fd394a407529c5c7039f2a9e2bb43b63ee90a4e1e925701e144"
+      "sha256": "11d475979806af12a514c9e860f614f22b6b4517078f97fceacc18c13563afd8"
     },
     "scripts/client/test_stage.py": {
       "mode": 420,
@@ -1860,7 +1860,7 @@
     },
     "scripts/experiments/arm_c01.py": {
       "mode": 420,
-      "sha256": "b725639885740505a04fbdcab2e629e3201afb09cf948ac997c1309d91fe36cf"
+      "sha256": "12576d39e30c13b91c003713218615e4b9259776ba86994ebe9730af0050f044"
     },
     "scripts/experiments/corpus.py": {
       "mode": 420,
@@ -1868,15 +1868,15 @@
     },
     "scripts/experiments/stage.lock.json": {
       "mode": 420,
-      "sha256": "98617adc3dd70fb71a9734d7f38840f553b795ce05322d5b95598f20d5aec4a5"
+      "sha256": "8e0d982e136f8f1c79bebbeca8448f48a8466e95dbb8695042e7528a26f731ca"
     },
     "scripts/experiments/stage.py": {
       "mode": 420,
-      "sha256": "e6eaf7200d97c0ff65f1d652b85987e2c00a5c60745c870e996cf90fd9b62b70"
+      "sha256": "0ec75669e3bac0b4aab59f67cc56bcf0b2bb1a78c8b8bca2c7485a91d1fd9f91"
     },
     "scripts/experiments/test_arm_c01.py": {
       "mode": 420,
-      "sha256": "f3cb4674f28691367f1618643ca0cba0ae1f3da52ce294461c80ba9e35d264fc"
+      "sha256": "8a4ad0713a3df8e29d1582ef6b353e7eb224c4eeeb57973e31f34bb912bd7b3e"
     },
     "scripts/experiments/test_corpus.py": {
       "mode": 420,
@@ -1884,7 +1884,7 @@
     },
     "scripts/experiments/test_stage.py": {
       "mode": 420,
-      "sha256": "993e27f82bd742e4a5d5395dd045dc0ee8ee64b640104397115114c14568ae76"
+      "sha256": "76eb8800948338462876d8bff3868defd241935541e72be22af68a5d4a78bd16"
     },
     "scripts/hardware/capture-baseline.py": {
       "mode": 420,
@@ -1912,7 +1912,7 @@
     },
     "scripts/integration/repository.py": {
       "mode": 420,
-      "sha256": "72a604cf7ed99f9711755ef318ce9ce62af263006918c3a03d69c906830c5173"
+      "sha256": "49c87f41bbb2fe1288251f16019f12aaeabb98d81ff5339387873e88e903b940"
     },
     "scripts/integration/test_desktop.py": {
       "mode": 420,
@@ -1932,7 +1932,7 @@
     },
     "scripts/integration/test_repository.py": {
       "mode": 420,
-      "sha256": "d920f0f86208a1ab12e22153e0e5b5d765eeb520ef27f7a74913e3c2fad862e5"
+      "sha256": "a7857437d1cf3e513720351299d241d7a6c97d3f58f0ef9b4bc92655dffd7274"
     },
     "scripts/release/release.py": {
       "mode": 493,
