@@ -1,10 +1,15 @@
-"""Temp/mocked ARM-C01 failure tests; never Docker, package tools or native builds."""
+"""Temp/mocked controller tests plus an own-driver/system-zlib C fixture.
+
+The C fixture is host-only API validation, never an upstream or native ARM build.
+"""
 import copy
 import importlib.util
 import io
 import hashlib
 import json
+import os
 from pathlib import Path
+import shutil
 import signal
 import stat
 import subprocess
@@ -74,6 +79,83 @@ class IsolatedTests(unittest.TestCase):
         self.enterContext(patch.object(a.signal, "signal", return_value=signal.SIG_DFL))
         self.enterContext(patch.object(a.signal, "pthread_sigmask", return_value=set()))
         self.enterContext(patch.object(a.time, "sleep", side_effect=AssertionError("No blocking test sleeps")))
+
+
+class StrictDriverHostFixtureTests(unittest.TestCase):
+    """Compile only our private driver; inject actual C API error return values."""
+
+    @classmethod
+    def setUpClass(cls):
+        compiler = shutil.which("gcc")
+        if compiler is None:
+            raise unittest.SkipTest("own-driver host fixture requires installed GCC and system zlib")
+        temp = tempfile.TemporaryDirectory(prefix="cachy-asahi-own-driver-fixture-")
+        cls.addClassCleanup(temp.cleanup)
+        cls.root = Path(temp.name)
+        source, wrapper = cls.root / "strict.c", cls.root / "fault.c"
+        cls.binary = cls.root / "strict-gzip"
+        source.write_bytes(a.STRICT_DRIVER)
+        wrapper.write_text('''#include <stdlib.h>
+#include <zlib.h>
+int __real_inflate(z_streamp, int);
+int __real_inflateInit2_(z_streamp, int, const char *, int);
+int __real_inflateEnd(z_streamp);
+int __wrap_inflate(z_streamp stream, int flush) {
+    const char *fault = getenv("STRICT_INFLATE_FAULT");
+    return fault ? (int)strtol(fault, 0, 10) : __real_inflate(stream, flush);
+}
+int __wrap_inflateInit2_(z_streamp stream, int bits, const char *version, int size) {
+    const char *fault = getenv("STRICT_INIT_FAULT");
+    return fault ? (int)strtol(fault, 0, 10) : __real_inflateInit2_(stream, bits, version, size);
+}
+int __wrap_inflateEnd(z_streamp stream) {
+    const char *fault = getenv("STRICT_END_FAULT");
+    int result = __real_inflateEnd(stream);
+    return fault ? (int)strtol(fault, 0, 10) : result;
+}
+''')
+        built = subprocess.run([compiler, "-O2", "-Wall", "-Wextra", "-Werror",
+                                str(source), str(wrapper), "-Wl,--wrap=inflate",
+                                "-Wl,--wrap=inflateInit2_", "-Wl,--wrap=inflateEnd",
+                                "-lz", "-o", str(cls.binary)], capture_output=True, timeout=20)
+        if built.returncode:
+            raise AssertionError("own-driver host fixture compile failed: " + built.stderr.decode(errors="replace"))
+        corpus.create(cls.root / "corpus", b"public fixture source")
+
+    def run_driver(self, name="gzip-reference.gz", fault=None):
+        env = {key: value for key, value in os.environ.items() if not key.startswith("STRICT_")}
+        if fault:
+            env[fault[0]] = str(fault[1])
+        return subprocess.run([str(self.binary)], input=(self.root / "corpus" / name).read_bytes(),
+                              capture_output=True, env=env, timeout=5)
+
+    def test_valid_crc_and_truncation_actual_system_api(self):
+        valid = self.run_driver()
+        self.assertEqual(valid.returncode, 0, valid.stderr)
+        self.assertEqual(valid.stdout, corpus.GZIP_PAYLOAD)
+        for name in ("corrupt-crc.gz", "truncated-trailer.gz"):
+            rejected = self.run_driver(name)
+            with self.subTest(input=name):
+                self.assertEqual(rejected.returncode, 2, rejected.stderr)
+
+    def test_inflate_resource_internal_and_unknown_errors_are_not_rejections(self):
+        # GCC linker wrapping reproduces actual C return-code handling on valid gzip.
+        # Z_MEM_ERROR, Z_STREAM_ERROR, Z_VERSION_ERROR, Z_NEED_DICT and unknown.
+        for code in (-4, -2, -6, 2, -99):
+            result = self.run_driver(fault=("STRICT_INFLATE_FAULT", code))
+            with self.subTest(code=code):
+                self.assertEqual(result.returncode, 3, result.stderr)
+        for code in (-3, -5):  # Only Z_DATA_ERROR and Z_BUF_ERROR earn exit 2.
+            result = self.run_driver(fault=("STRICT_INFLATE_FAULT", code))
+            with self.subTest(code=code):
+                self.assertEqual(result.returncode, 2, result.stderr)
+
+    def test_initialization_and_cleanup_failures_are_not_rejections(self):
+        for operation in ("STRICT_INIT_FAULT", "STRICT_END_FAULT"):
+            for code in (-6, -4, -2, -99):
+                result = self.run_driver(fault=(operation, code))
+                with self.subTest(operation=operation, code=code):
+                    self.assertEqual(result.returncode, 3, result.stderr)
 
 
 class GuardTests(IsolatedTests):
@@ -331,6 +413,22 @@ class CommandTests(IsolatedTests):
         self.assertIn(b"diagnostic before cancellation", log.read_bytes())
         self.assertEqual((row["status"], row["cleanup"]), ("FAIL", "PASS"))
 
+    def test_original_sample_truncation_zero_exit_remains_failed_rejection(self):
+        manifest = corpus.create(self.root / "corpus", b"public fixture")
+        source = self.root / "corpus/truncated-trailer.gz"
+        child = Mock(pid=987654); child.wait.return_value = 0
+        def sample(argv, **kwargs):
+            kwargs["stdout"].write(corpus.GZIP_PAYLOAD)
+            return child
+        with patch.object(a.subprocess, "Popen", side_effect=sample), patch.object(a.os, "killpg", side_effect=self.group_gone):
+            with self.assertRaisesRegex(ValueError, "command exit differs"):
+                a.Commands(self.root).run("historical-sample-truncation", ["FIXTURE-minigzip", "-d"],
+                                          source=source, target=self.root / "sample-output.bin", allowed=tuple(range(1,256)))
+        row = json.loads((self.root / "commands.json").read_text())[0]
+        self.assertEqual((row["status"], row["exit_code"], row["failure_kind"]), ("FAIL", 0, "ValueError"))
+        self.assertNotIn(0, row["allowed_exit_codes"])
+        self.assertEqual(row["stdout"]["bytes"], len(corpus.GZIP_PAYLOAD))
+
     def test_success_still_checks_attached_descendant_group(self):
         child = Mock(pid=987654); child.wait.return_value = 0
         with patch.object(a.subprocess, "Popen", return_value=child), patch.object(a.os, "killpg", side_effect=self.group_gone) as kill:
@@ -585,6 +683,14 @@ class ControllerTests(IsolatedTests):
             if name.endswith("-configure"):
                 for config in ("Makefile", "zconf.h", "configure.log"):
                     (kwargs["cwd"] / config).write_bytes(config_bytes(name.split("-")[0]) if config != "zconf.h" else b"mock zconf")
+            if name.endswith("-strict-compile"):
+                (output / name.removesuffix("-strict-compile") / "strict-gzip").write_bytes(b"mock strict binary")
+            if name.endswith("-strict-valid"):
+                kwargs["target"].write_bytes(corpus.GZIP_PAYLOAD); return 0
+            if name.endswith("-sample-crc"):
+                kwargs["target"].write_bytes(b"mock partial output"); return 1
+            if name.endswith("-sample-truncation"):
+                kwargs["target"].write_bytes(corpus.GZIP_PAYLOAD); return 0
             if name.endswith("-elf"):
                 return ELF_GOOD
             if name.endswith("-archive-sections"):
@@ -670,6 +776,7 @@ class ReceiverTests(IsolatedTests):
                        "python": "synthetic fixture", "zlib_runtime": "synthetic fixture",
                        "tool_files": {name: {"path": "/usr/bin/" + name, "sha256": "a" * 64} for name in a.TOOLS}}
         a.save(raw / "environment.json", environment)
+        (raw / "strict-gzip.c").write_bytes(a.STRICT_DRIVER)
         builds = []
         for variant in ("baseline", "lto"):
             for attempt in (1, 2):
@@ -677,6 +784,8 @@ class ReceiverTests(IsolatedTests):
                 for name in ("libz.a", "example", "minigzip"):
                     (directory / name).write_bytes(f"synthetic {variant} {name}; not a native binary".encode())
                     (directory / name).chmod(0o644 if name == "libz.a" else 0o755)
+                (directory / "strict-gzip").write_bytes(f"synthetic {variant} strict driver".encode())
+                (directory / "strict-gzip").chmod(0o755)
                 generated = {}
                 for name in a.CONFIG_FILES:
                     path = directory / (name + ".txt")
@@ -685,14 +794,14 @@ class ReceiverTests(IsolatedTests):
                 cflags, ldflags = a.build_flags(variant)
                 builds.append({"variant": variant, "attempt": attempt, "artifacts": a.artifacts(directory),
                                "cflags": cflags, "ldflags": ldflags, "configured_flags": a.configured_flags(config_bytes(variant), config_bytes(variant), variant), "generated_configuration_sha256": generated,
-                               "elf": a.elf_layout(ELF_GOOD)})
+                               "elf": a.elf_layout(ELF_GOOD), "strict_driver": {"source_sha256": a.STRICT_SHA, "binary_sha256": a.sha(directory / "strict-gzip"), "elf": a.elf_layout(ELF_GOOD)}})
         names = [f"{row['variant']}-{row['attempt']}" for row in builds]
         checks = []
         for build in names:
             for row in manifest["files"]:
                 for decoder in names:
                     if row["kind"] == "corrupt":
-                        checks.append({"build": build, "input": row["path"], "decoder": decoder, "rejected_exit": 1})
+                        checks.append({"build": build, "input": row["path"], "decoder": decoder, "driver": "strict-zlib-inflate", "rejected_exit": 2})
                     else:
                         for level in (1, 6, 9):
                             checks.append({"build": build, "input": row["path"], "level": level, "decoder": decoder,
@@ -708,11 +817,12 @@ class ReceiverTests(IsolatedTests):
             log = raw / f"{index:03d}-{name}.log"; log.write_bytes(data)
             row = {key: planned[key] for key in ("name", "argv", "cwd", "environment")}
             row.update(log=log.name, log_sha256=a.sha(log), log_bytes=len(data), status="PASS", cleanup="PASS",
-                       exit_code=1 if planned["reject"] else 0,
+                       exit_code=2 if planned["reject"] else 1 if planned["sample"] else 0,
+                       allowed_exit_codes=[2] if planned["reject"] else list(range(1,256)) if planned["sample"] else [0,1] if planned["observe"] else [0],
                        stdin=bindings.get(planned["source"]), stdout=None)
             if planned["target"]:
-                if planned["reject"]:
-                    target = raw / Path(planned["target"]).name; target.write_bytes(b"synthetic partial output")
+                if planned["reject"] or planned["sample"] or planned["observe"] or name.endswith("-strict-valid"):
+                    target = raw / Path(planned["target"]).name; target.write_bytes(corpus.GZIP_PAYLOAD if name.endswith("-strict-valid") else b"synthetic partial output")
                     digest, size = a.sha(target), target.stat().st_size
                 elif "-decode-" in name:
                     stem = name.split("-decode-", 1)[0].rsplit("-", 1)[0].split("-", 2)[2]
@@ -726,7 +836,11 @@ class ReceiverTests(IsolatedTests):
         report = {"purpose": a.PURPOSE, "status": "PASS", "contract": contract, "cleanup": "PASS",
                   "selected_for_release": False, "hardware_validation": "NOT RUN", "performance_acceptance": "NOT RUN",
                   "environment_sha256": a.sha(raw / "environment.json"), "corpus_manifest_sha256": a.sha(raw / "corpus-manifest.json"),
-                  "builds": builds, "correctness": checks, "reproducibility": {"baseline": "PASS", "lto": "PASS"}}
+                  "builds": builds, "correctness": checks, "reproducibility": {"baseline": "PASS", "lto": "PASS"},
+                  "strict_driver_source_sha256": a.STRICT_SHA,
+                  "strict_valid": [{"decoder": name, "status": "PASS", "decoded_sha256": hashlib.sha256(corpus.GZIP_PAYLOAD).hexdigest()} for name in names],
+                  "sample_crc": [{"decoder": name, "status": "PASS", "exit_code": 1} for name in names],
+                  "sample_truncation": [{"decoder": name, "status": "OBSERVED", "exit_code": 0, "rejection_acceptance": "NOT CLAIMED"} for name in names]}
         a.save(raw / "result.json", report)
         return raw, contract, report, manifest, commands
 
@@ -736,7 +850,7 @@ class ReceiverTests(IsolatedTests):
         self.assertEqual(sum("rejected_exit" in row for row in report["correctness"]), 32)
         verified = a.verify_result(raw, contract)
         self.assertEqual({k: v for k, v in verified.items() if k != "receiver_verification"}, report)
-        self.assertEqual(verified["receiver_verification"]["command_count"], 485)
+        self.assertEqual(verified["receiver_verification"]["command_count"], 505)
         packages = (self.root / "inputs/packages.lock").read_bytes()
         source = (self.root / "inputs/zlib.tar.gz").read_bytes()
         self.assertEqual(a.verify_result(raw, contract, packages, source)["receiver_verification"], verified["receiver_verification"])
@@ -979,6 +1093,45 @@ class ReceiverTests(IsolatedTests):
         (raw / "environment.json").unlink()
         with self.assertRaises(OSError):
             a.verify_result(raw, contract)
+
+    def test_strict_source_binary_positive_and_rejections_cannot_be_substituted(self):
+        raw, contract, report, _, commands = self.receipt()
+        original_source = (raw / "strict-gzip.c").read_bytes()
+        original_binary = (raw / "baseline-1/strict-gzip").read_bytes()
+        for mode in ("source", "binary", "valid-output", "valid-check", "resource-exit", "sample-driver", "truncation-pass"):
+            changed, records = copy.deepcopy(report), copy.deepcopy(commands)
+            if mode == "source":
+                (raw / "strict-gzip.c").write_bytes(b"self-substituted driver")
+                changed["strict_driver_source_sha256"] = a.sha(raw / "strict-gzip.c")
+            elif mode == "binary":
+                (raw / "baseline-1/strict-gzip").write_bytes(b"different binary")
+            elif mode == "valid-output":
+                (raw / "baseline-1-strict-valid.bin").write_bytes(b"wrong payload")
+            elif mode == "valid-check":
+                changed["strict_valid"].pop()
+            elif mode == "resource-exit":
+                next(r for r in records if "-reject-" in r["name"])["exit_code"] = 3
+            elif mode == "sample-driver":
+                next(r for r in records if "-reject-" in r["name"])["argv"] = ["/out/baseline-1/minigzip", "-d"]
+            else:
+                changed["sample_truncation"][0].update(status="PASS", rejection_acceptance="PASS")
+            a.save(raw / "result.json", changed); a.save(raw / "commands.json", records)
+            with self.subTest(mode=mode), self.assertRaises(ValueError):
+                a.verify_result(raw, contract)
+            (raw / "strict-gzip.c").write_bytes(original_source)
+            (raw / "baseline-1/strict-gzip").write_bytes(original_binary)
+            (raw / "baseline-1-strict-valid.bin").write_bytes(corpus.GZIP_PAYLOAD)
+
+    def test_strict_api_and_sample_observations_have_distinct_graph_roles(self):
+        raw, contract, _, manifest, _ = self.receipt()
+        plans = a.command_plan(manifest)
+        self.assertEqual(sum(r["reject"] for r in plans), 32)
+        self.assertEqual(sum(r["sample"] for r in plans), 4)
+        self.assertEqual(sum(r["observe"] for r in plans), 4)
+        self.assertTrue(all(r["argv"][0].endswith("/strict-gzip") for r in plans if r["reject"]))
+        verified = a.verify_result(raw, contract)["receiver_verification"]
+        self.assertEqual((verified["command_count"], verified["strict_valid_count"], verified["rejection_count"]), (505, 4, 32))
+        self.assertEqual(verified["sample_truncation_observation_count"], 4)
 
     def test_receiver_refuses_hardware_or_release_claims_and_contract_drift(self):
         raw, contract, report, _, _ = self.receipt()

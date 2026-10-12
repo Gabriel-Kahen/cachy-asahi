@@ -253,7 +253,16 @@ def export_public(snapshot_root, selected, output, pin):
 
 def export_artifacts(raw, output, verified):
     """Separate explicit development-output archive; never a root/image export."""
-    approved = {}
+    # Recheck retained bytes and metadata immediately before selecting the finite
+    # archive. A caller cannot transform the accepted receiver report into a new
+    # allowlist or replace the driver between receipt verification and export.
+    arm.need(arm.verify_result(raw, verified['contract']) == verified, 'verified export receipt differs')
+    commands = read_json(raw / 'commands.json')
+    by_name = {row['name']: row for row in commands}
+    approved, drivers, outputs = {'strict-gzip.c': arm.STRICT_SHA}, [], []
+    def command_reference(row):
+        return {key: row[key] for key in ('name', 'argv', 'cwd', 'environment', 'exit_code',
+                                          'log', 'log_sha256', 'log_bytes')}
     for build in verified['builds']:
         prefix = f"{build['variant']}-{build['attempt']}"
         for name, pin in build['artifacts'].items():
@@ -262,6 +271,14 @@ def export_artifacts(raw, output, verified):
         for name, pin in build['generated_configuration_sha256'].items():
             arm.need(name in ('Makefile', 'zconf.h', 'configure.log', 'LICENSE'), 'unapproved generated configuration')
             approved[prefix + '/' + name + '.txt'] = pin
+        binary = prefix + '/strict-gzip'
+        approved[binary] = build['strict_driver']['binary_sha256']
+        drivers.append({'binary': binary, 'sha256': approved[binary], 'source': 'strict-gzip.c',
+                        'source_sha256': arm.STRICT_SHA, 'archive': prefix + '/libz.a',
+                        'cflags': build['cflags'], 'ldflags': build['ldflags'],
+                        'configured_flags': build['configured_flags'], 'elf': build['strict_driver']['elf'],
+                        'compile': command_reference(by_name[prefix + '-strict-compile']),
+                        'elf_command': command_reference(by_name[prefix + '-strict-elf'])})
     manifest = read_json(raw / 'corpus-manifest.json', verified.get('corpus_manifest_sha256'))
     names = {'empty.bin', 'onebyte.bin', 'repeated.txt', 'allbytes.bin', 'incompressible.bin',
              'heldout-source.bin', 'gzip-reference.gz', 'corrupt-crc.gz', 'truncated-trailer.gz'}
@@ -271,25 +288,42 @@ def export_artifacts(raw, output, verified):
         arm.need(Path(row['path']).name == row['path'], 'flat approved corpus member required')
         approved['corpus/' + row['path']] = row['sha256']
     approved['corpus/manifest.json'] = verified['corpus_manifest_sha256']
+    for plan in arm.command_plan(manifest):
+        if not (plan['reject'] or plan['name'].endswith('-strict-valid')):
+            continue
+        command = by_name[plan['name']]
+        name = Path(plan['target']).name
+        approved[name] = command['stdout']['sha256']
+        outputs.append({'member': name, 'role': 'strict-rejection-partial-output' if plan['reject'] else 'strict-valid-output',
+                        'driver': str(Path(plan['argv'][0]).relative_to('/out')),
+                        'input': 'corpus/' + Path(plan['source']).name,
+                        'stdin': command['stdin'], 'stdout': command['stdout'],
+                        'command': command_reference(command)})
+    arm.need(len(approved) == 79 and len(drivers) == 4 and len(outputs) == 36, 'complete finite strict evidence archive required')
     output.mkdir(mode=0o700)
     bundle = output / 'development-ARM-C01-outputs.tar.gz'
     total = 0
     with bundle.open('xb') as stream, gzip.GzipFile(fileobj=stream, mode='wb', filename='', mtime=0) as compressed:
         with tarfile.open(fileobj=compressed, mode='w|') as archive:
             for name, pin in sorted(approved.items()):
-                path = raw / name; arm.regular(path, 8 * 1024**2); data = path.read_bytes()
+                path = raw / name; arm.regular(path, 32 * 1024**2 if name.endswith('.bin') else 8 * 1024**2); data = path.read_bytes()
                 arm.need(hashlib.sha256(data).hexdigest() == pin, 'approved artifact changed before export')
                 total += len(data); arm.need(total <= 64 * 1024**2, 'development artifact byte bound exceeded')
                 entry = tarfile.TarInfo(name); entry.size = len(data)
-                entry.mode = 0o755 if name.endswith(('/example', '/minigzip')) else 0o644
+                entry.mode = 0o755 if name.endswith(('/example', '/minigzip', '/strict-gzip')) else 0o644
                 archive.addfile(entry, io.BytesIO(data))
                 arm.need(stream.tell() <= 8 * 1024**2, 'compressed development artifact bound exceeded')
     arm.regular(bundle, 8 * 1024**2)
     receipt = {'purpose': PURPOSE, 'development_only': True, 'selected_for_release': False,
                'source_commit': verified['contract']['source_commit'], 'source_sha256': arm.SOURCE_SHA,
                'image_id': verified['contract']['image'], 'hardware_validation': 'NOT RUN',
-               'performance_acceptance': 'NOT RUN', 'scope': 'verified zlib outputs and public corpus; no image/root/private-state export',
-               'files': approved, 'uncompressed_bytes': total, 'bundle_sha256': arm.sha(bundle), 'bundle_bytes': bundle.stat().st_size}
+               'performance_acceptance': 'NOT RUN', 'scope': 'verified zlib outputs, own MIT strict driver, strict output bytes and public corpus; no image/root/private-state export or execution replay',
+               'files': approved, 'member_count': len(approved),
+               'strict_driver_evidence': {'source': 'strict-gzip.c', 'source_sha256': arm.STRICT_SHA,
+                                          'license': 'MIT', 'builds': drivers, 'outputs': outputs,
+                                          'command_log_location': 'separate public evidence archive',
+                                          'cross_decode_bytes': 'not retained; producer hash checks in public receipt'},
+               'uncompressed_bytes': total, 'bundle_sha256': arm.sha(bundle), 'bundle_bytes': bundle.stat().st_size}
     arm.save(output / 'archive-manifest.json', receipt)
     return receipt
 

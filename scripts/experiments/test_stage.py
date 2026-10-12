@@ -1,5 +1,6 @@
 """Portable temp-only adapter checks; all native commands and signals are mocked."""
 import importlib.util
+import copy
 import json
 import os
 from pathlib import Path
@@ -447,25 +448,11 @@ class StageTests(unittest.TestCase):
             self.assertEqual(json.loads((args.output / "public-status/result.json").read_text())["status"], "FAIL")
 
     def artifact_fixture(self):
-        raw = self.root / "native-artifacts"; raw.mkdir()
-        manifest = corpus.create(raw / "corpus", b"synthetic public heldout fixture")
-        # Match the native generator's canonical, byte-identical two manifests.
-        shutil.copyfile(raw / "corpus/manifest.json", raw / "corpus-manifest.json")
-        builds = []
-        for variant in ("baseline", "lto"):
-            for attempt in (1, 2):
-                prefix = raw / f"{variant}-{attempt}"; prefix.mkdir()
-                artifacts, configs = {}, {}
-                for name in ("libz.a", "example", "minigzip"):
-                    path = prefix / name; path.write_bytes(b"synthetic compiled bytes, not a native binary")
-                    artifacts[name] = arm.sha(path)
-                for name in ("Makefile", "zconf.h", "configure.log", "LICENSE"):
-                    path = prefix / (name + ".txt"); path.write_bytes(b"synthetic public configuration/notice")
-                    configs[name] = arm.sha(path)
-                builds.append({"variant": variant, "attempt": attempt, "artifacts": artifacts,
-                               "generated_configuration_sha256": configs})
-        verified = {"builds": builds, "corpus_manifest_sha256": arm.sha(raw / "corpus-manifest.json"),
-                    "contract": {"source_commit": "b" * 40, "image": "sha256:" + "a" * 64}}
+        # Reuse the complete synthetic core receipt, not a reduced fake approval.
+        fixture = module("stage_artifact_receipt_fixture", HERE / "test_arm_c01.py")
+        with patch.object(fixture, "a", arm), patch.object(fixture, "corpus", corpus):
+            raw, contract, _, manifest, _ = fixture.ReceiverTests.receipt(self)
+        verified = arm.verify_result(raw, contract)
         return raw, verified, manifest
 
     def test_development_archive_exact_allowlist_hashes_and_deterministic_bytes(self):
@@ -486,15 +473,30 @@ class StageTests(unittest.TestCase):
         self.assertTrue(first["development_only"]); self.assertFalse(first["selected_for_release"])
         self.assertEqual((first["hardware_validation"], first["performance_acceptance"]), ("NOT RUN", "NOT RUN"))
         expected = {f"{variant}-{attempt}/{name}" for variant in ("baseline", "lto") for attempt in (1, 2)
-                    for name in ("libz.a", "example", "minigzip", "Makefile.txt", "zconf.h.txt", "configure.log.txt", "LICENSE.txt")}
+                    for name in ("libz.a", "example", "minigzip", "strict-gzip", "Makefile.txt", "zconf.h.txt", "configure.log.txt", "LICENSE.txt")}
         expected |= {"corpus/" + row["path"] for row in manifest["files"]} | {"corpus/manifest.json"}
+        expected |= {"strict-gzip.c"} | {Path(row['target']).name for row in arm.command_plan(manifest)
+                                        if row['reject'] or row['name'].endswith('-strict-valid')}
+        self.assertEqual(first['member_count'], 79)
+        self.assertEqual(len(first['strict_driver_evidence']['outputs']), 36)
+        self.assertEqual(len(first['strict_driver_evidence']['builds']), 4)
+        self.assertEqual(first['strict_driver_evidence']['source_sha256'], arm.STRICT_SHA)
+        for build in first['strict_driver_evidence']['builds']:
+            self.assertEqual(build['compile']['argv'], arm.strict_compile(build['binary'].split('/')[0]))
+            for command in (build['compile'], build['elf_command']):
+                self.assertEqual(arm.sha(raw / command['log']), command['log_sha256'])
+            self.assertEqual(build['sha256'], first['files'][build['binary']])
+        for row in first['strict_driver_evidence']['outputs']:
+            self.assertEqual(row['stdout']['sha256'], first['files'][row['member']])
+            self.assertEqual(row['stdout']['bytes'], (raw / row['member']).stat().st_size)
+            self.assertEqual(row['command']['exit_code'], 2 if row['role'] == 'strict-rejection-partial-output' else 0)
         with tarfile.open(self.root / "archive-first/development-ARM-C01-outputs.tar.gz", "r:gz") as archive:
             self.assertEqual(set(archive.getnames()), expected)
             self.assertEqual(set(first["files"]), expected)
             for member in archive:
                 self.assertTrue(member.isfile())
                 self.assertEqual((member.uid, member.gid, member.mtime), (0, 0, 0))
-                self.assertEqual(member.mode, 0o755 if member.name.endswith(("/example", "/minigzip")) else 0o644)
+                self.assertEqual(member.mode, 0o755 if member.name.endswith(("/example", "/minigzip", "/strict-gzip")) else 0o644)
                 with archive.extractfile(member) as stream:
                     self.assertEqual(arm.hashlib.sha256(stream.read()).hexdigest(), first["files"][member.name])
 
@@ -508,6 +510,59 @@ class StageTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             stage.export_artifacts(raw, self.root / "archive-unapproved", verified)
         self.assertFalse((self.root / "archive-unapproved").exists())
+
+    def test_development_archive_missing_or_changed_strict_bytes_refused(self):
+        raw, verified, manifest = self.artifact_fixture()
+        rejected = next(row for row in arm.command_plan(manifest) if row['reject'])
+        members = ['strict-gzip.c', 'baseline-1/strict-gzip', 'baseline-1-strict-valid.bin',
+                   Path(rejected['target']).name]
+        for index, name in enumerate(members):
+            path = raw / name
+            original, mode = path.read_bytes(), path.stat().st_mode & 0o777
+            for action in ('missing', 'changed'):
+                if action == 'missing':
+                    path.unlink()
+                else:
+                    path.write_bytes(b'altered after core acceptance')
+                output = self.root / f'archive-strict-{index}-{action}'
+                with self.subTest(member=name, action=action), self.assertRaises((ValueError, OSError)):
+                    stage.export_artifacts(raw, output, verified)
+                self.assertFalse(output.exists(), 'strict byte refusal must precede archive creation')
+                path.write_bytes(original); path.chmod(mode)
+
+    def test_development_archive_transformed_strict_metadata_refused(self):
+        raw, verified, _ = self.artifact_fixture()
+        for index, field in enumerate(('cflags', 'configured_flags', 'strict_driver', 'strict_valid')):
+            changed = copy.deepcopy(verified)
+            if field == 'strict_valid':
+                changed[field].pop()
+            elif field == 'strict_driver':
+                changed['builds'][0][field]['binary_sha256'] = '0' * 64
+            elif field == 'configured_flags':
+                changed['builds'][0][field]['CFLAGS'] += ' -O3'
+            else:
+                changed['builds'][0][field] += ' -O3'
+            output = self.root / f'archive-transformed-{index}'
+            with self.subTest(field=field), self.assertRaises(ValueError):
+                stage.export_artifacts(raw, output, changed)
+            self.assertFalse(output.exists())
+
+    def test_development_archive_strict_compile_and_log_provenance_drift_refused(self):
+        raw, verified, _ = self.artifact_fixture()
+        original = json.loads((raw / 'commands.json').read_text())
+        compiler = next(row for row in original if row['name'].endswith('-strict-compile'))
+        log = raw / compiler['log']; before = log.read_bytes()
+        log.write_bytes(b'changed compiler diagnostics after acceptance')
+        with self.assertRaises(ValueError):
+            stage.export_artifacts(raw, self.root / 'archive-compiler-log-drift', verified)
+        log.write_bytes(before)
+        changed = copy.deepcopy(original)
+        next(row for row in changed if row['name'] == compiler['name'])['argv'].append('-O3')
+        arm.save(raw / 'commands.json', changed)
+        with self.assertRaises(ValueError):
+            stage.export_artifacts(raw, self.root / 'archive-compiler-argv-drift', verified)
+        self.assertFalse((self.root / 'archive-compiler-log-drift').exists())
+        self.assertFalse((self.root / 'archive-compiler-argv-drift').exists())
 
     def test_development_archive_manifest_drift_cannot_approve_private_extra(self):
         raw, verified, manifest = self.artifact_fixture()

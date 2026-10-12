@@ -51,6 +51,57 @@ CONFIG_FILES = ('Makefile', 'zconf.h', 'configure.log', 'LICENSE')
 FEATURE_FLAGS = {'-fPIC', '-D_LARGEFILE64_SOURCE=1', '-DNO_FSEEKO', '-DNO_STRERROR', '-DHAVE_HIDDEN',
                  '-DHAS_vsnprintf_void', '-DNO_vsnprintf', '-DHAS_vsprintf_void', '-DHAS_snprintf_void',
                  '-DNO_snprintf', '-DHAS_sprintf_void'}
+STRICT_DRIVER = b'''/* SPDX-License-Identifier: MIT
+ * Original bounded single-member gzip completeness test, not a gzip utility.
+ * Only exit 2 means invalid input; resource, I/O and internal failures are 3.
+ */
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "zlib.h"
+#define INPUT_CAP (16U * 1024U * 1024U)
+#define OUTPUT_CAP (32U * 1024U * 1024U)
+int main(void) {
+    unsigned char *input = malloc(INPUT_CAP + 1U), output[16384];
+    z_stream stream = {0};
+    size_t size, total = 0;
+    int status = 2, initialized = 0;
+    if (!input || strcmp(zlibVersion(), ZLIB_VERSION) != 0) {
+        free(input); fputs("strict gzip: allocation or version failure\\n", stderr); return 3;
+    }
+    size = fread(input, 1, INPUT_CAP + 1U, stdin);
+    if (ferror(stdin) || size > INPUT_CAP) { status = 3; goto done; }
+    if (inflateInit2(&stream, 31) != Z_OK) { status = 3; goto done; }
+    initialized = 1;
+    stream.next_in = input; stream.avail_in = (uInt)size;
+    for (;;) {
+        int result;
+        size_t produced;
+        stream.next_out = output; stream.avail_out = sizeof(output);
+        result = inflate(&stream, Z_NO_FLUSH);
+        produced = sizeof(output) - stream.avail_out;
+        if (produced > OUTPUT_CAP - total) { status = 3; break; }
+        total += produced;
+        if (fwrite(output, 1, produced, stdout) != produced) { status = 3; break; }
+        if (result == Z_STREAM_END) {
+            if (stream.avail_in == 0) status = fflush(stdout) == 0 ? 0 : 3;
+            break;
+        }
+        if (result != Z_OK) {
+            status = (result == Z_DATA_ERROR || result == Z_BUF_ERROR) ? 2 : 3;
+            break;
+        }
+        if (produced == 0 && stream.avail_in == 0) break;
+    }
+done:
+    if (initialized && inflateEnd(&stream) != Z_OK) status = 3;
+    free(input);
+    if (status == 2) fputs("strict gzip: incomplete or invalid single gzip member\\n", stderr);
+    if (status == 3) fputs("strict gzip: resource, I/O or internal failure\\n", stderr);
+    return status;
+}
+'''
+STRICT_SHA = hashlib.sha256(STRICT_DRIVER).hexdigest()
 
 
 def need(condition, message):
@@ -219,6 +270,7 @@ class Commands:
         need(remaining > 0, 'trial deadline exhausted')
         row = {'name': name, 'argv': argv, 'cwd': str(cwd) if cwd is not None else None,
                'environment': env, 'stdin': None, 'stdout': None, 'status': 'FAIL',
+               'allowed_exit_codes': list(allowed),
                'timeout_seconds': remaining, 'started_unix_seconds': time.time()}
         self.records.append(row)
         log = self.output / (f'{len(self.records):03d}-' + name + '.log')
@@ -267,6 +319,10 @@ class Commands:
             need(code in allowed, 'command exit differs')
             row['status'] = 'PASS'
             return log.read_bytes() if target is None else code
+        except (Cancelled, KeyboardInterrupt, OSError, ValueError, subprocess.SubprocessError) as error:
+            row['failure_kind'] = type(error).__name__
+            row['failure_reason'] = str(error) if isinstance(error, ValueError) else 'command interrupted or failed before exit validation'
+            raise
         finally:
             cancelled = []
             previous = {sig: signal.signal(sig, lambda signum, _: cancelled.append(signum)) for sig in (signal.SIGTERM, signal.SIGINT)}
@@ -354,6 +410,12 @@ def build_flags(variant):
             LINK_FLAGS + (' -flto=2' if variant == 'lto' else ' -fno-lto'))
 
 
+def strict_compile(prefix):
+    cflags, ldflags = build_flags(prefix.split('-')[0])
+    return ['gcc', *shlex.split(cflags.replace('$@', 'strict-gzip')), '-I/tmp/build', '/out/strict-gzip.c',
+            '/out/' + prefix + '/libz.a', '-o', '/out/' + prefix + '/strict-gzip', *shlex.split(ldflags)]
+
+
 def configured_flags(makefile, configure_log, variant):
     """Validate the final assignments written by pinned GNU/Linux configure.
 
@@ -388,9 +450,9 @@ def command_plan(manifest):
     """Exact native command/dataflow graph; stdout bytes remain producer evidence."""
     rows, env = [], trial_env()
     names = [f'{v}-{a}' for v in ('baseline', 'lto') for a in (1, 2)]
-    def add(name, argv, cwd=None, environment=None, source=None, target=None, reject=False):
+    def add(name, argv, cwd=None, environment=None, source=None, target=None, reject=False, sample=False, observe=False):
         rows.append({'name': name, 'argv': argv, 'cwd': cwd, 'environment': environment or env,
-                     'source': source, 'target': target, 'reject': reject})
+                     'source': source, 'target': target, 'reject': reject, 'sample': sample, 'observe': observe})
     add('inventory', ['/usr/bin/pacman', '-Q'])
     for name, argv in [('gcc', ['gcc', '-v']), ('ld', ['ld', '--version']), ('ar', ['gcc-ar', '--version']), ('cpu', ['lscpu', '--json'])]:
         add('tool-' + name, argv)
@@ -404,6 +466,8 @@ def command_plan(manifest):
                             ('dependencies', ['ldd', binary]), ('symbols', ['gcc-nm', '/tmp/build/libz.a']),
                             ('archive-sections', ['readelf', '-W', '-S', '/tmp/build/libz.a'])]:
             add(prefix + '-' + label, argv)
+        add(prefix + '-strict-compile', strict_compile(prefix), '/tmp/build')
+        add(prefix + '-strict-elf', ['readelf', '-W', '-h', '-l', '-d', '/out/' + prefix + '/strict-gzip'])
     for prefix in names:
         binary = '/out/' + prefix + '/minigzip'
         for row in manifest['files']:
@@ -411,7 +475,7 @@ def command_plan(manifest):
             if row['kind'] == 'corrupt':
                 for decoder in names:
                     name = prefix + '-reject-' + stem + '-' + decoder
-                    add(name, ['/out/' + decoder + '/minigzip', '-d'], source=source, target='/out/' + name + '.bin', reject=True)
+                    add(name, ['/out/' + decoder + '/strict-gzip'], source=source, target='/out/' + name + '.bin', reject=True)
             else:
                 for level in (1, 6, 9):
                     name = f'{prefix}-{stem}-{level}'
@@ -420,6 +484,13 @@ def command_plan(manifest):
                     for decoder in names:
                         add(name + '-decode-' + decoder, ['/out/' + decoder + '/minigzip', '-d'],
                             source=encoded, target='/out/' + name + '-' + decoder + '.decoded')
+    for prefix in names:
+        add(prefix + '-strict-valid', ['/out/' + prefix + '/strict-gzip'], source='/tmp/corpus/gzip-reference.gz',
+            target='/out/' + prefix + '-strict-valid.bin')
+        add(prefix + '-sample-crc', ['/out/' + prefix + '/minigzip', '-d'], source='/tmp/corpus/corrupt-crc.gz',
+            target='/out/' + prefix + '-sample-crc.bin', sample=True)
+        add(prefix + '-sample-truncation', ['/out/' + prefix + '/minigzip', '-d'], source='/tmp/corpus/truncated-trailer.gz',
+            target='/out/' + prefix + '-sample-truncation.bin', observe=True)
     return rows
 
 
@@ -499,6 +570,9 @@ def verify_result(raw, contract, expected_packages=None, source=None):
             retained = raw / 'corpus' / path.name; regular(retained, corpus.LIMIT)
             need(retained.read_bytes() == path.read_bytes(), 'retained corpus differs from source derivation')
     need(report.get('corpus_manifest_sha256') == sha(raw / 'corpus-manifest.json'), 'corpus receipt binding differs')
+    regular(raw / 'strict-gzip.c')
+    need((raw / 'strict-gzip.c').read_bytes() == STRICT_DRIVER and report.get('strict_driver_source_sha256') == STRICT_SHA,
+         'strict driver source binding differs')
     builds = report.get('builds', [])
     expected_builds = [(v, n) for v in ('baseline', 'lto') for n in (1, 2)]
     need([(b['variant'], b['attempt']) for b in builds] == expected_builds, 'all four ordered build receipts required')
@@ -517,12 +591,17 @@ def verify_result(raw, contract, expected_packages=None, source=None):
         need((root / 'LICENSE.txt').read_bytes() == material['LICENSE'], 'retained license differs from pinned source')
         effective = configured_flags((root / 'Makefile.txt').read_bytes(), (root / 'configure.log.txt').read_bytes(), build['variant'])
         need(build.get('configured_flags') == effective, 'effective configured flag receipt differs')
+        driver = root / 'strict-gzip'; regular(driver, 8 * 1024**2)
+        need(stat.S_IMODE(driver.stat().st_mode) == 0o755 and build.get('strict_driver', {}).get('binary_sha256') == sha(driver)
+             and build['strict_driver'].get('source_sha256') == STRICT_SHA, 'strict driver binary/source binding differs')
     suffixes = [shlex.split(b['configured_flags']['CFLAGS'])[len(shlex.split(build_flags(b['variant'])[0])):] for b in builds]
     need(all(value == suffixes[0] for value in suffixes), 'configure feature flags differ between builds/variants')
     need(report.get('reproducibility') == {'baseline': 'PASS', 'lto': 'PASS'}, 'both rebuild pairs required')
     for variant in ('baseline', 'lto'):
         pair = [b['artifacts'] for b in builds if b['variant'] == variant]
         need(pair[0] == pair[1], 'retained rebuild pair bytes differ')
+        drivers = [b['strict_driver']['binary_sha256'] for b in builds if b['variant'] == variant]
+        need(drivers[0] == drivers[1], 'strict driver rebuild pair differs')
     regular(raw / 'commands.json')
     commands = json.loads((raw / 'commands.json').read_text())
     planned = command_plan(manifest)
@@ -534,7 +613,11 @@ def verify_result(raw, contract, expected_packages=None, source=None):
         need(row.get('status') == row.get('cleanup') == 'PASS' and not row.get('cancelled'), 'successful cleaned commands required')
         need(all(row.get(key) == plan[key] for key in ('argv', 'cwd', 'environment')), 'command argv/cwd/environment differs')
         code = row.get('exit_code')
-        need(isinstance(code, int) and not isinstance(code, bool) and (1 <= code <= 255 if plan['reject'] else code == 0), 'command exit differs')
+        need(isinstance(code, int) and not isinstance(code, bool), 'integer command exit required')
+        allowed = code == 2 if plan['reject'] else 1 <= code <= 255 if plan['sample'] else code in (0, 1) if plan['observe'] else code == 0
+        need(allowed, 'command exit differs')
+        expected_codes = [2] if plan['reject'] else list(range(1, 256)) if plan['sample'] else [0, 1] if plan['observe'] else [0]
+        need(row.get('allowed_exit_codes') == expected_codes, 'declared command exit criterion differs')
         name = f"{index:03d}-" + plan['name'] + '.log'
         need(row.get('log') == name and name not in logs, 'unique exact command log required')
         path = raw / name; regular(path)
@@ -554,7 +637,7 @@ def verify_result(raw, contract, expected_packages=None, source=None):
                  and not isinstance(binding['bytes'], bool) and 0 <= binding['bytes'] <= 32 * 1024**2, 'command stdout binding differs')
             need(plan['target'] not in output_bindings, 'duplicate streamed output')
             output_bindings[plan['target']] = binding
-            if plan['reject']:
+            if plan['reject'] or plan['sample'] or plan['observe'] or plan['name'].endswith('-strict-valid'):
                 path = raw / Path(plan['target']).name; regular(path, 32 * 1024**2)
                 need(path.stat().st_size == binding['bytes'] and sha(path) == binding['sha256'], 'retained rejection output differs')
     need({p.name for p in raw.glob('*.log')} == logs, 'unrecorded command logs refused')
@@ -565,6 +648,8 @@ def verify_result(raw, contract, expected_packages=None, source=None):
         need(build.get('elf') == elf_layout(data), 'ELF receipt differs from actual retained log')
         data = (raw / by_name[prefix + '-archive-sections']['log']).read_bytes()
         need((b'.gnu.lto_' in data) == (build['variant'] == 'lto'), 'retained archive LTO evidence differs')
+        data = (raw / by_name[prefix + '-strict-elf']['log']).read_bytes()
+        need(build['strict_driver'].get('elf') == elf_layout(data), 'strict driver ELF evidence differs')
     checks, names = report.get('correctness', []), [f'{v}-{n}' for v, n in expected_builds]
     expected = {(b, r['path'], level, d) for b in names for r in manifest['files'] if r['kind'] == 'input' for level in (1, 6, 9) for d in names}
     positives = [r for r in checks if 'level' in r]
@@ -583,9 +668,28 @@ def verify_result(raw, contract, expected_packages=None, source=None):
     for row in rejected:
         name = row['build'] + '-reject-' + Path(row['input']).stem + '-' + row['decoder']
         need(row['rejected_exit'] == by_name[name]['exit_code'], 'corruption exit differs from command record')
+        need(row.get('driver') == 'strict-zlib-inflate', 'sample CLI cannot substitute for strict rejection')
+    valid = report.get('strict_valid', [])
+    need(len(valid) == 4 and {r['decoder'] for r in valid} == set(names), 'all strict valid-stream checks required')
+    payload_sha = hashlib.sha256(corpus.GZIP_PAYLOAD).hexdigest()
+    for row in valid:
+        output = by_name[row['decoder'] + '-strict-valid']['stdout']
+        need(row.get('status') == 'PASS' and row.get('decoded_sha256') == payload_sha
+             and output['sha256'] == payload_sha and output['bytes'] == len(corpus.GZIP_PAYLOAD), 'strict valid-stream payload differs')
+    sample_crc, observations = report.get('sample_crc', []), report.get('sample_truncation', [])
+    for rows, key in ((sample_crc, 'sample-crc'), (observations, 'sample-truncation')):
+        need(len(rows) == 4 and {r['decoder'] for r in rows} == set(names), 'complete sample behavior records required')
+        for row in rows:
+            need(row.get('exit_code') == by_name[row['decoder'] + '-' + key]['exit_code'], 'sample behavior exit differs')
+            if key == 'sample-crc':
+                need(row.get('status') == 'PASS', 'sample CRC rejection required')
+            else:
+                need(row.get('status') == 'OBSERVED' and row.get('rejection_acceptance') == 'NOT CLAIMED',
+                     'sample truncation observation must not become rejection acceptance')
     return {**report, 'receiver_verification': {
         'status': 'PASS', 'command_count': len(commands), 'build_count': len(builds),
         'cross_decode_count': len(positives), 'rejection_count': len(rejected),
+        'strict_valid_count': len(valid), 'sample_crc_count': len(sample_crc), 'sample_truncation_observation_count': len(observations),
         'environment_sha256': sha(raw / 'environment.json'), 'source_sha256': SOURCE_SHA,
         'packages_sha256': hashlib.sha256(packages).hexdigest(),
         'scope': 'Independent pinned source/corpus/license derivation, retained artifact/config/log/ELF/LTO and full recorded command/dataflow graph checks; no execution replay or attestation.',
@@ -609,6 +713,7 @@ def inside():
     need(out.is_dir() and not out.is_symlink() and not list(out.iterdir()), 'empty real evidence mount required')
     report = {'purpose': PURPOSE, 'status': 'FAIL', 'contract': contract, 'hardware_validation': 'NOT RUN',
               'performance_acceptance': 'NOT RUN', 'selected_for_release': False, 'builds': [], 'correctness': [],
+              'strict_driver_source_sha256': STRICT_SHA, 'strict_valid': [], 'sample_crc': [], 'sample_truncation': [],
               'random_seed_control': {'flag': RANDOM_SEED_FLAG, 'policy': 'GNU make output target; shared by baseline and LTO',
                                       'native_reproducibility': 'Requires exact rebuilt artifact comparisons; not inferred from seed choice'}}
     runner = Commands(out, 780)
@@ -640,6 +745,7 @@ def inside():
         report['corpus_manifest_sha256'] = sha(out / 'corpus-manifest.json')
         # Retain corpus bytes as exact retrievable experiment inputs.
         shutil.copytree(corpus_root, out / 'corpus')
+        (out / 'strict-gzip.c').write_bytes(STRICT_DRIVER)
         for variant in ('baseline', 'lto'):
             for attempt in (1, 2):
                 guard(observed(), contract['nonce'])
@@ -667,8 +773,13 @@ def inside():
                 runner.run(prefix + '-symbols', ['gcc-nm', str(work / 'libz.a')], env=env)
                 sections = runner.run(prefix + '-archive-sections', ['readelf', '-W', '-S', str(work / 'libz.a')], env=env)
                 need((b'.gnu.lto_' in sections) == (variant == 'lto'), 'archive LTO intermediate representation differs from variant')
+                runner.run(prefix + '-strict-compile', strict_compile(prefix), cwd=work, env=env)
+                regular(dest / 'strict-gzip', 8 * 1024**2); (dest / 'strict-gzip').chmod(0o755)
+                strict_elf = runner.run(prefix + '-strict-elf', ['readelf', '-W', '-h', '-l', '-d', str(dest / 'strict-gzip')], env=env)
+                strict = {'source_sha256': STRICT_SHA, 'binary_sha256': sha(dest / 'strict-gzip'), 'elf': elf_layout(strict_elf)}
                 report['builds'].append({'variant': variant, 'attempt': attempt, 'artifacts': hashes, 'cflags': flags,
                                        'ldflags': build_env['LDFLAGS'], 'configured_flags': effective,
+                                       'strict_driver': strict,
                                        'generated_configuration_sha256': generated, 'elf': layout})
                 shutil.rmtree(work)
                 save(out / 'result.json', report)
@@ -680,12 +791,15 @@ def inside():
             for row in manifest['files']:
                 path = corpus_root / row['path']; need(sha(path) == row['sha256'], 'corpus changed')
                 if row['kind'] == 'corrupt':
-                    # Valid gzip header, invalid checksum/trailer: no transparent raw-input fallback.
-                    for label, decoder in decoders:
+                    # The sample minigzip clears some truncation errors; strict
+                    # inflate completion, not its CLI exit, supplies this gate.
+                    for label, _ in decoders:
+                        decoder = out / label / 'strict-gzip'
                         code = runner.run(prefix + '-reject-' + path.stem + '-' + label,
-                                          [str(decoder), '-d'], env=env, source=path,
-                                          target=out / (prefix + '-reject-' + path.stem + '-' + label + '.bin'), timeout=30, allowed=tuple(range(1, 256)))
-                        report['correctness'].append({'build': prefix, 'input': row['path'], 'decoder': label, 'rejected_exit': code})
+                                          [str(decoder)], env=env, source=path,
+                                          target=out / (prefix + '-reject-' + path.stem + '-' + label + '.bin'), timeout=30, allowed=(2,))
+                        report['correctness'].append({'build': prefix, 'input': row['path'], 'decoder': label,
+                                                      'driver': 'strict-zlib-inflate', 'rejected_exit': code})
                     continue
                 for level in (1, 6, 9):
                     stem = f'{prefix}-{path.stem}-{level}'
@@ -698,10 +812,24 @@ def inside():
                         report['correctness'].append({'build': prefix, 'input': row['path'], 'level': level, 'decoder': label, 'decoded_sha256': sha(decoded), 'status': 'PASS'})
                         decoded.unlink()
                     encoded.unlink()
+        for label, decoder in decoders:
+            strict_output = out / (label + '-strict-valid.bin')
+            runner.run(label + '-strict-valid', [str(out / label / 'strict-gzip')], env=env,
+                       source=corpus_root / 'gzip-reference.gz', target=strict_output, timeout=30)
+            need(strict_output.read_bytes() == corpus.GZIP_PAYLOAD, 'strict valid gzip payload differs')
+            report['strict_valid'].append({'decoder': label, 'status': 'PASS', 'decoded_sha256': sha(strict_output)})
+            code = runner.run(label + '-sample-crc', [str(decoder), '-d'], env=env, source=corpus_root / 'corrupt-crc.gz',
+                              target=out / (label + '-sample-crc.bin'), timeout=30, allowed=tuple(range(1, 256)))
+            report['sample_crc'].append({'decoder': label, 'exit_code': code, 'status': 'PASS'})
+            code = runner.run(label + '-sample-truncation', [str(decoder), '-d'], env=env,
+                              source=corpus_root / 'truncated-trailer.gz', target=out / (label + '-sample-truncation.bin'), timeout=30, allowed=(0, 1))
+            report['sample_truncation'].append({'decoder': label, 'exit_code': code, 'status': 'OBSERVED',
+                                                'rejection_acceptance': 'NOT CLAIMED'})
         report['reproducibility'] = {}
         for variant in ('baseline', 'lto'):
             pair = [b for b in report['builds'] if b['variant'] == variant]
-            report['reproducibility'][variant] = 'PASS' if pair[0]['artifacts'] == pair[1]['artifacts'] else 'FAIL'
+            report['reproducibility'][variant] = 'PASS' if (pair[0]['artifacts'] == pair[1]['artifacts']
+                and pair[0]['strict_driver']['binary_sha256'] == pair[1]['strict_driver']['binary_sha256']) else 'FAIL'
         need(all(v == 'PASS' for v in report['reproducibility'].values()), 'within-variant artifact bytes differ')
         report['status'] = 'PASS'
     except (Cancelled, KeyboardInterrupt, OSError, ValueError, KeyError, subprocess.SubprocessError):
