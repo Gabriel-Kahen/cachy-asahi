@@ -71,8 +71,10 @@ jobs:
               return value
 
           def git(root, *args):
-              env = {'PATH': '/usr/bin:/bin', 'LANG': 'C.UTF-8', 'HOME': os.environ['RUNNER_TEMP'],
+              env = {'PATH': '/usr/bin:/bin', 'LANG': 'C.UTF-8',
                      'GIT_CONFIG_NOSYSTEM': '1', 'GIT_CONFIG_GLOBAL': '/dev/null'}
+              if 'HOME' in os.environ:
+                  env['HOME'] = os.environ['HOME']
               result = subprocess.run(['/usr/bin/git', '--literal-pathspecs', '-c', 'core.hooksPath=/dev/null',
                                        '-c', 'core.fsmonitor=false', '--no-optional-locks', '-C', str(root), *args],
                                       env=env, capture_output=True, timeout=10, check=True)
@@ -101,7 +103,7 @@ jobs:
                   committed(root, commit, name, 0o644, data)
               packet = decode(read(root / PACKET, 1024**2))
               need(set(packet) == {'schema_version', 'files'} and type(packet['schema_version']) is int and
-                   packet['schema_version'] == 1 and type(packet['files']) is dict and len(packet['files']) == 128)
+                   packet['schema_version'] == 1 and type(packet['files']) is dict and len(packet['files']) == 129)
               total = 0
               for name, row in packet['files'].items():
                   need(type(name) is str and 0 < len(name) <= 512 and '\\' not in name and
@@ -174,7 +176,7 @@ jobs:
         shell: bash
         run: |
           /usr/bin/python3 -I -B - <<'PY'
-          import hashlib, json, os, re, stat, subprocess, sys, tempfile
+          import ast, builtins, hashlib, json, os, re, stat, subprocess, sys, tempfile, types
           from pathlib import Path
 
           HELPER = 'scripts/ci/log_evidence.py'
@@ -237,6 +239,65 @@ jobs:
               need(git('cat-file', '-s', blob.decode()) == (str(len(data)) + '\n').encode())
               need(git('cat-file', 'blob', blob.decode()) == data)
               return data
+
+          def verify_consumers(root, commit, pin, env):
+              """Authenticate the exact loader and its explicitly bound dependency bytes."""
+              need(type(commit) is str and re.fullmatch('[0-9a-f]{40}', commit) and
+                   type(pin) is str and re.fullmatch('[0-9a-f]{64}', pin) and
+                   root.is_absolute() and root == root.resolve())
+              prefix = 'scripts/port/fdk-native-job/'
+              adapter = 'scripts/port/fdk-native-stage/'
+              def git(*args):
+                  result = subprocess.run(['/usr/bin/git', '--literal-pathspecs', '-c', 'core.hooksPath=/dev/null',
+                                           '-c', 'core.fsmonitor=false', '--no-optional-locks', '-C', str(root), *args],
+                                          env=env, capture_output=True, timeout=10, check=True)
+                  need(len(result.stdout) <= 8 * 1024**2 and len(result.stderr) <= 4096)
+                  return result.stdout
+              need(git('rev-parse', 'HEAD') == (commit + '\n').encode() and
+                   os.environ.get('GITHUB_WORKFLOW_SHA') == commit)
+              manifest_bytes = read(root / (prefix + 'packet.lock.json'), 1024**2)
+              need(hashlib.sha256(manifest_bytes).hexdigest() == pin and
+                   stat.S_IMODE((root / (prefix + 'packet.lock.json')).lstat().st_mode) == 0o644 and
+                   git('show', commit + ':' + prefix + 'packet.lock.json') == manifest_bytes and
+                   git('ls-tree', '--format=%(objectmode)', commit, '--', prefix + 'packet.lock.json') == b'100644\n')
+              manifest = decode(manifest_bytes)
+              need(set(manifest) == {'schema_version', 'files'} and type(manifest['schema_version']) is int and
+                   manifest['schema_version'] == 1 and type(manifest['files']) is dict and len(manifest['files']) == 129)
+              captured = {}
+              for name in (prefix + 'job.py', prefix + 'packet.py', adapter + 'stage.lock.json',
+                           adapter + 'evidence.py', adapter + 'worker_evidence.py'):
+                  row = manifest['files'][name]; path = root / name
+                  need(type(row) is dict and set(row) == {'sha256', 'mode', 'bytes'} and
+                       type(row['mode']) is int and row['mode'] == 0o644 and
+                       type(row['bytes']) is int and 0 <= row['bytes'] <= 8 * 1024**2 and
+                       type(row['sha256']) is str and re.fullmatch('[0-9a-f]{64}', row['sha256']))
+                  before = path.lstat(); data = read(path, 8 * 1024**2); after = path.lstat()
+                  identity = lambda s: (s.st_dev, s.st_ino, s.st_uid, s.st_gid, s.st_mode, s.st_nlink,
+                                        s.st_size, s.st_mtime_ns, s.st_ctime_ns)
+                  need(identity(before) == identity(after) and stat.S_IMODE(before.st_mode) == row['mode'] and
+                       len(data) == row['bytes'] and hashlib.sha256(data).hexdigest() == row['sha256'] and
+                       git('show', commit + ':' + name) == data and
+                       git('ls-tree', '--format=%(objectmode)', commit, '--', name) == b'100644\n')
+                  captured[name] = data
+              packet_tree = ast.parse(captured[prefix + 'packet.py'])
+              stage_pins = [node.value.value for node in packet_tree.body if isinstance(node, ast.Assign) and
+                            len(node.targets) == 1 and isinstance(node.targets[0], ast.Name) and
+                            node.targets[0].id == 'ADAPTER_SHA' and isinstance(node.value, ast.Constant)]
+              need(len(stage_pins) == 1 and type(stage_pins[0]) is str and re.fullmatch('[0-9a-f]{64}', stage_pins[0]) and
+                   hashlib.sha256(captured[adapter + 'stage.lock.json']).hexdigest() == stage_pins[0])
+              stage = decode(captured[adapter + 'stage.lock.json'])
+              raw = {}
+              for name in ('evidence.py', 'worker_evidence.py'):
+                  data = captured[adapter + name]
+                  need(stage['files'][adapter + name] == {'sha256': hashlib.sha256(data).hexdigest(), 'mode': 0o644})
+                  raw[name] = data
+              # Execute only the exact pure loader function from the authenticated job.
+              functions = [node for node in ast.parse(captured[prefix + 'job.py']).body
+                           if isinstance(node, ast.FunctionDef) and node.name == 'validator_from_bytes']
+              need(len(functions) == 1 and not functions[0].decorator_list)
+              scope = {'builtins': builtins, 'types': types}
+              exec(compile(ast.Module(body=functions, type_ignores=[]), 'captured-fdk-job-loader', 'exec'), scope)
+              return scope['validator_from_bytes'](raw)
 
           INPUTS_SHA = '3c16c37d1b12cc84a88572e82ab8ad59e7f3b5ed0d08f09ddf72a69f4711d650'
           RECIPES_SHA = '20d846cdf289bfc233b0051bf33b677fd6e94e9f05d91a33595a2829a196fa63'
@@ -493,7 +554,7 @@ jobs:
               if job_status == 'PASS':
                   need(complete and 'signatures.json' in producer)
 
-          def validate_public(public, commit, pin):
+          def validate_public(public, commit, pin, validator=None):
               need(all(stat.S_ISDIR(p.lstat().st_mode) for p in (public, *public.parents)) and
                    public.lstat().st_uid == os.getuid())
               files, raw, total, visited = {}, {}, 0, 0
@@ -546,8 +607,8 @@ jobs:
                   fdk = files['fdk/status.json']
                   need(set(fdk) == {'schema_version', 'stage', 'status', 'phase', 'error_code', 'cancelled',
                                    'owned_container_absence', 'native_build', 'hardware', 'installation',
-                                   'selected_for_release', 'binary_publication'} and
-                       type(fdk['schema_version']) is int and fdk['schema_version'] == 1 and
+                                   'selected_for_release', 'binary_publication', 'worker_diagnostics'} and
+                       type(fdk['schema_version']) is int and fdk['schema_version'] == 2 and
                        fdk['stage'] == 'fdk-native-development' and fdk['status'] == status['status'] and
                        fdk['hardware'] == fdk['installation'] == fdk['binary_publication'] == 'NOT RUN' and
                        fdk['selected_for_release'] is False and type(fdk['cancelled']) is bool and
@@ -557,6 +618,8 @@ jobs:
                        fdk['error_code'] == (None if status['status'] == 'PASS' else 'fdk-stage-failed'))
                   if fdk['status'] == 'PASS':
                       need(fdk['phase'] == 'complete' and not fdk['cancelled'] and fdk['owned_container_absence'])
+                  need(validator is not None)
+                  validator.validate_workers(fdk['worker_diagnostics'], require_complete=fdk['status'] == 'PASS')
               producer = {name.removeprefix('producer/'): value for name, value in files.items() if name.startswith('producer/')}
               if producer:
                   validate_producer(producer, raw, status['status'])
@@ -569,15 +632,18 @@ jobs:
               need(re.fullmatch('[0-9]{1,20}', run) and re.fullmatch('[0-9]{1,10}', attempt))
               commit, pin = os.environ['GITHUB_SHA'], os.environ['FDK_JOB_PACKET_SHA256']
               need(re.fullmatch('[0-9a-f]{64}', pin or ''))
-              env = {'PATH': '/usr/bin:/bin', 'LANG': 'C.UTF-8', 'LC_ALL': 'C.UTF-8', 'HOME': str(temporary),
+              env = {'PATH': '/usr/bin:/bin', 'LANG': 'C.UTF-8', 'LC_ALL': 'C.UTF-8',
                      'GIT_CONFIG_NOSYSTEM': '1', 'GIT_CONFIG_GLOBAL': '/dev/null'}
+              if 'HOME' in os.environ:
+                  env['HOME'] = os.environ['HOME']
               helper = verify_helper(root, commit, env)
+              validator = verify_consumers(root, commit, pin, env)
               public = temporary / ('fdk-native-job-' + run + '-' + attempt) / 'public'
               if not public.exists() and not public.is_symlink():
                   print('FDK_PUBLIC_EVIDENCE_NOT_CREATED')
                   need(os.environ.get('FDK_NATIVE_OUTCOME') != 'success')
                   return
-              data = validate_public(public, commit, pin)
+              data = validate_public(public, commit, pin, validator)
               # Encode the validated bytes, never a second read of the live public tree.
               with tempfile.TemporaryDirectory(prefix='fdk-public-log-', dir=temporary) as directory:
                   snapshot = Path(directory) / 'public'

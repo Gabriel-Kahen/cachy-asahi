@@ -4,7 +4,7 @@ October 12, 2026. This record tracks the complete `outline.md` scope; an impleme
 
 The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with owned tasks and corrective next actions in `docs/backlog.md`. The destination now explicitly requires the maintained ARM package repository, native performance engineering, integrated Apple stack, broader Cachy system experience, and complete installation/release lifecycle. Both Air sizes, published final measurements, independent onboarding/contribution, subsequent full-port maintenance release, other-ARM reuse and actual upstream submissions remain required; an early overlay release or feasibility decision would not complete the goal. This scope update does not change any recorded execution result.
 
-Latest coordinator checkpoint, October 12, 17:48 UTC. Earlier records below
+Latest coordinator checkpoint, October 12, 18:09 UTC. Earlier records below
 remain historical; this checkpoint supersedes their pending-work descriptions.
 
 - Successor guest run `38283691844`, from `387217c`, passes the original generic
@@ -26,7 +26,9 @@ remain historical; this checkpoint supersedes their pending-work descriptions.
   Successor `38277573107` reaches build-1, then fails. All eight public records
   and scoped absence verify. The first build predicate and compiler invocation
   remain unproven. The held worker diagnostics pass 104 author and 38 independent source checks;
-  the strict outer consumer and 40/129 source registrations remain pending before retry;
+  the outer consumer passes 174 author and 29 peer fixture checks. Root binds
+  stage40/job129; a narrow inherited-HOME and prospective documentation correction
+  is held for final recheck. Committed source proof remains before retry;
   FDK compilation, publication and runtime integration remain unaccepted.
 - Updater's accepted workflow correction is committed at `ed76c11`, following
   507 author consumer cases, 39 independent cases and actual 85-file source
@@ -38,6 +40,10 @@ remain historical; this checkpoint supersedes their pending-work descriptions.
   checks and 20 helper controls; root selects its exact 4KiB helper/selector
   interface for review. Actual parent binding, recipe/source registration and
   workflow acceptance are being implemented before another native attempt.
+  Independent review of the frozen worker-side helper reproduces four blockers
+  despite passing its 155 tests: command facts lost during log I/O, cleanup
+  cancellation loss, durable final-close mismatch and contradictory CANCELLED
+  fields. Those specific corrections and bounded custody improvements are selected.
 - KSM retry `38271066975` stops at the initial image baseline: query exit 0,
   six returned lines and no observed container baseline. Cooperative image
   preservation is held and independently passes 255 source tests and focused
@@ -45,7 +51,13 @@ remain historical; this checkpoint supersedes their pending-work descriptions.
   corrected in a held proposal. Root fresh-capture checks pass all 264 tests,
   zero skips, with owned fixture sockets. Independent final review passes 14
   focused controls; root adopts the 152-file source packet `0623a4d6…`.
-  Committed source/bootstrap proof remains before the next native run. That failed retry ran no producer,
+  Committed source/bootstrap proof passes at `f7ee4a7`. Native successor
+  `38286983453` advances into the producer phase, then reports BrokenPipeError,
+  producer mutation UNCERTAIN and cleanup FAIL. Initial image preservation PASS
+  is an authenticated executor declaration; its raw private journal is unavailable.
+  Owned cleanup/producer completion cannot be inferred. Independent source and
+  actual-log review plus causal reply controls select finite RPC/cleanup observations
+  before another retry; KSM build/lifecycle/export remain NOT RUN in this attempt. That failed retry ran no producer,
   builds or installed lifecycle; baseline fixtures do not change its result.
 - Kernel diagnostics are adopted at `bae171e`: 202 job and 115 stage tests,
   89 independent focused checks and 14 poison cases pass. Actual Git/bootstrap
@@ -54,7 +66,10 @@ remain historical; this checkpoint supersedes their pending-work descriptions.
   return UNOBSERVED and child exit 1, before probe or compilation. Cleanup FAIL,
   final baseline preservation and owned absence UNVERIFIED remain authoritative.
   The exact inner predicate remains unknown. A closed operation-level
-  diagnostic is being implemented without changing launch, query or timer behavior. The prior timer explanation was
+  diagnostic passes 78 stage and 205 job source tests with zero skips, plus
+  independent typed-slot and cleanup controls. Commit `2e0dc0d` binds stage 26
+  `387e72fc…` and job 117 `9ca9414c…`; actual Git/source/bootstrap proof passes.
+  Successor `38288838400` is dispatched on ARM; it has no accepted result yet. The prior timer explanation was
   withdrawn after confirming the existing renewal; those timers are unchanged.
 - The actual inert 624-archive payload audit passes. The corrected ELF scan
   remains FAIL with 27 missing-provider requests and 22 firmware parser refusals;
@@ -64,7 +79,10 @@ remain historical; this checkpoint supersedes their pending-work descriptions.
   is authenticated or adopted. The metadata resolver retains a failed 377-node
   tentative transaction; independent review selected canonical-path, nonfinite
   metadata and hook-policy corrections. Runtime ABI, hooks and M2/16K acceptance
-  remain open. A camera metadata receiver is in development; capture remains NOT RUN.
+  remain open. Resolver follow-up identifies unused malformed ownership rows;
+  camera review identifies a special-file open before type refusal. Both narrow
+  source corrections are selected. A synthetic-preview supervisor is in development;
+  actual preview, capture and hardware checks remain NOT RUN.
 - Repository URL and phase corrections pass 252 author source tests and focused
   independent controls, then are adopted at `9340d00`. Actual Git verification
   catches one historical public JSON mode mismatch; correction `510e8c3` preserves
@@ -76,7 +94,9 @@ remain historical; this checkpoint supersedes their pending-work descriptions.
   one owned-child timeout. Independent review adds ten checks, including another
   actual tiny commit, and identifies child-source and evidence-directory custody
   gaps. The held correction passes 35 controls (28 modeled, seven harmless loaders);
-  independent source/custody recheck remains before any new actual tiny trial. ARM, the full
+  independent source/custody recheck reproduces CLI cancellation and staged
+  foreign-receipt overwrite edges. Thirty-two corrected models pass; final peer
+  recheck remains before another actual tiny transaction. ARM, the full
   package transaction, trust, hooks, first boot and complete installation remain open.
 
 | Stage | Source implementation | Required execution evidence | Acceptance |

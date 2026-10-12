@@ -3,8 +3,10 @@
 # Copyright (C) 2026 cachy-asahi contributors
 """Separate finite same-job original producer and reviewed FDK native stage."""
 import argparse
+import builtins
 from contextlib import contextmanager
 import os
+import json
 from pathlib import Path
 import platform
 import re
@@ -13,6 +15,7 @@ import shutil
 import stat
 import sys
 import time
+import types
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import job_runtime as jr
@@ -21,10 +24,56 @@ import evidence
 from base_broker import broker_class
 
 HERE = Path(__file__).resolve().parent
-ENV_FIELDS = ('GITHUB_SHA', 'GITHUB_RUN_ID', 'GITHUB_REPOSITORY', 'RUNNER_ARCH', 'RUNNER_OS', 'ImageVersion', 'ImageOS')
+ENV_FIELDS = ('GITHUB_SHA', 'GITHUB_RUN_ID', 'GITHUB_RUN_ATTEMPT', 'GITHUB_REPOSITORY', 'RUNNER_ARCH', 'RUNNER_OS', 'ImageVersion', 'ImageOS')
 FDK_KEYS = {'schema_version', 'stage', 'status', 'phase', 'error_code', 'cancelled',
             'owned_container_absence', 'native_build', 'hardware', 'installation',
-            'selected_for_release', 'binary_publication'}
+            'selected_for_release', 'binary_publication', 'worker_diagnostics'}
+FDK_ACTIONS = ('build-1', 'build-2', 'compare')
+
+
+def validator_from_bytes(captured):
+    """Execute authenticated pure bytes with a private, explicit import binding."""
+    if type(captured) is not dict or set(captured) != {'evidence.py', 'worker_evidence.py'} or \
+            any(type(value) is not bytes or len(value) > 8 * 1024**2 for value in captured.values()):
+        raise ValueError('FDK-validator-bytes')
+    modules = {name: types.ModuleType('captured_fdk_' + name) for name in ('evidence', 'worker_evidence')}
+    def private_import(name, globals=None, locals=None, fromlist=(), level=0):
+        if level == 0 and name in modules:
+            return modules[name]
+        return builtins.__import__(name, globals, locals, fromlist, level)
+    for name, module in modules.items():
+        module.__dict__.update(__file__='captured-fdk-stage/' + name + '.py',
+            __builtins__=dict(vars(builtins), __import__=private_import))
+        exec(compile(captured[name + '.py'], module.__file__, 'exec'), module.__dict__)
+    return modules['worker_evidence']
+
+
+def authenticated_worker_validator(snapshot, manifest_path, manifest_sha):
+    manifest = packet.load(manifest_path, manifest_sha)
+    packet.need(type(manifest.get('files')) is dict, 'FDK-validator-manifest')
+    captured = {}
+    for name in ('stage.lock.json', 'evidence.py', 'worker_evidence.py'):
+        relative = packet.ADAPTER + name
+        row = manifest['files'][relative]; path = snapshot / relative
+        packet.need(type(row) is dict and set(row) == {'sha256', 'mode', 'bytes'} and
+                    type(row['mode']) is int and row['mode'] == 0o644 and type(row['bytes']) is int and
+                    0 <= row['bytes'] <= 8 * 1024**2, 'FDK-validator-row')
+        before = path.lstat(); data = packet.read(path); after = path.lstat()
+        identity = lambda s: (s.st_dev, s.st_ino, s.st_uid, s.st_gid, s.st_mode, s.st_nlink,
+                              s.st_size, s.st_mtime_ns, s.st_ctime_ns)
+        packet.need(before.st_uid == os.getuid() and identity(before) == identity(after) and
+                    stat.S_IMODE(before.st_mode) == row['mode'] and len(data) == row['bytes'] and
+                    packet.sha(data) == row['sha256'], 'FDK-validator-binding')
+        captured[name] = data
+    stage_bytes = captured.pop('stage.lock.json')
+    packet.need(packet.sha(stage_bytes) == packet.ADAPTER_SHA, 'FDK-validator-stage-pin')
+    # The complete packet/source/Git gate ran before this capture. Additionally
+    # bind this exact dependency pair to the independently pinned stage lock.
+    adapter = packet.decode(stage_bytes)
+    for name, data in captured.items():
+        packet.need(adapter['files'][packet.ADAPTER + name] == {'sha256': packet.sha(data), 'mode': 0o644},
+                    'FDK-validator-stage-row')
+    return validator_from_bytes(captured)
 
 
 def ordinary():
@@ -48,27 +97,57 @@ def output(path, root):
     return path
 
 
-def fdk_public(private, report):
+def validate_fdk_record(record, validator):
+    packet.need(validator is not None and type(record) is dict and set(record) == FDK_KEYS and
+                record['stage'] == 'fdk-native-development' and type(record['schema_version']) is int and
+                record['schema_version'] == 2 and record['hardware'] == record['installation'] ==
+                record['binary_publication'] == 'NOT RUN' and record['selected_for_release'] is False,
+                'FDK-public-schema')
+    packet.need(record['status'] in ('PASS', 'FAIL') and
+                record['native_build'] == ('PASS' if record['status'] == 'PASS' else 'NOT ACCEPTED') and
+                record['phase'] in ('preflight', 'base-probe', 'source', 'build-1', 'build-2', 'compare', 'complete') and
+                record['error_code'] == (None if record['status'] == 'PASS' else 'fdk-stage-failed') and
+                type(record['cancelled']) is type(record['owned_container_absence']) is bool, 'FDK-public-fields')
+    record = packet.decode(json.dumps(record, allow_nan=False).encode())
+    record['worker_diagnostics'] = validator.validate_workers(record['worker_diagnostics'],
+                                                            require_complete=record['status'] == 'PASS')
+    packet.need(record['status'] != 'PASS' or record['phase'] == 'complete' and
+                record['cancelled'] is False and record['owned_container_absence'] is True, 'FDK-public-acceptance')
+    return record
+
+
+def capture_fdk(private, state):
+    if not state.get('fdk_capture_attempted'):
+        state['fdk_capture_attempted'] = True
+        state['fdk_capture'] = None
+        try:
+            path = private / 'fdk/public/status.json'
+            before = path.lstat(); raw = packet.read(path, 65536); after = path.lstat()
+            identity = lambda s: (s.st_dev, s.st_ino, s.st_uid, s.st_gid, s.st_mode, s.st_nlink,
+                                  s.st_size, s.st_mtime_ns, s.st_ctime_ns)
+            packet.need(before.st_uid == os.getuid() and stat.S_IMODE(before.st_mode) == 0o600 and
+                        identity(before) == identity(after), 'FDK-public-owner')
+            state['fdk_capture'] = validate_fdk_record(packet.decode(raw), state.get('worker_validator'))
+            state['fdk_capture_sha256'] = packet.sha(raw)
+        except Exception:
+            pass
+    return state.get('fdk_capture')
+
+
+def fdk_public(private, report, state):
     try:
-        record = packet.load(private / 'fdk/public/status.json')
-        packet.need(set(record) == FDK_KEYS and record['stage'] == 'fdk-native-development' and
-                    record['schema_version'] == 1 and record['hardware'] == record['installation'] ==
-                    record['binary_publication'] == 'NOT RUN' and record['selected_for_release'] is False,
-                    'FDK-public-schema')
-        # Copy only finite enums/booleans; no child-controlled strings reach publication.
-        packet.need(record['status'] in ('PASS', 'FAIL') and record['native_build'] in ('PASS', 'NOT ACCEPTED') and
-                    record['phase'] in ('preflight', 'base-probe', 'source', 'build-1', 'build-2', 'compare', 'complete') and
-                    record['error_code'] in (None, 'fdk-stage-failed') and
-                    type(record['cancelled']) is type(record['owned_container_absence']) is bool,
-                    'FDK-public-fields')
-        packet.need(record['status'] != 'PASS' or record['phase'] == 'complete' and
-                    record['cancelled'] is False and record['owned_container_absence'] is True and
-                    record['native_build'] == 'PASS' and record['error_code'] is None, 'FDK-public-acceptance')
+        captured = capture_fdk(private, state)
+        packet.need(captured is not None, 'FDK-public-unverified')
+        record = packet.decode(json.dumps(captured).encode())
     except Exception:
-        record = {'schema_version': 1, 'stage': 'fdk-native-development', 'status': 'FAIL', 'phase': 'preflight',
+        kind = 'UNAVAILABLE' if state.get('fdk_attempted') else 'NOT_RUN'
+        record = {'schema_version': 2, 'stage': 'fdk-native-development', 'status': 'FAIL', 'phase': 'preflight',
                   'error_code': 'fdk-stage-failed', 'cancelled': False, 'owned_container_absence': False,
                   'native_build': 'NOT ACCEPTED', 'hardware': 'NOT RUN', 'installation': 'NOT RUN',
-                  'selected_for_release': False, 'binary_publication': 'NOT RUN'}
+                  'selected_for_release': False, 'binary_publication': 'NOT RUN',
+                  'worker_diagnostics': {name: {'availability': kind,
+                      'exit': {'kind': 'UNOBSERVED' if kind == 'UNAVAILABLE' else 'NOT_RUN', 'code': None},
+                      'observation': None} for name in FDK_ACTIONS}}
     if evidence.public_status(report)['status'] != 'PASS':
         record.update(status='FAIL', native_build='NOT ACCEPTED', error_code='fdk-stage-failed',
                       cancelled=record['cancelled'] or report['cancelled'])
@@ -87,7 +166,7 @@ def retire_exports(public):
 
 
 def write_exports(out, report, state):
-    child = fdk_public(out / 'private', report)
+    child = fdk_public(out / 'private', report, state)
     if report['status'] == 'PASS' and child['status'] != 'PASS':
         report.update(status='FAIL', fdk={'status': 'FAIL'})
     retire_exports(out / 'public')
@@ -97,7 +176,7 @@ def write_exports(out, report, state):
         report['status'] = 'FAIL'
     fdk = out / 'public/fdk'
     fdk.mkdir(mode=0o700, exist_ok=True)
-    packet.save(fdk / 'status.json', fdk_public(out / 'private', report))
+    packet.save(fdk / 'status.json', fdk_public(out / 'private', report, state))
     packet.save(out / 'private/job-result.json', report)
     packet.save(out / 'public/status.json', evidence.public_status(report))
 
@@ -206,6 +285,7 @@ def execute(args, state):
         report['source'] = packet.verify(root, args.packet, args.packet_sha256, args.source_commit,
                                           runner, private / 'source')
         snapshot = private / 'source'
+        state['worker_validator'] = authenticated_worker_validator(snapshot, args.packet, args.packet_sha256)
         packet.save(private / 'source-receipt.json', report['source'])
         state['recipes'] = snapshot / 'scripts/ci/recipes.lock.json'
         state['native_sha'] = packet.sha(packet.read(snapshot / 'scripts/ci/native_arm.py'))
@@ -261,6 +341,7 @@ def execute(args, state):
             boundary_failure(private, report, 'original-result-retention', error)
             raise
         report['phase'] = 'fdk'
+        state['fdk_attempted'] = True
         child = runner.run([python, '-I', '-B', str(root / (packet.ADAPTER + 'stage.py')), '--execute-native',
             '--source-root', str(root), '--source-commit', args.source_commit,
             '--lock', str(root / (packet.ADAPTER + 'stage.lock.json')), '--lock-sha256', packet.ADAPTER_SHA,
@@ -270,10 +351,11 @@ def execute(args, state):
             '--image', state['image'], '--docker-endpoint', args.docker_endpoint, '--docker-binary', args.docker_binary,
             '--docker-sha256', args.docker_sha256, '--output', str(private / 'fdk'), '--deadline', str(args.fdk_timeout),
             '--build-timeout', str((args.fdk_timeout - 300) // 2)], timeout=args.fdk_timeout + 30, log='fdk.log')
-        fdk = packet.load(private / 'fdk/public/status.json')
-        packet.need(child.returncode == 0 and fdk.get('status') == 'PASS' and fdk.get('cancelled') is False,
+        fdk = capture_fdk(private, state)
+        packet.need(type(child.returncode) is int and child.returncode == 0 and fdk is not None and
+                    fdk.get('status') == 'PASS' and fdk.get('cancelled') is False,
                     'FDK-stage-failed')
-        report['fdk'] = {'status': 'PASS', 'receipt_sha256': packet.sha(packet.read(private / 'fdk/public/status.json'))}
+        report['fdk'] = {'status': 'PASS', 'receipt_sha256': state['fdk_capture_sha256']}
         report['status'] = 'PASS'
     except jr.Cancelled:
         report.update(status='FAIL', cancelled=True)

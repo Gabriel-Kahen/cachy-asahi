@@ -8,6 +8,11 @@ sys.dont_write_bytecode = True
 from contextlib import contextmanager
 import importlib.util
 import io
+import json
+import ast
+import hashlib
+import re
+import textwrap
 import os
 from pathlib import Path
 import signal
@@ -27,11 +32,33 @@ IMAGE = 'sha256:' + '1' * 64
 COMMIT = 'a' * 40
 
 
+def stage_validator():
+    return job.validator_from_bytes({name: (ROOT / (job.packet.ADAPTER + name)).read_bytes()
+                                    for name in ('evidence.py', 'worker_evidence.py')})
+
+
+def worker_rows():
+    validator = stage_validator(); rows = {}
+    for action in validator.ACTIONS:
+        config = {'source_commit': COMMIT, 'stage_lock_sha256': 'b' * 64, 'run_id': '1',
+                  'run_attempt': '2', 'action': action, 'nonce': '3' * 32}
+        row = validator.initial(config, 'd' * 64); row['current_predicate'] = 'COMPLETE'
+        if action != 'compare':
+            row['builder'].update(status='STATIC_PASS', exit=validator.exit_record(0),
+                provenance={'sha256': 'e' * 64, 'bytes': 1}, log={'sha256': 'f' * 64, 'bytes': 1})
+            row['commands'].update(create=validator.exit_record(0), attach=validator.exit_record(0),
+                                   container=validator.no_exit('UNOBSERVED'))
+            row['cleanup'] = {'status': 'PASS', 'absence': 'PASS', 'reason': 'NONE'}
+        rows[action] = {'availability': 'VERIFIED', 'exit': validator.exit_record(0), 'observation': validator.project(row)}
+    return rows
+
+
 def fdk_receipt():
-    return {'schema_version': 1, 'stage': 'fdk-native-development', 'status': 'PASS',
+    return {'schema_version': 2, 'stage': 'fdk-native-development', 'status': 'PASS',
             'phase': 'complete', 'error_code': None, 'cancelled': False,
             'owned_container_absence': True, 'native_build': 'PASS', 'hardware': 'NOT RUN',
-            'installation': 'NOT RUN', 'selected_for_release': False, 'binary_publication': 'NOT RUN'}
+            'installation': 'NOT RUN', 'selected_for_release': False, 'binary_publication': 'NOT RUN',
+            'worker_diagnostics': worker_rows()}
 
 
 def passing_report():
@@ -65,7 +92,17 @@ class JobTests(unittest.TestCase):
             docker_endpoint='unix:///run/docker.sock', docker_binary='/mock/docker',
             docker_sha256='b' * 64, source_commit=COMMIT, packet=self.base / 'packet.lock.json',
             packet_sha256='c' * 64)
-        self.env = {'GITHUB_SHA': COMMIT, 'RUNNER_ARCH': 'ARM64', 'RUNNER_OS': 'Linux'}
+        self.env = {'GITHUB_SHA': COMMIT, 'GITHUB_RUN_ID': '1', 'GITHUB_RUN_ATTEMPT': '2', 'RUNNER_ARCH': 'ARM64', 'RUNNER_OS': 'Linux'}
+        self.validator = stage_validator()
+        self.source_bytes = {job.packet.ADAPTER + name: (ROOT / (job.packet.ADAPTER + name)).read_bytes()
+                             for name in ('evidence.py', 'worker_evidence.py')}
+        adapter = {'schema_version': 1, 'files': {n: {'sha256': job.packet.sha(data), 'mode': 0o644}
+                                                for n, data in self.source_bytes.items()}}
+        self.source_bytes[job.packet.ADAPTER + 'stage.lock.json'] = (json.dumps(adapter) + '\n').encode()
+        rows = {n: {'sha256': job.packet.sha(data), 'mode': 0o644, 'bytes': len(data)} for n, data in self.source_bytes.items()}
+        job.packet.save(self.args.packet, {'schema_version': 1, 'files': rows})
+        self.args.packet_sha256 = job.packet.sha(job.packet.read(self.args.packet))
+        self.real_adapter_pin = job.packet.ADAPTER_SHA
         self.original = b'{"native_build":"PASS","status":"native-builds-and-byte-comparison-pass"}\n'
         self.events, self.commands = [], []
         self.boundary_change = None
@@ -79,6 +116,7 @@ class JobTests(unittest.TestCase):
         self.runner = SimpleNamespace(deadline=time.monotonic() + 9000, run=self.run_command)
         self.original_execute = job.execute
         self.patches = [mock.patch.object(job, 'HERE', self.here),
+                mock.patch.object(job.packet, 'ADAPTER_SHA', job.packet.sha(self.source_bytes[job.packet.ADAPTER + 'stage.lock.json'])),
                 mock.patch.object(job, 'ordinary'),
                 mock.patch.dict(os.environ, self.env, clear=True),
                 mock.patch.object(job.shutil, 'disk_usage', return_value=SimpleNamespace(free=16 * 1024**3)),
@@ -96,10 +134,11 @@ class JobTests(unittest.TestCase):
         if self.mode == 'source-fail':
             raise ValueError('fixture incomplete packet')
         for name, data in {'scripts/ci/native_arm.py': b'fixture immutable native source',
-                           'scripts/ci/recipes.lock.json': b'{}\n'}.items():
+                           'scripts/ci/recipes.lock.json': b'{}\n', **self.source_bytes}.items():
             path = output / name
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_bytes(data)
+            path.chmod(0o644)
         return {'status': 'PASS', 'source_commit': commit, 'packet_sha256': pin}
 
     def run_command(self, argv, **kwargs):
@@ -149,7 +188,7 @@ class JobTests(unittest.TestCase):
         self.assertEqual(argv[argv.index('--image') + 1], IMAGE)
         record = fdk_receipt()
         if self.mode == 'fdk-fail':
-            record.update(status='FAIL', native_build='NOT ACCEPTED')
+            record.update(status='FAIL', native_build='NOT ACCEPTED', error_code='fdk-stage-failed')
         elif self.mode == 'fdk-malformed':
             record = {'status': 'PASS', 'cancelled': False}
         elif self.mode == 'fdk-inconsistent':
@@ -159,7 +198,7 @@ class JobTests(unittest.TestCase):
         path = self.private / 'fdk/public/status.json'
         path.parent.mkdir(parents=True)
         job.packet.save(path, record)
-        return subprocess.CompletedProcess(argv, int(self.mode == 'fdk-fail'), b'')
+        return subprocess.CompletedProcess(argv, False if self.mode == 'fdk-untyped-exit' else int(self.mode == 'fdk-fail'), b'')
 
     def cleanup(self, **kwargs):
         self.events.append('cleanup')
@@ -633,6 +672,12 @@ class JobTests(unittest.TestCase):
         self.assertEqual((self.private / 'producer/result.json').read_bytes(), self.original)
         self.assertEqual((self.private / 'original-result.json').read_bytes(), self.original)
 
+    def test_boolean_child_exit_cannot_accept_valid_fdk_receipt(self):
+        self.mode = 'fdk-untyped-exit'
+        result, _ = self.execute()
+        self.assertEqual(result, 1)
+        self.assert_failed_public()
+
     def test_cancelled_fdk_refuses_both_public_candidates(self):
         self.mode = 'fdk-cancel'
         result, _ = self.execute()
@@ -676,7 +721,7 @@ class JobTests(unittest.TestCase):
         path.parent.mkdir(parents=True)
         job.packet.save(path, fdk_receipt())
         state.update(out=self.out, report=passing_report(), recipes=self.root / 'recipes.json',
-                     native_sha='d' * 64, image=IMAGE)
+                     native_sha='d' * 64, image=IMAGE, worker_validator=self.validator, fdk_attempted=True)
 
     def test_actual_sigterm_during_candidate_publication_rewrites_all_fail(self):
         original = job.packet.save
@@ -775,16 +820,277 @@ class JobTests(unittest.TestCase):
             with self.subTest(change=change):
                 self.assertEqual(job.evidence.public_status(report)['status'], 'FAIL')
 
-    def test_current_frozen_source_closure_is_116_plus_only_job_inputs(self):
-        names, adapter, recipes = job.packet.closure(ROOT)
+    def test_current_frozen_source_closure_is_117_plus_only_job_inputs(self):
+        with mock.patch.object(job.packet, 'ADAPTER_SHA', self.real_adapter_pin):
+            names, adapter, recipes = job.packet.closure(ROOT)
         base = names - {n for n in names if n.startswith(job.packet.PREFIX)}
-        self.assertEqual(len(adapter['files']), 39)
+        self.assertEqual(len(adapter['files']), 40)
         self.assertEqual(sum(len(rows) for rows in recipes.values()), 71)
-        self.assertEqual(len(base), 116)
+        self.assertEqual(len(base), 117)
         self.assertIn('scripts/setup/setup.py', base)
         self.assertEqual(job.packet.sha(job.packet.read(ROOT / 'scripts/ci/inputs.lock.json')), job.packet.INPUTS_SHA)
         self.assertEqual(job.packet.sha(job.packet.read(ROOT / 'scripts/ci/recipes.lock.json')), job.packet.RECIPES_SHA)
         self.assertFalse(any(name.endswith(('.tar.gz', '.pkg.tar.xz', '.pkg.tar.zst')) for name in names))
+
+
+class ValidatorLoaderTests(unittest.TestCase):
+    def setUp(self):
+        temporary = tempfile.TemporaryDirectory(); self.addCleanup(temporary.cleanup)
+        self.root = Path(temporary.name); self.manifest = self.root / 'packet.lock.json'
+        self.source = {job.packet.ADAPTER + name: (ROOT / (job.packet.ADAPTER + name)).read_bytes()
+                       for name in ('evidence.py', 'worker_evidence.py')}
+        adapter = {'schema_version': 1, 'files': {n: {'sha256': job.packet.sha(data), 'mode': 0o644}
+                                               for n, data in self.source.items()}}
+        self.stage_bytes = (json.dumps(adapter) + '\n').encode()
+        self.source[job.packet.ADAPTER + 'stage.lock.json'] = self.stage_bytes
+        for name, data in self.source.items():
+            path = self.root / name; path.parent.mkdir(parents=True, exist_ok=True); path.write_bytes(data); path.chmod(0o644)
+        self.rows = {n: {'sha256': job.packet.sha(data), 'mode': 0o644, 'bytes': len(data)} for n, data in self.source.items()}
+        job.packet.save(self.manifest, {'schema_version': 1, 'files': self.rows})
+        self.pin = job.packet.sha(job.packet.read(self.manifest))
+        patch = mock.patch.object(job.packet, 'ADAPTER_SHA', job.packet.sha(self.stage_bytes)); patch.start(); self.addCleanup(patch.stop)
+
+    def load(self):
+        return job.authenticated_worker_validator(self.root, self.manifest, self.pin)
+
+    def test_explicit_dependency_ignores_wrong_global_evidence_without_global_import_mutation(self):
+        original_job = job.evidence
+        trap = SimpleNamespace(INPUTS_SHA='private poison')
+        before_worker = sys.modules.get('worker_evidence')
+        with mock.patch.dict(sys.modules, {'evidence': trap}):
+            validator = self.load()
+            validator.validate_workers(worker_rows(), require_complete=True)
+            self.assertIs(sys.modules['evidence'], trap)
+            self.assertIs(sys.modules.get('worker_evidence'), before_worker)
+        self.assertIs(job.evidence, original_job)
+
+    def test_unauthenticated_helper_and_dependency_refused_before_execute(self):
+        for name in ('evidence.py', 'worker_evidence.py'):
+            path = self.root / (job.packet.ADAPTER + name); original = path.read_bytes()
+            path.write_bytes(b'raise AssertionError("unauthenticated executed")\n')
+            with self.subTest(name=name), self.assertRaisesRegex(ValueError, 'FDK-validator-binding'): self.load()
+            path.write_bytes(original)
+        with self.assertRaises(ValueError): job.authenticated_worker_validator(self.root, self.manifest, 'f' * 64)
+
+    def test_stage_pair_pin_modes_and_declared_bytes_are_not_trusted_blindly(self):
+        path = self.root / (job.packet.ADAPTER + 'worker_evidence.py')
+        path.chmod(0o600)
+        with self.assertRaises(ValueError): self.load()
+        path.chmod(0o644)
+        with mock.patch.object(job.packet, 'ADAPTER_SHA', 'f' * 64), self.assertRaises(ValueError): self.load()
+        row = self.rows[job.packet.ADAPTER + 'worker_evidence.py']; row['bytes'] += 1
+        job.packet.save(self.manifest, {'schema_version': 1, 'files': self.rows})
+        self.pin = job.packet.sha(job.packet.read(self.manifest))
+        with self.assertRaises(ValueError): self.load()
+
+    def test_one_valid_capture_does_not_re_read_live_helper_bytes(self):
+        validator = self.load()
+        path = self.root / (job.packet.ADAPTER + 'worker_evidence.py')
+        path.write_bytes(b'raise AssertionError("late mutable helper")\n')
+        validator.validate_workers(worker_rows(), require_complete=True)
+        with self.assertRaises(ValueError): self.load()
+
+    def test_record_success_requires_current_complete_vector_no_legacy_fallback(self):
+        validator = self.load(); good = fdk_receipt()
+        self.assertEqual(job.validate_fdk_record(good, validator), good)
+        for change in (lambda r: r.update(schema_version=1), lambda r: r.pop('worker_diagnostics'),
+            lambda r: r['worker_diagnostics']['build-2'].update(availability='UNVERIFIED', observation=None),
+            lambda r: r['worker_diagnostics']['compare']['exit'].update(kind='EXIT_NONZERO', code=1),
+            lambda r: r['worker_diagnostics']['build-1']['observation'].update(raw='SECRET')):
+            row = json.loads(json.dumps(good)); change(row)
+            with self.subTest(change=change), self.assertRaises(ValueError): job.validate_fdk_record(row, validator)
+
+    def test_capture_retains_same_valid_snapshot_and_does_not_late_promote_missing(self):
+        path = self.root / 'fdk/public/status.json'; path.parent.mkdir(parents=True)
+        state = {'worker_validator': self.load(), 'fdk_attempted': True}
+        self.assertIsNone(job.capture_fdk(self.root, state))
+        job.packet.save(path, fdk_receipt())
+        self.assertIsNone(job.capture_fdk(self.root, state))
+        state = {'worker_validator': self.load(), 'fdk_attempted': True}
+        good = job.capture_fdk(self.root, state)
+        job.packet.save(path, {'raw': 'SECRET late poison'})
+        self.assertEqual(job.capture_fdk(self.root, state), good)
+        projected = job.fdk_public(self.root, passing_report(), state)
+        self.assertEqual(projected['status'], 'PASS'); self.assertNotIn('SECRET', json.dumps(projected))
+        failed = passing_report(); failed.update(status='FAIL', cancelled=True)
+        downgraded = job.fdk_public(self.root, failed, state)
+        self.assertEqual((downgraded['status'], downgraded['native_build']), ('FAIL', 'NOT ACCEPTED'))
+        self.assertTrue(downgraded['cancelled'])
+        self.assertEqual(downgraded['worker_diagnostics'], good['worker_diagnostics'])
+
+    def test_run_and_attempt_fields_forwarded_and_fallback_is_finite_fail(self):
+        self.assertIn('GITHUB_RUN_ATTEMPT', job.ENV_FIELDS)
+        for attempted, availability in ((False, 'NOT_RUN'), (True, 'UNAVAILABLE')):
+            state = {'fdk_attempted': attempted}
+            record = job.fdk_public(self.root, passing_report(), state)
+            self.assertEqual((record['schema_version'], record['status']), (2, 'FAIL'))
+            self.assertEqual({r['availability'] for r in record['worker_diagnostics'].values()}, {availability})
+            self.load().validate_workers(record['worker_diagnostics'])
+
+
+def workflow_functions(text, index=-1):
+    blocks = re.findall(r"/usr/bin/python3 -I -B - <<'PY'\n(.*?)\n          PY", text, re.S)
+    tree = ast.parse(textwrap.dedent(blocks[index]))
+    scope = {'__name__': 'fdk_consumer_fixture'}
+    nodes = [node for node in tree.body if isinstance(node, (ast.Import, ast.ImportFrom, ast.Assign, ast.FunctionDef))]
+    exec(compile(ast.Module(body=nodes, type_ignores=[]), 'captured-workflow-fixture', 'exec'), scope)
+    return scope
+
+
+class WorkflowBootstrapTests(unittest.TestCase):
+    def setUp(self):
+        temporary = tempfile.TemporaryDirectory(); self.addCleanup(temporary.cleanup)
+        self.root = Path(temporary.name)
+        self.text = (ROOT / '.github/workflows/native-arm-fdk.yml').read_text()
+        self.scope = workflow_functions(self.text)
+        self.bootstrap = workflow_functions(self.text, 0)
+        prefix, adapter = job.packet.PREFIX, job.packet.ADAPTER
+        self.source = {adapter + n: (ROOT / (adapter + n)).read_bytes() for n in ('evidence.py', 'worker_evidence.py')}
+        stage = {'schema_version': 1, 'files': {n: {'sha256': job.packet.sha(raw), 'mode': 0o644}
+                                               for n, raw in self.source.items()}}
+        stage_raw = (json.dumps(stage) + '\n').encode()
+        self.source.update({adapter + 'stage.lock.json': stage_raw,
+            prefix + 'job.py': (ROOT / (prefix + 'job.py')).read_bytes(),
+            prefix + 'packet.py': ('ADAPTER_SHA = ' + repr(job.packet.sha(stage_raw)) + '\n').encode()})
+        for number in range(124): self.source['fixture/' + str(number) + '.txt'] = b'data-only fixture\n'
+        self.rows = {n: {'sha256': job.packet.sha(raw), 'bytes': len(raw), 'mode': 0o644} for n, raw in self.source.items()}
+        self.source[prefix + 'packet.lock.json'] = (json.dumps({'schema_version': 1, 'files': self.rows}) + '\n').encode()
+        self.pin = job.packet.sha(self.source[prefix + 'packet.lock.json'])
+        self.source['scripts/ci/log_evidence.py'] = (ROOT / 'scripts/ci/log_evidence.py').read_bytes()
+        self.source['.github/workflows/native-arm-fdk.yml'] = self.text.encode()
+        self.write()
+        self.blobs = {hashlib.sha1(raw).hexdigest(): raw for raw in self.source.values()}
+        self.env = mock.patch.dict(os.environ, {'GITHUB_WORKFLOW_SHA': COMMIT, 'RUNNER_TEMP': str(self.root)})
+        self.env.start(); self.addCleanup(self.env.stop)
+
+    def write(self):
+        for name, raw in self.source.items():
+            path = self.root / name; path.parent.mkdir(parents=True, exist_ok=True); path.write_bytes(raw); path.chmod(0o644)
+
+    def git(self, argv, **kwargs):
+        index = argv.index('-C') + 2; args = argv[index:]
+        if args == ['rev-parse', 'HEAD']: raw = (COMMIT + '\n').encode()
+        elif args[:1] == ['show']: raw = self.source[args[1].split(':', 1)[1]]
+        elif args[:2] == ['ls-tree', '--format=%(objectmode)']: raw = b'100644\n'
+        elif args[:2] == ['ls-tree', '-z']:
+            name = args[-1]; raw = ('100644 blob ' + hashlib.sha1(self.source[name]).hexdigest() + '\t' + name).encode() + b'\0'
+        elif args[:2] == ['cat-file', '-s']: raw = (str(len(self.blobs[args[2]])) + '\n').encode()
+        elif args[:2] == ['cat-file', 'blob']: raw = self.blobs[args[2]]
+        else: raise AssertionError(args)
+        return subprocess.CompletedProcess(argv, 0, raw, b'')
+
+    def verify(self):
+        with mock.patch.object(self.scope['subprocess'], 'run', side_effect=self.git):
+            return self.scope['verify_consumers'](self.root, COMMIT, self.pin, {})
+
+    def test_bootstrap_129_and_exact_loader_dependency_pair_accept_source_fixture(self):
+        with mock.patch.object(self.bootstrap['subprocess'], 'run', side_effect=self.git):
+            self.bootstrap['source'](self.root, COMMIT, self.pin)
+        validator = self.verify(); validator.validate_workers(worker_rows(), require_complete=True)
+
+    def test_coherently_rehashed_unbound_helper_refused_before_execution(self):
+        name = job.packet.ADAPTER + 'worker_evidence.py'
+        raw = b'raise AssertionError("unbound helper executed")\n'
+        self.source[name] = raw
+        self.rows[name].update(sha256=job.packet.sha(raw), bytes=len(raw))
+        self.source[job.packet.PREFIX + 'packet.lock.json'] = (json.dumps({'schema_version': 1, 'files': self.rows}) + '\n').encode()
+        self.pin = job.packet.sha(self.source[job.packet.PREFIX + 'packet.lock.json']); self.write()
+        with self.assertRaises(ValueError): self.verify()
+
+    def test_current_packet_count_wrong_mode_workflow_identity_and_missing_row_refuse(self):
+        manifest = self.root / (job.packet.PREFIX + 'packet.lock.json')
+        helper = self.root / (job.packet.ADAPTER + 'worker_evidence.py')
+        helper.chmod(0o600)
+        with self.assertRaises(ValueError): self.verify()
+        helper.chmod(0o644)
+        with mock.patch.dict(os.environ, {'GITHUB_WORKFLOW_SHA': 'f' * 40}), self.assertRaises(ValueError): self.verify()
+        rows = dict(self.rows); rows.pop('fixture/0.txt')
+        raw = (json.dumps({'schema_version': 1, 'files': rows}) + '\n').encode()
+        self.source[job.packet.PREFIX + 'packet.lock.json'] = raw; manifest.write_bytes(raw); self.pin = job.packet.sha(raw)
+        with self.assertRaises(ValueError): self.verify()
+
+
+class WorkflowConsumerTests(unittest.TestCase):
+    def setUp(self):
+        temporary = tempfile.TemporaryDirectory(); self.addCleanup(temporary.cleanup)
+        self.root = Path(temporary.name)
+        self.scope = workflow_functions((ROOT / '.github/workflows/native-arm-fdk.yml').read_text())
+        self.validator = stage_validator()
+        self.historical = ROOT / 'artifacts/ci/38277573107/decoded/public'
+
+    def fixture(self, passed=True):
+        public = self.root / ('pass' if passed else 'fail'); public.mkdir(mode=0o700)
+        for path in self.historical.rglob('*.json'):
+            dest = public / path.relative_to(self.historical); dest.parent.mkdir(mode=0o700, exist_ok=True)
+            dest.write_bytes(path.read_bytes())
+        status = job.packet.load(public / 'status.json')
+        if passed:
+            status.update(status='PASS', fdk_status='PASS', error_code=None)
+            summary = job.packet.load(public / 'producer/producer-summary.json')
+            summary.update(status='PASS', authoritative_job_status='PASS', native_build='PASS')
+            summary.pop('recorded_native_build', None)
+            job.packet.save(public / 'producer/producer-summary.json', summary)
+        fdk = fdk_receipt()
+        if not passed: fdk.update(status='FAIL', native_build='NOT ACCEPTED', error_code='fdk-stage-failed')
+        job.packet.save(public / 'fdk/status.json', fdk); job.packet.save(public / 'status.json', status)
+        producer = public / 'producer'
+        manifest = job.packet.load(producer / 'export-manifest.json')
+        manifest.update(status='PASS' if passed else 'FAIL', files={p.name: job.packet.sha(p.read_bytes())
+                        for p in producer.iterdir() if p.name != 'export-manifest.json'})
+        job.packet.save(producer / 'export-manifest.json', manifest)
+        return public, status
+
+    def validate(self, public, status):
+        return self.scope['validate_public'](public, status['source_commit'], status['source_packet_sha256'], self.validator)
+
+    def test_current_success_and_outer_failure_preserve_completed_inner_vectors(self):
+        with mock.patch.dict(os.environ, {'FDK_NATIVE_OUTCOME': 'success'}):
+            public, status = self.fixture(); self.assertEqual(len(self.validate(public, status)), 8)
+        with mock.patch.dict(os.environ, {'FDK_NATIVE_OUTCOME': 'failure'}):
+            public, status = self.fixture(False)
+            raw = self.validate(public, status)
+            rows = job.packet.decode(raw['fdk/status.json'])['worker_diagnostics']
+            self.assertTrue(all(r['observation']['first_failed_predicate'] == 'NONE' for r in rows.values()))
+
+    def test_current_workflow_refuses_missing_malformed_and_contradictory_worker_claims(self):
+        public, status = self.fixture()
+        good = job.packet.load(public / 'fdk/status.json')
+        changes = (lambda r: r.update(schema_version=1), lambda r: r.pop('worker_diagnostics'),
+            lambda r: r['worker_diagnostics']['build-2'].update(availability='UNAVAILABLE', observation=None),
+            lambda r: r['worker_diagnostics']['compare']['exit'].update(kind='EXIT_NONZERO', code=1),
+            lambda r: r['worker_diagnostics']['build-1']['observation'].update(raw='SECRET'),
+            lambda r: r['worker_diagnostics']['build-2']['observation'].update(
+                binding_sha256=r['worker_diagnostics']['build-1']['observation']['binding_sha256']))
+        with mock.patch.dict(os.environ, {'FDK_NATIVE_OUTCOME': 'success'}):
+            for change in changes:
+                row = json.loads(json.dumps(good)); change(row); job.packet.save(public / 'fdk/status.json', row)
+                with self.subTest(change=change), self.assertRaises(ValueError): self.validate(public, status)
+
+    def test_finite_fallback_and_unknown_path_outcome_producer_checks_remain(self):
+        public, status = self.fixture(False)
+        fdk = job.packet.load(public / 'fdk/status.json')
+        fdk['worker_diagnostics'] = {name: self.validator.worker_row() for name in self.validator.ACTIONS}
+        job.packet.save(public / 'fdk/status.json', fdk)
+        with mock.patch.dict(os.environ, {'FDK_NATIVE_OUTCOME': 'failure'}):
+            self.validate(public, status)
+            (public / 'unknown.json').write_text('{}')
+            with self.assertRaises(ValueError): self.validate(public, status)
+            (public / 'unknown.json').unlink()
+            job.packet.save(public / 'producer/export-manifest.json', {'unknown': 'SECRET'})
+            with self.assertRaises(ValueError): self.validate(public, status)
+
+    def test_exact_old_failure_replays_only_with_historical_committed_consumer(self):
+        old = ROOT / 'artifacts/reviews/fdk-diagnostics-consumer-20261012/fixtures/historical-workflow-6df.yml'
+        raw = old.read_bytes()
+        self.assertEqual(job.packet.sha(raw), '6df06b24cba7d55f26a8941b515f234a9ad4a24e11b164b8615cf3357dd9faa9')
+        historical = workflow_functions(raw.decode())
+        status = job.packet.load(self.historical / 'status.json')
+        with mock.patch.dict(os.environ, {'FDK_NATIVE_OUTCOME': 'failure'}):
+            result = historical['validate_public'](self.historical, status['source_commit'], status['source_packet_sha256'])
+            self.assertEqual(len(result), 8)
+            self.assertEqual(job.packet.sha(result['fdk/status.json']),
+                             'df953517781c0811b604946099d9c57a4ad0af4366f34c14f7d37452e7e02404')
+            with self.assertRaises(ValueError): self.validate(self.historical, status)
 
 
 if __name__ == '__main__':
