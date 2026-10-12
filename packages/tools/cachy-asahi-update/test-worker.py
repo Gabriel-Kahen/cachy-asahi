@@ -80,6 +80,88 @@ class WorkerTests(unittest.TestCase):
         data['masked_null'] = {'/proc/kcore': True}
         worker.guard(data)
 
+    def test_source_backed_default_mounts(self):
+        data = facts()
+        data['mounts']['/dev/mqueue'] = {'fs': 'mqueue', 'flags': ['rw', 'nosuid', 'noexec', 'nodev']}
+        for point in ('/proc/timer_stats', '/proc/sched_debug'):
+            data['mounts'][point] = {'fs': 'tmpfs', 'flags': ['rw', 'nosuid']}
+        data['masked_null'] = dict.fromkeys(('/proc/timer_stats', '/proc/sched_debug'), True)
+        for cpu in (0, 1, 8191):
+            data['mounts'][f'/sys/devices/system/cpu/cpu{cpu}/thermal_throttle'] = {
+                'fs': 'tmpfs', 'flags': ['ro']}
+        worker.guard(data)
+
+    def test_mqueue_wrong_filesystem_or_safety_flags_refused(self):
+        flags = ['rw', 'nosuid', 'noexec', 'nodev']
+        cases = [('tmpfs', flags), ('ext4', flags)]
+        cases += [('mqueue', [f for f in flags if f != missing])
+                  for missing in ('nosuid', 'noexec', 'nodev', 'rw')]
+        cases += [('mqueue', flags + [unsafe]) for unsafe in ('suid', 'exec', 'dev', 'ro')]
+        for fs, mount_flags in cases:
+            data = facts()
+            data['mounts']['/dev/mqueue'] = {'fs': fs, 'flags': mount_flags}
+            with self.subTest(fs=fs, flags=mount_flags), self.assertRaisesRegex(ValueError, 'mqueue'):
+                worker.guard(data)
+
+    def test_new_file_masks_exact_null_or_readonly_tmpfs(self):
+        for point in ('/proc/timer_stats', '/proc/sched_debug'):
+            for flags, observed in [(['ro'], False), (['rw', 'nosuid'], True)]:
+                data = facts()
+                data['mounts'][point] = {'fs': 'tmpfs', 'flags': flags}
+                data['masked_null'] = {point: observed}
+                with self.subTest(point=point, flags=flags):
+                    worker.guard(data)
+            for fs, flags, observed in [('proc', ['ro'], False), ('ext4', ['ro'], True),
+                    ('tmpfs', ['rw', 'nosuid'], False), ('tmpfs', ['rw', 'nosuid'], 1),
+                    ('tmpfs', ['rw'], True), ('tmpfs', ['nosuid'], True),
+                    ('tmpfs', ['rw', 'nosuid', 'suid'], True),
+                    ('tmpfs', ['ro', 'rw', 'nosuid'], True)]:
+                data = facts()
+                data['mounts'][point] = {'fs': fs, 'flags': flags}
+                data['masked_null'] = {point: observed}
+                with self.subTest(point=point, fs=fs, flags=flags, observed=observed), \
+                        self.assertRaisesRegex(ValueError, 'default file mask'):
+                    worker.guard(data)
+
+    def test_cpu_mask_has_no_null_bypass(self):
+        point = '/sys/devices/system/cpu/cpu0/thermal_throttle'
+        for fs, flags in [('sysfs', ['ro']), ('ext4', ['ro']), ('tmpfs', ['rw']),
+                          ('tmpfs', ['rw', 'nosuid', 'noexec', 'nodev']), ('tmpfs', ['ro', 'rw'])]:
+            data = facts()
+            data['mounts'][point] = {'fs': fs, 'flags': flags}
+            data['masked_null'] = {point: True}
+            with self.subTest(fs=fs, flags=flags), self.assertRaisesRegex(ValueError, 'CPU thermal mask'):
+                worker.guard(data)
+
+    def test_cpu_mask_canonical_path_and_finite_cap(self):
+        points = ['/sys/devices/system/cpu/cpu' + cpu + '/thermal_throttle'
+                  for cpu in ('00', '01', '-1', '+1', '8192', '9999', '10000', '1.0', '１')]
+        points += ['/sys/devices/system/cpu/cpu0//thermal_throttle',
+                   '/sys/devices/system/cpu/cpu0/./thermal_throttle',
+                   '/sys/devices/system/cpu/cpu0/thermal_throttle/',
+                   '/sys/devices/system/cpu/cpu0/thermal_throttle/child',
+                   '/sys/devices/system/cpu/cpu0', '/sys/devices/system/cpu/online']
+        for point in points:
+            data = facts()
+            data['mounts'][point] = {'fs': 'tmpfs', 'flags': ['ro']}
+            with self.subTest(point=point), self.assertRaisesRegex(ValueError, 'unexpected worker mount'):
+                worker.guard(data)
+
+    def test_default_mount_names_do_not_allow_nested_or_unknown_mounts(self):
+        for point in ('/dev/mqueue/child', '/proc/timer_stats/child', '/proc/sched_debug/child',
+                      '/sys/devices/system/cpu/cpu0/thermal_throttle/child', '/proc/arbitrary-mask'):
+            data = facts()
+            data['mounts'][point] = {'fs': 'tmpfs', 'flags': ['ro']}
+            with self.subTest(point=point), self.assertRaisesRegex(ValueError, 'unexpected worker mount'):
+                worker.guard(data)
+
+    def test_default_mount_stacking_refused(self):
+        for point in ('/dev/mqueue', '/proc/timer_stats', '/proc/sched_debug',
+                      '/sys/devices/system/cpu/cpu0/thermal_throttle'):
+            line = f'7 1 0:1 / {point} ro - tmpfs tmpfs ro\n'
+            with self.subTest(point=point), self.assertRaisesRegex(ValueError, 'stacked mount'):
+                worker.mount_table(line + line)
+
     def test_entry_mount_must_be_readonly(self):
         data = facts()
         data['mounts']['/builder-entry.sh'] = {'fs': 'ext4', 'flags': ['rw']}
@@ -628,6 +710,29 @@ class ActualRecorderTests(unittest.TestCase):
         self.assertFalse(row['compiler_launch_attempted'])
         self.assertFalse(row['controller_validated'])
         self.assertNotIn('host execution refused', json.dumps(row))
+
+    def test_default_mount_refusals_keep_source_issued_finite_predicate(self):
+        cases = [('/dev/mqueue', 'tmpfs', ['rw', 'nosuid', 'noexec', 'nodev'], 'runtime-filesystem'),
+                 ('/proc/timer_stats', 'tmpfs', ['rw', 'nosuid'], 'mask-readonly'),
+                 ('/sys/devices/system/cpu/cpu0/thermal_throttle', 'tmpfs', ['rw'], 'mask-readonly')]
+        for index, (point, fs, flags, predicate) in enumerate(cases):
+            destination = self.root / str(index)
+            destination.mkdir(mode=0o700)
+            recorder = self.diagnostic.Recorder(destination, bindings=self.recorder.bindings)
+            worker.set_diagnostic(recorder)
+            bad = facts()
+            bad['mounts'][point] = {'fs': fs, 'flags': flags}
+            with self.subTest(point=point), self.assertRaises(ValueError):
+                with worker.diagnostic_step('metadata-guard'):
+                    worker.guard(bad)
+            row = self.diagnostic.loads((destination/'worker-diagnostic.json').read_bytes())
+            self.assertEqual(row['first_failure']['predicate'], predicate)
+            self.assertEqual(row['first_failure']['operation'], 'metadata-guard')
+            self.assertEqual(row['status'], 'FAIL')
+            self.assertFalse(row['compiler_launch_attempted'])
+            self.assertFalse(row['diagnostic_write_failed'])
+            self.assertNotIn(point, json.dumps(row))
+        worker.set_diagnostic(self.recorder)
 
     def test_actual_source_pin_failure_precedes_output_and_commands(self):
         manifest = self.root/'Cargo.toml'

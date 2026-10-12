@@ -393,6 +393,9 @@ def parse_worker_inspection(raw,name,image,nonce,controller_sha,expected_id=None
     expected={'CACHY_ASAHI_CONTAINER':'1','CACHY_ASAHI_IMAGE_ID':image,'CACHY_ASAHI_UPDATE_BUILD_NONCE':nonce,
               'CACHY_ASAHI_CONTROLLER_SHA256':controller_sha,'SOURCE_DATE_EPOCH':'1789753605'}
     observation_need(all(values.get(key)==value for key,value in expected.items()),'inspection-identity-mismatch')
+    host=row.get('HostConfig')
+    observation_need(type(host) is dict and type(host.get('IpcMode')) is str,'inspection-schema-invalid')
+    observation_need(host['IpcMode']=='private','inspection-identity-mismatch')
     state=row.get('State');observation_need(type(state) is dict,'inspection-state-invalid')
     status=state.get('Status');observation_need(type(status) is str and status in CONTAINER_STATUSES,'inspection-state-invalid')
     flags={'running':'Running','paused':'Paused','restarting':'Restarting','dead':'Dead','oom_killed':'OOMKilled'}
@@ -572,7 +575,7 @@ def launch(image, recipe_path, expected_lock, tools, entry, output, checks, meta
         name = 'cachy-asahi-updater-' + nonce
         command = ['docker', 'run', '--name', name, '--pull=never', '--platform=linux/arm64',
                    '--user', f'{os.getuid()}:{os.getgid()}', '--cap-drop=ALL', '--security-opt=no-new-privileges',
-                   '--read-only', '--pids-limit=512', '--memory=4g', '--cpus=4', '--network=none',
+                   '--read-only', '--pids-limit=512', '--memory=4g', '--cpus=4', '--network=none', '--ipc=private',
                    '--tmpfs=/tmp:rw,nosuid,nodev,exec,size=4g',
                    '--env=CACHY_ASAHI_CONTAINER=1', '--env=CACHY_ASAHI_IMAGE_ID=' + image,
                    '--env=CACHY_ASAHI_UPDATE_BUILD_NONCE=' + nonce,

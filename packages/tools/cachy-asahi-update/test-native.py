@@ -52,6 +52,7 @@ def synthetic_diagnostic_capture(artifacts, recipe, expected_recipe, provenance)
 
 def inspection_row():
     return {'Id': CONTAINER_ID, 'Image': IMAGE, 'Name': '/' + WORKER_NAME,
+            'HostConfig': {'IpcMode': 'private'},
             'Config': {'Env': ['CACHY_ASAHI_CONTAINER=1', 'CACHY_ASAHI_IMAGE_ID=' + IMAGE,
                               'CACHY_ASAHI_UPDATE_BUILD_NONCE=' + NONCE,
                               'CACHY_ASAHI_CONTROLLER_SHA256=' + CONTROLLER_SHA,
@@ -477,6 +478,41 @@ class WorkerInspectionTests(unittest.TestCase):
             self.parse(expected_id='f' * 64)
         self.assertEqual(caught.exception.code, 'inspection-id-drift')
 
+    def test_ipc_binding_requires_typed_host_configuration(self):
+        rows = []
+        row = inspection_row(); row.pop('HostConfig'); rows.append(row)
+        for value in (None, True, 1, 'private', []):
+            row = inspection_row(); row['HostConfig'] = value; rows.append(row)
+        row = inspection_row(); row['HostConfig'] = {}; rows.append(row)
+        for value in (None, True, 1, 1.0, [], {}):
+            row = inspection_row(); row['HostConfig']['IpcMode'] = value; rows.append(row)
+        for index, row in enumerate(rows):
+            with self.subTest(case=index), self.assertRaises(native.WorkerObservationError) as caught:
+                self.parse(row)
+            self.assertEqual(caught.exception.code, 'inspection-schema-invalid')
+
+    def test_only_exact_private_ipc_mode_is_accepted(self):
+        self.assertEqual(self.parse(), observed_state(WORKER_NAME, IMAGE, NONCE, CONTROLLER_SHA))
+        for mode in ('host', 'shareable', 'none', 'container:' + 'e' * 64,
+                     '', 'PRIVATE', ' private', 'private ', 'private\n'):
+            row = inspection_row(); row['HostConfig']['IpcMode'] = mode
+            with self.subTest(mode=mode), self.assertRaises(native.WorkerObservationError) as caught:
+                self.parse(row)
+            self.assertEqual(caught.exception.code, 'inspection-identity-mismatch')
+
+    def test_each_existing_query_refuses_nonprivate_ipc_with_same_deadline(self):
+        private = inspection_row(); host = inspection_row(); host['HostConfig']['IpcMode'] = 'host'
+        for rows, count in (([host], 1), ([private, host], 2)):
+            with self.subTest(query=count), tempfile.TemporaryDirectory() as temporary, \
+                    mock.patch.object(native, 'capture_inspection', side_effect=[json.dumps([row]).encode() for row in rows]) as capture, \
+                    mock.patch.object(native.time, 'monotonic', return_value=100) as clock:
+                with self.assertRaises(native.WorkerObservationError) as caught:
+                    native.inspect_worker(WORKER_NAME, IMAGE, NONCE, CONTROLLER_SHA, Path(temporary) / 'raw')
+                self.assertEqual(caught.exception.code, 'inspection-identity-mismatch')
+                self.assertEqual(capture.call_count, count)
+                self.assertEqual([call.args for call in capture.call_args_list], [(WORKER_NAME, 160)] * count)
+                clock.assert_called_once_with()
+
     def test_env_identity_duplicates_types_and_bounds_refused(self):
         for key in ('CACHY_ASAHI_CONTAINER', 'CACHY_ASAHI_IMAGE_ID',
                     'CACHY_ASAHI_UPDATE_BUILD_NONCE', 'CACHY_ASAHI_CONTROLLER_SHA256',
@@ -744,6 +780,25 @@ class ParentWorkerBranchTests(unittest.TestCase):
                 self.assertEqual(error is None, code == 0)
                 self.assertTrue(record['container_cleanup_complete'])
                 self.assertIn('rm', calls)
+
+    def test_launch_explicit_private_ipc_preserves_isolation_and_bound_proof(self):
+        record, error, calls, before = self.launch()
+        self.assertIsNone(error)
+        command = record['command']
+        self.assertEqual([item for item in command if item.startswith('--ipc')], ['--ipc=private'])
+        for item in ('--pull=never', '--platform=linux/arm64', '--cap-drop=ALL',
+                     '--security-opt=no-new-privileges', '--read-only', '--pids-limit=512',
+                     '--memory=4g', '--cpus=4', '--network=none',
+                     '--tmpfs=/tmp:rw,nosuid,nodev,exec,size=4g'):
+            self.assertIn(item, command)
+        self.assertEqual(command.count('--mount'), 4)
+        self.assertEqual(command[-3:], ['--entrypoint=/usr/bin/python', IMAGE, '/builder-entry.sh'])
+        self.assertEqual(calls, ['run', 'rm'])
+        self.assertEqual(before[0]['worker_run_returncode'], 0)
+        self.assertEqual(record['worker_diagnostic_status'], 'BOUND')
+        self.assertTrue(record['worker_diagnostic']['controller_validated'])
+        self.assertTrue(record['worker_diagnostic']['compilation_accepted'])
+        self.assertTrue(record['container_cleanup_complete'])
 
     def test_invalid_returncodes_never_become_boolean_or_claimed_code(self):
         for code in (True, False, None, '1', 1.0, -65, 256):

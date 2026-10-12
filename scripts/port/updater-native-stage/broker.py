@@ -648,7 +648,7 @@ def plan(c, args, data):
         image = args[index];need(image in image_ids(data), 'unowned-worker-image')
         need(options == {'--pull': 'never', '--platform': 'linux/arm64', '--user': f'{os.getuid()}:{os.getgid()}', '--cap-drop': 'ALL',
             '--security-opt': 'no-new-privileges', '--read-only': True, '--pids-limit': '512', '--memory': '4g', '--cpus': '4',
-            '--network': 'none', '--tmpfs': '/tmp:rw,nosuid,nodev,exec,size=4g', '--entrypoint': '/usr/bin/python'}, 'worker-option-set')
+            '--network': 'none', '--ipc': 'private', '--tmpfs': '/tmp:rw,nosuid,nodev,exec,size=4g', '--entrypoint': '/usr/bin/python'}, 'worker-option-set')
         mounts(c, binds, name, image, env)
         need(not any(row['name'] == name for row in data['containers']), 'container-name-claim')
         return ['run', '--label', LABEL + '=' + c['nonce'], *args[1:]], ('container', {'name': name, 'image_id': image, 'status': 'INTENT'})

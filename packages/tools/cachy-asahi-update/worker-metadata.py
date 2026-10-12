@@ -17,11 +17,13 @@ from pathlib import Path
 
 TARGET = 'aarch64-unknown-linux-gnu'
 ROOTS = {'/inputs': 'ro', '/out': 'rw', '/tmp': 'rw'}
-PSEUDO = {'/proc', '/dev', '/dev/pts', '/dev/shm', '/sys', '/sys/fs/cgroup'}
+PSEUDO = {'/proc', '/dev', '/dev/pts', '/dev/shm', '/dev/mqueue', '/sys', '/sys/fs/cgroup'}
 MASKS = {'/proc/acpi', '/proc/asound', '/proc/interrupts', '/proc/kcore', '/proc/keys',
          '/proc/timer_list', '/proc/latency_stats', '/proc/scsi', '/sys/firmware',
          '/sys/devices/virtual/powercap', '/proc/bus', '/proc/fs', '/proc/irq',
          '/proc/sys', '/proc/sysrq-trigger'}
+FILE_MASKS = {'/proc/timer_stats', '/proc/sched_debug'}
+MAX_CPU_MASK = 8191  # Local finite observation limit, not a Moby/kernel CPU limit.
 STANDARD = {'/etc/hosts', '/etc/hostname', '/etc/resolv.conf',
             '/builder-entry.sh', '/expected-packages.lock'}
 TOOLS = ('pacman', 'rustc', 'rustdoc', 'cargo', 'gcc', 'cc', 'ld', 'pkg-config',
@@ -119,7 +121,7 @@ def observe():
         devices |= unsafe_device(str(path), info.st_mode, info.st_rdev)
     cgroup = Path('/sys/fs/cgroup')
     masked_null = {}
-    for name in MASKS:
+    for name in MASKS | FILE_MASKS:
         path = Path(name)
         if path.exists():
             info = path.stat()
@@ -157,8 +159,24 @@ def guard(facts):
     if table['/tmp']['fs'] != 'tmpfs' or 'ro' not in table.get('/expected-packages.lock', {}).get('flags', []):
         refuse('private tmpfs and read-only expected builder lock required', 'private-tmpfs')
     for path, entry in table.items():
-        if path not in {'/'} | set(ROOTS) | PSEUDO | MASKS | STANDARD:
+        cpu = re.fullmatch(r'/sys/devices/system/cpu/cpu(0|[1-9][0-9]{0,3})/thermal_throttle', path)
+        cpu_mask = cpu is not None and int(cpu[1]) <= MAX_CPU_MASK
+        if path not in {'/'} | set(ROOTS) | PSEUDO | MASKS | FILE_MASKS | STANDARD and not cpu_mask:
             refuse('unexpected worker mount: ' + path, 'unexpected-mount')
+        flags = entry['flags']
+        readonly = 'ro' in flags and 'rw' not in flags
+        if cpu_mask and (entry['fs'] != 'tmpfs' or not readonly):
+            refuse('CPU thermal mask must be read-only tmpfs', 'mask-readonly')
+        if path in FILE_MASKS and (entry['fs'] != 'tmpfs' or
+                not (readonly or (facts.get('masked_null', {}).get(path) is True
+                     and 'nosuid' in flags and 'suid' not in flags
+                     and 'rw' in flags and 'ro' not in flags))):
+            refuse('default file mask must be read-only tmpfs or observed null', 'mask-readonly')
+        if path == '/dev/mqueue' and (entry['fs'] != 'mqueue'
+                or not {'nosuid', 'noexec', 'nodev'} <= set(flags)
+                or {'suid', 'exec', 'dev'} & set(flags)
+                or (('ro' in flags) == ('rw' in flags))):
+            refuse('private mqueue mount filesystem and safety flags required', 'runtime-filesystem')
         if path in MASKS and 'ro' not in entry['flags'] and not facts.get('masked_null', {}).get(path):
             refuse('masked runtime mount must be read-only', 'mask-readonly')
         if path in ('/sys', '/sys/fs/cgroup') and 'ro' not in entry['flags']:

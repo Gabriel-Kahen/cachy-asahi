@@ -128,7 +128,7 @@ class BrokerTests(unittest.TestCase):
         control = {'nonce': 'c' * 32, 'image_id': IMAGE, 'entry_script_sha256': b.sha(entry.read_bytes()), 'builder_inventory_sha256': b.sha(lock.read_bytes())}
         b.save(inputs / 'controller-input.json', control)
         args = ['run', '--name', WORKER, '--pull=never', '--platform=linux/arm64', '--user', f'{os.getuid()}:{os.getgid()}',
-                '--cap-drop=ALL', '--security-opt=no-new-privileges', '--read-only', '--pids-limit=512', '--memory=4g', '--cpus=4', '--network=none',
+                '--cap-drop=ALL', '--security-opt=no-new-privileges', '--read-only', '--pids-limit=512', '--memory=4g', '--cpus=4', '--network=none', '--ipc=private',
                 '--tmpfs=/tmp:rw,nosuid,nodev,exec,size=4g', '--env=CACHY_ASAHI_CONTAINER=1', '--env=CACHY_ASAHI_IMAGE_ID=' + IMAGE,
                 '--env=CACHY_ASAHI_UPDATE_BUILD_NONCE=' + 'c' * 32,
                 '--env=CACHY_ASAHI_CONTROLLER_SHA256=' + b.sha((inputs / 'controller-input.json').read_bytes()), '--env=SOURCE_DATE_EPOCH=1789753605']
@@ -138,6 +138,43 @@ class BrokerTests(unittest.TestCase):
 
     def cleanup(self):
         return b.cleanup(self.root, NONCE, self.docker_file, self.c['docker_endpoint'], time.monotonic() + 120)
+
+    def test_worker_private_ipc_is_forwarded_without_changing_ownership(self):
+        self.build(); args = self.worker()
+        data = json.loads((self.root / 'broker-registry.json').read_bytes())
+        before = len(self.docker.calls)
+        rewritten, resource = b.plan(self.c, args, data)
+        self.assertEqual(rewritten, ['run', '--label', b.LABEL + '=' + NONCE, *args[1:]])
+        self.assertEqual([value for value in rewritten if value.startswith('--ipc')], ['--ipc=private'])
+        self.assertEqual(resource, ('container', {'name': WORKER, 'image_id': IMAGE, 'status': 'INTENT'}))
+        self.assertEqual(len(self.docker.calls), before)
+
+    def test_worker_missing_foreign_and_duplicate_ipc_refused_before_actor(self):
+        self.build(); args = self.worker()
+        data = json.loads((self.root / 'broker-registry.json').read_bytes())
+        before = len(self.docker.calls)
+        for mode in (None, 'host', 'shareable', 'none', '', 'container:foreign'):
+            changed = [value for value in args if value != '--ipc=private']
+            if mode is not None:
+                changed.insert(3, '--ipc=' + mode)
+            with self.subTest(mode=mode), self.assertRaisesRegex(b.BrokerError, 'worker-option-set'):
+                b.plan(self.c, changed, data)
+        changed = list(args); changed.insert(3, '--ipc=private')
+        with self.assertRaisesRegex(b.BrokerError, 'worker-option-duplicate'):
+            b.plan(self.c, changed, data)
+        self.assertEqual(len(self.docker.calls), before)
+
+    def test_inventory_ipc_grammar_remains_unchanged(self):
+        self.build()
+        args = ['run', '--rm', '--pull=never', '--network=none', '--cap-drop=ALL',
+                '--security-opt=no-new-privileges', '--read-only', '--entrypoint=/bin/cat',
+                IMAGE, '/builder-packages.lock']
+        data = json.loads((self.root / 'broker-registry.json').read_bytes())
+        rewritten, resource = b.plan(self.c, args, data)
+        self.assertEqual(rewritten[5:], args[1:])
+        self.assertFalse(any(value.startswith('--ipc') for value in rewritten))
+        with self.assertRaises(b.BrokerError):
+            b.plan(self.c, [args[0], '--ipc=private', *args[1:]], data)
 
     def test_build_inventory_worker_intents_and_owned_cleanup(self):
         self.assertEqual(self.build(), 0)

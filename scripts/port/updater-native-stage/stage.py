@@ -19,7 +19,7 @@ sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
 PACKAGE = 'packages/tools/cachy-asahi-update/'
-READY_SHA = '84eb3a020ed0cca3fe977feabc2b18bcaf6c6ae3811a5df5129c700ed9d8012f'
+READY_SHA = '9cb072d0935486a0c1bb8bc5a06937c98295c17f143af44f62ea2f1292542586'
 BUDGET = {'total_seconds':6900, 'raw_retention_seconds':7100, 'materialize_seconds':910,
           'freeze_seconds':120, 'native_seconds':5400, 'projection_seconds':60,
           'export_seconds':60, 'cleanup_seconds':180, 'private_bytes':8*1024**3,
