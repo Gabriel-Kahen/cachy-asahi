@@ -464,3 +464,20 @@ terminal development summary. The final summary bundle is 2,395 bytes, SHA256
 Independent detailed execution review and successor corrections remain separate
 from this historical FAIL. Both M2 Air records and all full-port release gates
 remain open.
+
+## Corrected repository trial
+
+Initial lock `9cfbd847bd2969aadf700b1ebb9943680b064b0ec6570726cdd9389aa31db0bb`
+binds 159 sources and the unchanged 125 generated fixture records. The repository
+launcher adds only SYS_CHROOT to its private-root capability contract; the runner
+requires the exact six-bit mask. Positive transactions reject ancillary errors,
+and the missing database-signature case binds its exact repository and diagnostic.
+Root repeated 334 CI and 137 integration tests without skips, independently
+regenerated the lock, and checked every committed blob/mode plus a fresh detached
+checkout at `a03c0719893afe582a6e6364ff70f0e3e5b33fb2`.
+
+[Run 38221511121](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38221511121)
+was created at 08:05:48 UTC on October 12, 2026 on that exact commit. It is
+**IN PROGRESS**, with no corrected native repository acceptance yet. It executes
+the original integration alone while the broader compiler and virtual receiver
+corrections proceed; historical broader run 38218102399 remains FAIL.
