@@ -119,3 +119,71 @@ The data process completed in 51.226 seconds with a 2 GiB address-space limit an
 | `baseline-payload-audit-20261012/handoff.json` | `a198c200e9c8072a444c4a2192f71c8b80829e3350151663404a3fc4237963ce` |
 
 The historical 406 report, 218-gap report and old source/authentication observations were rehashed unchanged. The coordinated Python alternative and original strict transaction retain their prior adoption/acceptance status. The new report does not authenticate installed image bytes or repository database ownership, execute hooks, test ABI/import behavior, close corresponding-source/license grants, prove complete recovery or accept a target transaction. Installation, production publication, Asahi/M2/physical 16K execution and hardware/performance acceptance remain unestablished. Only the assigned new private artifact paths and this append-only section were written; no implementation, shared lock, project Git, mount, module or host package mutation occurred.
+
+
+## Completed five-version recovery handoff and 623-archive audit
+
+The earlier 406/618 reports and six-gap outcome remain historical and unchanged. A separately owned actual acquisition recovered the exact old baseline archives for `groff` 1.24.1-1, `libnm` 1.58.1-1, `nss` 3.130-1 and `vim` / `vim-runtime` 9.2.1046-1. Its held handoff is `six-baseline-recovery-20261012/handoff.json`, SHA256 `36320f5093d6b4a2c62a25a243355926267cc9fe9a1e352f5b4c12cfa76fa0b8`; the actual acquisition receipt is `3ae755b7943d2447dd06b7c72949af4b66e74b14320dd994d398a213bca9a01f`.
+
+Those five archives total 14,541,564 compressed bytes and detached signatures 2,830 bytes. The producer freshly verified each signature in an isolated public-only GPG home, with exit 0/VALIDSIG for locked primary `68B3537F39A313B3E574D06777193F152BDBE6A6`, and matched full signed PKGINFO identity/dependencies/provides/conflicts/replaces/licenses to unchanged final baseline metadata. Transfer authority is the exact observed operator index href; archive/signature SHA256 values are **post-download observations**, not invented catalog pins. The acquisition uses the retained 13-helper Git-byte snapshot from `761525881bd95f47c6d8c937f2654bd23926faec`. This payload phase independently rehashed all ten archive/signature files and bound the producer's actual GPG statuses/metadata, without claiming cryptographic replay or independent key-owner trust.
+
+A new contract preserves all **618 old rows verbatim**, including unchanged transaction, ownership and final metadata references, and adds only these five authenticated archive references. The new actual bounded inert audit inspected **623/623 supplied archives**, with **zero failed inspection rows, zero metadata/file-list mismatches and zero observed non-directory overlaps**. Aggregate remains **FAIL / exit 1**, solely because exact `openssh` 10.5p1-1 aarch64 remains unavailable in this contract. A pending acquisition lead cannot reclassify this historical result.
+
+| Actual 623 result | Value |
+| --- | ---: |
+| Selected final packages / supplied archives | 624 / 623 |
+| Compressed input bytes | 1,322,448,308 |
+| Decoded bytes consumed | 5,698,887,680 |
+| Observed nodes | 138,225 |
+| Link observations | 15,220 |
+| Packages with inert hooks/scriptlets | 52 |
+| Process elapsed seconds | 52.329 |
+| Report bytes | 45,927,419 |
+
+The recovered Vim payload resolves the four formerly unknown declared Vim targets as archive data. Links now comprise 13,367 observed targets, 1,848 same-archive regular hardlinks and five `target-not-declared` observations. The latter are the three CA certificate links to `etc/ca-certificates/extracted/tls-ca-bundle.pem`, `etc/mtab` to `proc/self/mounts` and `var/lock` to `run/lock`. No unsafe link/cycle/escape/non-directory-ancestor finding appeared; runtime/generated target behavior remains untested, rather than presumed broken or accepted.
+
+Execution uses the exact 15 helper/test byte/mode pins from committed `9140bcaf939bd15b82a2a8c3f020b842c9f03c48`, captured anew inside the owned project artifact tree. The unchanged reader writes within that source snapshot's guarded artifact root and its report is copied/rehashed byte-identically. Heavy reports therefore stay on the project filesystem; no large temporary-system report is required. The 20-minute outer envelope, 2 GiB address space, 256 MiB private retention, 2 GiB compressed aggregate, 300,000,000-byte archive, 1 GiB decoded per archive / 8 GiB decoded total, 500,000 aggregate nodes and all other filename/link/deadline/output limits remain unchanged. Inclusive new source/data/both report copies plus handoff total 92,469,211 bytes. All 24 indexed pre-handoff files were independently rehashed with exact size/mode; no PYC entered the snapshot.
+
+| New private 623 evidence | SHA256 |
+| --- | --- |
+| `baseline-payload-audit623-20261012/payload-inputs.json` | `155465f84a02dd2088ca1b37b1c3b17c182fc34f9a1de81b55ca0f98ded66de0` |
+| `baseline-payload-audit623-20261012/authentication-bindings.json` | `bf2e7072a8a06d7bb55ee16540d4d478b67e4b5b661f8ab2a1a9883665321f47` |
+| `baseline-payload-audit623-20261012/execution-journal.json` | `99dcd13f64aa8be7757bd51e5def355d66f8c98f325e58e3a02421a1264200ac` |
+| `baseline-payload-audit623-20261012/payload-report.json` | `a92761b6d6ee3b7da5862194a54ae0255f8e14be512dab36f7afd730dfdc9840` |
+| `baseline-payload-audit623-20261012/handoff.json` | `45d64bb035c680646801ec4b5ebc94e6da9d894200de625bb8a894294992ea86` |
+
+No archive extraction, payload execution, install, mount, host-system or shared metadata/Git mutation occurred. Catalog database authentication, independent owner trust/custody, installed-image identity, corresponding-source/license grants, complete recovery retention, runtime ABI/import/hooks, protected target transaction, production publication and M2/physical 16K/hardware/performance acceptance remain open. A separate 624-archive audit is authorized only after an actual held exact OpenSSH archive/signature/metadata PASS; it must preserve this one-gap FAIL report and use the same reader/caps.
+
+
+## Completed exact OpenSSH recovery and 624-archive inert audit
+
+The separately held OpenSSH acquisition then passed for exact `openssh` 10.5p1-1 aarch64. Its authority is the actual operator `2026/10/05/core` index archive/signature hrefs, rather than a guessed package-pool URL; earlier pool/index lookup failures remain recorded. Archive size is 1,215,644 bytes, post-download SHA256 `a297cd3a571d2658adf13ab03017cec61f2f9d88834e2ef113729a521daa1c67`; signature size is 566 bytes, post-download SHA256 `395f6f93182b290f31f63f85db386d2fa3400eb60a6da5e802b18fc9f5cfd084`. The producer's actual fresh public-only GPG verification returned exit 0/VALIDSIG for locked ALARM primary `68B3537F39A313B3E574D06777193F152BDBE6A6`, digest 10, and full signed PKGINFO identity/metadata matched the unchanged exact final baseline.
+
+Six-data handoff `six-baseline-recovery-20261012/six-handoff.json` is SHA256 `be5d4447e0da53a4582f5e30085a1ceb0af730da76e2a502842dab61361537df`; the one-row acquisition receipt is `96724d25f9659b3349bb45032c91242e172761773234ac2ea4a1fbd6d55bfeea`. Before the new audit, all referenced archive/signature/key/plan/lookup/receipt bytes were rehashed, the five earlier handoff rows matched verbatim, and the new metadata/signature status was independently bound. This phase did not replay GPG cryptography or accept independent key-owner trust.
+
+Under the coordinator's conditional authorization, a **separate 624-archive contract and audit** preserved all 623 prior archive rows verbatim and added only the authenticated OpenSSH reference. The actual unchanged reader returned **PASS / exit 0**: **624/624 supplied archives inspected as inert data**, no unavailable exact archive, no failed inspection row, no metadata/file-list mismatch and no observed non-directory overlap. The historical 623 one-gap FAIL, 618 six-gap FAIL, original406/218-gap reports, all original contracts and authentication histories remain unchanged.
+
+| Actual 624 result | Value |
+| --- | ---: |
+| Selected final packages / supplied and inspected archives | 624 / 624 |
+| Compressed input bytes | 1,323,663,952 |
+| Decoded bytes consumed | 5,709,117,440 |
+| Observed nodes | 138,317 |
+| Packages with inert hooks/scriptlets | 53 |
+| Process elapsed seconds | 52.250 |
+| Report bytes | 45,966,493 |
+| Inclusive new source/data/both report copies and handoff bytes | 92,533,862 |
+
+The same five `target-not-declared` archive-namespace observations remain: three certificate links to `etc/ca-certificates/extracted/tls-ca-bundle.pem`, `etc/mtab` to `proc/self/mounts`, and `var/lock` to `run/lock`. Other links comprise 13,367 observed targets and 1,848 same-archive regular hardlinks; no cycle/escape/non-directory-ancestor or unsafe-hardlink finding appeared. This does not execute generated/runtime targets or hooks.
+
+The exact committed9140 15-helper source/mode pins, copied snapshot/no-PYC control, 2 GiB compressed aggregate, 300,000,000-byte archive, decoded1GiB-per-archive/8GiB-total, 500,000 aggregate-node, all other filename/link/deadline limits, unchanged64MiB helper output bound, 20-minute outer envelope, 2 GiB process address space and 256 MiB private retention were preserved. Heavy reports remain on the project filesystem. All 24 indexed pre-handoff files were rehashed with exact size/mode, and both guarded-source and primary report copies match byte-for-byte. These bounded elapsed observations are not performance comparisons.
+
+| New private 624 evidence | SHA256 |
+| --- | --- |
+| `baseline-payload-audit624-20261012/payload-inputs.json` | `e77ce4f77f8bef40e011b710cc1ffcef3d10a5d778454c00e9eaac4936f8bca6` |
+| `baseline-payload-audit624-20261012/authentication-bindings.json` | `beed7e78a57e121ee13922194882803f6eae1cd989293005250016ca81cd637f` |
+| `baseline-payload-audit624-20261012/execution-journal.json` | `c9ecf280133ccf399794a463f1ac62c0cc76bde7d8767cdaff3ee66bfff3890e` |
+| `baseline-payload-audit624-20261012/payload-report.json` | `7df4b87a2d8d31455fa0e8cf30e2f53eed65cacbb2d2dbe7dd395b9484ecf314` |
+| `baseline-payload-audit624-20261012/handoff.json` | `4d2e056c3812610efbc842a23b45560800e3d0e11a4e8e0ebb53e0f671686aad` |
+
+This closes the exact missing archive-data/inspection gap for this unchanged 624-package proposed final inventory. It does not adopt the coordinated Python alternative or turn the original strict transaction into PASS. Archive signature verification belongs to the separately bound acquisition provenance; the payload helper itself asserts no signature verification. Its complete-installed-payload, image authentication, target symlink resolution, hook execution, installation and hardware flags remain false. Installed-image correlation, runtime ABI/import behavior, corresponding-source/license grants, catalog/owner trust/custody, complete recovery retention, protected platform installation, production publication and Asahi/M2/physical16K/performance acceptance remain unestablished. No package payload was extracted or executed, and no installation, mount, host-system, shared manifest or project Git mutation occurred in either new audit.

@@ -1,6 +1,6 @@
 # Separate finite updater native workflow
 
-Status: **Updated workflow draft against held stage `64ce7f…`; bounded consumer checks pass, independent final review and coordinator committed closure pending. The earlier hosted trial38232511202 remains FAIL before compilation; this correction has not run natively.** Only `.github/workflows/native-arm-updater.yml` and this document belong to this assignment. No initial/development source, package, wrapper, shared lock, Git registration or dispatch is changed here.
+Status: **Storage/recovery consumer adoption held against reviewed stage `3b548…`: 381 isolated consumer fixtures PASS; 200 owner source tests and independent storage/recovery review accepted by the coordinator. Corrected 85-file Git/source proof passes at `9d9b514`; native-host controller freeze and corrected trial NOT RUN. Both earlier hosted updater trials remain FAIL before compilation.** Only `.github/workflows/native-arm-updater.yml` and this document belong to this assignment. No initial/development source, package, wrapper, shared lock, Git registration or dispatch is changed here.
 
 The [wrapper contract](updater-native-stage.md) owns private materialization, authenticated source/runtime/broker operations, two native builds, scoped resource recovery and guarded public projection. The package's 64-file checkpoint, ready-map `ff879da588419fc0f90ef6a27c8afc528c3f6a557ef2c060544d1b5e99ade4e2`, eight root pins, base snapshot `3c16c37d…`, thirteen-package extension and exact 354-package inventory remain its prerequisites. This workflow does not replace those gates. The unresolved macOS notices and package/vendor publication blockers remain open.
 
@@ -8,11 +8,11 @@ The [wrapper contract](updater-native-stage.md) owns private materialization, au
 
 The workflow is manual-only, restricted to the named public repository, with `contents: read`, pinned checkout `3d3c42e5aac5ba805825da76410c181273ba90b1`, credentials persistence disabled and the existing `native-arm-build` concurrency group with cancellation disabled. It selects the standard `ubuntu-24.04-arm` runner. GitHub documents this public runner as a new VM with four CPUs, 16 GB RAM and nominal 14 GB SSD; standard public runners are free. [GitHub runner specifications](https://docs.github.com/en/actions/reference/runners/github-hosted-runners)
 
-Actual free capacity must satisfy the wrapper's 10 GiB output/8 GiB Docker checks and 18 GiB requirement on a shared filesystem. The advertised capacity does not establish those checks; insufficient actual space refuses before the private trial. This workflow does not remove host software or shared Docker data to create space.
+Actual free capacity must satisfy the reviewed storage policy: **18 GiB shared**, or **10 GiB on each separate output/Docker filesystem**, admitting at most 16 GiB shared growth or 8 GiB per separate filesystem while retaining a 2 GiB available reserve. The independent private-tree bound remains 8 GiB. The advertised capacity does not establish admission or successful build fit; insufficient actual space refuses before the private trial. This workflow does not remove host software or shared Docker data to create space.
 
 The caller supplies a reviewed full `source_commit`; it must equal `GITHUB_SHA`, the explicitly checked-out ref and the source helper's actual Git HEAD/blob/mode/closed-inventory checks. Before each CLI invocation, the shell independently checks `stage.py` against its reviewed literal digest. Freeze authenticates `source.py` before its first import and binds package/helper/stage bytes, budget, host/boot/socket and executable identities. Its fresh controller stays outside the checkout under an owned 0700 `/tmp` control directory, with an independently recorded controller hash.
 
-The coordinator accepted the corrected ten-file owner checkpoint `c159cc3`, with **136 source tests PASS, zero skips** and independent UN1 closure. The subsequent scan-race/finite-diagnostics owner correction reports **163 source tests PASS, zero skips**. This workflow now embeds the corrected literal bootstrap hashes: `stage.py` = `64ce7f7c93dd0b37971d0810801241dbd10df6098c14b0106c63d284fbd0ca9a`; `source.py` = `259b13b210123d90f824f21bf7662785d50c7586519a78451ab62e97ec577d5f`. The corrected broker is `0291f10d605d50914f5551787839c823ace8fe96439f9940eb56a569fad6d98e`; its bytes are bound by the controller's complete committed source closure. The workflow does not execute the broker directly or substitute its wire protocol. These implementation/source results do not establish corrected native execution or compilation. Run and cleanup use the same external controller pin. Cleanup independently hashes the current bounded ownership record after the run has exited and passes `--ownership-sha256`; it never infers authority from an arbitrary directory or process name.
+The earlier ten-file checkpoint `c159cc3` passed 136 source tests and independent UN1 closure; its scan-race/finite-diagnostics successor passed 163 source tests. The reviewed storage/recovery successor passes **200 source tests, zero skips**, with [independent source review](../reviews/updater-storage-recovery-correction-review.md). This workflow embeds `stage.py` = `3b548467b2ff775e1bb5a6422e2ce1678c0a9e7ef9c6283926bb6395f2b7646a`; `source.py` remains `259b13b210123d90f824f21bf7662785d50c7586519a78451ab62e97ec577d5f`. The held broker is `42bfd6ac41039cddc5e6667309ea4e792f6020a01cde1d9f85eba08107a0b794`; controller source binding remains its authority. Only the literal stage digest and its checkpoint comment change in the workflow. All four shell blocks and three embedded Python bodies, including the exact semantic checker, remain byte-identical to historical workflow `78f9d914146fba9a6bc4df4052f352e356abf162dd4bfbb23765a88295034bba`. The workflow does not execute the broker directly or substitute its wire protocol. These implementation/source results do not establish native execution or compilation. Run and cleanup use the same external controller pin. Cleanup independently hashes the bounded ownership record after the run exits and passes `--ownership-sha256`; it never infers authority from an arbitrary directory or process name.
 
 ## One aggregate deadline
 
@@ -49,7 +49,7 @@ Captured JSON passes through the unchanged authenticated credential guard again.
 
 Workflow PASS requires the original native and recovery terminal PASS predicates, actual zero run/cleanup exits and the native step's successful outcome. Public recovery success alone is insufficient. Every terminal continues to say publication **NOT ACCEPTED** and hardware **NOT RUN**. Rust native compilation is not installation, target dependency acceptance, tray/updater runtime behavior, M2/16K compatibility, performance or production publication.
 
-## Verification and remaining handoff
+## Historical scan/diagnostic verification and handoff
 
 Four shell blocks pass `bash -n`; all three embedded Python bodies pass AST parsing. **147 isolated consumer fixtures PASS**: bound success, failure/cancellation and missing recovery, wrong identities, unknown fields, symlink/hardlink/unlisted files, bundle/content drift, credential content, comparison/cleanup failures, duplicate keys, nonfinite constants/numeric overflow, boolean schema/error-count confusion, foreign tar members, global/member PAX metadata, opaque input padding that never reaches rebuilt output, legitimate `RuntimeFailure`, missing original with successful/failed recovery, missing both terminals and invalid recovery, empty/partial original and recovery pairs, actual optional retention on early failure, all pinned selector transformations/materializer round-trips, coherent unknown-field attacks in native/projection/materializer/nested package/units, inventory digest/type drift, out-of-range inverse counts and reordered missing selectors. These fixtures use private temporary JSON/tar data and authenticated helper bytes with host/source authentication mocked; they perform no Docker, materialization, native build, installation, service, trust or network operation.
 
@@ -114,4 +114,96 @@ The corrected trial completed **FAIL** at2026-10-12T11:04:45Z. Source/bootstrap 
 
 The authoritative terminal reports cleanupFAIL and `private_data_removed:false`; recovery alsoFAIL/ValueError and native NOT ATTESTED BY RECOVERY. Raw retention is recorded within budget. This is neither accepted owned-resource cleanup nor evidence of private-data disposal. The hosted VM is ephemeral; its eventual teardown is not substituted for scoped cleanup verification. Root strictly decodes/revalidates all11 captured files in three bundles: guarded25,949bytes/SHA`4c20da64…`, terminal1,031bytes/`fcfd3caf…`, recovery854bytes/`12fcdbcf…`. Exact finite schemas, metadata/inverse projection, manifests, terminal diagnostic equality and source/controller bindings pass; `artifacts/ci/38239531158/root-public-verification.json`. Private controller/original bundle bytes were not exported or independently consumed. Workflow aggregate correctlyFAIL.
 
-The stage currently compares free-space loss on the daemon's filesystem against8GiB, which may include private work when the paths share a filesystem; the precise accounting and cleanup/recovery refusal are under owner investigation. No budget was silently raised or global resource removed. Publication, installation, M2 and performance acceptance remain open.
+That trial's stage compared free-space loss on the daemon's filesystem against8GiB, which may include private work when the paths share a filesystem; the subsequent owner review produced the explicit policy below. No global resource was removed. Publication, installation, M2 and performance acceptance remain open.
+
+## Reviewed storage/recovery consumer adoption
+
+The successor owner proposal is **85 files / 3,978,947 bytes**, SHA256
+`0d7a44709a86927c615bf397425c1409a5b6e61523c7e5769d0a394dde9d7f36`.
+Its four changed implementation/test hashes are stage
+`3b548467b2ff775e1bb5a6422e2ce1678c0a9e7ef9c6283926bb6395f2b7646a`,
+broker `42bfd6ac41039cddc5e6667309ea4e792f6020a01cde1d9f85eba08107a0b794`,
+stage tests `de299dd95ee424f5ed2bb1e1121d454a47b2c6e7ad65144cc2b8c919b3ad9441`,
+and broker tests `885bc92b3bb82fec28d2c7cda6b4e44fa5aa17ba1a338aa8185c6f54fd271e04`.
+The coordinator accepts the 200 owner tests and
+[independent storage/recovery review](../reviews/updater-storage-recovery-correction-review.md),
+whose digest is `b48d77e6783febb14db4191ba73081647e028a8397678cabcbacefa24fbbe3fb`.
+It independently collected exact Git blobs/modes, verified source bytes and
+copied the complete closure at `9d9b5144afd4efb43e9dac5a2e1cdec7ac20b706`:
+[source proof](../../artifacts/reviews/updater-storage-correction-source-git-proof-20261012.json).
+This proof does not claim a native-host controller freeze or measured build fit.
+
+Workflow SHA256 is
+`9f6a6a9b0acb9acbfdab560f32b671ebf7d14726f01bbb8b91c9b5bb58636fd5`.
+It differs from the exact `78f9d914…` historical workflow only in the externally
+checked stage digest and its checkpoint comment. The source helper digest,
+ready map, 63 package pins, eight root pins, pinned checkout action, source/head
+checks, four shell blocks, three Python bodies, clock expressions, public grants
+and original/recovery aggregate exit gates remain unchanged.
+
+The exact existing `stage.public_summary(value) == value` check now invokes the
+reviewed stage's storage and cleanup projections. It rejects fields dropped by
+the closed summary and refuses malformed nested observations before any public
+bundle is printed. No parallel consumer field allowlist or permissive sanitizer
+is added:
+
+- Optional `storage` has exactly `mode`, `latched`, `reason`, `filesystems`.
+  Mode is `shared` or `separate`; latch is an actual boolean and pairs with
+  `none` exactly when false. One `shared` row or ordered `private`/`daemon` rows
+  have exactly `role`, `device`, `baseline_free_bytes`, `current_free_bytes`,
+  `peak_growth_bytes`, `growth_limit_bytes`, `reserve_bytes`. Numbers are actual
+  integers in 0 through 2^63-1, never booleans. Limits are 16/8 GiB and reserve
+  2 GiB. Peak covers observed baseline/current loss and cannot exceed baseline;
+  separate devices differ. Each finite latch reason requires the owner's exact
+  witness. In particular, a restored current availability does not erase the
+  retained peak that witnesses a reserve or growth breach.
+- Optional cleanup observations form a complete six-field group. Four scope
+  statuses use the finite `PASS`/`FAIL`/`NOT RUN` enums, daemon disposal remains
+  `NOT ATTESTED`, and reasons are a bounded sorted unique list from the reviewed
+  21-code enum. Arbitrary exception text, paths and partial groups are refused.
+- Historical records and early failures may omit both groups. A recovery PASS
+  may retain an earlier storage latch because it attests scoped cleanup. A FAIL
+  may retain cleanup PASS and verified private removal after an invalid storage
+  observation or exceeded retention budget. Cancellation after removal also
+  remains a non-PASS outcome. Those observations do not change original native,
+  recovery, actual run/cleanup exit, or native-step success requirements.
+
+**381 isolated consumer fixtures PASS**: all prior 147 cases plus 234 storage
+and cleanup cases. The successor harness preserves the original case calls;
+its stub extraction adds the actual held storage/cleanup functions and their
+constants because the updated summary invokes them. Source/host authentication
+remains mocked. Actual selector, public-tree, exporter and bundle helpers run
+on private temporary data; no daemon, native build, Cargo, compiler, GPG,
+installation or system mutation occurs.
+
+New cases cover valid shared/separate admission, 9 GiB shared growth and exact
+cap/reserve boundaries; every legitimate latch reason and restored availability;
+independent Docker/GPG outcomes; failure after verified deletion; cancellation
+and actual failed-step exits; all cleanup reasons/status types and group shape;
+nested number/type/role/device/peak bounds; partial/extra fields and poison with
+coherently rebound manifests in original and recovery groups. Recovery-only
+success never promotes an original failure. Emitted terminal bytes still equal
+the captured canonical JSON bytes. A separate reviewer accepted 19 valid
+terminals and rejected 37 malformed cases using the unchanged terminal function
+and actual held stage validators.
+
+All four shell blocks pass `bash -n`; three Python bodies pass AST parsing;
+the actual yaml-cpp workflow structural parser passes. All 40 controlled clock
+boundary fixtures replay successfully against the exact unchanged expressions.
+Actionlint is NOT RUN. These are syntax and finite boundary checks, not measured
+deadline enforcement or a timed VM teardown.
+
+Retained local receipts:
+`/tmp/updater-storage-consumer-review/consumer-results.json` (SHA256
+`7fdf626f92d2c277f63200e7f1fefb9e4fb2ab7c15831754fa2fb6def57486ba`),
+`/tmp/updater-storage-workflow-syntax/results.json`, and
+`/tmp/updater-consumer-storage-schema-audit/report.md`. Replay:
+
+```sh
+/usr/bin/python3 -B /tmp/updater-storage-consumer-review/check_consumer.py
+/usr/bin/python3 -B /tmp/updater-storage-workflow-syntax.py
+```
+
+Workflow/document bytes are held for coordinator replay, source integration and
+publication. Actual native-host freeze, retry, physical storage fit, compilation,
+cleanup, installation, licensing/publication and M2 acceptance remain separate.
