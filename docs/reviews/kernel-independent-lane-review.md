@@ -77,3 +77,14 @@ execution and available capacity remain NOT ESTABLISHED here.
 SHA256 `fb6ce61affe556613c2d186a4300e310227ec18ea7ebd01640da3a995be7ca48`,
 retains the proposal hash, canonical packet proof and both exact diffs. No
 historical source or run receipt was rewritten.
+
+## Coordinator adoption follow-up
+
+The coordinator subsequently adopted this exact two-row change at
+`07450c5fa339ebdb83fa94efc53138405988ced0`. The separate
+[dispatch source proof](../../artifacts/reviews/kernel-independent-lane-dispatch-source-proof-20261012.json)
+records actual committed Git/mode, inline bootstrap and fresh-snapshot PASS for
+the packet/workflow/stage hashes above. The coordinator reported dispatch of
+run 38270726379 in the independent lane. This follow-up does not supply a run
+outcome; the reviewer did not poll or dispatch it. The original scheduling-only
+receipt remains unchanged.

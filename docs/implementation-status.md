@@ -4,7 +4,7 @@ October 12, 2026. This record tracks the complete `outline.md` scope; an impleme
 
 The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with owned tasks and corrective next actions in `docs/backlog.md`. The destination now explicitly requires the maintained ARM package repository, native performance engineering, integrated Apple stack, broader Cachy system experience, and complete installation/release lifecycle. Both Air sizes, published final measurements, independent onboarding/contribution, subsequent full-port maintenance release, other-ARM reuse and actual upstream submissions remain required; an early overlay release or feasibility decision would not complete the goal. This scope update does not change any recorded execution result.
 
-Latest coordinator checkpoint, October 12, 16:30 UTC. The earlier records below
+Latest coordinator checkpoint, October 12, 16:41 UTC. The earlier records below
 remain historical; this checkpoint supersedes their pending-work descriptions.
 
 - Native run `38259350917` passes the original generic integration aggregate:
@@ -19,7 +19,7 @@ remain historical; this checkpoint supersedes their pending-work descriptions.
   frames or usable session are accepted. The bounded IPC-readiness/log correction
   is implemented; guest/receiver correction is adopted at `d1e489b`, with206 development and22
   controller tests passing and exact211-source/canonical-copy verification.
-  Successor38274341668 again fails the virtual stage: IPC attempts6,6,0 reach a JSON `[""]` reply, then the strict configuration predicate refuses it. All33 bundles/1623 members and1180 export files verify; no frame is accepted. Exact pinned-source response semantics are under read-only diagnosis. QEMU cannot
+  Successor38274341668 again fails the virtual stage: IPC attempts6,6,0 reach a JSON `[""]` reply, then the strict configuration predicate refuses it. All33 bundles/1623 members and1180 export files verify; no frame is accepted. Pinned upstream accumulator/formatter/splitter reproduce the exact empty-error-text response; the narrow `[]`/`[""]` compatibility correction is selected. Its wire API cannot prove internal error-vector emptiness. Independent nonvirtual retained-evidence checks pass; actual virtual failure and zero frames remain unchanged. QEMU cannot
   establish M2 graphics, 16K runtime, audio, sleep or performance acceptance.
 - FDK run `38260525391` records all501 acquisitions, four original comparisons,
   native/worker zero exits and worker cleanup PASS, then fails producer bootstrap
@@ -29,12 +29,12 @@ remain historical; this checkpoint supersedes their pending-work descriptions.
   at FDK source preparation before either build. All eight public files verify;
   final owned-image/container absence passes. The exact source predicate is
   unreported. A data-only replay exposes compressed-source serialization drift
-  between standard zlib and zlib-ng. The independently reviewed canonical raw-tar correction is committed at `765067d`;77 stage and14 packet checks pass, actual128-source Git/inline-workflow/fresh-copy proof passes. Trial38277573107 is dispatched; native FDK compilation remains unaccepted.
+  between standard zlib and zlib-ng. The independently reviewed canonical raw-tar correction is committed at `765067d`;77 stage and14 packet checks pass, actual128-source Git/inline-workflow/fresh-copy proof passes. Trial38277573107 now reaches build-1, then fails; all eight public records and scoped absence verify. First build predicate and compiler invocation remain unproven. Finite bound worker diagnostics are being implemented before another trial.
   [Actual failed trial](reviews/native-fdk-execution-38260525391.md).
 - The updater parent observation correction is committed at `2f8c13e`: 284 source
   tests pass, and actual85-file Git/source/snapshot verification passes for
   4,044,082 bytes. Workflow review found a contradictory-worker acceptance gap;
-  its successive corrections pass507 author consumer cases and39 independent final cases. The accepted compile-receipt correction is committed at `ed76c11`; actual85-source Git/snapshot and workflow binding pass. Trial38277597310 is queued behind FDK; source85 remains unchanged.
+  its successive corrections pass507 author consumer cases and39 independent final cases. The accepted compile-receipt correction is committed at `ed76c11`; actual85-source Git/snapshot and workflow binding pass. Trial38277597310 starts after FDK releases the shared lane and is running; source85 remains unchanged.
   Earlier trial38251407975 remains FAIL; native compilation is not attested.
 - KSM's229-test finite executor and152-source packet are committed at `b918c7c`;
   workflow registration is merged through PR5. First trial `38262440852` fails
@@ -48,8 +48,7 @@ remain historical; this checkpoint supersedes their pending-work descriptions.
   Its separate hosted lane is adopted at `07450c5`. Retry38270726379 passes
   source, initial six-image/zero-container capture, producer and acquisition, then
   fails with KERNEL_EXIT before any recorded compile. Cleanup and final
-  preservation/absence remain unverified. Finite child diagnostics are being
-  implemented. An overbroad cleanup-timer diagnosis was withdrawn after verifying
+  preservation/absence remain unverified. Finite child diagnostics are held with202 job/115 stage source tests passing without skips; the26/117-source proposal is under independent review before native retry. An overbroad cleanup-timer diagnosis was withdrawn after verifying
   the existing broker renewal; those timers remain unchanged.
 - The actual inert624-archive payload audit remains PASS. The first static ELF
   scan remains FAIL: 7,129 files, 4,536 missing-provider requests and22 firmware
@@ -66,8 +65,7 @@ remain historical; this checkpoint supersedes their pending-work descriptions.
   twelve empty-URL representation mismatches are reproduced against pinned
   repo-add semantics. Narrow normalization and internal typed-refusal corrections are held with252 source tests (141 collector/111 phase); independent review and coordinator map/dependency rebinding are next. Original admission/custody records remain required.
 - The missing offline copied-root package transaction component is selected and
-  being implemented under `scripts/install/`. Real bounded payload transactions
-  are its next gate; hooks, first boot, image/key-owner trust and complete Asahi
+  being implemented under `scripts/install/`. Its38 checks pass:19 modeled,17 synthetic pipeline cases/22 calls with10 actual tiny libalpm commits, one actual namespace barrier and one owned-child timeout. Final source integration and independent review are next; hooks, first boot, image/key-owner trust and complete Asahi
   installation remain separate requirements.
 
 | Stage | Source implementation | Required execution evidence | Acceptance |
