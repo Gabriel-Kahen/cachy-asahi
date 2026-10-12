@@ -4,14 +4,19 @@ Authenticated synthetic contracts mock Git/host trust only. Snapshot hashes and
 modes, private registration/removal, semantic projection and guards are real.
 """
 import copy
+import contextlib
+import errno
 import hashlib
 import json
 import os
 from pathlib import Path
 import shutil
 import signal
+import socket
+import stat
 import sys
 import tempfile
+import threading
 import time
 import types
 import unittest
@@ -133,7 +138,8 @@ class StageTests(unittest.TestCase):
 
     def process_receipt(self, status='PASS'):
         return self.runtime.Receipt(kind='process-lifecycle', schema_version=1, status=status,
-                                    reason_code=None if status == 'PASS' else 'fixture-failure',
+                                    reason_code={'PASS': None, 'FAIL': 'process-failed', 'CANCELLED': 'cancelled'}[status],
+                                    returncode={'PASS': 0, 'FAIL': 1, 'CANCELLED': -15}[status],
                                     group_absent=True, group_reaped=0, teardown_errors=[], cancelled_signals=[])
 
     def fake_run(self, argv, stdout, stderr, deadline, env, cwd, **kwargs):
@@ -150,6 +156,13 @@ class StageTests(unittest.TestCase):
             kwargs['on_spawn']({'pid': 2147483000 + len(self.commands),
                                 'group': 2147483000 + len(self.commands), 'start_ticks': 2})
         if phase == 'native-daemon':
+            if self.mode == 'tick-scan-fail':
+                with mock.patch.object(stage, 'disk_check', side_effect=ValueError('private-disk-budget')):
+                    try: kwargs['on_tick']()
+                    except ValueError:
+                        item = self.process_receipt('FAIL'); item.update(reason_code='tick-failed', returncode=-15)
+                        raise self.runtime.RuntimeFailure(item)
+                self.fail('private scan tick must fail')
             stage.save(stdout, {'Architecture': 'aarch64', 'DockerRootDir': str(self.storage)})
         elif phase == 'materialize':
             self.assertIn('--child', argv)
@@ -237,6 +250,94 @@ class StageTests(unittest.TestCase):
         self.assertEqual(result['publication'], 'NOT ACCEPTED')
         self.assertEqual(result['hardware'], 'NOT RUN')
         self.assertTrue(self.guard_inputs)
+
+    def test_pipeline_tick_failure_has_guarded_finite_diagnostics_and_cleanup(self):
+        self.mode = 'tick-scan-fail'; result = self.pipeline()
+        self.assert_clean_failure(result)
+        expected = {'failed_phase': 'native-daemon', 'runtime_reason': 'tick-failed',
+                    'runtime_returncode': -15, 'tick_operation': 'private-scan',
+                    'tick_reason': 'private-disk-budget'}
+        self.assertEqual(stage.diagnostic_projection(result), expected)
+        self.assertTrue(self.guard_inputs)
+        terminals = self.terminal(); self.assertTrue(terminals)
+        for terminal in terminals:
+            self.assertEqual(stage.diagnostic_projection(terminal), expected)
+            self.assertNotIn(POISON.decode(), json.dumps(terminal))
+
+    def test_failure_diagnostics_requires_exact_authenticated_process_receipt(self):
+        class Forged(self.runtime.Receipt): pass
+        valid = self.process_receipt('FAIL')
+        invalid = [dict(valid), Forged(valid), object(), self.process_receipt('PASS')]
+        for key, value in [('kind', 'secret/private-path'), ('schema_version', True),
+                           ('schema_version', 2), ('status', 'UNKNOWN'),
+                           ('reason_code', POISON.decode()), ('reason_code', 1),
+                           ('returncode', True), ('returncode', -65), ('returncode', 256),
+                           ('returncode', 'password=secret')]:
+            item = self.runtime.Receipt(valid); item[key] = value; invalid.append(item)
+        for item in invalid:
+            with self.subTest(item_type=type(item).__name__, item=item if isinstance(item, dict) else None):
+                target = {'status': 'FAIL'}
+                stage.failure_diagnostics(target, 'native-pair', item, self.runtime)
+                self.assertEqual(target, {'status': 'FAIL'})
+        for phase in (POISON.decode(), 1, None):
+            target = {}; stage.failure_diagnostics(target, phase, valid, self.runtime)
+            self.assertEqual(target, {})
+        item = self.runtime.Receipt(valid); item['reason_code'] = 'tick-failed'
+        for tick in ({'operation': POISON.decode(), 'reason': 'missing-path'},
+                     {'operation': 'private-scan', 'reason': POISON.decode()},
+                     {'operation': 'private-scan'}, {'reason': 'missing-path'}):
+            target = {}; stage.failure_diagnostics(target, 'materialize', item, self.runtime, tick)
+            self.assertEqual(target, {})
+
+    def test_first_authenticated_failure_is_frozen_with_bounded_returncode(self):
+        for code in (None, -64, 255):
+            with self.subTest(code=code):
+                first = self.process_receipt('FAIL'); first['returncode'] = code
+                target = {'status': 'FAIL'}
+                stage.failure_diagnostics(target, 'materialize', first, self.runtime)
+                expected = {'failed_phase': 'materialize', 'runtime_reason': 'process-failed',
+                            'runtime_returncode': code}
+                self.assertEqual(stage.diagnostic_projection(target), expected)
+                stage.failure_diagnostics(target, 'public-guard', self.process_receipt('CANCELLED'), self.runtime)
+                self.assertEqual(stage.diagnostic_projection(target), expected)
+
+    def test_partial_or_secret_public_diagnostics_are_refused(self):
+        valid = {'failed_phase': 'native-pair', 'runtime_reason': 'tick-failed', 'runtime_returncode': 1,
+                 'tick_operation': 'private-scan', 'tick_reason': 'private-hardlink'}
+        invalid = [{key: value for key, value in valid.items() if key != missing} for missing in valid]
+        for key, value in [('failed_phase', POISON.decode()), ('runtime_reason', POISON.decode()),
+                           ('runtime_returncode', False), ('tick_operation', POISON.decode()),
+                           ('tick_reason', POISON.decode()), ('runtime_reason', 'process-failed')]:
+            item = dict(valid); item[key] = value; invalid.append(item)
+        for item in invalid:
+            with self.subTest(item=item), self.assertRaises(ValueError): stage.public_summary(item)
+        public = stage.public_summary(dict(valid, raw_env=POISON.decode(), argv=[POISON.decode()]))
+        self.assertEqual(public, valid); self.assertNotIn(POISON.decode(), json.dumps(public))
+        self.assertEqual(stage.public_summary({'raw_env': POISON.decode()}), {})
+
+    def test_tick_observation_normalizes_io_and_only_known_operation_codes(self):
+        cases = [('private-scan', ValueError('private-file-type'), 'private-file-type'),
+                 ('socket-identity', ValueError('daemon-socket-changed'), 'daemon-socket-changed'),
+                 ('daemon-storage', ValueError('docker-storage-budget'), 'docker-storage-budget'),
+                 ('private-scan', ValueError(POISON.decode()), 'validation-error'),
+                 ('socket-identity', FileNotFoundError(POISON.decode()), 'missing-path'),
+                 ('daemon-storage', PermissionError(POISON.decode()), 'permission-denied'),
+                 ('private-scan', OSError(POISON.decode()), 'io-error'),
+                 ('private-scan', RuntimeError(POISON.decode()), 'unexpected-error')]
+        for operation, error, reason in cases:
+            with self.subTest(operation=operation, reason=reason):
+                failed = {}
+                def action(): raise error
+                with self.assertRaises(type(error)) as raised:
+                    stage.tick_observation(operation, action, failed)
+                self.assertIs(raised.exception, error)
+                self.assertEqual(failed, {'operation': operation, 'reason': reason})
+                target = {}; item = self.process_receipt('FAIL'); item['reason_code'] = 'tick-failed'
+                stage.failure_diagnostics(target, 'freeze', item, self.runtime, failed)
+                self.assertEqual(target['tick_operation'], operation); self.assertEqual(target['tick_reason'], reason)
+                self.assertNotIn(POISON.decode(), json.dumps(stage.public_summary(target)))
+        observed = {}; self.assertEqual(stage.tick_observation('private-scan', lambda: 7, observed), 7)
+        self.assertEqual(observed, {})
 
     def test_real_bounded_public_worker_cli_with_fake_native_commands(self):
         python = Path(sys.executable).resolve(strict=True)
@@ -675,6 +776,324 @@ class StageTests(unittest.TestCase):
 
     def test_final_handler_restore_fault_restores_remaining_handlers_and_invalidates_public_pass(self):
         self.signal_finish_fault(True)
+
+
+class DiskCheckTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(prefix='updater-disk-fixture-', dir='/tmp')
+        self.addCleanup(self.temp.cleanup)
+        self.base = Path(self.temp.name); self.base.chmod(0o700)
+        self.root = self.base / 'private'; self.root.mkdir(mode=0o700)
+
+    @contextlib.contextmanager
+    def barrier(self, mutate):
+        ready = threading.Event(); changed = threading.Event(); errors = []
+        def writer():
+            try:
+                if not ready.wait(2): raise AssertionError('scan barrier not reached')
+                mutate()
+            except BaseException as error: errors.append(error)
+            finally: changed.set()
+        thread = threading.Thread(target=writer); thread.start()
+        def rendezvous():
+            ready.set(); self.assertTrue(changed.wait(2), 'bounded writer handshake')
+            if errors: raise errors[0]
+        try: yield rendezvous
+        finally:
+            ready.set(); thread.join(3); self.assertFalse(thread.is_alive())
+            if errors: raise errors[0]
+
+    def name(self, path):
+        return Path(os.fsdecode(path)).name if not isinstance(path, int) else None
+
+    def stat_race(self, leaf, rendezvous):
+        original = os.stat; called = False
+        def observe(path, *args, **kwargs):
+            nonlocal called
+            if self.name(path) == leaf and not called:
+                called = True; rendezvous()
+            return original(path, *args, **kwargs)
+        return observe
+
+    def test_concurrent_atomic_rename_counts_vanished_name_without_abort(self):
+        partial = self.root / 'download.partial'; partial.write_bytes(b'finite download')
+        target = self.root / 'download.tar.xz'
+        with self.barrier(lambda: partial.rename(target)) as reach, \
+                mock.patch.object(stage.os, 'stat', side_effect=self.stat_race(partial.name, reach)):
+            result = stage.disk_check(self.root)
+        self.assertEqual(target.read_bytes(), b'finite download')
+        self.assertEqual(result, {'members': 1, 'bytes': 0})
+
+    def test_real_runtime_tick_survives_concurrent_receipt_replace(self):
+        partial = self.root / 'acquisition.partial'; partial.write_bytes(b'{}\n')
+        target = self.root / 'acquisition.json'; logs = self.base / 'logs'; logs.mkdir(mode=0o700)
+        runtime = stage.module(HERE / 'runtime.py')
+        with self.barrier(lambda: partial.replace(target)) as reach, \
+                mock.patch.object(stage.os, 'stat', side_effect=self.stat_race(partial.name, reach)):
+            result = runtime.run_process([str(Path(sys.executable).resolve()), '-I', '-B', '-c', 'print("finite")'],
+                                         logs / 'out', logs / 'err', time.monotonic() + 3,
+                                         {'PATH': '/usr/bin:/bin', 'LC_ALL': 'C.UTF-8'}, self.base,
+                                         on_tick=lambda: stage.disk_check(self.root))
+        self.assertEqual(result['status'], 'PASS'); self.assertTrue(result['group_absent'])
+        self.assertEqual(target.read_bytes(), b'{}\n')
+
+    def test_vanished_entries_count_before_stat_and_member_budget(self):
+        leaf = self.root / 'gone'; leaf.write_bytes(b'x'); observed = False; original = os.stat
+        def missing(path, *args, **kwargs):
+            nonlocal observed
+            if self.name(path) == leaf.name:
+                observed = True; raise FileNotFoundError(errno.ENOENT, 'fixture disappearance')
+            return original(path, *args, **kwargs)
+        with mock.patch.object(stage, 'BUDGET', dict(stage.BUDGET, private_members=0)), \
+                mock.patch.object(stage.os, 'stat', side_effect=missing), self.assertRaises(ValueError):
+            stage.disk_check(self.root)
+        self.assertFalse(observed, 'enumerated member cap must run before descendant stat')
+        with mock.patch.object(stage.os, 'stat', side_effect=missing):
+            self.assertEqual(stage.disk_check(self.root), {'members': 1, 'bytes': 0})
+        self.assertTrue(observed)
+
+    def test_missing_or_nonprivate_root_refused(self):
+        with self.assertRaises((OSError, ValueError)): stage.disk_check(self.base / 'missing')
+        self.root.chmod(0o755)
+        with self.assertRaises((OSError, ValueError)): stage.disk_check(self.root)
+
+    def test_expected_registered_root_identity_binds_later_scans(self):
+        info = self.root.stat(); identity = [info.st_dev, info.st_ino]
+        self.assertEqual(stage.disk_check(self.root, identity), {'members': 0, 'bytes': 0})
+        self.root.rename(self.base / 'old-private'); self.root.mkdir(mode=0o700)
+        with self.assertRaises((OSError, ValueError)): stage.disk_check(self.root, identity)
+
+    def test_root_replacement_during_scan_is_fatal(self):
+        original = os.scandir; inode = self.root.stat().st_ino; fired = False
+        def replace():
+            self.root.rename(self.base / 'old-private'); self.root.mkdir(mode=0o700)
+        with self.barrier(replace) as reach:
+            def scan(path):
+                nonlocal fired
+                iterator = original(path)
+                if isinstance(path, int) and os.fstat(path).st_ino == inode and not fired:
+                    fired = True; reach()
+                return iterator
+            with mock.patch.object(stage.os, 'scandir', side_effect=scan), self.assertRaises((OSError, ValueError)):
+                stage.disk_check(self.root)
+        self.assertTrue(fired)
+
+    def test_root_unlinked_after_fd_open_is_fatal(self):
+        original = os.scandir; inode = self.root.stat().st_ino; fired = False
+        with self.barrier(self.root.rmdir) as reach:
+            def scan(path):
+                nonlocal fired
+                iterator = original(path)
+                if isinstance(path, int) and os.fstat(path).st_ino == inode and not fired:
+                    fired = True; reach()
+                return iterator
+            with mock.patch.object(stage.os, 'scandir', side_effect=scan), self.assertRaises((OSError, ValueError)):
+                stage.disk_check(self.root)
+        self.assertTrue(fired)
+
+    def test_child_directory_moved_outside_opened_tree_is_fatal(self):
+        child = self.root / 'cache'; child.mkdir(mode=0o700); inode = child.stat().st_ino
+        original = os.scandir; fired = False
+        with self.barrier(lambda: child.rename(self.base / 'moved-cache')) as reach:
+            def scan(path):
+                nonlocal fired
+                iterator = original(path)
+                if isinstance(path, int) and os.fstat(path).st_ino == inode and not fired:
+                    fired = True; reach()
+                return iterator
+            with mock.patch.object(stage.os, 'scandir', side_effect=scan), self.assertRaises((OSError, ValueError)):
+                stage.disk_check(self.root)
+        self.assertTrue(fired)
+
+    def test_replaced_child_directory_is_fatal(self):
+        child = self.root / 'cache'; child.mkdir(mode=0o700); original = os.open; fired = False
+        def replace():
+            child.rename(self.base / 'old-cache'); child.mkdir(mode=0o700)
+        with self.barrier(replace) as reach:
+            def opened(path, flags, *args, **kwargs):
+                nonlocal fired
+                if self.name(path) == child.name and flags & os.O_DIRECTORY and not fired:
+                    fired = True; reach()
+                return original(path, flags, *args, **kwargs)
+            with mock.patch.object(stage.os, 'open', side_effect=opened), self.assertRaises((OSError, ValueError)):
+                stage.disk_check(self.root)
+        self.assertTrue(fired)
+
+    def test_opened_descendant_unlinked_during_scan_is_allowed(self):
+        child = self.root / 'cache'; child.mkdir(mode=0o700); inode = child.stat().st_ino
+        original = os.scandir; fired = False
+        with self.barrier(child.rmdir) as reach:
+            def scan(path):
+                nonlocal fired
+                iterator = original(path)
+                if isinstance(path, int) and os.fstat(path).st_ino == inode and not fired:
+                    fired = True; reach()
+                return iterator
+            with mock.patch.object(stage.os, 'scandir', side_effect=scan): result = stage.disk_check(self.root)
+        self.assertTrue(fired); self.assertEqual(result, {'members': 1, 'bytes': 0})
+
+    def test_symlink_hardlink_and_fifo_refused(self):
+        external = self.base / 'external'; external.write_bytes(b'untouched')
+        link = self.root / 'link'; link.symlink_to(external)
+        with self.assertRaises((OSError, ValueError)): stage.disk_check(self.root)
+        link.unlink(); os.link(external, link)
+        with self.assertRaises((OSError, ValueError)): stage.disk_check(self.root)
+        link.unlink(); os.mkfifo(link)
+        with self.assertRaises((OSError, ValueError)): stage.disk_check(self.root)
+        self.assertEqual(external.read_bytes(), b'untouched')
+
+    def test_foreign_owner_cross_device_and_permission_error_refused(self):
+        child = self.root / 'cache'; child.mkdir(mode=0o700); original = os.stat
+        for fault in ('uid', 'device', 'permission'):
+            def observe(path, *args, **kwargs):
+                info = original(path, *args, **kwargs)
+                if self.name(path) != child.name: return info
+                if fault == 'permission': raise PermissionError(errno.EACCES, 'fixture permission failure')
+                values = {name: getattr(info, name) for name in dir(info) if name.startswith('st_')}
+                values['st_uid' if fault == 'uid' else 'st_dev'] += 1
+                return types.SimpleNamespace(**values)
+            with self.subTest(fault=fault), mock.patch.object(stage.os, 'stat', side_effect=observe), \
+                    self.assertRaises((OSError, ValueError)):
+                stage.disk_check(self.root)
+
+    def test_byte_budget_is_unchanged(self):
+        (self.root / 'large').write_bytes(b'xx')
+        with mock.patch.object(stage, 'BUDGET', dict(stage.BUDGET, private_bytes=1)), self.assertRaises(ValueError):
+            stage.disk_check(self.root)
+
+    def test_only_exact_owned_gpg_unix_socket_names_are_allowed(self):
+        home = self.root / 'native/gpg'; home.mkdir(parents=True, mode=0o700)
+        for name in ('S.gpg-agent', 'S.gpg-agent.browser', 'S.gpg-agent.extra', 'S.gpg-agent.ssh', 'S.dirmngr', 'S.keyboxd'):
+            sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM); self.addCleanup(sock.close)
+            sock.bind(str(home / name))
+            self.assertTrue(stat.S_ISSOCK((home / name).lstat().st_mode))
+        self.assertEqual(stage.disk_check(self.root)['members'], 8)
+        sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM); self.addCleanup(sock.close)
+        sock.bind(str(self.root / 'S.gpg-agent'))
+        with self.assertRaises((OSError, ValueError)): stage.disk_check(self.root)
+
+    def test_owned_gpg_dotlock_hardlinks_are_counted_but_outside_links_refused(self):
+        home = self.root / 'native/gpg'; home.mkdir(parents=True, mode=0o700)
+        original = home / '.#lk-fixture'; original.write_bytes(b'lock')
+        os.link(original, home / 'pubring.kbx.lock')
+        self.assertEqual(stage.disk_check(self.root), {'members': 4, 'bytes': 8})
+        os.link(original, self.root / 'native/outside-lock')
+        with self.assertRaises((OSError, ValueError)): stage.disk_check(self.root)
+
+    def test_nonlock_hardlinks_within_gpg_are_refused(self):
+        home = self.root / 'native/gpg'; home.mkdir(parents=True, mode=0o700)
+        original = home / 'unapproved'; original.write_bytes(b'data')
+        os.link(original, home / 'unapproved-peer')
+        with self.assertRaises((OSError, ValueError)): stage.disk_check(self.root)
+
+    def test_two_link_gpg_lock_with_external_peer_is_refused(self):
+        home = self.root / 'native/gpg'; home.mkdir(parents=True, mode=0o700)
+        external = self.base / 'external-lock'; external.write_bytes(b'foreign peer')
+        os.link(external, home / '.#lk-fixture')
+        self.assertEqual(external.stat().st_nlink, 2)
+        descriptors = set(os.listdir('/proc/self/fd'))
+        with self.assertRaisesRegex(ValueError, '^private-hardlink$'): stage.disk_check(self.root)
+        self.assertEqual(set(os.listdir('/proc/self/fd')), descriptors)
+        self.assertEqual(external.read_bytes(), b'foreign peer')
+
+    def test_known_lock_with_nonlock_peer_in_same_gpg_directory_is_refused(self):
+        home = self.root / 'native/gpg'; home.mkdir(parents=True, mode=0o700)
+        original = home / '.#lk-fixture'; original.write_bytes(b'lock')
+        os.link(original, home / 'unapproved-peer')
+        with self.assertRaisesRegex(ValueError, '^private-hardlink$'): stage.disk_check(self.root)
+
+    def test_captured_gpg_lock_peer_unlink_and_full_removal_are_allowed(self):
+        for remove_all in (False, True):
+            with self.subTest(remove_all=remove_all):
+                home = self.root / 'native/gpg'; home.mkdir(parents=True, mode=0o700, exist_ok=True)
+                original = home / '.#lk-fixture'; original.write_bytes(b'lock')
+                peer = home / 'pubring.kbx.lock'; os.link(original, peer)
+                inode = home.stat().st_ino; scanned = 0; actual = os.scandir
+                def remove():
+                    peer.unlink()
+                    if remove_all: original.unlink()
+                with self.barrier(remove) as reach:
+                    def scan(path):
+                        nonlocal scanned
+                        if isinstance(path, int) and os.fstat(path).st_ino == inode:
+                            scanned += 1
+                            if scanned == 2: reach()
+                        return actual(path)
+                    with mock.patch.object(stage.os, 'scandir', side_effect=scan):
+                        result = stage.disk_check(self.root)
+                self.assertGreaterEqual(scanned, 2)
+                self.assertEqual(result, {'members': 4, 'bytes': 8})
+                if not remove_all:
+                    self.assertEqual(original.stat().st_nlink, 1); original.unlink()
+                self.assertFalse(peer.exists()); self.assertFalse(original.exists())
+
+    def test_gpg_lock_peer_created_after_initial_enumeration_is_reobserved(self):
+        home = self.root / 'native/gpg'; home.mkdir(parents=True, mode=0o700)
+        original = home / '.#lk-fixture'; original.write_bytes(b'lock')
+        peer = home / 'pubring.kbx.lock'; inode = home.stat().st_ino
+        actual = os.scandir; fired = False; scanned = 0
+        with self.barrier(lambda: os.link(original, peer)) as reach:
+            def scan(path):
+                nonlocal fired, scanned
+                if isinstance(path, int) and os.fstat(path).st_ino == inode:
+                    scanned += 1
+                    if not fired:
+                        fired = True
+                        with actual(path) as entries: snapshot = list(entries)
+                        self.assertEqual([entry.name for entry in snapshot], [original.name])
+                        reach()
+                        return contextlib.nullcontext(iter(snapshot))
+                return actual(path)
+            with mock.patch.object(stage.os, 'scandir', side_effect=scan): result = stage.disk_check(self.root)
+        self.assertTrue(fired); self.assertGreaterEqual(scanned, 2)
+        self.assertEqual(original.stat().st_nlink, 2)
+        self.assertEqual(result, {'members': 4, 'bytes': 8})
+
+    def test_gpg_lock_fd_bound_closes_all_captured_descriptors_on_failure(self):
+        home = self.root / 'native/gpg'; home.mkdir(parents=True, mode=0o700)
+        for number in range(65):
+            original = home / f'.#lk-fixture-{number}'; original.write_bytes(b'lock')
+            os.link(original, home / f'fixture-{number}.lock')
+        descriptors = set(os.listdir('/proc/self/fd'))
+        with self.assertRaisesRegex(ValueError, '^private-gpg-lock-bound$'): stage.disk_check(self.root)
+        self.assertEqual(set(os.listdir('/proc/self/fd')), descriptors)
+
+    def test_gpg_peer_rescan_validates_every_new_entry(self):
+        home = self.root / 'native/gpg'; home.mkdir(parents=True, mode=0o700)
+        original = home / '.#lk-fixture'; original.write_bytes(b'lock')
+        os.link(original, home / 'pubring.kbx.lock')
+        inode = home.stat().st_ino; external = self.base / 'untouched'; external.write_bytes(b'foreign')
+        for kind, reason in [('symlink', 'private-file-type'), ('fifo', 'private-file-type'),
+                             ('oversized', 'private-disk-budget'), ('foreign-owner', 'private-foreign-owner')]:
+            with self.subTest(kind=kind):
+                new = home / 'new-entry'; actual_scan = os.scandir; actual_stat = os.stat; scanned = 0
+                def create():
+                    if kind == 'symlink': new.symlink_to(external)
+                    elif kind == 'fifo': os.mkfifo(new)
+                    else: new.write_bytes(b'x')
+                def observe(path, *args, **kwargs):
+                    info = actual_stat(path, *args, **kwargs)
+                    if kind == 'foreign-owner' and self.name(path) == new.name:
+                        values = {name: getattr(info, name) for name in dir(info) if name.startswith('st_')}
+                        values['st_uid'] += 1
+                        return types.SimpleNamespace(**values)
+                    return info
+                descriptors = set(os.listdir('/proc/self/fd'))
+                with self.barrier(create) as reach:
+                    def scan(path):
+                        nonlocal scanned
+                        if isinstance(path, int) and os.fstat(path).st_ino == inode:
+                            scanned += 1
+                            if scanned == 2: reach()
+                        return actual_scan(path)
+                    budget = dict(stage.BUDGET, private_bytes=8) if kind == 'oversized' else stage.BUDGET
+                    with mock.patch.object(stage.os, 'scandir', side_effect=scan), \
+                            mock.patch.object(stage.os, 'stat', side_effect=observe), \
+                            mock.patch.object(stage, 'BUDGET', budget), self.assertRaisesRegex(ValueError, '^'+reason+'$'):
+                        stage.disk_check(self.root)
+                self.assertGreaterEqual(scanned, 2)
+                self.assertEqual(set(os.listdir('/proc/self/fd')), descriptors)
+                self.assertEqual(external.read_bytes(), b'foreign'); new.unlink()
 
 
 class SignalHelperTests(unittest.TestCase):

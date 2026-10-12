@@ -171,17 +171,151 @@ def verify_snapshot(target,contract):
     need(found==set(contract['files']),'snapshot-missing')
 
 
-def disk_check(root):
-    count=size=0
-    for directory,dirs,names in os.walk(root,followlinks=False):
-        for name in dirs+names:
-            path=Path(directory)/name;info=path.lstat();count+=1
-            need(count<=BUDGET['private_members'],'private-member-budget')
-            need(info.st_uid==os.getuid(),'private-foreign-owner')
-            # Source extraction may contain symlink data; do not dereference it.
-            if stat.S_ISREG(info.st_mode) or stat.S_ISLNK(info.st_mode):size+=info.st_size
-            need(size<=BUDGET['private_bytes'],'private-disk-budget')
-    return {'members':count,'bytes':size}
+GPG_SOCKETS=frozenset({'S.gpg-agent','S.gpg-agent.browser','S.gpg-agent.extra',
+                       'S.gpg-agent.ssh','S.dirmngr','S.keyboxd'})
+
+
+def disk_check(root,expected_identity=None):
+    """Observe owned files through directory FDs; only vanished entries are skipped."""
+    root=Path(root)
+    need(root.is_absolute() and root.is_relative_to('/tmp') and root!=Path('/tmp')
+         and '..' not in root.parts,'private-root-path')
+    count=size=0;chain=[]
+    identity=lambda info:(info.st_dev,info.st_ino,info.st_uid,stat.S_IMODE(info.st_mode))
+    def directory(info):
+        need(stat.S_ISDIR(info.st_mode) and info.st_uid==os.getuid(),'private-directory-owner')
+        need(info.st_mode & 0o500==0o500 and not info.st_mode & 0o7022,'private-directory-permission')
+    def mount_check():
+        with Path('/proc/self/mountinfo').open('rb') as stream:data=stream.read(4*1024**2+1)
+        need(len(data)<=4*1024**2 and len(data.splitlines())<=8192,'private-mount-bound')
+        for line in data.splitlines():
+            fields=line.split();need(len(fields)>=6,'private-mount-format')
+            name=re.sub(rb'\\([0-7]{3})',lambda m:bytes([int(m[1],8)]),fields[4])
+            need(not Path(os.fsdecode(name)).is_relative_to(root),'private-nested-mount')
+    def validate(parent,name,fd,before,depth):
+        opened=os.fstat(fd);directory(opened)
+        need(identity(opened)==identity(before),'private-directory-identity')
+        try:current=os.stat(name,dir_fd=parent,follow_symlinks=False)
+        except FileNotFoundError:
+            need(depth>0 and opened.st_nlink==0,'private-directory-identity');return False
+        need(identity(current)==identity(before) and stat.S_ISDIR(current.st_mode),'private-directory-identity')
+        return True
+    def walk(parent,name,fd,before,prefix,depth):
+        nonlocal count,size
+        need(depth<=128,'private-depth-budget')
+        if not validate(parent,name,fd,before,depth):return
+        locks={};seen=set()
+        try:
+            with os.scandir(fd) as entries:
+                for entry in entries:
+                    seen.add(entry.name);count+=1;need(count<=BUDGET['private_members'],'private-member-budget')
+                    try:info=os.stat(entry.name,dir_fd=fd,follow_symlinks=False)
+                    except FileNotFoundError:
+                        validate(parent,name,fd,before,depth);continue
+                    need(info.st_uid==os.getuid(),'private-foreign-owner')
+                    need(info.st_dev==before.st_dev,'private-nested-mount')
+                    relative=prefix+(entry.name,)
+                    if stat.S_ISDIR(info.st_mode):
+                        directory(info)
+                        try:child=os.open(entry.name,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW,dir_fd=fd)
+                        except FileNotFoundError:
+                            validate(parent,name,fd,before,depth)
+                            try:os.stat(entry.name,dir_fd=fd,follow_symlinks=False)
+                            except FileNotFoundError:continue
+                            raise ValueError('private-directory-identity')
+                        try:walk(fd,entry.name,child,info,relative,depth+1)
+                        finally:os.close(child)
+                    elif stat.S_ISREG(info.st_mode):
+                        gpg=relative[:2]==('native','gpg')
+                        need(info.st_nlink==1 or gpg and info.st_nlink==2 and
+                             (entry.name.startswith('.#lk') or entry.name.endswith('.lock')),'private-hardlink')
+                        need(info.st_mode & 0o400 and not info.st_mode & 0o7022,'private-file-permission')
+                        if info.st_nlink==2:
+                            key=(info.st_dev,info.st_ino)
+                            if key not in locks:
+                                need(len(locks)<64,'private-gpg-lock-bound')
+                                try:held=os.open(entry.name,os.O_PATH|os.O_NOFOLLOW,dir_fd=fd)
+                                except FileNotFoundError:
+                                    validate(parent,name,fd,before,depth);continue
+                                locks[key]=held
+                                need(identity(os.fstat(held))==identity(info),'private-file-identity')
+                        size+=info.st_size;need(size<=BUDGET['private_bytes'],'private-disk-budget')
+                    else:
+                        need(stat.S_ISSOCK(info.st_mode) and relative[:2]==('native','gpg')
+                             and len(relative)==3 and entry.name in GPG_SOCKETS,'private-file-type')
+            validate(parent,name,fd,before,depth)
+            # Dotlock peers may appear/disappear during the first enumeration.
+            # Reobserve only the held inode, without trusting an outside peer.
+            for attempt in range(3):
+                if not locks:break
+                observed={key:set() for key in locks};enumerated=0
+                with os.scandir(fd) as entries:
+                    for entry in entries:
+                        enumerated+=1;need(enumerated<=BUDGET['private_members'],'private-member-budget')
+                        if entry.name not in seen:
+                            seen.add(entry.name);count+=1;need(count<=BUDGET['private_members'],'private-member-budget')
+                            new=True
+                        else:new=False
+                        try:info=os.stat(entry.name,dir_fd=fd,follow_symlinks=False)
+                        except FileNotFoundError:continue
+                        need(info.st_uid==os.getuid(),'private-foreign-owner')
+                        need(info.st_dev==before.st_dev,'private-nested-mount')
+                        key=(info.st_dev,info.st_ino)
+                        if stat.S_ISDIR(info.st_mode):
+                            directory(info)
+                            if new:
+                                try:child=os.open(entry.name,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW,dir_fd=fd)
+                                except FileNotFoundError:continue
+                                try:walk(fd,entry.name,child,info,prefix+(entry.name,),depth+1)
+                                finally:os.close(child)
+                        elif stat.S_ISREG(info.st_mode):
+                            need(info.st_mode & 0o400 and not info.st_mode & 0o7022,'private-file-permission')
+                            if info.st_nlink>1:
+                                need(info.st_nlink==2 and (entry.name.startswith('.#lk') or entry.name.endswith('.lock')),
+                                     'private-hardlink')
+                                if key not in locks:
+                                    need(len(locks)<64,'private-gpg-lock-bound')
+                                    try:held=os.open(entry.name,os.O_PATH|os.O_NOFOLLOW,dir_fd=fd)
+                                    except FileNotFoundError:continue
+                                    locks[key]=held
+                                    need(identity(os.fstat(held))==identity(info),'private-file-identity')
+                            if key in locks:
+                                need(entry.name.startswith('.#lk') or entry.name.endswith('.lock'),'private-hardlink')
+                                observed.setdefault(key,set()).add(entry.name)
+                            if new:size+=info.st_size;need(size<=BUDGET['private_bytes'],'private-disk-budget')
+                        else:
+                            need(stat.S_ISSOCK(info.st_mode) and prefix==('native','gpg')
+                                 and entry.name in GPG_SOCKETS,'private-file-type')
+                validate(parent,name,fd,before,depth)
+                pending=False
+                for key,held in locks.items():
+                    current=os.fstat(held)
+                    need(current.st_uid==os.getuid() and current.st_nlink<=2,'private-hardlink')
+                    if current.st_nlink>len(observed[key]):pending=True
+                if not pending:break
+            else:raise ValueError('private-hardlink')
+        finally:
+            for held in locks.values():os.close(held)
+    try:
+        parent=os.open('/',os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW);chain.append((None,None,parent,os.fstat(parent)))
+        for name in root.parts[1:]:
+            before=os.stat(name,dir_fd=parent,follow_symlinks=False)
+            child=os.open(name,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW,dir_fd=parent)
+            chain.append((parent,name,child,before));need(identity(os.fstat(child))==identity(before),'private-root-identity')
+            parent=child
+        before=chain[-1][3];directory(before)
+        need(stat.S_IMODE(before.st_mode)==0o700,'private-root-permission')
+        if expected_identity is not None:
+            need(type(expected_identity) in (list,tuple) and len(expected_identity)==2
+                 and all(type(v) is int and v>=0 for v in expected_identity)
+                 and tuple(expected_identity)==(before.st_dev,before.st_ino),'private-root-identity')
+        mount_check();walk(*chain[-1],(),0);mount_check()
+        for parent,name,fd,before in chain[1:]:
+            current=os.stat(name,dir_fd=parent,follow_symlinks=False)
+            need(identity(current)==identity(before) and stat.S_ISDIR(current.st_mode),'private-root-identity')
+        return {'members':count,'bytes':size}
+    finally:
+        for _,_,fd,_ in reversed(chain):os.close(fd)
 
 
 def environment(private,contract):
@@ -298,13 +432,79 @@ def finish_signals(previous,cancelled,commit,mask):
         commit(True)
 
 
+PROCESS_PHASES=frozenset({'native-daemon','materialize','freeze','native-pair','public-projection',
+                          'public-guard','public-bundle','gpg-cleanup','recovery-gpg'})
+RUNTIME_REASONS=frozenset({'invalid-deadline','timeout','invalid-command','unsafe-log',
+                           'nonprivate-log-parent','subreaper-unavailable','signal-state-restore',
+                           'spawn-failed','registration-failed','log-write','log-limit','tick-failed',
+                           'process-failed','runtime-failed','group-cleanup','cancelled'})
+IO_TICK_CODES=frozenset({'missing-path','permission-denied','io-error','validation-error','unexpected-error'})
+TICK_CODES={
+    'private-scan':IO_TICK_CODES | frozenset({'private-root-path','private-directory-owner',
+        'private-directory-permission','private-mount-bound','private-mount-format','private-nested-mount',
+        'private-directory-identity','private-depth-budget','private-member-budget','private-foreign-owner',
+        'private-hardlink','private-file-permission','private-disk-budget','private-file-type',
+        'private-root-identity','private-root-permission','private-gpg-lock-bound','private-file-identity'}),
+    'socket-identity':IO_TICK_CODES | {'daemon-socket-changed'},
+    'daemon-storage':IO_TICK_CODES | {'docker-storage-budget'},
+    'cancellation':frozenset({'cancelled'}),
+}
+DIAGNOSTIC_FIELDS=frozenset({'failed_phase','runtime_reason','runtime_returncode','tick_operation','tick_reason'})
+
+
+def diagnostic_projection(value):
+    """Finite metadata only; unknown keys/values never become public diagnostics."""
+    fields=set(value) & DIAGNOSTIC_FIELDS
+    if not fields:return {}
+    required={'failed_phase','runtime_reason','runtime_returncode'}
+    need(fields in (required,required|{'tick_operation','tick_reason'}),'diagnostic-field-set')
+    need(type(value['failed_phase']) is str and value['failed_phase'] in PROCESS_PHASES
+         and type(value['runtime_reason']) is str and value['runtime_reason'] in RUNTIME_REASONS,'diagnostic-enum')
+    code=value['runtime_returncode']
+    need(code is None or type(code) is int and -64<=code<=255,'diagnostic-returncode')
+    if 'tick_operation' in fields:
+        op=value['tick_operation'];reason=value['tick_reason']
+        need(value['runtime_reason']=='tick-failed' and type(op) is str and op in TICK_CODES
+             and type(reason) is str and reason in TICK_CODES[op],'diagnostic-tick-enum')
+    return {name:value[name] for name in fields}
+
+
+def failure_diagnostics(receipt,phase,item,runtime,tick=None):
+    """Only the authenticated runtime's typed process receipt can seed fields."""
+    if 'failed_phase' in receipt:return
+    if type(item) is not runtime.Receipt or not {'kind','schema_version','status','reason_code','returncode'}<=set(item) or type(item.get('kind')) is not str or item['kind']!='process-lifecycle' or \
+       type(item.get('schema_version')) is not int or item['schema_version']!=1 or \
+       type(item.get('status')) is not str or item['status'] not in ('FAIL','CANCELLED'):return
+    value={'failed_phase':phase,'runtime_reason':item.get('reason_code'),
+           'runtime_returncode':item.get('returncode')}
+    if tick and value['runtime_reason']=='tick-failed':
+        value.update(tick_operation=tick.get('operation'),tick_reason=tick.get('reason'))
+    try:receipt.update(diagnostic_projection(value))
+    except (ValueError,TypeError,KeyError):return
+
+
+def tick_observation(operation,action,failed):
+    try:return action()
+    except Exception as error:
+        if isinstance(error,PermissionError):reason='permission-denied'
+        elif isinstance(error,FileNotFoundError):reason='missing-path'
+        elif isinstance(error,OSError):reason='io-error'
+        elif type(error) is ValueError:
+            reason=str(error) if str(error) in TICK_CODES[operation] else 'validation-error'
+        else:reason='unexpected-error'
+        failed.update(operation=operation,reason=reason)
+        raise
+
+
 def public_summary(receipt):
     """Fixed scalar/hash/typed lifecycle fields; no host paths, argv or raw logs."""
     allowed=('schema_version','status','phase','controller_sha256','ready_sha256','source_commit',
              'candidate_sha256','native_compilation','publication','hardware','elapsed_seconds',
              'failure_class','private_data_removed','raw_retention_within_budget','cleanup_status',
              'cancelled','public_bundle_sha256')
-    return {k:receipt[k] for k in allowed if k in receipt}
+    result={k:receipt[k] for k in allowed if k in receipt}
+    result.update(diagnostic_projection(receipt))
+    return result
 
 
 def process_identity(pid):
@@ -426,25 +626,33 @@ def pipeline(root,controller,controller_sha,output,runner=None):
             def command(phase,argv,seconds):
                 receipt['phase']=phase;save(output/'result.json',receipt)
                 need(not cancelled,'stage-cancelled');verify_snapshot(copied,contract['source']);tool_check(contract['tools'])
+                tick_failure={}
                 def tick():
                     nonlocal last_tick
-                    need(not cancelled,'stage-cancelled')
+                    def uncancelled():need(not cancelled,'cancelled')
+                    tick_observation('cancellation',uncancelled,tick_failure)
                     now=time.monotonic()
                     if now-last_tick>=1:
-                        last_tick=now;disk_check(private)
-                        sock=Path('/run/docker.sock').lstat()
-                        need({'device':sock.st_dev,'inode':sock.st_ino}==contract['host']['docker_socket_identity'],
-                             'daemon-socket-changed')
+                        last_tick=now
+                        tick_observation('private-scan',lambda:disk_check(private,owner['private_record']['child']),tick_failure)
+                        def socket_check():
+                            sock=Path('/run/docker.sock').lstat()
+                            need({'device':sock.st_dev,'inode':sock.st_ino}==contract['host']['docker_socket_identity'],
+                                 'daemon-socket-changed')
+                        tick_observation('socket-identity',socket_check,tick_failure)
                         if storage is not None:
-                            need(storage_free-shutil.disk_usage(storage).free<=BUDGET['minimum_docker_free_bytes'],
-                                 'docker-storage-budget')
+                            def storage_check():
+                                need(storage_free-shutil.disk_usage(storage).free<=BUDGET['minimum_docker_free_bytes'],
+                                     'docker-storage-budget')
+                            tick_observation('daemon-storage',storage_check,tick_failure)
                 try:
                     item=tracked_process(owner,output,run_process,phase,argv,
                                          private/'logs'/f'{phase}.stdout',private/'logs'/f'{phase}.stderr',
                                          min(deadline,time.monotonic()+seconds),env,copied,tick)
-                    receipt['processes'][phase]=item
+                    receipt['processes'][phase]=item;failure_diagnostics(receipt,phase,item,runtime,tick_failure)
                 except BaseException as error:
-                    receipt['processes'][phase]=getattr(error,'receipt',{'status':'FAIL','reason_code':'stage-process-failed'})
+                    item=getattr(error,'receipt',{'status':'FAIL','reason_code':'stage-process-failed'})
+                    receipt['processes'][phase]=item;failure_diagnostics(receipt,phase,item,runtime,tick_failure)
                     raise
                 need(item['status']=='PASS','stage-process-failed')
             command('native-daemon',[str(alias),'info','--format','{{json .}}'],30)
@@ -509,7 +717,8 @@ def pipeline(root,controller,controller_sha,output,runner=None):
                                              private/'logs'/f'{phase}.stdout',private/'logs'/f'{phase}.stderr',
                                              min(deadline,time.monotonic()+BUDGET['projection_seconds' if operation=='project' else 'export_seconds']),
                                              public_env,copied)
-                        receipt['processes'][phase]=item;need(item['status']=='PASS','public-process-failed')
+                        receipt['processes'][phase]=item;failure_diagnostics(receipt,phase,item,runtime)
+                        need(item['status']=='PASS','public-process-failed')
                         status=load(private/'logs'/f'{phase}.stdout')
                         need(status=={'status':'PASS','operation':operation},'public-worker-receipt')
                     need(load(output/'projected/projection.json')['projection']=='PASS','public-projection-failed')
@@ -518,6 +727,7 @@ def pipeline(root,controller,controller_sha,output,runner=None):
                     receipt['public_projection']='PASS';receipt['credential_guard']='PASS'
             except BaseException as error:
                 if type(error).__name__ in ('RuntimeCancelled','KeyboardInterrupt','BuildCancelled','SourceCancelled') and not cancelled:cancelled.append(0)
+                failure_diagnostics(receipt,receipt['phase'],getattr(error,'receipt',None),runtime)
                 failure=failure or error;receipt.update(status='FAIL',public_projection='FAIL',failure_class=type(error).__name__)
             receipt['phase']='owned-cleanup';save(output/'result.json',receipt)
             cleanup_deadline=min(start+BUDGET['raw_retention_seconds'],time.monotonic()+BUDGET['cleanup_seconds'])
@@ -536,12 +746,14 @@ def pipeline(root,controller,controller_sha,output,runner=None):
                                          [contract['tools']['gpgconf']['path'],'--homedir',str(home),'--kill','all'],
                                          private/'logs/gpg-cleanup.stdout',private/'logs/gpg-cleanup.stderr',
                                          min(cleanup_deadline,time.monotonic()+15),env,private)
+                        failure_diagnostics(receipt,'gpg-cleanup',item,runtime)
                         need(item['status']=='PASS','gpg-cleanup-failed')
                     launches_verified(owner)
                     need(all(row['complete'] for row in owner['children']),'owned-process-cleanup-unverified')
                     cleanup_safe=True
             except BaseException as error:
                 if type(error).__name__ in ('RuntimeCancelled','KeyboardInterrupt','BuildCancelled','SourceCancelled') and not cancelled:cancelled.append(0)
+                failure_diagnostics(receipt,'gpg-cleanup',getattr(error,'receipt',None),runtime)
                 failure=failure or error;receipt.update(status='FAIL',failure_class=type(error).__name__)
             finally:
                 if private is not None and cleanup_safe:
@@ -643,6 +855,7 @@ def recover(root,controller,controller_sha,output,owner_sha):
                                         [contract['tools']['gpgconf']['path'],'--homedir',str(home),'--kill','all'],
                                         private/'logs'/('recovery-gpg-'+suffix+'.stdout'),private/'logs'/('recovery-gpg-'+suffix+'.stderr'),
                                         min(deadline,time.monotonic()+15),env,private)
+                    failure_diagnostics(receipt,'recovery-gpg',item,runtime)
                     need(item['status']=='PASS','gpg-cleanup-failed')
                 removed=runtime.owned_remove(output,'private',owner['nonce'],deadline)
                 receipt['private_cleanup']=removed;receipt['private_data_removed']=removed['removed']
@@ -654,6 +867,7 @@ def recover(root,controller,controller_sha,output,owner_sha):
             need(receipt['raw_retention_within_budget'],'raw-retention-budget-exceeded')
         except BaseException as error:
             if type(error).__name__=='RuntimeCancelled' and not cancelled:cancelled.append(0)
+            failure_diagnostics(receipt,'recovery-gpg',getattr(error,'receipt',None),runtime)
             receipt.update(status='FAIL',failure_class=type(error).__name__)
         finally:
             receipt['cancelled']=bool(cancelled)
