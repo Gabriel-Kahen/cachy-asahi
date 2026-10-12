@@ -1,0 +1,415 @@
+{
+  "status": "source-audited; not built, installed, or hardware-tested",
+  "audited_date": "2026-10-11",
+  "recipe_revision": "c7cf5b4f2c70f28ed50601b3f75b19da93ba663f",
+  "source_revision": "764693fe2863bc2b00db6ad6f4c1d57cded739f2",
+  "tag": "1.4.1",
+  "tag_object": "aee04010110418486ec9ddce7f7e938972b5a45f",
+  "tag_verification": "GitHub API reported verified=true reason=valid; local trusted-key verification not run",
+  "source_archive_url": "https://codeload.github.com/CachyOS/CachyOS-Settings/tar.gz/764693fe2863bc2b00db6ad6f4c1d57cded739f2",
+  "source_archive_sha256": "d2f369663ff71b9f23149da84de2933c324e6b2d9ad8aa59aee8c563388b8b5d",
+  "installed_file_count": 49,
+  "files": [
+    {
+      "path": "/etc/debuginfod/cachyos.urls",
+      "sha256": "f05825c952e26856ccd73dceff5a27d6d7100fac3f9f8bebdb48705ef51740f8",
+      "size": 31,
+      "archive_mode": "0o664",
+      "extracted_mode": "0o644",
+      "git_mode": "100644"
+    },
+    {
+      "path": "/etc/security/limits.d/20-audio.conf",
+      "sha256": "839335ba19d676345847e9420a0bbd284b4511f292f929d625dc4b76b65fe018",
+      "size": 38,
+      "archive_mode": "0o664",
+      "extracted_mode": "0o644",
+      "git_mode": "100644"
+    },
+    {
+      "path": "/usr/bin/cachyos-bugreport.sh",
+      "sha256": "a115cc29b8f3dbc8a6b0ddc690c569905a136977ba6d82a8107df7b14b505eeb",
+      "size": 4425,
+      "archive_mode": "0o775",
+      "extracted_mode": "0o755",
+      "git_mode": "100755"
+    },
+    {
+      "path": "/usr/bin/dlss-swapper",
+      "sha256": "4b4a4d5472b80d8232adf6ba9781435710713997407fa0ffc32cd33f385fe22c",
+      "size": 542,
+      "archive_mode": "0o775",
+      "extracted_mode": "0o755",
+      "git_mode": "100755"
+    },
+    {
+      "path": "/usr/bin/dlss-swapper-dll",
+      "sha256": "41591ab68d869cb2ec9aac953283f73050871ac0b4bcf6db37f20628e1cf115e",
+      "size": 495,
+      "archive_mode": "0o775",
+      "extracted_mode": "0o755",
+      "git_mode": "100755"
+    },
+    {
+      "path": "/usr/bin/game-performance",
+      "sha256": "ef774b4d2b182201ba7fa01e44907c3028577b1c74f9a1d7f33762266cde96fd",
+      "size": 766,
+      "archive_mode": "0o775",
+      "extracted_mode": "0o755",
+      "git_mode": "100755"
+    },
+    {
+      "path": "/usr/bin/kerver",
+      "sha256": "39f0b30ae2c605ebb04210158885e3deeea2d30f92164a8e97b1452dccee8241",
+      "size": 1824,
+      "archive_mode": "0o775",
+      "extracted_mode": "0o755",
+      "git_mode": "100755"
+    },
+    {
+      "path": "/usr/bin/paste-cachyos",
+      "sha256": "dbe4c72e24219410b494aa64590afffa96e03d76e32a87355f2953d8d763836a",
+      "size": 355,
+      "archive_mode": "0o775",
+      "extracted_mode": "0o755",
+      "git_mode": "100755"
+    },
+    {
+      "path": "/usr/bin/pci-latency",
+      "sha256": "e85e23dc2915e25c753f7a55d16ec41c842fb80dbf5775e03ecfef99c01eaf0a",
+      "size": 715,
+      "archive_mode": "0o775",
+      "extracted_mode": "0o755",
+      "git_mode": "100755"
+    },
+    {
+      "path": "/usr/bin/sbctl-batch-sign",
+      "sha256": "0775c5b619e125a0e27ad39f14239c16268c83484d144a1eed6dff31cf6687ff",
+      "size": 999,
+      "archive_mode": "0o775",
+      "extracted_mode": "0o755",
+      "git_mode": "100755"
+    },
+    {
+      "path": "/usr/bin/topmem",
+      "sha256": "91c159b35f89275846695f6c79ccc559c33f8170012ffa6c30b6b59f37480ff6",
+      "size": 5572,
+      "archive_mode": "0o775",
+      "extracted_mode": "0o755",
+      "git_mode": "100755"
+    },
+    {
+      "path": "/usr/bin/zink-run",
+      "sha256": "ce1e32a2d8b9b44c780a0d1f9ea76a9ad521b87d929017d6579e921303b69b4d",
+      "size": 216,
+      "archive_mode": "0o775",
+      "extracted_mode": "0o755",
+      "git_mode": "100755"
+    },
+    {
+      "path": "/usr/lib/NetworkManager/conf.d/dns.conf",
+      "sha256": "80ee32ae2b4038691ef64248f5794e7d59cc34e626e181482af8037a0e338c04",
+      "size": 28,
+      "archive_mode": "0o664",
+      "extracted_mode": "0o644",
+      "git_mode": "100644"
+    },
+    {
+      "path": "/usr/lib/iw-set-regdomain",
+      "sha256": "fca317a6eecbe060eabc7c9ca713473af4f95dc76319472e7afc18d04666d04f",
+      "size": 2142,
+      "archive_mode": "0o775",
+      "extracted_mode": "0o755",
+      "git_mode": "100755"
+    },
+    {
+      "path": "/usr/lib/modprobe.d/amdgpu.conf",
+      "sha256": "8dd7eae836609b4c98470b8021951dcfe8a9c969cc0fc93229d1bac325ce4191",
+      "size": 192,
+      "archive_mode": "0o664",
+      "extracted_mode": "0o644",
+      "git_mode": "100644"
+    },
+    {
+      "path": "/usr/lib/modprobe.d/blacklist.conf",
+      "sha256": "73691aea75f427dbe0beeecbb81da03a61a779d68aa2225148923af8fd24a52d",
+      "size": 168,
+      "archive_mode": "0o664",
+      "extracted_mode": "0o644",
+      "git_mode": "100644"
+    },
+    {
+      "path": "/usr/lib/modprobe.d/nvidia.conf",
+      "sha256": "68c69bd0381e47ca367a48689c8f5100909e031ab589d035d00aed992082c3bd",
+      "size": 462,
+      "archive_mode": "0o664",
+      "extracted_mode": "0o644",
+      "git_mode": "100644"
+    },
+    {
+      "path": "/usr/lib/modules-load.d/ntsync.conf",
+      "sha256": "c19771ae86e7df179f6b2f4a2837d3f0cbbbba7b32baef41a3c27120c760d78f",
+      "size": 7,
+      "archive_mode": "0o664",
+      "extracted_mode": "0o644",
+      "git_mode": "100644"
+    },
+    {
+      "path": "/usr/lib/sysctl.d/70-cachyos-settings.conf",
+      "sha256": "ec8446f96a6f9db754546042fd18821e2336206d67728d0c3ce72fb0c2634300",
+      "size": 2399,
+      "archive_mode": "0o664",
+      "extracted_mode": "0o644",
+      "git_mode": "100644"
+    },
+    {
+      "path": "/usr/lib/systemd/journald.conf.d/00-journal-size.conf",
+      "sha256": "d4f15249b3d58ff96223c3c9e33d8490a4d82f1a4277e5badcc26aa80fa86167",
+      "size": 27,
+      "archive_mode": "0o664",
+      "extracted_mode": "0o644",
+      "git_mode": "100644"
+    },
+    {
+      "path": "/usr/lib/systemd/system/cachyos-iw-set-regdomain.path",
+      "sha256": "80d34913c895b2bfc62db6661bd65b0a7b48418f1a6c9d41fbc715b6b3864fbf",
+      "size": 297,
+      "archive_mode": "0o664",
+      "extracted_mode": "0o644",
+      "git_mode": "100644"
+    },
+    {
+      "path": "/usr/lib/systemd/system/cachyos-iw-set-regdomain.service",
+      "sha256": "bed9c0640ce0dc22d31760b9f163ff7ef21dd4cfc91f2ab700564878ab27c41c",
+      "size": 259,
+      "archive_mode": "0o664",
+      "extracted_mode": "0o644",
+      "git_mode": "100644"
+    },
+    {
+      "path": "/usr/lib/systemd/system/pci-latency.service",
+      "sha256": "388bbf59422d8efa2d76e3aa236aabe73062c1bf7cabd8402a0ecfc0b2bf91f0",
+      "size": 154,
+      "archive_mode": "0o664",
+      "extracted_mode": "0o644",
+      "git_mode": "100644"
+    },
+    {
+      "path": "/usr/lib/systemd/system/rtkit-daemon.service.d/override.conf",
+      "sha256": "d2868f2a062229e6f8e8dee60a269646a3e9d9c63946de2d3fe4b1d1dff0030f",
+      "size": 27,
+      "archive_mode": "0o664",
+      "extracted_mode": "0o644",
+      "git_mode": "100644"
+    },
+    {
+      "path": "/usr/lib/systemd/system/session.slice.d/10-ignore-session-slice.conf",
+      "sha256": "806e6963480166682b812ba36692c8741864cb1aa36a18144330e77f06707115",
+      "size": 34,
+      "archive_mode": "0o664",
+      "extracted_mode": "0o644",
+      "git_mode": "100644"
+    },
+    {
+      "path": "/usr/lib/systemd/system/system.slice.d/10-oomd-per-slice-defaults.conf",
+      "sha256": "4a428558b1936b01eeed5714ce1886d8febf7557c669d451558316e65abe8f6b",
+      "size": 92,
+      "archive_mode": "0o664",
+      "extracted_mode": "0o644",
+      "git_mode": "100644"
+    },
+    {
+      "path": "/usr/lib/systemd/system/user-.slice.d/10-oomd-per-slice-defaults.conf",
+      "sha256": "4a428558b1936b01eeed5714ce1886d8febf7557c669d451558316e65abe8f6b",
+      "size": 92,
+      "archive_mode": "0o664",
+      "extracted_mode": "0o644",
+      "git_mode": "100644"
+    },
+    {
+      "path": "/usr/lib/systemd/system/user@.service.d/delegate.conf",
+      "sha256": "6f96aa8ec80478273ef983ff6e834832806126b91e75ca902339b47436396898",
+      "size": 46,
+      "archive_mode": "0o664",
+      "extracted_mode": "0o644",
+      "git_mode": "100644"
+    },
+    {
+      "path": "/usr/lib/systemd/system.conf.d/00-timeout.conf",
+      "sha256": "f5a573fca8ddaff84f2e5a8d57bbb1eaf190337e50b8cf69450854987c9e9e7d",
+      "size": 63,
+      "archive_mode": "0o664",
+      "extracted_mode": "0o644",
+      "git_mode": "100644"
+    },
+    {
+      "path": "/usr/lib/systemd/system.conf.d/10-limits.conf",
+      "sha256": "a350ba86349ce1a14cd9e2a9760115fd8158f69ffaa25cdeef689f31a7e4a9c3",
+      "size": 42,
+      "archive_mode": "0o664",
+      "extracted_mode": "0o644",
+      "git_mode": "100644"
+    },
+    {
+      "path": "/usr/lib/systemd/timesyncd.conf.d/10-timesyncd.conf",
+      "sha256": "a95f89541c784c0c3168d0aec2346197d19b6a9f7392865c2549d0f523577e78",
+      "size": 252,
+      "archive_mode": "0o664",
+      "extracted_mode": "0o644",
+      "git_mode": "100644"
+    },
+    {
+      "path": "/usr/lib/systemd/user.conf.d/00-timeout.conf",
+      "sha256": "f5a573fca8ddaff84f2e5a8d57bbb1eaf190337e50b8cf69450854987c9e9e7d",
+      "size": 63,
+      "archive_mode": "0o664",
+      "extracted_mode": "0o644",
+      "git_mode": "100644"
+    },
+    {
+      "path": "/usr/lib/systemd/user.conf.d/10-limits.conf",
+      "sha256": "54d377f2737258b731879ab00d76576bcda7624062624f1596c521df165f3d32",
+      "size": 42,
+      "archive_mode": "0o664",
+      "extracted_mode": "0o644",
+      "git_mode": "100644"
+    },
+    {
+      "path": "/usr/lib/systemd/zram-generator.conf",
+      "sha256": "e318ffed59968b1cd83b6c6233256cc33a3d0001c3c6e3d668ab06b726425f68",
+      "size": 89,
+      "archive_mode": "0o664",
+      "extracted_mode": "0o644",
+      "git_mode": "100644"
+    },
+    {
+      "path": "/usr/lib/tmpfiles.d/coredump.conf",
+      "sha256": "e48e08a2bf08b18d07d7256986fd92ae231349b7ab90816bf9706cb118dd679d",
+      "size": 101,
+      "archive_mode": "0o664",
+      "extracted_mode": "0o644",
+      "git_mode": "100644"
+    },
+    {
+      "path": "/usr/lib/tmpfiles.d/thp-shrinker.conf",
+      "sha256": "f7401ae51bf2b0d985bf4d1b4b2b49d470bdad0295edad363c3d29e4963bde47",
+      "size": 590,
+      "archive_mode": "0o664",
+      "extracted_mode": "0o644",
+      "git_mode": "100644"
+    },
+    {
+      "path": "/usr/lib/tmpfiles.d/thp.conf",
+      "sha256": "f262277f8cd0712ca4714e02b0dce07bcec532d2506ed255df6a59a761099fbd",
+      "size": 216,
+      "archive_mode": "0o664",
+      "extracted_mode": "0o644",
+      "git_mode": "100644"
+    },
+    {
+      "path": "/usr/lib/udev/rules.d/20-audio-pm.rules",
+      "sha256": "e2cc19213ff6d58e7ec4029f8104cde10fa173ba1a6d2fc3516686262e49d0aa",
+      "size": 1262,
+      "archive_mode": "0o664",
+      "extracted_mode": "0o644",
+      "git_mode": "100644"
+    },
+    {
+      "path": "/usr/lib/udev/rules.d/30-zram.rules",
+      "sha256": "522e5c869ecbe0f4fecf338ddd45c4826555a335314e2219cb389a84528881c0",
+      "size": 984,
+      "archive_mode": "0o664",
+      "extracted_mode": "0o644",
+      "git_mode": "100644"
+    },
+    {
+      "path": "/usr/lib/udev/rules.d/40-hpet-permissions.rules",
+      "sha256": "08beea3d5594cdb9f78ad9302b6c4d8e89003a9fbd401c9f7b10f2cba23edecb",
+      "size": 60,
+      "archive_mode": "0o664",
+      "extracted_mode": "0o644",
+      "git_mode": "100644"
+    },
+    {
+      "path": "/usr/lib/udev/rules.d/50-sata.rules",
+      "sha256": "f8be1192d54f756c77281fb7ca8eafb514e75c832582070e735990a917c74ae1",
+      "size": 248,
+      "archive_mode": "0o664",
+      "extracted_mode": "0o644",
+      "git_mode": "100644"
+    },
+    {
+      "path": "/usr/lib/udev/rules.d/60-ioschedulers.rules",
+      "sha256": "aa32ee6fc41f80d2bfd2a567fc1f1edd9782f744c03d9772ef0f0e70f82376b7",
+      "size": 365,
+      "archive_mode": "0o664",
+      "extracted_mode": "0o644",
+      "git_mode": "100644"
+    },
+    {
+      "path": "/usr/lib/udev/rules.d/69-hdparm.rules",
+      "sha256": "a3a272583c31811752dee3ea88fcfcc2d4244c444ff2f0001f128b77f83ac29f",
+      "size": 139,
+      "archive_mode": "0o664",
+      "extracted_mode": "0o644",
+      "git_mode": "100644"
+    },
+    {
+      "path": "/usr/lib/udev/rules.d/71-nvidia.rules",
+      "sha256": "0b10280db1f273eb6a672153f76a1b484b5a52a83b40b2c134e186e97d8d5a0d",
+      "size": 491,
+      "archive_mode": "0o664",
+      "extracted_mode": "0o644",
+      "git_mode": "100644"
+    },
+    {
+      "path": "/usr/lib/udev/rules.d/85-iw-regulatory.rules",
+      "sha256": "e4ad1a6d7ebbdeb4eb1c2999c085a84658b821aa5943d06e1197a694e2fe19b9",
+      "size": 466,
+      "archive_mode": "0o664",
+      "extracted_mode": "0o644",
+      "git_mode": "100644"
+    },
+    {
+      "path": "/usr/lib/udev/rules.d/99-cpu-dma-latency.rules",
+      "sha256": "da5e37a3005948e307a109aa9e8e6e1c70273fefb9cfbd48690cb4fce9b56859",
+      "size": 91,
+      "archive_mode": "0o664",
+      "extracted_mode": "0o644",
+      "git_mode": "100644"
+    },
+    {
+      "path": "/usr/share/X11/xorg.conf.d/20-touchpad.conf",
+      "sha256": "d765899a7dc6b2cf765a62c6b4b17b6e9564a3dfe3b1284d100d22a7974677b7",
+      "size": 196,
+      "archive_mode": "0o664",
+      "extracted_mode": "0o644",
+      "git_mode": "100644"
+    },
+    {
+      "path": "/usr/share/glib-2.0/schemas/zz_cachyos.org.gnome.login-screen.gschema.override",
+      "sha256": "e0d0b1903d351390277e203bab8edbb922d94b7d2eb3554ee757f5e460bdafd0",
+      "size": 61,
+      "archive_mode": "0o664",
+      "extracted_mode": "0o644",
+      "git_mode": "100644"
+    },
+    {
+      "path": "/usr/share/icons/cachyos.svg",
+      "sha256": "e60377fcb90896632c66b9106d4f13334a1b2c37ef38abac762595546d2e314e",
+      "size": 11714,
+      "archive_mode": "0o664",
+      "extracted_mode": "0o644",
+      "git_mode": "100644"
+    }
+  ],
+  "PKGBUILD": {
+    "url": "https://raw.githubusercontent.com/CachyOS/CachyOS-PKGBUILDS/c7cf5b4f2c70f28ed50601b3f75b19da93ba663f/cachyos-settings/PKGBUILD",
+    "sha256": "13451f633724b71a355c9e196de3d0f190029e006166c68791f270fb29d1e1c4"
+  },
+  "cachyos-settings.install": {
+    "url": "https://raw.githubusercontent.com/CachyOS/CachyOS-PKGBUILDS/c7cf5b4f2c70f28ed50601b3f75b19da93ba663f/cachyos-settings/cachyos-settings.install",
+    "sha256": "806cd2b00996f0baf914ed5ce427fa760f0484a0eed8ac31214e04313fd53f5f"
+  },
+  "mode_note": "GitHub archive group-write bits are filtered by extraction umask; extracted modes are not a built package result. Git mode records executable flag."
+}

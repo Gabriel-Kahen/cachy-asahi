@@ -1,0 +1,35 @@
+name: static-validation
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  checks:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+      - name: Verify packaged setup source and sync boundaries
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: |
+          python3 packages/settings/cachy-asahi-setup/check-sync.py
+          python3 packages/settings/cachy-asahi-setup/test-sync.py -v
+      - name: Validate tooling and safety boundaries
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: |
+          python3 -m unittest discover -s tests -v
+          python3 -m unittest discover -s scripts/setup -p 'test_*.py' -v
+          python3 -m unittest discover -s scripts/ci -p 'test_*.py' -v
+          python3 -m unittest discover -s scripts/hardware -p 'test_*.py' -v
+          python3 -m unittest discover -s scripts/release -p 'test_*.py' -v
+          python3 -m unittest discover -s scripts/benchmarks -p 'test_*.py' -v
+          bash -n scripts/build/container-entry.sh
+      - name: Inspect recipes without sourcing them
+        run: python3 scripts/checks/package_checks.py recipes --require-recipes
+      - name: Check recipe syntax without executing it
+        run: |
+          find packages/desktop packages/shells packages/settings -name PKGBUILD -type f -print0 | xargs -0 -r -n1 bash -n

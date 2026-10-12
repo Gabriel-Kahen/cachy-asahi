@@ -1,0 +1,988 @@
+{
+  "failures": [],
+  "observed_utc": "2026-10-12T00:09:06.153154+00:00",
+  "queries": [
+    {
+      "api_url": "https://api.github.com/search/issues?q=repo%3ACachyOS%2Fcachyos-hyprland-settings+is%3Aissue&per_page=100",
+      "incomplete_results": false,
+      "items": [
+        {
+          "html_url": "https://github.com/CachyOS/cachyos-hyprland-settings/issues/46",
+          "number": 46,
+          "state": "open",
+          "title": "Fix the keybindings trailing comma to fix print screen keybind to actually work",
+          "updated_at": "2025-10-05T13:24:49Z"
+        },
+        {
+          "html_url": "https://github.com/CachyOS/cachyos-hyprland-settings/issues/44",
+          "number": 44,
+          "state": "open",
+          "title": "Gestures don't work",
+          "updated_at": "2025-09-14T10:52:53Z"
+        },
+        {
+          "html_url": "https://github.com/CachyOS/cachyos-hyprland-settings/issues/42",
+          "number": 42,
+          "state": "closed",
+          "title": "autostart.conf references nm-applet but it is not included",
+          "updated_at": "2025-09-04T15:13:00Z"
+        },
+        {
+          "html_url": "https://github.com/CachyOS/cachyos-hyprland-settings/issues/40",
+          "number": 40,
+          "state": "closed",
+          "title": "Firefox hiding incorrectly",
+          "updated_at": "2025-08-23T15:47:10Z"
+        },
+        {
+          "html_url": "https://github.com/CachyOS/cachyos-hyprland-settings/issues/38",
+          "number": 38,
+          "state": "closed",
+          "title": "cachy-browser leftovers",
+          "updated_at": "2025-08-05T20:33:37Z"
+        },
+        {
+          "html_url": "https://github.com/CachyOS/cachyos-hyprland-settings/issues/36",
+          "number": 36,
+          "state": "open",
+          "title": "Include `ELECTRON_OZONE_PLATFORM_HINT=auto` in default environment for better text rendering on HiDPI screens",
+          "updated_at": "2025-08-01T09:29:02Z"
+        },
+        {
+          "html_url": "https://github.com/CachyOS/cachyos-hyprland-settings/issues/34",
+          "number": 34,
+          "state": "open",
+          "title": "Waybar translation failed",
+          "updated_at": "2025-07-25T18:01:27Z"
+        },
+        {
+          "html_url": "https://github.com/CachyOS/cachyos-hyprland-settings/issues/31",
+          "number": 31,
+          "state": "closed",
+          "title": "Why does this package require kvantum?",
+          "updated_at": "2025-05-15T22:35:37Z"
+        },
+        {
+          "html_url": "https://github.com/CachyOS/cachyos-hyprland-settings/issues/30",
+          "number": 30,
+          "state": "open",
+          "title": "Replace swayidle with hypridle",
+          "updated_at": "2025-06-08T15:45:44Z"
+        },
+        {
+          "html_url": "https://github.com/CachyOS/cachyos-hyprland-settings/issues/29",
+          "number": 29,
+          "state": "open",
+          "title": "Replace swaybg with hyprpaper",
+          "updated_at": "2025-06-08T15:46:53Z"
+        },
+        {
+          "html_url": "https://github.com/CachyOS/cachyos-hyprland-settings/issues/28",
+          "number": 28,
+          "state": "open",
+          "title": "Replace swaylock-fancy with hyprlock",
+          "updated_at": "2025-05-02T03:49:56Z"
+        },
+        {
+          "html_url": "https://github.com/CachyOS/cachyos-hyprland-settings/issues/27",
+          "number": 27,
+          "state": "open",
+          "title": "Switch to `hyprpolkitagent`?",
+          "updated_at": "2025-03-31T18:50:03Z"
+        },
+        {
+          "html_url": "https://github.com/CachyOS/cachyos-hyprland-settings/issues/11",
+          "number": 11,
+          "state": "closed",
+          "title": "WLR_NO_HARDWARE_CURSORS is deprecated",
+          "updated_at": "2024-10-09T12:17:30Z"
+        },
+        {
+          "html_url": "https://github.com/CachyOS/cachyos-hyprland-settings/issues/9",
+          "number": 9,
+          "state": "closed",
+          "title": "hyprland.sh doesn't seem to be working ",
+          "updated_at": "2024-11-28T18:46:11Z"
+        },
+        {
+          "html_url": "https://github.com/CachyOS/cachyos-hyprland-settings/issues/6",
+          "number": 6,
+          "state": "closed",
+          "title": "Add nvidia envs",
+          "updated_at": "2023-06-24T16:47:50Z"
+        },
+        {
+          "html_url": "https://github.com/CachyOS/cachyos-hyprland-settings/issues/5",
+          "number": 5,
+          "state": "closed",
+          "title": "Option to switch to `hyprland-nvidia`",
+          "updated_at": "2023-10-10T22:02:42Z"
+        }
+      ],
+      "query": "repo:CachyOS/cachyos-hyprland-settings is:issue",
+      "response_sha256": "577982a52217b009b0963bd6c9c1e7efa5ca29e54a27649f118462b0f801e9ce",
+      "total_count": 16
+    },
+    {
+      "api_url": "https://api.github.com/search/issues?q=repo%3ACachyOS%2Fcachyos-hyprland-settings+is%3Apr&per_page=100",
+      "incomplete_results": false,
+      "items": [
+        {
+          "html_url": "https://github.com/CachyOS/cachyos-hyprland-settings/pull/47",
+          "number": 47,
+          "state": "open",
+          "title": "Improve first launch experience",
+          "updated_at": "2025-10-07T20:53:27Z"
+        },
+        {
+          "html_url": "https://github.com/CachyOS/cachyos-hyprland-settings/pull/45",
+          "number": 45,
+          "state": "closed",
+          "title": "Update Hyperland description",
+          "updated_at": "2026-10-07T02:51:38Z"
+        },
+        {
+          "html_url": "https://github.com/CachyOS/cachyos-hyprland-settings/pull/43",
+          "number": 43,
+          "state": "closed",
+          "title": "Update monitor.conf",
+          "updated_at": "2025-11-18T11:00:55Z"
+        },
+        {
+          "html_url": "https://github.com/CachyOS/cachyos-hyprland-settings/pull/41",
+          "number": 41,
+          "state": "open",
+          "title": "feat: hide and show waybar",
+          "updated_at": "2025-08-24T09:46:24Z"
+        },
+        {
+          "html_url": "https://github.com/CachyOS/cachyos-hyprland-settings/pull/39",
+          "number": 39,
+          "state": "closed",
+          "title": "Fix screenshots in keybinds.conf",
+          "updated_at": "2025-08-07T21:11:21Z"
+        },
+        {
+          "html_url": "https://github.com/CachyOS/cachyos-hyprland-settings/pull/37",
+          "number": 37,
+          "state": "closed",
+          "title": "Add `ELECTRON_OZONE_PLATFORM_HINT,auto` to the enviroment configuration",
+          "updated_at": "2025-08-05T20:34:33Z"
+        },
+        {
+          "html_url": "https://github.com/CachyOS/cachyos-hyprland-settings/pull/35",
+          "number": 35,
+          "state": "closed",
+          "title": "Cleanup, edit screenshot binds, edit colors of wlogout, wofi and sway\u2026",
+          "updated_at": "2025-08-05T20:38:46Z"
+        },
+        {
+          "html_url": "https://github.com/CachyOS/cachyos-hyprland-settings/pull/33",
+          "number": 33,
+          "state": "closed",
+          "title": "Fix minor inconsistencies",
+          "updated_at": "2025-07-21T19:26:06Z"
+        },
+        {
+          "html_url": "https://github.com/CachyOS/cachyos-hyprland-settings/pull/32",
+          "number": 32,
+          "state": "open",
+          "title": "Hyprland dots updated",
+          "updated_at": "2025-09-03T20:39:16Z"
+        },
+        {
+          "html_url": "https://github.com/CachyOS/cachyos-hyprland-settings/pull/26",
+          "number": 26,
+          "state": "closed",
+          "title": "rename windowrulev2 -> windowrule",
+          "updated_at": "2025-03-23T15:54:25Z"
+        },
+        {
+          "html_url": "https://github.com/CachyOS/cachyos-hyprland-settings/pull/25",
+          "number": 25,
+          "state": "closed",
+          "title": "removing Rofi's useless windowrule",
+          "updated_at": "2025-03-18T12:20:24Z"
+        },
+        {
+          "html_url": "https://github.com/CachyOS/cachyos-hyprland-settings/pull/24",
+          "number": 24,
+          "state": "closed",
+          "title": "fix: hyprland.conf sourcing user-config commented out line",
+          "updated_at": "2025-03-11T20:58:25Z"
+        },
+        {
+          "html_url": "https://github.com/CachyOS/cachyos-hyprland-settings/pull/23",
+          "number": 23,
+          "state": "closed",
+          "title": "Fix Wob",
+          "updated_at": "2025-03-18T14:02:34Z"
+        },
+        {
+          "html_url": "https://github.com/CachyOS/cachyos-hyprland-settings/pull/22",
+          "number": 22,
+          "state": "closed",
+          "title": "Updated the links from 0.45.0 to 0.46.0",
+          "updated_at": "2024-12-26T17:46:07Z"
+        },
+        {
+          "html_url": "https://github.com/CachyOS/cachyos-hyprland-settings/pull/21",
+          "number": 21,
+          "state": "closed",
+          "title": "Fix config",
+          "updated_at": "2024-12-26T17:19:36Z"
+        },
+        {
+          "html_url": "https://github.com/CachyOS/cachyos-hyprland-settings/pull/20",
+          "number": 20,
+          "state": "closed",
+          "title": "Move config to ~/.config, change font & cursor",
+          "updated_at": "2024-12-09T13:01:27Z"
+        },
+        {
+          "html_url": "https://github.com/CachyOS/cachyos-hyprland-settings/pull/19",
+          "number": 19,
+          "state": "closed",
+          "title": "Update waybar, move files in /usr/, changed style",
+          "updated_at": "2024-12-06T17:41:31Z"
+        },
+        {
+          "html_url": "https://github.com/CachyOS/cachyos-hyprland-settings/pull/18",
+          "number": 18,
+          "state": "closed",
+          "title": "cleanup: Remove default and invalid values",
+          "updated_at": "2024-11-30T08:41:36Z"
+        },
+        {
+          "html_url": "https://github.com/CachyOS/cachyos-hyprland-settings/pull/17",
+          "number": 17,
+          "state": "closed",
+          "title": "Refactor hypr config files",
+          "updated_at": "2024-11-29T19:23:50Z"
+        },
+        {
+          "html_url": "https://github.com/CachyOS/cachyos-hyprland-settings/pull/16",
+          "number": 16,
+          "state": "closed",
+          "title": "Updates, few changes and few additons to hyprland.conf file",
+          "updated_at": "2024-11-28T18:43:14Z"
+        },
+        {
+          "html_url": "https://github.com/CachyOS/cachyos-hyprland-settings/pull/15",
+          "number": 15,
+          "state": "closed",
+          "title": "Updates, few changes and few additons to hyprland.conf file",
+          "updated_at": "2024-11-27T21:37:23Z"
+        },
+        {
+          "html_url": "https://github.com/CachyOS/cachyos-hyprland-settings/pull/14",
+          "number": 14,
+          "state": "closed",
+          "title": "update config for hyprland 0.45.0 breaking changes",
+          "updated_at": "2024-11-15T19:43:37Z"
+        },
+        {
+          "html_url": "https://github.com/CachyOS/cachyos-hyprland-settings/pull/13",
+          "number": 13,
+          "state": "closed",
+          "title": "change for Hyprland 0.45",
+          "updated_at": "2024-11-15T08:43:51Z"
+        },
+        {
+          "html_url": "https://github.com/CachyOS/cachyos-hyprland-settings/pull/12",
+          "number": 12,
+          "state": "closed",
+          "title": "Fix for error in media display",
+          "updated_at": "2025-03-02T19:54:46Z"
+        },
+        {
+          "html_url": "https://github.com/CachyOS/cachyos-hyprland-settings/pull/10",
+          "number": 10,
+          "state": "closed",
+          "title": "Fix: Added wlogout to config skel, edited default config to use hyprctl and swaylock ",
+          "updated_at": "2024-09-25T23:36:16Z"
+        },
+        {
+          "html_url": "https://github.com/CachyOS/cachyos-hyprland-settings/pull/7",
+          "number": 7,
+          "state": "closed",
+          "title": "feat: add pipeline of editable screenshots",
+          "updated_at": "2023-07-06T15:03:21Z"
+        },
+        {
+          "html_url": "https://github.com/CachyOS/cachyos-hyprland-settings/pull/4",
+          "number": 4,
+          "state": "closed",
+          "title": "Add checks for hybrid graphics",
+          "updated_at": "2023-03-06T20:19:24Z"
+        },
+        {
+          "html_url": "https://github.com/CachyOS/cachyos-hyprland-settings/pull/3",
+          "number": 3,
+          "state": "closed",
+          "title": "Hotfix: Remove forced use of NVIDIA as OpenGL vendor",
+          "updated_at": "2023-03-04T20:10:08Z"
+        },
+        {
+          "html_url": "https://github.com/CachyOS/cachyos-hyprland-settings/pull/2",
+          "number": 2,
+          "state": "closed",
+          "title": "Fix Some issue faced on the other pull request",
+          "updated_at": "2023-01-10T20:19:51Z"
+        },
+        {
+          "html_url": "https://github.com/CachyOS/cachyos-hyprland-settings/pull/1",
+          "number": 1,
+          "state": "closed",
+          "title": "Rework the entire config",
+          "updated_at": "2023-01-10T13:40:46Z"
+        }
+      ],
+      "query": "repo:CachyOS/cachyos-hyprland-settings is:pr",
+      "response_sha256": "7a8ced53e735b432089c1c4bd549f8e20844edde8275d971d3e9ade8fb989297",
+      "total_count": 30
+    },
+    {
+      "api_url": "https://api.github.com/search/issues?q=repo%3ACachyOS%2Fcachyos-hyprland-settings+lua&per_page=100",
+      "incomplete_results": false,
+      "items": [],
+      "query": "repo:CachyOS/cachyos-hyprland-settings lua",
+      "response_sha256": "c9938edecb99d754b2d039ac9eec320a94c769b6a6417921e2dcbef9e2fe01a0",
+      "total_count": 0
+    },
+    {
+      "api_url": "https://api.github.com/search/issues?q=repo%3ACachyOS%2Fcachyos-hyprland-settings+0.56&per_page=100",
+      "incomplete_results": false,
+      "items": [],
+      "query": "repo:CachyOS/cachyos-hyprland-settings 0.56",
+      "response_sha256": "c9938edecb99d754b2d039ac9eec320a94c769b6a6417921e2dcbef9e2fe01a0",
+      "total_count": 0
+    },
+    {
+      "api_url": "https://api.github.com/search/issues?q=repo%3ACachyOS%2Fcachyos-hyprland-settings+pseudotile&per_page=100",
+      "incomplete_results": false,
+      "items": [],
+      "query": "repo:CachyOS/cachyos-hyprland-settings pseudotile",
+      "response_sha256": "c9938edecb99d754b2d039ac9eec320a94c769b6a6417921e2dcbef9e2fe01a0",
+      "total_count": 0
+    },
+    {
+      "api_url": "https://api.github.com/search/issues?q=repo%3ACachyOS%2Fcachyos-hyprland-settings+togglesplit&per_page=100",
+      "incomplete_results": false,
+      "items": [],
+      "query": "repo:CachyOS/cachyos-hyprland-settings togglesplit",
+      "response_sha256": "c9938edecb99d754b2d039ac9eec320a94c769b6a6417921e2dcbef9e2fe01a0",
+      "total_count": 0
+    },
+    {
+      "api_url": "https://api.github.com/search/issues?q=repo%3ACachyOS%2FCachyOS-PKGBUILDS+hyprland+settings&per_page=100",
+      "incomplete_results": false,
+      "items": [
+        {
+          "html_url": "https://github.com/CachyOS/CachyOS-PKGBUILDS/pull/1972",
+          "number": 1972,
+          "state": "open",
+          "title": "Remove stale vapormark and legacy desktop settings",
+          "updated_at": "2026-10-10T12:36:19Z"
+        },
+        {
+          "html_url": "https://github.com/CachyOS/CachyOS-PKGBUILDS/issues/1611",
+          "number": 1611,
+          "state": "closed",
+          "title": "[Bug]: mesa 26.1.4 \u2192 26.1.5: performance regression in Warhammer 40K: Darktide (VKD3D)",
+          "updated_at": "2026-08-28T07:47:17Z"
+        },
+        {
+          "html_url": "https://github.com/CachyOS/CachyOS-PKGBUILDS/pull/1453",
+          "number": 1453,
+          "state": "closed",
+          "title": "Adding package for cachyos-hypr-noctalia",
+          "updated_at": "2026-06-12T18:09:45Z"
+        },
+        {
+          "html_url": "https://github.com/CachyOS/CachyOS-PKGBUILDS/issues/1410",
+          "number": 1410,
+          "state": "closed",
+          "title": "[Bug]:",
+          "updated_at": "2026-07-30T02:43:53Z"
+        },
+        {
+          "html_url": "https://github.com/CachyOS/CachyOS-PKGBUILDS/pull/684",
+          "number": 684,
+          "state": "closed",
+          "title": "cachyos hyprland changes",
+          "updated_at": "2025-11-22T17:47:29Z"
+        },
+        {
+          "html_url": "https://github.com/CachyOS/CachyOS-PKGBUILDS/issues/860",
+          "number": 860,
+          "state": "closed",
+          "title": "cachyos-hyprland-settings: new version 1.4.4",
+          "updated_at": "2025-09-18T16:26:46Z"
+        },
+        {
+          "html_url": "https://github.com/CachyOS/CachyOS-PKGBUILDS/pull/840",
+          "number": 840,
+          "state": "closed",
+          "title": "Update PKGBUILD to include network-manager-applet",
+          "updated_at": "2025-09-04T15:12:59Z"
+        },
+        {
+          "html_url": "https://github.com/CachyOS/CachyOS-PKGBUILDS/issues/634",
+          "number": 634,
+          "state": "closed",
+          "title": "[cachyos-hyprland-settings] What is to be considered a dependency?",
+          "updated_at": "2025-05-15T23:02:02Z"
+        }
+      ],
+      "query": "repo:CachyOS/CachyOS-PKGBUILDS hyprland settings",
+      "response_sha256": "956d8018fbda91fa8046fd4333d5c0b21a8c8a3a4d5f6418161435c36212f2ae",
+      "total_count": 8
+    },
+    {
+      "api_url": "https://api.github.com/search/issues?q=repo%3ACachyOS%2FCachyOS-PKGBUILDS+hyprland+lua&per_page=100",
+      "incomplete_results": false,
+      "items": [],
+      "query": "repo:CachyOS/CachyOS-PKGBUILDS hyprland lua",
+      "response_sha256": "c9938edecb99d754b2d039ac9eec320a94c769b6a6417921e2dcbef9e2fe01a0",
+      "total_count": 0
+    },
+    {
+      "api_url": "https://api.github.com/search/issues?q=repo%3ACachyOS%2FCachyOS-PKGBUILDS+hyprland+0.56&per_page=100",
+      "incomplete_results": false,
+      "items": [],
+      "query": "repo:CachyOS/CachyOS-PKGBUILDS hyprland 0.56",
+      "response_sha256": "c9938edecb99d754b2d039ac9eec320a94c769b6a6417921e2dcbef9e2fe01a0",
+      "total_count": 0
+    }
+  ],
+  "related": [
+    {
+      "api_url": "https://api.github.com/repos/CachyOS/cachyos-hyprland-settings/pulls/26",
+      "closed_at": "2025-03-23T15:54:25Z",
+      "html_url": "https://github.com/CachyOS/cachyos-hyprland-settings/pull/26",
+      "merge_commit_sha": "c4efec1b81468dd9571675c2070183c78f51cc75",
+      "merged_at": "2025-03-23T15:54:25Z",
+      "number": 26,
+      "response_sha256": "fedbf510705c16d50da59e81fe8356acfdef466b934a5a3b10b036967c6fdbba",
+      "state": "closed",
+      "title": "rename windowrulev2 -> windowrule",
+      "updated_at": "2025-03-23T15:54:25Z"
+    },
+    {
+      "api_url": "https://api.github.com/repos/CachyOS/cachyos-hyprland-settings/pulls/32",
+      "closed_at": null,
+      "html_url": "https://github.com/CachyOS/cachyos-hyprland-settings/pull/32",
+      "merge_commit_sha": null,
+      "merged_at": null,
+      "number": 32,
+      "response_sha256": "9f2bd9326cf39ebc39bea1f17194ab999c385713605aeda0d54feed07b4e6c5f",
+      "state": "open",
+      "title": "Hyprland dots updated",
+      "updated_at": "2025-09-03T20:39:16Z"
+    },
+    {
+      "api_url": "https://api.github.com/repos/CachyOS/cachyos-hyprland-settings/issues/44",
+      "closed_at": null,
+      "html_url": "https://github.com/CachyOS/cachyos-hyprland-settings/issues/44",
+      "merge_commit_sha": null,
+      "merged_at": null,
+      "number": 44,
+      "response_sha256": "2343705ee853dfbd38d34bd1944f00cac66add40f77e34eb24c85925044aba40",
+      "state": "open",
+      "title": "Gestures don't work",
+      "updated_at": "2025-09-14T10:52:53Z"
+    },
+    {
+      "api_url": "https://api.github.com/repos/CachyOS/CachyOS-PKGBUILDS/issues/634",
+      "closed_at": "2025-05-15T23:02:01Z",
+      "html_url": "https://github.com/CachyOS/CachyOS-PKGBUILDS/issues/634",
+      "merge_commit_sha": null,
+      "merged_at": null,
+      "number": 634,
+      "response_sha256": "331fbf0f2306becf76ea24a36e56d267473c2b34514c5a60ecea341f0d95d0c6",
+      "state": "closed",
+      "title": "[cachyos-hyprland-settings] What is to be considered a dependency?",
+      "updated_at": "2025-05-15T23:02:02Z"
+    },
+    {
+      "api_url": "https://api.github.com/repos/CachyOS/CachyOS-PKGBUILDS/pulls/1972",
+      "base_sha": "9fd81e3a77db87a1ad39082c3013c48d493eb7ed",
+      "closed_at": null,
+      "draft": false,
+      "head_sha": "185c9cd1f6d50291f513312224b881a60ddf526b",
+      "html_url": "https://github.com/CachyOS/CachyOS-PKGBUILDS/pull/1972",
+      "merge_commit_sha": "66103f5734a694cb5f7323fed3d5d45dee06cb98",
+      "mergeable_state": "unstable",
+      "merged_at": null,
+      "number": 1972,
+      "response_sha256": "18e4bdda89596f790bc0eca534083b7693376b2e4b322dd1c76fd5c8dd44d3ab",
+      "state": "open",
+      "title": "Remove stale vapormark and legacy desktop settings",
+      "updated_at": "2026-10-10T12:36:19Z"
+    },
+    {
+      "api_url": "https://api.github.com/repos/CachyOS/CachyOS-PKGBUILDS/pulls/1972/files?per_page=100",
+      "files": [
+        {
+          "filename": "Files",
+          "raw_url": "https://github.com/CachyOS/CachyOS-PKGBUILDS/raw/185c9cd1f6d50291f513312224b881a60ddf526b/Files",
+          "sha": "b7f7ad09aa51239d180854f6e769f12f756150a0",
+          "status": "modified"
+        },
+        {
+          "filename": "cachyos-hyprland-settings/.SRCINFO",
+          "raw_url": "https://github.com/CachyOS/CachyOS-PKGBUILDS/raw/30d23872cb8b307e162386d60fc7d9a241a955b4/cachyos-hyprland-settings%2F.SRCINFO",
+          "sha": "4c93b74327df5cc2bf57bf8250496b575a3bf757",
+          "status": "removed"
+        },
+        {
+          "filename": "cachyos-hyprland-settings/.nvchecker.toml",
+          "raw_url": "https://github.com/CachyOS/CachyOS-PKGBUILDS/raw/30d23872cb8b307e162386d60fc7d9a241a955b4/cachyos-hyprland-settings%2F.nvchecker.toml",
+          "sha": "cf5cb9b7a267c75fe3f15b681bceb047a3c4d2b8",
+          "status": "removed"
+        },
+        {
+          "filename": "cachyos-hyprland-settings/PKGBUILD",
+          "raw_url": "https://github.com/CachyOS/CachyOS-PKGBUILDS/raw/30d23872cb8b307e162386d60fc7d9a241a955b4/cachyos-hyprland-settings%2FPKGBUILD",
+          "sha": "1dedae8fb621cef33d8d6cc4b8969b9c90d0b608",
+          "status": "removed"
+        },
+        {
+          "filename": "cachyos-mangowc-dms/.SRCINFO",
+          "raw_url": "https://github.com/CachyOS/CachyOS-PKGBUILDS/raw/30d23872cb8b307e162386d60fc7d9a241a955b4/cachyos-mangowc-dms%2F.SRCINFO",
+          "sha": "d558bfc2223d835ec39581528edbe185c42f37af",
+          "status": "removed"
+        },
+        {
+          "filename": "cachyos-mangowc-dms/PKGBUILD",
+          "raw_url": "https://github.com/CachyOS/CachyOS-PKGBUILDS/raw/30d23872cb8b307e162386d60fc7d9a241a955b4/cachyos-mangowc-dms%2FPKGBUILD",
+          "sha": "63d88d501e3906cc308079afb7768c9a29e2e85a",
+          "status": "removed"
+        },
+        {
+          "filename": "cachyos-niri-settings/.SRCINFO",
+          "raw_url": "https://github.com/CachyOS/CachyOS-PKGBUILDS/raw/185c9cd1f6d50291f513312224b881a60ddf526b/cachyos-niri-settings%2F.SRCINFO",
+          "sha": "3eee113db92533ae031f10b6ac91d7232770e74b",
+          "status": "modified"
+        },
+        {
+          "filename": "cachyos-niri-settings/PKGBUILD",
+          "raw_url": "https://github.com/CachyOS/CachyOS-PKGBUILDS/raw/185c9cd1f6d50291f513312224b881a60ddf526b/cachyos-niri-settings%2FPKGBUILD",
+          "sha": "4f53aa4b2367d4f176026e5b1f78a3aeb5594649",
+          "status": "modified"
+        },
+        {
+          "filename": "cachyos-openbox-settings/.SRCINFO",
+          "raw_url": "https://github.com/CachyOS/CachyOS-PKGBUILDS/raw/185c9cd1f6d50291f513312224b881a60ddf526b/cachyos-openbox-settings%2F.SRCINFO",
+          "sha": "2cafe59a702bc65afb680e6434bcc08e8927a753",
+          "status": "modified"
+        },
+        {
+          "filename": "cachyos-openbox-settings/PKGBUILD",
+          "raw_url": "https://github.com/CachyOS/CachyOS-PKGBUILDS/raw/185c9cd1f6d50291f513312224b881a60ddf526b/cachyos-openbox-settings%2FPKGBUILD",
+          "sha": "aff5f9cdb1585979b4e876298c4b743482adb7cd",
+          "status": "modified"
+        },
+        {
+          "filename": "cachyos-wayfire-settings/.SRCINFO",
+          "raw_url": "https://github.com/CachyOS/CachyOS-PKGBUILDS/raw/185c9cd1f6d50291f513312224b881a60ddf526b/cachyos-wayfire-settings%2F.SRCINFO",
+          "sha": "6ccdd7f9808f3574d927090512a82897d62f604b",
+          "status": "modified"
+        },
+        {
+          "filename": "cachyos-wayfire-settings/PKGBUILD",
+          "raw_url": "https://github.com/CachyOS/CachyOS-PKGBUILDS/raw/185c9cd1f6d50291f513312224b881a60ddf526b/cachyos-wayfire-settings%2FPKGBUILD",
+          "sha": "14035286089a362e819d35574d8b32af09185ea1",
+          "status": "modified"
+        },
+        {
+          "filename": "cachyos-xfce-settings/.SRCINFO",
+          "raw_url": "https://github.com/CachyOS/CachyOS-PKGBUILDS/raw/185c9cd1f6d50291f513312224b881a60ddf526b/cachyos-xfce-settings%2F.SRCINFO",
+          "sha": "f6fd0057d1c69b82c425b2a1f5842bc0044bb52b",
+          "status": "modified"
+        },
+        {
+          "filename": "cachyos-xfce-settings/PKGBUILD",
+          "raw_url": "https://github.com/CachyOS/CachyOS-PKGBUILDS/raw/185c9cd1f6d50291f513312224b881a60ddf526b/cachyos-xfce-settings%2FPKGBUILD",
+          "sha": "479cbc6b24e225249ce3a9637913c2bd525a0c11",
+          "status": "modified"
+        },
+        {
+          "filename": "vapormark-git/.SRCINFO",
+          "raw_url": "https://github.com/CachyOS/CachyOS-PKGBUILDS/raw/30d23872cb8b307e162386d60fc7d9a241a955b4/vapormark-git%2F.SRCINFO",
+          "sha": "41498e2649f83983f36f1559e0cef9903ef6acea",
+          "status": "removed"
+        },
+        {
+          "filename": "vapormark-git/PKGBUILD",
+          "raw_url": "https://github.com/CachyOS/CachyOS-PKGBUILDS/raw/30d23872cb8b307e162386d60fc7d9a241a955b4/vapormark-git%2FPKGBUILD",
+          "sha": "6b9fd258109f587f0d52719cd1ed2ce1132d5340",
+          "status": "removed"
+        }
+      ],
+      "response_sha256": "b2f34905f7b801d5d8204855cb50c61643e5a2e1ca202aad5c345f02e759167f"
+    },
+    {
+      "api_url": "https://api.github.com/repos/CachyOS/CachyOS-PKGBUILDS/issues/860",
+      "base_sha": null,
+      "closed_at": "2025-09-18T16:26:46Z",
+      "draft": null,
+      "head_sha": null,
+      "html_url": "https://github.com/CachyOS/CachyOS-PKGBUILDS/issues/860",
+      "merge_commit_sha": null,
+      "mergeable_state": null,
+      "merged_at": null,
+      "number": 860,
+      "response_sha256": "2097707b807578b3a5837332c7ea16e0958c9fcff52f748c3fd2233784a5d8f4",
+      "state": "closed",
+      "title": "cachyos-hyprland-settings: new version 1.4.4",
+      "updated_at": "2025-09-18T16:26:46Z"
+    },
+    {
+      "api_url": "https://api.github.com/repos/CachyOS/CachyOS-PKGBUILDS/pulls/684",
+      "base_sha": "d9df9199b7fcf329e10eb8ec012b3b59f7b6f8e3",
+      "closed_at": "2025-11-22T17:47:28Z",
+      "draft": false,
+      "head_sha": "5f1dbe5349c1a52483e6da28324d05b8e5982497",
+      "html_url": "https://github.com/CachyOS/CachyOS-PKGBUILDS/pull/684",
+      "merge_commit_sha": "b072ecee7747d96fae03fba2ff5adf6e2486e55e",
+      "mergeable_state": "clean",
+      "merged_at": null,
+      "number": 684,
+      "response_sha256": "8b363edda3fa8e81cb32186b2a115cb819cb0ee07ac117738d84079c556ee46f",
+      "state": "closed",
+      "title": "cachyos hyprland changes",
+      "updated_at": "2025-11-22T17:47:29Z"
+    }
+  ],
+  "releases": [
+    {
+      "api_url": "https://api.github.com/repos/CachyOS/cachyos-hyprland-settings/releases",
+      "items": [
+        {
+          "commit": null,
+          "html_url": "https://github.com/CachyOS/cachyos-hyprland-settings/releases/tag/1.4.1",
+          "name": "1.4.1",
+          "published_at": "2025-08-07T21:12:00Z",
+          "tag_name": "1.4.1"
+        },
+        {
+          "commit": null,
+          "html_url": "https://github.com/CachyOS/cachyos-hyprland-settings/releases/tag/1.4.0",
+          "name": "1.4.0",
+          "published_at": "2025-08-06T22:12:41Z",
+          "tag_name": "1.4.0"
+        }
+      ],
+      "response_sha256": "1e5ec119ced187e127828b9559b56f430daafa76bce65d51c1600db3da50995b"
+    },
+    {
+      "api_url": "https://api.github.com/repos/CachyOS/cachyos-hyprland-settings/tags",
+      "items": [
+        {
+          "commit": {
+            "sha": "449635e3718f4f178503682b29b159b0a758e5e7",
+            "url": "https://api.github.com/repos/CachyOS/cachyos-hyprland-settings/commits/449635e3718f4f178503682b29b159b0a758e5e7"
+          },
+          "html_url": null,
+          "name": "1.4.4",
+          "published_at": null,
+          "tag_name": null
+        },
+        {
+          "commit": {
+            "sha": "bb1b85f891d81d2d440e24097652f4b3ddd7e18a",
+            "url": "https://api.github.com/repos/CachyOS/cachyos-hyprland-settings/commits/bb1b85f891d81d2d440e24097652f4b3ddd7e18a"
+          },
+          "html_url": null,
+          "name": "1.4.3",
+          "published_at": null,
+          "tag_name": null
+        },
+        {
+          "commit": {
+            "sha": "c6509ee42fd748e26a2c301a35b8907b782dc219",
+            "url": "https://api.github.com/repos/CachyOS/cachyos-hyprland-settings/commits/c6509ee42fd748e26a2c301a35b8907b782dc219"
+          },
+          "html_url": null,
+          "name": "1.4.2",
+          "published_at": null,
+          "tag_name": null
+        },
+        {
+          "commit": {
+            "sha": "6ce1c6b2370d3f3c0835bfe86cb02a79b1998821",
+            "url": "https://api.github.com/repos/CachyOS/cachyos-hyprland-settings/commits/6ce1c6b2370d3f3c0835bfe86cb02a79b1998821"
+          },
+          "html_url": null,
+          "name": "1.4.1",
+          "published_at": null,
+          "tag_name": null
+        },
+        {
+          "commit": {
+            "sha": "3d58ede9746dfedcd8b1ac05609440a2ffa85f95",
+            "url": "https://api.github.com/repos/CachyOS/cachyos-hyprland-settings/commits/3d58ede9746dfedcd8b1ac05609440a2ffa85f95"
+          },
+          "html_url": null,
+          "name": "1.4.0",
+          "published_at": null,
+          "tag_name": null
+        },
+        {
+          "commit": {
+            "sha": "c4efec1b81468dd9571675c2070183c78f51cc75",
+            "url": "https://api.github.com/repos/CachyOS/cachyos-hyprland-settings/commits/c4efec1b81468dd9571675c2070183c78f51cc75"
+          },
+          "html_url": null,
+          "name": "1.3.4",
+          "published_at": null,
+          "tag_name": null
+        },
+        {
+          "commit": {
+            "sha": "127aca1e0c3ca28ffb7ef75f170bc7ebe6b78a46",
+            "url": "https://api.github.com/repos/CachyOS/cachyos-hyprland-settings/commits/127aca1e0c3ca28ffb7ef75f170bc7ebe6b78a46"
+          },
+          "html_url": null,
+          "name": "1.3.3",
+          "published_at": null,
+          "tag_name": null
+        },
+        {
+          "commit": {
+            "sha": "c2a85420ab5bbfd3ef01a3e9b8479859082d7cb2",
+            "url": "https://api.github.com/repos/CachyOS/cachyos-hyprland-settings/commits/c2a85420ab5bbfd3ef01a3e9b8479859082d7cb2"
+          },
+          "html_url": null,
+          "name": "1.3.2",
+          "published_at": null,
+          "tag_name": null
+        },
+        {
+          "commit": {
+            "sha": "2715bc41542443c85ba19162b72b6ca379dbbbbd",
+            "url": "https://api.github.com/repos/CachyOS/cachyos-hyprland-settings/commits/2715bc41542443c85ba19162b72b6ca379dbbbbd"
+          },
+          "html_url": null,
+          "name": "1.3.1",
+          "published_at": null,
+          "tag_name": null
+        },
+        {
+          "commit": {
+            "sha": "1c4a242dc2d8ca33aaa91dcdf7646021fe7c0122",
+            "url": "https://api.github.com/repos/CachyOS/cachyos-hyprland-settings/commits/1c4a242dc2d8ca33aaa91dcdf7646021fe7c0122"
+          },
+          "html_url": null,
+          "name": "1.3.0",
+          "published_at": null,
+          "tag_name": null
+        },
+        {
+          "commit": {
+            "sha": "0b5586ba25d8d08e2ac6da6b9ddc39e44e28e435",
+            "url": "https://api.github.com/repos/CachyOS/cachyos-hyprland-settings/commits/0b5586ba25d8d08e2ac6da6b9ddc39e44e28e435"
+          },
+          "html_url": null,
+          "name": "1.2.4",
+          "published_at": null,
+          "tag_name": null
+        },
+        {
+          "commit": {
+            "sha": "c501c7a81c0828d0e956ca113f9935523fe351e4",
+            "url": "https://api.github.com/repos/CachyOS/cachyos-hyprland-settings/commits/c501c7a81c0828d0e956ca113f9935523fe351e4"
+          },
+          "html_url": null,
+          "name": "1.2.3",
+          "published_at": null,
+          "tag_name": null
+        },
+        {
+          "commit": {
+            "sha": "0baad8c90f2303c66f68b6e1e095076362037190",
+            "url": "https://api.github.com/repos/CachyOS/cachyos-hyprland-settings/commits/0baad8c90f2303c66f68b6e1e095076362037190"
+          },
+          "html_url": null,
+          "name": "1.2.2",
+          "published_at": null,
+          "tag_name": null
+        },
+        {
+          "commit": {
+            "sha": "4b70e11a5c75dc71a1e7a787a11c13a6f19d6fbf",
+            "url": "https://api.github.com/repos/CachyOS/cachyos-hyprland-settings/commits/4b70e11a5c75dc71a1e7a787a11c13a6f19d6fbf"
+          },
+          "html_url": null,
+          "name": "1.2.1",
+          "published_at": null,
+          "tag_name": null
+        },
+        {
+          "commit": {
+            "sha": "9d88f219e06655a7b25034530f2d74f01816828a",
+            "url": "https://api.github.com/repos/CachyOS/cachyos-hyprland-settings/commits/9d88f219e06655a7b25034530f2d74f01816828a"
+          },
+          "html_url": null,
+          "name": "1.2.0",
+          "published_at": null,
+          "tag_name": null
+        },
+        {
+          "commit": {
+            "sha": "fcbb183f43059c9513496576858d3e3ccc4eeed7",
+            "url": "https://api.github.com/repos/CachyOS/cachyos-hyprland-settings/commits/fcbb183f43059c9513496576858d3e3ccc4eeed7"
+          },
+          "html_url": null,
+          "name": "1.1.4",
+          "published_at": null,
+          "tag_name": null
+        },
+        {
+          "commit": {
+            "sha": "f16e6f6d7bb0617e2c4bd2123fe56eed25b0163b",
+            "url": "https://api.github.com/repos/CachyOS/cachyos-hyprland-settings/commits/f16e6f6d7bb0617e2c4bd2123fe56eed25b0163b"
+          },
+          "html_url": null,
+          "name": "1.1.3",
+          "published_at": null,
+          "tag_name": null
+        },
+        {
+          "commit": {
+            "sha": "8079662bdaf689ea5c108f2de5f670a76fcdec6d",
+            "url": "https://api.github.com/repos/CachyOS/cachyos-hyprland-settings/commits/8079662bdaf689ea5c108f2de5f670a76fcdec6d"
+          },
+          "html_url": null,
+          "name": "1.1.2",
+          "published_at": null,
+          "tag_name": null
+        },
+        {
+          "commit": {
+            "sha": "e6aaab0ea17a1cdb2308b43a074fdb15e9122105",
+            "url": "https://api.github.com/repos/CachyOS/cachyos-hyprland-settings/commits/e6aaab0ea17a1cdb2308b43a074fdb15e9122105"
+          },
+          "html_url": null,
+          "name": "1.1.1",
+          "published_at": null,
+          "tag_name": null
+        },
+        {
+          "commit": {
+            "sha": "91fcdcac4e42c6b342bf778ac889819a4ed64b0f",
+            "url": "https://api.github.com/repos/CachyOS/cachyos-hyprland-settings/commits/91fcdcac4e42c6b342bf778ac889819a4ed64b0f"
+          },
+          "html_url": null,
+          "name": "1.1.0",
+          "published_at": null,
+          "tag_name": null
+        },
+        {
+          "commit": {
+            "sha": "b859b55ea7a49182e641a08902417313bd2dd20a",
+            "url": "https://api.github.com/repos/CachyOS/cachyos-hyprland-settings/commits/b859b55ea7a49182e641a08902417313bd2dd20a"
+          },
+          "html_url": null,
+          "name": "1.0.5",
+          "published_at": null,
+          "tag_name": null
+        },
+        {
+          "commit": {
+            "sha": "06f427c4633c7dcfc5929d396d18c9354fc640f8",
+            "url": "https://api.github.com/repos/CachyOS/cachyos-hyprland-settings/commits/06f427c4633c7dcfc5929d396d18c9354fc640f8"
+          },
+          "html_url": null,
+          "name": "1.0.4",
+          "published_at": null,
+          "tag_name": null
+        },
+        {
+          "commit": {
+            "sha": "9c7de0856ab003c531604f0b3ffe7dd647a29a45",
+            "url": "https://api.github.com/repos/CachyOS/cachyos-hyprland-settings/commits/9c7de0856ab003c531604f0b3ffe7dd647a29a45"
+          },
+          "html_url": null,
+          "name": "1.0.3",
+          "published_at": null,
+          "tag_name": null
+        },
+        {
+          "commit": {
+            "sha": "b96e15b26fa938c13d96fb95020b9cab7b0b5fda",
+            "url": "https://api.github.com/repos/CachyOS/cachyos-hyprland-settings/commits/b96e15b26fa938c13d96fb95020b9cab7b0b5fda"
+          },
+          "html_url": null,
+          "name": "1.0.2",
+          "published_at": null,
+          "tag_name": null
+        },
+        {
+          "commit": {
+            "sha": "4a7f5378bf655b1199ab95946cf0a58c6f6ca49f",
+            "url": "https://api.github.com/repos/CachyOS/cachyos-hyprland-settings/commits/4a7f5378bf655b1199ab95946cf0a58c6f6ca49f"
+          },
+          "html_url": null,
+          "name": "1.0.1",
+          "published_at": null,
+          "tag_name": null
+        },
+        {
+          "commit": {
+            "sha": "21803cc586ea471abf320b7947ad297db7b5f447",
+            "url": "https://api.github.com/repos/CachyOS/cachyos-hyprland-settings/commits/21803cc586ea471abf320b7947ad297db7b5f447"
+          },
+          "html_url": null,
+          "name": "1.0.0",
+          "published_at": null,
+          "tag_name": null
+        }
+      ],
+      "response_sha256": "4bb7ca4d4491c85e11342f37f1d01781b5c43b64cd5514123abc9ab7cf255415"
+    },
+    {
+      "api_url": "https://api.github.com/repos/hyprwm/Hyprland/releases/tags/v0.55.0",
+      "html_url": "https://github.com/hyprwm/Hyprland/releases/tag/v0.55.0",
+      "published_at": "2026-05-09T13:41:46Z",
+      "response_sha256": "c65fb027ff9efe32bceb35a52779b3aeefcc54540a83fb05f851fec94942a3f1",
+      "tag_name": "v0.55.0",
+      "target_commitish": "main"
+    },
+    {
+      "api_url": "https://api.github.com/repos/hyprwm/Hyprland/releases/tags/v0.56.2",
+      "html_url": "https://github.com/hyprwm/Hyprland/releases/tag/v0.56.2",
+      "published_at": "2026-08-05T14:14:01Z",
+      "response_sha256": "f179a1521b0bc436dd919231fb6f26673ae2e89e5df3aab398ab8b44b419f4dc",
+      "tag_name": "v0.56.2",
+      "target_commitish": "v0.56.2-b"
+    }
+  ],
+  "repositories": [
+    {
+      "api_url": "https://api.github.com/repos/CachyOS/cachyos-hyprland-settings",
+      "archived": true,
+      "default_branch": "master",
+      "disabled": false,
+      "full_name": "CachyOS/cachyos-hyprland-settings",
+      "html_url": "https://github.com/CachyOS/cachyos-hyprland-settings",
+      "pushed_at": "2025-10-04T15:12:34Z",
+      "response_sha256": "91cc76aab9e7c08d0688ed5b13e7119df4e9ff3fdd1d514ad85cc014fb923ded",
+      "updated_at": "2026-10-09T12:53:48Z"
+    },
+    {
+      "api_url": "https://api.github.com/repos/CachyOS/CachyOS-PKGBUILDS",
+      "archived": false,
+      "default_branch": "master",
+      "disabled": false,
+      "full_name": "CachyOS/CachyOS-PKGBUILDS",
+      "html_url": "https://github.com/CachyOS/CachyOS-PKGBUILDS",
+      "pushed_at": "2026-10-10T16:39:15Z",
+      "response_sha256": "1988b3108d1c804912431ab97b53382c5c619d77573347f9a16a8d4739a9bb45",
+      "updated_at": "2026-10-10T18:39:08Z"
+    }
+  ],
+  "scope": "Read-only primary GitHub REST sources; no submission"
+}

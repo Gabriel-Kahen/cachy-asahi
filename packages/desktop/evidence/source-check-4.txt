@@ -1,0 +1,17 @@
+==> Making package: cachy-asahi-hyprland-settings 0.1.0-1 (Sun Oct 11 20:01:25 2026)
+==> Retrieving sources...
+  -> Found hyprland.lua
+  -> Found waybar.json
+  -> Found waybar.css
+  -> Found mako.conf
+  -> Found README.md
+  -> Found NOTICE
+  -> Found LICENSE
+==> Validating source files with sha256sums...
+    hyprland.lua ... Passed
+    waybar.json ... Passed
+    waybar.css ... Passed
+    mako.conf ... Passed
+    README.md ... Passed
+    NOTICE ... Passed
+    LICENSE ... Passed

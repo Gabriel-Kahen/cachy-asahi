@@ -1,0 +1,59 @@
+name: native-arm-build
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Probe runner, authenticate frozen inputs, or build four reviewed recipes twice
+        required: true
+        default: probe
+        type: choice
+        options: [probe, audit, build]
+      inputs_sha256:
+        description: Reviewed SHA-256 of scripts/ci/inputs.lock.json (audit/build)
+        type: string
+        default: ''
+      recipes_sha256:
+        description: Reviewed SHA-256 of scripts/ci/recipes.lock.json (build)
+        type: string
+        default: ''
+permissions:
+  contents: read
+concurrency:
+  group: native-arm-build
+  cancel-in-progress: false
+jobs:
+  native:
+    if: github.repository == 'Gabriel-Kahen/cachy-asahi' && github.event.repository.private == false
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 50
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      BUILD_MODE: ${{ inputs.mode }}
+      INPUTS_SHA256: ${{ inputs.inputs_sha256 }}
+      RECIPES_SHA256: ${{ inputs.recipes_sha256 }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1, verified upstream ref
+        with:
+          persist-credentials: false
+      - name: Validate bootstrap boundaries
+        run: python3 -m unittest discover -s scripts/ci -p 'test_*.py' -v
+      - name: Record native runner evidence
+        run: >-
+          python3 scripts/ci/native_arm.py probe
+          --cache "$RUNNER_TEMP/alarm-cache"
+          --output "$RUNNER_TEMP/native-probe"
+      - name: Authenticate inputs or build in isolated native containers
+        if: inputs.mode != 'probe'
+        run: >-
+          python3 scripts/ci/native_arm.py "$BUILD_MODE"
+          --inputs-sha256 "$INPUTS_SHA256"
+          --recipes-sha256 "$RECIPES_SHA256"
+          --cache "$RUNNER_TEMP/alarm-cache"
+          --output "$RUNNER_TEMP/native-evidence"
+      - name: Retain bounded evidence and package artifacts in free workflow logs
+        if: always()
+        run: |
+          python3 scripts/ci/log_evidence.py "$RUNNER_TEMP/native-probe"
+          if [ -d "$RUNNER_TEMP/native-evidence" ]; then
+            python3 scripts/ci/log_evidence.py "$RUNNER_TEMP/native-evidence"
+          fi

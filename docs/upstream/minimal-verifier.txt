@@ -1,0 +1,16 @@
+[1;32mDEBUG [0m]: User-specified config location: 'TEMP_REPRO/minimal.conf'
+[1;32mDEBUG [0m]: [cfg] Config is either explicit or special.
+[1;32mDEBUG [0m]: [cfg] Config is NOT lua, loading regular mgr
+[1;32mDEBUG [0m]: Using config: TEMP_REPRO/minimal.conf
+[1;32mDEBUG [0m]: Using config: TEMP_REPRO/minimal.conf
+[1;31mERR [0m]: Invalid dispatcher: togglesplit
+[1;32mDEBUG [0m]: Disabling stdout logs (debug.enable_stdout_logs = 0). Further logs will be written to /hyprland.log
+[1;32mDEBUG [0m]: Using config: TEMP_REPRO/minimal.conf
+[1;31mERR [0m]: Invalid dispatcher: togglesplit
+
+
+======== Config parsing result:
+
+Config error in file TEMP_REPRO/minimal.conf at line 2: config option <dwindle:pseudotile> does not exist.
+Config error in file TEMP_REPRO/minimal.conf at line 4: Invalid dispatcher, requested "togglesplit" does not exist
+Config error in file TEMP_REPRO/minimal.conf at line 5: invalid field float: missing a value

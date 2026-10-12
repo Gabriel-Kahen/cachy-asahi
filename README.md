@@ -6,7 +6,9 @@ Initial target: an M2 MacBook Air running Asahi Arch Linux ARM and Hyprland. The
 
 ## Status
 
-Repository scaffold only. There are no built packages, installer, custom kernel, or hardware validation results yet. This is an independent project, not an official CachyOS or Asahi distribution.
+Implementation is underway in six coordinated workstreams: desktop packaging, shells/defaults, ARM build/validation and setup, signed releases/recovery, performance measurement, and native ARM CI. Four original configuration/setup packages, baseline capture, build inspection, release recovery and measurement tooling are implemented and locally tested. No clean native ARM package builds, supported installer, custom kernel, stable release, or M2 hardware validation has been established. This is an independent project, not an official CachyOS or Asahi distribution.
+
+See [implementation status](docs/implementation-status.md) for the complete outline's execution gates and [coordination](docs/orchestration.md) for worker ownership. Candidate recipes and tools are development artifacts until their gates pass.
 
 ## First milestone
 
@@ -20,6 +22,16 @@ Kernel experiments and CPU-specific optimization follow a measured, working base
 
 - [Project goal](goal.md): the long-term purpose and ambition.
 - [Roadmap](docs/roadmap.md): implementation milestones and completion criteria.
+- [Development outline](outline.md): full project sequence and dependencies.
+- [Implementation status](docs/implementation-status.md): progress, missing resources and acceptance evidence.
+- [Full-goal acceptance](docs/acceptance.md): required results for both Air sizes and the maintained final system.
+- [Execution backlog](docs/backlog.md): accountable tasks, dependencies and next actions for blockers.
+- [Baseline contract](docs/baseline.md): environment collector, protected platform and hardware test counts.
+- [Coordination](docs/orchestration.md): active workstreams, file ownership and integration responsibilities.
+- [Installation draft](docs/installation.md): candidate package/configuration ownership and unexecuted target procedure.
+- [Contributing](docs/contributing.md): source/evidence requirements, bug reports and maintenance responsibilities.
+- [Performance evidence](docs/performance.md): final-system measurement requirements and local harness.
+- [Development example](examples/development/README.md): a small terminal/editor/compiler onboarding smoke check, separate from benchmarks.
 - [Agent work plan](docs/agent-work.md): bounded parallel tasks and integration responsibilities.
 - [Hardware validation](docs/hardware-validation.md): evidence required before support claims.
 - [Source notes](docs/sources.md): starting references, checked October 11, 2026.
@@ -30,4 +42,4 @@ Kernel experiments and CPU-specific optimization follow a measured, working base
 
 The first deliverable is an overlay for an existing installation. A macOS partitioning installer, complete optimized ARM repositories, and a replacement Asahi kernel are later decisions.
 
-No third-party source is vendored yet. Audit upstream licenses and notices before redistribution; a license for this project's original material has not been selected.
+Original project code and documentation use the [MIT license](LICENSE). Third-party material retains its own terms; audit upstream licenses and notices before redistribution. The initial original templates do not resolve the license gaps found in excluded CachyOS assets.

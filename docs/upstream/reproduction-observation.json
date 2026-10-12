@@ -1,0 +1,235 @@
+{
+  "api_reference": {
+    "sha256": "e35a9ed7463d5f7430db7e817024bfd1594738645d5a18b2173ff4107b242d14",
+    "url": "https://raw.githubusercontent.com/hyprwm/Hyprland/efb50993780079460b0cbed1363e2166a2de1d9f/example/hyprland.lua",
+    "verified": true
+  },
+  "archive_sha256": "6329177a462392ae018e81572359aaf4c530e4ff4136ef6f170ab33eb043893b",
+  "archive_sha512": "64a04b9f0adbc37bd7f6f19a9bd099fc0a30bad3b7e42207653f83cc3ecac9086ee9c3209e8be69d84eeac6a7f3f5611ae85183bd83e39feaa80af046fb4bf86",
+  "archive_url": "https://codeload.github.com/CachyOS/cachyos-hyprland-settings/tar.gz/refs/tags/1.4.4",
+  "bounded_correction_configuration": "hl.config({general = {layout = \"dwindle\"}, dwindle = {preserve_split = true}})\nhl.bind(\"SUPER + J\", hl.dsp.layout(\"togglesplit\"))\nhl.window_rule({match = {class = \"^(org.gnome.Calculator)$\"}, float = true})\n",
+  "checks": [
+    {
+      "command": [
+        "Hyprland",
+        "--verify-config",
+        "--config",
+        "TEMP_REPRO/hypr/hyprland.conf"
+      ],
+      "evidence": "full-bundle-verifier.txt",
+      "evidence_sha256": "0e681046c0ed252a74bff7563d4cd401ffb878f8c7fd8b2ad1930290d3b8ee2b",
+      "exit_code": 1,
+      "label": "full-bundle"
+    },
+    {
+      "command": [
+        "Hyprland",
+        "--verify-config",
+        "--config",
+        "TEMP_REPRO/minimal.conf"
+      ],
+      "evidence": "minimal-verifier.txt",
+      "evidence_sha256": "b9af0887da1711613708869578792c99db2159af383495efef48019d71023e83",
+      "exit_code": 1,
+      "label": "minimal"
+    },
+    {
+      "command": [
+        "Hyprland",
+        "--verify-config",
+        "--config",
+        "TEMP_REPRO/proposed.lua"
+      ],
+      "evidence": "proposed-verifier.txt",
+      "evidence_sha256": "91cd046d6209148914d366cc93164e43cff7cd53c48746df0a3c08fd49b00c8c",
+      "exit_code": 1,
+      "label": "proposed"
+    },
+    {
+      "command": [
+        "Hyprland",
+        "--verify-config",
+        "--config",
+        "TEMP_REPRO/proposed.lua"
+      ],
+      "evidence": "proposed-global-verifier.txt",
+      "evidence_sha256": "76fbee3c053228b6684f37e6ae8210a8d35df2adabad777397b1d83315eb33f1",
+      "exit_code": 1,
+      "label": "proposed-global"
+    },
+    {
+      "command": [
+        "Hyprland",
+        "--verify-config",
+        "--config",
+        "TEMP_REPRO/bounded-correction.lua"
+      ],
+      "evidence": "bounded-correction-verifier.txt",
+      "evidence_sha256": "ca20e20522703e92968a346633dbfc697dd639071facfe05cb144d24a0fdae9c",
+      "exit_code": 0,
+      "label": "bounded-correction"
+    }
+  ],
+  "configuration_sha256": {
+    "bounded_correction_configuration": "8f8f71530769316995106c8fff24ed125c0aec1f374db8560edf73d65f2f189b",
+    "minimal_configuration": "604cb7646a3d32c8c5050cd17af0b9eac7d87e38b52a072f9f6cffb64b923a46",
+    "proposed_configuration": "9b679f09853308f67722725e8e6789daecfdb5b7f0acb2bb9e13fd2fdfdbd927",
+    "proposed_global_configuration": "bbac0ccd6ac16fac7dd1142c8fa1e5a7725e643ef53cc029566b8f95e3366056"
+  },
+  "host_arch": "x86_64",
+  "hyprland_version": "Hyprland 0.56.2 built from branch v0.56.2 at commit efb50993780079460b0cbed1363e2166a2de1d9f clean ([gha] Nix: update inputs).\nDate: Wed Aug 5 14:13:21 2026\nTag: v0.56.2, commits: 7661\n\nLibraries:\nHyprgraphics: built against 0.5.1, system has 0.5.1\nHyprutils: built against 0.14.2, system has 0.14.2\nHyprcursor: built against 0.1.13, system has 0.1.13\nHyprlang: built against 0.6.8, system has 0.6.8\nAquamarine: built against 0.15.0, system has 0.15.1\n\nVersion ABI string: efb50993780079460b0cbed1363e2166a2de1d9f_aq_0.15_hu_0.14_hg_0.5_hc_0.1_hlg_0.6\nno flags were set\n\n",
+  "limitations": [
+    "x86 configuration-verifier execution only; no compositor session/native ARM/M2 test",
+    "original bytes and archive checked; active source paths rewritten in a temporary copy",
+    "rewritten source hashes include actual temporary paths; displayed paths sanitized to TEMP_REPRO; reruns will have different rewritten-file hashes",
+    "log hashes identify sanitized retained outputs, not original terminal byte streams",
+    "bounded correction validates only three constructs, not the entire asset profile"
+  ],
+  "minimal_configuration": "dwindle {\n    pseudotile = true\n}\nbindd = SUPER, J, Toggle split, togglesplit,\nwindowrule = float,class:^(org.gnome.Calculator)$\n",
+  "observed_utc": "2026-10-12T00:10:44.109707+00:00",
+  "proposed_configuration": "local hl = require(\"hyprland\")\nhl.config({general = {layout = \"dwindle\"}})\nhl.bind(\"SUPER + J\", hl.dsp.layout.msg(\"togglesplit\"))\nhl.window_rule({match = {class = \"^(org.gnome.Calculator)$\"}, float = true})\n",
+  "proposed_global_configuration": "hl.config({general = {layout = \"dwindle\"}})\nhl.bind(\"SUPER + J\", hl.dsp.layout.msg(\"togglesplit\"))\nhl.window_rule({match = {class = \"^(org.gnome.Calculator)$\"}, float = true})\n",
+  "recipe_sha256": "efb477c4f2ba94d8681e9555ee0507ce2fe60e156ac85b437dcf90dfe3ab4bff",
+  "recipe_url": "https://raw.githubusercontent.com/CachyOS/CachyOS-PKGBUILDS/c7cf5b4f2c70f28ed50601b3f75b19da93ba663f/cachyos-hyprland-settings/PKGBUILD",
+  "source_files": [
+    {
+      "original_sha256": "e122921208d008512892cdbc7437bc4ff6a87e8b99a10169b61a089bcd87b1dd",
+      "path": "config/animations.conf",
+      "rewritten_sha256": "e122921208d008512892cdbc7437bc4ff6a87e8b99a10169b61a089bcd87b1dd"
+    },
+    {
+      "original_sha256": "163511671d4097191973297cb8d919aa4411fc85584d098957f3e69e791985c8",
+      "path": "config/autostart.conf",
+      "rewritten_sha256": "f4af42049d7cf3e1f816602877536d3f6ccbfa16b3fac1f51001a71c928310f6"
+    },
+    {
+      "original_sha256": "f680023fc032a86d17889caea1da404f9cd1308a3fa45ed80be665de4596070c",
+      "path": "config/colors.conf",
+      "rewritten_sha256": "f680023fc032a86d17889caea1da404f9cd1308a3fa45ed80be665de4596070c"
+    },
+    {
+      "original_sha256": "52a04e129b1ab26c925c9c1f8e26404e9d9ac8e7132b5d7f7dcc372a3dcf9d80",
+      "path": "config/decorations.conf",
+      "rewritten_sha256": "338efbfc43171f3b8ddd2f6ad4c038689d3b880c965641a7093d5411bb2feaf2"
+    },
+    {
+      "original_sha256": "b5be10d2539bdad6aa45d9cc2b0f8f5b0fbbd5286746abd5bed16f0eebe83d8e",
+      "path": "config/defaults.conf",
+      "rewritten_sha256": "b5be10d2539bdad6aa45d9cc2b0f8f5b0fbbd5286746abd5bed16f0eebe83d8e"
+    },
+    {
+      "original_sha256": "a6c54cc7dfdd1e3b22c9a63bf9d0d0d17fc0099ca2fbe6e0f37819c00140d061",
+      "path": "config/environment.conf",
+      "rewritten_sha256": "a6c54cc7dfdd1e3b22c9a63bf9d0d0d17fc0099ca2fbe6e0f37819c00140d061"
+    },
+    {
+      "original_sha256": "632b43059f391547d2f7254297d2d0f776a2b84b42ca73646e21f9e1d5977c12",
+      "path": "config/input.conf",
+      "rewritten_sha256": "632b43059f391547d2f7254297d2d0f776a2b84b42ca73646e21f9e1d5977c12"
+    },
+    {
+      "original_sha256": "1121a766cb5ec625a1dd89b33074084b2c5f3020a755dbb6e0a293c7e3b8b6a6",
+      "path": "config/keybinds.conf",
+      "rewritten_sha256": "f1e19f04c84554b98013bbea363eeec1fa5b6fc4774a00028636be1220418dd0"
+    },
+    {
+      "original_sha256": "3b46c7ef7f70b4dafa9abef3cc1f639c6fb059139494ac32b59d280f08fb4090",
+      "path": "config/monitor.conf",
+      "rewritten_sha256": "3b46c7ef7f70b4dafa9abef3cc1f639c6fb059139494ac32b59d280f08fb4090"
+    },
+    {
+      "original_sha256": "18697e39df43ab0065d8ad6eec868289b9dcde15e62cbcc6bb235a98344fbd3f",
+      "path": "config/variables.conf",
+      "rewritten_sha256": "a79d6b910d650d8a68a8196f66125aa65f3b5d2b3a85892e67112c38e9e29d22"
+    },
+    {
+      "original_sha256": "b4384f14f6e643b0e6fd9e533434bcc6d412dd589952abeb0446e62df9271a4b",
+      "path": "config/windowrules.conf",
+      "rewritten_sha256": "b4384f14f6e643b0e6fd9e533434bcc6d412dd589952abeb0446e62df9271a4b"
+    },
+    {
+      "original_sha256": "218d297aedc21cdb57d3583d219285c82be94a0467eb2169b2da65eb558a6189",
+      "path": "hyprland.conf",
+      "rewritten_sha256": "4a97d7ed6601d46fb307b7008d095f7132ce9cd979508135cf18e61c7d65aed6"
+    }
+  ],
+  "source_rewrites": [
+    {
+      "changes": [
+        {
+          "from": "~/.config/hypr/config/defaults.conf",
+          "to": "TEMP_REPRO/hypr/config/defaults.conf"
+        }
+      ],
+      "path": "config/autostart.conf"
+    },
+    {
+      "changes": [
+        {
+          "from": "~/.config/hypr/config/colors.conf",
+          "to": "TEMP_REPRO/hypr/config/colors.conf"
+        }
+      ],
+      "path": "config/decorations.conf"
+    },
+    {
+      "changes": [
+        {
+          "from": "~/.config/hypr/config/defaults.conf",
+          "to": "TEMP_REPRO/hypr/config/defaults.conf"
+        }
+      ],
+      "path": "config/keybinds.conf"
+    },
+    {
+      "changes": [
+        {
+          "from": "~/.config/hypr/config/colors.conf",
+          "to": "TEMP_REPRO/hypr/config/colors.conf"
+        }
+      ],
+      "path": "config/variables.conf"
+    },
+    {
+      "changes": [
+        {
+          "from": "~/.config/hypr/config/animations.conf",
+          "to": "TEMP_REPRO/hypr/config/animations.conf"
+        },
+        {
+          "from": "~/.config/hypr/config/autostart.conf",
+          "to": "TEMP_REPRO/hypr/config/autostart.conf"
+        },
+        {
+          "from": "~/.config/hypr/config/decorations.conf",
+          "to": "TEMP_REPRO/hypr/config/decorations.conf"
+        },
+        {
+          "from": "~/.config/hypr/config/environment.conf",
+          "to": "TEMP_REPRO/hypr/config/environment.conf"
+        },
+        {
+          "from": "~/.config/hypr/config/input.conf",
+          "to": "TEMP_REPRO/hypr/config/input.conf"
+        },
+        {
+          "from": "~/.config/hypr/config/keybinds.conf",
+          "to": "TEMP_REPRO/hypr/config/keybinds.conf"
+        },
+        {
+          "from": "~/.config/hypr/config/monitor.conf",
+          "to": "TEMP_REPRO/hypr/config/monitor.conf"
+        },
+        {
+          "from": "~/.config/hypr/config/variables.conf",
+          "to": "TEMP_REPRO/hypr/config/variables.conf"
+        },
+        {
+          "from": "~/.config/hypr/config/windowrules.conf",
+          "to": "TEMP_REPRO/hypr/config/windowrules.conf"
+        }
+      ],
+      "path": "hyprland.conf"
+    }
+  ]
+}

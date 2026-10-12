@@ -1,0 +1,14 @@
+{
+  "checks": {
+    "pkgname": true,
+    "arch": true,
+    "license": true,
+    "url": true,
+    "depends": true,
+    "makedepends": true,
+    "optdepends": true,
+    "pkgver": true,
+    "license_matches_root": true
+  },
+  "status": "PASS"
+}

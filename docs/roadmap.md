@@ -1,6 +1,6 @@
 # Roadmap
 
-All milestones are currently incomplete. This repository contains the plan and candidate inventory only.
+All milestones are currently incomplete. Parallel source audits and implementation are underway; see [implementation status](implementation-status.md). Tooling and recipe source do not substitute for native builds or hardware acceptance.
 
 ## M0: source and dependency audit
 

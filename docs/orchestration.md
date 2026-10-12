@@ -1,0 +1,91 @@
+# Implementation coordination
+
+Coordinator: Codex chat `01a12d58-9194-7643-81eb-fc9d62e4d923`.
+Started October 11, 2026, from `271e7c2` plus the user-provided `outline.md`.
+
+The full outline is the project scope. Milestones advance only on their specified evidence. Original project material uses MIT; third-party source licensing must be recorded separately before redistribution.
+
+## Ownership and interfaces
+
+| Worker | Exclusive paths | Initial deliverable |
+| --- | --- | --- |
+| Desktop | `docs/audits/desktop.md`, `docs/workstreams/desktop.md`, `packages/desktop/` | Pinned source/dependency audit, conservative desktop recipe and configuration where justified |
+| Tools/defaults | `docs/audits/tools-defaults.md`, `docs/workstreams/tools-defaults.md`, `packages/shells/`, `packages/settings/` | Fish/Zsh audits and recipes, individually reviewed settings proposals |
+| Build/validation | `scripts/build/`, `scripts/checks/`, `tests/`, `.github/workflows/`, `docs/build-system.md`, `docs/package-validation.md`, `docs/workstreams/build-validation.md` | Clean ARM build and inspection tooling, provenance and meaningful tests |
+| Release | `scripts/release/`, `docs/release/`, `docs/workstreams/release.md` | Signed staging/repository tooling, promotion gates and recovery policy |
+| Performance | `scripts/benchmarks/`, `docs/performance/`, `docs/workstreams/performance.md` | Repeated workload/telemetry harness and comparison rules; no performance claims without M2 runs |
+| Build worker, second task | `scripts/setup/`, `docs/setup-tooling.md`, `docs/workstreams/setup.md` | User activation/removal helper and disposable lifecycle tests; no host use |
+| Tools worker, second implementation | `packages/settings/cachy-asahi-setup/`, `docs/workstreams/setup-package.md` | Original helper package, final-source byte sync and local assembly; report manifest proposal |
+| Release worker, second task | `docs/upstream/`, `docs/arm-reuse.md`, `docs/workstreams/reuse-upstream.md` | Reviewable upstream compatibility issue draft and honest other-ARM execution plan; no submission |
+| Native ARM CI | `scripts/ci/`, `.github/workflows/native-arm-build.yml`, `docs/native-arm-ci.md`, `docs/workstreams/native-arm-ci.md` | Audit a free native runner/trusted-input route and implement bounded workflow; coordinator owns dispatch |
+| Coordinator | Shared manifests, baseline/compatibility records, root documentation, release/installation/benchmark tooling | Reconciled package set, independent review, integration and release gates |
+
+Workers run in the local project checkout with disjoint file ownership. Only the coordinator may change shared manifests or Git state. Separate worktrees remain the preferred arrangement for overlapping future work; this initial batch does not switch branches in the shared checkout. Never commit another worker's in-progress files.
+
+Workers first read the roadmap and candidate inventory. Audit files must state exact upstream revisions, licenses, dependency evidence, file ownership/configuration behavior, hooks, platform risks, proposed recipe names and manifest changes. Recipes live below the owned package category, one directory per package. Configuration should be opt-in and preserve existing user files. Build tooling must discover recipe directories recursively and avoid executing untrusted recipe shell code during static inspection. Native, cross, and emulated results must be labeled separately.
+
+## Baseline and blockers
+
+- Current development host: x86_64 Linux; this is not an M2 acceptance machine.
+- Clean native aarch64 builder: not yet identified or verified.
+- M2 Air 13-inch and 15-inch access: not yet identified or verified.
+- Asahi ALARM base/repository snapshot and desktop compatibility set: pending current source audit and target-machine inventory.
+- Project license: MIT selected by the coordinator within the delegated implementation scope; third-party material retains its own terms.
+- M0–M4 and later outline stages: incomplete; no packages, installation or hardware results established at start.
+
+Unavailable resources block their execution gates, not source audits or portable tooling implementation. No release promotion may substitute emulation or another model for exact-machine evidence.
+
+## Integration process
+
+1. Reconcile the three M0 reports and dependency gaps in `manifests/packages.toml`.
+2. Inspect recipes, licenses, source checksums, package ownership and protected-stack boundaries independently.
+3. Run local tooling tests and static checks; then clean ARM builds when a verified builder is available.
+4. Record actual artifacts and repeat-build comparison before M1 acceptance.
+5. Implement installation/removal, signed staging/release tooling, validation and benchmark procedures against the selected package behavior.
+6. Keep exact-machine installation, functional, upgrade/recovery and performance gates explicitly pending until executed.
+
+Each worker records evidence and unfinished work in its workstream report. Coordinator records subsequent batches, runtime chat IDs, test results and integration decisions here.
+
+## Dispatched chats
+
+- Desktop: `01a12d5a-3b22-74b3-aa9a-ef585d3fb0f7` — GPT 6.1 Sol, high.
+- Tools/defaults: `01a12d5a-4627-7291-9e4a-f7eafc989277` — GPT 6.1 Sol, high.
+- Build/validation: `01a12d5a-4e12-7a71-8eb3-7b543f61feb5` — GPT 6.1 Sol, high.
+- Release: `01a12d5b-0629-7db2-8cf3-6c4a5bf871b6` — GPT 6.1 Sol, high.
+- Performance: `01a12d61-4070-7a82-a74e-e71d222f5ee4` — GPT 6.1 Sol, high.
+- Native ARM CI: `01a12d73-298a-7a91-88cc-2312820967a8` — GPT 6.1 Sol, high.
+
+All six were dispatched successfully. An independent GPT 6.1 Sol/high subagent reviews validation boundaries. Docker is available on the x86_64 host (amd64 engine); unrelated existing containers are left alone. The only locally configured SSH alias besides GitHub is `gabepi`; no target Mac connection is configured. No native ARM builder or M2 machine has been verified.
+
+Coordinator implemented `scripts/hardware/capture-baseline.py` and `docs/baseline.md`. Three baseline collector tests pass. A read-only development-host record was captured under ignored `artifacts/baselines/`; it is explicitly NOT RUN for hardware validation.
+
+The configured `gabepi` SSH connection timed out during a read-only inventory attempt. Native ARM builds remain pending. `docs/implementation-status.md` tracks all outline stages and execution gates.
+
+The coordinator reconciled six deferred upstream candidates and three original development candidates in the manifest. No package is selected for a release. Upstream bundles remain excluded because of licensing, missing dependency or platform/configuration issues. MIT applies to original project material only. Draft installation and contributor procedures describe unexecuted target gates.
+
+Independent review reproduced metadata binding, expired-signing-key and copied-build-evidence acceptance bugs; fixes and regression tests were assigned to build/release owners. The coordinator fixed an unanchored ignore rule that hid `scripts/build/`. See `docs/reviews/initial-source-review.md` for bounded evidence and subsequent fix review.
+
+Coordinator execution: 23 build/validation tests, 17 release tests, and 3 hardware-collector tests passed locally. All three original recipes passed static checksum/source inspection. Release tests use synthetic packages and ephemeral keys; no native ARM/hardware or real stable promotion is inferred. Source-review reproductions are being rerun independently against the fixes. The completed tools/defaults worker is assigned a bounded desktop/configuration-lifecycle peer review in `docs/reviews/desktop-lifecycle-review.md`.
+
+Subsequent review: all four initial findings resolved for independently rerun cases, including real expired/revoked signing keys. Coordinator ran the expanded 29-test build/validation suite successfully. Release owner reports 19 passing synthetic tests; performance owner reports 20 passing tests and a real x86 smoke roundtrip, with optimization acceptance always NOT RUN. The desktop peer reviewer identified a launch-wrapper guide correction, routed to the owner with the project URL correction. No target session was launched.
+
+The coordinator re-read the concurrently strengthened outline and created `docs/acceptance.md`, `docs/backlog.md`, `docs/performance.md` and separate 13/15-inch validation records. Full-goal requirements are retained. The build worker now owns a bounded second task implementing runtime setup/removal and disposable lifecycle tests; this does not install packages or modify the real user home. Desktop worker independently reviews the performance framework in `docs/reviews/performance-framework-review.md`.
+
+The tools worker packages the final runtime helper in one settings-category directory, waiting for its canonical source to freeze; no system defaults are selected. Release worker prepares a source-grounded upstream issue draft and other-ARM reuse procedure without posting anything externally. Performance peer review reproduced six input/deadline/cleanup/telemetry/chronology gaps; fixes and regressions were assigned to the performance owner before framework acceptance.
+
+GitHub API read-only inspection verified that `Gabriel-Kahen/cachy-asahi` is public with default branch `main` and no pushed source at inspection time. To resolve native-builder uncertainty rather than wait only for Pi access, a sixth worker audits standard free native ARM CI and trusted pinned ALARM build inputs. Workflow source alone will not count as a build. Coordinator retains all Git publishing/dispatch decisions; no paid runner or opaque third-party base is authorized by this assignment.
+
+## Final source integration checkpoint
+
+Coordinator reconciled four original MIT development candidates, with release
+selection still false. Corrected canonical setup SHA is
+`a6251142b9c7e54796285c1a301fb590599d8aaa1625ea0bfebd7fc21622fdc2`;
+independent exact recovery-root and oversized-write reproductions now reject
+without config mutation. Six benchmark findings were independently rerun and closed.
+Coordinator integrated source test run: 33 build, 40 setup, 3 collector, 19 release,
+28 benchmark, 45 CI and 9 setup-sync tests, all passed (177 total, no skips).
+Four recipes pass static inspection. Native execution, target installation,
+measurements, supported releases and full-goal closure remain separate gates.
+Signed ARM inputs and full source audit are retained privately under
+`/home/gabe/.local/share/cachy-asahi/private-inputs/`; no upstream binary
+redistribution or production key custody is implied.
