@@ -178,3 +178,47 @@ New integration lock:
 `be827b7046049628d409a13eff4b5ee9bdbd7e9a0e92d1e411fae6e71bd0192f`.
 Signed input and original recipe locks remain `3c16c37d...` and `20d846cd...`.
 The next dispatch still requires committed-tree/clean-checkout verification.
+
+## Fourth actual attempt: lifecycle component passes, handoff/repository fail
+
+- Source: `e688ded697a6015d91a9df1717c01d7055567eed`.
+- [Native run 38202483407](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38202483407): **FAIL overall**.
+- Integration lock `be827b70...`; signed input and recipe locks remain unchanged.
+
+The native host passed all 226 bootstrap tests and source preflight. Original
+and changed fixture package build pairs passed, as did TEST signing and its
+explicit public certificate/signature export. The locked native source suites
+passed **474 tests, zero skips**, including all 116 integration tests. The
+desktop local verifier passed with the corrected private runtime environment;
+its bounded terminal projections were retained. This is parser/source validation,
+not a graphical login or Apple GPU test.
+
+The actual lifecycle component reports PASS with all checks passing and
+`baseline_handoff_ready=true`; it exercised the signed package/helper lifecycle
+and restored the original four packages. Its wrapper emitted READY for the
+345-package inventory (SHA256 `3906ca525dac6bec9820db85ecbd9b8d66dc9af7c7b419a41941230807c8b456`).
+The outer lifecycle stage nevertheless failed before publishing a verified
+installed-image receipt. Its sanitized status does not identify the precise
+refusal. Eight public package/version inventory files were also rejected by the
+credential heuristic. Neither the component result nor READY certifies the
+committed-image handoff; its source binding, configuration and independent
+verification remain required.
+
+The repository stage failed its first copied-base inventory command: pacman
+could not resolve `/scratch/cache`. Repository installation, upgrades, negative
+cases and rollback remain NOT RUN in this attempt. Installed onboarding and
+desktop stages were not started because the handoff stage failed. Corrections
+must retain strict trust/export guards, add concrete copied-root and inventory
+projection regressions, and expose safe refusal diagnostics before rerunning.
+
+Raw logs and strict decoded bundles are retained under
+`artifacts/ci/38202483407/`. Key compressed bundle receipts:
+
+| Bundle | SHA-256 | Bytes |
+| --- | --- | --- |
+| Native package builds | `e519cf0f78e3276ef19d29ef8763d812ade9b7b0211eef2eef7002691125d3ba` | 1256124 |
+| Fixtures | `8969cd32b5ecaa0464fbb43b0df818959a8b24f9aaf3161e7028b4f4cce398cf` | 59527 |
+| Lifecycle | `144ae9cdbf4c1c109a2d69d4787f788f78631d4fb9227377ecc3e1bca22ebc97` | 50016 |
+| Repository failure | `af3d73af4660fdaf84b63c103e3e2ad58bc927c64d0bc03d09ddb49e9e18a164` | 49780 |
+| Native source suites | `b49b0d8597b40ae020fa1a57880ece34315058068f62ec656d18dd04acd6d84f` | 28185 |
+| Failed integration summary | `014df15d60d70fdffa6e5eaff6919ab9da362e17bf7f499d7a3960aff187f783` | 989 |
