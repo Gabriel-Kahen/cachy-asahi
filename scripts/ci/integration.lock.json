@@ -1104,7 +1104,7 @@
     },
     "scripts/integration/repository.py": {
       "mode": 420,
-      "sha256": "e58468fe9ec8158dc082580e400bc63cde374376a50a4be71382fc7c305e228d"
+      "sha256": "49c87f41bbb2fe1288251f16019f12aaeabb98d81ff5339387873e88e903b940"
     },
     "scripts/integration/test_desktop.py": {
       "mode": 420,
@@ -1124,7 +1124,7 @@
     },
     "scripts/integration/test_repository.py": {
       "mode": 420,
-      "sha256": "0c6f936c2dd62dcb703c6bfc45b1cf1a4593ad19db87d8f67bdaa1e5dff6fdb5"
+      "sha256": "a7857437d1cf3e513720351299d241d7a6c97d3f58f0ef9b4bc92655dffd7274"
     },
     "scripts/release/release.py": {
       "mode": 493,

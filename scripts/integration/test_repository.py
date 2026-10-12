@@ -170,6 +170,305 @@ class RepositoryTests(unittest.TestCase):
                     self.runner.pacman('trusted-full-install', ['-Syyu', '--noscriptlet'])
             self.assertEqual((self.runner.out / self.runner.receipts[-1]['log']).read_bytes(), output)
 
+    def cache_reset_fixture(self):
+        self.runner.target = self.runner.scratch / 'system'
+        self.runner.config = self.runner.scratch / 'pacman.conf'
+        self.runner.config.write_text(r.STRICT_OPTIONS + r.STRICT_REPOSITORY)
+        sync = self.runner.target / 'var/lib/pacman/sync'
+        sync.mkdir(parents=True)
+        a, b = [self.runner.scratch / 'repos' / name for name in ('baseline-A', 'updated-B')]
+        for number, repo in enumerate((a, b)):
+            repo.mkdir(parents=True)
+            for name in ('integration.db.tar.gz', 'integration.db.tar.gz.sig', 'original.pkg.tar.xz'):
+                (repo / name).write_bytes(f'SYNTHETIC TEST {number} {name}\n'.encode())
+        (a.parent / 'active').symlink_to('baseline-A')
+        for name, source in (('integration.db', 'integration.db.tar.gz'), ('integration.db.sig', 'integration.db.tar.gz.sig')):
+            shutil.copyfile(a / source, sync / name)
+        self.runner.keys['signer-A'] = {'fingerprint': 'A' * 40}
+        self.runner.cases.append({'name': r.REVOKED_CASE, 'result': 'PASS', 'expected_signature_rejection': True})
+        self.runner.revoked_rejection_state = ({'runtime': '1-1'}, {'payload': {'type': 'regular', 'sha256': 'a' * 64}})
+        for label, code, expected, content in (
+            (r.REVOKED_CASE, 1, 'nonzero', 'error: integration: signature from "TEST ONLY disposable repository signer-A <signer-A@test.invalid>" is invalid\n'),
+            ('gpg-revoked-A-status', 0, None, '[GNUPG:] REVKEYSIG ' + 'A' * 16 + ' TEST\n[GNUPG:] VALIDSIG ' + 'A' * 40 + ' fixture\n')):
+            path = self.runner.out / f'{len(self.runner.receipts):03d}-{label}.txt'
+            path.write_text(content)
+            self.runner.receipts.append({'label': label, 'exit_code': code, 'expected': expected,
+                                         'log': path.name, 'sha256': r.sha(path)})
+        return a, b, sync
+
+    def test_revoked_cache_reset_removes_only_verified_private_sync_pair(self):
+        a, b, sync = self.cache_reset_fixture()
+        protected = [self.runner.target / 'var/lib/pacman/local/fixture/desc', self.runner.target / r.PAYLOAD,
+                     self.runner.home / 'trustdb.gpg', self.runner.home / 'revocation.receipt', self.runner.config,
+                     a / 'integration.db.tar.gz', a / 'integration.db.tar.gz.sig', b / 'original.pkg.tar.xz']
+        for path in protected[:4]:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(b'SYNTHETIC TEST preserved state')
+        before = {str(path): path.read_bytes() for path in protected}
+        expected_removed = {path.name: r.sha(path) for path in sync.iterdir()}
+        state = self.runner.revoked_rejection_state
+        with mock.patch.object(self.runner, 'snapshot', side_effect=[state, state]) as snapshot:
+            self.runner.reset_revoked_sync_cache(a, b)
+        self.assertEqual(list(sync.iterdir()), [])
+        self.assertEqual(before, {str(path): path.read_bytes() for path in protected})
+        self.assertEqual(snapshot.call_count, 2)
+        result = json.loads((self.runner.out / 'revoked-A-sync-cache-reset.json').read_text())
+        self.assertEqual(result['removed'], expected_removed)
+        self.assertEqual(result['absence'], 'PASS')
+        self.assertEqual(result['status'], 'PASS')
+        self.assertEqual(self.runner.result['sync_cache_reset']['sha256'], r.sha(self.runner.out / 'revoked-A-sync-cache-reset.json'))
+        self.assertEqual(self.runner.cases[-1]['name'], r.REVOKED_CASE)  # Actual rejection retained.
+
+    def test_revoked_cache_reset_validates_both_files_before_any_unlink(self):
+        a, b, sync = self.cache_reset_fixture()
+        original = (sync / 'integration.db').read_bytes()
+        (sync / 'integration.db.sig').write_bytes(b'unrelated signature')
+        with mock.patch.object(self.runner, 'snapshot', return_value=self.runner.revoked_rejection_state):
+            with self.assertRaisesRegex(r.Refused, 'cached sync bytes'):
+                self.runner.reset_revoked_sync_cache(a, b)
+        self.assertEqual((sync / 'integration.db').read_bytes(), original)
+        self.assertTrue((sync / 'integration.db.sig').exists())
+
+    def test_revoked_cache_reset_requires_completed_case_and_bound_revocation_logs(self):
+        a, b, sync = self.cache_reset_fixture()
+        case = self.runner.cases.pop()
+        with self.assertRaisesRegex(r.Refused, 'completed revoked-A'):
+            self.runner.reset_revoked_sync_cache(a, b)
+        self.runner.cases.append(case)
+        receipt = self.runner.receipts[1]
+        path = self.runner.out / receipt['log']
+        path.write_text('[GNUPG:] VALIDSIG ' + 'B' * 40 + ' fixture\n')
+        with self.assertRaisesRegex(r.Refused, 'log binding'):
+            self.runner.reset_revoked_sync_cache(a, b)
+        receipt['sha256'] = r.sha(path)
+        with self.assertRaisesRegex(r.Refused, 'actual revoked-A'):
+            self.runner.reset_revoked_sync_cache(a, b)
+        self.assertEqual(len(list(sync.iterdir())), 2)
+
+    def test_revoked_cache_reset_refuses_wrong_scope_selection_and_weak_config(self):
+        a, b, sync = self.cache_reset_fixture()
+        for target in (self.runner.scratch / 'other', Path('/var/lib/pacman')):
+            with mock.patch.object(self.runner, 'target', target), \
+                    mock.patch.object(self.runner, 'snapshot', return_value=self.runner.revoked_rejection_state):
+                with self.assertRaisesRegex(r.Refused, 'scope'):
+                    self.runner.reset_revoked_sync_cache(a, b)
+        active = a.parent / 'active'
+        active.unlink(); active.symlink_to('updated-B')
+        with self.assertRaisesRegex(r.Refused, 'selection/strict'):
+            self.runner.reset_revoked_sync_cache(a, b)
+        active.unlink(); active.symlink_to('baseline-A')
+        self.runner.config.write_text((r.STRICT_OPTIONS + r.STRICT_REPOSITORY).replace('Required', 'Optional'))
+        with self.assertRaisesRegex(r.Refused, 'selection/strict'):
+            self.runner.reset_revoked_sync_cache(a, b)
+        self.assertEqual(len(list(sync.iterdir())), 2)
+
+    def test_revoked_cache_reset_refuses_extra_links_and_missing_files(self):
+        a, b, sync = self.cache_reset_fixture()
+        extra = sync / 'foreign.db'
+        extra.write_bytes(b'foreign')
+        with mock.patch.object(self.runner, 'snapshot', return_value=self.runner.revoked_rejection_state):
+            with self.assertRaisesRegex(r.Refused, 'unexpected private'):
+                self.runner.reset_revoked_sync_cache(a, b)
+            extra.unlink()
+            signature = (sync / 'integration.db.sig').read_bytes()
+            (sync / 'integration.db.sig').unlink()
+            (sync / 'integration.db.sig').symlink_to(a / 'integration.db.tar.gz.sig')
+            with self.assertRaises(OSError):self.runner.reset_revoked_sync_cache(a, b)
+            (sync / 'integration.db.sig').unlink()
+            with self.assertRaisesRegex(r.Refused, 'complete cached'):
+                self.runner.reset_revoked_sync_cache(a, b)
+            (sync / 'integration.db.sig').write_bytes(signature)
+            os.link(sync / 'integration.db.sig', self.runner.scratch / 'linked-signature')
+            with self.assertRaisesRegex(r.Refused, 'unsafe sync-cache'):
+                self.runner.reset_revoked_sync_cache(a, b)
+        self.assertTrue((sync / 'integration.db').exists())
+
+    def test_revoked_cache_reset_refuses_symlinked_directory(self):
+        a, b, sync = self.cache_reset_fixture()
+        moved = sync.with_name('held-sync')
+        sync.rename(moved); sync.symlink_to(moved, target_is_directory=True)
+        with mock.patch.object(self.runner, 'snapshot', return_value=self.runner.revoked_rejection_state):
+            with self.assertRaises(OSError):self.runner.reset_revoked_sync_cache(a, b)
+        self.assertEqual(len(list(moved.iterdir())), 2)
+
+    def test_reset_refuses_current_sync_directory_replacement_after_byte_validation(self):
+        a, b, sync = self.cache_reset_fixture()
+        original = self.runner.sync_bytes
+        held = sync.with_name('held-sync')
+        def replace(fd, reference):
+            files = original(fd, reference)
+            sync.rename(held); sync.mkdir()
+            for path in held.iterdir():shutil.copyfile(path, sync / path.name)
+            return files
+        with mock.patch.object(self.runner, 'snapshot', return_value=self.runner.revoked_rejection_state), \
+                mock.patch.object(self.runner, 'sync_bytes', side_effect=replace):
+            with self.assertRaisesRegex(r.Refused, 'current sync-cache directory chain changed'):
+                self.runner.reset_revoked_sync_cache(a, b)
+        self.assertEqual(len(list(held.iterdir())), 2)
+        self.assertEqual(len(list(sync.iterdir())), 2)
+        self.assertFalse((self.runner.out / 'revoked-A-sync-cache-reset.json').exists())
+
+    def test_reset_refuses_symlink_replacement_after_byte_validation(self):
+        a, b, sync = self.cache_reset_fixture()
+        original = self.runner.sync_bytes
+        held = sync.with_name('held-sync')
+        def replace(fd, reference):
+            files = original(fd, reference)
+            sync.rename(held); sync.symlink_to(held, target_is_directory=True)
+            return files
+        with mock.patch.object(self.runner, 'snapshot', return_value=self.runner.revoked_rejection_state), \
+                mock.patch.object(self.runner, 'sync_bytes', side_effect=replace):
+            with self.assertRaises((OSError, r.Refused)):
+                self.runner.reset_revoked_sync_cache(a, b)
+        self.assertEqual(len(list(held.iterdir())), 2)
+        self.assertTrue(sync.is_symlink())
+        self.assertFalse((self.runner.out / 'revoked-A-sync-cache-reset.json').exists())
+
+    def test_reset_rechecks_current_path_after_each_unlink(self):
+        a, b, sync = self.cache_reset_fixture()
+        unlink = r.os.unlink
+        held = sync.with_name('held-sync')
+        def replace(name, **kwargs):
+            unlink(name, **kwargs)
+            if name == 'integration.db':
+                sync.rename(held); sync.mkdir()
+                shutil.copyfile(a / 'integration.db.tar.gz', sync / 'integration.db')
+                shutil.copyfile(a / 'integration.db.tar.gz.sig', sync / 'integration.db.sig')
+        with mock.patch.object(self.runner, 'snapshot', return_value=self.runner.revoked_rejection_state), \
+                mock.patch.object(r.os, 'unlink', side_effect=replace):
+            with self.assertRaisesRegex(r.Refused, 'current sync-cache directory chain changed'):
+                self.runner.reset_revoked_sync_cache(a, b)
+        self.assertTrue((held / 'integration.db.sig').exists())
+        self.assertEqual(len(list(sync.iterdir())), 2)
+        self.assertFalse((self.runner.out / 'revoked-A-sync-cache-reset.json').exists())
+
+    def test_reset_refuses_empty_replacement_during_after_snapshot(self):
+        a, b, sync = self.cache_reset_fixture()
+        held = sync.with_name('held-sync')
+        state = self.runner.revoked_rejection_state
+        def snapshot(label):
+            if label.endswith('-after'):
+                sync.rename(held); sync.mkdir()  # Even an empty substitute is another directory.
+            return state
+        with mock.patch.object(self.runner, 'snapshot', side_effect=snapshot):
+            with self.assertRaisesRegex(r.Refused, 'current sync-cache directory chain changed'):
+                self.runner.reset_revoked_sync_cache(a, b)
+        self.assertEqual(list(sync.iterdir()), [])
+        self.assertEqual(list(held.iterdir()), [])
+        self.assertFalse((self.runner.out / 'revoked-A-sync-cache-reset.json').exists())
+
+    def test_reset_refuses_ancestor_directory_replacement(self):
+        a, b, sync = self.cache_reset_fixture()
+        original = self.runner.sync_bytes
+        var = self.runner.target / 'var'
+        held = self.runner.target / 'held-var'
+        def replace(fd, reference):
+            files = original(fd, reference)
+            var.rename(held); shutil.copytree(held, var)
+            return files
+        with mock.patch.object(self.runner, 'snapshot', return_value=self.runner.revoked_rejection_state), \
+                mock.patch.object(self.runner, 'sync_bytes', side_effect=replace):
+            with self.assertRaisesRegex(r.Refused, 'current sync-cache directory chain changed'):
+                self.runner.reset_revoked_sync_cache(a, b)
+        self.assertEqual(len(list((held / 'lib/pacman/sync').iterdir())), 2)
+        self.assertEqual(len(list(sync.iterdir())), 2)
+        self.assertFalse((self.runner.out / 'revoked-A-sync-cache-reset.json').exists())
+
+    def test_final_cache_verification_refuses_current_directory_replacement(self):
+        a, b, sync = self.cache_reset_fixture()
+        with mock.patch.object(self.runner, 'snapshot', return_value=self.runner.revoked_rejection_state):
+            self.runner.reset_revoked_sync_cache(a, b)
+        active = a.parent / 'active'
+        active.unlink(); active.symlink_to('updated-B')
+        self.runner.cases.append({'name': r.FINAL_CASE, 'result': 'PASS', 'expected_signature_rejection': False})
+        for name, source in (('integration.db', 'integration.db.tar.gz'), ('integration.db.sig', 'integration.db.tar.gz.sig')):
+            shutil.copyfile(b / source, sync / name)
+        original = self.runner.sync_bytes
+        held = sync.with_name('held-sync')
+        def replace(fd, reference):
+            files = original(fd, reference)
+            sync.rename(held); shutil.copytree(held, sync)
+            return files
+        with mock.patch.object(self.runner, 'sync_bytes', side_effect=replace):
+            with self.assertRaisesRegex(r.Refused, 'current sync-cache directory chain changed'):
+                self.runner.verify_final_sync_cache(b)
+        self.assertNotIn('final_sync_cache', self.runner.result)
+
+    def test_revoked_cache_reset_checks_installed_invariants_before_and_after(self):
+        a, b, sync = self.cache_reset_fixture()
+        unchanged = self.runner.revoked_rejection_state
+        changed = ({'runtime': '2-1'}, unchanged[1])
+        with mock.patch.object(self.runner, 'snapshot', return_value=changed):
+            with self.assertRaisesRegex(r.Refused, 'after revoked-A'):
+                self.runner.reset_revoked_sync_cache(a, b)
+        self.assertEqual(len(list(sync.iterdir())), 2)
+        with mock.patch.object(self.runner, 'snapshot', side_effect=[unchanged, changed]):
+            with self.assertRaisesRegex(r.Refused, 'changed installed'):
+                self.runner.reset_revoked_sync_cache(a, b)
+        self.assertFalse((self.runner.out / 'revoked-A-sync-cache-reset.json').exists())
+
+    def test_reset_requires_confirmed_absence_and_final_cache_matches_healthy_B(self):
+        a, b, sync = self.cache_reset_fixture()
+        with mock.patch.object(self.runner, 'snapshot', return_value=self.runner.revoked_rejection_state), \
+                mock.patch.object(r.os, 'unlink'):
+            with self.assertRaisesRegex(r.Refused, 'absence unconfirmed'):
+                self.runner.reset_revoked_sync_cache(a, b)
+        with mock.patch.object(self.runner, 'snapshot', return_value=self.runner.revoked_rejection_state):
+            self.runner.reset_revoked_sync_cache(a, b)
+        self.runner.cases.append({'name': r.FINAL_CASE, 'result': 'PASS', 'expected_signature_rejection': False})
+        active = a.parent / 'active'
+        active.unlink(); active.symlink_to('updated-B')
+        for name, source in (('integration.db', 'integration.db.tar.gz'), ('integration.db.sig', 'integration.db.tar.gz.sig')):
+            shutil.copyfile(b / source, sync / name)
+        self.runner.verify_final_sync_cache(b)
+        self.assertEqual(self.runner.result['final_sync_cache']['integration.db'], r.sha(b / 'integration.db.tar.gz'))
+        (sync / 'integration.db.sig').write_bytes(b'wrong cached B signature')
+        with self.assertRaisesRegex(r.Refused, 'cached sync bytes'):
+            self.runner.verify_final_sync_cache(b)
+
+    def test_sync_cache_identity_rechecks_nanoseconds_before_unlink(self):
+        a, b, sync = self.cache_reset_fixture()
+        original = self.runner.sync_bytes
+        def race(fd, reference):
+            files = original(fd, reference)
+            path = sync / 'integration.db'
+            info = path.stat()
+            # Same bytes/size and same seconds, different nanoseconds.
+            os.utime(path, ns=(info.st_atime_ns, info.st_mtime_ns + 1))
+            return files
+        with mock.patch.object(self.runner, 'snapshot', return_value=self.runner.revoked_rejection_state), \
+                mock.patch.object(self.runner, 'sync_bytes', side_effect=race):
+            with self.assertRaisesRegex(r.Refused, 'changed before unlink'):
+                self.runner.reset_revoked_sync_cache(a, b)
+        self.assertEqual(len(list(sync.iterdir())), 2)
+
+    def test_sync_cache_read_identity_ignores_access_time_only(self):
+        a, _, sync = self.cache_reset_fixture()
+        # utime also changes ctime, so isolate an access-time-only observation.
+        original_stat = r.os.fstat
+        calls = [0]
+        def altered_atime(fd):
+            info = original_stat(fd)
+            calls[0] += 1
+            return SimpleNamespace(**{name: getattr(info, name) for name in ('st_dev', 'st_ino', 'st_mode', 'st_nlink', 'st_uid', 'st_gid',
+                                                                          'st_size', 'st_mtime_ns', 'st_ctime_ns')},
+                                   st_atime_ns=info.st_atime_ns + calls[0])
+        with self.runner.sync_directory() as (fd, _), mock.patch.object(r.os, 'fstat', side_effect=altered_atime):
+            self.assertEqual(self.runner.sync_bytes(fd, a)['integration.db']['sha256'], r.sha(a / 'integration.db.tar.gz'))
+
+    def test_actual_final_zero_exit_stale_A_error_remains_a_hard_failure(self):
+        # Exact leading producer diagnostic from native38221511121; never whitelisted.
+        raw = (b'error: integration: signature from "TEST ONLY disposable repository signer-A <signer-A@test.invalid>" is invalid\n'
+               b':: Synchronizing package databases...\n integration downloading...\nupgrading cachy-asahi-setup...\n')
+        result = subprocess.CompletedProcess([], 0, raw)
+        self.runner.keys['verifier'] = {'home': self.runner.home / 'verifier'}
+        with mock.patch.object(r.subprocess, 'run', return_value=result):
+            with self.assertRaisesRegex(r.Refused, 'positive command has error'):
+                self.runner.pacman(r.FINAL_CASE, ['-Syyu', '--noscriptlet', *sorted(r.ORIGINALS | {r.FIXTURE})])
+        receipt = self.runner.receipts[-1]
+        self.assertEqual((self.runner.out / receipt['log']).read_bytes(), raw)
+        self.assertNotIn('positive_diagnostics', receipt)
+
     def test_positive_diagnostics_checks_query_stderr_without_filtering_inventory(self):
         self.runner.keys['verifier'] = {'home': self.runner.home / 'verifier'}
         result = subprocess.CompletedProcess([], 0, b'runtime 1-1\n', b'error: command failed to execute correctly\n')

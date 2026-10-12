@@ -3,6 +3,7 @@
 # Copyright (c) 2026 cachy-asahi contributors
 """Strict local repository transactions ONLY inside an explicit disposable ARM container."""
 import argparse
+from contextlib import contextmanager
 import hashlib
 import io
 import json
@@ -48,6 +49,8 @@ STRICT_OPTIONS = ('[options]\nArchitecture = aarch64\nSigLevel = Required Truste
                   'LocalFileSigLevel = Required TrustedOnly\nParallelDownloads = 1\n')
 STRICT_REPOSITORY = '[integration]\nSigLevel = Required TrustedOnly\nServer = file:///scratch/repos/active\n'
 MISSING_DATABASE_CASE = 'missing-database-signature-rejected'
+REVOKED_CASE = 'revoked-A-repository-rejected'
+FINAL_CASE = 'unrevoked-B-final-full-upgrade'
 
 
 class Refused(Exception):
@@ -457,6 +460,157 @@ class Integration:
             shutil.rmtree(cache)
         cache.mkdir()
 
+    @contextmanager
+    def sync_directory(self):
+        """Retain the owned directory chain and rebind it to the current path."""
+        need(self.target == self.scratch / 'system' and self.scratch.is_absolute(), 'private sync-cache scope required')
+        scratch, target = self.scratch, self.target
+        names = ('system', 'var', 'lib', 'pacman', 'sync')
+        flags, fds = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, []
+        identity = lambda info: tuple(getattr(info, name) for name in ('st_dev', 'st_ino', 'st_mode', 'st_nlink', 'st_uid', 'st_gid'))
+        try:
+            fds.append(os.open(scratch, flags))
+            for name in names:
+                info = os.fstat(fds[-1])
+                need(info.st_uid == os.geteuid() and not info.st_mode & 0o022, 'sync-cache parent ownership/mode differs')
+                fds.append(os.open(name, flags, dir_fd=fds[-1]))
+            info = os.fstat(fds[-1])
+            need(info.st_uid == os.geteuid() and not info.st_mode & 0o022, 'sync-cache directory ownership/mode differs')
+            expected = [identity(os.fstat(fd)) for fd in fds]
+            def current(*, absent=False):
+                need(self.scratch == scratch and self.target == target, 'sync-cache scope changed')
+                opened = []
+                try:
+                    opened.append(os.open(scratch, flags))
+                    for n, original in enumerate(fds):
+                        need(identity(os.fstat(original)) == expected[n]
+                             and identity(os.fstat(opened[-1])) == expected[n], 'current sync-cache directory chain changed')
+                        if n < len(names):
+                            opened.append(os.open(names[n], flags, dir_fd=opened[-1]))
+                    if absent:
+                        need(not self.sync_entries(opened[-1]), 'current private sync-cache absence unconfirmed')
+                finally:
+                    for opened_fd in reversed(opened):os.close(opened_fd)
+            current()
+            yield fds[-1], current
+        finally:
+            for fd in reversed(fds):os.close(fd)
+
+    def sync_entries(self, fd):
+        entries = set()
+        with os.scandir(fd) as iterator:
+            for entry in iterator:
+                need(entry.name in {'integration.db', 'integration.db.sig'} and entry.name not in entries,
+                     'unexpected private sync-cache entry')
+                entries.add(entry.name)
+        return entries
+
+    @staticmethod
+    def cache_identity(info):
+        return tuple(getattr(info, name) for name in ('st_dev', 'st_ino', 'st_mode', 'st_nlink', 'st_uid', 'st_gid',
+                                                     'st_size', 'st_mtime_ns', 'st_ctime_ns'))
+
+    def sync_bytes(self, fd, reference):
+        need(reference.parent == self.scratch / 'repos' and reference.name in {'baseline-A', 'updated-B'},
+             'retained sync-cache reference differs')
+        expected = self.repository_bytes(reference)
+        need(self.sync_entries(fd) == {'integration.db', 'integration.db.sig'}, 'complete cached database/signature required')
+        result = {}
+        for name, source in (('integration.db', 'integration.db.tar.gz'), ('integration.db.sig', 'integration.db.tar.gz.sig')):
+            need(source in expected and 'alias' not in expected[source], 'regular signed reference required')
+            cached = os.open(name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=fd)
+            try:
+                info = os.fstat(cached)
+                need(stat.S_ISREG(info.st_mode) and info.st_nlink == 1 and info.st_uid == os.geteuid()
+                     and not info.st_mode & 0o7022 and 0 < info.st_size <= 8 * 1024**2, 'unsafe sync-cache file')
+                data = bytearray()
+                while block := os.read(cached, min(65536, 8 * 1024**2 + 1 - len(data))):
+                    data.extend(block)
+                    need(len(data) <= 8 * 1024**2, 'sync-cache byte bound exceeded')
+                need(self.cache_identity(info) == self.cache_identity(os.fstat(cached))
+                     and len(data) == info.st_size, 'sync-cache read changed')
+                digest = hashlib.sha256(data).hexdigest()
+                need(digest == expected[source]['sha256'], 'cached sync bytes differ from retained repository')
+                result[name] = {'sha256': digest, 'identity': self.cache_identity(info)}
+            finally:
+                os.close(cached)
+        return result
+
+    def prior_log(self, label):
+        rows = [row for row in self.receipts if row['label'] == label]
+        need(len(rows) == 1, 'unique prior rejection receipt required')
+        row = rows[0]
+        need(re.fullmatch(r'[0-9]{3}-' + re.escape(label) + r'\.txt', row['log']), 'prior receipt log path differs')
+        path = self.out / row['log']
+        fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+        try:
+            info = os.fstat(fd)
+            need(stat.S_ISREG(info.st_mode) and info.st_nlink == 1 and info.st_uid == os.geteuid()
+                 and info.st_size <= 1024**2, 'regular bounded prior receipt log required')
+            data = bytearray()
+            while block := os.read(fd, min(65536, 1024**2 + 1 - len(data))):
+                data.extend(block)
+                need(len(data) <= 1024**2, 'prior log byte bound exceeded')
+            need(self.cache_identity(info) == self.cache_identity(os.fstat(fd)) and len(data) == info.st_size,
+                 'prior receipt log read changed')
+        finally:
+            os.close(fd)
+        need(len(data) <= 1024**2 and hashlib.sha256(data).hexdigest() == row['sha256'], 'prior receipt log binding differs')
+        return row, data.decode('utf-8')
+
+    def reset_revoked_sync_cache(self, retained_a, healthy_b):
+        """Only after the actual revoked-A rejection, before the final healthy B."""
+        need(self.cases and self.cases[-1] == {'name': REVOKED_CASE, 'result': 'PASS', 'expected_signature_rejection': True}
+             and hasattr(self, 'revoked_rejection_state'), 'completed revoked-A rejection required before cache reset')
+        need(retained_a == self.scratch / 'repos/baseline-A' and healthy_b == self.scratch / 'repos/updated-B',
+             'final repository transition differs')
+        active = self.scratch / 'repos/active'
+        need(active.is_symlink() and os.readlink(active) == 'baseline-A'
+             and self.config.read_text() == STRICT_OPTIONS + STRICT_REPOSITORY, 'revoked-A selection/strict config required')
+        rejected, diagnostic = self.prior_log(REVOKED_CASE)
+        proof, status = self.prior_log('gpg-revoked-A-status')
+        fingerprint = self.keys['signer-A']['fingerprint']
+        need(re.fullmatch(r'[0-9A-F]{40}', fingerprint) and rejected['expected'] == 'nonzero' and rejected['exit_code'] != 0
+             and 'signature from "TEST ONLY disposable repository signer-A <signer-A@test.invalid>" is invalid' in diagnostic
+             and '[GNUPG:] REVKEYSIG ' + fingerprint[-16:] + ' ' in status
+             and '[GNUPG:] VALIDSIG ' + fingerprint + ' ' in status, 'actual revoked-A signature rejection proof required')
+        references = {str(path): self.repository_bytes(path) for path in (retained_a, healthy_b)}
+        before = self.snapshot('revoked-A-sync-cache-reset-before')
+        need(before == self.revoked_rejection_state, 'installed state changed after revoked-A rejection')
+        with self.sync_directory() as (fd, current):
+            files = self.sync_bytes(fd, retained_a)  # Validate both before removing either.
+            current()
+            for name, row in files.items():
+                current()
+                need(self.cache_identity(os.stat(name, dir_fd=fd, follow_symlinks=False)) == row['identity'],
+                     'sync-cache changed before unlink')
+                os.unlink(name, dir_fd=fd)
+                current()
+            current(absent=True)
+            after = self.snapshot('revoked-A-sync-cache-reset-after')
+            need(before == after, 'sync-cache reset changed installed inventory/payload')
+            need(references == {str(path): self.repository_bytes(path) for path in (retained_a, healthy_b)}
+                 and self.config.read_text() == STRICT_OPTIONS + STRICT_REPOSITORY, 'reset changed retained repositories/config')
+            current(absent=True)  # Current-path absence, after all other acceptance observations.
+            record = {'status': 'PASS', 'scope': 'two private copied-root sync files after revoked-A rejection',
+                      'prior_rejection_log_sha256': rejected['sha256'], 'revocation_status_log_sha256': proof['sha256'],
+                      'removed': {name: row['sha256'] for name, row in files.items()}, 'absence': 'PASS',
+                      'installed_state_unchanged': True}
+            path = self.out / 'revoked-A-sync-cache-reset.json'
+            write(path, record)
+            self.result['sync_cache_reset'] = {'receipt': path.name, 'sha256': sha(path)}
+
+    def verify_final_sync_cache(self, healthy_b):
+        need(self.cases and self.cases[-1]['name'] == FINAL_CASE and self.cases[-1]['result'] == 'PASS'
+             and self.result.get('sync_cache_reset'), 'final healthy-B transaction/reset required')
+        active = self.scratch / 'repos/active'
+        need(healthy_b == self.scratch / 'repos/updated-B' and active.is_symlink() and os.readlink(active) == 'updated-B'
+             and self.config.read_text() == STRICT_OPTIONS + STRICT_REPOSITORY, 'healthy-B selection/strict config required')
+        with self.sync_directory() as (fd, current):
+            files = self.sync_bytes(fd, healthy_b)
+            current()
+        self.result['final_sync_cache'] = {name: row['sha256'] for name, row in files.items()}
+
     def repository_bytes(self, directory):
         """Bind every flat repository byte and only the known repo-add aliases."""
         directory = Path(directory)
@@ -602,6 +756,8 @@ class Integration:
         if missing_database is not None:
             case['rejection_contract'] = missing_database
         self.cases.append(case)
+        if label == REVOKED_CASE and reject:
+            self.revoked_rejection_state = after
 
     def copy_base(self):
         source_bytes = 0
@@ -778,8 +934,10 @@ class Integration:
             status = self.command('gpg-revoked-A-status', self.gpg(self.keys['verifier']['home']) + ['--status-fd', '1', '--verify',
                                   a / 'integration.db.tar.gz.sig', a / 'integration.db.tar.gz'], expected=None)
             need('[GNUPG:] REVKEYSIG' in status, 'GPG did not identify TEST key revocation')
-            self.transaction('revoked-A-repository-rejected', a, reject=True)
-            self.transaction('unrevoked-B-final-full-upgrade', b, explicit=True, expected_packages=updated, fixture_version='2-1')
+            self.transaction(REVOKED_CASE, a, reject=True)
+            self.reset_revoked_sync_cache(a, b)
+            self.transaction(FINAL_CASE, b, explicit=True, expected_packages=updated, fixture_version='2-1')
+            self.verify_final_sync_cache(b)
             need((self.target / PAYLOAD).read_text() == 'SYNTHETIC TEST fixture version 2\n', 'safe signer final upgrade failed')
             self.pacman('dependency-consistency', ['-Dk'])
             self.pacman('installed-original-file-presence', ['-Qk', *sorted(ORIGINALS | {FIXTURE})])
