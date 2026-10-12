@@ -1,0 +1,845 @@
+Source paths: cpp/libAACdec/include/aacdecoder_lib.h, cpp/libAACdec/src/FDK_delay.cpp, cpp/libAACdec/src/FDK_delay.h, cpp/libAACdec/src/aac_rom.h, cpp/libAACdec/src/aacdec_hcr.cpp, cpp/libAACdec/src/block.cpp, cpp/libAACdec/src/block.h, cpp/libAACdec/src/conceal.cpp, cpp/libAACdec/src/conceal.h, cpp/libAACdec/src/conceal_types.h, cpp/libAACdec/src/ldfiltbank.cpp, cpp/libAACdec/src/ldfiltbank.h, cpp/libAACdec/src/stereo.cpp, cpp/libAACdec/src/usacdec_fac.cpp, cpp/libAACdec/src/usacdec_lpc.cpp, cpp/libAACdec/src/usacdec_lpd.cpp, cpp/libAACdec/src/usacdec_lpd.h, cpp/libAACenc/src/aacEnc_ram.cpp, cpp/libAACenc/src/aacEnc_ram.h, cpp/libAACenc/src/adj_thr.cpp, cpp/libAACenc/src/bandwidth.cpp, cpp/libAACenc/src/intensity.cpp, cpp/libDRCdec/include/FDK_drcDecLib.h, cpp/libDRCdec/src/FDK_drcDecLib.cpp, cpp/libDRCdec/src/drcDec_gainDecoder.cpp, cpp/libDRCdec/src/drcDec_gainDecoder.h, cpp/libDRCdec/src/drcDec_selectionProcess.cpp, cpp/libDRCdec/src/drcDec_selectionProcess.h, cpp/libDRCdec/src/drcGainDec_init.cpp, cpp/libDRCdec/src/drcGainDec_init.h, cpp/libDRCdec/src/drcGainDec_preprocess.cpp, cpp/libFDK/include/FDK_qmf_domain.h, cpp/libFDK/include/fixpoint_math.h, cpp/libFDK/include/mdct.h, cpp/libFDK/include/qmf.h, cpp/libFDK/include/qmf_pcm.h, cpp/libFDK/include/scale.h, cpp/libFDK/src/FDK_bitbuffer.cpp, cpp/libFDK/src/FDK_core.cpp, cpp/libFDK/src/FDK_decorrelate.cpp, cpp/libFDK/src/FDK_qmf_domain.cpp, cpp/libFDK/src/mdct.cpp, cpp/libFDK/src/qmf.cpp, cpp/libFDK/src/scale.cpp, cpp/libPCMutils/include/limiter.h, cpp/libPCMutils/src/version.h, cpp/libSACdec/src/sac_calcM1andM2.cpp, cpp/libSACdec/src/sac_calcM1andM2.h, cpp/libSACdec/src/sac_dec.h, cpp/libSACdec/src/sac_dec_interface.h, cpp/libSACdec/src/sac_qmf.cpp, cpp/libSACdec/src/sac_qmf.h, cpp/libSACdec/src/sac_rom.cpp, cpp/libSACdec/src/sac_rom.h, cpp/libSACdec/src/sac_tsd.cpp, cpp/libSBRdec/include/sbrdecoder.h, cpp/libSBRdec/src/HFgen_preFlat.cpp, cpp/libSBRdec/src/hbe.h, cpp/libSBRdec/src/pvc_dec.cpp, cpp/libSBRdec/src/sbr_dec.h, cpp/libSBRdec/src/sbr_ram.cpp, cpp/libSBRdec/src/sbr_ram.h, cpp/libSBRdec/src/sbr_rom.cpp
+/* -----------------------------------------------------------------------------
+Software License for The Fraunhofer FDK AAC Codec Library for Android
+
+© Copyright  1995 - 2019 Fraunhofer-Gesellschaft zur Förderung der angewandten
+Forschung e.V. All rights reserved.
+
+ 1.    INTRODUCTION
+The Fraunhofer FDK AAC Codec Library for Android ("FDK AAC Codec") is software
+that implements the MPEG Advanced Audio Coding ("AAC") encoding and decoding
+scheme for digital audio. This FDK AAC Codec software is intended to be used on
+a wide variety of Android devices.
+
+AAC's HE-AAC and HE-AAC v2 versions are regarded as today's most efficient
+general perceptual audio codecs. AAC-ELD is considered the best-performing
+full-bandwidth communications codec by independent studies and is widely
+deployed. AAC has been standardized by ISO and IEC as part of the MPEG
+specifications.
+
+Patent licenses for necessary patent claims for the FDK AAC Codec (including
+those of Fraunhofer) may be obtained through Via Licensing
+(www.vialicensing.com) or through the respective patent owners individually for
+the purpose of encoding or decoding bit streams in products that are compliant
+with the ISO/IEC MPEG audio standards. Please note that most manufacturers of
+Android devices already license these patent claims through Via Licensing or
+directly from the patent owners, and therefore FDK AAC Codec software may
+already be covered under those patent licenses when it is used for those
+licensed purposes only.
+
+Commercially-licensed AAC software libraries, including floating-point versions
+with enhanced sound quality, are also available from Fraunhofer. Users are
+encouraged to check the Fraunhofer website for additional applications
+information and documentation.
+
+2.    COPYRIGHT LICENSE
+
+Redistribution and use in source and binary forms, with or without modification,
+are permitted without payment of copyright license fees provided that you
+satisfy the following conditions:
+
+You must retain the complete text of this software license in redistributions of
+the FDK AAC Codec or your modifications thereto in source code form.
+
+You must retain the complete text of this software license in the documentation
+and/or other materials provided with redistributions of the FDK AAC Codec or
+your modifications thereto in binary form. You must make available free of
+charge copies of the complete source code of the FDK AAC Codec and your
+modifications thereto to recipients of copies in binary form.
+
+The name of Fraunhofer may not be used to endorse or promote products derived
+from this library without prior written permission.
+
+You may not charge copyright license fees for anyone to use, copy or distribute
+the FDK AAC Codec software or your modifications thereto.
+
+Your modified versions of the FDK AAC Codec must carry prominent notices stating
+that you changed the software and the date of any change. For modified versions
+of the FDK AAC Codec, the term "Fraunhofer FDK AAC Codec Library for Android"
+must be replaced by the term "Third-Party Modified Version of the Fraunhofer FDK
+AAC Codec Library for Android."
+
+3.    NO PATENT LICENSE
+
+NO EXPRESS OR IMPLIED LICENSES TO ANY PATENT CLAIMS, including without
+limitation the patents of Fraunhofer, ARE GRANTED BY THIS SOFTWARE LICENSE.
+Fraunhofer provides no warranty of patent non-infringement with respect to this
+software.
+
+You may use this FDK AAC Codec software or modifications thereto only for
+purposes that are authorized by appropriate patent licenses.
+
+4.    DISCLAIMER
+
+This FDK AAC Codec software is provided by Fraunhofer on behalf of the copyright
+holders and contributors "AS IS" and WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES,
+including but not limited to the implied warranties of merchantability and
+fitness for a particular purpose. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+CONTRIBUTORS BE LIABLE for any direct, indirect, incidental, special, exemplary,
+or consequential damages, including but not limited to procurement of substitute
+goods or services; loss of use, data, or profits, or business interruption,
+however caused and on any theory of liability, whether in contract, strict
+liability, or tort (including negligence), arising in any way out of the use of
+this software, even if advised of the possibility of such damage.
+
+5.    CONTACT INFORMATION
+
+Fraunhofer Institute for Integrated Circuits IIS
+Attention: Audio and Multimedia Departments - FDK AAC LL
+Am Wolfsmantel 33
+91058 Erlangen, Germany
+
+www.iis.fraunhofer.de/amm
+amm-info@iis.fraunhofer.de
+----------------------------------------------------------------------------- */
+
+Source paths: cpp/libAACdec/src/aac_ram.cpp, cpp/libAACdec/src/aac_ram.h, cpp/libAACdec/src/aacdec_hcrs.cpp, cpp/libAACdec/src/aacdecoder.h, cpp/libAACdec/src/channel.cpp, cpp/libAACdec/src/usacdec_acelp.cpp, cpp/libAACenc/src/aacenc.cpp, cpp/libAACenc/src/aacenc.h, cpp/libAACenc/src/qc_main.cpp, cpp/libDRCdec/src/drcDec_reader.cpp, cpp/libFDK/include/nlc_dec.h, cpp/libFDK/src/FDK_hybrid.cpp, cpp/libFDK/src/autocorr2nd.cpp, cpp/libFDK/src/dct.cpp, cpp/libFDK/src/fixpoint_math.cpp, cpp/libFDK/src/nlc_dec.cpp, cpp/libMpegTPDec/include/tp_data.h, cpp/libMpegTPDec/src/tpdec_adts.cpp, cpp/libMpegTPDec/src/tpdec_asc.cpp, cpp/libMpegTPEnc/include/tp_data.h, cpp/libMpegTPEnc/src/tpenc_asc.cpp, cpp/libPCMutils/src/limiter.cpp, cpp/libSACdec/include/sac_dec_lib.h, cpp/libSACdec/src/sac_bitdec.cpp, cpp/libSACdec/src/sac_dec.cpp, cpp/libSACdec/src/sac_dec_lib.cpp, cpp/libSBRdec/src/sbr_dec.cpp, cpp/libSBRdec/src/sbrdec_drc.cpp, cpp/libSBRenc/src/env_est.cpp, cpp/libSBRenc/src/sbr_encoder.cpp
+/* -----------------------------------------------------------------------------
+Software License for The Fraunhofer FDK AAC Codec Library for Android
+
+© Copyright  1995 - 2020 Fraunhofer-Gesellschaft zur Förderung der angewandten
+Forschung e.V. All rights reserved.
+
+ 1.    INTRODUCTION
+The Fraunhofer FDK AAC Codec Library for Android ("FDK AAC Codec") is software
+that implements the MPEG Advanced Audio Coding ("AAC") encoding and decoding
+scheme for digital audio. This FDK AAC Codec software is intended to be used on
+a wide variety of Android devices.
+
+AAC's HE-AAC and HE-AAC v2 versions are regarded as today's most efficient
+general perceptual audio codecs. AAC-ELD is considered the best-performing
+full-bandwidth communications codec by independent studies and is widely
+deployed. AAC has been standardized by ISO and IEC as part of the MPEG
+specifications.
+
+Patent licenses for necessary patent claims for the FDK AAC Codec (including
+those of Fraunhofer) may be obtained through Via Licensing
+(www.vialicensing.com) or through the respective patent owners individually for
+the purpose of encoding or decoding bit streams in products that are compliant
+with the ISO/IEC MPEG audio standards. Please note that most manufacturers of
+Android devices already license these patent claims through Via Licensing or
+directly from the patent owners, and therefore FDK AAC Codec software may
+already be covered under those patent licenses when it is used for those
+licensed purposes only.
+
+Commercially-licensed AAC software libraries, including floating-point versions
+with enhanced sound quality, are also available from Fraunhofer. Users are
+encouraged to check the Fraunhofer website for additional applications
+information and documentation.
+
+2.    COPYRIGHT LICENSE
+
+Redistribution and use in source and binary forms, with or without modification,
+are permitted without payment of copyright license fees provided that you
+satisfy the following conditions:
+
+You must retain the complete text of this software license in redistributions of
+the FDK AAC Codec or your modifications thereto in source code form.
+
+You must retain the complete text of this software license in the documentation
+and/or other materials provided with redistributions of the FDK AAC Codec or
+your modifications thereto in binary form. You must make available free of
+charge copies of the complete source code of the FDK AAC Codec and your
+modifications thereto to recipients of copies in binary form.
+
+The name of Fraunhofer may not be used to endorse or promote products derived
+from this library without prior written permission.
+
+You may not charge copyright license fees for anyone to use, copy or distribute
+the FDK AAC Codec software or your modifications thereto.
+
+Your modified versions of the FDK AAC Codec must carry prominent notices stating
+that you changed the software and the date of any change. For modified versions
+of the FDK AAC Codec, the term "Fraunhofer FDK AAC Codec Library for Android"
+must be replaced by the term "Third-Party Modified Version of the Fraunhofer FDK
+AAC Codec Library for Android."
+
+3.    NO PATENT LICENSE
+
+NO EXPRESS OR IMPLIED LICENSES TO ANY PATENT CLAIMS, including without
+limitation the patents of Fraunhofer, ARE GRANTED BY THIS SOFTWARE LICENSE.
+Fraunhofer provides no warranty of patent non-infringement with respect to this
+software.
+
+You may use this FDK AAC Codec software or modifications thereto only for
+purposes that are authorized by appropriate patent licenses.
+
+4.    DISCLAIMER
+
+This FDK AAC Codec software is provided by Fraunhofer on behalf of the copyright
+holders and contributors "AS IS" and WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES,
+including but not limited to the implied warranties of merchantability and
+fitness for a particular purpose. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+CONTRIBUTORS BE LIABLE for any direct, indirect, incidental, special, exemplary,
+or consequential damages, including but not limited to procurement of substitute
+goods or services; loss of use, data, or profits, or business interruption,
+however caused and on any theory of liability, whether in contract, strict
+liability, or tort (including negligence), arising in any way out of the use of
+this software, even if advised of the possibility of such damage.
+
+5.    CONTACT INFORMATION
+
+Fraunhofer Institute for Integrated Circuits IIS
+Attention: Audio and Multimedia Departments - FDK AAC LL
+Am Wolfsmantel 33
+91058 Erlangen, Germany
+
+www.iis.fraunhofer.de/amm
+amm-info@iis.fraunhofer.de
+----------------------------------------------------------------------------- */
+
+Source paths: cpp/libAACdec/src/aac_rom.cpp, cpp/libAACdec/src/aacdec_hcr.h, cpp/libAACdec/src/aacdec_hcr_bit.cpp, cpp/libAACdec/src/aacdec_hcr_bit.h, cpp/libAACdec/src/aacdec_hcr_types.h, cpp/libAACdec/src/aacdec_hcrs.h, cpp/libAACdec/src/aacdec_pns.cpp, cpp/libAACdec/src/aacdec_pns.h, cpp/libAACdec/src/aacdec_tns.cpp, cpp/libAACdec/src/aacdec_tns.h, cpp/libAACdec/src/arm/block_arm.cpp, cpp/libAACdec/src/channel.h, cpp/libAACdec/src/channelinfo.cpp, cpp/libAACdec/src/channelinfo.h, cpp/libAACdec/src/overlapadd.h, cpp/libAACdec/src/pulsedata.cpp, cpp/libAACdec/src/pulsedata.h, cpp/libAACdec/src/rvlc.h, cpp/libAACdec/src/rvlc_info.h, cpp/libAACdec/src/rvlcbit.cpp, cpp/libAACdec/src/rvlcbit.h, cpp/libAACdec/src/rvlcconceal.cpp, cpp/libAACdec/src/rvlcconceal.h, cpp/libAACdec/src/stereo.h, cpp/libAACdec/src/usacdec_ace_d4t64.cpp, cpp/libAACdec/src/usacdec_ace_d4t64.h, cpp/libAACdec/src/usacdec_ace_ltp.cpp, cpp/libAACdec/src/usacdec_ace_ltp.h, cpp/libAACdec/src/usacdec_acelp.h, cpp/libAACdec/src/usacdec_const.h, cpp/libAACdec/src/usacdec_fac.h, cpp/libAACdec/src/usacdec_lpc.h, cpp/libAACdec/src/usacdec_rom.cpp, cpp/libAACdec/src/usacdec_rom.h, cpp/libAACenc/src/aacEnc_rom.cpp, cpp/libAACenc/src/aacEnc_rom.h, cpp/libAACenc/src/aacenc_pns.cpp, cpp/libAACenc/src/aacenc_pns.h, cpp/libAACenc/src/aacenc_tns.cpp, cpp/libAACenc/src/aacenc_tns.h, cpp/libAACenc/src/adj_thr.h, cpp/libAACenc/src/adj_thr_data.h, cpp/libAACenc/src/band_nrg.cpp, cpp/libAACenc/src/band_nrg.h, cpp/libAACenc/src/bandwidth.h, cpp/libAACenc/src/bit_cnt.cpp, cpp/libAACenc/src/bit_cnt.h, cpp/libAACenc/src/bitenc.cpp, cpp/libAACenc/src/bitenc.h, cpp/libAACenc/src/block_switch.cpp, cpp/libAACenc/src/block_switch.h, cpp/libAACenc/src/channel_map.cpp, cpp/libAACenc/src/channel_map.h, cpp/libAACenc/src/chaosmeasure.cpp, cpp/libAACenc/src/chaosmeasure.h, cpp/libAACenc/src/dyn_bits.cpp, cpp/libAACenc/src/dyn_bits.h, cpp/libAACenc/src/grp_data.cpp, cpp/libAACenc/src/grp_data.h, cpp/libAACenc/src/intensity.h, cpp/libAACenc/src/interface.h, cpp/libAACenc/src/line_pe.cpp, cpp/libAACenc/src/line_pe.h, cpp/libAACenc/src/metadata_compressor.cpp, cpp/libAACenc/src/metadata_compressor.h, cpp/libAACenc/src/metadata_main.cpp, cpp/libAACenc/src/metadata_main.h, cpp/libAACenc/src/mps_main.cpp, cpp/libAACenc/src/mps_main.h, cpp/libAACenc/src/ms_stereo.cpp, cpp/libAACenc/src/ms_stereo.h, cpp/libAACenc/src/noisedet.cpp, cpp/libAACenc/src/noisedet.h, cpp/libAACenc/src/pns_func.h, cpp/libAACenc/src/pnsparam.cpp, cpp/libAACenc/src/pnsparam.h, cpp/libAACenc/src/pre_echo_control.cpp, cpp/libAACenc/src/pre_echo_control.h, cpp/libAACenc/src/psy_configuration.cpp, cpp/libAACenc/src/psy_configuration.h, cpp/libAACenc/src/psy_const.h, cpp/libAACenc/src/psy_data.h, cpp/libAACenc/src/psy_main.cpp, cpp/libAACenc/src/psy_main.h, cpp/libAACenc/src/qc_data.h, cpp/libAACenc/src/qc_main.h, cpp/libAACenc/src/quantize.cpp, cpp/libAACenc/src/quantize.h, cpp/libAACenc/src/sf_estim.cpp, cpp/libAACenc/src/sf_estim.h, cpp/libAACenc/src/spreading.cpp, cpp/libAACenc/src/spreading.h, cpp/libAACenc/src/tns_func.h, cpp/libAACenc/src/tonality.cpp, cpp/libAACenc/src/tonality.h, cpp/libAACenc/src/transform.cpp, cpp/libAACenc/src/transform.h, cpp/libArithCoding/include/ac_arith_coder.h, cpp/libArithCoding/src/ac_arith_coder.cpp, cpp/libDRCdec/src/drcDec_reader.h, cpp/libDRCdec/src/drcDec_rom.cpp, cpp/libDRCdec/src/drcDec_rom.h, cpp/libDRCdec/src/drcDec_tools.cpp, cpp/libDRCdec/src/drcDec_tools.h, cpp/libDRCdec/src/drcDec_types.h, cpp/libDRCdec/src/drcDecoder.h, cpp/libDRCdec/src/drcGainDec_preprocess.h, cpp/libDRCdec/src/drcGainDec_process.cpp, cpp/libDRCdec/src/drcGainDec_process.h, cpp/libFDK/include/FDK_archdef.h, cpp/libFDK/include/FDK_bitbuffer.h, cpp/libFDK/include/FDK_bitstream.h, cpp/libFDK/include/FDK_core.h, cpp/libFDK/include/FDK_crc.h, cpp/libFDK/include/FDK_decorrelate.h, cpp/libFDK/include/FDK_hybrid.h, cpp/libFDK/include/FDK_lpc.h, cpp/libFDK/include/FDK_matrixCalloc.h, cpp/libFDK/include/FDK_tools_rom.h, cpp/libFDK/include/FDK_trigFcts.h, cpp/libFDK/include/abs.h, cpp/libFDK/include/arm/clz_arm.h, cpp/libFDK/include/arm/cplx_mul_arm.h, cpp/libFDK/include/arm/fixmadd_arm.h, cpp/libFDK/include/arm/fixmul_arm.h, cpp/libFDK/include/arm/scale_arm.h, cpp/libFDK/include/arm/scramble_arm.h, cpp/libFDK/include/autocorr2nd.h, cpp/libFDK/include/clz.h, cpp/libFDK/include/common_fix.h, cpp/libFDK/include/cplx_mul.h, cpp/libFDK/include/dct.h, cpp/libFDK/include/fft.h, cpp/libFDK/include/fft_rad2.h, cpp/libFDK/include/fixmadd.h, cpp/libFDK/include/fixminmax.h, cpp/libFDK/include/fixmul.h, cpp/libFDK/include/huff_nodes.h, cpp/libFDK/include/mips/abs_mips.h, cpp/libFDK/include/mips/clz_mips.h, cpp/libFDK/include/mips/cplx_mul_mips.h, cpp/libFDK/include/mips/fixmul_mips.h, cpp/libFDK/include/mips/scale_mips.h, cpp/libFDK/include/mips/scramble_mips.h, cpp/libFDK/include/scramble.h, cpp/libFDK/include/x86/abs_x86.h, cpp/libFDK/include/x86/clz_x86.h, cpp/libFDK/include/x86/fixmul_x86.h, cpp/libFDK/include/x86/fixpoint_math_x86.h, cpp/libFDK/src/FDK_crc.cpp, cpp/libFDK/src/FDK_lpc.cpp, cpp/libFDK/src/FDK_matrixCalloc.cpp, cpp/libFDK/src/FDK_tools_rom.cpp, cpp/libFDK/src/FDK_trigFcts.cpp, cpp/libFDK/src/arm/fft_rad2_arm.cpp, cpp/libFDK/src/arm/scale_arm.cpp, cpp/libFDK/src/fft.cpp, cpp/libFDK/src/fft_rad2.cpp, cpp/libFDK/src/huff_nodes.cpp, cpp/libFDK/src/mips/fft_rad2_mips.cpp, cpp/libFDK/src/mips/mips_fft_twiddles.cpp, cpp/libFDK/src/mips/scale_mips.cpp, cpp/libMpegTPDec/include/tpdec_lib.h, cpp/libMpegTPDec/src/tp_version.h, cpp/libMpegTPDec/src/tpdec_adif.cpp, cpp/libMpegTPDec/src/tpdec_adif.h, cpp/libMpegTPDec/src/tpdec_adts.h, cpp/libMpegTPDec/src/tpdec_drm.cpp, cpp/libMpegTPDec/src/tpdec_drm.h, cpp/libMpegTPEnc/include/tpenc_lib.h, cpp/libMpegTPEnc/src/tp_version.h, cpp/libMpegTPEnc/src/tpenc_adif.cpp, cpp/libMpegTPEnc/src/tpenc_adif.h, cpp/libMpegTPEnc/src/tpenc_adts.cpp, cpp/libMpegTPEnc/src/tpenc_adts.h, cpp/libMpegTPEnc/src/tpenc_asc.h, cpp/libMpegTPEnc/src/tpenc_latm.cpp, cpp/libMpegTPEnc/src/tpenc_latm.h, cpp/libMpegTPEnc/src/tpenc_lib.cpp, cpp/libPCMutils/include/pcm_utils.h, cpp/libPCMutils/include/pcmdmx_lib.h, cpp/libPCMutils/src/pcm_utils.cpp, cpp/libSACdec/include/sac_dec_errorcodes.h, cpp/libSACdec/src/sac_bitdec.h, cpp/libSACdec/src/sac_dec_conceal.cpp, cpp/libSACdec/src/sac_dec_conceal.h, cpp/libSACdec/src/sac_dec_ssc_struct.h, cpp/libSACdec/src/sac_process.h, cpp/libSACdec/src/sac_reshapeBBEnv.h, cpp/libSACdec/src/sac_smoothing.cpp, cpp/libSACdec/src/sac_smoothing.h, cpp/libSACdec/src/sac_stp.h, cpp/libSACdec/src/sac_tsd.h, cpp/libSACenc/include/sacenc_lib.h, cpp/libSACenc/src/sacenc_bitstream.cpp, cpp/libSACenc/src/sacenc_bitstream.h, cpp/libSACenc/src/sacenc_const.h, cpp/libSACenc/src/sacenc_delay.cpp, cpp/libSACenc/src/sacenc_delay.h, cpp/libSACenc/src/sacenc_dmx_tdom_enh.cpp, cpp/libSACenc/src/sacenc_dmx_tdom_enh.h, cpp/libSACenc/src/sacenc_filter.cpp, cpp/libSACenc/src/sacenc_filter.h, cpp/libSACenc/src/sacenc_framewindowing.cpp, cpp/libSACenc/src/sacenc_framewindowing.h, cpp/libSACenc/src/sacenc_huff_tab.cpp, cpp/libSACenc/src/sacenc_huff_tab.h, cpp/libSACenc/src/sacenc_lib.cpp, cpp/libSACenc/src/sacenc_nlc_enc.cpp, cpp/libSACenc/src/sacenc_nlc_enc.h, cpp/libSACenc/src/sacenc_onsetdetect.cpp, cpp/libSACenc/src/sacenc_onsetdetect.h, cpp/libSACenc/src/sacenc_paramextract.cpp, cpp/libSACenc/src/sacenc_paramextract.h, cpp/libSACenc/src/sacenc_staticgain.cpp, cpp/libSACenc/src/sacenc_staticgain.h, cpp/libSACenc/src/sacenc_tree.cpp, cpp/libSACenc/src/sacenc_tree.h, cpp/libSACenc/src/sacenc_vectorfunctions.cpp, cpp/libSACenc/src/sacenc_vectorfunctions.h, cpp/libSBRdec/src/HFgen_preFlat.h, cpp/libSBRdec/src/env_calc.h, cpp/libSBRdec/src/env_dec.cpp, cpp/libSBRdec/src/env_dec.h, cpp/libSBRdec/src/env_extr.cpp, cpp/libSBRdec/src/env_extr.h, cpp/libSBRdec/src/huff_dec.cpp, cpp/libSBRdec/src/huff_dec.h, cpp/libSBRdec/src/psbitdec.cpp, cpp/libSBRdec/src/psbitdec.h, cpp/libSBRdec/src/psdec.cpp, cpp/libSBRdec/src/psdec.h, cpp/libSBRdec/src/psdec_drm.cpp, cpp/libSBRdec/src/psdec_drm.h, cpp/libSBRdec/src/psdecrom_drm.cpp, cpp/libSBRdec/src/pvc_dec.h, cpp/libSBRdec/src/sbr_deb.cpp, cpp/libSBRdec/src/sbr_deb.h, cpp/libSBRdec/src/sbr_rom.h, cpp/libSBRdec/src/sbrdec_drc.h, cpp/libSBRdec/src/sbrdec_freq_sca.h, cpp/libSBRdec/src/transcendent.h, cpp/libSBRenc/include/sbr_encoder.h, cpp/libSBRenc/src/bit_sbr.cpp, cpp/libSBRenc/src/bit_sbr.h, cpp/libSBRenc/src/cmondata.h, cpp/libSBRenc/src/code_env.cpp, cpp/libSBRenc/src/code_env.h, cpp/libSBRenc/src/env_bit.cpp, cpp/libSBRenc/src/env_bit.h, cpp/libSBRenc/src/env_est.h, cpp/libSBRenc/src/fram_gen.cpp, cpp/libSBRenc/src/fram_gen.h, cpp/libSBRenc/src/invf_est.cpp, cpp/libSBRenc/src/invf_est.h, cpp/libSBRenc/src/mh_det.cpp, cpp/libSBRenc/src/mh_det.h, cpp/libSBRenc/src/nf_est.cpp, cpp/libSBRenc/src/nf_est.h, cpp/libSBRenc/src/ps_bitenc.cpp, cpp/libSBRenc/src/ps_bitenc.h, cpp/libSBRenc/src/ps_const.h, cpp/libSBRenc/src/ps_encode.cpp, cpp/libSBRenc/src/ps_encode.h, cpp/libSBRenc/src/ps_main.cpp, cpp/libSBRenc/src/ps_main.h, cpp/libSBRenc/src/resampler.cpp, cpp/libSBRenc/src/resampler.h, cpp/libSBRenc/src/sbr.h, cpp/libSBRenc/src/sbr_def.h, cpp/libSBRenc/src/sbr_misc.cpp, cpp/libSBRenc/src/sbr_misc.h, cpp/libSBRenc/src/sbrenc_freq_sca.cpp, cpp/libSBRenc/src/sbrenc_freq_sca.h, cpp/libSBRenc/src/sbrenc_ram.cpp, cpp/libSBRenc/src/sbrenc_ram.h, cpp/libSBRenc/src/sbrenc_rom.cpp, cpp/libSBRenc/src/sbrenc_rom.h, cpp/libSBRenc/src/ton_corr.cpp, cpp/libSBRenc/src/ton_corr.h, cpp/libSBRenc/src/tran_det.cpp, cpp/libSBRenc/src/tran_det.h, cpp/libSYS/include/FDK_audio.h, cpp/libSYS/include/genericStds.h, cpp/libSYS/include/machine_type.h, cpp/libSYS/include/syslib_channelMapDescr.h, cpp/libSYS/src/genericStds.cpp, cpp/libSYS/src/syslib_channelMapDescr.cpp
+/* -----------------------------------------------------------------------------
+Software License for The Fraunhofer FDK AAC Codec Library for Android
+
+© Copyright  1995 - 2018 Fraunhofer-Gesellschaft zur Förderung der angewandten
+Forschung e.V. All rights reserved.
+
+ 1.    INTRODUCTION
+The Fraunhofer FDK AAC Codec Library for Android ("FDK AAC Codec") is software
+that implements the MPEG Advanced Audio Coding ("AAC") encoding and decoding
+scheme for digital audio. This FDK AAC Codec software is intended to be used on
+a wide variety of Android devices.
+
+AAC's HE-AAC and HE-AAC v2 versions are regarded as today's most efficient
+general perceptual audio codecs. AAC-ELD is considered the best-performing
+full-bandwidth communications codec by independent studies and is widely
+deployed. AAC has been standardized by ISO and IEC as part of the MPEG
+specifications.
+
+Patent licenses for necessary patent claims for the FDK AAC Codec (including
+those of Fraunhofer) may be obtained through Via Licensing
+(www.vialicensing.com) or through the respective patent owners individually for
+the purpose of encoding or decoding bit streams in products that are compliant
+with the ISO/IEC MPEG audio standards. Please note that most manufacturers of
+Android devices already license these patent claims through Via Licensing or
+directly from the patent owners, and therefore FDK AAC Codec software may
+already be covered under those patent licenses when it is used for those
+licensed purposes only.
+
+Commercially-licensed AAC software libraries, including floating-point versions
+with enhanced sound quality, are also available from Fraunhofer. Users are
+encouraged to check the Fraunhofer website for additional applications
+information and documentation.
+
+2.    COPYRIGHT LICENSE
+
+Redistribution and use in source and binary forms, with or without modification,
+are permitted without payment of copyright license fees provided that you
+satisfy the following conditions:
+
+You must retain the complete text of this software license in redistributions of
+the FDK AAC Codec or your modifications thereto in source code form.
+
+You must retain the complete text of this software license in the documentation
+and/or other materials provided with redistributions of the FDK AAC Codec or
+your modifications thereto in binary form. You must make available free of
+charge copies of the complete source code of the FDK AAC Codec and your
+modifications thereto to recipients of copies in binary form.
+
+The name of Fraunhofer may not be used to endorse or promote products derived
+from this library without prior written permission.
+
+You may not charge copyright license fees for anyone to use, copy or distribute
+the FDK AAC Codec software or your modifications thereto.
+
+Your modified versions of the FDK AAC Codec must carry prominent notices stating
+that you changed the software and the date of any change. For modified versions
+of the FDK AAC Codec, the term "Fraunhofer FDK AAC Codec Library for Android"
+must be replaced by the term "Third-Party Modified Version of the Fraunhofer FDK
+AAC Codec Library for Android."
+
+3.    NO PATENT LICENSE
+
+NO EXPRESS OR IMPLIED LICENSES TO ANY PATENT CLAIMS, including without
+limitation the patents of Fraunhofer, ARE GRANTED BY THIS SOFTWARE LICENSE.
+Fraunhofer provides no warranty of patent non-infringement with respect to this
+software.
+
+You may use this FDK AAC Codec software or modifications thereto only for
+purposes that are authorized by appropriate patent licenses.
+
+4.    DISCLAIMER
+
+This FDK AAC Codec software is provided by Fraunhofer on behalf of the copyright
+holders and contributors "AS IS" and WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES,
+including but not limited to the implied warranties of merchantability and
+fitness for a particular purpose. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+CONTRIBUTORS BE LIABLE for any direct, indirect, incidental, special, exemplary,
+or consequential damages, including but not limited to procurement of substitute
+goods or services; loss of use, data, or profits, or business interruption,
+however caused and on any theory of liability, whether in contract, strict
+liability, or tort (including negligence), arising in any way out of the use of
+this software, even if advised of the possibility of such damage.
+
+5.    CONTACT INFORMATION
+
+Fraunhofer Institute for Integrated Circuits IIS
+Attention: Audio and Multimedia Departments - FDK AAC LL
+Am Wolfsmantel 33
+91058 Erlangen, Germany
+
+www.iis.fraunhofer.de/amm
+amm-info@iis.fraunhofer.de
+----------------------------------------------------------------------------- */
+
+Source paths: cpp/libAACdec/src/aacdec_drc.cpp, cpp/libAACdec/src/aacdec_drc.h, cpp/libAACdec/src/aacdec_drc_types.h, cpp/libAACdec/src/aacdecoder.cpp, cpp/libAACdec/src/aacdecoder_lib.cpp, cpp/libSBRdec/src/lpp_tran.h
+/* -----------------------------------------------------------------------------
+Software License for The Fraunhofer FDK AAC Codec Library for Android
+
+© Copyright  1995 - 2023 Fraunhofer-Gesellschaft zur Förderung der angewandten
+Forschung e.V. All rights reserved.
+
+ 1.    INTRODUCTION
+The Fraunhofer FDK AAC Codec Library for Android ("FDK AAC Codec") is software
+that implements the MPEG Advanced Audio Coding ("AAC") encoding and decoding
+scheme for digital audio. This FDK AAC Codec software is intended to be used on
+a wide variety of Android devices.
+
+AAC's HE-AAC and HE-AAC v2 versions are regarded as today's most efficient
+general perceptual audio codecs. AAC-ELD is considered the best-performing
+full-bandwidth communications codec by independent studies and is widely
+deployed. AAC has been standardized by ISO and IEC as part of the MPEG
+specifications.
+
+Patent licenses for necessary patent claims for the FDK AAC Codec (including
+those of Fraunhofer) may be obtained through Via Licensing
+(www.vialicensing.com) or through the respective patent owners individually for
+the purpose of encoding or decoding bit streams in products that are compliant
+with the ISO/IEC MPEG audio standards. Please note that most manufacturers of
+Android devices already license these patent claims through Via Licensing or
+directly from the patent owners, and therefore FDK AAC Codec software may
+already be covered under those patent licenses when it is used for those
+licensed purposes only.
+
+Commercially-licensed AAC software libraries, including floating-point versions
+with enhanced sound quality, are also available from Fraunhofer. Users are
+encouraged to check the Fraunhofer website for additional applications
+information and documentation.
+
+2.    COPYRIGHT LICENSE
+
+Redistribution and use in source and binary forms, with or without modification,
+are permitted without payment of copyright license fees provided that you
+satisfy the following conditions:
+
+You must retain the complete text of this software license in redistributions of
+the FDK AAC Codec or your modifications thereto in source code form.
+
+You must retain the complete text of this software license in the documentation
+and/or other materials provided with redistributions of the FDK AAC Codec or
+your modifications thereto in binary form. You must make available free of
+charge copies of the complete source code of the FDK AAC Codec and your
+modifications thereto to recipients of copies in binary form.
+
+The name of Fraunhofer may not be used to endorse or promote products derived
+from this library without prior written permission.
+
+You may not charge copyright license fees for anyone to use, copy or distribute
+the FDK AAC Codec software or your modifications thereto.
+
+Your modified versions of the FDK AAC Codec must carry prominent notices stating
+that you changed the software and the date of any change. For modified versions
+of the FDK AAC Codec, the term "Fraunhofer FDK AAC Codec Library for Android"
+must be replaced by the term "Third-Party Modified Version of the Fraunhofer FDK
+AAC Codec Library for Android."
+
+3.    NO PATENT LICENSE
+
+NO EXPRESS OR IMPLIED LICENSES TO ANY PATENT CLAIMS, including without
+limitation the patents of Fraunhofer, ARE GRANTED BY THIS SOFTWARE LICENSE.
+Fraunhofer provides no warranty of patent non-infringement with respect to this
+software.
+
+You may use this FDK AAC Codec software or modifications thereto only for
+purposes that are authorized by appropriate patent licenses.
+
+4.    DISCLAIMER
+
+This FDK AAC Codec software is provided by Fraunhofer on behalf of the copyright
+holders and contributors "AS IS" and WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES,
+including but not limited to the implied warranties of merchantability and
+fitness for a particular purpose. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+CONTRIBUTORS BE LIABLE for any direct, indirect, incidental, special, exemplary,
+or consequential damages, including but not limited to procurement of substitute
+goods or services; loss of use, data, or profits, or business interruption,
+however caused and on any theory of liability, whether in contract, strict
+liability, or tort (including negligence), arising in any way out of the use of
+this software, even if advised of the possibility of such damage.
+
+5.    CONTACT INFORMATION
+
+Fraunhofer Institute for Integrated Circuits IIS
+Attention: Audio and Multimedia Departments - FDK AAC LL
+Am Wolfsmantel 33
+91058 Erlangen, Germany
+
+www.iis.fraunhofer.de/amm
+amm-info@iis.fraunhofer.de
+----------------------------------------------------------------------------- */
+
+Source paths: cpp/libAACdec/src/rvlc.cpp, cpp/libAACenc/include/aacenc_lib.h, cpp/libAACenc/src/aacenc_lib.cpp, cpp/libMpegTPDec/src/tpdec_latm.cpp, cpp/libMpegTPDec/src/tpdec_latm.h, cpp/libPCMutils/src/pcmdmx_lib.cpp, cpp/libSACdec/src/sac_process.cpp, cpp/libSACdec/src/sac_reshapeBBEnv.cpp, cpp/libSACdec/src/sac_stp.cpp, cpp/libSBRdec/src/env_calc.cpp, cpp/libSBRdec/src/hbe.cpp, cpp/libSBRdec/src/lpp_tran.cpp, cpp/libSBRdec/src/sbrdec_freq_sca.cpp, cpp/libSBRdec/src/sbrdecoder.cpp
+/* -----------------------------------------------------------------------------
+Software License for The Fraunhofer FDK AAC Codec Library for Android
+
+© Copyright  1995 - 2021 Fraunhofer-Gesellschaft zur Förderung der angewandten
+Forschung e.V. All rights reserved.
+
+ 1.    INTRODUCTION
+The Fraunhofer FDK AAC Codec Library for Android ("FDK AAC Codec") is software
+that implements the MPEG Advanced Audio Coding ("AAC") encoding and decoding
+scheme for digital audio. This FDK AAC Codec software is intended to be used on
+a wide variety of Android devices.
+
+AAC's HE-AAC and HE-AAC v2 versions are regarded as today's most efficient
+general perceptual audio codecs. AAC-ELD is considered the best-performing
+full-bandwidth communications codec by independent studies and is widely
+deployed. AAC has been standardized by ISO and IEC as part of the MPEG
+specifications.
+
+Patent licenses for necessary patent claims for the FDK AAC Codec (including
+those of Fraunhofer) may be obtained through Via Licensing
+(www.vialicensing.com) or through the respective patent owners individually for
+the purpose of encoding or decoding bit streams in products that are compliant
+with the ISO/IEC MPEG audio standards. Please note that most manufacturers of
+Android devices already license these patent claims through Via Licensing or
+directly from the patent owners, and therefore FDK AAC Codec software may
+already be covered under those patent licenses when it is used for those
+licensed purposes only.
+
+Commercially-licensed AAC software libraries, including floating-point versions
+with enhanced sound quality, are also available from Fraunhofer. Users are
+encouraged to check the Fraunhofer website for additional applications
+information and documentation.
+
+2.    COPYRIGHT LICENSE
+
+Redistribution and use in source and binary forms, with or without modification,
+are permitted without payment of copyright license fees provided that you
+satisfy the following conditions:
+
+You must retain the complete text of this software license in redistributions of
+the FDK AAC Codec or your modifications thereto in source code form.
+
+You must retain the complete text of this software license in the documentation
+and/or other materials provided with redistributions of the FDK AAC Codec or
+your modifications thereto in binary form. You must make available free of
+charge copies of the complete source code of the FDK AAC Codec and your
+modifications thereto to recipients of copies in binary form.
+
+The name of Fraunhofer may not be used to endorse or promote products derived
+from this library without prior written permission.
+
+You may not charge copyright license fees for anyone to use, copy or distribute
+the FDK AAC Codec software or your modifications thereto.
+
+Your modified versions of the FDK AAC Codec must carry prominent notices stating
+that you changed the software and the date of any change. For modified versions
+of the FDK AAC Codec, the term "Fraunhofer FDK AAC Codec Library for Android"
+must be replaced by the term "Third-Party Modified Version of the Fraunhofer FDK
+AAC Codec Library for Android."
+
+3.    NO PATENT LICENSE
+
+NO EXPRESS OR IMPLIED LICENSES TO ANY PATENT CLAIMS, including without
+limitation the patents of Fraunhofer, ARE GRANTED BY THIS SOFTWARE LICENSE.
+Fraunhofer provides no warranty of patent non-infringement with respect to this
+software.
+
+You may use this FDK AAC Codec software or modifications thereto only for
+purposes that are authorized by appropriate patent licenses.
+
+4.    DISCLAIMER
+
+This FDK AAC Codec software is provided by Fraunhofer on behalf of the copyright
+holders and contributors "AS IS" and WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES,
+including but not limited to the implied warranties of merchantability and
+fitness for a particular purpose. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+CONTRIBUTORS BE LIABLE for any direct, indirect, incidental, special, exemplary,
+or consequential damages, including but not limited to procurement of substitute
+goods or services; loss of use, data, or profits, or business interruption,
+however caused and on any theory of liability, whether in contract, strict
+liability, or tort (including negligence), arising in any way out of the use of
+this software, even if advised of the possibility of such damage.
+
+5.    CONTACT INFORMATION
+
+Fraunhofer Institute for Integrated Circuits IIS
+Attention: Audio and Multimedia Departments - FDK AAC LL
+Am Wolfsmantel 33
+91058 Erlangen, Germany
+
+www.iis.fraunhofer.de/amm
+amm-info@iis.fraunhofer.de
+----------------------------------------------------------------------------- */
+
+Source paths: cpp/libFDK/include/ppc/clz_ppc.h, cpp/libFDK/include/ppc/fixmul_ppc.h
+/* -----------------------------------------------------------------------------------------------------------
+Software License for The Fraunhofer FDK AAC Codec Library for Android
+
+� Copyright  1995 - 2013 Fraunhofer-Gesellschaft zur F�rderung der angewandten Forschung e.V.
+  All rights reserved.
+
+ 1.    INTRODUCTION
+The Fraunhofer FDK AAC Codec Library for Android ("FDK AAC Codec") is software that implements
+the MPEG Advanced Audio Coding ("AAC") encoding and decoding scheme for digital audio.
+This FDK AAC Codec software is intended to be used on a wide variety of Android devices.
+
+AAC's HE-AAC and HE-AAC v2 versions are regarded as today's most efficient general perceptual
+audio codecs. AAC-ELD is considered the best-performing full-bandwidth communications codec by
+independent studies and is widely deployed. AAC has been standardized by ISO and IEC as part
+of the MPEG specifications.
+
+Patent licenses for necessary patent claims for the FDK AAC Codec (including those of Fraunhofer)
+may be obtained through Via Licensing (www.vialicensing.com) or through the respective patent owners
+individually for the purpose of encoding or decoding bit streams in products that are compliant with
+the ISO/IEC MPEG audio standards. Please note that most manufacturers of Android devices already license
+these patent claims through Via Licensing or directly from the patent owners, and therefore FDK AAC Codec
+software may already be covered under those patent licenses when it is used for those licensed purposes only.
+
+Commercially-licensed AAC software libraries, including floating-point versions with enhanced sound quality,
+are also available from Fraunhofer. Users are encouraged to check the Fraunhofer website for additional
+applications information and documentation.
+
+2.    COPYRIGHT LICENSE
+
+Redistribution and use in source and binary forms, with or without modification, are permitted without
+payment of copyright license fees provided that you satisfy the following conditions:
+
+You must retain the complete text of this software license in redistributions of the FDK AAC Codec or
+your modifications thereto in source code form.
+
+You must retain the complete text of this software license in the documentation and/or other materials
+provided with redistributions of the FDK AAC Codec or your modifications thereto in binary form.
+You must make available free of charge copies of the complete source code of the FDK AAC Codec and your
+modifications thereto to recipients of copies in binary form.
+
+The name of Fraunhofer may not be used to endorse or promote products derived from this library without
+prior written permission.
+
+You may not charge copyright license fees for anyone to use, copy or distribute the FDK AAC Codec
+software or your modifications thereto.
+
+Your modified versions of the FDK AAC Codec must carry prominent notices stating that you changed the software
+and the date of any change. For modified versions of the FDK AAC Codec, the term
+"Fraunhofer FDK AAC Codec Library for Android" must be replaced by the term
+"Third-Party Modified Version of the Fraunhofer FDK AAC Codec Library for Android."
+
+3.    NO PATENT LICENSE
+
+NO EXPRESS OR IMPLIED LICENSES TO ANY PATENT CLAIMS, including without limitation the patents of Fraunhofer,
+ARE GRANTED BY THIS SOFTWARE LICENSE. Fraunhofer provides no warranty of patent non-infringement with
+respect to this software.
+
+You may use this FDK AAC Codec software or modifications thereto only for purposes that are authorized
+by appropriate patent licenses.
+
+4.    DISCLAIMER
+
+This FDK AAC Codec software is provided by Fraunhofer on behalf of the copyright holders and contributors
+"AS IS" and WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES, including but not limited to the implied warranties
+of merchantability and fitness for a particular purpose. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+CONTRIBUTORS BE LIABLE for any direct, indirect, incidental, special, exemplary, or consequential damages,
+including but not limited to procurement of substitute goods or services; loss of use, data, or profits,
+or business interruption, however caused and on any theory of liability, whether in contract, strict
+liability, or tort (including negligence), arising in any way out of the use of this software, even if
+advised of the possibility of such damage.
+
+5.    CONTACT INFORMATION
+
+Fraunhofer Institute for Integrated Circuits IIS
+Attention: Audio and Multimedia Departments - FDK AAC LL
+Am Wolfsmantel 33
+91058 Erlangen, Germany
+
+www.iis.fraunhofer.de/amm
+amm-info@iis.fraunhofer.de
+----------------------------------------------------------------------------------------------------------- */
+
+Source paths: cpp/libMpegTPDec/src/tpdec_lib.cpp
+/* -----------------------------------------------------------------------------
+Software License for The Fraunhofer FDK AAC Codec Library for Android
+
+© Copyright  1995 - 2022 Fraunhofer-Gesellschaft zur Förderung der angewandten
+Forschung e.V. All rights reserved.
+
+ 1.    INTRODUCTION
+The Fraunhofer FDK AAC Codec Library for Android ("FDK AAC Codec") is software
+that implements the MPEG Advanced Audio Coding ("AAC") encoding and decoding
+scheme for digital audio. This FDK AAC Codec software is intended to be used on
+a wide variety of Android devices.
+
+AAC's HE-AAC and HE-AAC v2 versions are regarded as today's most efficient
+general perceptual audio codecs. AAC-ELD is considered the best-performing
+full-bandwidth communications codec by independent studies and is widely
+deployed. AAC has been standardized by ISO and IEC as part of the MPEG
+specifications.
+
+Patent licenses for necessary patent claims for the FDK AAC Codec (including
+those of Fraunhofer) may be obtained through Via Licensing
+(www.vialicensing.com) or through the respective patent owners individually for
+the purpose of encoding or decoding bit streams in products that are compliant
+with the ISO/IEC MPEG audio standards. Please note that most manufacturers of
+Android devices already license these patent claims through Via Licensing or
+directly from the patent owners, and therefore FDK AAC Codec software may
+already be covered under those patent licenses when it is used for those
+licensed purposes only.
+
+Commercially-licensed AAC software libraries, including floating-point versions
+with enhanced sound quality, are also available from Fraunhofer. Users are
+encouraged to check the Fraunhofer website for additional applications
+information and documentation.
+
+2.    COPYRIGHT LICENSE
+
+Redistribution and use in source and binary forms, with or without modification,
+are permitted without payment of copyright license fees provided that you
+satisfy the following conditions:
+
+You must retain the complete text of this software license in redistributions of
+the FDK AAC Codec or your modifications thereto in source code form.
+
+You must retain the complete text of this software license in the documentation
+and/or other materials provided with redistributions of the FDK AAC Codec or
+your modifications thereto in binary form. You must make available free of
+charge copies of the complete source code of the FDK AAC Codec and your
+modifications thereto to recipients of copies in binary form.
+
+The name of Fraunhofer may not be used to endorse or promote products derived
+from this library without prior written permission.
+
+You may not charge copyright license fees for anyone to use, copy or distribute
+the FDK AAC Codec software or your modifications thereto.
+
+Your modified versions of the FDK AAC Codec must carry prominent notices stating
+that you changed the software and the date of any change. For modified versions
+of the FDK AAC Codec, the term "Fraunhofer FDK AAC Codec Library for Android"
+must be replaced by the term "Third-Party Modified Version of the Fraunhofer FDK
+AAC Codec Library for Android."
+
+3.    NO PATENT LICENSE
+
+NO EXPRESS OR IMPLIED LICENSES TO ANY PATENT CLAIMS, including without
+limitation the patents of Fraunhofer, ARE GRANTED BY THIS SOFTWARE LICENSE.
+Fraunhofer provides no warranty of patent non-infringement with respect to this
+software.
+
+You may use this FDK AAC Codec software or modifications thereto only for
+purposes that are authorized by appropriate patent licenses.
+
+4.    DISCLAIMER
+
+This FDK AAC Codec software is provided by Fraunhofer on behalf of the copyright
+holders and contributors "AS IS" and WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES,
+including but not limited to the implied warranties of merchantability and
+fitness for a particular purpose. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+CONTRIBUTORS BE LIABLE for any direct, indirect, incidental, special, exemplary,
+or consequential damages, including but not limited to procurement of substitute
+goods or services; loss of use, data, or profits, or business interruption,
+however caused and on any theory of liability, whether in contract, strict
+liability, or tort (including negligence), arising in any way out of the use of
+this software, even if advised of the possibility of such damage.
+
+5.    CONTACT INFORMATION
+
+Fraunhofer Institute for Integrated Circuits IIS
+Attention: Audio and Multimedia Departments - FDK AAC LL
+Am Wolfsmantel 33
+91058 Erlangen, Germany
+
+www.iis.fraunhofer.de/amm
+amm-info@iis.fraunhofer.de
+----------------------------------------------------------------------------- */
+
+Source paths: rust/ffi/include/aac_api_types.h, rust/ffi/include/aacdec_errorcodes.h, rust/ffi/include/aacdec_info.h, rust/ffi/include/aacdecoder_lib.h, rust/ffi/src/aac_dec.rs, rust/ffi/src/aac_dec/error_codes.rs, rust/ffi/src/aac_dec/output_info.rs, rust/ffi/src/aac_dec/params.rs, rust/ffi/src/lib.rs, rust/framework/src/bin/decoder.rs, rust/src/aac_dec.rs, rust/src/aac_dec/aacdecoder.rs, rust/src/aac_dec/ancillary_data.rs, rust/src/aac_dec/block.rs, rust/src/aac_dec/callbacks.rs, rust/src/aac_dec/channel.rs, rust/src/aac_dec/channel_info.rs, rust/src/aac_dec/conceal.rs, rust/src/aac_dec/conceal/conceal_constants.rs, rust/src/aac_dec/conceal/conceal_data.rs, rust/src/aac_dec/conceal/conceal_info.rs, rust/src/aac_dec/conceal/conceal_params.rs, rust/src/aac_dec/config.rs, rust/src/aac_dec/constants.rs, rust/src/aac_dec/drc.rs, rust/src/aac_dec/error_codes.rs, rust/src/aac_dec/ext_data.rs, rust/src/aac_dec/hcr.rs, rust/src/aac_dec/hcr/hcr_constants.rs, rust/src/aac_dec/hcr/hcr_data.rs, rust/src/aac_dec/hcr/hcr_info.rs, rust/src/aac_dec/hcr/hcr_non_pcw_sideinfo.rs, rust/src/aac_dec/hcr/hcr_utils.rs, rust/src/aac_dec/huff_dec.rs, rust/src/aac_dec/intensity.rs, rust/src/aac_dec/interleaver.rs, rust/src/aac_dec/inverse_quantization.rs, rust/src/aac_dec/ipf.rs, rust/src/aac_dec/lpd.rs, rust/src/aac_dec/lpd/acelp.rs, rust/src/aac_dec/lpd/bass_postfilter.rs, rust/src/aac_dec/lpd/common.rs, rust/src/aac_dec/lpd/constants.rs, rust/src/aac_dec/lpd/fac.rs, rust/src/aac_dec/lpd/lpc.rs, rust/src/aac_dec/lpd/lpc_tables.rs, rust/src/aac_dec/lpd/tcx.rs, rust/src/aac_dec/ms_stereo.rs, rust/src/aac_dec/noise_filling.rs, rust/src/aac_dec/output_info.rs, rust/src/aac_dec/params.rs, rust/src/aac_dec/pns.rs, rust/src/aac_dec/process.rs, rust/src/aac_dec/pulse_data.rs, rust/src/aac_dec/rvlc.rs, rust/src/aac_dec/rvlc/rvlc_concealment.rs, rust/src/aac_dec/rvlc/rvlc_constants.rs, rust/src/aac_dec/rvlc/rvlc_data.rs, rust/src/aac_dec/rvlc/rvlc_info.rs, rust/src/aac_dec/signal_delay.rs, rust/src/aac_dec/sr_info.rs, rust/src/aac_dec/tns.rs, rust/src/aac_dec/utils.rs, rust/src/arith_coding.rs, rust/src/arith_coding/arith_dec.rs, rust/src/arith_coding/arith_tables.rs, rust/src/common.rs, rust/src/common/aot.rs, rust/src/common/arith_ops.rs, rust/src/common/audio_channel_type.rs, rust/src/common/autocorr2nd.rs, rust/src/common/bitbuffer.rs, rust/src/common/bitstream.rs, rust/src/common/bs_element_id.rs, rust/src/common/bs_syntax.rs, rust/src/common/channel_config.rs, rust/src/common/channel_map_descr.rs, rust/src/common/channel_order.rs, rust/src/common/checked_cast.rs, rust/src/common/crc.rs, rust/src/common/dct.rs, rust/src/common/decorrelator.rs, rust/src/common/decorrelator/decorr_common.rs, rust/src/common/decorrelator/decorr_constants.rs, rust/src/common/decorrelator/decorr_dec.rs, rust/src/common/decorrelator/decorr_filter.rs, rust/src/common/decorrelator/decorr_tables.rs, rust/src/common/decorrelator/ducker.rs, rust/src/common/enums.rs, rust/src/common/fft.rs, rust/src/common/fft/dit_fft.rs, rust/src/common/fft/fft_n2.rs, rust/src/common/fft/fft_tables.rs, rust/src/common/flags.rs, rust/src/common/hybrid.rs, rust/src/common/ld_filter_bank.rs, rust/src/common/lpc.rs, rust/src/common/mdct.rs, rust/src/common/mpeg_id.rs, rust/src/common/pow.rs, rust/src/common/qmf.rs, rust/src/common/qmf/qmf_fb.rs, rust/src/common/qmf/qmf_tables.rs, rust/src/common/qmf_domain.rs, rust/src/common/quantize.rs, rust/src/common/samplerate_index.rs, rust/src/common/tables.rs, rust/src/common/tables/channel_map_descriptors.rs, rust/src/common/tables/ld_filter_bank_tables.rs, rust/src/common/tables/pow_4_over_3.rs, rust/src/common/tables/sine_tables.rs, rust/src/common/tables/window_tables.rs, rust/src/common/transport_type.rs, rust/src/drc_dec.rs, rust/src/drc_dec/common.rs, rust/src/drc_dec/constants.rs, rust/src/drc_dec/drc_api.rs, rust/src/drc_dec/drc_error.rs, rust/src/drc_dec/functional_range.rs, rust/src/drc_dec/gain_decoder.rs, rust/src/drc_dec/gain_decoder/active_drc.rs, rust/src/drc_dec/gain_decoder/common.rs, rust/src/drc_dec/gain_decoder/constants.rs, rust/src/drc_dec/gain_decoder/gain_buffers.rs, rust/src/drc_dec/gain_decoder/gain_dec.rs, rust/src/drc_dec/gain_decoder/linear_node_buffer.rs, rust/src/drc_dec/gain_decoder/node_modification.rs, rust/src/drc_dec/parameters.rs, rust/src/drc_dec/reader.rs, rust/src/drc_dec/reader/drc_reader.rs, rust/src/drc_dec/reader/gain_node.rs, rust/src/drc_dec/reader/loudness_error.rs, rust/src/drc_dec/reader/loudness_infoset.rs, rust/src/drc_dec/reader/loudness_measurement.rs, rust/src/drc_dec/reader/loudness_measurement_system.rs, rust/src/drc_dec/reader/loudness_method_definition.rs, rust/src/drc_dec/reader/uni_drc_characteristic.rs, rust/src/drc_dec/reader/uni_drc_coefficients.rs, rust/src/drc_dec/reader/uni_drc_config.rs, rust/src/drc_dec/reader/uni_drc_gain.rs, rust/src/drc_dec/reader/uni_drc_instructions.rs, rust/src/drc_dec/selection_process.rs, rust/src/drc_dec/selection_process/effect_type.rs, rust/src/drc_dec/selection_process/feature_request.rs, rust/src/drc_dec/selection_process/selec_data.rs, rust/src/drc_dec/selection_process/selec_error.rs, rust/src/drc_dec/selection_process/selec_input.rs, rust/src/drc_dec/selection_process/selec_output.rs, rust/src/drc_dec/selection_process/selec_process.rs, rust/src/drc_dec/selection_process/selec_user_params.rs, rust/src/lib.rs, rust/src/pcm_dmx.rs, rust/src/pcm_dmx/api_types.rs, rust/src/pcm_dmx/consts.rs, rust/src/pcm_dmx/tables.rs, rust/src/pcm_dmx/types.rs, rust/src/sac_dec.rs, rust/src/sac_dec/bit_dec.rs, rust/src/sac_dec/calc_m2.rs, rust/src/sac_dec/common.rs, rust/src/sac_dec/conceal.rs, rust/src/sac_dec/constants.rs, rust/src/sac_dec/error_codes.rs, rust/src/sac_dec/flags.rs, rust/src/sac_dec/ges.rs, rust/src/sac_dec/huff_nodes.rs, rust/src/sac_dec/nlc.rs, rust/src/sac_dec/process.rs, rust/src/sac_dec/process/tables.rs, rust/src/sac_dec/sac_dec_lib.rs, rust/src/sac_dec/sac_map.rs, rust/src/sac_dec/spatial_dec.rs, rust/src/sac_dec/ssc.rs, rust/src/sac_dec/stp.rs, rust/src/sac_dec/tables.rs, rust/src/sac_dec/tsd.rs, rust/src/sbr_dec.rs, rust/src/sbr_dec/common.rs, rust/src/sbr_dec/constants.rs, rust/src/sbr_dec/drc.rs, rust/src/sbr_dec/element.rs, rust/src/sbr_dec/env_calc.rs, rust/src/sbr_dec/flags.rs, rust/src/sbr_dec/frame_data.rs, rust/src/sbr_dec/frame_data/constants.rs, rust/src/sbr_dec/frame_info.rs, rust/src/sbr_dec/frame_info/tables.rs, rust/src/sbr_dec/freq_sca.rs, rust/src/sbr_dec/hbe.rs, rust/src/sbr_dec/hbe/constants.rs, rust/src/sbr_dec/header_data.rs, rust/src/sbr_dec/hf_gen_preflat.rs, rust/src/sbr_dec/huff_dec.rs, rust/src/sbr_dec/lpp_trans.rs, rust/src/sbr_dec/params.rs, rust/src/sbr_dec/process.rs, rust/src/sbr_dec/psbitdec.rs, rust/src/sbr_dec/psdec.rs, rust/src/sbr_dec/pvc.rs, rust/src/sbr_dec/pvc/consts.rs, rust/src/sbr_dec/pvc/tables.rs, rust/src/sbr_dec/sbr_dec_api.rs, rust/src/sbr_dec/sr_mapping.rs, rust/src/td_limiter.rs, rust/src/td_limiter/limiter.rs, rust/src/tp_dec.rs, rust/src/tp_dec/asc.rs, rust/src/tp_dec/asc/audio_specific_config.rs, rust/src/tp_dec/asc/eld_specific_config.rs, rust/src/tp_dec/asc/ga_specific_config.rs, rust/src/tp_dec/asc/helper_functions.rs, rust/src/tp_dec/asc/usac_config.rs, rust/src/tp_dec/asc/usac_ext_element_config.rs, rust/src/tp_dec/callbacks.rs, rust/src/tp_dec/constants.rs, rust/src/tp_dec/error_codes.rs, rust/src/tp_dec/info.rs, rust/src/tp_dec/pce.rs, rust/src/tp_dec/syncer.rs, rust/src/tp_dec/tables.rs, rust/src/tp_dec/transport_types.rs, rust/src/tp_dec/transport_types/adif.rs, rust/src/tp_dec/transport_types/adts.rs, rust/src/tp_dec/transport_types/latm.rs
+/* -----------------------------------------------------------------------------
+Software License for The Fraunhofer FDK AAC Codec Library for Android
+
+© Copyright 2025 Fraunhofer-Gesellschaft zur Förderung der angewandten Forschung
+e.V. All rights reserved.
+
+ 1.    INTRODUCTION
+The Fraunhofer FDK AAC Codec Library for Android ("FDK AAC Codec") is software
+that implements the MPEG Advanced Audio Coding ("AAC") encoding and decoding
+scheme for digital audio. This FDK AAC Codec software is intended to be used on
+a wide variety of Android devices.
+
+AAC's HE-AAC and HE-AAC v2 versions are regarded as today's most efficient
+general perceptual audio codecs. AAC-ELD is considered the best-performing
+full-bandwidth communications codec by independent studies and is widely
+deployed. AAC has been standardized by ISO and IEC as part of the MPEG
+specifications.
+
+Patent licenses for necessary patent claims for the FDK AAC Codec (including
+those of Fraunhofer) may be obtained through Via Licensing
+(www.vialicensing.com) or through the respective patent owners individually for
+the purpose of encoding or decoding bit streams in products that are compliant
+with the ISO/IEC MPEG audio standards. Please note that most manufacturers of
+Android devices already license these patent claims through Via Licensing or
+directly from the patent owners, and therefore FDK AAC Codec software may
+already be covered under those patent licenses when it is used for those
+licensed purposes only.
+
+Commercially-licensed AAC software libraries, including floating-point versions
+with enhanced sound quality, are also available from Fraunhofer. Users are
+encouraged to check the Fraunhofer website for additional applications
+information and documentation.
+
+2.    COPYRIGHT LICENSE
+
+Redistribution and use in source and binary forms, with or without modification,
+are permitted without payment of copyright license fees provided that you
+satisfy the following conditions:
+
+You must retain the complete text of this software license in redistributions of
+the FDK AAC Codec or your modifications thereto in source code form.
+
+You must retain the complete text of this software license in the documentation
+and/or other materials provided with redistributions of the FDK AAC Codec or
+your modifications thereto in binary form. You must make available free of
+charge copies of the complete source code of the FDK AAC Codec and your
+modifications thereto to recipients of copies in binary form.
+
+The name of Fraunhofer may not be used to endorse or promote products derived
+from this library without prior written permission.
+
+You may not charge copyright license fees for anyone to use, copy or distribute
+the FDK AAC Codec software or your modifications thereto.
+
+Your modified versions of the FDK AAC Codec must carry prominent notices stating
+that you changed the software and the date of any change. For modified versions
+of the FDK AAC Codec, the term "Fraunhofer FDK AAC Codec Library for Android"
+must be replaced by the term "Third-Party Modified Version of the Fraunhofer FDK
+AAC Codec Library for Android."
+
+3.    NO PATENT LICENSE
+
+NO EXPRESS OR IMPLIED LICENSES TO ANY PATENT CLAIMS, including without
+limitation the patents of Fraunhofer, ARE GRANTED BY THIS SOFTWARE LICENSE.
+Fraunhofer provides no warranty of patent non-infringement with respect to this
+software.
+
+You may use this FDK AAC Codec software or modifications thereto only for
+purposes that are authorized by appropriate patent licenses.
+
+4.    DISCLAIMER
+
+This FDK AAC Codec software is provided by Fraunhofer on behalf of the copyright
+holders and contributors "AS IS" and WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES,
+including but not limited to the implied warranties of merchantability and
+fitness for a particular purpose. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+CONTRIBUTORS BE LIABLE for any direct, indirect, incidental, special, exemplary,
+or consequential damages, including but not limited to procurement of substitute
+goods or services; loss of use, data, or profits, or business interruption,
+however caused and on any theory of liability, whether in contract, strict
+liability, or tort (including negligence), arising in any way out of the use of
+this software, even if advised of the possibility of such damage.
+
+5.    CONTACT INFORMATION
+
+Fraunhofer Institute for Integrated Circuits IIS
+Attention: Audio and Multimedia Departments - FDK AAC LL
+Am Wolfsmantel 33
+91058 Erlangen, Germany
+
+www.iis.fraunhofer.de/amm
+amm-info@iis.fraunhofer.de
+----------------------------------------------------------------------------- */
+
+Source paths: xhe-aac/aacfastenc/include/aacenc.h, xhe-aac/aacfastenc/src/aacenc.c, xhe-aac/aacfastenc/src/aacenc_internal.h, xhe-aac/aacfastenc/src/adj_thr.c, xhe-aac/aacfastenc/src/adj_thr.h, xhe-aac/aacfastenc/src/adj_thr_data.h, xhe-aac/aacfastenc/src/band_nrg.c, xhe-aac/aacfastenc/src/band_nrg.h, xhe-aac/aacfastenc/src/bandwidth.c, xhe-aac/aacfastenc/src/bandwidth.h, xhe-aac/aacfastenc/src/bit_cnt.c, xhe-aac/aacfastenc/src/bit_cnt.h, xhe-aac/aacfastenc/src/block_switch.c, xhe-aac/aacfastenc/src/block_switch.h, xhe-aac/aacfastenc/src/cplxpred_stereo.c, xhe-aac/aacfastenc/src/cplxpred_stereo.h, xhe-aac/aacfastenc/src/dyn_bits.c, xhe-aac/aacfastenc/src/dyn_bits.h, xhe-aac/aacfastenc/src/grp_data.c, xhe-aac/aacfastenc/src/grp_data.h, xhe-aac/aacfastenc/src/imdct.c, xhe-aac/aacfastenc/src/imdct.h, xhe-aac/aacfastenc/src/int_dec.c, xhe-aac/aacfastenc/src/int_dec.h, xhe-aac/aacfastenc/src/interface.c, xhe-aac/aacfastenc/src/interface.h, xhe-aac/aacfastenc/src/line_pe.c, xhe-aac/aacfastenc/src/line_pe.h, xhe-aac/aacfastenc/src/lpd_wrapper.c, xhe-aac/aacfastenc/src/lpd_wrapper.h, xhe-aac/aacfastenc/src/ms_stereo.c, xhe-aac/aacfastenc/src/ms_stereo.h, xhe-aac/aacfastenc/src/pns.h, xhe-aac/aacfastenc/src/pre_echo_control.c, xhe-aac/aacfastenc/src/pre_echo_control.h, xhe-aac/aacfastenc/src/psy_configuration.c, xhe-aac/aacfastenc/src/psy_configuration.h, xhe-aac/aacfastenc/src/psy_const.h, xhe-aac/aacfastenc/src/psy_data.h, xhe-aac/aacfastenc/src/psy_main.c, xhe-aac/aacfastenc/src/psy_main.h, xhe-aac/aacfastenc/src/qc_data.h, xhe-aac/aacfastenc/src/qc_main.c, xhe-aac/aacfastenc/src/qc_main.h, xhe-aac/aacfastenc/src/quantize.c, xhe-aac/aacfastenc/src/quantize.h, xhe-aac/aacfastenc/src/realpred_stereo.c, xhe-aac/aacfastenc/src/realpred_stereo.h, xhe-aac/aacfastenc/src/sf_estim.c, xhe-aac/aacfastenc/src/sf_estim.h, xhe-aac/aacfastenc/src/spreading.c, xhe-aac/aacfastenc/src/spreading.h, xhe-aac/aacfastenc/src/stack_alignment.c, xhe-aac/aacfastenc/src/stack_alignment.h, xhe-aac/aacfastenc/src/tns.c, xhe-aac/aacfastenc/src/tns.h, xhe-aac/aacfastenc/src/tns_func.h, xhe-aac/aacfastenc/src/transform.c, xhe-aac/aacfastenc/src/transform.h, xhe-aac/aacfastenc/src/unified_stereo_psych.c, xhe-aac/aacfastenc/src/unified_stereo_psych.h, xhe-aac/aacfastenc/src/win_coef.h, xhe-aac/applauseDetectionlib/include/ApplDet_C_ifc.h, xhe-aac/applauseDetectionlib/include/cSpeechDetectionInterface.h, xhe-aac/applauseDetectionlib/src/ApplDet_C_ifc.c, xhe-aac/applauseDetectionlib/src/cFEX.c, xhe-aac/applauseDetectionlib/src/cFEX.h, xhe-aac/applauseDetectionlib/src/cFeatMFCC.c, xhe-aac/applauseDetectionlib/src/cFeatMFCC.h, xhe-aac/applauseDetectionlib/src/cFeatNormalize.c, xhe-aac/applauseDetectionlib/src/cFeatNormalize.h, xhe-aac/applauseDetectionlib/src/cFeatSFM2.c, xhe-aac/applauseDetectionlib/src/cFeatSFM2.h, xhe-aac/applauseDetectionlib/src/cFeatSpecCentroid.c, xhe-aac/applauseDetectionlib/src/cFeatSpecCentroid.h, xhe-aac/applauseDetectionlib/src/cFeatSpecFlux.c, xhe-aac/applauseDetectionlib/src/cFeatSpecFlux.h, xhe-aac/applauseDetectionlib/src/cFeatSpecSpread.c, xhe-aac/applauseDetectionlib/src/cFeatSpecSpread.h, xhe-aac/applauseDetectionlib/src/cSdNeuralNet.c, xhe-aac/applauseDetectionlib/src/cSdNeuralNet.h, xhe-aac/applauseDetectionlib/src/cSpDtct.c, xhe-aac/applauseDetectionlib/src/cSpDtct.h, xhe-aac/applauseDetectionlib/src/paramdata.c, xhe-aac/applauseDetectionlib/src/paramdata.h, xhe-aac/iisArithEncLib/include/iisArithEncoder.h, xhe-aac/iisArithEncLib/src/iisArithEncoder.c, xhe-aac/iisAudioPrerollLib/include/iisAudioPrerollLib.h, xhe-aac/iisAudioPrerollLib/src/iisAudioPrerollLib.c, xhe-aac/iisBitFrame/include/iisBitFrame.h, xhe-aac/iisBitFrame/src/iisBitFrame.c, xhe-aac/iisDRCGainEncLib/include/iisDRCGainEnc_api.h, xhe-aac/iisDRCGainEncLib/include/iisDRCGainEnc_uniDrc.h, xhe-aac/iisDRCGainEncLib/src/iisDRCGainEnc_bitstreamWriter.c, xhe-aac/iisDRCGainEncLib/src/iisDRCGainEnc_bitstreamWriter.h, xhe-aac/iisDRCGainEncLib/src/iisDRCGainEnc_internal.h, xhe-aac/iisDRCGainEncLib/src/iisDRCGainEnc_nodeSetting.c, xhe-aac/iisDRCGainEncLib/src/iisDRCGainEnc_nodeSetting.h, xhe-aac/iisDRCGainEncLib/src/iisDRCGainEnc_process.c, xhe-aac/iisDRCGainEncLib/src/iisDRCGainEnc_tables.h, xhe-aac/iisDRCGainGenLib/include/iisDRCGainGenerator_api.h, xhe-aac/iisDRCGainGenLib/include/iisDRCOfflineGain_api.h, xhe-aac/iisDRCGainGenLib/include/iisDRCRealtimeLRAControl_api.h, xhe-aac/iisDRCGainGenLib/src/iisDRCCompressor.c, xhe-aac/iisDRCGainGenLib/src/iisDRCCompressor.h, xhe-aac/iisDRCGainGenLib/src/iisDRCGainGenerator.c, xhe-aac/iisDRCGainGenLib/src/iisDRCGainGenerator.h, xhe-aac/iisDRCGainGenLib/src/iisDRCGainGeneratorProcess.c, xhe-aac/iisDRCGainGenLib/src/iisDRCGainGeneratorProcess.h, xhe-aac/iisDRCGainGenLib/src/iisDRCGainGeneratorTables.h, xhe-aac/iisDRCGainGenLib/src/iisDRCLevelComputationBS1770.c, xhe-aac/iisDRCGainGenLib/src/iisDRCLevelComputationBS1770.h, xhe-aac/iisDRCGainGenLib/src/iisDRCOfflineGain.c, xhe-aac/iisDRCGainGenLib/src/iisDRCRealtimeLRAControl.c, xhe-aac/iisEncoderConfig/include/iisEncoderConfig.h, xhe-aac/iisEncoderConfig/src/iisEncoderConfig.c, xhe-aac/iisEncoderConfigCTable/include/iisEncoderConfigCTable.h, xhe-aac/iisEncoderConfigCTable/src/iisEncoderConfigCTable.c, xhe-aac/iisEncoderConfigCTable/src/main_aot_42_dash_oss.c, xhe-aac/iisEncoderConfigCTable/src/rel_coremode.h, xhe-aac/iisEncoderConfigCTable/src/rel_hbe.h, xhe-aac/iisEncoderConfigCTable/src/rel_insamplerate.h, xhe-aac/iisEncoderConfigCTable/src/rel_outsamplerate.h, xhe-aac/iisEncoderConfigCTable/src/rel_quality.h, xhe-aac/iisEncoderConfigCTable/src/rel_sbrpvc.h, xhe-aac/iisEncoderConfigCTable/src/rel_sbrratio.h, xhe-aac/iisEncoderConfigCTable/src/rel_sbrsignaling.h, xhe-aac/iisEncoderConfigCTable/src/rel_stereoconfigidx.h, xhe-aac/iisEncoderConfigCTable/src/rel_tsd.h, xhe-aac/iisEncoderConfigCTable/src/tab_coremode.c, xhe-aac/iisEncoderConfigCTable/src/tab_hbe.c, xhe-aac/iisEncoderConfigCTable/src/tab_insamplerate.c, xhe-aac/iisEncoderConfigCTable/src/tab_outsamplerate_oss.c, xhe-aac/iisEncoderConfigCTable/src/tab_quality.c, xhe-aac/iisEncoderConfigCTable/src/tab_sbrpvc.c, xhe-aac/iisEncoderConfigCTable/src/tab_sbrratio.c, xhe-aac/iisEncoderConfigCTable/src/tab_sbrsignaling.c, xhe-aac/iisEncoderConfigCTable/src/tab_stereoconfigidx.c, xhe-aac/iisEncoderConfigCTable/src/tab_tsd.c, xhe-aac/iisLPDComLib/include/iisLPDComLib_acelp_Util.h, xhe-aac/iisLPDComLib/include/iisLPDComLib_constants.h, xhe-aac/iisLPDComLib/include/iisLPDComLib_lpc.h, xhe-aac/iisLPDComLib/include/iisLPDComLib_tcx_Tools.h, xhe-aac/iisLPDComLib/include/iisLPDComLib_tcx_Transform.h, xhe-aac/iisLPDComLib/include/iisLPDComLib_tools.h, xhe-aac/iisLPDComLib/include/iisLPDComLib_vq_RE8.h, xhe-aac/iisLPDComLib/include/options.h, xhe-aac/iisLPDComLib/src/iisLPDComLib_acelp_Util.c, xhe-aac/iisLPDComLib/src/iisLPDComLib_lpc.c, xhe-aac/iisLPDComLib/src/iisLPDComLib_tcx_Tools.c, xhe-aac/iisLPDComLib/src/iisLPDComLib_tcx_Transform.c, xhe-aac/iisLPDComLib/src/iisLPDComLib_tools.c, xhe-aac/iisLPDComLib/src/iisLPDComLib_vq_RE8.c, xhe-aac/iisLPDEncLib/include/iisLPDEncLib.h, xhe-aac/iisLPDEncLib/src/iisLPDEncLib.c, xhe-aac/iisLPDEncLib/src/iisLPDEncLib_acelp_AdaptiveCB.c, xhe-aac/iisLPDEncLib/src/iisLPDEncLib_acelp_AdaptiveCB.h, xhe-aac/iisLPDEncLib/src/iisLPDEncLib_acelp_ImprovedInnovativeCB.c, xhe-aac/iisLPDEncLib/src/iisLPDEncLib_acelp_ImprovedInnovativeCB.h, xhe-aac/iisLPDEncLib/src/iisLPDEncLib_acelp_InnovativeCB.c, xhe-aac/iisLPDEncLib/src/iisLPDEncLib_acelp_InnovativeCB.h, xhe-aac/iisLPDEncLib/src/iisLPDEncLib_acelp_Main.c, xhe-aac/iisLPDEncLib/src/iisLPDEncLib_acelp_Main.h, xhe-aac/iisLPDEncLib/src/iisLPDEncLib_arithEncWrapper.c, xhe-aac/iisLPDEncLib/src/iisLPDEncLib_arithEncWrapper.h, xhe-aac/iisLPDEncLib/src/iisLPDEncLib_bpf.c, xhe-aac/iisLPDEncLib/src/iisLPDEncLib_bpf.h, xhe-aac/iisLPDEncLib/src/iisLPDEncLib_bs.c, xhe-aac/iisLPDEncLib/src/iisLPDEncLib_bs.h, xhe-aac/iisLPDEncLib/src/iisLPDEncLib_closedLoop.c, xhe-aac/iisLPDEncLib/src/iisLPDEncLib_closedLoop.h, xhe-aac/iisLPDEncLib/src/iisLPDEncLib_cmConfig.c, xhe-aac/iisLPDEncLib/src/iisLPDEncLib_cmConfig.h, xhe-aac/iisLPDEncLib/src/iisLPDEncLib_lpc_LPCAnalysis.c, xhe-aac/iisLPDEncLib/src/iisLPDEncLib_lpc_LPCAnalysis.h, xhe-aac/iisLPDEncLib/src/iisLPDEncLib_lpc_Quantize.c, xhe-aac/iisLPDEncLib/src/iisLPDEncLib_lpc_Quantize.h, xhe-aac/iisLPDEncLib/src/iisLPDEncLib_main.c, xhe-aac/iisLPDEncLib/src/iisLPDEncLib_main.h, xhe-aac/iisLPDEncLib/src/iisLPDEncLib_tcx_Main.c, xhe-aac/iisLPDEncLib/src/iisLPDEncLib_tcx_Main.h, xhe-aac/iisLPDEncLib/src/iisLPDEncLib_tcx_Tools.c, xhe-aac/iisLPDEncLib/src/iisLPDEncLib_tcx_Tools.h, xhe-aac/iisLPDEncLib/src/iisLPDEncLib_transitions.c, xhe-aac/iisLPDEncLib/src/iisLPDEncLib_transitions.h, xhe-aac/iisLPDEncLib/src/iisLPDEncLib_vq_Main.c, xhe-aac/iisLPDEncLib/src/iisLPDEncLib_vq_Main.h, xhe-aac/iisLPDEncLib/src/iisLPDEncLib_vq_RE8.c, xhe-aac/iisLPDEncLib/src/iisLPDEncLib_vq_RE8.h, xhe-aac/iisLevelerLib/include/iisLevelerLib.h, xhe-aac/iisLevelerLib/src/iisLevelerLib.c, xhe-aac/iisLevelerLib/src/iisLevelerLibVersion.h, xhe-aac/iisLinkedList/include/iisLinkedList.h, xhe-aac/iisLinkedList/src/iisLinkedList.c, xhe-aac/iisLoudnessLib/include/loudnessLib.h, xhe-aac/iisLoudnessLib/src/loudnessLib.c, xhe-aac/iisLoudnessLib/src/version_loudnessLib.h, xhe-aac/iisParamList/include/iisParam.h, xhe-aac/iisParamList/include/iisParamList.h, xhe-aac/iisParamList/src/iisParam.c, xhe-aac/iisParamList/src/iisParamList.c, xhe-aac/iisSigMap/include/iisSigMap.h, xhe-aac/iisSigMap/src/iisSigMap.c, xhe-aac/iisSigMap/src/iisSigMapCommon.c, xhe-aac/iisSigMap/src/iisSigMapCommon.h, xhe-aac/iisSigMap/src/iisSigMapConfig.c, xhe-aac/iisSigMap/src/iisSigMapConfig.h, xhe-aac/iisSigMap/src/iisSigMapUsac.c, xhe-aac/iisSigMap/src/iisSigMapUsac.h, xhe-aac/iisSwitchingDecision/include/iisSwitchingDecision.h, xhe-aac/iisSwitchingDecision/src/iisSwitchingDecision.c, xhe-aac/iisxHEAACEncLib/include/iisxHEAACEncLib.h, xhe-aac/iisxHEAACEncLib/src/iisxHEAACEncLib.c, xhe-aac/iisxHEAACEncLib/src/iisxHEAACEncLibConfig.c, xhe-aac/iisxHEAACEncLib/src/iisxHEAACEncLibConfig.h, xhe-aac/iisxHEAACEncLib/src/iisxHEAACEncLib_SigMap_ifc.c, xhe-aac/iisxHEAACEncLib/src/iisxHEAACEncLib_SigMap_ifc.h, xhe-aac/iisxHEAACEncLib/src/iisxHEAACEncLib_aac_ifc.c, xhe-aac/iisxHEAACEncLib/src/iisxHEAACEncLib_aac_ifc.h, xhe-aac/iisxHEAACEncLib/src/iisxHEAACEncLib_asc_ifc.c, xhe-aac/iisxHEAACEncLib/src/iisxHEAACEncLib_asc_ifc.h, xhe-aac/iisxHEAACEncLib/src/iisxHEAACEncLib_audioPreRoll.c, xhe-aac/iisxHEAACEncLib/src/iisxHEAACEncLib_audioPreRoll.h, xhe-aac/iisxHEAACEncLib/src/iisxHEAACEncLib_bitDistribution.c, xhe-aac/iisxHEAACEncLib/src/iisxHEAACEncLib_bitDistribution.h, xhe-aac/iisxHEAACEncLib/src/iisxHEAACEncLib_common.c, xhe-aac/iisxHEAACEncLib/src/iisxHEAACEncLib_common.h, xhe-aac/iisxHEAACEncLib/src/iisxHEAACEncLib_delayAndBuffer.c, xhe-aac/iisxHEAACEncLib/src/iisxHEAACEncLib_delayAndBuffer.h, xhe-aac/iisxHEAACEncLib/src/iisxHEAACEncLib_drc_ifc.c, xhe-aac/iisxHEAACEncLib/src/iisxHEAACEncLib_drc_ifc.h, xhe-aac/iisxHEAACEncLib/src/iisxHEAACEncLib_drc_loudness_ifc.c, xhe-aac/iisxHEAACEncLib/src/iisxHEAACEncLib_drc_loudness_ifc.h, xhe-aac/iisxHEAACEncLib/src/iisxHEAACEncLib_encodeFrame_ifc.c, xhe-aac/iisxHEAACEncLib/src/iisxHEAACEncLib_encodeFrame_ifc.h, xhe-aac/iisxHEAACEncLib/src/iisxHEAACEncLib_encoderStateEnum.h, xhe-aac/iisxHEAACEncLib/src/iisxHEAACEncLib_encoderStateMachine.c, xhe-aac/iisxHEAACEncLib/src/iisxHEAACEncLib_encoderStateMachine.h, xhe-aac/iisxHEAACEncLib/src/iisxHEAACEncLib_extentsionData.c, xhe-aac/iisxHEAACEncLib/src/iisxHEAACEncLib_extentsionData.h, xhe-aac/iisxHEAACEncLib/src/iisxHEAACEncLib_live_loudness_leveler_ifc.c, xhe-aac/iisxHEAACEncLib/src/iisxHEAACEncLib_live_loudness_leveler_ifc.h, xhe-aac/iisxHEAACEncLib/src/iisxHEAACEncLib_loaswrapper.c, xhe-aac/iisxHEAACEncLib/src/iisxHEAACEncLib_loaswrapper.h, xhe-aac/iisxHEAACEncLib/src/iisxHEAACEncLib_loudness_ifc.c, xhe-aac/iisxHEAACEncLib/src/iisxHEAACEncLib_loudness_ifc.h, xhe-aac/iisxHEAACEncLib/src/iisxHEAACEncLib_lraControl.c, xhe-aac/iisxHEAACEncLib/src/iisxHEAACEncLib_lraControl.h, xhe-aac/iisxHEAACEncLib/src/iisxHEAACEncLib_lraControlTypes.h, xhe-aac/iisxHEAACEncLib/src/iisxHEAACEncLib_mpegs_bitrate_cfg.c, xhe-aac/iisxHEAACEncLib/src/iisxHEAACEncLib_mpegs_bitrate_cfg.h, xhe-aac/iisxHEAACEncLib/src/iisxHEAACEncLib_mpegs_cfg_expert.c, xhe-aac/iisxHEAACEncLib/src/iisxHEAACEncLib_mpegs_cfg_expert.h, xhe-aac/iisxHEAACEncLib/src/iisxHEAACEncLib_mpegs_ifc.c, xhe-aac/iisxHEAACEncLib/src/iisxHEAACEncLib_mpegs_ifc.h, xhe-aac/iisxHEAACEncLib/src/iisxHEAACEncLib_rapOnDemand.c, xhe-aac/iisxHEAACEncLib/src/iisxHEAACEncLib_rapOnDemand.h, xhe-aac/iisxHEAACEncLib/src/iisxHEAACEncLib_resampler_ifc.c, xhe-aac/iisxHEAACEncLib/src/iisxHEAACEncLib_resampler_ifc.h, xhe-aac/iisxHEAACEncLib/src/iisxHEAACEncLib_returnCodes.h, xhe-aac/iisxHEAACEncLib/src/iisxHEAACEncLib_sbr_ifc.c, xhe-aac/iisxHEAACEncLib/src/iisxHEAACEncLib_sbr_ifc.h, xhe-aac/iisxHEAACEncLib/src/iisxHEAACEncLib_submitDrcMetadata.c, xhe-aac/iisxHEAACEncLib/src/iisxHEAACEncLib_submitDrcMetadata.h, xhe-aac/iisxHEAACEncLib/src/iisxHEAACEncLib_syncframe.c, xhe-aac/iisxHEAACEncLib/src/iisxHEAACEncLib_syncframe.h, xhe-aac/iisxHEAACEncLib/src/iisxHEAACEncLib_updateParamList.c, xhe-aac/iisxHEAACEncLib/src/iisxHEAACEncLib_updateParamList.h, xhe-aac/iisxHEAACEncLib/src/iisxHEAACEncLib_warnings.c, xhe-aac/iisxHEAACEncLib/src/iisxHEAACEncLib_warnings.h, xhe-aac/limiterlib/include/limiterlib.h, xhe-aac/limiterlib/include/limiterlib_errorcodes.h, xhe-aac/limiterlib/src/limiter.c, xhe-aac/limiterlib/src/limiter_buildconf.h, xhe-aac/mathlib/include/cpuinfo.h, xhe-aac/mathlib/include/fpucontrol.h, xhe-aac/mathlib/include/iis_dct.h, xhe-aac/mathlib/include/iis_dxt.h, xhe-aac/mathlib/include/iis_fft.h, xhe-aac/mathlib/include/iis_mdxt.h, xhe-aac/mathlib/include/mathlib.h, xhe-aac/mathlib/src/aux_func.c, xhe-aac/mathlib/src/cfft.c, xhe-aac/mathlib/src/cfft.h, xhe-aac/mathlib/src/cpuinfo.c, xhe-aac/mathlib/src/fft_15_16.h, xhe-aac/mathlib/src/fft_240_480.h, xhe-aac/mathlib/src/fft_2_9.h, xhe-aac/mathlib/src/fft_32.h, xhe-aac/mathlib/src/fft_384_768.h, xhe-aac/mathlib/src/fft_60_128.h, xhe-aac/mathlib/src/fft_generic.h, xhe-aac/mathlib/src/fpucontrol.c, xhe-aac/mathlib/src/iis_dxt.c, xhe-aac/mathlib/src/iis_fft.c, xhe-aac/mathlib/src/iis_mdxt.c, xhe-aac/mathlib/src/iisfft.c, xhe-aac/mathlib/src/iisfft.h, xhe-aac/mathlib/src/math_inf.c, xhe-aac/mathlib/src/mathlib.c, xhe-aac/mathlib/src/opt/fpucontrol_opt.h, xhe-aac/mp4ASC/IIS_MP4ASC_Interface/IIS_MP4AEnc_ASC_Interface.h, xhe-aac/mp4ASC/IIS_MP4ASC_Interface/IIS_MP4ASC_Interface.c, xhe-aac/mp4ASC/include/audiospecificconfig.h, xhe-aac/mp4ASC/include/mp4audioheader.h, xhe-aac/mp4ASC/include/usacconfig.h, xhe-aac/mp4ASC/src/audiospecificconfig.c, xhe-aac/mp4ASC/src/usacconfig.c, xhe-aac/mp4General/audioobjecttypes.h, xhe-aac/mp4General/glob_con.h, xhe-aac/mp4General/mpeg4_profiles.h, xhe-aac/mp4bitbuf/include/IIS_MP4AEnc_BitBuf_Interface.h, xhe-aac/mp4bitbuf/include/bit_buf.h, xhe-aac/mp4bitbuf/src/bit_buf.c, xhe-aac/mp4bitmux/src/aac/bit_aac.c, xhe-aac/mp4bitmux/src/aac/bit_aac.h, xhe-aac/mp4bitmux/src/aac/bit_enc.c, xhe-aac/mp4bitmux/src/aac/bit_enc.h, xhe-aac/mp4bitmux/src/aac/bs_configuration.h, xhe-aac/mp4bitmux/src/aac/codebook.c, xhe-aac/mp4bitmux/src/aac/codebook.h, xhe-aac/mp4bitmux/src/aac/extpayload.c, xhe-aac/mp4bitmux/src/aac/extpayload.h, xhe-aac/mp4loaswrite/include/IIS_loaswrite_interface.h, xhe-aac/mp4loaswrite/src/IIS_BitstreamFormat_Interface.h, xhe-aac/mp4loaswrite/src/IIS_LATM_Interface.c, xhe-aac/mp4loaswrite/src/latm_interface.c, xhe-aac/mp4loaswrite/src/latm_interface.h, xhe-aac/mp4timebuf/include/time_buffer.h, xhe-aac/mp4timebuf/src/time_buffer.c, xhe-aac/qmflib/include/qmflib.h, xhe-aac/qmflib/include/qmflib_lowfreqfilter.h, xhe-aac/qmflib/src/qmflib.c, xhe-aac/qmflib/src/qmflib_lowfreqfilter.c, xhe-aac/qmflib/src/qmflib_struct.h, xhe-aac/qmflib/src/qmflib_tables.c, xhe-aac/qmflib/src/qmflib_tables.h, xhe-aac/readonlybitbuf/include/readonlybitbuf.h, xhe-aac/readonlybitbuf/src/readonlybitbuf.c, xhe-aac/resamplelib/include/resamplelib.h, xhe-aac/resamplelib/include/smpl_resampler.h, xhe-aac/resamplelib/src/polyphase/convolve.c, xhe-aac/resamplelib/src/polyphase/convolve.h, xhe-aac/resamplelib/src/polyphase/filtgen.c, xhe-aac/resamplelib/src/polyphase/filtgen.h, xhe-aac/resamplelib/src/polyphase/helpfunc.c, xhe-aac/resamplelib/src/polyphase/helpfunc.h, xhe-aac/resamplelib/src/polyphase/kernfunc.c, xhe-aac/resamplelib/src/polyphase/kernfunc.h, xhe-aac/resamplelib/src/polyphase/polyfilt.c, xhe-aac/resamplelib/src/polyphase/polyfilt.h, xhe-aac/resamplelib/src/polyphase/polyphase.c, xhe-aac/resamplelib/src/polyphase/polyphase.h, xhe-aac/resamplelib/src/polyphase/resample.c, xhe-aac/resamplelib/src/polyphase/resample.h, xhe-aac/resamplelib/src/polyphase/rsstruct.h, xhe-aac/resamplelib/src/resamplelib.c, xhe-aac/resamplelib/src/share/rsl_dbgprint.h, xhe-aac/resamplelib/src/smpl_resampler.c, xhe-aac/sbrEnclib/include/cmondata.h, xhe-aac/sbrEnclib/include/sbr_main.h, xhe-aac/sbrEnclib/src/bit_codec.c, xhe-aac/sbrEnclib/src/bit_sbr.c, xhe-aac/sbrEnclib/src/bit_sbr.h, xhe-aac/sbrEnclib/src/cmondata.c, xhe-aac/sbrEnclib/src/code_env.c, xhe-aac/sbrEnclib/src/code_env.h, xhe-aac/sbrEnclib/src/env_est.c, xhe-aac/sbrEnclib/src/env_est.h, xhe-aac/sbrEnclib/src/fram_gen.c, xhe-aac/sbrEnclib/src/fram_gen.h, xhe-aac/sbrEnclib/src/freq_sca.c, xhe-aac/sbrEnclib/src/freq_sca.h, xhe-aac/sbrEnclib/src/huff_tab.h, xhe-aac/sbrEnclib/src/invf_est.c, xhe-aac/sbrEnclib/src/invf_est.h, xhe-aac/sbrEnclib/src/ivaltime.c, xhe-aac/sbrEnclib/src/ivaltime.h, xhe-aac/sbrEnclib/src/mh_det.c, xhe-aac/sbrEnclib/src/mh_det.h, xhe-aac/sbrEnclib/src/nf_est.c, xhe-aac/sbrEnclib/src/nf_est.h, xhe-aac/sbrEnclib/src/sbr.h, xhe-aac/sbrEnclib/src/sbr_def.h, xhe-aac/sbrEnclib/src/sbr_main.c, xhe-aac/sbrEnclib/src/sbr_misc.c, xhe-aac/sbrEnclib/src/sbr_misc.h, xhe-aac/sbrEnclib/src/sib_det.c, xhe-aac/sbrEnclib/src/sib_det.h, xhe-aac/sbrEnclib/src/ton_corr.c, xhe-aac/sbrEnclib/src/ton_corr.h, xhe-aac/sbrEnclib/src/tran_det.c, xhe-aac/sbrEnclib/src/tran_det.h, xhe-aac/spaceEnclib/include/spaceEnclib.h, xhe-aac/spaceEnclib/src/sac_huff_cld.c, xhe-aac/spaceEnclib/src/sac_huff_icc.c, xhe-aac/spaceEnclib/src/sac_huff_ipd.c, xhe-aac/spaceEnclib/src/sac_huff_nodes.h, xhe-aac/spaceEnclib/src/sac_huff_pt0.c, xhe-aac/spaceEnclib/src/sac_huff_reshape.c, xhe-aac/spaceEnclib/src/sac_huff_tab.h, xhe-aac/spaceEnclib/src/sac_nlc_enc.c, xhe-aac/spaceEnclib/src/sac_nlc_enc.h, xhe-aac/spaceEnclib/src/sac_tonality.c, xhe-aac/spaceEnclib/src/sac_tonality.h, xhe-aac/spaceEnclib/src/sac_tsd.c, xhe-aac/spaceEnclib/src/sac_tsd.h, xhe-aac/spaceEnclib/src/sac_types.h, xhe-aac/spaceEnclib/src/spaceEnclib.c, xhe-aac/spaceEnclib/src/spaceEnclib_const.h, xhe-aac/spaceEnclib/src/space_bitstream.c, xhe-aac/spaceEnclib/src/space_bitstream.h, xhe-aac/spaceEnclib/src/space_delay.c, xhe-aac/spaceEnclib/src/space_delay.h, xhe-aac/spaceEnclib/src/space_filter.c, xhe-aac/spaceEnclib/src/space_filter.h, xhe-aac/spaceEnclib/src/space_framewindowing.c, xhe-aac/spaceEnclib/src/space_framewindowing.h, xhe-aac/spaceEnclib/src/space_hybrid.c, xhe-aac/spaceEnclib/src/space_hybrid.h, xhe-aac/spaceEnclib/src/space_onsetdetect.c, xhe-aac/spaceEnclib/src/space_onsetdetect.h, xhe-aac/spaceEnclib/src/space_paramextract.c, xhe-aac/spaceEnclib/src/space_paramextract.h, xhe-aac/spaceEnclib/src/space_staticgain.c, xhe-aac/spaceEnclib/src/space_staticgain.h, xhe-aac/spaceEnclib/src/space_tree.c, xhe-aac/spaceEnclib/src/space_tree.h, xhe-aac/statClassLib_C/include/statClasslib.h, xhe-aac/statClassLib_C/src/statClass_decision.c, xhe-aac/statClassLib_C/src/statClass_decision.h, xhe-aac/statClassLib_C/src/statClass_deltaCep.c, xhe-aac/statClassLib_C/src/statClass_deltaCep.h, xhe-aac/statClassLib_C/src/statClass_deltaLsf.c, xhe-aac/statClassLib_C/src/statClass_deltaLsf.h, xhe-aac/statClassLib_C/src/statClass_features.c, xhe-aac/statClassLib_C/src/statClass_features.h, xhe-aac/statClassLib_C/src/statClass_gmm.c, xhe-aac/statClassLib_C/src/statClass_gmm.h, xhe-aac/statClassLib_C/src/statClass_gmm_14_7k.c, xhe-aac/statClassLib_C/src/statClass_gmm_14_7k.h, xhe-aac/statClassLib_C/src/statClass_gmm_16k.c, xhe-aac/statClassLib_C/src/statClass_gmm_16k.h, xhe-aac/statClassLib_C/src/statClass_lpc.c, xhe-aac/statClassLib_C/src/statClass_lpc.h, xhe-aac/statClassLib_C/src/statClass_ltpDelayVar.c, xhe-aac/statClassLib_C/src/statClass_ltpDelayVar.h, xhe-aac/statClassLib_C/src/statClass_mel2plp.c, xhe-aac/statClassLib_C/src/statClass_mel2plp.h, xhe-aac/statClassLib_C/src/statClass_pauseDetection.c, xhe-aac/statClassLib_C/src/statClass_pauseDetection.h, xhe-aac/statClassLib_C/src/statClass_peakednessFreqVsTime.c, xhe-aac/statClassLib_C/src/statClass_peakednessFreqVsTime.h, xhe-aac/statClassLib_C/src/statClass_pitch_ol.c, xhe-aac/statClassLib_C/src/statClass_pitch_ol.h, xhe-aac/statClassLib_C/src/statClass_preemph.c, xhe-aac/statClassLib_C/src/statClass_preemph.h, xhe-aac/statClassLib_C/src/statClass_signal2mel.c, xhe-aac/statClassLib_C/src/statClass_signal2mel.h, xhe-aac/statClassLib_C/src/statClass_speechClassification.c, xhe-aac/statClassLib_C/src/statClass_speechClassification.h, xhe-aac/statClassLib_C/src/statClass_timeTransient.c, xhe-aac/statClassLib_C/src/statClass_timeTransient.h, xhe-aac/statClassLib_C/src/statClass_utils.c, xhe-aac/statClassLib_C/src/statClass_utils.h, xhe-aac/statClassLib_C/src/statClasslib.c, xhe-aac/utillib/include/IISutillib/errorhnd.h, xhe-aac/utillib/include/IISutillib/errtype.h, xhe-aac/utillib/include/IISutillib/iis_disable_all_warnings.h, xhe-aac/utillib/include/IISutillib/matrixCalloc.h, xhe-aac/utillib/include/IISutillib/ngsalloc.h, xhe-aac/utillib/include/iisutillib.h, xhe-aac/utillib/include/utillib.h, xhe-aac/utillib/src/errorhnd.c, xhe-aac/utillib/src/matrixCalloc.c, xhe-aac/utillib/src/ngsalloc.c, xhe-aac/writeonlybitbuf/include/writeonlybitbuf.h, xhe-aac/writeonlybitbuf/src/writeonlybitbuf.c, xhe-aac/xHEAACEnc/include/xHEAACEnc.h, xhe-aac/xHEAACEnc/src/xHEAACEnc.c, xhe-aac/xHEAACEnc/src/xHEAACEncCommon.c, xhe-aac/xHEAACEnc/src/xHEAACEncCommon.h, xhe-aac/xHEAACEnc/src/xHEAACEncConfig.c, xhe-aac/xHEAACEnc/src/xHEAACEncConfig.h, xhe-aac/xHEAACEnc/src/xHEAACEncExportImport.c, xhe-aac/xHEAACEnc/src/xHEAACEncLoudness.c, xhe-aac/xHEAACEnc/src/xHEAACEncLoudness.h, xhe-aac/xHEAACEnc/src/xHEAACEncMapParameters.c, xhe-aac/xHEAACEnc/src/xHEAACEncMapParameters.h, xhe-aac/xHEAACEnc/src/xHEAACEncParameter.c, xhe-aac/xHEAACEnc/src/xHEAACEncParameter.h, xhe-aac/xHEAACEnc/src/xHEAACEncVersion.h, xhe-aac/xHEAACEnc/src/xHEAACEncWarningHandling.c, xhe-aac/xHEAACEnc/src/xHEAACEncWarningHandling.h
+/* -----------------------------------------------------------------------------
+Software Copyright License for The Fraunhofer FDK Extended High Efficiency AAC
+Encoder Software for Android
+
+© Copyright 1995 - 2025 Fraunhofer-Gesellschaft zur Förderung der angewandten
+Forschung e.V. and Contributors
+All rights reserved.
+
+1.    INTRODUCTION
+
+The Fraunhofer FDK Extended High Efficiency AAC Encoder Software for Android
+("FDK Extended High Efficiency AAC Encoder") is software that implements the
+encoding of digital audio according to the MPEG-D Unified Speech and Audio
+Coding (USAC) standard and MPEG-D Dynamic Range Control (DRC) standard. This FDK
+Extended High Efficiency AAC Encoder Software is intended to be used on a wide
+variety of Android devices. It is technically not suited to encode content for
+digital radio broadcasting services, including DRM and similar standards.
+
+Patent licenses for necessary patent claims for the FDK Extended High Efficiency
+AAC Encoder Software (including those of Fraunhofer), for the use in commercial
+products and services, may be obtained from the respective patent owners
+individually and/or from Via Licensing Alliance (www.via-la.com).
+
+Fraunhofer supports the development of Extended High Efficiency AAC products and
+services by offering additional software, documentation, and technical advice.
+In addition, it operates the xHE-AAC Trademark Program to ease interoperability
+testing of end products. Please visit http://www.xhe-aac.com for more
+information.
+
+2.    COPYRIGHT LICENSE
+
+Redistribution and use in source and binary forms, with or without modification,
+are permitted without payment of copyright license fees, provided that you
+satisfy the following conditions:
+
+You must retain the complete text of this software license in redistributions of
+the FDK Extended High Efficiency AAC Encoder Software or your modifications
+thereto in source code form.
+
+You must retain the complete text of this software license in the documentation
+and/or other materials provided with redistributions of the FDK Extended High
+Efficiency AAC Encoder Software or your modifications thereto in binary form.
+You must make available free of charge copies of the complete source code of the
+FDK Extended High Efficiency AAC Encoder Software and your modifications thereto
+to recipients of copies in binary form.
+
+The name of Fraunhofer may not be used to endorse or promote products derived
+from this software without prior written permission.
+
+You may not charge copyright license fees for anyone to use, copy or distribute
+the FDK Extended High Efficiency AAC Encoder Software or your modifications
+thereto.
+
+Your modified versions of the FDK Extended High Efficiency AAC Encoder Software
+must carry prominent notices stating that you changed the software and the date
+of any change. For modified versions of the FDK Extended High Efficiency AAC
+Encoder Software, the term "Fraunhofer FDK Extended High Efficiency AAC Encoder
+Software for Android" must be replaced by the term "Third-Party Modified Version
+of the Fraunhofer FDK Extended High Efficiency AAC Encoder Software for
+Android."
+
+3.    NO PATENT LICENSE
+
+NO EXPRESS OR IMPLIED LICENSES TO ANY PATENT CLAIMS, including without
+limitation the patents of Fraunhofer, ARE GRANTED BY THIS SOFTWARE LICENSE.
+Fraunhofer provides no warranty for patent non-infringement with respect to this
+software. You may use this FDK Extended High Efficiency AAC Encoder Software or
+modifications thereto only for purposes that are authorized by appropriate
+patent licenses.
+
+4.    DISCLAIMER
+
+This FDK Extended High Efficiency AAC Encoder Software is provided by Fraunhofer
+on behalf of the copyright holders and contributors "AS IS" and WITHOUT ANY
+EXPRESS OR IMPLIED WARRANTIES, including but not limited to the implied
+warranties of merchantability and fitness for a particular purpose. IN NO EVENT
+SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE for any direct, indirect,
+incidental, special, exemplary, or consequential damages, including but not
+limited to procurement of substitute goods or services; loss of use, data, or
+profits, or business interruption, however caused and on any theory of
+liability, whether in contract, strict liability, or tort (including
+negligence), arising in any way out of the use of this software, even if advised
+of the possibility of such damage.
+
+5.    CONTACT INFORMATION
+
+Fraunhofer Institute for Integrated Circuits IIS
+Attention: Division Audio and Media Technologies - FDK Extended High Efficiency
+AAC Encoder
+Am Wolfsmantel 33
+91058 Erlangen, Germany
+
+www.iis.fraunhofer.de/amm
+amm-info@iis.fraunhofer.de
+----------------------------------------------------------------------------- */
+
