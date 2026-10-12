@@ -4,7 +4,24 @@ October 12, 2026. This record tracks the complete `outline.md` scope; an impleme
 
 The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with owned tasks and corrective next actions in `docs/backlog.md`. The destination now explicitly requires the maintained ARM package repository, native performance engineering, integrated Apple stack, broader Cachy system experience, and complete installation/release lifecycle. Both Air sizes, published final measurements, independent onboarding/contribution, subsequent full-port maintenance release, other-ARM reuse and actual upstream submissions remain required; an early overlay release or feasibility decision would not complete the goal. This scope update does not change any recorded execution result.
 
-Latest coordinator checkpoint, October 12, 18:40 UTC. Earlier records below
+Latest coordinator update, October 12, 18:57 UTC. KSM's observation-only RPC
+diagnostics pass 279 fresh tests and independent closed-pipe, return-code,
+privacy and process controls. Root adopts the 152-file source packet `68c1bb02`
+(seven changed rows, 145 unchanged); committed bootstrap and a new native trial
+remain pending. KSM3 remains FAIL with uncertain mutation and unverified cleanup.
+Kernel5 `38292740905` is FAIL: ownership validation advances, then
+INSPECT_RESOURCES/docker-container-resources refuses before container start.
+The exact resource conjunct remains unknown; cleanup and owned absence remain
+unverified. Independent actual-run review is active. Updater's diagnostic helper
+is registered in 23 recipe sources and the 64-package/8-root pin map; strict
+workflow consumption and independent registration review remain pending.
+Installer review reproduces default SIGTERM and delayed stdout flush leaving
+false PASS after modeled success; correction is active and no new transaction
+is admitted. Guest process diagnostics and seven-file repository transport are
+held for coordinator integration. All M2, 16K, performance and full-port release
+gates remain open.
+
+Prior coordinator checkpoint, October 12, 18:40 UTC. Earlier records below
 remain historical; this checkpoint supersedes their pending-work descriptions.
 
 - Successor guest run `38283691844`, from `387217c`, passes the original generic

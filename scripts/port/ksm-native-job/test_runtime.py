@@ -942,5 +942,68 @@ runner.run([sys.executable,'-I','-B','-c',"import os,time;open({str(pidfile)!r},
                 spawn.assert_not_called()
 
 
+
+class RuntimeObservationTests(unittest.TestCase):
+    setUp = RuntimeTests.setUp
+    command = RuntimeTests.command
+    def test_actual_return_and_existing_natural_poll_are_distinct_from_cleanup(self):
+        observed=runtime.RunObservation();self.runner.observation=observed
+        result=self.runner.run(self.command('raise SystemExit(7)'))
+        self.assertEqual(result.returncode,7)
+        self.assertEqual(observed.summary(),{'started':True,'natural_poll_code':7,'runner_return_code':7,
+            'reaping':'COMPLETED','reaped_code':7})
+
+    def test_callback_broken_pipe_leaves_return_unobserved_and_reaps_owned_sleeper(self):
+        observed=runtime.RunObservation();self.runner.observation=observed
+        def broken():
+            read,write=os.pipe();os.close(read)
+            try:os.write(write,b'finite reply')
+            finally:os.close(write)
+        with self.assertRaises(BrokenPipeError):self.runner.run(self.command('import time;time.sleep(30)'),service=broken)
+        row=observed.summary();self.assertTrue(row['started']);self.assertIsNone(row['natural_poll_code'])
+        self.assertIsNone(row['runner_return_code']);self.assertEqual(row['reaping'],'COMPLETED')
+        self.assertIsNotNone(row['reaped_code'])
+
+    def test_late_log_error_keeps_poll_but_never_claims_runner_return(self):
+        observed=runtime.RunObservation();self.runner.observation=observed
+        original=self.runner._check_log;calls=[]
+        def late(*args):
+            calls.append(1)
+            if len(calls)>=2:raise OSError('private log observation failure')
+            return original(*args)
+        with patch.object(self.runner,'_check_log',side_effect=late),self.assertRaises(OSError):
+            self.runner.run(self.command('raise SystemExit(0)'),log='probe.log')
+        self.assertEqual(observed.natural_poll_code,0);self.assertIsNone(observed.runner_return_code)
+        self.assertEqual(observed.reaping,'COMPLETED')
+
+    def test_cleanup_failure_is_observation_and_preserves_original_exception(self):
+        observed=runtime.RunObservation();self.runner.observation=observed
+        original=runtime._cleanup
+        def fail(process):original(process);raise ValueError('private cleanup failure')
+        with patch.object(runtime,'_cleanup',side_effect=fail),self.assertRaisesRegex(ValueError,'private cleanup'):
+            self.runner.run(self.command('raise SystemExit(0)'))
+        self.assertEqual(observed.reaping,'FAILED');self.assertEqual(observed.reaped_code,0)
+        self.assertIsNone(observed.runner_return_code)
+
+    def test_observer_adds_no_process_poll_or_cleanup_operations(self):
+        traces=[]
+        original_spawn=runtime.subprocess.Popen;original_cleanup=runtime._cleanup
+        for enabled in (False,True):
+            trace=[]
+            def spawn(*args,**kwargs):
+                process=original_spawn(*args,**kwargs);poll=process.poll
+                def observed_poll():trace.append('poll');return poll()
+                process.poll=observed_poll;return process
+            def cleanup(process):trace.append('cleanup');return original_cleanup(process)
+            self.runner.observation=runtime.RunObservation() if enabled else None
+            with patch.object(runtime.subprocess,'Popen',side_effect=spawn),patch.object(runtime,'_cleanup',side_effect=cleanup):
+                self.runner.run(self.command('raise SystemExit(0)'))
+            traces.append(trace)
+        # Loop scheduling can add ordinary polls; exactly one cleanup still occurs.
+        self.assertEqual([x.count('cleanup') for x in traces],[1,1])
+        self.assertTrue(all(x and set(x)<={'poll','cleanup'} for x in traces))
+
+
+
 if __name__ == '__main__':
     unittest.main()

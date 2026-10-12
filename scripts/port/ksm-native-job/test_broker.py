@@ -706,4 +706,142 @@ class BrokerTests(unittest.TestCase):
             self.owner.request(['docker', 'context', 'inspect'])
 
 
+
+class RPCDiagnosticsTests(unittest.TestCase):
+    def handle(self, *, refused=False, broken=False, partial=False, cancelled=False, diagnostics=True):
+        from unittest.mock import patch
+        import struct
+        import socket
+        from types import SimpleNamespace
+        token='1'*64; observed=broker.Diagnostics() if diagnostics else None
+        owner=SimpleNamespace(diagnostics=observed,failed=False,events=[],calls=[])
+        def request(argv):
+            owner.calls.append(argv)
+            if refused: raise ValueError('private-secret-refusal/path/token')
+            return subprocess.CompletedProcess(argv,0,b'private-output-and-id')
+        owner.request=request;owner.record=lambda kind,**fields:owner.events.append((kind,fields))
+        class Connection:
+            writes=[];closed=False
+            def __enter__(self):return self
+            def __exit__(self,*args):self.closed=True
+            def settimeout(self,value):pass
+            def getsockopt(self,*args):return struct.pack('3i',77,os.geteuid(),os.getegid())
+            def sendall(self,data):
+                if partial:self.writes.append(data[:3])
+                if cancelled:raise broker.Cancelled('private cancellation detail')
+                if broken:
+                    read,write=os.pipe();os.close(read)
+                    try:os.write(write,data)
+                    finally:os.close(write)
+                self.writes.append(data)
+        connection=Connection();subject=object.__new__(broker.Service);subject.broker=owner;subject.token=token
+        wire=json.dumps({'token':token,'argv':['version']}).encode()
+        error=None
+        with patch.object(broker,'receive',return_value=wire):
+            try:subject.handle(connection)
+            except (BrokenPipeError,broker.Cancelled) as raised:error=type(raised).__name__
+        return owner,connection,error
+
+    def test_completed_or_refused_request_real_broken_pipe_preserves_first_failure(self):
+        for refused in (False,True):
+            with self.subTest(refused=refused):
+                owner,connection,error=self.handle(refused=refused,broken=True)
+                self.assertEqual(error,'BrokenPipeError');self.assertTrue(connection.closed)
+                row=owner.diagnostics.snapshot()['rpc']
+                self.assertEqual(row['first_failure']['category'],'ValueError' if refused else 'BrokenPipeError')
+                self.assertEqual(row['last_failure']['category'],'BrokenPipeError')
+                self.assertEqual(row['current']['step'],'REPLY_FAILED')
+                self.assertEqual(owner.failed,refused)  # Same original Service semantics.
+                self.assertEqual(len(owner.calls),1)
+                encoded=json.dumps(owner.diagnostics.snapshot())
+                self.assertNotIn('private',encoded);self.assertNotIn('token',encoded)
+                self.assertIsNone(row['request_return'] if refused else None)
+                if not refused:self.assertEqual(row['request_return']['code'],0)
+
+    def test_partial_reply_and_cancellation_refuse_without_retry(self):
+        for cancelled in (False,True):
+            owner,connection,error=self.handle(broken=not cancelled,partial=True,cancelled=cancelled)
+            self.assertEqual(error,'Cancelled' if cancelled else 'BrokenPipeError')
+            self.assertEqual(len(connection.writes),1);self.assertEqual(len(connection.writes[0]),3)
+            self.assertEqual(len(owner.calls),1)
+            self.assertEqual(owner.diagnostics.snapshot()['rpc']['current']['step'],'REPLY_FAILED')
+
+    def test_diagnostics_do_not_change_request_result_or_exception(self):
+        for refused in (False,True):
+            for broken in (False,True):
+                with self.subTest(refused=refused,broken=broken):
+                    a,c,e=self.handle(refused=refused,broken=broken)
+                    b,d,f=self.handle(refused=refused,broken=broken,diagnostics=False)
+                    self.assertEqual((a.calls,a.events,a.failed,e,c.writes),(b.calls,b.events,b.failed,f,d.writes))
+
+    def test_closed_labels_counts_hashes_and_unknown_types_have_finite_projection(self):
+        class SecretError(Exception):pass
+        diagnostic=broker.Diagnostics()
+        for _ in range(4100):diagnostic.begin()
+        diagnostic.kind(['credential-secret-command','/private/secret'])
+        diagnostic.returned(subprocess.CompletedProcess([],True,b'private\0credential'),argv=['info'])
+        diagnostic.failure('private-stage',SecretError('raw-secret-error'))
+        diagnostic.cleaned({'status':'FAIL','containers_absent':True,'owned_image_absent':True,'error_type':'SecretError'},True)
+        row=diagnostic.snapshot();encoded=json.dumps(row).encode()
+        self.assertLessEqual(len(encoded),4096);self.assertNotIn(b'private',encoded);self.assertNotIn(b'credential',encoded)
+        self.assertEqual(row['rpc']['requests'],4096);self.assertTrue(row['rpc']['saturated'])
+        self.assertEqual(row['rpc']['current']['kind'],'UNKNOWN')
+        self.assertIsNone(row['rpc']['cli_return']['code'])
+        self.assertEqual(row['rpc']['first_failure']['category'],'UNKNOWN')
+        self.assertEqual(row['cleanup']['error_category'],'UNKNOWN')
+        row=diagnostic.snapshot({'started':'raw-secret', 'runner_return_code':True,
+            'natural_poll_code':-129,'reaped_code':256,'reaping':'private','extra':'credential'})
+        self.assertNotIn('private',json.dumps(row));self.assertNotIn('credential',json.dumps(row))
+        self.assertIsNone(row['producer']['runner_return_code']);self.assertIsNone(row['producer']['started'])
+        self.assertEqual(row['producer']['reaping'],'UNKNOWN')
+        class ForeignResult:
+            @property
+            def stdout(self):raise AssertionError('observer must not read rejected foreign result')
+        self.assertEqual(broker.diagnostic_result(ForeignResult()),
+            {'code':None,'stdout_bytes':None,'stdout_sha256':None})
+        first=row['rpc']['first_failure'];diagnostic.begin();diagnostic.failure('CLEANUP',OSError('later private'))
+        self.assertEqual(diagnostic.snapshot()['rpc']['first_failure'],first)
+        self.assertEqual(diagnostic.snapshot()['rpc']['last_failure']['category'],'OSError')
+        diagnostic.cleaned({'status':['private'],'error_type':['private']},False)
+        self.assertEqual(diagnostic.snapshot({'reaping':['private']})['producer']['reaping'],'UNKNOWN')
+        self.assertEqual(diagnostic.snapshot()['cleanup']['status'],'UNKNOWN')
+
+
+
+class BrokerReturnDiagnosticsTests(unittest.TestCase):
+    setUp = BrokerTests.setUp
+    def test_actual_cleanup_success_reports_only_existing_returned_flags(self):
+        self.owner.diagnostics=broker.Diagnostics()
+        result=self.owner.cleanup();row=self.owner.diagnostics.snapshot()['cleanup']
+        self.assertEqual(result['status'],'PASS');self.assertEqual(row['status'],'PASS')
+        self.assertFalse(row['owner_failed']);self.assertTrue(row['containers_absent'])
+        self.assertTrue(row['owned_image_absent']);self.assertIsNone(row['error_category'])
+
+    def test_cli_return_captured_before_original_postcheck_refusal(self):
+        self.owner.diagnostics=broker.Diagnostics();self.owner.diagnostics.begin()
+        self.backend.action=lambda args:setattr(self.owner,'failed',True)
+        with self.assertRaisesRegex(ValueError,'failed-broker'):
+            self.owner.call(['version'])
+        row=self.owner.diagnostics.snapshot()['rpc']['cli_return']
+        self.assertEqual(row['code'],0);self.assertEqual(row['kind'],'VERSION')
+        self.assertEqual(row['stdout_bytes'],len(b'fixture Docker version\n'))
+
+    def test_cleanup_sticky_fail_does_not_erase_actual_returned_absence_flags(self):
+        self.owner.diagnostics=broker.Diagnostics();self.owner.failed=True
+        result=self.owner.cleanup();row=self.owner.diagnostics.snapshot()['cleanup']
+        self.assertEqual(result['status'],'FAIL');self.assertEqual(row['status'],'FAIL')
+        self.assertTrue(row['containers_absent']);self.assertTrue(row['owned_image_absent'])
+        self.assertTrue(row['owner_failed']);self.assertIsNone(row['error_category'])
+
+    def test_cleanup_exception_and_success_separate_observed_result_flags(self):
+        self.owner.diagnostics=broker.Diagnostics()
+        with __import__('unittest.mock',fromlist=['patch']).patch.object(self.owner,'check',side_effect=OSError('raw/private')):
+            self.assertEqual(self.owner.cleanup()['status'],'FAIL')
+        row=self.owner.diagnostics.snapshot()['cleanup']
+        self.assertFalse(row['containers_absent']);self.assertFalse(row['owned_image_absent'])
+        self.assertEqual(row['error_category'],'OSError')
+        self.assertEqual(self.owner.diagnostics.snapshot()['rpc']['first_failure']['stage'],'CLEANUP')
+
+
+
 if __name__ == '__main__': unittest.main()

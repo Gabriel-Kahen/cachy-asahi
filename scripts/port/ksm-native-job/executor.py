@@ -75,6 +75,7 @@ def initial(args):
             'phase': 'source', 'source_gate': 'native-coordinator', 'source_failure_reason': None,
             'source_observations': {}, 'producer': 'NOT RUN', 'builds': ['NOT RUN', 'NOT RUN'],
             'producer_mutation': 'NOT_STARTED', 'daemon_baseline': None,
+            'producer_diagnostics': broker.Diagnostics().snapshot(runtime.RunObservation().summary()),
             'comparison': 'NOT RUN', 'lifecycle': 'NOT RUN', 'cleanup': 'NOT RUN',
             'public_export': 'NOT RUN', 'cancelled': False, 'ownership_uncertain': False,
             'hardware': 'NOT RUN', 'management': 'NOT RUN', 'performance': 'NOT RUN',
@@ -399,8 +400,23 @@ def pipeline(snapshot, source, private, owner, service, runner, endpoint_observa
     command = consumer.producer_command(source, private, inputs_sha=job.INPUTS_SHA, recipes_sha=job.RECIPES_SHA)
     command.insert(1, '-I'); command.insert(3, '-S')
     report['producer_mutation'] = 'UNCERTAIN'
-    produced = scoped_run(owner, runner, command, 6600, 1650, phase_end=producer_end,
-                          log='producer.log', service=service.poll)
+    observation = runtime.RunObservation()
+    previous_observation = getattr(runner, 'observation', None)
+    diagnostics = getattr(owner, 'diagnostics', None)
+    if type(diagnostics) is not broker.Diagnostics: diagnostics = None
+    runner.observation = observation
+    try:
+        produced = scoped_run(owner, runner, command, 6600, 1650, phase_end=producer_end,
+                              log='producer.log', service=service.poll)
+        observation.runner_return_code = observation.code(produced.returncode)
+    except BaseException as error:
+        if diagnostics is not None: diagnostics.failure('PRODUCER', error)
+        raise
+    finally:
+        runner.observation = previous_observation
+        if diagnostics is not None:
+            diagnostics.producer = observation.summary()
+            report['producer_diagnostics'] = diagnostics.snapshot(diagnostics.producer)
     if produced.returncode == 0: report['producer_mutation'] = 'COMPLETE_REJECTED'
     check_source_tree(snapshot, source, deadline=producer_end)
     producer = contracts.validate_producer(snapshot, private / 'producer', produced.returncode, binding,
@@ -494,6 +510,7 @@ def execute(args, state):
     args._private_fd = None
     state.owned_public = None
     private, owner, service, native, docker_runner, transport, baseline = None, None, None, None, None, None, None
+    diagnostics = broker.Diagnostics()
     try:
         report['source_gate'] = 'source-clock'
         now = time.monotonic()
@@ -591,7 +608,7 @@ def execute(args, state):
             context_digest=lambda path: context_digest(snapshot, private, path,
                 deadline=owner.operation_deadline or owner.deadline),
             binding={key: binding[key] for key in ('source_commit', 'run_id', 'packet_sha256', 'uid', 'gid')},
-            deadline=end, cancelled=lambda: state.signum is not None, baseline=baseline)
+            deadline=end, cancelled=lambda: state.signum is not None, baseline=baseline, diagnostics=diagnostics)
         source_check()
         report['source_gate'] = 'rpc-service'
         service = broker.Service(socket_path, owner, token)
@@ -614,6 +631,7 @@ def execute(args, state):
         state.check(); need(time.monotonic() < source_end, 'source-phase-deadline')
         pipeline(snapshot, source, private, owner, service, native, observations, binding, report, state)
     except (Exception, runtime.Cancelled, KeyboardInterrupt) as error:
+        if report['phase'] == 'producer': diagnostics.failure('PRODUCER', error)
         report.update(status='FAIL', failure_category=type(error).__name__,
                       cancelled=isinstance(error, (runtime.Cancelled, KeyboardInterrupt)) or state.signum is not None)
         if report['phase'] == 'source':
@@ -628,20 +646,26 @@ def execute(args, state):
                     cleanup = owned_cleanup(owner, docker_runner.deadline)
                     report['cleanup'] = cleanup['status']
                     if cleanup['status'] != 'PASS': report['status'] = 'FAIL'
-                except BaseException:
+                except BaseException as error:
+                    diagnostics.failure('CLEANUP', error)
                     report.update(status='FAIL', cleanup='FAIL', ownership_uncertain=True)
                 if baseline is not None and baseline.ready:
                     try: baseline_observe(owner, 'after_cleanup', owner.cleanup_end)
-                    except BaseException: report.update(status='FAIL', cleanup='FAIL', ownership_uncertain=True)
+                    except BaseException as error:
+                        diagnostics.failure('CLEANUP', error)
+                        report.update(status='FAIL', cleanup='FAIL', ownership_uncertain=True)
             if baseline is not None: report['daemon_baseline'] = baseline.summary()
             for resource in (service, owner, baseline, transport, native, docker_runner):
                 if resource is not None:
                     try: resource.close()
-                    except BaseException: report.update(status='FAIL', cleanup='FAIL')
+                    except BaseException as error:
+                        diagnostics.failure('CLEANUP', error)
+                        report.update(status='FAIL', cleanup='FAIL')
             if state.signum is not None or events: report.update(status='FAIL', cancelled=True)
             if report['status'] != 'PASS' and private is not None and owned_output(args):
                 try: invalidate_public(args.output, report, state.owned_public)
                 except (OSError, ValueError): report['public_export'] = 'FAIL-evidence-invalidation'
+            report['producer_diagnostics'] = diagnostics.snapshot(getattr(diagnostics, 'producer', runtime.RunObservation().summary()))
             if private is not None: save_status(args, report)
         if state.signum is not None or events:
             report.update(status='FAIL', cancelled=True)

@@ -42,6 +42,93 @@ def need(ok, reason):
         raise ValueError(reason)
 
 
+def diagnostic_error(error):
+    name = type(error).__name__
+    return name if name in {'BrokenPipeError', 'TimeoutError', 'ValueError', 'OSError',
+        'Cancelled', 'KeyboardInterrupt', 'TypeError', 'KeyError', 'SubprocessError',
+        'TimeoutExpired', 'CalledProcessError'} else 'UNKNOWN'
+
+
+def diagnostic_kind(argv):
+    """Closed candidate family only; the existing broker validates the request."""
+    if type(argv) is not list or any(type(x) is not str for x in argv): return 'UNKNOWN'
+    for prefix, kind in ((['context', 'inspect'], 'CONTEXT_INSPECT'),
+            (['image', 'inspect'], 'IMAGE_INSPECT'), (['image', 'ls'], 'IMAGE_LIST'),
+            (['image', 'rm'], 'IMAGE_REMOVE'), (['container', 'inspect'], 'CONTAINER_INSPECT'),
+            (['container', 'ls'], 'CONTAINER_LIST'), (['info'], 'INFO'),
+            (['version'], 'VERSION'), (['build'], 'BUILD'), (['run'], 'RUN'),
+            (['create'], 'CREATE'), (['start'], 'START'), (['rm'], 'REMOVE')):
+        if argv[:len(prefix)] == prefix: return kind
+    return 'UNKNOWN'
+
+
+def diagnostic_result(result):
+    code, data = (result.returncode, result.stdout) if type(result) is subprocess.CompletedProcess else (None, None)
+    return {'code': code if type(code) is int and -128 <= code <= 255 else None,
+        'stdout_bytes': len(data) if type(data) is bytes and len(data) <= RESPONSE_LIMIT else None,
+        'stdout_sha256': hashlib.sha256(data).hexdigest() if type(data) is bytes and len(data) <= RESPONSE_LIMIT else None}
+
+
+class Diagnostics:
+    """Finite in-memory observations; no I/O, callbacks, queries or acceptance."""
+    def __init__(self):
+        self.rpc = {'requests': 0, 'saturated': False, 'current': None,
+                    'cli_begin': None, 'cli_return': None, 'request_return': None,
+                    'first_failure': None, 'last_failure': None}
+        self.cleanup = None
+
+    def begin(self):
+        self.rpc['saturated'] |= self.rpc['requests'] == 4096
+        self.rpc['requests'] = min(4096, self.rpc['requests'] + 1)
+        self.rpc['current'] = {'ordinal': self.rpc['requests'], 'kind': 'UNKNOWN', 'step': 'REQUEST_BEGIN'}
+
+    def kind(self, argv):
+        if self.rpc['current'] is not None: self.rpc['current']['kind'] = diagnostic_kind(argv)
+
+    def step(self, step):
+        if self.rpc['current'] is not None:
+            self.rpc['current']['step'] = step if step in {'REQUEST_BEGIN', 'REQUEST_RETURNED',
+                'REQUEST_REFUSED', 'REPLY_BEGIN', 'REPLY_SENT', 'REPLY_FAILED'} else 'UNKNOWN'
+
+    def returned(self, result, *, argv=None):
+        row = diagnostic_result(result)
+        row.update(ordinal=self.rpc['requests'], kind=diagnostic_kind(argv) if argv is not None
+                   else (self.rpc['current']['kind'] if self.rpc['current'] else 'UNKNOWN'))
+        self.rpc['cli_return' if argv is not None else 'request_return'] = row
+
+    def cli_begin(self, argv):
+        self.rpc['cli_begin'] = {'ordinal': self.rpc['requests'], 'kind': diagnostic_kind(argv)}
+
+    def failure(self, stage, error):
+        row = {'ordinal': self.rpc['requests'],
+            'kind': self.rpc['current']['kind'] if self.rpc['current'] else 'UNKNOWN',
+            'stage': stage if stage in {'REQUEST', 'CLI', 'REPLY', 'PRODUCER', 'CLEANUP'} else 'UNKNOWN',
+            'category': diagnostic_error(error)}
+        if self.rpc['first_failure'] is None: self.rpc['first_failure'] = dict(row)
+        self.rpc['last_failure'] = row
+
+    def cleaned(self, result, failed):
+        self.cleanup = {'status': result.get('status') if type(result.get('status')) is str and result.get('status') in {'PASS', 'FAIL'} else 'UNKNOWN',
+            'owner_failed': failed if type(failed) is bool else None,
+            'containers_absent': result.get('containers_absent') if type(result.get('containers_absent')) is bool else None,
+            'owned_image_absent': result.get('owned_image_absent') if type(result.get('owned_image_absent')) is bool else None,
+            'error_category': result.get('error_type') if type(result.get('error_type')) is str and result.get('error_type') in {'BrokenPipeError', 'TimeoutError',
+                'ValueError', 'OSError', 'Cancelled', 'KeyboardInterrupt', 'TypeError', 'KeyError',
+                'SubprocessError', 'TimeoutExpired', 'CalledProcessError'} else ('UNKNOWN' if 'error_type' in result else None)}
+
+    def snapshot(self, producer=None):
+        if type(producer) is dict:
+            producer = {'started': producer.get('started') if type(producer.get('started')) is bool else None,
+                **{name: producer.get(name) if type(producer.get(name)) is int and -128 <= producer[name] <= 255
+                   else None for name in ('natural_poll_code', 'runner_return_code', 'reaped_code')},
+                'reaping': producer.get('reaping') if type(producer.get('reaping')) is str and producer.get('reaping') in {'NOT RUN', 'COMPLETED', 'FAILED'} else 'UNKNOWN'}
+        else: producer = None
+        row = {'schema_version': 1, 'rpc': self.rpc, 'producer': producer, 'cleanup': self.cleanup}
+        # Only closed primitives created above enter this projection; never journal/raw input rows.
+        encoded = json.dumps(row, sort_keys=True, separators=(',', ':'))
+        return json.loads(encoded) if len(encoded.encode()) <= 4096 else {'schema_version': 1, 'state': 'UNKNOWN'}
+
+
 def argv_check(argv):
     need(type(argv) is list and 0 < len(argv) <= 128 and all(type(x) is str and x and '\0' not in x
          and len(x) <= 8192 for x in argv), 'bounded-argv-required')
@@ -374,7 +461,7 @@ class Broker:
     """
     def __init__(self, backend, journal_path, nonce, private_root, source_root, *,
                  context_digest, binding, deadline=None, daemon_id=None,
-                 cancelled=lambda: False, clock=time.monotonic, baseline=None):
+                 cancelled=lambda: False, clock=time.monotonic, baseline=None, diagnostics=None):
         need(re.fullmatch(r'[0-9a-f]{32}', nonce or ''), 'nonce-required')
         need(type(binding) is dict and set(binding) == {'source_commit', 'run_id', 'packet_sha256', 'uid', 'gid'}, 'exact-job-binding-required')
         binding = dict(binding)
@@ -403,6 +490,7 @@ class Broker:
         self.context_digest, self.clock, self.cancelled = context_digest, clock, cancelled
         self.deadline = clock() + 8460 if deadline is None else deadline
         self.operation_deadline = None  # Parent sets the current outer phase cutoff.
+        self.diagnostics = diagnostics if type(diagnostics) is Diagnostics else None
         self.thread = threading.get_ident()
         self.phase, self.image, self.image_reserved, self.image_removed = 'producer', None, False, False
         self.image_context = None
@@ -490,7 +578,13 @@ class Broker:
         need(remaining > 0, 'phase-deadline-or-cleanup-time-reserve')
         argv = ['docker', '--host=' + self.backend.endpoint, *args]
         self.record('docker-operation-reserved', argv=argv)
-        result = self.backend.call(argv, timeout=min(maximum, remaining))
+        if self.diagnostics is not None: self.diagnostics.cli_begin(args)
+        try:
+            result = self.backend.call(argv, timeout=min(maximum, remaining))
+        except BaseException as error:
+            if self.diagnostics is not None: self.diagnostics.failure('CLI', error)
+            raise
+        if self.diagnostics is not None: self.diagnostics.returned(result, argv=args)
         need(isinstance(result, subprocess.CompletedProcess) and type(result.returncode) is int
              and type(result.stdout) is bytes and len(result.stdout) <= RESPONSE_LIMIT
              and result.stderr in (None, b''), 'bounded-folded-backend-response-required')
@@ -776,6 +870,8 @@ class Broker:
             self.failed = True
             result = {'status': 'FAIL', 'containers_absent': False, 'owned_image_absent': False,
                       'legacy_build_cache_absence': 'NOT ESTABLISHED', 'error_type': type(error).__name__}
+            if self.diagnostics is not None: self.diagnostics.failure('CLEANUP', error)
+        if self.diagnostics is not None: self.diagnostics.cleaned(result, self.failed)
         self.record('cleanup-result', **result)
         return result
 
@@ -848,6 +944,9 @@ class Service:
             self.busy = False
 
     def handle(self, connection):
+        diagnostics = getattr(self.broker, 'diagnostics', None)
+        if type(diagnostics) is not Diagnostics: diagnostics = None
+        if diagnostics is not None: diagnostics.begin()
         with connection:
             connection.settimeout(5)
             try:
@@ -855,13 +954,25 @@ class Service:
                 need(peer[1] == os.geteuid(), 'rpc-peer-owner-required')
                 request = json.loads(receive(connection, REQUEST_LIMIT))
                 need(type(request) is dict and set(request) == {'token', 'argv'} and request['token'] == self.token, 'rpc-request-refused')
+                if diagnostics is not None: diagnostics.kind(request['argv'])
                 result = self.broker.request(['docker', *request['argv']])
+                if diagnostics is not None:
+                    diagnostics.returned(result); diagnostics.step('REQUEST_RETURNED')
                 response = {'code': result.returncode, 'stdout': base64.b64encode(result.stdout).decode()}
             except (ValueError, OSError, subprocess.SubprocessError, KeyError, TypeError) as error:
+                if diagnostics is not None:
+                    diagnostics.failure('REQUEST', error); diagnostics.step('REQUEST_REFUSED')
                 self.broker.failed = True
                 self.broker.record('rpc-failed', error_type=type(error).__name__)
                 response = {'code': 125, 'stdout': base64.b64encode(('scoped Docker request refused: ' + type(error).__name__ + '\n').encode()).decode()}
-            send(connection, json.dumps(response).encode(), RESPONSE_LIMIT * 2)
+            if diagnostics is not None: diagnostics.step('REPLY_BEGIN')
+            try:
+                send(connection, json.dumps(response).encode(), RESPONSE_LIMIT * 2)
+            except BaseException as error:
+                if diagnostics is not None:
+                    diagnostics.failure('REPLY', error); diagnostics.step('REPLY_FAILED')
+                raise
+            if diagnostics is not None: diagnostics.step('REPLY_SENT')
 
     def close(self):
         self.socket.close()

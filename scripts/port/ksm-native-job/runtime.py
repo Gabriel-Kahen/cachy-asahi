@@ -438,6 +438,25 @@ class _LifecycleOutputs:
             self.fds.clear()
 
 
+class RunObservation:
+    """Existing process observations only; no callback, poll or child operation."""
+    def __init__(self):
+        self.started = False
+        self.natural_poll_code = None
+        self.runner_return_code = None
+        self.reaping = 'NOT RUN'
+        self.reaped_code = None
+
+    @staticmethod
+    def code(value):
+        return value if type(value) is int and -128 <= value <= 255 else None
+
+    def summary(self):
+        return {'started': self.started, 'natural_poll_code': self.code(self.natural_poll_code),
+            'runner_return_code': self.code(self.runner_return_code), 'reaping': self.reaping,
+            'reaped_code': self.code(self.reaped_code)}
+
+
 class Runner:
     """Runner(env, private_root, log_dir, deadline_seconds=8460, deadline_at=None).
 
@@ -793,6 +812,8 @@ class Runner:
             return self._run(argv, timeout, limit, log, pass_fds, service, cancellation)
 
     def _run(self, argv, timeout, limit, log, pass_fds, service, cancellation, *, cleanup=False):
+        observation = getattr(self, 'observation', None)
+        if type(observation) is not RunObservation: observation = None
         need(threading.current_thread() is threading.main_thread() and threading.active_count() == 1, 'threaded-runner')
         timeout = _seconds(timeout)
         need(type(limit) is int and 0 < limit <= MAX_OUTPUT, 'invalid-output-bound')
@@ -845,6 +866,7 @@ class Runner:
                     preexec_fn=lambda: _child_setup(parent, mask, min(timeout, end - time.monotonic())))
             finally:
                 signal.pthread_sigmask(signal.SIG_SETMASK, mask)
+            if observation is not None: observation.started = True
             os.set_blocking(process.stdout.fileno(), False)
             selector.register(process.stdout, selectors.EVENT_READ)
             while True:
@@ -854,6 +876,7 @@ class Runner:
                 if not cleanup and time.monotonic() >= self._resource_due: self.check_resources()
                 need(time.monotonic() < end, 'command-timeout')
                 code = process.poll()
+                if observation is not None and code is not None: observation.natural_poll_code = observation.code(code)
                 if code is not None:
                     break
                 for key, _ in selector.select(min(end - time.monotonic(), .05)):
@@ -865,8 +888,15 @@ class Runner:
                 errors = []
                 if mask is not None: signal.pthread_sigmask(signal.SIG_SETMASK, mask)
                 if process is not None:
-                    try: _cleanup(process)
-                    except BaseException as error: errors.append(error)
+                    if observation is not None: observation.started = True
+                    try:
+                        _cleanup(process)
+                        if observation is not None:
+                            observation.reaping = 'COMPLETED'; observation.reaped_code = observation.code(process.returncode)
+                    except BaseException as error:
+                        if observation is not None:
+                            observation.reaping = 'FAILED'; observation.reaped_code = observation.code(process.returncode)
+                        errors.append(error)
                     try:
                         os.set_blocking(process.stdout.fileno(), False)
                         while True:
@@ -890,4 +920,5 @@ class Runner:
             if not cleanup: cancellation.check()
             if errors: raise errors[0]
         need(time.monotonic() < end, 'phase-deadline-exhausted')
+        if observation is not None: observation.runner_return_code = observation.code(process.returncode)
         return subprocess.CompletedProcess(argv, process.returncode, bytes(output), None)

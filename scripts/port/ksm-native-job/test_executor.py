@@ -600,5 +600,36 @@ class UnbufferedCopyTests(unittest.TestCase):
                 self.assertEqual(write.call_count,1)
             self.assertEqual((root/'zero/tiny.py').stat().st_size,0)
 
+
+class ProducerObservationTests(unittest.TestCase):
+    def test_existing_return_or_callback_exception_never_promotes_producer(self):
+        for throws in (False,True):
+            with tempfile.TemporaryDirectory() as temporary:
+                private=Path(temporary);diagnostics=e.broker.Diagnostics();diagnostics.begin()
+                owner=SimpleNamespace(failed=False,diagnostics=diagnostics,
+                    backend=SimpleNamespace(runner=SimpleNamespace(phase_scope=lambda end:nullcontext())),operation_deadline=None)
+                report={'phase':'source'};prior=object();commands=[]
+                def run(command,**options):
+                    commands.append((command,options))
+                    if throws:raise BrokenPipeError('private RPC path')
+                    return subprocess.CompletedProcess(command,7,b'private producer output')
+                runner=SimpleNamespace(run=run,deadline=time.monotonic()+8460,observation=prior)
+                with patch.object(e,'baseline_observe'),patch.object(e,'check_source_tree'),patch.object(e,'journal_rows',return_value=[]),\
+                     patch.object(e.contracts,'validate_producer',side_effect=ValueError('unaccepted fixture')),\
+                     self.assertRaises((BrokenPipeError,ValueError)):
+                    e.pipeline(SimpleNamespace(files={}),Path('/source'),private,owner,
+                        SimpleNamespace(poll=lambda:None),runner,{}, {},report,SimpleNamespace(check=lambda:None))
+                self.assertIs(runner.observation,prior);self.assertEqual(len(commands),1)
+                row=report['producer_diagnostics'];self.assertEqual(row['producer']['runner_return_code'],None if throws else 7)
+                self.assertEqual(report['producer_mutation'],'UNCERTAIN');self.assertNotIn('private',json.dumps(row))
+                if throws:self.assertEqual(row['rpc']['first_failure']['category'],'BrokenPipeError')
+
+    def test_initial_projection_is_finite_unobserved_and_does_not_claim_cleanup(self):
+        row=e.initial(SimpleNamespace(source_commit='a'*40,packet_sha256='b'*64))['producer_diagnostics']
+        self.assertLessEqual(len(json.dumps(row).encode()),4096)
+        self.assertIsNone(row['cleanup']);self.assertIsNone(row['producer']['runner_return_code'])
+        self.assertFalse(row['producer']['started']);self.assertIsNone(row['rpc']['first_failure'])
+
+
 if __name__ == '__main__':
     unittest.main()
