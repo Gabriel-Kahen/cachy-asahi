@@ -1,0 +1,67 @@
+# Separate finite updater native workflow
+
+Status: **SOURCE-ONLY DRAFT against reviewed owner checkpoint `c159cc3`; original bounded source/interface review closed; UW1/UW2/UW3 and early-failure recovery corrections supplied for coordinator review. Hosted/native execution NOT RUN.** Only the new `.github/workflows/native-arm-updater.yml` and this document belong to this assignment. No initial/development source, package, wrapper, shared lock, Git registration or dispatch is changed here.
+
+The [wrapper contract](updater-native-stage.md) owns private materialization, authenticated source/runtime/broker operations, two native builds, scoped resource recovery and guarded public projection. The package's 64-file checkpoint, ready-map `ff879da588419fc0f90ef6a27c8afc528c3f6a557ef2c060544d1b5e99ade4e2`, eight root pins, base snapshot `3c16c37d…`, thirteen-package extension and exact 354-package inventory remain its prerequisites. This workflow does not replace those gates. The unresolved macOS notices and package/vendor publication blockers remain open.
+
+## Runner and exact provenance
+
+The workflow is manual-only, restricted to the named public repository, with `contents: read`, pinned checkout `3d3c42e5aac5ba805825da76410c181273ba90b1`, credentials persistence disabled and the existing `native-arm-build` concurrency group with cancellation disabled. It selects the standard `ubuntu-24.04-arm` runner. GitHub documents this public runner as a new VM with four CPUs, 16 GB RAM and nominal 14 GB SSD; standard public runners are free. [GitHub runner specifications](https://docs.github.com/en/actions/reference/runners/github-hosted-runners)
+
+Actual free capacity must satisfy the wrapper's 10 GiB output/8 GiB Docker checks and 18 GiB requirement on a shared filesystem. The advertised capacity does not establish those checks; insufficient actual space refuses before the private trial. This workflow does not remove host software or shared Docker data to create space.
+
+The caller supplies a reviewed full `source_commit`; it must equal `GITHUB_SHA`, the explicitly checked-out ref and the source helper's actual Git HEAD/blob/mode/closed-inventory checks. Before each CLI invocation, the shell independently checks `stage.py` against its reviewed literal digest. Freeze authenticates `source.py` before its first import and binds package/helper/stage bytes, budget, host/boot/socket and executable identities. Its fresh controller stays outside the checkout under an owned 0700 `/tmp` control directory, with an independently recorded controller hash.
+
+The coordinator accepted the corrected ten-file owner checkpoint `c159cc3`, with **136 source tests PASS, zero skips** and independent UN1 closure. This workflow now embeds its unchanged literal bootstrap hashes: `stage.py` = `96ddf13af155a0a01c499a53d92e8e8b5a50e28173368bbfdb8df3b0965b309c`; `source.py` = `259b13b210123d90f824f21bf7662785d50c7586519a78451ab62e97ec577d5f`. The corrected broker is `0291f10d605d50914f5551787839c823ace8fe96439f9940eb56a569fad6d98e`; its bytes are bound by the controller's complete committed source closure. The workflow does not execute the broker directly or substitute its wire protocol. The owner's 136-test implementation/source result is not a native controller freeze or compilation result. Run and cleanup use the same external controller pin. Cleanup independently hashes the current bounded ownership record after the run has exited and passes `--ownership-sha256`; it never infers authority from an arbitrary directory or process name.
+
+## One aggregate deadline
+
+The coordinator clarified that the earlier 180 minutes was a generic ceiling. The draft uses a **116-minute job timeout**, below the wrapper's documented two-hour outer-lifetime requirement. The first trusted step records a monotonic deadline **115 minutes later, before checkout**, reserving one minute relative to the configured job timeout. This measures time since that step, not GitHub's VM provisioning/decommissioning latency.
+
+Every subsequent ceiling is recomputed from that same deadline:
+
+| Phase | Maximum and reserved remainder |
+| --- | --- |
+| Checkout/bootstrap/freeze | Bootstrap step at most five minutes; freeze process at most 270 seconds plus 13 seconds force-stop, with 550 seconds still reserved |
+| Private native run | At most 110 minutes including 190 seconds deferred TERM cleanup; subtract another five minutes for recovery/public handoff before choosing the TERM deadline |
+| Owned recovery | At most three minutes including a 13-second force-stop margin; reserve two minutes for public verification |
+| Public verification | At most two minutes including a 13-second force-stop margin, bounded by the remaining aggregate deadline |
+
+If the clock cannot leave the cleanup/public reserve and at least 60 seconds of execution plus the 190-second native teardown allowance, the run refuses before invoking the wrapper or creating raw output. The phase ceilings are not summed into a larger allowance. The wrapper's 6,900/7,100-second internal constants stay unchanged; this workflow can cancel earlier and does **not** guarantee a full worst-case native budget. TERM/KILL, failed recovery, ambiguous ownership, capacity failure or cancellation remain failure outcomes.
+
+The private trial uses the job's dedicated ephemeral local Docker daemon through the wrapper broker's fixed endpoint and reviewed command shapes. No host package installation, service/updater execution, global process/GPG kill or Docker prune is added. Registered resource absence and scoped raw cleanup are the wrapper's evidence. Ephemeral runner disposal remains a platform dependency, particularly for unregistered intermediate/cache layers and stalled hosts; job timeout is not a measured hypervisor disposal or forensic erasure guarantee. [GitHub cancellation behavior](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-cancellation)
+
+## Recovery and public evidence
+
+The always-step first invokes bounded authenticated `cleanup`, immediately after run exit. Its stdout/stderr, the controller, ownership record and run/freeze streams remain private. Recovery PASS attests cleanup only and cannot promote a failed or cancelled native run. No post-cleanup project/guard/bundle operation is invoked through `public_worker.execute()`: its original operations already ran while the private authenticated snapshot existed.
+
+The small post-exit consumer authenticates the same controller/source and reuses verified checkout bytes for the existing public-tree checker, selector declarations, generic credential guard and bundler. It supplies no replacement projection or credential policy. Before emitting evidence it verifies:
+
+- Strict duplicate-key/nonfinite JSON rejection and exact bounded owned, singly-linked JSON file sets; complete PASS export manifests; no rejection/extra entries; exact byte/hash accounting and limits.
+- Canonical terminal source/ready/controller identities, finite outcome fields including the exact legitimate `RuntimeFailure` class, finalized state and cleanup/retention/cancellation predicates. Missing or incomplete recovery evidence cannot produce workflow PASS; valid original diagnostics remain eligible for retention when the recovery pair was revoked. On non-PASS outcomes, retention may be absent as in the producer’s early recovery failure; any present retention value stays boolean and PASS still requires it true. If forced termination leaves no complete original terminal file pair, the independently validated recovery terminal is retained alone; no guarded group/original bundle is emitted without the original terminal binding, the summary records native evidence `NOT ATTESTED`, and the aggregate remains FAIL.
+- Only the projector's fixed guarded receipt names plus `projection.json`/`materializer.json`; each captured receipt must round-trip exactly through its authenticated pinned selector sanitizer. The finite inverse handles only the selector’s declared public transformations (counts, Cargo identities, inventory, tools, acquisition and package metadata), enforces its list/node/depth limits, and supplies inert data without filesystem reads. Exact serialized equality refuses extra fields and boolean/integer confusion. Materializer metadata must equal its pinned sanitizer output. The projection manifest has exact fixed fields, limits/retention policy, ordered accepted/missing selector names, and byte/hash accounting for every retained receipt. No private/vendor/cache/source/log/package/key subtree fallback.
+- Existing public bundle size/hash against the original terminal and exact regular tar members/content against guarded JSON, without filesystem extraction. Global PAX metadata and member metadata other than finite numeric mtime are refused.
+- A successful native pair and all three comparison booleans with zero comparison errors before accepting an original stage PASS.
+
+Captured JSON passes through the unchanged authenticated credential guard again. Publication uses bounded free-log evidence markers only: bundles rebuilt from re-guarded JSON for the guarded and canonical terminal/recovery groups. The original tar bytes are never transmitted, including opaque padding or header fields. Each marker records the rebuilt bundle digest; the terminal retains the verified original bundle digest as an input reference. No artifact/cache upload, image export, registry publication, binary/package/vendor source or raw output is selected.
+
+Workflow PASS requires the original native and recovery terminal PASS predicates, actual zero run/cleanup exits and the native step's successful outcome. Public recovery success alone is insufficient. Every terminal continues to say publication **NOT ACCEPTED** and hardware **NOT RUN**. Rust native compilation is not installation, target dependency acceptance, tray/updater runtime behavior, M2/16K compatibility, performance or production publication.
+
+## Verification and remaining handoff
+
+Four shell blocks pass `bash -n`; all three embedded Python bodies pass AST parsing. **48 isolated consumer fixtures PASS**: bound success, failure/cancellation and missing recovery, wrong identities, unknown fields, symlink/hardlink/unlisted files, bundle/content drift, credential content, comparison/cleanup failures, duplicate keys, nonfinite constants/numeric overflow, boolean schema/error-count confusion, foreign tar members, global/member PAX metadata, opaque input padding that never reaches rebuilt output, legitimate `RuntimeFailure`, missing original with successful/failed recovery, missing both terminals and invalid recovery, empty/partial original and recovery pairs, actual optional retention on early failure, all pinned selector transformations/materializer round-trips, coherent unknown-field attacks in native/projection/materializer/nested package/units, inventory digest/type drift, out-of-range inverse counts and reordered missing selectors. These fixtures use private temporary JSON/tar data and authenticated helper bytes with host/source authentication mocked; they perform no Docker, materialization, native build, installation, service, trust or network operation.
+
+All 40 clock-expression boundary fixtures PASS, including native refusal below the 550-second minimum remainder; no timed teardown is claimed. All ten owner Python files still match committed `c159cc3` bytes and executable modes. Local receipts are `/tmp/cachy-updater-workflow-check-0mc69ljr/consumer-results.json`, `syntax.json`, `deadline-results.json` and `owner-source-proof.json`. Full YAML parser/actionlint checks are **NOT RUN** because those tools are unavailable; workflow keys/actions/expressions received a manual source review. Independent review closed after the duplicate/nonfinite JSON and raw tar metadata corrections; it independently repeated the four shell/three Python syntax checks and reviewed the original 27-fixture receipt. The coordinator then reproduced UW1 (`RuntimeFailure` refusal) and UW2 (missing original terminal discarded valid recovery); those corrections now include empty/partial original pairs. UW3 additionally reproduced arbitrary extra bytes in a named guarded JSON receipt despite a coherent self-hashed manifest/bundle; exact pinned-sanitizer round-trips and finite metadata bindings close that gap. The actual early-recovery optional retention field is preserved only for non-PASS outcomes. All 48 isolated fixtures pass, including the symmetric empty/partial recovery replacement case. Final independent follow-up review remains pending. Coordinator clean-checkout acceptance, registration and dispatch remain required. This worker performs none of those mutations or any native trial.
+
+## Coordinator source acceptance
+
+The coordinator accepts workflow SHA256
+`9638f48e601159f09207a5096381484e959372ea0e62259e235d43f3576ad9ed`
+after the independent final UW1–UW4 closure, symmetric recovery checks and
+48 isolated consumer fixtures. The coordinator repeated all 48 fixtures and
+the actual yaml-cpp parser/structural assertions; they pass. The reviewer also
+verifies the unchanged 85-file committed closure and ten stage files.
+[Independent final review](../reviews/updater-native-workflow-review.md) records
+strict PASS retention, coherent poison refusal and failure/recovery boundaries.
+Registration and actual hosted execution remain separate next steps; source
+acceptance grants no native, installation, publication or hardware PASS.
