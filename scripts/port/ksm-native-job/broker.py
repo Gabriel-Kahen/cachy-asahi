@@ -13,6 +13,7 @@ import math
 import os
 from pathlib import Path
 import re
+import signal
 import socket
 import stat
 import struct
@@ -97,6 +98,271 @@ def image_absence_outputs(image):
     return outputs
 
 
+def canonical(value):
+    return json.dumps(value, sort_keys=True, separators=(',', ':'), ensure_ascii=False, allow_nan=False).encode()
+
+
+def baseline_json(data):
+    need(type(data) is bytes and len(data) <= 128 * 1024, 'baseline-inspection-bound')
+    def pairs(items):
+        result = {}
+        for key, value in items:
+            need(key not in result, 'baseline-duplicate-field')
+            result[key] = value
+        return result
+    value = json.loads(data, object_pairs_hook=pairs,
+                       parse_constant=lambda _: need(False, 'baseline-nonfinite-json'))
+    nodes = 0
+    def visit(item, depth=0):
+        nonlocal nodes
+        nodes += 1
+        need(nodes <= 8192 and depth <= 16, 'baseline-json-bound')
+        if type(item) is dict:
+            for key, child in item.items(): visit(key, depth + 1); visit(child, depth + 1)
+        elif type(item) is list:
+            for child in item: visit(child, depth + 1)
+        elif type(item) is str:
+            need(len(item.encode()) <= 65536, 'baseline-json-string-bound')
+        else:
+            need(item is None or type(item) in (bool, int, float), 'baseline-json-type')
+    visit(value); canonical(value)
+    return value
+
+
+class Baseline:
+    """Private positive image/reference observations; inventory grants no ownership.
+
+    The backend checks actual captured CLI/socket/daemon identity around each call.
+    All observations are quiescent: no container is tolerated. New image IDs are
+    unowned and unverified, including the legacy builder's internal cache.
+    """
+    STAGES = frozenset({'before_producer', 'after_producer', 'after_build_1', 'after_build_2',
+        'before_lifecycle', 'after_lifecycle', 'before_cleanup', 'after_cleanup',
+        'before-build', 'after-build', 'before-run', 'after-run',
+        'before-image-removal', 'after-image-removal'})
+
+    def __init__(self, backend, private, binding, nonce, *, deadline=None, cancelled=lambda: False,
+                 clock=time.monotonic, on_inventory=None):
+        need(type(binding) is dict and set(binding) == {'source_commit', 'packet_sha256', 'run_id',
+             'run_attempt', 'uid', 'gid'}, 'baseline-job-binding-required')
+        need(type(binding['source_commit']) is str and re.fullmatch('[0-9a-f]{40}', binding['source_commit']) and
+             type(binding['packet_sha256']) is str and re.fullmatch('[0-9a-f]{64}', binding['packet_sha256']) and
+             all(type(binding[k]) is str and re.fullmatch('[1-9][0-9]{0,19}', binding[k]) for k in ('run_id', 'run_attempt')) and
+             type(binding['uid']) is type(binding['gid']) is int and
+             binding['uid'] == os.getuid() == os.geteuid() and 0 < binding['uid'] <= 65535 and
+             binding['gid'] == os.getgid() == os.getegid() and 0 < binding['gid'] <= 65535 and
+             type(nonce) is str and re.fullmatch('[0-9a-f]{32}', nonce), 'baseline-actual-job-required')
+        need(backend.endpoint in {'unix:///run/docker.sock', 'unix:///var/run/docker.sock'} and
+             type(backend.expected) is str and re.fullmatch('[A-Za-z0-9:-]{8,128}', backend.expected) and
+             type(backend.cli_sha256) is str and re.fullmatch('[0-9a-f]{64}', backend.cli_sha256) and
+             2 <= len(backend.socket_identity) <= 16 and all(type(x) is int and x >= 0 for x in backend.socket_identity) and
+             backend.socket_identity[1] > 0,
+             'baseline-captured-backend-required')
+        self.backend, self.private, self.binding, self.nonce = backend, Path(private), dict(binding), nonce
+        self.clock, self.cancelled, self.deadline = clock, cancelled, clock() + 8460 if deadline is None else deadline
+        need(type(self.deadline) in (int, float) and math.isfinite(self.deadline), 'baseline-finite-deadline')
+        self.operation_deadline, self.on_inventory = None, on_inventory
+        self.pins = (backend.endpoint, backend.expected, backend.cli_sha256, tuple(backend.socket_identity))
+        self.path = self.private / 'daemon-baseline.jsonl'
+        self.fd, self.parent = None, None
+        self.ready, self.failed, self.rows, self.data = False, False, None, b''
+        self.ids, self.observations, self.last = frozenset(), 0, None
+        self.initial_counts, self.unknown_count = {}, None
+        self.preservation, self.observation_mode = 'UNVERIFIED', None
+        self.thread = threading.get_ident()
+
+    def check(self, cleanup=False):
+        need(threading.get_ident() == self.thread and self.clock() < self.deadline,
+             'baseline-thread-or-deadline')
+        if self.operation_deadline is not None:
+            need(type(self.operation_deadline) in (int, float) and math.isfinite(self.operation_deadline) and
+                 self.clock() < self.operation_deadline, 'baseline-phase-deadline')
+        cancelled = self.cancelled(); need(type(cancelled) is bool, 'baseline-boolean-cancellation')
+        if cancelled and not cleanup: raise Cancelled('baseline-cancelled')
+        need((self.backend.endpoint, self.backend.expected, self.backend.cli_sha256,
+              tuple(self.backend.socket_identity)) == self.pins, 'baseline-backend-binding-drift')
+
+    def call(self, args, cleanup=False):
+        self.check(cleanup)
+        end = min(self.deadline, self.operation_deadline or self.deadline)
+        result = self.backend.call(['docker', '--host=' + self.backend.endpoint, *args],
+                                   timeout=min(30, end - self.clock()))
+        self.check(cleanup)
+        need(isinstance(result, subprocess.CompletedProcess) and type(result.returncode) is int and
+             type(result.stdout) is bytes and len(result.stdout) <= 128 * 1024 and result.stderr in (None, b''),
+             'baseline-bounded-backend-response')
+        return result
+
+    def inventory(self, kind, cleanup=False, initial=False):
+        result = self.call([kind, 'ls', '--all', '--no-trunc', '--format', '{{.ID}}'], cleanup)
+        if initial and self.on_inventory is not None: self.on_inventory(kind, result)
+        need(result.returncode == 0, 'baseline-inventory-query')
+        values = result.stdout.decode('ascii').splitlines()
+        pattern = IMAGE if kind == 'image' else CID
+        need(len(values) <= 256 and all(pattern.fullmatch(value) for value in values), 'baseline-inventory-bound')
+        return frozenset(values)
+
+    def image(self, target, cleanup=False):
+        result = self.call(['image', 'inspect', target], cleanup)
+        need(result.returncode == 0, 'baseline-image-query')
+        rows = baseline_json(result.stdout)
+        need(type(rows) is list and len(rows) == 1 and type(rows[0]) is dict, 'baseline-one-image-required')
+        return rows[0]
+
+    def projection(self, cleanup=False, initial=False):
+        if cleanup:
+            need(self.ready, 'baseline-cleanup-requires-protected-set')
+            images = self.ids
+        else:
+            containers = self.inventory('container', False, initial)
+            if initial: self.initial_counts['container'] = len(containers)
+            need(not containers, 'baseline-containers-present')
+            images = self.inventory('image', False, initial)
+            if initial: self.initial_counts['image'] = len(images)
+            need(not self.ready or self.ids <= images, 'baseline-image-missing')
+        selected, rows, references, total = (self.ids if self.ready else images), [], {}, 2
+        for image in sorted(selected):
+            row = self.image(image, cleanup)
+            required = {'Id', 'Architecture', 'Os', 'Config', 'RootFS', 'Size', 'RepoTags', 'RepoDigests'}
+            need(required <= set(row) and row['Id'] == image and
+                 all(type(row[k]) is str and 0 < len(row[k].encode()) <= 64 for k in ('Architecture', 'Os')) and
+                 type(row['Size']) is int and 0 <= row['Size'] <= 2**60 and
+                 (row['Config'] is None or type(row['Config']) is dict), 'baseline-image-metadata')
+            refs = {}
+            for key in ('RepoTags', 'RepoDigests'):
+                values = [] if row[key] is None else row[key]
+                need(type(values) is list and len(values) <= 256 and all(type(v) is str and
+                     0 < len(v.encode()) <= 512 and re.fullmatch('[A-Za-z0-9][A-Za-z0-9._/:@+-]*', v) for v in values) and
+                     len(set(values)) == len(values), 'baseline-reference-bound')
+                refs[key] = sorted(values)
+                for ref in values:
+                    need(ref not in references or references[ref] == image, 'baseline-reference-collision')
+                    references[ref] = image
+                need(len(references) <= 256, 'baseline-reference-total-bound')
+            rootfs, parent = row['RootFS'], row.get('Parent')
+            if parent == '': parent = None
+            need(type(rootfs) is dict and set(rootfs) <= {'Type', 'Layers'} and type(rootfs.get('Type')) is str and
+                 0 < len(rootfs['Type'].encode()) <= 64 and type(rootfs.get('Layers', [])) is list and
+                 len(rootfs.get('Layers', [])) <= 256 and all(type(v) is str and IMAGE.fullmatch(v) for v in rootfs.get('Layers', [])) and
+                 (parent is None or type(parent) is str and IMAGE.fullmatch(parent)), 'baseline-rootfs-or-parent')
+            projected = {key: row[key] for key in ('Id', 'Architecture', 'Os', 'Config', 'Size')}
+            projected.update(refs, RootFS={'Type': rootfs['Type'], 'Layers': rootfs.get('Layers', [])}, Parent=parent)
+            total += len(canonical(projected)) + bool(rows)
+            need(total <= 4 * 1024**2, 'baseline-projection-byte-bound')
+            rows.append(projected)
+        if not cleanup:
+            for reference, image in sorted(references.items()):
+                need(self.image(reference).get('Id') == image, 'baseline-reference-rebound')
+        return rows, images
+
+    def capture(self, cleanup=False, initial=False):
+        first, ids = self.projection(cleanup, initial)
+        second, final = self.projection(cleanup)
+        need(first == second and ids == final, 'baseline-capture-drift')
+        return first, ids
+
+    def verify(self):
+        self.check(True)
+        need(self.fd is not None and self.parent is not None, 'baseline-receipt-required')
+        parent = directory(self.private)
+        try:
+            parent_info = os.fstat(parent)
+            need(node(parent_info) == self.parent_identity and parent_info.st_uid == self.binding['uid'] and
+                 parent_info.st_gid == self.binding['gid'] and stat.S_IMODE(parent_info.st_mode) == 0o700 and
+                 node(os.stat(self.path.name, dir_fd=parent, follow_symlinks=False)) == self.file_identity,
+                 'baseline-receipt-namespace-drift')
+        finally: os.close(parent)
+        info = os.fstat(self.fd)
+        captured = os.pread(self.fd, len(self.data) + 1, 0)
+        after = os.fstat(self.fd)
+        fields = ('st_dev', 'st_ino', 'st_mode', 'st_uid', 'st_gid', 'st_nlink', 'st_size', 'st_mtime_ns', 'st_ctime_ns')
+        need(node(info) == self.file_identity and stat.S_ISREG(info.st_mode) and info.st_nlink == 1 and
+             info.st_uid == self.binding['uid'] and info.st_gid == self.binding['gid'] and
+             stat.S_IMODE(info.st_mode) == 0o600 and info.st_size == len(self.data) and
+             all(getattr(info, k) == getattr(after, k) for k in fields) and captured == self.data and
+             node(os.stat(self.path.name, dir_fd=self.parent, follow_symlinks=False)) == self.file_identity,
+             'baseline-receipt-drift')
+
+    def append(self, row):
+        data = canonical(row) + b'\n'
+        need(len(self.data) + len(data) <= JOURNAL_LIMIT and self.observations <= 64, 'baseline-receipt-bound')
+        if self.data: self.verify()
+        view = memoryview(data)
+        while view:
+            count = os.write(self.fd, view); need(count > 0, 'baseline-receipt-write'); view = view[count:]
+        os.fsync(self.fd); self.data += data
+        self.verify()
+
+    def start(self):
+        need(not self.ready and not self.failed and self.fd is None, 'baseline-already-started-or-failed')
+        try:
+            rows, images = self.capture(initial=True)
+            mask = signal.pthread_sigmask(signal.SIG_BLOCK, {signal.SIGINT, signal.SIGTERM})
+            try:
+                self.parent = directory(self.private)
+                info = os.fstat(self.parent)
+                need(info.st_uid == self.binding['uid'] and info.st_gid == self.binding['gid'] and
+                     stat.S_IMODE(info.st_mode) == 0o700, 'baseline-private-parent-required')
+                self.parent_identity = node(info)
+                self.fd = os.open(self.path.name, os.O_RDWR | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW | os.O_CLOEXEC,
+                                  0o600, dir_fd=self.parent)
+                os.fchmod(self.fd, 0o600); self.file_identity = node(os.fstat(self.fd))
+            finally: signal.pthread_sigmask(signal.SIG_SETMASK, mask)
+            self.rows, self.ids = canonical(rows), images
+            self.identity_sha256 = hashlib.sha256(self.rows).hexdigest()
+            self.append({'schema_version': 1, 'kind': 'protected-daemon-image-baseline', **self.binding,
+                         'nonce': self.nonce, 'docker_endpoint': self.pins[0], 'daemon_id': self.pins[1],
+                         'docker_sha256': self.pins[2], 'docker_socket_identity': list(self.pins[3]),
+                         'containers': [], 'images': rows, 'identity_sha256': self.identity_sha256})
+            os.fsync(self.parent); self.ready = True
+            self.observe('before_producer')
+            return self.summary()
+        except BaseException:
+            self.failed = True; self.close(); raise
+
+    def protected(self):
+        need(self.ready, 'baseline-not-established'); self.verify()
+        return self.ids
+
+    def observe(self, stage, cleanup=False):
+        need(stage in self.STAGES and self.ready, 'baseline-observation-stage-required')
+        try:
+            self.verify(); rows, images = self.capture(cleanup)
+            digest = hashlib.sha256(canonical(rows)).hexdigest()
+            self.observations += 1; self.last = stage
+            self.observation_mode = 'protected-image-metadata-only' if cleanup else 'inventory-and-reference'
+            if not cleanup: self.unknown_count = len(images - self.ids)
+            self.append({'kind': 'protected-baseline-observation', 'stage': stage,
+                'mode': self.observation_mode, 'identity_sha256': digest,
+                'image_id_count': None if cleanup else len(images), 'container_count': None if cleanup else 0,
+                'unowned_image_id_count': self.unknown_count, 'monotonic_ns': int(self.clock() * 10**9)})
+            need(digest == self.identity_sha256 and canonical(rows) == self.rows, 'baseline-changed')
+            if stage == 'after_cleanup' and not cleanup and not self.failed: self.preservation = 'PASS'
+            return self.summary()
+        except BaseException:
+            self.failed = True; self.preservation = 'FAIL'; raise
+
+    def summary(self):
+        return {'status': 'FAIL' if self.failed else 'PASS' if self.ready else 'NOT RUN',
+                'preservation': self.preservation, 'observation_mode': self.observation_mode,
+                'protected_image_count': len(self.ids) if self.ready else None,
+                'initial_container_count': self.initial_counts.get('container'),
+                'initial_image_id_count': self.initial_counts.get('image'),
+                'identity_sha256': getattr(self, 'identity_sha256', None),
+                'receipt_sha256': hashlib.sha256(self.data).hexdigest() if self.data else None,
+                'observation_count': self.observations, 'last_stage': self.last,
+                'unowned_image_id_count': self.unknown_count,
+                'unowned_images': 'NOT VERIFIED', 'legacy_build_cache_absence': 'NOT ESTABLISHED'}
+
+    def close(self):
+        mask = signal.pthread_sigmask(signal.SIG_BLOCK, {signal.SIGINT, signal.SIGTERM})
+        try:
+            for name in ('fd', 'parent'):
+                value = getattr(self, name)
+                if value is not None: os.close(value); setattr(self, name, None)
+        finally: signal.pthread_sigmask(signal.SIG_SETMASK, mask)
+
+
 class Broker:
     """Main-thread owner of all reservations; clients cannot select phase/backend.
 
@@ -108,7 +374,7 @@ class Broker:
     """
     def __init__(self, backend, journal_path, nonce, private_root, source_root, *,
                  context_digest, binding, deadline=None, daemon_id=None,
-                 cancelled=lambda: False, clock=time.monotonic):
+                 cancelled=lambda: False, clock=time.monotonic, baseline=None):
         need(re.fullmatch(r'[0-9a-f]{32}', nonce or ''), 'nonce-required')
         need(type(binding) is dict and set(binding) == {'source_commit', 'run_id', 'packet_sha256', 'uid', 'gid'}, 'exact-job-binding-required')
         binding = dict(binding)
@@ -119,6 +385,12 @@ class Broker:
         need(backend.endpoint in {'unix:///run/docker.sock', 'unix:///var/run/docker.sock'}, 'local-backend-required')
         need(callable(context_digest), 'validated-context-digest-required')
         self.backend, self.nonce = backend, nonce
+        self.baseline = baseline
+        if baseline is not None:
+            need(isinstance(baseline, Baseline) and baseline.backend is backend and baseline.private == Path(private_root) and
+                 baseline.nonce == nonce and all(baseline.binding[k] == value for k, value in binding.items()),
+                 'same-job-baseline-required')
+            baseline.protected()
         self.daemon_id = daemon_id if daemon_id is not None else getattr(backend, 'expected', None)
         need(type(self.daemon_id) is str and re.fullmatch(r'[A-Za-z0-9:-]{8,128}', self.daemon_id), 'bound-daemon-id-required')
         self.private, self.source = Path(private_root), Path(source_root)
@@ -194,11 +466,19 @@ class Broker:
         need(threading.get_ident() == self.thread, 'serial-main-thread-required')
         need(self.phase in {'producer', 'ksm-1', 'ksm-2'}, 'parent-phase-required')
         need(cleanup or not self.failed, 'failed-broker-refuses-new-work')
+        if self.baseline is not None:
+            self.baseline.operation_deadline = self.operation_deadline
+            need(cleanup or not self.baseline.failed, 'failed-baseline-refuses-new-work')
         value = self.cancelled()
         need(type(value) is bool, 'boolean-cancellation-required')
         if value and not cleanup:
             raise Cancelled('job-cancelled')
         need(self.clock() < self.deadline, 'aggregate-deadline')
+
+    def observe_baseline(self, stage, cleanup=False):
+        if self.baseline is not None:
+            self.baseline.operation_deadline = self.operation_deadline
+            self.baseline.observe(stage, cleanup=cleanup)
 
     def call(self, args, *, maximum=60, cleanup=False):
         self.check(cleanup=cleanup)
@@ -233,6 +513,8 @@ class Broker:
 
     def owned_image(self, *, cleanup=False):
         need(self.image is not None and not self.image_removed, 'owned-image-required')
+        if self.baseline is not None:
+            need(self.image not in self.baseline.protected(), 'baseline-ID-collision')
         row = self.inspect('image', self.image, cleanup=cleanup)
         labels = row.get('Config', {}).get('Labels', {})
         need(row.get('Id') == self.image and row.get('Architecture') == 'arm64' and row.get('Os') == 'linux'
@@ -266,6 +548,7 @@ class Broker:
 
     def build(self, argv):
         need(self.phase == 'producer' and not self.image_reserved, 'one-producer-image-build-only')
+        self.observe_baseline('before-build')
         options, rest = parse_options(argv[2:], {'--network', '--pull', '--platform', '--iidfile'}, set())
         context, iidfile = self.private / 'producer/context', self.private / 'producer/image-id'
         need(options == {'--network': ['none'], '--pull': ['false'], '--platform': ['linux/arm64'], '--iidfile': [str(iidfile)]}
@@ -301,12 +584,15 @@ class Broker:
             os.close(parent)
         image = data.decode('ascii').strip()
         need(IMAGE.fullmatch(image), 'immutable-produced-image-required')
+        if self.baseline is not None:
+            need(image not in self.baseline.protected(), 'baseline-ID-collision')
         row = self.inspect('image', image)
         need(row.get('Id') == image and row.get('Architecture') == 'arm64' and row.get('Os') == 'linux'
              and row.get('Config', {}).get('Labels', {}).get(LABEL) == self.nonce
              and row.get('Config', {}).get('Labels', {}).get(CONTEXT_LABEL) == digest, 'image-ownership-mismatch')
         self.image, self.image_context = image, digest
         self.record('image-bound', id=image, context_sha256=digest)
+        self.observe_baseline('after-build')
         return result
 
     def mount_policy(self, mounts):
@@ -340,6 +626,7 @@ class Broker:
                 os.close(parent)
 
     def run(self, argv):
+        self.observe_baseline('before-run')
         valued = {'--name', '--pull', '--network', '--cap-drop', '--security-opt', '--entrypoint', '--platform',
                   '--user', '--pids-limit', '--memory', '--cpus', '--tmpfs', '--env', '--mount'}
         options, rest = parse_options(argv[2:], valued, {'--rm', '--read-only'}, {'--env', '--mount'})
@@ -394,6 +681,7 @@ class Broker:
         self.record('container-exited', name=name, id=cid, status=state['Status'],
                     exit_code=state['ExitCode'], oom_killed=state['OOMKilled'])
         self.remove_container(name, record)
+        self.observe_baseline('after-run')
         return result
 
     def request(self, argv):
@@ -460,12 +748,16 @@ class Broker:
             self.absent_image()
             return
         need(self.image is not None, 'unbound-image-commit-uncertain')
+        self.observe_baseline('before-image-removal', cleanup=True)
         self.owned_image(cleanup=True)
         self.record('image-removal-reserved', id=self.image)
+        if self.baseline is not None:
+            need(self.image not in self.baseline.protected(), 'baseline-ID-collision')
         self.success(['image', 'rm', '--no-prune', self.image], cleanup=True)
         self.absent_image()
         self.image_removed = True
         self.record('image-absent', id=self.image)
+        self.observe_baseline('after-image-removal', cleanup=True)
 
     def cleanup(self):
         """Owned-ID cleanup only; unresolved reservations remain explicit FAIL."""

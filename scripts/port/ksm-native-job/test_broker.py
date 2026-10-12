@@ -3,6 +3,7 @@
 import importlib.util
 import json
 import os
+import signal
 from pathlib import Path
 import subprocess
 import tempfile
@@ -80,6 +81,246 @@ class FakeDocker:
             return result(data=json.dumps([{'Name': 'default', 'Endpoints': {'docker': {'Host': self.endpoint}}}], indent=2).encode() + b'\n')
         if args == ['version']: return result(data=b'fixture Docker version\n')
         raise AssertionError(args)
+
+
+class BaselineDocker(FakeDocker):
+    def __init__(self, private):
+        super().__init__(private)
+        self.protected = 'sha256:' + 'e' * 64
+        self.images = {self.protected: {'Id': self.protected, 'Architecture': 'arm64', 'Os': 'linux',
+            'Config': {'Labels': {'existing': 'untouched'}}, 'RootFS': {'Type': 'layers', 'Layers': []},
+            'Size': 123, 'Parent': '', 'RepoTags': ['fixture/base:1'], 'RepoDigests': []}}
+        self.references = {'fixture/base:1': self.protected}
+        self.duplicate_inventory, self.baseline_action = False, None
+
+    def call(self, argv, timeout):
+        args = argv[2:]
+        if self.baseline_action: self.baseline_action(args)
+        if args in (['image', 'ls', '--all', '--no-trunc', '--format', '{{.ID}}'],
+                    ['container', 'ls', '--all', '--no-trunc', '--format', '{{.ID}}']):
+            self.calls.append(argv)
+            values = sorted(self.images) + ([self.image] if self.image_exists else []) if args[0] == 'image' else [r['Id'] for r in self.containers.values()]
+            if self.duplicate_inventory: values *= 2
+            return subprocess.CompletedProcess(argv, 0, ('\n'.join(values) + ('\n' if values else '')).encode())
+        if args[:2] == ['image', 'inspect']:
+            image = self.references.get(args[2], args[2])
+            if image in self.images:
+                self.calls.append(argv)
+                return subprocess.CompletedProcess(argv, 0, json.dumps([self.images[image]]).encode())
+        return super().call(argv, timeout)
+
+
+class BaselineTests(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory(); self.addCleanup(self.tmp.cleanup)
+        root = Path(self.tmp.name)
+        self.private, self.source = root / 'private', root / 'source'
+        self.private.mkdir(mode=0o700); self.source.mkdir(mode=0o700)
+        (self.private / 'producer/context').mkdir(parents=True)
+        self.backend = BaselineDocker(self.private)
+        self.binding = {'source_commit': 'c' * 40, 'packet_sha256': 'd' * 64,
+                        'run_id': '123', 'run_attempt': '1', 'uid': os.getuid(), 'gid': os.getgid()}
+        self.nonce = '1' * 32
+        self.baseline = broker.Baseline(self.backend, self.private, self.binding, self.nonce)
+        self.addCleanup(self.baseline.close)
+
+    def owner(self):
+        owner = broker.Broker(self.backend, self.private / 'journal.jsonl', self.nonce, self.private, self.source,
+            context_digest=lambda _: 'b' * 64, binding={k: v for k, v in self.binding.items() if k != 'run_attempt'},
+            baseline=self.baseline)
+        self.backend.owner = owner; self.addCleanup(owner.close)
+        return owner
+
+    def build(self, owner):
+        return owner.request(['docker', 'build', '--network=none', '--pull=false', '--platform=linux/arm64',
+            '--iidfile', str(self.private / 'producer/image-id'), str(self.private / 'producer/context')])
+
+    def test_bound_durable_baseline_deduplicates_ids_and_protects_references(self):
+        self.backend.duplicate_inventory = True
+        summary = self.baseline.start()
+        self.assertEqual(self.baseline.protected(), frozenset({self.backend.protected}))
+        self.assertEqual(summary['initial_image_id_count'], 1)
+        self.assertEqual(summary['preservation'], 'UNVERIFIED')
+        row = json.loads(self.baseline.path.read_bytes().splitlines()[0])
+        for key, value in self.binding.items(): self.assertEqual(row[key], value)
+        self.assertEqual(row['docker_sha256'], self.backend.cli_sha256)
+        self.assertEqual(row['docker_socket_identity'], list(self.backend.socket_identity))
+        self.assertEqual(self.baseline.path.stat().st_mode & 0o777, 0o600)
+        self.assertTrue(any(call[2:] == ['image', 'inspect', 'fixture/base:1'] for call in self.backend.calls))
+
+    def test_protected_drift_is_sticky_and_cannot_be_promoted_by_later_restore(self):
+        self.baseline.start()
+        self.backend.images[self.backend.protected]['Config']['Labels']['existing'] = 'changed'
+        with self.assertRaisesRegex(ValueError, 'baseline-changed'): self.baseline.observe('after_producer')
+        self.backend.images[self.backend.protected]['Config']['Labels']['existing'] = 'untouched'
+        self.baseline.observe('after_cleanup')
+        self.assertEqual(self.baseline.summary()['preservation'], 'FAIL')
+
+    def test_positive_reference_binding_refuses_retarget_and_tag_loss(self):
+        self.baseline.start()
+        self.backend.references['fixture/base:1'] = self.backend.image
+        with self.assertRaises(ValueError): self.baseline.observe('after_producer')
+        self.backend.references['fixture/base:1'] = self.backend.protected
+        self.backend.images[self.backend.protected]['RepoTags'] = []
+        with self.assertRaisesRegex(ValueError, 'baseline-changed'): self.baseline.observe('after_producer')
+
+    def test_initial_collision_and_foreign_container_refuse_without_mutation(self):
+        other = 'sha256:' + '9' * 64
+        self.backend.images[other] = {**self.backend.images[self.backend.protected], 'Id': other}
+        with self.assertRaisesRegex(ValueError, 'reference-collision'): self.baseline.start()
+        self.assertFalse(any(call[2] in ('rm', 'build') for call in self.backend.calls))
+
+    def test_foreign_container_and_missing_baseline_refuse(self):
+        self.backend.containers['foreign'] = {'Id': '9' * 64}
+        with self.assertRaisesRegex(ValueError, 'containers-present'): self.baseline.start()
+        self.backend.containers.clear()
+        self.baseline = broker.Baseline(self.backend, self.private, self.binding, self.nonce)
+        self.addCleanup(self.baseline.close)
+        self.baseline.start(); self.backend.images.clear()
+        with self.assertRaisesRegex(ValueError, 'image-missing'): self.baseline.observe('after_producer')
+
+    def test_valid_foreign_container_refuses_at_first_inventory_gate_without_image_query(self):
+        observed = []
+        self.baseline.on_inventory = lambda kind, result: observed.append((kind, result.returncode))
+        self.backend.containers['foreign'] = {'Id': '9' * 64}
+        with self.assertRaisesRegex(ValueError, 'baseline-containers-present'): self.baseline.start()
+        self.assertEqual(observed, [('container', 0)])
+        self.assertEqual(self.baseline.summary()['initial_container_count'], 1)
+        self.assertIsNone(self.baseline.summary()['initial_image_id_count'])
+        self.assertEqual([call[2:] for call in self.backend.calls],
+                         [['container', 'ls', '--all', '--no-trunc', '--format', '{{.ID}}']])
+        self.assertFalse(self.baseline.path.exists())
+
+    def test_option_like_reference_metadata_refuses_before_reference_inspection(self):
+        for field in ('RepoTags', 'RepoDigests'):
+            with self.subTest(field=field):
+                self.backend.calls.clear()
+                self.backend.images[self.backend.protected]['RepoTags'] = []
+                self.backend.images[self.backend.protected]['RepoDigests'] = []
+                self.backend.images[self.backend.protected][field] = ['--help']
+                baseline = broker.Baseline(self.backend, self.private, self.binding, self.nonce)
+                try:
+                    with self.assertRaisesRegex(ValueError, 'baseline-reference-bound'): baseline.start()
+                    self.assertFalse(any(call[2:] == ['image', 'inspect', '--help'] for call in self.backend.calls))
+                    self.assertFalse(baseline.path.exists())
+                finally: baseline.close()
+
+    def test_actual_broker_preserves_baseline_and_unknown_images_with_nonpruning_cleanup(self):
+        self.baseline.start(); owner = self.owner(); self.build(owner)
+        other = 'sha256:' + '9' * 64
+        self.backend.images[other] = {**self.backend.images[self.backend.protected], 'Id': other,
+                                     'RepoTags': [], 'RepoDigests': []}
+        self.assertEqual(owner.cleanup()['status'], 'PASS')
+        self.assertEqual(self.baseline.summary()['preservation'], 'UNVERIFIED')
+        summary = self.baseline.observe('after_cleanup')
+        self.assertEqual(summary['preservation'], 'PASS')
+        self.assertEqual(summary['unowned_image_id_count'], 1)
+        self.assertEqual(set(self.backend.images), {self.backend.protected, other})
+        removals = [call[2:] for call in self.backend.calls if call[2:4] == ['image', 'rm']]
+        self.assertEqual(removals, [['image', 'rm', '--no-prune', self.backend.image]])
+
+    def test_baseline_iid_collision_never_inspects_owned_labels_or_removes_protected_image(self):
+        self.baseline.start(); owner = self.owner(); self.backend.image = self.backend.protected
+        with self.assertRaisesRegex(ValueError, 'baseline-ID-collision'): self.build(owner)
+        self.assertIsNone(owner.image)
+        self.assertEqual(owner.cleanup()['status'], 'FAIL')
+        self.assertFalse(any(call[2:4] == ['image', 'rm'] for call in self.backend.calls))
+
+    def test_cleanup_observation_uses_only_protected_ids_and_cannot_grant_final_preservation(self):
+        self.baseline.start(); index = len(self.backend.calls)
+        self.baseline.observe('after_cleanup', cleanup=True)
+        self.assertTrue(all(call[2:] == ['image', 'inspect', self.backend.protected] for call in self.backend.calls[index:]))
+        self.assertEqual(self.baseline.summary()['observation_mode'], 'protected-image-metadata-only')
+        self.assertEqual(self.baseline.summary()['preservation'], 'UNVERIFIED')
+
+    def test_receipt_and_backend_binding_drift_refuse(self):
+        self.baseline.start()
+        self.baseline.path.write_bytes(b'forged\n')
+        with self.assertRaisesRegex(ValueError, 'receipt-drift'): self.baseline.protected()
+        self.backend.expected = 'foreign-daemon-123'
+        with self.assertRaisesRegex(ValueError, 'backend-binding-drift'): self.baseline.protected()
+
+    def test_broker_baseline_phase_deadline_is_not_borrowed(self):
+        self.baseline.start(); owner = self.owner()
+        owner.operation_deadline = owner.clock() - 1
+        with self.assertRaisesRegex(ValueError, 'phase-deadline'): self.build(owner)
+        self.assertFalse(any(call[2] == 'build' for call in self.backend.calls))
+
+    def test_real_signal_during_baseline_observation_refuses_and_keeps_private_receipt(self):
+        self.baseline.start()
+        def interrupt(*_): raise broker.Cancelled('fixture-real-signal')
+        previous = signal.signal(signal.SIGTERM, interrupt)
+        try:
+            self.backend.baseline_action = lambda args: os.kill(os.getpid(), signal.SIGTERM)
+            with self.assertRaises(broker.Cancelled): self.baseline.observe('after_producer')
+        finally: signal.signal(signal.SIGTERM, previous)
+        self.assertEqual(self.baseline.summary()['preservation'], 'FAIL')
+        self.assertTrue(self.baseline.path.is_file())
+
+    def test_bounded_parser_rejects_duplicate_nonfinite_depth_and_excess_inventory(self):
+        for data in (b'{"a":1,"a":2}', b'{"a":NaN}', b'[' * 18 + b'0' + b']' * 18):
+            with self.subTest(data=data), self.assertRaises(ValueError): broker.baseline_json(data)
+        original = self.backend.call
+        def oversized(argv, timeout):
+            if argv[2] == 'image' and argv[3] == 'ls':
+                return subprocess.CompletedProcess(argv, 0, ((self.backend.protected + '\n') * 257).encode())
+            return original(argv, timeout)
+        self.backend.call = oversized
+        with self.assertRaisesRegex(ValueError, 'inventory-bound'): self.baseline.start()
+        self.assertFalse(self.baseline.path.exists())
+
+    def test_unstable_initial_projection_never_becomes_a_protection_grant(self):
+        calls = 0
+        def mutate(args):
+            nonlocal calls
+            if args[:2] == ['image', 'inspect']:
+                calls += 1
+                if calls == 3: self.backend.images[self.backend.protected]['Size'] += 1
+        self.backend.baseline_action = mutate
+        with self.assertRaisesRegex(ValueError, 'capture-drift'): self.baseline.start()
+        self.assertFalse(self.baseline.ready)
+        self.assertFalse(self.baseline.path.exists())
+
+    def test_baseline_nonce_or_same_job_binding_mismatch_refuses_broker(self):
+        self.baseline.start(); self.baseline.binding['run_id'] = '999'
+        with self.assertRaisesRegex(ValueError, 'same-job-baseline'): self.owner()
+        self.assertFalse((self.private / 'journal.jsonl').exists())
+
+    def test_immediate_predelete_exclusion_refuses_protected_iid_even_after_other_build(self):
+        self.baseline.start(); owner = self.owner(); self.build(owner)
+        owner.image = self.backend.protected
+        self.assertEqual(owner.cleanup()['status'], 'FAIL')
+        self.assertFalse(any(call[2:4] == ['image', 'rm'] for call in self.backend.calls))
+        self.assertIn(self.backend.protected, self.backend.images)
+        self.assertTrue(self.backend.image_exists)
+
+    def test_retained_runtime_cancellation_allows_owned_disposal_but_refuses_late_preservation_pass(self):
+        spec = importlib.util.spec_from_file_location('ksm_baseline_runtime_fixture', Path(__file__).with_name('runtime.py'))
+        runtime = importlib.util.module_from_spec(spec); spec.loader.exec_module(runtime)
+        with self.assertRaises(runtime.Cancelled):
+            with runtime.cancellation_handlers() as state:
+                self.baseline.cancelled = lambda: state.signum is not None
+                self.baseline.start(); owner = self.owner(); self.build(owner)
+                owner.cancelled = lambda: state.signum is not None
+                owner.failed = True  # Executor never admits a cancelled producer.
+                def cancel_at_removal(args):
+                    if args == ['image', 'rm', '--no-prune', self.backend.image]:
+                        os.kill(os.getpid(), signal.SIGTERM)
+                self.backend.baseline_action = cancel_at_removal
+                with runtime.defer_signals() as events:
+                    result = owner.cleanup()
+                self.assertEqual(events, [signal.SIGTERM])
+                self.assertEqual(state.signum, signal.SIGTERM)
+                self.assertEqual(result['status'], 'FAIL')
+                self.assertTrue(result['owned_image_absent'])
+                self.assertFalse(self.backend.image_exists)
+                self.assertIn(self.backend.protected, self.backend.images)
+                count = len(self.backend.calls)
+                with self.assertRaises(broker.Cancelled): self.baseline.observe('after_cleanup')
+                self.assertEqual(len(self.backend.calls), count)
+                self.assertEqual(self.baseline.summary()['preservation'], 'FAIL')
+                self.assertEqual([call[2:] for call in self.backend.calls if call[2:4] == ['image', 'rm']],
+                                 [['image', 'rm', '--no-prune', self.backend.image]])
 
 
 class BrokerTests(unittest.TestCase):

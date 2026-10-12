@@ -36,7 +36,7 @@ SOURCE_GATES = frozenset({
     *('host-tool-' + name for name in ('docker', 'python3', 'gpg', 'lscpu', 'zstd', 'git')),
     'output-namespace', 'source-capture', 'source-policy', 'source-copy', 'private-launchers',
     'source-clock', 'private-runtime', 'captured-stage-load', 'docker-cli-capture', 'docker-identity',
-    'daemon-readiness', 'daemon-image-baseline', 'daemon-container-baseline', 'broker-reservation',
+    'daemon-readiness', 'daemon-image-baseline', 'daemon-container-baseline', 'daemon-baseline-capture', 'broker-reservation',
     'rpc-service', 'runtime-socket-binding', 'endpoint-alias-observations', 'pipeline-source-verification'})
 
 def need(ok, reason):
@@ -74,6 +74,7 @@ def initial(args):
             'source_commit': args.source_commit, 'packet_sha256': args.packet_sha256,
             'phase': 'source', 'source_gate': 'native-coordinator', 'source_failure_reason': None,
             'source_observations': {}, 'producer': 'NOT RUN', 'builds': ['NOT RUN', 'NOT RUN'],
+            'producer_mutation': 'NOT_STARTED', 'daemon_baseline': None,
             'comparison': 'NOT RUN', 'lifecycle': 'NOT RUN', 'cleanup': 'NOT RUN',
             'public_export': 'NOT RUN', 'cancelled': False, 'ownership_uncertain': False,
             'hardware': 'NOT RUN', 'management': 'NOT RUN', 'performance': 'NOT RUN',
@@ -143,7 +144,8 @@ def directory_identity_fd(fd):
     return info.st_dev, info.st_ino, info.st_uid, info.st_gid, stat.S_IMODE(info.st_mode)
 
 
-def ordinary(args, *, report=None):
+def ordinary(args, *, report=None, deadline=None):
+    acceptance.alive(deadline)
     if report is not None: report['source_gate'] = 'native-coordinator'
     need(args.execute_native and platform.system() == 'Linux' and platform.machine() in {'arm64', 'aarch64'} and
          os.getuid() == os.geteuid() != 0 and os.getgid() == os.getegid() != 0, 'native-positive-coordinator-required')
@@ -153,43 +155,74 @@ def ordinary(args, *, report=None):
          os.environ.get('GITHUB_SHA') == os.environ.get('GITHUB_WORKFLOW_SHA') == args.source_commit,
          'genuine-disposable-hosted-job-required')
     if report is not None: report['source_gate'] = 'host-capabilities'
+    acceptance.alive(deadline)
     caps = re.findall(r'^Cap(?:Eff|Prm):\s+([0-9a-f]+)$', Path('/proc/self/status').read_text(), re.M)
+    acceptance.alive(deadline)
     need(len(caps) == 2 and all(int(value, 16) == 0 for value in caps), 'host-capabilities-refused')
     for name in ('docker', 'python3', 'gpg', 'lscpu', 'zstd', 'git'):
         if report is not None: report['source_gate'] = 'host-tool-' + name
         path = Path('/usr/bin') / name
-        need(path.is_file() and os.access(path, os.X_OK), 'host-tool-unavailable')
+        acceptance.alive(deadline)
+        need(path.is_file(), 'host-tool-unavailable')
+        acceptance.alive(deadline)
+        need(os.access(path, os.X_OK), 'host-tool-unavailable')
+        acceptance.alive(deadline)
     if report is not None: report['source_gate'] = 'initial-disk-reserve'
+    acceptance.alive(deadline)
     need(shutil.disk_usage(args.output.parent).free >= 24 * 1024**3, 'initial-disk-reserve')
+    acceptance.alive(deadline)
 
 
-def source_tree(snapshot, destination):
+def source_tree(snapshot, destination, *, deadline=None):
     """Fresh authenticated tree has no pyc, extension or import-path fallback."""
+    acceptance.alive(deadline)
     destination.mkdir(mode=0o700)
+    acceptance.alive(deadline)
     for name, data in snapshot.files.items():
+        acceptance.alive(deadline)
         path = destination / name
         path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+        acceptance.alive(deadline)
         mode = int(snapshot.provenance['files'][name]['mode'], 8)
         fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, mode)
         try:
+            acceptance.alive(deadline)
             os.fchmod(fd, mode)
-            with os.fdopen(fd, 'wb', closefd=False) as stream:
-                stream.write(data); stream.flush(); os.fsync(fd)
+            acceptance.alive(deadline)
+            view, offset = memoryview(data), 0
+            while offset < len(view):
+                acceptance.alive(deadline)
+                chunk = view[offset:offset + 65536]
+                written = os.write(fd, chunk)
+                acceptance.alive(deadline)
+                need(type(written) is int and 0 < written <= len(chunk), 'source-copy-write-progress')
+                offset += written
+            acceptance.alive(deadline)
+            os.fsync(fd)
+            acceptance.alive(deadline)
         finally: os.close(fd)
-    check_source_tree(snapshot, destination)
+    check_source_tree(snapshot, destination, deadline=deadline)
+    acceptance.alive(deadline)
     return acceptance.Snapshot(destination, snapshot.files, dict(snapshot.provenance))
 
 
-def check_source_tree(snapshot, destination):
+def check_source_tree(snapshot, destination, *, deadline=None):
+    acceptance.alive(deadline)
     found = set()
     for path in destination.rglob('*'):
+        acceptance.alive(deadline)
         need(not path.is_symlink(), 'snapshot-symlink-refused')
-        if path.is_dir():
+        acceptance.alive(deadline)
+        directory = path.is_dir()
+        acceptance.alive(deadline)
+        if directory:
             continue
         name = str(path.relative_to(destination)); found.add(name)
-        data, mode = acceptance.captured_file(path)
+        data, mode = acceptance.captured_file(path, deadline=deadline)
+        acceptance.alive(deadline)
         need(name in snapshot.files and data == snapshot.files[name] and
              mode == snapshot.provenance['files'][name]['mode'], 'fresh-source-snapshot-drift')
+    acceptance.alive(deadline)
     need(found == set(snapshot.files), 'snapshot-extraneous-source-refused')
 
 
@@ -253,16 +286,26 @@ def context_digest(snapshot, private, context, *, deadline=None):
     return job.sha((json.dumps(rows, sort_keys=True, separators=(',', ':')) + '\n').encode())
 
 
-def launcher_environment(source, private, token, socket_path):
+def launcher_environment(source, private, token, socket_path, *, deadline=None):
+    acceptance.alive(deadline)
     task_home, bindir = private / 'tool-state', private / 'bin'
-    task_home.mkdir(mode=0o700); bindir.mkdir(mode=0o700)
+    task_home.mkdir(mode=0o700)
+    acceptance.alive(deadline)
+    bindir.mkdir(mode=0o700)
+    acceptance.alive(deadline)
     (task_home / 'docker').mkdir(mode=0o700)
+    acceptance.alive(deadline)
     (private / 'tmp').mkdir(mode=0o700)
+    acceptance.alive(deadline)
     scripts = {'docker': f'exec /usr/bin/python3 -I -B -S {shlex_quote(source / "scripts/port/ksm-native-job/shim.py")} "$@"\n',
                'gpg': 'exec /usr/bin/gpg --no-autostart --lock-never "$@"\n'}
     for name, body in scripts.items():
+        acceptance.alive(deadline)
         path = bindir / name
-        path.write_text('#!/bin/sh\n' + body); path.chmod(0o700)
+        path.write_text('#!/bin/sh\n' + body)
+        acceptance.alive(deadline)
+        path.chmod(0o700)
+        acceptance.alive(deadline)
     env = {'PATH': str(bindir) + ':/usr/bin:/bin', 'DOCKER_CONFIG': str(task_home / 'docker'),
            'GNUPGHOME': str(task_home / 'gnupg'), 'PYTHONNOUSERSITE': '1',
            'DOCKER_HOST': 'unix:///run/docker.sock', 'DOCKER_BUILDKIT': '0', 'LC_ALL': 'C',
@@ -271,6 +314,7 @@ def launcher_environment(source, private, token, socket_path):
     for name in ('HOME', 'GITHUB_SHA', 'GITHUB_WORKFLOW_SHA', 'GITHUB_REPOSITORY', 'GITHUB_RUN_ID', 'GITHUB_RUN_ATTEMPT',
                  'RUNNER_ARCH', 'RUNNER_OS', 'ImageVersion', 'ImageOS'):
         if name in os.environ: env[name] = os.environ[name]
+    acceptance.alive(deadline)
     return env
 
 
@@ -292,8 +336,9 @@ def journal_rows(owner):
     return rows
 
 
-def scoped_run(owner, runner, command, maximum, reserve, **options):
+def scoped_run(owner, runner, command, maximum, reserve, *, phase_end=None, **options):
     end = time.monotonic() + allowance(runner.deadline, maximum, reserve)
+    if phase_end is not None: end = min(end, phase_end)
     owner.operation_deadline = end
     try:
         with owner.backend.runner.phase_scope(end):
@@ -301,8 +346,21 @@ def scoped_run(owner, runner, command, maximum, reserve, **options):
     finally: owner.operation_deadline = None
 
 
+def baseline_observe(owner, stage, end, *, cleanup=False):
+    """Baseline observations share the caller's absolute phase cutoff."""
+    baseline = owner.baseline
+    previous = baseline.operation_deadline
+    baseline.operation_deadline = end
+    try:
+        with owner.backend.runner.phase_scope(end): baseline.observe(stage, cleanup=cleanup)
+    finally: baseline.operation_deadline = previous
+
+
 def owned_cleanup(owner, end):
-    cleanup_end = min(end - 30, time.monotonic() + 180)
+    cleanup_end = getattr(owner, 'cleanup_end', None)
+    if cleanup_end is None:
+        cleanup_end = min(end - 30, time.monotonic() + 180)
+        owner.cleanup_end = cleanup_end
     need(cleanup_end > time.monotonic(), 'cleanup-reserve-expired')
     owner.operation_deadline = cleanup_end
     owner.backend.cleanup_mode = True
@@ -336,12 +394,20 @@ def pipeline(snapshot, source, private, owner, service, runner, endpoint_observa
     """Only observed zero-exit operations can advance to the next consumer."""
     need(not owner.failed, 'failed-broker-refuses-producer')
     report['phase'] = 'producer'
+    producer_end = time.monotonic() + allowance(runner.deadline, 6600, 1650)
+    baseline_observe(owner, 'before_producer', producer_end)
     command = consumer.producer_command(source, private, inputs_sha=job.INPUTS_SHA, recipes_sha=job.RECIPES_SHA)
     command.insert(1, '-I'); command.insert(3, '-S')
-    produced = scoped_run(owner, runner, command, 6600, 1650, log='producer.log', service=service.poll)
-    check_source_tree(snapshot, source)
+    report['producer_mutation'] = 'UNCERTAIN'
+    produced = scoped_run(owner, runner, command, 6600, 1650, phase_end=producer_end,
+                          log='producer.log', service=service.poll)
+    if produced.returncode == 0: report['producer_mutation'] = 'COMPLETE_REJECTED'
+    check_source_tree(snapshot, source, deadline=producer_end)
     producer = contracts.validate_producer(snapshot, private / 'producer', produced.returncode, binding,
                                           journal_rows(owner), consumer=consumer, endpoint_observations=endpoint_observations)
+    need(producer['image_id'] not in owner.baseline.protected(), 'baseline-ID-collision')
+    baseline_observe(owner, 'after_producer', producer_end)
+    report['producer_mutation'] = 'COMPLETE_ACCEPTED'
     report['producer'] = 'PASS'
     approved = {name: job.sha(snapshot.files['packages/tools/cachy-asahi-ksmctl/' + name]) for name in job.KSM_INPUTS}
     approved_path = private / 'approved-inputs.json'
@@ -352,12 +418,14 @@ def pipeline(snapshot, source, private, owner, service, runner, endpoint_observa
         state.check(); owner.phase = 'ksm-' + str(index + 1)
         report['phase'] = owner.phase
         later = (1 - index) * 360 + 930
+        build_end = time.monotonic() + allowance(runner.deadline, 360, later)
         command.insert(1, '-I'); command.insert(3, '-S')
-        built = scoped_run(owner, runner, command, 360, later,
+        built = scoped_run(owner, runner, command, 360, later, phase_end=build_end,
                            log='ksm-build-' + str(index + 1) + '.log', service=service.poll)
         contracts.clean_exit(built.returncode); exits.append(built.returncode)
         report['builds'][index] = 'EXIT ZERO'
-        check_source_tree(snapshot, source)
+        check_source_tree(snapshot, source, deadline=build_end)
+        baseline_observe(owner, 'after_build_' + str(index + 1), build_end)
     contract = snapshot.module('scripts/port/ksm-lifecycle/contract.py', 'ksm_accepted_contract', imports={
         name: importlib.import_module(name) for name in ('gzip', 'hashlib', 'io', 'json', 'lzma', 'os', 'pathlib', 're', 'stat', 'tarfile')})
     pair = contracts.validate_ksm_pair(snapshot, producer, [private / 'build-1', private / 'build-2'], exits,
@@ -384,14 +452,20 @@ def pipeline(snapshot, source, private, owner, service, runner, endpoint_observa
     command = consumer.lifecycle_command(source, private, lifecycle_binding, job.PINS)
     command.insert(1, '-I'); command.insert(3, '-S')
     lifecycle_end = time.monotonic() + allowance(runner.deadline, 600, 210)
+    baseline_observe(owner, 'before_lifecycle', lifecycle_end)
     with runner.phase_scope(lifecycle_end), runner.lifecycle_outputs(*lifecycle_grant_inputs(producer, pair, binding)):
         lifecycle_child = runner.run(command, timeout=max(.001, lifecycle_end-time.monotonic()), log='lifecycle.log')
     contracts.clean_exit(lifecycle_child.returncode)
     lifecycle = contracts.decode(contracts.capture(private / 'lifecycle/receipt.json'))
+    baseline_observe(owner, 'after_lifecycle', lifecycle_end)
     report['lifecycle'] = 'NOT ACCEPTED'
     report['phase'] = 'cleanup'
     cleaned = owned_cleanup(owner, runner.deadline)
-    need(cleaned['status'] == 'PASS', 'owned-cleanup-refused'); report['cleanup'] = 'PASS'
+    need(cleaned['status'] == 'PASS', 'owned-cleanup-refused')
+    baseline_observe(owner, 'after_cleanup', owner.cleanup_end)
+    report['daemon_baseline'] = owner.baseline.summary()
+    need(report['daemon_baseline']['preservation'] == 'PASS', 'baseline-final-preservation-required')
+    report['cleanup'] = 'PASS'
     encoded, expected = contracts.public_acceptance(snapshot, producer, pair, comparison, compared.returncode,
             lifecycle, lifecycle_child.returncode, journal_rows(owner), consumer=consumer, public=public)
     report['lifecycle'] = 'PASS'
@@ -419,80 +493,125 @@ def execute(args, state):
     args._owned_directories = None
     args._private_fd = None
     state.owned_public = None
-    private, owner, service, native, docker_runner, transport = None, None, None, None, None, None
+    private, owner, service, native, docker_runner, transport, baseline = None, None, None, None, None, None, None
     try:
-        ordinary(args, report=report)
+        report['source_gate'] = 'source-clock'
+        now = time.monotonic()
+        need(type(args.started_at) in (int, float) and math.isfinite(args.started_at) and
+             0 <= now - args.started_at < 180, 'shared-source-deadline')
+        source_end = args.started_at + 180
+        def source_check():
+            state.check()
+            acceptance.alive(source_end)
+        source_check()
+        ordinary(args, report=report, deadline=source_end)
+        source_check()
         report['source_gate'] = 'output-namespace'
         need(args.output.parent == Path(os.environ['RUNNER_TEMP']) and
              args.output.name == 'ksm-native-' + os.environ['GITHUB_RUN_ID'] + '-' + os.environ['GITHUB_RUN_ATTEMPT'],
              'fresh-scoped-job-output-required')
-        args.output.mkdir(mode=0o700); private = args.output / 'private'; private.mkdir(mode=0o700)
+        args.output.mkdir(mode=0o700)
+        source_check()
+        private = args.output / 'private'; private.mkdir(mode=0o700)
+        # Register the just-created owned directories before deadline refusal so
+        # finalization can retain FAIL using the original descriptor guards.
         args._owned_directories = {path: directory_identity(path) for path in (args.output, private)}
         args._private_fd = contracts.directory(private)
+        source_check()
         save_status(args, report)
+        source_check()
         report['source_gate'] = 'source-capture'
         snapshot = acceptance.capture(args.source_root, args.source_root / 'scripts/port/ksm-native-job/packet.lock.json',
-            args.packet_sha256, required_paths.EXPECTED_PATHS, required_paths.WORKFLOW, args.source_commit)
+            args.packet_sha256, required_paths.EXPECTED_PATHS, required_paths.WORKFLOW, args.source_commit, deadline=source_end)
+        source_check()
         report['source_gate'] = 'source-policy'
         job.source_policy(snapshot.files)
+        source_check()
         report['source_gate'] = 'source-copy'
-        source = private / 'source'; execution_snapshot = source_tree(snapshot, source)
+        source = private / 'source'; execution_snapshot = source_tree(snapshot, source, deadline=source_end)
+        source_check()
         token, nonce = secrets.token_hex(32), secrets.token_hex(16)
         socket_path = private / 'rpc.sock'
         report['source_gate'] = 'private-launchers'
-        env = launcher_environment(source, private, token, socket_path)
+        env = launcher_environment(source, private, token, socket_path, deadline=source_end)
+        source_check()
         report['source_gate'] = 'source-clock'
         end = args.started_at + job.BUDGETS['aggregate_seconds']
-        need(math.isfinite(args.started_at) and 0 <= time.monotonic() - args.started_at <= 180, 'shared-source-deadline')
+        source_check()
         logs = private / 'logs'; logs.mkdir(mode=0o700)
+        source_check()
         docker_logs = private / 'docker-logs'; docker_logs.mkdir(mode=0o700)
+        source_check()
         cleanenv = {key: env[key] for key in ('HOME', 'LC_ALL', 'DOCKER_CONFIG', 'DOCKER_HOST', 'DOCKER_BUILDKIT') if key in env}
         cleanenv['PATH'] = '/usr/bin:/bin'
         report['source_gate'] = 'private-runtime'
+        source_check()
         docker_runner = runtime.Runner(cleanenv, private, docker_logs, deadline_at=end)
+        source_check()
         report['source_gate'] = 'captured-stage-load'
         stage = stage_module(execution_snapshot)
+        source_check()
         report['source_gate'] = 'docker-cli-capture'
         cli = boundary.cli_capture(); cli_sha = job.sha(cli)
+        source_check()
         report['source_gate'] = 'docker-identity'
-        transport = boundary.create(stage, runtime, docker_runner, cli_sha)
+        source_check()
+        with docker_runner.phase_scope(source_end):
+            transport = boundary.create(stage, runtime, docker_runner, cli_sha)
+        source_check()
         report['source_gate'] = 'daemon-readiness'
-        info = contracts.decode(transport.call(['docker', '--host=' + transport.endpoint, 'info', '--format', '{{json .}}']).stdout)
+        with docker_runner.phase_scope(source_end):
+            info = contracts.decode(transport.call(['docker', '--host=' + transport.endpoint, 'info', '--format', '{{json .}}']).stdout)
         need(info.get('Architecture') in {'aarch64', 'arm64'} and info.get('OSType') == 'linux' and
              info.get('CgroupVersion') == '2' and type(info.get('SecurityOptions')) is list and
              all(type(v) is str and not re.search(r'\b(rootless|userns)\b', v) for v in info['SecurityOptions']),
              'rootful-native-daemon-required')
-        for kind in ('image', 'container'):
+        source_check()
+        def inventory_observed(kind, result):
             report['source_gate'] = 'daemon-' + kind + '-baseline'
-            result = transport.call(['docker', '--host=' + transport.endpoint, kind, 'ls', '--all', '--quiet', '--no-trunc'])
             report['source_observations'][kind + '_returned_exit'] = (result.returncode if type(result.returncode) is int
                     and -128 <= result.returncode <= 255 else None)
             report['source_observations'][kind + '_returned_lines'] = len(result.stdout.splitlines())
-            need(result.returncode == 0 and not result.stdout.strip(), 'fresh-disposable-daemon-required')
+        baseline_binding = {'source_commit': args.source_commit, 'run_id': os.environ['GITHUB_RUN_ID'],
+            'run_attempt': os.environ['GITHUB_RUN_ATTEMPT'], 'packet_sha256': args.packet_sha256,
+            'uid': os.getuid(), 'gid': os.getgid()}
+        report['source_gate'] = 'daemon-baseline-capture'
+        baseline = broker.Baseline(transport, private, baseline_binding, nonce, deadline=end,
+            cancelled=lambda: state.signum is not None, on_inventory=inventory_observed)
+        baseline.operation_deadline = source_end
+        with docker_runner.phase_scope(baseline.operation_deadline): baseline.start()
+        baseline.operation_deadline = None
         binding = {'source_commit': args.source_commit, 'run_id': os.environ['GITHUB_RUN_ID'],
                    'packet_sha256': args.packet_sha256, 'uid': os.getuid(), 'gid': os.getgid(),
                    'runner_arch': 'ARM64', 'docker_endpoint': transport.endpoint,
                    'daemon_id': transport.expected, 'nonce': nonce}
+        source_check()
         report['source_gate'] = 'broker-reservation'
         owner = broker.Broker(transport, private / 'docker-journal.jsonl', nonce, private, source,
             context_digest=lambda path: context_digest(snapshot, private, path,
                 deadline=owner.operation_deadline or owner.deadline),
             binding={key: binding[key] for key in ('source_commit', 'run_id', 'packet_sha256', 'uid', 'gid')},
-            deadline=end, cancelled=lambda: state.signum is not None)
+            deadline=end, cancelled=lambda: state.signum is not None, baseline=baseline)
+        source_check()
         report['source_gate'] = 'rpc-service'
         service = broker.Service(socket_path, owner, token)
         # The supervisor explicitly permits only this captured owned socket.
         info = socket_path.lstat()
         socket_identity = (info.st_dev, info.st_ino, info.st_uid, info.st_gid, stat.S_IMODE(info.st_mode))
+        source_check()
         report['source_gate'] = 'runtime-socket-binding'
         docker_runner.register_socket(socket_path, socket_identity)
         native = runtime.Runner(env, private, logs, deadline_at=end, allowed_sockets={socket_path: socket_identity})
+        source_check()
         report['source_gate'] = 'endpoint-alias-observations'
         observations = {}
         for endpoint in ('unix:///run/docker.sock', 'unix:///var/run/docker.sock'):
+            source_check()
             info = Path(endpoint.removeprefix('unix://')).stat()
+            source_check()
             observations[endpoint] = {'device': info.st_dev, 'inode': info.st_ino}
         report['source_gate'] = 'pipeline-source-verification'
+        state.check(); need(time.monotonic() < source_end, 'source-phase-deadline')
         pipeline(snapshot, source, private, owner, service, native, observations, binding, report, state)
     except (Exception, runtime.Cancelled, KeyboardInterrupt) as error:
         report.update(status='FAIL', failure_category=type(error).__name__,
@@ -511,7 +630,11 @@ def execute(args, state):
                     if cleanup['status'] != 'PASS': report['status'] = 'FAIL'
                 except BaseException:
                     report.update(status='FAIL', cleanup='FAIL', ownership_uncertain=True)
-            for resource in (service, owner, transport, native, docker_runner):
+                if baseline is not None and baseline.ready:
+                    try: baseline_observe(owner, 'after_cleanup', owner.cleanup_end)
+                    except BaseException: report.update(status='FAIL', cleanup='FAIL', ownership_uncertain=True)
+            if baseline is not None: report['daemon_baseline'] = baseline.summary()
+            for resource in (service, owner, baseline, transport, native, docker_runner):
                 if resource is not None:
                     try: resource.close()
                     except BaseException: report.update(status='FAIL', cleanup='FAIL')

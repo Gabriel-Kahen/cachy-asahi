@@ -92,6 +92,8 @@ def digest(data):
 
 
 def alive(deadline):
+    need(deadline is None or type(deadline) in (int, float) and
+         -float('inf') < deadline < float('inf'), 'finite acceptance deadline required')
     if _ACTIVE is not None and _ACTIVE.cancelled and not _ACTIVE.deferrals:
         raise Cancelled('source capture cancelled')
     need(deadline is None or time.monotonic() < deadline, 'acceptance aggregate deadline exceeded')
@@ -113,10 +115,15 @@ def captured_file(path, *, expected_size=None, deadline=None):
     fd = None
     try:
         for part in path.parts[1:-1]:
+            alive(deadline)
             next_fd = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=directory)
             os.close(directory); directory = next_fd
+            alive(deadline)
+        alive(deadline)
         fd = os.open(path.name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=directory)
+        alive(deadline)
         before = os.fstat(fd)
+        alive(deadline)
         need(stat.S_ISREG(before.st_mode) and before.st_nlink == 1
              and 0 <= before.st_size <= FILE_LIMIT, 'unsafe or oversized source file')
         need(expected_size is None or before.st_size == expected_size, 'source size mismatch')
@@ -253,9 +260,13 @@ class Snapshot:
 
 @cancellation_bound
 def capture(root, packet_path, packet_sha256, expected_paths, workflow_path, expected_commit, *, environ=None,
-            packet_relative_path='scripts/port/ksm-native-job/packet.lock.json'):
+            packet_relative_path='scripts/port/ksm-native-job/packet.lock.json', deadline=None):
     """Bind packet, current files and committed blobs; return inert snapshots."""
-    deadline = time.monotonic() + CAPTURE_SECONDS
+    # Standalone callers retain the historical finite default; production supplies
+    # the workflow source cutoff, never a renewed interval.
+    if deadline is None:
+        deadline = time.monotonic() + CAPTURE_SECONDS
+    alive(deadline)
     root, packet_path = Path(root), Path(packet_path)
     need(root.is_absolute() and '..' not in root.parts, 'absolute checkout required')
     relative(packet_relative_path)

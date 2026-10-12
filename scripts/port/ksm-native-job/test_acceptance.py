@@ -273,6 +273,44 @@ class AcceptanceTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'aggregate deadline'): self.capture()
             self.assertEqual(git.call_count, 1)
 
+    def test_caller_cutoff_is_not_renewed_for_late_source_or_git(self):
+        current = [179.0]
+        read, git = acceptance.captured_file, acceptance.git
+        observed = []
+        def late_read(path, **kwargs):
+            observed.append(kwargs['deadline'])
+            value = read(path, **kwargs)
+            current[0] = 181.0
+            return value
+        with patch.object(acceptance.time, 'monotonic', side_effect=lambda: current[0]), \
+             patch.object(acceptance, 'captured_file', side_effect=late_read), patch.object(acceptance, 'git') as query:
+            with self.assertRaisesRegex(ValueError, 'aggregate deadline'): self.capture(deadline=180.0)
+            query.assert_not_called()
+        self.assertEqual(observed, [180.0])
+        current[0] = 179.0
+        def late_git(root, home, arguments, **kwargs):
+            self.assertEqual(kwargs['deadline'], 180.0)
+            value = git(root, home, arguments, **kwargs)
+            current[0] = 181.0
+            return value
+        with patch.object(acceptance.time, 'monotonic', side_effect=lambda: current[0]), \
+             patch.object(acceptance, 'git', side_effect=late_git) as query:
+            with self.assertRaisesRegex(ValueError, 'aggregate deadline'): self.capture(deadline=180.0)
+            self.assertEqual(query.call_count, 1)
+
+    def test_finite_caller_cutoff_and_expired_preflight_do_not_read_or_launch(self):
+        for cutoff in (True, False, '180', float('nan'), float('inf'), -float('inf'), [], {}):
+            with self.subTest(cutoff=cutoff), patch.object(acceptance, 'captured_file') as read, \
+                 patch.object(acceptance, 'git') as query:
+                with self.assertRaisesRegex(ValueError, 'finite acceptance deadline'): self.capture(deadline=cutoff)
+                read.assert_not_called(); query.assert_not_called()
+        with patch.object(acceptance.time, 'monotonic', return_value=180.0), \
+             patch.object(acceptance, 'captured_file') as read, patch.object(acceptance, 'git') as query:
+            with self.assertRaisesRegex(ValueError, 'aggregate deadline'): self.capture(deadline=180.0)
+            read.assert_not_called(); query.assert_not_called()
+        with patch.object(acceptance.time, 'monotonic', return_value=179.0):
+            self.assertEqual(dict(self.capture(deadline=180.0).files), self.sources)
+
     def cancelled_child(self, signum, *, before_assignment=False, second_signals=False):
         original_spawn, original_kill = subprocess.Popen, os.killpg
         prior = {sig: signal.getsignal(sig) for sig in acceptance.SIGNALS}
