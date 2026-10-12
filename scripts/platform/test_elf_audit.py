@@ -213,6 +213,76 @@ class NamespaceTests(unittest.TestCase):
         obj=self.object();obj['ELF']['classification']='relocatable-elf-data'
         consumer=self.object('usr/bin/app','app',None,None,('liba.so.1',))
         self.assertEqual(a.providers([obj,consumer],self.ns)['requests'][0]['status'],'missing-observed-provider')
+    def test_interp_bearing_soname_library_is_candidate_and_alias_deduplicated(self):
+        self.ns.update({'usr/lib/libc.so.6':{'type':'file','name':'glibc'},
+                        'usr/lib/libc.so':{'type':'symlink','target':'libc.so.6','name':'glibc'},
+                        'usr/lib/ld-linux-aarch64.so.1':{'type':'file','name':'glibc'}})
+        lib=self.object('usr/lib/libc.so.6','glibc','libc.so.6','/lib/ld-linux-aarch64.so.1',('ld-linux-aarch64.so.1',))
+        linker=self.object('usr/lib/ld-linux-aarch64.so.1','glibc','ld-linux-aarch64.so.1')
+        consumer=self.object('usr/bin/app','app',None,None,('libc.so.6','libc.so','/lib/libc.so.6'))
+        result=a.providers([lib,linker,consumer],self.ns)
+        rows=[r for r in result['requests'] if r['path']=='usr/bin/app']
+        self.assertEqual([r['status'] for r in rows],['one-observed-provider-candidate','one-observed-provider-candidate','absolute-path-candidate'])
+        self.assertTrue(all(len(r['candidates'])==1 and r['candidates'][0]['path']=='usr/lib/libc.so.6' for r in rows))
+        self.assertFalse(result['actual_loader_search_verified'])
+    def test_executable_or_no_soname_pie_never_provider_by_name_alias_or_absolute_path(self):
+        for kind,soname,interp in ((2,'liba.so.1',None),(3,None,'/lib/ld-linux-aarch64.so.1')):
+            producer=self.object();producer['ELF']=a.parse_elf(elf(kind=kind,soname=soname,interp=interp,needed=()))
+            consumer=self.object('usr/bin/app','app',None,None,('liba.so.1','liba.so','/lib/liba.so.1'))
+            with self.subTest(kind=kind,soname=soname,interp=interp):
+                rows=[r for r in a.providers([producer,consumer],self.ns)['requests'] if r['path']=='usr/bin/app']
+                self.assertEqual([r['status'] for r in rows],['missing-observed-provider','missing-observed-provider','absolute-path-not-observed-as-library-candidate'])
+                self.assertTrue(all(r['candidates']==[] for r in rows))
+    def test_no_interp_no_soname_candidate_preserves_basename_alias_and_absolute_route(self):
+        producer=self.object(soname=None,interp=None)
+        consumer=self.object('usr/bin/app','app',None,None,('liba.so.1','liba.so','/lib/liba.so.1'))
+        result=a.providers([producer,consumer],self.ns)
+        rows=[r for r in result['requests'] if r['path']=='usr/bin/app']
+        self.assertEqual([r['status'] for r in rows],['one-observed-provider-candidate','one-observed-provider-candidate','absolute-path-candidate'])
+        self.assertTrue(all(len(r['candidates'])==1 and r['candidates'][0]['path']=='usr/lib/liba.so.1' for r in rows))
+        self.assertFalse(result['actual_loader_search_verified'])
+    def test_interp_bearing_soname_candidates_remain_ambiguous(self):
+        objects=[self.object(interp='/lib/ld-linux-aarch64.so.1'),
+                 self.object('opt/lib/liba.so.1','other',interp='/different/loader'),
+                 self.object('usr/bin/app','app',None,None,('liba.so.1',))]
+        request=[r for r in a.providers(objects,self.ns)['requests'] if r['path']=='usr/bin/app'][0]
+        self.assertEqual(request['status'],'ambiguous-observed-providers');self.assertEqual(len(request['candidates']),2)
+    def test_actual_bound_libperl_and_lmdb_metadata_preserves_three_requests(self):
+        # Projection of historical report294e9576...; actual hashes/version/roles.
+        # This checks provider metadata only, never executes these package files.
+        def observed(name,version,path,digest,soname,interp,needed):
+            return {'name':name,'version':version,'path':path,'sha256':digest,'status':'elf-parsed-as-data',
+                    'ELF':{'classification':'aarch64-loadable-elf','type':3,'soname':soname,'interpreter':interp,'needed':needed}}
+        perl=observed('perl','5.42.3-1','usr/lib/perl5/5.42/core_perl/CORE/libperl.so',
+                      'e297d19f8975344a28bf0828cf4d9cfadb7fbfb88e188d53684fed8638a04b43',None,None,
+                      ['libm.so.6','libcrypt.so.2','libc.so.6','ld-linux-aarch64.so.1'])
+        lmdb=observed('lmdb','0.9.35-1','usr/lib/liblmdb.so',
+                      '659e9d3ed8c90fbb3a04ce4dff973050cbdb55522f1a8388551d0b26db6cccf5',None,None,
+                      ['libc.so.6','ld-linux-aarch64.so.1'])
+        app=observed('perl','5.42.3-1','usr/bin/perl',
+                     '056a9ecb8dd9192027b2849190a266aea08c3c4197e6bbac754205cf9115f7dc',None,'/lib/ld-linux-aarch64.so.1',
+                     ['libperl.so','libc.so.6'])
+        tex=observed('texinfo','7.3-1','usr/lib/texi2any/lib/libtexinfo-main.so.0.0.0',
+                     '6b2c88a6321e56fd3dc2458926d69f7ebc0836c03fcdb3fe3445cbc8a42ce683','libtexinfo-main.so.0',None,
+                     ['libtexinfo-convert.so.1','libtexinfoxs.so.1','libtexinfo.so.1','libunistring.so.5','libperl.so','libc.so.6','ld-linux-aarch64.so.1'])
+        krb=observed('krb5','1.22.2-1','usr/lib/krb5/plugins/kdb/klmdb.so',
+                     '50e95f8bc78d05d489b8bdc531c55b527eaa7e049bc10a1fb1680e3ae1cbb8c8','klmdb.so.0',None,
+                     ['libkadm5srv_mit.so.12','libkdb5.so.10','libgssrpc.so.4','libgssapi_krb5.so.2','libkrb5.so.3','libk5crypto.so.3','libcom_err.so.2','libkrb5support.so.0','libkeyutils.so.1','libresolv.so.2','liblmdb.so','libc.so.6','ld-linux-aarch64.so.1'])
+        result=a.providers([perl,lmdb,app,tex,krb],{})
+        rows=[r for r in result['requests'] if r['requested'] in ('libperl.so','liblmdb.so')]
+        self.assertEqual(len(rows),3)
+        self.assertEqual({(r['name'],r['requested']) for r in rows},{('perl','libperl.so'),('texinfo','libperl.so'),('krb5','liblmdb.so')})
+        for r in rows:
+            self.assertEqual(r['status'],'one-observed-provider-candidate');self.assertEqual(len(r['candidates']),1)
+            self.assertEqual(r['candidates'][0]['path'],perl['path'] if r['requested']=='libperl.so' else lmdb['path'])
+        self.assertFalse(result['actual_loader_search_verified'])
+    def test_invalid_soname_type_cannot_seed_candidate(self):
+        for soname in ('',True,1,[],{}):
+            producer=self.object();producer['ELF']['soname']=soname
+            consumer=self.object('usr/bin/app','app',None,None,('liba.so.1',))
+            with self.subTest(soname=soname):
+                row=a.providers([producer,consumer],self.ns)['requests'][-1]
+                self.assertEqual(row['status'],'missing-observed-provider');self.assertEqual(row['candidates'],[])
     def test_cycles_escape_file_ancestor_and_depth(self):
         for target,status in [('liba.so','link-cycle'),('../../../../outside','escapes-observed-root'),('liba.so.1/child','non-directory-ancestor')]:
             ns=copy.deepcopy(self.ns);ns['usr/lib/liba.so']['target']=target

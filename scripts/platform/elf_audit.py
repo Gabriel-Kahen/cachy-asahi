@@ -271,11 +271,18 @@ def resolve(path, namespace):
 
 
 def providers(objects, namespace):
+    def library_candidate(obj):
+        if obj is None: return False
+        elf = obj['ELF'];soname = elf['soname']
+        valid_soname = type(soname) is str and bool(soname)
+        # Keep basename candidates without PT_INTERP, including no-SONAME libs.
+        # Runnable shared libraries with PT_INTERP need explicit SONAME evidence.
+        return elf['type'] == 3 and (soname is None or valid_soname) and (valid_soname or elf['interpreter'] is None)
     candidates,paths = {},{}
     for obj in objects:
         if obj['status'] != 'elf-parsed-as-data' or obj['ELF']['classification'] != 'aarch64-loadable-elf':continue
         paths[obj['path']]=obj
-        if obj['ELF']['type'] == 3 and obj['ELF']['interpreter'] is None:
+        if library_candidate(obj):
             for name in {posixpath.basename(obj['path']),obj['ELF']['soname']} - {None}:
                 candidates.setdefault(name,{})[obj['path']]=obj
     link_findings=[]
@@ -284,7 +291,7 @@ def providers(objects, namespace):
         result=resolve(path,namespace)
         if result['status'] != 'observed-path':link_findings.append({'path':path,'resolution':result});continue
         obj=paths.get(result['path'])
-        if obj and obj['ELF']['type'] == 3 and obj['ELF']['interpreter'] is None:
+        if library_candidate(obj):
             candidates.setdefault(posixpath.basename(path),{})[obj['path']]=obj
     need(sum(len(obj['ELF']['needed'])+bool(obj['ELF']['interpreter']) for obj in paths.values()) <= TOTAL_NODES, 'loader-request-bound')
     requests=[]
@@ -301,7 +308,7 @@ def providers(objects, namespace):
             elif '/' in needed:
                 result=resolve(needed,namespace) if needed.startswith('/') else {'status':'relative-needed-path-unresolved'}
                 found=paths.get(result.get('path')) if result['status']=='observed-path' else None
-                matched=[found] if found and found['ELF']['type']==3 else [];status='absolute-path-candidate' if matched else result['status']
+                matched=[found] if library_candidate(found) else [];status='absolute-path-candidate' if matched else 'absolute-path-not-observed-as-library-candidate' if result['status']=='observed-path' else result['status']
             else:
                 matched=list(candidates.get(needed,{}).values());status='missing-observed-provider' if not matched else 'ambiguous-observed-providers' if len(matched)>1 else 'one-observed-provider-candidate'
             requests.append({'name':obj['name'],'path':obj['path'],'kind':'DT_NEEDED','requested':needed,'status':status,
