@@ -4,56 +4,51 @@ October 12, 2026. This record tracks the complete `outline.md` scope; an impleme
 
 The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with owned tasks and corrective next actions in `docs/backlog.md`. The destination now explicitly requires the maintained ARM package repository, native performance engineering, integrated Apple stack, broader Cachy system experience, and complete installation/release lifecycle. Both Air sizes, published final measurements, independent onboarding/contribution, subsequent full-port maintenance release, other-ARM reuse and actual upstream submissions remain required; an early overlay release or feasibility decision would not complete the goal. This scope update does not change any recorded execution result.
 
-Latest coordinator checkpoint, October 12 after trial38251407975: the records below retain earlier
-attempts; the following supersedes their pending-work descriptions without
-changing those attempts' outcomes.
+Latest coordinator checkpoint, October 12, 15:15 UTC. The earlier records below
+remain historical; this checkpoint supersedes their pending-work descriptions.
 
-October 12, 13:55 UTC update: kernel trial38253531983 passed source/native
-preflight but refused the daemon baseline before any build; counts and the cause
-of that ambiguous occupied-daemon diagnostic were not captured. A
-baseline-preservation correction is in development. Virtual87 source review is
-closed at f14d9d8, with its normal-process/aggregate acceptance cutoff documented.
-The separate211-source integration packet is now rebound to corrected initial
-159-source/125-fixture metadata and21-package QEMU tooling. Independent actual
-Git/blob/mode and canonical regeneration checks pass;363 CI tests pass, and all
-199 development methods pass across the first run and an isolated rerun of the
-one temporary GPG-agent startup failure. Corrected native integration is pending.
-
-The first actual static ELF scan read all624 archive inputs and observed7,129
-ELF files, but returned FAIL. Its4,536 missing-provider findings include false
-omissions caused by excluding legitimate SONAME libraries with PT_INTERP;
-22 general-parser refusals are firmware files. The original report is retained,
-and a narrow provider-selection correction is being implemented. These findings
-are static observations, not installed loader,16K runtime or hardware evidence.
-
-- Corrected FDK trial `38248011223` passes source/native preflight and records
-  all 501 acquisitions PASS, then fails after the last original-comparison
-  diagnostic. Seven public files pass independent strict verification; FDK
-  compilation remains NOT RUN. The exact subsequent failure is under review.
-  See [the actual execution record](reviews/native-fdk-execution-38248011223.md).
-- The updater storage/recovery correction is committed at `9d9b514`: 200 tests
-  pass in independent fresh copies, five additional storage/cleanup schedules
-  pass, and actual Git/source verification binds 85 files / 3,978,947 bytes.
-  Package/root pins are unchanged. Its revised storage policy has no measured
-  build-fit result. Workflow adoption passes381 consumer fixtures and syntax/
-  clock checks. Corrected trial38251407975 passes354-package bootstrap, then
-  fails at the first worker boundary. Scoped cleanup/private removal and
-  recovery pass;14 public files verify. Exact worker cause and native pair
-  acceptance remain open; see [the actual record](reviews/native-updater-execution-38251407975.md).
-- All six missing exact older versions now have authenticated archives and
-  metadata; six additional independent root GPG checks pass. The new actual
-  inert platform audit passes624/624 supplied archives with no missing archive,
-  metadata/file-list mismatch or observed non-directory overlap. Five runtime/
-  generated link targets remain unobserved. Historical406/618/623 failed audits
-  remain unchanged. This closes the missing archive-data gap only. Image
-  authentication, installed ABI/hooks, source grants and M2 recovery remain open.
-- The corrected kernel stage source lock is independently matched and committed.
-  Its API/start source checks pass 103 job and 86 stage tests with zero skips.
-  Manual workflow registration is merged through PR4. Finite failure diagnostics
-  are being completed before final job-packet registration and native execution.
-  The concrete KSM executor and virtual publication corrections are implemented
-  but still undergoing source-review closure. No native execution or hardware
-  acceptance is inferred from these implementations.
+- Native run `38259350917` passes the original generic integration aggregate:
+  all seven stages, 650 locked-userspace source tests without skips, signed
+  lifecycle, all eleven repository cases, installed software onboarding and
+  desktop configuration verification. The broader aggregate remains FAIL only
+  in the virtual desktop component. All owned-image/container cleanup passes.
+  [Independent retained-evidence review](reviews/native-development-execution-38259350917.md)
+  records the exact scope and limits; production trust and target recovery remain open.
+- That run actually boots the generic ARM guest with 4K pages and passes software
+  GBM rendering with llvmpipe. Hyprland's first IPC request returns exit6; no
+  frames or usable session are accepted. The bounded IPC-readiness/log correction
+  is implemented; guest review and receiver integration are underway. QEMU cannot
+  establish M2 graphics, 16K runtime, audio, sleep or performance acceptance.
+- FDK run `38260525391` records all501 acquisitions, four original comparisons,
+  native/worker zero exits and worker cleanup PASS, then fails producer bootstrap
+  receipt acceptance before FDK compilation. The narrow exact IID-byte grammar
+  correction is committed at `a50d53f`; its128-source Git/inline-workflow/fresh-copy
+  proof passes. Successor trial `38268251114` is running, with no accepted outcome.
+  [Actual failed trial](reviews/native-fdk-execution-38260525391.md).
+- The updater parent observation correction is committed at `2f8c13e`: 284 source
+  tests pass, and actual85-file Git/source/snapshot verification passes for
+  4,044,082 bytes. Workflow review found a contradictory-worker acceptance gap;
+  its correction passes452 consumer cases and is under independent final review.
+  Earlier trial38251407975 remains FAIL; native compilation is not attested.
+- KSM's229-test finite executor and152-source packet are committed at `b918c7c`;
+  workflow registration is merged through PR5. First trial `38262440852` fails
+  at source/ValueError before producer launch. A causal source correction and
+  finite first-failure diagnostics are being completed; installation remains NOT RUN.
+- Kernel trial38253531983 remains FAIL before build at occupied-daemon refusal.
+  The reviewed cooperative baseline-preservation correction is committed at
+  `c3d3872`, with stage24/job115 and actual Git/bootstrap verification passing.
+  Corrected native compilation is pending an available serialized builder slot.
+- The actual inert624-archive payload audit remains PASS. The first static ELF
+  scan remains FAIL: 7,129 files, 4,536 missing-provider requests and22 firmware
+  parser refusals. The clarified provider-only correction passes52 tests and
+  retained-metadata replay resolves4,509 omissions, preserves three original
+  candidates and leaves27 requests. Final review and corrected full scan remain
+  pending; no installed loader or hardware result follows from this data audit.
+- The phase-aware repository-client successor passes110 copied-source tests,
+  including real TEST GPG checks. Separate retained-data checks validate fifteen
+  signatures at their recorded phases. Native admission remains NOT RUN;
+  twelve empty-URL metadata representation mismatches and missing original
+  admission/custody records remain explicit prerequisites.
 
 | Stage | Source implementation | Required execution evidence | Acceptance |
 | --- | --- | --- | --- |
