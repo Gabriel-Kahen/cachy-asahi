@@ -112,6 +112,68 @@ def error_count(value):
     return len(value)
 
 
+WORKER_CHECKS=frozenset({'not-started','worker-run','container-inspection','worker-run-result',
+                        'worker-inventory','worker-artifact-shape','complete'})
+WORKER_CAUSES={
+    'not-started':frozenset(),
+    'worker-run':frozenset({'worker-run-launch-failed','worker-run-timeout','worker-run-cancelled',
+                          'worker-run-failed','worker-returncode-invalid'}),
+    'container-inspection':frozenset({'inspection-launch-failed','inspection-command-failed','inspection-timeout',
+        'inspection-output-limit','inspection-json-invalid','inspection-schema-invalid','inspection-identity-mismatch',
+        'inspection-id-drift','inspection-state-invalid','inspection-cancelled','inspection-io-failed','inspection-cleanup-failed'}),
+    'worker-run-result':frozenset({'worker-nonzero-returncode','worker-container-state-unaccepted'}),
+    'worker-inventory':frozenset({'worker-inventory-unavailable','worker-inventory-mismatch','worker-observation-cancelled'}),
+    'worker-artifact-shape':frozenset({'worker-output-symlink','worker-output-observation-failed','worker-observation-cancelled'}),
+    'complete':frozenset(),
+}
+WORKER_FIELDS=frozenset({'worker_run_returncode','worker_check','worker_failure_code','worker_container_state'})
+CONTAINER_STATUSES=frozenset({'created','running','paused','restarting','removing','exited','dead'})
+
+
+def container_state(value):
+    fields={'schema_version':integer(1,1),'container_id':HASH,'image_id':IMAGE,'controller_sha256':HASH,
+            'name_sha256':HASH,'nonce_sha256':HASH,'status':enum(*CONTAINER_STATUSES),
+            'running':boolean,'paused':boolean,'restarting':boolean,'dead':boolean,'oom_killed':boolean,
+            'exit_code':integer(255),'state_error_present':boolean}
+    need(type(value) is dict and set(value)==set(fields))
+    return pick(value,fields)
+
+
+def accepted_container_state(state):
+    return state['status']=='exited' and state['exit_code']==0 and not any(state[key] for key in
+        ('running','paused','restarting','dead','oom_killed','state_error_present'))
+
+
+def worker_observation(value):
+    fields=set(value) & WORKER_FIELDS
+    if not fields:return {}
+    need(fields==WORKER_FIELDS)
+    code=nullable(integer(255,-64))(value['worker_run_returncode'])
+    check=enum(*WORKER_CHECKS)(value['worker_check']);cause=value['worker_failure_code']
+    need(cause is None or type(cause) is str and cause in WORKER_CAUSES[check])
+    state=value['worker_container_state']
+    if state is not None:
+        state=container_state(state)
+        need('image_id' in value and 'controller_sha256' in value and
+             IMAGE(value['image_id'])==state['image_id'] and HASH(value['controller_sha256'])==state['controller_sha256'] and
+             code is not None and check not in ('not-started','worker-run'))
+    if check=='not-started':need(code is None and cause is None and state is None)
+    if check=='worker-run':need(state is None)
+    if check in ('worker-run-result','worker-inventory','worker-artifact-shape','complete'):
+        need(code is not None and state is not None)
+    if check in ('worker-inventory','worker-artifact-shape','complete'):
+        need(code==0 and accepted_container_state(state))
+    if cause=='worker-returncode-invalid':need(code is None)
+    if cause=='worker-nonzero-returncode':need(code is not None and code!=0)
+    if cause=='worker-container-state-unaccepted':need(code==0 and state is not None and not accepted_container_state(state))
+    if check=='complete':need(cause is None)
+    if value.get('worker_launch_attempted') is False:need(check=='not-started')
+    if value.get('native_compilation') in ('PASS','PASS-private-native-package-static-checks'):
+        need(check=='complete' and cause is None and code==0 and state is not None and accepted_container_state(state))
+        need(value.get('cancelled') is not True)
+    return {'worker_run_returncode':code,'worker_check':check,'worker_failure_code':cause,'worker_container_state':state}
+
+
 def receipt(value):
     if 'schema_version' in value:
         need(type(value['schema_version']) is int and value['schema_version'] == 1)
@@ -130,6 +192,7 @@ def receipt(value):
               'container_cleanup_complete': boolean,
               'container_cleanup': enum('PASS', 'FAIL', 'NOT RUN')}
     result = pick(value, fields)
+    result.update(worker_observation(value))
     if 'worker_cleanup_errors' in value:
         result['worker_cleanup_errors'] = sequence(lambda row: pick(row, {
             'worker': integer(2, 1), 'error_type': enum(*ERROR_TYPES)}), 2)(value['worker_cleanup_errors'])

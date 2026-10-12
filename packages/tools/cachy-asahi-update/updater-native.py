@@ -14,12 +14,14 @@ from pathlib import Path, PurePosixPath
 import platform
 import posixpath
 import re
+import selectors
 import shutil
 import signal
 import subprocess
 import sys
 import tarfile
 import tempfile
+import time
 
 BASE = Path(__file__).resolve().parent
 ROOT = BASE.parents[2]
@@ -77,7 +79,7 @@ def public_error(error):
 
 
 def failure(record, error):
-    record.update(error_type=type(error).__name__, error=public_error(error),
+    record.update(error_type='ValueError' if type(error) is WorkerObservationError else type(error).__name__, error=public_error(error),
                   cancelled=isinstance(error, KeyboardInterrupt))
     if isinstance(error, BuildCancelled):
         record['cancel_signal'] = signal.Signals(error.signum).name
@@ -280,6 +282,165 @@ def tool_pins(inputs, cache):
     return {'schema_version': 1, 'builder_inventory_sha256': PINS['scripts/port/updater-extension/expected-packages.lock'], 'tools': tools}
 
 
+WORKER_CHECKS=frozenset({'not-started','worker-run','container-inspection','worker-run-result',
+                        'worker-inventory','worker-artifact-shape','complete'})
+WORKER_FAILURES=frozenset({'worker-run-launch-failed','worker-run-timeout','worker-run-cancelled','worker-run-failed',
+    'worker-returncode-invalid','inspection-launch-failed','inspection-command-failed','inspection-timeout',
+    'inspection-output-limit','inspection-json-invalid','inspection-schema-invalid','inspection-identity-mismatch',
+    'inspection-id-drift','inspection-state-invalid','inspection-cancelled','inspection-io-failed',
+    'inspection-cleanup-failed','worker-nonzero-returncode','worker-container-state-unaccepted',
+    'worker-inventory-unavailable','worker-inventory-mismatch','worker-output-symlink',
+    'worker-output-observation-failed','worker-observation-cancelled'})
+CONTAINER_STATUSES=frozenset({'created','running','paused','restarting','removing','exited','dead'})
+INSPECTION_LIMIT=1024**2
+
+
+class WorkerObservationError(ValueError):
+    def __init__(self,check,code):
+        need(type(check) is str and check in WORKER_CHECKS and type(code) is str and code in WORKER_FAILURES,
+             'invalid worker observation')
+        self.check,self.code=check,code
+        super().__init__(code)
+
+
+def observation_need(value,code):
+    if not value:raise WorkerObservationError('container-inspection',code)
+
+
+def capture_inspection(name,deadline):
+    """Bound stdout/time; the broker remains in the native helper's owned group."""
+    process=selector=None;data=bytearray();error=None;cleanup_failed=False
+    try:
+        observation_need(time.monotonic()<deadline,'inspection-timeout')
+        process=subprocess.Popen(['docker','inspect',name],stdout=subprocess.PIPE,stderr=subprocess.DEVNULL)
+        selector=selectors.DefaultSelector();os.set_blocking(process.stdout.fileno(),False)
+        selector.register(process.stdout,selectors.EVENT_READ)
+        while selector.get_map():
+            observation_need(time.monotonic()<deadline,'inspection-timeout')
+            for key,_ in selector.select(min(.1,max(0,deadline-time.monotonic()))):
+                chunk=os.read(key.fd,65536)
+                if not chunk:selector.unregister(key.fileobj);continue
+                observation_need(len(data)+len(chunk)<=INSPECTION_LIMIT,'inspection-output-limit');data.extend(chunk)
+        observation_need(time.monotonic()<deadline,'inspection-timeout')
+        process.wait(timeout=max(.01,deadline-time.monotonic()))
+        observation_need(type(process.returncode) is int and process.returncode==0,'inspection-command-failed')
+        return bytes(data)
+    except subprocess.TimeoutExpired:
+        error=WorkerObservationError('container-inspection','inspection-timeout');raise error from None
+    except OSError:
+        error=WorkerObservationError('container-inspection','inspection-launch-failed' if process is None else 'inspection-io-failed')
+        raise error from None
+    except BaseException as caught:
+        error=caught;raise
+    finally:
+        mask=signal.pthread_sigmask(signal.SIG_BLOCK,{signal.SIGTERM,signal.SIGINT})
+        try:
+            if process is not None:
+                try:
+                    if process.poll() is None:
+                        process.terminate()
+                        try:process.wait(timeout=1)
+                        except subprocess.TimeoutExpired:process.kill();process.wait(timeout=2)
+                except BaseException:cleanup_failed=True
+                if process.stdout is not None:
+                    try:process.stdout.close()
+                    except BaseException:cleanup_failed=True
+            if selector is not None:
+                try:selector.close()
+                except BaseException:cleanup_failed=True
+        finally:signal.pthread_sigmask(signal.SIG_SETMASK,mask)
+        if cleanup_failed and error is None:raise WorkerObservationError('container-inspection','inspection-cleanup-failed')
+
+
+def parse_worker_inspection(raw,name,image,nonce,controller_sha,expected_id=None):
+    """Project known actual State fields only after the expected launch binding."""
+    observation_need(type(raw) is bytes and len(raw)<=INSPECTION_LIMIT,'inspection-output-limit')
+    observation_need(type(nonce) is str and type(name) is str and name=='cachy-asahi-updater-'+nonce and re.fullmatch('[0-9a-f]{32}',nonce) and type(image) is str and
+        re.fullmatch('sha256:[0-9a-f]{64}',image) and type(controller_sha) is str and
+        re.fullmatch('[0-9a-f]{64}',controller_sha),'inspection-identity-mismatch')
+    def unique(rows):
+        value={}
+        for key,item in rows:
+            observation_need(key not in value,'inspection-json-invalid');value[key]=item
+        return value
+    try:
+        rows=json.loads(raw.decode('utf-8'),object_pairs_hook=unique,
+                        parse_constant=lambda _:observation_need(False,'inspection-json-invalid'))
+    except (UnicodeError,ValueError,RecursionError):
+        raise WorkerObservationError('container-inspection','inspection-json-invalid') from None
+    pending=[rows];count=0
+    while pending:
+        value=pending.pop();count+=1;observation_need(count<=8192,'inspection-schema-invalid')
+        if type(value) is dict:pending.extend(value.values())
+        elif type(value) is list:pending.extend(value)
+    observation_need(type(rows) is list and len(rows)==1 and type(rows[0]) is dict,'inspection-schema-invalid')
+    row=rows[0];identity=row.get('Id')
+    observation_need(type(identity) is str and re.fullmatch('[0-9a-f]{64}',identity),'inspection-identity-mismatch')
+    observation_need(expected_id is None or type(expected_id) is str and identity==expected_id,'inspection-id-drift')
+    observation_need(type(row.get('Name')) is str and row['Name']=='/'+name and
+                     type(row.get('Image')) is str and row['Image']==image,'inspection-identity-mismatch')
+    config=row.get('Config');observation_need(type(config) is dict,'inspection-schema-invalid')
+    env=config.get('Env');observation_need(type(env) is list and len(env)<=128 and
+        all(type(item) is str for item in env),'inspection-schema-invalid')
+    try:lengths=[len(item.encode('utf-8')) for item in env]
+    except UnicodeError:raise WorkerObservationError('container-inspection','inspection-schema-invalid') from None
+    observation_need(all(size<=8192 for size in lengths) and sum(lengths)<=65536,'inspection-schema-invalid')
+    values={}
+    for item in env:
+        key,separator,value=item.partition('=')
+        observation_need(bool(separator) and key not in values,'inspection-identity-mismatch');values[key]=value
+    expected={'CACHY_ASAHI_CONTAINER':'1','CACHY_ASAHI_IMAGE_ID':image,'CACHY_ASAHI_UPDATE_BUILD_NONCE':nonce,
+              'CACHY_ASAHI_CONTROLLER_SHA256':controller_sha,'SOURCE_DATE_EPOCH':'1789753605'}
+    observation_need(all(values.get(key)==value for key,value in expected.items()),'inspection-identity-mismatch')
+    state=row.get('State');observation_need(type(state) is dict,'inspection-state-invalid')
+    status=state.get('Status');observation_need(type(status) is str and status in CONTAINER_STATUSES,'inspection-state-invalid')
+    flags={'running':'Running','paused':'Paused','restarting':'Restarting','dead':'Dead','oom_killed':'OOMKilled'}
+    observation_need(all(type(state.get(field)) is bool for field in flags.values()),'inspection-state-invalid')
+    code=state.get('ExitCode');message=state.get('Error')
+    observation_need(type(code) is int and 0<=code<=255 and type(message) is str,'inspection-state-invalid')
+    try:message_size=len(message.encode('utf-8'))
+    except UnicodeError:raise WorkerObservationError('container-inspection','inspection-state-invalid') from None
+    observation_need(message_size<=8192,'inspection-state-invalid')
+    return {'schema_version':1,'container_id':identity,'image_id':image,'controller_sha256':controller_sha,
+            'name_sha256':hashlib.sha256(name.encode()).hexdigest(),'nonce_sha256':hashlib.sha256(nonce.encode()).hexdigest(),
+            'status':status,**{key:state[field] for key,field in flags.items()},'exit_code':code,
+            'state_error_present':bool(message)}
+
+
+def inspect_worker(name,image,nonce,controller_sha,raw_path):
+    # First expected name/image/nonce/controller observation anchors the ID;
+    # a second independent query must still resolve to that immutable identity.
+    deadline=time.monotonic()+60
+    first=capture_inspection(name,deadline)
+    observed=parse_worker_inspection(first,name,image,nonce,controller_sha)
+    raw_path.write_bytes(first)
+    second=capture_inspection(name,deadline)
+    result=parse_worker_inspection(second,name,image,nonce,controller_sha,observed['container_id'])
+    raw_path.write_bytes(second)
+    return result
+
+
+def worker_observation_failure(record,error):
+    """Freeze the first finite parent failure; never parse exception text."""
+    if record.get('worker_failure_code') is not None:return
+    check=record.get('worker_check')
+    if type(error) is WorkerObservationError:
+        record.update(worker_check=error.check,worker_failure_code=error.code);return
+    cancelled=isinstance(error,KeyboardInterrupt)
+    if check=='worker-run':
+        code='worker-run-cancelled' if cancelled else 'worker-run-timeout' if isinstance(error,subprocess.TimeoutExpired) else              'worker-run-launch-failed' if isinstance(error,OSError) else 'worker-run-failed'
+    elif check=='container-inspection':code='inspection-cancelled' if cancelled else 'inspection-io-failed'
+    elif check in ('worker-inventory','worker-artifact-shape'):
+        code='worker-observation-cancelled' if cancelled else              'worker-inventory-unavailable' if check=='worker-inventory' else 'worker-output-observation-failed'
+    else:return
+    record['worker_failure_code']=code
+
+
+def accepted_container_state(state):
+    return state['status']=='exited' and state['exit_code']==0 and not any(state[key] for key in
+        ('running','paused','restarting','dead','oom_killed','state_error_present'))
+
+
 def launch(image, recipe_path, expected_lock, tools, entry, output, checks, metadata, expected_recipe, expected_entry, timeout=1800):
     need(not output.exists(), 'fresh worker output required')
     output.mkdir(mode=0o700)
@@ -287,7 +448,8 @@ def launch(image, recipe_path, expected_lock, tools, entry, output, checks, meta
                   'publication': 'NOT ACCEPTED', 'hardware': 'NOT RUN', 'stage': 'input-snapshot',
                   'worker_launch_attempted': False, 'container_cleanup_attempted': False,
                   'container_removal_succeeded': False, 'container_absence_verified': False,
-                  'container_cleanup_complete': False}
+                  'container_cleanup_complete': False, 'worker_run_returncode':None, 'worker_check':'not-started',
+                  'worker_failure_code':None,'worker_container_state':None}
     name, launched = None, False
     cleanup_error = None
     try:
@@ -331,14 +493,30 @@ def launch(image, recipe_path, expected_lock, tools, entry, output, checks, meta
         save(output / 'provenance.json', provenance)
         launched = True
         provenance['worker_launch_attempted'] = True
+        provenance['worker_check']='worker-run';save(output / 'provenance.json',provenance)
         with (output / 'build.log').open('wb') as log:
             result = subprocess.run(command, stdout=log, stderr=subprocess.STDOUT, timeout=timeout)
-        provenance['stage'] = 'worker-inspection'
-        inspection = subprocess.check_output(['docker', 'inspect', name], timeout=60)
-        (output / 'container-inspect.json').write_bytes(inspection)
-        need(result.returncode == 0, 'worker exited ' + str(result.returncode) + '; see build.log')
-        need((artifacts / 'packages.lock').read_bytes() == expected_lock.read_bytes(), 'actual worker inventory differs')
-        need(not any(p.is_symlink() for p in artifacts.rglob('*')), 'worker output symlink refused')
+        code=result.returncode
+        valid_code=type(code) is int and -64<=code<=255
+        provenance['worker_run_returncode']=code if valid_code else None
+        save(output / 'provenance.json',provenance)
+        if not valid_code:raise WorkerObservationError('worker-run','worker-returncode-invalid')
+        provenance.update(stage='worker-inspection',worker_check='container-inspection')
+        save(output / 'provenance.json',provenance)
+        provenance['worker_container_state']=inspect_worker(name,image,nonce,provenance['controller_sha256'],
+                                                           output / 'container-inspect.json')
+        save(output / 'provenance.json',provenance)
+        provenance['worker_check']='worker-run-result';save(output / 'provenance.json',provenance)
+        if code!=0:raise WorkerObservationError('worker-run-result','worker-nonzero-returncode')
+        if not accepted_container_state(provenance['worker_container_state']):
+            raise WorkerObservationError('worker-run-result','worker-container-state-unaccepted')
+        provenance['worker_check']='worker-inventory';save(output / 'provenance.json',provenance)
+        if (artifacts / 'packages.lock').read_bytes()!=expected_lock.read_bytes():
+            raise WorkerObservationError('worker-inventory','worker-inventory-mismatch')
+        provenance['worker_check']='worker-artifact-shape';save(output / 'provenance.json',provenance)
+        if any(p.is_symlink() for p in artifacts.rglob('*')):
+            raise WorkerObservationError('worker-artifact-shape','worker-output-symlink')
+        provenance['worker_check']='complete';save(output / 'provenance.json',provenance)
         provenance['stage'] = 'package-inspection'
         checks_build = load_module('updater_build_checks', ROOT / 'scripts/build/build.py')
         generated = checks.metadata((artifacts / 'generated.SRCINFO').read_text())
@@ -354,6 +532,7 @@ def launch(image, recipe_path, expected_lock, tools, entry, output, checks, meta
     except BaseException as error:
         provenance['native_compilation'] = 'FAIL'
         provenance['failed_stage'] = provenance['stage']
+        worker_observation_failure(provenance,error)
         failure(provenance, error)
         raise
     finally:

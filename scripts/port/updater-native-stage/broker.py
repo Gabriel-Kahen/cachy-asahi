@@ -742,7 +742,7 @@ def _cleanup(root, nonce, realDocker, endpoint, deadline):
                     need(row.get('image_id') in (None, image), 'build-iid-drift')
                     if not row.get('absence_verified'):
                         image_owned(c, image, signals, False)
-                        query(c, ['rmi', image], signals, False)
+                        query(c, ['rmi', '--no-prune', image], signals, False)
                     # Docker image inspect failure alone is not absence proof.
                     lines = query(c, ['image', 'ls', '--no-trunc', '--filter=label=' + LABEL + '=' + c['nonce'], '--format={{.ID}}'], signals, False).decode('ascii').splitlines()
                     ids = set()

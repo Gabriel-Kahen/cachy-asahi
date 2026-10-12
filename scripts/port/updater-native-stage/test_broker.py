@@ -59,11 +59,34 @@ class Docker:
         if args[0] == 'rm':
             self.containers.pop(args[2], None);return 0, b''
         if args[0] == 'rmi':
-            self.images.pop(args[1], None);return 0, b''
+            assert len(args) == 3 and args[1] == '--no-prune' and b.IMAGE.fullmatch(args[2]), 'exact image removal guard'
+            self.images.pop(args[2], None);return 0, b''
         if args[:2] == ['image', 'ls']:
             assert args[3] == '--filter=label=' + b.LABEL + '=' + NONCE
             return 0, b'\n'.join(image.encode() for image, label in self.images.items() if label == NONCE)
         return 0, b'private tool stdout unchanged'
+
+
+class ImageGraphDocker(Docker):
+    """Finite image graph: default removal prunes untagged parent images."""
+    ANCESTOR = 'sha256:' + 'e' * 64
+
+    def __init__(self, root):
+        super().__init__(root)
+        self.images[self.ANCESTOR] = 'foreign'
+        self.parents = {IMAGE:self.ANCESTOR}
+        self.untagged = {self.ANCESTOR}
+
+    def execute(self, c, args, signals, capture=False, **kwargs):
+        if args[:1] != ['rmi']:return super().execute(c, args, signals, capture, **kwargs)
+        assert args in (['rmi', IMAGE], ['rmi', '--no-prune', IMAGE]), 'no force or foreign target'
+        self.calls.append(args)
+        self.images.pop(IMAGE, None)
+        if '--no-prune' not in args:
+            parent = self.parents[IMAGE]
+            if parent in self.untagged and not any(child in self.images for child, ancestor in self.parents.items() if ancestor == parent):
+                self.images.pop(parent, None)
+        return 0, b''
 
 
 class BrokerTests(unittest.TestCase):
@@ -181,6 +204,7 @@ class BrokerTests(unittest.TestCase):
         self.build();original = self.docker.execute
         def retained(c, args, signals, **kwargs):
             if args[:1] == ['rmi']:
+                self.assertEqual(args, ['rmi', '--no-prune', IMAGE])
                 self.docker.calls.append(args);return 0, b''
             return original(c, args, signals, **kwargs)
         with mock.patch.object(b, 'execute', side_effect=retained):result = self.cleanup()
@@ -194,6 +218,39 @@ class BrokerTests(unittest.TestCase):
         self.assertEqual(result['status'], 'FAIL');self.assertEqual(result['failures'], ['image-cleanup-ambiguous'])
         self.assertNotIn('secret', json.dumps(result));self.assertEqual(self.docker.images, {IMAGE:NONCE})
         self.assertFalse(any(args[0] in ('rmi', 'prune') for args in self.docker.calls))
+
+    def test_no_prune_cleanup_preserves_foreign_untagged_ancestor(self):
+        graph = ImageGraphDocker(self.root)
+        with mock.patch.object(b, 'execute', side_effect=graph.execute):
+            self.build();result = self.cleanup()
+            self.assertEqual(result['status'], 'PASS')
+            self.assertNotIn(IMAGE, graph.images)
+            self.assertEqual(graph.images, {graph.ANCESTOR:'foreign'})
+            self.assertIn(['rmi', '--no-prune', IMAGE], graph.calls)
+            self.assertEqual(self.cleanup()['status'], 'PASS')
+            self.assertEqual(graph.images, {graph.ANCESTOR:'foreign'})
+
+    def test_default_pruning_source_variant_fails_foreign_ancestor_survival(self):
+        source = Path(b.__file__).read_text()
+        new = "query(c, ['rmi', '--no-prune', image], signals, False)"
+        self.assertEqual(source.count(new), 1)
+        variant = type(b)('default_pruning_broker')
+        exec(compile(source.replace(new, "query(c, ['rmi', image], signals, False)"), b.__file__, 'exec'), variant.__dict__)
+        graph = ImageGraphDocker(self.root)
+        with mock.patch.object(b, 'execute', side_effect=graph.execute):self.build()
+        with mock.patch.object(variant, 'execute', side_effect=graph.execute), mock.patch.object(variant, 'socket_info', side_effect=b.socket_info):
+            result = variant.cleanup(self.root, NONCE, self.docker_file, self.c['docker_endpoint'], time.monotonic()+120)
+        self.assertEqual(result['status'], 'PASS')  # nonce absence alone cannot detect foreign ancestry loss
+        self.assertNotIn(graph.ANCESTOR, graph.images)
+        with self.assertRaises(AssertionError):self.assertEqual(graph.images, {graph.ANCESTOR:'foreign'})
+        self.assertIn(['rmi', IMAGE], graph.calls)
+
+    def test_mock_image_remove_rejects_missing_guard_force_and_foreign_target(self):
+        self.build()
+        for args in (['rmi', IMAGE], ['rmi', '--force', IMAGE], ['rmi', '--no-prune', '--force', IMAGE], ['rmi', '--no-prune', 'foreign-name']):
+            with self.subTest(args=args), self.assertRaises(AssertionError):
+                self.docker.execute(self.c, args, None)
+        self.assertEqual(self.docker.images, {IMAGE:NONCE})
 
     def test_existing_name_and_duplicate_registry_claim_refused(self):
         self.build();args = self.worker();self.docker.containers[WORKER] = 'foreign'
