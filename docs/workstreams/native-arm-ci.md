@@ -398,3 +398,45 @@ The original recipe/input locks remain unchanged. Independent focused ownership,
 Config and repository-binding review passed 150 checks at the exact source hashes
 recorded in `docs/reviews/commit-image-review.md`. Actual native rerun is pending;
 none of these copied-source checks changes the fifth run's FAIL.
+
+### Seventh-trial source checkpoint (October 12)
+
+Run **38212287407 remains FAIL**. Its actual retained evidence passes all 560
+native source tests without skips, installed 345-package lifecycle/Config/fresh
+read-side verification and final owned image absence, plus software onboarding.
+The desktop component says `desktop-container-verifier-pass`; publication alone
+rejects `desktop/command-19.txt` and `desktop/command-20.txt` for ANSI control
+bytes. Repository positive signing/metadata phases now pass; its separate owner
+corrects mixed pacman diagnostics in the untrusted negative snapshot. These
+results do not pass the aggregate, M2/16K/hardware or full-port gates.
+
+The narrow desktop publication helper validates the complete known receipt,
+externally supplied image/nonce/archive/runtime-lock/source authority, exact
+22-command vector and complete log bytes against recorded stdout/SHA256. It
+projects only the two bound Hyprland verifier SGR presentation logs into plain
+UTF-8. Unknown logs, other controls, malformed/changed receipts and credential
+markers remain refused under the unchanged generic policy. The original
+receipt and acceptance flags remain unchanged. Before export, the controller
+rechecks the receipt through a guarded read against the validated SHA/byte count;
+the after-projection hardware-PASS replacement regression is refused. Source
+commit in the projection index is caller authority, not an intrinsic assertion
+in the desktop receipt.
+
+Held source: `integration.py`
+`3633427707da0f93f9f3900cc1036596815f85000bf53e7ea2c6fbd22bbb3be2`;
+`test_integration.py`
+`dde5c23742fe8a06d753adc54402e4956c31e74f482d87f55d28b3d8bebdca56`;
+`desktop_projection.py`
+`d2eab5230e2979e3cb9a39cd985c84018c5d38f430ed9c923e0577d3672d9203`;
+`test_desktop_projection.py`
+`4871d91ecec77cfb38ec2f1350d4b7a33689186c46017161528156400b44ae48`.
+`native_arm.py` is unchanged at `a8b6ed8971a38089a4499dcec605477c4e48d7a47c3de485d205f6a44678b898`.
+
+**331 CI and 125 integration tests PASS**, no skips, both in the worktree and
+copied source. The ephemeral initial candidate hashes to
+`be5363dfb9f11b39f42fc419bebaa9cbaa11780fce1aa5cde2cedc25629766bb`,
+binds **159 sources/unchanged 125 fixtures**, and copied preflight passes. Receipt
+and logs: `/tmp/cachy-desktop-copied-g_ui08ll/{regression.json,ci-tests.txt,integration-tests.txt}`.
+No shared lock/Git/dispatch was mutated by this worker; coordinator owns the
+seventh native freeze and actual execution. The publication correction has only
+local replay/source-test acceptance here.

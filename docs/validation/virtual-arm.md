@@ -369,6 +369,9 @@ See the [focused publication review](../reviews/desktop-publication-review.md).
 Coordinator tests pass **331 CI and 125 integration checks**, zero skips, in both
 the worktree and a separately copied frozen source tree. Integration lock
 `be5363dfb9f11b39f42fc419bebaa9cbaa11780fce1aa5cde2cedc25629766bb`
-binds **159 sources and the unchanged 125 generated fixtures**. Native execution
-of this correction remains **NOT RUN** pending committed-tree proof and dispatch.
-The sixth execution remains FAIL; these source tests do not change its outcome.
+binds **159 sources and the unchanged 125 generated fixtures**. Every committed
+blob/mode and fresh detached-clone preflight passes at
+`81aabca9a9657a74deb3780430bd55dd3deabc6f`.
+[Native run 38214941784](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38214941784)
+was dispatched on that commit at 06:56 UTC on October 12, 2026; result pending.
+The sixth execution remains FAIL; source checks and dispatch do not change it.
