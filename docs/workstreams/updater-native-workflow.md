@@ -103,3 +103,7 @@ manifest hashes, exact selector schemas/metadata and terminal role bindings in
 Private controller/original private bundle bytes were not exported and are not
 independently consumed by that check. The aggregate remains FAIL; the updater
 owner is investigating against these bounded observations before any rerun.
+
+## Corrected finite dispatch
+
+The coordinator committed this corrected workflow in `ca414c8`, then verified the actual 85-file source closure at dispatch commit `756881b917ef68c614fcfb081debadf82282e80b`: **3,915,170 bytes / exact Git blobs and modes PASS**. Root replayed147 fixtures and actual yaml-cpp contract parsing PASS. Proof: `artifacts/reviews/fdk-updater-corrected-dispatch-source-proof-20261012.json`. [Trial38239531158](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38239531158) was created2026-10-12T10:57:15Z with that exact commit, workflow `78f9d914…` and stage `64ce7f7c…`; it initially waits behind FDK in the serialized build group. Dispatch is not compilation or acceptance.

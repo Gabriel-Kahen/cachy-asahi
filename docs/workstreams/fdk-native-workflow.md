@@ -325,3 +325,7 @@ Python compilations and whitespace checks pass. Independent read-only review
 found no material issue; deleting only the added constant region reproduces the
 prior `6eecc323...` workflow bytes exactly. These are source/fixture controls;
 no new trial was dispatched or accepted.
+
+## Finite base-call diagnostic trial
+
+Root committed the 802-code workflow in `756881b917ef68c614fcfb081debadf82282e80b` after30 root and independent fixture tests PASS, plus bounded poison/schema and syntax review. The exact inline source verifier actually binds all128 files, packet/helper/workflow and modes to that Git commit; proof `artifacts/reviews/fdk-updater-corrected-dispatch-source-proof-20261012.json`. [Trial38239523997](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38239523997) was created2026-10-12T10:57:11Z at that exact commit with packet `6884fcfe…` and workflow `1b816792…`. Source/native preflight passed before the private producer step began; no final native result is claimed here. Historical trials remain FAIL.
