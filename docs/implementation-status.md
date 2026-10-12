@@ -4,14 +4,15 @@ October 12, 2026. This record tracks the complete `outline.md` scope; an impleme
 
 The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with owned tasks and corrective next actions in `docs/backlog.md`. The destination now explicitly requires the maintained ARM package repository, native performance engineering, integrated Apple stack, broader Cachy system experience, and complete installation/release lifecycle. Both Air sizes, published final measurements, independent onboarding/contribution, subsequent full-port maintenance release, other-ARM reuse and actual upstream submissions remain required; an early overlay release or feasibility decision would not complete the goal. This scope update does not change any recorded execution result.
 
-Latest coordinator update, October 12, 21:00 UTC. The revised roadmap requires
-R1–R5 and M5–M9; full-port acceptance remains open. Updater6 `38303027259`
-remains FAIL/tool-resolution before compilation, with verified scoped cleanup
-and all15 public records. Its hardlink alias correction passes83 distinct fresh
-tests and13 independent controls; root registers the exact86-file closure and
-two workflow literals for committed proof and another native trial. Actual
-rejected tool is unknown. Kernel6 remains FAIL/CapAdd VALUE beforestart and
-cleanup FAIL; the exact three-capability equivalence fix is held for peer review.
+Latest coordinator update, October 12, 21:07 UTC. The revised roadmap requires
+R1–R5 and M5–M9; full-port acceptance remains open. Updater7 `38307993177`, from `f7217a1`, is FAIL. The alias correction
+advances past tool resolution and validates the controller, then its compile-gate
+command returns1 before compiler launch. All16 exported public records and
+scoped cleanup/recovery verify; raw child error remains unexported. The exact
+86-file committed closure is4,206,723 bytes. Kernel's three-capability equivalence
+fix is committed at `25b0213`;117-file/inline bootstrap proof passes and native
+trial `38308563102` is running. Kernel6 remains FAIL with cleanup FAIL and its
+actual CapAdd values unknown.
 
 KSM5 `38303811300` is FAIL: inventory request6 returns0 with the exact341-package
 digest after67,529ms, then reply fails. Actual precleanup producer exit is1;
@@ -24,7 +25,8 @@ Installer's original-default tmpfs smoke also fails errno22 at the evidence-FD
 bind; no package method runs. Independent harmless namespace trials reproduce
 inherited-FD mount identity mismatch and a same-directory reopen correction.
 The implementation is active; tiny/full transactions remain unaccepted. Camera
-cancellation source review passes, while runtime/backend admission is absent.
+cancellation source is adopted after30 fresh tests and independent causal/signal
+controls; runtime/backend admission remains absent.
 FDK observer cleanup and callback startup findings require correction before
 adoption. Repository loader correction is adopted source-only; complete adapter
 graph review and actual external-authority callbacks are active.
@@ -32,8 +34,9 @@ graph review and actual external-authority callbacks are active.
 S01 holds29 source models and a read-only old-Python archive observation matching
 all3,198 ownership paths. At most259 of261 package tuples are available; exact
 NetworkManager/Perl gaps and full image correspondence remain open. A bounded
-read-only image-reader adapter is in development. Opt-in Zsh addon and SVG/Glycin
-preflight source work continue. No complete install, supported release, both-M2,
+read-only image-reader adapter is in development. Opt-in Zsh addon source is committed at `c45a44f` after audited MIT notices,
+12-file hold and isolated x86 ZLE controls; native integration remains pending.
+SVG/Glycin preflight source is held for independent review. No complete install, supported release, both-M2,
 16K, or final performance/power gate is closed.
 
 Prior coordinator update, October 12, 19:43 UTC. Updater5 `38296615950` passes
