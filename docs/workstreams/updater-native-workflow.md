@@ -65,3 +65,39 @@ verifies the unchanged 85-file committed closure and ten stage files.
 strict PASS retention, coherent poison refusal and failure/recovery boundaries.
 Registration and actual hosted execution remain separate next steps; source
 acceptance grants no native, installation, publication or hardware PASS.
+
+## Registered workflow and first actual native trial
+
+The one-file [registration PR3](https://github.com/Gabriel-Kahen/cachy-asahi/pull/3)
+merged at 09:50:24 UTC on 2026-10-12, main commit
+`91e75780eade61732c3f06b7a318ce86ee12860e`. Its isolated registration head
+`ea2711b9eb39ebe82904db6d54f9a214c6613810` changes only the 290-line workflow;
+source and roadmap files on main were not part of that PR. The coordinator
+verified the development source at
+`ea274b800be2d701511cf23692afb53482b2f709` using actual `source.collect()` and
+`source.verify()`: all 85 committed files/modes and 3,875,628 bytes match.
+
+The first actual [ARM trial38232511202](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38232511202)
+was created at 09:50:48 UTC and completed **FAIL** at 09:51:56 UTC. Source
+bootstrap/controller freeze passed. The materializer actually downloaded all
+168 inputs, completed all 167 registry sources and reproduced the reviewed
+sanitized/vendor hashes on Ubuntu Python3.12.3/zlib1.3. Its fixed public receipt
+reports PASS and 323,117,153 vendor bytes. The native pair did not compile:
+its projected receipt remains STARTING at input-validation, and the canonical
+terminal reports RuntimeFailure, native compilation NOT RUN and 49 elapsed
+seconds. This does not identify the precise validation/launch fault.
+
+The original terminal records private deletion, retention and cleanup PASS;
+the subsequent recovery receipt is PASS and explicitly does not attest native
+compilation. Three bounded public bundles were retained: guarded 25,061 bytes
+(`0de38693bf45e5505c6bb04d182c6a37449e218195fcb4e8dc198915ddb081ae`),
+terminal 965 bytes
+(`db436d7f93a855a845444cf40b77da2393ddd32a3611f290b84c844e9f4c0e52`),
+and recovery 846 bytes
+(`afd1baec99658c5f76dddc4b22f775192528567925729060948b20c1fc290fba`).
+The coordinator independently revalidates all nine captured public files,
+manifest hashes, exact selector schemas/metadata and terminal role bindings in
+[the retained public verification](../../artifacts/ci/38232511202/root-public-verification.json).
+Private controller/original private bundle bytes were not exported and are not
+independently consumed by that check. The aggregate remains FAIL; the updater
+owner is investigating against these bounded observations before any rerun.

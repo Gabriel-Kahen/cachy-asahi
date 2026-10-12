@@ -138,8 +138,12 @@ The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with 
   call/predicate remains under investigation; FDK compilation is NOT RUN.
 - The updater native controller is committed after 136 source tests and
   independent process-cleanup review. Its 85-file committed closure is verified;
-  native Rust compilation remains NOT RUN. The separate workflow is undergoing
-  final failure/recovery evidence review before registration and execution.
+  the separate workflow is reviewed and registered. First native trial
+  `38232511202` actually materializes all 168 inputs and reproduces the reviewed
+  source/vendor hashes, then fails with RuntimeFailure while the native receipt
+  remains at input-validation. Rust compilation is NOT RUN. Both cleanup and
+  recovery report PASS, with nine captured public files independently verified;
+  the exact validation/launch fault remains under investigation.
 - The corrected platform proposal helpers pass 236 tests in a fresh committed
   checkout. The separately proposed coordinated Python transaction resolves
   all 55 target roots in metadata, while the original protected-version
