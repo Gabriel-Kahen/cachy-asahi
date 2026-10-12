@@ -4,7 +4,42 @@ October 12, 2026. This record tracks the complete `outline.md` scope; an impleme
 
 The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with owned tasks and corrective next actions in `docs/backlog.md`. The destination now explicitly requires the maintained ARM package repository, native performance engineering, integrated Apple stack, broader Cachy system experience, and complete installation/release lifecycle. Both Air sizes, published final measurements, independent onboarding/contribution, subsequent full-port maintenance release, other-ARM reuse and actual upstream submissions remain required; an early overlay release or feasibility decision would not complete the goal. This scope update does not change any recorded execution result.
 
-Latest coordinator update, October 12, 22:30 UTC. The revised roadmap requires
+Latest coordinator update, October 12, 23:05 UTC. Full R1–R5/M5–M9 remains the
+completion contract. The reviewed updater ELF/read predicate and exception-tag
+corrections are published at `2433f26`; 160 fresh source checks pass. Native
+updater9 `38319260369` authenticates that exact86-file source, then fails the
+outer tick at private-scan/private-directory-identity during worker1. Its17
+public records verify against the committed workflow receiver. The worker
+reports cancellation during makepkg; no compiler natural return or independent
+container state is observed, and its diagnostic remains UNKNOWN/state-unavailable.
+This trial does not identify an ELF validation leaf. Scoped cleanup/private
+removal/recovery PASS; peak growth is12,788,715,520 bytes and the storage latch
+is false. Independent run/check diagnosis is assigned; updater8 history stays
+unchanged.
+
+The S01 core and read-only image reader are published at `f59ec6e` after root
+472-record authentication and independent review:105 current methods,63 core
+controls and118 reader controls pass. Interrupted resource disposal and shared
+archive/image ledger findings close within the documented bounded-attempt
+limits. Exact4-file Git proof passes; static CI `38320110768` PASS. Actual
+read-only image/debugfs observation is being prepared separately. Coverage is
+still at most259/261; the two missing tuples and26 signer-fact joins remain open,
+with payload/issuer/installation/hardware acceptance false.
+
+The KSM code-custody correction passes333 independent fresh tests,30 graph,
+15 wrapper/exit and five additional closure controls. Root registers the
+154-file prospective source, adding driver/test2 and rebinding existing
+consumer/executor/RequiredPaths3, with149 previous rows and the workflow
+unchanged. Independent registration review and committed native KSM6 dispatch
+remain pending. FDK initial-unknown descriptor correction is held for independent
+recheck. Zsh's six source findings have a held94-test correction; independent
+review is active. Kernel failure diagnostic review finds finalization fault
+first-cause loss and acceptance of nonfinite unused JSON; correction is assigned.
+The Session-owned original160 view, native ARM installer profile and guest SVG
+observation integration remain active source lanes. Actual external repository
+authority, full native installation and M2/16K/final measurements remain unaccepted.
+
+Prior coordinator update, October 12, 22:30 UTC. The revised roadmap requires
 R1–R5 and M5–M9; full-port acceptance remains open. Updater7 `38307993177`, from
 `f7217a1`, remains FAIL after controller validation: the compile gate returns1
 before compiler launch. All16 public records and scoped cleanup/recovery verify.
