@@ -12,6 +12,7 @@ import shutil
 import tarfile
 import tempfile
 import time
+import unicodedata
 
 from common import Commands, Refused, bounded_tar_payload, cancellation_handlers, decode, defer_cancellation, digest, directory, encoded, need, read, write_new
 
@@ -228,6 +229,34 @@ def sections(data):
     return result
 
 
+def url_values(data, parsed, *, package_metadata=False):
+    """URL-only scalar validation; exact empty package URL means omission."""
+    key = 'url' if package_metadata else 'URL'
+    values = parsed.get(key, [])
+    need(len(values) <= 1, 'duplicate-url-field')
+    lines = data.decode().split('\n')
+    if package_metadata:
+        physical = []
+        for line in lines:
+            name, separator, value = line.partition(' = ')
+            if name.strip() == key:
+                need(name == key and separator, 'malformed-package-url')
+                physical.append(value)
+        need(physical == values, 'malformed-package-url')
+        if values == ['']:
+            return []
+    else:
+        indices = [index for index, line in enumerate(lines) if line == '%URL%']
+        need(len(indices) == (1 if key in parsed else 0), 'malformed-db-url')
+        if indices:
+            index = indices[0]
+            need(len(values) == 1 and lines[index] == '%URL%' and index + 2 < len(lines)
+                 and lines[index + 1] == values[0] and lines[index + 2] == '', 'malformed-db-url')
+    need(all(value and not any(char.isspace() or unicodedata.category(char) in ('Cc', 'Cf') for char in value)
+             for value in values), 'malformed-url-value')
+    return values
+
+
 def database(data, packages, signatures, *, files_database=False, unsigned=frozenset()):
     rows, found = members(data), {}
     allowed = {'FILENAME', 'NAME', 'BASE', 'VERSION', 'DESC', 'GROUPS', 'CSIZE', 'ISIZE', 'MD5SUM',
@@ -254,10 +283,12 @@ def database(data, packages, signatures, *, files_database=False, unsigned=froze
         need(all(desc.get(key) == value for key, value in expected.items()), 'db-package-byte-or-identity-mismatch')
         for source, target in (('depend', 'DEPENDS'), ('optdepend', 'OPTDEPENDS'), ('provides', 'PROVIDES'),
                                ('conflict', 'CONFLICTS'), ('replaces', 'REPLACES'), ('license', 'LICENSE'),
-                               ('pkgbase', 'BASE'), ('pkgdesc', 'DESC'), ('size', 'ISIZE'), ('url', 'URL'),
+                               ('pkgbase', 'BASE'), ('pkgdesc', 'DESC'), ('size', 'ISIZE'),
                                ('group', 'GROUPS'), ('builddate', 'BUILDDATE'), ('packager', 'PACKAGER'),
                                ('makedepend', 'MAKEDEPENDS'), ('checkdepend', 'CHECKDEPENDS')):
             need(desc.get(target, []) == info.get(source, []), 'db-package-relation-mismatch')
+        need(url_values(value, desc) == url_values(package_rows['.PKGINFO'], info, package_metadata=True),
+             'db-package-relation-mismatch')
         if name in unsigned:
             need('PGPSIG' not in desc and name not in signatures, 'unsigned-probe-signature-present')
         else:

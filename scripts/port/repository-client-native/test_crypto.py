@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
 """Real temporary TEST GPG/repo-add; synthetic repository, never native evidence."""
+import base64
+import copy
 import gzip
 import io
 import lzma
@@ -27,8 +29,97 @@ def tar_bytes(rows, mode='w:xz'):
     return buffer.getvalue()
 
 
+def section_bytes(values):
+    return ''.join('%' + key + '%\n' + '\n'.join(rows) + '\n\n' for key, rows in values.items()).encode()
+
+
+def structure_public():
+    """In-memory unsigned structure only; these bytes never receive GPG acceptance."""
+    names = sorted(crypto.ORIGINALS | {crypto.PROBE})
+    repos = {}
+    def build(label, version, *, tampered=False, unsigned=False):
+        repo, packs = {}, {}
+        for name in names:
+            payload = (f'SYNTHETIC TEST fixture version {version[0]}\n'.encode() if name == crypto.PROBE
+                       else ('UNSIGNED STRUCTURE ' + name + version).encode())
+            if tampered and name == crypto.PROBE:
+                payload = b'SYNTHETIC TEST tampered version 2\n'
+            fields = {'pkgname': name, 'pkgbase': name, 'pkgver': version, 'arch': 'any', 'license': 'MIT',
+                      'pkgdesc': 'UNSIGNED structure fixture', 'size': str(len(payload)), 'builddate': '1791748800',
+                      'packager': 'TEST ONLY STRUCTURAL'}
+            if name in ('cachy-asahi-fish-config', 'cachy-asahi-zsh-config'):
+                fields['url'] = ''
+            metadata = ''.join(f'{key} = {value}\n' for key, value in fields.items()).encode()
+            raw = tar_bytes({'.PKGINFO': metadata, f'usr/share/{name}/fixture.txt': payload})
+            filename = f'{name}-{version}-any.pkg.tar.xz'; repo[filename] = raw
+            if not (unsigned and name == crypto.PROBE):
+                repo[filename + '.sig'] = (repos['updated-B'][filename + '.sig'] if tampered and name == crypto.PROBE
+                                          else ('UNVERIFIED STRUCTURAL SIGNATURE ' + label + name).encode())
+            info, members = crypto.package(raw); packs[name] = filename, raw, info, members
+        desc, files = {}, {}
+        for name, (filename, raw, info, members) in packs.items():
+            values = {'NAME': [name], 'VERSION': info['pkgver'], 'ARCH': info['arch'], 'FILENAME': [filename],
+                      'CSIZE': [str(len(raw))], 'SHA256SUM': [digest(raw)]}
+            for source, target in (('pkgbase', 'BASE'), ('pkgdesc', 'DESC'), ('size', 'ISIZE'), ('license', 'LICENSE'),
+                                   ('builddate', 'BUILDDATE'), ('packager', 'PACKAGER')):
+                values[target] = info[source]
+            if filename + '.sig' in repo:
+                values['PGPSIG'] = [base64.b64encode(repo[filename + '.sig']).decode()]
+            folder = name + '-' + info['pkgver'][0]
+            desc[folder + '/desc'] = section_bytes(values)
+            files[folder + '/desc'] = desc[folder + '/desc']
+            files[folder + '/files'] = section_bytes({'FILES': sorted(path for path in members if not path.startswith('.'))})
+        for kind, rows in (('db', desc), ('files', files)):
+            raw = tar_bytes(rows, 'w:gz'); signature = ('UNVERIFIED STRUCTURAL DB ' + label + kind).encode()
+            for suffix in ('', '.tar.gz'):
+                repo['integration.' + kind + suffix] = raw
+                repo['integration.' + kind + suffix + '.sig'] = signature
+        return repo
+    repos['baseline-A'] = build('baseline-A', '1-1')
+    repos['updated-B'] = build('updated-B', '2-1')
+    repos['tampered-package-B'] = build('tampered-package-B', '2-1', tampered=True)
+    repos['missing-package-signature-B'] = build('missing-package-signature-B', '2-1', unsigned=True)
+    repos['tampered-database-B'] = dict(repos['updated-B'])
+    for name in ('integration.db', 'integration.db.tar.gz'):
+        repos['tampered-database-B'][name] += b'UNSIGNED TEST DATABASE TAMPER'
+    repos['missing-database-signature-B'] = {name: raw for name, raw in repos['updated-B'].items()
+                                           if name not in ('integration.db.sig', 'integration.db.tar.gz.sig')}
+    public = {'TEST-repositories/' + label + '/' + name: raw for label, repo in repos.items() for name, raw in repo.items()}
+    aliases = {'active': {'target': 'updated-B', 'kind': 'directory'}}
+    for label, repo in repos.items():
+        for kind in ('db', 'files'):
+            for suffix in ('', '.sig'):
+                name = 'integration.' + kind + suffix
+                if name in repo:
+                    aliases[label + '/' + name] = {'target': label + '/integration.' + kind + '.tar.gz' + suffix,
+                                                  'kind': 'file', 'regular_copy_sha256': digest(repo[name])}
+    public['TEST-repository-aliases.json'] = encoded(aliases)
+    public['TEST-repository-aliases.json.sig'] = b'UNVERIFIED STRUCTURAL ALIAS SIGNATURE'
+    public['TEST-pacman.conf'] = crypto.STRICT_CONFIG
+    for role in ('signer-A', 'signer-B', 'verifier', 'signer-A-revoked'):
+        public['TEST-' + role + '-public.asc'] = b'UNVERIFIED STRUCTURAL CERTIFICATE'
+    return public
+
+
+def structure_packset(public, label='baseline-A'):
+    prefix = 'TEST-repositories/' + label + '/'; packs, signatures = {}, {}
+    for path, raw in public.items():
+        if path.startswith(prefix) and path.endswith('.pkg.tar.xz'):
+            info, payload = crypto.package(raw); name = info['pkgname'][0]
+            packs[name] = path[len(prefix):], raw, info, payload
+            signatures[name] = public[path + '.sig']
+    return packs, signatures
+
+
+def url_relation(package_lines, database_lines):
+    raw = ('pkgname = cachy-asahi-fish-config\npkgver = 1-1\narch = any\n' + package_lines).encode()
+    info, _ = crypto.package(tar_bytes({'.PKGINFO': raw}))
+    desc = database_lines.encode()
+    return crypto.url_values(raw, info, package_metadata=True), crypto.url_values(desc, crypto.sections(desc))
+
+
 class RealFixture:
-    def __init__(self, root):
+    def __init__(self, root, url=None):
         self.root = root; self.private = root / 'private'; self.private.mkdir(mode=0o700)
         self.inputs = root / 'inputs'; self.inputs.mkdir()
         self.environment = dict(os.environ, LC_ALL='C', TZ='UTC')
@@ -54,6 +145,8 @@ class RealFixture:
                     value = b'SYNTHETIC TEST tampered version 2\n'
                 info = (f'pkgname = {name}\npkgbase = {name}\npkgver = {version}\narch = any\nlicense = MIT\n'
                         f'pkgdesc = TEST ONLY synthetic fixture\nsize = {len(value)}\nbuilddate = 1791748800\npackager = TEST ONLY\n').encode()
+                if url is not None:
+                    info += ('url = ' + url + '\n').encode()
                 filename = name + '-' + version + '-any.pkg.tar.xz'
                 path = folder / filename
                 path.write_bytes(tar_bytes({'.PKGINFO': info, 'usr/share/' + name + '/fixture.txt': value}))
@@ -423,6 +516,175 @@ class CryptoTests(unittest.TestCase):
         for data in (gzip.compress(raw) + b'extra', lzma.compress(raw) + b'extra', raw + b'extra'):
             with self.subTest(prefix=data[:6]), self.assertRaises(ValueError):
                 crypto.members(data)
+
+
+class URLTests(unittest.TestCase):
+    def test_exact_empty_and_absence_equal_omission(self):
+        for raw in ('', 'url = \n'):
+            self.assertEqual(url_relation(raw, ''), ([], []))
+
+    def test_nonempty_singleton_preserved_exactly(self):
+        value = 'https://example.test/project'
+        self.assertEqual(url_relation('url = ' + value + '\n', '%URL%\n' + value + '\n\n'), ([value], [value]))
+
+    def test_nonempty_contradictions_and_asymmetric_omission_do_not_equal(self):
+        value = 'https://example.test/project'
+        for left, right in ((value, ''), ('', value), (value, value + '/'), (value, value.upper()),
+                            (value, value.replace('project', '%70roject'))):
+            p, d = url_relation('url = ' + left + '\n', '%URL%\n' + right + '\n\n' if right else '')
+            self.assertNotEqual(p, d)
+
+    def test_package_scalar_duplicates_refused(self):
+        for values in (['', ''], ['x', 'x'], ['', 'x'], ['x', 'y']):
+            with self.subTest(values=values), self.assertRaisesRegex(ValueError, 'duplicate-url-field'):
+                url_relation(''.join('url = ' + value + '\n' for value in values), '')
+
+    def test_database_multiple_values_refused(self):
+        with self.assertRaisesRegex(ValueError, 'duplicate-url-field'):
+            url_relation('url = x\n', '%URL%\nx\nx\n\n')
+
+    def test_duplicate_database_sections_refused(self):
+        with self.assertRaisesRegex(ValueError, 'duplicate-db-section'):
+            url_relation('url = x\n', '%URL%\nx\n\n%URL%\nx\n\n')
+
+    def test_present_empty_database_url_is_not_omission(self):
+        with self.assertRaisesRegex(ValueError, 'malformed-db-url'):
+            url_relation('url = \n', '%URL%\n\n')
+
+    def test_whitespace_padding_and_controls_refused(self):
+        value = 'https://example.test/project'
+        for item in (' ', '\t', ' ' + value, value + ' ', *(value + char for char in
+                     ('\r', '\v', '\f', '\u0085', '\u2028', '\x00', '\x7f', '\x80', '\u200b', '\u202e', '\u2066'))):
+            with self.subTest(value=repr(item)), self.assertRaises(ValueError):
+                url_relation('url = ' + item + '\n', '')
+        for char in ('\u200b', '\u202e', '\u2066'):
+            raw = ('%URL%\n' + value + char + '\n\n').encode()
+            with self.assertRaisesRegex(ValueError, 'malformed-url-value'):
+                crypto.url_values(raw, crypto.sections(raw))
+
+    def test_raw_cr_erased_by_parser_still_refused(self):
+        raw = b'url = https://example.test/project\r\n'
+        with self.assertRaisesRegex(ValueError, 'malformed-package-url'):
+            crypto.url_values(raw, {'url': ['https://example.test/project']}, package_metadata=True)
+
+    def test_non_url_opaque_header_lookalike_preserved(self):
+        for field in ('DESC', 'PACKAGER'):
+            for suffix in ('', '%URL%\nx\n\n'):
+                raw = ('%' + field + '%\n %URL% \n\n' + suffix).encode()
+                self.assertEqual(crypto.url_values(raw, crypto.sections(raw)), ['x'] if suffix else [])
+
+    def test_malformed_package_delimiters_and_keys_refused(self):
+        for raw in ('url=x\n', 'url = x\n url = x\n', 'url\t = x\n'):
+            with self.subTest(raw=raw), self.assertRaises(ValueError):
+                url_relation(raw, '')
+
+    def test_malformed_db_header_value_and_terminator_refused(self):
+        for raw in ('%URL%\r\nx\n\n', '%URL%\nx\r\n\n', '%URL%\nx\n%LICENSE%\nMIT\n\n', '%URL%\n \n\n'):
+            with self.subTest(raw=raw), self.assertRaises(ValueError):
+                url_relation('url = x\n', raw)
+
+
+class URLStructureTests(unittest.TestCase):
+    """Unsigned in-memory metadata counterexamples; no crypto acceptance claims."""
+    @classmethod
+    def setUpClass(cls):
+        cls.public = structure_public()
+
+    def case(self, change, kind='db'):
+        packs, sigs = structure_packset(self.public)
+        rows = crypto.members(self.public['TEST-repositories/baseline-A/integration.' + kind + '.tar.gz'])
+        path = next(name for name in rows if name.startswith('cachy-asahi-fish-config-') and name.endswith('/desc'))
+        change(rows, path)
+        return crypto.database(tar_bytes(rows, 'w:gz'), packs, sigs, files_database=kind == 'files')
+
+    def test_full_six_repository_structure_causal_url_comparison(self):
+        before = {name: digest(raw) for name, raw in self.public.items()}
+        # Control reproduces only the predecessor's exact URL list comparison.
+        def predecessor_url(_data, parsed, *, package_metadata=False):
+            return parsed.get('url' if package_metadata else 'URL', [])
+        with mock.patch.object(crypto, 'url_values', side_effect=predecessor_url):
+            with self.assertRaisesRegex(ValueError, 'db-package-relation-mismatch'):
+                crypto.audit_repositories(self.public)
+        self.assertEqual(set(crypto.audit_repositories(self.public)), set(crypto.LABELS))
+        self.assertEqual(before, {name: digest(raw) for name, raw in self.public.items()})
+
+    def test_both_healthy_database_types_complete_five_packages(self):
+        for label in ('baseline-A', 'updated-B'):
+            packs, sigs = structure_packset(self.public, label)
+            for kind in ('db', 'files'):
+                raw = self.public['TEST-repositories/' + label + '/integration.' + kind + '.tar.gz']
+                self.assertEqual(len(crypto.database(raw, packs, sigs, files_database=kind == 'files')), 5)
+
+    def test_empty_package_url_cannot_match_nonempty_database_url(self):
+        for kind in ('db', 'files'):
+            with self.assertRaisesRegex(ValueError, 'db-package-relation-mismatch'):
+                self.case(lambda rows, path: rows.update({path: rows[path] + b'%URL%\nx\n\n'}), kind)
+
+    def test_archive_checksum_and_size_bindings_required(self):
+        for field in ('SHA256SUM', 'CSIZE'):
+            def poison(rows, path):
+                values = crypto.sections(rows[path]); values[field] = ['0' * 64 if field == 'SHA256SUM' else '1']
+                rows[path] = section_bytes(values)
+            with self.assertRaisesRegex(ValueError, 'db-package-byte-or-identity-mismatch'):
+                self.case(poison)
+
+    def test_embedded_signature_bytes_required(self):
+        def poison(rows, path):
+            values = crypto.sections(rows[path]); values['PGPSIG'] = [base64.b64encode(b'WRONG UNVERIFIED SIGNATURE').decode()]
+            rows[path] = section_bytes(values)
+        with self.assertRaisesRegex(ValueError, 'embedded-signature-byte-mismatch'):
+            self.case(poison)
+
+    def test_dependency_and_license_relations_exact(self):
+        for field in ('DEPENDS', 'LICENSE'):
+            def poison(rows, path):
+                values = crypto.sections(rows[path]); values[field] = ['contradiction']; rows[path] = section_bytes(values)
+            with self.assertRaisesRegex(ValueError, 'db-package-relation-mismatch'):
+                self.case(poison)
+
+    def test_files_database_payload_inventory_exact(self):
+        def poison(rows, path):
+            name = path[:-4] + 'files'; values = crypto.sections(rows[name]); values['FILES'].append('unexpected/file')
+            rows[name] = section_bytes(values)
+        with self.assertRaisesRegex(ValueError, 'files-database-payload-mismatch'):
+            self.case(poison, 'files')
+
+    def test_unknown_desc_fields_and_duplicate_sections_refused(self):
+        for suffix in (b'%UNKNOWN%\nx\n\n', b'%NAME%\ncachy-asahi-fish-config\n\n'):
+            with self.assertRaises(ValueError):
+                self.case(lambda rows, path: rows.update({path: rows[path] + suffix}))
+
+    def test_alias_maps_and_exact_negative_differences_required(self):
+        for path, raw in (('TEST-repositories/baseline-A/integration.db', b'wrong alias'),
+                          ('TEST-repositories/tampered-database-B/integration.db.tar.gz', b'wrong tamper'),
+                          ('TEST-repository-aliases.json', b'{}\n')):
+            changed = dict(self.public); changed[path] = raw
+            with self.assertRaises(ValueError): crypto.audit_repositories(changed)
+        changed = dict(self.public)
+        omitted = next(path for path in changed if path.startswith('TEST-repositories/updated-B/') and path.endswith('.pkg.tar.xz.sig'))
+        changed.pop(omitted)
+        with self.assertRaisesRegex(ValueError, 'package-signature-missing'): crypto.audit_repositories(changed)
+
+    def test_coherent_duplicate_package_and_db_urls_refused(self):
+        packs, sigs = structure_packset(self.public); packs = copy.deepcopy(packs)
+        rows = crypto.members(self.public['TEST-repositories/baseline-A/integration.db.tar.gz'])
+        name = 'cachy-asahi-fish-config'; filename, raw, info, payload = packs[name]
+        payload['.PKGINFO'] = payload['.PKGINFO'].replace(b'url = \n', b'url = x\nurl = x\n')
+        raw = tar_bytes(payload); info, payload = crypto.package(raw); packs[name] = filename, raw, info, payload
+        path = name + '-' + info['pkgver'][0] + '/desc'; values = crypto.sections(rows[path])
+        values.update(CSIZE=[str(len(raw))], SHA256SUM=[digest(raw)], URL=['x', 'x']); rows[path] = section_bytes(values)
+        with self.assertRaisesRegex(ValueError, 'duplicate-url-field'):
+            crypto.database(tar_bytes(rows, 'w:gz'), packs, sigs)
+
+    def test_db_empty_url_and_non_url_opaque_values_remain_distinct(self):
+        def opaque(rows, path):
+            # Test URL helper against a real descriptor containing unrelated bytes.
+            values = crypto.sections(rows[path]); values['PACKAGER'] = [' %URL% ']
+            data = section_bytes(values)
+            self.assertEqual(crypto.url_values(data, crypto.sections(data)), [])
+        self.case(opaque)
+        with self.assertRaisesRegex(ValueError, 'malformed-db-url'):
+            self.case(lambda rows, path: rows.update({path: rows[path] + b'%URL%\n\n'}))
 
 
 if __name__ == '__main__':

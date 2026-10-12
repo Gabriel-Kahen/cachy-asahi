@@ -36,9 +36,9 @@
       "sha256": "92ca41005397c6cccfd70497646c0de1f2ac88a697e0fcbec4165bf5326cfc08"
     },
     "scripts/port/repository-client-native/crypto.py": {
-      "bytes": 40957,
+      "bytes": 42400,
       "mode": 420,
-      "sha256": "3e229ff4c543f462bc04c1a428ec4dfc0f029192885cfdd06821fcb2a85df967"
+      "sha256": "a3568741238738646593b2c972589f4ae92381611c88dea1c1c234c0e59a46f0"
     },
     "scripts/port/repository-client-native/entry.py": {
       "bytes": 6946,
@@ -63,7 +63,7 @@
     "scripts/port/repository-client-native/source-map.json": {
       "bytes": 850,
       "mode": 420,
-      "sha256": "50638283c25bc76ec66bd47988227e31022cbad3bac16354d9db8ca7081dccc3"
+      "sha256": "d8d85ebe1461533265732aa8a2f89fda9c90797603ff8e73403caac605f3f594"
     },
     "scripts/port/repository-client-native/test_base.py": {
       "bytes": 34361,
@@ -76,9 +76,9 @@
       "sha256": "be76e12659b8e810da2fb394c1b1e5dc88dfeab76f1951e8d712c91f20ae7f3f"
     },
     "scripts/port/repository-client-native/test_crypto.py": {
-      "bytes": 26095,
+      "bytes": 41764,
       "mode": 420,
-      "sha256": "61a0c82d44d74d2f768695d0d6ecdd4ff98fcb952882c8aa8942a08fb1bcf9b7"
+      "sha256": "78da74747e44956dd1c41bc781ac8ff897bb46c2150efaf7d1de8ab78affc505"
     },
     "scripts/port/repository-client-native/test_orchestrator.py": {
       "bytes": 10300,
@@ -119,9 +119,21 @@
     "review_sha256": "3f7b8422155b5f8cb24cfd675aaa8a50fecd8490c7ea5c306965b9605cd75173",
     "source_only": true
   },
+  "root_url_phase_adoption": {
+    "author_collector_tests": 141,
+    "author_phase_tests": 111,
+    "handoff_sha256": "853de997a61ac7e98c3e4c39585c6ae4153935312dcde3a7d823fe9378afa0f0",
+    "historical_review_lock_sha256": "d9a26a9500f6360faf105c9750f1f506c372c51b1b785d89c691a170dd4ad849",
+    "historical_source_map_sha256": "50638283c25bc76ec66bd47988227e31022cbad3bac16354d9db8ca7081dccc3",
+    "native_admission": "NOT RUN",
+    "peer_review_path": "docs/reviews/repository-url-phase-corrections-review.md",
+    "peer_review_sha256": "df7df4fbd91fac01b874abb6a8c1621fb20eb2e5b309329bea5643fdc119d084",
+    "prior_validation_records": "Historical pre-correction evidence unchanged",
+    "source_only": true
+  },
   "schema_version": 1,
   "selected_for_release": false,
-  "source_map_sha256": "50638283c25bc76ec66bd47988227e31022cbad3bac16354d9db8ca7081dccc3",
+  "source_map_sha256": "d8d85ebe1461533265732aa8a2f89fda9c90797603ff8e73403caac605f3f594",
   "stable_promotion": "NOT RUN",
   "validation": {
     "AST_JSON_links_whitespace_EOF": "PASS",
