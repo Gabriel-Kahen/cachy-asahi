@@ -198,17 +198,33 @@ def regular(path):
 
 
 def scan(root):
+    recipe_lock = root / 'scripts/ci/recipes.lock.json'
+    need(regular(recipe_lock).st_size <= 8 * 1024**2, 'recipe source lock exceeds bound')
+    recipes = json.loads(recipe_lock.read_text())
+    need(isinstance(recipes, dict), 'recipe source map required')
+    locked = set()
+    for directory, inputs in recipes.items():
+        need(relative(directory).parts[0] == 'packages' and isinstance(inputs, dict), 'invalid recipe source map')
+        for name, digest in inputs.items():
+            relative(name); native.check_pin(digest)
+            locked.add((relative(directory) / relative(name)).as_posix())
     paths = [root / name for name in SOURCE_FILES]
     for name in SOURCE_ROOTS:
         need((root / name).is_dir() and not (root / name).is_symlink(), f'missing source subtree: {name}')
         for current, dirs, files in os.walk(root / name, followlinks=False):
             dirs[:] = sorted(d for d in dirs if d != '__pycache__' and
-                             not (Path(current) == root / 'scripts' and d in ('virtual', 'client', 'experiments', 'port')) and
-                             not (Path(current) == root / 'packages' and d == 'tools') and
-                             not (d == 'evidence' and Path(current).is_relative_to(root / 'packages')))
+                             not (Path(current) == root / 'scripts' and d in ('virtual', 'client', 'experiments', 'port', 'platform')) and
+                             not (Path(current) == root / 'packages' and d == 'tools'))
             for directory in dirs:
                 need(not (Path(current) / directory).is_symlink(), 'symlink source directory')
-            paths += [Path(current) / f for f in sorted(files) if not f.endswith('.pyc')]
+            for filename in sorted(files):
+                path = Path(current) / filename
+                name = path.relative_to(root).as_posix()
+                # Archives are generated build outputs. Force-tracked historical
+                # logs are inputs only when the reviewed recipe lock names them.
+                if name not in locked and (filename.endswith(('.pyc', '.log')) or '.pkg.tar.' in filename):
+                    continue
+                paths.append(path)
     result, size = {}, 0
     for path in sorted(paths):
         name = path.relative_to(root).as_posix()
@@ -225,6 +241,7 @@ def scan(root):
     for name in ('integration', 'integration_export', 'sign_fixture', 'installed_handoff', 'source_suites', 'verify_derived'):
         need(f'scripts/ci/{name}.py' in result and f'scripts/ci/test_{name}.py' in result,
              f'missing CI adapter/source tests: {name}')
+    need(locked <= result.keys(), 'reviewed recipe inputs missing from source snapshot')
     return result
 
 
@@ -272,8 +289,10 @@ def freeze(root, output, recipe_pin, source_commit, epoch):
     source = scan(root)
     need(source['scripts/ci/recipes.lock.json']['sha256'] == recipe_pin, 'reviewed recipe lock changed')
     with tempfile.TemporaryDirectory(prefix='cachy-asahi-freeze-') as temporary:
+        copied = Path(temporary) / 'source'
+        snapshot(root, copied, source)
         generated = Path(temporary) / 'fixtures'
-        generate(root, generated, recipe_pin, source_commit, epoch)
+        generate(copied, generated, recipe_pin, source_commit, epoch)
         fixture_files = files(generated)
     need(scan(root) == source, 'integration source changed while freezing')
     native.save(output, {'schema_version': 1, 'purpose': PURPOSE, 'development_only': True,
@@ -299,8 +318,10 @@ def preflight(root, lock_path, digest, recipe_pin, epoch):
         need(row['mode'] in (0o644, 0o755), 'unreviewed generated fixture mode')
     # All generated inputs are re-derived before any native build/system mutation.
     with tempfile.TemporaryDirectory(prefix='cachy-asahi-preflight-') as temporary:
+        copied = Path(temporary) / 'source'
+        snapshot(root, copied, lock['source_files'])
         generated = Path(temporary) / 'fixtures'
-        generate(root, generated, recipe_pin, lock['recipe_source_commit'], epoch)
+        generate(copied, generated, recipe_pin, lock['recipe_source_commit'], epoch)
         need(files(generated) == lock['generated_fixture_files'], 'reviewed generated fixtures differ')
     return lock
 

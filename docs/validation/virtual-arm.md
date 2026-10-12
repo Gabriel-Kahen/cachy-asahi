@@ -157,3 +157,24 @@ strictly decoded bundles are under `artifacts/ci/38200957061/`:
 | Failed fixtures | `c52171e663f506920bd0251f5094a8b421f87bc2b8a9151f45567e20d33d9368` | 900 |
 | Native source suites | `7aca4898e30be8e53a1c13a0e31474c1590e83e69f553d2f8a64909da5d2d075` | 20984 |
 | Failed integration summary | `4c040aee5dc36a50e8f445780a4e4380f4c6c5518c3b9c0f685be3b8a42768f3` | 982 |
+
+## Copied-source and diagnostic correction
+
+The scanner now requires every recipe-lock input in the source snapshot and
+excludes unselected generated archives/logs. Both freezing and preflight derive
+fixtures from a newly copied source tree. The coordinator independently reran
+all 116 integration tests from that isolated 151-file copy; all passed, and the
+125 generated fixture bytes/modes match the previous reviewed fixture map.
+All **226 local CI tests passed**, without skips.
+
+Known desktop terminal logs now have bounded escaped-text projections with raw
+and projected byte/hash receipts. Credential checks apply before publication;
+the generic exporter remains unchanged. Source-suite commands receive a private
+mode-0700 runtime directory. This does not establish the cause or resolution of
+Hyprland's native abort; a new execution must retain its actual diagnostic and
+pass the verifier before desktop acceptance.
+
+New integration lock:
+`be827b7046049628d409a13eff4b5ee9bdbd7e9a0e92d1e411fae6e71bd0192f`.
+Signed input and original recipe locks remain `3c16c37d...` and `20d846cd...`.
+The next dispatch still requires committed-tree/clean-checkout verification.

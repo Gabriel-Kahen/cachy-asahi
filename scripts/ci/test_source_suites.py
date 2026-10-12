@@ -1,5 +1,6 @@
 """Mocked runner tests: never invoke Docker, GPG, package tools or source suites."""
 import importlib.util
+import hashlib
 import json
 import os
 import signal
@@ -147,6 +148,83 @@ class SummaryTests(unittest.TestCase):
                 runner.unittest_counts(text)
 
 
+class ProjectionTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name)
+        self.log = self.root / 'source-check-5.txt'
+        self.output = self.root / 'out'; self.output.mkdir()
+
+    def exporter(self):
+        spec = importlib.util.spec_from_file_location('projection_exporter', Path(__file__).with_name('integration_export.py'))
+        value = importlib.util.module_from_spec(spec); spec.loader.exec_module(value)
+        return value
+
+    def test_control_invalid_utf8_and_abort_diagnostics_preserved_with_raw_receipt(self):
+        data = b'\x1b[31mERROR: abort(-6)\x1b[0m\nNUL:\0 bad:\xff\xc3( del:\x7f c1:\xc2\x85\r\\x00\tend\n'
+        self.log.write_bytes(data)
+        runner.desktop_projection(self.log, self.output)
+        text = (self.output / 'desktop-source-check-5.txt').read_text()
+        self.assertEqual(text, '\\x1b[31mERROR: abort(-6)\\x1b[0m\nNUL:\\x00 bad:\\xff\\xc3( del:\\x7f c1:\\u0085\\x0d\\\\x00\tend\n')
+        self.assertFalse(any(ord(char) < 32 and char not in '\n\t' for char in text))
+        metadata = json.loads((self.output / 'desktop-source-check-5.projection.json').read_text())
+        self.assertEqual(metadata['raw_sha256'], hashlib.sha256(data).hexdigest())
+        self.assertEqual(metadata['raw_bytes'], len(data))
+        self.assertEqual(metadata['projected_sha256'], hashlib.sha256(text.encode()).hexdigest())
+        self.assertFalse(metadata['raw_bytes_exported'])
+        public = self.root / 'public'
+        result = self.exporter().export_evidence(self.output, public)
+        self.assertEqual(result['evidence_export'], 'PASS')
+        self.assertEqual((public / 'desktop-source-check-5.txt').read_text(), text)
+        self.assertFalse(any(path.read_bytes() == data for path in public.iterdir()))
+
+    def test_private_markers_refused_before_public_projection_or_raw_hash(self):
+        for data in (b'-----BEGIN PGP PRIVATE KEY BLOCK-----\nPRIVATE_FIXTURE',
+                     b'-----BEGIN PGP PRI\x1b[31mVATE KEY BLOCK-----',
+                     b'password=PRIVATE_FIXTURE', b'-----BEGIN RSA PRI\0VATE KEY-----',
+                     '-----BEGIN RSA PRI\u200bVATE KEY-----'.encode()):
+            self.log.write_bytes(data)
+            with self.subTest(data=data), self.assertRaises(ValueError):
+                runner.desktop_projection(self.log, self.output)
+            self.assertEqual(list(self.output.iterdir()), [])
+        self.log.write_bytes(b'-----BEGIN PGP PRIVATE KEY BLOCK-----')
+        # Generic exporter is independently unchanged and continues to refuse
+        # private markers even if a caller attempts an ordinary text copy.
+        copied = self.output / 'desktop-source-check-5.txt'; copied.write_bytes(self.log.read_bytes())
+        result = self.exporter().export_evidence(self.output, self.root / 'private-public')
+        self.assertEqual(result['evidence_export'], 'FAIL')
+        self.assertFalse((self.root / 'private-public/desktop-source-check-5.txt').exists())
+
+    def test_only_named_terminal_files_with_no_symlinks_or_hardlinks(self):
+        self.log.write_bytes(b'error diagnostic')
+        other = self.root / 'arbitrary.txt'; other.write_bytes(b'unreviewed')
+        with self.assertRaises(ValueError):
+            runner.desktop_projection(other, self.output)
+        other.unlink(); other.symlink_to(self.log)
+        self.log.unlink(); self.log.symlink_to(other)
+        with self.assertRaises(ValueError):
+            runner.desktop_projection(self.log, self.output)
+
+    def test_projection_expansion_fails_explicitly_without_truncation(self):
+        self.log.write_bytes(b'\x00' * 32)
+        with patch.object(runner, 'LOG_LIMIT', 64), self.assertRaisesRegex(ValueError, 'no truncation'):
+            runner.desktop_projection(self.log, self.output)
+        self.assertEqual(list(self.output.iterdir()), [])
+
+    def test_runtime_home_is_owned_private_and_not_reused_or_symlinked(self):
+        home = self.root / 'home'; home.mkdir()
+        runtime = runner.private_runtime(home)
+        self.assertEqual(runtime, home / 'runtime')
+        self.assertEqual(stat.S_IMODE(runtime.stat().st_mode), 0o700)
+        self.assertEqual(runtime.stat().st_uid, os.geteuid())
+        with self.assertRaises(FileExistsError):
+            runner.private_runtime(home)
+        link = self.root / 'linked-home'; link.symlink_to(home, target_is_directory=True)
+        with self.assertRaises(ValueError):
+            runner.private_runtime(link)
+
+
 class SuiteTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
@@ -213,6 +291,7 @@ class SuiteTests(unittest.TestCase):
         desktop.mkdir(parents=True)
         (desktop / 'check-local.py').write_text('fixture; never executed')
         output.mkdir()
+        home = self.root / 'home'; home.mkdir()
         calls = []
 
         def check(name, command, cwd, out, env, **options):
@@ -227,14 +306,52 @@ class SuiteTests(unittest.TestCase):
             return {'name': name, 'status': 'PASS', 'tests': 1, 'skipped': 0}
 
         with patch.object(runner, 'run_suite', side_effect=check):
-            results = runner.suites(source, output, Path('/tmp/home'))
+            results = runner.suites(source, output, home)
         self.assertEqual(len(results), len(runner.UNIT_DIRS) + len(runner.CHECKS) + 1)
         self.assertEqual([call[1][5] for call in calls[:len(runner.UNIT_DIRS)]], list(runner.UNIT_DIRS))
         self.assertTrue(all(call[3]['unit'] for call in calls[:len(runner.UNIT_DIRS)]))
         self.assertTrue(all(set(call[2]) == {'PATH', 'HOME', 'TMPDIR', 'LANG', 'LC_ALL', 'PYTHONDONTWRITEBYTECODE',
-                        'TERM', 'XDG_CONFIG_HOME', 'XDG_CACHE_HOME', 'XDG_DATA_HOME'} for call in calls))
+                        'TERM', 'XDG_CONFIG_HOME', 'XDG_CACHE_HOME', 'XDG_DATA_HOME', 'XDG_RUNTIME_DIR'} for call in calls))
+        self.assertTrue(all(call[2]['XDG_RUNTIME_DIR'] == str(home / 'runtime') for call in calls))
+        self.assertEqual(stat.S_IMODE((home / 'runtime').stat().st_mode), 0o700)
         self.assertEqual(sorted(path.name for path in output.iterdir()),
-                         ['desktop-host-packaging.json', 'desktop-source-check-1.txt'])
+                         ['desktop-host-packaging.json', 'desktop-source-check-1.projection.json', 'desktop-source-check-1.txt'])
+
+    def test_failed_desktop_terminal_log_is_projected_without_changing_suite_fail(self):
+        source, output, home = (self.root / p for p in ('source', 'out', 'home'))
+        (source / 'packages/desktop').mkdir(parents=True)
+        output.mkdir(); home.mkdir()
+        payload = b'\x1b[31mverification error; child exit -6\x1b[0m\0\xff\n'
+
+        def failed(name, command, cwd, out, env, **options):
+            if name == 'desktop-local':
+                directory = cwd / 'evidence'; directory.mkdir()
+                (directory / 'source-check-5.txt').write_bytes(payload)
+                return {'name': name, 'status': 'FAIL', 'exit_code': 1, 'tests': None, 'skipped': None}
+            return {'name': name, 'status': 'PASS', 'tests': 1, 'skipped': 0}
+
+        with patch.object(runner, 'run_suite', side_effect=failed):
+            results = runner.suites(source, output, home)
+        self.assertEqual(results[-1]['status'], 'FAIL')
+        self.assertIn('verification error; child exit -6', (output / 'desktop-source-check-5.txt').read_text())
+        record = json.loads((output / 'desktop-source-check-5.projection.json').read_text())
+        self.assertEqual(record['raw_sha256'], hashlib.sha256(payload).hexdigest())
+
+    def test_desktop_projection_finally_preserves_diagnostics_on_cancel(self):
+        source, output, home = (self.root / p for p in ('source', 'out', 'home'))
+        (source / 'packages/desktop').mkdir(parents=True)
+        output.mkdir(); home.mkdir()
+
+        def cancelled(name, command, cwd, out, env, **options):
+            if name == 'desktop-local':
+                directory = cwd / 'evidence'; directory.mkdir()
+                (directory / 'source-check-5.txt').write_bytes(b'\x1b[31merror before cancellation\n')
+                raise runner.Cancelled()
+            return {'name': name, 'status': 'PASS', 'tests': 1, 'skipped': 0}
+
+        with patch.object(runner, 'run_suite', side_effect=cancelled), self.assertRaises(runner.Cancelled):
+            runner.suites(source, output, home)
+        self.assertIn('error before cancellation', (output / 'desktop-source-check-5.txt').read_text())
 
     def test_signal_or_keyboard_cancellation_kills_tracked_group_and_retains_fail(self):
         for error in (runner.Cancelled(), KeyboardInterrupt()):

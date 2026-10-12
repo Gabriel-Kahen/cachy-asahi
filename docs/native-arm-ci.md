@@ -179,6 +179,23 @@ Generic native ARM/4K software checks cannot satisfy physical M2, Asahi boot,
 16K-page, accelerated graphics/audio, suspend/power, GUI usability, stable trust,
 production publication or performance gates. All remain independently unrun.
 
+Initial-stage source snapshots include all exact inputs named by the reviewed
+original recipe lock, including 25 historical evidence files, and other package
+audit text. Generated package archives and unlocked ignored logs are excluded;
+the active virtual/client/experiments/port/platform and packages/tools follow-up
+trees have separate later freezes. A missing locked input fails the source scan.
+Both freeze and preflight copy and rehash the complete snapshot, then generate
+deterministic fixtures from that copied tree before any native mutation. Original
+recipe inputs and their lock are preserved.
+
+Only explicitly named desktop terminal logs have a readable escaped projection:
+ANSI/control and invalid UTF-8 bytes are represented as text, with adjacent raw
+SHA-256/byte count and projected SHA-256/byte count receipts. Raw bytes are not
+exported. The existing private-content policy runs before projection and the
+generic exporter remains unchanged. Desktop children receive an owned mode0700
+XDG_RUNTIME_DIR under the guarded tmpfs HOME. Verification remains enabled;
+this environment correction does not establish the cause of an earlier abort.
+
 
 ### Corrective source review and freeze status
 

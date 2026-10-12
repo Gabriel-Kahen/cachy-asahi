@@ -199,3 +199,46 @@ pre-mutation refusal requirement. No production guard or controller was weakened
 Final current aggregate: 210 CI tests PASS, including 36 handoff tests. Root must
 include this refreshed test source in its final freeze after lifecycle ownership
 is declared stable. No freeze/dispatch was performed here.
+
+### Run 38200957061 source-snapshot correction
+
+Coordinator-reported actual native run 38200957061 terminated FAIL. Acquisition,
+signature verification, exact 341-package bootstrap and all four original recipes
+built twice with strict byte comparisons passed. Fixture generation then failed:
+the blanket package-evidence exclusion omitted 25 mandatory original recipe-lock
+inputs. The copied native integration suite also reported 15 missing-input errors.
+The desktop source verifier aborted with exit -6; its terminal output was rejected
+by the generic text exporter for control bytes, so the abort cause is unknown.
+These failures remain failures; no later stage or hardware acceptance is inferred.
+
+Source correction restores package audit text and every exact reviewed recipe
+input, including force-tracked historical logs. Generated package archives and
+unlocked ignored logs remain excluded. Missing reviewed inputs fail the scan.
+The active platform tree joins the separately owned follow-up exclusions. Freeze
+and preflight now generate fixtures from their rehashed copied source tree rather
+than the live checkout. The original recipe lock remains unchanged at
+`20d846cdf289bfc233b0051bf33b677fd6e94e9f05d91a33595a2829a196fa63`.
+
+Actual local copied-tree regression: 151 source files copied, all 25 mandatory
+evidence files present, all 125 generated fixture hashes/modes exactly match the
+original fixture map, and **116 integration tests PASS** with no skips from that
+snapshot. Logs/receipt are `/tmp/cachy-ci-copied-regression-kru4a8g8/`. The focused
+controller suite has **37 tests PASS**. This is local source/test evidence; the
+corrected native integration has not been dispatched by this worker. Coordinator
+retains sole review/refreeze/commit/push/dispatch and run-acceptance ownership.
+
+The desktop correction projects only known terminal `.txt` receipts to escaped
+readable public text, accompanied by raw/projected SHA-256 and byte counts. No
+raw terminal bytes are copied. The exporter/private-marker rules are unchanged;
+the same private-content policy also screens raw and terminal-normalized text
+before any public projection or raw hash receipt. Failure/cancellation paths
+retain these diagnostics. A fresh owned mode0700 XDG_RUNTIME_DIR is supplied under
+the guarded tmpfs HOME. Hyprland verification is still enabled and the original
+abort cause remains unknown until a native diagnostic is retained. Final local
+CI suite: **226 tests PASS, no skips**, including 37 source-suite and 37 controller
+tests; diff whitespace check PASS. An actual local ephemeral freeze followed by
+copied-source preflight also passed for the final 151-file source and 125 fixtures,
+with the original fixture map unchanged. Its temporary receipt is
+`/tmp/cachy-ci-corrected-preflight-73wlhr1u/regression.json`; the shared integration
+lock was not edited. No corrected native run, shared refreeze, Git action, host
+package/account/key change or physical check was performed by this worker.

@@ -46,10 +46,11 @@ class Boundaries(unittest.TestCase):
             paths += [f'scripts/ci/{name}.py', f'scripts/ci/test_{name}.py']
         for name in paths:
             path = self.root / name; path.parent.mkdir(parents=True, exist_ok=True); path.write_text('reviewed source')
+        (self.root / 'scripts/ci/recipes.lock.json').write_text('{}')
 
     def test_independent_followup_sources_are_excluded_from_initial_snapshot(self):
         self.source_tree()
-        for directory in ('scripts/virtual', 'scripts/client', 'scripts/experiments', 'scripts/port', 'packages/tools'):
+        for directory in ('scripts/virtual', 'scripts/client', 'scripts/experiments', 'scripts/port', 'scripts/platform', 'packages/tools'):
             path = self.root / directory; path.mkdir(parents=True); (path / 'moving.py').write_text('active independent source')
         result = i.scan(self.root)
         self.assertFalse(any(name.endswith('moving.py') for name in result))
@@ -59,11 +60,15 @@ class Boundaries(unittest.TestCase):
         recipe = self.root / 'packages/desktop/recipe'; recipe.mkdir(parents=True)
         (recipe / 'PKGBUILD').write_text('reviewed recipe bytes')
         (recipe / 'PKGBUILD').chmod(0o755)
-        clean = i.scan(self.root)
         evidence = self.root / 'packages/desktop/evidence'; evidence.mkdir()
-        archive = evidence / 'host-package-1.pkg.tar.zst'; archive.write_bytes(b'local generated binary')
         receipt = evidence / 'original-receipt.json'; receipt.write_text('{"status":"historical"}')
-        nested = recipe / 'evidence'; nested.mkdir(); (nested / 'generated.log').write_text('local diagnostic')
+        nested = recipe / 'evidence'; nested.mkdir()
+        locked_log = nested / 'reviewed.log'; locked_log.write_text('locked historical evidence')
+        i.native.save(self.root / 'scripts/ci/recipes.lock.json', {'packages/desktop/recipe': {
+            'evidence/reviewed.log': i.native.sha(locked_log)}})
+        clean = i.scan(self.root)
+        archive = evidence / 'host-package-1.pkg.tar.zst'; archive.write_bytes(b'local generated binary')
+        (nested / 'generated.log').write_text('local diagnostic')
         self.assertEqual(i.scan(self.root), clean)
         self.assertEqual(archive.read_bytes(), b'local generated binary')
         self.assertEqual(receipt.read_text(), '{"status":"historical"}')
@@ -71,9 +76,37 @@ class Boundaries(unittest.TestCase):
         self.addCleanup(lambda: shutil.rmtree(target, ignore_errors=True))
         i.snapshot(self.root, target, clean)
         self.assertEqual(i.scan(target), clean)
-        self.assertFalse((target / 'packages/desktop/evidence').exists())
+        self.assertEqual((target / 'packages/desktop/evidence/original-receipt.json').read_text(), receipt.read_text())
+        self.assertEqual((target / 'packages/desktop/recipe/evidence/reviewed.log').read_text(), locked_log.read_text())
+        self.assertFalse((target / 'packages/desktop/evidence/host-package-1.pkg.tar.zst').exists())
         self.assertEqual(i.native.sha(target / 'packages/desktop/recipe/PKGBUILD'), clean['packages/desktop/recipe/PKGBUILD']['sha256'])
         self.assertEqual((target / 'packages/desktop/recipe/PKGBUILD').stat().st_mode & 0o777, 0o755)
+
+    def test_missing_locked_evidence_fails_source_scan(self):
+        self.source_tree()
+        i.native.save(self.root / 'scripts/ci/recipes.lock.json', {'packages/desktop/recipe': {
+            'evidence/required.log': 'a' * 64}})
+        with self.assertRaisesRegex(ValueError, 'reviewed recipe inputs missing'):
+            i.scan(self.root)
+
+    def test_preflight_generates_from_copied_tree_with_locked_evidence(self):
+        self.source_tree()
+        evidence = self.root / 'packages/desktop/recipe/evidence/required.log'
+        evidence.parent.mkdir(parents=True); evidence.write_text('mandatory input')
+        recipe_lock = self.root / 'scripts/ci/recipes.lock.json'
+        i.native.save(recipe_lock, {'packages/desktop/recipe': {'evidence/required.log': i.native.sha(evidence)}})
+        pin = i.native.sha(recipe_lock)
+        rows = {'fixture': {'sha256': 'd' * 64, 'mode': 0o644}}
+        lock = {'schema_version': 1, 'purpose': i.PURPOSE, 'development_only': True, 'selected_for_release': False,
+                'recipes_sha256': pin, 'source_date_epoch': 1, 'recipe_source_commit': 'b' * 40,
+                'source_files': i.scan(self.root), 'generated_fixture_files': rows}
+        def generate(copied, output, *args):
+            self.assertNotEqual(copied, self.root)
+            self.assertEqual((copied / evidence.relative_to(self.root)).read_text(), 'mandatory input')
+            self.assertEqual(i.scan(copied), lock['source_files'])
+        with patch.object(i.native, 'load_pinned', return_value=lock), patch.object(i, 'generate', side_effect=generate), \
+             patch.object(i, 'files', return_value=rows):
+            self.assertEqual(i.preflight(self.root, self.root / 'lock', 'c' * 64, pin, 1), lock)
 
     def test_snapshot_drift_diagnostic_is_bounded_and_contains_only_relative_paths(self):
         actual = {'scripts/new.py': {'sha256': 'a'}, 'scripts/changed.py': {'mode': 0o755}}

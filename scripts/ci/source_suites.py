@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Run reviewed source suites inside a disposable native ARM container only."""
 import argparse
+import importlib.util
 from contextlib import contextmanager
 import hashlib
 import json
@@ -15,6 +16,7 @@ import subprocess
 import sys
 import tempfile
 import time
+import unicodedata
 
 sys.dont_write_bytecode = True
 UNIT_DIRS = ('tests', 'scripts/hardware', 'scripts/release', 'scripts/benchmarks',
@@ -42,6 +44,9 @@ STANDARD_MOUNTS = set(STANDARD_TYPES) | READONLY_PROC | EMPTY_MASKS | NULL_MASKS
 CAPS = ('CapInh', 'CapPrm', 'CapEff', 'CapBnd', 'CapAmb')
 LOG_LIMIT = 4 * 1024**2
 ACTIVE = {}
+DESKTOP_LOGS = {f'source-check-{n}.txt' for n in range(1, 6)}
+DESKTOP_LOGS |= {f'host-package-{n}{suffix}.txt' for n in (1, 2) for suffix in ('', '-PKGINFO', '-BUILDINFO')}
+ANSI = re.compile(r'\x1b(?:\[[0-?]*[ -/]*[@-~]|\][^\x07\x1b]*(?:\x07|\x1b\\)|[@-_])')
 
 
 class Cancelled(Exception):
@@ -107,6 +112,73 @@ def cleanup_groups():
 
 def save(path, data):
     path.write_text(json.dumps(data, indent=2, sort_keys=True) + '\n')
+
+
+def desktop_projection(path, output):
+    """Known terminal receipts only: escaped public text, never original bytes.
+
+    The raw digest is provenance, not authentication. Check the same credential
+    policy before creating either public file, including terminal-hidden markers.
+    """
+    if (path.name not in DESKTOP_LOGS or path.is_symlink() or not path.is_file()
+            or path.stat().st_nlink != 1 or any(p.is_symlink() for p in path.parents)):
+        raise ValueError('unreviewed/nonregular desktop terminal receipt')
+    if path.stat().st_size > LOG_LIMIT:
+        raise ValueError('desktop terminal receipt exceeds raw byte bound')
+    with path.open('rb') as stream:
+        data = stream.read(LOG_LIMIT + 1)
+    if len(data) > LOG_LIMIT:
+        raise ValueError('desktop terminal receipt exceeds raw byte bound')
+    # Lazy load from the reviewed read-only CI source snapshot; no path search.
+    spec = importlib.util.spec_from_file_location('desktop_export_policy', Path(__file__).with_name('integration_export.py'))
+    policy = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(policy)
+    text = data.decode('utf-8', errors='surrogateescape')
+    screen = ''.join(char for char in ANSI.sub('', text)
+                     if char in '\n\r\t' or not (unicodedata.category(char) in ('Cc', 'Cf', 'Cs')))
+    if policy.PRIVATE_CONTENT.search(text) or policy.PRIVATE_CONTENT.search(screen):
+        raise ValueError('desktop terminal receipt contains private-key/credential marker')
+    parts, size = [], 0
+    for char in text:
+        value = ord(char)
+        if char == '\\':
+            part = '\\\\'
+        elif 0xdc80 <= value <= 0xdcff:
+            part = f'\\x{value - 0xdc00:02x}'
+        elif (value < 32 and char not in '\n\t') or value == 127:
+            part = f'\\x{value:02x}'
+        elif unicodedata.category(char) in ('Cc', 'Cf') and char not in '\n\t':
+            part = f'\\u{value:04x}' if value <= 0xffff else f'\\U{value:08x}'
+        else:
+            part = char
+        size += len(part.encode('utf-8'))
+        if size > LOG_LIMIT:
+            raise ValueError('escaped desktop terminal receipt exceeds public byte bound; no truncation')
+        parts.append(part)
+    projected = ''.join(parts).encode('utf-8')
+    target = output / ('desktop-' + path.name)
+    metadata = target.with_suffix('.projection.json')
+    if target.exists() or target.is_symlink() or metadata.exists() or metadata.is_symlink():
+        raise ValueError('fresh desktop projection outputs required')
+    with target.open('xb') as stream:
+        stream.write(projected)
+    save(metadata, {'schema_version': 1, 'record_type': 'desktop-terminal-log-projection',
+                    'source_log': path.name, 'raw_sha256': hashlib.sha256(data).hexdigest(), 'raw_bytes': len(data),
+                    'projected_sha256': hashlib.sha256(projected).hexdigest(), 'projected_bytes': len(projected),
+                    'projection': 'UTF-8; backslashes doubled; C0/DEL/invalid bytes use \\xHH; Unicode controls/formats use \\uHHHH or \\UHHHHHHHH; LF/TAB preserved',
+                    'raw_bytes_exported': False})
+
+
+def private_runtime(home):
+    if (not home.is_absolute() or not home.is_relative_to('/tmp') or '..' in home.parts
+            or not home.is_dir() or any(p.is_symlink() for p in (home, *home.parents))):
+        raise ValueError('runtime directory requires the guarded real tmpfs HOME')
+    root = home / 'runtime'
+    root.mkdir(mode=0o700, exist_ok=False)
+    info = root.lstat()
+    if not stat.S_ISDIR(info.st_mode) or info.st_uid != os.geteuid() or stat.S_IMODE(info.st_mode) != 0o700:
+        raise ValueError('owned mode0700 runtime directory required')
+    return root
 
 
 def mount_table(text):
@@ -290,10 +362,11 @@ def run_suite(name, command, source, output, env, unit=False, timeout=300):
 
 
 def suites(source, output, home, results=None):
+    runtime = private_runtime(home)
     env = {'PATH': '/usr/bin:/bin', 'HOME': str(home), 'TMPDIR': '/tmp', 'LANG': 'C.UTF-8',
            'LC_ALL': 'C.UTF-8', 'PYTHONDONTWRITEBYTECODE': '1', 'TERM': 'dumb',
            'XDG_CONFIG_HOME': str(home / '.config'), 'XDG_CACHE_HOME': str(home / '.cache'),
-           'XDG_DATA_HOME': str(home / '.local/share')}
+           'XDG_DATA_HOME': str(home / '.local/share'), 'XDG_RUNTIME_DIR': str(runtime)}
     if results is None:
         results = []
     for directory in UNIT_DIRS:
@@ -309,14 +382,17 @@ def suites(source, output, home, results=None):
         desktop = Path(temporary) / 'desktop'
         shutil.copytree(source / 'packages/desktop', desktop,
                         ignore=shutil.ignore_patterns('evidence', '__pycache__'))
-        results.append(run_suite('desktop-local', [sys.executable, str(desktop / 'check-local.py')],
-                                 desktop, output, env))
-        allowed = ['host-packaging.json'] + [f'source-check-{n}.txt' for n in range(1, 6)]
-        allowed += [f'host-package-{n}{suffix}.txt' for n in (1, 2) for suffix in ('', '-PKGINFO', '-BUILDINFO')]
-        for name in allowed:
-            path = desktop / 'evidence' / name
-            if path.is_file() and not path.is_symlink() and path.stat().st_nlink == 1 and path.stat().st_size <= LOG_LIMIT:
-                shutil.copyfile(path, output / ('desktop-' + name))
+        try:
+            results.append(run_suite('desktop-local', [sys.executable, str(desktop / 'check-local.py')],
+                                     desktop, output, env))
+        finally:
+            for name in sorted({'host-packaging.json', *DESKTOP_LOGS}):
+                path = desktop / 'evidence' / name
+                if path.exists() or path.is_symlink():
+                    if name in DESKTOP_LOGS:
+                        desktop_projection(path, output)
+                    elif path.is_file() and not path.is_symlink() and path.stat().st_nlink == 1 and path.stat().st_size <= LOG_LIMIT:
+                        shutil.copyfile(path, output / ('desktop-' + name))
     return results
 
 
