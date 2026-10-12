@@ -118,6 +118,30 @@ The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with 
   verifies the actual checks. Further source corrections and separate FDK/updater
   native trial wiring continue; no complete-port milestone is accepted.
 
+- The corrected original integration, `38227121568`, passes 620 native source
+  tests without skips and all eleven repository transactions, including the
+  clean final B upgrade after resetting the revoked-A cache. Its aggregate
+  remains FAIL: the generic credential guard rejects nine evidence filenames.
+  Corrected, purpose-validated public projection is still required; the raw
+  reset receipt was not exported. Transaction PASS does not establish accepted
+  publication, production trust or target recovery.
+- The separate FDK trial, `38223759349`, passes all 501 input acquisitions but
+  fails in the original producer before FDK compilation. Its exact failing
+  operation remains unknown. The reviewed correction preserves delegated log
+  bytes and finite phase diagnostics; 104 tests pass in both the workspace and
+  exact copied 128-file packet, with committed Git byte/mode proof. Corrected
+  workflow consumption and a new hosted execution remain pending.
+- The updater native controller is committed after 136 source tests and
+  independent process-cleanup review. Its 85-file committed closure is verified;
+  native Rust compilation remains NOT RUN. The separate workflow is undergoing
+  final failure/recovery evidence review before registration and execution.
+- The corrected platform proposal helpers pass 236 tests in a fresh committed
+  checkout. The separately proposed coordinated Python transaction resolves
+  all 55 target roots in metadata, while the original protected-version
+  transaction remains FAIL. These are source/data results: 218 baseline payload
+  archives remain unavailable, and installed ABI, hooks, coordinated platform
+  updates and M2 recovery remain unaccepted.
+
 These are distinct development results. No complete-port milestone or hardware
 acceptance is granted by their local test counts or source reviews.
 
