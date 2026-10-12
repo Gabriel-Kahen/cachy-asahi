@@ -1,0 +1,63 @@
+name: native-arm-development
+on:
+  workflow_dispatch:
+    inputs:
+      inputs_sha256:
+        description: Reviewed exact authenticated input lock SHA-256
+        type: string
+        required: true
+      recipes_sha256:
+        description: Reviewed original four-package recipe lock SHA-256
+        type: string
+        required: true
+      integration_sha256:
+        description: Reviewed initial integration source/fixture lock SHA-256
+        type: string
+        required: true
+      development_sha256:
+        description: Reviewed separate complete development packet SHA-256
+        type: string
+        required: true
+permissions:
+  contents: read
+concurrency:
+  group: native-arm-build
+  cancel-in-progress: false
+jobs:
+  development:
+    if: github.repository == 'Gabriel-Kahen/cachy-asahi' && github.event.repository.private == false
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 180
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      INPUTS_SHA256: ${{ inputs.inputs_sha256 }}
+      RECIPES_SHA256: ${{ inputs.recipes_sha256 }}
+      INTEGRATION_SHA256: ${{ inputs.integration_sha256 }}
+      DEVELOPMENT_SHA256: ${{ inputs.development_sha256 }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Verify every executed source against the reviewed packet and checkout
+        run: >-
+          python3 -B scripts/ci/development/controller.py --check-only
+          --inputs-sha256 "$INPUTS_SHA256" --recipes-sha256 "$RECIPES_SHA256"
+          --integration-sha256 "$INTEGRATION_SHA256" --development-sha256 "$DEVELOPMENT_SHA256"
+          --cache "$RUNNER_TEMP/development-cache" --output "$RUNNER_TEMP/development-evidence"
+      - name: Check the frozen coordinator boundaries
+        run: |
+          python3 -B -m unittest discover -s scripts/ci -p 'test_*.py' -v
+          python3 -B -m unittest discover -s scripts/ci/development -p 'test_*.py' -v
+      - name: Execute original integration and bounded same-job consumers
+        run: >-
+          python3 -B scripts/ci/development/controller.py
+          --inputs-sha256 "$INPUTS_SHA256" --recipes-sha256 "$RECIPES_SHA256"
+          --integration-sha256 "$INTEGRATION_SHA256" --development-sha256 "$DEVELOPMENT_SHA256"
+          --cache "$RUNNER_TEMP/development-cache" --output "$RUNNER_TEMP/development-evidence"
+      - name: Retain the authoritative terminal summary after failure or cancellation
+        if: always()
+        run: |
+          if [ -f "$RUNNER_TEMP/development-evidence/development-summary/result.json" ]; then
+            python3 -B scripts/ci/log_evidence.py "$RUNNER_TEMP/development-evidence/development-summary"
+            cat "$RUNNER_TEMP/development-evidence/development-summary/result.json"
+          fi
