@@ -10,6 +10,7 @@ import subprocess
 import sys
 import tempfile
 import time
+import threading
 from types import SimpleNamespace
 import unittest
 from unittest import mock
@@ -70,19 +71,25 @@ class BrokerTests(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory(prefix='broker-tests-')
         self.root = Path(self.temp.name);self.root.chmod(0o700)
         self.docker_file = self.root / 'real-docker';self.docker_file.write_bytes(b'never executed fixture');self.docker_file.chmod(0o700)
+        self.daemon_temp = tempfile.TemporaryDirectory(prefix='broker-daemon-tests-')
+        self.daemon = Path(self.daemon_temp.name);self.daemon.chmod(0o700)
+        real_sample = b.storage_sample
+        self.sample_mock = mock.patch.object(b, 'storage_sample', side_effect=lambda path: dict(real_sample(path), free_bytes=64 * b.STORAGE_GIB))
+        self.sample_mock.start()
         self.path = self.root / 'broker-controller.json'
         value = {'schema_version': 1, 'nonce': NONCE, 'root': str(self.root), 'real_docker': str(self.docker_file),
                  'real_docker_sha256': hashlib.sha256(self.docker_file.read_bytes()).hexdigest(),
                  'docker_endpoint': 'unix:///run/docker.sock', 'docker_socket_identity': {'device': 1, 'inode': 2},
-                 'deadline_monotonic': time.monotonic() + 3600}
+                 'deadline_monotonic': time.monotonic() + 3600, 'storage_policy': b.storage_policy(self.root, self.daemon)}
         b.save(self.path, value);self.pin = b.sha(self.path.read_bytes())
         self.socket = mock.patch.object(b, 'socket_info', return_value=SimpleNamespace(st_mode=stat.S_IFSOCK | 0o660, st_dev=1, st_ino=2));self.socket.start()
         self.c = b.load_controller(self.path, self.pin)
+        b.storage_initialize(self.c)
         self.docker = Docker(self.root)
         self.exec_mock = mock.patch.object(b, 'execute', side_effect=self.docker.execute);self.exec_mock.start()
 
     def tearDown(self):
-        self.exec_mock.stop();self.socket.stop();self.temp.cleanup()
+        self.exec_mock.stop();self.socket.stop();self.sample_mock.stop();self.daemon_temp.cleanup();self.temp.cleanup()
 
     def build(self):
         native = self.root / 'native';native.mkdir(exist_ok=True)
@@ -126,19 +133,25 @@ class BrokerTests(unittest.TestCase):
     def test_partial_build_without_iid_is_ambiguous_never_pruned(self):
         self.docker.cancel_build = True
         with self.assertRaises(b.BrokerError):self.build()
-        self.assertEqual(self.cleanup()['status'], 'FAIL')
+        foreign = 'sha256:' + 'f' * 64;self.docker.images[foreign] = 'foreign'
+        for _ in range(2):
+            result = self.cleanup();self.assertEqual(result['status'], 'FAIL')
+            self.assertEqual(result['failures'], ['image-id-missing'])
+            self.assertEqual(self.docker.images, {foreign: 'foreign'})
         self.assertFalse(any(args[0] in ('rmi', 'prune') for args in self.docker.calls))
         self.assertEqual(json.loads((self.root / 'broker-registry.json').read_text())['builds'][0]['status'], 'INTENT')
 
     def test_success_exit_without_iid_is_rejected(self):
         self.docker.no_iid = True
         with self.assertRaisesRegex(b.BrokerError, 'build-iid-missing'):self.build()
-        self.assertEqual(self.cleanup()['status'], 'FAIL')
+        result = self.cleanup();self.assertEqual(result['status'], 'FAIL')
+        self.assertEqual(result['failures'], ['image-id-missing'])
 
     def test_foreign_image_and_container_labels_never_removed(self):
         self.docker.bad_label = True
         with self.assertRaisesRegex(b.BrokerError, 'image-label-mismatch'):self.build()
-        self.assertEqual(self.cleanup()['status'], 'FAIL')
+        result = self.cleanup();self.assertEqual(result['status'], 'FAIL')
+        self.assertEqual(result['failures'], ['image-owner-unverified'])
         self.assertFalse(any(args[0] == 'rmi' for args in self.docker.calls))
         self.docker.images[IMAGE] = NONCE
         b.invoke(self.c, self.worker())
@@ -146,6 +159,41 @@ class BrokerTests(unittest.TestCase):
         result = self.cleanup();self.assertEqual(result['status'], 'FAIL')
         self.assertEqual(self.docker.containers[WORKER], 'foreign')
         self.assertFalse(any(args[0] == 'rm' for args in self.docker.calls))
+
+    def test_invalid_image_id_cleanup_retains_image_without_removal(self):
+        self.build();(self.root/'native/image-id').write_text('invalid-image-id\n')
+        for _ in range(2):
+            result = self.cleanup();self.assertEqual(result['status'], 'FAIL')
+            self.assertEqual(result['failures'], ['image-id-invalid'])
+        self.assertEqual(self.docker.images, {IMAGE:NONCE})
+        self.assertFalse(any(args[0] in ('rmi', 'prune') for args in self.docker.calls))
+
+    def test_drifted_image_id_cleanup_preserves_owned_and_foreign_images(self):
+        self.build();foreign = 'sha256:'+'f'*64;self.docker.images[foreign] = 'foreign'
+        (self.root/'native/image-id').write_text(foreign+'\n')
+        for _ in range(2):
+            result = self.cleanup();self.assertEqual(result['status'], 'FAIL')
+            self.assertEqual(result['failures'], ['image-id-drift'])
+        self.assertEqual(self.docker.images, {IMAGE:NONCE, foreign:'foreign'})
+        self.assertFalse(any(args[0] in ('rmi', 'prune') for args in self.docker.calls))
+
+    def test_image_remains_after_scoped_removal_is_specific_failure(self):
+        self.build();original = self.docker.execute
+        def retained(c, args, signals, **kwargs):
+            if args[:1] == ['rmi']:
+                self.docker.calls.append(args);return 0, b''
+            return original(c, args, signals, **kwargs)
+        with mock.patch.object(b, 'execute', side_effect=retained):result = self.cleanup()
+        self.assertEqual(result['status'], 'FAIL');self.assertEqual(result['failures'], ['image-remains'])
+        self.assertEqual(self.docker.images, {IMAGE:NONCE})
+
+    def test_unknown_image_cleanup_error_exports_only_fixed_ambiguity(self):
+        self.build()
+        with mock.patch.object(b, 'image_owned', side_effect=b.BrokerError('/private/secret detail')):
+            result = self.cleanup()
+        self.assertEqual(result['status'], 'FAIL');self.assertEqual(result['failures'], ['image-cleanup-ambiguous'])
+        self.assertNotIn('secret', json.dumps(result));self.assertEqual(self.docker.images, {IMAGE:NONCE})
+        self.assertFalse(any(args[0] in ('rmi', 'prune') for args in self.docker.calls))
 
     def test_existing_name_and_duplicate_registry_claim_refused(self):
         self.build();args = self.worker();self.docker.containers[WORKER] = 'foreign'
@@ -200,7 +248,9 @@ class BrokerTests(unittest.TestCase):
         def fails(c, args, signals, **kwargs):
             if args[:2] == ['image', 'ls']: return 1, b''
             return original(c, args, signals, **kwargs)
-        with mock.patch.object(b, 'execute', side_effect=fails):self.assertEqual(self.cleanup()['status'], 'FAIL')
+        with mock.patch.object(b, 'execute', side_effect=fails):
+            result = self.cleanup();self.assertEqual(result['status'], 'FAIL')
+        self.assertEqual(result['failures'], ['image-daemon-query-failed'])
 
     def test_lowlevel_spawn_registration_cancel_restores_masks_reaps_and_strips_env(self):
         self.exec_mock.stop()
@@ -456,6 +506,288 @@ class BrokerTests(unittest.TestCase):
         with mock.patch.object(b.subprocess, 'Popen', return_value=child), mock.patch.object(b, 'client_identity', return_value=token), mock.patch.object(b, 'group_absent', return_value=True), mock.patch.object(b.signal, 'pthread_sigmask', side_effect=mask):
             self.assertEqual(b.invoke(self.c, ['version']), 0)
         self.assertIn(dict(token, status='LIVE'), observed)
+
+    def test_latched_storage_blocks_build_and_run_allows_reads_and_scoped_remove(self):
+        self.build();args = self.worker();b.invoke(self.c, args)
+        path = self.root/'storage-state.json';state = json.loads(path.read_text())
+        state.update(latched=True, reason='observation-failed');b.save(path, state)
+        before = len(self.docker.calls)
+        with self.assertRaisesRegex(b.BrokerError, 'docker-storage-budget'):
+            b.invoke(self.c, ['run', '--rm', '--pull=never', '--network=none', '--cap-drop=ALL', '--security-opt=no-new-privileges', '--read-only', '--entrypoint=/bin/cat', IMAGE, '/builder-packages.lock'])
+        native = self.root/'native';context = native/'context'
+        with self.assertRaisesRegex(b.BrokerError, 'docker-storage-budget'):
+            b.invoke(self.c, ['build', '--network=none', '--pull=false', '--platform=linux/arm64', '--iidfile', str(native/'image-id-2'), str(context)])
+        self.assertFalse(any(row[0] in ('build', 'run') for row in self.docker.calls[before:]))
+        self.assertEqual(b.invoke(self.c, ['version']), 0)
+        self.assertEqual(b.invoke(self.c, ['image','inspect',IMAGE]), 0)
+        self.assertEqual(b.invoke(self.c, ['rm','--force',WORKER]), 0)
+        self.assertNotIn(WORKER, self.docker.containers)
+        self.assertEqual(self.cleanup()['status'], 'PASS')  # rejected create adds no ambiguous resource intent
+        self.assertFalse(any(row[0] == 'prune' for row in self.docker.calls))
+
+    def test_spawn_and_generation_registration_hold_admission_release_before_wait(self):
+        self.exec_mock.stop()
+        child = mock.Mock(pid=987654, returncode=0, stdout=None)
+        order = []
+        child.poll.return_value = 0
+        child.wait.side_effect = lambda **kwargs: order.append('wait') or 0
+        token = {'pid':987654, 'pgid':987654, 'start_ticks':42, 'uid':os.getuid()}
+        original_admission = b.storage_admission
+        @b.contextmanager
+        def admission(c):
+            with original_admission(c) as state:
+                order.append('admit');yield state;order.append('release')
+        def spawn(*args, **kwargs):order.append('spawn');return child
+        original_save = b.save
+        def save(path, value):
+            if any(row.get('pid') == child.pid and row.get('status') == 'LIVE' for row in value.get('clients', [])):
+                order.append('registered')
+            return original_save(path, value)
+        try:
+            with mock.patch.object(b, 'storage_admission', side_effect=admission), mock.patch.object(b.subprocess, 'Popen', side_effect=spawn), mock.patch.object(b, 'client_identity', return_value=token), mock.patch.object(b, 'save', side_effect=save), mock.patch.object(b, 'group_absent', return_value=True):
+                with self.assertRaisesRegex(b.BrokerError, 'build-iid-missing'):self.build()
+            spawn_index = order.index('spawn')
+            registration_index = order.index('registered', spawn_index)
+            release_index = order.index('release', registration_index)
+            wait_index = order.index('wait', release_index)
+            self.assertLess(spawn_index, registration_index);self.assertLess(registration_index, release_index)
+            self.assertLess(release_index, wait_index)
+        finally:self.exec_mock.start()
+
+    def test_delayed_admission_deadline_refuses_spawn_without_sleep(self):
+        self.exec_mock.stop();base = time.monotonic();expired = [False]
+        c = dict(self.c, _client_intent=mock.Mock(return_value={}), _client_started=mock.Mock(), _client_done=mock.Mock())
+        original_admission = b.storage_admission
+        @b.contextmanager
+        def delayed(controller):
+            with original_admission(controller) as state:
+                expired[0] = True
+                try:yield state
+                finally:expired[0] = False
+        try:
+            with b.Signals() as signals, mock.patch.object(b.time, 'monotonic', side_effect=lambda: base+(4000 if expired[0] else 0)), mock.patch.object(b, 'storage_admission', side_effect=delayed), mock.patch.object(b.subprocess, 'Popen') as spawn:
+                with self.assertRaisesRegex(b.BrokerError, 'command-deadline'):b.execute(c, ['build'], signals)
+            spawn.assert_not_called();c['_client_started'].assert_not_called();c['_client_done'].assert_called_once_with({}, False)
+        finally:self.exec_mock.start()
+
+    def test_pending_cancel_during_admission_refuses_spawn_and_restores_mask(self):
+        self.exec_mock.stop();before = signal.pthread_sigmask(signal.SIG_BLOCK, [])
+        c = dict(self.c, _client_intent=mock.Mock(return_value={}), _client_started=mock.Mock(), _client_done=mock.Mock())
+        original_admission = b.storage_admission
+        @b.contextmanager
+        def cancelled(controller):
+            with original_admission(controller) as state:
+                os.kill(os.getpid(), signal.SIGTERM);yield state
+        try:
+            with b.Signals() as signals, mock.patch.object(b, 'storage_admission', side_effect=cancelled), mock.patch.object(b.subprocess, 'Popen') as spawn:
+                with self.assertRaisesRegex(b.BrokerError, 'cancelled'):b.execute(c, ['build'], signals)
+            spawn.assert_not_called();c['_client_started'].assert_not_called();c['_client_done'].assert_called_once_with({}, False)
+            self.assertIn(signal.SIGTERM, signals.seen)
+            self.assertEqual(signal.pthread_sigmask(signal.SIG_BLOCK, []), before)
+        finally:self.exec_mock.start()
+
+
+class StorageTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(prefix='storage-tests-')
+        self.daemon_temp = tempfile.TemporaryDirectory(prefix='storage-daemon-tests-')
+        self.root, self.daemon = Path(self.temp.name), Path(self.daemon_temp.name)
+        self.root.chmod(0o700);self.daemon.chmod(0o700)
+        self.free = {str(self.root): 30 * b.STORAGE_GIB, str(self.daemon): 30 * b.STORAGE_GIB}
+        self.devices = {str(self.root): self.root.stat().st_dev, str(self.daemon): self.daemon.stat().st_dev}
+        self.real_sample = b.storage_sample
+        self.sample = mock.patch.object(b, 'storage_sample', side_effect=self.sampled);self.sample.start()
+        self.c = {'root': str(self.root), 'nonce': NONCE, '_sha256': 'd' * 64}
+
+    def tearDown(self):
+        self.sample.stop();self.daemon_temp.cleanup();self.temp.cleanup()
+
+    def sampled(self, path):
+        value = self.real_sample(path)
+        return dict(value, device=self.devices[str(path)], free_bytes=self.free[str(path)])
+
+    def start(self, separate=False):
+        if separate: self.devices[str(self.daemon)] += 1
+        self.c['storage_policy'] = b.storage_policy(self.root, self.daemon)
+        return b.storage_initialize(self.c)
+
+    def test_shared_private_four_daemon_five_admitted_with_twenty_one_free(self):
+        initial = self.start()
+        self.assertEqual(initial['mode'], 'shared');self.assertEqual(len(initial['filesystems']), 1)
+        self.free.update({str(self.root): 21 * b.STORAGE_GIB, str(self.daemon): 21 * b.STORAGE_GIB})
+        result = b.storage_check(self.c, create=True)
+        row = result['filesystems'][0]
+        self.assertEqual(row['peak_growth_bytes'], 9 * b.STORAGE_GIB)
+        self.assertEqual(row['current_free_bytes'], 21 * b.STORAGE_GIB)
+        self.assertEqual(row['growth_limit_bytes'], 16 * b.STORAGE_GIB)
+        self.assertFalse(result['latched'])
+        self.assertFalse(any(str(self.root) in str(value) for value in result.values()))
+
+    def test_cap_exact_boundary_then_overshoot_latches_despite_restoration(self):
+        self.start()
+        self.free[str(self.root)] = self.free[str(self.daemon)] = 14 * b.STORAGE_GIB
+        self.assertFalse(b.storage_check(self.c)['latched'])
+        self.free[str(self.root)] -= 1
+        with self.assertRaisesRegex(b.BrokerError, 'docker-storage-budget'):b.storage_check(self.c)
+        result = b.storage_projection(self.c)
+        self.assertTrue(result['latched']);self.assertEqual(result['reason'], 'growth-limit')
+        peak = result['filesystems'][0]['peak_growth_bytes']
+        self.free[str(self.root)] = self.free[str(self.daemon)] = 40 * b.STORAGE_GIB
+        with self.assertRaisesRegex(b.BrokerError, 'docker-storage-budget'):b.storage_check(self.c, create=True)
+        result = b.storage_projection(self.c)
+        self.assertEqual(result['filesystems'][0]['peak_growth_bytes'], peak)
+        self.assertEqual(result['filesystems'][0]['current_free_bytes'], 40 * b.STORAGE_GIB)
+        self.assertEqual(result['reason'], 'growth-limit')
+
+    def test_reserve_exact_floor_allowed_then_exhaustion_code_frozen(self):
+        self.free[str(self.root)] = self.free[str(self.daemon)] = 18 * b.STORAGE_GIB
+        self.start()
+        self.free[str(self.root)] = 2 * b.STORAGE_GIB
+        b.storage_check(self.c)
+        self.free[str(self.root)] -= 1
+        with self.assertRaisesRegex(b.BrokerError, 'docker-storage-budget'):b.storage_check(self.c)
+        self.assertEqual(b.storage_projection(self.c)['reason'], 'reserve-floor')
+
+    def test_reserve_exhaustion_from_admitted_baseline_records_breach(self):
+        self.start()
+        self.free[str(self.root)] = b.STORAGE_GIB
+        with self.assertRaisesRegex(b.BrokerError, 'docker-storage-budget'):b.storage_check(self.c)
+        state = b.storage_projection(self.c)
+        self.assertTrue(state['latched']);self.assertEqual(state['reason'], 'reserve-floor')
+        self.assertLess(state['filesystems'][0]['current_free_bytes'], b.STORAGE_RESERVE)
+
+    def test_low_initial_free_records_baseline_floor_before_creation(self):
+        self.free[str(self.root)] = self.free[str(self.daemon)] = 18 * b.STORAGE_GIB - 1
+        self.c['storage_policy'] = b.storage_policy(self.root, self.daemon)
+        with self.assertRaisesRegex(b.BrokerError, 'docker-storage-budget'):b.storage_initialize(self.c)
+        self.assertEqual(b.storage_projection(self.c)['reason'], 'baseline-floor')
+        self.assertEqual(stat.S_IMODE((self.root/'storage-state.json').stat().st_mode), 0o600)
+        self.free[str(self.root)] = self.free[str(self.daemon)] = 64 * b.STORAGE_GIB
+        with self.assertRaisesRegex(b.BrokerError, 'docker-storage-budget'):b.storage_check(self.c)
+        with self.assertRaises(FileExistsError):b.storage_initialize(self.c)
+
+    def test_separate_filesystem_each_eight_gib_counts_once(self):
+        state = self.start(separate=True)
+        self.assertEqual([row['role'] for row in state['filesystems']], ['private', 'daemon'])
+        self.free[str(self.root)] -= 4 * b.STORAGE_GIB
+        self.free[str(self.daemon)] -= 5 * b.STORAGE_GIB
+        state = b.storage_check(self.c)
+        self.assertEqual([row['peak_growth_bytes'] for row in state['filesystems']], [4*b.STORAGE_GIB, 5*b.STORAGE_GIB])
+        self.free[str(self.daemon)] -= 3 * b.STORAGE_GIB + 1
+        with self.assertRaisesRegex(b.BrokerError, 'docker-storage-budget'):b.storage_check(self.c)
+        self.assertEqual(b.storage_projection(self.c)['reason'], 'growth-limit')
+
+    def test_wrong_device_or_inode_observation_latches(self):
+        self.start()
+        self.devices[str(self.daemon)] += 1
+        with self.assertRaisesRegex(b.BrokerError, 'docker-storage-budget'):b.storage_check(self.c)
+        self.assertEqual(b.storage_projection(self.c)['reason'], 'observation-failed')
+        self.devices[str(self.daemon)] -= 1
+        with self.assertRaisesRegex(b.BrokerError, 'docker-storage-budget'):b.storage_check(self.c)
+
+    def test_daemon_replacement_observation_latches(self):
+        self.start()
+        original = self.daemon.with_name(self.daemon.name+'-old')
+        self.daemon.rename(original);self.daemon.mkdir(mode=0o700)
+        try:
+            with self.assertRaisesRegex(b.BrokerError, 'docker-storage-budget'):b.storage_check(self.c)
+            self.assertEqual(b.storage_projection(self.c)['reason'], 'observation-failed')
+        finally:self.daemon.rmdir();original.rename(self.daemon)
+
+    def test_missing_existing_state_never_reinitialized(self):
+        self.start();(self.root/'storage-state.json').unlink()
+        with self.assertRaises(FileNotFoundError):b.storage_check(self.c)
+        with self.assertRaises(FileExistsError):b.storage_initialize(self.c)
+
+    def test_forged_state_schema_counters_and_binding_refused(self):
+        self.start();path = self.root/'storage-state.json';original = json.loads(path.read_text())
+        for change in ('bool-counter', 'wrong-binding', 'missing-latch', 'extra-field', 'bad-reason', 'peak-less-than-growth'):
+            state = json.loads(json.dumps(original))
+            if change == 'bool-counter':state['filesystems'][0]['current_free_bytes'] = True
+            elif change == 'wrong-binding':state['controller_sha256'] = 'e'*64
+            elif change == 'missing-latch':del state['latched']
+            elif change == 'extra-field':state['rawpath'] = '/private/secret'
+            elif change == 'bad-reason':state.update(latched=True, reason='/private/secret')
+            else:state['filesystems'][0]['current_free_bytes'] -= 1
+            b.save(path, state)
+            with self.subTest(change=change), self.assertRaises(b.BrokerError):b.storage_projection(self.c)
+        b.save(path, original)
+
+    def test_policy_alias_bool_and_wrong_device_relation_refused(self):
+        with self.assertRaisesRegex(b.BrokerError, 'storage-path-alias'):b.storage_policy(self.root, self.root)
+        child = self.root/'daemon';child.mkdir(mode=0o700)
+        self.free[str(child)] = 30*b.STORAGE_GIB;self.devices[str(child)] = child.stat().st_dev
+        with self.assertRaisesRegex(b.BrokerError, 'storage-path-alias'):b.storage_policy(self.root, child)
+        policy = b.storage_policy(self.root, self.daemon)
+        for key, value in [('private_limit_bytes', True), ('mode', 'separate'), ('reserve_bytes', 0)]:
+            with self.subTest(key=key), self.assertRaises(b.BrokerError):b.storage_validate_policy(dict(policy, **{key:value}), str(self.root))
+
+    def test_real_fd_sample_rejects_symlink_and_directory_race_without_leaks(self):
+        link = self.root/'link';link.symlink_to(self.daemon, target_is_directory=True)
+        before = len(list(Path('/proc/self/fd').iterdir()))
+        with self.assertRaises((b.BrokerError, OSError)):self.real_sample(link)
+        original = self.daemon.with_name(self.daemon.name+'-race')
+        def racing(fd):
+            self.daemon.rename(original);self.daemon.mkdir(mode=0o700)
+            return SimpleNamespace(f_bavail=30, f_frsize=b.STORAGE_GIB)
+        try:
+            with mock.patch.object(b.os, 'fstatvfs', side_effect=racing), self.assertRaisesRegex(b.BrokerError, 'storage-identity'):
+                self.real_sample(self.daemon)
+        finally:self.daemon.rmdir();original.rename(self.daemon)
+        self.assertEqual(len(list(Path('/proc/self/fd').iterdir())), before)
+
+    def test_lock_symlink_hardlink_and_root_replacement_refused(self):
+        self.start();lock = self.root/'storage.lock';lock.unlink();lock.symlink_to(self.root/'storage-state.json')
+        with self.assertRaises(OSError):b.storage_projection(self.c)
+        lock.unlink();os.link(self.root/'storage-state.json', lock)
+        with self.assertRaisesRegex(b.BrokerError, 'storage-lock-owner'):b.storage_projection(self.c)
+        lock.unlink()
+        original = self.root.with_name(self.root.name+'-old')
+        self.root.rename(original);self.root.mkdir(mode=0o700)
+        try:
+            with self.assertRaisesRegex(b.BrokerError, 'storage-root-identity'):b.storage_check(self.c)
+        finally:self.root.rmdir();original.rename(self.root)
+
+    def test_real_opath_statvfs_supports_unreadable_final_directory(self):
+        self.daemon.chmod(0)
+        try:
+            result = self.real_sample(self.daemon)
+            self.assertEqual(result['inode'], self.daemon.stat().st_ino)
+            self.assertGreaterEqual(result['free_bytes'], 0)
+        finally:self.daemon.chmod(0o700)
+
+    def test_sample_depth_bound_before_open_and_scalar_overflow(self):
+        with mock.patch.object(b.os, 'open') as opened:
+            with self.assertRaisesRegex(b.BrokerError, 'storage-depth-bound'):
+                self.real_sample('/tmp/' + '/'.join('a' for _ in range(129)))
+        opened.assert_not_called()
+        for available, unit in ((-1, 1), (True, 1), (1, 0), (2**63, 1)):
+            with self.subTest(available=available, unit=unit), mock.patch.object(b.os, 'fstatvfs', return_value=SimpleNamespace(f_bavail=available, f_frsize=unit)), self.assertRaisesRegex(b.BrokerError, 'storage-sample-bound'):
+                self.real_sample(self.daemon)
+
+    def test_barrier_latch_commit_serializes_with_spawn_admission(self):
+        self.start();attempted = threading.Event();committed = threading.Event();outcomes = []
+        original_flock = b.fcntl.flock
+        def flock(fd, operation):
+            if threading.current_thread().name == 'storage-observer':attempted.set()
+            return original_flock(fd, operation)
+        def observe():
+            try:b.storage_check(self.c)
+            except b.BrokerError as error:outcomes.append(error.code)
+            finally:committed.set()
+        with mock.patch.object(b.fcntl, 'flock', side_effect=flock):
+            with b.storage_admission(self.c):
+                self.free[str(self.root)] = b.STORAGE_GIB
+                thread = threading.Thread(target=observe, name='storage-observer');thread.start()
+                self.assertTrue(attempted.wait(1));self.assertFalse(committed.is_set())
+                outcomes.append('spawn-and-register')
+            thread.join(2)
+            self.assertFalse(thread.is_alive());self.assertTrue(committed.is_set())
+            self.assertEqual(outcomes, ['spawn-and-register', 'docker-storage-budget'])
+            with self.assertRaisesRegex(b.BrokerError, 'docker-storage-budget'):
+                with b.storage_admission(self.c):outcomes.append('forbidden-spawn')
+        self.assertNotIn('forbidden-spawn', outcomes)
+        self.assertEqual(b.storage_projection(self.c)['reason'], 'reserve-floor')
 
 
 if __name__ == '__main__':unittest.main()

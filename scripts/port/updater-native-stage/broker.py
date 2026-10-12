@@ -5,7 +5,7 @@ The controller owns the private registry. Intents precede mutations; cleanup
 removes only individually inspected nonce-labelled resources. A build without
 an authenticated final iidfile is ambiguous, never a successful cleanup.
 """
-from contextlib import contextmanager
+from contextlib import contextmanager, nullcontext
 import fcntl
 import hashlib
 import json
@@ -102,16 +102,229 @@ def under(c, value, exists=True):
     return path
 
 
+STORAGE_GIB = 1024**3
+STORAGE_PRIVATE = STORAGE_DAEMON = 8 * STORAGE_GIB
+STORAGE_RESERVE = 2 * STORAGE_GIB
+STORAGE_MAX = 2**63 - 1
+STORAGE_REASONS = {'none', 'baseline-floor', 'growth-limit', 'reserve-floor', 'observation-failed'}
+
+
+def storage_sample(path):
+    """Sample available bytes through a pinned no-follow directory chain."""
+    path = Path(path)
+    need(path.is_absolute() and '..' not in path.parts and str(path) != '/', 'storage-path')
+    need(len(path.parts) <= 129, 'storage-depth-bound')
+    fd = os.open('/', os.O_PATH | os.O_DIRECTORY | os.O_NOFOLLOW)
+    chain = []
+    try:
+        for part in path.parts[1:]:
+            before = os.stat(part, dir_fd=fd, follow_symlinks=False)
+            need(stat.S_ISDIR(before.st_mode) and before.st_uid in (0, os.getuid()) and
+                 (not stat.S_IMODE(before.st_mode) & 0o022 or part == 'tmp' and not chain and
+                  before.st_uid == 0 and stat.S_IMODE(before.st_mode) == 0o1777), 'storage-directory')
+            child = os.open(part, os.O_PATH | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=fd)
+            after = os.fstat(child)
+            if (before.st_dev, before.st_ino) != (after.st_dev, after.st_ino):
+                os.close(child);raise BrokerError('storage-identity')
+            chain.append((fd, part, before.st_dev, before.st_ino, before.st_uid, before.st_mode));fd = child
+        info = os.fstat(fd);value = os.fstatvfs(fd)
+        need(type(value.f_bavail) is int and type(value.f_frsize) is int and
+             value.f_bavail >= 0 and value.f_frsize > 0 and
+             value.f_bavail * value.f_frsize <= STORAGE_MAX, 'storage-sample-bound')
+        for parent, part, device, inode, uid, mode in chain:
+            current = os.stat(part, dir_fd=parent, follow_symlinks=False)
+            need(stat.S_ISDIR(current.st_mode) and (current.st_dev, current.st_ino, current.st_uid, current.st_mode) == (device, inode, uid, mode), 'storage-identity')
+        return {'path': str(path), 'device': info.st_dev, 'inode': info.st_ino,
+                'free_bytes': value.f_bavail * value.f_frsize}
+    finally:
+        os.close(fd)
+        for parent, *_ in reversed(chain): os.close(parent)
+
+
+def storage_policy(private, daemon):
+    """Explicit growth policy; available-space admission does not prove fit."""
+    root_path(str(private))
+    rows = [storage_sample(private), storage_sample(daemon)]
+    need(rows[0]['path'] != rows[1]['path'] and
+         not Path(rows[0]['path']).is_relative_to(rows[1]['path']) and
+         not Path(rows[1]['path']).is_relative_to(rows[0]['path']), 'storage-path-alias')
+    shared = rows[0]['device'] == rows[1]['device']
+    if shared:
+        free = min(row['free_bytes'] for row in rows)
+        rows = [dict(row, free_bytes=free) for row in rows]
+    result = {'schema_version': 1, 'mode': 'shared' if shared else 'separate',
+              'private_limit_bytes': STORAGE_PRIVATE, 'daemon_limit_bytes': STORAGE_DAEMON,
+              'reserve_bytes': STORAGE_RESERVE, 'roots': rows}
+    storage_validate_policy(result, str(private))
+    return result
+
+
+def storage_integer(value):
+    return type(value) is int and 0 <= value <= STORAGE_MAX
+
+
+def storage_validate_policy(policy, root):
+    need(type(policy) is dict and set(policy) == {'schema_version', 'mode', 'private_limit_bytes',
+         'daemon_limit_bytes', 'reserve_bytes', 'roots'}, 'storage-policy-schema')
+    need(type(policy['schema_version']) is int and policy['schema_version'] == 1 and
+         type(policy['mode']) is str and policy['mode'] in ('shared', 'separate') and
+         type(policy['private_limit_bytes']) is int and policy['private_limit_bytes'] == STORAGE_PRIVATE and
+         type(policy['daemon_limit_bytes']) is int and policy['daemon_limit_bytes'] == STORAGE_DAEMON and
+         type(policy['reserve_bytes']) is int and policy['reserve_bytes'] == STORAGE_RESERVE and
+         type(policy['roots']) is list and len(policy['roots']) == 2, 'storage-policy-schema')
+    for row in policy['roots']:
+        need(type(row) is dict and set(row) == {'path', 'device', 'inode', 'free_bytes'} and
+             type(row['path']) is str and all(storage_integer(row[key]) for key in ('device', 'inode', 'free_bytes')),
+             'storage-policy-root')
+        path = Path(row['path'])
+        need(path.is_absolute() and str(path) == row['path'] and '..' not in path.parts and str(path) != '/', 'storage-path')
+    first, second = policy['roots']
+    need(first['path'] == root and first['path'] != second['path'] and
+         (first['device'], first['inode']) != (second['device'], second['inode']) and
+         not Path(first['path']).is_relative_to(second['path']) and
+         not Path(second['path']).is_relative_to(first['path']), 'storage-path-alias')
+    shared = first['device'] == second['device']
+    need(shared == (policy['mode'] == 'shared') and (not shared or first['free_bytes'] == second['free_bytes']), 'storage-policy-device')
+
+
+def storage_rows(policy):
+    roots = policy['roots']
+    selected = [roots[0]] if policy['mode'] == 'shared' else roots
+    roles = ['shared'] if policy['mode'] == 'shared' else ['private', 'daemon']
+    return [{'role': role, 'device': row['device'], 'baseline_free_bytes': row['free_bytes'],
+             'current_free_bytes': row['free_bytes'], 'peak_growth_bytes': 0,
+             'growth_limit_bytes': STORAGE_PRIVATE + STORAGE_DAEMON if role == 'shared' else STORAGE_PRIVATE,
+             'reserve_bytes': STORAGE_RESERVE} for role, row in zip(roles, selected)]
+
+
+def storage_state(c):
+    policy = c['storage_policy'];storage_validate_policy(policy, c['root'])
+    return {'schema_version': 1, 'nonce': c['nonce'], 'controller_sha256': c['_sha256'],
+            'policy_sha256': sha(json.dumps(policy, sort_keys=True, separators=(',', ':')).encode()),
+            'mode': policy['mode'], 'latched': False, 'reason': 'none', 'filesystems': storage_rows(policy)}
+
+
+def storage_validate_state(c, state):
+    expected = storage_state(c)
+    need(type(state) is dict and set(state) == set(expected) and
+         all(type(state[key]) is type(expected[key]) and state[key] == expected[key]
+             for key in ('schema_version', 'nonce', 'controller_sha256', 'policy_sha256', 'mode')) and
+         type(state['latched']) is bool and type(state['reason']) is str and state['reason'] in STORAGE_REASONS and
+         state['latched'] == (state['reason'] != 'none') and type(state['filesystems']) is list and
+         len(state['filesystems']) == len(expected['filesystems']), 'storage-state-binding')
+    for row, initial in zip(state['filesystems'], expected['filesystems']):
+        need(type(row) is dict and set(row) == set(initial) and
+             type(row['role']) is str and row['role'] == initial['role'] and
+             all(storage_integer(row[key]) for key in row if key != 'role') and
+             all(row[key] == initial[key] for key in ('device', 'baseline_free_bytes', 'growth_limit_bytes', 'reserve_bytes')) and
+             max(0, row['baseline_free_bytes'] - row['current_free_bytes']) <= row['peak_growth_bytes'] <= row['baseline_free_bytes'], 'storage-state-schema')
+    witnesses = {'baseline-floor': any(row['baseline_free_bytes'] < row['growth_limit_bytes'] + row['reserve_bytes'] for row in state['filesystems']),
+                 'growth-limit': any(row['peak_growth_bytes'] > row['growth_limit_bytes'] for row in state['filesystems']),
+                 'reserve-floor': any(row['peak_growth_bytes'] > max(0, row['baseline_free_bytes'] - row['reserve_bytes']) for row in state['filesystems']),
+                 'observation-failed': True, 'none': True}
+    need(witnesses[state['reason']] and (state['latched'] or not any(
+         row['baseline_free_bytes'] < row['growth_limit_bytes'] + row['reserve_bytes'] or
+         row['peak_growth_bytes'] > row['growth_limit_bytes'] or row['current_free_bytes'] < row['reserve_bytes']
+         for row in state['filesystems'])), 'storage-state-latch')
+    return state
+
+
+@contextmanager
+def storage_locked(c, initialize=False):
+    root_path(c['root']);storage_validate_policy(c['storage_policy'], c['root'])
+    root = os.open(c['root'], os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+    fd = None
+    try:
+        pinned = c['storage_policy']['roots'][0];info = os.fstat(root)
+        need((info.st_dev, info.st_ino) == (pinned['device'], pinned['inode']) and
+             info.st_uid == os.getuid() and stat.S_IMODE(info.st_mode) == 0o700, 'storage-root-identity')
+        flags = os.O_RDWR | os.O_NOFOLLOW | os.O_NONBLOCK
+        # Existing lock is the initialization marker: missing state is never reset.
+        fd = os.open('storage.lock', flags | (os.O_CREAT | os.O_EXCL if initialize else 0), 0o600, dir_fd=root)
+        info = os.fstat(fd)
+        need(stat.S_ISREG(info.st_mode) and info.st_nlink == 1 and info.st_uid == os.getuid() and
+             stat.S_IMODE(info.st_mode) == 0o600, 'storage-lock-owner')
+        deadline = time.monotonic() + 5
+        while True:
+            try: fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB);break
+            except BlockingIOError:
+                need(time.monotonic() < deadline, 'storage-lock-deadline');time.sleep(.01)
+        def verify():
+            current = os.stat('storage.lock', dir_fd=root, follow_symlinks=False)
+            need((current.st_dev, current.st_ino) == (info.st_dev, info.st_ino), 'storage-lock-identity')
+            current = os.stat(c['root'], follow_symlinks=False)
+            need(stat.S_ISDIR(current.st_mode) and (current.st_dev, current.st_ino) ==
+                 (pinned['device'], pinned['inode']), 'storage-root-identity')
+        verify()
+        # Descriptor alias anchors atomic state writes to the opened directory.
+        yield Path('/proc/self/fd') / str(root) / 'storage-state.json'
+        verify()
+    finally:
+        if fd is not None: os.close(fd)
+        os.close(root)
+
+
+def storage_observe(c, state):
+    try:
+        samples = [storage_sample(row['path']) for row in c['storage_policy']['roots']]
+        for sample, pinned in zip(samples, c['storage_policy']['roots']):
+            need(type(sample) is dict and set(sample) == set(pinned) and
+                 all(storage_integer(sample[key]) for key in ('device', 'inode', 'free_bytes')) and
+                 all(sample[key] == pinned[key] for key in ('path', 'device', 'inode')), 'storage-identity')
+        free = [min(row['free_bytes'] for row in samples)] if state['mode'] == 'shared' else [row['free_bytes'] for row in samples]
+        for row, available in zip(state['filesystems'], free):
+            row['current_free_bytes'] = available
+            row['peak_growth_bytes'] = max(row['peak_growth_bytes'], max(0, row['baseline_free_bytes'] - available))
+            reason = 'reserve-floor' if available < row['reserve_bytes'] else 'growth-limit' if row['peak_growth_bytes'] > row['growth_limit_bytes'] else 'none'
+            if reason != 'none' and not state['latched']: state.update(latched=True, reason=reason)
+    except (OSError, ValueError, KeyError, TypeError):
+        if not state['latched']: state.update(latched=True, reason='observation-failed')
+    return state
+
+
+def storage_initialize(c):
+    with storage_locked(c, initialize=True) as path:
+        need(not path.exists() and not path.is_symlink(), 'storage-state-nonfresh')
+        state = storage_state(c)
+        if any(row['baseline_free_bytes'] < row['growth_limit_bytes'] + row['reserve_bytes'] for row in state['filesystems']):
+            state.update(latched=True, reason='baseline-floor')
+        storage_observe(c, state);save(path, state)
+        need(not state['latched'], 'docker-storage-budget')
+    return storage_projection(c)
+
+
+@contextmanager
+def storage_admission(c):
+    """Hold admission through spawn/registration, never through command wait."""
+    with storage_locked(c) as path:
+        state = storage_validate_state(c, load(regular(path, 8192, private=True)))
+        storage_observe(c, state);save(path, state)
+        need(not state['latched'], 'docker-storage-budget')
+        yield {key: state[key] for key in ('mode', 'latched', 'reason', 'filesystems')}
+
+
+def storage_check(c, create=False):
+    need(type(create) is bool, 'storage-create-type')
+    with storage_admission(c) as state: return state
+
+
+def storage_projection(c):
+    with storage_locked(c) as path:
+        state = storage_validate_state(c, load(regular(path, 8192, private=True)))
+    return {key: state[key] for key in ('mode', 'latched', 'reason', 'filesystems')}
+
+
 def load_controller(path, expected, allow_expired=False):
     need(os.getuid() == os.geteuid() > 0 and os.getgid() == os.getegid() > 0, 'ordinary-user-required')
     need(type(expected) is str and re.fullmatch('[0-9a-f]{64}', expected), 'controller-pin')
     data = regular(path, private=True)
     need(sha(data) == expected, 'controller-pin-drift')
     c = load(data)
-    need(type(c) is dict and set(c) == {'schema_version', 'nonce', 'root', 'real_docker', 'real_docker_sha256', 'docker_endpoint', 'docker_socket_identity', 'deadline_monotonic'}, 'controller-schema')
+    need(type(c) is dict and set(c) == {'schema_version', 'nonce', 'root', 'real_docker', 'real_docker_sha256', 'docker_endpoint', 'docker_socket_identity', 'deadline_monotonic', 'storage_policy'}, 'controller-schema')
     need(type(c['schema_version']) is int and c['schema_version'] == 1 and
          type(c['nonce']) is str and re.fullmatch('[0-9a-f]{32}', c['nonce']), 'controller-identity')
     root_path(c['root'])
+    storage_validate_policy(c['storage_policy'], c['root'])
     under(c, str(path))
     need(c['docker_endpoint'] in ('unix:///run/docker.sock', 'unix:///var/run/docker.sock'), 'fixed-local-endpoint')
     need(type(c['deadline_monotonic']) in (int, float) and math.isfinite(c['deadline_monotonic']) and
@@ -312,10 +525,13 @@ def execute(c, args, signals, capture=False, seconds=COMMAND_SECONDS, honor_canc
     try:
         prior = signal.pthread_sigmask(signal.SIG_BLOCK, signals.signals)
         try:
-            process = subprocess.Popen(command, stdout=subprocess.PIPE if capture else None,
-                stderr=subprocess.DEVNULL if capture else None, env=env, start_new_session=True,
-                preexec_fn=lambda: signal.pthread_sigmask(signal.SIG_SETMASK, prior))
-            c['_client_started'](client, process.pid)  # Durable generation before unmask/wait.
+            with storage_admission(c) if args[0] in ('build', 'run') else nullcontext():
+                need(time.monotonic() < deadline, 'command-deadline')
+                if honor_cancel: need(not signals.seen and not (signal.sigpending() & signals.signals), 'cancelled')
+                process = subprocess.Popen(command, stdout=subprocess.PIPE if capture else None,
+                    stderr=subprocess.DEVNULL if capture else None, env=env, start_new_session=True,
+                    preexec_fn=lambda: signal.pthread_sigmask(signal.SIG_SETMASK, prior))
+                c['_client_started'](client, process.pid)  # Durable generation before unmask/wait.
         finally: signal.pthread_sigmask(signal.SIG_SETMASK, prior)
         with selectors.DefaultSelector() as selector:
             if capture:
@@ -450,6 +666,7 @@ def plan(c, args, data):
 
 def invoke(controller, args):
     c = load_controller(controller['_path'], controller['_sha256'])
+    if type(args) is list and args and args[0] in ('build', 'run'): storage_check(c, create=True)
     with Signals() as signals:
         with registry(c, c['deadline_monotonic'], signals) as (data, persist):
             rewritten, resource = plan(c, args, data)
@@ -468,6 +685,7 @@ def invoke(controller, args):
             persist()  # Durable resource intent before any mutating command.
             try:
                 seconds = COMMAND_SECONDS if args[0] == 'build' or args[0] == 'run' and '--rm' not in args else 60
+                if args[0] in ('build', 'run'): storage_check(c, create=True)
                 code, _ = execute(c, rewritten, signals, seconds=seconds)
                 record.update(status='PASS' if code == 0 else 'FAIL', exit_code=code)
                 if resource and resource[0] == 'build':
@@ -534,6 +752,12 @@ def _cleanup(root, nonce, realDocker, endpoint, deadline):
                     need(image not in ids, 'image-remains')
                     row['absence_verified'] = True
                     receipt['images_absent'] += 1
+                except FileNotFoundError: receipt['failures'].append('image-id-missing')
+                except BrokerError as error:
+                    receipt['failures'].append({'build-iid-invalid': 'image-id-invalid',
+                        'build-iid-drift': 'image-id-drift', 'image-label-mismatch': 'image-owner-unverified',
+                        'docker-query-failed': 'image-daemon-query-failed', 'image-remains': 'image-remains'
+                        }.get(error.code, 'image-cleanup-ambiguous'))
                 except (OSError, ValueError, KeyError): receipt['failures'].append('image-cleanup-ambiguous')
             persist()
     if signals.seen: receipt['failures'].append('cleanup-cancelled')

@@ -42,6 +42,7 @@ class StageTests(unittest.TestCase):
         self.storage = self.base / 'docker-storage'; self.storage.mkdir(mode=0o700)
         self.rows = {}; self.commands = []; self.guard_inputs = []; self.cleanup_calls = []
         self.mode = 'pass'; self.source_drift = False; self.project_fail = False; self.guard_fail = False
+        self.create_gpg = False; self.gpg_status = 'PASS'; self.docker_status = 'PASS'
         self.put(PREFIX + 'stage.py', STAGE_BYTES)
         for name in ('runtime.py', 'source.py'):
             self.put(PREFIX + name, (HERE / name).read_bytes())
@@ -60,7 +61,16 @@ class StageTests(unittest.TestCase):
         self.actual_selector = self.original_module(self.root / (stage.PACKAGE + 'public-evidence.py'))
         self.actual_bundle = self.original_module(self.root / 'scripts/ci/log_evidence.py')
         self.source = types.SimpleNamespace(verify=self.verify_source)
-        self.broker = types.SimpleNamespace(cleanup=self.broker_cleanup)
+        self.actual_broker = self.original_module(HERE / 'broker.py')
+        self.broker = types.SimpleNamespace(cleanup=self.broker_cleanup,
+                                           BrokerError=self.actual_broker.BrokerError,
+                                           load_controller=self.broker_controller)
+        for name in ('storage_policy', 'storage_initialize', 'storage_check', 'storage_projection'):
+            setattr(self.broker, name, lambda *args, _name=name, **kwargs:
+                    getattr(self.actual_broker, _name)(*args, **kwargs))
+        sampler = mock.patch.object(self.actual_broker, 'storage_sample',
+                                    side_effect=self.storage_sample, create=True)
+        sampler.start(); self.addCleanup(sampler.stop)
         self.tool_rows = {}
         for name in ('python', 'docker', 'git', 'gpg', 'gpgconf'):
             path = self.base / ('fixture-' + name); path.write_bytes(b'never executed tool ' + name.encode())
@@ -134,7 +144,22 @@ class StageTests(unittest.TestCase):
         self.cleanup_calls.append((private, nonce))
         self.assertTrue(private.is_dir())
         self.assertIn((str(private.parent), private.name, nonce), self.runtime._REGISTERED)
-        return {'status': 'PASS', 'containers_absent': True, 'images_absent': True}
+        return {'status': self.docker_status, 'containers_absent': True,
+                'images_absent': self.docker_status == 'PASS',
+                'failures': [] if self.docker_status == 'PASS' else
+                            ['image-cleanup-ambiguous', 'image-id-missing']}
+
+    def storage_sample(self, path):
+        info = Path(path).stat()
+        return {'path': str(path), 'device': info.st_dev, 'inode': info.st_ino,
+                'free_bytes': 64 * 1024**3}
+
+    def broker_controller(self, path, expected, allow_expired=False):
+        # Synthetic host authentication only; state binding/projection is real.
+        path = Path(path); self.assertEqual(stage.digest(path.read_bytes()), expected)
+        self.assertTrue(allow_expired)
+        result = stage.load(path); result.update(_path=str(path), _sha256=expected)
+        return result
 
     def process_receipt(self, status='PASS'):
         return self.runtime.Receipt(kind='process-lifecycle', schema_version=1, status=status,
@@ -196,6 +221,7 @@ class StageTests(unittest.TestCase):
             stage.save(root / 'result.json', {'schema_version': 1, 'native_pair': 'FAIL' if failed else 'PASS',
                                              'stage': 'finalized', 'argv': [POISON.decode()]})
             (root / 'raw-build.log').write_bytes(POISON)
+            if self.create_gpg: (root / 'gpg').mkdir(mode=0o700)
             if failed: raise self.runtime.RuntimeFailure(self.process_receipt('FAIL'))
         elif phase in ('public-projection', 'public-guard', 'public-bundle'):
             operation = argv[argv.index('--operation') + 1]
@@ -222,6 +248,7 @@ class StageTests(unittest.TestCase):
             stage.save(stdout, {'status': 'PASS', 'operation': operation})
         else:
             self.assertEqual(phase, 'gpg-cleanup')
+            return self.process_receipt(self.gpg_status)
         return self.process_receipt()
 
     def pipeline(self):
@@ -409,6 +436,250 @@ class StageTests(unittest.TestCase):
         owner = stage.load(self.output / 'ownership.json')
         self.assertTrue(owner['children'])
         self.assertTrue(all(row['complete'] for row in owner['children']))
+
+    def test_docker_ambiguity_does_not_skip_scoped_gpg_or_delete_private_data(self):
+        self.create_gpg = True; self.docker_status = 'FAIL'
+        result = self.pipeline()
+        self.assertEqual(result['status'], 'FAIL')
+        self.assertEqual(result['process_cleanup_status'], 'PASS')
+        self.assertEqual(result['docker_cleanup_status'], 'FAIL')
+        self.assertEqual(result['gpg_cleanup_status'], 'PASS')
+        self.assertEqual(result['private_cleanup_status'], 'NOT RUN')
+        self.assertIn('gpg-cleanup', self.commands)
+        self.assertIn('image-cleanup-ambiguous', result['cleanup_reasons'])
+        self.assertIn('image-id-missing', result['cleanup_reasons'])
+        self.assertIn('private-removal-blocked', result['cleanup_reasons'])
+        self.assertFalse(result['private_data_removed'])
+        self.assertEqual((self.output / 'private/native/raw-build.log').read_bytes(), POISON)
+        self.assertEqual(result['daemon_disposal_status'], 'NOT ATTESTED')
+        public = self.terminal()[0]
+        self.assertEqual(public['cleanup_reasons'], result['cleanup_reasons'])
+        self.assertIn('image-id-missing', public['cleanup_reasons'])
+        self.assertNotIn(POISON.decode(), json.dumps(public))
+
+    def test_process_failure_still_attempts_docker_and_scoped_gpg_preserving_private(self):
+        self.create_gpg = True
+        with mock.patch.object(stage, 'stop_record', return_value={'status': 'FAIL', 'group_absent': False}):
+            result = self.pipeline()
+        self.assertEqual(result['status'], 'FAIL')
+        self.assertEqual(result['process_cleanup_status'], 'FAIL')
+        self.assertEqual(result['docker_cleanup_status'], 'PASS')
+        self.assertEqual(result['gpg_cleanup_status'], 'PASS')
+        self.assertTrue(self.cleanup_calls); self.assertIn('gpg-cleanup', self.commands)
+        self.assertIn('process-group-unverified', result['cleanup_reasons'])
+        self.assertFalse(result['private_data_removed']); self.assertTrue((self.output / 'private').is_dir())
+
+    def test_gpg_failure_aggregates_without_replacing_first_runtime_failure(self):
+        self.create_gpg = True; self.gpg_status = 'FAIL'; self.docker_status = 'FAIL'
+        original = self.fake_run
+        def failed_native(*args, **kwargs):
+            result = original(*args, **kwargs)
+            if args[1].stem == 'native-pair':
+                raise self.runtime.RuntimeFailure(self.process_receipt('FAIL'))
+            return result
+        result = stage.pipeline(self.root, self.controller, self.controller_sha, self.output, runner=failed_native)
+        self.assertEqual(result['status'], 'FAIL')
+        self.assertEqual(result['gpg_cleanup_status'], 'FAIL')
+        self.assertEqual(result['failed_phase'], 'native-pair')
+        self.assertEqual(result['runtime_reason'], 'process-failed')
+        self.assertEqual(result['failure_class'], 'RuntimeFailure')
+        self.assertEqual(result['cleanup_reasons'], sorted(set(result['cleanup_reasons'])))
+        self.assertIn('gpg-process-unverified', result['cleanup_reasons'])
+        self.assertIn('image-cleanup-ambiguous', result['cleanup_reasons'])
+        self.assertFalse(result['private_data_removed'])
+
+    def test_gpg_pass_without_group_absence_attestation_blocks_private_removal(self):
+        self.create_gpg = True
+        def unverified_gpg(*args, **kwargs):
+            item = self.fake_run(*args, **kwargs)
+            if args[1].stem == 'gpg-cleanup': item['group_absent'] = False
+            return item
+        result = stage.pipeline(self.root, self.controller, self.controller_sha, self.output, runner=unverified_gpg)
+        self.assertEqual(result['status'], 'FAIL')
+        self.assertEqual(result['gpg_cleanup_status'], 'FAIL')
+        self.assertIn('gpg-process-unverified', result['cleanup_reasons'])
+        self.assertIn('private-removal-blocked', result['cleanup_reasons'])
+        self.assertFalse(result['private_data_removed']); self.assertTrue((self.output / 'private').is_dir())
+
+    def test_repeated_real_runtime_cancellation_keeps_ambiguous_private_and_foreign_state(self):
+        foreign = self.base / 'foreign-state'; foreign.write_bytes(b'foreign state')
+        self.docker_status = 'FAIL'; real_receipts = []; real_groups = []
+        def cancelled_worker(argv, stdout, stderr, deadline, env, cwd, **kwargs):
+            if stdout.stem != 'materialize':
+                return self.fake_run(argv, stdout, stderr, deadline, env, cwd, **kwargs)
+            fixture_options = {k: v for k, v in kwargs.items() if k != 'on_spawn'}
+            self.fake_run(argv, stdout, stderr, deadline, env, cwd, **fixture_options)
+            stdout.unlink(); stderr.unlink(); fired = False
+            def cancel_tick():
+                nonlocal fired
+                if not fired:
+                    fired = True; os.kill(os.getpid(), signal.SIGTERM)
+            def register(identity):
+                real_groups.append(identity['group'])
+                if kwargs.get('on_spawn'): kwargs['on_spawn'](identity)
+            try:
+                return self.runtime.run_process([sys.executable, '-I', '-B', '-c',
+                                                 'import time;time.sleep(1)'],
+                                                stdout, stderr, min(deadline, time.monotonic() + 3),
+                                                env, cwd, on_tick=cancel_tick, on_spawn=register)
+            except self.runtime.RuntimeCancelled as error:
+                real_receipts.append(error.receipt); raise
+        for index in range(2):
+            self.output = self.base / ('cancel-evidence-' + str(index))
+            result = stage.pipeline(self.root, self.controller, self.controller_sha, self.output,
+                                    runner=cancelled_worker)
+            self.assertEqual(result['status'], 'FAIL'); self.assertTrue(result['cancelled'])
+            self.assertEqual(result['failed_phase'], 'materialize')
+            self.assertEqual(result['runtime_reason'], 'cancelled')
+            self.assertEqual(result['process_cleanup_status'], 'PASS')
+            self.assertEqual(result['docker_cleanup_status'], 'FAIL')
+            self.assertFalse(result['private_data_removed'])
+            self.assertEqual((self.output / 'private/materialized/private-cache/original.tar.gz').read_bytes(), POISON)
+            self.assertEqual(foreign.read_bytes(), b'foreign state')
+            self.assertEqual(self.terminal()[0]['status'], 'FAIL')
+        self.assertEqual(len(real_receipts), 2)
+        self.assertEqual(len(real_groups), 2)
+        for group in real_groups:
+            with self.assertRaises(ProcessLookupError): os.killpg(group, 0)
+        for receipt in real_receipts:
+            self.assertEqual(receipt['status'], 'CANCELLED')
+            self.assertTrue(receipt['group_absent'])
+            self.assertEqual(receipt['cancelled_signals'], [int(signal.SIGTERM)])
+
+    def test_closed_cleanup_projection_refuses_partial_unknown_or_secret_fields(self):
+        valid = {'process_cleanup_status': 'PASS', 'docker_cleanup_status': 'FAIL',
+                 'gpg_cleanup_status': 'PASS', 'private_cleanup_status': 'NOT RUN',
+                 'daemon_disposal_status': 'NOT ATTESTED',
+                 'cleanup_reasons': ['image-cleanup-ambiguous', 'private-removal-blocked']}
+        self.assertEqual(stage.public_summary(valid), valid)
+        invalid = [{k: v for k, v in valid.items() if k != missing} for missing in valid]
+        for key, value in [('process_cleanup_status', POISON.decode()),
+                           ('docker_cleanup_status', True), ('gpg_cleanup_status', 'UNKNOWN'),
+                           ('private_cleanup_status', 'CANCELLED'), ('daemon_disposal_status', 'PASS'),
+                           ('cleanup_reasons', [POISON.decode()]),
+                           ('cleanup_reasons', ['image-cleanup-ambiguous'] * 2),
+                           ('cleanup_reasons', ['private-removal-blocked', 'image-cleanup-ambiguous'])]:
+            item = copy.deepcopy(valid); item[key] = value; invalid.append(item)
+        for item in invalid:
+            with self.subTest(item=item), self.assertRaises(ValueError): stage.public_summary(item)
+
+    def test_public_storage_projection_is_pathless_and_rejects_malformed_scalars(self):
+        gib = 1024**3
+        row = {'role': 'shared', 'device': 1, 'baseline_free_bytes': 30*gib,
+               'current_free_bytes': 21*gib, 'peak_growth_bytes': 9*gib,
+               'growth_limit_bytes': 16*gib, 'reserve_bytes': 2*gib}
+        valid = {'mode': 'shared', 'latched': False, 'reason': 'none', 'filesystems': [row]}
+        self.assertEqual(stage.public_summary({'storage': valid}), {'storage': valid})
+        invalid = [{k: v for k, v in valid.items() if k != missing} for missing in valid]
+        for key, value in [('mode', POISON.decode()), ('latched', 1), ('reason', POISON.decode()),
+                           ('reason', 'growth-limit'), ('filesystems', []), ('filesystems', [row, row])]:
+            item = copy.deepcopy(valid); item[key] = value; invalid.append(item)
+        for key, value in [('device', True), ('current_free_bytes', -1), ('peak_growth_bytes', 0),
+                           ('reserve_bytes', 'secret'), ('growth_limit_bytes', 2**64), ('role', 'daemon')]:
+            item = copy.deepcopy(valid); item['filesystems'][0][key] = value; invalid.append(item)
+        item = copy.deepcopy(valid); item['filesystems'][0]['path'] = POISON.decode(); invalid.append(item)
+        for item in invalid:
+            with self.subTest(item=item), self.assertRaises(ValueError): stage.public_summary({'storage': item})
+
+    def test_public_storage_latch_requires_matching_breach_witness(self):
+        gib = 1024**3
+        valid = {'mode': 'shared', 'latched': False, 'reason': 'none', 'filesystems': [
+            {'role': 'shared', 'device': 1, 'baseline_free_bytes': 30*gib,
+             'current_free_bytes': 21*gib, 'peak_growth_bytes': 9*gib,
+             'growth_limit_bytes': 16*gib, 'reserve_bytes': 2*gib}]}
+        invalid = []
+        for changes in ({'baseline_free_bytes': 17*gib, 'current_free_bytes': 17*gib, 'peak_growth_bytes': 0},
+                        {'peak_growth_bytes': 17*gib},
+                        {'current_free_bytes': gib, 'peak_growth_bytes': 29*gib}):
+            item = copy.deepcopy(valid); item['filesystems'][0].update(changes); invalid.append(item)
+        for reason in ('growth-limit', 'reserve-floor', 'baseline-floor'):
+            item = copy.deepcopy(valid); item.update(latched=True, reason=reason); invalid.append(item)
+        for item in invalid:
+            with self.subTest(item=item), self.assertRaises(ValueError):
+                stage.public_summary({'storage': item, 'raw_env': POISON.decode()})
+        for reason, peak in (('growth-limit', 17*gib), ('reserve-floor', 29*gib)):
+            restored = copy.deepcopy(valid); restored.update(latched=True, reason=reason)
+            restored['filesystems'][0].update(current_free_bytes=30*gib, peak_growth_bytes=peak)
+            public = stage.public_summary({'storage': restored, 'raw_env': POISON.decode()})
+            self.assertEqual(public, {'storage': restored})
+            self.assertNotIn(POISON.decode(), json.dumps(public))
+
+    def test_shared_growth_nine_gibibytes_is_admitted_and_publicly_counted_once(self):
+        samples = 0; gib = 1024**3
+        def observed(path):
+            nonlocal samples
+            samples += 1; row = self.storage_sample(path)
+            row['free_bytes'] = (30 if samples <= 4 else 21)*gib
+            return row
+        def count_growth(*args, **kwargs):
+            result = self.fake_run(*args, **kwargs)
+            if args[1].stem == 'native-pair':
+                path = self.output / 'private/broker-controller.json'
+                contract = stage.load(path)
+                contract.update(_path=str(path), _sha256=stage.digest(path.read_bytes()))
+                self.actual_broker.storage_check(contract)
+            return result
+        with mock.patch.object(self.actual_broker, 'storage_sample', side_effect=observed):
+            result = stage.pipeline(self.root, self.controller, self.controller_sha, self.output, runner=count_growth)
+        self.assertEqual(result['status'], 'PASS')
+        observed = result['storage']; self.assertEqual(observed['mode'], 'shared')
+        self.assertEqual(len(observed['filesystems']), 1)
+        row = observed['filesystems'][0]
+        self.assertEqual(row['baseline_free_bytes'], 30*gib)
+        self.assertEqual(row['current_free_bytes'], 21*gib)
+        self.assertEqual(row['peak_growth_bytes'], 9*gib)
+        self.assertEqual(row['growth_limit_bytes'], 16*gib)
+        self.assertFalse(observed['latched'])
+
+    def test_insufficient_baseline_durably_refuses_before_materializer_launch(self):
+        def insufficient(path):
+            row = self.storage_sample(path); row['free_bytes'] = 17*1024**3; return row
+        with mock.patch.object(self.actual_broker, 'storage_sample', side_effect=insufficient):
+            result = self.pipeline()
+        self.assertEqual(result['status'], 'FAIL')
+        self.assertEqual([phase for phase in self.commands if phase in
+                          ('native-daemon', 'materialize', 'freeze', 'native-pair')], ['native-daemon'])
+        self.assertTrue(result['storage']['latched']); self.assertEqual(result['storage']['reason'], 'baseline-floor')
+        self.assertEqual(result['storage']['filesystems'][0]['baseline_free_bytes'], 17*1024**3)
+        self.assertTrue(result['private_data_removed'])
+        self.assertEqual(self.terminal()[0]['storage'], result['storage'])
+
+    def test_actual_storage_breach_tick_latches_and_preserves_first_failure_through_cleanup(self):
+        available = 64*1024**3; self.create_gpg = True; self.docker_status = 'FAIL'
+        def observed(path):
+            row = self.storage_sample(path); row['free_bytes'] = available; return row
+        original_tick = stage.tick_observation
+        def fake_socket(operation, action, failed):
+            if operation == 'socket-identity': return None
+            return original_tick(operation, action, failed)
+        def breach(*args, **kwargs):
+            nonlocal available
+            if args[1].stem != 'native-pair': return self.fake_run(*args, **kwargs)
+            result = self.fake_run(*args, **{k: v for k, v in kwargs.items() if k != 'on_tick'})
+            available = 46*1024**3
+            try:
+                with mock.patch.object(stage, 'tick_observation', side_effect=fake_socket): kwargs['on_tick']()
+            except ValueError:
+                item = self.process_receipt('FAIL'); item['reason_code'] = 'tick-failed'
+                raise self.runtime.RuntimeFailure(item)
+            self.fail('18GiB growth must latch and fail the real storage check')
+        with mock.patch.object(self.actual_broker, 'storage_sample', side_effect=observed):
+            result = stage.pipeline(self.root, self.controller, self.controller_sha, self.output, runner=breach)
+            path = self.output / 'private/broker-controller.json'; contract = stage.load(path)
+            contract.update(_path=str(path), _sha256=stage.digest(path.read_bytes()))
+            available = 64*1024**3
+            with self.assertRaisesRegex(ValueError, 'docker-storage-budget'):
+                self.actual_broker.storage_check(contract, create=True)
+        self.assertEqual(result['status'], 'FAIL'); self.assertFalse(result['cancelled'])
+        self.assertEqual(result['failed_phase'], 'native-pair')
+        self.assertEqual(result['runtime_reason'], 'tick-failed')
+        self.assertEqual(result['tick_operation'], 'daemon-storage')
+        self.assertEqual(result['tick_reason'], 'docker-storage-budget')
+        self.assertTrue(result['storage']['latched']); self.assertEqual(result['storage']['reason'], 'growth-limit')
+        self.assertEqual(result['storage']['filesystems'][0]['peak_growth_bytes'], 18*1024**3)
+        self.assertEqual(result['gpg_cleanup_status'], 'PASS'); self.assertIn('gpg-cleanup', self.commands)
+        self.assertFalse(result['private_data_removed'])
+        self.assertEqual(self.terminal()[0]['storage'], result['storage'])
 
     def test_partial_constructor_registration_failure_still_removes_owned_tree(self):
         original = self.runtime.owned_create
@@ -613,6 +884,57 @@ class StageTests(unittest.TestCase):
     def recovery_public(self):
         return stage.load(self.output / 'recovery-terminal-public/terminal.json')
 
+    def recovery_gpg(self, argv, stdout, stderr, deadline, env, cwd, **kwargs):
+        self.commands.append('recovery-gpg')
+        self.assertLessEqual(deadline, time.monotonic() + 15)
+        self.assertEqual(argv[-4:], ['--homedir', str(self.output / 'private/native/gpg'), '--kill', 'all'])
+        if kwargs.get('on_spawn'):
+            kwargs['on_spawn']({'pid': 2147481000, 'group': 2147481000, 'start_ticks': 2})
+        stdout.write_bytes(b''); stderr.write_bytes(POISON)
+        return self.process_receipt(self.gpg_status)
+
+    def test_repeated_recovery_docker_ambiguity_attempts_gpg_and_keeps_same_private_identity(self):
+        raw = self.recovery_fixture(); private = self.output / 'private'
+        (private / 'native/gpg').mkdir(parents=True, mode=0o700)
+        (private / 'logs').mkdir(mode=0o700)
+        original = private.stat(); self.docker_status = 'FAIL'
+        for _ in range(2):
+            with mock.patch.object(self.runtime, 'run_process', side_effect=self.recovery_gpg):
+                result = self.recover()
+            self.assertEqual(result['status'], 'FAIL'); self.assertFalse(result['private_data_removed'])
+            self.assertEqual(result['docker_cleanup_status'], 'FAIL')
+            self.assertEqual(result['gpg_cleanup_status'], 'PASS')
+            self.assertIn('image-cleanup-ambiguous', result['cleanup_reasons'])
+            self.assertEqual((private.stat().st_dev, private.stat().st_ino), (original.st_dev, original.st_ino))
+            self.assertEqual(raw.read_bytes(), POISON)
+            self.owner = stage.load(self.output / 'ownership.json')
+            self.owner_sha = stage.digest((self.output / 'ownership.json').read_bytes())
+            self.assertFalse(self.owner['cleanup_verified']); self.assertFalse(self.owner['private_removed'])
+            self.assertEqual(self.recovery_public()['status'], 'FAIL')
+        self.assertEqual(self.commands, ['recovery-gpg', 'recovery-gpg'])
+        self.assertEqual(len(self.cleanup_calls), 2)
+
+    def test_recovery_invalid_established_storage_state_stays_fail_after_attested_private_removal(self):
+        for fault in ('missing', 'malformed'):
+            with self.subTest(fault=fault):
+                self.output = self.base / ('invalid-storage-' + fault)
+                raw = self.recovery_fixture(); private = self.output / 'private'
+                contract = {'root': str(private), 'nonce': self.owner['nonce'],
+                            'storage_policy': self.actual_broker.storage_policy(private, self.storage)}
+                path = private / 'broker-controller.json'; stage.save(path, contract)
+                contract.update(_path=str(path), _sha256=stage.digest(path.read_bytes()))
+                self.actual_broker.storage_initialize(contract)
+                state = private / 'storage-state.json'
+                if fault == 'missing': state.unlink()
+                else: stage.save(state, {'secret': POISON.decode()})
+                result = self.recover()
+                self.assertEqual(result['status'], 'FAIL'); self.assertTrue(result['private_data_removed'])
+                self.assertEqual(result['cleanup_status'], 'PASS')
+                self.assertIn('storage-observation-unverified', result['cleanup_reasons'])
+                self.assertFalse(raw.exists()); self.assertFalse(private.exists())
+                public = self.recovery_public(); self.assertEqual(public['status'], 'FAIL')
+                self.assertNotIn(POISON.decode(), json.dumps(public))
+
     def test_recovery_original_stage_alive_refuses_before_docker_or_delete(self):
         raw = self.recovery_fixture()
         with self.assertRaisesRegex(ValueError, 'original-stage-still-active'):
@@ -724,7 +1046,9 @@ class StageTests(unittest.TestCase):
         self.owner_sha = stage.digest((self.output / 'ownership.json').read_bytes())
         result = self.recover()
         self.assertEqual(result['status'], 'FAIL'); self.assertEqual(raw.read_bytes(), POISON)
-        self.assertFalse(self.cleanup_calls); self.assertFalse(result['private_data_removed'])
+        self.assertTrue(self.cleanup_calls); self.assertFalse(result['private_data_removed'])
+        self.assertEqual(result['process_cleanup_status'], 'FAIL')
+        self.assertIn('process-ownership-unverified', result['cleanup_reasons'])
 
     def test_registration_failure_does_not_rewrite_previous_child_attestation(self):
         self.mode = 'registration-fail'; result = self.pipeline()

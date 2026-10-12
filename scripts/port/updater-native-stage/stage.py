@@ -24,7 +24,9 @@ BUDGET = {'total_seconds':6900, 'raw_retention_seconds':7100, 'materialize_secon
           'freeze_seconds':120, 'native_seconds':5400, 'projection_seconds':60,
           'export_seconds':60, 'cleanup_seconds':180, 'private_bytes':8*1024**3,
           'private_members':200000, 'source_bytes':32*1024**2,
-          'minimum_output_free_bytes':10*1024**3, 'minimum_docker_free_bytes':8*1024**3}
+          'minimum_output_free_bytes':10*1024**3, 'minimum_docker_free_bytes':10*1024**3,
+          'shared_growth_bytes':16*1024**3, 'filesystem_growth_bytes':8*1024**3,
+          'remaining_reserve_bytes':2*1024**3}
 ENDPOINT = 'unix:///run/docker.sock'
 
 
@@ -318,12 +320,14 @@ def disk_check(root,expected_identity=None):
         for _,_,fd,_ in reversed(chain):os.close(fd)
 
 
-def environment(private,contract):
-    return {'PATH':str(private/'bin')+':/usr/bin:/bin','HOME':str(private/'home'),
+def environment(private,contract,broker_ready=True):
+    value={'PATH':str(private/'bin')+':/usr/bin:/bin','HOME':str(private/'home'),
             'LC_ALL':'C.UTF-8','TZ':'UTC','PYTHONDONTWRITEBYTECODE':'1','PYTHONNOUSERSITE':'1',
-            'DOCKER_HOST':ENDPOINT,'DOCKER_CONTEXT':'default',
-            'CACHY_ASAHI_BROKER_CONTROLLER':str(private/'broker-controller.json'),
-            'CACHY_ASAHI_BROKER_CONTROLLER_SHA256':digest(regular(private/'broker-controller.json'))}
+            'DOCKER_HOST':ENDPOINT,'DOCKER_CONFIG':str(private/'docker-config')}
+    if broker_ready:
+        value.update(CACHY_ASAHI_BROKER_CONTROLLER=str(private/'broker-controller.json'),
+                     CACHY_ASAHI_BROKER_CONTROLLER_SHA256=digest(regular(private/'broker-controller.json')))
+    return value
 
 
 def scoped_gpg_home(private):
@@ -496,6 +500,60 @@ def tick_observation(operation,action,failed):
         raise
 
 
+CLEANUP_REASONS=frozenset({'process-ownership-unverified','process-group-unverified',
+    'cleanup-validation-or-daemon-failure','client-launch-ambiguous','client-group-ambiguous',
+    'container-cleanup-unverified','image-cleanup-ambiguous','image-id-missing','image-id-invalid','image-id-drift',
+    'image-owner-unverified','image-daemon-query-failed','image-remains','cleanup-cancelled','docker-cleanup-unverified',
+    'gpg-home-unverified','gpg-process-unverified','private-removal-unverified','private-removal-blocked',
+    'retention-budget-exceeded','storage-observation-unverified'})
+CLEANUP_FIELDS=frozenset({'process_cleanup_status','docker_cleanup_status','gpg_cleanup_status',
+                         'private_cleanup_status','daemon_disposal_status','cleanup_reasons'})
+
+
+def cleanup_projection(value):
+    fields=set(value) & CLEANUP_FIELDS
+    if not fields:return {}
+    need(fields==CLEANUP_FIELDS,'cleanup-field-set')
+    for name in CLEANUP_FIELDS-{'daemon_disposal_status','cleanup_reasons'}:
+        need(type(value[name]) is str and value[name] in ('PASS','FAIL','NOT RUN'),'cleanup-status-enum')
+    need(type(value['daemon_disposal_status']) is str and value['daemon_disposal_status']=='NOT ATTESTED','cleanup-disposal-enum')
+    reasons=value['cleanup_reasons']
+    need(type(reasons) is list and len(reasons)<=len(CLEANUP_REASONS) and
+         all(type(v) is str and v in CLEANUP_REASONS for v in reasons) and
+         reasons==sorted(set(reasons)),'cleanup-reason-enum')
+    return {name:value[name] for name in fields}
+
+
+def storage_projection(value):
+    need(type(value) is dict and set(value)=={'mode','latched','reason','filesystems'},'storage-public-schema')
+    need(type(value['mode']) is str and value['mode'] in ('shared','separate') and
+         type(value['latched']) is bool and type(value['reason']) is str and
+         value['reason'] in ('none','growth-limit','reserve-floor','observation-failed','baseline-floor') and
+         value['latched']==(value['reason']!='none'),'storage-public-enum')
+    rows=value['filesystems'];roles=['shared'] if value['mode']=='shared' else ['private','daemon']
+    need(type(rows) is list and len(rows)==len(roles),'storage-public-count')
+    fields={'role','baseline_free_bytes','current_free_bytes','peak_growth_bytes',
+            'growth_limit_bytes','reserve_bytes','device'}
+    for row,role in zip(rows,roles):
+        need(type(row) is dict and set(row)==fields and type(row['role']) is str and row['role']==role,
+             'storage-public-row')
+        need(all(type(row[k]) is int and 0<=row[k]<=2**63-1 for k in fields-{'role'}),'storage-public-scalar')
+        need(row['growth_limit_bytes']==BUDGET['shared_growth_bytes' if role=='shared' else 'filesystem_growth_bytes']
+             and row['reserve_bytes']==BUDGET['remaining_reserve_bytes'] and
+             max(0,row['baseline_free_bytes']-row['current_free_bytes'])<=row['peak_growth_bytes']<=row['baseline_free_bytes'],
+             'storage-public-bound')
+    if len(rows)==2:need(rows[0]['device']!=rows[1]['device'],'storage-public-devices')
+    witness={'none':all(row['baseline_free_bytes']>=row['growth_limit_bytes']+row['reserve_bytes'] and
+                       row['peak_growth_bytes']<=row['growth_limit_bytes'] and row['current_free_bytes']>=row['reserve_bytes']
+                       for row in rows),
+             'baseline-floor':any(row['baseline_free_bytes']<row['growth_limit_bytes']+row['reserve_bytes'] for row in rows),
+             'growth-limit':any(row['peak_growth_bytes']>row['growth_limit_bytes'] for row in rows),
+             'reserve-floor':any(row['peak_growth_bytes']>max(0,row['baseline_free_bytes']-row['reserve_bytes']) for row in rows),
+             'observation-failed':True}
+    need(witness[value['reason']],'storage-public-latch')
+    return value
+
+
 def public_summary(receipt):
     """Fixed scalar/hash/typed lifecycle fields; no host paths, argv or raw logs."""
     allowed=('schema_version','status','phase','controller_sha256','ready_sha256','source_commit',
@@ -503,7 +561,8 @@ def public_summary(receipt):
              'failure_class','private_data_removed','raw_retention_within_budget','cleanup_status',
              'cancelled','public_bundle_sha256')
     result={k:receipt[k] for k in allowed if k in receipt}
-    result.update(diagnostic_projection(receipt))
+    result.update(diagnostic_projection(receipt));result.update(cleanup_projection(receipt))
+    if 'storage' in receipt:result['storage']=storage_projection(receipt['storage'])
     return result
 
 
@@ -568,6 +627,73 @@ def publish_terminal(output,receipt,guard,revision,prefix='terminal'):
         raise
 
 
+def owned_cleanup(owner,output,private,contract,runtime,broker,runner,deadline,env,receipt,cancelled,recovery=False):
+    """Attempt each authenticated scope; ambiguity still prevents raw removal."""
+    receipt.update(process_cleanup_status='NOT RUN',docker_cleanup_status='NOT RUN',gpg_cleanup_status='NOT RUN',
+                   private_cleanup_status='NOT RUN',daemon_disposal_status='NOT ATTESTED',cleanup_reasons=[])
+    reasons=set()
+    def failed(error,reason,phase=None):
+        reasons.add(reason)
+        if type(error).__name__ in ('RuntimeCancelled','KeyboardInterrupt','BuildCancelled','SourceCancelled'):
+            if not cancelled:cancelled.append(0)
+        if phase:failure_diagnostics(receipt,phase,getattr(error,'receipt',None),runtime)
+    try:
+        launches_verified(owner)
+        receipt['process_cleanup']=[stop_record(row,deadline) for row in reversed(owner['children'])]
+        receipt['process_cleanup_status']='PASS' if all(row['status']=='PASS' for row in receipt['process_cleanup']) else 'FAIL'
+        if receipt['process_cleanup_status']=='FAIL':reasons.add('process-group-unverified')
+    except BaseException as error:
+        receipt['process_cleanup_status']='FAIL';failed(error,'process-ownership-unverified')
+    try:
+        docker=broker.cleanup(private,owner['nonce'],contract['tools']['docker']['path'],ENDPOINT,deadline)
+        receipt['docker_cleanup']=docker;receipt['docker_cleanup_status']='PASS' if docker.get('status')=='PASS' else 'FAIL'
+        if receipt['docker_cleanup_status']=='FAIL':
+            codes=docker.get('failures',[])
+            admitted=[v for v in codes if type(v) is str and v in CLEANUP_REASONS] if type(codes) is list else []
+            reasons.update(admitted or ['docker-cleanup-unverified'])
+    except BaseException as error:
+        receipt['docker_cleanup_status']='FAIL';failed(error,'docker-cleanup-unverified')
+    phase='recovery-gpg' if recovery else 'gpg-cleanup'
+    try:
+        home=scoped_gpg_home(private)
+    except BaseException as error:
+        receipt['gpg_cleanup_status']='FAIL';failed(error,'gpg-home-unverified')
+    else:
+        try:
+            if home is not None:
+                suffix='-'+os.urandom(4).hex() if recovery else ''
+                item=tracked_process(owner,output,runner,phase,
+                    [contract['tools']['gpgconf']['path'],'--homedir',str(home),'--kill','all'],
+                    private/'logs'/(phase+suffix+'.stdout'),private/'logs'/(phase+suffix+'.stderr'),
+                    min(deadline,time.monotonic()+15),env,private)
+                failure_diagnostics(receipt,phase,item,runtime)
+                need(item['status']=='PASS' and item.get('group_absent') is True,'gpg-cleanup-failed')
+            receipt['gpg_cleanup_status']='PASS'
+        except BaseException as error:
+            receipt['gpg_cleanup_status']='FAIL';failed(error,'gpg-process-unverified',phase)
+    if receipt['process_cleanup_status']=='PASS':
+        try:
+            launches_verified(owner)
+            need(all(row['complete'] for row in owner['children']),'owned-process-cleanup-unverified')
+        except BaseException as error:
+            receipt['process_cleanup_status']='FAIL';failed(error,'process-group-unverified')
+    if all(receipt[k]=='PASS' for k in ('process_cleanup_status','docker_cleanup_status','gpg_cleanup_status')):
+        try:
+            removed=runtime.owned_remove(output,'private',owner['nonce'],deadline)
+            receipt['private_cleanup']=removed;receipt['private_data_removed']=removed.get('removed',False)
+            if removed['status']=='CANCELLED' and not cancelled:cancelled.append(0)
+            receipt['private_cleanup_status']='PASS' if removed['status']=='PASS' and receipt['private_data_removed'] else 'FAIL'
+            if receipt['private_cleanup_status']=='FAIL':reasons.add('private-removal-unverified')
+        except BaseException as error:
+            receipt['private_cleanup_status']='FAIL';failed(error,'private-removal-unverified')
+    else:reasons.add('private-removal-blocked')
+    receipt['cleanup_reasons']=sorted(reasons)
+    receipt['cleanup_status']='PASS' if receipt['private_cleanup_status']=='PASS' else 'FAIL'
+    owner.update(cleanup_verified=receipt['cleanup_status']=='PASS',private_removed=receipt['private_data_removed'])
+    ownership_save(output,owner)
+    return receipt['cleanup_status']=='PASS'
+
+
 def pipeline(root,controller,controller_sha,output,runner=None):
     contract,source=authenticate(root,controller,controller_sha)
     rows=contract['source']['files'];prefix='scripts/port/updater-native-stage/'
@@ -578,7 +704,7 @@ def pipeline(root,controller,controller_sha,output,runner=None):
          and not output.exists() and not output.is_symlink(),'fresh-stage-output')
     need(shutil.disk_usage(output.parent).free>=BUDGET['minimum_output_free_bytes'],'output-free-disk')
     output.mkdir(mode=0o700);start=time.monotonic();deadline=start+BUDGET['total_seconds']
-    nonce=os.urandom(16).hex();private=None;env=None;failure=None;cancelled=[]
+    nonce=os.urandom(16).hex();private=None;env=None;failure=None;cancelled=[];broker_contract=None
     guard=module(root/'scripts/ci/integration_export.py',rows['scripts/ci/integration_export.py']['sha256'])
     receipt={'schema_version':1,'status':'RUNNING','phase':'private-registration','controller_sha256':controller_sha,
              'ready_sha256':READY_SHA,'source_commit':contract['source']['source_commit'],
@@ -614,15 +740,11 @@ def pipeline(root,controller,controller_sha,output,runner=None):
             broker_raw=regular(copied/(prefix+'broker.py'))
             need(broker_raw.startswith(b'#!/usr/bin/env python3\n'),'broker-entrypoint')
             alias.write_bytes(('#!'+contract['tools']['python']['path']+'\n').encode()+broker_raw.split(b'\n',1)[1]);alias.chmod(0o755)
-            broker_contract={'schema_version':1,'nonce':nonce,'root':str(private),
-                             'real_docker':contract['tools']['docker']['path'],
-                             'real_docker_sha256':contract['tools']['docker']['sha256'],
-                             'docker_endpoint':ENDPOINT,'deadline_monotonic':deadline,
-                             'docker_socket_identity':contract['host']['docker_socket_identity']}
-            save(private/'broker-controller.json',broker_contract);env=environment(private,contract)
+            env=environment(private,contract,broker_ready=False)
+            broker_contract=None
             python=contract['tools']['python']['path'];package=copied/PACKAGE
             materialized=private/'materialized';candidate=private/'candidate';native=private/'native'
-            storage=None;storage_free=None;last_tick=0
+            storage=None;last_tick=0
             def command(phase,argv,seconds):
                 receipt['phase']=phase;save(output/'result.json',receipt)
                 need(not cancelled,'stage-cancelled');verify_snapshot(copied,contract['source']);tool_check(contract['tools'])
@@ -640,11 +762,14 @@ def pipeline(root,controller,controller_sha,output,runner=None):
                             need({'device':sock.st_dev,'inode':sock.st_ino}==contract['host']['docker_socket_identity'],
                                  'daemon-socket-changed')
                         tick_observation('socket-identity',socket_check,tick_failure)
-                        if storage is not None:
-                            def storage_check():
-                                need(storage_free-shutil.disk_usage(storage).free<=BUDGET['minimum_docker_free_bytes'],
-                                     'docker-storage-budget')
-                            tick_observation('daemon-storage',storage_check,tick_failure)
+                        if broker_contract is not None:
+                            def storage_tick():
+                                try:return broker.storage_check(broker_contract)
+                                except ValueError as error:
+                                    if type(error) is broker.BrokerError and error.code=='docker-storage-budget':
+                                        raise ValueError('docker-storage-budget') from None
+                                    raise
+                            tick_observation('daemon-storage',storage_tick,tick_failure)
                 try:
                     item=tracked_process(owner,output,run_process,phase,argv,
                                          private/'logs'/f'{phase}.stdout',private/'logs'/f'{phase}.stderr',
@@ -655,16 +780,22 @@ def pipeline(root,controller,controller_sha,output,runner=None):
                     receipt['processes'][phase]=item;failure_diagnostics(receipt,phase,item,runtime,tick_failure)
                     raise
                 need(item['status']=='PASS','stage-process-failed')
-            command('native-daemon',[str(alias),'info','--format','{{json .}}'],30)
+            command('native-daemon',[contract['tools']['docker']['path'],'--host',ENDPOINT,'info','--format','{{json .}}'],30)
             daemon=load(private/'logs/native-daemon.stdout')
             need(daemon.get('Architecture') in ('aarch64','arm64'),'native-daemon-required')
             storage=Path(daemon['DockerRootDir']);need(storage.is_absolute() and storage.resolve(strict=True)==storage,
                                                     'daemon-storage-directory')
-            storage_free=shutil.disk_usage(storage).free
-            need(storage_free>=BUDGET['minimum_docker_free_bytes'],'docker-free-disk')
-            if storage.stat().st_dev==output.stat().st_dev:
-                need(storage_free>=BUDGET['minimum_output_free_bytes']+BUDGET['minimum_docker_free_bytes'],
-                     'combined-free-disk')
+            broker_contract={'schema_version':1,'nonce':nonce,'root':str(private),
+                             'real_docker':contract['tools']['docker']['path'],
+                             'real_docker_sha256':contract['tools']['docker']['sha256'],
+                             'docker_endpoint':ENDPOINT,'deadline_monotonic':deadline,
+                             'docker_socket_identity':contract['host']['docker_socket_identity'],
+                             'storage_policy':broker.storage_policy(private,storage)}
+            save(private/'broker-controller.json',broker_contract)
+            broker_contract.update(_path=str(private/'broker-controller.json'),
+                                   _sha256=digest(regular(private/'broker-controller.json')))
+            broker.storage_initialize(broker_contract)
+            env=environment(private,contract)
             lock_sha=digest(regular(package/'runner-inputs.lock.json'))
             # The unchanged built-in worker inherits our owned session. Its CLI
             # applies the original resource limits; no separate-session supervisor.
@@ -731,38 +862,22 @@ def pipeline(root,controller,controller_sha,output,runner=None):
                 failure=failure or error;receipt.update(status='FAIL',public_projection='FAIL',failure_class=type(error).__name__)
             receipt['phase']='owned-cleanup';save(output/'result.json',receipt)
             cleanup_deadline=min(start+BUDGET['raw_retention_seconds'],time.monotonic()+BUDGET['cleanup_seconds'])
-            cleanup_safe=False
-            try:
-                if private is not None:
-                    launches_verified(owner)
-                    stopped=[stop_record(row,cleanup_deadline) for row in reversed(owner['children'])]
-                    receipt['process_cleanup']=stopped
-                    need(all(row['status']=='PASS' for row in stopped),'owned-process-cleanup-unverified')
-                    receipt['docker_cleanup']=broker.cleanup(private,nonce,contract['tools']['docker']['path'],ENDPOINT,cleanup_deadline)
-                    need(receipt['docker_cleanup']['status']=='PASS','docker-cleanup-failed')
-                    home=scoped_gpg_home(private)
-                    if home is not None:
-                        item=tracked_process(owner,output,run_process,'gpg-cleanup',
-                                         [contract['tools']['gpgconf']['path'],'--homedir',str(home),'--kill','all'],
-                                         private/'logs/gpg-cleanup.stdout',private/'logs/gpg-cleanup.stderr',
-                                         min(cleanup_deadline,time.monotonic()+15),env,private)
-                        failure_diagnostics(receipt,'gpg-cleanup',item,runtime)
-                        need(item['status']=='PASS','gpg-cleanup-failed')
-                    launches_verified(owner)
-                    need(all(row['complete'] for row in owner['children']),'owned-process-cleanup-unverified')
-                    cleanup_safe=True
-            except BaseException as error:
-                if type(error).__name__ in ('RuntimeCancelled','KeyboardInterrupt','BuildCancelled','SourceCancelled') and not cancelled:cancelled.append(0)
-                failure_diagnostics(receipt,'gpg-cleanup',getattr(error,'receipt',None),runtime)
-                failure=failure or error;receipt.update(status='FAIL',failure_class=type(error).__name__)
-            finally:
-                if private is not None and cleanup_safe:
-                    removal=runtime.owned_remove(output,'private',nonce,cleanup_deadline)
-                    receipt['private_cleanup']=removal;receipt['private_data_removed']=removal.get('removed',False)
-                    if removal['status']=='CANCELLED' and not cancelled:cancelled.append(0)
-                    if removal['status']!='PASS':
-                        failure=failure or ValueError('private-cleanup-failed');receipt['status']='FAIL'
+            storage_error=False
+            if private is not None:
+                if broker_contract is not None:
+                    try:receipt['storage']=storage_projection(broker.storage_projection(broker_contract))
+                    except BaseException:
+                        storage_error=True;failure=failure or ValueError('storage-observation-unverified');receipt['status']='FAIL'
+                cleaned=owned_cleanup(owner,output,private,contract,runtime,broker,run_process,cleanup_deadline,
+                                      env or environment(private,contract,broker_ready=False),receipt,cancelled)
+                if storage_error:
+                    receipt['cleanup_reasons']=sorted(set(receipt['cleanup_reasons'])|{'storage-observation-unverified'})
+                if not cleaned:
+                    failure=failure or ValueError('owned-cleanup-unverified');receipt['status']='FAIL'
+                    receipt.setdefault('failure_class',type(failure).__name__)
             receipt['raw_retention_within_budget']=time.monotonic()-start<=BUDGET['raw_retention_seconds']
+            if not receipt['raw_retention_within_budget'] and 'cleanup_reasons' in receipt:
+                receipt['cleanup_reasons']=sorted(set(receipt['cleanup_reasons'])|{'retention-budget-exceeded'})
             receipt['cleanup_status']='PASS' if receipt['private_data_removed'] and receipt.get('docker_cleanup',{}).get('status')=='PASS' else 'FAIL'
             owner.update(cleanup_verified=receipt['cleanup_status']=='PASS',private_removed=receipt['private_data_removed'])
             ownership_save(output,owner)
@@ -841,29 +956,23 @@ def recover(root,controller,controller_sha,output,owner_sha):
                 receipt.update(status='PASS',private_data_removed=True,cleanup_status='PASS')
             else:
                 runtime.owned_adopt(output,'private',owner['nonce'],owner['private_record'])
-                launches_verified(owner)
-                stopped=[stop_record(row,deadline) for row in reversed(owner['children'])]
-                receipt['process_cleanup']=stopped
-                need(all(row['status']=='PASS' for row in stopped),'owned-process-cleanup-unverified')
-                docker=broker.cleanup(private,owner['nonce'],contract['tools']['docker']['path'],ENDPOINT,deadline)
-                receipt['docker_cleanup']=docker;need(docker['status']=='PASS','docker-cleanup-unverified')
-                home=scoped_gpg_home(private)
-                if home is not None:
-                    env={'PATH':'/usr/bin:/bin','HOME':str(private/'home'),'LC_ALL':'C.UTF-8'}
-                    suffix=os.urandom(4).hex()
-                    item=tracked_process(owner,output,runtime.run_process,'recovery-gpg',
-                                        [contract['tools']['gpgconf']['path'],'--homedir',str(home),'--kill','all'],
-                                        private/'logs'/('recovery-gpg-'+suffix+'.stdout'),private/'logs'/('recovery-gpg-'+suffix+'.stderr'),
-                                        min(deadline,time.monotonic()+15),env,private)
-                    failure_diagnostics(receipt,'recovery-gpg',item,runtime)
-                    need(item['status']=='PASS','gpg-cleanup-failed')
-                removed=runtime.owned_remove(output,'private',owner['nonce'],deadline)
-                receipt['private_cleanup']=removed;receipt['private_data_removed']=removed['removed']
-                need(removed['status']=='PASS','owned-private-removal-unverified')
-                receipt.update(status='PASS',cleanup_status='PASS')
-                owner.update(cleanup_verified=True,private_removed=True);ownership_save(output,owner)
+                broker_path=private/'broker-controller.json';storage_error=False
+                if broker_path.exists() or broker_path.is_symlink():
+                    try:
+                        c=broker.load_controller(str(broker_path),digest(regular(broker_path)),allow_expired=True)
+                        receipt['storage']=storage_projection(broker.storage_projection(c))
+                    except BaseException:storage_error=True
+                env=environment(private,contract,broker_ready=False)
+                cleaned=owned_cleanup(owner,output,private,contract,runtime,broker,runtime.run_process,deadline,
+                                      env,receipt,cancelled,recovery=True)
+                if storage_error:
+                    receipt['cleanup_reasons']=sorted(set(receipt['cleanup_reasons'])|{'storage-observation-unverified'})
+                need(cleaned and not storage_error,'owned-cleanup-unverified')
+                receipt['status']='PASS'
             elapsed=time.monotonic()-owner['started_monotonic']
             receipt['raw_retention_within_budget']=0<=elapsed<=BUDGET['raw_retention_seconds']
+            if not receipt['raw_retention_within_budget'] and 'cleanup_reasons' in receipt:
+                receipt['cleanup_reasons']=sorted(set(receipt['cleanup_reasons'])|{'retention-budget-exceeded'})
             need(receipt['raw_retention_within_budget'],'raw-retention-budget-exceeded')
         except BaseException as error:
             if type(error).__name__=='RuntimeCancelled' and not cancelled:cancelled.append(0)
