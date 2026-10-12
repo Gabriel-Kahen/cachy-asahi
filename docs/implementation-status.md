@@ -4,7 +4,7 @@ October 12, 2026. This record tracks the complete `outline.md` scope; an impleme
 
 The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with owned tasks and corrective next actions in `docs/backlog.md`. The destination now explicitly requires the maintained ARM package repository, native performance engineering, integrated Apple stack, broader Cachy system experience, and complete installation/release lifecycle. Both Air sizes, published final measurements, independent onboarding/contribution, subsequent full-port maintenance release, other-ARM reuse and actual upstream submissions remain required; an early overlay release or feasibility decision would not complete the goal. This scope update does not change any recorded execution result.
 
-Latest coordinator checkpoint, October 12, 15:15 UTC. The earlier records below
+Latest coordinator checkpoint, October 12, 15:28 UTC. The earlier records below
 remain historical; this checkpoint supersedes their pending-work descriptions.
 
 - Native run `38259350917` passes the original generic integration aggregate:
@@ -23,7 +23,11 @@ remain historical; this checkpoint supersedes their pending-work descriptions.
   native/worker zero exits and worker cleanup PASS, then fails producer bootstrap
   receipt acceptance before FDK compilation. The narrow exact IID-byte grammar
   correction is committed at `a50d53f`; its128-source Git/inline-workflow/fresh-copy
-  proof passes. Successor trial `38268251114` is running, with no accepted outcome.
+  proof passes. Successor trial `38268251114` passes producer receipt acceptance, then fails
+  at FDK source preparation before either build. All eight public files verify;
+  final owned-image/container absence passes. The exact source predicate is
+  unreported. A data-only replay exposes compressed-source serialization drift
+  between standard zlib and zlib-ng; a portable-content correction is being scoped.
   [Actual failed trial](reviews/native-fdk-execution-38260525391.md).
 - The updater parent observation correction is committed at `2f8c13e`: 284 source
   tests pass, and actual85-file Git/source/snapshot verification passes for
@@ -42,8 +46,11 @@ remain historical; this checkpoint supersedes their pending-work descriptions.
   scan remains FAIL: 7,129 files, 4,536 missing-provider requests and22 firmware
   parser refusals. The clarified provider-only correction passes52 tests and
   retained-metadata replay resolves4,509 omissions, preserves three original
-  candidates and leaves27 requests. Final review and corrected full scan remain
-  pending; no installed loader or hardware result follows from this data audit.
+  candidates and leaves27 requests. The source correction is adopted at `7360b61`; the actual corrected624 scan
+  verifies all archives and reproduces exactly27 missing requests, but remains
+  FAIL from the same22 firmware parser refusals. Root retained-data verification
+  passes. [Corrected execution](reviews/platform-elf-corrected-execution.md)
+  preserves runtime/16K/hardware limits; residual closure is under investigation.
 - The phase-aware repository-client successor passes110 copied-source tests,
   including real TEST GPG checks. Separate retained-data checks validate fifteen
   signatures at their recorded phases. Native admission remains NOT RUN;
