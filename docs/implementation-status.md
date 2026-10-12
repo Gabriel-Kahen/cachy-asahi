@@ -4,69 +4,66 @@ October 12, 2026. This record tracks the complete `outline.md` scope; an impleme
 
 The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with owned tasks and corrective next actions in `docs/backlog.md`. The destination now explicitly requires the maintained ARM package repository, native performance engineering, integrated Apple stack, broader Cachy system experience, and complete installation/release lifecycle. Both Air sizes, published final measurements, independent onboarding/contribution, subsequent full-port maintenance release, other-ARM reuse and actual upstream submissions remain required; an early overlay release or feasibility decision would not complete the goal. This scope update does not change any recorded execution result.
 
-Latest coordinator checkpoint, October 12, 16:41 UTC. The earlier records below
+Latest coordinator checkpoint, October 12, 17:00 UTC. Earlier records below
 remain historical; this checkpoint supersedes their pending-work descriptions.
 
-- Native run `38259350917` passes the original generic integration aggregate:
-  all seven stages, 650 locked-userspace source tests without skips, signed
-  lifecycle, all eleven repository cases, installed software onboarding and
-  desktop configuration verification. The broader aggregate remains FAIL only
-  in the virtual desktop component. All owned-image/container cleanup passes.
-  [Independent retained-evidence review](reviews/native-development-execution-38259350917.md)
-  records the exact scope and limits; production trust and target recovery remain open.
-- That run actually boots the generic ARM guest with 4K pages and passes software
-  GBM rendering with llvmpipe. Hyprland's first IPC request returns exit6; no
-  frames or usable session are accepted. The bounded IPC-readiness/log correction
-  is implemented; guest/receiver correction is adopted at `d1e489b`, with206 development and22
-  controller tests passing and exact211-source/canonical-copy verification.
-  Successor38274341668 again fails the virtual stage: IPC attempts6,6,0 reach a JSON `[""]` reply, then the strict configuration predicate refuses it. All33 bundles/1623 members and1180 export files verify; no frame is accepted. Pinned upstream accumulator/formatter/splitter reproduce the exact empty-error-text response; the narrow `[]`/`[""]` compatibility correction is selected. Its wire API cannot prove internal error-vector emptiness. Independent nonvirtual retained-evidence checks pass; actual virtual failure and zero frames remain unchanged. QEMU cannot
-  establish M2 graphics, 16K runtime, audio, sleep or performance acceptance.
-- FDK run `38260525391` records all501 acquisitions, four original comparisons,
-  native/worker zero exits and worker cleanup PASS, then fails producer bootstrap
-  receipt acceptance before FDK compilation. The narrow exact IID-byte grammar
-  correction is committed at `a50d53f`; its128-source Git/inline-workflow/fresh-copy
-  proof passes. Successor trial `38268251114` passes producer receipt acceptance, then fails
-  at FDK source preparation before either build. All eight public files verify;
-  final owned-image/container absence passes. The exact source predicate is
-  unreported. A data-only replay exposes compressed-source serialization drift
-  between standard zlib and zlib-ng. The independently reviewed canonical raw-tar correction is committed at `765067d`;77 stage and14 packet checks pass, actual128-source Git/inline-workflow/fresh-copy proof passes. Trial38277573107 now reaches build-1, then fails; all eight public records and scoped absence verify. First build predicate and compiler invocation remain unproven. Finite bound worker diagnostics are being implemented before another trial.
-  [Actual failed trial](reviews/native-fdk-execution-38260525391.md).
-- The updater parent observation correction is committed at `2f8c13e`: 284 source
-  tests pass, and actual85-file Git/source/snapshot verification passes for
-  4,044,082 bytes. Workflow review found a contradictory-worker acceptance gap;
-  its successive corrections pass507 author consumer cases and39 independent final cases. The accepted compile-receipt correction is committed at `ed76c11`; actual85-source Git/snapshot and workflow binding pass. Trial38277597310 starts after FDK releases the shared lane and is running; source85 remains unchanged.
-  Earlier trial38251407975 remains FAIL; native compilation is not attested.
-- KSM's229-test finite executor and152-source packet are committed at `b918c7c`;
-  workflow registration is merged through PR5. First trial `38262440852` fails
-  at source/ValueError before producer launch. The captured-import correction is adopted at `aef8836`; retry38271066975
-  identifies daemon-image-baseline refusal: actual image query exit0/six lines,
-  container baseline unobserved. Cooperative image-preservation implementation
-  is underway; no producer or lifecycle ran in that retry.
-- Kernel trial38253531983 remains FAIL before build at occupied-daemon refusal.
-  The reviewed cooperative baseline-preservation correction is committed at
-  `c3d3872`, with stage24/job115 and actual Git/bootstrap verification passing.
-  Its separate hosted lane is adopted at `07450c5`. Retry38270726379 passes
-  source, initial six-image/zero-container capture, producer and acquisition, then
-  fails with KERNEL_EXIT before any recorded compile. Cleanup and final
-  preservation/absence remain unverified. Finite child diagnostics are held with202 job/115 stage source tests passing without skips; the26/117-source proposal is under independent review before native retry. An overbroad cleanup-timer diagnosis was withdrawn after verifying
-  the existing broker renewal; those timers remain unchanged.
-- The actual inert624-archive payload audit remains PASS. The first static ELF
-  scan remains FAIL: 7,129 files, 4,536 missing-provider requests and22 firmware
-  parser refusals. The clarified provider-only correction passes52 tests and
-  retained-metadata replay resolves4,509 omissions, preserves three original
-  candidates and leaves27 requests. The source correction is adopted at `7360b61`; the actual corrected624 scan
-  verifies all archives and reproduces exactly27 missing requests, but remains
-  FAIL from the same22 firmware parser refusals. Root retained-data verification
-  passes. [Corrected execution](reviews/platform-elf-corrected-execution.md)
-  preserves runtime/16K/hardware limits. Independent residual classification passes531 data checks but all27 requests/22 firmware refusals remain open. A bounded recursive metadata transaction packet is selected for21 direct provider roots; no extension archive is authenticated or adopted.
-- The phase-aware repository-client successor passes110 copied-source tests,
-  including real TEST GPG checks. Separate retained-data checks validate fifteen
-  signatures at their recorded phases. Native admission remains NOT RUN;
-  twelve empty-URL representation mismatches are reproduced against pinned
-  repo-add semantics. Narrow normalization and internal typed-refusal corrections are held with252 source tests (141 collector/111 phase); independent review and coordinator map/dependency rebinding are next. Original admission/custody records remain required.
-- The missing offline copied-root package transaction component is selected and
-  being implemented under `scripts/install/`. Its38 checks pass:19 modeled,17 synthetic pipeline cases/22 calls with10 actual tiny libalpm commits, one actual namespace barrier and one owned-child timeout. Final source integration and independent review are next; hooks, first boot, image/key-owner trust and complete Asahi
-  installation remain separate requirements.
+- Native runs `38259350917` and `38274341668` pass the original generic integration
+  aggregate and the ARM-C01, client and KSM package components. The broader
+  aggregate remains FAIL in the virtual desktop component. Independent review
+  verifies 33 bundles, 1,623 members and 1,180 exported files for the newer run.
+  It boots generic ARM with 4K pages and passes software GBM rendering, but
+  accepts no compositor frame. Its third IPC reply is `[""]`; pinned upstream
+  formatting reproduces that empty-error-text reply. The narrow compatibility
+  correction is held, and the coordinator's 211-file proposal passes 210
+  development and 22 controller tests. Independent review remains before retry.
+  The lossy API cannot establish internal error-vector emptiness or M2 graphics.
+- FDK trial `38268251114` passes original producer acceptance, then fails source
+  preparation. A replay demonstrates gzip serialization drift across zlib
+  implementations. The reviewed raw-tar correction is committed at `765067d`;
+  77 stage and 14 packet tests and actual 128-file Git/bootstrap/copy proof pass.
+  Successor `38277573107` reaches build-1, then fails. All eight public records
+  and scoped absence verify. The first build predicate and compiler invocation
+  remain unproven. Bound worker diagnostics are being implemented before retry;
+  FDK compilation, publication and runtime integration remain unaccepted.
+- Updater's accepted workflow correction is committed at `ed76c11`, following
+  507 author consumer cases, 39 independent cases and actual 85-file source
+  verification. Trial `38277597310` fails worker-1 inspection. New observations
+  establish worker CLI exit 1 and a matching exited container with exit 1 and
+  no OOM indication. All 14 public files verify; scoped, private and recovery
+  cleanup pass. The internal worker predicate and compiler invocation remain
+  unattested; a bounded source diagnosis is underway.
+- KSM retry `38271066975` stops at the initial image baseline: query exit 0,
+  six returned lines and no observed container baseline. Cooperative image
+  preservation is held and independently passes 255 source tests and focused
+  controls. A pre-existing source-clock renewal and late-refusal gap is being
+  corrected before the next 152-file freeze. That failed retry ran no producer,
+  builds or installed lifecycle; baseline fixtures do not change its result.
+- Kernel diagnostics are adopted at `bae171e`: 202 job and 115 stage tests,
+  89 independent focused checks and 14 poison cases pass. Actual Git/bootstrap
+  and fresh-copy proof verify the 26/117-file closure. Trial `38279898941` returns
+  verified child diagnostics: `PROVISION_COMMAND` / `INVALID_DATA`, provision
+  return UNOBSERVED and child exit 1, before probe or compilation. Cleanup FAIL,
+  final baseline preservation and owned absence UNVERIFIED remain authoritative.
+  The exact inner predicate is under diagnosis. The prior timer explanation was
+  withdrawn after confirming the existing renewal; those timers are unchanged.
+- The actual inert 624-archive payload audit passes. The corrected ELF scan
+  remains FAIL with 27 missing-provider requests and 22 firmware parser refusals;
+  the reviewed 52-test provider correction resolves 4,509 earlier omissions.
+  Independent residual classification passes 531 data checks. A bounded recursive
+  transaction packet is being resolved for 21 provider roots; no extension archive
+  is authenticated or adopted. Runtime ABI, hooks and M2/16K acceptance remain open.
+- Repository URL and phase corrections pass 252 author source tests and focused
+  independent controls, then are adopted at `9340d00`. Actual Git verification
+  catches one historical public JSON mode mismatch; correction `510e8c3` preserves
+  its bytes and the old private copy. All 47 paths and 17 transitive bindings now
+  verify. Complete same-job raw admission/custody, 341-package metadata and
+  provenance remain required; native authority is not inferred from public data.
+- The offline copied-root worker passes 38 checks: 19 modeled checks, 17 synthetic
+  pipeline cases with ten actual tiny libalpm commits, one namespace barrier and
+  one owned-child timeout. Independent review adds ten checks, including another
+  actual tiny commit, and identifies child-source and evidence-directory custody
+  gaps. Both corrections are selected before source adoption. ARM, the full
+  package transaction, trust, hooks, first boot and complete installation remain open.
 
 | Stage | Source implementation | Required execution evidence | Acceptance |
 | --- | --- | --- | --- |
