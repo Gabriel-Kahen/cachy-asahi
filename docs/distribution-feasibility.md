@@ -4,7 +4,7 @@ Current implementation route: start with the existing-Asahi overlay, then delive
 
 ## Evidence available
 
-- Three original opt-in configuration candidates exist; a narrow runtime setup/removal helper and package are being implemented. Broader CachyOS desktop/shell/settings bundles have explicit source-license, dependency, configuration or platform risks. Kernel-manager and hardware detector remain deferred.
+- Four original opt-in configuration/setup candidates exist. The packaged runtime setup/removal helper is implemented and has local source tests and native package build evidence. Broader CachyOS desktop/shell/settings bundles have explicit source-license, dependency, configuration or platform risks. Kernel-manager and hardware detector remain deferred.
 - The chosen base is Asahi ALARM. Its exact installed transaction, signed retained snapshot and compatibility set have not been captured. Public repository metadata is availability evidence, not a working target result.
 - The development host is x86_64 with Docker. Hosted native ARM CI has executed all four configuration/setup package build pairs and byte comparisons, as recorded in `docs/validation/native-arm.md`. Neither exact Air is verified reachable; the configured Pi connection timed out.
 - Source build/inspection, staging/signing and measurement tooling is locally tested. Native development artifacts exist, but a supported endpoint, production signing custody, independent onboarding, physical recovery and a maintenance release remain unfinished.
@@ -35,3 +35,16 @@ No hosting price, release staffing, native throughput or installer reliability i
 5. Deliver M9: accept A01–A15 against the integrated full-port release, including independent onboarding, both-size final results and a subsequent full-port maintenance release. Record official collaboration separately without assuming its outcome.
 
 Acceptance entry A11 remains unfinished until the implementation/resource plan has operational evidence and owned corrective tasks. Completing A11 does not complete A12–A15 or the full-port goal.
+
+## Active nonphysical execution
+
+The coordinator integrated the user's expanded scope revision `506f259` and
+assigned independent M5 coverage, M6 tool functionality, M7 native trial design
+and M8 installation-route audits. Ownership is in `docs/orchestration.md` and
+next actions are in `docs/backlog.md`. A connected native software batch will
+exercise real signed changed-package upgrades, rollback/trust rejection,
+configuration lifecycle, installed payload verification and developer onboarding
+in disposable containers. Source reviews have reproduced corrective findings;
+actual new integration execution remains NOT RUN until those repairs and the
+frozen source handoff pass review. Neither that generic ALARM builder nor its
+inventory establishes the chosen Asahi target transaction.

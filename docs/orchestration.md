@@ -123,3 +123,44 @@ The actual Asahi target dependency transaction, both exact M2 machines,
 measurements, real signed release/recovery, independent onboarding and ongoing
 maintenance remain unfinished. Generic native success does not close M0/M1
 target-selection gates or the complete outline.
+
+## Active nonphysical development goal
+
+User requested continued development until actual-machine access is genuinely
+needed, with persistent goal execution and parallel chats. Goal is active. The
+coordinator created `codex/virtual-integration` for the connected software
+integration batch. New exclusive ownership: lifecycle/build chat
+`lifecycle.py/test_lifecycle.py`; tools chat `fixtures.py/test_fixtures.py`; desktop
+chat `desktop.py/test_desktop.py`; release chat `repository.py/test_repository.py`;
+performance/onboarding chat `onboarding.py/test_onboarding.py`, all under
+`scripts/integration/`, with their respective new workstream reports. Native CI
+chat owns CI adapters/workflow/source-freeze/evidence handling; independent
+reviewer owns `docs/reviews/virtual-integration-review.md`. Coordinator alone owns
+shared status/manifests/Git/dispatch. Software gates are `docs/virtual-integration.md`.
+Physical-machine checks remain required for full-goal acceptance.
+
+## Authoritative scope update: 506f259
+
+The user's roadmap, goal, outline, acceptance, backlog and resource records in
+`506f2596d674a26de8c947ef44728118cd9e2455` are integrated into this branch.
+All six workers and the independent reviewers were directed to reread them.
+R1–R5 and M5–M9 are required: the complete port is no longer conditional on a
+feasibility decision. The active nonphysical development goal follows that scope.
+Existing build results retain their original inputs and limited claims.
+
+Finish the connected disposable integration batch while opening these independent
+full-port tracks. Workers finish their current reviews before taking the new
+bounded assignment. Audit proposals do not select packages or pass target gates.
+
+| Track | Owner | Exclusive new path | First result |
+| --- | --- | --- | --- |
+| M5/R1 desktop/application coverage | Desktop chat | `docs/port/desktop-coverage.md` | Functionality/dependency inventory, source ownership and next compiled package proposal |
+| M6/R4 applicable tools/management | Tools chat | `docs/port/tools-functionality.md` | Port/adapt/replace/exclude matrix, licensed candidates and Apple-safe boundaries |
+| M8/R5 installation integration | Build/setup chat | `docs/port/installation-route.md` | Installer/base support audit and concrete complete-install implementation route |
+| M7/R2 native ARM experiments | Performance chat | `docs/port/arm-experiments.md` | Bounded baseline/LTO/PGO correctness/build trial, separating hosted ARM from M2 |
+| R1/R5 release-client freshness | Release chat | `scripts/client/`, `docs/release/client.md`, `docs/workstreams/release-client.md` | Offline pinned-key freshness/antirollback verifier and tests |
+| Generic virtual desktop proof | Virtual desktop agent | `scripts/virtual/`, virtual research/workstream reports | Signed isolated tooling extension and bounded TCG/virtioGPU software trial |
+
+The first integration snapshot excludes the actively changing client and virtual
+tooling. Subsequent reviewed batches must freeze and execute their own sources.
+No complete-port requirement is closed by these assignments.
