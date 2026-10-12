@@ -131,3 +131,24 @@ Source validation checkpoint:
 - Job source and adapter maps were rechecked with **128/39 entries, zero drift**.
   The held native-job checkpoint remains **90 tests PASS, no skips**; no job,
   adapter or template source was edited or native execution performed here.
+
+## Coordinator registration and first actual trial
+
+The reviewed workflow and documentation were committed at
+`b939ebff3faaa8f3ffa68d5faf2d77e30b87de5b`. Root checked all 128 committed
+source blobs/modes and the exact workflow digest again. Independent closure
+of the publication finding is recorded in
+[the source review](../reviews/fdk-native-job-review.md).
+
+The one-file [registration PR #2](https://github.com/Gabriel-Kahen/cachy-asahi/pull/2)
+was merged at 08:28:14 UTC on October 12, 2026, main merge commit
+`cdd5e911fa7c21219dd78d0d77ba7653bc196c55`. It adds only this reviewed workflow,
+preserving the user's updated roadmap and other main files. The trial runs the
+explicitly selected feature commit above.
+
+[Native run 38223759349](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38223759349)
+was created at 08:28:19 UTC. Its actual checkout and committed-packet/host
+prerequisite check passed; the finite producer/FDK step is **IN PROGRESS**.
+Native FDK acceptance is pending the terminal build, artifact, cleanup and
+publication evidence. Installation, provider substitution, codec binary
+publication, M2/16K execution and performance acceptance remain open.
