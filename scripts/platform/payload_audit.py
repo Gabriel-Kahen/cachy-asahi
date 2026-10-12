@@ -19,6 +19,7 @@ spec = importlib.util.spec_from_file_location("payload_ownership", HERE / "owner
 ownership = importlib.util.module_from_spec(spec); spec.loader.exec_module(ownership)
 MIB = 1024**2
 ARCHIVE_LIMIT, DECODED_LIMIT, TOTAL_DECODED_LIMIT = 300_000_000, 1024**3, 8 * 1024**3
+TOTAL_COMPRESSED_LIMIT = 2 * 1024**3
 FILE_LIMIT, NODE_LIMIT, TOTAL_NODE_LIMIT = 512 * MIB, 100000, 500000
 CONTROL = {".PKGINFO", ".BUILDINFO", ".MTREE", ".INSTALL"}
 
@@ -229,7 +230,22 @@ def run(contract):
     need(set(final) == set(declarations) and all(final[n]["version"] == declarations[n]["version"] for n in final), "ownership/final identity binding")
     rows = contract["archives"]
     need(isinstance(rows, list) and 1 <= len(rows) <= 4096, "finite archive input")
-    need(sum(r["archive"]["size"] for r in rows) <= 1024**3, "compressed aggregate input bound")
+    planned = set()
+    for row in rows:
+        need(type(row) is dict and set(row) == {"name", "archive"}
+             and type(row["name"]) is str, "archive input fields")
+        name, ref = row["name"], row["archive"]
+        need(name in final and name not in planned, "unselected/duplicate archive")
+        planned.add(name)
+        need(type(ref) is dict and set(ref) == {"path", "size", "sha256"}
+             and type(ref["path"]) is str and "\0" not in ref["path"] and Path(ref["path"]).is_absolute()
+             and type(ref["sha256"]) is str and re.fullmatch(r"[a-f0-9]{64}", ref["sha256"]), "archive reference fields")
+        need(type(ref["size"]) is int and 0 < ref["size"] <= ARCHIVE_LIMIT, "compressed archive size bound")
+        if final[name]["repo"] != "installed":
+            metadata = final[name]["metadata"]
+            need(ref["sha256"] == metadata["SHA256SUM"][0]
+                 and ref["size"] == int(metadata["CSIZE"][0]), "final archive pin mismatch")
+    need(sum(r["archive"]["size"] for r in rows) <= TOTAL_COMPRESSED_LIMIT, "compressed aggregate input bound")
     seen, results, budget = set(), [], {"decoded": 0, "nodes": 0}
     namespace, overlaps = {}, []
     for name, declaration in declarations.items():

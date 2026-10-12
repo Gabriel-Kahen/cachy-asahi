@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: MIT
 """Tiny exact archive/database fixtures with mocked HTTPS/GPG; no installation."""
 import contextlib
+import base64
 import gzip
 import hashlib
 import importlib.util
@@ -115,6 +116,88 @@ class MissingTests(unittest.TestCase):
         self.assertEqual([(p["name"], p["scope"]) for p in packages],
                          [("python", "additional-coordinated-python-target"), ("example", "missing-exact-tentative-candidate")])
         self.assertEqual(budget, sum(p["size"] + missing.SIGNATURE_LIMIT for p in packages))
+
+    def epoch_metadata(self, filename="grub-2.2.16-3-aarch64.pkg.tar.xz"):
+        return {"NAME": ["grub"], "VERSION": ["2:2.16-3"], "ARCH": ["aarch64"],
+                "FILENAME": [filename], "CSIZE": ["9800024"],
+                "SHA256SUM": ["e43b968d72cde70752ca82450a72fb65644c1a324c03eaee820446c9ba5827da"]}
+
+    def test_epoch_full_and_omitted_declared_names_preserve_full_identity(self):
+        for repo in ("core", "extra", "asahi-alarm"):
+            for version in ("2:2.16-3", "2.16-3"):
+                filename = f"grub-{version}-aarch64.pkg.tar.xz"
+                metadata = self.epoch_metadata(filename)
+                item = missing.archive_spec(metadata, repo, "test")
+                self.assertEqual((item["filename"], item["version"], item["arch"]),
+                                 (filename, "2:2.16-3", "aarch64"))
+                self.assertEqual(item["metadata"], metadata)
+                self.assertTrue(item["url"].endswith("/" + filename))
+                self.assertEqual((item["sha256"], item["size"]),
+                                 (metadata["SHA256SUM"][0], int(metadata["CSIZE"][0])))
+
+    def test_declared_dotted_epoch_is_only_asahi_and_no_alternate_is_guessed(self):
+        metadata = self.epoch_metadata()
+        item = missing.archive_spec(metadata, "asahi-alarm", "test")
+        self.assertEqual(item["url"], "https://github.com/asahi-alarm/asahi-alarm/releases/download/aarch64/"
+                         "grub-2.2.16-3-aarch64.pkg.tar.xz")
+        for repo in ("core", "extra"):
+            with self.subTest(repo=repo), self.assertRaisesRegex(ValueError, "filename"):
+                missing.archive_spec(metadata, repo, "test")
+        for filename in ("grub-2_2.16-3-aarch64.pkg.tar.xz", "grub-2-2.16-3-aarch64.pkg.tar.xz",
+                         "grub-3.2.16-3-aarch64.pkg.tar.xz", "grub-2.2.16-3-any.pkg.tar.xz",
+                         "other-2.2.16-3-aarch64.pkg.tar.xz", "../grub-2.2.16-3-aarch64.pkg.tar.xz"):
+            with self.subTest(filename=filename), self.assertRaises(ValueError):
+                missing.archive_spec(self.epoch_metadata(filename), "asahi-alarm", "test")
+
+    def test_epoch_requires_one_ascii_decimal_prefix_and_noncolon_version(self):
+        for version in (":2.16-3", "x:2.16-3", "-2:2.16-3", "+2:2.16-3", "2:",
+                        "2:2:16-3", "2::2.16-3", "2.0:2.16-3", "٢:2.16-3", "2:../2.16-3"):
+            metadata = self.epoch_metadata(f"grub-{version}-aarch64.pkg.tar.xz")
+            metadata["VERSION"] = [version]
+            with self.subTest(version=version), self.assertRaises(ValueError):
+                missing.archive_spec(metadata, "asahi-alarm", "test")
+
+    def test_exact_archive_field_types_names_and_architectures_are_required(self):
+        for key in ("NAME", "VERSION", "ARCH", "FILENAME", "SHA256SUM", "CSIZE"):
+            for value in (None, False, 3, {}, [], [None], [False], [3], [{}], [[]], ["one", "two"]):
+                metadata = self.epoch_metadata(); metadata[key] = value
+                with self.subTest(key=key, value=value), self.assertRaises(ValueError):
+                    missing.archive_spec(metadata, "asahi-alarm", "test")
+        metadata = self.epoch_metadata(); metadata["ARCH"] = ["x86_64"]
+        with self.assertRaises(ValueError): missing.archive_spec(metadata, "asahi-alarm", "test")
+
+    def test_non_epoch_metadata_retains_only_its_original_canonical_filename(self):
+        metadata = self.metadata["example"]
+        item = missing.archive_spec(metadata, "extra", "test")
+        self.assertEqual((item["filename"], item["version"]), ("example-1-1-any.pkg.tar.xz", "1-1"))
+        for filename in ("example-0.1-1-any.pkg.tar.xz", "example-0:1-1-any.pkg.tar.xz"):
+            with self.assertRaises(ValueError):
+                missing.archive_spec(dict(metadata, FILENAME=[filename]), "asahi-alarm", "test")
+
+    def test_epoch_filename_keeps_full_pkginfo_name_version_and_arch_checks(self):
+        metadata = self.make_archive("grub", "2:2.16-3", "aarch64")
+        source = self.root / metadata["FILENAME"][0]
+        path = self.root / "grub-2.2.16-3-aarch64.pkg.tar.xz"; source.rename(path)
+        metadata["FILENAME"] = [path.name]
+        item = missing.archive_spec(metadata, "asahi-alarm", "test")
+        expected = missing.expected(item["metadata"])
+        missing.coverage.authenticate.observe(path, expected)
+        for key, value in (("version", "2.16-3"), ("name", "other"), ("arch", "any")):
+            with self.subTest(key=key), self.assertRaisesRegex(ValueError, "PKGINFO mismatch"):
+                missing.coverage.authenticate.observe(path, dict(expected, **{key: value}))
+
+    def test_epoch_filename_does_not_relax_signature_pins_or_status(self):
+        signature = b"signature fixture"; metadata = self.epoch_metadata()
+        metadata["PGPSIG"] = [base64.b64encode(signature).decode("ascii")]
+        item = missing.archive_spec(metadata, "asahi-alarm", "test")
+        self.assertEqual(item["signature_pin"], {"size": len(signature), "sha256": sha(signature)})
+        url = item["url"] + ".sig"
+        with patch.object(missing.urllib.request, "urlopen", return_value=Response(b"different fixture", url=url)):
+            with self.assertRaisesRegex(ValueError, "digest mismatch"):
+                missing.download(url, self.root / "epoch.sig", missing.SIGNATURE_LIMIT,
+                                 item["signature_pin"]["sha256"])
+        with self.assertRaises(ValueError):
+            missing.signature_status(self.status(primary="A" * 40), missing.KEYS["alarm"][0])
 
     def test_plan_coverage_pin_transaction_binding_and_candidate_drift_refused(self):
         contract = self.contract()

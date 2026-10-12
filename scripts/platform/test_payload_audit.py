@@ -74,6 +74,106 @@ class PayloadTests(unittest.TestCase):
         self.assertFalse(report["complete_installed_payload_verified"])
         self.assertFalse(report["system_mutation"])
 
+    def compressed_budget_fixture(self, total):
+        # Synthetic declared sizes exercise aggregate accounting only. The
+        # inspection delegate is mocked; no large archive is created or read.
+        sizes = []
+        while total:
+            size = min(total, payload.ARCHIVE_LIMIT)
+            sizes.append(size); total -= size
+        packages, selected, archives, metadata_by_path = [], [], [], {}
+        for index, size in enumerate(sizes):
+            name = f"alpha-{index}"
+            path = str(self.root / (name + ".pkg.tar.xz"))
+            digest = hashlib.sha256(name.encode()).hexdigest()
+            metadata = {"NAME": [name], "VERSION": ["1-1"], "ARCH": ["aarch64"], "LICENSE": ["MIT"],
+                        "FILENAME": [f"{name}-1-1-aarch64.pkg.tar.xz"], "SHA256SUM": [digest], "CSIZE": [str(size)]}
+            packages.append({"name": name, "version": "1-1", "repo": "extra", "metadata": metadata})
+            selected.append({"name": name, "version": "1-1", "declared_paths": []})
+            archives.append({"name": name, "archive": {"path": path, "size": size, "sha256": digest}})
+            metadata_by_path[path] = f"pkgname = {name}\npkgver = 1-1\narch = aarch64\nlicense = MIT\n"
+        status = "PASS-private-metadata-prepare"
+        final = self.document("budget-final.json", {"packages": packages, "transaction_status": status,
+                                                   "dependency_transaction_accepted": False})
+        transaction = self.document("budget-transaction.json", {"kind": "private-Asahi-metadata-transaction-prepare",
+                                    "status": status, "proposed_final_inventory": packages})
+        owners = self.document("budget-owners.json", {"kind": "metadata-only-declared-ownership-audit",
+                               "transaction_status": status, "input_references": {"final_inventory": final},
+                               "selected_packages": selected})
+        def inspect(reference, budget):
+            return {"nodes": [], "controls": {".PKGINFO": {"text": metadata_by_path[reference["path"]]}},
+                    "decoded_bytes": 0}
+        return {"schema_version": 1, "transaction": transaction, "ownership": owners, "archives": archives}, inspect
+
+    def test_compressed_aggregate_above_old_limit_through_exact_two_gib(self):
+        for total in (1024**3, 1024**3 + 1, 1_298_106_720, 2 * 1024**3):
+            contract, inspect = self.compressed_budget_fixture(total)
+            with self.subTest(total=total), patch.object(payload, "inspect", side_effect=inspect) as delegated:
+                report = payload.run(contract)
+            self.assertEqual(delegated.call_count, len(contract["archives"]))
+            self.assertEqual(report["inspected_package_count"], len(contract["archives"]))
+            self.assertEqual(sum(r["archive"]["size"] for r in contract["archives"]), total)
+            self.assertTrue(all(0 < r["archive"]["size"] <= 300_000_000 for r in contract["archives"]))
+            self.assertFalse(report["complete_installed_payload_verified"])
+            self.assertFalse(report["package_payloads_executed"])
+
+    def test_compressed_aggregate_two_gib_plus_one_refuses_before_inspection(self):
+        contract, inspect = self.compressed_budget_fixture(2 * 1024**3 + 1)
+        with patch.object(payload, "inspect", side_effect=inspect) as delegated:
+            with self.assertRaisesRegex(ValueError, "compressed aggregate"):
+                payload.run(contract)
+            delegated.assert_not_called()
+
+    def test_larger_aggregate_does_not_relax_names_or_exact_archive_pins(self):
+        for change in ("unknown", "duplicate", "hash", "size"):
+            contract, inspect = self.compressed_budget_fixture(1024**3 + 1)
+            first = contract["archives"][0]
+            if change == "unknown": first["name"] = "foreign"
+            elif change == "duplicate": contract["archives"][1] = first
+            elif change == "hash": first["archive"]["sha256"] = "0" * 64
+            else: first["archive"]["size"] -= 1
+            with self.subTest(change=change), patch.object(payload, "inspect", side_effect=inspect) as delegated:
+                with self.assertRaises(ValueError): payload.run(contract)
+                delegated.assert_not_called()
+
+    def test_compressed_reference_sizes_are_positive_exact_integers_before_reads(self):
+        for value in (-1, 0, True, False, 1.0, "1", None, [], {}, 300_000_001):
+            contract, inspect = self.compressed_budget_fixture(1024**3 + 1)
+            # A malformed final row must refuse before even the first archive.
+            contract["archives"][-1]["archive"]["size"] = value
+            with self.subTest(size=value), patch.object(payload, "inspect", side_effect=inspect) as delegated:
+                with self.assertRaisesRegex(ValueError, "compressed archive size"):
+                    payload.run(contract)
+                delegated.assert_not_called()
+
+    def test_compressed_row_and_reference_schemas_refuse_before_reads(self):
+        changes = [None, [], "archive", {"name": "alpha-0"}, {"name": False, "archive": {}},
+                   {"name": "alpha-0", "archive": {}, "extra": True}]
+        contract, _ = self.compressed_budget_fixture(1024**3 + 1)
+        original = contract["archives"][0]
+        for ref in (None, [], "ref", {}, {"path": "/tmp/fixture", "sha256": "a" * 64},
+                    dict(original["archive"], path=False), dict(original["archive"], path="relative"),
+                    dict(original["archive"], path="/tmp/\0fixture"), dict(original["archive"], sha256=3),
+                    dict(original["archive"], sha256="wrong"), dict(original["archive"], extra=True)):
+            changes.append({"name": "alpha-0", "archive": ref})
+        for row in changes:
+            contract, inspect = self.compressed_budget_fixture(1024**3 + 1)
+            contract["archives"][0] = row
+            with self.subTest(row=row), patch.object(payload, "inspect", side_effect=inspect) as delegated:
+                with self.assertRaises(ValueError): payload.run(contract)
+                delegated.assert_not_called()
+
+    def test_negative_offset_cannot_hide_an_over_limit_array(self):
+        contract, inspect = self.compressed_budget_fixture(2 * 1024**3 + payload.ARCHIVE_LIMIT)
+        negative = dict(contract["archives"][-1]["archive"], size=-payload.ARCHIVE_LIMIT)
+        contract["archives"][-1]["archive"] = negative
+        self.assertGreater(sum(max(0, r["archive"]["size"]) for r in contract["archives"]), payload.TOTAL_COMPRESSED_LIMIT)
+        self.assertLessEqual(sum(r["archive"]["size"] for r in contract["archives"]), payload.TOTAL_COMPRESSED_LIMIT)
+        with patch.object(payload, "inspect", side_effect=inspect) as delegated:
+            with self.assertRaisesRegex(ValueError, "compressed archive size"):
+                payload.run(contract)
+            delegated.assert_not_called()
+
     def test_scriptlets_are_inert_text(self):
         archive = self.archive([(".INSTALL", "file", b"post_install() { touch /tmp/forbidden; }\n")])
         with patch("subprocess.run", side_effect=AssertionError("execution forbidden")):

@@ -68,9 +68,18 @@ def archive_spec(metadata, repo, scope):
     name, version, arch = identity(metadata)
     need(repo in {"core", "extra", "asahi-alarm"}, "candidate repository refused")
     for field in ("FILENAME", "SHA256SUM", "CSIZE"):
-        need(isinstance(metadata.get(field), list) and len(metadata[field]) == 1, "complete exact archive pins required")
+        need(type(metadata.get(field)) is list and len(metadata[field]) == 1
+             and type(metadata[field][0]) is str, "complete exact archive pins required")
     filename = metadata["FILENAME"][0]
-    need(filename == f"{name}-{version}-{arch}.pkg.tar.xz", "exact xz archive filename required")
+    versions = {version}
+    if ":" in version:
+        epoch = re.fullmatch(r"([0-9]+):([^:]+)", version)
+        need(epoch is not None, "single decimal package epoch required")
+        versions.add(epoch[2])
+        if repo == "asahi-alarm":
+            versions.add(epoch[1] + "." + epoch[2])
+    need(filename in {f"{name}-{value}-{arch}.pkg.tar.xz" for value in versions},
+         "exact xz archive filename required")
     need(re.fullmatch(r"[a-f0-9]{64}", metadata["SHA256SUM"][0]) and metadata["CSIZE"][0].isdigit(), "archive digest/size refused")
     size = int(metadata["CSIZE"][0])
     need(0 < size <= coverage.ARCHIVE_LIMIT, "archive size bound refused")
