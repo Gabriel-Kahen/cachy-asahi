@@ -129,8 +129,8 @@ The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with 
   fails in the original producer before FDK compilation. Its exact failing
   operation remains unknown. The reviewed correction preserves delegated log
   bytes and finite phase diagnostics; 104 tests pass in both the workspace and
-  exact copied 128-file packet, with committed Git byte/mode proof. Corrected
-  workflow consumption and a new hosted execution remain pending.
+  exact copied 128-file packet, with committed Git byte/mode proof. The corrected workflow
+  consumption and subsequent hosted execution are recorded below.
 - The corrected FDK trial, `38230760444`, passes source/native prerequisites
   and all 501 acquisitions, then fails with the bounded diagnostic
   `producer-base-probe-runner-failed`. Its seven public files independently
