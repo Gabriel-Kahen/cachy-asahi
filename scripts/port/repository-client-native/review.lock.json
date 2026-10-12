@@ -1,0 +1,144 @@
+{
+  "actual_immutable_341_collection": "NOT RUN",
+  "actual_native_end_to_end": "NOT RUN",
+  "actual_original_repository_cryptographic_acceptance": "NOT RUN",
+  "authority": "Coordinator must pin this packet outside its source/input trees; it is not native acceptance",
+  "date": "2026-10-12",
+  "dependencies": [
+    "Python3 standard library on Linux/POSIX",
+    "native immutable Docker/OCI ARM builder with pacman (production collector; NOT RUN locally)",
+    "gpg",
+    "gpgconf",
+    "gpg-connect-agent",
+    "repo-add (real crypto fixtures and held restage)",
+    "bsdtar and vercmp (held adapter dependencies)"
+  ],
+  "development_only": true,
+  "files": {
+    "docs/workstreams/repository-client-native.md": {
+      "bytes": 7809,
+      "mode": 420,
+      "sha256": "7f4198d1bbfa3114259fce29584453a1fe769b653472558e310fd2e1bd72ee74"
+    },
+    "scripts/port/repository-client-native/README.md": {
+      "bytes": 8791,
+      "mode": 420,
+      "sha256": "4ba0c0a6b50d9bb8d90f9a1377ca71e2e5988bc1b00ce7c8c05441f141065bb6"
+    },
+    "scripts/port/repository-client-native/base.py": {
+      "bytes": 43739,
+      "mode": 420,
+      "sha256": "94a8e2898b062a0efd0f567d1f4f472bd04d6ff5a1573cd09f3bf8d1f556cddd"
+    },
+    "scripts/port/repository-client-native/common.py": {
+      "bytes": 23820,
+      "mode": 420,
+      "sha256": "92ca41005397c6cccfd70497646c0de1f2ac88a697e0fcbec4165bf5326cfc08"
+    },
+    "scripts/port/repository-client-native/crypto.py": {
+      "bytes": 40957,
+      "mode": 420,
+      "sha256": "3e229ff4c543f462bc04c1a428ec4dfc0f029192885cfdd06821fcb2a85df967"
+    },
+    "scripts/port/repository-client-native/entry.py": {
+      "bytes": 6946,
+      "mode": 420,
+      "sha256": "5889e0358bd0a04122e6cfcb061337f1dc415b064ba92f46ae47893a5747e0c8"
+    },
+    "scripts/port/repository-client-native/gate-successor-proposal.json": {
+      "bytes": 3808,
+      "mode": 420,
+      "sha256": "8bf8fbe566ddd869bcb342aef9c8c22927f26054ec26ec100e4d3bd3f05ba50d"
+    },
+    "scripts/port/repository-client-native/orchestrator.py": {
+      "bytes": 7767,
+      "mode": 420,
+      "sha256": "9323498b61d3cedbb0f99bd45564a3f26572ed7e560d75f260eef932c7f957ff"
+    },
+    "scripts/port/repository-client-native/provenance.py": {
+      "bytes": 19643,
+      "mode": 420,
+      "sha256": "772f23676ec047117a2d6089e33afb60d7d552d3a03d62543d505183b611345b"
+    },
+    "scripts/port/repository-client-native/source-map.json": {
+      "bytes": 850,
+      "mode": 420,
+      "sha256": "50638283c25bc76ec66bd47988227e31022cbad3bac16354d9db8ca7081dccc3"
+    },
+    "scripts/port/repository-client-native/test_base.py": {
+      "bytes": 34361,
+      "mode": 420,
+      "sha256": "ac36f8d435615c0b755227c5c3c80771fd58d10fb2e5bce52649bfa81476a2e7"
+    },
+    "scripts/port/repository-client-native/test_common.py": {
+      "bytes": 20563,
+      "mode": 420,
+      "sha256": "be76e12659b8e810da2fb394c1b1e5dc88dfeab76f1951e8d712c91f20ae7f3f"
+    },
+    "scripts/port/repository-client-native/test_crypto.py": {
+      "bytes": 26095,
+      "mode": 420,
+      "sha256": "61a0c82d44d74d2f768695d0d6ecdd4ff98fcb952882c8aa8942a08fb1bcf9b7"
+    },
+    "scripts/port/repository-client-native/test_orchestrator.py": {
+      "bytes": 10300,
+      "mode": 420,
+      "sha256": "9e75f9daa6677334e6c8fff734a592de438df075c237d956305c01b605c44599"
+    },
+    "scripts/port/repository-client-native/test_provenance.py": {
+      "bytes": 13076,
+      "mode": 420,
+      "sha256": "c43d34fc003cd6dd472ae57741f50e963907809aef3e94fff2f4fd6d391da60f"
+    },
+    "scripts/port/repository-client-native/worker.py": {
+      "bytes": 2159,
+      "mode": 420,
+      "sha256": "9a513a59da3cbb58d54c236759e3299072e14194e4d297df911072daa241b060"
+    }
+  },
+  "hardware_validation": "NOT RUN",
+  "held_dependencies": {
+    "scripts/client/client.py": "3025aa0e167c836e31c949e0915d4ee82a1007dc0fada598b4895240c82f5f97",
+    "scripts/port/repository-client-stage/adapter.py": "69ad53b4bc041d37536ad15a4ced7efa4cb2d61bcd6cb4a62fdfce8a7dbd52ab",
+    "scripts/port/repository-client-stage/gate.py": "fa39cfd6b5c1a3718f888d3f9fdb51f5bb8e38a7e57a98d1c4c8c570ea70af1e",
+    "scripts/release/release.py": "418c850e8a44ae71517e074f86f46f5999f5fe7433ca6798de945f318191a918"
+  },
+  "held_stage_review_lock_sha256": "f1fa8ba782fd245264057de2b546b458aef49a3858376a724e0f063db6be2147",
+  "independent_source_review": "Historical full107 reviewed; RCN1 actual leaking-child repro closed on exact held correction. Independent focused34 and four partial-restoration probes PASS; full118 author actual tool output inspected. Native acceptance NOT RUN.",
+  "installation": "NOT RUN",
+  "license": "MIT",
+  "original_B_continuity": false,
+  "post_terminal_execution": "NOT RUN: held schema1 crypto VALID incompatible with explicit revoked-A authorization; proposed successor delta supplied",
+  "production_trust": "NOT RUN",
+  "published_endpoint": "NOT RUN",
+  "purpose": "held-repository-client-native-source-review",
+  "root_adoption": {
+    "historical_review_lock_sha256": "5b22ba656cd326c47ab3899378f670ff14adf4ed2b1ceb4a64f0d1abd0fc0cc7",
+    "historical_source_map_sha256": "1d38b5f9009636121b0c78f7c63b3ac63c809e841375bfa3e3bafa9eb4b6e290",
+    "review_path": "docs/reviews/repository-client-native-review.md",
+    "review_sha256": "3f7b8422155b5f8cb24cfd675aaa8a50fecd8490c7ea5c306965b9605cd75173",
+    "source_only": true
+  },
+  "schema_version": 1,
+  "selected_for_release": false,
+  "source_map_sha256": "50638283c25bc76ec66bd47988227e31022cbad3bac16354d9db8ca7081dccc3",
+  "stable_promotion": "NOT RUN",
+  "validation": {
+    "AST_JSON_links_whitespace_EOF": "PASS",
+    "command": "PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s scripts/port/repository-client-native -p test_*.py -q",
+    "elapsed_seconds": "15.258",
+    "execution_evidence": "author actual tool run/exit0; derived record explicitly transcribed, no original filesystem log",
+    "scope": "exact copied Python source/test packet plus four frozen dependency sources; real local CLI/GPG/repo-add/signals; modeled Docker/native/build/admission controls",
+    "skipped": 0,
+    "source_copy_stable": true,
+    "status": "PASS",
+    "suite_counts": {
+      "base": 35,
+      "crypto": 24,
+      "orchestration_and_CLI": 10,
+      "provenance": 15,
+      "runtime": 34
+    },
+    "tests": 118
+  }
+}
