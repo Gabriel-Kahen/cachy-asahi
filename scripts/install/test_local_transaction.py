@@ -1341,6 +1341,90 @@ class SupervisionTests(Fixtures):
         with self.assertRaises(ProcessLookupError): os.kill(pid, 0)
 
 
+class GpgHomePathTests(unittest.TestCase):
+    """Pure byte budgets and controlled parent/engine refusal; no authentication actor."""
+    def setUp(self):
+        self.module = load_worker(); self.addCleanup(self.close_output)
+        raw = (HERE.parent / 'port/kernel-native-job/runtime.py').read_bytes()
+        self.assertEqual(hashlib.sha256(raw).hexdigest(), RUNTIME_SHA256)
+        self.module.RUNTIME_BYTES = raw
+    def close_output(self):
+        if self.module.OWNED_OUTPUT is not None: self.module.OWNED_OUTPUT.close()
+    def test_ASCII_socket_107_accepts_and_108_refuses_closed_reason(self):
+        self.module.validate_gpg_home_path('/'+'a'*90)
+        with self.assertRaisesRegex(ValueError, '^GPG_HOME_SOCKET_PATH_TOO_LONG$'):
+            self.module.validate_gpg_home_path('/'+'a'*91)
+    def test_UTF8_filesystem_bytes_decide_instead_of_character_count(self):
+        self.module.validate_gpg_home_path('/'+'é'*45)
+        workspace = '/'+'é'*45+'a'
+        self.assertLess(len(str(Path(workspace)/'gpg/S.gpg-agent')), 107)
+        with self.assertRaisesRegex(ValueError, '^GPG_HOME_SOCKET_PATH_TOO_LONG$'):
+            self.module.validate_gpg_home_path(workspace)
+    def test_terminating_NUL_reserves_one_byte_in_the_108_byte_field(self):
+        fitting, oversized = '/'+'a'*90, '/'+'a'*91
+        for workspace, expected in ((fitting,108),(oversized,109)):
+            raw = os.fsencode(Path(workspace)/'gpg/S.gpg-agent')
+            self.assertEqual(len(raw+b'\x00'), expected)
+        self.module.validate_gpg_home_path(fitting)
+        with self.assertRaises(ValueError): self.module.validate_gpg_home_path(oversized)
+        # Embedded NUL remains rejected by the existing private-path gate.
+        with self.assertRaises(ValueError): self.module.private('/tmp/invalid\x00workspace',os.getuid())
+    def parent(self, *, long_path):
+        temp = tempfile.TemporaryDirectory(prefix='caa-gpg-policy-'); self.addCleanup(temp.cleanup)
+        base = Path(temp.name); base.chmod(0o700)
+        workspace = base/('w'*80) if long_path else base
+        if long_path: workspace.mkdir(mode=0o700)
+        contract = {'schema_version':1,'scope':'synthetic-fixture','workspace':str(workspace),
+                    'architecture':'x86_64','before':{'test-only': '1'},'after':{},'protected':{},
+                    'add':[],'remove':{'test-only':'1'},'keyring':{'path':'/not-consumed','size':1,'sha256':'a'*64},
+                    'timeout_seconds':20,'libalpm_sha256':LIBALPM_SHA256}
+        path = base/'contract.json'; raw = encoded(contract); path.write_bytes(raw); path.chmod(0o600)
+        output = workspace/'evidence'; counters = {'copy':0,'capsule':0,'supervise':0,'alpm':0}
+        control = ValueError('test-only copied seed stop')
+        def copy(*args, **kwargs): counters['copy']+=1; raise control
+        def capsule(*args, **kwargs): counters['capsule']+=1; self.fail('source capsule reached')
+        def supervise(*args, **kwargs): counters['supervise']+=1; self.fail('worker actor reached')
+        def alpm(*args, **kwargs): counters['alpm']+=1; self.fail('package actor reached')
+        with patch.object(self.module,'copy_tree',side_effect=copy), patch.object(self.module,'sealed_source',side_effect=capsule), \
+                patch.object(self.module,'supervise',side_effect=supervise), patch.object(self.module,'Alpm',side_effect=alpm):
+            result = self.module.execute(path,hashlib.sha256(raw).hexdigest(),output,
+                        worker_source_sha256=self.module._fixture_source_sha256,allow=True)
+        retained = json.loads((output/'result.json').read_bytes())
+        self.assertEqual(retained,result); self.assertEqual(result['status'],'FAIL')
+        self.assertFalse(result['commit_started']); self.assertFalse(result['committed'])
+        self.assertFalse((output/'candidate-packages.lock').exists()); self.assertFalse((output/'installed-packages.lock').exists())
+        self.assertFalse(self.module.ENGINE_STARTED); self.assertEqual(result['capsule_cleanup']['owned_remaining'],0)
+        return result,counters,workspace
+    def test_long_parent_refusal_is_durable_before_copy_capsule_worker_or_package(self):
+        result,counters,workspace = self.parent(long_path=True)
+        self.assertEqual(result['parent_error_type'],'ValueError')
+        self.assertEqual(result['parent_error'],'GPG_HOME_SOCKET_PATH_TOO_LONG')
+        self.assertEqual(result['error'],'GPG_HOME_SOCKET_PATH_TOO_LONG')
+        self.assertEqual(counters,{'copy':0,'capsule':0,'supervise':0,'alpm':0})
+        self.assertFalse((workspace/'system').exists()); self.assertFalse((workspace/'gpg').exists())
+    def test_short_parent_passes_path_guard_without_promoting_later_control(self):
+        result,counters,_ = self.parent(long_path=False)
+        self.assertEqual(result['parent_error'],'test-only copied seed stop')
+        self.assertEqual(counters,{'copy':1,'capsule':0,'supervise':0,'alpm':0})
+    def test_actual_engine_guard_slice_refuses_before_authentication_command(self):
+        import ast
+        raw = WORKER.read_bytes(); self.assertEqual(hashlib.sha256(raw).hexdigest(),self.module._fixture_source_sha256)
+        engine = next(n for n in ast.parse(raw).body if isinstance(n,ast.FunctionDef) and n.name=='engine')
+        block = next(n for n in engine.body if isinstance(n,ast.Try) and any(isinstance(x,ast.Expr) and
+                     isinstance(x.value,ast.Call) and isinstance(x.value.func,ast.Name) and
+                     x.value.func.id=='validate_gpg_home_path' for x in n.body))
+        code = compile(ast.fix_missing_locations(ast.Module(block.body[:3],type_ignores=[])), 'actual-engine-guard-slice','exec')
+        calls=[]
+        for workspace in (Path('/'+'a'*91),Path('/tmp/controlled-short')):
+            env = dict(self.module.__dict__,workspace=workspace,keys=workspace/'gpg',
+                       contract={'keyring':{'path':'/controlled-never-read'}},command=lambda argv:calls.append(argv))
+            if len(os.fsencode(workspace/'gpg/S.gpg-agent'))>107:
+                with self.assertRaisesRegex(ValueError,'^GPG_HOME_SOCKET_PATH_TOO_LONG$'): exec(code,env)
+                self.assertEqual(calls,[])
+            else: exec(code,env)
+        self.assertEqual(len(calls),1); self.assertIn('--no-autostart',calls[0]); self.assertIn('--no-auto-key-retrieve',calls[0])
+
+
 class IsolateAdoptionOrderTests(unittest.TestCase):
     """Execute the actual three-statement evidence slice against modeled RO state."""
     def setUp(self):

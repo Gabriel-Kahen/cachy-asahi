@@ -210,6 +210,12 @@ def environment(**extra):
     value.update(extra); return value
 
 
+def validate_gpg_home_path(workspace):
+    # Linux pathname socket budget includes the terminating NUL byte.
+    need(len(os.fsencode(Path(workspace) / 'gpg' / 'S.gpg-agent')) <= 107,
+         'GPG_HOME_SOCKET_PATH_TOO_LONG')
+
+
 def private(path, uid):
     path = Path(path)
     need(path.is_absolute() and '..' not in path.parts and not any(p.is_symlink() for p in (path, *path.parents)), 'canonical private path required')
@@ -968,6 +974,7 @@ def engine(spec_path, spec_sha256):
         need(receipt.returncode == 0, 'private authentication command failed'); return receipt.stdout
     alpm = None
     try:
+        validate_gpg_home_path(workspace)  # Defense in the captured engine before authentication.
         gpg = ['/usr/bin/gpg', '--batch', '--no-options', '--no-autostart', '--homedir', str(keys), '--no-auto-key-retrieve']
         command(gpg + ['--import', contract['keyring']['path']])
         public_keyring_only(command(gpg + ['--with-colons', '--list-secret-keys']), keys)
@@ -1108,6 +1115,7 @@ def execute(contract_path, contract_sha256, output_path, *, worker_source_sha256
             output.mkdir(mode=0o700); OWNED_OUTPUT = Evidence(output); evidence = OWNED_OUTPUT
             result['evidence_identity'] = list(evidence.identity); evidence.save('result.json', result)
             evidence.write('candidate-packages.lock', b'', exclusive=True)
+            validate_gpg_home_path(workspace)  # Before seed copying or any worker launch.
             scratch = Path(tempfile.mkdtemp(prefix='.local-transaction-', dir=workspace.parent)); scratch.chmod(0o700)
             seed = workspace / 'system'; seed.mkdir(mode=0o700, exist_ok=True); private(seed, os.getuid())
             need(all(v['uid'] == os.getuid() and v['gid'] == os.getgid() for v in tree(seed).values()), 'seed ownership outside namespace mapping')
