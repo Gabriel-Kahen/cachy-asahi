@@ -33,7 +33,7 @@
     },
     "scripts/port/kernel-native-stage/broker.py": {
       "mode": 420,
-      "sha256": "3f69e25b9c09c229c583080eefd975dc24db2e4b58286ee3bd5e2303883cd627"
+      "sha256": "370a6036d7c268267c31fa40dd08b159b70dba6e7ccd693b46b92df512725fe7"
     },
     "scripts/port/kernel-native-stage/common.py": {
       "mode": 420,
@@ -77,7 +77,7 @@
     },
     "scripts/port/kernel-native-stage/test_broker.py": {
       "mode": 420,
-      "sha256": "0741790a44912d49ec983758c531bb9d66745578222cb240fc23a9f3994a4199"
+      "sha256": "a82e38e0362793962e9a9a73613dd2028545e05d07e21ba8fb1113e224c16248"
     },
     "scripts/port/kernel-native-stage/test_dependency_audit.py": {
       "mode": 420,

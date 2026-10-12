@@ -36,6 +36,12 @@ def labels(value):
     return {} if value is None else dict(value)
 
 
+def provision_capabilities(value):
+    return (type(value) is list and len(value) == 3 and
+            all(type(cap) is str for cap in value) and
+            {cap.removeprefix('CAP_') for cap in value} == {'CHOWN', 'DAC_OVERRIDE', 'FOWNER'})
+
+
 def validate_endpoint(endpoint, uid):
     allowed = {'unix:///var/run/docker.sock', 'unix:///run/docker.sock'}
     need(endpoint in allowed, 'docker-endpoint')
@@ -405,13 +411,16 @@ class Broker:
         forbidden = ('Devices', 'DeviceRequests', 'Binds', 'VolumesFrom', 'Links', 'PortBindings', 'GroupAdd')
         if self.role != 'provision':
             forbidden += ('CapAdd',)
+        checked_host = host
         with scope(self.observer, 'INSPECT_RESOURCES'):
+            if self.role == 'provision' and provision_capabilities(host.get('CapAdd')):
+                checked_host = {**host, 'CapAdd': required['CapAdd']}
             try:
-                need(all(host.get(key) == value for key, value in required.items()) and
-                     not any(host.get(key) for key in forbidden),
+                need(all(checked_host.get(key) == value for key, value in required.items()) and
+                     not any(checked_host.get(key) for key in forbidden),
                      'docker-container-resources')
             except ValueError:
-                if type(self.observer) is Trace: self.observer.resources_refused(host, required, forbidden)
+                if type(self.observer) is Trace: self.observer.resources_refused(checked_host, required, forbidden)
                 raise
         with scope(self.observer, 'INSPECT_MOUNTS'):
             actual = {mount['Destination']: (mount['Source'], mount['RW']) for mount in item['Mounts']

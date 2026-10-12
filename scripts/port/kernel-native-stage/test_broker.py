@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: MIT
 import copy
+import itertools
 import json
 import os
 from pathlib import Path
@@ -529,6 +530,197 @@ class ResourceMismatchObservations(unittest.TestCase):
         self.assertEqual(final['first_failure'],first['first_failure'])
         self.assertEqual(final['cleanup_failure']['resource_mismatch'],{'field':'PidsLimit','kind':'VALUE'})
         self.assertIsNone(final['current']['resource_mismatch'])  # Existing outer scope is no longer the resource leaf.
+
+
+class ProvisionCapabilityEquivalence(unittest.TestCase):
+    setUp = BrokerPolicy.setUp
+    instance = BrokerPolicy.instance
+    env = BrokerPolicy.env
+    inspect_row = BrokerPolicy.inspect_row
+    provision_inspect = BrokerPolicy.provision_inspect
+
+    @staticmethod
+    def variants():
+        names = ('CHOWN', 'DAC_OVERRIDE', 'FOWNER')
+        return [list(order) for prefixes in itertools.product(('', 'CAP_'), repeat=3)
+                for order in itertools.permutations([prefix + name for prefix, name in zip(prefixes, names)])]
+
+    def inspect(self, subject, row, item, cleanup=False, error=None):
+        original = copy.deepcopy(item)
+        decoded = []
+        decode = broker.decode
+        def capture(raw):
+            result = decode(raw)
+            decoded.append((result, copy.deepcopy(result)))
+            return result
+        with patch.object(subject, '_operation', return_value=subprocess.CompletedProcess(
+                [], 0, json.dumps([item]).encode())) as query, patch.object(broker, 'decode', side_effect=capture):
+            if error:
+                with self.assertRaisesRegex(ValueError, '^' + error + '$'):
+                    subject._inspect(row['id'], row, cleanup=cleanup)
+            else:
+                self.assertEqual(subject._inspect(row['id'], row, cleanup=cleanup), row['id'])
+        query.assert_called_once_with(['container', 'inspect', row['id']], cleanup=cleanup)
+        self.assertEqual(item, original)
+        self.assertEqual(len(decoded), 1)
+        self.assertEqual(decoded[0][0], decoded[0][1])
+
+    def traced(self, cleanup=False):
+        subject, row, item = self.provision_inspect()
+        subject.observer = broker.Trace()
+        subject.observer.current['action'] = 'cleanup' if cleanup else 'provision'
+        return subject, row, item
+
+    def mismatch(self, subject, field, kind, cleanup=False):
+        snapshot = subject.observer.snapshot()
+        target = 'cleanup_failure' if cleanup else 'first_failure'
+        self.assertEqual(snapshot[target]['resource_mismatch'], {'field': field, 'kind': kind})
+        self.assertEqual(snapshot[target]['gate'], 'INSPECT_RESOURCES')
+        self.assertNotIn('private-secret', json.dumps(snapshot))
+
+    def test_all_48_spellings_and_orders_accept_in_provision_and_cleanup_without_mutation(self):
+        variants = self.variants()
+        self.assertEqual(len(variants), 48)
+        self.assertEqual(len({tuple(value) for value in variants}), 48)
+        for cleanup, caps in itertools.product((False, True), variants):
+            with self.subTest(cleanup=cleanup, caps=caps):
+                subject, row, item = self.traced(cleanup)
+                item['HostConfig']['CapAdd'] = caps
+                self.inspect(subject, row, item, cleanup)
+                snapshot = subject.observer.snapshot()
+                self.assertIsNone(snapshot['first_failure'])
+                self.assertIsNone(snapshot['cleanup_failure'])
+
+    def test_exact_helper_types_and_closed_capability_set(self):
+        class ListSubclass(list): pass
+        class StringSubclass(str): pass
+        valid = ['CHOWN', 'DAC_OVERRIDE', 'FOWNER']
+        for caps in self.variants():
+            self.assertIs(broker.provision_capabilities(caps), True)
+        for caps in (tuple(valid), ListSubclass(valid), [StringSubclass('CHOWN'), *valid[1:]],
+                     None, False, True, 0, 3, '', 'CHOWN', {}, set(valid),
+                     ['CHOWN', 'DAC_OVERRIDE', None], ['CHOWN', 'DAC_OVERRIDE', 1]):
+            with self.subTest(caps=repr(caps)):
+                self.assertIs(broker.provision_capabilities(caps), False)
+
+    def test_invalid_json_capadd_values_refuse_with_closed_diagnostics(self):
+        invalid = [None, False, True, 0, 3, '', 'CHOWN', {}, {'CHOWN': True}, [],
+                   ['CHOWN'], ['CHOWN', 'DAC_OVERRIDE'], ['CHOWN', 'DAC_OVERRIDE', 'FOWNER', 'SYS_ADMIN'],
+                   ['CHOWN', 'CHOWN', 'FOWNER'], ['CHOWN', 'CAP_CHOWN', 'FOWNER'],
+                   ['CAP_CHOWN', 'CAP_DAC_OVERRIDE', 'CAP_DAC_OVERRIDE']]
+        for bad in ('ALL', 'CAP_ALL', 'SYS_ADMIN', 'private-secret', 'chown', 'cap_CHOWN',
+                    'CAP_chown', ' CHOWN', 'CHOWN ', 'CAP_CAP_CHOWN', '', None, False, 0, [], {}):
+            invalid.append([bad, 'DAC_OVERRIDE', 'FOWNER'])
+        for cleanup, caps in itertools.product((False, True), invalid):
+            with self.subTest(cleanup=cleanup, caps=caps):
+                subject, row, item = self.traced(cleanup)
+                item['HostConfig']['CapAdd'] = caps
+                self.inspect(subject, row, item, cleanup, 'docker-container-resources')
+                self.mismatch(subject, 'CapAdd', 'VALUE' if type(caps) is list else 'TYPE', cleanup)
+        for cleanup in (False, True):
+            subject, row, item = self.traced(cleanup)
+            del item['HostConfig']['CapAdd']
+            self.inspect(subject, row, item, cleanup, 'docker-container-resources')
+            self.mismatch(subject, 'CapAdd', 'MISSING', cleanup)
+
+    def test_build_role_forbids_every_equivalent_nonempty_capadd(self):
+        for cleanup, caps in itertools.product((False, True), self.variants()):
+            with self.subTest(cleanup=cleanup, caps=caps):
+                subject = self.instance()
+                subject.observer = broker.Trace()
+                subject.observer.current['action'] = 'cleanup' if cleanup else 'baseline'
+                row, item = self.inspect_row(subject)
+                item['HostConfig']['CapAdd'] = caps
+                self.inspect(subject, row, item, cleanup, 'docker-container-resources')
+                self.mismatch(subject, 'CapAdd', 'PRESENT', cleanup)
+
+    def test_accepted_alias_preserves_every_required_and_forbidden_diagnostic(self):
+        _, _, reference = self.provision_inspect()
+        for cleanup in (False, True):
+            for field, expected in reference['HostConfig'].items():
+                if field == 'CapAdd': continue
+                changed = (not expected if type(expected) is bool else expected + 1 if type(expected) is int
+                           else 'private-secret' if type(expected) is str else ['private-secret'] if type(expected) is list
+                           else {'private-secret': 'private-secret'})
+                for kind, replacement in (('MISSING', None), ('TYPE', None), ('VALUE', changed)):
+                    with self.subTest(cleanup=cleanup, field=field, kind=kind):
+                        subject, row, item = self.traced(cleanup)
+                        item['HostConfig']['CapAdd'] = ['CAP_FOWNER', 'CHOWN', 'CAP_DAC_OVERRIDE']
+                        if kind == 'MISSING': del item['HostConfig'][field]
+                        else: item['HostConfig'][field] = replacement
+                        self.inspect(subject, row, item, cleanup, 'docker-container-resources')
+                        self.mismatch(subject, field, kind, cleanup)
+            for field in ('Devices', 'DeviceRequests', 'Binds', 'VolumesFrom', 'Links', 'PortBindings', 'GroupAdd'):
+                with self.subTest(cleanup=cleanup, field=field):
+                    subject, row, item = self.traced(cleanup)
+                    item['HostConfig'].update(CapAdd=['CAP_FOWNER', 'CAP_DAC_OVERRIDE', 'CAP_CHOWN'])
+                    item['HostConfig'][field] = ['private-secret']
+                    self.inspect(subject, row, item, cleanup, 'docker-container-resources')
+                    self.mismatch(subject, field, 'PRESENT', cleanup)
+
+    def test_first_resource_conjunct_and_sticky_independent_cleanup_failure(self):
+        subject, row, item = self.traced()
+        item['HostConfig'].update(CapAdd=['CAP_FOWNER', 'CHOWN', 'CAP_DAC_OVERRIDE'],
+                                  AutoRemove=True, Tmpfs={}, Devices=['private-secret'])
+        self.inspect(subject, row, item, error='docker-container-resources')
+        self.mismatch(subject, 'AutoRemove', 'VALUE')
+        first = subject.observer.snapshot()['first_failure']
+        subject.observer.current['action'] = 'cleanup'
+        _, row, item = self.provision_inspect()
+        item['HostConfig'].update(CapAdd=['CAP_FOWNER', 'CHOWN', 'CAP_DAC_OVERRIDE'],
+                                  Devices=['private-secret'])
+        self.inspect(subject, row, item, True, 'docker-container-resources')
+        self.mismatch(subject, 'Devices', 'PRESENT', True)
+        self.assertEqual(subject.observer.snapshot()['first_failure'], first)
+        subject, row, item = self.traced()
+        item['HostConfig'].update(CapAdd=['CAP_ALL', 'CHOWN', 'FOWNER'], Devices=['private-secret'])
+        self.inspect(subject, row, item, error='docker-container-resources')
+        self.mismatch(subject, 'CapAdd', 'VALUE')
+
+    def test_alias_does_not_bypass_ownership_mount_or_command_gates(self):
+        changes = [('docker-container-ownership', lambda item: item.update(Name='/foreign')),
+                   ('docker-container-mounts', lambda item: item['Mounts'][0].update(Source='/foreign')),
+                   ('docker-container-command', lambda item: item['Config'].update(Cmd=['foreign'])),
+                   ('docker-container-command', lambda item: item['Config'].update(Entrypoint=['/bin/sh'])),
+                   ('docker-container-command', lambda item: item['Config'].update(Env=['PATH=/foreign']))]
+        for error, change in changes:
+            subject, row, item = self.traced()
+            item['HostConfig']['CapAdd'] = ['CAP_FOWNER', 'CAP_DAC_OVERRIDE', 'CAP_CHOWN']
+            change(item)
+            self.inspect(subject, row, item, error=error)
+            self.assertIsNone(subject.observer.snapshot()['first_failure']['resource_mismatch'])
+
+    def test_literal_capability_flags_and_other_options_remain_unchanged(self):
+        for role in ('build', 'provision'):
+            subject = self.instance(role)
+            options = subject._options('name', {}, self.mounts)
+            self.assertEqual([arg for arg in options if arg.startswith('--cap-add=')],
+                             ['--cap-add=CHOWN', '--cap-add=DAC_OVERRIDE', '--cap-add=FOWNER']
+                             if role == 'provision' else [])
+            for arg in ('--cap-drop=ALL', '--security-opt=no-new-privileges', '--network=none',
+                        '--ipc=private', '--cgroupns=private', '--memory=14g', '--memory-swap=14g',
+                        '--cpus=2', '--pids-limit=512', '--pull=never', '--platform=linux/arm64'):
+                self.assertEqual(options.count(arg), 1)
+
+    def test_malformed_hostconfig_keeps_original_exception_and_resource_gate(self):
+        for cleanup, host in itertools.product((False, True), (None, [], 'private-secret', 1)):
+            with self.subTest(cleanup=cleanup, host=host):
+                subject, row, item = self.traced(cleanup)
+                item['HostConfig'] = host
+                original = copy.deepcopy(item)
+                with patch.object(subject, '_operation', return_value=subprocess.CompletedProcess(
+                        [], 0, json.dumps([item]).encode())) as query:
+                    with self.assertRaises(AttributeError) as caught:
+                        subject._inspect(row['id'], row, cleanup=cleanup)
+                self.assertIs(type(caught.exception), AttributeError)
+                self.assertEqual(caught.exception.args, (f"'{type(host).__name__}' object has no attribute 'get'",))
+                query.assert_called_once_with(['container', 'inspect', row['id']], cleanup=cleanup)
+                self.assertEqual(item, original)
+                snapshot = subject.observer.snapshot()
+                target = 'cleanup_failure' if cleanup else 'first_failure'
+                self.assertEqual(snapshot[target]['gate'], 'INSPECT_RESOURCES')
+                self.assertIsNone(snapshot[target]['resource_mismatch'])
+                self.assertNotIn('private-secret', json.dumps(snapshot))
 
 
 if __name__ == '__main__':
