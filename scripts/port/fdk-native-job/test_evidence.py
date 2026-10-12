@@ -364,6 +364,30 @@ class PublicStatusTests(unittest.TestCase):
         self.assertEqual(evidence.public_status({**failed, 'work_phase': 'fdk', 'producer_diagnostic': diagnostic})['error_code'],
                          'fdk-native-job-failed')
 
+    def test_closed_probe_substeps_and_refusals_project_without_raw_fields(self):
+        failed = {**job_report(), 'status': 'FAIL', 'work_phase': 'producer', 'producer': {'status': 'FAIL'}}
+        for call in evidence.BASE_PROBE_CALLS:
+            for refusal in evidence.BASE_PROBE_REFUSALS:
+                diagnostic = {'phase': 'base-probe', 'outcome': 'runner-failed', 'call': call, 'refusal_code': refusal}
+                public = evidence.public_status({**failed, 'producer_diagnostic': diagnostic})
+                self.assertEqual(public['error_code'], 'producer-base-probe-' + call + '-' + refusal)
+                self.assertIn(public['error_code'], evidence.PRODUCER_FAILURE_CODES)
+                self.assertNotIn('producer_diagnostic', public)
+        for outcome, point in (('not-run', 'before'), ('started', 'during'), ('pass', 'after')):
+            diagnostic = {'phase': 'base-probe', 'outcome': outcome, 'call': 'image-inspect', 'refusal_code': 'none'}
+            self.assertEqual(evidence.public_status({**failed, 'producer_diagnostic': diagnostic})['error_code'],
+                             'producer-' + point + '-base-probe-image-inspect-failed')
+        good = {'phase': 'base-probe', 'outcome': 'runner-failed', 'call': 'image-inspect',
+                'refusal_code': 'docker-image-drift'}
+        bad = [{**good, 'call': SECRET}, {**good, 'refusal_code': SECRET}, {**good, 'phase': 'gpg-verify'},
+               {**good, 'outcome': 'pass'}, {**good, 'call': []}, {**good, 'refusal_code': {}},
+               {**good, 'raw_private_response': SECRET}, {k: v for k, v in good.items() if k != 'call'},
+               {k: v for k, v in good.items() if k != 'refusal_code'}]
+        for diagnostic in bad:
+            result = evidence.public_status({**failed, 'producer_diagnostic': diagnostic})
+            self.assertEqual(result['error_code'], 'fdk-native-job-failed')
+            self.assertNotIn(SECRET, json.dumps(result))
+
     def test_pass_requires_complete_both_stages_no_cancellation_and_image_absence(self):
         self.assertEqual(evidence.public_status(job_report())['status'], 'PASS')
         for change in ({'status': 'FAIL'}, {'phase': 'cleanup'}, {'cancelled': True}, {'source': {}}, {'source': {'status': 'FAIL'}},

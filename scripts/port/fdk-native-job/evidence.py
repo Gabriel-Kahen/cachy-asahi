@@ -32,13 +32,64 @@ PRODUCER_FAILURE_CODES = ({'producer-before-' + phase + '-failed' for phase in P
                           {'producer-' + phase + '-' + outcome for phase in PRODUCER_PHASES
                            for outcome in ('command-failed', 'delegate-refused', 'runner-failed', 'cancelled')})
 
+BASE_PROBE_CALLS = {'docker-info', 'docker-version', 'docker-context', 'image-inspect',
+                    'inventory-probe', 'unclassified'}
+# Literal predicate labels from the reviewed broker/runtime sources; never raw error text.
+BASE_PROBE_POLICY_CODES = {
+    'base-build-already-reserved', 'base-build-command', 'base-build-unknown-image',
+    'base-cleanup-cancellation-uncertain', 'base-cleanup-deadline', 'base-container-cleanup',
+    'base-container-image-missing', 'base-container-journal-binding',
+    'base-container-journal-count', 'base-container-journal-path', 'base-context-count',
+    'base-context-deadline', 'base-context-directory', 'base-context-drift', 'base-context-file',
+    'base-context-path', 'base-context-required', 'base-context-size', 'base-context-symlink',
+    'base-docker-version', 'base-expected-daemon', 'base-image-absence-uncertain',
+    'base-image-context-binding', 'base-image-journal-binding', 'base-image-journal-size',
+    'base-image-reservation', 'base-job-path', 'base-job-root', 'base-legacy-builder-env',
+    'base-lock-probe-command', 'base-lock-probe-inventory', 'base-new-iidfile',
+    'base-owned-image-absence', 'base-owned-image-binding', 'base-owned-image-inspect',
+    'base-owned-image-list', 'base-owned-image-remove', 'command-timeout', 'deadline-exhausted',
+    'docker-binary-drift', 'docker-binary-path', 'docker-binary-pin', 'docker-build-command',
+    'docker-build-env', 'docker-build-mounts', 'docker-build-options', 'docker-build-policy',
+    'docker-build-timeout', 'docker-capture-command', 'docker-cleanup-failed', 'docker-config',
+    'docker-container-command', 'docker-container-mounts', 'docker-container-ownership',
+    'docker-container-resources', 'docker-create-absence-uncertain', 'docker-create-unknown',
+    'docker-daemon-chunk-framing', 'docker-daemon-connect', 'docker-daemon-drift',
+    'docker-daemon-http-framing', 'docker-daemon-http-invalid', 'docker-daemon-http-status',
+    'docker-daemon-http-trailing', 'docker-daemon-http-truncated', 'docker-daemon-output-bound',
+    'docker-daemon-send', 'docker-daemon-timeout', 'docker-duplicate-json-key', 'docker-endpoint',
+    'docker-environment', 'docker-expected-daemon', 'docker-home', 'docker-image-binding',
+    'docker-image-drift', 'docker-image-pin', 'docker-image-query', 'docker-image-volumes',
+    'docker-input-size', 'docker-journal-binding', 'docker-journal-container',
+    'docker-journal-path', 'docker-journal-size', 'docker-local-pin-drift', 'docker-mount-path',
+    'docker-name-reservation', 'docker-native-daemon', 'docker-nonce', 'docker-ordinary-user',
+    'docker-owned-absence', 'docker-owned-inspect', 'docker-owned-list', 'docker-owned-remove',
+    'docker-probe-failed', 'docker-probe-identity-inventory', 'docker-regular-input',
+    'docker-reserved-name-exists', 'docker-socket', 'docker-uninitialized', 'invalid-argv',
+    'invalid-environment', 'invalid-output-bound', 'invalid-time-bound', 'output-bound',
+    'process-cleanup', 'threaded-runner', 'unsafe-log-directory', 'unsafe-log-path'
+}
+BASE_PROBE_ERROR_TYPES = {'os-error', 'unicode-error', 'key-error', 'type-error', 'value-error',
+                          'subprocess-error', 'unknown-error', 'cancelled'}
+BASE_PROBE_REFUSALS = BASE_PROBE_POLICY_CODES | BASE_PROBE_ERROR_TYPES
+BASE_PROBE_FAILURE_CODES = (
+    {'producer-' + point + '-base-probe-' + call + '-failed' for call in BASE_PROBE_CALLS
+     for point in ('before', 'during', 'after')} |
+    {'producer-base-probe-' + call + '-' + failure for call in BASE_PROBE_CALLS
+     for failure in BASE_PROBE_REFUSALS | {'command-failed', 'delegate-refused', 'runner-failed', 'cancelled'}})
+PRODUCER_FAILURE_CODES |= BASE_PROBE_FAILURE_CODES
+
 
 def producer_diagnostic(value):
-    if (type(value) is dict and set(value) == {'phase', 'outcome'} and
+    if not (type(value) is dict and set(value) in ({'phase', 'outcome'}, {'phase', 'outcome', 'call', 'refusal_code'}) and
             type(value['phase']) is str and value['phase'] in PRODUCER_PHASES and
             type(value['outcome']) is str and value['outcome'] in PRODUCER_OUTCOMES):
-        return dict(value)
-    return None
+        return None
+    if 'call' in value:
+        if not (value['phase'] == 'base-probe' and type(value['call']) is str and value['call'] in BASE_PROBE_CALLS and
+                type(value['refusal_code']) is str and value['refusal_code'] in BASE_PROBE_REFUSALS | {'none'} and
+                (value['outcome'] not in ('not-run', 'started', 'pass') or value['refusal_code'] == 'none')):
+            return None
+    return dict(value)
 
 
 def producer_failure_code(report):
@@ -46,6 +97,13 @@ def producer_failure_code(report):
     if report.get('work_phase') != 'producer' or diagnostic is None:
         return 'fdk-native-job-failed'
     phase, outcome = diagnostic['phase'], diagnostic['outcome']
+    call = diagnostic.get('call')
+    if call is not None:
+        refusal = diagnostic['refusal_code']
+        if outcome in ('not-run', 'started', 'pass'):
+            point = {'not-run': 'before', 'started': 'during', 'pass': 'after'}[outcome]
+            return 'producer-' + point + '-base-probe-' + call + '-failed'
+        return 'producer-base-probe-' + call + '-' + (refusal if refusal != 'none' else outcome)
     if outcome in ('not-run', 'started', 'pass'):
         point = {'not-run': 'before', 'started': 'during', 'pass': 'after'}[outcome]
         return 'producer-' + point + '-' + phase + '-failed'

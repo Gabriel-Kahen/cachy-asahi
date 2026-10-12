@@ -1,4 +1,4 @@
-# FDK producer failure audit and diagnostic correction
+# FDK producer failure audits and bounded diagnostics
 
 The coordinator's actual public ARM trial
 [38223759349](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38223759349)
@@ -66,18 +66,19 @@ commands, filenames, logs, responses, environment and binaries never enter this
 projection. Original native result bytes, acceptance conditions, cleanup,
 cancellation and public producer schemas remain intact.
 
-The failed trial's historical packet SHA256 remains
-`2e190f75594fe5550770aa567b7729637853a99d6c2ce3b137248ed3954cbe32`; its old
-90-test checkpoint is historical. **The modified six source/test files require
-a newly reviewed packet and committed Git binding before execution.** The
-coordinator owns that refresh. The held workflow SHA256
-`c7b90461edfbc079768a189d0930c0249b1d430174590b9dc3342413796afbbf` also needs a
-separately reviewed finite error-code allowlist update before it can publish the
-new diagnostic codes. This task edits neither the packet nor workflow. The
-accepted 39-file adapter, 22-file template and original helper are unchanged.
-Lifecycle implementation is paused; no lifecycle files were created.
+The first failed trial's packet SHA256
+`2e190f75594fe5550770aa567b7729637853a99d6c2ce3b137248ed3954cbe32` and 90-test
+checkpoint are historical. The coordinator subsequently accepted the six
+correction inputs below, refroze packet
+`76e475f63332c66de123481b77c904254c8f0c988bdf73b0787c732d3ae70449` at
+`e3c450cc342e9f5e1f24f195c342d8d9c67e7c72`, and accepted the finite 70-code
+workflow correction `6eecc3235b91dfeb326f497f6fe0984ce7525db860739b2c0083b0f8271e37b1`.
+The next trial used commit `ee9797812cb454e413b5900d8262f1015fe863f1`.
+This producer audit edits neither packet nor workflow. The accepted 39-file
+adapter, 22-file template and original helper are unchanged. Lifecycle
+implementation is paused; no lifecycle files were created.
 
-Validation checkpoint: **104 wrapper tests PASS, no skips**, 16.656 seconds;
+Historical first-correction validation checkpoint: **104 wrapper tests PASS, no skips**, 16.656 seconds;
 independent scoped review and 60 producer/evidence/controller tests passed.
 Four additional original/delegate byte-logging comparisons pass after the fix.
 The real local import/first-rootfs-signature check also passes after correction.
@@ -94,3 +95,78 @@ from the historical 128-file packet.
 | `test_producer.py` | `0104f899289498361dea62433351f08f34d1744a0b909f9c3e9aaf7dcce696d3` |
 | `test_job.py` | `107ae574dbbc5f4337b01680260a417101ba7cad4498add8dca8cef5c1bf0ec3` |
 | `test_evidence.py` | `76862744a19422e5137a883de7558e4b91a4faae296facddf021c5e3eaca085f` |
+
+
+## Second actual trial and narrower probe diagnostics
+
+The coordinator's actual run
+[38230760444](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38230760444)
+on commit `ee9797812cb454e413b5900d8262f1015fe863f1` and corrected packet
+`76e475f63332c66de123481b77c904254c8f0c988bdf73b0787c732d3ae70449` ended FAIL.
+Its retained [public status](../../artifacts/ci/38230760444/decoded/public/status.json)
+reports `producer-base-probe-runner-failed`, all 501 acquisitions passed, FDK
+`NOT RUN`, no cancellation and verified owned-image absence. The bounded public
+bundle was encoded successfully. A raised delegated call can represent broker
+policy, HTTP framing, local CLI/socket/daemon pinning, image/container inspection,
+owned cleanup or a subprocess failure. The code does not establish a timeout,
+GPG failure or a particular predicate.
+
+The source-ordered helper initially probes Docker architecture, version, lscpu
+and context before acquisition. After authentication/bootstrap it also captures
+the image inspection and exact builder-inventory probe. A fixture executed all
+four initial call shapes and both post-bootstrap call shapes through the actual
+`ProducerCommands`, unchanged `native.run`, and owned fake CLI plus bounded Unix
+HTTP daemon. Calls, output and owned cleanup passed. The fake socket was in an
+owned temporary directory, so this exercised delegated call contracts rather
+than waiving the helper's real deployment endpoint guard. No simple argument or
+stream mismatch was reproduced. The exact hosted predicate remains unknown;
+this checkpoint introduces diagnostics, not a claimed causal fix or blind rerun.
+
+For `base-probe` only, the durable private diagnostic now permits exactly
+`{phase, outcome, call, refusal_code}`. Other phases and historical receipts
+retain the exact two-field shape. The fixed call identities are `docker-info`,
+`docker-version`, `docker-context`, `image-inspect`, `inventory-probe` and
+`unclassified`; recognized identities require the literal allowed argument shape
+and current immutable image. Before-call persistence records the identity without
+an argument list, filename, socket value, image hash or response body.
+
+Refusals accept only 108 explicit predicate labels taken from the already reviewed
+broker/runtime sources, or eight fixed exception categories: `os-error`,
+`unicode-error`, `key-error`, `type-error`, `value-error`, `subprocess-error`,
+`unknown-error`, `cancelled`. Exact known ValueError arguments are matched against
+that closed set; exception messages are never converted into public text.
+`none` is required for not-run/started/pass states. Unknown labels, arbitrary
+strings, missing/extra keys, wrong types and detailed probe fields attached to
+another phase fail sanitization. Cancellation keeps failure acceptance intact.
+
+Public status still has exactly 14 fields. It exposes only a closed error code:
+`producer-base-probe-CALL-REFUSAL`, or before/during/after probe-call failure when
+only that boundary was recorded. The finite source set contains 802 codes:
+the existing 70 and 732 probe-detail codes. The existing capture, source, cleanup,
+GPG service/stream, original result and package acceptance boundaries are unchanged.
+The accepted workflow and packet were not edited. The coordinator must review a
+new packet and separately update the publisher's exact code allowlist before a
+future diagnostic trial; the held 70-code workflow will reject the new codes.
+The prior trial remains actual FAIL, and no new native/compiler/FDK/installation
+or hardware result is asserted here.
+
+
+Current next-diagnostic checkpoint: **110 wrapper tests PASS, no skips**,
+17.010 seconds. Independent scoped review passed 66 producer/evidence/controller
+fixtures. The owned fake CLI/Unix-daemon control also passed all exact initial
+probe and post-bootstrap delegated call forms after the diagnostic change
+(1 test, 0.910 seconds). Refusal checks cover all 108 established policy labels,
+fixed exception categories, private/appended/newline/nonstring arguments,
+Unicode-before-ValueError precedence, before-call persistence, cancellation,
+missing/extra/malformed detail fields and unchanged two-field states elsewhere.
+Original helper, accepted adapter, BaseBroker, packet and workflow remain held.
+Five owned source/test entries changed at this checkpoint; `job.py` already
+supports recovery through the updated fixed sanitizer and was not edited.
+
+| Current changed input | SHA256 |
+| --- | --- |
+| `producer.py` | `e01ea63606b044e71cfb159d156c3a92fb6f31004f23923557bee8fa745b65a1` |
+| `evidence.py` | `03f803aede7367c22199468961a0463b2fe688f637271fd2760692967796a75c` |
+| `test_producer.py` | `b546eb3bb040923a0c18f7feec5f6c020f22d371cbe9d94bec96001ed0f5dcaa` |
+| `test_job.py` | `d4f7af33449048427d4fe2801910459dcdf746926ece7812dcba18d7c9ecb640` |
+| `test_evidence.py` | `00a99d62faaca4541485b2e2cafa768c0afb4cbeefb2d71e609d932aad77bd3a` |

@@ -120,6 +120,10 @@ class JobTests(unittest.TestCase):
                 if self.mode == 'producer-diagnostic-poison':
                     receipt['diagnostic']['raw_private_response'] = 'PRIVATE-DIAGNOSTIC-SECRET'
             job.packet.save(self.private / 'producer-worker.json', receipt)
+            if self.mode == 'producer-probe-detail-fail':
+                receipt.update(status='FAIL', diagnostic={'phase': 'base-probe', 'outcome': 'runner-failed',
+                               'call': 'image-inspect', 'refusal_code': 'docker-image-drift'})
+                job.packet.save(self.private / 'producer-worker.json', receipt)
             if self.mode == 'producer-outer-fail':
                 raise ValueError('PRIVATE-OUTER-EXCEPTION')
             return subprocess.CompletedProcess(argv, int(self.mode == 'producer-exit-fail'), b'')
@@ -199,6 +203,16 @@ class JobTests(unittest.TestCase):
         self.assert_failed_public()
         self.assertNotIn('fdk', self.events)
         self.assertLess(self.events.index('cleanup'), self.events.index('publish'))
+
+    def test_probe_substep_predicate_survives_owned_cleanup_without_raw_data(self):
+        self.mode = 'producer-probe-detail-fail'
+        result, _ = self.execute()
+        self.assertEqual(result, 1)
+        self.assertNotIn('fdk', self.events)
+        public = self.records()['public/status.json']
+        self.assertEqual(public['error_code'], 'producer-base-probe-image-inspect-docker-image-drift')
+        self.assertTrue(public['owned_image_absence'])
+        self.assertEqual(public['fdk_status'], 'NOT RUN')
 
     def test_failed_producer_retains_only_fixed_diagnostic_after_cleanup(self):
         self.mode = 'producer-diagnostic-fail'

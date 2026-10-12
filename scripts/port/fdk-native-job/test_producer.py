@@ -174,10 +174,95 @@ class CommandTests(Fixture):
         self.assertEqual(commands.diagnostic, {'phase': 'host-probe', 'outcome': 'pass'})
         broker.capture.return_value = 'fixture daemon'
         commands.check_output(['docker', 'info', '--format', '{{.Architecture}}'], text=True)
-        self.assertEqual(commands.diagnostic, {'phase': 'base-probe', 'outcome': 'pass'})
+        self.assertEqual(commands.diagnostic, {'phase': 'base-probe', 'outcome': 'pass',
+                                              'call': 'docker-info', 'refusal_code': 'none'})
         broker.command.return_value = subprocess.CompletedProcess([], 1, b'private fixture output')
         commands.run(['docker', 'build'], stdout=io.StringIO(), stderr=subprocess.STDOUT)
         self.assertEqual(commands.diagnostic, {'phase': 'bootstrap', 'outcome': 'command-failed'})
+
+    def test_exact_base_probe_substeps_persist_before_call_with_no_arguments(self):
+        commands, broker, _ = self.commands()
+        image = 'sha256:' + '1' * 64
+        broker.image = image
+        path = self.root / 'private-diagnostic.json'
+        commands.on_diagnostic = lambda value: path.write_text(json.dumps(value))
+        lock = ['docker', 'run', '--rm', '--pull=never', '--network=none', '--cap-drop=ALL',
+                '--security-opt=no-new-privileges', '--read-only', '--entrypoint=/bin/cat',
+                image, '/builder-packages.lock']
+        cases = [(['docker', 'info', '--format', '{{.Architecture}}'], 'docker-info'),
+                 (['docker', 'version'], 'docker-version'), (['docker', 'context', 'inspect'], 'docker-context'),
+                 (['docker', 'image', 'inspect', image], 'image-inspect'), (lock, 'inventory-probe')]
+        for argv, call in cases:
+            def capture(*args, **kwargs):
+                self.assertEqual(json.loads(path.read_bytes()), {'phase': 'base-probe', 'outcome': 'started',
+                                 'call': call, 'refusal_code': 'none'})
+                return subprocess.CompletedProcess(argv, 0, b'alpha 1\n') if call == 'inventory-probe' else 'fixture'
+            broker.capture.side_effect = broker.command.side_effect = capture
+            with self.subTest(call=call):
+                commands.check_output(argv, text=True)
+                value = json.loads(path.read_bytes())
+                self.assertEqual(value, {'phase': 'base-probe', 'outcome': 'pass',
+                                        'call': call, 'refusal_code': 'none'})
+                self.assertNotIn(image, json.dumps(value))
+                self.assertNotIn(str(self.root), json.dumps(value))
+        for argv in (['docker', 'image', 'inspect', 'PRIVATE-IMAGE'], lock + ['PRIVATE-ARG'],
+                     ['docker', 'info', '--format', 'PRIVATE-FORMAT'], ['PRIVATE-TOOL']):
+            self.assertEqual(commands.base_probe_call(argv), 'unclassified')
+
+    def test_every_reviewed_base_probe_predicate_is_retained_without_exception_stringification(self):
+        class PrivateError(ValueError):
+            def __str__(self):
+                raise AssertionError('raw exception must never be stringified')
+        self.assertEqual(len(producer.BASE_PROBE_POLICY_CODES), 108)
+        for code in sorted(producer.BASE_PROBE_POLICY_CODES):
+            commands, broker, _ = self.commands()
+            broker.image = 'sha256:' + '1' * 64
+            broker.capture.side_effect = PrivateError(code, 'PRIVATE-SECRET detail')
+            with self.subTest(code=code), self.assertRaises(PrivateError):
+                commands.check_output(['docker', 'image', 'inspect', broker.image], text=True)
+            self.assertEqual(commands.diagnostic, {'phase': 'base-probe', 'outcome': 'runner-failed',
+                                                  'call': 'image-inspect', 'refusal_code': code})
+            self.assertNotIn('PRIVATE', json.dumps(commands.diagnostic))
+
+    def test_base_probe_unknown_private_args_and_closed_exception_types_are_sanitized(self):
+        errors = [(ValueError('docker-image-drift PRIVATE-SECRET'), 'value-error'),
+                  (ValueError('docker-image-drift\n'), 'value-error'),
+                  (ValueError(), 'value-error'), (ValueError(Path('/PRIVATE-SECRET')), 'value-error'),
+                  (UnicodeError('docker-image-drift'), 'unicode-error'),
+                  (OSError('PRIVATE-SECRET'), 'os-error'), (KeyError('docker-image-drift'), 'key-error'),
+                  (TypeError('PRIVATE-SECRET'), 'type-error'),
+                  (subprocess.SubprocessError('PRIVATE-SECRET'), 'subprocess-error'),
+                  (RuntimeError('PRIVATE-SECRET'), 'unknown-error'),
+                  (self.cancelled(signal.SIGTERM), 'cancelled')]
+        for error, refusal in errors:
+            commands, broker, _ = self.commands()
+            broker.capture.side_effect = error
+            with self.subTest(refusal=refusal, kind=type(error).__name__), self.assertRaises(type(error)):
+                commands.check_output(['docker', 'version'], text=True)
+            self.assertEqual(commands.diagnostic, {'phase': 'base-probe',
+                'outcome': 'cancelled' if refusal == 'cancelled' else 'runner-failed',
+                'call': 'docker-version', 'refusal_code': refusal})
+            self.assertNotIn('PRIVATE', json.dumps(commands.diagnostic))
+        class FalseError(ValueError):
+            def __bool__(self): return False
+        self.assertEqual(producer.ProducerCommands.refusal(FalseError('docker-image-drift')), 'docker-image-drift')
+
+    def test_base_probe_delegate_refusal_is_unclassified_and_invalid_fields_do_not_change_state(self):
+        commands, broker, runner = self.commands()
+        with self.assertRaises(ValueError):
+            commands.check_output(['PRIVATE-SECRET'], text=True)
+        self.assertEqual(commands.diagnostic, {'phase': 'base-probe', 'outcome': 'delegate-refused',
+                                              'call': 'unclassified', 'refusal_code': 'value-error'})
+        broker.capture.assert_not_called(); runner.run.assert_not_called()
+        baseline = dict(commands.diagnostic)
+        for call, refusal, outcome in (('PRIVATE-SECRET', 'none', 'started'),
+                                       ('image-inspect', 'PRIVATE-SECRET', 'runner-failed'),
+                                       ('image-inspect', 'docker-image-drift', 'pass')):
+            with self.assertRaises(ValueError):
+                commands.set_diagnostic('base-probe', outcome, call=call, refusal_code=refusal)
+            self.assertEqual(commands.diagnostic, baseline)
+        commands.set_diagnostic('gpg-import', 'pass')
+        self.assertEqual(commands.diagnostic, {'phase': 'gpg-import', 'outcome': 'pass'})
 
     def test_gpg_unapproved_commands_paths_and_symlinks_never_run(self):
         commands, _, runner = self.commands()

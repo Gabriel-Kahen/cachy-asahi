@@ -15,6 +15,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import job_runtime as jr
 from packet import INPUTS_SHA, RECIPES_SHA, load, need, save
 from base_broker import broker_class
+from evidence import BASE_PROBE_CALLS, BASE_PROBE_POLICY_CODES, BASE_PROBE_REFUSALS
 
 PHASES = {'preflight', 'base-probe', 'host-probe', 'acquisition', 'gpg-import',
           'gpg-verify', 'bootstrap', 'original-build', 'original-compare'}
@@ -78,38 +79,80 @@ class ProducerCommands:
         self.diagnostic = {'phase': 'preflight', 'outcome': 'not-run'}
         self.on_diagnostic = diagnostic
 
-    def set_diagnostic(self, phase, outcome):
+    def set_diagnostic(self, phase, outcome, *, call=None, refusal_code='none'):
         need(type(phase) is type(outcome) is str and phase in PHASES and outcome in OUTCOMES,
              'producer-diagnostic')
-        self.diagnostic = {'phase': phase, 'outcome': outcome}
+        value = {'phase': phase, 'outcome': outcome}
+        if phase == 'base-probe':
+            need(type(call) is str and call in BASE_PROBE_CALLS and type(refusal_code) is str and
+                 refusal_code in BASE_PROBE_REFUSALS | {'none'} and
+                 (outcome not in ('not-run', 'started', 'pass') or refusal_code == 'none'), 'producer-diagnostic')
+            value.update(call=call, refusal_code=refusal_code)
+        self.diagnostic = value
         if self.on_diagnostic is not None:
             self.on_diagnostic(dict(self.diagnostic))
 
+    def progress(self, phase, outcome, error=None):
+        options = {}
+        if phase == 'base-probe':
+            options = {'call': self.diagnostic['call'], 'refusal_code': self.refusal(error) if error is not None else 'none'}
+        self.set_diagnostic(phase, outcome, **options)
+
+    @staticmethod
+    def refusal(error):
+        if isinstance(error, jr.Cancelled):
+            return 'cancelled'
+        if isinstance(error, UnicodeError):
+            return 'unicode-error'
+        if isinstance(error, ValueError) and error.args and type(error.args[0]) is str and error.args[0] in BASE_PROBE_POLICY_CODES:
+            return error.args[0]
+        for kind, code in ((OSError, 'os-error'), (KeyError, 'key-error'), (TypeError, 'type-error'), (ValueError, 'value-error'),
+                           (subprocess.SubprocessError, 'subprocess-error')):
+            if isinstance(error, kind):
+                return code
+        return 'unknown-error'
+
+    def base_probe_call(self, command):
+        for args, call in ((['docker', 'info', '--format', '{{.Architecture}}'], 'docker-info'),
+                           (['docker', 'version'], 'docker-version'),
+                           (['docker', 'context', 'inspect'], 'docker-context')):
+            if command == args:
+                return call
+        image = self.broker.image
+        if type(image) is str:
+            if command == ['docker', 'image', 'inspect', image]:
+                return 'image-inspect'
+            if command == ['docker', 'run', '--rm', '--pull=never', '--network=none', '--cap-drop=ALL',
+                           '--security-opt=no-new-privileges', '--read-only', '--entrypoint=/bin/cat',
+                           image, '/builder-packages.lock']:
+                return 'inventory-probe'
+        return 'unclassified'
+
     @contextmanager
-    def operation(self, phase):
-        self.set_diagnostic(phase, 'started')
+    def operation(self, phase, call=None):
+        self.set_diagnostic(phase, 'started', call=call)
         try:
             yield
-        except jr.Cancelled:
-            self.set_diagnostic(phase, 'cancelled')
+        except jr.Cancelled as error:
+            self.progress(phase, 'cancelled', error)
             raise
-        except Exception:
-            if self.diagnostic['outcome'] == 'started':
-                self.set_diagnostic(phase, 'delegate-refused')
+        except Exception as error:
+            outcome = self.diagnostic['outcome']
+            self.progress(phase, 'delegate-refused' if outcome == 'started' else outcome, error)
             raise
 
     def call(self, function, *args, **kwargs):
         phase = self.diagnostic['phase']
         try:
             result = function(*args, **kwargs)
-        except jr.Cancelled:
-            self.set_diagnostic(phase, 'cancelled')
+        except jr.Cancelled as error:
+            self.progress(phase, 'cancelled', error)
             raise
-        except Exception:
-            self.set_diagnostic(phase, 'runner-failed')
+        except Exception as error:
+            self.progress(phase, 'runner-failed', error)
             raise
         if isinstance(result, subprocess.CompletedProcess) and result.returncode:
-            self.set_diagnostic(phase, 'command-failed')
+            self.progress(phase, 'command-failed')
         return result
 
     def run(self, command, stdout=None, stderr=None, timeout=60, text=False, capture_output=False):
@@ -121,9 +164,9 @@ class ProducerCommands:
                 phase = 'bootstrap' if command[1:2] == ['build'] else 'base-probe'
             elif len(command) >= 2:
                 phase = 'original-compare' if command[1].endswith('/compare.py') else 'original-build'
-        with self.operation(phase):
+        with self.operation(phase, self.base_probe_call(command) if phase == 'base-probe' else None):
             result = self._run(command, stdout, stderr, timeout, text, capture_output)
-            self.set_diagnostic(phase, 'command-failed' if result.returncode else 'pass')
+            self.progress(phase, 'command-failed' if result.returncode else 'pass')
             return result
 
     def _run(self, command, stdout, stderr, timeout, text, capture_output):
@@ -206,9 +249,9 @@ class ProducerCommands:
 
     def check_output(self, command, text=False, timeout=60):
         phase = 'host-probe' if command == ['lscpu'] else 'base-probe'
-        with self.operation(phase):
+        with self.operation(phase, self.base_probe_call(command) if phase == 'base-probe' else None):
             result = self._check_output(command, text, timeout)
-            self.set_diagnostic(phase, 'pass')
+            self.progress(phase, 'pass')
             return result
 
     def _check_output(self, command, text, timeout):
