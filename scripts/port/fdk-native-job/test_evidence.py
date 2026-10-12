@@ -338,6 +338,32 @@ class ProducerTests(unittest.TestCase):
 
 
 class PublicStatusTests(unittest.TestCase):
+    def test_fixed_producer_diagnostics_only_choose_finite_failure_codes(self):
+        failed = {**job_report(), 'status': 'FAIL', 'work_phase': 'producer', 'producer': {'status': 'FAIL'}}
+        points = {'not-run': 'before', 'started': 'during', 'pass': 'after'}
+        for phase in evidence.PRODUCER_PHASES:
+            for outcome in evidence.PRODUCER_OUTCOMES:
+                with self.subTest(phase=phase, outcome=outcome):
+                    diagnostic = {'phase': phase, 'outcome': outcome}
+                    record = evidence.public_status({**failed, 'producer_diagnostic': diagnostic})
+                    code = ('producer-' + points[outcome] + '-' + phase + '-failed' if outcome in points
+                            else 'producer-' + phase + '-' + outcome)
+                    self.assertEqual(record['error_code'], code)
+                    self.assertIn(code, evidence.PRODUCER_FAILURE_CODES)
+                    self.assertNotIn('producer_diagnostic', record)
+                    self.assertEqual(record['status'], 'FAIL')
+        for diagnostic in (None, SECRET, {'phase': SECRET, 'outcome': 'runner-failed'},
+                           {'phase': 'gpg-verify', 'outcome': SECRET},
+                           {'phase': 'gpg-verify', 'outcome': 'runner-failed', 'raw_private_response': SECRET},
+                           {'phase': ['gpg-verify'], 'outcome': 'runner-failed'}):
+            result = evidence.public_status({**failed, 'producer_diagnostic': diagnostic})
+            self.assertEqual(result['error_code'], 'fdk-native-job-failed')
+            self.assertNotIn(SECRET, json.dumps(result))
+        diagnostic = {'phase': 'gpg-verify', 'outcome': 'runner-failed'}
+        self.assertIsNone(evidence.public_status({**job_report(), 'producer_diagnostic': diagnostic})['error_code'])
+        self.assertEqual(evidence.public_status({**failed, 'work_phase': 'fdk', 'producer_diagnostic': diagnostic})['error_code'],
+                         'fdk-native-job-failed')
+
     def test_pass_requires_complete_both_stages_no_cancellation_and_image_absence(self):
         self.assertEqual(evidence.public_status(job_report())['status'], 'PASS')
         for change in ({'status': 'FAIL'}, {'phase': 'cleanup'}, {'cancelled': True}, {'source': {}}, {'source': {'status': 'FAIL'}},

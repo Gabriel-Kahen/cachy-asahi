@@ -47,7 +47,7 @@ class Fixture(unittest.TestCase):
         return producer.ProducerCommands(self.config, broker, runner), broker, runner
 
     def fake_native(self, code=0):
-        native = SimpleNamespace(main=mock.Mock(return_value=code))
+        native = SimpleNamespace(main=mock.Mock(return_value=code), acquire=mock.Mock(), build=mock.Mock())
         broker = mock.Mock()
         broker.image = 'sha256:' + '1' * 64
         broker.cleanup.return_value = {'status': 'PASS', 'absence_verified': True, 'cancelled': False}
@@ -111,6 +111,73 @@ class CommandTests(Fixture):
         self.assertEqual(result.returncode, 7)
         self.assertEqual(target.getvalue(), 'stdout\nstderr\n')
         self.assertTrue(runner.run.call_args.kwargs['separate_stderr'])
+        self.assertEqual(commands.diagnostic, {'phase': 'gpg-import', 'outcome': 'command-failed'})
+
+    def test_import_preserves_non_utf8_bytes_in_original_text_log_fd(self):
+        commands, _, runner = self.commands()
+        raw = self.gpg(False)
+        data = b'non-UTF8 fixture diagnostic: \xff\xfe\n'
+        runner.run.return_value = subprocess.CompletedProcess(raw, 0, b'stdout\n', data)
+        path = self.root / 'import.log'
+        with path.open('w') as stream:
+            commands.run(raw, stdout=stream, stderr=subprocess.STDOUT)
+        self.assertEqual(path.read_bytes(), b'stdout\n' + data)
+        self.assertEqual(commands.diagnostic, {'phase': 'gpg-import', 'outcome': 'pass'})
+
+    def test_fixture_text_stream_uses_backslash_escape_for_invalid_bytes(self):
+        commands, _, runner = self.commands()
+        raw = self.gpg(False)
+        runner.run.return_value = subprocess.CompletedProcess(raw, 0, b'', b'\xff\n')
+        target = io.StringIO()
+        commands.run(raw, stdout=target, stderr=subprocess.STDOUT)
+        self.assertEqual(target.getvalue(), '\\xff\n')
+
+    def test_gpg_diagnostic_before_runner_has_only_fixed_keys_and_copied_values(self):
+        commands, _, runner = self.commands()
+        seen = []
+        def record(value):
+            seen.append(dict(value))
+            value['phase'] = 'PRIVATE-SECRET'
+        commands.on_diagnostic = record
+        raw = self.gpg()
+        def run(*args, **kwargs):
+            self.assertEqual(seen[-1], {'phase': 'gpg-verify', 'outcome': 'started'})
+            self.assertEqual(commands.diagnostic, seen[-1])
+            return subprocess.CompletedProcess(raw, 0, b'[GNUPG:] FIXTURE\n', b'private fixture diagnostic\n')
+        runner.run.side_effect = run
+        commands.run(raw, text=True, capture_output=True)
+        self.assertEqual(seen[-1], {'phase': 'gpg-verify', 'outcome': 'pass'})
+        self.assertNotIn('private', json.dumps(seen))
+        for phase, outcome in (('PRIVATE-SECRET', 'pass'), ('preflight', 'raw exception'), ([], 'pass')):
+            with self.assertRaises(ValueError):
+                commands.set_diagnostic(phase, outcome)
+
+    def test_gpg_policy_runner_cancel_and_decode_failures_have_distinct_fixed_outcomes(self):
+        for kind, outcome in (('policy', 'delegate-refused'), ('streams', 'delegate-refused'),
+                              ('runner', 'runner-failed'), ('cancel', 'cancelled'), ('decode', 'delegate-refused')):
+            commands, _, runner = self.commands()
+            raw = self.gpg()
+            runner.run.return_value = subprocess.CompletedProcess(raw, 1, b'\xff', b'private diagnostic')
+            if kind == 'policy': raw[raw.index('--verify')] = '--decrypt'
+            if kind == 'runner': runner.run.side_effect = ValueError('PRIVATE-SECRET')
+            if kind == 'cancel': runner.run.side_effect = self.cancelled(signal.SIGTERM)
+            with self.subTest(kind=kind), self.assertRaises((ValueError, self.cancelled, UnicodeError)):
+                commands.run(raw, text=kind != 'streams', capture_output=True)
+            self.assertEqual(commands.diagnostic, {'phase': 'gpg-verify', 'outcome': outcome})
+            if kind in ('policy', 'streams'): runner.run.assert_not_called()
+            self.assertNotIn('PRIVATE', json.dumps(commands.diagnostic))
+
+    def test_proxy_records_host_base_and_bootstrap_phases(self):
+        commands, broker, runner = self.commands()
+        runner.run.return_value = subprocess.CompletedProcess([], 0, b'fixture CPU\n')
+        self.assertEqual(commands.check_output(['lscpu'], text=True), 'fixture CPU')
+        self.assertEqual(commands.diagnostic, {'phase': 'host-probe', 'outcome': 'pass'})
+        broker.capture.return_value = 'fixture daemon'
+        commands.check_output(['docker', 'info', '--format', '{{.Architecture}}'], text=True)
+        self.assertEqual(commands.diagnostic, {'phase': 'base-probe', 'outcome': 'pass'})
+        broker.command.return_value = subprocess.CompletedProcess([], 1, b'private fixture output')
+        commands.run(['docker', 'build'], stdout=io.StringIO(), stderr=subprocess.STDOUT)
+        self.assertEqual(commands.diagnostic, {'phase': 'bootstrap', 'outcome': 'command-failed'})
 
     def test_gpg_unapproved_commands_paths_and_symlinks_never_run(self):
         commands, _, runner = self.commands()
@@ -151,6 +218,7 @@ class CommandTests(Fixture):
         self.assertIs(sys.argv, old)
         self.assertEqual(result.returncode, 0)
         self.assertEqual(target.getvalue(), 'fixture builder output\n')
+        self.assertEqual(commands.diagnostic, {'phase': 'original-build', 'outcome': 'pass'})
         self.assertEqual(broker.expected_mounts['/out'], str(self.root / 'attempt/artifacts'))
         self.assertIs(subprocess.run, original_run)
 
@@ -163,6 +231,7 @@ class CommandTests(Fixture):
             with self.assertRaises(ValueError):
                 commands.run(command, stdout=io.StringIO(), stderr=subprocess.STDOUT)
         self.assertIs(sys.argv, old)
+        self.assertEqual(commands.diagnostic, {'phase': 'original-compare', 'outcome': 'delegate-refused'})
         runner.run.assert_not_called()
         broker.command.assert_not_called()
 
@@ -177,6 +246,87 @@ class CommandTests(Fixture):
 
 
 class ReceiptTests(Fixture):
+    def test_private_receipt_records_acquisition_before_unchanged_function_and_preserves_failure(self):
+        for failed in (False, True):
+            native, broker, cls, _ = self.fake_native()
+            def acquired(*args, **kwargs):
+                self.assertEqual(self.receipt()['diagnostic'], {'phase': 'acquisition', 'outcome': 'started'})
+                if failed:
+                    raise ValueError('PRIVATE-SECRET acquisition detail')
+                return 'fixture acquisition result'
+            native.acquire.side_effect = acquired
+            def main(argv):
+                self.assertEqual(self.receipt()['diagnostic'], {'phase': 'preflight', 'outcome': 'pass'})
+                self.assertEqual(native.acquire('fixture argument'), 'fixture acquisition result')
+                return 1
+            native.main.side_effect = main
+            with self.subTest(failed=failed), self.assertRaises(ValueError):
+                self.execute(native, cls)
+            self.assertEqual(self.receipt()['status'], 'FAIL')
+            self.assertEqual(self.receipt()['diagnostic'], {'phase': 'acquisition',
+                             'outcome': 'command-failed' if failed else 'pass'})
+            self.assertNotIn('PRIVATE', json.dumps(self.receipt()))
+            broker.cleanup.assert_called_once_with(remove_image=False)
+
+    def test_native_build_wrapper_delegates_original_arguments_after_private_started_write(self):
+        native, _, cls, _ = self.fake_native()
+        def build(*args, **kwargs):
+            self.assertEqual(self.receipt()['diagnostic'], {'phase': 'bootstrap', 'outcome': 'started'})
+            self.assertEqual((args, kwargs), (('fixture',), {'mode': 'unchanged'}))
+            return 'fixture image'
+        native.build.side_effect = build
+        native.main.side_effect = lambda argv: int(native.build('fixture', mode='unchanged') != 'fixture image')
+        self.assertEqual(self.execute(native, cls), 0)
+        # No proxy command occurred in this mocked build: do not invent its completion.
+        self.assertEqual(self.receipt()['diagnostic'], {'phase': 'bootstrap', 'outcome': 'started'})
+
+    def test_main_retains_last_known_pass_after_upstream_returns_failure(self):
+        native, _, cls, _ = self.fake_native()
+        def main(argv):
+            native.acquire()
+            return 1
+        native.main.side_effect = main
+        def execute(config, state):
+            return self.execute(native, cls, state)
+        self.assertEqual(self.main(execute), 1)
+        self.assertEqual(self.receipt()['diagnostic'], {'phase': 'acquisition', 'outcome': 'pass'})
+        self.assertEqual(self.receipt()['status'], 'FAIL')
+
+    def test_private_gpg_started_is_durable_before_runner_and_nonzero_exit_retained(self):
+        native, _, cls, _ = self.fake_native()
+        key = self.cache / 'archlinuxarm.gpg'
+        key.write_bytes(b'fixture public-key bytes; never imported')
+        def main(argv):
+            commands = native.subprocess
+            raw = ['gpg', '--batch', '--no-options', '--homedir', str(self.root / 'producer/gpg'),
+                   '--no-auto-key-retrieve', '--import', str(key)]
+            def run(*args, **kwargs):
+                self.assertEqual(self.receipt()['status'], 'FAIL')
+                self.assertEqual(self.receipt()['diagnostic'], {'phase': 'gpg-import', 'outcome': 'started'})
+                return subprocess.CompletedProcess(raw, 2, b'', b'PRIVATE-SECRET GPG detail')
+            commands.runner.run.side_effect = run
+            result = commands.run(raw, stdout=io.StringIO(), stderr=subprocess.STDOUT)
+            return int(result.returncode != 0)
+        native.main.side_effect = main
+        def execute(config, state):
+            return self.execute(native, cls, state)
+        self.assertEqual(self.main(execute), 1)
+        self.assertEqual(self.receipt()['diagnostic'], {'phase': 'gpg-import', 'outcome': 'command-failed'})
+        self.assertNotIn('PRIVATE', json.dumps(self.receipt()))
+
+    def test_preflight_failure_diagnostic_survives_main_and_early_constructor_failure_has_not_run(self):
+        native, broker, cls, _ = self.fake_native()
+        broker.initialize.side_effect = ValueError('PRIVATE-SECRET daemon detail')
+        def execute(config, state):
+            return self.execute(native, cls, state)
+        self.assertEqual(self.main(execute), 1)
+        self.assertEqual(self.receipt()['diagnostic'], {'phase': 'preflight', 'outcome': 'runner-failed'})
+        self.assertNotIn('PRIVATE', json.dumps(self.receipt()))
+        with mock.patch.object(producer, 'broker_class', side_effect=ValueError('PRIVATE-SECRET class detail')):
+            self.assertEqual(self.main(self.original_execute), 1)
+        self.assertEqual(self.receipt()['diagnostic'], {'phase': 'preflight', 'outcome': 'not-run'})
+        self.assertNotIn('PRIVATE', json.dumps(self.receipt()))
+
     def test_clean_tool_env_and_fixed_legacy_cli_env_wiring(self):
         native, broker, cls, runtime = self.fake_native()
         with mock.patch.dict(os.environ, self.env, clear=True), \

@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: MIT
 # Copyright (C) 2026 cachy-asahi contributors
 """Call unchanged native_arm.py build mode inside the bounded job worker."""
-from contextlib import redirect_stderr, redirect_stdout
+from contextlib import contextmanager, redirect_stderr, redirect_stdout
 import importlib.util
 import os
 from pathlib import Path
@@ -15,6 +15,11 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import job_runtime as jr
 from packet import INPUTS_SHA, RECIPES_SHA, load, need, save
 from base_broker import broker_class
+
+PHASES = {'preflight', 'base-probe', 'host-probe', 'acquisition', 'gpg-import',
+          'gpg-verify', 'bootstrap', 'original-build', 'original-compare'}
+OUTCOMES = {'not-run', 'started', 'pass', 'command-failed', 'delegate-refused',
+            'runner-failed', 'cancelled'}
 
 
 def module(name, path):
@@ -65,14 +70,64 @@ class ProducerCommands:
     SubprocessError, TimeoutExpired = subprocess.SubprocessError, subprocess.TimeoutExpired
     STDOUT, DEVNULL = subprocess.STDOUT, subprocess.DEVNULL
 
-    def __init__(self, config, broker, runner):
+    def __init__(self, config, broker, runner, diagnostic=None):
         self.config, self.broker, self.runner = config, broker, runner
         self.root = Path(config['snapshot'])
         self.native_out = Path(config['jobroot']) / 'producer'
         self.actual_commands = []
+        self.diagnostic = {'phase': 'preflight', 'outcome': 'not-run'}
+        self.on_diagnostic = diagnostic
+
+    def set_diagnostic(self, phase, outcome):
+        need(type(phase) is type(outcome) is str and phase in PHASES and outcome in OUTCOMES,
+             'producer-diagnostic')
+        self.diagnostic = {'phase': phase, 'outcome': outcome}
+        if self.on_diagnostic is not None:
+            self.on_diagnostic(dict(self.diagnostic))
+
+    @contextmanager
+    def operation(self, phase):
+        self.set_diagnostic(phase, 'started')
+        try:
+            yield
+        except jr.Cancelled:
+            self.set_diagnostic(phase, 'cancelled')
+            raise
+        except Exception:
+            if self.diagnostic['outcome'] == 'started':
+                self.set_diagnostic(phase, 'delegate-refused')
+            raise
+
+    def call(self, function, *args, **kwargs):
+        phase = self.diagnostic['phase']
+        try:
+            result = function(*args, **kwargs)
+        except jr.Cancelled:
+            self.set_diagnostic(phase, 'cancelled')
+            raise
+        except Exception:
+            self.set_diagnostic(phase, 'runner-failed')
+            raise
+        if isinstance(result, subprocess.CompletedProcess) and result.returncode:
+            self.set_diagnostic(phase, 'command-failed')
+        return result
 
     def run(self, command, stdout=None, stderr=None, timeout=60, text=False, capture_output=False):
-        need(type(command) is list and all(type(v) is str for v in command), 'producer-command')
+        phase = 'preflight'
+        if type(command) is list and command and all(type(v) is str for v in command):
+            if command[0] == 'gpg':
+                phase = 'gpg-import' if '--import' in command else 'gpg-verify'
+            elif command[0] == 'docker':
+                phase = 'bootstrap' if command[1:2] == ['build'] else 'base-probe'
+            elif len(command) >= 2:
+                phase = 'original-compare' if command[1].endswith('/compare.py') else 'original-build'
+        with self.operation(phase):
+            result = self._run(command, stdout, stderr, timeout, text, capture_output)
+            self.set_diagnostic(phase, 'command-failed' if result.returncode else 'pass')
+            return result
+
+    def _run(self, command, stdout, stderr, timeout, text, capture_output):
+        need(type(command) is list and command and all(type(v) is str for v in command), 'producer-command')
         if command[0] == 'gpg':
             base = ['gpg', '--batch', '--no-options', '--homedir', str(self.native_out / 'gpg'), '--no-auto-key-retrieve']
             need(command[:len(base)] == base and command[len(base):len(base)+1] in (['--import'], ['--status-fd']),
@@ -92,18 +147,31 @@ class ProducerCommands:
             actual = ['/usr/bin/gpg', '--no-autostart', *command[1:]]
             self.actual_commands.append(actual)
             save(Path(self.config['jobroot']) / 'producer-commands.json', {'commands': self.actual_commands})
-            result = self.runner.run(actual, timeout=timeout, separate_stderr=True,
-                                     log='gpg-' + uuid.uuid4().hex + '.log')
             if capture_output:
                 need(text is True and stdout is None and stderr is None, 'producer-GPG-streams')
-                return subprocess.CompletedProcess(command, result.returncode,
-                    result.stdout.decode('utf-8'), result.stderr.decode('utf-8'))
-            need(hasattr(stdout, 'write') and stderr == subprocess.STDOUT, 'producer-GPG-log')
-            stdout.write((result.stdout + result.stderr).decode('utf-8'))
+            else:
+                need(hasattr(stdout, 'write') and stderr == subprocess.STDOUT, 'producer-GPG-log')
+            result = self.call(self.runner.run, actual, timeout=timeout, separate_stderr=True,
+                               log='gpg-' + uuid.uuid4().hex + '.log')
+            if capture_output:
+                try:
+                    output, errors = result.stdout.decode('utf-8'), result.stderr.decode('utf-8')
+                except UnicodeError:
+                    self.set_diagnostic(self.diagnostic['phase'], 'delegate-refused')
+                    raise
+                return subprocess.CompletedProcess(command, result.returncode, output, errors)
+            data = result.stdout + result.stderr
+            binary = getattr(stdout, 'buffer', None)
+            if binary is not None:
+                stdout.flush()
+                binary.write(data)
+                binary.flush()
+            else:
+                stdout.write(data.decode('utf-8', errors='backslashreplace'))
             stdout.flush()
             return result
         if command[0] == 'docker':
-            result = self.broker.command(command, timeout)
+            result = self.call(self.broker.command, command, timeout)
         else:
             need(command[0] == sys.executable and len(command) >= 2 and
                  command[1] in (str(self.root / 'scripts/build/build.py'), str(self.root / 'scripts/build/compare.py')),
@@ -137,23 +205,39 @@ class ProducerCommands:
         return result
 
     def check_output(self, command, text=False, timeout=60):
+        phase = 'host-probe' if command == ['lscpu'] else 'base-probe'
+        with self.operation(phase):
+            result = self._check_output(command, text, timeout)
+            self.set_diagnostic(phase, 'pass')
+            return result
+
+    def _check_output(self, command, text, timeout):
+        need(type(command) is list and command and all(type(v) is str for v in command), 'producer-command')
         need(text is True, 'producer-capture-text')
         if command[0] == 'docker':
             if command[:2] == ['docker', 'run']:
-                result = self.broker.command(command, timeout)
+                result = self.call(self.broker.command, command, timeout)
                 need(result.returncode == 0, 'producer-probe-failed')
                 return result.stdout.decode().strip()
-            return self.broker.capture(command)
+            return self.call(self.broker.capture, command)
         need(command == ['lscpu'], 'producer-host-command')
-        result = self.runner.run(['/usr/bin/lscpu'], timeout=timeout)
+        result = self.call(self.runner.run, ['/usr/bin/lscpu'], timeout=timeout)
         need(result.returncode == 0, 'producer-host-probe')
         return result.stdout.decode().strip()
 
 
 def execute(config, state):
+    jobroot = Path(config['jobroot'])
+    receipt = {'status': 'FAIL', 'cancelled': False, 'hardware': 'NOT RUN',
+               'diagnostic': {'phase': 'preflight', 'outcome': 'not-run'}}
+    state.update(path=jobroot / 'producer-worker.json', receipt=receipt)
+
+    def diagnostic(value):
+        receipt['diagnostic'] = dict(value)
+        save(state['path'], receipt)
+
     cls = broker_class(Path(config['adapter']))
     jr.Cancelled = cls.runtime.Cancelled
-    jobroot = Path(config['jobroot'])
     env = {k: os.environ[k] for k in ('PATH', 'LANG', 'LC_ALL', 'HOME', 'DOCKER_CONFIG')}
     runner = jr.Runner(config['producer_timeout'], env, jobroot / 'producer-tool-logs')
     cli = cls.runtime.Runner(config['producer_timeout'], {**env, 'DOCKER_BUILDKIT': '0'}, jobroot / 'producer-docker-logs')
@@ -161,12 +245,33 @@ def execute(config, state):
     broker = cls(cli, cleanup, config['docker_binary'], config['docker_sha256'], config['endpoint'],
                  os.getuid(), os.getgid(), jobroot / 'base-image.json', config['nonce'], jobroot=jobroot,
                  context=jobroot / 'producer/context', iidfile=jobroot / 'producer/image-id')
-    receipt = {'status': 'FAIL', 'cancelled': False, 'hardware': 'NOT RUN'}
-    state.update(path=jobroot / 'producer-worker.json', receipt=receipt)
+    commands = ProducerCommands(config, broker, runner, diagnostic=diagnostic)
     try:
-        broker.initialize(expected_daemon=config['daemon'])
+        with commands.operation('preflight'):
+            commands.call(broker.initialize, expected_daemon=config['daemon'])
+            commands.set_diagnostic('preflight', 'pass')
         native = module('native_arm', Path(config['snapshot']) / 'scripts/ci/native_arm.py')
-        native.subprocess = ProducerCommands(config, broker, runner)
+        native.subprocess = commands
+        original_acquire, original_build = native.acquire, native.build
+
+        def acquire(*args, **kwargs):
+            commands.set_diagnostic('acquisition', 'started')
+            try:
+                result = original_acquire(*args, **kwargs)
+            except jr.Cancelled:
+                commands.set_diagnostic('acquisition', 'cancelled')
+                raise
+            except Exception:
+                commands.set_diagnostic('acquisition', 'command-failed')
+                raise
+            commands.set_diagnostic('acquisition', 'pass')
+            return result
+
+        def build(*args, **kwargs):
+            commands.set_diagnostic('bootstrap', 'started')
+            return original_build(*args, **kwargs)
+
+        native.acquire, native.build = acquire, build
         code = native.main(['build', '--inputs', str(Path(config['snapshot']) / 'scripts/ci/inputs.lock.json'),
             '--inputs-sha256', INPUTS_SHA, '--recipes', str(Path(config['snapshot']) / 'scripts/ci/recipes.lock.json'),
             '--recipes-sha256', RECIPES_SHA, '--cache', str(jobroot / 'cache'), '--output', str(jobroot / 'producer')])

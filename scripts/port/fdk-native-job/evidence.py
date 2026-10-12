@@ -23,6 +23,34 @@ MAX_FILE = 64 * 1024 ** 2
 PUBLIC_FILES = {'producer-summary.json', 'acquisition.json', 'signatures.json',
                 'inputs.lock.json', 'recipes.lock.json', 'export-manifest.json'}
 
+PRODUCER_PHASES = {'preflight', 'base-probe', 'host-probe', 'acquisition', 'gpg-import',
+                   'gpg-verify', 'bootstrap', 'original-build', 'original-compare', 'complete'}
+PRODUCER_OUTCOMES = {'not-run', 'started', 'pass', 'command-failed', 'delegate-refused', 'runner-failed', 'cancelled'}
+PRODUCER_FAILURE_CODES = ({'producer-before-' + phase + '-failed' for phase in PRODUCER_PHASES} |
+                          {'producer-during-' + phase + '-failed' for phase in PRODUCER_PHASES} |
+                          {'producer-after-' + phase + '-failed' for phase in PRODUCER_PHASES} |
+                          {'producer-' + phase + '-' + outcome for phase in PRODUCER_PHASES
+                           for outcome in ('command-failed', 'delegate-refused', 'runner-failed', 'cancelled')})
+
+
+def producer_diagnostic(value):
+    if (type(value) is dict and set(value) == {'phase', 'outcome'} and
+            type(value['phase']) is str and value['phase'] in PRODUCER_PHASES and
+            type(value['outcome']) is str and value['outcome'] in PRODUCER_OUTCOMES):
+        return dict(value)
+    return None
+
+
+def producer_failure_code(report):
+    diagnostic = producer_diagnostic(report.get('producer_diagnostic'))
+    if report.get('work_phase') != 'producer' or diagnostic is None:
+        return 'fdk-native-job-failed'
+    phase, outcome = diagnostic['phase'], diagnostic['outcome']
+    if outcome in ('not-run', 'started', 'pass'):
+        point = {'not-run': 'before', 'started': 'during', 'pass': 'after'}[outcome]
+        return 'producer-' + point + '-' + phase + '-failed'
+    return 'producer-' + phase + '-' + outcome
+
 
 def need(ok, code):
     if not ok:
@@ -295,7 +323,7 @@ def public_status(report):
             'phase': report.get('phase') if report.get('phase') in
                 ('preflight', 'source', 'producer', 'fdk', 'cleanup', 'complete') else 'preflight',
             'cancelled': report.get('cancelled') is True, 'owned_image_absence': clean,
-            'producer_status': producer, 'fdk_status': fdk, 'error_code': None if accepted else 'fdk-native-job-failed',
+            'producer_status': producer, 'fdk_status': fdk, 'error_code': None if accepted else producer_failure_code(report),
             'hardware': 'NOT RUN', 'installation': 'NOT RUN', 'binary_publication': 'NOT RUN'}
 
 

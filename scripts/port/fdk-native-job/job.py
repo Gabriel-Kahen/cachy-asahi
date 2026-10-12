@@ -101,6 +101,17 @@ def write_exports(out, report, state):
     packet.save(out / 'public/status.json', evidence.public_status(report))
 
 
+def retain_producer_diagnostic(private, report):
+    # Recover the last durable fixed state even if the outer worker call raised.
+    try:
+        worker = packet.decode(packet.read(private / 'producer-worker.json', 65536))
+        diagnostic = evidence.producer_diagnostic(worker.get('diagnostic'))
+    except Exception:
+        diagnostic = None
+    if diagnostic is not None:
+        report['producer_diagnostic'] = diagnostic
+
+
 def finish(out, report, state):
     with jr.defer_signals() as events:
         write_exports(out, report, state)
@@ -165,6 +176,7 @@ def execute(args, state):
             '--config', str(private / 'producer-config.json'), '--config-sha256', packet.sha(packet.read(private / 'producer-config.json'))],
             timeout=args.producer_timeout + 30, log='producer.log')
         worker = packet.load(private / 'producer-worker.json')
+        retain_producer_diagnostic(private, report)
         packet.need(produced.returncode == 0 and worker.get('status') == 'PASS' and worker.get('cancelled') is False and
                     worker.get('cleanup', {}).get('status') == 'PASS' and
                     worker['cleanup'].get('absence_verified') is True, 'producer-worker-failed')
@@ -199,6 +211,8 @@ def execute(args, state):
     finally:
         with jr.defer_signals() as events:
             report['work_phase'] = report['phase']
+            if report['work_phase'] == 'producer':
+                retain_producer_diagnostic(private, report)
             report['phase'] = 'cleanup'
             if broker is not None:
                 journals = [private / 'fdk/private/containers.json'] if (private / 'fdk/private/containers.json').exists() else []

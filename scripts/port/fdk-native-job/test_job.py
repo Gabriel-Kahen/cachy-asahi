@@ -112,7 +112,16 @@ class JobTests(unittest.TestCase):
                 receipt['cancelled'] = True
             if self.mode == 'producer-absence-fail':
                 receipt['cleanup']['absence_verified'] = False
+            if self.mode in ('producer-diagnostic-fail', 'producer-outer-fail', 'producer-diagnostic-poison'):
+                receipt['status'] = 'FAIL'
+                receipt['diagnostic'] = {'phase': 'gpg-verify', 'outcome': 'runner-failed'}
+                if self.mode == 'producer-outer-fail':
+                    receipt['diagnostic'] = {'phase': 'bootstrap', 'outcome': 'started'}
+                if self.mode == 'producer-diagnostic-poison':
+                    receipt['diagnostic']['raw_private_response'] = 'PRIVATE-DIAGNOSTIC-SECRET'
             job.packet.save(self.private / 'producer-worker.json', receipt)
+            if self.mode == 'producer-outer-fail':
+                raise ValueError('PRIVATE-OUTER-EXCEPTION')
             return subprocess.CompletedProcess(argv, int(self.mode == 'producer-exit-fail'), b'')
         self.assertEqual(argv[3], str(self.root / (job.packet.ADAPTER + 'stage.py')))
         self.events.append('fdk')
@@ -190,6 +199,34 @@ class JobTests(unittest.TestCase):
         self.assert_failed_public()
         self.assertNotIn('fdk', self.events)
         self.assertLess(self.events.index('cleanup'), self.events.index('publish'))
+
+    def test_failed_producer_retains_only_fixed_diagnostic_after_cleanup(self):
+        self.mode = 'producer-diagnostic-fail'
+        result, state = self.execute()
+        self.assertEqual(result, 1)
+        self.assertNotIn('fdk', self.events)
+        public = self.records()['public/status.json']
+        self.assertEqual(public['error_code'], 'producer-gpg-verify-runner-failed')
+        self.assertEqual(state['report']['producer_diagnostic'], {'phase': 'gpg-verify', 'outcome': 'runner-failed'})
+        self.assertTrue(public['owned_image_absence'])
+        self.assertEqual(public['fdk_status'], 'NOT RUN')
+
+    def test_outer_worker_failure_recovers_durable_started_state(self):
+        self.mode = 'producer-outer-fail'
+        result, _ = self.execute()
+        self.assertEqual(result, 1)
+        self.assertNotIn('fdk', self.events)
+        self.assertEqual(self.records()['public/status.json']['error_code'], 'producer-during-bootstrap-failed')
+        self.assertNotIn('PRIVATE-OUTER-EXCEPTION', str(self.records()['public/status.json']))
+
+    def test_unknown_diagnostic_fields_never_reach_public_error_code(self):
+        self.mode = 'producer-diagnostic-poison'
+        result, state = self.execute()
+        self.assertEqual(result, 1)
+        self.assertNotIn('producer_diagnostic', state['report'])
+        public = self.records()['public/status.json']
+        self.assertEqual(public['error_code'], 'fdk-native-job-failed')
+        self.assertNotIn('PRIVATE-DIAGNOSTIC-SECRET', str(public))
 
     def test_producer_failed_receipt_does_not_enter_fdk(self):
         self.mode = 'producer-receipt-fail'
