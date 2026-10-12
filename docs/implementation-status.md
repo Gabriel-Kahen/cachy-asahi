@@ -49,13 +49,14 @@ The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with 
   corruption, artifact and cleanup checks; 54 local tests passed. Native build,
   timing and M2 performance remain NOT RUN.
 - A disposable generic virtual desktop route and controller are implemented,
-  with 19 separately authenticated tooling packages and 25 local tests. Actual
+  with 19 separately authenticated tooling packages and 29 local tests, including
+  independently reproduced cancellation corrections. Actual
   guest boot, Hyprland/Wofi execution and captured-frame review remain NOT RUN;
   this route cannot accept Apple GPU, audio, suspend or platform behavior.
 - The offline development release client passes 37 local tests with temporary
   real GPG signatures and independent race regressions. Production trust,
   supported release promotion and native onboarding remain separate gates.
-- Connected V01–V09 execution has three retained native failures. The first
+- Connected V01–V09 execution has four retained native failures. The first
   passed 211 host boundary tests but refused an incorrect source freeze. The
   corrected run passed 213 host tests, runner probe and full-source preflight,
   then failed fetching superseded pinned Perl inputs. The third authenticated
@@ -63,7 +64,10 @@ The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with 
   passed 349 locked-userspace tests with no skips. Its fixture generation and
   integration suite failed on omitted locked audit inputs, and the desktop
   configuration verifier aborted. Installed lifecycle, repository transactions,
-  onboarding and installed desktop stages did not begin. See
+  onboarding and installed desktop stages did not begin. The fourth run passed
+  fixture builds/signing, all 474 native source tests without skips, and the
+  signed lifecycle component. The outer installed-image handoff and repository
+  stages still failed; neither installed onboarding nor desktop ran. See
   [the actual execution record](validation/virtual-arm.md).
 
 These are distinct development results. No complete-port milestone or hardware
