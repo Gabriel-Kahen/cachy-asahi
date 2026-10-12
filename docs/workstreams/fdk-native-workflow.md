@@ -225,3 +225,18 @@ refused before encoding. All existing curated producer schemas, source/Git/mode,
 size/link, oversized-blob and captured-byte checks still pass. Full YAML parsing,
 workflow contract, both inline Python compilations and whitespace checks pass.
 These are local source/fixture results, not a new hosted trial.
+
+## Corrected finite trial dispatched
+
+The coordinator committed the reviewed consumer at
+`ee9797812cb454e413b5900d8262f1015fe863f1` and pushed that exact source.
+The actual embedded source preflight verified all 128 committed Git blobs/modes,
+workflow bytes and encoder pin before dispatch. The corrected finite public ARM
+[run 38230760444](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38230760444)
+was created at 09:34:25 UTC on 2026-10-12, with packet SHA256
+`76e475f63332c66de123481b77c904254c8f0c988bdf73b0787c732d3ae70449`
+and workflow SHA256
+`6eecc3235b91dfeb326f497f6fe0984ce7525db860739b2c0083b0f8271e37b1`.
+It was queued when recorded. No corrected producer or FDK build PASS is yet
+claimed; the prior trial remains FAIL. The existing shared native builder
+concurrency group serializes this job with other project native trials.
