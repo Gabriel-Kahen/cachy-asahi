@@ -19,20 +19,21 @@ import stat
 import sys
 import tempfile
 import time
+import types
 
 import audit_tooling
 from common import (GIB, IMAGE_SHA, OVERLAYS, SAFE_CAPS, allocated, bounded, digest,
                     facts, free_bytes, inventory, json_load, pinned, relative,
                     require, save)
 
-LOCK_PIN = '7d7df36348ab70fded74fbcb6803e8a16bfece1fc29d439ca8ed1805a867bd25'
-AUDIT_PIN = '3a7c30ba244a874625da994f896ae080a2b60f092b04f5f2d6caa70239e4f41d'
-AUDITOR_PIN = 'f2005ea8366f64cd81aa7fb7dbae9e60c835da77164adba4d8e434af262fda13'
+LOCK_PIN = 'a8060f5dab01277de200fb7c9a4418b565984eb6d1cfb4971f0a3bd013ee8073'
+AUDIT_PIN = 'cd11a837b29e5c757b482a79b375f65170881d73f80db4ae645ed600a45378cd'
+AUDITOR_PIN = '6677f391f2de23540bc147770148729fe4c993850b7bbed0b71fb7e48d296fdc'
 CORE = {
-    'common.py': '6479ee7245be45617deb58dfe5c4e2ca8aa13493a500c6a61feb69008942c381',
+    'common.py': 'b5099507b27fd9f86259c0096d0128b3a2480c546469312763a84438202fa4c3',
     'guest.py': '8a31f3d251e6e60db7c0c33bfebb8d9e37fea7924a72fdce493a9388ccde143f',
     'prepare.py': '22d9f926ef8b3965052585e9bb401502c9c53cccbd031f807db6ef85e7d1c4ff',
-    'run.py': '87992add6ffd1fb8f9effd900e5a1bf8c119c393613c24f3eaf3f687280eaf8a',
+    'run.py': '60a495285968d44f176a2cb299f3c251562ebdd2a8e7c7ecbdb3007bdec4575d',
     'gbm_probe.c': 'fe0bb7b15df0bc93c4b5115543619e182ba3dac2ed22d0d8b1ab541d77a72efd',
 }
 CONFIG_FIELDS = ('User', 'Env', 'Entrypoint', 'Cmd', 'WorkingDir', 'Labels', 'Volumes',
@@ -145,9 +146,10 @@ def validate_input(c, root):
     frozen_base = {r['name'][0]: r['version'][0] for r in upstream['rootfs_packages']}
     frozen_base.update({r['name']: r['version'] for r in upstream['packages']})
     require(base == frozen_base and len(frozen_base) == 341, 'installed base differs from authenticated native input snapshot')
-    require(len(lock['packages']) == 19 and lock['base_package_count'] == 341 and lock['expected_package_count'] == 360 and
+    require(len(lock['packages']) == 21 and lock['base_package_count'] == 341 and lock['expected_package_count'] == 362 and
+            {'qemu-hw-display-virtio-gpu', 'qemu-hw-display-virtio-gpu-pci'} <= {r['name'] for r in lock['packages']} and
             audit['status'] == 'PASS' and audit['tooling_lock_sha256'] == LOCK_PIN and
-            set(audit['packages']) == {r['name'] for r in lock['packages']}, 'complete authenticated 19-package extension required')
+            set(audit['packages']) == {r['name'] for r in lock['packages']}, 'complete authenticated 21-package extension required')
     require(not set(base) & {r['name'] for r in lock['packages']} and not OVERLAYS & {r['name'] for r in lock['packages']}, 'tooling may not replace existing packages')
     for row in rows:
         require(relative(row['archive']).startswith('baseline/') and row['archive'].endswith(('.pkg.tar.xz', '.pkg.tar.zst', '.pkg.tar.gz')), 'original archive must be under baseline/')
@@ -267,11 +269,11 @@ def inside(sha, writable):
             command(['/usr/bin/gpgconf', '--homedir', str(keyring), '--kill', 'all'])
             shutil.rmtree(temporary); temporary = None
         expected |= {r['name']: r['version'] for r in lock['packages']}
-        require(len(expected) == 364, 'exact 360+4 expected set required')
+        require(len(expected) == 366, 'exact 362+4 expected set required')
         result['packages'] = installed(expected, c['baseline'])
         sanitized()
         result.update(status='READY', private_cleanup='PASS; TEST local master/keyring removed before private commit',
-                      package_count=364, scriptlets='DISABLED', hooks='MASKED; no package hooks accepted',
+                      package_count=366, scriptlets='DISABLED', hooks='MASKED; no package hooks accepted',
                       package_inventory_sha256=hashlib.sha256(''.join(k + ' ' + v + '\n' for k, v in sorted(expected.items())).encode()).hexdigest())
     except Exception as exc:
         result['error'] = str(exc)
@@ -414,6 +416,19 @@ def project(raw, target, report):
     if not raw.exists():
         return
     result = json_load(raw / 'result.json') if (raw / 'result.json').is_file() else None
+    capability_file = raw / 'capabilities.json'
+    if capability_file.exists():
+        require(regular(capability_file).st_size <= 16 * 1024, 'capability receipt exceeds bound')
+        source = Path(__file__).with_name('run.py'); regular(source)
+        data = source.read_bytes()
+        require(hashlib.sha256(data).hexdigest() == CORE['run.py'], 'capability projector source differs')
+        module = types.ModuleType('_reviewed_virtual_run'); module.__file__ = str(source)
+        exec(compile(data, str(source), 'exec'), module.__dict__)
+        rows = module.capability_projection(json_load(capability_file))
+        require(result is None or result.get('capabilities') == rows, 'capability receipt/result differs')
+        report['qemu_capabilities'] = rows
+        report['qemu_capabilities_sha256'] = hashlib.sha256(
+            (json.dumps(rows, sort_keys=True, indent=2) + '\n').encode()).hexdigest()
     if result is not None:
         report['guest'] = {k: result.get(k) for k in ('status', 'execution', 'contract_sha256', 'prepare_receipt_sha256', 'image_id',
                           'nonce', 'software_compositor', 'software_session_ipc', 'frame_proof', 'hardware_validation',
@@ -532,7 +547,7 @@ def main():
             argv += identity + ['/usr/bin/python3', '-B', '/runner/virtual/controller.py', '--inside-tooling', '--contract-sha256', digest(inputs / 'tooling-contract.json')]
             run_container(argv, raw / 'tooling-container.log', child['image_id'], True, True, False, 650, report['cleanup'], keep=True)
             receipt = json_load(setup / 'tooling.json')
-            require(receipt['status'] == 'READY' and receipt['package_count'] == 364 and receipt['contract_sha256'] == digest(inputs / 'tooling-contract.json') and
+            require(receipt['status'] == 'READY' and receipt['package_count'] == 366 and receipt['contract_sha256'] == digest(inputs / 'tooling-contract.json') and
                     receipt['image_id'] == c['installed_image_id'] and receipt['nonce'] == nonce, 'clean exact tooling READY receipt required before commit')
             existing_images = set(command(['docker', 'image', 'ls', '--no-trunc', '--quiet']).splitlines())
             candidate_tag = 'cachy-virtual-private-' + nonce + ':fixture'
@@ -557,9 +572,9 @@ def main():
                      '/usr/bin/python3', '-B', '/runner/virtual/controller.py', '--inside-verify', '--contract-sha256', digest(inputs / 'tooling-contract.json')]
             run_container(argv, raw / 'verify-container.log', derived, True, False, False, 180, report['cleanup'])
             verified = json_load(verification / 'tooling.json')
-            require(verified['status'] == 'READY' and verified['packages'] == receipt['packages'] and verified['package_count'] == 364 and
+            require(verified['status'] == 'READY' and verified['packages'] == receipt['packages'] and verified['package_count'] == 366 and
                     verified['image_id'] == derived, 'fresh read-only tooling image verification failed')
-            report['stages']['tooling'] = {'status': 'READY', 'image_id': derived, 'package_count': 364,
+            report['stages']['tooling'] = {'status': 'READY', 'image_id': derived, 'package_count': 366,
                                          'package_inventory_sha256': verified['package_inventory_sha256'],
                                          'private_cleanup': verified['private_cleanup'], 'committed_config_sha256': report['baseline_config_sha256']}
             proof = {'schema_version': 1, 'execution': 'qemu-tcg-generic-aarch64', 'nonce': nonce, 'image_id': derived,

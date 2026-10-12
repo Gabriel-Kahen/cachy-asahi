@@ -158,7 +158,7 @@ def contract(path, sha, f):
 def check_runtime(c):
     base = inventory(pinned('/inputs', c['base_runtime_lock'], c['base_runtime_lock_sha256']).read_text())
     tooling = json_load(pinned('/inputs', c['tooling_lock'], c['tooling_lock_sha256']))
-    require(len(base) == 341 and tooling.get('base_package_count') == 341 and tooling.get('expected_package_count') == 360 and
+    require(len(base) == 341 and tooling.get('base_package_count') == 341 and tooling.get('expected_package_count') == 362 and
             tooling.get('qemu_source_commit') == QEMU_COMMIT, 'wrong frozen base/tooling extension')
     audit = json_load(pinned('/inputs', c['tooling_audit'], c['tooling_audit_sha256']))
     require(audit.get('status') == 'PASS' and audit.get('tooling_lock_sha256') == c['tooling_lock_sha256'] and

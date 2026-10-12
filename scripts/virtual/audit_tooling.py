@@ -79,6 +79,18 @@ def inspect(path, row):
     return {'metadata': metadata, 'buildinfo': build, 'hooks': hooks, 'installed_paths': installed, 'archive_sha256': digest(path)}
 
 
+def validate_lock(lock):
+    """Keep historical data audits, and require both modules in the corrected closure."""
+    packages = lock['packages']
+    names = {row['name'] for row in packages}
+    require(lock['schema_version'] == 1 and lock['base_package_count'] == 341 and
+            len(packages) in (19, 21) and len(names) == len(packages) and
+            lock['expected_package_count'] == 341 + len(packages), 'wrong tooling lock')
+    if len(packages) == 21:
+        require({'qemu-hw-display-virtio-gpu', 'qemu-hw-display-virtio-gpu-pci'} <= names,
+                'both 2D GPU modules required')
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument('--lock', type=Path, required=True)
@@ -91,7 +103,7 @@ def main():
     args.cache.mkdir(parents=True, exist_ok=True)
     require(not args.cache.is_symlink(), 'symlink cache refused')
     lock = json_load(args.lock)
-    require(lock['schema_version'] == 1 and len(lock['packages']) == 19 and lock['expected_package_count'] == 360, 'wrong tooling lock')
+    validate_lock(lock)
     report = {'status': 'FAILED', 'tooling_lock_sha256': args.lock_sha256, 'packages': {}, 'native_execution': 'NOT RUN', 'hardware_validation': 'NOT RUN'}
     try:
         downloads = lock['keyring_files'] + [i for p in lock['packages'] for i in (p, signature(p))]

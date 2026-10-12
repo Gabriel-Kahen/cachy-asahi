@@ -21,6 +21,147 @@ import guest
 import run
 
 
+class Capabilities(unittest.TestCase):
+    def results(self):
+        return [{'returncode': 0, 'error': None, 'stdout': expected, 'stderr': ''}
+                for _, _, expected in run.CAPABILITIES]
+
+    def checks(self, results):
+        with tempfile.TemporaryDirectory(prefix='virtual-capability-test-') as temporary:
+            root = Path(temporary); report = {}; writes = []
+            original = common.save
+            def observe(path, value):
+                writes.append(copy.deepcopy(value)); original(path, value)
+            with patch('run.bounded', side_effect=results) as process, patch('run.save', side_effect=observe):
+                try: run.check_capabilities(report, root)
+                except BaseException as error: failure = error
+                else: failure = None
+            self.assertEqual(common.json_load(root / 'capabilities.json'), report['capabilities'])
+            for call in process.call_args_list:
+                self.assertEqual(call.kwargs, {'timeout': 15, 'limit': 128 * 1024})
+            return report, writes, process.call_args_list, failure
+
+    def test_all_four_checks_record_before_and_after_without_raw_help(self):
+        report, writes, calls, failure = self.checks(self.results())
+        self.assertIsNone(failure)
+        self.assertEqual([r['status'] for rows in writes for r in rows[-1:]],
+                         ['STARTING', 'PASS'] * 4)
+        self.assertEqual([c.args[0] for c in calls],
+                         [['/usr/bin/qemu-system-aarch64', *args] for _, args, _ in run.CAPABILITIES])
+        self.assertEqual(len(run.capability_projection(report['capabilities'])), 4)
+        self.assertNotIn('stdout', report['capabilities'][0])
+
+    def test_each_missing_capability_stops_at_exact_check_and_has_finite_hashes(self):
+        for index, (name, _, _) in enumerate(run.CAPABILITIES):
+            with self.subTest(check=name):
+                rows = self.results(); rows[index]['stdout'] = 'password=PRIVATE_HELP'
+                report, writes, calls, failure = self.checks(rows)
+                self.assertIsInstance(failure, common.Refused)
+                self.assertEqual(len(calls), index + 1)
+                self.assertEqual(report['capabilities'][-1]['check'], name)
+                self.assertEqual(report['capabilities'][-1]['reason'], 'capability-missing')
+                self.assertEqual(writes[-2][-1]['status'], 'STARTING')
+                self.assertNotIn('PRIVATE_HELP', json.dumps(report))
+
+    def test_process_bounds_errors_and_cancel_never_publish_exception_text(self):
+        for error, reason in [('timeout', 'timeout'), ('output overflow', 'output-limit'),
+                              ('password=PRIVATE_HELP', 'launch-failed'), (None, 'process-failed')]:
+            report, _, _, failure = self.checks([{'returncode': -9, 'error': error,
+                                                 'stdout': '', 'stderr': 'PRIVATE_HELP'}])
+            self.assertIsInstance(failure, common.Refused)
+            self.assertEqual(report['capabilities'][-1]['reason'], reason)
+            self.assertNotIn('PRIVATE_HELP', json.dumps(report))
+        for error, reason in [(OSError('PRIVATE_PATH'), 'launch-failed'),
+                              (run.ProofInterrupted('PRIVATE_PATH'), 'cancelled'),
+                              (KeyboardInterrupt(), 'cancelled')]:
+            report, _, _, failure = self.checks([error])
+            self.assertIs(failure, error)
+            self.assertEqual(report['capabilities'][-1]['reason'], reason)
+            self.assertNotIn('PRIVATE_PATH', json.dumps(report))
+            self.assertTrue(all(report['capabilities'][-1][key] is None for key in
+                                ('returncode', 'stdout_sha256', 'stdout_bytes', 'stderr_sha256', 'stderr_bytes')))
+            changed = copy.deepcopy(report['capabilities'])
+            changed[-1].update(stdout_bytes=0, stdout_sha256=hashlib.sha256(b'').hexdigest())
+            with self.assertRaises(common.Refused): run.capability_projection(changed)
+
+    def test_projection_rejects_secret_types_order_and_partial_records(self):
+        report, _, _, _ = self.checks(self.results()); rows = report['capabilities']
+        changes = [('check', 'PRIVATE_PATH'), ('status', True), ('returncode', True),
+                   ('reason', 'PRIVATE_PATH'), ('stdout_sha256', 'bad'),
+                   ('stdout_bytes', False), ('stdout_bytes', 128 * 1024 * 3 + 1),
+                   ('stderr_bytes', -1)]
+        for key, value in changes:
+            changed = copy.deepcopy(rows); changed[0][key] = value
+            with self.subTest(field=key), self.assertRaises(common.Refused):
+                run.capability_projection(changed)
+        for changed in [rows[::-1], rows + [rows[-1]], [dict(rows[0], private='PRIVATE_PATH')],
+                        [{key: value for key, value in rows[0].items() if key != 'stdout_bytes'}]]:
+            with self.assertRaises(common.Refused): run.capability_projection(changed)
+
+    def test_actual_bounded_process_output_flood_is_refused_and_reaped(self):
+        def flood(_argv, **kwargs):
+            return common.bounded([sys.executable, '-I', '-B', '-c',
+                                   'import os;os.write(1,b"x"*1048576)'], **kwargs)
+        with tempfile.TemporaryDirectory(prefix='virtual-capability-flood-') as temporary:
+            report = {}
+            with patch('run.bounded', side_effect=flood), self.assertRaises(common.Refused):
+                run.check_capabilities(report, Path(temporary))
+            row = report['capabilities'][0]
+            self.assertEqual(row['reason'], 'output-limit')
+            self.assertEqual(row['stdout_bytes'], run.CAPABILITY_LIMIT)
+
+    def test_historical_audit_and_corrected_module_shape_stay_distinct(self):
+        old = common.json_load(Path(__file__).with_name('tooling.lock.json'))
+        old['packages'] = [row for row in old['packages'] if row['name'] not in
+                           ('qemu-hw-display-virtio-gpu', 'qemu-hw-display-virtio-gpu-pci')]
+        old['expected_package_count'] = 360
+        audit_tooling.validate_lock(old)
+        candidate = copy.deepcopy(old)
+        candidate['packages'] += [{'name': 'qemu-hw-display-virtio-gpu'},
+                                  {'name': 'qemu-hw-display-virtio-gpu-pci'}]
+        candidate['expected_package_count'] = 362
+        audit_tooling.validate_lock(candidate)
+        for change in [dict(expected_package_count=360), dict(base_package_count=345),
+                       dict(packages=candidate['packages'][:-1] + [{'name': 'unrelated-module'}])]:
+            with self.assertRaises(common.Refused): audit_tooling.validate_lock(candidate | change)
+
+    def test_runtime_requires_corrected_extension_and_exact_inventory(self):
+        # Data/interface fixture only: no host pacman, kernel or baseline payload access.
+        old = common.json_load(Path(__file__).with_name('tooling.lock.json'))
+        old['packages'] = [row for row in old['packages'] if row['name'] not in
+                           ('qemu-hw-display-virtio-gpu', 'qemu-hw-display-virtio-gpu-pci')]
+        old['expected_package_count'] = 360
+        candidate = copy.deepcopy(old)
+        candidate['packages'] += [{'name': name, 'version': '11.1.2-1'} for name in
+                                  ('qemu-hw-display-virtio-gpu', 'qemu-hw-display-virtio-gpu-pci')]
+        candidate['expected_package_count'] = 362
+        with tempfile.TemporaryDirectory(prefix='virtual-runtime-extension-') as temporary:
+            root = Path(temporary); base = {f'base-package-{i:03d}': '1-1' for i in range(341)}
+            (root / 'base.lock').write_text(''.join(name + ' ' + version + '\n' for name, version in base.items()))
+            contract = {'base_runtime_lock': 'base.lock', 'base_runtime_lock_sha256': common.digest(root / 'base.lock'),
+                        'tooling_lock': 'tooling.json', 'tooling_audit': 'audit.json', 'tooling_audit_sha256': 'a' * 64,
+                        'baseline': []}
+            def attempt(lock, observed=None):
+                common.save(root / 'tooling.json', lock)
+                contract['tooling_lock_sha256'] = common.digest(root / 'tooling.json')
+                common.save(root / 'audit.json', {'status': 'PASS', 'tooling_lock_sha256': contract['tooling_lock_sha256'],
+                                                'packages': {row['name']: {} for row in lock['packages']}})
+                expected = base | {row['name']: row['version'] for row in lock['packages']}
+                text = ''.join(name + ' ' + version + '\n' for name, version in (observed or expected).items())
+                with patch('common.pinned', side_effect=lambda _root, name, _sha: root / name), \
+                        patch('common.subprocess.check_output', return_value=text) as process, \
+                        patch('common.digest', return_value=common.IMAGE_SHA):
+                    result = common.check_runtime(contract)
+                    process.assert_called_once_with(['/usr/bin/pacman', '-Q'], text=True, timeout=30)
+                return result
+            self.assertEqual(len(attempt(candidate)), 362)
+            with self.assertRaises(common.Refused): attempt(old)
+            with self.assertRaises(common.Refused): attempt(candidate | {'expected_package_count': 360})
+            expected = base | {row['name']: row['version'] for row in candidate['packages']}
+            expected.pop('qemu-hw-display-virtio-gpu-pci'); expected['unrelated-module'] = '11.1.2-1'
+            with self.assertRaises(common.Refused): attempt(candidate, expected)
+
+
 class Guards(unittest.TestCase):
     def fixture(self, prep=False):
         return {'uid': 0 if prep else 1001, 'arch': 'aarch64', 'docker': True,
@@ -239,8 +380,7 @@ class Evidence(unittest.TestCase):
         self.assertEqual(audit['status'], 'PASS')
         self.assertEqual(audit['tooling_lock_sha256'], common.digest(root / 'tooling.lock.json'))
         self.assertEqual(lock['resolver']['exit_code'], 0)
-        self.assertEqual(lock['expected_package_count'], 360)
-        self.assertEqual(len(lock['packages']), 19)
+        audit_tooling.validate_lock(lock)
         self.assertEqual({p['name'] for p in lock['packages']}, set(audit['packages']))
         for p in lock['packages']:
             with self.subTest(package=p['name']):

@@ -1,7 +1,7 @@
 {
   "base_inputs_lock_sha256": "3c16c37d1b12cc84a88572e82ab8ad59e7f3b5ed0d08f09ddf72a69f4711d650",
   "base_package_count": 341,
-  "expected_package_count": 360,
+  "expected_package_count": 362,
   "hardware_validation": "NOT RUN",
   "keyring_commit": "29432c01130efc4ad297dfe8f487d5b79cbaf8e9",
   "keyring_files": [
@@ -24,7 +24,7 @@
       "url": "https://raw.githubusercontent.com/archlinuxarm/PKGBUILDs/29432c01130efc4ad297dfe8f487d5b79cbaf8e9/core/archlinuxarm-keyring/archlinuxarm-revoked"
     }
   ],
-  "native_execution": "NOT RUN",
+  "native_execution": "NOT RUN corrected 21-package closure",
   "packages": [
     {
       "arch": "aarch64",
@@ -440,6 +440,93 @@
       "arch": "aarch64",
       "conflicts": [],
       "depends": [
+        "glibc",
+        "pixman",
+        "libpixman-1.so=0-64",
+        "qemu-common=11.1.2-1"
+      ],
+      "filename": "qemu-hw-display-virtio-gpu-11.1.2-1-aarch64.pkg.tar.xz",
+      "license": [
+        "BSD-2-Clause",
+        "BSD-2-Clause-Patent",
+        "BSD-3-Clause",
+        "CC0-1.0",
+        "FSFAP",
+        "GPL-1.0-or-later",
+        "GPL-2.0-only",
+        "GPL-2.0-only WITH Linux-syscall-note",
+        "GPL-2.0-only WITH Linux-syscall-note OR BSD-2-Clause",
+        "GPL-2.0-only WITH Linux-syscall-note OR BSD-3-Clause",
+        "GPL-2.0-or-later",
+        "GPL-2.0-or-later OR BSD-3-Clause",
+        "GPL-2.0-or-later WITH Linux-syscall-note",
+        "ISC",
+        "LGPL-2.1-only OR BSD-3-Clause",
+        "LGPL-2.0-or-later",
+        "LGPL-2.1-or-later",
+        "LicenseRef-Public-Domain",
+        "MIT"
+      ],
+      "name": "qemu-hw-display-virtio-gpu",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "e4729661997f1f5879522a7866c872c80b90b8a67b90f5e500a7c70e6a516fcc",
+      "signature_sha256": "671fafcb82b172089ebd162a6b620e433eea0cb8eec67647ae62e1de6b24c363",
+      "signature_size": 566,
+      "size": 36236,
+      "source_url": [
+        "https://www.qemu.org/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/qemu-hw-display-virtio-gpu-11.1.2-1-aarch64.pkg.tar.xz",
+      "version": "11.1.2-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "qemu-common=11.1.2-1"
+      ],
+      "filename": "qemu-hw-display-virtio-gpu-pci-11.1.2-1-aarch64.pkg.tar.xz",
+      "license": [
+        "BSD-2-Clause",
+        "BSD-2-Clause-Patent",
+        "BSD-3-Clause",
+        "CC0-1.0",
+        "FSFAP",
+        "GPL-1.0-or-later",
+        "GPL-2.0-only",
+        "GPL-2.0-only WITH Linux-syscall-note",
+        "GPL-2.0-only WITH Linux-syscall-note OR BSD-2-Clause",
+        "GPL-2.0-only WITH Linux-syscall-note OR BSD-3-Clause",
+        "GPL-2.0-or-later",
+        "GPL-2.0-or-later OR BSD-3-Clause",
+        "GPL-2.0-or-later WITH Linux-syscall-note",
+        "ISC",
+        "LGPL-2.1-only OR BSD-3-Clause",
+        "LGPL-2.0-or-later",
+        "LGPL-2.1-or-later",
+        "LicenseRef-Public-Domain",
+        "MIT"
+      ],
+      "name": "qemu-hw-display-virtio-gpu-pci",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "9dbb3bdffbeed7e8714ed6ee5693126fafdebc7082bbaa1618b3c12aa04d9ba4",
+      "signature_sha256": "a75573abb0b98ff517c2068a13b4634368fa27ba1716a8b5b86279929fcfbbc3",
+      "signature_size": 566,
+      "size": 16676,
+      "source_url": [
+        "https://www.qemu.org/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/qemu-hw-display-virtio-gpu-pci-11.1.2-1-aarch64.pkg.tar.xz",
+      "version": "11.1.2-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
         "capstone",
         "fuse3",
         "libgcc",
@@ -733,20 +820,22 @@
     "argv": [
       "pacman",
       "--root",
-      "/tmp/cachy-virtualguest-resolver-perl5423/root",
+      "/tmp/review-virtual-gpu-resolver-ro3v3dut/root",
       "--dbpath",
-      "/tmp/cachy-virtualguest-resolver-perl5423/db",
+      "/tmp/review-virtual-gpu-resolver-ro3v3dut/db",
       "--cachedir",
-      "/tmp/cachy-virtualguest-resolver-perl5423/cache",
+      "/tmp/review-virtual-gpu-resolver-ro3v3dut/cache",
       "--config",
-      "/tmp/cachy-virtualguest-resolver-perl5423/pacman.conf",
+      "/tmp/review-virtual-gpu-resolver-ro3v3dut/pacman.conf",
       "--logfile",
-      "/tmp/cachy-virtualguest-resolver-perl5423/pacman.log",
+      "/tmp/review-virtual-gpu-resolver-ro3v3dut/pacman.log",
       "--arch",
       "aarch64",
       "--noconfirm",
       "-S",
       "qemu-system-aarch64",
+      "qemu-hw-display-virtio-gpu",
+      "qemu-hw-display-virtio-gpu-pci",
       "--needed",
       "--print",
       "--print-format",
@@ -769,7 +858,7 @@
       "extra.db": "ba1bdb823c22936ba7c9f700d168da139403b1d65683e115b66bd9c9a82ce069"
     },
     "exit_code": 0,
-    "mode": "pacman print-only against isolated reconstructed frozen 341-package local metadata",
+    "mode": "print-only; copied frozen341 local metadata and four hash-bound repository databases; no installation",
     "transaction": [
       "extra capstone 5.0.9-1 capstone-5.0.9-1-aarch64.pkg.tar.xz https://ca.us.mirror.archlinuxarm.org/aarch64/extra/capstone-5.0.9-1-aarch64.pkg.tar.xz",
       "extra fuse-common 3.18.3-1 fuse-common-3.18.3-1-aarch64.pkg.tar.xz https://ca.us.mirror.archlinuxarm.org/aarch64/extra/fuse-common-3.18.3-1-aarch64.pkg.tar.xz",
@@ -789,10 +878,12 @@
       "extra vde2 2.3.3-10 vde2-2.3.3-10-aarch64.pkg.tar.xz https://ca.us.mirror.archlinuxarm.org/aarch64/extra/vde2-2.3.3-10-aarch64.pkg.tar.xz",
       "extra libyaml 0.2.5-3 libyaml-0.2.5-3-aarch64.pkg.tar.xz https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libyaml-0.2.5-3-aarch64.pkg.tar.xz",
       "extra dtc 1:1.8.1-1 dtc-1:1.8.1-1-aarch64.pkg.tar.xz https://ca.us.mirror.archlinuxarm.org/aarch64/extra/dtc-1:1.8.1-1-aarch64.pkg.tar.xz",
-      "extra qemu-system-aarch64 11.1.2-1 qemu-system-aarch64-11.1.2-1-aarch64.pkg.tar.xz https://ca.us.mirror.archlinuxarm.org/aarch64/extra/qemu-system-aarch64-11.1.2-1-aarch64.pkg.tar.xz"
+      "extra qemu-system-aarch64 11.1.2-1 qemu-system-aarch64-11.1.2-1-aarch64.pkg.tar.xz https://ca.us.mirror.archlinuxarm.org/aarch64/extra/qemu-system-aarch64-11.1.2-1-aarch64.pkg.tar.xz",
+      "extra qemu-hw-display-virtio-gpu 11.1.2-1 qemu-hw-display-virtio-gpu-11.1.2-1-aarch64.pkg.tar.xz https://ca.us.mirror.archlinuxarm.org/aarch64/extra/qemu-hw-display-virtio-gpu-11.1.2-1-aarch64.pkg.tar.xz",
+      "extra qemu-hw-display-virtio-gpu-pci 11.1.2-1 qemu-hw-display-virtio-gpu-pci-11.1.2-1-aarch64.pkg.tar.xz https://ca.us.mirror.archlinuxarm.org/aarch64/extra/qemu-hw-display-virtio-gpu-pci-11.1.2-1-aarch64.pkg.tar.xz"
     ]
   },
   "schema_version": 1,
   "signer_fingerprint": "68B3537F39A313B3E574D06777193F152BDBE6A6",
-  "status": "resolved-signed-input-candidate"
+  "status": "candidate; authenticated 2D modules required; coordinator adoption pending"
 }

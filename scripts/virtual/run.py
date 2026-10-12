@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: MIT
 """One <=20 minute QEMU TCG generic ARM software trial in a disposable container."""
 import argparse
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -10,7 +11,86 @@ import signal
 import socket
 import subprocess
 import time
-from common import GIB, MAX_LOG, IMAGE_SHA, check_runtime, contract, digest, free_bytes, guard, json_load, pinned, require, save, LoggedProcess
+from common import GIB, MAX_LOG, IMAGE_SHA, bounded, check_runtime, contract, digest, free_bytes, guard, json_load, pinned, require, save, LoggedProcess
+
+
+CAPABILITY_LIMIT = 128 * 1024
+CAPABILITIES = (
+    ('version', ('--version',), 'version 11.1.2'),
+    ('tcg', ('-accel', 'help'), 'tcg'),
+    ('virt-machine', ('-machine', 'help'), 'virt-11.1'),
+    ('virtio-gpu-pci', ('-device', 'help'), 'virtio-gpu-pci'),
+)
+CAPABILITY_REASONS = {'timeout', 'output-limit', 'process-failed', 'capability-missing',
+                      'launch-failed', 'cancelled'}
+
+
+class ProofInterrupted(ValueError):
+    pass
+
+
+def capability_projection(rows):
+    """Exact finite observations; help output and exception text stay private."""
+    require(type(rows) is list and len(rows) <= len(CAPABILITIES), 'invalid capability receipt')
+    keys = {'check', 'status', 'returncode', 'reason', 'stdout_sha256', 'stdout_bytes',
+            'stderr_sha256', 'stderr_bytes'}
+    for index, row in enumerate(rows):
+        require(type(row) is dict and set(row) == keys and type(row['check']) is str and
+                type(row['status']) is str and
+                row['check'] == CAPABILITIES[index][0] and
+                row['status'] in ('STARTING', 'PASS', 'FAIL'), 'invalid capability receipt')
+        require(index == len(rows) - 1 or row['status'] == 'PASS', 'invalid capability order')
+        code = row['returncode']
+        require(code is None or type(code) is int and -64 <= code <= 255, 'invalid capability returncode')
+        if row['status'] == 'STARTING':
+            require(all(row[key] is None for key in keys - {'check', 'status'}), 'invalid starting capability')
+            continue
+        require(row['reason'] is None if row['status'] == 'PASS' else
+                type(row['reason']) is str and row['reason'] in CAPABILITY_REASONS,
+                'invalid capability reason')
+        require(row['status'] != 'PASS' or code == 0, 'invalid successful capability')
+        if code is None and row['reason'] in ('launch-failed', 'cancelled'):
+            require(all(row[key] is None for key in ('stdout_sha256', 'stdout_bytes',
+                                                   'stderr_sha256', 'stderr_bytes')),
+                    'unobserved capability output must remain absent')
+            continue
+        total = 0
+        for stream in ('stdout', 'stderr'):
+            sha, size = row[stream + '_sha256'], row[stream + '_bytes']
+            require(type(sha) is str and re.fullmatch('[0-9a-f]{64}', sha) and
+                    type(size) is int and 0 <= size <= CAPABILITY_LIMIT * 3,
+                    'invalid capability output binding')
+            total += size
+        require(total <= CAPABILITY_LIMIT * 3, 'invalid capability output bound')
+    return [dict(row) for row in rows]
+
+
+def check_capabilities(report, output):
+    rows = report['capabilities'] = []
+    for name, arguments, expected in CAPABILITIES:
+        row = dict.fromkeys(('returncode', 'reason', 'stdout_sha256', 'stdout_bytes',
+                             'stderr_sha256', 'stderr_bytes'))
+        row.update(check=name, status='STARTING'); rows.append(row)
+        save(output / 'capabilities.json', capability_projection(rows))
+        try:
+            result = bounded(['/usr/bin/qemu-system-aarch64', *arguments],
+                             timeout=15, limit=CAPABILITY_LIMIT)
+        except BaseException as error:
+            row.update(status='FAIL', reason='cancelled' if isinstance(error, (KeyboardInterrupt, ProofInterrupted))
+                       else 'launch-failed')
+            save(output / 'capabilities.json', capability_projection(rows))
+            raise
+        row['returncode'] = result['returncode']
+        for stream in ('stdout', 'stderr'):
+            data = result[stream].encode()
+            row.update({stream + '_bytes': len(data), stream + '_sha256': hashlib.sha256(data).hexdigest()})
+        reason = {'timeout': 'timeout', 'output overflow': 'output-limit'}.get(result['error'])
+        if result['error'] and reason is None: reason = 'launch-failed'
+        if reason is None and result['returncode'] != 0: reason = 'process-failed'
+        if reason is None and expected not in result['stdout']: reason = 'capability-missing'
+        row.update(status='FAIL' if reason else 'PASS', reason=reason)
+        save(output / 'capabilities.json', capability_projection(rows))
+        require(reason is None, 'pinned QEMU capability missing: ' + name)
 
 
 class QMP:
@@ -110,7 +190,7 @@ def main():
     process, qmp, uart, collector = None, None, None, None
     start = time.monotonic()
     def interrupt(*_):
-        raise ValueError('proof interrupted/deadline')
+        raise ProofInterrupted('proof interrupted/deadline')
     previous = signal.signal(signal.SIGTERM, interrupt)
     old_alarm = signal.signal(signal.SIGALRM, interrupt)
     signal.setitimer(signal.ITIMER_REAL, 1200)
@@ -127,13 +207,7 @@ def main():
         require(prep['kernel_sha256'] == IMAGE_SHA and disk.stat().st_size == 8 * GIB, 'wrong direct kernel/raw disk')
         require(free_bytes(output) >= GIB, 'insufficient snapshot/evidence disk margin')
         report['free_before_bytes'] = free_bytes(output)
-        for argv, expected in [(['/usr/bin/qemu-system-aarch64', '--version'], 'version 11.1.2'),
-                               (['/usr/bin/qemu-system-aarch64', '-accel', 'help'], 'tcg'),
-                               (['/usr/bin/qemu-system-aarch64', '-machine', 'help'], 'virt-11.1'),
-                               (['/usr/bin/qemu-system-aarch64', '-device', 'help'], 'virtio-gpu-pci')]:
-            result = subprocess.run(argv, text=True, capture_output=True, timeout=15)
-            report['commands'].append({'argv': argv, 'returncode': result.returncode, 'stdout': result.stdout, 'stderr': result.stderr})
-            require(result.returncode == 0 and expected in result.stdout, 'pinned QEMU capability missing')
+        check_capabilities(report, output)
         qmp_path = Path('/tmp') / ('virtual-' + c['nonce'] + '.qmp')
         uart_path = Path('/tmp') / ('virtual-' + c['nonce'] + '.uart')
         require(not qmp_path.exists() and not uart_path.exists(), 'stale QMP/UART endpoint')

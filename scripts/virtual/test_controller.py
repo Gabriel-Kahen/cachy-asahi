@@ -207,7 +207,7 @@ class GuardTests(unittest.TestCase):
                 childpath = target.parent.parent / 'inputs/tooling-contract.json'
                 child = common.json_load(childpath)
                 if '--inside-tooling' in argv or '--inside-verify' in argv:
-                    common.save(target / 'tooling.json', {'status': 'READY', 'package_count': 364,
+                    common.save(target / 'tooling.json', {'status': 'READY', 'package_count': 366,
                         'contract_sha256': common.digest(childpath), 'image_id': image, 'nonce': child['nonce'],
                         'packages': {'synthetic': '1-1'}, 'package_inventory_sha256': '0' * 64, 'private_cleanup': 'PASS'})
                 elif any(a.endswith('/prepare.py') for a in argv):
@@ -220,6 +220,8 @@ class GuardTests(unittest.TestCase):
                     patch('controller.command', side_effect=command), patch('controller.run_container', side_effect=stage), \
                     patch('controller.remove_container', return_value={'status': 'PASS'}), patch('controller.remove_private_tag', return_value={'status': 'PASS'}), \
                     patch('controller.free_bytes', return_value=100 * common.GIB), patch('controller.allocated', return_value=0), \
+                    patch.object(c, 'CORE', {name: common.digest(Path(c.__file__).with_name(name)) for name in c.CORE}), \
+                    patch.object(c, 'AUDITOR_PIN', common.digest(Path(c.__file__).with_name('audit_tooling.py'))), \
                     patch('controller.project', side_effect=cancel), patch.object(sys, 'argv', ['controller.py', '--contract', str(path),
                     '--contract-sha256', common.digest(path), '--output', str(output)]):
                 self.assertFalse(c.main())
@@ -290,11 +292,29 @@ class InputTests(unittest.TestCase):
             files[alias] = cls.root / name; shutil.copyfile(source / name, files[alias])
         cache = cls.root / 'tooling-cache'; cache.mkdir()
         tooling = common.json_load(source / 'tooling.lock.json')
+        # Candidate closure is synthetic here; cryptographic data audit is separate.
+        for name in ('qemu-hw-display-virtio-gpu', 'qemu-hw-display-virtio-gpu-pci'):
+            if any(row['name'] == name for row in tooling['packages']):
+                continue
+            row = copy.deepcopy(next(r for r in tooling['packages'] if r['name'] == 'qemu-common'))
+            row.update(name=name, filename=name + '-11.1.2-1-aarch64.pkg.tar.xz')
+            tooling['packages'].append(row)
+        tooling['packages'].sort(key=lambda row: row['name']); tooling['expected_package_count'] = 362
+        common.save(files['tooling_lock'], tooling)
+        audit = common.json_load(files['tooling_audit'])
+        audit['tooling_lock_sha256'] = common.digest(files['tooling_lock'])
+        for row in tooling['packages']:
+            audit['packages'].setdefault(row['name'], {'archive_sha256': row['sha256'], 'hooks': {}})
+        common.save(files['tooling_audit'], audit)
+        cls.candidate_core = {name: common.digest(source / name) for name in c.CORE}
+        cls.candidate_auditor = common.digest(source / 'audit_tooling.py')
+        cls.candidate_lock = common.digest(files['tooling_lock'])
+        cls.candidate_audit = common.digest(files['tooling_audit'])
         cls.cache_inputs = {r['filename']: r for r in tooling['keyring_files'] +
                             [i for row in tooling['packages'] for i in (row, c.audit_tooling.signature(row))]}
         cls.contract = {'schema_version': 1, 'execution': 'native-aarch64-controller-qemu-tcg-guest', 'source_commit': '2' * 40,
                         'baseline_source_commit': baseline_commit, 'installed_image_id': installed_image, 'baseline': rows,
-                        'controller_sha256': common.digest(Path(c.__file__)), 'core_sha256': c.CORE, 'audit_tooling_sha256': c.AUDITOR_PIN,
+                        'controller_sha256': common.digest(Path(c.__file__)), 'core_sha256': cls.candidate_core, 'audit_tooling_sha256': cls.candidate_auditor,
                         'cache_dir': 'tooling-cache', 'files': {key: {'path': p.relative_to(cls.root).as_posix(), 'sha256': common.digest(p)} for key, p in files.items()}}
 
     @classmethod
@@ -314,7 +334,9 @@ class InputTests(unittest.TestCase):
                 value.stat.return_value.st_size = row['size']
                 return value
             return original_pinned(root, name, sha)
-        with patch('controller.pinned', side_effect=inputs):
+        with patch('controller.pinned', side_effect=inputs), patch.object(c, 'CORE', self.candidate_core), \
+                patch.object(c, 'AUDITOR_PIN', self.candidate_auditor), patch.object(c, 'LOCK_PIN', self.candidate_lock), \
+                patch.object(c, 'AUDIT_PIN', self.candidate_audit):
             result = c.validate_input(contract, self.root)
         self.assertEqual(seen, set(self.cache_inputs))
         return result
@@ -348,6 +370,65 @@ class InputTests(unittest.TestCase):
 
 
 class ProjectionTests(unittest.TestCase):
+    def test_capability_hash_binds_captured_canonical_list_not_raw_json_layout(self):
+        import run
+        with tempfile.TemporaryDirectory(prefix='virtual-capability-canonical-') as directory:
+            root = Path(directory); raw = root / 'raw'; raw.mkdir(); out = root / 'out'; out.mkdir()
+            row = {'check': 'version', 'status': 'STARTING', 'returncode': None, 'reason': None,
+                   'stdout_sha256': None, 'stdout_bytes': None, 'stderr_sha256': None, 'stderr_bytes': None}
+            rows = [row]; canonical = hashlib.sha256((json.dumps(rows, sort_keys=True, indent=2) + '\n').encode()).hexdigest()
+            capability = raw / 'capabilities.json'
+            capability.write_text(json.dumps(rows, separators=(',', ':')) + '  \n')
+            self.assertNotEqual(common.digest(capability), canonical)
+            common.save(raw / 'result.json', {'capabilities': rows, 'events': []})
+            with patch.object(c, 'CORE', c.CORE | {'run.py': common.digest(Path(run.__file__))}):
+                report = {}; c.project(raw, out, report)
+                self.assertEqual(report['qemu_capabilities_sha256'], canonical)
+                self.assertEqual(report['qemu_capabilities'], rows)
+                capability.write_text(json.dumps([dict(reversed(list(row.items())))], indent=1))
+                other = {}; c.project(raw, out, other)
+                self.assertEqual(other['qemu_capabilities_sha256'], canonical)
+                common.save(raw / 'result.json', {'capabilities': [], 'events': []})
+                with self.assertRaises(common.Refused): c.project(raw, out, {})
+
+    def test_capability_failure_survives_projection_without_raw_outputs(self):
+        import run
+        with tempfile.TemporaryDirectory(prefix='virtual-capability-projection-') as directory:
+            root = Path(directory); raw = root / 'raw'; raw.mkdir(); out = root / 'out'; out.mkdir()
+            report = {}
+            with patch('run.bounded', return_value={'returncode': 0, 'error': None,
+                                                    'stdout': 'password=PRIVATE_HELP', 'stderr': ''}), \
+                    self.assertRaises(common.Refused):
+                run.check_capabilities(report, raw)
+            common.save(raw / 'result.json', {'status': 'FAILED', 'events': [], 'frames': {}, **report})
+            core = c.CORE | {'run.py': common.digest(Path(run.__file__))}
+            with patch.object(c, 'CORE', core):
+                public = {}; c.project(raw, out, public)
+                self.assertEqual(public['qemu_capabilities'][0]['reason'], 'capability-missing')
+                self.assertEqual(public['qemu_capabilities_sha256'], common.digest(raw / 'capabilities.json'))
+                self.assertNotIn('PRIVATE_HELP', json.dumps(public))
+                rows = common.json_load(raw / 'capabilities.json')
+                for changed in [dict(rows[0], stdout='PRIVATE_HELP'), dict(rows[0], returncode=True),
+                                dict(rows[0], check='PRIVATE_PATH'), dict(rows[0], reason='PRIVATE_PATH')]:
+                    common.save(raw / 'capabilities.json', [changed])
+                    with self.assertRaises(common.Refused): c.project(raw, out, {})
+            common.save(raw / 'capabilities.json', rows)
+            with patch.object(c, 'CORE', core | {'run.py': '0' * 64}), self.assertRaises(common.Refused):
+                c.project(raw, out, {})
+
+    def test_started_check_is_projected_when_final_guest_receipt_is_missing(self):
+        import run
+        with tempfile.TemporaryDirectory(prefix='virtual-capability-started-') as directory:
+            root = Path(directory); raw = root / 'raw'; raw.mkdir(); out = root / 'out'; out.mkdir()
+            row = {'check': 'version', 'status': 'STARTING', 'returncode': None, 'reason': None,
+                   'stdout_sha256': None, 'stdout_bytes': None, 'stderr_sha256': None, 'stderr_bytes': None}
+            common.save(raw / 'capabilities.json', [row])
+            with patch.object(c, 'CORE', c.CORE | {'run.py': common.digest(Path(run.__file__))}):
+                report = {}; c.project(raw, out, report)
+                self.assertEqual(report['qemu_capabilities'], [row])
+                common.save(raw / 'result.json', {'capabilities': []})
+                with self.assertRaises(common.Refused): c.project(raw, out, {})
+
     def test_only_receipt_bound_frames_project_and_visual_acceptance_stays_pending(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory); raw = root / 'raw'; raw.mkdir(); out = root / 'out'; out.mkdir()
