@@ -471,7 +471,7 @@ def child_binding(command, env):
 
 
 def child_observation(args, kernel_output, invocation, row):
-    """Capture once and bind the finite child projection to this exact invocation."""
+    """Capture once; bind closed diagnostic1/2 to this exact invocation and actual exit."""
     path = kernel_output / 'private/result.json'
     try:
         info = path.lstat()

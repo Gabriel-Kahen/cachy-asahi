@@ -13,7 +13,7 @@
     },
     "scripts/port/fdk-native-stage/evidence.py": {
       "mode": 420,
-      "sha256": "a53a08c59ec30f8824bb99dcfa374d0c40dcfdecd2bdb1f32064e2c906d1735f"
+      "sha256": "27d16ce1a89d949075b0fe85072575883de6e9021a4902747c4b8ed44ed71b27"
     },
     "scripts/port/kernel-candidates/candidate.json": {
       "mode": 420,
@@ -33,7 +33,7 @@
     },
     "scripts/port/kernel-native-stage/broker.py": {
       "mode": 420,
-      "sha256": "7623948ff99aeef29dc9dbff32b2a9f0d7eeb8f1276e80d80d76e8c359de7592"
+      "sha256": "88633689f8b07fe837b5fba8cac7dd8e3ab332d2d574fc0a915f79b430e1dac4"
     },
     "scripts/port/kernel-native-stage/common.py": {
       "mode": 420,
@@ -53,11 +53,11 @@
     },
     "scripts/port/kernel-native-stage/evidence.py": {
       "mode": 420,
-      "sha256": "741a4a511d17c2863b65fe87c88fa668716c383abe20ca8b6ef494ee9054ce1a"
+      "sha256": "04697a8719dfba08c54bc869789e692bca8dfd3e4f6192566cfad7f76fe69704"
     },
     "scripts/port/kernel-native-stage/image.py": {
       "mode": 420,
-      "sha256": "55f989c33e78b6664c47bbf937cf517bb7adaa78ccc75878379580ab2c2c96fc"
+      "sha256": "90f17fd16d9bb19848fbef89bc4204c88da0411c32dbe08abf72ec2557393e34"
     },
     "scripts/port/kernel-native-stage/regression.py": {
       "mode": 493,
@@ -69,7 +69,7 @@
     },
     "scripts/port/kernel-native-stage/stage.py": {
       "mode": 493,
-      "sha256": "a24b28b04c0fe62fce41d22fbfea273074717a29fafc7f8104c0f5e42bf9af1b"
+      "sha256": "c55691a11e418268f572a4051365d3309ad9475e83656868eb8c01d8888fc1af"
     },
     "scripts/port/kernel-native-stage/test_acquisition.py": {
       "mode": 420,
@@ -77,7 +77,7 @@
     },
     "scripts/port/kernel-native-stage/test_broker.py": {
       "mode": 420,
-      "sha256": "87c1b01b4a42ab6c0044eafe3b082c2de2a901c32f6349745ba735008b824756"
+      "sha256": "d1278d72041e37a007fa13617086fbd80b653c52c44ca2305d1fcd9d4d482e26"
     },
     "scripts/port/kernel-native-stage/test_dependency_audit.py": {
       "mode": 420,
@@ -85,11 +85,11 @@
     },
     "scripts/port/kernel-native-stage/test_evidence.py": {
       "mode": 420,
-      "sha256": "6553a161ffc21df92b423fb68a0db87352f6695676fdc5a7f433202fd35b0340"
+      "sha256": "cb4213b012de364fabf0d6399dfab0b9863ae71cfc204568443565930f855b0d"
     },
     "scripts/port/kernel-native-stage/test_image.py": {
       "mode": 420,
-      "sha256": "cd55800cf8bd1b4cb24c647545c26da24f812924c5bbe7a36f789d1fe6a99614"
+      "sha256": "0cbafd54807e99fc0ba821a832228e30254bedc7de7f54773a0f61181657e65d"
     },
     "scripts/port/kernel-native-stage/test_regression.py": {
       "mode": 420,
@@ -97,7 +97,7 @@
     },
     "scripts/port/kernel-native-stage/test_stage.py": {
       "mode": 420,
-      "sha256": "01f3901b819af05a6b81af9fda2619c1a3c62cb3b65b2b7a19fb0d6dbd3845b7"
+      "sha256": "5302292c15938391e2848ce7d859014f5394ab4bf3abeb7febb2c34fc7dc2b42"
     },
     "scripts/port/kernel-native-stage/test_worker.py": {
       "mode": 420,

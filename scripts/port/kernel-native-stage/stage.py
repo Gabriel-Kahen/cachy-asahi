@@ -186,14 +186,19 @@ def execute(args):
         'nonce': nonce, 'accepted_result_sha256': args.accepted_result_sha256,
         'bootstrap_sha256': args.bootstrap_sha256, 'inputs_sha256': INPUTS_SHA,
         'base_inventory_sha256': BASE_SHA}
+    observer = child_evidence.Trace()
     report.update(stage_lock_sha256=args.lock_sha256, nonce=nonce,
-                  diagnostics=child_evidence.initial(binding))
-    finish(args.output, report)  # Interrupted/abandoned stages start authoritatively FAIL.
+                  diagnostics=child_evidence.initial(binding, observer))
+    def persist(gate='CHECKPOINT_WRITE'):
+        with observer.scope(gate):
+            report['diagnostics']['operation'] = observer.snapshot()
+            finish(args.output, report)
+    persist()  # Interrupted/abandoned stages start authoritatively FAIL.
     brokers, provisioner = [], None
     image_journal = private / 'derived-image.json'
     def checkpoint(predicate):
         report['diagnostics']['current_predicate'] = predicate
-        finish(args.output, report)
+        persist()
     try:
         code = snapshot(args, lock, private, runner)
         checkpoint('ACCEPTED_BASE')
@@ -211,6 +216,7 @@ def execute(args):
         report['kernel_input_pins'] = {name: row['sha256'] for name, row in contract['inputs'].items()}
         def launch(broker, action):
             report['phase'] = action
+            observer.action(action)
             out = private / ('output-' + action); out.mkdir(mode=0o700)
             mounts = {'/inputs': str(inputs), '/code': str(code), '/out': str(out)}
             broker.expected_mounts = mounts
@@ -223,6 +229,9 @@ def execute(args):
                                            persist=action == 'provision')
             report['diagnostics']['commands'][action] = child_evidence.exit_record(command_result.returncode)
             if command_result.returncode != 0:
+                with observer.scope('QUERY_RETURN'):
+                    observer.fail(ValueError('kernel worker exit failed'), 'COMMAND_NONZERO')
+                report['diagnostics']['operation'] = observer.snapshot()
                 child_evidence.failure(report['diagnostics'], 'COMMAND_NONZERO')
             need(command_result.returncode == 0, 'kernel worker exit failed')
             checkpoint(action.upper() + '_RECEIPT')
@@ -231,17 +240,20 @@ def execute(args):
                  not receipt.get('cancelled'), 'kernel worker receipt differs')
             report[action] = receipt
             return receipt
+        observer.action('provision')
         checkpoint('PROVISION_INITIALIZE')
         provisioner = Broker(runner, cleanup, args.docker, args.docker_sha256, args.endpoint, args.image,
-            os.getuid(), os.getgid(), private / 'provision-containers.json', nonce, role='provision')
+            os.getuid(), os.getgid(), private / 'provision-containers.json', nonce, role='provision', observer=observer)
         brokers.append(provisioner); report['daemon'] = provisioner.initialize()
         launch(provisioner, 'provision')
         report['phase'] = 'derive'
+        observer.action('derive')
         checkpoint('DERIVED_IMAGE')
         derived = image.commit(provisioner, code, image_journal); report['derived_image'] = derived
+        observer.action('probe')
         checkpoint('BUILD_INITIALIZE')
         builds = Broker(runner, cleanup, args.docker, args.docker_sha256, args.endpoint, derived['image_id'],
-            os.getuid(), os.getgid(), private / 'build-containers.json', nonce)
+            os.getuid(), os.getgid(), private / 'build-containers.json', nonce, observer=observer)
         brokers.append(builds); builds.initialize(expected_daemon=report['daemon'])
         launch(builds, 'probe')
         baseline = launch(builds, 'baseline')
@@ -255,14 +267,20 @@ def execute(args):
         need(digest(config_file) == digest(private / 'output-candidate/generated-config.txt'), 'paired generated config differs')
         need(all(row['native_kernel_compilation'] == 'PASS' for row in (baseline, candidate)), 'kernel pair incomplete')
         report.update(status='PASS', phase='complete', native_kernel_compilation='PASS')
-    except (Cancelled, KeyboardInterrupt):
+    except (Cancelled, KeyboardInterrupt) as error:
+        observer.fail(error, 'CANCELLED')
+        report['diagnostics']['operation'] = observer.snapshot()
         report.update(status='FAIL', cancelled=True)
         child_evidence.failure(report['diagnostics'], 'CANCELLED')
     except Exception as error:
+        observer.fail(error)
+        report['diagnostics']['operation'] = observer.snapshot()
         report.update(status='FAIL', error_type=type(error).__name__)
-        child_evidence.failure(report['diagnostics'], child_evidence.error_category(error))
+        child_evidence.failure(report['diagnostics'], observer.first_failure['category'] if
+            observer.first_failure is not None else child_evidence.error_category(error))
     finally:
         with defer_signals() as events:
+            observer.current['action'] = 'cleanup'
             report['diagnostics']['current_predicate'] = 'CLEANUP'
             clean = []
             cleanup_errors = []
@@ -270,11 +288,13 @@ def execute(args):
                 try: clean.append(broker.cleanup())
                 except BaseException as error:
                     clean.append({'status': 'FAIL', 'absence_verified': False})
+                    observer.fail(error, child_evidence.error_category(error, isinstance(error, Cancelled)))
                     cleanup_errors.append(child_evidence.error_category(error, isinstance(error, Cancelled)))
             if provisioner is not None:
                 try: clean.append(image.cleanup(provisioner, image_journal))
                 except BaseException as error:
                     clean.append({'status': 'FAIL', 'absence_verified': False})
+                    observer.fail(error, child_evidence.error_category(error, isinstance(error, Cancelled)))
                     cleanup_errors.append(child_evidence.error_category(error, isinstance(error, Cancelled)))
             report['cleanup'] = {'status': 'PASS' if clean and all(r.get('status') == 'PASS' and r.get('absence_verified') is True for r in clean) else 'FAIL', 'records': clean}
             if events or any(row.get('cancelled') for row in clean): report.update(status='FAIL', cancelled=True)
@@ -282,18 +302,27 @@ def execute(args):
             category = ('NONE' if report['cleanup']['status'] == 'PASS' else
                 'CANCELLED' if report['cancelled'] else cleanup_errors[0] if cleanup_errors else
                 child_evidence.cleanup_category(clean))
+            if category != 'NONE' and observer.cleanup_failure is None:
+                with observer.scope('CLEANUP_ABSENCE', 'cleanup'):
+                    observer.fail(ValueError('cleanup'), category)
+            if events and observer.first_failure is None:
+                with observer.scope('FINALIZATION', 'NONE'): observer.fail(Cancelled(), 'CANCELLED')
+            report['diagnostics']['operation'] = observer.snapshot()
             report['diagnostics']['cleanup'] = {'status': report['cleanup']['status'], 'category': category}
             if report['cancelled']:
                 child_evidence.failure(report['diagnostics'], 'CANCELLED')
             elif report['cleanup']['status'] != 'PASS':
                 child_evidence.failure(report['diagnostics'], 'INVALID_DATA')
             elif report['status'] == 'PASS':
+                need(observer.first_failure is None and observer.cleanup_failure is None, 'complete child diagnostics required')
                 report['diagnostics']['current_predicate'] = 'COMPLETE'
-            finish(args.output, report)
+            persist()
         if events:
+            with observer.scope('FINALIZATION', 'NONE'): observer.fail(Cancelled(), 'CANCELLED')
+            report['diagnostics']['operation'] = observer.snapshot()
             report.update(status='FAIL', cancelled=True)
             child_evidence.failure(report['diagnostics'], 'CANCELLED', 'FINALIZATION')
-            finish(args.output, report)
+            persist()
     return int(report['status'] != 'PASS')
 
 

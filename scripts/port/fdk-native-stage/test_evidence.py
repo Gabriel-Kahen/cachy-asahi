@@ -6,11 +6,14 @@ import sys
 sys.dont_write_bytecode = True
 
 import copy
+import ast
+import hashlib
 import importlib.util
 import json
 import os
 from pathlib import Path
 import tempfile
+import subprocess
 import unittest
 from unittest import mock
 
@@ -89,6 +92,27 @@ class BaseTests(unittest.TestCase):
         self.assertEqual(result['package_count'], 341)
         self.assertEqual(result['source_commit'], COMMIT)
         self.assertEqual(result['original_lifecycle_acceptance'], 'NOT INFERRED')
+
+    def test_shared_kernel_functions_unchanged_and_standalone_without_worker_helper(self):
+        pins = {'read': 'c176ad34b718a2025c285959c37e383e0d88bc702e28b7d28817baaf4421bf50',
+            'inventory': '77efbfa3348e158bc8bb90fd4cc2e641697172c77d51808c3c54d06e150ff0e1',
+            'accepted_base': '2bd338ec702083bb1c3ef83966c428ee2c7ac0a296c6d32f581da7e57d32c7c7'}
+        for node in ast.parse(Path(evidence.__file__).read_bytes()).body:
+            if isinstance(node, ast.FunctionDef) and node.name in pins:
+                self.assertEqual(hashlib.sha256(ast.dump(node, include_attributes=False).encode()).hexdigest(), pins[node.name])
+        code = '''import importlib.util,json,sys
+spec=importlib.util.spec_from_file_location('standalone_kernel_helper',sys.argv[1])
+m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
+p=json.loads(sys.stdin.read())
+r=m.accepted_base(p['bootstrap'],p['lock'].encode(),p['inputs'].encode(),p['result'],p['image'],p['commit'],p['script'])
+assert r['status']=='PASS' and 'worker_evidence' not in sys.modules
+'''
+        payload = {'bootstrap': self.bootstrap, 'lock': LOCK_BYTES.decode(), 'inputs': INPUT_BYTES.decode(),
+                   'result': self.result, 'image': IMAGE, 'commit': COMMIT, 'script': SCRIPT_SHA}
+        with tempfile.TemporaryDirectory() as directory:
+            result = subprocess.run([sys.executable, '-I', '-B', '-c', code, evidence.__file__],
+                input=json.dumps(payload).encode(), capture_output=True, timeout=5, cwd=directory)
+        self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(evidence.inventory(LOCK_BYTES), PACKAGES)
 
     def test_inventory_byte_changes_old_snapshot_and_missing_lf_fail(self):
@@ -263,7 +287,7 @@ class AttemptTests(unittest.TestCase):
         self.record['files'] = {name: evidence.sha(data) for name, data in self.contents.items()}
         (self.directory / 'provenance.json').write_text(json.dumps(self.record))
 
-    def verify(self, inspector=None, recipe_inspector=None, binder=None):
+    def verify(self, inspector=None, recipe_inspector=None, binder=None, **captured):
         if inspector is None:
             inspector = lambda path: copy.deepcopy(self.package)
         if recipe_inspector is None:
@@ -272,7 +296,23 @@ class AttemptTests(unittest.TestCase):
         if binder is None:
             binder = lambda metadata, package, checksum: []
         return evidence.verify_attempt(self.directory, REVIEWED, IMAGE, inspector,
-                                       recipe_inspector, binder)
+                                       recipe_inspector, binder, **captured)
+
+    def test_captured_provenance_and_log_are_reused_without_mutable_reread(self):
+        record, log = copy.deepcopy(self.record), bytes(self.log)
+        (self.directory / 'provenance.json').write_text('{"raw":"private poison"}')
+        (self.directory / 'build.log').write_bytes(b'private poisoned log')
+        original_load, original_read, original_digest = evidence.load, evidence.read, evidence.digest
+        def guarded(operation):
+            def call(path, *args, **kwargs):
+                self.assertNotIn(Path(path).name, ('provenance.json', 'build.log'))
+                return operation(path, *args, **kwargs)
+            return call
+        with mock.patch.object(evidence, 'load', guarded(original_load)), \
+             mock.patch.object(evidence, 'read', guarded(original_read)), \
+             mock.patch.object(evidence, 'digest', guarded(original_digest)):
+            self.assertEqual(self.verify(record=record, log_bytes=log)['classic_decoded_frames'], 32)
+        with self.assertRaises(ValueError): self.verify(record=record, log_bytes=log + b'poison')
 
     def test_synthetic_inspector_binds_hashes_inventory_abi_and_smoke_scope(self):
         called = []
@@ -386,7 +426,9 @@ class ComparisonTests(unittest.TestCase):
 
 class PublicStatusTests(unittest.TestCase):
     def setUp(self):
+        from test_worker import passing_workers
         self.report = {'status': 'PASS', 'cancelled': False, 'phase': 'complete',
+                       'worker_diagnostics': passing_workers(),
                        'cleanup': {'status': 'PASS', 'absence_verified': True},
                        'comparison': {'status': 'PASS'},
                        'accepted_base': {'status': 'PASS'}, 'live_base': {'status': 'PASS'},
@@ -407,6 +449,30 @@ class PublicStatusTests(unittest.TestCase):
                 result = evidence.finalstatus_public(report)
                 self.assertEqual(result['status'], 'FAIL')
                 self.assertEqual(result['native_build'], 'NOT ACCEPTED')
+
+    def test_schema2_has_no_fallback_legacy_pair_acceptance_or_unknown_diagnostics(self):
+        row = evidence.finalstatus_public(self.report)
+        self.assertEqual((row['schema_version'], len(row)), (2, 13))
+        legacy = copy.deepcopy(self.report); legacy.pop('worker_diagnostics')
+        self.assertEqual(evidence.finalstatus_public(legacy)['status'], 'FAIL')
+        for action in ('build-1', 'build-2', 'compare'):
+            changed = copy.deepcopy(self.report)
+            changed['worker_diagnostics'][action]['exit']['code'] = 1
+            changed['worker_diagnostics'][action]['exit']['kind'] = 'EXIT_NONZERO'
+            self.assertEqual(evidence.finalstatus_public(changed)['status'], 'FAIL')
+        changed = copy.deepcopy(self.report); changed['worker_diagnostics']['build-1']['observation']['raw'] = 'SECRET'
+        with self.assertRaises(ValueError): evidence.finalstatus_public(changed)
+
+    def test_distinct_attempt_bindings_and_projection_snapshot_are_required(self):
+        original = evidence.finalstatus_public(self.report)
+        self.report['worker_diagnostics']['build-1']['observation']['builder']['reason'] = 'SECRET'
+        self.assertNotIn('SECRET', json.dumps(original))
+        changed = copy.deepcopy(self.report)
+        changed['worker_diagnostics']['build-1']['observation']['builder']['reason'] = 'NONE'
+        changed['worker_diagnostics']['build-2']['observation']['binding_sha256'] = \
+            changed['worker_diagnostics']['build-1']['observation']['binding_sha256']
+        with self.assertRaisesRegex(ValueError, 'worker-public-distinct-bindings'):
+            evidence.finalstatus_public(changed)
 
     def test_public_pass_requires_every_stage_and_both_worker_cleanups(self):
         for stage in ('accepted_base', 'live_base', 'source', 'build-1', 'build-2'):

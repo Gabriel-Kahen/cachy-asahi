@@ -17,6 +17,7 @@ import sys
 import time
 import uuid
 from runtime import Cancelled, Runner, defer_signals
+from evidence import Trace, observed, scope
 
 LABEL = 'org.cachy-asahi.kernel-stage.nonce'
 PROBE = 'id -u; id -g; LC_ALL=C pacman -Q | LC_ALL=C sort'
@@ -77,41 +78,42 @@ def strict_chunks(data):
         offset += size + 2
 
 
-def daemon_http(path, deadline):
+def daemon_http(path, deadline, observer=None):
     """Only GET /info; collect bounded wire bytes before offline HTTP decoding."""
     end = min(deadline, time.monotonic() + 15)
     need(end > time.monotonic(), 'docker-daemon-timeout')
     wire = bytearray()
     request = memoryview(b'GET /info HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n'
                          b'Accept: application/json\r\nAccept-Encoding: identity\r\n\r\n')
-    with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as connection, selectors.DefaultSelector() as selector:
-        connection.setblocking(False)
-        code = connection.connect_ex(str(path))
-        need(code in (0, errno.EINPROGRESS, errno.EAGAIN, errno.EWOULDBLOCK), 'docker-daemon-connect')
-        selector.register(connection, selectors.EVENT_WRITE)
-        sending = True
-        while True:
-            left = end - time.monotonic()
-            need(left > 0, 'docker-daemon-timeout')
-            if not selector.select(left):
-                raise ValueError('docker-daemon-timeout')
-            need(connection.getsockopt(socket.SOL_SOCKET, socket.SO_ERROR) == 0, 'docker-daemon-connect')
-            try:
-                if sending:
-                    count = connection.send(request)
-                    need(count > 0, 'docker-daemon-send')
-                    request = request[count:]
-                    if not request:
-                        sending = False
-                        selector.modify(connection, selectors.EVENT_READ)
-                else:
-                    data = connection.recv(65536)
-                    if not data:
-                        break
-                    need(len(wire) + len(data) <= 8 * 1024 * 1024, 'docker-daemon-output-bound')
-                    wire.extend(data)
-            except BlockingIOError:
-                continue
+    with scope(observer, 'DAEMON_CONNECT'):
+        with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as connection, selectors.DefaultSelector() as selector:
+            connection.setblocking(False)
+            code = connection.connect_ex(str(path))
+            need(code in (0, errno.EINPROGRESS, errno.EAGAIN, errno.EWOULDBLOCK), 'docker-daemon-connect')
+            selector.register(connection, selectors.EVENT_WRITE)
+            sending = True
+            while True:
+                left = end - time.monotonic()
+                need(left > 0, 'docker-daemon-timeout')
+                if not selector.select(left):
+                    raise ValueError('docker-daemon-timeout')
+                need(connection.getsockopt(socket.SOL_SOCKET, socket.SO_ERROR) == 0, 'docker-daemon-connect')
+                try:
+                    if sending:
+                        count = connection.send(request)
+                        need(count > 0, 'docker-daemon-send')
+                        request = request[count:]
+                        if not request:
+                            sending = False
+                            selector.modify(connection, selectors.EVENT_READ)
+                    else:
+                        data = connection.recv(65536)
+                        if not data:
+                            break
+                        need(len(wire) + len(data) <= 8 * 1024 * 1024, 'docker-daemon-output-bound')
+                        wire.extend(data)
+                except BlockingIOError:
+                    continue
     class Buffer(io.BytesIO):
         def close(self):
             self.position = self.tell()
@@ -122,26 +124,28 @@ def daemon_http(path, deadline):
             return stream
     response = http.client.HTTPResponse(OfflineSocket())
     try:
-        response.begin()
-        need(response.status == 200, 'docker-daemon-http-status')
-        lengths = response.headers.get_all('Content-Length', [])
-        transfers = response.headers.get_all('Transfer-Encoding', [])
-        encoding = response.headers.get_all('Content-Encoding', [])
-        need(len(lengths) <= 1 and len(transfers) <= 1 and not (lengths and transfers) and
-             transfers in ([], ['chunked']) and encoding in ([], ['identity']), 'docker-daemon-http-framing')
-        if lengths:
-            need(re.fullmatch('[0-9]{1,8}', lengths[0]) and int(lengths[0]) <= 8 * 1024 * 1024,
-                 'docker-daemon-http-framing')
-        if transfers:
-            strict_chunks(wire[stream.tell():])
-        body = response.read(8 * 1024 * 1024 + 1)
-        need(len(body) <= 8 * 1024 * 1024, 'docker-daemon-output-bound')
-        need(not lengths or len(body) == int(lengths[0]), 'docker-daemon-http-truncated')
-        position = stream.position if stream.closed else stream.tell()
-        need(position == len(wire), 'docker-daemon-http-trailing')
-        data = decode(body)
-        need(time.monotonic() < end, 'docker-daemon-timeout')
-        return data
+        with scope(observer, 'DAEMON_RESPONSE'):
+            response.begin()
+            if isinstance(observer, Trace): observer.returned(response.status, daemon=True, http=True)
+            need(response.status == 200, 'docker-daemon-http-status')
+            lengths = response.headers.get_all('Content-Length', [])
+            transfers = response.headers.get_all('Transfer-Encoding', [])
+            encoding = response.headers.get_all('Content-Encoding', [])
+            need(len(lengths) <= 1 and len(transfers) <= 1 and not (lengths and transfers) and
+                 transfers in ([], ['chunked']) and encoding in ([], ['identity']), 'docker-daemon-http-framing')
+            if lengths:
+                need(re.fullmatch('[0-9]{1,8}', lengths[0]) and int(lengths[0]) <= 8 * 1024 * 1024,
+                     'docker-daemon-http-framing')
+            if transfers:
+                strict_chunks(wire[stream.tell():])
+            body = response.read(8 * 1024 * 1024 + 1)
+            need(len(body) <= 8 * 1024 * 1024, 'docker-daemon-output-bound')
+            need(not lengths or len(body) == int(lengths[0]), 'docker-daemon-http-truncated')
+            position = stream.position if stream.closed else stream.tell()
+            need(position == len(wire), 'docker-daemon-http-trailing')
+            data = decode(body)
+            need(time.monotonic() < end, 'docker-daemon-timeout')
+            return data
     except (http.client.HTTPException, UnicodeError) as error:
         raise ValueError('docker-daemon-http-invalid') from error
     finally:
@@ -150,13 +154,14 @@ def daemon_http(path, deadline):
 
 class Broker:
     def __init__(self, runner, cleanup_runner, binary, binary_sha, endpoint, image,
-                 uid, gid, journal_path, nonce, *, expected_mounts=None, role='build'):
+                 uid, gid, journal_path, nonce, *, expected_mounts=None, role='build', observer=None):
         need(type(uid) is int and type(gid) is int and 0 < uid < 2**31 and 0 < gid < 2**31,
              'docker-ordinary-user')
         need(type(binary_sha) is str and re.fullmatch('[0-9a-f]{64}', binary_sha), 'docker-binary-pin')
         need(type(image) is str and re.fullmatch('sha256:[0-9a-f]{64}', image), 'docker-image-pin')
         need(type(nonce) is str and re.fullmatch('[0-9a-f]{16,64}', nonce), 'docker-nonce')
         need(role in ('build', 'provision'), 'docker-role')
+        self.observer = observer
         self.role = role
         self.user = '0:0' if role == 'provision' else f'{uid}:{gid}'
         self.runner, self.cleanup_runner = runner, cleanup_runner
@@ -196,43 +201,68 @@ class Broker:
         return current
 
     def _raw(self, args, runner, timeout=30):
-        self._local(runner)
-        result = runner.run([str(self.binary), '--host', self.endpoint, *args], timeout=timeout,
+        with scope(self.observer, 'LOCAL_PRE'): self._local(runner)
+        with scope(self.observer, 'QUERY_EXEC'):
+            result = runner.run([str(self.binary), '--host', self.endpoint, *args], timeout=timeout,
                             log='docker-' + uuid.uuid4().hex + '.log')
-        self._local(runner)
+        with scope(self.observer, 'QUERY_RETURN'):
+            if isinstance(self.observer, Trace): self.observer.returned(result.returncode)
+        with scope(self.observer, 'LOCAL_POST'): self._local(runner)
         return result
 
     def _info(self, runner):
         end = min(runner.deadline, time.monotonic() + 15)
-        self._local(runner)
-        data = daemon_http(self.socket, end)
-        self._local(runner)
-        need(time.monotonic() < end, 'docker-daemon-timeout')
-        identity = {'id': data['ID'], 'architecture': data['Architecture']}
-        need(type(identity['id']) is str and re.fullmatch('[A-Za-z0-9:_-]{8,128}', identity['id']) and
-             identity['architecture'] in ('aarch64', 'arm64') and data.get('OSType') == 'linux',
-             'docker-native-daemon')
-        security = data.get('SecurityOptions')
-        need(type(security) is list and all(type(value) is str for value in security) and
-             not any(re.search(r'\b(rootless|userns)\b', value) for value in security),
-             'docker-host-uid-mapping-required')
-        if self.daemon is not None:
-            need(identity == self.daemon, 'docker-daemon-drift')
-        return identity
+        if isinstance(self.observer, Trace):
+            if self.observer.current['query'] == 'NONE': self.observer.begin('INFO')
+            self.observer.current['daemon_return'] = {'kind': 'UNOBSERVED', 'code': None}
+        with scope(self.observer, 'LOCAL_PRE'): self._local(runner)
+        if isinstance(self.observer, Trace):
+            data = daemon_http(self.socket, end, self.observer)
+        else:
+            data = daemon_http(self.socket, end)
+        with scope(self.observer, 'LOCAL_POST'): self._local(runner)
+        with scope(self.observer, 'DAEMON_METADATA'):
+            need(time.monotonic() < end, 'docker-daemon-timeout')
+            identity = {'id': data['ID'], 'architecture': data['Architecture']}
+            need(type(identity['id']) is str and re.fullmatch('[A-Za-z0-9:_-]{8,128}', identity['id']) and
+                 identity['architecture'] in ('aarch64', 'arm64') and data.get('OSType') == 'linux',
+                 'docker-native-daemon')
+            security = data.get('SecurityOptions')
+            need(type(security) is list and all(type(value) is str for value in security) and
+                 not any(re.search(r'\b(rootless|userns)\b', value) for value in security),
+                 'docker-host-uid-mapping-required')
+            if self.daemon is not None:
+                need(identity == self.daemon, 'docker-daemon-drift')
+            return identity
 
     def _operation(self, args, *, cleanup=False, timeout=30):
         need(self.daemon is not None, 'docker-uninitialized')
         runner = self.cleanup_runner if cleanup else self.runner
-        self._info(runner)
+        if isinstance(self.observer, Trace): self.observer.begin(self.query_kind(args))
+        with scope(self.observer, 'DAEMON_PRE'): self._info(runner)
         result = self._raw(args, runner, timeout)
-        self._info(runner)
+        with scope(self.observer, 'DAEMON_POST'): self._info(runner)
         return result
+
+    @staticmethod
+    def query_kind(args):
+        if args[:1] == ['create']: return 'CREATE'
+        if args[:1] == ['start']: return 'START'
+        if args[:2] == ['container', 'inspect']: return 'CONTAINER_INSPECT'
+        if args[:2] == ['container', 'rm']: return 'REMOVE'
+        if args[:2] == ['container', 'ls']:
+            return 'FIND_ID' if args[-1].startswith('id=') else 'FIND_NAME'
+        if args[:2] == ['image', 'rm']: return 'IMAGE_REMOVE'
+        if args[:2] == ['image', 'inspect']: return 'IMAGE_INSPECT'
+        if args[:2] == ['image', 'ls']: return 'IMAGE_INVENTORY'
+        return 'UNKNOWN'
 
     def _identity(self):
         return {'nonce': self.nonce, 'image': self.image, 'uid': self.uid, 'gid': self.gid,
                 'endpoint': self.endpoint, 'binary_sha256': self.binary_sha,
                 'daemon': self.daemon, 'local_pins': self.pins, 'role': self.role}
 
+    @observed('JOURNAL_READ')
     def _journal(self):
         data, _ = regular(self.journal_path, 65536)
         record = decode(data)
@@ -265,6 +295,7 @@ class Broker:
             names.add(row['name'])
         return record
 
+    @observed('JOURNAL_WRITE')
     def _write(self, record, first=False):
         data = (json.dumps(record, sort_keys=True, indent=2) + '\n').encode()
         need(len(data) <= 65536, 'docker-journal-size')
@@ -286,26 +317,30 @@ class Broker:
             if not first:
                 path.unlink(missing_ok=True)
 
+    @observed('LAUNCH_VALIDATE')
     def initialize(self, expected_daemon=None):
-        self.pins = self._local(self.runner)
-        self._local(self.cleanup_runner)
-        self.daemon = self._info(self.runner)
+        with scope(self.observer, 'LOCAL_PRE'):
+            self.pins = self._local(self.runner)
+            self._local(self.cleanup_runner)
+        with scope(self.observer, 'DAEMON_PRE'): self.daemon = self._info(self.runner)
         if expected_daemon is not None:
             need(self.daemon == expected_daemon, 'docker-expected-daemon')
         result = self._operation(['image', 'inspect', self.image])
-        need(result.returncode == 0, 'docker-image-query')
-        rows = decode(result.stdout)
-        need(type(rows) is list and len(rows) == 1 and rows[0]['Id'] == self.image and
-             rows[0]['Architecture'] == 'arm64' and rows[0]['Os'] == 'linux', 'docker-image-binding')
-        self.image_config = rows[0].get('Config', {})
-        need(type(self.image_config) is dict and not self.image_config.get('Volumes'),
-             'docker-image-volumes')
+        with scope(self.observer, 'IMAGE_INSPECT'):
+            need(result.returncode == 0, 'docker-image-query')
+            rows = decode(result.stdout)
+            need(type(rows) is list and len(rows) == 1 and rows[0]['Id'] == self.image and
+                 rows[0]['Architecture'] == 'arm64' and rows[0]['Os'] == 'linux', 'docker-image-binding')
+            self.image_config = rows[0].get('Config', {})
+            need(type(self.image_config) is dict and not self.image_config.get('Volumes'),
+                 'docker-image-volumes')
         if self.journal_path.exists() or self.journal_path.is_symlink():
             self._journal()
         else:
             self._write({'schema_version': 1, 'identity': self._identity(), 'containers': []}, first=True)
         return dict(self.daemon)
 
+    @observed('IMAGE_INSPECT')
     def capture(self, args):
         args = list(args)
         if args and args[0] in ('docker', str(self.binary)):
@@ -338,6 +373,7 @@ class Broker:
                      (',readonly' if DESTINATIONS[destination] else '')]
         return args
 
+    @observed('INSPECT_OWNERSHIP')
     def _inspect(self, identifier, row, cleanup=False):
         result = self._operation(['container', 'inspect', identifier], cleanup=cleanup)
         need(result.returncode == 0, 'docker-owned-inspect')
@@ -345,12 +381,13 @@ class Broker:
         need(type(records) is list and len(records) == 1, 'docker-owned-inspect')
         item = records[0]
         config, host = item['Config'], item['HostConfig']
-        need(re.fullmatch('[0-9a-f]{64}', item['Id']) and item['Name'] == '/' + row['name'] and
-             (row['id'] is None or item['Id'] == row['id']) and item['Image'] == self.image and
-             config['User'] == self.user and
-             (config.get('Labels') == self.image_config.get('Labels') if self.role == 'provision'
-              else config['Labels'].get(LABEL) == self.nonce),
-             'docker-container-ownership')
+        with scope(self.observer, 'INSPECT_OWNERSHIP'):
+            need(re.fullmatch('[0-9a-f]{64}', item['Id']) and item['Name'] == '/' + row['name'] and
+                 (row['id'] is None or item['Id'] == row['id']) and item['Image'] == self.image and
+                 config['User'] == self.user and
+                 (config.get('Labels') == self.image_config.get('Labels') if self.role == 'provision'
+                  else config['Labels'].get(LABEL) == self.nonce),
+                 'docker-container-ownership')
         required = {'AutoRemove': False, 'Privileged': False, 'ReadonlyRootfs': True,
                     'NetworkMode': 'none', 'IpcMode': 'private', 'PidMode': '', 'CgroupnsMode': 'private',
                     'Memory': 14 * 1024**3, 'MemorySwap': 14 * 1024**3,
@@ -361,22 +398,26 @@ class Broker:
         forbidden = ('Devices', 'DeviceRequests', 'Binds', 'VolumesFrom', 'Links', 'PortBindings', 'GroupAdd')
         if self.role != 'provision':
             forbidden += ('CapAdd',)
-        need(all(host.get(key) == value for key, value in required.items()) and
-             not any(host.get(key) for key in forbidden),
-             'docker-container-resources')
-        actual = {mount['Destination']: (mount['Source'], mount['RW']) for mount in item['Mounts']
-                  if mount['Type'] == 'bind'}
-        need(len(actual) == len(row['mounts']) and actual == {key: (value, not DESTINATIONS[key])
-             for key, value in row['mounts'].items()} and
-             all(mount['Type'] in ('bind', 'tmpfs') for mount in item['Mounts']), 'docker-container-mounts')
-        expected_env = dict(entry.split('=', 1) for entry in self.image_config.get('Env', []))
-        expected_env.update(row['env'])
-        actual_env = config['Env'] or []
-        need(len({entry.split('=', 1)[0] for entry in actual_env}) == len(actual_env) and
-             dict(entry.split('=', 1) for entry in actual_env) == expected_env and
-             config['Entrypoint'] == ['/usr/bin/python3'] and config['Cmd'] == row['cmd'], 'docker-container-command')
+        with scope(self.observer, 'INSPECT_RESOURCES'):
+            need(all(host.get(key) == value for key, value in required.items()) and
+                 not any(host.get(key) for key in forbidden),
+                 'docker-container-resources')
+        with scope(self.observer, 'INSPECT_MOUNTS'):
+            actual = {mount['Destination']: (mount['Source'], mount['RW']) for mount in item['Mounts']
+                      if mount['Type'] == 'bind'}
+            need(len(actual) == len(row['mounts']) and actual == {key: (value, not DESTINATIONS[key])
+                 for key, value in row['mounts'].items()} and
+                 all(mount['Type'] in ('bind', 'tmpfs') for mount in item['Mounts']), 'docker-container-mounts')
+        with scope(self.observer, 'INSPECT_COMMAND'):
+            expected_env = dict(entry.split('=', 1) for entry in self.image_config.get('Env', []))
+            expected_env.update(row['env'])
+            actual_env = config['Env'] or []
+            need(len({entry.split('=', 1)[0] for entry in actual_env}) == len(actual_env) and
+                 dict(entry.split('=', 1) for entry in actual_env) == expected_env and
+                 config['Entrypoint'] == ['/usr/bin/python3'] and config['Cmd'] == row['cmd'], 'docker-container-command')
         return item['Id']
 
+    @observed('FIND_NAME')
     def _find(self, row, cleanup=False):
         filters = ['name=^/' + row['name'] + '$']
         if row['id'] is not None:
@@ -385,36 +426,51 @@ class Broker:
         for value in filters:
             result = self._operation(['container', 'ls', '--all', '--no-trunc', '--format', '{{json .}}',
                                      '--filter', value], cleanup=cleanup)
-            need(result.returncode == 0, 'docker-owned-list')
-            rows = [decode(line) for line in result.stdout.splitlines() if line]
-            need(len(rows) <= 1 and all(item['Names'] == row['name'] and
-                 re.fullmatch('[0-9a-f]{64}', item['ID']) and
-                 (row['id'] is None or item['ID'] == row['id']) for item in rows), 'docker-owned-list')
-            found.update(item['ID'] for item in rows)
+            with scope(self.observer, 'FIND_ID' if value.startswith('id=') else 'FIND_NAME'):
+                need(result.returncode == 0, 'docker-owned-list')
+                rows = [decode(line) for line in result.stdout.splitlines() if line]
+                need(len(rows) <= 1 and all(item['Names'] == row['name'] and
+                     re.fullmatch('[0-9a-f]{64}', item['ID']) and
+                     (row['id'] is None or item['ID'] == row['id']) for item in rows), 'docker-owned-list')
+                found.update(item['ID'] for item in rows)
         need(len(found) <= 1, 'docker-owned-list')
         return next(iter(found)) if found else None
 
+    @observed('UNKNOWN')
     def _launch(self, name, env, mounts, cmd, timeout, persist=False):
         record = self._journal()
-        need(len(record['containers']) < 16 and name not in {row['name'] for row in record['containers']},
-             'docker-name-reservation')
+        with scope(self.observer, 'NAME_RESERVE'):
+            need(len(record['containers']) < 16 and name not in {row['name'] for row in record['containers']},
+                 'docker-name-reservation')
         row = {'name': name, 'id': None, 'mounts': mounts, 'env': env, 'cmd': cmd, 'create_attempted': False}
         record['containers'].append(row)
         self._write(record)  # Durable reservation precedes create, including unknown outcomes.
         try:
-            need(self._find(row) is None, 'docker-reserved-name-exists')
+            with scope(self.observer, 'NAME_RESERVE'):
+                need(self._find(row) is None, 'docker-reserved-name-exists')
+            if isinstance(self.observer, Trace): self.observer.current['create'] = 'UNKNOWN'
             row['create_attempted'] = True
-            self._write(record)
+            with scope(self.observer, 'CREATE_ATTEMPT'): self._write(record)
             result = self._operation(['create', *self._options(name, env, mounts), self.image, *cmd],
                                      timeout=min(timeout, 30))
             if result.returncode:
+                if isinstance(self.observer, Trace):
+                    with self.observer.scope('QUERY_RETURN'):
+                        self.observer.fail(ValueError('kernel worker exit failed'), 'COMMAND_NONZERO')
                 return result
-            identifier = result.stdout.decode().strip()
-            need(re.fullmatch('[0-9a-f]{64}', identifier), 'docker-create-unknown')
-            row['id'] = identifier
-            self._write(record)
+            with scope(self.observer, 'CREATE_ID'):
+                identifier = result.stdout.decode().strip()
+                need(re.fullmatch('[0-9a-f]{64}', identifier), 'docker-create-unknown')
+                if isinstance(self.observer, Trace): self.observer.current['create'] = 'CID_OBSERVED'
+                row['id'] = identifier
+                with scope(self.observer, 'CREATE_JOURNAL'): self._write(record)
             self._inspect(identifier, row)
-            return self._operation(['start', '--attach', row['id']], timeout=timeout)
+            with scope(self.observer, 'START_ATTEMPT'):
+                result = self._operation(['start', '--attach', row['id']], timeout=timeout)
+                if result.returncode and isinstance(self.observer, Trace):
+                    with self.observer.scope('QUERY_RETURN'):
+                        self.observer.fail(ValueError('kernel worker exit failed'), 'COMMAND_NONZERO')
+                return result
         finally:
             failed = sys.exc_info()[0] is not None
             if failed or not persist:
@@ -425,8 +481,10 @@ class Broker:
                 if self.last_cleanup.get('cancelled'):
                     raise Cancelled()
                 if not failed:
-                    need(self.last_cleanup['status'] == 'PASS', 'docker-cleanup-failed')
+                    with scope(self.observer, 'CLEANUP_ABSENCE'):
+                        need(self.last_cleanup['status'] == 'PASS', 'docker-cleanup-failed')
 
+    @observed('LAUNCH_VALIDATE')
     def launch(self, action, mounts, env, timeout, persist=False):
         need(action in ('provision', 'probe', 'baseline', 'candidate') and
              persist == (action == 'provision') and
@@ -452,6 +510,7 @@ class Broker:
     def probe(self):
         raise ValueError('kernel probe requires bound worker and exact input map')
 
+    @observed('CLEANUP_RESOLVE','cleanup')
     def cleanup(self):
         errors, cancelled = [], False
         with defer_signals() as events:
@@ -469,20 +528,26 @@ class Broker:
                                 row['id'] = identifier
                                 self._write(record)
                                 result = self._operation(['container', 'rm', '--force', identifier], cleanup=True)
-                                need(result.returncode == 0, 'docker-owned-remove')
-                            need(self._find(row, cleanup=True) is None, 'docker-owned-absence')
+                                with scope(self.observer, 'CLEANUP_REMOVE'):
+                                    need(result.returncode == 0, 'docker-owned-remove')
+                            with scope(self.observer, 'CLEANUP_ABSENCE'):
+                                need(self._find(row, cleanup=True) is None, 'docker-owned-absence')
                             break
-                        except Cancelled:
+                        except Cancelled as error:
+                            if isinstance(self.observer, Trace): self.observer.fail(error, 'CANCELLED')
                             cancelled = True
                             if attempt == 1:
                                 errors.append('docker-cleanup-cancellation-uncertain')
                         except (OSError, ValueError, KeyError, TypeError) as error:
+                            if isinstance(self.observer, Trace): self.observer.fail(error)
                             errors.append(str(error))
                             break
-            except Cancelled:
+            except Cancelled as error:
+                if isinstance(self.observer, Trace): self.observer.fail(error, 'CANCELLED')
                 cancelled = True
                 errors.append('docker-cleanup-cancellation-uncertain')
             except (OSError, ValueError, KeyError, TypeError) as error:
+                if isinstance(self.observer, Trace): self.observer.fail(error)
                 errors.append(str(error))
         cancelled = cancelled or bool(events)
         return {'status': 'FAIL' if errors or cancelled else 'PASS', 'absence_verified': not errors,

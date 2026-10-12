@@ -834,5 +834,34 @@ class Schema4ChildTests(unittest.TestCase):
             value = self.current(); change(value)
             with self.subTest(change=change), self.assertRaises(ValueError): public.project(encoded(value), COMMIT, PIN, 'success')
 
+
+class Schema4OperationTests(unittest.TestCase):
+    current = Schema4ChildTests.current
+
+    def operation(self):
+        return {'current':dict(action='NONE',gate='NONE',predicate='NONE',category='NONE',query='NONE',
+            query_return={'kind':'NOT_RUN','code':None},daemon_return={'kind':'NOT_RUN','code':None},
+            create='NOT_ATTEMPTED',start='NOT_ATTEMPTED'),'first_failure':None,'cleanup_failure':None}
+
+    def test_closed_diagnostic2_does_not_replace_native_outcome_or_actual_exit_gate(self):
+        value=self.current();row=value['kernel_child']['diagnostics']
+        row.update(schema_version=2,operation=self.operation())
+        self.assertEqual(public.project(encoded(value),COMMIT,PIN,'success'),value)
+        for outcome in ('failure','cancelled','skipped',''):
+            result=public.project(encoded(value),COMMIT,PIN,outcome)
+            self.assertEqual(result['status'],'FAIL');self.assertEqual(result['kernel_child'],value['kernel_child'])
+        for change in (lambda r:r['kernel_child'].update(exit=public.exit_record(1)),
+            lambda r:r['kernel_child']['diagnostics']['operation']['current'].update(raw='secret'),
+            lambda r:r['kernel_child']['diagnostics']['operation']['current'].update(gate='private/path')):
+            bad=copy.deepcopy(value);change(bad)
+            with self.assertRaises(ValueError):public.project(encoded(bad),COMMIT,PIN,'success')
+
+    def test_schema1_and2_are_exact_shapes_not_optional_field_waivers(self):
+        value=self.current();d=value['kernel_child']['diagnostics'];d['operation']=self.operation()
+        with self.assertRaises(ValueError):public.project(encoded(value),COMMIT,PIN,'success')
+        d.pop('operation');d['schema_version']=2
+        with self.assertRaises(ValueError):public.project(encoded(value),COMMIT,PIN,'success')
+
+
 if __name__ == '__main__':
     unittest.main()

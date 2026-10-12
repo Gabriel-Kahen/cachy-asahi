@@ -18,6 +18,7 @@ import tempfile
 from types import SimpleNamespace
 import unittest
 from unittest import mock
+from test_worker import passing_workers, config_fixture
 
 HERE = Path(__file__).resolve().parent
 spec = importlib.util.spec_from_file_location('fdk_stage_fixture', HERE / 'stage.py')
@@ -28,9 +29,72 @@ spec.loader.exec_module(stage)
 def passing_report():
     clean = {'status': 'PASS', 'absence_verified': True}
     return {'status': 'PASS', 'phase': 'complete', 'cancelled': False,
+            'worker_diagnostics': passing_workers(),
             'cleanup': clean, 'comparison': {'status': 'PASS'},
             **{key: {'status': 'PASS'} for key in ('accepted_base', 'live_base', 'source')},
             **{key: {'status': 'PASS', 'cleanup': clean.copy()} for key in ('build-1', 'build-2')}}
+
+
+class WorkerReceiverTests(unittest.TestCase):
+    def setUp(self):
+        temporary = tempfile.TemporaryDirectory(); self.addCleanup(temporary.cleanup)
+        self.root = Path(temporary.name); self.config = config_fixture(self.root)
+        self.report = {'worker_diagnostics': {name: stage.worker_diagnostic.worker_row()
+            for name in stage.worker_diagnostic.ACTIONS}}
+
+    def runner(self, code=1, malformed=False, late=False):
+        def run(command, **kwargs):
+            path = Path(command[command.index('--config') + 1])
+            config = stage.load(path); pin = command[command.index('--config-sha256') + 1]
+            row = stage.worker_diagnostic.initial(config, pin)
+            stage.worker_diagnostic.failure(row, 'IO', 'BROKER_INITIALIZE')
+            if malformed: row['binding']['source_commit'] = 'f' * 40
+            receipt = {'status': 'FAIL', 'action': 'build-1', 'cancelled': False, 'hardware': 'NOT RUN', 'diagnostics': row}
+            stage.save(self.root / 'build-1-receipt.json', receipt)
+            return SimpleNamespace(returncode=code)
+        return SimpleNamespace(run=run)
+
+    def test_nonzero_actual_worker_return_retains_finite_failed_receipt(self):
+        for code in (1, 125, -15):
+            with self.subTest(code=code):
+                with self.assertRaisesRegex(ValueError, 'worker-failed'):
+                    stage.worker(self.runner(code), self.config, 'build-1', self.report)
+                row = self.report['worker_diagnostics']['build-1']
+                self.assertEqual(row['exit'], stage.worker_diagnostic.exit_record(code))
+                self.assertEqual(row['availability'], 'VERIFIED')
+                self.assertEqual(row['observation']['first_failed_predicate'], 'BROKER_INITIALIZE')
+
+    def test_zero_return_with_failed_or_wrong_binding_receipt_cannot_accept(self):
+        for malformed, reason in ((False, 'worker-receipt-failed'), (True, 'worker-receipt-unverified')):
+            with self.subTest(malformed=malformed), self.assertRaisesRegex(ValueError, reason):
+                stage.worker(self.runner(0, malformed), self.config, 'build-1', self.report)
+            row = self.report['worker_diagnostics']['build-1']
+            self.assertEqual(row['exit'], stage.worker_diagnostic.exit_record(0))
+            if malformed: self.assertEqual((row['availability'], row['observation']), ('UNVERIFIED', None))
+
+    def test_missing_receipt_and_cancelled_command_are_not_inferred_returns(self):
+        runner = SimpleNamespace(run=lambda *a, **k: SimpleNamespace(returncode=1))
+        with self.assertRaisesRegex(ValueError, 'worker-failed'):
+            stage.worker(runner, self.config, 'build-1', self.report)
+        row = self.report['worker_diagnostics']['build-1']
+        self.assertEqual(row['availability'], 'UNAVAILABLE')
+        def run(*args, **kwargs): raise stage.Cancelled(15)
+        with self.assertRaises(stage.Cancelled):
+            stage.worker(SimpleNamespace(run=run), self.config, 'build-1', self.report)
+        self.assertEqual(self.report['worker_diagnostics']['build-1']['exit'], stage.worker_diagnostic.no_exit('UNOBSERVED'))
+
+    def test_late_file_poison_does_not_change_already_validated_projection(self):
+        original = stage.worker_diagnostic.receive
+        def receive(*args):
+            result = original(*args)
+            stage.save(self.root / 'build-1-receipt.json', {'raw': 'SECRET private poison'})
+            return result
+        with mock.patch.object(stage.worker_diagnostic, 'receive', side_effect=receive), self.assertRaises(ValueError):
+            stage.worker(self.runner(), self.config, 'build-1', self.report)
+        row = self.report['worker_diagnostics']['build-1']
+        self.assertEqual(row['availability'], 'VERIFIED')
+        self.assertEqual(row['observation']['first_failed_predicate'], 'BROKER_INITIALIZE')
+        self.assertNotIn('SECRET', json.dumps(row))
 
 
 class ReceiptTests(unittest.TestCase):

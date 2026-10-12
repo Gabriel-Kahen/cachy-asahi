@@ -415,5 +415,50 @@ class ImageWireTests(unittest.TestCase):
             with self.assertRaises(ValueError): image.wire(path, 'GET', '/image', None, time.monotonic() + 1)
 
 
+
+class OperationImageTests(unittest.TestCase):
+    server = ImageWireTests.server
+
+    def test_actual_http_status_is_observed_before_body_refusal(self):
+        from evidence import Trace
+        trace=Trace();trace.current['action']='derive';trace.begin('IMAGE_COMMIT')
+        path=self.server(b'HTTP/1.1 201 Created\r\nContent-Type: application/json\r\nContent-Length: 3\r\n\r\n{}')
+        with self.assertRaises(ValueError):
+            image.wire(path,'POST','/commit',b'{}',time.monotonic()+1,trace)
+        first=trace.snapshot()['first_failure']
+        self.assertEqual(first['gate'],'QUERY_RETURN')
+        self.assertEqual(first['query_return'],{'kind':'HTTP_STATUS','code':201})
+        self.assertEqual(first['predicate'],'bounded API JSON response required')
+
+    def test_actual_info_status_is_observed_before_non200_refusal(self):
+        import broker
+        trace=broker.Trace();trace.current['action']='provision';trace.begin('CREATE')
+        path=self.server(b'HTTP/1.1 503 Unavailable\r\nContent-Length: 2\r\n\r\n{}')
+        with self.assertRaises(ValueError):broker.daemon_http(path,time.monotonic()+1,trace)
+        first=trace.snapshot()['first_failure']
+        self.assertEqual(first['gate'],'DAEMON_RESPONSE')
+        self.assertEqual(first['daemon_return'],{'kind':'HTTP_STATUS','code':503})
+        self.assertEqual(first['query_return'],{'kind':'UNOBSERVED','code':None})
+        self.assertEqual(first['predicate'],'docker-daemon-http-status')
+
+    def test_api_postcheck_cannot_erase_returned_commit_status(self):
+        from evidence import Trace
+        trace=Trace();trace.current['action']='derive'
+        value=SimpleNamespace(observer=trace,socket='/private/socket',runner=SimpleNamespace(deadline=time.monotonic()+1),
+                              _local=lambda runner:None)
+        infos=iter((None,ValueError('docker-daemon-drift')))
+        def info(runner):
+            error=next(infos)
+            if error:raise error
+        value._info=info
+        def wire(*args,observer):observer.returned(201,http=True);return 201,{'Id':'privateID'}
+        with patch.object(image,'wire',side_effect=wire):
+            with self.assertRaises(ValueError):image.request(value,'POST','/commit')
+        first=trace.snapshot()['first_failure']
+        self.assertEqual((first['gate'],first['query']),('DAEMON_POST','IMAGE_COMMIT'))
+        self.assertEqual(first['query_return'],{'kind':'HTTP_STATUS','code':201})
+        self.assertNotIn('private',json.dumps(first))
+
+
 if __name__ == '__main__':
     unittest.main()

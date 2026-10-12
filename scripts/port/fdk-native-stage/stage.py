@@ -17,6 +17,7 @@ from evidence import (EPOCH, INVENTORY_SHA, INPUTS_SHA, RECIPE_SHA, TEMPLATE_SHA
                       need, read, safe_relative, save, sha)
 from runtime import Cancelled, Runner, cancellation_handlers, defer_signals
 from broker import Broker
+import worker_evidence as worker_diagnostic
 
 HERE = Path(__file__).resolve().parent
 PREFIX = 'scripts/port/fdk-native-stage/'
@@ -82,17 +83,28 @@ def snapshot(root, output, lock, runner, commit):
     return target
 
 
-def worker(runner, config, action):
+def worker(runner, config, action, report=None):
     config = {**config, 'action': action}
     path = Path(config['private']) / (action + '-config.json')
     save(path, config)
-    result = runner.run([str(Path(sys.executable).resolve()), '-I', '-B',
+    raw, _ = worker_diagnostic.capture(path, 65536)
+    need(worker_diagnostic.decode(raw) == config, 'worker-config-race')
+    config_sha = sha(raw)
+    row = worker_diagnostic.worker_row('UNAVAILABLE')
+    if report is not None: report['worker_diagnostics'][action] = row
+    try:
+        result = runner.run([str(Path(sys.executable).resolve()), '-I', '-B',
                          str(Path(config['snapshot']) / (PREFIX + 'worker.py')),
-                         '--config', str(path), '--config-sha256', digest(path)],
+                         '--config', str(path), '--config-sha256', config_sha],
                         timeout=config['timeout'] + 40 if action != 'compare' else 180,
                         log=action + '.log')
+        row['exit'] = worker_diagnostic.exit_record(result.returncode)
+    except BaseException:
+        worker_diagnostic.receive(config, config_sha, row)
+        raise
+    receipt = worker_diagnostic.receive(config, config_sha, row)
     need(result.returncode == 0, 'worker-failed')
-    receipt = load(Path(config['private']) / (action + '-receipt.json'))
+    need(receipt is not None, 'worker-receipt-unverified')
     need(receipt.get('status') == 'PASS' and receipt.get('cancelled') is not True, 'worker-receipt-failed')
     if action != 'compare':
         need(receipt.get('cleanup', {}).get('absence_verified') is True, 'worker-cleanup-failed')
@@ -117,7 +129,8 @@ def execute(args, state=None):
     output = new_output(args.output, root)
     private = output / 'private'
     report = {'status': 'FAIL', 'phase': 'preflight', 'cancelled': False,
-              'cleanup': {'status': 'FAIL', 'absence_verified': False}}
+              'cleanup': {'status': 'FAIL', 'absence_verified': False},
+              'worker_diagnostics': {name: worker_diagnostic.worker_row() for name in worker_diagnostic.ACTIONS}}
     if state is not None:
         state.update(output=output, report=report)
     broker = None
@@ -188,12 +201,14 @@ def execute(args, state=None):
         config = {'snapshot': str(source), 'private': str(private), 'image': args.image,
                   'endpoint': args.docker_endpoint, 'docker_binary': args.docker_binary,
                   'docker_sha256': args.docker_sha256, 'nonce': nonce, 'daemon': daemon,
-                  'timeout': args.build_timeout}
+                  'timeout': args.build_timeout, 'source_commit': args.source_commit,
+                  'stage_lock_sha256': args.lock_sha256, 'run_id': os.environ.get('GITHUB_RUN_ID'),
+                  'run_attempt': os.environ.get('GITHUB_RUN_ATTEMPT')}
         for number in (1, 2):
             report['phase'] = 'build-' + str(number)
-            report[report['phase']] = worker(runner, config, report['phase'])
+            report[report['phase']] = worker(runner, config, report['phase'], report)
         report['phase'] = 'compare'
-        compared = worker(runner, config, 'compare')
+        compared = worker(runner, config, 'compare', report)
         report['comparison'] = compared['comparison']
         report['phase'] = 'complete'
         report['status'] = 'PASS'

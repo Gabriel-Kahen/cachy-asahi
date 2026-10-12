@@ -15,6 +15,7 @@ import time
 from urllib.parse import quote, urlencode
 
 from common import module, need, save, unique
+from evidence import Trace, observed, scope
 
 API_VERSION = '1.48'
 INVENTORY_LIMIT = 128 * 1024
@@ -31,7 +32,7 @@ def effective(config):
     return value
 
 
-def wire(path, method, target, body, deadline):
+def wire(path, method, target, body, deadline, observer=None):
     """Bounded aggregate connect/write/read time, not an idle socket timeout."""
     body = b'' if body is None else body
     need(len(body) <= 65536 and method in ('GET', 'POST') and '\r' not in target and '\n' not in target, 'bounded API request required')
@@ -61,27 +62,39 @@ def wire(path, method, target, body, deadline):
             except BlockingIOError:
                 continue
     need(time.monotonic() < deadline, 'API aggregate timeout')
-    class OfflineSocket:
-        def makefile(self, mode): return io.BytesIO(received)
-    response = http.client.HTTPResponse(OfflineSocket()); response.begin()
-    lengths, transfers = response.headers.get_all('Content-Length', []), response.headers.get_all('Transfer-Encoding', [])
-    need(len(lengths) <= 1 and len(transfers) <= 1 and not (lengths and transfers) and transfers in ([], ['chunked']), 'API HTTP framing differs')
-    need(not lengths or re.fullmatch('[0-9]{1,5}', lengths[0]) and int(lengths[0]) <= 65536, 'API content length differs')
-    data = response.read(65537)
-    need(len(data) <= 65536 and (not lengths or len(data) == int(lengths[0])) and
-         (response.getheader('Content-Type') or '').split(';')[0] == 'application/json', 'bounded API JSON response required')
-    result = json.loads(data, object_pairs_hook=unique); status = response.status; response.close()
-    return status, result
+    with scope(observer, 'QUERY_RETURN'):
+        class OfflineSocket:
+            def makefile(self, mode): return io.BytesIO(received)
+        response = http.client.HTTPResponse(OfflineSocket()); response.begin()
+        if isinstance(observer, Trace): observer.returned(response.status, http=True)
+        lengths, transfers = response.headers.get_all('Content-Length', []), response.headers.get_all('Transfer-Encoding', [])
+        need(len(lengths) <= 1 and len(transfers) <= 1 and not (lengths and transfers) and transfers in ([], ['chunked']), 'API HTTP framing differs')
+        need(not lengths or re.fullmatch('[0-9]{1,5}', lengths[0]) and int(lengths[0]) <= 65536, 'API content length differs')
+        data = response.read(65537)
+        need(len(data) <= 65536 and (not lengths or len(data) == int(lengths[0])) and
+             (response.getheader('Content-Type') or '').split(';')[0] == 'application/json', 'bounded API JSON response required')
+        result = json.loads(data, object_pairs_hook=unique); status = response.status; response.close()
+        return status, result
 
 
+@observed('QUERY_EXEC')
 def request(broker, method, path, body=None):
-    broker._local(broker.runner); broker._info(broker.runner)
+    observer = getattr(broker, 'observer', None)
+    if isinstance(observer, Trace): observer.begin('IMAGE_COMMIT' if method == 'POST' else 'IMAGE_TAG_INSPECT')
+    with scope(observer, 'LOCAL_PRE'): broker._local(broker.runner)
+    with scope(observer, 'DAEMON_PRE'): broker._info(broker.runner)
     deadline = min(broker.runner.deadline, time.monotonic() + 180)
-    status, result = wire(str(broker.socket), method, '/v' + API_VERSION + path, body, deadline)
-    broker._local(broker.runner); broker._info(broker.runner)
+    with scope(observer, 'QUERY_EXEC'):
+        args = (str(broker.socket), method, '/v' + API_VERSION + path, body, deadline)
+        status, result = wire(*args, observer=observer) if isinstance(observer, Trace) else wire(*args)
+    with scope(observer, 'QUERY_RETURN'):
+        if isinstance(observer, Trace): observer.returned(status, http=True)
+    with scope(observer, 'LOCAL_POST'): broker._local(broker.runner)
+    with scope(observer, 'DAEMON_POST'): broker._info(broker.runner)
     return status, result
 
 
+@observed('IMAGE_INVENTORY')
 def inventory(broker):
     """Capture all current IDs through the broker with a smaller output bound."""
     class InventoryRunner:
@@ -89,9 +102,11 @@ def inventory(broker):
         def run(self, argv, **kwargs):
             return broker.runner.run(argv, limit=INVENTORY_LIMIT, **kwargs)
     runner = InventoryRunner()
-    broker._info(runner)
+    observer = getattr(broker, 'observer', None)
+    if isinstance(observer, Trace): observer.begin('IMAGE_INVENTORY')
+    with scope(observer, 'DAEMON_PRE'): broker._info(runner)
     result = broker._raw(['image', 'ls', '--all', '--no-trunc', '--format', '{{.ID}}'], runner, timeout=30)
-    broker._info(runner)
+    with scope(observer, 'DAEMON_POST'): broker._info(runner)
     need(result.returncode == 0 and type(result.stdout) is bytes and len(result.stdout) <= INVENTORY_LIMIT,
          'protected image inventory query failed or exceeded bound')
     rows = result.stdout.splitlines(keepends=True)
@@ -120,6 +135,7 @@ def validate_record(broker, record):
     need(len(json.dumps(record, allow_nan=False).encode()) <= INVENTORY_LIMIT, 'owned image journal exceeded bound')
 
 
+@observed('IMAGE_JOURNAL')
 def journal_save(broker, path, record):
     journal_path(path)
     validate_record(broker, record)
@@ -138,6 +154,7 @@ def journal_path(path):
          'private image journal parent required')
 
 
+@observed('IMAGE_JOURNAL')
 def journal_load(broker, path):
     journal_path(path)
     descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
@@ -161,6 +178,7 @@ def unprotected(record, identifier):
          identifier not in record['protected_image_ids'], 'derived image ID was already protected')
 
 
+@observed('IMAGE_COMMIT','derive')
 def commit(broker, root, journal):
     need(broker.role == 'provision', 'owned provision broker required')
     need(not Path(journal).exists() and not Path(journal).is_symlink(), 'new owned image journal required')
@@ -187,6 +205,7 @@ def commit(broker, root, journal):
     return record
 
 
+@observed('IMAGE_CONFIG')
 def verify(broker, record, cleanup=False, reference=None):
     queried = broker._operation(['image', 'inspect', reference or record['tag']], cleanup=cleanup)
     need(queried.returncode == 0, 'derived image query failed')
@@ -205,6 +224,7 @@ def verify(broker, record, cleanup=False, reference=None):
     return row['Id']
 
 
+@observed('CLEANUP_RESOLVE','cleanup')
 def cleanup(broker, journal):
     journal_path(journal)
     if not Path(journal).exists(): return {'status': 'PASS', 'absence_verified': True, 'commit_attempted': False}
@@ -217,6 +237,8 @@ def cleanup(broker, journal):
     if not ids and record['image_id'] is None:
         # A timed-out POST can still complete after these queries. Without a
         # recovered immutable ID, an empty tag list proves only current absence.
+        observer = getattr(broker, 'observer', None)
+        if isinstance(observer, Trace): observer.fail(RuntimeError(), 'UNCERTAIN_MUTATION')
         return {'status': 'FAIL', 'absence_verified': False, 'commit_attempted': True,
                 'uncertain_commit': True}
     if ids:

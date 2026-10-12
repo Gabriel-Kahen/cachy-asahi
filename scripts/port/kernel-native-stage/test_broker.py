@@ -154,7 +154,7 @@ class BrokerPolicy(unittest.TestCase):
             result = value.cleanup()
         self.assertEqual((result['status'], result['absence_verified']), ('FAIL', False))
 
-    def attached_start(self, stop):
+    def attached_start(self, stop, observed=False):
         # Only CLI process lifetime is real; daemon identity/local checks are fixture-bound.
         self.mounts['/out'] = str(self.root / 'output-baseline')
         Path(self.mounts['/out']).mkdir()
@@ -176,6 +176,8 @@ from runtime import Runner,Cancelled,cancellation_handlers
 root=Path(%r);env=%r
 value=broker.Broker(Runner(20,env,root/'logs'),Runner(1,env,root/'cleanup-logs'),
  %r,'b'*64,'unix:///run/docker.sock',%r,1000,1000,root/'journal-build',%r,expected_mounts=%r)
+if %r:
+ value.observer=broker.Trace();value.observer.action('baseline')
 value._local=lambda runner:{}
 value._info=lambda runner:{'id':'native-fixture-daemon','architecture':'aarch64'}
 value.initialize()
@@ -184,9 +186,9 @@ with cancellation_handlers():
   result=value.launch('baseline',%r,%r,%r);failure=None;rc=result.returncode
  except Cancelled:failure='cancelled';rc=None
  except ValueError as error:failure=str(error);rc=None
-Path(%r).write_text(json.dumps({'failure':failure,'returncode':rc,'cleanup':value.last_cleanup}))
+Path(%r).write_text(json.dumps({'failure':failure,'returncode':rc,'cleanup':value.last_cleanup,'operation':value.observer.snapshot() if isinstance(value.observer,broker.Trace) else None}))
 ''' % (str(Path(broker.__file__).parent), str(self.root), env, str(binary), value.image,
-       self.nonce, self.mounts, self.mounts, self.env('baseline'), 1 if stop == 'timeout' else 15,
+       self.nonce, self.mounts, observed, self.mounts, self.env('baseline'), 1 if stop == 'timeout' else 15,
        str(result_path))
         process = subprocess.Popen([sys.executable, '-I', '-B', '-c', helper], env=env,
                                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT, start_new_session=True)
@@ -207,6 +209,18 @@ Path(%r).write_text(json.dumps({'failure':failure,'returncode':rc,'cleanup':valu
                 self.assertEqual(result['returncode'], 0)
             self.assertEqual(result['cleanup']['status'], 'PASS')
             self.assertIs(result['cleanup']['absence_verified'], True)
+            if observed:
+                from evidence import validate_operation
+                validate_operation(result['operation'])
+                first=result['operation']['first_failure']
+                if stop=='success': self.assertIsNone(first)
+                else:
+                    self.assertEqual(first['gate'],'QUERY_EXEC')
+                    self.assertEqual(first['query'],'START')
+                    self.assertEqual(first['start'],'UNKNOWN')
+                    self.assertEqual(first['query_return'],{'kind':'UNOBSERVED','code':None})
+                    self.assertEqual(first['category'],'TIMEOUT' if stop=='timeout' else 'CANCELLED')
+                self.assertIsNone(result['operation']['cleanup_failure'])
             state = json.loads(state_path.read_bytes())
             self.assertNotIn('container', state)
             self.assertEqual([call for call in state['calls'] if call[0] == 'start'],
@@ -222,6 +236,16 @@ Path(%r).write_text(json.dumps({'failure':failure,'returncode':rc,'cleanup':valu
             if process.poll() is None:
                 os.killpg(process.pid, signal.SIGKILL); process.wait(timeout=2)
             process.stdout.close()
+
+    def test_observer_real_owned_return_cancel_timeout_retains_first_and_same_cleanup(self):
+        for stop in ('success',signal.SIGTERM,'timeout'):
+            with self.subTest(stop=stop):
+                with tempfile.TemporaryDirectory() as temporary:
+                    original=self.root;self.root=Path(temporary);self.mounts={}
+                    for name in ('code','inputs','out'):
+                        path=self.root/name;path.mkdir();self.mounts['/'+name]=str(path)
+                    try:self.attached_start(stop,True)
+                    finally:self.root=original
 
     def test_attached_start_accepts_exact_cli_profile_and_removes_owned_container(self):
         self.attached_start('success')
@@ -242,6 +266,130 @@ Path(%r).write_text(json.dumps({'failure':failure,'returncode':rc,'cleanup':valu
 
     def test_attached_start_timeout_reaps_cli_descendant_and_removes_owned_container(self):
         self.attached_start('timeout')
+
+
+
+class OperationDiagnostics(unittest.TestCase):
+    setUp = BrokerPolicy.setUp
+    instance = BrokerPolicy.instance
+    env = BrokerPolicy.env
+    inspect_row = BrokerPolicy.inspect_row
+
+    def traced(self):
+        value=self.instance('provision'); value.observer=broker.Trace()
+        value.observer.current['action']='provision';value.daemon={'id':'native-daemon'}
+        return value
+
+    def test_every_existing_query_boundary_preserves_observed_exit_before_postchecks(self):
+        from types import SimpleNamespace
+        cases = [('pre-info','DAEMON_PRE',False),('pre-local','LOCAL_PRE',False),
+                 ('exec','QUERY_EXEC',False),('post-local','LOCAL_POST',True),('post-info','DAEMON_POST',True)]
+        for fault, gate, returned in cases:
+            with self.subTest(fault=fault):
+                value=self.traced();self.runner.run.reset_mock()
+                self.runner.run.side_effect=ValueError('private runner') if fault=='exec' else None
+                self.runner.run.return_value=SimpleNamespace(returncode=125)
+                infos=[ValueError('docker-daemon-drift'),None] if fault=='pre-info' else [None,ValueError('docker-daemon-drift')] if fault=='post-info' else [None,None]
+                locals_=[ValueError('docker-local-pin-drift'),None] if fault=='pre-local' else [None,ValueError('docker-local-pin-drift')] if fault=='post-local' else [None,None]
+                with patch.object(value,'_info',side_effect=infos),patch.object(value,'_local',side_effect=locals_):
+                    with self.assertRaises(ValueError):value._operation(['create'])
+                first=value.observer.snapshot()['first_failure']
+                self.assertEqual(first['gate'],gate);self.assertEqual(first['query'],'CREATE')
+                self.assertEqual(first['create'],'UNKNOWN')
+                self.assertEqual(first['query_return'], {'kind':'EXIT_NONZERO','code':125} if returned else {'kind':'UNOBSERVED','code':None})
+                self.assertEqual(self.runner.run.call_count, int(fault not in ('pre-info','pre-local')))
+
+    def test_returned_start_not_worker_acceptance_or_owned_completion(self):
+        from types import SimpleNamespace
+        value=self.traced()
+        with patch.object(value,'_info',side_effect=[None,ValueError('docker-daemon-drift')]),patch.object(value,'_local'):
+            self.runner.run.return_value=SimpleNamespace(returncode=-15)
+            with self.assertRaises(ValueError):value._operation(['start','--attach','private-id'])
+        first=value.observer.snapshot()['first_failure']
+        self.assertEqual(first['query_return'],{'kind':'EXIT_SIGNAL','code':-15})
+        self.assertEqual(first['start'],'EXIT_OBSERVED')
+        self.assertNotIn('private-id',json.dumps(first))
+
+    def test_actual_info_metadata_retains_http_status_and_prior_process_exit(self):
+        value=self.traced();value.observer.begin('CREATE');value.observer.returned(0)
+        def response(path,deadline,observer):
+            observer.returned(200,daemon=True,http=True)
+            return {'ID':'wrong-daemon-id','Architecture':'arm64','OSType':'linux','SecurityOptions':[]}
+        with patch.object(value,'_local'),patch.object(broker,'daemon_http',side_effect=response):
+            with self.assertRaises(ValueError):value._info(self.runner)
+        first=value.observer.snapshot()['first_failure']
+        self.assertEqual((first['gate'],first['predicate']),('DAEMON_METADATA','docker-daemon-drift'))
+        self.assertEqual(first['daemon_return'],{'kind':'HTTP_STATUS','code':200})
+        self.assertEqual(first['query_return'],{'kind':'EXIT_ZERO','code':0})
+
+    def test_actual_inspect_fixed_source_gates_do_not_export_payload(self):
+        from types import SimpleNamespace
+        for gate, key in [('INSPECT_OWNERSHIP','owner'),('INSPECT_RESOURCES','resources'),
+                          ('INSPECT_MOUNTS','mounts'),('INSPECT_COMMAND','command')]:
+            value=self.instance();value.observer=broker.Trace();row,item=self.inspect_row(value)
+            if key=='owner':item['Config']['User']='0:0'
+            if key=='resources':item['HostConfig']['Privileged']=True
+            if key=='mounts':item['Mounts'][0]['Source']='/private-secret-path'
+            if key=='command':item['Config']['Cmd']=['secret']
+            with patch.object(value,'_operation',return_value=SimpleNamespace(returncode=0,stdout=json.dumps([item]).encode())):
+                with self.assertRaises(ValueError):value._inspect(row['id'],row)
+            first=value.observer.snapshot()['first_failure']
+            self.assertEqual(first['gate'],gate);self.assertNotIn('secret',json.dumps(first))
+
+    def test_create_journal_cid_parse_start_and_cleanup_first_failure_schedules(self):
+        from types import SimpleNamespace
+        for fault, expected in [('attempt','CREATE_ATTEMPT'),('cid','CREATE_ID'),('journal','JOURNAL_WRITE'),('inspect','INSPECT_OWNERSHIP'),('start','QUERY_EXEC')]:
+            value=self.traced();row={'schema_version':1,'containers':[]}
+            writes=[]
+            def write(record):
+                writes.append(len(writes))
+                if fault=='attempt' and len(writes)==2:raise OSError('private attempt path')
+                if fault=='journal' and len(writes)==3:
+                    with broker.scope(value.observer,'JOURNAL_WRITE'):raise OSError('private journal path')
+            def operation(args,**kwargs):
+                value.observer.begin(value.query_kind(args))
+                if args[0]=='start' and fault=='start':
+                    with broker.scope(value.observer,'QUERY_EXEC'):raise ValueError('command-timeout')
+                value.observer.returned(0)
+                return SimpleNamespace(returncode=0,stdout=(b'bad' if fault=='cid' else b'e'*64))
+            def inspect(*args):
+                if fault=='inspect':
+                    with broker.scope(value.observer,'INSPECT_OWNERSHIP'):raise ValueError('docker-container-ownership')
+            def cleanup():
+                with broker.scope(value.observer,'CLEANUP_REMOVE','cleanup'):
+                    try:raise ValueError('docker-owned-remove')
+                    except ValueError as error:value.observer.fail(error)
+                return {'status':'FAIL','absence_verified':False}
+            with patch.object(value,'_journal',return_value=row),patch.object(value,'_write',side_effect=write),                 patch.object(value,'_find',return_value=None),patch.object(value,'_operation',side_effect=operation),                 patch.object(value,'_inspect',side_effect=inspect),patch.object(value,'cleanup',side_effect=cleanup):
+                with self.assertRaises((OSError,ValueError)):value._launch('name',{},self.mounts,[],900,True)
+            snap=value.observer.snapshot();self.assertEqual(snap['first_failure']['gate'],expected)
+            self.assertEqual(snap['cleanup_failure']['gate'],'CLEANUP_REMOVE')
+            self.assertEqual(snap['first_failure']['create'],'UNKNOWN' if fault in ('attempt','cid') else 'CID_OBSERVED')
+            self.assertEqual(snap['first_failure']['start'],'UNKNOWN' if fault=='start' else 'NOT_ATTEMPTED')
+
+
+
+class ReturnedNonzeroDiagnostics(unittest.TestCase):
+    setUp = BrokerPolicy.setUp
+    instance = BrokerPolicy.instance
+
+    def test_returned_create_failure_is_frozen_before_failing_cleanup(self):
+        from types import SimpleNamespace
+        value=self.instance();value.observer=broker.Trace();value.observer.current['action']='baseline'
+        def operation(args,**kwargs):
+            value.observer.begin('CREATE');value.observer.returned(125)
+            return SimpleNamespace(returncode=125)
+        def cleanup():
+            with value.observer.scope('CLEANUP_REMOVE','cleanup'):
+                value.observer.fail(ValueError('docker-owned-remove'))
+            return {'status':'FAIL','absence_verified':False}
+        with patch.object(value,'_journal',return_value={'containers':[]}),patch.object(value,'_write'),             patch.object(value,'_find',return_value=None),patch.object(value,'_operation',side_effect=operation),             patch.object(value,'cleanup',side_effect=cleanup):
+            with self.assertRaisesRegex(ValueError,'docker-cleanup-failed'):
+                value._launch('name',{},self.mounts,[],900)
+        result=value.observer.snapshot()
+        self.assertEqual(result['first_failure']['category'],'COMMAND_NONZERO')
+        self.assertEqual(result['first_failure']['query_return'],{'kind':'EXIT_NONZERO','code':125})
+        self.assertEqual(result['cleanup_failure']['predicate'],'docker-owned-remove')
 
 
 if __name__ == '__main__':

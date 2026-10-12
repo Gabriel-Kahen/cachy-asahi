@@ -175,12 +175,16 @@ def safe_relative(name):
     return path
 
 
-def verify_attempt(directory, reviewed, image, inspect_package, inspect_recipe, bind_artifact):
+def verify_attempt(directory, reviewed, image, inspect_package, inspect_recipe, bind_artifact, *, record=None, log_bytes=None):
     directory = Path(directory)
-    record = load(directory / 'provenance.json')
+    record = load(directory / 'provenance.json') if record is None else record
     result = validate_receipt(record, reviewed, image)
+    log_data = read(directory / 'build.log') if log_bytes is None else log_bytes
+    need(type(log_data) is bytes and len(log_data) <= 8 * 1024**2, 'captured-build-log-bound')
     for name, checksum in record['files'].items():
-        need(PIN.fullmatch(checksum or '') and digest(directory / safe_relative(name)) == checksum, 'evidence-file-drift')
+        safe_relative(name)
+        actual = sha(log_data) if name == 'build.log' else digest(directory / name)
+        need(PIN.fullmatch(checksum or '') and actual == checksum, 'evidence-file-drift')
     for name, checksum in reviewed.items():
         need(digest(directory / 'inputs' / safe_relative(name)) == checksum, 'recipe-snapshot-drift')
     recipe = inspect_recipe(directory / 'inputs/PKGBUILD')
@@ -204,7 +208,7 @@ def verify_attempt(directory, reviewed, image, inspect_package, inspect_recipe, 
     need(all(type(v) is str and v.endswith(('-aarch64', '-any')) for v in installed) and
          sorted(v.rsplit('-', 1)[0] for v in installed) == sorted(n + '-' + v for n, v in base.items()),
          'artifact-buildinfo-inventory')
-    log = read(directory / 'build.log').decode('utf-8')
+    log = log_data.decode('utf-8')
     abi = [decode(line.encode()) for line in log.splitlines() if line.startswith('{') and 'native-ELF-ABI-pass' in line]
     need(len(abi) == 1 and abi[0].get('status') == 'native-ELF-ABI-pass', 'native-ABI-receipt')
     libraries = abi[0].get('libraries', {})
@@ -232,16 +236,24 @@ def compare_result(record, filename, names):
 
 
 def finalstatus_public(report):
+    # FDK-only lazy dependency: standalone kernel accepted_base loading uses none
+    # of this helper, and keeps its original function/dependency contract.
+    import worker_evidence as worker_diagnostic
+    workers = report.get('worker_diagnostics', {name: worker_diagnostic.worker_row() for name in worker_diagnostic.ACTIONS})
+    workers = worker_diagnostic.validate_workers(workers)
     cleanup = report.get('cleanup', {})
     passed = (report.get('status') == 'PASS' and report.get('phase') == 'complete' and
         report.get('cancelled') is False and cleanup.get('absence_verified') is True and
         cleanup.get('status') == 'PASS' and report.get('comparison', {}).get('status') == 'PASS' and
         all(report.get(k, {}).get('status') == 'PASS' for k in ('accepted_base', 'live_base', 'source', 'build-1', 'build-2')) and
         all(report[k].get('cleanup', {}).get('status') == 'PASS' and
-            report[k]['cleanup'].get('absence_verified') is True for k in ('build-1', 'build-2')))
-    return {'schema_version': 1, 'stage': 'fdk-native-development', 'status': 'PASS' if passed else 'FAIL',
+            report[k]['cleanup'].get('absence_verified') is True for k in ('build-1', 'build-2')) and
+        all(row['availability'] == 'VERIFIED' and row['exit'] == worker_diagnostic.exit_record(0) and
+            row['observation']['current_predicate'] == 'COMPLETE' for row in workers.values()))
+    return {'schema_version': 2, 'stage': 'fdk-native-development', 'status': 'PASS' if passed else 'FAIL',
             'phase': report.get('phase') if report.get('phase') in {'preflight', 'base-probe', 'source', 'build-1', 'build-2', 'compare', 'complete'} else 'preflight',
             'error_code': None if passed else 'fdk-stage-failed', 'cancelled': report.get('cancelled') is True,
             'owned_container_absence': cleanup.get('absence_verified') is True,
             'native_build': 'PASS' if passed else 'NOT ACCEPTED', 'hardware': 'NOT RUN',
-            'installation': 'NOT RUN', 'selected_for_release': False, 'binary_publication': 'NOT RUN'}
+            'installation': 'NOT RUN', 'selected_for_release': False, 'binary_publication': 'NOT RUN',
+            'worker_diagnostics': workers}

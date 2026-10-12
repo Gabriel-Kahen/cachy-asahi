@@ -103,4 +103,104 @@ class ChildEvidenceTests(unittest.TestCase):
         with self.assertRaises(ValueError): receiver.child_project(row)
 
 
+
+class OperationEvidenceTests(unittest.TestCase):
+    receiver = ChildEvidenceTests.receiver
+    def test_schema1_has_exact_historical_bytes_and_schema2_is_closed(self):
+        legacy = evidence.initial(binding())
+        expected = {'schema_version': 1, 'binding': binding(), 'current_predicate': 'SNAPSHOT',
+            'first_failed_predicate': 'NONE', 'failure_category': 'NONE',
+            'commands': {name: {'kind': 'NOT_RUN', 'code': None} for name in evidence.ACTIONS},
+            'cleanup': {'status': 'NOT_RUN', 'category': 'NONE'}}
+        self.assertEqual(evidence.encoded(legacy), evidence.encoded(expected))
+        fresh = evidence.initial(binding(), evidence.Trace())
+        self.assertEqual(fresh['schema_version'], 2)
+        self.assertEqual(self.receiver().child_project(fresh), evidence.project(fresh))
+        for row in (dict(legacy, operation=fresh['operation']), {k:v for k,v in fresh.items() if k != 'operation'}):
+            for validate in (evidence.project, self.receiver().child_project):
+                with self.assertRaises(ValueError): validate(row)
+
+    def test_operation_poison_types_privacy_and_discriminated_returns(self):
+        for key, value in [('gate', 'private/path'), ('predicate', 'docker-private-token'),
+                           ('action', True), ('create', 'OWNED'), ('start', 'COMPLETE')]:
+            row = evidence.initial(binding(), evidence.Trace()); row['operation']['current'][key] = value
+            for validate in (evidence.project, self.receiver().child_project):
+                with self.subTest(key=key), self.assertRaises(ValueError): validate(row)
+        for slot, value in [('daemon_return', {'kind':'EXIT_ZERO','code':0}),
+            ('query_return', {'kind':'HTTP_STATUS','code':200}),
+            ('daemon_return', {'kind':'HTTP_STATUS','code':True}),
+            ('daemon_return', {'kind':'HTTP_STATUS','code':99}),
+            ('daemon_return', {'kind':'HTTP_STATUS','code':600})]:
+            row = evidence.initial(binding(), evidence.Trace()); row['operation']['current'][slot] = value
+            for validate in (evidence.project, self.receiver().child_project):
+                with self.subTest(slot=slot,value=value), self.assertRaises(ValueError): validate(row)
+        for value in ({'kind':'EXIT_ZERO','code':0}, {'kind':'HTTP_STATUS','code':201}):
+            row = evidence.initial(binding(), evidence.Trace())
+            row['operation']['current'].update(query='IMAGE_COMMIT', query_return=value)
+            if value['kind']=='HTTP_STATUS': self.assertEqual(evidence.project(row),self.receiver().child_project(row))
+            else:
+                with self.assertRaises(ValueError): evidence.project(row)
+        row['operation']['current']['raw'] = 'secret'
+        with self.assertRaises(ValueError): self.receiver().child_project(row)
+
+    def test_first_and_cleanup_are_deep_sticky_snapshots_unknown_text_omitted(self):
+        trace = evidence.Trace(); trace.current['action']='provision'; trace.begin('CREATE')
+        try:
+            with trace.scope('QUERY_EXEC'): raise ValueError('unreviewed token/private/path')
+        except ValueError: pass
+        first = trace.snapshot()['first_failure']
+        with trace.scope('QUERY_RETURN'): trace.returned(0)
+        trace.current['create']='CID_OBSERVED'
+        try:
+            with trace.scope('CLEANUP_REMOVE','cleanup'): raise OSError('secret cleanup')
+        except OSError: pass
+        result = trace.snapshot(); result['first_failure']['query_return']['code']=123
+        self.assertEqual(trace.snapshot()['first_failure'],first)
+        self.assertEqual(first['predicate'],'UNKNOWN')
+        self.assertEqual(trace.snapshot()['cleanup_failure']['gate'],'CLEANUP_REMOVE')
+        self.assertNotIn('secret',json.dumps(trace.snapshot()))
+        self.assertNotIn('private/path',json.dumps(trace.snapshot()))
+
+    def test_static_whitelist_matches_reviewed_literal_guards_only(self):
+        import ast
+        labels={'deadline-exhausted','command-timeout','output-bound','kernel worker exit failed'}
+        for name in ('broker.py','image.py','runtime.py'):
+            for node in ast.walk(ast.parse((Path(evidence.__file__).parent/name).read_bytes())):
+                if isinstance(node,ast.Call) and isinstance(node.func,ast.Name):
+                    position=1 if node.func.id=='need' else 0 if node.func.id=='ValueError' else None
+                    if position is not None and len(node.args)>position:
+                        arg=node.args[position]
+                        if isinstance(arg,ast.Constant) and type(arg.value) is str:labels.add(arg.value)
+        self.assertEqual(evidence.REFUSALS,labels)
+        self.assertEqual(self.receiver().CHILD_REFUSALS,labels)
+
+    def test_cancel_and_action_change_are_truthful_without_erasing_first_failure(self):
+        trace=evidence.Trace();trace.action('baseline');trace.begin('START');trace.returned(0)
+        trace.current['create']='CID_OBSERVED'
+        trace.action('candidate')
+        self.assertEqual(trace.current['start'],'NOT_ATTEMPTED')
+        try:
+            with trace.scope('QUERY_EXEC'):raise evidence.Cancelled(15)
+        except evidence.Cancelled:pass
+        first=trace.snapshot()['first_failure']
+        self.assertEqual(first['category'],'CANCELLED')
+        trace.action('cleanup')
+        self.assertEqual(trace.snapshot()['first_failure'],first)
+
+    def test_schema2_complete_cannot_hide_operation_failure_and_total_4k_bound(self):
+        trace=evidence.Trace()
+        try:
+            with trace.scope('QUERY_EXEC','provision'): raise ValueError('docker-create-unknown')
+        except ValueError: pass
+        row=evidence.initial(binding(),trace)
+        row.update(current_predicate='COMPLETE',commands={n:evidence.exit_record(0) for n in evidence.ACTIONS},
+                   cleanup={'status':'PASS','category':'NONE'})
+        for validate in (evidence.project,self.receiver().child_project):
+            with self.assertRaises(ValueError):validate(row)
+        row['current_predicate']='PROVISION_COMMAND'; evidence.failure(row,'INVALID_DATA')
+        self.assertLessEqual(len(evidence.encoded(row)),4096)
+        row['binding']['run_id']='1'*5000
+        with self.assertRaises(ValueError):evidence.project(row)
+
+
 if __name__ == '__main__': unittest.main()

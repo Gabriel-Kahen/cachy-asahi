@@ -2,6 +2,7 @@
 from contextlib import contextmanager
 import ast
 import importlib.util
+import copy
 import json
 import os
 import signal
@@ -1288,5 +1289,29 @@ class ChildObservationTests(unittest.TestCase):
             commands={name: child_evidence.exit_record(0) for name in child_evidence.ACTIONS}, cleanup={'status': 'PASS', 'category': 'NONE'})
         row['diagnostics'] = d; job.save(self.path, row)
         self.assertEqual(self.observe(0)[1]['availability'], 'UNVERIFIED')
+
+
+class OperationChildObservationTests(unittest.TestCase):
+    setUp = ChildObservationTests.setUp
+    observe = ChildObservationTests.observe
+
+    def test_bound_new_diagnostic_capture_is_frozen_separate_from_actual_child_exit(self):
+        trace=child_evidence.Trace();trace.current['action']='provision';trace.begin('CREATE');trace.returned(125)
+        with trace.scope('QUERY_RETURN'):trace.fail(ValueError('kernel worker exit failed'),'COMMAND_NONZERO')
+        with trace.scope('CLEANUP_ABSENCE','cleanup'):trace.fail(ValueError('unknown'),'UNCERTAIN_MUTATION')
+        self.record['diagnostics'].update(schema_version=2,operation=trace.snapshot())
+        job.save(self.path,self.record)
+        result,row=self.observe(1)
+        self.assertEqual(row['availability'],'VERIFIED')
+        self.assertEqual(row['exit'],job.public.exit_record(1))
+        self.assertEqual(row['diagnostics']['operation']['first_failure']['query_return'],job.public.exit_record(125))
+        snapshot=copy.deepcopy(row['diagnostics'])
+        self.record['diagnostics']['operation']['first_failure']['query_return']['code']=0
+        job.save(self.path,self.record)
+        result['diagnostics']['operation']['first_failure']['query_return']['code']=0
+        self.assertEqual(row['diagnostics'],snapshot)
+        with patch.object(job.packet,'read',side_effect=AssertionError('must not reread')):
+            job.public.child_validate_public(row['diagnostics'])
+
 
 if __name__ == '__main__': unittest.main()

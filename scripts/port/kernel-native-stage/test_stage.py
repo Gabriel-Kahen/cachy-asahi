@@ -126,6 +126,8 @@ class ChildCheckpointTests(unittest.TestCase):
         real_finish = stage.finish
         def finish(output, report):
             checkpoints.append(report['diagnostics']['current_predicate'])
+            if fault == 'checkpoint-provision' and report['diagnostics']['current_predicate'] == 'PROVISION_COMMAND':
+                raise OSError('private checkpoint path')
             real_finish(output, report)
         def load(path, pin=None):
             if path == args.lock: return lock
@@ -137,14 +139,17 @@ class ChildCheckpointTests(unittest.TestCase):
             return inputs, {'inputs': {}, 'dependencies_sha256': '1' * 64}, {'expected_inventory_sha256': '2' * 64}
         class Broker:
             def __init__(self, runner, cleanup, docker, docker_sha, endpoint, image_id,
-                         uid, gid, journal, nonce, role='build'):
-                self.role, self.nonce = role, nonce
+                         uid, gid, journal, nonce, role='build', observer=None):
+                self.role, self.nonce, self.observer = role, nonce, observer
             def initialize(self, **kwargs):
                 calls.append(('initialize', self.role))
                 if fault == 'initialize-' + self.role: raise OSError('private daemon message')
                 return {'fixture': True}
             def launch(self, action, mounts, env, timeout, persist=False):
                 calls.append(('launch', action))
+                if fault == 'validate-' + action:
+                    with self.observer.scope('LAUNCH_VALIDATE'):
+                        raise ValueError('docker-kernel-mount-map')
                 if fault == 'signal-' + action: os.kill(os.getpid(), signal.SIGTERM)
                 if fault == 'io-' + action: raise OSError('private command path')
                 if fault == 'timeout-' + action: raise ValueError('command-timeout')
@@ -239,6 +244,49 @@ class ChildCheckpointTests(unittest.TestCase):
                 self.assertEqual(row['first_failed_predicate'], 'CLEANUP')
                 self.assertEqual(row['cleanup'], {'status': 'FAIL', 'category': category})
                 self.assertEqual(row['commands']['candidate'], evidence.exit_record(0))
+
+
+
+class OperationCheckpointTests(unittest.TestCase):
+    run_fixture = ChildCheckpointTests.run_fixture
+
+    def test_checkpoint_and_launch_validation_are_causally_separate(self):
+        for fault, gate, called in [('checkpoint-provision','CHECKPOINT_WRITE',False),
+                                    ('validate-provision','LAUNCH_VALIDATE',True)]:
+            report,row,calls,_=self.run_fixture(fault)
+            first=row['operation']['first_failure']
+            self.assertEqual(report['status'],'FAIL');self.assertEqual(row['schema_version'],2)
+            self.assertEqual(row['first_failed_predicate'],'PROVISION_COMMAND')
+            self.assertEqual(first['gate'],gate);self.assertEqual(first['action'],'provision')
+            self.assertEqual(any(kind=='launch' for kind,_ in calls),called)
+            self.assertEqual(row['commands']['provision'],{'kind':'UNOBSERVED','code':None})
+            self.assertNotIn('private',json.dumps(first))
+
+    def test_primary_error_stays_fixed_and_cleanup_failure_is_separate(self):
+        report,row,_,_=self.run_fixture('cleanup-unknown')
+        self.assertEqual(report['status'],'FAIL')
+        self.assertEqual(row['operation']['cleanup_failure']['category'],'UNCERTAIN_MUTATION')
+        self.assertEqual(row['operation']['cleanup_failure']['action'],'cleanup')
+        self.assertEqual(row['commands']['candidate'],evidence.exit_record(0))
+        self.assertNotEqual(row['current_predicate'],'COMPLETE')
+
+
+class OperationFinalizationTests(unittest.TestCase):
+    setUp = StageDataTests.setUp
+
+    def test_diagnostic2_late_cancel_revokes_complete_and_records_finite_failure(self):
+        trace=evidence.Trace()
+        self.report['diagnostics'].update(schema_version=2,operation=trace.snapshot())
+        @contextmanager
+        def deferred():yield [15]
+        with patch.object(stage,'defer_signals',deferred):
+            with self.assertRaises(stage.Cancelled):stage.finish(self.root,self.report)
+        row=common.load(self.root/'public/status.json')
+        self.assertEqual(row['status'],'FAIL')
+        self.assertEqual(row['diagnostics']['first_failed_predicate'],'FINALIZATION')
+        failure=row['diagnostics']['operation']['first_failure']
+        self.assertEqual((failure['gate'],failure['category']),('FINALIZATION','CANCELLED'))
+        self.assertNotIn('cancelled',json.dumps(failure))
 
 
 if __name__ == '__main__':
