@@ -53,3 +53,39 @@ It binds 100 source files and the same 125 deterministic fixture files. Local
 preflight passes. The original signed input and recipe locks remain unchanged.
 Clean committed-tree verification and a new actual native run are required;
 this correction alone grants no executed integration acceptance.
+
+## Second actual attempt: upstream input unavailable
+
+- Source: `1c2d97bc9d2c82ac984b1297a808aba21d89745e`.
+- [Native run 38199269315](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38199269315): **FAIL**.
+- Corrected integration lock: `ac1fe1a05a8841da66824af496b81200376d32aa67320e6c48485b9373761408`.
+- Original signed input and recipe locks remain the identities recorded above.
+
+All 213 bootstrap boundary tests passed on the native ARM host. The runner probe
+and full-source preflight passed. Before dispatch, the coordinator independently
+checked every frozen file's bytes and executable mode against the committed Git
+tree and repeated fixture/source preflight in a fresh detached checkout.
+
+Input acquisition then failed with HTTP 404 before signature authentication,
+image construction or package builds. The retained result only identifies the
+HTTP error; it does not identify a filename. A subsequent bounded availability
+audit identifies `perl-5.42.2-2-aarch64.pkg.tar.xz` and its detached signature as
+the only two unavailable original URLs. The other 499 URLs return the expected
+HTTP lengths; this HEAD result does not authenticate their bodies. All 501
+retained local files still match their original pinned hashes. Current upstream
+metadata advertises a newer Perl version; adopting it requires explicit
+authentication, transaction review, a new coordinated snapshot and complete
+native rerun. Original evidence must remain linked to its original snapshot.
+
+Raw logs and independently decoded bundles are retained under
+`artifacts/ci/38199269315/`:
+
+| Bundle | SHA-256 | Bytes |
+| --- | --- | --- |
+| Native probe | `e5865947cd7f2d6738b564a4dc3850e87415f67f5fae176e3b9b5fd05edccda2` | 1781 |
+| Failed acquisition evidence | `273df3994f55dfbab1235ca024425ab007d3142d437e07dd67a243878c2135e5` | 56043 |
+
+Builds, signing, installed lifecycle, repository transactions, onboarding,
+desktop checks and locked-userspace suites remain **NOT RUN in this attempt**.
+The source-preflight correction has actual native evidence; the connected
+integration batch still has no passing execution.

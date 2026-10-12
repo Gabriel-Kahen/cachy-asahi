@@ -14,7 +14,7 @@ The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with 
 | 5 M4 performance | Frozen-plan measurement, telemetry and comparison harness implemented; six source findings independently resolved | Repeated controlled before/after timing, power, suspend drain, thermal and functional evidence | NOT RUN |
 | 6 Maintained system | Installation/contributor drafts, release policy and packaged setup/removal helper implemented | Independent clean install, subsequent release, accountable maintainers | NOT RUN |
 | 7 Overlay qualification and ARM reuse | Separate model records; actual native builder reuse and upstream drafts recorded | Both Air sizes, overlay reports, reusable component on another ARM target, actual upstream work | NOT RUN |
-| 8 Complete ARM port (M5–M8) | Initial overlay tooling/builds provide the foundation; broader package/tool/platform/install scope remains planned | R1–R5 implementation, coverage/capacity plan and A12–A15 evidence | NOT RUN |
+| 8 Complete ARM port (M5–M8) | Expanded package transaction preview, tool candidates, virtual desktop controller, offline development release client and ARM-C01 experiment implemented or source-audited; platform/install integration remains open | Broader native builds/runtime, complete licensed dependency coverage, target platform integration, measured tuning and A12–A15 evidence | INCOMPLETE |
 | 9 Full-port acceptance and maintenance (M9) | Acceptance contract now covers all five responsibilities | Same-release both-size final validation, independent installation/recovery and subsequent complete-port release | NOT RUN |
 
 ## Verified local work
@@ -28,6 +28,40 @@ The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with 
 - Authenticated input cache and full audit retained privately at `/home/gabe/.local/share/cachy-asahi/private-inputs/`; upstream bytes are not published in Git.
 - Free standard native ARM CI is implemented for the verified public repository, with a manual probe followed by hash-bound builds. [Actual execution record](validation/native-arm.md): static CI and the native ARM VM probe passed; first job failed metadata order; corrected full rerun passed all four native build pairs and byte comparisons, with retained evidence. Static CI has documented shell/release skips, separate from the full local test run.
 - Read-only SSH attempt to configured `gabepi` timed out. No target Mac connection found in local SSH configuration.
+
+## Complete-port development and connected native integration
+
+- The generic ARM desktop/application preview resolves 45 minimum roots to a
+  574-package inventory without replacing the 341-package builder baseline.
+  This is a private print-only libalpm transaction, not an installed Asahi
+  target. Of 233 added archives, 232 were authenticated; the missing original
+  `libfdk-aac` archive leaves the aggregate incomplete. See
+  `docs/port/desktop-coverage.md` and `docs/workstreams/port-resolution.md`.
+- Cachy-update's actual Rust tray and shell updater have a development recipe,
+  adapted behavior and independently authored licensed icons. All 167 registry
+  archive checksums match; unresolved dependency notices, embedded-input and
+  build-script review still block its accepted build. The separate KSM status
+  candidate retains GPL provenance and passes local read-only/page-size fixture
+  tests; native builds and required management functionality remain unfinished.
+- ARM-C01 implements two baseline and two LTO zlib builds with cross-decoder,
+  corruption, artifact and cleanup checks; 54 local tests passed. Native build,
+  timing and M2 performance remain NOT RUN.
+- A disposable generic virtual desktop route and controller are implemented,
+  with 19 separately authenticated tooling packages and 25 local tests. Actual
+  guest boot, Hyprland/Wofi execution and captured-frame review remain NOT RUN;
+  this route cannot accept Apple GPU, audio, suspend or platform behavior.
+- The offline development release client passes 37 local tests with temporary
+  real GPG signatures and independent race regressions. Production trust,
+  supported release promotion and native onboarding remain separate gates.
+- Connected V01–V09 execution has two retained native failures. The first
+  passed 211 host boundary tests but refused an incorrect source freeze. The
+  corrected run passed 213 host tests, runner probe and full-source preflight,
+  then failed fetching superseded pinned Perl inputs. New builds, installed
+  lifecycle, repository transactions, onboarding and desktop stages did not
+  begin. See [the actual execution record](validation/virtual-arm.md).
+
+These are distinct development results. No complete-port milestone or hardware
+acceptance is granted by their local test counts or source reviews.
 
 ## Open inputs
 
