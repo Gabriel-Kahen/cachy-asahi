@@ -242,3 +242,11 @@ TTY example. The original recipe uses the coordinator-verified project origin,
 `https://github.com/Gabriel-Kahen/cachy-asahi`. Final-input source hashes, local
 packages, payload comparison and metadata checks were refreshed after these
 changes. No session-launch or hardware result is implied.
+
+Subsequent native CI run `38189058133` attempted the desktop metadata gate on
+aarch64 and failed before package construction because reviewed `.SRCINFO`
+ordered `arch` before `url`. The owned file now matches the retained native
+`makepkg --printsrcinfo` form exactly; metadata values, PKGBUILD and payload are
+unchanged. Original failure/provenance are retained in the desktop workstream
+handoff. Strict source comparison now passes, but corrected native rerun and
+successful native package acceptance remain NOT RUN.

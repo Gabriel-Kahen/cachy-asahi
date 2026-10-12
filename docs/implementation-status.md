@@ -25,7 +25,7 @@ The concurrently revised outline's full-goal requirements are mapped in `docs/ac
 - Independent reproductions closed four initial build/release findings, two setup findings and six benchmark findings. Desktop launcher documentation was corrected.
 - Source-only ARM audit authenticated the dated rootfs and all 248 dependency package/signature pairs. This is data authentication on x86_64, not ARM execution or an accepted Asahi target transaction.
 - Authenticated input cache and full audit retained privately at `/home/gabe/.local/share/cachy-asahi/private-inputs/`; upstream bytes are not published in Git.
-- Free standard native ARM CI is implemented for the verified public repository, with a manual probe followed by hash-bound builds. Actual dispatch results will be recorded below.
+- Free standard native ARM CI is implemented for the verified public repository, with a manual probe followed by hash-bound builds. [Actual execution record](validation/native-arm.md): static CI and the native ARM VM probe passed; first native job authenticated inputs and provisioned the frozen builder, then failed desktop metadata order before package assembly; correction/rerun underway. Static CI has documented shell/release skips, separate from the full local test run.
 - Read-only SSH attempt to configured `gabepi` timed out. No target Mac connection found in local SSH configuration.
 
 ## Open inputs

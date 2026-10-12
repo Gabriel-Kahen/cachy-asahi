@@ -89,3 +89,23 @@ measurements, supported releases and full-goal closure remain separate gates.
 Signed ARM inputs and full source audit are retained privately under
 `/home/gabe/.local/share/cachy-asahi/private-inputs/`; no upstream binary
 redistribution or production key custody is implied.
+
+## First actual hosted execution
+
+Reviewed source committed/pushed as `f4fc643192468526367f1ca34b96f78176cc5c8b`.
+Static CI run `38189008536` passed with explicit shell/release-tool skips.
+Native ARM probe `38189013510` passed on the standard hosted Neoverse-N2
+ARM64 VM and local native daemon; 4K pages and no M2 hardware acceptance.
+Independent review verified retained logged bundle/provenance.
+All-four native package job `38189058133` dispatched using inputs
+`7d53775b2de6136d531a7f20059088def7bbb11ad8baef58e75cd5826e3a2b41`
+and recipes `8906c36f5cbcdb0e1e70798e6db23be1d30f45385d57af0094a1cd509c7a89d0`.
+No package build acceptance is recorded until its complete results are reviewed.
+See `docs/validation/native-arm.md` for actual results and retention.
+
+First native job failed before package assembly on desktop `.SRCINFO` ordering.
+All input signatures and exact native bootstrap inventory passed and were independently
+reviewed. Desktop owner corrected only metadata order to observed native output,
+retaining failure evidence; package code/payload stayed unchanged. Coordinator
+refroze all four recipes as `20d846cdf289bfc233b0051bf33b677fd6e94e9f05d91a33595a2829a196fa63`.
+Strict checks remain intact and the whole set must be rerun.

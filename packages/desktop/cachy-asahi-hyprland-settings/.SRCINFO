@@ -1,10 +1,9 @@
-# Reviewed literal metadata; do not source PKGBUILD during static inspection.
 pkgbase = cachy-asahi-hyprland-settings
 	pkgdesc = Opt-in Hyprland Lua configuration preserving the existing Asahi platform
 	pkgver = 0.1.0
 	pkgrel = 1
-	arch = any
 	url = https://github.com/Gabriel-Kahen/cachy-asahi
+	arch = any
 	license = MIT
 	makedepends = lua
 	makedepends = python

@@ -1,5 +1,7 @@
 # Native ARM CI candidate
 
+Coordinator execution results are tracked in [the native execution record](validation/native-arm.md). The source-only handoff below predates dispatch; its NOT RUN labels describe that handoff, not the later coordinator results. The current recipe lock after the native metadata correction is `20d846cdf289bfc233b0051bf33b677fd6e94e9f05d91a33595a2829a196fa63`.
+
 Source-audited and implemented October 11, 2026. **Native runner dispatch, image bootstrap, package builds, byte comparison, target installation and M2 validation: NOT RUN.** The local input audit ran on x86_64; it authenticated data without executing ARM programs or installing packages.
 
 ## Runner and cost

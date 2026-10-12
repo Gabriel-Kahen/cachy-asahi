@@ -13,11 +13,11 @@
     "pkgrel": [
       "1"
     ],
-    "arch": [
-      "any"
-    ],
     "url": [
       "https://github.com/Gabriel-Kahen/cachy-asahi"
+    ],
+    "arch": [
+      "any"
     ],
     "license": [
       "MIT"
@@ -66,7 +66,7 @@
     ]
   },
   "input_sha256": {
-    ".SRCINFO": "23cc907dc9fcad75f598b1796ce65bebf3be74343d9dd94e1fcfa4d5ed076d04",
+    ".SRCINFO": "feeb68da93a0a81f274125e00588c98ad5e7b9772377172a0973c06d5cf94c89",
     "LICENSE": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
     "NOTICE": "7c108a66b5a4807f8fe7696ef1b1011386b37774fb94e674dd37c7e1dec7b9e4",
     "PKGBUILD": "4c55f488c5b886a88a277c058afde5266e4cefd3e348847f89801aef8d841bcc",

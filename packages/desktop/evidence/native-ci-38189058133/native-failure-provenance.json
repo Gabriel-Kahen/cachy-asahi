@@ -1,0 +1,135 @@
+{
+  "schema_version": 1,
+  "status": "failed",
+  "hardware_status": "NOT RUN",
+  "mode": "native",
+  "image": "sha256:d2ab65321238d7d8809d18de9703f184514e4a462ca8dbfa3df6b03e2d856b90",
+  "source_date_epoch": 1791748800,
+  "network": "none",
+  "started_utc": "2026-10-12T00:45:23.232595+00:00",
+  "recipe_inputs": {
+    ".SRCINFO": "23cc907dc9fcad75f598b1796ce65bebf3be74343d9dd94e1fcfa4d5ed076d04",
+    "LICENSE": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+    "NOTICE": "7c108a66b5a4807f8fe7696ef1b1011386b37774fb94e674dd37c7e1dec7b9e4",
+    "PKGBUILD": "4c55f488c5b886a88a277c058afde5266e4cefd3e348847f89801aef8d841bcc",
+    "README.md": "3edac178cb92d6d06b21fe4832bbbce5f7a55ed4dde8925ac0815c5350e2c525",
+    "hyprland.lua": "f900ffbfdea86acc686299fd9ef88a235fb4822f7177afe75a43369ca48d158b",
+    "mako.conf": "c6ab55ae475611bf2df2b7120b97a924eed5d65c149561d4da4f12b5b8c25504",
+    "waybar.css": "a97930965a4e622adc920491c7d433a803173bb6e644c4c3c88efb79187e11d5",
+    "waybar.json": "4c7adb2deb0403fefc4562d39105635cebfc44ce88e44fe84c4a90a00b2be3c0"
+  },
+  "recipe_metadata": {
+    "pkgbase": [
+      "cachy-asahi-hyprland-settings"
+    ],
+    "pkgdesc": [
+      "Opt-in Hyprland Lua configuration preserving the existing Asahi platform"
+    ],
+    "pkgver": [
+      "0.1.0"
+    ],
+    "pkgrel": [
+      "1"
+    ],
+    "arch": [
+      "any"
+    ],
+    "url": [
+      "https://github.com/Gabriel-Kahen/cachy-asahi"
+    ],
+    "license": [
+      "MIT"
+    ],
+    "makedepends": [
+      "lua",
+      "python"
+    ],
+    "depends": [
+      "hyprland>=0.56.2",
+      "hyprland<0.57.0",
+      "alacritty",
+      "wofi",
+      "swaylock",
+      "wireplumber",
+      "brightnessctl"
+    ],
+    "optdepends": [
+      "waybar: optional status bar template",
+      "mako: optional notification template",
+      "noto-fonts: readable sans-serif text",
+      "xdg-desktop-portal-hyprland: base-session screencast integration",
+      "xdg-desktop-portal-gtk: base-session file chooser integration",
+      "hyprpolkitagent: authorization agent if absent from the base session"
+    ],
+    "source": [
+      "hyprland.lua",
+      "waybar.json",
+      "waybar.css",
+      "mako.conf",
+      "README.md",
+      "NOTICE",
+      "LICENSE"
+    ],
+    "sha256sums": [
+      "f900ffbfdea86acc686299fd9ef88a235fb4822f7177afe75a43369ca48d158b",
+      "4c7adb2deb0403fefc4562d39105635cebfc44ce88e44fe84c4a90a00b2be3c0",
+      "a97930965a4e622adc920491c7d433a803173bb6e644c4c3c88efb79187e11d5",
+      "c6ab55ae475611bf2df2b7120b97a924eed5d65c149561d4da4f12b5b8c25504",
+      "3edac178cb92d6d06b21fe4832bbbce5f7a55ed4dde8925ac0815c5350e2c525",
+      "7c108a66b5a4807f8fe7696ef1b1011386b37774fb94e674dd37c7e1dec7b9e4",
+      "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    ],
+    "pkgname": [
+      "cachy-asahi-hyprland-settings"
+    ]
+  },
+  "builder_host_arch": "aarch64",
+  "image_id": "sha256:d2ab65321238d7d8809d18de9703f184514e4a462ca8dbfa3df6b03e2d856b90",
+  "expected_packages_sha256": "7f40e51da419514c3ffe4fc9ed5bd9d6f242e576a585347c4799cd20bfd32104",
+  "entry_script_sha256": "89723f0a0b2ef80391160f451e877f15fb1e0c4d9a4fec6dbbb8e0d66d8d0f24",
+  "command": [
+    "docker",
+    "run",
+    "--rm",
+    "--name",
+    "cachy-asahi-fe2e2e462b3420cc",
+    "--pull=never",
+    "--platform",
+    "linux/arm64",
+    "--user",
+    "1001:1001",
+    "--cap-drop=ALL",
+    "--security-opt=no-new-privileges",
+    "--read-only",
+    "--pids-limit",
+    "512",
+    "--memory",
+    "4g",
+    "--cpus",
+    "4",
+    "--network",
+    "none",
+    "--tmpfs",
+    "/tmp:rw,nosuid,nodev,exec,size=4g",
+    "--env",
+    "CACHY_ASAHI_CONTAINER=1",
+    "--env",
+    "SOURCE_DATE_EPOCH=1791748800",
+    "--mount",
+    "type=bind,src=/home/runner/work/_temp/native-evidence/cachy-asahi-hyprland-settings-1/inputs,dst=/inputs,readonly",
+    "--mount",
+    "type=bind,src=/home/runner/work/_temp/native-evidence/cachy-asahi-hyprland-settings-1/artifacts,dst=/out",
+    "--mount",
+    "type=bind,src=/home/runner/work/cachy-asahi/cachy-asahi/scripts/build/container-entry.sh,dst=/builder-entry.sh,readonly",
+    "--mount",
+    "type=bind,src=/home/runner/work/_temp/native-evidence/cachy-asahi-hyprland-settings-1/expected-packages.lock,dst=/expected-packages.lock,readonly",
+    "--entrypoint",
+    "/bin/bash",
+    "sha256:d2ab65321238d7d8809d18de9703f184514e4a462ca8dbfa3df6b03e2d856b90",
+    "/builder-entry.sh"
+  ],
+  "clean_environment_id": "cachy-asahi-fe2e2e462b3420cc",
+  "exit_code": 1,
+  "error": "container build exited 1; see build.log",
+  "finished_utc": "2026-10-12T00:45:24.360069+00:00"
+}
