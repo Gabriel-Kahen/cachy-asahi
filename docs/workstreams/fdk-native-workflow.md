@@ -13,8 +13,8 @@ remain coordinator-owned; none was performed in this workflow source task.
 The required `packet_sha256` field has no default. Supply the independently
 reviewed SHA256 of `scripts/port/fdk-native-job/packet.lock.json`; the accepted
 corrected source checkpoint is
-`76e475f63332c66de123481b77c904254c8f0c988bdf73b0787c732d3ae70449`, committed at
-`e3c450cc342e9f5e1f24f195c342d8d9c67e7c72`. It contains 128 files and 1,954,949
+`6884fcfed5bb2577b4420e0676512df8aeb0a232680c38a240144581c2f40194`, committed at
+`431f8220026b3ab010bac85d7d29bd5d3f5d9bd2`. It contains 128 files and 1,970,849
 source bytes. The accepted 39-file adapter and 22-file recipe template remain
 unchanged. The workflow and log encoder are separately reviewed inputs outside
 that packet. A source commit must contain every locked file and the workflow
@@ -172,7 +172,7 @@ Installation, provider substitution, codec binary publication, M2/16K execution
 and performance acceptance remain open.
 
 
-## Held diagnostic publication correction
+## Historical 70-code diagnostic publication correction
 
 The corrected workflow SHA256 is
 `6eecc3235b91dfeb326f497f6fe0984ce7525db860739b2c0083b0f8271e37b1`.
@@ -207,9 +207,10 @@ The former packet
 `2e190f75594fe5550770aa567b7729637853a99d6c2ce3b137248ed3954cbe32` and 90-test
 checkpoint belong to the historical failed trial. They are not the corrected
 source handoff. This publisher task edits neither the accepted six source files
-nor the refrozen packet. The workflow correction remains pending final held
-review; no corrected dispatch has occurred. The coordinator must bind a later
-trial to the new packet and exact committed workflow digest. The original
+nor the refrozen packet. At that source checkpoint the workflow correction was
+pending held review and had not been dispatched; its later committed trial is
+recorded below. Every trial must bind its packet and exact committed workflow
+digest. The original
 Ubuntu failure stays FAIL with its cause unknown; installation, provider
 substitution and hardware acceptance remain open. Existing checkout/source
 checks, encoder pin, finite producer/Fdk schemas, snapshot capture and cleanup
@@ -254,5 +255,73 @@ files using the reviewed workflow consumer. The public bundle is 85,516 bytes,
 SHA256 `2a87313a9fd7d63fd2a6ddc48ac4fa8edb734a09de6ea2ac04e43dcbd2776d68`.
 [Retained verification](../../artifacts/ci/38230760444/root-public-verification.json)
 binds every selected file's actual bytes/hash, source/packet identities and the
-501 acquisition outcomes. A bounded producer-owner investigation is underway;
-no blind rerun or native build acceptance follows from diagnostic publication.
+501 acquisition outcomes. The bounded source investigation reproduced no simple
+argument or stream mismatch and produced the narrower diagnostic contract below.
+No blind rerun or native build acceptance follows from diagnostic publication.
+
+
+## Held probe-substep publisher checkpoint
+
+The current candidate workflow SHA256 is
+`1b816792b936c802d07e0e074eebce0b9e5b439c6c1a5984a1a23df1a91330ed`.
+It inlines the exact finite constants from held producer evidence source SHA256
+`03f803aede7367c22199468961a0463b2fe688f637271fd2760692967796a75c`.
+No repository helper is imported by the inline public validator. Its existing
+strict membership test now accepts exactly 802 producer codes plus the generic
+`fdk-native-job-failed`. The original 70 codes remain valid; the additional 732
+identify a closed base-probe call boundary or a fixed refusal.
+
+Call identities are `docker-info`, `docker-version`, `docker-context`,
+`image-inspect`, `inventory-probe` and `unclassified`. The inlined 108 policy
+labels come from the reviewed broker/runtime sources, with eight fixed exception
+categories: `os-error`, `unicode-error`, `key-error`, `type-error`, `value-error`,
+`subprocess-error`, `unknown-error`, `cancelled`. Codes have the exact finite
+`producer-base-probe-CALL-REFUSAL` form or the before/during/after probe-call
+failure form. Arbitrary messages, prefixes, suffixes and newlines are not allowed.
+A recorded exception type or known refusal is not proof of a more specific
+unrecorded cause, and last-call PASS is not cryptographic or build acceptance.
+
+The authoritative public schema remains exactly 14 fields. Neither the private
+two-field diagnostic nor the probe-only four-field diagnostic is published as an
+object. Extra or missing fields, raw errors, credentials and responses remain
+refused. PASS still requires a null error code, actual native-step success,
+all eight curated public files, exact source identities, complete receipt and
+cleanup acceptance. The deep producer/Fdk schemas, immutable exported map byte
+pins, exact export manifest, Git-bound encoder, validated-byte snapshot, size,
+path/link and cleanup gates are unchanged.
+
+The coordinator independently accepted the five producer source/test changes
+and 802-code projection after **110 tests PASS, no skips**, then committed them
+with the refrozen packet and audit/review at
+`431f8220026b3ab010bac85d7d29bd5d3f5d9bd2`. Accepted packet SHA256 is
+`6884fcfed5bb2577b4420e0676512df8aeb0a232680c38a240144581c2f40194`; its 128 files
+contain 1,970,849 source bytes. The other 123 packet rows, all 39 adapter entries
+and original recipes are unchanged. Actual verification of the 128 committed
+Git blobs/modes and copied source passed; the
+[probe-diagnostics source proof](../../artifacts/reviews/fdk-probe-diagnostics-source-git-proof-20261012.json)
+records the commit, pins and scope. Packet `76e475...` and run 38230760444 remain
+historical records of the prior accepted source and failed trial.
+
+This documentation task edits neither the accepted producer sources nor packet.
+The separate 802-code workflow consumer remains pending final held review and
+commit. The coordinator must bind any later diagnostic trial to the new packet
+and exact committed consumer. No Git mutation, registration, dispatch or new
+native result was performed here. Both historical runs remain FAIL; the exact
+hosted predicate is still unknown. [The failure audit](fdk-producer-failure-audit.md)
+records the 110 fixture results and bounded diagnostics, not a claimed causal fix.
+
+Current consumer validation: **30 fixtures PASS**, 17.604 seconds on local
+replay. Every one of the 802 producer codes accepts a valid FAIL receipt; all
+732 detail codes are generated from validated held-source diagnostic states.
+The inlined call, policy, type, refusal and code sets match held source exactly.
+Actual verified snapshot encoding passes 73 probe controls (six call identities
+with eight fixed types, one known predicate and all three boundary points, plus
+the generic code), along with the seven legacy outcome controls. Unknown,
+appended, newline-containing, private and nonstring codes, malformed extra
+private diagnostic objects, missing fields and non-null PASS codes are refused
+before encoding. Prior nested receipt/poison, source/Git/mode, size/link,
+oversized-blob and captured-byte checks still pass. YAML/contract, both inline
+Python compilations and whitespace checks pass. Independent read-only review
+found no material issue; deleting only the added constant region reproduces the
+prior `6eecc323...` workflow bytes exactly. These are source/fixture controls;
+no new trial was dispatched or accepted.
