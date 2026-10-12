@@ -65,7 +65,7 @@ The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with 
 - The offline development release client passes 37 local tests with temporary
   real GPG signatures and independent race regressions. Production trust,
   supported release promotion and native onboarding remain separate gates.
-- Connected V01–V09 execution has five retained native failures. The first
+- Connected V01–V09 execution has six retained native failures. The first
   passed 211 host boundary tests but refused an incorrect source freeze. The
   corrected run passed 213 host tests, runner probe and full-source preflight,
   then failed fetching superseded pinned Perl inputs. The third authenticated
@@ -82,8 +82,15 @@ The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with 
   passed, but the committed-image verifier rejected differences in Cmd,
   Entrypoint and Labels. Repository creation reached repo-add, which could not
   create its temporary directory on the read-only root. Installed onboarding
-  and desktop still did not run. Both failures require corrected source and
-  another actual native execution. See
+  and desktop still did not run. Reviewed corrections pass 309 CI and 119
+  integration tests locally, plus committed-blob and fresh-clone preflight.
+  The sixth native run, `38212287407`, passes 560 native source tests without
+  skips, fresh installed-image/lifecycle verification and installed software
+  onboarding. It remains FAIL overall: repository rollback inventory text
+  includes pacman diagnostics, and desktop publication refuses ANSI control
+  codes despite its component checks passing. The owned image was removed with
+  verified absence. Remaining repository transactions and actual desktop/session
+  acceptance remain open. See
   [the actual execution record](validation/virtual-arm.md).
 
 These are distinct development results. No complete-port milestone or hardware

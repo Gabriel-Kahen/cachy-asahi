@@ -294,10 +294,60 @@ reviewer also passed 150 focused checks. New integration lock:
 `e8fad9905d743c3287fbed9ca4041272e925bc4ba4aab339ecdc4430d05b3dac`.
 It binds **157 source files** and the same **125 fixture files**, byte-for-byte
 and mode-for-mode. Input `3c16c37d...` and recipe `20d846cd...` locks remain
-unchanged. The fifth run remains FAIL; this source checkpoint requires a new
-native execution, with committed-tree and clean-checkout proof before dispatch.
+unchanged. The fifth run remains FAIL. Coordinator verification of commit
+`932cf45818edd37eccfe1d22b74ca9b1e8ecdf61` checked every locked Git blob and mode,
+then reproduced preflight from a fresh detached clone: **PASS**, 157 sources and
+125 fixtures. [Native run 38212287407](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38212287407)
+was dispatched on that exact commit on October 12, 2026 at 06:23 UTC and completed
+at 06:28 UTC: **FAIL overall**. The execution findings follow below.
 
 The optional same-job consumer interface preserves the existing CLI defaults
 and keeps owned images alive until declared consumers finish. The separately
 frozen development subtree/workflow is excluded from this initial snapshot and
 has not received execution acceptance from these initial tests.
+
+## Sixth native execution: installed handoff and software onboarding
+
+Run **38212287407** authenticated the same inputs, repeated all four original
+build pairs and fixture builds/signing, and passed **560 native source tests,
+zero skips**. Coordinator rechecking of retained original archives/provenance
+independently confirms byte, payload, PKGINFO and BUILDINFO equality for each pair.
+The fresh committed image contains the exact **345-package** inventory
+`3906ca525dac6bec9820db85ecbd9b8d66dc9af7c7b419a41941230807c8b456`.
+Lifecycle and committed-image verification now **PASS**, including Config checks.
+Final owned-image cleanup reports **PASS**, verified absence and no uncertainty.
+The image was removed; its ID is historical evidence, not an available handoff
+to another job.
+
+Installed software onboarding reports **SOFTWARE PASS** in a bounded nonroot
+container. This does not establish independent fresh installation or a Mac user
+journey. The desktop component reports `desktop-container-verifier-pass`:
+installed payload/inventory, Lua syntax, Hyprland default/optional config checks,
+Waybar JSON, GTK3 CSS and the audited Mako subset passed. Its **public export
+fails** because command logs 19 and 20 contain control codes. Desktop integration
+therefore remains **FAIL** pending a validated publication correction. There is
+no compositor/session, accelerated rendering or captured guest-frame acceptance.
+
+Repository creation, TEST signatures and database signature checks progressed,
+but its first untrusted-key negative case reports **FAIL**: `rejected transaction
+changed inventory/payload`. Coordinator diff shows unchanged package rows and
+payload snapshots; the compared inventory text also contains differing pacman
+diagnostics and an import prompt. Clean diagnostic separation and strict inventory
+verification are required. Remaining repository install/upgrade/negative/rollback
+cases were not reached and are not accepted.
+
+Raw logs, checksum-verified decoded bundles and the coordinator build-pair
+receipt are retained under `artifacts/ci/38212287407/`. The authoritative summary
+bundle is 1,051 bytes, SHA256
+`4274b1a1854a36315824f850ffc8c131fb168550675c25f8f2b805cc2fec5a7f`;
+lifecycle 65,570 bytes,
+`b4ef43c03b607d1312d3962ea1bf6d21b74b63f2f9903b4269e18d011272fb51`;
+onboarding 11,624 bytes,
+`0385c74ec93045e92ef65ee3b87cd0ca36ca2e3bf5620b06409237b2fb403b9a`;
+repository 71,854 bytes,
+`4479baa306ff39dbcd5c4503fed5fc56cbd0ee3545c37c187a6259afc776dafb`;
+desktop 20,213 bytes,
+`8a4ab5c14800708c8df873623792d5f6075d27de335714c8c45048f1779a9807`.
+All results are generic native ARM/4K userspace evidence. Both M2 Air hardware
+records, supported full-port release, production trust and performance acceptance
+remain **NOT RUN**.
