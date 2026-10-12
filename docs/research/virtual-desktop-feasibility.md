@@ -255,7 +255,7 @@ with the existing desktop parser-only workstream.
 
 ## Subsequent implementation boundary
 
-See [the executable handoff](../workstreams/virtual-desktop-guest.md). Twenty-nine
+See [the executable handoff](../workstreams/virtual-desktop-guest.md). Thirty-one
 local guard/data/process/controller tests pass, and the guest GBM probe compiles with
 existing x86 headers without execution. All 19 extra original ARM packages and
 signatures were authenticated locally; the public lock/audit preserve their

@@ -56,6 +56,10 @@ def config(value):
     result = {key: value.get(key) for key in CONFIG_FIELDS}
     for key in ('Env', 'Entrypoint', 'Cmd', 'Shell'):
         result[key] = result[key] or []
+    if result['Entrypoint'] == ['']:
+        result['Entrypoint'] = []
+    if result['Labels'] is None:
+        result['Labels'] = {}
     result['WorkingDir'] = result['WorkingDir'] or '/'
     result['ArgsEscaped'] = bool(result['ArgsEscaped'])
     return result
@@ -369,8 +373,13 @@ def commit_args(name, base, tag=None):
     require(re.fullmatch('[A-Za-z0-9:_-]+', base.get('User', '')), 'accepted base USER required')
     workdir = base.get('WorkingDir') or '/'
     require(workdir.startswith('/') and '\n' not in workdir, 'accepted workdir required')
+    # Moby 28.0.4 merge inherits runtime Cmd when both requested arrays are
+    # empty. This exact sentinel blocks inheritance and create resets it.
+    entrypoint = base.get('Entrypoint')
+    if entrypoint in (None, [], ['']):
+        entrypoint = ['']
     args = ['docker', 'commit', '--pause=true', '--change', 'USER ' + base['User'], '--change', 'WORKDIR ' + workdir,
-            '--change', 'ENTRYPOINT ' + json.dumps(base.get('Entrypoint') or []), '--change', 'CMD ' + json.dumps(base.get('Cmd') or []), name]
+            '--change', 'ENTRYPOINT ' + json.dumps(entrypoint), '--change', 'CMD ' + json.dumps(base.get('Cmd') or []), name]
     if tag is not None:
         require(re.fullmatch('cachy-virtual-private-[0-9a-f]{32}:fixture', tag), 'unsafe private commit tag')
         args.append(tag)

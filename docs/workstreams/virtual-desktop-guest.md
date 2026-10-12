@@ -227,7 +227,7 @@ separate, and this software facility does not complete the broader port.
 
 ## Local validation
 
-`python -m unittest discover -s scripts/virtual -p 'test_*.py' -v`: **29 PASS** (14 core and 15 controller checks).
+`python -m unittest discover -s scripts/virtual -p 'test_*.py' -v`: **31 PASS** (14 core and 17 controller checks).
 Checks cover host/device/cap/network/mount refusal, duplicate/nonfinite JSON and
 input pin/symlink rejection, exact 19-package signature/receipt binding, active
 stream caps, process-group timeout cleanup, immediate short-log durability,
@@ -249,7 +249,7 @@ fidelity issues. Native ARM fixture preparation/runtime remain NOT RUN.
 
 `controller.py` now prepares the separate tooling image and invokes the frozen
 five-file proof. **Controller Docker execution and every native/guest phase
-remain NOT RUN.** Its 15 controller tests and 14 core tests pass.
+remain NOT RUN.** Its 17 controller tests and 14 core tests pass.
 Nothing invokes Docker on an x86 host: the native/non-root Linux check precedes
 the first Docker CLI call. The reviewed cancellation correction changes `common.py`; its new hash is explicitly bound in the controller. The other four core source hashes remain unchanged.
 The controller is excluded from the initial V01–V09 integration freeze and needs
@@ -361,7 +361,7 @@ actual inspection. A nonzero phase preserves its first bounded diagnostic and
 cleanup status. The coordinator owns workflow wiring, dispatch and visual
 review; no hardware or full-port acceptance changes here.
 
-The 15 controller tests use temporary metadata and mocked cache/daemon replies,
+The 17 controller tests use temporary metadata and mocked cache/daemon replies,
 cover native-before-Docker refusal, local daemon checks, exact handoff/source
 bindings, original tamper, distinct capabilities, actual Config/resource checks,
 owned cleanup/collision/cancellation, uncertain commits and receipt-bound public
@@ -370,3 +370,52 @@ frames. They require neither Docker nor the private package cache. Run together:
 ```sh
 python -m unittest discover -s scripts/virtual -p 'test_*.py' -v
 ```
+
+## Accepted empty-entrypoint metadata correction
+
+The virtual controller compares Docker's exact `Entrypoint: [""]` reset sentinel
+as an empty entrypoint and null Labels as an empty map, matching the accepted
+initial handoff's semantics. It retains exact Env order/content, nonempty
+commands/entrypoints and nonempty labels; `['', '/bin/sh']` is not an empty
+entrypoint. The baseline must still satisfy the complete accepted 345-package
+lifecycle/READY/immutable/fresh-verification contract before any tooling install.
+
+The tooling image's existing CLI commit previously emitted `ENTRYPOINT []` for
+an empty base entrypoint. The [pinned Moby 28.0.4 merge branch](https://github.com/moby/moby/blob/v28.0.4/daemon/commit.go)
+can then inherit the tooling container's runtime command. The commit now emits
+`ENTRYPOINT [""]` for `None`, `[]` or the exact sentinel, retaining the accepted
+base command. [Moby container creation](https://github.com/moby/moby/blob/v28.0.4/daemon/create.go)
+resets that sentinel; each virtual child additionally chooses `/usr/bin/env`
+and its explicit executable. No runtime identity is passed using Docker Env.
+
+The private recovery tag is still prechecked and registered before commit;
+unknown commit results remain FAIL, owned tag/image absence is independently
+checked, and the accepted baseline is preserved. Full derived Config comparison
+and fresh read-only 364-package/original-payload/private-state verification
+remain mandatory. The correction adds no dependency on the independently edited
+CI commit module. The read-only CI reference informed the sentinel semantics;
+its in-flight API/ownership code was not copied or imported.
+
+Meaningful local tests exercise all empty/nonempty command combinations using
+the actual generated CLI changes and the pinned Moby command-merge branch,
+exact sentinel/null-label equality, changed Env/order/labels/commands, and the
+actual mocked controller path with a sentinel-bearing baseline and derivative.
+The full 31-test virtual suite, Python compilation and whitespace checks pass.
+No Docker, tooling-image build, native guest or frame execution ran on this host.
+
+October 12 source handoff hashes (the five-file core mapping in `controller.py`
+remains unchanged; the host contract must use the new controller hash):
+
+| Source/input | SHA-256 |
+| --- | --- |
+| `common.py` | `6479ee7245be45617deb58dfe5c4e2ca8aa13493a500c6a61feb69008942c381` |
+| `guest.py` | `8a31f3d251e6e60db7c0c33bfebb8d9e37fea7924a72fdce493a9388ccde143f` |
+| `prepare.py` | `22d9f926ef8b3965052585e9bb401502c9c53cccbd031f807db6ef85e7d1c4ff` |
+| `run.py` | `87992add6ffd1fb8f9effd900e5a1bf8c119c393613c24f3eaf3f687280eaf8a` |
+| `gbm_probe.c` | `fe0bb7b15df0bc93c4b5115543619e182ba3dac2ed22d0d8b1ab541d77a72efd` |
+| `controller.py` | `63a5dd2185bd263bb8b7699bf7ac3bec1c5746329259c386dc9d93090e73dd64` |
+| `audit_tooling.py` | `f2005ea8366f64cd81aa7fb7dbae9e60c835da77164adba4d8e434af262fda13` |
+| `test_controller.py` | `d77091fd5cf6200a7ee5f79d6b09f3a66afe183effe5113cc0abfdecc38c8f43` |
+| `test_virtual.py` | `d4f778326d1f02fef576b74a9ca6a712061f60bf58901cc6af638f9cb4f8286a` |
+| `tooling.lock.json` | `7d7df36348ab70fded74fbcb6803e8a16bfece1fc29d439ca8ed1805a867bd25` |
+| `tooling-audit.json` | `3a7c30ba244a874625da994f896ae080a2b60f092b04f5f2d6caa70239e4f41d` |

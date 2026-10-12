@@ -86,10 +86,47 @@ class GuardTests(unittest.TestCase):
         self.assertEqual(argv[-1], tag)
         self.assertIn('USER alarm', argv)
         self.assertIn('CMD ["/bin/bash"]', argv)
+        self.assertIn('ENTRYPOINT [""]', argv)
         self.assertFalse(any(x.startswith('ENV ') for x in argv))
         with self.assertRaises(common.Refused):
             c.commit_args('cachy-virtual-owned-a', base, 'docker.io/stable:latest')
         self.assertEqual(c.config({'User': 'alarm'}), c.config({'User': 'alarm', 'Env': [], 'Cmd': [], 'WorkingDir': '/'}))
+
+    def test_exact_sentinel_and_null_labels_acceptance_preserves_runtime_metadata(self):
+        accepted = {'User': 'alarm', 'Env': ['PATH=/usr/bin', 'HOME=/home/alarm'],
+                    'Entrypoint': [], 'Cmd': [], 'Labels': {}}
+        self.assertEqual(c.config(accepted), c.config(accepted | {'Entrypoint': [''], 'Labels': None}))
+        for changed in ({'Entrypoint': ['', '/bin/sh']}, {'Entrypoint': ['/usr/bin/env']},
+                        {'Cmd': ['/usr/bin/python3', '/runner/controller.py']}, {'Env': accepted['Env'] + ['HOME=/tmp']},
+                        {'Env': ['HOME=/home/alarm', 'PATH=/usr/bin']}, {'Labels': {'runtime': 'tooling'}}):
+            with self.subTest(changed=changed):
+                self.assertNotEqual(c.config(accepted), c.config(accepted | changed))
+        command = accepted | {'Entrypoint': ['/bin/sh', '-c'], 'Cmd': ['printf test']}
+        self.assertEqual(c.config(command)['Entrypoint'], command['Entrypoint'])
+        self.assertEqual(c.config(command)['Cmd'], command['Cmd'])
+
+    def test_actual_commit_changes_block_pinned_moby_empty_array_inheritance(self):
+        # Transcribe only the pinned daemon/commit.go command merge branch;
+        # exercise the actual CLI arguments rather than a fabricated payload.
+        runtime = {'Entrypoint': ['/usr/bin/env'], 'Cmd': ['HOME=/tmp', '/usr/bin/python3', '/runner/controller.py']}
+        for entry in (None, [], [''], ['/bin/sh', '-c']):
+            for cmd in (None, [], ['printf test']):
+                base = {'User': 'alarm', 'Env': ['PATH=/usr/bin'], 'Entrypoint': entry, 'Cmd': cmd}
+                args = c.commit_args('cachy-virtual-tooling-' + 'a' * 32, base,
+                                     'cachy-virtual-private-' + 'a' * 32 + ':fixture')
+                changes = [args[n + 1] for n, value in enumerate(args) if value == '--change']
+                payload = {key: json.loads(next(x.split(' ', 1)[1] for x in changes if x.startswith(key.upper() + ' ')))
+                           for key in ('Entrypoint', 'Cmd')}
+                if not payload['Entrypoint']:
+                    if not payload['Cmd']:
+                        payload['Cmd'] = runtime['Cmd']
+                    if payload['Entrypoint'] is None:
+                        payload['Entrypoint'] = runtime['Entrypoint']
+                with self.subTest(entry=entry, cmd=cmd):
+                    self.assertEqual(c.config(payload)['Entrypoint'], entry if entry not in (None, [], ['']) else [])
+                    self.assertEqual(payload['Cmd'], cmd or [])
+                    self.assertEqual(base['Env'], ['PATH=/usr/bin'])
+                    self.assertFalse(any(x.startswith('ENV ') for x in changes))
 
     def test_cleanup_does_not_accept_merely_successful_remove(self):
         name = 'cachy-virtual-test-' + 'a' * 32
@@ -157,7 +194,8 @@ class GuardTests(unittest.TestCase):
             loaded = {'committed_config': {'committed_config': cfg}, 'tooling_lock': {'keyring_files': [], 'packages': []}}
             def command(argv, **_):
                 if argv[1:3] == ['image', 'inspect']:
-                    return json.dumps([{'Id': argv[-1], 'Architecture': 'arm64', 'Os': 'linux', 'Config': cfg, 'Size': 1}])
+                    return json.dumps([{'Id': argv[-1], 'Architecture': 'arm64', 'Os': 'linux',
+                                        'Config': cfg | {'Entrypoint': [''], 'Labels': None}, 'Size': 1}])
                 if argv[1:3] == ['image', 'ls']:
                     return ''
                 if argv[1] == 'commit':
