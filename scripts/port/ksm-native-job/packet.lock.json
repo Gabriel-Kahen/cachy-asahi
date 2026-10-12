@@ -22,8 +22,8 @@
     },
     "docs/workstreams/ksm-native-job.md": {
       "mode": "0644",
-      "sha256": "684d860a8d75669402fe46f006890dd81711ac153e47bf3b7eb4472eba5d5815",
-      "size_bytes": 17127
+      "sha256": "8b51c6a686dc356f6d5ae6990882d7b57a8105cd8033bb96424d51c7f20776a6",
+      "size_bytes": 18995
     },
     "packages/desktop/cachy-asahi-hyprland-settings/.SRCINFO": {
       "mode": "0644",
@@ -577,8 +577,8 @@
     },
     "scripts/port/ksm-native-job/executor.py": {
       "mode": "0644",
-      "sha256": "ca0699e8ed6df798627dc64f746a7558d9a056c55cb06a2e4f45e782cac94b2f",
-      "size_bytes": 28447
+      "sha256": "a0c164abf888ac4b0a642d8edc2ccad8d9c060a376d84c55ed376a46ab9f9667",
+      "size_bytes": 31262
     },
     "scripts/port/ksm-native-job/executor_contract.py": {
       "mode": "0644",
@@ -717,8 +717,8 @@
     },
     "scripts/port/ksm-native-job/test_executor.py": {
       "mode": "0644",
-      "sha256": "caf99a638f6f0bb4beef78edb797368053e6ce4bcca34f7b5708c5a98dac862c",
-      "size_bytes": 12694
+      "sha256": "19b28136d8c8ccbd091d363f5551dc3aad0e79e3187f79245e74c931c5723575",
+      "size_bytes": 21600
     },
     "scripts/port/ksm-native-job/test_executor_contract.py": {
       "mode": "0644",
