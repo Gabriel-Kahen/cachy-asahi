@@ -148,7 +148,22 @@ explicitly selected feature commit above.
 
 [Native run 38223759349](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38223759349)
 was created at 08:28:19 UTC. Its actual checkout and committed-packet/host
-prerequisite check passed; the finite producer/FDK step is **IN PROGRESS**.
-Native FDK acceptance is pending the terminal build, artifact, cleanup and
-publication evidence. Installation, provider substitution, codec binary
-publication, M2/16K execution and performance acceptance remain open.
+prerequisite check passed. The job completed at 08:32:20 UTC: **FAIL** in the
+original producer phase; FDK did not run. The public acquisition receipt binds
+all 501 successful downloads, but no accepted complete signature/build receipt
+was published. The private producer's failure cause cannot be established from
+the generic public code alone. Do not infer successful authentication or original
+builds from acquisition. Verified owned-image absence and bounded public
+publication passed.
+
+Root retained the workflow log and decoded the single public bundle under
+`artifacts/ci/38223759349/`. It is 85,482 bytes, SHA256
+`c4443e045be96e30da10e737ce4934c3f929b40cd7faf48dcc1c1f76bf222d9e`.
+Its fixed-schema job receipt records producer FAIL, FDK NOT RUN, no cancellation
+and owned-image absence. The source owner is auditing the precise delegate and
+adding bounded diagnostic codes where necessary; raw private logs remain excluded.
+Two local isolated no-agent public-key imports, including the exact delegate,
+passed but do not explain or replace the actual Ubuntu ARM failure.
+
+Installation, provider substitution, codec binary publication, M2/16K execution
+and performance acceptance remain open.
