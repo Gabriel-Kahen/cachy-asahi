@@ -28,6 +28,7 @@ LIBALPM_SHA256 = 'da30edd45277cf4b1000485658976042f8106fe0b97378d1e6c4e81a9d7c48
 RUNTIME_SHA256 = '8a7cd5e73cf383b2d81ad577b8513c6fd7d49f9fd2572961c73ae9d289cab821'
 # Actual executions require the coordinator's independently reviewed source pin.
 REVIEWED_WORKER_SHA256 = None
+FIXTURE_SELECTION_SHA256 = None  # Native receiver only; legacy actual26 remains unchanged.
 
 
 def sha(path):
@@ -142,11 +143,16 @@ class Fixtures(unittest.TestCase):
         if after is None:
             after = {name: version for name, version in before.items() if name not in remove}
             after.update({row['name']: row['version'] for row in rows})
-        return {'schema_version': 1, 'scope': 'synthetic-fixture', 'workspace': str(self.workspace),
+        contract = {'schema_version': 1, 'scope': 'synthetic-fixture', 'workspace': str(self.workspace),
                 'architecture': 'x86_64', 'before': before, 'after': after,
                 'protected': protected or {}, 'add': rows, 'remove': remove,
                 'keyring': self.reference(self.public_key), 'timeout_seconds': timeout,
                 'libalpm_sha256': LIBALPM_SHA256}
+        if FIXTURE_SELECTION_SHA256 is not None:
+            contract.update(schema_version=2, scope='native-aarch64-fixture', architecture='aarch64',
+                            input_selection_sha256=FIXTURE_SELECTION_SHA256,
+                            profile_sha256=self.module.NATIVE_PROFILE_SHA)
+        return contract
 
 
 class ContractTests(Fixtures):
@@ -1117,6 +1123,7 @@ class ActualTransactionTests(Fixtures):
                    '--contract-sha256', sha(path), '--output', str(self.workspace / 'evidence'),
                    '--worker-source-sha256', REVIEWED_WORKER_SHA256,
                    '--allow-disposable-payload-commit']
+        if FIXTURE_SELECTION_SHA256 is not None: command += ['--selection-sha256', FIXTURE_SELECTION_SHA256]
         result = subprocess.run(command, capture_output=True, timeout=contract['timeout_seconds'] + 30,
                                 env=environment())
         try:
@@ -1602,6 +1609,7 @@ class BarrierTests(unittest.TestCase):
             namespaces = {name: os.readlink('/proc/self/ns/' + name) for name in ('user', 'mnt', 'pid', 'net')}
             spec = {'contract': {'workspace': str(workspace)}, 'host_uid': os.getuid(), 'host_namespaces': namespaces,
                     'evidence_identity': [info.st_dev, info.st_ino], 'evidence_nodes': nodes}
+            if FIXTURE_SELECTION_SHA256 is not None: spec['contract']['architecture'] = 'aarch64'
             code = '''import ctypes,errno,hashlib,json,os,sys,types
 from pathlib import Path
 data=Path(sys.argv[1]).read_bytes()
@@ -1616,7 +1624,7 @@ caps={key:int(status[key],16) for key in ("CapEff","CapPrm","CapBnd","CapInh","C
 assert all(caps[key]==0x400cb for key in ("CapEff","CapPrm","CapBnd"))
 assert caps["CapInh"]==caps["CapAmb"]==0 and status["NoNewPrivs"]=="1"
 libc=ctypes.CDLL(None,use_errno=True);denied={}
-for number in (42,44,46,307,425,426,427):
+for number in module.architecture_profile(spec["contract"].get("architecture","x86_64"))[2]:
     ctypes.set_errno(0)
     assert libc.syscall(number,-1,0,0,0,0,0)==-1
     denied[str(number)]=ctypes.get_errno()
@@ -1645,7 +1653,7 @@ print(json.dumps({"status":"PASS-barrier-only","worker_sha256":sys.argv[2],"outs
             self.assertEqual(report['status'], 'PASS-barrier-only'); self.assertEqual(report['worker_sha256'], captured)
             self.assertEqual(report['uid'], 0); self.assertTrue(report['namespace_changed'])
             self.assertEqual(report['denied_service_syscalls'],
-                             {str(number): 1 for number in (42, 44, 46, 307, 425, 426, 427)})
+                             {str(number): 1 for number in load_worker().architecture_profile('aarch64' if FIXTURE_SELECTION_SHA256 else 'x86_64')[2]})
             self.assertEqual(report['capabilities'], {'CapEff': 0x400cb, 'CapPrm': 0x400cb,
                                                      'CapBnd': 0x400cb, 'CapInh': 0, 'CapAmb': 0})
             self.assertEqual(report['no_new_privileges'], 1)
@@ -1659,6 +1667,91 @@ print(json.dumps({"status":"PASS-barrier-only","worker_sha256":sys.argv[2],"outs
                                                'guest_file_absent_on_host': True,
                                                'evidence_marker_persisted': True}
 
+
+
+class NativeProfileTests(unittest.TestCase):
+    """Pure native profile/ABI controls; no native tool is loaded or executed."""
+    def setUp(self): self.module = load_worker()
+    def contract(self):
+        return dict(schema_version=2, scope='native-aarch64-fixture', workspace='/tmp/fixture', architecture='aarch64',
+                    before={}, after={'caa-install-fixture-a':'1.0-1'}, protected={}, remove={},
+                    add=[dict(name='caa-install-fixture-a',version='1.0-1',archive={},signature={},signer='A'*40)],
+                    keyring={}, timeout_seconds=20, libalpm_sha256=self.module.NATIVE_LIBRARY_SHA,
+                    profile_sha256=self.module.NATIVE_PROFILE_SHA,input_selection_sha256='b'*64)
+    def test_legacy_profile_retains_exact_denials_and_binary(self):
+        self.assertEqual(self.module.architecture_profile('x86_64'),(LIBALPM_SHA256,0xc000003e,(42,44,46,307,425,426,427)))
+    def test_native_profile_pinned_and_abi_specific(self):
+        self.assertEqual(self.module.architecture_profile('aarch64')[1:],(0xc00000b7,(203,206,211,269,425,426,427)))
+        self.assertNotEqual(self.module.NATIVE_LIBRARY_SHA,LIBALPM_SHA256)
+    def test_unknown_architecture_refused(self):
+        for architecture in ('arm','arm64',None,True):
+            with self.assertRaises(ValueError):self.module.architecture_profile(architecture)
+    def test_native_contract_needs_external_selection(self):
+        with self.assertRaises(ValueError):self.module.validate_contract(self.contract())
+    def test_native_selected_fixture_contract_admitted_as_data(self):
+        self.assertEqual(self.module.validate_contract(self.contract(),'b'*64)['architecture'],'aarch64')
+    def test_native_mutated_profile_refused(self):
+        c=self.contract();c['profile_sha256']='c'*64
+        with self.assertRaises(ValueError):self.module.validate_contract(c,'b'*64)
+    def test_native_mutated_library_refused(self):
+        c=self.contract();c['libalpm_sha256']=LIBALPM_SHA256
+        with self.assertRaises(ValueError):self.module.validate_contract(c,'b'*64)
+    def test_native_selection_mismatch_refused(self):
+        with self.assertRaises(ValueError):self.module.validate_contract(self.contract(),'c'*64)
+    def test_native_wrong_machine_refused(self):
+        c=self.contract();c['architecture']='x86_64'
+        with self.assertRaises(ValueError):self.module.validate_contract(c,'b'*64)
+    def test_real_candidate_name_refused(self):
+        c=self.contract();c['add'][0]['name']='cachy-asahi-setup';c['after']={'cachy-asahi-setup':'1.0-1'}
+        with self.assertRaises(ValueError):self.module.validate_contract(c,'b'*64)
+    def test_native_package_map_limit_stays_128(self):
+        c=self.contract();c['before']={f'caa-install-fixture-{i}':'1' for i in range(129)}
+        with self.assertRaises(ValueError):self.module.validate_contract(c,'b'*64)
+    def test_native_boolean_version_and_nonfinite_timeout_refused(self):
+        for key,value in (('schema_version',True),('timeout_seconds',float('nan')),('timeout_seconds',True)):
+            c=self.contract();c[key]=value
+            with self.assertRaises(ValueError):self.module.validate_contract(c,'b'*64)
+    def test_native_profile_missing_refuses_before_cdll(self):
+        self.module.NATIVE_PROFILE_SHA=None
+        with patch.object(self.module.C,'CDLL',side_effect=AssertionError('actor forbidden')) as actor:
+            with self.assertRaises(ValueError):self.module.validate_contract(self.contract(),'b'*64)
+        actor.assert_not_called()
+    def test_native_seccomp_refuses_wrong_actual_machine_before_prctl(self):
+        with patch.object(self.module.os,'uname',return_value=types.SimpleNamespace(machine='x86_64')),patch.object(self.module.C,'CDLL') as actor:
+            with self.assertRaises(ValueError):self.module.block_service_ipc('aarch64')
+        actor.assert_not_called()
+
+
+class SeccompProfileModelTests(unittest.TestCase):
+    def program(self,architecture):
+        module=load_worker();observed=[];library=unittest.mock.MagicMock()
+        def prctl(option,*args):
+            if option==22:
+                p=args[1]._obj;observed.extend((p.filters[i].code,p.filters[i].jt,p.filters[i].jf,p.filters[i].k) for i in range(p.length))
+            return 0
+        library.prctl.side_effect=prctl
+        with patch.object(module.os,'uname',return_value=types.SimpleNamespace(machine=architecture)),patch.object(module.C,'CDLL',return_value=library):module.block_service_ipc(architecture)
+        return observed
+    def verdict(self,rows,audit,nr):
+        index=acc=0
+        while True:
+            code,jt,jf,k=rows[index]
+            if code==0x20:acc=audit if k==4 else nr & 0xffffffff;index+=1
+            elif code==0x15:index+=1+(jt if acc==k else jf)
+            elif code==0x45:index+=1+(jt if acc & k else jf)
+            elif code==0x06:return k
+            else:self.fail('unexpected source instruction')
+    def test_native_model_denials_allow_other_native_and_kill_foreign_ABI(self):
+        p=self.program('aarch64')
+        for n in (203,206,211,269,425,426,427):self.assertEqual(self.verdict(p,0xc00000b7,n),0x50001)
+        self.assertEqual(self.verdict(p,0xc00000b7,172),0x7fff0000)
+        self.assertEqual(self.verdict(p,0xc000003e,203),0x80000000)
+        self.assertEqual(self.verdict(p,0x40000028,203),0x80000000)
+    def test_legacy_model_retains_denials_and_x32_kill(self):
+        p=self.program('x86_64')
+        for n in (42,44,46,307,425,426,427):self.assertEqual(self.verdict(p,0xc000003e,n),0x50001)
+        self.assertEqual(self.verdict(p,0xc000003e,39),0x7fff0000)
+        self.assertEqual(self.verdict(p,0xc000003e,0x40000027),0x80000000)
 
 if __name__ == '__main__':
     unittest.main()

@@ -24,6 +24,9 @@ import time
 
 LIBRARY = Path('/usr/lib/libalpm.so.16.0.1')
 LIBRARY_SHA = 'da30edd45277cf4b1000485658976042f8106fe0b97378d1e6c4e81a9d7c4888'
+NATIVE_LIBRARY_SHA = '94c013b9026772ffe4f227f508a2cdf0c61323dc1f7b7836fe629b49bfbc3902'
+NATIVE_PROFILE_SHA = 'b7fbd65e357e132949432fb00e765a05e3c76ea29a41d1df93413870d9fd1ed8'
+NATIVE_RECEIVER_SHA = 'fe2becb4fe6c22e50903ab390db5a79aae311b7284fc71bf4b1c4b79e99824c4'
 RUNTIME_SHA = '8a7cd5e73cf383b2d81ad577b8513c6fd7d49f9fd2572961c73ae9d289cab821'
 MAX_PACKAGES, MAX_ARCHIVE, MAX_INPUTS, MAX_TREE = 128, 8 * 1024**2, 32 * 1024**2, 128 * 1024**2
 FLAGS = (1 << 7) | (1 << 10)  # NOHOOKS | NOSCRIPTLET, retaining dependencies/conflicts/lock.
@@ -448,15 +451,46 @@ def read_result(path, *, checked=True):
     return record
 
 
+def architecture_profile(architecture):
+    if architecture == 'x86_64':
+        return LIBRARY_SHA, 0xc000003e, (42, 44, 46, 307, 425, 426, 427)
+    need(architecture == 'aarch64' and type(NATIVE_LIBRARY_SHA) is str and HEX.fullmatch(NATIVE_LIBRARY_SHA) and
+         type(NATIVE_PROFILE_SHA) is str and HEX.fullmatch(NATIVE_PROFILE_SHA), 'selected native profile absent')
+    return NATIVE_LIBRARY_SHA, 0xc00000b7, (203, 206, 211, 269, 425, 426, 427)
+
+
+def native_authority(selection_sha256, worker_sha256):
+    """Native direct CLI also checks complete fixed image/tool/source input facts."""
+    need(type(NATIVE_RECEIVER_SHA) is str and HEX.fullmatch(NATIVE_RECEIVER_SHA), 'native receiver source grant absent')
+    path=Path(__file__).absolute().with_name('native_arm_trial.py')
+    data=capture({'path':str(path),'size':path.stat().st_size,'sha256':NATIVE_RECEIVER_SHA},128*1024)
+    receiver=types.ModuleType('captured_native_receiver');receiver.__file__=str(path)
+    exec(compile(data,str(path),'exec'),receiver.__dict__)
+    need(hashlib.sha256(receiver.PROFILE_BYTES).hexdigest()==NATIVE_PROFILE_SHA, 'native receiver profile differs')
+    raw=capture({'path':'/inputs/trial.json','size':Path('/inputs/trial.json').stat().st_size,'sha256':selection_sha256},1024**2)
+    selection=receiver.validate_selection(receiver.strict(raw))
+    need(raw==(json.dumps(selection,sort_keys=True)+'\n').encode() and selection['phase']=='matrix' and
+         selection['sources']['scripts/install/local_transaction.py']['sha256']==worker_sha256, 'native source/phase selection differs')
+    receiver.source_blobs(selection,Path('/source'),TASK_DEADLINE)
+    receiver.verify_environment(selection,TASK_DEADLINE)
+
+
 def validate_contract(contract, selection_sha256=None):
     fields = {'schema_version', 'scope', 'workspace', 'architecture', 'before', 'after', 'protected',
               'add', 'remove', 'keyring', 'timeout_seconds', 'libalpm_sha256'}
-    need(type(contract) is dict and set(contract) == fields and type(contract['schema_version']) is int and
-         contract['schema_version'] == 1, 'closed transaction contract required')
-    need(contract['scope'] == 'synthetic-fixture' and selection_sha256 is None,
-         'real candidate/unadopted inputs are not authorized by this initial worker')
-    need(contract['architecture'] == 'x86_64' and contract['libalpm_sha256'] == LIBRARY_SHA,
-         'only pinned x86 synthetic engine supported')
+    native = type(contract) is dict and contract.get('schema_version') == 2
+    need(type(contract) is dict and set(contract) == fields | ({'profile_sha256', 'input_selection_sha256'} if native else set()) and
+         type(contract['schema_version']) is int and contract['schema_version'] == (2 if native else 1), 'closed transaction contract required')
+    if native:
+        need(contract['scope'] == 'native-aarch64-fixture' and contract['architecture'] == 'aarch64' and
+             type(selection_sha256) is str and HEX.fullmatch(selection_sha256) and
+             contract['input_selection_sha256'] == selection_sha256 and contract['profile_sha256'] == NATIVE_PROFILE_SHA and
+             contract['libalpm_sha256'] == architecture_profile('aarch64')[0], 'selected native fixture profile required')
+    else:
+        need(contract['scope'] == 'synthetic-fixture' and selection_sha256 is None,
+             'real candidate/unadopted inputs are not authorized by this initial worker')
+        need(contract['architecture'] == 'x86_64' and contract['libalpm_sha256'] == LIBRARY_SHA,
+             'only pinned x86 synthetic engine supported')
     need(type(contract['timeout_seconds']) is int and 1 <= contract['timeout_seconds'] <= 1200, 'finite timeout required')
     before, after, protected, remove = [package_map(contract[k]) for k in ('before', 'after', 'protected', 'remove')]
     add = contract['add']; need(type(add) is list and 0 <= len(add) <= MAX_PACKAGES and bool(add or remove), 'finite nonempty add set required')
@@ -466,6 +500,9 @@ def validate_contract(contract, selection_sha256=None):
         package_map({row['name']: row['version']})
         need(row['name'] not in planned and type(row['signer']) is str and FPR.fullmatch(row['signer']), 'duplicate add or signer refused')
         planned[row['name']] = row['version']
+    if native:
+        need(all(name.startswith('caa-install-fixture-') for rows in (before, after, protected, remove, planned) for name in rows),
+             'native profile admits inert fixture identities only')
     need(declared_after(before, planned, remove) == after, 'declared full after map differs')
     need(all(before.get(n) == after.get(n) == v and n not in planned and n not in remove for n, v in protected.items()), 'protected delta refused')
     need(type(contract['workspace']) is str, 'workspace required')
@@ -659,8 +696,8 @@ def pointers(pointer):
 
 
 class Alpm:
-    def __init__(self, root, gpgdir, log):
-        need(digest(LIBRARY) == LIBRARY_SHA, 'libalpm binary changed')
+    def __init__(self, root, gpgdir, log, architecture='x86_64'):
+        need(digest(LIBRARY) == architecture_profile(architecture)[0], 'libalpm binary changed')
         self.lib = C.CDLL(str(LIBRARY)); self.handle = None; self.started = False
         p = C.c_void_p
         functions = {
@@ -685,7 +722,7 @@ class Alpm:
         need(self.handle, 'private libalpm initialize failed')
         for method, value in ((self.alpm_option_set_gpgdir, os.fsencode(gpgdir)),
                               (self.alpm_option_set_logfile, os.fsencode(log)),
-                              (self.alpm_option_add_architecture, b'x86_64'), (self.alpm_option_set_local_file_siglevel, 1)):
+                              (self.alpm_option_add_architecture, architecture.encode()), (self.alpm_option_set_local_file_siglevel, 1)):
             self.ok(method(self.handle, value), 'private libalpm option')
 
     def ok(self, code, label):
@@ -721,17 +758,18 @@ def mount(source, target, flags=0, filesystem=None, options=None):
     need(result == 0, 'namespace mount refused: ' + str(C.get_errno()))
 
 
-def block_service_ipc():
-    """x86-64 only: inherited pathname sockets stay reachable across net namespaces."""
-    need(os.uname().machine == 'x86_64', 'unsupported seccomp architecture')
+def block_service_ipc(architecture='x86_64'):
+    """Inherited pathname sockets remain reachable across network namespaces."""
+    need(os.uname().machine == architecture, 'unsupported seccomp architecture')
+    _, audit_arch, denied = architecture_profile(architecture)
     class Filter(C.Structure):
         _fields_ = [('code', C.c_ushort), ('jt', C.c_ubyte), ('jf', C.c_ubyte), ('k', C.c_uint)]
     class Program(C.Structure):
         _fields_ = [('length', C.c_ushort), ('filters', C.POINTER(Filter))]
     # Native ABI only; x32 numbers and every other audit architecture are killed.
-    rows = [(0x20, 0, 0, 4), (0x15, 1, 0, 0xc000003e), (0x06, 0, 0, 0x80000000),
-            (0x20, 0, 0, 0), (0x45, 0, 1, 0x40000000), (0x06, 0, 0, 0x80000000)]
-    for number in (42, 44, 46, 307, 425, 426, 427):  # Socket sends/connect; io_uring setup/enter/register.
+    rows = [(0x20, 0, 0, 4), (0x15, 1, 0, audit_arch), (0x06, 0, 0, 0x80000000), (0x20, 0, 0, 0)]
+    if architecture == 'x86_64': rows += [(0x45, 0, 1, 0x40000000), (0x06, 0, 0, 0x80000000)]
+    for number in denied:  # Socket sends/connect; io_uring setup/enter/register.
         rows += [(0x15, 0, 1, number), (0x06, 0, 0, 0x00050000 | 1)]  # EPERM.
     rows.append((0x06, 0, 0, 0x7fff0000))
     filters = (Filter * len(rows))(*(Filter(*row) for row in rows)); program = Program(len(rows), filters)
@@ -866,7 +904,9 @@ def namespace_evidence_view(original, expected_namespaces):
 
 def isolate(spec):
     global OWNED_OUTPUT
-    need(sys.platform == 'linux' and os.uname().machine == 'x86_64' and os.getuid() == os.geteuid() == 0,
+    architecture = spec['contract'].get('architecture', 'x86_64')
+    architecture_profile(architecture)
+    need(sys.platform == 'linux' and os.uname().machine == architecture and os.getuid() == os.geteuid() == 0,
          'mapped x86 Linux namespace required')
     entered_namespaces = namespaces()
     need(Path('/proc/self/uid_map').read_text().split() == ['0', str(spec['host_uid']), '1'] and
@@ -911,7 +951,8 @@ def isolate(spec):
     for name, minor in device_numbers.items():
         info = (Path('/dev') / name).lstat()
         need(stat.S_ISCHR(info.st_mode) and os.major(info.st_rdev) == 1 and os.minor(info.st_rdev) == minor, 'guest device identity differs')
-    block_service_ipc()
+    if architecture == 'x86_64': block_service_ipc()
+    else: block_service_ipc(architecture)
     return workspace
 
 
@@ -937,7 +978,7 @@ def engine(spec_path, spec_sha256):
     need(type(spec['evidence_nodes']) is dict and set(spec['evidence_nodes']) == {'result.json', 'candidate-packages.lock'} and
          all(type(v) is list and len(v) == 2 and all(type(n) is int and n >= 0 for n in v) for v in spec['evidence_nodes'].values()),
          'bound evidence node identities required')
-    contract = validate_contract(spec['contract'])
+    contract = validate_contract(spec['contract'], spec['contract'].get('input_selection_sha256'))
     need(type(spec['deadline']) in (int, float) and math.isfinite(spec['deadline']) and
          0 < spec['deadline'] - time.monotonic() <= contract['timeout_seconds'], 'engine deadline refused')
     TASK_DEADLINE = spec['deadline']; workspace = isolate(spec)
@@ -997,13 +1038,14 @@ def engine(spec_path, spec_sha256):
         result['capacity'] = {'reserve_bytes': reserve, 'guest_free_bytes': shutil.disk_usage(workspace).free,
                               'evidence_free_bytes': shutil.disk_usage(out).free}
         need(result['capacity']['guest_free_bytes'] >= reserve and result['capacity']['evidence_free_bytes'] >= reserve, 'measured precommit capacity insufficient')
-        alpm = Alpm(root, keys, out / 'alpm.log'); before = alpm.inventory(); result['before'] = before; result['phase'] = 'prepare'; evidence.save('result.json', result); check_inventory(before, contract['before'], 'before')
+        alpm = Alpm(root, keys, out / 'alpm.log') if contract['architecture'] == 'x86_64' else Alpm(root, keys, out / 'alpm.log', 'aarch64')
+        before = alpm.inventory(); result['before'] = before; result['phase'] = 'prepare'; evidence.save('result.json', result); check_inventory(before, contract['before'], 'before')
         preserved = {name: node(root / name) for name in alpm.owned_files(contract['protected'])}
         alpm.ok(alpm.alpm_trans_init(alpm.handle, FLAGS), 'transaction initialize'); alpm.started = True
         for row in contract['add']:
             package = C.c_void_p(); alpm.ok(alpm.alpm_pkg_load(alpm.handle, os.fsencode(row['archive']['path']), 1, 1, C.byref(package)), 'signed local package load')
             need(alpm.alpm_pkg_get_name(package).decode() == row['name'] and alpm.alpm_pkg_get_version(package).decode() == row['version'] and
-                 alpm.alpm_pkg_get_arch(package) in (b'any', b'x86_64'), 'loaded package identity differs')
+                 alpm.alpm_pkg_get_arch(package) in (b'any', contract['architecture'].encode()), 'loaded package identity differs')
             alpm.ok(alpm.alpm_add_pkg(alpm.handle, package), 'add package')
         db = alpm.alpm_get_localdb(alpm.handle)
         for name, version in contract['remove'].items():
@@ -1105,7 +1147,9 @@ def execute(contract_path, contract_sha256, output_path, *, worker_source_sha256
     worker_path = Path(__file__).absolute()
     worker_bytes = capture({'path': str(worker_path), 'size': worker_path.stat().st_size, 'sha256': worker_source_sha256}, 128 * 1024)
     contract_path = Path(contract_path); raw = capture({'path': str(contract_path.absolute()), 'size': contract_path.stat().st_size, 'sha256': contract_sha256}, 1024**2)
-    contract = validate_contract(decode(raw), selection_sha256); TASK_DEADLINE = started + contract['timeout_seconds']; tick(); workspace = private(contract['workspace'], os.getuid())
+    contract = validate_contract(decode(raw), selection_sha256); TASK_DEADLINE = started + contract['timeout_seconds']; tick()
+    if contract['architecture']=='aarch64':native_authority(selection_sha256,worker_source_sha256)
+    workspace = private(contract['workspace'], os.getuid())
     output = Path(output_path); need(output == workspace / 'evidence' and not output.exists() and not output.is_symlink(), 'new fixed evidence output required')
     result = {'status': 'FAIL', 'phase': 'snapshot', 'commit_started': False, 'committed': False,
               'worker_source_sha256': worker_source_sha256, 'runtime_source_sha256': RUNTIME_SHA}
