@@ -268,3 +268,36 @@ ARM experiment. Raw logs and independently decoded bundles are retained under
 | Repository failure | `5c9c70312bc201a156f4cdf043e0303178da40090c4fa1f29b52195ad41afc69` | 47188 |
 | Native source suites | `1d46142c9d5576b4b9b2b4e264e05aa73a3a35b239bc740f0e858c057e506940` | 28851 |
 | Failed integration summary | `f466b3057659ab944dac82370fc16e9bff8b80ec648e48f03f51d9dcc1d7cb04` | 1016 |
+
+## Sixth-run source checkpoint
+
+The reviewed correction restores portable image Config through bounded local
+Docker API JSON and uses the documented exact empty-entrypoint reset sentinel.
+Only that sentinel and null/empty Labels are normalized; full Env order/content
+and nonempty commands/labels still compare exactly. A unique prechecked private
+tag registers ownership before commit submission. Failed verification and final
+consumer completion remove only the owned derivative and verify image/tag
+absence. Ambiguous commit responses remain FAIL even after observed cleanup.
+The [independent source review](../reviews/commit-image-review.md) closes the
+previous ownership finding; it does not establish native handoff acceptance.
+
+Repository creation receives a fresh private mode-0700 TMPDIR under its bounded
+scratch mount. Its known inventory projection validates the complete accepted
+base and exact generated source/image/nonce/script/daemon/upgrade contract while
+retaining the generic credential guard. The
+[repository review](../reviews/repository-runtime-review.md) records host-tool
+and sandbox limits; actual native repository transactions remain required.
+
+The coordinator passes **309 CI and 119 integration tests**, zero skips, both
+from the worktree and a separately copied frozen source tree. The independent
+reviewer also passed 150 focused checks. New integration lock:
+`e8fad9905d743c3287fbed9ca4041272e925bc4ba4aab339ecdc4430d05b3dac`.
+It binds **157 source files** and the same **125 fixture files**, byte-for-byte
+and mode-for-mode. Input `3c16c37d...` and recipe `20d846cd...` locks remain
+unchanged. The fifth run remains FAIL; this source checkpoint requires a new
+native execution, with committed-tree and clean-checkout proof before dispatch.
+
+The optional same-job consumer interface preserves the existing CLI defaults
+and keeps owned images alive until declared consumers finish. The separately
+frozen development subtree/workflow is excluded from this initial snapshot and
+has not received execution acceptance from these initial tests.

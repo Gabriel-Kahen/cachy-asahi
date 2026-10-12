@@ -16,8 +16,10 @@ import sys
 import tempfile
 
 import native_arm as native
-from integration_export import export_evidence, SENSITIVE_PATH
+from integration_export import export_evidence, SENSITIVE_PATH, PRIVATE_CONTENT
 import lifecycle_inventory
+import repository_projection
+from commit_image import commit_image
 from package_checks import package
 
 ROOT = native.ROOT
@@ -159,18 +161,49 @@ def image_config(config):
     result = {key: config.get(key) for key in keys}
     for key in ('Env', 'Entrypoint', 'Cmd', 'Shell'):
         result[key] = result[key] or []
+    # Docker's documented empty-entrypoint reset sentinel has no executable.
+    if result['Entrypoint'] == ['']:
+        result['Entrypoint'] = []
+    if result['Labels'] is None:
+        result['Labels'] = {}
     result['WorkingDir'] = result['WorkingDir'] or '/'
     result['ArgsEscaped'] = bool(result['ArgsEscaped'])
     return result
 
 
-def commit_command(container, config):
-    handoff_need(re.fullmatch(r'[A-Za-z0-9:_-]+', config.get('User', '')), 'lifecycle-base-user')
-    workdir = config.get('WorkingDir') or '/'
-    handoff_need(workdir.startswith('/') and '\n' not in workdir, 'lifecycle-base-workdir')
-    return ['docker', 'commit', '--pause=true', '--change', 'USER ' + config['User'],
-            '--change', 'WORKDIR ' + workdir, '--change', 'ENTRYPOINT ' + json.dumps(config.get('Entrypoint') or []),
-            '--change', 'CMD ' + json.dumps(config.get('Cmd') or []), container]
+def remove_derivative(owned, base_image):
+    """Remove only this handoff's registered image/tag; ambiguous commits fail."""
+    report = {'status': 'FAIL', 'absence_verified': False, 'cleanup_uncertain': not owned['reply_valid']}
+    tag, image = owned.get('tag'), owned.get('image_id')
+    if tag is None and image is None:
+        return {'status': 'PASS', 'absence_verified': True, 'owned_image_created': False}
+    need(tag is None or re.fullmatch(r'cachy-asahi-private-installed:[0-9a-f]{32}', tag), 'unreviewed recovery tag')
+    need(image is None or re.fullmatch(r'sha256:[0-9a-f]{64}', image), 'unreviewed owned image ID')
+    def query(args):
+        result = subprocess.run(args, capture_output=True, timeout=30)
+        need(result.returncode == 0 and len(result.stdout) <= 1024**2, 'owned image query/removal failed')
+        return result.stdout.decode('ascii').splitlines()
+    with defer_signals():
+        try:
+            tagged = query(['docker', 'image', 'ls', '--no-trunc', '--quiet', '--filter', 'reference=' + tag]) if tag else []
+            need(len(tagged) <= 1 and all(re.fullmatch(r'sha256:[0-9a-f]{64}', value) for value in tagged), 'owned recovery lookup invalid')
+            need(base_image not in tagged and image != base_image, 'base image removal refused')
+            need(not image or not tagged or tagged == [image], 'owned image/tag identity conflict')
+            image = image or (tagged[0] if tagged else None)
+            available = query(['docker', 'image', 'ls', '--no-trunc', '--quiet'])
+            need(all(re.fullmatch(r'sha256:[0-9a-f]{64}', value) for value in available), 'image ownership query invalid')
+            if image and image in available:
+                # Exact ID removal removes only this derivative's private tag.
+                query(['docker', 'image', 'rm', image])
+                report['owned_image_id'] = image
+            remaining = query(['docker', 'image', 'ls', '--no-trunc', '--quiet'])
+            need(all(re.fullmatch(r'sha256:[0-9a-f]{64}', value) for value in remaining), 'image absence query invalid')
+            tagged_after = query(['docker', 'image', 'ls', '--no-trunc', '--quiet', '--filter', 'reference=' + tag]) if tag else []
+            report['absence_verified'] = image not in remaining and not tagged_after
+            report['status'] = 'PASS' if report['absence_verified'] and not report['cleanup_uncertain'] else 'FAIL'
+        except (OSError, ValueError, subprocess.SubprocessError):
+            report['error'] = 'owned derivative cleanup or absence could not be verified'
+    return report
 
 
 def export_material(root, output, approved, metadata):
@@ -236,6 +269,7 @@ def scan(root):
         for current, dirs, files in os.walk(root / name, followlinks=False):
             dirs[:] = sorted(d for d in dirs if d != '__pycache__' and
                              not (Path(current) == root / 'scripts' and d in ('virtual', 'client', 'experiments', 'port', 'platform')) and
+                             not (Path(current) == root / 'scripts/ci' and d == 'development') and
                              not (Path(current) == root / 'packages' and d in ('tools', 'libraries')))
             for directory in dirs:
                 need(not (Path(current) / directory).is_symlink(), 'symlink source directory')
@@ -260,7 +294,7 @@ def scan(root):
     for name in ('fixtures', 'lifecycle', 'repository', 'onboarding', 'desktop'):
         need(f'scripts/integration/{name}.py' in result and f'scripts/integration/test_{name}.py' in result,
              f'missing integration source/tests: {name}')
-    for name in ('integration', 'integration_export', 'sign_fixture', 'installed_handoff', 'source_suites', 'verify_derived', 'lifecycle_inventory'):
+    for name in ('integration', 'integration_export', 'sign_fixture', 'installed_handoff', 'source_suites', 'verify_derived', 'lifecycle_inventory', 'commit_image', 'repository_projection'):
         need(f'scripts/ci/{name}.py' in result and f'scripts/ci/test_{name}.py' in result,
              f'missing CI adapter/source tests: {name}')
     need(locked <= result.keys(), 'reviewed recipe inputs missing from source snapshot')
@@ -470,13 +504,20 @@ def repository_public_logs(raw):
     return projected
 
 
-def safe_public(raw, public, work, *, lifecycle_authority=None):
+def safe_public(raw, public, work, *, lifecycle_authority=None, repository_authority=None):
     """Select deliberately public owner receipts; identify every excluded binary."""
     selected = work / 'selected'; selected.mkdir()
     excluded = []
+    repository_value = repository_bytes = None
+    if repository_authority is not None:
+        result_path = raw / 'result.json'; regular(result_path)
+        need(result_path.stat().st_size <= 4 * 1024**2, 'repository result exceeds public bound')
+        repository_bytes = result_path.read_bytes()
+        repository_value = repository_projection.project(repository_bytes, *repository_authority)
     projections = repository_public_logs(raw)
     inventories = lifecycle_inventory.projections(raw, *lifecycle_authority) if lifecycle_authority is not None else {}
     inventory_receipt = {}
+    repository_receipt = None
     count, total = 0, 0
     for current, dirs, names in os.walk(raw, followlinks=False):
         for name in sorted(dirs.copy()):
@@ -512,7 +553,11 @@ def safe_public(raw, public, work, *, lifecycle_authority=None):
                 total += len(data) - size
                 need(total <= 16 * 1024**2, 'projected component receipt exceeds public bound')
             if path.suffix == '.json':
-                value = json.loads(data)
+                repository_input = relative_name == 'result.json' and repository_authority is not None
+                if repository_input:
+                    value = repository_value
+                else:
+                    value = json.loads(data)
                 # Repository command args contain ephemeral TEST passphrase options.
                 # Retain command identity/hash/status, never that raw keygen argv.
                 if isinstance(value, dict) and value.get('purpose') == 'disposable-generic-repository-test':
@@ -522,6 +567,12 @@ def safe_public(raw, public, work, *, lifecycle_authority=None):
                         if 'argv' in row:
                             row['argv_sha256'] = hashlib.sha256(json.dumps(row.pop('argv'), sort_keys=True).encode()).hexdigest()
                     data = (json.dumps(value, indent=2, sort_keys=True) + '\n').encode()
+                    if repository_input and 'base_versions' in value and not PRIVATE_CONTENT.search(data.decode('utf-8')):
+                        repository_receipt = {'schema_version': 1, 'purpose': 'validated-repository-inventory-projection',
+                                              'original_sha256': hashlib.sha256(repository_bytes).hexdigest(), 'original_bytes': len(repository_bytes),
+                                              'projected_sha256': hashlib.sha256(data).hexdigest(), 'projected_bytes': len(data),
+                                              'package_count': len(value['base_versions']), 'status_preserved': value.get('status'),
+                                              'generic_content_guard': 'UNCHANGED'}
             # Rejected text remains rejected by the generic exporter, with diagnostics.
             dest.write_bytes(data)
     native.save(selected / 'excluded-public-material.json', {'excluded': excluded, 'public_log_projection': projections,
@@ -530,6 +581,8 @@ def safe_public(raw, public, work, *, lifecycle_authority=None):
         native.save(selected / 'inventory-projections.json', {'schema_version': 1,
                     'purpose': 'validated-lifecycle-package-inventories', 'files': inventory_receipt,
                     'generic_content_guard': 'UNCHANGED', 'raw_inventory_bytes_exported': False})
+    if repository_receipt:
+        native.save(selected / 'repository-inventory-projection.json', repository_receipt)
     receipt = export_evidence(selected, public)
     need(receipt['evidence_export'] == 'PASS', 'public evidence exporter rejected component output')
 
@@ -546,6 +599,7 @@ class Controller:
                        'base_image': image, 'development_only': True, 'selected_for_release': False,
                        'hardware_validation': 'NOT RUN', 'production_trust': 'NOT RUN', 'stages': {}}
         self.installed = None
+        self.installed_owned = None
         self.cancelled = False
 
     def stage(self, name, action):
@@ -577,15 +631,19 @@ class Controller:
             native.save(raw / 'component-status.json', status.copy())
             try:
                 authority = None
-                if name == 'lifecycle' and (raw / 'lifecycle').is_dir():
+                repository_authority = None
+                if (name == 'lifecycle' and (raw / 'lifecycle').is_dir()) or (name == 'repository' and (raw / 'result.json').exists()):
                     base_lock = self.native_out / 'packages.lock'; regular(base_lock)
                     base = {}
                     for line in base_lock.read_text().splitlines():
                         columns = line.split(' ')
                         need(len(columns) == 2 and columns[0] not in base, 'invalid accepted base inventory')
                         base[columns[0]] = columns[1]
-                    authority = (base, self.rows['baseline'], self.rows['upgrade'])
-                safe_public(raw, self.public / name, staging, lifecycle_authority=authority)
+                    if name == 'lifecycle':
+                        authority = (base, self.rows['baseline'], self.rows['upgrade'])
+                    else:
+                        repository_authority = (base, self.repository_contract)
+                safe_public(raw, self.public / name, staging, lifecycle_authority=authority, repository_authority=repository_authority)
                 if name == 'fixtures' and status['status'] == 'PASS':
                     self.export_archives()
                 if name == 'signer' and status['status'] == 'PASS':
@@ -605,6 +663,8 @@ class Controller:
                 native.save(status_raw / 'stage-status.json', status)
                 need(export_evidence(status_raw, self.public / name / 'control')['evidence_export'] == 'PASS', 'controller status export failed')
             self.report['stages'][name] = status
+            if name == 'lifecycle' and status['status'] != 'PASS':
+                self.installed = None
             native.save(self.out / 'result.json', self.report)
         finally:
             if CANCEL_REQUESTED:
@@ -779,6 +839,11 @@ class Controller:
                 '/usr/bin/python3', '-B', '/runner/installed_handoff.py', '--contract', '/inputs/commit.json',
                 '--contract-sha256', native.sha(inputs / 'commit.json')]
         container = 'cachy-asahi-handoff-' + nonce
+        owned = {'tag': None, 'image_id': None, 'reply_valid': False}
+        self.installed_owned = owned
+        def submitted(tag):
+            owned['tag'] = tag
+            native.save(raw / 'derivative-ownership.json', owned)
         try:
             phase('lifecycle-container')
             execute_container(cmd, raw / 'container.log', keep=True)
@@ -790,7 +855,11 @@ class Controller:
             handoff_need(observed['State']['Status'] == 'exited' and observed['State']['ExitCode'] == 0 and observed['Image'] == self.image,
                          'lifecycle-stopped-container')
             phase('image-commit')
-            derived = native.run(commit_command(container, base_config), timeout=120)
+            derived = commit_image(container, base_config, on_submit=submitted)
+            owned['reply_valid'] = True
+            handoff_need(derived != self.image and re.fullmatch(r'sha256:[0-9a-f]{64}', derived), 'lifecycle-derived-identity')
+            owned['image_id'] = derived
+            native.save(raw / 'derivative-ownership.json', owned)
             phase('derived-image-query')
             inspect = json.loads(native.run(['docker', 'image', 'inspect', derived], timeout=60))[0]
             handoff_need(re.fullmatch(r'sha256:[0-9a-f]{64}', derived) and inspect['Id'] == derived and inspect['Architecture'] == 'arm64',
@@ -823,6 +892,7 @@ class Controller:
             self.installed = derived; self.installed_lock = raw / 'installed-packages.lock'
             shutil.copyfile(self.installed_lock, raw / 'installed-packages.txt')
             native.save(raw / 'installed-image.json', {'image_id': derived, 'base_image': self.image, 'container': container,
+                                                     'owned_recovery_tag': owned['tag'],
                                                      'source_commit': self.commit, 'lock_sha256': native.sha(self.installed_lock),
                                                      'commit_receipt_sha256': native.sha(raw / 'commit-receipt.json'), 'hardware_validation': 'NOT RUN'})
             diagnostic.update(status='PASS', phase='accepted-installed-image')
@@ -838,20 +908,28 @@ class Controller:
             if cleanup['status'] != 'PASS':
                 self.installed = None
                 diagnostic.update(status='FAIL', cleanup='FAIL')
-                if not original_failure:
-                    native.save(raw / 'handoff-controller.json', diagnostic)
-                    need(False, 'lifecycle container removal not verified')
+            if original_failure or cleanup['status'] != 'PASS' or CANCEL_REQUESTED:
+                self.installed = None
+                derivative_cleanup = remove_derivative(owned, self.image)
+                diagnostic.update(status='FAIL', derivative_cleanup=derivative_cleanup['status'])
+            else:
+                derivative_cleanup = {'status': 'RETAINED', 'image_id': owned['image_id'],
+                                      'recovery_tag': owned['tag'], 'requires_final_owned_cleanup': True}
+            native.save(raw / 'derivative-cleanup.json', derivative_cleanup)
             native.save(raw / 'handoff-controller.json', diagnostic)
+            if cleanup['status'] != 'PASS' and not original_failure:
+                need(False, 'lifecycle container removal not verified')
 
     def repository(self, raw):
         inputs = self.work / 'repository-inputs'; shutil.copytree(self.archives, inputs)
         runner = self.work / 'repository-runner'; runner.mkdir()
         shutil.copyfile(self.source / 'scripts/integration/repository.py', runner / 'repository.py')
         nonce = os.urandom(16).hex()
-        native.save(inputs / 'manifest.json', {'schema_version': 1, 'purpose': 'disposable-generic-repository-test',
+        self.repository_contract = {'schema_version': 1, 'purpose': 'disposable-generic-repository-test',
                     'execution': 'native-aarch64-disposable-docker', 'allow_system_mutation': True, 'daemon_arch': 'aarch64',
                     'nonce': nonce, 'image_id': self.image, 'source_commit': self.commit,
-                    'script_sha256': native.sha(runner / 'repository.py'), 'upgrade_kind': 'synthetic-changed-package-fixtures', **self.rows})
+                    'script_sha256': native.sha(runner / 'repository.py'), 'upgrade_kind': 'synthetic-changed-package-fixtures', **self.rows}
+        native.save(inputs / 'manifest.json', self.repository_contract)
         cmd = command(self.image, 'cachy-asahi-repository-' + nonce,
                       [(inputs, '/inputs', True), (runner, '/runner', True), (raw, '/out', False)], root=True,
                       tmpfs={'/scratch': 'rw,nosuid,nodev,exec,size=6g,mode=0700', '/test-home': 'rw,nosuid,nodev,exec,size=128m,mode=0700'},
@@ -861,7 +939,8 @@ class Controller:
             execute_container(cmd, self.work / 'repository-container.log')  # /out must start empty for owner guard.
         finally:
             retain_outer_log(self.work / 'repository-container.log', raw)
-        result = json.loads((raw / 'result.json').read_text())
+        base = dict(line.split(' ', 1) for line in (self.native_out / 'packages.lock').read_text().splitlines())
+        result = repository_projection.project((raw / 'result.json').read_bytes(), base, self.repository_contract)
         need(result.get('status') == 'PASS', 'repository result did not pass')
 
     def onboarding(self, raw):
@@ -913,17 +992,28 @@ class Controller:
         receipt = json.loads((raw / 'result.json').read_text())
         need(receipt.get('source_suites') == 'PASS' and receipt.get('skipped') == 0, 'complete native source suites did not pass')
 
-    def run(self):
+    def run(self, consumers=None):
+        """Run optional same-job consumers before final owned-image removal."""
         previous = {sig: signal.signal(sig, interrupt) for sig in (signal.SIGTERM, signal.SIGINT)}
         try:
-            return self.run_stages()
+            self.run_stages()
+            if consumers is not None and not self.cancelled and not CANCEL_REQUESTED:
+                consumers(self)
         except (Cancelled, KeyboardInterrupt):
             self.cancelled = True
-            with defer_signals():
-                return self.finish()
+        except Exception:
+            self.report['controller_execution'] = 'FAIL'
         finally:
-            for sig, handler in previous.items():
-                signal.signal(sig, handler)
+            try:
+                with defer_signals():
+                    self.report['owned_image_cleanup'] = remove_derivative(
+                        getattr(self, 'installed_owned', None) or {'tag':None,'image_id':None,'reply_valid':True}, self.image)
+                    self.installed = None
+                    result = self.finish()
+            finally:
+                for sig, handler in previous.items():
+                    signal.signal(sig, handler)
+        return result
 
     def run_stages(self):
         fixture_ok = self.stage('fixtures', self.fixtures)
@@ -937,14 +1027,16 @@ class Controller:
                 self.stage('desktop', self.desktop)
         if not self.cancelled:
             self.stage('source-suites', self.suites)
-        with defer_signals():
-            return self.finish()
+        return None
 
     def finish(self):
         for stage in ('fixtures', 'signer', 'lifecycle', 'repository', 'onboarding', 'desktop', 'source-suites'):
             if stage not in self.report['stages']:
                 self.report['stages'][stage] = {'status': 'NOT RUN', 'reason': 'required preceding stage failed'}
-        self.report['status'] = 'PASS' if not self.cancelled and not CANCEL_REQUESTED and all(r['status'] == 'PASS' for r in self.report['stages'].values()) else 'FAIL'
+        self.report['status'] = 'PASS' if (not self.cancelled and not CANCEL_REQUESTED
+            and self.report.get('controller_execution') != 'FAIL'
+            and self.report.get('owned_image_cleanup', {}).get('status', 'PASS') == 'PASS'
+            and all(r['status'] == 'PASS' for r in self.report['stages'].values())) else 'FAIL'
         self.report['cancelled'] = self.cancelled or CANCEL_REQUESTED
         native.save(self.out / 'result.json', self.report)
         summary = self.work / 'summary'; summary.mkdir(); native.save(summary / 'result.json', self.report)

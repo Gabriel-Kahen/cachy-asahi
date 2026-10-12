@@ -15,6 +15,7 @@ import stat
 import subprocess
 import sys
 import tarfile
+import tempfile
 import time
 
 ORIGINALS = {'cachy-asahi-hyprland-settings', 'cachy-asahi-fish-config',
@@ -397,9 +398,11 @@ class Integration:
             paths.append(dest)
         key = self.keys[signer]
         # repo-add does not accept --homedir; a private TEST gpg.conf binds its explicit keyring.
-        env = dict(os.environ, GNUPGHOME=str(key['home']))
-        self.command('repo-add-' + label, ['repo-add', '--include-sigs', '--sign', '--key', key['fingerprint'],
-                     directory / 'integration.db.tar.gz', *paths], env=env)
+        # The root's /tmp is read-only; isolate repo-add/mktemp below scratch.
+        with tempfile.TemporaryDirectory(prefix='repo-add-', dir=self.scratch) as temporary:
+            env = dict(os.environ, GNUPGHOME=str(key['home']), TMPDIR=temporary)
+            self.command('repo-add-' + label, ['repo-add', '--include-sigs', '--sign', '--key', key['fingerprint'],
+                         directory / 'integration.db.tar.gz', *paths], env=env)
         for name in ('integration.db.tar.gz', 'integration.files.tar.gz'):
             path = directory / name
             if not Path(str(path) + '.sig').exists():

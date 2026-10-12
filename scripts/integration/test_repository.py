@@ -506,6 +506,60 @@ class RepositoryTests(unittest.TestCase):
         for path in (repo / package.name, repo / 'integration.db.tar.gz', repo / 'integration.files.tar.gz'):
             self.assertTrue(Path(str(path) + '.sig').is_file())
 
+    def test_real_signed_repo_add_uses_private_scratch_tmp_and_cleans_it(self):
+        if not all(shutil.which(tool) for tool in ('gpg', 'gpgconf', 'repo-add')):
+            self.skipTest('real signed repository fixture requires preinstalled GPG/repo-add')
+        key = self.runner.key('signer-A', 'sign')
+        self.addCleanup(self.runner.cleanup)
+        (key['home'] / 'gpg.conf').write_text(f"no-default-keyring\nkeyring {key['home']}/pubring.gpg\nno-auto-key-retrieve\nauto-key-locate clear\n")
+        original = self.base / 'cachy-asahi-setup-1-1-any.pkg.tar.gz'
+        with tarfile.open(original, 'w:gz') as archive:
+            for name, data in (('.PKGINFO', b'pkgname = cachy-asahi-setup\npkgver = 1-1\narch = any\nlicense = MIT\n'),
+                               ('usr/bin/cachy-asahi-setup', b'#!/bin/sh\n# TEST ONLY\n')):
+                member = tarfile.TarInfo(name)
+                member.size = len(data)
+                archive.addfile(member, io.BytesIO(data))
+        probe = self.base / f'{r.FIXTURE}-1-1-any.pkg.tar.xz'
+        r.fixture(probe, '1-1', 'SYNTHETIC TEST ONLY\n')
+        execute, temps = self.runner.command, []
+        def observe(label, argv, **options):
+            if label.startswith('repo-add-'):
+                directory = Path(options['env']['TMPDIR'])
+                self.assertTrue(directory.is_dir())
+                self.assertEqual(directory.parent, self.runner.scratch)
+                self.assertEqual(directory.stat().st_mode & 0o777, 0o700)
+                self.assertEqual(options['env']['GNUPGHOME'], str(key['home']))
+                temps.append(directory)
+            return execute(label, argv, **options)
+        with mock.patch.dict(os.environ, {'TMPDIR': str(self.base / 'unavailable-global-tmp')}), \
+                mock.patch.object(self.runner, 'command', side_effect=observe):
+            repo = self.runner.repository('real-temp-fixture', {'original': {'path': original}}, probe, 'signer-A')
+        self.assertEqual(len(temps), 1)
+        self.assertFalse(temps[0].exists())
+        for name in ('integration.db.tar.gz', 'integration.files.tar.gz'):
+            self.assertTrue((repo / name).is_file())
+            self.assertTrue(Path(str(repo / name) + '.sig').is_file())
+        self.assertTrue((repo / 'integration.db').is_symlink())
+        self.assertEqual([x['exit_code'] for x in self.runner.receipts if x['label'].startswith('verify-database-')], [0, 0])
+
+    def test_repo_add_failure_removes_its_private_scratch_tmp(self):
+        package = self.base / 'fixture.pkg.tar.xz'
+        package.write_bytes(b'TEST-only archive bytes')
+        self.runner.keys['signer-A'] = {'home': self.runner.home / 'signer-A', 'fingerprint': 'A' * 40}
+        temps = []
+        def fail(label, argv, **options):
+            self.assertTrue(label.startswith('repo-add-'))
+            directory = Path(options['env']['TMPDIR'])
+            self.assertEqual(directory.parent, self.runner.scratch)
+            (directory / 'partial').write_text('TEST temporary state')
+            temps.append(directory)
+            raise r.Refused('TEST repo-add failure')
+        with mock.patch.object(self.runner, 'sign'), mock.patch.object(self.runner, 'command', side_effect=fail):
+            with self.assertRaisesRegex(r.Refused, 'TEST repo-add failure'):
+                self.runner.repository('failed-temp-fixture', {}, package, 'signer-A')
+        self.assertEqual(len(temps), 1)
+        self.assertFalse(temps[0].exists())
+
     def test_private_state_cleanup_including_partial_revocation(self):
         home = self.runner.home / 'signer-A'
         (home / 'private-keys-v1.d').mkdir(parents=True)

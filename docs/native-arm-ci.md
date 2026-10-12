@@ -215,6 +215,27 @@ alternate names. Exact standard character devices and matching Docker PTYs are
 allowed. The bounded point-in-time namespace scan does not claim protection
 against a malicious daemon, inherited descriptors or abstract sockets.
 
+Image commitment uses explicit accepted portable Config JSON through the guarded
+local Docker API, pinned to v1.48. Empty base commands are sent as `Cmd: []`;
+empty base entrypoints use Docker's exact `Entrypoint: [""]` reset sentinel to
+prevent commit-time inheritance of lifecycle execution arguments. Docker clears
+that sentinel during subsequent container creation. Canonical comparison treats
+only that exact sentinel as an empty entrypoint and null/empty Labels as no
+labels. Runtime commands/entrypoints, nonempty labels and every Env entry remain
+subject to full equality checks. No socket enters a container and no new
+capability, remote endpoint or image publication is introduced. These semantics
+are source-confirmed against [Docker 28.0.4 commit](https://github.com/moby/moby/blob/v28.0.4/daemon/commit.go)
+and [container-create](https://github.com/moby/moby/blob/v28.0.4/daemon/create.go)
+code; controlled native acceptance remains a separate requirement.
+
+A unique private local recovery tag is prechecked and registered before commit
+submission. Failed image verification removes the owned derivative with observed
+image/tag absence; ambiguous requests remain FAIL with uncertain cleanup. The
+builder is never a removal target. On success, consumers finish while the owned
+installed image is available, then the controller removes it and seals its final
+summary. Optional future consumers are internal callables in the same process;
+the ordinary integration CLI and original four-package stage predicate remain.
+
 
 ### Corrective source review and freeze status
 

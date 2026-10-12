@@ -432,7 +432,7 @@ def build(inputs, cache, out, reviews):
     return image
 
 
-def main():
+def main(argv=None, integration_consumers=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('mode', choices=('probe', 'audit', 'build', 'integration', 'freeze-recipes'))
     parser.add_argument('--inputs', type=Path, default=ROOT / 'scripts/ci/inputs.lock.json')
@@ -444,7 +444,7 @@ def main():
     parser.add_argument('--integration-output', type=Path)
     parser.add_argument('--cache', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     if args.mode == 'freeze-recipes':
         freeze_recipes(args.output)
         return 0
@@ -492,9 +492,10 @@ def main():
                 record['status'] = 'building'
                 image = build(inputs, args.cache.resolve(), out, reviews)
                 record.update(status='native-builds-and-byte-comparison-pass', native_build='PASS')
+                save(out / 'result.json', record)
                 if args.mode == 'integration':
                     controller = integration.Controller(image, out, args.integration_output.resolve(), integration_lock, accepted_commit)
-                    if not controller.run():
+                    if not controller.run(consumers=integration_consumers):
                         raise ValueError('native virtual integration failed; inspect separate sanitized stage evidence')
                     record.update(status='native-builds-and-virtual-integration-pass', virtual_integration='PASS',
                                   integration_sha256=args.integration_sha256)

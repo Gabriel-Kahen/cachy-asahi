@@ -297,3 +297,104 @@ receipt/logs: `/tmp/cachy-ci-lifecycle-copied-qjdjv2e9/`. This local test lock i
 the shared `be827...` integration lock and original `20d846...` recipe lock remain
 unchanged. Corrected native execution and acceptance remain pending coordinator
 review/refreeze/dispatch; the primary fourth-run handoff refusal is unresolved.
+
+### Run 38205521065 Config restoration correction
+
+Actual native run 38205521065 remains **FAIL**. Its new diagnostics identify
+`lifecycle-config` after image commit, with changed `Cmd`, `Entrypoint` and
+`Labels`. Lifecycle component and all eight validated inventory projections
+passed; the public lifecycle export passed. Original/fixture builds and TEST
+signing passed, and all **499 native source tests passed, zero skips**. No
+accepted installed-image or overall integration PASS follows from those results.
+
+The retained runner reports Docker **28.0.4 / API1.48**. Its pinned primary
+[commit implementation](https://github.com/moby/moby/blob/v28.0.4/daemon/commit.go)
+fills an empty requested command from the runtime container when the requested
+entrypoint is also empty; a nil entrypoint also inherits runtime execution.
+That explains why empty command reset instructions cannot alone establish
+restoration. It also materializes an empty Labels map. The exact reset sentinel
+`Entrypoint: [""]` avoids the command-inheritance branch, and Docker's
+[create implementation](https://github.com/moby/moby/blob/v28.0.4/daemon/create.go)
+then clears that exact sentinel for a fresh container.
+
+Actual local metadata-only probe on rootless x86 Docker **29.8.0**, server
+API **1.56**, with probe requests pinned to API **1.51**,
+reproduced empty-array command inheritance and confirmed sentinel commitment,
+empty resulting command and sentinel reset in a new container. An owned empty
+tar image, two never-started containers and derived metadata images were used;
+no image/container process or ARM program ran, no existing image was changed,
+and every owned container/image was deleted with independent absence checks.
+Receipt: `/tmp/cachy-config-probe-receipt-4qbp04gs/result.json`. The different
+engine/architecture makes this metadata evidence, not native Docker28 acceptance.
+
+The controller now supplies accepted portable Config directly through bounded
+local Docker API JSON, with explicit command arrays and the sentinel only for
+an empty base entrypoint. It normalizes only that sentinel and null/empty Labels
+for semantic comparison. Nonempty labels and all executable commands/entrypoints
+still compare exactly; the Env comparison and test-identity rejection are
+unchanged. Fresh immutable-image/read-side checks remain required. Unknown
+response bodies and Config values are not diagnostic output. Original recipe
+inputs and the shared integration lock are unchanged; root owns the next
+review/refreeze/commit/dispatch and actual native result acceptance.
+
+Independent review reproduced a derivative-ownership gap after commit response
+failure or later Config/fresh-verifier refusal. The correction uses a newly
+generated, prechecked private local recovery tag and registers it before the
+API POST; valid immutable image IDs are registered before inspection. Failed
+verification/cancellation removes only that owned derivative and verifies
+image/tag absence, preserving the builder. Ambiguous API outcomes remain FAIL
+with `cleanup_uncertain=true`, even if the currently observable tag/image was
+removed. A connect interruption closes its unassigned socket before propagation.
+HTTP timeout is per socket operation, not a claimed total request deadline.
+
+Successful derivatives now have an explicit controlled lifetime: onboarding,
+desktop and any registered same-job consumers run before final owned derivative
+removal. Final cleanup is part of authoritative summary acceptance; the summary
+is sealed after that removal, and cleanup/callback failure cannot preserve PASS.
+No initial consumer exposes an image ID as usable after controller return.
+The native entry accepts an internal callable consumer hook while retaining its
+unchanged CLI modes, original four-package predicate and pin checks. Separate
+future sources under `scripts/ci/development/` are excluded from the initial
+scanner, so their future packet can be implemented without disturbing this
+correction checkpoint or the 125 original fixture bytes.
+
+Repository semantic projection now validates the exact generated contract before
+rewriting `base_versions`: source commit plus nonce, image ID, daemon architecture,
+runner script SHA-256 and upgrade kind must match, with no extra/missing binding
+fields. The same check precedes repository PASS acceptance. Only the complete
+accepted base map becomes explicit package/version rows; all other fields remain
+subject to the unchanged generic credential filter. Raw/public hashes and byte
+counts bind the projection without rewriting a FAIL status into PASS.
+
+### Stable correction checkpoint (October 12)
+
+Independent read-only review found no material blocker in ownership recovery,
+controlled consumer lifetime/final cleanup, cancellation or repository contract
+binding. The stable candidate copied-tree preflight binds **157 source files**
+and the unchanged **125 fixtures**; **309 CI tests and 119 integration tests PASS**,
+zero skips. The ephemeral candidate lock hashes to
+`e8fad9905d743c3287fbed9ca4041272e925bc4ba4aab339ecdc4430d05b3dac`;
+receipts are `/tmp/cachy-ci-commit-copied-vaa94f6c/{regression.json,ci-tests.txt,integration-tests.txt}`.
+The shared initial lock remains
+`a115acf811a40274eb3fd76b7c0029d0f943c114fc9e382a2b297cb481c9de40`,
+and the original recipe lock remains
+`20d846cdf289bfc233b0051bf33b677fd6e94e9f05d91a33595a2829a196fa63`.
+Coordinator must independently review, commit, freeze and schedule the next
+native run. This checkpoint is local source readiness; run 38205521065 remains
+FAIL and Docker 28.0.4 ARM execution of the correction remains NOT RUN.
+
+The initial source is held stable while a separate future development packet is
+implemented under its excluded `scripts/ci/development/` directory and separate
+workflow. No initial fixture, four-package predicate or generic credential
+policy is widened. Consumer callbacks must record failed outcomes or raise; a
+false return value alone does not fail the initial aggregate.
+
+Coordinator checkpoint: independently repeated all 309 CI/119 integration tests
+from `/tmp/cachy-asahi-r6-copied-qvi3gme7/source`, zero skips, and matched all 125
+fixture bytes/modes. The shared initial lock is now explicitly refreshed to
+`e8fad9905d743c3287fbed9ca4041272e925bc4ba4aab339ecdc4430d05b3dac`;
+the former `a115...` bytes are preserved with the historical fifth-run evidence.
+The original recipe/input locks remain unchanged. Independent focused ownership,
+Config and repository-binding review passed 150 checks at the exact source hashes
+recorded in `docs/reviews/commit-image-review.md`. Actual native rerun is pending;
+none of these copied-source checks changes the fifth run's FAIL.

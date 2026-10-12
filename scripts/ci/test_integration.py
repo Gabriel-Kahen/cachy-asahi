@@ -42,7 +42,7 @@ class Boundaries(unittest.TestCase):
         paths = list(i.SOURCE_FILES)
         for name in ('fixtures', 'lifecycle', 'repository', 'onboarding', 'desktop'):
             paths += [f'scripts/integration/{name}.py', f'scripts/integration/test_{name}.py']
-        for name in ('integration', 'integration_export', 'sign_fixture', 'installed_handoff', 'source_suites', 'verify_derived', 'lifecycle_inventory'):
+        for name in ('integration', 'integration_export', 'sign_fixture', 'installed_handoff', 'source_suites', 'verify_derived', 'lifecycle_inventory', 'commit_image', 'repository_projection'):
             paths += [f'scripts/ci/{name}.py', f'scripts/ci/test_{name}.py']
         for name in paths:
             path = self.root / name; path.parent.mkdir(parents=True, exist_ok=True); path.write_text('reviewed source')
@@ -50,7 +50,7 @@ class Boundaries(unittest.TestCase):
 
     def test_independent_followup_sources_are_excluded_from_initial_snapshot(self):
         self.source_tree()
-        for directory in ('scripts/virtual', 'scripts/client', 'scripts/experiments', 'scripts/port', 'scripts/platform', 'packages/tools', 'packages/libraries'):
+        for directory in ('scripts/virtual', 'scripts/client', 'scripts/experiments', 'scripts/port', 'scripts/platform', 'scripts/ci/development', 'packages/tools', 'packages/libraries'):
             path = self.root / directory; path.mkdir(parents=True); (path / 'moving.py').write_text('active independent source')
         result = i.scan(self.root)
         self.assertFalse(any(name.endswith('moving.py') for name in result))
@@ -248,13 +248,13 @@ class Boundaries(unittest.TestCase):
 
     def test_committed_config_restores_base_values_and_refuses_test_env(self):
         base = {'User': 'alarm', 'WorkingDir': '/tmp', 'Cmd': None, 'Entrypoint': None, 'Env': ['PATH=/usr/bin']}
-        command = i.commit_command('cachy-asahi-owned-unique', base)
-        self.assertIn('USER alarm', command)
-        self.assertIn('WORKDIR /tmp', command)
-        self.assertIn('CMD []', command)
-        self.assertIn('ENTRYPOINT []', command)
         clean = {**base, 'Cmd': [], 'Entrypoint': []}
         self.assertEqual(i.image_config(base), i.image_config(clean))
+        sentinel = {**clean, 'Entrypoint': [''], 'Labels': {}}
+        self.assertEqual(i.image_config(base), i.image_config(sentinel))
+        for changed in ({'Entrypoint': ['/usr/bin/env']}, {'Cmd': ['/runner/installed_handoff.py']},
+                        {'Labels': {'execution': 'lifecycle'}}, {'Entrypoint': ['', 'runtime-argument']}):
+            self.assertNotEqual(i.image_config(base), i.image_config({**sentinel, **changed}))
         dirty = {**clean, 'Env': [*base['Env'], 'CACHY_ASAHI_IMAGE_ID=old-image']}
         self.assertNotEqual(i.image_config(base), i.image_config(dirty))
 
@@ -355,6 +355,49 @@ class Boundaries(unittest.TestCase):
         with self.assertRaises(ValueError):
             i.safe_public(raw, self.root / 'public', work, lifecycle_authority=({'base':'1-1'}, original, upgrade))
         self.assertFalse((self.root / 'public/lifecycle/unlisted-inventory.json').exists())
+
+    def repository_contract(self):
+        return {'schema_version':1,'purpose':i.repository_projection.PURPOSE,'source_commit':'a'*40,
+                'nonce':'c'*32,'image_id':'sha256:'+'b'*64,'daemon_arch':'aarch64',
+                'script_sha256':'d'*64,'upgrade_kind':'synthetic-changed-package-fixtures'}
+
+    def test_repository_inventory_projection_preserves_failure_and_all_rows(self):
+        raw, work = self.root / 'raw', self.root / 'work'; raw.mkdir(); work.mkdir()
+        base = {'base':'1-1', 'libsecret':'0.21.8.2-1'}
+        value = {'schema_version':1, 'purpose':i.repository_projection.PURPOSE, 'status':'FAIL',
+                 'source_commit':'a'*40, 'input_contract':{key:self.repository_contract()[key] for key in i.repository_projection.CONTRACT_FIELDS},
+                 'commands':[], 'base_versions':base, 'error':'repo-add-baseline-A failed'}
+        i.native.save(raw/'result.json',value); original=i.native.sha(raw/'result.json')
+        i.safe_public(raw,self.root/'public',work,repository_authority=(base,self.repository_contract()))
+        result=json.loads((self.root/'public/result.json').read_text())
+        self.assertEqual(result['status'],'FAIL')
+        self.assertEqual({r['name']:r['version'] for r in result['base_versions']},base)
+        receipt=json.loads((self.root/'public/repository-inventory-projection.json').read_text())
+        self.assertEqual(receipt['original_sha256'],original)
+        self.assertEqual(receipt['projected_sha256'],i.native.sha(self.root/'public/result.json'))
+        self.assertEqual(i.native.sha(raw/'result.json'),original)
+
+    def test_repository_projection_refuses_wrong_image_or_source_authority(self):
+        for field in ('source_commit','image_id','nonce','script_sha256'):
+            raw=self.root/field;raw.mkdir();work=self.root/(field+'-work');work.mkdir()
+            value={'schema_version':1,'purpose':i.repository_projection.PURPOSE,'source_commit':'a'*40,
+                   'input_contract':{key:self.repository_contract()[key] for key in i.repository_projection.CONTRACT_FIELDS},'base_versions':{'base':'1-1'}}
+            if field=='source_commit':value[field]='c'*40
+            else:value['input_contract'][field]='sha256:'+'c'*64
+            i.native.save(raw/'result.json',value)
+            with self.assertRaises(ValueError):
+                i.safe_public(raw,self.root/(field+'-public'),work,repository_authority=({'base':'1-1'},self.repository_contract()))
+
+    def test_unknown_repository_credentials_never_publish_original_or_projected_hashes(self):
+        raw,work=self.root/'raw',self.root/'work';raw.mkdir();work.mkdir()
+        value={'schema_version':1,'purpose':i.repository_projection.PURPOSE,'source_commit':'a'*40,
+               'input_contract':{key:self.repository_contract()[key] for key in i.repository_projection.CONTRACT_FIELDS},
+               'base_versions':{'libsecret':'1-1'},'password':'private-repository-fixture'}
+        i.native.save(raw/'result.json',value)
+        with self.assertRaises(ValueError):
+            i.safe_public(raw,self.root/'public',work,repository_authority=({'libsecret':'1-1'},self.repository_contract()))
+        self.assertFalse((self.root/'public/repository-inventory-projection.json').exists())
+        self.assertFalse((self.root/'public/result.json').exists())
 
     def test_explicit_public_signature_export_rehashes_and_rejects_secret_paths(self):
         raw = self.root / 'raw'; raw.mkdir()
@@ -561,8 +604,9 @@ class Boundaries(unittest.TestCase):
                 return derived
             return json.dumps([{'Id': command[-1], 'Architecture': 'arm64',
                                 'Config': base_config if command[-1] == controller.image else derived_config}])
-        with patch.object(i, 'execute_container', side_effect=execute), patch.object(i, 'verify_commit'), \
+        with patch.object(i, 'execute_container', side_effect=execute), patch.object(i, 'verify_commit'), patch.object(i, 'commit_image', return_value=derived), \
              patch.object(i.native, 'run', side_effect=query), patch.object(i, 'remove_container', return_value={'status': 'PASS'}), \
+             patch.object(i, 'remove_derivative', return_value={'status': 'PASS'}) as derivative_cleanup, \
              self.assertRaises(i.HandoffRefusal):
             controller.lifecycle(raw)
         diagnostic = json.loads((raw / 'handoff-controller.json').read_text())
@@ -573,6 +617,133 @@ class Boundaries(unittest.TestCase):
         self.assertNotIn(private, ''.join(path.read_text() for path in raw.glob('*.json')))
         self.assertNotIn(hashlib.sha256(private.encode()).hexdigest(), (raw / 'handoff-controller.json').read_text())
         self.assertEqual(json.loads((raw / 'container-removal.json').read_text())['status'], 'PASS')
+        self.assertEqual(derivative_cleanup.call_args.args[0]['image_id'], derived)
+        self.assertEqual(json.loads((raw / 'derivative-cleanup.json').read_text())['status'], 'PASS')
+
+    def test_failed_derivative_cleanup_removes_only_owned_identity_and_verifies_absence(self):
+        image, base = 'sha256:' + 'a' * 64, 'sha256:' + 'b' * 64
+        tag = 'cachy-asahi-private-installed:' + 'c' * 32
+        observed = [image + '\n', image+'\n'+base+'\n', '', base + '\n', '']
+        calls = []
+        def run(command, **kwargs):
+            calls.append(command); return SimpleNamespace(returncode=0, stdout=observed.pop(0).encode())
+        with patch.object(i.subprocess, 'run', side_effect=run):
+            result = i.remove_derivative({'tag': tag, 'image_id': image, 'reply_valid': True}, base)
+        self.assertEqual(result['status'], 'PASS')
+        self.assertTrue(result['absence_verified'])
+        self.assertIn(['docker', 'image', 'rm', image], calls)
+        self.assertFalse(any(base in command for command in calls))
+
+    def test_ambiguous_commit_recovers_tag_but_never_claims_certain_cleanup(self):
+        image, base = 'sha256:' + 'a' * 64, 'sha256:' + 'b' * 64
+        tag = 'cachy-asahi-private-installed:' + 'c' * 32
+        responses = [image + '\n', image+'\n'+base+'\n', '', base + '\n', '']
+        with patch.object(i.subprocess, 'run', side_effect=lambda *a, **k: SimpleNamespace(returncode=0, stdout=responses.pop(0).encode())):
+            result = i.remove_derivative({'tag': tag, 'image_id': None, 'reply_valid': False}, base)
+        self.assertEqual(result['status'], 'FAIL')
+        self.assertTrue(result['cleanup_uncertain'])
+        self.assertTrue(result['absence_verified'])
+
+    def test_derivative_cleanup_refuses_base_or_conflicting_recovery_identity(self):
+        image, base = 'sha256:' + 'a' * 64, 'sha256:' + 'b' * 64
+        tag = 'cachy-asahi-private-installed:' + 'c' * 32
+        for found in (base, 'sha256:' + 'd' * 64):
+            with patch.object(i.subprocess, 'run', return_value=SimpleNamespace(returncode=0, stdout=(found+'\n').encode())) as run:
+                result = i.remove_derivative({'tag': tag, 'image_id': image, 'reply_valid': True}, base)
+            self.assertEqual(result['status'], 'FAIL')
+            self.assertEqual(run.call_count, 1)
+
+    def test_api_response_failure_and_cancellation_preserve_recovery_ownership(self):
+        for error in (ValueError('malformed response'), i.Cancelled('cancelled')):
+            controller, raw, execute = self.lifecycle_fixture()
+            tag = 'cachy-asahi-private-installed:' + 'c' * 32
+            def failed(container, config, on_submit):
+                on_submit(tag); raise error
+            with patch.object(i, 'execute_container', side_effect=execute), patch.object(i, 'verify_commit'), \
+                 patch.object(i.native, 'run', return_value=json.dumps([{'Config': {'User':'alarm'}, 'State': {'Status':'exited','ExitCode':0}, 'Image':controller.image}])), \
+                 patch.object(i, 'commit_image', side_effect=failed), patch.object(i, 'remove_container', return_value={'status':'PASS'}), \
+                 patch.object(i, 'remove_derivative', return_value={'status':'FAIL','cleanup_uncertain':True}) as cleanup, self.assertRaises(ValueError):
+                controller.lifecycle(raw)
+            self.assertEqual(cleanup.call_args.args[0]['tag'], tag)
+            self.assertFalse(cleanup.call_args.args[0]['reply_valid'])
+            self.assertIsNone(controller.installed)
+            # Fresh independent fixture for the next error path.
+            shutil.rmtree(controller.out); shutil.rmtree(raw)
+            for name in ('native', 'source', 'archives', 'signed'):
+                shutil.rmtree(self.root / name)
+
+    def test_same_job_consumers_finish_before_final_owned_image_cleanup_and_summary(self):
+        controller=self.controller();controller.image='sha256:'+'b'*64
+        controller.installed='sha256:'+'a'*64
+        controller.installed_owned={'tag':'cachy-asahi-private-installed:'+'c'*32,'image_id':controller.installed,'reply_valid':True}
+        order=[]
+        def consumer(current):
+            self.assertEqual(current.installed,'sha256:'+'a'*64);order.append('consumer')
+        with patch.object(controller,'run_stages',side_effect=lambda:order.append('stages')), \
+             patch.object(i,'remove_derivative',side_effect=lambda *a:order.append('cleanup') or {'status':'PASS'}), \
+             patch.object(controller,'finish',side_effect=lambda:order.append('summary') or True):
+            self.assertTrue(controller.run(consumers=consumer))
+        self.assertEqual(order,['stages','consumer','cleanup','summary'])
+        self.assertIsNone(controller.installed)
+
+    def test_final_owned_image_cleanup_failure_and_consumer_failure_cannot_preserve_pass(self):
+        controller=self.controller();controller.image='sha256:'+'b'*64;controller.installed=None
+        for stage in ('fixtures','signer','lifecycle','repository','onboarding','desktop','source-suites'):
+            controller.report['stages'][stage]={'status':'PASS'}
+        with patch.object(controller,'run_stages'),patch.object(i,'remove_derivative',return_value={'status':'FAIL'}):
+            self.assertFalse(controller.run())
+        self.assertEqual(controller.report['status'],'FAIL')
+
+    def test_consumer_exception_and_cancellation_still_remove_owned_image_and_fail(self):
+        for error in (RuntimeError('password=private-consumer-fixture'),i.Cancelled('cancelled')):
+            controller=self.controller();controller.image='sha256:'+'b'*64;controller.installed=None
+            for stage in ('fixtures','signer','lifecycle','repository','onboarding','desktop','source-suites'):
+                controller.report['stages'][stage]={'status':'PASS'}
+            def consumer(current):
+                raise error
+            with patch.object(controller,'run_stages'),patch.object(i,'remove_derivative',return_value={'status':'PASS'}) as cleanup:
+                self.assertFalse(controller.run(consumers=consumer))
+            cleanup.assert_called_once()
+            self.assertNotIn('private-consumer-fixture',(controller.public/'summary/result.json').read_text())
+            shutil.rmtree(controller.out)
+
+    def test_fresh_verifier_refusal_removes_registered_derivative(self):
+        controller,raw,initial_execute=self.lifecycle_fixture()
+        derived='sha256:'+'a'*64;tag='cachy-asahi-private-installed:'+'c'*32
+        config={'User':'alarm','WorkingDir':'/tmp','Cmd':None,'Entrypoint':None}
+        def execute(command,log,*args,**kwargs):
+            if '/runner/verify_derived.py' in command:
+                i.native.save(raw/'committed-image/result.json',{'status':'FAIL','image_id':derived})
+            else:
+                initial_execute(command,log)
+                (raw/'installed-packages.lock').write_text('base 1-1\n')
+        def commit(container,base,on_submit):
+            on_submit(tag);return derived
+        def query(command,*args,**kwargs):
+            if command[:3]==['docker','container','inspect']:
+                return json.dumps([{'State':{'Status':'exited','ExitCode':0},'Image':controller.image}])
+            if command[-1]==derived:
+                self.assertEqual(controller.installed_owned['image_id'],derived)
+            return json.dumps([{'Id':command[-1],'Architecture':'arm64','Config':config}])
+        with patch.object(i,'execute_container',side_effect=execute),patch.object(i,'verify_commit'), \
+             patch.object(i,'commit_image',side_effect=commit),patch.object(i.native,'run',side_effect=query), \
+             patch.object(i,'remove_container',return_value={'status':'PASS'}), \
+             patch.object(i,'remove_derivative',return_value={'status':'PASS'}) as cleanup,self.assertRaises(i.HandoffRefusal) as refused:
+            controller.lifecycle(raw)
+        self.assertEqual(refused.exception.code,'lifecycle-derived-verification')
+        self.assertEqual(cleanup.call_args.args[0]['image_id'],derived)
+        self.assertEqual(cleanup.call_args.args[0]['tag'],tag)
+        self.assertIsNone(controller.installed)
+
+    def test_derivative_cleanup_is_idempotent_for_an_already_absent_owned_image(self):
+        image,base='sha256:'+'a'*64,'sha256:'+'b'*64
+        responses=['',base+'\n',base+'\n',''];calls=[]
+        def query(command,**kwargs):
+            calls.append(command);return SimpleNamespace(returncode=0,stdout=responses.pop(0).encode())
+        with patch.object(i.subprocess,'run',side_effect=query):
+            result=i.remove_derivative({'tag':'cachy-asahi-private-installed:'+'c'*32,'image_id':image,'reply_valid':True},base)
+        self.assertEqual(result['status'],'PASS')
+        self.assertFalse(any(command[:3]==['docker','image','rm'] for command in calls))
 
     def test_commit_refuses_failed_partial_or_wrong_binding(self):
         for key, value in [('status', 'FAIL'), ('private_cleanup', 'NOT RUN'), ('checks', []), ('nonce', '0' * 32),

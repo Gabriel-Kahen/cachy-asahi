@@ -970,6 +970,10 @@
       "mode": 420,
       "sha256": "e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8"
     },
+    "scripts/ci/commit_image.py": {
+      "mode": 420,
+      "sha256": "716e9aac5bd472e58da53e5def54a169f01b2c8bc7ac1fbae849f68532cf8a5c"
+    },
     "scripts/ci/freeze.py": {
       "mode": 420,
       "sha256": "f1e1ba0ec47514958680272ca19606718e1fbac93eae78b2a79bc64500792a61"
@@ -984,7 +988,7 @@
     },
     "scripts/ci/integration.py": {
       "mode": 420,
-      "sha256": "bc083b999705f2f8bb533db770f3ce71d185aaa9ef9ade1ef6f7628eab6d1173"
+      "sha256": "f2607b2e49173cc48ae7c674421702ac89efb5285ec579d81133482fb166a6a5"
     },
     "scripts/ci/integration_export.py": {
       "mode": 420,
@@ -1000,11 +1004,15 @@
     },
     "scripts/ci/native_arm.py": {
       "mode": 420,
-      "sha256": "2443ba8a5e7635bbb4d312072c8913a56e06f26764555c7a779533b655982947"
+      "sha256": "a8b6ed8971a38089a4499dcec605477c4e48d7a47c3de485d205f6a44678b898"
     },
     "scripts/ci/recipes.lock.json": {
       "mode": 420,
       "sha256": "20d846cdf289bfc233b0051bf33b677fd6e94e9f05d91a33595a2829a196fa63"
+    },
+    "scripts/ci/repository_projection.py": {
+      "mode": 420,
+      "sha256": "05c581300ba807f9e38495863054e159ae7464ea7becc496da15806a60b4404b"
     },
     "scripts/ci/sign_fixture.py": {
       "mode": 420,
@@ -1018,13 +1026,17 @@
       "mode": 420,
       "sha256": "4bfec1387f87768e5b37475d6172bde302ef52c01c68f81297435048be7f2100"
     },
+    "scripts/ci/test_commit_image.py": {
+      "mode": 420,
+      "sha256": "8b9a18f758b5cf99b3eb2e6f7a6315797b7d1f34154527e384b4254e7d5a5a91"
+    },
     "scripts/ci/test_installed_handoff.py": {
       "mode": 420,
       "sha256": "76156dec5428688fffd4f1e7816109474e04f5a6df5c8427192c457955a0a539"
     },
     "scripts/ci/test_integration.py": {
       "mode": 420,
-      "sha256": "06d754711171edbfd6ce8dc050e0c05a6dc17033472be203ffaa554d9d314178"
+      "sha256": "db6ce47b5027a9d3d2a2e366495155c09220057baa9d76c870bf01e3a39b073e"
     },
     "scripts/ci/test_integration_export.py": {
       "mode": 420,
@@ -1037,6 +1049,10 @@
     "scripts/ci/test_native_arm.py": {
       "mode": 420,
       "sha256": "34f0e7873d3a9ff4b69abeb9bdb8d7a86b0e9a16fdcf5bcfb7f000eb6b9cc9ae"
+    },
+    "scripts/ci/test_repository_projection.py": {
+      "mode": 420,
+      "sha256": "6b6f0076ed297b6d152a8b0dc434725e320318a576ac745a995a6dcd9f8c3c50"
     },
     "scripts/ci/test_sign_fixture.py": {
       "mode": 420,
@@ -1080,7 +1096,7 @@
     },
     "scripts/integration/repository.py": {
       "mode": 420,
-      "sha256": "1e9bc3cb7ae54fddbca02e25c8317fb28ce982e1b77823d3d105ceac48a5a678"
+      "sha256": "519c1bbc12a2fd02e036f67c162190f2b017e86ed7b7c192b6bbb994809fe5d9"
     },
     "scripts/integration/test_desktop.py": {
       "mode": 420,
@@ -1100,7 +1116,7 @@
     },
     "scripts/integration/test_repository.py": {
       "mode": 420,
-      "sha256": "b6e9e00ab5c39ffd236451aeab7e536215deca815e2cf8df2c4726f7dca8c901"
+      "sha256": "30b76ba8dd9a9e3c74c085f5282fb1001e3cc6fdbae40ffdc423112dee0473c5"
     },
     "scripts/release/release.py": {
       "mode": 493,
