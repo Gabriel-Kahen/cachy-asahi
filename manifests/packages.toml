@@ -147,6 +147,22 @@ hardware_validation = "NOT RUN"
 next_step = "Build/rebuild and exercise the read-only status candidate on the refreshed native snapshot; required safe KSM management and measured target policy remain separate unfinished work."
 
 [[packages]]
+name = "cachy-asahi-update"
+phase = "complete-port-tools"
+status = "candidate"
+source = "https://github.com/CachyOS/cachy-update"
+upstream_commit = "e2b1b7144be71cf392809f48d1440f8da1d9c81a"
+recipe = "packages/tools/cachy-asahi-update/PKGBUILD"
+license = "GPL-3.0-or-later"
+audit = "docs/workstreams/cachy-update.md"
+selected_for_development = true
+selected_for_release = false
+native_build = "NOT RUN"
+installation = "NOT RUN"
+hardware_validation = "NOT RUN"
+next_step = "Complete the exact Linux ARM dependency/build-script/source audit and signed builder extension, then compile the actual Rust tray and updater. Apple platform/update behavior and distribution notice closure remain required."
+
+[[packages]]
 name = "cachy-asahi-fdk-aac"
 phase = "complete-port-libraries"
 status = "candidate"

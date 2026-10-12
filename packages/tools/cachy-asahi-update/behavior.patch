@@ -1,0 +1,189 @@
+--- a/src/lib/notification.sh
++++ b/src/lib/notification.sh
+@@ -3,6 +3,7 @@
+ # notification.sh: Send a desktop notification for available updates
+ # https://github.com/Antiz96/arch-update
+ # SPDX-License-Identifier: GPL-3.0-or-later
++# Modified 2026-10-11 by cachy-asahi contributors: launch notifications with direct argv to preserve desktop paths.
+ 
+ # Declare necessary parameters for translations
+ # This script is executed in its own subshell via `systemd-run` so it needs this to be explicitly re-sourced
+@@ -47,6 +48,6 @@
+ 	exec {fd_notif}>"${tmpdir}/notif_action.lock"
+ 
+ 	if flock -n "${fd_notif}"; then
+-		systemd-run --user --scope --unit="${name}"-run-"$(date +%Y%m%d-%H%M%S)" --quiet /bin/bash -c "gio launch ${desktop_file}" || exit 18
++		systemd-run --user --scope --unit="${name}"-run-"$(date +%Y%m%d-%H%M%S)" --quiet gio launch "${desktop_file}" || exit 18
+ 	fi
+ fi
+--- a/src/lib/check.sh
++++ b/src/lib/check.sh
+@@ -3,10 +3,14 @@
+ # check.sh: Check for available updates
+ # https://github.com/Antiz96/arch-update
+ # SPDX-License-Identifier: GPL-3.0-or-later
++# Modified 2026-10-11 by cachy-asahi contributors: propagate automated-check timer activation failures.
+ 
+ # shellcheck disable=SC2154
+ if [ "${2}" == "--enable" ]; then
+-	systemctl --user enable --now "${name}.timer"
++	if ! systemctl --user enable --now "${name}.timer"; then
++		error_msg "$(eval_gettext "Unable to enable automated update checks")"
++		exit 19
++	fi
+ 	info_msg "$(eval_gettext "Automated update checks have been enabled")"
+ 	exit 0
+ fi
+--- a/src/lib/flatpak_unused_packages.sh
++++ b/src/lib/flatpak_unused_packages.sh
+@@ -1,40 +1,27 @@
+ #!/bin/bash
+ 
+-# flatpak_unused_packages.sh: Display flatpak unused packages and offer to remove them
++# flatpak_unused_packages.sh: Review and optionally remove unused Flatpak packages
+ # https://github.com/Antiz96/arch-update
+ # SPDX-License-Identifier: GPL-3.0-or-later
++# Modified 2026-10-11 by cachy-asahi contributors: ask before interactive unused Flatpak review and removal.
+ 
+-flatpak_unused=$(flatpak uninstall --unused | sed -n '/^ 1./,$p' | awk '{print $2}' | grep -v '^$' | sed '$d')
++# Flatpak's interactive uninstall command discovers and confirms candidates.
++# Do not run it as a read-only discovery operation before our opt-in prompt.
++main_msg "$(eval_gettext "Flatpak Unused Packages:")"
++ask_msg "$(eval_gettext "Would you like to review and optionally remove unused Flatpak packages now? [y/N]")"
+ 
+-if [ -n "${flatpak_unused}" ]; then
+-	main_msg "$(eval_gettext "Flatpak Unused Packages:")"
+-	echo -e "${flatpak_unused}\n"
+-
+-	if [ "$(echo "${flatpak_unused}" | wc -l)" -eq 1 ]; then
+-		ask_msg "$(eval_gettext "Would you like to remove this Flatpak unused package now? [y/N]")"
+-	else
+-		ask_msg "$(eval_gettext "Would you like to remove these Flatpak unused packages now? [y/N]")"
+-	fi
+-
+-	# shellcheck disable=SC2154
+-	case "${answer}" in
+-		"$(eval_gettext "Y")"|"$(eval_gettext "y")")
++# shellcheck disable=SC2154
++case "${answer}" in
++	"$(eval_gettext "Y")"|"$(eval_gettext "y")")
++		echo
++		if ! flatpak uninstall --unused; then
+ 			echo
+-			main_msg "$(eval_gettext "Removing Flatpak Unused Packages...")"
+-
+-			if ! flatpak uninstall --unused; then
+-				echo
+-				error_msg "$(eval_gettext "An error has occurred during the removal process\nThe removal has been aborted\n")"
+-			else
+-				echo
+-				info_msg "$(eval_gettext "The removal has been applied\n")"
+-			fi
+-		;;
+-		*)
+-			echo
+-			info_msg "$(eval_gettext "The removal hasn't been applied\n")"
+-		;;
+-	esac
+-else
+-	info_msg "$(eval_gettext "No Flatpak unused package found\n")"
+-fi
++			error_msg "$(eval_gettext "An error has occurred during the removal process\nThe removal has been aborted\n")"
++			exit 20
++		fi
++	;;
++	*)
++		echo
++		info_msg "$(eval_gettext "The review and removal haven't been started\n")"
++	;;
++esac
+--- a/src/lib/full_upgrade.sh
++++ b/src/lib/full_upgrade.sh
+@@ -3,27 +3,69 @@
+ # full_upgrade.sh: Execute the series of relevant functions / libraries to perform a complete and proper update of the system
+ # https://github.com/Antiz96/arch-update
+ # SPDX-License-Identifier: GPL-3.0-or-later
++# Modified 2026-10-11 by cachy-asahi contributors: use exclusive private runtime append locking with path validation.
+ 
+-# Lockfile to detect concurrent runs
++# Keep the upgrade lock inside a private, canonical user runtime directory.
++# Other UIDs cannot replace these paths. This does not defend against malicious
++# concurrent path replacement by processes already running as the same UID.
+ # shellcheck disable=SC2154
+-exec {fd_upgrade}> "/tmp/${name}.lock"
+-
+-# Warn if another instance is already running
++runtime_dir="${XDG_RUNTIME_DIR:-/run/user/$UID}"
++if [[ "${runtime_dir}" != /* || -L "${runtime_dir}" || ! -d "${runtime_dir}" ||
++      "$(realpath -e -- "${runtime_dir}")" != "${runtime_dir%/}" ||
++      "$(stat -c '%u:%a' -- "${runtime_dir}")" != "$UID:700" ||
++      "${tmpdir}" != "${runtime_dir%/}/${name}" || -L "${tmpdir}" ||
++      ! -d "${tmpdir}" || ! -O "${tmpdir}" ]]; then
++	error_msg "$(eval_gettext "Unsafe upgrade runtime directory; the execution has been aborted")"
++	exit 17
++fi
++# Refuse ancestor directories another UID can replace. Root-owned sticky /tmp
++# is allowed: its sticky bit protects our owned child from other local users.
++runtime_parent="${runtime_dir%/}"
++while [[ "${runtime_parent}" != / ]]; do
++	runtime_parent="${runtime_parent%/*}"
++	[[ -n "${runtime_parent}" ]] || runtime_parent=/
++	parent_meta=$(stat -c '%u:%a' -- "${runtime_parent}")
++	parent_uid="${parent_meta%%:*}"
++	parent_mode="${parent_meta#*:}"
++	if ! [[ "${parent_uid}" == "$UID" || "${parent_uid}" == 0 ]] ||
++	   ! [[ "${parent_mode}" =~ ^[0-7]{3,4}$ ]] ||
++	   (( (8#${parent_mode} & 0022) != 0 &&
++	      (parent_uid != 0 || (8#${parent_mode} & 01000) == 0) )); then
++		error_msg "$(eval_gettext "Unsafe runtime parent directory; the execution has been aborted")"
++		exit 17
++	fi
++done
++runtime_mode=$(stat -c '%a' -- "${tmpdir}")
++if ! [[ "${runtime_mode}" =~ ^[0-7]{3,4}$ ]] || (( (8#${runtime_mode} & 0022) != 0 )); then
++	error_msg "$(eval_gettext "Writable upgrade runtime directory; the execution has been aborted")"
++	exit 17
++fi
++upgrade_lock="${tmpdir}/upgrade.lock"
++if [[ -e "${upgrade_lock}" || -L "${upgrade_lock}" ]]; then
++	if [[ -L "${upgrade_lock}" || ! -f "${upgrade_lock}" || ! -O "${upgrade_lock}" ||
++	      "$(stat -c '%h:%a' -- "${upgrade_lock}")" != "1:600" ]]; then
++		error_msg "$(eval_gettext "Unsafe upgrade lock; the execution has been aborted")"
++		exit 17
++	fi
++fi
++upgrade_umask=$(umask)
++umask 077
++if ! exec {fd_upgrade}>> "${upgrade_lock}"; then
++	umask "${upgrade_umask}"
++	exit 17
++fi
++umask "${upgrade_umask}"
++# Verify the opened inode as well as the path before taking the lock.
++if [[ -L "${upgrade_lock}" || ! -f "${upgrade_lock}" || ! -O "${upgrade_lock}" ||
++      "$(stat -c '%h:%a' -- "${upgrade_lock}")" != "1:600" ||
++      "$(stat -Lc '%d:%i:%u:%h:%a' -- "/proc/$$/fd/${fd_upgrade}")" != \
++      "$(stat -c '%d:%i:%u:%h:%a' -- "${upgrade_lock}")" ]]; then
++	error_msg "$(eval_gettext "Upgrade lock changed; the execution has been aborted")"
++	exit 17
++fi
+ if ! flock -n "${fd_upgrade}"; then
+-	warning_msg "$(eval_gettext "There's already a running instance of \${_name}\n")"
+-	ask_msg "$(eval_gettext "Proceed anyway? [y/N]")"
+-
+-	# shellcheck disable=SC2154
+-	case "${answer}" in
+-		"$(eval_gettext "Y")"|"$(eval_gettext "y")")
+-			echo
+-		;;
+-		*)
+-			echo
+-			error_msg "$(eval_gettext "The execution has been aborted\n")" && quit_msg
+-			exit 17
+-		;;
+-	esac
++	error_msg "$(eval_gettext "There's already a running instance of \${_name}; the execution has been aborted")"
++	exit 17
+ fi
+ 
+ # Source the "list_packages" library which displays the list of packages available for updates
