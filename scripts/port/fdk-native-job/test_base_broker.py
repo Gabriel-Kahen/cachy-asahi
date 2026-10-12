@@ -70,9 +70,15 @@ elif a[:2]==['image','ls']:
    signal.signal(signal.SIGTERM,signal.SIG_IGN);time.sleep(60);os._exit(0)
   (root/'final-cleanup-ready').write_text(str(pid))
 elif a[:2]==['image','rm']:
- assert len(a)==3 and a[2].startswith('sha256:')
+ if s.get('image_rm_strict',True):assert len(a)==4 and a[2]=='--no-prune'
+ else:assert len(a)==3 or len(a)==4 and a[2]=='--no-prune'
+ ident=a[-1];assert ident.startswith('sha256:')
  if s.get('image_rm_failure'):raise SystemExit(1)
- del s['images'][a[2]];save();print(a[2])
+ parent=s['images'].pop(ident).get('Parent');print(ident)
+ if '--no-prune' not in a:
+  while parent in s['images'] and not s['images'][parent].get('RepoTags'):
+   parent=s['images'].pop(parent).get('Parent')
+ save()
  if s.get('interrupt_image_rm'):
   s['interrupt_image_rm']=False;save();pid=os.fork()
   if pid==0:
@@ -170,6 +176,57 @@ class BaseBrokerTests(unittest.TestCase):
         self.assertFalse(self.load()['images'])
         reloaded=self.make();reloaded.initialize(expected_daemon=self.value.daemon)
         self.assertTrue(reloaded.cleanup(remove_image=True)['absence_verified'])
+
+    def test_owned_image_cleanup_preserves_untagged_foreign_ancestors(self):
+        self.build()
+        self.load()
+        parent, ancestor, unrelated = ('sha256:' + digit*64 for digit in ('a','b','e'))
+        foreign = {identifier: {'Id':identifier, 'Parent':older, 'RepoTags':[],
+                   'Config':{'Labels':{'foreign-owner':'fixture'}}}
+                   for identifier, older in ((parent,ancestor),(ancestor,''),(unrelated,''))}
+        self.state['images'].update(copy.deepcopy(foreign))
+        self.state['images'][IMAGE]['Parent'] = parent
+        seeded = copy.deepcopy(self.state['images'])
+        # The same daemon model demonstrates the old command's parent deletion.
+        self.state['image_rm_strict'] = False
+        self.save()
+        old = subprocess.run([str(self.binary),'--host',self.endpoint,'image','rm',IMAGE],
+                             env=self.env,capture_output=True,timeout=2)
+        self.assertEqual(old.returncode,0,old.stderr)
+        self.assertEqual(self.load()['images'],{unrelated:foreign[unrelated]})
+        self.state['images'] = seeded
+        self.state['image_rm_strict'] = True
+        self.save()
+        recovered = self.make()
+        recovered.initialize(expected_daemon=self.value.daemon)
+        cleanup = recovered.cleanup(remove_image=True)
+        self.assertEqual(cleanup['status'],'PASS',cleanup)
+        self.assertIs(cleanup['owned_image_absence'],True)
+        self.assertEqual(self.load()['images'],foreign)
+        removals = [call for call in self.state['calls'] if call[:2] == ['image','rm']]
+        self.assertEqual(removals,[['image','rm',IMAGE],['image','rm','--no-prune',IMAGE]])
+        self.assertEqual(recovered.cleanup(remove_image=True)['status'],'PASS')
+        self.assertEqual(self.load()['images'],foreign)
+
+    def test_image_removal_exact_argument_guard_refuses_force_pruning_and_extra_targets(self):
+        self.build()
+        calls = copy.deepcopy(self.load()['calls'])
+        cases = [(['image','rm',IMAGE],True), (['image','rm','--force',IMAGE],True),
+                 (['image','rm','--no-prune','--force',IMAGE],True),
+                 (['image','rm','--no-prune',IMAGE,IMAGE],True),
+                 (['image','rm','--no-prune=false',IMAGE],True),
+                 (['image','rm','--no-prune','foreign:latest'],True),
+                 (['image','rm','--no-prune',IMAGE],False)]
+        cases += [(tuple(argv), cleanup) for argv, cleanup in cases]
+        for argv, cleanup in cases:
+            with self.subTest(argv=argv,cleanup=cleanup):
+                with self.assertRaisesRegex(ValueError,'^base-owned-image-remove$'):
+                    self.value._operation(argv,cleanup=cleanup)
+                self.assertEqual(self.load()['calls'],calls)
+                self.assertIn(IMAGE,self.state['images'])
+        self.assertEqual(self.value.cleanup(remove_image=True)['status'],'PASS')
+        self.assertEqual([call for call in self.load()['calls'] if call[:2] == ['image','rm']],
+                         [['image','rm','--no-prune',IMAGE]])
 
     def test_context_and_info_captures_are_pinned_facts_without_cli_discovery(self):
         self.value.initialize()

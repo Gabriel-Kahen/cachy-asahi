@@ -8,6 +8,7 @@ import os
 from pathlib import Path
 import re
 import stat
+import subprocess
 
 ROOT = Path(__file__).resolve().parents[3]
 INPUTS_SHA = '3c16c37d1b12cc84a88572e82ab8ad59e7f3b5ed0d08f09ddf72a69f4711d650'
@@ -77,6 +78,114 @@ BASE_PROBE_FAILURE_CODES = (
     {'producer-base-probe-' + call + '-' + failure for call in BASE_PROBE_CALLS
      for failure in BASE_PROBE_REFUSALS | {'command-failed', 'delegate-refused', 'runner-failed', 'cancelled'}})
 PRODUCER_FAILURE_CODES |= BASE_PROBE_FAILURE_CODES
+
+WORKER_BOUNDARY_FIELDS = {'schema_version', 'last_recipe', 'last_command', 'last_command_zero',
+    'comparisons_completed', 'native_delegate_zero', 'worker_status', 'worker_cancelled',
+    'worker_cleanup_status', 'worker_cleanup_absence', 'worker_cleanup_cancelled'}
+OUTER_BOUNDARY_FIELDS = {'worker_return_zero', 'outer_gate', 'outer_outcome', 'outer_reason'}
+OUTER_BOUNDARY_GATES = {'UNOBSERVED', 'worker-exit', 'worker-receipt', 'worker-status', 'worker-cancelled',
+    'worker-cleanup-status', 'worker-cleanup-absence', 'producer-receipts', 'original-result-retention', 'accepted'}
+OUTER_BOUNDARY_REASONS = BASE_PROBE_ERROR_TYPES | {
+    'boundary-invalid', 'worker-exit-nonzero', 'worker-return-invalid', 'worker-receipt-invalid', 'worker-status-not-pass',
+    'worker-cancelled', 'worker-cleanup-not-pass', 'worker-cleanup-absence-unverified',
+    'producer-acquisition-counts', 'producer-acquisition-incomplete', 'producer-acquisition-row',
+    'producer-acquisition-set', 'producer-bootstrap', 'producer-bootstrap-schema', 'producer-build-binding',
+    'producer-build-container', 'producer-build-file-pin', 'producer-build-files', 'producer-build-inventory',
+    'producer-build-schema', 'producer-cache-checksums', 'producer-comparison-schema', 'producer-file',
+    'producer-identity', 'producer-input-count', 'producer-input-name', 'producer-inventory', 'producer-json',
+    'producer-original-artifact', 'producer-original-artifact-set', 'producer-original-comparison',
+    'producer-original-independence', 'producer-original-package-metadata', 'producer-original-source-metadata',
+    'producer-original-validation', 'producer-package-audit-set', 'producer-package-metadata', 'producer-path',
+    'producer-pin', 'producer-race', 'producer-recipe-review', 'producer-recipe-snapshot', 'producer-recipes',
+    'producer-relative-path', 'producer-result', 'producer-result-schema', 'producer-rootfs-inventory',
+    'producer-signature-exit', 'producer-signature-fingerprint', 'producer-signature-invalid',
+    'producer-signature-set', 'producer-signature-status', 'producer-validation-schema'}
+BOUNDARY_REASON_GATES = {
+    'worker-exit-nonzero': {'worker-exit'}, 'worker-return-invalid': {'worker-exit'},
+    'worker-receipt-invalid': {'worker-receipt'}, 'boundary-invalid': {'worker-receipt','original-result-retention'},
+    'worker-status-not-pass': {'worker-status'}, 'worker-cancelled': {'worker-cancelled'},
+    'worker-cleanup-not-pass': {'worker-cleanup-status'},
+    'worker-cleanup-absence-unverified': {'worker-cleanup-absence'}}
+
+
+def new_boundary(worker=False):
+    value = {key: 'UNOBSERVED' for key in WORKER_BOUNDARY_FIELDS}
+    value.update(schema_version=1, comparisons_completed=0)
+    if not worker:
+        value.update(worker_return_zero='UNOBSERVED', outer_gate='UNOBSERVED',
+                     outer_outcome='UNOBSERVED', outer_reason='none')
+    return value
+
+
+def producer_boundary(value, worker=False):
+    """Only fixed enums, bounded counts and observed booleans cross this boundary."""
+    fields = WORKER_BOUNDARY_FIELDS | (set() if worker else OUTER_BOUNDARY_FIELDS)
+    if type(value) is not dict or set(value) != fields:
+        return None
+    if not (type(value['schema_version']) is int and value['schema_version'] == 1 and
+            type(value['comparisons_completed']) is int and 0 <= value['comparisons_completed'] <= 4):
+        return None
+    enums = {'last_recipe': NAMES | {'UNOBSERVED'}, 'last_command': {'UNOBSERVED','build-1','build-2','compare'},
+             'worker_status': {'UNOBSERVED','PASS','FAIL'}, 'worker_cleanup_status': {'UNOBSERVED','PASS','FAIL'}}
+    if any(type(value[key]) is not str or value[key] not in choices for key, choices in enums.items()):
+        return None
+    booleans = {'last_command_zero','native_delegate_zero','worker_cancelled',
+                'worker_cleanup_absence','worker_cleanup_cancelled'} | (set() if worker else {'worker_return_zero'})
+    if any(type(value[key]) is not bool and not (type(value[key]) is str and value[key] == 'UNOBSERVED')
+           for key in booleans):
+        return None
+    if (value['last_recipe'] == 'UNOBSERVED') != (value['last_command'] == 'UNOBSERVED') or (
+            value['last_command'] == 'UNOBSERVED' and value['last_command_zero'] != 'UNOBSERVED'):
+        return None
+    if not worker:
+        gate, outcome, reason = value['outer_gate'], value['outer_outcome'], value['outer_reason']
+        if not (type(gate) is type(outcome) is type(reason) is str and gate in OUTER_BOUNDARY_GATES and
+                outcome in {'UNOBSERVED','STARTED','PASS','FAIL'} and reason in OUTER_BOUNDARY_REASONS | {'none'}):
+            return None
+        if (gate == 'UNOBSERVED') != (outcome == 'UNOBSERVED') or (outcome == 'FAIL') != (reason != 'none'):
+            return None
+        allowed_gates = BOUNDARY_REASON_GATES.get(reason)
+        if allowed_gates is not None and gate not in allowed_gates or (
+                reason.startswith('producer-') and gate != 'producer-receipts'):
+            return None
+        observed_failures = {'worker-exit-nonzero': ('worker_return_zero', False),
+                             'worker-return-invalid': ('worker_return_zero', 'UNOBSERVED')}
+        if reason in observed_failures:
+            key, expected = observed_failures[reason]
+            if type(value[key]) is not type(expected) or value[key] != expected: return None
+        if any(reason == code and value[key] == contradicted for code,key,contradicted in (
+                ('worker-status-not-pass','worker_status','PASS'), ('worker-cancelled','worker_cancelled',False),
+                ('worker-cleanup-not-pass','worker_cleanup_status','PASS'),
+                ('worker-cleanup-absence-unverified','worker_cleanup_absence',True))):
+            return None
+        if gate == 'worker-exit' and outcome == 'PASS' and value['worker_return_zero'] is not True:
+            return None
+        passed = {'worker-status': ('worker_status','PASS'), 'worker-cancelled': ('worker_cancelled',False),
+                  'worker-cleanup-status': ('worker_cleanup_status','PASS'),
+                  'worker-cleanup-absence': ('worker_cleanup_absence',True)}
+        if outcome == 'PASS' and gate in passed:
+            key, expected = passed[gate]
+            if value[key] != 'UNOBSERVED' and (type(value[key]) is not type(expected) or value[key] != expected):
+                return None
+        if gate == 'accepted' and not (outcome == 'PASS' and value['worker_return_zero'] is True and
+                value['native_delegate_zero'] is True and value['worker_status'] == 'PASS' and
+                value['worker_cancelled'] is False and value['worker_cleanup_status'] == 'PASS' and
+                value['worker_cleanup_absence'] is True and value['worker_cleanup_cancelled'] is not True and
+                value['comparisons_completed'] == 4 and value['last_command'] == 'compare' and
+                value['last_command_zero'] is True):
+            return None
+    return dict(value)
+
+
+def boundary_reason(error):
+    if isinstance(error, ValueError) and error.args and type(error.args[0]) is str and error.args[0] in OUTER_BOUNDARY_REASONS:
+        return error.args[0]
+    if type(error).__name__ in ('Cancelled', 'KeyboardInterrupt'):
+        return 'cancelled'
+    for kind, code in ((UnicodeError,'unicode-error'), (OSError,'os-error'), (KeyError,'key-error'),
+                       (TypeError,'type-error'), (ValueError,'value-error'), (subprocess.SubprocessError,'subprocess-error')):
+        if isinstance(error, kind): return code
+    return 'unknown-error'
 
 
 def producer_diagnostic(value):
@@ -371,11 +480,14 @@ def public_status(report):
     finished = (report.get('phase') == 'complete' and report.get('cancelled') is False and clean and
                 source.get('status') == 'PASS')
     accepted = report.get('status') == 'PASS' and finished and producer == fdk == 'PASS'
+    boundary = producer_boundary(report.get('producer_boundary'))
+    if 'producer_boundary' in report and (boundary is None or boundary['outer_gate'] != 'accepted'):
+        accepted = False
     if not finished:
         producer = 'NOT ACCEPTED' if producer == 'PASS' else producer
         fdk = 'NOT ACCEPTED' if fdk == 'PASS' else fdk
     commit, packet_pin = source.get('source_commit'), source.get('packet_sha256')
-    return {'schema_version': 1, 'stage': 'fdk-native-job', 'status': 'PASS' if accepted else 'FAIL',
+    result = {'schema_version': 1, 'stage': 'fdk-native-job', 'status': 'PASS' if accepted else 'FAIL',
             'source_commit': commit if type(commit) is str and re.fullmatch('[0-9a-f]{40}', commit) else None,
             'source_packet_sha256': packet_pin if type(packet_pin) is str and PIN.fullmatch(packet_pin) else None,
             'phase': report.get('phase') if report.get('phase') in
@@ -383,6 +495,9 @@ def public_status(report):
             'cancelled': report.get('cancelled') is True, 'owned_image_absence': clean,
             'producer_status': producer, 'fdk_status': fdk, 'error_code': None if accepted else producer_failure_code(report),
             'hardware': 'NOT RUN', 'installation': 'NOT RUN', 'binary_publication': 'NOT RUN'}
+    if boundary is not None:
+        result['producer_boundary'] = boundary
+    return result
 
 
 def publish(directory, publicdir, image, native_script_sha, reviewedrecipes, job_report):

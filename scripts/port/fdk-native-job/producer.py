@@ -6,6 +6,7 @@ from contextlib import contextmanager, redirect_stderr, redirect_stdout
 import importlib.util
 import os
 from pathlib import Path
+import re
 import subprocess
 import sys
 import time
@@ -15,12 +16,28 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import job_runtime as jr
 from packet import INPUTS_SHA, RECIPES_SHA, load, need, save
 from base_broker import broker_class
-from evidence import BASE_PROBE_CALLS, BASE_PROBE_POLICY_CODES, BASE_PROBE_REFUSALS
+from evidence import (BASE_PROBE_CALLS, BASE_PROBE_POLICY_CODES, BASE_PROBE_REFUSALS,
+                      EPOCH, new_boundary, producer_boundary)
 
 PHASES = {'preflight', 'base-probe', 'host-probe', 'acquisition', 'gpg-import',
-          'gpg-verify', 'bootstrap', 'original-build', 'original-compare'}
+          'gpg-verify', 'bootstrap', 'original-build', 'original-compare', 'complete'}
 OUTCOMES = {'not-run', 'started', 'pass', 'command-failed', 'delegate-refused',
             'runner-failed', 'cancelled'}
+
+
+ORIGINAL_RECIPES = {
+    'cachy-asahi-hyprland-settings': 'packages/desktop/cachy-asahi-hyprland-settings',
+    'cachy-asahi-fish-config': 'packages/shells/cachy-asahi-fish-config',
+    'cachy-asahi-zsh-config': 'packages/shells/cachy-asahi-zsh-config',
+    'cachy-asahi-setup': 'packages/settings/cachy-asahi-setup',
+}
+
+
+def worker_boundary(receipt):
+    value = producer_boundary(receipt.get('boundary'), worker=True) or new_boundary(worker=True)
+    value.update(worker_status=receipt['status'], worker_cancelled=receipt['cancelled'])
+    need(producer_boundary(value, worker=True) is not None, 'producer-boundary')
+    receipt['boundary'] = value
 
 
 def module(name, path):
@@ -71,13 +88,45 @@ class ProducerCommands:
     SubprocessError, TimeoutExpired = subprocess.SubprocessError, subprocess.TimeoutExpired
     STDOUT, DEVNULL = subprocess.STDOUT, subprocess.DEVNULL
 
-    def __init__(self, config, broker, runner, diagnostic=None):
+    def __init__(self, config, broker, runner, diagnostic=None, boundary=None):
         self.config, self.broker, self.runner = config, broker, runner
         self.root = Path(config['snapshot'])
         self.native_out = Path(config['jobroot']) / 'producer'
         self.actual_commands = []
         self.diagnostic = {'phase': 'preflight', 'outcome': 'not-run'}
         self.on_diagnostic = diagnostic
+        self.boundary = new_boundary(worker=True)
+        self.on_boundary = boundary
+        self.compared = set()
+
+    def observe(self, **changes):
+        value = {**self.boundary, **changes}
+        need(producer_boundary(value, worker=True) is not None, 'producer-boundary')
+        self.boundary = value
+        if self.on_boundary is not None:
+            self.on_boundary(dict(value))
+
+    def original_command(self, command):
+        if type(command) is not list or not all(type(value) is str for value in command):
+            return None
+        for name, recipe in ORIGINAL_RECIPES.items():
+            compare = [sys.executable, str(self.root / 'scripts/build/compare.py'),
+                       str(self.native_out / (name + '-1')), str(self.native_out / (name + '-2')),
+                       '--require-bytes']
+            if command == compare:
+                return name, 'compare'
+            image = self.broker.image
+            if type(image) is not str or re.fullmatch(r'sha256:[0-9a-f]{64}', image) is None:
+                continue
+            for attempt in (1, 2):
+                build = [sys.executable, str(self.root / 'scripts/build/build.py'), str(self.root / recipe),
+                         '--image', image, '--mode', 'native', '--source-date-epoch', str(EPOCH),
+                         '--expected-packages', str(self.native_out / 'packages.lock'),
+                         '--reviewed-inputs', str(self.native_out / (name + '-review.json')),
+                         '--timeout', '300', '--output', str(self.native_out / (name + '-' + str(attempt)))]
+                if command == build:
+                    return name, 'build-' + str(attempt)
+        return None
 
     def set_diagnostic(self, phase, outcome, *, call=None, refusal_code='none'):
         need(type(phase) is type(outcome) is str and phase in PHASES and outcome in OUTCOMES,
@@ -165,7 +214,16 @@ class ProducerCommands:
             elif len(command) >= 2:
                 phase = 'original-compare' if command[1].endswith('/compare.py') else 'original-build'
         with self.operation(phase, self.base_probe_call(command) if phase == 'base-probe' else None):
+            original = self.original_command(command) if phase in ('original-build', 'original-compare') else None
+            if original:
+                self.observe(last_recipe=original[0], last_command=original[1],
+                             last_command_zero='UNOBSERVED')
             result = self._run(command, stdout, stderr, timeout, text, capture_output)
+            if original and type(result.returncode) is int:
+                if original[1] == 'compare' and result.returncode == 0:
+                    self.compared.add(original[0])
+                self.observe(last_command_zero=result.returncode == 0,
+                             comparisons_completed=len(self.compared))
             self.progress(phase, 'command-failed' if result.returncode else 'pass')
             return result
 
@@ -272,11 +330,16 @@ class ProducerCommands:
 def execute(config, state):
     jobroot = Path(config['jobroot'])
     receipt = {'status': 'FAIL', 'cancelled': False, 'hardware': 'NOT RUN',
-               'diagnostic': {'phase': 'preflight', 'outcome': 'not-run'}}
+               'diagnostic': {'phase': 'preflight', 'outcome': 'not-run'},
+               'boundary': new_boundary(worker=True)}
     state.update(path=jobroot / 'producer-worker.json', receipt=receipt)
 
     def diagnostic(value):
         receipt['diagnostic'] = dict(value)
+        save(state['path'], receipt)
+
+    def boundary(value):
+        receipt['boundary'] = dict(value)
         save(state['path'], receipt)
 
     cls = broker_class(Path(config['adapter']))
@@ -288,7 +351,7 @@ def execute(config, state):
     broker = cls(cli, cleanup, config['docker_binary'], config['docker_sha256'], config['endpoint'],
                  os.getuid(), os.getgid(), jobroot / 'base-image.json', config['nonce'], jobroot=jobroot,
                  context=jobroot / 'producer/context', iidfile=jobroot / 'producer/image-id')
-    commands = ProducerCommands(config, broker, runner, diagnostic=diagnostic)
+    commands = ProducerCommands(config, broker, runner, diagnostic=diagnostic, boundary=boundary)
     try:
         with commands.operation('preflight'):
             commands.call(broker.initialize, expected_daemon=config['daemon'])
@@ -318,7 +381,10 @@ def execute(config, state):
         code = native.main(['build', '--inputs', str(Path(config['snapshot']) / 'scripts/ci/inputs.lock.json'),
             '--inputs-sha256', INPUTS_SHA, '--recipes', str(Path(config['snapshot']) / 'scripts/ci/recipes.lock.json'),
             '--recipes-sha256', RECIPES_SHA, '--cache', str(jobroot / 'cache'), '--output', str(jobroot / 'producer')])
-        need(code == 0, 'original-producer-failed')
+        if type(code) is int:
+            commands.observe(native_delegate_zero=code == 0)
+        need(type(code) is int and code == 0, 'original-producer-failed')
+        commands.set_diagnostic('complete', 'pass')
         receipt.update(status='PASS', image_id=broker.image)
     except jr.Cancelled:
         receipt.update(status='FAIL', cancelled=True)
@@ -327,14 +393,23 @@ def execute(config, state):
         with jr.defer_signals() as events:
             try:
                 receipt['cleanup'] = broker.cleanup(remove_image=False)
+                result = receipt['cleanup']
+                status = result.get('status') if type(result) is dict else None
+                absence = result.get('absence_verified') if type(result) is dict else None
+                cancelled = result.get('cancelled') if type(result) is dict else None
+                commands.observe(worker_cleanup_status=status if status in ('PASS', 'FAIL') else 'UNOBSERVED',
+                                 worker_cleanup_absence=absence if type(absence) is bool else 'UNOBSERVED',
+                                 worker_cleanup_cancelled=cancelled if type(cancelled) is bool else 'UNOBSERVED')
                 if receipt['cleanup'].get('status') != 'PASS':
                     receipt['status'] = 'FAIL'
                 receipt['cancelled'] |= receipt['cleanup'].get('cancelled') is True
-            except BaseException:
+            except BaseException as error:
                 receipt['cleanup'] = {'status': 'FAIL', 'absence_verified': False}
                 receipt['status'] = 'FAIL'
+                receipt['cancelled'] |= isinstance(error, jr.Cancelled)
             if events:
                 receipt.update(status='FAIL', cancelled=True)
+            worker_boundary(receipt)
             save(state['path'], receipt)
         if events:
             raise jr.Cancelled(events[0])
@@ -354,6 +429,7 @@ def main():
     except (Exception, jr.Cancelled) as error:
         if state:
             state['receipt'].update(status='FAIL', cancelled=state['receipt']['cancelled'] or isinstance(error, jr.Cancelled))
+            worker_boundary(state['receipt'])
             with jr.defer_signals():
                 try:
                     save(state['path'], state['receipt'])

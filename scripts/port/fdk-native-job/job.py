@@ -3,6 +3,7 @@
 # Copyright (C) 2026 cachy-asahi contributors
 """Separate finite same-job original producer and reviewed FDK native stage."""
 import argparse
+from contextlib import contextmanager
 import os
 from pathlib import Path
 import platform
@@ -112,6 +113,58 @@ def retain_producer_diagnostic(private, report):
         report['producer_diagnostic'] = diagnostic
 
 
+def retain_producer_boundary(private, report):
+    """Retain only the bounded worker-owned fields, never parent gate claims."""
+    try:
+        worker = packet.decode(packet.read(private / 'producer-worker.json', 65536))
+        boundary = evidence.producer_boundary(worker.get('boundary'), worker=True)
+        if boundary is None:
+            raise ValueError('boundary-invalid')
+        cleanup = worker.get('cleanup')
+        cleanup = cleanup if type(cleanup) is dict else {}
+        known = {'worker_status': worker.get('status'), 'worker_cancelled': worker.get('cancelled'),
+                 'worker_cleanup_status': cleanup.get('status'),
+                 'worker_cleanup_absence': cleanup.get('absence_verified'),
+                 'worker_cleanup_cancelled': cleanup.get('cancelled')}
+        packet.need(all(type(boundary[key]) is str and boundary[key] == 'UNOBSERVED' or
+                        type(boundary[key]) is type(actual) and boundary[key] == actual
+                        for key, actual in known.items()), 'boundary-invalid')
+    except Exception:
+        report['producer_boundary'].update(evidence.new_boundary(worker=True))
+        if report['producer_boundary']['outer_outcome'] != 'FAIL':
+            report['producer_boundary'].update(outer_gate='worker-receipt', outer_outcome='FAIL',
+                                               outer_reason='boundary-invalid')
+        return None
+    report['producer_boundary'].update(boundary)
+    return worker
+
+
+def boundary_save(private, report, gate, outcome, reason='none'):
+    report['producer_boundary'].update(outer_gate=gate, outer_outcome=outcome, outer_reason=reason)
+    packet.save(private / 'job-result.json', report)
+
+
+def boundary_failure(private, report, gate, error):
+    report['producer_boundary'].update(outer_gate=gate, outer_outcome='FAIL',
+                                       outer_reason=evidence.boundary_reason(error))
+    try:
+        packet.save(private / 'job-result.json', report)
+    except BaseException as retry:
+        if isinstance(retry, jr.Cancelled):
+            report['cancelled'] = True
+
+
+@contextmanager
+def producer_gate(private, report, gate):
+    try:
+        boundary_save(private, report, gate, 'STARTED')
+        yield
+        boundary_save(private, report, gate, 'PASS')
+    except BaseException as error:
+        boundary_failure(private, report, gate, error)
+        raise
+
+
 def finish(out, report, state):
     with jr.defer_signals() as events:
         write_exports(out, report, state)
@@ -172,21 +225,41 @@ def execute(args, state):
         packet.save(private / 'producer-config.json', cfg)
         python = str(Path(sys.executable).resolve())
         report['phase'] = 'producer'
-        produced = runner.run([python, '-I', '-B', str(snapshot / (packet.PREFIX + 'producer.py')),
-            '--config', str(private / 'producer-config.json'), '--config-sha256', packet.sha(packet.read(private / 'producer-config.json'))],
-            timeout=args.producer_timeout + 30, log='producer.log')
-        worker = packet.load(private / 'producer-worker.json')
+        report['producer_boundary'] = evidence.new_boundary()
+        with producer_gate(private, report, 'worker-exit'):
+            produced = runner.run([python, '-I', '-B', str(snapshot / (packet.PREFIX + 'producer.py')),
+                '--config', str(private / 'producer-config.json'), '--config-sha256', packet.sha(packet.read(private / 'producer-config.json'))],
+                timeout=args.producer_timeout + 30, log='producer.log')
+            report['producer_boundary']['worker_return_zero'] = produced.returncode == 0 if type(produced.returncode) is int else 'UNOBSERVED'
+            packet.need(type(produced.returncode) is int, 'worker-return-invalid')
+            packet.need(report['producer_boundary']['worker_return_zero'], 'worker-exit-nonzero')
+        with producer_gate(private, report, 'worker-receipt'):
+            worker = retain_producer_boundary(private, report)
+            packet.need(worker is not None, 'boundary-invalid')
         retain_producer_diagnostic(private, report)
-        packet.need(produced.returncode == 0 and worker.get('status') == 'PASS' and worker.get('cancelled') is False and
-                    worker.get('cleanup', {}).get('status') == 'PASS' and
-                    worker['cleanup'].get('absence_verified') is True, 'producer-worker-failed')
-        state['image'] = worker['image_id']
-        report['producer'] = evidence.validate_producer(private / 'producer', state['image'], state['native_sha'], state['recipes'])
+        for gate, valid, reason in (
+                ('worker-status', lambda: worker.get('status') == 'PASS', 'worker-status-not-pass'),
+                ('worker-cancelled', lambda: worker.get('cancelled') is False, 'worker-cancelled'),
+                ('worker-cleanup-status', lambda: worker.get('cleanup', {}).get('status') == 'PASS', 'worker-cleanup-not-pass'),
+                ('worker-cleanup-absence', lambda: worker.get('cleanup', {}).get('absence_verified') is True, 'worker-cleanup-absence-unverified')):
+            with producer_gate(private, report, gate):
+                packet.need(valid(), reason)
+        with producer_gate(private, report, 'producer-receipts'):
+            state['image'] = worker['image_id']
+            report['producer'] = evidence.validate_producer(private / 'producer', state['image'], state['native_sha'], state['recipes'])
         # Preserve the unchanged four-package result before entering the FDK stage.
-        original = packet.read(private / 'producer/result.json')
-        (private / 'original-result.json').write_bytes(original)
-        report['original_result_sha256'] = packet.sha(original)
-        packet.save(private / 'producer-acceptance.json', report['producer'])
+        with producer_gate(private, report, 'original-result-retention'):
+            original = packet.read(private / 'producer/result.json')
+            (private / 'original-result.json').write_bytes(original)
+            report['original_result_sha256'] = packet.sha(original)
+            packet.save(private / 'producer-acceptance.json', report['producer'])
+            accepted = dict(report['producer_boundary'], outer_gate='accepted', outer_outcome='PASS')
+            packet.need(evidence.producer_boundary(accepted) is not None, 'boundary-invalid')
+        try:
+            boundary_save(private, report, 'accepted', 'PASS')
+        except BaseException as error:
+            boundary_failure(private, report, 'original-result-retention', error)
+            raise
         report['phase'] = 'fdk'
         child = runner.run([python, '-I', '-B', str(root / (packet.ADAPTER + 'stage.py')), '--execute-native',
             '--source-root', str(root), '--source-commit', args.source_commit,
@@ -213,6 +286,8 @@ def execute(args, state):
             report['work_phase'] = report['phase']
             if report['work_phase'] == 'producer':
                 retain_producer_diagnostic(private, report)
+                if 'producer_boundary' in report:
+                    retain_producer_boundary(private, report)
             report['phase'] = 'cleanup'
             if broker is not None:
                 journals = [private / 'fdk/private/containers.json'] if (private / 'fdk/private/containers.json').exists() else []

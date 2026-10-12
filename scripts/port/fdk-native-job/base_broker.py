@@ -65,6 +65,9 @@ def broker_class(adapter_dir):
                                                        if key != 'DOCKER_BUILDKIT'}))
 
         def _operation(self, args, *, cleanup=False, timeout=30):
+            if tuple(args[:2]) == ('image','rm'):
+                need(cleanup and len(args) == 4 and tuple(args[:3]) == ('image','rm','--no-prune') and
+                     type(args[3]) is str and IMAGE.fullmatch(args[3]), 'base-owned-image-remove')
             runner = self.cleanup_runner if cleanup else self.runner
             if cleanup and self.final_deadline is not None:
                 runner.deadline = min(runner.deadline, self.final_deadline)
@@ -282,7 +285,7 @@ def broker_class(adapter_dir):
             def remove_owned(identifier, row):
                 if identifier in self._owned_ids():
                     self._verify_image(identifier,row,cleanup=True)
-                    result = self._operation(['image','rm',identifier],cleanup=True)
+                    result = self._operation(['image','rm','--no-prune',identifier],cleanup=True)
                     need(result.returncode == 0, 'base-owned-image-remove')
                 result = self._operation(['image','ls','--all','--no-trunc','--quiet'],cleanup=True)
                 need(result.returncode == 0 and identifier not in result.stdout.decode().splitlines(),

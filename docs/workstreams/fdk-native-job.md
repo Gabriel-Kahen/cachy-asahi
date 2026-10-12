@@ -1,11 +1,15 @@
 # Separate finite hosted FDK native job
 
-The new `scripts/port/fdk-native-job/` interface prepares a separate hosted ARM
+The `scripts/port/fdk-native-job/` interface prepares a separate hosted ARM
 job. It changes neither the initial/development packets nor the original
 four-package acceptance. The coordinator owns the free public ARM workflow,
-Git publication and dispatch. **Actual native execution is NOT RUN** at this
-source checkpoint; fixture passes are not producer/build/hardware acceptance.
-No CI/workflow, shared manifest, accepted adapter or package template is edited.
+Git publication and dispatch. This checkpoint adds finite producer boundary
+observations to the worker, controller and public workflow consumer, and prevents
+owned image deletion from pruning unowned ancestors. Native
+execution of this correction is **NOT RUN**; fixture passes are not build or
+hardware acceptance. The coordinator must rebind the separate job source packet
+before publication or dispatch. Shared manifests, the accepted adapter, original
+helper, inputs and recipes remain unchanged by this correction.
 
 The job verifies a separately and externally SHA256-pinned complete source map,
 acquires and authenticates the actual original frozen inputs through unchanged
@@ -21,10 +25,10 @@ performance or M2 hardware behavior.
 
 | Input | Required SHA256 |
 | --- | --- |
-| Separate job `packet.lock.json`, 128 files | `2e190f75594fe5550770aa567b7729637853a99d6c2ce3b137248ed3954cbe32` |
+| Prior accepted separate job `packet.lock.json`, 128 files; successor rebind pending | `309fcd6fbec8b7e96c83ea049804ae3134e7190d2145e81afc66d28563097f44` |
 | Original inputs, 501 acquisition items / 249 signed payloads | `3c16c37d1b12cc84a88572e82ab8ad59e7f3b5ed0d08f09ddf72a69f4711d650` |
 | Four original recipes, complete 71-file maps | `20d846cdf289bfc233b0051bf33b677fd6e94e9f05d91a33595a2829a196fa63` |
-| Accepted FDK adapter, unchanged 39-file lock | `a7048064c0c20abd246a466035313abaf65590f3ed10d0f7927b21a346200ad6` |
+| Accepted FDK adapter, unchanged 39-file lock | `b83ddb865d7651c748258ac570e64fb824caf5bced8b1f415694dff7f5c187f5` |
 | Live 341-package builder inventory | `89bdb06fea1862b5a6e02b77a4b98f6e04755b02327d875a716bd792929f3a4f` |
 | Unchanged native producer script | `a8b6ed8971a38089a4499dcec605477c4e48d7a47c3de485d205f6a44678b898` |
 
@@ -121,7 +125,17 @@ Image reservation is durably recorded before build. Recovery requires the
 job nonce, exact reserved context/Dockerfile hashes and immutable IDs. Final
 cleanup reloads original and FDK container journals, checks image/daemon/socket/
 CLI/user binding and removes only verified owned containers before the image.
-It never prunes the daemon or force-removes unrelated images. A missing image ID
+Image deletion uses exactly `image rm --no-prune` and one verified immutable
+image ID, with no force flag. The broker refuses omitted/disabled `--no-prune`,
+force flags, extra targets and non-cleanup deletion calls before invoking the CLI.
+Fourteen argument controls cover both list and tuple argv.
+Docker documents that [`--no-prune` preserves untagged parents](https://docs.docker.com/reference/cli/docker/image/rm/);
+the prior default removal could delete an unowned ancestor despite naming only
+the owned child. The source fixture demonstrates that prior behavior and verifies
+foreign parent, grandparent and unrelated-image preservation after controller
+reload, owned child removal and repeated cleanup. This is a mocked daemon check;
+actual Docker cleanup of this correction remains NOT RUN.
+It never prunes the daemon or force-removes images. A missing image ID
 with unresolved asynchronous build, pin drift, contradictory ownership or failed
 removal yields FAIL with uncertainty. A verified recovered ID is persisted before
 removal so repeated cleanup remains valid. Cancellation invalidates acceptance
@@ -135,6 +149,52 @@ cleanup or complete-daemon-cleanliness claim is made; the coordinator's disposab
 hosted runner remains the appropriate place for this trial.
 
 ## Public evidence and actual results
+
+The private worker receipt now has an exact eleven-field `boundary` object:
+`schema_version`, `last_recipe`, `last_command`, `last_command_zero`,
+`comparisons_completed`, `native_delegate_zero`, `worker_status`,
+`worker_cancelled`, `worker_cleanup_status`, `worker_cleanup_absence` and
+`worker_cleanup_cancelled`. The schema version is integer 1. Recipe values are
+the four original recipe names or `UNOBSERVED`; commands are `build-1`, `build-2`,
+`compare` or `UNOBSERVED`. Comparison count is an integer from zero through four,
+incremented once per recipe only after its exact original comparison command
+returns integer zero. Unknown commands cannot create these observations.
+
+Observed booleans distinguish actual returned values from `UNOBSERVED`. Missing
+cleanup fields or cleanup exceptions leave their returned observations
+`UNOBSERVED`; they do not manufacture an absence or cancellation result. Worker
+status and cleanup status use `PASS`, `FAIL` or `UNOBSERVED`. The unchanged native
+delegate's actual integer zero exit makes `complete/pass` durably reachable
+before receipt validation. This records delegate completion, not receipt
+acceptance.
+
+The public `producer_boundary` has those eleven fields plus four controller-owned
+fields: `worker_return_zero`, `outer_gate`, `outer_outcome` and `outer_reason`.
+The gates are `worker-exit`, `worker-receipt`, `worker-status`, `worker-cancelled`,
+`worker-cleanup-status`, `worker-cleanup-absence`, `producer-receipts`,
+`original-result-retention`, `accepted` and `UNOBSERVED`. Outcomes are `STARTED`,
+`PASS`, `FAIL` or `UNOBSERVED`. Failure reasons use a closed set of predicate
+labels and exception classes; raw exception text never crosses this boundary.
+Exact field sets, scalar types, enums and gate/reason consistency are validated
+by both the evidence module and the workflow's independent static consumer.
+Malformed or contradictory worker observations fail receipt acceptance, and a
+worker cannot supply the controller fields.
+
+The controller records the first failing gate while refreshing durable worker
+observations after failure. Failed boundary saves record a finite `FAIL`; if the
+retry save also fails, the original exception is preserved. Filesystem failure
+can still prevent durable output. Original receipt validation and private image
+binding remain strict. The `accepted` marker requires all four comparisons,
+observed delegate and worker zero exits, worker PASS, no worker cancellation,
+verified worker cleanup, accepted original receipts and retained original result.
+It describes that producer prefix only: subsequent FDK, cancellation, cleanup or
+publication failure still makes the authoritative job fail.
+
+Historical fourteen-field public receipts remain consumable. A receipt supplying
+the optional fifteenth `producer_boundary` field must satisfy its exact schema;
+a new PASS also requires its `accepted` marker. All 802 historical producer
+failure codes remain unchanged. These diagnostics add no public image ID,
+command arguments, paths, raw logs, errors, signature bytes, source or binaries.
 
 Private output retains the complete source snapshot, fetched cache/context/GPG
 home, native result and its preserved original copy, bootstrap/audit/build data,
@@ -164,11 +224,26 @@ python -B -m unittest discover -s scripts/port/fdk-native-job -p 'test_*.py'
 
 Fixture suites cover source closure/Git byte-mode bindings, separate GPG streams,
 legacy command policy, owned image/container recovery, producer failures and
-publication/cancellation. Actual native build/rebuild, host Docker/GPG acquisition,
-installation, publication and hardware validation remain **NOT RUN** until the
-coordinator dispatches and records the real job.
+publication/cancellation, finite boundary transitions, save failures, poisoned
+schemas and returned-versus-unobserved values. The current full fixture suite is
+**156 tests PASS, no skips**, 24.580 seconds, including the two image deletion
+regressions. Native build/rebuild of this correction,
+installation and M2 hardware validation remain **NOT RUN**.
 
-Actual final source checkpoint: **90 tests PASS, no skips**, 17.482 seconds.
-Independent source/mock review passed. The 128-file packet contains 1,934,570
-source bytes; the accepted adapter's 39 byte/mode pins and all 71 original recipe
-hashes remain unchanged. No executable files changed after this checkpoint.
+The separate workflow-consumer harness passes **45 test methods** (30 retained
+and 15 new), including 397 boundary schema cases and actual controller API
+fixtures. The independent source review passes **87 checks** and replays the
+102 producer/evidence/controller component tests. Actual YAML structural parsing,
+three shell syntax checks and two embedded Python syntax checks pass; the
+preflight and native execution step bytes remain unchanged. These are source and
+fixture checks, with no native, Docker, GPG, install or dispatch execution.
+
+Earlier actual trial `38248011223` failed with
+`producer-after-original-compare-failed`; FDK was not run. That marker does not
+identify a failed comparison command or prove all four recipes completed.
+[The source diagnosis](fdk-original-compare-diagnosis.md) records five distinct
+counterexamples and the limits of the available public evidence. No actual cause
+is claimed. The successor boundary is intended to distinguish those later
+boundaries on a future trial, after independent source review, canonical source
+packet rebinding and coordinator publication. Dispatch remains coordinator-owned
+after that source closure is verified.

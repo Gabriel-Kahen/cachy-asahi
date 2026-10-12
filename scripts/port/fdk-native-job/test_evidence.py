@@ -409,6 +409,105 @@ class PublicStatusTests(unittest.TestCase):
         self.assertIsNone(result['source_packet_sha256'])
         self.assertNotIn(SECRET, json.dumps(result))
 
+    def test_boundary_distinguishes_unobserved_from_actual_false_and_counts_four(self):
+        worker = evidence.new_boundary(worker=True)
+        self.assertEqual(set(worker), evidence.WORKER_BOUNDARY_FIELDS)
+        self.assertEqual(evidence.producer_boundary(worker, worker=True), worker)
+        self.assertIsNone(evidence.producer_boundary(worker))
+        for zero in (False, True, 'UNOBSERVED'):
+            value = {**worker, 'last_recipe':'cachy-asahi-setup', 'last_command':'compare', 'last_command_zero':zero}
+            with self.subTest(zero=zero):
+                self.assertEqual(evidence.producer_boundary(value, worker=True)['last_command_zero'], zero)
+        for count in range(5):
+            self.assertIsNotNone(evidence.producer_boundary({**worker, 'comparisons_completed':count}, worker=True))
+        for recipe in evidence.NAMES:
+            for command in ('build-1','build-2','compare'):
+                self.assertIsNotNone(evidence.producer_boundary({**worker, 'last_recipe':recipe,
+                    'last_command':command, 'last_command_zero':False}, worker=True))
+
+    def test_boundary_poison_is_never_projected_or_used_to_promote_pass(self):
+        good = evidence.new_boundary()
+        bad = [None, [], {**good, 'private_log':SECRET}]
+        bad += [{key:value for key,value in good.items() if key != missing} for missing in good]
+        for key in good:
+            for value in (None, [], {}, SECRET, 0.0):
+                bad.append({**good, key:value})
+        for key in ('last_command_zero','native_delegate_zero','worker_cancelled',
+                    'worker_cleanup_absence','worker_cleanup_cancelled','worker_return_zero'):
+            bad += [{**good,key:value} for value in (0,1,'true','false')]
+        bad += [{**good,'comparisons_completed':value} for value in (-1,5,True,False,'4')]
+        bad += [{**good,'schema_version':value} for value in (True,False,0,2)]
+        bad += [{**good,'last_command_zero':True}, {**good,'last_recipe':'cachy-asahi-setup'},
+                {**good,'outer_gate':'worker-exit'}, {**good,'outer_outcome':'FAIL'},
+                {**good,'outer_reason':'os-error'}, {**good,'outer_gate':'accepted','outer_outcome':'PASS'}]
+        for value in bad:
+            with self.subTest(value=value):
+                self.assertIsNone(evidence.producer_boundary(value))
+                projected = evidence.public_status({**job_report(),'producer_boundary':value})
+                self.assertEqual(projected['status'],'FAIL')
+                self.assertNotIn('producer_boundary',projected)
+                self.assertNotIn(SECRET,json.dumps(projected))
+
+    def test_boundary_gate_reason_pairs_and_parent_fields_cannot_enter_worker_schema(self):
+        initial = evidence.new_boundary()
+        self.assertIsNotNone(evidence.producer_boundary(initial))
+        for gate in evidence.OUTER_BOUNDARY_GATES-{'UNOBSERVED','accepted'}:
+            for outcome,reason in (('STARTED','none'),('PASS','none'),('FAIL','value-error')):
+                record = {**initial,'outer_gate':gate,'outer_outcome':outcome,'outer_reason':reason}
+                if gate == 'worker-exit' and outcome == 'PASS': record['worker_return_zero'] = True
+                self.assertEqual(evidence.producer_boundary(record),record)
+                self.assertIsNone(evidence.producer_boundary(record,worker=True))
+        for reason in evidence.OUTER_BOUNDARY_REASONS:
+            gate = sorted(evidence.BOUNDARY_REASON_GATES.get(reason, {'producer-receipts'}))[0]
+            record = {**initial,'outer_gate':gate,'outer_outcome':'FAIL','outer_reason':reason}
+            if reason == 'worker-exit-nonzero': record['worker_return_zero'] = False
+            self.assertIsNotNone(evidence.producer_boundary(record))
+            self.assertEqual(evidence.boundary_reason(ValueError(reason)),reason)
+        for error,reason in ((ValueError(SECRET),'value-error'),(OSError(SECRET),'os-error'),
+                             (KeyError(SECRET),'key-error'),(TypeError(SECRET),'type-error'),
+                             (UnicodeError(SECRET),'unicode-error'),(RuntimeError(SECRET),'unknown-error')):
+            self.assertEqual(evidence.boundary_reason(error),reason)
+
+    def test_boundary_refusal_gate_and_observed_failure_must_agree(self):
+        initial = evidence.new_boundary()
+        bad = [dict(initial,outer_gate='worker-status',outer_outcome='FAIL',outer_reason='worker-exit-nonzero',worker_return_zero=False),
+               dict(initial,outer_gate='worker-exit',outer_outcome='FAIL',outer_reason='worker-exit-nonzero',worker_return_zero=True),
+               dict(initial,outer_gate='worker-exit',outer_outcome='FAIL',outer_reason='worker-return-invalid',worker_return_zero=False),
+               dict(initial,outer_gate='worker-receipt',outer_outcome='FAIL',outer_reason='producer-identity'),
+               dict(initial,outer_gate='worker-status',outer_outcome='FAIL',outer_reason='worker-status-not-pass',worker_status='PASS'),
+               dict(initial,outer_gate='worker-cancelled',outer_outcome='FAIL',outer_reason='worker-cancelled',worker_cancelled=False),
+               dict(initial,outer_gate='worker-cleanup-status',outer_outcome='FAIL',outer_reason='worker-cleanup-not-pass',worker_cleanup_status='PASS'),
+               dict(initial,outer_gate='worker-cleanup-absence',outer_outcome='FAIL',outer_reason='worker-cleanup-absence-unverified',worker_cleanup_absence=True),
+               dict(initial,outer_gate='worker-exit',outer_outcome='PASS'),
+               dict(initial,outer_gate='worker-status',outer_outcome='PASS',worker_status='FAIL'),
+               dict(initial,outer_gate='worker-cancelled',outer_outcome='PASS',worker_cancelled=True),
+               dict(initial,outer_gate='worker-cleanup-status',outer_outcome='PASS',worker_cleanup_status='FAIL'),
+               dict(initial,outer_gate='worker-cleanup-absence',outer_outcome='PASS',worker_cleanup_absence=False)]
+        for value in bad:
+            with self.subTest(value=value): self.assertIsNone(evidence.producer_boundary(value))
+
+    def test_accepted_boundary_remains_distinct_from_whole_job_acceptance(self):
+        accepted = {**evidence.new_boundary(),'last_recipe':'cachy-asahi-setup','last_command':'compare',
+            'last_command_zero':True,'comparisons_completed':4,'native_delegate_zero':True,
+            'worker_status':'PASS','worker_cancelled':False,'worker_cleanup_status':'PASS',
+            'worker_cleanup_absence':True,'worker_cleanup_cancelled':False,'worker_return_zero':True,
+            'outer_gate':'accepted','outer_outcome':'PASS','outer_reason':'none'}
+        self.assertEqual(evidence.producer_boundary(accepted),accepted)
+        public = evidence.public_status({**job_report(),'producer_boundary':accepted})
+        self.assertEqual(public['status'],'PASS')
+        self.assertEqual(public['producer_boundary'],accepted)
+        later_failure = evidence.public_status({**job_report(),'status':'FAIL','work_phase':'fdk',
+            'fdk':{'status':'FAIL'},'producer_boundary':accepted})
+        self.assertEqual(later_failure['status'],'FAIL')
+        self.assertEqual(later_failure['producer_boundary']['outer_gate'],'accepted')
+        for key,value in (('comparisons_completed',3),('native_delegate_zero','UNOBSERVED'),
+                          ('worker_return_zero',False),('worker_cancelled',True),('worker_cleanup_absence','UNOBSERVED'),
+                          ('last_command_zero',False),('outer_reason','value-error'),('outer_outcome','FAIL')):
+            self.assertIsNone(evidence.producer_boundary({**accepted,key:value}))
+        pending = evidence.public_status({**job_report(),'producer_boundary':evidence.new_boundary()})
+        self.assertEqual(pending['status'],'FAIL')
+        self.assertEqual(len(evidence.PRODUCER_FAILURE_CODES),802)
+
 
 if __name__ == '__main__':
     unittest.main()

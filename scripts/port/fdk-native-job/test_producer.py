@@ -46,6 +46,19 @@ class Fixture(unittest.TestCase):
         broker, runner = mock.Mock(), mock.Mock()
         return producer.ProducerCommands(self.config, broker, runner), broker, runner
 
+    def original_argv(self, name='cachy-asahi-setup', kind='compare', image='sha256:' + '1' * 64):
+        snapshot = Path(self.config['snapshot'])
+        out = self.root / 'producer'
+        if kind == 'compare':
+            return [sys.executable, str(snapshot / 'scripts/build/compare.py'),
+                    str(out / (name + '-1')), str(out / (name + '-2')), '--require-bytes']
+        return [sys.executable, str(snapshot / 'scripts/build/build.py'),
+                str(snapshot / producer.ORIGINAL_RECIPES[name]), '--image', image,
+                '--mode', 'native', '--source-date-epoch', str(producer.EPOCH),
+                '--expected-packages', str(out / 'packages.lock'),
+                '--reviewed-inputs', str(out / (name + '-review.json')), '--timeout', '300',
+                '--output', str(out / (name + '-' + kind[-1]))]
+
     def fake_native(self, code=0):
         native = SimpleNamespace(main=mock.Mock(return_value=code), acquire=mock.Mock(), build=mock.Mock())
         broker = mock.Mock()
@@ -330,6 +343,252 @@ class CommandTests(Fixture):
         self.assertEqual(target.getvalue(), 'éé')
 
 
+class BoundaryCommandTests(Fixture):
+    def setUp(self):
+        super().setUp()
+        self.proxy, self.broker, _ = self.commands()
+        self.broker.image = 'sha256:' + '1' * 64
+        self.events = []
+        self.path = self.root / 'boundary.json'
+        def persist(value):
+            self.events.append(dict(value))
+            self.path.write_text(json.dumps(value))
+            value['last_recipe'] = 'PRIVATE-SECRET'
+        self.proxy.on_boundary = persist
+
+    def run_command(self, argv, code=0, error=None):
+        def command(*args):
+            value = json.loads(self.path.read_bytes())
+            self.assertEqual(value['last_command_zero'], 'UNOBSERVED')
+            if error is not None:
+                raise error
+            return subprocess.CompletedProcess(argv, code)
+        with mock.patch.object(self.proxy, '_run', side_effect=command):
+            return self.proxy.run(argv)
+
+    def test_exact_four_recipes_and_each_build_attempt_are_durable_before_execution(self):
+        for name in producer.ORIGINAL_RECIPES:
+            for kind in ('build-1', 'build-2', 'compare'):
+                with self.subTest(name=name, kind=kind):
+                    self.run_command(self.original_argv(name, kind))
+                    value = json.loads(self.path.read_bytes())
+                    self.assertEqual((value['last_recipe'], value['last_command']), (name, kind))
+                    self.assertIs(value['last_command_zero'], True)
+                    self.assertEqual(set(value), set(producer.new_boundary(worker=True)))
+                    self.assertNotIn(str(self.root), json.dumps(value))
+                    self.assertNotIn('PRIVATE', json.dumps(self.proxy.boundary))
+        self.assertEqual(self.proxy.boundary['comparisons_completed'], 4)
+
+    def test_only_unique_successful_compare_returns_increment_completed_count(self):
+        argv = self.original_argv()
+        self.run_command(argv, 1)
+        self.assertEqual(self.proxy.boundary['comparisons_completed'], 0)
+        self.assertIs(self.proxy.boundary['last_command_zero'], False)
+        self.run_command(argv, 0)
+        self.run_command(argv, 0)
+        self.run_command(self.original_argv(kind='build-1'), 0)
+        self.assertEqual(self.proxy.boundary['comparisons_completed'], 1)
+        for name in producer.ORIGINAL_RECIPES:
+            self.run_command(self.original_argv(name), 0)
+        self.assertEqual(self.proxy.boundary['comparisons_completed'], 4)
+
+    def test_boolean_or_unreturned_command_codes_remain_unobserved(self):
+        for code in (False, True, None, '0'):
+            proxy, broker, _ = self.commands()
+            broker.image = 'sha256:' + '1' * 64
+            argv = self.original_argv()
+            with self.subTest(code=code), mock.patch.object(proxy, '_run',
+                    return_value=subprocess.CompletedProcess(argv, code)):
+                proxy.run(argv)
+            self.assertEqual(proxy.boundary['last_command_zero'], 'UNOBSERVED')
+            self.assertEqual(proxy.boundary['comparisons_completed'], 0)
+        for error in (ValueError('PRIVATE-SECRET'), self.cancelled(signal.SIGTERM)):
+            with self.subTest(error=type(error).__name__), self.assertRaises(type(error)):
+                self.run_command(self.original_argv(), error=error)
+            self.assertEqual(self.proxy.boundary['last_command_zero'], 'UNOBSERVED')
+
+    def test_unknown_recipe_path_attempt_output_and_flags_do_not_supply_observations(self):
+        self.run_command(self.original_argv())
+        baseline, event_count = dict(self.proxy.boundary), len(self.events)
+        compare = self.original_argv()
+        build = self.original_argv(kind='build-1')
+        variants = [compare[:-1], compare + ['PRIVATE-SECRET'],
+                    [compare[0], compare[1], compare[3], compare[2], compare[4]]]
+        for index, replacement in ((0, '/PRIVATE-SECRET/python'), (1, '/PRIVATE-SECRET/compare.py'),
+                                   (2, str(self.root / 'outside-1'))):
+            changed = compare.copy(); changed[index] = replacement; variants.append(changed)
+        for original, replacement in ((build[2], '/PRIVATE-SECRET/recipe'),
+                                       (build[-1], str(self.root / 'producer/cachy-asahi-setup-3')),
+                                       ('native', 'emulated'), ('300', '301'),
+                                       (self.broker.image, 'sha256:' + '2' * 64)):
+            changed = build.copy(); changed[changed.index(original)] = replacement; variants.append(changed)
+        for argv in variants:
+            with self.subTest(argv_kind=argv[1]), mock.patch.object(self.proxy, '_run',
+                    return_value=subprocess.CompletedProcess(argv, 0)):
+                self.proxy.run(argv)
+            self.assertEqual(self.proxy.boundary, baseline)
+            self.assertEqual(len(self.events), event_count)
+        for changes in ({'comparisons_completed': True}, {'last_recipe': 'PRIVATE-SECRET'}, {'extra': 'PRIVATE-SECRET'}):
+            with self.assertRaises(ValueError):
+                self.proxy.observe(**changes)
+            self.assertEqual(self.proxy.boundary, baseline)
+
+
+class BoundaryReceiptTests(Fixture):
+    def configure_comparison(self, native, code=0, return_code=0, error=None):
+        def main(argv):
+            commands = native.subprocess
+            command = self.original_argv()
+            def run(*args):
+                self.assertEqual(self.receipt()['boundary']['last_command_zero'], 'UNOBSERVED')
+                if error is not None:
+                    raise error
+                return subprocess.CompletedProcess(command, code)
+            with mock.patch.object(commands, '_run', side_effect=run):
+                result = commands.run(command)
+            return return_code if result.returncode == 0 else 1
+        native.main.side_effect = main
+
+    def test_five_diagnostic_counterexamples_have_distinct_private_boundaries(self):
+        for kind in ('compare-nonzero', 'cleanup-failed', 'cleanup-exception', 'native-nonzero', 'worker-pass'):
+            native, broker, cls, _ = self.fake_native()
+            self.configure_comparison(native, code=int(kind == 'compare-nonzero'),
+                                      return_code=int(kind == 'native-nonzero'))
+            if kind == 'cleanup-failed':
+                broker.cleanup.return_value = {'status': 'FAIL', 'absence_verified': False, 'cancelled': False}
+            if kind == 'cleanup-exception':
+                broker.cleanup.side_effect = ValueError('PRIVATE-SECRET cleanup')
+            with self.subTest(kind=kind):
+                if kind in ('compare-nonzero', 'native-nonzero'):
+                    with self.assertRaises(ValueError):
+                        self.execute(native, cls)
+                else:
+                    self.assertEqual(self.execute(native, cls), int(kind != 'worker-pass'))
+                value = self.receipt()['boundary']
+                self.assertIs(value['last_command_zero'], kind != 'compare-nonzero')
+                self.assertEqual(value['comparisons_completed'], int(kind != 'compare-nonzero'))
+                self.assertIs(value['native_delegate_zero'], kind not in ('compare-nonzero', 'native-nonzero'))
+                self.assertEqual(value['worker_status'], 'PASS' if kind == 'worker-pass' else 'FAIL')
+                self.assertIs(value['worker_cancelled'], False)
+                if kind == 'cleanup-exception':
+                    self.assertEqual((value['worker_cleanup_status'], value['worker_cleanup_absence'],
+                                      value['worker_cleanup_cancelled']), ('UNOBSERVED',) * 3)
+                else:
+                    self.assertEqual(value['worker_cleanup_status'], 'FAIL' if kind == 'cleanup-failed' else 'PASS')
+                self.assertNotIn('PRIVATE', json.dumps(value))
+
+    def test_native_exception_and_boolean_exit_do_not_invent_delegate_zero(self):
+        for result in (False, True, None, '0'):
+            native, _, cls, _ = self.fake_native(result)
+            with self.subTest(result=result), self.assertRaises(ValueError):
+                self.execute(native, cls)
+            value = self.receipt()['boundary']
+            self.assertEqual(value['native_delegate_zero'], 'UNOBSERVED')
+            self.assertEqual(value['worker_status'], 'FAIL')
+        native, _, cls, _ = self.fake_native()
+        self.configure_comparison(native, error=ValueError('PRIVATE-SECRET unreturned comparator'))
+        with self.assertRaises(ValueError):
+            self.execute(native, cls)
+        value = self.receipt()['boundary']
+        self.assertEqual(value['native_delegate_zero'], 'UNOBSERVED')
+        self.assertEqual(value['last_command_zero'], 'UNOBSERVED')
+
+    def test_native_zero_checkpoint_is_durable_before_worker_cleanup_and_acceptance(self):
+        native, broker, cls, _ = self.fake_native()
+        self.configure_comparison(native)
+        def cleanup(**kwargs):
+            receipt = self.receipt()
+            self.assertEqual(receipt['diagnostic'], {'phase': 'complete', 'outcome': 'pass'})
+            self.assertIs(receipt['boundary']['native_delegate_zero'], True)
+            self.assertEqual(receipt['boundary']['worker_status'], 'UNOBSERVED')
+            self.assertEqual(receipt['boundary']['worker_cleanup_status'], 'UNOBSERVED')
+            return {'status': 'PASS', 'absence_verified': True}
+        broker.cleanup.side_effect = cleanup
+        self.assertEqual(self.execute(native, cls), 0)
+        value = self.receipt()['boundary']
+        self.assertEqual(value['worker_cleanup_status'], 'PASS')
+        self.assertIs(value['worker_cleanup_absence'], True)
+        self.assertEqual(value['worker_cleanup_cancelled'], 'UNOBSERVED')
+
+    def test_cleanup_malformed_boolean_fields_are_unknown_not_coerced(self):
+        native, broker, cls, _ = self.fake_native()
+        broker.cleanup.return_value = {'status': 'PASS', 'absence_verified': 1, 'cancelled': 0}
+        self.assertEqual(self.execute(native, cls), 0)
+        value = self.receipt()['boundary']
+        self.assertEqual(value['worker_cleanup_absence'], 'UNOBSERVED')
+        self.assertEqual(value['worker_cleanup_cancelled'], 'UNOBSERVED')
+
+    def test_cleanup_exception_cancellation_is_known_only_at_worker_level(self):
+        native, broker, cls, _ = self.fake_native()
+        broker.cleanup.side_effect = self.cancelled(signal.SIGTERM)
+        self.assertEqual(self.execute(native, cls), 1)
+        value = self.receipt()['boundary']
+        self.assertEqual(value['worker_status'], 'FAIL')
+        self.assertIs(value['worker_cancelled'], True)
+        self.assertEqual(value['worker_cleanup_status'], 'UNOBSERVED')
+        self.assertEqual(value['worker_cleanup_absence'], 'UNOBSERVED')
+        self.assertEqual(value['worker_cleanup_cancelled'], 'UNOBSERVED')
+
+    def test_complete_four_pair_prefix_retains_all_required_worker_observations(self):
+        native, _, cls, _ = self.fake_native()
+        def main(argv):
+            commands = native.subprocess
+            for name in producer.ORIGINAL_RECIPES:
+                for kind in ('build-1', 'build-2', 'compare'):
+                    command = self.original_argv(name, kind)
+                    with mock.patch.object(commands, '_run',
+                            return_value=subprocess.CompletedProcess(command, 0)):
+                        commands.run(command)
+            return 0
+        native.main.side_effect = main
+        self.assertEqual(self.execute(native, cls), 0)
+        value = self.receipt()['boundary']
+        self.assertEqual(value['comparisons_completed'], 4)
+        self.assertEqual(value['last_command'], 'compare')
+        self.assertIs(value['last_command_zero'], True)
+        self.assertIs(value['native_delegate_zero'], True)
+        self.assertEqual(value['worker_status'], 'PASS')
+        self.assertIs(value['worker_cancelled'], False)
+        self.assertEqual(value['worker_cleanup_status'], 'PASS')
+        self.assertIs(value['worker_cleanup_absence'], True)
+        self.assertIs(value['worker_cleanup_cancelled'], False)
+
+    def test_late_handler_signal_rewrites_final_boundary_worker_state(self):
+        native, _, cls, _ = self.fake_native()
+        @contextmanager
+        def after_handler():
+            yield
+            raise self.cancelled(signal.SIGTERM)
+        def execute(config, state):
+            return self.execute(native, cls, state)
+        self.assertEqual(self.main(execute, cancellation_handlers=after_handler), 1)
+        value = self.receipt()['boundary']
+        self.assertEqual(value['worker_status'], 'FAIL')
+        self.assertIs(value['worker_cancelled'], True)
+        self.assertIs(value['native_delegate_zero'], True)
+        self.assertEqual(value['worker_cleanup_status'], 'PASS')
+
+    def test_actual_signal_during_final_save_rewrites_boundary_without_losing_command(self):
+        native, _, cls, _ = self.fake_native()
+        self.configure_comparison(native)
+        original, sent = producer.save, []
+        def save(path, value):
+            if value['status'] == 'PASS' and not sent:
+                sent.append(True)
+                os.kill(os.getpid(), signal.SIGTERM)
+            original(path, value)
+        def execute(config, state):
+            return self.execute(native, cls, state)
+        with mock.patch.object(producer, 'save', side_effect=save):
+            self.assertEqual(self.main(execute), 1)
+        value = self.receipt()['boundary']
+        self.assertEqual(value['worker_status'], 'FAIL')
+        self.assertIs(value['worker_cancelled'], True)
+        self.assertEqual(value['last_recipe'], 'cachy-asahi-setup')
+        self.assertEqual(value['last_command'], 'compare')
+        self.assertIs(value['last_command_zero'], True)
+
+
 class ReceiptTests(Fixture):
     def test_private_receipt_records_acquisition_before_unchanged_function_and_preserves_failure(self):
         for failed in (False, True):
@@ -362,8 +621,10 @@ class ReceiptTests(Fixture):
         native.build.side_effect = build
         native.main.side_effect = lambda argv: int(native.build('fixture', mode='unchanged') != 'fixture image')
         self.assertEqual(self.execute(native, cls), 0)
-        # No proxy command occurred in this mocked build: do not invent its completion.
-        self.assertEqual(self.receipt()['diagnostic'], {'phase': 'bootstrap', 'outcome': 'started'})
+        # Delegate completion is observed; original command details remain unknown.
+        self.assertEqual(self.receipt()['diagnostic'], {'phase': 'complete', 'outcome': 'pass'})
+        self.assertIs(self.receipt()['boundary']['native_delegate_zero'], True)
+        self.assertEqual(self.receipt()['boundary']['last_command'], 'UNOBSERVED')
 
     def test_main_retains_last_known_pass_after_upstream_returns_failure(self):
         native, _, cls, _ = self.fake_native()
