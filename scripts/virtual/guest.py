@@ -9,6 +9,7 @@ from pathlib import Path
 import platform
 import re
 import signal
+import stat
 import subprocess
 import sys
 import time
@@ -16,6 +17,9 @@ from common import bounded, LoggedProcess
 
 PREFIX = 'CACHY_ASAHI_EVENT '
 MAX_LOG = 1024 ** 2
+IPC_ARGV = ['/usr/bin/hyprctl', '-j', 'configerrors']
+IPC_TIMEOUT_REPLY = "Hyprland IPC didn't respond in time\n\nCouldn't read (6)\n"
+IPC_ATTEMPTS = 24
 
 
 def require(ok, message):
@@ -42,10 +46,57 @@ def command(argv, env=None, timeout=30):
 
 
 def retained(path, stage):
-    data = path.read_bytes()
+    retained_data(log_bytes(path), path.name, stage)
+
+
+def retained_data(data, filename, stage):
+    emit('session_log', stage=stage, filename=filename,
+         sha256=hashlib.sha256(data[:MAX_LOG]).hexdigest(), base64=base64.b64encode(data[:MAX_LOG]).decode())
     require(len(data) <= MAX_LOG, 'session log overflow')
-    emit('session_log', stage=stage, filename=path.name,
-         sha256=hashlib.sha256(data).hexdigest(), base64=base64.b64encode(data).decode())
+
+
+def log_bytes(path):
+    descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+    with os.fdopen(descriptor, 'rb') as stream:
+        require(stat.S_ISREG(os.fstat(stream.fileno()).st_mode), 'regular session log required')
+        return stream.read(MAX_LOG + 1)
+
+
+def wait_for_ipc(stage, compositor, env, log, check_logs):
+    """A bound/listening socket precedes Hyprland's event loop; require a reply."""
+    start = time.monotonic()
+    deadline, attempt = start + 180, 0
+    while time.monotonic() < deadline:
+        require(compositor.poll() is None, 'compositor exited before IPC readiness')
+        require(log.stat().st_size <= MAX_LOG, 'compositor log overflow')
+        check_logs()
+        sockets = list(Path(env['XDG_RUNTIME_DIR']).glob('hypr/*/.socket.sock'))
+        require(len(sockets) <= 1, 'ambiguous compositor IPC sockets')
+        if sockets:
+            require(sockets[0].is_socket(), 'compositor IPC path is not a socket')
+            probe_env = dict(env, HYPRLAND_INSTANCE_SIGNATURE=sockets[0].parent.name)
+            remaining = deadline - time.monotonic()
+            require(remaining > 0 and attempt < IPC_ATTEMPTS, 'compositor IPC probe deadline/attempt limit')
+            attempt += 1
+            result = bounded(IPC_ARGV, env=probe_env, timeout=min(30, remaining), limit=MAX_LOG)
+            require(type(result['returncode']) is int and result['error'] in (None, 'timeout', 'output overflow') and
+                    isinstance(result['stdout'], str) and isinstance(result['stderr'], str) and
+                    len(result['stdout'].encode('utf-8')) + len(result['stderr'].encode('utf-8')) <= MAX_LOG,
+                    'invalid bounded IPC probe result')
+            elapsed_ms = int((time.monotonic() - start) * 1000)
+            emit('ipc_probe', stage=stage, attempt=attempt, elapsed_ms=elapsed_ms, **result)
+            require(time.monotonic() < deadline, 'compositor IPC deadline')
+            require(compositor.poll() is None, 'compositor exited during IPC readiness')
+            check_logs()
+            require(log.stat().st_size <= MAX_LOG, 'compositor log overflow')
+            if result['error'] is None and result['returncode'] == 0:
+                require(result['stderr'] == '' and json.loads(result['stdout']) == [], 'runtime config errors')
+                emit('command', argv=IPC_ARGV, **result)
+                return probe_env
+            require(result == {'returncode': 6, 'error': None, 'stdout': IPC_TIMEOUT_REPLY, 'stderr': ''},
+                    'compositor IPC probe failed/overflowed')
+        time.sleep(min(.5, max(0, deadline - time.monotonic())))
+    raise ValueError('compositor IPC deadline')
 
 
 def terminate(process):
@@ -64,22 +115,25 @@ def phase(stage, config, env, root):
     log = root / (stage + '.log')
     compositor, client = None, None
     collectors = []
+    instances = Path(env['XDG_RUNTIME_DIR']) / 'hypr'
+    previous = set(instances.glob('*'))
+    private_log = None
+    def check_logs(check_size=True):
+        nonlocal private_log
+        created = set(instances.glob('*')) - previous
+        require(len(created) <= 1, 'ambiguous private compositor instance')
+        if created:
+            instance = created.pop()
+            require(instance.is_dir() and not instance.is_symlink(), 'private compositor instance required')
+            private_log = instance / 'hyprland.log'
+            if private_log.exists():
+                require(not private_log.is_symlink() and private_log.is_file() and
+                        (not check_size or private_log.stat().st_size <= MAX_LOG), 'private compositor log invalid/overflowed')
     try:
         collector = LoggedProcess(['/usr/bin/Hyprland', '--config', str(config)], log, env=env)
         collectors.append(collector)
         compositor = collector.process
-        deadline = time.monotonic() + 180
-        while time.monotonic() < deadline:
-            require(compositor.poll() is None, 'compositor exited before IPC readiness')
-            require(log.stat().st_size <= MAX_LOG, 'compositor log overflow')
-            sockets = list(Path(env['XDG_RUNTIME_DIR']).glob('hypr/*/.socket.sock'))
-            if len(sockets) == 1:
-                env = dict(env, HYPRLAND_INSTANCE_SIGNATURE=sockets[0].parent.name)
-                break
-            time.sleep(.5)
-        else:
-            raise ValueError('compositor IPC deadline')
-        require(json.loads(command(['/usr/bin/hyprctl', '-j', 'configerrors'], env)) == [], 'runtime config errors')
+        env = wait_for_ipc(stage, compositor, env, log, check_logs)
         monitors = json.loads(command(['/usr/bin/hyprctl', '-j', 'monitors'], env))
         require(any(m.get('width', 0) > 0 and m.get('height', 0) > 0 for m in monitors), 'no usable virtual output')
         wayland = list(Path(env['XDG_RUNTIME_DIR']).glob('wayland-*'))
@@ -95,6 +149,7 @@ def phase(stage, config, env, root):
         client.stdin.close()
         deadline = time.monotonic() + 45
         while time.monotonic() < deadline:
+            check_logs()
             require(client.poll() is None and compositor.poll() is None, 'client/compositor exited before frame')
             require(log.stat().st_size <= MAX_LOG and client_log.stat().st_size <= MAX_LOG, 'session/client log overflow')
             clients = json.loads(command(['/usr/bin/hyprctl', '-j', 'clients'], env))
@@ -108,6 +163,7 @@ def phase(stage, config, env, root):
         # Fixed window for outer QMP capture; no network or host IPC.
         until = time.monotonic() + 15
         while time.monotonic() < until:
+            check_logs()
             require(client.poll() is None and compositor.poll() is None and
                     log.stat().st_size <= MAX_LOG and client_log.stat().st_size <= MAX_LOG,
                     'session failed/overflowed during capture window')
@@ -121,14 +177,54 @@ def phase(stage, config, env, root):
         require(compositor.returncode == 0, 'unclean compositor shutdown')
         emit('phase_pass', stage=stage)
     finally:
+        failure = sys.exc_info()[1]
+        cleanup_errors = []
         if client and client.poll() is None:
-            terminate(client)
+            try:
+                terminate(client)
+            except Exception as exc:
+                cleanup_errors.append(exc)
         if compositor and compositor.poll() is None:
-            terminate(compositor)
+            try:
+                terminate(compositor)
+            except Exception as exc:
+                cleanup_errors.append(exc)
         for collector in collectors:
-            collector.finish()
+            try:
+                collector.finish()
+            except Exception as exc:
+                cleanup_errors.append(exc)
         if log.exists():
-            retained(log, stage)
+            try:
+                retained(log, stage)
+            except Exception as exc:
+                cleanup_errors.append(exc)
+        # Fixed file only, after reaping. Never export an instance directory.
+        private_retained = False
+        try:
+            require(compositor is None or compositor.poll() is not None, 'compositor reaping incomplete')
+            check_logs(check_size=False)
+            destination = root / (stage + '-compositor.log')
+            data = log_bytes(private_log) if private_log and private_log.exists() else b'private compositor log unavailable\n'
+            destination.write_bytes(data[:MAX_LOG])
+            retained(destination, stage)
+            private_retained = True
+            require(len(data) <= MAX_LOG, 'private compositor log overflow')
+        except Exception as exc:
+            cleanup_errors.append(exc)
+            if not private_retained:
+                try:
+                    retained_data(('private compositor log retention failed: ' + type(exc).__name__ + '\n').encode(),
+                                  stage + '-compositor.log', stage)
+                except Exception as diagnostic_error:
+                    cleanup_errors.append(diagnostic_error)
+        if cleanup_errors:
+            try:
+                print('guest secondary cleanup failures: ' + ','.join(type(exc).__name__ for exc in cleanup_errors), flush=True)
+            except Exception as diagnostic_error:
+                cleanup_errors.append(diagnostic_error)
+        if cleanup_errors and failure is None:
+            raise cleanup_errors[0]
 
 
 def run_user():

@@ -165,7 +165,8 @@ class VirtualStage(unittest.TestCase):
              'verified_pixels': 4096, 'expected_rgba': [255, 0, 255, 255],
              'scanout': 'NOT_RUN', 'm2_hardware': 'NOT_RUN', 'performance': 'NOT_RUN'}}]
         for stage in ('minimal', 'overlay'):
-            events.extend([{'event': 'frame_ready', 'stage': stage, 'monitors': [{'width': 8, 'height': 1}],
+            events.extend([self.ipc_probe(stage), self.ipc_command(),
+                           {'event': 'frame_ready', 'stage': stage, 'monitors': [{'width': 8, 'height': 1}],
                             'clients': [{'pid': 100, 'mapped': True, 'size': [8, 1]}]},
                            {'event': 'phase_pass', 'stage': stage}])
         events.append({'event': 'guest_pass', 'nonce': 'e' * 32, 'software_session': 'PASS',
@@ -205,6 +206,20 @@ class VirtualStage(unittest.TestCase):
         self.put(out / 'key-init.log', b'never export this either\n')
         self.put(log, b'controlled launcher output\n')
         return 0
+
+    @staticmethod
+    def ipc_probe(stage='minimal', **changes):
+        return {'event': 'ipc_probe', 'stage': stage, 'attempt': 1, 'elapsed_ms': 1000,
+                'returncode': 0, 'error': None, 'stdout': '[]\n', 'stderr': ''} | changes
+
+    @staticmethod
+    def ipc_command(**changes):
+        return {'event': 'command', 'argv': ['/usr/bin/hyprctl', '-j', 'configerrors'],
+                'returncode': 0, 'error': None, 'stdout': '[]\n', 'stderr': ''} | changes
+
+    @staticmethod
+    def event_index(events, kind, stage='minimal'):
+        return next(i for i, event in enumerate(events) if event['event'] == kind and event.get('stage') == stage)
 
     def capabilities(self):
         return [{'check': name, 'status': 'PASS', 'returncode': 0, 'reason': None,
@@ -568,7 +583,7 @@ class VirtualStage(unittest.TestCase):
         self.assertEqual(result['status'], 'FAIL'); self.assertTrue(fired)
         public = self.output / 'virtual-public/events/guest-events.json'
         self.assertEqual(json.loads(public.read_bytes()), [])
-        self.assertEqual(len(success_events), 7)
+        self.assertEqual(len(success_events), 11)
 
     def test_deleted_raw_result_events_do_not_discard_validated_snapshots(self):
         self.owner_mutation(lambda out: self.failed_capability_owner(out, fields=False), 1)
@@ -1180,6 +1195,207 @@ finally:
         action(events); self.put_json(path, events)
         self.mutate(out / 'result.json', lambda x: x.update(guest_events_sha256=v.digest(path)))
 
+    def failed_events_owner(self, out, events):
+        self.put_json(out / 'guest-events.json', events)
+        self.mutate(out / 'result.json', lambda receipt: receipt.update(status='FAIL', frames={},
+                    guest={'status': 'FAILED', 'hardware_validation': 'NOT RUN'},
+                    guest_events_sha256=v.digest(out / 'guest-events.json')))
+
+    def ipc_case(self, action, code=0):
+        if self.output.exists():
+            shutil.rmtree(self.output)
+        self.owner_mutation(action, code)
+
+    def test_ipc_ready_and_exact_retry_recovery_publish_correlated_evidence(self):
+        timeout_reply = "Hyprland IPC didn't respond in time\n\nCouldn't read (6)\n"
+        for attempts in (1, 2, 24):
+            for elapsed in (1000, 179999):
+                with self.subTest(attempts=attempts, final_elapsed=elapsed):
+                    captured = []
+                    def recover(events):
+                        for stage in ('minimal', 'overlay'):
+                            index = self.event_index(events, 'ipc_probe', stage)
+                            rows = [self.ipc_probe(stage, attempt=n, elapsed_ms=0, returncode=6,
+                                                  stdout=timeout_reply) for n in range(1, attempts)]
+                            rows.append(self.ipc_probe(stage, attempt=attempts, elapsed_ms=elapsed))
+                            events[index:index + 1] = rows
+                        captured.extend(copy.deepcopy(events))
+                    self.ipc_case(lambda out: self.altered_events(out, recover))
+                    result = self.run_adapter()
+                    self.assertEqual(result['status'], 'PASS', result.get('error_code'))
+                    public = json.loads((self.output / 'virtual-public/events/guest-events.json').read_bytes())
+                    self.assertEqual(public, captured)
+                    self.assertEqual(sum(event['event'] == 'ipc_probe' for event in public), attempts * 2)
+                    self.assertTrue((self.output / 'virtual-public/minimal-frame').is_dir())
+                    shutil.rmtree(self.output)
+
+    def test_failed_ipc_typed_fatal_partial_and_late_diagnostics_are_retained_without_frames(self):
+        cases = [self.ipc_probe(returncode=-64, error='timeout', stdout=''),
+                 self.ipc_probe(returncode=255, error='output overflow', stdout='bounded prefix'),
+                 self.ipc_probe(attempt=24, elapsed_ms=600000, returncode=4, stderr='connect failed'),
+                 self.ipc_probe(elapsed_ms=180000), self.ipc_probe(elapsed_ms=180100),
+                 self.ipc_probe(stdout='["actual config error"]'),
+                 self.ipc_probe(attempt=2, elapsed_ms=0),
+                 self.ipc_probe(stdout='\u00e9' * (1024 ** 2 // 2))]
+        for row in cases:
+            with self.subTest(row={key: value for key, value in row.items() if key not in ('stdout', 'stderr')}):
+                events = [row, {'event': 'guest_failed', 'error': 'bounded guest failure', 'hardware_validation': 'NOT RUN'}]
+                self.ipc_case(lambda out: self.failed_events_owner(out, events), 1)
+                result = self.run_adapter()
+                self.assertEqual(result['status'], 'FAIL')
+                self.assertEqual(json.loads((self.output / 'virtual-public/events/guest-events.json').read_bytes()), events)
+                self.assertFalse((self.output / 'virtual-public/minimal-frame').exists())
+                self.assertFalse((self.output / 'virtual-public/overlay-frame').exists())
+                shutil.rmtree(self.output)
+        # A READY followed by an interrupted correlation remains a failed diagnostic.
+        events = [self.ipc_probe(), {'event': 'guest_failed', 'error': 'correlation interrupted', 'hardware_validation': 'NOT RUN'}]
+        self.ipc_case(lambda out: self.failed_events_owner(out, events), 1)
+        self.assertEqual(self.run_adapter()['status'], 'FAIL')
+        self.assertEqual(json.loads((self.output / 'virtual-public/events/guest-events.json').read_bytes()), events)
+
+    def test_historical_ten_failed_guest_events_without_ipc_probe_remain_retained(self):
+        data = b'stdout disabled; private compositor log was not retained\n'
+        captured = []
+        def historical(out):
+            old = json.loads((out / 'guest-events.json').read_bytes())
+            events = [old[0]]
+            for argv in (['/usr/bin/modprobe', 'virtio_gpu'], ['/usr/bin/udevadm', 'settle', '--timeout=30'],
+                         ['/usr/bin/dmesg'], ['/usr/bin/pacman', '-Q'], ['/usr/local/bin/gbm-probe', '/dev/dri/card0']):
+                events.append({'event': 'command', 'argv': argv, 'returncode': 0, 'error': None,
+                               'stdout': 'bounded historical diagnostic', 'stderr': ''})
+            events.extend([old[1], self.ipc_command(returncode=6,
+                           stdout="Hyprland IPC didn't respond in time\n\nCouldn't read (6)\n"),
+                           {'event': 'session_log', 'stage': 'minimal', 'filename': 'minimal.log',
+                            'sha256': sha(data), 'base64': base64.b64encode(data).decode()},
+                           {'event': 'guest_failed', 'error': 'command failed/overflowed: /usr/bin/hyprctl',
+                            'hardware_validation': 'NOT RUN'}])
+            captured.extend(events); self.failed_events_owner(out, events)
+        self.ipc_case(historical, 1)
+        self.assertEqual(self.run_adapter()['status'], 'FAIL')
+        self.assertEqual(len(captured), 10)
+        self.assertEqual(json.loads((self.output / 'virtual-public/events/guest-events.json').read_bytes()), captured)
+        self.assertFalse((self.output / 'virtual-public/minimal-frame').exists())
+
+    def test_ipc_probe_closed_shape_types_ranges_and_utf8_caps_refuse_before_public_copy(self):
+        changes = [('extra', 'unknown'), ('event', 'unknown'), ('stage', 'native'), ('stage', False),
+                   ('attempt', True), ('attempt', 0), ('attempt', 25), ('attempt', 1.0),
+                   ('elapsed_ms', False), ('elapsed_ms', -1), ('elapsed_ms', 600001), ('elapsed_ms', 1.0),
+                   ('returncode', False), ('returncode', -65), ('returncode', 256), ('returncode', 0.0),
+                   ('error', False), ('error', 'PRIVATE_DIAGNOSTIC'), ('error', 0),
+                   ('stdout', False), ('stderr', []), ('stdout', 'x' * (1024 ** 2 + 1)),
+                   ('stdout', '\u00e9' * (1024 ** 2 // 2 + 1))]
+        variants = [(key, self.ipc_probe(**{key: value})) for key, value in changes]
+        variants += [('missing-' + key, {name: value for name, value in self.ipc_probe().items() if name != key})
+                     for key in self.ipc_probe()]
+        variants.append(('combined-byte-overflow', self.ipc_probe(stdout='x' * (1024 ** 2 // 2),
+                                                                  stderr='y' * (1024 ** 2 // 2 + 1))))
+        for label, row in variants:
+            with self.subTest(case=label):
+                self.ipc_case(lambda out: self.failed_events_owner(out, [row]), 1)
+                result = self.run_adapter(); self.assertEqual(result['status'], 'FAIL')
+                self.assertFalse((self.output / 'virtual-public/events').exists())
+                self.assertNotIn('PRIVATE_DIAGNOSTIC', (self.output / 'adapter-status/result.json').read_text())
+                shutil.rmtree(self.output)
+
+    def test_ipc_success_protocol_rejects_gaps_reordering_fatal_retries_and_uncorrelated_commands(self):
+        timeout_reply = "Hyprland IPC didn't respond in time\n\nCouldn't read (6)\n"
+        def minimal(events): return self.event_index(events, 'ipc_probe')
+        def retry(events, **changes):
+            index = minimal(events)
+            events[index]['attempt'] = 2
+            events.insert(index, self.ipc_probe(**({'returncode': 6, 'stdout': timeout_reply, 'elapsed_ms': 0} | changes)))
+        mutations = [
+            ('missing-probe', lambda events: events.pop(minimal(events))),
+            ('missing-command', lambda events: events.pop(minimal(events) + 1)),
+            ('missing-overlay-probe', lambda events: events.pop(self.event_index(events, 'ipc_probe', 'overlay'))),
+            ('first-attempt-two', lambda events: events[minimal(events)].update(attempt=2)),
+            ('late-ready', lambda events: events[minimal(events)].update(elapsed_ms=180000)),
+            ('late-fatal-diagnostic', lambda events: events[minimal(events)].update(elapsed_ms=600000, returncode=4)),
+            ('nonempty-ready-json', lambda events: events[minimal(events)].update(stdout='["config error"]')),
+            ('nonlist-ready-json', lambda events: events[minimal(events)].update(stdout='{}')),
+            ('invalid-ready-json', lambda events: events[minimal(events)].update(stdout='not JSON')),
+            ('ready-stderr', lambda events: events[minimal(events)].update(stderr='warning')),
+            ('fatal-retry-exit', lambda events: retry(events, returncode=4)),
+            ('retry-timeout', lambda events: retry(events, error='timeout')),
+            ('retry-output-overflow', lambda events: retry(events, error='output overflow')),
+            ('different-timeout-reply', lambda events: retry(events, stdout="Couldn't read (6)\n")),
+            ('retry-stderr', lambda events: retry(events, stderr='warning')),
+            ('retry-gap', lambda events: (retry(events), events[minimal(events) + 1].update(attempt=3))),
+            ('retry-time-reversal', lambda events: (retry(events), events[minimal(events)].update(elapsed_ms=1001))),
+            ('retry-at-deadline', lambda events: retry(events, elapsed_ms=180000)),
+            ('duplicate-ready', lambda events: events.insert(minimal(events), copy.deepcopy(events[minimal(events)]))),
+            ('probe-after-ready-command', lambda events: events.insert(minimal(events) + 2, self.ipc_probe(attempt=2))),
+            ('extra-correlated-command', lambda events: events.insert(minimal(events) + 2, self.ipc_command())),
+            ('wrong-command-argv', lambda events: events[minimal(events) + 1].update(argv=['/usr/bin/hyprctl', '-j', 'monitors'])),
+            ('wrong-command-response', lambda events: events[minimal(events) + 1].update(stdout='[ ]\n')),
+            ('bool-command-returncode', lambda events: events[minimal(events) + 1].update(returncode=False)),
+            ('float-command-returncode', lambda events: events[minimal(events) + 1].update(returncode=0.0)),
+            ('failed-command', lambda events: events[minimal(events) + 1].update(returncode=6, stdout=timeout_reply)),
+            ('interrupted-correlation', lambda events: events.insert(minimal(events) + 1,
+                         {'event': 'command', 'argv': ['/usr/bin/dmesg'], 'returncode': 0, 'error': None, 'stdout': '', 'stderr': ''})),
+            ('log-interrupted-correlation', lambda events: events.insert(minimal(events) + 1,
+                         {'event': 'session_log', 'stage': 'minimal', 'filename': 'minimal-compositor.log',
+                          'sha256': sha(b''), 'base64': ''})),
+            ('frame-before-ready', lambda events: events.insert(minimal(events), events.pop(self.event_index(events, 'frame_ready')))),
+            ('phase-before-ready', lambda events: events.insert(minimal(events), events.pop(self.event_index(events, 'phase_pass')))),
+            ('overlay-first', lambda events: events[minimal(events)].update(stage='overlay')),
+            ('stage-interleaving', lambda events: (retry(events), events.insert(minimal(events) + 1, self.ipc_probe('overlay')))),
+            ('probe-before-gbm', lambda events: events.insert(1, events.pop(minimal(events)))),
+        ]
+        for label, mutate in mutations:
+            with self.subTest(case=label):
+                self.ipc_case(lambda out: self.altered_events(out, mutate))
+                self.assertEqual(self.run_adapter()['status'], 'FAIL')
+                self.assertFalse((self.output / 'virtual-public/minimal-frame').exists())
+                self.assertFalse((self.output / 'virtual-public/overlay-frame').exists())
+                shutil.rmtree(self.output)
+
+    def test_ipc_probe_private_credentials_and_encoded_compositor_logs_cannot_publish(self):
+        secret = 'password=IPC_PRIVATE_SENTINEL'
+        for field in ('stdout', 'stderr'):
+            for text in (secret, '\x1b[32mpass\x1b[0mword=IPC_PRIVATE_SENTINEL'):
+                with self.subTest(field=field, text=text):
+                    self.ipc_case(lambda out: self.failed_events_owner(out, [self.ipc_probe(**{field: text})]), 1)
+                    self.assertEqual(self.run_adapter()['status'], 'FAIL')
+                    self.assertFalse((self.output / 'virtual-public/events').exists())
+                    self.assertNotIn('IPC_PRIVATE_SENTINEL', (self.output / 'adapter-status/result.json').read_text())
+                    shutil.rmtree(self.output)
+        for stage in ('minimal', 'overlay'):
+            for filename in (stage + '-compositor.log', stage + '-other.log', stage + '/../hyprland.log'):
+                for data in (b'bounded private runtime compositor log\n', b'-----BEGIN PGP PRIVATE KEY BLOCK-----\n'):
+                    with self.subTest(stage=stage, filename=filename, private=data.startswith(b'-----')):
+                        def add(events):
+                            events.insert(self.event_index(events, 'phase_pass', stage),
+                                {'event': 'session_log', 'stage': stage, 'filename': filename,
+                                 'sha256': sha(data), 'base64': base64.b64encode(data).decode()})
+                        self.ipc_case(lambda out: self.altered_events(out, add))
+                        accepted = filename == stage + '-compositor.log' and not data.startswith(b'-----')
+                        self.assertEqual(self.run_adapter()['status'], 'PASS' if accepted else 'FAIL')
+                        if not accepted:
+                            self.assertFalse((self.output / 'virtual-public/events').exists())
+                        shutil.rmtree(self.output)
+
+    def test_compositor_log_binding_individual_and_aggregate_caps_remain_closed(self):
+        def row(data=b'', **changes):
+            return {'event': 'session_log', 'stage': 'minimal', 'filename': 'minimal-compositor.log',
+                    'sha256': sha(data), 'base64': base64.b64encode(data).decode()} | changes
+        cases = [('wrong-hash', [row(b'log', sha256='0' * 64)]),
+                 ('invalid-base64', [row(base64='!')]), ('extra-field', [row(opaque='unreviewed')]),
+                 ('wrong-stage-filename', [row(filename='overlay-compositor.log')]),
+                 ('exact-1MiB', [row(b'x' * (1024 ** 2))]),
+                 ('over-1MiB', [row(b'x' * (1024 ** 2 + 1))]),
+                 ('aggregate-over-4MiB', [row(b'x' * (1024 ** 2)) for _ in range(4)])]
+        self.assertEqual(v.LIMIT, 4 * 1024 ** 2)
+        for label, rows in cases:
+            with self.subTest(case=label):
+                self.ipc_case(lambda out: self.failed_events_owner(out, rows), 1)
+                self.assertEqual(self.run_adapter()['status'], 'FAIL')
+                if label == 'exact-1MiB':
+                    self.assertEqual(json.loads((self.output / 'virtual-public/events/guest-events.json').read_bytes()), rows)
+                else:
+                    self.assertFalse((self.output / 'virtual-public/events').exists())
+                shutil.rmtree(self.output)
+
     def test_rehashed_empty_incomplete_duplicate_or_reordered_events_publish_no_frames(self):
         mutations = [lambda events: events.clear(), lambda events: events.pop(3),
                      lambda events: events.insert(0, copy.deepcopy(events[0])),
@@ -1198,7 +1414,7 @@ finally:
                      lambda events: events[0].update(arch='x86_64'),
                      lambda events: events[0].update(page_size=16384),
                      lambda events: events[1]['probe'].update(renderer='host-GPU'),
-                     lambda events: events[2]['clients'][0].update(mapped=False)]
+                     lambda events: events[self.event_index(events, 'frame_ready')]['clients'][0].update(mapped=False)]
         for mutation in mutations:
             self.owner_mutation(lambda out: self.altered_events(out, mutation))
             self.assertEqual(self.run_adapter()['status'], 'FAIL')
@@ -1212,7 +1428,7 @@ finally:
             for command in ('/usr/bin/dmesg', '/usr/bin/pacman'):
                 events.insert(1, {'event': 'command', 'argv': [command], 'returncode': 0, 'error': None,
                                   'stdout': 'public diagnostic', 'stderr': ''})
-            events.insert(5, {'event': 'session_log', 'stage': 'minimal', 'filename': 'minimal-client.log',
+            events.insert(self.event_index(events, 'phase_pass'), {'event': 'session_log', 'stage': 'minimal', 'filename': 'minimal-client.log',
                              'sha256': sha(data), 'base64': base64.b64encode(data).decode()})
         self.owner_mutation(lambda out: self.altered_events(out, add))
         self.assertEqual(self.run_adapter()['status'], 'PASS')
@@ -1228,7 +1444,8 @@ finally:
         self.assertFalse((self.output / 'virtual-public/minimal-frame').exists())
 
     def test_unknown_event_fields_cannot_enter_public_projection(self):
-        self.owner_mutation(lambda out: self.altered_events(out, lambda events: events[2].update(opaque='encoded-unknown-payload')))
+        self.owner_mutation(lambda out: self.altered_events(out, lambda events:
+                            events[self.event_index(events, 'frame_ready')].update(opaque='encoded-unknown-payload')))
         self.assertEqual(self.run_adapter()['status'], 'FAIL')
         self.assertFalse((self.output / 'virtual-public/events').exists())
         self.assertFalse((self.output / 'virtual-public/minimal-frame').exists())

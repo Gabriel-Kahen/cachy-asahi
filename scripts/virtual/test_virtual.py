@@ -1,6 +1,8 @@
 # SPDX-License-Identifier: MIT
 """Guard/output/metadata tests; no Docker, kernel, DRM or ARM execution."""
 import copy
+import base64
+from contextlib import contextmanager
 import hashlib
 import json
 import os
@@ -14,11 +16,388 @@ import threading
 import time
 import unittest
 from unittest.mock import patch
+from unittest.mock import Mock
 
 import audit_tooling
 import common
 import guest
 import run
+
+
+class GuestIPC(unittest.TestCase):
+    @contextmanager
+    def delayed_fixture(self):
+        """Real bound/listening AF_UNIX socket whose loop starts after probe one."""
+        with tempfile.TemporaryDirectory(prefix='virtual-ipc-race-') as temporary:
+            root = Path(temporary)
+            instance = root / 'hypr' / 'fixture'; instance.mkdir(parents=True)
+            path = instance / '.socket.sock'
+            log = root / 'minimal.log'; log.write_text('startup\n')
+            listener = socket.socket(socket.AF_UNIX)
+            listener.bind(str(path)); listener.listen(10); listener.settimeout(.1)
+            ready, stop = threading.Event(), threading.Event()
+            def serve():
+                while not stop.is_set():
+                    try: connection, _ = listener.accept()
+                    except socket.timeout: continue
+                    with connection:
+                        connection.recv(1024)
+                        ready.wait(2)
+                        try: connection.sendall(b'[]\n')
+                        except BrokenPipeError: pass
+            worker = threading.Thread(target=serve); worker.start()
+            results = []
+            code = ('import socket,sys; s=socket.socket(socket.AF_UNIX); s.settimeout(.05); '
+                    's.connect(sys.argv[1]); s.sendall(b"j/configerrors");\n'
+                    'try: data=s.recv(1024)\n'
+                    'except socket.timeout:\n'
+                    ' print("Hyprland IPC didn\'t respond in time\\n\\nCouldn\'t read (6)"); sys.exit(6)\n'
+                    'print(data.decode(),end="")')
+            def probe(argv, **options):
+                self.assertEqual(argv, guest.IPC_ARGV)
+                self.assertEqual(options['env']['HYPRLAND_INSTANCE_SIGNATURE'], 'fixture')
+                result = common.bounded([sys.executable, '-I', '-B', '-c', code, str(path)],
+                                        timeout=options['timeout'], limit=options['limit'])
+                results.append(result); ready.set()
+                return result
+            try:
+                self.assertTrue(path.is_socket())
+                yield root, log, {'XDG_RUNTIME_DIR': str(root)}, probe, results
+            finally:
+                stop.set(); ready.set(); worker.join(timeout=3); listener.close()
+                self.assertFalse(worker.is_alive())
+
+    def test_old_socket_exists_gate_causally_fails_on_real_delayed_server(self):
+        with self.delayed_fixture() as (root, log, env, probe, results), \
+                patch('guest.bounded', side_effect=probe), patch('guest.emit') as events:
+            # Historical exact gate: socket discovery immediately followed by command().
+            sockets = list(root.glob('hypr/*/.socket.sock'))
+            env = dict(env, HYPRLAND_INSTANCE_SIGNATURE=sockets[0].parent.name)
+            with self.assertRaisesRegex(ValueError, 'command failed/overflowed'):
+                guest.command(guest.IPC_ARGV, env)
+            self.assertEqual(results, [{'returncode': 6, 'error': None,
+                                        'stdout': guest.IPC_TIMEOUT_REPLY, 'stderr': ''}])
+            self.assertEqual(events.call_args.kwargs['returncode'], 6)
+
+    def test_reply_gate_recovers_same_race_and_retains_first_failure(self):
+        with self.delayed_fixture() as (root, log, env, probe, results), \
+                patch('guest.bounded', side_effect=probe), patch('guest.emit') as events:
+            compositor, check = Mock(), Mock(); compositor.poll.return_value = None
+            actual = guest.wait_for_ipc('minimal', compositor, env, log, check)
+            self.assertEqual(actual['HYPRLAND_INSTANCE_SIGNATURE'], 'fixture')
+            self.assertEqual([row['returncode'] for row in results], [6, 0])
+            attempts = [call.kwargs for call in events.call_args_list if call.args == ('ipc_probe',)]
+            self.assertEqual([row['attempt'] for row in attempts], [1, 2])
+            self.assertEqual(attempts[0]['stdout'], guest.IPC_TIMEOUT_REPLY)
+            self.assertLessEqual(attempts[0]['elapsed_ms'], attempts[1]['elapsed_ms'])
+            self.assertEqual(events.call_args.args, ('command',))
+            self.assertEqual(events.call_args.kwargs['returncode'], 0)
+
+    def simple_fixture(self, root):
+        instance = root / 'hypr' / 'fixture'; instance.mkdir(parents=True)
+        listener = socket.socket(socket.AF_UNIX); listener.bind(str(instance / '.socket.sock'))
+        self.addCleanup(listener.close)
+        log = root / 'minimal.log'; log.write_text('startup\n')
+        compositor = Mock(); compositor.poll.return_value = None
+        return compositor, {'XDG_RUNTIME_DIR': str(root)}, log
+
+    def test_only_observed_transient_is_retryable_not_config_or_process_errors(self):
+        invalid = [{'returncode': 6, 'error': None, 'stdout': "Couldn't read (6)\n", 'stderr': ''},
+                   {'returncode': 4, 'error': None, 'stdout': guest.IPC_TIMEOUT_REPLY, 'stderr': ''},
+                   {'returncode': 6, 'error': None, 'stdout': guest.IPC_TIMEOUT_REPLY, 'stderr': 'warning'},
+                   {'returncode': -9, 'error': 'timeout', 'stdout': '', 'stderr': ''},
+                   {'returncode': -9, 'error': 'output overflow', 'stdout': '', 'stderr': ''},
+                   {'returncode': 0, 'error': None, 'stdout': '["bad config"]', 'stderr': ''},
+                   {'returncode': 0, 'error': None, 'stdout': '{"not":"list"}', 'stderr': ''},
+                   {'returncode': 0, 'error': None, 'stdout': 'not JSON', 'stderr': ''}]
+        for result in invalid:
+            with self.subTest(result=result), tempfile.TemporaryDirectory() as temporary:
+                compositor, env, log = self.simple_fixture(Path(temporary))
+                with patch('guest.bounded', return_value=result) as probe, patch('guest.emit') as events, \
+                        self.assertRaises(ValueError):
+                    guest.wait_for_ipc('minimal', compositor, env, log, Mock())
+                self.assertEqual(probe.call_count, 1)
+                self.assertEqual(events.call_count, 1)
+                self.assertEqual(events.call_args.args, ('ipc_probe',))
+
+    def test_attempt_cap_is_finite_and_holds_each_failed_probe(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            compositor, env, log = self.simple_fixture(Path(temporary))
+            result = {'returncode': 6, 'error': None, 'stdout': guest.IPC_TIMEOUT_REPLY, 'stderr': ''}
+            with patch('guest.bounded', return_value=result) as probe, patch('guest.emit') as events, \
+                    patch('guest.time.sleep'), self.assertRaisesRegex(ValueError, 'attempt limit'):
+                guest.wait_for_ipc('overlay', compositor, env, log, Mock())
+            self.assertEqual(probe.call_count, guest.IPC_ATTEMPTS)
+            self.assertEqual([call.kwargs['attempt'] for call in events.call_args_list],
+                             list(range(1, guest.IPC_ATTEMPTS + 1)))
+            self.assertTrue(all(0 < call.kwargs['timeout'] <= 30 for call in probe.call_args_list))
+
+    def test_probe_result_types_and_compositor_liveness_stay_strict(self):
+        for change in ({'returncode': False}, {'error': False}, {'stdout': False}, {'stderr': None},
+                       {'stdout': 'x' * (guest.MAX_LOG + 1)}):
+            with self.subTest(change=change), tempfile.TemporaryDirectory() as temporary:
+                compositor, env, log = self.simple_fixture(Path(temporary))
+                result = {'returncode': 0, 'error': None, 'stdout': '[]', 'stderr': ''} | change
+                with patch('guest.bounded', return_value=result), patch('guest.emit') as events, \
+                        self.assertRaisesRegex(ValueError, 'invalid bounded IPC'):
+                    guest.wait_for_ipc('minimal', compositor, env, log, Mock())
+                events.assert_not_called()
+        with tempfile.TemporaryDirectory() as temporary:
+            compositor, env, log = self.simple_fixture(Path(temporary))
+            compositor.poll.side_effect = [None, 1]
+            with patch('guest.bounded', return_value={'returncode': 0, 'error': None, 'stdout': '[]', 'stderr': ''}), \
+                    patch('guest.emit') as events, self.assertRaisesRegex(ValueError, 'exited during IPC'):
+                guest.wait_for_ipc('minimal', compositor, env, log, Mock())
+            self.assertEqual(events.call_count, 1)
+            self.assertEqual(events.call_args.args, ('ipc_probe',))
+
+    def test_missing_socket_expires_original_startup_budget_without_command(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary); log = root / 'minimal.log'; log.write_text('startup')
+            compositor = Mock(); compositor.poll.return_value = None; clock = [0.0]
+            def check(): clock[0] = 180
+            with patch('guest.time.monotonic', side_effect=lambda: clock[0]), patch('guest.time.sleep'), \
+                    patch('guest.bounded') as probe, self.assertRaisesRegex(ValueError, 'IPC deadline'):
+                guest.wait_for_ipc('minimal', compositor, {'XDG_RUNTIME_DIR': str(root)}, log, check)
+            probe.assert_not_called()
+
+    def test_same_absolute_deadline_bounds_last_probe_and_cannot_pass_late(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            compositor, env, log = self.simple_fixture(Path(temporary))
+            clock = [0.0]
+            def probe(_argv, **options):
+                self.assertEqual(options['timeout'], .25)
+                clock[0] = 180.1
+                return {'returncode': 0, 'error': None, 'stdout': '[]', 'stderr': ''}
+            def check(): clock[0] = 179.75
+            with patch('guest.time.monotonic', side_effect=lambda: clock[0]), \
+                    patch('guest.bounded', side_effect=probe), patch('guest.emit') as events, \
+                    self.assertRaisesRegex(ValueError, 'IPC deadline'):
+                guest.wait_for_ipc('minimal', compositor, env, log, check)
+            self.assertEqual(events.call_args.kwargs['elapsed_ms'], 180100)
+            self.assertEqual(events.call_count, 1)
+
+    def test_fractional_deadline_reports_floor_milliseconds_and_refuses_late_ready(self):
+        for actual_time, milliseconds, ready in ((179.9996, 179999, True), (180.0001, 180000, False)):
+            with self.subTest(actual_time=actual_time), tempfile.TemporaryDirectory() as temporary:
+                compositor, env, log = self.simple_fixture(Path(temporary)); clock = [0.0]
+                def check(): clock[0] = 179.75
+                def probe(_argv, **_options):
+                    clock[0] = actual_time
+                    return {'returncode': 0, 'error': None, 'stdout': '[]', 'stderr': ''}
+                with patch('guest.time.monotonic', side_effect=lambda: clock[0]), \
+                        patch('guest.bounded', side_effect=probe), patch('guest.emit') as events:
+                    if ready:
+                        self.assertEqual(guest.wait_for_ipc('minimal', compositor, env, log, check)
+                                         ['HYPRLAND_INSTANCE_SIGNATURE'], 'fixture')
+                    else:
+                        with self.assertRaisesRegex(ValueError, 'IPC deadline'):
+                            guest.wait_for_ipc('minimal', compositor, env, log, check)
+                self.assertEqual(events.call_args_list[0].kwargs['elapsed_ms'], milliseconds)
+                self.assertEqual([call.args for call in events.call_args_list],
+                                 [('ipc_probe',), ('command',)] if ready else [('ipc_probe',)])
+
+    def test_diagnostic_cap_counts_combined_utf8_bytes_including_replacement_expansion(self):
+        # ASCII whitespace is valid JSON padding; Unicode whitespace in stderr still
+        # has to count toward the combined cap before any event is published.
+        for stdout, stderr, accepted in (('[]' + ' ' * 6, '', True), ('[]' + ' ' * 7, '', False),
+                                         ('[]', '\u00e9' * 3, False), ('[]', '\u00e9' * 4, False)):
+            with self.subTest(stdout=stdout, stderr=stderr), tempfile.TemporaryDirectory() as temporary:
+                compositor, env, log = self.simple_fixture(Path(temporary)); log.write_text('')
+                result = {'returncode': 0, 'error': None, 'stdout': stdout, 'stderr': stderr}
+                with patch('guest.MAX_LOG', 8), patch('guest.bounded', return_value=result), \
+                        patch('guest.emit') as events:
+                    if accepted:
+                        guest.wait_for_ipc('minimal', compositor, env, log, Mock())
+                    else:
+                        with self.assertRaises(ValueError):
+                            guest.wait_for_ipc('minimal', compositor, env, log, Mock())
+                byte_count = len(stdout.encode()) + len(stderr.encode())
+                self.assertEqual(events.call_count, 0 if byte_count > 8 else 2 if accepted else 1)
+        with tempfile.TemporaryDirectory() as temporary:
+            compositor, env, log = self.simple_fixture(Path(temporary)); log.write_text('')
+            observed = []
+            def probe(_argv, **options):
+                result = common.bounded([sys.executable, '-c', 'import os;os.write(1,b"\\xff"*8)'],
+                                        timeout=options['timeout'], limit=options['limit'])
+                observed.append(result); return result
+            with patch('guest.MAX_LOG', 8), patch('guest.bounded', side_effect=probe), \
+                    patch('guest.emit') as events, self.assertRaisesRegex(ValueError, 'invalid bounded IPC'):
+                guest.wait_for_ipc('minimal', compositor, env, log, Mock())
+            self.assertIsNone(observed[0]['error'])
+            self.assertEqual(len(observed[0]['stdout']), 8)
+            self.assertEqual(len(observed[0]['stdout'].encode()), 24)
+            events.assert_not_called()
+
+    def test_compositor_exit_and_non_socket_or_ambiguous_paths_never_probe(self):
+        for kind in ('exit', 'file', 'ambiguous', 'overflow'):
+            with self.subTest(kind=kind), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary); compositor, env, log = self.simple_fixture(root)
+                path = root / 'hypr' / 'fixture' / '.socket.sock'
+                if kind == 'exit': compositor.poll.return_value = 1
+                if kind == 'file': path.unlink(); path.write_text('fake')
+                if kind == 'ambiguous':
+                    extra = root / 'hypr' / 'other'; extra.mkdir(); (extra / '.socket.sock').write_text('fake')
+                if kind == 'overflow': log.write_bytes(b'x' * (guest.MAX_LOG + 1))
+                with patch('guest.bounded') as probe, self.assertRaises(ValueError):
+                    guest.wait_for_ipc('minimal', compositor, env, log, Mock())
+                probe.assert_not_called()
+
+    def test_retention_is_bounded_regular_file_only_and_preserves_overflow_prefix(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary); path = root / 'minimal.log'; path.write_bytes(b'x' * 65)
+            with patch('guest.MAX_LOG', 64), patch('guest.emit') as events, \
+                    self.assertRaisesRegex(ValueError, 'session log overflow'):
+                guest.retained(path, 'minimal')
+            row = events.call_args.kwargs
+            self.assertEqual(base64.b64decode(row['base64']), b'x' * 64)
+            self.assertEqual(row['sha256'], hashlib.sha256(b'x' * 64).hexdigest())
+            linked = root / 'linked'; linked.symlink_to(path)
+            with self.assertRaises(OSError): guest.log_bytes(linked)
+            fifo = root / 'fifo'; os.mkfifo(fifo)
+            with self.assertRaisesRegex(ValueError, 'regular session log'): guest.log_bytes(fifo)
+
+    def test_failed_phase_reaps_and_retains_actual_private_log_or_static_failure(self):
+        for capture_failure in (False, True):
+            with self.subTest(capture_failure=capture_failure), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary); runtime = root / 'runtime'; runtime.mkdir()
+                process, collector = Mock(), Mock(); process.poll.return_value = None; collector.process = process
+                def launch(_argv, path, **_options):
+                    path.write_text('stdout disabled\n')
+                    instance = runtime / 'hypr' / 'new'; instance.mkdir(parents=True)
+                    private = instance / 'hyprland.log'; private.write_text('actual private startup\n')
+                    if capture_failure:
+                        private.unlink(); private.symlink_to(root / 'minimal.log')
+                    return collector
+                failure = ValueError('original IPC failure')
+                def terminate(_process): process.poll.return_value = -15
+                with patch('guest.LoggedProcess', side_effect=launch), \
+                        patch('guest.wait_for_ipc', side_effect=failure), \
+                        patch('guest.terminate', side_effect=terminate) as reap, patch('guest.emit') as events, \
+                        self.assertRaises(ValueError) as caught:
+                    guest.phase('minimal', root / 'config', {'XDG_RUNTIME_DIR': str(runtime)}, root)
+                self.assertIs(caught.exception, failure); reap.assert_called_once_with(process)
+                collector.finish.assert_called_once()
+                rows = [call.kwargs for call in events.call_args_list if call.args == ('session_log',)]
+                self.assertEqual([row['filename'] for row in rows], ['minimal.log', 'minimal-compositor.log'])
+                expected = b'private compositor log retention failed: ValueError\n' if capture_failure else b'actual private startup\n'
+                self.assertEqual(base64.b64decode(rows[-1]['base64']), expected)
+
+    def test_actual_timed_out_probe_is_fatal_and_child_is_reaped(self):
+        original, children = subprocess.Popen, []
+        def spawn(*args, **kwargs):
+            process = original(*args, **kwargs); children.append(process); return process
+        def probe(_argv, **options):
+            return common.bounded([sys.executable, '-c', 'import time;time.sleep(30)'],
+                                  timeout=.05, limit=options['limit'])
+        with tempfile.TemporaryDirectory() as temporary:
+            compositor, env, log = self.simple_fixture(Path(temporary))
+            with patch('common.subprocess.Popen', side_effect=spawn), patch('guest.bounded', side_effect=probe), \
+                    patch('guest.emit') as events, self.assertRaisesRegex(ValueError, 'probe failed'):
+                guest.wait_for_ipc('minimal', compositor, env, log, Mock())
+            self.assertEqual(len(children), 1); self.assertIsNotNone(children[0].poll())
+            self.assertEqual(events.call_args.kwargs['error'], 'timeout')
+
+
+class GuestDiagnostics(unittest.TestCase):
+    def diagnostic_phase(self, phase_failure=None, cleanup_failure=None, invalid_capture=False,
+                         closed_log=None, closed_summary=False):
+        """Exercise phase cleanup with controlled first failures and sink refusal."""
+        with tempfile.TemporaryDirectory(prefix='virtual-diagnostic-') as temporary:
+            root = Path(temporary); runtime = root / 'runtime'; runtime.mkdir()
+            wayland = socket.socket(socket.AF_UNIX); wayland.bind(str(runtime / 'wayland-0'))
+            compositor, client = Mock(), Mock(); client.pid = 42
+            compositor.poll.return_value = client.poll.return_value = None
+            compositor.returncode = 0
+            collectors = [Mock(process=compositor), Mock(process=client)]
+            collectors[0].finish.side_effect = cleanup_failure
+            private = runtime / 'hypr' / 'new' / 'hyprland.log'
+            def launch(_argv, path, **_options):
+                path.write_text('actual stdout\n')
+                if not private.exists():
+                    private.parent.mkdir(parents=True); private.write_text('actual private\n')
+                return collectors[0] if path.name == 'minimal.log' else collectors[1]
+            def reap(process):
+                process.poll.return_value = -15
+                if process is compositor and invalid_capture:
+                    private.unlink(); private.symlink_to(root / 'minimal.log')
+            compositor.wait.side_effect = lambda **_options: reap(compositor)
+            def command(argv, _env):
+                if argv[-1] == 'monitors': return '[{"width":1,"height":1}]'
+                if argv[-1] == 'clients': return '[{"pid":42,"mapped":true,"size":[1,1]}]'
+                return ''
+            delivered, refused = [], []
+            channel_failure = BrokenPipeError('log channel closed')
+            summary_failure = BrokenPipeError('summary channel closed')
+            def emit(event, **row):
+                if event == 'session_log' and (closed_log == 'all' and row['filename'] != 'minimal-client.log' or
+                        closed_log == 'private' and row['filename'] == 'minimal-compositor.log'):
+                    refused.append(row)
+                    raise channel_failure if len(refused) == 1 else BrokenPipeError('fallback channel closed')
+                delivered.append({'event': event, **row})
+            env = {'XDG_RUNTIME_DIR': str(runtime)}
+            try:
+                with patch('guest.LoggedProcess', side_effect=launch), \
+                        patch('guest.wait_for_ipc', side_effect=phase_failure, return_value=env), \
+                        patch('guest.command', side_effect=command), patch('guest.terminate', side_effect=reap), \
+                        patch('guest.time.monotonic', side_effect=[0, 0, 0, 16]), \
+                        patch('guest.emit', side_effect=emit), \
+                        patch('guest.print', side_effect=summary_failure if closed_summary else None) as summary:
+                    try: guest.phase('minimal', root / 'config', env, root)
+                    except Exception as exc: failure = exc
+                    else: failure = None
+            finally:
+                wayland.close()
+            return failure, delivered, refused, summary, channel_failure, compositor, collectors
+
+    def test_closed_fallback_and_secondary_summary_preserve_original_phase_failure(self):
+        for closed_log, closed_summary in (('private', False), (None, True), ('all', True)):
+            with self.subTest(closed_log=closed_log, closed_summary=closed_summary):
+                original = ValueError('original IPC refusal')
+                failure, delivered, refused, summary, _, process, collectors = self.diagnostic_phase(
+                    phase_failure=original, invalid_capture=True,
+                    closed_log=closed_log, closed_summary=closed_summary)
+                self.assertIs(failure, original)
+                self.assertIsNotNone(process.poll()); collectors[0].finish.assert_called_once()
+                self.assertEqual([row['filename'] for row in delivered if row['event'] == 'session_log'],
+                                 [] if closed_log == 'all' else ['minimal.log'] if closed_log else
+                                 ['minimal.log', 'minimal-compositor.log'])
+                self.assertEqual(len(refused), 2 if closed_log == 'all' else 1 if closed_log else 0)
+                summary.assert_called_once()
+
+    def test_working_channel_retains_capture_failure_without_claiming_private_bytes(self):
+        original = ValueError('original IPC refusal')
+        failure, delivered, refused, summary, _, _, _ = self.diagnostic_phase(
+            phase_failure=original, invalid_capture=True)
+        self.assertIs(failure, original); self.assertEqual(refused, [])
+        logs = [row for row in delivered if row['event'] == 'session_log']
+        expected = b'private compositor log retention failed: ValueError\n'
+        self.assertEqual(base64.b64decode(logs[-1]['base64']), expected)
+        self.assertEqual(logs[-1]['sha256'], hashlib.sha256(expected).hexdigest())
+        self.assertIn('ValueError', summary.call_args.args[0])
+
+    def test_clean_phase_keeps_first_cleanup_failure_when_channels_close(self):
+        original = RuntimeError('first collector finish failure')
+        failure, delivered, _, _, _, process, _ = self.diagnostic_phase(
+            cleanup_failure=original, invalid_capture=True, closed_log='all', closed_summary=True)
+        self.assertIs(failure, original); self.assertIsNotNone(process.poll())
+        self.assertIn('phase_pass', [row['event'] for row in delivered])
+
+    def test_clean_phase_keeps_first_capture_failure_when_channels_close(self):
+        failure, delivered, _, _, _, _, _ = self.diagnostic_phase(
+            invalid_capture=True, closed_log='private', closed_summary=True)
+        self.assertIs(type(failure), ValueError)
+        self.assertEqual(str(failure), 'private compositor log invalid/overflowed')
+        self.assertEqual([row['filename'] for row in delivered if row['event'] == 'session_log'],
+                         ['minimal-client.log', 'minimal.log'])
+
+    def test_clean_phase_keeps_first_log_channel_failure_without_delivered_log_claim(self):
+        failure, delivered, refused, _, channel_failure, _, _ = self.diagnostic_phase(
+            closed_log='private', closed_summary=True)
+        self.assertIs(failure, channel_failure)
+        self.assertEqual([row['filename'] for row in delivered if row['event'] == 'session_log'],
+                         ['minimal-client.log', 'minimal.log'])
+        self.assertEqual(len(refused), 2)
 
 
 class Capabilities(unittest.TestCase):

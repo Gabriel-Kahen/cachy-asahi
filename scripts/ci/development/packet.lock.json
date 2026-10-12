@@ -1732,11 +1732,11 @@
     },
     "scripts/ci/development/test_virtual_stage.py": {
       "mode": 420,
-      "sha256": "cec622cc81f6c99e01f71e2be1672be17ee6ca92027aac253c8e55a7f80c2958"
+      "sha256": "525939d5f33a7d0f9af0cdb068b11aa409e5349bc021bafd00ddc7e9d0c4215d"
     },
     "scripts/ci/development/virtual_stage.py": {
       "mode": 420,
-      "sha256": "8f32213f275e70bd177ed432f381a2bf51193ee85d0aa3a0b912e883a3ae60c3"
+      "sha256": "0673893986bca97958d0cfab83e5caaf76844671484b471fc88a4cb7e68f562b"
     },
     "scripts/ci/freeze.py": {
       "mode": 420,
@@ -1960,7 +1960,7 @@
     },
     "scripts/virtual/controller.py": {
       "mode": 420,
-      "sha256": "3f083173494cfb1f6ac40bbc0cd8bb90d62c56272f882232fb8aa16d8fa2e09d"
+      "sha256": "879b72ecbd3803e8745e99baa99c4e42c441af209234579620f50840b681614b"
     },
     "scripts/virtual/gbm_probe.c": {
       "mode": 420,
@@ -1968,7 +1968,7 @@
     },
     "scripts/virtual/guest.py": {
       "mode": 420,
-      "sha256": "8a31f3d251e6e60db7c0c33bfebb8d9e37fea7924a72fdce493a9388ccde143f"
+      "sha256": "3ca0e95ed89cd21edc96b09e1bc98138e0addbd4b99fc9a3ba41f22ea562ddda"
     },
     "scripts/virtual/prepare.py": {
       "mode": 420,
@@ -1980,11 +1980,11 @@
     },
     "scripts/virtual/test_controller.py": {
       "mode": 420,
-      "sha256": "67f7c6ec45f15a56a32a1c84feb3ac583d16d34d47446f8647fb49f3183714d7"
+      "sha256": "82a1b23a86440189ea839c6b5aaa502088f796757e98af3ce9a58fb7cdacc33f"
     },
     "scripts/virtual/test_virtual.py": {
       "mode": 420,
-      "sha256": "856668f473577834afa94afb3917ee3dd1e561d8d95292db3abafbc7395f55b3"
+      "sha256": "b2064b20a05c89b690d14d30819dbcacf9fc1de6fe9f13106900f0f0693161f9"
     },
     "scripts/virtual/tooling-audit.json": {
       "mode": 420,

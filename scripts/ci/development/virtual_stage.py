@@ -88,6 +88,8 @@ DIAGNOSTIC_CODES = {
     'guest-events-binding-refused',
     'guest-frame-event-refused',
     'guest-gbm-identity-refused',
+    'guest-ipc-probe-event-refused',
+    'guest-ipc-readiness-protocol-refused',
     'guest-phase-event-refused',
     'guest-session-frame-proof-refused',
     'guest-session-log-binding-refused',
@@ -113,6 +115,7 @@ DIAGNOSTIC_CODES = {
     'original-payload-invalid',
     'output-boundary-overlap',
     'private-guest-session-log-refused',
+    'private-guest-ipc-probe-refused',
     'qemu-capability-binding-refused',
     'qemu-capability-record-refused',
     'qemu-capability-source-refused',
@@ -591,13 +594,30 @@ def read_events(path, policy, *, data=None):
         'guest_pass': {'event', 'nonce', 'software_session', 'hardware_validation', 'graphics_acceleration'},
         'guest_failed': {'event', 'error', 'hardware_validation'},
         'command': {'event', 'argv', 'returncode', 'error', 'stdout', 'stderr'},
+        'ipc_probe': {'event', 'stage', 'attempt', 'elapsed_ms', 'returncode', 'error', 'stdout', 'stderr'},
         'session_log': {'event', 'stage', 'filename', 'sha256', 'base64'}}
     for event in events:
         require(isinstance(event.get('event'), str) and event['event'] in schemas and
                 set(event) == schemas[event['event']], 'unknown-guest-event-fields-refused')
+        if event['event'] == 'ipc_probe':
+            require(event['stage'] in ('minimal', 'overlay') and
+                    type(event['attempt']) is int and 1 <= event['attempt'] <= 24 and
+                    type(event['elapsed_ms']) is int and 0 <= event['elapsed_ms'] <= 600000 and
+                    type(event['returncode']) is int and -64 <= event['returncode'] <= 255 and
+                    (event['error'] is None or type(event['error']) is str and
+                     event['error'] in ('timeout', 'output overflow')) and
+                    type(event['stdout']) is str and type(event['stderr']) is str and
+                    len(event['stdout'].encode('utf-8')) + len(event['stderr'].encode('utf-8')) <= 1024**2,
+                    'guest-ipc-probe-event-refused')
+            for text in (event['stdout'], event['stderr']):
+                normalized = re.sub(r'\x1b\[[0-?]*[ -/]*[@-~]', '', text)
+                normalized = ''.join(c for c in normalized if ord(c) >= 32 or c in '\n\r\t')
+                require(not policy.PRIVATE_CONTENT.search(text) and not policy.PRIVATE_CONTENT.search(normalized),
+                        'private-guest-ipc-probe-refused')
         if event.get('event') == 'session_log':
             require(set(event) == {'event', 'stage', 'filename', 'sha256', 'base64'} and event['stage'] in ('minimal', 'overlay') and
-                    event['filename'] in (event['stage'] + '.log', event['stage'] + '-client.log') and
+                    event['filename'] in (event['stage'] + '.log', event['stage'] + '-client.log',
+                                          event['stage'] + '-compositor.log') and
                     isinstance(event['sha256'], str) and PIN.fullmatch(event['sha256']) and isinstance(event['base64'], str),
                     'guest-session-log-event-refused')
             decoded = base64.b64decode(event['base64'], validate=True)
@@ -615,12 +635,24 @@ def event_protocol(path, expected_sha256, nonce, policy, *, data=None):
     require(actual_sha256 == expected_sha256, 'guest-events-binding-refused')
     require(len(events) >= 7, 'complete-guest-event-protocol-required')
     essential = []
+    ipc = {stage: {'attempt': 0, 'elapsed_ms': 0, 'ready': False, 'correlated': False}
+           for stage in ('minimal', 'overlay')}
+    ipc_argv = ['/usr/bin/hyprctl', '-j', 'configerrors']
+    awaiting = None
     for event in events:
         require(isinstance(event, dict), 'guest-event-object-required')
         kind = event.get('event')
-        require(kind in ('boot', 'gbm_pass', 'frame_ready', 'phase_pass', 'guest_pass', 'command', 'session_log'),
+        require(kind in ('boot', 'gbm_pass', 'frame_ready', 'phase_pass', 'guest_pass', 'command', 'session_log', 'ipc_probe'),
                 'guest-event-kind-refused')
         require('nonce' not in event or event['nonce'] == nonce, 'guest-event-nonce-refused')
+        correlated = awaiting is not None
+        if correlated:
+            require(kind == 'command' and event['argv'] == ipc_argv and
+                    type(event['returncode']) is int and
+                    all(event[field] == awaiting[field] for field in ('returncode', 'error', 'stdout', 'stderr')),
+                    'guest-ipc-readiness-protocol-refused')
+            ipc[awaiting['stage']]['correlated'] = True
+            awaiting = None
         if kind == 'boot':
             require(set(event) == {'event', 'nonce', 'arch', 'page_size', 'kernel', 'execution', 'hardware_validation'} and
                     event['nonce'] == nonce and event['arch'] == 'aarch64' and type(event['page_size']) is int and
@@ -641,6 +673,7 @@ def event_protocol(path, expected_sha256, nonce, policy, *, data=None):
         elif kind == 'frame_ready':
             require(set(event) == {'event', 'stage', 'monitors', 'clients'} and event['stage'] in ('minimal', 'overlay') and
                     isinstance(event['monitors'], list) and isinstance(event['clients'], list), 'guest-frame-event-refused')
+            require(ipc[event['stage']]['correlated'], 'guest-ipc-readiness-protocol-refused')
             require(any(isinstance(m, dict) and type(m.get('width')) is int and type(m.get('height')) is int and
                         m['width'] > 0 and m['height'] > 0 for m in event['monitors']) and
                     any(isinstance(c, dict) and c.get('mapped') is True and type(c.get('pid')) is int and c['pid'] > 0 and
@@ -648,6 +681,7 @@ def event_protocol(path, expected_sha256, nonce, policy, *, data=None):
                         all(type(n) is int and n > 0 for n in c['size']) for c in event['clients']), 'guest-session-frame-proof-refused')
         elif kind == 'phase_pass':
             require(set(event) == {'event', 'stage'} and event['stage'] in ('minimal', 'overlay'), 'guest-phase-event-refused')
+            require(ipc[event['stage']]['correlated'], 'guest-ipc-readiness-protocol-refused')
         elif kind == 'guest_pass':
             require(set(event) == {'event', 'nonce', 'software_session', 'hardware_validation', 'graphics_acceleration'} and
                     event['nonce'] == nonce and event['software_session'] == 'PASS' and
@@ -656,10 +690,37 @@ def event_protocol(path, expected_sha256, nonce, policy, *, data=None):
             require(set(event) == {'event', 'argv', 'returncode', 'error', 'stdout', 'stderr'} and
                     isinstance(event['argv'], list) and event['argv'] and all(isinstance(a, str) for a in event['argv']) and
                     event['argv'][0] in ('/usr/bin/modprobe', '/usr/bin/udevadm', '/usr/bin/dmesg', '/usr/bin/pacman', '/usr/local/bin/gbm-probe', '/usr/bin/hyprctl') and
-                    event['returncode'] == 0 and event['error'] is None and
+                    type(event['returncode']) is int and event['returncode'] == 0 and event['error'] is None and
                     isinstance(event['stdout'], str) and isinstance(event['stderr'], str), 'guest-command-event-refused')
-        if kind not in ('command', 'session_log'):
+            require(event['argv'] != ipc_argv or correlated, 'guest-ipc-readiness-protocol-refused')
+        elif kind == 'ipc_probe':
+            stage = event['stage']; state = ipc[stage]
+            prefix = [('boot', None), ('gbm_pass', None)]
+            if stage == 'overlay':
+                prefix += [('frame_ready', 'minimal'), ('phase_pass', 'minimal')]
+            require(essential == prefix and not state['ready'] and
+                    event['attempt'] == state['attempt'] + 1 and
+                    state['elapsed_ms'] <= event['elapsed_ms'] < 180000,
+                    'guest-ipc-readiness-protocol-refused')
+            state['attempt'], state['elapsed_ms'] = event['attempt'], event['elapsed_ms']
+            if event['returncode'] == 6:
+                require(event['error'] is None and event['stderr'] == '' and
+                        event['stdout'] == "Hyprland IPC didn't respond in time\n\nCouldn't read (6)\n",
+                        'guest-ipc-readiness-protocol-refused')
+            else:
+                require(event['returncode'] == 0 and event['error'] is None and event['stderr'] == '',
+                        'guest-ipc-readiness-protocol-refused')
+                try:
+                    ready = json.loads(event['stdout']) == []
+                except (ValueError, TypeError):
+                    ready = False
+                require(ready, 'guest-ipc-readiness-protocol-refused')
+                state['ready'] = True
+                awaiting = event
+        if kind not in ('command', 'session_log', 'ipc_probe'):
             essential.append((kind, event.get('stage')))
+    require(awaiting is None and all(row['correlated'] for row in ipc.values()),
+            'guest-ipc-readiness-protocol-refused')
     require(essential == [('boot', None), ('gbm_pass', None), ('frame_ready', 'minimal'), ('phase_pass', 'minimal'),
                           ('frame_ready', 'overlay'), ('phase_pass', 'overlay'), ('guest_pass', None)],
             'guest-event-order-or-completeness-refused')

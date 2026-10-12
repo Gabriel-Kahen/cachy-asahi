@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: MIT
 """Mocked host/controller checks. No Docker or ARM binaries are executed."""
+import base64
 import copy
 import hashlib
 import json
@@ -370,6 +371,49 @@ class InputTests(unittest.TestCase):
 
 
 class ProjectionTests(unittest.TestCase):
+    def test_ipc_retry_and_ready_diagnostics_and_compositor_logs_survive_projection(self):
+        with tempfile.TemporaryDirectory(prefix='virtual-ipc-projection-') as directory:
+            root = Path(directory); raw = root / 'raw'; raw.mkdir(); out = root / 'out'; out.mkdir()
+            events = []
+            for stage in ('minimal', 'overlay'):
+                failed = {'event': 'ipc_probe', 'stage': stage, 'attempt': 1, 'elapsed_ms': 30000,
+                          'returncode': 6, 'error': None,
+                          'stdout': "Hyprland IPC didn't respond in time\n\nCouldn't read (6)\n", 'stderr': ''}
+                ready = dict(failed, attempt=2, elapsed_ms=30500, returncode=0, stdout='[]')
+                log = (stage + ' compositor event loop ready\n').encode()
+                events += [failed, ready, {'event': 'session_log', 'stage': stage,
+                           'filename': stage + '-compositor.log', 'sha256': hashlib.sha256(log).hexdigest(),
+                           'base64': base64.b64encode(log).decode()}, {'event': 'phase_pass', 'stage': stage}]
+            binding = {'contract_sha256': 'a' * 64, 'prepare_receipt_sha256': 'b' * 64,
+                       'image_id': 'sha256:' + 'c' * 64, 'nonce': 'd' * 32}
+            common.save(raw / 'result.json', {'status': 'CAPTURED_REQUIRES_VISUAL_REVIEW', **binding,
+                        'events': [*events, {'event': 'unknown_private_event', 'stdout': 'PRIVATE KEY'}],
+                        'private_path': '/private/keyring', 'frames': {}})
+            report = {}; c.project(raw, out, report)
+            retained = common.json_load(out / 'guest-events.json')
+            self.assertEqual(retained, events)
+            self.assertEqual([e['returncode'] for e in retained if e['event'] == 'ipc_probe'], [6, 0, 6, 0])
+            for event in retained:
+                if event['event'] == 'session_log':
+                    self.assertEqual(hashlib.sha256(base64.b64decode(event['base64'])).hexdigest(), event['sha256'])
+            self.assertEqual({key: report['guest'][key] for key in binding}, binding)
+            self.assertEqual(report['guest_events_sha256'], common.digest(out / 'guest-events.json'))
+            self.assertEqual(set(p.name for p in out.iterdir()), {'guest-events.json'})
+            self.assertNotIn('private_path', report['guest'])
+            self.assertNotIn('PRIVATE KEY', (out / 'guest-events.json').read_text())
+
+    def test_ipc_diagnostics_keep_existing_public_size_and_private_key_refusals(self):
+        with tempfile.TemporaryDirectory(prefix='virtual-ipc-projection-bound-') as directory:
+            root = Path(directory); raw = root / 'raw'; raw.mkdir(); out = root / 'out'; out.mkdir()
+            event = {'event': 'ipc_probe', 'stage': 'minimal', 'attempt': 1, 'elapsed_ms': 1,
+                     'returncode': 6, 'error': None, 'stdout': '', 'stderr': ''}
+            for content in ('PRIVATE KEY', 'x' * (16 * 1024 ** 2)):
+                with self.subTest(bytes=len(content)):
+                    common.save(raw / 'result.json', {'events': [dict(event, stdout=content)]})
+                    with self.assertRaisesRegex(common.Refused, 'guest public evidence rejected'):
+                        c.project(raw, out, {})
+                    self.assertFalse((out / 'guest-events.json').exists())
+
     def test_capability_hash_binds_captured_canonical_list_not_raw_json_layout(self):
         import run
         with tempfile.TemporaryDirectory(prefix='virtual-capability-canonical-') as directory:
