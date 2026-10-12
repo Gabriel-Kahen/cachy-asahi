@@ -11,9 +11,11 @@ rather than artifact or cache uploads. Registration, Git publication and dispatc
 remain coordinator-owned; none was performed in this workflow source task.
 
 The required `packet_sha256` field has no default. Supply the independently
-reviewed SHA256 of `scripts/port/fdk-native-job/packet.lock.json`; the held source
-checkpoint is `2e190f75594fe5550770aa567b7729637853a99d6c2ce3b137248ed3954cbe32`.
-The 128-file packet, accepted 39-file adapter and 22-file recipe template are
+reviewed SHA256 of `scripts/port/fdk-native-job/packet.lock.json`; the accepted
+corrected source checkpoint is
+`76e475f63332c66de123481b77c904254c8f0c988bdf73b0787c732d3ae70449`, committed at
+`e3c450cc342e9f5e1f24f195c342d8d9c67e7c72`. It contains 128 files and 1,954,949
+source bytes. The accepted 39-file adapter and 22-file recipe template remain
 unchanged. The workflow and log encoder are separately reviewed inputs outside
 that packet. A source commit must contain every locked file and the workflow
 before it can pass preflight. No default-branch registration or dispatch is
@@ -101,12 +103,12 @@ codec binary is passed to the encoder. Prior native failure remains a job failur
 there is no `continue-on-error`. A cancelled workflow or lost host can prevent
 publication entirely, and no missing log is evidence of acceptance.
 
-Actual hosted prerequisite availability, Docker/GPG acquisition, native builds,
-workflow registration and dispatch, installation and M2 hardware behavior remain
-**NOT RUN** in this task. Source and fixture checks establish the workflow's
-wiring and export boundaries, not these execution results.
+The initial source task ran no hosted prerequisites, Docker/GPG acquisition,
+native builds, registration, dispatch, installation or M2 checks. The
+coordinator's later trial is recorded below. Source and fixture checks establish
+the workflow's wiring and export boundaries, not native or hardware acceptance.
 
-Source validation checkpoint:
+Historical source validation checkpoint before the first trial:
 
 - Workflow SHA256: `c7b90461edfbc079768a189d0930c0249b1d430174590b9dc3342413796afbbf`.
 - Existing encoder SHA256: `a25f0089759c12afae3eea23bab8b22fa05cf5bbaa9eddc1611ce78b0405f8f5`.
@@ -129,7 +131,7 @@ Source validation checkpoint:
   and partial acquisition FAIL/PENDING remain publishable. Existing source/Git,
   size-before-blob, path/link/JSON and validated-byte snapshot checks also pass.
 - Job source and adapter maps were rechecked with **128/39 entries, zero drift**.
-  The held native-job checkpoint remains **90 tests PASS, no skips**; no job,
+  The native-job checkpoint then was **90 tests PASS, no skips**; no job,
   adapter or template source was edited or native execution performed here.
 
 ## Coordinator registration and first actual trial
@@ -160,10 +162,66 @@ Root retained the workflow log and decoded the single public bundle under
 `artifacts/ci/38223759349/`. It is 85,482 bytes, SHA256
 `c4443e045be96e30da10e737ce4934c3f929b40cd7faf48dcc1c1f76bf222d9e`.
 Its fixed-schema job receipt records producer FAIL, FDK NOT RUN, no cancellation
-and owned-image absence. The source owner is auditing the precise delegate and
-adding bounded diagnostic codes where necessary; raw private logs remain excluded.
+and owned-image absence. The reviewed delegate logging correction and fixed
+diagnostic codes are documented in [the failure audit](fdk-producer-failure-audit.md);
+the exact hosted cause remains unknown and raw private logs remain excluded.
 Two local isolated no-agent public-key imports, including the exact delegate,
 passed but do not explain or replace the actual Ubuntu ARM failure.
 
 Installation, provider substitution, codec binary publication, M2/16K execution
 and performance acceptance remain open.
+
+
+## Held diagnostic publication correction
+
+The corrected workflow SHA256 is
+`6eecc3235b91dfeb326f497f6fe0984ce7525db860739b2c0083b0f8271e37b1`.
+This changes only the authoritative FAIL receipt's `error_code` allowlist.
+The public job schema still has exactly 14 fields; private `{phase, outcome}`
+objects, raw errors and extra/missing fields are not accepted for publication.
+PASS still requires `error_code: null` and all existing acceptance conditions.
+FAIL accepts the original `fdk-native-job-failed` plus exactly 70 producer codes
+from the reviewed `evidence.PRODUCER_FAILURE_CODES` contract.
+
+The finite phases are `preflight`, `base-probe`, `host-probe`, `acquisition`,
+`gpg-import`, `gpg-verify`, `bootstrap`, `original-build`, `original-compare` and
+`complete`. For each phase, the three `not-run`/`started`/`pass` outcomes project
+as `producer-before-PHASE-failed`, `producer-during-PHASE-failed` and
+`producer-after-PHASE-failed`. The four failure outcomes project as
+`producer-PHASE-command-failed`, `producer-PHASE-delegate-refused`,
+`producer-PHASE-runner-failed` or `producer-PHASE-cancelled`. Membership is exact,
+with no arbitrary suffix or message string. Last-call PASS is not signature or
+build acceptance; before/during/after does not invent a more precise cause.
+
+The coordinator accepted and committed the six reviewed wrapper source/test
+corrections and refrozen 128-file packet at
+`e3c450cc342e9f5e1f24f195c342d8d9c67e7c72`. Corrected packet SHA256 is
+`76e475f63332c66de123481b77c904254c8f0c988bdf73b0787c732d3ae70449`; its 128 files
+contain 1,954,949 source bytes. The coordinator's workspace and exact copied
+source each passed **104 tests, no skips**. Actual Git blob/mode binding and
+copied-byte/mode verification passed; the
+[corrected source proof](../../artifacts/reviews/fdk-corrected-source-git-proof-20261012.json)
+records the source commit, pins and scope.
+
+The former packet
+`2e190f75594fe5550770aa567b7729637853a99d6c2ce3b137248ed3954cbe32` and 90-test
+checkpoint belong to the historical failed trial. They are not the corrected
+source handoff. This publisher task edits neither the accepted six source files
+nor the refrozen packet. The workflow correction remains pending final held
+review; no corrected dispatch has occurred. The coordinator must bind a later
+trial to the new packet and exact committed workflow digest. The original
+Ubuntu failure stays FAIL with its cause unknown; installation, provider
+substitution and hardware acceptance remain open. Existing checkout/source
+checks, encoder pin, finite producer/Fdk schemas, snapshot capture and cleanup
+gates are preserved.
+
+Diagnostic publisher validation: **28 fixtures PASS**, 8.571 seconds on local
+replay. The workflow phase set and all 70 codes match the reviewed source
+contract exactly; every code accepts a valid FAIL receipt, and each of the seven
+outcome forms passes through the actual verified snapshot encoder. Unknown,
+appended, newline-containing, private or nonstring codes, null FAIL codes,
+non-null PASS codes, missing fields and extra private diagnostic fields are
+refused before encoding. All existing curated producer schemas, source/Git/mode,
+size/link, oversized-blob and captured-byte checks still pass. Full YAML parsing,
+workflow contract, both inline Python compilations and whitespace checks pass.
+These are local source/fixture results, not a new hosted trial.

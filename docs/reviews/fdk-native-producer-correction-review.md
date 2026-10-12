@@ -45,3 +45,13 @@ all 39 adapter and original recipe pins remain intact. This accepts the
 corrected source checkpoint only. Workflow diagnostic compatibility review,
 committed Git proof and actual hosted execution remain separate gates.
 Historical trial 38223759349 remains FAIL with an unknown cause.
+
+The coordinator also accepted the finite workflow consumer correction at SHA256
+`6eecc3235b91dfeb326f497f6fe0984ce7525db860739b2c0083b0f8271e37b1`.
+The independently compared workflow/source phase sets and all 70 diagnostic
+codes match exactly. Actual YAML parsing, fixed workflow assertions and both
+embedded Python compilations pass. The coordinator repeated all 28 consumer
+fixtures in 8.733 seconds, including rejection of raw/private, unknown, missing,
+extra and invalid PASS/FAIL code fields. The generic credential guard, public
+schemas, pinned encoder and cleanup gates are unchanged. These are source and
+fixture checks; the next hosted producer/native result is still NOT RUN.

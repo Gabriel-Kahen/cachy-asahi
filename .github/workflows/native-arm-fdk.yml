@@ -244,6 +244,15 @@ jobs:
           NAMES = {'cachy-asahi-hyprland-settings', 'cachy-asahi-fish-config',
                    'cachy-asahi-zsh-config', 'cachy-asahi-setup'}
 
+          PRODUCER_PHASES = {'preflight', 'base-probe', 'host-probe', 'acquisition', 'gpg-import',
+                             'gpg-verify', 'bootstrap', 'original-build', 'original-compare', 'complete'}
+          PRODUCER_FAILURE_CODES = ({'producer-before-' + phase + '-failed' for phase in PRODUCER_PHASES} |
+                                    {'producer-during-' + phase + '-failed' for phase in PRODUCER_PHASES} |
+                                    {'producer-after-' + phase + '-failed' for phase in PRODUCER_PHASES} |
+                                    {'producer-' + phase + '-' + outcome for phase in PRODUCER_PHASES
+                                     for outcome in ('command-failed', 'delegate-refused', 'runner-failed', 'cancelled')})
+          FAILURE_CODES = PRODUCER_FAILURE_CODES | {'fdk-native-job-failed'}
+
           def digest(value):
               return type(value) is str and re.fullmatch('[0-9a-f]{64}', value) is not None
 
@@ -384,7 +393,8 @@ jobs:
                    status['fdk_status'] in ('PASS', 'FAIL', 'NOT RUN', 'NOT ACCEPTED') and
                    status['hardware'] == status['installation'] == status['binary_publication'] == 'NOT RUN' and
                    status['source_commit'] in (None, commit) and status['source_packet_sha256'] in (None, pin) and
-                   status['error_code'] == (None if status['status'] == 'PASS' else 'fdk-native-job-failed'))
+                   (status['error_code'] is None if status['status'] == 'PASS' else
+                    type(status['error_code']) is str and status['error_code'] in FAILURE_CODES))
               if status['status'] == 'PASS':
                   need(os.environ.get('FDK_NATIVE_OUTCOME') == 'success' and set(files) == ALLOWED and
                        status['phase'] == 'complete' and not status['cancelled'] and
