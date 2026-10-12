@@ -1,0 +1,88 @@
+# Separate hosted KSM development job
+
+This is a source implementation of a finite disposable-VM executor. **Its hosted native producer, two KSM builds, private test signing, installation/removal and artifact upload have not run.** Root owns final source freeze, packet registration, Git changes and dispatch. The held 147-test lifecycle, original producer/build helpers, platform stack and shared locks remain unchanged. No M2, 16K execution, KSM activation, sysfs, management or performance acceptance is claimed.
+
+The earlier 80-test preflight-only implementation and its BLOCKED diagnostics are preserved byte-for-byte in `scripts/port/ksm-native-job/history-80/` with a separate historical index. They are not relabeled as this executor's current tests or native evidence. `job.assess` remains the original-interface diagnostic; the new workflow invokes `executor.py` and uses the concrete proxy below.
+
+## Actual execution route
+
+The manual workflow uses `ubuntu-24.04-arm`, read-only repository permissions, pinned checkout, no persisted credentials, the existing non-cancelling `native-arm-build` concurrency group and a 150-minute hard ceiling. It requires an externally reviewed SHA-256 for the separately committed `packet.lock.json`. There is no host package installation or global Docker prune.
+
+An inline standard-library bootstrap captures the packet and source bytes, validates actual committed Git blobs/modes and matching HEAD/workflow/job commits, copies only those authenticated rows into a new startup tree, and replaces itself with isolated Python executing the new coordinator. The coordinator repeats source/Git acceptance and creates a second fresh authenticated execution snapshot. Neither tree contains repository bytecode caches or unreviewed extensions. Source snapshots are checked for changed or additional files after producer/build execution.
+
+The original `scripts/ci/native_arm.py build` runs unchanged as an actual subprocess with its pinned original inputs and four-original recipe map. There is no FDK imported producer, subprocess replacement or producer-function override. Its 501 frozen input objects are authenticated; all 248 signed package archives and the rootfs form the exact 341-package base. The original four recipes build twice and compare bytes as before.
+
+A private PATH launcher forwards only `docker` invocations through a bounded Unix RPC shim. The main-thread coordinator pumps that service while tracking the original producer process group. The broker recognizes only the finite original probe/bootstrap/inventory/build grammar. It derives exact mount grants from the authenticated source and private output roots. Original random build names remain unchanged in the build provenance; actual creation adds nonce/image ownership labels and records immutable container IDs.
+
+The backend extends the held lifecycle Docker class solely in the new `boundary.py`: captured sealed ELF execution, CLI bytes/inode, canonical socket metadata, matching positive UID/GID and daemon identity checks remain before and after every operation. Its transport uses the new finite subprocess runner. Its signal deferrals use the coordinator's cancellation state, and any remembered held BASE cancellation is reconciled before new work. The original source files are not edited or monkey-patched.
+
+The original public GPG importer/verifier uses a private launcher adding `--no-autostart --lock-never` to the actual `/usr/bin/gpg` command. This sequential private public-key home needs no host signing agent or shared locks. Explicit GPG home, Docker configuration and temporary-state paths are private. Inherited HOME is retained rather than reassigned; Python runs with isolated/no-bytecode/no-site startup flags. Private test signing occurs only through the held container stage.
+
+After an observed producer exit zero, `executor_contract.py` captures and verifies actual result/bootstrap/runner/image/inventory/input receipts, all eight original build provenance/input/artifact trees and comparisons, and the broker's durable operation records. Rootfs/package architecture declarations or a PASS JSON alone cannot advance the job. The original runner's `/var/run` or `/run` socket spelling is preserved; if it differs from the canonical backend endpoint, captured same-call device/inode observations must prove the same socket.
+
+Two unchanged `scripts/build/build.py` subprocess calls then build the reviewed KSM recipe against that same immutable image and exact lock, with network none and epoch `1791748800`. Distinct real build directories, actual zero exits, distinct journaled container IDs, exact recipe snapshots, whole archive bytes, installed payload, PKGINFO and BUILDINFO must agree. A separate unchanged `compare.py --require-bytes` subprocess must succeed.
+
+The held lifecycle CLI runs as a supervised subprocess from the authenticated snapshot. It performs development TEST signing, install, five diagnostic probes, remove, reinstall, final remove and user fixture work within its reviewed containers. Clean controller and worker exits, same-job source/daemon/CLI/socket/receipt bindings and private/container cleanup are required before lifecycle PASS. It never enables KSM or writes host sysfs. A controller timeout or interrupted uncertain stage remains FAIL; the VM's eventual teardown is not counted as scoped absence.
+
+## Journaled ownership and uncertain commits
+
+The broker appends and fsyncs reservations before explicit image/container creation. Each canonical rewritten daemon request and observed completion is bound to the actual endpoint, nonce, phase, output size/hash and return code. Image ownership binds nonce/context labels; container ownership binds nonce/image/name/ID. Creation, start, stopped state, removal and individual name/ID absence observations are checked in order. The pure-data contract validates these actual records, not a hypothetical future ownership receipt.
+
+The bootstrap uses the legacy builder (`DOCKER_BUILDKIT=0`) with finite memory/swap/CPU controls, network none and no pull. Docker's internal build intermediates/cache cannot be fully enumerated by the original CLI. Successful final-image ownership and scoped image/container removal are checked. The only new-job image deletion is `image rm --no-prune <owned immutable ID>`, after nonce/context label checks and a durable reservation; it never forces removal. The sealed cleanup capability and pure journal validator require this exact form and refuse an extra unsafe deletion even if a later valid removal succeeds. The journal permits only the exact owned image commands and refuses leading global options or image-group flags that could hide deletion/pruning. This avoids the recursive ancestor-deletion path in [Moby v28.0.4](https://github.com/moby/moby/blob/v28.0.4/daemon/images/image_delete.go). A causal fake backend models an existing untagged ancestor being lost with the old command and preserved by the actual broker command; it is source-fixture evidence, not real-daemon ancestor preservation. No ancestor or baseline-image ownership is inferred from target deletion or completion; **legacy build-cache absence remains NOT ESTABLISHED**. Private cache residue stays on the disposable VM and is never globally pruned or published.
+
+A failed request poisons the broker. Unknown image/create commitment, partial producer completion, source drift, daemon loss or failed absence observation prevents all subsequent normal work and lifecycle launch. Disposal may inspect/remove only journaled, matching owned immutable identities. A later empty inventory or VM destruction never clears uncertain FAIL. An interrupted lifecycle cannot be promoted from a saved PASS receipt without an observed clean controller exit.
+
+The stricter requirement of complete legacy build-cache absence would need a separately reviewed per-job daemon/cache namespace or a typed original producer interface exposing those resources. A held-controller recovery interface would likewise need a caller-selected private directory and durable nonce/ID journal before every mutation. Those stricter guarantees are not manufactured here; the executor implements the disposable-VM uncertainty boundary described above.
+
+## Finite budgets and cancellation
+
+| Phase/resource | Maximum |
+| --- | --- |
+| Source/initial snapshot acceptance | 180 seconds |
+| Original producer and four package pairs | 6,600 seconds |
+| KSM builds | Exactly two, 360 seconds each |
+| Comparison | 120 seconds |
+| Lifecycle controller | 600 seconds |
+| Scoped disposal | 180 seconds, preserving export reserve |
+| Curated export | 30 seconds |
+| Aggregate from initial workflow source clock | 8,460 seconds |
+| Hosted workflow | 150 minutes |
+| Source packet | At most 256 paths, 2 MiB each, 32 MiB aggregate |
+| Private filesystem | 16 GiB, 8 GiB free reserve, 8,192 entries/depth 16 |
+| Child output | 8 MiB combined stdout/stderr; private logs 0600 |
+| Cleanup-only output | 128 KiB, no disk logs |
+| Public output | Three files: two 16-MiB archives plus 64-KiB evidence |
+
+The supervisor records each owned child before unmasking pending SIGINT/SIGTERM, sets parent-death/subreaper/resource limits, and terminates/kills/reaps only its owned process group. Main-thread service callbacks can invoke nested Docker supervisors. Their absolute phase scopes share the caller's cutoff, so nested bootstrap/start/identity work cannot borrow later phase reserves. Context streaming is deadline-bound. Phases cannot replay.
+
+Private resource walks charge enumerated names before stat. A child name that vanishes at stat/open is tolerated only after retained parent-chain and named root/log checks plus a second nofollow absence check. Up to three enumeration rounds inspect new rename targets; a missing basename that reappears, an unstable third round, a moved/replaced opened directory, root replacement, links, special files and unknown errors refuse the observation. An ordinary coordinator-owned single-link regular file that vanishes at the final post-open name check can continue only after a bounded same-parent search proves one stable matching inode under a new name, with retained/candidate FD and final named checks, old-name absence and parent identity checks. Fresh directory descriptions prevent nested scans sharing positions. Auxiliary observations apply the same node policy immediately, charge new names before stat and reject replacement of an already-walked directory. The search has an 8,192-entry aggregate cap per observation. Each observed inode retains its maximum charged size across shrink/rename; new names remain available to the bounded full rescan. Loss, moves outside the parent, inode replacement and foreign candidates fail. This quota-scan exception does not relax immutable input capture or J2 root-receipt identity checks. Private resource walks reject unknown/incomplete state; exactly one registered owned RPC socket is permitted. Foreign ownership is refused except during the active lifecycle output scope: the exact `tmp/ksm-private-stage-<eight temporary-name characters>/installed/worker-receipt.json` may be UID/GID 0, single-link regular, at most 1 MiB, mode `0600` during creation or `0644` after the held chmod. The scope binds a fresh coordinator-owned temporary namespace, retained directory and receipt identities, the typed same-job lifecycle input contract, five held source hashes and five copied input hashes. Grant activation, authentication and the child share the same absolute lifecycle deadline. The exact package input is capped at 16 MiB, each held source/other pinned input at 2 MiB and their aggregate at 32 MiB. Root receipt bytes remain included in the ordinary private quota; metadata uses `O_PATH`, and final content/PASS acceptance remains the held controller’s responsibility. Failure is visible. Cleanup has a narrowly restricted sealed-ELF/local-Docker read/removal capability: remembered cancellation or exhausted private quota cannot block disposal, while ordinary builds/creates still refuse. Cleanup cannot borrow the final 30-second export reserve. Caller handlers are restored and later remembered cancellation invalidates terminal acceptance.
+
+The coordinator writes initial FAIL before work. Owned output/private directory identities gate every later authoritative write; a pre-existing or replaced directory is never treated as its receipt namespace. Late failure/cancellation invalidates its pinned public evidence rather than retaining authoritative PASS. The workflow's actual native step exit must be successful before uploading anything; saved JSON does not bypass that gate. The three retained status/evidence descriptors stay open through terminal output and handler restoration and are closed by process exit. The cancellation receipt boundary ends when caller handlers are restored; an abnormal signal after that cutoff still gives a failed native step and prevents upload.
+
+## Pins, licenses and public artifacts
+
+The fixed source/input pins remain:
+
+| Input | SHA-256 |
+| --- | --- |
+| Original producer | `a8b6ed8971a38089a4499dcec605477c4e48d7a47c3de485d205f6a44678b898` |
+| Original signed inputs | `3c16c37d1b12cc84a88572e82ab8ad59e7f3b5ed0d08f09ddf72a69f4711d650` |
+| Four-original recipe map | `20d846cdf289bfc233b0051bf33b677fd6e94e9f05d91a33595a2829a196fa63` |
+| Sorted341-package lock | `89bdb06fea1862b5a6e02b77a4b98f6e04755b02327d875a716bd792929f3a4f` |
+| KSM GPL15-input recipe map | `f933ccfcfb52ca97ea809d904344f6ec72eb5907ef458b5c2e7f7f1797dc1d44` |
+| Held BASE | `dc0c75969ed79548c3eb0ab1692f57ebffe7464d9192e591cdcf61aeaeb77154` |
+| Held GUARD | `4bfec1387f87768e5b37475d6172bde302ef52c01c68f81297435048be7f2100` |
+
+New helper code is MIT; the runtime retains attribution to the held kernel-job runtime. KSM's GPL-2.0-or-later source/patch/LICENSE/NOTICE and all 15 recipe inputs remain unchanged. Corresponding source is bound to the accepted public repository commit, and source-grant/release acceptance is not expanded to vendor archives.
+
+Only two exact `cachy-asahi-ksmctl-0.1.0-1-any.pkg.tar.xz` or `.gz` archives and constructed `evidence.json` can leave the private workspace. The exporter captures/pins actual bytes, verifies the exact five GPL payloads and metadata, and requires the independently constructed complete consumer/cleanup acceptance. It cannot recursively export raw logs, source/controller trees, keys, signatures or signing identity. Unknown fields, failed/cancelled phases and mismatched receipts refuse export.
+
+The pinned upload action is [actions/upload-artifact v7.0.2](https://github.com/actions/upload-artifact/commit/cf430e030ddbb5b0abf93d22962f4752f3646cd9). It receives only fixed package/evidence paths, excludes hidden files, does not overwrite artifacts and retains them for one day. Release publication, hardware, management and performance remain false/NOT RUN. This worker has not dispatched the action or uploaded files.
+
+Detected public namespace/mode/content replacement refuses cleanup and invalidates retained evidence while preserving foreign replacements. The private namespace requires a cooperative coordinator: POSIX check-then-unlink/rmdir is not an atomic identity-conditional deletion primitive against a malicious same-UID writer.
+
+## Source verification and remaining work
+
+Run `python3 -B -m unittest discover -s scripts/port/ksm-native-job -p 'test_*.py' -v`. The current held source receipt records **229 PASS, zero failures/errors/skips**, using Python 3.14.7, with Python source hashes unchanged before/after the suite. It includes causal atomic download/receipt renames at pre-stat, pre-open and post-open points, real subprocess resource ticks, bounded churn/reappearance/refinding refusals and simulated exact UID/GID 0 receipt metadata on ordinary private fixture files. No root/Docker/native actor was run. The checkpoint binds 41 owned paths and the finite 152-path source set, pending coordinator review/adoption and source registration. The preceding 195-test and 216-test receipts/checkpoints remain byte-for-byte in the coordinator's separate peer-review source copies; they are historical evidence. Tests use temporary Git repositories, synthetic package archives, fake Docker backends and tiny local processes/real signals. The positive-capacity runtime fixtures explicitly simulate filesystem capacity because this local test filesystem lacks the production 8-GiB reserve. They are not VM readiness or native execution evidence.
+
+Source checks cover actual-byte/Git/mode closure, fresh snapshots/foreign bytecode, unchanged command construction, original/KSM/lifecycle receipt bindings, actual broker fake-operation journals, RPC shim processes, scoped cleanup, nested deadlines, private quotas, real cancellation and public invalidation. Independent reviews and their closed findings are recorded separately in the current checkpoint. Native end-to-end validation remains required after root's complete source freeze/registration/dispatch; Asahi/M2, 16K, installed-system maintenance and release acceptance remain separate unrun gates.

@@ -1,0 +1,1073 @@
+{
+  "Asahi_M2_16K_hardware": "NOT RUN",
+  "actual_artifact_upload": "NOT RUN",
+  "actual_container_signing_installation_removal": "NOT RUN",
+  "actual_daemon_ancestor_preservation": "NOT RUN",
+  "actual_native_ksm_builds": "NOT RUN",
+  "actual_native_producer": "NOT RUN",
+  "elapsed_seconds": 6.121,
+  "error_count": 0,
+  "execution_method": "unittest discover API and TextTestRunner with per-case result collector in python3 -B; source hashes equal before and after suite",
+  "failure_count": 0,
+  "fixtures": "temporary Git repositories, synthetic archives, fake Docker backends and Moby ancestor-deletion model, local child processes/real signals, atomic filesystem renames at pre-stat/pre-open/post-open; capacity and exact UID/GID0 receipt metadata simulated; no root/Docker/native actor",
+  "management_performance": "NOT RUN",
+  "outcomes": [
+    {
+      "status": "PASS",
+      "test": "test_acceptance.AcceptanceTests.test_actual_sigint_and_sigterm_cancel_blocking_git_and_restore_caller"
+    },
+    {
+      "status": "PASS",
+      "test": "test_acceptance.AcceptanceTests.test_actual_signals_between_spawn_and_pid_assignment_cannot_lose_child"
+    },
+    {
+      "status": "PASS",
+      "test": "test_acceptance.AcceptanceTests.test_actual_size_hash_and_mode_drift_refused"
+    },
+    {
+      "status": "PASS",
+      "test": "test_acceptance.AcceptanceTests.test_aggregate_deadline_rejects_late_source_and_git_completion"
+    },
+    {
+      "status": "PASS",
+      "test": "test_acceptance.AcceptanceTests.test_cancellation_remembered_during_capture_cleanup_prevents_git_spawn"
+    },
+    {
+      "status": "PASS",
+      "test": "test_acceptance.AcceptanceTests.test_capture_detects_mutation_of_same_open_file"
+    },
+    {
+      "status": "PASS",
+      "test": "test_acceptance.AcceptanceTests.test_compiled_snapshot_ignores_replaced_source_and_valid_foreign_pyc"
+    },
+    {
+      "status": "PASS",
+      "test": "test_acceptance.AcceptanceTests.test_duplicate_json_fields_and_wrong_pin_types_refused"
+    },
+    {
+      "status": "PASS",
+      "test": "test_acceptance.AcceptanceTests.test_exact_packet_checkout_and_committed_blobs_are_captured"
+    },
+    {
+      "status": "PASS",
+      "test": "test_acceptance.AcceptanceTests.test_executable_mode_is_bound_to_checkout_and_commit"
+    },
+    {
+      "status": "PASS",
+      "test": "test_acceptance.AcceptanceTests.test_external_packet_checksum_required_before_git"
+    },
+    {
+      "status": "PASS",
+      "test": "test_acceptance.AcceptanceTests.test_git_environment_is_private_and_hooks_fsmonitor_locks_disabled"
+    },
+    {
+      "status": "PASS",
+      "test": "test_acceptance.AcceptanceTests.test_git_output_and_timeout_are_enforced_during_capture"
+    },
+    {
+      "status": "PASS",
+      "test": "test_acceptance.AcceptanceTests.test_head_job_and_workflow_commit_must_all_match"
+    },
+    {
+      "status": "PASS",
+      "test": "test_acceptance.AcceptanceTests.test_module_imports_need_explicit_bound_modules_without_path_search"
+    },
+    {
+      "status": "PASS",
+      "test": "test_acceptance.AcceptanceTests.test_packet_outside_checkout_or_wrong_mode_refused"
+    },
+    {
+      "status": "PASS",
+      "test": "test_acceptance.AcceptanceTests.test_path_escape_absolute_empty_and_workflow_not_in_packet_refused"
+    },
+    {
+      "status": "PASS",
+      "test": "test_acceptance.AcceptanceTests.test_per_file_and_aggregate_budgets_refuse_before_source_read"
+    },
+    {
+      "status": "PASS",
+      "test": "test_acceptance.AcceptanceTests.test_repinning_uncommitted_mode_cannot_pass_git_binding"
+    },
+    {
+      "status": "PASS",
+      "test": "test_acceptance.AcceptanceTests.test_repinning_uncommitted_source_cannot_pass_git_binding"
+    },
+    {
+      "status": "PASS",
+      "test": "test_acceptance.AcceptanceTests.test_second_signals_during_owned_disposal_are_deferred"
+    },
+    {
+      "status": "PASS",
+      "test": "test_acceptance.AcceptanceTests.test_symlink_leaf_ancestor_hardlink_and_fifo_refused"
+    },
+    {
+      "status": "PASS",
+      "test": "test_acceptance.AcceptanceTests.test_transitive_submodule_identity_is_bound_and_wildcards_refused"
+    },
+    {
+      "status": "PASS",
+      "test": "test_acceptance.AcceptanceTests.test_uncommitted_packet_cannot_pass_updated_external_digest"
+    },
+    {
+      "status": "PASS",
+      "test": "test_acceptance.AcceptanceTests.test_unknown_missing_and_bool_schema_refused"
+    },
+    {
+      "status": "PASS",
+      "test": "test_boundary.BoundaryTests.test_bootstrap_and_each_raw_operation_use_sealed_capture_and_runtime"
+    },
+    {
+      "status": "PASS",
+      "test": "test_boundary.BoundaryTests.test_existing_held_base_cancel_memory_also_refuses_new_operations"
+    },
+    {
+      "status": "PASS",
+      "test": "test_boundary.BoundaryTests.test_real_signal_in_post_identity_cannot_be_swallowed_into_another_state"
+    },
+    {
+      "status": "PASS",
+      "test": "test_broker.BrokerTests.test_actual_context_remote_duplicate_or_malformed_response_refused"
+    },
+    {
+      "status": "PASS",
+      "test": "test_broker.BrokerTests.test_actual_context_response_bytes_forwarded_unchanged_with_alias"
+    },
+    {
+      "status": "PASS",
+      "test": "test_broker.BrokerTests.test_ambiguous_absence_does_not_claim_cleanup_pass"
+    },
+    {
+      "status": "PASS",
+      "test": "test_broker.BrokerTests.test_arbitrary_privileged_network_mount_and_remote_commands_refused_before_backend"
+    },
+    {
+      "status": "PASS",
+      "test": "test_broker.BrokerTests.test_backend_overrunning_phase_deadline_never_completes_successful_operation"
+    },
+    {
+      "status": "PASS",
+      "test": "test_broker.BrokerTests.test_backend_socket_daemon_or_cli_drift_after_commit_never_binds_success"
+    },
+    {
+      "status": "PASS",
+      "test": "test_broker.BrokerTests.test_build_reserved_before_backend_labels_limits_and_immutable_binding"
+    },
+    {
+      "status": "PASS",
+      "test": "test_broker.BrokerTests.test_builder_original_random_name_and_mounts_are_preserved"
+    },
+    {
+      "status": "PASS",
+      "test": "test_broker.BrokerTests.test_cancellation_after_creation_commit_does_not_start_or_claim_pass"
+    },
+    {
+      "status": "PASS",
+      "test": "test_broker.BrokerTests.test_cleanup_image_nonce_and_context_labels_must_match"
+    },
+    {
+      "status": "PASS",
+      "test": "test_broker.BrokerTests.test_cleanup_uses_global_reserve_after_local_phase_expired"
+    },
+    {
+      "status": "PASS",
+      "test": "test_broker.BrokerTests.test_container_budget_refuses_fifteenth_reservation"
+    },
+    {
+      "status": "PASS",
+      "test": "test_broker.BrokerTests.test_duplicate_name_and_phase_inventory_replay_refused"
+    },
+    {
+      "status": "PASS",
+      "test": "test_broker.BrokerTests.test_eight_original_and_two_ksm_builds_have_distinct_journaled_environments"
+    },
+    {
+      "status": "PASS",
+      "test": "test_broker.BrokerTests.test_exact_absence_forms_refuse_whitespace_and_unbound_object_diagnostic"
+    },
+    {
+      "status": "PASS",
+      "test": "test_broker.BrokerTests.test_failed_image_build_keeps_unknown_commit_and_no_image_disposal"
+    },
+    {
+      "status": "PASS",
+      "test": "test_broker.BrokerTests.test_failed_request_permanently_refuses_new_mutation"
+    },
+    {
+      "status": "PASS",
+      "test": "test_broker.BrokerTests.test_individual_image_absence_allows_empty_inspect_json_with_exact_error_only"
+    },
+    {
+      "status": "PASS",
+      "test": "test_broker.BrokerTests.test_inventory_run_preserves_stdout_and_confirms_owned_id_cleanup"
+    },
+    {
+      "status": "PASS",
+      "test": "test_broker.BrokerTests.test_journal_path_swap_refuses_request_without_overwriting_foreign_file"
+    },
+    {
+      "status": "PASS",
+      "test": "test_broker.BrokerTests.test_nonpruning_owned_image_cleanup_preserves_untagged_ancestor"
+    },
+    {
+      "status": "PASS",
+      "test": "test_broker.BrokerTests.test_nonzero_and_oom_exit_cannot_supply_clean_environment"
+    },
+    {
+      "status": "PASS",
+      "test": "test_broker.BrokerTests.test_oversized_backend_output_refused_with_durable_failure"
+    },
+    {
+      "status": "PASS",
+      "test": "test_broker.BrokerTests.test_phase_deadline_clamps_backend_timeout_without_borrowing_reserve"
+    },
+    {
+      "status": "PASS",
+      "test": "test_broker.BrokerTests.test_pre_cancel_and_deadline_refuse_mutation"
+    },
+    {
+      "status": "PASS",
+      "test": "test_broker.BrokerTests.test_probe_commands_use_bound_backend_and_context_endpoint"
+    },
+    {
+      "status": "PASS",
+      "test": "test_broker.BrokerTests.test_unknown_actual_create_commit_is_owned_recovered_but_still_fail"
+    },
+    {
+      "status": "PASS",
+      "test": "test_broker.BrokerTests.test_unknown_creation_commit_keeps_reservation_failed_and_cleanup_explicit"
+    },
+    {
+      "status": "PASS",
+      "test": "test_broker.BrokerTests.test_wire_bounds_reject_huge_argv"
+    },
+    {
+      "status": "PASS",
+      "test": "test_broker.BrokerTests.test_wrong_container_nonce_refuses_start_and_removal"
+    },
+    {
+      "status": "PASS",
+      "test": "test_broker.BrokerTests.test_wrong_id_after_start_refuses_removal"
+    },
+    {
+      "status": "PASS",
+      "test": "test_broker.BrokerTests.test_wrong_image_labels_refused_before_new_container_commit"
+    },
+    {
+      "status": "PASS",
+      "test": "test_consumer.ConsumerTests.test_aggregate_deadline_reserve_and_phase_replay"
+    },
+    {
+      "status": "PASS",
+      "test": "test_consumer.ConsumerTests.test_compare_requires_bytes"
+    },
+    {
+      "status": "PASS",
+      "test": "test_consumer.ConsumerTests.test_empty_or_partial_or_buildinfo_unequal_comparison_refused"
+    },
+    {
+      "status": "PASS",
+      "test": "test_consumer.ConsumerTests.test_exact_two_fresh_offline_native_builds"
+    },
+    {
+      "status": "PASS",
+      "test": "test_consumer.ConsumerTests.test_lifecycle_cleanup_and_cancellation_cannot_be_hidden"
+    },
+    {
+      "status": "PASS",
+      "test": "test_consumer.ConsumerTests.test_lifecycle_command_binds_all_accepted_sources_and_same_job_inputs"
+    },
+    {
+      "status": "PASS",
+      "test": "test_consumer.ConsumerTests.test_original_producer_cli_command_without_override"
+    },
+    {
+      "status": "PASS",
+      "test": "test_consumer.ConsumerTests.test_output_path_escape_checkout_overlap_and_mutable_image_refused"
+    },
+    {
+      "status": "PASS",
+      "test": "test_consumer.ConsumerTests.test_ownership_requires_every_same_job_binding_and_absence"
+    },
+    {
+      "status": "PASS",
+      "test": "test_consumer.ConsumerTests.test_phase_limits_and_cleanup_reserves_cannot_be_borrowed"
+    },
+    {
+      "status": "PASS",
+      "test": "test_consumer.ConsumerTests.test_unowned_original_receipt_is_insufficient"
+    },
+    {
+      "status": "PASS",
+      "test": "test_executor.ExecutorTests.test_actual_cli_commands_keep_original_sources_without_override"
+    },
+    {
+      "status": "PASS",
+      "test": "test_executor.ExecutorTests.test_deadline_never_borrows_later_reserves"
+    },
+    {
+      "status": "PASS",
+      "test": "test_executor.ExecutorTests.test_durable_journal_must_match_actual_owner_observations"
+    },
+    {
+      "status": "PASS",
+      "test": "test_executor.ExecutorTests.test_existing_or_replaced_private_result_cannot_be_overwritten_on_late_cancel"
+    },
+    {
+      "status": "PASS",
+      "test": "test_executor.ExecutorTests.test_fresh_snapshot_rejects_extra_pyc_and_changed_code"
+    },
+    {
+      "status": "PASS",
+      "test": "test_executor.ExecutorTests.test_late_failure_invalidates_only_pinned_own_evidence"
+    },
+    {
+      "status": "PASS",
+      "test": "test_executor.ExecutorTests.test_launcher_uses_actual_tools_and_private_explicit_environment"
+    },
+    {
+      "status": "PASS",
+      "test": "test_executor.ExecutorTests.test_lifecycle_root_output_scope_inputs_bind_actual_producer_pair_and_sources"
+    },
+    {
+      "status": "PASS",
+      "test": "test_executor.ExecutorTests.test_native_guard_refuses_without_authorization_and_native_host"
+    },
+    {
+      "status": "PASS",
+      "test": "test_executor.ExecutorTests.test_observed_producer_failure_cannot_launch_lifecycle_or_build"
+    },
+    {
+      "status": "PASS",
+      "test": "test_executor.ExecutorTests.test_private_namespace_replacement_during_write_cannot_redirect_commit"
+    },
+    {
+      "status": "PASS",
+      "test": "test_executor.ExecutorTests.test_public_directory_replacement_or_symlink_cannot_redirect_invalidation"
+    },
+    {
+      "status": "PASS",
+      "test": "test_executor.ExecutorTests.test_terminal_sigint_rewrites_failure_before_process_owned_fds_close"
+    },
+    {
+      "status": "PASS",
+      "test": "test_executor_contract.ExecutorContractTests.test_actual_broker_fixture_eleven_environment_sequence_consumed"
+    },
+    {
+      "status": "PASS",
+      "test": "test_executor_contract.ExecutorContractTests.test_all_ten_owned_builds_final_image_absence_required"
+    },
+    {
+      "status": "PASS",
+      "test": "test_executor_contract.ExecutorContractTests.test_broker_opened_job_or_facade_pin_drift_refused"
+    },
+    {
+      "status": "PASS",
+      "test": "test_executor_contract.ExecutorContractTests.test_capture_refuses_parent_link_leaf_link_hardlink_and_special"
+    },
+    {
+      "status": "PASS",
+      "test": "test_executor_contract.ExecutorContractTests.test_complete_fixture_is_immutable_and_preserves_exact_bytes"
+    },
+    {
+      "status": "PASS",
+      "test": "test_executor_contract.ExecutorContractTests.test_declared_absence_without_actual_removal_operation_refused"
+    },
+    {
+      "status": "PASS",
+      "test": "test_executor_contract.ExecutorContractTests.test_duplicate_and_nonfinite_json_refused"
+    },
+    {
+      "status": "PASS",
+      "test": "test_executor_contract.ExecutorContractTests.test_endpoint_alias_requires_actual_same_socket_observations"
+    },
+    {
+      "status": "PASS",
+      "test": "test_executor_contract.ExecutorContractTests.test_exit_bool_nonzero_or_signal_refused"
+    },
+    {
+      "status": "PASS",
+      "test": "test_executor_contract.ExecutorContractTests.test_exited_bool_oom_signal_or_pending_start_refused"
+    },
+    {
+      "status": "PASS",
+      "test": "test_executor_contract.ExecutorContractTests.test_final_journal_refuses_image_removal_without_no_prune_or_with_force"
+    },
+    {
+      "status": "PASS",
+      "test": "test_executor_contract.ExecutorContractTests.test_folded_empty_json_and_exact_image_diagnostic_variants"
+    },
+    {
+      "status": "PASS",
+      "test": "test_executor_contract.ExecutorContractTests.test_foreign_runner_job_gid_or_arch_refused"
+    },
+    {
+      "status": "PASS",
+      "test": "test_executor_contract.ExecutorContractTests.test_held_contract_decodes_two_captured_fixture_builds"
+    },
+    {
+      "status": "PASS",
+      "test": "test_executor_contract.ExecutorContractTests.test_ksm_requires_observed_exit_and_same_job_distinct_environment"
+    },
+    {
+      "status": "PASS",
+      "test": "test_executor_contract.ExecutorContractTests.test_only_exact_bound_image_absence_nonzero_is_accepted"
+    },
+    {
+      "status": "PASS",
+      "test": "test_executor_contract.ExecutorContractTests.test_original_build_artifact_and_recipe_hash_drift_refused"
+    },
+    {
+      "status": "PASS",
+      "test": "test_executor_contract.ExecutorContractTests.test_original_buildinfo_comparison_false_refused"
+    },
+    {
+      "status": "PASS",
+      "test": "test_executor_contract.ExecutorContractTests.test_pairing_pending_malformed_or_nonzero_operations_refused"
+    },
+    {
+      "status": "PASS",
+      "test": "test_executor_contract.ExecutorContractTests.test_pending_unknown_failed_and_duplicate_immutable_id_refused"
+    },
+    {
+      "status": "PASS",
+      "test": "test_executor_contract.ExecutorContractTests.test_public_exact_allowlist_after_all_actual_observation_fixtures"
+    },
+    {
+      "status": "PASS",
+      "test": "test_executor_contract.ExecutorContractTests.test_public_refuses_changed_observed_cli_or_socket"
+    },
+    {
+      "status": "PASS",
+      "test": "test_executor_contract.ExecutorContractTests.test_public_refuses_controller_signal_lifecycle_gid_and_uncertain_cleanup"
+    },
+    {
+      "status": "PASS",
+      "test": "test_executor_contract.ExecutorContractTests.test_valid_final_removal_cannot_hide_an_extra_pruning_operation"
+    },
+    {
+      "status": "PASS",
+      "test": "test_job.JobTests.test_cancellation_before_and_after_source_checks"
+    },
+    {
+      "status": "PASS",
+      "test": "test_job.JobTests.test_current_held_sources_have_explicit_owned_interface_blocker"
+    },
+    {
+      "status": "PASS",
+      "test": "test_job.JobTests.test_finite_total_reserves_cover_phase_maxima"
+    },
+    {
+      "status": "PASS",
+      "test": "test_job.JobTests.test_gpl_notice_drift_refused"
+    },
+    {
+      "status": "PASS",
+      "test": "test_job.JobTests.test_initial_workflow_source_time_is_in_same_deadline"
+    },
+    {
+      "status": "PASS",
+      "test": "test_job.JobTests.test_original_recipe_payload_drift_refused"
+    },
+    {
+      "status": "PASS",
+      "test": "test_job.JobTests.test_privilege_gid_and_emulation_refused"
+    },
+    {
+      "status": "PASS",
+      "test": "test_job.JobTests.test_single_source_drift_cannot_reach_producer"
+    },
+    {
+      "status": "PASS",
+      "test": "test_job.JobTests.test_snapshot_from_other_run_packet_or_workflow_refused"
+    },
+    {
+      "status": "PASS",
+      "test": "test_job.JobTests.test_source147_receipt_drift_refused"
+    },
+    {
+      "status": "PASS",
+      "test": "test_job.JobTests.test_source_deadline_cannot_be_extended"
+    },
+    {
+      "status": "PASS",
+      "test": "test_job.JobTests.test_wrong_repository_run_or_workflow_commit_refused"
+    },
+    {
+      "status": "PASS",
+      "test": "test_packet_integration.PacketIntegrationTests.test_complete_source_packet_is_accepted_but_never_native_pass"
+    },
+    {
+      "status": "PASS",
+      "test": "test_packet_integration.PacketIntegrationTests.test_workflow_bootstrap_python_compiles_and_actual_exit_gates_upload"
+    },
+    {
+      "status": "PASS",
+      "test": "test_public.PublicTests.test_any_failed_acceptance_or_cleanup_blocks_creation"
+    },
+    {
+      "status": "PASS",
+      "test": "test_public.PublicTests.test_cancel_after_owned_callback_does_not_return_terminal_pass"
+    },
+    {
+      "status": "PASS",
+      "test": "test_public.PublicTests.test_cancellation_after_evidence_fsync_removes_completed_looking_output"
+    },
+    {
+      "status": "PASS",
+      "test": "test_public.PublicTests.test_cancellation_before_creation_exports_nothing"
+    },
+    {
+      "status": "PASS",
+      "test": "test_public.PublicTests.test_cancellation_during_package_copy_removes_partial_output"
+    },
+    {
+      "status": "PASS",
+      "test": "test_public.PublicTests.test_child_swap_before_cleanup_retains_foreign_directory"
+    },
+    {
+      "status": "PASS",
+      "test": "test_public.PublicTests.test_comparison_notice_and_absence_flags_must_be_boolean_true"
+    },
+    {
+      "status": "PASS",
+      "test": "test_public.PublicTests.test_consistent_but_unreviewed_inputs_or_package_pins_refused"
+    },
+    {
+      "status": "PASS",
+      "test": "test_public.PublicTests.test_corrupt_archive_hash_and_size_refused"
+    },
+    {
+      "status": "PASS",
+      "test": "test_public.PublicTests.test_distinct_provenance_and_equal_actual_build_bytes_required"
+    },
+    {
+      "status": "PASS",
+      "test": "test_public.PublicTests.test_evidence_name_swap_preserves_foreign_bytes_invalidates_owned_inode"
+    },
+    {
+      "status": "PASS",
+      "test": "test_public.PublicTests.test_exact_package_version_arch_and_notice_bytes_required"
+    },
+    {
+      "status": "PASS",
+      "test": "test_public.PublicTests.test_existing_or_public_parent_and_symlink_output_refused"
+    },
+    {
+      "status": "PASS",
+      "test": "test_public.PublicTests.test_final_hardlink_drift_refused_without_touching_external_link"
+    },
+    {
+      "status": "PASS",
+      "test": "test_public.PublicTests.test_final_package_same_size_tamper_or_wrong_mode_never_passes"
+    },
+    {
+      "status": "PASS",
+      "test": "test_public.PublicTests.test_fsync_failure_removes_all_curated_partial_files"
+    },
+    {
+      "status": "PASS",
+      "test": "test_public.PublicTests.test_gzip_exact_accepted_package_format"
+    },
+    {
+      "status": "PASS",
+      "test": "test_public.PublicTests.test_input_same_size_overwrite_after_capture_does_not_change_exported_bytes"
+    },
+    {
+      "status": "PASS",
+      "test": "test_public.PublicTests.test_mid_second_package_write_failure_removes_first_and_partial_second"
+    },
+    {
+      "status": "PASS",
+      "test": "test_public.PublicTests.test_only_two_exact_packages_and_constructed_evidence_are_exported"
+    },
+    {
+      "status": "PASS",
+      "test": "test_public.PublicTests.test_output_ancestor_symlink_swap_at_open_creates_nothing_foreign"
+    },
+    {
+      "status": "PASS",
+      "test": "test_public.PublicTests.test_owned_callback_failure_removes_only_created_partial_output"
+    },
+    {
+      "status": "PASS",
+      "test": "test_public.PublicTests.test_owned_callback_never_runs_before_final_content_checks_succeed"
+    },
+    {
+      "status": "PASS",
+      "test": "test_public.PublicTests.test_owned_callback_receives_exact_created_descriptors_after_validation"
+    },
+    {
+      "status": "PASS",
+      "test": "test_public.PublicTests.test_owned_callback_retains_created_identity_across_foreign_name_swap"
+    },
+    {
+      "status": "PASS",
+      "test": "test_public.PublicTests.test_package_name_swap_before_cleanup_does_not_unlink_replacement"
+    },
+    {
+      "status": "PASS",
+      "test": "test_public.PublicTests.test_restrictive_umask_directory_mode_is_checked_before_pass"
+    },
+    {
+      "status": "PASS",
+      "test": "test_public.PublicTests.test_root_swap_before_cleanup_retains_foreign_tree_and_own_failure"
+    },
+    {
+      "status": "PASS",
+      "test": "test_public.PublicTests.test_same_job_source_binding_and_reviewed_map_drift_refused"
+    },
+    {
+      "status": "PASS",
+      "test": "test_public.PublicTests.test_scriptlets_hooks_unknown_payload_and_duplicate_members_refused"
+    },
+    {
+      "status": "PASS",
+      "test": "test_public.PublicTests.test_source_ancestor_symlink_swap_at_open_is_refused"
+    },
+    {
+      "status": "PASS",
+      "test": "test_public.PublicTests.test_source_metadata_same_bytes_mode_change_during_capture_refused"
+    },
+    {
+      "status": "PASS",
+      "test": "test_public.PublicTests.test_symlink_and_hardlink_archive_refused"
+    },
+    {
+      "status": "PASS",
+      "test": "test_public.PublicTests.test_unexpected_foreign_file_prevents_cleanup_and_invalidates_evidence"
+    },
+    {
+      "status": "PASS",
+      "test": "test_public.PublicTests.test_unknown_raw_fields_and_misclassified_status_refused"
+    },
+    {
+      "status": "PASS",
+      "test": "test_runtime.RuntimeTests.test_actual_process_supervision_survives_atomic_rename_resource_observation"
+    },
+    {
+      "status": "PASS",
+      "test": "test_runtime.RuntimeTests.test_atomic_download_and_receipt_renames_rescan_new_targets"
+    },
+    {
+      "status": "PASS",
+      "test": "test_runtime.RuntimeTests.test_atomic_rename_target_still_obeys_byte_quota"
+    },
+    {
+      "status": "PASS",
+      "test": "test_runtime.RuntimeTests.test_callback_failure_and_callback_deadline_cleanup_outer_child"
+    },
+    {
+      "status": "PASS",
+      "test": "test_runtime.RuntimeTests.test_cancellation_bridge_preserves_first_mark_and_checks_explicitly"
+    },
+    {
+      "status": "PASS",
+      "test": "test_runtime.RuntimeTests.test_child_resource_limits_pdeath_signal_and_unmasked_signals"
+    },
+    {
+      "status": "PASS",
+      "test": "test_runtime.RuntimeTests.test_cleanup_actual_sealed_elf_after_resource_failure_and_sticky_cancel"
+    },
+    {
+      "status": "PASS",
+      "test": "test_runtime.RuntimeTests.test_cleanup_cannot_bypass_expired_phase_deadline"
+    },
+    {
+      "status": "PASS",
+      "test": "test_runtime.RuntimeTests.test_cleanup_image_capability_requires_no_prune_and_refuses_force"
+    },
+    {
+      "status": "PASS",
+      "test": "test_runtime.RuntimeTests.test_cleanup_output_cap_kills_actual_sealed_elf_without_private_writes"
+    },
+    {
+      "status": "PASS",
+      "test": "test_runtime.RuntimeTests.test_cleanup_reaps_same_group_grandchild_and_keeps_unrelated_child"
+    },
+    {
+      "status": "PASS",
+      "test": "test_runtime.RuntimeTests.test_cleanup_refuses_unscoped_cancel_unsealed_and_broader_commands"
+    },
+    {
+      "status": "PASS",
+      "test": "test_runtime.RuntimeTests.test_cleanup_second_real_signal_during_disposal_keeps_cancellation"
+    },
+    {
+      "status": "PASS",
+      "test": "test_runtime.RuntimeTests.test_close_releases_retained_directories"
+    },
+    {
+      "status": "PASS",
+      "test": "test_runtime.RuntimeTests.test_combined_output_exit_status_and_private_log"
+    },
+    {
+      "status": "PASS",
+      "test": "test_runtime.RuntimeTests.test_exact_root_lifecycle_receipt_modes_are_metadata_only_and_quota_charged"
+    },
+    {
+      "status": "PASS",
+      "test": "test_runtime.RuntimeTests.test_exported_deferral_remembers_real_signals_before_state_check"
+    },
+    {
+      "status": "PASS",
+      "test": "test_runtime.RuntimeTests.test_file_vanishing_before_open_keeps_already_observed_bytes"
+    },
+    {
+      "status": "PASS",
+      "test": "test_runtime.RuntimeTests.test_foreign_owner_and_non_enoent_descendant_failures_are_refused"
+    },
+    {
+      "status": "PASS",
+      "test": "test_runtime.RuntimeTests.test_invalid_argv_log_and_limits_do_not_spawn"
+    },
+    {
+      "status": "PASS",
+      "test": "test_runtime.RuntimeTests.test_lifecycle_input_capture_stays_immutable_across_same_parent_rename"
+    },
+    {
+      "status": "PASS",
+      "test": "test_runtime.RuntimeTests.test_missing_basename_reappearing_in_retry_is_refused"
+    },
+    {
+      "status": "PASS",
+      "test": "test_runtime.RuntimeTests.test_nested_service_cannot_borrow_time_reserved_for_later_phases"
+    },
+    {
+      "status": "PASS",
+      "test": "test_runtime.RuntimeTests.test_opened_child_directory_move_and_replacement_are_refused"
+    },
+    {
+      "status": "PASS",
+      "test": "test_runtime.RuntimeTests.test_opened_regular_move_outside_parent_is_not_unobserved_disappearance"
+    },
+    {
+      "status": "PASS",
+      "test": "test_runtime.RuntimeTests.test_output_limit_kills_owned_child_and_preserves_bounded_log"
+    },
+    {
+      "status": "PASS",
+      "test": "test_runtime.RuntimeTests.test_owned_rpc_socket_exact_identity_and_absent_unregistration"
+    },
+    {
+      "status": "PASS",
+      "test": "test_runtime.RuntimeTests.test_parent_exit_kills_direct_private_child"
+    },
+    {
+      "status": "PASS",
+      "test": "test_runtime.RuntimeTests.test_periodic_disk_and_file_violation_disposes_child"
+    },
+    {
+      "status": "PASS",
+      "test": "test_runtime.RuntimeTests.test_phase_scope_clamps_nested_scopes_without_extending_aggregate"
+    },
+    {
+      "status": "PASS",
+      "test": "test_runtime.RuntimeTests.test_pinned_producer_atomic_renames_at_all_three_observation_points"
+    },
+    {
+      "status": "PASS",
+      "test": "test_runtime.RuntimeTests.test_post_open_file_loss_replacement_and_foreign_candidate_refused"
+    },
+    {
+      "status": "PASS",
+      "test": "test_runtime.RuntimeTests.test_post_open_same_parent_rename_survives_actual_process_resource_tick"
+    },
+    {
+      "status": "PASS",
+      "test": "test_runtime.RuntimeTests.test_real_late_signal_during_log_fsync_cancels_completed_child"
+    },
+    {
+      "status": "PASS",
+      "test": "test_runtime.RuntimeTests.test_real_sigint_and_sigterm_cancel_active_child"
+    },
+    {
+      "status": "PASS",
+      "test": "test_runtime.RuntimeTests.test_rebinding_auxiliary_search_checks_unsafe_nodes_before_they_can_vanish"
+    },
+    {
+      "status": "PASS",
+      "test": "test_runtime.RuntimeTests.test_rebinding_new_name_and_observed_bytes_preserve_quota_limits"
+    },
+    {
+      "status": "PASS",
+      "test": "test_runtime.RuntimeTests.test_rebinding_refuses_already_walked_directory_replacement"
+    },
+    {
+      "status": "PASS",
+      "test": "test_runtime.RuntimeTests.test_rebinding_search_budget_is_finite"
+    },
+    {
+      "status": "PASS",
+      "test": "test_runtime.RuntimeTests.test_removed_log_path_refuses_hidden_fd_write"
+    },
+    {
+      "status": "PASS",
+      "test": "test_runtime.RuntimeTests.test_repeated_rename_churn_refuses_after_three_bounded_scan_rounds"
+    },
+    {
+      "status": "PASS",
+      "test": "test_runtime.RuntimeTests.test_resource_byte_count_depth_and_disk_reserve_fail_closed"
+    },
+    {
+      "status": "PASS",
+      "test": "test_runtime.RuntimeTests.test_resource_observation_unavailable_is_unknown_failure"
+    },
+    {
+      "status": "PASS",
+      "test": "test_runtime.RuntimeTests.test_resource_regular_singlelink_directory_observation"
+    },
+    {
+      "status": "PASS",
+      "test": "test_runtime.RuntimeTests.test_root_lifecycle_grant_refuses_copied_input_hash_drift"
+    },
+    {
+      "status": "PASS",
+      "test": "test_runtime.RuntimeTests.test_root_lifecycle_grant_refuses_duplicate_contract_fields"
+    },
+    {
+      "status": "PASS",
+      "test": "test_runtime.RuntimeTests.test_root_lifecycle_grant_refuses_replaced_receipt_inode"
+    },
+    {
+      "status": "PASS",
+      "test": "test_runtime.RuntimeTests.test_root_lifecycle_grant_refuses_replaced_stage_and_contract_after_binding"
+    },
+    {
+      "status": "PASS",
+      "test": "test_runtime.RuntimeTests.test_root_lifecycle_grant_refuses_unknown_leaf_mode_size_and_links"
+    },
+    {
+      "status": "PASS",
+      "test": "test_runtime.RuntimeTests.test_root_lifecycle_grant_refuses_wrong_contract_and_source_bytes"
+    },
+    {
+      "status": "PASS",
+      "test": "test_runtime.RuntimeTests.test_root_lifecycle_grant_requires_exact_root_gid"
+    },
+    {
+      "status": "PASS",
+      "test": "test_runtime.RuntimeTests.test_root_lifecycle_grant_requires_fresh_owned_exact_tmp_namespace"
+    },
+    {
+      "status": "PASS",
+      "test": "test_runtime.RuntimeTests.test_root_lifecycle_receipt_post_open_rename_remains_strict"
+    },
+    {
+      "status": "PASS",
+      "test": "test_runtime.RuntimeTests.test_scan_root_replacement_and_missing_root_are_refused"
+    },
+    {
+      "status": "PASS",
+      "test": "test_runtime.RuntimeTests.test_sealed_elf_exec_transport_and_absolute_private_log"
+    },
+    {
+      "status": "PASS",
+      "test": "test_runtime.RuntimeTests.test_sealed_fd_is_transportable_and_parent_retains_it"
+    },
+    {
+      "status": "PASS",
+      "test": "test_runtime.RuntimeTests.test_second_signals_during_disposal_are_deferred"
+    },
+    {
+      "status": "PASS",
+      "test": "test_runtime.RuntimeTests.test_second_socket_and_wrong_owned_identity_refused"
+    },
+    {
+      "status": "PASS",
+      "test": "test_runtime.RuntimeTests.test_service_callback_nested_runner_uses_same_deadline"
+    },
+    {
+      "status": "PASS",
+      "test": "test_runtime.RuntimeTests.test_signals_after_spawn_before_assignment_cannot_lose_child"
+    },
+    {
+      "status": "PASS",
+      "test": "test_runtime.RuntimeTests.test_term_ignoring_child_is_killed_within_three_second_disposal"
+    },
+    {
+      "status": "PASS",
+      "test": "test_runtime.RuntimeTests.test_timeout_and_absolute_aggregate_deadline_refuse_late_success"
+    },
+    {
+      "status": "PASS",
+      "test": "test_runtime.RuntimeTests.test_vanishing_entry_charged_before_stat_and_node_quota"
+    },
+    {
+      "status": "PASS",
+      "test": "test_shim.ShimTests.test_busy_service_does_not_recursively_dispatch"
+    },
+    {
+      "status": "PASS",
+      "test": "test_shim.ShimTests.test_nonzero_backend_exit_is_forwarded"
+    },
+    {
+      "status": "PASS",
+      "test": "test_shim.ShimTests.test_real_shim_subprocess_preserves_original_stdout_and_status"
+    },
+    {
+      "status": "PASS",
+      "test": "test_shim.ShimTests.test_rpc_request_length_bound_refuses_body_before_backend"
+    },
+    {
+      "status": "PASS",
+      "test": "test_shim.ShimTests.test_shim_refuses_invalid_endpoint_token_or_huge_argv_without_connect"
+    },
+    {
+      "status": "PASS",
+      "test": "test_shim.ShimTests.test_shim_response_wait_covers_bounded_bootstrap_rpc"
+    },
+    {
+      "status": "PASS",
+      "test": "test_shim.ShimTests.test_socket_replacement_is_not_removed_by_service_cleanup"
+    },
+    {
+      "status": "PASS",
+      "test": "test_shim.ShimTests.test_unknown_command_never_reaches_backend"
+    },
+    {
+      "status": "PASS",
+      "test": "test_shim.ShimTests.test_wrong_rpc_token_refused_and_journaled_without_backend"
+    }
+  ],
+  "python_version": "3.14.7",
+  "reproduce_command": "python3 -B -m unittest discover -s scripts/port/ksm-native-job -p 'test_*.py' -v",
+  "schema_version": 1,
+  "scope": "SOURCE FIXTURES ONLY",
+  "skip_count": 0,
+  "status": "PASS",
+  "test_count": 229,
+  "tested_python_files": [
+    {
+      "mode": "0644",
+      "path": "scripts/port/ksm-native-job/acceptance.py",
+      "sha256": "7beb64c2927c0b919d8b431cbad8623b9030d3786bb1118660c77d1f838d04d4",
+      "size_bytes": 15592
+    },
+    {
+      "mode": "0644",
+      "path": "scripts/port/ksm-native-job/boundary.py",
+      "sha256": "4be50d2326fee5589b0f855740d229b2aad1dff22f062811e1e18294bcfe5c91",
+      "size_bytes": 4197
+    },
+    {
+      "mode": "0644",
+      "path": "scripts/port/ksm-native-job/broker.py",
+      "sha256": "40611863b0d020df0e039e4bf7cddad448e1fb1be04a57b4168ad5665a0da45e",
+      "size_bytes": 31792
+    },
+    {
+      "mode": "0644",
+      "path": "scripts/port/ksm-native-job/consumer.py",
+      "sha256": "53323c45a63d7bbf989c33421dfb521ef29b4a3fff1d42c670ae4aca2a81f15e",
+      "size_bytes": 8696
+    },
+    {
+      "mode": "0644",
+      "path": "scripts/port/ksm-native-job/executor.py",
+      "sha256": "ca0699e8ed6df798627dc64f746a7558d9a056c55cb06a2e4f45e782cac94b2f",
+      "size_bytes": 28447
+    },
+    {
+      "mode": "0644",
+      "path": "scripts/port/ksm-native-job/executor_contract.py",
+      "sha256": "a13b471b08edcb5b529b930daf8611a6fb102424ef9b14b49ea49978e88a19df",
+      "size_bytes": 35446
+    },
+    {
+      "mode": "0644",
+      "path": "scripts/port/ksm-native-job/job.py",
+      "sha256": "f57c9cf24807b3070b0087eb173b163f41e0de32fd235cf4f4b6a9998b18ca18",
+      "size_bytes": 7855
+    },
+    {
+      "mode": "0644",
+      "path": "scripts/port/ksm-native-job/public.py",
+      "sha256": "1d9ecb0b710daa3ce65f915e937fd51d0c935712f9600e8b5942e0a30a55f244",
+      "size_bytes": 21792
+    },
+    {
+      "mode": "0644",
+      "path": "scripts/port/ksm-native-job/required_paths.py",
+      "sha256": "47e1f0eaa37ec4c9c90baa9742a56a51cc83c4f60ab26c19b65b2a8a55101e34",
+      "size_bytes": 9438
+    },
+    {
+      "mode": "0644",
+      "path": "scripts/port/ksm-native-job/runtime.py",
+      "sha256": "1d695acda2a7161510a161034278999cc05063526c0ba33c99e27580321e6354",
+      "size_bytes": 47820
+    },
+    {
+      "mode": "0644",
+      "path": "scripts/port/ksm-native-job/shim.py",
+      "sha256": "fc3a6fcbf14b78982b4ff04f4105ff82ffdd36d3f4f6344331abbf43d4fc62ca",
+      "size_bytes": 3852
+    },
+    {
+      "mode": "0644",
+      "path": "scripts/port/ksm-native-job/test_acceptance.py",
+      "sha256": "a5eff4283ac7aa645b6621ff36cae4dff2bd0f19be5b995beb131d43132887a7",
+      "size_bytes": 21637
+    },
+    {
+      "mode": "0644",
+      "path": "scripts/port/ksm-native-job/test_boundary.py",
+      "sha256": "4284075876ee1b8cc10fa414a7bf090a1dc811ac2e4ae6a90d4846d4af04cfaf",
+      "size_bytes": 4983
+    },
+    {
+      "mode": "0644",
+      "path": "scripts/port/ksm-native-job/test_broker.py",
+      "sha256": "33d2dd3d542e18dc54af2b1056e67a466f668cc4c2e97e643e5d623fb08c43ea",
+      "size_bytes": 28000
+    },
+    {
+      "mode": "0644",
+      "path": "scripts/port/ksm-native-job/test_consumer.py",
+      "sha256": "5ff9c78b4fe1cb1ba241370db0cd64944c88ee83b51c3e3a1606e2fae2268d26",
+      "size_bytes": 8730
+    },
+    {
+      "mode": "0644",
+      "path": "scripts/port/ksm-native-job/test_executor.py",
+      "sha256": "caf99a638f6f0bb4beef78edb797368053e6ce4bcca34f7b5708c5a98dac862c",
+      "size_bytes": 12694
+    },
+    {
+      "mode": "0644",
+      "path": "scripts/port/ksm-native-job/test_executor_contract.py",
+      "sha256": "ecae675e20affc4d80a835d8215ee9bfeeeaf3b195b2256476d7a98c61953a33",
+      "size_bytes": 27366
+    },
+    {
+      "mode": "0644",
+      "path": "scripts/port/ksm-native-job/test_job.py",
+      "sha256": "5c00faea380a1ed31cb3c97100d08ca8c944771f86cc1a38d1d90e58d1b918f8",
+      "size_bytes": 5067
+    },
+    {
+      "mode": "0644",
+      "path": "scripts/port/ksm-native-job/test_packet_integration.py",
+      "sha256": "74df5f301be5f3c5f56a896175d8cf4fd05d7e4779142eceb8de972806d5994f",
+      "size_bytes": 4501
+    },
+    {
+      "mode": "0644",
+      "path": "scripts/port/ksm-native-job/test_public.py",
+      "sha256": "0d8b987bd7b1169cb4db79a5ede0920b2f7d7fb292f1aa028f705c5bccbe84a0",
+      "size_bytes": 25969
+    },
+    {
+      "mode": "0644",
+      "path": "scripts/port/ksm-native-job/test_runtime.py",
+      "sha256": "2826ec4727677b34f8822a20e42b433587d9b3adcf71e3a6505ba674a31d9d18",
+      "size_bytes": 59706
+    },
+    {
+      "mode": "0644",
+      "path": "scripts/port/ksm-native-job/test_shim.py",
+      "sha256": "2cf55a11ba74a63739275d0c67a9b9e4fe21a573478ade35b8069f30dfce8ac6",
+      "size_bytes": 5862
+    }
+  ]
+}
