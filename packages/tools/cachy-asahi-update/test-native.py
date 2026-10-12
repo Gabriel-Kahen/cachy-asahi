@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Data-only adapter tests; never launch Docker or invoke a compiler."""
+import ast
 import copy
 import hashlib
 import importlib.util
@@ -60,6 +61,152 @@ def inspection_row():
             'State': {'Status': 'exited', 'Running': False, 'Paused': False,
                       'Restarting': False, 'Dead': False, 'OOMKilled': False,
                       'ExitCode': 0, 'Error': ''}}
+
+
+class ToolAliasTests(unittest.TestCase):
+    """Tiny authenticated-byte tar models and real private hardlinks; never execute tools."""
+    def setUp(self):
+        self.temporary=tempfile.TemporaryDirectory();self.addCleanup(self.temporary.cleanup)
+        self.cache=Path(self.temporary.name)
+    def entries(self,changes=None):
+        rows={('usr/bin/'+name):(tarfile.REGTYPE,('fixture:'+name).encode()) for name in native.TOOLS}
+        rows.update(changes or {})
+        return [(name,kind,value) for name,(kind,value) in rows.items()]
+    def archive(self,rows,filename='fixture.tar'):
+        path=self.cache/filename
+        with tarfile.open(path,'w',format=tarfile.USTAR_FORMAT) as archive:
+            for name,kind,value in rows:
+                member=tarfile.TarInfo(name);member.type=kind
+                if kind==tarfile.REGTYPE:
+                    member.size=len(value);archive.addfile(member,io.BytesIO(value))
+                else:
+                    if kind in (tarfile.LNKTYPE,tarfile.SYMTYPE):member.linkname=value
+                    archive.addfile(member)
+        return {'filename':path.name,'sha256':native.sha(path)}
+    def pins(self,rows,packages=()):
+        return native.tool_pins({'rootfs':self.archive(rows),'packages':list(packages)},self.cache)
+    def gcc(self):
+        return self.entries({'usr/bin/gcc':(tarfile.LNKTYPE,'usr/bin/aarch64-unknown-linux-gnu-gcc'),
+                             'usr/bin/cc':(tarfile.SYMTYPE,'gcc'),
+                             'usr/bin/aarch64-unknown-linux-gnu-gcc':(tarfile.REGTYPE,b'harmless GCC-like fixture')})
+    def model(self,rows):
+        root=self.cache/'installed';root.mkdir()
+        for name,kind,value in rows:
+            path=root/name;path.parent.mkdir(parents=True,exist_ok=True)
+            if kind==tarfile.REGTYPE:path.write_bytes(value)
+        links=[row for row in rows if row[1]==tarfile.LNKTYPE]
+        for _ in range(16):
+            remaining=[]
+            for name,kind,target in links:
+                if (root/target).exists():os.link(root/target,root/name)
+                else:remaining.append((name,kind,target))
+            links=remaining
+            if not links:break
+        self.assertEqual(links,[])
+        for name,kind,target in rows:
+            if kind==tarfile.SYMTYPE:(root/name).symlink_to(target)
+        return root
+    def worker_refuses(self,root,name,pin):
+        # Execute the exact worker tool-resolution condition, mapping only its
+        # installed root to an owned private model. No controller/native gate runs.
+        source=(BASE/'worker-metadata.py').read_bytes();tree=ast.parse(source)
+        predicate=next(node.test for node in ast.walk(tree) if isinstance(node,ast.If)
+            and 'str(resolved)' in ast.unparse(node.test) and "pin['resolved_path']" in ast.unparse(node.test))
+        real=(root/name.removeprefix('/')).resolve(strict=True)
+        class Resolved:
+            def __str__(self):return '/'+real.relative_to(root).as_posix()
+            def is_relative_to(self,path):return real.is_relative_to(root/path.removeprefix('/'))
+        def regular(_resolved,limit,singly_linked):
+            self.assertFalse(singly_linked);self.assertEqual(limit,256*1024**2)
+            data=real.read_bytes();self.assertLessEqual(len(data),limit);return data
+        return eval(compile(ast.Expression(predicate),'captured-worker-tool-resolution','eval'),
+                    {'resolved':Resolved(),'pin':pin,'digest':lambda raw:hashlib.sha256(raw).hexdigest(),'regular':regular})
+    def test_actual_parent_gcc_hardlink_and_cc_symlink_match_unchanged_worker_predicate(self):
+        rows=self.gcc();pins=self.pins(rows);root=self.model(rows)
+        self.assertEqual(set(pins),{'schema_version','builder_inventory_sha256','tools'})
+        self.assertEqual(set(pins['tools']),{'/usr/bin/'+tool for tool in native.TOOLS})
+        for tool in ('gcc','cc'):
+            pin=pins['tools']['/usr/bin/'+tool]
+            self.assertEqual(set(pin),{'resolved_path','sha256'})
+            self.assertEqual(pin['resolved_path'],'/usr/bin/gcc')
+            self.assertFalse(self.worker_refuses(root,'/usr/bin/'+tool,pin))
+            for change in ({'resolved_path':'/usr/bin/aarch64-unknown-linux-gnu-gcc'},{'sha256':'0'*64}):
+                self.assertTrue(self.worker_refuses(root,'/usr/bin/'+tool,pin|change))
+        self.assertEqual((root/'usr/bin/gcc').stat().st_ino,(root/'usr/bin/aarch64-unknown-linux-gnu-gcc').stat().st_ino)
+        self.assertNotEqual((root/'usr/bin/gcc').resolve(),(root/'usr/bin/aarch64-unknown-linux-gnu-gcc').resolve())
+    def test_symlink_path_and_hardlink_content_chains_are_distinct(self):
+        rows=self.gcc()+[('usr/bin/middle',tarfile.LNKTYPE,'usr/bin/aarch64-unknown-linux-gnu-gcc'),
+                         ('usr/bin/symbolic',tarfile.SYMTYPE,'gcc')]
+        rows=[(name,kind,'usr/bin/middle' if name=='usr/bin/gcc' else 'symbolic' if name=='usr/bin/cc' else value)
+              for name,kind,value in rows]
+        pins=self.pins(rows);root=self.model(rows)
+        self.assertEqual(pins['tools']['/usr/bin/cc'],pins['tools']['/usr/bin/gcc'])
+        self.assertEqual(pins['tools']['/usr/bin/gcc']['resolved_path'],'/usr/bin/gcc')
+        self.assertFalse(self.worker_refuses(root,'/usr/bin/cc',pins['tools']['/usr/bin/cc']))
+    def test_normal_cross_archive_regular_and_symbolic_overlays_remain_supported(self):
+        base=self.entries({'usr/bin/cc':(tarfile.SYMTYPE,'gcc')})
+        package=self.archive([('usr/bin/gcc',tarfile.REGTYPE,b'new reviewed fixture'),
+                              ('usr/bin/python',tarfile.SYMTYPE,'python-target'),
+                              ('usr/bin/python-target',tarfile.REGTYPE,b'new Python-like fixture')],'package.tar')
+        pins=self.pins(base,[package])
+        self.assertEqual(pins['tools']['/usr/bin/gcc'],{'resolved_path':'/usr/bin/gcc','sha256':hashlib.sha256(b'new reviewed fixture').hexdigest()})
+        self.assertEqual(pins['tools']['/usr/bin/cc'],pins['tools']['/usr/bin/gcc'])
+        self.assertEqual(pins['tools']['/usr/bin/python']['resolved_path'],'/usr/bin/python-target')
+    def test_same_archive_content_authority_refuses_foreign_and_replaced_target(self):
+        target='usr/bin/aarch64-unknown-linux-gnu-gcc'
+        foreign=self.archive([(target,tarfile.REGTYPE,b'foreign fixture')],'foreign.tar')
+        for include in (False,True):
+            rows=self.gcc()
+            if not include:rows=[row for row in rows if row[0]!=target]
+            with self.subTest(include=include),self.assertRaisesRegex(ValueError,'foreign or replaced'):
+                self.pins(rows,[foreign])
+    def test_duplicate_selected_member_aliases_and_noncanonical_names_refuse(self):
+        for extra in [('usr/bin/gcc',tarfile.REGTYPE,b'other'),('./usr/bin/gcc',tarfile.LNKTYPE,'usr/bin/cc'),
+                      ('usr//bin/gcc',tarfile.REGTYPE,b'other'),('usr/bin/./gcc',tarfile.REGTYPE,b'other'),
+                      ('usr/bin/gcc/',tarfile.REGTYPE,b'other')]:
+            with self.subTest(name=extra[0]),self.assertRaises(ValueError):self.pins(self.entries()+[extra])
+    def test_hardlink_missing_cycle_symlink_unsafe_and_unsupported_targets_refuse(self):
+        cases=[{'usr/bin/gcc':(tarfile.LNKTYPE,'usr/bin/absent')},
+               {'usr/bin/gcc':(tarfile.LNKTYPE,'usr/bin/gcc')},
+               {'usr/bin/gcc':(tarfile.LNKTYPE,'usr/bin/cc'),'usr/bin/cc':(tarfile.LNKTYPE,'usr/bin/gcc')},
+               {'usr/bin/gcc':(tarfile.LNKTYPE,'usr/bin/cc'),'usr/bin/cc':(tarfile.SYMTYPE,'gcc')},
+               {'usr/bin/gcc':(tarfile.LNKTYPE,'/usr/bin/cc')},
+               {'usr/bin/gcc':(tarfile.LNKTYPE,'../usr/bin/cc')},
+               {'usr/bin/gcc':(tarfile.LNKTYPE,'usr//bin/cc')},
+               {'usr/bin/gcc':(tarfile.LNKTYPE,'usr/bin/node'),'usr/bin/node':(tarfile.DIRTYPE,'')},
+               {'usr/bin/gcc':(tarfile.LNKTYPE,'usr/bin/node'),'usr/bin/node':(tarfile.FIFOTYPE,'')}]
+        for changes in cases:
+            with self.subTest(changes=changes),self.assertRaises(ValueError):self.pins(self.entries(changes))
+    def test_alias_depth_bound_and_symbolic_cycles_preserved(self):
+        for count in (16,17):
+            changes={'usr/bin/gcc':(tarfile.LNKTYPE,'usr/bin/link-0')}
+            for n in range(count-1):changes[f'usr/bin/link-{n}']=(tarfile.LNKTYPE,f'usr/bin/link-{n+1}')
+            changes[f'usr/bin/link-{count-1}']=(tarfile.REGTYPE,b'bounded terminal')
+            if count==16:self.assertEqual(self.pins(self.entries(changes))['tools']['/usr/bin/gcc']['resolved_path'],'/usr/bin/gcc')
+            else:
+                with self.assertRaisesRegex(ValueError,'cycle'):self.pins(self.entries(changes))
+        with self.assertRaisesRegex(ValueError,'cycle'):
+            self.pins(self.entries({'usr/bin/gcc':(tarfile.SYMTYPE,'cc'),'usr/bin/cc':(tarfile.SYMTYPE,'gcc')}))
+    def test_archive_hash_and_member_limits_are_not_bypassed(self):
+        item=self.archive(self.gcc());(self.cache/item['filename']).write_bytes(b'changed archive')
+        with self.assertRaisesRegex(ValueError,'frozen input changed'):
+            native.tool_pins({'rootfs':item,'packages':[]},self.cache)
+        huge=tarfile.TarInfo('usr/bin/gcc');huge.size=512*1024**2+1
+        fake=mock.MagicMock();fake.__enter__.return_value=fake;fake.__iter__.return_value=iter([huge])
+        item=self.archive(self.entries())
+        with mock.patch.object(native.tarfile,'open',return_value=fake),self.assertRaisesRegex(ValueError,'oversized'):
+            native.tool_pins({'rootfs':item,'packages':[]},self.cache)
+        fake.extractfile.assert_not_called()
+        unselected=tarfile.TarInfo('unselected/header')
+        fake.__iter__.return_value=iter(unselected for _ in range(200001))
+        with mock.patch.object(native.tarfile,'open',return_value=fake),self.assertRaisesRegex(ValueError,'archive member bound'):
+            native.tool_pins({'rootfs':item,'packages':[]},self.cache)
+        bad_link=tarfile.TarInfo('usr/bin/gcc');bad_link.type=tarfile.LNKTYPE
+        bad_link.linkname='usr/bin/cc';bad_link.size=1
+        fake.__iter__.return_value=iter([bad_link])
+        with mock.patch.object(native.tarfile,'open',return_value=fake),self.assertRaisesRegex(ValueError,'unsafe authenticated hardlink'):
+            native.tool_pins({'rootfs':item,'packages':[]},self.cache)
+        fake.extractfile.assert_not_called()
 
 
 class NativeTests(unittest.TestCase):

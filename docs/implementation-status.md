@@ -4,23 +4,37 @@ October 12, 2026. This record tracks the complete `outline.md` scope; an impleme
 
 The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with owned tasks and corrective next actions in `docs/backlog.md`. The destination now explicitly requires the maintained ARM package repository, native performance engineering, integrated Apple stack, broader Cachy system experience, and complete installation/release lifecycle. Both Air sizes, published final measurements, independent onboarding/contribution, subsequent full-port maintenance release, other-ARM reuse and actual upstream submissions remain required; an early overlay release or feasibility decision would not complete the goal. This scope update does not change any recorded execution result.
 
-Latest coordinator update, October 12, 20:14 UTC. The updated R1–R5/M5–M9
-roadmap remains authoritative. Kernel6 `38301759759`, from `6f159db`, passes
-exact 117-file Git/inline preflight, then fails before container start. The
-bound diagnostic identifies CapAdd/VALUE for provision and cleanup; the actual
-private array remains unexported. Producer/acquisition pass; compilation is
-NOT RUN and cleanup/owned absence remain FAIL/UNVERIFIED. Root verifies the
-exact canonical 2,768-byte public projection; independent review is assigned.
-Updater's combined six-file default-mount/private-IPC correction passes 190
-independent tests. Root registers ready `9cb072d0`, stage `6c0abed2` and the
-86-file/4,194,759-byte source closure; committed proof/native retry are pending.
-Repository runtime/collector/phase source rebinds pass, but actual source-only
-adapter loading exposes an inherited-import bug; correction is assigned before
-native admission. KSM caller-boundary observations are sealed after 292 tests;
-FDK inner observation and installer disposal corrections await independent
-integration. A roadmap gap review adds separately owned complete261 baseline
-payload correspondence and opt-in Zsh autosuggestions implementation. No
-release, complete install, both-M2,16K or performance/power gate is closed.
+Latest coordinator update, October 12, 21:00 UTC. The revised roadmap requires
+R1–R5 and M5–M9; full-port acceptance remains open. Updater6 `38303027259`
+remains FAIL/tool-resolution before compilation, with verified scoped cleanup
+and all15 public records. Its hardlink alias correction passes83 distinct fresh
+tests and13 independent controls; root registers the exact86-file closure and
+two workflow literals for committed proof and another native trial. Actual
+rejected tool is unknown. Kernel6 remains FAIL/CapAdd VALUE beforestart and
+cleanup FAIL; the exact three-capability equivalence fix is held for peer review.
+
+KSM5 `38303811300` is FAIL: inventory request6 returns0 with the exact341-package
+digest after67,529ms, then reply fails. Actual precleanup producer exit is1;
+mutation remains UNCERTAIN and cleanup FAIL. The original caller exception was
+not exported. A finite180-second adaptation for this exact inventory command,
+clipped to the existing producer deadline, is selected for source development.
+All other commands, acceptance checks and cleanup reserves stay required.
+
+Installer's original-default tmpfs smoke also fails errno22 at the evidence-FD
+bind; no package method runs. Independent harmless namespace trials reproduce
+inherited-FD mount identity mismatch and a same-directory reopen correction.
+The implementation is active; tiny/full transactions remain unaccepted. Camera
+cancellation source review passes, while runtime/backend admission is absent.
+FDK observer cleanup and callback startup findings require correction before
+adoption. Repository loader correction is adopted source-only; complete adapter
+graph review and actual external-authority callbacks are active.
+
+S01 holds29 source models and a read-only old-Python archive observation matching
+all3,198 ownership paths. At most259 of261 package tuples are available; exact
+NetworkManager/Perl gaps and full image correspondence remain open. A bounded
+read-only image-reader adapter is in development. Opt-in Zsh addon and SVG/Glycin
+preflight source work continue. No complete install, supported release, both-M2,
+16K, or final performance/power gate is closed.
 
 Prior coordinator update, October 12, 19:43 UTC. Updater5 `38296615950` passes
 86-file committed-source authentication, then fails worker1. Its bound diagnostic

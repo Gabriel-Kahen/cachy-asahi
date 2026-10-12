@@ -235,11 +235,12 @@ def freeze(source, vendor, output):
 
 
 def tool_pins(inputs, cache):
-    """Derive tool file/alias hashes from authenticated archives, without execution."""
-    records = {}
+    """Resolve symbolic paths separately from same-archive hardlink contents."""
+    records, namespaces = {}, []
     for item in [inputs['rootfs']] + inputs['packages']:
         archive_path = cache / item['filename']
         pinned(archive_path, item['sha256'])
+        owned = {}; namespaces.append(owned)
         with tarfile.open(archive_path, 'r|*') as archive:
             count = 0
             for member in archive:
@@ -247,39 +248,60 @@ def tool_pins(inputs, cache):
                 need(count <= 200000, 'archive member bound')
                 name = member.name.removeprefix('./').rstrip('/')
                 need(not name.startswith('/') and '..' not in PurePosixPath(name).parts, 'unsafe authenticated archive path')
-                if not name.startswith(('usr/bin/', 'bin/', 'usr/lib/')) or member.isdir():
+                if not posixpath.normpath(name).startswith(('usr/bin/', 'bin/', 'usr/lib/')):
                     continue
+                need(name == posixpath.normpath(name) and
+                     (member.isdir() or not member.name.endswith('/')), 'noncanonical tool member path')
+                path = '/' + name
+                need(path not in owned, 'duplicate authenticated tool member')
+                record = {'kind': 'unsupported', 'owner': len(namespaces)-1}
                 if member.isfile():
-                    records['/' + name] = {'archive': str(archive_path), 'member': member.name}
+                    record.update(kind='regular', archive=str(archive_path), member=member.name)
                     if name.startswith(('usr/bin/', 'bin/')):
-                        need(member.size <= 512 * 1024**2, 'oversized tool input')
-                        records['/' + name]['sha256'] = hashlib.file_digest(archive.extractfile(member), 'sha256').hexdigest()
-                elif member.issym() or member.islnk():
+                        need(0 <= member.size <= 512 * 1024**2, 'oversized tool input')
+                        with archive.extractfile(member) as stream:
+                            record['sha256'] = hashlib.file_digest(stream, 'sha256').hexdigest()
+                elif member.issym():
                     target = member.linkname
-                    if member.islnk():
-                        target = '/' + target.removeprefix('./').lstrip('/')
-                    elif not target.startswith('/'):
-                        target = posixpath.join(posixpath.dirname('/' + name), target)
-                    records['/' + name] = {'link': posixpath.normpath(target)}
+                    if not target.startswith('/'):
+                        target = posixpath.join(posixpath.dirname(path), target)
+                    record.update(kind='symlink', target=posixpath.normpath(target))
+                elif member.islnk():
+                    target = member.linkname.removeprefix('./')
+                    need(member.size == 0 and target and not target.startswith('/') and
+                         '..' not in PurePosixPath(target).parts and target == posixpath.normpath(target),
+                         'unsafe authenticated hardlink target')
+                    record.update(kind='hardlink', target='/' + target)
+                owned[path] = record
+        records.update(owned)
     tools = {}
     for tool in TOOLS:
         path = '/usr/bin/' + tool
         target, seen = path, set()
-        while 'link' in records.get(target, {}):
+        while records.get(target, {}).get('kind') == 'symlink':
             need(target not in seen and len(seen) < 16, 'tool alias cycle')
-            seen.add(target)
-            target = records[target]['link']
-        need('archive' in records.get(target, {}), 'authenticated regular tool target missing: ' + path)
-        if 'sha256' not in records[target]:
-            record = records[target]
+            seen.add(target); target = records[target]['target']
+        # Path.resolve follows symlinks, not hardlink names. Only content lookup
+        # traverses hardlinks, within the alias's original archive namespace.
+        content = target; record = records.get(content, {})
+        owner = record.get('owner'); hard_seen = set()
+        while record.get('kind') == 'hardlink':
+            need(content not in hard_seen and len(seen)+len(hard_seen) < 16, 'tool hardlink cycle')
+            hard_seen.add(content); content = record['target']
+            record = namespaces[owner].get(content, {})
+            need(record and records.get(content) is record, 'foreign or replaced tool hardlink target')
+        need(record.get('kind') == 'regular', 'authenticated regular tool target missing: ' + path)
+        if 'sha256' not in record:
             with tarfile.open(record['archive'], 'r|*') as archive:
-                for member in archive:
+                for count, member in enumerate(archive, 1):
+                    need(count <= 200000, 'archive member bound')
                     if member.name == record['member']:
-                        need(member.isfile() and member.size <= 512 * 1024**2, 'bounded regular tool target required')
-                        record['sha256'] = hashlib.file_digest(archive.extractfile(member), 'sha256').hexdigest()
+                        need(member.isfile() and 0 <= member.size <= 512 * 1024**2, 'bounded regular tool target required')
+                        with archive.extractfile(member) as stream:
+                            record['sha256'] = hashlib.file_digest(stream, 'sha256').hexdigest()
                         break
             need('sha256' in record, 'authenticated tool target disappeared')
-        tools[path] = {'resolved_path': target, 'sha256': records[target]['sha256']}
+        tools[path] = {'resolved_path': target, 'sha256': record['sha256']}
     return {'schema_version': 1, 'builder_inventory_sha256': PINS['scripts/port/updater-extension/expected-packages.lock'], 'tools': tools}
 
 
