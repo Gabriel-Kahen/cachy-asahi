@@ -4,13 +4,19 @@ October 12, 2026. This record tracks the complete `outline.md` scope; an impleme
 
 The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with owned tasks and corrective next actions in `docs/backlog.md`. The destination now explicitly requires the maintained ARM package repository, native performance engineering, integrated Apple stack, broader Cachy system experience, and complete installation/release lifecycle. Both Air sizes, published final measurements, independent onboarding/contribution, subsequent full-port maintenance release, other-ARM reuse and actual upstream submissions remain required; an early overlay release or feasibility decision would not complete the goal. This scope update does not change any recorded execution result.
 
-Latest coordinator update, October 12, 22:03 UTC. The revised roadmap requires
+Latest coordinator update, October 12, 22:13 UTC. The revised roadmap requires
 R1–R5 and M5–M9; full-port acceptance remains open. Updater7 `38307993177`, from
 `f7217a1`, remains FAIL after controller validation: the compile gate returns1
 before compiler launch. All16 public records and scoped cleanup/recovery verify.
 Independent review reproduces stale observer pins; the minimal correction is
 committed/published at `ea9ab8c`, with an exact86-file Git/source proof covering
-4,213,032 bytes. Updater8 `38314402583` is dispatched; its result is pending.
+4,213,032 bytes. Updater8 `38314402583` is FAIL after source authentication, controller validation
+and compiler invocation. The bound compiler returns0, then compile-elf records
+ValueError/UNKNOWN and refuses acceptance; the exact private ELF predicate is
+unexported. All18 exported records verify against the committed workflow receiver.
+Worker/container exit1, no OOM; scoped cleanup/private removal/recovery PASS.
+The outer NOT RUN pair label does not mean the compiler was never invoked.
+Independent actual-run/source-cause review is active.
 Kernel7 `38308563102`, from `25b0213`, passes producer, provision and native logic
 probe. The baseline Docker START query returns1; independent worker exit,
 compiler invocation and inner cause remain UNKNOWN. Candidate is NOT RUN;
@@ -35,14 +41,18 @@ tiny transaction cases plus nine source/isolation/timeout guards,0 skips,
 protected host metadata remain unchanged. The root process scan is limited to
 the old project fixture path and cannot certify default/tmp process absence;
 fixture teardown and the actual process-group timeout check are separate evidence.
-Independent actual-record review and a bounded path-refusal proposal are active.
+Independent actual-record review passes with explicit process-scan, three unreadable
+host-metadata subtree and temporary unretained crypto-input limits. Exact reviewed
+installer source is committed at `d6bf57f`; a bounded early path-refusal correction
+is selected in a separate artifact candidate, before further actual trials.
 This admits only the selected disposable any/x86 fixtures; real ARM/full-port
 installation and M2 checks are NOT RUN. Historical failures remain recorded.
 
 Camera cancellation source is committed after independent review; runtime/backend
 admission remains absent. FDK descriptor identity-query repair is active before
 source adoption. Repository adapter correction is held with61 fresh methods and
-an exact243-file source replay,0 actors; independent review is active. Callback
+an exact243-file source replay,0 actors; independent61-method graph review PASS. Broader controller/packet/live-grant
+registration remains pending. Callback
 source is held; actual external authority and future original-only160-file view
 remain unadmitted. Opt-in Zsh addon source is committed at `c45a44f`; same-job
 native adapter source implementation is active. SVG preflight source is committed
