@@ -17,6 +17,7 @@ import re
 import selectors
 import shutil
 import signal
+import stat
 import subprocess
 import sys
 import tarfile
@@ -283,12 +284,12 @@ def tool_pins(inputs, cache):
 
 
 WORKER_CHECKS=frozenset({'not-started','worker-run','container-inspection','worker-run-result',
-                        'worker-inventory','worker-artifact-shape','complete'})
+                        'worker-diagnostic','worker-inventory','worker-artifact-shape','complete'})
 WORKER_FAILURES=frozenset({'worker-run-launch-failed','worker-run-timeout','worker-run-cancelled','worker-run-failed',
     'worker-returncode-invalid','inspection-launch-failed','inspection-command-failed','inspection-timeout',
     'inspection-output-limit','inspection-json-invalid','inspection-schema-invalid','inspection-identity-mismatch',
     'inspection-id-drift','inspection-state-invalid','inspection-cancelled','inspection-io-failed',
-    'inspection-cleanup-failed','worker-nonzero-returncode','worker-container-state-unaccepted',
+    'inspection-cleanup-failed','worker-nonzero-returncode','worker-container-state-unaccepted','worker-diagnostic-incomplete',
     'worker-inventory-unavailable','worker-inventory-mismatch','worker-output-symlink',
     'worker-output-observation-failed','worker-observation-cancelled'})
 CONTAINER_STATUSES=frozenset({'created','running','paused','restarting','removing','exited','dead'})
@@ -441,6 +442,99 @@ def accepted_container_state(state):
         ('running','paused','restarting','dead','oom_killed','state_error_present'))
 
 
+
+def diagnostic_bytes(root, name, limit, *, mode=None):
+    """One nofollow, owned, stable capture under a retained private directory."""
+    for path in (root, *root.parents):
+        need(not path.is_symlink(), 'diagnostic namespace refused')
+    directory = os.open(root, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_NONBLOCK)
+    fd = None
+    try:
+        parent = os.fstat(directory)
+        need(parent.st_uid == os.getuid() and parent.st_gid == os.getgid()
+             and not stat.S_IMODE(parent.st_mode) & 0o022, 'diagnostic owner refused')
+        need(mode != 0o600 or stat.S_IMODE(parent.st_mode) == 0o700, 'diagnostic directory mode refused')
+        fd = os.open(name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=directory)
+        before = os.fstat(fd)
+        need(stat.S_ISREG(before.st_mode) and before.st_nlink == 1 and before.st_size <= limit
+             and before.st_uid == os.getuid() and before.st_gid == os.getgid(), 'diagnostic file refused')
+        need(mode is None or stat.S_IMODE(before.st_mode) == mode, 'diagnostic mode refused')
+        data = bytearray()
+        while len(data) <= limit:
+            chunk = os.read(fd, min(65536, limit + 1 - len(data)))
+            if not chunk: break
+            data.extend(chunk)
+        identity = lambda info: (info.st_dev, info.st_ino, info.st_mode, info.st_nlink, info.st_uid,
+                                info.st_gid, info.st_size, info.st_mtime_ns, info.st_ctime_ns)
+        need(identity(before) == identity(os.fstat(fd)) == identity(os.stat(name, dir_fd=directory, follow_symlinks=False))
+             and len(data) == before.st_size, 'diagnostic drift refused')
+        named = root.lstat()
+        need((parent.st_dev, parent.st_ino, parent.st_mode, parent.st_uid, parent.st_gid) ==
+             (named.st_dev, named.st_ino, named.st_mode, named.st_uid, named.st_gid), 'diagnostic parent drift refused')
+        return bytes(data)
+    finally:
+        original = sys.exc_info()[1]
+        close_error = None
+        for owned in (fd, directory):
+            if owned is not None:
+                try: os.close(owned)
+                except Exception as error:
+                    if close_error is None: close_error = error
+        if original is None and close_error is not None: raise close_error
+
+
+def diagnostic_projector(recipe, expected_recipe):
+    raw = diagnostic_bytes(recipe, 'public-evidence.py', 128 * 1024)
+    need(hashlib.sha256(raw).hexdigest() == expected_recipe.get('public-evidence.py'), 'diagnostic projector source refused')
+    audited = {name: sys.modules[name] for name in ('argparse', 'hashlib', 'json', 'os', 'pathlib', 're', 'stat')}
+    def allowed_import(name, globals=None, locals=None, fromlist=(), level=0):
+        need(level == 0 and name in audited and (not fromlist or name == 'pathlib' and tuple(fromlist) == ('Path',)),
+             'diagnostic projector import refused')
+        return audited[name]
+    builtins = __builtins__ if type(__builtins__) is dict else vars(__builtins__)
+    namespace = {'__name__': 'captured_worker_diagnostic_projector', '__file__': str(recipe / 'public-evidence.py'),
+                 '__builtins__': dict(builtins, __import__=allowed_import)}
+    exec(compile(raw, str(recipe / 'public-evidence.py'), 'exec'), namespace)
+    need(all(callable(namespace.get(name)) for name in
+             ('load', 'diagnostic', 'bound_worker_diagnostic', 'accepted_worker_diagnostic')),
+         'diagnostic projector interface refused')
+    return namespace
+
+
+def capture_worker_diagnostic(artifacts, recipe, expected_recipe, provenance):
+    """Failure evidence is a single capture; no later read can promote it."""
+    fields = {'worker_diagnostic_status': 'UNKNOWN', 'worker_diagnostic_reason': 'source-invalid',
+              'worker_diagnostic_sha256': None, 'worker_diagnostic': None}
+    try:
+        projector = diagnostic_projector(recipe, expected_recipe)
+    except Exception:
+        return fields, False
+    try:
+        raw = diagnostic_bytes(artifacts, 'worker-diagnostic.json', 4096, mode=0o600)
+    except FileNotFoundError:
+        fields['worker_diagnostic_reason'] = 'missing'; return fields, False
+    except Exception:
+        fields['worker_diagnostic_reason'] = 'unavailable'; return fields, False
+    fields['worker_diagnostic_sha256'] = hashlib.sha256(raw).hexdigest()
+    try:
+        value = projector['diagnostic'](projector['load'](raw))
+    except Exception:
+        fields['worker_diagnostic_reason'] = 'invalid'; return fields, False
+    try:
+        value = projector['bound_worker_diagnostic'](value,
+            controller_sha256=provenance['controller_sha256'], image_id=provenance['image_id'],
+            entry_script_sha256=provenance['entry_script_sha256'], observed_state=provenance['worker_container_state'])
+    except Exception:
+        fields['worker_diagnostic_reason'] = 'unbound'; return fields, False
+    fields.update(worker_diagnostic_status='BOUND', worker_diagnostic_reason='bound', worker_diagnostic=value)
+    try:
+        accepted = projector['accepted_worker_diagnostic'](value)
+        need(type(accepted) is bool, 'diagnostic acceptance refused')
+    except Exception:
+        fields.update(worker_diagnostic_status='UNKNOWN', worker_diagnostic_reason='source-invalid', worker_diagnostic=None)
+        return fields, False
+    return fields, accepted
+
 def launch(image, recipe_path, expected_lock, tools, entry, output, checks, metadata, expected_recipe, expected_entry, timeout=1800):
     need(not output.exists(), 'fresh worker output required')
     output.mkdir(mode=0o700)
@@ -449,7 +543,9 @@ def launch(image, recipe_path, expected_lock, tools, entry, output, checks, meta
                   'worker_launch_attempted': False, 'container_cleanup_attempted': False,
                   'container_removal_succeeded': False, 'container_absence_verified': False,
                   'container_cleanup_complete': False, 'worker_run_returncode':None, 'worker_check':'not-started',
-                  'worker_failure_code':None,'worker_container_state':None}
+                  'worker_failure_code':None,'worker_container_state':None,
+                  'worker_diagnostic_status':'NOT OBSERVED','worker_diagnostic_reason':'not-started',
+                  'worker_diagnostic_sha256':None,'worker_diagnostic':None}
     name, launched = None, False
     cleanup_error = None
     try:
@@ -506,10 +602,15 @@ def launch(image, recipe_path, expected_lock, tools, entry, output, checks, meta
         provenance['worker_container_state']=inspect_worker(name,image,nonce,provenance['controller_sha256'],
                                                            output / 'container-inspect.json')
         save(output / 'provenance.json',provenance)
+        diagnostic_fields, diagnostic_ok = capture_worker_diagnostic(artifacts, inputs / 'recipe', expected_recipe, provenance)
+        provenance.update(diagnostic_fields)
         provenance['worker_check']='worker-run-result';save(output / 'provenance.json',provenance)
         if code!=0:raise WorkerObservationError('worker-run-result','worker-nonzero-returncode')
         if not accepted_container_state(provenance['worker_container_state']):
             raise WorkerObservationError('worker-run-result','worker-container-state-unaccepted')
+        provenance['worker_check']='worker-diagnostic';save(output / 'provenance.json',provenance)
+        if not diagnostic_ok:
+            raise WorkerObservationError('worker-diagnostic','worker-diagnostic-incomplete')
         provenance['worker_check']='worker-inventory';save(output / 'provenance.json',provenance)
         if (artifacts / 'packages.lock').read_bytes()!=expected_lock.read_bytes():
             raise WorkerObservationError('worker-inventory','worker-inventory-mismatch')
@@ -530,6 +631,9 @@ def launch(image, recipe_path, expected_lock, tools, entry, output, checks, meta
         provenance.update(native_compilation='PASS-private-native-package-static-checks', package_sha256=sha(packages[0]),
                           outputs_sha256=tree_hashes(artifacts), publication='NOT ACCEPTED', M2='NOT RUN')
     except BaseException as error:
+        if launched and provenance['worker_diagnostic_status'] == 'NOT OBSERVED':
+            provenance.update(worker_diagnostic_status='UNKNOWN', worker_diagnostic_reason=
+                'unavailable' if provenance['worker_container_state'] is not None else 'state-unavailable')
         provenance['native_compilation'] = 'FAIL'
         provenance['failed_stage'] = provenance['stage']
         worker_observation_failure(provenance,error)

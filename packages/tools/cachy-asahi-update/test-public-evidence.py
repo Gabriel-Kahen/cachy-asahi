@@ -2,6 +2,7 @@
 """Receipt projection tests; temp data only, no build/container operations."""
 import importlib.util
 import copy
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -510,6 +511,290 @@ class ProjectionTests(unittest.TestCase):
         (poisoned / 'bad.json').write_text(json.dumps({'token': 'credential-value'}))
         rejected = generic.export_evidence(poisoned, self.root / 'blocked')
         self.assertEqual(rejected['evidence_export'], 'FAIL')
+
+
+class DiagnosticTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        spec = importlib.util.spec_from_file_location('public_test_diagnostic', BASE / 'worker-diagnostic.py')
+        cls.helper = importlib.util.module_from_spec(spec); spec.loader.exec_module(cls.helper)
+
+    def record(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp); root.chmod(0o700)
+            recorder = self.helper.Recorder(root, {'controller_sha256': 'b' * 64,
+                'image_id': 'sha256:' + H, 'entry_script_sha256': 'f' * 64})
+            recorder.fail('source-pins', ValueError(POISON))
+            return recorder.snapshot()
+
+    def test_closed_schema_matches_helper_and_proposal(self):
+        for name in ('OPERATIONS', 'PREDICATES', 'COMMANDS', 'ERROR_KINDS', 'FIELDS', 'LIMIT', 'LOG_LIMIT'):
+            self.assertEqual(getattr(public, 'DIAGNOSTIC_' + name), getattr(self.helper, name))
+        value = self.record()
+        self.assertEqual(public.diagnostic(value), value)
+        self.assertLessEqual(len(public.diagnostic_encoded(value)), 4096)
+        self.assertNotIn(POISON, json.dumps(value))
+
+    def test_parent_binds_actual_launch_and_observed_container(self):
+        value = self.record(); state = observed_worker()['worker_container_state']
+        kwargs = dict(controller_sha256='b' * 64, image_id='sha256:' + H,
+                      entry_script_sha256='f' * 64, observed_state=state)
+        self.assertEqual(public.bound_worker_diagnostic(value, **kwargs), value)
+        for key, replacement in [('controller_sha256', '0' * 64),
+                ('image_id', 'sha256:' + '0' * 64), ('entry_script_sha256', '0' * 64)]:
+            changed = kwargs | {key: replacement}
+            with self.subTest(key=key), self.assertRaises(ValueError):
+                public.bound_worker_diagnostic(value, **changed)
+        for key in ('controller_sha256', 'image_id'):
+            changed = copy.deepcopy(state); changed[key] = ('sha256:' if key == 'image_id' else '') + '0' * 64
+            with self.subTest(state=key), self.assertRaises(ValueError):
+                public.bound_worker_diagnostic(value, **(kwargs | {'observed_state': changed}))
+
+    def test_unbound_startup_is_finite_but_not_parent_bound(self):
+        value = self.record(); value['controller_sha256'] = None
+        self.assertEqual(public.diagnostic(value), value)
+        with self.assertRaises(ValueError):
+            public.bound_worker_diagnostic(value, controller_sha256='b' * 64,
+                image_id='sha256:' + H, entry_script_sha256='f' * 64,
+                observed_state=observed_worker()['worker_container_state'])
+        value['controller_validated'] = True
+        with self.assertRaises(ValueError): public.diagnostic(value)
+
+    def test_unknown_text_and_boolean_numbers_are_refused(self):
+        value = self.record()
+        changes = [('schema_version', True), ('operation', POISON), ('status', POISON),
+                   ('compiler_returncode', True), ('extra', POISON)]
+        for key, item in changes:
+            changed = copy.deepcopy(value); changed[key] = item
+            with self.subTest(key=key), self.assertRaises(ValueError): public.diagnostic(changed)
+        for key in ('predicate', 'error_kind'):
+            changed = copy.deepcopy(value); changed['first_failure'][key] = POISON
+            with self.subTest(failure=key), self.assertRaises(ValueError): public.diagnostic(changed)
+
+    def test_cancelled_status_requires_flag_even_with_ordinary_first_failure(self):
+        value = self.record()
+        self.assertEqual(value['first_failure']['error_kind'], 'ValueError')
+        value.update(status='CANCELLED', cancelled=False)
+        kwargs = dict(controller_sha256='b' * 64, image_id='sha256:' + H,
+            entry_script_sha256='f' * 64, observed_state=observed_worker()['worker_container_state'])
+        for validator in (self.helper.validate, public.diagnostic,
+                lambda record: public.bound_worker_diagnostic(record, **kwargs)):
+            with self.subTest(validator=validator), self.assertRaises(ValueError): validator(value)
+        first = copy.deepcopy(value['first_failure'])
+        value['cancelled'] = True
+        self.assertEqual(self.helper.validate(value), value)
+        self.assertEqual(public.bound_worker_diagnostic(value, **kwargs), value)
+        self.assertEqual(value['first_failure'], first)
+
+    def test_compiler_attempt_return_acceptance_are_distinct(self):
+        value = self.record(); value['compiler_launch_attempted'] = True
+        self.assertEqual(public.diagnostic(value), value)
+        for changes in ({'compilation_accepted': True}, {'compiler_return_observed': True},
+                        {'compiler_returncode': 0}, {'compiler_returncode': -65, 'compiler_return_observed': True}):
+            with self.subTest(changes=changes), self.assertRaises(ValueError):
+                public.diagnostic(value | changes)
+        value.update(compiler_return_observed=True, compiler_returncode=0, compilation_accepted=True)
+        self.assertEqual(public.diagnostic(value), value)
+        self.assertEqual(value['status'], 'FAIL')
+
+    def test_only_fixed_diagnostic_selectors_and_bounded_data_are_exported(self):
+        selectors = [row for row in public.selectors() if row[2] is public.diagnostic]
+        self.assertEqual([(row[0], row[1]) for row in selectors], [
+            ('build-1/artifacts/worker-diagnostic.json', 'build-1-diagnostic.json'),
+            ('build-2/artifacts/worker-diagnostic.json', 'build-2-diagnostic.json')])
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp); raw = root / 'raw'; folder = raw / 'build-1/artifacts'
+            folder.mkdir(parents=True); value = self.record()
+            (folder / 'worker-diagnostic.json').write_text(json.dumps(value))
+            (folder / 'makepkg.stderr').write_text(POISON)
+            result = public.project_evidence(raw, root / 'public')
+            self.assertEqual(result['projection'], 'PASS')
+            exported = (root / 'public/build-1-diagnostic.json').read_bytes()
+            self.assertNotIn(POISON.encode(), exported)
+            self.assertEqual(json.loads(exported), value)
+            self.assertFalse((root / 'public/makepkg.stderr').exists())
+            (folder / 'worker-diagnostic.json').write_bytes(b' ' * 4097)
+            result = public.project_evidence(raw, root / 'refused')
+            self.assertEqual(result['projection'], 'FAIL')
+            self.assertFalse((root / 'refused/build-1-diagnostic.json').exists())
+
+    def test_diagnostic_failure_cannot_forge_success_or_export_opaque_fields(self):
+        value = self.record()
+        with self.assertRaises(ValueError): public.diagnostic(value | {'status': 'PASS'})
+        value['first_failure']['command'] = {'kind': 'cargo-build', 'launch_attempted': True,
+            'return_observed': False, 'returncode': None, 'stdout': {'bytes': 1, 'sha256': H}, 'stderr': None}
+        self.assertEqual(public.diagnostic(value), value)
+        value['first_failure']['command']['stdout']['path'] = POISON
+        with self.assertRaises(ValueError): public.diagnostic(value)
+
+
+class ParentDiagnosticTests(unittest.TestCase):
+    """Synthetic provenance plus real finite Recorder; no native actors."""
+    @classmethod
+    def setUpClass(cls):
+        spec = importlib.util.spec_from_file_location('parent_test_diagnostic', BASE / 'worker-diagnostic.py')
+        cls.helper = importlib.util.module_from_spec(spec); spec.loader.exec_module(cls.helper)
+
+    def record(self, success=False):
+        with tempfile.TemporaryDirectory() as temp:
+            recorder = self.helper.Recorder(Path(temp), {'controller_sha256': 'b' * 64,
+                'image_id': 'sha256:' + H, 'entry_script_sha256': 'f' * 64})
+            recorder.controller_validated()
+            if success:
+                recorder.command_start('cargo-build')
+                recorder.command_result('cargo-build', True, True, 0)
+                recorder.compiler_accepted(); recorder.finish(True)
+            else:
+                recorder.fail('source-pins', ValueError(POISON))
+            return recorder.snapshot()
+
+    def bound(self, success=False):
+        value = observed_worker(0 if success else 1)
+        value.update(worker_launch_attempted=True, entry_script_sha256='f' * 64,
+            worker_diagnostic_status='BOUND', worker_diagnostic_reason='bound')
+        value['worker_container_state']['exit_code'] = value['worker_run_returncode']
+        record = self.record(success)
+        # Preserve the hash of original private bytes, including their formatting.
+        value['worker_diagnostic_sha256'] = hashlib.sha256(json.dumps(record, indent=2).encode()).hexdigest()
+        value['worker_diagnostic'] = record
+        if success:
+            value.update(worker_check='complete', native_compilation='PASS-private-native-package-static-checks')
+        else:
+            value['worker_failure_code'] = 'worker-nonzero-returncode'
+        return value
+
+    def test_historical_absent_group_remains_valid_without_new_claims(self):
+        for success in (False, True):
+            value = observed_worker()
+            if success: value.update(worker_check='complete', native_compilation='PASS')
+            self.assertEqual(public.provenance(value), value)
+            self.assertEqual(public.worker_diagnostic_observation(value), {})
+
+    def test_parent_group_is_all_or_none(self):
+        value = self.bound(); fields = sorted(public.WORKER_DIAGNOSTIC_FIELDS)
+        for mask in range(1, 15):
+            changed = {key:item for key,item in value.items() if key not in fields}
+            changed.update({key:value[key] for index,key in enumerate(fields) if mask & (1 << index)})
+            with self.subTest(mask=mask), self.assertRaises(public.Invalid): public.provenance(changed)
+
+    def test_not_observed_requires_not_started_empty_group(self):
+        value = observed_worker(None)
+        value.update(worker_check='not-started', worker_container_state=None, worker_launch_attempted=False,
+            worker_diagnostic_status='NOT OBSERVED', worker_diagnostic_reason='not-started',
+            worker_diagnostic_sha256=None, worker_diagnostic=None)
+        self.assertEqual(public.provenance(value), value)
+        for changes in ({'worker_launch_attempted':True}, {'worker_diagnostic_reason':'missing'},
+                        {'worker_diagnostic_sha256':H}, {'worker_diagnostic':self.record()}):
+            with self.subTest(changes=changes), self.assertRaises(public.Invalid): public.provenance(value | changes)
+
+    def test_unknown_retains_only_finite_reason_and_nullable_original_hash(self):
+        value = self.bound()
+        value.update(worker_diagnostic_status='UNKNOWN', worker_diagnostic=None)
+        for reason in ('state-unavailable','missing','unavailable','source-invalid','invalid','unbound'):
+            for checksum in (None,H):
+                changed = value | {'worker_diagnostic_reason':reason,'worker_diagnostic_sha256':checksum}
+                self.assertEqual(public.provenance(changed), changed)
+        for changes in ({'worker_diagnostic_reason':'bound'}, {'worker_diagnostic_reason':'not-started'},
+                        {'worker_diagnostic_reason':POISON}, {'worker_diagnostic':self.record()},
+                        {'worker_diagnostic_sha256':True}, {'worker_diagnostic_sha256':POISON}):
+            with self.subTest(changes=changes), self.assertRaises(public.Invalid): public.provenance(value | changes)
+
+    def test_bound_failure_is_diagnosis_and_does_not_imply_success(self):
+        value = self.bound()
+        self.assertEqual(public.provenance(value), value)
+        self.assertFalse(public.accepted_worker_diagnostic(value['worker_diagnostic']))
+        self.assertEqual(value['worker_diagnostic']['first_failure']['predicate'], 'source-pins')
+        self.assertNotEqual(value['worker_diagnostic_sha256'], hashlib.sha256(public.diagnostic_encoded(value['worker_diagnostic'])).hexdigest())
+        self.assertNotIn(POISON, json.dumps(public.provenance(value)))
+        # A completed compiler can still be followed by an entry/package failure.
+        value['worker_diagnostic'].update(compiler_launch_attempted=True,
+            compiler_return_observed=True, compiler_returncode=0, compilation_accepted=True)
+        self.assertEqual(public.provenance(value), value)
+        self.assertFalse(public.accepted_worker_diagnostic(value['worker_diagnostic']))
+
+    def test_parent_refuses_cancellation_contradiction_without_erasing_first_cause(self):
+        value = self.bound()
+        first = copy.deepcopy(value['worker_diagnostic']['first_failure'])
+        value['worker_diagnostic'].update(status='CANCELLED', cancelled=False)
+        with self.assertRaises(public.Invalid): public.worker_diagnostic_observation(value)
+        with self.assertRaises(public.Invalid): public.provenance(value)
+        value['worker_diagnostic']['cancelled'] = True
+        self.assertEqual(public.provenance(value), value)
+        self.assertEqual(value['worker_diagnostic']['first_failure'], first)
+        self.assertFalse(public.accepted_worker_diagnostic(value['worker_diagnostic']))
+
+    def test_later_cancellation_keeps_issued_business_failure_through_parent_binding(self):
+        with tempfile.TemporaryDirectory() as temp:
+            recorder = self.helper.Recorder(Path(temp), {'controller_sha256':'b'*64,
+                'image_id':'sha256:'+H, 'entry_script_sha256':'f'*64})
+            with recorder.step('compile-copy'):
+                recorder.fail('compile-binary-drift', OSError(POISON))
+            first = copy.deepcopy(recorder.snapshot()['first_failure'])
+            recorder.fail('UNKNOWN', KeyboardInterrupt())
+            record = recorder.snapshot()
+            self.assertTrue(record['cancelled'])
+            self.assertEqual(record['first_failure'], first)
+            self.assertEqual(self.helper.validate(record), record)
+            value = self.bound(); value['worker_diagnostic'] = record
+            self.assertEqual(public.provenance(value), value)
+            self.assertEqual(public.provenance(value)['worker_diagnostic']['first_failure'], first)
+            self.assertNotIn(POISON, json.dumps(public.provenance(value)))
+
+    def test_bound_requires_original_launch_full_state_and_three_matching_bindings(self):
+        value = self.bound()
+        for key in ('controller_sha256','image_id','entry_script_sha256'):
+            for location in ('parent','diagnostic'):
+                changed = copy.deepcopy(value)
+                target = changed if location == 'parent' else changed['worker_diagnostic']
+                target[key] = ('sha256:' if key == 'image_id' else '') + '0'*64
+                with self.subTest(key=key, location=location), self.assertRaises(public.Invalid): public.provenance(changed)
+        for changes in ({'worker_launch_attempted':False}, {'worker_container_state':None},
+                        {'worker_diagnostic_sha256':None}, {'worker_diagnostic_reason':'unbound'}):
+            with self.subTest(changes=changes), self.assertRaises(public.Invalid): public.provenance(value | changes)
+        for key in ('controller_sha256','image_id'):
+            changed = copy.deepcopy(value)
+            changed['worker_container_state'][key] = ('sha256:' if key == 'image_id' else '') + '0'*64
+            with self.subTest(state=key), self.assertRaises(public.Invalid): public.provenance(changed)
+        for key in WORKER_FIELDS:
+            changed = copy.deepcopy(value); del changed[key]
+            with self.subTest(missing=key), self.assertRaises(public.Invalid): public.provenance(changed)
+
+    def test_modern_success_requires_complete_bound_compiler_acceptance(self):
+        value = self.bound(True)
+        self.assertEqual(public.provenance(value), value)
+        self.assertTrue(public.accepted_worker_diagnostic(value['worker_diagnostic']))
+        for key, item in [('controller_validated',False), ('status','RUNNING'),
+                ('compiler_launch_attempted',False), ('compiler_return_observed',False),
+                ('compiler_returncode',None), ('compilation_accepted',False),
+                ('cancelled',True), ('diagnostic_write_failed',True)]:
+            changed = copy.deepcopy(value); changed['worker_diagnostic'][key] = item
+            with self.subTest(key=key), self.assertRaises(public.Invalid): public.provenance(changed)
+        changed = copy.deepcopy(value); changed.update(worker_diagnostic_status='UNKNOWN',
+            worker_diagnostic_reason='missing', worker_diagnostic=None, worker_diagnostic_sha256=None)
+        with self.assertRaises(public.Invalid): public.provenance(changed)
+        changed = copy.deepcopy(value); changed['worker_diagnostic'] = self.record()
+        with self.assertRaises(public.Invalid): public.provenance(changed)
+
+    def test_diagnostic_gate_failure_requires_zero_successful_worker_return_state(self):
+        value = self.bound(True)
+        value.update(worker_check='worker-diagnostic', worker_failure_code='worker-diagnostic-incomplete', native_compilation='FAIL',
+            worker_diagnostic_status='UNKNOWN', worker_diagnostic_reason='missing', worker_diagnostic_sha256=None, worker_diagnostic=None)
+        self.assertEqual(public.provenance(value), value)
+        for changes in ({'worker_run_returncode':1}, {'worker_failure_code':'worker-nonzero-returncode'}):
+            with self.subTest(changes=changes), self.assertRaises(public.Invalid): public.provenance(value | changes)
+        changed = copy.deepcopy(value); changed['worker_container_state']['exit_code'] = 1
+        with self.assertRaises(public.Invalid): public.provenance(changed)
+
+    def test_nested_unknown_fields_or_opaque_payloads_are_refused_without_export(self):
+        value = self.bound(); value['worker_diagnostic']['raw_error'] = POISON
+        with self.assertRaises(public.Invalid): public.provenance(value)
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp); raw = root / 'raw'; folder = raw / 'build-1'; folder.mkdir(parents=True)
+            (folder / 'provenance.json').write_text(json.dumps(value))
+            result = public.project_evidence(raw, root / 'public')
+            self.assertEqual(result['projection'], 'FAIL')
+            self.assertFalse((root / 'public/build-1-status.json').exists())
+            self.assertNotIn(POISON, ''.join(path.read_text() for path in (root / 'public').iterdir()))
 
 
 if __name__ == '__main__':

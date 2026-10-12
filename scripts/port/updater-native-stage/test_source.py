@@ -108,7 +108,7 @@ class SourceTests(unittest.TestCase):
         self.stage = sorted(source.CONTROLLERS)
         self.committed = {}
         package = {}
-        for index in range(63):
+        for index in range(64):
             name = 'file-' + str(index) + '.txt'
             data = ('package ' + str(index)).encode()
             self.put(source.PACKAGE + name, data)
@@ -168,7 +168,7 @@ class SourceTests(unittest.TestCase):
 
     def test_full_required_closure_and_modes(self):
         contract = self.collect()
-        self.assertEqual(len(contract['files']), 80)
+        self.assertEqual(len(contract['files']), 81)
         self.assertTrue(source.HELPERS | source.CONTROLLERS <= set(contract['files']))
         self.assertEqual(contract['files'][source.STAGE + 'stage.py']['git_mode'], '100755')
         self.assertEqual(contract['files'][source.STAGE + 'stage.py']['file_mode'], 0o755)

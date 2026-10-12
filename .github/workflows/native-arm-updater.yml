@@ -19,10 +19,10 @@ jobs:
     env:
       PYTHONDONTWRITEBYTECODE: '1'
       REVIEWED_SOURCE_COMMIT: ${{ inputs.source_commit }}
-      READY_SHA256: be72334e4108dddfaaf51b59f7fb27d410a7543f6c3f8e98eb5f0ed971608089
+      READY_SHA256: 84eb3a020ed0cca3fe977feabc2b18bcaf6c6ae3811a5df5129c700ed9d8012f
       # Reviewed storage/recovery checkpoint; coordinator Git/controller proof is separate.
-      STAGE_SHA256: b872fb47c03cb3c9124df5056cc34fb9e02ffcbe49753447676585862e840a7a
-      SOURCE_SHA256: 259b13b210123d90f824f21bf7662785d50c7586519a78451ab62e97ec577d5f
+      STAGE_SHA256: 3b38a7de9adea343dbc3cc08e3909e23b840ca12f0211e40e38afd7172b92012
+      SOURCE_SHA256: 4d3e3fd9848aaed94154f786b04a5ae07c7816dcef82857b671b51555895eacb
     steps:
       - name: Start the shared deadline before checkout
         timeout-minutes: 1
@@ -137,6 +137,7 @@ jobs:
               output = control / 'stage'
               sanitizers = {row[1]: row[2] for row in projector.selectors()}
               allowed = set(sanitizers) | {'materializer.json', 'projection.json'}
+              diagnostic_names = frozenset(('build-1-diagnostic.json', 'build-2-diagnostic.json'))
               def error_list(value):
                   return [''] * projector.integer(4096)(value)
               def cargo_source(identity):
@@ -151,6 +152,8 @@ jobs:
                   if name == 'materializer.json':
                       need(projector.materializer(value) == value); return
                   handler = sanitizers[name]
+                  if name in diagnostic_names:
+                      need(len(data) <= 4096 and handler is projector.diagnostic)
                   raw = json.loads(json.dumps(value))
                   if handler is projector.inventory:
                       need(set(value) == {'schema_version','inventory_sha256','packages'})
@@ -184,6 +187,21 @@ jobs:
                                   elfs[member] = inverse_counts(item)
                               row['elf'] = elfs
                   need(json.dumps(handler(raw), sort_keys=True) == json.dumps(value, sort_keys=True))
+              def required_worker_diagnostic(prefix, row, files):
+                  # Modern success requires the group; the pure projector retains historical compatibility.
+                  need(projector.WORKER_DIAGNOSTIC_FIELDS <= set(row))
+                  group = projector.worker_diagnostic_observation(row)
+                  need(group['worker_diagnostic_status'] == 'BOUND' and group['worker_diagnostic_reason'] == 'bound')
+                  projector.HASH(group['worker_diagnostic_sha256'])
+                  name = prefix + '-diagnostic.json'
+                  need(name in diagnostic_names and name in files and sanitizers.get(name) is projector.diagnostic)
+                  need((prefix + '/artifacts/worker-diagnostic.json', name, projector.diagnostic) in projector.selectors())
+                  data = files[name]; need(type(data) is bytes and len(data) <= 4096)
+                  record = projector.bound_worker_diagnostic(decoded_json(data),
+                      controller_sha256=row['controller_sha256'], image_id=row['image_id'],
+                      entry_script_sha256=row['entry_script_sha256'], observed_state=row['worker_container_state'])
+                  need(record == group['worker_diagnostic'] and projector.accepted_worker_diagnostic(record))
+                  # The parent's hash is of its once-captured raw record; selector formatting may differ.
               def successful_pair(files, native):
                   need('comparison.json' in files)
                   compare = decoded_json(files['comparison.json'])
@@ -198,6 +216,7 @@ jobs:
                   names = ('build-1-status.json', 'build-2-status.json')
                   need(all(sanitizers[name] is projector.provenance for name in names))
                   records = {name: decoded_json(files[name]) for name in names if name in files}
+                  need(set(records) == set(names))
                   observed = ('packages/tools/cachy-asahi-update/updater-native.py' in rows or 'image_id' in native or
                               any(projector.WORKER_FIELDS & set(row) for row in records.values()))
                   if observed:
@@ -233,6 +252,7 @@ jobs:
                       elif 'image_id' in row and 'image_id' in native:
                           need(row['image_id'] == native['image_id'])
                       prefix = name.removesuffix('-status.json')
+                      required_worker_diagnostic(prefix, row, files)
                       package_name = prefix + '-package.json'
                       if package_name in files:
                           need(sanitizers[package_name] is projector.package_validation)
@@ -305,7 +325,8 @@ jobs:
                   files = {'export-manifest.json': stage.regular(directory / 'export-manifest.json')}
                   for row in manifest['accepted']:
                       need(set(row) == {'path','bytes','sha256'} and row['path'] in names and row['path'] not in files)
-                      data = stage.regular(directory / row['path'])
+                      data = (stage.regular(directory / row['path'], 4096) if row['path'] in diagnostic_names
+                              else stage.regular(directory / row['path']))
                       need(type(row['bytes']) is int and len(data) == row['bytes'] and checksum(data) == row['sha256'])
                       need(type(decoded_json(data)) is dict)
                       files[row['path']] = data

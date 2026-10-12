@@ -4,7 +4,23 @@ October 12, 2026. This record tracks the complete `outline.md` scope; an impleme
 
 The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with owned tasks and corrective next actions in `docs/backlog.md`. The destination now explicitly requires the maintained ARM package repository, native performance engineering, integrated Apple stack, broader Cachy system experience, and complete installation/release lifecycle. Both Air sizes, published final measurements, independent onboarding/contribution, subsequent full-port maintenance release, other-ARM reuse and actual upstream submissions remain required; an early overlay release or feasibility decision would not complete the goal. This scope update does not change any recorded execution result.
 
-Latest coordinator update, October 12, 18:57 UTC. KSM's observation-only RPC
+Latest coordinator update, October 12, 19:16 UTC. KSM4 `38294468323`, from
+`0722dd9`, remains FAIL. Request 6 returns the expected 341-package inventory
+before reply delivery fails with BrokenPipeError. Natural producer poll and
+runner return are unobserved; cleanup reaps code 1. The recorded absence flags
+are true, but owner failure keeps cleanup FAIL and mutation UNCERTAIN. The
+producer's own failure is unknown; independent actual-run diagnosis is active.
+Updater registration and strict modern workflow consumption pass 33 independent
+checks, including 57 causal cases, for the exact 86-file closure. Both complete
+bound diagnostic groups and fixed 4KiB selectors are required without weakening
+compile/package/pair/cleanup checks. Git proof and actual trial remain pending.
+Guest diagnostics are bound to packet `47610163` with five changed rows and
+206 unchanged; root review is active. Installer's SIGTERM/flush correction is
+held after 38 inert models; independent terminal-publication review is active.
+Repository transport needs two source corrections for its cleanup deadline and
+postexecution mode custody. All previous native failures remain recorded.
+
+Prior coordinator update, October 12, 18:57 UTC. KSM's observation-only RPC
 diagnostics pass 279 fresh tests and independent closed-pipe, return-code,
 privacy and process controls. Root adopts the 152-file source packet `68c1bb02`
 (seven changed rows, 145 unchanged); committed bootstrap and a new native trial

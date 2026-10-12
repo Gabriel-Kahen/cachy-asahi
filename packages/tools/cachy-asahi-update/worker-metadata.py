@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Fresh Cargo metadata only in the bounded native worker; never compile crates."""
 import argparse
+import contextlib
 import hashlib
 import json
 import os
@@ -32,6 +33,53 @@ REGISTRY = 'registry+https://github.com/rust-lang/crates.io-index'
 CHAR_DEVICES = {'/dev/null': (1, 3), '/dev/zero': (1, 5), '/dev/full': (1, 7),
                 '/dev/random': (1, 8), '/dev/urandom': (1, 9), '/dev/tty': (5, 0),
                 '/dev/pts/ptmx': (5, 2)}
+
+
+DIAGNOSTIC = None
+
+
+def set_diagnostic(recorder):
+    global DIAGNOSTIC
+    DIAGNOSTIC = recorder
+
+
+def diagnose(method, *args, **kwargs):
+    if DIAGNOSTIC is not None:
+        try:
+            return getattr(DIAGNOSTIC, method)(*args, **kwargs)
+        except Exception:
+            pass  # Observations never replace the worker's original result.
+
+
+@contextlib.contextmanager
+def diagnostic_step(operation):
+    scope = diagnose('step', operation)
+    if scope is not None:
+        try:
+            scope.__enter__()
+        except Exception:
+            scope = None
+    try:
+        yield
+    except BaseException as error:
+        if scope is not None:
+            try:
+                scope.__exit__(type(error), error, error.__traceback__)
+            except Exception:
+                pass
+        raise
+    else:
+        if scope is not None:
+            try:
+                scope.__exit__(None, None, None)
+            except Exception:
+                pass
+
+
+def refuse(message, predicate):
+    error = ValueError(message)
+    diagnose('fail', predicate, error)
+    raise error
 
 
 def digest(data):
@@ -95,32 +143,32 @@ def guard(facts):
             or set(facts['caps']) != {'CapEff', 'CapPrm', 'CapInh', 'CapAmb', 'CapBnd'}
             or any(facts['caps'].values()) or facts['nnp'] != '1'
             or facts['interfaces'] != ['lo'] or facts['devices'] or facts['socket']):
-        raise ValueError('bounded nonroot native Docker worker required; host execution refused')
+        refuse('bounded nonroot native Docker worker required; host execution refused', 'worker-boundary')
     if not re.fullmatch(r'sha256:[0-9a-f]{64}', facts.get('image_id') or '') or not re.fullmatch(r'[0-9a-f]{32}', facts.get('nonce') or ''):
-        raise ValueError('fresh worker identity required')
+        refuse('fresh worker identity required', 'worker-identity')
     table = facts['mounts']
     if table.get('/', {}).get('fs') not in ('overlay', 'fuse-overlayfs') or 'ro' not in table['/']['flags']:
-        raise ValueError('read-only disposable root required')
+        refuse('read-only disposable root required', 'root-readonly')
     for root, flag in ROOTS.items():
         if flag not in table.get(root, {}).get('flags', []):
-            raise ValueError('fixed worker mount contract differs')
+            refuse('fixed worker mount contract differs', 'mount-contract')
         if any(path.startswith(root + '/') for path in table):
-            raise ValueError('nested worker mount refused')
+            refuse('nested worker mount refused', 'mount-nesting')
     if table['/tmp']['fs'] != 'tmpfs' or 'ro' not in table.get('/expected-packages.lock', {}).get('flags', []):
-        raise ValueError('private tmpfs and read-only expected builder lock required')
+        refuse('private tmpfs and read-only expected builder lock required', 'private-tmpfs')
     for path, entry in table.items():
         if path not in {'/'} | set(ROOTS) | PSEUDO | MASKS | STANDARD:
-            raise ValueError('unexpected worker mount: ' + path)
+            refuse('unexpected worker mount: ' + path, 'unexpected-mount')
         if path in MASKS and 'ro' not in entry['flags'] and not facts.get('masked_null', {}).get(path):
-            raise ValueError('masked runtime mount must be read-only')
+            refuse('masked runtime mount must be read-only', 'mask-readonly')
         if path in ('/sys', '/sys/fs/cgroup') and 'ro' not in entry['flags']:
-            raise ValueError('system observation mount must be read-only')
+            refuse('system observation mount must be read-only', 'system-readonly')
         if path == '/builder-entry.sh' and 'ro' not in entry['flags']:
-            raise ValueError('builder entry mount must be read-only')
+            refuse('builder entry mount must be read-only', 'entry-readonly')
     for path, fs in {'/proc': 'proc', '/sys': 'sysfs', '/sys/fs/cgroup': 'cgroup2',
                      '/dev': 'tmpfs', '/dev/pts': 'devpts', '/dev/shm': 'tmpfs'}.items():
         if path in table and table[path]['fs'] != fs:
-            raise ValueError('unexpected runtime mount filesystem')
+            refuse('unexpected runtime mount filesystem', 'runtime-filesystem')
     try:
         quota, period = map(int, facts['cpu'].split())
         limits = (0 < int(facts['pids']) <= 512 and 0 < int(facts['memory']) <= 4 * 1024**3
@@ -128,7 +176,7 @@ def guard(facts):
     except (ValueError, TypeError):
         limits = False
     if not limits:
-        raise ValueError('finite worker CPU/memory/PID limits required')
+        refuse('finite worker CPU/memory/PID limits required', 'worker-limits')
 
 
 def regular(path, limit, singly_linked=True):
@@ -178,49 +226,49 @@ def vendor_preflight(vendor, audit, lock, manifest):
             or audit.get('source_checksum_closure') != 'PASS'
             or locked.get(local, {}).get('source') is not None
             or set(ledger) != set(locked) - {local}):
-        raise ValueError('complete original vendor/lock ledger required')
+        refuse('complete original vendor/lock ledger required', 'vendor-ledger')
     expected_dirs = {name + '-' + version for name, version in ledger}
     if {p.name for p in vendor.iterdir()} != expected_dirs:
-        raise ValueError('vendor package directory set differs')
+        refuse('vendor package directory set differs', 'vendor-directories')
     total = count = 0
     deadline = time.monotonic() + 120
     for key, row in ledger.items():
         root = vendor / (key[0] + '-' + key[1])
         if root.is_symlink() or not root.is_dir():
-            raise ValueError('vendor package directory unsafe')
+            refuse('vendor package directory unsafe', 'vendor-directory')
         if (row['registry'] != REGISTRY or locked[key].get('source') != REGISTRY
                 or row['checksum'] != 'PASS' or row['archive_sha256'] != locked[key].get('checksum')):
-            raise ValueError('vendor archive/registry binding differs')
+            refuse('vendor archive/registry binding differs', 'vendor-registry')
         checksums = load(regular(root / '.cargo-checksum.json', 8 * 1024 * 1024))
         files = checksums['files']
         if (checksums['package'] != row['archive_sha256'] or len(files) > 20000
                 or digest(json.dumps(files, sort_keys=True, separators=(',', ':')).encode()) != row['source_files_sha256']):
-            raise ValueError('vendor file ledger differs')
+            refuse('vendor file ledger differs', 'vendor-file-ledger')
         for name, expected in files.items():
             if (not isinstance(name, str) or name.startswith('/') or '\\' in name
                     or any(part in ('', '.', '..') for part in name.split('/'))
                     or not re.fullmatch(r'[0-9a-f]{64}', expected)):
-                raise ValueError('unsafe vendor ledger path/hash')
+                refuse('unsafe vendor ledger path/hash', 'vendor-path')
         found = set()
         for path in root.rglob('*'):
             count += 1
             if count > 250000 or time.monotonic() > deadline:
-                raise ValueError('vendor traversal bound')
+                refuse('vendor traversal bound', 'vendor-traversal')
             if path.is_symlink():
-                raise ValueError('vendor symlink refused')
+                refuse('vendor symlink refused', 'vendor-link')
             if path.is_dir():
                 continue
             name = path.relative_to(root).as_posix()
             data = regular(path, 64 * 1024 * 1024)
             total += len(data)
             if total > 1024 * 1024 * 1024:
-                raise ValueError('vendor expanded bound')
+                refuse('vendor expanded bound', 'vendor-expanded')
             if name != '.cargo-checksum.json':
                 if name not in files or digest(data) != files[name]:
-                    raise ValueError('vendor file hash/extra differs')
+                    refuse('vendor file hash/extra differs', 'vendor-file')
                 found.add(name)
         if found != set(files) or files.get('Cargo.toml') != row['normalized_manifest_sha256']:
-            raise ValueError('vendor file missing/manifest differs')
+            refuse('vendor file missing/manifest differs', 'vendor-file')
     return {'registry_packages': len(ledger), 'files': count, 'bytes': total}
 
 
@@ -232,52 +280,53 @@ def verify_controller(path, expected_sha, facts, recipe_root=Path('/inputs/recip
     """
     guard(facts)
     if not re.fullmatch(r'[0-9a-f]{64}', expected_sha or ''):
-        raise ValueError('external controller digest required')
+        refuse('external controller digest required', 'controller-hash-format')
     if not path.is_relative_to('/inputs') or not recipe_root.is_relative_to('/inputs'):
-        raise ValueError('immutable controller/recipe input paths required')
+        refuse('immutable controller/recipe input paths required', 'controller-input-paths')
     data = regular(path, 8 * 1024 * 1024)
     if digest(data) != expected_sha:
-        raise ValueError('controller digest differs')
+        refuse('controller digest differs', 'controller-digest')
     contract = load(data)
     required = {'schema_version', 'image_id', 'nonce', 'builder_inventory_sha256',
                 'tool_pins_sha256', 'tool_pins', 'recipe_input_sha256', 'entry_script_sha256'}
     if (set(contract) != required or contract['schema_version'] != 1
             or contract['image_id'] != facts['image_id'] or contract['nonce'] != facts['nonce']):
-        raise ValueError('controller schema/worker identity differs')
+        refuse('controller schema/worker identity differs', 'controller-binding')
     for key in ('builder_inventory_sha256', 'tool_pins_sha256', 'entry_script_sha256'):
         if not re.fullmatch(r'[0-9a-f]{64}', contract[key]):
-            raise ValueError('controller hash invalid')
+            refuse('controller hash invalid', 'controller-hash-field')
     pins = contract['tool_pins']
     if (set(pins) != {'schema_version', 'tools', 'builder_inventory_sha256'}
             or pins['schema_version'] != 1
             or pins['builder_inventory_sha256'] != contract['builder_inventory_sha256']
             or digest(json.dumps(pins, sort_keys=True, separators=(',', ':')).encode()) != contract['tool_pins_sha256']
             or not {'/usr/bin/' + tool for tool in TOOLS} <= set(pins['tools'])):
-        raise ValueError('authenticated tool-pin schema/hash differs')
+        refuse('authenticated tool-pin schema/hash differs', 'tool-ledger')
     expected = regular(Path('/expected-packages.lock'), 1024 * 1024)
     if digest(expected) != contract['builder_inventory_sha256']:
-        raise ValueError('controller builder lock differs')
+        refuse('controller builder lock differs', 'builder-lock')
     for name, pin in pins['tools'].items():
         alias = Path(name)
         if (not alias.is_absolute() or alias.parent != Path('/usr/bin')
                 or set(pin) != {'resolved_path', 'sha256'}
                 or not re.fullmatch(r'[0-9a-f]{64}', pin['sha256'])):
-            raise ValueError('unsafe authenticated tool path/hash')
+            refuse('unsafe authenticated tool path/hash', 'tool-pin-path')
         resolved = alias.resolve(strict=True)
         if (str(resolved) != pin['resolved_path'] or not resolved.is_relative_to('/usr')
                 or digest(regular(resolved, 256 * 1024 * 1024, singly_linked=False)) != pin['sha256']):
-            raise ValueError('authenticated tool resolution/content differs')
+            refuse('authenticated tool resolution/content differs', 'tool-resolution')
     if digest(regular(Path('/builder-entry.sh'), 4 * 1024 * 1024)) != contract['entry_script_sha256']:
-        raise ValueError('controller entry script differs')
+        refuse('controller entry script differs', 'entry-digest')
     recipe = contract['recipe_input_sha256']
     if not recipe or not isinstance(recipe, dict):
-        raise ValueError('recipe input ledger required')
+        refuse('recipe input ledger required', 'recipe-ledger')
     for name, expected in recipe.items():
         if (not isinstance(name, str) or name.startswith('/') or '\\' in name
                 or any(part in ('', '.', '..') for part in name.split('/'))
                 or not re.fullmatch(r'[0-9a-f]{64}', expected)
                 or digest(regular(recipe_root / name, 512 * 1024 * 1024)) != expected):
-            raise ValueError('controller recipe input differs')
+            refuse('controller recipe input differs', 'recipe-input')
+    diagnose('controller_validated')
     return contract
 
 
@@ -286,10 +335,10 @@ def preflight(manifest, vendor, audit):
              'lock': regular(manifest.with_name('Cargo.lock'), 1024 * 1024),
              'audit': regular(audit, 8 * 1024 * 1024)}
     if {key: digest(data) for key, data in blobs.items()} != PINS:
-        raise ValueError('original source pin differs')
+        refuse('original source pin differs', 'source-pins')
     source_audit = load(blobs['audit'])
     if source_audit.get('cargo_lock_sha256') != PINS['lock']:
-        raise ValueError('audit lock binding differs')
+        refuse('audit lock binding differs', 'audit-lock')
     summary = vendor_preflight(vendor, source_audit, tomllib.loads(blobs['lock'].decode()),
                                tomllib.loads(blobs['manifest'].decode()))
     return blobs, summary
@@ -299,9 +348,16 @@ def run(argv, cwd, env, output, stem, timeout=60):
     """Bound output/time; preserve original failure even if cleanup fails."""
     child, selector, streams = None, None, {}
     reason, cleanup = None, []
+    attempted, returned, returncode, failure_code, original_error = False, False, None, None, None
     try:
-        child = subprocess.Popen(argv, cwd=cwd, env=env, stdout=subprocess.PIPE,
-                                 stderr=subprocess.PIPE, start_new_session=True)
+        attempted = True
+        diagnose('command_start', stem)
+        try:
+            child = subprocess.Popen(argv, cwd=cwd, env=env, stdout=subprocess.PIPE,
+                                     stderr=subprocess.PIPE, start_new_session=True)
+        except BaseException as error:
+            failure_code = 'UNKNOWN' if isinstance(error, KeyboardInterrupt) else 'command-spawn'
+            raise
         streams = {child.stdout: bytearray(), child.stderr: bytearray()}
         selector = selectors.DefaultSelector()
         for stream in streams:
@@ -310,6 +366,7 @@ def run(argv, cwd, env, output, stem, timeout=60):
         deadline = time.monotonic() + timeout
         while selector.get_map():
             if time.monotonic() >= deadline:
+                failure_code = 'command-timeout'
                 raise ValueError('worker command timeout')
             for key, _ in selector.select(min(.1, max(0, deadline - time.monotonic()))):
                 data = os.read(key.fileobj.fileno(), 65536)
@@ -319,108 +376,157 @@ def run(argv, cwd, env, output, stem, timeout=60):
                     remaining = 16 * 1024 * 1024 - sum(map(len, streams.values()))
                     streams[key.fileobj].extend(data[:remaining])
                     if len(data) > remaining:
+                        failure_code = 'command-output-limit'
                         raise ValueError('worker command output bound')
         child.wait(timeout=max(.01, deadline - time.monotonic()))
+        returned, returncode = True, child.returncode
         if child.returncode:
+            # makepkg's returned code does not identify its first inner predicate.
+            failure_code = 'UNKNOWN' if stem in {'makepkg', 'source-verification'} else 'command-nonzero'
             raise ValueError('worker command failed')
     except BaseException as error:
+        original_error = error
+        failure_code = failure_code or ('command-wait-timeout' if isinstance(error, subprocess.TimeoutExpired) else 'UNKNOWN')
         reason = type(error).__name__ + ': ' + str(error)
         raise
     finally:
-        if child is not None:
-            try:
-                os.killpg(child.pid, signal.SIGKILL)
-            except ProcessLookupError:
-                pass
-            except BaseException as error:
-                cleanup.append(type(error).__name__ + ': ' + str(error))
-            try:
-                child.wait(timeout=2)
-            except BaseException as error:
-                cleanup.append(type(error).__name__ + ': ' + str(error))
-        if selector is not None:
-            try:
-                selector.close()
-            except BaseException as error:
-                cleanup.append(type(error).__name__ + ': ' + str(error))
-        for stream, data in streams.items():
-            try:
-                (output / (stem + ('.stdout' if stream is child.stdout else '.stderr'))).write_bytes(data)
-            except BaseException as error:
-                cleanup.append(type(error).__name__ + ': ' + str(error))
-            finally:
+        control = original_error if original_error is not None and not isinstance(original_error, Exception) else None
+        cleanup_failure = None
+
+        def finish(action, absent=False):
+            nonlocal control, cleanup_failure
+            # One retry completes an interrupted owned action without an
+            # unbounded cancellation loop. Reaping never alters natural return.
+            for _ in range(2):
                 try:
-                    stream.close()
+                    action()
+                    return
+                except Exception as error:
+                    if absent and isinstance(error, ProcessLookupError):
+                        return
+                    cleanup.append(type(error).__name__ + ': ' + str(error))
+                    if cleanup_failure is None and control is None:
+                        cleanup_failure = error
+                    return
                 except BaseException as error:
                     cleanup.append(type(error).__name__ + ': ' + str(error))
+                    if control is None:
+                        control = error
+
+        if child is not None:
+            finish(lambda: os.killpg(child.pid, signal.SIGKILL), absent=True)
+            finish(lambda: child.wait(timeout=2))
+        if selector is not None:
+            finish(selector.close)
+        for stream, data in streams.items():
+            finish(lambda: (output / (stem + ('.stdout' if stream is child.stdout else '.stderr'))).write_bytes(data))
+            finish(stream.close)
+        finish(lambda: (output / (stem + '.command.json')).write_text(json.dumps({
+            'argv': argv, 'exit_code': child.returncode if child else None,
+            'failure': reason, 'cleanup_errors': cleanup}) + '\n'))
+        issued_error, issued_code = original_error, failure_code
+        if issued_error is None and cleanup_failure is not None:
+            issued_error = ValueError('worker command cleanup failed: ' + '; '.join(cleanup))
+            issued_code = 'command-cleanup'
+        if issued_error is None and control is not None:
+            issued_error, issued_code = control, 'UNKNOWN'
         try:
-            (output / (stem + '.command.json')).write_text(json.dumps({
-                'argv': argv, 'exit_code': child.returncode if child else None,
-                'failure': reason, 'cleanup_errors': cleanup}) + '\n')
+            diagnose('command_result', stem, attempted, returned, returncode,
+                     failure_code=issued_code, error=issued_error)
+        except Exception as error:
+            if issued_error is None:
+                issued_error = ValueError('worker command cleanup failed: ' + type(error).__name__ + ': ' + str(error))
+                diagnose('fail', 'command-cleanup', issued_error)
         except BaseException as error:
-            cleanup.append(type(error).__name__ + ': ' + str(error))
-        if cleanup and reason is None:
-            raise ValueError('worker command cleanup failed: ' + '; '.join(cleanup))
+            if control is None:
+                control = error
+        if control is not None:
+            # Cache the issued command result first, then independently latch
+            # cancellation without replacing an earlier business first cause.
+            try:
+                diagnose('fail', 'UNKNOWN', control)
+            except BaseException:
+                pass  # The first latched control exception is propagated below.
+            raise control
+        if original_error is None and issued_error is not None:
+            raise issued_error
     return bytes(streams[child.stdout])
 
 
 def metadata(manifest, vendor, audit, builder_sha, output, controller_path, controller_sha):
-    facts = observe()
-    guard(facts)  # Before any Cargo/tool command or output creation.
-    if (not manifest.is_relative_to('/tmp') or not vendor.is_relative_to('/tmp')
-            or manifest.resolve(strict=True) != manifest or vendor.resolve(strict=True) != vendor):
-        raise ValueError('source/vendor must be private worker scratch paths')
-    for parent in manifest.parents:
-        if (parent / '.cargo/config.toml').exists() or (parent / '.cargo/config').exists():
-            raise ValueError('ambient Cargo configuration refused')
-    if output != Path('/out/target-metadata'):
-        raise ValueError('fixed fresh worker metadata output required')
-    controller = verify_controller(controller_path, controller_sha, facts)
-    if controller['builder_inventory_sha256'] != builder_sha:
-        raise ValueError('controller builder pin differs')
-    blobs, vendor_summary = preflight(manifest, vendor, audit)
-    manifest_data, lock_data, audit_data = (blobs[key] for key in ('manifest', 'lock', 'audit'))
-    expected = regular(Path('/expected-packages.lock'), 1024 * 1024)
-    if not re.fullmatch(r'[0-9a-f]{64}', builder_sha) or digest(expected) != builder_sha:
-        raise ValueError('expected builder inventory differs from controller pin')
-    if any(Path('/usr/bin/' + tool).exists() for tool in ('emcc', 'freebsd-version')):
-        raise ValueError('unexpected platform probe tools present')
-    output.mkdir(parents=True, exist_ok=False)
-    home = Path('/tmp/cachy-update-metadata-' + facts['nonce'])
-    home.mkdir(mode=0o700, exist_ok=False)
-    cargo_home = home / 'cargo'
-    cargo_home.mkdir(mode=0o700)
-    (cargo_home / 'config.toml').write_text('[source.crates-io]\nreplace-with="vendored"\n[source.vendored]\ndirectory=' + json.dumps(str(vendor)) + '\n')
-    env = {'PATH': '/usr/bin:/bin', 'LC_ALL': 'C.UTF-8', 'HOME': str(home), 'CARGO_HOME': str(cargo_home),
-           'CARGO_NET_OFFLINE': 'true', 'RUSTC': '/usr/bin/rustc', 'RUSTDOC': '/usr/bin/rustdoc'}
-    inventory = run(['/usr/bin/pacman', '-Q'], home, env, output, 'inventory')
-    if b''.join(sorted(inventory.splitlines(keepends=True))) != expected:
-        raise ValueError('actual worker package inventory differs from frozen extension')
-    verbose = run(['/usr/bin/rustc', '-vV'], home, env, output, 'rustc-version').decode()
-    release = re.search(r'^release: (\d+)\.(\d+)\.(\d+)', verbose, re.M)
-    if not release or tuple(map(int, release.groups())) < (1, 92, 0) or ('host: ' + TARGET) not in verbose.splitlines():
-        raise ValueError('reviewed native Rust >=1.92 required')
-    cfg = run(['/usr/bin/rustc', '--print', 'cfg', '--target', TARGET], home, env, output, 'target-cfg')
-    argv = ['/usr/bin/cargo', 'metadata', '--format-version', '1', '--offline', '--locked',
-            '--filter-platform', TARGET, '--manifest-path', str(manifest)]
-    data = run(argv, manifest.parent, env, output, 'cargo-metadata')
-    # Bind receipt to source bytes still present after metadata resolution.
-    final_blobs, final_vendor = preflight(manifest, vendor, audit)
-    if final_blobs != blobs or final_vendor != vendor_summary:
-        raise ValueError('worker source changed during metadata')
-    verify_controller(controller_path, controller_sha, facts)
-    record = {'schema_version': 1, 'host': TARGET, 'target': TARGET, 'image_id': facts['image_id'],
-              'manifest_path': str(manifest), 'metadata_argv': argv, 'observed_worker': facts,
-              'builder_inventory_sha256': builder_sha, 'rustc_vv_sha256': digest(verbose.encode()),
-              'tool_sha256': {tool: controller['tool_pins']['tools']['/usr/bin/' + tool]['sha256']
-                              for tool in ('cargo', 'rustc', 'pacman')},
-              'verified_tool_pins': controller['tool_pins'], 'controller_sha256': controller_sha,
-              'vendor_preflight': vendor_summary,
-              'sha256': {'manifest': digest(manifest_data), 'lock': digest(lock_data), 'audit': digest(audit_data),
-                         'metadata': digest(data), 'cfg': digest(cfg)},
-              'build_script_execution': 'NOT RUN', 'native_compilation': 'NOT RUN',
-              'provenance_limit': 'controller must independently bind image/daemon/launch; this receipt is not hardware attestation'}
-    (output / 'worker.json').write_text(json.dumps(record, indent=2) + '\n')
+    with diagnostic_step('metadata-observe'):
+        facts = observe()
+    with diagnostic_step('metadata-guard'):
+        guard(facts)  # Before any Cargo/tool command or output creation.
+    with diagnostic_step('metadata-paths'):
+        if (not manifest.is_relative_to('/tmp') or not vendor.is_relative_to('/tmp')
+                or manifest.resolve(strict=True) != manifest or vendor.resolve(strict=True) != vendor):
+            refuse('source/vendor must be private worker scratch paths', 'scratch-paths')
+    with diagnostic_step('metadata-ambient'):
+        for parent in manifest.parents:
+            if (parent / '.cargo/config.toml').exists() or (parent / '.cargo/config').exists():
+                refuse('ambient Cargo configuration refused', 'ambient-cargo-config')
+    with diagnostic_step('metadata-output'):
+        if output != Path('/out/target-metadata'):
+            refuse('fixed fresh worker metadata output required', 'metadata-output')
+    with diagnostic_step('metadata-controller'):
+        controller = verify_controller(controller_path, controller_sha, facts)
+    with diagnostic_step('metadata-builder'):
+        if controller['builder_inventory_sha256'] != builder_sha:
+            refuse('controller builder pin differs', 'builder-pin')
+    with diagnostic_step('metadata-source'):
+        blobs, vendor_summary = preflight(manifest, vendor, audit)
+        manifest_data, lock_data, audit_data = (blobs[key] for key in ('manifest', 'lock', 'audit'))
+    with diagnostic_step('metadata-builder'):
+        expected = regular(Path('/expected-packages.lock'), 1024 * 1024)
+        if not re.fullmatch(r'[0-9a-f]{64}', builder_sha) or digest(expected) != builder_sha:
+            refuse('expected builder inventory differs from controller pin', 'builder-lock')
+        if any(Path('/usr/bin/' + tool).exists() for tool in ('emcc', 'freebsd-version')):
+            refuse('unexpected platform probe tools present', 'forbidden-tool')
+    with diagnostic_step('metadata-output'):
+        output.mkdir(parents=True, exist_ok=False)
+    with diagnostic_step('metadata-home'):
+        home = Path('/tmp/cachy-update-metadata-' + facts['nonce'])
+        home.mkdir(mode=0o700, exist_ok=False)
+        cargo_home = home / 'cargo'
+        cargo_home.mkdir(mode=0o700)
+        (cargo_home / 'config.toml').write_text('[source.crates-io]\nreplace-with="vendored"\n[source.vendored]\ndirectory=' + json.dumps(str(vendor)) + '\n')
+        env = {'PATH': '/usr/bin:/bin', 'LC_ALL': 'C.UTF-8', 'HOME': str(home), 'CARGO_HOME': str(cargo_home),
+               'CARGO_NET_OFFLINE': 'true', 'RUSTC': '/usr/bin/rustc', 'RUSTDOC': '/usr/bin/rustdoc'}
+    with diagnostic_step('metadata-inventory'):
+        inventory = run(['/usr/bin/pacman', '-Q'], home, env, output, 'inventory')
+        if b''.join(sorted(inventory.splitlines(keepends=True))) != expected:
+            refuse('actual worker package inventory differs from frozen extension', 'builder-inventory')
+    with diagnostic_step('metadata-rust-version'):
+        verbose = run(['/usr/bin/rustc', '-vV'], home, env, output, 'rustc-version').decode()
+        release = re.search(r'^release: (\d+)\.(\d+)\.(\d+)', verbose, re.M)
+        if not release or tuple(map(int, release.groups())) < (1, 92, 0) or ('host: ' + TARGET) not in verbose.splitlines():
+            refuse('reviewed native Rust >=1.92 required', 'rust-version')
+    with diagnostic_step('metadata-target-cfg'):
+        cfg = run(['/usr/bin/rustc', '--print', 'cfg', '--target', TARGET], home, env, output, 'target-cfg')
+    with diagnostic_step('metadata-cargo'):
+        argv = ['/usr/bin/cargo', 'metadata', '--format-version', '1', '--offline', '--locked',
+                '--filter-platform', TARGET, '--manifest-path', str(manifest)]
+        data = run(argv, manifest.parent, env, output, 'cargo-metadata')
+    with diagnostic_step('metadata-recheck'):
+        # Bind receipt to source bytes still present after metadata resolution.
+        final_blobs, final_vendor = preflight(manifest, vendor, audit)
+        if final_blobs != blobs or final_vendor != vendor_summary:
+            refuse('worker source changed during metadata', 'source-drift')
+        verify_controller(controller_path, controller_sha, facts)
+    with diagnostic_step('metadata-receipt'):
+        record = {'schema_version': 1, 'host': TARGET, 'target': TARGET, 'image_id': facts['image_id'],
+                  'manifest_path': str(manifest), 'metadata_argv': argv, 'observed_worker': facts,
+                  'builder_inventory_sha256': builder_sha, 'rustc_vv_sha256': digest(verbose.encode()),
+                  'tool_sha256': {tool: controller['tool_pins']['tools']['/usr/bin/' + tool]['sha256']
+                                  for tool in ('cargo', 'rustc', 'pacman')},
+                  'verified_tool_pins': controller['tool_pins'], 'controller_sha256': controller_sha,
+                  'vendor_preflight': vendor_summary,
+                  'sha256': {'manifest': digest(manifest_data), 'lock': digest(lock_data), 'audit': digest(audit_data),
+                             'metadata': digest(data), 'cfg': digest(cfg)},
+                  'build_script_execution': 'NOT RUN', 'native_compilation': 'NOT RUN',
+                  'provenance_limit': 'controller must independently bind image/daemon/launch; this receipt is not hardware attestation'}
+        (output / 'worker.json').write_text(json.dumps(record, indent=2) + '\n')
     return data, record, cfg, env
 
 

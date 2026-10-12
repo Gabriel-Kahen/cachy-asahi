@@ -27,7 +27,7 @@ TARGET = 'aarch64-unknown-linux-gnu'
 PACKAGE_IDENTITIES = frozenset('aho-corasick@1.1.5 anstream@1.0.0 anstyle-parse@1.0.0 anstyle-query@1.1.5 anstyle-wincon@3.0.11 anstyle@1.0.14 anyhow@1.0.104 arch-update-tray@4.4.2 async-broadcast@0.7.2 async-recursion@1.1.1 async-trait@0.1.92 autocfg@1.5.1 bitflags@1.3.2 bitflags@2.13.2 block@0.1.6 bumpalo@3.20.3 bytes@1.12.1 cc@1.4.6 cfg-expr@0.20.9 cfg-if@1.0.4 colorchoice@1.0.5 defmt-macros@1.1.1 defmt-parser@1.0.0 defmt@1.1.1 endi@1.1.1 enumflags2@0.7.12 enumflags2_derive@0.7.12 env_filter@2.0.0 env_logger@0.11.11 equivalent@1.0.2 errno@0.3.14 event-listener-strategy@0.5.4 event-listener@5.4.2 fastrand@2.5.0 find-msvc-tools@0.1.12 fsevent-sys@4.1.0 futures-channel@0.3.34 futures-core@0.3.34 futures-executor@0.3.34 futures-io@0.3.34 futures-lite@2.6.1 futures-macro@0.3.34 futures-task@0.3.34 futures-util@0.3.34 getrandom@0.4.3 gettext-rs@0.8.0 gettext-sys@0.27.0 gio-sys@0.22.9 gio-unix-sys@0.22.9 gio-unix@0.22.8 gio@0.22.9 glib-macros@0.22.9 glib-sys@0.22.9 glib@0.22.9 gobject-sys@0.22.9 hashbrown@0.17.1 heck@0.5.0 hex@0.4.3 indexmap@2.14.2 inotify-sys@0.1.8 inotify@0.11.5 is_terminal_polyfill@1.70.2 itoa@1.0.18 jiff-core@0.1.1 jiff-static@0.2.37 jiff@0.2.37 js-sys@0.3.105 kqueue-sys@1.1.2 kqueue@1.2.1 ksni@0.3.6 lazy_static@1.5.0 libc@0.2.189 linux-raw-sys@0.12.1 locale_config@0.3.0 log@0.4.34 malloc_buf@0.0.6 memchr@2.8.3 memoffset@0.9.1 mio@1.2.3 notify-types@2.1.0 notify@8.2.0 objc-foundation@0.1.1 objc@0.2.7 objc_id@0.1.1 once_cell@1.21.4 once_cell_polyfill@1.70.2 ordered-stream@0.2.0 parking@2.2.1 pastey@0.2.3 pin-project-lite@0.2.17 pkg-config@0.3.34 portable-atomic-util@0.2.8 portable-atomic@1.15.0 proc-macro-crate@3.5.0 proc-macro2@1.0.107 quote@1.0.47 r-efi@6.0.0 regex-automata@0.4.18 regex-syntax@0.8.11 regex@1.13.1 rustix@1.1.4 rustversion@1.0.23 same-file@1.0.6 serde@1.0.229 serde_core@1.0.229 serde_derive@1.0.229 serde_json@1.0.151 serde_repr@0.1.21 serde_spanned@1.1.1 shlex@2.0.1 signal-hook-registry@1.4.8 slab@0.4.12 smallvec@1.16.1 socket2@0.6.5 syn@2.0.119 syn@3.0.5 system-deps@9.0.0 target-lexicon@0.13.5 temp-dir@0.1.16 tempfile@3.27.0 thiserror-impl@2.0.20 thiserror@2.0.20 tokio-macros@2.7.2 tokio@1.53.1 toml@1.1.6+spec-1.1.0 toml_datetime@1.1.1+spec-1.1.0 toml_edit@0.25.15+spec-1.1.0 toml_parser@1.1.3+spec-1.1.0 toml_writer@1.1.2+spec-1.1.0 tracing-attributes@0.1.31 tracing-core@0.1.36 tracing@0.1.44 uds_windows@1.2.1 unicode-ident@1.0.24 utf8parse@0.2.2 uuid@1.26.1 version-compare@0.2.1 walkdir@2.5.0 wasi@0.11.1+wasi-snapshot-preview1 wasm-bindgen-macro-support@0.2.128 wasm-bindgen-macro@0.2.128 wasm-bindgen-shared@0.2.128 wasm-bindgen@0.2.128 winapi-i686-pc-windows-gnu@0.4.0 winapi-util@0.1.11 winapi-x86_64-pc-windows-gnu@0.4.0 winapi@0.3.9 windows-link@0.2.1 windows-sys@0.60.2 windows-sys@0.61.2 windows-targets@0.53.5 windows_aarch64_gnullvm@0.53.1 windows_aarch64_msvc@0.53.1 windows_i686_gnu@0.53.1 windows_i686_gnullvm@0.53.1 windows_i686_msvc@0.53.1 windows_x86_64_gnu@0.53.1 windows_x86_64_gnullvm@0.53.1 windows_x86_64_msvc@0.53.1 winnow@1.0.4 zbus@5.19.0 zbus_macros@5.19.0 zbus_names@4.3.4 zcheapstr@1.1.0 zmij@1.0.23 zvariant@5.15.0 zvariant_derive@5.15.0 zvariant_utils@4.2.0'.split())
 FEATURE_NAMES = frozenset('Wdk Wdk_Devices Wdk_Devices_Bluetooth Wdk_Devices_HumanInterfaceDevice Wdk_Foundation Wdk_Graphics Wdk_Graphics_Direct3D Wdk_NetworkManagement Wdk_NetworkManagement_Ndis Wdk_NetworkManagement_WindowsFilteringPlatform Wdk_Storage Wdk_Storage_FileSystem Wdk_Storage_FileSystem_Minifilters Wdk_System Wdk_System_IO Wdk_System_Memory Wdk_System_OfflineRegistry Wdk_System_Registry Wdk_System_SystemInformation Wdk_System_SystemServices Wdk_System_Threading Win32 Win32_Data Win32_Data_HtmlHelp Win32_Data_RightsManagement Win32_Devices Win32_Devices_AllJoyn Win32_Devices_Beep Win32_Devices_BiometricFramework Win32_Devices_Bluetooth Win32_Devices_Cdrom Win32_Devices_Communication Win32_Devices_DeviceAndDriverInstallation Win32_Devices_DeviceQuery Win32_Devices_Display Win32_Devices_Dvd Win32_Devices_Enumeration Win32_Devices_Enumeration_Pnp Win32_Devices_Fax Win32_Devices_HumanInterfaceDevice Win32_Devices_Nfc Win32_Devices_Nfp Win32_Devices_PortableDevices Win32_Devices_Properties Win32_Devices_Pwm Win32_Devices_Sensors Win32_Devices_SerialCommunication Win32_Devices_Tapi Win32_Devices_Usb Win32_Devices_WebServicesOnDevices Win32_Foundation Win32_Gaming Win32_Globalization Win32_Graphics Win32_Graphics_Dwm Win32_Graphics_Gdi Win32_Graphics_GdiPlus Win32_Graphics_Hlsl Win32_Graphics_OpenGL Win32_Graphics_Printing Win32_Graphics_Printing_PrintTicket Win32_Management Win32_Management_MobileDeviceManagementRegistration Win32_Media Win32_Media_Audio Win32_Media_DxMediaObjects Win32_Media_KernelStreaming Win32_Media_Multimedia Win32_Media_Streaming Win32_Media_WindowsMediaFormat Win32_NetworkManagement Win32_NetworkManagement_Dhcp Win32_NetworkManagement_Dns Win32_NetworkManagement_InternetConnectionWizard Win32_NetworkManagement_IpHelper Win32_NetworkManagement_Multicast Win32_NetworkManagement_Ndis Win32_NetworkManagement_NetBios Win32_NetworkManagement_NetManagement Win32_NetworkManagement_NetShell Win32_NetworkManagement_NetworkDiagnosticsFramework Win32_NetworkManagement_P2P Win32_NetworkManagement_QoS Win32_NetworkManagement_Rras Win32_NetworkManagement_Snmp Win32_NetworkManagement_WNet Win32_NetworkManagement_WebDav Win32_NetworkManagement_WiFi Win32_NetworkManagement_WindowsConnectionManager Win32_NetworkManagement_WindowsFilteringPlatform Win32_NetworkManagement_WindowsFirewall Win32_NetworkManagement_WindowsNetworkVirtualization Win32_Networking Win32_Networking_ActiveDirectory Win32_Networking_Clustering Win32_Networking_HttpServer Win32_Networking_Ldap Win32_Networking_WebSocket Win32_Networking_WinHttp Win32_Networking_WinInet Win32_Networking_WinSock Win32_Networking_WindowsWebServices Win32_Security Win32_Security_AppLocker Win32_Security_Authentication Win32_Security_Authentication_Identity Win32_Security_Authorization Win32_Security_Credentials Win32_Security_Cryptography Win32_Security_Cryptography_Catalog Win32_Security_Cryptography_Certificates Win32_Security_Cryptography_Sip Win32_Security_Cryptography_UI Win32_Security_DiagnosticDataQuery Win32_Security_DirectoryServices Win32_Security_EnterpriseData Win32_Security_ExtensibleAuthenticationProtocol Win32_Security_Isolation Win32_Security_LicenseProtection Win32_Security_NetworkAccessProtection Win32_Security_WinTrust Win32_Security_WinWlx Win32_Storage Win32_Storage_Cabinets Win32_Storage_CloudFilters Win32_Storage_Compression Win32_Storage_DistributedFileSystem Win32_Storage_FileHistory Win32_Storage_FileSystem Win32_Storage_Imapi Win32_Storage_IndexServer Win32_Storage_InstallableFileSystems Win32_Storage_IscsiDisc Win32_Storage_Jet Win32_Storage_Nvme Win32_Storage_OfflineFiles Win32_Storage_OperationRecorder Win32_Storage_Packaging Win32_Storage_Packaging_Appx Win32_Storage_ProjectedFileSystem Win32_Storage_StructuredStorage Win32_Storage_Vhd Win32_Storage_Xps Win32_System Win32_System_AddressBook Win32_System_Antimalware Win32_System_ApplicationInstallationAndServicing Win32_System_ApplicationVerifier Win32_System_ClrHosting Win32_System_Com Win32_System_Com_Marshal Win32_System_Com_StructuredStorage Win32_System_Com_Urlmon Win32_System_ComponentServices Win32_System_Console Win32_System_CorrelationVector Win32_System_DataExchange Win32_System_DeploymentServices Win32_System_DeveloperLicensing Win32_System_Diagnostics Win32_System_Diagnostics_Ceip Win32_System_Diagnostics_Debug Win32_System_Diagnostics_Debug_Extensions Win32_System_Diagnostics_Etw Win32_System_Diagnostics_ProcessSnapshotting Win32_System_Diagnostics_ToolHelp Win32_System_Diagnostics_TraceLogging Win32_System_DistributedTransactionCoordinator Win32_System_Environment Win32_System_ErrorReporting Win32_System_EventCollector Win32_System_EventLog Win32_System_EventNotificationService Win32_System_GroupPolicy Win32_System_HostCompute Win32_System_HostComputeNetwork Win32_System_HostComputeSystem Win32_System_Hypervisor Win32_System_IO Win32_System_Iis Win32_System_Ioctl Win32_System_JobObjects Win32_System_Js Win32_System_Kernel Win32_System_LibraryLoader Win32_System_Mailslots Win32_System_Mapi Win32_System_Memory Win32_System_Memory_NonVolatile Win32_System_MessageQueuing Win32_System_MixedReality Win32_System_Ole Win32_System_PasswordManagement Win32_System_Performance Win32_System_Performance_HardwareCounterProfiling Win32_System_Pipes Win32_System_Power Win32_System_ProcessStatus Win32_System_Recovery Win32_System_Registry Win32_System_RemoteDesktop Win32_System_RemoteManagement Win32_System_RestartManager Win32_System_Restore Win32_System_Rpc Win32_System_Search Win32_System_Search_Common Win32_System_SecurityCenter Win32_System_Services Win32_System_SetupAndMigration Win32_System_Shutdown Win32_System_StationsAndDesktops Win32_System_SubsystemForLinux Win32_System_SystemInformation Win32_System_SystemServices Win32_System_Threading Win32_System_Time Win32_System_TpmBaseServices Win32_System_UserAccessLogging Win32_System_Variant Win32_System_VirtualDosMachines Win32_System_WindowsProgramming Win32_System_Wmi Win32_UI Win32_UI_Accessibility Win32_UI_ColorSystem Win32_UI_Controls Win32_UI_Controls_Dialogs Win32_UI_HiDpi Win32_UI_Input Win32_UI_Input_Ime Win32_UI_Input_KeyboardAndMouse Win32_UI_Input_Pointer Win32_UI_Input_Touch Win32_UI_Input_XboxController Win32_UI_InteractionContext Win32_UI_Magnification Win32_UI_Shell Win32_UI_Shell_Common Win32_UI_Shell_PropertiesSystem Win32_UI_TabletPC Win32_UI_TextServices Win32_UI_WindowsAndMessaging Win32_Web Win32_Web_InternetExplorer accctrl aclapi activation adhoc aho-corasick align all all-apis alloc allocator-api2 allocator_api anstream anstyle anstyle-query anstyle-wincon appmgmt arbitrary arbitrary_precision arch_z80 arch_zkasm arrayvec ascii async-await async-await-macro async-executor async-fs async-io async-lock async-process async-task atomic atomic-polyfill attributes audioclient audiosessiontypes auto auto-color auxvec avoid-default-panic avrt backtrace basetsd bcrypt bench_allocator_api bilock binary bincode bits bits10_1 bits1_5 bits2_0 bits2_5 bits3_0 bits4_0 bits5_0 bitscfg bitsmsg blocking blocking-api bluetoothapis bluetoothleapis bootparam borsh borsh-derive boxed bthdef bthioctl bthledef bthsdpdef btrfs bugcodes bus-impl bytemuck bytes camino cderr cfg cfg-target-has-atomic cfgmgr32 cguid channel chrono clone-impls collections color combaseapi coml2api commapi commctrl commdlg commoncontrols compat compiler_builtins compiletests consoleapi const-extern-fn const_generics const_new core corecrt corsym critical-section crossbeam-channel d2d1 d2d1_1 d2d1_2 d2d1_3 d2d1effectauthor d2d1effects d2d1effects_1 d2d1effects_2 d2d1svg d2dbasetypes d3d d3d10 d3d10_1 d3d10_1shader d3d10effect d3d10misc d3d10sdklayers d3d10shader d3d11 d3d11_1 d3d11_2 d3d11_3 d3d11_4 d3d11on12 d3d11sdklayers d3d11shader d3d11tokenizedprogramformat d3d12 d3d12sdklayers d3d12shader d3d9 d3d9caps d3d9types d3dcommon d3dcompiler d3dcsx d3dkmdt d3dkmthk d3dukmdt d3dx10core d3dx10math d3dx10mesh datetimeapi davclnt dbghelp dbt dcommon dcomp dcompanimation dcomptypes dde ddraw ddrawi ddrawint debug debugapi default default-hasher defmt derive deserialize_in_place devguid devicetopology devpkey devpropdef dfa dfa-build dfa-onepass dfa-search dinput dinputd disable-fiq dispex display dmksctl dmusicc docobj docs documenttarget dot1x dpa_dsa dpapi drain_filter drain_keep_rest dsgetdc dsound dsrole dvp dwmapi dwrite dwrite_1 dwrite_2 dwrite_3 dxdiag dxfile dxgi dxgi1_2 dxgi1_3 dxgi1_4 dxgi1_5 dxgi1_6 dxgidebug dxgiformat dxgitype dxva2api dxvahd eaptypes elf elf_uapi enable-interning enclaveapi encoding-raw encoding-rzcobs endpointvolume enumflags2 equivalent errhandlingapi errno event everything evntcons evntprov evntrace example_generated exception excpt exdisp extra-platforms extra-traits extra_traits fallback fast-rng fast_hash fastrand fibersapi fileapi float float_roundtrip flume fold foldhash force-amo freebsd-native fs fsevent-sys full functiondiscoverykeys_devpkey futures futures-channel futures-core futures-core-03-stream futures-executor futures-io futures-lite futures-macro futures-sink futures-task futures-util futures_01 general getrandom gettext-system gg-alloc gio gio-sys gl-gl guiddef gvariant gz handleapi heapapi heapless hidclass hidpi hidsdi hidusage highlevelmonitorconfigurationapi hstring http humantime hybrid if_arp if_ether if_packet if_tun ifdef ifmib image imm impl-debug impl-default impl_bincode in6addr inaddr indexmap inline-more inno inspectable interlockedapi internal-instrument internal-instrument-pikevm intsafe io io-compat io-std io-uring io-util io_uring ioapiset ioctl ip_in_core ipexport iphlpapi ipifcons ipmib iprtrmib iptypes is_terminal_polyfill jiff jiff-static jiff-tzdb jiff-tzdb-platform jobapi jobapi2 jobserver js js-sys knownfolders kqueue ks ksmedia ktmtypes ktmw32 kv kv_serde kv_std kv_sval kv_unstable kv_unstable_serde kv_unstable_std kv_unstable_sval l2cmn landlock libc libc_errno libloaderapi limits linux_4_11 linux_5_1 linux_5_11 linux_latest lmaccess lmalert lmapibuf lmat lmcons lmdfs lmerrlog lmjoin lmmsg lmremutl lmrepl lmserver lmshare lmstats lmsvc lmuse lmwksta log log-always log_kv log_macros logging loom loop_device lowlevelmonitorconfigurationapi lsalookup macos_fsevent macos_kqueue macro-diagnostics macros malloc_size_of max_level_debug max_level_error max_level_info max_level_off max_level_trace max_level_warn may_dangle md-5 md5 memchr memoryapi mempolicy meta minschannel minwinbase minwindef mio mm mmdeviceapi mmeapi mmreg mmsystem mount mprapidef msaatext mscat mschapp msrv mssip mstcpip mswsock mswsockdef namedpipeapi namespaceapi native nb30 ncrypt net netioapi netlink nfa nfa-backtrack nfa-pikevm nfa-thompson nightly nldef no-panic no_std ntddndis ntddscsi ntddser ntdef ntlsa ntsecapi ntstatus oaidl objbase objc_exception objidl objidlbase ocidl ole2 oleauto olectl oleidl once_cell opmapi option-as-array os-ext os-poll ostree-tests p2p parallel param parking parking_lot parking_lot_core parse parser parsing pattern pdh perf perf-backtrack perf-cache perf-dfa perf-dfa-full perf-inline perf-literal perf-literal-multisubstring perf-literal-substring perf-onepass perflib physicalmonitorenumerationapi pipe pkg playsoundapi portable-atomic portable-atomic-alloc portable-atomic-util portable_atomic_crate portabledevice portabledeviceapi portabledevicetypes powerbase powersetting powrprof prctl preserve_order printing proc-macro proc-macro-crate proc_macro_crate process processenv processsnapshot processthreadsapi processtopologyapi profileapi propidl propkey propkeydef propsys prsht psapi ptrace pty qos quickcheck quote race rand rand_core raw-entry raw_value rayon rc realtimeapiset reason regex regex-syntax release_max_level_debug release_max_level_error release_max_level_info release_max_level_off release_max_level_trace release_max_level_warn require-cas restartmanager restrictederrorinfo result rmxfguid rng rng-getrandom rng-rand roapi robuffer roerrorapi rpc rpcdce rpcndr rs-log rt rt-multi-thread rtinfo runtime rustc-dep-of-std rustc-internal-api rustc-std-workspace-alloc rustc-std-workspace-core rustversion s-mode sapi sapi51 sapi53 sapiddk sapiddk51 schannel schedule-latency sddl securityappcontainer securitybaseapi serde serde-serialize serde_bytes serde_core serde_derive serde_json serde_spanned serde_support serialization-compat-6 servprov setupapi sha1 sha1_smol shellapi shellscalingapi shlobj shm shobjidl shobjidl_core shtypes signal signal-hook-registry simd sink slab slog socket2 softpub span-locations spans spapidef specialization spellcheck spin spin_no_std sporder sql sqlext sqltypes sqlucode sspi static static-tz std stdio stralign stream strict-macro stringapiset strmif subauth sval sval_ref sync synchapi syntax sys_rng sysinfoapi system system-deps-meta systemtopologyapi target-lexicon targets task-local taskdump taskschd tcpestats tcpmib terminal_size termios test test-util test_debug textstor thread thread-pool threadpoolapiset threadpoollegacyapiset time timeapi timezoneapi tlhelp32 tokio tokio-io tokio-macros tokio-vsock toml_parser toml_writer tracing tracing-attributes transportsettingcommon try_close tvout tz-fat tz-system tzdb tzdb-bundle-always tzdb-bundle-platform tzdb-concatenated tzdb-zoneinfo udpmib unbounded unbounded_depth unicode unicode-age unicode-bool unicode-case unicode-gencat unicode-perl unicode-script unicode-segment unicode-word-boundary union unknwnbase unsafe unsafe-assume-privileged unsafe-assume-single-core unsafe-eval unstable unstable-doc unstable-kv unstable-recover unstable-test unstable_const unstable_offset_of unty url urlhist urlmon usb usbioctl usbiodef usbscan usbspec use-explicitly-provided-auxv use-libc use-libc-auxv use_std userenv usp10 utf8 utf8parse utilapiset uuid uuid-rng-internal-lib uxtheme v1 v2_58 v2_60 v2_62 v2_64 v2_66 v2_68 v2_70 v2_72 v2_74 v2_76 v2_78 v2_80 v2_82 v2_84 v2_86 v2_88 v2_90 v3 v4 v5 v6 v7 v8 vadefs valuable value-bag vcruntime verify_message visit visit-mut vm_sockets vsbackup vsock vss vsserror vswriter wasm-bindgen wasm_js wbemads wbemcli wbemdisp wbemprov wbemtran wct web-time werapi which winbase wincodec wincodecsdk wincon wincontypes wincred wincrypt windef windot11 windows-link windows-sys windowsceip windowsx winefs winerror winevt wingdi winhttp wininet winineti winioctl winnetwk winnls winnow winnt winreg winsafer winscard winsmcrd winsock2 winspool winstring winsvc wintrust winusb winusbio winuser winver wlanapi wlanihv wlanihvtypes wlantypes wlclient wmistr wnnc wow64apiset wpdmtpextensions write write-all-vectored ws2bth ws2def ws2ipdef ws2spi ws2tcpip wtsapi32 wtypes wtypesbase xdp xinput xxx_debug_only_print_generated_code xz zerocopy zip'.split())
 RECIPE_FILES = frozenset({'cachy-update-e2b1b7144be71cf392809f48d1440f8da1d9c81a-sanitized.tar.gz', 'materializer-generation.json', 'runner-ready-pins.json', 'fixtures/native-arm-original.py'}) | frozenset('.SRCINFO ICON-LICENSE NOTICE PKGBUILD README.md additional-cargo-licenses.json apple-policy.patch asahi-policy.py audit-cargo.py audit-source.py behavior.patch build-gate.py build-policy.json build-script-review.json builder-extension-discovery.json builder-extension-proposal.json cachy-update-vendor.tar.gz cargo-audit.json historical-notice-followup.json initial-source-validation.json linux-closure-initial-proposal.json linux-closure-proposal.json linux-closure.py materialize-inputs.py native-entry.py patched-source-ledger.json public-evidence.py recipe-validation.json runner-inputs.lock.json source-audit.json test-asahi-policy.py test-audit-cargo.py test-gate.py test-linux-closure.py test-materialize-inputs.py test-native.py test-patches.py test-public-evidence.py test-recipe-gate.py test-source.py test-upstream.py test-verify-updater.py test-worker-build.py test-worker.py updater-native.py updater-sanitized.tar.gz updater-source.tar.gz validation.json verify-updater.py worker-build.py worker-metadata.py'.split())
-RECIPE_FILES |= PORTABLE_RECIPE_FILES
+RECIPE_FILES |= PORTABLE_RECIPE_FILES | {'worker-diagnostic.py'}
 ERROR_TYPES = frozenset('ValueError TypeError KeyError RuntimeError OSError FileNotFoundError PermissionError FileExistsError IsADirectoryError NotADirectoryError UnicodeError UnicodeDecodeError JSONDecodeError TimeoutExpired CalledProcessError KeyboardInterrupt BuildCancelled MaterializeError Cancelled SystemExit AcquisitionError AuditError'.split())
 STAGES = frozenset('input-validation native-probe input-authentication image-bootstrap worker-1 worker-2 pair-comparison finalized input-snapshot worker-launch worker-inspection package-inspection container-cleanup complete'.split())
 STATUSES = frozenset({'RUNNING', 'STARTING', 'PASS', 'FAIL', 'CANCELLED', 'NOT RUN', 'NOT ACCEPTED', 'FAIL-container-cleanup', 'PASS-private-native-package-static-checks'})
@@ -113,7 +113,7 @@ def error_count(value):
 
 
 WORKER_CHECKS=frozenset({'not-started','worker-run','container-inspection','worker-run-result',
-                        'worker-inventory','worker-artifact-shape','complete'})
+                        'worker-diagnostic','worker-inventory','worker-artifact-shape','complete'})
 WORKER_CAUSES={
     'not-started':frozenset(),
     'worker-run':frozenset({'worker-run-launch-failed','worker-run-timeout','worker-run-cancelled',
@@ -122,6 +122,7 @@ WORKER_CAUSES={
         'inspection-output-limit','inspection-json-invalid','inspection-schema-invalid','inspection-identity-mismatch',
         'inspection-id-drift','inspection-state-invalid','inspection-cancelled','inspection-io-failed','inspection-cleanup-failed'}),
     'worker-run-result':frozenset({'worker-nonzero-returncode','worker-container-state-unaccepted'}),
+    'worker-diagnostic':frozenset({'worker-diagnostic-incomplete'}),
     'worker-inventory':frozenset({'worker-inventory-unavailable','worker-inventory-mismatch','worker-observation-cancelled'}),
     'worker-artifact-shape':frozenset({'worker-output-symlink','worker-output-observation-failed','worker-observation-cancelled'}),
     'complete':frozenset(),
@@ -159,9 +160,9 @@ def worker_observation(value):
              code is not None and check not in ('not-started','worker-run'))
     if check=='not-started':need(code is None and cause is None and state is None)
     if check=='worker-run':need(state is None)
-    if check in ('worker-run-result','worker-inventory','worker-artifact-shape','complete'):
+    if check in ('worker-run-result','worker-diagnostic','worker-inventory','worker-artifact-shape','complete'):
         need(code is not None and state is not None)
-    if check in ('worker-inventory','worker-artifact-shape','complete'):
+    if check in ('worker-diagnostic','worker-inventory','worker-artifact-shape','complete'):
         need(code==0 and accepted_container_state(state))
     if cause=='worker-returncode-invalid':need(code is None)
     if cause=='worker-nonzero-returncode':need(code is not None and code!=0)
@@ -193,6 +194,7 @@ def receipt(value):
               'container_cleanup': enum('PASS', 'FAIL', 'NOT RUN')}
     result = pick(value, fields)
     result.update(worker_observation(value))
+    result.update(worker_diagnostic_observation(value))
     if 'worker_cleanup_errors' in value:
         result['worker_cleanup_errors'] = sequence(lambda row: pick(row, {
             'worker': integer(2, 1), 'error_type': enum(*ERROR_TYPES)}), 2)(value['worker_cleanup_errors'])
@@ -439,6 +441,134 @@ def read_selected(root, relative):
         os.close(fd)
 
 
+
+DIAGNOSTIC_OPERATIONS = frozenset(('startup', 'entry-worker-import', 'entry-observe', 'entry-guard', 'entry-controller', 'entry-recipe-copy', 'entry-home', 'entry-builder-lock', 'entry-inventory', 'entry-config-copy', 'entry-srcinfo', 'entry-verifysource', 'entry-makepkg', 'entry-package', 'entry-log-copy', 'entry-receipt', 'metadata-observe', 'metadata-guard', 'metadata-paths', 'metadata-ambient', 'metadata-output', 'metadata-controller', 'metadata-builder', 'metadata-source', 'metadata-home', 'metadata-inventory', 'metadata-rust-version', 'metadata-target-cfg', 'metadata-cargo', 'metadata-recheck', 'metadata-receipt', 'compile-worker-import', 'compile-controller', 'compile-metadata', 'compile-gate', 'compile-target', 'compile-cargo', 'compile-elf', 'compile-units', 'compile-readelf', 'compile-copy', 'compile-receipt', 'complete'))
+
+DIAGNOSTIC_PREDICATES = frozenset(('UNKNOWN', 'worker-boundary', 'worker-identity', 'root-readonly', 'mount-contract', 'mount-nesting', 'private-tmpfs', 'unexpected-mount', 'mask-readonly', 'system-readonly', 'entry-readonly', 'runtime-filesystem', 'worker-limits', 'controller-hash-format', 'controller-input-paths', 'controller-digest', 'controller-binding', 'controller-hash-field', 'tool-ledger', 'builder-lock', 'tool-pin-path', 'tool-resolution', 'entry-digest', 'recipe-ledger', 'recipe-input', 'scratch-paths', 'ambient-cargo-config', 'metadata-output', 'builder-pin', 'source-pins', 'audit-lock', 'builder-inventory', 'forbidden-tool', 'rust-version', 'source-drift', 'vendor-ledger', 'vendor-directories', 'vendor-directory', 'vendor-registry', 'vendor-file-ledger', 'vendor-path', 'vendor-traversal', 'vendor-link', 'vendor-expanded', 'vendor-file', 'command-spawn', 'command-timeout', 'command-output-limit', 'command-nonzero', 'command-wait-timeout', 'command-cleanup', 'entry-inventory', 'entry-srcinfo', 'entry-package-count', 'fresh-target', 'unit-source', 'unit-build-script', 'unit-feature', 'unit-gettext', 'unit-system-deps', 'unit-complete', 'unit-build-script-record', 'compile-destination', 'compile-binary-drift'))
+
+DIAGNOSTIC_COMMANDS = frozenset(('inventory-entry', 'srcinfo', 'source-verification', 'makepkg', 'inventory', 'rustc-version', 'target-cfg', 'cargo-metadata', 'compile-gate', 'cargo-build', 'elf-inspection'))
+
+DIAGNOSTIC_ERROR_KINDS = frozenset(('ValueError', 'TypeError', 'KeyError', 'RuntimeError', 'OSError', 'TimeoutExpired', 'Cancelled', 'UNKNOWN'))
+
+DIAGNOSTIC_LIMIT = 4096
+
+DIAGNOSTIC_LOG_LIMIT = 16 * 1024 ** 2
+
+DIAGNOSTIC_FIELDS = frozenset(('schema_version', 'controller_sha256', 'image_id', 'entry_script_sha256', 'controller_validated', 'status', 'operation', 'first_failure', 'command', 'compiler_launch_attempted', 'compiler_return_observed', 'compiler_returncode', 'compilation_accepted', 'cancelled', 'diagnostic_write_failed', 'publication', 'hardware'))
+
+def diagnostic_encoded(value):
+    return json.dumps(value, sort_keys=True, separators=(',', ':'), allow_nan=False).encode() + b'\n'
+
+def diagnostic_nullable_hash(value, image=False):
+    need(value is None or (type(value) is str and re.fullmatch(('sha256:' if image else '') + '[0-9a-f]{64}', value)))
+
+def diagnostic_command(value):
+    if value is None:
+        return
+    need(type(value) is dict and set(value) == {'kind', 'launch_attempted', 'return_observed', 'returncode', 'stdout', 'stderr'})
+    need(type(value['kind']) is str and value['kind'] in DIAGNOSTIC_COMMANDS)
+    need(type(value['launch_attempted']) is type(value['return_observed']) is bool)
+    code = value['returncode']
+    need(code is None or (type(code) is int and -64 <= code <= 255))
+    need(value['return_observed'] == (code is not None) and (not value['return_observed'] or value['launch_attempted']))
+    total = 0
+    for key in ('stdout', 'stderr'):
+        row = value[key]
+        if row is not None:
+            need(type(row) is dict and set(row) == {'bytes', 'sha256'})
+            need(type(row['bytes']) is int and 0 <= row['bytes'] <= DIAGNOSTIC_LOG_LIMIT)
+            diagnostic_nullable_hash(row['sha256'])
+            need(row['sha256'] is not None)
+            total += row['bytes']
+    need(total <= DIAGNOSTIC_LOG_LIMIT)
+
+def diagnostic(value):
+    need(type(value) is dict and set(value) == DIAGNOSTIC_FIELDS and (type(value['schema_version']) is int) and (value['schema_version'] == 1))
+    for key in ('controller_sha256', 'entry_script_sha256'):
+        diagnostic_nullable_hash(value[key])
+    diagnostic_nullable_hash(value['image_id'], True)
+    for key in ('controller_validated', 'compiler_launch_attempted', 'compiler_return_observed', 'compilation_accepted', 'cancelled', 'diagnostic_write_failed'):
+        need(type(value[key]) is bool)
+    need(type(value['operation']) is str and value['operation'] in DIAGNOSTIC_OPERATIONS)
+    need(type(value['status']) is str and value['status'] in {'RUNNING', 'PASS', 'FAIL', 'CANCELLED'})
+    need(value['status'] != 'CANCELLED' or value['cancelled'])
+    need(value['publication'] == 'NOT ACCEPTED' and value['hardware'] == 'NOT RUN')
+    diagnostic_command(value['command'])
+    first = value['first_failure']
+    if first is not None:
+        need(type(first) is dict and set(first) == {'operation', 'predicate', 'error_kind', 'command'})
+        need(type(first['operation']) is str and first['operation'] in DIAGNOSTIC_OPERATIONS)
+        need(type(first['predicate']) is str and first['predicate'] in DIAGNOSTIC_PREDICATES)
+        need(type(first['error_kind']) is str and first['error_kind'] in DIAGNOSTIC_ERROR_KINDS)
+        diagnostic_command(first['command'])
+        need(value['status'] in {'FAIL', 'CANCELLED'})
+        if first['error_kind'] == 'Cancelled':
+            need(value['cancelled'] and value['status'] == 'CANCELLED')
+    elif value['status'] == 'FAIL':
+        need(value['diagnostic_write_failed'])
+    if value['controller_validated']:
+        need(all((value[key] is not None for key in ('controller_sha256', 'image_id', 'entry_script_sha256'))))
+    if value['status'] == 'PASS':
+        need(first is None and value['controller_validated'] and (not value['cancelled']) and (not value['diagnostic_write_failed']))
+    code = value['compiler_returncode']
+    need(code is None or (type(code) is int and -64 <= code <= 255))
+    need(value['compiler_return_observed'] == (code is not None))
+    need(not value['compiler_return_observed'] or value['compiler_launch_attempted'])
+    if value['compilation_accepted']:
+        need(value['compiler_launch_attempted'] and value['compiler_return_observed'] and (code == 0))
+    need(len(diagnostic_encoded(value)) <= DIAGNOSTIC_LIMIT)
+    return value
+
+def bound_worker_diagnostic(value, *, controller_sha256, image_id, entry_script_sha256, observed_state):
+    """Root parent must call this with its actual launch and validated inspection."""
+    value = diagnostic(value)
+    state = container_state(observed_state)
+    HASH(controller_sha256); IMAGE(image_id); HASH(entry_script_sha256)
+    need(value['controller_sha256'] == controller_sha256 == state['controller_sha256'])
+    need(value['image_id'] == image_id == state['image_id'])
+    need(value['entry_script_sha256'] == entry_script_sha256)
+    return value
+
+
+WORKER_DIAGNOSTIC_FIELDS = frozenset(('worker_diagnostic_status', 'worker_diagnostic_reason',
+                                    'worker_diagnostic_sha256', 'worker_diagnostic'))
+
+
+def accepted_worker_diagnostic(value):
+    value = diagnostic(value)
+    return (value['controller_validated'] and value['status'] == 'PASS' and value['first_failure'] is None
+            and not value['cancelled'] and not value['diagnostic_write_failed']
+            and value['compiler_launch_attempted'] and value['compiler_return_observed']
+            and value['compiler_returncode'] == 0 and value['compilation_accepted'])
+
+
+def worker_diagnostic_observation(value):
+    fields = set(value) & WORKER_DIAGNOSTIC_FIELDS
+    if not fields:
+        return {}  # Historical provenance predates the parent diagnostic group.
+    need(fields == WORKER_DIAGNOSTIC_FIELDS)
+    status = enum('NOT OBSERVED', 'UNKNOWN', 'BOUND')(value['worker_diagnostic_status'])
+    reason = enum('not-started', 'state-unavailable', 'missing', 'unavailable',
+                  'source-invalid', 'invalid', 'unbound', 'bound')(value['worker_diagnostic_reason'])
+    checksum = nullable(HASH)(value['worker_diagnostic_sha256'])
+    record = value['worker_diagnostic']
+    if status == 'NOT OBSERVED':
+        need(reason == 'not-started' and checksum is None and record is None)
+        need(value.get('worker_launch_attempted') is False)
+    elif status == 'UNKNOWN':
+        need(reason not in ('not-started', 'bound') and record is None)
+    else:
+        need(reason == 'bound' and checksum is not None and value.get('worker_launch_attempted') is True)
+        need(set(value) >= WORKER_FIELDS and value['worker_container_state'] is not None)
+        worker_observation(value)
+        record = bound_worker_diagnostic(record, controller_sha256=value['controller_sha256'],
+            image_id=value['image_id'], entry_script_sha256=value['entry_script_sha256'],
+            observed_state=value['worker_container_state'])
+    if value.get('native_compilation') in ('PASS', 'PASS-private-native-package-static-checks'):
+        need(status == 'BOUND' and accepted_worker_diagnostic(record))
+    return {'worker_diagnostic_status': status, 'worker_diagnostic_reason': reason,
+            'worker_diagnostic_sha256': checksum, 'worker_diagnostic': record}
+
 def selectors():
     result = [('result.json', 'native-result.json', native_result), ('comparison.json', 'comparison.json', comparison),
               ('acquisition.json', 'acquisition.json', acquisition), ('bootstrap.json', 'bootstrap.json', bootstrap),
@@ -448,7 +578,8 @@ def selectors():
         result += [(f'{prefix}/provenance.json', f'{prefix}-status.json', provenance),
                    (f'{prefix}/inputs/controller-input.json', f'{prefix}-inputs.json', controller),
                    (f'{prefix}/package-validation.json', f'{prefix}-package.json', package_validation),
-                   (f'{prefix}/artifacts/entry-result.json', f'{prefix}-entry.json', receipt)]
+                   (f'{prefix}/artifacts/entry-result.json', f'{prefix}-entry.json', receipt),
+                   (f'{prefix}/artifacts/worker-diagnostic.json', f'{prefix}-diagnostic.json', diagnostic)]
         for filename, handler in [('compile-result.json', compile_receipt), ('compilation-units.json', units),
                                   ('worker.json', worker), ('selected-closure.json', closure)]:
             result.append((f'{prefix}/artifacts/target-metadata/{filename}', f'{prefix}-{filename}', handler))
@@ -470,6 +601,7 @@ def project_evidence(raw, output, materialized=None):
     for root, source, target, handler in selected:
         try:
             data = read_selected(root, source)
+            if handler is diagnostic: need(len(data) <= DIAGNOSTIC_LIMIT)
             input_total += len(data)
             need(input_total <= TOTAL_INPUT_LIMIT)
             result = handler(data if handler is inventory else load(data))

@@ -16,7 +16,18 @@ def module(name, path):
     return value
 
 
-def unit_evidence(metadata_data, compiler_data, binary):
+def require(value, message, predicate, diagnostic=None):
+    if not value:
+        error = ValueError(message)
+        if diagnostic is not None:
+            try:
+                diagnostic.fail(predicate, error)
+            except Exception:
+                pass  # Diagnostic failure cannot replace the original refusal.
+        raise error
+
+
+def unit_evidence(metadata_data, compiler_data, binary, diagnostic=None):
     """Retain actual emitted Cargo unit features separately from metadata unions."""
     metadata = json.loads(metadata_data)
     packages = {row['id']: row for row in metadata['packages']}
@@ -31,29 +42,29 @@ def unit_evidence(metadata_data, compiler_data, binary):
         if kind not in ('compiler-artifact', 'build-script-executed'):
             continue
         package_id = event['package_id']
-        if package_id not in nodes or package_id not in packages:
-            raise ValueError('actual compilation unit outside verified metadata source graph')
+        require(package_id in nodes and package_id in packages,
+                'actual compilation unit outside verified metadata source graph', 'unit-source', diagnostic)
         package = packages[package_id]
         if kind == 'build-script-executed':
-            if not any('custom-build' in target['kind'] for target in package['targets']):
-                raise ValueError('unreviewed actual build-script unit')
+            require(any('custom-build' in target['kind'] for target in package['targets']),
+                    'unreviewed actual build-script unit', 'unit-build-script', diagnostic)
             scripts.append(event)
             continue
         features = set(event['features'])
-        if not features <= set(nodes[package_id]['features']):
-            raise ValueError('actual unit feature outside verified metadata union')
-        if package['name'] == 'gettext-sys' and 'gettext-system' not in features:
-            raise ValueError('actual gettext unit lacks reviewed system branch')
-        if package['name'] == 'system-deps' and 'binary' in features:
-            raise ValueError('actual system-deps unit activates unreviewed binary branch')
+        require(features <= set(nodes[package_id]['features']),
+                'actual unit feature outside verified metadata union', 'unit-feature', diagnostic)
+        require(package['name'] != 'gettext-sys' or 'gettext-system' in features,
+                'actual gettext unit lacks reviewed system branch', 'unit-gettext', diagnostic)
+        require(package['name'] != 'system-deps' or 'binary' not in features,
+                'actual system-deps unit activates unreviewed binary branch', 'unit-system-deps', diagnostic)
         if event.get('executable') == str(binary):
             local_binary |= package['name'] == 'arch-update-tray' and event['target']['kind'] == ['bin']
         units.append(event)
-    if not completed or not local_binary or not units:
-        raise ValueError('complete successful actual tray unit evidence required')
+    require(completed and local_binary and units,
+            'complete successful actual tray unit evidence required', 'unit-complete', diagnostic)
     compiled_scripts = {unit['package_id'] for unit in units if 'custom-build' in unit['target']['kind']}
-    if not {script['package_id'] for script in scripts} <= compiled_scripts:
-        raise ValueError('build-script run has no retained compiled unit feature record')
+    require({script['package_id'] for script in scripts} <= compiled_scripts,
+            'build-script run has no retained compiled unit feature record', 'unit-build-script-record', diagnostic)
     return {'schema_version': 1, 'scope': 'actual emitted Cargo artifact/build-script records',
             'compiler_artifacts': units, 'build_script_runs': scripts,
             'metadata_union_limit': 'Metadata source candidates may include uncompiled packages or features.',
@@ -62,14 +73,21 @@ def unit_evidence(metadata_data, compiler_data, binary):
 
 def build(args):
     base = Path(__file__).resolve().parent
-    worker = module('updater_compile_worker', base / 'worker-metadata.py')
+    helper = module('updater_compile_diagnostic', base / 'worker-diagnostic.py')
+    diagnostic = helper.Recorder(output=Path('/out'), bindings=helper.binding_values())
+    with diagnostic.step('compile-worker-import'):
+        worker = module('updater_compile_worker', base / 'worker-metadata.py')
+        worker.set_diagnostic(diagnostic)
     output = Path('/out/target-metadata')
     controller_path = Path('/inputs/controller-input.json')
     controller_sha = os.environ.get('CACHY_ASAHI_CONTROLLER_SHA256')
-    controller = worker.verify_controller(controller_path, controller_sha, worker.observe())
-    metadata, record, cfg, env = worker.metadata(args.manifest.absolute(), args.vendor.absolute(),
-        args.cargo_audit.absolute(), controller['builder_inventory_sha256'], output,
-        controller_path, controller_sha)
+    with diagnostic.step('compile-controller'):
+        controller = worker.verify_controller(controller_path, controller_sha, worker.observe())
+        diagnostic.controller_validated()
+    with diagnostic.step('compile-metadata'):
+        metadata, record, cfg, env = worker.metadata(args.manifest.absolute(), args.vendor.absolute(),
+            args.cargo_audit.absolute(), controller['builder_inventory_sha256'], output,
+            controller_path, controller_sha)
     # The data-only gate independently reads fresh logs/source/script/helper evidence.
     argv = ['/usr/bin/python', str(base / 'build-gate.py'),
             '--metadata', str(output / 'cargo-metadata.stdout'), '--worker', str(output / 'worker.json'),
@@ -83,10 +101,11 @@ def build(args):
     gate_env = dict(env, CACHY_ASAHI_IMAGE_ID=record['image_id'],
                     CACHY_ASAHI_UPDATE_BUILD_NONCE=record['observed_worker']['nonce'],
                     CACHY_ASAHI_CONTROLLER_SHA256=controller_sha)
-    worker.run(argv, args.manifest.parent, gate_env, output, 'compile-gate', timeout=180)
+    with diagnostic.step('compile-gate'):
+        worker.run(argv, args.manifest.parent, gate_env, output, 'compile-gate', timeout=180)
     target_dir = args.manifest.parent / 'target'
-    if target_dir.exists():
-        raise ValueError('fresh empty Cargo target required')
+    with diagnostic.step('compile-target'):
+        require(not target_dir.exists(), 'fresh empty Cargo target required', 'fresh-target', diagnostic)
     env.update(CARGO_TARGET_DIR=str(target_dir), CARGO_INCREMENTAL='0',
                SOURCE_DATE_EPOCH='1789753605', TZ='UTC',
                RUSTFLAGS='-C linker=/usr/bin/cc -C link-arg=-Wl,-z,max-page-size=16384')
@@ -98,36 +117,43 @@ def build(args):
                'build_environment': env, 'native_compilation': 'STARTING',
                'publication': 'NOT ACCEPTED', 'M2': 'NOT RUN'}
     try:
-        worker.run(command, args.manifest.parent, env, output, 'cargo-build', timeout=1200)
+        with diagnostic.step('compile-cargo'):
+            worker.run(command, args.manifest.parent, env, output, 'cargo-build', timeout=1200)
         binary = target_dir / worker.TARGET / 'release/arch-update-tray'
-        gate = module('updater_compile_elf_gate', base / 'build-gate.py')
-        binary_data = worker.regular(binary, 64 * 1024 * 1024)
-        gate.elf(binary_data)
-        units = unit_evidence(metadata, (output / 'cargo-build.stdout').read_bytes(), binary)
-        (output / 'compilation-units.json').write_text(json.dumps(units, indent=2) + '\n')
-        worker.run(['/usr/bin/readelf', '-h', '-l', '-d', str(binary)],
-                   args.manifest.parent, env, output, 'elf-inspection')
+        with diagnostic.step('compile-elf'):
+            gate = module('updater_compile_elf_gate', base / 'build-gate.py')
+            binary_data = worker.regular(binary, 64 * 1024 * 1024)
+            gate.elf(binary_data)
+        with diagnostic.step('compile-units'):
+            units = unit_evidence(metadata, (output / 'cargo-build.stdout').read_bytes(), binary, diagnostic)
+            (output / 'compilation-units.json').write_text(json.dumps(units, indent=2) + '\n')
+        with diagnostic.step('compile-readelf'):
+            worker.run(['/usr/bin/readelf', '-h', '-l', '-d', str(binary)],
+                       args.manifest.parent, env, output, 'elf-inspection')
         # Preserve upstream Makefile's expected location without an implicit rebuild.
-        destination = target_dir / 'release/arch-update-tray'
-        destination.parent.mkdir(exist_ok=True)
-        if destination.parent.resolve(strict=True) != destination.parent or destination.exists() or destination.is_symlink():
-            raise ValueError('canonical fresh upstream binary destination required')
-        if worker.regular(binary, 64 * 1024 * 1024) != binary_data:
-            raise ValueError('compiled binary changed during inspection')
-        shutil.copyfile(binary, destination)
-        destination.chmod(0o755)
-        shutil.copyfile(binary, output / 'arch-update-tray')
-        receipt.update(native_compilation='PASS', binary_sha256=worker.digest(binary.read_bytes()),
-                       compiler_output_sha256=worker.digest((output / 'cargo-build.stdout').read_bytes()),
-                       compiler_diagnostic_sha256=worker.digest((output / 'cargo-build.stderr').read_bytes()),
-                       elf_inspection_sha256=worker.digest((output / 'elf-inspection.stdout').read_bytes()),
-                       compilation_units_sha256=worker.digest((output / 'compilation-units.json').read_bytes()),
-                       elf_16k_segments='PASS-static; loader NOT RUN')
+        with diagnostic.step('compile-copy'):
+            destination = target_dir / 'release/arch-update-tray'
+            destination.parent.mkdir(exist_ok=True)
+            require(destination.parent.resolve(strict=True) == destination.parent and not destination.exists() and not destination.is_symlink(),
+                    'canonical fresh upstream binary destination required', 'compile-destination', diagnostic)
+            require(worker.regular(binary, 64 * 1024 * 1024) == binary_data,
+                    'compiled binary changed during inspection', 'compile-binary-drift', diagnostic)
+            shutil.copyfile(binary, destination)
+            destination.chmod(0o755)
+            shutil.copyfile(binary, output / 'arch-update-tray')
+            receipt.update(native_compilation='PASS', binary_sha256=worker.digest(binary.read_bytes()),
+                           compiler_output_sha256=worker.digest((output / 'cargo-build.stdout').read_bytes()),
+                           compiler_diagnostic_sha256=worker.digest((output / 'cargo-build.stderr').read_bytes()),
+                           elf_inspection_sha256=worker.digest((output / 'elf-inspection.stdout').read_bytes()),
+                           compilation_units_sha256=worker.digest((output / 'compilation-units.json').read_bytes()),
+                           elf_16k_segments='PASS-static; loader NOT RUN')
     except BaseException as error:
         receipt.update(native_compilation='FAIL', error_type=type(error).__name__, error=str(error))
         raise
     finally:
-        (output / 'compile-result.json').write_text(json.dumps(receipt, indent=2) + '\n')
+        with diagnostic.step('compile-receipt'):
+            (output / 'compile-result.json').write_text(json.dumps(receipt, indent=2) + '\n')
+    diagnostic.compiler_accepted()
 
 
 if __name__ == '__main__':

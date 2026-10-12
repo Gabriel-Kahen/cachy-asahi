@@ -328,7 +328,7 @@ def closure(root, stage_files, ready_sha):
     need(type(ready) is dict and type(ready.get('schema_version')) is int and
          ready['schema_version'] == 1, 'source-ready-schema')
     package, roots = ready.get('files_sha256'), ready.get('root_files_sha256')
-    need(type(package) is dict and len(package) == 63 and type(roots) is dict and len(roots) == 8,
+    need(type(package) is dict and len(package) == 64 and type(roots) is dict and len(roots) == 8,
          'source-ready-file-count')
     expected = {READY: ready_sha}
     for name, value in package.items():

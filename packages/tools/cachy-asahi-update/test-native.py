@@ -37,6 +37,19 @@ def observed_state(name, image, nonce, controller_sha, raw_path=None):
             'dead': False, 'oom_killed': False, 'exit_code': 0, 'state_error_present': False}
 
 
+def synthetic_diagnostic_capture(artifacts, recipe, expected_recipe, provenance):
+    """Synthetic bound success isolates legacy parent/package/cleanup gates."""
+    value = dict(schema_version=1, controller_sha256=provenance['controller_sha256'],
+        image_id=provenance['image_id'], entry_script_sha256=provenance['entry_script_sha256'],
+        controller_validated=True, status='PASS', operation='complete', first_failure=None,
+        command=None, compiler_launch_attempted=True, compiler_return_observed=True,
+        compiler_returncode=0, compilation_accepted=True, cancelled=False,
+        diagnostic_write_failed=False, publication='NOT ACCEPTED', hardware='NOT RUN')
+    checksum = hashlib.sha256(json.dumps(value, sort_keys=True).encode()).hexdigest()
+    return dict(worker_diagnostic_status='BOUND', worker_diagnostic_reason='bound',
+                worker_diagnostic_sha256=checksum, worker_diagnostic=value), True
+
+
 def inspection_row():
     return {'Id': CONTAINER_ID, 'Image': IMAGE, 'Name': '/' + WORKER_NAME,
             'Config': {'Env': ['CACHY_ASAHI_CONTAINER=1', 'CACHY_ASAHI_IMAGE_ID=' + IMAGE,
@@ -55,6 +68,10 @@ class NativeTests(unittest.TestCase):
         inspection = mock.patch.object(native, 'inspect_worker', side_effect=observed_state, create=True)
         inspection.start()
         self.addCleanup(inspection.stop)
+        # Diagnostic capture is synthetic here; actual capture has its own lane.
+        capture = mock.patch.object(native, 'capture_worker_diagnostic',
+                                    side_effect=synthetic_diagnostic_capture, create=True)
+        capture.start(); self.addCleanup(capture.stop)
 
     def inputs(self):
         return (json.loads((native.ROOT / 'scripts/ci/inputs.lock.json').read_bytes()),
@@ -271,7 +288,11 @@ def output(command,**kw):return b'' if command[1]=='ps' else b'[]'
 def observed(name,image,nonce,controller_sha,raw_path):
  if phase in ('inspection','inspection-cleanup'):os.kill(os.getpid(),signal.SIGTERM)
  return {'schema_version':1,'container_id':'b'*64,'image_id':image,'controller_sha256':controller_sha,'name_sha256':n.hashlib.sha256(name.encode()).hexdigest(),'nonce_sha256':n.hashlib.sha256(nonce.encode()).hexdigest(),'status':'exited','running':False,'paused':False,'restarting':False,'dead':False,'oom_killed':False,'exit_code':0,'state_error_present':False}
-with mock.patch.object(n.subprocess,'run',side_effect=run),mock.patch.object(n.subprocess,'check_output',side_effect=output),mock.patch.object(n,'load_module',return_value=bind),mock.patch.object(n,'inspect_worker',side_effect=observed,create=True):
+def synthetic_capture(artifacts,recipe,expected,provenance):
+ # Synthetic bound success isolates the original real signal/cleanup branch.
+ value=dict(schema_version=1,controller_sha256=provenance['controller_sha256'],image_id=provenance['image_id'],entry_script_sha256=provenance['entry_script_sha256'],controller_validated=True,status='PASS',operation='complete',first_failure=None,command=None,compiler_launch_attempted=True,compiler_return_observed=True,compiler_returncode=0,compilation_accepted=True,cancelled=False,diagnostic_write_failed=False,publication='NOT ACCEPTED',hardware='NOT RUN')
+ return dict(worker_diagnostic_status='BOUND',worker_diagnostic_reason='bound',worker_diagnostic_sha256=n.hashlib.sha256(json.dumps(value).encode()).hexdigest(),worker_diagnostic=value),True
+with mock.patch.object(n.subprocess,'run',side_effect=run),mock.patch.object(n.subprocess,'check_output',side_effect=output),mock.patch.object(n,'load_module',return_value=bind),mock.patch.object(n,'inspect_worker',side_effect=observed,create=True),mock.patch.object(n,'capture_worker_diagnostic',side_effect=synthetic_capture,create=True):
  try:n.launch('sha256:'+'a'*64,recipe,lock,{},entry,out,checks,{},n.tree_hashes(recipe),n.sha(entry))
  except KeyboardInterrupt:pass
  else:raise AssertionError('cancellation did not propagate')
@@ -705,7 +726,8 @@ class ParentWorkerBranchTests(unittest.TestCase):
             with mock.patch.object(native.subprocess, 'run', side_effect=run), \
                     mock.patch.object(native.subprocess, 'check_output', return_value=b''), \
                     mock.patch.object(native, 'inspect_worker', side_effect=inspect), \
-                    mock.patch.object(native, 'load_module', return_value=binds):
+                    mock.patch.object(native, 'load_module', return_value=binds), \
+                    mock.patch.object(native, 'capture_worker_diagnostic', side_effect=synthetic_diagnostic_capture, create=True):
                 try:
                     native.launch(IMAGE, recipe, lock, {}, entry, output, checks, {}, native.tree_hashes(recipe), native.sha(entry))
                 except BaseException as caught: error = caught
@@ -853,6 +875,446 @@ class ParentWorkerBranchTests(unittest.TestCase):
             self.assertEqual(projected_worker['worker_run_returncode'], 125)
             self.assertEqual(projected_worker['worker_failure_code'], 'worker-nonzero-returncode')
             self.assertTrue(projected_worker['container_cleanup_complete'])
+
+
+class ParentDiagnosticCaptureTests(unittest.TestCase):
+    """Actual captured source/record gate with synthetic Docker and package actors."""
+    @classmethod
+    def setUpClass(cls):
+        spec = importlib.util.spec_from_file_location('parent_actual_diagnostic', BASE/'worker-diagnostic.py')
+        cls.diagnostic = importlib.util.module_from_spec(spec); spec.loader.exec_module(cls.diagnostic)
+
+    def launch(self, case='complete', code=0, cleanup=False, package=False, late=False, capture_cancel=False, state_change=None):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary); recipe = root/'recipe'; recipe.mkdir()
+            (recipe/'PKGBUILD').write_bytes(b'fixture recipe')
+            source = (BASE/'public-evidence.py').read_bytes()
+            if case == 'source-import': source += b'\nimport socket\n'
+            (recipe/'public-evidence.py').write_bytes(source)
+            entry = root/'entry'; entry.write_bytes(b'fixture entry; never executed')
+            lock = root/'lock'; lock.write_bytes(b'base 1\n')
+            output = root/'output'; calls, reads, captured, originals = [], [], [], []
+            expected = native.tree_hashes(recipe)
+            def run(argv, **kwargs):
+                calls.append(list(argv))
+                if argv[1] == 'run':
+                    artifacts = output/'artifacts'
+                    controller = json.loads((output/'inputs/controller-input.json').read_bytes())
+                    recorder = self.diagnostic.Recorder(artifacts, bindings={
+                        'controller_sha256':native.sha(output/'inputs/controller-input.json'),
+                        'image_id':controller['image_id'], 'entry_script_sha256':controller['entry_script_sha256']})
+                    recorder.controller_validated()
+                    if case == 'known':
+                        with recorder.step('metadata-source'):
+                            recorder.fail('source-pins', ValueError('PRIVATE_INNER_FAILURE'))
+                    else:
+                        recorder.command_start('cargo-build')
+                        recorder.command_result('cargo-build', True, True, 0)
+                        recorder.compiler_accepted(); recorder.finish(True)
+                    path = artifacts/'worker-diagnostic.json'
+                    original = path.read_bytes(); originals.append(original)
+                    row = self.diagnostic.loads(original)
+                    if case == 'missing': path.unlink()
+                    elif case == 'oversize': path.write_bytes(b'x'*4097)
+                    elif case == 'invalid': row['PRIVATE_SUBJECT']='secret'; path.write_text(json.dumps(row))
+                    elif case == 'unbound': row['controller_sha256']='f'*64; path.write_text(json.dumps(row))
+                    elif case == 'entry-unbound': row['entry_script_sha256']='f'*64; path.write_text(json.dumps(row))
+                    elif case == 'source-drift': (output/'inputs/recipe/public-evidence.py').write_bytes(source+b'\n# drift\n')
+                    elif case == 'source-link':
+                        target=output/'inputs/recipe/public-evidence.py';target.unlink();target.symlink_to(BASE/'public-evidence.py')
+                    elif case == 'record-link':
+                        saved=root/'external-record';saved.write_bytes(path.read_bytes());path.unlink();path.symlink_to(saved)
+                    elif case in ('not-accepted', 'no-launch', 'cancelled', 'write-failed', 'running'):
+                        if case == 'not-accepted': row['compilation_accepted']=False
+                        if case == 'no-launch':
+                            row.update(compiler_launch_attempted=False, compiler_return_observed=False,
+                                       compiler_returncode=None, compilation_accepted=False)
+                        if case == 'cancelled': row.update(status='CANCELLED', cancelled=True)
+                        if case == 'write-failed': row.update(status='FAIL', diagnostic_write_failed=True)
+                        if case == 'running': row['status']='RUNNING'
+                        path.write_bytes(self.diagnostic.encoded(row))
+                    (artifacts/'packages.lock').write_bytes(lock.read_bytes())
+                    (artifacts/'generated.SRCINFO').write_bytes(b'fixture SRCINFO')
+                    (artifacts/'fixture.pkg.tar.zst').write_bytes(b'fixture package')
+                    return SimpleNamespace(returncode=code)
+                if cleanup: raise OSError('synthetic cleanup failure')
+                return SimpleNamespace(returncode=0)
+            def inspect(name, image, nonce, controller_sha, raw_path):
+                reads.append('inspection')
+                state = observed_state(name, image, nonce, controller_sha, raw_path)
+                state['exit_code']=code if code >= 0 else 1
+                if state_change: state.update(state_change)
+                return state
+            actual_capture = native.capture_worker_diagnostic
+            def capture(artifacts, copied_recipe, approved, provenance):
+                reads.append('diagnostic')
+                if capture_cancel: raise native.BuildCancelled(signal.SIGTERM)
+                result = actual_capture(artifacts, copied_recipe, approved, provenance)
+                captured.append(copy.deepcopy(result))
+                if late:
+                    # A later complete file may never promote the captured UNKNOWN.
+                    (root/'late').mkdir(mode=0o700)
+                    recorder = self.diagnostic.Recorder(root/'late', bindings={
+                        'controller_sha256':provenance['controller_sha256'], 'image_id':provenance['image_id'],
+                        'entry_script_sha256':provenance['entry_script_sha256']})
+                    value = recorder.snapshot(); value.update(controller_validated=True, status='PASS',
+                        operation='complete', compiler_launch_attempted=True, compiler_return_observed=True,
+                        compiler_returncode=0, compilation_accepted=True)
+                    (artifacts/'worker-diagnostic.json').write_bytes(self.diagnostic.encoded(value))
+                return result
+            checks = SimpleNamespace(metadata=lambda _: {}, package=lambda _: {'errors':['package gate'] if package else []})
+            binds = SimpleNamespace(bind_generated=lambda *_:None, bind_artifact=lambda *_:[])
+            error = None
+            with mock.patch.object(native.subprocess,'run',side_effect=run), \
+                    mock.patch.object(native.subprocess,'check_output',return_value=b'') as queries, \
+                    mock.patch.object(native,'inspect_worker',side_effect=inspect), \
+                    mock.patch.object(native,'capture_worker_diagnostic',side_effect=capture) as capture_mock, \
+                    mock.patch.object(native,'diagnostic_bytes',wraps=native.diagnostic_bytes) as bytes_read, \
+                    mock.patch.object(native,'load_module',return_value=binds):
+                try:
+                    native.launch(IMAGE,recipe,lock,{},entry,output,checks,{},expected,native.sha(entry))
+                except BaseException as caught: error=caught
+            record = json.loads((output/'provenance.json').read_bytes())
+            # Capture adds no Docker commands; original inspection actor is stubbed.
+            self.assertEqual([argv[1] for argv in calls], ['run','rm'])
+            self.assertEqual(queries.call_count,1)
+            self.assertEqual(queries.call_args.args[0][:3], ['docker','ps','--all'])
+            self.assertEqual(reads, ['inspection','diagnostic'])
+            self.assertEqual(capture_mock.call_count,1)
+            names = [item.args[1] for item in bytes_read.call_args_list]
+            self.assertEqual(names.count('public-evidence.py'),0 if capture_cancel else 1)
+            self.assertEqual(names.count('worker-diagnostic.json'),
+                0 if capture_cancel or case in {'source-drift','source-link','source-import'} else 1)
+            if case == 'complete' and not capture_cancel:
+                self.assertEqual(record['worker_diagnostic_sha256'],hashlib.sha256(originals[0]).hexdigest())
+            return record, error, captured
+
+    def test_complete_bound_record_required_before_original_package_acceptance(self):
+        record,error,captured=self.launch()
+        self.assertIsNone(error)
+        self.assertEqual(record['worker_diagnostic_status'],'BOUND')
+        self.assertEqual(record['worker_diagnostic_reason'],'bound')
+        self.assertEqual(record['worker_check'],'complete')
+        self.assertTrue(captured[0][1])
+        self.assertTrue(record['container_cleanup_complete'])
+
+    def test_nonzero_keeps_bound_known_inner_cause_before_original_refusal(self):
+        record,error,captured=self.launch(case='known',code=1)
+        self.assertEqual(error.code,'worker-nonzero-returncode')
+        self.assertEqual(record['worker_diagnostic_status'],'BOUND')
+        self.assertEqual(record['worker_diagnostic']['first_failure']['predicate'],'source-pins')
+        self.assertFalse(captured[0][1])
+        self.assertEqual(record['worker_run_returncode'],1)
+        self.assertTrue(record['container_cleanup_complete'])
+
+    def test_unknown_diagnostics_never_promote_zero_return(self):
+        for case,reason in [('missing','missing'),('oversize','unavailable'),('invalid','invalid'),
+                            ('unbound','unbound'),('entry-unbound','unbound'),('source-drift','source-invalid'),
+                            ('source-link','source-invalid'),('source-import','source-invalid'),('record-link','unavailable')]:
+            with self.subTest(case=case):
+                record,error,captured=self.launch(case=case)
+                self.assertEqual(error.code,'worker-diagnostic-incomplete')
+                self.assertEqual(record['worker_diagnostic_status'],'UNKNOWN')
+                self.assertEqual(record['worker_diagnostic_reason'],reason)
+                self.assertIsNone(record['worker_diagnostic'])
+                self.assertFalse(captured[0][1])
+                self.assertTrue(record['container_cleanup_complete'])
+
+    def test_missing_nonzero_record_keeps_original_outer_failure(self):
+        record,error,captured=self.launch(case='missing',code=1)
+        self.assertEqual(error.code,'worker-nonzero-returncode')
+        self.assertEqual(record['worker_diagnostic_status'],'UNKNOWN')
+        self.assertEqual(record['worker_diagnostic_reason'],'missing')
+
+    def test_incomplete_cancelled_or_write_failed_bound_record_never_promotes(self):
+        for case in ('not-accepted','no-launch','cancelled','write-failed','running'):
+            with self.subTest(case=case):
+                record,error,captured=self.launch(case=case)
+                self.assertEqual(error.code,'worker-diagnostic-incomplete')
+                self.assertEqual(record['worker_diagnostic_status'],'BOUND')
+                self.assertFalse(captured[0][1])
+                self.assertEqual(record['native_compilation'],'FAIL')
+
+    def test_later_complete_bytes_cannot_replace_once_captured_missing(self):
+        record,error,captured=self.launch(case='missing',late=True)
+        self.assertEqual(error.code,'worker-diagnostic-incomplete')
+        self.assertEqual(record['worker_diagnostic_status'],'UNKNOWN')
+        self.assertEqual(record['worker_diagnostic_reason'],'missing')
+        self.assertIsNone(record['worker_diagnostic_sha256'])
+
+    def test_capture_control_cancellation_is_preserved_with_cleanup(self):
+        record,error,captured=self.launch(capture_cancel=True)
+        self.assertIsInstance(error,native.BuildCancelled)
+        self.assertTrue(record['cancelled'])
+        self.assertEqual(record['native_compilation'],'FAIL')
+        self.assertTrue(record['container_cleanup_complete'])
+        self.assertEqual(record['worker_diagnostic_status'],'UNKNOWN')
+
+    def test_bound_record_cannot_bypass_original_package_or_cleanup_failure(self):
+        for options in ({'package':True},{'cleanup':True}):
+            with self.subTest(options=options):
+                record,error,captured=self.launch(**options)
+                self.assertEqual(record['worker_diagnostic_status'],'BOUND')
+                self.assertTrue(captured[0][1])
+                self.assertIsInstance(error,ValueError)
+                self.assertTrue(record['native_compilation'].startswith('FAIL'))
+
+
+    def test_bound_complete_diagnostic_never_overrides_observed_state_flags(self):
+        for change in ({'oom_killed':True}, {'state_error_present':True}, {'dead':True}):
+            with self.subTest(change=change):
+                record,error,captured=self.launch(state_change=change)
+                self.assertTrue(captured[0][1])
+                self.assertEqual(record['worker_diagnostic_status'],'BOUND')
+                self.assertEqual(error.code,'worker-container-state-unaccepted')
+                self.assertTrue(record['container_cleanup_complete'])
+
+
+class EntryDiagnosticTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        for name, filename in [('entry', 'native-entry.py'), ('diagnostic', 'worker-diagnostic.py')]:
+            spec = importlib.util.spec_from_file_location('entry_test_' + name, BASE / filename)
+            value = importlib.util.module_from_spec(spec); spec.loader.exec_module(value)
+            setattr(cls, name, value)
+
+    def fixture(self, case):
+        temporary = tempfile.TemporaryDirectory(); self.addCleanup(temporary.cleanup)
+        root = Path(temporary.name); out = root / 'out'; out.mkdir(mode=0o700)
+        recipe = root / 'recipe'; recipe.mkdir(); (recipe / '.SRCINFO').write_bytes(b'pkgbase = fixture\n')
+        lock = root / 'expected'; lock.write_bytes(b'base 1\n')
+        for name in ('makepkg.conf', 'pacman.conf'):
+            (root / name).write_text('fixture')
+        mappings = {'/out': out, '/tmp/work': root / 'work', '/tmp/build-home': root / 'home',
+                    '/expected-packages.lock': lock, '/inputs/recipe': recipe,
+                    '/etc/makepkg.conf': root / 'makepkg.conf', '/etc/pacman.conf': root / 'pacman.conf'}
+        def path(value): return mappings.get(str(value), Path(value))
+        original_copytree, original_copyfile = self.entry.shutil.copytree, self.entry.shutil.copyfile
+        def copytree(src, dst): return original_copytree(path(src), path(dst))
+        def copyfile(src, dst, **options): return original_copyfile(path(src), path(dst), **options)
+        worker = SimpleNamespace()
+        worker.set_diagnostic = lambda value: setattr(worker, 'diagnostic', value)
+        def observe():
+            if case == 'observe': raise OSError('PRIVATE_SUBJECT_ERROR')
+            return {'image_id': IMAGE, 'nonce': NONCE}
+        worker.observe = observe
+        worker.guard = lambda facts: None
+        worker.verify_controller = lambda *args: {'image_id': IMAGE}
+        calls = []
+        def run(argv, cwd, env, output, stem, **options):
+            calls.append((list(argv), stem, options))
+            recorder = worker.diagnostic; recorder.command_start(stem)
+            data = b'base 1\n' if stem == 'inventory-entry' else b'pkgbase = fixture\n' if stem == 'srcinfo' else b''
+            if case == 'inventory' and stem == 'inventory-entry': data = b'different 2\n'
+            if case == 'srcinfo' and stem == 'srcinfo': data = b'pkgbase = changed\n'
+            if stem == 'makepkg' and case in {'nested', 'unknown', 'cancel'}:
+                if case == 'nested':
+                    child = self.diagnostic.Recorder(out, recorder.bindings)
+                    with child.step('metadata-source'):
+                        error = ValueError('PRIVATE_CHILD_SOURCE_ERROR')
+                        child.fail('source-pins', error)
+                error = KeyboardInterrupt() if case == 'cancel' else ValueError('PRIVATE_MAKEPKG_ERROR')
+                recorder.command_result(stem, True, case != 'cancel', None if case == 'cancel' else 1,
+                                        failure_code='UNKNOWN', error=error)
+                raise error
+            (output / (stem + '.stdout')).write_bytes(data)
+            (output / (stem + '.stderr')).write_bytes(b'PRIVATE_STDERR_PAYLOAD')
+            recorder.command_result(stem, True, True, 0)
+            if stem == 'makepkg' and case == 'success':
+                (cwd / 'fixture.pkg.tar.zst').write_bytes(b'fixture bytes, no real package')
+            return data
+        worker.run = run
+        helper = SimpleNamespace(Recorder=lambda **kw: self.diagnostic.Recorder(out, **kw),
+            binding_values=lambda entry_path: {'controller_sha256': CONTROLLER_SHA,
+                'image_id': IMAGE, 'entry_script_sha256': hashlib.sha256((BASE / 'native-entry.py').read_bytes()).hexdigest()})
+        def loaded(name, filename):
+            if 'diagnostic' in name: return helper
+            if case == 'import': raise ValueError('PRIVATE_IMPORT_ERROR')
+            return worker
+        patches = [mock.patch.object(self.entry, 'Path', side_effect=path),
+                   mock.patch.object(self.entry, 'module', side_effect=loaded),
+                   mock.patch.object(self.entry.shutil, 'copytree', side_effect=copytree),
+                   mock.patch.object(self.entry.shutil, 'copyfile', side_effect=copyfile),
+                   mock.patch.dict(os.environ, {'CACHY_ASAHI_CONTROLLER_SHA256': CONTROLLER_SHA})]
+        for item in patches: item.start(); self.addCleanup(item.stop)
+        return out, calls
+
+    def failed(self, case, exception=ValueError):
+        out, calls = self.fixture(case)
+        with self.assertRaises(exception): self.entry.main()
+        value = self.diagnostic.loads((out / 'worker-diagnostic.json').read_bytes())
+        self.assertNotIn('PRIVATE_', json.dumps(value))
+        self.assertFalse((out / 'entry-result.json').exists())
+        self.assertFalse(value['compilation_accepted'])
+        return value, calls
+
+    def test_failure_before_metadata_import_is_recorded(self):
+        value, calls = self.failed('import')
+        self.assertEqual(value['first_failure']['operation'], 'entry-worker-import')
+        self.assertEqual(value['first_failure']['predicate'], 'UNKNOWN')
+        self.assertFalse(value['controller_validated']); self.assertFalse(calls)
+
+    def test_observation_failure_preserves_error_kind_without_subject_text(self):
+        value, calls = self.failed('observe', OSError)
+        self.assertEqual(value['first_failure']['operation'], 'entry-observe')
+        self.assertEqual(value['first_failure']['error_kind'], 'OSError')
+        self.assertFalse(calls)
+
+    def test_original_inventory_and_srcinfo_predicates_remain_required(self):
+        # Each fixture is separate; no helper/worker/bootstrap actor is genuine.
+        value, calls = self.failed('inventory')
+        self.assertEqual(value['first_failure']['predicate'], 'entry-inventory')
+        self.assertEqual([item[1] for item in calls], ['inventory-entry'])
+
+    def test_original_srcinfo_predicate_is_not_promoted(self):
+        value, calls = self.failed('srcinfo')
+        self.assertEqual(value['first_failure']['predicate'], 'entry-srcinfo')
+        self.assertEqual([item[1] for item in calls], ['inventory-entry', 'srcinfo'])
+
+    def test_nested_first_failure_is_not_replaced_by_makepkg_or_finally(self):
+        value, calls = self.failed('nested')
+        self.assertEqual(value['first_failure']['predicate'], 'source-pins')
+        self.assertEqual(value['first_failure']['operation'], 'metadata-source')
+        self.assertFalse(value['compiler_launch_attempted'])
+
+    def test_uninstrumented_makepkg_failure_remains_unknown(self):
+        value, calls = self.failed('unknown')
+        self.assertEqual(value['first_failure']['predicate'], 'UNKNOWN')
+        self.assertEqual(value['first_failure']['command']['returncode'], 1)
+        self.assertFalse(value['compiler_launch_attempted'])
+
+    def test_cancelled_command_does_not_invent_return_or_compiler_attempt(self):
+        value, calls = self.failed('cancel', KeyboardInterrupt)
+        self.assertEqual(value['status'], 'CANCELLED'); self.assertTrue(value['cancelled'])
+        self.assertIsNone(value['first_failure']['command']['returncode'])
+        self.assertFalse(value['first_failure']['command']['return_observed'])
+        self.assertFalse(value['compiler_launch_attempted'])
+
+    def test_package_count_gate_is_still_required(self):
+        value, calls = self.failed('package')
+        self.assertEqual(value['first_failure']['predicate'], 'entry-package-count')
+
+    def test_entry_success_keeps_original_commands_and_is_not_compile_proof(self):
+        out, calls = self.fixture('success'); self.entry.main()
+        value = self.diagnostic.loads((out / 'worker-diagnostic.json').read_bytes())
+        self.assertEqual(value['status'], 'PASS'); self.assertIsNone(value['first_failure'])
+        self.assertTrue((out / 'entry-result.json').exists())
+        self.assertFalse(value['compiler_launch_attempted']); self.assertFalse(value['compilation_accepted'])
+        self.assertEqual([item[1] for item in calls], ['inventory-entry', 'srcinfo', 'source-verification', 'makepkg'])
+        self.assertEqual(calls[-2][0], ['/usr/bin/makepkg', '--verifysource', '--nodeps', '--noconfirm'])
+        self.assertEqual(calls[-1][0], ['/usr/bin/makepkg', '--cleanbuild', '--clean', '--force', '--log', '--nodeps', '--noconfirm'])
+        self.assertEqual(calls[-2][2], {'timeout': 120}); self.assertEqual(calls[-1][2], {'timeout': 1500})
+
+
+class DiagnosticCorrectionTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        spec = importlib.util.spec_from_file_location('corrected_diagnostic', BASE/'worker-diagnostic.py')
+        cls.helper = importlib.util.module_from_spec(spec); spec.loader.exec_module(cls.helper)
+
+    def fixture(self):
+        temporary = tempfile.TemporaryDirectory(); self.addCleanup(temporary.cleanup)
+        root = Path(temporary.name); out = root/'out'; out.mkdir(mode=0o700)
+        recorder = self.helper.Recorder(out, dict(controller_sha256=CONTROLLER_SHA,
+            image_id=IMAGE, entry_script_sha256='c'*64))
+        return root, out, recorder
+
+    def test_issued_return_and_first_cause_precede_log_interruption(self):
+        for control in (KeyboardInterrupt(), SystemExit(4)):
+            with self.subTest(control=type(control).__name__):
+                _, out, recorder = self.fixture(); recorder.operation='entry-makepkg'
+                with mock.patch.object(recorder, '_logs', side_effect=control):
+                    with self.assertRaises(type(control)) as caught:
+                        recorder.command_result('makepkg', True, True, 7,
+                            failure_code='UNKNOWN', error=ValueError('private cause'))
+                self.assertIs(caught.exception, control)
+                value=self.helper.loads((out/'worker-diagnostic.json').read_bytes())
+                self.assertEqual(value, recorder.snapshot())
+                self.assertTrue(value['cancelled']); self.assertEqual(value['status'],'CANCELLED')
+                self.assertEqual(value['first_failure']['error_kind'],'ValueError')
+                self.assertEqual(value['first_failure']['command']['returncode'],7)
+                self.assertTrue(value['first_failure']['command']['return_observed'])
+
+    def test_final_root_close_failure_revokes_durable_pass(self):
+        _, out, recorder=self.fixture(); recorder.controller_validated()
+        root_method=recorder._root; close=self.helper.os.close; roots=[]; fired=[]
+        def root():
+            result=root_method(); roots.append(result[0]); return result
+        def closing(fd):
+            close(fd)
+            if roots and fd==roots[0] and not fired:
+                fired.append(True); raise OSError('private final close')
+        with mock.patch.object(recorder,'_root',side_effect=root), \
+                mock.patch.object(self.helper.os,'close',side_effect=closing):
+            recorder.finish(True)
+        self.assertTrue(fired); self.assertFalse((out/'worker-diagnostic.json').exists())
+        self.assertEqual(recorder.snapshot()['status'],'FAIL')
+        self.assertTrue(recorder.snapshot()['diagnostic_write_failed'])
+        recorder.finish(False)
+        self.assertEqual(self.helper.loads((out/'worker-diagnostic.json').read_bytes())['status'],'FAIL')
+
+    def test_final_close_control_is_latched_and_propagated_without_replacing_business(self):
+        _, out, recorder=self.fixture(); recorder.fail('source-pins',ValueError('private source'))
+        first=recorder.snapshot()['first_failure']; root_method=recorder._root
+        close=self.helper.os.close; roots=[]; fired=[]; control=KeyboardInterrupt()
+        def root():
+            result=root_method(); roots.append(result[0]); return result
+        def closing(fd):
+            close(fd)
+            if roots and fd==roots[0] and not fired:
+                fired.append(True); raise control
+        with mock.patch.object(recorder,'_root',side_effect=root), \
+                mock.patch.object(self.helper.os,'close',side_effect=closing):
+            with self.assertRaises(KeyboardInterrupt) as caught: recorder.finish(False)
+        self.assertIs(caught.exception,control)
+        self.assertEqual(recorder.snapshot()['first_failure'],first)
+        self.assertTrue(recorder.snapshot()['cancelled'])
+        self.assertEqual(recorder.snapshot()['status'],'CANCELLED')
+        self.assertFalse((out/'worker-diagnostic.json').exists())
+
+    def test_replaced_temp_inode_is_detected_and_revoked(self):
+        _,out,recorder=self.fixture(); recorder.controller_validated()
+        forged=recorder.snapshot(); forged.update(status='PASS',operation='complete')
+        raw=self.helper.encoded(forged); replace=self.helper.os.replace; mutations=[]
+        def swapping(source,destination,**options):
+            directory=options['src_dir_fd']; self.helper.os.unlink(source,dir_fd=directory)
+            fd=self.helper.os.open(source,self.helper.os.O_WRONLY|self.helper.os.O_CREAT|self.helper.os.O_EXCL,0o600,dir_fd=directory)
+            try: self.helper.os.write(fd,raw)
+            finally: self.helper.os.close(fd)
+            mutations.append(True); return replace(source,destination,**options)
+        with mock.patch.object(self.helper.os,'replace',side_effect=swapping):
+            recorder.fail('source-pins',ValueError('private business'))
+        self.assertTrue(mutations); self.assertFalse((out/'worker-diagnostic.json').exists())
+        self.assertEqual(recorder.snapshot()['first_failure']['predicate'],'source-pins')
+        self.assertTrue(recorder.snapshot()['diagnostic_write_failed'])
+
+    def test_ancestor_alias_cannot_redirect_log_read(self):
+        root,_,_=self.fixture(); selected=root/'selected'; foreign=root/'foreign'
+        selected.mkdir(); foreign.mkdir(); target=selected/'makepkg.stdout'
+        target.write_bytes(b'original'); (foreign/target.name).write_bytes(b'foreign')
+        opening=self.helper.os.open; mutations=[]
+        def swapping(name,*args,**options):
+            if name=='selected' and 'dir_fd' in options and not mutations:
+                selected.rename(root/'original'); selected.symlink_to(foreign,target_is_directory=True); mutations.append(True)
+            return opening(name,*args,**options)
+        with mock.patch.object(self.helper.os,'open',side_effect=swapping):
+            with self.assertRaises(OSError): self.helper.regular(target,self.helper.LOG_LIMIT)
+        self.assertTrue(mutations)
+
+    def test_ancestor_alias_cannot_create_foreign_lock(self):
+        root,_,_=self.fixture(); selected=root/'selected'; foreign=root/'foreign'
+        output=selected/'output'; other=foreign/'output'
+        output.mkdir(parents=True,mode=0o700); other.mkdir(parents=True,mode=0o700)
+        opening=self.helper.os.open; mutations=[]
+        def swapping(name,*args,**options):
+            if name=='selected' and 'dir_fd' in options and not mutations:
+                selected.rename(root/'original'); selected.symlink_to(foreign,target_is_directory=True); mutations.append(True)
+            return opening(name,*args,**options)
+        with mock.patch.object(self.helper.os,'open',side_effect=swapping):
+            recorder=self.helper.Recorder(output,dict(controller_sha256=CONTROLLER_SHA,image_id=IMAGE,entry_script_sha256='c'*64))
+        self.assertTrue(mutations); self.assertTrue(recorder.snapshot()['diagnostic_write_failed'])
+        self.assertFalse((other/'.worker-diagnostic.lock').exists())
+        self.assertFalse((other/'worker-diagnostic.json').exists())
 
 
 if __name__ == '__main__':
