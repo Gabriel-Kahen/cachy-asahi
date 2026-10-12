@@ -28,12 +28,15 @@ COMMIT, PIN = 'a' * 40, 'b' * 64
 
 
 def receipt():
-    return {'schema_version': 1, 'stage': 'kernel-native-development-job', 'status': 'PASS',
+    return {'schema_version': 2, 'stage': 'kernel-native-development-job', 'status': 'PASS',
             'phase': 'complete', 'cancelled': False, 'source_commit': COMMIT, 'packet_sha256': PIN,
             'producer': 'PASS', 'kernel_probe': 'PASS', 'baseline': 'PASS', 'candidate': 'PASS',
             'cleanup': 'PASS', 'native_compilation': 'PASS', 'kernel_runtime': 'NOT RUN',
             'hardware': 'NOT RUN', 'installation': 'NOT RUN', 'performance': 'NOT MEASURED',
-            'binary_publication': 'NOT RUN', 'selected_for_release': False}
+            'binary_publication': 'NOT RUN', 'selected_for_release': False,
+            'first_failed_phase': 'NONE', 'failure_reason': 'NONE',
+            'producer_exit': public.exit_record(0), 'acquisition_exit': public.exit_record(0),
+            'resources': {name: None for name in public.RESOURCE_KEYS}}
 
 
 def encoded(value):
@@ -59,6 +62,11 @@ class ProjectionTests(unittest.TestCase):
                 self.assertEqual(value['status'], 'FAIL')
                 self.assertEqual(value['native_compilation'], 'NOT ACCEPTED')
                 self.assertEqual(value['cancelled'], outcome == 'cancelled')
+                self.assertEqual(value['first_failed_phase'], 'outcome')
+                self.assertEqual(value['failure_reason'], {'failure': 'NATIVE_FAILURE',
+                                 'cancelled': 'NATIVE_CANCELLED', 'skipped': 'NATIVE_SKIPPED',
+                                 '': 'NATIVE_UNAVAILABLE'}[outcome])
+                self.assertEqual(value['producer_exit'], public.exit_record(0))
 
     def test_each_acceptance_condition_is_required(self):
         changes = {'phase': 'kernel', 'cancelled': True, 'producer': 'FAIL', 'kernel_probe': 'NOT RUN',
@@ -71,7 +79,9 @@ class ProjectionTests(unittest.TestCase):
     def test_initial_fail_has_no_fabricated_execution(self):
         value = receipt(); value.update(status='FAIL', phase='preflight', cleanup='FAIL', native_compilation='NOT RUN')
         value.update({key: 'NOT RUN' for key in public.CHILDREN})
+        value.update({key: {'kind': 'NOT_RUN', 'code': None} for key in ('producer_exit', 'acquisition_exit')})
         result = public.project(encoded(value), COMMIT, PIN, 'failure')
+        public.record_failure(value, 'outcome', 'NATIVE_FAILURE')
         self.assertEqual(result, value)
 
     def test_failed_receipt_keeps_recorded_children_but_revokes_compilation(self):
@@ -106,6 +116,162 @@ class ProjectionTests(unittest.TestCase):
             self.assertEqual(public.project(data, COMMIT, PIN, 'success')['status'], 'PASS')
 
 
+class DiagnosticTests(unittest.TestCase):
+    def failed(self):
+        value = receipt()
+        public.record_failure(value, 'parallel', 'PRODUCER_EXIT')
+        value.update(phase='cleanup', producer='FAIL', cleanup='FAIL')
+        value['producer_exit'] = public.exit_record(1)
+        return value
+
+    def refuse(self, value):
+        with self.assertRaises(ValueError):
+            public.project(encoded(value), COMMIT, PIN, 'success')
+
+    def test_exact_schema_requires_every_diagnostic_field(self):
+        for key in ('first_failed_phase', 'failure_reason', 'producer_exit', 'acquisition_exit', 'resources'):
+            with self.subTest(key=key):
+                value = receipt(); del value[key]; self.refuse(value)
+        value = receipt(); value['schema_version'] = 1; self.refuse(value)
+
+    def test_failure_phase_and_reason_are_closed_related_enums(self):
+        for phase, reason in (('PRIVATE PATH', 'CANCELLED'), ('parallel', 'SECRET ERROR'),
+                              ('parallel', 'CLEANUP_FAILED'), ('NONE', 'CANCELLED'),
+                              ('cleanup', 'NONE'), ([], 'CANCELLED'), ('parallel', {})):
+            with self.subTest(phase=phase, reason=reason):
+                value = self.failed()
+                value.update(first_failed_phase=phase, failure_reason=reason)
+                self.refuse(value)
+
+    def test_all_declared_failure_pairs_are_valid(self):
+        for phase, reasons in public.REASONS.items():
+            for reason in reasons:
+                with self.subTest(phase=phase, reason=reason):
+                    value = receipt(); value.update(status='FAIL', first_failed_phase=phase, failure_reason=reason)
+                    if phase == 'parallel':
+                        if reason in {'PRODUCER_EXIT', 'BOTH_CHILDREN_EXIT'}:
+                            value['producer_exit'] = public.exit_record(1)
+                        if reason in {'ACQUISITION_EXIT', 'BOTH_CHILDREN_EXIT'}:
+                            value['acquisition_exit'] = public.exit_record(-15)
+                    projected = public.project(encoded(value), COMMIT, PIN, 'success')
+                    self.assertEqual((projected['first_failed_phase'], projected['failure_reason']), (phase, reason))
+
+    def test_record_failure_preserves_first_cause_across_cleanup_and_cancel(self):
+        value = self.failed()
+        public.record_failure(value, 'cleanup', 'CLEANUP_FAILED')
+        public.record_failure(value, 'finalization', 'CANCELLED')
+        self.assertEqual(value['status'], 'FAIL')
+        self.assertEqual((value['first_failed_phase'], value['failure_reason']), ('parallel', 'PRODUCER_EXIT'))
+        before = copy.deepcopy(value)
+        with self.assertRaises(ValueError): public.record_failure(value, 'cleanup', 'PRODUCER_EXIT')
+        self.assertEqual(value, before)
+
+    def test_outcome_keeps_first_cause_and_observed_children(self):
+        original = self.failed()
+        original['failure_reason'] = 'PARALLEL_RUN_FAILED'
+        original['acquisition_exit'] = {'kind': 'UNOBSERVED', 'code': None}
+        for outcome in ('success', 'failure', 'cancelled', 'skipped', ''):
+            with self.subTest(outcome=outcome):
+                value = public.project(encoded(original), COMMIT, PIN, outcome)
+                self.assertEqual((value['first_failed_phase'], value['failure_reason']), ('parallel', 'PARALLEL_RUN_FAILED'))
+                self.assertEqual(value['producer_exit'], original['producer_exit'])
+                self.assertEqual(value['acquisition_exit'], original['acquisition_exit'])
+                self.assertEqual(value['cancelled'], outcome == 'cancelled')
+
+    def test_pending_receipt_outcome_never_invents_child_codes(self):
+        value = receipt(); value.update(status='FAIL', phase='preflight', native_compilation='NOT RUN')
+        value.update({key: 'NOT RUN' for key in public.CHILDREN})
+        value.update({key: {'kind': 'NOT_RUN', 'code': None} for key in ('producer_exit', 'acquisition_exit')})
+        projected = public.project(encoded(value), COMMIT, PIN, 'cancelled')
+        self.assertTrue(projected['cancelled'])
+        self.assertEqual(projected['failure_reason'], 'NATIVE_CANCELLED')
+        self.assertEqual(projected['producer_exit'], value['producer_exit'])
+
+    def test_cancelled_receipt_requires_an_observed_primary_cause(self):
+        value = receipt(); value.update(status='FAIL', cancelled=True)
+        self.refuse(value)
+        public.record_failure(value, 'kernel', 'CANCELLED')
+        self.assertTrue(public.project(encoded(value), COMMIT, PIN, 'success')['cancelled'])
+
+    def test_stale_pass_with_diagnostic_failure_is_refused(self):
+        for field, replacement in (('first_failed_phase', 'parallel'), ('producer_exit', public.exit_record(1)),
+                                   ('acquisition_exit', {'kind': 'UNOBSERVED', 'code': None})):
+            with self.subTest(field=field):
+                value = receipt(); value[field] = replacement
+                if field == 'first_failed_phase': value['failure_reason'] = 'PRODUCER_EXIT'
+                self.refuse(value)
+
+    def test_exit_record_exact_numeric_boundaries_and_classification(self):
+        for code, kind in ((-64, 'EXIT_SIGNAL'), (-1, 'EXIT_SIGNAL'), (0, 'EXIT_ZERO'),
+                           (1, 'EXIT_NONZERO'), (255, 'EXIT_NONZERO')):
+            with self.subTest(code=code):
+                self.assertEqual(public.exit_record(code), {'kind': kind, 'code': code})
+        for code in (-65, 256, True, False, 1.0, '1', None, [], {}):
+            with self.subTest(code=code), self.assertRaises(ValueError): public.exit_record(code)
+
+    def test_exit_records_refuse_unknown_shape_and_kind_code_mismatch(self):
+        rows = [{'kind': 'NOT_RUN', 'code': 0}, {'kind': 'UNOBSERVED', 'code': 1},
+                {'kind': 'EXIT_ZERO', 'code': -1}, {'kind': 'EXIT_ZERO', 'code': False},
+                {'kind': 'EXIT_NONZERO', 'code': 0}, {'kind': 'EXIT_SIGNAL', 'code': 143},
+                {'kind': 'EXIT_SIGNAL', 'code': -65}, {'kind': 'EXIT_NONZERO', 'code': 256},
+                {'kind': 'EXIT_NONZERO', 'code': 1.0}, {'kind': 'EXIT_NONZERO', 'code': '1'},
+                {'kind': 'SECRET', 'code': 1}, {'kind': [], 'code': 1},
+                {'kind': 'EXIT_ZERO'}, {'kind': 'EXIT_ZERO', 'code': 0, 'stderr': 'SECRET'}, []]
+        for name in ('producer_exit', 'acquisition_exit'):
+            for row in rows:
+                with self.subTest(name=name, row=row):
+                    value = self.failed(); value[name] = row; self.refuse(value)
+
+    def test_parallel_exit_reasons_require_matching_observed_children(self):
+        choices = (public.exit_record(0), public.exit_record(1), public.exit_record(-15),
+                   {'kind': 'NOT_RUN', 'code': None}, {'kind': 'UNOBSERVED', 'code': None})
+        expected = {'PRODUCER_EXIT': (True, False), 'ACQUISITION_EXIT': (False, True),
+                    'BOTH_CHILDREN_EXIT': (True, True)}
+        for reason, pair in expected.items():
+            for producer in choices:
+                for acquisition in choices:
+                    with self.subTest(reason=reason, producer=producer, acquisition=acquisition):
+                        value = self.failed(); value['failure_reason'] = reason
+                        value['producer_exit'], value['acquisition_exit'] = producer, acquisition
+                        observed = (producer['code'], acquisition['code'])
+                        valid = all(type(code) is int and (code != 0) == failed
+                                    for code, failed in zip(observed, pair))
+                        if valid:
+                            self.assertEqual(public.project(encoded(value), COMMIT, PIN, 'success')['failure_reason'], reason)
+                        else:
+                            self.refuse(value)
+
+    def test_observed_failed_child_requires_first_cause(self):
+        for name in ('producer_exit', 'acquisition_exit'):
+            for code in (1, -15):
+                value = receipt(); value['status'] = 'FAIL'; value[name] = public.exit_record(code)
+                with self.subTest(name=name, code=code): self.refuse(value)
+
+    def test_cancelled_cause_allows_already_observed_child_results(self):
+        value = receipt(); public.record_failure(value, 'parallel', 'CANCELLED')
+        value['cancelled'] = True; value['producer_exit'] = public.exit_record(-15)
+        result = public.project(encoded(value), COMMIT, PIN, 'cancelled')
+        self.assertEqual(result['producer_exit'], public.exit_record(-15))
+        self.assertEqual(result['failure_reason'], 'CANCELLED')
+
+    def test_resources_require_exact_keys_and_bounded_integers(self):
+        for number in (None, 0, 2**60):
+            value = receipt(); value['resources'] = dict.fromkeys(public.RESOURCE_KEYS, number)
+            self.assertEqual(public.project(encoded(value), COMMIT, PIN, 'success')['resources'], value['resources'])
+        for number in (-1, 2**60 + 1, True, False, 0.0, '0', [], {}):
+            value = receipt(); value['resources']['mem_total_bytes'] = number
+            with self.subTest(number=number): self.refuse(value)
+        for resources in ({}, [], {**receipt()['resources'], 'path': 'SECRET'}):
+            value = receipt(); value['resources'] = resources; self.refuse(value)
+
+    def test_nested_duplicate_diagnostics_are_refused(self):
+        raw = encoded(receipt())
+        for needle, replacement in ((b'"kind": "EXIT_ZERO"', b'"kind": "EXIT_ZERO", "kind": "SECRET"'),
+                                    (b'"mem_total_bytes": null', b'"mem_total_bytes": null, "mem_total_bytes": 0')):
+            with self.subTest(needle=needle), self.assertRaises(ValueError):
+                public.project(raw.replace(needle, replacement, 1), COMMIT, PIN, 'success')
+
+
 class FileTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(); self.addCleanup(self.temp.cleanup)
@@ -136,6 +302,24 @@ class FileTests(unittest.TestCase):
     def test_unknown_data_never_reaches_output(self):
         self.path.write_text('{"secret":"PRIVATE TOKEN"}')
         self.assertEqual(self.call(), (1, 'KERNEL_PUBLIC_EVIDENCE_REFUSED\n'))
+
+    def test_diagnostic_poison_never_reaches_output(self):
+        value = receipt(); value['failure_reason'] = 'PRIVATE PATH TOKEN STDERR'
+        self.path.write_bytes(encoded(value))
+        self.assertEqual(self.call(), (1, 'KERNEL_PUBLIC_EVIDENCE_REFUSED\n'))
+
+    def test_failed_diagnostic_emits_one_bounded_record(self):
+        value = receipt(); public.record_failure(value, 'parallel', 'BOTH_CHILDREN_EXIT')
+        value.update(phase='cleanup', producer='FAIL', cleanup='FAIL')
+        value['producer_exit'], value['acquisition_exit'] = public.exit_record(255), public.exit_record(-64)
+        value['resources'] = dict.fromkeys(public.RESOURCE_KEYS, 2**60)
+        self.path.write_bytes(encoded(value))
+        code, data = self.call('failure')
+        self.assertEqual(code, 0); self.assertEqual(data.count('\n'), 1)
+        self.assertLess(len(data), public.MAX_BYTES)
+        projected = json.loads(data)
+        self.assertEqual(projected['failure_reason'], 'BOTH_CHILDREN_EXIT')
+        self.assertEqual(projected['producer_exit'], value['producer_exit'])
 
     def test_symlink_hardlink_fifo_and_directory_refused(self):
         target = self.base / 'target'; target.write_bytes(encoded(receipt()))

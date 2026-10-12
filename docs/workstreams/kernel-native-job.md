@@ -35,7 +35,7 @@ The immutable pins are:
 | Original signed inputs | `3c16c37d1b12cc84a88572e82ab8ad59e7f3b5ed0d08f09ddf72a69f4711d650` |
 | Original four recipes | `20d846cdf289bfc233b0051bf33b677fd6e94e9f05d91a33595a2829a196fa63` |
 | Accepted 341-package inventory | `89bdb06fea1862b5a6e02b77a4b98f6e04755b02327d875a716bd792929f3a4f` |
-| Kernel24 source lock before API/start correction; rebind pending | `53d5c0dba0102413256552da3534b553ce5591ceaa747980e579d4fa1359bc5d` |
+| Coordinator-held kernel24 source lock after API/start correction | `e47d873cd1f8ff542ec1ffd3a5de4b51db4d890f28bc6f1dddbc27d989db0d5a` |
 | Separate signed fifteen-package extension | `cf4d6eaa80ab15f1b1359d161b7b07e187f37df6071e5f628e235cb9689a93d6` |
 
 The coordinator must create and independently review
@@ -188,6 +188,60 @@ an overall FAIL for diagnosis, while aggregate native compilation becomes
 NOT ACCEPTED. Installation, kernel runtime and hardware stay NOT RUN;
 performance stays NOT MEASURED and release selection stays false.
 
+## Closed failure diagnostics
+
+Schema version 2 has exactly 24 top-level keys: the original 19 status fields plus
+`first_failed_phase`, `failure_reason`, `producer_exit`, `acquisition_exit` and
+`resources`. Version 1 or missing/extra diagnostic fields are refused. The
+16 KiB public-record bound, source/packet binding and actual native-step outcome
+gate are unchanged. Diagnostics grant no execution or hardware acceptance.
+
+`phase` remains the current lifecycle phase, including cleanup. The separate
+`first_failed_phase` and `failure_reason` describe the first failure observed by
+the controller. Cleanup, late cancellation and outcome projection cannot replace
+that pair. Private receipts mirror the same pair in their bound status and
+finite `failure_phase`/`failure_reason` fields. Unknown exception text is never
+copied; only exact known timeout/output/preflight errors select a fixed code,
+and other exceptions use the current operation's fixed fallback.
+
+| First failed phase | Exact allowed reason codes |
+| --- | --- |
+| `NONE` | `NONE` |
+| `preflight` | `PREFLIGHT_REJECTED`, `HOST_CAPABILITIES`, `HOST_MEMORY_RESERVE`, `HOST_DISK_RESERVE`, `HOST_TOOL_UNAVAILABLE`, `CANCELLED` |
+| `source` | `SOURCE_REJECTED`, `DOCKER_REJECTED`, `DAEMON_OCCUPIED`, `PRODUCER_TIME_RESERVE`, `CANCELLED` |
+| `parallel` | `PRODUCER_EXIT`, `ACQUISITION_EXIT`, `BOTH_CHILDREN_EXIT`, `PARALLEL_TIMEOUT`, `PARALLEL_OUTPUT_BOUND`, `PARALLEL_RUN_FAILED`, `CANCELLED` |
+| `producer` | `PRODUCER_RECEIPT_REJECTED`, `CANCELLED` |
+| `acquisition` | `ACQUISITION_RECEIPT_REJECTED`, `CANCELLED` |
+| `kernel` | `KERNEL_TIME_RESERVE`, `KERNEL_DISK_RESERVE`, `KERNEL_OUTPUT_REJECTED`, `KERNEL_EXIT`, `KERNEL_TIMEOUT`, `KERNEL_OUTPUT_BOUND`, `KERNEL_RUN_FAILED`, `KERNEL_RECEIPT_REJECTED`, `CANCELLED` |
+| `cleanup` | `CLEANUP_FAILED`, `CANCELLED` |
+| `finalization` | `CANCELLED`, `PUBLICATION_FAILED` |
+| `outcome` | `NATIVE_FAILURE`, `NATIVE_CANCELLED`, `NATIVE_SKIPPED`, `NATIVE_UNAVAILABLE` |
+
+Each parallel child has exactly `kind` and `code`. Observed return codes are
+classified as `EXIT_ZERO`/0, `EXIT_NONZERO`/1–255 or `EXIT_SIGNAL`/−64–−1.
+`NOT_RUN` and `UNOBSERVED` require null codes. The latter means launch was
+attempted but the supervisor did not return trustworthy child results, including
+timeout/cancellation; it does not assert which child started or exited. When
+results return, both classifications preserve their actual codes, including a
+peer terminated by supervisor cleanup. `BOTH_CHILDREN_EXIT` does not infer which
+parallel child failed earlier. A zero process exit alone is not producer or
+acquisition receipt acceptance. PASS additionally requires both observed zero
+exits and no first failure.
+
+For example, codes `[1,0]` record `parallel`/`PRODUCER_EXIT`, while codes `[0,1]`
+record `parallel`/`ACQUISITION_EXIT`. Both still retain cleanup FAIL when the
+producer's daemon mutation is uncertain. Resource diagnostics have exactly four
+keys: `mem_total_bytes`, `mem_available_bytes`, `initial_free_disk_bytes` and
+`pre_kernel_free_disk_bytes`. Values are actual bounded integer readings
+(0–2^60 bytes) or null when unobserved/unrepresentable. No threshold, estimate,
+arbitrary string, path or log fills a missing measurement. Boolean/float values,
+unknown keys, invalid reason pairs and malformed exit records are refused.
+
+Initial and completed pending FAIL receipts may retain `NONE`/`NONE`: no failure
+has been observed yet. If termination prevents the controller from recording a
+cause, the public helper records only the actual external step outcome. It
+preserves child observations and never guesses a cancellation exit code.
+
 ## Actual source checks
 
 Source fixtures cover packet snapshots/Git/mode and immutable-read boundaries,
@@ -202,8 +256,12 @@ The new job/workflow/doc remain pending the coordinator's committed source and
 external packet registration. Final test counts and exact source hashes are
 recorded in the handoff; source review does not replace the required hosted run.
 
-The API/start correction has not regenerated the 24-file kernel lock or job packet.
-Their previous pins remain held until the coordinator integrates the reviewed
-source changes, rebinds both closures and proves the committed Git bytes/modes.
+The coordinator's API/start rebind reviewed the unchanged 24-file kernel lock above
+and the prior 115-file packet hash
+`062e026abdc1ee4c5ee4460c8c9ab122f177e84c12debf03166f1ee70d7f5e9e`.
+This diagnostic correction changes only job/public code, their tests and this
+guide. The coordinator owns its subsequent job-packet rebind and committed
+Git proof. Kernel sources, packet.py, locks and workflow are untouched by this
+correction; the previous packet does not authenticate these changed bytes.
 The new Python helpers retain MIT attribution to the held runtime. Existing
 kernel/package source licenses and publication limits remain unchanged.

@@ -4,7 +4,7 @@ October 12, 2026. This record tracks the complete `outline.md` scope; an impleme
 
 The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with owned tasks and corrective next actions in `docs/backlog.md`. The destination now explicitly requires the maintained ARM package repository, native performance engineering, integrated Apple stack, broader Cachy system experience, and complete installation/release lifecycle. Both Air sizes, published final measurements, independent onboarding/contribution, subsequent full-port maintenance release, other-ARM reuse and actual upstream submissions remain required; an early overlay release or feasibility decision would not complete the goal. This scope update does not change any recorded execution result.
 
-Latest coordinator checkpoint, October 12 at 12:49 UTC: the records below retain earlier
+Latest coordinator checkpoint, October 12 after trial38251407975: the records below retain earlier
 attempts; the following supersedes their pending-work descriptions without
 changing those attempts' outcomes.
 
@@ -18,7 +18,10 @@ changing those attempts' outcomes.
   pass, and actual Git/source verification binds 85 files / 3,978,947 bytes.
   Package/root pins are unchanged. Its revised storage policy has no measured
   build-fit result. Workflow adoption passes381 consumer fixtures and syntax/
-  clock checks; corrected native trial38251407975 is running at90d8a242.
+  clock checks. Corrected trial38251407975 passes354-package bootstrap, then
+  fails at the first worker boundary. Scoped cleanup/private removal and
+  recovery pass;14 public files verify. Exact worker cause and native pair
+  acceptance remain open; see [the actual record](reviews/native-updater-execution-38251407975.md).
 - All six missing exact older versions now have authenticated archives and
   metadata; six additional independent root GPG checks pass. The new actual
   inert platform audit passes624/624 supplied archives with no missing archive,

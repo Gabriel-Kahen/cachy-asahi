@@ -212,9 +212,12 @@ class JobContracts(unittest.TestCase):
         row = {'Id': self.image, 'Architecture': 'arm64', 'Os': 'linux'}
         fake.call.side_effect = [SimpleNamespace(returncode=0, stdout=json.dumps([row]).encode()),
             SimpleNamespace(returncode=0, stdout=b''), SimpleNamespace(returncode=1, stdout=b'No such image')]
-        phases = []
+        phases = []; self.parallel_override = None
         def runner(seconds, env, logs):
             instance = Mock(); instance.run_many.return_value = [SimpleNamespace(returncode=0), SimpleNamespace(returncode=0)]
+            if seconds == job.PARALLEL and self.parallel_override is not None:
+                if isinstance(self.parallel_override, BaseException): instance.run_many.side_effect = self.parallel_override
+                else: instance.run_many.return_value = self.parallel_override
             instance.run.return_value = SimpleNamespace(returncode=0, stdout=b'')
             phases.append((seconds, instance)); return instance
         def source(*args, **kwargs): args[5].mkdir(parents=True); return {'status': 'PASS'}
@@ -229,6 +232,165 @@ class JobContracts(unittest.TestCase):
             patch.object(job.shutil, 'disk_usage', return_value=SimpleNamespace(free=30 * 1024**3))]
         for item in self.patches: item.start(); self.addCleanup(item.stop)
         return fake, phases
+
+    def failure_receipts(self, phase, reason, cancelled=False):
+        public_record = job.packet.load(self.args.output / 'public/status.json')
+        private_record = job.packet.load(self.args.output / 'private/result.json')
+        self.assertEqual(public_record, private_record['status'])
+        self.assertEqual((public_record['status'], public_record['first_failed_phase'], public_record['failure_reason'],
+            public_record['cancelled']), ('FAIL', phase, reason, cancelled))
+        self.assertEqual((private_record['failure_phase'], private_record['failure_reason']), (phase, reason))
+        self.assertEqual(job.public.project(json.dumps(public_record).encode(), self.args.source_commit,
+            self.args.packet_sha256, 'success'), public_record)
+        return public_record, private_record
+
+    def next_output(self, index):
+        self.args.output = self.args.output.with_name('job-case-' + str(index))
+
+    def test_initial_schema_has_no_invented_resource_or_exit_observations(self):
+        status = job.initial(self.args)
+        self.assertEqual(set(status), job.public.KEYS); self.assertEqual(len(status), 24)
+        self.assertEqual(status['schema_version'], 2)
+        self.assertEqual(status['resources'], {name: None for name in job.public.RESOURCE_KEYS})
+        for name in ('producer_exit', 'acquisition_exit'):
+            self.assertEqual(status[name], {'kind': 'NOT_RUN', 'code': None})
+
+    @contextmanager
+    def native_profile(self, memory, free):
+        original = Path.read_text
+        def read(path, *args, **kwargs):
+            if str(path) == '/proc/self/status': return 'CapEff:\t0000000000000000\nCapPrm:\t0000000000000000\n'
+            if str(path) == '/proc/meminfo': return memory
+            return original(path, *args, **kwargs)
+        with patch.object(job.platform, 'system', return_value='Linux'), patch.object(job.platform, 'machine', return_value='aarch64'), \
+             patch.object(job.os, 'getuid', return_value=1001), patch.object(job.os, 'geteuid', return_value=1001), \
+             patch.object(job.os, 'getgid', return_value=1001), patch.object(job.os, 'getegid', return_value=1001), \
+             patch.dict(job.os.environ, {'GITHUB_REPOSITORY': 'Gabriel-Kahen/cachy-asahi', 'RUNNER_ARCH': 'ARM64', 'RUNNER_OS': 'Linux'}), \
+             patch.object(Path, 'read_text', read), patch.object(Path, 'is_file', return_value=True), \
+             patch.object(job.os, 'access', return_value=True), patch.object(job.shutil, 'disk_usage', return_value=SimpleNamespace(free=free)):
+            yield
+
+    def test_ordinary_records_actual_resource_scalars_before_memory_or_disk_refusal(self):
+        gib = 1024**3
+        cases = ((15 * gib, 14 * gib, 30 * gib, None),
+                 (15 * gib - 1024, 14 * gib, 30 * gib, 'host-memory-reserve'),
+                 (15 * gib, 14 * gib - 1024, 30 * gib, 'host-memory-reserve'),
+                 (None, 14 * gib, 30 * gib, 'host-memory-reserve'),
+                 (15 * gib, None, 30 * gib, 'host-memory-reserve'),
+                 (15 * gib, 14 * gib, 30 * gib - 1, 'host-disk-reserve'))
+        for total, available, free, error in cases:
+            with self.subTest(total=total, available=available, free=free):
+                memory = ''.join(name + ': ' + str(value // 1024) + ' kB\n' for name, value in
+                    (('MemTotal', total), ('MemAvailable', available)) if value is not None)
+                resources = job.initial(self.args)['resources']
+                with self.native_profile(memory, free):
+                    if error:
+                        with self.assertRaisesRegex(ValueError, error): job.ordinary(self.args, resources)
+                    else: job.ordinary(self.args, resources)
+                self.assertEqual(resources, {'mem_total_bytes': total, 'mem_available_bytes': available,
+                    'initial_free_disk_bytes': free if error != 'host-memory-reserve' else None,
+                    'pre_kernel_free_disk_bytes': None})
+
+    def test_preflight_resource_refusal_has_bounded_public_and_private_cause(self):
+        actual_ordinary = job.ordinary; self.controller_fixture(); gib = 1024**3
+        for index, (memory, free, reason) in enumerate((('MemTotal: 1 kB\nMemAvailable: 2 kB\n', 30 * gib, 'HOST_MEMORY_RESERVE'),
+                ('MemTotal: 15728640 kB\nMemAvailable: 14680064 kB\n', 30 * gib - 1, 'HOST_DISK_RESERVE'))):
+            with self.subTest(reason=reason):
+                self.next_output(index)
+                with self.native_profile(memory, free), patch.object(job, 'ordinary', side_effect=actual_ordinary):
+                    self.assertEqual(job.execute(self.args), 1)
+                status, _ = self.failure_receipts('preflight', reason)
+                self.assertEqual(status['resources']['pre_kernel_free_disk_bytes'], None)
+                self.assertEqual(status['resources']['initial_free_disk_bytes'], free if index else None)
+                self.assertEqual(status['resources']['mem_total_bytes'], 15 * gib if index else 1024)
+                self.assertEqual(status['resources']['mem_available_bytes'], 14 * gib if index else 2048)
+
+    def test_parallel_observed_exits_distinguish_first_failure_and_survive_cleanup_failure(self):
+        _, phases = self.controller_fixture()
+        for index, (codes, reason) in enumerate((([1, 0], 'PRODUCER_EXIT'), ([0, 1], 'ACQUISITION_EXIT'),
+                                                ([1, -15], 'BOTH_CHILDREN_EXIT'))):
+            with self.subTest(codes=codes):
+                self.next_output(index)
+                self.parallel_override = [SimpleNamespace(returncode=code) for code in codes]
+                self.assertEqual(job.execute(self.args), 1)
+                status, _ = self.failure_receipts('parallel', reason)
+                self.assertEqual(status['producer_exit'], job.public.exit_record(codes[0]))
+                self.assertEqual(status['acquisition_exit'], job.public.exit_record(codes[1]))
+                self.assertEqual(status['cleanup'], 'FAIL')
+                self.assertEqual(status['producer'], 'FAIL' if codes[0] else 'NOT RUN')
+                self.assertEqual(status['baseline'], 'NOT RUN')
+        self.assertFalse(any(seconds == job.KERNEL_ENVELOPE for seconds, _ in phases))
+
+    def test_parallel_exceptions_are_finite_unobserved_and_do_not_export_secret_text(self):
+        self.controller_fixture()
+        secret = '/private/secret-token-12345'
+        cases = ((job.runtime.Cancelled(15), 'CANCELLED', True),
+            (ValueError('command-timeout'), 'PARALLEL_TIMEOUT', False),
+            (ValueError('deadline-exhausted'), 'PARALLEL_TIMEOUT', False),
+            (ValueError('output-bound'), 'PARALLEL_OUTPUT_BOUND', False),
+            (ValueError(secret), 'PARALLEL_RUN_FAILED', False),
+            (RuntimeError('command-timeout ' + secret), 'PARALLEL_RUN_FAILED', False))
+        for index, (error, reason, cancelled) in enumerate(cases):
+            with self.subTest(reason=reason, error=type(error).__name__):
+                self.next_output(index); self.parallel_override = error
+                self.assertEqual(job.execute(self.args), 1)
+                status, private = self.failure_receipts('parallel', reason, cancelled)
+                for name in ('producer_exit', 'acquisition_exit'):
+                    self.assertEqual(status[name], {'kind': 'UNOBSERVED', 'code': None})
+                self.assertEqual(status['cleanup'], 'FAIL')
+                self.assertNotIn(secret, json.dumps(status)); self.assertNotIn(secret, json.dumps(private))
+
+    def test_malformed_parallel_results_fail_closed_without_partial_exit_or_secret_leak(self):
+        self.controller_fixture(); secret = '/private/secret-malformed-result'
+        cases = ([], [SimpleNamespace(returncode=0)], [SimpleNamespace(returncode=0)] * 3,
+                 secret, [SimpleNamespace(returncode=0), SimpleNamespace(returncode=True)],
+                 [SimpleNamespace(returncode=False), SimpleNamespace(returncode=0)],
+                 [SimpleNamespace(returncode=secret), SimpleNamespace(returncode=0)],
+                 [SimpleNamespace(returncode=0), SimpleNamespace(returncode=2**100)],
+                 [SimpleNamespace(returncode=-65), SimpleNamespace(returncode=0)])
+        for index, result in enumerate(cases):
+            with self.subTest(index=index):
+                self.next_output(index); self.parallel_override = result
+                self.assertEqual(job.execute(self.args), 1)
+                status, private = self.failure_receipts('parallel', 'PARALLEL_RUN_FAILED')
+                for name in ('producer_exit', 'acquisition_exit'):
+                    self.assertEqual(status[name], {'kind': 'UNOBSERVED', 'code': None})
+                self.assertNotIn(secret, json.dumps(status)); self.assertNotIn(secret, json.dumps(private))
+
+    def test_zero_child_exits_do_not_accept_rejected_producer_or_acquisition_receipts(self):
+        self.controller_fixture()
+        for index, (target, phase, reason) in enumerate((('accepted_producer', 'producer', 'PRODUCER_RECEIPT_REJECTED'),
+                ('acquired_paths', 'acquisition', 'ACQUISITION_RECEIPT_REJECTED'))):
+            with self.subTest(target=target):
+                self.next_output(index)
+                with patch.object(job, target, side_effect=ValueError('/private/secret-receipt')):
+                    self.assertEqual(job.execute(self.args), 1)
+                status, private = self.failure_receipts(phase, reason)
+                self.assertEqual(status['producer_exit'], job.public.exit_record(0))
+                self.assertEqual(status['acquisition_exit'], job.public.exit_record(0))
+                self.assertEqual(status['baseline'], 'NOT RUN')
+                self.assertNotIn('secret-receipt', json.dumps(private))
+
+    def test_guard_causes_survive_cleanup_and_capture_measured_pre_kernel_disk(self):
+        self.controller_fixture()
+        cases = (([0, 301], 30 * 1024**3, 'source', 'PRODUCER_TIME_RESERVE'),
+                 ([0, 0, 2351], 30 * 1024**3, 'kernel', 'KERNEL_TIME_RESERVE'),
+                 ([0, 0, 0], 8 * 1024**3 - 1, 'kernel', 'KERNEL_DISK_RESERVE'))
+        for index, (clock, free, phase, reason) in enumerate(cases):
+            with self.subTest(reason=reason):
+                self.next_output(index)
+                with patch.object(job.time, 'monotonic', side_effect=clock), patch.object(job.shutil, 'disk_usage', return_value=SimpleNamespace(free=free)):
+                    self.assertEqual(job.execute(self.args), 1)
+                status, _ = self.failure_receipts(phase, reason)
+                expected = {name: None for name in job.public.RESOURCE_KEYS}
+                if reason == 'KERNEL_DISK_RESERVE': expected['pre_kernel_free_disk_bytes'] = free
+                self.assertEqual(status['resources'], expected)
+
+    def test_mocked_ordinary_does_not_invent_initial_resource_measures(self):
+        self.controller_fixture(); self.assertEqual(job.execute(self.args), 0)
+        status = job.packet.load(self.args.output / 'public/status.json')
+        self.assertEqual(status['resources'], {name: 30 * 1024**3 if name == 'pre_kernel_free_disk_bytes' else None
+            for name in job.public.RESOURCE_KEYS})
 
     def test_controller_only_accepts_complete_native_and_cleanup_receipts(self):
         fake, phases = self.controller_fixture()
@@ -268,6 +430,7 @@ class JobContracts(unittest.TestCase):
         status = job.packet.load(self.args.output / 'public/status.json')
         self.assertEqual((status['status'], status['baseline'], status['candidate'], status['native_compilation']),
             ('FAIL', 'PASS', 'PASS', 'NOT ACCEPTED'))
+        self.failure_receipts('cleanup', 'CLEANUP_FAILED')
 
     def main_argv(self):
         return ['--execute-native', '--source-root', str(self.args.source_root), '--source-commit', self.args.source_commit,
@@ -295,10 +458,36 @@ class JobContracts(unittest.TestCase):
                 self.assertEqual(job.main(self.main_argv()), 1)
             self.assertTrue(injected)
             public_record = job.packet.load(self.args.output / 'public/status.json')
-            private_record = job.packet.load(self.args.output / 'private/result.json')['status']
-            self.assertEqual(public_record, private_record)
+            self.failure_receipts('finalization', 'CANCELLED', cancelled=True)
             self.assertEqual((public_record['status'], public_record['cancelled'], public_record['native_compilation']),
                 ('FAIL', True, 'NOT ACCEPTED'))
+            self.assertEqual({number: signal.getsignal(number) for number in job.runtime.SIGNALS}, previous)
+        finally:
+            for number, handler in previous.items(): actual(number, handler)
+
+    def test_parallel_failure_survives_real_sigterm_during_final_guard_restoration(self):
+        self.controller_fixture()
+        self.parallel_override = [SimpleNamespace(returncode=1), SimpleNamespace(returncode=0)]
+        previous = {number: signal.getsignal(number) for number in job.runtime.SIGNALS}
+        actual = signal.signal; original_finish = job.finish; armed = False; injected = False
+        def finish(*args):
+            nonlocal armed
+            result = original_finish(*args)
+            if args[1]['phase'] == 'cleanup': armed = True
+            return result
+        def restore(number, handler):
+            nonlocal injected
+            result = actual(number, handler)
+            if armed and not injected and number == signal.SIGINT and handler == previous[number]:
+                injected = True; os.kill(os.getpid(), signal.SIGTERM)
+            return result
+        try:
+            with patch.object(job, 'finish', side_effect=finish), patch.object(signal, 'signal', side_effect=restore):
+                self.assertEqual(job.main(self.main_argv()), 1)
+            self.assertTrue(injected)
+            status, _ = self.failure_receipts('parallel', 'PRODUCER_EXIT', cancelled=True)
+            self.assertEqual(status['producer_exit'], job.public.exit_record(1))
+            self.assertEqual(status['acquisition_exit'], job.public.exit_record(0))
             self.assertEqual({number: signal.getsignal(number) for number in job.runtime.SIGNALS}, previous)
         finally:
             for number, handler in previous.items(): actual(number, handler)

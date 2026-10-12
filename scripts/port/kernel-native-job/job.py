@@ -43,17 +43,40 @@ def save(path, value):
 
 
 def initial(args):
-    return {'schema_version': 1, 'stage': 'kernel-native-development-job', 'status': 'FAIL',
+    return {'schema_version': 2, 'stage': 'kernel-native-development-job', 'status': 'FAIL',
         'phase': 'preflight', 'cancelled': False, 'source_commit': args.source_commit,
         'packet_sha256': args.packet_sha256, 'producer': 'NOT RUN', 'kernel_probe': 'NOT RUN',
         'baseline': 'NOT RUN', 'candidate': 'NOT RUN', 'cleanup': 'FAIL', 'native_compilation': 'NOT RUN',
         'kernel_runtime': 'NOT RUN', 'hardware': 'NOT RUN', 'installation': 'NOT RUN',
-        'performance': 'NOT MEASURED', 'binary_publication': 'NOT RUN', 'selected_for_release': False}
+        'performance': 'NOT MEASURED', 'binary_publication': 'NOT RUN', 'selected_for_release': False,
+        'first_failed_phase': 'NONE', 'failure_reason': 'NONE',
+        'producer_exit': {'kind': 'NOT_RUN', 'code': None},
+        'acquisition_exit': {'kind': 'NOT_RUN', 'code': None},
+        'resources': {key: None for key in ('mem_total_bytes', 'mem_available_bytes',
+            'initial_free_disk_bytes', 'pre_kernel_free_disk_bytes')}}
+
+
+def failure_reason(error, phase, fallback):
+    # Match only exact known errors; never publish arbitrary exception text.
+    message = error.args[0] if type(error) is ValueError and len(error.args) == 1 and type(error.args[0]) is str else None
+    known = {('preflight', 'host-capabilities'): 'HOST_CAPABILITIES',
+        ('preflight', 'host-memory-reserve'): 'HOST_MEMORY_RESERVE',
+        ('preflight', 'host-disk-reserve'): 'HOST_DISK_RESERVE',
+        ('preflight', 'host-tool-unavailable'): 'HOST_TOOL_UNAVAILABLE',
+        ('parallel', 'command-timeout'): 'PARALLEL_TIMEOUT',
+        ('parallel', 'deadline-exhausted'): 'PARALLEL_TIMEOUT',
+        ('parallel', 'output-bound'): 'PARALLEL_OUTPUT_BOUND',
+        ('kernel', 'command-timeout'): 'KERNEL_TIMEOUT',
+        ('kernel', 'deadline-exhausted'): 'KERNEL_TIMEOUT',
+        ('kernel', 'output-bound'): 'KERNEL_OUTPUT_BOUND'}
+    return known.get((phase, message), fallback)
 
 
 def publish(out, status, private):
     paths = (out / 'private/result.json', out / 'public/status.json')
     try:
+        private.update(status=dict(status), failure_phase=status['first_failed_phase'],
+            failure_reason=status['failure_reason'])
         save(paths[0], private)
         data = (json.dumps(status, sort_keys=True) + '\n').encode()
         public.project(data, status['source_commit'], status['packet_sha256'], 'success')
@@ -69,6 +92,7 @@ def finish(out, status, private):
         with runtime.defer_signals() as events: publish(out, status, private)
         if events:
             status.update(status='FAIL', cancelled=True)
+            public.record_failure(status, 'finalization', 'CANCELLED')
             if status['native_compilation'] == 'PASS': status['native_compilation'] = 'NOT ACCEPTED'
             private['status'] = dict(status)
             for path in paths: path.unlink(missing_ok=True)
@@ -90,12 +114,17 @@ def revoke_terminal(args, cancelled):
         return
     try:
         raw = public.read(paths[1]); previous = public.decode(raw)
-        status = public.project(raw, args.source_commit, args.packet_sha256, 'cancelled' if cancelled else 'failure')
+        status = public.project(raw, args.source_commit, args.packet_sha256, 'success')
+        public.record_failure(status, 'finalization', 'CANCELLED' if cancelled else 'PUBLICATION_FAILED')
+        status['cancelled'] = status['cancelled'] or cancelled
+        status = public.project(json.dumps(status).encode(), args.source_commit, args.packet_sha256,
+            'cancelled' if cancelled else 'failure')
         private = packet.load(paths[0])
         packet.need(private.get('status') == previous, 'terminal-revoke-binding')
         for _ in range(2):
             with runtime.defer_signals() as events:
-                private['status'] = dict(status)
+                private.update(status=dict(status), failure_phase=status['first_failed_phase'],
+                    failure_reason=status['failure_reason'])
                 save(paths[0], private); save(paths[1], status)
             if not events: break
             status['cancelled'] = True
@@ -104,7 +133,7 @@ def revoke_terminal(args, cancelled):
         raise
 
 
-def ordinary(args):
+def ordinary(args, resources=None):
     packet.need(args.execute_native and args.deadline == DEADLINE and platform.system() == 'Linux' and
         platform.machine() in ('aarch64', 'arm64') and os.getuid() == os.geteuid() != 0 and
         os.getgid() == os.getegid() != 0, 'ordinary-native-host')
@@ -114,9 +143,17 @@ def ordinary(args):
     caps = re.findall(r'^Cap(?:Eff|Prm):\s+([0-9a-f]+)$', fields, re.M)
     packet.need(len(caps) == 2 and all(int(value, 16) == 0 for value in caps), 'host-capabilities')
     memory = dict(re.findall(r'^(MemTotal|MemAvailable):\s+(\d+) kB$', Path('/proc/meminfo').read_text(), re.M))
+    if resources is not None:
+        for source, target in (('MemTotal', 'mem_total_bytes'), ('MemAvailable', 'mem_available_bytes')):
+            if source in memory:
+                value = int(memory[source]) * 1024
+                if 0 <= value <= 2**60: resources[target] = value
     packet.need(int(memory.get('MemTotal', 0)) * 1024 >= 15 * 1024**3 and
         int(memory.get('MemAvailable', 0)) * 1024 >= 14 * 1024**3, 'host-memory-reserve')
-    packet.need(shutil.disk_usage(args.source_root).free >= 30 * 1024**3, 'host-disk-reserve')
+    free = shutil.disk_usage(args.source_root).free
+    if resources is not None and type(free) is int and 0 <= free <= 2**60:
+        resources['initial_free_disk_bytes'] = free
+    packet.need(free >= 30 * 1024**3, 'host-disk-reserve')
     for name in ('git', 'gpg', 'lscpu', 'zstd', 'docker', 'python3'):
         path = Path('/usr/bin') / name
         packet.need(path.is_file() and os.access(path, os.X_OK), 'host-tool-unavailable')
@@ -332,16 +369,22 @@ def work(args, terminal, start):
     env = {'PATH': '/usr/bin:/bin', 'HOME': str(private / 'home'), 'DOCKER_CONFIG': str(private / 'docker-config'),
         'DOCKER_HOST': args.docker_endpoint, 'DOCKER_BUILDKIT': '0', 'LC_ALL': 'C', 'LANG': 'C.UTF-8', 'PYTHONDONTWRITEBYTECODE': '1',
         **{key: os.environ[key] for key in HOST_ENV if key in os.environ}}
+    context = ('preflight', 'PREFLIGHT_REJECTED')
     try:
-        ordinary(args)
+        ordinary(args, status['resources'])
         setup = runtime.Runner(SETUP, env, private / 'setup-logs')
         status['phase'] = 'source'
+        context = ('source', 'SOURCE_REJECTED')
         snapshot = private / 'source'
         evidence['source'] = packet.verify(root, args.packet, args.packet_sha256, args.source_commit, setup, snapshot)
+        context = ('source', 'DOCKER_REJECTED')
         docker = Docker(args); evidence['daemon'] = docker.info(setup)
+        context = ('source', 'DAEMON_OCCUPIED')
         packet.need(not docker.inventory(setup, 'container') and not docker.inventory(setup, 'image'), 'fresh-disposable-Docker-required')
+        context = ('source', 'PRODUCER_TIME_RESERVE')
         packet.need(DEADLINE - (time.monotonic() - start) >= PARALLEL + KERNEL_ENVELOPE + CLEANUP + GUARD, 'producer-time-reserve')
         status['phase'] = 'producer'
+        context = ('parallel', 'PARALLEL_RUN_FAILED')
         commands = [producer_command(snapshot, private), ['/usr/bin/python3', '-I', '-B',
             str(snapshot / (packet.KERNEL + 'acquisition.py')), '--root', str(snapshot), '--output', str(private / 'kernel-inputs')]]
         # Acquisition requires owned artifact placement relative to its snapshot.
@@ -349,31 +392,54 @@ def work(args, terminal, start):
         phase = runtime.Runner(PARALLEL, env, private / 'phase-logs')
         evidence['commands'] = commands
         save(private / 'producer-started.json', {'commands': commands, 'daemon': docker.daemon, 'producer_finished': False})
+        status.update(producer_exit={'kind': 'UNOBSERVED', 'code': None},
+            acquisition_exit={'kind': 'UNOBSERVED', 'code': None})
         results = phase.run_many(commands, timeout=PARALLEL, lognames=('original-producer.log', 'kernel-acquisition.log'))
-        packet.need(all(result.returncode == 0 for result in results), 'producer-or-acquisition-failed')
+        packet.need(type(results) in (list, tuple) and len(results) == 2, 'parallel-results')
+        exits = [public.exit_record(result.returncode) for result in results]
+        status.update(producer_exit=exits[0], acquisition_exit=exits[1])
+        failed = [result['code'] != 0 for result in exits]
+        if any(failed):
+            if failed[0]: status['producer'] = 'FAIL'
+            reason = 'BOTH_CHILDREN_EXIT' if all(failed) else 'PRODUCER_EXIT' if failed[0] else 'ACQUISITION_EXIT'
+            public.record_failure(status, 'parallel', reason)
+        packet.need(not any(failed), 'producer-or-acquisition-failed')
+        context = ('producer', 'PRODUCER_RECEIPT_REJECTED')
         image, accepted = accepted_producer(private, args.source_commit); producer_finished = True
         save(private / 'base-ownership.json', {'image_id': image, 'daemon': docker.daemon, 'producer_finished': True,
             'source_commit': args.source_commit, 'producer_sha256': packet.HELPERS['scripts/ci/native_arm.py'][0]})
         status['producer'] = 'PASS'
+        context = ('kernel', 'KERNEL_TIME_RESERVE')
         packet.need(DEADLINE - (time.monotonic() - start) >= KERNEL_ENVELOPE + CLEANUP + GUARD, 'kernel-time-reserve')
-        packet.need(shutil.disk_usage(root).free >= 8 * 1024**3, 'kernel-disk-reserve')
+        context = ('kernel', 'KERNEL_DISK_RESERVE')
+        free = shutil.disk_usage(root).free
+        if type(free) is int and 0 <= free <= 2**60:
+            status['resources']['pre_kernel_free_disk_bytes'] = free
+        packet.need(free >= 8 * 1024**3, 'kernel-disk-reserve')
+        context = ('acquisition', 'ACQUISITION_RECEIPT_REJECTED')
         acquisition = snapshot / 'artifacts/kernel-native-stage/acquisition'
         paths = acquired_paths(acquisition)
+        context = ('kernel', 'KERNEL_OUTPUT_REJECTED')
         kernel_parent = root / 'artifacts/kernel-native-stage'; kernel_parent.mkdir(mode=0o700, exist_ok=True)
         packet.need(not kernel_parent.is_symlink() and kernel_parent == kernel_parent.resolve(), 'kernel-output-parent')
         kernel_output = kernel_parent / ('hosted-job-' + secrets.token_hex(16))
         command = kernel_command(args, private, image, accepted, paths, kernel_output)
         evidence['commands'].append(command); evidence['kernel_output'] = str(kernel_output)
         status['phase'] = 'kernel'
+        context = ('kernel', 'KERNEL_RUN_FAILED')
         phase = runtime.Runner(KERNEL_ENVELOPE, env, private / 'kernel-logs')
         result = phase.run(command, timeout=KERNEL_ENVELOPE, log='kernel-controller.log')
+        context = ('kernel', 'KERNEL_EXIT')
         packet.need(result.returncode == 0, 'kernel-controller-failed')
+        context = ('kernel', 'KERNEL_RECEIPT_REJECTED')
         evidence['kernel'] = kernel_status(kernel_output, args.source_commit)
         status.update(kernel_probe='PASS', baseline='PASS', candidate='PASS', native_compilation='PASS', status='PASS')
     except (runtime.Cancelled, KeyboardInterrupt):
         status.update(status='FAIL', cancelled=True)
+        public.record_failure(status, context[0], 'CANCELLED')
     except Exception as error:
         status['status'] = 'FAIL'; evidence['error_type'] = type(error).__name__
+        public.record_failure(status, context[0], failure_reason(error, *context))
     finally:
         with runtime.defer_signals() as events:
             if kernel_output is not None:
@@ -390,10 +456,15 @@ def work(args, terminal, start):
                 cleanup = runtime.Runner(CLEANUP, env, private / 'cleanup-logs')
                 evidence['cleanup'] = cleanup_base(docker, cleanup, private, image, producer_finished)
                 status['cleanup'] = evidence['cleanup']['status']
-            except BaseException:
+            except BaseException as error:
                 status['cleanup'] = 'FAIL'; evidence['cleanup'] = {'status': 'FAIL', 'absence_verified': False}
-            if events: status.update(status='FAIL', cancelled=True)
-            if status['cleanup'] != 'PASS': status['status'] = 'FAIL'
+                if isinstance(error, (runtime.Cancelled, KeyboardInterrupt)):
+                    status['cancelled'] = True
+                    public.record_failure(status, 'cleanup', 'CANCELLED')
+            if status['cleanup'] != 'PASS': public.record_failure(status, 'cleanup', 'CLEANUP_FAILED')
+            if events:
+                status.update(status='FAIL', cancelled=True)
+                public.record_failure(status, 'cleanup', 'CANCELLED')
             if status['status'] == 'PASS': status['phase'] = 'complete'
             elif status['native_compilation'] == 'PASS': status['native_compilation'] = 'NOT ACCEPTED'
             evidence['status'] = dict(status)
@@ -406,6 +477,7 @@ def work(args, terminal, start):
         if events:
             terminal.clear()
             status.update(status='FAIL', cancelled=True)
+            public.record_failure(status, 'cleanup', 'CANCELLED')
             if status['native_compilation'] == 'PASS': status['native_compilation'] = 'NOT ACCEPTED'
             evidence['status'] = dict(status); finish(args.output, status, evidence)
     return int(status['status'] != 'PASS')
