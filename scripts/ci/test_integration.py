@@ -463,6 +463,216 @@ class Boundaries(unittest.TestCase):
                 'nonce':'c'*32,'image_id':'sha256:'+'b'*64,'daemon_arch':'aarch64',
                 'script_sha256':'d'*64,'upgrade_kind':'synthetic-changed-package-fixtures'}
 
+    def operation_evidence(self):
+        from test_repository_projection import operation_fixture
+        raw, work = self.root / 'raw', self.root / 'work'
+        work.mkdir()
+        result, contract = operation_fixture(raw)
+        return raw, work, result, contract
+
+    def legacy_log_evidence(self, case, *, with_operations):
+        from test_repository_projection import operation_fixture
+        raw, work, public = case / 'raw', case / 'work', case / 'public'
+        raw.mkdir(); work.mkdir()
+        if with_operations:
+            result, contract = operation_fixture(raw)
+            labels = {row['label'] for row in result['commands']}
+            for label in i.REPOSITORY_PUBLIC_LOGS:
+                if label in labels:
+                    continue
+                name = f'{len(result["commands"]):03d}-{label}.txt'
+                data = b'[GNUPG:] BADSIG 0123456789ABCDEF TEST ONLY\n'
+                (raw / name).write_bytes(data)
+                result['commands'].append({'label': label, 'log': name, 'sha256': hashlib.sha256(data).hexdigest(),
+                                           'exit_code': 1, 'expected': 1})
+                result['evidence_sha256'][name] = hashlib.sha256(data).hexdigest()
+            i.native.save(raw / 'result.json', result)
+            authority = (result['base_versions'], contract)
+        else:
+            self.repository_status(raw)
+            authority = None
+        captures = {}
+        i.repository_public_logs(raw, captured=captures)
+        self.assertEqual(len(captures), 6)
+        return raw, work, public, authority, captures
+
+    def test_all_six_legacy_aliases_survive_capture_deletion_with_and_without_operations(self):
+        logs, operations = i.repository_public_logs, i.repository_projection.operation_files
+        for with_operations in (False, True):
+            for number in range(7):
+                case = self.root / f'{with_operations}-{number}'; case.mkdir()
+                raw, work, public, authority, captures = self.legacy_log_evidence(case, with_operations=with_operations)
+                names = list(captures)
+                removed = names if number == 6 else [names[number]]
+                def capture_then_delete(*args, **kwargs):
+                    value = (operations if with_operations else logs)(*args, **kwargs)
+                    for name in removed:
+                        (raw / name).unlink()
+                    return value
+                target, attribute = (i.repository_projection, 'operation_files') if with_operations else (i, 'repository_public_logs')
+                with self.subTest(with_operations=with_operations, removed=removed), \
+                        patch.object(target, attribute, side_effect=capture_then_delete):
+                    i.safe_public(raw, public, work, repository_authority=authority)
+                manifest = json.loads((public / 'export-manifest.json').read_bytes())
+                result = json.loads((public / 'result.json').read_bytes())
+                accepted = {row['path']: row for row in manifest['accepted']}
+                self.assertEqual(manifest['evidence_export'], 'PASS')
+                for name, (alias, data) in captures.items():
+                    self.assertEqual((public / alias).read_bytes(), data)
+                    self.assertEqual(accepted[alias]['sha256'], hashlib.sha256(data).hexdigest())
+                    row = next(row for row in result['commands'] if row['log'] == name)
+                    self.assertEqual(row['public_log'], alias)
+
+    def test_missing_exported_legacy_aliases_refuse_even_without_operation_index(self):
+        exporter = i.export_evidence
+        for with_operations in (False, True):
+            for number in range(6):
+                case = self.root / f'{with_operations}-{number}'; case.mkdir()
+                raw, work, public, authority, captures = self.legacy_log_evidence(case, with_operations=with_operations)
+                alias = list(captures.values())[number][0]
+                def omit_alias(selected, target):
+                    (selected / alias).unlink()
+                    receipt = exporter(selected, target)
+                    self.assertEqual(receipt['evidence_export'], 'PASS')
+                    return receipt
+                with self.subTest(with_operations=with_operations, alias=alias), \
+                        patch.object(i, 'export_evidence', side_effect=omit_alias), \
+                        self.assertRaisesRegex(ValueError, 'reference missing from manifest'):
+                    i.safe_public(raw, public, work, repository_authority=authority)
+
+    def test_legacy_alias_capture_never_allows_unknown_sensitive_path_or_collision(self):
+        for name in ('unlisted-gpg-status.txt', 'unlisted-cache.json', '000-signature-untrusted-A-status.txt'):
+            case = self.root / name; case.mkdir()
+            raw, work, public, authority, _ = self.legacy_log_evidence(case, with_operations=False)
+            (raw / name).write_text('{"password":"DO-NOT-PUBLISH"}')
+            with self.subTest(name=name), self.assertRaises(ValueError):
+                i.safe_public(raw, public, work, repository_authority=authority)
+            self.assertFalse((public / name).exists())
+
+    def test_repository_exact_operations_export_neutral_names_with_coherent_references(self):
+        raw, work, result, contract = self.operation_evidence()
+        original = {path.name: path.read_bytes() for path in raw.iterdir()}
+        public = self.root / 'public'
+        i.safe_public(raw, public, work, repository_authority=(result['base_versions'], contract))
+        index = json.loads((public / 'repository-operation-aliases.json').read_bytes())
+        self.assertEqual(len(index['files']), 9)
+        projected = json.loads((public / 'result.json').read_bytes())
+        self.assertEqual(projected['sync_cache_reset']['receipt'], 'revoked-A-sync-cache-reset.json')
+        self.assertEqual(projected['sync_cache_reset']['public_receipt'], 'revoked-A-sync-reset.json')
+        self.assertEqual(projected['public_operation_index'], 'repository-operation-aliases.json')
+        for row in projected['commands']:
+            for field, public_field in (('log', 'public_log'), ('stderr_log', 'public_stderr_log')):
+                if row.get(field) in index['files']:
+                    self.assertEqual(row[public_field], index['files'][row[field]]['public_path'])
+        for name, row in index['files'].items():
+            path = public / row['public_path']
+            self.assertEqual(path.read_bytes(), original[name])
+            self.assertEqual(i.native.sha(path), row['original_sha256'])
+            self.assertEqual(i.native.sha(path), projected['evidence_sha256'][name])
+            self.assertFalse((public / name).exists())
+        self.assertEqual(json.loads((public / 'export-manifest.json').read_bytes())['evidence_export'], 'PASS')
+        self.assertEqual(original, {path.name: path.read_bytes() for path in raw.iterdir()})
+
+    def test_repository_operation_alias_collision_refused_before_export(self):
+        raw, work, result, contract = self.operation_evidence()
+        (raw / 'revoked-A-sync-reset.json').write_text('public-looking collision')
+        with self.assertRaises(ValueError):
+            i.safe_public(raw, self.root / 'public', work, repository_authority=(result['base_versions'], contract))
+        self.assertFalse((self.root / 'public').exists())
+
+    def test_repository_captured_nine_publish_after_each_original_or_all_originals_disappear(self):
+        from test_repository_projection import operation_fixture
+        original = i.repository_projection.operation_files
+        probe = self.root / 'probe'; result, contract = operation_fixture(probe)
+        names = list(original(probe, result, contract)[0])
+        for number, removed in enumerate([[name] for name in names] + [names]):
+            case = self.root / str(number); case.mkdir()
+            raw, work, public = case / 'raw', case / 'work', case / 'public'; work.mkdir()
+            result, contract = operation_fixture(raw)
+            captures, _ = original(raw, result, contract)
+            def capture_then_delete(*args):
+                value = original(*args)
+                for name in removed:
+                    (raw / name).unlink()
+                return value
+            with self.subTest(removed=removed), patch.object(i.repository_projection, 'operation_files',
+                                                           side_effect=capture_then_delete):
+                i.safe_public(raw, public, work, repository_authority=(result['base_versions'], contract))
+            index = json.loads((public / 'repository-operation-aliases.json').read_bytes())
+            manifest = json.loads((public / 'export-manifest.json').read_bytes())
+            self.assertEqual(manifest['evidence_export'], 'PASS')
+            accepted = {row['path']: row for row in manifest['accepted']}
+            self.assertEqual(len(index['files']), 9)
+            for name, (alias, data) in captures.items():
+                self.assertEqual((public / alias).read_bytes(), data)
+                self.assertEqual(accepted[alias]['sha256'], index['files'][name]['public_sha256'])
+                self.assertEqual(accepted[alias]['bytes'], len(data))
+
+    def test_repository_missing_public_operation_never_returns_success_even_if_generic_export_passes(self):
+        from test_repository_projection import operation_fixture
+        exporter = i.export_evidence
+        probe = self.root / 'probe'; result, contract = operation_fixture(probe)
+        aliases = [alias for alias, _ in i.repository_projection.operation_files(probe, result, contract)[0].values()]
+        for number, alias in enumerate(aliases):
+            case = self.root / str(number); case.mkdir()
+            raw, work, public = case / 'raw', case / 'work', case / 'public'; work.mkdir()
+            result, contract = operation_fixture(raw)
+            def omit_public_reference(selected, target):
+                (selected / alias).unlink()
+                receipt = exporter(selected, target)
+                self.assertEqual(receipt['evidence_export'], 'PASS')
+                return receipt
+            with self.subTest(alias=alias), patch.object(i, 'export_evidence', side_effect=omit_public_reference), \
+                    self.assertRaisesRegex(ValueError, 'reference missing from manifest'):
+                i.safe_public(raw, public, work, repository_authority=(result['base_versions'], contract))
+
+    def test_repository_missing_result_after_capture_refuses_before_export(self):
+        raw, work, result, contract = self.operation_evidence()
+        original = i.repository_projection.operation_files
+        def missing_result(*args):
+            value = original(*args); (raw / 'result.json').unlink(); return value
+        with patch.object(i.repository_projection, 'operation_files', side_effect=missing_result), \
+                self.assertRaisesRegex(ValueError, 'result missing'):
+            i.safe_public(raw, self.root / 'public', work, repository_authority=(result['base_versions'], contract))
+        self.assertFalse((self.root / 'public').exists())
+
+    def test_repository_selected_index_cannot_invent_missing_public_reference(self):
+        raw, work, result, contract = self.operation_evidence()
+        save = i.native.save
+        def forge_index(path, value):
+            if path.name == 'repository-operation-aliases.json':
+                value = copy.deepcopy(value)
+                next(iter(value['files'].values()))['public_path'] = 'missing-reference.json'
+            save(path, value)
+        with patch.object(i.native, 'save', side_effect=forge_index), self.assertRaises(ValueError):
+            i.safe_public(raw, self.root / 'public', work, repository_authority=(result['base_versions'], contract))
+        self.assertFalse((self.root / 'public').exists())
+
+    def test_repository_operation_index_collision_cannot_drop_unknown_credentials(self):
+        raw, work, result, contract = self.operation_evidence()
+        (raw / 'repository-operation-aliases.json').write_text('{"password":"DO-NOT-PUBLISH"}')
+        with self.assertRaises(ValueError):
+            i.safe_public(raw, self.root / 'public', work, repository_authority=(result['base_versions'], contract))
+        self.assertFalse((self.root / 'public').exists())
+
+    def test_repository_operation_aliases_never_allow_other_sensitive_paths(self):
+        raw, work, result, contract = self.operation_evidence()
+        (raw / 'unreviewed-cache.json').write_text('{"public":"looking"}')
+        with self.assertRaises(ValueError):
+            i.safe_public(raw, self.root / 'public', work, repository_authority=(result['base_versions'], contract))
+        manifest = json.loads((self.root / 'public/export-manifest.json').read_bytes())
+        self.assertEqual(manifest['evidence_export'], 'FAIL')
+        self.assertEqual([row['path'] for row in manifest['rejected']], ['unreviewed-cache.json'])
+
+    def test_repository_operation_aliases_preserve_unknown_credentials_for_generic_refusal(self):
+        raw, work, result, contract = self.operation_evidence()
+        result['unknown'] = {'password': 'DO-NOT-PUBLISH'}
+        i.native.save(raw / 'result.json', result)
+        with self.assertRaises(ValueError):
+            i.safe_public(raw, self.root / 'public', work, repository_authority=(result['base_versions'], contract))
+        self.assertFalse((self.root / 'public/result.json').exists())
+        self.assertEqual(json.loads((self.root / 'public/export-manifest.json').read_bytes())['evidence_export'], 'FAIL')
+
     def test_repository_inventory_projection_preserves_failure_and_all_rows(self):
         raw, work = self.root / 'raw', self.root / 'work'; raw.mkdir(); work.mkdir()
         base = {'base':'1-1', 'libsecret':'0.21.8.2-1'}

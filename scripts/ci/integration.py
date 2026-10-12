@@ -485,14 +485,14 @@ def retain_outer_log(log, raw):
             shutil.copyfile(source, raw / name)
 
 
-def repository_public_logs(raw):
+def repository_public_logs(raw, *, captured=None):
     """Bind six deliberately public producer logs; never allow a GPG state tree."""
     receipt = raw / 'result.json'
     if not receipt.exists():
         return {}
     regular(receipt)
     need(receipt.stat().st_size <= 4 * 1024**2, 'repository receipt exceeds public bound')
-    result = json.loads(receipt.read_bytes())
+    result = repository_projection.strict_json(receipt.read_bytes())
     if not isinstance(result, dict) or result.get('purpose') != 'disposable-generic-repository-test':
         return {}
     projected = {}
@@ -504,10 +504,10 @@ def repository_public_logs(raw):
         match = re.fullmatch(r'([0-9]{3,4})-' + re.escape(label) + r'\.txt', filename)
         need(match is not None and int(match[1]) < 2048 and filename not in projected,
              'public repository status log binding invalid')
-        path = raw / filename; regular(path)
-        need(path.stat().st_size <= 4 * 1024**2 and native.sha(path) == native.check_pin(row.get('sha256')),
-             'public repository status log changed')
+        data = repository_projection.read_public(raw, filename, native.check_pin(row.get('sha256')))
         projected[filename] = match[1] + '-' + REPOSITORY_PUBLIC_LOGS[label] + '.txt'
+        if captured is not None:
+            captured[filename] = (projected[filename], data)
     return projected
 
 
@@ -515,18 +515,40 @@ def safe_public(raw, public, work, *, lifecycle_authority=None, repository_autho
     """Select deliberately public owner receipts; identify every excluded binary."""
     selected = work / 'selected'; selected.mkdir()
     excluded = []
-    repository_value = repository_bytes = None
+    repository_value = repository_bytes = repository_projected_bytes = None
     if repository_authority is not None:
         result_path = raw / 'result.json'; regular(result_path)
         need(result_path.stat().st_size <= 4 * 1024**2, 'repository result exceeds public bound')
         repository_bytes = result_path.read_bytes()
         repository_value = repository_projection.project(repository_bytes, *repository_authority)
-    projections = repository_public_logs(raw)
+    repository_captures = {}
+    projections = repository_public_logs(raw, captured=repository_captures)
+    operations, operation_index = ({}, None) if repository_value is None else repository_projection.operation_files(
+        raw, repository_value, repository_authority[1])
+    if operation_index:
+        index_path = raw / 'repository-operation-aliases.json'
+        need(not index_path.exists() and not index_path.is_symlink(), 'repository operation index collision')
+    for name, (alias, _data) in operations.items():
+        need(name not in projections and alias not in projections.values() and not (raw / alias).exists()
+             and not (raw / alias).is_symlink(), 'repository public operation alias collision')
+        projections[name] = alias
+    repository_captures.update(operations)
+    for alias, _data in repository_captures.values():
+        need(not (raw / alias).exists() and not (raw / alias).is_symlink(),
+             'repository projected log alias collision')
     inventories = lifecycle_inventory.projections(raw, *lifecycle_authority) if lifecycle_authority is not None else {}
     inventory_receipt = {}
     repository_receipt = None
     desktop_logs, desktop_index = desktop_projection.project(raw, desktop_authority) if desktop_authority is not None else ({}, None)
     count, total = 0, 0
+    # Captures, rather than a later directory listing, define the complete set.
+    # Charge every capture and every observed entry; disappearing paths receive
+    # no entry refund and never suppress their validated public bytes.
+    for alias, data in repository_captures.values():
+        count += 1; total += len(data)
+        need(count <= 2048 and len(data) <= 4 * 1024**2 and total <= 16 * 1024**2,
+             'captured repository operations exceed component bounds')
+        (selected / alias).write_bytes(data)
     for current, dirs, names in os.walk(raw, followlinks=False):
         for name in sorted(dirs.copy()):
             path = Path(current) / name
@@ -541,6 +563,8 @@ def safe_public(raw, public, work, *, lifecycle_authority=None, repository_autho
             count += 1; need(count <= 2048, 'component evidence entry limit exceeded')
             relative_name = path.relative_to(raw).as_posix(); relative(relative_name)
             need(not path.is_symlink(), 'symlink component evidence refused')
+            if relative_name in repository_captures:
+                continue
             dest = selected / relative_name; dest.parent.mkdir(parents=True, exist_ok=True)
             if relative_name in projections:
                 dest = selected / projections[relative_name]
@@ -580,9 +604,16 @@ def safe_public(raw, public, work, *, lifecycle_authority=None, repository_autho
                     for row in value.get('commands', []):
                         if row.get('log') in projections:
                             row['public_log'] = projections[row['log']]
+                        if row.get('stderr_log') in operations:
+                            row['public_stderr_log'] = projections[row['stderr_log']]
                         if 'argv' in row:
                             row['argv_sha256'] = hashlib.sha256(json.dumps(row.pop('argv'), sort_keys=True).encode()).hexdigest()
+                    if operation_index:
+                        value['sync_cache_reset']['public_receipt'] = projections[value['sync_cache_reset']['receipt']]
+                        value['public_operation_index'] = 'repository-operation-aliases.json'
                     data = (json.dumps(value, indent=2, sort_keys=True) + '\n').encode()
+                    if relative_name == 'result.json':
+                        repository_projected_bytes = data
                     if repository_input and 'base_versions' in value and not PRIVATE_CONTENT.search(data.decode('utf-8')):
                         repository_receipt = {'schema_version': 1, 'purpose': 'validated-repository-inventory-projection',
                                               'original_sha256': hashlib.sha256(repository_bytes).hexdigest(), 'original_bytes': len(repository_bytes),
@@ -591,18 +622,40 @@ def safe_public(raw, public, work, *, lifecycle_authority=None, repository_autho
                                               'generic_content_guard': 'UNCHANGED'}
             # Rejected text remains rejected by the generic exporter, with diagnostics.
             dest.write_bytes(data)
-    native.save(selected / 'excluded-public-material.json', {'excluded': excluded, 'public_log_projection': projections,
-                                                          'private_state_exported': False})
+    excluded_receipt = {'excluded': excluded, 'public_log_projection': projections, 'private_state_exported': False}
+    native.save(selected / 'excluded-public-material.json', excluded_receipt)
     if inventory_receipt:
         native.save(selected / 'inventory-projections.json', {'schema_version': 1,
                     'purpose': 'validated-lifecycle-package-inventories', 'files': inventory_receipt,
                     'generic_content_guard': 'UNCHANGED', 'raw_inventory_bytes_exported': False})
     if repository_receipt:
         native.save(selected / 'repository-inventory-projection.json', repository_receipt)
+    if operation_index:
+        native.save(selected / 'repository-operation-aliases.json', operation_index)
     if desktop_index:
         native.save(selected / 'desktop-terminal-projections.json', desktop_index)
+    operation_public = {}
+    if repository_captures:
+        need(repository_projected_bytes is not None, 'captured repository result missing from selected evidence')
+        operation_public = {alias: data for alias, data in repository_captures.values()}
+        operation_public['result.json'] = repository_projected_bytes
+        operation_public['excluded-public-material.json'] = (json.dumps(excluded_receipt, indent=2, sort_keys=True) + '\n').encode()
+        if operation_index:
+            operation_public['repository-operation-aliases.json'] = (
+                json.dumps(operation_index, indent=2, sort_keys=True) + '\n').encode()
+        for alias, data in operation_public.items():
+            need(repository_projection.read_public(selected, alias, hashlib.sha256(data).hexdigest()) == data,
+                 'selected repository operation references incomplete')
     receipt = export_evidence(selected, public)
     need(receipt['evidence_export'] == 'PASS', 'public evidence exporter rejected component output')
+    if operation_public:
+        accepted = {row['path']: row for row in receipt['accepted']}
+        for alias, data in operation_public.items():
+            row = accepted.get(alias)
+            need(row == {'path': alias, 'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()},
+                 'exported repository operation reference missing from manifest')
+            need(repository_projection.read_public(public, alias, row['sha256']) == data,
+                 'exported repository operation reference missing or changed')
 
 
 class Controller:

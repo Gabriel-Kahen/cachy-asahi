@@ -992,7 +992,7 @@
     },
     "scripts/ci/integration.py": {
       "mode": 420,
-      "sha256": "cb6145d94e1b384d2fedc459fbc4b94fe6a53bcb0834d0e90c2ab5a56dd61eb1"
+      "sha256": "5ceaa566f1084b25e8ebbbe8585b577de64595f70035e89943e87fbb83c6becf"
     },
     "scripts/ci/integration_export.py": {
       "mode": 420,
@@ -1016,7 +1016,7 @@
     },
     "scripts/ci/repository_projection.py": {
       "mode": 420,
-      "sha256": "05c581300ba807f9e38495863054e159ae7464ea7becc496da15806a60b4404b"
+      "sha256": "e249c0454ff4b207ce7c402f928815a62cf7ed3b43ad0b66eb5ae3467ef36d07"
     },
     "scripts/ci/sign_fixture.py": {
       "mode": 420,
@@ -1044,7 +1044,7 @@
     },
     "scripts/ci/test_integration.py": {
       "mode": 420,
-      "sha256": "62fa9a3843721ccd63fa7b9a4a577cefc1df8db80984255ed4d57b0b2ab046de"
+      "sha256": "ec4f03f1195a5336d1bbb070f67c383910c401f50fb6de0203d04304dbe34a2f"
     },
     "scripts/ci/test_integration_export.py": {
       "mode": 420,
@@ -1060,7 +1060,7 @@
     },
     "scripts/ci/test_repository_projection.py": {
       "mode": 420,
-      "sha256": "6b6f0076ed297b6d152a8b0dc434725e320318a576ac745a995a6dcd9f8c3c50"
+      "sha256": "cca61a7542b29888e9cfa41d30e9a32e25099008e173d7bec8d91cdda0c6591d"
     },
     "scripts/ci/test_sign_fixture.py": {
       "mode": 420,
