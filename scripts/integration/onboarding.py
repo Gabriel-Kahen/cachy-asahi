@@ -289,8 +289,8 @@ class Commands:
                         restore_signals()
                     process = subprocess.Popen(argv, cwd=self.cwd, env=self.env, stdin=slave, stdout=slave, stderr=slave,
                                                preexec_fn=terminal_session)
-                os.close(slave)
-                slave = None
+                    os.close(slave)
+                    slave = None
                 selector = selectors.DefaultSelector()
                 selector.register(master, selectors.EVENT_READ)
                 deadline = time.monotonic() + self.timeout

@@ -320,6 +320,70 @@ except o.Failure:pass
         self.assertIn(b"work complete", (output / "journey-00-cleanup.stdout").read_bytes())
         self.assertEqual(signal.getsignal(signal.SIGTERM), prior)
 
+    def test_sigterm_after_slave_close_preserves_fd_ownership_and_diagnostics(self):
+        import signal
+        output = self.root / "close-cancellation"
+        output.mkdir()
+        runner = o.Commands(output, {"HOME": str(output), "PATH": "/usr/bin:/bin"}, output, timeout=.6)
+        real_close, real_openpty, real_popen = os.close, o.pty.openpty, subprocess.Popen
+        parent = os.getpid()
+        observed = {"slave_closes": 0}
+        def openpty():
+            observed["master"], observed["slave"] = real_openpty()
+            return observed["master"], observed["slave"]
+        def launch(*args, **kwargs):
+            observed["process"] = real_popen(*args, **kwargs)
+            return observed["process"]
+        def close(fd):
+            real_close(fd)
+            if os.getpid() == parent and fd == observed.get("slave"):
+                observed["slave_closes"] += 1
+                if not observed.get("signalled"):
+                    observed["signalled"] = True
+                    observed["blocked"] = signal.pthread_sigmask(signal.SIG_BLOCK, set())
+                    os.kill(parent, signal.SIGTERM)
+                    # Reuse the closed number: stale ownership could silently close
+                    # an unrelated descriptor instead of raising EBADF.
+                    observed["replacement"] = os.open(output / "replacement", os.O_CREAT | os.O_RDWR, 0o600)
+        previous = signal.signal(signal.SIGTERM, o.interrupt)
+        original_mask = signal.pthread_sigmask(signal.SIG_BLOCK, set())
+        started = o.time.monotonic()
+        argv = [sys.executable, "-I", "-c", "import time;time.sleep(10)"]
+        try:
+            with patch.object(o.pty, "openpty", side_effect=openpty), \
+                    patch.object(o.subprocess, "Popen", side_effect=launch), \
+                    patch.object(o.os, "close", side_effect=close), self.assertRaisesRegex(o.Failure, "step failed"):
+                runner.run("close", argv, terminal=True)
+            self.assertLess(o.time.monotonic() - started, 2)
+            self.assertIn(signal.SIGTERM, observed["blocked"])
+            self.assertEqual(signal.pthread_sigmask(signal.SIG_BLOCK, set()), original_mask)
+            self.assertIs(signal.getsignal(signal.SIGTERM), o.interrupt)
+            self.assertEqual(observed["slave_closes"], 1)
+            self.assertEqual(observed["replacement"], observed["slave"])
+            os.fstat(observed["replacement"])
+            with self.assertRaises(OSError) as closed_master:
+                os.fstat(observed["master"])
+            self.assertEqual(closed_master.exception.errno, 9)
+            child = observed["process"]
+            self.assertEqual(child.returncode, -signal.SIGKILL)
+            with self.assertRaises(ChildProcessError):
+                os.waitpid(child.pid, os.WNOHANG)
+            with self.assertRaises(ProcessLookupError):
+                os.killpg(child.pid, 0)
+            record = json.loads((output / "journey-commands.json").read_text())[0]
+            self.assertEqual(record["error"], "Interrupted: interrupted by SIGTERM")
+            self.assertFalse(record["success"])
+            self.assertEqual(record["returncode"], child.returncode)
+            self.assertEqual(record["argv"], argv)
+            self.assertEqual(record["terminal"], "PTY, scripted command")
+            self.assertEqual(runner.records, [record])
+            self.assertEqual((output / record["stdout_file"]).read_bytes(), b"")
+            self.assertEqual((output / record["stderr_file"]).read_bytes(), b"")
+        finally:
+            signal.signal(signal.SIGTERM, previous)
+            if "replacement" in observed:
+                real_close(observed["replacement"])
+
     def test_host_inside_flag_refuses_before_any_user_setup(self):
         result = subprocess.run([sys.executable, str(Path(o.__file__).resolve()), "--inside"], capture_output=True, text=True)
         self.assertNotEqual(result.returncode, 0)

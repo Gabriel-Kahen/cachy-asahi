@@ -196,6 +196,27 @@ def signer_authority(evidence, rows, initial, policy):
     return approved, receipt, {r['path']: r['sha256'] for r in expected}
 
 
+def repository_rows(root, evidence, rows, initial, policy):
+    require(initial.get('stages', {}).get('signer', {}).get('status') == 'PASS', 'successful-initial-signer-required')
+    approved, _, _ = signer_authority(evidence, rows, initial, policy)
+    public = evidence / 'work/test-signatures/public'
+    for name, pin in approved.items():
+        relative(name, policy)
+        require(isinstance(pin, str) and PIN.fullmatch(pin), 'original-signer-pin-required')
+        path = public / name
+        data = read_regular(path, 4 * 1024**2 if name == 'public-key.asc' else 8192)
+        require(stat.S_IMODE(path.lstat().st_mode) == 0o644 and hashlib.sha256(data).hexdigest() == pin,
+                'original-signer-byte-or-mode-binding-refused')
+        if name == 'public-key.asc':
+            certificate(root, data)
+        else:
+            # Bind the original signer bytes, never the repository's independently
+            # regenerated signatures. These package signatures remain SHA256.
+            signature(data, policy)
+    return {stage: [row | {'signature_sha256': approved['signatures/' + row['archive'] + '.sig']}
+                    for row in rows[stage]] for stage in ('baseline', 'upgrade')}
+
+
 def receive(root, evidence, directory):
     root, evidence, directory = map(lambda p: Path(p).absolute(), (root, evidence, directory))
     require(directory.name in KINDS and directory == evidence / 'public' / directory.name, 'unknown-initial-artifact-directory')
@@ -233,13 +254,14 @@ def receive(root, evidence, directory):
         else:
             raw = evidence / 'work/repository-raw'; receipt = read_json(raw / 'result.json')
             contract = read_json(evidence / 'work/repository-inputs/manifest.json')
+            signed_rows = repository_rows(root, evidence, rows, initial, policy)
             fields = ('nonce', 'image_id', 'daemon_arch', 'script_sha256', 'upgrade_kind')
             require(receipt.get('schema_version') == 1 and receipt.get('status') == 'PASS' and receipt.get('purpose') == 'disposable-generic-repository-test' and
                     receipt.get('source_commit') == contract.get('source_commit') == commit and
                     type(contract.get('schema_version')) is int and contract['schema_version'] == 1 and
                     contract.get('purpose') == 'disposable-generic-repository-test' and contract.get('execution') == 'native-aarch64-disposable-docker' and
                     contract.get('allow_system_mutation') is True and contract.get('image_id') == initial['base_image'] and
-                    contract.get('baseline') == rows['baseline'] and contract.get('upgrade') == rows['upgrade'] and
+                    contract.get('baseline') == signed_rows['baseline'] and contract.get('upgrade') == signed_rows['upgrade'] and
                     contract.get('script_sha256') == digest(root / 'scripts/integration/repository.py') and contract.get('daemon_arch') == 'aarch64' and
                     contract.get('upgrade_kind') == 'synthetic-changed-package-fixtures' and re.fullmatch('[0-9a-f]{32}', contract.get('nonce', '')) and
                     receipt.get('input_contract') == {k: contract[k] for k in fields} and receipt.get('test_private_state_removed') is True and

@@ -116,7 +116,9 @@ class InitialArtifacts(unittest.TestCase):
                     'execution': 'native-aarch64-disposable-docker', 'allow_system_mutation': True,
                     'source_commit': self.commit, 'image_id': self.image, 'nonce': 'd' * 32,
                     'daemon_arch': 'aarch64', 'script_sha256': a.digest(self.root / 'scripts/integration/repository.py'),
-                    'upgrade_kind': 'synthetic-changed-package-fixtures', **self.rows}
+                    'upgrade_kind': 'synthetic-changed-package-fixtures',
+                    **{stage: [row | {'signature_sha256': sha(sig())} for row in self.rows[stage]]
+                       for stage in ('baseline', 'upgrade')}}
         self.put_json(self.evidence / 'work/repository-inputs/manifest.json', contract)
         self.put_json(self.evidence / 'work/repository-raw/result.json', {'schema_version': 1, 'status': 'PASS',
                       'purpose': 'disposable-generic-repository-test', 'source_commit': self.commit,
@@ -300,6 +302,32 @@ class InitialArtifacts(unittest.TestCase):
                 status = run(['--status-fd', '1', '--verify', str(output), str(database)])
                 valid = [line.split() for line in status.decode().splitlines() if line.startswith('[GNUPG:] VALIDSIG ')]
                 self.assertEqual(len(valid), 1); self.assertEqual(valid[0][9], '10' if digest == 'SHA512' else '8')
+            # Produce the eight original package signatures and the controller's
+            # six-field repository contract from actual signer bytes/status.
+            public = self.evidence / 'work/test-signatures/public'
+            cert_data = run(['--armor', '--export']); fingerprint = valid[0][2]
+            self.put(public / 'public-key.asc', cert_data); self.put(self.signer / 'public-key.asc', cert_data)
+            records = {}
+            for stage in ('baseline', 'upgrade'):
+                for row in self.rows[stage]:
+                    archive = self.evidence / 'work/archive-inputs' / row['archive']
+                    output = public / 'signatures' / (row['archive'] + '.sig')
+                    run(['--yes', '--digest-algo', 'SHA256', '--output', str(output), '--detach-sign', str(archive)])
+                    output.chmod(0o644)
+                    status = run(['--status-fd', '1', '--verify', str(output), str(archive)]).decode()
+                    data = output.read_bytes(); self.put(self.signer / 'signatures' / (row['archive'] + '.sig'), data)
+                    records[row['archive']] = {'archive_sha256': row['sha256'], 'signature_sha256': sha(data), 'status': status}
+            self.mutate(self.evidence / 'work/signer-raw/test-signature-receipt.json',
+                        lambda x: x.update(fingerprint=fingerprint, public_certificate_sha256=sha(cert_data), signatures=records))
+            self.mutate(self.signer / 'public-artifact-manifest.json',
+                        lambda x: x.update(fingerprint=fingerprint, files={name: {'sha256': sha(data), 'bytes': len(data)}
+                            for name, data in [('public-key.asc', cert_data)] +
+                            [('signatures/' + archive + '.sig', (public / 'signatures' / (archive + '.sig')).read_bytes())
+                             for archive in records]}))
+            self.mutate(self.evidence / 'work/repository-inputs/manifest.json',
+                        lambda x: x.update(**{stage: [row | {'signature_sha256': records[row['archive']]['signature_sha256']}
+                            for row in self.rows[stage]] for stage in ('baseline', 'upgrade')}))
+            self.receive(self.signer); self.receive(self.repository)
             data = (self.base / 'SHA512.sig').read_bytes()
             policy = a.public_policy(self.root)
             # The old SHA256-only default reproduces the native-log mismatch.
@@ -342,6 +370,65 @@ class InitialArtifacts(unittest.TestCase):
                          lambda x: x.update(source_commit='e' * 40), lambda x: x.update(test_private_state_removed=False)):
             value = copy.deepcopy(original); mutation(value); self.put_json(path, value)
             with self.assertRaises(ValueError): self.receive(self.repository)
+
+    def test_repository_requires_exact_six_signed_fields_and_canonical_rows(self):
+        path = self.evidence / 'work/repository-inputs/manifest.json'; original = a.read_json(path)
+        self.receive(self.repository)
+        for mutate in (lambda r: r.pop('signature_sha256'), lambda r: r.update(extra='unknown'),
+                       lambda r: r.update(signature_sha256='0' * 64), lambda r: r.update(version='other'),
+                       lambda r: r.update(payload_sha256={}), lambda r: r.update(archive='../foreign.sig')):
+            value = copy.deepcopy(original); mutate(value['baseline'][0]); self.put_json(path, value)
+            with self.subTest(mutate=mutate), self.assertRaises(ValueError): self.receive(self.repository)
+        value = copy.deepcopy(original); value['baseline'].reverse(); self.put_json(path, value)
+        with self.assertRaises(ValueError): self.receive(self.repository)
+
+    def test_repository_original_signer_authority_drift_is_refused(self):
+        path = self.evidence / 'work/signer-raw/test-signature-receipt.json'; original = a.read_json(path)
+        for mutation in (lambda x: x.update(status='FAIL'), lambda x: x.update(production_credentials_used=True),
+                         lambda x: x['contract'].update(image_id='sha256:' + '0' * 64),
+                         lambda x: x['contract'].update(manifest_sha256='0' * 64),
+                         lambda x: x.update(fingerprint='E' * 40),
+                         lambda x: x['signatures'][self.rows['baseline'][0]['archive']].update(archive_sha256='0' * 64)):
+            value = copy.deepcopy(original); mutation(value); self.put_json(path, value)
+            with self.subTest(mutation=mutation), self.assertRaises(ValueError): self.receive(self.repository)
+        self.put_json(path, original)
+        self.mutate(self.evidence / 'result.json', lambda x: x['stages']['signer'].update(status='FAIL'))
+        with self.assertRaises(ValueError): self.receive(self.repository)
+
+    def test_repository_missing_or_private_original_signer_material_refused(self):
+        path = self.evidence / 'work/test-signatures/public/public-key.asc'; original = path.read_bytes()
+        path.unlink()
+        with self.assertRaises(OSError): self.receive(self.repository)
+        data = b'-----BEGIN PGP PRIVATE KEY BLOCK-----\nprivate\n'
+        path.write_bytes(data)
+        self.mutate(self.evidence / 'work/signer-raw/test-signature-receipt.json',
+                    lambda x: x.update(public_certificate_sha256=sha(data)))
+        with self.assertRaises(ValueError): self.receive(self.repository)
+        path.write_bytes(original)
+        (self.evidence / 'work/signer-raw/test-signature-receipt.json').unlink()
+        with self.assertRaises(OSError): self.receive(self.repository)
+
+    def test_repository_original_signature_mode_links_and_coherent_substitution_refused(self):
+        archive = self.rows['baseline'][0]['archive']
+        path = self.evidence / 'work/test-signatures/public/signatures' / (archive + '.sig')
+        original = path.read_bytes(); contract = self.evidence / 'work/repository-inputs/manifest.json'
+        path.chmod(0o600)
+        with self.assertRaises(ValueError): self.receive(self.repository)
+        path.chmod(0o644); os.link(path, self.base / 'linked-original')
+        with self.assertRaises(ValueError): self.receive(self.repository)
+        (self.base / 'linked-original').unlink(); path.unlink(); (self.base / 'other-signature').write_bytes(original)
+        path.symlink_to(self.base / 'other-signature')
+        with self.assertRaises(ValueError): self.receive(self.repository)
+        path.unlink(); path.write_bytes(sig(22))
+        self.mutate(contract, lambda x: x['baseline'][0].update(signature_sha256=sha(sig(22))))
+        # A coherent row/byte substitution still differs from the original receipt.
+        with self.assertRaises(ValueError): self.receive(self.repository)
+        data = sig(22, 10); path.write_bytes(data)
+        self.mutate(contract, lambda x: x['baseline'][0].update(signature_sha256=sha(data)))
+        self.mutate(self.evidence / 'work/signer-raw/test-signature-receipt.json',
+                    lambda x: x['signatures'][archive].update(signature_sha256=sha(data)))
+        # Even coherently rehashed original package signatures cannot gain SHA512.
+        with self.assertRaises(ValueError): self.receive(self.repository)
 
     def test_repository_export_exact_whitelist_wrong_label_and_credential_conf_refused(self):
         self.put(self.repository / 'TEST-repositories/foreign/integration.db.tar.gz', b'unknown')
