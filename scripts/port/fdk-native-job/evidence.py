@@ -429,9 +429,10 @@ def validate_producer(directory, image, native_script_sha, reviewedrecipes):
             need(sorted(metadata.get(target, [])) == sorted(value if type(value) is list else [value]), 'producer-package-metadata')
     bootstrap = load(directory / 'bootstrap.json', limit=65536)
     need(type(bootstrap) is dict, 'producer-bootstrap-schema')
+    # Docker's iidfile may omit the terminal LF; accept only these two exact byte forms.
     need(bootstrap.get('status') == 'image-provisioned' and bootstrap.get('image_id') == image and
          bootstrap.get('inputs_sha256') == INPUTS_SHA and bootstrap.get('packages_lock_sha256') == INVENTORY_SHA and
-         read(directory / 'image-id', 256) == (image + '\n').encode(), 'producer-bootstrap')
+         read(directory / 'image-id', 256) in (image.encode(), (image + '\n').encode()), 'producer-bootstrap')
     versions = {r['name'][0]: r['version'][0] for r in inputs['rootfs_packages']}
     versions.update({r['name']: r['version'] for r in inputs['packages']})
     lock = ''.join(f'{n} {v}\n' for n, v in sorted(versions.items())).encode()

@@ -5,6 +5,7 @@
 import sys
 sys.dont_write_bytecode = True
 
+import ast
 import copy
 import importlib.util
 import json
@@ -83,7 +84,7 @@ class ProducerTests(unittest.TestCase):
         versions.update({r['name']: r['version'] for r in INPUTS['packages']})
         self.lock = ''.join(f'{n} {v}\n' for n, v in sorted(versions.items())).encode()
         (self.producer / 'packages.lock').write_bytes(self.lock)
-        (self.producer / 'image-id').write_text(IMAGE + '\n')
+        (self.producer / 'image-id').write_bytes(IMAGE.encode())
         save(self.producer / 'bootstrap.json', {'status': 'image-provisioned', 'image_id': IMAGE,
             'inputs_sha256': evidence.INPUTS_SHA, 'packages_lock_sha256': evidence.INVENTORY_SHA,
             'command': [SECRET], 'dockerfile_sha256': '3' * 64})
@@ -165,6 +166,73 @@ class ProducerTests(unittest.TestCase):
         self.assertEqual(set(report['originals']), evidence.NAMES)
         self.assertTrue(all(not r['buildinfo_equal_recorded'] for r in report['originals'].values()))
         self.assertNotIn(SECRET, json.dumps(report))
+
+    def test_actual_native_writer_bootstrap_and_bare_iid_reproduce_prior_refusal(self):
+        source = (ROOT / 'scripts/ci/native_arm.py').read_bytes()
+        self.assertEqual(evidence.sha(source), evidence.NATIVE_SCRIPT_SHA)
+        writers = [node.args[1] for node in ast.walk(ast.parse(source))
+                   if isinstance(node,ast.Call) and isinstance(node.func,ast.Name) and node.func.id == 'save'
+                   and len(node.args) == 2 and isinstance(node.args[1],ast.Dict)
+                   and any(isinstance(key,ast.Constant) and key.value == 'status' and
+                           isinstance(value,ast.Constant) and value.value == 'image-provisioned'
+                           for key,value in zip(node.args[1].keys,node.args[1].values))]
+        self.assertEqual(len(writers),1)
+        context = self.producer / 'context'
+        context.mkdir()
+        (context / 'Dockerfile').write_bytes(b'inert writer-expression fixture; no build\n')
+        command = ['docker','build','--network=none','--pull=false','--platform=linux/arm64',
+                   '--iidfile',str(self.producer / 'image-id'),str(context)]
+        # Evaluate only the pinned writer's dictionary, with fixture-local read-only SHA calls.
+        record = eval(compile(ast.Expression(writers[0]),'<pinned-native-bootstrap-writer>','eval'),
+                      {'__builtins__':{}, 'command':command, 'context':context, 'out':self.producer,
+                       'image':IMAGE, 'sha':lambda path:evidence.sha(path.read_bytes())})
+        self.assertEqual(set(record),{'command','dockerfile_sha256','inputs_sha256','image_id',
+                                     'packages_lock_sha256','hook_policy','status'})
+        save(self.producer / 'bootstrap.json',record)
+        iid = (self.producer / 'image-id').read_bytes()
+        self.assertEqual(len(iid),71)
+        old_gate = (record['status'] == 'image-provisioned' and record['image_id'] == IMAGE and
+                    record['inputs_sha256'] == evidence.INPUTS_SHA and
+                    record['packages_lock_sha256'] == evidence.INVENTORY_SHA and iid == (IMAGE + '\n').encode())
+        with self.assertRaisesRegex(ValueError,'^producer-bootstrap$'):
+            evidence.need(old_gate,'producer-bootstrap')
+        self.assertEqual(self.validate()['status'],'PASS')
+
+    def test_bootstrap_identity_hashes_and_complete_state_remain_required(self):
+        path = self.producer / 'bootstrap.json'
+        original = path.read_bytes()
+        cases = [('status',value) for value in ('bootstrap-starting','failed','PASS','NOT RUN',None)]
+        cases += [(key,value) for key in ('image_id','inputs_sha256','packages_lock_sha256')
+                  for value in (None,True,'sha256:'+'0'*64,'0'*64)]
+        for key,value in cases:
+            with self.subTest(key=key,value=value):
+                self.mutate('bootstrap.json',lambda row:row.update({key:value}))
+                with self.assertRaisesRegex(ValueError,'^producer-bootstrap$'):
+                    self.validate()
+                path.write_bytes(original)
+        for key in ('status','image_id','inputs_sha256','packages_lock_sha256'):
+            with self.subTest(missing=key):
+                self.mutate('bootstrap.json',lambda row:row.pop(key))
+                with self.assertRaisesRegex(ValueError,'^producer-bootstrap$'):
+                    self.validate()
+                path.write_bytes(original)
+
+    def test_iid_accepts_only_exact_image_bytes_with_optional_single_lf(self):
+        path = self.producer / 'image-id'
+        for value in (IMAGE.encode(),(IMAGE+'\n').encode()):
+            with self.subTest(accepted=value):
+                path.write_bytes(value)
+                self.assertEqual(self.validate()['status'],'PASS')
+        rejected = [b'',b'\n',IMAGE[:-1].encode(),('sha256:'+'0'*64).encode(),
+                    (IMAGE+'\n\n').encode(),(IMAGE+'\r\n').encode(),(' '+IMAGE).encode(),
+                    (IMAGE+' ').encode(),(IMAGE+'\t').encode(),('\n'+IMAGE).encode(),
+                    (IMAGE+'\n'+IMAGE).encode(),IMAGE.upper().encode(),IMAGE.encode()+b'\0',
+                    IMAGE.encode()+b'\xff',b'x'*256,b'x'*257]
+        for value in rejected:
+            with self.subTest(rejected=value):
+                path.write_bytes(value)
+                with self.assertRaises(ValueError):
+                    self.validate()
 
     def test_result_source_recipe_image_and_inventory_drift_reject_acceptance(self):
         original = (self.producer / 'result.json').read_bytes()

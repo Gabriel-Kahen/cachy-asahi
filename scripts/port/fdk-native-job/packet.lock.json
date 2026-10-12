@@ -516,9 +516,9 @@
       "sha256": "efad8d87d999890615b97a25d05da1f5538ed9b3b00930a096a5b6ddcb88455a"
     },
     "scripts/port/fdk-native-job/evidence.py": {
-      "bytes": 35235,
+      "bytes": 35342,
       "mode": 420,
-      "sha256": "6c00d1705772fbdc027852a55e0f71d7a5a5b7fcb3a855fb382a05f74f3b4e0a"
+      "sha256": "26f272f1199232429d50cb916faa3a08110818d13f28aa9d9d7ff6a2d7858cf9"
     },
     "scripts/port/fdk-native-job/job.py": {
       "bytes": 19309,
@@ -546,9 +546,9 @@
       "sha256": "c5abc07d307cea0262225b9ea4611fc12f16cebff1c767f224d953b31b0769e7"
     },
     "scripts/port/fdk-native-job/test_evidence.py": {
-      "bytes": 32122,
+      "bytes": 36520,
       "mode": 420,
-      "sha256": "d9d059346ca2ea79756f9a6d5270f30134026b51d6e23e7502b00d0f7801c649"
+      "sha256": "a1e1c57057dce02f33a4b951c43b1780057e7faea91518bb920db3c5920f569a"
     },
     "scripts/port/fdk-native-job/test_job.py": {
       "bytes": 43387,
