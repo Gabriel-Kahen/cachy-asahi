@@ -6,6 +6,7 @@ import sys
 sys.dont_write_bytecode = True
 
 import hashlib
+import copy
 import json
 import os
 from pathlib import Path
@@ -17,6 +18,8 @@ import time
 import unittest
 from unittest import mock
 import base_broker
+import evidence
+import producer
 
 ADAPTER = Path(__file__).resolve().parents[1] / 'fdk-native-stage'
 fixture_path = list(sys.path)
@@ -29,6 +32,15 @@ finally:
 IMAGE = 'sha256:' + 'c'*64
 NONCE = 'd'*32
 BaseBroker = base_broker.broker_class(ADAPTER)
+ROOT = Path(__file__).resolve().parents[3]
+INPUT_BYTES = (ROOT/'scripts/ci/inputs.lock.json').read_bytes()
+assert hashlib.sha256(INPUT_BYTES).hexdigest() == evidence.INPUTS_SHA
+INPUTS = json.loads(INPUT_BYTES)
+VERSIONS = {row['name'][0]: row['version'][0] for row in INPUTS['rootfs_packages']}
+VERSIONS.update({row['name']: row['version'] for row in INPUTS['packages']})
+INVENTORY = ''.join(f'{name} {version}\n' for name,version in sorted(VERSIONS.items())).encode()
+assert len(VERSIONS) == 341 and len(INVENTORY) == 6674
+assert hashlib.sha256(INVENTORY).hexdigest() == evidence.INVENTORY_SHA
 
 BUILD = r'''elif a[:1]==['build']:
  assert os.environ.get('DOCKER_BUILDKIT')=='0'
@@ -73,7 +85,12 @@ start=FAKE.index(" emit([{'Id':s['image']")
 end=FAKE.index("\n if s.get('drift_after_image')",start)
 FAKE=FAKE[:start]+" emit([s['images'][a[2]]])"+FAKE[end:]
 FAKE=FAKE.replace("elif a[:2]==['container','ls']:",BUILD+"elif a[:2]==['container','ls']:")
-FAKE=FAKE.replace(" if item['Config']['Cmd'][0]=='-euc':", " if item['Config']['Cmd']==['-euc','cat /builder-packages.lock']:print('alpha 1\\nbeta 2')\n elif item['Config']['Cmd'][0]=='-euc':")
+FAKE=FAKE.replace(" if item['Config']['Cmd'][0]=='-euc':", r''' if item['Config']['Cmd']==['-euc','cat /builder-packages.lock']:
+  path=root/'inventory.fixture'
+  data=path.read_bytes() if path.is_file() else b'alpha 1\nbeta 2\n'
+  sys.stdout.buffer.write(data);sys.stdout.buffer.flush()
+  raise SystemExit(s.get('inventory_exit',0))
+ elif item['Config']['Cmd'][0]=='-euc':''')
 FAKE=FAKE.replace("root/'journal.json'","root/'images-containers.json'")
 
 
@@ -168,6 +185,122 @@ class BaseBrokerTests(unittest.TestCase):
         self.assertEqual(self.value.command(command,2).stdout,b'alpha 1\nbeta 2\n')
         self.assertFalse(self.load()['containers'])
         self.assertEqual(self.value.cleanup(remove_image=True)['status'],'PASS')
+
+    def native_delegate(self):
+        native = producer.module('base_inventory_native_fixture', ROOT/'scripts/ci/native_arm.py')
+        commands = producer.ProducerCommands({'snapshot':str(ROOT),'jobroot':str(self.root)},
+            self.value,producer.jr.Runner(30,self.env,self.root/'delegate-logs'))
+        path = self.root/'durable-diagnostic.json'
+        commands.on_diagnostic = lambda value:path.write_text(json.dumps(value))
+        native.subprocess = commands
+        return native,commands,path
+
+    def assert_inventory_diagnostic(self, commands, path, accepted):
+        diagnostic = {'phase':'base-probe','outcome':'pass' if accepted else 'runner-failed',
+            'call':'inventory-probe','refusal_code':'none' if accepted else 'base-lock-probe-inventory'}
+        self.assertEqual(commands.diagnostic,diagnostic)
+        self.assertEqual(json.loads(path.read_bytes()),diagnostic)
+        public = evidence.public_status({'status':'FAIL','phase':'complete','work_phase':'producer',
+            'cancelled':False,'source':{'status':'PASS'},'producer':{'status':'FAIL'},'fdk':{'status':'NOT RUN'},
+            'cleanup':{'status':'PASS','owned_image_absence':True},'producer_diagnostic':diagnostic})
+        self.assertEqual(public['error_code'],'producer-after-base-probe-inventory-probe-failed' if accepted else
+            'producer-base-probe-inventory-probe-base-lock-probe-inventory')
+        self.assertEqual(len(public),14)
+        self.assertNotIn('producer_diagnostic',public)
+        self.assertNotIn('PRIVATE',json.dumps(public))
+        self.assertNotIn(str(self.root),json.dumps(public))
+
+    def assert_owned_inventory_cleanup(self):
+        cleanup = self.value.cleanup(remove_image=True)
+        self.assertEqual(cleanup['status'],'PASS',cleanup)
+        self.assertIs(cleanup['owned_image_absence'],True)
+        self.assertFalse(self.load()['containers'])
+        self.assertFalse(self.state['images'])
+
+    def inventory_control(self, payload, exit_code=0, accepted=False):
+        (self.root/'inventory.fixture').write_bytes(payload)
+        self.state['inventory_exit']=exit_code;self.save()
+        self.build()
+        native,commands,path = self.native_delegate()
+        argv=['docker','run','--rm','--pull=never','--network=none','--cap-drop=ALL',
+              '--security-opt=no-new-privileges','--read-only','--entrypoint=/bin/cat',IMAGE,'/builder-packages.lock']
+        try:
+            if accepted:
+                self.assertEqual((native.run(argv,timeout=2)+'\n').encode(),INVENTORY)
+            else:
+                with self.assertRaisesRegex(ValueError,'^base-lock-probe-inventory$'):
+                    native.run(argv,timeout=2)
+            self.assert_inventory_diagnostic(commands,path,accepted)
+            starts=[call for call in self.load()['calls'] if call[:1]==['start']]
+            self.assertEqual(len(starts),1)
+            self.assertEqual(starts[0][:2],['start','--attach'])
+            self.assertEqual(len(starts[0]),3)
+            self.assertRegex(starts[0][2],'^[0-9a-f]{64}$')
+        finally:
+            self.assert_owned_inventory_cleanup()
+
+    def test_frozen_341_inventory_through_original_run_and_real_delegate(self):
+        self.inventory_control(INVENTORY,accepted=True)
+
+    def test_inventory_missing_final_newline_refused_and_owned_cleanup(self):
+        self.inventory_control(INVENTORY[:-1])
+
+    def test_inventory_unsorted_refused_and_owned_cleanup(self):
+        rows=INVENTORY.splitlines(keepends=True)
+        self.inventory_control(b''.join([rows[1],rows[0],*rows[2:]]))
+
+    def test_inventory_extra_malformed_row_refused_and_owned_cleanup(self):
+        self.inventory_control(INVENTORY+b'zzzz-extra invalid row\n')
+
+    def test_inventory_private_stdout_refused_without_public_text(self):
+        self.inventory_control(INVENTORY+b'PRIVATE FIXTURE CONTROL\n')
+
+    def test_inventory_nonzero_exit_refused_despite_valid_stdout(self):
+        self.inventory_control(INVENTORY,exit_code=7)
+
+    def test_valid_sorted_extra_package_reaches_original_exact_set_refusal(self):
+        # Synthetic source bytes exercise original build's equality guard only;
+        # no signatures, native transaction, compiler or Docker build is run.
+        inputs=copy.deepcopy(INPUTS)
+        cache=self.root/'fixture-cache';cache.mkdir()
+        for item in [inputs['rootfs'],*inputs['keyring_files'],*inputs['packages']]:
+            payload=b'synthetic cache fixture: '+item['filename'].encode()
+            (cache/item['filename']).write_bytes(payload)
+            item['sha256']=hashlib.sha256(payload).hexdigest()
+            if 'signature_sha256' in item:
+                signature=b'synthetic signature fixture; never authenticated'
+                (cache/(item['filename']+'.sig')).write_bytes(signature)
+                item['signature_sha256']=hashlib.sha256(signature).hexdigest()
+        for path in self.context.iterdir():path.unlink()
+        self.context.rmdir()
+        (self.producer/'rootfs-hooks.json').write_text('[]')
+        (self.producer/'package-audit.json').write_text('{}')
+        (self.producer/'inputs.lock.json').write_bytes(INPUT_BYTES)
+        (self.root/'inventory.fixture').write_bytes(INVENTORY+b'zzzz-fixture-extra 1\n')
+        self.value.initialize()
+        native,commands,path=self.native_delegate()
+        try:
+            with self.assertRaisesRegex(ValueError,'^offline transaction changed the frozen package set; review packages.lock$'):
+                native.build(inputs,cache,self.producer,{})
+            self.assert_inventory_diagnostic(commands,path,accepted=True)
+            self.assertEqual((self.producer/'packages.lock').read_bytes(),INVENTORY+b'zzzz-fixture-extra 1\n')
+        finally:
+            self.assert_owned_inventory_cleanup()
+
+    def test_fake_cli_refuses_former_unsupported_start_flag_before_container_output(self):
+        self.build()
+        identifier='f'*64
+        self.load()['containers']['flag-fixture']={'Id':identifier,
+            'Config':{'Cmd':['-euc','cat /builder-packages.lock']}}
+        self.save()
+        try:
+            result=subprocess.run([str(self.binary),'--host',self.endpoint,'start','--attach',
+                '--sig-proxy=false',identifier],env=self.env,capture_output=True,timeout=2)
+            self.assertNotEqual(result.returncode,0)
+            self.assertEqual(result.stdout,b'')
+        finally:
+            self.load()['containers'].pop('flag-fixture');self.save()
+            self.assert_owned_inventory_cleanup()
 
     def test_missing_iid_recovers_labelled_image_and_parent_reloads(self):
         self.state['missing_iid']=True;self.save();self.value.initialize()

@@ -62,7 +62,19 @@ elif a[:1]==['create']:
  if s.get('create_sleep'):(root/'create-ready').write_text('ready');time.sleep(60)
  print('unknown' if s.get('unknown_create') else ident)
 elif a[:1]==['start']:
- assert a[1:3]==['--attach','--sig-proxy=false'];item=next(v for v in s['containers'].values() if v['Id']==a[3])
+ if len(a)!=3 or a[1]!='--attach':
+  sys.stderr.write('unknown start flag\n');raise SystemExit(125)
+ item=next(v for v in s['containers'].values() if v['Id']==a[2])
+ if s.get('start_descendant'):
+  pid=os.fork()
+  if pid==0:
+   signal.signal(signal.SIGTERM,signal.SIG_IGN)
+   (root/'start-descendant-ready').write_text(str(os.getpid()));time.sleep(60);os._exit(0)
+  def forward(number,frame):
+   (root/'start-forwarded').write_text(str(number));os.kill(pid,number)
+  signal.signal(signal.SIGTERM,forward)
+  while not (root/'start-descendant-ready').exists():time.sleep(.01)
+  (root/'start-ready').write_text(str(os.getpid()));time.sleep(60)
  if s.get('start_sleep'):(root/'start-ready').write_text('ready');time.sleep(60)
  if item['Config']['Cmd'][0]=='-euc':print(s['user'].replace(':','\n')+'\nalpha 1\nbeta 2')
  else:print('build output');raise SystemExit(s.get('build_code',0))
@@ -201,9 +213,18 @@ class BrokerTests(unittest.TestCase):
         creates = [call for call in self.state['calls'] if call[0] == 'create']
         self.assertEqual(len(creates), 2)
         self.assertTrue(all('--rm' not in call and '--ipc=private' in call for call in creates))
+        self.assertTrue(all(len(call) == 3 and call[1] == '--attach'
+                            for call in self.state['calls'] if call[0] == 'start'))
         self.assertTrue(any(path.read_bytes() == b'build output\n' for path in (self.root/'logs').iterdir()))
         self.assertEqual(self.value.capture(['docker','info','--format','{{.Architecture}}']), 'aarch64')
         self.assertIn(b'GET /info HTTP/1.1\r\n', (self.root/'http-requests.log').read_bytes())
+
+    def test_fake_cli_rejects_removed_start_option_before_container_execution(self):
+        result = self.value.runner.run([str(self.binary), '--host', self.endpoint, 'start',
+                                        '--attach', '--sig-proxy=false', 'f' * 64], timeout=2)
+        self.assertEqual(result.returncode, 125)
+        self.assertEqual(result.stdout, b'unknown start flag\n')
+        self.assertFalse(self.load()['containers'])
 
     def test_http_chunked_and_content_length_are_read_without_cli_helpers(self):
         for mode in (None, 'chunked'):
@@ -392,6 +413,64 @@ with cancellation_handlers():
 
     def test_cancelled_unknown_create_empty_listing_is_not_absence_proof(self):
         self.cancel_create('empty_unknown', False)
+
+    def attached_start(self, stop):
+        self.value.initialize()
+        self.load()['start_descendant'] = True
+        self.save()
+        output_path = self.root / 'attached-result.json'
+        helper = """import json,sys
+sys.path.insert(0,%r)
+import broker
+from runtime import Runner,Cancelled,cancellation_handlers
+from pathlib import Path
+broker.validate_endpoint=lambda endpoint,uid:endpoint
+env=%r
+b=broker.Broker(Runner(20,env,Path(%r)/'worker-logs'),Runner(1,env,Path(%r)/'worker-cleanup'),%r,%r,%r,%r,%r,%r,Path(%r)/'journal.json',%r,expected_mounts=%r)
+b.initialize(expected_daemon=%r)
+with cancellation_handlers():
+ try:b.build(%r,%r)
+ except Cancelled:failure='cancelled'
+ except ValueError as error:failure=str(error)
+ else:raise SystemExit(9)
+Path(%r).write_text(json.dumps({'failure':failure,'cleanup':b.last_cleanup}))
+""" % (str(Path(broker.__file__).parent), self.env, str(self.root), str(self.root),
+        str(self.binary), self.digest, self.endpoint, IMAGE, self.uid, self.gid,
+        str(self.root), NONCE, self.mounts, self.value.daemon, self.command(),
+        .25 if stop == 'timeout' else 15, str(output_path))
+        process = subprocess.Popen([sys.executable, '-B', '-c', helper], env=self.env,
+                                   stdout=subprocess.PIPE, stderr=subprocess.STDOUT, start_new_session=True)
+        try:
+            end = time.monotonic() + 5
+            while not (self.root / 'start-ready').exists():
+                self.assertIsNone(process.poll()); self.assertLess(time.monotonic(), end)
+                time.sleep(.01)
+            if stop != 'timeout':
+                os.kill(process.pid, stop)
+            output = process.communicate(timeout=8)[0]
+            self.assertEqual(process.returncode, 0, output)
+            result = json.loads(output_path.read_bytes())
+            self.assertEqual(result['failure'], 'command-timeout' if stop == 'timeout' else 'cancelled')
+            self.assertEqual(result['cleanup']['status'], 'PASS')
+            self.assertIs(result['cleanup']['absence_verified'], True)
+            self.assertFalse(self.load()['containers'])
+            self.assertEqual(int((self.root / 'start-forwarded').read_text()), signal.SIGTERM)
+            for marker in ('start-ready', 'start-descendant-ready'):
+                with self.assertRaises(ProcessLookupError):
+                    os.kill(int((self.root / marker).read_text()), 0)
+        finally:
+            if process.poll() is None:
+                os.killpg(process.pid, signal.SIGKILL); process.wait(timeout=2)
+            process.stdout.close()
+
+    def test_attached_start_sigint_reaps_cli_descendant_and_removes_owned_container(self):
+        self.attached_start(signal.SIGINT)
+
+    def test_attached_start_sigterm_reaps_cli_descendant_and_removes_owned_container(self):
+        self.attached_start(signal.SIGTERM)
+
+    def test_attached_start_timeout_reaps_cli_descendant_and_removes_owned_container(self):
+        self.attached_start('timeout')
 
     def test_signal_during_cleanup_recovers_once_and_continues_owned_names(self):
         self.value.initialize()
