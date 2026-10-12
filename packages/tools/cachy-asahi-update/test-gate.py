@@ -249,6 +249,113 @@ class GateTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 gate.elf_gate(data)
 
+    def test_shipped_module_bytes_match_gate_and_policy_pins(self):
+        policy = json.loads((HERE / 'build-policy.json').read_bytes())
+        actual = {name: gate.sha((HERE / name).read_bytes()) for name in gate.MODULE_PINS}
+        self.assertEqual(set(actual), {'worker-metadata.py', 'linux-closure.py'})
+        self.assertEqual(actual, gate.MODULE_PINS)
+        self.assertEqual(actual, policy['module_sha256'])
+        gate.policy_check(policy)
+
+    def pin_main_fixture(self, root, policy, payloads=None):
+        for name in gate.MODULE_PINS:
+            data = (HERE / name).read_bytes()
+            (root / name).write_bytes((payloads or {}).get(name, data))
+        (root / 'build-policy.json').write_text(json.dumps(policy))
+        argv = ['build-gate.py', '--policy', str(root / 'build-policy.json')]
+        for name in ('metadata', 'worker', 'cfg', 'manifest', 'lock', 'cargo-audit', 'vendor',
+                     'build-script-review', 'additional-licenses', 'controller-input'):
+            argv.extend(['--' + name, '/inert/' + name])
+        facades = {name: SimpleNamespace(observe=Mock(side_effect=AssertionError('observation forbidden')))
+                   for name in gate.MODULE_PINS}
+        specs = {name: SimpleNamespace(loader=SimpleNamespace(exec_module=Mock()))
+                 for name in gate.MODULE_PINS}
+
+        def spec_for(name, path):
+            self.assertEqual(path, root / path.name)
+            return specs[path.name]
+
+        def facade_for(spec):
+            return next(facades[name] for name in specs if specs[name] is spec)
+
+        return argv, facades, specs, spec_for, facade_for
+
+    def pin_main_run(self, root, fixture, expected_error, refusal=None):
+        argv, facades, specs, spec_for, facade_for = fixture
+        stop = Mock(side_effect=RuntimeError('inert stop before observation'))
+        with patch.object(gate, 'HERE', root), patch('sys.argv', argv), \
+                patch.object(gate.importlib.util, 'spec_from_file_location', side_effect=spec_for), \
+                patch.object(gate.importlib.util, 'module_from_spec', side_effect=facade_for), \
+                patch.object(gate, 'compile_inputs', stop), patch('sys.stderr') as stderr, \
+                self.assertRaises(expected_error) as caught:
+            gate.main()
+        for facade in facades.values():
+            facade.observe.assert_not_called()
+        if refusal:
+            self.assertIn(refusal, ''.join(call.args[0] for call in stderr.write.call_args_list))
+        return caught.exception, stop, specs, facades
+
+    def test_main_shipped_pins_reach_inert_compile_boundary(self):
+        policy = json.loads((HERE / 'build-policy.json').read_bytes())
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            fixture = self.pin_main_fixture(root, policy)
+            error, stop, specs, facades = self.pin_main_run(root, fixture, RuntimeError)
+            self.assertEqual(str(error), 'inert stop before observation')
+            stop.assert_called_once()
+            self.assertIs(stop.call_args.args[2], facades['worker-metadata.py'])
+            self.assertIs(stop.call_args.args[3], facades['linux-closure.py'])
+            for name, spec in specs.items():
+                spec.loader.exec_module.assert_called_once_with(facades[name])
+
+    def test_main_consistent_stale_pins_refuse_before_import(self):
+        policy = json.loads((HERE / 'build-policy.json').read_bytes())
+        stale = 'f54226c068f3f8a51556ed9185168b89f793c1c8f2219c81557246f587e0edf2'
+        policy['module_sha256']['worker-metadata.py'] = stale
+        with tempfile.TemporaryDirectory() as temp, patch.object(gate, 'MODULE_PINS', policy['module_sha256']):
+            root = Path(temp)
+            fixture = self.pin_main_fixture(root, policy)
+            error, stop, specs, _ = self.pin_main_run(root, fixture, SystemExit, 'validator/observer module pin differs')
+            self.assertEqual(error.code, 1)
+            stop.assert_not_called()
+            for spec in specs.values():
+                spec.loader.exec_module.assert_not_called()
+
+    def test_main_changed_module_payload_refuses_before_its_import(self):
+        policy = json.loads((HERE / 'build-policy.json').read_bytes())
+        for changed in gate.MODULE_PINS:
+            with self.subTest(changed=changed), tempfile.TemporaryDirectory() as temp:
+                root = Path(temp)
+                payloads = {changed: (HERE / changed).read_bytes() + b'\n# inert changed bytes\n'}
+                fixture = self.pin_main_fixture(root, policy, payloads)
+                error, stop, specs, _ = self.pin_main_run(root, fixture, SystemExit, 'validator/observer module pin differs')
+                self.assertEqual(error.code, 1)
+                stop.assert_not_called()
+                specs[changed].loader.exec_module.assert_not_called()
+                if changed == 'worker-metadata.py':
+                    specs['linux-closure.py'].loader.exec_module.assert_not_called()
+                else:
+                    specs['worker-metadata.py'].loader.exec_module.assert_called_once()
+
+    def test_main_asymmetric_gate_policy_pins_refuse_before_import(self):
+        current = json.loads((HERE / 'build-policy.json').read_bytes())
+        stale = copy.deepcopy(current['module_sha256'])
+        stale['worker-metadata.py'] = 'f54226c068f3f8a51556ed9185168b89f793c1c8f2219c81557246f587e0edf2'
+        for changed in ('gate', 'policy'):
+            with self.subTest(changed=changed), tempfile.TemporaryDirectory() as temp:
+                policy = copy.deepcopy(current)
+                if changed == 'policy':
+                    policy['module_sha256'] = stale
+                pins = stale if changed == 'gate' else current['module_sha256']
+                with patch.object(gate, 'MODULE_PINS', pins):
+                    root = Path(temp)
+                    fixture = self.pin_main_fixture(root, policy)
+                    error, stop, specs, _ = self.pin_main_run(root, fixture, SystemExit, 'source-reviewed observer/validator code pins differ')
+                    self.assertEqual(error.code, 1)
+                    stop.assert_not_called()
+                    for spec in specs.values():
+                        spec.loader.exec_module.assert_not_called()
+
 
 if __name__ == '__main__':
     unittest.main()
