@@ -1,0 +1,451 @@
+name: native-arm-fdk
+on:
+  workflow_dispatch:
+    inputs:
+      packet_sha256:
+        description: Externally reviewed SHA-256 of the complete FDK native job packet.lock.json
+        required: true
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: native-arm-build
+  cancel-in-progress: false
+jobs:
+  fdk:
+    if: github.repository == 'Gabriel-Kahen/cachy-asahi' && github.event.repository.private == false
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 150
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      FDK_JOB_PACKET_SHA256: ${{ inputs.packet_sha256 }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1, same reviewed pin as native-arm-build
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Verify committed packet and existing native prerequisites
+        timeout-minutes: 5
+        shell: bash
+        run: |
+          /usr/bin/python3 -I -B - <<'PY'
+          import hashlib, json, os, platform, re, shutil, stat, subprocess, sys
+          from pathlib import Path
+
+          HELPER = 'scripts/ci/log_evidence.py'
+          HELPER_SHA = 'a25f0089759c12afae3eea23bab8b22fa05cf5bbaa9eddc1611ce78b0405f8f5'
+          WORKFLOW = '.github/workflows/native-arm-fdk.yml'
+          PACKET = 'scripts/port/fdk-native-job/packet.lock.json'
+
+          def need(ok):
+              if not ok:
+                  raise ValueError('boundary')
+
+          def read(path, limit):
+              need('..' not in path.parts and all(stat.S_ISDIR(p.lstat().st_mode) for p in path.parents))
+              before = path.lstat()
+              need(stat.S_ISREG(before.st_mode) and before.st_nlink == 1 and before.st_size <= limit)
+              fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+              try:
+                  opened = os.fstat(fd)
+                  need((opened.st_dev, opened.st_ino) == (before.st_dev, before.st_ino))
+                  with os.fdopen(fd, 'rb', closefd=False) as stream:
+                      data = stream.read(limit + 1)
+                  after = os.fstat(fd)
+                  need(len(data) <= limit and (opened.st_size, opened.st_mtime_ns, opened.st_ctime_ns) ==
+                       (after.st_size, after.st_mtime_ns, after.st_ctime_ns) and
+                       (path.lstat().st_dev, path.lstat().st_ino) == (opened.st_dev, opened.st_ino))
+                  return data
+              finally:
+                  os.close(fd)
+
+          def decode(data):
+              def unique(rows):
+                  value = {}
+                  for key, item in rows:
+                      need(key not in value)
+                      value[key] = item
+                  return value
+              value = json.loads(data, object_pairs_hook=unique, parse_constant=lambda _: need(False))
+              need(type(value) is dict)
+              return value
+
+          def git(root, *args):
+              env = {'PATH': '/usr/bin:/bin', 'LANG': 'C.UTF-8', 'HOME': os.environ['RUNNER_TEMP'],
+                     'GIT_CONFIG_NOSYSTEM': '1', 'GIT_CONFIG_GLOBAL': '/dev/null'}
+              result = subprocess.run(['/usr/bin/git', '--literal-pathspecs', '-c', 'core.hooksPath=/dev/null',
+                                       '-c', 'core.fsmonitor=false', '--no-optional-locks', '-C', str(root), *args],
+                                      env=env, capture_output=True, timeout=10, check=True)
+              need(len(result.stdout) <= 8 * 1024**2 and len(result.stderr) <= 4096)
+              return result.stdout
+
+          def committed(root, commit, name, mode, data):
+              row = git(root, 'ls-tree', '-z', commit, '--', name)
+              need(row.endswith(b'\0') and row.count(b'\0') == 1)
+              header, actual = row[:-1].split(b'\t')
+              bits = header.split()
+              need(len(bits) == 3 and bits[:2] == [b'100755' if mode == 0o755 else b'100644', b'blob'] and
+                   re.fullmatch(b'[0-9a-f]{40}', bits[2]) and actual == name.encode())
+              need(git(root, 'cat-file', '-s', bits[2].decode()) == (str(len(data)) + '\n').encode())
+              need(git(root, 'cat-file', 'blob', bits[2].decode()) == data)
+
+          def source(root, commit, pin):
+              need(re.fullmatch('[0-9a-f]{40}', commit or '') and re.fullmatch('[0-9a-f]{64}', pin or ''))
+              need(git(root, 'rev-parse', 'HEAD').decode().strip() == commit)
+              need(os.environ.get('GITHUB_WORKFLOW_SHA', commit) == commit)
+              for name, expected in ((HELPER, HELPER_SHA), (WORKFLOW, None), (PACKET, pin)):
+                  path = root / name
+                  data = read(path, 1024**2)
+                  need(stat.S_IMODE(path.lstat().st_mode) == 0o644)
+                  need(expected is None or hashlib.sha256(data).hexdigest() == expected)
+                  committed(root, commit, name, 0o644, data)
+              packet = decode(read(root / PACKET, 1024**2))
+              need(set(packet) == {'schema_version', 'files'} and type(packet['schema_version']) is int and
+                   packet['schema_version'] == 1 and type(packet['files']) is dict and len(packet['files']) == 128)
+              total = 0
+              for name, row in packet['files'].items():
+                  need(type(name) is str and 0 < len(name) <= 512 and '\\' not in name and
+                       all(32 <= ord(c) < 127 for c in name) and not name.startswith('/') and
+                       all(p not in ('', '.', '..') for p in name.split('/')))
+                  need(type(row) is dict and set(row) == {'sha256', 'bytes', 'mode'} and
+                       type(row['mode']) is int and row['mode'] in (0o644, 0o755) and
+                       type(row['bytes']) is int and 0 <= row['bytes'] <= 8 * 1024**2 and
+                       re.fullmatch('[0-9a-f]{64}', row['sha256']))
+                  data = read(root / name, 8 * 1024**2)
+                  total += len(data)
+                  need(total <= 32 * 1024**2 and len(data) == row['bytes'] and
+                       hashlib.sha256(data).hexdigest() == row['sha256'] and
+                       stat.S_IMODE((root / name).lstat().st_mode) == row['mode'])
+                  committed(root, commit, name, row['mode'], data)
+              need('scripts/port/fdk-native-job/job.py' in packet['files'])
+
+          def main():
+              need(sys.version_info >= (3, 11) and platform.system() == 'Linux' and
+                   platform.machine().lower() in ('aarch64', 'arm64') and
+                   os.environ.get('RUNNER_ARCH') == 'ARM64' and os.environ.get('RUNNER_OS') == 'Linux')
+              need(os.getuid() == os.geteuid() != 0 and os.getgid() == os.getegid() != 0)
+              caps = dict(line.split(':', 1) for line in Path('/proc/self/status').read_text().splitlines() if ':' in line)
+              need(int(caps['CapEff'], 16) == int(caps['CapPrm'], 16) == 0)
+              root, temporary = Path(os.environ['GITHUB_WORKSPACE']), Path(os.environ['RUNNER_TEMP'])
+              need(root.is_absolute() and root == root.resolve() and temporary.is_absolute() and temporary == temporary.resolve())
+              need(all(stat.S_ISDIR(p.lstat().st_mode) for p in (temporary, *temporary.parents)))
+              for name in ('git', 'gpg', 'lscpu', 'zstd', 'docker', 'python3'):
+                  path = Path('/usr/bin') / name
+                  need(path.is_file() and os.access(path, os.X_OK))
+              docker = Path('/usr/bin/docker')
+              need(docker == docker.resolve())
+              docker_pin = hashlib.sha256(read(docker, 128 * 1024**2)).hexdigest()
+              socket = Path('/run/docker.sock')
+              need(socket == socket.resolve() and stat.S_ISSOCK(socket.lstat().st_mode))
+              need(shutil.disk_usage(temporary).free >= 8 * 1024**3)
+              run, attempt = os.environ['GITHUB_RUN_ID'], os.environ['GITHUB_RUN_ATTEMPT']
+              need(re.fullmatch('[0-9]{1,20}', run) and re.fullmatch('[0-9]{1,10}', attempt))
+              output = temporary / ('fdk-native-job-' + run + '-' + attempt)
+              need(not output.exists() and not output.is_symlink() and not output.is_relative_to(root))
+              source(root, os.environ['GITHUB_SHA'], os.environ['FDK_JOB_PACKET_SHA256'])
+              with open(os.environ['GITHUB_ENV'], 'a') as stream:
+                  stream.write('FDK_DOCKER_SHA256=' + docker_pin + '\n')
+              print('FDK_PREFLIGHT_PASS')
+
+          if __name__ == '__main__':
+              try:
+                  main()
+              except Exception:
+                  print('FDK_PREFLIGHT_FAIL')
+                  sys.exit(1)
+          PY
+      - name: Execute finite original producer and accepted FDK stage
+        id: native
+        shell: bash
+        run: |
+          /usr/bin/python3 -I -B scripts/port/fdk-native-job/job.py --execute-native \
+            --source-root "$GITHUB_WORKSPACE" --source-commit "$GITHUB_SHA" \
+            --packet "$GITHUB_WORKSPACE/scripts/port/fdk-native-job/packet.lock.json" \
+            --packet-sha256 "$FDK_JOB_PACKET_SHA256" \
+            --docker-endpoint unix:///run/docker.sock \
+            --docker-binary /usr/bin/docker --docker-sha256 "$FDK_DOCKER_SHA256" \
+            --output "$RUNNER_TEMP/fdk-native-job-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT" \
+            --deadline 7200 --producer-timeout 3300 --fdk-timeout 3000
+      - name: Encode only bounded public JSON evidence, including failure receipts
+        if: always()
+        env:
+          FDK_NATIVE_OUTCOME: ${{ steps.native.outcome }}
+        timeout-minutes: 5
+        shell: bash
+        run: |
+          /usr/bin/python3 -I -B - <<'PY'
+          import hashlib, json, os, re, stat, subprocess, sys, tempfile
+          from pathlib import Path
+
+          HELPER = 'scripts/ci/log_evidence.py'
+          HELPER_SHA = 'a25f0089759c12afae3eea23bab8b22fa05cf5bbaa9eddc1611ce78b0405f8f5'
+          ALLOWED = {'status.json', 'fdk/status.json', 'producer/producer-summary.json',
+                     'producer/acquisition.json', 'producer/signatures.json', 'producer/inputs.lock.json',
+                     'producer/recipes.lock.json', 'producer/export-manifest.json'}
+
+          def need(ok):
+              if not ok:
+                  raise ValueError('boundary')
+
+          def read(path, limit):
+              need('..' not in path.parts and all(stat.S_ISDIR(p.lstat().st_mode) for p in path.parents))
+              before = path.lstat()
+              need(stat.S_ISREG(before.st_mode) and before.st_nlink == 1 and before.st_uid == os.getuid() and before.st_size <= limit)
+              fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+              try:
+                  opened = os.fstat(fd)
+                  need((opened.st_dev, opened.st_ino) == (before.st_dev, before.st_ino))
+                  with os.fdopen(fd, 'rb', closefd=False) as stream:
+                      data = stream.read(limit + 1)
+                  after = os.fstat(fd)
+                  need(len(data) <= limit and (opened.st_size, opened.st_mtime_ns, opened.st_ctime_ns) ==
+                       (after.st_size, after.st_mtime_ns, after.st_ctime_ns) and
+                       (path.lstat().st_dev, path.lstat().st_ino) == (opened.st_dev, opened.st_ino))
+                  return data
+              finally:
+                  os.close(fd)
+
+          def decode(data):
+              def unique(rows):
+                  value = {}
+                  for key, item in rows:
+                      need(key not in value)
+                      value[key] = item
+                  return value
+              value = json.loads(data, object_pairs_hook=unique, parse_constant=lambda _: need(False))
+              need(type(value) is dict)
+              return value
+
+          def verify_helper(root, commit, env):
+              need(re.fullmatch('[0-9a-f]{40}', commit or '') and root.is_absolute() and root == root.resolve())
+              path = root / HELPER
+              data = read(path, 65536)
+              need(stat.S_IMODE(path.lstat().st_mode) == 0o644 and hashlib.sha256(data).hexdigest() == HELPER_SHA)
+              def git(*args):
+                  result = subprocess.run(['/usr/bin/git', '--literal-pathspecs', '-c', 'core.hooksPath=/dev/null',
+                                           '-c', 'core.fsmonitor=false', '--no-optional-locks', '-C', str(root), *args],
+                                          env=env, capture_output=True, timeout=10, check=True)
+                  need(len(result.stdout) <= 65536 and len(result.stderr) <= 4096)
+                  return result.stdout
+              need(git('rev-parse', 'HEAD').decode().strip() == commit)
+              need(os.environ.get('GITHUB_WORKFLOW_SHA', commit) == commit)
+              row = git('ls-tree', '-z', commit, '--', HELPER)
+              need(row.endswith(b'\0') and row.count(b'\0') == 1)
+              header, name = row[:-1].split(b'\t')
+              mode, kind, blob = header.split()
+              need(mode == b'100644' and kind == b'blob' and name == HELPER.encode() and re.fullmatch(b'[0-9a-f]{40}', blob))
+              need(git('cat-file', '-s', blob.decode()) == (str(len(data)) + '\n').encode())
+              need(git('cat-file', 'blob', blob.decode()) == data)
+              return data
+
+          INPUTS_SHA = '3c16c37d1b12cc84a88572e82ab8ad59e7f3b5ed0d08f09ddf72a69f4711d650'
+          RECIPES_SHA = '20d846cdf289bfc233b0051bf33b677fd6e94e9f05d91a33595a2829a196fa63'
+          NATIVE_SHA = 'a8b6ed8971a38089a4499dcec605477c4e48d7a47c3de485d205f6a44678b898'
+          NAMES = {'cachy-asahi-hyprland-settings', 'cachy-asahi-fish-config',
+                   'cachy-asahi-zsh-config', 'cachy-asahi-setup'}
+
+          def digest(value):
+              return type(value) is str and re.fullmatch('[0-9a-f]{64}', value) is not None
+
+          def validate_producer(producer, raw, job_status):
+              minimal_files = {'producer-summary.json', 'export-manifest.json'}
+              audited_files = minimal_files | {'acquisition.json', 'inputs.lock.json', 'recipes.lock.json'}
+              need(set(producer) in (minimal_files, audited_files, audited_files | {'signatures.json'}))
+              summary, manifest = producer['producer-summary.json'], producer['export-manifest.json']
+              need(set(manifest) == {'schema_version', 'status', 'files', 'binary_publication'} and
+                   type(manifest['schema_version']) is int and manifest['schema_version'] == 1 and
+                   manifest['status'] == job_status and manifest['binary_publication'] == 'NOT RUN' and
+                   type(manifest['files']) is dict and
+                   manifest['files'] == {name: hashlib.sha256(raw['producer/' + name]).hexdigest()
+                                         for name in producer if name != 'export-manifest.json'})
+              need(type(summary.get('schema_version')) is int and summary['schema_version'] == 1 and
+                   summary.get('status') == summary.get('authoritative_job_status') == job_status and
+                   summary.get('binary_publication') == 'NOT RUN' and
+                   summary.get('native_build') == ('PASS' if job_status == 'PASS' else 'NOT ACCEPTED'))
+              minimal = {'schema_version', 'status', 'native_build', 'error_code', 'binary_publication',
+                         'authoritative_job_status', 'recorded_native_build'}
+              full = {'schema_version', 'status', 'native_build', 'image_id', 'inputs_sha256', 'recipes_sha256',
+                      'native_script_sha256', 'acquired_inputs', 'authenticated_payloads', 'signed_packages',
+                      'builder_packages', 'originals', 'audit_receipts_sha256', 'hardware', 'installation',
+                      'binary_publication', 'authoritative_job_status'}
+              complete = set(summary) == full | ({'recorded_native_build'} if job_status == 'FAIL' else set())
+              if not complete:
+                  need(set(summary) == minimal and job_status == 'FAIL' and
+                       summary['error_code'] == 'producer-evidence-incomplete-or-invalid' and
+                       summary['recorded_native_build'] == 'NOT ACCEPTED' and 'signatures.json' not in producer)
+              else:
+                  need(type(summary['image_id']) is str and re.fullmatch('sha256:[0-9a-f]{64}', summary['image_id']) and
+                       summary['inputs_sha256'] == INPUTS_SHA and summary['recipes_sha256'] == RECIPES_SHA and
+                       summary['native_script_sha256'] == NATIVE_SHA and
+                       summary['hardware'] == summary['installation'] == 'NOT RUN')
+                  if job_status == 'FAIL':
+                      need(summary['recorded_native_build'] == 'PASS')
+                  for key, count in (('acquired_inputs', 501), ('authenticated_payloads', 249),
+                                     ('signed_packages', 248), ('builder_packages', 341)):
+                      need(type(summary[key]) is int and summary[key] == count)
+                  audit = summary['audit_receipts_sha256']
+                  need(type(audit) is dict and set(audit) == {'acquisition.json', 'signatures.json',
+                       'rootfs-inventory.json', 'package-audit.json', 'cache-checksums.json', 'bootstrap.json'} and
+                       all(digest(value) for value in audit.values()))
+                  need(type(summary['originals']) is dict and set(summary['originals']) == NAMES)
+                  for row in summary['originals'].values():
+                      need(type(row) is dict and set(row) == {'status', 'artifact_sha256', 'attempt_receipts_sha256',
+                           'bytes_equal', 'installed_contents_equal', 'pkginfo_equal', 'buildinfo_equal_recorded'} and
+                           row['status'] == 'PASS' and digest(row['artifact_sha256']) and
+                           type(row['attempt_receipts_sha256']) is list and len(row['attempt_receipts_sha256']) == 2 and
+                           all(digest(value) for value in row['attempt_receipts_sha256']) and
+                           row['bytes_equal'] is row['installed_contents_equal'] is row['pkginfo_equal'] is True and
+                           type(row['buildinfo_equal_recorded']) is bool)
+              if set(producer) == minimal_files:
+                  need(job_status == 'FAIL')
+                  return
+              for name, pin in (('inputs.lock.json', INPUTS_SHA), ('recipes.lock.json', RECIPES_SHA)):
+                  need(hashlib.sha256(raw['producer/' + name]).hexdigest() == pin)
+              inputs = producer['inputs.lock.json']
+              expected = {}
+              for row in inputs['keyring_files'] + [inputs['rootfs']] + inputs['packages']:
+                  expected[row['filename']] = {'expected_sha256': row['sha256'], 'expected_bytes': row['size']}
+                  if 'signature_sha256' in row:
+                      expected[row['filename'] + '.sig'] = {'expected_sha256': row['signature_sha256'],
+                                                           'expected_bytes': row['signature_size']}
+              need(len(expected) == 501)
+              acquisition = producer['acquisition.json']
+              need(set(acquisition) == {'schema_version', 'acquisition', 'signature_authentication', 'counts', 'inputs'} and
+                   type(acquisition['schema_version']) is int and acquisition['schema_version'] == 1 and
+                   acquisition['signature_authentication'] == 'NOT RUN' and
+                   type(acquisition['inputs']) is dict and set(acquisition['inputs']) == set(expected))
+              counts = {'total': 501, 'pass': 0, 'fail': 0, 'pending': 0}
+              for name, pins in expected.items():
+                  row = acquisition['inputs'][name]
+                  need(type(row) is dict and row.get('status') in ('PASS', 'FAIL', 'PENDING') and
+                       type(row.get('expected_bytes')) is int and
+                       all(row.get(key) == value for key, value in pins.items()))
+                  fields = {'expected_sha256', 'expected_bytes', 'status'}
+                  if row['status'] == 'FAIL':
+                      fields.add('error_code')
+                      if row.get('error_code') == 'http-failure':
+                          fields.add('http_status')
+                          need(type(row.get('http_status')) is int and 100 <= row['http_status'] <= 599)
+                      else:
+                          need(row.get('error_code') == 'input-acquisition-failed')
+                  need(set(row) == fields)
+                  counts[row['status'].lower()] += 1
+              state = 'IN_PROGRESS' if counts['pending'] else 'FAIL' if counts['fail'] else 'PASS'
+              need(type(acquisition['counts']) is dict and all(type(v) is int for v in acquisition['counts'].values()) and
+                   acquisition['counts'] == counts and acquisition['acquisition'] == state)
+              if complete:
+                  need(state == 'PASS')
+              if 'signatures.json' in producer:
+                  signed = producer['signatures.json']
+                  payloads = {row['filename'] for row in [inputs['rootfs']] + inputs['packages']}
+                  need(complete and set(signed) == {'status', 'verified_payloads', 'inputs'} and signed['status'] == 'PASS' and
+                       type(signed['verified_payloads']) is int and signed['verified_payloads'] == 249 and
+                       type(signed['inputs']) is dict and set(signed['inputs']) == payloads and len(payloads) == 249)
+                  for row in signed['inputs'].values():
+                      need(type(row) is dict and set(row) == {'status', 'primary_fingerprint'} and
+                           row['status'] == 'PASS' and row['primary_fingerprint'] == inputs['signer_fingerprint'])
+              if job_status == 'PASS':
+                  need(complete and 'signatures.json' in producer)
+
+          def validate_public(public, commit, pin):
+              need(all(stat.S_ISDIR(p.lstat().st_mode) for p in (public, *public.parents)) and
+                   public.lstat().st_uid == os.getuid())
+              files, raw, total, visited = {}, {}, 0, 0
+              for parent in (public, public / 'producer', public / 'fdk'):
+                  if not parent.exists():
+                      continue
+                  need(stat.S_ISDIR(parent.lstat().st_mode) and parent.lstat().st_uid == os.getuid())
+                  for path in parent.iterdir():
+                      visited += 1
+                      need(visited <= 10)
+                      name = path.relative_to(public).as_posix()
+                      if name in ('producer', 'fdk'):
+                          need(stat.S_ISDIR(path.lstat().st_mode) and path.lstat().st_uid == os.getuid())
+                          continue
+                      need(name in ALLOWED)
+                      data = read(path, 1024**2)
+                      total += len(data)
+                      need(total <= 4 * 1024**2)
+                      if name in ('producer/inputs.lock.json', 'producer/recipes.lock.json'):
+                          need(hashlib.sha256(data).hexdigest() ==
+                               (INPUTS_SHA if name.endswith('/inputs.lock.json') else RECIPES_SHA))
+                      files[name] = decode(data)
+                      raw[name] = data
+              need('status.json' in files)
+              status = files['status.json']
+              need(set(status) == {'schema_version', 'stage', 'status', 'source_commit', 'source_packet_sha256',
+                                  'phase', 'cancelled', 'owned_image_absence', 'producer_status', 'fdk_status',
+                                  'error_code', 'hardware', 'installation', 'binary_publication'})
+              need(type(status['schema_version']) is int and status['schema_version'] == 1 and
+                   status['stage'] == 'fdk-native-job' and status['status'] in ('PASS', 'FAIL') and
+                   status['phase'] in ('preflight', 'source', 'producer', 'fdk', 'cleanup', 'complete') and
+                   type(status['cancelled']) is bool and type(status['owned_image_absence']) is bool and
+                   status['producer_status'] in ('PASS', 'FAIL', 'NOT RUN', 'NOT ACCEPTED') and
+                   status['fdk_status'] in ('PASS', 'FAIL', 'NOT RUN', 'NOT ACCEPTED') and
+                   status['hardware'] == status['installation'] == status['binary_publication'] == 'NOT RUN' and
+                   status['source_commit'] in (None, commit) and status['source_packet_sha256'] in (None, pin) and
+                   status['error_code'] == (None if status['status'] == 'PASS' else 'fdk-native-job-failed'))
+              if status['status'] == 'PASS':
+                  need(os.environ.get('FDK_NATIVE_OUTCOME') == 'success' and set(files) == ALLOWED and
+                       status['phase'] == 'complete' and not status['cancelled'] and
+                       status['owned_image_absence'] and status['producer_status'] == status['fdk_status'] == 'PASS' and
+                       status['source_commit'] == commit and status['source_packet_sha256'] == pin)
+              if 'fdk/status.json' in files:
+                  fdk = files['fdk/status.json']
+                  need(set(fdk) == {'schema_version', 'stage', 'status', 'phase', 'error_code', 'cancelled',
+                                   'owned_container_absence', 'native_build', 'hardware', 'installation',
+                                   'selected_for_release', 'binary_publication'} and
+                       type(fdk['schema_version']) is int and fdk['schema_version'] == 1 and
+                       fdk['stage'] == 'fdk-native-development' and fdk['status'] == status['status'] and
+                       fdk['hardware'] == fdk['installation'] == fdk['binary_publication'] == 'NOT RUN' and
+                       fdk['selected_for_release'] is False and type(fdk['cancelled']) is bool and
+                       type(fdk['owned_container_absence']) is bool and
+                       fdk['phase'] in ('preflight', 'base-probe', 'source', 'build-1', 'build-2', 'compare', 'complete') and
+                       fdk['native_build'] == ('PASS' if status['status'] == 'PASS' else 'NOT ACCEPTED') and
+                       fdk['error_code'] == (None if status['status'] == 'PASS' else 'fdk-stage-failed'))
+                  if fdk['status'] == 'PASS':
+                      need(fdk['phase'] == 'complete' and not fdk['cancelled'] and fdk['owned_container_absence'])
+              producer = {name.removeprefix('producer/'): value for name, value in files.items() if name.startswith('producer/')}
+              if producer:
+                  validate_producer(producer, raw, status['status'])
+              return raw
+
+          def main():
+              root, temporary = Path(os.environ['GITHUB_WORKSPACE']), Path(os.environ['RUNNER_TEMP'])
+              need(temporary.is_absolute() and temporary == temporary.resolve())
+              run, attempt = os.environ['GITHUB_RUN_ID'], os.environ['GITHUB_RUN_ATTEMPT']
+              need(re.fullmatch('[0-9]{1,20}', run) and re.fullmatch('[0-9]{1,10}', attempt))
+              commit, pin = os.environ['GITHUB_SHA'], os.environ['FDK_JOB_PACKET_SHA256']
+              need(re.fullmatch('[0-9a-f]{64}', pin or ''))
+              env = {'PATH': '/usr/bin:/bin', 'LANG': 'C.UTF-8', 'LC_ALL': 'C.UTF-8', 'HOME': str(temporary),
+                     'GIT_CONFIG_NOSYSTEM': '1', 'GIT_CONFIG_GLOBAL': '/dev/null'}
+              helper = verify_helper(root, commit, env)
+              public = temporary / ('fdk-native-job-' + run + '-' + attempt) / 'public'
+              if not public.exists() and not public.is_symlink():
+                  print('FDK_PUBLIC_EVIDENCE_NOT_CREATED')
+                  need(os.environ.get('FDK_NATIVE_OUTCOME') != 'success')
+                  return
+              data = validate_public(public, commit, pin)
+              # Encode the validated bytes, never a second read of the live public tree.
+              with tempfile.TemporaryDirectory(prefix='fdk-public-log-', dir=temporary) as directory:
+                  snapshot = Path(directory) / 'public'
+                  snapshot.mkdir(mode=0o700)
+                  for name, value in data.items():
+                      path = snapshot / name
+                      path.parent.mkdir(mode=0o700, exist_ok=True)
+                      with path.open('xb') as stream:
+                          stream.write(value)
+                  encoder = Path(directory) / 'log_evidence.py'
+                  with encoder.open('xb') as stream:
+                      stream.write(helper)
+                  subprocess.run(['/usr/bin/python3', '-I', '-B', str(encoder), str(snapshot)],
+                                 env=env, timeout=60, check=True)
+              need(os.environ.get('FDK_NATIVE_OUTCOME') != 'success' or decode(data['status.json'])['status'] == 'PASS')
+
+          if __name__ == '__main__':
+              try:
+                  main()
+              except Exception:
+                  print('FDK_PUBLIC_EVIDENCE_REFUSED')
+                  sys.exit(1)
+          PY
