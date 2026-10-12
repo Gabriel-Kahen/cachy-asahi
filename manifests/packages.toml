@@ -46,7 +46,7 @@ packaging_commit = "c7cf5b4f2c70f28ed50601b3f75b19da93ba663f"
 upstream_commit = "764693fe2863bc2b00db6ad6f4c1d57cded739f2"
 audit = "docs/audits/tools-defaults.md"
 selected_for_release = false
-next_step = "Select no bundle defaults; resolve licensing and evaluate individual architecture-neutral experiments after baseline/recovery gates."
+next_step = "GPLv3 root evidence is recorded in docs/port/tools-functionality.md; reconcile recipe SPDX and individual notices, then evaluate separately justified defaults after baseline/recovery gates."
 
 [[packages]]
 name = "cachyos-kernel-manager"
@@ -129,6 +129,22 @@ native_evidence = "docs/validation/native-arm.md"
 installation = "NOT RUN"
 hardware_validation = "NOT RUN"
 next_step = "Source/recovery review, synchronization and native build pair passed; execute exact-model package/setup/removal/recovery and independent onboarding."
+
+[[packages]]
+name = "cachy-asahi-ksmctl"
+phase = "complete-port-tools"
+status = "candidate"
+source = "adapted-CachyOS-source"
+packaging_commit = "c7cf5b4f2c70f28ed50601b3f75b19da93ba663f"
+recipe = "packages/tools/cachy-asahi-ksmctl/PKGBUILD"
+license = "GPL-2.0-or-later"
+audit = "docs/workstreams/ksmctl.md"
+selected_for_development = true
+selected_for_release = false
+native_build = "NOT RUN"
+installation = "NOT RUN"
+hardware_validation = "NOT RUN"
+next_step = "Build/rebuild and exercise the read-only status candidate on the refreshed native snapshot; required safe KSM management and measured target policy remain separate unfinished work."
 
 [[packages]]
 name = "cachy-asahi-fdk-aac"
