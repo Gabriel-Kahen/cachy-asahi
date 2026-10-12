@@ -627,8 +627,43 @@ class ProducerObservationTests(unittest.TestCase):
     def test_initial_projection_is_finite_unobserved_and_does_not_claim_cleanup(self):
         row=e.initial(SimpleNamespace(source_commit='a'*40,packet_sha256='b'*64))['producer_diagnostics']
         self.assertLessEqual(len(json.dumps(row).encode()),4096)
+        self.assertEqual(row['schema_version'],2)
+        self.assertEqual(row['producer']['before_cleanup'],{'state':'unavailable','returncode':None})
         self.assertIsNone(row['cleanup']);self.assertIsNone(row['producer']['runner_return_code'])
         self.assertFalse(row['producer']['started']);self.assertIsNone(row['rpc']['first_failure'])
+
+    def test_failed_pipeline_keeps_precleanup_sample_separate_from_reaping(self):
+        for sampled, reaped in (({'state':'alive','returncode':None},-15),
+                                ({'state':'exited','returncode':1},1),
+                                ({'state':'unavailable','returncode':None},1)):
+            with self.subTest(sampled=sampled),tempfile.TemporaryDirectory() as temporary:
+                diagnostics=e.broker.Diagnostics();diagnostics.begin();diagnostics.kind(['run'])
+                original=BrokenPipeError('private caller output cannot establish its exception')
+                diagnostics.failure('REPLY',original)
+                owner=SimpleNamespace(failed=False,diagnostics=diagnostics,
+                    backend=SimpleNamespace(runner=SimpleNamespace(phase_scope=lambda end:nullcontext())),
+                    operation_deadline=None)
+                prior=object();report={};calls=[]
+                def run(command,**options):
+                    calls.append(command)
+                    observation=runner.observation
+                    observation.started=True;observation.before_cleanup=dict(sampled)
+                    observation.reaping='COMPLETED';observation.reaped_code=reaped
+                    raise original
+                runner=SimpleNamespace(run=run,deadline=time.monotonic()+8460,observation=prior)
+                with patch.object(e,'baseline_observe'),self.assertRaises(BrokenPipeError) as caught:
+                    e.pipeline(SimpleNamespace(files={}),Path('/source'),Path(temporary),owner,
+                        SimpleNamespace(poll=lambda:None),runner,{}, {},report,SimpleNamespace(check=lambda:None))
+                self.assertIs(caught.exception,original);self.assertIs(runner.observation,prior)
+                self.assertEqual(len(calls),1);self.assertEqual(report['producer_mutation'],'UNCERTAIN')
+                row=report['producer_diagnostics'];self.assertEqual(row['schema_version'],2)
+                self.assertEqual(row['producer']['before_cleanup'],sampled)
+                self.assertIsNone(row['producer']['natural_poll_code'])
+                self.assertIsNone(row['producer']['runner_return_code'])
+                self.assertEqual(row['producer']['reaped_code'],reaped)
+                self.assertEqual(row['rpc']['first_failure']['stage'],'REPLY')
+                self.assertEqual(row['rpc']['last_failure']['stage'],'PRODUCER')
+                self.assertNotIn('private',json.dumps(row));self.assertIsNone(row['cleanup'])
 
 
 if __name__ == '__main__':

@@ -951,7 +951,7 @@ class RuntimeObservationTests(unittest.TestCase):
         result=self.runner.run(self.command('raise SystemExit(7)'))
         self.assertEqual(result.returncode,7)
         self.assertEqual(observed.summary(),{'started':True,'natural_poll_code':7,'runner_return_code':7,
-            'reaping':'COMPLETED','reaped_code':7})
+            'reaping':'COMPLETED','reaped_code':7,'before_cleanup':{'state':'exited','returncode':7}})
 
     def test_callback_broken_pipe_leaves_return_unobserved_and_reaps_owned_sleeper(self):
         observed=runtime.RunObservation();self.runner.observation=observed
@@ -963,6 +963,93 @@ class RuntimeObservationTests(unittest.TestCase):
         row=observed.summary();self.assertTrue(row['started']);self.assertIsNone(row['natural_poll_code'])
         self.assertIsNone(row['runner_return_code']);self.assertEqual(row['reaping'],'COMPLETED')
         self.assertIsNotNone(row['reaped_code'])
+        self.assertEqual(row['before_cleanup'],{'state':'alive','returncode':None})
+
+    def test_callback_broken_pipe_observes_already_exited_child_before_cleanup(self):
+        observed=runtime.RunObservation();self.runner.observation=observed
+        children=[];spawn=runtime.subprocess.Popen
+        def start(*args,**kwargs):
+            child=spawn(*args,**kwargs);children.append(child);return child
+        def broken():
+            os.waitid(os.P_PID,children[0].pid,os.WEXITED|os.WNOWAIT)
+            read,write=os.pipe();os.close(read)
+            try:os.write(write,b'finite reply')
+            finally:os.close(write)
+        with patch.object(runtime.subprocess,'Popen',side_effect=start),self.assertRaises(BrokenPipeError):
+            self.runner.run(self.command('raise SystemExit(1)'),service=broken)
+        self.assertEqual(observed.before_cleanup,{'state':'exited','returncode':1})
+        self.assertIsNone(observed.natural_poll_code);self.assertIsNone(observed.runner_return_code)
+        self.assertEqual(observed.reaped_code,1)
+
+    def test_zero_exit_precleanup_agrees_without_rewriting_other_observations(self):
+        observed=runtime.RunObservation();self.runner.observation=observed
+        self.assertEqual(self.runner.run(self.command('raise SystemExit(0)')).returncode,0)
+        self.assertEqual(observed.before_cleanup,{'state':'exited','returncode':0})
+        self.assertEqual((observed.natural_poll_code,observed.runner_return_code,observed.reaped_code),(0,0,0))
+
+    def test_precleanup_poll_errors_preserve_original_callback_exception_identity(self):
+        spawn=runtime.subprocess.Popen
+        for first in (ValueError('original callback'),runtime.Cancelled(signal.SIGTERM)):
+            for fault in (OSError('unavailable poll'),runtime.Cancelled(signal.SIGINT)):
+                with self.subTest(first=type(first),fault=type(fault)):
+                    observed=runtime.RunObservation();self.runner.observation=observed
+                    calls=[];disposing=[];cleanup=runtime._cleanup
+                    def dispose(child):
+                        disposing.append(True);return cleanup(child)
+                    def start(*args,**kwargs):
+                        child=spawn(*args,**kwargs);poll=child.poll
+                        def broken_poll():
+                            if disposing:return poll()
+                            calls.append(True);child.poll=poll;raise fault
+                        child.poll=broken_poll;return child
+                    def fail():raise first
+                    with patch.object(runtime.subprocess,'Popen',side_effect=start), \
+                         patch.object(runtime,'_cleanup',side_effect=dispose),self.assertRaises(type(first)) as caught:
+                        self.runner.run(self.command('import time;time.sleep(30)'),service=fail)
+                    self.assertIs(caught.exception,first);self.assertEqual(calls,[True])
+                    self.assertEqual(observed.before_cleanup,{'state':'unavailable','returncode':None})
+                    self.assertEqual(observed.reaping,'COMPLETED')
+
+    def test_precleanup_codes_are_exact_bounded_and_no_handle_is_unavailable(self):
+        for value in (None,-128,-6,0,255,True,False,-129,256,'1',1.0):
+            with self.subTest(value=value):
+                observed=runtime.RunObservation();calls=[]
+                def poll():calls.append(True);return value
+                observed.observe_before_cleanup(SimpleNamespace(poll=poll))
+                expected=({'state':'alive','returncode':None} if value is None else
+                    {'state':'exited','returncode':value} if type(value) is int and -128<=value<=255 else
+                    {'state':'unavailable','returncode':None})
+                self.assertEqual(observed.summary()['before_cleanup'],expected);self.assertEqual(calls,[True])
+        observed=runtime.RunObservation();self.runner.observation=observed
+        first=OSError('spawn unavailable')
+        with patch.object(runtime.subprocess,'Popen',side_effect=first),self.assertRaises(OSError) as caught:
+            self.runner.run(self.command('pass'))
+        self.assertIs(caught.exception,first);self.assertFalse(observed.started)
+        self.assertEqual(observed.before_cleanup,{'state':'unavailable','returncode':None})
+        self.assertEqual(observed.reaping,'NOT RUN')
+
+    def test_registration_failure_samples_actual_handle_before_cleanup(self):
+        observed=runtime.RunObservation();self.runner.observation=observed
+        first=OSError('registration unavailable');selector=runtime.selectors.DefaultSelector
+        def create():
+            instance=selector();instance.register=lambda *_: (_ for _ in ()).throw(first);return instance
+        with patch.object(runtime.selectors,'DefaultSelector',side_effect=create),self.assertRaises(OSError) as caught:
+            self.runner.run(self.command('import time;time.sleep(30)'))
+        self.assertIs(caught.exception,first)
+        self.assertEqual(observed.before_cleanup,{'state':'alive','returncode':None})
+        self.assertEqual(observed.reaping,'COMPLETED')
+
+    def test_observation_dispatch_failure_preserves_first_exception_and_cleanup(self):
+        first=BrokenPipeError('original reply failure')
+        for fault in (OSError('observation unavailable'),runtime.Cancelled(signal.SIGINT)):
+            with self.subTest(fault=type(fault)):
+                observed=runtime.RunObservation();self.runner.observation=observed
+                def fail():raise first
+                with patch.object(observed,'observe_before_cleanup',side_effect=fault),self.assertRaises(BrokenPipeError) as caught:
+                    self.runner.run(self.command('import time;time.sleep(30)'),service=fail)
+                self.assertIs(caught.exception,first)
+                self.assertEqual(observed.before_cleanup,{'state':'unavailable','returncode':None})
+                self.assertEqual(observed.reaping,'COMPLETED')
 
     def test_late_log_error_keeps_poll_but_never_claims_runner_return(self):
         observed=runtime.RunObservation();self.runner.observation=observed
@@ -985,7 +1072,7 @@ class RuntimeObservationTests(unittest.TestCase):
         self.assertEqual(observed.reaping,'FAILED');self.assertEqual(observed.reaped_code,0)
         self.assertIsNone(observed.runner_return_code)
 
-    def test_observer_adds_no_process_poll_or_cleanup_operations(self):
+    def test_observer_adds_exactly_one_poll_before_any_cleanup_operation(self):
         traces=[]
         original_spawn=runtime.subprocess.Popen;original_cleanup=runtime._cleanup
         for enabled in (False,True):
@@ -995,11 +1082,14 @@ class RuntimeObservationTests(unittest.TestCase):
                 def observed_poll():trace.append('poll');return poll()
                 process.poll=observed_poll;return process
             def cleanup(process):trace.append('cleanup');return original_cleanup(process)
+            def fail():raise BrokenPipeError('closed fixture reply')
             self.runner.observation=runtime.RunObservation() if enabled else None
             with patch.object(runtime.subprocess,'Popen',side_effect=spawn),patch.object(runtime,'_cleanup',side_effect=cleanup):
-                self.runner.run(self.command('raise SystemExit(0)'))
+                with self.assertRaises(BrokenPipeError):
+                    self.runner.run(self.command('import time;time.sleep(30)'),service=fail)
             traces.append(trace)
-        # Loop scheduling can add ordinary polls; exactly one cleanup still occurs.
+        # Callback fails before the ordinary loop poll. Cleanup itself is unchanged.
+        self.assertEqual([x[:x.index('cleanup')] for x in traces],[[],['poll']])
         self.assertEqual([x.count('cleanup') for x in traces],[1,1])
         self.assertTrue(all(x and set(x)<={'poll','cleanup'} for x in traces))
 

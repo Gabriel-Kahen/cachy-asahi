@@ -439,22 +439,34 @@ class _LifecycleOutputs:
 
 
 class RunObservation:
-    """Existing process observations only; no callback, poll or child operation."""
+    """Existing observations plus one authorized poll before process cleanup."""
     def __init__(self):
         self.started = False
         self.natural_poll_code = None
         self.runner_return_code = None
         self.reaping = 'NOT RUN'
         self.reaped_code = None
+        self.before_cleanup = {'state': 'unavailable', 'returncode': None}
 
     @staticmethod
     def code(value):
         return value if type(value) is int and -128 <= value <= 255 else None
 
+    def observe_before_cleanup(self, process):
+        self.before_cleanup = {'state': 'unavailable', 'returncode': None}
+        try:
+            value = process.poll()
+            if value is None:
+                self.before_cleanup = {'state': 'alive', 'returncode': None}
+            elif self.code(value) is not None:
+                self.before_cleanup = {'state': 'exited', 'returncode': value}
+        except BaseException:
+            pass  # Missing diagnostics must not replace the active failure.
+
     def summary(self):
         return {'started': self.started, 'natural_poll_code': self.code(self.natural_poll_code),
             'runner_return_code': self.code(self.runner_return_code), 'reaping': self.reaping,
-            'reaped_code': self.code(self.reaped_code)}
+            'reaped_code': self.code(self.reaped_code), 'before_cleanup': dict(self.before_cleanup)}
 
 
 class Runner:
@@ -814,6 +826,7 @@ class Runner:
     def _run(self, argv, timeout, limit, log, pass_fds, service, cancellation, *, cleanup=False):
         observation = getattr(self, 'observation', None)
         if type(observation) is not RunObservation: observation = None
+        if observation is not None: observation.before_cleanup = {'state': 'unavailable', 'returncode': None}
         need(threading.current_thread() is threading.main_thread() and threading.active_count() == 1, 'threaded-runner')
         timeout = _seconds(timeout)
         need(type(limit) is int and 0 < limit <= MAX_OUTPUT, 'invalid-output-bound')
@@ -889,6 +902,9 @@ class Runner:
                 if mask is not None: signal.pthread_sigmask(signal.SIG_SETMASK, mask)
                 if process is not None:
                     if observation is not None: observation.started = True
+                    if observation is not None:
+                        try: observation.observe_before_cleanup(process)
+                        except BaseException: pass
                     try:
                         _cleanup(process)
                         if observation is not None:

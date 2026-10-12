@@ -76,11 +76,35 @@ class Diagnostics:
                     'cli_begin': None, 'cli_return': None, 'request_return': None,
                     'first_failure': None, 'last_failure': None}
         self.cleanup = None
+        self.started, self.active = None, False
 
     def begin(self):
         self.rpc['saturated'] |= self.rpc['requests'] == 4096
         self.rpc['requests'] = min(4096, self.rpc['requests'] + 1)
-        self.rpc['current'] = {'ordinal': self.rpc['requests'], 'kind': 'UNKNOWN', 'step': 'REQUEST_BEGIN'}
+        self.rpc['current'] = {'ordinal': self.rpc['requests'], 'kind': 'UNKNOWN', 'step': 'REQUEST_BEGIN',
+                               'elapsed_ms': None, 'elapsed_state': 'UNKNOWN'}
+        self.started, self.active = None, True
+        try:
+            value = time.monotonic()
+            if type(value) in (int, float) and math.isfinite(value): self.started = value
+        except BaseException:
+            pass  # An observational clock cannot replace the original outcome.
+
+    def finished(self):
+        if not self.active: return
+        self.active = False
+        try:
+            value = time.monotonic()
+            if self.started is None or type(value) not in (int, float) or not math.isfinite(value) or value < self.started:
+                return
+            elapsed = value - self.started
+            self.rpc['current'].update(elapsed_ms=8460000 if elapsed >= 8460 else int(elapsed * 1000),
+                elapsed_state='SATURATED' if elapsed >= 8460 else 'OBSERVED')
+        except BaseException:
+            pass
+
+    def context(self, cleanup):
+        return 'CLEANUP' if cleanup is True else ('REQUEST' if cleanup is False and self.active else 'UNKNOWN')
 
     def kind(self, argv):
         if self.rpc['current'] is not None: self.rpc['current']['kind'] = diagnostic_kind(argv)
@@ -90,14 +114,16 @@ class Diagnostics:
             self.rpc['current']['step'] = step if step in {'REQUEST_BEGIN', 'REQUEST_RETURNED',
                 'REQUEST_REFUSED', 'REPLY_BEGIN', 'REPLY_SENT', 'REPLY_FAILED'} else 'UNKNOWN'
 
-    def returned(self, result, *, argv=None):
+    def returned(self, result, *, argv=None, cleanup=False):
         row = diagnostic_result(result)
         row.update(ordinal=self.rpc['requests'], kind=diagnostic_kind(argv) if argv is not None
                    else (self.rpc['current']['kind'] if self.rpc['current'] else 'UNKNOWN'))
+        if argv is not None: row['context'] = self.context(cleanup)
         self.rpc['cli_return' if argv is not None else 'request_return'] = row
 
-    def cli_begin(self, argv):
-        self.rpc['cli_begin'] = {'ordinal': self.rpc['requests'], 'kind': diagnostic_kind(argv)}
+    def cli_begin(self, argv, *, cleanup=False):
+        self.rpc['cli_begin'] = {'ordinal': self.rpc['requests'], 'kind': diagnostic_kind(argv),
+                                 'context': self.context(cleanup)}
 
     def failure(self, stage, error):
         row = {'ordinal': self.rpc['requests'],
@@ -118,15 +144,20 @@ class Diagnostics:
 
     def snapshot(self, producer=None):
         if type(producer) is dict:
+            observed = producer.get('before_cleanup')
+            state, code = (observed.get('state'), observed.get('returncode')) if type(observed) is dict else (None, None)
+            valid = (type(state) is str and ((state in {'alive', 'unavailable'} and code is None) or
+                     (state == 'exited' and type(code) is int and -128 <= code <= 255)))
             producer = {'started': producer.get('started') if type(producer.get('started')) is bool else None,
                 **{name: producer.get(name) if type(producer.get(name)) is int and -128 <= producer[name] <= 255
                    else None for name in ('natural_poll_code', 'runner_return_code', 'reaped_code')},
-                'reaping': producer.get('reaping') if type(producer.get('reaping')) is str and producer.get('reaping') in {'NOT RUN', 'COMPLETED', 'FAILED'} else 'UNKNOWN'}
+                'reaping': producer.get('reaping') if type(producer.get('reaping')) is str and producer.get('reaping') in {'NOT RUN', 'COMPLETED', 'FAILED'} else 'UNKNOWN',
+                'before_cleanup': {'state': state, 'returncode': code} if valid else {'state': 'unavailable', 'returncode': None}}
         else: producer = None
-        row = {'schema_version': 1, 'rpc': self.rpc, 'producer': producer, 'cleanup': self.cleanup}
+        row = {'schema_version': 2, 'rpc': self.rpc, 'producer': producer, 'cleanup': self.cleanup}
         # Only closed primitives created above enter this projection; never journal/raw input rows.
         encoded = json.dumps(row, sort_keys=True, separators=(',', ':'))
-        return json.loads(encoded) if len(encoded.encode()) <= 4096 else {'schema_version': 1, 'state': 'UNKNOWN'}
+        return json.loads(encoded) if len(encoded.encode()) <= 4096 else {'schema_version': 2, 'state': 'UNKNOWN'}
 
 
 def argv_check(argv):
@@ -578,13 +609,13 @@ class Broker:
         need(remaining > 0, 'phase-deadline-or-cleanup-time-reserve')
         argv = ['docker', '--host=' + self.backend.endpoint, *args]
         self.record('docker-operation-reserved', argv=argv)
-        if self.diagnostics is not None: self.diagnostics.cli_begin(args)
+        if self.diagnostics is not None: self.diagnostics.cli_begin(args, cleanup=cleanup)
         try:
             result = self.backend.call(argv, timeout=min(maximum, remaining))
         except BaseException as error:
             if self.diagnostics is not None: self.diagnostics.failure('CLI', error)
             raise
-        if self.diagnostics is not None: self.diagnostics.returned(result, argv=args)
+        if self.diagnostics is not None: self.diagnostics.returned(result, argv=args, cleanup=cleanup)
         need(isinstance(result, subprocess.CompletedProcess) and type(result.returncode) is int
              and type(result.stdout) is bytes and len(result.stdout) <= RESPONSE_LIMIT
              and result.stderr in (None, b''), 'bounded-folded-backend-response-required')
@@ -947,32 +978,36 @@ class Service:
         diagnostics = getattr(self.broker, 'diagnostics', None)
         if type(diagnostics) is not Diagnostics: diagnostics = None
         if diagnostics is not None: diagnostics.begin()
-        with connection:
-            connection.settimeout(5)
-            try:
-                peer = struct.unpack('3i', connection.getsockopt(socket.SOL_SOCKET, socket.SO_PEERCRED, 12))
-                need(peer[1] == os.geteuid(), 'rpc-peer-owner-required')
-                request = json.loads(receive(connection, REQUEST_LIMIT))
-                need(type(request) is dict and set(request) == {'token', 'argv'} and request['token'] == self.token, 'rpc-request-refused')
-                if diagnostics is not None: diagnostics.kind(request['argv'])
-                result = self.broker.request(['docker', *request['argv']])
-                if diagnostics is not None:
-                    diagnostics.returned(result); diagnostics.step('REQUEST_RETURNED')
-                response = {'code': result.returncode, 'stdout': base64.b64encode(result.stdout).decode()}
-            except (ValueError, OSError, subprocess.SubprocessError, KeyError, TypeError) as error:
-                if diagnostics is not None:
-                    diagnostics.failure('REQUEST', error); diagnostics.step('REQUEST_REFUSED')
-                self.broker.failed = True
-                self.broker.record('rpc-failed', error_type=type(error).__name__)
-                response = {'code': 125, 'stdout': base64.b64encode(('scoped Docker request refused: ' + type(error).__name__ + '\n').encode()).decode()}
-            if diagnostics is not None: diagnostics.step('REPLY_BEGIN')
-            try:
-                send(connection, json.dumps(response).encode(), RESPONSE_LIMIT * 2)
-            except BaseException as error:
-                if diagnostics is not None:
-                    diagnostics.failure('REPLY', error); diagnostics.step('REPLY_FAILED')
-                raise
-            if diagnostics is not None: diagnostics.step('REPLY_SENT')
+        try:
+            with connection:
+                connection.settimeout(5)
+                try:
+                    peer = struct.unpack('3i', connection.getsockopt(socket.SOL_SOCKET, socket.SO_PEERCRED, 12))
+                    need(peer[1] == os.geteuid(), 'rpc-peer-owner-required')
+                    request = json.loads(receive(connection, REQUEST_LIMIT))
+                    need(type(request) is dict and set(request) == {'token', 'argv'} and request['token'] == self.token, 'rpc-request-refused')
+                    if diagnostics is not None: diagnostics.kind(request['argv'])
+                    result = self.broker.request(['docker', *request['argv']])
+                    if diagnostics is not None:
+                        diagnostics.returned(result); diagnostics.step('REQUEST_RETURNED')
+                    response = {'code': result.returncode, 'stdout': base64.b64encode(result.stdout).decode()}
+                except (ValueError, OSError, subprocess.SubprocessError, KeyError, TypeError) as error:
+                    if diagnostics is not None:
+                        diagnostics.failure('REQUEST', error); diagnostics.step('REQUEST_REFUSED')
+                    self.broker.failed = True
+                    self.broker.record('rpc-failed', error_type=type(error).__name__)
+                    response = {'code': 125, 'stdout': base64.b64encode(('scoped Docker request refused: ' + type(error).__name__ + '\n').encode()).decode()}
+                if diagnostics is not None: diagnostics.step('REPLY_BEGIN')
+                try:
+                    send(connection, json.dumps(response).encode(), RESPONSE_LIMIT * 2)
+                except BaseException as error:
+                    if diagnostics is not None:
+                        diagnostics.failure('REPLY', error); diagnostics.step('REPLY_FAILED')
+                    raise
+                if diagnostics is not None: diagnostics.step('REPLY_SENT')
+
+        finally:
+            if diagnostics is not None: diagnostics.finished()
 
     def close(self):
         self.socket.close()

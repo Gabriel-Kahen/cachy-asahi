@@ -708,7 +708,7 @@ class BrokerTests(unittest.TestCase):
 
 
 class RPCDiagnosticsTests(unittest.TestCase):
-    def handle(self, *, refused=False, broken=False, partial=False, cancelled=False, diagnostics=True):
+    def handle(self, *, refused=False, broken=False, partial=False, cancelled=False, diagnostics=True, request_error=None):
         from unittest.mock import patch
         import struct
         import socket
@@ -717,6 +717,7 @@ class RPCDiagnosticsTests(unittest.TestCase):
         owner=SimpleNamespace(diagnostics=observed,failed=False,events=[],calls=[])
         def request(argv):
             owner.calls.append(argv)
+            if request_error is not None: raise request_error
             if refused: raise ValueError('private-secret-refusal/path/token')
             return subprocess.CompletedProcess(argv,0,b'private-output-and-id')
         owner.request=request;owner.record=lambda kind,**fields:owner.events.append((kind,fields))
@@ -739,8 +740,136 @@ class RPCDiagnosticsTests(unittest.TestCase):
         error=None
         with patch.object(broker,'receive',return_value=wire):
             try:subject.handle(connection)
-            except (BrokenPipeError,broker.Cancelled) as raised:error=type(raised).__name__
+            except BaseException as raised:
+                owner.error_object=raised;error=type(raised).__name__
         return owner,connection,error
+
+    def test_elapsed_freezes_at_reply_for_success_refusal_broken_pipe_and_cancel(self):
+        from unittest.mock import patch
+        for refused,broken,cancelled in ((False,False,False),(True,False,False),
+                                        (False,True,False),(True,True,False),(False,False,True)):
+            with self.subTest(refused=refused,broken=broken,cancelled=cancelled):
+                with patch.object(broker.time,'monotonic',side_effect=[10.,10.125]) as clock:
+                    owner,connection,error=self.handle(refused=refused,broken=broken,cancelled=cancelled)
+                    self.assertEqual(clock.call_count,2)
+                diagnostic=owner.diagnostics;row=diagnostic.snapshot()['rpc']
+                self.assertEqual(set(row['current']),{'ordinal','kind','step','elapsed_ms','elapsed_state'})
+                self.assertEqual(row['current']['elapsed_ms'],125)
+                self.assertEqual(row['current']['elapsed_state'],'OBSERVED')
+                frozen=dict(row['current']);diagnostic.cli_begin(['container','ls'],cleanup=True)
+                diagnostic.returned(subprocess.CompletedProcess([],0,b''),argv=['container','ls'],cleanup=True)
+                with patch.object(broker.time,'monotonic',side_effect=AssertionError('clock after boundary')):
+                    diagnostic.finished()
+                later=diagnostic.snapshot()['rpc']
+                self.assertEqual(later['current'],frozen)
+                self.assertEqual(later['cli_begin']['context'],'CLEANUP')
+                self.assertEqual(later['cli_return']['context'],'CLEANUP')
+                self.assertEqual(error,'Cancelled' if cancelled else ('BrokenPipeError' if broken else None))
+
+    def test_observational_clock_failures_types_and_caps_never_replace_original_failure(self):
+        from unittest.mock import patch
+        for start,end,expected,value in ((ValueError('secret'),5.,'UNKNOWN',None),
+                (5.,KeyboardInterrupt('secret'),'UNKNOWN',None),(True,5.,'UNKNOWN',None),
+                (5.,False,'UNKNOWN',None),(float('nan'),5.,'UNKNOWN',None),
+                (5.,float('inf'),'UNKNOWN',None),(5.,4.,'UNKNOWN',None),
+                (0.,8460.,'SATURATED',8460000),(0.,1e308,'SATURATED',8460000),
+                (5.,5.,'OBSERVED',0)):
+            with self.subTest(start=start,end=end):
+                with patch.object(broker.time,'monotonic',side_effect=[start,end]) as clock:
+                    owner,connection,error=self.handle(broken=True)
+                self.assertEqual(clock.call_count,2);self.assertEqual(error,'BrokenPipeError')
+                self.assertEqual(len(owner.calls),1);self.assertTrue(connection.closed)
+                row=owner.diagnostics.snapshot()['rpc']
+                self.assertEqual(row['current']['elapsed_state'],expected)
+                self.assertEqual(row['current']['elapsed_ms'],value)
+                self.assertEqual(row['first_failure']['category'],'BrokenPipeError')
+        original=KeyboardInterrupt('trusted object identity only')
+        with patch.object(broker.time,'monotonic',side_effect=[OSError('observer'),OSError('observer')]):
+            owner,connection,error=self.handle(request_error=original)
+        self.assertIs(owner.error_object,original);self.assertTrue(connection.closed)
+        self.assertEqual(owner.diagnostics.snapshot()['rpc']['current']['elapsed_state'],'UNKNOWN')
+
+    def test_cli_context_distinguishes_active_request_cleanup_and_no_active_request(self):
+        from unittest.mock import patch
+        diagnostic=broker.Diagnostics()
+        for active,cleanup,expected in ((False,False,'UNKNOWN'),(False,True,'CLEANUP'),
+                                       (True,False,'REQUEST'),(True,True,'CLEANUP'),
+                                       (True,None,'UNKNOWN'),(True,0,'UNKNOWN'),
+                                       (True,1,'UNKNOWN'),(True,'secret','UNKNOWN'),
+                                       (False,None,'UNKNOWN'),(False,0,'UNKNOWN'),
+                                       (False,1,'UNKNOWN'),(False,'secret','UNKNOWN')):
+            with self.subTest(active=active,cleanup=cleanup):
+                with patch.object(broker.time,'monotonic',return_value=3.):
+                    if active:diagnostic.begin()
+                diagnostic.cli_begin(['image','inspect'],cleanup=cleanup)
+                diagnostic.returned(subprocess.CompletedProcess([],1,b'known output'),argv=['image','inspect'],cleanup=cleanup)
+                row=diagnostic.snapshot()['rpc']
+                self.assertEqual(set(row['cli_begin']),{'ordinal','kind','context'})
+                self.assertEqual(set(row['cli_return']),{'ordinal','kind','context','code','stdout_bytes','stdout_sha256'})
+                self.assertEqual(row['cli_begin']['context'],expected)
+                self.assertEqual(row['cli_return']['context'],expected)
+                with patch.object(broker.time,'monotonic',return_value=4.):diagnostic.finished()
+
+    def test_before_cleanup_role_schema_rejects_untyped_codes_and_keeps_reaping_separate(self):
+        diagnostic=broker.Diagnostics()
+        for observed,expected in (({'state':'alive','returncode':None},{'state':'alive','returncode':None}),
+                ({'state':'exited','returncode':-6},{'state':'exited','returncode':-6}),
+                ({'state':'exited','returncode':-128},{'state':'exited','returncode':-128}),
+                ({'state':'exited','returncode':255},{'state':'exited','returncode':255}),
+                ({'state':'unavailable','returncode':None},{'state':'unavailable','returncode':None}),
+                ({'state':'exited','returncode':True},{'state':'unavailable','returncode':None}),
+                ({'state':'exited','returncode':-129},{'state':'unavailable','returncode':None}),
+                ({'state':'exited','returncode':256},{'state':'unavailable','returncode':None}),
+                ({'state':'alive','returncode':1},{'state':'unavailable','returncode':None}),
+                ({'state':'unavailable','returncode':1},{'state':'unavailable','returncode':None}),
+                ({'state':['secret'],'returncode':None},{'state':'unavailable','returncode':None}),
+                (None,{'state':'unavailable','returncode':None})):
+            with self.subTest(observed=observed):
+                row=diagnostic.snapshot({'started':True,'natural_poll_code':None,'runner_return_code':None,
+                    'reaping':'COMPLETED','reaped_code':1,'before_cleanup':observed})
+                self.assertEqual(row['schema_version'],2)
+                self.assertEqual(set(row['producer']),{'started','natural_poll_code','runner_return_code',
+                    'reaping','reaped_code','before_cleanup'})
+                self.assertEqual(row['producer']['before_cleanup'],expected)
+                self.assertIsNone(row['producer']['natural_poll_code'])
+                self.assertEqual(row['producer']['reaped_code'],1)
+                self.assertNotIn('secret',json.dumps(row))
+
+    def test_real_socket_caller_timeout_precedes_delayed_known_successful_request(self):
+        import socket
+        import threading
+        import time
+        from types import SimpleNamespace
+        token='1'*64;diagnostic=broker.Diagnostics()
+        owner=SimpleNamespace(diagnostics=diagnostic,failed=False,calls=[],events=[])
+        ready=threading.Event();release=threading.Event();errors=[]
+        def request(argv):
+            owner.calls.append(argv);ready.set()
+            if not release.wait(2):raise AssertionError('test release did not arrive')
+            return subprocess.CompletedProcess(argv,0,b'known inventory output')
+        owner.request=request;owner.record=lambda kind,**fields:owner.events.append((kind,fields))
+        client,server=socket.socketpair();self.addCleanup(client.close);self.addCleanup(server.close)
+        subject=object.__new__(broker.Service);subject.broker=owner;subject.token=token
+        def serve():
+            try:subject.handle(server)
+            except BaseException as error:errors.append(error)
+        thread=threading.Thread(target=serve)
+        try:
+            broker.send(client,json.dumps({'token':token,'argv':['run']}).encode(),broker.REQUEST_LIMIT)
+            thread.start();self.assertTrue(ready.wait(2));client.settimeout(.03)
+            with self.assertRaises(socket.timeout):broker.receive(client,broker.RESPONSE_LIMIT*2)
+            client.close();release.set();thread.join(2)
+            self.assertFalse(thread.is_alive());self.assertEqual(len(errors),1)
+            self.assertIsInstance(errors[0],BrokenPipeError)
+            row=diagnostic.snapshot()['rpc']
+            self.assertEqual(row['request_return']['code'],0)
+            self.assertEqual(row['request_return']['stdout_bytes'],len(b'known inventory output'))
+            self.assertEqual(row['current']['elapsed_state'],'OBSERVED')
+            self.assertGreaterEqual(row['current']['elapsed_ms'],20)
+            self.assertEqual(row['current']['step'],'REPLY_FAILED')
+            self.assertEqual(owner.calls,[['docker','run']]);self.assertFalse(owner.failed)
+        finally:
+            release.set();thread.join(2)
 
     def test_completed_or_refused_request_real_broken_pipe_preserves_first_failure(self):
         for refused in (False,True):
@@ -810,6 +939,21 @@ class RPCDiagnosticsTests(unittest.TestCase):
 
 class BrokerReturnDiagnosticsTests(unittest.TestCase):
     setUp = BrokerTests.setUp
+    def test_actual_cli_call_labels_cleanup_and_preserves_request_duration(self):
+        from unittest.mock import patch
+        self.owner.diagnostics=broker.Diagnostics();diagnostic=self.owner.diagnostics
+        with patch.object(broker.time,'monotonic',side_effect=[1.,2.]):
+            diagnostic.begin();diagnostic.kind(['run']);diagnostic.finished()
+        frozen=diagnostic.snapshot()['rpc']['current']
+        self.owner.call(['version'])
+        self.assertEqual(diagnostic.snapshot()['rpc']['cli_return']['context'],'UNKNOWN')
+        self.owner.call(['version'],cleanup=True)
+        row=diagnostic.snapshot()['rpc']
+        self.assertEqual(row['cli_begin']['context'],'CLEANUP')
+        self.assertEqual(row['cli_return']['context'],'CLEANUP')
+        self.assertEqual(row['current'],frozen)
+        self.assertEqual(row['request_return'],None)
+
     def test_actual_cleanup_success_reports_only_existing_returned_flags(self):
         self.owner.diagnostics=broker.Diagnostics()
         result=self.owner.cleanup();row=self.owner.diagnostics.snapshot()['cleanup']
