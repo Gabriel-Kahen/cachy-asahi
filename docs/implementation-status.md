@@ -105,6 +105,19 @@ The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with 
   See
   [the actual execution record](validation/virtual-arm.md).
 
+- The first broader native development trial, `38218102399`, builds and
+  reproduces the KSM package twice. Its compiler experiment fails on truncated
+  input handling; the 37-test client has one corrected permission-fixture failure,
+  and virtual preparation refuses a signed-receipt interface mismatch. All remain
+  separately recorded from the initial repository FAIL. The subsequent corrected
+  original integration, `38221511121`, passes 603 native source tests without skips,
+  ten repository cases, clean initial install/upgrade/rollback diagnostics and
+  owned-image cleanup. Its final upgrade still reports a cached revoked-A sync
+  signature error despite exit zero; the aggregate correctly remains FAIL.
+  [Independent repository execution review](reviews/native-repository-run-review.md)
+  verifies the actual checks. Further source corrections and separate FDK/updater
+  native trial wiring continue; no complete-port milestone is accepted.
+
 These are distinct development results. No complete-port milestone or hardware
 acceptance is granted by their local test counts or source reviews.
 

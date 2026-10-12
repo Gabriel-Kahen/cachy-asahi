@@ -478,6 +478,24 @@ checkout at `a03c0719893afe582a6e6364ff70f0e3e5b33fb2`.
 
 [Run 38221511121](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38221511121)
 was created at 08:05:48 UTC on October 12, 2026 on that exact commit. It is
-**IN PROGRESS**, with no corrected native repository acceptance yet. It executes
-the original integration alone while the broader compiler and virtual receiver
-corrections proceed; historical broader run 38218102399 remains FAIL.
+**terminal FAIL**, completed at 08:10:17 UTC. It executed the original integration
+alone while the broader compiler and virtual receiver corrections proceed;
+historical broader run 38218102399 remains FAIL.
+
+All **603 native source tests passed without skips**. Root independently checked
+all four actual original build pairs, the observed exact six-capability mask,
+the first ten completed repository case predicates and final owned-image absence.
+Lifecycle, fixture/signing, installed software onboarding and desktop configuration
+stages passed. The first three positive repository transactions now pass the
+ancillary-diagnostic gate without chroot/helper errors; missing database signature
+and revoked-A rejection also pass with unchanged negative snapshots.
+
+The final healthy-B upgrade returns zero and changes all five test packages, but
+starts with an invalid signature diagnostic for the cached revoked-A sync database
+before refreshing B. The strict positive-error gate correctly refuses it. Complete
+repository recovery remains unaccepted; the owner must address that private cached
+database state without ignoring the diagnostic. Root retained all 12 verified
+bundles and `root-execution-verification.json` under `artifacts/ci/38221511121/`.
+Summary bundle: 1,020 bytes, SHA256
+`0101a166f065703aea2dec15fdc42e9e2da4ca5b697933e5d1a576e49640e64b`.
+No full-port release, production trust or hardware gate advances from this run.
