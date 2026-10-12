@@ -4,7 +4,7 @@ October 12, 2026. This record tracks the complete `outline.md` scope; an impleme
 
 The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with owned tasks and corrective next actions in `docs/backlog.md`. The destination now explicitly requires the maintained ARM package repository, native performance engineering, integrated Apple stack, broader Cachy system experience, and complete installation/release lifecycle. Both Air sizes, published final measurements, independent onboarding/contribution, subsequent full-port maintenance release, other-ARM reuse and actual upstream submissions remain required; an early overlay release or feasibility decision would not complete the goal. This scope update does not change any recorded execution result.
 
-Latest coordinator checkpoint, October 12, 15:28 UTC. The earlier records below
+Latest coordinator checkpoint, October 12, 16:05 UTC. The earlier records below
 remain historical; this checkpoint supersedes their pending-work descriptions.
 
 - Native run `38259350917` passes the original generic integration aggregate:
@@ -17,7 +17,9 @@ remain historical; this checkpoint supersedes their pending-work descriptions.
 - That run actually boots the generic ARM guest with 4K pages and passes software
   GBM rendering with llvmpipe. Hyprland's first IPC request returns exit6; no
   frames or usable session are accepted. The bounded IPC-readiness/log correction
-  is implemented; guest review and receiver integration are underway. QEMU cannot
+  is implemented; guest/receiver correction is adopted at `d1e489b`, with206 development and22
+  controller tests passing and exact211-source/canonical-copy verification.
+  Successor38274341668 is running; its native outcome remains unaccepted. QEMU cannot
   establish M2 graphics, 16K runtime, audio, sleep or performance acceptance.
 - FDK run `38260525391` records all501 acquisitions, four original comparisons,
   native/worker zero exits and worker cleanup PASS, then fails producer bootstrap
@@ -32,16 +34,24 @@ remain historical; this checkpoint supersedes their pending-work descriptions.
 - The updater parent observation correction is committed at `2f8c13e`: 284 source
   tests pass, and actual85-file Git/source/snapshot verification passes for
   4,044,082 bytes. Workflow review found a contradictory-worker acceptance gap;
-  its correction passes452 consumer cases and is under independent final review.
+  its successive corrections now pass507 consumer cases and are under independent
+  final compile-receipt review; source85 remains unchanged.
   Earlier trial38251407975 remains FAIL; native compilation is not attested.
 - KSM's229-test finite executor and152-source packet are committed at `b918c7c`;
   workflow registration is merged through PR5. First trial `38262440852` fails
-  at source/ValueError before producer launch. A causal source correction and
-  finite first-failure diagnostics are being completed; installation remains NOT RUN.
+  at source/ValueError before producer launch. The captured-import correction is adopted at `aef8836`; retry38271066975
+  identifies daemon-image-baseline refusal: actual image query exit0/six lines,
+  container baseline unobserved. Cooperative image-preservation implementation
+  is underway; no producer or lifecycle ran in that retry.
 - Kernel trial38253531983 remains FAIL before build at occupied-daemon refusal.
   The reviewed cooperative baseline-preservation correction is committed at
   `c3d3872`, with stage24/job115 and actual Git/bootstrap verification passing.
-  Corrected native compilation is pending an available serialized builder slot.
+  Its separate hosted lane is adopted at `07450c5`. Retry38270726379 passes
+  source, initial six-image/zero-container capture, producer and acquisition, then
+  fails with KERNEL_EXIT before any recorded compile. Cleanup and final
+  preservation/absence remain unverified. Finite child diagnostics are being
+  implemented. An overbroad cleanup-timer diagnosis was withdrawn after verifying
+  the existing broker renewal; those timers remain unchanged.
 - The actual inert624-archive payload audit remains PASS. The first static ELF
   scan remains FAIL: 7,129 files, 4,536 missing-provider requests and22 firmware
   parser refusals. The clarified provider-only correction passes52 tests and
@@ -54,8 +64,13 @@ remain historical; this checkpoint supersedes their pending-work descriptions.
 - The phase-aware repository-client successor passes110 copied-source tests,
   including real TEST GPG checks. Separate retained-data checks validate fifteen
   signatures at their recorded phases. Native admission remains NOT RUN;
-  twelve empty-URL metadata representation mismatches and missing original
-  admission/custody records remain explicit prerequisites.
+  twelve empty-URL representation mismatches are reproduced against pinned
+  repo-add semantics; narrow normalization and an internal typed-refusal correction
+  are being implemented. Original admission/custody records remain required.
+- The missing offline copied-root package transaction component is selected and
+  being implemented under `scripts/install/`. Real bounded payload transactions
+  are its next gate; hooks, first boot, image/key-owner trust and complete Asahi
+  installation remain separate requirements.
 
 | Stage | Source implementation | Required execution evidence | Acceptance |
 | --- | --- | --- | --- |
