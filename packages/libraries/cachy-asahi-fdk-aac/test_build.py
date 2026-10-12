@@ -26,7 +26,7 @@ spec.loader.exec_module(build)
 LAYOUT = json.loads(source_check.read_regular(HERE / 'build-layout.json', 1024 * 1024))
 PACKET = HERE / source_check.PACKET
 if not PACKET.is_file():
-    PACKET = Path('/tmp/fdk-aac-3.0.0-selected-source.tar.gz')
+    PACKET = Path('/tmp/fdk-aac-3.0.0-selected-source.tar')
 
 
 class PlannerTests(unittest.TestCase):
@@ -153,11 +153,11 @@ class InventoryTests(unittest.TestCase):
 
     @unittest.skipUnless(PACKET.is_file(), 'private source packet is unavailable')
     def test_selected_raw_source_byte_pins_and_grant_markers(self):
-        data = source_check.read_regular(PACKET, 8 * 1024 * 1024)
+        data = source_check.read_selected_packet(PACKET)
         self.assertEqual(hashlib.sha256(data).hexdigest(), source_check.PACKET_SHA)
         selected = LAYOUT['selected_implementation_files']
         found = {}
-        with tarfile.open(fileobj=io.BytesIO(data), mode='r:gz') as archive:
+        with tarfile.open(fileobj=io.BytesIO(data), mode='r:') as archive:
             for member in archive:
                 if not member.name.startswith(source_check.PREFIX):
                     continue

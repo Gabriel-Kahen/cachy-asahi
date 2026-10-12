@@ -3603,8 +3603,8 @@
     }
   },
   "native_build": "NOT RUN",
-  "packet_bytes": 2701495,
-  "packet_sha256": "1c4ade00f624c1e6f9e988cd17868a5e3faa78fea2522e9c302a89866d04cdd7",
+  "packet_bytes": 17387520,
+  "packet_sha256": "1065c4b30e0c2deee7965faa0257e10ac482a2516d51b5b8f17b1406b3ecb2f4",
   "schema_version": 1,
   "scope": "898 grant-bearing implementation files plus complete original classic/xHE grants; independent build inputs accompany archive",
   "source_commit": "a68a51aa45d86a43c7b228e3d45624af09dcdd8d"

@@ -9,10 +9,13 @@ import json
 from pathlib import Path
 import shutil
 import tarfile
-from source_check import HERE, PACKET, load_map, read_regular, repository_roots, safe_name, sha, template_files, verify_packet
+from source_check import HERE, PACKET, SELECTED_LIMIT, load_map, read_regular, repository_roots, safe_name, sha, template_files, verify_packet
 
 ROOT = 'cachy-asahi-fdk-aac-3.0.0-source/'
 EPOCH = 1791748800
+OTHER_LIMIT = 8 * 1024 * 1024
+CONTENT_LIMIT = SELECTED_LIMIT + OTHER_LIMIT
+TAR_LIMIT = CONTENT_LIMIT + 128 * 512 + tarfile.RECORDSIZE
 
 
 def external_new(output):
@@ -35,6 +38,9 @@ def pack(recipe, output, reviewed_inputs, reviewed_sha256):
     verify_packet(Path(recipe) / PACKET)
     entries = {ROOT + 'recipe/' + n: b for n, b in inputs.items()}
     entries[ROOT + 'SOURCE-MAP.json'] = approved
+    if any(len(b) > (SELECTED_LIMIT if n == ROOT + 'recipe/' + PACKET else OTHER_LIMIT) for n, b in entries.items()) or \
+            sum(len(b) for n, b in entries.items() if n != ROOT + 'recipe/' + PACKET) > OTHER_LIMIT:
+        raise ValueError('publication inputs exceed bounded member/content limits')
     buf = io.BytesIO()
     with gzip.GzipFile(filename='', fileobj=buf, mode='wb', mtime=0) as compressed:
         with tarfile.open(fileobj=compressed, mode='w', format=tarfile.USTAR_FORMAT) as archive:
@@ -44,6 +50,8 @@ def pack(recipe, output, reviewed_inputs, reviewed_sha256):
                 member.uid = member.gid = 0
                 archive.addfile(member, io.BytesIO(data))
     data = buf.getvalue()
+    if len(data) > OTHER_LIMIT:
+        raise ValueError('publication compressed packet exceeds size bound')
     with output.open('xb') as stream:
         stream.write(data)
     return {'schema_version': 1, 'packet_sha256': sha(data), 'packet_bytes': len(data),
@@ -58,10 +66,10 @@ def read_bundle(path, packet_sha256, map_sha256):
     if sha(data) != packet_sha256:
         raise ValueError('publication packet differs from trusted digest')
     with gzip.GzipFile(fileobj=io.BytesIO(data), mode='rb') as compressed:
-        unpacked = compressed.read(16 * 1024 * 1024 + 1)
-    if len(unpacked) > 16 * 1024 * 1024:
+        unpacked = compressed.read(TAR_LIMIT + 1)
+    if len(unpacked) > TAR_LIMIT:
         raise ValueError('publication tar exceeds expanded size bound')
-    files, seen, total, approved = {}, set(), 0, None
+    files, seen, total, other, approved = {}, set(), 0, 0, None
     with tarfile.open(fileobj=io.BytesIO(unpacked), mode='r:') as archive:
         for member in archive:
             safe_name(member.name)
@@ -70,10 +78,12 @@ def read_bundle(path, packet_sha256, map_sha256):
             seen.add(member.name)
             if member.pax_headers or member.type != tarfile.REGTYPE or member.mode != 0o644 or member.uid != 0 or member.gid != 0:
                 raise ValueError('publication members must be regular reviewed files')
-            if not 0 <= member.size <= 8 * 1024 * 1024:
+            selected = member.name == ROOT + 'recipe/' + PACKET
+            if not 0 <= member.size <= (SELECTED_LIMIT if selected else OTHER_LIMIT):
                 raise ValueError('oversized publication member')
             total += member.size
-            if total > 8 * 1024 * 1024:
+            other += 0 if selected else member.size
+            if total > CONTENT_LIMIT or other > OTHER_LIMIT:
                 raise ValueError('publication packet exceeds expanded size bound')
             with archive.extractfile(member) as stream:
                 content = stream.read(member.size + 1)

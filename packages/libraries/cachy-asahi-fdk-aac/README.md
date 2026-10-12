@@ -74,3 +74,10 @@ an explicit reviewed provider transaction; one substitution proposes retaining
 574 packages. Removal must preserve dependency consistency and requires an
 approved replacement for the PipeWire AAC plugin. Fresh resolution, signed
 lifecycle/recovery, source delivery and both Air hardware checks remain open.
+
+The selected-source input is the canonical uncompressed USTAR
+`fdk-aac-3.0.0-selected-source.tar`, exactly 17,387,520 bytes with SHA256
+`1065c4b30e0c2deee7965faa0257e10ac482a2516d51b5b8f17b1406b3ecb2f4`.
+Its 900 file/grant rows are unchanged. This avoids the reproduced gzip serializer
+difference between local zlib-ng and standard zlib; the hosted first source
+failure remains unproven. Corrected native build/install/publication NOT RUN.

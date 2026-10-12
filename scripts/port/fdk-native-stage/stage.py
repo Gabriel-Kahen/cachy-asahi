@@ -167,7 +167,7 @@ def execute(args, state=None):
         report['live_base'] = {'status': 'PASS', 'packages_sha256': sha(live), 'package_count': 341}
         save(private / 'live-base.json', report['live_base'])
         report['phase'] = 'source'
-        packet = private / 'fdk-aac-3.0.0-selected-source.tar.gz'
+        packet = private / 'fdk-aac-3.0.0-selected-source.tar'
         selector = source / (TEMPLATE + 'select-source.py')
         materializer = source / (TEMPLATE + 'materialize.py')
         python = str(Path(sys.executable).resolve())

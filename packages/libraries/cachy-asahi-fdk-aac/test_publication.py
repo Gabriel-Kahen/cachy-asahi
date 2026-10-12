@@ -22,7 +22,7 @@ import publication
 import source_check
 
 ROOT = "cachy-asahi-fdk-aac-3.0.0-source/"
-PACKET = "fdk-aac-3.0.0-selected-source.tar.gz"
+PACKET = "fdk-aac-3.0.0-selected-source.tar"
 
 
 def sha(data):
@@ -160,6 +160,35 @@ class PublicationTests(unittest.TestCase):
         entries, _ = self.entries(mapping=b" " * 65537)
         self.read(entries, sha(entries[-1][1]), reject=True)
 
+    def test_only_exact_selected_member_gets_20MiB_and_other_total_stays_8MiB(self):
+        files = {**self.files, PACKET: b's' * source_check.SELECTED_LIMIT}
+        entries, map_sha = self.entries(files=files)
+        self.assertEqual(self.read(entries, map_sha), files)
+        files[PACKET] += b'!'
+        entries, map_sha = self.entries(files=files)
+        self.read(entries, map_sha, reject=True)
+        entries, map_sha = self.entries(files={**self.files, 'ordinary': b'x' * (8 * 1024 * 1024 + 1)})
+        self.read(entries, map_sha, reject=True)
+        # Exact non-selected aggregate includes the source map, not only members.
+        files = {'PKGBUILD': b'', '.SRCINFO': b'', PACKET: b's' * source_check.SELECTED_LIMIT,
+                 'ordinary': b''}
+        entries, _ = self.entries(files=files); map_bytes = len(entries[-1][1])
+        files['ordinary'] = b'o' * (publication.OTHER_LIMIT - map_bytes)
+        entries, map_sha = self.entries(files=files)
+        self.assertEqual(self.read(entries, map_sha), files)
+        files['ordinary'] += b'!'
+        entries, map_sha = self.entries(files=files)
+        self.read(entries, map_sha, reject=True)
+
+    def test_cancellation_after_new_reconstruction_removes_only_owned_output(self):
+        entries, map_sha = self.entries();path, packet_sha = self.bundle(entries)
+        output = self.work / 'cancelled-output'
+        with mock.patch.object(publication, 'template_files', side_effect=KeyboardInterrupt):
+            with self.assertRaises(KeyboardInterrupt):
+                publication.reconstruct(path, output, packet_sha, map_sha)
+        self.assertFalse(output.exists())
+
+
     def test_input_reader_rejects_symlink_directory_and_fifo_promptly(self):
         entries, map_sha = self.entries()
         path, packet_sha = self.bundle(entries)
@@ -213,7 +242,7 @@ class PublicationTests(unittest.TestCase):
         if PACKET not in inputs:
             packet = Path("/tmp") / PACKET
             source_check.verify_packet(packet)
-            inputs[PACKET] = source_check.read_regular(packet, 8 * 1024 * 1024)
+            inputs[PACKET] = source_check.read_selected_packet(packet)
         recipe = self.work / "recipe"
         recipe.mkdir()
         for name, data in inputs.items():

@@ -6,7 +6,7 @@ import argparse
 import json
 from pathlib import Path
 import shutil
-from source_check import HERE, PACKET, PACKET_SHA, load_map, read_regular, repository_roots, sha, template_files, verify_packet
+from source_check import HERE, PACKET, PACKET_SHA, load_map, read_selected_packet, read_regular, repository_roots, sha, template_files, verify_packet
 
 
 def materialize(packet, output, reviewed_inputs=None, reviewed_sha256=None):
@@ -24,7 +24,7 @@ def materialize(packet, output, reviewed_inputs=None, reviewed_sha256=None):
     if load_map(approved) != {n: sha(b) for n, b in sorted(inputs.items())}:
         raise ValueError('template differs from independently reviewed full input map')
     report = verify_packet(packet)
-    archive = read_regular(packet, 8 * 1024 * 1024)
+    archive = read_selected_packet(packet)
     if sha(archive) != PACKET_SHA:
         raise ValueError('packet changed during verification')
     inputs[PACKET] = archive

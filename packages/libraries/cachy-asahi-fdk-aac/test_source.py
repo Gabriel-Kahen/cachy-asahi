@@ -5,6 +5,7 @@
 import sys
 sys.dont_write_bytecode = True
 
+import gzip
 import hashlib
 import importlib.util
 import io
@@ -19,7 +20,7 @@ import unittest
 from unittest import mock
 
 HERE = Path(__file__).resolve().parent
-PACKET = Path('/tmp/fdk-aac-3.0.0-selected-source.tar.gz')
+PACKET = Path('/tmp/fdk-aac-3.0.0-selected-source.tar')
 ROOT = 'fdk-aac-3.0.0'
 
 
@@ -187,6 +188,31 @@ class RegularReadTests(unittest.TestCase):
         self.file.write_bytes(b'not the reviewed source packet')
         with self.assertRaises(ValueError):
             source_check.verify_packet(self.file)
+
+    def test_selected_raw_packet_must_match_exact_bytes_before_tar_parser(self):
+        for data in (b'not tar', gzip.compress(b'fixture', mtime=0), b'x' * 129):
+            with self.subTest(length=len(data)):
+                self.file.write_bytes(data)
+                with mock.patch.object(source_check, 'SELECTED_LIMIT', 128), \
+                     mock.patch.object(source_check.tarfile, 'open', side_effect=AssertionError('parser reached')):
+                    with self.assertRaises(ValueError):
+                        source_check.verify_packet(self.file)
+
+    def test_original_input_over_8MiB_is_not_read_as_large_unpinned_source(self):
+        with self.file.open('wb') as stream:
+            stream.truncate(8 * 1024 * 1024 + 1)
+        with mock.patch.object(selector, 'read_regular', side_effect=AssertionError('source read')):
+            with self.assertRaisesRegex(ValueError, 'original source packet exceeds'):
+                selector.source_input(self.file)
+
+    def test_large_selected_candidate_requires_its_exact_digest_before_parsing(self):
+        with self.file.open('wb') as stream:
+            stream.truncate(source_check.PACKET_BYTES)
+        with mock.patch.object(source_check, 'read_regular', return_value=b'wrong'), \
+             mock.patch.object(selector.tarfile, 'open', side_effect=AssertionError('parser reached')):
+            with self.assertRaisesRegex(ValueError, 'selected packet differs'):
+                selector.selected_bytes(self.file)
+
 
 
 class MaterializeTests(unittest.TestCase):
@@ -370,8 +396,8 @@ class SelectorFixtureTests(unittest.TestCase):
         files = {'z/file.c': b'original synthetic source\n', 'a.h': b'original header\n'}
         first = selector.build_archive(files)
         self.assertEqual(first, selector.build_archive(dict(reversed(list(files.items())))))
-        self.assertEqual(int.from_bytes(first[4:8], 'little'), 0)
-        with tarfile.open(fileobj=io.BytesIO(first), mode='r:gz') as archive:
+        self.assertEqual(first[257:263], b'ustar\0')
+        with tarfile.open(fileobj=io.BytesIO(first), mode='r:') as archive:
             members = list(archive)
             self.assertEqual([member.name for member in members],
                              [source_check.PREFIX + name for name in sorted(files)])
@@ -571,7 +597,7 @@ class SelectorPacketTests(unittest.TestCase):
 
     def fixture_packet(self, files):
         packet = self.root / 'fixture.tar.gz'
-        packet.write_bytes(selector.build_archive(files))
+        packet.write_bytes(gzip.compress(selector.build_archive(files), mtime=0))
         return packet, hashlib.sha256(packet.read_bytes()).hexdigest()
 
     def test_exact_900_file_scope_omits_ungranted_scaffold_and_assets(self):
@@ -610,6 +636,19 @@ class SelectorPacketTests(unittest.TestCase):
         self.assertEqual(report['native_build'], 'NOT RUN')
         self.assertEqual(report['publication'], 'NOT RUN')
         self.assertEqual(report['input_sha256'], records(self.files))
+
+    def test_real_raw_packet_rejects_trailing_truncated_changed_and_gzip_bytes_before_parser(self):
+        raw = selector.build_archive(self.files)
+        self.assertEqual(len(raw), source_check.PACKET_BYTES)
+        self.assertEqual(sha := hashlib.sha256(raw).hexdigest(), source_check.PACKET_SHA)
+        for altered in (raw[:-1], raw + b'\0', b'X' + raw[1:], gzip.compress(raw, mtime=0)):
+            with self.subTest(length=len(altered)):
+                path = self.root / 'altered.tar'; path.write_bytes(altered)
+                with mock.patch.object(source_check.tarfile, 'open', side_effect=AssertionError('parser reached')):
+                    with self.assertRaises(ValueError):source_check.verify_packet(path)
+        path = self.root / source_check.PACKET; path.write_bytes(raw)
+        self.assertEqual(source_check.verify_packet(path)['files'], 900)
+
 
     def test_fetched_upstream_selection_omits_five_ungranted_assets(self):
         buffer = io.BytesIO()

@@ -14,9 +14,11 @@ import tarfile
 
 HERE = Path(__file__).resolve().parent
 COMMIT = 'a68a51aa45d86a43c7b228e3d45624af09dcdd8d'
-PACKET = 'fdk-aac-3.0.0-selected-source.tar.gz'
-PACKET_SHA = '1c4ade00f624c1e6f9e988cd17868a5e3faa78fea2522e9c302a89866d04cdd7'
-MANIFEST_SHA = 'd4e5eafb975c7721b8cfafb392dd8c13274d0bddc2ef8a92c4554b066db75cae'
+PACKET = 'fdk-aac-3.0.0-selected-source.tar'
+PACKET_SHA = '1065c4b30e0c2deee7965faa0257e10ac482a2516d51b5b8f17b1406b3ecb2f4'
+PACKET_BYTES = 17387520
+SELECTED_LIMIT = 20 * 1024 * 1024
+MANIFEST_SHA = '3eb66e2e1632cf65044f9250c7460b1effe0de3217f83b573b4e23885772fc29'
 PREFIX = 'fdk-aac-3.0.0/'
 NOTICES = {'NOTICE.classic': ('NOTICE', '95ec80da40b4af12ad4c4f3158c9cfb80f2479f3246e4260cb600827cc8c7836'),
            'NOTICE.xhe-aac': ('xhe-aac/NOTICE', 'bf3e762249027586195def2b2e904901b42c8b7fab455fc66bf365f70d08de6d'),
@@ -54,6 +56,14 @@ def read_regular(path, limit):
         return data
     finally:
         os.close(fd)
+
+
+def read_selected_packet(path):
+    """Only the explicitly selected packet gets the larger finite storage cap."""
+    data = read_regular(path, SELECTED_LIMIT)
+    if len(data) != PACKET_BYTES or sha(data) != PACKET_SHA:
+        raise ValueError('selected packet differs from reviewed bytes')
+    return data
 
 
 def repository_roots(base):
@@ -153,10 +163,10 @@ def verify_packet(path, manifest_path=HERE / 'selected-source-manifest.json'):
     for _, (source, checksum) in NOTICES.items():
         if source and expected[source]['sha256'] != checksum:
             raise ValueError('source grant differs from reviewed bytes')
-    data = read_regular(path, 8 * 1024 * 1024)
-    if len(data) != 2701495 or sha(data) != PACKET_SHA:
+    data = read_selected_packet(path)
+    if len(data) != PACKET_BYTES or sha(data) != PACKET_SHA:
         raise ValueError('selected packet differs from reviewed bytes')
-    with tarfile.open(fileobj=io.BytesIO(data), mode='r:gz') as archive:
+    with tarfile.open(fileobj=io.BytesIO(data), mode='r:') as archive:
         report = audit_members(archive, expected)
     return {**report, 'source_commit': COMMIT, 'packet_sha256': PACKET_SHA,
             'status': 'source-packet-pass', 'native_build': 'NOT RUN',
@@ -186,7 +196,7 @@ def template_files(base=HERE):
     for name in sorted(actual):
         if len(safe_name(name)) != 1:
             raise ValueError('flat local sources required')
-        result[name] = read_regular(base / name, 8 * 1024 * 1024)
+        result[name] = read_selected_packet(base / name) if name == PACKET else read_regular(base / name, 8 * 1024 * 1024)
     for name, checksum in zip(names, sums):
         if not re.fullmatch(r'[0-9a-f]{64}', checksum):
             raise ValueError('source requires a fixed SHA256')

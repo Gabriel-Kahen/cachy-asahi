@@ -3,14 +3,13 @@
 # Copyright (C) 2026 cachy-asahi contributors
 """Create an exact grant-scoped codec packet; no extraction/build/publication."""
 import argparse
-import gzip
 import io
 import json
 from pathlib import Path
 import tarfile
 import urllib.request
 from urllib.parse import urlparse
-from source_check import HERE, NOTICES, PACKET_SHA, PREFIX, read_regular, repository_roots, safe_name, sha
+from source_check import HERE, NOTICES, PACKET_BYTES, PACKET_SHA, PREFIX, SELECTED_LIMIT, read_selected_packet, read_regular, repository_roots, safe_name, sha
 
 PRIVATE_SHA = '1244e51941011bb63433b022f8bc247a28cf374749a2c3fb30f73fae42c88c49'
 UPSTREAM_SHA = 'ac9682b35f6e5f75e1f008a5ba2636ba6c9c77c70b78377b53992559e8bda806'
@@ -41,11 +40,18 @@ def selected_data(data):
     digest = sha(data)
     if digest not in {PRIVATE_SHA, PACKET_SHA, UPSTREAM_SHA}:
         raise ValueError('input is not a pinned upstream, private or selected source packet')
+    if digest == PACKET_SHA:
+        if len(data) != PACKET_BYTES:
+            raise ValueError('selected packet length differs from reviewed bytes')
+    elif len(data) > 8 * 1024 * 1024:
+        raise ValueError('original source packet exceeds size limit')
     prefix = UPSTREAM_PREFIX if digest == UPSTREAM_SHA else PREFIX
-    result, seen = {}, set()
-    with tarfile.open(fileobj=io.BytesIO(data), mode='r:gz') as archive:
+    result, seen, total = {}, set(), 0
+    with tarfile.open(fileobj=io.BytesIO(data), mode='r:' if digest == PACKET_SHA else 'r:gz') as archive:
         for member in archive:
             safe_name(member.name)
+            if len(seen) >= 4096:
+                raise ValueError('too many source members')
             if member.name in seen:
                 raise ValueError('duplicate source member')
             seen.add(member.name)
@@ -53,6 +59,11 @@ def selected_data(data):
                 continue
             if member.type not in (tarfile.REGTYPE, tarfile.AREGTYPE) or not member.name.startswith(prefix):
                 raise ValueError('invalid source member')
+            if not 0 <= member.size <= 8 * 1024 * 1024:
+                raise ValueError('source member exceeds size limit')
+            total += member.size
+            if total > 32 * 1024 * 1024:
+                raise ValueError('source exceeds expanded size limit')
             name = member.name[len(prefix):]
             if name not in expected:
                 if digest in {PRIVATE_SHA, UPSTREAM_SHA}:
@@ -75,20 +86,29 @@ def selected_data(data):
     return result
 
 
+def source_input(archive_path):
+    # Large inputs can only enter as exact fixed-length/digest selected raw tar.
+    path = Path(archive_path)
+    if path.lstat().st_size > 8 * 1024 * 1024:
+        if path.lstat().st_size != PACKET_BYTES:
+            raise ValueError('original source packet exceeds size limit')
+        return read_selected_packet(path)
+    return read_regular(path, 8 * 1024 * 1024)
+
+
 def selected_bytes(archive_path):
-    return selected_data(read_regular(archive_path, 8 * 1024 * 1024))
+    return selected_data(source_input(archive_path))
 
 
 def build_archive(files):
     output = io.BytesIO()
-    with gzip.GzipFile(filename='', fileobj=output, mode='wb', mtime=0) as compressed:
-        with tarfile.open(fileobj=compressed, mode='w', format=tarfile.USTAR_FORMAT) as archive:
-            for name, data in sorted(files.items()):
-                safe_name(name)
-                member = tarfile.TarInfo(PREFIX + name)
-                member.size, member.mode, member.mtime = len(data), 0o644, EPOCH
-                member.uid = member.gid = 0
-                archive.addfile(member, io.BytesIO(data))
+    with tarfile.open(fileobj=output, mode='w', format=tarfile.USTAR_FORMAT) as archive:
+        for name, data in sorted(files.items()):
+            safe_name(name)
+            member = tarfile.TarInfo(PREFIX + name)
+            member.size, member.mode, member.mtime = len(data), 0o644, EPOCH
+            member.uid = member.gid = 0
+            archive.addfile(member, io.BytesIO(data))
     return output.getvalue()
 
 
@@ -98,10 +118,10 @@ def create_codec_packet(private_archive, output):
     roots = repository_roots(HERE)
     if any(output.is_relative_to(p) for p in roots) or output.exists() or requested.is_symlink():
         raise ValueError('output must be new and outside the repository')
-    original = fetch_upstream() if private_archive is None else read_regular(private_archive, 8 * 1024 * 1024)
+    original = fetch_upstream() if private_archive is None else source_input(private_archive)
     files = selected_data(original)
     data = build_archive(files)
-    if sha(data) != PACKET_SHA:
+    if len(data) != PACKET_BYTES or len(data) > SELECTED_LIMIT or sha(data) != PACKET_SHA:
         raise ValueError('reconstructed packet differs from pinned selected digest')
     with output.open('xb') as stream:
         stream.write(data)

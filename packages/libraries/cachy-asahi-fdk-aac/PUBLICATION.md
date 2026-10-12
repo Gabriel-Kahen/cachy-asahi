@@ -40,10 +40,14 @@ Networking ends before the network-disabled native build containers.
 
 The producer verifies exact byte pins and individual grant markers for every
 selected file, adds the two unmodified full notices, and serializes sorted
-regular files with fixed ownership/mode/timestamp and gzip metadata. It refuses
+regular files with fixed ownership/mode/timestamp in uncompressed USTAR. It refuses
 an output whose generated digest differs from the fixed selected archive:
-`1c4ade00f624c1e6f9e988cd17868a5e3faa78fea2522e9c302a89866d04cdd7`,
-2,701,495 bytes, 900 files. The private full archive is not redistributed.
+`1065c4b30e0c2deee7965faa0257e10ac482a2516d51b5b8f17b1406b3ecb2f4`,
+17,387,520 bytes, 900 files. The selected filename is
+`fdk-aac-3.0.0-selected-source.tar`; exact raw bytes are checked before parsing.
+Only this selected packet has a 20 MiB read/storage ceiling. Upstream acquisition
+and individual source members retain 8 MiB caps, with 32 MiB expanded content
+and 4,096 members. No gzip fallback is accepted for the selected packet. The private full archive is not redistributed.
 
 Materialize the clean archive with the independent template review map:
 
@@ -63,7 +67,12 @@ python -B publication.py pack --recipe "$NEW_RECIPE" --output "$NEW_SOURCE_BUNDL
 The bundle contains `cachy-asahi-fdk-aac-3.0.0-source/recipe/` with every recipe
 input, including the clean codec archive, and `SOURCE-MAP.json` beside that
 directory. Keeping the map outside the recipe avoids recursive self-hashing.
-The receipt reports bundle/map SHA256 and counts. Retain those trusted digests
+The outer corresponding-source bundle remains gzip-compressed and is bound by
+its own recorded digest, not a cross-compressor fixed digest. Only the exact
+selected member may reach 20 MiB; each other member and their combined content
+remain limited to 8 MiB. Total content is at most 28 MiB, plus at most 128 USTAR
+headers and one 10 KiB tar record of serialization padding. Compressed outer
+input/output remains capped at 8 MiB. The receipt reports bundle/map SHA256 and counts. Retain those trusted digests
 with the release. Actual public upload/source delivery is coordinator-owned.
 
 ## Recipient reconstruction and next native stage

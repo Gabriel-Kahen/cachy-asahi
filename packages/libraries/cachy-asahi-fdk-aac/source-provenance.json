@@ -28,6 +28,13 @@
     "upstream_scaffold_executed": false,
     "xhe_translation_units": 225
   },
+  "canonical_selected_tar_correction": {
+    "codec_files_and_grants_changed": false,
+    "historical_gzip_bytes": 2701495,
+    "historical_gzip_sha256": "1c4ade00f624c1e6f9e988cd17868a5e3faa78fea2522e9c302a89866d04cdd7",
+    "reason": "reproduced compressor serialization difference; actual hosted first source failure unproven",
+    "status": "source proposal; corrected native trial NOT RUN"
+  },
   "codec_patches": [],
   "copyright_conditions": [
     {
@@ -131,21 +138,22 @@
     "version": "3.0.0-1"
   },
   "schema_version": 1,
-  "selected_manifest_sha256": "d4e5eafb975c7721b8cfafb392dd8c13274d0bddc2ef8a92c4554b066db75cae",
+  "selected_manifest_sha256": "3eb66e2e1632cf65044f9250c7460b1effe0de3217f83b573b4e23885772fc29",
   "shared_audit_corrections_required": [
     "old noticebundle418b67... corrupts original Latin1 PPC copyright bytes; owned corrected rawbundlea0a52... does not change codec source",
     "prepare_source.py records prefixed manifest paths whereas retained manifest uses relative paths; generator/manifest reproducibility needs coordinator reconciliation"
   ],
   "source_delivery": "complete selected source/reconstruction/recipe bundle prepared locally; supply free with binary releases; public hosting/delivery NOT RUN",
   "source_packet": {
-    "bytes": 2701495,
+    "bytes": 17387520,
     "codec_source_modifications": [],
     "extraction_directory": "fdk-aac-3.0.0",
-    "filename": "fdk-aac-3.0.0-selected-source.tar.gz",
+    "filename": "fdk-aac-3.0.0-selected-source.tar",
+    "format": "canonical uncompressed USTAR; exact bytes before parsing",
     "full_notice_files": 2,
     "implementation_files": 898,
     "private_full_packet_included": false,
-    "sha256": "1c4ade00f624c1e6f9e988cd17868a5e3faa78fea2522e9c302a89866d04cdd7",
+    "sha256": "1065c4b30e0c2deee7965faa0257e10ac482a2516d51b5b8f17b1406b3ecb2f4",
     "source_commit": "a68a51aa45d86a43c7b228e3d45624af09dcdd8d",
     "source_scope": "complete selected two-library implementations, not all upstream software"
   },
