@@ -29,6 +29,13 @@ def need(condition, code):
         raise ValueError(code)
 
 
+def labels(value):
+    need(value is None or type(value) is dict and
+         all(type(key) is str and type(item) is str for key, item in value.items()),
+         'docker-container-ownership')
+    return {} if value is None else dict(value)
+
+
 def validate_endpoint(endpoint, uid):
     allowed = {'unix:///var/run/docker.sock', 'unix:///run/docker.sock'}
     need(endpoint in allowed, 'docker-endpoint')
@@ -385,8 +392,8 @@ class Broker:
             need(re.fullmatch('[0-9a-f]{64}', item['Id']) and item['Name'] == '/' + row['name'] and
                  (row['id'] is None or item['Id'] == row['id']) and item['Image'] == self.image and
                  config['User'] == self.user and
-                 (config.get('Labels') == self.image_config.get('Labels') if self.role == 'provision'
-                  else config['Labels'].get(LABEL) == self.nonce),
+                 (labels(config.get('Labels')) == labels(self.image_config.get('Labels')) if self.role == 'provision'
+                  else labels(config.get('Labels')).get(LABEL) == self.nonce),
                  'docker-container-ownership')
         required = {'AutoRemove': False, 'Privileged': False, 'ReadonlyRootfs': True,
                     'NetworkMode': 'none', 'IpcMode': 'private', 'PidMode': '', 'CgroupnsMode': 'private',

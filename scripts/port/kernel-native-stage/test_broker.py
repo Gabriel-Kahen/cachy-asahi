@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: MIT
+import copy
 import json
 import os
 from pathlib import Path
@@ -143,6 +144,76 @@ class BrokerPolicy(unittest.TestCase):
             altered = {**item, 'HostConfig': {**item['HostConfig'], key: changed}}
             with patch.object(value, '_operation', return_value=subprocess.CompletedProcess([], 0, json.dumps([altered]).encode())):
                 with self.assertRaises(ValueError): value._inspect(row['id'], row)
+
+    def provision_inspect(self):
+        value = self.instance('provision'); row, item = self.inspect_row(value)
+        row.update(name='cachy-asahi-kernel-' + self.nonce + '-provision', env={},
+                   cmd=['-I', '-B', '/code/scripts/port/kernel-native-stage/worker.py',
+                        'provision', self.nonce, 'd' * 64])
+        item['Name'] = '/' + row['name']
+        item['Config'].update(Labels={}, Env=value.image_config['Env'], Cmd=row['cmd'])
+        item['HostConfig'].update(ReadonlyRootfs=False, CapAdd=['CHOWN', 'DAC_OVERRIDE', 'FOWNER'])
+        return value, row, item
+
+    def test_provision_null_empty_and_absent_labels_preserve_raw_base(self):
+        for base, actual in ((None, {}), ({}, None), (None, None), ({}, {}),
+                             ({'upstream': 'fixed'}, {'upstream': 'fixed'})):
+            with self.subTest(base=base, actual=actual):
+                value, row, item = self.provision_inspect()
+                value.image_config['Labels'] = base; item['Config']['Labels'] = actual
+                original = copy.deepcopy(value.image_config)
+                with patch.object(value, '_operation', return_value=subprocess.CompletedProcess([], 0, json.dumps([item]).encode())):
+                    self.assertEqual(value._inspect(row['id'], row), row['id'])
+                self.assertEqual(value.image_config, original)
+        value, row, item = self.provision_inspect(); del value.image_config['Labels']
+        with patch.object(value, '_operation', return_value=subprocess.CompletedProcess([], 0, json.dumps([item]).encode())):
+            self.assertEqual(value._inspect(row['id'], row), row['id'])
+        self.assertNotIn('Labels', value.image_config)
+
+    def test_provision_labels_cannot_hide_nonempty_drift_or_malformed_maps(self):
+        for base, actual in ((None, {'extra': 'value'}), ({'upstream': 'fixed'}, {}),
+                             ({'upstream': 'fixed'}, {'upstream': 'changed'}),
+                             ({'upstream': 'fixed'}, {'upstream': 'fixed', 'extra': 'value'})):
+            value, row, item = self.provision_inspect()
+            value.image_config['Labels'] = base; item['Config']['Labels'] = actual
+            with patch.object(value, '_operation', return_value=subprocess.CompletedProcess([], 0, json.dumps([item]).encode())):
+                with self.assertRaisesRegex(ValueError, '^docker-container-ownership$'):
+                    value._inspect(row['id'], row)
+        for bad in (False, [], ['label'], '', 0, {'x': None}, {'x': 1}):
+            for side in ('base', 'container'):
+                with self.subTest(bad=bad, side=side):
+                    value, row, item = self.provision_inspect()
+                    if side == 'base': value.image_config['Labels'] = bad
+                    else: item['Config']['Labels'] = bad
+                    with patch.object(value, '_operation', return_value=subprocess.CompletedProcess([], 0, json.dumps([item]).encode())):
+                        with self.assertRaisesRegex(ValueError, '^docker-container-ownership$'):
+                            value._inspect(row['id'], row)
+        value, row, item = self.provision_inspect(); value.image_config['Labels'] = {1: 'x'}
+        with patch.object(value, '_operation', return_value=subprocess.CompletedProcess([], 0, json.dumps([item]).encode())):
+            with self.assertRaisesRegex(ValueError, '^docker-container-ownership$'):
+                value._inspect(row['id'], row)
+
+    def test_null_label_compatibility_keeps_every_other_ownership_gate(self):
+        changes = (lambda r, i: i.update(Id='e' * 63), lambda r, i: i.update(Name='/foreign'),
+                   lambda r, i: r.update(id='f' * 64), lambda r, i: i.update(Image='sha256:' + 'f' * 64),
+                   lambda r, i: i['Config'].update(User='1000:1000'))
+        for change in changes:
+            value, row, item = self.provision_inspect(); value.image_config['Labels'] = None
+            change(row, item)
+            with patch.object(value, '_operation', return_value=subprocess.CompletedProcess([], 0, json.dumps([item]).encode())):
+                with self.assertRaisesRegex(ValueError, '^docker-container-ownership$'):
+                    value._inspect(row['id'], row)
+
+    def test_build_nonce_label_equality_stays_required_with_strict_map_types(self):
+        for labels in ({broker.LABEL: self.nonce, 'extra': 'fixed'}, {}, None,
+                       {broker.LABEL: 'wrong'}, {broker.LABEL: self.nonce, 'extra': False}):
+            value = self.instance(); row, item = self.inspect_row(value); item['Config']['Labels'] = labels
+            with patch.object(value, '_operation', return_value=subprocess.CompletedProcess([], 0, json.dumps([item]).encode())):
+                if labels == {broker.LABEL: self.nonce, 'extra': 'fixed'}:
+                    self.assertEqual(value._inspect(row['id'], row), row['id'])
+                else:
+                    with self.assertRaisesRegex(ValueError, '^docker-container-ownership$'):
+                        value._inspect(row['id'], row)
 
     def test_unknown_create_cancellation_never_claims_absence(self):
         value = self.instance()

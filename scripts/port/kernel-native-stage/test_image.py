@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: MIT
+import copy
 import json
 import os
 from pathlib import Path
@@ -74,6 +75,54 @@ class ImageCleanupTests(unittest.TestCase):
         with patch.object(image, 'request', side_effect=request), \
                 patch.object(image, 'module', return_value=SimpleNamespace(commit_config=lambda config: {})):
             return image.commit(self.broker, Path('/owned/code'), self.journal)
+
+    def test_null_base_empty_derived_labels_verify_journal_and_cleanup(self):
+        self.config['Labels'] = None; original = copy.deepcopy(self.config)
+        operation = self.broker._operation
+        def empty_derived(argv, **kwargs):
+            result = operation(argv, **kwargs)
+            if argv[:2] == ['image', 'inspect'] and result.returncode == 0 and argv[-1] != self.base:
+                rows = json.loads(result.stdout); rows[0]['Config']['Labels'] = {}
+                result.stdout = json.dumps(rows).encode()
+            return result
+        self.broker._operation = empty_derived; self.state.update(tag_present=True, id_present=True)
+        record = self.commit_result(self.derived)
+        self.assertEqual(record['accepted_config']['Labels'], {})
+        self.assertEqual(record['status'], 'DERIVED_CONFIG_VERIFIED')
+        self.assertEqual(common.load(self.journal), record)
+        self.assertEqual(image.cleanup(self.broker, self.journal)['status'], 'PASS')
+        self.assertEqual(self.config, original)
+        self.assertTrue(all(argv[2] == '--no-prune' for argv in self.calls if argv[:2] == ['image', 'rm']))
+
+    def test_labels_semantics_are_strict_and_do_not_normalize_other_config(self):
+        for base in ({}, {'Labels': None}, {'Labels': {}}, {'Labels': {'upstream': 'fixed'}}):
+            before = copy.deepcopy(base); normalized = image.effective(base)
+            self.assertEqual(base, before)
+            self.assertEqual(normalized['Labels'], base.get('Labels') or {})
+        for bad in (False, [], ['label'], '', 0, {'x': None}, {'x': 1}, {1: 'x'}):
+            with self.subTest(bad=bad), self.assertRaisesRegex(ValueError, '^derived image config/identity differs$'):
+                image.effective({'Labels': bad})
+        baseline = image.effective({'Labels': None, 'Env': ['A=one'], 'User': 'alarm', 'Cmd': ['first']})
+        for changed in ({'Labels': {'extra': 'value'}}, {'Env': ['A=changed']},
+                        {'User': 'root'}, {'Cmd': ['changed']}, {'Entrypoint': ['/changed']}):
+            config = {'Labels': {}, 'Env': ['A=one'], 'User': 'alarm', 'Cmd': ['first'], **changed}
+            self.assertNotEqual(image.effective(config), baseline)
+
+    def test_nonempty_derived_labels_drift_cannot_authorize_cleanup(self):
+        self.config['Labels'] = None
+        operation = self.broker._operation
+        def extra_derived(argv, **kwargs):
+            result = operation(argv, **kwargs)
+            if argv[:2] == ['image', 'inspect'] and result.returncode == 0 and argv[-1] != self.base:
+                rows = json.loads(result.stdout); rows[0]['Config']['Labels'] = {'extra': 'value'}
+                result.stdout = json.dumps(rows).encode()
+            return result
+        self.broker._operation = extra_derived; self.state.update(tag_present=True, id_present=True)
+        with self.assertRaisesRegex(ValueError, '^derived image config/identity differs$'):
+            self.commit_result(self.derived)
+        with self.assertRaisesRegex(ValueError, '^derived image config/identity differs$'):
+            image.cleanup(self.broker, self.journal)
+        self.assertFalse(any(argv[:2] == ['image', 'rm'] for argv in self.calls))
 
     def test_precommit_protects_baseline_base_and_intermediates(self):
         self.inventory_rows = ['sha256:' + 'f' * 64, self.base, 'sha256:' + 'e' * 64, self.base]

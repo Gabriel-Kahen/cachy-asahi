@@ -4,7 +4,7 @@ October 12, 2026. This record tracks the complete `outline.md` scope; an impleme
 
 The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with owned tasks and corrective next actions in `docs/backlog.md`. The destination now explicitly requires the maintained ARM package repository, native performance engineering, integrated Apple stack, broader Cachy system experience, and complete installation/release lifecycle. Both Air sizes, published final measurements, independent onboarding/contribution, subsequent full-port maintenance release, other-ARM reuse and actual upstream submissions remain required; an early overlay release or feasibility decision would not complete the goal. This scope update does not change any recorded execution result.
 
-Latest coordinator checkpoint, October 12, 18:09 UTC. Earlier records below
+Latest coordinator checkpoint, October 12, 18:40 UTC. Earlier records below
 remain historical; this checkpoint supersedes their pending-work descriptions.
 
 - Successor guest run `38283691844`, from `387217c`, passes the original generic
@@ -27,8 +27,13 @@ remain historical; this checkpoint supersedes their pending-work descriptions.
   and scoped absence verify. The first build predicate and compiler invocation
   remain unproven. The held worker diagnostics pass 104 author and 38 independent source checks;
   the outer consumer passes 174 author and 29 peer fixture checks. Root binds
-  stage40/job129; a narrow inherited-HOME and prospective documentation correction
-  is held for final recheck. Committed source proof remains before retry;
+  stage40/job129; the inherited-HOME and prospective documentation correction passes 15 peer
+  controls. Commit `6026697` and both actual workflow source/loader guards pass.
+  Native trial `38289669230` still fails build-1: verified worker/builder exit 1,
+  attach and validated container exit 4, first predicate CONTAINER_ATTACH.
+  Both scoped absence checks pass. The eight public records verify; private
+  builder log/provenance bytes are not exported, so package function and compiler
+  invocation remain unestablished. Source/data diagnosis is active;
   FDK compilation, publication and runtime integration remain unaccepted.
 - Updater's accepted workflow correction is committed at `ed76c11`, following
   507 author consumer cases, 39 independent cases and actual 85-file source
@@ -43,7 +48,10 @@ remain historical; this checkpoint supersedes their pending-work descriptions.
   Independent review of the frozen worker-side helper reproduces four blockers
   despite passing its 155 tests: command facts lost during log I/O, cleanup
   cancellation loss, durable final-close mismatch and contradictory CANCELLED
-  fields. Those specific corrections and bounded custody improvements are selected.
+  fields. Those corrections and parent once-capture/binding pass a merged 186-test
+  source suite and 47 independent controls. Coordinator recipe/helper/ready/source/
+  stage/workflow registration remains before native admission; no corrected Rust
+  compilation is claimed.
 - KSM retry `38271066975` stops at the initial image baseline: query exit 0,
   six returned lines and no observed container baseline. Cooperative image
   preservation is held and independently passes 255 source tests and focused
@@ -69,7 +77,14 @@ remain historical; this checkpoint supersedes their pending-work descriptions.
   diagnostic passes 78 stage and 205 job source tests with zero skips, plus
   independent typed-slot and cleanup controls. Commit `2e0dc0d` binds stage 26
   `387e72fc…` and job 117 `9ca9414c…`; actual Git/source/bootstrap proof passes.
-  Successor `38288838400` is dispatched on ARM; it has no accepted result yet. The prior timer explanation was
+  Successor `38288838400` fails INSPECT_OWNERSHIP/docker-container-ownership
+  after a returned container ID, before start; cleanup fails the same check.
+  Its public schema4/diagnostic2 projection verifies; the failed conjunct remains
+  unknown without raw inspect. Primary Docker/Moby source and two causal controls
+  establish null/empty Labels incompatibilities in ownership and derived-config
+  comparison. The narrow correction passes 85 stage, 205 job and 48 independent
+  controls; stage26 `0ef3ad17…`/job117 `647d4dd0…` are adopted before committed
+  proof and the next ARM trial. The prior timer explanation was
   withdrawn after confirming the existing renewal; those timers are unchanged.
 - The actual inert 624-archive payload audit passes. The corrected ELF scan
   remains FAIL with 27 missing-provider requests and 22 firmware parser refusals;

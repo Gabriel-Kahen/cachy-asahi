@@ -27,6 +27,11 @@ FIELDS = ('User', 'Env', 'Entrypoint', 'Cmd', 'WorkingDir', 'Labels', 'Volumes',
 
 def effective(config):
     value = {key: config.get(key) for key in FIELDS}
+    labels = value['Labels']
+    need(labels is None or type(labels) is dict and
+         all(type(key) is str and type(item) is str for key, item in labels.items()),
+         'derived image config/identity differs')
+    value['Labels'] = {} if labels is None else dict(labels)
     if value['Entrypoint'] in (None, [], ['']): value['Entrypoint'] = None
     if value['Cmd'] in (None, []): value['Cmd'] = None
     return value
