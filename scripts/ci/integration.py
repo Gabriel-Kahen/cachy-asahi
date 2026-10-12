@@ -204,7 +204,8 @@ def scan(root):
         for current, dirs, files in os.walk(root / name, followlinks=False):
             dirs[:] = sorted(d for d in dirs if d != '__pycache__' and
                              not (Path(current) == root / 'scripts' and d in ('virtual', 'client', 'experiments', 'port')) and
-                             not (Path(current) == root / 'packages' and d == 'tools'))
+                             not (Path(current) == root / 'packages' and d == 'tools') and
+                             not (d == 'evidence' and Path(current).is_relative_to(root / 'packages')))
             for directory in dirs:
                 need(not (Path(current) / directory).is_symlink(), 'symlink source directory')
             paths += [Path(current) / f for f in sorted(files) if not f.endswith('.pyc')]
@@ -235,6 +236,26 @@ def files(root):
             regular(path)
             result[path.relative_to(root).as_posix()] = {'sha256': native.sha(path), 'mode': stat.S_IMODE(path.stat().st_mode)}
     return result
+
+
+def require_source_snapshot(actual, expected, message):
+    need(isinstance(expected, dict), 'reviewed source map required')
+    if actual == expected:
+        return
+    groups = {'missing': sorted(set(expected) - set(actual)), 'extra': sorted(set(actual) - set(expected)),
+              'changed': sorted(name for name in set(actual) & set(expected) if actual[name] != expected[name])}
+    # Names only, no file contents, hashes, or absolute/private state paths.
+    summary = {'counts': {key: len(names) for key, names in groups.items()}, 'path_limit': 20}
+    for key, names in groups.items():
+        summary[key] = []
+        for name in names[:20]:
+            try:
+                path = relative(name)
+                allowed = path.parts[0] in SOURCE_ROOTS or name in SOURCE_FILES
+            except ValueError:
+                allowed = False
+            summary[key].append(name if allowed and len(name) <= 256 else '[unreported-path]')
+    raise ValueError(message + ': ' + json.dumps(summary, sort_keys=True))
 
 
 def generate(root, out, recipe_pin, source_commit, epoch):
@@ -271,7 +292,7 @@ def preflight(root, lock_path, digest, recipe_pin, epoch):
     need(lock.get('recipes_sha256') == recipe_pin and lock.get('source_date_epoch') == epoch,
          'integration recipe/epoch pins differ')
     need(re.fullmatch(r'[0-9a-f]{40}', lock.get('recipe_source_commit', '')), 'original recipe commit missing')
-    need(scan(root) == lock.get('source_files'), 'integration source differs from reviewed full snapshot')
+    require_source_snapshot(scan(root), lock.get('source_files'), 'integration source differs from reviewed full snapshot')
     need(isinstance(lock.get('generated_fixture_files'), dict) and bool(lock['generated_fixture_files']), 'fixture pins missing')
     for name, row in lock['generated_fixture_files'].items():
         relative(name); native.check_pin(row['sha256'])
@@ -293,7 +314,7 @@ def snapshot(root, target, source):
         dest = target / name; dest.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(original, dest); dest.chmod(row['mode'])
         need(native.sha(dest) == row['sha256'], 'source drift during snapshot')
-    need(scan(target) == source, 'copied source differs')
+    require_source_snapshot(scan(target), source, 'copied source differs')
 
 
 def output_boundaries(source, native_out, cache, integration_out):

@@ -6,6 +6,7 @@ import importlib.util
 import json
 import os
 from pathlib import Path
+import shutil
 import sys
 import tempfile
 from types import SimpleNamespace
@@ -34,9 +35,10 @@ class Boundaries(unittest.TestCase):
             with self.subTest(value=value), self.assertRaises(ValueError):
                 i.relative(value)
 
-    def test_independent_followup_sources_are_excluded_from_initial_snapshot(self):
+    def source_tree(self):
         for name in i.SOURCE_ROOTS:
             (self.root / name).mkdir()
+            (self.root / name / 'README.md').write_text('reviewed subtree')
         paths = list(i.SOURCE_FILES)
         for name in ('fixtures', 'lifecycle', 'repository', 'onboarding', 'desktop'):
             paths += [f'scripts/integration/{name}.py', f'scripts/integration/test_{name}.py']
@@ -44,10 +46,46 @@ class Boundaries(unittest.TestCase):
             paths += [f'scripts/ci/{name}.py', f'scripts/ci/test_{name}.py']
         for name in paths:
             path = self.root / name; path.parent.mkdir(parents=True, exist_ok=True); path.write_text('reviewed source')
+
+    def test_independent_followup_sources_are_excluded_from_initial_snapshot(self):
+        self.source_tree()
         for directory in ('scripts/virtual', 'scripts/client', 'scripts/experiments', 'scripts/port', 'packages/tools'):
             path = self.root / directory; path.mkdir(parents=True); (path / 'moving.py').write_text('active independent source')
         result = i.scan(self.root)
         self.assertFalse(any(name.endswith('moving.py') for name in result))
+
+    def test_generated_package_evidence_does_not_change_clean_source_snapshot(self):
+        self.source_tree()
+        recipe = self.root / 'packages/desktop/recipe'; recipe.mkdir(parents=True)
+        (recipe / 'PKGBUILD').write_text('reviewed recipe bytes')
+        (recipe / 'PKGBUILD').chmod(0o755)
+        clean = i.scan(self.root)
+        evidence = self.root / 'packages/desktop/evidence'; evidence.mkdir()
+        archive = evidence / 'host-package-1.pkg.tar.zst'; archive.write_bytes(b'local generated binary')
+        receipt = evidence / 'original-receipt.json'; receipt.write_text('{"status":"historical"}')
+        nested = recipe / 'evidence'; nested.mkdir(); (nested / 'generated.log').write_text('local diagnostic')
+        self.assertEqual(i.scan(self.root), clean)
+        self.assertEqual(archive.read_bytes(), b'local generated binary')
+        self.assertEqual(receipt.read_text(), '{"status":"historical"}')
+        target = self.root.parent / (self.root.name + '-clean-snapshot')
+        self.addCleanup(lambda: shutil.rmtree(target, ignore_errors=True))
+        i.snapshot(self.root, target, clean)
+        self.assertEqual(i.scan(target), clean)
+        self.assertFalse((target / 'packages/desktop/evidence').exists())
+        self.assertEqual(i.native.sha(target / 'packages/desktop/recipe/PKGBUILD'), clean['packages/desktop/recipe/PKGBUILD']['sha256'])
+        self.assertEqual((target / 'packages/desktop/recipe/PKGBUILD').stat().st_mode & 0o777, 0o755)
+
+    def test_snapshot_drift_diagnostic_is_bounded_and_contains_only_relative_paths(self):
+        actual = {'scripts/new.py': {'sha256': 'a'}, 'scripts/changed.py': {'mode': 0o755}}
+        expected = {'scripts/changed.py': {'mode': 0o644}, **{f'scripts/missing-{n:02d}.py': {'sha256': 'b'} for n in range(25)}}
+        with self.assertRaises(ValueError) as raised:
+            i.require_source_snapshot(actual, expected, 'source drift')
+        report = json.loads(str(raised.exception).split(': ', 1)[1])
+        self.assertEqual(report['counts'], {'missing': 25, 'extra': 1, 'changed': 1})
+        self.assertEqual(len(report['missing']), 20)
+        self.assertEqual(report['changed'], ['scripts/changed.py'])
+        self.assertNotIn('sha256', str(raised.exception))
+        self.assertNotIn(str(self.root), str(raised.exception))
 
     def test_mount_contract_nonroot(self):
         command = i.command('sha256:' + 'a' * 64, 'unique', [(self.root, '/source', True), (self.root, '/out', False)],
