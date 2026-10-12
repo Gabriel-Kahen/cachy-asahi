@@ -8,6 +8,24 @@ Latest coordinator checkpoint, October 12 after trial38251407975: the records be
 attempts; the following supersedes their pending-work descriptions without
 changing those attempts' outcomes.
 
+October 12, 13:55 UTC update: kernel trial38253531983 passed source/native
+preflight but refused the daemon baseline before any build; counts and the cause
+of that ambiguous occupied-daemon diagnostic were not captured. A
+baseline-preservation correction is in development. Virtual87 source review is
+closed at f14d9d8, with its normal-process/aggregate acceptance cutoff documented.
+The separate211-source integration packet is now rebound to corrected initial
+159-source/125-fixture metadata and21-package QEMU tooling. Independent actual
+Git/blob/mode and canonical regeneration checks pass;363 CI tests pass, and all
+199 development methods pass across the first run and an isolated rerun of the
+one temporary GPG-agent startup failure. Corrected native integration is pending.
+
+The first actual static ELF scan read all624 archive inputs and observed7,129
+ELF files, but returned FAIL. Its4,536 missing-provider findings include false
+omissions caused by excluding legitimate SONAME libraries with PT_INTERP;
+22 general-parser refusals are firmware files. The original report is retained,
+and a narrow provider-selection correction is being implemented. These findings
+are static observations, not installed loader,16K runtime or hardware evidence.
+
 - Corrected FDK trial `38248011223` passes source/native preflight and records
   all 501 acquisitions PASS, then fails after the last original-comparison
   diagnostic. Seven public files pass independent strict verification; FDK
