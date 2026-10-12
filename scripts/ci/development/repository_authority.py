@@ -371,6 +371,7 @@ class RootCallbacks:
         rows = grant.get('source_files'); need(type(rows) is dict and OWN in rows and HANDOFF in rows, 'grant-refused')
         handoff = load_module(root, '_repository_authority_handoff', HANDOFF, rows[HANDOFF], deadline)
         sources = handoff.preflight(root, self._grant_raw, self._grant_pin, deadline=deadline)
+        need(grant['original_view']['root'] == str(Path(self._output)/'original-view'),'grant-refused')
         need(grant['maps']['phase']['sha256'] == PHASE_MAP and
              rows[PHASE+'/gate.py']['sha256'] == PHASE_GATE, 'source-refused')
         authenticate_class(self, 'RootCallbacks', root/OWN, sources.raw[OWN])
@@ -420,7 +421,14 @@ class RootCallbacks:
              and type(session.end) in (int,float) and deadline <= session.work_end < session.end <= self._deadline
              and session.end-session.work_end == 60 and time.monotonic() < deadline, 'context-refused')
         controller = session.controller
-        authenticate_class(controller, 'Controller', sources.root/'scripts/ci/integration.py',
+        context = session.original_context(deadline=deadline,controller=controller)
+        need(type(context) is dict and set(context) == {'root','receipt','sha256','original','aliases'} and
+             context['root'] == Path(grant['original_view']['root']) and
+             type(context['receipt']) is bytes and digest(context['receipt']) == context['sha256'] and
+             decode(context['receipt'])['selection'] == grant['original_view'] and
+             type(controller) is context['original']['integration'].Controller,'context-refused')
+        session.sources.source_graph(session)
+        authenticate_class(controller, 'Controller', context['root']/'scripts/ci/integration.py',
                            sources.raw['scripts/ci/integration.py'], registered=False)
         need(controller.commit == grant['source_commit'] and controller.image == session.job['image_id']
              and controller.cancelled is False and controller.lock == decode(sources.raw['scripts/ci/integration.lock.json'])

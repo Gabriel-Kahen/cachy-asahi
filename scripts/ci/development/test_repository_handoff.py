@@ -232,7 +232,7 @@ class WiringModels(unittest.TestCase):
     def model(self, *, exit_code=0, broad_seconds=2000, capture_error=None, close_error=None, late_cancel=False):
         temporary=tempfile.TemporaryDirectory();self.addCleanup(temporary.cleanup)
         root=Path(temporary.name);events=[];clock=[1000]
-        grant={'source_commit':'a'*40,'run_id':'1','run_attempt':'1','recipe_source_commit':'b'*40,
+        grant={'schema_version':2,'source_commit':'a'*40,'run_id':'1','run_attempt':'1','recipe_source_commit':'b'*40,
             'source_files':{'scripts/port/repository-client-native/entry.py':{'sha256':'c'*64},
                             'scripts/port/repository-client-phase-stage/entry.py':{'sha256':'d'*64}},
             'maps':{name:{'path':name+'.json','sha256':'e'*64} for name in ('runtime','collector','phase')}}
@@ -286,6 +286,10 @@ class WiringModels(unittest.TestCase):
             session.result.update(input_acceptance='PASS',restage='PASS')
         callbacks={'existing_consumers':broad,'public_receiver':lambda *a:None,'authority_provider':lambda *a:None}
         session.pending_consumer=pending;session.terminal_consumer=terminal
+        # Budget-only models; explicit view/frame custody is exercised by actual-source fixtures below.
+        session.view_plan=lambda argv:root/'output'/'original-view'
+        session.prepare_view=lambda path:None
+        session.observe_native_consumer=lambda controller:setattr(session,'controller',controller)
         env={'GITHUB_SHA':grant['source_commit'],'GITHUB_RUN_ID':'1','GITHUB_RUN_ATTEMPT':'1'}
         with patch.object(adapter.time,'monotonic',side_effect=lambda:clock[0]),patch.dict(os.environ,env), \
              patch.object(adapter,'authority_state',return_value=None), \
@@ -527,7 +531,8 @@ class CapturedGraphFixtures(unittest.TestCase):
     def setUpClass(cls):
         cls.temporary=tempfile.TemporaryDirectory(prefix='handoff-actual-graph-')
         cls.addClassCleanup(cls.temporary.cleanup)
-        cls.root=Path(cls.temporary.name);project=PATH.parents[3]
+        cls.root=Path(cls.temporary.name)/'source';cls.root.mkdir()
+        cls.output=Path(cls.temporary.name)/'output';project=PATH.parents[3]
         # Explicit source-only fixture closure; no unregistered packet-map read.
         names=set(json.loads((project/'scripts/ci/integration.lock.json').read_bytes())['source_files'])
         names.update('''
@@ -628,14 +633,19 @@ scripts/virtual/tooling.lock.json
         exec(compile((cls.root/'scripts/ci/development/repository_handoff.py').read_bytes(),cls.a.__file__,'exec'),cls.a.__dict__)
         cls.deadline=time.monotonic()+600
         actor={'cli_sha256':'b'*64,'endpoint_identity':{'fixture':'NO ACTOR'},'env':{}}
-        cls.grant={'schema_version':1,'purpose':'reviewed-same-job-handoff-execution',
+        cls.grant={'schema_version':2,'purpose':'reviewed-same-job-handoff-execution',
             'source_peer_preflight':'PASS','development_only':True,'added_seconds':1200,
             'source_commit':'a'*40,'recipe_source_commit':'c'*40,'run_id':'123','run_attempt':'2',
             'source_files':rows,'maps':{},'callbacks':{},
             'policy_path':'artifacts/reviews/repository-native-handoff-implementation-20261012/root-policy-selection/generic-policy.json',
             'license_path':'LICENSE','actor_contract_sha256':adapter.digest(adapter.encoded(actor)),
             'initial_invocation_sha256':adapter.digest(adapter.encoded({'argv':['SOURCE-ONLY-NO-ACTOR'],
-                                                                       'output':str(cls.root/'output')}))}
+                                                                       'output':str(cls.output)}))}
+        initial=json.loads((cls.root/'scripts/ci/integration.lock.json').read_bytes())
+        cls.grant['original_view']={'schema_version':1,'purpose':'original-159-copy-view',
+            'full_source_root':str(cls.root),'root':str(cls.output/'original-view'),
+            'integration_lock_sha256':cls.a.INITIAL,'source_rows_sha256':cls.a.digest(cls.a.encoded(initial['source_files'])),
+            'file_count':160,'argv_mode':'absolute-view-metadata'}
         for role,prefix in cls.a.PREFIXES.items():
             path=prefix+'/source-map.json';cls.grant['maps'][role]={'path':path,'sha256':rows[path]['sha256']}
         cls.grant['callbacks']['existing_consumers']={'path':'scripts/ci/development/repository_handoff.py',
@@ -653,29 +663,32 @@ scripts/virtual/tooling.lock.json
             return cls.entry.dependency_entry(cls.root,prefix+'/entry.py',rows[prefix+'/entry.py']['sha256'],
                 cls.grant['maps'][role]['path'],cls.grant['maps'][role]['sha256'],deadline=cls.deadline,phase=role=='phase')[0]
         cls.collector=load('collector');cls.phase=load('phase')
-        cls.session=cls.a.Session(cls.sources,cls.root/'output',job_deadline=cls.deadline)
+        cls.session=cls.a.Session(cls.sources,cls.output,job_deadline=cls.deadline)
+        cls.output.mkdir(mode=0o700);cls.session.prepare_view(cls.output/'original-view')
         cls.session.used=True  # Inert registration model; Session.execute is never called.
         cls.session.source_graph={'entry':cls.entry,'runtime':cls.runtime,'collector':cls.collector,
             'phase':cls.phase,'original':{},'original_aliases':{}}
         cls.sources.source_graph(cls.session,capture=True)
         cls.partial_observation=cls.sources.graph_observation
-        with cls.entry.original_modules(cls.root,cls.root/'scripts/ci/integration.lock.json',cls.a.INITIAL,
-            deadline=cls.deadline,verification_deadline=cls.deadline) as original:
-            cls.original=original
-            cls.session.source_graph.update(original=original,original_aliases={
-                'repository_projection.inventory':original['repository_projection'].inventory,
-                'desktop_projection.policy':original['desktop_projection'].policy})
-            cls.sources.source_graph(cls.session,capture=True)
+        cls.scope=cls.entry.original_modules(cls.session.view_root,cls.session.view_root/'scripts/ci/integration.lock.json',
+            cls.a.INITIAL,deadline=cls.deadline,verification_deadline=cls.deadline)
+        cls.original=cls.scope.__enter__();cls.addClassCleanup(cls.scope.__exit__,None,None,None)
+        cls.session.original_scope=cls.scope
+        cls.session.source_graph.update(original=cls.original,original_aliases={
+            'repository_projection.inventory':cls.original['repository_projection'].inventory,
+            'desktop_projection.policy':cls.original['desktop_projection'].policy})
+        cls.sources.source_graph(cls.session,capture=True)
         cls.authority=cls.sources.module('handoff_actual_authority','scripts/ci/development/repository_authority.py')
         cls.authority_registration=patch.dict(sys.modules,{cls.authority.__name__:cls.authority})
         cls.authority_registration.start();cls.addClassCleanup(cls.authority_registration.stop)
         with patch.dict(os.environ,GITHUB_SHA=cls.grant['source_commit'],GITHUB_RUN_ID='123',GITHUB_RUN_ATTEMPT='2'):
-            cls.callback=cls.authority.RootCallbacks(cls.root,raw,pin,cls.a.encoded(actor),cls.root/'output',
+            cls.callback=cls.authority.RootCallbacks(cls.root,raw,pin,cls.a.encoded(actor),cls.output,
                 deadline=cls.deadline,session=cls.session)
 
     def check(self):
         with patch.dict(os.environ,GITHUB_SHA=self.grant['source_commit'],GITHUB_RUN_ID='123',GITHUB_RUN_ATTEMPT='2'):
-            self.a.authority_state(self.sources,self.callback.public_receiver,self.deadline)
+            self.a.authority_state(self.sources,self.callback.public_receiver,
+                min(self.deadline,self.session.work_end) if self.session.work_end is not None else self.deadline)
         self.assertFalse((self.root/'output').exists())
 
     def refuse(self):
@@ -803,6 +816,208 @@ scripts/virtual/tooling.lock.json
                 finally:cell.cell_contents=old
         self.assertEqual(supervisor.receipts,[])
         self.assertFalse(supervisor.active)
+
+    def test_view_is_exact160_original_only_with_real_original_scan(self):
+        context=self.session.original_context(deadline=self.deadline)
+        self.assertIs(context['original']['native_arm'],self.original['native_arm'])
+        self.assertEqual(context['root'],self.session.view_root)
+        self.assertEqual(len(self.original['integration'].scan(self.session.view_root)),159)
+        target=self.output/'freeze-source-only.json'
+        self.original['native_arm'].freeze_recipes(target)
+        data=json.loads(target.read_bytes())
+        self.assertEqual(len(data),4);self.assertEqual(sum(len(row) for row in data.values()),71)
+        self.assertEqual(len(self.a.decode(context['receipt'])['files']),160)
+        self.assertEqual(self.original['native_arm'].ROOT,self.session.view_root)
+
+    def test_current_full_checkout_scanner_sees_addon_view_remains_original(self):
+        project=PATH.parents[3]
+        actual=self.original['integration'].scan(project)
+        initial=self.a.decode(self.sources.raw['scripts/ci/integration.lock.json'])['source_files']
+        self.assertGreaterEqual(len(actual),171)
+        self.assertTrue(set('packages/shells/cachy-asahi-zsh-autosuggestions/'+name
+            for name in ('.SRCINFO','LICENSE.project','LICENSE.upstream','NOTICE','PKGBUILD','README.md',
+                         'check-module.py','integration-proposal.json','opt-in.zsh','source-provenance.json',
+                         'usage.md','zsh-autosuggestions.zsh')) <= set(actual)-set(initial))
+        self.assertEqual(len(self.original['integration'].scan(self.session.view_root)),159)
+
+    def test_old_schema_refuses_current_preflight(self):
+        grant=copy.deepcopy(self.grant);grant['schema_version']=1;grant.pop('original_view')
+        raw=self.a.encoded(grant)
+        with self.assertRaises(self.a.Refused):self.a.preflight(self.root,raw,self.a.digest(raw),deadline=self.deadline)
+
+    def test_metadata_path_hash_duplicates_and_output_selection_before_actor(self):
+        view=self.session.view_root
+        argv=['integration']
+        for flag,name in (('--inputs','inputs.lock.json'),('--recipes','recipes.lock.json'),('--integration','integration.lock.json')):
+            argv.extend((flag,str(view/'scripts/ci'/name),flag+'-sha256',self.a.digest(self.sources.raw['scripts/ci/'+name])))
+        argv.extend(('--cache',str(self.output/'cache'),'--output',str(self.output/'native'),
+                     '--integration-output',str(self.output/'integration')))
+        self.assertEqual(self.session.view_plan(argv),view)
+        for index in (2,4,6,8,10,12):
+            changed=list(argv);changed[index]='foreign'
+            with self.assertRaises(self.a.Refused):self.session.view_plan(changed)
+        with self.assertRaises(self.a.Refused):self.session.view_plan(argv+['--recipes',str(self.root/'scripts/ci/recipes.lock.json')])
+        with patch.object(self.session,'output',self.output/'different'):
+            with self.assertRaises(self.a.Refused):self.session.view_plan(argv)
+
+    def test_view_extra_empty_directory_and_foreign_namespace_refuse(self):
+        extra=self.session.view_root/'extra-empty';extra.mkdir(mode=0o700)
+        try:self.refuse()
+        finally:extra.rmdir()
+        other=types.ModuleType('integration');other.__dict__.update(self.original['integration'].__dict__)
+        with patch.dict(self.original,integration=other):self.refuse()
+
+    def test_copy_same_bytes_replaced_inode_and_mode_refuse(self):
+        path=self.session.view_root/'LICENSE';old=path.stat();raw=path.read_bytes()
+        replacement=path.with_name('LICENSE-new');replacement.write_bytes(raw);replacement.chmod(old.st_mode&0o777)
+        backup=path.with_name('LICENSE-private-backup');path.rename(backup)
+        try:
+            replacement.rename(path)
+            with self.assertRaises(self.a.Refused):self.session.verify_view(self.deadline)
+        finally:path.unlink();backup.rename(path)
+        path.chmod(0o600)
+        try:
+            with self.assertRaises(self.a.Refused):self.session.verify_view(self.deadline)
+        finally:path.chmod(old.st_mode&0o777)
+        # A rename changes ctime. Restore fixture custody by a fresh copy rather
+        # than rebinding the production receipt to changed bytes/nodes.
+        self._refresh_view_fixture()
+
+    def _refresh_view_fixture(self):
+        try:self.scope.__exit__(None,None,None)
+        except ValueError as error:self.assertEqual(str(error),'original-source-drift')
+        self.a.remove_private(self.session.view_root,self.session.view_node,self.deadline)
+        self.session.view_root=None;self.session.view_receipt=None
+        self.session.prepare_view(self.output/'original-view')
+        scope=self.entry.original_modules(self.session.view_root,self.session.view_root/'scripts/ci/integration.lock.json',
+            self.a.INITIAL,deadline=self.deadline,verification_deadline=self.deadline)
+        original=scope.__enter__();type(self).scope=scope;type(self).addClassCleanup(scope.__exit__,None,None,None)
+        self.session.original_scope=scope
+        self.session.source_graph.update(original=original,original_aliases={
+            'repository_projection.inventory':original['repository_projection'].inventory,
+            'desktop_projection.policy':original['desktop_projection'].policy})
+        # Fixture reset only: actual producer forbids a second capture/copy.
+        self.sources.graph_observation=self.partial_observation
+        self.sources.source_graph(self.session,capture=True)
+        type(self).original=original
+
+    def test_fabricated_same_class_controller_has_no_native_frame_custody(self):
+        module=self.original['integration']
+        controller=module.Controller('sha256:'+'a'*64,module.Path(self.output/'no-native'),
+            module.Path(self.output/'fabricated-controller'),
+            self.a.decode(self.sources.raw['scripts/ci/integration.lock.json']),self.grant['source_commit'])
+        with self.assertRaises(self.a.Refused):self.session.observe_native_consumer(controller)
+        with self.assertRaises(self.a.Refused):self.session.original_context(deadline=self.deadline,controller=controller)
+        self.assertIsNone(self.session.native_consumer_observation)
+
+    def test_context_ready_does_not_accept_foreign_or_closed_generator(self):
+        @contextmanager
+        def foreign():yield self.original
+        scope=foreign();scope.__enter__()
+        try:
+            with patch.object(self.session,'original_scope',scope):
+                with self.assertRaises(self.a.Refused):self.session.original_context(deadline=self.deadline)
+        finally:scope.__exit__(None,None,None)
+        with patch.object(self.session,'original_scope',None):
+            with self.assertRaises(self.a.Refused):self.session.original_context(deadline=self.deadline)
+
+    def test_immutable_receipt_unknown_fields_or_wrong_live_binding_refuse(self):
+        old=self.a.decode(self.session.view_receipt)
+        for mutate in (lambda value:value.update(raw='private error'),lambda value:value.update(run_attempt='3'),
+                       lambda value:value.update(file_count=True)):
+            value=copy.deepcopy(old);mutate(value);raw=self.a.encoded(value)
+            with patch.object(self.session,'view_receipt',raw),patch.object(self.session,'view_receipt_sha256',self.a.digest(raw)):
+                with self.assertRaises(self.a.Refused):self.session.verify_view(self.deadline)
+
+    def test_context_refuses_surplus_canonical_directory_receipt_row(self):
+        value=copy.deepcopy(self.a.decode(self.session.view_receipt))
+        value['directories']['ghost']=value['directories']['.'];raw=self.a.encoded(value)
+        with patch.object(self.session,'view_receipt',raw),patch.object(self.session,'view_receipt_sha256',self.a.digest(raw)):
+            with self.assertRaises(self.a.Refused):self.session.original_context(deadline=self.deadline)
+        self.assertEqual(self.session.original_context(deadline=self.deadline)['receipt'],self.session.view_receipt)
+
+    def test_context_refuses_noncanonical_directory_receipt_names(self):
+        original=self.a.decode(self.session.view_receipt)
+        for name in ('../ghost','./ghost','ghost/','a//b','/ghost','','..'):
+            with self.subTest(name=name):
+                value=copy.deepcopy(original);value['directories'][name]=value['directories']['.'];raw=self.a.encoded(value)
+                with patch.object(self.session,'view_receipt',raw),patch.object(self.session,'view_receipt_sha256',self.a.digest(raw)):
+                    with self.assertRaises(self.a.Refused):self.session.original_context(deadline=self.deadline)
+
+    def test_context_refuses_missing_or_aliased_directory_receipt_rows(self):
+        original=self.a.decode(self.session.view_receipt)
+        child=next(name for name in original['directories'] if name!='.')
+        for name,alias in (('.',None),(child,None),(child,child+'/..')):
+            with self.subTest(name=name,alias=alias):
+                value=copy.deepcopy(original);node=value['directories'].pop(name)
+                if alias is not None:value['directories'][alias]=node
+                raw=self.a.encoded(value)
+                with patch.object(self.session,'view_receipt',raw),patch.object(self.session,'view_receipt_sha256',self.a.digest(raw)):
+                    with self.assertRaises(self.a.Refused):self.session.original_context(deadline=self.deadline)
+
+
+    def isolated_view(self):
+        temporary=tempfile.TemporaryDirectory(prefix='original-view-control-');self.addCleanup(temporary.cleanup)
+        output=Path(temporary.name)/'output';output.mkdir(mode=0o700)
+        grant=copy.deepcopy(self.grant);grant['original_view']['root']=str(output/'original-view')
+        sources=self.a.Sources(self.root,grant,self.deadline);sources.grant_pin=self.a.digest(self.a.encoded(grant))
+        session=self.a.Session(sources,output,job_deadline=self.deadline)
+        def cleanup():
+            if session.view_root is not None and session.view_root.exists():
+                self.a.remove_private(session.view_root,session.view_node,self.deadline)
+        self.addCleanup(cleanup)
+        return session
+
+    def test_partial_copy_write_failure_registers_only_owned_cleanup(self):
+        session=self.isolated_view()
+        with patch.object(self.a.os,'write',side_effect=OSError('PRIVATE')):
+            with self.assertRaises(OSError):session.prepare_view(session.output/'original-view')
+        self.assertIsNotNone(session.view_node)
+        self.assertIsNone(session.view_receipt)
+        self.a.remove_private(session.view_root,session.view_node,self.deadline)
+        self.assertFalse(session.view_root.exists())
+        self.assertIsNone(self.session.result['initial_exit_code'])
+
+    def test_view_copy_cancel_expiry_and_wrong_root_before_writes(self):
+        for mode in ('cancel','expired','wrong-root'):
+            session=self.isolated_view()
+            if mode=='cancel':session.cancelled=lambda:True
+            if mode=='expired':session.job_deadline=time.monotonic()-1
+            root=session.output/('foreign' if mode=='wrong-root' else 'original-view')
+            with self.assertRaises((self.a.Refused,KeyboardInterrupt)):session.prepare_view(root)
+            self.assertFalse(root.exists())
+
+    def test_directory_replacement_preserving_file_nodes_refuses(self):
+        session=self.isolated_view();session.prepare_view(session.output/'original-view')
+        directory=session.view_root/'examples';moved=session.output/'moved-examples'
+        directory.rename(moved);directory.mkdir(mode=0o700)
+        for child in list(moved.iterdir()):child.rename(directory/child.name)
+        try:
+            with self.assertRaises(self.a.Refused):session.verify_view(self.deadline)
+        finally:moved.rmdir()
+
+    def test_symlink_fifo_hardlink_and_added_file_refuse(self):
+        for kind in ('symlink','fifo','hardlink','file'):
+            session=self.isolated_view();session.prepare_view(session.output/'original-view')
+            extra=session.view_root/'extra'
+            if kind=='symlink':extra.symlink_to(session.view_root/'LICENSE')
+            elif kind=='fifo':os.mkfifo(extra)
+            elif kind=='hardlink':os.link(session.view_root/'LICENSE',extra)
+            else:extra.write_bytes(b'PRIVATE')
+            try:
+                with self.assertRaises(self.a.Refused):session.verify_view(self.deadline)
+            finally:extra.unlink()
+
+    def test_view_cleanup_refuses_replaced_root_preserves_foreign_node(self):
+        session=self.isolated_view();session.prepare_view(session.output/'original-view')
+        original=session.output/'original-owned';session.view_root.rename(original)
+        session.view_root.mkdir(mode=0o700);(session.view_root/'foreign').write_bytes(b'UNRELATED')
+        try:
+            with self.assertRaises(self.a.Refused):self.a.remove_private(session.view_root,session.view_node,self.deadline)
+            self.assertEqual((session.view_root/'foreign').read_bytes(),b'UNRELATED')
+        finally:
+            (session.view_root/'foreign').unlink();session.view_root.rmdir();original.rename(session.view_root)
+
 
 
 if __name__ == '__main__':unittest.main()

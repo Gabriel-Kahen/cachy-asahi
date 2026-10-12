@@ -52,12 +52,17 @@ class GrantFixture:
             target = root/name; target.parent.mkdir(parents=True,exist_ok=True); target.write_bytes(data); target.chmod(mode)
             self.rows[name] = {'sha256':a.digest(data),'mode':mode}
         self.actor = {'cli_sha256':'b'*64,'endpoint_identity':{'fixture':'NO ACTOR'},'env':{}}
-        self.grant = {'schema_version':1,'purpose':'reviewed-same-job-handoff-execution',
+        self.grant = {'schema_version':2,'purpose':'reviewed-same-job-handoff-execution',
             'source_peer_preflight':'PASS','development_only':True,'added_seconds':1200,
             'source_commit':'a'*40,'recipe_source_commit':'c'*40,'run_id':'123','run_attempt':'2',
             'source_files':self.rows,'maps':{},'callbacks':{},
             'policy_path':'SYNTHETIC-policy.json',
             'license_path':'LICENSE','actor_contract_sha256':a.digest(a.encoded(self.actor))}
+        original=json.loads(initial.read_bytes())
+        self.grant['original_view']={'schema_version':1,'purpose':'original-159-copy-view',
+            'full_source_root':str(root),'root':str(root/'output'/'original-view'),
+            'integration_lock_sha256':a.INITIAL,'source_rows_sha256':a.digest(a.encoded(original['source_files'])),
+            'file_count':160,'argv_mode':'absolute-view-metadata'}
         self.grant['initial_invocation_sha256'] = a.digest(a.encoded({'argv':['integration','SYNTHETIC-NO-ACTOR'],
                                                                     'output':str(root/'output')}))
         # Test-only coherent runtime ledger follows actual current source bytes.
