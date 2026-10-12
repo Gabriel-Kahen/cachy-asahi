@@ -65,7 +65,7 @@ The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with 
 - The offline development release client passes 37 local tests with temporary
   real GPG signatures and independent race regressions. Production trust,
   supported release promotion and native onboarding remain separate gates.
-- Connected V01–V09 execution has six retained native failures. The first
+- Connected V01–V09 execution has seven retained native failures. The first
   passed 211 host boundary tests but refused an incorrect source freeze. The
   corrected run passed 213 host tests, runner probe and full-source preflight,
   then failed fetching superseded pinned Perl inputs. The third authenticated
@@ -90,7 +90,14 @@ The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with 
   includes pacman diagnostics, and desktop publication refuses ANSI control
   codes despite its component checks passing. The owned image was removed with
   verified absence. Remaining repository transactions and actual desktop/session
-  acceptance remain open. See
+  acceptance remain open. The seventh run passes 588 source tests without skips,
+  installed lifecycle/software onboarding and desktop configuration verification
+  including its corrected export. Eight repository case predicates pass through
+  install, upgrade, rollback and signature rejection, but independent review
+  finds zero-exit chroot errors in positive transactions; complete ancillary
+  execution is not accepted. The aggregate still fails at the
+  missing database-signature diagnostic classifier; later cases remain unrun.
+  See
   [the actual execution record](validation/virtual-arm.md).
 
 These are distinct development results. No complete-port milestone or hardware

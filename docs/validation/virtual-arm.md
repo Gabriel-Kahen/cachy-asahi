@@ -373,5 +373,48 @@ binds **159 sources and the unchanged 125 generated fixtures**. Every committed
 blob/mode and fresh detached-clone preflight passes at
 `81aabca9a9657a74deb3780430bd55dd3deabc6f`.
 [Native run 38214941784](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38214941784)
-was dispatched on that commit at 06:56 UTC on October 12, 2026; result pending.
+was created at 06:55:19 UTC on October 12, 2026 on that commit and completed
+at 07:00:02 UTC: **FAIL overall**. Its execution findings follow below.
 The sixth execution remains FAIL; source checks and dispatch do not change it.
+
+## Seventh native execution: desktop export and eight repository cases
+
+Run **38214941784** passes **588 native source tests, zero skips**, repeated
+original/fixture build pairs and TEST signing, fresh installed lifecycle/Config
+verification, installed software onboarding and desktop configuration verification
+including the corrected public export. Coordinator rechecking of retained original
+archives/provenance confirms all four byte, payload, PKGINFO and BUILDINFO comparisons.
+Final owned-image cleanup verifies absence without uncertainty. This is software
+configuration evidence; the desktop receipt still records headless compositor
+BLOCKED and graphics, application session, portal/audio and hardware NOT RUN.
+
+The repository records these **eight case predicates PASS**: untrusted A rejection, trusted
+full baseline installation, untrusted B rotation rejection, trusted full upgrade,
+full rollback to retained A, tampered-package rejection, tampered-database rejection
+and missing-package-signature rejection. Independent review finds that the three
+positive pacman logs exit zero but contain chroot `Operation not permitted` and
+`command failed to execute correctly` diagnostics. Their exact inventory/payload
+transitions occurred; complete ancillary execution and error-free transactions
+are **not accepted**. The positive predicate must reject these diagnostics, and
+the private-root capability/helper requirement must be audited and corrected.
+The complete repository sequence remains
+**FAIL** at its ninth case, missing database signature. Pacman exits 1 after
+requesting the absent local `integration.db.sig`, with a file-retrieval/download
+library error. The generic signature/trust diagnostic predicate refuses that
+wording before the after-snapshot. A case-specific missing-signature predicate
+must bind the exact local endpoint, unchanged existing database and absent
+signature preconditions, then preserve full negative inventory/payload checks.
+Other retrieval failures must remain failures. Later revocation/healthy-key cases
+were not reached and are not accepted.
+
+Raw and checksum-verified decoded bundles plus coordinator build-pair verification
+are retained under `artifacts/ci/38214941784/`. Summary bundle: 1,012 bytes,
+`eb9339820bdcc22b4895249ea066d8ed28045e6b3725b38a82a5f71a57d74f83`;
+repository: 107,987 bytes,
+`7905b464a9a9ae8dbd62ee19a84ca4da3f8c5ac109ff8b67ff263c9f67df13ce`;
+desktop: 20,816 bytes,
+`52ab0e6b067ea3f7500ecd23c4cdc2addb5ca64186a3328a48551da667ae882b`;
+lifecycle: 65,604 bytes,
+`e9eb6cb7bd88c6a1a6431d04739e66527e18f9275481c90ef1b86460d8b132b1`.
+These results establish no supported release, production signing trust,
+full independent installation journey, measured optimization or M2 acceptance.
