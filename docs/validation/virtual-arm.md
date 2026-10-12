@@ -351,3 +351,24 @@ desktop 20,213 bytes,
 All results are generic native ARM/4K userspace evidence. Both M2 Air hardware
 records, supported full-port release, production trust and performance acceptance
 remain **NOT RUN**.
+
+## Seventh-run source checkpoint
+
+The repository correction separates local package queries from registered sync
+databases, validates exact bounded package maps and retains stdout/stderr hashes
+separately. Negative cases still compare the full before/after inventory and
+owned payload states. Explicit nonzero signature rejection includes GPG exit 2.
+
+The desktop correction validates the exact successful receipt, container/input
+bindings and both known Hyprland command logs before projecting only SGR terminal
+presentation codes. Unknown controls/credentials remain refused by the unchanged
+generic exporter. Receipt bytes/hash are rechecked before the same captured bytes
+are staged; independent flag/nonce/credential replacement regressions are refused.
+See the [focused publication review](../reviews/desktop-publication-review.md).
+
+Coordinator tests pass **331 CI and 125 integration checks**, zero skips, in both
+the worktree and a separately copied frozen source tree. Integration lock
+`be5363dfb9f11b39f42fc419bebaa9cbaa11780fce1aa5cde2cedc25629766bb`
+binds **159 sources and the unchanged 125 generated fixtures**. Native execution
+of this correction remains **NOT RUN** pending committed-tree proof and dispatch.
+The sixth execution remains FAIL; these source tests do not change its outcome.

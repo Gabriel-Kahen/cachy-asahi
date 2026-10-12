@@ -42,7 +42,7 @@ class Boundaries(unittest.TestCase):
         paths = list(i.SOURCE_FILES)
         for name in ('fixtures', 'lifecycle', 'repository', 'onboarding', 'desktop'):
             paths += [f'scripts/integration/{name}.py', f'scripts/integration/test_{name}.py']
-        for name in ('integration', 'integration_export', 'sign_fixture', 'installed_handoff', 'source_suites', 'verify_derived', 'lifecycle_inventory', 'commit_image', 'repository_projection'):
+        for name in ('integration', 'integration_export', 'sign_fixture', 'installed_handoff', 'source_suites', 'verify_derived', 'lifecycle_inventory', 'commit_image', 'repository_projection', 'desktop_projection'):
             paths += [f'scripts/ci/{name}.py', f'scripts/ci/test_{name}.py']
         for name in paths:
             path = self.root / name; path.parent.mkdir(parents=True, exist_ok=True); path.write_text('reviewed source')
@@ -283,6 +283,54 @@ class Boundaries(unittest.TestCase):
         self.assertNotIn('key.bin', report)
         self.assertNotIn('private test material', report)
 
+    def test_bound_desktop_sgr_logs_project_without_changing_receipt(self):
+        from test_desktop_projection import write_bound_fixture
+        raw = self.root / 'raw'; raw.mkdir()
+        receipt, authority = write_bound_fixture(raw)
+        original = (raw / 'desktop/desktop.json').read_bytes()
+        rejected_work = self.root / 'before'; rejected_work.mkdir()
+        with self.assertRaises(ValueError):
+            i.safe_public(raw, self.root / 'rejected', rejected_work)
+        work = self.root / 'after'; work.mkdir()
+        public = self.root / 'public'
+        i.safe_public(raw, public, work, desktop_authority=authority)
+        self.assertEqual((public / 'desktop/desktop.json').read_bytes(), original)
+        self.assertEqual(json.loads((public / 'desktop/desktop.json').read_text())['status'], receipt['status'])
+        index = json.loads((public / 'desktop-terminal-projections.json').read_text())
+        self.assertEqual(len(index['files']), 2)
+        for row in index['files']:
+            raw_data, projected = (raw / row['path']).read_bytes(), (public / row['path']).read_bytes()
+            self.assertEqual(hashlib.sha256(raw_data).hexdigest(), row['raw_sha256'])
+            self.assertEqual(hashlib.sha256(projected).hexdigest(), row['public_sha256'])
+            self.assertNotIn(b'\x1b', projected)
+            self.assertIn(b'config ok', projected)
+
+    def test_desktop_projection_does_not_allow_unknown_terminal_logs(self):
+        from test_desktop_projection import write_bound_fixture
+        raw = self.root / 'raw'; raw.mkdir()
+        _, authority = write_bound_fixture(raw)
+        (raw / 'desktop/command-22.txt').write_bytes(b'\x1b[1;32munknown\x1b[0m')
+        work = self.root / 'work'; work.mkdir()
+        with self.assertRaises(ValueError):
+            i.safe_public(raw, self.root / 'public', work, desktop_authority=authority)
+        rejected = json.loads((self.root / 'public/export-manifest.json').read_text())['rejected']
+        self.assertTrue(any(row['path'] == 'desktop/command-22.txt' for row in rejected))
+
+    def test_desktop_receipt_replacement_after_projection_is_refused(self):
+        from test_desktop_projection import write_bound_fixture
+        raw = self.root / 'raw'; raw.mkdir()
+        receipt, authority = write_bound_fixture(raw)
+        original = i.desktop_projection.project
+        def replacing(*args):
+            projected = original(*args)
+            receipt['hardware_validation'] = 'PASS'
+            (raw / 'desktop/desktop.json').write_text(json.dumps(receipt))
+            return projected
+        work = self.root / 'work'; work.mkdir()
+        with patch.object(i.desktop_projection, 'project', side_effect=replacing), self.assertRaises(ValueError):
+            i.safe_public(raw, self.root / 'public', work, desktop_authority=authority)
+        self.assertFalse((self.root / 'public/desktop/desktop.json').exists())
+
     def repository_status(self, raw):
         spec = importlib.util.spec_from_file_location('integration_test_repository_producer',
                                                      Path(__file__).resolve().parents[1] / 'integration/repository.py')
@@ -441,6 +489,7 @@ class Boundaries(unittest.TestCase):
         controller.public = controller.out / 'public'; controller.public.mkdir()
         controller.report = {'stages': {}}
         controller.cancelled = False
+        controller.desktop_contract = None
         return controller
 
     def test_fixture_failure_preserves_provenance_validation_and_build_log(self):

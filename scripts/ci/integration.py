@@ -19,6 +19,7 @@ import native_arm as native
 from integration_export import export_evidence, SENSITIVE_PATH, PRIVATE_CONTENT
 import lifecycle_inventory
 import repository_projection
+import desktop_projection
 from commit_image import commit_image
 from package_checks import package
 
@@ -294,7 +295,7 @@ def scan(root):
     for name in ('fixtures', 'lifecycle', 'repository', 'onboarding', 'desktop'):
         need(f'scripts/integration/{name}.py' in result and f'scripts/integration/test_{name}.py' in result,
              f'missing integration source/tests: {name}')
-    for name in ('integration', 'integration_export', 'sign_fixture', 'installed_handoff', 'source_suites', 'verify_derived', 'lifecycle_inventory', 'commit_image', 'repository_projection'):
+    for name in ('integration', 'integration_export', 'sign_fixture', 'installed_handoff', 'source_suites', 'verify_derived', 'lifecycle_inventory', 'commit_image', 'repository_projection', 'desktop_projection'):
         need(f'scripts/ci/{name}.py' in result and f'scripts/ci/test_{name}.py' in result,
              f'missing CI adapter/source tests: {name}')
     need(locked <= result.keys(), 'reviewed recipe inputs missing from source snapshot')
@@ -504,7 +505,7 @@ def repository_public_logs(raw):
     return projected
 
 
-def safe_public(raw, public, work, *, lifecycle_authority=None, repository_authority=None):
+def safe_public(raw, public, work, *, lifecycle_authority=None, repository_authority=None, desktop_authority=None):
     """Select deliberately public owner receipts; identify every excluded binary."""
     selected = work / 'selected'; selected.mkdir()
     excluded = []
@@ -518,6 +519,7 @@ def safe_public(raw, public, work, *, lifecycle_authority=None, repository_autho
     inventories = lifecycle_inventory.projections(raw, *lifecycle_authority) if lifecycle_authority is not None else {}
     inventory_receipt = {}
     repository_receipt = None
+    desktop_logs, desktop_index = desktop_projection.project(raw, desktop_authority) if desktop_authority is not None else ({}, None)
     count, total = 0, 0
     for current, dirs, names in os.walk(raw, followlinks=False):
         for name in sorted(dirs.copy()):
@@ -545,7 +547,15 @@ def safe_public(raw, public, work, *, lifecycle_authority=None, repository_autho
                 continue
             size = path.stat().st_size; total += size
             need(size <= 4 * 1024**2 and total <= 16 * 1024**2, 'component receipt exceeds public bound')
-            data = inventories[relative_name] if relative_name in inventories else path.read_bytes()
+            data = (desktop_logs[relative_name] if relative_name in desktop_logs else
+                    inventories[relative_name] if relative_name in inventories else path.read_bytes())
+            if relative_name == 'desktop/desktop.json' and desktop_index is not None:
+                data = desktop_projection._read(raw, relative_name)
+                need(len(data) == desktop_index['receipt_bytes'] and
+                     hashlib.sha256(data).hexdigest() == desktop_index['receipt_sha256'], 'bound desktop receipt changed before export')
+            if relative_name in desktop_logs:
+                total += len(data) - size
+                need(total <= 16 * 1024**2, 'projected component receipt exceeds public bound')
             if relative_name in inventories:
                 row = json.loads(data)
                 inventory_receipt[relative_name] = {key: row[key] for key in ('stage', 'authority', 'original_sha256', 'original_bytes', 'package_count')}
@@ -583,6 +593,8 @@ def safe_public(raw, public, work, *, lifecycle_authority=None, repository_autho
                     'generic_content_guard': 'UNCHANGED', 'raw_inventory_bytes_exported': False})
     if repository_receipt:
         native.save(selected / 'repository-inventory-projection.json', repository_receipt)
+    if desktop_index:
+        native.save(selected / 'desktop-terminal-projections.json', desktop_index)
     receipt = export_evidence(selected, public)
     need(receipt['evidence_export'] == 'PASS', 'public evidence exporter rejected component output')
 
@@ -600,6 +612,7 @@ class Controller:
                        'hardware_validation': 'NOT RUN', 'production_trust': 'NOT RUN', 'stages': {}}
         self.installed = None
         self.installed_owned = None
+        self.desktop_contract = None
         self.cancelled = False
 
     def stage(self, name, action):
@@ -643,7 +656,9 @@ class Controller:
                         authority = (base, self.rows['baseline'], self.rows['upgrade'])
                     else:
                         repository_authority = (base, self.repository_contract)
-                safe_public(raw, self.public / name, staging, lifecycle_authority=authority, repository_authority=repository_authority)
+                desktop_authority = self.desktop_contract if name == 'desktop' and (raw / 'desktop/desktop.json').exists() else None
+                safe_public(raw, self.public / name, staging, lifecycle_authority=authority, repository_authority=repository_authority,
+                            desktop_authority=desktop_authority)
                 if name == 'fixtures' and status['status'] == 'PASS':
                     self.export_archives()
                 if name == 'signer' and status['status'] == 'PASS':
@@ -968,6 +983,8 @@ class Controller:
         runner = self.work / 'desktop-runner'; runner.mkdir()
         shutil.copyfile(self.source / 'scripts/integration/desktop.py', runner / 'desktop.py')
         nonce = os.urandom(16).hex()
+        self.desktop_contract = {'source_commit': self.commit, 'image_id': self.installed, 'nonce': nonce,
+                                 'archive_sha256': row['sha256'], 'runtime_lock_sha256': native.sha(self.native_out / 'packages.lock')}
         cmd = command(self.installed, 'cachy-asahi-desktop-' + nonce,
                       [(inputs, '/inputs', True), (runner, '/runner', True), (raw, '/out', False)],
                       tmpfs={'/tmp': owned_tmpfs('512m')}, env={'CACHY_ASAHI_INTEGRATION_CONTAINER': '1',

@@ -974,6 +974,10 @@
       "mode": 420,
       "sha256": "716e9aac5bd472e58da53e5def54a169f01b2c8bc7ac1fbae849f68532cf8a5c"
     },
+    "scripts/ci/desktop_projection.py": {
+      "mode": 420,
+      "sha256": "d2eab5230e2979e3cb9a39cd985c84018c5d38f430ed9c923e0577d3672d9203"
+    },
     "scripts/ci/freeze.py": {
       "mode": 420,
       "sha256": "f1e1ba0ec47514958680272ca19606718e1fbac93eae78b2a79bc64500792a61"
@@ -988,7 +992,7 @@
     },
     "scripts/ci/integration.py": {
       "mode": 420,
-      "sha256": "f2607b2e49173cc48ae7c674421702ac89efb5285ec579d81133482fb166a6a5"
+      "sha256": "3633427707da0f93f9f3900cc1036596815f85000bf53e7ea2c6fbd22bbb3be2"
     },
     "scripts/ci/integration_export.py": {
       "mode": 420,
@@ -1030,13 +1034,17 @@
       "mode": 420,
       "sha256": "8b9a18f758b5cf99b3eb2e6f7a6315797b7d1f34154527e384b4254e7d5a5a91"
     },
+    "scripts/ci/test_desktop_projection.py": {
+      "mode": 420,
+      "sha256": "4871d91ecec77cfb38ec2f1350d4b7a33689186c46017161528156400b44ae48"
+    },
     "scripts/ci/test_installed_handoff.py": {
       "mode": 420,
       "sha256": "76156dec5428688fffd4f1e7816109474e04f5a6df5c8427192c457955a0a539"
     },
     "scripts/ci/test_integration.py": {
       "mode": 420,
-      "sha256": "db6ce47b5027a9d3d2a2e366495155c09220057baa9d76c870bf01e3a39b073e"
+      "sha256": "dde5c23742fe8a06d753adc54402e4956c31e74f482d87f55d28b3d8bebdca56"
     },
     "scripts/ci/test_integration_export.py": {
       "mode": 420,
@@ -1096,7 +1104,7 @@
     },
     "scripts/integration/repository.py": {
       "mode": 420,
-      "sha256": "519c1bbc12a2fd02e036f67c162190f2b017e86ed7b7c192b6bbb994809fe5d9"
+      "sha256": "72a604cf7ed99f9711755ef318ce9ce62af263006918c3a03d69c906830c5173"
     },
     "scripts/integration/test_desktop.py": {
       "mode": 420,
@@ -1116,7 +1124,7 @@
     },
     "scripts/integration/test_repository.py": {
       "mode": 420,
-      "sha256": "30b76ba8dd9a9e3c74c085f5282fb1001e3cc6fdbae40ffdc423112dee0473c5"
+      "sha256": "d920f0f86208a1ab12e22153e0e5b5d765eeb520ef27f7a74913e3c2fad862e5"
     },
     "scripts/release/release.py": {
       "mode": 493,

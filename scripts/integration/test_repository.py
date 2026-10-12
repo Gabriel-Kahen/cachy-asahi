@@ -37,6 +37,7 @@ class RepositoryTests(unittest.TestCase):
         self.runner.home.mkdir()
         self.runner.scratch = self.base / 'scratch'
         self.runner.scratch.mkdir()
+        self.runner.query_config = self.runner.scratch / 'query-pacman.conf'
 
     def mount_contract(self):
         def row(fs, mode, root='/'):return {'fs': fs, 'options': {mode}, 'root': root}
@@ -297,7 +298,10 @@ class RepositoryTests(unittest.TestCase):
         self.assertEqual(calls, ['/usr', '/etc', '/var/lib/pacman/local'])
         self.assertFalse((self.runner.scratch / 'repos').exists())
         self.assertEqual(self.runner.pacman('copied-base-inventory', ['-Q']), 'runtime 1-1\n')
-        self.assertIn('warning:', (self.runner.out / self.runner.receipts[-1]['log']).read_text())
+        self.assertEqual((self.runner.out / self.runner.receipts[-1]['log']).read_text(), 'runtime 1-1\n')
+        self.assertEqual((self.runner.out / self.runner.receipts[-1]['stderr_log']).read_text(), '')
+        self.assertNotIn('[integration]', self.runner.query_config.read_text())
+        self.assertIn('Required TrustedOnly', self.runner.query_config.read_text())
         self.assertTrue((self.runner.scratch / 'cache').is_dir())
         self.assertEqual(list((self.runner.scratch / 'cache').iterdir()), [])
         config = self.runner.config.read_text()
@@ -336,7 +340,7 @@ class RepositoryTests(unittest.TestCase):
             with self.assertRaisesRegex(r.Refused, 'installed payload differs'):
                 self.runner.installed(expected, '2-1')
         with mock.patch.object(self.runner, 'pacman', return_value=inventory.replace('runtime 1', 'runtime 2')):
-            with self.assertRaisesRegex(r.Refused, 'complete reviewed transaction'):
+            with self.assertRaisesRegex(r.Refused, 'complete (reviewed transaction|accepted baseline)'):
                 self.runner.installed(expected, '2-1')
 
     def test_root_prefixed_owned_payloads_are_verified(self):
@@ -505,6 +509,73 @@ class RepositoryTests(unittest.TestCase):
         self.assertFalse(Path(str(repo / probe.name) + '.sig').exists())
         for path in (repo / package.name, repo / 'integration.db.tar.gz', repo / 'integration.files.tar.gz'):
             self.assertTrue(Path(str(path) + '.sig').is_file())
+
+    def test_strict_inventory_rejects_prompt_duplicate_diagnostic_and_malformed_rows(self):
+        self.assertEqual(r.package_inventory('runtime 1-1\nlibsecret 1:0.21-1\n'), {'runtime': '1-1', 'libsecret': '1:0.21-1'})
+        for value in ('runtime 1-1', '', 'runtime 1-1\n\n', 'runtime 1-1\r\n', 'runtime\t1-1\n',
+                      'runtime 1-1\nruntime 1-1\n', ':: Import PGP key TEST? [Y/n]\nruntime 1-1\n',
+                      'runtime 1-1\nwarning: integration is unavailable\n', 'runtime 1-1 extra\n'):
+            with self.subTest(value=value), self.assertRaises(r.Refused):r.package_inventory(value)
+        with self.assertRaises(r.Refused):r.package_inventory(''.join(f'pkg{i} 1-1\n' for i in range(2049)))
+
+    def test_inventory_stdout_and_raw_stderr_are_separate_hash_bound_receipts(self):
+        stdout = b'runtime 1-1\n'
+        stderr = b'warning: database unavailable\nunknown-key diagnostic\xff\n'
+        result = subprocess.CompletedProcess(['mock'], 0, stdout, stderr)
+        with mock.patch.object(r.subprocess, 'run', return_value=result) as call:
+            actual = self.runner.command('local-inventory', ['pacman', '-Q'], stdout_only=True)
+        self.assertEqual(actual, stdout.decode())
+        self.assertEqual(call.call_args.kwargs['stderr'], subprocess.PIPE)
+        receipt = self.runner.receipts[-1]
+        self.assertEqual((self.runner.out / receipt['log']).read_bytes(), stdout)
+        self.assertEqual((self.runner.out / receipt['stderr_log']).read_bytes(), stderr)
+        self.assertEqual(receipt['stderr_sha256'], r.sha(self.runner.out / receipt['stderr_log']))
+
+    def test_local_queries_never_load_sync_config_and_transactions_keep_it(self):
+        self.runner.target = self.runner.scratch / 'system'
+        self.runner.keys['verifier'] = {'home': self.runner.home / 'verifier'}
+        for operation in ('-Q', '-Ql', '-Qk', '-Dk', '-Syyu', '-Syyuu'):
+            with mock.patch.object(self.runner, 'command', return_value='') as call:
+                self.runner.pacman('config-test', [operation])
+            argv = call.call_args.args[1]
+            local = operation in {'-Q', '-Ql', '-Qk', '-Dk'}
+            self.assertEqual(argv[argv.index('--config') + 1], self.runner.query_config if local else self.runner.config)
+            self.assertEqual(call.call_args.kwargs['stdout_only'], local)
+
+    def test_rejected_transaction_unchanged_inventory_maps_with_changing_stderr(self):
+        self.runner.base_versions = {'runtime': '1-1'}
+        self.runner.owned = set()
+        self.runner.target = self.runner.scratch / 'system'
+        self.runner.keys['verifier'] = {'home': self.runner.home / 'verifier'}
+        results = [subprocess.CompletedProcess(['mock'], 0, b'runtime 1-1\n', b'missing-db warning\n'),
+                   subprocess.CompletedProcess(['mock'], 0, b'runtime 1-1\n', b'unknown PGP key diagnostic\n')]
+        original = self.runner.pacman
+        def query_only(label, options, **kwargs):
+            if options == ['-Q']:return original(label, options, **kwargs)
+            return 'invalid PGP signature (TEST rejection)'
+        with mock.patch.object(r.subprocess, 'run', side_effect=results), \
+                mock.patch.object(self.runner, 'pacman', side_effect=query_only), mock.patch.object(self.runner, 'select'):
+            self.runner.transaction('unchanged-negative', Path('/unused'), reject=True)
+        self.assertEqual(self.runner.cases[-1]['result'], 'PASS')
+        diagnostics = [(self.runner.out / row['stderr_log']).read_bytes() for row in self.runner.receipts]
+        self.assertNotEqual(diagnostics[0], diagnostics[1])
+        self.assertEqual(json.loads((self.runner.out / 'unchanged-negative-after-snapshot.json').read_text())['inventory'], 'runtime 1-1\n')
+
+    def test_negative_inventory_rejects_package_change_and_valid_extra_package(self):
+        self.runner.base_versions = {'runtime': '1-1'}
+        for text in ('runtime 2-1\n', 'runtime 1-1\ninjected 1-1\n', 'other 1-1\n'):
+            with mock.patch.object(self.runner, 'pacman', return_value=text):
+                with self.assertRaisesRegex(r.Refused, 'complete accepted baseline'):self.runner.inventory('negative')
+
+    def test_gpg_exit_two_is_explicit_nonzero_rejection_with_diagnostic_retained(self):
+        result = subprocess.CompletedProcess(['gpg'], 2, b'[GNUPG:] NO_PUBKEY TEST\ngpg: no public key\n')
+        with mock.patch.object(r.subprocess, 'run', return_value=result):
+            self.runner.command('unknown-key', ['gpg'], expected='nonzero', signature_failure=True)
+        self.assertEqual(self.runner.receipts[-1]['expected'], 'nonzero')
+        self.assertEqual(self.runner.receipts[-1]['exit_code'], 2)
+        result.returncode = 0
+        with mock.patch.object(r.subprocess, 'run', return_value=result):
+            with self.assertRaises(r.Refused):self.runner.command('unexpected-success', ['gpg'], expected='nonzero')
 
     def test_real_signed_repo_add_uses_private_scratch_tmp_and_cleans_it(self):
         if not all(shutil.which(tool) for tool in ('gpg', 'gpgconf', 'repo-add')):

@@ -268,12 +268,30 @@ def owned_state(target, name):
     return value
 
 
+def package_inventory(text):
+    """Exact pacman -Q stdout schema; never discard prompts/diagnostic lines."""
+    need(isinstance(text, str) and 0 < len(text) <= 1024**2 and text.endswith('\n')
+         and text.isascii(), 'invalid package inventory text')
+    rows = {}
+    for line in text.split('\n')[:-1]:
+        match = re.fullmatch(r'([a-z0-9][a-z0-9@._+-]{0,127}) ([A-Za-z0-9][A-Za-z0-9._+:~-]{0,255})', line)
+        need(match is not None and match[1] not in rows, 'invalid/duplicate package inventory row')
+        rows[match[1]] = match[2]
+    need(0 < len(rows) <= 2048, 'package inventory count exceeds bound')
+    return rows
+
+
+def inventory_text(rows):
+    return ''.join(f'{name} {rows[name]}\n' for name in sorted(rows))
+
+
 class Integration:
     def __init__(self, spec, observed=None):
         self.spec = spec
         self.scratch, self.home, self.out = Path('/scratch'), Path('/test-home'), Path('/out')
         self.target = self.scratch / 'system'
         self.config = self.scratch / 'pacman.conf'
+        self.query_config = self.scratch / 'query-pacman.conf'
         self.receipts, self.cases, self.keys = [], [], {}
         self.result = {'schema_version': 1, 'purpose': 'disposable-generic-repository-test', 'status': 'RUNNING',
                        'hardware_validation': 'NOT RUN', 'stable_promotion': 'NOT RUN', 'published': False,
@@ -287,9 +305,15 @@ class Integration:
         process = subprocess.run([str(a) for a in argv], env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE if stdout_only else subprocess.STDOUT, timeout=300)
         output = process.stdout.decode(errors='replace')
         filename = f'{len(self.receipts):03d}-{label}.txt'
-        (self.out / filename).write_bytes(process.stdout + (process.stderr if stdout_only else b''))
-        self.receipts.append({'label': label, 'argv': [str(a) for a in argv], 'exit_code': process.returncode,
-                              'log': filename, 'sha256': sha(self.out / filename), 'expected': expected})
+        (self.out / filename).write_bytes(process.stdout)
+        receipt = {'label': label, 'argv': [str(a) for a in argv], 'exit_code': process.returncode,
+                   'log': filename, 'sha256': sha(self.out / filename), 'expected': expected}
+        if stdout_only:
+            diagnostic = f'{len(self.receipts):03d}-{label}-stderr.txt'
+            (self.out / diagnostic).write_bytes(process.stderr)
+            receipt.update(stderr_log=diagnostic, stderr_sha256=sha(self.out / diagnostic))
+        self.receipts.append(receipt)
+        need(expected in (None, 0, 1, 'nonzero'), 'unknown command exit policy')
         need(expected is None or (process.returncode == 0 if expected == 0 else process.returncode != 0),
              f'{label}: unexpected exit {process.returncode}')
         if signature_failure:
@@ -423,26 +447,35 @@ class Integration:
         cache.mkdir()
 
     def pacman(self, label, options, *, reject=False):
-        argv = ['pacman', '--config', self.config, '--root', self.target,
+        local_query = bool(options and options[0] in {'-Q', '-Ql', '-Qk', '-Dk'})
+        argv = ['pacman', '--config', self.query_config if local_query else self.config, '--root', self.target,
                 '--dbpath', self.target / 'var/lib/pacman', '--cachedir', self.scratch / 'cache',
                 '--gpgdir', self.keys['verifier']['home'], '--hookdir', self.scratch / 'masked-hooks',
                 '--logfile', self.out / 'pacman.log', '--noconfirm', '--color', 'never', *options]
-        return self.command(label, argv, expected=1 if reject else 0, signature_failure=reject,
-                            stdout_only=bool(options and options[0] in {'-Q', '-Ql'}))
+        return self.command(label, argv, expected='nonzero' if reject else 0, signature_failure=reject,
+                            stdout_only=local_query)
+
+    def inventory(self, label):
+        rows = package_inventory(self.pacman(label, ['-Q']))
+        if hasattr(self, 'base_versions'):
+            need(all(rows.get(name) == version for name, version in self.base_versions.items())
+                 and set(rows) - set(self.base_versions) <= ORIGINALS | {FIXTURE},
+                 'inventory differs from complete accepted baseline')
+        return rows
 
     def snapshot(self, label):
-        inventory = self.pacman('inventory-' + label, ['-Q'])
+        inventory = self.inventory('inventory-' + label)
         files = {}
         for name in self.owned:
             if name.endswith('/'):
                 continue
             files[name] = owned_state(self.target, name)
-        write(self.out / f'{label}-snapshot.json', {'inventory': inventory, 'files': files})
+        write(self.out / f'{label}-snapshot.json', {'inventory': inventory_text(inventory), 'files': files})
         return inventory, files
 
     def installed(self, packages, fixture_version):
-        inventory = self.pacman('verify-installed-versions', ['-Q'])
-        need(dict(line.split() for line in inventory.splitlines()) ==
+        inventory = self.inventory('verify-installed-versions')
+        need(inventory ==
              dict(self.base_versions, **{name: p['version'] for name, p in packages.items()}, **{FIXTURE: fixture_version}),
              'installed package versions differ from complete reviewed transaction')
         expected_paths = {PAYLOAD}
@@ -516,10 +549,12 @@ class Integration:
                     if not mask.exists() and not mask.is_symlink():
                         mask.symlink_to('/dev/null')
         # Explicit paths, required signatures and a single local repository; no caller pacman config.
-        self.config.write_text('[options]\nArchitecture = aarch64\nSigLevel = Required TrustedOnly\n'
-                               'LocalFileSigLevel = Required TrustedOnly\nParallelDownloads = 1\n'
-                               '[integration]\nSigLevel = Required TrustedOnly\nServer = file:///scratch/repos/active\n')
+        options = ('[options]\nArchitecture = aarch64\nSigLevel = Required TrustedOnly\n'
+                   'LocalFileSigLevel = Required TrustedOnly\nParallelDownloads = 1\n')
+        self.query_config.write_text(options)  # No registered sync DB can trigger import prompts.
+        self.config.write_text(options + '[integration]\nSigLevel = Required TrustedOnly\nServer = file:///scratch/repos/active\n')
         shutil.copyfile(self.config, self.out / 'TEST-pacman.conf')
+        shutil.copyfile(self.query_config, self.out / 'TEST-query-pacman.conf')
 
     def cleanup(self):
         # Always remove all ephemeral private state, including after failure.
@@ -584,8 +619,12 @@ class Integration:
                 (home / 'gpg.conf').write_text(f'no-default-keyring\nkeyring {home}/pubring.gpg\nno-auto-key-retrieve\nauto-key-locate clear\n')
             self.result['public_TEST_identities'] = {k: {x: v[x] for x in ('fingerprint', 'identity', 'public_sha256')} for k, v in self.keys.items()}
             self.copy_base()
-            inventory = self.pacman('copied-base-inventory', ['-Q'])
-            self.base_versions = dict(line.split() for line in inventory.splitlines())
+            # Compare the copied root with the actual immutable builder's local DB.
+            base = package_inventory(self.command('base-image-inventory', ['pacman', '--config', self.query_config,
+                                     '--dbpath', '/var/lib/pacman', '-Q'], stdout_only=True))
+            need(len(base) == 341, 'complete accepted 341-package builder inventory required')
+            self.base_versions = self.inventory('copied-base-inventory')
+            need(self.base_versions == base, 'copied base differs from actual immutable builder inventory')
             need(not (set(self.base_versions) & (ORIGINALS | {FIXTURE})), 'builder must not have project/test packages already installed')
             self.result['base_versions'] = self.base_versions
             first, second = self.scratch / f'{FIXTURE}-1-1-any.pkg.tar.xz', self.scratch / f'{FIXTURE}-2-1-any.pkg.tar.xz'
@@ -597,7 +636,7 @@ class Integration:
             a = self.repository('baseline-A', baseline, first, 'signer-A')
             b = self.repository('updated-B', updated, second, 'signer-B')
             unknown = self.command('gpg-untrusted-A-status', self.gpg(self.keys['verifier']['home']) + ['--status-fd', '1',
-                                   '--verify', a / 'integration.db.tar.gz.sig', a / 'integration.db.tar.gz'], expected=1)
+                                   '--verify', a / 'integration.db.tar.gz.sig', a / 'integration.db.tar.gz'], expected='nonzero')
             need('[GNUPG:] NO_PUBKEY' in unknown, 'unknown TEST A key was unexpectedly available')
             self.transaction('untrusted-A-rejected', a, reject=True, explicit=True)
             self.trust('signer-A')
@@ -616,7 +655,7 @@ class Integration:
             bad_package = self.repository('tampered-package-B', updated, altered, 'signer-B',
                                           preserve_fixture_signature=b / (second.name + '.sig'))
             bad = self.command('gpg-tampered-package-status', self.gpg(self.keys['verifier']['home']) + ['--status-fd', '1',
-                               '--verify', bad_package / (second.name + '.sig'), bad_package / second.name], expected=1)
+                               '--verify', bad_package / (second.name + '.sig'), bad_package / second.name], expected='nonzero')
             need('[GNUPG:] BADSIG' in bad, 'tampered package did not produce a bad-signature receipt')
             self.transaction('tampered-package-signature-rejected', bad_package, reject=True)
             bad_database = self.scratch / 'repos/tampered-database-B'
@@ -624,7 +663,7 @@ class Integration:
             with (bad_database / 'integration.db.tar.gz').open('ab') as stream:
                 stream.write(b'UNSIGNED TEST DATABASE TAMPER')
             bad = self.command('gpg-tampered-database-status', self.gpg(self.keys['verifier']['home']) + ['--status-fd', '1',
-                               '--verify', bad_database / 'integration.db.tar.gz.sig', bad_database / 'integration.db.tar.gz'], expected=1)
+                               '--verify', bad_database / 'integration.db.tar.gz.sig', bad_database / 'integration.db.tar.gz'], expected='nonzero')
             need('[GNUPG:] BADSIG' in bad, 'tampered database did not produce a bad-signature receipt')
             self.transaction('tampered-database-signature-rejected', bad_database, reject=True)
             missing_package = self.repository('missing-package-signature-B', updated, second, 'signer-B',
