@@ -2,6 +2,16 @@
 
 Coordinator: Lila in chat `01a12d58-9194-7643-81eb-fc9d62e4d923`. Source workers have bounded ownership in `docs/orchestration.md`; execution owners must reserve actual capacity before changing a shared machine. The full acceptance matrix is `docs/acceptance.md`.
 
+October 13, 22:10 UTC corrective batch: retain the generic574 host query PASS,
+but withhold the new maintained354 query actor admission until its nested
+signal-after-reap defect is corrected and its whole-caller guardian is reviewed.
+The signer witness needs fresh original-task lifetime proof at every guard.
+The common opaque-handler candidate needs teardown-fault first-cause and scope
+cleanup corrections before adoption; transport/launch remain separate successors.
+Prepare independent native build pairs for the existing Topmem/Fish packages
+alongside the signing/lifecycle corrections. Full R1–R5/M5–M9 remains required;
+no source, signature, installation, hardware or release gate is silently removed.
+
 October 13, 21:40 UTC corrective batch: the maintained generic metadata query
 passes 341+233=574 with all 2,933 reported dependency relationships satisfied;
 independent retained review closes this finite query step, without granting

@@ -4,7 +4,7 @@ October 12, 2026. This record tracks the complete `outline.md` scope; an impleme
 
 The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with owned tasks and corrective next actions in `docs/backlog.md`. The destination now explicitly requires the maintained ARM package repository, native performance engineering, integrated Apple stack, broader Cachy system experience, and complete installation/release lifecycle. Both Air sizes, published final measurements, independent onboarding/contribution, subsequent full-port maintenance release, other-ARM reuse and actual upstream submissions remain required; an early overlay release or feasibility decision would not complete the goal. This scope update does not change any recorded execution result.
 
-Latest coordinator update, October 13, 21:46 UTC. Root re-read the current
+Latest coordinator update, October 13, 22:10 UTC. Root re-read the current
 outline, goal, roadmap, acceptance matrix and package inventory. Full
 R1–R5/M5–M9 remains required; the initial overlay is an intermediate result.
 
@@ -43,6 +43,31 @@ in transport and launch as well as body-error replacement. Those scopes remain
 unchanged in current runtime source; a separately reviewed successor must close
 them. No actual trial's origin or kernel behavior is inferred from this model.
 [Downstream audit](reviews/maintained-downstream-opaque-signal-audit.md).
+
+The maintained updater input successor passes independent metadata/Source review:
+341+13=354, with only the documented Vim pair changed in the baseline. It retains
+527 transport-object and 262 signed-payload descriptors; these are declarations,
+not fresh acquisition or signature results.
+[Input review](reviews/updater-maintained-native-input-root-review.md).
+Its separate query preparation has correct 354/1,642 metadata joins, but actor
+admission is blocked: the nested runtime reaps a child before signaling its
+released numeric PID. An exact-function inert control reproduces that ordering
+with modeled PID reuse; no actual foreign-process event is inferred. A bounded
+ownership correction and separate original-deadline outer guardian are active.
+[Query review](reviews/updater-maintained-transaction-query-root-review.md).
+
+The conditional signer execution-witness review supports its stated filter/kernel
+argument, while later guards lack fresh original-task lifetime proof. A separately
+scoped probe/adapter correction remains unrun.
+[Witness review](reviews/test-signer-monotonic-exec-witness-root-review.md).
+The opaque-handler candidate's nominal x86 fixture passed, but independent
+teardown-fault controls find first-error replacement and scope-retention defects.
+That candidate remains unadopted while a separate correction is prepared.
+
+Native build-pair preparation for the existing Topmem/Fish packages now runs as
+an independent track. Its contract retains input authentication, provenance and
+clean-build comparisons, while signing/lifecycle and full release duties remain
+in their existing tracks. No new build or lifecycle result is inferred.
 
 Prior coordinator update, October 13, 20:52 UTC. The reviewed maintained
 45-root metadata proposal and finite ten-candidate source/evidence table are now

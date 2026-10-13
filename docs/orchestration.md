@@ -5,6 +5,25 @@ Started October 11, 2026, from `271e7c2` plus the user-provided `outline.md`.
 
 The full outline is the project scope. Milestones advance only on their specified evidence. Original project material uses MIT; third-party source licensing must be recorded separately before redistribution.
 
+Current correction batch, October 13, 22:10 UTC, follows the complete updated
+R1–R5/M5–M9 scope. Root owns all shared-source adoption, manifests, Git, external
+plan registration and actual dispatch. Workers own separate private proposal and
+review namespaces, with immutable receipts and explicit predecessor bindings.
+
+- Desktop chat prepares the maintained354 query's retained-child ownership fix.
+- Tools chat prepares its separate original-deadline outer guardian.
+- Build chat prepares the signer execution-witness adapter/probe and compatibility
+  proof; native actors remain unrun.
+- Release chat prepares independent native Topmem/Fish build-pair source without
+  changing signing, lifecycle or release acceptance requirements.
+- Bounded common/transport/launch correction agents and independent reviewers
+  retain the original failure, cancellation and cleanup-uncertainty contracts.
+
+Current source findings block those specific candidate executions, not the
+development goal. Generic574 metadata evidence and historical native results
+remain unchanged. Both Air sizes, final measurements, recovery, accountable
+maintenance and subsequent full-port release remain required.
+
 ## Ownership and interfaces
 
 | Worker | Exclusive paths | Initial deliverable |
