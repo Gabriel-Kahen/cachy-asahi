@@ -4,7 +4,35 @@ October 12, 2026. This record tracks the complete `outline.md` scope; an impleme
 
 The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with owned tasks and corrective next actions in `docs/backlog.md`. The destination now explicitly requires the maintained ARM package repository, native performance engineering, integrated Apple stack, broader Cachy system experience, and complete installation/release lifecycle. Both Air sizes, published final measurements, independent onboarding/contribution, subsequent full-port maintenance release, other-ARM reuse and actual upstream submissions remain required; an early overlay release or feasibility decision would not complete the goal. This scope update does not change any recorded execution result.
 
-Latest coordinator update, October 13, 04:06 UTC. Root registers the original
+Latest coordinator update, October 13, 04:32 UTC. Source7c6107a is published,
+static CI38345043844 PASS. Exact committed checks cover12 new sources/89,152 bytes
+(24 Git queries); the application's265 rows retain committed parent7e708f6 with
+zero changed-path intersection and current hashes/modes verified. The original
+MIT memory tool and reviewed trusted bootstrap sources are registered.
+
+Actual all48 observation01 exits1 at a structural regular-leaf check. Its separate
+same-predicate diagnostic identifies etc/resolv.conf as image symlink32 bytes,
+0777/root/inode39/nlink1, versus archive regular65 bytes0644/root. It stops before
+CAT of that inode after51 image calls/13 earlier CATs/16 selected nodes/three frames.
+No completed48 report or success/disposal attestation exists. Its symlink target
+and assembler cause remain UNKNOWN. The earlier fstab220/126 disagreement and
+strict comparatorFAIL remain unchanged. [Actual record](reviews/platform-filesystem-regular-observation-actual01-root-record.md)
+tracks both failures; independent retained review is active. The owned image
+assembly/configuration contract is under investigation.
+
+The exact read-only hosted ARM observer and workflow are registered after
+independent31 controls and authenticated21 author/10 peer artifacts. Publishing
+the workflow path starts the bounded precheckout probe; actual tool hashes are
+pending. It runs no Git/Docker command, package operation or real clock/grant.
+[Registration](reviews/native-arm-runner-observation-primary-registration-root-review.md)
+records the trigger and trust limits. The guarded successor Source94 build
+proposal is sealed and under independent Root review. An official-pinned prefetch
+route is being added so hosted execution can obtain501 private inputs directly
+without a new private repository/token or public plaintext carrier. Native ARM
+build pairs and installer P0 remain NOT RUN for these candidates; full R1–R5/M5–M9
+and both-model acceptance remain mandatory.
+
+Prior coordinator update, October 13, 04:06 UTC. Root registers the original
 MIT cachy-asahi-topmem development package, an explicit current-user process
 memory replacement. Independent cold13 tests and four additional checks pass;
 a local x86 CLI smoke exits0 in its visible process namespace. All five recipe

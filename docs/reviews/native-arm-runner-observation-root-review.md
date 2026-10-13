@@ -1,0 +1,29 @@
+# Hosted ARM runner observation: independent Root peer
+
+**PASS within the read-only source and finite model scope; no findings.** This is approval of the bounded observation implementation for Root's subsequent sourceful adoption/probe. It is not a real hosted-runner observation, Source/commit authentication, private-runner guarantee, execution grant, or ARM/M2/package acceptance.
+
+The exact author receipt is `artifacts/reviews/native-arm-runner-observation-proposal-20261013/receipt.json`, SHA-256 `cff685316983d38bcb4af27495af42b823b3aaeeb04522746cfca477c31fd1bb`. Observer `ad6d7908ef1dca36356cc5c8450f655c323021ec1ab89b4569708d4297989b4b` is 11740 bytes. All 21 indexed artifacts, source/workflow/lane descriptors and planning inputs authenticate. Author receipt `bf4dbe33…` and lane peer receipt `ec9def2b…` authenticate final source snapshots and their 39/19 controls. Parent repeat39, earlier unheld-source14/18 and initial unheld-test35 history remain explicit; no historical counts are added to this peer's fresh controls.
+
+## Fresh independent evidence
+
+The independently written harness raw-compiles the exact copied observer with its import-time monotonic entry mocked. All target OS metadata/FD/byte operations, architecture/page-size facts, signals, timers and stdout are in-memory models. **31 fresh controls pass**, zero errors, failures, skips, actor/fixed-host-open attempts or PYC. No tool/socket/package payload or actual host fact was observed. The source was not changed.
+
+The initial 29-control run retained one expectation error in `controls-initial.json/.log`: the opened-file mismatch control expected `observe()` to raise. The implementation correctly returns a refused tool section (`file-open-drift`) when that new descriptor is internally stable. The expectation now checks that refusal; later held/named identity failures still refuse the entire observation. Two explicit foreign-FD/interpreter-cap controls complete the final 31. These runs are not summed.
+
+The controls verify:
+
+- Closed fixed file targets and non-boolean byte caps; root UID, exact0755, regular type, one link and positive bounded size; trusted root directory ancestry excluding group/other writes; separate before/opened/named/held drift and exact EOF/byte-count behavior.
+- Incremental synthetic Git/Docker hashes with 128-MiB caps, the separate 64-MiB interpreter cap, and the root-owned fixed interpreter chain. Symlinks use retained `O_PATH|O_NOFOLLOW` descriptors and fixed numeric `/usr/bin/python3` targets; escape/cycle/foreign links and ninth links refuse. Exactly eight links pass.
+- Exactly two no-follow stats of the fixed socket, with owner/type/identity checks and no socket open/read/connect. This observes metadata only; it cannot test the daemon or image trust.
+- Canonical/disjoint workspace and temporary paths, reported fresh-sibling parent/ownership capability flags, no sibling allocation, and exact minimal job/image fields plus the two required path inputs. Extra secret/hostname keys and values do not enter the encoded report. Expected OS errors use fixed codes/errno and omit raw exception text.
+- Native-machine/page-size fixture facts and invalid type/power-of-two refusals. A complete x86 metadata report can exit0 with `arm_machine=false`; success means observation completion rather than ARM suitability or M2 compatibility.
+- One retained early entry+60 through imports/helper/encoding/emission/retirement checks, earlier-entry shortening, invalid future/bool/nonfinite entries, existing-timer refusal, read cancellation/expiry, first-cause preservation over fatal cleanup, once-only descriptor retirement attempts, bounded JSON and partial-write progress checks.
+- Complete JSON followed by handler-restoration failure remains unaccepted. A descriptor whose held device/inode changed is skipped and refuses retirement; physical closure/disposal is not inferred. The exact maximum shape—two64-component directory traversals, two tools, eight interpreter links/target and socket ancestry—registers153 modeled FDs.
+
+## Workflow and handoff
+
+The workflow embeds the observer's exact source bytes as its sole first inline step, before any checkout; it contains no action step or raw `${{...}}` interpolation. The isolated invocation is `/usr/bin/python3 -I -B -S`, with `ubuntu-24.04-arm`, concurrency group `native-arm-build`, cancellation disabled, and a five-minute scheduler cap. Source parsing/compilation confirms entry capture immediately after importing time and before remaining imports. Workflow/header bytes were compiled and compared as data, never dispatched.
+
+There is no observer self-authentication or Git/Source authority: job SHA/repository fields are declared metadata. Root must bind the selected immutable workflow/code provenance, require successful step completion plus complete bounded JSON, interpret architecture/ownership/socket/workspace capability flags, and select actual tool/interpreter hashes. Complete JSON from a failed step is unaccepted. An OBSERVED status and hashes cannot establish hosted/private isolation, daemon/image trust, full running-interpreter dependencies, future-job identical bytes, or hard syscall completion within60 seconds. No atomic privileged/same-UID race exclusion or persistent-fault physical descriptor absence is proved.
+
+Root owns primary workflow/body registration, Git publication and actual probe/dispatch. Existing Source265/bootstrap registration is unchanged. This peer writes only its new artifact namespace and this review; primary sources/maps/workflows/Git and old sealed artifacts are unchanged. Actual hosted tool/socket facts, interpreter hashes, actors, real clock/grant issuance and native frames/P0 are **NOT RUN by this peer**. Current outline, roadmap and package inventory retain all R1–R5/M5–M9 and supported-system, lifecycle, both exact M2 machines and measured-performance acceptance requirements.
