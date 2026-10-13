@@ -2,6 +2,36 @@
 
 Coordinator: Lila in chat `01a12d58-9194-7643-81eb-fc9d62e4d923`. Source workers have bounded ownership in `docs/orchestration.md`; execution owners must reserve actual capacity before changing a shared machine. The full acceptance matrix is `docs/acceptance.md`.
 
+October 13, 22:52 UTC: the coordinator re-read the current outline, roadmap,
+goal, acceptance contract and package inventory and propagated them to all six
+worker chats. Full R1–R5/M5–M9 and A01–A15 remain mandatory. Their current
+scope hashes are unchanged from the prior verified full-port contract.
+
+The independently reviewed common signal teardown correction is now integrated
+as Source `89954b0b6a096ac688a227219e520c121e281138`, with all 271 selected Git
+blobs/modes proved and exactly two bootstrap data paths in
+`a7f5cde222076a5e3af151e3581929d54aa7e645`. External plan readback and both
+published refs match. Static CI `38480580179` passes; fresh native ARM trial08
+`38480581279` is in progress, with no outcome inferred. Historical trial07 stays
+FAIL. [Source review](reviews/maintained-composed-opaque-signal-teardown-correction-root-review.md).
+
+A separately reviewed x86 host SIGCHLD fixture verifies the public default-handler
+transition and retained waitability primitive. Its command interval excludes later
+provenance/publication, and it does not admit the whole updater query.
+[Fixture review](reviews/root-sigchld-waitability-fixture-root-review.md).
+The prepared common02398 fixture's old supervisor is blocked: it reaps before
+numeric group cleanup, permitting group-ID reuse. A minimal retained-pidfd
+successor is assigned; no nominal actor permission follows from the old helper.
+[Blocked helper review](reviews/maintained-composed-02398-host-fixture-root-review.md).
+
+The guardian deadline successor passes independent bounded Source review; exact
+query, gate, publication and whole-caller bindings remain pending. The sealed
+query cause-transfer successor is assigned independent review. Native Topmem/Fish
+build-pair and bounded package-checker implementations, signer-probe review and
+separate transport/launch corrections continue in parallel. Both M2 Air sizes,
+final measurements, installation/recovery, ongoing custody and a subsequent
+full-port release remain open. The goal remains ACTIVE.
+
 October 13, 22:10 UTC corrective batch: retain the generic574 host query PASS,
 but withhold the new maintained354 query actor admission until its nested
 signal-after-reap defect is corrected and its whole-caller guardian is reviewed.

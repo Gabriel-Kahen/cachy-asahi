@@ -5,6 +5,15 @@ Started October 11, 2026, from `271e7c2` plus the user-provided `outline.md`.
 
 The full outline is the project scope. Milestones advance only on their specified evidence. Original project material uses MIT; third-party source licensing must be recorded separately before redistribution.
 
+Current plan reconciliation, October 13, 22:52 UTC: Root and six worker chats
+are following the current outline/roadmap/goal/acceptance/inventory. The complete
+R1–R5/M5–M9 port remains the destination. Common teardown Source89954b0 and
+Dataa7f5cde are published; trial08 is running. Desktop's cause-transfer successor
+and Tools' guardian deadline successor have sealed proposals. Independent reviews,
+signer-probe review, native pair/checker implementation and separate downstream
+signal corrections proceed within their private ownership. The common fixture's
+old after-reap cleanup helper is held for a retained-pidfd correction.
+
 Current correction batch, October 13, 22:10 UTC, follows the complete updated
 R1–R5/M5–M9 scope. Root owns all shared-source adoption, manifests, Git, external
 plan registration and actual dispatch. Workers own separate private proposal and
