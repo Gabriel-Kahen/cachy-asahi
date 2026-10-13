@@ -10,11 +10,11 @@ import sys
 import types
 
 ROOT = Path(__file__).resolve().parents[3]
-COLLECTOR_MAP_SHA256 = '3cd0b7ad57e47c8656a9c267794be0cf969b34896693cc96e9266fbbaf4e7fd4'
+COLLECTOR_MAP_SHA256 = '4d2f0533a537eaa4582078a3e15d206457878dd5e4f0fe044daa1290995bf52b'
 COLLECTOR = {
     'entry.py': '5889e0358bd0a04122e6cfcb061337f1dc415b064ba92f46ae47893a5747e0c8',
     'worker.py': '9a513a59da3cbb58d54c236759e3299072e14194e4d297df911072daa241b060',
-    'common.py': '92ca41005397c6cccfd70497646c0de1f2ac88a697e0fcbec4165bf5326cfc08',
+    'common.py': '02398b4008f06947fe3dfe8e95c45e0f77cf8627ecff258a7c64128314665a15',
     'base.py': '94a8e2898b062a0efd0f567d1f4f472bd04d6ff5a1573cd09f3bf8d1f556cddd',
     'provenance.py': '42d18ff6cfa68d7d0a704d0612cbf505f8652b5c24bf6ae69d833b43c08ad02b',
     'crypto.py': 'a3568741238738646593b2c972589f4ae92381611c88dea1c1c234c0e59a46f0',

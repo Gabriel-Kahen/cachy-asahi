@@ -656,6 +656,12 @@ class Sources:
                     relative_path = self.locate(origin)
                     need(modules.get(relative_path) is value or any(value is item for item in aliases.values()),
                          'callback-refused')
+        if path == PREFIXES['collector']+'/common.py':
+            validator = module.__dict__.get('cancellation_state')
+            self.graph_function(validator, module, cache)
+            need(validator.__defaults__ is None and validator.__kwdefaults__ is None and
+                 validator.__closure__ is None, 'callback-refused')
+            validator()
         language = module.__dict__.get('__builtins__')
         need(type(language) is dict,'callback-refused')
         for name in ('__import__','compile','exec'):
@@ -1345,6 +1351,52 @@ class Session:
             trace=trace.tb_next
         return site
 
+    def cancellation_observed(self, collector, events):
+        """Failure disposition from the exact captured common observer/registry."""
+        path = PREFIXES['collector']+'/common.py'
+        need(type(collector) is dict and type(events) is set and type(self.sources) is Sources,
+             'callback-refused')
+        module = collector.get('common')
+        need(type(module) is types.ModuleType and type(module.__dict__.get('__file__')) is str and
+             module.__file__ == str(self.sources.root/path) and
+             module.__dict__.get('CANCELLATION_EVENTS') is events, 'callback-refused')
+        callback = module.__dict__.get('cancellation_requested')
+        self.sources.graph_function(callback, module)
+        need(callback.__defaults__ is None and callback.__kwdefaults__ is None and
+             callback.__closure__ is None, 'callback-refused')
+        validator = module.__dict__.get('cancellation_state')
+        self.sources.graph_function(validator, module)
+        for name in ('defer_cancellation', 'cancellation_handlers'):
+            factory = module.__dict__.get(name)
+            need(type(factory) is types.FunctionType and
+                 factory.__code__ == contextmanager(lambda:None).__code__ and
+                 factory.__globals__ is contextmanager.__globals__ and
+                 type(factory.__closure__) is tuple and len(factory.__closure__) == 1 and
+                 factory.__closure__[0].cell_contents is getattr(factory,'__wrapped__',None),
+                 'callback-refused')
+            self.sources.graph_function(factory.__wrapped__, module)
+        result = callback()
+        need(type(result) is bool, 'callback-refused')
+        return result
+
+    def cancellation_teardown_uncertain(self, collector, registry):
+        """Authenticated closed uncertainty, independent of first error/cancel."""
+        path = PREFIXES['collector']+'/common.py'
+        need(type(collector) is dict and type(registry) is set and type(self.sources) is Sources,
+             'callback-refused')
+        module = collector.get('common')
+        need(type(module) is types.ModuleType and type(module.__dict__.get('__file__')) is str and
+             module.__file__ == str(self.sources.root/path) and
+             module.__dict__.get('CANCELLATION_UNCERTAIN') is registry, 'callback-refused')
+        for name in ('cancellation_state','cancellation_uncertain'):
+            callback = module.__dict__.get(name)
+            self.sources.graph_function(callback, module)
+            need(callback.__defaults__ is None and callback.__kwdefaults__ is None and
+                 callback.__closure__ is None, 'callback-refused')
+        result = module.cancellation_uncertain()
+        need(type(result) is bool, 'callback-refused')
+        return result
+
     def startup_failed(self, error):
         """Keep the first finite observation without changing the exception/cause."""
         if self.startup_failure is not None:return
@@ -1903,6 +1955,8 @@ class Session:
         self.private = Path(tempfile.mkdtemp(prefix='handoff-',dir=self.output))
         self.private_node = identity(self.private.lstat())
         services = collector = None
+        cancellation_events = None
+        cancellation_uncertain = None
         try:
             root = self.sources.root
             entry_path = PREFIXES['runtime']+'/entry.py'
@@ -1915,6 +1969,8 @@ class Session:
             collector,collector_pins = entry.dependency_entry(root,PREFIXES['collector']+'/entry.py',
                 grant['source_files'][PREFIXES['collector']+'/entry.py']['sha256'],maps['collector']['path'],
                 maps['collector']['sha256'],deadline=self.job_deadline)
+            cancellation_events = collector['common'].CANCELLATION_EVENTS
+            cancellation_uncertain = collector['common'].CANCELLATION_UNCERTAIN
             self.startup_phase = 'load-phase'
             phase,_ = entry.dependency_entry(root,PREFIXES['phase']+'/entry.py',
                 grant['source_files'][PREFIXES['phase']+'/entry.py']['sha256'],maps['phase']['path'],
@@ -2015,6 +2071,19 @@ class Session:
                 self.result.update(status='FAIL',cleanup='FAIL')
                 if isinstance(error,KeyboardInterrupt): self.result['cancelled'] = True
                 if self.result['error_code'] is None: self.result['error_code'] = 'cleanup-failed'
+            try:
+                if collector is not None and self.cancellation_observed(collector, cancellation_events):
+                    self.result.update(status='FAIL', cancelled=True,
+                                       error_code=self.result['error_code'] or 'cancelled')
+                if collector is not None and self.cancellation_teardown_uncertain(collector, cancellation_uncertain):
+                    self.result.update(status='FAIL', cleanup='FAIL',
+                                       error_code=self.result['error_code'] or 'cleanup-failed')
+            except BaseException as error:
+                # Observer refusal cannot replace an earlier failure or allow PASS.
+                if self.startup_failure is None:
+                    self.startup_phase = 'cleanup'; self.startup_failed(error)
+                self.result.update(status='FAIL', cleanup='FAIL',
+                                   error_code=self.result['error_code'] or 'callback-refused')
             if self.cancelled is not None and self.cancelled():
                 self.result.update(status='FAIL',cancelled=True,error_code=self.result['error_code'] or 'cancelled')
             if self.result['status'] != 'PASS':

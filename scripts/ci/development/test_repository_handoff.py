@@ -18,6 +18,8 @@ import types
 import unittest
 from unittest.mock import patch
 
+ROOT = Path(__file__).resolve().parents[3]
+LEGACY_CANCEL_SOURCE = b'@contextmanager\ndef _signal_handlers(handler):\n    """Install/restore the entire pair while kernel delivery is blocked."""\n    mask = signal.pthread_sigmask(signal.SIG_BLOCK, SIGNALS)\n    previous = {}\n    try:\n        # Record all originals before mutation; signal.signal can be interrupted\n        # after installing its handler but before returning the original value.\n        previous = {number: signal.getsignal(number) for number in SIGNALS}\n        for number in SIGNALS:\n            signal.signal(number, handler)\n        signal.pthread_sigmask(signal.SIG_SETMASK, mask)\n        yield\n    finally:\n        signal.pthread_sigmask(signal.SIG_BLOCK, SIGNALS)\n        queued = []\n        restoration_error = None\n        try:\n            for number, original in previous.items():\n                # One failed setter must not skip restoring the other signal.\n                # Retry only if the original disposition was not actually set.\n                for _ in range(2):\n                    try:\n                        signal.signal(number, original)\n                    except BaseException as error:\n                        restoration_error = restoration_error or error\n                    if signal.getsignal(number) == original:\n                        break\n                else:\n                    restoration_error = restoration_error or Refused(\'signal handler restoration differs\')\n            # Consume transition events before restoring unblocked defaults.\n            # Signals blocked on entry retain their original pending state.\n            for number in SIGNALS:\n                if number not in mask and number in signal.sigpending():\n                    signal.sigwait({number})\n                    queued.append(number)\n        finally:\n            signal.pthread_sigmask(signal.SIG_SETMASK, mask)\n        for number in queued:\n            handler(number, None)\n        if restoration_error is not None:\n            raise restoration_error\n\n\n@contextmanager\ndef defer_cancellation():\n    pending = []\n    def remember(sig, _):\n        pending.append(sig)\n    try:\n        with _signal_handlers(remember):\n            PENDING.append(pending)\n            try:\n                yield\n            finally:\n                PENDING.pop()\n    finally:\n        if pending:\n            if PENDING:\n                PENDING[-1].extend(pending)\n            else:\n                raise KeyboardInterrupt(\'cancelled\')\n\n\n@contextmanager\ndef cancellation_handlers():\n    def interrupted(*_):\n        raise KeyboardInterrupt(\'cancelled\')\n    with _signal_handlers(interrupted):\n        yield\n'
 PATH = Path(__file__).with_name('repository_handoff.py')
 spec = importlib.util.spec_from_file_location('repository_handoff',PATH)
 adapter = importlib.util.module_from_spec(spec)
@@ -270,7 +272,7 @@ class WiringModels(unittest.TestCase):
             if close_error:raise close_error
         @contextmanager
         def defer():yield
-        collector={'common':types.SimpleNamespace(defer_cancellation=defer)}
+        collector={'common':types.SimpleNamespace(CANCELLATION_EVENTS=set(),CANCELLATION_UNCERTAIN=set(),defer_cancellation=defer)}
         def dependencies(*args,**kwargs):return ({}, {}) if kwargs.get('phase') else (collector,{})
         service={'pending':types.SimpleNamespace(interpose=interpose),'transport':types.SimpleNamespace(close=close)}
         entry=types.SimpleNamespace(authenticated=lambda *a,**kw:({},{}),dependency_entry=dependencies,
@@ -291,6 +293,7 @@ class WiringModels(unittest.TestCase):
         callbacks={'existing_consumers':broad,'public_receiver':lambda *a:None,'authority_provider':lambda *a:None}
         session.pending_consumer=pending;session.terminal_consumer=terminal
         # Budget-only models; explicit view/frame custody is exercised by actual-source fixtures below.
+        session.cancellation_observed=lambda *args:False;session.cancellation_teardown_uncertain=lambda *args:False
         session.view_plan=lambda argv:root/'output'/'original-view'
         session.prepare_view=lambda path:None
         session.observe_native_consumer=lambda controller:setattr(session,'controller',controller)
@@ -1297,7 +1300,7 @@ class StartupRefusalModels(unittest.TestCase):
                 argv=['integration'];models=[];status=[]
                 def refused():raise first
                 entry=types.SimpleNamespace(authenticated=lambda *a,**k:({},{}),
-                    dependency_entry=lambda *a,**k:({'common':types.SimpleNamespace(defer_cancellation=lambda:__import__('contextlib').nullcontext())},{}))
+                    dependency_entry=lambda *a,**k:({'common':types.SimpleNamespace(CANCELLATION_EVENTS=set(),CANCELLATION_UNCERTAIN=set(),defer_cancellation=lambda:__import__('contextlib').nullcontext())},{}))
                 if phase=='construct-services':entry.services=lambda *a,**k:refused()
                 else:
                     def close():
@@ -1333,7 +1336,7 @@ class StartupRefusalModels(unittest.TestCase):
                     for name,value in [('bindings',lambda *a:None),('remove_private',remove),('revoke_phase_receipt',lambda *a:None),
                         ('publish_status',lambda *a,**k:status.append(copy.deepcopy(a[1])))]:stack.enter_context(patch.object(adapter,name,value))
                     stack.enter_context(patch.dict(os.environ,{'GITHUB_SHA':'a'*40,'GITHUB_RUN_ID':'1','GITHUB_RUN_ATTEMPT':'1'}))
-                    for name,value in [('view_plan',lambda self,argv:output/'view'),('prepare_view',lambda self,root:None),
+                    for name,value in [('cancellation_observed',lambda *args:False),('cancellation_teardown_uncertain',lambda *args:False),('view_plan',lambda self,argv:output/'view'),('prepare_view',lambda self,root:None),
                         ('register_native_preflight',lambda self:None),('observe_native_consumer',lambda self,controller:refused()),
                         ('emit_startup_refusal',emit),('startup_failed',record_failed)]:
                         stack.enter_context(patch.object(adapter.Session,name,value))
@@ -1376,13 +1379,14 @@ class OptionalDiagnosticPublicationCorrection(unittest.TestCase):
                         output=Path(temporary)/'handoff';runtime={'cli_sha256':'d'*64,'endpoint_identity':[1]*6,'env':{}}
                         argv=['integration'];first=module.Refused('callback-refused');emit_fault=KeyboardInterrupt('PRIVATE_EMIT');late=late_type('PRIVATE_REPLACEMENT');published=[]
                         def refuse(*a,**k):raise first
-                        entry=types.SimpleNamespace(authenticated=lambda *a,**k:({},{}),dependency_entry=lambda *a,**k:({'common':types.SimpleNamespace(defer_cancellation=nullcontext)},{}),services=refuse)
+                        entry=types.SimpleNamespace(authenticated=lambda *a,**k:({},{}),dependency_entry=lambda *a,**k:({'common':types.SimpleNamespace(CANCELLATION_EVENTS=set(),CANCELLATION_UNCERTAIN=set(),defer_cancellation=nullcontext)},{}),services=refuse)
                         grant={'source_commit':'a'*40,'run_id':'1','run_attempt':'1','actor_contract_sha256':module.digest(module.encoded(runtime)),
                             'initial_invocation_sha256':module.digest(module.encoded({'argv':argv,'output':str(output)})),
                             'maps':{name:{'path':'model-map','sha256':'e'*64} for name in ('runtime','collector','phase')},
                             'source_files':{module.PREFIXES[name]+'/entry.py':{'sha256':'f'*64} for name in ('collector','phase')}}
                         source=types.SimpleNamespace(grant=grant,grant_pin='0'*64,root=PATH.resolve().parents[3],raw={'model-map':b'{}'},module=lambda *a:entry,source_graph=lambda *a,**k:None)
                         session=module.Session(source,output,job_deadline=time.monotonic()+60,composition='installer-preflight-maintained-v1')
+                        if hasattr(module.Session,'cancellation_observed'):session.cancellation_observed=lambda *args:False;session.cancellation_teardown_uncertain=lambda *args:False
                         def emit(self,end):raise emit_fault
                         def publish(path,value,**kwargs):
                             published.append(copy.deepcopy(value))
@@ -1456,7 +1460,7 @@ class ServiceAttributionModels(unittest.TestCase):
         root=Path('/diagnostic-source-model')
         paths={name:adapter.PREFIXES['runtime']+'/'+name+'.py' for name in ('entry','broker','transport')}
         paths['common']=adapter.PREFIXES['collector']+'/common.py'
-        raw={paths[name]:(ROOT/paths[name]).read_bytes() for name in paths}
+        raw={paths[name]:(LEGACY_CANCEL_SOURCE if name=='common' else (ROOT/paths[name]).read_bytes()) for name in paths}
         selected={'entry':{'read','captures','services'},'broker':{'Pending'},
                   'transport':{'read_file','directory','DockerTransport'},'common':{'_signal_handlers','defer_cancellation'}}
         modules={}
@@ -1827,5 +1831,366 @@ class SignalWrapperCompatibilityModels(unittest.TestCase):
         for context in ('bare','module'):
             session,error,common=model.failure(context=context)
             self.assertEqual(session.service_failure_site(error),'SERVICE_CANCEL_EXIT_SET_HANDLER_NONE_BAD_HANDLER_API')
+
+# SPDX-License-Identifier: MIT
+import signal
+class OpaqueCancellationModels(unittest.TestCase):
+    """No process or kernel calls: explicit model of Python-cache/native opacity."""
+    class Signals:
+        SIG_BLOCK, SIG_SETMASK = signal.SIG_BLOCK, signal.SIG_SETMASK
+        def __init__(self, blocked=()):
+            self.mask=set(blocked);self.pending=set();self.handlers={signal.SIGINT:signal.default_int_handler,signal.SIGTERM:None}
+            self.initial=dict(self.handlers);self.setters=[];self.waits=[];self.fault=None
+        def pthread_sigmask(self,how,values):
+            old=set(self.mask)
+            self.mask=self.mask|set(values) if how==self.SIG_BLOCK else set(values)
+            return old
+        def getsignal(self,number):return self.handlers[number]
+        def signal(self,number,value):
+            self.setters.append((number,value))
+            if value is None:raise TypeError('signal handler must be signal.SIG_IGN, signal.SIG_DFL, or a callable object')
+            old=self.handlers[number];self.handlers[number]=value
+            if self.fault and value is self.initial[number]:raise self.fault
+            return old
+        def sigpending(self):return set(self.pending)
+        def sigwait(self,values):
+            assert set(values)<=self.mask and self.pending&set(values)
+            number=next(iter(self.pending&set(values)));self.pending.remove(number);self.waits.append(number);return number
+    def setUp(self):
+        path=Path(adapter.__file__).resolve().parents[3]/'scripts/port/repository-client-native/common.py'
+        self.common=types.ModuleType('opaque_model_common');self.common.__file__=str(path)
+        exec(compile(path.read_bytes(),str(path),'exec',dont_inherit=True),self.common.__dict__)
+        self.api=self.Signals();self.original=self.common.signal;self.common.signal=self.api
+        self.assertEqual((self.common.PENDING,self.common.SIGNAL_SCOPES),([],[]))
+    def tearDown(self):
+        self.common.signal=self.original
+        self.assertEqual((self.common.PENDING,self.common.SIGNAL_SCOPES),([],[]))
+    def restored(self,mask=()):
+        self.assertEqual(self.api.handlers,self.api.initial);self.assertEqual(self.api.mask,set(mask))
+        self.assertFalse(any(number==signal.SIGTERM for number,value in self.api.setters))
+    def test_no_signal_preserves_opaque_and_known_pair(self):
+        for factory in (self.common.defer_cancellation,self.common.cancellation_handlers):
+            with factory():self.assertEqual(self.api.mask,{signal.SIGTERM})
+            self.restored()
+    def test_prompt_checkpoint_and_exit_both_cancel(self):
+        for checkpoint in (True,False):
+            reached=[]
+            with self.assertRaises(KeyboardInterrupt):
+                with self.common.cancellation_handlers():
+                    self.api.pending.add(signal.SIGTERM)
+                    if checkpoint:self.common.need(True,'unused')
+                    reached.append(True)
+            self.assertEqual(reached,[] if checkpoint else [True]);self.restored()
+        self.assertEqual(self.api.waits,[signal.SIGTERM]*2)
+    def test_nested_defer_inherits_pollable_block_and_finishes(self):
+        reached=[]
+        with self.assertRaises(KeyboardInterrupt):
+            with self.common.defer_cancellation():
+                with self.common.defer_cancellation():
+                    self.api.pending.add(signal.SIGTERM);self.common.need(True,'unused');reached.append('inner')
+                    self.assertEqual(self.common.PENDING[-1],[signal.SIGTERM])
+                self.assertEqual(self.common.PENDING[-1],[signal.SIGTERM]);reached.append('outer')
+        self.assertEqual(reached,['inner','outer']);self.restored()
+    def test_originally_blocked_pending_is_not_consumed(self):
+        self.api.mask={signal.SIGTERM};self.api.pending={signal.SIGTERM}
+        with self.common.cancellation_handlers():
+            with self.common.defer_cancellation():self.common.need(True,'unused')
+        self.assertEqual(self.api.pending,{signal.SIGTERM});self.assertEqual(self.api.waits,[]);self.restored({signal.SIGTERM})
+    def test_body_first_failure_retains_cancellation_and_setter_fault(self):
+        failure=ValueError('first-model-failure')
+        with self.assertRaises(ValueError) as got:
+            with self.common.defer_cancellation():
+                self.api.pending.add(signal.SIGTERM);raise failure
+        self.assertIs(got.exception,failure);self.assertIsInstance(failure.__cause__,KeyboardInterrupt);self.restored()
+        self.assertIs(self.common.cancellation_requested(),True)
+        fault=RuntimeError('restoration-model-fault');self.api.fault=fault
+        with self.assertRaises(ValueError) as got:
+            with self.common.cancellation_handlers():raise failure
+        self.assertIs(got.exception,failure);self.assertIn(fault,failure.__cause__.exceptions);self.restored()
+    def test_restoration_fault_is_not_ignored(self):
+        fault=RuntimeError('restoration-model-fault');self.api.fault=fault
+        with self.assertRaises(RuntimeError) as got:
+            with self.common.defer_cancellation():pass
+        self.assertIs(got.exception,fault);self.restored()
+    def test_wait_checkpoints_at_fifty_ms_and_preserves_deadline(self):
+        api=self.api
+        class Child:
+            args=['inert'];calls=[]
+            def wait(self,timeout):
+                self.calls.append(timeout);api.pending.add(signal.SIGTERM)
+                raise subprocess.TimeoutExpired(self.args,timeout)
+        child=Child()
+        with self.assertRaises(KeyboardInterrupt):
+            with self.common.cancellation_handlers():self.common.wait_process(child,self.common.time.monotonic()+1)
+        self.assertEqual(len(child.calls),1);self.assertLessEqual(child.calls[0],.05);self.restored()
+        with self.assertRaises(subprocess.TimeoutExpired):self.common.wait_process(child,self.common.time.monotonic()-1)
+    def test_owned_child_setup_restores_original_mask_without_polling_block(self):
+        self.api.mask={signal.SIGINT}
+        calls=[];original=self.common.resource
+        class Limits:
+            RLIMIT_AS,RLIMIT_CPU,RLIMIT_NOFILE,RLIMIT_FSIZE,RLIMIT_CORE=range(5)
+            def setrlimit(self,kind,value):calls.append((kind,value))
+        self.common.resource=Limits()
+        try:
+            with self.common.defer_cancellation():self.common.limits()
+        finally:
+            self.common.resource=original
+        self.assertEqual(self.api.mask,{signal.SIGINT});self.assertEqual(len(calls),5)
+        self.assertEqual(self.api.waits,[])
+    def test_sticky_cancellation_query_is_closed_and_independent_of_failure(self):
+        self.assertIs(self.common.cancellation_requested(),False)
+        with self.assertRaises(KeyboardInterrupt):
+            with self.common.cancellation_handlers():
+                self.api.pending.add(signal.SIGTERM);self.common.cancellation_checkpoint()
+        self.assertIs(self.common.cancellation_requested(),True)
+        for foreign in ({True},{99},['15']):
+            self.common.CANCELLATION_EVENTS=foreign
+            with self.assertRaises(self.common.Refused):self.common.cancellation_requested()
+        self.common.CANCELLATION_EVENTS=set()
+    def test_scope_refuses_foreign_callbacks_and_signal_objects_without_execution(self):
+        called=[]
+        class Foreign:
+            def __hash__(self):called.append('hash');raise AssertionError('foreign hash executed')
+        with self.common.defer_cancellation():
+            scope=self.common.SIGNAL_SCOPES[-1]
+            for bad in ((lambda *args:called.append('callback'),scope[1],scope[2]),(scope[0],(Foreign(),),scope[2])):
+                self.common.SIGNAL_SCOPES[-1]=bad
+                with self.assertRaises(self.common.Refused):self.common.cancellation_checkpoint()
+            self.common.SIGNAL_SCOPES[-1]=scope
+        self.assertEqual(called,[])
+
+# SPDX-License-Identifier: MIT
+class OpaqueCancellationReportingModels(unittest.TestCase):
+    """Exact Session.execute with inert service/actor/source boundaries."""
+    def common(self):
+        path=Path(adapter.__file__).resolve().parents[3]/'scripts/port/repository-client-native/common.py'
+        module=types.ModuleType('reporting_model_common');module.__file__=str(path)
+        exec(compile(path.read_bytes(),str(path),'exec',dont_inherit=True),module.__dict__)
+        module.signal=OpaqueCancellationModels.Signals()
+        return module
+    def test_first_failure_and_cancellation_are_independent_execute_fields(self):
+        from contextlib import ExitStack
+        for first_failure,pending,observer_fault in ((True,True,None),(True,False,None),(False,True,None),
+                (True,False,'registry'),(True,False,'function'),(True,False,'enum'),(True,True,'teardown'),(True,False,'interrupt')):
+            with self.subTest(first=first_failure,pending=pending,observer=observer_fault),tempfile.TemporaryDirectory(prefix='opaque-disposition-model-') as temporary:
+                common=self.common();output=Path(temporary)/'handoff';runtime={'cli_sha256':'d'*64,'endpoint_identity':[1]*6,'env':{}};argv=['integration'];published=[];seen=[]
+                first=adapter.Refused('callback-refused')
+                original_mask=common.signal.pthread_sigmask
+                mask_calls=[]
+                def teardown_mask(*args):
+                    mask_calls.append(args)
+                    if len(mask_calls)==3:
+                        if observer_fault=='interrupt':raise KeyboardInterrupt('inert final-block interrupt')
+                        raise OSError('inert final-block fault')
+                    return original_mask(*args)
+                if observer_fault in ('teardown','interrupt'):common.signal.pthread_sigmask=teardown_mask
+                def services(*args,**kwargs):
+                    if pending:common.signal.pending.add(signal.SIGTERM)
+                    if observer_fault=='registry':common.CANCELLATION_EVENTS=set()
+                    if observer_fault=='function':common.cancellation_requested=lambda:True
+                    if observer_fault=='enum':common.CANCELLATION_EVENTS.add(99)
+                    if first_failure:raise first
+                    return {'transport':types.SimpleNamespace(close=lambda:None)}
+                collector={'common':common}
+                entry=types.SimpleNamespace(authenticated=lambda *a,**k:({},{}),
+                    dependency_entry=lambda *a,**k:({}, {}) if k.get('phase') else (collector,{}),services=services)
+                sources=adapter.Sources.__new__(adapter.Sources)
+                sources.root=Path(adapter.__file__).resolve().parents[3];sources.original_root=None
+                path=adapter.PREFIXES['collector']+'/common.py'
+                sources.raw={path:Path(common.__file__).read_bytes(),'model-map':b'{}'}
+                sources.grant={'source_commit':'a'*40,'run_id':'1','run_attempt':'1',
+                    'actor_contract_sha256':adapter.digest(adapter.encoded(runtime)),
+                    'initial_invocation_sha256':adapter.digest(adapter.encoded({'argv':argv,'output':str(output)})),
+                    'maps':{role:{'path':'model-map','sha256':'e'*64} for role in ('runtime','collector','phase')},
+                    'source_files':{adapter.PREFIXES[role]+'/entry.py':{'sha256':'f'*64} for role in ('collector','phase')}}
+                sources.grant_pin='0'*64;sources.module=lambda *args:entry;sources.source_graph=lambda *a,**k:None
+                session=adapter.Session(sources,output,job_deadline=time.monotonic()+30,composition='installer-preflight-maintained-v1')
+                original_failed=adapter.Session.startup_failed
+                def failed(self,error):seen.append(error);return original_failed(self,error)
+                def remove(path,*args):
+                    if path is not None and Path(path).exists():shutil.rmtree(path)
+                with ExitStack() as stack:
+                    for name,value in [('bindings',lambda *a:None),('remove_private',remove),
+                            ('revoke_phase_receipt',lambda *a:None),('publish_status',lambda p,v,**k:published.append(copy.deepcopy(v)))]:
+                        stack.enter_context(patch.object(adapter,name,value))
+                    stack.enter_context(patch.dict(os.environ,{'GITHUB_SHA':'a'*40,'GITHUB_RUN_ID':'1','GITHUB_RUN_ATTEMPT':'1'}))
+                    for name,value in [('view_plan',lambda *a:output/'view'),('prepare_view',lambda *a:None),
+                            ('register_native_preflight',lambda *a:None),('emit_startup_refusal',lambda *a:None),('startup_failed',failed)]:
+                        stack.enter_context(patch.object(adapter.Session,name,value))
+                    result=session.execute(argv,{},runtime)
+                self.assertEqual(result['status'],'FAIL');self.assertFalse(result['callback_entered'])
+                self.assertIsNone(result['initial_exit_code']);self.assertEqual(len(published),1)
+                if first_failure:
+                    self.assertIs(seen[0],first);self.assertEqual(result['error_code'],'callback-refused')
+                    self.assertEqual(session.startup_failure['kind'],'SOURCE_REFUSAL')
+                else:
+                    self.assertIsInstance(seen[0],KeyboardInterrupt);self.assertEqual(result['error_code'],'cancelled')
+                self.assertIs(result['cancelled'],pending or observer_fault=='interrupt')
+                self.assertEqual(result['cleanup'],'FAIL' if observer_fault else 'PASS')
+                if first_failure and pending:
+                    causes=first.__cause__.exceptions if isinstance(first.__cause__,BaseExceptionGroup) else (first.__cause__,)
+                    self.assertTrue(any(isinstance(item,KeyboardInterrupt) for item in causes))
+                self.assertEqual(common.PENDING,[]);self.assertEqual(common.SIGNAL_SCOPES,[])
+    def test_observer_binds_code_globals_and_registry_identity(self):
+        common=self.common();sources=adapter.Sources.__new__(adapter.Sources)
+        sources.root=Path(adapter.__file__).resolve().parents[3]
+        sources.original_root=None
+        path=adapter.PREFIXES['collector']+'/common.py';sources.raw={path:Path(common.__file__).read_bytes()}
+        session=adapter.Session.__new__(adapter.Session);session.sources=sources
+        events=common.CANCELLATION_EVENTS;collector={'common':common}
+        self.assertIs(session.cancellation_observed(collector,events),False)
+        events.add(signal.SIGTERM);self.assertIs(session.cancellation_observed(collector,events),True)
+        with self.assertRaises(adapter.Refused):session.cancellation_observed(collector,set(events))
+        callback=common.cancellation_requested
+        for foreign in (lambda:True,types.FunctionType(callback.__code__,dict(callback.__globals__))):
+            common.cancellation_requested=foreign
+            with self.assertRaises(adapter.Refused):session.cancellation_observed(collector,events)
+        common.cancellation_requested=callback;events.add(True)
+        with self.assertRaises(common.Refused):session.cancellation_observed(collector,events)
+
+# SPDX-License-Identifier: MIT
+class SignalTeardownFailureModels(unittest.TestCase):
+    """Every teardown API is an inert seam; no real signal operation."""
+    class Signals(OpaqueCancellationModels.Signals):
+        def __init__(self,site,known=False,permanent=False):
+            super().__init__();self.site=site;self.permanent=permanent;self.fault=OSError('inert teardown fault')
+            self.counts={};self.armed=False;self.primary=self.fault
+            # Parent model's setter fault hook is distinct from this site injector.
+            self.fault=None
+            if known:self.handlers={signal.SIGINT:0,signal.SIGTERM:0};self.initial=dict(self.handlers)
+        def fault_at(self,site):
+            self.counts[site]=self.counts.get(site,0)+1
+            if self.armed and site==self.site and (self.permanent or self.counts[site]==1):raise self.primary
+        def pthread_sigmask(self,how,values):
+            if self.armed:self.fault_at('block' if how==self.SIG_BLOCK else 'mask')
+            return super().pthread_sigmask(how,values)
+        def signal(self,number,value):
+            if self.armed:self.fault_at('set')
+            return super().signal(number,value)
+        def getsignal(self,number):
+            if self.armed:self.fault_at('get')
+            return super().getsignal(number)
+        def sigpending(self):self.fault_at('pending');return super().sigpending()
+        def sigwait(self,values):self.fault_at('wait');return super().sigwait(values)
+    def common(self):
+        path=Path(adapter.__file__).resolve().parents[3]/'scripts/port/repository-client-native/common.py'
+        module=types.ModuleType('teardown_model_common');module.__file__=str(path)
+        exec(compile(path.read_bytes(),str(path),'exec',dont_inherit=True),module.__dict__)
+        return module
+    def causes(self,error):
+        if isinstance(error,BaseExceptionGroup):
+            return [leaf for child in error.exceptions for leaf in self.causes(child)]
+        return [error]
+    def test_six_api_fault_sites_keep_body_and_dispose_scope(self):
+        for site in ('block','mask','get','set','pending','wait'):
+            with self.subTest(site=site):
+                common=self.common();api=self.Signals(site,known=site in ('get','set'));common.signal=api
+                first=ValueError('first body failure')
+                try:
+                    with common.defer_cancellation():
+                        if site=='wait':api.pending.add(signal.SIGTERM)
+                        api.armed=True;raise first
+                except ValueError as error:
+                    self.assertIs(error,first);self.assertIn(api.primary,self.causes(error.__cause__))
+                else:self.fail('body error missing')
+                self.assertEqual((common.SIGNAL_SCOPES,common.PENDING),([],[]))
+                self.assertEqual(api.handlers,api.initial)
+                self.assertIn(site,common.CANCELLATION_UNCERTAIN)
+                self.assertIs(common.cancellation_uncertain(),True)
+                if site not in ('pending',):self.assertEqual(api.mask,set())
+                self.assertFalse(any(value is None for number,value in api.setters))
+                if site=='wait':
+                    self.assertIs(common.cancellation_requested(),True)
+                    self.assertTrue(any(isinstance(item,KeyboardInterrupt) for item in self.causes(first.__cause__)))
+    def test_fault_without_body_is_raised_not_ignored(self):
+        common=self.common();api=self.Signals('block');common.signal=api
+        with self.assertRaises(OSError) as got:
+            with common.defer_cancellation():api.armed=True
+        self.assertIs(got.exception,api.primary);self.assertEqual(common.SIGNAL_SCOPES,[])
+        self.assertTrue(common.cancellation_uncertain())
+    def test_multiple_faults_and_preexisting_cause_are_retained(self):
+        common=self.common();api=self.Signals('mask',permanent=True);common.signal=api
+        prior=RuntimeError('preexisting cause');first=ValueError('body');first.__cause__=prior
+        try:
+            with common.defer_cancellation():api.pending.add(signal.SIGTERM);api.armed=True;raise first
+        except ValueError as got:self.assertIs(got,first)
+        leaves=self.causes(first.__cause__)
+        self.assertIn(prior,leaves);self.assertIn(api.primary,leaves)
+        self.assertTrue(any(isinstance(item,KeyboardInterrupt) for item in leaves))
+        self.assertEqual((common.SIGNAL_SCOPES,common.PENDING),([],[]))
+        self.assertTrue(common.cancellation_requested());self.assertTrue(common.cancellation_uncertain())
+    def test_permanent_wait_failure_retains_event_and_protective_block(self):
+        common=self.common();api=self.Signals('wait',permanent=True);common.signal=api
+        first=ValueError('body')
+        try:
+            with common.defer_cancellation():api.pending.add(signal.SIGTERM);api.armed=True;raise first
+        except ValueError as got:self.assertIs(got,first)
+        self.assertEqual(api.counts['wait'],2);self.assertIn(signal.SIGTERM,api.mask)
+        self.assertIn(signal.SIGTERM,api.pending);self.assertEqual((common.SIGNAL_SCOPES,common.PENDING),([],[]))
+        self.assertTrue(common.cancellation_requested());self.assertTrue(common.cancellation_uncertain())
+        self.assertIn('wait',common.CANCELLATION_UNCERTAIN);self.assertIn('mask',common.CANCELLATION_UNCERTAIN)
+    def test_scope_mismatch_and_rebinding_restore_exact_owned_prefix(self):
+        for rebind in (False,True):
+            common=self.common();api=self.Signals(None);common.signal=api
+            first=ValueError('body');registry=common.SIGNAL_SCOPES
+            try:
+                with common.defer_cancellation():
+                    if rebind:common.SIGNAL_SCOPES=[]
+                    else:common.SIGNAL_SCOPES.append(('foreign-row',))
+                    raise first
+            except ValueError as got:self.assertIs(got,first)
+            self.assertIs(common.SIGNAL_SCOPES,registry);self.assertEqual(registry,[])
+            self.assertEqual(common.PENDING,[]);self.assertIn('registry',common.CANCELLATION_UNCERTAIN)
+            self.assertTrue(any(isinstance(item,common.Refused) for item in self.causes(first.__cause__)))
+            self.assertEqual(api.mask,set())
+    def test_nested_failure_disposes_inner_and_preserves_outer_pending_transfer(self):
+        common=self.common();api=self.Signals('block');common.signal=api
+        first=ValueError('body');reached=[]
+        try:
+            with common.defer_cancellation():
+                outer=common.SIGNAL_SCOPES[0]
+                try:
+                    with common.defer_cancellation():
+                        api.pending.add(signal.SIGTERM);api.armed=True;raise first
+                except ValueError as got:
+                    self.assertIs(got,first);self.assertEqual(common.SIGNAL_SCOPES,[outer]);reached.append('outer')
+                self.assertEqual(common.PENDING[-1],[signal.SIGTERM])
+                raise first
+        except ValueError as got:self.assertIs(got,first)
+        self.assertEqual(reached,['outer']);self.assertEqual((common.SIGNAL_SCOPES,common.PENDING),([],[]))
+        self.assertTrue(common.cancellation_requested());self.assertTrue(common.cancellation_uncertain())
+    def test_uncertainty_registry_is_closed(self):
+        common=self.common()
+        for bad in ({'raw errno/path'}, {True}, ['block']):
+            common.CANCELLATION_UNCERTAIN=bad
+            with self.assertRaises(common.Refused):common.cancellation_uncertain()
+    def test_replay_failure_retains_body_and_marks_uncertainty(self):
+        common=self.common();api=self.Signals(None);common.signal=api
+        body=ValueError('body');fault=OSError('inert replay fault')
+        def handler(*args):raise fault
+        try:
+            with common._signal_handlers(handler):api.pending.add(signal.SIGTERM);raise body
+        except ValueError as got:self.assertIs(got,body)
+        self.assertIn(fault,self.causes(body.__cause__));self.assertIn('replay',common.CANCELLATION_UNCERTAIN)
+        self.assertEqual(common.SIGNAL_SCOPES,[]);self.assertEqual(api.mask,set())
+    def test_teardown_interrupt_retains_cancel_without_guessing_signal_number(self):
+        common=self.common();api=self.Signals('mask');common.signal=api
+        api.primary=KeyboardInterrupt('inert teardown interrupt');body=ValueError('body')
+        try:
+            with common.defer_cancellation():api.armed=True;raise body
+        except ValueError as got:self.assertIs(got,body)
+        self.assertIn(api.primary,self.causes(body.__cause__))
+        self.assertEqual(common.CANCELLATION_EVENTS,{'INTERRUPT'})
+        self.assertTrue(common.cancellation_requested());self.assertTrue(common.cancellation_uncertain())
+        self.assertEqual(common.SIGNAL_SCOPES,[]);self.assertEqual(api.mask,set())
+    def test_permanent_block_failure_never_attempts_unprotected_handler_restoration(self):
+        common=self.common();api=self.Signals('block',known=True,permanent=True);common.signal=api
+        body=ValueError('body');setters=[]
+        try:
+            with common.defer_cancellation():setters=list(api.setters);api.armed=True;raise body
+        except ValueError as got:self.assertIs(got,body)
+        self.assertEqual(api.setters,setters);self.assertEqual(api.mask,set(common.SIGNALS))
+        self.assertEqual(common.SIGNAL_SCOPES,[]);self.assertEqual(common.PENDING,[])
+        self.assertEqual(common.CANCELLATION_UNCERTAIN,{'block','handler','mask'})
 
 if __name__ == '__main__':unittest.main()

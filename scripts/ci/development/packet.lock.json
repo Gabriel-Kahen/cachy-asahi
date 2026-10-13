@@ -1153,9 +1153,9 @@
     "scripts/ci/recipes.lock.json": "20d846cdf289bfc233b0051bf33b677fd6e94e9f05d91a33595a2829a196fa63",
     "scripts/experiments/stage.lock.json": "8e0d982e136f8f1c79bebbeca8448f48a8466e95dbb8695042e7528a26f731ca",
     "scripts/port/refreshed-desktop/proposed-builder-inventory.lock": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25",
-    "scripts/port/repository-client-native/source-map.json": "3cd0b7ad57e47c8656a9c267794be0cf969b34896693cc96e9266fbbaf4e7fd4",
-    "scripts/port/repository-client-phase-stage/dependencies.py": "c8f2074a9aad9826e9bcbfb4ceecc6a3ad40203d5d58301cb21380a21689b41b",
-    "scripts/port/repository-client-phase-stage/source-map.json": "31f014bd44c2d1aaf1503fffd8f682019542b31592bf9337590a2ef695ec108b",
+    "scripts/port/repository-client-native/source-map.json": "4d2f0533a537eaa4582078a3e15d206457878dd5e4f0fe044daa1290995bf52b",
+    "scripts/port/repository-client-phase-stage/dependencies.py": "fc05eae78ef5153a35c963029a74604fe2732141e6a78d5d02d3d1ebf7886c44",
+    "scripts/port/repository-client-phase-stage/source-map.json": "1fcd42cb0f6da6c55915373523f63586d95c1640eab2a7deee5cfd5407560f88",
     "scripts/port/repository-native-handoff/source-map.json": "c0b52067ec44339aae55a3b8f0a213d48ab4eaa2b410d0243c5267c9656f1f1e",
     "scripts/virtual/tooling-audit.json": "d3289a52f3269ba44f1437b69a112dcbd2086ee16ebe8d44658e65e7fb8e2095",
     "scripts/virtual/tooling.lock.json": "c18afc5bde9868594d41bd576a956960a7b01b190d148ba03ca4c41d4394e1b0"
@@ -1778,11 +1778,11 @@
     },
     "scripts/ci/development/repository_authority.py": {
       "mode": 420,
-      "sha256": "0bb3ade93e67275bb9647304b275ec1442398384d46c127a065b7f4a28d91f88"
+      "sha256": "61b6874aae2985e1581f2d3f9d44e8108092be0aac4337303d81d206679125e2"
     },
     "scripts/ci/development/repository_handoff.py": {
       "mode": 420,
-      "sha256": "b1be6da0f38722a350b1981bacda038f2fac018fa67efe0c3fc78f22fd20e8e7"
+      "sha256": "1c5ce6835cd62bd8055521b72da8124cd7e6b969bcf1229b5070517d20bfe0ee"
     },
     "scripts/ci/development/test_base_stages.py": {
       "mode": 420,
@@ -1810,7 +1810,7 @@
     },
     "scripts/ci/development/test_repository_handoff.py": {
       "mode": 420,
-      "sha256": "366cfccfc95793e21b5d858789f1ecc8b45f0832346ced1b3fe8ea4d8b2f8f90"
+      "sha256": "b50d5e431f9f4934bf86d46d1e73c95586de12131efa2fff47328afd4e9c9876"
     },
     "scripts/ci/development/test_virtual_stage.py": {
       "mode": 420,
@@ -1986,7 +1986,7 @@
     },
     "scripts/install/native_preflight.py": {
       "mode": 420,
-      "sha256": "65d254379b0cda07fa83e59abc95f693a22ff7ccbf7044e7208544af70f1aad7"
+      "sha256": "a1940c737d79b6d56b848bf78d2ba0aa3f9bfd1cfd2c83bf523717ada5ff7150"
     },
     "scripts/install/test_local_transaction.py": {
       "mode": 420,
@@ -2054,7 +2054,7 @@
     },
     "scripts/port/repository-client-native/common.py": {
       "mode": 420,
-      "sha256": "92ca41005397c6cccfd70497646c0de1f2ac88a697e0fcbec4165bf5326cfc08"
+      "sha256": "02398b4008f06947fe3dfe8e95c45e0f77cf8627ecff258a7c64128314665a15"
     },
     "scripts/port/repository-client-native/crypto.py": {
       "mode": 420,
@@ -2074,11 +2074,11 @@
     },
     "scripts/port/repository-client-native/review.lock.json": {
       "mode": 420,
-      "sha256": "ad3635bbf416ca8da00c3b4c50e86ed5501a4f343798a9bef5191c8ac4d25d06"
+      "sha256": "8cf0664e5520dbeaa7e8c164f031703ddb423d377ec31c1d88ce017047c3526d"
     },
     "scripts/port/repository-client-native/source-map.json": {
       "mode": 420,
-      "sha256": "3cd0b7ad57e47c8656a9c267794be0cf969b34896693cc96e9266fbbaf4e7fd4"
+      "sha256": "4d2f0533a537eaa4582078a3e15d206457878dd5e4f0fe044daa1290995bf52b"
     },
     "scripts/port/repository-client-native/worker.py": {
       "mode": 420,
@@ -2090,7 +2090,7 @@
     },
     "scripts/port/repository-client-phase-stage/dependencies.py": {
       "mode": 420,
-      "sha256": "c8f2074a9aad9826e9bcbfb4ceecc6a3ad40203d5d58301cb21380a21689b41b"
+      "sha256": "fc05eae78ef5153a35c963029a74604fe2732141e6a78d5d02d3d1ebf7886c44"
     },
     "scripts/port/repository-client-phase-stage/entry.py": {
       "mode": 420,
@@ -2106,11 +2106,11 @@
     },
     "scripts/port/repository-client-phase-stage/review.lock.json": {
       "mode": 420,
-      "sha256": "5cc50597f74ff99b6b0a9486160d30b565a310b9a4c0ea813188c48698bb0f9d"
+      "sha256": "53eb80b657b867054c01eb855710d6308f587755e73f78b32e8494b93b825ec1"
     },
     "scripts/port/repository-client-phase-stage/source-map.json": {
       "mode": 420,
-      "sha256": "31f014bd44c2d1aaf1503fffd8f682019542b31592bf9337590a2ef695ec108b"
+      "sha256": "1fcd42cb0f6da6c55915373523f63586d95c1640eab2a7deee5cfd5407560f88"
     },
     "scripts/port/repository-client-stage/adapter.py": {
       "mode": 420,
