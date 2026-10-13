@@ -4,7 +4,55 @@ October 12, 2026. This record tracks the complete `outline.md` scope; an impleme
 
 The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with owned tasks and corrective next actions in `docs/backlog.md`. The destination now explicitly requires the maintained ARM package repository, native performance engineering, integrated Apple stack, broader Cachy system experience, and complete installation/release lifecycle. Both Air sizes, published final measurements, independent onboarding/contribution, subsequent full-port maintenance release, other-ARM reuse and actual upstream submissions remain required; an early overlay release or feasibility decision would not complete the goal. This scope update does not change any recorded execution result.
 
-Latest coordinator update, October 13, 16:30 UTC. The goal is resumed and active.
+Latest coordinator update, October 13, 17:40 UTC. The updated outline, goal, roadmap
+and acceptance matrix remain authoritative for the complete R1–R5/M5–M9 port.
+Independent review rejected the first startup diagnostic proposal because a
+secondary publication failure could escape its original FAIL result. A separately
+sealed minimal correction preserves the original failure and sticky cancellation;
+independent Source review passes. Root publishes Source8a28a8b and Data7764f58,
+authenticates271 actual Git blobs/modes and registers/readbacks the new external
+plan. Retry38438328328 FAIL narrows the refusal to capture-dependencies /
+GRAPH_NAMESPACE; cleanup still FAIL, precise subpredicate/cause UNKNOWN. Its
+static workflow38438328195 passes. Retained independent trial review29f393
+authenticates Source271, both exports and the closed failure marker. A local
+source model reproduces the namespace refusal when cwd equals the Source root;
+precise actual predicate/cleanup cause remain unproved. The original run stays unchanged.
+[Retry review](reviews/maintained-composed-38438328328-root-review.md).
+
+The recovered NetworkManager and Perl archives now pass actual data-only intake
+in a fresh constrained child: 3,601 members, 90,224,436 decoded bytes, no payload
+execution, and removed spool. Trial01 retains an outer-guard deviation. Fresh
+trial02 repeats with the exact 1210-second outer envelope and natural parent/child
+zero completion; its source/counters are kept separate from trial01. All nine
+original acceptance flags remain false. Other259 cryptographic admissions, full261
+selection, image assembly and target installation remain open. Retained metadata coherence review of trial02 passes; Root observed natural
+completion, and independent live process-disposal replay remains absent. [Runner source review](reviews/platform-real-two-intake-runner-root-review.md)
+[trial01 review](reviews/platform-real-two-actual01-root-review.md) and
+[trial02 review](reviews/platform-real-two-actual02-root-review.md) record the limits.
+
+The full261 policy/real-reference adapter and corrected Topmem TEST producer
+pass independent source review. The latter replaces the unselectable repo-add
+assumption while preserving the original native and addon source/counter sets.
+Actual ARM tool-policy observation, native library/signing and Topmem/Fish
+lifecycle remain unrun. Source review corrected finite ELF-string, held-ancestor and cancellation
+cleanup concerns in the observer. Exact reviewed inline workflowf01a80b is
+published on its isolated branch. Actual read-only ARM38439375132 passes with
+two tool rows,18 helpers and the canonical libzstd1.5.5; initial CLI log omitted
+stdout, so Root retains the fresh complete API logs and candidate/final receipts.
+Independent retained peer07f056 passes the observation and pure V2 schema
+compatibility; policy selection, native library/signing and lifecycle remain pending.
+[Actual observer review](reviews/topmem-arm-toolchain-observation-38439375132-root-review.md). [Observer review](reviews/topmem-arm-toolchain-observer-root-review.md).
+The fixed261 dependency/hook helper and independent review also pass source
+checks:259 components retain one cycle and two provider ambiguities;57 config
+hashes supply no bodies. Exact systemd-hook plus18 sysusers body intake is next;
+installation order and hook acceptance remain missing.
+[Dependency/hook review](reviews/platform-install-order-hooks-gap-root-review.md).
+
+[Topmem review](reviews/topmem-native-test-toolchain-correction-root-review.md),
+[policy review](reviews/platform-full261-intake-policy-root-review.md) and
+[diagnostic finding](reviews/maintained-composed-startup-refusal-root-review.md).
+
+Prior coordinator update, October 13, 16:30 UTC. The goal is resumed and active.
 Root publishes the reviewed trusted Source3 CodeCommit `677d3ba`, isolated
 workflow SourceCommit `920b5f2` and exact two-path DataCommit `319aa5d` on the
 maintained branch. All 271 committed source/packet/workflow/body blobs match;
