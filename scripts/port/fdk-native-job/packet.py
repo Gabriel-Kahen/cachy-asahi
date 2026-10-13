@@ -13,7 +13,7 @@ import tempfile
 HERE = Path(__file__).resolve().parent
 PREFIX = 'scripts/port/fdk-native-job/'
 ADAPTER = 'scripts/port/fdk-native-stage/'
-ADAPTER_SHA = '4db538d6292c6580c1eb1cc0d330fc84b9c27ae7b570dbfea5a0cdda6f403e3c'
+ADAPTER_SHA = 'fbc0b0bbf0f3765729adb9193331b09903ad5b8c99d00871ece79218a8b36483'
 INPUTS_SHA = '3c16c37d1b12cc84a88572e82ab8ad59e7f3b5ed0d08f09ddf72a69f4711d650'
 RECIPES_SHA = '20d846cdf289bfc233b0051bf33b677fd6e94e9f05d91a33595a2829a196fa63'
 EPOCH = 1791748800

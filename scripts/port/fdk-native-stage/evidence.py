@@ -13,8 +13,8 @@ import tempfile
 INVENTORY_SHA = '89bdb06fea1862b5a6e02b77a4b98f6e04755b02327d875a716bd792929f3a4f'
 INPUTS_SHA = '3c16c37d1b12cc84a88572e82ab8ad59e7f3b5ed0d08f09ddf72a69f4711d650'
 ORIGINALS_SHA = '20d846cdf289bfc233b0051bf33b677fd6e94e9f05d91a33595a2829a196fa63'
-TEMPLATE_SHA = 'bbe7ca8746ac142ef90d25dbec58a116e59d9dbea3a193fa9b2a725c37aaeb9c'
-RECIPE_SHA = '6d5927fbeddcfe21af0e212abbe029e48805bc0927968f6c913a8c94de1f8dea'
+TEMPLATE_SHA = '4f852126968e6b61a6bc9bc186182c435fa723d00f4776a435395ec687388235'
+RECIPE_SHA = '43c5c8967f39687ee57fb59a17c7a6742ae4426b1b342bacb6486eea4cecc199'
 ENTRY_SHA = '89723f0a0b2ef80391160f451e877f15fb1e0c4d9a4fec6dbbb8e0d66d8d0f24'
 EPOCH = 1791748800
 IMAGE = re.compile(r'sha256:[0-9a-f]{64}\Z')
@@ -250,6 +250,8 @@ def finalstatus_public(report):
             report[k]['cleanup'].get('absence_verified') is True for k in ('build-1', 'build-2')) and
         all(row['availability'] == 'VERIFIED' and row['exit'] == worker_diagnostic.exit_record(0) and
             row['observation']['current_predicate'] == 'COMPLETE' for row in workers.values()))
+    if passed:
+        workers = worker_diagnostic.validate_workers(workers, require_complete=True)
     return {'schema_version': 2, 'stage': 'fdk-native-development', 'status': 'PASS' if passed else 'FAIL',
             'phase': report.get('phase') if report.get('phase') in {'preflight', 'base-probe', 'source', 'build-1', 'build-2', 'compare', 'complete'} else 'preflight',
             'error_code': None if passed else 'fdk-stage-failed', 'cancelled': report.get('cancelled') is True,

@@ -15,6 +15,7 @@ from evidence import EPOCH, INVENTORY_SHA, compare_result, load, need, save, ver
 from runtime import Cancelled, Runner, cancellation_handlers, defer_signals
 from broker import Broker
 import worker_evidence as diagnostic
+import inner_evidence
 
 
 class ObservedBroker(Broker):
@@ -22,6 +23,7 @@ class ObservedBroker(Broker):
     def __init__(self, *args, observation, **kwargs):
         super().__init__(*args, **kwargs)
         self.observation, self.inspected = observation, None
+        self.inner_state, self.inner_state_invalid, self.inner_inspection = None, False, None
 
     def _operation(self, argv, **kwargs):
         action = 'create' if argv[:1] == ['create'] else 'attach' if argv[:2] == ['start', '--attach'] else None
@@ -43,6 +45,8 @@ class ObservedBroker(Broker):
             raise
 
     def _inspect(self, identifier, row, cleanup=False):
+        previous = self.inner_state
+        self.inner_state, self.inner_inspection = None, None
         self.inspected = None
         result = super()._inspect(identifier, row, cleanup=cleanup)
         # The original gate has validated these exact bytes against nonce/name/ID,
@@ -58,6 +62,16 @@ class ObservedBroker(Broker):
                 need(self.observation['commands']['container'] in (diagnostic.no_exit('UNOBSERVED'), observed),
                      'worker-container-state-drift')
                 self.observation['commands']['container'] = observed
+                retained = {'container_id': item['Id'], 'container_name': row['name'], 'image': item['Image'],
+                    'nonce': self.nonce, 'status': state['Status'], 'running': False, 'exit_code': state['ExitCode'],
+                    'inspect_sha256': diagnostic.sha(self.inspected[1])}
+                if previous is not None and previous != retained:
+                    self.inner_state_invalid = True
+                if not self.inner_state_invalid:
+                    self.inner_state = retained
+                    self.inner_inspection = self.inspected[1]
+                else:
+                    self.inner_state = None
         return result
 
 
@@ -98,8 +112,9 @@ def execute(config, state=None, config_sha=None):
     root = Path(config['snapshot'])
     action = config['action']
     observation = diagnostic.initial(config, config_sha)
+    observation['inner'] = inner_evidence.unknown()
     receipt = {'status': 'FAIL', 'action': action, 'hardware': 'NOT RUN', 'cancelled': False,
-               'diagnostics': observation}
+               'diagnostics': observation, 'inner_context': None}
     if state is not None:
         state.update(receipt=receipt, path=Path(config['private']) / (action + '-receipt.json'))
     broker = None
@@ -157,12 +172,29 @@ def execute(config, state=None, config_sha=None):
                 # This records a captured failed provenance even if the builder raises.
                 observation['current_predicate'] = 'BUILDER_PROVENANCE'
                 provenance, log_bytes = diagnostic.observe_builder(observation, work / action, config, reviewed)
+                try:
+                    observation['inner'] = inner_evidence.capture_inner(work / action / 'artifacts',
+                        work / action / 'inputs', reviewed, config, config_sha, getattr(broker, 'inner_state', None))
+                except Exception:
+                    observation['inner'] = inner_evidence.unknown('UNAVAILABLE')
+                if observation['inner']['availability'] == 'BOUND':
+                    try:
+                        context = inner_evidence.binding_context(config, config_sha, reviewed, broker.inner_state)
+                        need(provenance is not None, 'inner-provenance-required')
+                        inner_evidence.check_context(context, observation['inner'], config, config_sha, reviewed,
+                            commands=observation['commands'], provenance=provenance)
+                        receipt['inner_context'] = context
+                    except Exception:
+                        observation['inner'] = inner_evidence.unknown('UNBOUND', observation['inner']['raw_sha256'])
             need(code == 0, 'builder-failed')
             need(observation['builder']['status'] == 'STATIC_PASS', 'builder-provenance-unverified')
             need(provenance is not None and log_bytes is not None, 'builder-captured-evidence-required')
             observation['current_predicate'] = 'ARTIFACT_VERIFY'
             receipt['artifact'] = verify_attempt(work / action, reviewed, config['image'], builder.package, builder.recipe,
                 builder.bind_artifact, record=provenance, log_bytes=log_bytes)
+        # Original artifact/comparison checks precede the modern observation requirement.
+        observation['current_predicate'] = 'FINALIZATION'
+        diagnostic.inner_complete(observation['inner'], action)
         receipt['status'] = 'PASS'
     except (Cancelled, KeyboardInterrupt):
         receipt['cancelled'] = True

@@ -24,6 +24,104 @@ BINDING_KEYS = frozenset(('source_commit', 'stage_lock_sha256', 'run_id', 'run_a
     'nonce', 'config_sha256', 'inputs_sha256', 'inventory_sha256', 'recipe_sha256', 'template_sha256'))
 FIELDS = frozenset(('schema_version', 'current_predicate', 'first_failed_predicate', 'failure_reason',
     'cancelled', 'builder', 'commands', 'cleanup'))
+INNER_LIMIT = 2048
+INNER_PHASES = ('UNKNOWN', 'PREPARE', 'BUILD', 'CHECK', 'PACKAGE')
+INNER_PREDICATES = frozenset(('UNKNOWN', 'SELECTED_PATH', 'SELECTED_BYTES', 'SELECTED_GRANT',
+    'COMPILER_NONZERO', 'COMPILER_CALL', 'COMPILER_TIMEOUT'))
+INNER_REASONS = frozenset(('UNKNOWN', 'NONZERO', 'TIMEOUT', 'CANCELLED', 'IO', 'INVALID_DATA'))
+INNER_FIELDS = frozenset(('schema_version', 'binding_sha256', 'phase', 'first_failure', 'cancelled',
+    'write_failed', 'compiler_attempted', 'compiler_attempt_count', 'compiler_natural_count',
+    'first_compiler_attempt', 'first_compiler_natural', 'publication'))
+
+
+def inner_need(value):
+    need(value, 'worker-inner-observation')
+
+
+def inner_event(value):
+    if value is None: return
+    inner_need(type(value) is dict and set(value) == {'kind', 'index', 'natural', 'returncode'})
+    inner_need(value['kind'] in ('COMPILE', 'LINK') and type(value['index']) is int and
+               0 <= value['index'] <= (394 if value['kind'] == 'COMPILE' else 1))
+    inner_need(type(value['natural']) is bool)
+    code = value['returncode']
+    inner_need(code is None or type(code) is int and -64 <= code <= 255)
+    inner_need(value['natural'] == (code is not None))
+
+
+def validate_inner_observation(value):
+    inner_need(type(value) is dict and set(value) == INNER_FIELDS and
+               type(value['schema_version']) is int and value['schema_version'] == 1)
+    inner_need(type(value['binding_sha256']) is str and re.fullmatch('[0-9a-f]{64}', value['binding_sha256']))
+    inner_need(type(value['phase']) is str and value['phase'] in INNER_PHASES and value['publication'] == 'NOT ACCEPTED')
+    for key in ('cancelled', 'write_failed', 'compiler_attempted'):
+        inner_need(type(value[key]) is bool)
+    for key in ('compiler_attempt_count', 'compiler_natural_count'):
+        inner_need(type(value[key]) is int and 0 <= value[key] <= 397)
+    attempted, natural = value['compiler_attempt_count'], value['compiler_natural_count']
+    inner_need(natural <= attempted and value['compiler_attempted'] == (attempted > 0))
+    for key in ('first_compiler_attempt', 'first_compiler_natural'): inner_event(value[key])
+    inner_need((value['first_compiler_attempt'] is not None) == (attempted > 0))
+    inner_need((value['first_compiler_natural'] is not None) == (natural > 0))
+    if attempted: inner_need(not value['first_compiler_attempt']['natural'])
+    if natural:
+        inner_need(value['first_compiler_natural']['natural'])
+        if attempted == 1:
+            inner_need(all(value['first_compiler_attempt'][key] == value['first_compiler_natural'][key]
+                           for key in ('kind', 'index')))
+    first = value['first_failure']
+    inner_need(not natural or value['first_compiler_natural']['returncode'] == 0 or first is not None)
+    if first is not None:
+        inner_need(type(first) is dict and set(first) == {'phase', 'predicate', 'reason', 'command'})
+        inner_need(type(first['phase']) is str and first['phase'] in INNER_PHASES and
+                   type(first['predicate']) is str and first['predicate'] in INNER_PREDICATES and
+                   type(first['reason']) is str and first['reason'] in INNER_REASONS)
+        inner_event(first['command'])
+        inner_need(first['reason'] != 'CANCELLED' or value['cancelled'])
+        command = first['command']
+        if command is not None:
+            inner_need(attempted > 0 and (not command['natural'] or natural > 0))
+            if attempted == 1:
+                inner_need(all(command[key] == value['first_compiler_attempt'][key] for key in ('kind', 'index')))
+            if natural == 1 and command['natural']: inner_need(command == value['first_compiler_natural'])
+        inner_need(first['reason'] != 'NONZERO' or first['predicate'] == 'COMPILER_NONZERO')
+        if first['predicate'] == 'COMPILER_NONZERO':
+            inner_need(first['reason'] == 'NONZERO' and first['command'] is not None and
+                       first['command']['natural'] and first['command']['returncode'] != 0)
+    inner_need(len(json.dumps(value, sort_keys=True, separators=(',', ':'), allow_nan=False).encode() + b'\n') <= INNER_LIMIT)
+    return value
+
+
+def initial_inner():
+    return {'availability': 'UNKNOWN', 'reason': 'NOT_OBSERVED', 'raw_sha256': None, 'observation': None}
+
+
+def validate_inner_group(value):
+    inner_need(type(value) is dict and set(value) == {'availability', 'reason', 'raw_sha256', 'observation'})
+    inner_need(value['availability'] in ('UNKNOWN', 'BOUND') and value['reason'] in
+               ('NOT_OBSERVED', 'MISSING', 'UNAVAILABLE', 'SOURCE_INVALID', 'INVALID', 'UNBOUND', 'OBSERVED'))
+    checksum = value['raw_sha256']
+    inner_need(checksum is None or type(checksum) is str and re.fullmatch('[0-9a-f]{64}', checksum))
+    if value['availability'] == 'UNKNOWN':
+        inner_need(value['reason'] != 'OBSERVED' and value['observation'] is None)
+        if value['reason'] == 'NOT_OBSERVED': inner_need(checksum is None)
+    else:
+        inner_need(value['reason'] == 'OBSERVED' and checksum is not None)
+        validate_inner_observation(value['observation'])
+    encoded(value)
+    return value
+
+
+def inner_complete(group, action):
+    validate_inner_group(group)
+    if action == 'compare':
+        inner_need(group == initial_inner())
+    else:
+        inner_need(group['availability'] == 'BOUND')
+        row = group['observation']
+        inner_need(row['first_failure'] is None and not row['cancelled'] and not row['write_failed'] and
+                   row['compiler_attempted'] and row['first_compiler_natural'] is not None and
+                   row['first_compiler_natural']['returncode'] == 0)
 
 
 def encoded(value):
@@ -56,6 +154,7 @@ def binding(config, config_sha):
 
 
 def validate_fields(row):
+    if 'inner' in row: validate_inner_group(row['inner'])
     need(type(row['schema_version']) is int and row['schema_version'] == 1 and
          type(row['cancelled']) is bool, 'worker-diagnostic-header')
     for name, allowed in (('current_predicate', PREDICATES), ('first_failed_predicate', PREDICATES | {'NONE'}),
@@ -98,7 +197,7 @@ def validate_fields(row):
 
 
 def project(row):
-    need(type(row) is dict and set(row) == FIELDS | {'binding'}, 'worker-diagnostic-shape')
+    need(type(row) is dict and set(row) in (FIELDS | {'binding'}, FIELDS | {'binding', 'inner'}), 'worker-diagnostic-shape')
     encoded(row); validate_fields(row)
     bound = row['binding']
     need(type(bound) is dict and set(bound) == BINDING_KEYS, 'worker-binding')
@@ -113,6 +212,7 @@ def project(row):
          ('recipe_sha256', RECIPE_SHA), ('template_sha256', TEMPLATE_SHA))), 'worker-binding-source')
     completion(row, bound['action'])
     result = {key: row[key] for key in FIELDS}
+    if 'inner' in row: result['inner'] = row['inner']
     result['binding_sha256'] = sha(encoded(bound))
     encoded(result)
     return result
@@ -120,6 +220,7 @@ def project(row):
 
 def completion(row, action):
     if row['current_predicate'] == 'COMPLETE':
+        if 'inner' in row: inner_complete(row['inner'], action)
         if action != 'compare':
             need(row['builder']['status'] == 'STATIC_PASS' and row['cleanup']['status'] == 'PASS' and
                  row['commands']['create'] == row['commands']['attach'] == exit_record(0) and
@@ -131,7 +232,7 @@ def completion(row, action):
 
 def validate_public(row, action):
     need(type(action) is str and action in ACTIONS, 'worker-public-action')
-    need(type(row) is dict and set(row) == FIELDS | {'binding_sha256'} and
+    need(type(row) is dict and set(row) in (FIELDS | {'binding_sha256'}, FIELDS | {'binding_sha256', 'inner'}) and
          type(row['binding_sha256']) is str and re.fullmatch('[0-9a-f]{64}', row['binding_sha256']), 'worker-public-shape')
     encoded(row); validate_fields(row); completion(row, action)
 
@@ -158,7 +259,8 @@ def validate_workers(rows, *, require_complete=False):
     need(len(bindings) == len(set(bindings)), 'worker-public-distinct-bindings')
     if require_complete:
         need(all(row['availability'] == 'VERIFIED' and row['exit'] == exit_record(0) and
-                 row['observation']['current_predicate'] == 'COMPLETE' for row in rows.values()), 'worker-public-incomplete')
+                 row['observation']['current_predicate'] == 'COMPLETE' and 'inner' in row['observation']
+                 for row in rows.values()), 'worker-public-incomplete')
     return json.loads(json.dumps(rows, allow_nan=False))
 
 
@@ -167,7 +269,7 @@ def initial(config, config_sha):
         'first_failed_predicate': 'NONE', 'failure_reason': 'NONE', 'cancelled': False,
         'builder': {'exit': no_exit(), 'status': 'NOT_RUN', 'reason': 'NONE', 'provenance': None, 'log': None},
         'commands': {name: no_exit() for name in ('create', 'attach', 'container')},
-        'cleanup': {'status': 'NOT_RUN', 'absence': 'NOT_RUN', 'reason': 'NONE'}}
+        'cleanup': {'status': 'NOT_RUN', 'absence': 'NOT_RUN', 'reason': 'NONE'}, 'inner': initial_inner()}
     project(row)
     return row
 
@@ -282,7 +384,7 @@ def receive(config, config_sha, row):
         raw, _ = capture(path, 65536)
         receipt = decode(raw)
         need(set(receipt) <= {'status', 'action', 'hardware', 'cancelled', 'diagnostics', 'cleanup',
-                             'artifact', 'comparison', 'attempts'} and
+                             'artifact', 'comparison', 'attempts', 'inner_context'} and
              receipt.get('status') in ('PASS', 'FAIL') and receipt.get('action') == config['action'] and
              receipt.get('hardware') == 'NOT RUN' and type(receipt.get('cancelled')) is bool, 'worker-receipt-header')
         observed = receipt['diagnostics']
@@ -290,6 +392,7 @@ def receive(config, config_sha, row):
         need(observed['binding'] == binding(config, config_sha) and
              receipt['cancelled'] == observed['cancelled'] and
              (receipt['status'] == 'PASS') == (observed['current_predicate'] == 'COMPLETE'), 'worker-receipt-binding')
+        captured_provenance, reviewed = None, None
         if config['action'] != 'compare':
             clean = receipt.get('cleanup')
             if clean is None:
@@ -301,9 +404,17 @@ def receive(config, config_sha, row):
             # Match independently captured bytes to the worker's source-bound stamp.
             if observed['builder']['status'] != 'NOT_RUN':
                 current = json.loads(json.dumps(observed))
-                observe_builder(current, Path(config['private']) / config['action'], config,
-                                load(Path(config['snapshot']) / 'scripts/port/fdk-native-stage/reviewed-inputs.json', RECIPE_SHA))
+                reviewed = load(Path(config['snapshot']) / 'scripts/port/fdk-native-stage/reviewed-inputs.json', RECIPE_SHA)
+                captured_provenance, _ = observe_builder(current, Path(config['private']) / config['action'], config, reviewed)
                 need(current['builder'] == observed['builder'], 'worker-provenance-receiver')
+        if observed.get('inner', {}).get('availability') == 'BOUND':
+            need(config['action'] != 'compare' and reviewed is not None and captured_provenance is not None,
+                 'worker-inner-context')
+            import inner_evidence
+            inner_evidence.check_context(receipt.get('inner_context'), observed['inner'], config, config_sha,
+                reviewed, commands=observed['commands'], provenance=captured_provenance)
+        else:
+            need(receipt.get('inner_context') is None, 'worker-inner-context')
         row.update(availability='VERIFIED', observation=projected)
         return receipt
     except FileNotFoundError:

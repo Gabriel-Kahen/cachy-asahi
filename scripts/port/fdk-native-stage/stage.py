@@ -194,9 +194,9 @@ def execute(args, state=None):
         need(materialized.returncode == 0, 'materialize-failed')
         reviewed = load(source / (PREFIX + 'reviewed-inputs.json'), RECIPE_SHA)
         actual = {p.name: digest(p) for p in (private / 'recipe').iterdir()}
-        need(len(actual) == 23 and actual == reviewed, 'materialized-23-map')
+        need(len(actual) == 25 and actual == reviewed, 'materialized-25-map')
         report['source'] = {'status': 'PASS', 'template_sha256': TEMPLATE_SHA,
-              'reviewed_inputs_sha256': RECIPE_SHA, 'input_count': 23, 'archive_sha256': digest(packet)}
+              'reviewed_inputs_sha256': RECIPE_SHA, 'input_count': 25, 'archive_sha256': digest(packet)}
         save(private / 'source-receipt.json', report['source'])
         config = {'snapshot': str(source), 'private': str(private), 'image': args.image,
                   'endpoint': args.docker_endpoint, 'docker_binary': args.docker_binary,

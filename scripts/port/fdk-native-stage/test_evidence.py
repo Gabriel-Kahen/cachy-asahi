@@ -490,6 +490,24 @@ class PublicStatusTests(unittest.TestCase):
             with self.subTest(cleanup=stage):
                 self.assertEqual(evidence.finalstatus_public(report)['status'], 'FAIL')
 
+    def test_modern_pass_refuses_each_missing_inner_group(self):
+        for action in ('build-1', 'build-2', 'compare'):
+            report = copy.deepcopy(self.report)
+            report['worker_diagnostics'][action]['observation'].pop('inner')
+            with self.subTest(action=action), self.assertRaisesRegex(ValueError, 'worker-public-incomplete'):
+                evidence.finalstatus_public(report)
+
+    def test_historical_failure_retains_valid_legacy_observation(self):
+        report = copy.deepcopy(self.report)
+        report['status'] = 'FAIL'
+        for row in report['worker_diagnostics'].values():
+            row['observation'].pop('inner')
+        result = evidence.finalstatus_public(report)
+        self.assertEqual(result['status'], 'FAIL')
+        self.assertEqual(result['native_build'], 'NOT ACCEPTED')
+        self.assertTrue(all('inner' not in row['observation']
+                            for row in result['worker_diagnostics'].values()))
+
     def test_public_result_never_exports_raw_error_logs_environment_or_extra_fields(self):
         for report in (self.report, {**self.report, 'status': 'failed', 'phase': 'SECRET fixture'}):
             result = evidence.finalstatus_public(report)
@@ -537,6 +555,277 @@ class FileBoundaryTests(unittest.TestCase):
             with self.subTest(name=name), self.assertRaises(ValueError):
                 evidence.safe_relative(name)
         self.assertEqual(evidence.safe_relative('artifacts/packages.lock'), Path('artifacts/packages.lock'))
+
+
+class InnerProjectionTests(unittest.TestCase):
+    """Pure finite-schema/gate controls; no native actors or invocation claims."""
+    @classmethod
+    def setUpClass(cls):
+        sys.path.insert(0, str(HERE))
+        import worker_evidence
+        cls.public = worker_evidence
+        spec = importlib.util.spec_from_file_location('inner_schema_fixture',
+            ROOT / 'packages/libraries/cachy-asahi-fdk-aac/inner_observation.py')
+        cls.helper = importlib.util.module_from_spec(spec); spec.loader.exec_module(cls.helper)
+
+    def private_inner(self, sampled=True):
+        attempt = {'kind':'COMPILE', 'index':0, 'natural':False, 'returncode':None}
+        return {'schema_version':1, 'bindings':{key:'a'*64 for key in self.helper.BINDINGS},
+            'phase':'BUILD', 'first_failure':None, 'cancelled':False, 'write_failed':False,
+            'compiler_attempted':sampled, 'compiler_attempt_count':int(sampled),
+            'compiler_natural_count':int(sampled), 'first_compiler_attempt':attempt if sampled else None,
+            'first_compiler_natural':attempt | {'natural':True,'returncode':0} if sampled else None,
+            'publication':'NOT ACCEPTED'}
+
+    def projected_inner(self, value=None):
+        value = copy.deepcopy(value if value is not None else self.private_inner())
+        value.pop('bindings'); value['binding_sha256'] = 'b'*64
+        return value
+
+    def bound_group(self, value=None):
+        return {'availability':'BOUND','reason':'OBSERVED','raw_sha256':'c'*64,
+                'observation':self.projected_inner(value)}
+
+    def outer(self, action='build-1', inner=True):
+        config = {'source_commit':COMMIT,'stage_lock_sha256':'d'*64,'run_id':'1',
+                  'run_attempt':'2','action':action,'nonce':'e'*32}
+        row = self.public.initial(config, 'f'*64)
+        if not inner: row.pop('inner')
+        row['current_predicate'] = 'COMPLETE'
+        if action != 'compare':
+            row['builder'].update(exit=self.public.exit_record(0),status='STATIC_PASS',
+                provenance={'bytes':1,'sha256':'1'*64},log={'bytes':1,'sha256':'2'*64})
+            row['commands'] = {name:self.public.exit_record(0) for name in ('create','attach','container')}
+            row['cleanup'] = {'status':'PASS','absence':'PASS','reason':'NONE'}
+            if inner: row['inner'] = self.bound_group()
+        return row
+
+    def vector(self, inner=True):
+        return {action:{'availability':'VERIFIED','exit':self.public.exit_record(0),
+            'observation':self.public.project(self.outer(action, inner))} for action in self.public.ACTIONS}
+
+    def test_legacy_shape_is_historical_only_and_new_initial_is_unknown(self):
+        row = self.outer(inner=False)
+        self.assertNotIn('inner', self.public.project(row))
+        self.public.validate_workers(self.vector(False))
+        with self.assertRaisesRegex(ValueError, 'worker-public-incomplete'):
+            self.public.validate_workers(self.vector(False), require_complete=True)
+        row = self.outer(); row['current_predicate'] = 'CONFIG'
+        row['inner'] = self.public.initial_inner()
+        self.assertEqual(self.public.project(row)['inner'],
+            {'availability':'UNKNOWN','reason':'NOT_OBSERVED','raw_sha256':None,'observation':None})
+        self.assertNotIn('compiler', json.dumps(row['inner']))
+
+    def test_public_and_private_schema_concordance_and_nonzero_implication(self):
+        for name in ('PHASES','PREDICATES','REASONS','LIMIT'):
+            self.assertEqual(getattr(self.public, 'INNER_'+name), getattr(self.helper,name))
+        self.assertEqual(self.public.INNER_FIELDS,
+            self.helper.FIELDS - {'bindings'} | {'binding_sha256'})
+        original = self.private_inner()
+        mutations = [
+            lambda value:value.update(schema_version=True),
+            lambda value:value.update(phase='PASS'),
+            lambda value:value.update(compiler_attempt_count=398),
+            lambda value:value.update(compiler_natural_count=2),
+            lambda value:value.update(compiler_attempted=False),
+            lambda value:value.update(first_compiler_attempt=None),
+            lambda value:value.update(first_compiler_natural=None),
+            lambda value:value['first_compiler_attempt'].update(natural=True,returncode=0),
+            lambda value:value['first_compiler_natural'].update(index=1),
+            lambda value:value['first_compiler_natural'].update(returncode=7),
+            lambda value:value['first_compiler_natural'].update(returncode=True),
+            lambda value:value['first_compiler_natural'].update(kind='LINK',index=2),
+            lambda value:value.update(first_failure={'phase':'BUILD','predicate':'UNKNOWN',
+                'reason':'CANCELLED','command':None}),
+            lambda value:value.update(first_failure={'phase':'BUILD','predicate':'UNKNOWN',
+                'reason':'NONZERO','command':None}),
+            lambda value:value.update(first_failure={'phase':'BUILD','predicate':'COMPILER_NONZERO',
+                'reason':'NONZERO','command':value['first_compiler_natural']}),
+        ]
+        self.assertEqual(self.helper.validate(original), original)
+        self.assertEqual(self.public.validate_inner_observation(self.projected_inner(original)), self.projected_inner(original))
+        for index, mutate in enumerate(mutations):
+            value = copy.deepcopy(original); mutate(value)
+            for validator, candidate in ((self.helper.validate,value),
+                    (self.public.validate_inner_observation,self.projected_inner(value))):
+                with self.subTest(index=index,validator=validator), self.assertRaises(ValueError): validator(candidate)
+
+    def test_common_event_count_and_failure_checks_match_helper_source(self):
+        helper_tree = ast.parse(Path(self.helper.__file__).read_bytes())
+        public_tree = ast.parse(Path(self.public.__file__).read_bytes())
+        def function(tree,name):
+            return next(node for node in tree.body if isinstance(node,ast.FunctionDef) and node.name == name)
+        class PublicNames(ast.NodeTransformer):
+            def visit_Name(self,node):
+                names = {'need':'inner_need','event':'inner_event','PHASES':'INNER_PHASES',
+                         'PREDICATES':'INNER_PREDICATES','REASONS':'INNER_REASONS','cmd':'command'}
+                return ast.copy_location(ast.Name(id=names.get(node.id,node.id),ctx=node.ctx),node)
+        # Only the explicit private-bindings/public-digest shapes and byte encoders differ.
+        private = ast.Module(body=function(helper_tree,'validate').body[4:-2],type_ignores=[])
+        public = ast.Module(body=function(public_tree,'validate_inner_observation').body[2:-2],type_ignores=[])
+        self.assertEqual(ast.dump(PublicNames().visit(private),include_attributes=False),
+                         ast.dump(public,include_attributes=False))
+        private_event = ast.Module(body=function(helper_tree,'event').body,type_ignores=[])
+        public_event = ast.Module(body=function(public_tree,'inner_event').body,type_ignores=[])
+        self.assertEqual(ast.dump(PublicNames().visit(private_event),include_attributes=False),
+                         ast.dump(public_event,include_attributes=False))
+
+    def test_first_command_count_and_identity_coherence_is_not_a_plan(self):
+        value = self.private_inner(); value['first_compiler_natural']['returncode'] = 7
+        value['first_failure'] = {'phase':'BUILD','predicate':'COMPILER_NONZERO','reason':'NONZERO',
+            'command':copy.deepcopy(value['first_compiler_natural'])}
+        self.assertEqual(self.helper.validate(value), value)
+        self.public.validate_inner_observation(self.projected_inner(value))
+        for mutate in (lambda value:value['first_failure']['command'].update(index=1),
+                       lambda value:value.update(compiler_attempt_count=0,compiler_attempted=False,first_compiler_attempt=None),
+                       lambda value:value['first_failure']['command'].update(returncode=8)):
+            changed = copy.deepcopy(value); mutate(changed)
+            for validator, candidate in ((self.helper.validate,changed),
+                    (self.public.validate_inner_observation,self.projected_inner(changed))):
+                with self.assertRaises(ValueError): validator(candidate)
+
+    def test_group_exact_fields_status_reasons_hash_and_private_payload_refusal(self):
+        group = self.bound_group()
+        self.assertEqual(self.public.validate_inner_group(group), group)
+        for key in group:
+            changed = copy.deepcopy(group); changed.pop(key)
+            with self.subTest(missing=key), self.assertRaises(ValueError): self.public.validate_inner_group(changed)
+        for changes in ({'availability':'PASS'}, {'availability':True}, {'reason':'UNKNOWN'},
+                        {'raw_sha256':None}, {'raw_sha256':True}, {'raw_sha256':'raw prose'},
+                        {'extra':'private'}):
+            with self.subTest(changes=changes), self.assertRaises(ValueError): self.public.validate_inner_group(group | changes)
+        for key in ('bindings','nonce','raw_error','argv','path'):
+            changed = copy.deepcopy(group); changed['observation'][key] = 'private'
+            with self.subTest(private=key), self.assertRaises(ValueError): self.public.validate_inner_group(changed)
+        for reason in ('NOT_OBSERVED','MISSING','UNAVAILABLE','SOURCE_INVALID','INVALID','UNBOUND'):
+            unknown = self.public.initial_inner() | {'reason':reason}
+            self.assertEqual(self.public.validate_inner_group(unknown), unknown)
+            with self.assertRaises(ValueError): self.public.validate_inner_group(unknown | {'observation':group['observation']})
+
+    def test_duplicate_nonfinite_and_bounds_are_refused_by_source_decoder_and_parser(self):
+        for raw in (b'{"inner":null,"inner":null}',b'{"inner":NaN}',b'{"inner":Infinity}'):
+            with self.assertRaises(ValueError): evidence.decode(raw)
+        for poison in (float('nan'),float('inf'),float('-inf'),1e999):
+            value = self.private_inner(); value['compiler_attempt_count'] = poison
+            with self.assertRaises(ValueError): self.public.validate_inner_observation(self.projected_inner(value))
+        group = self.bound_group(); group['observation']['phase'] = 'x'*4097
+        with self.assertRaises(ValueError): self.public.validate_inner_group(group)
+
+    def test_modern_completion_uses_sample_without_replacing_original_gates(self):
+        vector = self.vector()
+        self.assertEqual(self.public.validate_workers(vector,require_complete=True),vector)
+        for mutate in (lambda row:row.update(inner=self.public.initial_inner()),
+                lambda row:row.update(inner=self.bound_group(self.private_inner(False))),
+                lambda row:row['inner']['observation'].update(write_failed=True),
+                lambda row:row['inner']['observation'].update(cancelled=True),
+                lambda row:row['commands'].update(attach=self.public.exit_record(4)),
+                lambda row:row['cleanup'].update(status='FAIL',absence='UNVERIFIED',reason='IO')):
+            row = self.outer(); mutate(row)
+            with self.assertRaises(ValueError): self.public.project(row)
+        row = self.outer(); inner = row['inner']['observation']
+        inner['first_compiler_natural']['returncode'] = 7
+        inner['first_failure'] = {'phase':'BUILD','predicate':'COMPILER_NONZERO','reason':'NONZERO',
+            'command':copy.deepcopy(inner['first_compiler_natural'])}
+        with self.assertRaises(ValueError): self.public.project(row)
+
+    def test_bound_inner_failure_can_be_public_but_cannot_complete(self):
+        row = self.outer(); row['current_predicate'] = 'FINALIZATION'
+        self.public.failure(row,'COMMAND_NONZERO','CONTAINER_ATTACH')
+        inner = row['inner']['observation']
+        inner['first_compiler_natural']['returncode'] = 7
+        inner['first_failure'] = {'phase':'BUILD','predicate':'COMPILER_NONZERO','reason':'NONZERO',
+            'command':copy.deepcopy(inner['first_compiler_natural'])}
+        inner['cancelled'] = True  # Later cancellation retains the first nonzero fact.
+        public = self.public.project(row)
+        self.assertEqual(public['inner']['observation']['first_failure']['command']['returncode'],7)
+        self.public.validate_public(public,'build-1')
+        row['current_predicate'] = 'COMPLETE'
+        with self.assertRaises(ValueError): self.public.project(row)
+
+    def test_compare_observation_is_explicitly_unknown_and_never_invented_bound(self):
+        row = self.outer('compare')
+        self.assertEqual(self.public.project(row)['inner'], self.public.initial_inner())
+        row['inner'] = self.bound_group()
+        with self.assertRaises(ValueError): self.public.project(row)
+        row['inner'] = self.public.initial_inner() | {'reason':'MISSING'}
+        with self.assertRaises(ValueError): self.public.project(row)
+
+    def receiver_fixture(self, directory):
+        import inner_evidence
+        reviewed = {'PKGBUILD':'1'*64,'inner_observation.py':'2'*64,
+            'fdk-aac-3.0.0-selected-source.tar':'3'*64,'build-layout.json':'4'*64}
+        config = {'source_commit':COMMIT,'stage_lock_sha256':'5'*64,'run_id':'1','run_attempt':'2',
+            'action':'build-1','nonce':'6'*32,'image':IMAGE,'private':str(directory),'snapshot':str(ROOT)}
+        config_sha = '7'*64
+        state = {'container_id':'8'*64,'container_name':NAME,'image':IMAGE,'nonce':config['nonce'],
+            'status':'exited','running':False,'exit_code':4,'inspect_sha256':'9'*64}
+        context = inner_evidence.binding_context(config,config_sha,reviewed,state)
+        row = self.public.initial(config,config_sha)
+        row['current_predicate'] = 'CONTAINER_ATTACH'; self.public.failure(row,'COMMAND_NONZERO')
+        row['current_predicate'] = 'FINALIZATION'
+        row['commands'] = {'create':self.public.exit_record(0),'attach':self.public.exit_record(4),
+                          'container':self.public.exit_record(4)}
+        row['builder'].update(exit=self.public.exit_record(1),status='FAILED',reason='CONTAINER_EXIT',
+            provenance={'sha256':'a'*64,'bytes':1},log={'sha256':'b'*64,'bytes':1})
+        row['cleanup'] = {'status':'PASS','absence':'PASS','reason':'NONE'}
+        row['inner'] = self.bound_group()
+        row['inner']['observation']['binding_sha256'] = evidence.sha(inner_evidence.canonical(context))
+        receipt = {'status':'FAIL','action':'build-1','hardware':'NOT RUN','cancelled':False,
+            'diagnostics':row,'cleanup':{'status':'PASS','absence_verified':True,'cancelled':False},
+            'inner_context':context}
+        provenance = {'clean_environment_id':NAME,'image':IMAGE,'image_id':IMAGE,
+            'entry_script_sha256':evidence.ENTRY_SHA,'recipe_inputs':reviewed}
+        return config,config_sha,reviewed,receipt,provenance
+
+    def receive_fixture(self, directory, config, config_sha, reviewed, receipt, provenance):
+        import inner_evidence
+        path = directory / 'build-1-receipt.json'; path.write_text(json.dumps(receipt)); path.chmod(0o600)
+        result = self.public.worker_row('UNAVAILABLE'); result['exit'] = self.public.exit_record(1)
+        with mock.patch.object(self.public,'load',return_value=reviewed), \
+             mock.patch.object(self.public,'observe_builder',return_value=(provenance,b'private fixture')), \
+             mock.patch.object(inner_evidence,'capture_inner',side_effect=AssertionError('no child recapture')), \
+             mock.patch.object(inner_evidence,'capture_file',side_effect=AssertionError('no child reread')):
+            returned = self.public.receive(config,config_sha,result)
+        return returned,result
+
+    def test_receiver_uses_bound_context_and_original_capture_without_child_reread(self):
+        with tempfile.TemporaryDirectory() as temp:
+            directory = Path(temp)
+            config,checksum,reviewed,receipt,provenance = self.receiver_fixture(directory)
+            returned,result = self.receive_fixture(directory,config,checksum,reviewed,receipt,provenance)
+            self.assertEqual(returned,receipt)
+            self.assertEqual(result['availability'],'VERIFIED')
+            self.assertNotIn('inner_context',json.dumps(result))
+            receipt['diagnostics']['inner'] = self.public.initial_inner() | {'reason':'MISSING'}
+            receipt['inner_context'] = None
+            returned,result = self.receive_fixture(directory,config,checksum,reviewed,receipt,provenance)
+            self.assertEqual(result['observation']['inner']['availability'],'UNKNOWN')
+
+    def test_receiver_refuses_missing_or_source_state_provenance_mismatched_context(self):
+        import inner_evidence
+        with tempfile.TemporaryDirectory() as temp:
+            directory = Path(temp)
+            config,checksum,reviewed,receipt,provenance = self.receiver_fixture(directory)
+            mutations = [
+                lambda value:value.update(inner_context=None),
+                lambda value:value['inner_context']['source_bindings'].update(observer_sha256='0'*64),
+                lambda value:value['inner_context'].update(nonce='0'*32),
+                lambda value:value['inner_context']['worker_binding'].update(source_commit='0'*40),
+                lambda value:value['inner_context'].update(exit_code=5),
+                lambda value:value['inner_context'].update(running=True),
+                lambda value:value['inner_context'].update(extra='private'),
+            ]
+            for index, mutate in enumerate(mutations):
+                changed = copy.deepcopy(receipt); mutate(changed)
+                if changed['inner_context'] is not None:
+                    changed['diagnostics']['inner']['observation']['binding_sha256'] = \
+                        evidence.sha(inner_evidence.canonical(changed['inner_context']))
+                returned,result = self.receive_fixture(directory,config,checksum,reviewed,changed,provenance)
+                with self.subTest(index=index):
+                    self.assertIsNone(returned); self.assertEqual(result['availability'],'UNVERIFIED')
+            returned,result = self.receive_fixture(directory,config,checksum,reviewed,receipt,
+                provenance | {'entry_script_sha256':'0'*64})
+            self.assertIsNone(returned); self.assertEqual(result['availability'],'UNVERIFIED')
 
 
 if __name__ == '__main__':

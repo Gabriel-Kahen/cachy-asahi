@@ -37,6 +37,17 @@ def stage_validator():
                                     for name in ('evidence.py', 'worker_evidence.py')})
 
 
+def sampled_inner():
+    # Explicit synthetic data for the pure public validator; no compiler actor.
+    event = {'kind': 'COMPILE', 'index': 0, 'natural': False, 'returncode': None}
+    return {'availability': 'BOUND', 'reason': 'OBSERVED', 'raw_sha256': 'a' * 64,
+        'observation': {'schema_version': 1, 'binding_sha256': 'b' * 64, 'phase': 'PACKAGE',
+            'first_failure': None, 'cancelled': False, 'write_failed': False,
+            'compiler_attempted': True, 'compiler_attempt_count': 1, 'compiler_natural_count': 1,
+            'first_compiler_attempt': event, 'first_compiler_natural': dict(event, natural=True, returncode=0),
+            'publication': 'NOT ACCEPTED'}}
+
+
 def worker_rows():
     validator = stage_validator(); rows = {}
     for action in validator.ACTIONS:
@@ -44,6 +55,7 @@ def worker_rows():
                   'run_attempt': '2', 'action': action, 'nonce': '3' * 32}
         row = validator.initial(config, 'd' * 64); row['current_predicate'] = 'COMPLETE'
         if action != 'compare':
+            row['inner'] = sampled_inner()
             row['builder'].update(status='STATIC_PASS', exit=validator.exit_record(0),
                 provenance={'sha256': 'e' * 64, 'bytes': 1}, log={'sha256': 'f' * 64, 'bytes': 1})
             row['commands'].update(create=validator.exit_record(0), attach=validator.exit_record(0),
@@ -820,13 +832,13 @@ class JobTests(unittest.TestCase):
             with self.subTest(change=change):
                 self.assertEqual(job.evidence.public_status(report)['status'], 'FAIL')
 
-    def test_current_frozen_source_closure_is_117_plus_only_job_inputs(self):
+    def test_current_frozen_source_closure_is_121_plus_only_job_inputs(self):
         with mock.patch.object(job.packet, 'ADAPTER_SHA', self.real_adapter_pin):
             names, adapter, recipes = job.packet.closure(ROOT)
         base = names - {n for n in names if n.startswith(job.packet.PREFIX)}
-        self.assertEqual(len(adapter['files']), 40)
+        self.assertEqual(len(adapter['files']), 44)
         self.assertEqual(sum(len(rows) for rows in recipes.values()), 71)
-        self.assertEqual(len(base), 117)
+        self.assertEqual(len(base), 121)
         self.assertIn('scripts/setup/setup.py', base)
         self.assertEqual(job.packet.sha(job.packet.read(ROOT / 'scripts/ci/inputs.lock.json')), job.packet.INPUTS_SHA)
         self.assertEqual(job.packet.sha(job.packet.read(ROOT / 'scripts/ci/recipes.lock.json')), job.packet.RECIPES_SHA)
@@ -952,7 +964,7 @@ class WorkflowBootstrapTests(unittest.TestCase):
         self.source.update({adapter + 'stage.lock.json': stage_raw,
             prefix + 'job.py': (ROOT / (prefix + 'job.py')).read_bytes(),
             prefix + 'packet.py': ('ADAPTER_SHA = ' + repr(job.packet.sha(stage_raw)) + '\n').encode()})
-        for number in range(124): self.source['fixture/' + str(number) + '.txt'] = b'data-only fixture\n'
+        for number in range(128): self.source['fixture/' + str(number) + '.txt'] = b'data-only fixture\n'
         self.rows = {n: {'sha256': job.packet.sha(raw), 'bytes': len(raw), 'mode': 0o644} for n, raw in self.source.items()}
         self.source[prefix + 'packet.lock.json'] = (json.dumps({'schema_version': 1, 'files': self.rows}) + '\n').encode()
         self.pin = job.packet.sha(self.source[prefix + 'packet.lock.json'])
@@ -983,7 +995,7 @@ class WorkflowBootstrapTests(unittest.TestCase):
         with mock.patch.object(self.scope['subprocess'], 'run', side_effect=self.git):
             return self.scope['verify_consumers'](self.root, COMMIT, self.pin, {})
 
-    def test_bootstrap_129_and_exact_loader_dependency_pair_accept_source_fixture(self):
+    def test_bootstrap_133_and_exact_loader_dependency_pair_accept_source_fixture(self):
         with mock.patch.object(self.bootstrap['subprocess'], 'run', side_effect=self.git):
             self.bootstrap['source'](self.root, COMMIT, self.pin)
         validator = self.verify(); validator.validate_workers(worker_rows(), require_complete=True)

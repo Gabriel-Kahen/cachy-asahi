@@ -20,6 +20,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 import worker
 import worker_evidence as diagnostic
+import inner_evidence as inner
 from evidence import load, save
 from runtime import Cancelled
 
@@ -30,6 +31,17 @@ def config_fixture(private='/tmp/private-fixture', snapshot=None, action='build-
         'stage_lock_sha256': 'b' * 64, 'run_id': '1', 'run_attempt': '2',
         'docker_binary': '/unused/docker', 'docker_sha256': 'c' * 64, 'endpoint': 'unix:///unused/socket',
         'timeout': 60, 'daemon': {'fixture': True}}
+
+
+def sampled_inner():
+    # Explicit synthetic data for the pure public validator; no compiler actor.
+    event = {'kind': 'COMPILE', 'index': 0, 'natural': False, 'returncode': None}
+    return {'availability': 'BOUND', 'reason': 'OBSERVED', 'raw_sha256': 'a' * 64,
+        'observation': {'schema_version': 1, 'binding_sha256': 'b' * 64, 'phase': 'PACKAGE',
+            'first_failure': None, 'cancelled': False, 'write_failed': False,
+            'compiler_attempted': True, 'compiler_attempt_count': 1, 'compiler_natural_count': 1,
+            'first_compiler_attempt': event, 'first_compiler_natural': dict(event, natural=True, returncode=0),
+            'publication': 'NOT ACCEPTED'}}
 
 
 def passing_workers():
@@ -43,6 +55,7 @@ def passing_workers():
             row['commands'].update(create=diagnostic.exit_record(0), attach=diagnostic.exit_record(0),
                                    container=diagnostic.no_exit('UNOBSERVED'))
             row['cleanup'] = {'status': 'PASS', 'absence': 'PASS', 'reason': 'NONE'}
+            row['inner'] = sampled_inner()
         rows[action] = {'availability': 'VERIFIED', 'exit': diagnostic.exit_record(0),
                         'observation': diagnostic.project(row)}
     return rows
@@ -103,10 +116,20 @@ class WorkerTests(unittest.TestCase):
 class WorkerExecutionTests(unittest.TestCase):
     def fixture(self, fault=None):
         temporary = tempfile.TemporaryDirectory(); self.addCleanup(temporary.cleanup)
-        private = Path(temporary.name); config = config_fixture(private)
+        private = Path(temporary.name)
+        # Finite copied source ledger, not a new live reviewed/native grant.
+        reviewed = load(HERE / 'reviewed-inputs.json')
+        helper = (HERE.parents[2] / 'packages/libraries/cachy-asahi-fdk-aac/inner_observation.py').read_bytes()
+        reviewed['inner_observation.py'] = inner.sha(helper)
+        snapshot = private / 'snapshot'; ledger = snapshot / 'scripts/port/fdk-native-stage/reviewed-inputs.json'
+        ledger.parent.mkdir(parents=True); save(ledger, reviewed)
+        self.enterContext(mock.patch.object(diagnostic, 'RECIPE_SHA', inner.sha(ledger.read_bytes())))
+        config = config_fixture(private, snapshot=snapshot)
         observed = {}; calls = []
         class Broker:
-            def __init__(self, *args, observation, **kwargs): self.observation = observation; observed['row'] = observation
+            def __init__(self, *args, observation, **kwargs):
+                self.observation = observation; observed['row'] = observation; observed['broker'] = self
+                self.inner_state = None
             def initialize(self, **kwargs):
                 if fault == 'initialize': raise OSError('private initialize path')
                 return {}
@@ -119,16 +142,35 @@ class WorkerExecutionTests(unittest.TestCase):
             if fault == 'signal': os.kill(os.getpid(), signal.SIGTERM)
             if fault == 'raise': raise OSError('private build path')
             target = private / 'build-1'; target.mkdir()
-            reviewed = load(HERE / 'reviewed-inputs.json')
-            code = 1 if fault == 'returned' else 0
-            observed['row']['commands'].update(create=diagnostic.exit_record(0), attach=diagnostic.exit_record(code),
-                                               container=diagnostic.no_exit('UNOBSERVED'))
+            code = 1 if fault in ('returned', 'returned-four') else 0
+            attached = 4 if fault == 'returned-four' else code
+            observed['row']['commands'].update(create=diagnostic.exit_record(0), attach=diagnostic.exit_record(attached),
+                                               container=diagnostic.exit_record(attached))
+            name = 'cachy-asahi-fixture01'
+            observed['broker'].inner_state = {'container_id': 'e' * 64, 'container_name': name,
+                'image': config['image'], 'nonce': config['nonce'], 'status': 'exited', 'running': False,
+                'exit_code': attached, 'inspect_sha256': 'f' * 64}
+            inputs = target / 'inputs'; inputs.mkdir(); (inputs / 'inner_observation.py').write_bytes(helper)
+            folder = target / 'artifacts/fdk-inner'; folder.mkdir(parents=True, mode=0o700)
+            record = sampled_inner()['observation']; record.pop('binding_sha256')
+            record['bindings'] = inner.source_bindings(reviewed)
+            if fault == 'returned-four':
+                natural = dict(record['first_compiler_natural'], returncode=7)
+                record['first_compiler_natural'] = natural
+                record['first_failure'] = {'phase': 'BUILD', 'predicate': 'COMPILER_NONZERO', 'reason': 'NONZERO', 'command': natural}
+            if fault == 'no-sample':
+                record.update(compiler_attempted=False, compiler_attempt_count=0, compiler_natural_count=0,
+                              first_compiler_attempt=None, first_compiler_natural=None)
+            if fault not in ('missing-inner', 'artifact-missing-inner'):
+                save(folder / 'observation.json', record)
+            (folder / '.lock').write_bytes(b''); (folder / '.lock').chmod(0o600)
             record = {'schema_version': 1, 'status': 'failed' if code else 'built-package-static-pass',
                 'mode': 'native', 'network': 'none', 'image': config['image'], 'source_date_epoch': diagnostic.EPOCH,
-                'recipe_inputs': reviewed, 'image_id': config['image'], 'exit_code': code,
+                'recipe_inputs': reviewed, 'image_id': config['image'], 'exit_code': attached,
                 'expected_packages_sha256': diagnostic.INVENTORY_SHA, 'builder_host_arch': 'aarch64',
-                'entry_script_sha256': diagnostic.ENTRY_SHA,
-                'error': 'isolated generated metadata differs from reviewed url' if code else 'private unused text'}
+                'entry_script_sha256': diagnostic.ENTRY_SHA, 'clean_environment_id': name,
+                'error': 'container build exited 4; see build.log' if fault == 'returned-four' else
+                         'isolated generated metadata differs from reviewed url' if code else 'private unused text'}
             save(target / 'provenance.json', record); (target / 'build.log').write_bytes(b'private log output')
             return code
         builder = SimpleNamespace(main=build, package=None, recipe=None, bind_artifact=None)
@@ -136,18 +178,52 @@ class WorkerExecutionTests(unittest.TestCase):
             calls.append('verify')
             self.assertEqual(set(kwargs), {'record', 'log_bytes'})
             self.assertEqual(kwargs['log_bytes'], b'private log output')
-            if fault == 'artifact': raise ValueError('private ELF/path failure')
+            if fault in ('artifact', 'artifact-missing-inner'): raise ValueError('private ELF/path failure')
             return {'fixture': True}
         state = {}
         with mock.patch.object(worker, 'ObservedBroker', Broker), mock.patch.object(worker, 'module', return_value=builder), \
              mock.patch.object(worker, 'verify_attempt', side_effect=verify), worker.cancellation_handlers():
-            if fault in ('initialize', 'raise', 'returned', 'artifact', 'signal'):
+            if fault in ('initialize', 'raise', 'returned', 'returned-four', 'artifact', 'artifact-missing-inner', 'missing-inner', 'no-sample', 'signal'):
                 with self.assertRaises(BaseException): worker.execute(config, state, 'd' * 64)
             else:
                 self.assertEqual(worker.execute(config, state, 'd' * 64), int(fault == 'cleanup'))
         receipt = load(private / 'build-1-receipt.json')
         self.assertNotIn('private', json.dumps(diagnostic.project(receipt['diagnostics'])))
         return config, receipt, calls
+
+    def test_failed_builder_captures_inner_once_before_original_code_refusal(self):
+        with mock.patch.object(inner, 'capture_inner', wraps=inner.capture_inner) as capture:
+            _, receipt, calls = self.fixture('returned-four')
+        capture.assert_called_once()
+        self.assertEqual(receipt['diagnostics']['commands']['container'], diagnostic.exit_record(4))
+        self.assertEqual(receipt['diagnostics']['inner']['observation']['first_compiler_natural']['returncode'], 7)
+        self.assertEqual(receipt['diagnostics']['builder']['reason'], 'CONTAINER_EXIT')
+        self.assertEqual(receipt['status'], 'FAIL'); self.assertNotIn('verify', calls)
+        self.assertEqual(receipt['cleanup']['status'], 'PASS')
+
+    def test_missing_inner_and_no_sample_fail_after_original_verification_and_save_receipt(self):
+        for fault in ('missing-inner', 'no-sample'):
+            with self.subTest(fault=fault):
+                _, receipt, calls = self.fixture(fault)
+                self.assertIn('verify', calls); self.assertEqual(receipt['status'], 'FAIL')
+                self.assertEqual(receipt['diagnostics']['first_failed_predicate'], 'FINALIZATION')
+                self.assertEqual(receipt['cleanup']['status'], 'PASS')
+                if fault == 'missing-inner': self.assertEqual(receipt['diagnostics']['inner']['reason'], 'MISSING')
+
+    def test_missing_inner_cannot_replace_earlier_artifact_failure(self):
+        _, receipt, calls = self.fixture('artifact-missing-inner')
+        self.assertIn('verify', calls)
+        self.assertEqual(receipt['diagnostics']['first_failed_predicate'], 'ARTIFACT_VERIFY')
+        self.assertEqual(receipt['diagnostics']['inner']['reason'], 'MISSING')
+        self.assertEqual(receipt['cleanup']['status'], 'PASS')
+
+    def test_optional_capture_io_preserves_original_business_and_cancelled_causes(self):
+        for fault, reason in (('returned', 'COMMAND_NONZERO'), ('signal', 'CANCELLED')):
+            with self.subTest(fault=fault), mock.patch.object(inner, 'capture_inner', side_effect=OSError('private helper IO')):
+                _, receipt, calls = self.fixture(fault)
+                self.assertEqual(receipt['diagnostics']['failure_reason'], reason)
+                self.assertEqual(receipt['diagnostics']['inner']['reason'], 'UNAVAILABLE')
+                self.assertIn('cleanup', calls)
 
     def test_actual_returned_builder_failure_retains_finite_provenance_reason(self):
         _, receipt, calls = self.fixture('returned'); row = receipt['diagnostics']
@@ -243,6 +319,21 @@ class OperationObservationTests(unittest.TestCase):
         row, _ = self.fixture(observed=True, foreign=True)
         self.assertEqual(row['commands']['container'], diagnostic.no_exit('UNOBSERVED'))
         self.assertEqual(row['commands']['attach'], diagnostic.no_exit())
+
+    def test_later_nonterminal_or_invalid_inspection_revokes_inner_state_without_extra_query(self):
+        for invalid in (False, True):
+            with self.subTest(invalid=invalid):
+                _, _ = self.fixture(observed=True, code=1, remove_failure=True)
+                case, value = self.last; registered = value._journal()['containers'][0]
+                self.assertIsNotNone(value.inner_state)
+                state = case.load(); item = state['containers'][registered['name']]
+                if invalid: item['Config']['User'] = '0:0'
+                else: item['State'] = {'Status': 'running', 'Running': True, 'ExitCode': 1}
+                case.save()
+                if invalid:
+                    with self.assertRaises(ValueError): value._inspect(registered['id'], registered, cleanup=True)
+                else: value._inspect(registered['id'], registered, cleanup=True)
+                self.assertIsNone(value.inner_state); self.assertIsNone(value.inner_inspection)
 
     def test_later_owned_state_drift_cannot_overwrite_first_actual_container_exit(self):
         row, _ = self.fixture(observed=True, code=1, remove_failure=True)

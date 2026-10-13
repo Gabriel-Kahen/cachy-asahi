@@ -103,7 +103,7 @@ jobs:
                   committed(root, commit, name, 0o644, data)
               packet = decode(read(root / PACKET, 1024**2))
               need(set(packet) == {'schema_version', 'files'} and type(packet['schema_version']) is int and
-                   packet['schema_version'] == 1 and type(packet['files']) is dict and len(packet['files']) == 129)
+                   packet['schema_version'] == 1 and type(packet['files']) is dict and len(packet['files']) == 133)
               total = 0
               for name, row in packet['files'].items():
                   need(type(name) is str and 0 < len(name) <= 512 and '\\' not in name and
@@ -262,7 +262,7 @@ jobs:
                    git('ls-tree', '--format=%(objectmode)', commit, '--', prefix + 'packet.lock.json') == b'100644\n')
               manifest = decode(manifest_bytes)
               need(set(manifest) == {'schema_version', 'files'} and type(manifest['schema_version']) is int and
-                   manifest['schema_version'] == 1 and type(manifest['files']) is dict and len(manifest['files']) == 129)
+                   manifest['schema_version'] == 1 and type(manifest['files']) is dict and len(manifest['files']) == 133)
               captured = {}
               for name in (prefix + 'job.py', prefix + 'packet.py', adapter + 'stage.lock.json',
                            adapter + 'evidence.py', adapter + 'worker_evidence.py'):
