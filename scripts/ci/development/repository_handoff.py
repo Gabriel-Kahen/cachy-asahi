@@ -1292,7 +1292,38 @@ class Session:
                     if name in exits:
                         site='SERVICE_CANCEL_EXIT' if any(start<=trace.tb_lineno<=end for start,end in exits[name]) else 'SERVICE_CANCEL_ENTER'
                         for start,end,label in exit_calls.get(name,()):
-                            if start<=trace.tb_lineno<=end:site=label
+                            if start<=trace.tb_lineno<=end:
+                                site=label
+                                if label == 'SERVICE_CANCEL_EXIT_SET_HANDLER':
+                                    api=frame.f_globals.get('signal')
+                                    wrapper=api.__dict__.get('signal') if type(api) is types.ModuleType else None
+                                    child=trace.tb_next
+                                    # Saved restoration errors outlive the loop's current original.
+                                    # Read only the direct API frame before its handler assignment.
+                                    template=next(code for code in code_objects(compile(
+                                        'def signal(signalnum, handler):\n    handler = _signal.signal(_enum_to_int(signalnum), _enum_to_int(handler))\n    return _int_to_enum(handler, Handlers)\n',
+                                        '<closed-signal-api-shape>','exec')) if code.co_name == 'signal')
+                                    fields=('co_code','co_names','co_varnames','co_argcount','co_posonlyargcount',
+                                        'co_kwonlyargcount','co_freevars','co_cellvars','co_flags')
+                                    if (type(api) is types.ModuleType and api.__dict__.get('__name__') == 'signal' and
+                                        type(wrapper) is types.FunctionType and wrapper.__globals__ is api.__dict__ and
+                                        wrapper.__defaults__ is None and wrapper.__kwdefaults__ is None and wrapper.__closure__ is None and
+                                        len(wrapper.__code__.co_consts) == 1 and wrapper.__code__.co_consts[0] is None and
+                                        all(type(getattr(wrapper.__code__,key)) is type(getattr(template,key)) and
+                                            (all(type(item) is str for item in getattr(wrapper.__code__,key)) if type(getattr(template,key)) is tuple else True) and
+                                            getattr(wrapper.__code__,key) == getattr(template,key) for key in fields) and
+                                        type(child) is types.TracebackType and child.tb_frame.f_code is wrapper.__code__ and
+                                        child.tb_frame.f_globals is api.__dict__ and
+                                        any(start<=child.tb_lasti<end and line == 2 for start,end,line in template.co_lines())):
+                                        original=child.tb_frame.f_locals['handler']
+                                        handler_kind=('NONE' if original is None else
+                                            'DEFAULT' if original is api.__dict__.get('SIG_DFL') or type(original) is int and original == 0 else
+                                            'IGNORE' if original is api.__dict__.get('SIG_IGN') or type(original) is int and original == 1 else
+                                            'CALLABLE' if callable(original) else 'OTHER')
+                                        args=error.args
+                                        api_code=('BAD_HANDLER_API' if type(args) is tuple and len(args) == 1 and type(args[0]) is str and
+                                            args[0] == 'signal handler must be signal.SIG_IGN, signal.SIG_DFL, or a callable object' else 'OTHER_TYPEERROR')
+                                        site='SERVICE_CANCEL_EXIT_SET_HANDLER_'+handler_kind+'_'+api_code
             trace=trace.tb_next
         return site
 
@@ -1325,7 +1356,17 @@ class Session:
                  'SERVICE_CANCEL_SIGNALS','SERVICE_CANCEL_ENTER','SERVICE_CANCEL_EXIT',
                  'SERVICE_CANCEL_EXIT_BLOCK','SERVICE_CANCEL_EXIT_SET_HANDLER','SERVICE_CANCEL_EXIT_HANDLER_CHECK',
                  'SERVICE_CANCEL_EXIT_PENDING_CHECK','SERVICE_CANCEL_EXIT_PENDING_WAIT',
-                 'SERVICE_CANCEL_EXIT_SET_MASK','SERVICE_CANCEL_EXIT_REPLAY','OTHER')
+                 'SERVICE_CANCEL_EXIT_SET_MASK','SERVICE_CANCEL_EXIT_REPLAY',
+                 'SERVICE_CANCEL_EXIT_SET_HANDLER_NONE_BAD_HANDLER_API',
+                 'SERVICE_CANCEL_EXIT_SET_HANDLER_NONE_OTHER_TYPEERROR',
+                 'SERVICE_CANCEL_EXIT_SET_HANDLER_DEFAULT_BAD_HANDLER_API',
+                 'SERVICE_CANCEL_EXIT_SET_HANDLER_DEFAULT_OTHER_TYPEERROR',
+                 'SERVICE_CANCEL_EXIT_SET_HANDLER_IGNORE_BAD_HANDLER_API',
+                 'SERVICE_CANCEL_EXIT_SET_HANDLER_IGNORE_OTHER_TYPEERROR',
+                 'SERVICE_CANCEL_EXIT_SET_HANDLER_CALLABLE_BAD_HANDLER_API',
+                 'SERVICE_CANCEL_EXIT_SET_HANDLER_CALLABLE_OTHER_TYPEERROR',
+                 'SERVICE_CANCEL_EXIT_SET_HANDLER_OTHER_BAD_HANDLER_API',
+                 'SERVICE_CANCEL_EXIT_SET_HANDLER_OTHER_OTHER_TYPEERROR','OTHER')
         failure = self.startup_failure
         need(type(self.startup_phase) is str and self.startup_phase in phases and
              type(self.native_hook_entered) is bool and type(failure) is dict and

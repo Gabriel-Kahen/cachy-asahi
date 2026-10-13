@@ -1657,4 +1657,87 @@ class CancellationExitAttributionModels(unittest.TestCase):
         observed=self.error(lambda:context.__exit__(None,None,None))
         self.assertEqual(session.service_failure_site(observed),'OTHER')
 
+class HandlerArgumentAttributionModels(unittest.TestCase):
+    """Exact Source setter frame plus closed API body; no kernel operations."""
+    model = ServiceAttributionModels.model
+    error = ServiceAttributionModels.error
+    MESSAGE = 'signal handler must be signal.SIG_IGN, signal.SIG_DFL, or a callable object'
+
+    def failure(self, original, text=None, later=0):
+        session, modules = self.model(); common = modules['common']
+        api = types.ModuleType('signal'); handlers = {2:original, 15:later}
+        first = TypeError(self.MESSAGE if text is None else text)
+        calls = []
+        def setter(number, value):
+            calls.append((number, value))
+            if number == 2 and value is original: raise first
+            previous = handlers[number]; handlers[number] = value; return previous
+        api.__dict__.update(_signal=types.SimpleNamespace(signal=setter), _enum_to_int=lambda v:v,
+            _int_to_enum=lambda v,k:v, Handlers=object(), SIG_DFL=0, SIG_IGN=1,
+            SIG_BLOCK=0, SIG_SETMASK=1, pthread_sigmask=lambda *a:set(),
+            getsignal=lambda number:handlers[number], sigpending=lambda:set())
+        exec('def signal(signalnum, handler):\n    handler = _signal.signal(_enum_to_int(signalnum), _enum_to_int(handler))\n    return _int_to_enum(handler, Handlers)\n', api.__dict__)
+        common.signal = api
+        context = common.defer_cancellation(); context.__enter__()
+        error = self.error(lambda:context.__exit__(None,None,None))
+        self.assertIs(error, first); self.assertEqual(common.PENDING, [])
+        return session, common, error, calls
+
+    def test_five_closed_handler_kinds_and_two_api_codes(self):
+        values = [('NONE',None),('DEFAULT',0),('IGNORE',1),('CALLABLE',lambda *a:None),('OTHER',object())]
+        for kind, original in values:
+            for message, code in ((None,'BAD_HANDLER_API'),('PRIVATE /do/not/export','OTHER_TYPEERROR')):
+                with self.subTest(kind=kind,code=code):
+                    session, common, error, calls = self.failure(original,message)
+                    before = (error.args,error.__traceback__)
+                    self.assertEqual(session.service_failure_site(error),'SERVICE_CANCEL_EXIT_SET_HANDLER_'+kind+'_'+code)
+                    self.assertEqual((error.args,error.__traceback__),before)
+                    self.assertEqual(sum(number == 2 and value is original for number,value in calls),2)
+                    self.assertEqual(common.signal.getsignal(15),0)
+
+    def test_saved_error_uses_api_argument_not_later_loop_original(self):
+        session, common, error, _ = self.failure(None,later=0)
+        trace = error.__traceback__
+        while trace and not (trace.tb_frame.f_code.co_name == '_signal_handlers' and trace.tb_next is not None and trace.tb_next.tb_frame.f_code.co_name == 'signal'): trace=trace.tb_next
+        self.assertIsNotNone(trace); self.assertEqual(trace.tb_frame.f_locals['original'],0)
+        self.assertIsNone(trace.tb_next.tb_frame.f_locals['handler'])
+        self.assertEqual(session.service_failure_site(error),'SERVICE_CANCEL_EXIT_SET_HANDLER_NONE_BAD_HANDLER_API')
+
+    def test_exact_source_and_api_shape_refuse_foreign_observations(self):
+        session, common, error, _ = self.failure(None)
+        path=adapter.PREFIXES['collector']+'/common.py'; pin=session.sources.grant['source_files'][path]['sha256']
+        session.sources.grant['source_files'][path]['sha256']='0'*64
+        self.assertEqual(session.service_failure_site(error),'OTHER')
+        session.sources.grant['source_files'][path]['sha256']=pin
+        original=common.signal.signal
+        common.signal.signal=lambda *a:None
+        self.assertEqual(session.service_failure_site(error),'SERVICE_CANCEL_EXIT_SET_HANDLER')
+        common.signal.signal=original
+        class Poison:
+            def __eq__(self, other): raise AssertionError('opaque equality must never run')
+        common.signal.signal=types.FunctionType(original.__code__.replace(co_consts=(Poison(),)),original.__globals__)
+        self.assertEqual(session.service_failure_site(error),'SERVICE_CANCEL_EXIT_SET_HANDLER')
+        common.signal.signal=original
+        name=common.__file__; common.__file__='/foreign'
+        self.assertEqual(session.service_failure_site(error),'OTHER'); common.__file__=name
+
+    def test_first_cause_closed_projection_and_optional_failure_preserved(self):
+        import ast,copy
+        session, common, error, _ = self.failure(None,'PRIVATE /never/export')
+        owner=next(n for n in ast.parse((ROOT/'scripts/ci/development/repository_handoff.py').read_bytes()).body if isinstance(n,ast.ClassDef) and n.name=='Session')
+        init=next(n for n in owner.body if isinstance(n,ast.FunctionDef) and n.name=='__init__')
+        state=next(n.value for n in init.body if isinstance(n,ast.Assign) and any(isinstance(t,ast.Attribute) and t.attr=='result' for t in n.targets))
+        session.result=eval(compile(ast.Expression(state),'model-state','eval'),{'self':session,'sources':session.sources})
+        session.result.update(status='FAIL',error_code='source-refused',cleanup='PASS');session.native_hook_entered=False
+        before=copy.deepcopy(session.result);exception_before=(error.args,error.__traceback__)
+        session.startup_failed(error);observed=dict(session.startup_failure);projection=session.startup_projection()
+        self.assertEqual(set(projection),{'schema_version','purpose','status','phase','kind','site','native_hook_entered','error_code','cleanup'})
+        self.assertEqual(projection['site'],'SERVICE_CANCEL_EXIT_SET_HANDLER_NONE_OTHER_TYPEERROR')
+        self.assertLessEqual(len(adapter.encoded(projection)),1024)
+        self.assertNotIn('PRIVATE',adapter.encoded(projection).decode());self.assertNotIn('/never/',adapter.encoded(projection).decode())
+        session.startup_failed(TypeError('later'));self.assertEqual(session.startup_failure,observed)
+        session.startup_failure=None;session.service_failure_site=lambda error:(_ for _ in ()).throw(KeyboardInterrupt())
+        session.startup_failed(error);self.assertEqual(session.startup_failure,{'phase':'construct-services','kind':'TYPE_ERROR','site':'OTHER'})
+        self.assertEqual(session.result,before);self.assertEqual((error.args,error.__traceback__),exception_before)
+
 if __name__ == '__main__':unittest.main()
