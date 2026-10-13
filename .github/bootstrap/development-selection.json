@@ -65,10 +65,10 @@
     "scripts/virtual/tooling-audit.json": "d3289a52f3269ba44f1437b69a112dcbd2086ee16ebe8d44658e65e7fb8e2095",
     "scripts/virtual/tooling.lock.json": "c18afc5bde9868594d41bd576a956960a7b01b190d148ba03ca4c41d4394e1b0"
   },
-  "peer_receipt_sha256": "34b6126ac6507a9d7e8123d4ce66caec9221787e12a5c92415658c3e540d28fe",
+  "peer_receipt_sha256": "e2b5379fdb0127f33bab1f510a18cb025af806df567c491cb0f7b7823d8be5dd",
   "purpose": "root-selected-maintained-v1-development-source",
   "schema_version": 3,
-  "source_commit": "5a41a3da7ed9aab99035794b4de3def005396b82",
+  "source_commit": "35ff48c63ca9de2f72a1bc4b2f25afa30ab9502d",
   "source_files": {
     ".github/workflows/native-arm-build.yml": {
       "mode": 420,
@@ -688,7 +688,7 @@
     },
     "scripts/ci/development/repository_handoff.py": {
       "mode": 420,
-      "sha256": "882a38b54fbc4a3a7001a48e2ec0aa33a5fd4fd7ac70d7276c6086b5405874a2"
+      "sha256": "066c14d0b46ef7b7989ff85b7d5d05fec8edc510b2b0fee0f0746c9ea8818249"
     },
     "scripts/ci/development/test_base_stages.py": {
       "mode": 420,
@@ -716,7 +716,7 @@
     },
     "scripts/ci/development/test_repository_handoff.py": {
       "mode": 420,
-      "sha256": "623b42d7f314b9a1649715c4b83bdd11b6527452718471033a10ac83edf2826d"
+      "sha256": "93cd21f54a59e99c212da855f94bd4151b18e816379137726c9d8c8bdcc5206e"
     },
     "scripts/ci/development/test_virtual_stage.py": {
       "mode": 420,
@@ -892,7 +892,7 @@
     },
     "scripts/install/native_preflight.py": {
       "mode": 420,
-      "sha256": "df3061dffe10a8b801801f9035ffa63d8ec5d463ffa119113f6ead1ec3bb5f27"
+      "sha256": "6a9a7efbcd464b098019812c918867f5e71b9d28597376136dca98b04efedf3a"
     },
     "scripts/install/test_local_transaction.py": {
       "mode": 420,
@@ -1135,5 +1135,5 @@
       "sha256": "1023f493a5ff1991b382ed42b9960c6e0e98774c75e1a2aa90deff15dad7add1"
     }
   },
-  "source_packet_sha256": "68d2fccba47a35798a442c4e0f134951c34618899d25f62d22c47a243cdddbd3"
+  "source_packet_sha256": "216a4dccda4524909df756cc47bbaad91bcc904b2ebfd131b9fe4a90c161c688"
 }
