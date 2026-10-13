@@ -195,3 +195,18 @@ native_build = "NOT RUN"
 installation = "NOT RUN"
 hardware_validation = "NOT RUN"
 next_step = "Reviewed source and isolated x86 ZLE controls pass; two native ARM build attempts and package lifecycle remain required. Register a bounded addon consumer in the existing development job."
+
+[[packages]]
+name = "cachy-asahi-topmem"
+phase = "complete-port-tools"
+status = "candidate"
+source = "local-original"
+recipe = "packages/tools/cachy-asahi-topmem/PKGBUILD"
+license = "MIT"
+audit = "docs/reviews/topmem-source-registration-root-review.md"
+selected_for_development = true
+selected_for_release = false
+native_build = "NOT RUN"
+installation = "NOT RUN"
+hardware_validation = "NOT RUN"
+next_step = "Two clean native ARM package builds, signed ownership/install/remove checks and independent terminal use on both Air sizes. Current-user RSS inspection has no tuning or performance claim."

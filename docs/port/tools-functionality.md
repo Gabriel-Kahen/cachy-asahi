@@ -178,7 +178,7 @@ effects, D for session effects and R for retention/update behavior.
 | `/usr/bin/paste-cachyos` | REPLACE with local export and separately requested support upload to the project's selected endpoint; preserve user review/privacy. |
 | `/usr/bin/pci-latency` | EXCLUDE broad PCI latency writes; retain Asahi/per-device baseline. |
 | `/usr/bin/sbctl-batch-sign` | EXCLUDE automatic PC EFI signing; supported Apple boot/signing/recovery path is the alternative. |
-| `/usr/bin/topmem` | ADAPT optional process-memory diagnostic after GPL/Lua-luv ABI, permission/race/error review; standard process tools otherwise. |
+| `/usr/bin/topmem` | REPLACE with original MIT `cachy-asahi-topmem` development candidate: current-UID RSS inspection, safe output and visible race/error/truncation counts. Source13 controls and independent checks pass; native builds/install/lifecycle/both-model runtime remain open. [Registration](../reviews/topmem-source-registration-root-review.md). |
 | `/usr/bin/zink-run` | ADAPT opt-in application experiment only with validated Mesa/Vulkan/GLVND; retain Asahi renderer defaults. |
 | `/usr/lib/NetworkManager/conf.d/dns.conf` | ADAPT per-connection DNS migration/undo; keep existing resolver/service integration initially. |
 | `/usr/lib/iw-set-regdomain` | ADAPT ISC component for explicit physical country when the supported driver requires it; EXCLUDE timezone inference. |

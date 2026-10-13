@@ -4,7 +4,35 @@ October 12, 2026. This record tracks the complete `outline.md` scope; an impleme
 
 The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with owned tasks and corrective next actions in `docs/backlog.md`. The destination now explicitly requires the maintained ARM package repository, native performance engineering, integrated Apple stack, broader Cachy system experience, and complete installation/release lifecycle. Both Air sizes, published final measurements, independent onboarding/contribution, subsequent full-port maintenance release, other-ARM reuse and actual upstream submissions remain required; an early overlay release or feasibility decision would not complete the goal. This scope update does not change any recorded execution result.
 
-Latest coordinator update, October 13, 03:45 UTC. The updated roadmap and
+Latest coordinator update, October 13, 04:06 UTC. Root registers the original
+MIT cachy-asahi-topmem development package, an explicit current-user process
+memory replacement. Independent cold13 tests and four additional checks pass;
+a local x86 CLI smoke exits0 in its visible process namespace. All five recipe
+checksums and SRCINFO rows match, static recipe inspection has zero errors and
+bash syntax passes. Native package pairs, installation/lifecycle,16K/both-Air
+runtime and release selection remain open. The static workflow now runs its
+functional suite and checks recipe syntax across all package categories.
+See [the source registration](reviews/topmem-source-registration-root-review.md).
+
+Root also registers the exact reviewed bootstrap/clock issuer and fresh-sibling
+launcher source. Independent24 controls pass, including the old directory-offset
+regression, cancellation/retirement and modeled full handoff; historical counts
+are not added. Only the launcher's stale module docstring changes, with all other
+AST nodes exact. Application258/265 packets remain unchanged. Final inline
+workflow/data selection, observed runner pins and actual clock/grant/runtime
+handoff remain pending. [Registration](reviews/broader-bootstrap-primary-registration-root-review.md)
+records the trusted-source boundary.
+
+The actual successor offline crypto audit now has sealed independent PASS for
+501 pinned inputs,249 signature records and248 package metadata checks. The
+[public summary](validation/maintained-builder-baseline.md) retains exact evidence
+hashes and explicit x86/private-keyring/cleanup limits. The wrapper publication
+finding is independently closed at source level. Guarded native build pairs and
+the trusted hosted-runner observation are in final proposal review. All48 payload
+observation is prepared with a fresh unapproved grant while independent review
+completes; no image actor has run for that mode. R1–R5/M5–M9 remains required.
+
+Prior coordinator update, October 13, 03:45 UTC. The updated roadmap and
 package inventory were re-read; full R1–R5/M5–M9 remains mandatory. Workers
 continue guarded native builds, the complete installer handoff, whole-subset
 payload observation and a concrete next functional increment in parallel.
@@ -24,7 +52,7 @@ CLI0:501 pinned transport objects,249 successful GPG signature verifications and
 were used with the versioned successor lock; this x86 crypto/data result is not
 a native ARM build, original-baseline acceptance or public distribution approval.
 Root retained97 execution artifacts and a separate private-GPG disposal receipt;
-independent retained-evidence review is completing. Guarded native build-pair
+independent retained-evidence review now passes (recorded in the later update). Guarded native build-pair
 execution is the next baseline task. Historical frozen-input failures remain FAIL.
 
 The strict all48 regular-payload comparison remains FAIL. A fresh diagnostic
