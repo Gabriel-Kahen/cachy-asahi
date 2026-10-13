@@ -46,6 +46,14 @@ native execution are next. B18's minimal selected-body intake correction passes 
 review; prepare the bounded 19-body actual worker before reviewing account/hook
 semantics. These software tasks remain runnable without either M2 Air.
 
+October 13, 20:42 UTC coverage/correspondence follow-up: reviewed COV1/COV4
+scope reuses the existing 45 roots and ten project candidates. The maintained input
+successor and finite source/evidence index are pending independent reconciliation;
+no provider/platform selection or resolution PASS is inferred. Exact two selected
+PKGBUILD custody requests remain open after the bounded official-source search.
+The current signer errno13 correction and hosted signal attribution remain runnable
+software work; physical target absence does not block their preparation.
+
 | Task | Owner | Depends on | Expected result | Current status / next concrete action |
 | --- | --- | --- | --- | --- |
 | B00 Base/resource closure | Coordinator | None | Native builder, both exact Air connections, retained signed base inventory and actual protected package names | Native hosted builder, signed generic inputs and a retained 261-package Asahi image inventory established; exact 13-inch/15-inch Mac access and machine baselines remain unavailable. Protected target transaction and installed platform acceptance remain open |

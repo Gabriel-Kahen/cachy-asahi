@@ -4,7 +4,25 @@ October 12, 2026. This record tracks the complete `outline.md` scope; an impleme
 
 The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with owned tasks and corrective next actions in `docs/backlog.md`. The destination now explicitly requires the maintained ARM package repository, native performance engineering, integrated Apple stack, broader Cachy system experience, and complete installation/release lifecycle. Both Air sizes, published final measurements, independent onboarding/contribution, subsequent full-port maintenance release, other-ARM reuse and actual upstream submissions remain required; an early overlay release or feasibility decision would not complete the goal. This scope update does not change any recorded execution result.
 
-Latest coordinator update, October 13, 20:39 UTC. Topmem ARM trial
+Latest coordinator update, October 13, 20:42 UTC. The previous batch changed
+source and yielded an actual errno13 signer observation, so software progress
+continues. Static CI `38464516815` passes at checkpoint `d351474`.
+
+Independent coverage review authenticates the existing 45-root/ten-candidate
+crosswalk and keeps maintained341, platform261, generic574 and unadopted624
+inputs distinct. A maintained-builder metadata successor and source/evidence table
+are now under independent review. [Coverage review](reviews/full-port-release-coverage-root-review.md).
+
+Independent recipe-correspondence review authenticates the finite official-source
+search: 32 retained GET records, 733,770 bytes, 11 systemd and five pacman candidate
+recipes, zero matches to the selected BUILDINFO hashes. Exact selected recipe or
+authoritative builder custody remains required; a separately source-built candidate
+would have a distinct identity and could not certify the historical tuple.
+[Correspondence review](reviews/platform-sysusers-exact-recipe-correspondence-root-review.md).
+The signer ownership fix, signal attribution, updater inputs and retained Topmem03
+review continue in parallel. Full R1–R5/M5–M9 and all target gates remain open.
+
+Prior coordinator update, October 13, 20:39 UTC. Topmem ARM trial
 `38463181445` passes the fresh baseline 8/4/249, then fails with the closed
 Source observation `io-failed / start / PROC_EXE_READLINK / errno 13`.
 The failure identifies denied process-executable link access; its underlying
