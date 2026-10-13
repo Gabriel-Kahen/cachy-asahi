@@ -21,7 +21,7 @@ jobs:
       REVIEWED_SOURCE_COMMIT: ${{ inputs.source_commit }}
       READY_SHA256: 6dc5515b411bcaa9cff7caa844fcc623a7a0dba39cb0c28e1c6859db457438e2
       # Reviewed storage/recovery checkpoint; coordinator Git/controller proof is separate.
-      STAGE_SHA256: 34891e149ee290fc897c773a202e7efd83d8231260df749ec439d2cc4b7a69f6
+      STAGE_SHA256: de7f19f58c2773896879a1997a7ea707619d47644ce0f3b4f0a7b11ce3feb3a5
       SOURCE_SHA256: 4d3e3fd9848aaed94154f786b04a5ae07c7816dcef82857b671b51555895eacb
     steps:
       - name: Start the shared deadline before checkout
@@ -335,7 +335,7 @@ jobs:
               def terminal(name, recovery=False):
                   files = checked(output / name, {'terminal.json'}); need(set(files) == {'terminal.json','export-manifest.json'})
                   value = decoded_json(files['terminal.json']); need(stage.public_summary(value) == value)
-                  diagnostic_fields = {'failed_phase','runtime_reason','runtime_returncode','tick_operation','tick_reason'}
+                  diagnostic_fields = {'failed_phase','runtime_reason','runtime_returncode','tick_operation','tick_reason','directory_leaf'}
                   need(stage.diagnostic_projection(value) == {key: value[key] for key in diagnostic_fields if key in value})
                   need(type(value.get('schema_version')) is int and value['schema_version'] == 1 and value.get('phase') == 'finalized' and value.get('status') in {'PASS','FAIL','CANCELLED'})
                   need(value.get('source_commit') == os.environ['REVIEWED_SOURCE_COMMIT'] == os.environ['GITHUB_SHA'] and value.get('controller_sha256') == os.environ['UPDATER_CONTROLLER_SHA256'] and value.get('ready_sha256') == os.environ['READY_SHA256'])

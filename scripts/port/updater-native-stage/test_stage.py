@@ -32,6 +32,55 @@ H = 'a' * 64
 POISON = b'password=DO_NOT_EXPORT_RAW_SOURCE_CACHE_OR_ENV'
 
 
+def directory_leaf_fixture(root, check='PATH_IDENTITY', scope='ROOT', component='INODE'):
+    """Exercise the source predicate using finite stat races; retain no private values."""
+    root = Path(root)
+    target = root if scope == 'ROOT' else root / 'leaf-child'
+    if target != root: target.mkdir(mode=0o700, exist_ok=True)
+    real_stat, real_fstat, real_open, real_close = os.stat, os.fstat, os.open, os.close
+    inode = real_stat(target).st_ino; seen_stat = seen_fd = 0; acquired = []; closed = []
+    def changed(info, component):
+        values = {name: getattr(info, name) for name in dir(info) if name.startswith('st_')}
+        field = {'DEVICE': 'st_dev', 'INODE': 'st_ino', 'OWNER': 'st_uid', 'MODE': 'st_mode', 'TYPE': 'st_mode'}[component]
+        if component == 'MODE': values[field] = stat.S_IFMT(info.st_mode) | 0o500
+        elif component == 'TYPE': values[field] = stat.S_IFREG | stat.S_IMODE(info.st_mode)
+        else: values[field] += 1
+        return types.SimpleNamespace(**values)
+    def observe_stat(path, *args, **kwargs):
+        nonlocal seen_stat
+        info = real_stat(path, *args, **kwargs)
+        if not isinstance(path, int) and Path(os.fsdecode(path)).name == target.name:
+            seen_stat += 1
+            if seen_stat == 2:
+                if check in ('ROOT_PATH_MISSING', 'LINKED_CHILD_PATH_MISSING'):
+                    raise FileNotFoundError(errno.ENOENT, 'finite missing fixture')
+                if check in ('PATH_IDENTITY', 'PATH_NOT_DIRECTORY'):
+                    return changed(info, component)
+        return info
+    def observe_fd(fd):
+        nonlocal seen_fd
+        info = real_fstat(fd)
+        if info.st_ino == inode:
+            seen_fd += 1
+            if check == 'OPEN_FD_IDENTITY' and seen_fd == (2 if scope == 'ROOT' else 1):
+                return changed(info, component)
+        return info
+    def opened(path, flags, *args, **kwargs):
+        if check == 'CHILD_OPEN_REAPPEARED' and not isinstance(path, int) and Path(os.fsdecode(path)).name == target.name:
+            raise FileNotFoundError(errno.ENOENT, 'finite open fixture')
+        fd = real_open(path, flags, *args, **kwargs); acquired.append(fd); return fd
+    def close(fd): closed.append(fd); return real_close(fd)
+    error = None
+    with mock.patch.object(stage.os, 'stat', side_effect=observe_stat), \
+            mock.patch.object(stage.os, 'fstat', side_effect=observe_fd), \
+            mock.patch.object(stage.os, 'open', side_effect=opened), \
+            mock.patch.object(stage.os, 'close', side_effect=close):
+        try: stage.disk_check(root)
+        except ValueError as refused: error = refused
+    if error is None: raise AssertionError('original private directory predicate did not refuse')
+    return error, acquired, closed
+
+
 class StageTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(prefix='updater-stage-fixture-', dir='/tmp')
@@ -365,6 +414,119 @@ class StageTests(unittest.TestCase):
                 self.assertNotIn(POISON.decode(), json.dumps(stage.public_summary(target)))
         observed = {}; self.assertEqual(stage.tick_observation('private-scan', lambda: 7, observed), 7)
         self.assertEqual(observed, {})
+
+
+    def leaf_error(self):
+        private = self.base / 'leaf-private'; private.mkdir(mode=0o700, exist_ok=True)
+        return directory_leaf_fixture(private)[0]
+
+    def leaf_tick(self, error=None):
+        error = self.leaf_error() if error is None else error; failed = {}
+        def action(): raise error
+        with self.assertRaises(type(error)) as caught:
+            stage.tick_observation('private-scan', action, failed)
+        self.assertIs(caught.exception, error)
+        return failed
+
+    def test_directory_leaf_source_issued_tick_projection_is_finite_and_sticky(self):
+        failed = self.leaf_tick(); saved = dict(failed)
+        self.assertIn('_directory_leaf_issued', failed)
+        def later(): raise ValueError('private-hardlink')
+        with self.assertRaises(ValueError): stage.tick_observation('private-scan', later, failed)
+        self.assertEqual(failed, saved)
+        item = self.process_receipt('FAIL'); item['reason_code'] = 'tick-failed'
+        target = {'status': 'FAIL'}; stage.failure_diagnostics(target, 'freeze', item, self.runtime, failed)
+        expected = {'availability': 'OBSERVED', 'check': 'PATH_IDENTITY', 'scope': 'ROOT', 'component': 'INODE'}
+        self.assertEqual(target['directory_leaf'], expected)
+        public = stage.public_summary(dict(target, path=POISON.decode(), inode=123, uid=123, raw_log=POISON.decode()))
+        self.assertEqual(public['directory_leaf'], expected)
+        self.assertLessEqual(len(json.dumps(expected, separators=(',', ':')).encode()), 256)
+        self.assertNotIn(POISON.decode(), json.dumps(public)); self.assertNotIn('_directory_leaf_issued', public)
+        stage.failure_diagnostics(target, 'public-guard', self.process_receipt('CANCELLED'), self.runtime)
+        self.assertEqual(stage.public_summary(target), public)
+
+    def test_directory_leaf_legacy_caller_and_exception_subclass_are_unknown(self):
+        class PrivateError(ValueError):
+            @property
+            def _directory_leaf_issued(self): raise AssertionError('property must not execute')
+        errors = [ValueError('private-directory-identity'), PrivateError('private-directory-identity')]
+        for error in errors:
+            if type(error) is ValueError:
+                error._directory_leaf_issued = {'availability': 'OBSERVED', 'check': 'PATH_IDENTITY', 'scope': 'ROOT', 'component': 'INODE'}
+            self.assertIsNone(stage._directory_leaf_issued(error))
+        item = self.process_receipt('FAIL'); item['reason_code'] = 'tick-failed'
+        for tick in ({'operation': 'private-scan', 'reason': 'private-directory-identity'},
+                     {'operation': 'private-scan', 'reason': 'private-directory-identity',
+                      'directory_leaf': {'availability': 'OBSERVED', 'check': 'PATH_IDENTITY', 'scope': 'ROOT', 'component': 'INODE'}},
+                     {'operation': 'private-scan', 'reason': 'private-directory-identity',
+                      '_directory_leaf_issued': (object(), 'PATH_IDENTITY', 'ROOT', 'INODE')}):
+            target = {}; stage.failure_diagnostics(target, 'freeze', item, self.runtime, tick)
+            self.assertEqual(target['directory_leaf'], stage.directory_leaf_unknown())
+        legacy = {'failed_phase': 'freeze', 'runtime_reason': 'tick-failed', 'runtime_returncode': -15,
+                  'tick_operation': 'private-scan', 'tick_reason': 'private-directory-identity'}
+        self.assertEqual(stage.diagnostic_projection(legacy), legacy)
+
+    def test_directory_leaf_reader_and_storage_faults_preserve_original_error(self):
+        for fault in (OSError('finite reader'), KeyboardInterrupt(), SystemExit(1)):
+            error = self.leaf_error(); failed = {}
+            def action(): raise error
+            with mock.patch.object(stage, '_directory_leaf_issued', side_effect=fault), self.assertRaises(ValueError) as caught:
+                stage.tick_observation('private-scan', action, failed)
+            self.assertIs(caught.exception, error)
+            self.assertEqual(failed.get('reason'), 'private-directory-identity')
+        class Broken(dict):
+            def update(self, *args, **kwargs): raise OSError('finite storage fault')
+            def __setitem__(self, *args): raise KeyboardInterrupt()
+        error = self.leaf_error()
+        def action(): raise error
+        with self.assertRaises(ValueError) as caught: stage.tick_observation('private-scan', action, Broken())
+        self.assertIs(caught.exception, error)
+
+    def test_directory_leaf_projection_rejects_partial_wrong_extra_and_hostile_groups(self):
+        group = {'availability': 'OBSERVED', 'check': 'PATH_IDENTITY', 'scope': 'ROOT', 'component': 'INODE'}
+        base = {'failed_phase': 'freeze', 'runtime_reason': 'tick-failed', 'runtime_returncode': -15,
+                'tick_operation': 'private-scan', 'tick_reason': 'private-directory-identity', 'directory_leaf': group}
+        invalid = [{k: v for k, v in group.items() if k != missing} for missing in group]
+        invalid += [dict(group, raw_path=POISON.decode()), dict(group, component=POISON.decode()),
+                    dict(group, availability='NOT_OBSERVED'), dict(group, check='ROOT_PATH_MISSING', component='INODE'),
+                    dict(group, check='OPEN_FD_IDENTITY', component='OWNER'), dict(group, scope='SECRET'),
+                    dict(group, component=True), dict(group, check='x' * 300)]
+        class Hostile(dict):
+            def __iter__(self): raise AssertionError('subclass access forbidden')
+        invalid += [Hostile(group), None, []]
+        for row in invalid:
+            with self.subTest(row_type=type(row).__name__), self.assertRaises((ValueError, TypeError)):
+                stage.directory_leaf_projection(row)
+            with self.assertRaises((ValueError, TypeError)): stage.diagnostic_projection(dict(base, directory_leaf=row))
+        for changes in ({'tick_reason': 'private-hardlink'}, {'tick_operation': 'socket-identity', 'tick_reason': 'daemon-socket-changed'},
+                        {'runtime_reason': 'process-failed'}, {'tick_operation': None}):
+            with self.assertRaises(ValueError): stage.diagnostic_projection(dict(base, **changes))
+        with self.assertRaises(ValueError): stage.diagnostic_projection({'directory_leaf': group})
+
+    def test_directory_leaf_diagnostics_never_grant_pass_or_bypass_cancellation_cleanup(self):
+        tick = self.leaf_tick(); item = self.process_receipt('PASS'); target = {'status': 'FAIL'}
+        stage.failure_diagnostics(target, 'native-pair', item, self.runtime, tick)
+        self.assertEqual(target, {'status': 'FAIL'})
+        error = self.leaf_error(); actual = self.fake_run
+        def refused(argv, stdout, stderr, deadline, env, cwd, **kwargs):
+            if stdout.stem != 'native-daemon': return actual(argv, stdout, stderr, deadline, env, cwd, **kwargs)
+            with mock.patch.object(stage, 'disk_check', side_effect=error):
+                try: kwargs['on_tick']()
+                except ValueError:
+                    item = self.process_receipt('FAIL'); item.update(reason_code='tick-failed', returncode=-15)
+                    raise self.runtime.RuntimeFailure(item)
+            self.fail('original tick must refuse')
+        with mock.patch.object(self, 'fake_run', side_effect=refused): result = self.pipeline()
+        self.assert_clean_failure(result)
+        self.assertEqual(result['directory_leaf']['availability'], 'OBSERVED')
+        self.assertNotIn('native-pair', self.commands)
+        for row in self.terminal():
+            self.assertNotEqual(row['status'], 'PASS')
+            self.assertEqual(row['directory_leaf'], result['directory_leaf'])
+        self.output = self.base / 'cancel-evidence'
+        self.mode = 'process-cancel'; result = self.pipeline()
+        self.assert_clean_failure(result, cancelled=True)
+        self.assertNotIn('directory_leaf', result)
 
     def test_real_bounded_public_worker_cli_with_fake_native_commands(self):
         python = Path(sys.executable).resolve(strict=True)
@@ -1138,6 +1300,81 @@ class DiskCheckTests(unittest.TestCase):
                 called = True; rendezvous()
             return original(path, *args, **kwargs)
         return observe
+
+
+    def test_directory_leaf_all_original_sites_and_components_close_every_fd(self):
+        proposal = [('OPEN_FD_IDENTITY', ('ROOT', 'DESCENDANT'), ('DEVICE', 'INODE', 'MODE')),
+                    ('ROOT_PATH_MISSING', ('ROOT',), ('NONE',)),
+                    ('LINKED_CHILD_PATH_MISSING', ('DESCENDANT',), ('NONE',)),
+                    ('PATH_IDENTITY', ('ROOT', 'DESCENDANT'), ('DEVICE', 'INODE', 'OWNER', 'MODE')),
+                    ('PATH_NOT_DIRECTORY', ('ROOT', 'DESCENDANT'), ('TYPE',)),
+                    ('CHILD_OPEN_REAPPEARED', ('DESCENDANT',), ('NONE',))]
+        cases = 0
+        for check, scopes, components in proposal:
+            for scope in scopes:
+                for component in components:
+                    with self.subTest(check=check, scope=scope, component=component):
+                        error, acquired, closed = directory_leaf_fixture(self.root, check, scope, component)
+                        self.assertIs(type(error), ValueError)
+                        self.assertEqual(str(error), 'private-directory-identity')
+                        issued = stage._directory_leaf_issued(error)
+                        self.assertIs(type(issued), tuple); self.assertEqual(issued[1:], (check, scope, component))
+                        self.assertIs(issued[0], stage._DIRECTORY_LEAF_ISSUER)
+                        self.assertCountEqual(acquired, closed)
+                        for fd in acquired:
+                            with self.assertRaises(OSError): os.fstat(fd)
+                        cases += 1
+        self.assertEqual(cases, 19)
+
+    def test_directory_leaf_component_selection_preserves_original_identity_order(self):
+        real_stat = os.stat
+        fields = ('st_dev', 'st_ino', 'st_uid', 'st_mode')
+        for first, component in enumerate(('DEVICE', 'INODE', 'OWNER', 'MODE')):
+            seen = 0
+            def changed(path, *args, **kwargs):
+                nonlocal seen
+                info = real_stat(path, *args, **kwargs)
+                if self.name(path) == self.root.name:
+                    seen += 1
+                    if seen == 2:
+                        values = {name: getattr(info, name) for name in dir(info) if name.startswith('st_')}
+                        for field in fields[first:-1]: values[field] += 1
+                        values['st_mode'] = stat.S_IFDIR | 0o500
+                        return types.SimpleNamespace(**values)
+                return info
+            with self.subTest(component=component), mock.patch.object(stage.os, 'stat', side_effect=changed), \
+                    self.assertRaises(ValueError) as caught:
+                stage.disk_check(self.root)
+            self.assertEqual(stage._directory_leaf_issued(caught.exception)[1:], ('PATH_IDENTITY', 'ROOT', component))
+
+    def test_directory_leaf_issue_faults_preserve_original_refusal_and_fd_cleanup(self):
+        for fault in (ValueError('finite issuance'), OSError('finite issuance'), KeyboardInterrupt(), SystemExit(1)):
+            with self.subTest(fault=type(fault).__name__), \
+                    mock.patch.object(stage, 'directory_leaf_projection', side_effect=fault):
+                error, acquired, closed = directory_leaf_fixture(self.root)
+                self.assertEqual(str(error), 'private-directory-identity')
+                self.assertIsNone(stage._directory_leaf_issued(error))
+                self.assertCountEqual(acquired, closed)
+        for component in ('OWNER', 'TYPE'):
+            error, acquired, closed = directory_leaf_fixture(self.root, 'OPEN_FD_IDENTITY', 'ROOT', component)
+            self.assertEqual(str(error), 'private-directory-owner')
+            self.assertIsNone(stage._directory_leaf_issued(error))
+            self.assertCountEqual(acquired, closed)
+
+    def test_directory_leaf_metadata_change_remains_allowed(self):
+        real_stat = os.stat; seen = 0
+        def metadata(path, *args, **kwargs):
+            nonlocal seen
+            info = real_stat(path, *args, **kwargs)
+            if self.name(path) == self.root.name:
+                seen += 1
+                if seen == 2:
+                    values = {name: getattr(info, name) for name in dir(info) if name.startswith('st_')}
+                    for field in ('st_mtime', 'st_ctime', 'st_atime'): values[field] += 1
+                    return types.SimpleNamespace(**values)
+            return info
+        with mock.patch.object(stage.os, 'stat', side_effect=metadata):
+            self.assertEqual(stage.disk_check(self.root), {'members': 0, 'bytes': 0})
 
     def test_concurrent_atomic_rename_counts_vanished_name_without_abort(self):
         partial = self.root / 'download.partial'; partial.write_bytes(b'finite download')

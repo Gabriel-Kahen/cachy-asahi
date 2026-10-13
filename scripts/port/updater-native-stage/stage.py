@@ -175,6 +175,56 @@ def verify_snapshot(target,contract):
 
 GPG_SOCKETS=frozenset({'S.gpg-agent','S.gpg-agent.browser','S.gpg-agent.extra',
                        'S.gpg-agent.ssh','S.dirmngr','S.keyboxd'})
+_DIRECTORY_LEAF_ISSUER=object()
+DIRECTORY_LEAF_FIELDS=frozenset({'availability','check','scope','component'})
+DIRECTORY_LEAF_COMBINATIONS=frozenset(
+    [('OPEN_FD_IDENTITY',scope,component) for scope in ('ROOT','DESCENDANT')
+     for component in ('DEVICE','INODE','MODE')] +
+    [('ROOT_PATH_MISSING','ROOT','NONE'),('LINKED_CHILD_PATH_MISSING','DESCENDANT','NONE')] +
+    [('PATH_IDENTITY',scope,component) for scope in ('ROOT','DESCENDANT')
+     for component in ('DEVICE','INODE','OWNER','MODE')] +
+    [('PATH_NOT_DIRECTORY',scope,'TYPE') for scope in ('ROOT','DESCENDANT')] +
+    [('CHILD_OPEN_REAPPEARED','DESCENDANT','NONE')])
+
+
+def directory_leaf_unknown():
+    return {'availability':'NOT_OBSERVED','check':'UNKNOWN','scope':'UNKNOWN','component':'UNKNOWN'}
+
+
+def directory_leaf_projection(row):
+    """One closed pathless group; it never participates in acceptance."""
+    need(type(row) is dict and set(row)==DIRECTORY_LEAF_FIELDS and
+         all(type(value) is str for value in row.values()),'directory-leaf-fields')
+    if row['availability']=='NOT_OBSERVED':
+        need(row==directory_leaf_unknown(),'directory-leaf-unknown')
+    else:
+        need(row['availability']=='OBSERVED' and (row['check'],row['scope'],row['component'])
+             in DIRECTORY_LEAF_COMBINATIONS,'directory-leaf-enum')
+    need(len(json.dumps(row,sort_keys=True,separators=(',',':')).encode())<=256,'directory-leaf-bound')
+    return dict(row)
+
+
+def _directory_leaf_issued(error):
+    """Read only the source-issued plain capsule, never exception properties/text."""
+    try:
+        if type(error) is not ValueError:return None
+        values=object.__getattribute__(error,'__dict__')
+        if type(values) is not dict:return None
+        issued=dict.get(values,'_directory_leaf_issued')
+        if type(issued) is not tuple or len(issued)!=4 or type(_DIRECTORY_LEAF_ISSUER) is not object or \
+           issued[0] is not _DIRECTORY_LEAF_ISSUER or not all(type(v) is str for v in issued[1:]):return None
+        directory_leaf_projection({'availability':'OBSERVED','check':issued[1],
+                                   'scope':issued[2],'component':issued[3]})
+        return issued
+    except BaseException:return None
+
+
+def _directory_leaf_fact(issued):
+    if type(issued) is tuple and len(issued)==4 and type(_DIRECTORY_LEAF_ISSUER) is object and \
+       issued[0] is _DIRECTORY_LEAF_ISSUER and all(type(v) is str for v in issued[1:]):
+        return directory_leaf_projection({'availability':'OBSERVED','check':issued[1],
+                                          'scope':issued[2],'component':issued[3]})
+    return directory_leaf_unknown()
 
 
 def disk_check(root,expected_identity=None):
@@ -184,6 +234,18 @@ def disk_check(root,expected_identity=None):
          and '..' not in root.parts,'private-root-path')
     count=size=0;chain=[]
     identity=lambda info:(info.st_dev,info.st_ino,info.st_uid,stat.S_IMODE(info.st_mode))
+    def refuse(check,depth,component):
+        error=ValueError('private-directory-identity')
+        try:
+            selected=component() if callable(component) else component
+            scope='ROOT' if depth==0 else 'DESCENDANT'
+            directory_leaf_projection({'availability':'OBSERVED','check':check,'scope':scope,'component':selected})
+            object.__getattribute__(error,'__dict__')['_directory_leaf_issued']=(
+                _DIRECTORY_LEAF_ISSUER,check,scope,selected)
+        except BaseException:pass
+        raise error
+    def mismatch(actual,before):
+        return next(name for name,a,b in zip(('DEVICE','INODE','OWNER','MODE'),identity(actual),identity(before)) if a!=b)
     def directory(info):
         need(stat.S_ISDIR(info.st_mode) and info.st_uid==os.getuid(),'private-directory-owner')
         need(info.st_mode & 0o500==0o500 and not info.st_mode & 0o7022,'private-directory-permission')
@@ -196,11 +258,17 @@ def disk_check(root,expected_identity=None):
             need(not Path(os.fsdecode(name)).is_relative_to(root),'private-nested-mount')
     def validate(parent,name,fd,before,depth):
         opened=os.fstat(fd);directory(opened)
-        need(identity(opened)==identity(before),'private-directory-identity')
+        if not identity(opened)==identity(before):
+            refuse('OPEN_FD_IDENTITY',depth,lambda:mismatch(opened,before))
         try:current=os.stat(name,dir_fd=parent,follow_symlinks=False)
         except FileNotFoundError:
-            need(depth>0 and opened.st_nlink==0,'private-directory-identity');return False
-        need(identity(current)==identity(before) and stat.S_ISDIR(current.st_mode),'private-directory-identity')
+            if not (depth>0 and opened.st_nlink==0):
+                refuse('ROOT_PATH_MISSING' if depth==0 else 'LINKED_CHILD_PATH_MISSING',depth,'NONE')
+            return False
+        matched=identity(current)==identity(before)
+        if not (matched and stat.S_ISDIR(current.st_mode)):
+            refuse('PATH_IDENTITY' if not matched else 'PATH_NOT_DIRECTORY',depth,
+                   (lambda:mismatch(current,before)) if not matched else 'TYPE')
         return True
     def walk(parent,name,fd,before,prefix,depth):
         nonlocal count,size
@@ -224,7 +292,7 @@ def disk_check(root,expected_identity=None):
                             validate(parent,name,fd,before,depth)
                             try:os.stat(entry.name,dir_fd=fd,follow_symlinks=False)
                             except FileNotFoundError:continue
-                            raise ValueError('private-directory-identity')
+                            refuse('CHILD_OPEN_REAPPEARED',depth+1,'NONE')
                         try:walk(fd,entry.name,child,info,relative,depth+1)
                         finally:os.close(child)
                     elif stat.S_ISREG(info.st_mode):
@@ -453,7 +521,8 @@ TICK_CODES={
     'daemon-storage':IO_TICK_CODES | {'docker-storage-budget'},
     'cancellation':frozenset({'cancelled'}),
 }
-DIAGNOSTIC_FIELDS=frozenset({'failed_phase','runtime_reason','runtime_returncode','tick_operation','tick_reason'})
+DIAGNOSTIC_FIELDS=frozenset({'failed_phase','runtime_reason','runtime_returncode','tick_operation','tick_reason',
+                           'directory_leaf'})
 
 
 def diagnostic_projection(value):
@@ -461,7 +530,7 @@ def diagnostic_projection(value):
     fields=set(value) & DIAGNOSTIC_FIELDS
     if not fields:return {}
     required={'failed_phase','runtime_reason','runtime_returncode'}
-    need(fields in (required,required|{'tick_operation','tick_reason'}),'diagnostic-field-set')
+    need(fields-{'directory_leaf'} in (required,required|{'tick_operation','tick_reason'}),'diagnostic-field-set')
     need(type(value['failed_phase']) is str and value['failed_phase'] in PROCESS_PHASES
          and type(value['runtime_reason']) is str and value['runtime_reason'] in RUNTIME_REASONS,'diagnostic-enum')
     code=value['runtime_returncode']
@@ -470,33 +539,50 @@ def diagnostic_projection(value):
         op=value['tick_operation'];reason=value['tick_reason']
         need(value['runtime_reason']=='tick-failed' and type(op) is str and op in TICK_CODES
              and type(reason) is str and reason in TICK_CODES[op],'diagnostic-tick-enum')
-    return {name:value[name] for name in fields}
+    result={name:value[name] for name in fields}
+    if 'directory_leaf' in fields:
+        need(value['runtime_reason']=='tick-failed' and value.get('tick_operation')=='private-scan'
+             and value.get('tick_reason')=='private-directory-identity','directory-leaf-context')
+        result['directory_leaf']=directory_leaf_projection(value['directory_leaf'])
+    return result
 
 
 def failure_diagnostics(receipt,phase,item,runtime,tick=None):
     """Only the authenticated runtime's typed process receipt can seed fields."""
-    if 'failed_phase' in receipt:return
-    if type(item) is not runtime.Receipt or not {'kind','schema_version','status','reason_code','returncode'}<=set(item) or type(item.get('kind')) is not str or item['kind']!='process-lifecycle' or \
-       type(item.get('schema_version')) is not int or item['schema_version']!=1 or \
-       type(item.get('status')) is not str or item['status'] not in ('FAIL','CANCELLED'):return
-    value={'failed_phase':phase,'runtime_reason':item.get('reason_code'),
-           'runtime_returncode':item.get('returncode')}
-    if tick and value['runtime_reason']=='tick-failed':
-        value.update(tick_operation=tick.get('operation'),tick_reason=tick.get('reason'))
-    try:receipt.update(diagnostic_projection(value))
-    except (ValueError,TypeError,KeyError):return
+    try:
+        if 'failed_phase' in receipt:return
+        if type(item) is not runtime.Receipt or not {'kind','schema_version','status','reason_code','returncode'}<=set(item) or type(item.get('kind')) is not str or item['kind']!='process-lifecycle' or \
+           type(item.get('schema_version')) is not int or item['schema_version']!=1 or \
+           type(item.get('status')) is not str or item['status'] not in ('FAIL','CANCELLED'):return
+        value={'failed_phase':phase,'runtime_reason':item.get('reason_code'),
+               'runtime_returncode':item.get('returncode')}
+        if type(tick) is dict and tick and value['runtime_reason']=='tick-failed':
+            value.update(tick_operation=dict.get(tick,'operation'),tick_reason=dict.get(tick,'reason'))
+            if value['tick_operation']=='private-scan' and value['tick_reason']=='private-directory-identity':
+                value['directory_leaf']=_directory_leaf_fact(dict.get(tick,'_directory_leaf_issued'))
+        receipt.update(diagnostic_projection(value))
+    except BaseException:return
 
 
 def tick_observation(operation,action,failed):
     try:return action()
     except Exception as error:
-        if isinstance(error,PermissionError):reason='permission-denied'
-        elif isinstance(error,FileNotFoundError):reason='missing-path'
-        elif isinstance(error,OSError):reason='io-error'
-        elif type(error) is ValueError:
-            reason=str(error) if str(error) in TICK_CODES[operation] else 'validation-error'
-        else:reason='unexpected-error'
-        failed.update(operation=operation,reason=reason)
+        try:
+            if type(failed) is dict and not failed:
+                if isinstance(error,PermissionError):reason='permission-denied'
+                elif isinstance(error,FileNotFoundError):reason='missing-path'
+                elif isinstance(error,OSError):reason='io-error'
+                elif type(error) is ValueError:
+                    args=object.__getattribute__(error,'args')
+                    text=args[0] if type(args) is tuple and len(args)==1 and type(args[0]) is str else None
+                    reason=text if text in TICK_CODES[operation] else 'validation-error'
+                else:reason='unexpected-error'
+                value={'operation':operation,'reason':reason}
+                if operation=='private-scan' and reason=='private-directory-identity':
+                    try:value['_directory_leaf_issued']=_directory_leaf_issued(error)
+                    except BaseException:pass
+                dict.update(failed,value)
+        except BaseException:pass
         raise
 
 
