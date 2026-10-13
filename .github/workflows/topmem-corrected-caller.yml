@@ -16,7 +16,7 @@ jobs:
       PYTHONDONTWRITEBYTECODE: '1'
       SOURCE: scripts/ci/topmem-corrected-job
       TOOL_POLICY: scripts/ci/topmem-test-tool-policy.json
-      CALLER_MANIFEST_SHA256: '6ca00cefac43850ce56a793a3962bb51caad284182a752aa0ed0dd151fbc425b'
+      CALLER_MANIFEST_SHA256: '3086e42c74ec489105d37f41897b41f2cf49a86bd8b480906d70cb2c6bfdf092'
       PACKET_SHA256: '16498f24649b981e99d803682e87e632bbba289e4bb6d3169d7608d7cecdc617'
       ROOT_SOURCE_COMMIT: ${{ vars.TOPMEM_CORRECTED_SOURCE_COMMIT }}
       ROOT_TOOL_POLICY_SHA256: '1bca9ee9afe9eabc3f9639592b5368e990d634aa0130168811777b667bd86d74'
@@ -66,7 +66,7 @@ jobs:
           CLOCK_SHA256: ${{ steps.clock.outputs.sha256 }}
         run: |
           set -euo pipefail
-          printf '%s  %s\n' '16a84d23e88b2dcc69282ca1ea4c40045a3f1db64d9fd2e362371f82ad15dcb8' "$SOURCE/caller/caller.py" 'c84168539130394f9fe51bf440d036f44813ff2b923c1e9d77748f97f755c922' "$SOURCE/baseline96/contract.py" 'eee4feb256967fc7be90174ab026e08897d2f89aaa0f626653ba1f4cc0b62d20' "$SOURCE/baseline96/lane.py" "$CALLER_MANIFEST_SHA256" "$SOURCE/caller/manifest.json" | sha256sum --check
+          printf '%s  %s\n' '478f6439b4847b514173e29ddb98b32fb157d7472ff2e63c73fa18c358f542b6' "$SOURCE/caller/caller.py" 'c84168539130394f9fe51bf440d036f44813ff2b923c1e9d77748f97f755c922' "$SOURCE/baseline96/contract.py" 'eee4feb256967fc7be90174ab026e08897d2f89aaa0f626653ba1f4cc0b62d20' "$SOURCE/baseline96/lane.py" "$CALLER_MANIFEST_SHA256" "$SOURCE/caller/manifest.json" | sha256sum --check
           /usr/bin/python3.12 -I -B -S - <<'PYTHON'
           import hashlib, json, os, pathlib, re, stat, time
           assert re.fullmatch('[0-9a-f]{40}', os.environ['ROOT_SOURCE_COMMIT'])
@@ -111,7 +111,7 @@ jobs:
           CLOCK_SHA256: ${{ steps.clock.outputs.sha256 }}
         run: |
           set -euo pipefail
-          printf '%s  %s\n' '16a84d23e88b2dcc69282ca1ea4c40045a3f1db64d9fd2e362371f82ad15dcb8' "$SOURCE/caller/caller.py" | sha256sum --check
+          printf '%s  %s\n' '478f6439b4847b514173e29ddb98b32fb157d7472ff2e63c73fa18c358f542b6' "$SOURCE/caller/caller.py" | sha256sum --check
           /usr/bin/python3.12 -I -B -S "$SOURCE/caller/caller.py" --addon-profile topmem-v1 --phase native --caller-manifest-sha256 "$CALLER_MANIFEST_SHA256" --clock "$CLOCK_PATH" --clock-sha256 "$CLOCK_SHA256" --tool-policy "$GITHUB_WORKSPACE/$TOOL_POLICY" --tool-policy-sha256 "$ROOT_TOOL_POLICY_SHA256" --offline-cache "${CLOCK_PATH%/*}/prefetch/worker/cache" --output "$RUNNER_TEMP/tm-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT" --docker-binary /usr/bin/docker --docker-sha256 94128e4afada0d46de642165e79dd70beb08e6775014648013283ed901b68248 --endpoint unix:///var/run/docker.sock
       - name: Retain bounded caller status on native success or failure
         if: always() && steps.proof.outcome == 'success' && steps.native.outcome != 'skipped'
@@ -122,7 +122,7 @@ jobs:
           CLOCK_SHA256: ${{ steps.clock.outputs.sha256 }}
         run: |
           set -euo pipefail
-          printf '%s  %s\n' '16a84d23e88b2dcc69282ca1ea4c40045a3f1db64d9fd2e362371f82ad15dcb8' "$SOURCE/caller/caller.py" | sha256sum --check
+          printf '%s  %s\n' '478f6439b4847b514173e29ddb98b32fb157d7472ff2e63c73fa18c358f542b6' "$SOURCE/caller/caller.py" | sha256sum --check
           /usr/bin/python3.12 -I -B -S "$SOURCE/caller/caller.py" --addon-profile topmem-v1 --phase retain --caller-manifest-sha256 "$CALLER_MANIFEST_SHA256" --clock "$CLOCK_PATH" --clock-sha256 "$CLOCK_SHA256" --output "$RUNNER_TEMP/tm-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
       - name: Retain independent bounded prefetch metadata
         if: always() && steps.proof.outcome == 'success'
