@@ -1,0 +1,23 @@
+# SPDX-License-Identifier: MIT
+# Original opt-in alternative; no upstream CachyOS assets included.
+pkgname=cachy-asahi-fish-config
+pkgver=0.1.0
+pkgrel=1
+pkgdesc='Explicitly enabled Fish helpers for the cachy-asahi overlay'
+arch=('any')
+license=('MIT')
+depends=('fish' 'coreutils')
+source=('config.fish' 'NOTICE' 'LICENSE')
+sha256sums=('223df59fe83948e1d83676f4571cd2d4ce186862adf1cc23da6d5bbd28370a1c'
+            '19eb85ed65396056e59782ddf80fb5285ee26cad5ddf77ccb378936a2d5601c9'
+            '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7')
+
+check() {
+    fish --no-config --no-execute "$srcdir/config.fish"
+}
+
+package() {
+    install -Dm644 "$srcdir/config.fish" "$pkgdir/usr/share/cachy-asahi/fish/config.fish"
+    install -Dm644 "$srcdir/NOTICE" "$pkgdir/usr/share/licenses/$pkgname/NOTICE"
+    install -Dm644 "$srcdir/LICENSE" "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}
