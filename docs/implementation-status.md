@@ -4,7 +4,42 @@ October 12, 2026. This record tracks the complete `outline.md` scope; an impleme
 
 The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with owned tasks and corrective next actions in `docs/backlog.md`. The destination now explicitly requires the maintained ARM package repository, native performance engineering, integrated Apple stack, broader Cachy system experience, and complete installation/release lifecycle. Both Air sizes, published final measurements, independent onboarding/contribution, subsequent full-port maintenance release, other-ARM reuse and actual upstream submissions remain required; an early overlay release or feasibility decision would not complete the goal. This scope update does not change any recorded execution result.
 
-Latest coordinator update, October 13, 06:44 UTC. Maintained native trial
+Latest coordinator update, October 13, 16:30 UTC. The goal is resumed and active.
+Root publishes the reviewed trusted Source3 CodeCommit `677d3ba`, isolated
+workflow SourceCommit `920b5f2` and exact two-path DataCommit `319aa5d` on the
+maintained branch. All 271 committed source/packet/workflow/body blobs match;
+external plan variables are registered and read back exactly. Static CI
+`38428419578` passes at SourceCommit. The fresh read-only ARM observation
+`38425616010` also passes with unchanged Git/Docker/Python hashes; its evidence
+has independent review and supplies no live grant or native acceptance.
+
+The first actual maintained composition `38428419937` is FAIL. The trusted
+launcher returns controller exit1 and recorded J/E; accepted callback entry is
+unobserved, initial exit is null, downstream KSM/ARM/client/virtual stages are
+NOT RUN, and cleanup reports FAIL. The precise inner cause is UNKNOWN beyond
+`callback-refused`; the callback flag alone does not prove the callable never
+ran. Independent retained review authenticates both exported metadata bundles
+and registration, without rerunning actors. A bounded failure-only diagnostic
+is being implemented with existing authority predicates unchanged.
+[Actual review](reviews/maintained-composed-38428419937-root-review.md).
+
+Root selects the exact recovered-two consumer/runtime29/plan/index/signature
+sidecar through a versioned development descriptor and runs its readiness CLI.
+It validates the two retained signed associations before reporting261 metadata
+references,18 missing inputs and nine false acceptance flags. Other259 crypto,
+live Source grant and actual assembly remain unaccepted. The private retained
+frame is required; this descriptor is not a shipped installation program.
+[Selection record](reviews/platform-recovered-two-root-registration.md).
+
+The streamed archive source passes bounded review but currently accepts only
+modeled authentication. Its complete261 three-pass reservation exceeds the
+2 GiB cap by103,959,208 bytes. A separate finite policy and real retained-input
+adapter are in development. Topmem's before-cleanup caller passes source review;
+its unselectable host repo-add assumption is being replaced by a concrete pinned
+producer. Fish native lifecycle integration remains active. M2/16K, complete
+install/boot recovery, maintained releases and performance gates remain open.
+
+Prior coordinator update, October 13, 06:44 UTC. Maintained native trial
 `38354516537`, from `0f6b202`, passes with eight completed builds, four matching
 comparisons and 249 positive signature observations. Independent retained review
 passes. The richer source-gated records show package/content/PKGINFO/BUILDINFO

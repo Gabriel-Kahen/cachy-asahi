@@ -1,0 +1,20 @@
+{
+  "actual_assembly": "NOT RUN",
+  "entry": "artifacts/reviews/platform-recovered-two-association-consumer-proposal-20261013/consumer.py",
+  "entry_sha256": "25385b498845920575a12068f58af05159aed9482119227b43859489a4eb453f",
+  "independent_source_peer_sha256": "24c0de9328e206936c79fd1d838e4f97ac5157db0ec507a0ec3cce9c6b5724ce",
+  "index_sha256": "498078ecae47dc3cfa53a0c5580b2d4b1d4d4fd4dbaaa88772372f3240b00a68",
+  "live_source_grant": "NOT RUN",
+  "metadata_references": 261,
+  "other259_crypto_accepted": false,
+  "plan_sha256": "c1f3379385d210b8464d28b9e876141bec9dd45768c58ab5157c8580fabf92fe",
+  "purpose": "DEVELOPMENT_RETAINED_TWO_REFERENCE_SELECTION_NOT_ASSEMBLY_GRANT",
+  "remaining_inputs": 18,
+  "runtime_source_manifest": "artifacts/reviews/platform-recovered-two-association-consumer-proposal-20261013/runtime-source-manifest.json",
+  "runtime_source_manifest_sha256": "93644386ec59434df3ebf2fba483f3aa09f2a5cda37a0c3fdb0a79a3bb43d81a",
+  "schema_version": 1,
+  "selected_for_release": false,
+  "selected_runtime_leaves": 29,
+  "storage": "Private retained source/data frame; this descriptor alone is not a delivered installation program",
+  "two_signed_associations_sha256": "99178987d84a503c56a30c392812b80b3a8491f800e1f880d6427d9defd57203"
+}
