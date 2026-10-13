@@ -65,10 +65,10 @@
     "scripts/virtual/tooling-audit.json": "d3289a52f3269ba44f1437b69a112dcbd2086ee16ebe8d44658e65e7fb8e2095",
     "scripts/virtual/tooling.lock.json": "c18afc5bde9868594d41bd576a956960a7b01b190d148ba03ca4c41d4394e1b0"
   },
-  "peer_receipt_sha256": "818a79cbc70c4a657cfa52449d25678946f4f7f37e72fb3a3cc86dd1ddd5f5f5",
+  "peer_receipt_sha256": "34b6126ac6507a9d7e8123d4ce66caec9221787e12a5c92415658c3e540d28fe",
   "purpose": "root-selected-maintained-v1-development-source",
   "schema_version": 3,
-  "source_commit": "1b3a6dd182955ca784cdce6c8e25a32a864e639d",
+  "source_commit": "5a41a3da7ed9aab99035794b4de3def005396b82",
   "source_files": {
     ".github/workflows/native-arm-build.yml": {
       "mode": 420,
@@ -688,7 +688,7 @@
     },
     "scripts/ci/development/repository_handoff.py": {
       "mode": 420,
-      "sha256": "441e4497d7dca108d7d5a56f2a4ab3924565f8c60e370f41835ee2746f7f977a"
+      "sha256": "882a38b54fbc4a3a7001a48e2ec0aa33a5fd4fd7ac70d7276c6086b5405874a2"
     },
     "scripts/ci/development/test_base_stages.py": {
       "mode": 420,
@@ -716,7 +716,7 @@
     },
     "scripts/ci/development/test_repository_handoff.py": {
       "mode": 420,
-      "sha256": "a4f4ff7383f417d9253e37eb83760c37a2778b9920f122c4a32a5ae1d6ce042e"
+      "sha256": "623b42d7f314b9a1649715c4b83bdd11b6527452718471033a10ac83edf2826d"
     },
     "scripts/ci/development/test_virtual_stage.py": {
       "mode": 420,
@@ -892,7 +892,7 @@
     },
     "scripts/install/native_preflight.py": {
       "mode": 420,
-      "sha256": "2f3460cafb520438da78c442201d3766f5fbc57110b88bcecb624e4e65f1e4d2"
+      "sha256": "df3061dffe10a8b801801f9035ffa63d8ec5d463ffa119113f6ead1ec3bb5f27"
     },
     "scripts/install/test_local_transaction.py": {
       "mode": 420,
@@ -1135,5 +1135,5 @@
       "sha256": "1023f493a5ff1991b382ed42b9960c6e0e98774c75e1a2aa90deff15dad7add1"
     }
   },
-  "source_packet_sha256": "e0e01d7c27e0a48ecbb003778637fc1f43c35cb49020dbcee29270191dfb2f44"
+  "source_packet_sha256": "68d2fccba47a35798a442c4e0f134951c34618899d25f62d22c47a243cdddbd3"
 }
