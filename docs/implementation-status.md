@@ -4,7 +4,35 @@ October 12, 2026. This record tracks the complete `outline.md` scope; an impleme
 
 The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with owned tasks and corrective next actions in `docs/backlog.md`. The destination now explicitly requires the maintained ARM package repository, native performance engineering, integrated Apple stack, broader Cachy system experience, and complete installation/release lifecycle. Both Air sizes, published final measurements, independent onboarding/contribution, subsequent full-port maintenance release, other-ARM reuse and actual upstream submissions remain required; an early overlay release or feasibility decision would not complete the goal. This scope update does not change any recorded execution result.
 
-Latest coordinator update, October 13, 04:32 UTC. Source7c6107a is published,
+Latest coordinator update, October 13. The read-only hosted ARM probe38347013591
+passes and its retained output has independent review. It observes aarch64/4K,
+workspace and temporary-directory metadata, and exact Docker/Git/Python hashes;
+it runs no Docker/Git command or package operation. The observed Docker pin is
+selected explicitly and must match again in the new native job.
+
+Root registers the explicit maintained native Source96 route and workflow after
+source review, with official501-input prefetch and one deadline starting before
+checkout. Source verification exits0. Fresh signature verification, eight native
+builds and four comparisons still require actual hosted execution; this is an
+explicit successor and does not replace the original input/integration identity.
+[Registration](reviews/maintained-native-official-prefetch-primary-registration-root-review.md)
+records the primary paths and workflow changes.
+
+The Zsh composed mode is registered after independent source review, with its
+263-path selection and refreshed separate258/265 selections. Exact source rows
+and metadata bindings verify. Actual original-context execution, callback/grant
+selection, Zsh package pairs and installerP0 remain NOT RUN.
+[Registration](reviews/zsh-composed-session-primary-registration-root-review.md)
+records the conserved original authority and issuer rebind.
+
+Both failed filesystem observations now have independent retained review.
+The resolver remains an observed32-byte symlink with target NOT READ; its cause
+is unknown. Image assembly has a reviewed source/data contract but remains
+blocked by20 specific inputs. A fresh project assembler and Topmem native
+build/lifecycle increment are under implementation. Full R1–R5/M5–M9,
+both-model hardware tests and measured final performance remain mandatory.
+
+Prior coordinator update, October 13, 04:32 UTC. Source7c6107a is published,
 static CI38345043844 PASS. Exact committed checks cover12 new sources/89,152 bytes
 (24 Git queries); the application's265 rows retain committed parent7e708f6 with
 zero changed-path intersection and current hashes/modes verified. The original

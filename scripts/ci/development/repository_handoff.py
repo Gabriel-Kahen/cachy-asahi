@@ -13,7 +13,7 @@ import hashlib
 import json
 import math
 import os
-from pathlib import Path
+from pathlib import Path, PurePath
 import re
 import stat
 import sysconfig
@@ -147,6 +147,8 @@ class Sources:
         self.graph_observation = None
         self.original_root = None
         self.original_rows = None
+        self.zsh_admission = None
+        self.zsh_history = None
         rows = grant['source_files']
         need(type(rows) is dict and 240 <= len(rows) <= 20000, 'source-refused')
         total = 0
@@ -376,9 +378,10 @@ class Sources:
         self.class_state(self,'scripts/ci/development/repository_handoff.py',module)
         graph = state['source_graph']
         composition = state.get('composition')
-        need(type(composition) is str and composition in ('repository-svg','installer-preflight'),'callback-refused')
+        need(type(composition) is str and composition in ('repository-svg','installer-preflight','repository-svg-zsh'),'callback-refused')
         fields = {'entry','runtime','collector','phase','original','original_aliases'}
         if composition == 'installer-preflight':fields.add('native_preflight')
+        if composition == 'repository-svg-zsh':fields.add('zsh')
         need(type(graph) is dict and (not graph or set(graph) == fields),
              'callback-refused')
         modules = {}
@@ -412,6 +415,14 @@ class Sources:
                      type(callback.__qualname__) is str and callback.__qualname__ == qualname and callback.__globals__ is installer.__dict__,
                      'callback-refused')
                 modules[installer_path] = installer
+            if composition == 'repository-svg-zsh':
+                zsh = graph['zsh']
+                need(type(zsh) is dict and set(zsh) == {'zsh_addon','zsh_session'},'callback-refused')
+                for name,value in zsh.items():
+                    path = 'scripts/ci/development/'+name+'.py'
+                    need(type(value) is types.ModuleType and value.__name__ == 'development_'+name
+                         and sys.modules.get(value.__name__) is value,'callback-refused')
+                    modules[path] = value
             aliases = graph['original_aliases']
             need(type(aliases) is dict and (not aliases if not graph['original'] else
                  set(aliases) == {'repository_projection.inventory','desktop_projection.policy'}),'callback-refused')
@@ -429,7 +440,16 @@ class Sources:
             for label,value in aliases.items():self.graph_namespace(value,alias_paths[label],modules,aliases,compiled)
             if installer is not None:
                 installer.namespace(installer,self.raw[installer_path],self.grant['source_files'][installer_path]['sha256'])
-            observation = self.graph_identity((module,)+tuple(modules.values())+tuple(aliases.values()))
+            admission = ()
+            if composition == 'repository-svg-zsh':
+                state = self.zsh_admission
+                need(type(state) is tuple and len(state) == 4 and state[0] is graph['zsh'] and
+                     all(type(value) is types.FunctionType for value in state[1:]),'callback-refused')
+                admission = (('zsh-admission',id(state),*(id(value) for value in state)),
+                             ('zsh-guards',self.zsh_guard_identity(state)))
+            else:need(self.zsh_admission is None,'callback-refused')
+            observation = self.graph_identity((module,)+tuple(modules.values())+tuple(aliases.values()))+admission
+            proof = (('zsh-proof',self.zsh_proof()),) if admission else ()
             if capture:
                 # Only the two authenticated loader boundaries may establish it.
                 need(session.used is True and session.controller is None and
@@ -437,11 +457,14 @@ class Sources:
                       (self.graph_observation is not None and graph['original'])), 'callback-refused')
                 if self.graph_observation is not None:
                     prior = tuple(value for path,value in modules.items() if path not in original.values())
-                    need(self.graph_identity((module,)+prior) == self.graph_observation,'callback-refused')
+                    need(self.graph_identity((module,)+prior)+admission+proof == self.graph_observation,'callback-refused')
                 self.guard(session.job_deadline,session.cancelled)
-                self.graph_observation = observation
+                self.graph_observation = observation+proof
             else:
-                need(self.graph_observation is not None and observation == self.graph_observation,'callback-refused')
+                need(self.graph_observation is not None and observation+proof == self.graph_observation,'callback-refused')
+            if admission:
+                for validator in state[1:]:validator()
+                self.graph_observation = observation+(('zsh-proof',self.zsh_proof()),)
             if installer is not None:
                 installer.namespace(installer,self.raw[installer_path],self.grant['source_files'][installer_path]['sha256'])
         return modules
@@ -462,6 +485,15 @@ class Sources:
                 if not origin or not self.project_file(origin):return ('module',id(value))
                 path = self.locate(origin)
                 need(path in self.raw,'callback-refused');namespaces.add(id(value.__dict__))
+                if path in ('scripts/ci/development/zsh_addon.py','scripts/ci/development/zsh_session.py'):
+                    admission = self.zsh_admission
+                    name = Path(path).stem
+                    need(type(admission) is tuple and len(admission) == 4 and type(admission[0]) is dict and
+                         admission[0].get(name) is value and value.__name__ == 'development_'+name and
+                         sys.modules.get(value.__name__) is value,'callback-refused')
+                    # Full functions/classes/policy/imports live in the authenticated
+                    # Source-owned snapshot/capsules; legacy graph predicates stay closed.
+                    return ('zsh-module',id(value),id(value.__dict__),value.__name__,origin)
                 items = []
                 for name,item in sorted(value.__dict__.items()):
                     if type(item) is types.FunctionType:
@@ -532,12 +564,17 @@ class Sources:
                 need(value.__code__.co_qualname == overrides[path,node.name],'callback-refused')
                 continue
             if node.decorator_list:
-                need(len(node.decorator_list) == 1 and isinstance(node.decorator_list[0],ast.Name)
-                     and node.decorator_list[0].id == 'contextmanager' and type(value) is types.FunctionType
+                decorator = node.decorator_list[0]
+                selected = (isinstance(decorator,ast.Name) and decorator.id == 'contextmanager') or (
+                    path == 'scripts/ci/development/zsh_addon.py' and node.name == 'defer_cancel' and
+                    isinstance(decorator,ast.Attribute) and isinstance(decorator.value,ast.Name) and
+                    decorator.value.id == 'contextlib' and decorator.attr == 'contextmanager')
+                need(len(node.decorator_list) == 1 and selected and type(value) is types.FunctionType
                      and value.__code__ == contextmanager(lambda:None).__code__
                      and value.__globals__ is contextmanager.__globals__ and value.__closure__ is not None
                      and len(value.__closure__) == 1 and
-                     value.__closure__[0].cell_contents is getattr(value,'__wrapped__',None),'callback-refused')
+                     value.__code__.co_freevars == ('func',) and value.__defaults__ is None and value.__kwdefaults__ is None
+                     and value.__closure__[0].cell_contents is getattr(value,'__wrapped__',None),'callback-refused')
                 value = value.__wrapped__
             self.graph_function(value,module,cache)
             need(value.__code__ == compiled.get(node.name),'callback-refused')
@@ -564,6 +601,323 @@ class Sources:
             filename = Path(value.__code__.co_filename).absolute()
             if filename == self.root/entry_path:self.graph_function(value,modules[entry_path],cache)
             else:self.global_function(value)
+
+    def zsh_guards(self, session, modules):
+        """Four closed live registries; all other code/policy/dependencies stay frozen."""
+        stage = session.output.parent/'zsh-addon'
+        need(not stage.exists() and not stage.is_symlink() and not stage.is_relative_to(self.root) and
+             not self.root.is_relative_to(stage) and not stage.is_relative_to(session.output) and
+             not session.output.is_relative_to(stage),'callback-refused')
+        parent = stage.parent.lstat()
+        parent_key = (parent.st_dev,parent.st_ino,parent.st_mode,parent.st_uid,parent.st_gid)
+        need(stat.S_ISDIR(parent.st_mode) and parent.st_uid == os.getuid() and parent.st_gid == os.getgid()
+             and not stat.S_IMODE(parent.st_mode)&0o022,'callback-refused')
+        addon, consumer = modules['zsh_addon'],modules['zsh_session']
+        names = ('_RECEIPT_FILES','_RECEIPT_FDS','_RECEIPT_UNCERTAIN','_PROCESS_DISPOSAL_UNCERTAIN')
+        objects = tuple(addon.__dict__.get(name) for name in names)
+        need(all(type(value) is dict and not value for value in objects[:3]) and
+             type(objects[3]) is list and not objects[3],'callback-refused')
+        need(self.zsh_history is None,'callback-refused')
+        self.zsh_history = {'stage':None,'uncertain':{},'process':False}
+        history = self.zsh_history
+        proof = (None,(),False)
+        def directory(path):
+            need(path.is_relative_to(stage) and '..' not in path.parts and
+                 all(stat.S_ISDIR(item.lstat().st_mode) for item in (path,*path.parents)), 'callback-refused')
+            row = path.lstat()
+            need(row.st_uid == os.getuid() and row.st_gid == os.getgid() and
+                 not stat.S_IMODE(row.st_mode)&0o022,'callback-refused')
+            return (row.st_dev,row.st_ino,row.st_mode,row.st_uid,row.st_gid)
+        def state():
+            nonlocal proof
+            check(session.job_deadline,session.cancelled)
+            if self.zsh_admission is not None and self.graph_observation is not None:
+                need(self.graph_observation[-1][0] == 'zsh-proof' and
+                     self.zsh_proof_matches(self.graph_observation[-1][1]),'callback-refused')
+            need(self.zsh_history is history and type(history) is dict and set(history) == {'stage','uncertain','process'} and
+                 type(history['uncertain']) is dict and len(history['uncertain']) <= 256 and
+                 type(history['process']) is bool and history['stage'] == proof[0] and history['process'] is proof[2] and
+                 tuple(history['uncertain']) == tuple(key for key,_ in proof[1]) and
+                 all(history['uncertain'][key] is error for key,error in proof[1]),'callback-refused')
+            stage_key,uncertain,process_uncertain = history['stage'],history['uncertain'],history['process']
+            need(all(addon.__dict__.get(name) is value for name,value in zip(names,objects)), 'callback-refused')
+            files,fds,pending,process = objects
+            need(type(files) is dict and len(files) <= 256 and type(fds) is dict and len(fds) <= 16 and
+                 type(pending) is dict and len(pending) <= 256 and type(process) is list and
+                 len(process) <= 1 and all(value is True for value in process),'callback-refused')
+            row = stage.parent.lstat()
+            need((row.st_dev,row.st_ino,row.st_mode,row.st_uid,row.st_gid) == parent_key,'callback-refused')
+            if stage.exists() or stage.is_symlink():
+                key = directory(stage)
+                need(stage_key is None or stage_key == key,'callback-refused');history['stage'] = key
+            else:need(stage_key is None and not any(objects),'callback-refused')
+            total = 0
+            for name,record in files.items():
+                need(type(name) is str and len(name) <= 4096 and type(record) is dict and
+                     set(record) == {'parent','identity','sha256'},'callback-refused')
+                path = Path(name)
+                need(path.is_absolute() and str(path) == name and path != stage and
+                     type(record['parent']) is tuple and len(record['parent']) == 5 and
+                     all(type(value) is int for value in record['parent']) and
+                     type(record['identity']) is tuple and len(record['identity']) == 7 and
+                     all(type(value) is int for value in record['identity']) and
+                     type(record['sha256']) is str and re.fullmatch('[0-9a-f]{64}',record['sha256']) and
+                     directory(path.parent) == record['parent'],'callback-refused')
+                node = path.lstat()
+                actual = (node.st_dev,node.st_ino,node.st_mode,node.st_nlink,node.st_uid,node.st_gid,node.st_size)
+                need(actual == record['identity'] and stat.S_ISREG(node.st_mode) and node.st_nlink == 1 and
+                     node.st_uid == os.getuid() and node.st_gid == os.getgid() and
+                     stat.S_IMODE(node.st_mode) == 0o600 and 0 <= node.st_size <= FILE_LIMIT,'callback-refused')
+                raw,mode,_ = read(path,session.job_deadline)
+                total += len(raw)
+                need(mode == 0o600 and digest(raw) == record['sha256'] and total <= TOTAL_LIMIT,'callback-refused')
+            for fd,owned in fds.items():
+                need(type(fd) is int and 0 <= fd <= 2**31 and type(owned) is tuple and len(owned) == 4 and
+                     all(type(value) is int for value in owned),'callback-refused')
+                row = os.fstat(fd)
+                need((row.st_dev,row.st_ino,stat.S_IFMT(row.st_mode),row.st_rdev) == owned and
+                     row.st_uid == os.getuid() and row.st_gid == os.getgid() and
+                     (stat.S_ISDIR(row.st_mode) or stat.S_ISREG(row.st_mode)),'callback-refused')
+                target = os.readlink('/proc/self/fd/'+str(fd));path = Path(target)
+                need(path.is_absolute() and path.is_relative_to(stage) and not target.endswith(' (deleted)'), 'callback-refused')
+                if stat.S_ISDIR(row.st_mode):directory(path)
+                else:
+                    directory(path.parent);node = path.lstat()
+                    need((node.st_dev,node.st_ino,node.st_mode,node.st_nlink,node.st_uid,node.st_gid) ==
+                         (row.st_dev,row.st_ino,row.st_mode,row.st_nlink,row.st_uid,row.st_gid) and row.st_nlink == 1 and
+                         stat.S_IMODE(row.st_mode) == 0o600 and row.st_size <= FILE_LIMIT,'callback-refused')
+            for key,error in pending.items():
+                need(type(key) is tuple and len(key) == 2 and type(key[0]) is tuple and len(key[0]) == 5 and
+                     all(type(value) is int for value in key[0]) and type(key[1]) is str and
+                     re.fullmatch('[A-Za-z0-9._-]{1,255}\\.partial-[0-9a-f]{16}',key[1]) and
+                     isinstance(error,BaseException),'callback-refused')
+                need(key not in uncertain or uncertain[key] is error,'callback-refused')
+            need(all(key in pending and pending[key] is error for key,error in uncertain.items()),'callback-refused')
+            if pending:
+                parents = {directory(stage)};count = 0
+                for parent,children,_ in os.walk(stage,followlinks=False):
+                    count += 1
+                    need(count <= 1024 and len(Path(parent).relative_to(stage).parts) <= 16,'callback-refused')
+                    parents.add(directory(Path(parent)))
+                    need(all(not (Path(parent)/name).is_symlink() for name in children),'callback-refused')
+                need(all(key[0] in parents for key in pending),'callback-refused')
+            uncertain.update(pending)
+            need(not process_uncertain or process == [True],'callback-refused')
+            history['process'] = process_uncertain or bool(process)
+            proof = (history['stage'],tuple(uncertain.items()),history['process'])
+            if self.zsh_admission is not None and self.graph_observation is not None:
+                self.graph_observation = self.graph_observation[:-1]+(('zsh-proof',self.zsh_proof()),)
+        runtime = {name:(lambda value,index=index: (need(value is objects[index],'callback-refused'),state()))
+                   for index,name in enumerate(names)}
+        first = self.zsh_snapshot(addon,self.raw['scripts/ci/development/zsh_addon.py'],runtime=runtime)
+        second = self.zsh_snapshot(consumer,self.raw['scripts/ci/development/zsh_session.py'])
+        return modules,first,second,state
+
+    def zsh_snapshot(self, module, source, *, runtime=None, interfaces=None):
+        """Return a private checker; do not expose or replace its frozen closure.
+
+        runtime is an exact symbol -> checker table selected by root, not by modules.
+        Unsupported opaque values retain identity only. Root must reject such values
+        if they are execution policy, rather than claiming their contents are bound.
+        """
+        METADATA = frozenset(('__loader__', '__spec__', '__cached__'))
+        MAX_NODES, MAX_DEPTH, MAX_TEXT = 40000, 32, 16 * 1024**2
+        LIVE_DEPENDENCIES = frozenset((('sys', 'modules'), ('sys', 'path'), ('os', 'environ')))
+        def _exec_require(value):need(value, 'callback-refused')
+        def dependency_paths(source, namespace):
+            result = set()
+            for node in ast.walk(ast.parse(source)):
+                if not isinstance(node,ast.Attribute):continue
+                names,current = [],node
+                while isinstance(current,ast.Attribute):
+                    names.append(current.attr);current = current.value
+                if isinstance(current,ast.Name) and isinstance(namespace.get(current.id),types.ModuleType):
+                    result.add((current.id,*reversed(names)))
+            return tuple(sorted(result))
+        namespace = module.__dict__
+        runtime = dict(runtime or {})
+        interfaces = dict(interfaces or {})
+        names = tuple(sorted(key for key in namespace if key not in METADATA))
+        _exec_require(set(runtime) <= set(names))
+        paths = dependency_paths(source, namespace)
+        _exec_require(set(interfaces) <= set(paths))
+        builtin_value = namespace.get('__builtins__')
+        builtin_namespace = vars(builtin_value) if isinstance(builtin_value, types.ModuleType) else builtin_value
+        _exec_require(type(builtin_namespace) is dict)
+        builtin_names = tuple(sorted({node.id for node in ast.walk(ast.parse(source))
+                                     if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Load)
+                                     and node.id not in namespace and node.id in builtin_namespace}))
+        holders = []  # Retain baseline objects so identity integers cannot be reused.
+
+        def snapshot(retain):
+            seen, nodes, text = set(), 0, 0
+            local_holders = []
+
+            def freeze(value, depth=0):
+                nonlocal nodes, text
+                nodes += 1
+                _exec_require(nodes <= MAX_NODES and depth <= MAX_DEPTH)
+                kind = type(value)
+                if kind in (type(None), bool, int, float, str, bytes):
+                    if kind is float:
+                        _exec_require(math.isfinite(value))
+                    if kind in (str, bytes):
+                        text += len(value)
+                        _exec_require(text <= MAX_TEXT)
+                    return ('scalar', kind.__name__, value)
+                if value is sys.modules or value is sys.path or value is os.environ:
+                    return ('live-identity',id(value))
+                if any(value is namespace[name] for name in runtime):
+                    return ('runtime-registry',id(value))
+                local_holders.append(value)  # Keep transient bound methods alive in this snapshot.
+                key = id(value)
+                if retain:
+                    holders.append(value)
+                if key in seen:
+                    return ('reference', key)
+                seen.add(key)
+                child = lambda item: freeze(item, depth + 1)
+                if kind in (tuple, list):
+                    return (kind.__name__, key, tuple(child(item) for item in value))
+                if kind is dict:
+                    rows = [(child(k), child(v)) for k, v in value.items()]
+                    return ('dict', key, tuple(sorted(rows, key=lambda row: repr(row[0]))))
+                if kind in (set, frozenset):
+                    return (kind.__name__, key, tuple(sorted((child(v) for v in value), key=repr)))
+                if isinstance(value, re.Pattern):
+                    return ('pattern', key, value.pattern, value.flags)
+                if isinstance(value, PurePath):
+                    # Explicitly selected CPython pathlib representation, never an
+                    # arbitrary object-state walker. Root must review its runtime.
+                    attribute = '_raw_paths' if hasattr(value, '_raw_paths') else '_parts'
+                    raw = object.__getattribute__(value, attribute)
+                    _exec_require(type(raw) in (list, tuple) and all(type(p) is str for p in raw))
+                    return ('path', key, attribute, child(raw), str(value), value.parts)
+                if isinstance(value, types.CodeType):
+                    return ('code', key)
+                if isinstance(value, types.FunctionType):
+                    cells = tuple((id(cell), child(cell.cell_contents)) for cell in (value.__closure__ or ()))
+                    return ('function', key, id(value.__code__), id(value.__globals__),
+                            child(value.__defaults__), child(value.__kwdefaults__),
+                            child(value.__dict__), child(value.__annotations__), cells)
+                if isinstance(value, (staticmethod, classmethod)):
+                    return (kind.__name__, key, child(value.__func__))
+                if isinstance(value, property):
+                    return ('property', key, child(value.fget), child(value.fset), child(value.fdel))
+                if isinstance(value, type) and value.__module__ == module.__name__:
+                    rows = tuple((name, child(item)) for name, item in sorted(vars(value).items())
+                                 if name not in ('__dict__', '__weakref__'))
+                    return ('owned-class', key, tuple(id(base) for base in value.__bases__), rows)
+                if isinstance(value, types.BuiltinMethodType) and value.__self__ is not None and not isinstance(value.__self__, types.ModuleType):
+                    return ('builtin-method', id(value.__self__), value.__name__,
+                            id(vars(type(value.__self__)).get(value.__name__)))
+                # Imported module/class/function identity is retained. Relevant
+                # mutable module attributes are separately included below.
+                return ('identity', kind.__module__, kind.__qualname__, key)
+
+            bindings = tuple((name, ('runtime',) if name in runtime else freeze(namespace[name])) for name in names)
+            dependencies = [(('__builtins__', name), freeze(builtin_namespace[name])) for name in builtin_names]
+            for path in paths:
+                value = namespace[path[0]]
+                for index, name in enumerate(path[1:], 1):
+                    value = getattr(value, name)
+                    if path[:index + 1] in interfaces:
+                        interfaces[path[:index + 1]](value)
+                        dependencies.append((path[:index + 1], ('private-role',)))
+                        break
+                    if path[:index + 1] in LIVE_DEPENDENCIES:
+                        dependencies.append((path[:index + 1], ('live-identity', id(value))))
+                        break
+                else:
+                    dependencies.append((path, freeze(value)))
+            return bindings, tuple(dependencies)
+
+        baseline = snapshot(True)
+        for name, check in runtime.items():
+            check(namespace[name])
+
+        def check():
+            _exec_require(module.__dict__ is namespace and tuple(sorted(key for key in namespace if key not in METADATA)) == names)
+            for name, validator in runtime.items():
+                validator(namespace[name])
+            observed = snapshot(False)
+            _exec_require(observed == baseline)
+        return check
+
+    def zsh_guard_identity(self, state):
+        """Guard executable capsules are frozen; only the four exact registries vary."""
+        modules = state[0]
+        owner = sys.modules.get(type(self).__module__)
+        known = (owner,modules['zsh_addon'],modules['zsh_session'])
+        runtime = tuple(modules['zsh_addon'].__dict__[name] for name in
+            ('_RECEIPT_FILES','_RECEIPT_FDS','_RECEIPT_UNCERTAIN','_PROCESS_DISPOSAL_UNCERTAIN'))
+        namespaces = tuple(value.__dict__ for value in known)
+        seen = set();count = 0
+        def freeze(value, depth=0):
+            nonlocal count
+            count += 1
+            need(count <= 200000 and depth <= 64,'callback-refused')
+            if value is None or type(value) in (str,bytes,int,bool,float):return (type(value),value)
+            if any(value is item for item in runtime):return ('registry',type(value),id(value))
+            if any(value is item for item in namespaces):return ('namespace',id(value))
+            if value is sys.modules or value is sys.path or value is os.environ:return ('live-identity',id(value))
+            if id(value) in seen:return ('reference',id(value))
+            seen.add(id(value))
+            if isinstance(value,Path):return ('path',type(value),id(value),str(value))
+            if type(value) is types.FunctionType:
+                filename = Path(value.__code__.co_filename).absolute()
+                if self.project_file(filename):
+                    match = [item for item in known if value.__globals__ is item.__dict__]
+                    need(len(match) == 1,'callback-refused');self.graph_function(value,match[0])
+                else:
+                    standard = sys.modules.get(value.__module__)
+                    symbol = standard
+                    for part in value.__qualname__.split('.'):
+                        symbol = vars(symbol).get(part) if hasattr(symbol,'__dict__') else None
+                        if isinstance(symbol,(staticmethod,classmethod)):symbol = symbol.__func__
+                    frozen = (value.__code__.co_filename.startswith('<frozen ') and type(standard) is types.ModuleType and
+                              standard.__dict__ is value.__globals__ and value.__module__ in sys.stdlib_module_names and
+                              getattr(getattr(standard,'__spec__',None),'origin',None) == 'frozen' and symbol is value)
+                    need(filename.is_relative_to(sysconfig.get_path('stdlib')) or frozen,'callback-refused')
+                sticky = value.__code__.co_qualname == 'Sources.zsh_guards.<locals>.state'
+                cells = dict(zip(value.__code__.co_freevars,value.__closure__ or ()))
+                if sticky:
+                    need(value.__globals__ is owner.__dict__ and cells['self'].cell_contents is self,'callback-refused')
+                    history,proof = cells['history'].cell_contents,cells['proof'].cell_contents
+                    need(history is self.zsh_history and type(history) is dict and set(history) == {'stage','uncertain','process'} and
+                         type(history['uncertain']) is dict and type(proof) is tuple and len(proof) == 3 and
+                         history['stage'] == proof[0] and history['process'] is proof[2] and
+                         tuple(history['uncertain']) == tuple(key for key,_ in proof[1]) and
+                         all(history['uncertain'][key] is error for key,error in proof[1]),'callback-refused')
+                return ('function',id(value),value.__code__,id(value.__globals__),freeze(value.__defaults__,depth+1),
+                    freeze(value.__kwdefaults__,depth+1),freeze(value.__dict__,depth+1),
+                    tuple((name,id(cell),('sticky-history',id(history)) if sticky and name == 'history' else
+                          ('sticky-proof',) if sticky and name == 'proof' else freeze(cell.cell_contents,depth+1)) for name,cell in
+                          zip(value.__code__.co_freevars,value.__closure__ or ())))
+            if type(value) is dict:
+                return ('dict',id(value),tuple((freeze(key,depth+1),freeze(item,depth+1)) for key,item in value.items()))
+            if type(value) in (tuple,list):
+                return (type(value),id(value),tuple(freeze(item,depth+1) for item in value))
+            if type(value) in (set,frozenset):return (type(value),id(value),frozenset(freeze(item,depth+1) for item in value))
+            return ('opaque',type(value),id(value))
+        return tuple(freeze(function) for function in state[1:])
+
+    def zsh_proof(self):
+        history = self.zsh_history
+        need(type(history) is dict and set(history) == {'stage','uncertain','process'} and
+             type(history['uncertain']) is dict and len(history['uncertain']) <= 256 and
+             type(history['process']) is bool,'callback-refused')
+        key = history['stage']
+        need(key is None or type(key) is tuple and len(key) == 5 and all(type(value) is int for value in key),
+             'callback-refused')
+        return key,tuple(history['uncertain'].items()),history['process']
+
+    def zsh_proof_matches(self, proof):
+        current = self.zsh_proof()
+        return (type(proof) is tuple and len(proof) == 3 and proof[0] == current[0] and proof[2] is current[2] and
+                type(proof[1]) is tuple and len(proof[1]) == len(current[1]) and
+                all(type(old) is tuple and len(old) == 2 and old[0] == new[0] and old[1] is new[1]
+                    for old,new in zip(proof[1],current[1])))
 
 
 def preflight(root, grant_raw, grant_pin, *, deadline):
@@ -700,6 +1054,11 @@ def authority_state(sources,callback,deadline):
                  'callback-refused')
             for name,item in source_state.items():
                 if name == 'graph_observation':continue  # Compared with actual namespaces above.
+                if name in ('zsh_admission','zsh_history') and item is not None:
+                    need(session is not None and session.composition == 'repository-svg-zsh' and
+                         'scripts/ci/development/zsh_session.py' in graph,'callback-refused')
+                    sources.source_graph(session)  # Exact admitted capsules/lifecycle, never generic functions.
+                    continue
                 if name == 'codes':
                     need(type(item) is dict,'callback-refused')
                     for source_path,codes in item.items():
@@ -776,7 +1135,7 @@ class Session:
     """One original producer plus one deadline-bound baseline/phase consumer."""
     def __init__(self, sources, output, *, job_deadline, cancelled=None, composition='repository-svg'):
         check(job_deadline, cancelled)
-        need(type(composition) is str and composition in ('repository-svg','installer-preflight'),'grant-refused')
+        need(type(composition) is str and composition in ('repository-svg','installer-preflight','repository-svg-zsh'),'grant-refused')
         self.composition = composition
         self.sources, self.output = sources, Path(output).absolute()
         self.job_deadline, self.cancelled = job_deadline, cancelled
@@ -833,6 +1192,69 @@ class Session:
             if self.source_graph.get('native_preflight') is module:del self.source_graph['native_preflight']
             raise
         return callback
+
+    def register_zsh(self):
+        """Exact held pair before the first capture; no addon loader or producer."""
+        need(self.composition == 'repository-svg-zsh' and self.used is True and self.controller is None and
+             self.sources.graph_observation is None and self.sources.zsh_admission is None and
+             self.view_root is not None and type(self.source_graph) is dict and
+             set(self.source_graph) == {'entry','runtime','collector','phase','original','original_aliases'} and
+             not self.source_graph['original'] and not self.source_graph['original_aliases'],'callback-refused')
+        required = ('scripts/ci/development/zsh_addon.py','scripts/ci/development/zsh_session.py',
+            'scripts/ci/development/test_zsh_addon.py','scripts/ci/development/test_zsh_session.py',
+            'manifests/reviewed/zsh-native-addon.json')
+        need(all(path in self.sources.raw and path in self.sources.grant['source_files'] for path in required) and
+             all('development_'+name not in sys.modules for name in ('zsh_addon','zsh_session')),'callback-refused')
+        owner = sys.modules.get(type(self).__module__)
+        self.sources.class_state(self,'scripts/ci/development/repository_handoff.py',owner)
+        self.sources.class_state(self.sources,'scripts/ci/development/repository_handoff.py',owner)
+        self.sources.guard(self.job_deadline,self.cancelled)
+        modules = {name:self.sources.module('development_'+name,'scripts/ci/development/'+name+'.py')
+                   for name in ('zsh_addon','zsh_session')}
+        for name,module in modules.items():
+            self.sources.graph_namespace(module,'scripts/ci/development/'+name+'.py',
+                {'scripts/ci/development/'+key+'.py':value for key,value in modules.items()},{},{})
+        consumer = modules['zsh_session'].__dict__.get('run_zsh')
+        need(type(consumer) is types.FunctionType and consumer.__module__ == 'development_zsh_session' and
+             consumer.__qualname__ == 'run_zsh' and consumer.__globals__ is modules['zsh_session'].__dict__, 'callback-refused')
+        admission = self.sources.zsh_guards(self,modules)
+        try:
+            for module in modules.values():sys.modules[module.__name__] = module
+            self.source_graph['zsh'] = modules;self.sources.zsh_admission = admission
+            self.sources.guard(self.job_deadline,self.cancelled)
+            for validator in admission[1:]:validator()
+        except BaseException:
+            for module in modules.values():
+                if sys.modules.get(module.__name__) is module:del sys.modules[module.__name__]
+            self.source_graph.pop('zsh',None);self.sources.zsh_admission = None
+            raise
+        return consumer
+
+    def retire_zsh(self):
+        """After original scope exit: retire exact healthy modules, never clear custody."""
+        try:
+            need(self.composition == 'repository-svg-zsh' and self.original_scope is None,'callback-refused')
+            modules = self.source_graph.get('zsh');state = self.sources.zsh_admission
+            need(type(modules) is dict and set(modules) == {'zsh_addon','zsh_session'} and
+                 type(state) is tuple and len(state) == 4 and state[0] is modules and
+                 all(type(value) is types.FunctionType for value in state[1:]) and
+                 self.sources.graph_observation is not None and self.sources.graph_observation[-3:-1] ==
+                 (('zsh-admission',id(state),*(id(value) for value in state)),
+                  ('zsh-guards',self.sources.zsh_guard_identity(state))) and
+                 self.sources.graph_observation[-1][0] == 'zsh-proof' and
+                 self.sources.zsh_proof_matches(self.sources.graph_observation[-1][1]),'callback-refused')
+            for name,module in modules.items():
+                need(type(module) is types.ModuleType and module.__name__ == 'development_'+name and
+                     module.__file__ == str(self.sources.root/'scripts/ci/development'/ (name+'.py')) and
+                     sys.modules.get(module.__name__) is module,'callback-refused')
+            self.sources.guard(self.job_deadline)
+            for validator in state[1:]:validator()
+            addon = modules['zsh_addon']
+            need(not any(addon.__dict__[name] for name in ('_RECEIPT_FILES','_RECEIPT_FDS',
+                 '_RECEIPT_UNCERTAIN','_PROCESS_DISPOSAL_UNCERTAIN')),'callback-refused')
+            for module in modules.values():del sys.modules[module.__name__]
+            return True
+        except BaseException:return False
 
     def view_plan(self, argv):
         grant = self.sources.grant
@@ -1243,6 +1665,7 @@ class Session:
             self.source_graph = {'entry':entry,'runtime':modules,'collector':collector,'phase':phase,
                                  'original':{},'original_aliases':{}}
             if self.composition == 'installer-preflight':self.register_native_preflight()
+            if self.composition == 'repository-svg-zsh':self.register_zsh()
             self.sources.source_graph(self,capture=True)
             (self.private/'custody').mkdir(mode=0o700)
             # Registration precedes replay of TERM/INT from service construction.

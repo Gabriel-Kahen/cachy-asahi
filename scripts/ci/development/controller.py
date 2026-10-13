@@ -39,6 +39,7 @@ VIRTUAL_NAMES = ('common.py', 'guest.py', 'prepare.py', 'run.py', 'gbm_probe.c',
                  'audit_tooling.py', 'tooling.lock.json', 'tooling-audit.json')
 INSTALLER_PATH = 'scripts/install/native_preflight.py'
 INSTALLER_NAME = 'native_install_preflight'
+ZSH_NAMES = {'zsh_addon':'development_zsh_addon', 'zsh_session':'development_zsh_session'}
 
 
 def finite(value):
@@ -173,10 +174,11 @@ def composed_sources(root, source_packet, grant_raw, grant_pin, runtime_raw, out
     try:
         exec(compile(raw,module.__file__,'exec'),module.__dict__)
         sources = module.preflight(root,grant_raw,grant_pin,deadline=deadline)
+        selected = Development.consume_zsh if composition == packet.ZSH_COMPOSITION else Development.consume
         require(grant['callbacks']['existing_consumers'] == {'path':'scripts/ci/development/controller.py',
-                'module':__name__,'qualname':'Development.consume'}, 'composed-callback-refused')
+                'module':__name__,'qualname':'Development.' + selected.__name__}, 'composed-callback-refused')
         # Authenticate all actual class methods before creating any output.
-        sources.callback('existing_consumers',Development.consume.__get__(object.__new__(Development)),deadline)
+        sources.callback('existing_consumers',selected.__get__(object.__new__(Development)),deadline)
         argv = original_argv(output,cache,source_packet['metadata_pins'])
         session = module.Session(sources,output/'repository-handoff',job_deadline=deadline,cancelled=cancelled,composition=composition)
         session.view_plan(argv)
@@ -314,6 +316,8 @@ class Development:
                                                      for name in STAGES}}
         self.public = []
         self.callback_entered = False
+        if composition == packet.ZSH_COMPOSITION:
+            self.report['stages']['zsh-addon'] = {'status':'NOT RUN','prerequisite':'initial-build-not-completed'}
         (output / 'development-summary').mkdir()
         self.persist()
 
@@ -337,6 +341,19 @@ class Development:
             else:self.report.setdefault('error_code','durable-status-persistence-failed')
             if isinstance(error,KeyboardInterrupt):self.report['cancelled'] = True
             stage = self.report['stages'].get('native-install-preflight')
+            if stage is not None:stage.update(status='FAIL',status_persistence='FAIL')
+            if first is None:raise
+
+    def persist_zsh(self):
+        """New-mode terminal writes preserve the established cause and report code."""
+        first, code = sys.exception(), self.report.get('error_code')
+        try:self.persist()
+        except BaseException as error:
+            self.report.update(status='FAIL',status_persistence='FAIL')
+            if code is not None:self.report['error_code'] = code
+            else:self.report.setdefault('error_code','durable-status-persistence-failed')
+            if isinstance(error,KeyboardInterrupt):self.report['cancelled'] = True
+            stage = self.report['stages'].get('zsh-addon')
             if stage is not None:stage.update(status='FAIL',status_persistence='FAIL')
             if first is None:raise
 
@@ -404,6 +421,73 @@ class Development:
                 self.persist()
         # Do not turn the original four-package summary into a new predicate.
         # Development failures stay authoritative in our separate aggregate.
+
+    def zsh_module(self, controller):
+        """Select only the captured pair from the same actual suspended Session."""
+        composed_mode(self.packet,self.composition);within(self.deadline)
+        require(self.composition == packet.ZSH_COMPOSITION,'zsh-composition-refused')
+        session = self.repository_session; owner = sys.modules.get('development_repository_handoff')
+        require(type(owner) is types.ModuleType and type(session) is owner.Session and
+                type(session.sources) is owner.Sources and session.composition == self.composition and
+                session.job_deadline == self.deadline and session.controller is controller,
+                'zsh-session-refused')
+        session.sources.class_state(session,'scripts/ci/development/repository_handoff.py',owner)
+        session.sources.guard(self.deadline)
+        session.original_context(deadline=self.deadline,controller=controller)
+        graph = session.source_graph.get('zsh')
+        require(type(graph) is dict and set(graph) == set(ZSH_NAMES),'zsh-graph-refused')
+        for role, name in ZSH_NAMES.items():
+            module = graph[role]; path = 'scripts/ci/development/' + role + '.py'
+            require(type(module) is types.ModuleType and module.__name__ == name and
+                    module.__file__ == str(self.root/path) and sys.modules.get(name) is module and
+                    path in session.sources.raw,'zsh-graph-refused')
+        module = graph['zsh_session'];callback = module.__dict__.get('run_zsh')
+        require(type(callback) is types.FunctionType and callback.__module__ == ZSH_NAMES['zsh_session'] and
+                callback.__qualname__ == 'run_zsh' and callback.__globals__ is module.__dict__, 'zsh-callback-refused')
+        require(type(self.runtime_contract) is dict and set(self.runtime_contract) == {'cli_sha256','endpoint_identity','env'} and
+                hashlib.sha256((json.dumps(self.runtime_contract,sort_keys=True,indent=2,allow_nan=False)+'\n').encode()).hexdigest() ==
+                session.sources.grant['actor_contract_sha256'],'zsh-runtime-refused')
+        return module
+
+    def consume_zsh(self, controller):
+        """Zsh precedes the existing consumers under the retained original job clock."""
+        output = self.output/'zsh-addon'
+        completed = False
+        try:
+            if cancelled(controller):raise KeyboardInterrupt()
+            module = self.zsh_module(controller);self.callback_entered = True
+            runtime_raw = (json.dumps(self.runtime_contract,sort_keys=True,indent=2,allow_nan=False)+'\n').encode()
+            value = module.run_zsh(controller,self.root,output,self.cache,
+                session=self.repository_session,actor_contract_raw=runtime_raw)
+            within(self.deadline)
+            require(self.zsh_module(controller) is module,'zsh-graph-refused')
+            require(type(value) is dict and value.get('stage') == 'zsh-addon' and value.get('status') == 'PASS' and
+                    value.get('provisional') is True and value.get('hardware_status') == value.get('installation') == 'NOT RUN' and
+                    value.get('selected_for_release') is False and type(value.get('cleanup')) is dict and
+                    value['cleanup'].get('status') == 'PASS' and type(value.get('public')) is list and
+                    len(value['public']) == 2,'zsh-result-refused')
+            selected = [Path(name).absolute() for name in value['public']]
+            require(set(selected) == {output/'adapter-status',output/'public'} and len(set(selected)) == 2,
+                    'zsh-public-path-refused')
+            self.report['stages']['zsh-addon'] = {key:item for key,item in value.items() if key != 'public'}
+            self.public.extend(selected)
+            completed = True
+            self.consume(controller)
+        except BaseException as error:
+            if not completed:
+                self.report['stages']['zsh-addon'] = {'status':'FAIL','error_code':'cancelled' if isinstance(error,KeyboardInterrupt)
+                    else 'zsh-stage-failed','error_type':type(error).__name__}
+            self.report['status'] = 'FAIL'
+            if isinstance(error,KeyboardInterrupt):self.report['cancelled'] = True
+            self.report.setdefault('error_code','composed-consumer-failed' if completed else 'zsh-stage-failed')
+            raise
+        finally:
+            first, code = sys.exception(), self.report.get('error_code')
+            try:self.persist()
+            except BaseException:
+                self.report.update(status='FAIL',status_persistence='FAIL')
+                if code is not None:self.report['error_code'] = code
+                if first is None:raise
 
     def installer_module(self, controller):
         """Use the same captured SDK classes/graph; the bridge checks actual active frames."""
@@ -556,7 +640,8 @@ class Development:
             self.repository_session = session
             if self.composition == packet.INSTALLER_COMPOSITION:
                 require(type(runtime_contract) is dict and runtime_contract == self.runtime_contract, 'installer-runtime-refused')
-            value = session.execute(argv, {'existing_consumers':self.consume,
+            selected = self.consume_zsh if self.composition == packet.ZSH_COMPOSITION else self.consume
+            value = session.execute(argv, {'existing_consumers':selected,
                     'public_receiver':callbacks.public_receiver,'authority_provider':callbacks.authority_provider}, runtime_contract)
             session.sources.class_state(session,'scripts/ci/development/repository_handoff.py',module)
             session.sources.guard(self.deadline)
@@ -597,6 +682,7 @@ class Development:
             self.report['callback_entered'] = self.callback_entered
             self.report['cancelled'] = self.report.get('cancelled',False) or cancelled()
             if self.composition == packet.INSTALLER_COMPOSITION:self.persist_installer()
+            elif self.composition == packet.ZSH_COMPOSITION:self.persist_zsh()
             else:self.persist()
         return self.report
 
@@ -1010,6 +1096,8 @@ def publish(development, bundle, emit=print):
         repository = report.get('repository_handoff',{})
         required = required and repository.get('status') == repository.get('cleanup') == repository.get('restage') == repository.get('input_acceptance') == 'PASS' and report.get('repository_publication') == 'PASS'
     required = required and all(stages[name]['status'] == 'PASS' for name in STAGES[:-1])
+    if development.composition == packet.ZSH_COMPOSITION:
+        required = required and stages.get('zsh-addon',{}).get('status') == 'PASS'
     if development.composition == packet.INSTALLER_COMPOSITION:required = False
     virtual = stages['virtual']['status']
     report['status'] = ('CAPTURED_REQUIRES_VISUAL_REVIEW' if virtual == 'CAPTURED_REQUIRES_VISUAL_REVIEW' else 'PASS') if required and virtual in ('PASS', 'CAPTURED_REQUIRES_VISUAL_REVIEW') else 'FAIL'
@@ -1070,6 +1158,7 @@ def close_boundary(development, previous, timer):
         if 'error_code' not in development.report:development.report['error_code'] = 'terminal-finalization-failed'
         development.repository_capture = None
         if development.composition == packet.INSTALLER_COMPOSITION:development.persist_installer()
+        elif development.composition == packet.ZSH_COMPOSITION:development.persist_zsh()
         else:development.persist()
         print(json.dumps(development.report, sort_keys=True))
     if failed or CANCELLED:
@@ -1108,6 +1197,19 @@ def retire_installer_module(session, development):
     if registered is module:del sys.modules[INSTALLER_NAME]
     elif registered is not None:return False
     return True
+
+
+def retire_zsh_modules(session):
+    """Retain unresolved helper custody; retire only this exact Session's healthy pair."""
+    if session is None:return True
+    composition = getattr(session,'composition',None)
+    require(type(composition) is str and composition in packet.COMPOSED_MODES,'zsh-retirement-refused')
+    if composition != packet.ZSH_COMPOSITION:return True
+    owner = sys.modules.get('development_repository_handoff')
+    require(type(owner) is types.ModuleType and type(session) is owner.Session and
+            type(session.sources) is owner.Sources,'zsh-retirement-refused')
+    session.sources.class_state(session,'scripts/ci/development/repository_handoff.py',owner)
+    return session.retire_zsh()
 
 
 def composed_main(args, pins, *, entry):
@@ -1167,6 +1269,7 @@ def composed_main(args, pins, *, entry):
             if CANCELLED:development.report['cancelled'] = True
             if 'error_code' not in development.report:development.report['error_code'] = 'composed-boundary-failed'
             if composition == packet.INSTALLER_COMPOSITION:development.persist_installer()
+            elif composition == packet.ZSH_COMPOSITION:development.persist_zsh()
             else:development.persist()
         else:
             print(json.dumps({'purpose':'same-job-native-development','status':'FAIL','execution':'NOT RUN',
@@ -1177,16 +1280,21 @@ def composed_main(args, pins, *, entry):
         first = sys.exception()
         try:
             retirement_failed = not retire_installer_module(session,development)
+            if composition == packet.ZSH_COMPOSITION:
+                retirement_failed = not retire_zsh_modules(session) or retirement_failed
         except BaseException as error:
             retirement_failed = True
             if isinstance(error,KeyboardInterrupt):
                 CANCELLED = True
         if retirement_failed and development is not None:
-            development.report.update(status='FAIL',native_preflight_retirement='FAIL')
-            development.report.setdefault('error_code','installer-retirement-failed')
+            key = 'zsh_retirement' if composition == packet.ZSH_COMPOSITION else 'native_preflight_retirement'
+            code = 'zsh-retirement-failed' if composition == packet.ZSH_COMPOSITION else 'installer-retirement-failed'
+            development.report.update(status='FAIL',**{key:'FAIL'})
+            development.report.setdefault('error_code',code)
             development.repository_capture = None
             try:
                 if composition == packet.INSTALLER_COMPOSITION:development.persist_installer()
+                elif composition == packet.ZSH_COMPOSITION:development.persist_zsh()
                 else:development.persist()
             except BaseException:
                 if first is None:raise

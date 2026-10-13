@@ -28,7 +28,11 @@ PINS = {INITIAL, 'scripts/ci/inputs.lock.json', 'scripts/ci/recipes.lock.json',
         'scripts/virtual/tooling-audit.json', 'manifests/reviewed/ksmctl.json'}
 COMPOSITION = 'repository-svg'
 INSTALLER_COMPOSITION = 'installer-preflight'
-COMPOSED_MODES = (COMPOSITION, INSTALLER_COMPOSITION)
+ZSH_COMPOSITION = 'repository-svg-zsh'
+ZSH_CONTRACT = 'manifests/reviewed/zsh-native-addon.json'
+ZSH_EXTRA = frozenset(('scripts/ci/development/zsh_addon.py', 'scripts/ci/development/test_zsh_addon.py',
+    'scripts/ci/development/zsh_session.py', 'scripts/ci/development/test_zsh_session.py', ZSH_CONTRACT))
+COMPOSED_MODES = (COMPOSITION, INSTALLER_COMPOSITION, ZSH_COMPOSITION)
 INSTALLER_EXTRA = frozenset(('scripts/install/local_transaction.py', 'scripts/install/native_arm_trial.py', 'scripts/install/native_preflight.py', 'scripts/install/test_local_transaction.py', 'scripts/install/test_native_arm_trial.py', 'scripts/install/test_native_preflight.py', 'scripts/port/kernel-native-job/runtime.py'))
 GENERIC_POLICY = 'manifests/reviewed/repository-generic-policy.json'
 COMPOSED_EXTRA = frozenset('''
@@ -372,12 +376,17 @@ def composed_paths(initial, composition=COMPOSITION):
          'composed-original-contract-refused')
     paths = set(initial['source_files']) | COMPOSED_EXTRA
     if composition == INSTALLER_COMPOSITION:paths |= INSTALLER_EXTRA
-    need(len(INSTALLER_EXTRA) == 7 and len(paths) == (265 if composition == INSTALLER_COMPOSITION else 258), 'composed-source-selection-refused')
+    if composition == ZSH_COMPOSITION:paths |= ZSH_EXTRA
+    need(len(INSTALLER_EXTRA) == 7 and len(ZSH_EXTRA) == 5 and
+         len(paths) == {COMPOSITION:258, INSTALLER_COMPOSITION:265, ZSH_COMPOSITION:263}[composition],
+         'composed-source-selection-refused')
     return paths
 
 
-def composed_pins(pins):
-    need(type(pins) is dict and set(pins) == COMPOSED_PINS, 'exact-composed-metadata-pins-required')
+def composed_pins(pins, composition=COMPOSITION):
+    need(type(composition) is str and composition in COMPOSED_MODES, 'composed-source-selection-refused')
+    expected = COMPOSED_PINS | ({ZSH_CONTRACT} if composition == ZSH_COMPOSITION else set())
+    need(type(pins) is dict and set(pins) == expected, 'exact-composed-metadata-pins-required')
     for name, value in pins.items():
         relative(name); pin(value)
     return {name: pins[name] for name in PINS}
@@ -403,8 +412,8 @@ def composed_scan(root, initial, composition=COMPOSITION):
     return actual
 
 
-def composed_bindings(root, source, pins):
-    bindings(root, source, composed_pins(pins))
+def composed_bindings(root, source, pins, composition=COMPOSITION):
+    bindings(root, source, composed_pins(pins, composition))
     need(all(source[name]['sha256'] == value for name, value in pins.items()), 'packet-metadata-pin-drift')
     for name, prefix in COMPOSED_MAPS.items():
         value = pinned(root / name, pins[name]); validate_map(value)
@@ -422,8 +431,8 @@ def freeze_composed(root, output, initial_lock, initial_sha256, pins, *, composi
     root, output = Path(root).absolute(), Path(output).absolute()
     need(not output.exists() and not output.is_symlink() and output.parent.is_dir(), 'new-packet-output-required')
     if output.is_relative_to(root):need(output == root / LOCK, 'fixed-packet-path-required')
-    initial = load_initial(root, initial_lock, initial_sha256, composed_pins(pins))
-    source = composed_scan(root, initial, composition); composed_bindings(root, source, pins)
+    initial = load_initial(root, initial_lock, initial_sha256, composed_pins(pins, composition))
+    source = composed_scan(root, initial, composition); composed_bindings(root, source, pins, composition)
     value = {'schema_version':2, 'composition':composition, 'purpose':PURPOSE, 'development_only':True,
              'selected_for_release':False, 'hardware_validation':'NOT RUN', 'metadata_pins':dict(pins),
              'initial_source_files':initial['source_files'], 'generated_fixture_files':initial['generated_fixture_files'],
@@ -545,9 +554,9 @@ def preflight_composed(root, packet_path, packet_sha256, github_sha, pins=None, 
          value['schema_version'] == 2 and type(value['composition']) is str and value['composition'] == composition and value['purpose'] == PURPOSE and
          value['development_only'] is True and value['selected_for_release'] is False and
          value['hardware_validation'] == 'NOT RUN', 'composed-packet-contract-refused')
-    original_pins = composed_pins(value['metadata_pins'])
+    original_pins = composed_pins(value['metadata_pins'], composition)
     if pins is not None:
-        composed_pins(pins);need(pins == value['metadata_pins'], 'runtime-metadata-pins-drift')
+        composed_pins(pins, composition);need(pins == value['metadata_pins'], 'runtime-metadata-pins-drift')
     for field in ('initial_source_files', 'generated_fixture_files', 'source_files'):validate_map(value[field])
     initial = load_initial(root, root / INITIAL, original_pins[INITIAL], original_pins)
     need(value['initial_source_files'] == initial['source_files'] and
@@ -555,7 +564,7 @@ def preflight_composed(root, packet_path, packet_sha256, github_sha, pins=None, 
          set(value['source_files']) == composed_paths(initial, composition), 'packet-initial-lock-binding-drift')
     actual = composed_scan(root, initial, composition)
     need(actual == value['source_files'], 'packet-source-map-drift')
-    composed_bindings(root, actual, value['metadata_pins'])
+    composed_bindings(root, actual, value['metadata_pins'], composition)
     verify_git(root, github_sha, actual, packet_sha256, composition=composition)
     need(composed_scan(root, initial, composition) == actual, 'source-drift-during-preflight')
     return value
@@ -595,7 +604,7 @@ def snapshot(root, target, packet):
     if composed:
         composition = packet.get('composition')
         need(type(composition) is str and composition in COMPOSED_MODES, 'composed-packet-contract-refused')
-        original_pins = composed_pins(packet['metadata_pins'])
+        original_pins = composed_pins(packet['metadata_pins'], composition)
         initial = load_initial(root, root / INITIAL, original_pins[INITIAL], original_pins)
         need(set(packet['source_files']) == composed_paths(initial, composition), 'composed-source-selection-refused')
     else:validate_pins(packet['metadata_pins'])
@@ -618,5 +627,6 @@ def snapshot(root, target, packet):
                            original_pins if composed else packet['metadata_pins'])
     need((composed_scan(target, initial, composition) if composed else scan(target, initial)) == packet['source_files'],
          'snapshot-source-map-drift')
-    (composed_bindings if composed else bindings)(target, packet['source_files'], packet['metadata_pins'])
+    if composed:composed_bindings(target, packet['source_files'], packet['metadata_pins'], composition)
+    else:bindings(target, packet['source_files'], packet['metadata_pins'])
     return target
