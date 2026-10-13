@@ -2,6 +2,17 @@
 
 Coordinator: Lila in chat `01a12d58-9194-7643-81eb-fc9d62e4d923`. Source workers have bounded ownership in `docs/orchestration.md`; execution owners must reserve actual capacity before changing a shared machine. The full acceptance matrix is `docs/acceptance.md`.
 
+October 13, 21:40 UTC corrective batch: the maintained generic metadata query
+passes 341+233=574 with all 2,933 reported dependency relationships satisfied;
+independent retained review closes this finite query step, without granting
+archive authentication or Asahi installation acceptance. B18/B19 trial07
+`38468791930` identifies the None-handler restoration observation; prepare and
+independently review opaque-handler cancellation/mask preservation before a fresh
+native trial. B17's conditional monotonic execution witness and the updater's
+maintained354 source/input successor have independent reviews active. Preserve
+historical refused cleanup and unknown absence. Root re-read the authoritative
+full R1–R5/M5–M9 roadmap; both hardware records and all full-port gates remain open.
+
 October 13, 20:39 UTC corrective batch: B17 trial03 `38463181445` now identifies
 errno13 at the signer process-executable readlink expression. Correct direct-owned
 child identity and cleanup without guessed PIDs, weakened identity or hardening

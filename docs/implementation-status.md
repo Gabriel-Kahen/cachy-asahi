@@ -4,7 +4,40 @@ October 12, 2026. This record tracks the complete `outline.md` scope; an impleme
 
 The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with owned tasks and corrective next actions in `docs/backlog.md`. The destination now explicitly requires the maintained ARM package repository, native performance engineering, integrated Apple stack, broader Cachy system experience, and complete installation/release lifecycle. Both Air sizes, published final measurements, independent onboarding/contribution, subsequent full-port maintenance release, other-ARM reuse and actual upstream submissions remain required; an early overlay release or feasibility decision would not complete the goal. This scope update does not change any recorded execution result.
 
-Latest coordinator update, October 13, 20:52 UTC. The reviewed maintained
+Latest coordinator update, October 13, 21:40 UTC. Root re-read the current
+outline, goal, roadmap, acceptance matrix and package inventory. Full
+R1–R5/M5–M9 remains required; the initial overlay is an intermediate result.
+
+The fresh private host metadata query passes: maintained341 plus 233 additions
+equals 574 records, with all 2,933 dependency relationships reported satisfied,
+743 unique deptest targets and five natural zero-exit commands. The outer child
+exited naturally in 2.372 seconds inside the original 300+4-second envelope.
+Independent retained review authenticates all 18 actual files and rejects ten
+corruptions. The synthetic local database emits six ignored-key warning types;
+these grant no archive, size, hash or signature authentication. This generic
+metadata result does not select the Asahi platform transaction or pass native
+build, installation, source/license, 16K, hardware or release gates.
+[Actual query review](reviews/maintained-desktop-resolution-actual01-root-review.md).
+
+Maintained ARM trial07 `38468791930` remains FAIL at service construction:
+`TYPE_ERROR / SERVICE_CANCEL_EXIT_SET_HANDLER_NONE_BAD_HANDLER_API`.
+The closed observation reports a None handler argument and matching API error
+text; native API origin and the reason for None remain unknown for this run.
+Independent review authenticates nine retained files and 271 Source blobs.
+A separate isolated x86 host fixture reproduces opaque-handler restoration;
+its correction is being prepared and does not backfill historical failures.
+[Trial07 review](reviews/maintained-composed-38468791930-root-review.md).
+
+Reviewed hosted-job timing and retained-evidence sizes supply finite operational
+observations, while compiled-build resource usage, sustainable capacity and
+permanent human/signing custody remain unproved.
+[Capacity observations](workstreams/native-build-capacity-evidence.md).
+Signer execution-witness source and maintained updater inputs are under
+independent review; native success is not inferred. Both exact M2 Air sizes,
+final-system measurements, exercised recovery and subsequent maintained release
+remain required. The development goal stays ACTIVE.
+
+Prior coordinator update, October 13, 20:52 UTC. The reviewed maintained
 45-root metadata proposal and finite ten-candidate source/evidence table are now
 published in the repository. Exact bytes match author `56c4f8f` and peer `836e71b`;
 only the documented Vim pair/builder bindings and descriptive editor fields change.
