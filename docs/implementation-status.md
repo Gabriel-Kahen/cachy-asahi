@@ -4,7 +4,43 @@ October 12, 2026. This record tracks the complete `outline.md` scope; an impleme
 
 The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with owned tasks and corrective next actions in `docs/backlog.md`. The destination now explicitly requires the maintained ARM package repository, native performance engineering, integrated Apple stack, broader Cachy system experience, and complete installation/release lifecycle. Both Air sizes, published final measurements, independent onboarding/contribution, subsequent full-port maintenance release, other-ARM reuse and actual upstream submissions remain required; an early overlay release or feasibility decision would not complete the goal. This scope update does not change any recorded execution result.
 
-Latest coordinator update, October 13. The maintained native trial38350748733
+Latest coordinator update, October 13, 06:44 UTC. Maintained native trial
+`38354516537`, from `0f6b202`, passes with eight completed builds, four matching
+comparisons and 249 positive signature observations. Independent retained review
+passes. The richer source-gated records show package/content/PKGINFO/BUILDINFO
+comparisons, but private archives and full process journals were not exported for
+independent replay. Its owned image has been removed; it cannot authorize a later
+addon or composed run. [Native review](reviews/maintained-native-successor-38354516537-root-review.md)
+records that boundary. The preceding failed trial remains unchanged.
+
+NetworkManager 1.58.1-1 and Perl 5.42.2-2 target archives and signatures were
+actually recovered into private retention, verified under the locked key and
+checked for signed package metadata. Independent retained review passes. The
+separate recovered-reference proposal preserves the original 259 associations;
+the captured validator accepts 261 metadata references and leaves 18 named
+prerequisites open. Its signature sidecar and source selection still require
+independent review and Root adoption. No complete image, hook, ABI or installation
+gate passes from these two inputs. [Recovery review](reviews/platform-missing-two-authenticated-recovery-root-review.md)
+and [selection proposal](workstreams/platform-recovered-two-reference-selection.md)
+retain the actual recovery and proposed selection separately.
+
+Root registers the independently reviewed maintained composition on the separate
+canonical branch `codex/maintained-composed`, commit
+`91bb508f5bae2bac9a8b7c95c914c8bd40b22f52`. Its installer packet selects exactly
+266 source files and 14 metadata pins; committed Git blobs and working bytes
+match. Historical source selections on the primary branch remain intact. The
+trusted maintained launcher and fresh whole-composition execution are pending.
+[Canonical registration](reviews/maintained-composed-canonical-registration-root-review.md)
+records the selected packet and limits.
+
+Topmem's second lifecycle proposal is blocked by public-repository directory
+permissions; the scoped correction is under independent review. Its actual
+before-cleanup caller, disposable test signing key and both journal recoveries
+are being implemented. Fish history, streamed archive intake and fresh image
+staging remain active. All R1–R5/M5–M9 requirements, both Air sizes, 16K runtime,
+full installation/recovery and final measured performance remain unfinished.
+
+Prior coordinator update, October 13. The maintained native trial38350748733
 is retained and independently reviewed as FAIL / NOT ACCEPTED. Prefetch has501
 positive records; all249 sanitized signature records have integer exit0 and one
 locked-primary VALIDSIG. Eight provenance/four comparison hashes are present,

@@ -44,7 +44,14 @@ The independent peer authenticates the retained evidence and uses five pure
 negative controls; it reruns no GPG/archive/image actors or current cache hashes.
 See the [independent review](../reviews/maintained-baseline-audit-actual01-root-review.md).
 
-The next required step is guarded clean native ARM build pairs using this explicit
-baseline, with owned Docker/process cleanup and retained provenance. Installed
+The guarded maintained native trial `38354516537`, from `0f6b202`, now passes:
+eight builds and four comparisons complete, with matching bytes, contents,
+PKGINFO and BUILDINFO recorded by the source-gated metadata retainer. All 249
+sanitized signature observations are positive. Independent inspection of the
+retained projections passes; private package bytes and full journals were not
+exported for independent replay. The owned image was removed. See the
+[actual native review](../reviews/maintained-native-successor-38354516537-root-review.md).
+
+Fresh whole-composition execution and installed lifecycle remain required. Installed
 Asahi compatibility, complete payload/trust/ABI,16K runtime, both M2 Air sizes,
 performance and R1–R5/M5–M9 release acceptance remain open.
