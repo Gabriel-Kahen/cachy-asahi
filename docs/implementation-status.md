@@ -4,7 +4,52 @@ October 12, 2026. This record tracks the complete `outline.md` scope; an impleme
 
 The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with owned tasks and corrective next actions in `docs/backlog.md`. The destination now explicitly requires the maintained ARM package repository, native performance engineering, integrated Apple stack, broader Cachy system experience, and complete installation/release lifecycle. Both Air sizes, published final measurements, independent onboarding/contribution, subsequent full-port maintenance release, other-ARM reuse and actual upstream submissions remain required; an early overlay release or feasibility decision would not complete the goal. This scope update does not change any recorded execution result.
 
-Latest coordinator update, October 13, 00:06 UTC. The updated roadmap's full
+Latest coordinator update, October 13, 01:23 UTC. The revised roadmap keeps
+R1–R5/M5–M9 mandatory. Reviewed KSM diagnostics are published at `bbc7d6a`, with
+actual committed154-file proof; kernel inner-result diagnostics at `cd0cb58`,
+with actual committed120-file proof. Other KSM150 rows and the kernel workflow
+remain unchanged. Static CI passes for both commits and updater `0e07db1`.
+These are source advances; KSM6 and Kernel7 retain their recorded failures and
+unknown actual causes. Next retries need frozen-input recovery.
+
+FDK9 `38326770829`, from `9ed0efa`, fails original input acquisition:
+501 observations = 497 PASS + four HTTP404. The exact Vim9.2.1164-2 archives
+and signatures are missing upstream; GPG/original builds/FDK are NOT RUN.
+Its committed133-source binding and seven public failure files pass independent
+review. Scoped image absence passes; worker cleanup/absence remain unaccepted.
+All four exact objects are retained locally, totaling9,790,183 bytes. A curated
+seed/controller-cache interface and source/license/retention delivery are being
+implemented; frozen versions/signature gates remain unchanged.
+
+Updater10 `38330541760`, from `0e07db1`, authenticates the reviewed86-file
+source then fails input-authentication:527 observations =523 PASS and the same
+four HTTP404. No compilation runs and no directory refusal leaf is observed.
+Nine bounded public records are retained. Scoped cleanup/private removal and
+recovery report PASS; broader daemon disposal remains NOT ATTESTED. Independent
+actual review is active. This run does not identify updater9's private directory
+branch or change updater8's ELF UNKNOWN history.
+
+S01's actual read-only three-query image probe completes
+PREFLIGHT_GRAMMAR_MATCH_ONLY at the published `f9bb04c` reader pin. Independent
+review passes this narrow scope: root stat/list grammar, exact source/image/tool
+pins and final report custody. The report records2,701 returned/report bytes;
+raw image/tool hashing I/O is excluded from that ledger. An initial sandbox
+UID/GID metadata refusal is retained; the same selection succeeds in the intended
+Root namespace. Full walk/CAT/correspondence,259/261 tuples,26 signer joins,
+installed trust/ABI/hooks/16K/M2 and full341/345 installation remain unaccepted.
+A new bounded selection is being prepared; the three-query grant cannot expand.
+
+The composed parent review finds recovery omitting its existing absolute J.
+A source correction is in progress with causal expiry controls. The clock issuer
+passes independent bounded source review; live registration/external runtime and
+grant construction remain pending. Installer bridge85 source controls pass, but
+live self-namespace comparison reveals marshal reference-encoding sensitivity;
+a correction is being verified without weakening code custody. Actual native P0,
+ABI/fixture26, full candidate installation and physical-machine gates are NOT RUN.
+The Session-only Zsh adapter and FDK cleanup diagnostic are separate active lanes.
+There is still actionable software work; this is not a machine-only stop.
+
+Prior coordinator update, October 13, 00:06 UTC. The updated roadmap's full
 R1–R5/M5–M9 scope remains mandatory. The Session-owned original source view is
 published at `14aa7a9`: 95 source tests pass, including refusal of extra or
 noncanonical directory entries. The composed parent, finite workflow clock,
