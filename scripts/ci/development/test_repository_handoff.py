@@ -8,6 +8,7 @@ import inspect
 import json
 import os
 from pathlib import Path
+import shutil
 import socket
 import subprocess
 import sys
@@ -229,7 +230,7 @@ class CleanupFixtures(unittest.TestCase):
 
 class WiringModels(unittest.TestCase):
     """Clock/one-use/restore causal models, not runtime source or authority admission."""
-    def model(self, *, exit_code=0, broad_seconds=2000, capture_error=None, close_error=None, late_cancel=False):
+    def model(self, *, exit_code=0, broad_seconds=2000, capture_error=None, close_error=None, late_cancel=False, phase_descriptor=None):
         temporary=tempfile.TemporaryDirectory();self.addCleanup(temporary.cleanup)
         root=Path(temporary.name);events=[];clock=[1000]
         grant={'schema_version':2,'source_commit':'a'*40,'run_id':'1','run_attempt':'1','recipe_source_commit':'b'*40,
@@ -284,6 +285,9 @@ class WiringModels(unittest.TestCase):
             session.tick();events.append('terminal')
             adapter.need(type(args[0]) is int and args[0]==0,'initial-failed')
             session.result.update(input_acceptance='PASS',restage='PASS')
+            if phase_descriptor is not None:
+                session.phase_export_raw=adapter.encoded(phase_descriptor)
+                session.phase_export_sha256=adapter.digest(session.phase_export_raw)
         callbacks={'existing_consumers':broad,'public_receiver':lambda *a:None,'authority_provider':lambda *a:None}
         session.pending_consumer=pending;session.terminal_consumer=terminal
         # Budget-only models; explicit view/frame custody is exercised by actual-source fixtures below.
@@ -337,6 +341,22 @@ class WiringModels(unittest.TestCase):
         session,result,_,_=self.model(late_cancel=True)
         self.assertEqual(result['status'],'FAIL');self.assertTrue(result['cancelled'])
         self.assertEqual(adapter.decode((session.output/'status/result.json').read_bytes())['status'],'FAIL')
+
+    def test_return_only_phase_descriptor_after_cleanup_and_durable_success(self):
+        descriptor={'path':'MODEL ONLY','receipt_sha256':'a'*64,'receipt_bytes':12,'public_files':{}}
+        session,result,events,_=self.model(phase_descriptor=descriptor)
+        self.assertEqual(result['phase_public'],{'descriptor_bytes':adapter.encoded(descriptor),
+            'sha256':adapter.digest(adapter.encoded(descriptor))})
+        self.assertEqual(result['cleanup'],'PASS')
+        self.assertNotIn('phase_public',adapter.decode((session.output/'status/result.json').read_bytes()))
+        self.assertLess(events.index('terminal'),events.index('transport-close'))
+
+    def test_cleanup_or_late_cancel_never_returns_captured_phase_authority(self):
+        for options in ({'close_error':OSError('private')},{'late_cancel':True},{'exit_code':1}):
+            session,result,_,_=self.model(phase_descriptor={'path':'MODEL ONLY'},**options)
+            self.assertEqual(result['status'],'FAIL');self.assertIsNone(result['phase_public'])
+            self.assertEqual(result['public'],[str(session.output/'status')])
+            self.assertEqual(adapter.decode((session.output/'status/result.json').read_bytes())['status'],'FAIL')
 
     def test_sticky_deadline_no_renewal(self):
         session,result,_,clock=self.model()
@@ -413,6 +433,19 @@ class TerminalModels(unittest.TestCase):
         self.assertLess(events.index('external-issuer'),events.index('independent-seal'))
         self.assertLess(events.index('independent-seal'),events.index('independent-restage'))
         self.assertIn('exact-public-map',events)
+
+    def test_phase_descriptor_captures_the_validated_receipt_and_exact_map(self):
+        session,events,error,_=self.run_case()
+        self.assertIsNone(error)
+        descriptor=adapter.decode(session.phase_export_raw)
+        raw=(session.output/'phase-public/result.json').read_bytes()
+        self.assertEqual(descriptor,{'path':str(session.output/'phase-public'),
+            'receipt_sha256':adapter.digest(raw),'receipt_bytes':len(raw),
+            'public_files':{**adapter.decode(raw)['public_files'],
+                'result.json':{'sha256':adapter.digest(raw),'bytes':len(raw)}}})
+        self.assertEqual(session.phase_export_sha256,adapter.digest(session.phase_export_raw))
+        (session.output/'phase-public/result.json').write_bytes(b'changed')
+        self.assertEqual(descriptor,adapter.decode(session.phase_export_raw))
 
     def test_full_authority_data_mutation_refuses_before_phase(self):
         session,events,error,_=self.run_case(mutate_issued=True)
@@ -526,7 +559,7 @@ class InitialInvocationFixtures(unittest.TestCase):
                 self.assertFalse(output.exists())
 
 class CapturedGraphFixtures(unittest.TestCase):
-    """Actual captured 243-file import/slot graph; modeled grant, no actors."""
+    """Actual selected258 source/slot graph; modeled registered policy, no actors."""
     @classmethod
     def setUpClass(cls):
         cls.temporary=tempfile.TemporaryDirectory(prefix='handoff-actual-graph-')
@@ -537,7 +570,7 @@ class CapturedGraphFixtures(unittest.TestCase):
         names=set(json.loads((project/'scripts/ci/integration.lock.json').read_bytes())['source_files'])
         names.update('''
 .github/workflows/native-arm-development.yml
-artifacts/reviews/repository-native-handoff-implementation-20261012/root-policy-selection/generic-policy.json
+manifests/reviewed/repository-generic-policy.json
 manifests/reviewed/ksmctl.json
 packages/tools/cachy-asahi-ksmctl/.SRCINFO
 packages/tools/cachy-asahi-ksmctl/LICENSE
@@ -620,12 +653,32 @@ scripts/virtual/test_controller.py
 scripts/virtual/test_virtual.py
 scripts/virtual/tooling-audit.json
 scripts/virtual/tooling.lock.json
+scripts/virtual/image_decode_probe.c
+scripts/virtual/image_decode_report.py
+scripts/virtual/test_image_decode_probe.py
+packages/shells/cachy-asahi-zsh-autosuggestions/.SRCINFO
+packages/shells/cachy-asahi-zsh-autosuggestions/LICENSE.project
+packages/shells/cachy-asahi-zsh-autosuggestions/LICENSE.upstream
+packages/shells/cachy-asahi-zsh-autosuggestions/NOTICE
+packages/shells/cachy-asahi-zsh-autosuggestions/PKGBUILD
+packages/shells/cachy-asahi-zsh-autosuggestions/README.md
+packages/shells/cachy-asahi-zsh-autosuggestions/check-module.py
+packages/shells/cachy-asahi-zsh-autosuggestions/integration-proposal.json
+packages/shells/cachy-asahi-zsh-autosuggestions/opt-in.zsh
+packages/shells/cachy-asahi-zsh-autosuggestions/source-provenance.json
+packages/shells/cachy-asahi-zsh-autosuggestions/usage.md
+packages/shells/cachy-asahi-zsh-autosuggestions/zsh-autosuggestions.zsh
 '''.split())
+        names.update(getattr(cls,'ADDITIONAL_SOURCES',()))
         rows={}
         for name in sorted(names):
-            raw=(project/name).read_bytes();destination=cls.root/name
+            # Explicit harmless fixture bytes, never an ignored artifact dependency
+            # or authority for production. Root registers the actual policy path.
+            raw=(b'{\n  "coordinated_sets": [\n    {\n      "name": "generic-Hyprland-builder",\n      "versions": {\n        "aquamarine": "0.15.1-1",\n        "hyprgraphics": "0.5.1-4",\n        "hyprland": "0.56.2-4",\n        "hyprlang": "0.6.8-5",\n        "hyprutils": "0.14.2-1"\n      }\n    }\n  ],\n  "platform_scope": "generic-builder-only",\n  "protected_packages": [\n    "pacman",\n    "glibc",\n    "bash",\n    "filesystem"\n  ],\n  "purpose": "reviewed-generic-restage-policy",\n  "review_status": "ACCEPTED",\n  "selected_packages": [\n    "cachy-asahi-fish-config",\n    "cachy-asahi-hyprland-settings",\n    "cachy-asahi-setup",\n    "cachy-asahi-zsh-config"\n  ],\n  "supported_models": []\n}\n' if name=='manifests/reviewed/repository-generic-policy.json'
+                 else (project/name).read_bytes());destination=cls.root/name
             destination.parent.mkdir(parents=True,exist_ok=True);destination.write_bytes(raw)
-            mode=(project/name).stat().st_mode&0o777;destination.chmod(mode)
+            mode=0o644 if name=='manifests/reviewed/repository-generic-policy.json' else (project/name).stat().st_mode&0o777
+            destination.chmod(mode)
             rows[name]={'sha256':adapter.digest(raw),'mode':mode}
         cls.a=types.ModuleType('handoff_actual_graph');cls.a.__file__=str(cls.root/'scripts/ci/development/repository_handoff.py')
         cls.registration=patch.dict(sys.modules,{cls.a.__name__:cls.a});cls.registration.start()
@@ -637,7 +690,7 @@ scripts/virtual/tooling.lock.json
             'source_peer_preflight':'PASS','development_only':True,'added_seconds':1200,
             'source_commit':'a'*40,'recipe_source_commit':'c'*40,'run_id':'123','run_attempt':'2',
             'source_files':rows,'maps':{},'callbacks':{},
-            'policy_path':'artifacts/reviews/repository-native-handoff-implementation-20261012/root-policy-selection/generic-policy.json',
+            'policy_path':'manifests/reviewed/repository-generic-policy.json',
             'license_path':'LICENSE','actor_contract_sha256':adapter.digest(adapter.encoded(actor)),
             'initial_invocation_sha256':adapter.digest(adapter.encoded({'argv':['SOURCE-ONLY-NO-ACTOR'],
                                                                        'output':str(cls.output)}))}
@@ -663,11 +716,18 @@ scripts/virtual/tooling.lock.json
             return cls.entry.dependency_entry(cls.root,prefix+'/entry.py',rows[prefix+'/entry.py']['sha256'],
                 cls.grant['maps'][role]['path'],cls.grant['maps'][role]['sha256'],deadline=cls.deadline,phase=role=='phase')[0]
         cls.collector=load('collector');cls.phase=load('phase')
-        cls.session=cls.a.Session(cls.sources,cls.output,job_deadline=cls.deadline)
+        cls.session=cls.a.Session(cls.sources,cls.output,job_deadline=cls.deadline,
+                                 composition=getattr(cls,'COMPOSITION','repository-svg'))
         cls.output.mkdir(mode=0o700);cls.session.prepare_view(cls.output/'original-view')
         cls.session.used=True  # Inert registration model; Session.execute is never called.
         cls.session.source_graph={'entry':cls.entry,'runtime':cls.runtime,'collector':cls.collector,
             'phase':cls.phase,'original':{},'original_aliases':{}}
+        if cls.session.composition == 'installer-preflight':
+            cls.session.register_native_preflight()
+            cls.installer=cls.session.source_graph['native_preflight']
+            def unregister():
+                if sys.modules.get('native_install_preflight') is cls.installer:del sys.modules['native_install_preflight']
+            cls.addClassCleanup(unregister)
         cls.sources.source_graph(cls.session,capture=True)
         cls.partial_observation=cls.sources.graph_observation
         cls.scope=cls.entry.original_modules(cls.session.view_root,cls.session.view_root/'scripts/ci/integration.lock.json',
@@ -698,7 +758,7 @@ scripts/virtual/tooling.lock.json
         self.check()
         with patch.dict(os.environ,GITHUB_SHA=self.grant['source_commit'],GITHUB_RUN_ID='123',GITHUB_RUN_ATTEMPT='2'):
             self.assertEqual(len(self.callback.handoff_binding()),12)
-        self.assertEqual(len(self.sources.raw),243)
+        self.assertEqual(len(self.sources.raw),258)
         self.assertIs(self.sources.source_graph(self.session)['scripts/ci/integration.py'],self.original['integration'])
 
     def test_unobserved_graph_refuses_before_authority(self):
@@ -1018,6 +1078,153 @@ scripts/virtual/tooling.lock.json
         finally:
             (session.view_root/'foreign').unlink();session.view_root.rmdir();original.rename(session.view_root)
 
+
+
+class InstallerGraphFixtures(unittest.TestCase):
+    """Actual Session/Sources registration; no admitted controller/native frames."""
+    COMPOSITION='installer-preflight'
+    ADDITIONAL_SOURCES=('scripts/install/native_preflight.py','scripts/install/test_native_preflight.py',
+        'scripts/install/local_transaction.py','scripts/install/test_local_transaction.py',
+        'scripts/install/native_arm_trial.py','scripts/install/test_native_arm_trial.py',
+        'scripts/port/kernel-native-job/runtime.py')
+    @classmethod
+    def setUpClass(cls): CapturedGraphFixtures.setUpClass.__func__(cls)
+    def check(self): return self.sources.source_graph(self.session)
+    @contextmanager
+    def fresh_registration(self,composition='installer-preflight'):
+        session=self.a.Session(self.sources,self.root/'no-actor-output',job_deadline=self.deadline,
+                               composition=composition)
+        session.used=True
+        session.source_graph={key:self.session.source_graph[key] for key in ('entry','runtime','collector','phase')}
+        session.source_graph.update(original={},original_aliases={})
+        with patch.object(self.sources,'graph_observation',None),patch.dict(sys.modules):
+            sys.modules.pop('native_install_preflight',None)
+            try:yield session
+            finally:sys.modules.pop('native_install_preflight',None)
+    def test_exact_captured_module_callback_and_unchanged_original_graph(self):
+        graph=self.check(); module=graph['scripts/install/native_preflight.py']
+        self.assertIs(module,self.installer); self.assertIs(sys.modules['native_install_preflight'],module)
+        self.assertEqual((module.OWN,module.run.__module__,module.run.__qualname__),
+            ('scripts/install/native_preflight.py','native_install_preflight','run'))
+        self.assertEqual(len(self.sources.raw),265)
+        self.assertEqual(len(self.sources.grant),17); self.assertEqual(len(self.sources.grant['original_view']),8)
+        self.assertEqual(len(self.sources.grant['callbacks']),3)
+        self.assertEqual(set(self.session.source_graph),
+            {'entry','runtime','collector','phase','original','original_aliases','native_preflight'})
+        self.assertIs(graph['scripts/ci/integration.py'],self.original['integration'])
+        self.assertIsNone(self.session.native_consumer_observation)
+        self.assertIsNone(self.session.result['initial_exit_code'])
+    def test_registration_and_graph_capture_validate_actual_bridge_before_and_after(self):
+        calls=[]
+        def trace(frame,event,arg):
+            if event=='call' and frame.f_code.co_qualname=='namespace' and frame.f_globals.get('__name__')=='native_install_preflight':
+                calls.append((frame.f_locals['module'],frame.f_locals['raw'],frame.f_locals['pin']))
+            return trace
+        with self.fresh_registration() as session:
+            previous=sys.gettrace();sys.settrace(trace)
+            try:
+                callback=session.register_native_preflight()
+                modules=self.sources.source_graph(session,capture=True)
+            finally:sys.settrace(previous)
+            module=modules['scripts/install/native_preflight.py']
+            self.assertIs(callback,module.run);self.assertEqual(len(calls),4)
+            for actual,raw,pin in calls:
+                self.assertIs(actual,module);self.assertIs(raw,self.sources.raw[module.OWN])
+                self.assertEqual(pin,self.sources.grant['source_files'][module.OWN]['sha256'])
+    def test_unknown_modes_refuse_and_legacy_registration_starts_no_loader(self):
+        for mode in ('installer',True,None,{}):
+            with self.assertRaises(self.a.Refused):
+                self.a.Session(self.sources,self.root/'absent',job_deadline=self.deadline,composition=mode)
+        with self.fresh_registration('repository-svg') as session:
+            with self.assertRaises(self.a.Refused):session.register_native_preflight()
+            self.assertNotIn('native_install_preflight',sys.modules)
+            self.assertNotIn('native_preflight',session.source_graph)
+    def test_graph_mode_missing_extra_or_wrong_module_keys_refuse(self):
+        with patch.object(self.session,'composition','repository-svg'):
+            with self.assertRaises(self.a.Refused):self.check()
+        for change in ({'extra':self.installer},{'native_preflight':None}):
+            with patch.dict(self.session.source_graph,change):
+                with self.assertRaises(self.a.Refused):self.check()
+        with patch.dict(self.session.source_graph):
+            del self.session.source_graph['native_preflight']
+            with self.assertRaises(self.a.Refused):self.check()
+    def test_foreign_mode_and_callback_identity_labels_refuse_without_equality(self):
+        calls=[]
+        class Foreign:
+            def __eq__(self,other):calls.append('equality');raise RuntimeError('foreign equality')
+        foreign=Foreign()
+        for target,field in ((self.session,'composition'),(self.installer,'OWN'),
+                             (self.installer,'__name__'),(self.installer.run,'__module__')):
+            old=getattr(target,field);setattr(target,field,foreign)
+            try:
+                with self.assertRaises(self.a.Refused):self.check()
+            finally:setattr(target,field,old)
+        with self.fresh_registration() as session:
+            session.composition=foreign
+            with self.assertRaises(self.a.Refused):session.register_native_preflight()
+        self.assertEqual(calls,[])
+    def test_foreign_module_subclass_namespace_or_sys_modules_refuse(self):
+        class ForeignModule(types.ModuleType): pass
+        for replacement in (None,types.ModuleType('native_install_preflight'),ForeignModule('native_install_preflight')):
+            with patch.dict(sys.modules,{'native_install_preflight':replacement}):
+                with self.assertRaises(self.a.Refused):self.check()
+        foreign=types.ModuleType('native_install_preflight');foreign.__dict__.update(self.installer.__dict__)
+        with patch.dict(sys.modules,{'native_install_preflight':foreign}), \
+             patch.dict(self.session.source_graph,{'native_preflight':foreign}):
+            with self.assertRaises(self.a.Refused):self.check()
+    def test_exact_callback_tuple_code_globals_defaults_and_import_custody_refuse(self):
+        callback=self.installer.run
+        foreign=types.FunctionType(callback.__code__,{'__builtins__':__builtins__})
+        for replacement in (foreign,lambda *args,**kwargs:{'status':'PASS'}):
+            with patch.object(self.installer,'run',replacement):
+                with self.assertRaises(ValueError):self.check()
+        for field,value in (('__module__','foreign'),('__qualname__','foreign'),
+                            ('__defaults__',('foreign',)),('__kwdefaults__',{'nonce':'foreign'})):
+            old=getattr(callback,field);setattr(callback,field,value)
+            try:
+                with self.assertRaises(ValueError):self.check()
+            finally:setattr(callback,field,old)
+        with patch.object(self.installer,'Path',type(Path())):
+            with self.assertRaises(ValueError):self.check()
+    def test_each_required_source_and_grant_row_is_required_before_registration(self):
+        for path in self.ADDITIONAL_SOURCES:
+            for rows in (self.sources.raw,self.sources.grant['source_files']):
+                with self.fresh_registration() as session,patch.dict(rows):
+                    del rows[path]
+                    with self.assertRaises(self.a.Refused):session.register_native_preflight()
+                    self.assertNotIn('native_install_preflight',sys.modules)
+                    self.assertNotIn('native_preflight',session.source_graph)
+    def test_ambient_module_once_registration_and_recapture_refuse(self):
+        with self.fresh_registration() as session:
+            with patch.dict(sys.modules,{'native_install_preflight':self.installer}):
+                with self.assertRaises(self.a.Refused):session.register_native_preflight()
+            session.register_native_preflight();self.sources.source_graph(session,capture=True)
+            with self.assertRaises(self.a.Refused):session.register_native_preflight()
+            with self.assertRaises(self.a.Refused):self.sources.source_graph(session,capture=True)
+        with self.assertRaises(self.a.Refused):self.sources.source_graph(self.session,capture=True)
+    def test_equal_source_bytes_replacement_is_refused_by_actual_source_guard(self):
+        with tempfile.TemporaryDirectory(prefix='installer-graph-source-identity-') as temporary:
+            root=Path(temporary)/'source';shutil.copytree(self.root,root)
+            sources=self.a.Sources(root,self.grant,self.deadline)
+            path=root/'scripts/install/native_preflight.py';saved=path.with_suffix('.retained')
+            path.rename(saved)
+            path.write_bytes(saved.read_bytes());path.chmod(saved.stat().st_mode&0o777)
+            with self.assertRaises(self.a.Refused):sources.guard(self.deadline)
+        self.check()
+    def test_registration_refusal_after_attachment_rolls_back_owned_namespace(self):
+        # A synchronous source-only trace trips the existing deadline after attachment.
+        with self.fresh_registration() as session:
+            old=self.deadline
+            def trace(frame,event,arg):
+                if event=='line' and frame.f_code is self.a.Session.register_native_preflight.__code__ and 'native_preflight' in session.source_graph:
+                    session.job_deadline=time.monotonic()-1
+                return trace
+            previous=sys.gettrace();sys.settrace(trace)
+            try:
+                with self.assertRaises(self.a.Refused):session.register_native_preflight()
+            finally:sys.settrace(previous);session.job_deadline=old
+            self.assertNotIn('native_install_preflight',sys.modules)
+            self.assertNotIn('native_preflight',session.source_graph)
 
 
 if __name__ == '__main__':unittest.main()

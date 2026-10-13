@@ -387,5 +387,105 @@ class PreflightTests(Base):
             self.assertNotIn('PRIVATE', str(failure.exception))
 
 
+class ComposedTests(Base):
+    """Exact258 source fixtures and read-only Git models; no actor admission."""
+    def setUp(self):
+        super().setUp()
+        recipes=packet.decode(packet.read(self.root/'scripts/ci/recipes.lock.json')[0])
+        for directory,count in (('packages/two',23),('packages/three',23),('packages/four',22)):
+            recipes[directory]={}
+            for number in range(count):
+                name='input-'+str(number);path=self.write(directory+'/'+name)
+                recipes[directory][name]=digest(path.read_bytes())
+        self.json('scripts/ci/recipes.lock.json',recipes)
+        locked,_=packet.recipe_paths(self.root)
+        original=packet.initial_paths(self.root,locked)
+        for number in range(159-len(original)):
+            original.add(self.write('examples/filler-'+str(number)).relative_to(self.root).as_posix())
+        self.initial.update(source_files=packet.rows(self.root,original),
+            recipes_sha256=digest((self.root/'scripts/ci/recipes.lock.json').read_bytes()),
+            generated_fixture_files={'baseline/file-'+str(number):{'sha256':'e'*64,'mode':0o644} for number in range(125)})
+        self.initial_sha=self.json(packet.INITIAL,self.initial)
+        for name in packet.COMPOSED_EXTRA:
+            if not (self.root/name).exists():self.write(name)
+        for path,prefix in packet.COMPOSED_MAPS.items():
+            names={packet.relative(name).name for name in packet.COMPOSED_EXTRA
+                   if name.startswith(prefix+'/') and name.endswith('.py')}
+            self.json(path,{name:packet.read(self.root/prefix/name)[1] for name in names})
+        self.json(packet.GENERIC_POLICY,{'supported_models':[],'platform_scope':'generic-builder-only','review_status':'ACCEPTED'})
+        self.pins={name:digest((self.root/name).read_bytes()) for name in packet.COMPOSED_PINS}
+
+    def freeze(self):
+        self.packet_path=self.root/packet.LOCK
+        self.packet_sha=packet.freeze_composed(self.root,self.packet_path,self.root/packet.INITIAL,self.initial_sha,self.pins)
+        self.value=packet.decode(self.packet_path.read_bytes());return self.value
+
+    def check(self):
+        return packet.preflight_composed(self.root,self.packet_path,self.packet_sha,COMMIT,self.pins)
+
+    def test_exact_union_and_git_copy_allow_separate_unexecuted_installer(self):
+        value=self.freeze()
+        self.assertEqual(len(value['source_files']),258);self.assertEqual(len(value['initial_source_files']),159)
+        self.assertEqual(len(value['generated_fixture_files']),125);self.assertEqual(len(value['metadata_pins']),12)
+        self.write('scripts/install/local_transaction.py',b'UNSELECTED NO ACTOR')
+        with self.git_fixture():self.assertEqual(self.check(),value)
+        copied=Path(self.temp.name)/'copy';packet.snapshot(self.root,copied,value)
+        self.assertFalse((copied/'scripts/install').exists())
+        self.assertEqual(packet.rows(copied,value['source_files']),value['source_files'])
+
+    def test_legacy_scan_still_refuses_expanded_root(self):
+        with self.assertRaisesRegex(packet.PacketError,'initial-source-map-drift'):packet.scan(self.root,self.initial)
+
+    def test_selected_map_or_source_drift_refuses(self):
+        self.freeze();target=self.root/'scripts/virtual/image_decode_report.py';target.write_bytes(b'changed')
+        with self.assertRaisesRegex(packet.PacketError,'packet-source-map-drift'):self.check()
+        with self.assertRaisesRegex(packet.PacketError,'snapshot-source-drift'):
+            packet.snapshot(self.root,Path(self.temp.name)/'copy',self.value)
+
+    def test_map_omitted_extra_or_altered_row_refuses(self):
+        for omitted in ('initial','extra','map'):
+            with self.subTest(omitted=omitted):
+                if (self.root/packet.LOCK).exists():(self.root/packet.LOCK).unlink()
+                self.freeze();value=packet.decode(self.packet_path.read_bytes())
+                if omitted=='map':
+                    name=next(iter(packet.COMPOSED_MAPS));data=packet.decode((self.root/name).read_bytes())
+                    member=next(iter(data));data[member]['sha256']='a'*64
+                    with self.assertRaisesRegex(packet.PacketError,'composed-map-binding-drift'):
+                        packet.composed_bindings(self.root,{**value['source_files'],name:{'mode':0o644,'sha256':self.json(name,data)}},
+                                                {**self.pins,name:digest((self.root/name).read_bytes())})
+                    return
+                del value['source_files'][next(iter(self.initial['source_files'])) if omitted=='initial' else 'scripts/virtual/image_decode_report.py']
+                self.packet_sha=self.json(packet.LOCK,value)
+                with self.assertRaises(packet.PacketError):self.check()
+
+    def test_unknown_mode_legacy_schema_and_pin_set_refuse(self):
+        self.freeze()
+        for mutate in (lambda value:value.update(schema_version=1),lambda value:value.update(composition='repository-svg-zsh'),
+                       lambda value:value['metadata_pins'].pop(packet.GENERIC_POLICY)):
+            value=packet.decode(self.packet_path.read_bytes());mutate(value);self.packet_sha=self.json(packet.LOCK,value)
+            with self.assertRaises(packet.PacketError):self.check()
+            self.packet_path.unlink();self.freeze()
+
+    def test_git_missing_selected_row_mode_or_blob_drift_refuses(self):
+        self.freeze()
+        for kind in ('missing','mode','blob'):
+            with self.subTest(kind=kind),self.git_fixture():
+                name='scripts/virtual/image_decode_probe.c'
+                if kind=='missing':del self.tree[name]
+                elif kind=='mode':self.tree[name][0]='100755'
+                else:self.blobs[self.tree[name][2]]=b'drift'
+                with self.assertRaises(packet.PacketError):self.check()
+
+    def test_cache_or_extra_packet_row_and_fixture_drift_refuse(self):
+        self.freeze()
+        for key,change in (('source_files',lambda value:value.update({'scripts/install/local_transaction.py':{'sha256':'a'*64,'mode':0o644}})),
+                           ('generated_fixture_files',lambda value:value.pop(next(iter(value))))):
+            value=packet.decode(self.packet_path.read_bytes());change(value[key]);self.packet_sha=self.json(packet.LOCK,value)
+            with self.assertRaises(packet.PacketError):self.check()
+            self.packet_path.unlink();self.freeze()
+        self.write('scripts/virtual/unknown.pyc',b'cache')
+        with self.assertRaisesRegex(packet.PacketError,'source-python-cache-refused'):self.check()
+
+
 if __name__ == '__main__':
     unittest.main()

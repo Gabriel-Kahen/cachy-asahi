@@ -1,6 +1,7 @@
 """Virtual adapter tests use temporary fixtures and mocked fetch/owner commands."""
 import copy
 import base64
+from contextlib import contextmanager
 import hashlib
 import json
 import io
@@ -2185,6 +2186,228 @@ class BoundedTransport(unittest.TestCase):
             self.assertEqual(timer.call_args_list[-1].args, (v.signal.ITIMER_REAL, 0))
             outer.assert_called_once_with(v.signal.SIGALRM, None)
             self.assertIs(handlers[-1], outer)
+
+
+class OwnerDeadline(unittest.TestCase):
+    def test_expired_or_malformed_refuses_before_output_or_owner(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            owner = SimpleNamespace(native_out=root/'native', work=root/'work')
+            for deadline in (0, True, float('nan'), float('inf'), 'renew'):
+                with self.subTest(deadline=deadline), patch.object(v.time, 'monotonic', return_value=1), \
+                        patch.object(v, 'command') as command, patch.object(v, 'preflight') as preflight, \
+                        self.assertRaisesRegex(ValueError, 'stage-deadline-exceeded'):
+                    v.run_virtual(owner, root/'source', root/'output', root/'cache', deadline=deadline)
+                self.assertFalse((root/'output').exists())
+                command.assert_not_called(); preflight.assert_not_called()
+
+    def test_acquisition_clock_clips_same_deadline_without_renewal(self):
+        clock = [100.0]
+        with patch.object(v.time, 'monotonic', side_effect=lambda: clock[0]), \
+                patch.object(v.signal, 'getsignal'), patch.object(v.signal, 'signal'), \
+                patch.object(v.signal, 'getitimer', return_value=(1000, 0)), \
+                patch.object(v.signal, 'setitimer') as timer:
+            with v.acquisition_clock(deadline=150) as end:
+                self.assertEqual(end, 150)
+                clock[0] = 120
+            with v.acquisition_clock(deadline=150) as end:
+                self.assertEqual(end, 150)
+            starts = [call.args[1] for call in timer.call_args_list if len(call.args)==2 and call.args[1]>0]
+            self.assertEqual(starts, [50, 30])
+
+    def test_trickled_fetch_crosses_job_deadline_and_removes_owned_partial(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            cache = Path(temporary); clock = [0.0]
+            row = {'filename':'blob', 'url':'https://example.invalid/blob', 'sha256':sha(b'x'), 'size':1}
+            response = io.BytesIO(b'x'); response.status=200; response.headers={}; response.geturl=lambda:row['url']
+            def read(size):
+                clock[0]=6; return b'x'
+            response.read1=read
+            with patch.object(v.time, 'monotonic', side_effect=lambda:clock[0]), \
+                    patch.object(v, 'open_tooling', return_value=response) as transport, \
+                    self.assertRaisesRegex(ValueError, 'stage-deadline-exceeded'):
+                v.fetch_blob(row, cache, 5, job_deadline=5)
+            transport.assert_called_once_with(row['url'], timeout=5)
+            self.assertTrue(response.closed); self.assertEqual(list(cache.iterdir()), [])
+
+    def test_blocked_alarm_refuses_explicit_deadline_before_transport(self):
+        with patch.object(v.time,'monotonic',return_value=0), \
+                patch.object(v.signal,'pthread_sigmask',return_value={signal.SIGALRM}), \
+                patch.object(v.signal,'signal') as handler, patch.object(v.signal,'setitimer') as timer, \
+                self.assertRaisesRegex(ValueError,'stage-deadline-exceeded'):
+            with v.acquisition_clock(deadline=100):self.fail('blocked alarm permitted')
+        handler.assert_not_called(); timer.assert_not_called()
+
+    def test_clock_install_failure_restores_handler_and_retains_first_error(self):
+        first=OSError('first clock install'); previous=object()
+        with patch.object(v.time,'monotonic',return_value=0), \
+                patch.object(v.signal,'pthread_sigmask',return_value=set()), \
+                patch.object(v.signal,'getsignal',return_value=previous), \
+                patch.object(v.signal,'getitimer',return_value=(0,0)), \
+                patch.object(v.signal,'signal') as handler, \
+                patch.object(v.signal,'setitimer',side_effect=[first,None]) as timer:
+            try:
+                with v.acquisition_clock(deadline=100):self.fail('failed install yielded')
+            except OSError as error:self.assertIs(error,first)
+            else:self.fail('clock error lost')
+        self.assertEqual(handler.call_args.args,(signal.SIGALRM,previous))
+        self.assertEqual(timer.call_args_list[-1].args,(signal.ITIMER_REAL,0))
+
+    def test_expiry_after_allocation_closes_raw_owned_descriptor(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            cache=Path(temporary); clock=[0.0]; observed=[]; allocating=v.tempfile.mkstemp
+            def allocate(**options):
+                descriptor,name=allocating(**options); observed.append(descriptor); clock[0]=5
+                return descriptor,name
+            row={'filename':'blob','url':'https://example.invalid/blob','sha256':sha(b'x'),'size':1}
+            with patch.object(v.time,'monotonic',side_effect=lambda:clock[0]), \
+                    patch.object(v.tempfile,'mkstemp',side_effect=allocate), patch.object(v,'open_tooling') as transport, \
+                    self.assertRaisesRegex(ValueError,'stage-deadline-exceeded'):
+                v.fetch_blob(row,cache,5,job_deadline=5)
+            with self.assertRaises(OSError) as error:v.os.fstat(observed[0])
+            self.assertEqual(error.exception.errno,9)
+            transport.assert_not_called(); self.assertEqual(list(cache.iterdir()),[])
+
+    def test_transport_close_fault_attempts_stream_close_and_keeps_body_control(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            cache=Path(temporary); first=KeyboardInterrupt('first transport control'); closed=[]
+            row={'filename':'blob','url':'https://example.invalid/blob','sha256':sha(b'x'),'size':1}
+            response=Mock(status=200,headers={}); response.geturl.return_value=row['url']
+            response.read1.side_effect=first; response.close.side_effect=OSError('later close fault')
+            real_fdopen=v.os.fdopen
+            def fdopen(fd,mode):
+                stream=real_fdopen(fd,mode)
+                proxy=Mock(wraps=stream)
+                def close():
+                    stream.close(); closed.append(True)
+                proxy.close.side_effect=close
+                return proxy
+            with patch.object(v.time,'monotonic',return_value=0), patch.object(v,'open_tooling',return_value=response), \
+                    patch.object(v.os,'fdopen',side_effect=fdopen):
+                try:v.fetch_blob(row,cache,5,job_deadline=5)
+                except KeyboardInterrupt as error:self.assertIs(error,first)
+                else:self.fail('first control replaced')
+            self.assertEqual(closed,[True]); response.close.assert_called_once()
+            self.assertEqual(list(cache.iterdir()),[])
+
+    def test_unmask_control_after_fdopen_transfer_closes_registered_stream(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            cache=Path(temporary); first=KeyboardInterrupt('transfer control'); restores=[]; observed=[]
+            row={'filename':'blob','url':'https://example.invalid/blob','sha256':sha(b'x'),'size':1}
+            original=v.os.fdopen
+            def fdopen(fd,mode):
+                observed.append(fd); return original(fd,mode)
+            def mask(action,values):
+                if action==signal.SIG_SETMASK:
+                    restores.append(True)
+                    if len(restores)==2:raise first
+                return set()
+            with patch.object(v.time,'monotonic',return_value=0), patch.object(v.os,'fdopen',side_effect=fdopen), \
+                    patch.object(v.signal,'pthread_sigmask',side_effect=mask), patch.object(v,'open_tooling') as transport:
+                try:v.fetch_blob(row,cache,5,job_deadline=5)
+                except KeyboardInterrupt as error:self.assertIs(error,first)
+                else:self.fail('transfer control lost')
+            with self.assertRaises(OSError) as error:v.os.fstat(observed[0])
+            self.assertEqual(error.exception.errno,9); transport.assert_not_called()
+            self.assertEqual(list(cache.iterdir()),[])
+
+    def test_fdopen_latency_cannot_launch_transport_after_job_deadline(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            cache=Path(temporary); clock=[0.0]; observed=[]; opening=v.os.fdopen
+            row={'filename':'blob','url':'https://example.invalid/blob','sha256':sha(b'x'),'size':1}
+            def fdopen(fd,mode):
+                observed.append(fd); stream=opening(fd,mode); clock[0]=5; return stream
+            with patch.object(v.time,'monotonic',side_effect=lambda:clock[0]), \
+                    patch.object(v.os,'fdopen',side_effect=fdopen), patch.object(v,'open_tooling') as transport, \
+                    self.assertRaisesRegex(ValueError,'stage-deadline-exceeded'):
+                v.fetch_blob(row,cache,5,job_deadline=5)
+            transport.assert_not_called()
+            with self.assertRaises(OSError) as error:v.os.fstat(observed[0])
+            self.assertEqual(error.exception.errno,9); self.assertEqual(list(cache.iterdir()),[])
+
+    def test_late_context_restoration_cannot_return_pass(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            output=Path(temporary); status=output/'status'; status.mkdir(); clock=[0.0]
+            @contextmanager
+            def late():
+                yield []
+                clock[0]=10
+            result={'status':'PASS','public':[]}
+            with patch.object(v.time,'monotonic',side_effect=lambda:clock[0]), \
+                    patch.object(v,'defer_finalization',late), patch.object(v,'save'):
+                v.finalize_virtual(output,output,status,result,[],None,False,False,None,10)
+            self.assertEqual(result['status'],'FAIL'); self.assertTrue(result['finalization_failed'])
+            self.assertEqual(result['error_code'],'stage-deadline-exceeded')
+
+    def test_all_owner_and_recovery_calls_receive_identical_job_deadline(self):
+        fixture = VirtualStage('runTest'); fixture.setUp(); self.addCleanup(fixture.doCleanups)
+        clock=[0.0]; deadline=900.25; forwards=[]
+        def fetch(row, cache, end, *, job_deadline):
+            forwards.append(('fetch', job_deadline)); self.assertLessEqual(end, job_deadline)
+            clock[0]+=1
+            return fixture.mock_fetch(row, cache, end)
+        def command(argv, log, timeout, *, deadline):
+            forwards.append(('command',deadline)); return fixture.mock_owner(argv,log,timeout)
+        with patch.object(v.time, 'monotonic', side_effect=lambda:clock[0]), \
+                patch.object(v.signal, 'setitimer'), patch.object(v, 'fetch_blob', side_effect=fetch), \
+                patch.object(v, 'command', side_effect=command):
+            result=v.run_virtual(fixture.c,fixture.root,fixture.output,fixture.cache,deadline=deadline)
+        self.assertEqual(result['status'],'PASS',result.get('error_code'))
+        self.assertEqual(len(forwards),46)
+        self.assertTrue(all(value==deadline for _,value in forwards))
+        self.assertEqual(clock[0],45)
+
+    def test_expiry_during_retention_cannot_turn_first_failure_into_pass(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            output=Path(temporary); status=output/'adapter-status'; status.mkdir()
+            first=ValueError('first-business'); result={'status':'FAIL','error_code':'first-business','public':[]}
+            with patch.object(v.time, 'monotonic', return_value=20), \
+                    patch.object(v, 'save', side_effect=ValueError('stage-deadline-exceeded')) as save:
+                v.finalize_virtual(output,output,status,result,[],None,False,False,first,10)
+            self.assertEqual(result['status'],'FAIL'); self.assertEqual(result['error_code'],'first-business')
+            self.assertTrue(result['finalization_failed']); self.assertEqual(save.call_count,2)
+            self.assertTrue(all(call.kwargs['deadline']==10 for call in save.call_args_list))
+
+    def test_owner_failure_recovery_keeps_same_job_deadline_and_first_code(self):
+        fixture=VirtualStage('runTest'); fixture.setUp(); self.addCleanup(fixture.doCleanups)
+        deadline=900.25; original=ValueError('stage-log-bound-exceeded')
+        def fetch(row,cache,end,*,job_deadline):
+            self.assertEqual(job_deadline,deadline)
+            return fixture.mock_fetch(row,cache,end)
+        with patch.object(v.time,'monotonic',return_value=0), patch.object(v.signal,'setitimer'), \
+                patch.object(v,'fetch_blob',side_effect=fetch), patch.object(v,'command',side_effect=original) as command, \
+                patch.object(v,'receive',side_effect=v.CleanupFailure()) as recovery:
+            result=v.run_virtual(fixture.c,fixture.root,fixture.output,fixture.cache,deadline=deadline)
+        self.assertEqual(result['status'],'FAIL'); self.assertEqual(result['error_code'],'stage-log-bound-exceeded')
+        self.assertTrue(result['finalization_failed'])
+        self.assertEqual(result['finalization_error_code'],'stage-cleanup-failed')
+        self.assertEqual(command.call_args.kwargs['deadline'],deadline)
+        recovery.assert_called_once()
+        self.assertEqual(recovery.call_args.kwargs['deadline'],deadline)
+
+    def test_restore_fault_still_attempts_later_handlers_and_keeps_body_cause(self):
+        calls=[]; body=KeyboardInterrupt('first control'); previous={signal.SIGINT:object(),signal.SIGTERM:object()}
+        def restore(sig, handler):
+            calls.append((sig,handler))
+            if handler is previous[signal.SIGINT]:raise OSError('ordinary restore fault')
+        with patch.object(v.signal,'getsignal',side_effect=lambda sig:previous[sig]), \
+                patch.object(v.signal,'signal',side_effect=restore), patch.object(v.signal,'pthread_sigmask',return_value=set()), \
+                patch.object(v.signal,'sigpending',return_value=set()):
+            try:
+                with v.defer_finalization():raise body
+            except KeyboardInterrupt as error:self.assertIs(error,body)
+            else:self.fail('lost original control')
+        self.assertIn((signal.SIGTERM,previous[signal.SIGTERM]),calls)
+
+    def test_expired_retraction_quarantines_all_owned_publications(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root=Path(temporary); publications=[]
+            for index in range(2):
+                path=root/str(index); path.mkdir(); (path/'frame').write_bytes(b'fixture')
+                info=path.stat(); publications.append((path,root/(str(index)+'-failed'),(info.st_dev,info.st_ino)))
+            with patch.object(v.time,'monotonic',return_value=20), self.assertRaises(v.CleanupFailure):
+                v.retract_publications(publications,deadline=10)
+            self.assertTrue(all(not p.exists() and q.exists() for p,q,_ in publications))
 
 
 if __name__ == '__main__':

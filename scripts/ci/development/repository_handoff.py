@@ -375,7 +375,11 @@ class Sources:
         need(session.sources is self,'callback-refused')
         self.class_state(self,'scripts/ci/development/repository_handoff.py',module)
         graph = state['source_graph']
-        need(type(graph) is dict and (not graph or set(graph) == {'entry','runtime','collector','phase','original','original_aliases'}),
+        composition = state.get('composition')
+        need(type(composition) is str and composition in ('repository-svg','installer-preflight'),'callback-refused')
+        fields = {'entry','runtime','collector','phase','original','original_aliases'}
+        if composition == 'installer-preflight':fields.add('native_preflight')
+        need(type(graph) is dict and (not graph or set(graph) == fields),
              'callback-refused')
         modules = {}
         compiled = {}
@@ -396,6 +400,18 @@ class Sources:
                 context = session._original_context(deadline=session.work_end if session.work_end is not None else session.job_deadline)
                 need(all(context['original'][name] is value for name,value in graph['original'].items()),'callback-refused')
             for name,value in graph['original'].items():modules[original[name]] = value
+            installer = None
+            if composition == 'installer-preflight':
+                installer = graph['native_preflight']
+                installer_path,name,qualname = ('scripts/install/native_preflight.py','native_install_preflight','run')
+                need(type(installer) is types.ModuleType and type(installer.__name__) is str and installer.__name__ == name and
+                     sys.modules.get(name) is installer and installer_path in self.raw and
+                     type(installer.__dict__.get('OWN')) is str and installer.__dict__['OWN'] == installer_path,'callback-refused')
+                callback = installer.__dict__.get(qualname)
+                need(type(callback) is types.FunctionType and type(callback.__module__) is str and callback.__module__ == name and
+                     type(callback.__qualname__) is str and callback.__qualname__ == qualname and callback.__globals__ is installer.__dict__,
+                     'callback-refused')
+                modules[installer_path] = installer
             aliases = graph['original_aliases']
             need(type(aliases) is dict and (not aliases if not graph['original'] else
                  set(aliases) == {'repository_projection.inventory','desktop_projection.policy'}),'callback-refused')
@@ -411,6 +427,8 @@ class Sources:
                      'callback-refused')
                 self.graph_namespace(value,path,modules,aliases,compiled)
             for label,value in aliases.items():self.graph_namespace(value,alias_paths[label],modules,aliases,compiled)
+            if installer is not None:
+                installer.namespace(installer,self.raw[installer_path],self.grant['source_files'][installer_path]['sha256'])
             observation = self.graph_identity((module,)+tuple(modules.values())+tuple(aliases.values()))
             if capture:
                 # Only the two authenticated loader boundaries may establish it.
@@ -424,6 +442,8 @@ class Sources:
                 self.graph_observation = observation
             else:
                 need(self.graph_observation is not None and observation == self.graph_observation,'callback-refused')
+            if installer is not None:
+                installer.namespace(installer,self.raw[installer_path],self.grant['source_files'][installer_path]['sha256'])
         return modules
 
     def graph_identity(self, modules):
@@ -754,8 +774,10 @@ def authority_matches(candidate, accepted):
 
 class Session:
     """One original producer plus one deadline-bound baseline/phase consumer."""
-    def __init__(self, sources, output, *, job_deadline, cancelled=None):
+    def __init__(self, sources, output, *, job_deadline, cancelled=None, composition='repository-svg'):
         check(job_deadline, cancelled)
+        need(type(composition) is str and composition in ('repository-svg','installer-preflight'),'grant-refused')
+        self.composition = composition
         self.sources, self.output = sources, Path(output).absolute()
         self.job_deadline, self.cancelled = job_deadline, cancelled
         self.used = False; self.end = None; self.work_end = None
@@ -766,6 +788,7 @@ class Session:
         self.view_root = self.view_node = self.view_parent_node = None
         self.view_receipt = self.view_receipt_sha256 = None
         self.original_scope = self.native_consumer_observation = None
+        self.phase_export_raw = self.phase_export_sha256 = None
         self.result = {'schema_version':1, 'purpose':'same-job-repository-handoff', 'status':'NOT RUN',
             'initial_exit_code':None, 'callback_entered':False, 'input_acceptance':'NOT RUN',
             'restage':'NOT RUN', 'cleanup':'NOT RUN', 'cancelled':False, 'error_code':None,
@@ -777,6 +800,39 @@ class Session:
             'execution_grant_sha256':getattr(sources,'grant_pin',None),
             'actor_contract_sha256':getattr(sources,'grant',{}).get('actor_contract_sha256'),
             'initial_invocation_sha256':getattr(sources,'grant',{}).get('initial_invocation_sha256')}
+
+    def register_native_preflight(self):
+        """Explicit source-only registration before the first dependency capture."""
+        need(type(self.composition) is str and self.composition == 'installer-preflight' and self.used is True and self.controller is None and
+             self.sources.graph_observation is None and type(self.source_graph) is dict and
+             set(self.source_graph) == {'entry','runtime','collector','phase','original','original_aliases'} and
+             not self.source_graph['original'] and not self.source_graph['original_aliases'], 'callback-refused')
+        path,name,qualname = ('scripts/install/native_preflight.py','native_install_preflight','run')
+        required = (path,'scripts/install/test_native_preflight.py','scripts/install/local_transaction.py',
+            'scripts/install/test_local_transaction.py','scripts/install/native_arm_trial.py',
+            'scripts/install/test_native_arm_trial.py','scripts/port/kernel-native-job/runtime.py')
+        need(all(item in self.sources.raw and item in self.sources.grant['source_files'] for item in required) and
+             name not in sys.modules,'callback-refused')
+        owner = sys.modules.get(type(self).__module__)
+        self.sources.class_state(self,'scripts/ci/development/repository_handoff.py',owner)
+        self.sources.class_state(self.sources,'scripts/ci/development/repository_handoff.py',owner)
+        self.sources.guard(self.job_deadline,self.cancelled)
+        module = self.sources.module(name,path)
+        self.sources.graph_namespace(module,path,{path:module},{},{})
+        callback = module.__dict__.get(qualname)
+        need(type(callback) is types.FunctionType and type(callback.__module__) is str and callback.__module__ == name and
+             type(callback.__qualname__) is str and callback.__qualname__ == qualname and callback.__globals__ is module.__dict__, 'callback-refused')
+        module.namespace(module,self.sources.raw[path],self.sources.grant['source_files'][path]['sha256'])
+        self.source_graph['native_preflight'] = module
+        sys.modules[name] = module
+        try:
+            self.sources.guard(self.job_deadline,self.cancelled)
+            module.namespace(module,self.sources.raw[path],self.sources.grant['source_files'][path]['sha256'])
+        except BaseException:
+            if sys.modules.get(name) is module:del sys.modules[name]
+            if self.source_graph.get('native_preflight') is module:del self.source_graph['native_preflight']
+            raise
+        return callback
 
     def view_plan(self, argv):
         grant = self.sources.grant
@@ -1139,6 +1195,11 @@ class Session:
         need(capture.decode(raw) == outcome, 'restage-failed')
         collector['common'].mapped(self.output/'phase-public',{
             **outcome['public_files'], 'result.json':{'sha256':digest(raw),'bytes':len(raw)}})
+        self.phase_export_raw = encoded({'path':str(self.output/'phase-public'),
+            'receipt_sha256':digest(raw),'receipt_bytes':len(raw),
+            'public_files':{**outcome['public_files'],'result.json':{'sha256':digest(raw),'bytes':len(raw)}}})
+        need(len(self.phase_export_raw) <= FILE_LIMIT,'restage-failed')
+        self.phase_export_sha256 = digest(self.phase_export_raw)
         self.result['restage'] = 'PASS'
 
     def execute(self, argv, callbacks, runtime_contract):
@@ -1181,6 +1242,7 @@ class Session:
             self.prepare_view(view_root)
             self.source_graph = {'entry':entry,'runtime':modules,'collector':collector,'phase':phase,
                                  'original':{},'original_aliases':{}}
+            if self.composition == 'installer-preflight':self.register_native_preflight()
             self.sources.source_graph(self,capture=True)
             (self.private/'custody').mkdir(mode=0o700)
             # Registration precedes replay of TERM/INT from service construction.
@@ -1272,7 +1334,9 @@ class Session:
                 # The first publication's close/check is part of the transaction.
                 publish_status(self.output/'status',self.result,replace=True)
         return {**self.result,'public':[str(self.output/'status')]+(
-            [str(self.output/'phase-public')] if self.result['status']=='PASS' else [])}
+            [str(self.output/'phase-public')] if self.result['status']=='PASS' else []),
+            'phase_public':{'descriptor_bytes':self.phase_export_raw,'sha256':self.phase_export_sha256}
+                if self.result['status']=='PASS' else None}
 
 
 def remove_private(path, original, deadline):

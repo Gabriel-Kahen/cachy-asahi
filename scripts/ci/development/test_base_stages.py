@@ -1,6 +1,6 @@
 """Development base-stage regressions: command/download/package execution mocked."""
 import copy
-from contextlib import ExitStack
+from contextlib import ExitStack, contextmanager
 import hashlib
 import importlib.util
 import io
@@ -125,7 +125,7 @@ class BaseStages(unittest.TestCase):
         self.source = self.cache / 'zlib-1.3.2.tar.gz'; self.source.write_bytes(b'fixture; pin fixture patched')
         patch.object(b, 'fetch_zlib', return_value=self.source).start()
         self.calls = []
-        def command(argv, log, timeout):
+        def command(argv, log, timeout, **options):
             self.calls.append((argv, timeout)); Path(log).write_text('driver output')
             self.owner = Path(argv[argv.index('--output') + 1]); self.owner.mkdir()
             self.arm_receipts(self.owner)
@@ -726,6 +726,160 @@ class BaseStages(unittest.TestCase):
             shutil.rmtree(public)
 
 
+    def test_parent_deadline_invalid_or_expired_refuses_before_output_and_actors(self):
+        with patch.object(b.time, 'monotonic', return_value=100):
+            for deadline in (True, float('nan'), float('inf'), '200', 100, 99):
+                for owner in ('ksm', 'arm'):
+                    with self.subTest(deadline=deadline, owner=owner):
+                        result = b.run_ksm(self.controller, self.root, self.output, deadline=deadline) if owner == 'ksm' else \
+                            b.run_arm(self.controller, self.root, self.output, self.cache, deadline=deadline)
+                        self.assertEqual(result['status'], 'FAIL')
+                        self.assertEqual(result['error_code'], 'stage-deadline-exceeded')
+                        self.assertFalse(self.output.exists())
+            self.command.assert_not_called(); self.fetch.assert_not_called()
+
+    def test_both_owners_forward_exact_parent_deadline_without_renewal(self):
+        self.ksm_inputs(); original = self.command.side_effect; observed = []
+        def command(argv, log, timeout, **options):
+            observed.append((timeout, options.copy()))
+            return original(argv, log, timeout, **options)
+        self.command.side_effect = command
+        with patch.object(b.time, 'monotonic', return_value=100):
+            result = b.run_ksm(self.controller, self.root, self.output, deadline=2000)
+        self.assertEqual(result['status'], 'PASS')
+        self.assertEqual([timeout for timeout, _ in observed[:3]], [360, 360, 120])
+        self.assertTrue(all(options['deadline'] == 2000 for _, options in observed))
+        shutil.rmtree(self.output); shutil.rmtree(self.root); self.root.mkdir()
+        self.arm_inputs(); original = self.command.side_effect; observed.clear()
+        def arm_command(argv, log, timeout, **options):
+            observed.append((timeout, options.copy()))
+            return original(argv, log, timeout, **options)
+        self.command.side_effect = arm_command
+        with patch.object(b.time, 'monotonic', return_value=100):
+            result = b.run_arm(self.controller, self.root, self.output, self.cache, deadline=2000)
+        self.assertEqual(result['status'], 'PASS')
+        self.assertEqual(observed, [(1000, {'deadline': 2000})])
+        b.fetch_zlib.assert_called_once_with(self.cache, deadline=2000)
+
+    def test_expiry_after_native_child_keeps_first_cause_and_stops_later_work(self):
+        self.ksm_inputs(); original = self.command.side_effect; now = [100]
+        def command(argv, log, timeout, **options):
+            self.assertEqual(options['deadline'], 500)
+            result = original(argv, log, timeout, **options)
+            now[0] = 500
+            return result
+        self.command.side_effect = command
+        with patch.object(b.time, 'monotonic', side_effect=lambda: now[0]):
+            result = b.run_ksm(self.controller, self.root, self.output, deadline=500)
+        self.assertEqual(result['status'], 'FAIL')
+        self.assertEqual(result['error_code'], 'stage-deadline-exceeded')
+        self.assertEqual(len(self.calls), 1)
+        self.assertEqual(self.docker_calls, [])
+        self.assertEqual(result['cleanup']['status'], 'FAIL')
+
+    def test_cleanup_publication_faults_preserve_original_business_failure(self):
+        self.ksm_inputs(); self.command.side_effect = lambda *args, **kwargs: 1
+        with patch.object(b, 'cleanup_ksm', side_effect=ValueError('cleanup fault')), \
+             patch.object(b, 'text_public', side_effect=ValueError('publication fault')):
+            result = b.run_ksm(self.controller, self.root, self.output)
+        self.assertEqual(result['error_code'], 'ksm-stage-failed')
+        self.assertEqual(result['status'], 'FAIL')
+        self.assertEqual(result['cleanup']['status'], 'FAIL')
+
+    def test_cleanup_clips_local120_to_parent_and_attempts_second_owned_disposal(self):
+        _, _, original = self.cleanup_fixture()
+        self.attempt(self.output / 'attempt-2')
+        now, observed = [100], []
+        def command(argv, log, timeout, **options):
+            self.assertEqual(options, {'cleanup_grace': 5, 'deadline': 130})
+            self.assertLessEqual(timeout, 130 - now[0] - 15)
+            observed.append((Path(log).name, timeout))
+            now[0] += 1
+            if Path(log).name.startswith('1-'):
+                raise ValueError('first disposal fault')
+            return original(argv, log, timeout, cleanup_grace=5)
+        self.command.side_effect = command
+        with patch.object(b.time, 'monotonic', side_effect=lambda: now[0]):
+            result = b.cleanup_ksm(self.root, self.output, self.controller.image, deadline=130)
+        self.assertEqual(result['status'], 'FAIL')
+        self.assertEqual(result['containers'][0]['status'], 'FAIL')
+        self.assertTrue(any(name.startswith('2-') for name, _ in observed))
+
+    def test_hash_and_recovery_helpers_refuse_expiry_before_file_access(self):
+        self.ksm_inputs()
+        with patch.object(b.time, 'monotonic', return_value=100), \
+             patch.object(b, 'digest', side_effect=AssertionError('hash after expiry')) as hashed:
+            with self.assertRaisesRegex(ValueError, 'stage-deadline-exceeded'):
+                b.ksm_recipe(self.root, deadline=100)
+            with self.assertRaisesRegex(ValueError, 'stage-deadline-exceeded'):
+                b.recovery_public('ksm', self.output, deadline=100)
+            hashed.assert_not_called()
+
+    def test_bounded_stream_checks_same_deadline_after_each_chunk(self):
+        now = [100]
+        source = Mock()
+        def read(size):
+            self.assertEqual(size, 65536)
+            now[0] = 101
+            return b'x' * size
+        source.read.side_effect = read
+        with patch.object(b.time, 'monotonic', side_effect=lambda: now[0]), \
+             self.assertRaisesRegex(ValueError, 'stage-deadline-exceeded'):
+            b.stream_bytes(source, 100000, deadline=101)
+        source.read.assert_called_once()
+
+
+    def test_deferred_restoration_attempts_all_handlers_pending_and_mask_keeps_first_cause(self):
+        previous = {b.signal.SIGTERM: object(), b.signal.SIGINT: object()}
+        for first in (KeyboardInterrupt('first control'), ValueError('first business')):
+            calls = []
+            def restore(sig, handler):
+                calls.append((sig, handler))
+                if handler is previous[b.signal.SIGTERM]: raise OSError('ordinary TERM restore fault')
+            with patch.object(b.signal, 'getsignal', side_effect=lambda sig: previous[sig]), \
+                 patch.object(b.signal, 'signal', side_effect=restore), \
+                 patch.object(b.signal, 'pthread_sigmask', return_value=set()) as mask, \
+                 patch.object(b.signal, 'sigpending', return_value={b.signal.SIGINT}), \
+                 patch.object(b.signal, 'sigwait') as pending:
+                try:
+                    with b.defer_cleanup(): raise first
+                except BaseException as error: self.assertIs(error, first)
+                else: self.fail('first cause was lost')
+                self.assertIn((b.signal.SIGINT, previous[b.signal.SIGINT]), calls)
+                pending.assert_called_once_with({b.signal.SIGINT})
+                self.assertEqual(mask.call_args.args, (b.signal.SIG_SETMASK, set()))
+
+    def test_deferred_uncertainty_is_typed_and_owner_saved_pass_is_retracted(self):
+        previous = {b.signal.SIGTERM: object(), b.signal.SIGINT: object()}
+        def restore(sig, handler):
+            if handler is previous[b.signal.SIGTERM]: raise OSError('TERM restore fault')
+        self.ksm_inputs()
+        with patch.object(b.signal, 'getsignal', side_effect=lambda sig: previous[sig]), \
+             patch.object(b.signal, 'signal', side_effect=restore), \
+             patch.object(b.signal, 'pthread_sigmask', return_value=set()), \
+             patch.object(b.signal, 'sigpending', return_value=set()):
+            with self.assertRaises(b.CleanupFailure):
+                with b.defer_cleanup(): pass
+            result = b.run_ksm(self.controller, self.root, self.output)
+        self.assertEqual(result['status'], 'FAIL')
+        self.assertEqual(result['error_code'], 'stage-cleanup-failed')
+        self.assertEqual(result['cleanup']['status'], 'FAIL')
+        self.assertEqual(b.read_json(self.output / 'result.json')['status'], 'FAIL')
+
+
+    def test_owner_expiry_during_context_restoration_cannot_return_pass(self):
+        self.ksm_inputs(); clock = [0]
+        @contextmanager
+        def restored(*args):
+            yield []
+            clock[0] = 1000
+        with patch.object(b, 'defer_cleanup', restored), \
+             patch.object(b.time, 'monotonic', side_effect=lambda: clock[0]):
+            result = b.run_ksm(self.controller, self.root, self.output, deadline=1000)
+        self.assertEqual(result['status'], 'FAIL')
+        self.assertEqual(result['error_code'], 'stage-deadline-exceeded')
+
+
 class SourceFetch(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(); self.addCleanup(self.temp.cleanup)
@@ -770,6 +924,193 @@ class SourceFetch(unittest.TestCase):
     def test_redirect_handler_rejects_before_any_destination_request(self):
         with self.assertRaisesRegex(ValueError, 'redirect-refused'):
             b.NoRedirect().redirect_request(None, None, 302, '', {}, 'http://localhost/private')
+
+
+    def test_fetch_clips_open_and_socket_read_to_same_parent_deadline(self):
+        now, source = [100], self.response()
+        source.fp = SimpleNamespace(raw=SimpleNamespace(_sock=Mock()))
+        original = source.read
+        def read(size):
+            data = original(size); now[0] = 101
+            return data
+        source.read1 = Mock(side_effect=read)
+        with patch.object(b.time, 'monotonic', side_effect=lambda: now[0]), \
+             patch.object(b, 'open_zlib', return_value=source) as opened, \
+             self.assertRaisesRegex(ValueError, 'stage-deadline-exceeded'):
+            b.fetch_zlib(self.cache, deadline=101)
+        opened.assert_called_once_with(b.ZLIB_URL, timeout=1)
+        source.fp.raw._sock.settimeout.assert_called_once_with(1)
+        source.read1.assert_called_once()
+        self.assertEqual(list(self.cache.iterdir()), [])
+
+    def test_cached_source_hash_receives_parent_deadline_without_network(self):
+        cached = self.cache / 'zlib-1.3.2.tar.gz'; cached.write_bytes(self.data)
+        with patch.object(b.time, 'monotonic', return_value=100), \
+             patch.object(b, 'digest', wraps=b.digest) as hashed, \
+             patch.object(b, 'open_zlib') as opened:
+            self.assertEqual(b.fetch_zlib(self.cache, deadline=200), cached)
+        hashed.assert_called_once_with(cached, deadline=200)
+        opened.assert_not_called()
+
+
+    def test_fetch_expiry_after_allocation_closes_actual_owned_raw_descriptor(self):
+        now, captured = [0], []
+        allocate = tempfile.mkstemp
+        def allocated(*args, **kwargs):
+            fd, name = allocate(*args, **kwargs)
+            captured.append(fd); now[0] = 5
+            return fd, name
+        with patch.object(b.time, 'monotonic', side_effect=lambda: now[0]), \
+             patch.object(b.tempfile, 'mkstemp', side_effect=allocated), \
+             patch.object(b, 'open_zlib') as opened, \
+             self.assertRaisesRegex(ValueError, 'stage-deadline-exceeded'):
+            b.fetch_zlib(self.cache, deadline=5)
+        with self.assertRaises(OSError): b.os.fstat(captured[0])
+        self.assertEqual(list(self.cache.iterdir()), [])
+        opened.assert_not_called()
+
+    def test_fetch_raw_close_fault_still_unlinks_owned_partial_and_keeps_first_refusal(self):
+        now, captured = [0], []
+        allocate, close = tempfile.mkstemp, b.os.close
+        def allocated(*args, **kwargs):
+            fd, name = allocate(*args, **kwargs)
+            captured.append(fd); now[0] = 5
+            return fd, name
+        try:
+            with patch.object(b.time, 'monotonic', side_effect=lambda: now[0]), \
+                 patch.object(b.tempfile, 'mkstemp', side_effect=allocated), \
+                 patch.object(b.os, 'close', side_effect=OSError('ordinary close fault')) as closing, \
+                 self.assertRaisesRegex(ValueError, 'stage-deadline-exceeded'):
+                b.fetch_zlib(self.cache, deadline=5)
+            closing.assert_called_once_with(captured[0])
+            self.assertEqual(list(self.cache.iterdir()), [])
+        finally:
+            for fd in captured: close(fd)
+
+    def test_fetch_control_after_fdopen_transfer_closes_owner_once_without_raw_close(self):
+        allocated, captured = tempfile.mkstemp, []
+        fdopen, owners = b.os.fdopen, []
+        mask, restores = b.signal.pthread_sigmask, [0]
+        first = KeyboardInterrupt('first transfer control')
+        def allocation(*args, **kwargs):
+            fd, name = allocated(*args, **kwargs); captured.append(fd)
+            return fd, name
+        def restored(how, signals):
+            value = mask(how, signals)
+            if how == b.signal.SIG_SETMASK:
+                restores[0] += 1
+                if restores[0] == 2: raise first
+            return value
+        def transfer(fd, mode):
+            stream = fdopen(fd, mode)
+            def close():
+                stream.close()
+                raise OSError('ordinary owner close fault')
+            owner = SimpleNamespace(close=Mock(side_effect=close)); owners.append(owner)
+            return owner
+        with patch.object(b.time, 'monotonic', return_value=0), \
+             patch.object(b.tempfile, 'mkstemp', side_effect=allocation), \
+             patch.object(b.signal, 'pthread_sigmask', side_effect=restored), \
+             patch.object(b.os, 'fdopen', side_effect=transfer), \
+             patch.object(b.os, 'close', wraps=b.os.close) as closing, \
+             patch.object(b, 'open_zlib') as opened:
+            try:
+                b.fetch_zlib(self.cache, deadline=5)
+            except KeyboardInterrupt as error: self.assertIs(error, first)
+            else: self.fail('original control was lost')
+            closing.assert_not_called()
+            owners[0].close.assert_called_once()
+        with self.assertRaises(OSError): b.os.fstat(captured[0])
+        self.assertEqual(list(self.cache.iterdir()), [])
+        opened.assert_not_called()
+
+
+    def test_fetch_first_control_or_ordinary_survives_source_and_target_disposal_faults(self):
+        fdopen = b.os.fdopen
+        for deadline in (None, 5):
+            for first in (KeyboardInterrupt('first control'), ValueError('first business')):
+                owners = []
+                source = self.response()
+                source.fp = SimpleNamespace(raw=SimpleNamespace(_sock=Mock()))
+                source.read = source.read1 = Mock(side_effect=first)
+                source_close = source.close
+                def close_source():
+                    source_close(); raise OSError('source disposal fault')
+                source.close = Mock(side_effect=close_source)
+                def transfer(fd, mode):
+                    stream = fdopen(fd, mode)
+                    def close_target():
+                        stream.close(); raise OSError('target disposal fault')
+                    owner = SimpleNamespace(close=Mock(side_effect=close_target), write=stream.write)
+                    owners.append(owner); return owner
+                with patch.object(b.time, 'monotonic', return_value=0), \
+                     patch.object(b.os, 'fdopen', side_effect=transfer), \
+                     patch.object(b, 'open_zlib', return_value=source), \
+                     patch.object(b.signal, 'setitimer'):
+                    try: b.fetch_zlib(self.cache, deadline=deadline)
+                    except BaseException as error: self.assertIs(error, first)
+                    else: self.fail('first cause was lost')
+                source.close.assert_called_once(); owners[0].close.assert_called_once()
+                self.assertTrue(source.closed); self.assertEqual(list(self.cache.iterdir()), [])
+
+    def test_fetch_healthy_body_with_source_close_uncertainty_is_typed_failure(self):
+        source = self.response(); source_close = source.close
+        first = OSError('source disposal uncertainty')
+        def close_source():
+            source_close(); raise first
+        source.close = Mock(side_effect=close_source)
+        with patch.object(b, 'open_zlib', return_value=source):
+            with self.assertRaises(b.CleanupFailure) as caught:
+                b.fetch_zlib(self.cache)
+        self.assertIs(caught.exception.__cause__, first)
+        self.assertIsNone(caught.exception.natural_returncode)
+        source.close.assert_called_once(); self.assertEqual(list(self.cache.iterdir()), [])
+
+
+    def test_fetch_clock_caps_existing90_parent_and_earlier_timer_without_renewal(self):
+        now, handler = [100], Mock()
+        with patch.object(b.time, 'monotonic', side_effect=lambda: now[0]), \
+             patch.object(b.signal, 'getitimer', return_value=(8, 0)), \
+             patch.object(b.signal, 'getsignal', return_value=handler), \
+             patch.object(b.signal, 'signal') as signals, \
+             patch.object(b.signal, 'setitimer') as timers:
+            with b.zlib_clock(50, 130):
+                self.assertEqual(timers.call_args.args, (b.signal.ITIMER_REAL, 8))
+                now[0] = 103
+            self.assertEqual(timers.call_args.args, (b.signal.ITIMER_REAL, 5, 0))
+            self.assertEqual(signals.call_args.args, (b.signal.SIGALRM, handler))
+        with patch.object(b.time, 'monotonic', return_value=100), \
+             patch.object(b.signal, 'getitimer', return_value=(0, 0)), \
+             patch.object(b.signal, 'getsignal', return_value=b.signal.SIG_DFL), \
+             patch.object(b.signal, 'signal'), patch.object(b.signal, 'setitimer') as timers:
+            with b.zlib_clock(50, 130):
+                self.assertEqual(timers.call_args.args, (b.signal.ITIMER_REAL, 30))
+            with b.zlib_clock(50, 200):
+                self.assertEqual(timers.call_args.args, (b.signal.ITIMER_REAL, 40))
+
+    def test_fetch_clock_bounds_blocked_open_and_preserves_body_error_on_restore_fault(self):
+        now = [100]
+        with patch.object(b.time, 'monotonic', side_effect=lambda: now[0]), \
+             patch.object(b.signal, 'getitimer', return_value=(0, 0)), \
+             patch.object(b.signal, 'getsignal', return_value=b.signal.SIG_DFL), \
+             patch.object(b.signal, 'signal') as signals, \
+             patch.object(b.signal, 'setitimer') as timers:
+            with self.assertRaisesRegex(ValueError, 'stage-deadline-exceeded'):
+                with b.zlib_clock(100, 101):
+                    callback = signals.call_args.args[1]
+                    now[0] = 101
+                    callback(b.signal.SIGALRM, None)
+            self.assertEqual(signals.call_args.args, (b.signal.SIGALRM, b.signal.SIG_DFL))
+            now[0] = 100
+            with self.assertRaisesRegex(ValueError, 'first business fault'):
+                with b.zlib_clock(100, 101):
+                    timers.side_effect = OSError('restore fault')
+                    raise ValueError('first business fault')
+        with patch.object(b.signal, 'pthread_sigmask', return_value={b.signal.SIGALRM}), \
+             patch.object(b.time, 'monotonic', return_value=100), \
+             self.assertRaisesRegex(ValueError, 'alarm-unavailable'):
+            with b.zlib_clock(100, 101):
+                self.fail('blocked alarm cannot authorize network')
 
 
 if __name__ == '__main__':

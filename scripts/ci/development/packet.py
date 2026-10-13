@@ -26,6 +26,119 @@ KSM_FILES = {'.SRCINFO', 'LICENSE', 'NOTICE', 'PKGBUILD', 'README.md', 'adaptati
 PINS = {INITIAL, 'scripts/ci/inputs.lock.json', 'scripts/ci/recipes.lock.json',
         'scripts/experiments/stage.lock.json', 'scripts/virtual/tooling.lock.json',
         'scripts/virtual/tooling-audit.json', 'manifests/reviewed/ksmctl.json'}
+COMPOSITION = 'repository-svg'
+INSTALLER_COMPOSITION = 'installer-preflight'
+COMPOSED_MODES = (COMPOSITION, INSTALLER_COMPOSITION)
+INSTALLER_EXTRA = frozenset(('scripts/install/local_transaction.py', 'scripts/install/native_arm_trial.py', 'scripts/install/native_preflight.py', 'scripts/install/test_local_transaction.py', 'scripts/install/test_native_arm_trial.py', 'scripts/install/test_native_preflight.py', 'scripts/port/kernel-native-job/runtime.py'))
+GENERIC_POLICY = 'manifests/reviewed/repository-generic-policy.json'
+COMPOSED_EXTRA = frozenset('''
+.github/workflows/native-arm-development.yml
+manifests/reviewed/ksmctl.json
+manifests/reviewed/repository-generic-policy.json
+packages/shells/cachy-asahi-zsh-autosuggestions/.SRCINFO
+packages/shells/cachy-asahi-zsh-autosuggestions/LICENSE.project
+packages/shells/cachy-asahi-zsh-autosuggestions/LICENSE.upstream
+packages/shells/cachy-asahi-zsh-autosuggestions/NOTICE
+packages/shells/cachy-asahi-zsh-autosuggestions/PKGBUILD
+packages/shells/cachy-asahi-zsh-autosuggestions/README.md
+packages/shells/cachy-asahi-zsh-autosuggestions/check-module.py
+packages/shells/cachy-asahi-zsh-autosuggestions/integration-proposal.json
+packages/shells/cachy-asahi-zsh-autosuggestions/opt-in.zsh
+packages/shells/cachy-asahi-zsh-autosuggestions/source-provenance.json
+packages/shells/cachy-asahi-zsh-autosuggestions/usage.md
+packages/shells/cachy-asahi-zsh-autosuggestions/zsh-autosuggestions.zsh
+packages/tools/cachy-asahi-ksmctl/.SRCINFO
+packages/tools/cachy-asahi-ksmctl/LICENSE
+packages/tools/cachy-asahi-ksmctl/NOTICE
+packages/tools/cachy-asahi-ksmctl/PKGBUILD
+packages/tools/cachy-asahi-ksmctl/README.md
+packages/tools/cachy-asahi-ksmctl/adaptation.patch
+packages/tools/cachy-asahi-ksmctl/cachy-asahi-ksmctl
+packages/tools/cachy-asahi-ksmctl/check-source.py
+packages/tools/cachy-asahi-ksmctl/management-policy.md
+packages/tools/cachy-asahi-ksmctl/native-stage.md
+packages/tools/cachy-asahi-ksmctl/policy.py
+packages/tools/cachy-asahi-ksmctl/source-provenance.json
+packages/tools/cachy-asahi-ksmctl/test_ksmctl.py
+packages/tools/cachy-asahi-ksmctl/test_policy.py
+packages/tools/cachy-asahi-ksmctl/upstream-ksmctl
+scripts/ci/development/base_stages.py
+scripts/ci/development/common.py
+scripts/ci/development/controller.py
+scripts/ci/development/initial_artifacts.py
+scripts/ci/development/packet.py
+scripts/ci/development/repository_authority.py
+scripts/ci/development/repository_handoff.py
+scripts/ci/development/test_base_stages.py
+scripts/ci/development/test_common.py
+scripts/ci/development/test_controller.py
+scripts/ci/development/test_initial_artifacts.py
+scripts/ci/development/test_packet.py
+scripts/ci/development/test_repository_authority.py
+scripts/ci/development/test_repository_handoff.py
+scripts/ci/development/test_virtual_stage.py
+scripts/ci/development/virtual_stage.py
+scripts/ci/integration.lock.json
+scripts/client/client.py
+scripts/client/stage.py
+scripts/client/test_client.py
+scripts/client/test_stage.py
+scripts/experiments/arm_c01.py
+scripts/experiments/corpus.py
+scripts/experiments/stage.lock.json
+scripts/experiments/stage.py
+scripts/experiments/test_arm_c01.py
+scripts/experiments/test_corpus.py
+scripts/experiments/test_stage.py
+scripts/port/refreshed-desktop/proposed-builder-inventory.lock
+scripts/port/repository-client-native/base.py
+scripts/port/repository-client-native/common.py
+scripts/port/repository-client-native/crypto.py
+scripts/port/repository-client-native/entry.py
+scripts/port/repository-client-native/orchestrator.py
+scripts/port/repository-client-native/provenance.py
+scripts/port/repository-client-native/review.lock.json
+scripts/port/repository-client-native/source-map.json
+scripts/port/repository-client-native/worker.py
+scripts/port/repository-client-phase-stage/adapter.py
+scripts/port/repository-client-phase-stage/dependencies.py
+scripts/port/repository-client-phase-stage/entry.py
+scripts/port/repository-client-phase-stage/gate.py
+scripts/port/repository-client-phase-stage/phases.py
+scripts/port/repository-client-phase-stage/review.lock.json
+scripts/port/repository-client-phase-stage/source-map.json
+scripts/port/repository-client-stage/adapter.py
+scripts/port/repository-client-stage/gate.py
+scripts/port/repository-native-handoff/broker.py
+scripts/port/repository-native-handoff/capture.py
+scripts/port/repository-native-handoff/entry.py
+scripts/port/repository-native-handoff/launch.py
+scripts/port/repository-native-handoff/producer.py
+scripts/port/repository-native-handoff/source-map.json
+scripts/port/repository-native-handoff/supervisor.py
+scripts/port/repository-native-handoff/transport.py
+scripts/virtual/audit_tooling.py
+scripts/virtual/common.py
+scripts/virtual/controller.py
+scripts/virtual/gbm_probe.c
+scripts/virtual/guest.py
+scripts/virtual/image_decode_probe.c
+scripts/virtual/image_decode_report.py
+scripts/virtual/prepare.py
+scripts/virtual/run.py
+scripts/virtual/test_controller.py
+scripts/virtual/test_image_decode_probe.py
+scripts/virtual/test_virtual.py
+scripts/virtual/tooling-audit.json
+scripts/virtual/tooling.lock.json
+'''.split())
+COMPOSED_MAPS = {
+    'scripts/port/repository-native-handoff/source-map.json':'scripts/port/repository-native-handoff',
+    'scripts/port/repository-client-native/source-map.json':'scripts/port/repository-client-native',
+    'scripts/port/repository-client-phase-stage/source-map.json':'scripts/port/repository-client-phase-stage',
+}
+COMPOSED_PINS = PINS | set(COMPOSED_MAPS) | {GENERIC_POLICY,
+    'scripts/port/repository-client-phase-stage/dependencies.py'}
 FILE_LIMIT = 8 * 1024**2
 TOTAL_LIMIT = 64 * 1024**2
 PATH_LIMIT = 20000
@@ -252,6 +365,79 @@ def bindings(root, source, pins):
          isinstance(audit, dict) and audit.get('tooling_lock_sha256') == pins['scripts/virtual/tooling.lock.json'], 'virtual-metadata-binding-drift')
 
 
+def composed_paths(initial, composition=COMPOSITION):
+    need(type(composition) is str and composition in COMPOSED_MODES, 'composed-source-selection-refused')
+    need(type(initial) is dict and len(initial['source_files']) == 159 and
+         len(initial['generated_fixture_files']) == 125 and len(COMPOSED_EXTRA) == 99,
+         'composed-original-contract-refused')
+    paths = set(initial['source_files']) | COMPOSED_EXTRA
+    if composition == INSTALLER_COMPOSITION:paths |= INSTALLER_EXTRA
+    need(len(INSTALLER_EXTRA) == 7 and len(paths) == (265 if composition == INSTALLER_COMPOSITION else 258), 'composed-source-selection-refused')
+    return paths
+
+
+def composed_pins(pins):
+    need(type(pins) is dict and set(pins) == COMPOSED_PINS, 'exact-composed-metadata-pins-required')
+    for name, value in pins.items():
+        relative(name); pin(value)
+    return {name: pins[name] for name in PINS}
+
+
+def composed_scan(root, initial, composition=COMPOSITION):
+    """Exact full-source selection; never filter an original-source scan."""
+    paths = composed_paths(initial, composition)
+    for parent in {relative(name).parent for name in paths}:
+        directory = root / parent
+        need(directory.is_dir() and not directory.is_symlink(), 'required-source-tree-missing')
+        entries = os.listdir(directory)
+        need(len(entries) <= PATH_LIMIT and '__pycache__' not in entries and
+             not any(name.endswith('.pyc') for name in entries), 'source-python-cache-refused')
+    actual = rows(root, paths)
+    need(all(actual[name] == row for name, row in initial['source_files'].items()), 'initial-source-map-drift')
+    locked, recipes = recipe_paths(root)
+    need(len(recipes) == 4 and len(locked) == 71 and locked <= set(initial['source_files']),
+         'composed-original-recipes-refused')
+    for directory, inputs in recipes.items():
+        for name, expected in inputs.items():
+            need(actual[directory + '/' + name]['sha256'] == expected, 'recipe-input-drift')
+    return actual
+
+
+def composed_bindings(root, source, pins):
+    bindings(root, source, composed_pins(pins))
+    need(all(source[name]['sha256'] == value for name, value in pins.items()), 'packet-metadata-pin-drift')
+    for name, prefix in COMPOSED_MAPS.items():
+        value = pinned(root / name, pins[name]); validate_map(value)
+        expected = {relative(path).name for path in COMPOSED_EXTRA
+                    if path.startswith(prefix + '/') and path.endswith('.py')}
+        need(set(value) == expected and all(source.get(prefix + '/' + child) == row
+             for child, row in value.items()), 'composed-map-binding-drift')
+    policy = pinned(root / GENERIC_POLICY, pins[GENERIC_POLICY])
+    need(type(policy) is dict and policy.get('supported_models') == [] and
+         policy.get('platform_scope') == 'generic-builder-only' and policy.get('review_status') == 'ACCEPTED',
+         'composed-policy-refused')
+
+
+def freeze_composed(root, output, initial_lock, initial_sha256, pins, *, composition=COMPOSITION):
+    root, output = Path(root).absolute(), Path(output).absolute()
+    need(not output.exists() and not output.is_symlink() and output.parent.is_dir(), 'new-packet-output-required')
+    if output.is_relative_to(root):need(output == root / LOCK, 'fixed-packet-path-required')
+    initial = load_initial(root, initial_lock, initial_sha256, composed_pins(pins))
+    source = composed_scan(root, initial, composition); composed_bindings(root, source, pins)
+    value = {'schema_version':2, 'composition':composition, 'purpose':PURPOSE, 'development_only':True,
+             'selected_for_release':False, 'hardware_validation':'NOT RUN', 'metadata_pins':dict(pins),
+             'initial_source_files':initial['source_files'], 'generated_fixture_files':initial['generated_fixture_files'],
+             'source_files':source}
+    need(composed_scan(root, initial, composition) == source, 'source-drift-during-freeze')
+    data = (json.dumps(value, indent=2, sort_keys=True) + '\n').encode()
+    need(len(data) <= FILE_LIMIT, 'packet-size-exceeded')
+    try:
+        with output.open('xb') as stream:stream.write(data)
+        output.chmod(0o644)
+    except OSError:raise PacketError('packet-write-failed') from None
+    return hashlib.sha256(data).hexdigest()
+
+
 def freeze(root, output, initial_lock, initial_sha256, pins):
     root, output = Path(root).absolute(), Path(output).absolute()
     need(not output.exists() and not output.is_symlink() and output.parent.is_dir(), 'new-packet-output-required')
@@ -314,7 +500,8 @@ def selected(name, locked):
     return name in locked or not (name.endswith('.log') or '.pkg.tar.' in path.name)
 
 
-def verify_git(root, github_sha, source, packet_sha256):
+def verify_git(root, github_sha, source, packet_sha256, *, composition=None):
+    need(composition is None or type(composition) is str and composition in COMPOSED_MODES, 'composed-source-selection-refused')
     need(isinstance(github_sha, str) and re.fullmatch(r'[0-9a-f]{40}', github_sha), 'full-github-sha-required')
     need(git(root, ['cat-file', '-t', github_sha]) == b'commit\n' and
          git(root, ['rev-parse', 'HEAD']).strip() == github_sha.encode(), 'github-checkout-commit-drift')
@@ -328,7 +515,7 @@ def verify_git(root, github_sha, source, packet_sha256):
             metadata, encoded = record.split(b'\t', 1)
             mode, kind, oid = metadata.decode('ascii').split(' ')
             name = encoded.decode('utf-8'); relative(name)
-            if name == LOCK or selected(name, locked):
+            if name == LOCK or (name in source if composition in COMPOSED_MODES else selected(name, locked)):
                 need(name not in tree and kind == 'blob' and mode in ('100644', '100755') and
                      re.fullmatch(r'[0-9a-f]{40}', oid), 'git-source-entry-refused')
                 if name == LOCK:
@@ -344,6 +531,34 @@ def verify_git(root, github_sha, source, packet_sha256):
     for name, (mode, oid) in tree.items():
         data = git(root, ['cat-file', 'blob', oid])
         need(source[name] == {'mode': mode, 'sha256': hashlib.sha256(data).hexdigest()}, 'git-source-bytes-or-mode-drift')
+
+
+def preflight_composed(root, packet_path, packet_sha256, github_sha, pins=None, *, composition=COMPOSITION):
+    need(type(composition) is str and composition in COMPOSED_MODES, 'composed-source-selection-refused')
+    root = Path(root).absolute()
+    need(Path(packet_path).absolute() == root / LOCK and stat.S_IMODE(regular(Path(packet_path)).st_mode) == 0o644,
+         'runtime-packet-path-required')
+    value = pinned(Path(packet_path), packet_sha256)
+    keys = {'schema_version', 'composition', 'purpose', 'development_only', 'selected_for_release',
+            'hardware_validation', 'metadata_pins', 'initial_source_files', 'generated_fixture_files', 'source_files'}
+    need(type(value) is dict and set(value) == keys and type(value['schema_version']) is int and
+         value['schema_version'] == 2 and type(value['composition']) is str and value['composition'] == composition and value['purpose'] == PURPOSE and
+         value['development_only'] is True and value['selected_for_release'] is False and
+         value['hardware_validation'] == 'NOT RUN', 'composed-packet-contract-refused')
+    original_pins = composed_pins(value['metadata_pins'])
+    if pins is not None:
+        composed_pins(pins);need(pins == value['metadata_pins'], 'runtime-metadata-pins-drift')
+    for field in ('initial_source_files', 'generated_fixture_files', 'source_files'):validate_map(value[field])
+    initial = load_initial(root, root / INITIAL, original_pins[INITIAL], original_pins)
+    need(value['initial_source_files'] == initial['source_files'] and
+         value['generated_fixture_files'] == initial['generated_fixture_files'] and
+         set(value['source_files']) == composed_paths(initial, composition), 'packet-initial-lock-binding-drift')
+    actual = composed_scan(root, initial, composition)
+    need(actual == value['source_files'], 'packet-source-map-drift')
+    composed_bindings(root, actual, value['metadata_pins'])
+    verify_git(root, github_sha, actual, packet_sha256, composition=composition)
+    need(composed_scan(root, initial, composition) == actual, 'source-drift-during-preflight')
+    return value
 
 
 def preflight(root, packet_path, packet_sha256, github_sha, pins=None):
@@ -375,7 +590,15 @@ def snapshot(root, target, packet):
     root, target = Path(root).absolute(), Path(target).absolute()
     need(not target.exists() and not target.is_symlink() and not target.is_relative_to(root), 'new-external-snapshot-required')
     need(isinstance(packet, dict) and 'source_files' in packet and 'metadata_pins' in packet, 'snapshot-packet-required')
-    validate_map(packet['source_files']); validate_pins(packet['metadata_pins'])
+    composed = packet.get('schema_version') == 2
+    validate_map(packet['source_files'])
+    if composed:
+        composition = packet.get('composition')
+        need(type(composition) is str and composition in COMPOSED_MODES, 'composed-packet-contract-refused')
+        original_pins = composed_pins(packet['metadata_pins'])
+        initial = load_initial(root, root / INITIAL, original_pins[INITIAL], original_pins)
+        need(set(packet['source_files']) == composed_paths(initial, composition), 'composed-source-selection-refused')
+    else:validate_pins(packet['metadata_pins'])
     try:
         target.mkdir()
         for subtree in ROOTS:
@@ -391,7 +614,9 @@ def snapshot(root, target, packet):
             (target / LOCK).write_bytes(data); (target / LOCK).chmod(0o644)
     except OSError:
         raise PacketError('snapshot-copy-failed') from None
-    initial = load_initial(target, target / INITIAL, packet['metadata_pins'][INITIAL], packet['metadata_pins'])
-    need(scan(target, initial) == packet['source_files'], 'snapshot-source-map-drift')
-    bindings(target, packet['source_files'], packet['metadata_pins'])
+    initial = load_initial(target, target / INITIAL, packet['metadata_pins'][INITIAL],
+                           original_pins if composed else packet['metadata_pins'])
+    need((composed_scan(target, initial, composition) if composed else scan(target, initial)) == packet['source_files'],
+         'snapshot-source-map-drift')
+    (composed_bindings if composed else bindings)(target, packet['source_files'], packet['metadata_pins'])
     return target

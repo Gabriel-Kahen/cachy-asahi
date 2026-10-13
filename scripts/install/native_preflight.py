@@ -19,7 +19,7 @@ import types
 
 HANDOFF = 'scripts/ci/development/repository_handoff.py'
 # Root must rebind after any separately reviewed issuer change.
-ISSUER_SHA = '7202c974547c05ca8b7f0ad9772d4ac849d9d684d4105a979a3290e7d6622acb'
+ISSUER_SHA = 'b7b665bc8473c010321c88b00cd35350c03677ffadac02fd2a5ab4c16dc0ecce'
 RECEIVER = 'scripts/install/native_arm_trial.py'
 RECEIVER_SHA = 'fe2becb4fe6c22e50903ab390db5a79aae311b7284fc71bf4b1c4b79e99824c4'
 PROFILE_SHA = 'b7fbd65e357e132949432fb00e765a05e3c76ea29a41d1df93413870d9fd1ed8'
@@ -120,23 +120,49 @@ def live(session, controller, end):
     """No receipt, caller-created namespace or object can substitute for this owner."""
     tick(end)
     module = sys.modules.get('development_repository_handoff')
-    need(type(module) is types.ModuleType and type(session) is vars(module).get('Session') and
-         type(session.sources) is vars(module).get('Sources'), 'LIVE_OWNER_REQUIRED')
-    sources = session.sources
-    need(HANDOFF in sources.raw and OWN in sources.raw and RECEIVER in sources.raw, 'REGISTRATION_REQUIRED')
-    issuer(module, sources.raw[HANDOFF])
-    sources.class_state(session,HANDOFF,module); sources.class_state(sources,HANDOFF,module)
+    need(type(module) is types.ModuleType and type(type(session)) is type and
+         type(session) is vars(module).get('Session'), 'LIVE_OWNER_REQUIRED')
+    def plain(value):
+        descriptor=vars(type(value)).get('__dict__')
+        need(type(descriptor) is types.GetSetDescriptorType and descriptor.__objclass__ is type(value),
+             'LIVE_OWNER_REQUIRED')
+        state=descriptor.__get__(value,type(value))
+        need(type(state) is dict and all(type(key) is str for key in state),'LIVE_OWNER_REQUIRED')
+        return state
+    sources=plain(session).get('sources')
+    need(type(type(sources)) is type and type(sources) is vars(module).get('Sources'),'LIVE_OWNER_REQUIRED')
+    raw=plain(sources).get('raw')
+    need(type(raw) is dict and all(type(key) is str for key in raw) and
+         all(name in raw and type(raw[name]) is bytes for name in (HANDOFF,OWN,RECEIVER)), 'REGISTRATION_REQUIRED')
+    issuer(module,raw[HANDOFF])
+    methods=vars(type(sources))
+    state=methods['class_state'](sources,session,HANDOFF,module)
+    source_state=methods['class_state'](sources,sources,HANDOFF,module)
+    need(type(state) is dict and type(source_state) is dict and
+         all(type(key) is str for key in state) and all(type(key) is str for key in source_state) and
+         state.get('sources') is sources,'LIVE_OWNER_REQUIRED')
+    grant=source_state.get('grant')
+    need(type(grant) is dict and all(type(key) is str for key in grant),'REGISTRATION_REQUIRED')
+    rows=grant.get('source_files')
+    need(type(rows) is dict and all(type(key) is str for key in rows) and type(rows.get(OWN)) is dict and
+         all(type(key) is str for key in rows[OWN]) and type(rows[OWN].get('sha256')) is str,'REGISTRATION_REQUIRED')
     own_module = sys.modules.get(__name__)
     need(type(own_module) is types.ModuleType and own_module.__dict__ is globals(), 'BRIDGE_NAMESPACE')
-    sources.graph_namespace(own_module,OWN,{OWN:own_module},{},{})
-    namespace(own_module,sources.raw[OWN],sources.grant['source_files'][OWN]['sha256'])
-    sources.source_graph(session); sources.guard(end,session.cancelled)
-    context = session.original_context(deadline=end,controller=controller)
-    need(session.result['initial_exit_code'] is None and session.controller is controller and
+    methods['graph_namespace'](sources,own_module,OWN,{OWN:own_module},{},{})
+    namespace(own_module,raw[OWN],rows[OWN]['sha256'])
+    graph=methods['source_graph'](sources,session); selected=state.get('source_graph'); composition=state.get('composition')
+    need(type(composition) is str and composition=='installer-preflight' and type(selected) is dict and
+         all(type(key) is str for key in selected) and set(selected)=={
+             'entry','runtime','collector','phase','original','original_aliases','native_preflight'} and
+         selected['native_preflight'] is own_module and type(graph) is dict and
+         all(type(key) is str for key in graph) and graph.get(OWN) is own_module, 'LIVE_GRAPH_REQUIRED')
+    methods['guard'](sources,end,state.get('cancelled'))
+    context = vars(type(session))['original_context'](session,deadline=end,controller=controller)
+    need(state['result']['initial_exit_code'] is None and state['controller'] is controller and
          controller.cancelled is False and not context['original']['integration'].CANCEL_REQUESTED,
          'LIVE_OWNER_REQUIRED')
     # original_context permits a post-return inspection too; this consumer does not.
-    frame, run_frame, observed = session.native_consumer_observation
+    frame, run_frame, observed = state['native_consumer_observation']
     active = []; current = sys._getframe()
     for _ in range(64):
         active.append(current)

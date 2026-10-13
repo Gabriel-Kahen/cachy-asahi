@@ -4,30 +4,30 @@ October 12, 2026. This record tracks the complete `outline.md` scope; an impleme
 
 The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with owned tasks and corrective next actions in `docs/backlog.md`. The destination now explicitly requires the maintained ARM package repository, native performance engineering, integrated Apple stack, broader Cachy system experience, and complete installation/release lifecycle. Both Air sizes, published final measurements, independent onboarding/contribution, subsequent full-port maintenance release, other-ARM reuse and actual upstream submissions remain required; an early overlay release or feasibility decision would not complete the goal. This scope update does not change any recorded execution result.
 
-Latest coordinator update, October 13, 02:38 UTC. The actual S01 license batch
-completed with exit0: all31 requests, including one CAT, match the selected
-646-byte filesystem license to its pinned archive. Five directory frames, one
-archive parse and final image/tool rehash complete; status remains
-`SINGLE_FILE_BATCH_MATCH_ONLY`. Independent retained-evidence review passes the specific completed scope. The exact
-reviewed source is now `scripts/platform/filesystem_license_batch.py`; its plan
-mode exits0 without image/archive/tool actors. Whole-package, full341, trust,
-installation and M2 acceptance remain open. A successor regular-file batch is
-assigned independently.
+Latest coordinator update, October 13, 02:52 UTC. Published source head
+`bc18be6` passes static CI38338117122. Exact committed byte/mode checks cover all
+133 FDK rows plus the external workflow and new batch/Zsh sources (274 Git
+queries). The corrected carrier and optional cleanup projection are registered;
+input delivery is still unresolved and FDK9/updater10 keep their four404 failures.
+The separate maintained successor baseline remains in implementation.
 
-The frozen-four carrier correction passes101 source controls and its independent
-review closes the two reproduced cancellation/FD defects. Root now registers the joint producer cleanup projection, coherent133-row
-packet and external workflow after127 source models and19 workflow controls.
-Committed Git proof and input delivery remain required before a native trial. Actual
-FDK9/updater10 keep their four-input404 failures. An explicit maintained successor
-baseline using current upstream Vim inputs is being implemented privately,
-preserving the historical frozen baseline. Installer controller/bridge binding
-and the precheckout launcher are also active; no physical-machine or release gate
-has changed. Full R1–R5/M5–M9 remains required.
+The actual S01 single-license batch completes31 requests/one CAT with a matching
+646-byte archive/image file and final rehash. Independent retained-evidence review
+passes; source is published. The fresh all48-regular-file batch instead exits1
+at `batch-expected-metadata`, with no successful report or subset acceptance. Its
+failed path/counters were not retained. An unchanged-predicate diagnostic variant
+is assigned; the image and prior results remain unchanged. Complete package/trust,
+installation and M2 acceptance remain open.
 
-The borrowed Zsh Session adapter source2 is also registered after Root authenticates
-160 author artifacts and cold-replays58 models (0 skips/PYC/actor attempts). Its
-closed graph/callback/manifest and live controller admission remain unfinished;
-native package and target execution remain NOT RUN.
+Root now registers the reviewed installer controller/Session/bridge sources,
+exact258/265 packet variants and real generic development policy. Author223
+controls pass, controller peer81/30 causal vectors and bridge102/independent
+vectors pass. All265 primary source hashes/modes match the candidate; Git proof
+is pending. Actual native P0 remains NOT RUN. The external per-run envelope,
+one-clock launcher, early-J handoff and actual runtime/grant delivery are still
+unfinished. The published borrowed Zsh adapter passes58 cold models; its live
+closed-graph/callback/manifest admission remains pending. Full R1–R5/M5–M9 is
+required; these advances do not pass any physical-machine or release gate.
 
 Prior coordinator update, October 13, 02:05 UTC. Private installer packet
 mode implementation passes33 existing controls and18 new source/snapshot/private

@@ -21,7 +21,11 @@ Root registration receipt is
 `artifacts/reviews/fdk-cleanup-public-projection-root-adoption-20261013/final-registration.json`,
 SHA256 `5c82b4f4734f4fd55ac11111581f28b3c36a91e4805fd9b4e00c0b7377f7ae21`.
 Two whitespace-only workflow lines were normalized; every token is unchanged.
-Committed Git proof is a separate next check.
+Committed Git proof passes at `bc18be6a15ed82a82c7a4ef75610f10a91bd4804`:266
+queries for133 selected files and8 additional queries for the workflow/batch/Zsh
+sources. Source bytes/modes match; static CI38338117122 passes. The proof is
+`artifacts/reviews/fdk-cleanup-public-projection-root-adoption-20261013/committed-source-proof.json`,
+SHA256 `760d684783017a809235124ac8d8bcb3b0846b5ccaf1e6506bf5d6bb39b10d14`.
 
 No new native run occurred. FDK9 and updater10 retain their four HTTP404 input
 failures. Delivery and retention of the frozen inputs remain unresolved; a

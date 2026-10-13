@@ -21,7 +21,8 @@ def load(name,path):
 
 P=load('tested_native_preflight',ROOT/'scripts/install/native_preflight.py')
 R=load('tested_native_receiver',ROOT/'scripts/install/native_arm_trial.py')
-BASE=ROOT/'artifacts/reviews/native-install-preflight-implementation-20261012/baseline/repository_handoff.py'
+# Explicit peer-reviewed issuer fixture, rebinding the previous 7202 bootstrap.
+BASE=ROOT/P.HANDOFF
 
 
 def record():
@@ -436,7 +437,9 @@ class PipelineModels(unittest.TestCase):
                 if model.mutation=='still-present':result['stdout']=('a'*64+'\n').encode()
             else:raise AssertionError('unexpected modeled actor: '+str(args))
             return result,dict(direct_child_reaped=True,group_disposal_requested=True,forced_teardown=False,cancelled=False)
-        self.session=types.SimpleNamespace(sources=Sources(),source_graph={'runtime':{'transport':types.SimpleNamespace(DockerTransport=CLI,supervise=supervise)}})
+        self.session=types.SimpleNamespace(sources=Sources(),composition='installer-preflight',source_graph={
+            'entry':None,'runtime':{'transport':types.SimpleNamespace(DockerTransport=CLI,supervise=supervise)},
+            'collector':{},'phase':{},'original':{},'original_aliases':{},'native_preflight':P})
     def run_model(self):
         with patch.object(P,'live',return_value={'root':self.view}),patch.object(P.os,'uname',return_value=types.SimpleNamespace(machine='aarch64')):
             return P.run(self.session,self.controller,self.output,deadline=time.monotonic()+300,nonce='b'*32,runtime_contract=self.runtime)
@@ -474,6 +477,111 @@ class PipelineModels(unittest.TestCase):
         ends=[end for _,end in self.commands]
         self.assertLessEqual(max(ends),started+60.1)
         self.assertAlmostEqual(ends[0],ends[4]);self.assertAlmostEqual(ends[-1]-ends[0],10)
+
+
+class LiveGraphBindingControls(unittest.TestCase):
+    """Actual captured Session/Sources; stop before native context/frame admission."""
+    COMPOSITION='installer-preflight'
+    ADDITIONAL_SOURCES=(P.OWN,'scripts/install/test_native_preflight.py',*P.SOURCE_PATHS)
+    @classmethod
+    def setUpClass(cls):
+        cls.fixture=load('_live_graph_fixture_builder',ROOT/'scripts/ci/development/test_repository_handoff.py')
+        cls.fixture.CapturedGraphFixtures.setUpClass.__func__(cls)
+    def check(self,*,end=None,returned=None):
+        class BeforeNativeContext(BaseException): pass
+        def trace(frame,event,arg):
+            if event=='return' and frame.f_code is self.a.Sources.source_graph.__code__ and returned is not None:
+                returned(arg)
+            if event=='call' and frame.f_code is self.a.Session.original_context.__code__:
+                raise BeforeNativeContext()
+            return trace
+        previous=sys.gettrace();sys.settrace(trace)
+        try:
+            with patch.dict(sys.modules,{'development_repository_handoff':self.a}):
+                try:self.installer.live(self.session,object(),self.deadline if end is None else end)
+                except BeforeNativeContext:return 'SOURCE_GATE_ONLY'
+        finally:sys.settrace(previous)
+        raise AssertionError('native admission must not complete in a source model')
+    def test_selected_issuer_pin_and_captured_graph_reach_only_source_gate(self):
+        self.assertEqual(P.ISSUER_SHA,'b7b665bc8473c010321c88b00cd35350c03677ffadac02fd2a5ab4c16dc0ecce')
+        self.assertEqual(P.sha(BASE.read_bytes()),P.ISSUER_SHA)
+        self.assertEqual(self.check(),'SOURCE_GATE_ONLY')
+        self.assertIsNone(self.session.native_consumer_observation)
+        self.assertIsNone(self.session.result['initial_exit_code'])
+    def test_legacy_composition_and_missing_or_wrong_selected_member_refuse(self):
+        for value in ('repository-svg','installer',True):
+            with patch.object(self.session,'composition',value):
+                with self.assertRaises(ValueError):self.check()
+        with patch.dict(self.session.source_graph):
+            del self.session.source_graph['native_preflight']
+            with self.assertRaises(ValueError):self.check()
+        with patch.dict(self.session.source_graph,{'native_preflight':types.ModuleType('foreign')}):
+            with self.assertRaises(ValueError):self.check()
+    def test_returned_graph_missing_and_wrong_own_identity_refuse(self):
+        for change in (lambda graph:graph.pop(P.OWN),lambda graph:graph.update({P.OWN:types.ModuleType('foreign')})):
+            with self.assertRaisesRegex(ValueError,'^LIVE_GRAPH_REQUIRED$'):self.check(returned=change)
+        self.assertEqual(self.check(),'SOURCE_GATE_ONLY')
+    def test_returned_nonstring_key_and_foreign_composition_use_no_hooks(self):
+        calls=[]
+        class Foreign:
+            def __eq__(self,other):calls.append('equality');raise RuntimeError('foreign equality')
+            def __getattribute__(self,key):calls.append(key);raise RuntimeError('foreign getter')
+        with patch.object(self.session,'composition',Foreign()):
+            with self.assertRaises(ValueError):self.check()
+        with self.assertRaisesRegex(ValueError,'^LIVE_GRAPH_REQUIRED$'):
+            self.check(returned=lambda graph:graph.update({7:object()}))
+        self.assertEqual(calls,[])
+    def test_dict_subclasses_cannot_supply_graph_or_source_rows(self):
+        calls=[]
+        class ForeignDict(dict):
+            def get(self,*args):calls.append('get');raise RuntimeError('foreign get')
+            def __getitem__(self,key):calls.append('getitem');raise RuntimeError('foreign item')
+            def __iter__(self):calls.append('iter');raise RuntimeError('foreign iter')
+        for target,field in ((self.session,'source_graph'),(self.sources,'raw'),(self.sources,'grant')):
+            with patch.object(target,field,ForeignDict()):
+                with self.assertRaises(ValueError):self.check()
+        self.assertEqual(calls,[])
+    def test_ambient_registry_module_cannot_substitute_executing_namespace(self):
+        with patch.dict(sys.modules,{'native_install_preflight':types.ModuleType('native_install_preflight')}):
+            with self.assertRaisesRegex(ValueError,'^BRIDGE_NAMESPACE$'):self.check()
+        self.assertEqual(self.check(),'SOURCE_GATE_ONLY')
+    def test_wrong_session_source_classes_and_instance_method_shadow_refuse(self):
+        class ForeignSession(type(self.session)): pass
+        foreign=object.__new__(ForeignSession)
+        with patch.dict(sys.modules,{'development_repository_handoff':self.a}):
+            with self.assertRaisesRegex(ValueError,'^LIVE_OWNER_REQUIRED$'):
+                self.installer.live(foreign,object(),self.deadline)
+        calls=[]
+        def trap(*args,**kwargs):calls.append('foreign method');raise RuntimeError('foreign method')
+        with patch.object(self.sources,'class_state',trap,create=True):
+            with self.assertRaises(ValueError):self.check()
+        with patch.object(self.session,'sources',object()):
+            with self.assertRaisesRegex(ValueError,'^LIVE_OWNER_REQUIRED$'):self.check()
+        self.assertEqual(calls,[])
+    def test_actual_issuer_source_method_default_and_globals_poison_refuse_before_graph(self):
+        method=self.a.Sources.source_graph
+        for replacement in (lambda *args,**kwargs:{P.OWN:self.installer},
+                            types.FunctionType(method.__code__,{'__builtins__':__builtins__})):
+            with patch.object(self.a.Sources,'source_graph',replacement):
+                with self.assertRaisesRegex(ValueError,'^ISSUER_CODE$'):self.check()
+        old=method.__kwdefaults__;method.__kwdefaults__={'capture':True}
+        try:
+            with self.assertRaisesRegex(ValueError,'^ISSUER_CODE$'):self.check()
+        finally:method.__kwdefaults__=old
+        self.assertEqual(self.check(),'SOURCE_GATE_ONLY')
+    def test_expired_nonfinite_deadline_and_actual_guard_cancel_refuse(self):
+        for end in (time.monotonic()-1,float('inf'),float('nan'),True):
+            with self.assertRaisesRegex(ValueError,'^DEADLINE$'):self.check(end=end)
+        first=KeyboardInterrupt('source-only cancellation')
+        def cancelled():raise first
+        with patch.object(self.session,'cancelled',cancelled):
+            with self.assertRaises(KeyboardInterrupt) as caught:self.check()
+        self.assertIs(caught.exception,first)
+    def test_retained_bootstrap_pin_does_not_authenticate_selected_issuer(self):
+        raw=BASE.read_bytes();module=types.ModuleType('_selected_b7');module.__file__=str(BASE)
+        exec(compile(raw,str(BASE),'exec'),module.__dict__)
+        with patch.object(P,'ISSUER_SHA','7202c974547c05ca8b7f0ad9772d4ac849d9d684d4105a979a3290e7d6622acb'):
+            with self.assertRaisesRegex(ValueError,'^ISSUER_PIN$'):P.issuer(module,raw)
 
 
 if __name__=='__main__': unittest.main()
