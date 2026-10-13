@@ -4,30 +4,44 @@ October 12, 2026. This record tracks the complete `outline.md` scope; an impleme
 
 The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with owned tasks and corrective next actions in `docs/backlog.md`. The destination now explicitly requires the maintained ARM package repository, native performance engineering, integrated Apple stack, broader Cachy system experience, and complete installation/release lifecycle. Both Air sizes, published final measurements, independent onboarding/contribution, subsequent full-port maintenance release, other-ARM reuse and actual upstream submissions remain required; an early overlay release or feasibility decision would not complete the goal. This scope update does not change any recorded execution result.
 
-Latest coordinator update, October 13, 02:52 UTC. Published source head
-`bc18be6` passes static CI38338117122. Exact committed byte/mode checks cover all
-133 FDK rows plus the external workflow and new batch/Zsh sources (274 Git
-queries). The corrected carrier and optional cleanup projection are registered;
-input delivery is still unresolved and FDK9/updater10 keep their four404 failures.
-The separate maintained successor baseline remains in implementation.
+Latest coordinator update, October 13, 03:45 UTC. The updated roadmap and
+package inventory were re-read; full R1–R5/M5–M9 remains mandatory. Workers
+continue guarded native builds, the complete installer handoff, whole-subset
+payload observation and a concrete next functional increment in parallel.
 
-The actual S01 single-license batch completes31 requests/one CAT with a matching
-646-byte archive/image file and final rehash. Independent retained-evidence review
-passes; source is published. The fresh all48-regular-file batch instead exits1
-at `batch-expected-metadata`, with no successful report or subset acceptance. Its
-failed path/counters were not retained. An unchanged-predicate diagnostic variant
-is assigned; the image and prior results remain unchanged. Complete package/trust,
-installation and M2 acceptance remain open.
+Published installer source head84c43a0 passes static CI38340335247 and has an
+exact committed265-source proof (530 Git byte/mode queries). Root additionally
+registers the independently reviewed early-entry controller/test revision and
+258/265 packet variants. The peer cold93 controls and27 vectors pass; all265
+current source hashes/modes and12 metadata pins match. Actual trusted bootstrap,
+clock/grant/runtime delivery, native frames and installer P0 remain NOT RUN.
+[Registration evidence](reviews/broader-controller-early-entry-primary-registration-root-review.md)
+records the source-level handoff and preserves the separate publication reserve.
 
-Root now registers the reviewed installer controller/Session/bridge sources,
-exact258/265 packet variants and real generic development policy. Author223
-controls pass, controller peer81/30 causal vectors and bridge102/independent
-vectors pass. All265 primary source hashes/modes match the candidate; Git proof
-is pending. Actual native P0 remains NOT RUN. The external per-run envelope,
-one-clock launcher, early-J handoff and actual runtime/grant delivery are still
-unfinished. The published borrowed Zsh adapter passes58 cold models; its live
-closed-graph/callback/manifest admission remains pending. Full R1–R5/M5–M9 is
-required; these advances do not pass any physical-machine or release gate.
+A fresh local offline audit of the explicit successor builder baseline completes
+CLI0:501 pinned transport objects,249 successful GPG signature verifications and
+248 matching package metadata records. Exact unchanged native source and recipes
+were used with the versioned successor lock; this x86 crypto/data result is not
+a native ARM build, original-baseline acceptance or public distribution approval.
+Root retained97 execution artifacts and a separate private-GPG disposal receipt;
+independent retained-evidence review is completing. Guarded native build-pair
+execution is the next baseline task. Historical frozen-input failures remain FAIL.
+
+The strict all48 regular-payload comparison remains FAIL. A fresh diagnostic
+identifies its first disagreement at etc/fstab: image220 bytes versus archive126,
+with the same0644/root ownership. It stops before that file's CAT, after12 image
+calls/two earlier CATs/two frames/four selected nodes. Independent review verifies
+the failure; its configuration/source cause remains UNKNOWN. The worker is
+preparing an explicit all48 observation mode that records differences while
+retaining structural, cap, drift and complete-schedule failures. It cannot accept
+the image or turn the strict comparison into PASS. The previous single-LICENSE
+match remains separate. Full341 payload/trust, ABI/hooks/16K and M2 gates stay open.
+See the [actual diagnostic review](reviews/platform-filesystem-regular-batch-diagnostic01-root-review.md).
+
+Prior coordinator update, October 13, 02:52 UTC. Published source bc18be6
+passes static CI38338117122. Committed FDK133 plus workflow/batch/Zsh checks
+cover274 Git queries. Corrected carrier/cleanup projection and borrowed Zsh
+adapter are registered; actual FDK9/updater10 retain four frozen Vim404 failures.
 
 Prior coordinator update, October 13, 02:05 UTC. Private installer packet
 mode implementation passes33 existing controls and18 new source/snapshot/private

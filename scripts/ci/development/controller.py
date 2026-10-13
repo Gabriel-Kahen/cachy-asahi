@@ -105,7 +105,7 @@ def clock_domain():
             'time_namespace_device':opened.st_dev, 'time_namespace_inode':opened.st_ino}
 
 
-def workflow_clock(raw, *, entry):
+def workflow_clock(raw, *, entry, controller_entry=None):
     value = packet.decode(raw)
     keys = {'schema_version', 'purpose', 'source_commit', 'run_id', 'run_attempt', 'nonce',
             'issued_monotonic', 'deadline_monotonic', 'allowance_seconds', 'clock_domain',
@@ -131,7 +131,10 @@ def workflow_clock(raw, *, entry):
     require(all(finite(item) and item > 0 for item in (entry, issued, end)) and
             float(end) == float(issued) + 10800 and issued <= entry <= time.monotonic() < end and
             0 <= time.monotonic() - issued < 10800, 'workflow-clock-time-refused')
-    cutoff = min(end - 120, entry + 10080);within(cutoff)
+    if controller_entry is not None:
+        require(type(controller_entry) is float and finite(controller_entry) and
+                issued <= controller_entry <= entry, 'controller-entry-refused')
+    cutoff = min(end - 120, (entry if controller_entry is None else controller_entry) + 10080);within(cutoff)
     return cutoff, end
 
 
@@ -1115,7 +1118,8 @@ def composed_main(args, pins, *, entry):
     composition = getattr(args,'composition',packet.COMPOSITION)
     require(type(composition) is str and composition in packet.COMPOSED_MODES, 'composed-packet-contract-refused')
     clock_raw = private_input(args.clock,args.clock_sha256,'DEVELOPMENT_CLOCK',16*1024)
-    deadline, workflow_end = workflow_clock(clock_raw,entry=entry)
+    deadline, workflow_end = workflow_clock(clock_raw,entry=entry,
+        controller_entry=getattr(args,'controller_entry_monotonic',None))
     previous_timer = signal.getitimer(signal.ITIMER_REAL)
     require(previous_timer == (0.0,0.0),'active-enclosing-timer-refused')
     previous = {sig:signal.getsignal(sig) for sig in (signal.SIGINT,signal.SIGTERM,signal.SIGALRM)}
@@ -1215,6 +1219,7 @@ def main(argv=None):
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--check-only', action='store_true')
     parser.add_argument('--composition',choices=packet.COMPOSED_MODES)
+    parser.add_argument('--controller-entry-monotonic',type=float)
     for name in ('clock','execution-grant','runtime-contract'):
         parser.add_argument('--'+name,type=Path)
         parser.add_argument('--'+name+'-sha256')
@@ -1222,6 +1227,7 @@ def main(argv=None):
     pins = {'scripts/ci/inputs.lock.json': args.inputs_sha256, 'scripts/ci/recipes.lock.json': args.recipes_sha256,
             'scripts/ci/integration.lock.json': args.integration_sha256}
     if args.composition is not None:return composed_main(args,pins,entry=entry)
+    require(args.controller_entry_monotonic is None, 'controller-entry-requires-composition')
     try:
         source_packet = packet.preflight(ROOT, args.packet, args.development_sha256, os.environ.get('GITHUB_SHA', ''))
         require(all(source_packet['metadata_pins'].get(name) == pin for name, pin in pins.items()), 'runtime-metadata-pins-drift')

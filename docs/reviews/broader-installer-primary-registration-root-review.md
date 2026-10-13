@@ -24,8 +24,10 @@ removes only the owned captured native module, preserving foreign replacements.
 The repository composition retains its existing stage order.
 
 This is source registration. Actual native frames/P0, the external per-run
-bootstrap envelope/grant/runtime/clock, exact early-J workflow handoff and final
-committed source proof remain pending. The legacy packet file and workflow have
+bootstrap envelope/grant/runtime/clock and actual workflow handoff remain pending.
+The committed265-source proof at84c43a0 is now recorded in the
+[early-entry registration review](broader-controller-early-entry-primary-registration-root-review.md),
+which separately registers the next reviewed controller/test revision. The legacy packet file and workflow have
 not been selected as the new composition. No machine, ABI, package installation,
 complete port or release acceptance is implied. Root registration receipt is
 `artifacts/reviews/broader-installer-primary-registration-20261013/registration.json`,

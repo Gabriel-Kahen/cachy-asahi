@@ -1144,5 +1144,164 @@ class PhaseSchemaTests(unittest.TestCase):
             else:value['client_cases'][4]['command_record']=1
             with self.subTest(kind=kind),self.assertRaises(ValueError):self.check(value)
 
+class EarlyEntryModels(unittest.TestCase):
+    """Synthetic clock/domain and inert boundary models; no issuance or native authority."""
+    def setUp(self):
+        from contextlib import ExitStack
+        self.stack=ExitStack();self.addCleanup(self.stack.close)
+        self.now=100000.0
+        self.stack.enter_context(patch.object(controller.time,'monotonic',side_effect=lambda:self.now))
+        self.domain={'clock_id':'CLOCK_MONOTONIC','boot_id':'MODEL','time_namespace_device':1,'time_namespace_inode':2}
+        self.stack.enter_context(patch.object(controller,'clock_domain',return_value=self.domain))
+        self.fixture=ClockContractTests();self.fixture.setUp();self.addCleanup(self.fixture.doCleanups)
+        self.value=dict(self.fixture.value,issued_monotonic=99800.0,deadline_monotonic=110600.0)
+        self.entry=100000.0;self.early=99820.0;self.J=109900.0
+        controller.CANCELLED=False
+
+    def clock(self,early=None,value=None,entry=None):
+        return controller.workflow_clock(self.fixture.raw(self.value if value is None else value),
+            entry=self.entry if entry is None else entry,controller_entry=early)
+
+    def args(self,early=None):
+        args=self.fixture.boundary_args();args.controller_entry_monotonic=early
+        args.composition=controller.packet.INSTALLER_COMPOSITION
+        return args
+
+    def cli(self,mode=None,early=None):
+        argv=['--inputs-sha256','a'*64,'--recipes-sha256','b'*64,'--integration-sha256','c'*64,
+              '--development-sha256','d'*64,'--cache','/model/cache','--output','/model/output','--check-only']
+        if mode is not None:argv+=['--composition',mode]
+        if early is not None:argv+=['--controller-entry-monotonic',str(early)]
+        return argv
+
+    def test_earlier_entry_shortens_and_endpoints_never_extend_local_cutoff(self):
+        local,end=self.clock();self.assertEqual((local,end),(110080.0,110600.0))
+        for early,expected in ((self.early,self.J),(99800.0,109880.0),(self.entry,local)):
+            with self.subTest(early=early):
+                J,workflow_end=self.clock(early);self.assertEqual(J,expected)
+                self.assertLessEqual(J,local);self.assertEqual(workflow_end,end)
+        late=self.entry+600;self.now=late
+        J,end=self.clock(self.early,entry=late);self.assertEqual((J,end),(self.J,110600.0))
+        self.assertEqual(self.clock(entry=late)[0],110480.0)
+
+    def test_nonfinite_future_preissuance_bool_int_and_foreign_types_refuse_without_hooks(self):
+        hooks=[]
+        class ForeignFloat(float):
+            def __le__(self,other):hooks.append('le');return True
+            def __ge__(self,other):hooks.append('ge');return True
+            def __float__(self):hooks.append('float');return 99820.0
+        for early in (float('nan'),float('inf'),-float('inf'),self.entry+.01,99799.99,True,False,99820,'99820',ForeignFloat(99820)):
+            with self.subTest(kind=type(early).__name__),self.assertRaisesRegex(ValueError,'controller-entry-refused'):
+                self.clock(early)
+        self.assertEqual(hooks,[])
+
+    def test_domain_and_issuer_binding_precede_early_scalar_validation(self):
+        wrong=dict(self.value,clock_domain=dict(self.domain,time_namespace_inode=3))
+        with self.assertRaisesRegex(ValueError,'clock-domain-refused'):self.clock(True,value=wrong)
+        wrong=dict(self.value,issuer_source_sha256='d'*64)
+        with self.assertRaisesRegex(ValueError,'issuer-not-registered'):self.clock(True,value=wrong)
+        wrong=dict(self.value,run_id='124')
+        with self.assertRaisesRegex(ValueError,'binding-refused'):self.clock(True,value=wrong)
+
+    def test_early_cutoff_equality_refuses_before_source_grant_runtime_or_timer(self):
+        self.now=self.J
+        with patch.object(controller,'private_input',return_value=self.fixture.raw(self.value)) as capture, \
+             patch.object(controller.packet,'preflight_composed') as source, \
+             patch.object(controller,'composed_sources') as construction,patch.object(controller.signal,'setitimer') as timer:
+            with self.assertRaisesRegex(ValueError,'deadline-exceeded'):
+                controller.composed_main(self.args(self.early),{},entry=self.now)
+        self.assertEqual(capture.call_count,1);self.assertEqual(capture.call_args.args[2],'DEVELOPMENT_CLOCK')
+        source.assert_not_called();construction.assert_not_called();timer.assert_not_called()
+
+    def test_invalid_early_refuses_after_only_clock_capture(self):
+        for early in (True,self.entry+1,99799.0,float('inf')):
+            with self.subTest(early=early),patch.object(controller,'private_input',return_value=self.fixture.raw(self.value)) as capture, \
+                 patch.object(controller.packet,'preflight_composed') as source,patch.object(controller.signal,'signal') as handlers:
+                with self.assertRaisesRegex(ValueError,'controller-entry-refused'):
+                    controller.composed_main(self.args(early),{},entry=self.entry)
+                self.assertEqual(capture.call_count,1);source.assert_not_called();handlers.assert_not_called()
+
+    def test_expired_child_clock_refuses_even_with_valid_earlier_entry(self):
+        self.now=self.value['deadline_monotonic']
+        with self.assertRaisesRegex(ValueError,'clock-time-refused'):self.clock(self.early,entry=self.now)
+
+    def test_cli_records_child_entry_before_parser_and_delivers_exact_float(self):
+        import argparse
+        events=[];factory=argparse.ArgumentParser
+        def monotonic():events.append('entry');return self.entry
+        def parser(*args,**kwargs):events.append('parser');return factory(*args,**kwargs)
+        for mode in controller.packet.COMPOSED_MODES:
+            with patch.object(controller.time,'monotonic',side_effect=monotonic), \
+                 patch.object(controller,'argparse',SimpleNamespace(ArgumentParser=parser)), \
+                 patch.object(controller,'composed_main',return_value=7) as dispatch:
+                self.assertEqual(controller.main(self.cli(mode,self.early)),7)
+            self.assertEqual(dispatch.call_args.kwargs,{'entry':self.entry})
+            self.assertIs(type(dispatch.call_args.args[0].controller_entry_monotonic),float)
+            self.assertEqual(dispatch.call_args.args[0].controller_entry_monotonic,self.early)
+        self.assertEqual(events,['entry','parser','entry','parser'])
+
+    def test_legacy_explicit_flag_refuses_before_any_packet_read(self):
+        for early in (self.early,'nan','inf'):
+            with self.subTest(early=early),patch.object(controller.packet,'preflight') as source, \
+                 patch.object(controller,'private_input') as private,patch.object(controller,'composed_main') as composed:
+                with self.assertRaisesRegex(ValueError,'requires-composition'):controller.main(self.cli(early=early))
+                source.assert_not_called();private.assert_not_called();composed.assert_not_called()
+
+    def test_absent_flag_retains_legacy_dispatch_and_composed_local_entry(self):
+        with patch.object(controller.packet,'preflight',return_value={'metadata_pins':{'scripts/ci/inputs.lock.json':'a'*64,
+             'scripts/ci/recipes.lock.json':'b'*64,'scripts/ci/integration.lock.json':'c'*64}}),patch('builtins.print'):
+            self.assertEqual(controller.main(self.cli()),0)
+        with patch.object(controller,'composed_main',return_value=7) as dispatch:
+            self.assertEqual(controller.main(self.cli(controller.packet.COMPOSITION)),7)
+        self.assertIsNone(dispatch.call_args.args[0].controller_entry_monotonic)
+        self.assertEqual(self.clock(),(self.entry+10080,110600.0))
+
+    def test_delivery_retains_J_through_all_stages_and_keeps_reserved_publication_tail(self):
+        from contextlib import ExitStack
+        from unittest.mock import Mock
+        with tempfile.TemporaryDirectory() as temporary,ExitStack() as stack:
+            root=Path(temporary);checkout=root/'checkout';args=self.args(self.early);args.check_only=False
+            args.output=root/'output';args.cache=root/'cache'
+            value={'schema_version':2,'composition':args.composition,'metadata_pins':{}}
+            runtime={'cli_sha256':'b'*64,'endpoint_identity':{'model':True},'env':{}}
+            session=SimpleNamespace(job_deadline=self.J,sources=SimpleNamespace(module=Mock(return_value=SimpleNamespace(bundle=Mock()))))
+            callbacks=object();argv=['MODEL'];dev=Mock();dev.report={};captures=[];cutoffs=[]
+            def capture(path,pin,kind,limit):
+                captures.append(kind)
+                return self.fixture.raw(self.value) if kind=='DEVELOPMENT_CLOCK' else b'MODEL'
+            stack.enter_context(patch.object(controller,'ROOT',checkout));stack.enter_context(patch.object(controller.Path,'cwd',return_value=checkout))
+            stack.enter_context(patch.object(controller,'private_input',side_effect=capture))
+            preflight=stack.enter_context(patch.object(controller.packet,'preflight_composed',return_value=value))
+            sources=stack.enter_context(patch.object(controller,'composed_sources',return_value=(session,callbacks,runtime,argv)))
+            construct=stack.enter_context(patch.object(controller,'Development',return_value=dev))
+            stack.enter_context(patch.object(controller.signal,'getitimer',return_value=(0.0,0.0)))
+            stack.enter_context(patch.object(controller.signal,'signal'));timers=stack.enter_context(patch.object(controller.signal,'setitimer'))
+            stack.enter_context(patch.object(controller,'close_boundary',return_value=False));stack.enter_context(patch.object(controller,'retire_installer_module',return_value=True))
+            original=controller.within
+            stack.enter_context(patch.object(controller,'within',side_effect=lambda J:(cutoffs.append(J),original(J))[1]))
+            publish=stack.enter_context(patch.object(controller,'publish',return_value=False))
+            self.assertEqual(controller.composed_main(args,{},entry=self.entry),1)
+            self.assertEqual(captures,['DEVELOPMENT_CLOCK','DEVELOPMENT_EXECUTION_GRANT','DEVELOPMENT_RUNTIME_CONTRACT'])
+            self.assertEqual(sources.call_args.args[-1],self.J);self.assertEqual(construct.call_args.kwargs['deadline'],self.J)
+            self.assertEqual(construct.call_args.kwargs['clock_nonce'],self.value['nonce'])
+            self.assertIs(construct.call_args.kwargs['runtime_contract'],runtime)
+            dev.run_composed.assert_called_once_with(session,callbacks,runtime,argv)
+            self.assertEqual(preflight.call_args.kwargs,{'composition':args.composition})
+            self.assertEqual(cutoffs[:-2],[self.J]*len(cutoffs[:-2]));self.assertEqual(cutoffs[-2:],[self.entry+120]*2)
+            self.assertEqual(dev.publication_deadline,self.entry+120)
+            self.assertEqual(timers.call_args_list[0].args,(controller.signal.ITIMER_REAL,self.J-self.entry))
+            self.assertEqual(timers.call_args_list[-1].args,(controller.signal.ITIMER_REAL,120.0));publish.assert_called_once()
+
+    def test_J_does_not_renew_across_repeated_clock_validation(self):
+        expected=self.clock(self.early)
+        self.now+=500
+        self.assertEqual(self.clock(self.early,entry=self.entry+500),expected)
+
+    def test_cli_boolean_spelling_fails_parser_before_private_or_source(self):
+        with patch.object(controller,'private_input') as private,patch.object(controller.packet,'preflight_composed') as source, \
+             patch('sys.stderr'),self.assertRaises(SystemExit):
+            controller.main(self.cli(controller.packet.INSTALLER_COMPOSITION,'true'))
+        private.assert_not_called();source.assert_not_called()
+
 if __name__ == '__main__':
     unittest.main()
