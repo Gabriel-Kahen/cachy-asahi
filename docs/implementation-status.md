@@ -4,7 +4,28 @@ October 12, 2026. This record tracks the complete `outline.md` scope; an impleme
 
 The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with owned tasks and corrective next actions in `docs/backlog.md`. The destination now explicitly requires the maintained ARM package repository, native performance engineering, integrated Apple stack, broader Cachy system experience, and complete installation/release lifecycle. Both Air sizes, published final measurements, independent onboarding/contribution, subsequent full-port maintenance release, other-ARM reuse and actual upstream submissions remain required; an early overlay release or feasibility decision would not complete the goal. This scope update does not change any recorded execution result.
 
-Latest coordinator update, October 13, 17:40 UTC. The updated outline, goal, roadmap
+Latest coordinator update, October 13, 18:29 UTC. Root re-read the current outline,
+roadmap, goal, acceptance matrix and package inventory. The full R1–R5/M5–M9
+scope remains required; hardware access does not prevent independent software work.
+
+The reviewed FileFinder namespace correction is committed in Source `1b3a6dd`
+with Data `b7dce9a`, and static CI `38444735727` passes. Actual ARM trial
+`38444735786` now passes dependency capture but fails at service construction
+with `TYPE_ERROR`, `source-refused`, hook entry false and cleanup PASS. Both
+bounded exports and the launch result are retained. The inner TypeError predicate
+remains unknown; inert constructor models pass and justify no API correction.
+Safe phase attribution is the next diagnostic task. Earlier failures remain unchanged.
+
+The corrected common caller contains late owned-state descriptor-close failures;
+independent controls pass. Root publishes Topmem's 123 source files and selected
+policy file at `70238b7`, with all 124 actual Git blobs/modes verified. The policy
+retains the read-only ARM tool observations and binds the corrected producer.
+Fresh consumer checks, native builds, TEST signing and lifecycle remain pending.
+The workflow proposal is under independent review. A separate one-line body-intake
+fix passes old-red/new-green source controls; its bounded 19-body actual runner is
+being prepared. Neither track certifies full image assembly or M2 hardware behavior.
+
+Prior coordinator update, October 13, 17:40 UTC. The updated outline, goal, roadmap
 and acceptance matrix remain authoritative for the complete R1–R5/M5–M9 port.
 Independent review rejected the first startup diagnostic proposal because a
 secondary publication failure could escape its original FAIL result. A separately

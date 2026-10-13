@@ -2,6 +2,15 @@
 
 Coordinator: Lila in chat `01a12d58-9194-7643-81eb-fc9d62e4d923`. Source workers have bounded ownership in `docs/orchestration.md`; execution owners must reserve actual capacity before changing a shared machine. The full acceptance matrix is `docs/acceptance.md`.
 
+October 13, 18:29 UTC corrective batch: the current outline/roadmap remain authoritative
+for R1–R5/M5–M9. B18/B19's fresh maintained trial `38444735786` reached
+service construction before TYPE_ERROR; its cleanup reports PASS and precise cause
+remains unknown. A bounded enum diagnostic is active. B17's corrected Topmem caller
+and observed policy are published at `70238b7`; reviewed workflow adoption and fresh
+native execution are next. B18's minimal selected-body intake correction passes peer
+review; prepare the bounded 19-body actual worker before reviewing account/hook
+semantics. These software tasks remain runnable without either M2 Air.
+
 | Task | Owner | Depends on | Expected result | Current status / next concrete action |
 | --- | --- | --- | --- | --- |
 | B00 Base/resource closure | Coordinator | None | Native builder, both exact Air connections, retained signed base inventory and actual protected package names | Native hosted builder, signed generic inputs and a retained 261-package Asahi image inventory established; exact 13-inch/15-inch Mac access and machine baselines remain unavailable. Protected target transaction and installed platform acceptance remain open |
