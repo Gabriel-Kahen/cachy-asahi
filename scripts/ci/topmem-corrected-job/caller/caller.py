@@ -60,6 +60,84 @@ def bind(profile, base):
     c.__file__ = str(path)
     exec(compile(raw, str(path), 'exec'), c.__dict__)
 
+    SIGNER_CODES = frozenset(('signer-agent-drift', 'signer-agent-exit', 'signer-agent-handoff', 'signer-agent-identity', 'signer-agent-removal-uncertain', 'signer-agent-socket', 'signer-attempt-not-reserved', 'signer-caller-manifest', 'signer-caller-state', 'signer-certificate-custody', 'signer-command-failed', 'signer-created-fingerprint', 'signer-deadline', 'signer-directory', 'signer-directory-drift', 'signer-disposal-count', 'signer-disposal-depth', 'signer-disposal-directory-drift', 'signer-disposal-file-drift', 'signer-disposal-mode', 'signer-disposal-owner', 'signer-disposal-type', 'signer-entry-source', 'signer-journal-binding', 'signer-journal-bound', 'signer-journal-command', 'signer-journal-custody', 'signer-journal-node', 'signer-journal-owner', 'signer-journal-socket', 'signer-key-list', 'signer-key-state', 'signer-keyhome-absence', 'signer-library-unselected', 'signer-loader-unselected', 'signer-output', 'signer-owner-certificate', 'signer-owner-custody', 'signer-owner-path', 'signer-pidfd-required', 'signer-policy', 'signer-policy-bound', 'signer-policy-custody', 'signer-policy-row', 'signer-prepared-custody', 'signer-process', 'signer-process-bound', 'signer-process-unobserved', 'signer-producer-custody', 'signer-producer-manifest', 'signer-producer-policy', 'signer-producer-source', 'signer-public-certificate', 'signer-python-unselected', 'signer-root-not-fresh', 'signer-script-closure-unselected', 'signer-socket-path-bound', 'signer-spawn-drift', 'signer-spawn-identity', 'signer-sticky-uncertainty', 'signer-tool-elf', 'signer-tool-pin', 'signer-tool-search-override', 'signer-tool-type', 'signer-unbound-agent', 'signer-unselected-subkey', 'signer-write'))
+    SIGNER_STAGES = frozenset(('not-attempted', 'start', 'handoff-save', 'handoff-pin', 'prepare', 'prepared'))
+
+    def signing_code(error):
+        # Never stringify errors or export argv, stdout, stderr, paths or keys.
+        if isinstance(error, KeyboardInterrupt) or type(error).__name__ == 'Cancelled':
+            return 'cancelled'
+        if type(error) is ValueError and len(error.args) == 1 and type(error.args[0]) is str and error.args[0] in SIGNER_CODES:
+            return error.args[0]
+        return 'io-failed' if isinstance(error, OSError) else 'unclassified'
+
+    def diagnostic(stage='not-attempted', code=None):
+        return {'stage': stage, 'code': code}
+
+    def validate_diagnostic(value):
+        c.need(type(value) is dict and set(value) == {'stage', 'code'} and type(value['stage']) is str
+               and value['stage'] in SIGNER_STAGES and (value['code'] is None or type(value['code']) is str
+               and value['code'] in SIGNER_CODES | {'cancelled', 'io-failed', 'unclassified'}), 'caller-signing-diagnostic')
+        c.need(value['stage'] != 'not-attempted' or value['code'] is None, 'caller-signing-diagnostic')
+        return value
+
+    def unavailable_journal():
+        return {'status': 'UNAVAILABLE', 'phase': None, 'launch_attempted': None, 'agent_bound': None, 'sticky_uncertain': None}
+
+    def signer_journal(api, config, end, report):
+        # Validated owner journal projection only; no process/socket/key references.
+        try:
+            with api.worker.graph(config, end) as (contract, producer, load):
+                path = Path(config['jobroot']) / api.signing.SIGNING / 'owner-journal.json'
+                row = api.signing.journal_record(contract, path, config, end)
+                return {'status': 'OBSERVED', 'phase': row['phase'], 'launch_attempted': row['launch_attempted'],
+                        'agent_bound': row['agent'] is not None, 'sticky_uncertain': row['sticky_uncertain']}
+        except BaseException as error:
+            if signing_code(error) == 'cancelled':
+                report['cancelled'] = True
+                report['status'] = 'FAIL'
+                if report['first_cause'] is None:
+                    report['first_cause'] = 'cancelled'
+            return unavailable_journal()
+
+    def recovery_summary(value=None):
+        fields = {'status', 'agent_absent', 'keyhome_absent', 'cancelled', 'reason'}
+        if type(value) is dict and fields <= set(value):
+            result = {key: value[key] for key in fields}
+            try:
+                validate_recovery(result)
+                return result
+            except ValueError:
+                pass
+        return {'status': 'UNAVAILABLE', 'agent_absent': None, 'keyhome_absent': None, 'cancelled': None, 'reason': None}
+
+    def validate_recovery(value):
+        c.need(type(value) is dict and set(value) == {'status', 'agent_absent', 'keyhome_absent', 'cancelled', 'reason'}
+               and type(value['status']) is str and value['status'] in {'PASS', 'FAIL', 'NOT STARTED', 'UNAVAILABLE'}, 'caller-signing-recovery')
+        if value['status'] == 'UNAVAILABLE':
+            c.need(all(value[key] is None for key in ('agent_absent', 'keyhome_absent', 'cancelled', 'reason')), 'caller-signing-recovery')
+        else:
+            c.need(all(type(value[key]) is bool for key in ('agent_absent', 'keyhome_absent', 'cancelled'))
+                   and type(value['reason']) is str and value['reason'] in {'disposed', 'not-started', 'refused', 'cancelled', 'unobserved'}, 'caller-signing-recovery')
+            if value['status'] in {'PASS', 'NOT STARTED'}:
+                c.need(value['agent_absent'] is value['keyhome_absent'] is True and value['cancelled'] is False
+                       and value['reason'] == ('disposed' if value['status'] == 'PASS' else 'not-started'), 'caller-signing-recovery')
+        return value
+
+    def validate_signer_retention(value):
+        c.need(type(value) is dict and set(value) == {'before', 'after', 'result'}, 'caller-signer-retention')
+        validate_recovery(value['result'])
+        for name in ('before', 'after'):
+            row = value[name]
+            c.need(type(row) is dict and set(row) == {'status', 'phase', 'launch_attempted', 'agent_bound', 'sticky_uncertain'}
+                   and type(row['status']) is str and row['status'] in {'OBSERVED', 'UNAVAILABLE'}, 'caller-signer-journal')
+            if row['status'] == 'UNAVAILABLE':
+                c.need(all(row[key] is None for key in ('phase', 'launch_attempted', 'agent_bound', 'sticky_uncertain')), 'caller-signer-journal')
+            else:
+                c.need(type(row['phase']) is str and row['phase'] in {'reserved', 'create-attempted', 'bound', 'generating', 'prepared', 'failed', 'disposed'}
+                       and all(type(row[key]) is bool for key in ('launch_attempted', 'agent_bound', 'sticky_uncertain')), 'caller-signer-journal')
+        return value
+
     def module(name, path, pin, end=None):
         raw = c.pinned(path, pin, end)
         spec = importlib.util.spec_from_file_location(name, path)
@@ -274,11 +352,13 @@ def bind(profile, base):
         c.need(config['addon_profile'] == PROFILE and config['source'] == str(ROOT / 'baseline96') and (config['snapshot'] == str(ROOT / 'baseline96/native')) and (config['packet_sha256'] == BASELINE) and (config['source_commit'] == stamp['source_commit']) and (config['work_deadline'] == stamp['guard_end'] - 480), 'caller-child-binding')
         private = Path(config['jobroot'])
         report = {'schema_version': 1, 'addon_profile': PROFILE, 'status': 'FAIL', 'phase': 'signing', 'first_cause': None, 'cancelled': False, 'key_owner': None, 'addon': None, 'provisional_result': None, 'source_commit': config['source_commit'], 'clock_sha256': args.clock_sha256, 'caller_manifest_sha256': args.caller_manifest_sha256, 'baseline_worker_sha256': config['baseline_worker_sha256']}
+        report['signing_diagnostic'] = diagnostic('prepare')
         try:
             raw = c.pinned(private / 'native-worker.json', config['baseline_worker_sha256'], config['work_deadline'])
             receipt = c.decode(raw)
             c.need(api.worker.validate_receipt(receipt, config) is receipt, 'caller-child-baseline-identity')
             prepared = api.signing.prepare(api.worker, config, Path(config['tool_policy']), config['tool_policy_sha256'])
+            report['signing_diagnostic'] = diagnostic('prepared')
             report['key_owner'] = {'path': str(prepared['key_owner_path']), 'sha256': prepared['key_owner_sha']}
             api.writer.save(private / CHILD, report)
             config[KEY_OWNER] = report['key_owner']
@@ -298,6 +378,8 @@ def bind(profile, base):
             c.live(config['work_deadline'])
             report.update(status='PROVISIONAL', phase='complete')
         except BaseException as error:
+            if report['phase'] == 'signing':
+                report['signing_diagnostic']['code'] = signing_code(error)
             report['first_cause'] = report['phase'] + '-failed'
             report['cancelled'] = isinstance(error, KeyboardInterrupt) or type(error).__name__ == 'Cancelled' or getattr(error, 'secondary_cancelled', False) is True
         finally:
@@ -339,6 +421,8 @@ def bind(profile, base):
         held = {}
         config['caller_state'] = state(private, api.writer, flags, held)
         report = {'schema_version': 1, 'addon_profile': PROFILE, 'status': 'FAIL', 'phase': 'cache', 'first_cause': None, 'cancelled': False, 'baseline': {'status': 'NOT ACCEPTED', 'builds': 0, 'comparisons': 0, 'signature_observations': 0}, 'addon': {'status': 'NOT ACCEPTED', 'builds': 0, 'comparisons': 0, 'signature_observations': 0, 'lifecycle': 0, 'database_productions': 0}, 'recovery': {}, 'hardware': 'NOT RUN', 'release_selected': False, 'public_admission': False}
+        report['signing_diagnostic'] = diagnostic()
+        report['signer_retention'] = {'before': unavailable_journal(), 'after': unavailable_journal(), 'result': recovery_summary()}
         runner = None
         passed = False
         raw_baseline = None
@@ -370,8 +454,11 @@ def bind(profile, base):
                         flags.update(addon_attempted=True, signing_attempted=True)
                         config['caller_state'] = state(private, api.writer, flags, held)
                         report['phase'] = 'signing'
+                        report['signing_diagnostic'] = diagnostic('start')
                         config['agent_handoff'] = api.signing.start(api.worker, config, runner)
+                        report['signing_diagnostic'] = diagnostic('handoff-save')
                         api.writer.save(private / 'addon-config.json', config)
+                        report['signing_diagnostic'] = diagnostic('handoff-pin')
                         config_pin = c.sha(c.read(private / 'addon-config.json'))
                         report['phase'] = 'addon'
                         result, observed = process(api.runtime, runner, [str(Path(sys.executable).resolve()), '-I', '-B', '-S', str(BASE / 'caller.py'), '--addon-profile', PROFILE, '--phase', 'addon', '--caller-manifest-sha256', args.caller_manifest_sha256, '--clock', str(args.clock), '--clock-sha256', args.clock_sha256, '--config', str(private / 'addon-config.json'), '--config-sha256', config_pin], work_end, 'addon.log')
@@ -379,18 +466,22 @@ def bind(profile, base):
                         check_state(held)
                         child = c.decode(c.read(private / CHILD))
                         c.need(child.get('addon_profile') == PROFILE and child.get('status') == 'PROVISIONAL' and (child.get('cancelled') is False) and (child.get('first_cause') is None) and (child.get('source_commit') == stamp['source_commit']) and (child.get('clock_sha256') == args.clock_sha256) and (child.get('caller_manifest_sha256') == args.caller_manifest_sha256) and (child.get('baseline_worker_sha256') == c.sha(raw_baseline)), 'caller-addon-child')
+                        report['signing_diagnostic'] = validate_diagnostic(child['signing_diagnostic'])
                         config[KEY_OWNER] = child['key_owner']
                         c.need(c.read(private / 'native-worker.json') == raw_baseline, 'caller-original-receipt-drift')
                         api.worker.validate_receipt(c.decode(raw_baseline), config)
                         report['addon'] = addon_admission(api, config, raw_baseline, child['provisional_result'])
                         passed = True
                 except BaseException as error:
+                    if report['phase'] == 'signing':
+                        report['signing_diagnostic']['code'] = signing_code(error)
                     if flags['addon_attempted'] and runner is not None and hasattr(runner, 'observation'):
                         config['addon_process'] = runner.observation.summary()
                         try:
                             failed_child = c.decode(c.read(private / CHILD, 65536, deadline=end))
                             c.need(failed_child.get('addon_profile') == PROFILE and failed_child.get('source_commit') == stamp['source_commit'] and (failed_child.get('clock_sha256') == args.clock_sha256) and (failed_child.get('caller_manifest_sha256') == args.caller_manifest_sha256) and (failed_child.get('baseline_worker_sha256') == config['baseline_worker_sha256']) and (type(failed_child.get('cancelled')) is bool), 'caller-child-failure-binding')
                             report['cancelled'] |= failed_child['cancelled']
+                            report['signing_diagnostic'] = validate_diagnostic(failed_child['signing_diagnostic'])
                         except BaseException:
                             pass
                     fail(report['phase'] + '-failed', error)
@@ -398,17 +489,21 @@ def bind(profile, base):
                     recovery_end = min(cleanup_end, time.monotonic() + 180)
                     with api.runtime.defer_signals() as events:
                         report['phase'] = 'recovery'
+                        report['signer_retention']['before'] = signer_journal(api, config, recovery_end, report)
                         for name, fn in (('signer', api.signing.recover), ('addon', api.recovery.recover), ('baseline', api.worker.cleanup)):
                             try:
                                 check_state(held)
                                 c.live(recovery_end)
                                 value = fn(api.worker, config, recovery_end) if name != 'baseline' else fn(config, recovery_end) if flags['baseline_attempted'] else {'status': 'NOT STARTED', 'absence_verified': True, 'owned_image_absence': True, 'cancelled': False}
                                 report['recovery'][name] = value
+                                if name == 'signer':
+                                    report['signer_retention']['result'] = recovery_summary(value)
                                 if name == 'signer' and value.get('key_owner') is not None:
                                     config[KEY_OWNER] = value['key_owner']
                                 c.need(value.get('status') in ('PASS', 'NOT STARTED') and value.get('cancelled') is False and (value.get('agent_absent') is True and value.get('keyhome_absent') is True if name == 'signer' else value.get('absence_verified') is True) and (name != 'baseline' or value.get('owned_image_absence') is True), 'caller-recovery-result')
                             except BaseException as error:
                                 fail(name + '-recovery-failed', error)
+                        report['signer_retention']['after'] = signer_journal(api, config, recovery_end, report)
                         if events:
                             fail('cancelled')
                             report['cancelled'] = True
@@ -441,7 +536,9 @@ def bind(profile, base):
                 c.need(c.read(private / 'native-worker.json', deadline=end) == raw_baseline, 'caller-original-final-drift')
             report['observations'] = observations(private, end)
             api.writer.save(private / 'caller-result.json', report)
-            public = {'schema_version': 1, 'addon_profile': PROFILE, 'status': report['status'], 'first_cause': report['first_cause'], 'cancelled': report['cancelled'], 'baseline_packet_sha256': BASELINE, 'addon_manifest_sha256': ADDON, 'caller_manifest_sha256': args.caller_manifest_sha256, 'repository_producer_sha256': config['repository_producer_sha256'], 'source_commit': stamp['source_commit'], 'clock_sha256': args.clock_sha256, 'baseline': report['baseline'], 'addon': report['addon'], 'observations': report['observations'], 'owned_image_absence': report['recovery'].get('baseline', {}).get('owned_image_absence') is True, 'hardware': 'NOT RUN', 'release_selected': False, 'public_admission': False}
+            validate_diagnostic(report['signing_diagnostic'])
+            validate_signer_retention(report['signer_retention'])
+            public = {'schema_version': 2, 'signing_diagnostic': report['signing_diagnostic'], 'signer_retention': report['signer_retention'], 'addon_profile': PROFILE, 'status': report['status'], 'first_cause': report['first_cause'], 'cancelled': report['cancelled'], 'baseline_packet_sha256': BASELINE, 'addon_manifest_sha256': ADDON, 'caller_manifest_sha256': args.caller_manifest_sha256, 'repository_producer_sha256': config['repository_producer_sha256'], 'source_commit': stamp['source_commit'], 'clock_sha256': args.clock_sha256, 'baseline': report['baseline'], 'addon': report['addon'], 'observations': report['observations'], 'owned_image_absence': report['recovery'].get('baseline', {}).get('owned_image_absence') is True, 'hardware': 'NOT RUN', 'release_selected': False, 'public_admission': False}
             with api.runtime.cancellation_handlers():
                 c.publish(out / 'public/status.json', public, custody, end)
                 c.live(end)
@@ -462,8 +559,10 @@ def bind(profile, base):
         return report
 
     def retained(value, args, stamp):
-        keys = {'addon_profile', 'schema_version', 'status', 'first_cause', 'cancelled', 'baseline_packet_sha256', 'addon_manifest_sha256', 'caller_manifest_sha256', 'repository_producer_sha256', 'source_commit', 'clock_sha256', 'baseline', 'addon', 'observations', 'owned_image_absence', 'hardware', 'release_selected', 'public_admission'}
-        c.need(type(value) is dict and set(value) == keys and (type(value['schema_version']) is int) and (value['schema_version'] == 1 and value['addon_profile'] == PROFILE) and (value['status'] in ('PASS', 'FAIL')) and (type(value['cancelled']) is type(value['owned_image_absence']) is bool) and (value['hardware'] == 'NOT RUN') and (value['release_selected'] is value['public_admission'] is False), 'caller-retained-fields')
+        keys = {'signing_diagnostic', 'signer_retention', 'addon_profile', 'schema_version', 'status', 'first_cause', 'cancelled', 'baseline_packet_sha256', 'addon_manifest_sha256', 'caller_manifest_sha256', 'repository_producer_sha256', 'source_commit', 'clock_sha256', 'baseline', 'addon', 'observations', 'owned_image_absence', 'hardware', 'release_selected', 'public_admission'}
+        c.need(type(value) is dict and set(value) == keys and (type(value['schema_version']) is int) and (value['schema_version'] == 2 and value['addon_profile'] == PROFILE) and (value['status'] in ('PASS', 'FAIL')) and (type(value['cancelled']) is type(value['owned_image_absence']) is bool) and (value['hardware'] == 'NOT RUN') and (value['release_selected'] is value['public_admission'] is False), 'caller-retained-fields')
+        validate_diagnostic(value['signing_diagnostic'])
+        validate_signer_retention(value['signer_retention'])
         causes = {None, 'cancelled', 'finalization-failed', 'publication-failed', 'runner-close-failed', 'cache-failed', 'baseline-failed', 'signing-failed', 'addon-failed', 'signer-recovery-failed', 'addon-recovery-failed', 'baseline-recovery-failed'}
         c.need(value['first_cause'] in causes and value['baseline_packet_sha256'] == BASELINE and (value['addon_manifest_sha256'] == ADDON) and (value['caller_manifest_sha256'] == args.caller_manifest_sha256) and (value['repository_producer_sha256'] == args.manifest['files']['producer.py']['sha256']) and (value['source_commit'] == stamp['source_commit']) and (value['clock_sha256'] == args.clock_sha256), 'caller-retained-binding')
         for name, bounds in (('baseline', {'builds': 8, 'comparisons': 4, 'signature_observations': 249}), ('addon', {'builds': 4, 'comparisons': 2, 'signature_observations': 6, 'lifecycle': 1, 'database_productions': 2})):
@@ -483,6 +582,7 @@ def bind(profile, base):
             c.need(type(row) is dict and set(row) == {'sha256', *limits} and all((type(row[k]) is int and 0 <= row[k] <= v for k, v in limits.items())), 'caller-retained-observation-fields')
             c.need(type(row['sha256']) is str and len(row['sha256']) == 64 and (set(row['sha256']) <= set('0123456789abcdef')), 'caller-retained-hash')
         if value['status'] == 'PASS':
+            c.need(value['signing_diagnostic'] == diagnostic('prepared') and value['signer_retention']['result']['status'] == 'PASS', 'caller-retained-signer-pass')
             c.need(value['first_cause'] is None and value['cancelled'] is False and (value['owned_image_absence'] is True) and (value['baseline']['status'] == 'ACCEPTED') and (value['addon']['status'] == 'PROVISIONAL'), 'caller-retained-pass')
         return value
 
