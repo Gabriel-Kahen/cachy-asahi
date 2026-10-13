@@ -1,8 +1,10 @@
 # SPDX-License-Identifier: MIT
 """Common corrected caller, two closed profiles, one inherited aggregate clock."""
 import argparse
+import ast
 import base64
 import gzip
+import dis
 import hashlib
 import importlib.util
 import json
@@ -13,7 +15,7 @@ import secrets
 import stat
 import sys
 import time
-from types import ModuleType, SimpleNamespace
+from types import CodeType, FunctionType, ModuleType, SimpleNamespace, TracebackType
 
 def bind(profile, base):
     if type(profile) is not str or profile not in ('topmem-v1', 'fish-history-v1'):
@@ -63,6 +65,98 @@ def bind(profile, base):
     SIGNER_CODES = frozenset(('signer-agent-drift', 'signer-agent-exit', 'signer-agent-handoff', 'signer-agent-identity', 'signer-agent-removal-uncertain', 'signer-agent-socket', 'signer-attempt-not-reserved', 'signer-caller-manifest', 'signer-caller-state', 'signer-certificate-custody', 'signer-command-failed', 'signer-created-fingerprint', 'signer-deadline', 'signer-directory', 'signer-directory-drift', 'signer-disposal-count', 'signer-disposal-depth', 'signer-disposal-directory-drift', 'signer-disposal-file-drift', 'signer-disposal-mode', 'signer-disposal-owner', 'signer-disposal-type', 'signer-entry-source', 'signer-journal-binding', 'signer-journal-bound', 'signer-journal-command', 'signer-journal-custody', 'signer-journal-node', 'signer-journal-owner', 'signer-journal-socket', 'signer-key-list', 'signer-key-state', 'signer-keyhome-absence', 'signer-library-unselected', 'signer-loader-unselected', 'signer-output', 'signer-owner-certificate', 'signer-owner-custody', 'signer-owner-path', 'signer-pidfd-required', 'signer-policy', 'signer-policy-bound', 'signer-policy-custody', 'signer-policy-row', 'signer-prepared-custody', 'signer-process', 'signer-process-bound', 'signer-process-unobserved', 'signer-producer-custody', 'signer-producer-manifest', 'signer-producer-policy', 'signer-producer-source', 'signer-public-certificate', 'signer-python-unselected', 'signer-root-not-fresh', 'signer-script-closure-unselected', 'signer-socket-path-bound', 'signer-spawn-drift', 'signer-spawn-identity', 'signer-sticky-uncertainty', 'signer-tool-elf', 'signer-tool-pin', 'signer-tool-search-override', 'signer-tool-type', 'signer-unbound-agent', 'signer-unselected-subkey', 'signer-write'))
     SIGNER_STAGES = frozenset(('not-attempted', 'start', 'handoff-save', 'handoff-pin', 'prepare', 'prepared'))
 
+    IO_SITES = frozenset(('OTHER', 'START_LAUNCH', 'START_POLL', 'START_LOG_CLOSE',
+        'START_LISTENER_CLOSE', 'PROC_STAT_READ', 'PROC_STATUS_READ', 'PROC_EXE_READLINK',
+        'PROC_EXE_STAT', 'PROC_CMDLINE_READ', 'JOURNAL_IO', 'DIRECTORY_STAT'))
+
+    IO_ERRORS = (OSError, BlockingIOError, ChildProcessError, ConnectionError, BrokenPipeError,
+            ConnectionAbortedError, ConnectionRefusedError, ConnectionResetError, FileExistsError,
+            FileNotFoundError, InterruptedError, IsADirectoryError, NotADirectoryError,
+            PermissionError, ProcessLookupError, TimeoutError)
+
+    def io_detail(error=None):
+        number = None
+        if any(type(error) is kind for kind in IO_ERRORS):
+            value = error.errno
+            if type(value) is int and 1 <= value <= 4095:
+                number = value
+        return {'operation': 'OTHER' if isinstance(error, OSError) else None, 'errno': number}
+
+    def start_io_detail(error, api, args, end, report):
+        # Optional metadata, exact held Source only; never inspect frame locals.
+        result = io_detail(error)
+        if not any(type(error) is kind for kind in IO_ERRORS):
+            return result
+        try:
+            function = api.signing.start
+            if type(function) is not FunctionType:
+                return result
+            namespace = function.__globals__
+            filename = str(BASE / 'signing.py')
+            if type(namespace) is not dict or type(namespace.get('__file__')) is not str or namespace['__file__'] != filename:
+                return result
+            pin = args.manifest['files']['signing.py']
+            c.need(type(pin) is dict and set(pin) == {'bytes', 'mode', 'sha256'}
+                and type(pin['bytes']) is type(pin['mode']) is int and pin['mode'] == 0o644
+                and 0 < pin['bytes'] <= 1024**2 and type(pin['sha256']) is str, 'caller-io-source')
+            raw = c.pinned(BASE / 'signing.py', pin['sha256'], end)
+            c.need(type(raw) is bytes and len(raw) == pin['bytes'] and hashlib.sha256(raw).hexdigest() == pin['sha256'], 'caller-io-source')
+            compiled = {}
+            def codes(code):
+                c.need(len(compiled) < 256, 'caller-io-source')
+                compiled[code.co_qualname] = code
+                for value in code.co_consts:
+                    if type(value) is CodeType:
+                        codes(value)
+            codes(compile(raw, filename, 'exec'))
+            bind = namespace.get('bind')
+            if function.__code__ != compiled.get('bind.<locals>.start') or type(bind) is not FunctionType or bind.__globals__ is not namespace or bind.__code__ != compiled.get('bind'):
+                return result
+            expressions = {
+                'start': (
+                    ('subprocess.Popen(launch, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=logfd, env=env, close_fds=True, start_new_session=True, preexec_fn=setup, pass_fds=(listener.fileno(),))', 'START_LAUNCH'),
+                    ('running.poll()', 'START_POLL'), ('os.close(logfd)', 'START_LOG_CLOSE'),
+                    ('listener.close()', 'START_LISTENER_CLOSE')),
+                'process': (
+                    ("(path / 'stat').read_bytes()", 'PROC_STAT_READ'),
+                    ("(path / 'status').read_bytes()", 'PROC_STATUS_READ'),
+                    ("os.readlink(path / 'exe')", 'PROC_EXE_READLINK'),
+                    ("(path / 'exe').stat()", 'PROC_EXE_STAT'),
+                    ("(path / 'cmdline').read_bytes()", 'PROC_CMDLINE_READ'))}
+            tree = ast.parse(raw)
+            declaration = next(node for node in tree.body if type(node) is ast.FunctionDef and node.name == 'bind')
+            regions = {}
+            for node in declaration.body:
+                if type(node) is ast.FunctionDef and node.name in expressions:
+                    wanted = {ast.dump(ast.parse(expression, mode='eval').body, include_attributes=False): label
+                        for expression, label in expressions[node.name]}
+                    regions['bind.<locals>.' + node.name] = tuple((call.lineno, call.end_lineno, call.col_offset, call.end_col_offset,
+                        wanted[ast.dump(call, include_attributes=False)]) for call in ast.walk(node)
+                        if type(call) is ast.Call and ast.dump(call, include_attributes=False) in wanted)
+            labels = {'bind.<locals>.write': 'JOURNAL_IO', 'bind.<locals>.directory': 'DIRECTORY_STAT'}
+            trace = error.__traceback__; count = 0
+            while trace is not None:
+                if type(trace) is not TracebackType or count >= 64:
+                    return io_detail(error)
+                count += 1; frame = trace.tb_frame; code = frame.f_code; name = code.co_qualname
+                if frame.f_globals is namespace and code.co_filename == filename and code == compiled.get(name):
+                    if name in labels:
+                        result['operation'] = labels[name]
+                    position = next((item.positions for item in dis.get_instructions(code, show_caches=True)
+                        if item.offset == trace.tb_lasti), None)
+                    if position is not None and all(type(value) is int for value in
+                            (position.lineno, position.end_lineno, position.col_offset, position.end_col_offset)):
+                        for start, stop, column, last_column, label in regions.get(name, ()):
+                            if (start, column) <= (position.lineno, position.col_offset) and (position.end_lineno, position.end_col_offset) <= (stop, last_column):
+                                result['operation'] = label
+                trace = trace.tb_next
+        except BaseException as fault:
+            if isinstance(fault, KeyboardInterrupt) or type(fault).__name__ == 'Cancelled' or getattr(fault, 'secondary_cancelled', False) is True:
+                report['cancelled'] = True
+                report['status'] = 'FAIL'
+            return io_detail(error)
+        return result
+
     def signing_code(error):
         # Never stringify errors or export argv, stdout, stderr, paths or keys.
         if isinstance(error, KeyboardInterrupt) or type(error).__name__ == 'Cancelled':
@@ -72,13 +166,20 @@ def bind(profile, base):
         return 'io-failed' if isinstance(error, OSError) else 'unclassified'
 
     def diagnostic(stage='not-attempted', code=None):
-        return {'stage': stage, 'code': code}
+        return {'stage': stage, 'code': code, 'io': {'operation': None, 'errno': None}}
 
     def validate_diagnostic(value):
-        c.need(type(value) is dict and set(value) == {'stage', 'code'} and type(value['stage']) is str
+        c.need(type(value) is dict and set(value) == {'stage', 'code', 'io'} and type(value['stage']) is str
                and value['stage'] in SIGNER_STAGES and (value['code'] is None or type(value['code']) is str
                and value['code'] in SIGNER_CODES | {'cancelled', 'io-failed', 'unclassified'}), 'caller-signing-diagnostic')
         c.need(value['stage'] != 'not-attempted' or value['code'] is None, 'caller-signing-diagnostic')
+        detail = value['io']
+        c.need(type(detail) is dict and set(detail) == {'operation', 'errno'}
+            and (detail['errno'] is None or type(detail['errno']) is int and 1 <= detail['errno'] <= 4095), 'caller-signing-io')
+        if value['code'] == 'io-failed':
+            c.need(type(detail['operation']) is str and detail['operation'] in IO_SITES, 'caller-signing-io')
+        else:
+            c.need(detail == {'operation': None, 'errno': None}, 'caller-signing-io')
         return value
 
     def unavailable_journal():
@@ -380,6 +481,8 @@ def bind(profile, base):
         except BaseException as error:
             if report['phase'] == 'signing':
                 report['signing_diagnostic']['code'] = signing_code(error)
+                if report['signing_diagnostic']['code'] == 'io-failed':
+                    report['signing_diagnostic']['io'] = io_detail(error)
             report['first_cause'] = report['phase'] + '-failed'
             report['cancelled'] = isinstance(error, KeyboardInterrupt) or type(error).__name__ == 'Cancelled' or getattr(error, 'secondary_cancelled', False) is True
         finally:
@@ -475,6 +578,8 @@ def bind(profile, base):
                 except BaseException as error:
                     if report['phase'] == 'signing':
                         report['signing_diagnostic']['code'] = signing_code(error)
+                        if report['signing_diagnostic']['code'] == 'io-failed':
+                            report['signing_diagnostic']['io'] = io_detail(error)
                     if flags['addon_attempted'] and runner is not None and hasattr(runner, 'observation'):
                         config['addon_process'] = runner.observation.summary()
                         try:
@@ -485,6 +590,8 @@ def bind(profile, base):
                         except BaseException:
                             pass
                     fail(report['phase'] + '-failed', error)
+                    if report['signing_diagnostic']['stage'] == 'start' and report['signing_diagnostic']['code'] == 'io-failed':
+                        report['signing_diagnostic']['io'] = start_io_detail(error, api, args, work_end, report)
                 finally:
                     recovery_end = min(cleanup_end, time.monotonic() + 180)
                     with api.runtime.defer_signals() as events:
@@ -538,7 +645,7 @@ def bind(profile, base):
             api.writer.save(private / 'caller-result.json', report)
             validate_diagnostic(report['signing_diagnostic'])
             validate_signer_retention(report['signer_retention'])
-            public = {'schema_version': 2, 'signing_diagnostic': report['signing_diagnostic'], 'signer_retention': report['signer_retention'], 'addon_profile': PROFILE, 'status': report['status'], 'first_cause': report['first_cause'], 'cancelled': report['cancelled'], 'baseline_packet_sha256': BASELINE, 'addon_manifest_sha256': ADDON, 'caller_manifest_sha256': args.caller_manifest_sha256, 'repository_producer_sha256': config['repository_producer_sha256'], 'source_commit': stamp['source_commit'], 'clock_sha256': args.clock_sha256, 'baseline': report['baseline'], 'addon': report['addon'], 'observations': report['observations'], 'owned_image_absence': report['recovery'].get('baseline', {}).get('owned_image_absence') is True, 'hardware': 'NOT RUN', 'release_selected': False, 'public_admission': False}
+            public = {'schema_version': 3, 'signing_diagnostic': report['signing_diagnostic'], 'signer_retention': report['signer_retention'], 'addon_profile': PROFILE, 'status': report['status'], 'first_cause': report['first_cause'], 'cancelled': report['cancelled'], 'baseline_packet_sha256': BASELINE, 'addon_manifest_sha256': ADDON, 'caller_manifest_sha256': args.caller_manifest_sha256, 'repository_producer_sha256': config['repository_producer_sha256'], 'source_commit': stamp['source_commit'], 'clock_sha256': args.clock_sha256, 'baseline': report['baseline'], 'addon': report['addon'], 'observations': report['observations'], 'owned_image_absence': report['recovery'].get('baseline', {}).get('owned_image_absence') is True, 'hardware': 'NOT RUN', 'release_selected': False, 'public_admission': False}
             with api.runtime.cancellation_handlers():
                 c.publish(out / 'public/status.json', public, custody, end)
                 c.live(end)
@@ -560,7 +667,7 @@ def bind(profile, base):
 
     def retained(value, args, stamp):
         keys = {'signing_diagnostic', 'signer_retention', 'addon_profile', 'schema_version', 'status', 'first_cause', 'cancelled', 'baseline_packet_sha256', 'addon_manifest_sha256', 'caller_manifest_sha256', 'repository_producer_sha256', 'source_commit', 'clock_sha256', 'baseline', 'addon', 'observations', 'owned_image_absence', 'hardware', 'release_selected', 'public_admission'}
-        c.need(type(value) is dict and set(value) == keys and (type(value['schema_version']) is int) and (value['schema_version'] == 2 and value['addon_profile'] == PROFILE) and (value['status'] in ('PASS', 'FAIL')) and (type(value['cancelled']) is type(value['owned_image_absence']) is bool) and (value['hardware'] == 'NOT RUN') and (value['release_selected'] is value['public_admission'] is False), 'caller-retained-fields')
+        c.need(type(value) is dict and set(value) == keys and (type(value['schema_version']) is int) and (value['schema_version'] == 3 and value['addon_profile'] == PROFILE) and (value['status'] in ('PASS', 'FAIL')) and (type(value['cancelled']) is type(value['owned_image_absence']) is bool) and (value['hardware'] == 'NOT RUN') and (value['release_selected'] is value['public_admission'] is False), 'caller-retained-fields')
         validate_diagnostic(value['signing_diagnostic'])
         validate_signer_retention(value['signer_retention'])
         causes = {None, 'cancelled', 'finalization-failed', 'publication-failed', 'runner-close-failed', 'cache-failed', 'baseline-failed', 'signing-failed', 'addon-failed', 'signer-recovery-failed', 'addon-recovery-failed', 'baseline-recovery-failed'}
