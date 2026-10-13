@@ -19,7 +19,7 @@ import types
 
 HANDOFF = 'scripts/ci/development/repository_handoff.py'
 # Root must rebind after any separately reviewed issuer change.
-ISSUER_SHA = 'f8b5f6dc17252f4333b69d4636c1cc8ea2b3c35fa71766ed893dcb357a961efa'
+ISSUER_SHA = '441e4497d7dca108d7d5a56f2a4ab3924565f8c60e370f41835ee2746f7f977a'
 RECEIVER = 'scripts/install/native_arm_trial.py'
 RECEIVER_SHA = '733a1198799790675afd25df8113191a158549992882a2e48cd1cbd4b34a95da'
 PROFILE_SHA = 'db58bda8102ce098eded530f0920c21c1f09cb7a6cfb1d03ab84f0dfbf63d3f7'

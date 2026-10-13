@@ -1411,4 +1411,41 @@ class OptionalDiagnosticPublicationCorrection(unittest.TestCase):
                             self.assertEqual(len(result['public']),1)
 
 
+
+class FrozenFileHookModels(unittest.TestCase):
+    """Exact reviewed stdlib constructor only; no Source grant/native actors."""
+    def test_exact_factory_and_foreign_globals_defaults_cells_refuse(self):
+        import importlib.machinery as machinery
+        path = adapter.PREFIXES['runtime']+'/entry.py'
+        source = b'FILE_HOOK = machinery.FileFinder.path_hook((machinery.ExtensionFileLoader, machinery.EXTENSION_SUFFIXES), (machinery.SourceFileLoader, machinery.SOURCE_SUFFIXES))'
+        owner = types.ModuleType('owned_entry');owner.machinery=machinery
+        hook = machinery.FileFinder.path_hook((machinery.ExtensionFileLoader,machinery.EXTENSION_SUFFIXES),
+                                             (machinery.SourceFileLoader,machinery.SOURCE_SUFFIXES))
+        owner.FILE_HOOK=hook
+        sources = object.__new__(adapter.Sources);sources.raw={path:source}
+        sources.frozen_file_hook(hook,owner)
+        foreign = types.FunctionType(hook.__code__,dict(hook.__globals__),closure=hook.__closure__)
+        foreign.__qualname__=hook.__qualname__;foreign.__module__=hook.__module__
+        owner.FILE_HOOK=foreign
+        with self.assertRaises(adapter.Refused):sources.frozen_file_hook(foreign,owner)
+        owner.FILE_HOOK=hook
+        hook.__defaults__=(False,)
+        with self.assertRaises(adapter.Refused):sources.frozen_file_hook(hook,owner)
+        hook.__defaults__=None
+        hook.__closure__[0].cell_contents=object
+        with self.assertRaises(adapter.Refused):sources.frozen_file_hook(hook,owner)
+
+    def test_source_constructor_and_extra_metadata_refuse(self):
+        import importlib.machinery as machinery
+        path=adapter.PREFIXES['runtime']+'/entry.py';owner=types.ModuleType('owned_entry');owner.machinery=machinery
+        hook=machinery.FileFinder.path_hook((machinery.ExtensionFileLoader,machinery.EXTENSION_SUFFIXES),
+                                          (machinery.SourceFileLoader,machinery.SOURCE_SUFFIXES))
+        owner.FILE_HOOK=hook
+        sources=object.__new__(adapter.Sources)
+        sources.raw={path:b'FILE_HOOK = machinery.FileFinder.path_hook()'}
+        with self.assertRaises(adapter.Refused):sources.frozen_file_hook(hook,owner)
+        sources.raw[path]=b'FILE_HOOK = machinery.FileFinder.path_hook((machinery.ExtensionFileLoader, machinery.EXTENSION_SUFFIXES), (machinery.SourceFileLoader, machinery.SOURCE_SUFFIXES))'
+        hook.unregistered=True
+        with self.assertRaises(adapter.Refused):sources.frozen_file_hook(hook,owner)
+
 if __name__ == '__main__':unittest.main()

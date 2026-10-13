@@ -11,6 +11,7 @@ import builtins
 from contextlib import contextmanager
 import hashlib
 import json
+import importlib.machinery as machinery
 import math
 import os
 from pathlib import Path, PurePath
@@ -61,7 +62,7 @@ def need(value, reason):
             'Sources.class_state':'CLASS_STATE',
             'Sources.class_state.<locals>.literal':'CLASS_LITERAL',
             'Sources.callback':'CALLBACK', 'Sources.global_function':'GLOBAL_FUNCTION',
-            'Sources.graph_function':'GRAPH_FUNCTION', 'Sources.graph_namespace':'GRAPH_NAMESPACE',
+            'Sources.graph_function':'GRAPH_FUNCTION', 'Sources.frozen_file_hook':'FROZEN_FILE_HOOK', 'Sources.graph_namespace':'GRAPH_NAMESPACE',
             'Sources.graph_identity':'GRAPH_IDENTITY',
             'Sources.graph_identity.<locals>.observe':'GRAPH_IDENTITY',
             'Sources.source_graph':'SOURCE_GRAPH', 'Session.register_native_preflight':'INSTALLER_REGISTRATION',
@@ -516,6 +517,13 @@ class Sources:
                 items = []
                 for name,item in sorted(value.__dict__.items()):
                     if type(item) is types.FunctionType:
+                        if path == PREFIXES['runtime']+'/entry.py' and name == 'FILE_HOOK':
+                            self.frozen_file_hook(item,value)
+                            details = item.__closure__[1].cell_contents
+                            items.append((name,('frozen-file-hook',id(item),item.__code__,id(item.__globals__),
+                                tuple((key,id(cell),id(cell.cell_contents)) for key,cell in zip(item.__code__.co_freevars,item.__closure__)),
+                                tuple((id(pair),id(pair[0]),id(pair[1]),tuple(pair[1])) for pair in details))))
+                            continue
                         filename = Path(getattr(item,'__wrapped__',item).__code__.co_filename).absolute()
                         if self.project_file(filename):
                             if filename == Path(origin).absolute():
@@ -563,6 +571,40 @@ class Sources:
         need(all(id(function.__globals__) in namespaces for function in functions),'callback-refused')
         return result
 
+    def frozen_file_hook(self, value, module):
+        """The entry's exact stdlib factory hook is not a project filename.
+
+        Bind code/globals/defaults/cells and the reviewed constructor; never
+        grant arbitrary frozen-looking filenames or foreign hook namespaces.
+        """
+        path = PREFIXES['runtime']+'/entry.py'
+        declarations = [node for node in ast.parse(self.raw[path]).body if isinstance(node,ast.Assign)
+                        and any(isinstance(name,ast.Name) and name.id == 'FILE_HOOK' for name in node.targets)]
+        expected = ast.parse("FILE_HOOK = machinery.FileFinder.path_hook((machinery.ExtensionFileLoader, machinery.EXTENSION_SUFFIXES), (machinery.SourceFileLoader, machinery.SOURCE_SUFFIXES))").body[0]
+        need(len(declarations) == 1 and ast.dump(declarations[0]) == ast.dump(expected)
+             and type(module) is types.ModuleType and module.__dict__.get('machinery') is machinery
+             and module.__dict__.get('FILE_HOOK') is value
+             and {name for name,item in module.__dict__.items() if item is value} == {'FILE_HOOK'},'callback-refused')
+        reference = machinery.FileFinder.path_hook(
+            (machinery.ExtensionFileLoader,machinery.EXTENSION_SUFFIXES),
+            (machinery.SourceFileLoader,machinery.SOURCE_SUFFIXES))
+        need(type(value) is types.FunctionType and value.__code__ is reference.__code__
+             and value.__globals__ is reference.__globals__ and value.__name__ == reference.__name__
+             and value.__qualname__ == reference.__qualname__ and value.__module__ == reference.__module__
+             and value.__defaults__ is None and value.__kwdefaults__ is None
+             and type(value.__dict__) is dict and not value.__dict__
+             and type(value.__annotations__) is dict and not value.__annotations__
+             and value.__code__.co_freevars == ('cls','loader_details')
+             and type(value.__closure__) is tuple and len(value.__closure__) == 2
+             and all(type(cell) is types.CellType for cell in value.__closure__),'callback-refused')
+        cls,details = (cell.cell_contents for cell in value.__closure__)
+        need(cls is machinery.FileFinder and type(details) is tuple and len(details) == 2,'callback-refused')
+        for item,loader,suffixes in zip(details,(machinery.ExtensionFileLoader,machinery.SourceFileLoader),
+                                       (machinery.EXTENSION_SUFFIXES,machinery.SOURCE_SUFFIXES)):
+            need(type(item) is tuple and len(item) == 2 and item[0] is loader and item[1] is suffixes
+                 and type(suffixes) is list and len(suffixes) <= 64
+                 and all(type(suffix) is str for suffix in suffixes),'callback-refused')
+
     def graph_namespace(self,module,path,modules,aliases,cache):
         """All declared functions/import hooks retain their captured implementation."""
         entry_path = PREFIXES['runtime']+'/entry.py'
@@ -599,6 +641,9 @@ class Sources:
             need(value.__code__ == compiled.get(node.name),'callback-refused')
         for value in module.__dict__.values():
             if type(value) is types.FunctionType:
+                if path == entry_path and value is module.__dict__.get('FILE_HOOK'):
+                    self.frozen_file_hook(value,module)
+                    continue
                 unwrapped = getattr(value,'__wrapped__',value)
                 filename = Path(unwrapped.__code__.co_filename).absolute()
                 if self.project_file(filename):
@@ -1200,7 +1245,7 @@ class Session:
         phases = ('source-bound', 'load-runtime', 'load-collector', 'load-phase', 'copy-view', 'register-installer', 'capture-dependencies', 'construct-services', 'load-original', 'capture-original', 'call-original', 'native-hook', 'original-returned', 'cleanup', 'status-publication')
         kinds = ('INTERRUPT','FATAL','SOURCE_REFUSAL','OS_ERROR','VALUE_ERROR','TYPE_ERROR','OTHER')
         sites = ('CLASS_STATE','CLASS_LITERAL','CALLBACK','GLOBAL_FUNCTION','GRAPH_FUNCTION',
-                 'GRAPH_NAMESPACE','GRAPH_IDENTITY','SOURCE_GRAPH','INSTALLER_REGISTRATION',
+                 'GRAPH_NAMESPACE','FROZEN_FILE_HOOK','GRAPH_IDENTITY','SOURCE_GRAPH','INSTALLER_REGISTRATION',
                  'ORIGINAL_CONTEXT','NATIVE_FRAME','OWNED_CLEANUP','VIEW_COPY','VIEW_VERIFY',
                  'DEADLINE_CHECK','CALLBACK_BINDINGS','AUTHORITY_STATE','OTHER')
         failure = self.startup_failure
