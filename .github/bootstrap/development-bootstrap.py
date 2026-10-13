@@ -17,7 +17,17 @@ import stat
 import time
 
 INITIAL = 'scripts/ci/integration.lock.json'
-INITIAL_SHA = 'd4d603146f094c86242eaafbb887042959c510c9bb948579dd749d065dd8fc31'
+INITIAL_SHA = '5d0f6b1d335c1949965699d4db6658af313af8977079e9a6464f0e5db4071ed3'
+INPUTS_SHA = 'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f'
+INVENTORY = 'scripts/port/refreshed-desktop/proposed-builder-inventory.lock'
+INVENTORY_SHA = 'fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25'
+BASELINE = 'manifests/reviewed/maintained-composed-v1.json'
+BASELINE_SHA = '662a7397e12289e5fe7de8c797dcc0cdf74e4ade9d93260bd2cbca782060a120'
+BASELINE_ID = 'maintained-native-baseline-v1-vim-9.2.1178-1'
+LINEAGE = 'SUCCESSOR_NOT_HISTORICAL_ORIGINAL'
+PURPOSE = 'root-selected-maintained-v1-development-source'
+MODES = {'repository-svg-maintained-v1':259, 'installer-preflight-maintained-v1':266}
+BASELINE_DECLARATION = {'baseline_id': 'maintained-native-baseline-v1-vim-9.2.1178-1', 'changed_view_sources': ['scripts/ci/inputs.lock.json'], 'generated_fixtures': 125, 'hardware_validation': 'NOT RUN', 'historical_inputs_sha256': '3c16c37d1b12cc84a88572e82ab8ad59e7f3b5ed0d08f09ddf72a69f4711d650', 'historical_integration_sha256': 'd4d603146f094c86242eaafbb887042959c510c9bb948579dd749d065dd8fc31', 'inputs_sha256': 'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f', 'installation': 'NOT RUN', 'integration_sha256': '5d0f6b1d335c1949965699d4db6658af313af8977079e9a6464f0e5db4071ed3', 'inventory_sha256': 'fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25', 'lineage': 'SUCCESSOR_NOT_HISTORICAL_ORIGINAL', 'native_sha256': 'a8b6ed8971a38089a4499dcec605477c4e48d7a47c3de485d205f6a44678b898', 'original_producers': 1, 'recipe_source_commit': 'ebd5812640b0b69f5c09a47752b739e37e338754', 'recipes_sha256': '20d846cdf289bfc233b0051bf33b677fd6e94e9f05d91a33595a2829a196fa63', 'schema_version': 1, 'selected_for_release': False, 'source_captures': 2, 'source_date_epoch': 1791748800, 'unchanged_view_sources': 158, 'view_files': 160, 'view_sources': 159}
 POLICY = 'manifests/reviewed/repository-generic-policy.json'
 POLICY_SHA = 'ff424921c5be38799f64e5c6264bb098cf71737d7be83608a4c91dee83f0365e'
 LICENSE_SHA = '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7'
@@ -27,7 +37,7 @@ PREFIXES = {'runtime': 'scripts/port/repository-native-handoff',
 MAP_NAMES = {'runtime': {'entry', 'capture', 'producer', 'launch', 'transport', 'supervisor', 'broker'},
              'collector': {'entry', 'common', 'base', 'worker', 'provenance', 'crypto', 'orchestrator'},
              'phase': {'entry', 'dependencies', 'phases', 'gate', 'adapter'}}
-METADATA = {INITIAL, 'scripts/ci/inputs.lock.json', 'scripts/ci/recipes.lock.json',
+METADATA = {INITIAL, BASELINE, INVENTORY, 'scripts/ci/inputs.lock.json', 'scripts/ci/recipes.lock.json',
             'scripts/virtual/tooling.lock.json', 'scripts/virtual/tooling-audit.json',
             'scripts/experiments/stage.lock.json', 'manifests/reviewed/ksmctl.json', POLICY,
             'scripts/port/repository-client-phase-stage/dependencies.py',
@@ -42,7 +52,8 @@ CALLBACKS = {
 PIN_KEYS = {'selection_sha256', 'peer_receipt_sha256', 'source_rows_sha256',
             'source_commit', 'cli_sha256'}
 SELECTION_KEYS = {'source_commit', 'source_files', 'metadata_pins', 'metadata_hex',
-                  'maps', 'callbacks', 'peer_receipt_sha256'}
+                  'maps', 'callbacks', 'peer_receipt_sha256', 'schema_version', 'purpose',
+                  'composition', 'baseline_id', 'lineage', 'source_packet_sha256'}
 CLI, SOCKET = Path('/usr/bin/docker'), Path('/run/docker.sock')
 LIMIT, TOTAL = 8 * 1024**2, 64 * 1024**2
 PREPARATION_SECONDS = 60
@@ -189,10 +200,14 @@ def selection(raw, peer_raw, root_pins, deadline):
          digest(peer_raw) == root_pins['peer_receipt_sha256'] and
          type(raw) is bytes and digest(raw) == root_pins['selection_sha256'], 'external-provenance')
     value = decode(raw)
-    need(set(value) == SELECTION_KEYS and value['source_commit'] == root_pins['source_commit'] and
+    need(set(value) == SELECTION_KEYS and type(value['schema_version']) is int and
+         value['schema_version'] == 3 and value['purpose'] == PURPOSE and
+         type(value['composition']) is str and value['composition'] in MODES and
+         value['baseline_id'] == BASELINE_ID and value['lineage'] == LINEAGE and
+         pin(value['source_packet_sha256']) and value['source_commit'] == root_pins['source_commit'] and
          value['peer_receipt_sha256'] == root_pins['peer_receipt_sha256'], 'selection-provenance')
     rows = value['source_files']
-    need(type(rows) is dict and 240 <= len(rows) <= 20000 and
+    need(type(rows) is dict and len(rows) == MODES[value['composition']] and
          digest(encoded(rows)) == root_pins['source_rows_sha256'], 'selected-rows')
     for name, row in rows.items():
         relative(name)
@@ -213,8 +228,15 @@ def selection(raw, peer_raw, root_pins, deadline):
         need(name in rows and digest(data) == pins[name] == rows[name]['sha256'], 'metadata-pin')
         metadata[name] = data
     need(sum(map(len, metadata.values())) <= TOTAL and pins[INITIAL] == INITIAL_SHA and
-         pins[POLICY] == POLICY_SHA and rows.get('LICENSE', {}).get('sha256') == LICENSE_SHA,
+         pins[POLICY] == POLICY_SHA and pins[BASELINE] == BASELINE_SHA and
+         pins['scripts/ci/inputs.lock.json'] == INPUTS_SHA and pins[INVENTORY] == INVENTORY_SHA and
+         rows.get('LICENSE', {}).get('sha256') == LICENSE_SHA,
          'immutable-pins')
+    need(decode(metadata[BASELINE]) == BASELINE_DECLARATION, 'maintained-baseline')
+    tooling = decode(metadata['scripts/virtual/tooling.lock.json'])
+    audit = decode(metadata['scripts/virtual/tooling-audit.json'])
+    need(tooling.get('base_inputs_lock_sha256') == INPUTS_SHA and
+         audit.get('tooling_lock_sha256') == pins['scripts/virtual/tooling.lock.json'], 'virtual-binding')
     lock = decode(metadata[INITIAL])
     original = lock['source_files']
     need(type(original) is dict and len(original) == 159 and len(lock['generated_fixture_files']) == 125 and
@@ -264,7 +286,7 @@ def paths(environment, root_pins):
 
 
 def original_argv(output, cache, pins):
-    view = output / 'repository-handoff/original-view'
+    view = output / 'repository-handoff/maintained-view'
     result = ['integration']
     for flag in ('inputs', 'recipes', 'integration'):
         name = 'scripts/ci/' + flag + '.lock.json'
@@ -396,7 +418,7 @@ def prepare(selection_raw, peer_raw, root_pins, environment, *, preparation_dead
                            'LC_ALL': 'C', 'TMPDIR': str(layout['tools'] / 'tmp')}}
         runtime_raw = encoded(runtime)
         adapter = layout['output'] / 'repository-handoff'
-        view = adapter / 'original-view'
+        view = adapter / 'maintained-view'
         grant = {'schema_version': 2, 'purpose': 'reviewed-same-job-handoff-execution',
                  'source_peer_preflight': 'PASS', 'development_only': True, 'added_seconds': 1200,
                  'source_commit': value['source_commit'], 'recipe_source_commit': lock['recipe_source_commit'],
@@ -405,7 +427,8 @@ def prepare(selection_raw, peer_raw, root_pins, environment, *, preparation_dead
                  'policy_path': POLICY, 'license_path': 'LICENSE', 'actor_contract_sha256': digest(runtime_raw),
                  'initial_invocation_sha256': digest(encoded({'argv': original_argv(layout['output'], layout['cache'],
                                                    value['metadata_pins']), 'output': str(adapter)})),
-                 'original_view': {'schema_version': 1, 'purpose': 'original-159-copy-view',
+                 'baseline_view': {'schema_version': 2, 'purpose': 'maintained-v1-159-copy-view',
+                                   'baseline_id': BASELINE_ID,
                                    'full_source_root': str(layout['workspace']), 'root': str(view),
                                    'integration_lock_sha256': INITIAL_SHA,
                                    'source_rows_sha256': digest(encoded(lock['source_files'])),
@@ -450,6 +473,39 @@ def verify_checkout(prepared, root_pins, environment, *, deadline):
         need(digest(raw) == ref[1], 'retained-reference-drift')
     need(digest(selection_raw) == root_pins['selection_sha256'], 'retained-selection')
     value, grant, runtime = decode(selection_raw), decode(grant_raw), decode(runtime_raw, 16 * 1024)
+    need(set(value) == SELECTION_KEYS and type(value['schema_version']) is int and
+         value['schema_version'] == 3 and value['purpose'] == PURPOSE and
+         type(value['composition']) is str and value['composition'] in MODES and
+         len(value['source_files']) == MODES[value['composition']] and
+         value['baseline_id'] == BASELINE_ID and value['lineage'] == LINEAGE and
+         pin(value['source_packet_sha256']) and value['source_commit'] == root_pins['source_commit'] and
+         value['peer_receipt_sha256'] == root_pins['peer_receipt_sha256'] and
+         set(value['metadata_pins']) == METADATA and set(value['metadata_hex']) == METADATA,
+         'checkout-selection')
+    lock = decode(bytes.fromhex(value['metadata_hex'][INITIAL]))
+    expected_view = {'schema_version': 2, 'purpose': 'maintained-v1-159-copy-view',
+        'baseline_id': BASELINE_ID, 'full_source_root': str(layout['workspace']),
+        'root': str(layout['output'] / 'repository-handoff/maintained-view'),
+        'integration_lock_sha256': INITIAL_SHA,
+        'source_rows_sha256': digest(encoded(lock['source_files'])),
+        'file_count': 160, 'argv_mode': 'absolute-view-metadata'}
+    need(set(grant) == {'schema_version', 'purpose', 'source_peer_preflight', 'development_only',
+         'added_seconds', 'source_commit', 'recipe_source_commit', 'run_id', 'run_attempt',
+         'source_files', 'maps', 'callbacks', 'policy_path', 'license_path', 'actor_contract_sha256',
+         'initial_invocation_sha256', 'baseline_view'} and type(grant['schema_version']) is int and
+         grant['schema_version'] == 2 and grant['purpose'] == 'reviewed-same-job-handoff-execution' and
+         grant['source_peer_preflight'] == 'PASS' and grant['development_only'] is True and
+         type(grant['added_seconds']) is int and grant['added_seconds'] == 1200 and
+         grant['source_commit'] == root_pins['source_commit'] and
+         grant['recipe_source_commit'] == lock['recipe_source_commit'] and
+         grant['maps'] == value['maps'] and grant['callbacks'] == value['callbacks'] and
+         grant['policy_path'] == POLICY and grant['license_path'] == 'LICENSE' and
+         grant['baseline_view'] == expected_view and
+         grant['initial_invocation_sha256'] == digest(encoded({'argv': original_argv(
+             layout['output'], layout['cache'], value['metadata_pins']),
+             'output': str(layout['output'] / 'repository-handoff')})) and
+         set(runtime) == {'cli_sha256', 'endpoint_identity', 'env'} and
+         runtime['cli_sha256'] == root_pins['cli_sha256'], 'checkout-contract')
     need(grant['run_id'] == environment.get('GITHUB_RUN_ID') and
          grant['run_attempt'] == environment.get('GITHUB_RUN_ATTEMPT') and
          grant['source_files'] == value['source_files'] and
