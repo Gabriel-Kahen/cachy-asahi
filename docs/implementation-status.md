@@ -14,8 +14,11 @@ as Source `89954b0b6a096ac688a227219e520c121e281138`, with all 271 selected Git
 blobs/modes proved and exactly two bootstrap data paths in
 `a7f5cde222076a5e3af151e3581929d54aa7e645`. External plan readback and both
 published refs match. Static CI `38480580179` passes; fresh native ARM trial08
-`38480581279` is in progress, with no outcome inferred. Historical trial07 stays
-FAIL. [Source review](reviews/maintained-composed-opaque-signal-teardown-correction-root-review.md).
+`38480581279` is FAIL: the initial input acquisition reports 497 PASS and four
+HTTP404 failures (jbigkit 2.1-8 and libtiff 4.7.2-1, each payload/signature).
+Eleven retained files bind three framed exports; independent retained review is
+assigned. Native build and downstream stages remain NOT RUN. Historical trial07
+stays FAIL. [Source review](reviews/maintained-composed-opaque-signal-teardown-correction-root-review.md).
 
 A separately reviewed x86 host SIGCHLD fixture verifies the public default-handler
 transition and retained waitability primitive. Its command interval excludes later

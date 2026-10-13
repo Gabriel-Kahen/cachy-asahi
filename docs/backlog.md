@@ -12,7 +12,10 @@ as Source `89954b0b6a096ac688a227219e520c121e281138`, with all 271 selected Git
 blobs/modes proved and exactly two bootstrap data paths in
 `a7f5cde222076a5e3af151e3581929d54aa7e645`. External plan readback and both
 published refs match. Static CI `38480580179` passes; fresh native ARM trial08
-`38480581279` is in progress, with no outcome inferred. Historical trial07 stays
+`38480581279` is FAIL at initial acquisition: 497 PASS/four HTTP404 failures
+for jbigkit 2.1-8 and libtiff 4.7.2-1 payloads/signatures. Root retained eleven
+files; independent review and a bounded exact-input custody correction are
+assigned. Native builds/downstream stages are NOT RUN; historical trial07 stays
 FAIL. [Source review](reviews/maintained-composed-opaque-signal-teardown-correction-root-review.md).
 
 A separately reviewed x86 host SIGCHLD fixture verifies the public default-handler

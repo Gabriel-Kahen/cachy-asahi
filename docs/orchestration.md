@@ -8,7 +8,8 @@ The full outline is the project scope. Milestones advance only on their specifie
 Current plan reconciliation, October 13, 22:52 UTC: Root and six worker chats
 are following the current outline/roadmap/goal/acceptance/inventory. The complete
 R1–R5/M5–M9 port remains the destination. Common teardown Source89954b0 and
-Dataa7f5cde are published; trial08 is running. Desktop's cause-transfer successor
+Dataa7f5cde are published; trial08 failed on four initial-input HTTP404s.
+Independent retained review and exact-input custody correction are assigned. Desktop's cause-transfer successor
 and Tools' guardian deadline successor have sealed proposals. Independent reviews,
 signer-probe review, native pair/checker implementation and separate downstream
 signal corrections proceed within their private ownership. The common fixture's
