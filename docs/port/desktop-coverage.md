@@ -9,6 +9,14 @@ No package, service or host configuration was installed or changed in this audit
 Only this file is owned by this workstream; shared inventory changes go to the
 coordinator. A bounded read-only subreview audited the compiled candidates.
 
+The reviewed maintained-builder successor is now available as
+[proposed metadata](../../manifests/proposals/maintained-desktop-v1.json), with the
+[finite source/evidence responsibilities](source-evidence-responsibilities.json).
+It preserves the existing roots and providers, updates the maintained Vim pair
+and corrects the descriptive editor versions. It has no fresh dependency-resolution,
+installation or release admission. The earlier observations below remain historical.
+See [reconciliation review](../reviews/full-port-coverage-reconciliation-root-review.md).
+
 ## Current evidence and the target boundary
 
 The [manifest](../../manifests/packages.toml) selects four development candidates,

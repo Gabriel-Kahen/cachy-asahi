@@ -4,7 +4,23 @@ October 12, 2026. This record tracks the complete `outline.md` scope; an impleme
 
 The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with owned tasks and corrective next actions in `docs/backlog.md`. The destination now explicitly requires the maintained ARM package repository, native performance engineering, integrated Apple stack, broader Cachy system experience, and complete installation/release lifecycle. Both Air sizes, published final measurements, independent onboarding/contribution, subsequent full-port maintenance release, other-ARM reuse and actual upstream submissions remain required; an early overlay release or feasibility decision would not complete the goal. This scope update does not change any recorded execution result.
 
-Latest coordinator update, October 13, 20:42 UTC. The previous batch changed
+Latest coordinator update, October 13, 20:52 UTC. The reviewed maintained
+45-root metadata proposal and finite ten-candidate source/evidence table are now
+published in the repository. Exact bytes match author `56c4f8f` and peer `836e71b`;
+only the documented Vim pair/builder bindings and descriptive editor fields change.
+Existing roots/providers/snapshots and historical resolution records are preserved.
+Fresh maintained dependency resolution is being implemented as a separate private
+query. [Metadata proposal](../manifests/proposals/maintained-desktop-v1.json),
+[source/evidence table](port/source-evidence-responsibilities.json).
+
+Topmem03's errno13 process-executable readlink observation passes independent
+retained review: 125 Source blobs, 33 support files and 27 corruption controls.
+Its signer recovery still supplies no absence proof. Runtime correction and hosted
+signal attribution remain active. [Actual review](reviews/topmem-corrected-caller-38463181445-root-review.md).
+Full R1–R5/M5–M9 completion, current source delivery, named custody and target
+hardware/release acceptance remain unproved.
+
+Prior coordinator update, October 13, 20:42 UTC. The previous batch changed
 source and yielded an actual errno13 signer observation, so software progress
 continues. Static CI `38464516815` passes at checkpoint `d351474`.
 
