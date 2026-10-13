@@ -17,7 +17,7 @@ jobs:
     env:
       PYTHONDONTWRITEBYTECODE: '1'
       SOURCE: scripts/ci/maintained-native
-      PACKET_SHA256: '025b6ce781e0b82de2fef9bf91ba24ca3e48cc5b15666ec53ab384e7e8aaec47'
+      PACKET_SHA256: '16498f24649b981e99d803682e87e632bbba289e4bb6d3169d7608d7cecdc617'
     steps:
       - name: Record the one absolute deadline before checkout
         id: clock

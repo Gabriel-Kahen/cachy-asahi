@@ -16,6 +16,30 @@ from types import SimpleNamespace
 
 BASE = Path(__file__).resolve().parent
 
+# Only exact source-issued validation reasons cross the private diagnostic boundary.
+OUTPUT_REFUSALS = frozenset({
+    'successor-bootstrap-binding',
+    'successor-build-artifact-record',
+    'successor-build-inventory',
+    'successor-build-provenance',
+    'successor-build-validation',
+    'successor-builder-inventory',
+    'successor-container-independence',
+    'successor-container-journal',
+    'successor-container-journal-binding',
+    'successor-distinct-environments',
+    'successor-native-result',
+    'successor-native-result-binding',
+    'successor-pair-comparison',
+    'successor-pair-equality',
+    'successor-pair-inputs',
+    'successor-signature-result',
+    'successor-signature-set',
+    'successor-worker-count',
+    'successor-worker-daemon',
+    'successor-worker-receipt',
+})
+
 
 def initial_read(path, limit=8 * 1024**2):
     path = Path(path).absolute()
@@ -207,7 +231,9 @@ def guarded_commands(producer, config, broker, runner, diagnostic, boundary, pro
 
 def first_failure(receipt, error, producer):
     if receipt['first_failure'] is None:
-        receipt['first_failure'] = producer.cleanup_refusal(error)
+        receipt['first_failure'] = (error.args[0] if type(error) is ValueError and len(error.args) == 1
+            and type(error.args[0]) is str and error.args[0] in OUTPUT_REFUSALS
+            else producer.cleanup_refusal(error))
     receipt['status'] = 'FAIL'
     receipt['cancelled'] |= isinstance(error, (producer.jr.Cancelled, KeyboardInterrupt))
 
@@ -420,8 +446,11 @@ def _validate_outputs(receipt, config, c, load):
                 'bytes_equal', 'buildinfo_equal'} and all(value[k] is True for k in value), 'successor-pair-equality')
     journal = c.decode(c.read(root / 'base-image-containers.json', 65536))
     identity = journal.get('identity')
+    # Reuse the packet-bound adapter policy: it records the canonical socket URL.
+    endpoint = sys.modules['producer'].broker_class(Path(config['adapter'])).accepted.validate_endpoint(
+        config['endpoint'], os.getuid())
     c.need(type(identity) is dict and identity.get('image') == image and identity.get('nonce') == config['nonce']
-        and identity.get('endpoint') == config['endpoint'] and identity.get('binary_sha256') == config['docker_sha256']
+        and identity.get('endpoint') == endpoint and identity.get('binary_sha256') == config['docker_sha256']
         and identity.get('daemon') == receipt['daemon'] and type(identity.get('uid')) is int
         and identity['uid'] == os.getuid() and type(identity.get('gid')) is int and identity['gid'] == os.getgid(),
         'successor-container-journal-binding')
@@ -451,7 +480,7 @@ def failure_observation(receipt):
         return {'availability': 'UNOBSERVED'}
     # Only finite phase/outcome observations cross this diagnostic boundary.
     codes = {'os-error', 'unicode-error', 'key-error', 'type-error', 'value-error',
-             'subprocess-error', 'unknown-error', 'cancelled'}
+             'subprocess-error', 'unknown-error', 'cancelled'} | OUTPUT_REFUSALS
     failure = receipt.get('first_failure')
     return {'availability': 'OBSERVED', 'phase': diagnostic['phase'], 'outcome': diagnostic['outcome'],
             'first_failure': failure if type(failure) is str and failure in codes else 'unknown-error',

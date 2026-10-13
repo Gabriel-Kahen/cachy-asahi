@@ -1,6 +1,8 @@
 {
   "audit_sha256": "1302243720fb2e621431fd9ed71f249aabad7979c8ea31b6990ae0f471087b8d",
   "baseline_id": "maintained-native-baseline-v1-vim-9.2.1178-1",
+  "diagnostic_predecessor_packet_sha256": "025b6ce781e0b82de2fef9bf91ba24ca3e48cc5b15666ec53ab384e7e8aaec47",
+  "diagnostic_revision": 1,
   "files": {
     "cache_carrier.py": {
       "bytes": 6114,
@@ -473,14 +475,14 @@
       "sha256": "0f747baaaa3e4ca0b5e5efa370f97dae9313136bc8594c964a989c634b89b613"
     },
     "retain_metadata.py": {
-      "bytes": 6780,
+      "bytes": 18275,
       "mode": 420,
-      "sha256": "10a481decf3ba5ba74215bf0430045bb59885a272dabb56b2d39800860e855f5"
+      "sha256": "52c79bbaaf5444de968bfdd7d60edaacf8d0256669f6f8bdcd4cbc4473eb0e08"
     },
     "worker.py": {
-      "bytes": 28149,
+      "bytes": 29359,
       "mode": 420,
-      "sha256": "e760debb8fc9b10cce0228d5fbce6593d2e7a1682b162c986b2fe25a85894097"
+      "sha256": "320debeb28afe8c737fbeb961450ac52157316e1d429921cfc285fa6d978c3c4"
     }
   },
   "inputs_sha256": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f",

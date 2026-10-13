@@ -4,7 +4,39 @@ October 12, 2026. This record tracks the complete `outline.md` scope; an impleme
 
 The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with owned tasks and corrective next actions in `docs/backlog.md`. The destination now explicitly requires the maintained ARM package repository, native performance engineering, integrated Apple stack, broader Cachy system experience, and complete installation/release lifecycle. Both Air sizes, published final measurements, independent onboarding/contribution, subsequent full-port maintenance release, other-ARM reuse and actual upstream submissions remain required; an early overlay release or feasibility decision would not complete the goal. This scope update does not change any recorded execution result.
 
-Latest coordinator update, October 13. The read-only hosted ARM probe38347013591
+Latest coordinator update, October 13. The maintained native trial38350748733
+is retained and independently reviewed as FAIL / NOT ACCEPTED. Prefetch has501
+positive records; all249 sanitized signature records have integer exit0 and one
+locked-primary VALIDSIG. Eight provenance/four comparison hashes are present,
+but their private contents were not exported. The precise inner cause is UNKNOWN;
+public recovery attests owned-image absence, with global daemon-cache absence
+not claimed. [Failure review](reviews/maintained-native-successor-38350748733-root-review.md)
+keeps those limits explicit.
+
+A separate source-proven endpoint defect is corrected: the validator now uses
+the captured broker policy to compare canonical socket endpoints. Source96 changes
+only worker and metadata retention;94 inherited files remain exact. The new
+packet16498f24 and workflow update retain the original clock, limits and Docker
+pin. Independent four causal models and15 static checks pass. The richer closed
+metadata records preserve first refusal codes and inspectable build/comparison
+fields. Registration is followed by a separate fresh native trial; the first
+failure cannot be backfilled from this source correction.
+
+A fresh read-only resolver diagnostic directly observes the32-byte target
+`/run/systemd/resolve/resolv.conf` from the same stat reply, with unchanged
+51 calls/13 earlier CATs/16 nodes/3 frames and no link follow. Independent
+retained review passes; all48 comparison remains FAIL and assembly cause,
+runtime correctness and successful disposal remain unaccepted.
+[Observation review](reviews/platform-resolver-fastlink-observation-actual01-root-review.md)
+records this new fact separately from the earlier unexported target.
+
+Fresh image staging assembly and bounded archive intake continue. Topmem's first
+native lifecycle proposal has a blocking mount-custody defect and incomplete
+executor/key bindings; a separate correction is active. Fish history module
+implementation and an explicit maintained composed baseline continue in parallel.
+Full R1–R5/M5–M9, both-model hardware and final performance evidence remain required.
+
+Prior coordinator update, October 13. The read-only hosted ARM probe38347013591
 passes and its retained output has independent review. It observes aarch64/4K,
 workspace and temporary-directory metadata, and exact Docker/Git/Python hashes;
 it runs no Docker/Git command or package operation. The observed Docker pin is
