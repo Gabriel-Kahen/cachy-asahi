@@ -8,6 +8,7 @@ The shared pipe supervisor is also exercised by clearly labeled Python fixtures.
 from contextlib import contextmanager
 import hashlib
 import json
+import launch
 import math
 import os
 from pathlib import Path
@@ -31,9 +32,7 @@ class Refused(ValueError):
     pass
 
 
-class Cancelled(KeyboardInterrupt):
-    pass
-
+Cancelled = launch.Cancelled
 
 def need(value, reason):
     if not value:
@@ -41,6 +40,7 @@ def need(value, reason):
 
 
 def alive(deadline):
+    launch.cancellation_checkpoint()
     need(type(deadline) in (int, float) and math.isfinite(deadline) and time.monotonic() < deadline,
          'finite unexpired transport deadline required')
 
@@ -93,48 +93,11 @@ def read_file(path, limit=128 * 1024**2, *, hold=False):
         if fd is not None: os.close(fd)
 
 
-class Events:
-    def __init__(self):
-        self.cancelled = False
-        self.deferring = False
-        self.numbers = set()
-
-    def handler(self, number, frame):
-        self.cancelled = True
-        self.numbers.add(number)
-        if not self.deferring: raise Cancelled('transport cancelled')
-
+Events = launch.Cancellation
 
 @contextmanager
 def handlers(events):
-    need(threading.current_thread() is threading.main_thread(), 'main-thread transport required')
-    mask = signal.pthread_sigmask(signal.SIG_BLOCK, SIGNALS)
-    original = {number: signal.getsignal(number) for number in SIGNALS}
-    first_error = None
-    try:
-        for number in SIGNALS: signal.signal(number, events.handler)
-        signal.pthread_sigmask(signal.SIG_SETMASK, mask)
-        yield mask
-    finally:
-        signal.pthread_sigmask(signal.SIG_BLOCK, SIGNALS)
-        for number, handler in original.items():
-            for _ in range(2):
-                try: signal.signal(number, handler)
-                except BaseException as error: first_error = first_error or error
-                if signal.getsignal(number) == handler: break
-        pending = signal.sigpending() & (SIGNALS - set(mask))
-        while pending:
-            events.numbers.add(signal.sigwait(pending)); events.cancelled = True
-            pending = signal.sigpending() & (SIGNALS - set(mask))
-        signal.pthread_sigmask(signal.SIG_SETMASK, mask)
-        # Nested owning launch/supervisor handlers must learn that cancellation
-        # occurred; otherwise they could continue unrelated legacy stages.
-        for number in events.numbers:
-            if callable(original[number]):
-                try: original[number](number, None)
-                except BaseException as error: first_error = first_error or error
-        if first_error: raise first_error
-        if events.cancelled: raise Cancelled('transport cancelled after teardown')
+    with launch._signal_handlers(events) as mask: yield mask
 
 
 def exited(process):
@@ -227,8 +190,7 @@ def supervise(argv, *, env, deadline, limit, on_stdout=None, on_stdin=None, pass
             except BaseException as error:
                 fault = error
             finally:
-                blocked = signal.pthread_sigmask(signal.SIG_BLOCK, SIGNALS); events.deferring = True
-                try:
+                with events.defer():
                     try:
                         if process is not None:
                             if natural is None:
@@ -248,19 +210,17 @@ def supervise(argv, *, env, deadline, limit, on_stdout=None, on_stdin=None, pass
                             try: stream.close()
                             except BaseException as error: first_close_error = first_close_error or error
                         if first_close_error: raise first_close_error
-                finally:
-                    events.deferring = False
-                    signal.pthread_sigmask(signal.SIG_SETMASK, blocked)
     except BaseException as error:
-        fault = fault or error
+        fault = launch.retain_fault(fault,error)
     observation.update(natural_returncode=natural, teardown_returncode=teardown, forced_teardown=forced,
-                       stdin_bytes=stdin_bytes, stdin_writes=writes, cancelled=events.cancelled)
-    code = natural if natural is not None and not forced and not events.cancelled and fault is None else (
+                       stdin_bytes=stdin_bytes, stdin_writes=writes, cancelled=events.cancelled, signal_teardown_uncertain=bool(events.uncertain))
+    code = natural if natural is not None and not forced and not events.cancelled and not events.uncertain and fault is None else (
         teardown if teardown is not None and teardown != 0 else -1)
     result = {'exit_code': code, 'stdout': bytes(output[0]), 'stderr': bytes(output[1])}
     if preflight:
         try: preflight()
-        except BaseException as error: fault = fault or error
+        except BaseException as error: fault = launch.retain_fault(fault,error)
+    if events.uncertain and fault is None: fault=Refused('signal teardown uncertain')
     if fault is not None:
         if result['exit_code'] == 0: result['exit_code'] = -1
         error = Refused('child supervision refused'); error.result = result; error.observation = observation

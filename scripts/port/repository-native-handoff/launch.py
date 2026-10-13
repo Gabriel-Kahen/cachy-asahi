@@ -65,6 +65,7 @@ def decode(raw):
 
 
 def alive(deadline):
+    cancellation_checkpoint()
     need(type(deadline) in (int, float) and math.isfinite(deadline) and time.monotonic() < deadline,
          'launch deadline exceeded or invalid')
 
@@ -123,64 +124,213 @@ def write_new(path, raw):
         need(read(path, max(len(raw), 1)) == raw, 'private write reread differs')
 
 
+def _raise_signal_faults(body_error, faults):
+    """Keep the original object primary and retain every distinct secondary cause."""
+    if not faults:
+        return
+    causes = []
+    if body_error is not None and body_error.__cause__ is not None:
+        causes.append(body_error.__cause__)
+    for fault in faults:
+        if fault is not body_error and not any(fault is item for item in causes):
+            causes.append(fault)
+    if not causes:
+        return
+    cause = causes[0] if len(causes) == 1 else BaseExceptionGroup('signal teardown failed', causes)
+    if body_error is not None:
+        raise body_error from cause
+    raise cause
+
+
+# SPDX-License-Identifier: MIT
+# Original downstream adaptation of the reviewed common02398 signal transaction.
+SIGNAL_SCOPES = []
+CANCELLATION_EVENTS = set()
+CANCELLATION_UNCERTAIN = set()
+UNCERTAINTY = frozenset(('block','set','get','handler','pending','wait','mask','registry','replay'))
+
+def cancellation_state(state=None):
+    need(type(SIGNALS) is set and SIGNALS == {signal.SIGINT,signal.SIGTERM},'signal constants differ')
+    need(type(UNCERTAINTY) is frozenset and UNCERTAINTY == frozenset(
+         ('block','set','get','handler','pending','wait','mask','registry','replay')),'signal uncertainty constants differ')
+    def number(value):
+        return type(value) in (int,type(signal.SIGINT)) and value in SIGNALS
+    def checked(value):
+        need(type(value) is Cancellation and set(vars(value)) ==
+             {'pending','depth','deferring','numbers','uncertain'}, 'signal state differs')
+        need(type(value.pending) is bool and type(value.deferring) is bool and
+             type(value.depth) is int and 0 <= value.depth <= 64 and
+             type(value.numbers) is set and len(value.numbers) <= 2 and
+             all(number(item) for item in value.numbers) and type(value.uncertain) is set and
+             all(type(item) is str and item in UNCERTAINTY for item in value.uncertain),
+             'signal state fields differ')
+    need(type(SIGNAL_SCOPES) is list and len(SIGNAL_SCOPES) <= 64,'signal registry differs')
+    for scope in SIGNAL_SCOPES:
+        need(type(scope) is tuple and len(scope) == 5,'signal scope differs')
+        owner,opaque,mask,deferred,depth = scope
+        checked(owner)
+        need(type(opaque) is tuple and len(opaque) <= 2 and all(number(item) for item in opaque) and
+             len(set(opaque)) == len(opaque) and type(mask) is set and
+             all(type(item) in (int,type(signal.SIGINT)) for item in mask) and
+             type(deferred) is bool and type(depth) is int and 0 <= depth <= 64,'signal scope fields differ')
+    for owner in [scope[0] for scope in SIGNAL_SCOPES]+([state] if state is not None else []):
+        checked(owner)
+        need(owner.depth == sum(scope[3] for scope in SIGNAL_SCOPES if scope[0] is owner),
+             'signal deferral depth differs')
+    need(type(CANCELLATION_EVENTS) is set and len(CANCELLATION_EVENTS) <= 3 and
+         all(number(item) or type(item) is str and item == 'INTERRUPT' for item in CANCELLATION_EVENTS),
+         'signal events differ')
+    need(type(CANCELLATION_UNCERTAIN) is set and all(type(item) is str and item in UNCERTAINTY
+         for item in CANCELLATION_UNCERTAIN),'signal uncertainty differs')
+
+def cancellation_requested():
+    cancellation_state(); return bool(CANCELLATION_EVENTS)
+
+def cancellation_uncertain():
+    cancellation_state(); return bool(CANCELLATION_UNCERTAIN)
+
+def cancellation_checkpoint():
+    cancellation_state()
+    if SIGNAL_SCOPES:
+        state,opaque,_,_,_ = SIGNAL_SCOPES[-1]
+        pending = signal.sigpending()
+        for number in opaque:
+            if number in pending:
+                signal.sigwait({number}); state.handler(number,None)
+
+def retain_fault(primary, secondary):
+    if primary is None: return secondary
+    if secondary is primary: return primary
+    try: _raise_signal_faults(primary,[secondary])
+    except BaseException as first: return first
+
 class Cancellation:
     def __init__(self):
-        self.pending = False
-        self.depth = 0
+        self.pending=False; self.depth=0; self.deferring=False
+        self.numbers=set(); self.uncertain=set()
+
+    @property
+    def cancelled(self): return self.pending
+
+    @cancelled.setter
+    def cancelled(self,value): self.pending=value
 
     def handler(self, number, frame):
-        self.pending = True
-        if not self.depth:
-            raise Cancelled('launch cancelled')
+        cancellation_state(self)
+        need(type(number) in (int,type(signal.SIGINT)) and number in SIGNALS,'signal number differs')
+        self.pending=True; self.numbers.add(number); CANCELLATION_EVENTS.add(number)
+        if not self.depth and not self.deferring: raise Cancelled('launch cancelled')
 
     @contextmanager
     def defer(self):
-        mask = signal.pthread_sigmask(signal.SIG_BLOCK, SIGNALS)
-        self.depth += 1
-        try:
-            signal.pthread_sigmask(signal.SIG_SETMASK, mask)
-            yield
-        finally:
-            signal.pthread_sigmask(signal.SIG_BLOCK, SIGNALS)
-            self.depth -= 1
-            signal.pthread_sigmask(signal.SIG_SETMASK, mask)
-            if self.pending and not self.depth:
-                raise Cancelled('launch cancelled after cleanup')
+        with _signal_handlers(self,deferred=True): yield
 
+@contextmanager
+def _signal_handlers(state, *, deferred=False):
+    global SIGNAL_SCOPES,CANCELLATION_EVENTS,CANCELLATION_UNCERTAIN
+    need(threading.current_thread() is threading.main_thread(),'main-thread cancellation required')
+    cancellation_state(state); need(type(deferred) is bool,'typed signal deferral required')
+    registry,events,uncertain=SIGNAL_SCOPES,CANCELLATION_EVENTS,CANCELLATION_UNCERTAIN
+    state_numbers,state_uncertain,depth=state.numbers,state.uncertain,state.depth
+    prefix=tuple(registry); previous={}; scope=None; body_error=None
+    mask=signal.pthread_sigmask(signal.SIG_BLOCK,SIGNALS)
+    try:
+        previous={number:signal.getsignal(number) for number in SIGNALS}
+        inherited=registry[-1][1] if registry else ()
+        opaque=tuple(number for number in SIGNALS if previous[number] is None and
+                     (number not in mask or number in inherited))
+        if deferred: state.depth += 1
+        for number,original in previous.items():
+            if original is not None: signal.signal(number,state.handler)
+        scope=(state,opaque,set(mask),deferred,depth); registry.append(scope)
+        signal.pthread_sigmask(signal.SIG_SETMASK,set(mask)|{
+            number for number,original in previous.items() if original is None})
+        # The exec target inherits the caller's mask, not enclosing polling blocks.
+        yield set(registry[0][2])
+    except BaseException as error:
+        body_error=error; raise
+    finally:
+        faults,queued,unsafe=[],[],set()
+        def failed(site,error):
+            uncertain.add(site); state_uncertain.add(site)
+            if isinstance(error,KeyboardInterrupt):
+                events.add('INTERRUPT'); state.pending=True
+            faults.append(error)
+        try:
+            blocked=False
+            for _ in range(2):
+                try:
+                    signal.pthread_sigmask(signal.SIG_BLOCK,SIGNALS); blocked=True; break
+                except BaseException as error: failed('block',error)
+            if not blocked: unsafe.update(SIGNALS)
+            for number,original in previous.items():
+                if original is None: continue
+                if not blocked:
+                    unsafe.add(number); uncertain.add('handler'); state_uncertain.add('handler'); continue
+                restored=False
+                for _ in range(2):
+                    try: signal.signal(number,original)
+                    except BaseException as error: failed('set',error)
+                    try: restored=signal.getsignal(number)==original
+                    except BaseException as error: failed('get',error)
+                    if restored: break
+                if not restored:
+                    unsafe.add(number); failed('get',Refused('signal handler restoration differs'))
+            if blocked:
+                for number in SIGNALS:
+                    if number in mask and (scope is None or number not in scope[1]): continue
+                    try: pending=number in signal.sigpending()
+                    except BaseException as error:
+                        unsafe.add(number); failed('pending',error); continue
+                    if pending:
+                        queued.append(number); consumed=False
+                        for _ in range(2):
+                            try: signal.sigwait({number}); consumed=True; break
+                            except BaseException as error: failed('wait',error)
+                        if not consumed: unsafe.add(number)
+        finally:
+            try:
+                expected=prefix+((scope,) if scope is not None else ())
+                if SIGNAL_SCOPES is not registry or len(registry)!=len(expected) or any(
+                        actual is not wanted for actual,wanted in zip(registry,expected)):
+                    failed('registry',Refused('signal scope restoration differs'))
+                registry[:]=prefix; SIGNAL_SCOPES=registry; state.depth=depth
+                for name,wanted in (('numbers',state_numbers),('uncertain',state_uncertain)):
+                    if getattr(state,name) is not wanted:
+                        failed('registry',Refused('signal state registry differs')); setattr(state,name,wanted)
+                if CANCELLATION_EVENTS is not events:
+                    failed('registry',Refused('signal event registry differs')); CANCELLATION_EVENTS=events
+                if CANCELLATION_UNCERTAIN is not uncertain:
+                    failed('registry',Refused('signal uncertainty registry differs')); CANCELLATION_UNCERTAIN=uncertain
+            finally:
+                target_mask=set(mask)|unsafe
+                if unsafe: uncertain.add('mask'); state_uncertain.add('mask')
+                for _ in range(2):
+                    try: signal.pthread_sigmask(signal.SIG_SETMASK,target_mask); break
+                    except BaseException as error: failed('mask',error)
+        for number in queued:
+            try: state.handler(number,None)
+            except BaseException as error:
+                if isinstance(error,KeyboardInterrupt): faults.append(error)
+                else: failed('replay',error)
+        # Relay opaque events through the shared Source scope, and known events
+        # through the actual original callable. Never invoke an opaque disposition.
+        for number in tuple(state_numbers):
+            target=prefix[-1][0].handler if prefix else previous.get(number)
+            if callable(target):
+                try: target(number,None)
+                except BaseException as error:
+                    if isinstance(error,KeyboardInterrupt): faults.append(error)
+                    else: failed('replay',error)
+        if state.pending and not state.depth and not state.deferring:
+            cancelled=Cancelled('launch cancelled after teardown')
+            if body_error is None: _raise_signal_faults(cancelled,faults); raise cancelled
+            if not isinstance(body_error,KeyboardInterrupt): faults.append(cancelled)
+        _raise_signal_faults(body_error,faults)
 
 @contextmanager
 def cancellation_handlers(state):
-    need(threading.current_thread() is threading.main_thread(), 'main-thread signal supervision required')
-    mask = signal.pthread_sigmask(signal.SIG_BLOCK, SIGNALS)
-    original = {number: signal.getsignal(number) for number in SIGNALS}
-    error = None
-    try:
-        for number in SIGNALS:
-            signal.signal(number, state.handler)
-        signal.pthread_sigmask(signal.SIG_SETMASK, mask)
-        yield
-    finally:
-        signal.pthread_sigmask(signal.SIG_BLOCK, SIGNALS)
-        for number, handler in original.items():
-            for _ in range(2):
-                try:
-                    signal.signal(number, handler)
-                except BaseException as fault:
-                    error = error or fault
-                if signal.getsignal(number) == handler:
-                    break
-        transition = []
-        pending = signal.sigpending() & (SIGNALS - set(mask))
-        while pending:
-            transition.append(signal.sigwait(pending))
-            pending = signal.sigpending() & (SIGNALS - set(mask))
-        signal.pthread_sigmask(signal.SIG_SETMASK, mask)
-        if transition:
-            state.pending = True
-        if error:
-            raise error
-        if state.pending:
-            raise Cancelled('launch cancelled')
+    with _signal_handlers(state): yield
 
 
 def validate_command(command, contract):
@@ -406,7 +556,7 @@ def run_repository(command, log, private_root, original_executor, *, contract, r
                      'source or contract drift after producer')
                 receipt['status'] = 'PASS'
             except BaseException as error:
-                fault = error; receipt['error_type'] = type(error).__name__
+                fault = error; receipt['error_type'] = type(fault).__name__
             finally:
                 if submitted:
                     try:
@@ -436,9 +586,11 @@ def run_repository(command, log, private_root, original_executor, *, contract, r
                             need(receipt['absence_verified'], 'name or ID remains')
                             receipt['cleanup'] = 'PASS'
                     except BaseException as error:
-                        fault = fault or error; receipt['status'] = 'FAIL'; receipt['cleanup_error_type'] = type(error).__name__
+                        fault = retain_fault(fault,error); receipt['status'] = 'FAIL'; receipt['cleanup_error_type'] = type(error).__name__
     except BaseException as error:
-        fault = fault or error; receipt['status'] = 'FAIL'; receipt['error_type'] = type(error).__name__
+        fault = retain_fault(fault,error); receipt['status'] = 'FAIL'; receipt['error_type'] = type(fault).__name__
+    if state.uncertain:
+        receipt.update(status='FAIL',cleanup='FAIL',signal_teardown_uncertain=True)
     if state.pending:
         receipt.update(status='FAIL', cancelled=True)
     if work is not None:
@@ -471,7 +623,7 @@ def run_repository(command, log, private_root, original_executor, *, contract, r
                     if state.pending:
                         receipt.update(status='FAIL', cancelled=True); commit()
         except BaseException as error:
-            fault = fault or error; receipt['status'] = 'FAIL'; receipt['publication_error_type'] = type(error).__name__
+            fault = retain_fault(fault,error); receipt['status'] = 'FAIL'; receipt['publication_error_type'] = type(error).__name__
             receipt['cancelled'] = state.pending or isinstance(error, (Cancelled, KeyboardInterrupt))
             if receipt_fd is not None:
                 mask = signal.pthread_sigmask(signal.SIG_BLOCK, SIGNALS)
@@ -483,6 +635,8 @@ def run_repository(command, log, private_root, original_executor, *, contract, r
         finally:
             if receipt_fd is not None:
                 os.close(receipt_fd)
+    if state.uncertain:
+        receipt.update(status='FAIL',cleanup='FAIL',signal_teardown_uncertain=True)
     if fault is not None or receipt['status'] != 'PASS':
         error = Refused('repository custody launch refused'); error.receipt = receipt
         raise error from fault

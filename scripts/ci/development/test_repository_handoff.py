@@ -275,7 +275,7 @@ class WiringModels(unittest.TestCase):
         collector={'common':types.SimpleNamespace(CANCELLATION_EVENTS=set(),CANCELLATION_UNCERTAIN=set(),defer_cancellation=defer)}
         def dependencies(*args,**kwargs):return ({}, {}) if kwargs.get('phase') else (collector,{})
         service={'pending':types.SimpleNamespace(interpose=interpose),'transport':types.SimpleNamespace(close=close)}
-        entry=types.SimpleNamespace(authenticated=lambda *a,**kw:({},{}),dependency_entry=dependencies,
+        entry=types.SimpleNamespace(authenticated=lambda *a,**kw:({'launch':types.SimpleNamespace(CANCELLATION_EVENTS=set(),CANCELLATION_UNCERTAIN=set())},{}),dependency_entry=dependencies,
             services=lambda *a,**kw:service,original_modules=originals)
         sources.module=lambda *a:entry
         def pending(*args):
@@ -293,7 +293,7 @@ class WiringModels(unittest.TestCase):
         callbacks={'existing_consumers':broad,'public_receiver':lambda *a:None,'authority_provider':lambda *a:None}
         session.pending_consumer=pending;session.terminal_consumer=terminal
         # Budget-only models; explicit view/frame custody is exercised by actual-source fixtures below.
-        session.cancellation_observed=lambda *args:False;session.cancellation_teardown_uncertain=lambda *args:False
+        session.cancellation_observed=lambda *args:False;session.cancellation_teardown_uncertain=lambda *args:False;session.downstream_signal_disposition=lambda *args:(False,False)
         session.view_plan=lambda argv:root/'output'/'original-view'
         session.prepare_view=lambda path:None
         session.observe_native_consumer=lambda controller:setattr(session,'controller',controller)
@@ -1299,7 +1299,7 @@ class StartupRefusalModels(unittest.TestCase):
                 output=Path(temporary)/'handoff';runtime={'cli_sha256':'d'*64,'endpoint_identity':[1]*6,'env':{}}
                 argv=['integration'];models=[];status=[]
                 def refused():raise first
-                entry=types.SimpleNamespace(authenticated=lambda *a,**k:({},{}),
+                entry=types.SimpleNamespace(authenticated=lambda *a,**k:({'launch':types.SimpleNamespace(CANCELLATION_EVENTS=set(),CANCELLATION_UNCERTAIN=set())},{}),
                     dependency_entry=lambda *a,**k:({'common':types.SimpleNamespace(CANCELLATION_EVENTS=set(),CANCELLATION_UNCERTAIN=set(),defer_cancellation=lambda:__import__('contextlib').nullcontext())},{}))
                 if phase=='construct-services':entry.services=lambda *a,**k:refused()
                 else:
@@ -1336,7 +1336,7 @@ class StartupRefusalModels(unittest.TestCase):
                     for name,value in [('bindings',lambda *a:None),('remove_private',remove),('revoke_phase_receipt',lambda *a:None),
                         ('publish_status',lambda *a,**k:status.append(copy.deepcopy(a[1])))]:stack.enter_context(patch.object(adapter,name,value))
                     stack.enter_context(patch.dict(os.environ,{'GITHUB_SHA':'a'*40,'GITHUB_RUN_ID':'1','GITHUB_RUN_ATTEMPT':'1'}))
-                    for name,value in [('cancellation_observed',lambda *args:False),('cancellation_teardown_uncertain',lambda *args:False),('view_plan',lambda self,argv:output/'view'),('prepare_view',lambda self,root:None),
+                    for name,value in [('cancellation_observed',lambda *args:False),('cancellation_teardown_uncertain',lambda *args:False),('downstream_signal_disposition',lambda *args:(False,False)),('view_plan',lambda self,argv:output/'view'),('prepare_view',lambda self,root:None),
                         ('register_native_preflight',lambda self:None),('observe_native_consumer',lambda self,controller:refused()),
                         ('emit_startup_refusal',emit),('startup_failed',record_failed)]:
                         stack.enter_context(patch.object(adapter.Session,name,value))
@@ -1379,14 +1379,14 @@ class OptionalDiagnosticPublicationCorrection(unittest.TestCase):
                         output=Path(temporary)/'handoff';runtime={'cli_sha256':'d'*64,'endpoint_identity':[1]*6,'env':{}}
                         argv=['integration'];first=module.Refused('callback-refused');emit_fault=KeyboardInterrupt('PRIVATE_EMIT');late=late_type('PRIVATE_REPLACEMENT');published=[]
                         def refuse(*a,**k):raise first
-                        entry=types.SimpleNamespace(authenticated=lambda *a,**k:({},{}),dependency_entry=lambda *a,**k:({'common':types.SimpleNamespace(CANCELLATION_EVENTS=set(),CANCELLATION_UNCERTAIN=set(),defer_cancellation=nullcontext)},{}),services=refuse)
+                        entry=types.SimpleNamespace(authenticated=lambda *a,**k:({'launch':types.SimpleNamespace(CANCELLATION_EVENTS=set(),CANCELLATION_UNCERTAIN=set())},{}),dependency_entry=lambda *a,**k:({'common':types.SimpleNamespace(CANCELLATION_EVENTS=set(),CANCELLATION_UNCERTAIN=set(),defer_cancellation=nullcontext)},{}),services=refuse)
                         grant={'source_commit':'a'*40,'run_id':'1','run_attempt':'1','actor_contract_sha256':module.digest(module.encoded(runtime)),
                             'initial_invocation_sha256':module.digest(module.encoded({'argv':argv,'output':str(output)})),
                             'maps':{name:{'path':'model-map','sha256':'e'*64} for name in ('runtime','collector','phase')},
                             'source_files':{module.PREFIXES[name]+'/entry.py':{'sha256':'f'*64} for name in ('collector','phase')}}
                         source=types.SimpleNamespace(grant=grant,grant_pin='0'*64,root=PATH.resolve().parents[3],raw={'model-map':b'{}'},module=lambda *a:entry,source_graph=lambda *a,**k:None)
                         session=module.Session(source,output,job_deadline=time.monotonic()+60,composition='installer-preflight-maintained-v1')
-                        if hasattr(module.Session,'cancellation_observed'):session.cancellation_observed=lambda *args:False;session.cancellation_teardown_uncertain=lambda *args:False
+                        if hasattr(module.Session,'cancellation_observed'):session.cancellation_observed=lambda *args:False;session.cancellation_teardown_uncertain=lambda *args:False;session.downstream_signal_disposition=lambda *args:(False,False)
                         def emit(self,end):raise emit_fault
                         def publish(path,value,**kwargs):
                             published.append(copy.deepcopy(value))
@@ -1992,7 +1992,7 @@ class OpaqueCancellationReportingModels(unittest.TestCase):
                     if first_failure:raise first
                     return {'transport':types.SimpleNamespace(close=lambda:None)}
                 collector={'common':common}
-                entry=types.SimpleNamespace(authenticated=lambda *a,**k:({},{}),
+                entry=types.SimpleNamespace(authenticated=lambda *a,**k:({'launch':types.SimpleNamespace(CANCELLATION_EVENTS=set(),CANCELLATION_UNCERTAIN=set())},{}),
                     dependency_entry=lambda *a,**k:({}, {}) if k.get('phase') else (collector,{}),services=services)
                 sources=adapter.Sources.__new__(adapter.Sources)
                 sources.root=Path(adapter.__file__).resolve().parents[3];sources.original_root=None
@@ -2005,6 +2005,7 @@ class OpaqueCancellationReportingModels(unittest.TestCase):
                     'source_files':{adapter.PREFIXES[role]+'/entry.py':{'sha256':'f'*64} for role in ('collector','phase')}}
                 sources.grant_pin='0'*64;sources.module=lambda *args:entry;sources.source_graph=lambda *a,**k:None
                 session=adapter.Session(sources,output,job_deadline=time.monotonic()+30,composition='installer-preflight-maintained-v1')
+                session.downstream_signal_disposition=lambda *args:(False,False)
                 original_failed=adapter.Session.startup_failed
                 def failed(self,error):seen.append(error);return original_failed(self,error)
                 def remove(path,*args):
@@ -2192,5 +2193,347 @@ class SignalTeardownFailureModels(unittest.TestCase):
         self.assertEqual(api.setters,setters);self.assertEqual(api.mask,set(common.SIGNALS))
         self.assertEqual(common.SIGNAL_SCOPES,[]);self.assertEqual(common.PENDING,[])
         self.assertEqual(common.CANCELLATION_UNCERTAIN,{'block','handler','mask'})
+
+# SPDX-License-Identifier: MIT
+class DownstreamSignalModels(unittest.TestCase):
+    """Selected Source contexts and polls; every kernel/process seam is inert."""
+    class Signals:
+        SIGINT,SIGTERM,SIG_BLOCK,SIG_SETMASK=signal.SIGINT,signal.SIGTERM,signal.SIG_BLOCK,signal.SIG_SETMASK
+        SIGKILL=signal.SIGKILL
+        def __init__(self,opaque=True,blocked=()):
+            self.handlers={2:0,15:None if opaque else 1};self.initial=dict(self.handlers)
+            self.mask=set(blocked);self.pending=set();self.setters=[];self.waits=[]
+            self.armed=False;self.site=None;self.permanent=False;self.counts={}
+            self.fault=OSError('inert downstream API fault')
+        def trip(self,site):
+            if self.armed and site==self.site:
+                self.counts[site]=self.counts.get(site,0)+1
+                if self.permanent or self.counts[site]==1:raise self.fault
+        def pthread_sigmask(self,how,numbers):
+            self.trip('block' if how==self.SIG_BLOCK else 'mask');old=set(self.mask)
+            self.mask=self.mask|set(numbers) if how==self.SIG_BLOCK else set(numbers);return old
+        def getsignal(self,number):self.trip('get');return self.handlers[number]
+        def signal(self,number,handler):
+            self.trip('set');self.setters.append((number,handler))
+            if handler is None:raise TypeError('signal handler must be signal.SIG_IGN, signal.SIG_DFL, or a callable object')
+            old=self.handlers[number];self.handlers[number]=handler;return old
+        def sigpending(self):self.trip('pending');return set(self.pending)
+        def sigwait(self,numbers):
+            self.trip('wait');assert set(numbers)<=self.mask and self.pending&set(numbers)
+            number=next(iter(self.pending&set(numbers)));self.pending.remove(number);self.waits.append(number);return number
+        def emit(self,number=15):
+            if number in self.mask:self.pending.add(number)
+            else:self.handlers[number](number,None)
+    @staticmethod
+    def modules(root=None):
+        root=Path(root or Path(adapter.__file__).resolve().parents[3])
+        prefix=root/'scripts/port/repository-native-handoff'
+        launch=types.ModuleType('downstream_model_launch');launch.__file__=str(prefix/'launch.py')
+        exec(compile((prefix/'launch.py').read_bytes(),launch.__file__,'exec',dont_inherit=True),launch.__dict__)
+        transport=types.ModuleType('downstream_model_transport');transport.__file__=str(prefix/'transport.py')
+        with patch.dict(sys.modules,launch=launch):
+            exec(compile((prefix/'transport.py').read_bytes(),transport.__file__,'exec',dont_inherit=True),transport.__dict__)
+        return launch,transport
+    @staticmethod
+    def causes(error,seen=None):
+        seen=set() if seen is None else seen
+        if error is None or id(error) in seen:return []
+        seen.add(id(error))
+        if isinstance(error,BaseExceptionGroup):
+            return [leaf for child in error.exceptions for leaf in DownstreamSignalModels.causes(child,seen)]
+        return [error]+DownstreamSignalModels.causes(error.__cause__,seen)
+    def fresh(self,opaque=True,blocked=()):
+        launch,transport=self.modules();api=self.Signals(opaque,blocked)
+        launch.signal=transport.signal=api;return launch,transport,api
+    def restored(self,launch,api,mask=()):
+        self.assertEqual(api.handlers,api.initial);self.assertEqual(api.mask,set(mask))
+        self.assertEqual(launch.SIGNAL_SCOPES,[])
+        self.assertFalse(any(handler is None for number,handler in api.setters))
+    def test_both_scopes_known_opaque_and_body_identity(self):
+        for opaque in (False,True):
+            for which in ('launch','transport'):
+                for failing in (False,True):
+                    launch,transport,api=self.fresh(opaque);state=launch.Cancellation();first=ValueError('body')
+                    factory=launch.cancellation_handlers if which=='launch' else transport.handlers
+                    try:
+                        with factory(state):
+                            if failing:raise first
+                    except ValueError as got:self.assertIs(got,first);self.assertTrue(failing)
+                    else:self.assertFalse(failing)
+                    self.restored(launch,api);self.assertFalse(launch.cancellation_uncertain())
+    def test_both_clean_cancel_and_body_plus_pending_keep_cause(self):
+        for which in ('launch','transport'):
+            for failing in (False,True):
+                launch,transport,api=self.fresh();state=launch.Cancellation();first=ValueError('body')
+                prior=RuntimeError('prior');first.__cause__=prior
+                factory=launch.cancellation_handlers if which=='launch' else transport.handlers
+                try:
+                    with factory(state):
+                        api.emit()
+                        if failing:raise first
+                except BaseException as got:
+                    if failing:
+                        self.assertIs(got,first);self.assertIn(prior,self.causes(got.__cause__))
+                        self.assertTrue(any(isinstance(leaf,launch.Cancelled) for leaf in self.causes(got.__cause__)))
+                    else:self.assertIsInstance(got,launch.Cancelled)
+                else:self.fail('cancellation lost')
+                self.restored(launch,api);self.assertTrue(state.pending);self.assertTrue(launch.cancellation_requested())
+                self.assertFalse(launch.cancellation_uncertain())
+    def test_checkpoints_preserve_prompt_and_known_asynchronous_behavior(self):
+        for which in ('launch','transport'):
+            launch,transport,api=self.fresh();state=launch.Cancellation();steps=[]
+            factory=launch.cancellation_handlers if which=='launch' else transport.handlers
+            alive=launch.alive if which=='launch' else transport.alive
+            with self.assertRaises(launch.Cancelled):
+                with factory(state):api.emit();alive(time.monotonic()+10);steps.append('too-late')
+            self.assertEqual(steps,[]);self.restored(launch,api)
+        launch,transport,api=self.fresh(False);state=transport.Events();steps=[]
+        with self.assertRaises(transport.Cancelled):
+            with transport.handlers(state):api.emit(2);steps.append('too-late')
+        self.assertEqual(steps,[]);self.restored(launch,api)
+    def test_nested_opaque_transport_propagates_and_child_mask_is_outer_entry(self):
+        launch,transport,api=self.fresh(blocked={2});outer=launch.Cancellation();inner=transport.Events()
+        first=None
+        try:
+            with launch.cancellation_handlers(outer):
+                with transport.handlers(inner) as child_mask:
+                    self.assertEqual(child_mask,{2});self.assertEqual(api.mask,{2,15})
+                    api.emit();transport.alive(time.monotonic()+10)
+        except launch.Cancelled as got:first=got
+        self.assertIsNotNone(first);self.assertTrue(outer.pending);self.assertTrue(inner.cancelled)
+        self.restored(launch,api,{2});self.assertFalse(launch.cancellation_uncertain())
+    def test_nested_defer_finishes_and_keeps_first_body(self):
+        for failing in (False,True):
+            launch,transport,api=self.fresh();state=launch.Cancellation();steps=[];first=ValueError('body')
+            try:
+                with launch.cancellation_handlers(state):
+                    with state.defer():
+                        with state.defer():api.emit();launch.alive(time.monotonic()+10);steps.append('inner')
+                        steps.append('outer')
+                        if failing:raise first
+            except BaseException as got:
+                if failing:self.assertIs(got,first)
+                else:self.assertIsInstance(got,launch.Cancelled)
+            else:self.fail('deferred cancel lost')
+            self.assertEqual(steps,['inner','outer']);self.assertEqual(state.depth,0);self.restored(launch,api)
+    def test_originally_blocked_pending_is_preserved_across_both_scopes(self):
+        launch,transport,api=self.fresh(blocked={15});api.pending.add(15)
+        outer=launch.Cancellation();inner=transport.Events()
+        with launch.cancellation_handlers(outer):
+            with transport.handlers(inner) as child_mask:
+                self.assertEqual(child_mask,{15});transport.alive(time.monotonic()+10)
+                with inner.defer():launch.alive(time.monotonic()+10)
+        self.restored(launch,api,{15});self.assertEqual(api.pending,{15});self.assertEqual(api.waits,[])
+        self.assertFalse(outer.pending);self.assertFalse(inner.pending);self.assertFalse(launch.cancellation_requested())
+    def test_all_six_teardown_sites_preserve_body_and_secondary_causes(self):
+        for which in ('launch','transport'):
+            for site in ('block','mask','get','set','pending','wait'):
+                launch,transport,api=self.fresh(site not in ('get','set'));state=launch.Cancellation()
+                factory=launch.cancellation_handlers if which=='launch' else transport.handlers
+                first=ValueError('body');prior=RuntimeError('prior');first.__cause__=prior
+                try:
+                    with factory(state):
+                        if site=='wait':api.pending.add(15)
+                        api.site=site;api.armed=True;raise first
+                except ValueError as got:
+                    self.assertIs(got,first);self.assertIn(prior,self.causes(got.__cause__))
+                    self.assertIn(api.fault,self.causes(got.__cause__))
+                else:self.fail('first body lost')
+                self.assertTrue(launch.cancellation_uncertain());self.assertEqual(launch.SIGNAL_SCOPES,[])
+                self.assertEqual(state.depth,0);self.assertFalse(any(handler is None for number,handler in api.setters))
+                self.assertEqual(state.pending,site=='wait')
+    def test_permanent_wait_retains_pending_and_protective_block(self):
+        launch,transport,api=self.fresh();state=transport.Events();first=ValueError('body')
+        try:
+            with transport.handlers(state):api.pending.add(15);api.site='wait';api.permanent=True;api.armed=True;raise first
+        except ValueError as got:self.assertIs(got,first)
+        self.assertIn(api.fault,self.causes(first.__cause__));self.assertEqual(api.counts['wait'],2)
+        self.assertEqual(api.pending,{15});self.assertIn(15,api.mask);self.assertTrue(state.cancelled)
+        self.assertTrue(launch.cancellation_uncertain());self.assertEqual(launch.SIGNAL_SCOPES,[])
+    def test_registry_disposal_and_retained_unknown_interrupt(self):
+        for mode in ('row','rebind','interrupt'):
+            launch,transport,api=self.fresh();state=launch.Cancellation();first=ValueError('body');registry=launch.SIGNAL_SCOPES
+            try:
+                with launch.cancellation_handlers(state):
+                    if mode=='row':registry.append(('foreign',))
+                    elif mode=='rebind':launch.SIGNAL_SCOPES=[]
+                    else:api.site='block';api.fault=KeyboardInterrupt('inert unknown number');api.armed=True
+                    raise first
+            except ValueError as got:self.assertIs(got,first)
+            self.assertIs(launch.SIGNAL_SCOPES,registry);self.assertEqual(registry,[])
+            self.assertTrue(launch.cancellation_uncertain());self.assertEqual(state.pending,mode=='interrupt')
+            if mode=='interrupt':self.assertEqual(launch.CANCELLATION_EVENTS,{'INTERRUPT'})
+    def test_permanent_block_and_replay_faults_keep_body_and_closed_uncertainty(self):
+        launch,transport,api=self.fresh(False);state=transport.Events();first=ValueError('body')
+        try:
+            with transport.handlers(state):api.site='block';api.permanent=True;api.armed=True;raise first
+        except ValueError as got:self.assertIs(got,first)
+        self.assertEqual(api.counts['block'],2);self.assertEqual(api.mask,{2,15})
+        self.assertTrue(launch.cancellation_uncertain());self.assertIn('handler',state.uncertain)
+        self.assertEqual(launch.SIGNAL_SCOPES,[]);self.assertIn(api.fault,self.causes(first.__cause__))
+        launch,transport,api=self.fresh();state=launch.Cancellation();first=ValueError('body');fault=OSError('inert replay')
+        def original(number,frame):raise fault
+        api.handlers[2]=api.initial[2]=original
+        try:
+            with state.defer():api.emit(2);raise first
+        except ValueError as got:self.assertIs(got,first)
+        self.assertIn(fault,self.causes(first.__cause__));self.assertIn('replay',state.uncertain)
+        self.assertTrue(state.pending);self.assertTrue(launch.cancellation_requested());self.assertTrue(launch.cancellation_uncertain())
+        self.restored(launch,api)
+    def test_captured_global_and_state_set_identities_roll_back_after_rebinding(self):
+        for name in ('CANCELLATION_EVENTS','CANCELLATION_UNCERTAIN','numbers','uncertain'):
+            launch,transport,api=self.fresh();state=launch.Cancellation();first=ValueError('body')
+            owner=launch if name.startswith('CANCELLATION_') else state;registry=getattr(owner,name)
+            try:
+                with launch.cancellation_handlers(state):setattr(owner,name,set());raise first
+            except ValueError as got:self.assertIs(got,first)
+            self.assertIs(getattr(owner,name),registry);self.assertTrue(launch.cancellation_uncertain())
+            self.assertIn('registry',state.uncertain);self.restored(launch,api)
+    def test_retain_fault_keeps_primary_and_both_prior_and_secondary(self):
+        launch,_,_=self.fresh();first=ValueError('body');prior=RuntimeError('prior');first.__cause__=prior
+        secondary=OSError('secondary');self.assertIs(launch.retain_fault(first,secondary),first)
+        self.assertEqual(self.causes(first.__cause__),[prior,secondary])
+        self.assertIs(launch.retain_fault(first,first),first)
+    def test_observer_binds_source_registries_and_closed_fields(self):
+        launch,transport,api=self.fresh();sources=adapter.Sources.__new__(adapter.Sources)
+        root=Path(adapter.__file__).resolve().parents[3];sources.root=root;sources.original_root=None
+        path=adapter.PREFIXES['runtime']+'/launch.py';sources.raw={path:Path(launch.__file__).read_bytes()}
+        session=adapter.Session.__new__(adapter.Session);session.sources=sources
+        events,uncertainty=launch.CANCELLATION_EVENTS,launch.CANCELLATION_UNCERTAIN
+        observe=lambda:session.downstream_signal_disposition({'launch':launch},events,uncertainty)
+        self.assertEqual(observe(),(False,False));events.add(15);self.assertEqual(observe(),(True,False))
+        uncertainty.add('wait');self.assertEqual(observe(),(True,True))
+        with self.assertRaises(adapter.Refused):session.downstream_signal_disposition({'launch':launch},set(events),uncertainty)
+        saved=launch.cancellation_requested
+        for foreign in (lambda:True,types.FunctionType(saved.__code__,dict(saved.__globals__))):
+            launch.cancellation_requested=foreign
+            with self.assertRaises(adapter.Refused):observe()
+        launch.cancellation_requested=saved
+        for bad in (True,99,'private/path'):
+            events.add(bad)
+            with self.assertRaises(launch.Refused):observe()
+            events.remove(bad)
+        uncertainty.add('raw errno')
+        with self.assertRaises(launch.Refused):observe()
+    def test_exact_supervisor_inert_pipe_child_mask_and_failure_reporting(self):
+        for failing in (False,True):
+            launch,transport,api=self.fresh(blocked={2});first=ValueError('callback first cause');calls=[]
+            class Stream:
+                closed=False
+                def __init__(self,number):self.number=number
+                def fileno(self):return self.number
+                def close(self):self.closed=True
+            process=types.SimpleNamespace(pid=41000,stdin=None,stdout=Stream(31),stderr=Stream(32),
+                wait=lambda timeout:0)
+            class Selector:
+                def __init__(self):self.keys={}
+                def __enter__(self):return self
+                def __exit__(self,*args):pass
+                def register(self,stream,events,data):self.keys[stream]=types.SimpleNamespace(fileobj=stream,fd=stream.fileno(),data=data)
+                def unregister(self,stream):self.keys.pop(stream)
+                def select(self,timeout):calls.append(('selector_timeout',timeout));return [(key,1) for key in list(self.keys.values())]
+            def popen(*args,**options):
+                options['preexec_fn']();calls.append(('child_mask',set(api.mask)))
+                return process
+            delivered=set()
+            def read(fd,count):
+                if failing and fd==31 and fd not in delivered:delivered.add(fd);return b'x'
+                return b''
+            def callback(chunk):
+                api.pending.add(15)
+                # The first block belongs to entering cleanup defer. Fault only
+                # its teardown block; this is a modeled API fault, not a syscall.
+                original=api.trip;armed_counts=[]
+                def fault(site):
+                    if site=='block':
+                        armed_counts.append(site)
+                        if len(armed_counts)==2:raise api.fault
+                    return original(site)
+                api.trip=fault;raise first
+            transport.os=types.SimpleNamespace(set_blocking=lambda *a:None,read=read)
+            transport.subprocess=types.SimpleNamespace(Popen=popen,PIPE=-1,DEVNULL=-3)
+            transport.selectors=types.SimpleNamespace(DefaultSelector=Selector,EVENT_READ=1,EVENT_WRITE=2)
+            transport.exited=lambda p:0
+            transport.group_signal=lambda pid,number:calls.append(('owned_model_group',pid,number))
+            outer=launch.Cancellation();outer.deferring=True
+            with launch.cancellation_handlers(outer):
+                try:
+                    result,observation=transport.supervise(['inert-child'],env={},deadline=time.monotonic()+10,
+                        limit=100,on_stdout=callback if failing else None)
+                except transport.Refused as error:
+                    self.assertTrue(failing);self.assertIs(error.__cause__,first)
+                    observation=error.observation;result=error.result
+                    self.assertTrue(any(isinstance(item,launch.Cancelled) for item in self.causes(first.__cause__)))
+                    self.assertIn(api.fault,self.causes(first.__cause__))
+                else:self.assertFalse(failing);self.assertEqual(result['exit_code'],0)
+                self.assertTrue(observation['direct_child_reaped']);self.assertTrue(observation['group_disposal_requested'])
+                self.assertEqual(observation['cancelled'],failing)
+                self.assertEqual(observation['signal_teardown_uncertain'],failing)
+                self.assertEqual(next(row[1] for row in calls if row[0]=='child_mask'),{2})
+                self.assertTrue(all(0<=row[1]<=.05 for row in calls if row[0]=='selector_timeout'))
+                self.assertTrue(process.stdout.closed and process.stderr.closed)
+                self.assertEqual(outer.pending,failing)
+            self.assertEqual(outer.pending,failing);self.restored(launch,api,{2})
+
+# SPDX-License-Identifier: MIT
+class DownstreamCancellationReportingModels(OpaqueCancellationReportingModels):
+    """Use the actual downstream observer in the exact inert Session.execute."""
+    def test_downstream_body_cancel_and_uncertainty_are_independent_execute_fields(self):
+        from contextlib import ExitStack
+        for pending,uncertain,fault in ((False,False,None),(True,False,None),(False,True,None),
+                (True,True,None),(True,False,'registry'),(False,False,'function'),(False,False,'enum')):
+            with self.subTest(cancel=pending,uncertain=uncertain,observer=fault),tempfile.TemporaryDirectory(prefix='downstream-reporting-') as temporary:
+                launch,transport=DownstreamSignalModels.modules();api=DownstreamSignalModels.Signals()
+                launch.signal=transport.signal=api;state=launch.Cancellation()
+                common=self.common();output=Path(temporary)/'handoff';published=[];seen=[]
+                runtime_contract={'cli_sha256':'d'*64,'endpoint_identity':[1]*6,'env':{}};argv=['integration']
+                first=adapter.Refused('callback-refused')
+                def services(*args,**kwargs):
+                    try:
+                        with launch.cancellation_handlers(state):
+                            # A typed call to the exact Source handler models an
+                            # observed event, independently of the primary failure.
+                            if pending:
+                                state.deferring=True;state.handler(signal.SIGTERM,None);state.deferring=False
+                            if uncertain:api.site='block';api.armed=True
+                            raise first
+                    finally:
+                        if fault=='registry':launch.CANCELLATION_EVENTS=set()
+                        elif fault=='function':launch.cancellation_requested=lambda:True
+                        elif fault=='enum':launch.CANCELLATION_EVENTS.add(99)
+                collector={'common':common};runtime={'launch':launch}
+                entry=types.SimpleNamespace(authenticated=lambda *a,**k:(runtime,{}),
+                    dependency_entry=lambda *a,**k:({}, {}) if k.get('phase') else (collector,{}),services=services)
+                sources=adapter.Sources.__new__(adapter.Sources)
+                sources.root=Path(adapter.__file__).resolve().parents[3];sources.original_root=None
+                sources.raw={adapter.PREFIXES['collector']+'/common.py':Path(common.__file__).read_bytes(),
+                    adapter.PREFIXES['runtime']+'/launch.py':Path(launch.__file__).read_bytes(),'model-map':b'{}'}
+                sources.grant={'source_commit':'a'*40,'run_id':'1','run_attempt':'1',
+                    'actor_contract_sha256':adapter.digest(adapter.encoded(runtime_contract)),
+                    'initial_invocation_sha256':adapter.digest(adapter.encoded({'argv':argv,'output':str(output)})),
+                    'maps':{role:{'path':'model-map','sha256':'e'*64} for role in ('runtime','collector','phase')},
+                    'source_files':{adapter.PREFIXES[role]+'/entry.py':{'sha256':'f'*64} for role in ('collector','phase')}}
+                sources.grant_pin='0'*64;sources.module=lambda *a:entry;sources.source_graph=lambda *a,**k:None
+                session=adapter.Session(sources,output,job_deadline=time.monotonic()+30,composition='installer-preflight-maintained-v1')
+                original_failed=adapter.Session.startup_failed
+                def failed(self,error):seen.append(error);return original_failed(self,error)
+                def remove(path,*args):
+                    if path is not None and Path(path).exists():shutil.rmtree(path)
+                with ExitStack() as stack:
+                    for name,value in [('bindings',lambda *a:None),('remove_private',remove),
+                            ('revoke_phase_receipt',lambda *a:None),('publish_status',lambda p,v,**k:published.append(copy.deepcopy(v)))]:
+                        stack.enter_context(patch.object(adapter,name,value))
+                    stack.enter_context(patch.dict(os.environ,{'GITHUB_SHA':'a'*40,'GITHUB_RUN_ID':'1','GITHUB_RUN_ATTEMPT':'1'}))
+                    for name,value in [('view_plan',lambda *a:output/'view'),('prepare_view',lambda *a:None),
+                            ('register_native_preflight',lambda *a:None),('emit_startup_refusal',lambda *a:None),('startup_failed',failed)]:
+                        stack.enter_context(patch.object(adapter.Session,name,value))
+                    result=session.execute(argv,{},runtime_contract)
+                self.assertEqual(result['status'],'FAIL');self.assertFalse(result['callback_entered'])
+                self.assertIs(seen[0],first);self.assertEqual(result['error_code'],'callback-refused')
+                self.assertEqual(session.startup_failure['kind'],'SOURCE_REFUSAL');self.assertEqual(len(published),1)
+                self.assertIs(result['cancelled'],pending and fault is None)
+                self.assertEqual(result['cleanup'],'FAIL' if uncertain or fault else 'PASS')
+                if pending:self.assertTrue(any(isinstance(leaf,launch.Cancelled) for leaf in DownstreamSignalModels.causes(first.__cause__)))
+                self.assertEqual(launch.SIGNAL_SCOPES,[]);self.assertEqual((common.PENDING,common.SIGNAL_SCOPES),([],[]))
 
 if __name__ == '__main__':unittest.main()

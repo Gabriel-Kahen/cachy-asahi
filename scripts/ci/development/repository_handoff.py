@@ -656,6 +656,13 @@ class Sources:
                     relative_path = self.locate(origin)
                     need(modules.get(relative_path) is value or any(value is item for item in aliases.values()),
                          'callback-refused')
+        if path == PREFIXES['runtime']+'/launch.py':
+            validator=module.__dict__.get('cancellation_state')
+            self.graph_function(validator,module,cache)
+            need(validator.__defaults__ == (None,) and validator.__kwdefaults__ is None and
+                 validator.__closure__ is None,'callback-refused')
+            validator()
+
         if path == PREFIXES['collector']+'/common.py':
             validator = module.__dict__.get('cancellation_state')
             self.graph_function(validator, module, cache)
@@ -1397,6 +1404,41 @@ class Session:
         need(type(result) is bool, 'callback-refused')
         return result
 
+    def downstream_signal_disposition(self, runtime, events, uncertainty):
+        """Exact Source observer; cancellation and teardown uncertainty stay independent."""
+        path=PREFIXES['runtime']+'/launch.py'
+        need(type(runtime) is dict and type(events) is set and type(uncertainty) is set and
+             type(self.sources) is Sources,'callback-refused')
+        module=runtime.get('launch')
+        need(type(module) is types.ModuleType and module.__dict__.get('__file__') == str(self.sources.root/path)
+             and module.__dict__.get('CANCELLATION_EVENTS') is events and
+             module.__dict__.get('CANCELLATION_UNCERTAIN') is uncertainty,'callback-refused')
+        for name in ('cancellation_state','cancellation_requested','cancellation_uncertain','_raise_signal_faults','retain_fault'):
+            callback=module.__dict__.get(name);self.sources.graph_function(callback,module)
+            need(callback.__closure__ is None and callback.__kwdefaults__ is None and
+                 callback.__defaults__ == ((None,) if name == 'cancellation_state' else None),'callback-refused')
+        factory=module.__dict__.get('_signal_handlers')
+        need(type(factory) is types.FunctionType and factory.__code__ == contextmanager(lambda:None).__code__ and
+             factory.__globals__ is contextmanager.__globals__ and type(factory.__closure__) is tuple and
+             len(factory.__closure__)==1 and factory.__closure__[0].cell_contents is getattr(factory,'__wrapped__',None),
+             'callback-refused')
+        self.sources.graph_function(factory.__wrapped__,module)
+        cls=module.__dict__.get('Cancellation')
+        need(type(cls) is type and cls.__module__ == module.__name__,'callback-refused')
+        for name in ('__init__','handler'):
+            self.sources.graph_function(vars(cls).get(name),module)
+        deferred=vars(cls).get('defer')
+        need(type(deferred) is types.FunctionType and deferred.__code__ == contextmanager(lambda:None).__code__ and
+             deferred.__globals__ is contextmanager.__globals__ and type(deferred.__closure__) is tuple and
+             len(deferred.__closure__)==1 and deferred.__closure__[0].cell_contents is getattr(deferred,'__wrapped__',None),
+             'callback-refused')
+        self.sources.graph_function(deferred.__wrapped__,module)
+        cancelled=vars(cls).get('cancelled');need(type(cancelled) is property,'callback-refused')
+        for callback in (cancelled.fget,cancelled.fset):self.sources.graph_function(callback,module)
+        result=module.cancellation_requested(),module.cancellation_uncertain()
+        need(all(type(value) is bool for value in result),'callback-refused')
+        return result
+
     def startup_failed(self, error):
         """Keep the first finite observation without changing the exception/cause."""
         if self.startup_failure is not None:return
@@ -1954,9 +1996,10 @@ class Session:
         self.output.mkdir(mode=0o700,parents=False)
         self.private = Path(tempfile.mkdtemp(prefix='handoff-',dir=self.output))
         self.private_node = identity(self.private.lstat())
-        services = collector = None
+        services = collector = modules = None
         cancellation_events = None
         cancellation_uncertain = None
+        downstream_events = downstream_uncertainty = None
         try:
             root = self.sources.root
             entry_path = PREFIXES['runtime']+'/entry.py'
@@ -1965,6 +2008,8 @@ class Session:
             maps = grant['maps']
             modules,_ = entry.authenticated(root/maps['runtime']['path'],maps['runtime']['sha256'],
                 deadline=self.job_deadline,source_root=root/PREFIXES['runtime'])
+            downstream_events = modules['launch'].CANCELLATION_EVENTS
+            downstream_uncertainty = modules['launch'].CANCELLATION_UNCERTAIN
             self.startup_phase = 'load-collector'
             collector,collector_pins = entry.dependency_entry(root,PREFIXES['collector']+'/entry.py',
                 grant['source_files'][PREFIXES['collector']+'/entry.py']['sha256'],maps['collector']['path'],
@@ -2072,6 +2117,13 @@ class Session:
                 if isinstance(error,KeyboardInterrupt): self.result['cancelled'] = True
                 if self.result['error_code'] is None: self.result['error_code'] = 'cleanup-failed'
             try:
+                if modules is not None:
+                    downstream_cancelled,downstream_uncertain=self.downstream_signal_disposition(
+                        modules,downstream_events,downstream_uncertainty)
+                    if downstream_cancelled:
+                        self.result.update(status='FAIL',cancelled=True,error_code=self.result['error_code'] or 'cancelled')
+                    if downstream_uncertain:
+                        self.result.update(status='FAIL',cleanup='FAIL',error_code=self.result['error_code'] or 'cleanup-failed')
                 if collector is not None and self.cancellation_observed(collector, cancellation_events):
                     self.result.update(status='FAIL', cancelled=True,
                                        error_code=self.result['error_code'] or 'cancelled')
