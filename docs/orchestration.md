@@ -5,6 +5,20 @@ Started October 11, 2026, from `271e7c2` plus the user-provided `outline.md`.
 
 The full outline is the project scope. Milestones advance only on their specified evidence. Original project material uses MIT; third-party source licensing must be recorded separately before redistribution.
 
+Roadmap reconciliation, October 13, 23:58 UTC: the coordinator reread the current
+`outline.md`, `goal.md`, `docs/roadmap.md`, `docs/acceptance.md` and
+`manifests/packages.toml` after the user's reminder. Their SHA-256 prefixes are
+`d8f1a628`, `779a2189`, `6e720ad8`, `46314739` and `c2bd07f2`, respectively.
+All six GPT 6.1 Sol/high worker chats received the authoritative-file and scope
+reminder. Continue the complete R1–R5/M5–M9/A01–A15 implementation with bounded
+ownership and small reviewed integration batches. The overlay remains an
+intermediate result. Both Air sizes, complete installation and recovery,
+published final-system performance/power measurements, independent onboarding,
+ongoing maintenance and a subsequent full-port release remain acceptance gates.
+The implementation goal stays ACTIVE while concrete software work remains.
+Use the smallest working build/check/publish path; source review does not replace
+actual native execution or exact-machine evidence.
+
 Current execution frontier, October 13, 23:36 UTC: shared downstream signal
 Source7fde/Dataa822 is published with271 proof; execution899 and trial08FAIL stay
 unchanged. Root metadata-bound gate236cf/peer10525 passes Source review after
