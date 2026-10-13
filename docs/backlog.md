@@ -2,6 +2,14 @@
 
 Coordinator: Lila in chat `01a12d58-9194-7643-81eb-fc9d62e4d923`. Source workers have bounded ownership in `docs/orchestration.md`; execution owners must reserve actual capacity before changing a shared machine. The full acceptance matrix is `docs/acceptance.md`.
 
+October 13, 20:26 UTC corrective batch: B18/B19 trial06 `38462431231` keeps
+the restoration-setter TypeError and does not match the new argument refinement.
+Diagnose exact hosted wrapper compatibility before another attribution retry;
+no handler substitution or cause inference is authorized by the old marker.
+B17's caller-only operation/errno successor has focused pure review in progress;
+retention must preserve refused signer recovery and unknown absence. The full-port
+coverage crosswalk and exact two-package recipe correspondence are parallel tasks.
+
 October 13, 20:07 UTC corrective batch: B18/B19 trial05 `38458048861` narrows
 the service TypeError to the handler-restoration setter; diagnose the held handler
 argument without suppressing the error or changing unknown dispositions.

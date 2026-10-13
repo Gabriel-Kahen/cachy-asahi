@@ -4,7 +4,16 @@ October 12, 2026. This record tracks the complete `outline.md` scope; an impleme
 
 The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with owned tasks and corrective next actions in `docs/backlog.md`. The destination now explicitly requires the maintained ARM package repository, native performance engineering, integrated Apple stack, broader Cachy system experience, and complete installation/release lifecycle. Both Air sizes, published final measurements, independent onboarding/contribution, subsequent full-port maintenance release, other-ARM reuse and actual upstream submissions remain required; an early overlay release or feasibility decision would not complete the goal. This scope update does not change any recorded execution result.
 
-Latest coordinator update, October 13, 20:22 UTC. Root re-read the updated
+Latest coordinator update, October 13, 20:26 UTC. The independently reviewed
+handler-argument diagnostic is committed as Source `4327634` and Data `999e539`.
+All 271 Git rows and exact external-plan readback pass; static CI `38462431970`
+passes. Actual ARM trial `38462431231` again reports
+`TYPE_ERROR / SERVICE_CANCEL_EXIT_SET_HANDLER`, cleanup PASS and hook entry false.
+The argument refinement did not match; failed operand/predicate remain UNKNOWN.
+Hosted Python wrapper compatibility is now being checked against primary source.
+This failure is retained separately and does not change trial05.
+
+Prior coordinator update, October 13, 20:16 UTC. Root re-read the updated
 outline, roadmap, goal and inventory; complete R1–R5/M5–M9 remains the scope.
 Static CI `38460396035` passes at source checkpoint `5662c67`.
 
