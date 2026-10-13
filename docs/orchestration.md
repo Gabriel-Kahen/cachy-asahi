@@ -5,6 +5,16 @@ Started October 11, 2026, from `271e7c2` plus the user-provided `outline.md`.
 
 The full outline is the project scope. Milestones advance only on their specified evidence. Original project material uses MIT; third-party source licensing must be recorded separately before redistribution.
 
+Current execution frontier, October 13, 23:36 UTC: shared downstream signal
+Source7fde/Dataa822 is published with271 proof; execution899 and trial08FAIL stay
+unchanged. Root metadata-bound gate236cf/peer10525 passes Source review after
+three coherent graph refusals. Exact input metadataf647/peer965c proposes a
+separate two-name successor; payload custody/crypto/ABI/full341 selection remain
+pending. Owned fixture/isolated-startup prep, terminal-mask query correction,
+signer compile prep and independent native pair/checker live integration continue.
+Root retains shared adoption, plan registration and actual dispatch ownership.
+Full R1–R5/M5–M9/A01–A15 remains required and the goal ACTIVE.
+
 Current plan reconciliation, October 13, 22:52 UTC: Root and six worker chats
 are following the current outline/roadmap/goal/acceptance/inventory. The complete
 R1–R5/M5–M9 port remains the destination. Common teardown Source89954b0 and

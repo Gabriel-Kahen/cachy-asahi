@@ -37,6 +37,45 @@ separate transport/launch corrections continue in parallel. Both M2 Air sizes,
 final measurements, installation/recovery, ongoing custody and a subsequent
 full-port release remain open. The goal remains ACTIVE.
 
+October 13, 23:36 UTC: the independently reviewed downstream signal correction
+is published as Source `7fde499b5dcbe216c8e17eb07abe236978300f1c` and two-path
+Data `a8222e2256f1dba944ab7fc7911ba83e02442ed8`. All 271 selected Git blobs and
+modes are proved. Common02398 stays unchanged; launch/transport now share their
+explicit polling/state contract and preserve body causes and uncertainty.
+[Downstream review](reviews/maintained-downstream-opaque-signal-correction-root-review.md).
+The execution ref remains Source89954b0; the new plan is derived but unregistered,
+and no retry is dispatched while required package inputs remain unresolved.
+
+Trial08 remains FAIL. Independent retained review authenticates eleven run files,
+271 Source blobs and three framed exports: 497/501 acquisitions pass, with four
+jbigkit/libtiff payload/signature HTTP404s before verification or compilation.
+[Actual review](reviews/maintained-composed-38480581279-root-review.md).
+A finite twelve-GET official-source lookup recovered none of the old objects.
+Fresh unsigned metadata proposes jbigkit2.2-1/libtiff4.7.2-2; its exact tuples and
+19 dependency/16 reverse-consumer nodes pass retained review. Four-object
+payload custody, signatures, source/license, ABI and a newly selected complete
+341 lock remain separate work. Two exact read-only host vercmp observations
+report positive ordering for the three scoped declared relations; they do not
+resolve the complete transaction or certify ARM ABI.
+[Input metadata review](reviews/maintained-jbigkit-libtiff-input-custody-root-review.md).
+
+Root implemented and independently reviewed the metadata-bound query result
+gate: 27 synthetic corruption controls pass; three coherent predecessor graph
+substitutions now refuse against pinned canonical seed/addition metadata. Final
+query/runtime pins, terminal-mask correction and whole-payload publication/owner
+reservation remain pending; no query actor follows from the gate.
+[Gate review](reviews/updater-maintained-query-result-gate-metadata-correction-root-review.md).
+Signer deadline classification passes bounded Source review; compilation and
+native/runtime/API premises remain open. Package checker and four-build driver
+implementations are sealed, with live integration and concrete original-deadline
+cleanup corrections under review. The owned common fixture runner is reviewed
+separately; an isolated-startup C variant is being prepared before compilation.
+
+Full R1–R5/M5–M9 and A01–A15 remain required. Both exact Air sizes, final-system
+measurements, installation/recovery, signing/maintenance custody, independent
+onboarding and a subsequent full-port release remain unaccepted. The goal stays
+ACTIVE while the bounded software implementation and execution tasks continue.
+
 Latest coordinator update, October 13, 22:10 UTC. Root re-read the current
 outline, goal, roadmap, acceptance matrix and package inventory. Full
 R1–R5/M5–M9 remains required; the initial overlay is an intermediate result.
