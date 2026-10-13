@@ -554,6 +554,40 @@ jobs:
               if job_status == 'PASS':
                   need(complete and 'signatures.json' in producer)
 
+          def cleanup_observation(value, phases, reasons, refusals):
+              keys = {'schema_version', 'scope', 'phase', 'call', 'journal', 'reason', 'boundary_error',
+                      'observation_error', 'status', 'absence_verified', 'cancelled'}
+              if type(value) is not dict or set(value) != keys:
+                  return None
+              if type(value['schema_version']) is not int or value['schema_version'] != 1 or \
+                      type(value['scope']) is not str or value['scope'] != 'producer-containers':
+                  return None
+              enums = {'phase': phases | {'UNOBSERVED'},
+                       'call': {'UNOBSERVED', 'not-run', 'started', 'returned', 'raised'},
+                       'journal': {'UNOBSERVED', 'ABSENT', 'REGULAR', 'OTHER'},
+                       'reason': reasons | refusals | {'none', 'docker-cleanup-cancellation-uncertain',
+                                                      'returned-failure', 'malformed-result'},
+                       'boundary_error': refusals | {'none'}, 'observation_error': refusals | {'none'},
+                       'status': {'UNOBSERVED', 'PASS', 'FAIL'}}
+              if any(type(value[name]) is not str or value[name] not in allowed for name, allowed in enums.items()):
+                  return None
+              if any(type(value[name]) is not bool and not (type(value[name]) is str and value[name] == 'UNOBSERVED')
+                     for name in ('absence_verified', 'cancelled')):
+                  return None
+              return dict(value)
+
+
+          def producer_cleanup(value, phases, reasons, refusals):
+              if type(value) is not dict or set(value) != {'availability', 'observation'} or \
+                      type(value['availability']) is not str:
+                  return None
+              if value['availability'] == 'UNOBSERVED' and value['observation'] is None:
+                  return {'availability': 'UNOBSERVED', 'observation': None}
+              if value['availability'] != 'OBSERVED':
+                  return None
+              observation = cleanup_observation(value['observation'], phases, reasons, refusals)
+              return {'availability': 'OBSERVED', 'observation': observation} if observation is not None else None
+
           def validate_public(public, commit, pin, validator=None):
               need(all(stat.S_ISDIR(p.lstat().st_mode) for p in (public, *public.parents)) and
                    public.lstat().st_uid == os.getuid())
@@ -583,7 +617,11 @@ jobs:
               status_fields = {'schema_version', 'stage', 'status', 'source_commit', 'source_packet_sha256',
                                   'phase', 'cancelled', 'owned_image_absence', 'producer_status', 'fdk_status',
                                   'error_code', 'hardware', 'installation', 'binary_publication'}
-              need(set(status) in (status_fields, status_fields | {'producer_boundary'}))
+              optional = set(status) & {'producer_boundary', 'producer_cleanup'}
+              need(set(status) == status_fields | optional)
+              if 'producer_cleanup' in status:
+                  need(producer_cleanup(status['producer_cleanup'], PRODUCER_PHASES,
+                                        BASE_PROBE_POLICY_CODES, BASE_PROBE_REFUSALS) is not None)
               if 'producer_boundary' in status:
                   boundary = producer_boundary(status['producer_boundary'])
                   need(boundary is not None)

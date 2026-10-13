@@ -7,6 +7,7 @@ import importlib.util
 import os
 from pathlib import Path
 import re
+import stat
 import subprocess
 import sys
 import time
@@ -31,6 +32,73 @@ ORIGINAL_RECIPES = {
     'cachy-asahi-zsh-config': 'packages/shells/cachy-asahi-zsh-config',
     'cachy-asahi-setup': 'packages/settings/cachy-asahi-setup',
 }
+
+
+def cleanup_journal(path):
+    """Observe metadata only; missing journal is not container absence."""
+    try:
+        mode = path.lstat().st_mode
+    except FileNotFoundError:
+        return 'ABSENT'
+    except OSError:
+        return 'UNOBSERVED'
+    return 'REGULAR' if stat.S_ISREG(mode) else 'OTHER'
+
+
+def cleanup_diagnostic(phase='preflight', call='not-run', journal='UNOBSERVED', result=None, error=None):
+    """Finite private projection; never publish raw cleanup error strings."""
+    need(type(phase) is str and phase in PHASES | {'UNOBSERVED'} and type(call) is str and
+         call in ('UNOBSERVED', 'not-run', 'started', 'returned', 'raised') and type(journal) is str and
+         journal in ('UNOBSERVED', 'ABSENT', 'REGULAR', 'OTHER'), 'producer-cleanup-diagnostic')
+    value = {'schema_version': 1, 'scope': 'producer-containers', 'phase': phase,
+             'call': call, 'journal': journal, 'reason': 'none', 'boundary_error': 'none', 'observation_error': 'none',
+             'status': 'UNOBSERVED', 'absence_verified': 'UNOBSERVED', 'cancelled': 'UNOBSERVED'}
+    if error is not None:
+        value['reason'] = ProducerCommands.refusal(error)
+    elif call == 'returned':
+        if type(result) is not dict:
+            value['reason'] = 'malformed-result'
+            return value
+        status, absence, cancelled = (result.get(key) for key in ('status', 'absence_verified', 'cancelled'))
+        value.update(status=status if type(status) is str and status in ('PASS', 'FAIL') else 'UNOBSERVED',
+                     absence_verified=absence if type(absence) is bool else 'UNOBSERVED',
+                     cancelled=cancelled if type(cancelled) is bool else 'UNOBSERVED')
+        errors = result.get('errors', [])
+        if type(errors) is not list:
+            value['reason'] = 'malformed-result'
+        elif errors:
+            first = errors[0]
+            value['reason'] = first if type(first) is str and first in BASE_PROBE_POLICY_CODES | {
+                'docker-cleanup-cancellation-uncertain'} else 'unknown-error'
+        elif cancelled is True:
+            value['reason'] = 'cancelled'
+        elif 'UNOBSERVED' in (value['status'], value['absence_verified'], value['cancelled']):
+            value['reason'] = 'malformed-result'
+        elif status == 'FAIL':
+            value['reason'] = 'returned-failure'
+    return value
+
+
+def cleanup_refusal(error):
+    try:
+        code = ProducerCommands.refusal(error)
+        return code if type(code) is str and code in BASE_PROBE_REFUSALS else 'unknown-error'
+    except BaseException:
+        return 'unknown-error'
+
+
+def cleanup_observation(phase='preflight', call='not-run', journal='UNOBSERVED', result=None, error=None):
+    """Diagnostic failure cannot skip cleanup or change its acceptance."""
+    try:
+        return cleanup_diagnostic(phase, call, journal, result, error)
+    except BaseException as failure:
+        return {'schema_version': 1, 'scope': 'producer-containers',
+                'phase': phase if type(phase) is str and phase in PHASES else 'UNOBSERVED',
+                'call': call if type(call) is str and call in ('not-run', 'started', 'returned', 'raised') else 'UNOBSERVED',
+                'journal': journal if type(journal) is str and journal in (
+                    'ABSENT', 'REGULAR', 'OTHER') else 'UNOBSERVED',
+                'reason': 'none', 'boundary_error': 'none', 'observation_error': cleanup_refusal(failure),
+                'status': 'UNOBSERVED', 'absence_verified': 'UNOBSERVED', 'cancelled': 'UNOBSERVED'}
 
 
 def worker_boundary(receipt):
@@ -331,7 +399,7 @@ def execute(config, state):
     jobroot = Path(config['jobroot'])
     receipt = {'status': 'FAIL', 'cancelled': False, 'hardware': 'NOT RUN',
                'diagnostic': {'phase': 'preflight', 'outcome': 'not-run'},
-               'boundary': new_boundary(worker=True)}
+               'boundary': new_boundary(worker=True), 'cleanup_diagnostic': cleanup_observation()}
     state.update(path=jobroot / 'producer-worker.json', receipt=receipt)
 
     def diagnostic(value):
@@ -391,9 +459,17 @@ def execute(config, state):
         raise
     finally:
         with jr.defer_signals() as events:
+            phase, journal, observation_error = 'UNOBSERVED', 'UNOBSERVED', 'none'
+            try:
+                phase = commands.diagnostic['phase']
+                journal = cleanup_journal(jobroot / 'base-image-containers.json')
+            except BaseException as error:
+                observation_error = cleanup_refusal(error)
+            receipt['cleanup_diagnostic'] = cleanup_observation(phase, 'started', journal)
             try:
                 receipt['cleanup'] = broker.cleanup(remove_image=False)
                 result = receipt['cleanup']
+                receipt['cleanup_diagnostic'] = cleanup_observation(phase, 'returned', journal, result)
                 status = result.get('status') if type(result) is dict else None
                 absence = result.get('absence_verified') if type(result) is dict else None
                 cancelled = result.get('cancelled') if type(result) is dict else None
@@ -404,9 +480,15 @@ def execute(config, state):
                     receipt['status'] = 'FAIL'
                 receipt['cancelled'] |= receipt['cleanup'].get('cancelled') is True
             except BaseException as error:
+                if receipt['cleanup_diagnostic']['call'] == 'returned':
+                    receipt['cleanup_diagnostic']['boundary_error'] = cleanup_refusal(error)
+                else:
+                    receipt['cleanup_diagnostic'] = cleanup_observation(phase, 'raised', journal, error=error)
                 receipt['cleanup'] = {'status': 'FAIL', 'absence_verified': False}
                 receipt['status'] = 'FAIL'
                 receipt['cancelled'] |= isinstance(error, jr.Cancelled)
+            if observation_error != 'none':
+                receipt['cleanup_diagnostic']['observation_error'] = observation_error
             if events:
                 receipt.update(status='FAIL', cancelled=True)
             worker_boundary(receipt)

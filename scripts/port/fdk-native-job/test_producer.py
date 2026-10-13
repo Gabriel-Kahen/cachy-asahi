@@ -781,5 +781,212 @@ class ReceiptTests(Fixture):
         self.assertTrue(self.receipt()['cancelled'])
 
 
+class CleanupDiagnosticTests(Fixture):
+    def test_constructor_refusal_records_no_cleanup_call_or_actor_launch(self):
+        with mock.patch.object(producer, 'broker_class', side_effect=ValueError('PRIVATE-SECRET')), \
+                mock.patch.object(producer.jr, 'Runner') as runner, \
+                mock.patch.object(subprocess, 'Popen') as launched:
+            self.assertEqual(self.main(self.original_execute), 1)
+        runner.assert_not_called()
+        launched.assert_not_called()
+        value = self.receipt()['cleanup_diagnostic']
+        self.assertEqual((value['call'], value['journal'], value['status'], value['absence_verified']),
+                         ('not-run', 'UNOBSERVED', 'UNOBSERVED', 'UNOBSERVED'))
+        self.assertEqual(self.receipt()['status'], 'FAIL')
+
+    def test_acquisition_failure_missing_journal_keeps_failed_cleanup_and_cause_separate(self):
+        native, broker, cls, _ = self.fake_native()
+        native.acquire.side_effect = ValueError('PRIVATE-SECRET acquisition')
+        native.main.side_effect = lambda argv: native.acquire()
+        broker.cleanup.return_value = {'status': 'FAIL', 'absence_verified': False, 'cancelled': False,
+                                       'errors': ["[Errno 2] PRIVATE-SECRET path"]}
+        with mock.patch.object(subprocess, 'Popen') as launched, self.assertRaises(ValueError):
+            self.execute(native, cls)
+        launched.assert_not_called()
+        broker.cleanup.assert_called_once_with(remove_image=False)
+        receipt = self.receipt()
+        self.assertEqual(receipt['diagnostic'], {'phase': 'acquisition', 'outcome': 'command-failed'})
+        value = receipt['cleanup_diagnostic']
+        self.assertEqual((value['phase'], value['call'], value['journal'], value['reason']),
+                         ('acquisition', 'returned', 'ABSENT', 'unknown-error'))
+        self.assertEqual((value['status'], value['absence_verified']), ('FAIL', False))
+        self.assertNotIn('PRIVATE', json.dumps(value))
+        self.assertEqual(receipt['boundary']['worker_cleanup_status'], 'FAIL')
+        self.assertIs(receipt['boundary']['worker_cleanup_absence'], False)
+        self.assertEqual(receipt['status'], 'FAIL')
+
+    def test_returned_refusal_and_raised_cleanup_have_distinct_observed_fields(self):
+        for raised in (False, True):
+            native, broker, cls, _ = self.fake_native()
+            if raised:
+                broker.cleanup.side_effect = ValueError('docker-journal-binding')
+            else:
+                broker.cleanup.return_value = {'status': 'FAIL', 'absence_verified': False,
+                    'cancelled': False, 'errors': ['docker-journal-binding']}
+            with self.subTest(raised=raised):
+                self.assertEqual(self.execute(native, cls), 1)
+                value = self.receipt()['cleanup_diagnostic']
+                self.assertEqual(value['call'], 'raised' if raised else 'returned')
+                self.assertEqual(value['reason'], 'docker-journal-binding')
+                self.assertEqual(value['status'], 'UNOBSERVED' if raised else 'FAIL')
+                self.assertEqual(value['absence_verified'], 'UNOBSERVED' if raised else False)
+                self.assertEqual(self.receipt()['boundary']['worker_cleanup_status'],
+                                 'UNOBSERVED' if raised else 'FAIL')
+
+    def test_reported_errors_are_exact_allowlisted_text_without_errno_or_path_guessing(self):
+        for raw, reason in [('docker-owned-absence', 'docker-owned-absence'),
+                            ('docker-cleanup-cancellation-uncertain', 'docker-cleanup-cancellation-uncertain'),
+                            ('docker-owned-absence: PRIVATE-SECRET', 'unknown-error'),
+                            ('[Errno 2] No such file: PRIVATE-SECRET', 'unknown-error'),
+                            (False, 'unknown-error')]:
+            with self.subTest(raw=raw):
+                value = producer.cleanup_diagnostic('acquisition', 'returned', 'ABSENT',
+                    {'status': 'FAIL', 'absence_verified': False, 'errors': [raw]})
+                self.assertEqual(value['reason'], reason)
+                self.assertNotIn('PRIVATE', json.dumps(value))
+
+    def test_exception_projection_has_finite_classes_without_messages(self):
+        for error, reason in [(OSError('PRIVATE-SECRET'), 'os-error'),
+                (KeyError('PRIVATE-SECRET'), 'key-error'), (TypeError('PRIVATE-SECRET'), 'type-error'),
+                (ValueError('PRIVATE-SECRET'), 'value-error'), (UnicodeError('PRIVATE-SECRET'), 'unicode-error'),
+                (subprocess.SubprocessError('PRIVATE-SECRET'), 'subprocess-error'),
+                (RuntimeError('PRIVATE-SECRET'), 'unknown-error'), (self.cancelled(signal.SIGTERM), 'cancelled')]:
+            with self.subTest(reason=reason):
+                value = producer.cleanup_diagnostic('acquisition', 'raised', 'UNOBSERVED', error=error)
+                self.assertEqual(value['reason'], reason)
+                self.assertEqual(value['status'], 'UNOBSERVED')
+                self.assertEqual(value['absence_verified'], 'UNOBSERVED')
+                self.assertNotIn('PRIVATE', json.dumps(value))
+
+    def test_malformed_results_do_not_coerce_booleans_or_invent_absence(self):
+        for result in [None, [], {'status': True, 'absence_verified': 1, 'cancelled': 0},
+                       {'status': 'PASS', 'absence_verified': True, 'cancelled': 0},
+                       {'status': 'PASS', 'absence_verified': True},
+                       {'status': 'FAIL', 'absence_verified': False, 'errors': 'PRIVATE-SECRET'}]:
+            with self.subTest(result=result):
+                value = producer.cleanup_diagnostic('acquisition', 'returned', 'REGULAR', result)
+                self.assertEqual(value['reason'], 'malformed-result')
+                if type(result) is not dict or result.get('status') is True:
+                    self.assertEqual(value['status'], 'UNOBSERVED')
+                    self.assertEqual(value['absence_verified'], 'UNOBSERVED')
+                self.assertNotIn('PRIVATE', json.dumps(value))
+
+    def test_missing_journal_does_not_override_explicit_cleanup_result(self):
+        native, broker, cls, _ = self.fake_native()
+        self.assertEqual(self.execute(native, cls), 0)
+        value = self.receipt()['cleanup_diagnostic']
+        self.assertEqual(value['journal'], 'ABSENT')
+        self.assertEqual(value['call'], 'returned')
+        self.assertEqual(value['reason'], 'none')
+        self.assertIs(value['absence_verified'], True)
+        broker.cleanup.assert_called_once_with(remove_image=False)
+
+    def test_journal_metadata_is_nofollow_and_does_not_read_contents(self):
+        path = self.root / 'base-image-containers.json'
+        self.assertEqual(producer.cleanup_journal(path), 'ABSENT')
+        path.write_text('PRIVATE-SECRET invalid journal; never decoded')
+        with mock.patch.object(Path, 'read_bytes', side_effect=AssertionError('no content read')):
+            self.assertEqual(producer.cleanup_journal(path), 'REGULAR')
+        link = self.root / 'link'
+        link.symlink_to(path)
+        self.assertEqual(producer.cleanup_journal(link), 'OTHER')
+        self.assertEqual(producer.cleanup_journal(self.root), 'OTHER')
+        with mock.patch.object(Path, 'lstat', side_effect=PermissionError('PRIVATE-SECRET')):
+            self.assertEqual(producer.cleanup_journal(path), 'UNOBSERVED')
+
+    def test_phase_snapshot_is_independent_of_cleanup_delegate_updates(self):
+        native, broker, cls, _ = self.fake_native(1)
+        native.main.side_effect = lambda argv: int(native.acquire() is None)
+        native.acquire.return_value = None
+        def cleanup(**kwargs):
+            native.subprocess.set_diagnostic('base-probe', 'started', call='docker-info')
+            return {'status': 'FAIL', 'absence_verified': False}
+        broker.cleanup.side_effect = cleanup
+        with self.assertRaises(ValueError):
+            self.execute(native, cls)
+        self.assertEqual(self.receipt()['cleanup_diagnostic']['phase'], 'acquisition')
+        self.assertEqual(self.receipt()['diagnostic']['phase'], 'base-probe')
+
+    def test_boundary_write_error_does_not_relabel_returned_cleanup_as_raised(self):
+        native, _, cls, _ = self.fake_native()
+        original, failed = producer.save, []
+        def save(path, value):
+            if (value['cleanup_diagnostic']['call'] == 'returned' and
+                    value['boundary']['worker_cleanup_status'] == 'PASS' and not failed):
+                failed.append(True)
+                raise OSError('PRIVATE-SECRET boundary write')
+            original(path, value)
+        with mock.patch.object(producer, 'save', side_effect=save):
+            self.assertEqual(self.execute(native, cls), 1)
+        value = self.receipt()['cleanup_diagnostic']
+        self.assertEqual((value['call'], value['status'], value['reason'], value['boundary_error']),
+                         ('returned', 'PASS', 'none', 'os-error'))
+        self.assertEqual(self.receipt()['cleanup'], {'status': 'FAIL', 'absence_verified': False})
+        self.assertEqual(self.receipt()['status'], 'FAIL')
+
+    def test_mock_launch_and_reap_events_are_not_invented_as_producer_observations(self):
+        for launched, reaped in [(False, False), (True, False), (True, True)]:
+            native, broker, cls, _ = self.fake_native(1)
+            events = []
+            def main(argv):
+                if launched:
+                    events.append('mock-launch')
+                if reaped:
+                    events.append('mock-reap')
+                return 1
+            native.main.side_effect = main
+            broker.cleanup.return_value = {'status': 'FAIL', 'absence_verified': False}
+            with self.subTest(launched=launched, reaped=reaped), self.assertRaises(ValueError):
+                self.execute(native, cls)
+            self.assertEqual(events, (['mock-launch'] if launched else []) + (['mock-reap'] if reaped else []))
+            value = self.receipt()['cleanup_diagnostic']
+            self.assertEqual(value['call'], 'returned')
+            self.assertIs(value['absence_verified'], False)
+            self.assertTrue({'process_launch', 'process_reap', 'pid', 'container_id'}.isdisjoint(value))
+
+    def test_cleanup_projection_refuses_nonfinite_phase_call_and_journal(self):
+        for args in [('PRIVATE-SECRET', 'returned', 'ABSENT'), ('acquisition', 'PRIVATE-SECRET', 'ABSENT'),
+                     ('acquisition', 'returned', '/PRIVATE-SECRET/path')]:
+            with self.subTest(args=args), self.assertRaisesRegex(ValueError, '^producer-cleanup-diagnostic$'):
+                producer.cleanup_diagnostic(*args)
+
+    def test_metadata_observer_failure_cannot_skip_cleanup_or_change_original_pass(self):
+        for error in (RuntimeError('PRIVATE-SECRET'), KeyboardInterrupt(), OSError('PRIVATE-SECRET')):
+            native, broker, cls, _ = self.fake_native()
+            with self.subTest(error=type(error).__name__), \
+                    mock.patch.object(producer, 'cleanup_journal', side_effect=error):
+                self.assertEqual(self.execute(native, cls), 0)
+            broker.cleanup.assert_called_once_with(remove_image=False)
+            value = self.receipt()['cleanup_diagnostic']
+            self.assertEqual((value['call'], value['status'], value['absence_verified']), ('returned', 'PASS', True))
+            self.assertEqual(value['journal'], 'UNOBSERVED')
+            self.assertEqual(value['observation_error'], 'os-error' if isinstance(error, OSError) else 'unknown-error')
+            self.assertNotIn('PRIVATE', json.dumps(value))
+
+    def test_projection_failure_does_not_skip_cleanup_or_change_return_or_raise_predicates(self):
+        for raises in (False, True):
+            native, broker, cls, _ = self.fake_native()
+            if raises:
+                broker.cleanup.side_effect = ValueError('docker-journal-binding')
+            with self.subTest(raises=raises), mock.patch.object(producer, 'cleanup_diagnostic',
+                    side_effect=RuntimeError('PRIVATE-SECRET observer')):
+                self.assertEqual(self.execute(native, cls), int(raises))
+            broker.cleanup.assert_called_once_with(remove_image=False)
+            value = self.receipt()['cleanup_diagnostic']
+            self.assertEqual(value['call'], 'raised' if raises else 'returned')
+            self.assertEqual(value['observation_error'], 'unknown-error')
+            self.assertEqual(value['status'], 'UNOBSERVED')
+            self.assertEqual(value['absence_verified'], 'UNOBSERVED')
+            self.assertEqual(self.receipt()['boundary']['worker_cleanup_status'], 'UNOBSERVED' if raises else 'PASS')
+            self.assertNotIn('PRIVATE', json.dumps(value))
+
+    def test_observation_fallback_never_copies_invalid_phase_call_journal_or_reason(self):
+        with mock.patch.object(producer.ProducerCommands, 'refusal', return_value='PRIVATE-SECRET'):
+            value = producer.cleanup_observation('PRIVATE-SECRET', 'PRIVATE-SECRET', '/PRIVATE-SECRET/path')
+        self.assertEqual((value['phase'], value['call'], value['journal'], value['observation_error']),
+                         ('UNOBSERVED', 'UNOBSERVED', 'UNOBSERVED', 'unknown-error'))
+        self.assertNotIn('PRIVATE', json.dumps(value))
+
+
 if __name__ == '__main__':
     unittest.main()

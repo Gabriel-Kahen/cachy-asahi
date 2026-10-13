@@ -4,7 +4,32 @@ October 12, 2026. This record tracks the complete `outline.md` scope; an impleme
 
 The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with owned tasks and corrective next actions in `docs/backlog.md`. The destination now explicitly requires the maintained ARM package repository, native performance engineering, integrated Apple stack, broader Cachy system experience, and complete installation/release lifecycle. Both Air sizes, published final measurements, independent onboarding/contribution, subsequent full-port maintenance release, other-ARM reuse and actual upstream submissions remain required; an early overlay release or feasibility decision would not complete the goal. This scope update does not change any recorded execution result.
 
-Latest coordinator update, October 13, 02:05 UTC. Private installer packet
+Latest coordinator update, October 13, 02:38 UTC. The actual S01 license batch
+completed with exit0: all31 requests, including one CAT, match the selected
+646-byte filesystem license to its pinned archive. Five directory frames, one
+archive parse and final image/tool rehash complete; status remains
+`SINGLE_FILE_BATCH_MATCH_ONLY`. Independent retained-evidence review passes the specific completed scope. The exact
+reviewed source is now `scripts/platform/filesystem_license_batch.py`; its plan
+mode exits0 without image/archive/tool actors. Whole-package, full341, trust,
+installation and M2 acceptance remain open. A successor regular-file batch is
+assigned independently.
+
+The frozen-four carrier correction passes101 source controls and its independent
+review closes the two reproduced cancellation/FD defects. Root now registers the joint producer cleanup projection, coherent133-row
+packet and external workflow after127 source models and19 workflow controls.
+Committed Git proof and input delivery remain required before a native trial. Actual
+FDK9/updater10 keep their four-input404 failures. An explicit maintained successor
+baseline using current upstream Vim inputs is being implemented privately,
+preserving the historical frozen baseline. Installer controller/bridge binding
+and the precheckout launcher are also active; no physical-machine or release gate
+has changed. Full R1–R5/M5–M9 remains required.
+
+The borrowed Zsh Session adapter source2 is also registered after Root authenticates
+160 author artifacts and cold-replays58 models (0 skips/PYC/actor attempts). Its
+closed graph/callback/manifest and live controller admission remain unfinished;
+native package and target execution remain NOT RUN.
+
+Prior coordinator update, October 13, 02:05 UTC. Private installer packet
 mode implementation passes33 existing controls and18 new source/snapshot/private
 Git controls. Its exact selected union is265 files; the legacy union remains258.
 The Session graph source passes92 and independent review, preserving original159/

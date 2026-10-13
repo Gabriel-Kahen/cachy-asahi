@@ -5,7 +5,7 @@
 import sys
 sys.dont_write_bytecode = True
 
-from contextlib import contextmanager
+from contextlib import contextmanager, nullcontext
 import importlib.util
 import io
 import json
@@ -938,6 +938,878 @@ class ValidatorLoaderTests(unittest.TestCase):
             self.assertEqual((record['schema_version'], record['status']), (2, 'FAIL'))
             self.assertEqual({r['availability'] for r in record['worker_diagnostics'].values()}, {availability})
             self.load().validate_workers(record['worker_diagnostics'])
+
+
+class FrozenVimCarrierTests(unittest.TestCase):
+    """Actual filesystem helper with four tiny, explicitly derived lock fixtures."""
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(); self.addCleanup(self.temp.cleanup)
+        self.base = Path(self.temp.name)
+        self.private = self.base / 'job/private'; self.private.mkdir(parents=True, mode=0o700)
+        self.snapshot = self.private / 'source'
+        self.carrier = self.base / 'carrier'; self.carrier.mkdir(mode=0o700)
+        self.production_files = job.FROZEN_VIM_FILES; self.production_pin = job.packet.INPUTS_SHA
+        self.files = tuple((name, len((name + '\n').encode()), job.packet.sha((name + '\n').encode()))
+                           for name, _, _ in self.production_files)
+        self.data = {name:(name + '\n').encode() for name, _, _ in self.files}
+        rows = []
+        for package in ('vim', 'vim-runtime'):
+            name = package + '-9.2.1164-2-aarch64.pkg.tar.xz'
+            rows.append({'name':package, 'version':'9.2.1164-2', 'arch':'aarch64', 'filename':name,
+                'size':len(self.data[name]), 'sha256':job.packet.sha(self.data[name]),
+                'signature_size':len(self.data[name + '.sig']), 'signature_sha256':job.packet.sha(self.data[name + '.sig'])})
+        self.lock = {'packages':rows}; self.lock_path = self.snapshot / 'scripts/ci/inputs.lock.json'
+        self.lock_path.parent.mkdir(parents=True); self.write_lock()
+        for name, data in self.data.items():(self.carrier / name).write_bytes(data)
+        self.J = time.monotonic() + 100
+        patches = (mock.patch.object(job, 'HERE', self.base / 'repo' / job.packet.PREFIX),
+            mock.patch.object(job, 'FROZEN_VIM_FILES', self.files),
+            mock.patch.object(job.packet, 'INPUTS_SHA', job.packet.sha(self.lock_path.read_bytes())))
+        for patch in patches:patch.start(); self.addCleanup(patch.stop)
+
+    def write_lock(self):
+        self.lock_path.write_text(json.dumps(self.lock, sort_keys=True) + '\n')
+        self.lock_path.chmod(0o644)
+
+    def seed(self, pin=None):
+        return job.seed_frozen_vim(self.snapshot, self.private, self.carrier, self.J, pin)
+
+    def test_exact_four_tiny_files_copy_to_fresh_owned_cache_and_immutable_manifest(self):
+        contract = job.frozen_vim_inputs(self.snapshot, self.J)
+        self.assertEqual(self.seed(contract.manifest_sha256()), contract)
+        with self.assertRaises(Exception):contract.files = ()
+        cache = self.private / 'cache'
+        self.assertEqual(cache.stat().st_mode & 0o777, 0o700)
+        self.assertEqual(set(p.name for p in cache.iterdir()), set(self.data))
+        for name, data in self.data.items():
+            path = cache / name
+            self.assertEqual(path.read_bytes(), data); self.assertEqual(path.stat().st_nlink, 1)
+            self.assertEqual(path.stat().st_mode & 0o777, 0o600)
+
+    def test_actual_frozen_source_lock_matches_four_production_pins_and_total(self):
+        raw = (ROOT / 'scripts/ci/inputs.lock.json').read_bytes(); self.lock_path.write_bytes(raw)
+        with mock.patch.object(job, 'FROZEN_VIM_FILES', self.production_files), \
+             mock.patch.object(job.packet, 'INPUTS_SHA', self.production_pin):
+            contract = job.frozen_vim_inputs(self.snapshot, self.J)
+        self.assertEqual(contract.files, tuple(sorted(self.production_files)))
+        self.assertEqual(sum(size for _, size, _ in contract.files), 9790183)
+        self.assertFalse((self.private / 'cache').exists())
+
+    def test_rehashed_arbitrary_lock_cannot_replace_fixed_production_contract(self):
+        with mock.patch.object(job, 'FROZEN_VIM_FILES', self.production_files):
+            with self.assertRaisesRegex(ValueError, 'frozen-vim-carrier-contract'):self.seed()
+        self.assertFalse((self.private / 'cache').exists())
+
+    def test_bad_input_pin_and_bad_manifest_refuse_before_carrier_files(self):
+        original = job.frozen_read; names = []
+        def read(directory, name, *args, **kwargs):
+            names.append(name);return original(directory, name, *args, **kwargs)
+        with mock.patch.object(job, 'frozen_read', side_effect=read):
+            with self.assertRaisesRegex(ValueError, 'manifest-pin'):self.seed('0' * 64)
+            self.lock_path.write_bytes(b'{}')
+            with self.assertRaisesRegex(ValueError, 'pin-drift'):self.seed()
+        self.assertEqual(names, ['inputs.lock.json', 'inputs.lock.json'])
+        self.assertFalse((self.private / 'cache').exists())
+
+    def test_lock_duplicate_wrong_version_arch_and_boolean_size_refuse(self):
+        import copy
+        original = copy.deepcopy(self.lock)
+        changes = (lambda rows:rows.append(copy.deepcopy(rows[0])),
+                   lambda rows:rows[0].update(version='new'), lambda rows:rows[0].update(arch='x86_64'),
+                   lambda rows:rows[0].update(size=True))
+        for change in changes:
+            self.lock = copy.deepcopy(original);change(self.lock['packages']);self.write_lock()
+            with mock.patch.object(job.packet, 'INPUTS_SHA', job.packet.sha(self.lock_path.read_bytes())):
+                with self.assertRaises(ValueError):self.seed()
+            self.assertFalse((self.private / 'cache').exists())
+
+    def test_missing_and_unselected_extra_members_refuse_without_reading_extra(self):
+        name = next(iter(self.data)); path = self.carrier / name; path.unlink()
+        with self.assertRaisesRegex(ValueError, 'membership'):self.seed()
+        path.write_bytes(self.data[name]);(self.carrier / 'unselected').write_bytes(b'unselected')
+        with mock.patch.object(job, 'frozen_read', wraps=job.frozen_read) as read:
+            with self.assertRaisesRegex(ValueError, 'membership'):self.seed()
+        self.assertEqual([call.args[1] for call in read.call_args_list], ['inputs.lock.json'])
+        self.assertFalse((self.private / 'cache').exists())
+
+    def test_last_file_size_hash_modes_links_and_fifo_refuse_before_cache(self):
+        name = sorted(self.data)[-1];path = self.carrier / name
+        for kind in ('size', 'hash', 'mode', 'hardlink', 'symlink', 'fifo'):
+            path.unlink();other = self.base / 'other';other.unlink(missing_ok=True)
+            if kind == 'symlink':other.write_bytes(self.data[name]);path.symlink_to(other)
+            elif kind == 'fifo':os.mkfifo(path)
+            else:
+                path.write_bytes(b'x' if kind == 'size' else b'x' * len(self.data[name]) if kind == 'hash' else self.data[name])
+                if kind == 'mode':path.chmod(0o755)
+                if kind == 'hardlink':os.link(path, other)
+            with self.subTest(kind=kind):
+                with self.assertRaises(ValueError):self.seed()
+                self.assertFalse((self.private / 'cache').exists())
+
+    def test_parent_symlink_and_foreign_owner_and_carrier_mode_refuse(self):
+        alias = self.base / 'alias';alias.symlink_to(self.carrier, target_is_directory=True)
+        with self.assertRaisesRegex(ValueError, 'parent'):
+            job.seed_frozen_vim(self.snapshot, self.private, alias, self.J)
+        with mock.patch.object(job.os, 'getuid', return_value=os.getuid() + 1):
+            with self.assertRaises(ValueError):self.seed()
+        self.carrier.chmod(0o755)
+        with self.assertRaisesRegex(ValueError, 'directory'):self.seed()
+        self.assertFalse((self.private / 'cache').exists())
+
+    def test_carrier_and_parent_replacement_during_source_capture_refuse(self):
+        read = os.read; changed = []
+        def replace(fd, count):
+            data = read(fd, count)
+            if data and not changed and os.fstat(fd).st_size != self.lock_path.stat().st_size:
+                changed.append(True);self.carrier.rename(self.base / 'held-original')
+                self.carrier.mkdir(mode=0o700)
+            return data
+        with mock.patch.object(job.os, 'read', side_effect=replace):
+            with self.assertRaisesRegex(ValueError, 'parent-drift'):self.seed()
+        self.assertTrue(changed);self.assertFalse((self.private / 'cache').exists())
+
+    def test_existing_foreign_cache_is_never_modified_or_removed(self):
+        cache = self.private / 'cache';cache.mkdir();(cache / 'foreign').write_bytes(b'keep')
+        with self.assertRaises(FileExistsError):self.seed()
+        self.assertEqual((cache / 'foreign').read_bytes(), b'keep')
+
+    def test_partial_copy_disposes_only_created_files_and_preserves_first_cause(self):
+        write = os.write; calls = []
+        def failure(fd, data):
+            calls.append(data)
+            if len(calls) == 2:raise OSError('first-copy-cause')
+            return write(fd, data)
+        with mock.patch.object(job.os, 'write', side_effect=failure):
+            with self.assertRaisesRegex(OSError, 'first-copy-cause'):self.seed()
+        self.assertEqual(len(calls), 2);self.assertFalse((self.private / 'cache').exists())
+        for name, data in self.data.items():self.assertEqual((self.carrier / name).read_bytes(), data)
+
+    def test_short_write_and_partial_copy_cancel_dispose_cache(self):
+        for kind in ('short', 'cancel'):
+            def failure(fd, data):
+                if kind == 'cancel':raise job.jr.Cancelled(signal.SIGTERM)
+                return len(data) - 1
+            with mock.patch.object(job.os, 'write', side_effect=failure):
+                with self.assertRaises(job.jr.Cancelled if kind == 'cancel' else ValueError):self.seed()
+            self.assertFalse((self.private / 'cache').exists())
+
+    def test_expired_and_nonfinite_deadline_refuse_before_any_source_read(self):
+        for deadline in (time.monotonic() - 1, True, float('inf'), 10**1000):
+            with mock.patch.object(job.os, 'read') as read:
+                with self.assertRaisesRegex(ValueError, 'deadline'):
+                    job.seed_frozen_vim(self.snapshot, self.private, self.carrier, deadline)
+            read.assert_not_called();self.assertFalse((self.private / 'cache').exists())
+
+    def test_copy_expiry_uses_same_J_and_disposes_partial_cache(self):
+        write = os.write;now = [100.0];J = 200.0
+        def expired(fd, data):
+            result = write(fd, data);now[0] = J;return result
+        with mock.patch.object(job.time, 'monotonic', side_effect=lambda:now[0]), \
+             mock.patch.object(job.os, 'write', side_effect=expired):
+            with self.assertRaisesRegex(ValueError, 'deadline'):
+                job.seed_frozen_vim(self.snapshot, self.private, self.carrier, J)
+        self.assertEqual(J, 200.0);self.assertFalse((self.private / 'cache').exists())
+
+    def test_source_drift_during_copy_disposes_partial_cache(self):
+        write = os.write;changed = []
+        def drift(fd, data):
+            result = write(fd, data)
+            if not changed:
+                changed.append(True);(self.carrier / sorted(self.data)[-1]).write_bytes(b'drift')
+            return result
+        with mock.patch.object(job.os, 'write', side_effect=drift):
+            with self.assertRaisesRegex(ValueError, 'file-drift'):self.seed()
+        self.assertFalse((self.private / 'cache').exists())
+
+    def test_foreign_replacement_cache_is_not_cleaned_and_does_not_mask_first_error(self):
+        write = os.write;changed = [];cache = self.private / 'cache'
+        def replace(fd, data):
+            result = write(fd, data)
+            if not changed:
+                changed.append(True);cache.rename(self.private / 'owned-displaced')
+                cache.mkdir();(cache / 'foreign').write_bytes(b'keep')
+            return result
+        with mock.patch.object(job.os, 'write', side_effect=replace):
+            with self.assertRaisesRegex(ValueError, 'cache-drift') as raised:self.seed()
+        self.assertIn('frozen-vim-owned-cache-disposal-failed', raised.exception.__notes__)
+        self.assertEqual((cache / 'foreign').read_bytes(), b'keep')
+
+    def test_foreign_cache_member_refuses_disposal_without_deleting_foreign_bytes(self):
+        write = os.write;changed = [];cache = self.private / 'cache'
+        def extra(fd, data):
+            result = write(fd, data)
+            if not changed:changed.append(True);(cache / 'foreign').write_bytes(b'keep')
+            return result
+        with mock.patch.object(job.os, 'write', side_effect=extra):
+            with self.assertRaisesRegex(ValueError, 'membership') as raised:self.seed()
+        self.assertIn('frozen-vim-owned-cache-disposal-failed', raised.exception.__notes__)
+        self.assertEqual((cache / 'foreign').read_bytes(), b'keep')
+
+    def test_disposal_failure_and_pending_cancel_preserve_original_exception(self):
+        @contextmanager
+        def deferred():yield [signal.SIGTERM]
+        original = job.jr.defer_signals;calls = []
+        def defer():
+            calls.append(True)
+            return deferred() if len(calls) > 2 else original()
+        with mock.patch.object(job.os, 'write', side_effect=OSError('first-cause')), \
+             mock.patch.object(job.os, 'unlink', side_effect=PermissionError()), \
+             mock.patch.object(job.jr, 'defer_signals', side_effect=defer):
+            with self.assertRaisesRegex(OSError, 'first-cause') as raised:self.seed()
+        self.assertIn('frozen-vim-owned-cache-disposal-failed', raised.exception.__notes__)
+        self.assertTrue(raised.exception.frozen_vim_cancelled)
+
+    def test_same_bytes_foreign_inode_replacement_after_write_refuses_acceptance(self):
+        fsync = os.fsync; changed = [];cache = self.private / 'cache'
+        def replace(fd):
+            fsync(fd)
+            if job.stat.S_ISREG(os.fstat(fd).st_mode) and not changed:
+                changed.append(True);name = sorted(self.data)[0];path = cache / name
+                path.unlink();path.write_bytes(self.data[name]);path.chmod(0o600)
+        with mock.patch.object(job.os, 'fsync', side_effect=replace):
+            with self.assertRaisesRegex(ValueError, 'copy-pin') as raised:self.seed()
+        self.assertIn('frozen-vim-owned-cache-disposal-failed', raised.exception.__notes__)
+        self.assertEqual((cache / sorted(self.data)[0]).read_bytes(), self.data[sorted(self.data)[0]])
+
+    def test_completed_cache_file_drift_during_later_copy_refuses_and_disposes(self):
+        write = os.write;calls = []
+        def drift(fd, data):
+            result = write(fd, data);calls.append(True)
+            if len(calls) == 2:(self.private / 'cache' / sorted(self.data)[0]).write_bytes(b'drift')
+            return result
+        with mock.patch.object(job.os, 'write', side_effect=drift):
+            with self.assertRaisesRegex(ValueError, 'copy-drift'):self.seed()
+        self.assertFalse((self.private / 'cache').exists())
+
+    def test_actual_original_fetch_existing_branch_uses_seed_without_transport(self):
+        contract = self.seed();raw = (ROOT / 'scripts/ci/native_arm.py').read_bytes()
+        tree = ast.parse(raw)
+        definitions = [node for node in tree.body if isinstance(node, ast.FunctionDef) and
+                       node.name in ('sha', 'check_pin', 'input_name', 'fetch')]
+        self.assertEqual(len(definitions), 4)
+        network = mock.Mock(side_effect=AssertionError('transport forbidden in fixture'))
+        scope = {'hashlib':hashlib, 're':re, 'urllib':SimpleNamespace(request=SimpleNamespace(urlopen=network))}
+        exec(compile(ast.Module(body=definitions, type_ignores=[]), 'captured-original-fetch', 'exec'), scope)
+        for name, size, pin in contract.files:
+            path = self.private / 'cache' / name; before = job.frozen_stamp(path.stat())
+            self.assertEqual(scope['fetch']({'filename':name, 'size':size, 'sha256':pin,
+                'url':'https://fixture.invalid/' + name}, path.parent), path)
+            self.assertEqual(job.frozen_stamp(path.stat()), before)
+        network.assert_not_called()
+
+
+    def _fault_errors(self):
+        return (ValueError('private first ordinary'), job.jr.Cancelled(signal.SIGTERM),
+                KeyboardInterrupt('private first control'), SystemExit(7))
+
+    def _fd_after_fault(self, records):
+        # Fixture retirement only: an ambiguous close is never blindly retried.
+        for fd, before in records:
+            try:current = os.fstat(fd)
+            except OSError:continue
+            if (current.st_dev, current.st_ino, current.st_mode) == before:
+                os.close(fd)
+
+    def test_directory_close_fault_preserves_all_first_types_and_attempts_every_fd(self):
+        real_open, real_close = os.open, os.close
+        for first in self._fault_errors():
+            with self.subTest(first=type(first).__name__):
+                records = []; attempts = []
+                def opening(*args, **kwargs):
+                    fd = real_open(*args, **kwargs);s = os.fstat(fd)
+                    records.append((fd, (s.st_dev, s.st_ino, s.st_mode)));return fd
+                def closing(fd):
+                    attempts.append(fd);real_close(fd);raise OSError('private close-after-close fault')
+                with mock.patch.object(job.os, 'open', side_effect=opening), \
+                     mock.patch.object(job.os, 'close', side_effect=closing):
+                    with self.assertRaises(type(first)) as raised:
+                        with job.frozen_directory(self.carrier, self.J):raise first
+                self.assertIs(raised.exception, first)
+                self.assertEqual(attempts, [fd for fd, _ in reversed(records)])
+                self.assertIn('frozen-vim-owned-fd-cleanup-outcome-unknown', first.__notes__)
+                self._fd_after_fault(records)
+
+    def test_source_read_close_fault_preserves_all_first_types(self):
+        parent = os.open(self.carrier, os.O_RDONLY | os.O_DIRECTORY)
+        real_close = os.close
+        try:
+            for first in self._fault_errors():
+                with self.subTest(first=type(first).__name__):
+                    attempts = []
+                    def closing(fd):attempts.append(fd);real_close(fd);raise OSError('private read-close fault')
+                    with mock.patch.object(job.os, 'read', side_effect=first), \
+                         mock.patch.object(job.os, 'close', side_effect=closing):
+                        with self.assertRaises(type(first)) as raised:
+                            job.frozen_read(parent, self.files[0][0], self.J)
+                    self.assertIs(raised.exception, first);self.assertEqual(len(attempts), 1)
+        finally:real_close(parent)
+
+    def test_enumeration_close_fault_preserves_all_first_types(self):
+        parent = os.open(self.carrier, os.O_RDONLY | os.O_DIRECTORY)
+        real_close = os.close
+        try:
+            for first in self._fault_errors():
+                with self.subTest(first=type(first).__name__):
+                    attempts = []
+                    def closing(fd):attempts.append(fd);real_close(fd);raise OSError('private names-close fault')
+                    with mock.patch.object(job.os, 'scandir', side_effect=first), \
+                         mock.patch.object(job.os, 'close', side_effect=closing):
+                        with self.assertRaises(type(first)) as raised:job.frozen_names(parent, self.J)
+                    self.assertIs(raised.exception, first);self.assertEqual(len(attempts), 1)
+        finally:real_close(parent)
+
+    def test_copy_and_cache_close_fault_preserve_all_first_types(self):
+        real_open, real_close = os.open, os.close
+        for role in ('copy', 'cache'):
+            for first in self._fault_errors():
+                with self.subTest(role=role, first=type(first).__name__):
+                    selected = []; attempts = []
+                    def opening(name, flags, *args, **kwargs):
+                        fd = real_open(name, flags, *args, **kwargs)
+                        if (role == 'cache' and name == 'cache' and flags & os.O_DIRECTORY or
+                            role == 'copy' and flags & os.O_CREAT):
+                            s = os.fstat(fd);selected.append((fd, (s.st_dev, s.st_ino, s.st_mode)))
+                        return fd
+                    def closing(fd):
+                        s = os.fstat(fd);owned = selected and fd == selected[0][0] and \
+                            (s.st_dev, s.st_ino, s.st_mode) == selected[0][1]
+                        real_close(fd)
+                        if owned:attempts.append(fd);raise OSError('private retained close fault')
+                    with mock.patch.object(job.os, 'open', side_effect=opening), \
+                         mock.patch.object(job.os, 'write', side_effect=first), \
+                         mock.patch.object(job.os, 'close', side_effect=closing):
+                        with self.assertRaises(type(first)) as raised:self.seed()
+                    self.assertIs(raised.exception, first);self.assertEqual(len(attempts), 1)
+                    self.assertFalse((self.private / 'cache').exists())
+
+    def test_cleanup_alone_close_fault_refuses_healthy_completion_and_never_retries(self):
+        real_close = os.close;attempts = [];exact = OSError('private healthy close fault')
+        def closing(fd):attempts.append(fd);real_close(fd);raise exact
+        with mock.patch.object(job.os, 'close', side_effect=closing):
+            with self.assertRaises(OSError) as raised:
+                with job.frozen_directory(self.carrier, self.J):pass
+        self.assertIs(raised.exception, exact)
+        self.assertEqual(len(attempts), len(set(attempts)))
+        self.assertGreater(len(attempts), 1)
+
+    def test_directory_close_before_effect_remains_unknown_without_retry(self):
+        real_open, real_close = os.open, os.close;records = [];attempts = []
+        first = job.jr.Cancelled(signal.SIGTERM)
+        def opening(*args, **kwargs):
+            fd = real_open(*args, **kwargs);info = os.fstat(fd)
+            records.append((fd, (info.st_dev, info.st_ino, info.st_mode)));return fd
+        def closing(fd):
+            attempts.append(fd)
+            if fd == records[-1][0]:raise OSError('private close-before-effect fault')
+            real_close(fd)
+        try:
+            with mock.patch.object(job.os, 'open', side_effect=opening), mock.patch.object(job.os, 'close', side_effect=closing):
+                with self.assertRaises(job.jr.Cancelled) as raised:
+                    with job.frozen_directory(self.carrier, self.J):raise first
+            self.assertIs(raised.exception, first)
+            self.assertEqual(attempts, [fd for fd, _ in reversed(records)])
+            os.fstat(records[-1][0])  # Retained open fixture fd; no absence claim.
+            self.assertIn('frozen-vim-owned-fd-cleanup-outcome-unknown', first.__notes__)
+        finally:self._fd_after_fault(records)
+
+    def _pending_source_signal(self, kind, where):
+        real_open, real_close, real_fstat = os.open, os.close, os.fstat
+        parent = real_open(self.carrier, os.O_RDONLY | os.O_DIRECTORY)
+        allocated = [];closed = [];sent = []
+        def opening(*args, **kwargs):
+            fd = real_open(*args, **kwargs);allocated.append(fd)
+            if where == 'open' and not sent:
+                sent.append(True);os.kill(os.getpid(), signal.SIGTERM)
+            return fd
+        def fstat(fd):
+            if where == 'fstat' and fd in allocated and not sent:
+                sent.append(True);os.kill(os.getpid(), signal.SIGTERM)
+            return real_fstat(fd)
+        def closing(fd):closed.append(fd);return real_close(fd)
+        try:
+            with job.jr.cancellation_handlers(), mock.patch.object(job.os, 'open', side_effect=opening), \
+                 mock.patch.object(job.os, 'fstat', side_effect=fstat), mock.patch.object(job.os, 'close', side_effect=closing):
+                with self.assertRaises(job.jr.Cancelled) as raised:
+                    if kind == 'directory':
+                        with job.frozen_directory(self.carrier, self.J):self.fail('pending control entered body')
+                    elif kind == 'read':job.frozen_read(parent, self.files[0][0], self.J)
+                    else:job.frozen_names(parent, self.J)
+            self.assertEqual(raised.exception.signum, signal.SIGTERM)
+            self.assertEqual(len(allocated), 1);self.assertEqual(closed, allocated)
+            with self.assertRaises(OSError):real_fstat(allocated[0])
+        finally:
+            for fd in allocated:
+                if fd not in closed:real_close(fd)
+            real_close(parent)
+
+    def test_pending_directory_signal_after_returned_open_and_fstat_is_registered(self):
+        for where in ('open', 'fstat'):
+            with self.subTest(where=where):self._pending_source_signal('directory', where)
+
+    def test_pending_read_signal_after_returned_open_and_fstat_is_registered(self):
+        for where in ('open', 'fstat'):
+            with self.subTest(where=where):self._pending_source_signal('read', where)
+
+    def test_pending_names_signal_after_returned_open_and_fstat_is_registered(self):
+        for where in ('open', 'fstat'):
+            with self.subTest(where=where):self._pending_source_signal('names', where)
+
+    def test_pending_copy_and_cache_signal_after_returned_open_is_registered(self):
+        real_open, real_close = os.open, os.close
+        for role in ('cache', 'copy'):
+            with self.subTest(role=role):
+                selected = [];closed = []
+                def opening(name, flags, *args, **kwargs):
+                    fd = real_open(name, flags, *args, **kwargs)
+                    if not selected and (role == 'cache' and name == 'cache' and flags & os.O_DIRECTORY or
+                                         role == 'copy' and flags & os.O_CREAT):
+                        selected.append(fd);os.kill(os.getpid(), signal.SIGTERM)
+                    return fd
+                def closing(fd):closed.append(fd);return real_close(fd)
+                with job.jr.cancellation_handlers(), mock.patch.object(job.os, 'open', side_effect=opening), \
+                     mock.patch.object(job.os, 'close', side_effect=closing):
+                    with self.assertRaises(job.jr.Cancelled):self.seed()
+                self.assertEqual(len(selected), 1);self.assertIn(selected[0], closed)
+                with self.assertRaises(OSError):os.fstat(selected[0])
+                self.assertFalse((self.private / 'cache').exists())
+
+    def test_postopen_fstat_fault_closes_every_registered_source_fd(self):
+        real_open, real_close, real_fstat = os.open, os.close, os.fstat
+        parent = real_open(self.carrier, os.O_RDONLY | os.O_DIRECTORY)
+        try:
+            for kind in ('directory', 'read', 'names'):
+                with self.subTest(kind=kind):
+                    allocated = [];closed = [];first = ValueError('private postopen fstat cause')
+                    def opening(*args, **kwargs):
+                        fd = real_open(*args, **kwargs);allocated.append(fd);return fd
+                    def fstat(fd):
+                        if allocated and fd == allocated[-1]:raise first
+                        return real_fstat(fd)
+                    def closing(fd):closed.append(fd);return real_close(fd)
+                    with mock.patch.object(job.os, 'open', side_effect=opening), \
+                         mock.patch.object(job.os, 'fstat', side_effect=fstat), mock.patch.object(job.os, 'close', side_effect=closing):
+                        with self.assertRaises(ValueError) as raised:
+                            if kind == 'directory':
+                                with job.frozen_directory(self.carrier, self.J):self.fail('fstat fault entered body')
+                            elif kind == 'read':job.frozen_read(parent, self.files[0][0], self.J)
+                            else:job.frozen_names(parent, self.J)
+                    self.assertIs(raised.exception, first);self.assertEqual(allocated, closed)
+        finally:real_close(parent)
+
+    def test_mask_restoration_fault_preserves_postopen_cause_and_closes_owned_fd(self):
+        real_mask, real_open, real_close, real_fstat = signal.pthread_sigmask, os.open, os.close, os.fstat
+        first = job.jr.Cancelled(signal.SIGTERM);secondary = OSError('private restored-mask fault')
+        allocated = [];closed = [];faulted = []
+        def opening(*args, **kwargs):
+            fd = real_open(*args, **kwargs);allocated.append(fd);return fd
+        def fstat(fd):
+            if allocated and fd == allocated[-1]:raise first
+            return real_fstat(fd)
+        def mask(how, values):
+            result = real_mask(how, values)
+            if how == signal.SIG_SETMASK and not faulted:faulted.append(True);raise secondary
+            return result
+        def closing(fd):closed.append(fd);return real_close(fd)
+        with mock.patch.object(job.os, 'open', side_effect=opening), mock.patch.object(job.os, 'fstat', side_effect=fstat), \
+             mock.patch.object(job.os, 'close', side_effect=closing), mock.patch.object(job.signal, 'pthread_sigmask', side_effect=mask):
+            with self.assertRaises(job.jr.Cancelled) as raised:
+                with job.frozen_directory(self.carrier, self.J):self.fail('must not enter')
+        self.assertIs(raised.exception, first);self.assertEqual(allocated, closed)
+        self.assertIn('frozen-vim-signal-restoration-outcome-unknown', first.__notes__)
+
+    def test_handler_restoration_fault_preserves_body_and_copy_first_causes(self):
+        @contextmanager
+        def faulty_defer():
+            try:yield []
+            finally:raise OSError('private handler-restoration fault')
+        first = ValueError('private first fstat');real_fstat = os.fstat
+        def fstat(fd):
+            info = real_fstat(fd)
+            if job.stat.S_ISREG(info.st_mode) and info.st_mode & 0o777 == 0o600:raise first
+            return info
+        original = job.jr.defer_signals;calls = []
+        def defer():
+            calls.append(True);return faulty_defer() if len(calls) == 2 else original()
+        with mock.patch.object(job.jr, 'defer_signals', side_effect=defer), \
+             mock.patch.object(job.os, 'fstat', side_effect=fstat):
+            with self.assertRaises(ValueError) as raised:self.seed()
+        self.assertIs(raised.exception, first)
+        for first in self._fault_errors():
+            with mock.patch.object(job.jr, 'defer_signals', side_effect=faulty_defer):
+                with self.assertRaises(type(first)) as raised:
+                    with job.frozen_defer():raise first
+            self.assertIs(raised.exception, first)
+
+    def test_unreturned_descriptor_from_arbitrary_replacement_open_is_unclaimed(self):
+        real_open, real_close = os.open, os.close
+        allocated = [];first = job.jr.Cancelled(signal.SIGTERM)
+        def unreturned(*args, **kwargs):
+            fd = real_open(*args, **kwargs);allocated.append(fd);raise first
+        try:
+            with mock.patch.object(job.os, 'open', side_effect=unreturned):
+                with self.assertRaises(job.jr.Cancelled) as raised:
+                    with job.frozen_directory(self.carrier, self.J):self.fail('must not enter')
+            self.assertIs(raised.exception, first);self.assertEqual(len(allocated), 1)
+            # This artificial wrapper hid its allocated fd. The source cannot
+            # own it; only the fixture, which retained that fd, may retire it.
+            os.fstat(allocated[0])
+        finally:
+            for fd in allocated:real_close(fd)
+
+    def test_postopen_cache_and_copy_fstat_fault_retains_fd_ownership(self):
+        real_open, real_close, real_fstat = os.open, os.close, os.fstat
+        for role in ('cache', 'copy'):
+            with self.subTest(role=role):
+                selected = [];closed = [];faulted = [];first = ValueError('private created-fd fstat cause')
+                def opening(name, flags, *args, **kwargs):
+                    fd = real_open(name, flags, *args, **kwargs)
+                    if not selected and (role == 'cache' and name == 'cache' and flags & os.O_DIRECTORY or
+                                         role == 'copy' and flags & os.O_CREAT):selected.append(fd)
+                    return fd
+                def fstat(fd):
+                    if selected and fd == selected[0] and not faulted:
+                        faulted.append(True);raise first
+                    return real_fstat(fd)
+                def closing(fd):closed.append(fd);return real_close(fd)
+                with mock.patch.object(job.os, 'open', side_effect=opening), mock.patch.object(job.os, 'fstat', side_effect=fstat), \
+                     mock.patch.object(job.os, 'close', side_effect=closing):
+                    with self.assertRaises(ValueError) as raised:self.seed()
+                self.assertIs(raised.exception, first);self.assertIn(selected[0], closed)
+                with self.assertRaises(OSError):real_fstat(selected[0])
+                if role == 'cache':self.assertFalse((self.private / 'cache').exists())
+                else:
+                    # No file inode was captured after its failed fstat. The
+                    # cache conservatively remains; fd close is a separate fact.
+                    self.assertTrue((self.private / 'cache').exists())
+                    self.assertIn('frozen-vim-owned-cache-disposal-failed', first.__notes__)
+
+
+class JobCarrierRouteTests(unittest.TestCase):
+    setUp = JobTests.setUp
+    snapshot = JobTests.snapshot
+    run_command = JobTests.run_command
+    cleanup = JobTests.cleanup
+    publish = JobTests.publish
+    execute = JobTests.execute
+    records = JobTests.records
+    assert_failed_public = JobTests.assert_failed_public
+
+    def carrier_args(self):
+        self.args.frozen_vim_carrier = self.base / 'carrier'
+        self.args.frozen_vim_manifest_sha256 = None
+
+    def test_legacy_route_never_calls_carrier_and_preserves_existing_commands(self):
+        with mock.patch.object(job, 'seed_frozen_vim') as seed:result, _ = self.execute()
+        seed.assert_not_called();self.assertEqual(result, 0)
+        self.assertEqual(self.events, ['source', 'producer', 'fdk', 'cleanup', 'publish'])
+        self.assertFalse((self.private / 'frozen-vim-carrier.json').exists())
+
+    def test_hook_after_complete_source_capture_before_broker_and_producer_same_J(self):
+        self.carrier_args();calls = []
+        def seed(snapshot, private, carrier, J, pin):
+            self.assertEqual(self.events, ['source']);self.assertEqual(J, self.runner.deadline)
+            self.assertTrue((private / 'source-receipt.json').is_file())
+            self.assertTrue((snapshot / 'scripts/ci/native_arm.py').is_file())
+            self.cls.assert_not_called();calls.append((carrier, pin));self.events.append('carrier')
+            return job.FrozenVimInputs(job.packet.INPUTS_SHA, job.FROZEN_VIM_FILES)
+        with mock.patch.object(job, 'seed_frozen_vim', side_effect=seed):result, _ = self.execute()
+        self.assertEqual(result, 0);self.assertEqual(calls, [(self.args.frozen_vim_carrier, None)])
+        self.assertEqual(self.events, ['source', 'carrier', 'producer', 'fdk', 'cleanup', 'publish'])
+        receipt = job.packet.load(self.private / 'frozen-vim-carrier.json')
+        self.assertEqual((receipt['source_commit'], receipt['run_id'], receipt['run_attempt']), (COMMIT, '1', '2'))
+
+    def test_failed_source_prevents_all_carrier_reads_and_broker_calls(self):
+        self.carrier_args();self.mode = 'source-fail'
+        with mock.patch.object(job, 'seed_frozen_vim') as seed:result, _ = self.execute()
+        self.assertEqual(result, 1);seed.assert_not_called();self.cls.assert_not_called()
+        self.assertEqual(self.events, ['source', 'publish'])
+
+    def test_preexisting_output_and_invalid_carrier_arguments_refuse_before_source(self):
+        self.carrier_args();self.out.mkdir()
+        with mock.patch.object(job, 'seed_frozen_vim') as seed:
+            with self.assertRaisesRegex(ValueError, 'new-external-job-output'):self.execute()
+        seed.assert_not_called();self.assertEqual(self.events, []);self.out.rmdir()
+        for carrier, pin in ((None, 'a' * 64), (str(self.base / 'carrier'), None),
+                             (self.out / 'carrier', None), (self.root / 'carrier', None),
+                             (self.base / 'carrier', True)):
+            self.args.frozen_vim_carrier = carrier;self.args.frozen_vim_manifest_sha256 = pin
+            with self.assertRaises(ValueError):self.execute()
+            self.assertFalse(self.out.exists());self.assertEqual(self.events, [])
+
+    def test_wrong_run_identity_refuses_before_carrier_and_producer(self):
+        self.carrier_args()
+        with mock.patch.dict(os.environ, {'GITHUB_RUN_ATTEMPT':'0'}), mock.patch.object(job, 'seed_frozen_vim') as seed:
+            result, _ = self.execute()
+        self.assertEqual(result, 1);seed.assert_not_called();self.cls.assert_not_called();self.assert_failed_public()
+
+    def test_carrier_cancel_or_failure_retains_fixed_fail_and_never_starts_producer(self):
+        self.carrier_args()
+        with mock.patch.object(job, 'seed_frozen_vim', side_effect=job.jr.Cancelled(signal.SIGTERM)):
+            result, state = self.execute()
+        self.assertEqual(result, 1);self.assertTrue(state['report']['cancelled'])
+        self.cls.assert_not_called();self.assert_failed_public()
+
+    def test_disposal_cancel_preserves_outer_first_failure_and_cancelled_status(self):
+        self.carrier_args();error = OSError('first-cause');error.frozen_vim_cancelled = True
+        with mock.patch.object(job, 'seed_frozen_vim', side_effect=error):result, state = self.execute()
+        self.assertEqual(result, 1);self.assertTrue(state['report']['cancelled'])
+        self.assertEqual(state['report']['error_code'], 'fdk-native-job-failed')
+        self.cls.assert_not_called();self.assert_failed_public()
+
+    def test_actual_inline_helper_copies_tiny_four_after_snapshot_before_broker(self):
+        self.carrier_args();self.args.frozen_vim_carrier.mkdir(mode=0o700)
+        data = {name:(name + '\n').encode() for name, _, _ in job.FROZEN_VIM_FILES}
+        files = tuple((name, len(raw), job.packet.sha(raw)) for name, raw in data.items())
+        rows = []
+        for package in ('vim', 'vim-runtime'):
+            name = package + '-9.2.1164-2-aarch64.pkg.tar.xz'
+            rows.append({'name':package, 'version':'9.2.1164-2', 'arch':'aarch64', 'filename':name,
+                'size':len(data[name]), 'sha256':job.packet.sha(data[name]),
+                'signature_size':len(data[name + '.sig']), 'signature_sha256':job.packet.sha(data[name + '.sig'])})
+        raw = json.dumps({'packages':rows}, sort_keys=True).encode()
+        self.source_bytes['scripts/ci/inputs.lock.json'] = raw
+        for name, content in data.items():(self.args.frozen_vim_carrier / name).write_bytes(content)
+        def broker(*args, **kwargs):
+            self.assertEqual(self.events, ['source'])
+            for name, content in data.items():self.assertEqual((self.private / 'cache' / name).read_bytes(), content)
+            return self.broker
+        self.cls.side_effect = broker
+        with mock.patch.object(job, 'FROZEN_VIM_FILES', files), mock.patch.object(job.packet, 'INPUTS_SHA', job.packet.sha(raw)), \
+             mock.patch.object(job, 'seed_frozen_vim', wraps=job.seed_frozen_vim) as seed:
+            result, _ = self.execute()
+        self.assertEqual(result, 0);self.assertEqual(seed.call_args.args[3], self.runner.deadline)
+        self.assertEqual(self.events, ['source', 'producer', 'fdk', 'cleanup', 'publish'])
+
+
+class CleanupProjectionTests(unittest.TestCase):
+    # Reuse inert controller fixtures without inheriting or duplicating old tests.
+    setUp = JobTests.setUp
+    snapshot = JobTests.snapshot
+    run_command = JobTests.run_command
+    cleanup = JobTests.cleanup
+    publish = JobTests.publish
+    execute = JobTests.execute
+    records = JobTests.records
+    assert_failed_public = JobTests.assert_failed_public
+    main = JobTests.main
+    prepare_finish = JobTests.prepare_finish
+
+    def observation(self, **changes):
+        return {'schema_version': 1, 'scope': 'producer-containers', 'phase': 'acquisition',
+                'call': 'returned', 'journal': 'ABSENT', 'reason': 'unknown-error',
+                'boundary_error': 'none', 'observation_error': 'none', 'status': 'FAIL',
+                'absence_verified': False, 'cancelled': False, **changes}
+
+    def worker(self, observation=None, raw=None):
+        self.private.mkdir(mode=0o700, parents=True, exist_ok=True)
+        path = self.private / 'producer-worker.json'
+        if raw is None:
+            job.packet.save(path, {'cleanup_diagnostic': observation})
+        else:
+            path.write_bytes(raw)
+            path.chmod(0o600)
+        return path
+
+    def capture(self, state=None):
+        return job.capture_producer_cleanup(self.private,
+            {'producer_cleanup_allowed': True} if state is None else state)
+
+    def project(self, observation):
+        return job.cleanup_observation(observation, job.evidence.PRODUCER_PHASES,
+            job.evidence.BASE_PROBE_POLICY_CODES, job.evidence.BASE_PROBE_REFUSALS)
+
+    def test_finite_return_raised_and_partial_snapshots_roundtrip_without_absence_inference(self):
+        for observation in [self.observation(),
+                self.observation(call='raised', status='UNOBSERVED', absence_verified='UNOBSERVED',
+                                 cancelled='UNOBSERVED', reason='os-error'),
+                self.observation(call='not-run', status='UNOBSERVED', absence_verified='UNOBSERVED',
+                                 cancelled='UNOBSERVED', reason='none'),
+                self.observation(call='started', journal='REGULAR', status='UNOBSERVED',
+                                 absence_verified='UNOBSERVED', cancelled='UNOBSERVED', reason='none')]:
+            with self.subTest(call=observation['call']):
+                self.worker(observation)
+                value = self.capture()
+                self.assertEqual(value, {'availability': 'OBSERVED', 'observation': observation})
+                self.assertTrue({'pid', 'process_launch', 'process_reap', 'container_id'}.isdisjoint(value['observation']))
+                self.assertEqual(value['observation']['absence_verified'], observation['absence_verified'])
+
+    def test_missing_capture_never_late_promotes_and_success_is_detached_from_caller_mutation(self):
+        state = {'producer_cleanup_allowed': True}
+        self.assertEqual(self.capture(state), {'availability': 'UNOBSERVED', 'observation': None})
+        self.worker(self.observation())
+        self.assertEqual(self.capture(state), {'availability': 'UNOBSERVED', 'observation': None})
+        fresh = {'producer_cleanup_allowed': True}
+        captured = self.capture(fresh)
+        expected = self.observation()
+        captured['observation']['reason'] = 'PRIVATE-SECRET'
+        self.worker(self.observation(reason='none', journal='REGULAR'))
+        with mock.patch.object(job.packet, 'read', side_effect=AssertionError('no second read')):
+            self.assertEqual(self.capture(fresh), {'availability': 'OBSERVED', 'observation': expected})
+
+    def test_capture_ownership_mode_symlink_and_hardlink_refuse_before_open(self):
+        path = self.worker(self.observation())
+        target = self.private / 'unrelated.json'
+        target.write_text('PRIVATE-SECRET')
+        target.chmod(0o600)
+        for kind in ('mode', 'owner', 'symlink', 'hardlink'):
+            with self.subTest(kind=kind):
+                path.unlink(missing_ok=True)
+                self.worker(self.observation())
+                patch = mock.patch.object(job.os, 'getuid', return_value=os.getuid() + 1) if kind == 'owner' else nullcontext()
+                if kind == 'mode': path.chmod(0o644)
+                if kind == 'symlink':
+                    path.unlink(); path.symlink_to(target)
+                if kind == 'hardlink':
+                    path.unlink(); os.link(target, path)
+                with patch, mock.patch.object(job.packet, 'read', side_effect=AssertionError('must refuse before open')) as read:
+                    self.assertEqual(self.capture(), {'availability': 'UNOBSERVED', 'observation': None})
+                    read.assert_not_called()
+        self.assertEqual(target.read_text(), 'PRIVATE-SECRET')
+
+    def test_same_bytes_inode_replacement_during_read_refuses_capture(self):
+        path = self.worker(self.observation())
+        original = job.packet.read
+        def replace(source, *args, **kwargs):
+            raw = original(source, *args, **kwargs)
+            replacement = path.with_name('replacement.json')
+            replacement.write_bytes(raw); replacement.chmod(0o600); replacement.replace(path)
+            return raw
+        with mock.patch.object(job.packet, 'read', side_effect=replace):
+            self.assertEqual(self.capture(), {'availability': 'UNOBSERVED', 'observation': None})
+
+    def test_duplicate_nonfinite_oversized_and_extra_private_diagnostics_are_unobserved(self):
+        valid = json.dumps({'cleanup_diagnostic': self.observation()}).encode()
+        samples = [valid.replace(b'"schema_version": 1', b'"schema_version": 1, "schema_version": 1'),
+                   valid.replace(b'"schema_version": 1', b'"schema_version": NaN'),
+                   valid.replace(b'"schema_version": 1', b'"schema_version": Infinity'),
+                   valid.replace(b'"schema_version": 1', b'"schema_version": 1e999'),
+                   b'{' + b' ' * 65536 + b'}',
+                   json.dumps({'cleanup_diagnostic': self.observation(credentialData='PRIVATE-SECRET')}).encode()]
+        for raw in samples:
+            with self.subTest(bytes=len(raw)):
+                self.worker(raw=raw)
+                self.assertEqual(self.capture(), {'availability': 'UNOBSERVED', 'observation': None})
+
+    def test_every_observation_field_refuses_nonplain_scalar_or_unregistered_enum(self):
+        class Text(str): pass
+        mutations = {'schema_version': [True, 1.0, None], 'scope': [Text('producer-containers'), 'PRIVATE-SECRET'],
+            'phase': [None, [], 'PRIVATE-SECRET'], 'call': [False, 'PRIVATE-SECRET'], 'journal': [True, '/PRIVATE/path'],
+            'reason': ['[Errno 2] PRIVATE-SECRET', {'message': 'PRIVATE-SECRET'}],
+            'boundary_error': ['returned-failure', 'PRIVATE-SECRET'], 'observation_error': [float('nan'), 'PRIVATE-SECRET'],
+            'status': [True, 'NOT RUN'], 'absence_verified': [0, 1, None], 'cancelled': [0, 1, None]}
+        for name, values in mutations.items():
+            for value in values:
+                with self.subTest(field=name, type=type(value).__name__):
+                    self.assertIsNone(self.project(self.observation(**{name: value})))
+        self.assertIsNone(self.project(dict(list(self.observation().items())[1:])))
+        self.assertIsNone(self.project(self.observation(raw_error='PRIVATE-SECRET')))
+
+    def test_envelope_requires_exact_availability_and_observation_pair(self):
+        def project(value):
+            return job.producer_cleanup(value, job.evidence.PRODUCER_PHASES,
+                job.evidence.BASE_PROBE_POLICY_CODES, job.evidence.BASE_PROBE_REFUSALS)
+        self.assertEqual(project({'availability': 'UNOBSERVED', 'observation': None}),
+                         {'availability': 'UNOBSERVED', 'observation': None})
+        for value in [None, {'availability': True, 'observation': None},
+                {'availability': 'UNOBSERVED', 'observation': self.observation()},
+                {'availability': 'OBSERVED', 'observation': None},
+                {'availability': 'OBSERVED', 'observation': self.observation(), 'credentialData': 'PRIVATE-SECRET'}]:
+            with self.subTest(value=value): self.assertIsNone(project(value))
+
+    def test_source_failure_does_not_read_or_accept_a_preexisting_optional_receipt(self):
+        first_bytes = b'PRIVATE-FIRST-SOURCE-CAUSE'
+        class SourceFailure(ValueError): pass
+        error = SourceFailure(first_bytes)
+        def source(*args, **kwargs):
+            self.events.append('source')
+            self.worker(self.observation(status='PASS', absence_verified=True, reason='none'))
+            raise error
+        with mock.patch.object(job.packet, 'verify', side_effect=source), \
+                mock.patch.object(job.packet, 'read', wraps=job.packet.read) as read:
+            result, state = self.execute()
+        self.assertEqual(result, 1)
+        self.cls.assert_not_called()
+        self.assertNotIn('producer', self.events)
+        self.assertEqual(error.args, (first_bytes,))
+        self.assertFalse(state.get('producer_cleanup_allowed', False))
+        self.assertFalse(any(call.args[0] == self.private / 'producer-worker.json' for call in read.call_args_list))
+        public = self.records()['public/status.json']
+        self.assertEqual(public.pop('producer_cleanup'), {'availability': 'UNOBSERVED', 'observation': None})
+        self.assertEqual(public, job.evidence.public_status(state['report']))
+
+    def test_optional_pass_claim_cannot_promote_failed_worker_or_unverified_absence(self):
+        observed = self.observation(status='PASS', absence_verified=True, reason='none', phase='complete', journal='REGULAR')
+        for mode in ('producer-exit-fail', 'producer-receipt-fail', 'producer-absence-fail'):
+            with self.subTest(mode=mode):
+                self.mode = mode
+                self.boundary_change = lambda receipt: receipt.update(cleanup_diagnostic=observed)
+                result, state = self.execute()
+                self.assertEqual(result, 1)
+                self.assert_failed_public()
+                self.assertNotIn('fdk', self.events)
+                public = self.records()['public/status.json']
+                self.assertEqual(public.pop('producer_cleanup'), {'availability': 'OBSERVED', 'observation': observed})
+                self.assertEqual(public, job.evidence.public_status(state['report']))
+                # Each modeled run gets a fresh owned output, preserving earlier evidence.
+                self.out = self.base / ('job-' + mode); self.private = self.out / 'private'
+                self.args.output = self.out; self.events.clear()
+
+    def test_optional_failed_or_unknown_snapshot_cannot_veto_otherwise_accepted_worker(self):
+        for observation in (self.observation(), self.observation(credentialData='PRIVATE-SECRET')):
+            with self.subTest(invalid='credentialData' in observation):
+                self.boundary_change = lambda receipt: receipt.update(cleanup_diagnostic=observation)
+                result, state = self.execute()
+                self.assertEqual(result, 0)
+                public = self.records()['public/status.json']
+                self.assertEqual(public['status'], 'PASS')
+                self.assertEqual(public.pop('producer_cleanup')['availability'],
+                                 'UNOBSERVED' if 'credentialData' in observation else 'OBSERVED')
+                self.assertEqual(public, job.evidence.public_status(state['report']))
+                self.out = self.base / 'job-second'; self.private = self.out / 'private'; self.args.output = self.out
+
+    def test_optional_reader_fault_preserves_original_business_failure_without_raw_error(self):
+        self.mode = 'producer-diagnostic-fail'
+        original, injected = job.packet.read, []
+        def read(path, *args, **kwargs):
+            if path == self.private / 'producer-worker.json' and kwargs == {} and args == (65536,):
+                # Existing admission reads happen first; inject only within the optional observer.
+                if state_holder and state_holder[0].get('producer_cleanup_capture_attempted'):
+                    injected.append(True)
+                    raise RuntimeError('PRIVATE-OBSERVER-ERROR')
+            return original(path, *args, **kwargs)
+        state_holder = []
+        def execute(args, state):
+            state_holder.append(state)
+            return self.original_execute(self.args, state)
+        with mock.patch.object(job.packet, 'read', side_effect=read):
+            self.assertEqual(self.main(execute), 1)
+        self.assertEqual(len(injected), 1)
+        self.assert_failed_public()
+        public = self.records()['public/status.json']
+        self.assertEqual(public.pop('producer_cleanup'), {'availability': 'UNOBSERVED', 'observation': None})
+        self.assertEqual(public, job.evidence.public_status(state_holder[0]['report']))
+        self.assertEqual(public['error_code'], 'producer-gpg-verify-runner-failed')
+        self.assertNotIn('PRIVATE', json.dumps(public))
+
+    def test_observer_cancellation_uses_existing_late_failure_rewrite_and_never_rereads(self):
+        original, injected, state_holder = job.packet.read, [], []
+        def read(path, *args, **kwargs):
+            if (state_holder and state_holder[0].get('producer_cleanup_capture_attempted') and
+                    path == self.private / 'producer-worker.json'):
+                injected.append(True)
+                raise job.jr.Cancelled(signal.SIGTERM)
+            return original(path, *args, **kwargs)
+        def execute(args, state):
+            state_holder.append(state)
+            return self.original_execute(self.args, state)
+        with mock.patch.object(job.packet, 'read', side_effect=read):
+            self.assertEqual(self.main(execute), 1)
+        self.assertEqual(len(injected), 1)
+        self.assert_failed_public()
+        self.assertIs(self.records()['public/status.json']['cancelled'], True)
+        self.assertEqual(self.records()['public/status.json']['producer_cleanup'],
+                         {'availability': 'UNOBSERVED', 'observation': None})
+
 
 
 def workflow_functions(text, index=-1):
