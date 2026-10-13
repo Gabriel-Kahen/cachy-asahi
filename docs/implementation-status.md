@@ -4,7 +4,20 @@ October 12, 2026. This record tracks the complete `outline.md` scope; an impleme
 
 The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with owned tasks and corrective next actions in `docs/backlog.md`. The destination now explicitly requires the maintained ARM package repository, native performance engineering, integrated Apple stack, broader Cachy system experience, and complete installation/release lifecycle. Both Air sizes, published final measurements, independent onboarding/contribution, subsequent full-port maintenance release, other-ARM reuse and actual upstream submissions remain required; an early overlay release or feasibility decision would not complete the goal. This scope update does not change any recorded execution result.
 
-Latest coordinator update, October 13, 20:26 UTC. The independently reviewed
+Latest coordinator update, October 13, 20:30 UTC. Caller-only I/O diagnostic
+source passes independent review with five focused groups and 17 inert rows.
+The signer and all other shared bodies remain unchanged. Source `9710bcf` verifies
+125 Topmem rows and exact Source-variable readback; static CI `38463181409` passes.
+Actual ARM trial `38463181445` is in progress, with no result inferred yet.
+Fish successor `db98210` verifies 131 rows and remains undispatched while the
+shared signer-start failure is investigated. [Source review](reviews/topmem-agent-start-io-failure-root-review.md).
+
+A finite full-port coverage crosswalk is under independent review. It reuses
+45 existing generic roots and ten development candidates; maintained builder,
+platform image and the unadopted coordinated transaction remain distinct inputs.
+Scope is unchanged and no release, target or ongoing human custody gate is passed.
+
+Prior coordinator update, October 13, 20:26 UTC. The independently reviewed
 handler-argument diagnostic is committed as Source `4327634` and Data `999e539`.
 All 271 Git rows and exact external-plan readback pass; static CI `38462431970`
 passes. Actual ARM trial `38462431231` again reports
