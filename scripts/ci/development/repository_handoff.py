@@ -1257,23 +1257,42 @@ class Session:
             filename=str(self.sources.root/path)
             if type(module.__dict__.get('__file__')) is not str or module.__dict__['__file__'] != filename:continue
             compiled={code.co_qualname:code for code in code_objects(compile(data,filename,'exec'))}
-            exits={}
+            exits,exit_calls={},{}
             if path == PREFIXES['collector']+'/common.py':
+                calls={ast.dump(ast.parse(expression,mode='eval').body,include_attributes=False):label
+                    for expression,label in (
+                        ('signal.pthread_sigmask(signal.SIG_BLOCK, SIGNALS)','SERVICE_CANCEL_EXIT_BLOCK'),
+                        ('signal.signal(number, original)','SERVICE_CANCEL_EXIT_SET_HANDLER'),
+                        ('signal.getsignal(number) == original','SERVICE_CANCEL_EXIT_HANDLER_CHECK'),
+                        ('number not in mask and number in signal.sigpending()','SERVICE_CANCEL_EXIT_PENDING_CHECK'),
+                        ('signal.sigwait({number})','SERVICE_CANCEL_EXIT_PENDING_WAIT'),
+                        ('signal.pthread_sigmask(signal.SIG_SETMASK, mask)','SERVICE_CANCEL_EXIT_SET_MASK'),
+                        ('handler(number, None)','SERVICE_CANCEL_EXIT_REPLAY'))}
                 for node in ast.parse(data).body:
                     if type(node) is ast.FunctionDef and node.name in ('defer_cancellation','_signal_handlers'):
                         regions=[part for item in ast.walk(node) if type(item) is ast.Try for part in item.finalbody]
                         exits[node.name]=tuple((part.lineno,part.end_lineno) for part in regions)
-            candidates.append((module.__dict__,filename,compiled,labels,exits))
+                        if node.name == '_signal_handlers':
+                            matches={}
+                            for region in regions:
+                                for call in ast.walk(region):
+                                    if type(call) in (ast.Call,ast.Compare,ast.BoolOp):
+                                        label=calls.get(ast.dump(call,include_attributes=False))
+                                        if label is not None:matches[(call.lineno,call.end_lineno)]=label
+                            exit_calls[node.name]=tuple((start,end,label) for (start,end),label in matches.items())
+            candidates.append((module.__dict__,filename,compiled,labels,exits,exit_calls))
         site='OTHER';trace=error.__traceback__;count=0
         while trace is not None:
             if type(trace) is not types.TracebackType or count>=64:return 'OTHER'
             count+=1;frame=trace.tb_frame;code=frame.f_code
-            for namespace,filename,compiled,labels,exits in candidates:
+            for namespace,filename,compiled,labels,exits,exit_calls in candidates:
                 name=code.co_qualname
                 if frame.f_globals is namespace and code.co_filename==filename and name in labels and code==compiled.get(name):
                     site=labels[name]
                     if name in exits:
                         site='SERVICE_CANCEL_EXIT' if any(start<=trace.tb_lineno<=end for start,end in exits[name]) else 'SERVICE_CANCEL_ENTER'
+                        for start,end,label in exit_calls.get(name,()):
+                            if start<=trace.tb_lineno<=end:site=label
             trace=trace.tb_next
         return site
 
@@ -1303,7 +1322,10 @@ class Session:
                  'SERVICE_CALL','SERVICE_SOURCE_GUARD','SERVICE_SOURCE_CAPTURE','SERVICE_SOURCE_READ',
                  'SERVICE_PENDING','SERVICE_TRANSPORT_INIT','SERVICE_TRANSPORT_PREFLIGHT',
                  'SERVICE_TRANSPORT_CLI','SERVICE_TRANSPORT_DIRECTORY','SERVICE_CANCEL_CONTEXT',
-                 'SERVICE_CANCEL_SIGNALS','SERVICE_CANCEL_ENTER','SERVICE_CANCEL_EXIT','OTHER')
+                 'SERVICE_CANCEL_SIGNALS','SERVICE_CANCEL_ENTER','SERVICE_CANCEL_EXIT',
+                 'SERVICE_CANCEL_EXIT_BLOCK','SERVICE_CANCEL_EXIT_SET_HANDLER','SERVICE_CANCEL_EXIT_HANDLER_CHECK',
+                 'SERVICE_CANCEL_EXIT_PENDING_CHECK','SERVICE_CANCEL_EXIT_PENDING_WAIT',
+                 'SERVICE_CANCEL_EXIT_SET_MASK','SERVICE_CANCEL_EXIT_REPLAY','OTHER')
         failure = self.startup_failure
         need(type(self.startup_phase) is str and self.startup_phase in phases and
              type(self.native_hook_entered) is bool and type(failure) is dict and

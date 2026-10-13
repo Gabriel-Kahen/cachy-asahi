@@ -1526,7 +1526,7 @@ class ServiceAttributionModels(unittest.TestCase):
         module.signal=types.SimpleNamespace(SIG_BLOCK=0,SIG_SETMASK=1,pthread_sigmask=lambda *a:set(),getsignal=lambda n:handlers[n],signal=setter,sigpending=lambda:set())
         context=module.defer_cancellation();context.__enter__()
         error=self.error(lambda:context.__exit__(None,None,None))
-        self.assertEqual(session.service_failure_site(error),'SERVICE_CANCEL_EXIT')
+        self.assertEqual(session.service_failure_site(error),'SERVICE_CANCEL_EXIT_SET_HANDLER')
         self.assertEqual(module.PENDING,[])
 
     def test_foreign_provenance_optional_failure_first_cause_privacy(self):
@@ -1565,5 +1565,96 @@ class ServiceAttributionModels(unittest.TestCase):
         self.assertEqual(session.startup_failure,{'phase':'construct-services','kind':'TYPE_ERROR','site':'OTHER'})
         self.assertEqual((error.args,error.__traceback__),original)
         self.assertEqual(session.result,result_before)
+
+class CancellationExitAttributionModels(unittest.TestCase):
+    """Exact compiled cancellation code; all signal operations are inert seams."""
+    model=ServiceAttributionModels.model
+    error=ServiceAttributionModels.error
+
+    def failure(self,operation):
+        session,modules=self.model();common=modules['common']
+        handlers={2:0,15:0};counts={'mask':0,'read':0};first=TypeError('PRIVATE /never/exported')
+        def fail():raise first
+        def mask(*args):
+            counts['mask']+=1
+            if (operation=='block' and counts['mask']==3) or (operation=='mask' and counts['mask']==4):fail()
+            return set()
+        def setter(number,value):
+            if operation=='set' and value==0:fail()
+            previous=handlers[number];handlers[number]=value;return previous
+        def getter(number):
+            counts['read']+=1
+            if operation=='get' and counts['read']==3:fail()
+            return handlers[number]
+        def pending():
+            if operation=='query':fail()
+            return {2} if operation in ('wait','replay') else set()
+        def wait(numbers):
+            if operation=='wait':fail()
+            return 2
+        common.signal=types.SimpleNamespace(SIG_BLOCK=0,SIG_SETMASK=1,pthread_sigmask=mask,
+            signal=setter,getsignal=getter,sigpending=pending,sigwait=wait)
+        if operation=='replay':
+            def handler(*args):fail()
+            context=common._signal_handlers(handler)
+        else:context=common.defer_cancellation()
+        context.__enter__();error=self.error(lambda:context.__exit__(None,None,None))
+        self.assertIs(error,first);self.assertEqual(common.PENDING,[])
+        return session,common,error
+
+    def test_seven_exact_exit_api_sites_and_unchanged_errors(self):
+        labels={'block':'BLOCK','set':'SET_HANDLER','get':'HANDLER_CHECK','query':'PENDING_CHECK',
+                'wait':'PENDING_WAIT','mask':'SET_MASK','replay':'REPLAY'}
+        for operation,suffix in labels.items():
+            with self.subTest(operation=operation):
+                session,common,error=self.failure(operation);before=(error.args,error.__traceback__)
+                self.assertEqual(session.service_failure_site(error),'SERVICE_CANCEL_EXIT_'+suffix)
+                self.assertEqual((error.args,error.__traceback__),before)
+
+    def test_optional_projection_and_first_cause_keep_closed_failure(self):
+        import ast,copy
+        session,common,error=self.failure('set')
+        tree=ast.parse((ROOT/'scripts/ci/development/repository_handoff.py').read_bytes())
+        owner=next(node for node in tree.body if isinstance(node,ast.ClassDef) and node.name=='Session')
+        init=next(node for node in owner.body if isinstance(node,ast.FunctionDef) and node.name=='__init__')
+        state=next(node.value for node in init.body if isinstance(node,ast.Assign) and any(isinstance(target,ast.Attribute) and target.attr=='result' for target in node.targets))
+        session.result=eval(compile(ast.Expression(state),'inert-result-literal','eval'),{'self':session,'sources':session.sources})
+        session.result.update(status='FAIL',error_code='source-refused',cleanup='PASS');session.native_hook_entered=False
+        result_before=copy.deepcopy(session.result);original=(error.args,error.__traceback__)
+        session.startup_failed(error);before=dict(session.startup_failure);projection=session.startup_projection()
+        self.assertEqual(set(projection),{'schema_version','purpose','status','phase','kind','site','native_hook_entered','error_code','cleanup'})
+        self.assertEqual(projection['site'],'SERVICE_CANCEL_EXIT_SET_HANDLER')
+        self.assertEqual((projection['status'],projection['error_code'],projection['cleanup']),('FAIL','source-refused','PASS'))
+        self.assertFalse(projection['native_hook_entered']);self.assertLessEqual(len(adapter.encoded(projection)),1024)
+        self.assertNotIn('PRIVATE',adapter.encoded(projection).decode());self.assertNotIn('/never/',adapter.encoded(projection).decode())
+        session.startup_failed(TypeError('later'));self.assertEqual(session.startup_failure,before)
+        session.startup_failure=None
+        def attribution_failed(error):raise KeyboardInterrupt()
+        session.service_failure_site=attribution_failed;session.startup_failed(error)
+        self.assertEqual(session.startup_failure,{'phase':'construct-services','kind':'TYPE_ERROR','site':'OTHER'})
+        self.assertEqual(session.result,result_before);self.assertEqual((error.args,error.__traceback__),original)
+
+    def test_exit_provenance_refuses_foreign_namespace_hash_and_filename(self):
+        import contextlib
+        session,common,error=self.failure('set')
+        path=adapter.PREFIXES['collector']+'/common.py'
+        pin=session.sources.grant['source_files'][path]['sha256']
+        session.sources.grant['source_files'][path]['sha256']='0'*64
+        self.assertEqual(session.service_failure_site(error),'OTHER')
+        session.sources.grant['source_files'][path]['sha256']=pin
+        filename=common.__file__;common.__file__='/foreign'
+        self.assertEqual(session.service_failure_site(error),'OTHER');common.__file__=filename
+        underlying=common._signal_handlers.__wrapped__
+        foreign=types.FunctionType(underlying.__code__,dict(common.__dict__))
+        # Use a fresh valid inert signal state; only the matching globals differ.
+        handlers={2:0,15:0}
+        def setter(number,value):
+            if value==0:raise TypeError('PRIVATE')
+            previous=handlers[number];handlers[number]=value;return previous
+        foreign.__globals__['signal']=types.SimpleNamespace(SIG_BLOCK=0,SIG_SETMASK=1,
+            pthread_sigmask=lambda *args:set(),getsignal=lambda number:handlers[number],signal=setter,sigpending=lambda:set())
+        context=contextlib.contextmanager(foreign)(lambda *args:None);context.__enter__()
+        observed=self.error(lambda:context.__exit__(None,None,None))
+        self.assertEqual(session.service_failure_site(observed),'OTHER')
 
 if __name__ == '__main__':unittest.main()
