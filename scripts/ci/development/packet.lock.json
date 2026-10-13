@@ -1782,7 +1782,7 @@
     },
     "scripts/ci/development/repository_handoff.py": {
       "mode": 420,
-      "sha256": "441e4497d7dca108d7d5a56f2a4ab3924565f8c60e370f41835ee2746f7f977a"
+      "sha256": "882a38b54fbc4a3a7001a48e2ec0aa33a5fd4fd7ac70d7276c6086b5405874a2"
     },
     "scripts/ci/development/test_base_stages.py": {
       "mode": 420,
@@ -1810,7 +1810,7 @@
     },
     "scripts/ci/development/test_repository_handoff.py": {
       "mode": 420,
-      "sha256": "a4f4ff7383f417d9253e37eb83760c37a2778b9920f122c4a32a5ae1d6ce042e"
+      "sha256": "623b42d7f314b9a1649715c4b83bdd11b6527452718471033a10ac83edf2826d"
     },
     "scripts/ci/development/test_virtual_stage.py": {
       "mode": 420,
@@ -1986,7 +1986,7 @@
     },
     "scripts/install/native_preflight.py": {
       "mode": 420,
-      "sha256": "2f3460cafb520438da78c442201d3766f5fbc57110b88bcecb624e4e65f1e4d2"
+      "sha256": "df3061dffe10a8b801801f9035ffa63d8ec5d463ffa119113f6ead1ec3bb5f27"
     },
     "scripts/install/test_local_transaction.py": {
       "mode": 420,

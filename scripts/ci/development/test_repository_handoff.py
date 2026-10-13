@@ -1448,4 +1448,122 @@ class FrozenFileHookModels(unittest.TestCase):
         hook.unregistered=True
         with self.assertRaises(adapter.Refused):sources.frozen_file_hook(hook,owner)
 
+
+class ServiceAttributionModels(unittest.TestCase):
+    """Exact source traceback provenance; inert file/signal seams only."""
+    def model(self):
+        import ast,contextlib
+        root=Path('/diagnostic-source-model')
+        paths={name:adapter.PREFIXES['runtime']+'/'+name+'.py' for name in ('entry','broker','transport')}
+        paths['common']=adapter.PREFIXES['collector']+'/common.py'
+        raw={paths[name]:(ROOT/paths[name]).read_bytes() for name in paths}
+        selected={'entry':{'read','captures','services'},'broker':{'Pending'},
+                  'transport':{'read_file','directory','DockerTransport'},'common':{'_signal_handlers','defer_cancellation'}}
+        modules={}
+        for name,path in paths.items():
+            module=types.ModuleType('diagnostic_'+name);module.__file__=str(root/path)
+            module.__dict__.update(Path=Path,contextmanager=contextlib.contextmanager,need=adapter.need,
+                re=__import__('re'),stat=__import__('stat'),SOURCES={n+'.py' for n in ('entry','capture','producer','launch','transport','supervisor','broker')},
+                MODULES=('capture','producer','launch','transport','supervisor','broker'),check=lambda end:None,
+                capture=types.SimpleNamespace(need=adapter.need,digest=adapter.digest),ENV_KEYS={'PATH','HOME','DOCKER_CONFIG','DOCKER_HOST','DOCKER_BUILDKIT','LC_ALL','TMPDIR'},PENDING=[],SIGNALS=(2,15),Refused=ValueError,MAX_BYTES=64*1024**2)
+            tree=ast.parse(raw[path]);nodes=[n for n in tree.body if isinstance(n,(ast.FunctionDef,ast.ClassDef)) and n.name in selected[name]]
+            codes={code.co_qualname:code for code in adapter.code_objects(compile(raw[path],module.__file__,'exec'))}
+            def function(node,qualname):
+                defaults=tuple(eval(compile(ast.Expression(value),'literal-model-default','eval'),module.__dict__) for value in node.args.defaults)
+                value=types.FunctionType(codes[qualname],module.__dict__,node.name,defaults or None)
+                value.__kwdefaults__={arg.arg:eval(compile(ast.Expression(default),'literal-model-default','eval'),module.__dict__) for arg,default in zip(node.args.kwonlyargs,node.args.kw_defaults) if default is not None} or None
+                for decorator in reversed(node.decorator_list):
+                    self.assertIsInstance(decorator,ast.Name);self.assertEqual(decorator.id,'contextmanager')
+                    value=contextlib.contextmanager(value)
+                return value
+            for node in nodes:
+                if isinstance(node,ast.FunctionDef):module.__dict__[node.name]=function(node,node.name)
+                else:module.__dict__[node.name]=type(node.name,(object,),{'__module__':module.__name__,**{method.name:function(method,node.name+'.'+method.name) for method in node.body if isinstance(method,ast.FunctionDef)}})
+            modules[name]=module
+        sources=object.__new__(adapter.Sources);sources.root=root;sources.raw=raw
+        sources.grant={'source_files':{p:{'sha256':adapter.digest(data),'mode':0o644} for p,data in raw.items()}}
+        session=object.__new__(adapter.Session);session.sources=sources
+        session.source_graph={'entry':modules['entry'],'runtime':{name:modules[name] for name in ('broker','transport')},'collector':{'common':modules['common']}}
+        session.startup_phase='construct-services';session.startup_failure=None
+        return session,modules
+
+    def error(self,callback):
+        try:callback()
+        except TypeError as error:return error
+        raise AssertionError('expected inert TypeError')
+
+    def test_source_read_capture_pending_and_transport_sites(self):
+        session,m=self.model()
+        cases=[(lambda:m['entry'].read(None),'SERVICE_SOURCE_READ'),
+               (lambda:m['entry'].captures(None,{'one.py':{'sha256':'a'*64,'mode':0o644}},deadline=200),'SERVICE_SOURCE_CAPTURE'),
+               (lambda:m['broker'].Pending(None,b'x',adapter.digest(b'x'),job_deadline=200),'SERVICE_PENDING'),
+               (lambda:m['transport'].read_file(None),'SERVICE_TRANSPORT_CLI'),
+               (lambda:m['transport'].directory(None).__enter__(),'SERVICE_TRANSPORT_DIRECTORY')]
+        for callback,expected in cases:
+            with self.subTest(site=expected):
+                error=self.error(callback);before=(error.args,error.__traceback__)
+                self.assertEqual(session.service_failure_site(error),expected)
+                self.assertEqual((error.args,error.__traceback__),before)
+        module=m['transport'];module.signal=types.SimpleNamespace(SIG_BLOCK=0,SIG_SETMASK=1,pthread_sigmask=lambda *a:set())
+        module.CLI=Path('/never-read');module.read_file=lambda *a,**k:None
+        env={'PATH':'/usr/bin:/bin','DOCKER_HOST':'unix:///run/docker.sock','DOCKER_BUILDKIT':'0','LC_ALL':'C'}
+        error=self.error(lambda:module.DockerTransport(cli_sha256='a'*64,endpoint_identity=[1]*6,env=env,create_validator=lambda *a:None))
+        self.assertEqual(session.service_failure_site(error),'SERVICE_TRANSPORT_INIT')
+        value=object.__new__(module.DockerTransport);value.fd=1;value.cli={'sha256':'a'*64}
+        error=self.error(value._preflight)
+        self.assertEqual(session.service_failure_site(error),'SERVICE_TRANSPORT_PREFLIGHT')
+
+    def test_cancellation_entry_exit_and_no_kernel_operations(self):
+        session,m=self.model();module=m['common']
+        def fail(*args):raise TypeError('SECRET /private/path')
+        module.signal=types.SimpleNamespace(SIG_BLOCK=0,SIG_SETMASK=1,pthread_sigmask=fail)
+        error=self.error(lambda:module.defer_cancellation().__enter__())
+        self.assertEqual(session.service_failure_site(error),'SERVICE_CANCEL_ENTER')
+        handlers={2:0,15:0}
+        def setter(number,value):
+            if value==0:raise TypeError('SECRET /private/path')
+            previous=handlers[number];handlers[number]=value;return previous
+        module.signal=types.SimpleNamespace(SIG_BLOCK=0,SIG_SETMASK=1,pthread_sigmask=lambda *a:set(),getsignal=lambda n:handlers[n],signal=setter,sigpending=lambda:set())
+        context=module.defer_cancellation();context.__enter__()
+        error=self.error(lambda:context.__exit__(None,None,None))
+        self.assertEqual(session.service_failure_site(error),'SERVICE_CANCEL_EXIT')
+        self.assertEqual(module.PENDING,[])
+
+    def test_foreign_provenance_optional_failure_first_cause_privacy(self):
+        import ast,copy
+        session,m=self.model();error=self.error(lambda:m['entry'].read(None))
+        tree=ast.parse((ROOT/'scripts/ci/development/repository_handoff.py').read_bytes())
+        owner=next(node for node in tree.body if isinstance(node,ast.ClassDef) and node.name=='Session')
+        init=next(node for node in owner.body if isinstance(node,ast.FunctionDef) and node.name=='__init__')
+        state=next(node.value for node in init.body if isinstance(node,ast.Assign) and any(isinstance(target,ast.Attribute) and target.attr=='result' for target in node.targets))
+        session.result=eval(compile(ast.Expression(state),'model-result-literal','eval'),{'self':session,'sources':session.sources})
+        session.result.update(status='FAIL',error_code='source-refused',cleanup='PASS');session.native_hook_entered=False
+        result_before=copy.deepcopy(session.result)
+        session.startup_failed(error);before=dict(session.startup_failure)
+        projection=session.startup_projection()
+        self.assertEqual(set(projection),{'schema_version','purpose','status','phase','kind','site','native_hook_entered','error_code','cleanup'})
+        self.assertEqual((projection['status'],projection['error_code'],projection['cleanup']),('FAIL','source-refused','PASS'))
+        self.assertFalse(projection['native_hook_entered']);self.assertLessEqual(len(adapter.encoded(projection)),1024)
+        self.assertEqual(session.result,result_before)
+        session.startup_failed(TypeError('SECRET /private/path'))
+        self.assertEqual(session.startup_failure,before)
+        text=adapter.encoded(before).decode();self.assertNotIn('SECRET',text);self.assertNotIn('/diagnostic-source-model',text)
+        foreign=types.FunctionType(m['entry'].read.__code__,dict(m['entry'].__dict__))
+        foreign.__defaults__=m['entry'].read.__defaults__;foreign.__kwdefaults__=dict(m['entry'].read.__kwdefaults__)
+        error=self.error(lambda:foreign(None));self.assertEqual(session.service_failure_site(error),'OTHER')
+        error=self.error(lambda:m['entry'].read(None));path=adapter.PREFIXES['runtime']+'/entry.py'
+        original=(error.args,error.__traceback__);pin=session.sources.grant['source_files'][path]['sha256']
+        session.sources.grant['source_files'][path]['sha256']='0'*64
+        self.assertEqual(session.service_failure_site(error),'OTHER')
+        session.sources.grant['source_files'][path]['sha256']=pin
+        class Poison:
+            def __eq__(self,other):raise AssertionError('foreign equality hook')
+        m['entry'].__file__=Poison()
+        self.assertEqual(session.service_failure_site(error),'OTHER')
+        session.startup_failure=None;session.service_failure_site=lambda error:(_ for _ in ()).throw(KeyboardInterrupt())
+        session.startup_failed(error)
+        self.assertEqual(session.startup_failure,{'phase':'construct-services','kind':'TYPE_ERROR','site':'OTHER'})
+        self.assertEqual((error.args,error.__traceback__),original)
+        self.assertEqual(session.result,result_before)
+
 if __name__ == '__main__':unittest.main()

@@ -1228,6 +1228,55 @@ class Session:
             'actor_contract_sha256':getattr(sources,'grant',{}).get('actor_contract_sha256'),
             'initial_invocation_sha256':getattr(sources,'grant',{}).get('initial_invocation_sha256')}
 
+    def service_failure_site(self, error):
+        """Diagnostic-only labels from held Source code and exact graph namespaces."""
+        if type(error) is not TypeError or self.startup_phase != 'construct-services':return 'OTHER'
+        graph = self.source_graph
+        if type(graph) is not dict:return 'OTHER'
+        runtime,collector = graph.get('runtime'),graph.get('collector')
+        if type(runtime) is not dict or type(collector) is not dict:return 'OTHER'
+        rows = (
+            (PREFIXES['runtime']+'/entry.py',graph.get('entry'),{
+                'services':'SERVICE_CALL','services.<locals>.source_guard':'SERVICE_SOURCE_GUARD',
+                'captures':'SERVICE_SOURCE_CAPTURE','pinned':'SERVICE_SOURCE_READ','read':'SERVICE_SOURCE_READ'}),
+            (PREFIXES['runtime']+'/broker.py',runtime.get('broker'),{'Pending.__init__':'SERVICE_PENDING'}),
+            (PREFIXES['runtime']+'/transport.py',runtime.get('transport'),{
+                'DockerTransport.__init__':'SERVICE_TRANSPORT_INIT','DockerTransport._preflight':'SERVICE_TRANSPORT_PREFLIGHT',
+                'read_file':'SERVICE_TRANSPORT_CLI','directory':'SERVICE_TRANSPORT_DIRECTORY'}),
+            (PREFIXES['collector']+'/common.py',collector.get('common'),{
+                'defer_cancellation':'SERVICE_CANCEL_CONTEXT','_signal_handlers':'SERVICE_CANCEL_SIGNALS'}))
+        if type(self.sources) is not Sources:return 'OTHER'
+        if type(self.sources.root) is not type(Path('/')):return 'OTHER'
+        raw,grants = self.sources.raw,self.sources.grant
+        if type(raw) is not dict or type(grants) is not dict or type(grants.get('source_files')) is not dict:return 'OTHER'
+        candidates=[]
+        for path,module,labels in rows:
+            if type(module) is not types.ModuleType or path not in raw:continue
+            data,pin = raw[path],grants['source_files'].get(path)
+            if type(data) is not bytes or len(data)>FILE_LIMIT or type(pin) is not dict or type(pin.get('sha256')) is not str or digest(data)!=pin['sha256']:continue
+            filename=str(self.sources.root/path)
+            if type(module.__dict__.get('__file__')) is not str or module.__dict__['__file__'] != filename:continue
+            compiled={code.co_qualname:code for code in code_objects(compile(data,filename,'exec'))}
+            exits={}
+            if path == PREFIXES['collector']+'/common.py':
+                for node in ast.parse(data).body:
+                    if type(node) is ast.FunctionDef and node.name in ('defer_cancellation','_signal_handlers'):
+                        regions=[part for item in ast.walk(node) if type(item) is ast.Try for part in item.finalbody]
+                        exits[node.name]=tuple((part.lineno,part.end_lineno) for part in regions)
+            candidates.append((module.__dict__,filename,compiled,labels,exits))
+        site='OTHER';trace=error.__traceback__;count=0
+        while trace is not None:
+            if type(trace) is not types.TracebackType or count>=64:return 'OTHER'
+            count+=1;frame=trace.tb_frame;code=frame.f_code
+            for namespace,filename,compiled,labels,exits in candidates:
+                name=code.co_qualname
+                if frame.f_globals is namespace and code.co_filename==filename and name in labels and code==compiled.get(name):
+                    site=labels[name]
+                    if name in exits:
+                        site='SERVICE_CANCEL_EXIT' if any(start<=trace.tb_lineno<=end for start,end in exits[name]) else 'SERVICE_CANCEL_ENTER'
+            trace=trace.tb_next
+        return site
+
     def startup_failed(self, error):
         """Keep the first finite observation without changing the exception/cause."""
         if self.startup_failure is not None:return
@@ -1238,6 +1287,9 @@ class Session:
                 'VALUE_ERROR' if isinstance(error,ValueError) else
                 'TYPE_ERROR' if isinstance(error,TypeError) else 'OTHER')
         site = vars(error).get('_source_refusal_site','OTHER') if type(error) is Refused else 'OTHER'
+        if site == 'OTHER' and type(error) is TypeError:
+            try:site = self.service_failure_site(error)
+            except BaseException:pass  # Optional attribution never replaces the first cause.
         self.startup_failure = {'phase':self.startup_phase,'kind':kind,'site':site}
 
     def startup_projection(self):
@@ -1247,7 +1299,11 @@ class Session:
         sites = ('CLASS_STATE','CLASS_LITERAL','CALLBACK','GLOBAL_FUNCTION','GRAPH_FUNCTION',
                  'GRAPH_NAMESPACE','FROZEN_FILE_HOOK','GRAPH_IDENTITY','SOURCE_GRAPH','INSTALLER_REGISTRATION',
                  'ORIGINAL_CONTEXT','NATIVE_FRAME','OWNED_CLEANUP','VIEW_COPY','VIEW_VERIFY',
-                 'DEADLINE_CHECK','CALLBACK_BINDINGS','AUTHORITY_STATE','OTHER')
+                 'DEADLINE_CHECK','CALLBACK_BINDINGS','AUTHORITY_STATE',
+                 'SERVICE_CALL','SERVICE_SOURCE_GUARD','SERVICE_SOURCE_CAPTURE','SERVICE_SOURCE_READ',
+                 'SERVICE_PENDING','SERVICE_TRANSPORT_INIT','SERVICE_TRANSPORT_PREFLIGHT',
+                 'SERVICE_TRANSPORT_CLI','SERVICE_TRANSPORT_DIRECTORY','SERVICE_CANCEL_CONTEXT',
+                 'SERVICE_CANCEL_SIGNALS','SERVICE_CANCEL_ENTER','SERVICE_CANCEL_EXIT','OTHER')
         failure = self.startup_failure
         need(type(self.startup_phase) is str and self.startup_phase in phases and
              type(self.native_hook_entered) is bool and type(failure) is dict and
