@@ -4,7 +4,26 @@ October 12, 2026. This record tracks the complete `outline.md` scope; an impleme
 
 The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with owned tasks and corrective next actions in `docs/backlog.md`. The destination now explicitly requires the maintained ARM package repository, native performance engineering, integrated Apple stack, broader Cachy system experience, and complete installation/release lifecycle. Both Air sizes, published final measurements, independent onboarding/contribution, subsequent full-port maintenance release, other-ARM reuse and actual upstream submissions remain required; an early overlay release or feasibility decision would not complete the goal. This scope update does not change any recorded execution result.
 
-Latest coordinator update, October 13, 01:28 UTC. The native installer bridge
+Latest coordinator update, October 13, 02:05 UTC. Private installer packet
+mode implementation passes33 existing controls and18 new source/snapshot/private
+Git controls. Its exact selected union is265 files; the legacy union remains258.
+The Session graph source passes92 and independent review, preserving original159/
+view160/fixture125/recipes4/inputs71 and actor schemas. Private controller wiring,
+bridge-to-graph binding, issuer rebind and final per-run registration are active;
+actual native P0 remains NOT RUN. These source holds are not primary admission.
+
+The external bootstrap close-fault correction passes42 controls and independent
+old8/new12 causal vectors. Its specific source failure is closed; descriptor
+retirement stays UNKNOWN and cleanup fails after the modeled close fault. Data-only
+external envelope delivery and final265/clock/J registration remain unfinished.
+The frozen-four carrier's initial86 tests pass but independent review reproduces
+close-first-cause and allocation-handoff gaps. Corrections are in progress before
+adoption; no retry or signature bypass is admitted. Actual FDK9/updater10 remain
+input-acquisition FAIL on the four frozen Vim objects. Exact source/license delivery,
+public carrier, shared cache interfaces, payload batch and Zsh Session adapter remain
+active software work. No physical-machine or complete-release gate has changed.
+
+Prior coordinator update, October 13, 01:28 UTC. The native installer bridge
 source2 is published at `653df4c`; exact committed Git byte/mode proof and static
 CI `38331928767` PASS. Fresh92 controls and independent constant/code substitution
 checks close the self-namespace comparison defect, preserving all source, Config,
