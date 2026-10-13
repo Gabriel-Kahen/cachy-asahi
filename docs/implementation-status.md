@@ -4,7 +4,38 @@ October 12, 2026. This record tracks the complete `outline.md` scope; an impleme
 
 The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with owned tasks and corrective next actions in `docs/backlog.md`. The destination now explicitly requires the maintained ARM package repository, native performance engineering, integrated Apple stack, broader Cachy system experience, and complete installation/release lifecycle. Both Air sizes, published final measurements, independent onboarding/contribution, subsequent full-port maintenance release, other-ARM reuse and actual upstream submissions remain required; an early overlay release or feasibility decision would not complete the goal. This scope update does not change any recorded execution result.
 
-Latest coordinator update, October 13, 18:29 UTC. Root re-read the current outline,
+Latest coordinator update, October 13, 19:33 UTC. The complete R1–R5/M5–M9
+roadmap remains authoritative and the development goal remains active.
+
+Actual passive intake trial02 retains all 19 selected bodies (6,953 bytes) from
+nine archives: 4,984 members and 100,188,160 decoded bytes. Parent and child exit
+naturally with zero status, direct child reap, no TERM/KILL or cleanup errors.
+Independent retained review passes three corruption controls. The earlier Root
+frame01 used the wrong scope label and was refused before child launch; its failure
+is preserved. The bodies supply text for hook/account review, not Source, license,
+signature, account-effect, installation or image acceptance.
+[Actual body review](reviews/platform-systemd-sysusers-body-intake-actual02-root-review.md).
+
+The reviewed service-attribution source is published as Source `5a41a3d` with
+Data `59332b3`; all 271 Git blobs/modes and the external plan were checked.
+Actual ARM trial `38449904816` fails at construct-services with
+`TYPE_ERROR / SERVICE_CANCEL_EXIT`, hook entry false and cleanup PASS. Independent
+retained review passes. The enum narrows a Source routine; the inner predicate and
+private clock domain remain unvalidated. A local owned-child Python 3.14 signal
+context check passes and does not establish hosted Python 3.12 behavior.
+[Trial04 review](reviews/maintained-composed-38449904816-root-review.md).
+
+Topmem's isolated workflow Source `bf5ea66` passes all 125 Git row checks, source
+proof and official 501-input acquisition. Actual ARM trial `38450105697` passes
+the fresh baseline's eight builds, four comparisons and 249 signature observations,
+then fails in the parent signing phase before addon execution. The selected export
+reports `signing-failed`, addon counts zero and the owned image absent; full caller
+and signer journals and the precise signing predicate were not exported. Focused
+attribution is in development. Fish's 129 source files and separate policy are
+published at `23cc3cb`, with 130 Git rows verified; native Fish acceptance is pending.
+Its workflow preparation continues while the shared signing path is investigated.
+
+Prior coordinator update, October 13, 18:29 UTC. Root re-read the current outline,
 roadmap, goal, acceptance matrix and package inventory. The full R1–R5/M5–M9
 scope remains required; hardware access does not prevent independent software work.
 

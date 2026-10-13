@@ -2,6 +2,15 @@
 
 Coordinator: Lila in chat `01a12d58-9194-7643-81eb-fc9d62e4d923`. Source workers have bounded ownership in `docs/orchestration.md`; execution owners must reserve actual capacity before changing a shared machine. The full acceptance matrix is `docs/acceptance.md`.
 
+October 13, 19:33 UTC corrective batch: B18's passive 19-body intake passed an actual
+bounded child and independent retained review; hook/account semantics are being
+audited without executing those bodies. B18/B19 trial04 `38449904816` attributes
+the service TypeError to cancellation exit; the exact predicate remains unknown.
+B17 Topmem trial `38450105697` passes a fresh baseline 8/4/249, then fails in the
+parent signing phase before addon execution. Resolve that signing predicate before
+admitting a shared-path retry. Fish's 130 source/policy rows are committed and proved;
+workflow preparation can continue independently. Full R1–R5/M5–M9 remains required.
+
 October 13, 18:29 UTC corrective batch: the current outline/roadmap remain authoritative
 for R1–R5/M5–M9. B18/B19's fresh maintained trial `38444735786` reached
 service construction before TYPE_ERROR; its cleanup reports PASS and precise cause
