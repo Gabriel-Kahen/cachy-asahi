@@ -4,7 +4,30 @@ October 12, 2026. This record tracks the complete `outline.md` scope; an impleme
 
 The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with owned tasks and corrective next actions in `docs/backlog.md`. The destination now explicitly requires the maintained ARM package repository, native performance engineering, integrated Apple stack, broader Cachy system experience, and complete installation/release lifecycle. Both Air sizes, published final measurements, independent onboarding/contribution, subsequent full-port maintenance release, other-ARM reuse and actual upstream submissions remain required; an early overlay release or feasibility decision would not complete the goal. This scope update does not change any recorded execution result.
 
-Latest coordinator update, October 13, 01:23 UTC. The revised roadmap keeps
+Latest coordinator update, October 13, 01:28 UTC. The native installer bridge
+source2 is published at `653df4c`; exact committed Git byte/mode proof and static
+CI `38331928767` PASS. Fresh92 controls and independent constant/code substitution
+checks close the self-namespace comparison defect, preserving all source, Config,
+restrictive profile and deadline gates. Live Session graph/callback integration,
+final issuer rebind and actual native P0 remain pending, with a bounded worker
+now implementing the graph extension. This does not admit full installation.
+
+Independent review closes the composed recovery P1 on exact corrected parent
+sources: fresh187 controls PASS and causal old11FAIL/new12PASS. The same J reaches
+recovery and bounds selectors/retention; legacy calls retain empty kwargs. The
+Root-private258-file clock-literal candidate also passes187 controls, but is not
+live registered. External bootstrap construction and final265-file installer
+composition are pending; original159/view160/fixture125/recipes4/inputs71 stay fixed.
+
+A bounded FDK controller seeding hook is under implementation for only the four
+unchanged frozen Vim objects, before the producer but after complete source
+verification. It leaves original acquisition/signature checks intact. Exact public
+carrier/source-license/retention delivery is a separate active task. The next S01
+selection and borrowed Zsh Session adapter are active software work. No actual
+hardware, performance, complete payload/trust/install or maintained release gate
+has changed; full R1–R5/M5–M9 remains mandatory.
+
+Prior coordinator update, October 13, 01:23 UTC. The revised roadmap keeps
 R1–R5/M5–M9 mandatory. Reviewed KSM diagnostics are published at `bbc7d6a`, with
 actual committed154-file proof; kernel inner-result diagnostics at `cd0cb58`,
 with actual committed120-file proof. Other KSM150 rows and the kernel workflow
