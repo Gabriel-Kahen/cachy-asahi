@@ -6,6 +6,17 @@ roadmap, outline, acceptance matrix and current inventory before this audit.
 R1–R5 remain mandatory. The four native-built original packages are a useful
 foundation; their templates do not implement the complete CachyOS experience.
 
+October 13 implementation update: Root registers the separately licensed opt-in
+`cachy-asahi-fish-bang-bang` package after independent source and host Fish review.
+It provides `!!` and `!$` editing-buffer expansion with guarded bindings and seven
+package-owned files. Six focused Root controls pass on x86 Fish 4.9.3; retained
+independent terminal controls also pass. Native builds, package lifecycle, the
+declared Fish 4.0 floor and both Air sizes remain untested. The original Fish
+template and deferred whole-configuration disposition remain unchanged.
+[Review](../reviews/fish-history-module-root-review.md) and
+[implementation](../workstreams/fish-history-module.md) record the exact pin,
+notices, opt-in behavior and limitations.
+
 This work owns only this document. Sources were read from primary upstream
 repositories into temporary directories. No source script/PKGBUILD was executed,
 package built/installed, service/sysctl changed, key imported, or shared manifest

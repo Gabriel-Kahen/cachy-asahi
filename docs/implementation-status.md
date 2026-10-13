@@ -36,8 +36,11 @@ records the selected packet and limits.
 Topmem's second lifecycle proposal is blocked by public-repository directory
 permissions; the scoped correction is under independent review. Its actual
 before-cleanup caller, disposable test signing key and both journal recoveries
-are being implemented. Fish history, streamed archive intake and fresh image
-staging remain active. All R1–R5/M5–M9 requirements, both Air sizes, 16K runtime,
+are being implemented. Fish history's 12 package sources and separate development
+manifest entry are registered after independent host controls; read-only recipe
+and syntax checks pass. Native build/lifecycle integration remains active.
+Streamed archive intake and fresh image staging remain active. All R1–R5/M5–M9
+requirements, both Air sizes, 16K runtime,
 full installation/recovery and final measured performance remain unfinished.
 
 Prior coordinator update, October 13. The maintained native trial38350748733

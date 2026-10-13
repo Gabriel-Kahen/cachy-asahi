@@ -210,3 +210,19 @@ native_build = "NOT RUN"
 installation = "NOT RUN"
 hardware_validation = "NOT RUN"
 next_step = "Two clean native ARM package builds, signed ownership/install/remove checks and independent terminal use on both Air sizes. Current-user RSS inspection has no tuning or performance claim."
+
+[[packages]]
+name = "cachy-asahi-fish-bang-bang"
+phase = "complete-port-tools"
+status = "candidate"
+source = "https://github.com/oh-my-fish/plugin-bang-bang"
+upstream_commit = "ec991b80ba7d4dda7a962167b036efc5c2d79419"
+recipe = "packages/shells/cachy-asahi-fish-bang-bang/PKGBUILD"
+license = "MIT"
+audit = "docs/workstreams/fish-history-module.md"
+selected_for_development = true
+selected_for_release = false
+native_build = "NOT RUN"
+installation = "NOT RUN"
+hardware_validation = "NOT RUN"
+next_step = "Register exact recipe/local-source pins in the existing bounded addon build/compare path; run native ARM builds and package/user-configuration lifecycle, then both M2 Air terminal workflows."
