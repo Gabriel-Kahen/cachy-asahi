@@ -1300,21 +1300,39 @@ class Session:
                                     child=trace.tb_next
                                     # Saved restoration errors outlive the loop's current original.
                                     # Read only the direct API frame before its handler assignment.
-                                    template=next(code for code in code_objects(compile(
+                                    templates=tuple(next(code for code in code_objects(compile(prefix+
                                         'def signal(signalnum, handler):\n    handler = _signal.signal(_enum_to_int(signalnum), _enum_to_int(handler))\n    return _int_to_enum(handler, Handlers)\n',
-                                        '<closed-signal-api-shape>','exec')) if code.co_name == 'signal')
+                                        '<closed-signal-api-shape>','exec',dont_inherit=True)) if code.co_name == 'signal')
+                                        for prefix in ('import _signal\n',''))
+                                    template=templates[0]
                                     fields=('co_code','co_names','co_varnames','co_argcount','co_posonlyargcount',
-                                        'co_kwonlyargcount','co_freevars','co_cellvars','co_flags')
-                                    if (type(api) is types.ModuleType and api.__dict__.get('__name__') == 'signal' and
-                                        type(wrapper) is types.FunctionType and wrapper.__globals__ is api.__dict__ and
-                                        wrapper.__defaults__ is None and wrapper.__kwdefaults__ is None and wrapper.__closure__ is None and
-                                        len(wrapper.__code__.co_consts) == 1 and wrapper.__code__.co_consts[0] is None and
-                                        all(type(getattr(wrapper.__code__,key)) is type(getattr(template,key)) and
-                                            (all(type(item) is str for item in getattr(wrapper.__code__,key)) if type(getattr(template,key)) is tuple else True) and
-                                            getattr(wrapper.__code__,key) == getattr(template,key) for key in fields) and
-                                        type(child) is types.TracebackType and child.tb_frame.f_code is wrapper.__code__ and
-                                        child.tb_frame.f_globals is api.__dict__ and
-                                        any(start<=child.tb_lasti<end and line == 2 for start,end,line in template.co_lines())):
+                                        'co_kwonlyargcount','co_freevars','co_cellvars')
+                                    refusal=None
+                                    if type(api) is not types.ModuleType or type(api.__dict__.get('__name__')) is not str or api.__dict__['__name__'] != 'signal':
+                                        refusal='API_MODULE'
+                                    elif type(wrapper) is not types.FunctionType:
+                                        refusal='WRAPPER_TYPE'
+                                    elif wrapper.__globals__ is not api.__dict__:
+                                        refusal='WRAPPER_GLOBALS'
+                                    elif wrapper.__defaults__ is not None or wrapper.__kwdefaults__ is not None or wrapper.__closure__ is not None:
+                                        refusal='WRAPPER_STATE'
+                                    elif len(wrapper.__code__.co_consts) != 1 or wrapper.__code__.co_consts[0] is not None:
+                                        refusal='WRAPPER_CONSTANTS'
+                                    elif type(wrapper.__code__.co_flags) is not type(template.co_flags) or wrapper.__code__.co_flags != template.co_flags:
+                                        refusal='WRAPPER_FLAGS'
+                                    elif not any(all(type(getattr(wrapper.__code__,key)) is type(getattr(candidate,key)) and
+                                            (all(type(item) is str for item in getattr(wrapper.__code__,key)) if type(getattr(candidate,key)) is tuple else True) and
+                                            getattr(wrapper.__code__,key) == getattr(candidate,key) for key in fields) for candidate in templates):
+                                        refusal='WRAPPER_CODE'
+                                    elif type(child) is not types.TracebackType or child.tb_frame.f_code is not wrapper.__code__ or child.tb_frame.f_globals is not api.__dict__:
+                                        refusal='API_FRAME'
+                                    else:
+                                        template=next(candidate for candidate in templates if all(getattr(wrapper.__code__,key) == getattr(candidate,key) for key in fields))
+                                        if not any(start<=child.tb_lasti<end and line == template.co_firstlineno+1 for start,end,line in template.co_lines()):
+                                            refusal='API_OFFSET'
+                                    if refusal is not None:
+                                        site='SERVICE_CANCEL_EXIT_SET_HANDLER_'+refusal
+                                    else:
                                         original=child.tb_frame.f_locals['handler']
                                         handler_kind=('NONE' if original is None else
                                             'DEFAULT' if original is api.__dict__.get('SIG_DFL') or type(original) is int and original == 0 else
@@ -1366,7 +1384,12 @@ class Session:
                  'SERVICE_CANCEL_EXIT_SET_HANDLER_CALLABLE_BAD_HANDLER_API',
                  'SERVICE_CANCEL_EXIT_SET_HANDLER_CALLABLE_OTHER_TYPEERROR',
                  'SERVICE_CANCEL_EXIT_SET_HANDLER_OTHER_BAD_HANDLER_API',
-                 'SERVICE_CANCEL_EXIT_SET_HANDLER_OTHER_OTHER_TYPEERROR','OTHER')
+                 'SERVICE_CANCEL_EXIT_SET_HANDLER_OTHER_OTHER_TYPEERROR',
+                 'SERVICE_CANCEL_EXIT_SET_HANDLER_API_MODULE','SERVICE_CANCEL_EXIT_SET_HANDLER_WRAPPER_TYPE',
+                 'SERVICE_CANCEL_EXIT_SET_HANDLER_WRAPPER_GLOBALS','SERVICE_CANCEL_EXIT_SET_HANDLER_WRAPPER_STATE',
+                 'SERVICE_CANCEL_EXIT_SET_HANDLER_WRAPPER_CONSTANTS','SERVICE_CANCEL_EXIT_SET_HANDLER_WRAPPER_FLAGS',
+                 'SERVICE_CANCEL_EXIT_SET_HANDLER_WRAPPER_CODE','SERVICE_CANCEL_EXIT_SET_HANDLER_API_FRAME',
+                 'SERVICE_CANCEL_EXIT_SET_HANDLER_API_OFFSET','OTHER')
         failure = self.startup_failure
         need(type(self.startup_phase) is str and self.startup_phase in phases and
              type(self.native_hook_entered) is bool and type(failure) is dict and

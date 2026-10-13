@@ -1526,7 +1526,7 @@ class ServiceAttributionModels(unittest.TestCase):
         module.signal=types.SimpleNamespace(SIG_BLOCK=0,SIG_SETMASK=1,pthread_sigmask=lambda *a:set(),getsignal=lambda n:handlers[n],signal=setter,sigpending=lambda:set())
         context=module.defer_cancellation();context.__enter__()
         error=self.error(lambda:context.__exit__(None,None,None))
-        self.assertEqual(session.service_failure_site(error),'SERVICE_CANCEL_EXIT_SET_HANDLER')
+        self.assertEqual(session.service_failure_site(error),'SERVICE_CANCEL_EXIT_SET_HANDLER_API_MODULE')
         self.assertEqual(module.PENDING,[])
 
     def test_foreign_provenance_optional_failure_first_cause_privacy(self):
@@ -1603,7 +1603,7 @@ class CancellationExitAttributionModels(unittest.TestCase):
         return session,common,error
 
     def test_seven_exact_exit_api_sites_and_unchanged_errors(self):
-        labels={'block':'BLOCK','set':'SET_HANDLER','get':'HANDLER_CHECK','query':'PENDING_CHECK',
+        labels={'block':'BLOCK','set':'SET_HANDLER_API_MODULE','get':'HANDLER_CHECK','query':'PENDING_CHECK',
                 'wait':'PENDING_WAIT','mask':'SET_MASK','replay':'REPLAY'}
         for operation,suffix in labels.items():
             with self.subTest(operation=operation):
@@ -1711,12 +1711,12 @@ class HandlerArgumentAttributionModels(unittest.TestCase):
         session.sources.grant['source_files'][path]['sha256']=pin
         original=common.signal.signal
         common.signal.signal=lambda *a:None
-        self.assertEqual(session.service_failure_site(error),'SERVICE_CANCEL_EXIT_SET_HANDLER')
+        self.assertEqual(session.service_failure_site(error),'SERVICE_CANCEL_EXIT_SET_HANDLER_WRAPPER_GLOBALS')
         common.signal.signal=original
         class Poison:
             def __eq__(self, other): raise AssertionError('opaque equality must never run')
         common.signal.signal=types.FunctionType(original.__code__.replace(co_consts=(Poison(),)),original.__globals__)
-        self.assertEqual(session.service_failure_site(error),'SERVICE_CANCEL_EXIT_SET_HANDLER')
+        self.assertEqual(session.service_failure_site(error),'SERVICE_CANCEL_EXIT_SET_HANDLER_WRAPPER_CONSTANTS')
         common.signal.signal=original
         name=common.__file__; common.__file__='/foreign'
         self.assertEqual(session.service_failure_site(error),'OTHER'); common.__file__=name
@@ -1739,5 +1739,93 @@ class HandlerArgumentAttributionModels(unittest.TestCase):
         session.startup_failure=None;session.service_failure_site=lambda error:(_ for _ in ()).throw(KeyboardInterrupt())
         session.startup_failed(error);self.assertEqual(session.startup_failure,{'phase':'construct-services','kind':'TYPE_ERROR','site':'OTHER'})
         self.assertEqual(session.result,before);self.assertEqual((error.args,error.__traceback__),exception_before)
+
+class SignalWrapperCompatibilityModels(unittest.TestCase):
+    """Pinned CPython body shape; inert signal API and exact project code only."""
+    model=ServiceAttributionModels.model
+    error=ServiceAttributionModels.error
+    MESSAGE=HandlerArgumentAttributionModels.MESSAGE
+    # Same body in pinned CPython 3.12.3 and 3.14.0; Python-2.0 provenance retained.
+    BODY='def signal(signalnum, handler):\n    handler = _signal.signal(_enum_to_int(signalnum), _enum_to_int(handler))\n    return _int_to_enum(handler, Handlers)\n'
+
+    def failure(self,original=None,text=None,variant=None,context='bare'):
+        import __future__
+        session,modules=self.model();common=modules['common'];api=types.ModuleType('signal')
+        handlers={2:original,15:0};first=TypeError(self.MESSAGE if text is None else text);restoring=[False]
+        def setter(number,value):
+            restoring[0]=number==2 and value is original
+            if restoring[0] and variant!='OFFSET':raise first
+            previous=handlers[number];handlers[number]=value;return previous
+        def convert(value,kind):
+            if variant=='OFFSET' and restoring[0]:raise first
+            return value
+        api.__dict__.update(_signal=types.SimpleNamespace(signal=setter),_enum_to_int=lambda value:value,
+            _int_to_enum=convert,Handlers=object(),SIG_DFL=0,SIG_IGN=1,SIG_BLOCK=0,SIG_SETMASK=1,
+            pthread_sigmask=lambda *a:set(),getsignal=lambda n:handlers[n],sigpending=lambda:set())
+        flags=__future__.annotations.compiler_flag if variant=='FLAGS' else 0
+        prefix='import _signal\n' if context=='module' else ''
+        code=next(code for code in adapter.code_objects(compile(prefix+self.BODY,'<closed-pinned-signal-body>','exec',flags=flags,dont_inherit=True)) if code.co_name=='signal')
+        api.signal=types.FunctionType(code,api.__dict__)
+        if variant=='STATE':api.signal.__defaults__=(0,)
+        if variant=='CONSTANTS':api.signal.__code__=api.signal.__code__.replace(co_consts=(object(),))
+        if variant=='CODE':api.signal.__code__=api.signal.__code__.replace(co_varnames=('signalnum','replacement'))
+        common.signal=api;context=common.defer_cancellation();context.__enter__()
+        error=self.error(lambda:context.__exit__(None,None,None));self.assertIs(error,first);self.assertEqual(common.PENDING,[])
+        if variant=='MODULE':api.__name__='foreign'
+        if variant=='TYPE':api.signal=object()
+        if variant=='GLOBALS':api.signal=types.FunctionType(api.signal.__code__,dict(api.__dict__))
+        if variant=='FRAME':api.signal=types.FunctionType(api.signal.__code__.replace(),api.__dict__)
+        return session,error,common
+
+    def test_selected_body_keeps_all_ten_handler_observations(self):
+        for context in ('bare','module'):
+            for kind,value in (('NONE',None),('DEFAULT',0),('IGNORE',1),('CALLABLE',lambda:None),('OTHER',object())):
+                for text,code in ((None,'BAD_HANDLER_API'),('PRIVATE /never/export','OTHER_TYPEERROR')):
+                    session,error,common=self.failure(value,text,context=context);before=(error.args,error.__traceback__)
+                    self.assertEqual(session.service_failure_site(error),'SERVICE_CANCEL_EXIT_SET_HANDLER_'+kind+'_'+code)
+                    self.assertEqual((error.args,error.__traceback__),before)
+
+    def test_nine_closed_refusals_keep_handler_unobserved(self):
+        suffixes={'MODULE':'API_MODULE','TYPE':'WRAPPER_TYPE','GLOBALS':'WRAPPER_GLOBALS','STATE':'WRAPPER_STATE',
+            'CONSTANTS':'WRAPPER_CONSTANTS','FLAGS':'WRAPPER_FLAGS','CODE':'WRAPPER_CODE','FRAME':'API_FRAME','OFFSET':'API_OFFSET'}
+        for variant,suffix in suffixes.items():
+            with self.subTest(variant=variant):
+                session,error,common=self.failure(variant=variant);before=(error.args,error.__traceback__)
+                self.assertEqual(session.service_failure_site(error),'SERVICE_CANCEL_EXIT_SET_HANDLER_'+suffix)
+                self.assertEqual((error.args,error.__traceback__),before)
+
+    def test_closed_projection_first_cause_and_optional_fault(self):
+        import ast,copy
+        session,error,common=self.failure(variant='FLAGS')
+        owner=next(node for node in ast.parse((ROOT/'scripts/ci/development/repository_handoff.py').read_bytes()).body if isinstance(node,ast.ClassDef) and node.name=='Session')
+        init=next(node for node in owner.body if isinstance(node,ast.FunctionDef) and node.name=='__init__')
+        state=next(node.value for node in init.body if isinstance(node,ast.Assign) and any(isinstance(target,ast.Attribute) and target.attr=='result' for target in node.targets))
+        session.result=eval(compile(ast.Expression(state),'inert-result-literal','eval'),{'self':session,'sources':session.sources})
+        session.result.update(status='FAIL',error_code='source-refused',cleanup='PASS');session.native_hook_entered=False
+        result=copy.deepcopy(session.result);before=(error.args,error.__traceback__)
+        session.startup_failed(error);failure=dict(session.startup_failure);projection=session.startup_projection()
+        self.assertEqual(projection['site'],'SERVICE_CANCEL_EXIT_SET_HANDLER_WRAPPER_FLAGS')
+        self.assertEqual((projection['status'],projection['error_code'],projection['cleanup']),('FAIL','source-refused','PASS'))
+        self.assertFalse(projection['native_hook_entered']);self.assertEqual(len(projection),9);self.assertLessEqual(len(adapter.encoded(projection)),1024)
+        self.assertNotIn('PRIVATE',adapter.encoded(projection).decode());session.startup_failed(TypeError('later'));self.assertEqual(session.startup_failure,failure)
+        def broken(error):raise KeyboardInterrupt()
+        session.service_failure_site=broken;session.startup_failure=None;session.startup_failed(error)
+        self.assertEqual(session.startup_failure,{'phase':'construct-services','kind':'TYPE_ERROR','site':'OTHER'})
+        self.assertEqual(session.result,result);self.assertEqual((error.args,error.__traceback__),before)
+
+    def test_ambient_future_context_keeps_standard_wrapper(self):
+        import ast,__future__
+        flags=__future__.annotations.compiler_flag
+        raw=(ROOT/'scripts/ci/development/repository_handoff.py').read_bytes()
+        module=types.ModuleType('inert_future_wrapper_adapter');module.__file__=str(ROOT/'scripts/ci/development/repository_handoff.py')
+        exec(compile(raw,module.__file__,'exec',flags=flags,dont_inherit=True),module.__dict__)
+        nodes=[node for node in ast.parse((ROOT/'scripts/ci/development/test_repository_handoff.py').read_bytes()).body
+            if isinstance(node,ast.ClassDef) and node.name in ('ServiceAttributionModels','HandlerArgumentAttributionModels','SignalWrapperCompatibilityModels')]
+        namespace=dict(unittest=unittest,adapter=module,types=types,Path=Path,ROOT=ROOT)
+        exec(compile(ast.Module(body=nodes,type_ignores=[]),'<inert-future-models>','exec',flags=flags,dont_inherit=True),namespace)
+        model=namespace['SignalWrapperCompatibilityModels']('test_selected_body_keeps_all_ten_handler_observations')
+        for context in ('bare','module'):
+            session,error,common=model.failure(context=context)
+            self.assertEqual(session.service_failure_site(error),'SERVICE_CANCEL_EXIT_SET_HANDLER_NONE_BAD_HANDLER_API')
 
 if __name__ == '__main__':unittest.main()
