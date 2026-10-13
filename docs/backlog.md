@@ -2,6 +2,14 @@
 
 Coordinator: Lila in chat `01a12d58-9194-7643-81eb-fc9d62e4d923`. Source workers have bounded ownership in `docs/orchestration.md`; execution owners must reserve actual capacity before changing a shared machine. The full acceptance matrix is `docs/acceptance.md`.
 
+October 13, 20:39 UTC corrective batch: B17 trial03 `38463181445` now identifies
+errno13 at the signer process-executable readlink expression. Correct direct-owned
+child identity and cleanup without guessed PIDs, weakened identity or hardening
+changes; independently review retained evidence and proposed runtime correction.
+B18/B19's unmatched signal refinement needs bounded predicate attribution.
+Exact selected recipe custody remains external; coverage reconciliation and compiled
+updater preparation continue in parallel, with full R1–R5/M5–M9 scope active.
+
 October 13, 20:26 UTC corrective batch: B18/B19 trial06 `38462431231` keeps
 the restoration-setter TypeError and does not match the new argument refinement.
 Diagnose exact hosted wrapper compatibility before another attribution retry;

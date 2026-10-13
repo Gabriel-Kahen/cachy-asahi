@@ -4,7 +4,22 @@ October 12, 2026. This record tracks the complete `outline.md` scope; an impleme
 
 The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with owned tasks and corrective next actions in `docs/backlog.md`. The destination now explicitly requires the maintained ARM package repository, native performance engineering, integrated Apple stack, broader Cachy system experience, and complete installation/release lifecycle. Both Air sizes, published final measurements, independent onboarding/contribution, subsequent full-port maintenance release, other-ARM reuse and actual upstream submissions remain required; an early overlay release or feasibility decision would not complete the goal. This scope update does not change any recorded execution result.
 
-Latest coordinator update, October 13, 20:30 UTC. Caller-only I/O diagnostic
+Latest coordinator update, October 13, 20:39 UTC. Topmem ARM trial
+`38463181445` passes the fresh baseline 8/4/249, then fails with the closed
+Source observation `io-failed / start / PROC_EXE_READLINK / errno 13`.
+The failure identifies denied process-executable link access; its underlying
+permission policy or dumpability is unproved. Addon counts remain zero and signer
+recovery remains FAIL/refused, with no agent/keyhome absence proof. The six-file
+retention is sealed; independent review and a process-ownership correction are
+active. No historical cleanup or cause is backfilled.
+
+Exact selected sysusers/pacman recipe correspondence remains unresolved after a
+finite official-source search. Further source and builder custody is required;
+other software tasks continue: hosted signal-wrapper attribution, maintained
+coverage/input reconciliation and compiled updater input preparation. The full
+R1–R5/M5–M9 goal remains ACTIVE; hardware and maintained-release gates stay open.
+
+Prior coordinator update, October 13, 20:30 UTC. Caller-only I/O diagnostic
 source passes independent review with five focused groups and 17 inert rows.
 The signer and all other shared bodies remain unchanged. Source `9710bcf` verifies
 125 Topmem rows and exact Source-variable readback; static CI `38463181409` passes.
