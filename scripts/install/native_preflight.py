@@ -19,10 +19,10 @@ import types
 
 HANDOFF = 'scripts/ci/development/repository_handoff.py'
 # Root must rebind after any separately reviewed issuer change.
-ISSUER_SHA = '5a4a6d7cd7a58b40a89428da76fd882ab5d80bb12b6457844354589242469c0e'
+ISSUER_SHA = 'be18bc225dea124d5a0b63f1653ad13daf7f0d82428735626de19f90ad77a441'
 RECEIVER = 'scripts/install/native_arm_trial.py'
-RECEIVER_SHA = 'fe2becb4fe6c22e50903ab390db5a79aae311b7284fc71bf4b1c4b79e99824c4'
-PROFILE_SHA = 'b7fbd65e357e132949432fb00e765a05e3c76ea29a41d1df93413870d9fd1ed8'
+RECEIVER_SHA = '733a1198799790675afd25df8113191a158549992882a2e48cd1cbd4b34a95da'
+PROFILE_SHA = 'db58bda8102ce098eded530f0920c21c1f09cb7a6cfb1d03ab84f0dfbf63d3f7'
 OWN = 'scripts/install/native_preflight.py'
 SOURCE_PATHS = ('scripts/install/local_transaction.py', 'scripts/install/test_local_transaction.py',
                 RECEIVER, 'scripts/install/test_native_arm_trial.py', 'scripts/port/kernel-native-job/runtime.py')
@@ -151,7 +151,7 @@ def live(session, controller, end):
     methods['graph_namespace'](sources,own_module,OWN,{OWN:own_module},{},{})
     namespace(own_module,raw[OWN],rows[OWN]['sha256'])
     graph=methods['source_graph'](sources,session); selected=state.get('source_graph'); composition=state.get('composition')
-    need(type(composition) is str and composition=='installer-preflight' and type(selected) is dict and
+    need(type(composition) is str and composition=='installer-preflight-maintained-v1' and type(selected) is dict and
          all(type(key) is str for key in selected) and set(selected)=={
              'entry','runtime','collector','phase','original','original_aliases','native_preflight'} and
          selected['native_preflight'] is own_module and type(graph) is dict and
@@ -197,7 +197,7 @@ def image_handoff(observed, controller, receiver, inputs_raw, packages_raw):
 def selection(sources, controller, receiver, handoff, nonce):
     need(type(nonce) is str and re.fullmatch('[0-9a-f]{32}',nonce), 'NONCE')
     need(sha(receiver.PROFILE_BYTES) == PROFILE_SHA, 'PROFILE_PIN')
-    value = dict(schema_version=1,purpose='native-arm-synthetic-installer',phase='preflight',
+    value = dict(schema_version=1,purpose='maintained-native-arm-synthetic-installer-v1',phase='preflight',
         source_commit=controller.commit,sources={name:{'size':len(sources.raw[name]),'sha256':sha(sources.raw[name])}
         for name in SOURCE_PATHS},tool_profile_sha256=PROFILE_SHA,native_inputs_sha256=receiver.INPUTS_SHA,
         builder_packages_sha256=receiver.BASE_SHA,image_id=controller.image,

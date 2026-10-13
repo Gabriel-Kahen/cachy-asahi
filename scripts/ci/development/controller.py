@@ -140,7 +140,7 @@ def workflow_clock(raw, *, entry, controller_entry=None):
 
 
 def original_argv(output, cache, pins):
-    view = output / 'repository-handoff/original-view'
+    view = output / 'repository-handoff/maintained-view'
     result = ['integration']
     for flag, name in (('inputs','inputs.lock.json'), ('recipes','recipes.lock.json'), ('integration','integration.lock.json')):
         result.extend(('--' + flag, str(view / 'scripts/ci' / name), '--' + flag + '-sha256', pins['scripts/ci/' + name]))
@@ -151,7 +151,10 @@ def original_argv(output, cache, pins):
 def composed_mode(source_packet, composition):
     require(type(composition) is str and composition in packet.COMPOSED_MODES and
             type(source_packet) is dict and type(source_packet.get('schema_version')) is int and
-            source_packet['schema_version'] == 2 and type(source_packet.get('composition')) is str and
+            source_packet['schema_version'] == 3 and type(source_packet.get('composition')) is str and
+            source_packet.get('baseline_id') == packet.BASELINE_ID and source_packet.get('lineage') == packet.LINEAGE and
+            type(source_packet.get('source_files')) is dict and
+            len(source_packet['source_files']) == {packet.COMPOSITION:259,packet.INSTALLER_COMPOSITION:266}[composition] and
             source_packet['composition'] == composition, 'composed-packet-contract-refused')
     return composition
 
@@ -312,7 +315,7 @@ class Development:
                        'development_only': True, 'selected_for_release': False, 'hardware_validation': 'NOT RUN',
                        'performance_acceptance': 'NOT RUN', 'production_trust': 'NOT RUN',
                        'source_commit': os.environ.get('GITHUB_SHA'), 'initial_integration': 'NOT RUN',
-                       'publication': 'NOT RUN', 'stages': {name: {'status': 'NOT RUN', 'prerequisite': 'initial-build-not-completed'}
+                       'baseline_id':packet.BASELINE_ID, 'lineage':packet.LINEAGE, 'publication': 'NOT RUN', 'stages': {name: {'status': 'NOT RUN', 'prerequisite': 'initial-build-not-completed'}
                                                      for name in STAGES}}
         self.public = []
         self.callback_entered = False
@@ -363,7 +366,7 @@ class Development:
             within(self.deadline)
             signal.setitimer(signal.ITIMER_REAL, self.deadline - time.monotonic())
         require(type(self.composition) is str and self.composition in packet.COMPOSED_MODES, 'composed-packet-contract-refused')
-        if self.deadline is not None and self.packet.get('schema_version') == 2:
+        if self.deadline is not None and self.packet.get('schema_version') == 3:
             composed_mode(self.packet,self.composition)
         if self.composition == packet.INSTALLER_COMPOSITION:
             return self.consume_installer(controller)
@@ -1050,7 +1053,7 @@ def publish(development, bundle, emit=print):
             if path.exists() or initial_status.get('stages', {}).get(stage, {}).get('status') == 'PASS':
                 roots.append(path)
     records = []
-    if development.packet.get('schema_version') == 2:
+    if development.packet.get('schema_version') == 3:
         try:
             require(development.publication_deadline is not None,'publication-deadline-required')
             data = phase_bundle(phase_capture(development,development.publication_deadline),development.publication_deadline)
@@ -1092,7 +1095,7 @@ def publish(development, bundle, emit=print):
     stages = report['stages']
     required = (report.get('initial_integration') == 'PASS' and report.get('initial_cleanup', {}).get('status') == 'PASS'
                 and not report.get('cancelled') and report['publication'] == 'PASS')
-    if development.packet.get('schema_version') == 2:
+    if development.packet.get('schema_version') == 3:
         repository = report.get('repository_handoff',{})
         required = required and repository.get('status') == repository.get('cleanup') == repository.get('restage') == repository.get('input_acceptance') == 'PASS' and report.get('repository_publication') == 'PASS'
     required = required and all(stages[name]['status'] == 'PASS' for name in STAGES[:-1])
@@ -1326,7 +1329,7 @@ def main(argv=None):
     parser.add_argument('--cache', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--check-only', action='store_true')
-    parser.add_argument('--composition',choices=packet.COMPOSED_MODES)
+    parser.add_argument('--composition',choices=packet.COMPOSED_MODES,required=True)
     parser.add_argument('--controller-entry-monotonic',type=float)
     for name in ('clock','execution-grant','runtime-contract'):
         parser.add_argument('--'+name,type=Path)

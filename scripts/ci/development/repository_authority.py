@@ -18,11 +18,11 @@ import types
 
 FILE_LIMIT = 8 * 1024**2
 TOTAL_LIMIT = 64 * 1024**2
-INITIAL = 'd4d603146f094c86242eaafbb887042959c510c9bb948579dd749d065dd8fc31'
+INITIAL = '5d0f6b1d335c1949965699d4db6658af313af8977079e9a6464f0e5db4071ed3'
 POLICY = 'ff424921c5be38799f64e5c6264bb098cf71737d7be83608a4c91dee83f0365e'
 LICENSE = '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7'
-PHASE_MAP = '5718ca6cda60d7f6c02952cba7e92ff46666e20f8252ce7c1cdf722825ec2e43'
-PHASE_GATE = 'c6d37e45f7452b5d058a8b69622a36de3d73842d5cf20c799c9631e59853be2a'
+PHASE_MAP = '31f014bd44c2d1aaf1503fffd8f682019542b31592bf9337590a2ef695ec108b'
+PHASE_GATE = '8cc9dd323d4022504064a4206ffb8873368b3d97f6ed5af68e67e935a511c14c'
 HANDOFF = 'scripts/ci/development/repository_handoff.py'
 OWN = 'scripts/ci/development/repository_authority.py'
 RUNTIME = 'scripts/port/repository-native-handoff'
@@ -371,7 +371,7 @@ class RootCallbacks:
         rows = grant.get('source_files'); need(type(rows) is dict and OWN in rows and HANDOFF in rows, 'grant-refused')
         handoff = load_module(root, '_repository_authority_handoff', HANDOFF, rows[HANDOFF], deadline)
         sources = handoff.preflight(root, self._grant_raw, self._grant_pin, deadline=deadline)
-        need(grant['original_view']['root'] == str(Path(self._output)/'original-view'),'grant-refused')
+        need(grant['baseline_view']['root'] == str(Path(self._output)/'maintained-view'),'grant-refused')
         need(grant['maps']['phase']['sha256'] == PHASE_MAP and
              rows[PHASE+'/gate.py']['sha256'] == PHASE_GATE, 'source-refused')
         authenticate_class(self, 'RootCallbacks', root/OWN, sources.raw[OWN])
@@ -423,9 +423,9 @@ class RootCallbacks:
         controller = session.controller
         context = session.original_context(deadline=deadline,controller=controller)
         need(type(context) is dict and set(context) == {'root','receipt','sha256','original','aliases'} and
-             context['root'] == Path(grant['original_view']['root']) and
+             context['root'] == Path(grant['baseline_view']['root']) and
              type(context['receipt']) is bytes and digest(context['receipt']) == context['sha256'] and
-             decode(context['receipt'])['selection'] == grant['original_view'] and
+             decode(context['receipt'])['selection'] == grant['baseline_view'] and
              type(controller) is context['original']['integration'].Controller,'context-refused')
         session.sources.source_graph(session)
         authenticate_class(controller, 'Controller', context['root']/'scripts/ci/integration.py',

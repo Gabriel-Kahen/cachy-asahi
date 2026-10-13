@@ -23,7 +23,7 @@ import time
 import types
 
 FILE_LIMIT, TOTAL_LIMIT = 8 * 1024**2, 64 * 1024**2
-INITIAL = 'd4d603146f094c86242eaafbb887042959c510c9bb948579dd749d065dd8fc31'
+INITIAL = '5d0f6b1d335c1949965699d4db6658af313af8977079e9a6464f0e5db4071ed3'
 POLICY = 'ff424921c5be38799f64e5c6264bb098cf71737d7be83608a4c91dee83f0365e'
 LICENSE = '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7'
 BLOCKED_RUNTIME_MAP = '9e6aa90e3cf9f6fc65bb8d410ec5acdbdfe2024f0bd1462cd51d52a5479d085e'
@@ -378,9 +378,9 @@ class Sources:
         self.class_state(self,'scripts/ci/development/repository_handoff.py',module)
         graph = state['source_graph']
         composition = state.get('composition')
-        need(type(composition) is str and composition in ('repository-svg','installer-preflight','repository-svg-zsh'),'callback-refused')
+        need(type(composition) is str and composition in ('repository-svg-maintained-v1','installer-preflight-maintained-v1'),'callback-refused')
         fields = {'entry','runtime','collector','phase','original','original_aliases'}
-        if composition == 'installer-preflight':fields.add('native_preflight')
+        if composition == 'installer-preflight-maintained-v1':fields.add('native_preflight')
         if composition == 'repository-svg-zsh':fields.add('zsh')
         need(type(graph) is dict and (not graph or set(graph) == fields),
              'callback-refused')
@@ -404,7 +404,7 @@ class Sources:
                 need(all(context['original'][name] is value for name,value in graph['original'].items()),'callback-refused')
             for name,value in graph['original'].items():modules[original[name]] = value
             installer = None
-            if composition == 'installer-preflight':
+            if composition == 'installer-preflight-maintained-v1':
                 installer = graph['native_preflight']
                 installer_path,name,qualname = ('scripts/install/native_preflight.py','native_install_preflight','run')
                 need(type(installer) is types.ModuleType and type(installer.__name__) is str and installer.__name__ == name and
@@ -929,7 +929,7 @@ def preflight(root, grant_raw, grant_pin, *, deadline):
     need(set(grant) == {'schema_version', 'purpose', 'source_peer_preflight', 'development_only',
         'added_seconds', 'source_commit', 'recipe_source_commit', 'run_id', 'run_attempt',
         'source_files', 'maps', 'callbacks', 'policy_path', 'license_path','actor_contract_sha256',
-        'initial_invocation_sha256','original_view'} and
+        'initial_invocation_sha256','baseline_view'} and
         type(grant['schema_version']) is int and grant['schema_version'] == 2 and
         grant['purpose'] == 'reviewed-same-job-handoff-execution' and
         grant['source_peer_preflight'] == 'PASS' and grant['development_only'] is True and
@@ -947,11 +947,12 @@ def preflight(root, grant_raw, grant_pin, *, deadline):
     lock = decode(sources.raw[initial])
     need(len(lock['source_files']) == 159 and len(lock['generated_fixture_files']) == 125 and
          all(grant['source_files'].get(name) == row for name, row in lock['source_files'].items()), 'source-refused')
-    view = grant['original_view']
+    view = grant['baseline_view']
     need(type(view) is dict and set(view) == {'schema_version','purpose','full_source_root','root',
-         'integration_lock_sha256','source_rows_sha256','file_count','argv_mode'} and
-         type(view['schema_version']) is int and view['schema_version'] == 1 and
-         view['purpose'] == 'original-159-copy-view' and view['full_source_root'] == str(sources.root) and
+         'integration_lock_sha256','source_rows_sha256','file_count','argv_mode','baseline_id'} and
+         type(view['schema_version']) is int and view['schema_version'] == 2 and
+         view['baseline_id'] == 'maintained-native-baseline-v1-vim-9.2.1178-1' and
+         view['purpose'] == 'maintained-v1-159-copy-view' and view['full_source_root'] == str(sources.root) and
          type(view['root']) is str and Path(view['root']).is_absolute() and '..' not in Path(view['root']).parts and
          view['integration_lock_sha256'] == INITIAL and
          view['source_rows_sha256'] == digest(encoded(lock['source_files'])) and
@@ -1133,9 +1134,9 @@ def authority_matches(candidate, accepted):
 
 class Session:
     """One original producer plus one deadline-bound baseline/phase consumer."""
-    def __init__(self, sources, output, *, job_deadline, cancelled=None, composition='repository-svg'):
+    def __init__(self, sources, output, *, job_deadline, cancelled=None, composition='repository-svg-maintained-v1'):
         check(job_deadline, cancelled)
-        need(type(composition) is str and composition in ('repository-svg','installer-preflight','repository-svg-zsh'),'grant-refused')
+        need(type(composition) is str and composition in ('repository-svg-maintained-v1','installer-preflight-maintained-v1'),'grant-refused')
         self.composition = composition
         self.sources, self.output = sources, Path(output).absolute()
         self.job_deadline, self.cancelled = job_deadline, cancelled
@@ -1162,7 +1163,7 @@ class Session:
 
     def register_native_preflight(self):
         """Explicit source-only registration before the first dependency capture."""
-        need(type(self.composition) is str and self.composition == 'installer-preflight' and self.used is True and self.controller is None and
+        need(type(self.composition) is str and self.composition == 'installer-preflight-maintained-v1' and self.used is True and self.controller is None and
              self.sources.graph_observation is None and type(self.source_graph) is dict and
              set(self.source_graph) == {'entry','runtime','collector','phase','original','original_aliases'} and
              not self.source_graph['original'] and not self.source_graph['original_aliases'], 'callback-refused')
@@ -1259,8 +1260,8 @@ class Session:
     def view_plan(self, argv):
         grant = self.sources.grant
         need(type(grant.get('schema_version')) is int and grant['schema_version'] == 2,'grant-refused')
-        need(grant.get('schema_version') == 2 and type(grant.get('original_view')) is dict,'grant-refused')
-        plan = grant['original_view'];root = self.output/'original-view'
+        need(grant.get('schema_version') == 2 and type(grant.get('baseline_view')) is dict,'grant-refused')
+        plan = grant['baseline_view'];root = self.output/'maintained-view'
         need(plan['root'] == str(root) and plan['full_source_root'] == str(self.sources.root) and
              not root.is_relative_to(self.sources.root),'grant-refused')
         selected = {}
@@ -1283,11 +1284,11 @@ class Session:
         return root
 
     def prepare_view(self, root):
-        """One original159+lock copy; original budget, no actor or E renewal."""
+        """One maintained159+lock copy; original producer budget, no actor or E renewal."""
         deadline = self.job_deadline
         self.sources.guard(deadline,self.cancelled)
-        need(self.view_root is None and root == self.output/'original-view' and
-             str(root) == self.sources.grant['original_view']['root'] and
+        need(self.view_root is None and root == self.output/'maintained-view' and
+             str(root) == self.sources.grant['baseline_view']['root'] and
              not root.exists() and not root.is_symlink(),'source-refused')
         lock = decode(self.sources.raw['scripts/ci/integration.lock.json'])
         rows = {**lock['source_files'],'scripts/ci/integration.lock.json':{'sha256':INITIAL,'mode':0o644}}
@@ -1334,8 +1335,8 @@ class Session:
                 if parent == root:break
                 relative_parent = parent.relative_to(root).as_posix()
                 directories[relative_parent] = list(identity(parent.lstat()))
-        receipt = {'schema_version':1,'purpose':'original-159-copy-custody',
-            'selection':self.sources.grant['original_view'],
+        receipt = {'schema_version':1,'purpose':'maintained-v1-159-copy-custody',
+            'selection':self.sources.grant['baseline_view'],
             **{key:self.sources.grant[key] for key in ('source_commit','run_id','run_attempt',
                  'actor_contract_sha256','initial_invocation_sha256')},
             'execution_grant_sha256':self.sources.grant_pin,'view_node':list(self.view_node),
@@ -1355,7 +1356,7 @@ class Session:
         need(set(receipt) == {'schema_version','purpose','selection','source_commit','run_id','run_attempt',
              'actor_contract_sha256','initial_invocation_sha256','execution_grant_sha256','view_node','parent_node',
              'directories','files','file_count','bytes'} and type(receipt['schema_version']) is int and
-             receipt['schema_version'] == 1 and receipt['purpose'] == 'original-159-copy-custody' and
+             receipt['schema_version'] == 1 and receipt['purpose'] == 'maintained-v1-159-copy-custody' and
              type(receipt['file_count']) is int and receipt['file_count'] == 160 and
              all(receipt[key] == self.sources.grant[key] for key in ('source_commit','run_id','run_attempt',
                  'actor_contract_sha256','initial_invocation_sha256')) and
@@ -1363,7 +1364,7 @@ class Session:
         stable = lambda row:(row[0],row[1],row[2],row[4],row[5])
         need(stable(identity(self.view_root.lstat())) == stable(self.view_node) and
              stable(identity(self.view_root.parent.lstat())) == stable(self.view_parent_node) and
-             self.view_root == self.output/'original-view' and receipt['selection'] == self.sources.grant['original_view']
+             self.view_root == self.output/'maintained-view' and receipt['selection'] == self.sources.grant['baseline_view']
              and receipt['execution_grant_sha256'] == self.sources.grant_pin,'source-refused')
         expected = self.sources.original_rows
         locked = {**decode(self.sources.raw['scripts/ci/integration.lock.json'])['source_files'],
@@ -1664,7 +1665,7 @@ class Session:
             self.prepare_view(view_root)
             self.source_graph = {'entry':entry,'runtime':modules,'collector':collector,'phase':phase,
                                  'original':{},'original_aliases':{}}
-            if self.composition == 'installer-preflight':self.register_native_preflight()
+            if self.composition == 'installer-preflight-maintained-v1':self.register_native_preflight()
             if self.composition == 'repository-svg-zsh':self.register_zsh()
             self.sources.source_graph(self,capture=True)
             (self.private/'custody').mkdir(mode=0o700)
