@@ -4,7 +4,7 @@ October 12, 2026. This record tracks the complete `outline.md` scope; an impleme
 
 The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with owned tasks and corrective next actions in `docs/backlog.md`. The destination now explicitly requires the maintained ARM package repository, native performance engineering, integrated Apple stack, broader Cachy system experience, and complete installation/release lifecycle. Both Air sizes, published final measurements, independent onboarding/contribution, subsequent full-port maintenance release, other-ARM reuse and actual upstream submissions remain required; an early overlay release or feasibility decision would not complete the goal. This scope update does not change any recorded execution result.
 
-Latest coordinator update, October 13, 21:40 UTC. Root re-read the current
+Latest coordinator update, October 13, 21:46 UTC. Root re-read the current
 outline, goal, roadmap, acceptance matrix and package inventory. Full
 R1–R5/M5–M9 remains required; the initial overlay is an intermediate result.
 
@@ -36,6 +36,13 @@ Signer execution-witness source and maintained updater inputs are under
 independent review; native success is not inferred. Both exact M2 Air sizes,
 final-system measurements, exercised recovery and subsequent maintained release
 remain required. The development goal stays ACTIVE.
+
+Checkpoint `a3fb4ae` has static CI PASS `38472330666`. A subsequent independent
+six-case inert Source audit reproduces the opaque-handler restoration refusal
+in transport and launch as well as body-error replacement. Those scopes remain
+unchanged in current runtime source; a separately reviewed successor must close
+them. No actual trial's origin or kernel behavior is inferred from this model.
+[Downstream audit](reviews/maintained-downstream-opaque-signal-audit.md).
 
 Prior coordinator update, October 13, 20:52 UTC. The reviewed maintained
 45-root metadata proposal and finite ten-candidate source/evidence table are now
