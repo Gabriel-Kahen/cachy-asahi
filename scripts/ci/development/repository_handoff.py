@@ -54,7 +54,26 @@ class Refused(ValueError):
 
 def need(value, reason):
     if not value:
-        raise Refused(reason)
+        error = Refused(reason)
+        frame = sys._getframe(1)
+        # A closed source-method label only; no filename, code or raw message.
+        site = {
+            'Sources.class_state':'CLASS_STATE',
+            'Sources.class_state.<locals>.literal':'CLASS_LITERAL',
+            'Sources.callback':'CALLBACK', 'Sources.global_function':'GLOBAL_FUNCTION',
+            'Sources.graph_function':'GRAPH_FUNCTION', 'Sources.graph_namespace':'GRAPH_NAMESPACE',
+            'Sources.graph_identity':'GRAPH_IDENTITY',
+            'Sources.graph_identity.<locals>.observe':'GRAPH_IDENTITY',
+            'Sources.source_graph':'SOURCE_GRAPH', 'Session.register_native_preflight':'INSTALLER_REGISTRATION',
+            'Session._original_context':'ORIGINAL_CONTEXT',
+            'Session.prepare_view':'VIEW_COPY', 'Session.verify_view':'VIEW_VERIFY',
+            'check':'DEADLINE_CHECK', 'bindings':'CALLBACK_BINDINGS',
+            'authority_state':'AUTHORITY_STATE',
+            'authority_state.<locals>.inspect_state':'AUTHORITY_STATE',
+            'Session.observe_native_consumer':'NATIVE_FRAME', 'remove_private':'OWNED_CLEANUP',
+        }.get(frame.f_code.co_qualname, 'OTHER') if frame.f_globals is globals() else 'OTHER'
+        error._source_refusal_site = site
+        raise error
 
 
 def digest(raw):
@@ -1144,6 +1163,9 @@ class Session:
         self.controller = self.pending_capture = self.collected = self.supervise = None
         self.private = None; self.private_node = None
         self.operation = 'source-refused'
+        self.startup_phase = 'source-bound'
+        self.startup_failure = None
+        self.native_hook_entered = False
         self.source_graph = {}
         self.view_root = self.view_node = self.view_parent_node = None
         self.view_receipt = self.view_receipt_sha256 = None
@@ -1160,6 +1182,51 @@ class Session:
             'execution_grant_sha256':getattr(sources,'grant_pin',None),
             'actor_contract_sha256':getattr(sources,'grant',{}).get('actor_contract_sha256'),
             'initial_invocation_sha256':getattr(sources,'grant',{}).get('initial_invocation_sha256')}
+
+    def startup_failed(self, error):
+        """Keep the first finite observation without changing the exception/cause."""
+        if self.startup_failure is not None:return
+        kind = ('INTERRUPT' if isinstance(error,KeyboardInterrupt) else
+                'FATAL' if isinstance(error,SystemExit) else
+                'SOURCE_REFUSAL' if type(error) is Refused else
+                'OS_ERROR' if isinstance(error,OSError) else
+                'VALUE_ERROR' if isinstance(error,ValueError) else
+                'TYPE_ERROR' if isinstance(error,TypeError) else 'OTHER')
+        site = vars(error).get('_source_refusal_site','OTHER') if type(error) is Refused else 'OTHER'
+        self.startup_failure = {'phase':self.startup_phase,'kind':kind,'site':site}
+
+    def startup_projection(self):
+        """Failure-only closed observations; never an acceptance/status receipt."""
+        phases = ('source-bound', 'load-runtime', 'load-collector', 'load-phase', 'copy-view', 'register-installer', 'capture-dependencies', 'construct-services', 'load-original', 'capture-original', 'call-original', 'native-hook', 'original-returned', 'cleanup', 'status-publication')
+        kinds = ('INTERRUPT','FATAL','SOURCE_REFUSAL','OS_ERROR','VALUE_ERROR','TYPE_ERROR','OTHER')
+        sites = ('CLASS_STATE','CLASS_LITERAL','CALLBACK','GLOBAL_FUNCTION','GRAPH_FUNCTION',
+                 'GRAPH_NAMESPACE','GRAPH_IDENTITY','SOURCE_GRAPH','INSTALLER_REGISTRATION',
+                 'ORIGINAL_CONTEXT','NATIVE_FRAME','OWNED_CLEANUP','VIEW_COPY','VIEW_VERIFY',
+                 'DEADLINE_CHECK','CALLBACK_BINDINGS','AUTHORITY_STATE','OTHER')
+        failure = self.startup_failure
+        need(type(self.startup_phase) is str and self.startup_phase in phases and
+             type(self.native_hook_entered) is bool and type(failure) is dict and
+             set(failure) == {'phase','kind','site'} and
+             all(type(failure[key]) is str for key in failure) and
+             failure['phase'] in phases and failure['kind'] in kinds and failure['site'] in sites,
+             'status-persistence-failed')
+        status = status_projection(self.result)
+        need(status['status'] == 'FAIL' and status['error_code'] in CODES,'status-persistence-failed')
+        return {'schema_version':1,'purpose':'maintained-composed-startup-refusal','status':'FAIL',
+                'phase':failure['phase'],'kind':failure['kind'],'site':failure['site'],
+                'native_hook_entered':self.native_hook_entered,
+                'error_code':status['error_code'],'cleanup':status['cleanup']}
+
+    def emit_startup_refusal(self, deadline):
+        """Existing endpoint and captured class/source custody; no new allowance."""
+        check(deadline)
+        owner = sys.modules.get(type(self).__module__)
+        self.sources.class_state(self,'scripts/ci/development/repository_handoff.py',owner)
+        self.sources.guard(deadline)
+        raw = encoded(self.startup_projection())
+        need(len(raw) <= 1024,'status-persistence-failed')
+        check(deadline)
+        print('MAINTAINED_COMPOSED_STARTUP_REFUSAL='+raw.decode('ascii').replace('\n',''),flush=True)
 
     def register_native_preflight(self):
         """Explicit source-only registration before the first dependency capture."""
@@ -1652,43 +1719,57 @@ class Session:
         try:
             root = self.sources.root
             entry_path = PREFIXES['runtime']+'/entry.py'
+            self.startup_phase = 'load-runtime'
             entry = self.sources.module('root_handoff_entry',entry_path)
             maps = grant['maps']
             modules,_ = entry.authenticated(root/maps['runtime']['path'],maps['runtime']['sha256'],
                 deadline=self.job_deadline,source_root=root/PREFIXES['runtime'])
+            self.startup_phase = 'load-collector'
             collector,collector_pins = entry.dependency_entry(root,PREFIXES['collector']+'/entry.py',
                 grant['source_files'][PREFIXES['collector']+'/entry.py']['sha256'],maps['collector']['path'],
                 maps['collector']['sha256'],deadline=self.job_deadline)
+            self.startup_phase = 'load-phase'
             phase,_ = entry.dependency_entry(root,PREFIXES['phase']+'/entry.py',
                 grant['source_files'][PREFIXES['phase']+'/entry.py']['sha256'],maps['phase']['path'],
                 maps['phase']['sha256'],deadline=self.job_deadline,phase=True)
+            self.startup_phase = 'copy-view'
             self.prepare_view(view_root)
             self.source_graph = {'entry':entry,'runtime':modules,'collector':collector,'phase':phase,
                                  'original':{},'original_aliases':{}}
-            if self.composition == 'installer-preflight-maintained-v1':self.register_native_preflight()
+            if self.composition == 'installer-preflight-maintained-v1':
+                self.startup_phase = 'register-installer'
+                self.register_native_preflight()
             if self.composition == 'repository-svg-zsh':self.register_zsh()
+            self.startup_phase = 'capture-dependencies'
             self.sources.source_graph(self,capture=True)
             (self.private/'custody').mkdir(mode=0o700)
             # Registration precedes replay of TERM/INT from service construction.
+            self.startup_phase = 'construct-services'
             with collector['common'].defer_cancellation():
                 services = entry.services(modules,decode(self.sources.raw[maps['runtime']['path']]),
                     source_root=root/PREFIXES['runtime'],private_root=self.private/'custody',
                     job_deadline=self.job_deadline,cancelled=self.cancelled,**runtime_contract)
             # Checkpoint storage must be a distinct private0700 original-budget root.
             def callback(controller):
-                self.observe_native_consumer(controller)
-                self.sources.callback('existing_consumers',callbacks['existing_consumers'],self.job_deadline)
-                callbacks['existing_consumers'](controller)
-                self.sources.callback('existing_consumers',callbacks['existing_consumers'],self.job_deadline)
-                # Original native.main catches consumer errors; retain the first
-                # finite added failure before that enclosing returned exit1.
-                try:return self.pending_consumer(controller,services,modules,collector,collector_pins)
+                self.startup_phase = 'native-hook';self.native_hook_entered = True
+                try:
+                    self.observe_native_consumer(controller)
+                    self.sources.callback('existing_consumers',callbacks['existing_consumers'],self.job_deadline)
+                    callbacks['existing_consumers'](controller)
+                    self.sources.callback('existing_consumers',callbacks['existing_consumers'],self.job_deadline)
+                    # Original native.main catches consumer errors; retain the first
+                    # finite added failure before that enclosing returned exit1.
+                    try:return self.pending_consumer(controller,services,modules,collector,collector_pins)
+                    except BaseException as error:
+                        if self.result['error_code'] is None:
+                            self.result['error_code'] = 'cancelled' if isinstance(error,KeyboardInterrupt) else (
+                                str(error) if type(error) is Refused and str(error) in CODES else self.operation)
+                        raise
                 except BaseException as error:
-                    if self.result['error_code'] is None:
-                        self.result['error_code'] = 'cancelled' if isinstance(error,KeyboardInterrupt) else (
-                            str(error) if type(error) is Refused and str(error) in CODES else self.operation)
+                    self.startup_failed(error)
                     raise
             self.operation = 'initial-failed'
+            self.startup_phase = 'load-original'
             self.original_scope = entry.original_modules(view_root,view_root/'scripts/ci/integration.lock.json',INITIAL,
                     deadline=self.job_deadline,verification_deadline=self.job_deadline)
             with self.original_scope as original:
@@ -1696,11 +1777,14 @@ class Session:
                 self.source_graph['original_aliases'] = {
                     'repository_projection.inventory':original['repository_projection'].inventory,
                     'desktop_projection.policy':original['desktop_projection'].policy}
+                self.startup_phase = 'capture-original'
                 self.sources.source_graph(self,capture=True)
                 with services['pending'].interpose(original['integration'],services['transport']):
                     check(self.job_deadline,self.cancelled)
+                    self.startup_phase = 'call-original'
                     code = original['native_arm'].main(argv,integration_consumers=callback)
                 need(type(code) is int, 'initial-failed')
+                self.startup_phase = 'original-returned'
                 self.result['initial_exit_code'] = code
                 if self.end is not None:
                     self.tick()
@@ -1710,9 +1794,11 @@ class Session:
                     raise Refused('initial-failed')
             self.tick()
             self.result['status'] = 'PASS'
-        except KeyboardInterrupt:
+        except KeyboardInterrupt as error:
+            self.startup_failed(error)
             self.result.update(status='FAIL',cancelled=True,error_code=self.result['error_code'] or 'cancelled')
         except BaseException as error:
+            self.startup_failed(error)
             code = str(error) if type(error) is Refused and str(error) in CODES else self.operation
             self.result.update(status='FAIL',error_code=self.result['error_code'] or code)
         finally:
@@ -1737,6 +1823,8 @@ class Session:
                     with collector['common'].defer_cancellation(): cleanup()
                 else: cleanup()
             except BaseException as error:
+                if self.startup_failure is None:
+                    self.startup_phase = 'cleanup';self.startup_failed(error)
                 self.result.update(status='FAIL',cleanup='FAIL')
                 if isinstance(error,KeyboardInterrupt): self.result['cancelled'] = True
                 if self.result['error_code'] is None: self.result['error_code'] = 'cleanup-failed'
@@ -1752,11 +1840,22 @@ class Session:
                 publish_status(self.output/'status',self.result)
                 check(cleanup_end,self.cancelled)
             except BaseException as error:
+                if self.startup_failure is None:
+                    self.startup_phase = 'status-publication';self.startup_failed(error)
                 self.result.update(status='FAIL',cancelled=self.result['cancelled'] or isinstance(error,KeyboardInterrupt),
                     error_code=self.result['error_code'] or ('cancelled' if isinstance(error,KeyboardInterrupt) else 'status-persistence-failed'))
                 revoke_phase_receipt(self.output/'phase-public')
                 # The first publication's close/check is part of the transaction.
                 publish_status(self.output/'status',self.result,replace=True)
+        if self.result['status'] == 'FAIL' and self.startup_failure is not None:
+            try:self.emit_startup_refusal(cleanup_end)
+            except KeyboardInterrupt:
+                self.result['cancelled'] = True
+                try:publish_status(self.output/'status',self.result,replace=True)
+                except BaseException:
+                    pass  # Optional re-publication cannot replace the first failure.
+            except BaseException:
+                pass  # Optional diagnostic cannot replace the retained first failure.
         return {**self.result,'public':[str(self.output/'status')]+(
             [str(self.output/'phase-public')] if self.result['status']=='PASS' else []),
             'phase_public':{'descriptor_bytes':self.phase_export_raw,'sha256':self.phase_export_sha256}

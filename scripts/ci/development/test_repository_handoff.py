@@ -1227,4 +1227,188 @@ class InstallerGraphFixtures(unittest.TestCase):
             self.assertNotIn('native_preflight',session.source_graph)
 
 
+class StartupRefusalModels(unittest.TestCase):
+    """Closed diagnostics only: partial dummy contracts/actor boundaries are models."""
+    def setUp(self):
+        self.end=time.monotonic()+60
+        self.root=PATH.resolve().parents[3]
+        raw=PATH.read_bytes()
+        rows=copy.deepcopy(json.loads((self.root/'scripts/ci/development/packet.lock.json').read_bytes())['source_files'])
+        for name,row in rows.items():row['sha256']=adapter.digest((self.root/name).read_bytes())
+        self.grant={'source_files':rows,
+            'source_commit':'a'*40,'run_id':'1','run_attempt':'1','actor_contract_sha256':'b'*64,'initial_invocation_sha256':'c'*64}
+        self.sources=adapter.Sources(self.root,self.grant,self.end)
+        self.session=adapter.Session(self.sources,self.root/'never-allocated',job_deadline=self.end,
+                                     composition='installer-preflight-maintained-v1')
+        self.module=patch.dict(sys.modules,{adapter.__name__:adapter});self.module.start();self.addCleanup(self.module.stop)
+    def fail(self,phase='capture-original',error=None):
+        self.session.startup_phase=phase
+        self.session.startup_failed(error or adapter.Refused('callback-refused'))
+        self.session.result.update(status='FAIL',error_code='callback-refused',cleanup='FAIL')
+    def test_actual_class_source_guard_failure_only_marker_and_privacy(self):
+        import contextlib,io
+        self.fail()
+        output=io.StringIO()
+        with contextlib.redirect_stdout(output):self.session.emit_startup_refusal(self.end)
+        text=output.getvalue();prefix='MAINTAINED_COMPOSED_STARTUP_REFUSAL='
+        self.assertTrue(text.startswith(prefix));value=json.loads(text[len(prefix):])
+        self.assertEqual(set(value),{'schema_version','purpose','status','phase','kind','site','native_hook_entered','error_code','cleanup'})
+        self.assertEqual((value['status'],value['phase'],value['cleanup']),('FAIL','capture-original','FAIL'))
+        self.assertNotIn(str(self.root),text);self.assertLessEqual(len(text),1024)
+        self.session.result['status']='PASS'
+        with self.assertRaises(adapter.Refused):self.session.startup_projection()
+    def test_internal_closed_source_site_and_sticky_first_observation(self):
+        try:self.sources.graph_function(lambda:None,None)
+        except adapter.Refused as error:
+            first=error
+        else:self.fail('graph function accepted')
+        self.assertEqual(str(first),'callback-refused')
+        self.assertEqual(first._source_refusal_site,'GRAPH_FUNCTION')
+        self.fail(error=first);before=dict(self.session.startup_failure)
+        self.session.startup_phase='cleanup';self.session.startup_failed(SystemExit(17))
+        self.assertEqual(self.session.startup_failure,before)
+        self.assertEqual(self.session.startup_projection()['site'],'GRAPH_FUNCTION')
+        self.assertEqual(self.session.result['error_code'],'callback-refused')
+    def test_invalid_diagnostic_and_expiry_refuse_without_output(self):
+        import contextlib,io
+        self.fail()
+        for key,value in [('phase','/private/path'),('kind','SECRET'),('site','traceback')]:
+            previous=self.session.startup_failure[key];self.session.startup_failure[key]=value
+            with self.subTest(key=key),self.assertRaises(adapter.Refused):self.session.startup_projection()
+            self.session.startup_failure[key]=previous
+        self.session.native_hook_entered=1
+        with self.assertRaises(adapter.Refused):self.session.startup_projection()
+        self.session.native_hook_entered=False
+        output=io.StringIO()
+        with contextlib.redirect_stdout(output),self.assertRaises(adapter.Refused):
+            self.session.emit_startup_refusal(time.monotonic()-1)
+        self.assertEqual(output.getvalue(),'')
+    def test_execute_causal_phase_and_unaccepted_native_hook_models(self):
+        from contextlib import ExitStack
+        # These are explicit inert SDK/graph/native models, never valid Source grants/frames.
+        cases=[(phase,adapter.Refused('callback-refused'),False,None) for phase in ('construct-services','capture-original','native-hook')]
+        cases.extend([('capture-original',adapter.Refused('callback-refused'),True,SystemExit(42)),
+                      ('construct-services',KeyboardInterrupt('private-cancel'),False,None),
+                      ('construct-services',SystemExit(18),False,None),
+                      ('capture-original',adapter.Refused('callback-refused'),False,KeyboardInterrupt('private-emit'))])
+        for phase,first,cleanup_fault,emit_fault in cases:
+            with self.subTest(phase=phase,kind=type(first).__name__),tempfile.TemporaryDirectory(prefix='diagnostic-model-') as temporary:
+                output=Path(temporary)/'handoff';runtime={'cli_sha256':'d'*64,'endpoint_identity':[1]*6,'env':{}}
+                argv=['integration'];models=[];status=[]
+                def refused():raise first
+                entry=types.SimpleNamespace(authenticated=lambda *a,**k:({},{}),
+                    dependency_entry=lambda *a,**k:({'common':types.SimpleNamespace(defer_cancellation=lambda:__import__('contextlib').nullcontext())},{}))
+                if phase=='construct-services':entry.services=lambda *a,**k:refused()
+                else:
+                    def close():
+                        if cleanup_fault:raise OSError('private-cleanup')
+                    entry.services=lambda *a,**k:{'transport':types.SimpleNamespace(close=close)}
+                @contextmanager
+                def original(*a,**k):
+                    def native(argv,*,integration_consumers):return integration_consumers(object())
+                    yield {'native_arm':types.SimpleNamespace(main=native),
+                           'repository_projection':types.SimpleNamespace(inventory=None),
+                           'desktop_projection':types.SimpleNamespace(policy=None)}
+                entry.original_modules=original
+                grant={'source_commit':'a'*40,'run_id':'1','run_attempt':'1','actor_contract_sha256':adapter.digest(adapter.encoded(runtime)),
+                    'initial_invocation_sha256':adapter.digest(adapter.encoded({'argv':argv,'output':str(output)})),
+                    'maps':{name:{'path':'model-map','sha256':'e'*64} for name in ('runtime','collector','phase')},
+                    'source_files':{adapter.PREFIXES['collector']+'/entry.py':{'sha256':'f'*64},adapter.PREFIXES['phase']+'/entry.py':{'sha256':'f'*64}}}
+                sources=types.SimpleNamespace(grant=grant,grant_pin='0'*64,root=self.root,raw={'model-map':b'{}'},
+                    module=lambda *a:entry)
+                session=adapter.Session(sources,output,job_deadline=self.end,composition='installer-preflight-maintained-v1')
+                def graph(owner,*,capture=False):
+                    if phase=='capture-original' and owner.source_graph['original']:refused()
+                sources.source_graph=graph
+                def remove(path,node,end):
+                    if path is None:return
+                    # Tiny model-only paths: never source custody or production cleanup.
+                    shutil.rmtree(path)
+                observed=[];real_failed=adapter.Session.startup_failed
+                def record_failed(self,error):observed.append(error);return real_failed(self,error)
+                def emit(self,end):
+                    models.append(self.startup_projection())
+                    if emit_fault is not None:raise emit_fault
+                with ExitStack() as stack:
+                    for name,value in [('bindings',lambda *a:None),('remove_private',remove),('revoke_phase_receipt',lambda *a:None),
+                        ('publish_status',lambda *a,**k:status.append(copy.deepcopy(a[1])))]:stack.enter_context(patch.object(adapter,name,value))
+                    stack.enter_context(patch.dict(os.environ,{'GITHUB_SHA':'a'*40,'GITHUB_RUN_ID':'1','GITHUB_RUN_ATTEMPT':'1'}))
+                    for name,value in [('view_plan',lambda self,argv:output/'view'),('prepare_view',lambda self,root:None),
+                        ('register_native_preflight',lambda self:None),('observe_native_consumer',lambda self,controller:refused()),
+                        ('emit_startup_refusal',emit),('startup_failed',record_failed)]:
+                        stack.enter_context(patch.object(adapter.Session,name,value))
+                    result=session.execute(argv,{},runtime)
+                self.assertEqual(result['status'],'FAIL')
+                self.assertEqual(result['error_code'],'cancelled' if isinstance(first,KeyboardInterrupt) else 'source-refused' if isinstance(first,SystemExit) else 'callback-refused')
+                self.assertIs(observed[0],first)
+                self.assertIsNone(result['initial_exit_code']);self.assertFalse(result['callback_entered'])
+                self.assertEqual(models[0]['phase'],phase)
+                self.assertIs(models[0]['native_hook_entered'],phase=='native-hook')
+                self.assertIsNone(result['phase_public']);self.assertEqual(result['cleanup'],'FAIL' if cleanup_fault else 'PASS')
+                self.assertIs(result['cancelled'],isinstance(first,KeyboardInterrupt) or isinstance(emit_fault,KeyboardInterrupt))
+                self.assertTrue(all(item['status']=='FAIL' for item in status))
+    def test_ordinary_interrupt_fatal_kinds_preserve_cause_objects(self):
+        for error,kind in ((ValueError('SECRET /private/path'),'VALUE_ERROR'),(KeyboardInterrupt('SECRET'),'INTERRUPT'),(SystemExit(77),'FATAL')):
+            self.session.startup_failure=None;self.fail(error=error)
+            self.assertEqual(self.session.startup_projection()['kind'],kind)
+            self.assertEqual(self.session.result['error_code'],'callback-refused')
+            self.assertNotIn('SECRET',adapter.encoded(self.session.startup_projection()).decode())
+            # Capturing metadata never modifies or replaces the provided cause object.
+            self.assertEqual(error.args,('SECRET /private/path',) if kind=='VALUE_ERROR' else ('SECRET',) if kind=='INTERRUPT' else (77,))
+
+
+class OptionalDiagnosticPublicationCorrection(unittest.TestCase):
+    """Actual execute body with tiny inert boundaries, never valid native grants/frames."""
+    def test_compound_interrupt_replacement_fault_old_red_new_green(self):
+        from contextlib import ExitStack,nullcontext
+        corrected_raw=PATH.read_text()
+        new_branch="                try:publish_status(self.output/'status',self.result,replace=True)\n                except BaseException:\n                    pass  # Optional re-publication cannot replace the first failure.\n"
+        old_branch="                publish_status(self.output/'status',self.result,replace=True)\n"
+        self.assertEqual(corrected_raw.count(new_branch),1)
+        old_raw=corrected_raw.replace(new_branch,old_branch,1).encode()
+        self.assertEqual(hashlib.sha256(old_raw).hexdigest(),'a868b0bee44d2c75be49496c9b6292c6906971d230773f5df43eb603cb8488a3')
+        old=types.ModuleType('frozen_optional_diagnostic_old');old.__file__=str(PATH)
+        exec(compile(old_raw,str(PATH),'exec'),old.__dict__)
+        for late_type in (OSError,KeyboardInterrupt,SystemExit):
+            for cleanup_fault in (False,True):
+                for module,corrected in ((old,False),(adapter,True)):
+                    with self.subTest(late=late_type.__name__,cleanup=cleanup_fault,corrected=corrected),tempfile.TemporaryDirectory(prefix='optional-diagnostic-compound-') as temporary:
+                        output=Path(temporary)/'handoff';runtime={'cli_sha256':'d'*64,'endpoint_identity':[1]*6,'env':{}}
+                        argv=['integration'];first=module.Refused('callback-refused');emit_fault=KeyboardInterrupt('PRIVATE_EMIT');late=late_type('PRIVATE_REPLACEMENT');published=[]
+                        def refuse(*a,**k):raise first
+                        entry=types.SimpleNamespace(authenticated=lambda *a,**k:({},{}),dependency_entry=lambda *a,**k:({'common':types.SimpleNamespace(defer_cancellation=nullcontext)},{}),services=refuse)
+                        grant={'source_commit':'a'*40,'run_id':'1','run_attempt':'1','actor_contract_sha256':module.digest(module.encoded(runtime)),
+                            'initial_invocation_sha256':module.digest(module.encoded({'argv':argv,'output':str(output)})),
+                            'maps':{name:{'path':'model-map','sha256':'e'*64} for name in ('runtime','collector','phase')},
+                            'source_files':{module.PREFIXES[name]+'/entry.py':{'sha256':'f'*64} for name in ('collector','phase')}}
+                        source=types.SimpleNamespace(grant=grant,grant_pin='0'*64,root=PATH.resolve().parents[3],raw={'model-map':b'{}'},module=lambda *a:entry,source_graph=lambda *a,**k:None)
+                        session=module.Session(source,output,job_deadline=time.monotonic()+60,composition='installer-preflight-maintained-v1')
+                        def emit(self,end):raise emit_fault
+                        def publish(path,value,**kwargs):
+                            published.append(copy.deepcopy(value))
+                            if kwargs.get('replace'):raise late
+                        def remove(path,*args):
+                            if cleanup_fault:raise OSError('PRIVATE_CLEANUP')
+                            if path is not None and Path(path).exists():shutil.rmtree(path)
+                        with ExitStack() as stack:
+                            for name,fn in [('bindings',lambda *a:None),('remove_private',remove),('revoke_phase_receipt',lambda *a:None),('publish_status',publish)]:stack.enter_context(patch.object(module,name,fn))
+                            stack.enter_context(patch.dict(os.environ,{'GITHUB_SHA':'a'*40,'GITHUB_RUN_ID':'1','GITHUB_RUN_ATTEMPT':'1'}))
+                            for name,fn in [('view_plan',lambda self,argv:output/'view'),('prepare_view',lambda *a:None),('register_native_preflight',lambda *a:None),('emit_startup_refusal',emit)]:stack.enter_context(patch.object(module.Session,name,fn))
+                            if corrected:result=session.execute(argv,{},runtime)
+                            else:
+                                try:session.execute(argv,{},runtime)
+                                except BaseException as got:self.assertIs(got,late)
+                                else:raise AssertionError('old source no longer reproduces late escape')
+                        self.assertEqual(len(published),2);self.assertTrue(all(p['status']=='FAIL' for p in published))
+                        self.assertIs(session.result['cancelled'],True)
+                        self.assertEqual(session.result['error_code'],'callback-refused')
+                        self.assertEqual(session.result['cleanup'],'FAIL' if cleanup_fault else 'PASS')
+                        self.assertEqual(session.startup_failure,{'phase':'construct-services','kind':'SOURCE_REFUSAL','site':'OTHER'})
+                        if corrected:
+                            self.assertEqual(result['status'],'FAIL');self.assertIs(result['cancelled'],True)
+                            self.assertEqual(result['error_code'],'callback-refused');self.assertIsNone(result['initial_exit_code'])
+                            self.assertFalse(result['callback_entered']);self.assertIsNone(result['phase_public'])
+                            self.assertEqual(len(result['public']),1)
+
+
 if __name__ == '__main__':unittest.main()

@@ -50,7 +50,7 @@ jobs:
           ISSUER_SHA = '9e3271b8cb21e7be1940c2aa9f17f84357d0a438ed45a19ad34ae226ec9d4581'
           EXECUTION_REF = 'refs/heads/codex/maintained-composed-execution-v1'
           COMPOSITION = 'installer-preflight-maintained-v1'
-          PACKET_SHA = 'c98e4b3feb701da2e0478b671f7ce50d8ee36f91aef149d78f0d4f2229ee49e0'
+          PACKET_SHA = '06ed9f4d6c43099379de0e54f5e10ba045d58d9c90e8efa4ac7c67d17796e2f5'
           PLAN_ENV = 'ROOT_REGISTERED_MAINTAINED_COMPOSED_PLAN_B64'
           PIN_ENV = 'ROOT_REGISTERED_MAINTAINED_COMPOSED_PLAN_SHA256'
 
