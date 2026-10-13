@@ -4,7 +4,25 @@ October 12, 2026. This record tracks the complete `outline.md` scope; an impleme
 
 The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with owned tasks and corrective next actions in `docs/backlog.md`. The destination now explicitly requires the maintained ARM package repository, native performance engineering, integrated Apple stack, broader Cachy system experience, and complete installation/release lifecycle. Both Air sizes, published final measurements, independent onboarding/contribution, subsequent full-port maintenance release, other-ARM reuse and actual upstream submissions remain required; an early overlay release or feasibility decision would not complete the goal. This scope update does not change any recorded execution result.
 
-Latest coordinator update, October 13, 20:07 UTC. Reviewed diagnostic source is
+Latest coordinator update, October 13, 20:22 UTC. Root re-read the updated
+outline, roadmap, goal and inventory; complete R1–R5/M5–M9 remains the scope.
+Static CI `38460396035` passes at source checkpoint `5662c67`.
+
+The retained Topmem02 result now has independent review: all 125 Source blobs
+and 33 support files authenticate, with 31 focused corruption controls passing.
+The actual failure remains `io-failed / start`; refused signer recovery supplies
+no agent/keyhome absence proof. [Retained review](reviews/topmem-corrected-caller-38458434811-root-review.md).
+
+The conditional upstream hook/sysusers audit also passes independent review,
+with 64 rule, 23 INSTALL and 31 hook mappings plus six fresh controls. Both
+selected PKGBUILD hashes still differ from retrieved recipes. Exact recipe
+history/builder transformations and generated constants are being investigated;
+account effects and binary correspondence remain unfinished.
+[Source review](reviews/platform-sysusers-upstream-semantics-root-review.md).
+Signal-restoration and signer-I/O diagnostic successors are under independent
+review. Neither is a runtime correction or successful native addon result.
+
+Prior coordinator update, October 13, 20:07 UTC. Reviewed diagnostic source is
 published and the complete R1–R5/M5–M9 goal remains active.
 
 Maintained Source `35ff48c` and Data `0238541` have 271 verified Git rows and an
