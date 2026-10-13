@@ -898,5 +898,48 @@ class ModernResourcePublicTests(unittest.TestCase):
             with self.assertRaises(ValueError):public.project(encoded(bad),COMMIT,PIN,'failure')
 
 
+class InnerFailurePublicTests(unittest.TestCase):
+    def value(self):
+        source = HERE.parent / 'kernel-native-stage/evidence.py'
+        spec = importlib.util.spec_from_file_location('inner_child_evidence_fixture', source)
+        evidence = importlib.util.module_from_spec(spec); spec.loader.exec_module(evidence)
+        trace = evidence.Trace(); trace.action('baseline')
+        binding = {'source_commit': COMMIT, 'stage_lock_sha256': 'c'*64,
+            'output_name_sha256': 'd'*64, 'run_id': '1', 'run_attempt': '1', 'nonce': 'e'*32,
+            'accepted_result_sha256': 'f'*64, 'bootstrap_sha256': '1'*64,
+            'inputs_sha256': '2'*64, 'base_inventory_sha256': '3'*64}
+        row = evidence.initial(binding, trace); row['commands']['baseline'] = evidence.exit_record(1)
+        evidence.failure(row, 'COMMAND_NONZERO', 'BASELINE_COMMAND')
+        row['cleanup'] = {'status': 'PASS', 'category': 'NONE'}
+        evidence.inner_failure(row, 'baseline', {'availability': 'REFUSED', 'reason': 'INVALID',
+                                                'raw_sha256': None, 'diagnostic': None})
+        value = receipt(); value.update(schema_version=4, status='FAIL', phase='cleanup',
+            first_failed_phase='kernel', failure_reason='KERNEL_EXIT', baseline='FAIL',
+            candidate='NOT RUN', native_compilation='NOT ACCEPTED')
+        value['kernel_child'] = {'availability': 'VERIFIED', 'exit': public.exit_record(1),
+                                 'diagnostics': evidence.project(row)}
+        return value
+
+    def test_new_failure_diagnostic_preserves_all_outcome_failures(self):
+        value = self.value(); original = copy.deepcopy(value['kernel_child'])
+        for outcome in ('success', 'failure', 'cancelled', 'skipped', ''):
+            row = public.project(encoded(value), COMMIT, PIN, outcome)
+            self.assertEqual((row['status'], row['baseline'], row['candidate']), ('FAIL', 'FAIL', 'NOT RUN'))
+            self.assertEqual(row['kernel_child'], original)
+            self.assertEqual((row['first_failed_phase'], row['failure_reason']), ('kernel', 'KERNEL_EXIT'))
+            self.assertEqual(row['cancelled'], outcome == 'cancelled')
+
+    def test_inner_version_cannot_relax_original_pass_gate(self):
+        value = self.value(); value.update(status='PASS', phase='complete',
+            first_failed_phase='NONE', failure_reason='NONE', baseline='PASS', candidate='PASS',
+            native_compilation='PASS')
+        value['kernel_child']['exit'] = public.exit_record(0)
+        with self.assertRaises(ValueError): public.project(encoded(value), COMMIT, PIN, 'success')
+
+    def test_unknown_inner_fields_remain_private_and_refused(self):
+        value = self.value(); value['kernel_child']['diagnostics']['inner']['baseline']['raw_stderr'] = 'private-secret'
+        with self.assertRaises(ValueError): public.project(encoded(value), COMMIT, PIN, 'failure')
+
+
 if __name__ == '__main__':
     unittest.main()

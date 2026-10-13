@@ -249,4 +249,87 @@ class ResourceSchemaTests(unittest.TestCase):
         with self.assertRaises(ValueError):evidence.project(modern)
 
 
+class InnerFailureProjectionTests(unittest.TestCase):
+    receiver = ChildEvidenceTests.receiver
+    def inner_group(self):
+        import inner_result
+        expected = {'nonce': 'd' * 32, 'action': 'baseline',
+                    'contract_sha256': '3' * 64, 'worker_sha256': '4' * 64}
+        row = inner_result.initial(expected)
+        inner_result.phase(row, 'KERNEL'); inner_result.issued(row, 'KERNEL')
+        inner_result.returned(row, 7); inner_result.failure(row, ValueError('private-secret'))
+        raw = json.dumps({'status': 'FAIL', 'action': 'baseline', 'nonce': expected['nonce'],
+                          'cancelled': False, 'inner_diagnostic': row}).encode()
+        return inner_result.capture(raw, expected)
+
+    def failed(self):
+        trace = evidence.Trace(); trace.action('baseline')
+        row = evidence.initial(binding(), trace)
+        row['commands']['baseline'] = evidence.exit_record(1)
+        evidence.failure(row, 'COMMAND_NONZERO', 'BASELINE_COMMAND')
+        return row
+
+    def test_failure_only_version4_matches_self_contained_receiver(self):
+        row = self.failed(); first = copy.deepcopy(row['operation']['first_failure'])
+        evidence.inner_failure(row, 'baseline', self.inner_group())
+        projected = evidence.project(row)
+        self.assertEqual(projected, self.receiver().child_project(row))
+        self.assertEqual(row['schema_version'], 4)
+        self.assertEqual(row['operation']['first_failure'], first)
+        self.assertEqual(row['commands']['baseline'], evidence.exit_record(1))
+        self.assertEqual(projected['inner']['baseline']['diagnostic']['natural_return'],
+                         {'kind': 'RETURNED', 'code': 7})
+        self.assertNotIn('private-secret', json.dumps(projected))
+        self.assertNotIn('nonce', json.dumps(projected))
+        self.assertLessEqual(len(evidence.encoded(row)), 4096)
+
+    def test_failed_attachment_is_transactional_and_does_not_change_business(self):
+        row = self.failed(); before = copy.deepcopy(row); group = self.inner_group()
+        group['diagnostic']['phase'] = 'private-secret'
+        with self.assertRaises(ValueError): evidence.inner_failure(row, 'baseline', group)
+        self.assertEqual(row, before)
+        row['commands']['baseline'] = evidence.exit_record(0)
+        with self.assertRaises(ValueError): evidence.inner_failure(row, 'baseline', self.inner_group())
+
+    def test_prebyte_refusal_or_missing_has_no_invented_diagnostic(self):
+        for availability, reason in (('UNAVAILABLE', 'MISSING'), ('REFUSED', 'INVALID')):
+            row = self.failed()
+            group = {'availability': availability, 'reason': reason, 'raw_sha256': None, 'diagnostic': None}
+            evidence.inner_failure(row, 'baseline', group)
+            self.assertEqual(evidence.project(row), self.receiver().child_project(row))
+            self.assertIsNone(row['inner']['baseline']['diagnostic'])
+
+    def test_both_boundaries_refuse_inner_poison_and_legacy_downgrade(self):
+        original = self.failed(); evidence.inner_failure(original, 'baseline', self.inner_group())
+        poisons = [lambda x:x['inner']['baseline']['diagnostic'].update(extra='private'),
+            lambda x:x['inner']['baseline']['diagnostic'].update(write_failed=True),
+            lambda x:x['inner']['baseline']['diagnostic']['natural_return'].update(code=True),
+            lambda x:x['inner']['baseline']['diagnostic'].update(attempt='NOT_ISSUED'),
+            lambda x:x['inner']['baseline'].update(raw_sha256=None),
+            lambda x:x['inner']['baseline'].update(reason='MISSING'),
+            lambda x:x.update(schema_version=3), lambda x:x.pop('inner'),
+            lambda x:x.update(current_predicate='COMPLETE'),
+            lambda x:x['commands'].update(baseline=evidence.exit_record(0)),
+            lambda x:x['inner'].update(candidate=copy.deepcopy(x['inner']['baseline'])),
+            lambda x:x['inner']['baseline']['diagnostic']['first_failure'].update(error_kind='raw-error')]
+        for mutate in poisons:
+            row = copy.deepcopy(original); mutate(row)
+            for project in (evidence.project, self.receiver().child_project):
+                with self.subTest(poison=mutate, project=project), self.assertRaises((ValueError, KeyError)):
+                    project(row)
+
+    def test_helper_and_both_group_validators_agree_on_valid_and_poison(self):
+        import inner_result
+        groups = [self.inner_group(), {'availability': 'REFUSED', 'reason': 'INVALID', 'raw_sha256': None, 'diagnostic': None}]
+        for group in groups:
+            for validate in (inner_result.validate_group, evidence.validate_inner_group,
+                             self.receiver().child_validate_inner_group):
+                self.assertEqual(validate(copy.deepcopy(group)), group)
+        for code in (True, 256, -65, '0'):
+            group = self.inner_group(); group['diagnostic']['natural_return']['code'] = code
+            for validate in (inner_result.validate_group, evidence.validate_inner_group,
+                             self.receiver().child_validate_inner_group):
+                with self.assertRaises(ValueError): validate(group)
+
+
 if __name__ == '__main__': unittest.main()

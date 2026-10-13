@@ -35,8 +35,66 @@ REFUSALS = frozenset(('API HTTP framing differs', 'API aggregate timeout', 'API 
 
 
 def diagnostic_keys(row):
-    need(type(row) is dict and type(row.get('schema_version')) is int and row['schema_version'] in (1, 2, 3))
-    return KEYS | ({'operation'} if row['schema_version'] >= 2 else set())
+    need(type(row) is dict and type(row.get('schema_version')) is int and row['schema_version'] in (1, 2, 3, 4))
+    return KEYS | ({'operation'} if row['schema_version'] >= 2 else set()) | ({'inner'} if row['schema_version'] == 4 else set())
+
+
+INNER_ACTIONS = ('probe', 'baseline', 'candidate')
+INNER_PHASES = frozenset(('NONE', 'PRECHECK', 'PROFILE', 'INVENTORY', 'TOOLS', 'SOURCE',
+    'CONFIG', 'CONFIG_DELTA', 'PAIRED_CONFIG', 'GENERATED_CONFIG', 'KERNEL', 'OUTPUTS', 'FINALIZATION', 'COMPLETE'))
+INNER_COMMANDS = frozenset(('NONE', 'INVENTORY', 'CONFIG', 'KERNEL', *(f'TOOL_{n}' for n in range(18))))
+INNER_ERRORS = frozenset(('DATA_REFUSAL', 'IO', 'IMPORT', 'TIMEOUT', 'DEADLINE', 'OUTPUT_BOUND',
+    'PROCESS_CLEANUP', 'CANCELLED', 'OTHER'))
+INNER_PUBLIC_KEYS = frozenset(('schema_version', 'binding_sha256', 'phase', 'command', 'attempt',
+    'natural_return', 'first_failure', 'cleanup_failure', 'cancelled', 'write_failed'))
+
+
+def validate_inner_group(group):
+    need(type(group) is dict and set(group) == {'availability', 'reason', 'raw_sha256', 'diagnostic'})
+    availability = group['availability']
+    need(type(availability) is str and availability in ('NOT_RUN', 'UNAVAILABLE', 'REFUSED', 'VERIFIED'))
+    need(type(group['reason']) is str and group['reason'] == {'NOT_RUN': 'NOT_RUN', 'UNAVAILABLE': 'MISSING', 'REFUSED': 'INVALID', 'VERIFIED': 'OBSERVED'}[availability])
+    pin = group['raw_sha256']
+    need(pin is None or type(pin) is str and re.fullmatch('[0-9a-f]{64}', pin))
+    if availability != 'VERIFIED':
+        need(group['diagnostic'] is None and (availability == 'REFUSED' or pin is None))
+        return group
+    need(pin is not None)
+    row = group['diagnostic']
+    need(type(row) is dict and set(row) == INNER_PUBLIC_KEYS and type(row['schema_version']) is int and row['schema_version'] == 1)
+    need(type(row['binding_sha256']) is str and re.fullmatch('[0-9a-f]{64}', row['binding_sha256']))
+    need(type(row['phase']) is str and row['phase'] in INNER_PHASES and type(row['command']) is str and row['command'] in INNER_COMMANDS)
+    need(type(row['attempt']) is str and row['attempt'] in ('NOT_ISSUED', 'ISSUED'))
+    natural = row['natural_return']
+    need(type(natural) is dict and set(natural) == {'kind', 'code'} and type(natural['kind']) is str)
+    need(natural == {'kind': 'UNOBSERVED', 'code': None} or natural['kind'] == 'RETURNED' and
+         type(natural['code']) is int and -64 <= natural['code'] <= 255 and row['attempt'] == 'ISSUED')
+    need((row['command'] == 'NONE') == (row['attempt'] == 'NOT_ISSUED'))
+    need(type(row['cancelled']) is bool and row['write_failed'] is False)
+    for name in ('first_failure', 'cleanup_failure'):
+        failure = row[name]
+        if failure is not None:
+            need(type(failure) is dict and set(failure) == {'phase', 'command', 'error_kind'} and
+                type(failure['phase']) is str and failure['phase'] in INNER_PHASES and
+                type(failure['command']) is str and failure['command'] in INNER_COMMANDS and
+                type(failure['error_kind']) is str and failure['error_kind'] in INNER_ERRORS)
+            need(failure['error_kind'] != 'CANCELLED' or row['cancelled'])
+    need(len(json.dumps(row, sort_keys=True, separators=(',', ':'), allow_nan=False).encode()) <= 2048)
+    return group
+
+
+def inner_failure(row, action, group):
+    """Add diagnostic-only data after the original nonzero command cause is frozen."""
+    need(action in INNER_ACTIONS and row['schema_version'] in (3, 4) and
+         row['first_failed_predicate'] != 'NONE' and row['commands'][action]['code'] not in (None, 0))
+    validate_inner_group(group); need(group['availability'] != 'NOT_RUN')
+    value = clone(row)
+    if value['schema_version'] == 3:
+        value.update(schema_version=4, inner={name: {'availability': 'NOT_RUN', 'reason': 'NOT_RUN',
+            'raw_sha256': None, 'diagnostic': None} for name in INNER_ACTIONS})
+    value['inner'][action] = clone(group)
+    project(value)
+    row.update(value)
 
 
 def validate_return(row):
@@ -203,7 +261,16 @@ def validate_exit(row):
 def validate_fields(row):
     diagnostic_keys(row)
     if row['schema_version'] >= 2:
-        validate_operation(row['operation'], row['schema_version'])
+        validate_operation(row['operation'], min(row['schema_version'], 3))
+    if row['schema_version'] == 4:
+        need(type(row['inner']) is dict and set(row['inner']) == set(INNER_ACTIONS) and
+             row['current_predicate'] != 'COMPLETE' and row['first_failed_predicate'] != 'NONE')
+        for group in row['inner'].values(): validate_inner_group(group)
+        active = [name for name in INNER_ACTIONS if row['inner'][name]['availability'] != 'NOT_RUN']
+        need(len(active) == 1)
+        for name, group in row['inner'].items():
+            validate_inner_group(group)
+            if name in active: need(row['commands'][name]['code'] not in (None, 0))
     need(type(row['current_predicate']) is str and row['current_predicate'] in PREDICATES)
     need(type(row['first_failed_predicate']) is str and row['first_failed_predicate'] in PREDICATES | {'NONE'})
     need(type(row['failure_category']) is str and row['failure_category'] in CATEGORIES)

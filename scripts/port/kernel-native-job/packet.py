@@ -13,11 +13,11 @@ PREFIX = 'scripts/port/kernel-native-job/'
 KERNEL = 'scripts/port/kernel-native-stage/'
 WORKFLOW = '.github/workflows/native-arm-kernel.yml'
 DOCUMENT = 'docs/workstreams/kernel-native-job.md'
-KERNEL_SHA = 'edf34671885cc3b76537a5d16f7768a97fa27d80ca66bd081397b144457d42b2'
+KERNEL_SHA = 'a5d8257f34f2c36cef1d8d16d9f07cd511bcfb36c8467b46d2a868dd586e2ffb'
 INPUTS_SHA = '3c16c37d1b12cc84a88572e82ab8ad59e7f3b5ed0d08f09ddf72a69f4711d650'
 RECIPES_SHA = '20d846cdf289bfc233b0051bf33b677fd6e94e9f05d91a33595a2829a196fa63'
 EPOCH = 1791748800
-RECIPE_COUNT, KERNEL_COUNT = 71, 26
+RECIPE_COUNT, KERNEL_COUNT = 71, 29
 MAX_FILES, MAX_FILE, MAX_TOTAL = 256, 8 * 1024**2, 32 * 1024**2
 RECIPE_BASES = {'packages/desktop/cachy-asahi-hyprland-settings',
                 'packages/settings/cachy-asahi-setup',

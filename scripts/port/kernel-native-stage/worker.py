@@ -7,11 +7,13 @@ import platform
 import re
 import shutil
 import stat
+import subprocess
 import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from common import PREFIX, SOURCE, TOOLS, code_contract, delta_config, digest, inventory, load, module, need, regular, save
 from runtime import Cancelled, Runner, cancellation_handlers, defer_signals
+import inner_result
 
 CODE, INPUTS, OUT = Path('/code'), Path('/inputs'), Path('/out')
 
@@ -52,8 +54,53 @@ def profile(action, contract):
             'mounts': {p: mounts[p] for p in ('/', '/tmp', '/code', '/inputs', '/out')}}
 
 
+def observe(report, operation, *args, deferred=None, **kwargs):
+    row = report.get('inner_diagnostic')
+    if row is None: return
+    try:
+        operation(row, *args, **kwargs)
+    except (Cancelled, KeyboardInterrupt, SystemExit) as error:
+        row.update(write_failed=True, cancelled=True)
+        if deferred is None: raise
+        report.update(status='FAIL', cancelled=True)
+        deferred.append(error)
+    except Exception:
+        # Ordinary diagnostic faults cannot change the original business path.
+        row['write_failed'] = True
+
+
+
+
+def observe_failure(report, error, cleanup, deferred):
+    def record(row):
+        # Freeze the original cause before invoking the optional helper callback.
+        if isinstance(error, (Cancelled, KeyboardInterrupt, SystemExit)): kind = 'CANCELLED'
+        elif isinstance(error, ImportError): kind = 'IMPORT'
+        elif isinstance(error, OSError): kind = 'IO'
+        elif type(error) is ValueError:
+            kind = {'command-timeout': 'TIMEOUT', 'deadline-exhausted': 'DEADLINE',
+                'output-bound': 'OUTPUT_BOUND', 'process-cleanup': 'PROCESS_CLEANUP'}.get(
+                    error.args[0] if len(error.args) == 1 and type(error.args[0]) is str else '', 'DATA_REFUSAL')
+        else: kind = 'OTHER'
+        key = 'cleanup_failure' if cleanup else 'first_failure'
+        if row[key] is None:
+            row[key] = {'phase': row['phase'], 'command': row['command'], 'error_kind': kind}
+        if kind == 'CANCELLED': row['cancelled'] = True
+        inner_result.failure(row, error, cleanup=cleanup)
+    observe(report, record, deferred=deferred)
+
+
 def command(runner, report, label, argv, timeout=60):
+    if 'inner_diagnostic' in report:
+        name = {'inventory': 'INVENTORY', 'config': 'CONFIG', 'kernel': 'KERNEL'}.get(label)
+        if label.startswith('tool-') and label[5:].isdigit(): name = 'TOOL_' + label[5:]
+        observe(report, inner_result.issued, name)
     result = runner.run(argv, timeout=timeout, log=label + '.log')
+    if 'inner_diagnostic' in report:
+        if isinstance(result, subprocess.CompletedProcess):
+            observe(report, inner_result.returned, result.returncode)
+        else:
+            observe(report, inner_result.invalidate)
     report['commands'].append({'label': label, 'argv': argv, 'exit': result.returncode,
                               'log_sha256': digest(runner.log_dir / (label + '.log'))})
     need(result.returncode == 0, 'command failed: ' + label)
@@ -120,6 +167,7 @@ def tools(runner, report):
 
 
 def compile_variant(runner, report, contract, dependencies, action):
+    observe(report, inner_result.phase, 'SOURCE')
     held = CODE / SOURCE
     sys.path.insert(0, str(held))
     harness = module('harness', held / 'harness.py')
@@ -138,13 +186,19 @@ def compile_variant(runner, report, contract, dependencies, action):
             'LD=/usr/bin/ld', 'AS=/usr/bin/as', 'RUSTC=/usr/bin/rustc', 'BINDGEN=/usr/bin/bindgen',
             'PAHOLE=/usr/bin/pahole', 'CLANG=/usr/bin/clang', 'DTC=/usr/bin/dtc']
     report['source'] = source_result
+    observe(report, inner_result.phase, 'CONFIG')
     command(runner, report, 'config', make + ['olddefconfig'], timeout=300)
+    observe(report, inner_result.phase, 'CONFIG_DELTA')
     report['generated_config_delta'] = delta_config(verifier.config(INPUTS / 'embedded-config'), verifier.config(build / '.config'), dependencies['allowed_generated_config_delta'])
     if action == 'candidate':
+        observe(report, inner_result.phase, 'PAIRED_CONFIG')
         regular(INPUTS / 'baseline-config', 1024**2)
         report['paired_config'] = verifier.verify_config(INPUTS / 'baseline-config', build / '.config')
+    observe(report, inner_result.phase, 'GENERATED_CONFIG')
     shutil.copyfile(build / '.config', OUT / 'generated-config.txt')
+    observe(report, inner_result.phase, 'KERNEL')
     command(runner, report, 'kernel', make + ['-j2', 'Image', 'modules', 'dtbs'], timeout=7200)
+    observe(report, inner_result.phase, 'OUTPUTS')
     report['structure'] = verifier.verify_outputs(build, source, build / '.config')
     report['native_kernel_compilation'] = 'PASS'
     report['kernel_execution'] = 'NOT RUN'
@@ -164,20 +218,31 @@ def execute(action, nonce=None, contract_sha=None):
         need(digest(INPUTS / name) == row['sha256'], 'input snapshot differs: ' + name)
     report = {'status': 'FAIL', 'action': action, 'nonce': nonce, 'commands': [], 'cancelled': False,
               'kernel_execution': 'NOT RUN', 'hardware_validation': 'NOT RUN', 'performance': 'NOT MEASURED'}
+    if action != 'provision':
+        try:
+            report['inner_diagnostic'] = inner_result.initial({'nonce': nonce, 'action': action,
+                'contract_sha256': contract_sha, 'worker_sha256': contract['files'][PREFIX + 'worker.py']['sha256']})
+        except Exception:
+            report['inner_diagnostic'] = None
     Path('/tmp/home').mkdir(mode=0o700)
     Path('/tmp/query.conf').write_text('[options]\nArchitecture = aarch64\nSigLevel = Required TrustedOnly\nLocalFileSigLevel = Required TrustedOnly\n')
     env = {'PATH': '/usr/bin:/bin', 'HOME': '/tmp/home', 'LC_ALL': 'C', 'TZ': 'UTC', 'TMPDIR': '/tmp',
            'KBUILD_BUILD_USER': 'cachy-asahi-kernel-c01', 'KBUILD_BUILD_HOST': 'native-kernel-c01', 'KBUILD_BUILD_VERSION': '1',
            'KBUILD_BUILD_TIMESTAMP': 'Sat Sep 19 16:04:41 UTC 2026', 'RUST_LIB_SRC': '/usr/lib/rustlib/src/rust/library', 'LIBCLANG_PATH': '/usr/lib'}
     runner = Runner(7700 if action in ('baseline', 'candidate') else 900, env, Path('/tmp/logs'))
+    observation_controls = []
     try:
+        observe(report, inner_result.phase, 'PROFILE')
         report['profile'] = profile(action, contract)
         if action == 'provision':
             provision(runner, report, dependencies)
         else:
+            observe(report, inner_result.phase, 'INVENTORY')
             report['inventory'] = package_map(runner, report, dependencies['expected_inventory'])
+            observe(report, inner_result.phase, 'TOOLS')
             report['tools'] = tools(runner, report)
             if action == 'probe':
+                observe(report, inner_result.phase, 'SOURCE')
                 regression = module('kernel_regression', CODE / (PREFIX + 'regression.py'))
                 report['logic_fixture'] = regression.run_fixture(INPUTS / 'bio-baseline.c', INPUTS / 'bio-candidate.c',
                     Path('/tmp/logic/trial'), Path('/usr/bin/gcc').resolve(), digest(Path('/usr/bin/gcc').resolve()), evidence_root=Path('/tmp/logic'))
@@ -195,21 +260,100 @@ def execute(action, nonce=None, contract_sha=None):
         report['status'] = 'PASS'
     except BaseException as error:
         report.update(status='FAIL', cancelled=isinstance(error, (Cancelled, KeyboardInterrupt)), error_type=type(error).__name__)
+        try:
+            observe_failure(report, error, False, observation_controls)
+        except (Cancelled, KeyboardInterrupt, SystemExit) as error:
+            row = report.get('inner_diagnostic')
+            if row is not None:
+                row.update(write_failed=True, cancelled=True)
+            report.update(status='FAIL', cancelled=True)
+            observation_controls.append(error)
+        except Exception:
+            row = report.get('inner_diagnostic')
+            if row is not None:
+                row['write_failed'] = True
         raise
     finally:
-        with defer_signals() as events:
-            for log in runner.log_dir.glob('*.log'):
-                regular(log, 8 * 1024**2); shutil.copyfile(log, OUT / log.name)
-            if events: report.update(status='FAIL', cancelled=True)
-            save(OUT / 'result.json', report)
-            if action == 'provision':
-                for path in OUT.iterdir():
-                    regular(path, 8 * 1024**2)
-                    path.chmod(0o600); os.chown(path, contract['uid'], contract['gid'])
-        if events:
+        original_failure = sys.exc_info()[1]
+        try:
+            observe(report, inner_result.phase, 'FINALIZATION', deferred=observation_controls)
+        except (Cancelled, KeyboardInterrupt, SystemExit) as error:
+            row = report.get('inner_diagnostic')
+            if row is not None:
+                row.update(write_failed=True, cancelled=True)
             report.update(status='FAIL', cancelled=True)
-            with defer_signals(): save(OUT / 'result.json', report)
-            if action == 'provision': os.chown(OUT / 'result.json', contract['uid'], contract['gid'])
+            observation_controls.append(error)
+        except Exception:
+            row = report.get('inner_diagnostic')
+            if row is not None:
+                row['write_failed'] = True
+        try:
+            with defer_signals() as events:
+                for log in runner.log_dir.glob('*.log'):
+                    regular(log, 8 * 1024**2); shutil.copyfile(log, OUT / log.name)
+                if events:
+                    report.update(status='FAIL', cancelled=True)
+                    try:
+                        observe_failure(report, Cancelled(events[0]), True, observation_controls)
+                    except (Cancelled, KeyboardInterrupt, SystemExit) as error:
+                        row = report.get('inner_diagnostic')
+                        if row is not None:
+                            row.update(write_failed=True, cancelled=True)
+                        report.update(status='FAIL', cancelled=True)
+                        observation_controls.append(error)
+                    except Exception:
+                        row = report.get('inner_diagnostic')
+                        if row is not None:
+                            row['write_failed'] = True
+                if report['status'] == 'PASS':
+                    try:
+                        observe(report, inner_result.phase, 'COMPLETE', deferred=observation_controls)
+                    except (Cancelled, KeyboardInterrupt, SystemExit) as error:
+                        row = report.get('inner_diagnostic')
+                        if row is not None:
+                            row.update(write_failed=True, cancelled=True)
+                        report.update(status='FAIL', cancelled=True)
+                        observation_controls.append(error)
+                    except Exception:
+                        row = report.get('inner_diagnostic')
+                        if row is not None:
+                            row['write_failed'] = True
+                save(OUT / 'result.json', report)
+                if action == 'provision':
+                    for path in OUT.iterdir():
+                        regular(path, 8 * 1024**2)
+                        path.chmod(0o600); os.chown(path, contract['uid'], contract['gid'])
+            if events:
+                report.update(status='FAIL', cancelled=True)
+                try:
+                    observe_failure(report, Cancelled(events[0]), True, observation_controls)
+                except (Cancelled, KeyboardInterrupt, SystemExit) as error:
+                    row = report.get('inner_diagnostic')
+                    if row is not None:
+                        row.update(write_failed=True, cancelled=True)
+                    report.update(status='FAIL', cancelled=True)
+                    observation_controls.append(error)
+                except Exception:
+                    row = report.get('inner_diagnostic')
+                    if row is not None:
+                        row['write_failed'] = True
+                with defer_signals(): save(OUT / 'result.json', report)
+                if action == 'provision': os.chown(OUT / 'result.json', contract['uid'], contract['gid'])
+        except BaseException as error:
+            try:
+                observe_failure(report, error, True, observation_controls)
+            except (Cancelled, KeyboardInterrupt, SystemExit) as error:
+                row = report.get('inner_diagnostic')
+                if row is not None:
+                    row.update(write_failed=True, cancelled=True)
+                report.update(status='FAIL', cancelled=True)
+                observation_controls.append(error)
+            except Exception:
+                row = report.get('inner_diagnostic')
+                if row is not None:
+                    row['write_failed'] = True
+            raise
+        if observation_controls and original_failure is None: raise observation_controls[0]
     return 0
 
 

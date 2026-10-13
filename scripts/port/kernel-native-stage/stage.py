@@ -18,10 +18,50 @@ from runtime import Cancelled, Runner, cancellation_handlers, defer_signals
 from broker import Broker
 import image
 import evidence as child_evidence
+import inner_result
 
 HELPERS = ('scripts/ci/native_arm.py', 'scripts/ci/commit_image.py', 'scripts/port/fdk-native-stage/evidence.py')
 HELD = ('harness.py', 'verify_build.py', 'candidate.json')
 MAX_STAGE_SECONDS = 5 * 3600
+
+
+def capture_inner_failure(out, expected):
+    """One private byte capture; observation refusal cannot accept a START failure."""
+    unavailable = {'availability': 'UNAVAILABLE', 'reason': 'MISSING',
+                   'raw_sha256': None, 'diagnostic': None}
+    def ancestry():
+        rows = []
+        for path in (out, *out.parents):
+            info = path.lstat()
+            need(stat.S_ISDIR(info.st_mode), 'inner receipt ancestry differs')
+            if path in (out, out.parent):
+                need(info.st_uid == os.getuid() and stat.S_IMODE(info.st_mode) == 0o700,
+                     'owned private receipt directory required')
+            rows.append((info.st_dev, info.st_ino, info.st_mode, info.st_uid, info.st_gid))
+        return rows
+    def identity(info):
+        return (info.st_dev, info.st_ino, info.st_mode, info.st_uid, info.st_gid,
+                info.st_nlink, info.st_size, info.st_mtime_ns, info.st_ctime_ns)
+    try:
+        before_dirs = ancestry()
+        path = out / 'result.json'
+        # Builtin open owns and closes its descriptor on every context exit,
+        # including failed identity checks and control exceptions.
+        with open(path, 'rb', opener=lambda name, flags: os.open(
+                name, flags | os.O_NOFOLLOW | os.O_NONBLOCK)) as stream:
+            before = os.fstat(stream.fileno())
+            need(stat.S_ISREG(before.st_mode) and before.st_uid == os.getuid() and
+                 stat.S_IMODE(before.st_mode) == 0o600 and before.st_nlink == 1 and
+                 0 <= before.st_size <= 4 * 1024**2, 'bounded private receipt required')
+            raw = stream.read(4 * 1024**2 + 1)
+            need(len(raw) == before.st_size and identity(before) ==
+                 identity(os.fstat(stream.fileno())) == identity(path.lstat()) and
+                 before_dirs == ancestry(), 'private receipt changed during capture')
+        return inner_result.capture(raw, expected)
+    except FileNotFoundError:
+        return unavailable
+    except Exception:
+        return {**unavailable, 'availability': 'REFUSED', 'reason': 'INVALID'}
 
 
 def source_files(root):
@@ -233,6 +273,17 @@ def execute(args):
                     observer.fail(ValueError('kernel worker exit failed'), 'COMMAND_NONZERO')
                 report['diagnostics']['operation'] = observer.snapshot()
                 child_evidence.failure(report['diagnostics'], 'COMMAND_NONZERO')
+                if action in ('probe', 'baseline', 'candidate'):
+                    try:
+                        expected = {'nonce': nonce, 'action': action,
+                            'contract_sha256': worker_env['KERNEL_STAGE_CONTRACT_SHA256'],
+                            'worker_sha256': lock['files'][PREFIX + 'worker.py']['sha256']}
+                        child_evidence.inner_failure(report['diagnostics'], action,
+                                                     capture_inner_failure(out, expected))
+                    except Exception:
+                        # Missing/unpublishable observation leaves no trusted
+                        # inner cause. Keep the original business refusal below.
+                        pass
             need(command_result.returncode == 0, 'kernel worker exit failed')
             checkpoint(action.upper() + '_RECEIPT')
             receipt = load(out / 'result.json')

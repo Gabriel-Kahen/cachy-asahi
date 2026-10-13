@@ -121,7 +121,8 @@ class ChildCheckpointTests(unittest.TestCase):
             docker=root / 'docker', docker_sha256='e' * 64, endpoint='fixture-endpoint')
         args.inputs.write_bytes(b'inputs'); args.base_packages.write_bytes(b'base')
         lock = {'purpose': 'KERNEL-NATIVE-C01', 'base_inventory_sha256': stage.BASE_SHA,
-            'files': {'scripts/ci/native_arm.py': {'sha256': 'f' * 64}}}
+            'files': {'scripts/ci/native_arm.py': {'sha256': 'f' * 64},
+                      stage.PREFIX + 'worker.py': {'sha256': '3' * 64}}}
         checkpoints, calls = [], []
         real_finish = stage.finish
         def finish(output, report):

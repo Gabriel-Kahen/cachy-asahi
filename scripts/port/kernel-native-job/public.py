@@ -161,9 +161,55 @@ CHILD_RESOURCE_FORBIDDEN = frozenset(('Devices', 'DeviceRequests', 'Binds', 'Vol
 CHILD_RESOURCE_KINDS = frozenset(('MISSING', 'TYPE', 'VALUE', 'PRESENT'))
 CHILD_REFUSALS = frozenset(('API HTTP framing differs', 'API aggregate timeout', 'API connect failed', 'API content length differs', 'API send failed', 'API socket failed', 'API wire budget exceeded', 'accepted base missing from protected inventory', 'base image query failed', 'bounded API JSON response required', 'bounded API request required', 'command-timeout', 'deadline-exhausted', 'derived image ID was already protected', 'derived image config/identity differs', 'derived image query failed', 'derived layer size exceeds3GiB budget', 'docker-binary-drift', 'docker-binary-path', 'docker-binary-pin', 'docker-capture-command', 'docker-cleanup-failed', 'docker-config', 'docker-container-command', 'docker-container-mounts', 'docker-container-ownership', 'docker-container-resources', 'docker-create-absence-uncertain', 'docker-create-unknown', 'docker-daemon-chunk-framing', 'docker-daemon-connect', 'docker-daemon-drift', 'docker-daemon-http-framing', 'docker-daemon-http-invalid', 'docker-daemon-http-status', 'docker-daemon-http-trailing', 'docker-daemon-http-truncated', 'docker-daemon-output-bound', 'docker-daemon-send', 'docker-daemon-timeout', 'docker-duplicate-json-key', 'docker-endpoint', 'docker-environment', 'docker-expected-daemon', 'docker-home', 'docker-host-uid-mapping-required', 'docker-image-binding', 'docker-image-drift', 'docker-image-pin', 'docker-image-query', 'docker-image-volumes', 'docker-input-size', 'docker-journal-binding', 'docker-journal-container', 'docker-journal-path', 'docker-journal-size', 'docker-kernel-action', 'docker-kernel-environment', 'docker-kernel-mount-map', 'docker-kernel-mount-path', 'docker-kernel-timeout', 'docker-local-pin-drift', 'docker-name-reservation', 'docker-native-daemon', 'docker-nonce', 'docker-ordinary-user', 'docker-owned-absence', 'docker-owned-inspect', 'docker-owned-list', 'docker-owned-remove', 'docker-regular-input', 'docker-reserved-name-exists', 'docker-role', 'docker-rootful-socket', 'docker-uninitialized', 'immutable derived image response required', 'invalid-argv', 'invalid-environment', 'invalid-output-bound', 'invalid-time-bound', 'journal build command differs', 'journal mount ownership differs', 'journal name is not nonce-owned', 'journal provision command differs', 'journal role/action differs', 'kernel probe requires bound worker and exact input map', 'kernel worker exit failed', 'new owned image journal required', 'new private image tag required', 'nonfinite owned image journal', 'one derived layer on exact accepted image required', 'one exact image required', 'one exact provision container required', 'output-bound', 'owned image ID absence unverified', 'owned image ID removal failed', 'owned image absence query failed', 'owned image accepted config differs', 'owned image identity differs', 'owned image journal changed during capture', 'owned image journal differs', 'owned image journal exceeded bound', 'owned image journal file differs', 'owned image journal path differs', 'owned image journal schema differs', 'owned image query differs', 'owned image removal failed', 'owned private tag still present', 'owned provision broker required', 'private image journal parent required', 'process-cleanup', 'protected image inventory changed before commit', 'protected image inventory malformed or oversized', 'protected image inventory query failed or exceeded bound', 'protected image journal differs', 'threaded-runner', 'unsafe-log-directory', 'unsafe-log-path'))
 
+CHILD_INNER_ACTIONS = ('probe', 'baseline', 'candidate')
+
+CHILD_INNER_PHASES = frozenset(('NONE', 'PRECHECK', 'PROFILE', 'INVENTORY', 'TOOLS', 'SOURCE',
+    'CONFIG', 'CONFIG_DELTA', 'PAIRED_CONFIG', 'GENERATED_CONFIG', 'KERNEL', 'OUTPUTS', 'FINALIZATION', 'COMPLETE'))
+
+CHILD_INNER_COMMANDS = frozenset(('NONE', 'INVENTORY', 'CONFIG', 'KERNEL', *(f'TOOL_{n}' for n in range(18))))
+
+CHILD_INNER_ERRORS = frozenset(('DATA_REFUSAL', 'IO', 'IMPORT', 'TIMEOUT', 'DEADLINE', 'OUTPUT_BOUND',
+    'PROCESS_CLEANUP', 'CANCELLED', 'OTHER'))
+
+CHILD_INNER_PUBLIC_KEYS = frozenset(('schema_version', 'binding_sha256', 'phase', 'command', 'attempt',
+    'natural_return', 'first_failure', 'cleanup_failure', 'cancelled', 'write_failed'))
+
+def child_validate_inner_group(group):
+    need(type(group) is dict and set(group) == {'availability', 'reason', 'raw_sha256', 'diagnostic'})
+    availability = group['availability']
+    need(type(availability) is str and availability in ('NOT_RUN', 'UNAVAILABLE', 'REFUSED', 'VERIFIED'))
+    need(type(group['reason']) is str and group['reason'] == {'NOT_RUN': 'NOT_RUN', 'UNAVAILABLE': 'MISSING', 'REFUSED': 'INVALID', 'VERIFIED': 'OBSERVED'}[availability])
+    pin = group['raw_sha256']
+    need(pin is None or type(pin) is str and re.fullmatch('[0-9a-f]{64}', pin))
+    if availability != 'VERIFIED':
+        need(group['diagnostic'] is None and (availability == 'REFUSED' or pin is None))
+        return group
+    need(pin is not None)
+    row = group['diagnostic']
+    need(type(row) is dict and set(row) == CHILD_INNER_PUBLIC_KEYS and type(row['schema_version']) is int and row['schema_version'] == 1)
+    need(type(row['binding_sha256']) is str and re.fullmatch('[0-9a-f]{64}', row['binding_sha256']))
+    need(type(row['phase']) is str and row['phase'] in CHILD_INNER_PHASES and type(row['command']) is str and row['command'] in CHILD_INNER_COMMANDS)
+    need(type(row['attempt']) is str and row['attempt'] in ('NOT_ISSUED', 'ISSUED'))
+    natural = row['natural_return']
+    need(type(natural) is dict and set(natural) == {'kind', 'code'} and type(natural['kind']) is str)
+    need(natural == {'kind': 'UNOBSERVED', 'code': None} or natural['kind'] == 'RETURNED' and
+         type(natural['code']) is int and -64 <= natural['code'] <= 255 and row['attempt'] == 'ISSUED')
+    need((row['command'] == 'NONE') == (row['attempt'] == 'NOT_ISSUED'))
+    need(type(row['cancelled']) is bool and row['write_failed'] is False)
+    for name in ('first_failure', 'cleanup_failure'):
+        failure = row[name]
+        if failure is not None:
+            need(type(failure) is dict and set(failure) == {'phase', 'command', 'error_kind'} and
+                type(failure['phase']) is str and failure['phase'] in CHILD_INNER_PHASES and
+                type(failure['command']) is str and failure['command'] in CHILD_INNER_COMMANDS and
+                type(failure['error_kind']) is str and failure['error_kind'] in CHILD_INNER_ERRORS)
+            need(failure['error_kind'] != 'CANCELLED' or row['cancelled'])
+    need(len(json.dumps(row, sort_keys=True, separators=(',', ':'), allow_nan=False).encode()) <= 2048)
+    return group
+
 def child_diagnostic_keys(row):
-    need(type(row) is dict and type(row.get('schema_version')) is int and (row['schema_version'] in (1, 2, 3)))
-    return CHILD_DIAG_KEYS | ({'operation'} if row['schema_version'] >= 2 else set())
+    need(type(row) is dict and type(row.get('schema_version')) is int and (row['schema_version'] in (1, 2, 3, 4)))
+    return CHILD_DIAG_KEYS | ({'operation'} if row['schema_version'] >= 2 else set()) | ({'inner'} if row['schema_version'] == 4 else set())
 
 def child_validate_return(row):
     if type(row) is dict and set(row) == {'kind', 'code'} and (row['kind'] == 'HTTP_STATUS'):
@@ -217,7 +263,14 @@ def child_validate_exit(row):
 def child_validate_fields(row):
     child_diagnostic_keys(row)
     if row['schema_version'] >= 2:
-        child_validate_operation(row['operation'], row['schema_version'])
+        child_validate_operation(row['operation'], min(row['schema_version'], 3))
+    if row['schema_version'] == 4:
+        need(type(row['inner']) is dict and set(row['inner']) == set(CHILD_INNER_ACTIONS) and
+             row['current_predicate'] != 'COMPLETE' and row['first_failed_predicate'] != 'NONE')
+        for group in row['inner'].values(): child_validate_inner_group(group)
+        active = [name for name in CHILD_INNER_ACTIONS if row['inner'][name]['availability'] != 'NOT_RUN']
+        need(len(active) == 1)
+        for name in active: need(row['commands'][name]['code'] not in (None, 0))
     need(type(row['current_predicate']) is str and row['current_predicate'] in CHILD_PREDICATES)
     need(type(row['first_failed_predicate']) is str and row['first_failed_predicate'] in CHILD_PREDICATES | {'NONE'})
     need(type(row['failure_category']) is str and row['failure_category'] in CHILD_CATEGORIES)
