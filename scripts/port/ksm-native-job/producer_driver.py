@@ -10,6 +10,7 @@ import builtins
 from contextlib import contextmanager
 import hashlib
 import importlib.machinery as machinery
+import json
 import math
 import os
 from pathlib import Path
@@ -33,10 +34,59 @@ BOOTSTRAP = types.MappingProxyType({**{v.__name__: v for v in tuple(globals().va
 STDLIB = frozenset(sys.stdlib_module_names)
 FINDERS = (machinery.BuiltinImporter, machinery.FrozenImporter, machinery.PathFinder)
 FIELDS = ('st_dev','st_ino','st_mode','st_nlink','st_uid','st_gid','st_size','st_mtime_ns','st_ctime_ns')
+REFUSAL_PREFIX = 'KSM_PRODUCER_REFUSAL_V1 '
+REFUSAL_GATES = frozenset({'PREFLIGHT','OUTPUT_BIND','GRAPH_LOAD','WRAP','NATIVE_ENTRY','NATIVE_RETURN','CONTEXT_EXIT','UNKNOWN'})
+REFUSAL_PREDICATES = frozenset({
+    'producer-annotation-custody','producer-binding-missing','producer-code-custody',
+    'producer-custody-bound','producer-custody-keys','producer-deadline','producer-file',
+    'producer-file-bound','producer-file-drift','producer-guard-invalidated',
+    'producer-image-binding','producer-image-drift','producer-inventory-cap',
+    'producer-module-custody','producer-module-grant','producer-native-argv',
+    'producer-output','producer-output-binding','producer-output-directory',
+    'producer-output-exists','producer-output-parent-drift','producer-path',
+    'producer-path-custody','producer-private-parent','producer-project-import',
+    'producer-relative-project-import','producer-source-drift','producer-source-pin',
+    'producer-unbound-import','producer-wrapper-custody','producer-wrapper-grant',
+    'producer-wrapper-output','producer-wrapper-replay','producer-wrapper-slot','UNKNOWN'})
+_REFUSAL_ISSUER = object()
+_VALUE_ERROR = ValueError
 
 
 def need(ok, reason):
-    if not ok: raise ValueError(reason)
+    if not ok:
+        error = ValueError(reason)
+        try:
+            if type(error) is _VALUE_ERROR and type(reason) is str and reason in REFUSAL_PREDICATES:
+                error.__dict__.update(ksm_refusal_predicate=reason, ksm_refusal_issuer=_REFUSAL_ISSUER)
+        except Exception:
+            pass
+        raise error
+
+
+def refusal_record(error, gate):
+    """Only our issued builtin error is readable; no foreign getter or message."""
+    predicate = 'UNKNOWN'
+    try:
+        if type(error) is _VALUE_ERROR:
+            state = vars(error)
+            if type(state) is dict and len(state) == 2 and all(type(key) is str for key in state):
+                value = state.get('ksm_refusal_predicate')
+                if state.get('ksm_refusal_issuer') is _REFUSAL_ISSUER and type(value) is str and value in REFUSAL_PREDICATES:
+                    predicate = value
+    except Exception:
+        pass
+    return {'schema_version':1, 'last_source_gate':gate if type(gate) is str and gate in REFUSAL_GATES else 'UNKNOWN',
+            'predicate':predicate}
+
+
+def emit_refusal(error, gate):
+    """Best-effort fixed record in existing stdout transport; never an outcome."""
+    try:
+        encoded = REFUSAL_PREFIX + json.dumps(refusal_record(error, gate), sort_keys=True, separators=(',',':')) + '\n'
+        if len(encoded.encode('ascii')) <= 512:
+            sys.stdout.write(encoded); sys.stdout.flush()
+    except Exception:
+        pass
 
 
 def alive(end):
@@ -420,6 +470,7 @@ def main(argv=None):
     parser.add_argument('--producer-output',type=Path,required=True)
     parser.add_argument('--inventory-seconds',type=int,required=True)
     argv=list(sys.argv[1:] if argv is None else argv)
+    gate='PREFLIGHT'
     try:
         need(argv.count('--')==1,'producer-native-argv')
         split=argv.index('--'); native=argv[:split]; args=parser.parse_args(argv[split+1:])
@@ -428,13 +479,21 @@ def main(argv=None):
              and not any(x.startswith('--output=') for x in native),'producer-native-argv')
         i=native.index('--output'); need(i+1<len(native) and native[i+1]==str(args.producer_output),'producer-output-binding')
         root=Path(__file__).absolute().parents[3]
+        gate='OUTPUT_BIND'
         parent=bind_output(root,args.producer_output)
+        gate='GRAPH_LOAD'
         with load_graph(root,deadline=args.producer_end) as (module,guard):
+            gate='WRAP'
             original=wrap_run(module,args.producer_output,deadline=args.producer_end,guard=guard,parent_identity=parent)
             grant=_GRAPHS[id(module)]
             grant[4].verify(); guard()
-            return module.main(native)
-    except (ValueError,OSError,UnicodeError):
+            gate='NATIVE_ENTRY'
+            result=module.main(native)
+            gate='NATIVE_RETURN'
+            gate='CONTEXT_EXIT'
+        return result
+    except (ValueError,OSError,UnicodeError) as error:
+        emit_refusal(error,gate)
         sys.stderr.write('scoped original producer driver refused\n')
         return 125
 

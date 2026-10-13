@@ -15,6 +15,7 @@ import re
 import secrets
 import shutil
 import stat
+import subprocess
 import sys
 import tempfile
 import time
@@ -29,6 +30,67 @@ import job
 import public
 import required_paths
 import runtime
+
+
+REFUSAL_PREFIX = b'KSM_PRODUCER_REFUSAL_V1 '
+REFUSAL_GATES = frozenset({'PREFLIGHT','OUTPUT_BIND','GRAPH_LOAD','WRAP','NATIVE_ENTRY','NATIVE_RETURN','CONTEXT_EXIT','UNKNOWN'})
+REFUSAL_PREDICATES = frozenset({
+    'producer-annotation-custody','producer-binding-missing','producer-code-custody',
+    'producer-custody-bound','producer-custody-keys','producer-deadline','producer-file',
+    'producer-file-bound','producer-file-drift','producer-guard-invalidated',
+    'producer-image-binding','producer-image-drift','producer-inventory-cap',
+    'producer-module-custody','producer-module-grant','producer-native-argv',
+    'producer-output','producer-output-binding','producer-output-directory',
+    'producer-output-exists','producer-output-parent-drift','producer-path',
+    'producer-path-custody','producer-private-parent','producer-project-import',
+    'producer-relative-project-import','producer-source-drift','producer-source-pin',
+    'producer-unbound-import','producer-wrapper-custody','producer-wrapper-grant',
+    'producer-wrapper-output','producer-wrapper-replay','producer-wrapper-slot','UNKNOWN'})
+
+
+def producer_refusal(result, observation):
+    """Optional fixed leaf after an observed natural125; never grants acceptance."""
+    try:
+        if type(result) is not subprocess.CompletedProcess or type(observation) is not dict:
+            return None
+        if any(type(key) is not str for key in observation) or set(observation) != {'started','natural_poll_code','runner_return_code','reaped_code','reaping','before_cleanup'}:
+            return None
+        state = object.__getattribute__(result, '__dict__')
+        if type(state) is not dict or any(type(key) is not str for key in state) or set(state) != {'args','returncode','stdout','stderr'}:
+            return None
+        if type(state.get('returncode')) is not int or state['returncode'] != 125:
+            return None
+        if observation.get('started') is not True or type(observation.get('reaping')) is not str or observation['reaping'] != 'COMPLETED':
+            return None
+        for key in ('natural_poll_code','runner_return_code','reaped_code'):
+            if type(observation.get(key)) is not int or observation[key] != 125:
+                return None
+        before = observation.get('before_cleanup')
+        if type(before) is not dict or any(type(key) is not str for key in before) or set(before) != {'state','returncode'}:
+            return None
+        if type(before.get('state')) is not str or before['state'] != 'exited' or type(before.get('returncode')) is not int or before['returncode'] != 125:
+            return None
+        raw = state.get('stdout')
+        if type(raw) is not bytes or not 0 < len(raw) <= 8 * 1024**2 or not raw.endswith(b'\n') or raw.count(REFUSAL_PREFIX) != 1:
+            return None
+        line = raw.rsplit(b'\n', 2)[-2]
+        if not line.startswith(REFUSAL_PREFIX) or len(line) + 1 > 512:
+            return None
+        def pairs(items):
+            value = {}
+            for key, item in items:
+                if key in value: raise ValueError('duplicate-refusal-key')
+                value[key] = item
+            return value
+        def constant(_): raise ValueError('nonfinite-refusal')
+        value = json.loads(line[len(REFUSAL_PREFIX):].decode('ascii'), object_pairs_hook=pairs, parse_constant=constant)
+        if type(value) is not dict or set(value) != {'schema_version','last_source_gate','predicate'}:
+            return None
+        if type(value['schema_version']) is not int or value['schema_version'] != 1 or type(value['last_source_gate']) is not str or value['last_source_gate'] not in REFUSAL_GATES or type(value['predicate']) is not str or value['predicate'] not in REFUSAL_PREDICATES:
+            return None
+        return value
+    except Exception:
+        return None
 
 
 SOURCE_GATES = frozenset({
@@ -420,6 +482,12 @@ def pipeline(snapshot, source, private, owner, service, runner, endpoint_observa
             report['producer_diagnostics'] = diagnostics.snapshot(diagnostics.producer)
     if produced.returncode == 0: report['producer_mutation'] = 'COMPLETE_REJECTED'
     check_source_tree(snapshot, source, deadline=producer_end)
+    # Observation is subordinate to the existing source check and business refusal.
+    try:
+        refusal = producer_refusal(produced, observation.summary())
+        if refusal is not None: report['producer_refusal'] = refusal
+    except BaseException:
+        pass
     producer = contracts.validate_producer(snapshot, private / 'producer', produced.returncode, binding,
                                           journal_rows(owner), consumer=consumer, endpoint_observations=endpoint_observations)
     need(producer['image_id'] not in owner.baseline.protected(), 'baseline-ID-collision')

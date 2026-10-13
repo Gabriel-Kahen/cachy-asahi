@@ -601,6 +601,106 @@ class UnbufferedCopyTests(unittest.TestCase):
             self.assertEqual((root/'zero/tiny.py').stat().st_size,0)
 
 
+class ProducerRefusalTests(unittest.TestCase):
+    def record(self, **changes):
+        return {'schema_version':1,'last_source_gate':'GRAPH_LOAD','predicate':'producer-code-custody', **changes}
+
+    def result(self, value=None, raw=None):
+        return subprocess.CompletedProcess(['inert-source-fixture'],125,
+            raw if raw is not None else e.REFUSAL_PREFIX + json.dumps(value or self.record()).encode() + b'\n')
+
+    def observed(self):
+        return {'started':True,'natural_poll_code':125,'runner_return_code':125,'reaped_code':125,
+                'reaping':'COMPLETED','before_cleanup':{'state':'exited','returncode':125}}
+
+    def test_fixed_source_enums_and_every_record_are_shared_without_driver_import(self):
+        import ast
+        tree=ast.parse((Path(e.__file__).with_name('producer_driver.py')).read_bytes())
+        assignments={node.targets[0].id:node.value for node in tree.body
+                     if isinstance(node,ast.Assign) and len(node.targets)==1 and isinstance(node.targets[0],ast.Name)}
+        for name in ('REFUSAL_GATES','REFUSAL_PREDICATES'):
+            self.assertEqual(frozenset(ast.literal_eval(assignments[name].args[0])),getattr(e,name))
+        for gate in e.REFUSAL_GATES:
+            for predicate in e.REFUSAL_PREDICATES:
+                value=self.record(last_source_gate=gate,predicate=predicate)
+                self.assertEqual(e.producer_refusal(self.result(value),self.observed()),value)
+
+    def test_missing_nonnatural_and_bad_return_observations_never_adopt_a_leaf(self):
+        for key in ('started','natural_poll_code','runner_return_code','reaped_code','reaping','before_cleanup'):
+            row=self.observed();row.pop(key)
+            self.assertIsNone(e.producer_refusal(self.result(),row))
+        for code in (True,0,1,-15,None):
+            result=self.result();result.returncode=code
+            self.assertIsNone(e.producer_refusal(result,self.observed()))
+        for field in ('natural_poll_code','runner_return_code','reaped_code'):
+            row=self.observed();row[field]=True
+            self.assertIsNone(e.producer_refusal(self.result(),row))
+        class Foreign:
+            @property
+            def returncode(self): raise AssertionError('foreign getter invoked')
+        class Derived(subprocess.CompletedProcess): pass
+        self.assertIsNone(e.producer_refusal(Foreign(),self.observed()))
+        self.assertIsNone(e.producer_refusal(Derived([],125,b''),self.observed()))
+
+    def test_malformed_transport_keys_types_and_private_values_are_unknown(self):
+        good=e.REFUSAL_PREFIX+json.dumps(self.record()).encode()+b'\n'
+        for raw in (b'',good[:-1],good+b'after\n',good+good,b'private path only\n',
+                    e.REFUSAL_PREFIX+b'{"schema_version":1,"schema_version":1}\n',
+                    e.REFUSAL_PREFIX+b'{"schema_version":1e999}\n',
+                    e.REFUSAL_PREFIX+b'\xff\n',e.REFUSAL_PREFIX+b' '*513+b'\n'):
+            with self.subTest(raw=raw):self.assertIsNone(e.producer_refusal(self.result(raw=raw),self.observed()))
+        for value in (self.record(schema_version=True),self.record(schema_version=2),
+                      self.record(last_source_gate='/private/path'),self.record(predicate='private exception'),
+                      self.record(extra='password'),self.record(predicate=[])):
+            self.assertIsNone(e.producer_refusal(self.result(value),self.observed()))
+        self.assertEqual(e.producer_refusal(self.result(raw=b'ordinary private log\n'+good),self.observed()),self.record())
+
+    def test_observation_values_and_keys_never_invoke_foreign_equality(self):
+        calls=[]
+        class Foreign:
+            def __eq__(self,other):calls.append(other);return True
+            def __hash__(self):return hash('reaping')
+        for slot in ('reaping','state'):
+            row=self.observed()
+            if slot=='state':row['before_cleanup']['state']=Foreign()
+            else:row[slot]=Foreign()
+            self.assertIsNone(e.producer_refusal(self.result(),row))
+        for group in ('observation','before_cleanup','result'):
+            row=self.observed();result=self.result()
+            target=row if group=='observation' else row['before_cleanup'] if group=='before_cleanup' else result.__dict__
+            target[Foreign()]=None;calls.clear()
+            self.assertIsNone(e.producer_refusal(result,row));self.assertEqual(calls,[])
+        self.assertEqual(calls,[])
+
+    def test_pipeline_leaf_is_after_source_check_and_cannot_replace_business_failure(self):
+        for fault in (None,ValueError('observer defect'),KeyboardInterrupt('observer control'),SystemExit(7)):
+            with self.subTest(fault=fault),tempfile.TemporaryDirectory() as temporary:
+                private=Path(temporary);diagnostics=e.broker.Diagnostics()
+                owner=SimpleNamespace(failed=False,diagnostics=diagnostics,
+                    backend=SimpleNamespace(runner=SimpleNamespace(phase_scope=lambda end:nullcontext())),operation_deadline=None)
+                report={};events=[];original=ValueError('existing producer refusal')
+                def run(command,**options):
+                    events.append('run');runner.observation.__dict__.update(self.observed())
+                    return self.result()
+                runner=SimpleNamespace(run=run,deadline=time.monotonic()+8460,observation=None)
+                actual=e.producer_refusal
+                def decode(*args):
+                    events.append('decode')
+                    if fault is not None:raise fault
+                    return actual(*args)
+                with patch.object(e,'baseline_observe'),patch.object(e,'journal_rows',return_value=[]),\
+                     patch.object(e,'check_source_tree',side_effect=lambda *a,**k:events.append('source')),\
+                     patch.object(e,'producer_refusal',side_effect=decode),\
+                     patch.object(e.contracts,'validate_producer',side_effect=original),self.assertRaises(ValueError) as caught:
+                    e.pipeline(SimpleNamespace(files={}),Path('/source'),private,owner,
+                        SimpleNamespace(poll=lambda:None),runner,{}, {},report,SimpleNamespace(check=lambda:None))
+                self.assertIs(caught.exception,original)
+                self.assertLess(events.index('source'),events.index('decode'))
+                self.assertEqual(report.get('producer_refusal'),self.record() if fault is None else None)
+                self.assertEqual(report['producer_mutation'],'UNCERTAIN')
+                self.assertEqual(report['producer_diagnostics']['producer']['runner_return_code'],125)
+
+
 class ProducerObservationTests(unittest.TestCase):
     def test_existing_return_or_callback_exception_never_promotes_producer(self):
         for throws in (False,True):

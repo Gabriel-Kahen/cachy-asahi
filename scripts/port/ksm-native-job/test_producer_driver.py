@@ -4,6 +4,8 @@ import ast
 import builtins
 from contextlib import contextmanager
 import importlib.util
+import io
+import json
 import os
 from pathlib import Path
 import shutil
@@ -510,6 +512,89 @@ print('trusted builtin identity, custom handlers, nonempty mask, real runtime de
         # Actual argparse exits before native producer creates its output or launches an actor.
         with self.graph() as (native,_),self.assertRaises(SystemExit): native.main(['--not-a-native-option'])
         self.assertFalse(self.output.exists())
+
+
+class RefusalLeafTests(unittest.TestCase):
+    def issued(self, reason='producer-source-pin'):
+        try: driver.need(False,reason)
+        except ValueError as error: return error
+        self.fail('original refusal absent')
+
+    def test_all_source_issued_tags_preserve_original_builtin_message(self):
+        for reason in driver.REFUSAL_PREDICATES:
+            error=self.issued(reason)
+            self.assertIs(type(error),ValueError); self.assertEqual(error.args,(reason,))
+            self.assertEqual(driver.refusal_record(error,'GRAPH_LOAD'),
+                {'schema_version':1,'last_source_gate':'GRAPH_LOAD','predicate':reason})
+        error=self.issued('foreign not in enum')
+        self.assertEqual(error.args,('foreign not in enum',))
+        self.assertEqual(driver.refusal_record(error,'GRAPH_LOAD')['predicate'],'UNKNOWN')
+
+    def test_old_getter_trap_is_red_and_safe_reader_never_dispatches(self):
+        effects=[]
+        class Foreign(ValueError):
+            @property
+            def ksm_refusal_predicate(self):
+                effects.append('getter'); raise RuntimeError('inert observer trap')
+        error=Foreign('original')
+        with self.assertRaises(RuntimeError): getattr(error,'ksm_refusal_predicate','UNKNOWN')
+        self.assertEqual(effects,['getter']); effects.clear()
+        self.assertEqual(driver.refusal_record(error,'WRAP')['predicate'],'UNKNOWN')
+        self.assertEqual(effects,[]); self.assertEqual(error.args,('original',))
+
+    def test_foreign_untagged_class_or_hostile_value_cannot_selfgrant(self):
+        effects=[]
+        class Hostile:
+            def __eq__(self,*args): effects.append('equality'); raise AssertionError('foreign equality')
+            def __str__(self): effects.append('string'); raise AssertionError('foreign string')
+        errors=[ValueError('producer-source-pin'),OSError('private'),self.issued()]
+        errors[-1].__dict__['ksm_refusal_predicate']=Hostile()
+        forged=ValueError('original'); forged.__dict__.update(ksm_refusal_predicate='producer-source-pin',ksm_refusal_issuer=object())
+        errors.append(forged)
+        for error in errors:
+            self.assertEqual(driver.refusal_record(error,Hostile()),
+                {'schema_version':1,'last_source_gate':'UNKNOWN','predicate':'UNKNOWN'})
+        self.assertEqual(effects,[])
+        class ClassTag(ValueError): ksm_refusal_predicate='producer-source-pin'
+        self.assertEqual(driver.refusal_record(ClassTag(),'WRAP')['predicate'],'UNKNOWN')
+
+    def test_record_is_fixed_bounded_and_ordinary_output_fault_is_observational(self):
+        error=self.issued(); stream=io.StringIO()
+        with patch.object(driver.sys,'stdout',stream): driver.emit_refusal(error,'OUTPUT_BIND')
+        text=stream.getvalue(); self.assertLessEqual(len(text.encode('ascii')),512)
+        self.assertTrue(text.startswith(driver.REFUSAL_PREFIX)); self.assertEqual(text.count('\n'),1)
+        self.assertEqual(set(json.loads(text[len(driver.REFUSAL_PREFIX):])),{'schema_version','last_source_gate','predicate'})
+        with patch.object(driver.json,'dumps',side_effect=OSError('inert observation failure')):
+            self.assertIsNone(driver.emit_refusal(error,'OUTPUT_BIND'))
+        self.assertEqual(error.args,('producer-source-pin',))
+
+    def args(self):
+        return ['build','--output','/unused','--','--producer-end',str(time.monotonic()+20),
+                '--producer-output','/unused','--inventory-seconds','181']
+
+    def test_preflight125_exports_only_source_tag_and_normal_control_stays_original(self):
+        stdout,stderr=io.StringIO(),io.StringIO()
+        with patch.object(driver.sys,'stdout',stdout),patch.object(driver.sys,'stderr',stderr):
+            self.assertEqual(driver.main(self.args()),125)
+        record=json.loads(stdout.getvalue()[len(driver.REFUSAL_PREFIX):])
+        self.assertEqual(record,{'schema_version':1,'last_source_gate':'PREFLIGHT','predicate':'producer-inventory-cap'})
+        self.assertEqual(stderr.getvalue(),'scoped original producer driver refused\n')
+        for control in (KeyboardInterrupt('inert original'),SystemExit(17)):
+            with patch.object(driver,'alive',side_effect=control),patch.object(driver,'emit_refusal') as observer:
+                with self.assertRaises(type(control)) as caught: driver.main(self.args())
+            self.assertIs(caught.exception,control); observer.assert_not_called()
+
+    def test_business125_survives_ordinary_telemetry_fault_but_control_is_not_hidden(self):
+        with patch.object(driver.json,'dumps',side_effect=RuntimeError('inert telemetry defect')), \
+             patch.object(driver.sys,'stderr',io.StringIO()):
+            self.assertEqual(driver.main(self.args()),125)
+        # Synthetic control exceptions have the same type as a genuine delivery;
+        # the current driver has no authenticated signal-origin bit.
+        for control in (KeyboardInterrupt('inert observer control'),SystemExit(19)):
+            with patch.object(driver.sys,'stdout') as output:
+                output.write.side_effect=control
+                with self.assertRaises(type(control)) as caught: driver.main(self.args())
+            self.assertIs(caught.exception,control)
 
 
 if __name__=='__main__': unittest.main()
