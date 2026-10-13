@@ -4,7 +4,51 @@ October 12, 2026. This record tracks the complete `outline.md` scope; an impleme
 
 The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with owned tasks and corrective next actions in `docs/backlog.md`. The destination now explicitly requires the maintained ARM package repository, native performance engineering, integrated Apple stack, broader Cachy system experience, and complete installation/release lifecycle. Both Air sizes, published final measurements, independent onboarding/contribution, subsequent full-port maintenance release, other-ARM reuse and actual upstream submissions remain required; an early overlay release or feasibility decision would not complete the goal. This scope update does not change any recorded execution result.
 
-Latest coordinator update, October 12, 23:05 UTC. Full R1–R5/M5–M9 remains the
+Latest coordinator update, October 13, 00:06 UTC. The updated roadmap's full
+R1–R5/M5–M9 scope remains mandatory. The Session-owned original source view is
+published at `14aa7a9`: 95 source tests pass, including refusal of extra or
+noncanonical directory entries. The composed parent, finite workflow clock,
+stage deadlines and repository phase publication are being integrated; actual
+external repository authority and the full candidate transaction are unaccepted.
+
+KSM6 `38321651221`, from `97363ea`, fails with natural producer exit125 and zero
+RPC requests. Scoped owned image/container absence passes, but cleanup FAIL and
+mutation UNCERTAIN remain. Independent review authenticates the source and run;
+the private refusal leaf is UNKNOWN. This run does not observe the proposed
+180-second inventory request. A source-issued bounded refusal diagnostic is in
+development. Updater9's independent review confirms its retained directory-tick
+failure and cleanup/recovery results without identifying the private branch.
+The directory-leaf correction passes87 source tests and independent review;
+workflow registration and a new actual trial remain pending.
+
+FDK's initial descriptor-identity and modern compiler-observation corrections
+pass source review. A corrected private registration candidate has133 selected
+files,44 stage files and23 recipe inputs;57 outer-controller and14 packet tests
+pass. It fixes both workflow count guards and obsolete synthetic success
+fixtures without weakening the production completion gate. Independent complete
+registration recheck is active; FDK8 remains FAIL with its inner cause UNKNOWN.
+Kernel's finalization and nonfinite-JSON correction passes160 selected tests
+and independent review. Its registration must bind the new FDK dependency;
+Kernel7's failure and unknown inner cause remain unchanged.
+
+Zsh's six source findings close in94 tests and independent review, published at
+`978635b`; live Session reuse and native addon acceptance are unfinished. Guest
+SVG diagnostic integration is published at `76d94d4`, and Root's seven-source
+controller pin update at `b2f3d16` passes127 source tests. Static CI passes for
+the Zsh, KSM source, original-view, guest and ARM-installer commits. The latest
+pin commit's static run is in progress. The guest4 abort remains an actual FAIL;
+no subsequent ARM guest/frame/MIME-cache observation is claimed.
+
+The native ARM tiny-transaction profile and complete-phase checks are published
+at `8e1b06b`:87 source/model tests pass. Actual native P0, libalpm and transaction
+matrix are NOT RUN; a bridge to the actual native owner is being implemented.
+Read-only image reader report custody has a sealed correction with30 author
+tests and25 independent controls; Root recheck precedes any real probe. S01's
+259/261 tuple coverage,26 signer joins, payload/issuer trust, full installation,
+both M2 sizes,16K execution and final measurements remain open. These source
+changes neither pass those gates nor establish release/maintenance capacity.
+
+Prior coordinator update, October 12, 23:05 UTC. Full R1–R5/M5–M9 remains the
 completion contract. The reviewed updater ELF/read predicate and exception-tag
 corrections are published at `2433f26`; 160 fresh source checks pass. Native
 updater9 `38319260369` authenticates that exact86-file source, then fails the
