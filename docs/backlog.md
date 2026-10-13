@@ -2,6 +2,16 @@
 
 Coordinator: Lila in chat `01a12d58-9194-7643-81eb-fc9d62e4d923`. Source workers have bounded ownership in `docs/orchestration.md`; execution owners must reserve actual capacity before changing a shared machine. The full acceptance matrix is `docs/acceptance.md`.
 
+October 13, 20:07 UTC corrective batch: B18/B19 trial05 `38458048861` narrows
+the service TypeError to the handler-restoration setter; diagnose the held handler
+argument without suppressing the error or changing unknown dispositions.
+B17 Topmem trial02 `38458434811` reports I/O failure during signing startup;
+signer recovery cannot prove agent/keyhome absence. Resolve the syscall/errno and
+ownership transition before retry admission. Fish Source/workflow `3dc9a80` is
+committed/proved131 but undispatched. B18's retained hook/account semantics pass
+peer review; close pinned parser/dispatcher-to-package correspondence and generated
+constants before proposing account effects. Full R1–R5/M5–M9 remains required.
+
 October 13, 19:33 UTC corrective batch: B18's passive 19-body intake passed an actual
 bounded child and independent retained review; hook/account semantics are being
 audited without executing those bodies. B18/B19 trial04 `38449904816` attributes

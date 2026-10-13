@@ -4,7 +4,34 @@ October 12, 2026. This record tracks the complete `outline.md` scope; an impleme
 
 The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with owned tasks and corrective next actions in `docs/backlog.md`. The destination now explicitly requires the maintained ARM package repository, native performance engineering, integrated Apple stack, broader Cachy system experience, and complete installation/release lifecycle. Both Air sizes, published final measurements, independent onboarding/contribution, subsequent full-port maintenance release, other-ARM reuse and actual upstream submissions remain required; an early overlay release or feasibility decision would not complete the goal. This scope update does not change any recorded execution result.
 
-Latest coordinator update, October 13, 19:33 UTC. The complete R1–R5/M5–M9
+Latest coordinator update, October 13, 20:07 UTC. Reviewed diagnostic source is
+published and the complete R1–R5/M5–M9 goal remains active.
+
+Maintained Source `35ff48c` and Data `0238541` have 271 verified Git rows and an
+exact external-plan readback. Actual ARM trial `38458048861` reports
+`TYPE_ERROR / SERVICE_CANCEL_EXIT_SET_HANDLER`, narrowing failure to the handler
+restoration setter. Hook entry remains false and cleanup reports PASS. The
+handler argument and exact builtin failure are unexported; focused source
+attribution is being developed without changing restoration behavior.
+
+Topmem diagnostic Source `1014a19` has 125 verified Git rows. Actual ARM trial
+`38458434811` again passes the fresh baseline 8/4/249, then fails in signing
+startup with `io-failed / start`; addon counts remain zero. Before/after signer
+journal projections record a launch attempt without a bound agent. Signer
+recovery reports FAIL/refused, agent/keyhome absence false and sticky uncertainty.
+The owned baseline image is reported absent. This does not prove signer absence
+or identify the errno/syscall; no virtual-machine disposal inference replaces the
+missing proof. A bounded operation/errno diagnostic is in development.
+
+Fish's reviewed workflow and shared diagnostic are committed at `3dc9a80`, with
+131 source/policy/workflow Git rows verified. It remains undispatched while the
+shared signer-start failure is investigated. Passive body semantics pass
+independent review: 19 bodies, 54 control texts, two sysusers routes, 64 literal
+rules and 32 unresolved IDs. The next upstream audit records unmatched selected
+PKGBUILD hashes; generated constants, binary correspondence and actual account/
+hook effects remain open. No hardware or release gate is passed by these results.
+
+Prior coordinator update, October 13, 19:33 UTC. The complete R1–R5/M5–M9
 roadmap remains authoritative and the development goal remains active.
 
 Actual passive intake trial02 retains all 19 selected bodies (6,953 bytes) from
