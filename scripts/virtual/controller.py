@@ -31,10 +31,12 @@ AUDIT_PIN = 'cd11a837b29e5c757b482a79b375f65170881d73f80db4ae645ed600a45378cd'
 AUDITOR_PIN = '6677f391f2de23540bc147770148729fe4c993850b7bbed0b71fb7e48d296fdc'
 CORE = {
     'common.py': 'b5099507b27fd9f86259c0096d0128b3a2480c546469312763a84438202fa4c3',
-    'guest.py': 'f3bd405de20e51b27f7cbb2c18081ef7ed24c44ceb999d42341a95675f47a0a2',
-    'prepare.py': '22d9f926ef8b3965052585e9bb401502c9c53cccbd031f807db6ef85e7d1c4ff',
-    'run.py': '60a495285968d44f176a2cb299f3c251562ebdd2a8e7c7ecbdb3007bdec4575d',
+    'guest.py': '721712f627d44df6eaae5c701b4c5cc28ebe30f6f5e6ce5751f48c4208a6f32b',
+    'prepare.py': '5729166f2e0315ef31fccb436eefd3ce79ce5e9b631110332f1c9aa1506314dd',
+    'run.py': '84361c8f118aec1195c19bb99dc3a3e7408e181bc6b8e6a84993a440f86f730f',
     'gbm_probe.c': 'fe0bb7b15df0bc93c4b5115543619e182ba3dac2ed22d0d8b1ab541d77a72efd',
+    'image_decode_probe.c': 'e5857f60f664ccfeb8a2275396c4a4f8ed6412f14bb5237e71bd34582479ba3a',
+    'image_decode_report.py': '377efb140ec7b5e50a18ae3c3d312f31f25676818f45942bde1c3acb5dceaacd',
 }
 CONFIG_FIELDS = ('User', 'Env', 'Entrypoint', 'Cmd', 'WorkingDir', 'Labels', 'Volumes',
                  'ExposedPorts', 'StopSignal', 'Shell', 'Healthcheck', 'ArgsEscaped')
