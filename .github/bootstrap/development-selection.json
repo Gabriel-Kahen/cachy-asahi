@@ -65,10 +65,10 @@
     "scripts/virtual/tooling-audit.json": "d3289a52f3269ba44f1437b69a112dcbd2086ee16ebe8d44658e65e7fb8e2095",
     "scripts/virtual/tooling.lock.json": "c18afc5bde9868594d41bd576a956960a7b01b190d148ba03ca4c41d4394e1b0"
   },
-  "peer_receipt_sha256": "3fe6aaa752059945cf8c9ffb8dbc4b1a691e02a2e2d261504abf2f2852934a86",
+  "peer_receipt_sha256": "e683659417e3de09cdc36eed371e9c752c97fd39002c2613652493bd71771ad3",
   "purpose": "root-selected-maintained-v1-development-source",
   "schema_version": 3,
-  "source_commit": "4327634c0df33a07a7738eb56b70f781f8f18efa",
+  "source_commit": "f93ac927c206fbe387e4caf03b289bfea0cab7ec",
   "source_files": {
     ".github/workflows/native-arm-build.yml": {
       "mode": 420,
@@ -688,7 +688,7 @@
     },
     "scripts/ci/development/repository_handoff.py": {
       "mode": 420,
-      "sha256": "0f5e308290a03a6a819f23e7ad9a75f87cf4d0aad75f96af39bfa0d9c4fde601"
+      "sha256": "b1be6da0f38722a350b1981bacda038f2fac018fa67efe0c3fc78f22fd20e8e7"
     },
     "scripts/ci/development/test_base_stages.py": {
       "mode": 420,
@@ -716,7 +716,7 @@
     },
     "scripts/ci/development/test_repository_handoff.py": {
       "mode": 420,
-      "sha256": "10cda952b6366d3e868c283e930754959ad5bd8dfb199165bc4d33d575b1c18f"
+      "sha256": "366cfccfc95793e21b5d858789f1ecc8b45f0832346ced1b3fe8ea4d8b2f8f90"
     },
     "scripts/ci/development/test_virtual_stage.py": {
       "mode": 420,
@@ -892,7 +892,7 @@
     },
     "scripts/install/native_preflight.py": {
       "mode": 420,
-      "sha256": "5faa86faaf78ea81c68e6e928267b35c68cc0f28bec212ec369135ad9ba96f01"
+      "sha256": "65d254379b0cda07fa83e59abc95f693a22ff7ccbf7044e7208544af70f1aad7"
     },
     "scripts/install/test_local_transaction.py": {
       "mode": 420,
@@ -1135,5 +1135,5 @@
       "sha256": "1023f493a5ff1991b382ed42b9960c6e0e98774c75e1a2aa90deff15dad7add1"
     }
   },
-  "source_packet_sha256": "06fa0a48e2031feaf3821c4829f3d6f87c3cae7f56b8531dab1b59ea109080a9"
+  "source_packet_sha256": "4c0a54b2f09eb19e8b8cbff4c8a3de036656e7227ad80302a235a35d629bcebd"
 }
