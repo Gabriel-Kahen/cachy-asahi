@@ -1,0 +1,25 @@
+pkgbase = cachy-asahi-fish-bang-bang
+	pkgdesc = Explicitly enabled pinned Fish history expansion for cachy-asahi
+	pkgver = 0.1.0
+	pkgrel = 2
+	url = https://github.com/oh-my-fish/plugin-bang-bang
+	arch = any
+	license = MIT
+	depends = fish>=4.0
+	optdepends = cachy-asahi-fish-config: separately enabled original shell helpers
+	source = __history_previous_command.fish
+	source = __history_previous_command_arguments.fish
+	source = opt-in.fish
+	source = usage.md
+	source = NOTICE
+	source = LICENSE.upstream
+	source = LICENSE.project
+	sha256sums = d34b75125a34199775eaa74dd47ae37488c4e67f95f40f71b101b6a8f6f32e50
+	sha256sums = 4e72dcce435d0fe1cf332fb339ed9608f10b29295b28f85ed6e7411ef8c05b64
+	sha256sums = d4dbd9dc123ebb31f821afd78c4b55554b4f17929d214baff35e405436e4cce7
+	sha256sums = 37a52ff036984a5beb4f42b8837a78f3de3391081240b470177ecc0b03aa6890
+	sha256sums = 0704c1ff8bcd8c94ad40888b35c5e25468ea9152b5781e7722ff0d04fb8aa879
+	sha256sums = 14c6826a7e33a6c74194ece88b26b5f5aee8473474001946a73d0f298b69fce0
+	sha256sums = 51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7
+
+pkgname = cachy-asahi-fish-bang-bang
