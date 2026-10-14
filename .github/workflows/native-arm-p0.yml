@@ -1,0 +1,131 @@
+name: Same-job native ARM preparation and installer P0
+on:
+  workflow_dispatch:
+    inputs:
+      expected_source_commit:
+        description: Actual published preparation/runtime/workflow Source SHA
+        required: true
+        type: string
+      preparation_bundle_sha256:
+        description: Separately Root-selected preparation template hash
+        required: true
+        type: string
+      private_bundle_sha256:
+        description: Distinct Root-selected P0 template hash
+        required: true
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: native-arm-p0
+  queue: max
+  cancel-in-progress: false
+jobs:
+  p0:
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Prepare exact signed inputs then enter fresh installer P0 and retire owned tag
+        shell: /usr/bin/python3 -I -B -S {0}
+        env:
+          EXPECTED_SOURCE_COMMIT: ${{ inputs.expected_source_commit }}
+          PREPARATION_BUNDLE_ZLIB_B64: ${{ vars.P0_PREPARATION_TEMPLATE_ZLIB_B64 }}
+          PREPARATION_BUNDLE_SHA256: ${{ inputs.preparation_bundle_sha256 }}
+          PREPARATION_TRUSTED_OUTER_END: ${{ vars.P0_PREPARATION_TRUSTED_OUTER_END }}
+          P0_PRIVATE_BUNDLE_ZLIB_B64: ${{ vars.P0_PRIVATE_INPUT_TEMPLATE_ZLIB_B64 }}
+          P0_PRIVATE_BUNDLE_SHA256: ${{ inputs.private_bundle_sha256 }}
+          CACHY_OLD_FOUR_SCHEMA: '1'
+          CACHY_OLD_FOUR_SOURCE_EPOCH: '1791748800'
+          CACHY_OLD_FOUR_JBIGKIT_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_01 }}
+          CACHY_OLD_FOUR_JBIGKIT_02: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_02 }}
+          CACHY_OLD_FOUR_JBIGKIT_SIG_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_SIG_01 }}
+          CACHY_OLD_FOUR_LIBTIFF_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_01 }}
+          CACHY_OLD_FOUR_LIBTIFF_02: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_02 }}
+          CACHY_OLD_FOUR_LIBTIFF_03: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_03 }}
+          CACHY_OLD_FOUR_LIBTIFF_04: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_04 }}
+          CACHY_OLD_FOUR_LIBTIFF_05: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_05 }}
+          CACHY_OLD_FOUR_LIBTIFF_06: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_06 }}
+          CACHY_OLD_FOUR_LIBTIFF_07: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_07 }}
+          CACHY_OLD_FOUR_LIBTIFF_08: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_08 }}
+          CACHY_OLD_FOUR_LIBTIFF_09: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_09 }}
+          CACHY_OLD_FOUR_LIBTIFF_10: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_10 }}
+          CACHY_OLD_FOUR_LIBTIFF_11: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_11 }}
+          CACHY_OLD_FOUR_LIBTIFF_12: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_12 }}
+          CACHY_OLD_FOUR_LIBTIFF_13: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_13 }}
+          CACHY_OLD_FOUR_LIBTIFF_14: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_14 }}
+          CACHY_OLD_FOUR_LIBTIFF_15: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_15 }}
+          CACHY_OLD_FOUR_LIBTIFF_SIG_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_SIG_01 }}
+        run: |
+          import time
+          entry=time.monotonic()
+          import base64,hashlib,json,math,os,stat,types,zlib
+          from pathlib import Path
+          expected=os.environ['EXPECTED_SOURCE_COMMIT']
+          if expected!=os.environ['GITHUB_SHA'] or expected!=os.environ['GITHUB_WORKFLOW_SHA'] or len(expected)!=40 or any(c not in '0123456789abcdef' for c in expected):
+              raise SystemExit('P0 manual Source selection refused')
+          outer_end=entry+1890
+          inherited=os.environ.get('PREPARATION_TRUSTED_OUTER_END','')
+          if inherited:
+              inherited=float(inherited)
+              if not math.isfinite(inherited):raise SystemExit('P0 enclosing cutoff refused')
+              outer_end=min(outer_end,inherited)
+          if not math.isfinite(outer_end) or not entry<min(outer_end,entry+1890):
+              raise SystemExit('P0 original cutoff refused')
+          root=Path(os.environ['GITHUB_WORKSPACE']).resolve()
+          path=root/'scripts/ci/development/p0_ci.py'
+          def ident(node):return tuple(getattr(node,k) for k in ('st_dev','st_ino','st_mode','st_uid','st_gid','st_nlink','st_size','st_mtime_ns','st_ctime_ns'))
+          before=path.lstat();parent=path.parent.lstat()
+          if not stat.S_ISREG(before.st_mode) or before.st_nlink!=1 or stat.S_IMODE(before.st_mode)!=0o644 or before.st_size!=66167:
+              raise SystemExit('P0 driver row refused')
+          fd=None;held=None;first=None;body=None;opening=False
+          try:
+              opening=True
+              fd=os.open(path,os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK|os.O_CLOEXEC)
+              node=os.fstat(fd)
+              if ident(node)!=ident(before):raise ValueError('P0 driver replaced')
+              held=ident(node);parts=[];size=0
+              while True:
+                  if time.monotonic()>=min(outer_end,entry+1890):raise ValueError('P0 original cutoff refused')
+                  part=os.read(fd,min(65536,66168-size))
+                  if not part:break
+                  parts.append(part);size+=len(part)
+                  if size>66167:raise ValueError('P0 driver cap refused')
+              body=b''.join(parts)
+              if ident(os.fstat(fd))!=held or ident(path.lstat())!=held or ident(path.parent.lstat())!=ident(parent) or len(body)!=66167 or hashlib.sha256(body).hexdigest()!='a97da59ede88996cc60c5cb5e5dd96fde33fee44c0865232c55bae1ac9c5b6ea':
+                  raise ValueError('P0 driver body refused')
+          except BaseException as error:
+              first=error
+              if opening and fd is None:BaseException.__setattr__(first,'native_preflight_cleanup_uncertain',True)
+          finally:
+              if fd is not None:
+                  try:
+                      if held is None or ident(os.fstat(fd))!=held:raise ValueError('P0 driver close custody refused')
+                      os.close(fd)
+                  except BaseException as error:
+                      if first is None:first=error
+                      BaseException.__setattr__(first,'native_preflight_cleanup_uncertain',True)
+                      if isinstance(error,KeyboardInterrupt):BaseException.__setattr__(first,'native_preflight_cancelled',True)
+          if first is not None:raise first
+          if time.monotonic()>=min(outer_end,entry+1890):raise SystemExit('P0 original cutoff refused')
+          module=types.ModuleType('development_p0_ci');module.__file__=str(path)
+          if module.__name__ in __import__('sys').modules:raise SystemExit('P0 driver registry collision')
+          __import__('sys').modules[module.__name__]=module
+          exec(compile(body,str(path),'exec',dont_inherit=True),module.__dict__)
+          try:
+              prep=module.packed_template(os.environ['PREPARATION_BUNDLE_ZLIB_B64'])
+              value=module.pipeline(entry=entry,outer_end=outer_end,expected_source_commit=expected,
+                  source_root=root,work_root=Path(os.environ['RUNNER_TEMP'])/('prepared-P0-'+os.environ['GITHUB_RUN_ID']+'-'+os.environ['GITHUB_RUN_ATTEMPT']),
+                  cache=Path(os.environ['RUNNER_TEMP'])/('3c16-cache-'+os.environ['GITHUB_RUN_ID']+'-'+os.environ['GITHUB_RUN_ATTEMPT']),prep_template_raw=prep,
+                  prep_template_sha256=os.environ['PREPARATION_BUNDLE_SHA256'])
+          except BaseException as error:
+              flags=BaseException.__getattribute__(error,'__dict__')
+              print(json.dumps({'status':'FAIL_PREPARATION_OR_P0',
+                  'cancelled':isinstance(error,KeyboardInterrupt) or flags.get('native_preflight_cancelled') is True,
+                  'cleanup_uncertain':flags.get('native_preflight_cleanup_uncertain') is True,
+                  'global_digest_absence_claimed':False,'ABI':'NOT_RUN','matrix':'NOT_RUN'},sort_keys=True))
+              raise SystemExit(1) from None
+          print(json.dumps(value,sort_keys=True,allow_nan=False))

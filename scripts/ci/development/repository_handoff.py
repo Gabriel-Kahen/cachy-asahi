@@ -138,7 +138,7 @@ def code_objects(code):
             yield from code_objects(item)
 
 
-P0_OVERLAY_ROWS = {'scripts/ci/integration.py': {'sha256': 'e448e2074ccca91d49fd07c115b9caa341efccebb3326f826b9eb0bc342ce9d4', 'mode': 420}, 'scripts/ci/native_arm.py': {'sha256': 'e650648721bf14ae6753bda3a73b45f8e0ee8a051730d212b84078418d6eea84', 'mode': 420}}
+P0_OVERLAY_ROWS = {'scripts/ci/native_arm.py': {'mode': 420, 'sha256': '3ec0b15feb4b401e0426def2187576c8b3e7450552eb0824403e77ca5108bf0a'}, 'scripts/ci/integration.py': {'mode': 420, 'sha256': 'e448e2074ccca91d49fd07c115b9caa341efccebb3326f826b9eb0bc342ce9d4'}}
 
 P0_OVERLAY_SOURCE_IDS = {'scripts/ci/native_arm.py': 'scripts/ci/development/p0_native_arm.py', 'scripts/ci/integration.py': 'scripts/ci/development/p0_integration.py'}
 
@@ -962,9 +962,9 @@ def preflight(root, grant_raw, grant_pin, *, deadline):
         'source_files', 'maps', 'callbacks', 'policy_path', 'license_path','actor_contract_sha256',
         'initial_invocation_sha256','original_view'} and
         type(grant['schema_version']) is int and grant['schema_version'] == 2 and
-        grant['purpose'] == 'reviewed-same-job-handoff-execution' and
+        grant['purpose'] in (('reviewed-installer-P0-execution','reviewed-installer-P0-preparation') if type(grant.get('original_view')) is dict and grant['original_view'].get('purpose') == 'P0-157-held-2-overlay-copy-view' else ('reviewed-same-job-handoff-execution',)) and
         grant['source_peer_preflight'] == 'PASS' and grant['development_only'] is True and
-        type(grant['added_seconds']) is int and grant['added_seconds'] == 1200 and
+        type(grant['added_seconds']) is int and grant['added_seconds'] == (0 if type(grant.get('original_view')) is dict and grant['original_view'].get('purpose') == 'P0-157-held-2-overlay-copy-view' else 1200) and
         type(grant['maps']) is dict and set(grant['maps']) == set(PREFIXES) and
         type(grant['callbacks']) is dict and set(grant['callbacks']) == CALLBACKS, 'grant-refused')
     for key in ('actor_contract_sha256','initial_invocation_sha256'):
@@ -1738,7 +1738,7 @@ class Session:
              all(type(a) is str and len(a) <= 4096 and '\0' not in a for a in argv) and
              type(runtime_contract) is dict and set(runtime_contract) == {'cli_sha256','endpoint_identity','env'},'grant-refused')
         grant = self.sources.grant
-        need(grant['original_view']['purpose'] == 'P0-157-held-2-overlay-copy-view' and
+        need(grant['purpose'] == 'reviewed-installer-P0-execution' and grant['original_view']['purpose'] == 'P0-157-held-2-overlay-copy-view' and
              digest(encoded({'argv':argv,'output':str(self.output)})) == grant['initial_invocation_sha256'] and
              digest(encoded(runtime_contract)) == grant['actor_contract_sha256'],'grant-refused')
         need(all(os.environ.get(env) == grant[key] for env,key in

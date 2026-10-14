@@ -18,7 +18,7 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[3] if Path(__file__).name == 'p0_native_arm.py' else Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'scripts/checks'))
 from package_checks import recipe
 
@@ -546,3 +546,124 @@ def main(argv=None, integration_consumers=None, *, installer_p0_owner=None):
 
 if __name__ == '__main__':
     sys.exit(main())
+
+
+def prepare_audit(inputs,cache,out,owner):
+    cache.mkdir(parents=True, exist_ok=True)
+    items = inputs['keyring_files'] + [inputs['rootfs'], signature_item(inputs['rootfs'])]
+    for package in inputs['packages']:
+        if not package['filename'].endswith('.pkg.tar.xz'):
+            raise ValueError('this audited snapshot requires original .pkg.tar.xz bytes')
+        items += [package, signature_item(package)]
+    names = [item['filename'] for item in items]
+    if len(set(names)) != len(names):
+        raise ValueError('duplicate download filename')
+    owner.cached(items,cache)
+    owner.guard()
+    keyhome = out / 'gpg'
+    keyhome.mkdir(mode=0o700)
+    gpg = ['gpg', '--batch', '--no-options', '--no-autostart', '--homedir', str(keyhome), '--no-auto-key-retrieve']
+    owner.gpg(gpg + ['--import', str(cache / 'archlinuxarm.gpg')],out/'key-import.log')
+    # HTTPS upstream source and independently published full fingerprint anchor ownership.
+    # VALIDSIG authenticates each payload; no imported-key UID alone is trusted.
+    signatures, package_audits = {}, {}
+    for item in [inputs['rootfs']] + inputs['packages']:
+        command = gpg + ['--status-fd', '1', '--verify', str(cache / (item['filename'] + '.sig')), str(cache / item['filename'])]
+        result = owner.gpg(command)
+        signatures[item['filename']] = {'command': command, 'exit_code': result['exit_code'],
+                                         'status': result['stdout'], 'diagnostic': result['stderr']}
+        save(out / 'signatures.json', signatures)
+        if result['exit_code']:
+            raise ValueError(f'signature verification failed: {item["filename"]}')
+        valid_signature(result['stdout'], inputs['signer_fingerprint'])
+    owner.guard()
+    inventory = rootfs_inventory(cache / inputs['rootfs']['filename'])
+    if inventory != inputs['rootfs_packages']:
+        raise ValueError('rootfs inventory differs from frozen signed-rootfs metadata')
+    save(out / 'rootfs-inventory.json', inventory)
+    save(out / 'rootfs-hooks.json', rootfs_hooks(cache / inputs['rootfs']['filename']))
+    values=[]
+    for item in inputs['packages']:
+        owner.guard();values.append(inspect_package(cache/item['filename'],item));owner.guard()
+    package_audits = {item['filename']: value for item, value in zip(inputs['packages'], values)}
+    save(out / 'package-audit.json', package_audits)
+    save(out / 'cache-checksums.json', {item['filename']: item['sha256'] for item in items})
+    owner.guard();return len(inputs['packages'])
+
+
+def prepare_image(inputs,cache,out,owner):
+    # This narrow scratch bootstrap preserves original xz package signatures.
+    # provision.py requires a preexisting registry digest; this base starts as a signed rootfs.
+    context = out / 'context'
+    context.mkdir()
+    shutil.copyfile(cache / inputs['rootfs']['filename'], context / 'rootfs.tar.gz')
+    deps = context / 'deps'
+    deps.mkdir()
+    for item in inputs['packages']:
+        for name in (item['filename'], item['filename'] + '.sig'):
+            shutil.copyfile(cache / name, deps / name)
+    keys = context / 'keys'
+    keys.mkdir()
+    for item in inputs['keyring_files']:
+        shutil.copyfile(cache / item['filename'], keys / item['filename'])
+    # Bind the exact bytes verified above to the Docker context before execution.
+    copied = [(context / 'rootfs.tar.gz', inputs['rootfs']['sha256'])]
+    for item in inputs['packages']:
+        copied += [(deps / item['filename'], item['sha256']),
+                   (deps / (item['filename'] + '.sig'), item['signature_sha256'])]
+    copied += [(keys / item['filename'], item['sha256']) for item in inputs['keyring_files']]
+    if any(path.is_symlink() or sha(path) != digest for path, digest in copied):
+        raise ValueError('audited input changed during Docker context copy')
+    names = json.loads((out / 'rootfs-hooks.json').read_text())
+    for report in json.loads((out / 'package-audit.json').read_text()).values():
+        names += [Path(name).name for name in report['installed_paths']
+                  if name.startswith(('usr/share/libalpm/hooks/', 'etc/pacman.d/hooks/')) and name.endswith('.hook')]
+    (context / 'disabled-hooks.txt').write_text(hook_masks(names))
+    (context / 'pacman.conf').write_text('[options]\nArchitecture = aarch64\nSigLevel = Required\nLocalFileSigLevel = Required\nHookDir = /builder-disabled-hooks\n')
+    dockerfile = ('FROM scratch\nADD rootfs.tar.gz /\nCOPY keys/ /usr/share/pacman/keyrings/\n'
+                  'COPY deps/ /tmp/deps/\nCOPY pacman.conf /etc/pacman.conf\n'
+                  'COPY disabled-hooks.txt /tmp/disabled-hooks.txt\n'
+                  'RUN mkdir -p /builder-disabled-hooks '
+                  '&& while IFS= read -r hook; do ln -s /dev/null "/builder-disabled-hooks/$hook"; done < /tmp/disabled-hooks.txt '
+                  '&& pacman-key --init && pacman-key --populate archlinuxarm '
+                  '&& pacman -U --noconfirm --noscriptlet /tmp/deps/*.pkg.tar.xz '
+                  '&& ldconfig && rm -rf /tmp/deps /var/cache/pacman/pkg/* '
+                  f'&& groupmod -g {os.getgid()} alarm && usermod -u {os.getuid()} -g alarm alarm '
+                  '&& pacman -Q | LC_ALL=C sort > /builder-packages.lock\n'
+                  'USER alarm\nWORKDIR /tmp\n')
+    (context / 'Dockerfile').write_text(dockerfile)
+    command = ['docker', 'build', '--network=none', '--pull=false', '--platform=linux/arm64',
+               '--tag', owner.tag, '--iidfile', str(out / 'image-id'), str(context)]
+    save(out / 'bootstrap.json', {'command': command, 'dockerfile_sha256': sha(context / 'Dockerfile'),
+                                 'inputs_sha256': sha(out / 'inputs.lock.json'),
+                                 'hook_policy': 'ALPM hooks masked with /dev/null overrides, package scriptlets disabled; explicit in-container ldconfig',
+                                 'status': 'bootstrap-starting'})
+    try:
+        owner.docker(command,out/'bootstrap.log')
+    except (OSError, ValueError, subprocess.SubprocessError) as error:
+        try:save(out/'bootstrap.json',{'command':command,'status':'failed','error_code':'image-bootstrap-refused','dockerfile_sha256':sha(context/'Dockerfile')})
+        except BaseException as late:
+            BaseException.__setattr__(error,'native_preflight_cleanup_uncertain',True)
+            if isinstance(late,KeyboardInterrupt):BaseException.__setattr__(error,'native_preflight_cancelled',True)
+        raise
+    image = (out / 'image-id').read_text().strip()
+    if not re.fullmatch(r'sha256:[0-9a-f]{64}', image):
+        raise ValueError('bootstrap produced no immutable image ID')
+    inspect = json.loads(owner.docker(['docker','image','inspect',image]))[0]
+    if inspect['Architecture'] != 'arm64' or inspect['Os'] != 'linux':
+        raise ValueError('bootstrap image architecture differs from native ARM contract')
+    lock = owner.docker(['docker', 'run', '--rm', '--name',owner.inventory_name,'--cidfile',str(out/'inventory-cid'), '--pull=never', '--network=none', '--cap-drop=ALL',
+                '--security-opt=no-new-privileges', '--read-only', '--entrypoint=/bin/cat', image,
+                '/builder-packages.lock']) + '\n'
+    (out / 'packages.lock').write_text(lock)
+    expected = {row['name'][0]: row['version'][0] for row in inputs['rootfs_packages']}
+    expected.update({item['name']: item['version'] for item in inputs['packages']})
+    if lock != ''.join(f'{name} {version}\n' for name, version in sorted(expected.items())):
+        raise ValueError('offline transaction changed the frozen package set; review packages.lock')
+    save(out / 'bootstrap.json', {'command': command, 'dockerfile_sha256': sha(context / 'Dockerfile'),
+                                 'inputs_sha256': sha(out / 'inputs.lock.json'), 'image_id': image,
+                                 'packages_lock_sha256': sha(out / 'packages.lock'),
+                                 'hook_policy': 'ALPM hooks masked with /dev/null overrides, package scriptlets disabled; explicit in-container ldconfig',
+                                 'status': 'image-provisioned'})
+    owner.confirm_image(image,inspect,(out/'packages.lock').read_bytes())
+    return image

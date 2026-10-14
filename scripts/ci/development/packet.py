@@ -28,13 +28,13 @@ PINS = {INITIAL, 'scripts/ci/inputs.lock.json', 'scripts/ci/recipes.lock.json',
         'scripts/virtual/tooling-audit.json', 'manifests/reviewed/ksmctl.json'}
 COMPOSITION = 'repository-svg'
 INSTALLER_COMPOSITION = 'installer-preflight'
-P0_OVERLAY_ROWS = {'scripts/ci/integration.py': {'sha256': 'e448e2074ccca91d49fd07c115b9caa341efccebb3326f826b9eb0bc342ce9d4', 'mode': 420}, 'scripts/ci/native_arm.py': {'sha256': 'e650648721bf14ae6753bda3a73b45f8e0ee8a051730d212b84078418d6eea84', 'mode': 420}}
+P0_OVERLAY_ROWS = {'scripts/ci/native_arm.py': {'mode': 420, 'sha256': '3ec0b15feb4b401e0426def2187576c8b3e7450552eb0824403e77ca5108bf0a'}, 'scripts/ci/integration.py': {'mode': 420, 'sha256': 'e448e2074ccca91d49fd07c115b9caa341efccebb3326f826b9eb0bc342ce9d4'}}
 ZSH_COMPOSITION = 'repository-svg-zsh'
 ZSH_CONTRACT = 'manifests/reviewed/zsh-native-addon.json'
 ZSH_EXTRA = frozenset(('scripts/ci/development/zsh_addon.py', 'scripts/ci/development/test_zsh_addon.py',
     'scripts/ci/development/zsh_session.py', 'scripts/ci/development/test_zsh_session.py', ZSH_CONTRACT))
 COMPOSED_MODES = (COMPOSITION, INSTALLER_COMPOSITION, ZSH_COMPOSITION)
-INSTALLER_EXTRA = frozenset(('scripts/install/local_transaction.py', 'scripts/install/native_arm_trial.py', 'scripts/install/native_preflight.py', 'scripts/install/p0_entry.py', 'scripts/ci/development/p0_native_arm.py', 'scripts/ci/development/p0_integration.py', 'scripts/install/test_local_transaction.py', 'scripts/install/test_native_arm_trial.py', 'scripts/install/test_native_preflight.py', 'scripts/port/kernel-native-job/runtime.py'))
+INSTALLER_EXTRA = frozenset(('scripts/ci/development/p0_ci.py', 'scripts/install/local_transaction.py', 'scripts/install/native_arm_trial.py', 'scripts/install/native_preflight.py', 'scripts/install/p0_entry.py', 'scripts/ci/development/p0_native_arm.py', 'scripts/ci/development/p0_integration.py', 'scripts/install/test_local_transaction.py', 'scripts/install/test_native_arm_trial.py', 'scripts/install/test_native_preflight.py', 'scripts/port/kernel-native-job/runtime.py'))
 GENERIC_POLICY = 'manifests/reviewed/repository-generic-policy.json'
 COMPOSED_EXTRA = frozenset('''
 .github/workflows/native-arm-development.yml
@@ -378,8 +378,8 @@ def composed_paths(initial, composition=COMPOSITION):
     paths = set(initial['source_files']) | COMPOSED_EXTRA
     if composition == INSTALLER_COMPOSITION:paths |= INSTALLER_EXTRA
     if composition == ZSH_COMPOSITION:paths |= ZSH_EXTRA
-    need(len(INSTALLER_EXTRA) == 10 and len(ZSH_EXTRA) == 5 and
-         len(paths) == {COMPOSITION:258, INSTALLER_COMPOSITION:268, ZSH_COMPOSITION:263}[composition],
+    need(len(INSTALLER_EXTRA) == 11 and len(ZSH_EXTRA) == 5 and
+         len(paths) == {COMPOSITION:258, INSTALLER_COMPOSITION:269, ZSH_COMPOSITION:263}[composition],
          'composed-source-selection-refused')
     return paths
 
