@@ -99,7 +99,7 @@ _Static_assert((unsigned long long)(FD_CLOEXEC) == 0x1ULL, "FD_CLOEXEC");
 _Static_assert((unsigned long long)(F_SETFD) == 0x2ULL, "F_SETFD");
 _Static_assert((unsigned long long)(O_RDONLY) == 0x0ULL, "O_RDONLY");
 _Static_assert((unsigned long long)(O_NONBLOCK) == 0x800ULL, "O_NONBLOCK");
-_Static_assert((unsigned long long)(O_NOFOLLOW) == 0x20000ULL, "O_NOFOLLOW");
+_Static_assert((unsigned long long)(O_NOFOLLOW) == 0x8000ULL, "O_NOFOLLOW");
 _Static_assert((unsigned long long)(O_CLOEXEC) == 0x80000ULL, "O_CLOEXEC");
 _Static_assert((unsigned long long)(POLLIN) == 0x1ULL, "POLLIN");
 _Static_assert((unsigned long long)(POLLERR) == 0x8ULL, "POLLERR");

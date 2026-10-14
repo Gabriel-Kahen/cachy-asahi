@@ -63,9 +63,9 @@
   "shim_execution_allowed": false,
   "source_rows": {
     "abi_layout.c": {
-      "bytes": 22615,
+      "bytes": 22614,
       "mode": 420,
-      "sha256": "278432c15fd759707986f90b1e5e08c19a934c849ef3368ddcdf1141031294a6"
+      "sha256": "31072027916ab85ddc9b2d70f487665fa9a762f20b82b2964565f3148250ad0a"
     },
     "compile_lane_v2.py": {
       "bytes": 14816,
@@ -88,9 +88,9 @@
       "sha256": "f2a832f3e01c59a2fd61907301818cb85dc511828f0ea40b416ecb3c66ef4446"
     },
     "inspection.py": {
-      "bytes": 11897,
+      "bytes": 11896,
       "mode": 420,
-      "sha256": "9658a91a003e17b3f3606b5b1ea03af279a5390e6b02c377fed2ea8dd458159a"
+      "sha256": "0a4977cb241a537f5ee01d7c2988690c85a354ab881324269c0027b1a7b80c8d"
     },
     "observation_entry.py": {
       "bytes": 12522,

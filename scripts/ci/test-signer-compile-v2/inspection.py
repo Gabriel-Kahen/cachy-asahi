@@ -193,7 +193,7 @@ ABI_FIELDS = (
     ('F_SETFD', 2),
     ('O_RDONLY', 0),
     ('O_NONBLOCK', 2048),
-    ('O_NOFOLLOW', 131072),
+    ('O_NOFOLLOW', 32768),
     ('O_CLOEXEC', 524288),
     ('POLLIN', 1),
     ('POLLERR', 8),
