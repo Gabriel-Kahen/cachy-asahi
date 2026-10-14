@@ -2,6 +2,35 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 14, 09:32 UTC: the ioctl include correction passes author `7ea55b9c`
+and independent peer `4d106e48`. Root publishes receiver Source `1e8fd873`,
+verifying its thirteen rows: two C files changed and eleven held. Canonical
+manifest is `c9e7bb8f`. A separate concrete workflow/helper binding must now
+reference this actual ancestor before the next six-command ARM trial. The
+historical GCC failure is unchanged; no new compile or signing grant is claimed.
+
+KSM refusal-record retention passes author `6fe0a948` and peer `8b2b5861`.
+Root publishes Source `154b05d9`, verifies all 158 packet rows and packet
+`25479e32`, and queues trial `38541805780`. This bounded decoder retains the
+existing refusal record when stderr follows it. It does not establish the old
+producer's exact cause or turn its ownership-uncertain cleanup into a pass.
+
+Kernel compiler diagnostic successor `ba061dd0` passes independent peer
+`bf790241`. It preserves the original failure and ordered secondary controls;
+the predecessor diagnostic remains blocked. Root adoption and a fresh native
+trial remain pending. Updater optional dependency diagnostic `f1ddae68` passes
+peer `7719a603`; this future Source correction does not alter queued trial
+`38537248373` or prove that it failed.
+
+The simpler library runnable proposal passes bounded custody and business
+controls, but its independent review holds the launch route until it uses a
+registered workflow. The Pair checker-root/capacity successor is sealed for
+independent review. Its future Pair policy uses 262144 calls and 786432 cumulative
+grants with the original deadlines and acceptance gates; these Source controls
+are not a native capacity measurement. Library `38533034332` remains active;
+composed, FDK, updater and KSM retries remain queued. Full R1–R5/M5–M9/A01–A15
+acceptance stays open.
+
 October 14, 08:47 UTC: compiler registration successor `24220aa9` passes
 peer `5b2d774f`; Root verifies four replacements and one guarded deletion and
 publishes Source `6f87524e` using the existing registered observer workflow.
