@@ -67,16 +67,16 @@
       "sha256": "b9a88a7752e8d079a3ba49784b8b17e22f6a2976356f152d2ed42e0ee0917f10"
     },
     {
-      "bytes": 4297,
+      "bytes": 5776,
       "mode": 420,
       "path": "scripts/ci/screenshot-headless/region_trace.py",
-      "sha256": "d854f6a19064bed98e4879f70fa1b13d4d81f45247ce65f2dc8d3885363b6a9b"
+      "sha256": "f7e50d30a749fca1af52e9e21e0a05a6d5b1173fbba0066092b9a2b8254971c8"
     },
     {
-      "bytes": 15566,
+      "bytes": 16059,
       "mode": 420,
       "path": "scripts/ci/screenshot-headless/region_trial.py",
-      "sha256": "8ae93e5113e9f7cd80a7cb3deaa48986218be38ae3f42b94117fa1596ff459e8"
+      "sha256": "17761e6f50bb3c497f50e72d27a4f3b1e20e30d6df28c9aaf9eeebb938c92749"
     },
     {
       "bytes": 2253,

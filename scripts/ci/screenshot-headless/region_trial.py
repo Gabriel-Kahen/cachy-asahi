@@ -193,11 +193,16 @@ def exercise(sway,output,client,shots,end,owned,previous,call,spawn,retire,file_
             need(time.monotonic()<until,'bounded direct slurp exit');time.sleep(.01)
         need(slurp.wait(timeout=1)==0,'actual direct slurp failed')
         result['slurp_reaping']=reaped_child(slurp)
+        watch.update()
+        need(trace.buttons==[1,0] and endpoint in trace.motions,'actual press/motion/release sequence completed')
+        need(trace.retired,'actual selection overlay retirement sync')
+        result['selection_retirement']={'layer_surface':trace.layer_id,'surface':trace.surface,'sync_callback':trace.retirement_callback,'acknowledged':trace.retirement_ack,'trace_bytes':watch.offset}
         geometry=(EVIDENCE/'slurp-geometry.stdout').read_bytes()
+        need(geometry==f'{X},{Y} {W}x{H}'.encode(),'real slurp inclusive endpoint geometry')
+        pointer.close();result['pointer_retired_before_capture']=pointer.capabilities
         custody.finish(slurp.returncode,geometry)
         helper.wait(timeout=max(.01,min(8,end-time.monotonic())));watch.update()
         need(helper.returncode==0 and trace.buttons==[1,0] and endpoint in trace.motions,'actual press/motion/release sequence completed')
-        need(geometry==f'{X},{Y} {W}x{H}\n'.encode(),'real slurp inclusive endpoint geometry')
         names=(EVIDENCE/'region-helper.log').read_text().splitlines();need(len(names)==1,'one actual region helper stdout path')
         crop=Path(names[0]);need(crop.parent==shots and crop.is_absolute() and str(crop) not in held,'new direct region PNG')
         record=file_record(crop);need(record['mode']==0o600 and record['uid']==os.getuid(),'private actual region capture')
