@@ -984,7 +984,7 @@
     },
     "scripts/ci/inputs.lock.json": {
       "mode": 420,
-      "sha256": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f"
+      "sha256": "a86261268cac80a20cbaeb122d49dbb55b3380ca1c5e53ce1f630c066ab64046"
     },
     "scripts/ci/installed_handoff.py": {
       "mode": 420,

@@ -44,13 +44,13 @@ jobs:
           REPOSITORY = 'Gabriel-Kahen/cachy-asahi'
           CODE_COMMIT = '677d3ba97398ad99c4bd1063f83862eaf8d981d6'
           LAUNCHER_PATH = '.github/bootstrap/development-launcher.py'
-          LAUNCHER_SHA = 'dd6a119f596cd2cd56b3d50587be6cb3bf47a24f9e5020c1cee481351bda9c8b'
+          LAUNCHER_SHA = '5e5a0f9ca55ae3637e5a43e307a5dc0f83b33d0ff3b0e9411eb49a4862016c12'
           LAUNCHER_BYTES = 26653
-          BOOTSTRAP_SHA = '1675fa4834f556f1eec5d10f2f53b20d0475dd1a922b4c80fb0adc38f95e9391'
+          BOOTSTRAP_SHA = '0045ca561889852827362789b60073a07dfcc79e0925207f14e416278906e60e'
           ISSUER_SHA = '9e3271b8cb21e7be1940c2aa9f17f84357d0a438ed45a19ad34ae226ec9d4581'
           EXECUTION_REF = 'refs/heads/codex/maintained-composed-execution-v1'
           COMPOSITION = 'installer-preflight-maintained-v1'
-          PACKET_SHA = '37fe0902cac0c0a82f73c7fb8916f7248a14a535b99e4756924207b7f419dd33'
+          PACKET_SHA = '980acfd7932e1dc150e1f9f5a79f6d48ea7b29aa9c494f885ba5a3565312b7a9'
           PLAN_ENV = 'ROOT_REGISTERED_MAINTAINED_COMPOSED_PLAN_B64'
           PIN_ENV = 'ROOT_REGISTERED_MAINTAINED_COMPOSED_PLAN_SHA256'
 
