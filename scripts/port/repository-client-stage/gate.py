@@ -29,8 +29,8 @@ CASES = (
 LABELS = ('baseline-A', 'updated-B', 'tampered-package-B', 'tampered-database-B',
           'missing-package-signature-B', 'missing-database-signature-B')
 HASH = re.compile(r'[0-9a-f]{64}\Z')
-PACKAGES_SHA = '89bdb06fea1862b5a6e02b77a4b98f6e04755b02327d875a716bd792929f3a4f'
-INPUTS_SHA = '3c16c37d1b12cc84a88572e82ab8ad59e7f3b5ed0d08f09ddf72a69f4711d650'
+PACKAGES_SHA = 'fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25'
+INPUTS_SHA = 'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f'
 REFS = frozenset(('aggregate', 'repository', 'repository_contract', 'reset', 'public_manifest',
                   'public_acceptance', 'cleanup', 'bootstrap', 'packages', 'current_inputs',
                   'fixture_manifest', 'integration_lock', 'recipes_lock', 'projection', 'projected_repository', 'runner'))

@@ -24,6 +24,7 @@ from common import command, digest, read_json, read_regular, require, save
 ROOT = Path(__file__).resolve().parents[3]
 STAGES = ('ksm', 'arm-c01-base', 'client', 'virtual')
 PUBLIC_SELECTORS = {
+    'project-libraries': {'adapter-status'},
     'ksm': {'adapter-status', 'recovery-status', 'public', 'public-material'},
     'arm-c01-base': {'adapter-status', 'recovery-status', 'public', 'owner/public', 'owner/public-status', 'owner/public-artifacts'},
     'client': {'adapter-status', 'owner-public'},
@@ -33,7 +34,7 @@ PUBLIC_SELECTORS = {
 }
 CANCELLED = False
 POLICY = None
-CLOCK_ISSUER_SHA256 = '9e3271b8cb21e7be1940c2aa9f17f84357d0a438ed45a19ad34ae226ec9d4581'  # Independently reviewed pre-checkout issuer body.
+CLOCK_ISSUER_SHA256 = 'e51d38388b363362768dd4ea834c10e6be01666e63f3541cd00ba2e9577b8762'  # Independently reviewed pre-checkout issuer body.
 VIRTUAL_NAMES = ('common.py', 'guest.py', 'prepare.py', 'run.py', 'gbm_probe.c',
                  'image_decode_probe.c', 'image_decode_report.py', 'controller.py',
                  'audit_tooling.py', 'tooling.lock.json', 'tooling-audit.json')
@@ -50,6 +51,135 @@ def finite(value):
 def within(deadline):
     require(finite(deadline) and time.monotonic() < deadline,
             'development-deadline-exceeded')
+
+
+# Insert into the authenticated controller before main_composed; no raw bodies.
+OLD_FOUR_PRIVATE_PREFIX = 'CACHY_OLD_FOUR_'
+OLD_FOUR_PRIVATE_ROWS = (
+    ('jbigkit-2.1-8-aarch64.pkg.tar.xz', 48816,
+     'ecaddb099f4a1f1bcbc1497fd0f3dc98581552b9eacaa17c5568211c38bec1db', 'JBIGKIT', 2),
+    ('jbigkit-2.1-8-aarch64.pkg.tar.xz.sig', 566,
+     'f00be593f9ab5855f9e450d054e6cacd319ec834ef7fc97c51bcf3be3ebfdb1f', 'JBIGKIT_SIG', 1),
+    ('libtiff-4.7.2-1-aarch64.pkg.tar.xz', 354480,
+     '02a5d2d74019b39befd6cf63d9bde95a2d16f91b4d0d56939498375e0e491ffd', 'LIBTIFF', 15),
+    ('libtiff-4.7.2-1-aarch64.pkg.tar.xz.sig', 566,
+     '8dae1efda531e3ac7db09512cfe0c619eaae6787cc16fdea1315588b4fc340fa', 'LIBTIFF_SIG', 1),
+)
+
+
+def seed_old_four_private_cache(cache, source_packet, deadline):
+    """Exact old transport only; inherit J and erase chunks before native work."""
+    within(deadline)
+    header = {OLD_FOUR_PRIVATE_PREFIX + 'SCHEMA', OLD_FOUR_PRIVATE_PREFIX + 'SOURCE_EPOCH'}
+    names = {OLD_FOUR_PRIVATE_PREFIX + f'{tag}_{i:02d}'
+             for _, _, _, tag, count in OLD_FOUR_PRIVATE_ROWS for i in range(1, count + 1)}
+    # All matching names are removed even if a surplus chunk causes refusal.
+    captured = {name: os.environ.pop(name) for name in tuple(os.environ)
+                if name.startswith(OLD_FOUR_PRIVATE_PREFIX)}
+    within(deadline)
+    require(len(captured) <= 21 and set(captured) <= names | header, 'private-cache-schema-refused')
+    supplied = any(captured.get(name, '') for name in names)
+    if not supplied:
+        require(not captured or captured.get(OLD_FOUR_PRIVATE_PREFIX + 'SCHEMA') == '1' and
+                captured.get(OLD_FOUR_PRIVATE_PREFIX + 'SOURCE_EPOCH') == '1791748800',
+                'private-cache-schema-refused')
+        return
+    require(set(captured) == names | header and
+            captured[OLD_FOUR_PRIVATE_PREFIX + 'SCHEMA'] == '1' and
+            captured[OLD_FOUR_PRIVATE_PREFIX + 'SOURCE_EPOCH'] == '1791748800' and
+            source_packet['metadata_pins']['scripts/ci/inputs.lock.json'] ==
+            'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f',
+            'private-cache-input-binding-refused')
+    decoded = []
+    for filename, size, pin, tag, count in OLD_FOUR_PRIVATE_ROWS:
+        within(deadline)
+        length = 4 * ((size + 2) // 3)
+        require(count == (length + 32767) // 32768, 'private-cache-schema-refused')
+        parts = []
+        for i in range(1, count + 1):
+            within(deadline)
+            part = captured.pop(OLD_FOUR_PRIVATE_PREFIX + f'{tag}_{i:02d}')
+            expected = min(32768, length - (i - 1) * 32768)
+            require(type(part) is str and len(part) == expected and
+                    re.fullmatch(r'[A-Za-z0-9+/]*={0,2}', part) is not None,
+                    'private-cache-chunk-refused')
+            parts.append(part)
+        text = ''.join(parts)
+        within(deadline)
+        try:
+            body = base64.b64decode(text.encode('ascii'), validate=True)
+        except (ValueError, UnicodeError):
+            raise ValueError('private-cache-base64-refused') from None
+        within(deadline)
+        require(base64.b64encode(body).decode('ascii') == text and len(body) == size and
+                hashlib.sha256(body).hexdigest() == pin, 'private-cache-bytes-refused')
+        decoded.append((filename, body))
+    captured.clear()
+    require(sum(len(body) for _, body in decoded) == 404428, 'private-cache-bound-refused')
+    parent = cache.lstat()
+    require(stat.S_ISDIR(parent.st_mode) and stat.S_IMODE(parent.st_mode) == 0o700 and
+            parent.st_uid == os.geteuid(), 'private-cache-owner-refused')
+    directory = os.open(cache, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC)
+    owned = []
+    identity = lambda node: (node.st_dev, node.st_ino, node.st_mode, node.st_uid, node.st_gid)
+    try:
+        require(identity(os.fstat(directory)) == identity(parent), 'private-cache-owner-refused')
+        for filename, body in decoded:
+            within(deadline)
+            fd = os.open(filename, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW |
+                         os.O_CLOEXEC, 0o600, dir_fd=directory)
+            node = None
+            try:
+                try:
+                    node = os.fstat(fd)
+                except BaseException as first:
+                    first.add_note('private-cache-unbound-creation-cleanup-uncertain')
+                    raise
+                owned.append((filename, identity(node)))
+                require(stat.S_ISREG(node.st_mode) and stat.S_IMODE(node.st_mode) == 0o600 and
+                        node.st_uid == os.geteuid() and node.st_nlink == 1, 'private-cache-owner-refused')
+                offset = 0
+                while offset < len(body):
+                    within(deadline)
+                    written = os.write(fd, body[offset:offset + 65536])
+                    within(deadline)
+                    require(type(written) is int and written > 0, 'private-cache-write-refused')
+                    offset += written
+                final = os.fstat(fd)
+                require(identity(final) == identity(node) and final.st_nlink == 1 and
+                        final.st_size == len(body), 'private-cache-owner-refused')
+            finally:
+                first = sys.exception()
+                try:
+                    os.close(fd)
+                except BaseException:
+                    if first is None:
+                        raise
+                    first.add_note('private-cache-close-uncertain')
+            require(identity(os.stat(filename, dir_fd=directory, follow_symlinks=False)) == identity(node),
+                    'private-cache-owner-refused')
+        within(deadline)
+        require(identity(cache.lstat()) == identity(parent), 'private-cache-owner-refused')
+    except BaseException as first:
+        # Remove only these exact owned creations; never foreign/replaced files.
+        for filename, wanted in reversed(owned):
+            try:
+                within(deadline)
+                node = os.stat(filename, dir_fd=directory, follow_symlinks=False)
+                if identity(node) != wanted:
+                    raise ValueError('private-cache-owner-refused')
+                os.unlink(filename, dir_fd=directory)
+            except BaseException:
+                first.add_note('private-cache-cleanup-uncertain')
+        raise
+    finally:
+        first = sys.exception()
+        try:
+            os.close(directory)
+        except BaseException:
+            if first is None:
+                raise
+            first.add_note('private-cache-close-uncertain')
 
 
 def private_input(path, pin, environment, limit):
@@ -140,7 +270,7 @@ def workflow_clock(raw, *, entry, controller_entry=None):
 
 
 def original_argv(output, cache, pins):
-    view = output / 'repository-handoff/original-view'
+    view = output / 'repository-handoff/maintained-view'
     result = ['integration']
     for flag, name in (('inputs','inputs.lock.json'), ('recipes','recipes.lock.json'), ('integration','integration.lock.json')):
         result.extend(('--' + flag, str(view / 'scripts/ci' / name), '--' + flag + '-sha256', pins['scripts/ci/' + name]))
@@ -151,7 +281,10 @@ def original_argv(output, cache, pins):
 def composed_mode(source_packet, composition):
     require(type(composition) is str and composition in packet.COMPOSED_MODES and
             type(source_packet) is dict and type(source_packet.get('schema_version')) is int and
-            source_packet['schema_version'] == 2 and type(source_packet.get('composition')) is str and
+            source_packet['schema_version'] == 3 and type(source_packet.get('composition')) is str and
+            source_packet.get('baseline_id') == packet.BASELINE_ID and source_packet.get('lineage') == packet.LINEAGE and
+            type(source_packet.get('source_files')) is dict and
+            len(source_packet['source_files']) == packet.COMPOSED_SOURCE_COUNTS[composition] and
             source_packet['composition'] == composition, 'composed-packet-contract-refused')
     return composition
 
@@ -160,6 +293,8 @@ def composed_sources(root, source_packet, grant_raw, grant_pin, runtime_raw, out
     """Authenticate exact packet and explicit per-run contracts before allocation."""
     within(deadline)
     composed_mode(source_packet,composition)
+    if composition == packet.LIBRARY_COMPOSITION:
+        import base_stages
     grant = packet.decode(grant_raw);runtime = packet.decode(runtime_raw)
     require(type(grant) is dict and grant.get('source_files') == source_packet['source_files'] and
             grant.get('policy_path') == packet.GENERIC_POLICY and grant.get('license_path') == 'LICENSE' and
@@ -174,7 +309,8 @@ def composed_sources(root, source_packet, grant_raw, grant_pin, runtime_raw, out
     try:
         exec(compile(raw,module.__file__,'exec'),module.__dict__)
         sources = module.preflight(root,grant_raw,grant_pin,deadline=deadline)
-        selected = Development.consume_zsh if composition == packet.ZSH_COMPOSITION else Development.consume
+        selected = (Development.consume_libraries_private if composition == packet.LIBRARY_COMPOSITION else
+                    Development.consume_zsh if composition == packet.ZSH_COMPOSITION else Development.consume)
         require(grant['callbacks']['existing_consumers'] == {'path':'scripts/ci/development/controller.py',
                 'module':__name__,'qualname':'Development.' + selected.__name__}, 'composed-callback-refused')
         # Authenticate all actual class methods before creating any output.
@@ -312,8 +448,11 @@ class Development:
                        'development_only': True, 'selected_for_release': False, 'hardware_validation': 'NOT RUN',
                        'performance_acceptance': 'NOT RUN', 'production_trust': 'NOT RUN',
                        'source_commit': os.environ.get('GITHUB_SHA'), 'initial_integration': 'NOT RUN',
-                       'publication': 'NOT RUN', 'stages': {name: {'status': 'NOT RUN', 'prerequisite': 'initial-build-not-completed'}
+                       'baseline_id':packet.BASELINE_ID, 'lineage':packet.LINEAGE, 'publication': 'NOT RUN', 'stages': {name: {'status': 'NOT RUN', 'prerequisite': 'initial-build-not-completed'}
                                                      for name in STAGES}}
+        if composition == packet.LIBRARY_COMPOSITION:
+            self.report['stages'] = {'project-libraries': {'status':'NOT RUN'}}
+            self.report['public_promotion'] = False
         self.public = []
         self.callback_entered = False
         if composition == packet.ZSH_COMPOSITION:
@@ -363,10 +502,12 @@ class Development:
             within(self.deadline)
             signal.setitimer(signal.ITIMER_REAL, self.deadline - time.monotonic())
         require(type(self.composition) is str and self.composition in packet.COMPOSED_MODES, 'composed-packet-contract-refused')
-        if self.deadline is not None and self.packet.get('schema_version') == 2:
+        if self.deadline is not None and self.packet.get('schema_version') == 3:
             composed_mode(self.packet,self.composition)
         if self.composition == packet.INSTALLER_COMPOSITION:
             return self.consume_installer(controller)
+        if self.composition == packet.LIBRARY_COMPOSITION:
+            return self.consume_libraries_private(controller)
         from base_stages import run_arm, run_ksm
         from virtual_stage import run_virtual
         bound_modules = None
@@ -421,6 +562,58 @@ class Development:
                 self.persist()
         # Do not turn the original four-package summary into a new predicate.
         # Development failures stay authoritative in our separate aggregate.
+
+    def library_modules(self, controller):
+        """Authenticate the captured pair and actual original callback context."""
+        composed_mode(self.packet,self.composition);within(self.deadline)
+        require(self.composition == packet.LIBRARY_COMPOSITION,'library-composition-refused')
+        session = self.repository_session;owner = sys.modules.get('development_repository_handoff')
+        require(type(owner) is types.ModuleType and type(session) is owner.Session and
+                type(session.sources) is owner.Sources and session.composition == self.composition and
+                session.job_deadline == self.deadline and session.controller is controller,'library-session-refused')
+        session.sources.class_state(session,'scripts/ci/development/repository_handoff.py',owner)
+        session.original_context(deadline=self.deadline,controller=controller)
+        graph = session.source_graph.get('project_libraries')
+        require(type(graph) is dict and set(graph) == {'consumer','materializer'},'library-graph-refused')
+        names = {'consumer':'project_libraries','materializer':'prepare_project_library_sources'}
+        modules = {'scripts/ci/development/'+name+'.py':sys.modules[name] for name in ('common','packet','base_stages')}
+        modules['scripts/ci/development/controller.py'] = sys.modules[__name__]
+        for role,name in names.items():
+            module = graph[role];path = 'scripts/ci/development/'+name+'.py'
+            require(type(module) is types.ModuleType and module.__name__ == name and
+                    module.__file__ == str(self.root/path) and sys.modules.get(name) is module and
+                    path in session.sources.raw,'library-graph-refused')
+            modules[path] = module
+        identity = broad_source_guard(session,modules,self.deadline)
+        require(digest(self.root/graph['consumer'].CONTRACT,deadline=self.deadline) ==
+                self.packet['metadata_pins'][graph['consumer'].CONTRACT],'library-contract-pin-refused')
+        return graph,identity
+
+    def consume_libraries_private(self, controller):
+        """Add only the private library consumer; no added repository continuation."""
+        output = self.output/'project-libraries'
+        try:
+            graph,identity = self.library_modules(controller);self.callback_entered = True
+            value = graph['consumer'].run_libraries(controller,self.root,output,self.cache,
+                deadline=self.deadline,session=self.repository_session,materializer=graph['materializer'],
+                trusted_gpgv=self.repository_session.sources.grant['project_library_runtime']['gpgv'])
+            public = graph['consumer'].validate_public_metadata({key:item for key,item in value.items() if key != 'public'})
+            self.report['stages']['project-libraries'] = public
+            self.recover_public('project-libraries',output)
+            if public['cancelled']:raise KeyboardInterrupt()
+            current,observed = self.library_modules(controller)
+            require(current is graph and observed == identity,'library-graph-drift')
+        except KeyboardInterrupt:
+            self.report['cancelled'] = True
+            self.report['stages']['project-libraries'].update(status='FAIL',cancelled=True)
+            self.recover_public('project-libraries',output)
+            raise
+        except Exception:
+            if self.report['stages']['project-libraries'].get('status') != 'FAIL':
+                self.report['stages']['project-libraries'] = {'status':'FAIL','error_code':'library-adapter-failed'}
+            self.recover_public('project-libraries',output)
+        finally:self.persist()
+        require(self.report['stages']['project-libraries'].get('status') == 'PASS','library-consumer-failed')
 
     def zsh_module(self, controller):
         """Select only the captured pair from the same actual suspended Session."""
@@ -570,7 +763,14 @@ class Development:
         """Use adapter selectors, never a raw workspace walk after cancellation."""
         try:
             if self.deadline is not None:within(self.deadline)
-            if name == 'virtual':
+            if name == 'project-libraries':
+                module = self.repository_session.source_graph['project_libraries']['consumer']
+                path = output/'adapter-status'
+                require(not path.is_symlink() and path.is_dir() and
+                        {p.name for p in path.iterdir()} == {'result.json'},'library-public-copyset')
+                module.validate_public_metadata(read_json(path/'result.json',deadline=self.deadline))
+                paths = [path]
+            elif name == 'virtual':
                 from virtual_stage import public_paths
                 paths = public_paths(output)
             elif name in ('ksm', 'arm-c01-base'):
@@ -640,7 +840,8 @@ class Development:
             self.repository_session = session
             if self.composition == packet.INSTALLER_COMPOSITION:
                 require(type(runtime_contract) is dict and runtime_contract == self.runtime_contract, 'installer-runtime-refused')
-            selected = self.consume_zsh if self.composition == packet.ZSH_COMPOSITION else self.consume
+            selected = (self.consume_libraries_private if self.composition == packet.LIBRARY_COMPOSITION else
+                        self.consume_zsh if self.composition == packet.ZSH_COMPOSITION else self.consume)
             value = session.execute(argv, {'existing_consumers':selected,
                     'public_receiver':callbacks.public_receiver,'authority_provider':callbacks.authority_provider}, runtime_contract)
             session.sources.class_state(session,'scripts/ci/development/repository_handoff.py',module)
@@ -651,7 +852,11 @@ class Development:
             status = module.status_projection(session.result)
             self.report['repository_handoff'] = status
             phase = value['phase_public']
-            if status['status'] == 'PASS':
+            if self.composition == packet.LIBRARY_COMPOSITION:
+                require(status.get('purpose') == 'same-job-project-libraries-private' and phase is None and status.get('input_acceptance') == status.get('restage') == 'NOT RUN',
+                        'library-repository-phase-refused')
+                self.repository_capture = None
+            elif status['status'] == 'PASS':
                 require(type(phase) is dict and set(phase) == {'descriptor_bytes','sha256'} and
                         type(phase['descriptor_bytes']) is bytes and phase['descriptor_bytes'] == session.phase_export_raw and
                         phase['sha256'] == session.phase_export_sha256 == hashlib.sha256(phase['descriptor_bytes']).hexdigest(),
@@ -1030,8 +1235,52 @@ def phase_bundle(files, deadline):
     return raw
 
 
+def publish_libraries_metadata(development, emit):
+    """Positive metadata only; no native, repository, Source or package bodies."""
+    report = development.report;within(development.publication_deadline)
+    consumer = development.repository_session.source_graph['project_libraries']['consumer']
+    stage = None
+    records = []
+    try:
+        path = development.output/'project-libraries/adapter-status'
+        require(not path.is_symlink() and {p.name for p in path.iterdir()} == {'result.json'},'library-public-copyset')
+        stage = consumer.validate_public_metadata(read_json(path/'result.json',deadline=development.publication_deadline))
+        data = phase_bundle({'result.json':(json.dumps(stage,sort_keys=True,indent=2)+'\n').encode()},development.publication_deadline)
+        pin = hashlib.sha256(data).hexdigest()
+        emit(f'CACHY_ASAHI_EVIDENCE_BEGIN development-project-libraries-metadata sha256={pin} bytes={len(data)}')
+        emit(base64.encodebytes(data).decode(),end='')
+        emit('CACHY_ASAHI_EVIDENCE_END development-project-libraries-metadata')
+        records.append({'name':'development-project-libraries-metadata','sha256':pin,'bytes':len(data),'status':'PASS'})
+    except Exception:
+        records.append({'name':'development-project-libraries-metadata','status':'FAIL','reason':'METADATA_REFUSED'})
+    repository = report.get('repository_handoff',{})
+    required = (stage is not None and stage['status'] == 'PASS' and report.get('initial_integration') == 'PASS' and
+                report.get('initial_cleanup',{}).get('status') == 'PASS' and not report.get('cancelled') and
+                repository.get('purpose') == 'same-job-project-libraries-private' and
+                repository.get('status') == repository.get('cleanup') == 'PASS' and
+                repository.get('restage') == repository.get('input_acceptance') == 'NOT RUN' and
+                all(row['status'] == 'PASS' for row in records))
+    report.update(status='PASS' if required else 'FAIL',publication='PASS' if all(row['status'] == 'PASS' for row in records) else 'FAIL',
+                  repository_publication='NOT SELECTED',public_promotion=False,bundles=records)
+    summary = {'schema_version':1,'purpose':'private-project-library-lane','status':report['status'],
+               'native_library_status':stage['status'] if stage else 'FAIL','public_promotion':False,
+               'publication_license_acceptance':False,'hardware_validation':'NOT RUN',
+               'initial_integration':'PASS' if report.get('initial_integration') == 'PASS' else 'FAIL',
+               'initial_cleanup':'PASS' if report.get('initial_cleanup',{}).get('status') == 'PASS' else 'FAIL',
+               'session_status':'PASS' if repository.get('status') == 'PASS' else 'FAIL',
+               'repository_input_acceptance':'NOT RUN','repository_restage':'NOT RUN',
+               'repository_cleanup':'PASS' if repository.get('cleanup') == 'PASS' else 'FAIL',
+               'cancelled':report.get('cancelled') is True,'publication':report['publication']}
+    save(development.output/'result.json',report)
+    save(development.output/'development-summary/result.json',report)
+    emit(json.dumps(summary,sort_keys=True))
+    return required
+
+
 def publish(development, bundle, emit=print):
     """Only existing producers' explicit public selectors reach workflow logs."""
+    if development.composition == packet.LIBRARY_COMPOSITION:
+        return publish_libraries_metadata(development,emit)
     report = development.report
     roots = list(development.public)
     native = development.output / 'native'
@@ -1050,7 +1299,7 @@ def publish(development, bundle, emit=print):
             if path.exists() or initial_status.get('stages', {}).get(stage, {}).get('status') == 'PASS':
                 roots.append(path)
     records = []
-    if development.packet.get('schema_version') == 2:
+    if development.packet.get('schema_version') == 3:
         try:
             require(development.publication_deadline is not None,'publication-deadline-required')
             data = phase_bundle(phase_capture(development,development.publication_deadline),development.publication_deadline)
@@ -1092,7 +1341,7 @@ def publish(development, bundle, emit=print):
     stages = report['stages']
     required = (report.get('initial_integration') == 'PASS' and report.get('initial_cleanup', {}).get('status') == 'PASS'
                 and not report.get('cancelled') and report['publication'] == 'PASS')
-    if development.packet.get('schema_version') == 2:
+    if development.packet.get('schema_version') == 3:
         repository = report.get('repository_handoff',{})
         required = required and repository.get('status') == repository.get('cleanup') == repository.get('restage') == repository.get('input_acceptance') == 'PASS' and report.get('repository_publication') == 'PASS'
     required = required and all(stages[name]['status'] == 'PASS' for name in STAGES[:-1])
@@ -1160,7 +1409,10 @@ def close_boundary(development, previous, timer):
         if development.composition == packet.INSTALLER_COMPOSITION:development.persist_installer()
         elif development.composition == packet.ZSH_COMPOSITION:development.persist_zsh()
         else:development.persist()
-        print(json.dumps(development.report, sort_keys=True))
+        if development.composition == packet.LIBRARY_COMPOSITION:
+            print(json.dumps({'purpose':'private-project-library-lane','status':'FAIL','public_promotion':False,
+                  'cancelled':development.report.get('cancelled') is True,'reason':'TERMINAL_BOUNDARY_FAILED'},sort_keys=True))
+        else:print(json.dumps(development.report, sort_keys=True))
     if failed or CANCELLED:
         record_failure()
     for sig, handler in previous.items():
@@ -1251,6 +1503,7 @@ def composed_main(args, pins, *, entry):
                                                             runtime_raw,output,cache,deadline,composition=composition)
         within(deadline)
         output.mkdir(mode=0o700);cache.mkdir(mode=0o700,exist_ok=True)
+        seed_old_four_private_cache(cache,source_packet,deadline)
         development = Development(ROOT,output,cache,source_packet,deadline=deadline,composition=composition,
             clock_nonce=packet.decode(clock_raw)['nonce'],runtime_contract=runtime)
         development.report.update(source_packet_sha256=args.development_sha256,composition=composition,
@@ -1326,7 +1579,7 @@ def main(argv=None):
     parser.add_argument('--cache', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--check-only', action='store_true')
-    parser.add_argument('--composition',choices=packet.COMPOSED_MODES)
+    parser.add_argument('--composition',choices=packet.COMPOSED_MODES,required=True)
     parser.add_argument('--controller-entry-monotonic',type=float)
     for name in ('clock','execution-grant','runtime-contract'):
         parser.add_argument('--'+name,type=Path)

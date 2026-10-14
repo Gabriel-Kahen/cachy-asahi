@@ -1,0 +1,322 @@
+{
+  "Source_date_epoch": 1791585070,
+  "epoch_basis": "max member mtime of retained original; fixed for filtered envelope",
+  "excluded_file_count": 13,
+  "excluded_files": [
+    {
+      "kind": "file",
+      "name": "jbigkit-2.2/examples/ccitt1.jbg",
+      "sha256": "93159675c3bb72b5baf8f4cc50a6d5bdc4c7636d00b3df35d103fdbfb94df3d0",
+      "size": 16830
+    },
+    {
+      "kind": "file",
+      "name": "jbigkit-2.2/examples/ccitt2.jbg",
+      "sha256": "4a228c2c9ce68f0eced024218d8974bf6b28759ed23efa883827b7b9d2eddff8",
+      "size": 8958
+    },
+    {
+      "kind": "file",
+      "name": "jbigkit-2.2/examples/ccitt3.jbg",
+      "sha256": "282a6acf9f7b354920665b3f622c7a8a24c9f6f6d5cbba1b26996871972f1a37",
+      "size": 23642
+    },
+    {
+      "kind": "file",
+      "name": "jbigkit-2.2/examples/ccitt4.jbg",
+      "sha256": "e4eec46656b7e3949819200bc5c5393f6fc7c92b7c5ccb1ae8bd41e0130a9e2f",
+      "size": 58748
+    },
+    {
+      "kind": "file",
+      "name": "jbigkit-2.2/examples/ccitt5.jbg",
+      "sha256": "601c65798210409d7affde011f08681b1d24874f19d3808355c3062fab9a416a",
+      "size": 28092
+    },
+    {
+      "kind": "file",
+      "name": "jbigkit-2.2/examples/ccitt6.jbg",
+      "sha256": "a074accefbe45a9d9f4768df2bb595c9927a5f79d9546d044a278555d952319a",
+      "size": 13503
+    },
+    {
+      "kind": "file",
+      "name": "jbigkit-2.2/examples/ccitt7.jbg",
+      "sha256": "0d6e4c8aeb8ccc04463b5edd74e59a759525ccbc767712ea9cdbaefdaf5ddec1",
+      "size": 60640
+    },
+    {
+      "kind": "file",
+      "name": "jbigkit-2.2/examples/ccitt8.jbg",
+      "sha256": "45a19ab97f4ca29fe7fe02c75308d0fe6f01cc486352127aa9ab8f6a9578e675",
+      "size": 15135
+    },
+    {
+      "kind": "file",
+      "name": "jbigkit-2.2/examples/jbgtests.m",
+      "sha256": "16ef0908a648b034e6264f0fa3efa91bdf7bb213c55e30d21b34cdf499cee30a",
+      "size": 259
+    },
+    {
+      "kind": "file",
+      "name": "jbigkit-2.2/examples/multi.pgm",
+      "sha256": "3a73e95a31682faf804e5fb9d55f4e56e24ccdcfa52bb183bb704bfffffd777f",
+      "size": 52
+    },
+    {
+      "kind": "file",
+      "name": "jbigkit-2.2/examples/mx.jbg",
+      "sha256": "0e131764d51a5d43f86ead9a66423247f6fa152b67bedf90a21a85d593bab60c",
+      "size": 74847
+    },
+    {
+      "kind": "file",
+      "name": "jbigkit-2.2/examples/sandra.pgm",
+      "sha256": "2ef7cd894cf592766bc9246d01211313484165a7766e9294c725a9fd37d71302",
+      "size": 26878
+    },
+    {
+      "kind": "file",
+      "name": "jbigkit-2.2/examples/xvlogo.jbg",
+      "sha256": "f111aace8710a3d7c2873e58e6ea1ae23d6a22ec274b4a92ab4b0cba0538353e",
+      "size": 8628
+    }
+  ],
+  "filter_policy": "Exact37 unchanged covered Source/text members; exclude13 nonessential example/generator/data files. No full homepage prose. Original archive is not a public rebuild input.",
+  "filtered_bytes": 109999,
+  "filtered_sha256": "b9de615842035efd64d8718cce4b5daa01764dc0b04380ba52e1d30d1f9d2945",
+  "grants": "Original GPL2-or-later core notices, package ANNOUNCE/COPYING, all original author/translator and Poskanzer permissive notices preserved byte-exactly. This is evidence rather than legal clearance.",
+  "included_file_count": 37,
+  "included_files": [
+    {
+      "kind": "file",
+      "name": "jbigkit-2.2/ANNOUNCE",
+      "sha256": "99a69c828cd4a22b6b35563b9da81275bb6dbfe9a380bb6986a21f56b6c7dedf",
+      "size": 7221
+    },
+    {
+      "kind": "file",
+      "name": "jbigkit-2.2/CHANGES",
+      "sha256": "84662ecc89d5d34b0b478b7e314354b696ff033addb7254b60c4055ca1941a4e",
+      "size": 11294
+    },
+    {
+      "kind": "file",
+      "name": "jbigkit-2.2/COPYING",
+      "sha256": "91df39d1816bfb17a4dda2d3d2c83b1f6f2d38d53e53e41e8f97ad5ac46a0cad",
+      "size": 17982
+    },
+    {
+      "kind": "file",
+      "name": "jbigkit-2.2/INSTALL",
+      "sha256": "ea6d8beb648d84ff9400f78b0ed4097ccb0b95865811a9ef26d9daac0e8a1615",
+      "size": 6282
+    },
+    {
+      "kind": "file",
+      "name": "jbigkit-2.2/Makefile",
+      "sha256": "95a78698c7ab75ff862749f277c46e0385bc0c2fcd9ee286ac9a8b10730fc38c",
+      "size": 996
+    },
+    {
+      "kind": "file",
+      "name": "jbigkit-2.2/TODO",
+      "sha256": "063c639f18db14b5d33c75940134e3292f98a5ae6d11aca03548293a908a43e6",
+      "size": 2117
+    },
+    {
+      "kind": "file",
+      "name": "jbigkit-2.2/examples/README",
+      "sha256": "f9565b10588ade8d32b101f0bfa27cbb09d1fbc370af8d19be023a3acd6af978",
+      "size": 291
+    },
+    {
+      "kind": "file",
+      "name": "jbigkit-2.2/libjbig/Makefile",
+      "sha256": "853da12c8f91657454c7fab97b545b66f1c0224c765093180853d14e9909de76",
+      "size": 1593
+    },
+    {
+      "kind": "file",
+      "name": "jbigkit-2.2/libjbig/jbig.c",
+      "sha256": "74f308fd5fa8c664cf1b377fae18d30e7f5eabcd3c686b0d62e01f6046f63f00",
+      "size": 112057
+    },
+    {
+      "kind": "file",
+      "name": "jbigkit-2.2/libjbig/jbig.h",
+      "sha256": "4a8b2d69757ba0774119cd8894d87c2fe595aeee9abbf5878a0c61ad12b8ec32",
+      "size": 9783
+    },
+    {
+      "kind": "file",
+      "name": "jbigkit-2.2/libjbig/jbig.txt",
+      "sha256": "b4e55bdf25a25c78229ca780e25192b5159e7b8243e678b419331074e92b2a97",
+      "size": 38698
+    },
+    {
+      "kind": "file",
+      "name": "jbigkit-2.2/libjbig/jbig85.c",
+      "sha256": "cb61ea4104a60374196f3c17f7182e971c28d0b49c409398d2d155c5ba572437",
+      "size": 33116
+    },
+    {
+      "kind": "file",
+      "name": "jbigkit-2.2/libjbig/jbig85.h",
+      "sha256": "4112dfb645afe794936f110fd7a0b133ea9efac5d8bd25447d8b5168065fabff",
+      "size": 6945
+    },
+    {
+      "kind": "file",
+      "name": "jbigkit-2.2/libjbig/jbig85.txt",
+      "sha256": "102dc3257303985561f5427cf5384389f719bf6b7cdc37e31ea029cbcc91308d",
+      "size": 27603
+    },
+    {
+      "kind": "file",
+      "name": "jbigkit-2.2/libjbig/jbig_ar.c",
+      "sha256": "730fba898bbd24a0874ed0b426e4226d4a52ba35d43d3574b7c8b7f7a612e0ef",
+      "size": 13134
+    },
+    {
+      "kind": "file",
+      "name": "jbigkit-2.2/libjbig/jbig_ar.h",
+      "sha256": "c9f31dcc191620ad13302679d466a8941dd3ee75a1641a53600b34fd4e6d3039",
+      "size": 2260
+    },
+    {
+      "kind": "file",
+      "name": "jbigkit-2.2/libjbig/po/README.txt",
+      "sha256": "a92d15849544ce712d9db243386b8428242d84446f8847fc5c1a59544b046367",
+      "size": 929
+    },
+    {
+      "kind": "file",
+      "name": "jbigkit-2.2/libjbig/po/de.po",
+      "sha256": "a5cd2a8551bebcdfac0c27a8fc61e7b65e79865e604390a2f7094abd91d722f0",
+      "size": 1671
+    },
+    {
+      "kind": "file",
+      "name": "jbigkit-2.2/libjbig/po/pl.po",
+      "sha256": "9abe1c005ab5f4087e236f69886b126761bda7b0ef20c2d2cab14f63c660f4c0",
+      "size": 1673
+    },
+    {
+      "kind": "file",
+      "name": "jbigkit-2.2/libjbig/po/ru.po",
+      "sha256": "c60ded92858ff31140f7b7b3d2baac7092a685f0a36de467452e8969ee71643a",
+      "size": 1910
+    },
+    {
+      "kind": "file",
+      "name": "jbigkit-2.2/libjbig/tstcodec.c",
+      "sha256": "04f8a2f3c0a3011331af6a5796c45348ef28f3c39a5c8283cacca3bcd292552b",
+      "size": 16805
+    },
+    {
+      "kind": "file",
+      "name": "jbigkit-2.2/libjbig/tstcodec85.c",
+      "sha256": "90541c66e62b050fe84a8043308a54356b2a5db63df6a3c9f19dc0397696767d",
+      "size": 13071
+    },
+    {
+      "kind": "file",
+      "name": "jbigkit-2.2/libjbig/tstjoint.c",
+      "sha256": "d670167c04069ef16a4d2db236398717599decfc6f44b6729300a71276a65b80",
+      "size": 272
+    },
+    {
+      "kind": "file",
+      "name": "jbigkit-2.2/pbmtools/Makefile",
+      "sha256": "d55bd33af5b64ada1e638d47cb3c05767e36dbedbfec2b822d90506d74c7c355",
+      "size": 6284
+    },
+    {
+      "kind": "file",
+      "name": "jbigkit-2.2/pbmtools/jbgfuzz.pl",
+      "sha256": "7784ed0f9f870a4b941b7977a17ce9e5b2140a2df16efb72f73917705dda22c3",
+      "size": 3013
+    },
+    {
+      "kind": "file",
+      "name": "jbigkit-2.2/pbmtools/jbgtopbm.1",
+      "sha256": "4214cd4f2b6479dbe0a3e454521c6a3f1e6593043935843f322e2ebe670a0828",
+      "size": 3445
+    },
+    {
+      "kind": "file",
+      "name": "jbigkit-2.2/pbmtools/jbgtopbm.c",
+      "sha256": "5c9f363bdc365d7e6c625282f98adeb71e64e1b132b3114fe954dfc30d36dd22",
+      "size": 13535
+    },
+    {
+      "kind": "file",
+      "name": "jbigkit-2.2/pbmtools/jbgtopbm85.c",
+      "sha256": "29af3a52a5e14e9cfca59436a8d941ed9abe122eae0672274daac8214bd28bf9",
+      "size": 5708
+    },
+    {
+      "kind": "file",
+      "name": "jbigkit-2.2/pbmtools/pbm.5",
+      "sha256": "c33b9aa0e4710a4337025e9bcadb619a168851b057150c998eee58fadb5ce589",
+      "size": 2717
+    },
+    {
+      "kind": "file",
+      "name": "jbigkit-2.2/pbmtools/pbmtojbg.1",
+      "sha256": "fd25fbf350119e56ec000e3956ef2ed24dda7dff98ebaa6f041ef7d9a7b7d764",
+      "size": 10479
+    },
+    {
+      "kind": "file",
+      "name": "jbigkit-2.2/pbmtools/pbmtojbg.c",
+      "sha256": "ff6079969754184b8177168947cfe38aa942af237e52799799942f23786333d3",
+      "size": 13409
+    },
+    {
+      "kind": "file",
+      "name": "jbigkit-2.2/pbmtools/pbmtojbg85.c",
+      "sha256": "faf4727e9d89e5503f50cc4e4980417d042caace9e264b0397d7c7606b3a39f8",
+      "size": 7117
+    },
+    {
+      "kind": "file",
+      "name": "jbigkit-2.2/pbmtools/pgm.5",
+      "sha256": "a0f4e0b7e5af5bf109cd519f2aa622f7a302b47c8188b4ba63fb6d796009a4b4",
+      "size": 2893
+    },
+    {
+      "kind": "file",
+      "name": "jbigkit-2.2/pbmtools/pbmtojbg.txt",
+      "sha256": "624067c4feaed9c3a56b152d130711d3903d1ca9c80c8256e308978edb36df1b",
+      "size": 13239
+    },
+    {
+      "kind": "file",
+      "name": "jbigkit-2.2/pbmtools/jbgtopbm.txt",
+      "sha256": "5a29bdf0782f8a590cc210dfb4bb0d0f58858748bd5919cbc1f5a30c5ba7602e",
+      "size": 4199
+    },
+    {
+      "kind": "file",
+      "name": "jbigkit-2.2/pbmtools/pbm.txt",
+      "sha256": "09db328977611cc3ecffc6b9455d7a9bf6ff73da04f64ae233e49c27ac414616",
+      "size": 2654
+    },
+    {
+      "kind": "file",
+      "name": "jbigkit-2.2/pbmtools/pgm.txt",
+      "sha256": "9fea453444b9dc4542eb5e68fcbd3bdf61295429dffab5c69f3bfd001117b03e",
+      "size": 2838
+    }
+  ],
+  "origin": "https://www.cl.cam.ac.uk/~mgk25/jbigkit/download/jbigkit-2.2.tar.gz",
+  "original_private_bytes": 441594,
+  "original_private_sha256": "3302109c93b7befbffa3cfe8bceb4355f19dea0ee7dcb5f33710b1648bf6645c",
+  "private_build_admitted": false,
+  "public_rebuild_input": "jbigkit-2.2-project-filtered.tar.gz",
+  "public_redistribution_accepted": false,
+  "release": "2.2",
+  "schema": 1
+}

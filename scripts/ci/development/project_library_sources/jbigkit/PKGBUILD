@@ -1,0 +1,141 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 cachy-asahi contributors
+# Source candidate only; Root private build and public publication are unadmitted.
+pkgname=cachy-asahi-jbigkit
+pkgver=2.2
+pkgrel=1.1
+pkgdesc='JBIG libraries and tools with project synthetic tests (filtered source)'
+arch=('aarch64')
+url='https://www.cl.cam.ac.uk/~mgk25/jbigkit/'
+license=('GPL-2.0-or-later')
+depends=('glibc')
+makedepends=('gcc' 'make' 'patch' 'python')
+options=('!staticlibs' '!lto' '!debug')
+# Proposed until Root measures the actual project SONAMEs and architecture.
+provides=('jbigkit=2.2' 'libjbig.so=2.2-64' 'libjbig85.so=2.2-64')
+conflicts=('jbigkit')
+
+source=(
+  'jbigkit-2.2-project-filtered.tar.gz'
+  'jbigkit-2.2-shared_lib.patch'
+  'jbigkit-project-filter-tests.patch'
+  'COPYING'
+  'upstream-ANNOUNCE'
+  'packaging-REUSE.toml'
+  'LICENSE.recipe'
+  'NOTICE'
+  'PUBLICATION.md'
+  'removal.md'
+  'inputs.json'
+  'source-filter.json'
+  'source-check.py'
+  'synthetic-pbm.py'
+  'synthetic-0.pbm'
+  'synthetic-1.pbm'
+  'synthetic-2.pbm'
+  'synthetic-3.pbm'
+  'synthetic-4.pbm'
+)
+sha256sums=(
+  'b9de615842035efd64d8718cce4b5daa01764dc0b04380ba52e1d30d1f9d2945'
+  '58d80618c27dd089a2f3db87d91bf37fa443d1ef8418f3d2958aabb850120b2a'
+  'f454137f0153a66049c33f6b37bbeeb0b9f61af0d426d2398f655398683625dc'
+  '91df39d1816bfb17a4dda2d3d2c83b1f6f2d38d53e53e41e8f97ad5ac46a0cad'
+  '99a69c828cd4a22b6b35563b9da81275bb6dbfe9a380bb6986a21f56b6c7dedf'
+  'e6c1853cd358b709bb88a909b5ec606bdce9605893aa948cf5ce216c4edb7b37'
+  '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7'
+  '091b618c777879a3a510015da3e59608c49f85ea6f377521bf54193afbb210eb'
+  'e72663a7aa17b92a8232d4d8fc03d6cb614df4b30edea182463db251bc5d2b81'
+  '329b9f6ecee0b35e2b5e34f639c0f1e2f1b5e918fcd00cefaf775dc82d6051fd'
+  '577fea4fac15648beae140f64e2ef8bf14d8d8a02d9bc406483f6c509bdf61c8'
+  'e906020fd3affd7d6b7968aebca6ec7518ac3c11f801df2a221742864750f14d'
+  'a4da54ea4a002048c83ec16cb9e7f78e6fb520343b6a7d7a029c6bf6bfbccc82'
+  '744f59f38524370bf633246c405a3c75a556e799f7d46357e2e84124869c7407'
+  'a8ed35a163cba662b15fe455af22d5f91668d6eb59ef9a2aa9e19e1658745819'
+  'a293aabff7eae7f96579e5e6bec8665d16b608f2a66a4d7053f7d6b432224291'
+  '9055d3cd1d93cd4aa12e6a5f795ae15e69f3c0d04dcf6a43ca3e8750f9c8b20a'
+  '287e22786b17c8d45aada473e7dce37e4bcd5741f00eff3ef9884438e5eae080'
+  'c88997d1c7530db94f625659af6cf582bebe5fd69ba6ff207975d22f3c4020fb'
+)
+
+_context() {
+  [[ ${CACHY_ASAHI_CONTAINER:-} == 1 && $CARCH == aarch64 ]] || return 2
+  [[ -f /run/.containerenv || -f /.dockerenv ]] || return 2
+  [[ $(uname -m) == aarch64 ]] || return 2
+  [[ ${SOURCE_DATE_EPOCH:-1791585070} == 1791585070 ]] || return 2
+  export SOURCE_DATE_EPOCH=1791585070
+}
+
+_source_pack() {
+  python -I -B -S -W error "$startdir/source-check.py" \
+    --srcdir "$startdir" --recipe "$startdir/PKGBUILD" "$@"
+}
+
+_checked_tree() {
+  _context || return
+  _source_pack --tree "$srcdir/jbigkit-2.2" --patched
+}
+
+prepare() {
+  _context || return
+  _source_pack --tree "$srcdir/jbigkit-2.2" || return
+  cd "$srcdir/jbigkit-2.2" || return
+  patch --batch --forward --fuzz=0 -p1 -i "$startdir/jbigkit-2.2-shared_lib.patch" || return
+  patch --batch --forward --fuzz=0 -p1 -i "$startdir/jbigkit-project-filter-tests.patch" || return
+  _source_pack --tree "$srcdir/jbigkit-2.2" --patched
+}
+
+build() {
+  _checked_tree || return
+  cd "$srcdir/jbigkit-2.2" || return
+  make CC=gcc EXTRA_CFLAGS="$CFLAGS -fPIC" LDFLAGS="$LDFLAGS" all
+}
+
+check() {
+  _checked_tree || return
+  cd "$srcdir/jbigkit-2.2" || return
+  local n fixture encoded decoded
+  local LD_LIBRARY_PATH="$srcdir/jbigkit-2.2/libjbig"
+  export LD_LIBRARY_PATH
+  make -C libjbig -j1 CC=gcc EXTRA_CFLAGS="$CFLAGS -fPIC" LDFLAGS="$LDFLAGS" test || return
+  for n in 0 1 2 3 4; do
+    fixture="$startdir/synthetic-$n.pbm"
+    encoded="$srcdir/synthetic-$n.jbg"
+    decoded="$srcdir/synthetic-$n.decoded.pbm"
+    pbmtools/pbmtojbg "$fixture" "$encoded" || return
+    pbmtools/jbgtopbm "$encoded" "$decoded" || return
+    python -I -B -S -W error "$startdir/synthetic-pbm.py" --compare "$fixture" "$decoded" || return
+    pbmtools/pbmtojbg85 "$fixture" "$encoded" || return
+    pbmtools/jbgtopbm85 "$encoded" "$decoded" || return
+    python -I -B -S -W error "$startdir/synthetic-pbm.py" --compare "$fixture" "$decoded" || return
+    pbmtools/jbgtopbm "$encoded" "$decoded" || return
+    python -I -B -S -W error "$startdir/synthetic-pbm.py" --compare "$fixture" "$decoded" || return
+  done
+}
+
+package() {
+  _checked_tree || return
+  cd "$srcdir/jbigkit-2.2" || return
+  local header library tool page input
+  for header in jbig.h jbig85.h jbig_ar.h; do
+    install -Dm644 "libjbig/$header" "$pkgdir/usr/include/$header" || return
+  done
+  for library in libjbig libjbig85; do
+    install -Dm755 "libjbig/$library.so.2.2" "$pkgdir/usr/lib/$library.so.2.2" || return
+    ln -s "$library.so.2.2" "$pkgdir/usr/lib/$library.so" || return
+  done
+  for tool in jbgtopbm jbgtopbm85 pbmtojbg pbmtojbg85; do
+    install -Dm755 "pbmtools/$tool" "$pkgdir/usr/bin/$tool" || return
+  done
+  for page in jbgtopbm.1 pbmtojbg.1; do
+    install -Dm644 "pbmtools/$page" "$pkgdir/usr/share/man/man1/$page" || return
+  done
+  for input in COPYING LICENSE.recipe NOTICE upstream-ANNOUNCE packaging-REUSE.toml; do
+    install -Dm644 "$startdir/$input" "$pkgdir/usr/share/licenses/$pkgname/$input" || return
+  done
+  for input in "${source[@]}"; do
+    install -Dm644 "$startdir/$input" "$pkgdir/usr/share/doc/$pkgname/source/$input" || return
+  done
+  install -Dm644 "$startdir/PKGBUILD" "$pkgdir/usr/share/doc/$pkgname/source/PKGBUILD" || return
+  _source_pack --public-bundle "$pkgdir/usr/share/doc/$pkgname/source"
+}

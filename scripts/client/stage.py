@@ -25,9 +25,9 @@ import time
 import unittest
 
 sys.dont_write_bytecode = True
-INPUTS_SHA = '3c16c37d1b12cc84a88572e82ab8ad59e7f3b5ed0d08f09ddf72a69f4711d650'
+INPUTS_SHA = 'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f'
 GUARD_SHA = '4bfec1387f87768e5b37475d6172bde302ef52c01c68f81297435048be7f2100'
-PACKAGES_SHA = '89bdb06fea1862b5a6e02b77a4b98f6e04755b02327d875a716bd792929f3a4f'
+PACKAGES_SHA = 'fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25'
 FROZEN = {
     'scripts/client/client.py': '3025aa0e167c836e31c949e0915d4ee82a1007dc0fada598b4895240c82f5f97',
     'scripts/client/test_client.py': '11d475979806af12a514c9e860f614f22b6b4517078f97fceacc18c13563afd8',
@@ -37,7 +37,7 @@ FROZEN = {
 TOOLS = ('python', 'gpg', 'gpgconf', 'repo-add', 'bsdtar', 'vercmp', 'pacman')
 LIMIT = 1024 * 1024
 TIMEOUT = 300
-PURPOSE = 'frozen-37-client-native-source-tests'
+PURPOSE = 'maintained-v1-frozen-37-client-native-source-tests'
 LOCAL_ENDPOINTS = {'unix:///var/run/docker.sock', 'unix:///run/docker.sock'}
 # Derived from the checksum-pinned test_client.py; no additional client behavior.
 TEST_IDS = frozenset({
