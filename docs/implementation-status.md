@@ -17,8 +17,13 @@ Source owner proves and adapts the required active executor interposition.
 All sixteen consumer archives now complete passive inspection. Their 26 direct
 JBIG/TIFF edges include 21 matching declarations and five old SONAME references
 inside the two packages being replaced. The fourteen unchanged consumers have
-no unresolved direct replacement-pair edge. The final inspection/migration
-receipts are being sealed; symbol binding, runtime and M2 ABI remain open.
+no unresolved direct replacement-pair edge. Root authenticates all 27 actual04 files (`dee8591c`), all 18 independent
+peer files (`5fb752e9`, bytes/hashes; peer modes unrecorded), and all 9 migration
+files (`c59c53bd`). The complete inspection covers 87 ELF members and 2,459 tar
+members, with 32 positive handle closures and no cleanup errors.
+[Actual inspection](workstreams/maintained-reverse-consumer-elf-actual04.md) and
+[migration classification](workstreams/maintained-reverse-consumer-migration-impact.md)
+retain the evidence. Symbol binding, runtime and M2 ABI remain open.
 No compatibility SONAME aliases are invented.
 
 Compiler-helper discovery Source `2d107f64` is published after 91-file review.
@@ -40,7 +45,7 @@ whole-query metadata checkpoint, not archive/ABI/install/hardware acceptance.
 Original actual01 remains failed and uncertain.
 
 Root adopts the closed repository/hook diagnostics (`0bc41de7`, 599 leaves) as
-Source `50e81e32`, Data `b8c2fdff`, plan `1490445e`; all271 committed source
+Source `50e81e32`, Data `b8c2fdff`, plan `1490445e`; all 271 committed source
 files prove. Exact remote plan and existing19 private input secret names read
 back. Native run `38500392517` is in progress; static `38500392407` PASS.
 The original341/501 selection and private-cache controller are unchanged.
@@ -970,7 +975,7 @@ ValueError/UNKNOWN and refuses acceptance; the exact private ELF predicate is
 unexported. All18 exported records verify against the committed workflow receiver.
 Worker/container exit1, no OOM; scoped cleanup/private removal/recovery PASS.
 The outer NOT RUN pair label does not mean the compiler was never invoked.
-Independent actual-run review verifies all18 records and reproduces the fixed-leaf
+Independent actual-run review verifies all 18 records and reproduces the fixed-leaf
 reporting gap. Ten existing ELF/read predicate tags are in source implementation;
 actual8 ELF cause remains UNKNOWN.
 Kernel7 `38308563102`, from `25b0213`, passes producer, provision and native logic
