@@ -48,6 +48,9 @@ class DiagnosticIO:
     def sample(self,path,end):
         self.operation='sample';self.path=str(path)
         result=self.io.sample(path,end);self.completed_samples+=1;return result
+    def sample_stdlib_source(self,path,end):
+        self.operation='sample';self.path=str(path)
+        result=self.io.sample_stdlib_source(path,end);self.completed_samples+=1;return result
     def inventory(self,path,end):
         self.operation='inventory';self.path=str(path)
         result=self.io.inventory(path,end);self.completed_inventories+=1;return result

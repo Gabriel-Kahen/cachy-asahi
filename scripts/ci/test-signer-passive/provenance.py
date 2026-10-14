@@ -238,17 +238,30 @@ def capture(io,*,endpoint,source_rows,gcc_directory,host=None,runtime=None,modul
                  for value in (origin,file,cached)),'loaded-module-origin')
         return {'name':name,'origin':origin,'file':file,'cached':cached}
     module_state=[module_row(name,module) for name,module in table]
-    files={};samples={};requests={};sample_count=0
-    def sample(path,required=True):
+    files={};samples={};requests={};request_roles={};sample_count=0
+    def source_path(value):
+        return (type(value) is str and value.startswith(STDLIB+'/') and value.endswith('.py')
+                and str(Path(value))==value and '..' not in Path(value).parts and len(value)<=1024
+                and len(Path(value).parts)<=32 and all(32<=ord(c)<127 for c in value))
+    def sample(path,required=True,role='strict'):
         nonlocal sample_count
-        live();need(path not in requests,'provenance-request-replay');sample_count+=1
+        live();need(role in ('strict','stdlib-source'),'provenance-request-role')
+        if path in requests:
+            need(request_roles[path]==role,'provenance-request-role-conflict')
+            item=requests[path]
+            need(item is not None or not required,'missing-loaded-origin')
+            return None if item is None else item['canonical']
+        request_roles[path]=role;sample_count+=1
         need(sample_count<=1024,'provenance-sample-count')
-        item=io.sample(path,endpoint);live()
+        if role=='stdlib-source':need(source_path(path),'closed-stdlib-source-request')
+        item=(io.sample_stdlib_source(path,endpoint) if role=='stdlib-source' else io.sample(path,endpoint));live()
         if item is None:
             need(not required,'missing-loaded-origin');requests[path]=None;return None
         need(type(item) is dict and type(item.get('body')) is bytes,'provenance-body')
         raw=item['body'];row=item['row'];canonical=item['canonical']
-        need(0<len(raw)<=8*1024**2 and row=={'bytes':len(raw),'mode':row['mode'],'sha256':sha(raw)}
+        if role=='stdlib-source':need(source_path(canonical),'closed-canonical-stdlib-source')
+        empty_source=(role=='stdlib-source' and len(raw)==0 and row['mode']==0o644)
+        need((len(raw)>0 or empty_source) and len(raw)<=8*1024**2 and row=={'bytes':len(raw),'mode':row['mode'],'sha256':sha(raw)}
              and row['mode'] in (0o644,0o755),'provenance-body-pin')
         meta={k:v for k,v in item.items() if k!='body'}
         if canonical in files:need(files[canonical]==row and samples[canonical]['identity']==meta['identity'],'origin-canonical-drift')
@@ -274,24 +287,23 @@ def capture(io,*,endpoint,source_rows,gcc_directory,host=None,runtime=None,modul
             excluded.append({'name':record['name'],'origin':origin});continue
         need('..' not in Path(origin).parts and origin.startswith(STDLIB+'/'),'closed-stdlib-origin')
         origin_count+=1;need(origin_count<=512,'loaded-origin-count')
-        if origin not in requests:canonical=sample(origin)
-        else:canonical=requests[origin]['canonical']
         suffix=Path(origin).suffix
         basis='text-origin' if suffix=='.py' else 'bytecode-origin' if suffix=='.pyc' else 'native-extension-origin' if suffix=='.so' else None
         need(basis is not None,'unsupported-loaded-origin')
+        canonical=sample(origin,role='stdlib-source' if basis=='text-origin' else 'strict')
         need(canonical.startswith(STDLIB+'/'),'closed-canonical-stdlib-origin')
         canonical_cached=None
         if record['cached'] is not None:
             cache=record['cached'];need(cache.startswith(STDLIB+'/') and '..' not in Path(cache).parts
                                        and cache.endswith('.pyc'),'closed-stdlib-cache')
-            if cache not in requests:canonical_cached=sample(cache,False)
-            else:canonical_cached=None if requests[cache] is None else requests[cache]['canonical']
+            canonical_cached=sample(cache,False)
             need(canonical_cached is None or canonical_cached.startswith(STDLIB+'/'),'closed-canonical-stdlib-cache')
         loaded.append({**record,'basis':basis,'canonical':canonical,'canonical_cached':canonical_cached})
     # Recheck all physical file/alias/absence and runtime/module/version state.
     for path,before in requests.items():
         live();sample_count+=1;need(sample_count<=2048,'provenance-total-sample-count')
-        item=io.sample(path,endpoint);live()
+        item=(io.sample_stdlib_source(path,endpoint) if request_roles[path]=='stdlib-source'
+              else io.sample(path,endpoint));live()
         if before is None:need(item is None,'loaded-cache-negative-drift')
         else:need(item is not None and {k:v for k,v in item.items() if k!='body'}==before
                   and sha(item['body'])==before['row']['sha256'],'loaded-origin-final-drift')

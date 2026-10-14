@@ -34,25 +34,35 @@ def identity(info):
     return [getattr(info,k) for k in FIELDS]
 
 
-def file_stat_diagnostic(requested,canonical,before,endpoint):
+def stdlib_source_path(value):
+    text=str(value);path=Path(text)
+    return (str(path)==text and path.is_absolute() and len(text)<=1024 and len(path.parts)<=32
+            and '..' not in path.parts and all(32<=ord(c)<127 for c in text)
+            and text.startswith('/usr/lib/python3.12/') and path.suffix=='.py')
+
+
+def file_stat_diagnostic(requested,canonical,before,endpoint,*,predicate='sample-file-gate'):
     """Unaccepted pre-open facts from the same already-observed leaf stat."""
     import json
     live(endpoint)
     paths=[str(p) for p in (requested,canonical)]
     for text in paths:
         need(str(Path(text))==text,'file-diagnostic-path');path_ok(Path(text))
+    need(predicate in ('sample-file-gate','sample-stdlib-source-file-gate'),'file-diagnostic-predicate')
     values=identity(before);mode=before.st_mode
     need(all(type(v) is int and 0<=v<2**64 for v in values) and mode<=0o177777 and
          stat.S_IFMT(mode) in (stat.S_IFIFO,stat.S_IFCHR,stat.S_IFDIR,stat.S_IFBLK,
                               stat.S_IFREG,stat.S_IFLNK,stat.S_IFSOCK),'file-diagnostic-identity')
+    empty_allowed=(predicate=='sample-stdlib-source-file-gate' and all(stdlib_source_path(p) for p in paths)
+                   and stat.S_IMODE(mode)==0o644 and before.st_size==0)
     terms=[name for name,failed in (('kind',not stat.S_ISREG(mode)),('uid',before.st_uid!=0),
         ('gid',before.st_gid!=0),('nlink',before.st_nlink!=1),
-        ('mode',stat.S_IMODE(mode) not in (0o644,0o755)),('empty',before.st_size<=0),
+        ('mode',stat.S_IMODE(mode) not in (0o644,0o755)),('empty',before.st_size<=0 and not empty_allowed),
         ('size-cap',before.st_size>64*1024**2)) if failed]
     need(bool(terms),'file-diagnostic-terms')
     facts=dict(schema_version=1,purpose='SIGNER_PASSIVE_FILE_STAT_DIAGNOSTIC_V1',
                request_path=paths[0],canonical=paths[1],identity=values,stage='before-open',
-               predicate='sample-file-gate',failed_terms=terms)
+               predicate=predicate,failed_terms=terms)
     need(len(json.dumps(facts,sort_keys=True,separators=(',',':')).encode('ascii'))<=8192,
          'file-diagnostic-size')
     live(endpoint)
@@ -123,15 +133,24 @@ class NativeIO:
             if not changed:return current,aliases,[{'path':p,'identity':v} for p,v in sorted(parents.items())]
         raise Refusal('alias-limit')
     def sample(self,path,end):
+        return self._sample(path,end)
+    def sample_stdlib_source(self,path,end):
+        return self._sample(path,end,stdlib_source=True)
+    def _sample(self,path,end,*,stdlib_source=False):
+        if stdlib_source:need(stdlib_source_path(path),'stdlib-source-role-path')
         try:canonical,aliases,ancestors=self.resolve(path,end)
         except FileNotFoundError:return None
+        if stdlib_source:need(stdlib_source_path(canonical),'stdlib-source-role-canonical')
         before=self.metadata(canonical,end)
+        empty_allowed=stdlib_source and stat.S_IMODE(before.st_mode)==0o644 and before.st_size==0
         try:
             need(stat.S_ISREG(before.st_mode) and before.st_uid==before.st_gid==0 and before.st_nlink==1
-                and stat.S_IMODE(before.st_mode) in (0o644,0o755) and 0<before.st_size<=64*1024**2,'file')
+                and stat.S_IMODE(before.st_mode) in (0o644,0o755) and
+                (0<before.st_size<=64*1024**2 or empty_allowed),'file')
         except Refusal as error:
             diagnostic=None;diagnostic_cancelled=False
-            try:diagnostic=file_stat_diagnostic(path,canonical,before,end)
+            try:diagnostic=file_stat_diagnostic(path,canonical,before,end,
+                    predicate='sample-stdlib-source-file-gate' if stdlib_source else 'sample-file-gate')
             except BaseException as problem:diagnostic_cancelled=isinstance(problem,(KeyboardInterrupt,Cancelled))
             try:
                 error.file_diagnostic=diagnostic

@@ -294,7 +294,7 @@ def source_rows(rows):
              and type(row['bytes']) is int and 0<row['bytes']<=1024**2
              and type(row['mode']) is int and row['mode']==0o644 and sha(row['sha256']),'Source-row')
     need(sum(r['bytes'] for r in rows.values())<=2*1024**2,'Source-total-budget')
-    need(rows['passive.py']['sha256']=='5aca7fb4f51c72546404328f750660d32ae04f05d7ffd6841af5c664df783e50'
+    need(rows['passive.py']['sha256']=='b844e94ae9cf69882550526a93aed3606398e9252175472be0bf6f2888eba1c9'
          and rows['observation_entry.py']['sha256']=='540db1ab5a877fd2486673e86d2a1216c036dd9d8bec3953f44f467ee4966071',
          'literal-inherited-Source')
 
@@ -488,8 +488,15 @@ def validate_provenance(provenance,source_pins,observation):
     need(type(std['files']) is dict and 0<len(std['files'])<=4096 and type(std['modules']) is list
          and 0<len(std['modules'])<=2048,'stdlib-file-module-budget')
     prefix='/usr/lib/python3.12/'
+    empty_files=set()
     for name,row in std['files'].items():
-        path(name);need(name.startswith(prefix),'stdlib-canonical-scope');file_row(row)
+        path(name);need(name.startswith(prefix),'stdlib-canonical-scope')
+        if type(row) is dict and type(row.get('bytes')) is int and row['bytes']==0:
+            need(set(row)=={'bytes','mode','sha256'} and row['mode']==0o644 and
+                 type(row['mode']) is int and row['sha256']==digest(b'') and name.endswith('.py'),
+                 'empty-stdlib-source-row')
+            empty_files.add(name)
+        else:file_row(row)
     referenced=set();names=set()
     for module in std['modules']:
         need(type(module) is dict and set(module)=={'name','origin','file','cached','basis','canonical','canonical_cached'}
@@ -500,13 +507,19 @@ def validate_provenance(provenance,source_pins,observation):
              and module['canonical'] in std['files'],'stdlib-origin-file-binding')
         suffix={'text-origin':'.py','bytecode-origin':'.pyc','native-extension-origin':'.so'}[module['basis']]
         need(module['origin'].endswith(suffix),'stdlib-origin-basis')
+        if module['canonical'] in empty_files:
+            path(module['origin'])
+            need(module['basis']=='text-origin' and module['origin'].endswith('.py')
+                 and module['origin'].startswith(prefix),'empty-stdlib-source-reference')
         for field in ('file','cached'):
             need(module[field] is None or text(module[field],1024),'stdlib-optional-origin')
         referenced.add(module['canonical'])
         cache=module['canonical_cached']
+        need(module['cached'] not in empty_files,'empty-stdlib-cache-reference')
         need(cache is None or (module['cached'] is not None and cache in std['files'] and cache.endswith('.pyc')),
              'stdlib-cache-binding')
         if cache is not None:referenced.add(cache)
+        need(cache not in empty_files,'empty-stdlib-cache-reference')
     need(referenced==set(std['files']),'complete-stdlib-references')
     for key in ('builtin_or_frozen','excluded_loaded'):
         need(type(std[key]) is list and len(std[key])<=2048,'loaded-origin-budget')

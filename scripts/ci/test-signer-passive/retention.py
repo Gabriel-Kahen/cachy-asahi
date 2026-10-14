@@ -222,7 +222,7 @@ def validate_file_diagnostic(value):
     need(type(value) is dict and set(value)=={'schema_version','purpose','request_path','canonical',
          'identity','stage','predicate','failed_terms'} and type(value['schema_version']) is int and
          value['schema_version']==1 and value['purpose']=='SIGNER_PASSIVE_FILE_STAT_DIAGNOSTIC_V1'
-         and value['stage']=='before-open' and value['predicate']=='sample-file-gate',
+         and value['stage']=='before-open' and value['predicate'] in ('sample-file-gate','sample-stdlib-source-file-gate'),
          'closed-file-diagnostic')
     for key in ('request_path','canonical'):
         name=value[key]
@@ -237,9 +237,13 @@ def validate_file_diagnostic(value):
     mode=ident[2]
     need(mode<=0o177777 and stat.S_IFMT(mode) in (stat.S_IFDIR,stat.S_IFREG,stat.S_IFLNK,
          stat.S_IFBLK,stat.S_IFCHR,stat.S_IFIFO,stat.S_IFSOCK),'file-diagnostic-mode')
+    empty_allowed=(value['predicate']=='sample-stdlib-source-file-gate' and
+                   all(value[key].startswith('/usr/lib/python3.12/') and Path(value[key]).suffix=='.py'
+                       for key in ('request_path','canonical')) and
+                   stat.S_IMODE(mode)==0o644 and ident[6]==0)
     terms=[term for term,failed in (('kind',not stat.S_ISREG(mode)),('uid',ident[3]!=0),
            ('gid',ident[4]!=0),('nlink',ident[5]!=1),('mode',stat.S_IMODE(mode) not in (0o644,0o755)),
-           ('empty',ident[6]==0),('size-cap',ident[6]>64*1024**2)) if failed]
+           ('empty',ident[6]==0 and not empty_allowed),('size-cap',ident[6]>64*1024**2)) if failed]
     need(type(value['failed_terms']) is list and value['failed_terms']==terms and len(terms)>0,
          'file-diagnostic-failed-terms')
     need(len(canonical(value))<=8192,'file-diagnostic-byte-bound')
