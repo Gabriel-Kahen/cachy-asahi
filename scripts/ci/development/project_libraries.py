@@ -33,6 +33,50 @@ PHASES = ('preflight', 'runtime-inputs', 'materialize', 'jbigkit-build-1', 'jbig
           'provider-SONAME-association', 'private-postbuild-association', 'cleanup')
 
 
+MATERIALIZE_CHECKPOINTS = frozenset(('after-byte-input', 'after-directory-observation', 'after-filtered-gzip-close', 'after-filtered-tar-member', 'after-fresh-destination', 'after-gzip-read', 'after-input-final-fstat', 'after-input-fstat', 'after-input-open', 'after-input-pread', 'after-member-read', 'after-output-mode', 'after-output-open', 'after-output-write', 'after-package-directory', 'after-project-patch-transform', 'after-tar-close', 'after-tar-member', 'before-directory-observation', 'before-filter-member-proof', 'before-filtered-gzip-open', 'before-filtered-tar-member', 'before-fresh-destination', 'before-gzip-open', 'before-gzip-read', 'before-input-final-fstat', 'before-input-open', 'before-input-pread', 'before-input-read', 'before-member-read', 'before-notice-member', 'before-notice-span', 'before-output-byte-proof', 'before-output-mode', 'before-output-open', 'before-output-write', 'before-package-directory', 'before-project-patch-transform', 'before-shared-patch-hunk', 'before-shared-patch-section', 'before-synthetic-fixture', 'before-tar-open', 'preparation-completion', 'preparation-entry'))
+MATERIALIZE_REASONS = {'archive member cap': 'ARCHIVE_SHAPE', 'archive path': 'ARCHIVE_SHAPE', 'archive root/duplicate': 'ARCHIVE_SHAPE', 'archive type': 'ARCHIVE_SHAPE', 'byte input cap': 'MATERIALIZER_INPUT', 'callback-refused': 'OWNED_CONTEXT', 'combined output cap': 'MATERIALIZER_OUTPUT', 'derived output pin: jbigkit/COPYING': 'MATERIALIZER_OUTPUT', 'derived output pin: jbigkit/LICENSE.recipe': 'MATERIALIZER_OUTPUT', 'derived output pin: jbigkit/NOTICE': 'MATERIALIZER_OUTPUT', 'derived output pin: jbigkit/PKGBUILD': 'MATERIALIZER_OUTPUT', 'derived output pin: jbigkit/PUBLICATION.md': 'MATERIALIZER_OUTPUT', 'derived output pin: jbigkit/inputs.json': 'MATERIALIZER_OUTPUT', 'derived output pin: jbigkit/jbigkit-2.2-project-filtered.tar.gz': 'MATERIALIZER_OUTPUT', 'derived output pin: jbigkit/jbigkit-2.2-shared_lib.patch': 'MATERIALIZER_OUTPUT', 'derived output pin: jbigkit/jbigkit-project-filter-tests.patch': 'MATERIALIZER_OUTPUT', 'derived output pin: jbigkit/packaging-REUSE.toml': 'MATERIALIZER_OUTPUT', 'derived output pin: jbigkit/removal.md': 'MATERIALIZER_OUTPUT', 'derived output pin: jbigkit/source-check.py': 'MATERIALIZER_OUTPUT', 'derived output pin: jbigkit/source-filter.json': 'MATERIALIZER_OUTPUT', 'derived output pin: jbigkit/synthetic-0.pbm': 'MATERIALIZER_OUTPUT', 'derived output pin: jbigkit/synthetic-1.pbm': 'MATERIALIZER_OUTPUT', 'derived output pin: jbigkit/synthetic-2.pbm': 'MATERIALIZER_OUTPUT', 'derived output pin: jbigkit/synthetic-3.pbm': 'MATERIALIZER_OUTPUT', 'derived output pin: jbigkit/synthetic-4.pbm': 'MATERIALIZER_OUTPUT', 'derived output pin: jbigkit/synthetic-pbm.py': 'MATERIALIZER_OUTPUT', 'derived output pin: jbigkit/upstream-ANNOUNCE': 'MATERIALIZER_OUTPUT', 'derived output pin: libtiff/LICENSE.MIT': 'MATERIALIZER_OUTPUT', 'derived output pin: libtiff/PKGBUILD': 'MATERIALIZER_OUTPUT', 'derived output pin: libtiff/PUBLICATION.md': 'MATERIALIZER_OUTPUT', 'derived output pin: libtiff/UPSTREAM-NOTICES.txt': 'MATERIALIZER_OUTPUT', 'derived output pin: libtiff/libtiff-project-4.7.2-source.tar.gz': 'MATERIALIZER_OUTPUT', 'derived output pin: libtiff/source-filter.json': 'MATERIALIZER_OUTPUT', 'derived output pin: libtiff/stage-source.py': 'MATERIALIZER_OUTPUT', 'exact 27 output membership': 'MATERIALIZER_OUTPUT', 'exact shared patch scope': 'PATCH_SHAPE', 'expanded archive cap': 'ARCHIVE_SHAPE', 'filtered archive output cap': 'MATERIALIZER_OUTPUT', 'filtered file count': 'FILTERED_SOURCE', 'filtered member pin': 'FILTERED_SOURCE', 'grant-refused': 'OWNED_CONTEXT', 'input changed': 'MATERIALIZER_INPUT', 'library-GOODSIG-primary-refused': 'SIGNATURE_STATUS', 'library-command-failed-extension-signature': 'SIGNATURE_EXECUTION', 'library-deadline': 'FRAME', 'library-download-name': 'FETCH_GUARD', 'library-extension-package-inspection': 'PACKAGE_STATIC', 'library-finite-fetch-contract': 'FETCH_GUARD', 'library-fourteen-inputs-required': 'FETCH_COUNT', 'library-full-primary-signature-refused': 'SIGNATURE_STATUS', 'library-gpgv-runtime-drift': 'RUNTIME_BINDING', 'library-gpgv-runtime-identity': 'RUNTIME_BINDING', 'library-http-body-cap': 'FETCH_GUARD', 'library-http-body-pin': 'FETCH_GUARD', 'library-http-redirect-refused': 'FETCH_GUARD', 'library-http-status': 'FETCH_GUARD', 'library-http-write': 'FETCH_GUARD', 'library-invalid-signature-status': 'SIGNATURE_STATUS', 'library-keyring-write': 'PREPARE_GUARD', 'library-materialization-plan-pin': 'PREPARE_GUARD', 'library-private-gpgv-home': 'PREPARE_GUARD', 'library-public-armor-base64': 'CERTIFICATE', 'library-public-armor-format': 'CERTIFICATE', 'library-public-binary-certificate-pin': 'CERTIFICATE', 'library-public-certificate-pin': 'CERTIFICATE', 'library-signature-status-cap': 'SIGNATURE_STATUS', 'materialization plan pin': 'MATERIALIZER_INPUT', 'materialized output pin': 'MATERIALIZER_OUTPUT', 'member byte cap': 'ARCHIVE_SHAPE', 'member truncation/root file': 'ARCHIVE_SHAPE', 'notice output cap': 'MATERIALIZER_OUTPUT', 'notice separator': 'NOTICE_PIN', 'notice source pin': 'NOTICE_PIN', 'notice span': 'NOTICE_PIN', 'ordinary directory required': 'MATERIALIZER_INPUT', 'original-frame callback required': 'MATERIALIZER_INPUT', 'patch context': 'PATCH_SHAPE', 'patch counts': 'PATCH_SHAPE', 'patch file names': 'PATCH_SHAPE', 'patch file scope': 'PATCH_SHAPE', 'patch hunk': 'PATCH_SHAPE', 'patch line': 'PATCH_SHAPE', 'patch new offset': 'PATCH_SHAPE', 'patch order': 'PATCH_SHAPE', 'project Source pin: jbigkit/LICENSE.recipe': 'SOURCE_PIN', 'project Source pin: jbigkit/PKGBUILD': 'SOURCE_PIN', 'project Source pin: jbigkit/PUBLICATION.md': 'SOURCE_PIN', 'project Source pin: jbigkit/inputs.json': 'SOURCE_PIN', 'project Source pin: jbigkit/removal.md': 'SOURCE_PIN', 'project Source pin: jbigkit/source-check.py': 'SOURCE_PIN', 'project Source pin: jbigkit/source-filter.json': 'SOURCE_PIN', 'project Source pin: jbigkit/synthetic-pbm.py': 'SOURCE_PIN', 'project Source pin: libtiff/LICENSE.MIT': 'SOURCE_PIN', 'project Source pin: libtiff/PKGBUILD': 'SOURCE_PIN', 'project Source pin: libtiff/PUBLICATION.md': 'SOURCE_PIN', 'project Source pin: libtiff/source-filter.json': 'SOURCE_PIN', 'project Source pin: libtiff/stage-source.py': 'SOURCE_PIN', 'project directory scope': 'MATERIALIZER_INPUT', 'regular bounded input required': 'MATERIALIZER_INPUT', 'root test match': 'PATCH_SHAPE', 'short input': 'MATERIALIZER_INPUT', 'short output write': 'MATERIALIZER_OUTPUT', 'stage-deadline-exceeded': 'FRAME', 'supplied upstream scope': 'MATERIALIZER_INPUT', 'upstream pin: jbigkit': 'MATERIALIZER_INPUT', 'upstream pin: libtiff': 'MATERIALIZER_INPUT', 'upstream pin: reuse': 'MATERIALIZER_INPUT', 'upstream pin: shared_patch': 'MATERIALIZER_INPUT'}
+MATERIALIZE_BOUNDARIES = frozenset(('UNKNOWN','PREPARE_GUARD','PREPARE_PINS','PREPARE_PLAN','PREPARE_FETCH',
+    'FETCH_GUARD','FETCH_CONTRACT','FETCH_SUBMISSION','FETCH_OPENER','FETCH_FRAME','FETCH_OPEN','FETCH_STATUS',
+    'FETCH_OUTPUT_OPEN','FETCH_READ','FETCH_WRITE','FETCH_BODY_PIN','FETCH_CLOSE','FETCH_RECEIPT',
+    'MATERIALIZER','CERTIFICATE_READ','CERTIFICATE_DEARMOR','KEYRING_WRITE','KEYRING_MODE','CERTIFICATE_HOME',
+    'STATIC_CHECKER','EXTENSION_ARCHIVE_FETCH','EXTENSION_SIGNATURE_FETCH','SIGNATURE_RUNTIME_IDENTITY',
+    'SIGNATURE_RUNTIME_HASH','SIGNATURE_COMMAND','SIGNATURE_STATUS','PACKAGE_STATIC','EXTENSION_RECEIPT','FINAL_FETCH_COUNT'))
+MATERIALIZE_EXCEPTION_TYPES = {ValueError:'VALUE_ERROR',TypeError:'TYPE_ERROR',KeyError:'KEY_ERROR',
+    IndexError:'INDEX_ERROR',OSError:'OS_ERROR',FileNotFoundError:'FILE_NOT_FOUND_ERROR',
+    PermissionError:'PERMISSION_ERROR',TimeoutError:'TIMEOUT_ERROR',UnicodeDecodeError:'UNICODE_DECODE_ERROR',
+    json.JSONDecodeError:'JSON_DECODE_ERROR',KeyboardInterrupt:'KEYBOARD_INTERRUPT',SystemExit:'SYSTEM_EXIT'}
+
+
+def materialize_diagnostic(error, boundary, checkpoint):
+    """Fixed labels only; no str(), repr(), notes, paths or traceback traversal."""
+    result = {'schema_version':1,'boundary':'UNKNOWN','checkpoint':'UNKNOWN','exception':'OTHER','reason':'UNKNOWN'}
+    try:
+        if type(boundary) is str and len(boundary) <= 64 and boundary in MATERIALIZE_BOUNDARIES:result['boundary'] = boundary
+        if type(checkpoint) is str and len(checkpoint) <= 64 and checkpoint in MATERIALIZE_CHECKPOINTS | {'NONE','UNKNOWN'}:result['checkpoint'] = checkpoint
+        result['exception'] = MATERIALIZE_EXCEPTION_TYPES.get(type(error),'OTHER')
+        if type(error) is ValueError:
+            args = BaseException.args.__get__(error,type(error))
+            if type(args) is tuple and len(args) == 1 and type(args[0]) is str and len(args[0]) <= 512:
+                result['reason'] = MATERIALIZE_REASONS.get(args[0],'UNKNOWN')
+    except Exception:
+        # Ordinary diagnostic uncertainty adds no new operational acceptance.
+        return {'schema_version':1,'boundary':'UNKNOWN','checkpoint':'UNKNOWN','exception':'OTHER','reason':'UNKNOWN'}
+    return result
+
+
+def validate_materialize_diagnostic(value):
+    require(type(value) is dict and set(value) == {'schema_version','boundary','checkpoint','exception','reason'} and
+            type(value['schema_version']) is int and value['schema_version'] == 1 and
+            type(value['boundary']) is str and len(value['boundary']) <= 64 and value['boundary'] in MATERIALIZE_BOUNDARIES and
+            type(value['checkpoint']) is str and len(value['checkpoint']) <= 64 and value['checkpoint'] in MATERIALIZE_CHECKPOINTS | {'NONE','UNKNOWN'} and
+            type(value['exception']) is str and len(value['exception']) <= 64 and value['exception'] in set(MATERIALIZE_EXCEPTION_TYPES.values()) | {'OTHER'} and
+            type(value['reason']) is str and len(value['reason']) <= 64 and value['reason'] in set(MATERIALIZE_REASONS.values()) | {'UNKNOWN'},
+            'library-materialize-diagnostic-schema')
+    require(len(json.dumps(value,ensure_ascii=True,sort_keys=True).encode()) <= 2048,
+            'library-materialize-diagnostic-cap')
+    return dict(value)
+
+
 class NoRedirect(urllib.request.HTTPRedirectHandler):
     def redirect_request(self, *_args, **_kwargs):
         raise ValueError('library-http-redirect-refused')
@@ -97,6 +141,10 @@ def public_metadata(value):
     if 'failed_phase' in value:
         require(value['failed_phase'] in PHASES, 'library-public-failure-phase')
         result['failed_phase'] = value['failed_phase']
+    if 'materialize_diagnostic' in value:
+        require(value['status'] == 'FAIL' and result.get('failed_phase') in ('runtime-inputs','materialize'),
+                'library-diagnostic-failure-only')
+        result['materialize_diagnostic'] = validate_materialize_diagnostic(value['materialize_diagnostic'])
     if value['status'] == 'PASS':
         require(all(v == 'PASS' for v in phases.values()) and cleanup['status'] == 'PASS' and
                 cleanup['uncertainties'] == 0 and result['cancelled'] is False and
@@ -108,7 +156,7 @@ def public_metadata(value):
 def validate_public_metadata(value):
     required = {'schema_version','stage','status','hardware_validation','public_promotion','publication_license_acceptance',
                 'phases','cleanup_status','cleanup_uncertainty','cancelled'}
-    require(type(value) is dict and required <= set(value) <= required | {'artifact_sha256','failed_phase'} and
+    require(type(value) is dict and required <= set(value) <= required | {'artifact_sha256','failed_phase','materialize_diagnostic'} and
             value.get('schema_version') == 1 and value.get('hardware_validation') == 'NOT RUN' and
             type(value.get('cancelled')) is bool and value.get('cleanup_uncertainty') in ('NONE','OWNED_CLEANUP_UNCERTAIN'), 'library-public-schema')
     internal = dict(value, cleanup={'status':value['cleanup_status'], 'uncertainties':int(value['cleanup_uncertainty'] != 'NONE')})
@@ -188,6 +236,12 @@ class Operations:
         self.counter, self.containers, self.layer = 0, {}, None
         self.fetch_count, self.fetch_bytes, self.accepted_extensions = 0, 0, {}
         self.materialized = None
+        self.materialize_active = False
+        self.materialize_boundary = 'UNKNOWN'
+        self.materialize_checkpoint = 'NONE'
+        self.materialize_failure = None
+        self.materialize_first_failure = None
+        self.materialize_secondary_control = None
         require(type(trusted_gpgv) is dict and set(trusted_gpgv) == {'path','sha256','identity'} and
                 trusted_gpgv['path'] == '/usr/bin/gpgv' and PIN.fullmatch(trusted_gpgv['sha256']) and
                 type(trusted_gpgv['identity']) is list and len(trusted_gpgv['identity']) == 9 and
@@ -297,87 +351,158 @@ class Operations:
                 all(row.get(k) is True for k in ('bytes_equal', 'installed_contents_equal', 'pkginfo_equal', 'buildinfo_equal')), 'library-rebuild-comparison-failed')
 
     def fetch(self, item, name):
+        self.materialize_checkpoint = 'NONE'
+        self.materialize_boundary = 'FETCH_GUARD'
         self.guard()
+        self.materialize_boundary = 'FETCH_CONTRACT'
         require(self.fetch_count < 14 and type(item['bytes']) is int and 0 < item['bytes'] <= 32 * 1024**2 and
                 PIN.fullmatch(item['sha256']) and item['url'].startswith(('https://www.cl.cam.ac.uk/', 'https://gitlab.com/', 'https://raw.githubusercontent.com/archlinuxarm/', 'https://mirror.archlinuxarm.org/')), 'library-finite-fetch-contract')
         require(re.fullmatch('[A-Za-z0-9+_.-]+', name), 'library-download-name')
         self.fetch_count += 1
         path = self.output / ('private-input-' + name)
+        self.materialize_boundary = 'FETCH_SUBMISSION'
         save(self.output / ('private-input-' + name + '.json'), {'url':item['url'], 'expected_bytes':item['bytes'],
              'expected_sha256':item['sha256'], 'status':'SUBMITTED'}, deadline=self.deadline)
+        self.materialize_boundary = 'FETCH_OPENER'
         opener = urllib.request.build_opener(urllib.request.ProxyHandler({}), NoRedirect())
+        self.materialize_boundary = 'FETCH_FRAME'
         started = time.monotonic(); timeout = min(30, self.deadline - started)
         require(timeout > 0, 'library-deadline')
         response = stream = None
         primary = None
         try:
+            self.materialize_boundary = 'FETCH_OPEN'
             response = opener.open(urllib.request.Request(item['url'], method='GET'), timeout=timeout)
+            self.materialize_boundary = 'FETCH_STATUS'
             self.guard(); require(response.status == 200, 'library-http-status')
+            self.materialize_boundary = 'FETCH_OUTPUT_OPEN'
             stream = path.open('xb')
             total, hasher = 0, hashlib.sha256()
             while True:
+                self.materialize_boundary = 'FETCH_READ'
                 self.guard(); block = response.read(min(65536, item['bytes'] + 1 - total)); self.guard()
                 if not block: break
                 total += len(block); self.fetch_bytes += len(block)
                 require(total <= item['bytes'] and self.fetch_bytes <= 64 * 1024**2, 'library-http-body-cap')
+                self.materialize_boundary = 'FETCH_WRITE'
                 require(stream.write(block) == len(block), 'library-http-write'); hasher.update(block)
+            self.materialize_boundary = 'FETCH_BODY_PIN'
             require(total == item['bytes'] and hasher.hexdigest() == item['sha256'], 'library-http-body-pin')
         except BaseException as error:
             primary = error
+            self.capture_materialize_failure(error)
         finally:
             for label, resource in (('stream', stream), ('response', response)):
                 if resource is None: continue
+                self.materialize_boundary = 'FETCH_CLOSE'
                 try: resource.close()
                 except BaseException as error:
-                    if primary is None: primary = error
+                    if primary is None:
+                        primary = error
+                        self.capture_materialize_failure(error)
                     primary.add_note('HTTP ' + label + ' close uncertainty: ' + type(error).__name__ + ': ' + str(error))
         if primary is not None: raise primary
         self.guard()
+        self.materialize_boundary = 'FETCH_RECEIPT'
         save(self.output / ('private-input-' + name + '.json'), {'url': item['url'], 'bytes': total, 'sha256': hasher.hexdigest(),
              'status': 200, 'elapsed_seconds': time.monotonic() - started}, deadline=self.deadline)
         return path
 
     def prepare(self, contract, materializer, phases):
-        self.guard()
-        require(contract.get('materialization_plan_sha256') == PLAN_SHA256 and
-                digest(self.root / PLAN_PATH, deadline=self.deadline) == PLAN_SHA256 and
-                digest(self.root / MATERIALIZER_PATH, deadline=self.deadline) == contract.get('materializer_source_sha256'),
-                'library-materialization-plan-pin')
-        plan = read_json(self.root / PLAN_PATH, deadline=self.deadline)
-        upstream = {key: self.fetch(row, key) for key, row in plan['upstream'].items()}
-        self.materialized = self.output / 'materialized'
-        phases['materialize'] = 'RUNNING'
-        materializer.prepare_sources(project_dirs={key: self.root / 'scripts/ci/development/project_library_sources' / key for key in PACKAGES},
-            upstream=upstream, destination=self.materialized, check=lambda _reason: self.guard(), plan_path=self.root / PLAN_PATH)
-        phases['materialize'] = 'PASS'
-        keyring = self.output / 'private-public-keyring.gpg'
-        binary = dearmor(read_regular(self.cache / 'archlinuxarm.gpg', 3098, deadline=self.deadline))
-        with keyring.open('xb') as stream: require(stream.write(binary) == len(binary), 'library-keyring-write')
-        keyring.chmod(0o600)
-        home = self.output / 'private-gpgv-home'; home.mkdir(mode=0o700)
-        require(home.stat().st_uid == os.geteuid() and home.stat().st_mode & 0o777 == 0o700 and not home.is_symlink(), 'library-private-gpgv-home')
-        inspector = checker(self.root, deadline=self.deadline)
-        for row in contract['builder_extensions']:
-            package = self.fetch(row['archive'], row['archive']['filename'])
-            signature = self.fetch(row['signature'], row['signature']['filename'])
+        self.materialize_active = True
+        try:
+            self.materialize_boundary = 'PREPARE_GUARD'
             self.guard()
-            node = Path(self.trusted_gpgv['path']).stat()
-            require([node.st_dev,node.st_ino,node.st_mode,node.st_nlink,node.st_uid,node.st_gid,node.st_size,node.st_mtime_ns,node.st_ctime_ns] == self.trusted_gpgv['identity'], 'library-gpgv-runtime-identity')
-            require(digest(Path(self.trusted_gpgv['path']), deadline=self.deadline) == self.trusted_gpgv['sha256'], 'library-gpgv-runtime-drift')
-            log = self.run([self.trusted_gpgv['path'], '--homedir', str(home), '--keyring', str(keyring), '--status-fd', '1', str(signature), str(package)], 'extension-signature')
-            require(digest(Path(self.trusted_gpgv['path']), deadline=self.deadline) == self.trusted_gpgv['sha256'], 'library-gpgv-runtime-drift')
-            accepted = signature_status(read_regular(log, 65536, deadline=self.deadline).decode('utf-8'))
-            self.guard(); report = inspector.package(package); self.guard()
-            meta = report['metadata']['.PKGINFO']
-            require(report['errors'] == [] and meta.get('pkgname') == [row['name']] and meta.get('pkgver') == [row['version']] and
-                    meta.get('arch') == ['aarch64'] and sorted(meta.get('depend', [])) == sorted(row['depends']) and
-                    sorted(meta.get('provides', [])) == sorted(row['provides']) and '.INSTALL' not in report['members'] and
-                    all(elf.get('machine') == 183 and not elf.get('errors') for elf in report['elf'].values()), 'library-extension-package-inspection')
-            receipt = {**accepted, 'filename': row['archive']['filename'], 'sha256': row['archive']['sha256'],
-                       'name': row['name'], 'version': row['version'], 'package_inspection': 'PASS'}
-            save(self.output / ('private-extension-' + row['name'] + '.json'), receipt, deadline=self.deadline)
-            self.accepted_extensions[row['name']] = package
-        require(self.fetch_count == 14, 'library-fourteen-inputs-required')
+            self.materialize_boundary = 'PREPARE_PINS'
+            require(contract.get('materialization_plan_sha256') == PLAN_SHA256 and
+                    digest(self.root / PLAN_PATH, deadline=self.deadline) == PLAN_SHA256 and
+                    digest(self.root / MATERIALIZER_PATH, deadline=self.deadline) == contract.get('materializer_source_sha256'),
+                    'library-materialization-plan-pin')
+            self.materialize_boundary = 'PREPARE_PLAN'
+            plan = read_json(self.root / PLAN_PATH, deadline=self.deadline)
+            self.materialize_boundary = 'PREPARE_FETCH'
+            upstream = {key: self.fetch(row, key) for key, row in plan['upstream'].items()}
+            self.materialized = self.output / 'materialized'
+            phases['materialize'] = 'RUNNING'
+            self.materialize_boundary = 'MATERIALIZER'
+            materializer.prepare_sources(project_dirs={key: self.root / 'scripts/ci/development/project_library_sources' / key for key in PACKAGES},
+                upstream=upstream, destination=self.materialized, check=self.materialize_check, plan_path=self.root / PLAN_PATH)
+            phases['materialize'] = 'PASS'
+            self.materialize_checkpoint = 'NONE'
+            self.materialize_boundary = 'CERTIFICATE_READ'
+            keyring = self.output / 'private-public-keyring.gpg'
+            armor = read_regular(self.cache / 'archlinuxarm.gpg', 3098, deadline=self.deadline)
+            self.materialize_boundary = 'CERTIFICATE_DEARMOR'
+            binary = dearmor(armor)
+            self.materialize_boundary = 'KEYRING_WRITE'
+            with keyring.open('xb') as stream: require(stream.write(binary) == len(binary), 'library-keyring-write')
+            self.materialize_boundary = 'KEYRING_MODE'
+            keyring.chmod(0o600)
+            self.materialize_boundary = 'CERTIFICATE_HOME'
+            home = self.output / 'private-gpgv-home'; home.mkdir(mode=0o700)
+            require(home.stat().st_uid == os.geteuid() and home.stat().st_mode & 0o777 == 0o700 and not home.is_symlink(), 'library-private-gpgv-home')
+            self.materialize_boundary = 'STATIC_CHECKER'
+            inspector = checker(self.root, deadline=self.deadline)
+            for row in contract['builder_extensions']:
+                self.materialize_boundary = 'EXTENSION_ARCHIVE_FETCH'
+                package = self.fetch(row['archive'], row['archive']['filename'])
+                self.materialize_boundary = 'EXTENSION_SIGNATURE_FETCH'
+                signature = self.fetch(row['signature'], row['signature']['filename'])
+                self.guard()
+                self.materialize_boundary = 'SIGNATURE_RUNTIME_IDENTITY'
+                node = Path(self.trusted_gpgv['path']).stat()
+                require([node.st_dev,node.st_ino,node.st_mode,node.st_nlink,node.st_uid,node.st_gid,node.st_size,node.st_mtime_ns,node.st_ctime_ns] == self.trusted_gpgv['identity'], 'library-gpgv-runtime-identity')
+                self.materialize_boundary = 'SIGNATURE_RUNTIME_HASH'
+                require(digest(Path(self.trusted_gpgv['path']), deadline=self.deadline) == self.trusted_gpgv['sha256'], 'library-gpgv-runtime-drift')
+                self.materialize_boundary = 'SIGNATURE_COMMAND'
+                log = self.run([self.trusted_gpgv['path'], '--homedir', str(home), '--keyring', str(keyring), '--status-fd', '1', str(signature), str(package)], 'extension-signature')
+                self.materialize_boundary = 'SIGNATURE_RUNTIME_HASH'
+                require(digest(Path(self.trusted_gpgv['path']), deadline=self.deadline) == self.trusted_gpgv['sha256'], 'library-gpgv-runtime-drift')
+                self.materialize_boundary = 'SIGNATURE_STATUS'
+                accepted = signature_status(read_regular(log, 65536, deadline=self.deadline).decode('utf-8'))
+                self.materialize_boundary = 'PACKAGE_STATIC'
+                self.guard(); report = inspector.package(package); self.guard()
+                meta = report['metadata']['.PKGINFO']
+                require(report['errors'] == [] and meta.get('pkgname') == [row['name']] and meta.get('pkgver') == [row['version']] and
+                        meta.get('arch') == ['aarch64'] and sorted(meta.get('depend', [])) == sorted(row['depends']) and
+                        sorted(meta.get('provides', [])) == sorted(row['provides']) and '.INSTALL' not in report['members'] and
+                        all(elf.get('machine') == 183 and not elf.get('errors') for elf in report['elf'].values()), 'library-extension-package-inspection')
+                receipt = {**accepted, 'filename': row['archive']['filename'], 'sha256': row['archive']['sha256'],
+                           'name': row['name'], 'version': row['version'], 'package_inspection': 'PASS'}
+                self.materialize_boundary = 'EXTENSION_RECEIPT'
+                save(self.output / ('private-extension-' + row['name'] + '.json'), receipt, deadline=self.deadline)
+                self.accepted_extensions[row['name']] = package
+            self.materialize_boundary = 'FINAL_FETCH_COUNT'
+            require(self.fetch_count == 14, 'library-fourteen-inputs-required')
+        except BaseException as error:
+            self.capture_materialize_failure(error)
+            raise
+        finally:
+            self.materialize_active = False
+
+    def materialize_check(self, reason):
+        self.materialize_boundary = 'MATERIALIZER'
+        self.materialize_checkpoint = reason if type(reason) is str and len(reason) <= 64 and reason in MATERIALIZE_CHECKPOINTS else 'UNKNOWN'
+        self.guard()
+
+    def capture_materialize_failure(self, error):
+        if self.materialize_active and self.materialize_first_failure is None:
+            # Establish first cause and safe fallback before optional diagnostics.
+            self.materialize_first_failure = error
+            try:
+                self.materialize_failure = {'schema_version':1,'boundary':'UNKNOWN',
+                    'checkpoint':'UNKNOWN','exception':MATERIALIZE_EXCEPTION_TYPES.get(type(error),'OTHER'),'reason':'UNKNOWN'}
+                self.materialize_failure = materialize_diagnostic(error,self.materialize_boundary,self.materialize_checkpoint)
+            except BaseException as secondary:
+                # Deferred controls remain distinct from the original failure.
+                self.materialize_secondary_control = secondary
+                if self.materialize_failure is None:
+                    self.materialize_failure = {'schema_version':1,'boundary':'UNKNOWN',
+                        'checkpoint':'UNKNOWN','exception':'OTHER','reason':'UNKNOWN'}
+                prior = error.__cause__
+                if secondary is not error and prior is not secondary:
+                    error.__cause__ = secondary if prior is None else BaseExceptionGroup(
+                        'materialization diagnostic secondary cause', [prior,secondary])
 
     def extension_inputs(self, extensions):
         result = []
@@ -527,12 +652,19 @@ def run_libraries(controller, root, output, cache, *, deadline, session, materia
         result['status'] = 'PASS'
     except BaseException as error:
         first = error
+        if ops is not None and ops.materialize_failure is not None:
+            result['materialize_diagnostic'] = dict(ops.materialize_failure)
         notes = getattr(error, '__notes__', [])
         result['private_failure'] = {'exception_type':type(error).__name__, 'message':str(error),
                                     'notes':notes if type(notes) is list and all(type(n) is str for n in notes) else ['invalid note type']}
+        if 'materialize_diagnostic' in result:
+            result['private_failure']['materialize_diagnostic'] = dict(result['materialize_diagnostic'])
+        secondary = ops.materialize_secondary_control if ops is not None else None
+        if secondary is not None:
+            result['private_failure']['diagnostic_secondary_control'] = MATERIALIZE_EXCEPTION_TYPES.get(type(secondary),'OTHER')
         for phase, status in result['phases'].items():
             if status == 'RUNNING': result['phases'][phase] = 'FAIL'; result['failed_phase'] = phase
-        result.update(status='FAIL', cancelled=isinstance(error, KeyboardInterrupt), error_code='cancelled' if isinstance(error, KeyboardInterrupt) else 'project-library-stage-failed', error_type=type(error).__name__)
+        result.update(status='FAIL', cancelled=isinstance(error, KeyboardInterrupt) or (secondary is not None and not isinstance(secondary, Exception)), error_code='cancelled' if isinstance(error, KeyboardInterrupt) else 'project-library-stage-failed', error_type=type(error).__name__)
         if str(error) in {'library-cmake-extension-not-registered', 'library-extension-not-accepted',
                           'library-extension-cache-pin-refused', 'library-layer-inventory-drift', 'library-command-failed-layer-build'}:
             result['error_code'] = str(error)

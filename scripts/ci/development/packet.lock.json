@@ -1797,7 +1797,7 @@
     },
     "scripts/ci/development/project_libraries.py": {
       "mode": 420,
-      "sha256": "7ba90b804652f2355837ab550c35b55c37e809d7fce6b4d627e56584d6b5360d"
+      "sha256": "534cf4c5d453183af856c67d816fdf71adc0cb5f92f8e3e345906e65ed05883c"
     },
     "scripts/ci/development/project_library_sources/jbigkit/LICENSE.recipe": {
       "mode": 420,
