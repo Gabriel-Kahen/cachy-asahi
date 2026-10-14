@@ -25,6 +25,7 @@ import acceptance
 import boundary
 import broker
 import consumer
+import current_cache
 import executor_contract as contracts
 import job
 import public
@@ -458,6 +459,10 @@ def pipeline(snapshot, source, private, owner, service, runner, endpoint_observa
     need(not owner.failed, 'failed-broker-refuses-producer')
     report['phase'] = 'producer'
     producer_end = time.monotonic() + allowance(runner.deadline, 6600, 1650)
+    check_source_tree(snapshot, source, deadline=producer_end)
+    with runner.phase_scope(producer_end):
+        current_cache.prefill(snapshot, source, private, runner, state, producer_end)
+    check_source_tree(snapshot, source, deadline=producer_end)
     baseline_observe(owner, 'before_producer', producer_end)
     command = consumer.producer_command(source, private, inputs_sha=job.INPUTS_SHA,
         recipes_sha=job.RECIPES_SHA, producer_end=producer_end)

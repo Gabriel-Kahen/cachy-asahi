@@ -21,7 +21,7 @@ import tempfile
 
 sys.dont_write_bytecode = True
 ROOT = Path(__file__).resolve().parents[3]
-BASE_SHA = 'dc0c75969ed79548c3eb0ab1692f57ebffe7464d9192e591cdcf61aeaeb77154'
+BASE_SHA = '13c2108aa03d76305a16bf1c9d08aa610e51f54f7726e4732c13d0824e5733f5'
 GUARD_SHA = '4bfec1387f87768e5b37475d6172bde302ef52c01c68f81297435048be7f2100'
 PURPOSE = 'ksm-diagnostic-development-lifecycle'
 SCOPE = 'DEVELOPMENT TEST ONLY'

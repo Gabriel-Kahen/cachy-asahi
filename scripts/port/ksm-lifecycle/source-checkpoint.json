@@ -1,164 +1,23 @@
 {
-  "16K_hardware_acceptance": "NOT RUN",
-  "Asahi_M2_acceptance": "NOT RUN",
-  "Docker_daemon_used_by_test_run": false,
-  "actual_installation_removal": "NOT RUN",
-  "actual_native_container_signing": "NOT RUN",
   "actual_native_lifecycle_execution": "NOT RUN",
-  "closed_schedules": [
-    "Inherited per-operation immutable CLI/socket/daemon bindings cover create/start/cleanup/removal and separate absence queries.",
-    "Inherited matching positive real/effective UID/GID gate precedes Docker or caller inputs.",
-    "Inherited lifecycle mode change precedes authoritative receipt writes.",
-    "Actual SIGTERM/SIGINT remembered after controller writer return or raised during final deferral restoration durably rewrite FAIL.",
-    "Caught SIGINT during caller-handler restoration rewrites already completed reports without phase replay.",
-    "Existing post-operation CLI/socket checks reject byte drift and socket drift during transport exceptions.",
-    "Helper source replacement after verification and timestamp/size-valid foreign bytecode caches cannot change executed BASE/GUARD/CONTRACT captures.",
-    "Captured signing guard bypasses nested legacy BASE path loader while preserving all guard/protected-proc and accepted UID/GID checks.",
-    "All five installed CLI probes and the fixture module consume one checked executable capture with metadata and bytes bound to the same opened descriptor."
-  ],
-  "default_keyring_used": false,
-  "document": {
-    "mode": "0o644",
-    "path": "docs/workstreams/ksm-lifecycle.md",
-    "sha256": "95bb3558086553e49f52344c924a0a757c77ed701c164a85c3f3b5eb1558ac56",
-    "size": 19716
-  },
-  "external_frozen_helpers": {
-    "client_stage": {
-      "mode": "0o644",
-      "path": "scripts/client/stage.py",
-      "sha256": "dc0c75969ed79548c3eb0ab1692f57ebffe7464d9192e591cdcf61aeaeb77154",
-      "size": 33711
-    },
-    "source_guard": {
-      "mode": "0o644",
-      "path": "scripts/ci/source_suites.py",
-      "sha256": "4bfec1387f87768e5b37475d6172bde302ef52c01c68f81297435048be7f2100",
-      "size": 23470
-    }
-  },
-  "historical135_test_receipt": {
-    "mode": "0o644",
-    "path": "scripts/port/ksm-lifecycle/source-test-results-135.json",
-    "sha256": "7e404fa10fc24a840528c718ccb4b4895909e80d4ce1581ee50fbd024498349e",
-    "size": 12972
-  },
-  "historical137_checkpoint": {
-    "mode": "0o644",
-    "path": "scripts/port/ksm-lifecycle/source-checkpoint-137.json",
-    "sha256": "9341bd854d7ed6fba33d5cd62295812dcb24322dec7302aa998d3197a3c5ac89",
-    "size": 5100
-  },
-  "historical137_current_worker_files_unchanged": false,
-  "historical137_test_receipt": {
-    "mode": "0o644",
-    "path": "scripts/port/ksm-lifecycle/source-test-results-137.json",
-    "sha256": "b8efbb557dadc3e51a2e8a561d5e2553d55cf7d39cea1041f350ecc466bebb69",
-    "size": 13772
-  },
-  "historical_independent_review": {
-    "mode": "0o644",
-    "path": "docs/reviews/ksm-lifecycle-review.md",
-    "sha256": "e5caea1dadc1929eef3af074025bae652f5f17b3e27e76b9239360e231290df8",
-    "size": 7787
-  },
-  "host_package_or_service_mutation": false,
-  "integration_owner": "Root coordinator; sources and owned document only.",
-  "management_activation": "NOT RUN",
-  "other_four_KSM_files_unchanged": true,
-  "performance_measurements": "NOT RUN",
-  "root_audited_native_build_pair": {
-    "consumed_by_this_lifecycle_adapter": false,
-    "job": "38218102399",
-    "receipt": {
-      "mode": "0o644",
-      "path": "artifacts/ci/38218102399/root-ksm-build-verification.json",
-      "sha256": "206e78b2b45c282798ceb7e1386a1e3a1f9318e25d3e153ab7c459eeb9e53bb0",
-      "size": 308
-    },
-    "status": "PASS-two-equal-native-archives"
-  },
-  "schema_version": 1,
-  "shared_manifests_CI_Git_dispatch_modified": false,
-  "source_and_test_files": {
-    "scripts/port/ksm-lifecycle/contract.py": {
-      "mode": "0o644",
-      "path": "scripts/port/ksm-lifecycle/contract.py",
-      "sha256": "bfce5d9a5e8a9626cdedb121f299dafd730b13e484d1c4be7ba917207e4d161b",
-      "size": 25965
-    },
-    "scripts/port/ksm-lifecycle/stage.py": {
-      "mode": "0o644",
-      "path": "scripts/port/ksm-lifecycle/stage.py",
-      "sha256": "be4a61ac4ed8efbf243e2be1a5211c4ad0553f7be13a26b64e3e655de73cbaee",
-      "size": 28843
-    },
-    "scripts/port/ksm-lifecycle/test_contract.py": {
-      "mode": "0o644",
-      "path": "scripts/port/ksm-lifecycle/test_contract.py",
-      "sha256": "13c7273a83cf3b67330f76380c05c14aa8af6ff4d7173c43d607d5c8b25e4258",
-      "size": 25769
-    },
-    "scripts/port/ksm-lifecycle/test_stage.py": {
-      "mode": "0o644",
-      "path": "scripts/port/ksm-lifecycle/test_stage.py",
-      "sha256": "e34c99bb71f57748c5f171f08085ca4d0ab3846e26cbc48ca07e246730218332",
-      "size": 40222
-    },
-    "scripts/port/ksm-lifecycle/test_worker.py": {
-      "mode": "0o644",
-      "path": "scripts/port/ksm-lifecycle/test_worker.py",
-      "sha256": "5e9bac1045407585f26c8819c9e4d283cae3044e1cefbebabc1f4c086e517aa8",
-      "size": 50092
-    },
-    "scripts/port/ksm-lifecycle/worker.py": {
-      "mode": "0o644",
-      "path": "scripts/port/ksm-lifecycle/worker.py",
-      "sha256": "76a3e94f317bea79d1e2444630d719b8acaed6c6cb6427c0bb19beedbc4d6b83",
-      "size": 38456
-    }
-  },
-  "status": "HELD-source-captured-tested-reviewed-KSM-development-lifecycle",
-  "terminal_contract": "Acceptance requires matching PASS receipts and clean worker/controller exits. Once each caller signal handler is restored, arbitrary default-handler termination may stop a completed process; its receipt alone is not acceptance.",
-  "test_receipt": {
-    "mode": "0o644",
-    "path": "scripts/port/ksm-lifecycle/source-test-results.json",
-    "sha256": "c0d5255a81443a4af927fff30c6ca04326abbe753b48a0ea46a1153b295f33aa",
-    "size": 14801
-  },
-  "test_results": {
-    "contract": 42,
-    "controller": 50,
+  "historical_147": {
+    "checkpoint_sha256": "f3966ce9d97b6a3661a57474740052eaa837929c7b7553ac2d82702562f03fc8",
+    "client_stage_sha256": "dc0c75969ed79548c3eb0ab1692f57ebffe7464d9192e591cdcf61aeaeb77154",
     "count": 147,
-    "error_count": 0,
-    "failure_count": 0,
-    "independent_bounded_source_review": "PASS",
-    "independently_executed_capture_regressions": 10,
-    "new_tests_since_historical137": 10,
-    "real_temporary_GPG_checks": 4,
-    "skipped_count": 0,
-    "syntax": "PASS",
-    "worker": 55
+    "inputs_sha256": "3c16c37d1b12cc84a88572e82ab8ad59e7f3b5ed0d08f09ddf72a69f4711d650",
+    "packages_sha256": "89bdb06fea1862b5a6e02b77a4b98f6e04755b02327d875a716bd792929f3a4f",
+    "test_receipt_sha256": "c0d5255a81443a4af927fff30c6ca04326abbe753b48a0ea46a1153b295f33aa",
+    "worker_sha256": "76a3e94f317bea79d1e2444630d719b8acaed6c6cb6427c0bb19beedbc4d6b83"
   },
-  "verified_byte_execution": {
-    "CLI_original_file_name_argv0_and_main_name_preserved": true,
-    "CONTRACT_source_map_capture_consumed": true,
-    "external_BASE_GUARD_modified": false,
-    "helper_loader": "compile verified captured bytes; no source loader or PYC consumer",
-    "installed_CLI_source": "sealed anonymous memfd; isolated Python consumes captured source",
-    "installed_executable_fd_metadata_verified": [
-      "regular file",
-      "single link",
-      "mode",
-      "uid",
-      "gid",
-      "size/time read stability",
-      "SHA256"
-    ],
-    "installed_fixture_source": "same captured bytes",
-    "legacy_BASE_worker_guard_used": false,
-    "module_cache": "absolute path and verified digest; capture/pin validation precedes lookup",
-    "sealed_descriptor_closed_before_probe_completion": true,
-    "shared_BASE_cancellation_state": true
-  }
+  "inputs_sha256": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f",
+  "packages_sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25",
+  "schema_version": 1,
+  "source_sha256": {
+    "scripts/ci/source_suites.py": "4bfec1387f87768e5b37475d6172bde302ef52c01c68f81297435048be7f2100",
+    "scripts/client/stage.py": "13c2108aa03d76305a16bf1c9d08aa610e51f54f7726e4732c13d0824e5733f5",
+    "scripts/port/ksm-lifecycle/contract.py": "bfce5d9a5e8a9626cdedb121f299dafd730b13e484d1c4be7ba917207e4d161b",
+    "scripts/port/ksm-lifecycle/stage.py": "7387ab33c353d30b04208718147f92aa2a1e26a2d2b717e81a3bb082ef376010",
+    "scripts/port/ksm-lifecycle/worker.py": "8670e05d0cd51a3d3d685702768634bde50427e2a0c8173f1852f94a7ff554d1"
+  },
+  "status": "CURRENT_BASELINE_PIN_REBIND_ONLY"
 }
