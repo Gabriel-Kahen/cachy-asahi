@@ -2,6 +2,36 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 14, native FDK provenance acceptance and changed kernel trial:
+FDK run `38647710278` on Source `843fff11` is accepted as one finite native
+build pair with current schema-3 provenance. Fresh peer `ef085d96` passes
+61 assertions and 13 refusal controls. Root authenticates 21 owned records
+and 793 immutable inputs; only shared Git packed-ref metadata has changed
+through unrelated publication. Fresh read-only Git and physical checks
+confirm all139 FDK source roles unchanged. Both package archives are
+1,210,196 bytes, SHA256
+`f1192f7993540bf190cfc795222ef577b1975e3bb0bc9da27951c5d973686311`.
+Package bytes, payload, PKGINFO and BUILDINFO comparisons pass, with separately
+scoped container/image retirement. Installation, provider integration,
+signed repository delivery, physical 16K/M2 execution and performance remain open.
+
+Kernel Source `2901a1eb` publishes the reviewed permission diagnostic split;
+acceptance still requires ELF flags4/5/6. Fresh committed-source peer
+`f4f8661d` authenticates126 unique roles and the exact ten-file change.
+One changed native trial, `38651732124`, is running. Two baseline-matched
+worker test failures, one verifier skip and14 public bootstrap exclusions
+remain recorded; the full suite is not green. Old actual permissions stay UNKNOWN.
+
+Region run `38650296183` reaches a complete selection but fails the geometry
+newline expectation. The emitted custom-format geometry has11 bytes without
+newline. Its retained crop also differs at four pixels; no crop acceptance is
+claimed. A pinned-source selector-retirement and format correction is being
+prepared, with pixel checks held. KSM run `38647718228` fails with TypeError
+at the kernel-record operation; exact expression cause remains UNKNOWN and
+cleanup ownership is uncertain. An expression-split diagnostic is under review.
+P0, composed Docker configuration and native screenshot download compatibility
+fixes remain active. All R1–R5/M5–M9/A01–A15 requirements remain in scope.
+
 October 14, actual failure retention and onboarding correction checkpoint:
 Root authenticates325 P0 retained/proof leaves and925 inputs from review
 `1b801500`. Run `38645249560` stays FAIL; exact refusal code, preparation,
