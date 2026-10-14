@@ -2,6 +2,56 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 14, screenshot region success pending actual admission:
+One changed software trial `38655970029` completes SUCCESS on Source
+`498231de`, after committed-source peer `8810c607` and exact560-byte plan
+readback including final LF. Strict capture, cancellation, negative-case and
+retirement retention plus independent actual review are assigned. No hardware
+or full screenshot acceptance follows from the API conclusion alone; older
+four-pixel failures stay unchanged.
+
+Native screenshot Source `ef190a32` publishes the independently reviewed
+GitHub log delegation correction and bounded owned DNS transport. Root
+verifies13 Source roles and the exact three-file delta after peer `9f77095e`;
+archive/member/package/helper hash chains, caps and runtime pins are held.
+Committed-source plan admission and a changed native trial remain pending.
+The older download-origin failure's exact cause stays UNKNOWN.
+
+The composed trial `38655108742` is now running. Both changed Pair and Zsh
+trials are terminal FAIL; strict actual reviews are assigned. A separate
+product implementation has begun for local export of verified maintained
+repository endpoints, reusing signed release/promotion/withdrawal contracts.
+It is not a hosted repository or a production trust enrollment.
+
+October 14, changed native trials and Docker compatibility integration:
+Composed Source `0a948450` implements the pinned Docker28 omission contract,
+with six exact changes and271 verified Source roles. Bound Data `dbb2e54f`
+is its exact two-file child. Fresh registration peer `d86f0b33`, both literal
+variable readbacks and Source execution-ref fast-forward pass. Trial
+`38655108742` is queued; no new composed acceptance is claimed.
+
+Pair Source `febc46ed` and Zsh Source `4cda000d` each contain four reviewed
+guardian diagnostic changes, with held Data/Code. Fresh actual registration
+peer `26df5b03` and four literal variable readbacks pass. A single atomic
+fast-forward triggers Pair `38654854421` and Zsh `38654854640`. Pair is terminal
+FAIL with strict retention assigned; Zsh remains queued at this checkpoint.
+
+P0's reviewed default workflow is registered on main `4833a5cc` and all five
+selection variables read back exactly. Root first dispatched against main in
+error; run `38654103369` terminates with `Root Source context refused` before
+launcher entry. Its request/log/metadata are retained separately. The corrected
+source-branch run `38654196346` on `93e37b8c` also fails, reporting
+pipeline/run-pipeline with exception type and refusal code UNKNOWN, matrix
+NOT RUN, cancelled=false and cleanup_uncertain=false. These flags establish
+no retirement pass. There are two dispatches and one intended Source attempt;
+strict actual review and a concrete next correction remain pending.
+
+Screenshot region Source `498231de` publishes the reviewed three-file exact
+format/selector-retirement/trace-bound correction. All19 Source roles verify;
+committed-source admission and a changed actual trial remain pending. The prior
+four-pixel mismatch remains FAIL with cause unproven. Native screenshot's
+secure API-redirect/DNS-worker candidate is under fresh independent review.
+
 October 14, P0 diagnostic boundary source publication:
 Source `93e37b8c` publishes exactly the launcher and P0 workflow changes after
 fresh independent review `77e62a22` passes4,827 assertions and634 extracted
