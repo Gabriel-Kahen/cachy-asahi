@@ -1,0 +1,12 @@
+FROM docker.io/library/debian@sha256:a2ca65377c251208de42e1a2722cb949211236c161b634f6f3663754e2d06850
+COPY debs/ /debs/
+RUN printf '#!/bin/sh\nexit 101\n' > /usr/sbin/policy-rc.d \
+ && chmod 755 /usr/sbin/policy-rc.d \
+ && rm -rf /var/lib/apt/lists/* \
+ && DEBIAN_FRONTEND=noninteractive apt-get \
+      -o Dir::Etc::sourcelist=/dev/null -o Dir::Etc::sourceparts=/dev/null \
+      --no-install-recommends -y install /debs/*.deb \
+ && rm -rf /debs /var/lib/apt/lists/* /var/cache/apt/archives/*.deb
+ENV PATH=/usr/bin:/bin LANG=C LC_ALL=C TZ=UTC
+WORKDIR /tmp
+ENTRYPOINT ["/usr/bin/python3", "-I", "-B", "/source/scripts/ci/screenshot-headless-native/run.py"]

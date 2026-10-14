@@ -1,0 +1,39 @@
+{
+  "helper": {
+    "bytes": 8523,
+    "member": "usr/bin/cachy-asahi-screenshot",
+    "mode": "0755",
+    "sha256": "5a920a5dd7a40463417a9b15e64a6620acfe7b2328960bf7014c9f587c4b69a8"
+  },
+  "job_id": 115917195186,
+  "limits": {
+    "json_bytes": 262144,
+    "log_bytes": 6291456,
+    "log_line_bytes": 16384,
+    "outer_members": 512,
+    "outer_tar_bytes": 9574400,
+    "package_members": 32,
+    "package_tar_bytes": 262144,
+    "seconds": 120,
+    "zip_bytes": 8388608,
+    "zip_members": 32,
+    "zip_total_bytes": 16777216
+  },
+  "log_member": "0_native.txt",
+  "package": {
+    "bytes": 12740,
+    "member": "native-evidence/cachy-asahi-hyprland-settings-1/artifacts/cachy-asahi-hyprland-settings-0.1.0-2-any.pkg.tar.xz",
+    "sha256": "0b22b778ec83d8b98d98d06fa4f016bd4e3f581b69efa83d6526c5265c2adf5e"
+  },
+  "repository": "Gabriel-Kahen/cachy-asahi",
+  "run_attempt": 1,
+  "run_id": 38571648129,
+  "schema_version": 1,
+  "source_commit": "92a3f0612c558b91accc15cd6495d98d6463b943",
+  "tgz": {
+    "bytes": 1275070,
+    "frame": "native-evidence",
+    "sha256": "dea293276f1e465012fa17fab39e8a7c28ee6003e53a0c0d5a54db4061e55a4d"
+  },
+  "workflow_id": 381664314
+}
