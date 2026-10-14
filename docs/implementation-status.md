@@ -6,6 +6,35 @@ October 12, 2026. This record tracks the complete `outline.md` scope; an impleme
 
 
 
+
+October 14, signer static native PASS: binding `9bdab12b` selects receiver
+`ea698489` and canonical manifest `51e44860`. Root verifies22 committed rows
+and R/R/H/H correspondence. Trial `38564473706` passes all six compiler and
+readelf/objdump commands with natural zero and descendant absence. Twelve
+capture hashes and both output hashes join exactly. The3888-byte shim passes
+static ELF structure checks; the2056-byte ABI object records116 compiled-header
+values. Completion `23c1cb99` retains the digest-verified16-member artifact.
+No output or GPG is executed. Compiled instruction review, runtime
+kernel/loader behavior, full signer API and M2 acceptance remain open. FD
+retirement passes; directories remain retained. The prior refusal's cause
+remains unknown.
+
+Composed Data `33e44387` is the exact two-file child of Source `993487a4`.
+Plan `ceb0ac0c` passes the existing parser on real Code/Source/Data identities;
+variable readbacks and execution-ref publication match. Trial `38566446597`
+is queued. Pair plan `f6bc5ef8` likewise binds Source `392be2f2` and held Data
+`ea1db6b5`; trial `38564566992` is queued. Updater's exact fixed-root-owned
+/tmp01777 exception passes peer `8e888f85`; Source `2ce49ea1` preserves other
+custody checks and all90 Source/workflow rows. Trial `38564810704` is queued.
+
+Zsh clock-expression correction passes peer `ed1f1e82`; Root publishes
+`398d05c2`, verifies66 committed Source rows and two held Data rows, and keeps
+registration pending while later clock/module assumptions are audited. No
+native acceptance is transferred from Pair. Screenshot current-input recovery
+and kernel OUTPUTS diagnostics remain under independent review. Library
+`38560924092` is running; KSM `38561918431` waits behind it. Full R1–R5/M5–M9
+and A01–A15 development remains active.
+
 October 14, Source and registration checkpoint: signer refusal diagnostics pass
 independent peer `40088148`; Root publishes receiver `ea698489`, verifies all
 13 Source rows plus manifest `51e44860`, and prepares the separate actual
