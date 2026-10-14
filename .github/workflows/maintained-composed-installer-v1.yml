@@ -8,6 +8,7 @@ permissions:
 concurrency:
   group: native-arm-build
   cancel-in-progress: false
+  queue: max
 jobs:
   pairs:
     if: github.repository == 'Gabriel-Kahen/cachy-asahi' && github.ref == 'refs/heads/codex/native-topmem-fish-current-registered-v1' && github.event.repository.private == false
