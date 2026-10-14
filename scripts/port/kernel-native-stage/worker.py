@@ -212,6 +212,23 @@ def configuration_delta(verifier, before_path, after_path, policy, report):
         raise
 
 
+def verify_output_structure(verifier, build, source, config_path, report):
+    """Same verifier call; record only an exact ValueError on the failure path."""
+    try:
+        return verifier.verify_outputs(build, source, config_path)
+    except ValueError as first:
+        if type(first) is not ValueError:
+            raise
+        controls = []
+        observe_failure(report, first, False, controls)
+        observe(report, inner_result.output_failure, first, deferred=controls)
+        if controls:
+            prior = first.__cause__
+            first.__cause__ = BaseExceptionGroup('output diagnostic controls',
+                ([prior] if prior is not None else []) + controls)
+        raise
+
+
 def compile_variant(runner, report, contract, dependencies, action):
     observe(report, inner_result.phase, 'SOURCE')
     held = CODE / SOURCE
@@ -245,7 +262,7 @@ def compile_variant(runner, report, contract, dependencies, action):
     observe(report, inner_result.phase, 'KERNEL')
     command(runner, report, 'kernel', make + ['-j2', 'Image', 'modules', 'dtbs'], timeout=7200)
     observe(report, inner_result.phase, 'OUTPUTS')
-    report['structure'] = verifier.verify_outputs(build, source, build / '.config')
+    report['structure'] = verify_output_structure(verifier, build, source, build / '.config', report)
     report['native_kernel_compilation'] = 'PASS'
     report['kernel_execution'] = 'NOT RUN'
 

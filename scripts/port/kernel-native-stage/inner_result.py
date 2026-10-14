@@ -325,9 +325,38 @@ def compiler_failure(row, output, log_sha256):
     return row
 
 
+OUTPUT_CHECKS = {'16K ELF load geometry/permissions required; WX refused': 'CHECK_001', 'AArch64 ELF RELA metadata invalid': 'CHECK_002', 'ARM64 Image header required': 'CHECK_003', 'Apple DTB identity differs from pinned J413/J415 DTS': 'CHECK_004', 'Apple/16K config guards differ': 'CHECK_005', 'EFI Image MZ/PE offset required': 'CHECK_006', 'EFI PE signature required': 'CHECK_007', 'EFI section overlap/entry invalid': 'CHECK_008', 'ELF entry must be in file-backed executable load': 'CHECK_009', 'ELF relocation index/offset invalid': 'CHECK_010', 'ELF section file geometry invalid': 'CHECK_011', 'ELF section name/link/alignment invalid': 'CHECK_012', 'ELF section zero invalid': 'CHECK_013', 'ELF section-name string table required': 'CHECK_014', 'ELF segment range invalid': 'CHECK_015', 'ELF short read': 'CHECK_016', 'ELF symbol section/visibility invalid': 'CHECK_017', 'ELF symbol strings invalid': 'CHECK_018', 'ELF writable executable section refused': 'CHECK_019', 'ELF64 little-endian current-version identity required': 'CHECK_020', 'FDT block bounds/alignment/order required': 'CHECK_021', 'FDT final END absent': 'CHECK_022', 'FDT final END/root required': 'CHECK_023', 'FDT node padding invalid': 'CHECK_024', 'FDT property bounds/padding invalid': 'CHECK_025', 'FDT property name/duplicate invalid': 'CHECK_026', 'FDT property placement/truncation': 'CHECK_027', 'FDT reservation terminator absent': 'CHECK_028', 'FDT root/depth invalid': 'CHECK_029', 'FDT strings table must end in NUL': 'CHECK_030', 'FDT token budget exceeded': 'CHECK_031', 'Image ELF inter-section gap must contain only zero bytes': 'CHECK_032', 'Image entry branch required': 'CHECK_033', 'Image header differs from vmlinux bytes': 'CHECK_034', 'Image length differs from complete ELF binary projection': 'CHECK_035', 'Image requires copied allocated ELF sections': 'CHECK_036', 'Image size/entry differ from vmlinux _text/_end': 'CHECK_037', 'Module.symvers requires five tab-separated fields': 'CHECK_038', 'UTS_RELEASE differs from kernel.release': 'CHECK_039', 'actual module code/descriptor required': 'CHECK_040', 'allocated ELF section outside consistent load segment': 'CHECK_041', 'ambiguous module names': 'CHECK_042', 'ambiguous/common defined export': 'CHECK_043', 'bounded ELF program headers required': 'CHECK_044', 'bounded ELF range required': 'CHECK_045', 'bounded ELF section headers required': 'CHECK_046', 'bounded actual ELF symbol table required': 'CHECK_047', 'bounded config bytes required': 'CHECK_048', 'bounded receipt descriptor required': 'CHECK_049', 'bounded source-version kernel.release required': 'CHECK_050', 'bounded terminated string required': 'CHECK_051', 'bounded valid FDT reservation required': 'CHECK_052', 'build inventory entry budget exceeded': 'CHECK_053', 'built-in IKCONFIG and little-endian module-enabled kernel required': 'CHECK_054', 'complete backwards-compatible FDT17 header required': 'CHECK_055', 'complete embedded IKCONFIG differs from generated .config': 'CHECK_056', 'compressed modules unexpected in native build output': 'CHECK_057', 'configured Apple audio modules missing': 'CHECK_058', 'defined symbol outside allocated section': 'CHECK_059', 'duplicate FDT node': 'CHECK_060', 'duplicate config setting': 'CHECK_061', 'duplicate embedded IKCONFIG marker': 'CHECK_062', 'embedded IKCONFIG absent': 'CHECK_063', 'executable ELF stack refused': 'CHECK_064', 'full FDT header required': 'CHECK_065', 'invalid FDT node name/root': 'CHECK_066', 'invalid embedded config gzip': 'CHECK_067', 'invalid/duplicate Module.symvers export': 'CHECK_068', 'lowest copied Image LMA must correspond to vmlinux _text': 'CHECK_069', 'malformed generated config line': 'CHECK_070', 'module dependencies outside actual inventory': 'CHECK_071', 'module inventory storage budget exceeded': 'CHECK_072', 'module inventory symlink directory refused': 'CHECK_073', 'module metadata key/value required': 'CHECK_074', 'module metadata text invalid': 'CHECK_075', 'module vermagic/name/license/dependency metadata invalid': 'CHECK_076', 'modules.order differs from actual .ko inventory': 'CHECK_077', 'non-EFI Image must have source NOP and zero PE offset': 'CHECK_078', 'nonempty bounded unique module order required': 'CHECK_079', 'nonempty terminated Module.symvers required': 'CHECK_080', 'overlapping ELF load memory ranges': 'CHECK_081', 'overlapping ELF section/header file ranges': 'CHECK_082', 'overlapping FDT reservations': 'CHECK_083', 'overlapping copied Image LMA ranges': 'CHECK_084', 'pinned DTS root identity required': 'CHECK_085', 'pinned Kbuild .o module order format required': 'CHECK_086', 'real source root required': 'CHECK_087', 'receipt SHA-256 required': 'CHECK_088', 'receipt byte-snapshot pin differs': 'CHECK_089', 'relocatable module must not have entry/program headers': 'CHECK_090', 'relocation symbol table invalid': 'CHECK_091', 'resolved source link outside verified root': 'CHECK_092', 'source ARM64 EFI COFF header required': 'CHECK_093', 'source EFI PE section geometry/permissions required': 'CHECK_094', 'source EFI PE32+ sizes/alignment/subsystem required': 'CHECK_095', 'source entry budget exceeded': 'CHECK_096', 'source symlink budget exceeded': 'CHECK_097', 'source symlink has cyclic/dangling resolution': 'CHECK_098', 'source-bound little-endian16K Image size/offset/reserved/placement flags required': 'CHECK_099', 'string offset outside table': 'CHECK_100', 'symbol inventory budget exceeded': 'CHECK_101', 'terminated module metadata required': 'CHECK_102', 'terminated modules.order required': 'CHECK_103', 'truncated FDT token': 'CHECK_104', 'unexpected CRC with MODVERSIONS disabled': 'CHECK_105', 'unexpected bytes after final copied Image section': 'CHECK_106', 'unique file-backed Image section load mapping required': 'CHECK_107', 'unknown FDT token': 'CHECK_108', 'unmatched FDT end-node': 'CHECK_109', 'unreviewed RANDSTRUCT vermagic refused': 'CHECK_110', 'unreviewed compressed/excluded allocated Image section': 'CHECK_111', 'valid config-selected AArch64 ELF type/version/header required': 'CHECK_112', 'vmlinux exports absent': 'CHECK_113'}
+OUTPUT_PREFIXES = (('ELF file-backed section required: ', 'ELF_FILE_SECTION'), ('export/kernel symbol missing from actual ELF: ', 'ELF_SYMBOL_MISSING'), ('Image body differs from vmlinux allocated section: ', 'IMAGE_SECTION_CONTENT'), ('generated configuration differs: ', 'GENERATED_CONFIG_DIFFERENCE'))
+OUTPUT_PREDICATES = frozenset(OUTPUT_CHECKS.values()) | frozenset(code for _, code in OUTPUT_PREFIXES) | {'OTHER'}
+
+def _output_fact(value):
+    _need(type(value) is dict and set(value) == {'call_boundary', 'predicate'})
+    _need(type(value['call_boundary']) is str and value['call_boundary'] == 'VERIFY_OUTPUTS')
+    _need(type(value['predicate']) is str and value['predicate'] in OUTPUT_PREDICATES)
+    return value
+
+
+def output_failure(row, error):
+    """Only a closed projection of an existing ValueError; no text or IO exported."""
+    predicate = 'OTHER'
+    if type(error) is ValueError and len(error.args) == 1 and type(error.args[0]) is str:
+        message = error.args[0]
+        predicate = OUTPUT_CHECKS.get(message, 'OTHER')
+        if predicate == 'OTHER':
+            for prefix, code in OUTPUT_PREFIXES:
+                if message.startswith(prefix):
+                    predicate = code
+                    break
+    detail = {'call_boundary': 'VERIFY_OUTPUTS', 'predicate': predicate}
+    candidate = dict(row, schema_version=4, output_failure=detail)
+    validate(candidate)
+    row.update(schema_version=4, output_failure=detail)
+    return row
+
+
 def _keys(row, public=False):
-    _need(type(row) is dict and type(row.get('schema_version')) is int and row['schema_version'] in (1, 2, 3))
-    extra = {2: {'config_failure'}, 3: {'compiler_failure'}}.get(row['schema_version'], set())
+    _need(type(row) is dict and type(row.get('schema_version')) is int and row['schema_version'] in (1, 2, 3, 4))
+    extra = {2: {'config_failure'}, 3: {'compiler_failure'}, 4: {'output_failure'}}.get(row['schema_version'], set())
     return (PUBLIC_KEYS if public else KEYS) | extra
 
 
@@ -382,7 +411,7 @@ def invalidate(row):
 
 
 def _body(row):
-    _need(type(row['schema_version']) is int and row['schema_version'] in (1, 2, 3))
+    _need(type(row['schema_version']) is int and row['schema_version'] in (1, 2, 3, 4))
     _need(type(row['phase']) is str and row['phase'] in PHASES)
     _need(type(row['command']) is str and row['command'] in COMMANDS)
     _need(type(row['attempt']) is str and row['attempt'] in ('NOT_ISSUED', 'ISSUED'))
@@ -412,6 +441,11 @@ def _body(row):
         _need(row['first_failure'] == {'phase': 'KERNEL', 'command': 'KERNEL', 'error_kind': 'DATA_REFUSAL'} and
               row['command'] == 'KERNEL' and row['attempt'] == 'ISSUED' and
               row['natural_return'] == {'kind': 'RETURNED', 'code': row['compiler_failure']['return_code']})
+    if row['schema_version'] == 4:
+        _output_fact(row['output_failure'])
+        _need(row['first_failure'] == {'phase': 'OUTPUTS', 'command': 'KERNEL', 'error_kind': 'DATA_REFUSAL'} and
+              row['command'] == 'KERNEL' and row['attempt'] == 'ISSUED' and
+              row['natural_return'] == {'kind': 'RETURNED', 'code': 0})
     _need(len(_encoded(row)) <= LIMIT)
 
 
