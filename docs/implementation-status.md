@@ -2,6 +2,20 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 14, FDK smoke correction checkpoint: independent peer `bdf6102c`
+passes21 focused groups and exact eight-file preimages. Root publishes
+Source `220b4eb2`, packet `73a24d4f`, and verifies139 committed rows:
+137 packet bodies plus packet and separately bound workflow. Seven packet
+rows change;130 stay held. The four vendor include directories use-isystem,
+while project-Wall/-Wextra/-Werror flags remain unchanged. Closed optional
+compiler detail preserves original stage/status on ordinary parser faults.
+
+Localx86 object fixtures demonstrate vendor-I failure, vendor-isystem success,
+and continued project-warning failure. They do not establish the prior ARM
+compiler's identity or cause. One changed-Source native trial `38623533412`
+is queued. Native build2/comparison, installed behavior,16K/M2 and performance
+acceptance remain pending; previous SMOKE_COMPILE failure stays UNKNOWN.
+
 October 14, screenshot software checkpoint: independent peer `7881871a`
 authenticates76 retained leaves and four actualx86 helper failure/cleanup
 cases. Each exits1 without a PNG and preserves the protected directory and
