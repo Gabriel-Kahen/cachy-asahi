@@ -131,43 +131,80 @@ def inventory_shape(item):
     return result
 
 
-def validate_gcc_discovery(candidate,requests):
-    root='/usr/lib/gcc/aarch64-linux-gnu';item=candidate['gcc_discovery']
+LIB_GCC='/usr/lib/gcc/aarch64-linux-gnu'
+EXEC_GCC='/usr/libexec/gcc/aarch64-linux-gnu'
+HELPER_ROLES=('cc1','cc1plus','collect2','lto-wrapper')
+VERSION_DIRECTORY=r'[1-9][0-9]{0,2}(?:\.[0-9]{1,3}){0,2}'
+
+def discovery_shape(item,root,required=True):
+    if item is None:
+        need(not required,'required-gcc-discovery');return {}
     need(type(item) is dict and set(item)=={'canonical','aliases','ancestors','identity','directories'}
          and item['canonical']==root,'complete-gcc-discovery')
     identity(item['identity'],'directory');aliases(item['aliases']);ancestors(item['ancestors'])
-    required={str(p) for p in Path(root).parents}
-    need(required<={a['path'] for a in item['ancestors']},'gcc-discovery-ancestor-coverage')
+    need({str(p) for p in Path(root).parents}<={a['path'] for a in item['ancestors']},
+         'gcc-discovery-ancestor-coverage')
     directories=item['directories']
-    need(type(directories) is list and 0<len(directories)<=32,'gcc-discovery-directory-bound')
-    names=[]
+    need(type(directories) is list and len(directories)<=32,'gcc-discovery-directory-bound')
+    result={};names=[]
     for row in directories:
         need(type(row) is dict and set(row)=={'path','identity'},'gcc-discovery-directory-shape')
-        name=path(row['path']);gcc_major(name)
-        need(str(Path(name).parent)==root,'gcc-discovery-immediate-directory')
-        identity(row['identity'],'directory');names.append(name)
+        name=path(row['path'])
+        need(str(Path(name).parent)==root and re.fullmatch(VERSION_DIRECTORY,Path(name).name),
+             'gcc-discovery-immediate-version-directory')
+        identity(row['identity'],'directory');names.append(name);result[name]=row['identity']
     need(names==sorted(set(names)),'gcc-discovery-sorted-unique-directories')
+    return result
+
+def discovery_join(snapshot,directory,witness):
+    need(type(witness) is dict and type(witness.get('ancestors')) is list,'gcc-discovery-witness')
+    held={a['path']:a['identity'] for a in witness['ancestors']}
+    chosen=next(row['identity'] for row in snapshot['directories'] if row['path']==directory)
+    need(held.get(directory)==chosen and held.get(snapshot['canonical'])==snapshot['identity']
+         and all(held.get(a['path'])==a['identity'] for a in snapshot['ancestors']),
+         'gcc-discovery-held-directory-identity')
+
+def validate_gcc_discovery(candidate,requests,observed):
+    lib=candidate['gcc_discovery'];helper=candidate['helper_discovery']
+    library=discovery_shape(lib,LIB_GCC);helpers=discovery_shape(helper,EXEC_GCC,False)
+    need(len(library)+len(helpers)<=32,'aggregate-gcc-version-directory-bound')
     request=requests.get('/usr/bin/gcc');target=candidate['roles']['gcc']
     need(type(target) is str and request is not None and request['canonical']==target,'default-gcc-driver-binding')
     match=re.fullmatch(r'/usr/bin/(?:aarch64-linux-gnu-)?gcc-([1-9][0-9]{0,2})',target)
     need(match is not None,'default-gcc-driver-canonical-major')
-    selected=[name for name in names if gcc_major(name)==match.group(1)]
+    major=match.group(1)
+    selected=[name for name in library if Path(name).name.split('.')[0]==major]
     need(len(selected)==1 and candidate['gcc_directory']==selected[0],'unique-default-gcc-directory')
-    chosen=next(row['identity'] for row in directories if row['path']==selected[0])
-    # Bind this shallow directory observation to the existing held cc1 witness.
-    cc1=requests.get(selected[0]+'/cc1')
-    need(cc1 is not None,'gcc-discovery-cc1-witness')
-    held={a['path']:a['identity'] for a in cc1['ancestors']}
-    need(held.get(selected[0])==chosen and held.get(root)==item['identity']
-         and all(held.get(a['path'])==a['identity'] for a in item['ancestors']),
-         'gcc-discovery-cc1-directory-identity')
+    directory=selected[0]
+    include=candidate['inventories'][directory+'/include']
+    discovery_join(lib,directory,include)
+    roots=sorted([directory]+[name for name in helpers if Path(name).name.split('.')[0]==major])
+    expected={root+'/'+role for root in roots for role in HELPER_ROLES}
+    pattern='(?:'+re.escape(LIB_GCC)+'|'+re.escape(EXEC_GCC)+')/'+VERSION_DIRECTORY+'/(?:'+'|'.join(HELPER_ROLES)+')'
+    actual={name for name in requests if re.fullmatch(pattern,name)}
+    need(actual==expected,'complete-helper-request-matrix')
+    for role in HELPER_ROLES:
+        positives=[requests[root+'/'+role] for root in roots if requests[root+'/'+role] is not None]
+        canonical={item['canonical'] for item in positives}
+        need(len(canonical)==1 if role in ('cc1','cc1plus') else len(canonical)<=1,
+             'unique-required-or-optional-helper')
+        target=next(iter(canonical)) if canonical else None
+        need(candidate['roles'][role]==target,'helper-role-positive-negative-binding')
+        for item in positives:
+            name=item['canonical'];parent=str(Path(name).parent)
+            need(name in {root+'/'+role for root in roots} and name in candidate['files']
+                 and candidate['files'][name]['kind']=='ELF' and candidate['files'][name]['mode']==0o755,
+                 'helper-canonical-root-role-mode')
+            need(item['identity']==observed[name]['identity'] and item['row']==observed[name]['row'],
+                 'helper-canonical-full-identity-digest')
+            discovery_join(lib if parent==directory else helper,parent,item)
 
 
 def validate_observation(observation):
     need(type(observation) is dict and set(observation) == {'candidate', 'evidence'}, 'complete-observation-shape')
     candidate = observation['candidate']
     evidence = observation['evidence']
-    need(type(candidate) is dict and set(candidate) == {'schema_version', 'purpose', 'gcc_directory', 'gcc_discovery', 'roles', 'files', 'headers', 'inventories', 'selected', 'execution_grant_issued'} and (type(candidate['schema_version']) is int) and (candidate['schema_version'] == 1) and (candidate['purpose'] == 'NATIVE_SIGNER_COMPILE_TOOLCHAIN_CANDIDATE_V1') and (candidate['selected'] is False) and (candidate['execution_grant_issued'] is False), 'unselected-observation')
+    need(type(candidate) is dict and set(candidate) == {'schema_version', 'purpose', 'gcc_directory', 'gcc_discovery', 'helper_discovery', 'roles', 'files', 'headers', 'inventories', 'selected', 'execution_grant_issued'} and (type(candidate['schema_version']) is int) and (candidate['schema_version'] == 1) and (candidate['purpose'] == 'NATIVE_SIGNER_COMPILE_TOOLCHAIN_CANDIDATE_V1') and (candidate['selected'] is False) and (candidate['execution_grant_issued'] is False), 'unselected-observation')
     gcc_major(candidate['gcc_directory'])
     rows = candidate['files']
     need(type(rows) is dict and 0 < len(rows) <= 4096, 'snapshot-file-count')
@@ -214,17 +251,16 @@ def validate_observation(observation):
                 need(len(targets) == 1 and resolved[soname] in targets, 'unique-library-request-binding')
             need(all((target in rows and rows[target]['kind'] == 'ELF' for target in resolved.values())), 'selected-linkage-target')
     gcc = candidate['gcc_directory']
-    role_paths = {'gcc': '/usr/bin/gcc', 'as': '/usr/bin/as', 'ld': '/usr/bin/ld', 'readelf': '/usr/bin/readelf', 'objdump': '/usr/bin/objdump', 'python_candidate': '/usr/bin/python3', 'cc1': gcc + '/cc1', 'collect2': gcc + '/collect2', 'lto-wrapper': gcc + '/lto-wrapper', 'specs': gcc + '/specs'}
-    need(type(candidate['roles']) is dict and set(candidate['roles']) == set(role_paths), 'complete-role-set')
+    role_paths = {'gcc': '/usr/bin/gcc', 'as': '/usr/bin/as', 'ld': '/usr/bin/ld', 'readelf': '/usr/bin/readelf', 'objdump': '/usr/bin/objdump', 'python_candidate': '/usr/bin/python3', 'specs': gcc + '/specs'}
+    need(type(candidate['roles']) is dict and set(candidate['roles']) == set(role_paths)|set(HELPER_ROLES), 'complete-role-set')
     for role, name in role_paths.items():
         need(name in requests, 'role-request-coverage')
         request = requests[name]
         target = candidate['roles'][role]
         if target is None:
-            need(role in ('collect2', 'lto-wrapper', 'specs') and request is None, 'negative-role-witness')
+            need(role == 'specs' and request is None, 'negative-role-witness')
         else:
             need(request is not None and request['canonical'] == target and (target in rows) and (rows[target]['kind'] == ('DATA' if role == 'specs' else 'ELF')) and (role == 'specs' or rows[target]['mode'] == 493), 'role-request-binding')
-    validate_gcc_discovery(candidate,requests)
     roots = {gcc + '/include', gcc + '/include-fixed', gcc + '/plugin', '/usr/include/aarch64-linux-gnu/asm', '/usr/include/linux', '/usr/include/asm-generic'}
     need(type(candidate['inventories']) is dict and set(candidate['inventories']) == roots, 'complete-inventory-roots')
     for root, item in candidate['inventories'].items():
@@ -236,6 +272,7 @@ def validate_observation(observation):
                 need(leaf in requests and requests[leaf] is not None, 'inventory-header-request-coverage')
                 row = rows[requests[leaf]['canonical']]
                 need(row['kind'] in ('ELF', 'DATA') if root == gcc + '/plugin' else row['kind'] == 'HEADER', 'inventory-leaf-body-kind')
+    validate_gcc_discovery(candidate,requests,observed)
     return (candidate, evidence)
 
 ISSUER = {'schema_version':1,'purpose':'SIGNER_NATIVE_PASSIVE_PUBLIC_ISSUER_V1',
@@ -257,7 +294,7 @@ def source_rows(rows):
              and type(row['bytes']) is int and 0<row['bytes']<=1024**2
              and type(row['mode']) is int and row['mode']==0o644 and sha(row['sha256']),'Source-row')
     need(sum(r['bytes'] for r in rows.values())<=2*1024**2,'Source-total-budget')
-    need(rows['passive.py']['sha256']=='8b34901a08e1ee5fa195da76ca0abf7a8a1db12dbb58d852a012855ebbb2a859'
+    need(rows['passive.py']['sha256']=='c00d56a496348d6785c8567cd45ef7bd839e33143749e4d3ea0c5283f2cc5ec1'
          and rows['observation_entry.py']['sha256']=='540db1ab5a877fd2486673e86d2a1216c036dd9d8bec3953f44f467ee4966071',
          'literal-inherited-Source')
 

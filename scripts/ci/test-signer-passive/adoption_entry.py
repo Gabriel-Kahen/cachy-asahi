@@ -54,6 +54,9 @@ class DiagnosticIO:
     def gcc_directories(self,end):
         self.operation='inventory';self.path='/usr/lib/gcc/aarch64-linux-gnu'
         result=self.io.gcc_directories(end);self.completed_inventories+=1;return result
+    def gcc_helper_directories(self,end):
+        self.operation='inventory';self.path='/usr/libexec/gcc/aarch64-linux-gnu'
+        result=self.io.gcc_helper_directories(end);self.completed_inventories+=1;return result
     def charge(self,end):
         self.operation='charge';self.path=None;return self.io.charge(end)
     def snapshot(self):

@@ -178,9 +178,20 @@ def linkage(raw):
 
 class PassiveIO(NativeIO):
     def gcc_directories(self,end):
-        """Shallow complete GCC version directories; no child contents or execution."""
-        requested=Path('/usr/lib/gcc/aarch64-linux-gnu')
-        canonical,aliases,ancestors=self.resolve(requested,end)
+        return self._gcc_version_directories('/usr/lib/gcc/aarch64-linux-gnu',end)
+
+    def gcc_helper_directories(self,end):
+        return self._gcc_version_directories('/usr/libexec/gcc/aarch64-linux-gnu',end,optional=True)
+
+    def _gcc_version_directories(self,root,end,*,optional=False):
+        """Shallow held snapshot for exactly the two fixed GCC layout roots."""
+        need(root in ('/usr/lib/gcc/aarch64-linux-gnu','/usr/libexec/gcc/aarch64-linux-gnu'),
+             'gcc-layout-fixed-root')
+        requested=Path(root)
+        try:canonical,aliases,ancestors=self.resolve(requested,end)
+        except FileNotFoundError:
+            if optional:return None
+            raise
         need(canonical==requested,'gcc-discovery-canonical')
         before=self.metadata(canonical,end)
         need(stat.S_ISDIR(before.st_mode) and before.st_uid==before.st_gid==0
@@ -363,25 +374,31 @@ def observe_candidate(io, *, gcc_directory, context, endpoint):
         safe={k:v for k,v in item.items() if k!='body'};requests[path]=safe
         return safe
     live(endpoint);gcc_discovery=io.gcc_directories(endpoint)
-    root='/usr/lib/gcc/aarch64-linux-gnu'
-    need(type(gcc_discovery) is dict and set(gcc_discovery)=={'canonical','aliases','ancestors','identity',
-         'directories'} and gcc_discovery['canonical']==root and type(gcc_discovery['directories']) is list
-         and len(gcc_discovery['directories'])<=32 and type(gcc_discovery['aliases']) is list
-         and type(gcc_discovery['ancestors']) is list,'gcc-discovery-shape')
-    paths=[]
-    for item in [{'path':root,'identity':gcc_discovery['identity']}]+gcc_discovery['directories']:
-        need(type(item) is dict and set(item)=={'path','identity'} and type(item['path']) is str and
-             type(item['identity']) is list and len(item['identity'])==len(FIELDS) and
-             all(type(value) is int for value in item['identity']) and stat.S_ISDIR(item['identity'][2])
-             and item['identity'][3]==item['identity'][4]==0 and not item['identity'][2]&0o022,
-             'gcc-discovery-directory-row')
-        if item['path']!=root:
-            need(str(Path(item['path']))==item['path'] and Path(item['path']).parent==Path(root) and re.fullmatch(
-                 r'[1-9][0-9]{0,2}(?:\.[0-9]{1,3}){0,2}',Path(item['path']).name),
-                 'gcc-discovery-version-path')
-            paths.append(item['path'])
-    need(paths==sorted(set(paths)) and len(paths)==len(gcc_discovery['directories']),
-         'gcc-discovery-complete-order')
+    live(endpoint);helper_discovery=io.gcc_helper_directories(endpoint)
+    root='/usr/lib/gcc/aarch64-linux-gnu';helper_root='/usr/libexec/gcc/aarch64-linux-gnu'
+    def discovery_paths(snapshot,expected_root):
+        need(type(snapshot) is dict and set(snapshot)=={'canonical','aliases','ancestors','identity',
+             'directories'} and snapshot['canonical']==expected_root and type(snapshot['directories']) is list
+             and len(snapshot['directories'])<=32 and type(snapshot['aliases']) is list
+             and type(snapshot['ancestors']) is list,'gcc-discovery-shape')
+        paths=[]
+        for item in [{'path':expected_root,'identity':snapshot['identity']}]+snapshot['directories']:
+            need(type(item) is dict and set(item)=={'path','identity'} and type(item['path']) is str and
+                 type(item['identity']) is list and len(item['identity'])==len(FIELDS) and
+                 all(type(value) is int for value in item['identity']) and stat.S_ISDIR(item['identity'][2])
+                 and item['identity'][3]==item['identity'][4]==0 and not item['identity'][2]&0o022,
+                 'gcc-discovery-directory-row')
+            if item['path']!=expected_root:
+                need(str(Path(item['path']))==item['path'] and Path(item['path']).parent==Path(expected_root)
+                     and re.fullmatch(r'[1-9][0-9]{0,2}(?:\.[0-9]{1,3}){0,2}',Path(item['path']).name),
+                     'gcc-discovery-version-path')
+                paths.append(item['path'])
+        need(paths==sorted(set(paths)) and len(paths)==len(snapshot['directories']),
+             'gcc-discovery-complete-order')
+        return paths
+    paths=discovery_paths(gcc_discovery,root)
+    helper_paths=[] if helper_discovery is None else discovery_paths(helper_discovery,helper_root)
+    need(len(paths)+len(helper_paths)<=32,'gcc-layout-version-count')
     driver=sample('/usr/bin/gcc','ELF')
     match=re.fullmatch(r'/usr/bin/(?:aarch64-linux-gnu-)?gcc-([1-9][0-9]{0,2})',driver['canonical'])
     need(match is not None,'gcc-default-driver-version')
@@ -389,21 +406,33 @@ def observe_candidate(io, *, gcc_directory, context, endpoint):
     matches=[path for path in paths if Path(path).name.split('.')[0]==major]
     need(len(matches)==1,'gcc-default-version-unique')
     gcc_directory=matches[0]
+    helper_roots=sorted([gcc_directory]+[path for path in helper_paths if Path(path).name.split('.')[0]==major])
+    def discovery_join(snapshot,directory,witnesses):
+        chosen=next(item for item in snapshot['directories'] if item['path']==directory)
+        for witness in snapshot['ancestors']+[{'path':snapshot['canonical'],'identity':snapshot['identity']},chosen]:
+            need(type(witness) is dict and set(witness)=={'path','identity'},'gcc-discovery-ancestor-row')
+            bound=[item for item in witnesses if item['path']==witness['path']]
+            need(len(bound)==1 and bound[0]['identity']==witness['identity'],'gcc-layout-ancestor-binding')
     for role,path in {'gcc':'/usr/bin/gcc','as':'/usr/bin/as','ld':'/usr/bin/ld',
                       'readelf':'/usr/bin/readelf','objdump':'/usr/bin/objdump',
-                      'python_candidate':'/usr/bin/python3','cc1':gcc_directory+'/cc1'}.items():
+                      'python_candidate':'/usr/bin/python3'}.items():
         item=sample(path,'ELF');need(item['row']['mode']==0o755,'tool-mode');roles[role]=item['canonical']
-    chosen=next(item for item in gcc_discovery['directories'] if item['path']==gcc_directory)
-    for witness in gcc_discovery['ancestors']+[{'path':root,'identity':gcc_discovery['identity']},chosen]:
-        need(type(witness) is dict and set(witness)=={'path','identity'},'gcc-discovery-ancestor-row')
-        helper_ancestors=[item for item in requests[gcc_directory+'/cc1']['ancestors']
-                          if item['path']==witness['path']]
-        need(len(helper_ancestors)==1 and helper_ancestors[0]['identity']==witness['identity'],
-             'gcc-default-helper-ancestor')
-    for role in ('collect2','lto-wrapper'):
-        item=sample(gcc_directory+'/'+role,'ELF',False)
-        if item is not None:need(item['row']['mode']==0o755,'tool-mode')
+    for role in ('cc1','cc1plus','collect2','lto-wrapper'):
+        positives={}
+        allowed={directory+'/'+role for directory in helper_roots}
+        for directory in helper_roots:
+            item=sample(directory+'/'+role,'ELF',False)
+            if item is None:continue
+            need(item['canonical'] in allowed and item['row']['mode']==0o755,'gcc-helper-canonical-path')
+            positives[item['canonical']]=item
+        need(len(positives)<=1 and (bool(positives) or role not in ('cc1','cc1plus')),
+             'gcc-helper-'+role+'-ambiguous-or-missing')
+        item=None if not positives else next(iter(positives.values()))
         roles[role]=None if item is None else item['canonical']
+        if item is not None:
+            directory=str(Path(item['canonical']).parent)
+            snapshot=gcc_discovery if directory==gcc_directory else helper_discovery
+            discovery_join(snapshot,directory,item['ancestors'])
     item=sample(gcc_directory+'/specs','DATA',False)
     roles['specs']=None if item is None else item['canonical']
     roots=[(gcc_directory+'/include','HEADER',True),(gcc_directory+'/include-fixed','HEADER',False),
@@ -421,6 +450,8 @@ def observe_candidate(io, *, gcc_directory, context, endpoint):
                 need(type(leaf) is str and Path(leaf).is_relative_to(Path(item['canonical'])),
                      'inventory-leaf-scope')
                 sample(leaf,kind)
+        if path==gcc_directory+'/include':
+            discovery_join(gcc_discovery,gcc_directory,item['ancestors'])
         inventories[path]=item
     def resolve(name):
         matches={}
@@ -445,8 +476,9 @@ def observe_candidate(io, *, gcc_directory, context, endpoint):
     for name,item in inventories.items():
         live(endpoint);need(io.inventory(name,endpoint)==item,'final-inventory-drift')
     live(endpoint);need(io.gcc_directories(endpoint)==gcc_discovery,'final-gcc-discovery-drift')
+    live(endpoint);need(io.gcc_helper_directories(endpoint)==helper_discovery,'final-gcc-helper-discovery-drift')
     candidate={'schema_version':1,'purpose':'NATIVE_SIGNER_COMPILE_TOOLCHAIN_CANDIDATE_V1',
-               'gcc_directory':gcc_directory,'gcc_discovery':gcc_discovery,'roles':roles,'files':rows,'headers':sorted(headers),
+               'gcc_directory':gcc_directory,'gcc_discovery':gcc_discovery,'helper_discovery':helper_discovery,'roles':roles,'files':rows,'headers':sorted(headers),
                'inventories':inventories,'selected':False,'execution_grant_issued':False}
     evidence={'schema_version':1,'status':'OBSERVED_CANDIDATE_NOT_SELECTED','context':dict(context),
               'observations':observed,'requests':requests,'deadline_at':endpoint,'file_bytes':total,
