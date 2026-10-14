@@ -13,8 +13,8 @@ import tempfile
 HERE = Path(__file__).resolve().parent
 PREFIX = 'scripts/port/fdk-native-job/'
 ADAPTER = 'scripts/port/fdk-native-stage/'
-ADAPTER_SHA = 'fbc0b0bbf0f3765729adb9193331b09903ad5b8c99d00871ece79218a8b36483'
-INPUTS_SHA = '3c16c37d1b12cc84a88572e82ab8ad59e7f3b5ed0d08f09ddf72a69f4711d650'
+ADAPTER_SHA = '2b23d0519fafd2cdb4cf68d157fd776e46b42e49f6b5c4d74cda5fe7fd9bf21f'
+INPUTS_SHA = 'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f'
 RECIPES_SHA = '20d846cdf289bfc233b0051bf33b677fd6e94e9f05d91a33595a2829a196fa63'
 EPOCH = 1791748800
 NAMES = {'cachy-asahi-hyprland-settings', 'cachy-asahi-fish-config',
@@ -127,8 +127,35 @@ def closure(root):
             continue
         need(stat.S_ISREG(path.lstat().st_mode), 'packet-own-file')
         files.add(str(path.relative_to(root)))
+    for name,pin in {'scripts/port/fdk-native-job/donor/current-controller.py':'bbe279edb9743f98e8feed8365859abc221b2665924658e600775c902e18299e','scripts/port/fdk-native-job/donor/current-packet.json':'9d5a7dc25fd44e127c457c72addb28272b1eb1f5391c4c5b8d5b0a226a3be048'}.items():
+        need(name in files and sha(read(root/name)) == pin, 'packet-donor-pin')
     need(len(files) <= 256, 'packet-file-count')
     return files, adapter, recipes
+
+
+
+def capture(path, limit=8 * 1024**2):
+    before = Path(path).lstat()
+    raw = read(path, limit)
+    after = Path(path).lstat()
+    fields = ('st_dev','st_ino','st_mode','st_uid','st_gid','st_nlink','st_size','st_mtime_ns','st_ctime_ns')
+    need(tuple(getattr(before,k) for k in fields) == tuple(getattr(after,k) for k in fields), 'packet-capture-race')
+    return raw, stat.S_IMODE(after.st_mode)
+
+
+def preview(root):
+    names, adapter, recipes = closure(root)
+    rows = {}
+    for name in sorted(names):
+        raw, mode = capture(Path(root) / name)
+        need(mode in (0o644,0o755), 'packet-source-mode')
+        rows[name] = {'bytes':len(raw),'mode':mode,'sha256':sha(raw)}
+    need(sum(row['bytes'] for row in rows.values()) <= 32 * 1024**2, 'packet-total-bound')
+    need(all(rows[n]['sha256'] == r['sha256'] and rows[n]['mode'] == r['mode']
+             for n,r in adapter['files'].items()), 'frozen-adapter-drift')
+    need(all(rows[base+'/'+n]['sha256'] == pin for base,items in recipes.items() for n,pin in items.items()),
+         'original-recipe-drift')
+    return {'schema_version':1,'files':rows}
 
 
 def verify(root, manifest_path, manifest_sha, commit, runner, output):
@@ -176,4 +203,5 @@ def verify(root, manifest_path, manifest_sha, commit, runner, output):
         need({n: manifest['files'][base + '/' + n]['sha256'] for n in rows} == rows, 'original-recipe-drift')
     return {'status': 'PASS', 'source_commit': commit, 'packet_sha256': manifest_sha,
             'files': len(expected), 'bytes': total, 'adapter_lock_sha256': ADAPTER_SHA,
-            'inputs_sha256': INPUTS_SHA, 'recipes_sha256': RECIPES_SHA, 'source_date_epoch': EPOCH}
+            'inputs_sha256': INPUTS_SHA, 'recipes_sha256': RECIPES_SHA, 'source_date_epoch': EPOCH,
+            'files_map': manifest['files']}

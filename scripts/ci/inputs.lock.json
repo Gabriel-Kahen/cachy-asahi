@@ -6774,14 +6774,14 @@
         "vim-minimal"
       ],
       "depends": [
-        "vim-runtime=9.2.1164-2",
+        "vim-runtime=9.2.1178-1",
         "gpm",
         "acl",
         "glibc",
         "libgcrypt",
         "zlib"
       ],
-      "filename": "vim-9.2.1164-2-aarch64.pkg.tar.xz",
+      "filename": "vim-9.2.1178-1-aarch64.pkg.tar.xz",
       "license": [
         "custom:vim"
       ],
@@ -6794,36 +6794,36 @@
       "replaces": [
         "vim-minimal"
       ],
-      "sha256": "d4f857559e5f0af1cd5a9603d31437ddc8fe35957c11bc6b8670b9a58a80ea73",
-      "signature_sha256": "38e920e436994e6516752f2057974ecd3d284b4be5887a183714175be9169524",
-      "signature_size": 565,
-      "size": 2086796,
+      "sha256": "e6dac872c70975d71550af934402f4e603bb0ebe444310440bc89f4e8c8e76c4",
+      "signature_sha256": "28d7e145d8f47626e574fc7412cd45d866392a8557adda3002362ff42bb993aa",
+      "signature_size": 566,
+      "size": 2084600,
       "source_url": [
         "https://www.vim.org"
       ],
-      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/vim-9.2.1164-2-aarch64.pkg.tar.xz",
-      "version": "9.2.1164-2"
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/vim-9.2.1178-1-aarch64.pkg.tar.xz",
+      "version": "9.2.1178-1"
     },
     {
       "arch": "aarch64",
       "conflicts": [],
       "depends": [],
-      "filename": "vim-runtime-9.2.1164-2-aarch64.pkg.tar.xz",
+      "filename": "vim-runtime-9.2.1178-1-aarch64.pkg.tar.xz",
       "license": [
         "custom:vim"
       ],
       "name": "vim-runtime",
       "provides": [],
       "replaces": [],
-      "sha256": "def07038ac8bde14c3c875ea2f37adc199e21bb237d357b1b2f00eb401d4add6",
-      "signature_sha256": "7481985526069c20b81762bbb308a0df61acf07d316f557d60e330a22627e5e3",
+      "sha256": "340ee0b85995517e50832aea2e69224044ff77b384fc5c8e017959bcdcfc78f8",
+      "signature_sha256": "466eca3dc6734a3d10ea8f90f1a5d9ca15e339290995557d3120f03690399bf4",
       "signature_size": 566,
-      "size": 7702256,
+      "size": 7703748,
       "source_url": [
         "https://www.vim.org"
       ],
-      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/vim-runtime-9.2.1164-2-aarch64.pkg.tar.xz",
-      "version": "9.2.1164-2"
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/vim-runtime-9.2.1178-1-aarch64.pkg.tar.xz",
+      "version": "9.2.1178-1"
     },
     {
       "arch": "aarch64",

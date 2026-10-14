@@ -26,6 +26,7 @@ import job_runtime as jr
 import packet
 import evidence
 from base_broker import broker_class
+import current_cache
 
 HERE = Path(__file__).resolve().parent
 ENV_FIELDS = ('GITHUB_SHA', 'GITHUB_RUN_ID', 'GITHUB_RUN_ATTEMPT', 'GITHUB_REPOSITORY', 'RUNNER_ARCH', 'RUNNER_OS', 'ImageVersion', 'ImageOS')
@@ -631,6 +632,7 @@ def execute(args, state):
     root = args.source_root.absolute()
     packet.need(root == HERE.parents[2] and root == root.resolve(), 'job-source-location')
     carrier, carrier_pin = frozen_carrier_options(args, root)
+    packet.need(carrier is None, 'current-seed-separate-carrier-refused')
     out = output(args.output, root)
     private = out / 'private'
     report = {'status': 'FAIL', 'phase': 'preflight', 'cancelled': False,
@@ -663,6 +665,19 @@ def execute(args, state):
         packet.save(private / 'source-receipt.json', report['source'])
         state['recipes'] = snapshot / 'scripts/ci/recipes.lock.json'
         state['native_sha'] = packet.sha(packet.read(snapshot / 'scripts/ci/native_arm.py'))
+        # Source-owned seed transport spends the original runner endpoint only.
+        state['current_cache_runner'] = runner
+        try:
+            current_cache.seed(snapshot, private, runner, runner.deadline - args.deadline,
+                               report['source']['files_map'])
+        except BaseException as error:
+            state['current_cache_first'] = error
+            raise
+        finally:
+            observed = getattr(runner, 'current_cache_observation', None)
+            if type(observed) is dict:
+                report['cache_seed'] = dict(observed) # Private record only, no bodies.
+                if observed['cancelled']: report['cancelled'] = True
         if carrier is not None:
             packet.need(all(re.fullmatch(expression, os.environ.get(name, '')) for name, expression in
                 (('GITHUB_RUN_ID', '[1-9][0-9]{0,19}'), ('GITHUB_RUN_ATTEMPT', '[1-9][0-9]{0,9}'))), 'frozen-vim-carrier-job-identity')
