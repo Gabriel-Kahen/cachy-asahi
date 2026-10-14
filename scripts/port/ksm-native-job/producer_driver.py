@@ -52,31 +52,41 @@ _REFUSAL_ISSUER = object()
 _VALUE_ERROR = ValueError
 
 
-def need(ok, reason):
+def need(ok, reason, *, import_root=None):
     if not ok:
-        error = ValueError(reason)
+        error = ModuleNotFoundError(reason, name=import_root) if reason == 'producer-unbound-import' else ValueError(reason)
         try:
-            if type(error) is _VALUE_ERROR and type(reason) is str and reason in REFUSAL_PREDICATES:
+            if (type(error) is _VALUE_ERROR or type(error) is ModuleNotFoundError and reason == 'producer-unbound-import') and type(reason) is str and reason in REFUSAL_PREDICATES:
                 error.__dict__.update(ksm_refusal_predicate=reason, ksm_refusal_issuer=_REFUSAL_ISSUER)
+                if reason == 'producer-unbound-import' and import_root is not None:
+                    root = import_root if type(import_root) is str and re.fullmatch(r'[A-Za-z_][A-Za-z0-9_]{0,127}', import_root) else 'UNKNOWN'
+                    error.__dict__['ksm_refusal_import_root'] = root
         except Exception:
             pass
         raise error
 
 
 def refusal_record(error, gate):
-    """Only our issued builtin error is readable; no foreign getter or message."""
-    predicate = 'UNKNOWN'
+    """Only our exact issued error and bounded module-root fact are readable."""
+    predicate = 'UNKNOWN'; root = None
     try:
-        if type(error) is _VALUE_ERROR:
+        if type(error) is _VALUE_ERROR or type(error) is ModuleNotFoundError:
             state = vars(error)
-            if type(state) is dict and len(state) == 2 and all(type(key) is str for key in state):
+            base = {'ksm_refusal_predicate', 'ksm_refusal_issuer'}
+            if type(state) is dict and all(type(key) is str for key in state) and set(state) in (base, base | {'ksm_refusal_import_root'}):
                 value = state.get('ksm_refusal_predicate')
                 if state.get('ksm_refusal_issuer') is _REFUSAL_ISSUER and type(value) is str and value in REFUSAL_PREDICATES:
-                    predicate = value
+                    supplied = state.get('ksm_refusal_import_root')
+                    if supplied is None and set(state) == base and type(error) is _VALUE_ERROR:
+                        predicate = value
+                    elif value == 'producer-unbound-import' and type(supplied) is str and re.fullmatch(r'[A-Za-z_][A-Za-z0-9_]{0,127}', supplied):
+                        predicate, root = value, supplied
     except Exception:
         pass
-    return {'schema_version':1, 'last_source_gate':gate if type(gate) is str and gate in REFUSAL_GATES else 'UNKNOWN',
-            'predicate':predicate}
+    result = {'schema_version':1, 'last_source_gate':gate if type(gate) is str and gate in REFUSAL_GATES else 'UNKNOWN',
+              'predicate':predicate}
+    if root is not None: result['rejected_import_root'] = root
+    return result
 
 
 def emit_refusal(error, gate):
@@ -159,7 +169,7 @@ def quarantine(end):
     def standard_import(name, globals=None, locals=None, fromlist=(), level=0):
         alive(end)
         root=((globals or {}).get('__package__') or '').split('.')[0] if level else name.split('.')[0]
-        need(root in STDLIB,'producer-unbound-import')
+        need(root in STDLIB,'producer-unbound-import', import_root=root)
         return LANGUAGE['__import__'](name,globals,locals,fromlist,level)
     try:
         for key in tuple(sys.modules):
@@ -492,7 +502,7 @@ def main(argv=None):
             gate='NATIVE_RETURN'
             gate='CONTEXT_EXIT'
         return result
-    except (ValueError,OSError,UnicodeError) as error:
+    except (ValueError,OSError,UnicodeError,ModuleNotFoundError) as error:
         emit_refusal(error,gate)
         sys.stderr.write('scoped original producer driver refused\n')
         return 125

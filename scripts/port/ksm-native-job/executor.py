@@ -88,10 +88,14 @@ def producer_refusal(result, observation):
             return value
         def constant(_): raise ValueError('nonfinite-refusal')
         value = json.loads(line[len(REFUSAL_PREFIX):].decode('ascii'), object_pairs_hook=pairs, parse_constant=constant)
-        if type(value) is not dict or set(value) != {'schema_version','last_source_gate','predicate'}:
+        if type(value) is not dict or set(value) not in ({'schema_version','last_source_gate','predicate'}, {'schema_version','last_source_gate','predicate','rejected_import_root'}):
             return None
         if type(value['schema_version']) is not int or value['schema_version'] != 1 or type(value['last_source_gate']) is not str or value['last_source_gate'] not in REFUSAL_GATES or type(value['predicate']) is not str or value['predicate'] not in REFUSAL_PREDICATES:
             return None
+        if 'rejected_import_root' in value:
+            root = value['rejected_import_root']
+            if value['predicate'] != 'producer-unbound-import' or type(root) is not str or not re.fullmatch(r'[A-Za-z_][A-Za-z0-9_]{0,127}', root):
+                return None
         return value
     except Exception:
         return None
