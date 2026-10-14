@@ -282,7 +282,7 @@ def run(session, controller, output, *, deadline, nonce, runtime_contract):
     child=output/'child'; child.mkdir(mode=0o700)
     need(type(nonce) is str and re.fullmatch('[0-9a-f]{32}',nonce), 'NONCE')
     name='cachy-asahi-install-'+nonce; cli=None; cid=None; cleanup={'remove_exit':None,'absent':False}
-    result=None; failure=None; report=None; command_rows=[]
+    result=None; failure=None; report=None; command_rows=[]; cancelled=False; cleanup_uncertain=False
     def guard(): live(session,controller,end); cli._preflight()
     def command(args, cutoff):
         tick(cutoff); live(session,controller,cutoff); cli._preflight()
@@ -329,6 +329,7 @@ def run(session, controller, output, *, deadline, nonce, runtime_contract):
         result=command(['start','--attach',cid],end-10)
     except BaseException as error:
         failure=error
+        cancelled=isinstance(error,KeyboardInterrupt)
     finally:
         if cli is not None:
             if cid is not None:
@@ -336,14 +337,23 @@ def run(session, controller, output, *, deadline, nonce, runtime_contract):
                     removed=command(['rm','-f',cid],end-5); cleanup['remove_exit']=removed['exit_code']
                     remaining=command(['container','ls','-a','--no-trunc','--filter','id='+cid,'--format','{{.ID}}'],end)
                     cleanup['absent']=remaining['exit_code']==0 and remaining['stdout']==b''
-                except BaseException as error: failure=failure or error
+                except BaseException as error:
+                    cancelled |= isinstance(error,KeyboardInterrupt)
+                    cleanup_uncertain=True
+                    if failure is None:failure=error
             try: cli.close()
-            except BaseException as error: failure=failure or error
+            except BaseException as error:
+                cancelled |= isinstance(error,KeyboardInterrupt)
+                cleanup_uncertain=True
+                if failure is None:failure=error
     if failure is None:
         raw,_,_=session.sources.module('_preflight_issuer',HANDOFF).read(child/'result.json',end,limit=4096)
         report=accept(result,result['stdout'],raw,receiver,cleanup,end)
         live(session,controller,end)
-    if failure is not None: raise failure
+    if failure is not None:
+        BaseException.__setattr__(failure,'native_preflight_cancelled',cancelled)
+        BaseException.__setattr__(failure,'native_preflight_cleanup_uncertain',cleanup_uncertain)
+        raise failure
     return {'status':'PASS','stage':'native-install-preflight','receiver':report,'cleanup':cleanup,
             'elapsed_seconds':time.monotonic()-started,'ABI':'NOT RUN','native_matrix':'NOT RUN',
             'hardware_validation':'NOT RUN','selected_for_release':False,'public':[]}

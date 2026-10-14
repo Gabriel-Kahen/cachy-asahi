@@ -558,8 +558,18 @@ class Development:
                 **{key:item for key,item in value.items() if key != 'public'},'scope':'preflight-only'}
         except BaseException as error:
             interrupted = isinstance(error,KeyboardInterrupt) or cancelled(controller)
+            uncertain = False
+            try:
+                markers = BaseException.__getattribute__(error,'__dict__')
+                if type(markers) is dict:
+                    interrupted |= markers.get('native_preflight_cancelled') is True
+                    uncertain = markers.get('native_preflight_cleanup_uncertain') is True
+            except BaseException as metadata_error:
+                interrupted |= isinstance(metadata_error,KeyboardInterrupt)
+                uncertain = True
             self.report['stages']['native-install-preflight'] = {'status':'FAIL','error_code':'cancelled' if interrupted else
                 'installer-preflight-failed','error_type':type(error).__name__,'scope':'preflight-only'}
+            if uncertain:self.report['stages']['native-install-preflight']['cleanup_uncertain'] = True
             self.report['status'] = 'FAIL'
             if interrupted:self.report['cancelled'] = True
             self.report.setdefault('error_code','installer-preflight-cancelled' if interrupted else 'installer-preflight-failed')
