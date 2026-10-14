@@ -5,6 +5,45 @@ October 12, 2026. This record tracks the complete `outline.md` scope; an impleme
 
 
 
+
+October 14, Source and registration checkpoint: signer refusal diagnostics pass
+independent peer `40088148`; Root publishes receiver `ea698489`, verifies all
+13 Source rows plus manifest `51e44860`, and prepares the separate actual
+workflow binding. Compiled outputs remain unexecuted and the previous work
+refusal predicate remains unknown.
+
+Library successor Data `362c4701` has exact Source parent `9f37d693` and only
+two changed JSON files. Root verifies the 278 Source rows and distinct Code,
+Source and Data identities, registers plan `fbe4705e` with exact readbacks,
+then advances the existing execution ref. Trial `38560924092` is running;
+its materialization and four new builds/two comparisons remain unaccepted.
+
+Composed first-cause correction `576d64fe` and peer `b250f050` remain separate
+from the diagnostic layer. Review found and corrected a policy-code naming
+mismatch; successor `f482f6bb` passes peer `1957dcda`. Root publishes cumulative
+Source `993487a4`, verifies all 271 captured files/266 Source rows and 14 held
+metadata pins, and prepares a new Source-bound Data/plan before execution.
+The historical later RUN failure remains unidentified.
+
+Pair builtin-module handling passes peer `5c54ded7` and 35 independent controls.
+Root publishes `392be2f2`, verifies 54 committed Source rows plus the regenerated
+55-row lock `77bb28c0`, and separately authenticates both selected Data blobs
+from `ea1db6b5`. File-backed behavior and required runtime provenance are held;
+actual builtin metadata remains unobserved. Registration is pending.
+
+KSM natural-return-1 route diagnostics pass peer `c07d5782`; Root publishes
+`4f9bbf3c`, verifies 158 rows and packet `d7ba5558`, and queues trial
+`38561918431` behind the library job. It distinguishes bounded route facts
+while preserving natural return 1, original propagation and the old125 handler.
+The earlier route, cause and ownership-uncertain cleanup remain unresolved.
+
+Screenshot candidate trial `38559035451` passes bootstrap tests/probe, then
+stops during acquisition: 493 inputs pass and eight package/signature URLs
+return HTTP404 (Jbigkit, Libtiff, Vim and Vim-runtime). Native compilation is
+NOT RUN. Completion `17ae04bb` retains both frames. A future build route is
+being prepared using the reviewed current signed inputs and recovered seed
+files; the old input snapshot and earlier pkgrel1 build evidence stay historical.
+
 October 14, latest terminal checkpoint: updater's two recipe-pin correction
 passes peer `f4adefca`, is published as `fa98df53`, and verifies all 90 Source
 rows plus workflow. Trial `38558154233` now passes materialization of all 167
