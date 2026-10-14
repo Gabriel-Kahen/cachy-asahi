@@ -209,14 +209,14 @@ def inspect_cleanup(handoff,spec,budget,docker_call):
          journal['context_sha256']==result['image']['context_sha256']and journal['cleanup_errors']==[],
          'guardian-journal-binding')
     containers=journal['containers'];images=journal['images']
-    need(type(containers)is list and len(containers)==5 and {r['role']for r in containers}==
-         {'provision','topmem-1','topmem-2','fish-1','fish-2'},'guardian-all-container-roles')
+    need(type(containers)is list and len(containers)==7 and {r['role']for r in containers}==
+         {'provision','topmem-1','topmem-2','fish-1','fish-2','zsh-1','zsh-2'},'guardian-all-container-roles')
     need(type(images)is list and len(images)==2 and {r['role']for r in images}=={'rootfs','compiler'},'guardian-all-image-roles')
     for row in containers:
         need(all(row[k]is True for k in('attempted','confirmed','waited','removed'))and row['exit_code']==0,
              'guardian-container-journal-retirement')
         if row['role']!='provision':need(row['id']==result['builds'][row['role']]['container_id'],'guardian-build-cid-binding')
-    full_ids=[row['id']for row in containers];need(len(set(full_ids))==5,'guardian-distinct-full-cids')
+    full_ids=[row['id']for row in containers];need(len(set(full_ids))==7,'guardian-distinct-full-cids')
     for cid in full_ids:
         need(re.fullmatch('[0-9a-f]{64}',cid),'guardian-full-cid')
         need(not docker(('container','ls','--all','--no-trunc','--quiet','--filter','id='+cid)).strip(),

@@ -11,10 +11,10 @@ FIELDS = ('files', 'directories', 'mkdir_reservations', 'noacquisition_attempts'
           'scanners', 'mask_reservations', 'backend_calls', 'read_requests', 'write_requests')
 CHUNK = 65536
 LIMITS = {'files': 128, 'tokens': 256, 'mask_reservations': 1024,
-          'backend_calls': 65536, 'cleanup_calls': 2048,
+          'backend_calls': 262144, 'cleanup_calls': 2048,
           'read_requests': 1024**3, 'write_requests': 1024**3,
-          'routes': 128, 'grant_checks': 131072, 'retained_journals': 128}
-LABELS = ('topmem-current-1', 'topmem-current-2', 'fish-current-1', 'fish-current-2')
+          'routes': 128, 'grant_checks': 786432, 'retained_journals': 128}
+LABELS = ('topmem-current-1', 'topmem-current-2', 'fish-current-1', 'fish-current-2', 'zsh-current-1', 'zsh-current-2')
 
 
 class CapacityRefusal(ValueError):
@@ -69,7 +69,7 @@ def bind_descriptor_type(base_class):
     namespace = base_class._call.__globals__
     Refused = namespace['Refused']
     NoAcquisition = namespace['NoAcquisition']
-    need(namespace['MAX_HANDLES'] == 256 and namespace['MAX_CALLS'] == 65536,
+    need(namespace['MAX_HANDLES'] == 256 and namespace['MAX_CALLS'] == 262144,
          'unchanged-sealed-backend-caps')
 
     def fast_check(owner, cleanup):
@@ -115,7 +115,7 @@ def bind_descriptor_type(base_class):
                     raise Refused('cleanup callback budget')
                 self.cleanup_calls += 1
             else:
-                if self.backend_calls >= 65536:
+                if self.backend_calls >= 262144:
                     raise Refused('backend callback budget')
                 self.backend_calls += 1
             def primitive():
@@ -316,7 +316,7 @@ def make_plan(selected, dependencies, roots, outputs, *, failed_noacquisitions=1
     parts(roots['source'])
     need(type(outputs) is dict and set(outputs) == set(LABELS), 'fourfinished-observed-output-rows')
     need(type(failed_noacquisitions) is int and 0 <= failed_noacquisitions <= 1, 'first-failure-noacquisition-reserve')
-    need(len(selected['core']) == 6 and len(selected['adapter']) == 3 and len(selected['recipes19']) == 19,
+    need(len(selected['core']) == 6 and len(selected['adapter']) == 3 and len(selected['recipes19']) == 31,
          'fixed-Source-cardinality')
     need(type(optimized) is bool, 'explicit-integration-descriptor-policy')
     t = Tape(optimized=optimized)
@@ -327,7 +327,7 @@ def make_plan(selected, dependencies, roots, outputs, *, failed_noacquisitions=1
     for name, row in selected['core'].items():
         acquire(name, row, roots['source'], 'core-'+name, 'core')
     for name, row in selected['recipes19'].items():
-        family = 'fish' if '/shells/' in name else 'topmem'
+        family = {'packages/tools/cachy-asahi-topmem':'topmem','packages/shells/cachy-asahi-fish-bang-bang':'fish','packages/shells/cachy-asahi-zsh-autosuggestions':'zsh'}[name.rsplit('/',1)[0]]
         acquire(name, row, roots['source'], family+'-'+name.rsplit('/',1)[-1], 'recipe')
     acquire('inventory', selected['inventory'], roots['source'], 'inventory.lock', 'inventory')
     library = selected['library_reference']
@@ -471,10 +471,10 @@ def make_plan_for_routes(dependencies, selected_routes, bounds, *, selected, opt
     need(result['capacity_fits'], 'direct-required-operation-capacity-refusal')
     direct = dict(result['allocation_plan'])
     # Selected HolderVerifier.verify performs Artifact.verify. The sealed loader
-    # has 1 constructor + 4 first-map + 3*2 cached-map _verify calls; each does
+    # has 1 constructor + 4 first-map + 5*2 cached-map _verify calls; each does
     # 9 verify_held calls/item, each with two extra typed holder verifications.
     # Its per-check held fd getter adds four holder rechecks of the library.
-    # Mapping preflight + five proofs borrow every library/dependency fd once.
+    # Mapping preflight + seven proofs borrow every library/dependency fd once.
     items = []
     for name in canonical:
         route = selected_routes[name]
@@ -482,16 +482,22 @@ def make_plan_for_routes(dependencies, selected_routes, bounds, *, selected, opt
         Q = len(route.relative.split('/'))-1
         cost = warm_verify_cost(R,Q,optimized=optimized)
         items.append({'name':name,'verify_backend_calls':cost,'fd_verify_backend_calls':2*(R+Q+1)+1})
-    holder = 18*11*sum(item['verify_backend_calls'] for item in items)
-    library_getter = 4*4*items[0]['verify_backend_calls']
-    inspector_getters = 6*sum(2*item['verify_backend_calls']+item['fd_verify_backend_calls']for item in items)
+    holder = 18*15*sum(item['verify_backend_calls'] for item in items)
+    library_getter = 6*4*items[0]['verify_backend_calls']
+    inspector_getters = 8*sum(2*item['verify_backend_calls']+item['fd_verify_backend_calls']for item in items)
     projected = direct['backend_calls']+holder+library_getter+inspector_getters
-    need(projected <= 65536, 'known-full-callback-projection-capacity-refusal')
+    need(projected <= 262144, 'known-full-callback-projection-capacity-refusal')
+    coupled = 2*(projected+2048)+131072
+    need(coupled <= 786432, 'known-coupled-grant-capacity-refusal')
+    result['coupled_grant_projection'] = {'backend_checks_per_primitive':2,
+        'known_work_backend_projection':projected,'cleanup_callback_reserve':2048,
+        'separate_source_library_lease_reserve':131072,'required_grant_checks':coupled,
+        'grant_check_cap':786432,'measured_native_whole_success':False}
     result['full_callback_projection'] = {
         'direct_required_callbacks':direct['backend_calls'],
-        'library_verify_passes':11,'typed_holder_extra_verifies_per_pass_item':18,
-        'typed_holder_extra_callbacks':holder,'four_library_getter_holder_rechecks':library_getter,
-        'six_mapping_holder_fd_passes':inspector_getters,'known_callback_upper_projection':projected,
+        'library_verify_passes':15,'typed_holder_extra_verifies_per_pass_item':18,
+        'typed_holder_extra_callbacks':holder,'six_library_getter_holder_rechecks':library_getter,
+        'eight_mapping_holder_fd_passes':inspector_getters,'known_callback_upper_projection':projected,
         'selected_library_dependencies':items,
         'extra_Root_runtime_files_callbacks':'Separate FD table; must meter independently',
         'universal_success_claim':False}
@@ -500,14 +506,14 @@ def make_plan_for_routes(dependencies, selected_routes, bounds, *, selected, opt
     # projection. Declare the existing entire callback envelope before allocation;
     # it is enforced per primitive, not inferred from one past model's count.
     result['direct_allocation_plan'] = direct
-    result['allocation_plan'] = dict(direct, backend_calls=65536)
-    result['whole_extra_backend_reserve'] = 65536-direct['backend_calls']
-    result['whole_callback_bound'] = 'original-per-primitive-65536-cap-no-renewal'
+    result['allocation_plan'] = dict(direct, backend_calls=262144)
+    result['whole_extra_backend_reserve'] = 262144-direct['backend_calls']
+    result['whole_callback_bound'] = 'original-per-primitive-v3-262144-cap-no-renewal'
     result['whole_success_projection_proven'] = False
-    result['required_whole_operation_admission_checks_cap'] = 131072
+    result['required_whole_operation_admission_checks_cap'] = 786432
     result['required_completed_loader_proofs'] = {
-        'four_check_artifact':4, 'finalize_pairs':1, 'mapping_preflight':1,
-        'mapping_proofs':5, 'fd_mapping':1,
+        'six_check_artifact':6, 'finalize_pairs':1, 'mapping_preflight':1,
+        'mapping_proofs':7, 'fd_mapping':1,
         'callback_capacity':'all callbacks charged under the same original owner and Authority'}
     return result
 
@@ -525,9 +531,9 @@ def verify_whole_counters(planned, measured):
          'closed-complete-whole-operation-counters')
     need(all(measured[name] <= planned['allocation_plan'][name] for name in FIELDS),
          'whole-operation-exceeds-declared-plan')
-    need(measured['grant_checks'] <= 131072 and measured['cleanup_calls'] <= 2048,
+    need(measured['grant_checks'] <= 786432 and measured['cleanup_calls'] <= 2048,
          'same-original-guard-cleanup-caps')
     need((measured['mapping_preflight'],measured['mapping_proofs'],measured['fd_mapping'],
-          measured['check_artifact'],measured['finalize_pairs']) == (1,5,1,4,1),
+          measured['check_artifact'],measured['finalize_pairs']) == (1,7,1,6,1),
          'complete-four-build-library-operation-membership')
     return True

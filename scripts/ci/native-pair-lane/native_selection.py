@@ -25,13 +25,10 @@ LIBRARY = {'path':'usr/lib/aarch64-linux-gnu/libzstd.so.1.5.5',
            'bytes':657432,'mode':0o644,
            'sha256':'fe726238b170b83aa83bf1f8a79109b8b61b9eb45234304511d093bbe5f5fb20',
            'uid':0,'gid':0}
-CORE_BINDING = 'e436b9c3d3046db3b05b1731400c9f8cbe06197ba39109ce62b595ccd29c3fca'
-ADAPTER_BINDING = 'c7f6edc81f4f066e85f3403c29d173a729ce71520074d198a183140ed52b9b2d'
-ROLE_PINS = {
-    'bridge':'68c42111cc299082a1c8618eec86e3cd0a1de648d38fd0876a8f1bbae717ffeb',
-    'capabilities':'82afc15b554dd64525ee4d4206c55a4f9e3e3c1414107ccc35c8c601d6164149',
-    'capacity':'b715f014f2a53c5e18160369323a303786c2b362d0a7ba6c54d278fead2d9558'}
-BOOTSTRAP_PIN='df03612bcdec9140a6ad09331d37073beec4ef49e09e524df03ec367fec3db51'
+CORE_BINDING = '7b383d3b267fad8a2891af284a055c6e8eade17f231a89f06222183b30388cd2'
+ADAPTER_BINDING = 'ca21d384846e3ac1b2aa30dd655e94f91a8c730b4e03b5001754d64f8395d034'
+ROLE_PINS = {'bridge': '96169422bd0e19b9b09af4c4493d6376a77619bc30aa2a10ed9e402c3e6f5139', 'capabilities': '7fd72715ff270a85039aa0de37b62f988a86d0844aa45be59040fadce36770bc', 'capacity': '3cdf93e97edee64c351712f099e0c92b16735f0d2340262d8993d83953eed2fa'}
+BOOTSTRAP_PIN = 'd65104d312ccbd2c56c60f1c8c22b07418c567ee0f545b32be6344fcc98d4bd1'
 ABI = {'pointer_bits':64,'size_t_bits':64,'signatures':{
     'ZSTD_createDStream':((),'ptr'),'ZSTD_initDStream':(('ptr',),'size_t'),
     'ZSTD_DCtx_setParameter':(('ptr','int','int'),'size_t'),
@@ -392,8 +389,8 @@ def _observe(value,integration,guard,process_owner,stdlib_modules,ctypes_module,
         for name in ('bridge','capabilities','capacity'):
             row=integration[name];need(row['sha256']==ROLE_PINS[name],'native-selected-compiler-observer-Source-role')
             owner.file(row['path'],expected={k:row[k]for k in ('bytes','mode','sha256')},root_owned=False)
-        helper=value['helper_bundle'];need(helper['api']=='integrated-pairs-v2' and helper['sha256']==BOOTSTRAP_PIN,'native-selected-bootstrap-role')
-        owner.file(helper['path'],expected={'bytes':26117,'mode':0o644,'sha256':BOOTSTRAP_PIN},root_owned=False)
+        helper=value['helper_bundle'];need(helper['api']=='integrated-pairs-v3' and helper['sha256']==BOOTSTRAP_PIN,'native-selected-bootstrap-role')
+        owner.file(helper['path'],expected={'bytes':26073,'mode':0o644,'sha256':BOOTSTRAP_PIN},root_owned=False)
         library=owner.file(LIBRARY['canonical_path'],expected={k:v for k,v in LIBRARY.items()if k not in ('path','canonical_path')})
         need(elf(library['raw'],shared=True)['interpreter']is None,'native-library-PT_INTERP-refused')
         libclosure,_=_closure(owner,[(LIBRARY['canonical_path'],False)])

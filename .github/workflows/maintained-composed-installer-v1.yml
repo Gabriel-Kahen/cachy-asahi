@@ -1,7 +1,7 @@
-name: native-topmem-fish-current-registered-v1
+name: native-topmem-fish-zsh-current-registered-v1
 on:
   push:
-    branches: [codex/native-topmem-fish-current-registered-v1]
+    branches: [codex/native-topmem-fish-zsh-current-registered-v1]
   workflow_dispatch:
 permissions:
   contents: read
@@ -10,13 +10,13 @@ concurrency:
   cancel-in-progress: false
 jobs:
   pairs:
-    if: github.repository == 'Gabriel-Kahen/cachy-asahi' && github.ref == 'refs/heads/codex/native-topmem-fish-current-registered-v1' && github.event.repository.private == false
+    if: github.repository == 'Gabriel-Kahen/cachy-asahi' && github.ref == 'refs/heads/codex/native-topmem-fish-zsh-current-registered-v1' && github.event.repository.private == false
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 125
     env:
       PYTHONDONTWRITEBYTECODE: '1'
-      ROOT_REGISTERED_PAIR_PLAN_B64: ${{ vars.NATIVE_PAIR_ROOT_PLAN_B64 }}
-      ROOT_REGISTERED_PAIR_PLAN_SHA256: ${{ vars.NATIVE_PAIR_ROOT_PLAN_SHA256 }}
+      ROOT_REGISTERED_PAIR_PLAN_B64: ${{ vars.NATIVE_PAIR_ZSH_ROOT_PLAN_B64 }}
+      ROOT_REGISTERED_PAIR_PLAN_SHA256: ${{ vars.NATIVE_PAIR_ZSH_ROOT_PLAN_SHA256 }}
     steps:
       - name: Invoke registered standalone original501 pair lane
         id: invoke
@@ -65,7 +65,7 @@ jobs:
           import uuid
           
           REPOSITORY = 'Gabriel-Kahen/cachy-asahi'
-          REF = 'refs/heads/codex/native-topmem-fish-current-registered-v1'
+          REF = 'refs/heads/codex/native-topmem-fish-zsh-current-registered-v1'
           BASE = '0744f413f47c82e4a5de16e4a16dba0962747483'
           DATA = 'ea1db6b5277d755630568a7fd19f484b0bccacbe'
           MANIFEST = 'scripts/ci/native-pair-lane/source.lock.json'
@@ -144,7 +144,7 @@ jobs:
               plan = decode(raw)
               need(type(plan) is dict and set(plan) == {'schema', 'lane', 'source_commit', 'data_commit',
                    'base_source_commit', 'ref', 'manifest_sha256', 'peer_receipt_sha256'} and type(plan['schema']) is int and plan['schema'] == 1
-                   and plan['lane'] == 'native-topmem-fish-current-registered-v1' and plan['ref'] == REF
+                   and plan['lane'] == 'native-topmem-fish-zsh-current-registered-v1' and plan['ref'] == REF
                    and plan['base_source_commit'] == BASE and plan['data_commit'] == DATA, 'bootstrap-Root-plan-shape')
               need(re.fullmatch('[0-9a-f]{40}', plan['source_commit']) and
                    all(re.fullmatch('[0-9a-f]{64}', plan[k]) and plan[k] != '0' * 64
@@ -165,7 +165,7 @@ jobs:
               need(hashlib.sha256(manifest_raw).hexdigest() == plan['manifest_sha256'], 'bootstrap-registered-Source-manifest')
               manifest = delivery.call(decode, manifest_raw)
               need(type(manifest) is dict and set(manifest) == {'schema', 'scope', 'files'} and manifest['schema'] == 1 and
-                   manifest['scope'] == 'standalone-original501-topmem-fish-pairs' and
+                   manifest['scope'] == 'standalone-original501-topmem-fish-zsh-pairs' and
                    type(manifest['files']) is dict and 0 < len(manifest['files']) <= 128, 'bootstrap-Source-manifest-shape')
               temporary = Path(os.environ['RUNNER_TEMP'])
               uid = delivery.call(os.getuid); before = delivery.call(os.lstat, temporary)
@@ -240,7 +240,7 @@ jobs:
         if: always() && steps.invoke.outputs.evidence_root != ''
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
-          name: original501-topmem-fish-pair-metadata-${{ github.run_id }}-${{ github.run_attempt }}
+          name: original501-topmem-fish-zsh-pair-metadata-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             ${{ steps.invoke.outputs.evidence_root }}/pair-result.json
             ${{ steps.invoke.outputs.evidence_root }}/failure.json

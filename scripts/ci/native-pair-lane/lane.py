@@ -9,7 +9,7 @@ import sys
 PREFIX = 'scripts/ci/native-pair-lane/'
 BASE_SOURCE = '0744f413f47c82e4a5de16e4a16dba0962747483'
 BASE_DATA = 'ea1db6b5277d755630568a7fd19f484b0bccacbe'
-RECIPE_SHA = 'd44d749724d64c85f363392143cee05fa54b1d057a964aa86793adbac5826753'
+RECIPE_SHA = 'd8344c4c6c0e2c640da1e40f21c16035f93d4d9839c03b2ca093cf713f40b5ea'
 RETAINED = []
 
 
@@ -206,7 +206,7 @@ def run(source_root, rows, registration, original_entry, nonce, scratch, *, cloc
         candidate = dict(candidate, status='PAIR_CHECKED_ROOT_JOB_COMPLETION_REQUIRED', publication_allowed=False,
                          worker_source={'packet_sha256': spec['packet_sha'], 'driver_sha256': spec['driver_sha'],
                                         'worker_sha256': spec['worker_sha']},
-                         scope='standalone-original501-topmem-fish-pairs', composed_acceptance='NOT RUN')
+                         scope='standalone-original501-topmem-fish-zsh-pairs', composed_acceptance='NOT RUN')
         raw = json.dumps(candidate, sort_keys=True, separators=(',', ':'), allow_nan=False).encode() + b'\n'
         need(len(raw) <= 1024**2, 'lane-public-record-cap')
         count = guard.call(sys.stdout.buffer.write, raw, publication=True)

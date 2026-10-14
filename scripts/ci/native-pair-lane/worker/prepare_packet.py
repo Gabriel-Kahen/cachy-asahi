@@ -24,8 +24,8 @@ def make_packet(value,native,*,sources,capacity_path=None):
     assert set(native)=={'execution_granted','dependencies','interpreter','stdlib','mapping_grant','checker_root'}
     selected=lambda path:row(path,sources)
     bootstrap=selected(HERE/'bootstrap.py')
-    value['schema']=1;value['lane']='native-topmem-fish-integrated-pairs-v2'
-    value['helper_bundle']={k:bootstrap[k] for k in ('path','sha256')}|{'api':'integrated-pairs-v2'}
+    value['schema']=1;value['lane']='native-topmem-fish-zsh-integrated-pairs-v3'
+    value['helper_bundle']={k:bootstrap[k] for k in ('path','sha256')}|{'api':'integrated-pairs-v3'}
     integration={'core':{p.name:selected(p) for p in [HERE/'selected/core'/name for name in ('authority.py','artifact_custody.py','zstd_owner.py','checker.py','pair_archive.py','pair_compare.py')]},
         'adapter':{p.name:selected(p) for p in [HERE/'selected/adapter'/name for name in ('admission.py','descriptor_ops.py','source_library_loader.py')]},
         'bridge':selected(HERE/'checker_bridge.py'),'capabilities':selected(HERE/'capabilities.py'),

@@ -29,7 +29,7 @@ def admit(raw, job, registration, *, contract, driver_sha256, worker_sha256):
          job['ref'] == registration['ref'] and job['workflow_path'] == '.github/workflows/maintained-composed-installer-v1.yml',
          'completed-job-required')
     need(record['status'] == 'PAIR_CHECKED_ROOT_JOB_COMPLETION_REQUIRED' and record['publication_allowed'] is False and
-         record['registered_source'] == registration and record['scope'] == 'standalone-original501-topmem-fish-pairs' and
+         record['registered_source'] == registration and record['scope'] == 'standalone-original501-topmem-fish-zsh-pairs' and
          record['composed_acceptance'] == 'NOT RUN', 'completed-pair-scope')
     start, E, J = record['original_start'], record['original_E'], record['original_J']
     need(all(type(v) in (int, float) and math.isfinite(v) and v > 0 for v in (start, E, J)) and

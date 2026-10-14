@@ -178,7 +178,7 @@ class LeaseReservation:
 class FinishedLeaseVerifier:
     """Fresh full-CID broker inspection of Root's first observed successful waits."""
     ROLES={'topmem-current-1':'topmem-1','topmem-current-2':'topmem-2',
-           'fish-current-1':'fish-1','fish-current-2':'fish-2'}
+           'fish-current-1':'fish-1','fish-current-2':'fish-2','zsh-current-1':'zsh-1','zsh-current-2':'zsh-2'}
     def __init__(self,authority,runtime,admission_module,job,reservations,*,selection=None):
         self.authority,self.runtime,self.api,self.job=authority,runtime,admission_module,job
         self.selection=runtime.capability_selection if selection is None else selection
