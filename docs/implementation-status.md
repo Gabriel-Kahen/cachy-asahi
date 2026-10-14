@@ -2,6 +2,15 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 14, accepted standalone screenshot checkpoint: fresh external actual
+review `1299d10f` passes40 checks. Root authenticates all5 owned/91 external
+rows, including87 retained files. One actual x86 standalone Sway/helper trial
+passes its196-package inventory, three captures/230400 pixels, four refusals
+and owned process/runtime/container retirement. This closes that finite trial;
+successful region selection, native ARM archive execution and accelerated
+Hyprland/M2 acceptance remain open. Base/final-image/cache/context retirement
+is unrecorded. The earlier APT-failed trial remains a failure.
+
 October 14, retained screenshot and library checkpoint: screenshot trial
 `38634245640` completes SUCCESS on exactSource `453699c2`. Root authenticates
 actual review `15d9e50f`, its13 owned/5 external rows and87 retained files.
