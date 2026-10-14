@@ -151,13 +151,15 @@ def image_decode_preflight(env, root, nonce):
         row['elapsed_ms'] = int(elapsed * 1000)
         validate_event(row, nonce)
         require(time.monotonic() < deadline, 'probe acceptance deadline')
-    except BaseException:
+    except BaseException as failure:
         row.update(error=error, elapsed_ms=None, report_sha256=None, report_base64=None)
         try:
             emit('image_decode_probe', **{key: value for key, value in row.items() if key != 'event'})
         except BaseException:
             # A closed diagnostic channel cannot replace the first probe refusal.
             pass
+        if not isinstance(failure, Exception):
+            raise  # Preserve cancellation/exit identity after bounded diagnostics.
         raise ValueError('image decode preflight failed: ' + error) from None
     emit('image_decode_probe', **{key: value for key, value in row.items() if key != 'event'})
     return observation
