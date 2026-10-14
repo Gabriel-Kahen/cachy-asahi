@@ -20,6 +20,15 @@ import sysconfig
 import time
 import types
 
+# Diagnostic metadata only; absence never grants/refuses operational work.
+try:
+    import opcode as _opcode_metadata
+    _call_opcode = _opcode_metadata.opmap['CALL']
+    CALL_OPCODES = frozenset((_call_opcode,)) if type(_call_opcode) is int and 0 <= _call_opcode <= 255 else frozenset()
+except Exception:
+    CALL_OPCODES = frozenset()
+
+
 _PATH_TYPE = type(Path('/'))
 CAP = 180
 SOURCES = {
@@ -100,35 +109,49 @@ PROBE_SPANS = ((300, 24, 300, 50, 'RECORD_KERNEL'), (300, 65, 300, 91, 'RECORD_P
 PROBE_LINES = {300: 'RECORD_ASSEMBLY', 301: 'RECORD_ASSEMBLY', 302: 'RECORD_ASSEMBLY', 303: 'RECORD_ASSEMBLY', 304: 'RECORD_ASSEMBLY', 305: 'RECORD_ASSEMBLY', 306: 'RECORD_ASSEMBLY', 307: 'RECORD_ASSEMBLY', 308: 'RECORD_ASSEMBLY', 309: 'RECORD_ASSEMBLY', 310: 'SAVE_INITIAL', 311: 'CHECK_PLATFORM', 312: 'CHECK_PLATFORM', 313: 'CHECK_UID', 314: 'CHECK_UID', 315: 'READ_CONTEXT', 316: 'CONTEXT_ENDPOINT', 317: 'LOCAL_ENDPOINTS', 318: 'CHECK_ENDPOINT', 319: 'CHECK_ENDPOINT', 320: 'RECORD_ENDPOINT', 321: 'SAVE_FINAL', 322: 'RETURN_RECORD'}
 
 
-def probe_statement(trace, probe_code):
-    """Map only the already recognized held probe frame to delivered Source sites."""
-    if trace.tb_frame.f_code is not probe_code:return 'UNKNOWN'
-    position = None
-    for offset, span in zip(range(0,len(trace.tb_frame.f_code.co_code),2),trace.tb_frame.f_code.co_positions()):
-        if offset == trace.tb_lasti:position = span; break
-    if position is None:return 'UNKNOWN'
+def probe_location(trace, probe_code):
+    """Closed statement/call-region labels from the already recognized held probe."""
+    if trace.tb_frame.f_code is not probe_code:return 'UNKNOWN', None
+    position = operation = None
+    for offset, span in zip(range(0,len(probe_code.co_code),2),probe_code.co_positions()):
+        if offset == trace.tb_lasti:
+            position = span; operation = probe_code.co_code[offset]; break
+    if position is None:return 'UNKNOWN', None
     if all(type(part) is int for part in position):
         first, last, column, end_column = position
-        if (first,column) > (last,end_column):return 'UNKNOWN'
+        if (first,column) > (last,end_column):return 'UNKNOWN', None
         for start_line, start_column, end_line, end, label in PROBE_SPANS:
             if (start_line,start_column) <= (first,column) and (last,end_column) <= (end_line,end):
-                return label
-        return 'UNKNOWN'
-    return PROBE_LINES.get(trace.tb_lineno,'UNKNOWN')
+                if label != 'RECORD_KERNEL':return label, None
+                call = 'UNKNOWN'
+                if operation in CALL_OPCODES:
+                    if position == (300,300,24,40):call = 'CALL_UNAME'
+                    elif position == (300,300,24,50):call = 'CALL_ASDICT'
+                return label, call
+        return 'UNKNOWN', None
+    return PROBE_LINES.get(trace.tb_lineno,'UNKNOWN'), None
+
+
+def probe_statement(trace, probe_code):
+    """Compatibility projection of the single held-code position scan."""
+    return probe_location(trace,probe_code)[0]
 
 
 def typeerror_callsite(error, call_codes):
     """Finite deepest held frame and optional probe statement; never frame data."""
-    if type(error) is not TypeError:return 'UNKNOWN', None
+    if type(error) is not TypeError:return 'UNKNOWN', None, None
     found = 'UNKNOWN'; probe = None; trace = error.__traceback__
     for _ in range(64):
-        if trace is None:return found, probe_statement(*probe) if probe is not None else None
+        if trace is None:
+            if probe is None:return found, None, None
+            statement, call = probe_location(*probe)
+            return found, statement, call
         code = trace.tb_frame.f_code
         for held, label in call_codes:
             if code is held:
                 found = label; probe = (trace,held) if label == 'NATIVE_PROBE_BODY' else None; break
         trace = trace.tb_next
-    return 'UNKNOWN', None
+    return 'UNKNOWN', None, None
 
 
 def emit_route(route, gate, error=None, call_codes=()):
@@ -146,9 +169,11 @@ def emit_route(route, gate, error=None, call_codes=()):
                  'last_source_gate':gate if type(gate) is str and gate in REFUSAL_GATES else 'UNKNOWN',
                  'category':category}
         if route == 'driver_error' and category == 'TypeError' and gate == 'NATIVE_ENTRY':
-            site, statement = typeerror_callsite(error,call_codes)
+            site, statement, call = typeerror_callsite(error,call_codes)
             value['callsite'] = site
-            if site == 'NATIVE_PROBE_BODY':value['probe_statement'] = statement
+            if site == 'NATIVE_PROBE_BODY':
+                value['probe_statement'] = statement
+                if statement == 'RECORD_KERNEL':value['kernel_call'] = call
         encoded = ROUTE_PREFIX + json.dumps(value, sort_keys=True, separators=(',',':')) + '\n'
         if len(encoded.encode('ascii')) <= 512:
             sys.stdout.write(encoded); sys.stdout.flush()
