@@ -2036,3 +2036,9 @@ acceptance is granted by their local test counts or source reviews.
 - Release signing identity/custody and hosting destination, after package and hardware gates permit publication.
 
 These are explicit unfinished gates. Source-only work, synthetic signing tests, container architecture declarations and documentation do not complete them.
+
+### Native continuation — 2026-10-14 13:12 UTC
+
+The independently reviewed kernel output diagnostic is published as Source `842878635d5fff38cfefa138e75e28fc0954ac16`, packet `b65bb028cc2dc33bf4047db479822fb003c45be5184818537b09c8493d2bcfee`. Root authenticated 219 author/peer paths, adopted exactly seven files, and verified all 124 packet rows plus the lock from raw Git and the remote branch. Native ARM trial [38569875890](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38569875890) has started. The prior output predicate remains unknown; this diagnostic does not change output acceptance or establish M2 compatibility.
+
+Pair trial [38564566992](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38564566992) was cancelled while pending after an independent Source countermodel reproduced foreign equality objects being accepted in mutable ModuleSpec name/origin fields. It never executed and supplies no build evidence. Pair Source `392be2f203e533b0e33974e520371fc51aafac62` and the unadopted Zsh compatibility proposal remain historical; separate exact-string corrective successors are under review. Actual builtin metadata remains unobserved.
