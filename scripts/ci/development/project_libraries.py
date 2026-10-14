@@ -80,11 +80,27 @@ INITIAL_BOUNDARIES = {
     'REGISTRATION': ('PRODUCER_SOURCE_ROWS','CLOCK_RECORD','ROOT_SELECTION_VALIDATE','SELECTION_WRITE','PRIVATE_LOG_OPEN'),
     'ORIGINAL_EXECUTION': ('PRODUCER_ENTER','RUN_ORIGINAL'),
     'BASELINE_RETIREMENT': ('CONSUMER_STATE','BASELINE_RETIRE'),
-    'FINALIZATION': ('PRODUCER_EXIT','PRIVATE_LOG_CLOSE'),
+    'FINALIZATION': ('PRODUCER_EXIT','PRIVATE_LOG_CLOSE','PRODUCER_CLEANUP_SNAPSHOT'),
 }
 INITIAL_KINDS = ('VALUE_ERROR','OS_ERROR','TYPE_ERROR','KEY_ERROR','TIMEOUT_ERROR',
                  'KEYBOARD_INTERRUPT','SYSTEM_EXIT','OTHER_EXCEPTION','OTHER_CONTROL','NO_FIRST_OBSERVED')
 INITIAL_BINDING = ('code_commit','source_commit','data_commit','run_id','run_attempt','job_sha256','publication_sha256')
+
+
+PRODUCER_CLEANUP_LABELS = ('PRODUCER_BIRTH_UNCERTAIN', 'PRODUCER_CLOSE_UNREAPED_REFUSED', 'PRODUCER_FD_CLOSE_UNCERTAIN', 'PRODUCER_LAUNCH_FD_CLOSE_UNCERTAIN', 'PRODUCER_MASK_RESTORE_UNCERTAIN', 'PRODUCER_NOT_REAPED', 'PRODUCER_PIPE_CLOSE_UNCERTAIN', 'PRODUCER_PIPE_EOF_UNKNOWN', 'PRODUCER_PROCESS_JOURNAL_UNCERTAIN', 'PRODUCER_RECOVERY_CUSTODY_RETAINED', 'PRODUCER_RETIREMENT_UNCERTAIN', 'UNKNOWN')
+
+
+def validate_producer_cleanup(value):
+    require(type(value) is dict and all(type(key) is str for key in value) and
+            set(value) == {'schema_version','refusal_category','uncertainty_labels','coverage'}, 'library-producer-cleanup-fields')
+    labels = value['uncertainty_labels']
+    require(type(value['schema_version']) is int and value['schema_version'] == 1 and
+            type(value['refusal_category']) is str and value['refusal_category'] in ('SOURCE_ISSUED_CLEANUP_REFUSAL','NOT_OBSERVED') and
+            type(value['coverage']) is str and value['coverage'] in ('ALL_HELD_ENTRIES_AT_CAPTURE','BOUNDED_PREFIX') and
+            type(labels) is list and len(labels) <= 12 and all(type(label) is str and label in PRODUCER_CLEANUP_LABELS for label in labels),
+            'library-producer-cleanup-labels')
+    require(labels == sorted(set(labels)) and (value['coverage'] != 'BOUNDED_PREFIX' or bool(labels)), 'library-producer-cleanup-canonical')
+    return dict(value,uncertainty_labels=list(labels))
 
 
 def validate_initial_failure(value):
@@ -92,7 +108,7 @@ def validate_initial_failure(value):
     keys = {'schema_version','binding','stage','operation','tag_basis','first_kind','job_first_kind','detail_sha256','detail_bytes',
             'original_observation','private_log_observation','consumer_record_observation','original_exit_code',
             'terminal_status','raw_cleanup','secondary_control'}
-    require(type(value) is dict and all(type(k) is str for k in value) and set(value) == keys, 'library-initial-failure-fields')
+    require(type(value) is dict and all(type(k) is str for k in value) and keys <= set(value) <= keys | {'producer_cleanup'}, 'library-initial-failure-fields')
     require(type(value['schema_version']) is int and value['schema_version'] == 1, 'library-initial-failure-version')
     binding = value['binding']
     require(type(binding) is dict and all(type(k) is str for k in binding) and set(binding) == set(INITIAL_BINDING), 'library-initial-failure-binding')
@@ -137,6 +153,13 @@ def validate_initial_failure(value):
             'library-initial-failure-cleanup')
     require(value['secondary_control'] == 'NONE' or cleanup['cancelled'] is True, 'library-initial-failure-control-cancel')
     result = dict(value); result['binding'] = dict(binding); result['raw_cleanup'] = dict(cleanup)
+    if 'producer_cleanup' in value:
+        require(value['original_observation'] == 'PRESENT', 'library-producer-cleanup-original')
+        observation = validate_producer_cleanup(value['producer_cleanup'])
+        if observation['refusal_category'] == 'SOURCE_ISSUED_CLEANUP_REFUSAL':
+            require(value['job_first_kind'] == 'VALUE_ERROR' and cleanup['status'] == 'FAIL' and bool(observation['uncertainty_labels']),
+                    'library-producer-cleanup-refusal-join')
+        result['producer_cleanup'] = observation
     return result
 
 

@@ -27,7 +27,7 @@ JSON_CAP, EXPANDED_CAP, COMPRESSED_CAP = 65536, 128*1024, 8*1024**2
 FRAME_CAP = 12*1024**2
 PHASE_RECEIPT = 'private-phases.json'
 POLICY_PATH = 'scripts/ci/development/project_libraries.py'
-POLICY_SHA256 = '78f19b8c657b01b6365c7e0c41138f969a2ae2aa4fb13b90e00027ba24847b08'
+POLICY_SHA256 = 'e8000cacb0847b8726774c3121b2381b54bddcee71fbf466c020ba99d578e6fa'
 CLEANUP_KEYS = ('schema_version','status','baseline_image_absent','producer_closed','cancelled','uncertainties')
 
 

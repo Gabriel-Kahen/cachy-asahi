@@ -216,6 +216,25 @@ def retain_initial_control(first, secondary):
     return 'KEYBOARD_INTERRUPT' if type(secondary) is KeyboardInterrupt else 'SYSTEM_EXIT' if type(secondary) is SystemExit else 'OTHER_CONTROL'
 
 
+PRODUCER_CLEANUP_CODES = ('PRODUCER_BIRTH_UNCERTAIN', 'PRODUCER_CLOSE_UNREAPED_REFUSED', 'PRODUCER_FD_CLOSE_UNCERTAIN', 'PRODUCER_LAUNCH_FD_CLOSE_UNCERTAIN', 'PRODUCER_MASK_RESTORE_UNCERTAIN', 'PRODUCER_NOT_REAPED', 'PRODUCER_PIPE_CLOSE_UNCERTAIN', 'PRODUCER_PIPE_EOF_UNKNOWN', 'PRODUCER_PROCESS_JOURNAL_UNCERTAIN', 'PRODUCER_RECOVERY_CUSTODY_RETAINED', 'PRODUCER_RETIREMENT_UNCERTAIN')
+
+
+def producer_cleanup_snapshot(original, first):
+    """Finite held producer-level observations; no detail formatting or authority."""
+    if original is None:return None
+    entries = original.uncertainties
+    if type(entries) is not list:return None
+    count = len(entries); labels = set()
+    for index in range(min(count,64)):
+        item = entries[index]
+        labels.add(item if type(item) is str and item in PRODUCER_CLEANUP_CODES else 'UNKNOWN')
+    marker = original.cleanup_refusal_error
+    return dict(schema_version=1,
+        refusal_category='SOURCE_ISSUED_CLEANUP_REFUSAL' if marker is not None and first is marker else 'NOT_OBSERVED',
+        uncertainty_labels=sorted(labels),
+        coverage='BOUNDED_PREFIX' if count > 64 else 'ALL_HELD_ENTRIES_AT_CAPTURE')
+
+
 def initial_failure_snapshot(identity, rows, boundary, initial_first, first, detail, original, log, record,
                              original_returned, original_code, terminal, cleanup, secondary_control):
     """Already-held observations only; NOT_OBSERVED makes no absence claim."""
@@ -276,7 +295,7 @@ def run(context):
     producer_closed = False; first = None; log = None
     initial_boundary = ('ORIGINAL_PREPARATION','INTEGRATION_LOCK_READ')
     failure_boundary = None; initial_first = None; original_returned = False; diagnostic_cancelled = False
-    detail = None; secondary_control = 'NONE'; initial_failure = None
+    detail = None; secondary_control = 'NONE'; initial_failure = None; producer_cleanup = None
     saved_environment = dict(os.environ)
     try:
         initial_boundary = ('ORIGINAL_PREPARATION','INTEGRATION_LOCK_READ')
@@ -401,6 +420,23 @@ def run(context):
     cleanup = dict(schema_version=1,status='PASS' if not uncertainties and producer_closed and baseline_absent else 'FAIL',
         baseline_image_absent=baseline_absent,producer_closed=producer_closed,cancelled=cancelled,
         uncertainties=uncertainties+len(bridge.HELD))
+    try:
+        if ((initial_first is None) == (failure_boundary is None)) and (first is not None or
+            record is None or original_code != 0 or type(terminal) is not dict or
+            type(terminal.get('status')) is not str or terminal['status'] != 'PRIVATE_CHECKED' or
+            cleanup['status'] != 'PASS' or not cleanup['baseline_image_absent'] or
+            not cleanup['producer_closed'] or cleanup['cancelled'] or cleanup['uncertainties']):
+            producer_cleanup = producer_cleanup_snapshot(original,first)
+    except BaseException as secondary:
+        control = retain_initial_control(first,secondary)
+        if control != 'NONE':
+            if first is None:
+                first = secondary
+                if initial_first is None and failure_boundary is None:
+                    initial_first = first; failure_boundary = ('FINALIZATION','PRODUCER_CLEANUP_SNAPSHOT')
+            secondary_control = control
+            cancelled = True; cleanup['cancelled'] = True
+            cleanup['status'] = 'FAIL'; cleanup['uncertainties'] += 1
     if first is not None:
         try:
             raw_detail = str(first).encode()
@@ -420,12 +456,31 @@ def run(context):
             type(terminal.get('status')) is not str or terminal['status'] != 'PRIVATE_CHECKED' or
             cleanup['status'] != 'PASS' or not cleanup['baseline_image_absent'] or
             not cleanup['producer_closed'] or cleanup['cancelled'] or cleanup['uncertainties']):
-            initial_failure = initial_failure_snapshot(identity,rows,failure_boundary or initial_boundary,
+            candidate_snapshot = initial_failure_snapshot(identity,rows,failure_boundary or initial_boundary,
                 initial_first,first,detail,original,log,record,original_returned,original_code,terminal,cleanup,secondary_control)
+            if producer_cleanup is not None:
+                try:
+                    candidate_snapshot['producer_cleanup'] = producer_cleanup
+                except BaseException as secondary:
+                    if not isinstance(secondary,Exception):
+                        control = retain_initial_control(first,secondary)
+                        if first is None:
+                            first = secondary
+                            if initial_first is None and failure_boundary is None:
+                                initial_first = first; failure_boundary = ('FINALIZATION','PRODUCER_CLEANUP_SNAPSHOT')
+                        secondary_control = control
+                        cancelled = True; cleanup['cancelled'] = True
+                        cleanup['status'] = 'FAIL'; cleanup['uncertainties'] += 1
+                        candidate_snapshot = initial_failure_snapshot(identity,rows,failure_boundary or initial_boundary,
+                            initial_first,first,detail,original,log,record,original_returned,original_code,terminal,cleanup,secondary_control)
+            initial_failure = candidate_snapshot
     except BaseException as secondary:
         control = retain_initial_control(first,secondary)
         if control != 'NONE':
-            if first is None:first = secondary
+            if first is None:
+                first = secondary
+                if initial_first is None and failure_boundary is None and producer_cleanup is not None:
+                    initial_first = first; failure_boundary = ('FINALIZATION','PRODUCER_CLEANUP_SNAPSHOT')
             secondary_control = control
             cancelled = True; cleanup['cancelled'] = True
             cleanup['status'] = 'FAIL'; cleanup['uncertainties'] += 1

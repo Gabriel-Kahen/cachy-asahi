@@ -533,6 +533,7 @@ class Producer:
         self.home=self.private/'producer-supervision';self.context_path=_context
         self.load_root=absolute(_helper_root or self.root);self.child=_context is not None
         self.kernel=Kernel();self.modules={};self.handles=[];self.files=[];self.uncertainties=[]
+        self.cleanup_refusal_error=None
         self.cancelled=False;self.closed=False;self.first=None;self.entered=False
         self.proxy=SubprocessProxy(self);self.os_proxy=OSProxy(self);self.finder=Finder(self)
         self.saved_modules={};self.saved_signals={};self.previous_timer=None;self.timer_at=None;self.timer_changed=False
@@ -810,7 +811,9 @@ class Producer:
         if primary is not None:
             for item in self.uncertainties:primary.add_note(item)
         if self.uncertainties and(error is None or isinstance(error,SystemExit)and error.code in(None,0)):
-            raise ValueError('PRODUCER_CLEANUP_UNCERTAIN:'+','.join(self.uncertainties))
+            failure=ValueError('PRODUCER_CLEANUP_UNCERTAIN:'+','.join(self.uncertainties))
+            self.cleanup_refusal_error=failure
+            raise failure
         if self.first is not None and(error is None or isinstance(error,SystemExit)and error.code in(None,0)):
             raise self.first
         return False
