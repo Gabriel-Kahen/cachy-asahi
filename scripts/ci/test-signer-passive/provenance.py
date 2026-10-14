@@ -125,7 +125,7 @@ def package_field_diagnostic(raw,stanza,line,stanza_index,line_index,last,fields
     package=fields.get(b'Package')
     package_name=package.decode('ascii') if type(package) is bytes and re.fullmatch(b'[a-z0-9][a-z0-9+.-]{0,127}',package) else None
     facts=dict(schema_version=1,purpose='SIGNER_PASSIVE_PACKAGE_FIELD_DIAGNOSTIC_V1',
-               predicate='colon-space-delimiter',status_row={'bytes':len(raw),'sha256':sha(raw)},
+               predicate='colon-delimiter',status_row={'bytes':len(raw),'sha256':sha(raw)},
                stanza_index=stanza_index,stanza_row={'bytes':len(stanza),'sha256':sha(stanza)},
                line_index=line_index,line_bytes=len(line),line_sha256=sha(line),
                line_b64=base64.b64encode(line[:4096]).decode('ascii'),line_truncated=len(line)>4096,
@@ -148,7 +148,7 @@ def package_records(raw,*,gcc_major,endpoint=None,clock=None):
             need(len(line)<=8192,'package-line-budget')
             if line.startswith((b' ',b'\t')):
                 need(last is not None,'package-orphan-continuation');continue
-            try:need(b': ' in line,'package-field-format')
+            try:need(b':' in line,'package-field-format')
             except Refused as error:
                 diagnostic=None;diagnostic_cancelled=False
                 try:diagnostic=package_field_diagnostic(raw,stanza,line,count,line_index,last,fields,
@@ -162,7 +162,7 @@ def package_records(raw,*,gcc_major,endpoint=None,clock=None):
                         try:error.package_diagnostic_cancelled=True
                         except BaseException:pass
                 raise
-            key,value=line.split(b': ',1)
+            key,value=line.split(b':',1);value=value.strip(b' \t')
             need(key not in fields and re.fullmatch(b'[A-Za-z][A-Za-z0-9-]{0,63}',key),'package-duplicate-field')
             fields[key]=value;last=key
         name=fields.get(b'Package',b'').decode('ascii')

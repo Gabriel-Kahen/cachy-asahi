@@ -179,7 +179,7 @@ def validate_package_diagnostic(value):
           'line_bytes','line_sha256','line_b64','line_truncated','field_name','last_field','package_name'}
     need(type(value) is dict and set(value)==keys and type(value['schema_version']) is int and
          value['schema_version']==1 and value['purpose']=='SIGNER_PASSIVE_PACKAGE_FIELD_DIAGNOSTIC_V1'
-         and value['predicate']=='colon-space-delimiter','closed-package-diagnostic')
+         and value['predicate']=='colon-delimiter','closed-package-diagnostic')
     def digest(value):return type(value) is str and re.fullmatch('[0-9a-f]{64}',value)
     def bounded(value,maximum):return type(value) is int and 1<=value<=maximum
     for name,bound in (('status_row',16*1024**2),('stanza_row',65536)):
@@ -197,7 +197,7 @@ def validate_package_diagnostic(value):
     need(base64.b64encode(prefix).decode('ascii')==encoded and
          len(prefix)==min(value['line_bytes'],4096) and type(value['line_truncated']) is bool and
          value['line_truncated']==(value['line_bytes']>4096),'package-diagnostic-prefix-shape')
-    need(b': ' not in prefix,'package-diagnostic-predicate')
+    need(b':' not in prefix,'package-diagnostic-predicate')
     if value['line_truncated'] is False:
         need(hashlib.sha256(prefix).hexdigest()==value['line_sha256'],'package-diagnostic-full-line-hash')
     expected=None
