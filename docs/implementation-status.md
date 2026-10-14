@@ -2,6 +2,26 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 14, compiler follow-up: runnable six-command Source `81e6b632` is
+published in draft PR16. Root authenticates author `95b9172e` and peer `7586cec0`,
+verifies all seven new copies, and checks the frozen receiver/helpers are unchanged.
+The manual dispatch returns HTTP 404 because the new workflow path is unregistered;
+no compiler job starts. A minimal successor is using the existing registered
+observer workflow path without changing the six-command runtime contract.
+
+The simpler library baseline/driver components `379ec204` are sealed, with
+158 focused controls and ten inert integration checks; Root authenticates their
+forty indexed leaves and guide. Independent review identifies a live-custody
+concern for an unreaped child. The runnable workflow and correction remain in
+development, with no new native actor. Installer boundary diagnostic `e36cbbff`
+is held: Root's actual-definition trace control reproduces swallowed secondary
+cancellation. A successor preserves the original cause and sticky cancellation.
+
+Kernel recovery/parser work is now visible in
+[draft PR17](https://github.com/Gabriel-Kahen/cachy-asahi/pull/17). Source review
+and actual failure evidence remain separate from native compilation, runtime
+and performance acceptance. All required full-port gates remain unfinished.
+
 October 14, 08:09 UTC: kernel `38531276470` completes FAIL, retained under
 completion `afae9cd2`. The baseline progresses past configuration handling to
 KERNEL, whose natural return is 2; the exact compiler error is unexported.
