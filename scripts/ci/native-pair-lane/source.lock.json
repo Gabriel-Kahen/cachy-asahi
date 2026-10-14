@@ -1,0 +1,391 @@
+{
+  "files": {
+    ".github/workflows/maintained-composed-installer-v1.yml": {
+      "bytes": 15794,
+      "mode": 420,
+      "origin": "source",
+      "remote_path": ".github/workflows/maintained-composed-installer-v1.yml",
+      "sha256": "ba56e151c595f2654ecb8c4665fd2141168de54edd84fc4ba875f9ccbcf8dd0c"
+    },
+    "data/scripts/ci/inputs.lock.json": {
+      "bytes": 328101,
+      "mode": 420,
+      "origin": "data",
+      "remote_path": "scripts/ci/inputs.lock.json",
+      "sha256": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f"
+    },
+    "data/scripts/port/refreshed-desktop/proposed-builder-inventory.lock": {
+      "bytes": 6674,
+      "mode": 420,
+      "origin": "data",
+      "remote_path": "scripts/port/refreshed-desktop/proposed-builder-inventory.lock",
+      "sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25"
+    },
+    "packages/shells/cachy-asahi-fish-bang-bang/.SRCINFO": {
+      "bytes": 1120,
+      "mode": 420,
+      "origin": "source",
+      "remote_path": "packages/shells/cachy-asahi-fish-bang-bang/.SRCINFO",
+      "sha256": "2d51a0849e341581ae89d548a81a7074b8d5acc79c143155b3991b96232c6c01"
+    },
+    "packages/shells/cachy-asahi-fish-bang-bang/LICENSE.project": {
+      "bytes": 1081,
+      "mode": 420,
+      "origin": "source",
+      "remote_path": "packages/shells/cachy-asahi-fish-bang-bang/LICENSE.project",
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "packages/shells/cachy-asahi-fish-bang-bang/LICENSE.upstream": {
+      "bytes": 1108,
+      "mode": 420,
+      "origin": "source",
+      "remote_path": "packages/shells/cachy-asahi-fish-bang-bang/LICENSE.upstream",
+      "sha256": "14c6826a7e33a6c74194ece88b26b5f5aee8473474001946a73d0f298b69fce0"
+    },
+    "packages/shells/cachy-asahi-fish-bang-bang/NOTICE": {
+      "bytes": 811,
+      "mode": 420,
+      "origin": "source",
+      "remote_path": "packages/shells/cachy-asahi-fish-bang-bang/NOTICE",
+      "sha256": "0704c1ff8bcd8c94ad40888b35c5e25468ea9152b5781e7722ff0d04fb8aa879"
+    },
+    "packages/shells/cachy-asahi-fish-bang-bang/PKGBUILD": {
+      "bytes": 2123,
+      "mode": 420,
+      "origin": "source",
+      "remote_path": "packages/shells/cachy-asahi-fish-bang-bang/PKGBUILD",
+      "sha256": "05a1b2cb4710cc14f62678df37d1236fee909874b5b709d82d54fe4b8dc0f93d"
+    },
+    "packages/shells/cachy-asahi-fish-bang-bang/README.md": {
+      "bytes": 2182,
+      "mode": 420,
+      "origin": "source",
+      "remote_path": "packages/shells/cachy-asahi-fish-bang-bang/README.md",
+      "sha256": "46ed4a6e1dfed5f9aea5a1bb2ceff1c49d1972a8cf7f2c656a7cdfd87436b37c"
+    },
+    "packages/shells/cachy-asahi-fish-bang-bang/__history_previous_command.fish": {
+      "bytes": 170,
+      "mode": 420,
+      "origin": "source",
+      "remote_path": "packages/shells/cachy-asahi-fish-bang-bang/__history_previous_command.fish",
+      "sha256": "d34b75125a34199775eaa74dd47ae37488c4e67f95f40f71b101b6a8f6f32e50"
+    },
+    "packages/shells/cachy-asahi-fish-bang-bang/__history_previous_command_arguments.fish": {
+      "bytes": 198,
+      "mode": 420,
+      "origin": "source",
+      "remote_path": "packages/shells/cachy-asahi-fish-bang-bang/__history_previous_command_arguments.fish",
+      "sha256": "4e72dcce435d0fe1cf332fb339ed9608f10b29295b28f85ed6e7411ef8c05b64"
+    },
+    "packages/shells/cachy-asahi-fish-bang-bang/integration-proposal.json": {
+      "bytes": 984,
+      "mode": 420,
+      "origin": "source",
+      "remote_path": "packages/shells/cachy-asahi-fish-bang-bang/integration-proposal.json",
+      "sha256": "951ef1f566e2b1e524bba9dd2a8f4945cc6087f0727d2623566dfce6422c5de6"
+    },
+    "packages/shells/cachy-asahi-fish-bang-bang/opt-in.fish": {
+      "bytes": 2599,
+      "mode": 420,
+      "origin": "source",
+      "remote_path": "packages/shells/cachy-asahi-fish-bang-bang/opt-in.fish",
+      "sha256": "d4dbd9dc123ebb31f821afd78c4b55554b4f17929d214baff35e405436e4cce7"
+    },
+    "packages/shells/cachy-asahi-fish-bang-bang/source-provenance.json": {
+      "bytes": 1688,
+      "mode": 420,
+      "origin": "source",
+      "remote_path": "packages/shells/cachy-asahi-fish-bang-bang/source-provenance.json",
+      "sha256": "bc5200e4264569fe170944ce837d4f7578ba03ed605ec671cd6dda7ef6a0714c"
+    },
+    "packages/shells/cachy-asahi-fish-bang-bang/usage.md": {
+      "bytes": 2810,
+      "mode": 420,
+      "origin": "source",
+      "remote_path": "packages/shells/cachy-asahi-fish-bang-bang/usage.md",
+      "sha256": "37a52ff036984a5beb4f42b8837a78f3de3391081240b470177ecc0b03aa6890"
+    },
+    "packages/tools/cachy-asahi-topmem/.SRCINFO": {
+      "bytes": 779,
+      "mode": 420,
+      "origin": "source",
+      "remote_path": "packages/tools/cachy-asahi-topmem/.SRCINFO",
+      "sha256": "fa8b8e01ce36cfe9c5b3cd0f94ae5303c6d8e6444d91831eacf9a762f7490459"
+    },
+    "packages/tools/cachy-asahi-topmem/LICENSE": {
+      "bytes": 1081,
+      "mode": 420,
+      "origin": "source",
+      "remote_path": "packages/tools/cachy-asahi-topmem/LICENSE",
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "packages/tools/cachy-asahi-topmem/NOTICE": {
+      "bytes": 395,
+      "mode": 420,
+      "origin": "source",
+      "remote_path": "packages/tools/cachy-asahi-topmem/NOTICE",
+      "sha256": "07227afce6f380bcf3deaf9b273fb286f6bcee69b5f1dddec9ebcd1dc2ecd098"
+    },
+    "packages/tools/cachy-asahi-topmem/PKGBUILD": {
+      "bytes": 1195,
+      "mode": 420,
+      "origin": "source",
+      "remote_path": "packages/tools/cachy-asahi-topmem/PKGBUILD",
+      "sha256": "fc17b0af876ae0dfb97b00e2293bb01fb8c054702d19252804e8ab11196315d2"
+    },
+    "packages/tools/cachy-asahi-topmem/README.md": {
+      "bytes": 2543,
+      "mode": 420,
+      "origin": "source",
+      "remote_path": "packages/tools/cachy-asahi-topmem/README.md",
+      "sha256": "90082e9119cdea843b0e060f4061a300015dffd6a25c55d12a72b0a75348cf2b"
+    },
+    "packages/tools/cachy-asahi-topmem/cachy-asahi-topmem": {
+      "bytes": 4203,
+      "mode": 493,
+      "origin": "source",
+      "remote_path": "packages/tools/cachy-asahi-topmem/cachy-asahi-topmem",
+      "sha256": "96c1b49a92cb6e97d1fe5c51c23f452d79341f2d71cd624cd3197d33b29633b1"
+    },
+    "packages/tools/cachy-asahi-topmem/test_topmem.py": {
+      "bytes": 7277,
+      "mode": 420,
+      "origin": "source",
+      "remote_path": "packages/tools/cachy-asahi-topmem/test_topmem.py",
+      "sha256": "207d3c924e37b3e27be2e0024dfe786716cd4464d3042125af543dfbdec6b847"
+    },
+    "scripts/ci/native-pair-lane/admission.py": {
+      "bytes": 3375,
+      "mode": 420,
+      "origin": "source",
+      "remote_path": "scripts/ci/native-pair-lane/admission.py",
+      "sha256": "af6f44e646151473ef504f07c9054330412564d6ac64ce1bdd96bb5ea7124892"
+    },
+    "scripts/ci/native-pair-lane/cache_intake.py": {
+      "bytes": 18964,
+      "mode": 420,
+      "origin": "source",
+      "remote_path": "scripts/ci/native-pair-lane/cache_intake.py",
+      "sha256": "07ada8534f4fd21def79ab98c62334e4e0e6a7f5b15a9da8c7eacf44376c334d"
+    },
+    "scripts/ci/native-pair-lane/donor/controller.py": {
+      "bytes": 100623,
+      "mode": 420,
+      "origin": "source",
+      "remote_path": "scripts/ci/native-pair-lane/donor/controller.py",
+      "sha256": "bbe279edb9743f98e8feed8365859abc221b2665924658e600775c902e18299e"
+    },
+    "scripts/ci/native-pair-lane/donor/native_arm.py": {
+      "bytes": 28318,
+      "mode": 420,
+      "origin": "source",
+      "remote_path": "scripts/ci/native-pair-lane/donor/native_arm.py",
+      "sha256": "a8b6ed8971a38089a4499dcec605477c4e48d7a47c3de485d205f6a44678b898"
+    },
+    "scripts/ci/native-pair-lane/donor/packet.lock.json": {
+      "bytes": 94735,
+      "mode": 420,
+      "origin": "source",
+      "remote_path": "scripts/ci/native-pair-lane/donor/packet.lock.json",
+      "sha256": "9d5a7dc25fd44e127c457c72addb28272b1eb1f5391c4c5b8d5b0a226a3be048"
+    },
+    "scripts/ci/native-pair-lane/lane.py": {
+      "bytes": 14389,
+      "mode": 420,
+      "origin": "source",
+      "remote_path": "scripts/ci/native-pair-lane/lane.py",
+      "sha256": "292da62e25fe12763670e147c25bc7360382fa8e98683843b46fd09e7f9e953f"
+    },
+    "scripts/ci/native-pair-lane/lane_clock.py": {
+      "bytes": 2354,
+      "mode": 420,
+      "origin": "source",
+      "remote_path": "scripts/ci/native-pair-lane/lane_clock.py",
+      "sha256": "5bda28d0c78ab9b9f34b19bf90d31346703012078f29f3f8a57f641f7f30a7ad"
+    },
+    "scripts/ci/native-pair-lane/mechanics/container_owner.py": {
+      "bytes": 25504,
+      "mode": 420,
+      "origin": "source",
+      "remote_path": "scripts/ci/native-pair-lane/mechanics/container_owner.py",
+      "sha256": "f24cbe67b7336ba414c8186fbc9ed3be76d468edae9ce979456590178d12f115"
+    },
+    "scripts/ci/native-pair-lane/mechanics/custody_recovery.py": {
+      "bytes": 7005,
+      "mode": 420,
+      "origin": "source",
+      "remote_path": "scripts/ci/native-pair-lane/mechanics/custody_recovery.py",
+      "sha256": "6b7cad215e50e9f0b1b8319b5d36674dc253c24d86eb8a71ff2e217aa3f58ba1"
+    },
+    "scripts/ci/native-pair-lane/mechanics/input_audit_successor.py": {
+      "bytes": 6626,
+      "mode": 420,
+      "origin": "source",
+      "remote_path": "scripts/ci/native-pair-lane/mechanics/input_audit_successor.py",
+      "sha256": "c8ad46876c2e6c67702839cee6fd156b96ef5d891a72c0c0e71f8794a06e10bd"
+    },
+    "scripts/ci/native-pair-lane/mechanics/process_owner_recovery.py": {
+      "bytes": 18728,
+      "mode": 420,
+      "origin": "source",
+      "remote_path": "scripts/ci/native-pair-lane/mechanics/process_owner_recovery.py",
+      "sha256": "bc95e54e299d8f9d6a17bd3315090e29ab1b76ccc8866ab4445cd614e560b8cd"
+    },
+    "scripts/ci/native-pair-lane/native_selection.py": {
+      "bytes": 29657,
+      "mode": 420,
+      "origin": "source",
+      "remote_path": "scripts/ci/native-pair-lane/native_selection.py",
+      "sha256": "db66c085de55762068edb56304b60890b735cf2c783d9019fe5a77d026387531"
+    },
+    "scripts/ci/native-pair-lane/pair_guardian.py": {
+      "bytes": 22800,
+      "mode": 420,
+      "origin": "source",
+      "remote_path": "scripts/ci/native-pair-lane/pair_guardian.py",
+      "sha256": "a3ce0125a613d574db2ad31401971d7f9dff9dbe24895321b2fe60a41ed31001"
+    },
+    "scripts/ci/native-pair-lane/source_custody.py": {
+      "bytes": 5719,
+      "mode": 420,
+      "origin": "source",
+      "remote_path": "scripts/ci/native-pair-lane/source_custody.py",
+      "sha256": "74b9321b64fa40d753a1a6b9b922404a8e77d1ad864819318ed54c4f3c359fcb"
+    },
+    "scripts/ci/native-pair-lane/worker/bootstrap.py": {
+      "bytes": 26117,
+      "mode": 420,
+      "origin": "source",
+      "remote_path": "scripts/ci/native-pair-lane/worker/bootstrap.py",
+      "sha256": "df03612bcdec9140a6ad09331d37073beec4ef49e09e524df03ec367fec3db51"
+    },
+    "scripts/ci/native-pair-lane/worker/capabilities.py": {
+      "bytes": 26260,
+      "mode": 420,
+      "origin": "source",
+      "remote_path": "scripts/ci/native-pair-lane/worker/capabilities.py",
+      "sha256": "82afc15b554dd64525ee4d4206c55a4f9e3e3c1414107ccc35c8c601d6164149"
+    },
+    "scripts/ci/native-pair-lane/worker/capacity/boundary-followup/capacity_plan.py": {
+      "bytes": 28462,
+      "mode": 420,
+      "origin": "source",
+      "remote_path": "scripts/ci/native-pair-lane/worker/capacity/boundary-followup/capacity_plan.py",
+      "sha256": "b715f014f2a53c5e18160369323a303786c2b362d0a7ba6c54d278fead2d9558"
+    },
+    "scripts/ci/native-pair-lane/worker/checker_bridge.py": {
+      "bytes": 21012,
+      "mode": 420,
+      "origin": "source",
+      "remote_path": "scripts/ci/native-pair-lane/worker/checker_bridge.py",
+      "sha256": "68c42111cc299082a1c8618eec86e3cd0a1de648d38fd0876a8f1bbae717ffeb"
+    },
+    "scripts/ci/native-pair-lane/worker/pair_contract.py": {
+      "bytes": 8342,
+      "mode": 420,
+      "origin": "source",
+      "remote_path": "scripts/ci/native-pair-lane/worker/pair_contract.py",
+      "sha256": "f43dbc3ec6a1480e4065687f7f0a0cfc9a1c5363e146de707858a81f061d867b"
+    },
+    "scripts/ci/native-pair-lane/worker/pair_driver.py": {
+      "bytes": 43261,
+      "mode": 420,
+      "origin": "source",
+      "remote_path": "scripts/ci/native-pair-lane/worker/pair_driver.py",
+      "sha256": "1f969a981908c289c254008fa9c05b538aa5992f0a9240575cd6d4841ef4513a"
+    },
+    "scripts/ci/native-pair-lane/worker/prepare_packet.py": {
+      "bytes": 3125,
+      "mode": 420,
+      "origin": "source",
+      "remote_path": "scripts/ci/native-pair-lane/worker/prepare_packet.py",
+      "sha256": "ff7b23dcef7d322cfe5e2d539ad2045c71bd5178050c3cf2f0e4ccf23cbac061"
+    },
+    "scripts/ci/native-pair-lane/worker/recipe_rows.json": {
+      "bytes": 3491,
+      "mode": 420,
+      "origin": "source",
+      "remote_path": "scripts/ci/native-pair-lane/worker/recipe_rows.json",
+      "sha256": "d44d749724d64c85f363392143cee05fa54b1d057a964aa86793adbac5826753"
+    },
+    "scripts/ci/native-pair-lane/worker/selected/adapter/admission.py": {
+      "bytes": 23877,
+      "mode": 420,
+      "origin": "source",
+      "remote_path": "scripts/ci/native-pair-lane/worker/selected/adapter/admission.py",
+      "sha256": "38abfa9be879df629431035366c6ab7356f30ddb1ee703ca4d7c0c7f50f9d01c"
+    },
+    "scripts/ci/native-pair-lane/worker/selected/adapter/descriptor_ops.py": {
+      "bytes": 24904,
+      "mode": 420,
+      "origin": "source",
+      "remote_path": "scripts/ci/native-pair-lane/worker/selected/adapter/descriptor_ops.py",
+      "sha256": "a6e5709eea97b00a91fcc8a2b6d8a8f61a80c9c4648de0dbdd2b24f9d62e7f48"
+    },
+    "scripts/ci/native-pair-lane/worker/selected/adapter/source_library_loader.py": {
+      "bytes": 21287,
+      "mode": 420,
+      "origin": "source",
+      "remote_path": "scripts/ci/native-pair-lane/worker/selected/adapter/source_library_loader.py",
+      "sha256": "81e99d97dd3260273adcc8c2d069e93b8b4771dd56582469dbce911a3764a591"
+    },
+    "scripts/ci/native-pair-lane/worker/selected/core/artifact_custody.py": {
+      "bytes": 19782,
+      "mode": 420,
+      "origin": "source",
+      "remote_path": "scripts/ci/native-pair-lane/worker/selected/core/artifact_custody.py",
+      "sha256": "67bfcb0f23a21fd5b95726352b17314b6d244583e278120db3dcad0fc6d010b7"
+    },
+    "scripts/ci/native-pair-lane/worker/selected/core/authority.py": {
+      "bytes": 3565,
+      "mode": 420,
+      "origin": "source",
+      "remote_path": "scripts/ci/native-pair-lane/worker/selected/core/authority.py",
+      "sha256": "139d1236ed823a9fd344f6e2485121c53aeadfe79d78cd0fb03ed45b609ac80b"
+    },
+    "scripts/ci/native-pair-lane/worker/selected/core/checker.py": {
+      "bytes": 8202,
+      "mode": 420,
+      "origin": "source",
+      "remote_path": "scripts/ci/native-pair-lane/worker/selected/core/checker.py",
+      "sha256": "8db8314b8720d0dbe34280ee29faec0e38b24b562d774c30710e31a8339d7928"
+    },
+    "scripts/ci/native-pair-lane/worker/selected/core/pair_archive.py": {
+      "bytes": 13669,
+      "mode": 420,
+      "origin": "source",
+      "remote_path": "scripts/ci/native-pair-lane/worker/selected/core/pair_archive.py",
+      "sha256": "b5fd255a8779fccc0b598cabf01743ddc597d2b314703ae1f77f38fcb3c801fe"
+    },
+    "scripts/ci/native-pair-lane/worker/selected/core/pair_compare.py": {
+      "bytes": 12801,
+      "mode": 420,
+      "origin": "source",
+      "remote_path": "scripts/ci/native-pair-lane/worker/selected/core/pair_compare.py",
+      "sha256": "54acd6085d9fb84e5955a6970994a24788fda513ff1de78c3a4baa581eda817f"
+    },
+    "scripts/ci/native-pair-lane/worker/selected/core/zstd_owner.py": {
+      "bytes": 9634,
+      "mode": 420,
+      "origin": "source",
+      "remote_path": "scripts/ci/native-pair-lane/worker/selected/core/zstd_owner.py",
+      "sha256": "d4ee1d5fe577da85dfbebd159b3784b69c14d02c94c7cf7b3b80a6467cd7716f"
+    },
+    "scripts/ci/native-pair-lane/worker/selected/entry.sh": {
+      "bytes": 1787,
+      "mode": 420,
+      "origin": "source",
+      "remote_path": "scripts/ci/native-pair-lane/worker/selected/entry.sh",
+      "sha256": "89723f0a0b2ef80391160f451e877f15fb1e0c4d9a4fec6dbbb8e0d66d8d0f24"
+    },
+    "scripts/ci/native-pair-lane/worker/worker_entry.py": {
+      "bytes": 5768,
+      "mode": 420,
+      "origin": "source",
+      "remote_path": "scripts/ci/native-pair-lane/worker/worker_entry.py",
+      "sha256": "46046f7285eee9c511d4a41a40dbb171971b0ebb8467cd166b5639d80f600960"
+    }
+  },
+  "schema": 1,
+  "scope": "standalone-original501-topmem-fish-pairs"
+}

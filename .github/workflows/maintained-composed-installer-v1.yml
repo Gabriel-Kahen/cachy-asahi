@@ -1,9 +1,7 @@
-# Proposed outside-union workflow. CodeCommit is Root-selected and verified;
-# future Source/Data identities and exact external plan registration remain required.
-name: maintained-composed-installer-v1
+name: native-topmem-fish-current-registered-v1
 on:
   push:
-    branches: [codex/maintained-composed-execution-v1]
+    branches: [codex/native-topmem-fish-current-registered-v1]
   workflow_dispatch:
 permissions:
   contents: read
@@ -11,17 +9,18 @@ concurrency:
   group: native-arm-build
   cancel-in-progress: false
 jobs:
-  maintained:
-    if: github.repository == 'Gabriel-Kahen/cachy-asahi' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/codex/maintained-composed-execution-v1' && github.event.repository.private == false
+  pairs:
+    if: github.repository == 'Gabriel-Kahen/cachy-asahi' && github.ref == 'refs/heads/codex/native-topmem-fish-current-registered-v1' && github.event.repository.private == false
     runs-on: ubuntu-24.04-arm
-    timeout-minutes: 190
+    timeout-minutes: 125
     env:
       PYTHONDONTWRITEBYTECODE: '1'
-      ROOT_REGISTERED_MAINTAINED_COMPOSED_PLAN_B64: ${{ vars.MAINTAINED_COMPOSED_ROOT_PLAN_B64 }}
-      ROOT_REGISTERED_MAINTAINED_COMPOSED_PLAN_SHA256: ${{ vars.MAINTAINED_COMPOSED_ROOT_PLAN_SHA256 }}
+      ROOT_REGISTERED_PAIR_PLAN_B64: ${{ vars.NATIVE_PAIR_ROOT_PLAN_B64 }}
+      ROOT_REGISTERED_PAIR_PLAN_SHA256: ${{ vars.NATIVE_PAIR_ROOT_PLAN_SHA256 }}
     steps:
-      - name: Invoke the Root-selected maintained composition
-        timeout-minutes: 185
+      - name: Invoke registered standalone original501 pair lane
+        id: invoke
+        timeout-minutes: 122
         shell: bash
         env:
           CACHY_OLD_FOUR_SCHEMA: '1'
@@ -47,159 +46,204 @@ jobs:
           CACHY_OLD_FOUR_LIBTIFF_SIG_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_SIG_01 }}
         run: |
           set -euo pipefail
-          python3 -I -B - <<'PYTHON'
-          """Root workflow entry; external registration is required before invocation."""
+          /usr/bin/python3 -I -B - <<'PYTHON'
           import time
-          PREPARATION_ENTRY = time.monotonic()  # Before trusted delivery or imports.
+          ORIGINAL_ENTRY = time.monotonic()
+          """Pinned workflow bootstrap; same original start covers all Source delivery."""
           import base64
           import hashlib
           import json
           import math
           import os
+          from pathlib import Path
           import re
-          import signal
+          import stat
           import sys
-          import types
+          import time
+          from types import ModuleType
           import urllib.request
-          from contextlib import contextmanager
-
+          import uuid
+          
           REPOSITORY = 'Gabriel-Kahen/cachy-asahi'
-          CODE_COMMIT = '677d3ba97398ad99c4bd1063f83862eaf8d981d6'
-          LAUNCHER_PATH = '.github/bootstrap/development-launcher.py'
-          LAUNCHER_SHA = 'dd6a119f596cd2cd56b3d50587be6cb3bf47a24f9e5020c1cee481351bda9c8b'
-          LAUNCHER_BYTES = 26653
-          BOOTSTRAP_SHA = '1675fa4834f556f1eec5d10f2f53b20d0475dd1a922b4c80fb0adc38f95e9391'
-          ISSUER_SHA = '9e3271b8cb21e7be1940c2aa9f17f84357d0a438ed45a19ad34ae226ec9d4581'
-          EXECUTION_REF = 'refs/heads/codex/maintained-composed-execution-v1'
-          COMPOSITION = 'installer-preflight-maintained-v1'
-          PACKET_SHA = '9d5a7dc25fd44e127c457c72addb28272b1eb1f5391c4c5b8d5b0a226a3be048'
-          PLAN_ENV = 'ROOT_REGISTERED_MAINTAINED_COMPOSED_PLAN_B64'
-          PIN_ENV = 'ROOT_REGISTERED_MAINTAINED_COMPOSED_PLAN_SHA256'
-
-
-          def need(value, code):
-              if not value: raise ValueError(code)
-
-
-          def full_pin(value, width):
-              need(type(value) is str and re.fullmatch('[0-9a-f]{'+str(width)+'}', value), 'Root-registration-pin')
-              return value
-
-
-          def live(end):
-              need(type(end) is float and math.isfinite(end) and time.monotonic() < end, 'Root-preparation-deadline')
-
-
-          def registered_plan(environment):
-              # These two environment fields come only from Root-managed repository vars
-              # in the reviewed workflow. No workflow_dispatch input is an authority source.
-              encoded = environment.get(PLAN_ENV); expected = full_pin(environment.get(PIN_ENV), 64)
-              need(type(encoded) is str and 0 < len(encoded) <= 10924 and encoded.isascii(), 'Root-plan-bytes')
-              raw = base64.b64decode(encoded, validate=True)
-              need(0 < len(raw) <= 8192 and base64.b64encode(raw).decode('ascii') == encoded, 'Root-plan-base64')
-              need(hashlib.sha256(raw).hexdigest() == expected, 'Root-plan-pin')
-              def pairs(rows):
+          REF = 'refs/heads/codex/native-topmem-fish-current-registered-v1'
+          BASE = '0744f413f47c82e4a5de16e4a16dba0962747483'
+          DATA = 'ea1db6b5277d755630568a7fd19f484b0bccacbe'
+          MANIFEST = 'scripts/ci/native-pair-lane/source.lock.json'
+          RETAINED = []
+          
+          
+          def need(ok, code):
+              if not ok: raise ValueError(code)
+          
+          
+          def decode(raw):
+              def pairs(items):
                   result = {}
-                  for key, value in rows:
-                      need(key not in result, 'Root-plan-duplicate'); result[key] = value
+                  for key, value in items:
+                      need(key not in result, 'bootstrap-duplicate-json'); result[key] = value
                   return result
-              def constant(value): raise ValueError('Root-plan-nonfinite')
-              plan = json.loads(raw, object_pairs_hook=pairs, parse_constant=constant)
-              need(type(plan) is dict and set(plan) == {'root_pins','code_commit','data_commit','composition',
-                  'git_sha256','development_sha256'}, 'Root-plan-fields')
-              pins = plan['root_pins']
-              need(type(pins) is dict and set(pins) == {'selection_sha256','peer_receipt_sha256',
-                  'source_rows_sha256','source_commit','cli_sha256'}, 'Root-plan-root-pins')
-              for key in ('selection_sha256','peer_receipt_sha256','source_rows_sha256','cli_sha256'): full_pin(pins[key],64)
-              source = full_pin(pins['source_commit'],40)
-              full_pin(plan['data_commit'],40); full_pin(plan['git_sha256'],64); full_pin(plan['development_sha256'],64)
-              need(full_pin(CODE_COMMIT,40) == full_pin(plan['code_commit'],40) and
-                  len({CODE_COMMIT,source,plan['data_commit']}) == 3, 'Root-Code-Source-Data-binding')
-              need(environment.get('GITHUB_EVENT_NAME') in ('push','workflow_dispatch') and
-                  environment.get('GITHUB_REF') == EXECUTION_REF, 'Root-execution-trigger')
-              need(environment.get('GITHUB_REPOSITORY') == REPOSITORY and
-                  environment.get('GITHUB_SHA') == environment.get('GITHUB_WORKFLOW_SHA') == source, 'Root-workflow-SourceCommit')
-              need(plan['composition'] == COMPOSITION and plan['development_sha256'] == PACKET_SHA, 'Root-mode-packet-binding')
-              return plan
-
-
-          @contextmanager
-          def preparation(end):
-              # Only initial trusted-body delivery/imports. Source3 owns all later signals,
-              # workspace descriptors, J, E, process cleanup and bounded publication.
-              need(signal.getitimer(signal.ITIMER_REAL) == (0.0,0.0), 'Root-existing-timer')
-              previous = signal.getsignal(signal.SIGALRM)
-              def expired(number, frame): raise TimeoutError('Root-preparation-deadline')
-              installed = False
-              try:
-                  live(end); signal.signal(signal.SIGALRM,expired); installed = True
-                  remaining = end-time.monotonic(); need(remaining > 0, 'Root-preparation-deadline')
-                  signal.setitimer(signal.ITIMER_REAL,remaining); yield
-              finally:
-                  cause = sys.exc_info()[1]; first = None
-                  if installed:
-                      try: signal.setitimer(signal.ITIMER_REAL,0)
-                      except BaseException as error: first = error
-                      try: signal.signal(signal.SIGALRM,previous)
-                      except BaseException as error:
-                          if first is None: first = error
-                  if cause is None and first is not None: raise first
-
-
-          class NoRedirect(urllib.request.HTTPRedirectHandler):
-              def redirect_request(self,*args,**kwargs): raise ValueError('Root-launcher-redirect')
-
-
-          def fetch_launcher(commit,end):
-              live(end); full_pin(commit,40)
-              url = 'https://raw.githubusercontent.com/'+REPOSITORY+'/'+commit+'/'+LAUNCHER_PATH
-              opener = urllib.request.build_opener(urllib.request.ProxyHandler({}),NoRedirect())
-              request = urllib.request.Request(url,headers={'Accept-Encoding':'identity'})
-              with opener.open(request,timeout=max(0.001,end-time.monotonic())) as reply:
-                  need(reply.status == 200 and reply.geturl() == url and
-                      reply.headers.get('Content-Encoding') in (None,'identity'), 'Root-launcher-origin')
-                  raw = bytearray()
+              return json.loads(raw, object_pairs_hook=pairs, parse_constant=lambda _: need(False, 'bootstrap-nonfinite-json'))
+          
+          
+          class Delivery:
+              def __init__(self, start):
+                  self.start, self.E, self.J, self.last, self.first = start, start + 6840, start + 7200, None, None
+                  self.requested = 0; self.resources = []
+              def check(self):
+                  if self.first is not None: raise self.first
+                  try:
+                      now = time.monotonic()
+                      need(type(now) in (int, float) and math.isfinite(now) and self.start <= now < self.E
+                           and (self.last is None or now >= self.last), 'bootstrap-original-cutoff')
+                      self.last = now
+                  except BaseException as error: self.first = error; raise
+              def call(self, action, *args, **kwargs):
+                  self.check()
+                  try: value = action(*args, **kwargs)
+                  except BaseException as error: self.first = error; raise
+                  self.check(); return value
+              def publication_check(self):
+                  now = time.monotonic()
+                  need(type(now) in (int, float) and math.isfinite(now) and self.start <= now < self.J
+                       and (self.last is None or now >= self.last), 'bootstrap-original-publication-cutoff')
+                  self.last = now
+              def publication_call(self, action, *args, **kwargs):
+                  self.publication_check()
+                  value = action(*args, **kwargs)
+                  self.publication_check(); return value
+              def stream(self, path, mode):
+                  slot = {'stream': None, 'path': str(path)}; self.resources.append(slot)
+                  self.check(); slot['stream'] = open(path, mode, encoding='utf-8'); self.check()
+                  return slot
+              def download(self, commit, name, cap):
+                  need(re.fullmatch('[0-9a-f]{40}', commit) and not name.startswith('/') and
+                       all(p not in ('', '.', '..') for p in name.split('/')), 'bootstrap-Source-URL')
+                  url = 'https://raw.githubusercontent.com/' + REPOSITORY + '/' + commit + '/' + name
+                  class NoRedirect(urllib.request.HTTPRedirectHandler):
+                      def redirect_request(self, *args, **kwargs): raise ValueError('bootstrap-redirect-refused')
+                  opener = self.call(urllib.request.build_opener, urllib.request.ProxyHandler({}), NoRedirect())
+                  slot = {'response': None}; self.resources.append(slot)
+                  self.check(); slot['response'] = opener.open(url, timeout=30); self.check()
+                  need(slot['response'].geturl() == url, 'bootstrap-response-origin')
+                  data = bytearray()
                   while True:
-                      live(end); part = reply.read1(min(65536,LAUNCHER_BYTES+1-len(raw)))
-                      if not part: break
-                      raw.extend(part); need(len(raw) <= LAUNCHER_BYTES,'Root-launcher-size')
-              live(end)
-              need(len(raw) == LAUNCHER_BYTES and hashlib.sha256(raw).hexdigest() == LAUNCHER_SHA,'Root-launcher-pin')
-              return bytes(raw)
-
-
-          def load_launcher(raw):
-              need(type(raw) is bytes and len(raw) == LAUNCHER_BYTES and
-                  hashlib.sha256(raw).hexdigest() == LAUNCHER_SHA,'Root-launcher-pin')
-              launcher = types.ModuleType('Root_pinned_maintained_launcher')
-              exec(compile(raw,'<Root-pinned-maintained-launcher>','exec'),launcher.__dict__)
-              need(launcher.BOOTSTRAP_SHA == BOOTSTRAP_SHA and launcher.ISSUER_SHA == ISSUER_SHA,
-                  'Root-Source3-body-pins')
-              return launcher
-
-
-          def invoke(environment,*,entry=PREPARATION_ENTRY):
-              need(type(entry) is float and math.isfinite(entry) and 0 < entry <= time.monotonic(),'Root-preparation-entry')
-              end = entry + 60.0
-              with preparation(end):
-                  plan = registered_plan(environment); live(end)
-                  launcher = load_launcher(fetch_launcher(plan['code_commit'],end)); live(end)
-              # No renewed entry or clock. Source3 checks this same original entry+60.
-              result = launcher.launch_composed(plan,environment,preparation_entry=entry)
-              need(type(result) is dict and type(result.get('controller_exit_code')) is int and
-                  0 <= result['controller_exit_code'] <= 255,'Root-controller-exit')
-              return result
-
-
-          def main():
-              result = invoke(dict(os.environ))
-              # Controller streaming already carries its bounded status/publication evidence.
-              # This summary is process outcome, not whole-port or hardware admission.
-              keys = ('controller_exit_code','retained_cutoff','workflow_end','code_commit','source_commit',
-                      'data_commit','composition','baseline_id','lineage')
-              print('MAINTAINED_COMPOSED_LAUNCH_RESULT='+json.dumps({k:result[k] for k in keys},sort_keys=True,allow_nan=False),flush=True)
-              return result['controller_exit_code']
-
-
-          if __name__ == '__main__': raise SystemExit(main())
+                      block = self.call(slot['response'].read, min(65536, cap + 1 - len(data)))
+                      if not block: break
+                      data.extend(block); self.requested += len(block)
+                      need(len(data) <= cap and self.requested <= 16 * 1024**2, 'bootstrap-delivery-cap')
+                  self.call(slot['response'].close); self.resources.remove(slot); return bytes(data)
+          
+          
+          def registered_plan(environment):
+              raw_b64 = environment.get('ROOT_REGISTERED_PAIR_PLAN_B64', '')
+              pin = environment.get('ROOT_REGISTERED_PAIR_PLAN_SHA256', '')
+              need(type(raw_b64) is str and len(raw_b64) <= 10924 and re.fullmatch('[0-9a-f]{64}', pin), 'bootstrap-Root-registration')
+              raw = base64.b64decode(raw_b64, validate=True)
+              need(0 < len(raw) <= 8192 and base64.b64encode(raw).decode() == raw_b64 and hashlib.sha256(raw).hexdigest() == pin,
+                   'bootstrap-Root-plan-pin')
+              plan = decode(raw)
+              need(type(plan) is dict and set(plan) == {'schema', 'lane', 'source_commit', 'data_commit',
+                   'base_source_commit', 'ref', 'manifest_sha256', 'peer_receipt_sha256'} and type(plan['schema']) is int and plan['schema'] == 1
+                   and plan['lane'] == 'native-topmem-fish-current-registered-v1' and plan['ref'] == REF
+                   and plan['base_source_commit'] == BASE and plan['data_commit'] == DATA, 'bootstrap-Root-plan-shape')
+              need(re.fullmatch('[0-9a-f]{40}', plan['source_commit']) and
+                   all(re.fullmatch('[0-9a-f]{64}', plan[k]) and plan[k] != '0' * 64
+                       for k in ('manifest_sha256', 'peer_receipt_sha256')), 'bootstrap-Root-plan-fields')
+              need(environment.get('GITHUB_REPOSITORY') == REPOSITORY and environment.get('GITHUB_REF') == REF and
+                   environment.get('GITHUB_EVENT_NAME') in ('push', 'workflow_dispatch') and
+                   environment.get('GITHUB_SHA') == environment.get('GITHUB_WORKFLOW_SHA') == plan['source_commit'], 'bootstrap-job-binding')
+              for name, pattern in (('GITHUB_RUN_ID', '[1-9][0-9]{0,19}'), ('GITHUB_RUN_ATTEMPT', '[1-9][0-9]{0,9}')):
+                  need(re.fullmatch(pattern, environment.get(name, '')), 'bootstrap-run-field')
+              return plan
+          
+          
+          def execute(original_entry):
+              delivery = Delivery(original_entry); RETAINED.append(delivery)
+              plan = delivery.call(registered_plan, os.environ)
+              nonce = delivery.call(lambda: uuid.uuid4().hex)
+              manifest_raw = delivery.download(plan['source_commit'], MANIFEST, 256 * 1024)
+              need(hashlib.sha256(manifest_raw).hexdigest() == plan['manifest_sha256'], 'bootstrap-registered-Source-manifest')
+              manifest = delivery.call(decode, manifest_raw)
+              need(type(manifest) is dict and set(manifest) == {'schema', 'scope', 'files'} and manifest['schema'] == 1 and
+                   manifest['scope'] == 'standalone-original501-topmem-fish-pairs' and
+                   type(manifest['files']) is dict and 0 < len(manifest['files']) <= 128, 'bootstrap-Source-manifest-shape')
+              temporary = Path(os.environ['RUNNER_TEMP'])
+              uid = delivery.call(os.getuid); before = delivery.call(os.lstat, temporary)
+              need(stat.S_ISDIR(before.st_mode) and before.st_uid == uid and not before.st_mode & 0o022, 'bootstrap-owned-temporary-parent')
+              scratch = temporary / ('registered-pair-' + nonce); root = scratch / 'source'
+              delivery.call(os.mkdir, scratch, 0o700); delivery.call(os.mkdir, root, 0o700)
+              rows, payloads = {}, {}
+              for name, row in sorted(manifest['files'].items()):
+                  need(type(row) is dict and set(row) == {'bytes', 'mode', 'sha256', 'origin', 'remote_path'} and
+                       type(row['bytes']) is int and 0 <= row['bytes'] <= 8 * 1024**2 and row['mode'] in (0o644, 0o755) and
+                       re.fullmatch('[0-9a-f]{64}', row['sha256']) and row['origin'] in ('source', 'data'), 'bootstrap-Source-row')
+                  need(not name.startswith('/') and all(p not in ('', '.', '..') for p in name.split('/')), 'bootstrap-Source-destination')
+                  raw = delivery.download(plan['source_commit'] if row['origin'] == 'source' else DATA, row['remote_path'], row['bytes'])
+                  need(len(raw) == row['bytes'] and hashlib.sha256(raw).hexdigest() == row['sha256'], 'bootstrap-Source-byte-pin')
+                  path = root / name
+                  delivery.call(path.parent.mkdir, parents=True, exist_ok=True, mode=0o700)
+                  slot = {'fd': None, 'path': str(path)}; delivery.resources.append(slot)
+                  delivery.check(); slot['fd'] = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW | os.O_CLOEXEC, row['mode']); delivery.check()
+                  position = 0
+                  while position < len(raw):
+                      count = delivery.call(os.write, slot['fd'], raw[position:position + 65536]); need(count > 0, 'bootstrap-short-write'); position += count
+                  delivery.call(os.fchmod, slot['fd'], row['mode'])
+                  delivery.call(os.fsync, slot['fd']); delivery.call(os.close, slot['fd']); delivery.resources.remove(slot)
+                  rows[name] = {k: row[k] for k in ('bytes', 'mode', 'sha256')}
+                  payloads[name] = raw
+              # Only these already pinned Sources are initialized by the trusted workflow
+              # bootstrap. Subsequent module delivery uses concrete held Source custody.
+              modules = {}
+              for filename in ('lane_clock.py', 'source_custody.py', 'lane.py'):
+                  name = 'scripts/ci/native-pair-lane/' + filename; module = delivery.call(ModuleType, '_pair_boot_' + nonce + '_' + filename[:-3])
+                  module.__file__ = str(root / name); sys.modules[module.__name__] = module
+                  raw = payloads[name]
+                  need(hashlib.sha256(raw).hexdigest() == rows[name]['sha256'], 'bootstrap-entry-pin')
+                  code = delivery.call(compile, raw, module.__file__, 'exec', dont_inherit=True)
+                  delivery.call(exec, code, module.__dict__); modules[filename] = module
+              result_path = scratch / 'pair-result.json'
+              exported_slot = delivery.stream(os.environ['GITHUB_OUTPUT'], 'a')
+              exported = exported_slot['stream']
+              delivery.call(exported.write, 'evidence_root=' + str(scratch) + '\nacquisition_path=/home/runner/cpe-' + nonce + '/acquisition.json\n')
+              delivery.call(exported.flush); delivery.call(exported.close); delivery.resources.remove(exported_slot)
+              old_stdout = sys.stdout
+              output_slot = delivery.stream(result_path, 'x'); output = output_slot['stream']
+              sys.stdout = output; primary = None
+              try:
+                  modules['lane.py'].run(str(root), rows, plan, original_entry, nonce, str(scratch),
+                      clock_type=modules['lane_clock.py'].OriginalClock, source_type=modules['source_custody.py'].Sources)
+              except BaseException as error:
+                  primary = error
+                  # No secret values, cache bytes or speculative PASS is retained here.
+                  try:
+                      delivery.publication_check()
+                      failure = {'status': 'PAIR_FAIL', 'scope': manifest['scope'], 'source_commit': plan['source_commit'],
+                                 'first_failure_type': type(error).__name__, 'original_start': original_entry, 'original_J': delivery.J}
+                      delivery.publication_call((scratch / 'failure.json').write_text, json.dumps(failure, sort_keys=True) + '\n')
+                  except BaseException:
+                      pass  # The primary failure survives; uncertain resources stay retained.
+                  raise
+              finally:
+                  sys.stdout = old_stdout
+                  try:
+                      delivery.publication_call(output.close); delivery.resources.remove(output_slot)
+                  except BaseException:
+                      if primary is not None: raise primary
+                      raise
+              delivery.publication_check()
+              RETAINED.remove(delivery)
+              return 0
+          
+          raise SystemExit(execute(ORIGINAL_ENTRY))
           PYTHON
+      - name: Retain pair-only metadata
+        if: always() && steps.invoke.outputs.evidence_root != ''
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: original501-topmem-fish-pair-metadata-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ steps.invoke.outputs.evidence_root }}/pair-result.json
+            ${{ steps.invoke.outputs.evidence_root }}/failure.json
+            ${{ steps.invoke.outputs.acquisition_path }}
+          if-no-files-found: error
+          retention-days: 30
