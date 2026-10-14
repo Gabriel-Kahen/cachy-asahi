@@ -2,6 +2,26 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 14, accepted native FDK development checkpoint: actual trial
+`38623533412` completes SUCCESS on Source `220b4eb2`. Fresh review `a480fe8d`
+passes36 checks plus4 pure malformed-vector controls. Root authenticates151
+owned/20 external rows,139 committed Source objects and14 retained leaves.
+Both native workers return verified zero/STATIC_PASS and the comparison returns
+verified zero/COMPLETE. Scoped cleanup and image absence pass separately.
+The selected Source gates native ELF screening and a classic AAC roundtrip;
+xHE is configuration-only. Exact private package hashes/counts/logs are not
+exported or replayed, and397 natural observations are not397 zero outcomes.
+One native FDK development pair is accepted. Installation, M2, performance,
+source/license delivery and repository publication remain open. Earlier failed
+FDK trials stay failed. A bounded provenance-export proposal is underway.
+
+Composed review `c1a94e18` authenticates382 leaves/41 inputs for actualFAIL
+`38614475627`: IMAGE_HANDOFF/IMAGE_CONFIG/POLICY_FIELDS, initial controllerFAIL
+despite seven componentPASS fields; downstream NOT RUN. Updater review
+`0d883e79` authenticates19 leaves/23 inputs for actualFAIL `38617063734`,
+worker-1/ValueError, deeper causeUNKNOWN and scoped cleanupPASS. Separate
+Source diagnosis follows those actual boundaries; no broad acceptance follows.
+
 October 14, pretrial workflow correction checkpoint: Source `857aa6aa` fixes
 one P0 workflow read-limit constant. A focused exact-loop reproducer shows
 published2408 truncating the66238-byte driver at66168; the new66239 bound reads
