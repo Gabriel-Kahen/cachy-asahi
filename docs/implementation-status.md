@@ -2,6 +2,34 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 14, current native checkpoint (14:55 UTC): screenshot candidate run
+`38571648129`, Source `92a3f061`, completes CI successfully. Completion
+`05cd9495` retains two public frames; independent candidate/build review is
+in progress. This is not real screenshot execution or M2 acceptance.
+
+Library run `38560924092` fails strict JBIG output length validation:
+expected 109999 bytes, observed 109846. No digest comparison or new library
+build is reached. Identical-tar codec countermodels motivate a canonical
+gzip correction under review; the native codec remains unknown. KSM run
+`38561918431` reports TypeError at NATIVE_ENTRY, zero RPC and uncertain
+cleanup. Its precise operand remains unknown; Source review continues.
+
+Updater `38564810704`, composed `38566446597`, Pair `38572139973` and Zsh
+`38573732820` have completed with failure; exact logs and metadata are
+retained and assigned independent review. No old failure cause is transferred.
+Kernel schema4 propagation correction passes peer `989652b4`, is published
+as Source `a311de55` with packet `ef624894`, and trial `38583969397` is running.
+FDK `38574961503` is running; CLI `38578019953` is queued.
+
+Installer P0 entry and its two reviewed caller/bridge corrections are published
+as Source `92d00c29` on the isolated runtime branch, draft PR23. The original
+60-second contract and live SDK Session requirement are preserved. Routing
+remains under implementation. External runtime peer `a84e08c5` passes P0
+independently and finds one keyless early-cancellation classification defect;
+a corrective successor is underway. No signer runtime or 26-case native
+matrix is executed. Full R1–R5/M5–M9/A01–A15 development remains active.
+
+
 
 
 
