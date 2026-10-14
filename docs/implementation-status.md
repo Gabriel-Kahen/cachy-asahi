@@ -2,6 +2,28 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 14, 06:45 UTC: kernel recovery Source `56bd0ab9` is published after
+independent peer `437378f3` authenticates the seventeen-copy successor and passes
+seventeen focused groups. Root verifies all 124 committed Source rows plus
+packet `d4c440a4`. Native ARM run `38523856782` passes checkout and packet/host
+preflight, then enters the original producer and kernel experiment. Its separate
+kernel concurrency group preserves the library run and pending Topmem/Fish job.
+No kernel compilation, runtime, target performance or M2 result is inferred.
+
+The complete passive signer observation passes independent actual gate review
+`30b16970`, including seventeen semantic corruption controls. Root authenticates
+three leaves, the guide and 24 retained inputs, and accepts passive data under
+receipt `9f46925b`. Selection and execution grants remain false. Receiver adapter
+`65454e33` changes only three Source13 bodies, passes thirty focused cases and
+preserves factories, six commands and original deadlines; independent review and
+concrete trusted compile binding remain pending.
+
+A minimal future native queue policy proposal preserves cancel/deadline/actor
+gates while allowing multiple pending jobs. Mixed old/new policy behavior is
+undocumented, so activation remains held until the existing pending pair starts.
+All R1–R5/M5–M9, complete source correspondence, installation/recovery, measured
+performance and both M2 Air sizes remain required. Development remains ACTIVE.
+
 October 14, 06:25 UTC: the narrow empty-stdlib correction is published as
 Source `1294a456`, after Root authenticates author `b7ea54d4`, independent
 peer `8feab6ff`, all ten committed byte/mode rows and the scoped source changes.
