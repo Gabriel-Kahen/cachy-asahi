@@ -1,0 +1,209 @@
+{
+  "baseline_inputs_sha256": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f",
+  "builder_extension_candidate_sha256": "25c16069a9e8efd0a06cedb75328518c8ded6c1fe53329a525b8da8d90492026",
+  "builder_extensions": [
+    {
+      "archive": {
+        "bytes": 23320952,
+        "filename": "cmake-4.4.4-1-aarch64.pkg.tar.xz",
+        "sha256": "d03c7956ca35408d50b3bf72a318386e44a07331bf3ab61e9f598a1c4b33086b",
+        "url": "https://mirror.archlinuxarm.org/aarch64/extra/cmake-4.4.4-1-aarch64.pkg.tar.xz"
+      },
+      "depends": [
+        "cppdap",
+        "curl",
+        "expat",
+        "glibc",
+        "hicolor-icon-theme",
+        "jsoncpp",
+        "libarchive",
+        "libgcc",
+        "libstdc++",
+        "libuv",
+        "ncurses",
+        "rhash",
+        "zlib"
+      ],
+      "depends_member_sha256": "163d88b9c79af9f5418249e48c38d86889c0cd92c63950d715da323614152a2a",
+      "name": "cmake",
+      "provides": [],
+      "role": "builder-only dependency; no release or payload export admission",
+      "signature": {
+        "bytes": 566,
+        "filename": "cmake-4.4.4-1-aarch64.pkg.tar.xz.sig",
+        "sha256": "4f326e1292a9dba67c7e773e2909ef43e10bbd89c87dfd1542a4fa90e64cb1f6",
+        "url": "https://mirror.archlinuxarm.org/aarch64/extra/cmake-4.4.4-1-aarch64.pkg.tar.xz.sig"
+      },
+      "source_member_sha256": "2ea52621e10b0fb79ddf2a8ea355266a0a172ebc2045206ad06beb11d5cdd02d",
+      "version": "4.4.4-1"
+    },
+    {
+      "archive": {
+        "bytes": 316428,
+        "filename": "cppdap-1.58.0-3-aarch64.pkg.tar.xz",
+        "sha256": "daf4c7990af45016ffa92b9af8f995dd816ef9755e181dc634a6aab15452cdab",
+        "url": "https://mirror.archlinuxarm.org/aarch64/extra/cppdap-1.58.0-3-aarch64.pkg.tar.xz"
+      },
+      "depends": [
+        "glibc",
+        "libgcc",
+        "libstdc++"
+      ],
+      "depends_member_sha256": "95888cdfb02a3c164166e431d2a53636c6dabb244e77711695964ddeb951877b",
+      "name": "cppdap",
+      "provides": [],
+      "role": "builder-only dependency; no release or payload export admission",
+      "signature": {
+        "bytes": 566,
+        "filename": "cppdap-1.58.0-3-aarch64.pkg.tar.xz.sig",
+        "sha256": "d1cc43c39ca388a515833c63eda18833779d38b85e42a31ff732ee26b3ca4b2b",
+        "url": "https://mirror.archlinuxarm.org/aarch64/extra/cppdap-1.58.0-3-aarch64.pkg.tar.xz.sig"
+      },
+      "source_member_sha256": "15646dda1b7eaffd02190a0a62cdc58f1119adf41f7f726a65e910c5b5b2140b",
+      "version": "1.58.0-3"
+    },
+    {
+      "archive": {
+        "bytes": 136220,
+        "filename": "jsoncpp-1.9.8-1-aarch64.pkg.tar.xz",
+        "sha256": "d013ab87d21e0cbcf284772523f08c373d14c0a50ad708bdd28e5f727a684395",
+        "url": "https://mirror.archlinuxarm.org/aarch64/extra/jsoncpp-1.9.8-1-aarch64.pkg.tar.xz"
+      },
+      "depends": [
+        "glibc",
+        "libgcc",
+        "libstdc++"
+      ],
+      "depends_member_sha256": "5ae90489f15e226ff0829be2e43126db74c6096e57a59abe1069d2f404454021",
+      "name": "jsoncpp",
+      "provides": [
+        "libjsoncpp.so=27-64"
+      ],
+      "role": "builder-only dependency; no release or payload export admission",
+      "signature": {
+        "bytes": 566,
+        "filename": "jsoncpp-1.9.8-1-aarch64.pkg.tar.xz.sig",
+        "sha256": "d9154732b87135f20aff334e7634e10e0f34f31c1edb65bbb16e45c553e46732",
+        "url": "https://mirror.archlinuxarm.org/aarch64/extra/jsoncpp-1.9.8-1-aarch64.pkg.tar.xz.sig"
+      },
+      "source_member_sha256": "094379dca80d7e523ed63ac1dcaa1334355f1d2e22beb3f87a8e61ce48d3266d",
+      "version": "1.9.8-1"
+    },
+    {
+      "archive": {
+        "bytes": 252776,
+        "filename": "libuv-1.52.1-2-aarch64.pkg.tar.xz",
+        "sha256": "b7ef4dd7c5dd724a71ad37a28640057cc75988cf8f49b605d3b6b468ef2ee854",
+        "url": "https://mirror.archlinuxarm.org/aarch64/extra/libuv-1.52.1-2-aarch64.pkg.tar.xz"
+      },
+      "depends": [
+        "glibc",
+        "libnsl"
+      ],
+      "depends_member_sha256": "841ec505b0e1e643bcdaf9f41f39f2be0420bb30d1878691369fb6f5d39103e7",
+      "name": "libuv",
+      "provides": [],
+      "role": "builder-only dependency; no release or payload export admission",
+      "signature": {
+        "bytes": 566,
+        "filename": "libuv-1.52.1-2-aarch64.pkg.tar.xz.sig",
+        "sha256": "8d77a301695203bc18aa251413a267f88f0f6d3a880218e188b8b20ba4587784",
+        "url": "https://mirror.archlinuxarm.org/aarch64/extra/libuv-1.52.1-2-aarch64.pkg.tar.xz.sig"
+      },
+      "source_member_sha256": "5dc5a6f10efe966a20b0231daf8e09c45805fa46f38201967cfb053d5e7a8918",
+      "version": "1.52.1-2"
+    },
+    {
+      "archive": {
+        "bytes": 173616,
+        "filename": "rhash-1.4.6-1-aarch64.pkg.tar.xz",
+        "sha256": "ceaaa210a8a222d724971709e928b9a0c1cbb3d7838c94ec8719b14a37280260",
+        "url": "https://mirror.archlinuxarm.org/aarch64/extra/rhash-1.4.6-1-aarch64.pkg.tar.xz"
+      },
+      "depends": [
+        "glibc"
+      ],
+      "depends_member_sha256": "2e28c04631cdc4202a447329342bdc8103c7b6483de5fb096c31ec2f4a2ad800",
+      "name": "rhash",
+      "provides": [
+        "librhash.so=1-64"
+      ],
+      "role": "builder-only dependency; no release or payload export admission",
+      "signature": {
+        "bytes": 566,
+        "filename": "rhash-1.4.6-1-aarch64.pkg.tar.xz.sig",
+        "sha256": "02107c03b9eea1d5e0a7efa5c6d8db3ed779d201b8faa8f7299bd6756ce513f5",
+        "url": "https://mirror.archlinuxarm.org/aarch64/extra/rhash-1.4.6-1-aarch64.pkg.tar.xz.sig"
+      },
+      "source_member_sha256": "c2956f0557b9ee80b4c8d5796906e83aee2083dc4956010ea87c56c9e4ac41d5",
+      "version": "1.4.6-1"
+    }
+  ],
+  "builder_extensions_status": "EXACT_STATIC_FIVE_CANDIDATES_RUNTIME14GET_FIVE_CRYPTO_AND_PACKAGE_GATES_REQUIRED",
+  "materialization_plan_sha256": "557214038227f80762cec07a2b98cbb66d4a6ea9a0bc12ee3679a842fa6ddb96",
+  "materializer_source_sha256": "a73f1571fe417e14db90ef00c147146fa0f67de7c3bc8b012636de04176931e1",
+  "public_promotion": false,
+  "purpose": "private-project-jbigkit-libtiff-native-builds",
+  "recipes": {
+    "jbigkit": {
+      "epoch": 1791585070,
+      "inputs": {
+        "COPYING": "91df39d1816bfb17a4dda2d3d2c83b1f6f2d38d53e53e41e8f97ad5ac46a0cad",
+        "LICENSE.recipe": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+        "NOTICE": "091b618c777879a3a510015da3e59608c49f85ea6f377521bf54193afbb210eb",
+        "PKGBUILD": "adebfdb5a3584a18754da2530fc2d66fdfb1e30afa779a0d88e926e510124eb9",
+        "PUBLICATION.md": "e72663a7aa17b92a8232d4d8fc03d6cb614df4b30edea182463db251bc5d2b81",
+        "inputs.json": "577fea4fac15648beae140f64e2ef8bf14d8d8a02d9bc406483f6c509bdf61c8",
+        "jbigkit-2.2-project-filtered.tar.gz": "b9de615842035efd64d8718cce4b5daa01764dc0b04380ba52e1d30d1f9d2945",
+        "jbigkit-2.2-shared_lib.patch": "58d80618c27dd089a2f3db87d91bf37fa443d1ef8418f3d2958aabb850120b2a",
+        "jbigkit-project-filter-tests.patch": "f454137f0153a66049c33f6b37bbeeb0b9f61af0d426d2398f655398683625dc",
+        "packaging-REUSE.toml": "e6c1853cd358b709bb88a909b5ec606bdce9605893aa948cf5ce216c4edb7b37",
+        "removal.md": "329b9f6ecee0b35e2b5e34f639c0f1e2f1b5e918fcd00cefaf775dc82d6051fd",
+        "source-check.py": "a4da54ea4a002048c83ec16cb9e7f78e6fb520343b6a7d7a029c6bf6bfbccc82",
+        "source-filter.json": "e906020fd3affd7d6b7968aebca6ec7518ac3c11f801df2a221742864750f14d",
+        "synthetic-0.pbm": "a8ed35a163cba662b15fe455af22d5f91668d6eb59ef9a2aa9e19e1658745819",
+        "synthetic-1.pbm": "a293aabff7eae7f96579e5e6bec8665d16b608f2a66a4d7053f7d6b432224291",
+        "synthetic-2.pbm": "9055d3cd1d93cd4aa12e6a5f795ae15e69f3c0d04dcf6a43ca3e8750f9c8b20a",
+        "synthetic-3.pbm": "287e22786b17c8d45aada473e7dce37e4bcd5741f00eff3ef9884438e5eae080",
+        "synthetic-4.pbm": "c88997d1c7530db94f625659af6cf582bebe5fd69ba6ff207975d22f3c4020fb",
+        "synthetic-pbm.py": "744f59f38524370bf633246c405a3c75a556e799f7d46357e2e84124869c7407",
+        "upstream-ANNOUNCE": "99a69c828cd4a22b6b35563b9da81275bb6dbfe9a380bb6986a21f56b6c7dedf"
+      },
+      "library_sonames": [
+        "libjbig.so.2.2",
+        "libjbig85.so.2.2"
+      ],
+      "name": "cachy-asahi-jbigkit",
+      "provides": [
+        "jbigkit=2.2",
+        "libjbig.so=2.2-64",
+        "libjbig85.so=2.2-64"
+      ],
+      "version": "2.2-1.1"
+    },
+    "libtiff": {
+      "epoch": 1782568888,
+      "inputs": {
+        "LICENSE.MIT": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+        "PKGBUILD": "1bebd2b71821fa81b70b95617d87734f81a6f825375ce9c3df54130b6784ea6c",
+        "PUBLICATION.md": "0e971e7a9986e0c6ad5ecafd0497a93ee66e7d483a5929392245edad2d72b81e",
+        "UPSTREAM-NOTICES.txt": "86f781c2c05c4a20c4c4ecfe0e3b24c3e119781af6f0dce1714ad6a6c98833c1",
+        "libtiff-project-4.7.2-source.tar.gz": "c63abdba53ef3fa510a3314bcd78183f9f2d948272c6ec52b4aeafae8cfba2af",
+        "source-filter.json": "560a94716b3ee906886556f9bf26450b51b692b07742291feffe614e6427afbb",
+        "stage-source.py": "f051a1d5ff522d67c660160644a919501d3cd3a1bba68cd24ee1d6f0864ca598"
+      },
+      "library_sonames": [
+        "libtiff.so.6",
+        "libtiffxx.so.6"
+      ],
+      "name": "cachy-asahi-libtiff",
+      "provides": [
+        "libtiff=4.7.2",
+        "libtiff.so=6-64",
+        "libtiffxx.so=6-64"
+      ],
+      "version": "4.7.2-1.1"
+    }
+  },
+  "schema_version": 1
+}

@@ -10,7 +10,15 @@ import stat
 import subprocess
 import tempfile
 
-PURPOSE = 'frozen-development-only-native-arm-source-packet'
+PURPOSE = 'frozen-maintained-v1-native-arm-source-packet'
+BASELINE_ID = 'maintained-native-baseline-v1-vim-9.2.1178-1'
+LINEAGE = 'SUCCESSOR_NOT_HISTORICAL_ORIGINAL'
+BASELINE_CONTRACT = 'manifests/reviewed/maintained-composed-v1.json'
+BASELINE_INVENTORY = 'scripts/port/refreshed-desktop/proposed-builder-inventory.lock'
+BASELINE_INITIAL = '5d0f6b1d335c1949965699d4db6658af313af8977079e9a6464f0e5db4071ed3'
+BASELINE_INPUTS = 'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f'
+BASELINE_PACKAGES = 'fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25'
+BASELINE_DECLARATION = {'schema_version': 1, 'baseline_id': 'maintained-native-baseline-v1-vim-9.2.1178-1', 'lineage': 'SUCCESSOR_NOT_HISTORICAL_ORIGINAL', 'integration_sha256': '5d0f6b1d335c1949965699d4db6658af313af8977079e9a6464f0e5db4071ed3', 'inputs_sha256': 'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f', 'inventory_sha256': 'fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25', 'historical_integration_sha256': 'd4d603146f094c86242eaafbb887042959c510c9bb948579dd749d065dd8fc31', 'historical_inputs_sha256': '3c16c37d1b12cc84a88572e82ab8ad59e7f3b5ed0d08f09ddf72a69f4711d650', 'native_sha256': 'a8b6ed8971a38089a4499dcec605477c4e48d7a47c3de485d205f6a44678b898', 'recipes_sha256': '20d846cdf289bfc233b0051bf33b677fd6e94e9f05d91a33595a2829a196fa63', 'recipe_source_commit': 'ebd5812640b0b69f5c09a47752b739e37e338754', 'source_date_epoch': 1791748800, 'view_sources': 159, 'view_files': 160, 'changed_view_sources': ['scripts/ci/inputs.lock.json'], 'unchanged_view_sources': 158, 'generated_fixtures': 125, 'original_producers': 1, 'source_captures': 2, 'hardware_validation': 'NOT RUN', 'installation': 'NOT RUN', 'selected_for_release': False}
 INITIAL = 'scripts/ci/integration.lock.json'
 LOCK = 'scripts/ci/development/packet.lock.json'
 INITIAL_PURPOSE = 'frozen-development-only-native-integration'
@@ -26,13 +34,26 @@ KSM_FILES = {'.SRCINFO', 'LICENSE', 'NOTICE', 'PKGBUILD', 'README.md', 'adaptati
 PINS = {INITIAL, 'scripts/ci/inputs.lock.json', 'scripts/ci/recipes.lock.json',
         'scripts/experiments/stage.lock.json', 'scripts/virtual/tooling.lock.json',
         'scripts/virtual/tooling-audit.json', 'manifests/reviewed/ksmctl.json'}
-COMPOSITION = 'repository-svg'
-INSTALLER_COMPOSITION = 'installer-preflight'
+COMPOSITION = 'repository-svg-maintained-v1'
+INSTALLER_COMPOSITION = 'installer-preflight-maintained-v1'
 ZSH_COMPOSITION = 'repository-svg-zsh'
 ZSH_CONTRACT = 'manifests/reviewed/zsh-native-addon.json'
 ZSH_EXTRA = frozenset(('scripts/ci/development/zsh_addon.py', 'scripts/ci/development/test_zsh_addon.py',
     'scripts/ci/development/zsh_session.py', 'scripts/ci/development/test_zsh_session.py', ZSH_CONTRACT))
-COMPOSED_MODES = (COMPOSITION, INSTALLER_COMPOSITION, ZSH_COMPOSITION)
+LIBRARY_COMPOSITION = 'project-libraries-maintained-v1'
+LIBRARY_CONTRACT = 'manifests/reviewed/project-private-libraries.json'
+LIBRARY_INPUT_MAPS = frozenset(('manifests/reviewed/project-jbigkit-inputs.json','manifests/reviewed/project-libtiff-inputs.json'))
+LIBRARY_METADATA = LIBRARY_INPUT_MAPS | {LIBRARY_CONTRACT}
+LIBRARY_ASSETS = {
+    'jbigkit': ('PKGBUILD','LICENSE.recipe','PUBLICATION.md','removal.md','inputs.json','source-filter.json','source-check.py','synthetic-pbm.py'),
+    'libtiff': ('PKGBUILD','LICENSE.MIT','PUBLICATION.md','source-filter.json','stage-source.py'),
+}
+LIBRARY_EXTRA = frozenset({'scripts/ci/development/project_libraries.py',
+    'scripts/ci/development/prepare_project_library_sources.py',
+    'scripts/ci/development/project_library_sources/materialization-plan.json', *LIBRARY_METADATA,
+    *(f'scripts/ci/development/project_library_sources/{package}/{name}' for package,names in LIBRARY_ASSETS.items() for name in names)})
+COMPOSED_SOURCE_COUNTS = {COMPOSITION:259, INSTALLER_COMPOSITION:266, LIBRARY_COMPOSITION:278}
+COMPOSED_MODES = (COMPOSITION, INSTALLER_COMPOSITION, LIBRARY_COMPOSITION)
 INSTALLER_EXTRA = frozenset(('scripts/install/local_transaction.py', 'scripts/install/native_arm_trial.py', 'scripts/install/native_preflight.py', 'scripts/install/test_local_transaction.py', 'scripts/install/test_native_arm_trial.py', 'scripts/install/test_native_preflight.py', 'scripts/port/kernel-native-job/runtime.py'))
 GENERIC_POLICY = 'manifests/reviewed/repository-generic-policy.json'
 COMPOSED_EXTRA = frozenset('''
@@ -340,6 +361,7 @@ def scan(root, initial):
 def load_initial(root, path, digest, pins):
     validate_pins(pins)
     need(Path(path).absolute() == (root / INITIAL).absolute() and pins[INITIAL] == pin(digest), 'initial-lock-binding-required')
+    need(digest == BASELINE_INITIAL and pins['scripts/ci/inputs.lock.json'] == BASELINE_INPUTS, 'maintained-initial-binding-refused')
     value = pinned(Path(path), digest)
     keys = {'schema_version', 'purpose', 'development_only', 'selected_for_release', 'recipe_source_commit',
             'recipes_sha256', 'source_date_epoch', 'source_files', 'generated_fixture_files', 'hardware_validation'}
@@ -374,18 +396,22 @@ def composed_paths(initial, composition=COMPOSITION):
     need(type(initial) is dict and len(initial['source_files']) == 159 and
          len(initial['generated_fixture_files']) == 125 and len(COMPOSED_EXTRA) == 99,
          'composed-original-contract-refused')
-    paths = set(initial['source_files']) | COMPOSED_EXTRA
+    paths = set(initial['source_files']) | COMPOSED_EXTRA | {BASELINE_CONTRACT}
     if composition == INSTALLER_COMPOSITION:paths |= INSTALLER_EXTRA
     if composition == ZSH_COMPOSITION:paths |= ZSH_EXTRA
+    if composition == LIBRARY_COMPOSITION:
+        need(len(LIBRARY_EXTRA) == 19 and not paths & LIBRARY_EXTRA, 'project-library-source-selection-refused')
+        paths |= LIBRARY_EXTRA
     need(len(INSTALLER_EXTRA) == 7 and len(ZSH_EXTRA) == 5 and
-         len(paths) == {COMPOSITION:258, INSTALLER_COMPOSITION:265, ZSH_COMPOSITION:263}[composition],
+         len(paths) == COMPOSED_SOURCE_COUNTS[composition],
          'composed-source-selection-refused')
     return paths
 
 
 def composed_pins(pins, composition=COMPOSITION):
     need(type(composition) is str and composition in COMPOSED_MODES, 'composed-source-selection-refused')
-    expected = COMPOSED_PINS | ({ZSH_CONTRACT} if composition == ZSH_COMPOSITION else set())
+    expected = COMPOSED_PINS | {BASELINE_CONTRACT, BASELINE_INVENTORY}
+    if composition == LIBRARY_COMPOSITION:expected |= LIBRARY_METADATA
     need(type(pins) is dict and set(pins) == expected, 'exact-composed-metadata-pins-required')
     for name, value in pins.items():
         relative(name); pin(value)
@@ -414,7 +440,27 @@ def composed_scan(root, initial, composition=COMPOSITION):
 
 def composed_bindings(root, source, pins, composition=COMPOSITION):
     bindings(root, source, composed_pins(pins, composition))
+    baseline = pinned(root / BASELINE_CONTRACT, pins[BASELINE_CONTRACT])
+    need(type(baseline) is dict and baseline == BASELINE_DECLARATION and
+         pins[INITIAL] == BASELINE_INITIAL and
+         pins['scripts/ci/inputs.lock.json'] == BASELINE_INPUTS and
+         pins[BASELINE_INVENTORY] == BASELINE_PACKAGES and
+         baseline['native_sha256'] == source['scripts/ci/native_arm.py']['sha256'] and
+         baseline['recipes_sha256'] == pins['scripts/ci/recipes.lock.json'],
+         'maintained-baseline-contract-refused')
     need(all(source[name]['sha256'] == value for name, value in pins.items()), 'packet-metadata-pin-drift')
+    if composition == LIBRARY_COMPOSITION:
+        contract = pinned(root/LIBRARY_CONTRACT, pins[LIBRARY_CONTRACT])
+        need(type(contract) is dict and contract.get('purpose') == 'private-project-jbigkit-libtiff-native-builds'
+             and contract.get('public_promotion') is False,'project-library-contract-refused')
+        for package,path in zip(('jbigkit','libtiff'),sorted(LIBRARY_INPUT_MAPS)):
+            mapping = pinned(root/path,pins[path])
+            need(type(mapping) is dict and len(mapping) == {'jbigkit':20,'libtiff':7}[package]
+                 and contract['recipes'][package]['inputs'] == mapping,'project-library-input-map-refused')
+            for name,value in mapping.items():relative(name);pin(value)
+            prefix = 'scripts/ci/development/project_library_sources/'+package+'/'
+            need(all(mapping[name] == source[prefix+name]['sha256'] for name in LIBRARY_ASSETS[package]),
+                 'project-library-input-pin-drift')
     for name, prefix in COMPOSED_MAPS.items():
         value = pinned(root / name, pins[name]); validate_map(value)
         expected = {relative(path).name for path in COMPOSED_EXTRA
@@ -433,7 +479,8 @@ def freeze_composed(root, output, initial_lock, initial_sha256, pins, *, composi
     if output.is_relative_to(root):need(output == root / LOCK, 'fixed-packet-path-required')
     initial = load_initial(root, initial_lock, initial_sha256, composed_pins(pins, composition))
     source = composed_scan(root, initial, composition); composed_bindings(root, source, pins, composition)
-    value = {'schema_version':2, 'composition':composition, 'purpose':PURPOSE, 'development_only':True,
+    value = {'schema_version':3, 'composition':composition, 'purpose':PURPOSE,
+             'baseline_id':BASELINE_ID, 'lineage':LINEAGE, 'development_only':True,
              'selected_for_release':False, 'hardware_validation':'NOT RUN', 'metadata_pins':dict(pins),
              'initial_source_files':initial['source_files'], 'generated_fixture_files':initial['generated_fixture_files'],
              'source_files':source}
@@ -548,10 +595,11 @@ def preflight_composed(root, packet_path, packet_sha256, github_sha, pins=None, 
     need(Path(packet_path).absolute() == root / LOCK and stat.S_IMODE(regular(Path(packet_path)).st_mode) == 0o644,
          'runtime-packet-path-required')
     value = pinned(Path(packet_path), packet_sha256)
-    keys = {'schema_version', 'composition', 'purpose', 'development_only', 'selected_for_release',
+    keys = {'schema_version', 'composition', 'purpose', 'baseline_id', 'lineage', 'development_only', 'selected_for_release',
             'hardware_validation', 'metadata_pins', 'initial_source_files', 'generated_fixture_files', 'source_files'}
     need(type(value) is dict and set(value) == keys and type(value['schema_version']) is int and
-         value['schema_version'] == 2 and type(value['composition']) is str and value['composition'] == composition and value['purpose'] == PURPOSE and
+         value['schema_version'] == 3 and type(value['composition']) is str and value['composition'] == composition and value['purpose'] == PURPOSE and
+         value['baseline_id'] == BASELINE_ID and value['lineage'] == LINEAGE and
          value['development_only'] is True and value['selected_for_release'] is False and
          value['hardware_validation'] == 'NOT RUN', 'composed-packet-contract-refused')
     original_pins = composed_pins(value['metadata_pins'], composition)
@@ -599,7 +647,7 @@ def snapshot(root, target, packet):
     root, target = Path(root).absolute(), Path(target).absolute()
     need(not target.exists() and not target.is_symlink() and not target.is_relative_to(root), 'new-external-snapshot-required')
     need(isinstance(packet, dict) and 'source_files' in packet and 'metadata_pins' in packet, 'snapshot-packet-required')
-    composed = packet.get('schema_version') == 2
+    composed = packet.get('schema_version') == 3
     validate_map(packet['source_files'])
     if composed:
         composition = packet.get('composition')

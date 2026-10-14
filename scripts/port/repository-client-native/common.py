@@ -17,12 +17,16 @@ import subprocess
 import sys
 import tempfile
 import time
+import threading
 import types
 import zlib
 
 FILE_LIMIT, TOTAL_LIMIT, COUNT = 16 * 1024**2, 64 * 1024**2, 2048
 PIN = re.compile(r'[0-9a-f]{64}\Z')
 PENDING = []
+SIGNAL_SCOPES = []
+CANCELLATION_EVENTS = set()
+CANCELLATION_UNCERTAIN = set()
 SIGNALS = (signal.SIGINT, signal.SIGTERM)
 
 
@@ -31,6 +35,7 @@ class Refused(ValueError):
 
 
 def need(value, reason):
+    cancellation_checkpoint()
     if not value:
         raise Refused(reason)
 
@@ -254,54 +259,230 @@ def load_snapshot(root, names):
                 sys.modules[name] = previous
 
 
+def cancellation_state():
+    """Closed live data: scopes may invoke only the two exact Source callbacks."""
+    def number(value):
+        return type(value) in (int, type(SIGNALS[0])) and value in SIGNALS
+    if type(SIGNAL_SCOPES) is not list or len(SIGNAL_SCOPES) > 64 or type(PENDING) is not list or len(PENDING) > 64 or any(
+            type(pending) is not list or any(not number(item) for item in pending) for pending in PENDING):
+        raise Refused('cancellation scope registry differs')
+    expected = {code.co_name: code for factory in (defer_cancellation, cancellation_handlers)
+                for code in factory.__wrapped__.__code__.co_consts if type(code) is types.CodeType}
+    for scope in SIGNAL_SCOPES:
+        if type(scope) is not tuple or len(scope) != 3:
+            raise Refused('cancellation scope row differs')
+        callback, opaque, mask = scope
+        if type(callback) is not types.FunctionType or type(callback.__name__) is not str or callback.__globals__ is not globals() or callback.__code__ is not expected.get(callback.__name__) or callback.__name__ not in ('remember', 'interrupted') or callback.__defaults__ is not None or callback.__kwdefaults__ is not None:
+            raise Refused('cancellation scope callback differs')
+        cells = callback.__closure__
+        if callback.__name__ == 'remember':
+            if type(cells) is not tuple or len(cells) != 1 or type(cells[0]) is not types.CellType or type(cells[0].cell_contents) is not list or any(not number(item) for item in cells[0].cell_contents):
+                raise Refused('cancellation scope callback cells differ')
+        elif cells is not None:
+            raise Refused('cancellation scope callback cells differ')
+        if type(opaque) is not tuple or len(opaque) > 2 or any(not number(item) for item in opaque) or len(set(opaque)) != len(opaque) or type(mask) is not set or any(type(item) not in (int, type(SIGNALS[0])) for item in mask):
+            raise Refused('cancellation scope signal data differs')
+    if type(CANCELLATION_EVENTS) is not set or len(CANCELLATION_EVENTS) > 3 or any(
+            not number(item) and not (type(item) is str and item == 'INTERRUPT') for item in CANCELLATION_EVENTS):
+        raise Refused('cancellation event registry differs')
+
+    if type(CANCELLATION_UNCERTAIN) is not set or any(type(item) is not str or item not in
+            ('block','set','get','handler','pending','wait','mask','registry','replay') for item in CANCELLATION_UNCERTAIN):
+        raise Refused('cancellation uncertainty registry differs')
+
+
+def cancellation_requested():
+    """Sticky closed signal disposition, independent of the primary failure."""
+    cancellation_state()
+    return bool(CANCELLATION_EVENTS)
+
+
+def cancellation_checkpoint():
+    """Opaque native handlers stay untouched; main-thread guards poll blocked INT/TERM."""
+    if SIGNAL_SCOPES:
+        cancellation_state()
+        handler, opaque, _ = SIGNAL_SCOPES[-1]
+        queued = []
+        pending = signal.sigpending()
+        for number in opaque:
+            if number in pending:
+                signal.sigwait({number})
+                queued.append(number)
+        for number in queued:
+            handler(number, None)
+
+
+def wait_process(process, deadline):
+    """Preserve cancellation checkpoints even after both command pipes reach EOF."""
+    while True:
+        cancellation_checkpoint()
+        left = deadline - time.monotonic()
+        if left <= 0:
+            raise subprocess.TimeoutExpired(process.args, 0)
+        try:
+            return process.wait(timeout=min(.05, left))
+        except subprocess.TimeoutExpired:
+            if time.monotonic() >= deadline:
+                raise
+
+
+def cancellation_uncertain():
+    cancellation_state()
+    return bool(CANCELLATION_UNCERTAIN)
+
+
+def _raise_signal_faults(body_error, faults):
+    """Keep the original object primary and retain every distinct secondary cause."""
+    if not faults:
+        return
+    causes = []
+    if body_error is not None and body_error.__cause__ is not None:
+        causes.append(body_error.__cause__)
+    for fault in faults:
+        if fault is not body_error and not any(fault is item for item in causes):
+            causes.append(fault)
+    if not causes:
+        return
+    cause = causes[0] if len(causes) == 1 else BaseExceptionGroup('signal teardown failed', causes)
+    if body_error is not None:
+        raise body_error from cause
+    raise cause
+
+
 @contextmanager
 def _signal_handlers(handler):
-    """Install/restore the entire pair while kernel delivery is blocked."""
+    global SIGNAL_SCOPES, CANCELLATION_EVENTS, CANCELLATION_UNCERTAIN
+    if threading.current_thread() is not threading.main_thread():
+        raise Refused('main-thread cancellation required')
+    cancellation_state()
+    registry, events, uncertain = SIGNAL_SCOPES, CANCELLATION_EVENTS, CANCELLATION_UNCERTAIN
+    prefix = tuple(registry)
     mask = signal.pthread_sigmask(signal.SIG_BLOCK, SIGNALS)
     previous = {}
+    scope = None
+    body_error = None
     try:
-        # Record all originals before mutation; signal.signal can be interrupted
-        # after installing its handler but before returning the original value.
         previous = {number: signal.getsignal(number) for number in SIGNALS}
-        for number in SIGNALS:
-            signal.signal(number, handler)
-        signal.pthread_sigmask(signal.SIG_SETMASK, mask)
+        inherited = registry[-1][1] if registry else ()
+        opaque = tuple(number for number in SIGNALS if previous[number] is None and
+                       (number not in mask or number in inherited))
+        for number, original in previous.items():
+            if original is not None:
+                signal.signal(number, handler)
+        scope = (handler, opaque, set(mask))
+        registry.append(scope)
+        signal.pthread_sigmask(signal.SIG_SETMASK, set(mask) | {
+            number for number, original in previous.items() if original is None})
         yield
+    except BaseException as error:
+        body_error = error
+        raise
     finally:
-        signal.pthread_sigmask(signal.SIG_BLOCK, SIGNALS)
-        queued = []
-        restoration_error = None
+        faults, queued, unsafe = [], [], set()
+        def failed(site, error):
+            uncertain.add(site)
+            if isinstance(error, KeyboardInterrupt):
+                events.add('INTERRUPT')
+            faults.append(error)
         try:
+            blocked = False
+            for _ in range(2):
+                try:
+                    signal.pthread_sigmask(signal.SIG_BLOCK, SIGNALS)
+                    blocked = True
+                    break
+                except BaseException as error:
+                    failed('block', error)
+            if not blocked:
+                unsafe.update(SIGNALS)
             for number, original in previous.items():
-                # One failed setter must not skip restoring the other signal.
-                # Retry only if the original disposition was not actually set.
+                if original is None:
+                    continue
+                if not blocked:
+                    # No safe restoration transaction was established.
+                    unsafe.add(number)
+                    uncertain.add('handler')
+                    continue
+                restored = False
                 for _ in range(2):
                     try:
                         signal.signal(number, original)
                     except BaseException as error:
-                        restoration_error = restoration_error or error
-                    if signal.getsignal(number) == original:
+                        failed('set', error)
+                    try:
+                        restored = signal.getsignal(number) == original
+                    except BaseException as error:
+                        failed('get', error)
+                    if restored:
                         break
-                else:
-                    restoration_error = restoration_error or Refused('signal handler restoration differs')
-            # Consume transition events before restoring unblocked defaults.
-            # Signals blocked on entry retain their original pending state.
-            for number in SIGNALS:
-                if number not in mask and number in signal.sigpending():
-                    signal.sigwait({number})
-                    queued.append(number)
+                if not restored:
+                    unsafe.add(number)
+                    failed('get', Refused('signal handler restoration differs'))
+            if blocked:
+                for number in SIGNALS:
+                    if number in mask and (scope is None or number not in scope[1]):
+                        continue
+                    try:
+                        pending = number in signal.sigpending()
+                    except BaseException as error:
+                        unsafe.add(number)
+                        failed('pending', error)
+                        continue
+                    if pending:
+                        # An observed eligible event is cancellation even if consumption fails.
+                        queued.append(number)
+                        consumed = False
+                        for _ in range(2):
+                            try:
+                                signal.sigwait({number})
+                                consumed = True
+                                break
+                            except BaseException as error:
+                                failed('wait', error)
+                        if not consumed:
+                            unsafe.add(number)
         finally:
-            signal.pthread_sigmask(signal.SIG_SETMASK, mask)
+            try:
+                expected = prefix + ((scope,) if scope is not None else ())
+                if SIGNAL_SCOPES is not registry or len(registry) != len(expected) or any(
+                        actual is not wanted for actual, wanted in zip(registry, expected)):
+                    failed('registry', Refused('signal scope restoration differs'))
+                registry[:] = prefix
+                SIGNAL_SCOPES = registry
+                if CANCELLATION_EVENTS is not events:
+                    failed('registry', Refused('signal event registry differs'))
+                    CANCELLATION_EVENTS = events
+                if CANCELLATION_UNCERTAIN is not uncertain:
+                    failed('registry', Refused('signal uncertainty registry differs'))
+                    CANCELLATION_UNCERTAIN = uncertain
+            finally:
+                # Failed consumption/checks cannot safely expose pending unblocked defaults.
+                target_mask = set(mask) | unsafe
+                if unsafe:
+                    uncertain.add('mask')
+                for _ in range(2):
+                    try:
+                        signal.pthread_sigmask(signal.SIG_SETMASK, target_mask)
+                        break
+                    except BaseException as error:
+                        failed('mask', error)
         for number in queued:
-            handler(number, None)
-        if restoration_error is not None:
-            raise restoration_error
-
+            try:
+                handler(number, None)
+            except BaseException as error:
+                if isinstance(error, KeyboardInterrupt):
+                    events.add(number)
+                    faults.append(error)
+                else:
+                    failed('replay', error)
+        _raise_signal_faults(body_error, faults)
 
 @contextmanager
 def defer_cancellation():
     pending = []
+    body_error = None
     def remember(sig, _):
+        CANCELLATION_EVENTS.add(sig)
         pending.append(sig)
     try:
         with _signal_handlers(remember):
@@ -310,10 +491,15 @@ def defer_cancellation():
                 yield
             finally:
                 PENDING.pop()
+    except BaseException as error:
+        body_error = error
+        raise
     finally:
         if pending:
             if PENDING:
                 PENDING[-1].extend(pending)
+            elif body_error is not None:
+                _raise_signal_faults(body_error, [KeyboardInterrupt('cancelled')])
             else:
                 raise KeyboardInterrupt('cancelled')
 
@@ -321,12 +507,17 @@ def defer_cancellation():
 @contextmanager
 def cancellation_handlers():
     def interrupted(*_):
+        CANCELLATION_EVENTS.add(_[0])
         raise KeyboardInterrupt('cancelled')
     with _signal_handlers(interrupted):
         yield
 
 
 def limits():
+    # Owned child setup: polling blocks belong to its parent, not the exec target.
+    if SIGNAL_SCOPES:
+        cancellation_state()
+        signal.pthread_sigmask(signal.SIG_SETMASK, SIGNAL_SCOPES[0][2])
     resource.setrlimit(resource.RLIMIT_AS, (2 * 1024**3, 2 * 1024**3))
     resource.setrlimit(resource.RLIMIT_CPU, (45, 46))
     resource.setrlimit(resource.RLIMIT_NOFILE, (128, 128))
@@ -380,7 +571,7 @@ class Commands:
                         need(len(out) + len(err) <= 1024**2, 'command output bound exceeded')
                     else:
                         selector.unregister(key.fileobj)
-            code = process.wait(timeout=max(.001, deadline - time.monotonic()))
+            code = wait_process(process, deadline)
             need(expected is None or (code == 0 if expected == 0 else code != 0), 'command exit differs')
             need(tool_digest(self.paths[name]) == self.pins[name], 'tool changed after command')
             self.records.append({'argv': argv, 'exit_code': code, 'stdout_sha256': digest(bytes(out)),
@@ -394,7 +585,7 @@ class Commands:
                         os.killpg(process.pid, signal.SIGKILL)
                     except ProcessLookupError:
                         pass
-                    process.wait(timeout=10)
+                    wait_process(process, time.monotonic() + 10)
                     process.stdout.close()
                     process.stderr.close()
 

@@ -1,0 +1,4005 @@
+{
+  "actual_original_url": "https://gitlab.com/api/v4/projects/libtiff%2Flibtiff/repository/archive.tar.gz?sha=d01a94be176f5f6a87f7ee1c0b32e65416aa2b4d",
+  "added_required_root_inputs": [
+    "VERSION",
+    "RELEASE-DATE",
+    "libtiff-4.pc.in"
+  ],
+  "all_test_images_refs_excluded": true,
+  "allowlist": {
+    "CMakeLists.txt": {
+      "bytes": 10150,
+      "mode": 436,
+      "sha256": "d9f329087a02ee9d89420658ffcb123815008fd02cb1c36e75cb9c69c76b43d5"
+    },
+    "COMMITTERS": {
+      "bytes": 439,
+      "mode": 436,
+      "sha256": "9eed27e853ed17a8026a0b9fd019169f8b1fa9380da97863fb792658050519c6"
+    },
+    "LICENSE.md": {
+      "bytes": 2416,
+      "mode": 436,
+      "sha256": "0e27c2382d7b8147972bbb746e04059a1152c8d0fda9d03ef1399d1a433c4ade"
+    },
+    "README.md": {
+      "bytes": 2672,
+      "mode": 436,
+      "sha256": "13ae2e117af780a9232ab80f1f7427107417a2d877e5d1b37a248ea49a08ea8b"
+    },
+    "RELEASE-DATE": {
+      "bytes": 9,
+      "mode": 436,
+      "sha256": "6efde039572e95a038817d59f37f09733f339e1eaccb00d4c313474c8add2672"
+    },
+    "VERSION": {
+      "bytes": 6,
+      "mode": 436,
+      "sha256": "964bf9b089d1e1c9474f4baab1c909ee2affc1fea9464eceaf5d3b8d2ce555f4"
+    },
+    "build/CMakeLists.txt": {
+      "bytes": 1238,
+      "mode": 436,
+      "sha256": "778d68e1cd698d38ffcfc898016297f532ed25a5ee328175b46f2cca33a760d7"
+    },
+    "build/test_cmake/CMakeLists.txt": {
+      "bytes": 223,
+      "mode": 436,
+      "sha256": "d574e4ae8194f1c0f2fd0d8d6c9a406e9acc402941ab228f842ac6985b15b110"
+    },
+    "build/test_cmake/test.c": {
+      "bytes": 72,
+      "mode": 436,
+      "sha256": "feb88ae6376c501916d159952a3ac59e3296a117aa778b988fa2bf3062462c88"
+    },
+    "build/test_cmake_no_target/CMakeLists.txt": {
+      "bytes": 291,
+      "mode": 436,
+      "sha256": "f1eec43646fd58badf9e5890aae5328ba0248c415dd7258555e3c66c46b42ed2"
+    },
+    "build/test_cmake_no_target/test.c": {
+      "bytes": 72,
+      "mode": 436,
+      "sha256": "feb88ae6376c501916d159952a3ac59e3296a117aa778b988fa2bf3062462c88"
+    },
+    "cmake/AutotoolsCompat.cmake": {
+      "bytes": 1577,
+      "mode": 436,
+      "sha256": "1626039ee311e2feaf7d9a820afc2399b166cd4a0eaaa2a01aecde06d6608e5f"
+    },
+    "cmake/AutotoolsVersion.cmake": {
+      "bytes": 2583,
+      "mode": 436,
+      "sha256": "417f7bdecf9447024c7abefc6ec81e96300bb61828648cf5efc0ca4810f32546"
+    },
+    "cmake/CXXLibrary.cmake": {
+      "bytes": 1476,
+      "mode": 436,
+      "sha256": "983cd9434d47515fdf28544055ecdcfc7f03d00a44f9bbe63b6bcb762986d906"
+    },
+    "cmake/CompilerChecks.cmake": {
+      "bytes": 8267,
+      "mode": 436,
+      "sha256": "14d8c4ce5a0b1306f637b386aae0f9813aa13ceb1b838f17a9d95150684a0e9b"
+    },
+    "cmake/DeflateCodec.cmake": {
+      "bytes": 1921,
+      "mode": 436,
+      "sha256": "bdaa1fcb74ac70b5adcd11b80a79e20f0c45af4205e4f7832b766ac45bf7e0e2"
+    },
+    "cmake/FindCMath.cmake": {
+      "bytes": 1729,
+      "mode": 436,
+      "sha256": "962c55983b387a992159884414eadaa05e768c7e465e55361d5a9a0861fc2090"
+    },
+    "cmake/FindDeflate.cmake": {
+      "bytes": 4054,
+      "mode": 436,
+      "sha256": "c31a12d3b10d505c8b5f4b449e8e809e2fd243f2f3d3f6eadc2a3ecd77325c21"
+    },
+    "cmake/FindJBIG.cmake": {
+      "bytes": 3707,
+      "mode": 436,
+      "sha256": "9f5345f427a35c5b955f2d4b4bd330a2508adc4e1dcc48411edda1e4a496262c"
+    },
+    "cmake/FindJPEG.cmake": {
+      "bytes": 4277,
+      "mode": 436,
+      "sha256": "32eafff5aa4121e0c7c82a0abf5ca81bf7dfdd8686d20b9575da89eec17494df"
+    },
+    "cmake/FindLERC.cmake": {
+      "bytes": 3352,
+      "mode": 436,
+      "sha256": "96720d284580525c1ef825ea5fb1e633a8f67a9c9ddd74fa01e2bc23d294fec0"
+    },
+    "cmake/FindWebP.cmake": {
+      "bytes": 2697,
+      "mode": 436,
+      "sha256": "e6d6636145e78bf8eb998489ffe6f156e3ddd460c8e57f960954981b26e72fd7"
+    },
+    "cmake/FindZSTD.cmake": {
+      "bytes": 3477,
+      "mode": 436,
+      "sha256": "a57c1ec9c98351bd7ca52025ceabf104f39135c0a2a558fe35eb608e956f097c"
+    },
+    "cmake/Findliblzma.cmake": {
+      "bytes": 5271,
+      "mode": 436,
+      "sha256": "399ac9b3ef4319184a62f1c2b8f29d8eeb25890392d4c50a9d18a1633168ade8"
+    },
+    "cmake/IncludeChecks.cmake": {
+      "bytes": 1641,
+      "mode": 436,
+      "sha256": "cfc4047c3efc515dfa171eb47089ebecc8ab3902df936ffbf25237d06e55ef61"
+    },
+    "cmake/InternalCodecs.cmake": {
+      "bytes": 1931,
+      "mode": 436,
+      "sha256": "e400b7e48530620b00f0b68a6f6ea1ea4ea1585e24a4a4cf846813f0256d128d"
+    },
+    "cmake/JBIGCodec.cmake": {
+      "bytes": 2011,
+      "mode": 436,
+      "sha256": "e712aaa2ca57d0dd5adfaf941d9fa2908ea3a858b01050de701f4440dda898de"
+    },
+    "cmake/JPEGCodec.cmake": {
+      "bytes": 6401,
+      "mode": 436,
+      "sha256": "455515fea711a49300fe76a6156a6a5bad1d5a832bb48eb621b1b559fefd0f04"
+    },
+    "cmake/LERCCodec.cmake": {
+      "bytes": 1555,
+      "mode": 436,
+      "sha256": "95eafa0cfe0d04d7c8baae93c80895b435f54432a71760c73d44eca8b40a3186"
+    },
+    "cmake/LZMACodec.cmake": {
+      "bytes": 1499,
+      "mode": 436,
+      "sha256": "b67dce57ec3bd3e0283ad1a646e27bd9a427c1d395ba61362c2b8331f4e32865"
+    },
+    "cmake/LargeFileSupport.cmake": {
+      "bytes": 1483,
+      "mode": 436,
+      "sha256": "868b09d7b5ecb0febd34cbbaaa6787cd51436e05ff136f471f06250727dceb3f"
+    },
+    "cmake/LibraryFeatures.cmake": {
+      "bytes": 2986,
+      "mode": 436,
+      "sha256": "bb8f89fe682ad40d69649941965d850912d7626bcf8275690cc1359f1e561b15"
+    },
+    "cmake/LinkerChecks.cmake": {
+      "bytes": 2566,
+      "mode": 436,
+      "sha256": "6292660791c8cada1d0266f82d9904dc84d8bde2846e4f04f267b1699f3a9676"
+    },
+    "cmake/OpenGLChecks.cmake": {
+      "bytes": 2023,
+      "mode": 436,
+      "sha256": "343798a0b6fb74bd639ee9afc4aa295234f2c5fce0db5d8046ff72ccbbc9b01b"
+    },
+    "cmake/PixarLogCodec.cmake": {
+      "bytes": 1551,
+      "mode": 436,
+      "sha256": "3d57d43fb7ab8dbd71cf10b2bb196fce2c95a7edbf7e2ac5288f89d886b2f2a1"
+    },
+    "cmake/PkgConfig.cmake": {
+      "bytes": 2935,
+      "mode": 436,
+      "sha256": "2cb931535e54e78b179d03a44b479aed3ff5b7efff4a8fcd0e9e2a31bd2b78aa"
+    },
+    "cmake/ProcessorChecks.cmake": {
+      "bytes": 1860,
+      "mode": 436,
+      "sha256": "1c4a3db99829e227fddc6dd1cc07518960f99f927fcde06389ef06e15709b57c"
+    },
+    "cmake/Release.cmake": {
+      "bytes": 2262,
+      "mode": 436,
+      "sha256": "2fd35100655742327ad998647015b3a77d4df0a4e33c39b8b5410f8ca71527e0"
+    },
+    "cmake/ReleaseScript.cmake": {
+      "bytes": 2057,
+      "mode": 436,
+      "sha256": "f2c0423f3a3699d81aa18462fee94a66382973f9d7772bc8e0ec43b036dda274"
+    },
+    "cmake/Sphinx.cmake": {
+      "bytes": 3981,
+      "mode": 436,
+      "sha256": "65d0dc63685827d28ee1720224e6860d6662f8cb7c4aa173b23b8296312926d2"
+    },
+    "cmake/SphinxCheckInternalLinks.cmake": {
+      "bytes": 3317,
+      "mode": 436,
+      "sha256": "baff619b799ce2c9e6ce8fe50d5f89164698fddf9b9beb445710cdf2ab505b2c"
+    },
+    "cmake/SymbolChecks.cmake": {
+      "bytes": 1687,
+      "mode": 436,
+      "sha256": "6007222b23752a55fcef24f1d80b18a70cad1aef2550bbb734f13281370bebfb"
+    },
+    "cmake/TypeSizeChecks.cmake": {
+      "bytes": 2077,
+      "mode": 436,
+      "sha256": "42530ea7410abacab290357cd430c68ef94e6719383be7094f0bd05e384b65c8"
+    },
+    "cmake/WebPCodec.cmake": {
+      "bytes": 1489,
+      "mode": 436,
+      "sha256": "f1c828900fc304105b2ff474096a33e3d78a09f9b47d09ea11255073c8b27392"
+    },
+    "cmake/WindowsSupport.cmake": {
+      "bytes": 1863,
+      "mode": 436,
+      "sha256": "d9974124858084b64c7091968a450a3d33fdb199f29d5c3e4caba53f35555dda"
+    },
+    "cmake/ZSTDCodec.cmake": {
+      "bytes": 2644,
+      "mode": 436,
+      "sha256": "8be4fa4a062b09d6068452fd7cdc5fc1f52dfc2b37eec50a19b2b2bda4226594"
+    },
+    "cmake/list-manpage-dependencies.py": {
+      "bytes": 836,
+      "mode": 436,
+      "sha256": "2f9d19b08a7d489ea380c940b5435e632eeb9be3f02ea8f10968b04593fce02d"
+    },
+    "cmake/list-manpages.py": {
+      "bytes": 998,
+      "mode": 436,
+      "sha256": "9acf5666e105b3a62f1949831748e9728e88172c94d1d344356c95136c5c65ab"
+    },
+    "cmake/tiff-config.cmake.in": {
+      "bytes": 925,
+      "mode": 436,
+      "sha256": "ddcb9037b4aff3ae41816c5ca31b3665dd69feeb8ac0034f5323160079ff8b9a"
+    },
+    "configure.ac": {
+      "bytes": 45704,
+      "mode": 436,
+      "sha256": "9ee83fb8a46b9f3affec0ab91ad0d6d7c555ecdbe86c40ebb8912a4bc4c498a9"
+    },
+    "libtiff-4.pc.in": {
+      "bytes": 355,
+      "mode": 436,
+      "sha256": "064944f188d6bf5db8e330de9c4614af0207e07e9e04b2a753559402d7f0ae32"
+    },
+    "libtiff/CMakeLists.txt": {
+      "bytes": 11124,
+      "mode": 509,
+      "sha256": "b1efe57e92027beeb6b0d700d238e4f4df9f61bcb33fef31833b3a8d7649513a"
+    },
+    "libtiff/Makefile.am": {
+      "bytes": 3296,
+      "mode": 436,
+      "sha256": "98c3bf3f953d3fbdd7fd27ee74d6f373ef698edb86e4d9514a40b2f952593e30"
+    },
+    "libtiff/README_for_libtiff_developpers.md": {
+      "bytes": 11267,
+      "mode": 436,
+      "sha256": "23ab5ce4aee7a68e01119c08929713f06cb59b15d589096e931df8206c9f12d9"
+    },
+    "libtiff/libtiff.def": {
+      "bytes": 3983,
+      "mode": 436,
+      "sha256": "7592d9f09f3cf294276f35f31024446d6c24e9ceeb638113ab6bb0aea34608f4"
+    },
+    "libtiff/libtiff.map": {
+      "bytes": 5094,
+      "mode": 436,
+      "sha256": "49eb6767162c0211c824475f92189d401a284bf00c04fbe80e25588cc4b04e0d"
+    },
+    "libtiff/libtiffxx.map": {
+      "bytes": 36,
+      "mode": 436,
+      "sha256": "ef9fe3c6f69ea55d6a26f2c931e58229130ae9840311e7649da966f36b323a9b"
+    },
+    "libtiff/mkspans.c": {
+      "bytes": 2403,
+      "mode": 436,
+      "sha256": "05e0a5a5886002770d3b1da5d7baf8c256f47fde34a98f4ed381cec0275decf2"
+    },
+    "libtiff/t4.h": {
+      "bytes": 13144,
+      "mode": 436,
+      "sha256": "68fea8b3e6ac6f9c02395de1ac7759686d82c773024caa9c112784dfa967cae5"
+    },
+    "libtiff/tif_aux.c": {
+      "bytes": 15963,
+      "mode": 436,
+      "sha256": "f60471ca247420de0676efc334ea1573c2fb16fc8415b73e9d9259ae12833084"
+    },
+    "libtiff/tif_close.c": {
+      "bytes": 5357,
+      "mode": 436,
+      "sha256": "c08aa975b642b5034962d1dbdbadc944c979843764de4ce440055ccc72be57a1"
+    },
+    "libtiff/tif_codec.c": {
+      "bytes": 5113,
+      "mode": 436,
+      "sha256": "ba6c41b956bfccb221b8e9d088502880544f7dedb751f50fdaddefd1edd263cb"
+    },
+    "libtiff/tif_color.c": {
+      "bytes": 10984,
+      "mode": 436,
+      "sha256": "4e5183a58f908ad6d2fa1805d657fbde67fde90a66b3e431005221bf190983ac"
+    },
+    "libtiff/tif_compress.c": {
+      "bytes": 9358,
+      "mode": 436,
+      "sha256": "e569f3502c4af70f4ccd56b7f78aac0f809fedb438419cb1ae09f69e3b1bfb8e"
+    },
+    "libtiff/tif_config.h.cmake.in": {
+      "bytes": 4645,
+      "mode": 436,
+      "sha256": "0e882f90832a89961b8e96508ec40010ddb2e3312ce6f194d6b31ad0e192bcb6"
+    },
+    "libtiff/tif_config.h.in": {
+      "bytes": 4831,
+      "mode": 436,
+      "sha256": "3cf7735b1da06affa9a1326c4a214a331859bb79f872823260e83182090a834f"
+    },
+    "libtiff/tif_dir.c": {
+      "bytes": 90418,
+      "mode": 436,
+      "sha256": "633bede16c3b1829d8ded69c97be9dd16d976121eed99ab8ccacf707d14625db"
+    },
+    "libtiff/tif_dir.h": {
+      "bytes": 14287,
+      "mode": 436,
+      "sha256": "2d9c36a036f169b8521e0e3f0de968576136b5b43f38d8b9904791a6137d342f"
+    },
+    "libtiff/tif_dirinfo.c": {
+      "bytes": 81538,
+      "mode": 436,
+      "sha256": "f0c2d4c491cfc148ac8cb02ad12ee3d17b6a9e64a6f7de2f12fcd5d18ed5f711"
+    },
+    "libtiff/tif_dirread.c": {
+      "bytes": 287592,
+      "mode": 436,
+      "sha256": "9a9220abd10e952c5147207461725630ccd9a0886e157ccabbe8c5a3006445fe"
+    },
+    "libtiff/tif_dirwrite.c": {
+      "bytes": 155689,
+      "mode": 436,
+      "sha256": "6c0fa9956a82abe68c5eb517c36bbfaafd6eed4d04af6aae85797b5d3ada52c2"
+    },
+    "libtiff/tif_dumpmode.c": {
+      "bytes": 4031,
+      "mode": 436,
+      "sha256": "e850f24a63acc1e67f133a1c783b2ecde72a6816e37e840f206f5c8a5d633fe5"
+    },
+    "libtiff/tif_error.c": {
+      "bytes": 3754,
+      "mode": 436,
+      "sha256": "ec178c0dcb7d1e4e6a5aec3220549ab5372cdc1725b185584972c005d11f5abd"
+    },
+    "libtiff/tif_extension.c": {
+      "bytes": 3099,
+      "mode": 436,
+      "sha256": "b49abfbd8f153237ff1187c6c1d34ffd0a6f26013b70d133b41ba64cbbf725ca"
+    },
+    "libtiff/tif_fax3.c": {
+      "bytes": 65087,
+      "mode": 436,
+      "sha256": "21e3a1efe3a309662736d4d745a01c305e411cc22fd17453cb48adcc1498c31f"
+    },
+    "libtiff/tif_fax3.h": {
+      "bytes": 43810,
+      "mode": 436,
+      "sha256": "1f76e5301166899b22409c31192d9f91be00bbe61f6d2badc529ece3b839de2d"
+    },
+    "libtiff/tif_fax3sm.c": {
+      "bytes": 104760,
+      "mode": 436,
+      "sha256": "7484907f2bd8a2439f582158e2eeef7f209780a411ea07e1b88ce74fa0cbbc75"
+    },
+    "libtiff/tif_flush.c": {
+      "bytes": 5525,
+      "mode": 436,
+      "sha256": "0d6277cc2c3c898056290be7162913b148ce13f0d27a1146e1f1f30e34a014ae"
+    },
+    "libtiff/tif_getimage.c": {
+      "bytes": 114402,
+      "mode": 436,
+      "sha256": "9ebfe8afe9d74f6b3d23d5172d1e20150c3162082a80d2eb0fa776817915dc07"
+    },
+    "libtiff/tif_hash_set.c": {
+      "bytes": 18401,
+      "mode": 436,
+      "sha256": "f3d3aaf6ac8bfa79626e48fa4cc17c65abee3caa7577154370391c82a74120f4"
+    },
+    "libtiff/tif_hash_set.h": {
+      "bytes": 3384,
+      "mode": 436,
+      "sha256": "de1ba012c293a798301e445e2d65b8a37bfd60426b7a6be59891058163c896eb"
+    },
+    "libtiff/tif_jbig.c": {
+      "bytes": 7085,
+      "mode": 436,
+      "sha256": "1df9b75fef78ab9472fa78bc1604a2a5f26dace49e9b197f669ac640f4718d77"
+    },
+    "libtiff/tif_jpeg.c": {
+      "bytes": 100541,
+      "mode": 436,
+      "sha256": "f6b80b90e7fb8f17448d07ceebb075dc1b8371fba5f84ab3ed00df2730a13c21"
+    },
+    "libtiff/tif_jpeg_12.c": {
+      "bytes": 1356,
+      "mode": 436,
+      "sha256": "ced2ed32bd1f9537b004eebfdda273833655e747fea6103289597a22fa5394e4"
+    },
+    "libtiff/tif_lerc.c": {
+      "bytes": 50658,
+      "mode": 436,
+      "sha256": "49002d1ce1a608d9cf0e694fe9ff5b3f491e27e32356092ca9f06ad90a5c822a"
+    },
+    "libtiff/tif_luv.c": {
+      "bytes": 54576,
+      "mode": 436,
+      "sha256": "21144d655c24e7ef0aea38db8852ec90130b55a003a2f2a0ab54c7f5c5787fa6"
+    },
+    "libtiff/tif_lzma.c": {
+      "bytes": 17797,
+      "mode": 436,
+      "sha256": "1389c2731b6ba4ca821ee6b6c5c2deda924e31e90637e550927ab3d8e6c54f6c"
+    },
+    "libtiff/tif_lzw.c": {
+      "bytes": 47854,
+      "mode": 436,
+      "sha256": "d313ba3ff2e358e9a516f7c5e7ce9b2f86ef12f505e667b2c6526da1a5085099"
+    },
+    "libtiff/tif_next.c": {
+      "bytes": 7286,
+      "mode": 436,
+      "sha256": "10a71e4975baac7278c6ed3ae4b0eb18402027ce1e4a2feb58873250269b9022"
+    },
+    "libtiff/tif_ojpeg.c": {
+      "bytes": 103264,
+      "mode": 436,
+      "sha256": "e0dcb8bf12d3b403407155ac84402158c4efb0f19d2c6e10f16329b2bf311bc4"
+    },
+    "libtiff/tif_open.c": {
+      "bytes": 32920,
+      "mode": 436,
+      "sha256": "d536531e0323cc007982e8ec10d4cae03b984f19523d1b3e66dd60a7f33ce959"
+    },
+    "libtiff/tif_packbits.c": {
+      "bytes": 10295,
+      "mode": 436,
+      "sha256": "6882b72c2770de2f5c491d34f81a40be6b0782a65f04b6c5b7b4a18035db7e83"
+    },
+    "libtiff/tif_pixarlog.c": {
+      "bytes": 58582,
+      "mode": 436,
+      "sha256": "3dd66ae360355845b2e69c24892ea3c053650317f162d9a824700d6aa507f862"
+    },
+    "libtiff/tif_predict.c": {
+      "bytes": 35439,
+      "mode": 436,
+      "sha256": "5480cb89241e7c0095b4a85c37aeb91a1c7ddf62ab05c2ac634e9ce96bc0618a"
+    },
+    "libtiff/tif_predict.h": {
+      "bytes": 2897,
+      "mode": 436,
+      "sha256": "a1a7241bac6631f1161921f5158a96c7ee53dbe293f7caefdf945cd279046c48"
+    },
+    "libtiff/tif_print.c": {
+      "bytes": 27925,
+      "mode": 436,
+      "sha256": "d60c90ebb8c30af1374022a42760034ff751a83470de340d00d9ed8d1b637de2"
+    },
+    "libtiff/tif_read.c": {
+      "bytes": 61698,
+      "mode": 436,
+      "sha256": "332043d298faf86609a1e07eed21fb4da95b0e42d2df0af43e7e25cd2578997e"
+    },
+    "libtiff/tif_stream.cxx": {
+      "bytes": 13479,
+      "mode": 436,
+      "sha256": "80fe30ffefee7bab48fe9699af5cba5aac72b8d3e22bb90e768623c5751a24db"
+    },
+    "libtiff/tif_strip.c": {
+      "bytes": 14582,
+      "mode": 436,
+      "sha256": "30796199aec3fa7f6c37386cf464ca5941701bf90e77a70c52a6cf0dd00a1757"
+    },
+    "libtiff/tif_swab.c": {
+      "bytes": 10179,
+      "mode": 436,
+      "sha256": "c18d2549216dbcc2111726473c15dd5e2bd40653e2c64984ac51ca720fdbc3ac"
+    },
+    "libtiff/tif_thunder.c": {
+      "bytes": 7484,
+      "mode": 436,
+      "sha256": "0e1013bc534f49f8b1d99439b19fe87ac18bfcb9bcda390f43d4a909f0236ae6"
+    },
+    "libtiff/tif_tile.c": {
+      "bytes": 9084,
+      "mode": 436,
+      "sha256": "40b00f3b91e54a88e541a6ad634bad2044f5eb0b9d749ed92fac7b37e66d32df"
+    },
+    "libtiff/tif_unix.c": {
+      "bytes": 9894,
+      "mode": 436,
+      "sha256": "b731c27df24670eaae8fe42abdfef118c4a344e10cd9901ca3df87952eb9bf7e"
+    },
+    "libtiff/tif_version.c": {
+      "bytes": 1343,
+      "mode": 436,
+      "sha256": "c6bc3af2cc77a377f780bbe87087d2fc7a49686dd88b9a1a69d57b95530b95b0"
+    },
+    "libtiff/tif_warning.c": {
+      "bytes": 3127,
+      "mode": 436,
+      "sha256": "cfb6a08e9240ca789b061be18b980173d07fe6d645a5eace7557f33d076369bb"
+    },
+    "libtiff/tif_webp.c": {
+      "bytes": 27888,
+      "mode": 436,
+      "sha256": "fa0e2b6da3190db562b9a462ed6e24156ae430c9f0870f8ae1b052441ef4520f"
+    },
+    "libtiff/tif_win32.c": {
+      "bytes": 11938,
+      "mode": 436,
+      "sha256": "e5406870a620641a0907a35974e886fb9691a6d975f01338d42359a0d4b4284e"
+    },
+    "libtiff/tif_win32_versioninfo.rc": {
+      "bytes": 1252,
+      "mode": 436,
+      "sha256": "48ece7affe424792ce1bb649f9525d905cef7b22d1ca80740b5cff7222200443"
+    },
+    "libtiff/tif_write.c": {
+      "bytes": 34939,
+      "mode": 436,
+      "sha256": "2d970aacf60e6e6e884353361c1e781c2fe5f90fdd2fe1aaee7cf93863e53f78"
+    },
+    "libtiff/tif_zip.c": {
+      "bytes": 24151,
+      "mode": 436,
+      "sha256": "1ca068ada61c583f20dcd969d1acabc2b9c58eea4a4b18964644d34d5452e207"
+    },
+    "libtiff/tif_zstd.c": {
+      "bytes": 11774,
+      "mode": 436,
+      "sha256": "0a6aad14cf27109cf819d68117693c610294a403c9f2899a885d84dadc01fc1a"
+    },
+    "libtiff/tiff.h": {
+      "bytes": 59948,
+      "mode": 436,
+      "sha256": "ff8668357867cefdb31d7807a441fea04422bcff929303be09e16d99c7528fa6"
+    },
+    "libtiff/tiffconf.h.cmake.in": {
+      "bytes": 4102,
+      "mode": 436,
+      "sha256": "d8de2b096f1766011bc03c96c4a71f343fc4dfa444f383396ec6c4adb46efecc"
+    },
+    "libtiff/tiffconf.h.in": {
+      "bytes": 3774,
+      "mode": 436,
+      "sha256": "acfcaca16764295106f4bd02e43602abaaa17f009ea0cd13c57839300b4b6e23"
+    },
+    "libtiff/tiffio.h": {
+      "bytes": 29505,
+      "mode": 436,
+      "sha256": "03ed4a148b230ae5ae3636b07b66e97d55956f9a13c4baf98ed707fc7e712f5e"
+    },
+    "libtiff/tiffio.hxx": {
+      "bytes": 1525,
+      "mode": 436,
+      "sha256": "cd7ebd22cdba45167415b000e923f7d0ef9301028a3e775e3ace9e8c60d15ece"
+    },
+    "libtiff/tiffiop.h": {
+      "bytes": 26607,
+      "mode": 436,
+      "sha256": "45f09bf096c43a776456e23045ade192d9b20adbdbaaa20bd14df0570ea7d668"
+    },
+    "libtiff/tiffvers.h.cmake.in": {
+      "bytes": 1519,
+      "mode": 436,
+      "sha256": "72d2408dca6b7acf7b4ad6770a995abf0e141960a246817778ea2a7d8930d64f"
+    },
+    "libtiff/tiffvers.h.in": {
+      "bytes": 1519,
+      "mode": 436,
+      "sha256": "72d2408dca6b7acf7b4ad6770a995abf0e141960a246817778ea2a7d8930d64f"
+    },
+    "libtiff/uvcode.h": {
+      "bytes": 5521,
+      "mode": 436,
+      "sha256": "f815e1b3530ad3f48ea47a2865d39a2b40f59a18876410cbdda976b64c2a3042"
+    },
+    "placeholder.h": {
+      "bytes": 138,
+      "mode": 436,
+      "sha256": "9289887eb8ed9fdf7e62f1f628c5a2a55646870023043bcd7f478b8f28ddd24c"
+    },
+    "port/CMakeLists.txt": {
+      "bytes": 2101,
+      "mode": 509,
+      "sha256": "a55a3448dc5dc4024e998f578d7b82ca00a8de505514527a95029ad1028d3a38"
+    },
+    "port/Makefile.am": {
+      "bytes": 1439,
+      "mode": 436,
+      "sha256": "7ccb88e7002053f7e7974a71b235221f065616b3d1c4bb46f133b77dda4afaa7"
+    },
+    "port/dummy.c": {
+      "bytes": 128,
+      "mode": 436,
+      "sha256": "e0f3d103cddffb8817e7753cbf279fe11e2597eff950d4ec33f0edff35c29a9c"
+    },
+    "port/getopt.c": {
+      "bytes": 4388,
+      "mode": 436,
+      "sha256": "d59d7be5e45aa8b889ce456a0261bb61b35869432d60bd6ff7badaab778bd702"
+    },
+    "port/libport.h": {
+      "bytes": 1476,
+      "mode": 436,
+      "sha256": "a89bfeed430e22059128a166d94bf3645726fd3c9b503077c3a837c554ba689f"
+    },
+    "port/libport_config.h.cmake.in": {
+      "bytes": 444,
+      "mode": 436,
+      "sha256": "c5d3002749ef25e93af271a25e2a8f824610a01f6e89a0ce3a91216a2d11213d"
+    },
+    "port/libport_config.h.in": {
+      "bytes": 325,
+      "mode": 436,
+      "sha256": "9a5f8d320b2652522f8f416574ef7a5465abff3bb2fb8875721fa21854e0574e"
+    },
+    "port/libport_config.vc.h": {
+      "bytes": 258,
+      "mode": 436,
+      "sha256": "4e9ec4ac4ee46245fa7b84dd905787d6d8a10fe24280955b803a1741b417fa9b"
+    },
+    "test/CMakeLists.txt": {
+      "bytes": 22555,
+      "mode": 436,
+      "sha256": "bce7df0847ce9c91658ad6431499ff8f88dc7be494a3dccc947a819c104592e4"
+    },
+    "test/Makefile.am": {
+      "bytes": 15012,
+      "mode": 436,
+      "sha256": "3d37221d1bdb28d6b233819b258bdae7bf648b08e66e29e706e45495259cb5e3"
+    },
+    "test/TiffSplitTest.cmake": {
+      "bytes": 1599,
+      "mode": 436,
+      "sha256": "43f4141551e5b3f9a3cc557e278c9f900bbee95b66ede147ae38d88c104a6d61"
+    },
+    "test/TiffTest.cmake": {
+      "bytes": 2632,
+      "mode": 436,
+      "sha256": "b802d0ada10e7d3f88805309dd0289b6a98920dd275c24a3fdc3ab517cf5c046"
+    },
+    "test/TiffTestCommon.cmake": {
+      "bytes": 4728,
+      "mode": 436,
+      "sha256": "2b1c8c76c4b440e11eaccd2a56f8d204612ed4ccc746f40b43ac4c92d9009096"
+    },
+    "test/ascii_tag.c": {
+      "bytes": 5688,
+      "mode": 436,
+      "sha256": "6135f3a19f2dde6a96c0106a49a6972a5d235dc4a236a1afef7e91065cb9bd92"
+    },
+    "test/check_tag.c": {
+      "bytes": 2552,
+      "mode": 436,
+      "sha256": "ca9bc0665f8b3f8af3ef9282788a8527f737e44b15c4f63edd76982f849edda8"
+    },
+    "test/check_tag.h": {
+      "bytes": 352,
+      "mode": 436,
+      "sha256": "e3ed387db37bb548aef94bc8ea1e0a4b0a6d7e0118b5fccc5a45ad5578ad4a86"
+    },
+    "test/common.sh": {
+      "bytes": 3220,
+      "mode": 436,
+      "sha256": "e8c7ce3fa2eaf0ec7b0440ec99dbf80150d86cc6e96df48ade850ffdfc148914"
+    },
+    "test/custom_dir.c": {
+      "bytes": 7773,
+      "mode": 436,
+      "sha256": "d4336f8452c6bb845c8b97680729837ab5d9a523d891fbcc18886d3aa669e2ca"
+    },
+    "test/custom_dir_EXIF_231.c": {
+      "bytes": 78360,
+      "mode": 436,
+      "sha256": "442daa8a993b958a7691a956d3e8c20992e236be8476651807e840086e825398"
+    },
+    "test/defer_strile_loading.c": {
+      "bytes": 11256,
+      "mode": 436,
+      "sha256": "f18773193fe635be24293411386a8bce55354b8b05cda60b670f7c94c43457d0"
+    },
+    "test/defer_strile_writing.c": {
+      "bytes": 6526,
+      "mode": 436,
+      "sha256": "2140d8dda0919332010f06b5214399560393f339d2023f640fd7132c8d257df8"
+    },
+    "test/fax2tiff.sh": {
+      "bytes": 427,
+      "mode": 509,
+      "sha256": "a56be46f4f2032c7fb29e78220cff638fcad345634957bc529d813b049504898"
+    },
+    "test/long_tag.c": {
+      "bytes": 4521,
+      "mode": 436,
+      "sha256": "d8f6175410360da83f98847ed1420c5b265d3fe33b06224dc31f265c8d2932be"
+    },
+    "test/ppm2tiff_pbm.sh": {
+      "bytes": 173,
+      "mode": 509,
+      "sha256": "afb991f6a19f400a29b462dfc6af4aab6ea70a3ea10d478c34c19d30e2dfefbe"
+    },
+    "test/ppm2tiff_pgm.sh": {
+      "bytes": 173,
+      "mode": 509,
+      "sha256": "d4fa2782f839380838ce7e7a78ea157b0eac9b9edcb32769ac3bf918b1daf431"
+    },
+    "test/ppm2tiff_ppm.sh": {
+      "bytes": 305,
+      "mode": 509,
+      "sha256": "7bd79092ac45aced5e642446529743907c32d7121272ad56bf387acce229b068"
+    },
+    "test/rational_precision2double.c": {
+      "bytes": 62475,
+      "mode": 436,
+      "sha256": "3488e7d48d072704205757488f15748e53d9538dd5521b4d9c534ff8c1aed93d"
+    },
+    "test/raw_decode.c": {
+      "bytes": 9044,
+      "mode": 436,
+      "sha256": "d21fd725943b81890bc29296b3015058f0511483b36fa31145b81ee8f93669e5"
+    },
+    "test/rewrite_tag.c": {
+      "bytes": 10463,
+      "mode": 436,
+      "sha256": "d8776b90e0af13c36d3f6d4dece165a571e6feb7b5ad0f294520907d23fe84d2"
+    },
+    "test/short_tag.c": {
+      "bytes": 6605,
+      "mode": 436,
+      "sha256": "3a55173ad43737c15d4ceb8921bab84f8296afd5b6ac68e157f2dfe63dd21cf6"
+    },
+    "test/strip.c": {
+      "bytes": 8543,
+      "mode": 436,
+      "sha256": "3554d15a222c7b15ec2abcf0dfd6fde1103941d0baf5e8fde009d2b576ad204d"
+    },
+    "test/strip.h": {
+      "bytes": 984,
+      "mode": 436,
+      "sha256": "7640324ddb712d0035f1c89569b0bccb3fbd4fd7bb13ce921e013a76b3e1d4fb"
+    },
+    "test/strip_rw.c": {
+      "bytes": 5373,
+      "mode": 436,
+      "sha256": "9fcb8c921162f16a6ebe39c24d15bf1303cf321cb7ee3945cf511e4f362a4a4b"
+    },
+    "test/test_IFD_enlargement.c": {
+      "bytes": 64356,
+      "mode": 436,
+      "sha256": "59309b184feca72aaea28aecbaae6f7f947bab0f3b238435294a5002d1287031"
+    },
+    "test/test_RGBAImage.c": {
+      "bytes": 47687,
+      "mode": 436,
+      "sha256": "8f63ee481199b805e422a9f3f2f6b711c25f40dcd4fd79375b36cf31864f5b5c"
+    },
+    "test/test_append_to_strip.c": {
+      "bytes": 3487,
+      "mode": 436,
+      "sha256": "3d6f2fcdad4d96f324fa1d2d16dd41f37225830bd3349f3e7959c28444a0af5e"
+    },
+    "test/test_arrays.c": {
+      "bytes": 55079,
+      "mode": 436,
+      "sha256": "d8d30b65b3d409a79ec42757efe1a371368fdd00689bc32c0f57bd96b698640b"
+    },
+    "test/test_arrays.h": {
+      "bytes": 1934,
+      "mode": 436,
+      "sha256": "2caacc13c39cbf9c5cd2ae8e0b11535bd99e8124c92f116580d55b784472dc67"
+    },
+    "test/test_directory.c": {
+      "bytes": 83597,
+      "mode": 436,
+      "sha256": "15d190266fe84ca5e28979f9da4561b6dbd1abe7876a6d90d40f92b06e6fa60f"
+    },
+    "test/test_ifd_loop_detection.c": {
+      "bytes": 21239,
+      "mode": 436,
+      "sha256": "330086fec66da45cddf683fe912f3e8adace15f346f78a9dba67ae22e98bf990"
+    },
+    "test/test_open_options.c": {
+      "bytes": 18036,
+      "mode": 436,
+      "sha256": "c45387097ca1ee8df43fc45124cc648309cfd33ba5c21faaabb4254e294c0824"
+    },
+    "test/test_signed_tags.c": {
+      "bytes": 43327,
+      "mode": 436,
+      "sha256": "ae306fce64de980c700158f5cf772d7a86b18fe072099bc79dd06e284ccf6609"
+    },
+    "test/test_transferfunction_write_read.c": {
+      "bytes": 13957,
+      "mode": 436,
+      "sha256": "cce0778808f053d1da476df6d17debad7087f6e9d4804899ceb680dd3a218653"
+    },
+    "test/test_write_read_tags.c": {
+      "bytes": 75933,
+      "mode": 436,
+      "sha256": "bba29e33f502522e3bf6d0099d5ca750cf6b959a34a706ce19e225e5b2410e24"
+    },
+    "test/testdeflatelaststripextradata.sh": {
+      "bytes": 1440,
+      "mode": 509,
+      "sha256": "e51f7f3c923880ede60297b89ab0da61baa9d2f1f036066321a2f1fd3cb636c6"
+    },
+    "test/testfax3_bug54_1dnoEOL.sh": {
+      "bytes": 760,
+      "mode": 509,
+      "sha256": "43a283edd5579130116d0a1717b9a68affe6cab2555f49777c30e05991746c8d"
+    },
+    "test/testfax3_bug_513.sh": {
+      "bytes": 738,
+      "mode": 509,
+      "sha256": "8a88a8f0a3eca6bd85fad3839dbb590f0d713e1d4e6efa1ad73d05b002d07b7a"
+    },
+    "test/testfax4.sh": {
+      "bytes": 683,
+      "mode": 509,
+      "sha256": "b6874392c9fc6f0953e56bba77a0470beeb2758af2bd0d7827d86d33e8de0a9d"
+    },
+    "test/testtypes.c": {
+      "bytes": 2267,
+      "mode": 436,
+      "sha256": "feb26f0a6af8d161fba29af50394e82e4e824e4cae08e94b58622bb445df9876"
+    },
+    "test/tiff2bw-logluv-3c-16b.sh": {
+      "bytes": 229,
+      "mode": 509,
+      "sha256": "fe6f05986d8ec84500f155507d5c3383fab3100c76a268e56580278a2f2df32a"
+    },
+    "test/tiff2bw-lzw-single-strip.sh": {
+      "bytes": 235,
+      "mode": 509,
+      "sha256": "eff1e8545de72164412e6d6e901fbe7cbd98b628b41344fa5d7f0750e159c5ec"
+    },
+    "test/tiff2bw-minisblack-1c-16b.sh": {
+      "bytes": 237,
+      "mode": 509,
+      "sha256": "697485363b079cc5325e5e27283cac4f02a5908eb0aaa95427b755ce0f598e1a"
+    },
+    "test/tiff2bw-minisblack-1c-8b.sh": {
+      "bytes": 235,
+      "mode": 509,
+      "sha256": "d4cadf2237d5dfc59c8fda1a4189a0d82fe24f50b873033a1b5f0cc15ce4ae5d"
+    },
+    "test/tiff2bw-minisblack-2c-8b-alpha.sh": {
+      "bytes": 247,
+      "mode": 509,
+      "sha256": "945b212f88e37604aadd8b1afa5c3bf5568c523d771de5bfcdcc5136c8cda8b0"
+    },
+    "test/tiff2bw-miniswhite-1c-1b.sh": {
+      "bytes": 235,
+      "mode": 509,
+      "sha256": "11b3a77821ad1cea39c27f1dbd5201c7348873d9258362b15c4d18944ac30fa3"
+    },
+    "test/tiff2bw-ojpeg_chewey_subsamp21_multi_strip.sh": {
+      "bytes": 271,
+      "mode": 509,
+      "sha256": "1bc27b2b865024f7afaf0d1da040e5b86eec3cd27f3331c1b6a53032917d1073"
+    },
+    "test/tiff2bw-ojpeg_zackthecat_subsamp22_single_strip.sh": {
+      "bytes": 281,
+      "mode": 509,
+      "sha256": "869d447487c9540fb928b9e9729e852a37563354ccbfeb28dcf30149e761306e"
+    },
+    "test/tiff2bw-palette-1c-1b.sh": {
+      "bytes": 229,
+      "mode": 509,
+      "sha256": "378783bd3a811e4a6f6efed34c4bb4b221f3b6679b6ec78b74da8499abeec99d"
+    },
+    "test/tiff2bw-palette-1c-4b.sh": {
+      "bytes": 229,
+      "mode": 509,
+      "sha256": "e7edd924eb901c1c5cb732e86cd309270f427cfb512505cfa87e11c0739ae8c5"
+    },
+    "test/tiff2bw-palette-1c-8b.sh": {
+      "bytes": 229,
+      "mode": 509,
+      "sha256": "bc1fb98dfde796907c04a4970dd2b858d541678a00cbb88cc9ad4c339989517f"
+    },
+    "test/tiff2bw-quad-lzw-compat.sh": {
+      "bytes": 233,
+      "mode": 509,
+      "sha256": "458bbd869a0777b371a3dff570c39d6742299d6183bc5e8469eb945e71bd194f"
+    },
+    "test/tiff2bw-quad-tile.jpg.sh": {
+      "bytes": 229,
+      "mode": 509,
+      "sha256": "751b99d860baa6eea54a907be8f22c05724c033730195d2b4719673c254b5ce1"
+    },
+    "test/tiff2bw-quad-tile.jpg.t1iff.sh": {
+      "bytes": 236,
+      "mode": 509,
+      "sha256": "63b658008a3c3886ef4edaa646a9c5ee2f73ef001407cde79677a1c53aa6ca8c"
+    },
+    "test/tiff2bw-rgb-3c-16b.sh": {
+      "bytes": 223,
+      "mode": 509,
+      "sha256": "423bb15491424f63af778efa330e34e8eaa24824df1e5e8c306276f6b872dce2"
+    },
+    "test/tiff2bw-rgb-3c-8b.sh": {
+      "bytes": 221,
+      "mode": 509,
+      "sha256": "654816b553a1577fa8377ec4f5060801b86a5ac96336cc9a855591a00bb37da1"
+    },
+    "test/tiff2pdf.sh": {
+      "bytes": 143,
+      "mode": 509,
+      "sha256": "599067aa70af5d9264d6f2a9475a756355739b729875bb377eb6ad46fb40002a"
+    },
+    "test/tiff2ps-EPS1.sh": {
+      "bytes": 488,
+      "mode": 509,
+      "sha256": "ba8ff4e60a3a51d42ab00faf75d877a09b3ad4b3bb2d5d5f16d93b7408c3922b"
+    },
+    "test/tiff2ps-PS1.sh": {
+      "bytes": 479,
+      "mode": 509,
+      "sha256": "d9e817f3425a576ce5ce13f48926e43b15bab9e7fe719262f45cc5744f8750e0"
+    },
+    "test/tiff2ps-PS2.sh": {
+      "bytes": 477,
+      "mode": 509,
+      "sha256": "53d4d90f5746e080162cd0e450faa90e4b2761de7f4b6d318e4de4791873d884"
+    },
+    "test/tiff2ps-PS3.sh": {
+      "bytes": 477,
+      "mode": 509,
+      "sha256": "2fe89348c6d1dd7dbbc5d58845784132fd1ebe90b0c148867c99b7b9388b4c9f"
+    },
+    "test/tiff2rgba-32bpp-None-jpeg.sh": {
+      "bytes": 244,
+      "mode": 509,
+      "sha256": "8402dd1a541693b22d90dc080ab8fa5616104a8e89552d93f116dca53b6f3bdd"
+    },
+    "test/tiff2rgba-logluv-3c-16b.sh": {
+      "bytes": 233,
+      "mode": 509,
+      "sha256": "a6f7a670b930e9abbbbfb26b65af4ba1bf8cf3a4d1ac6ed6a7f6743307a4a8df"
+    },
+    "test/tiff2rgba-lzw-single-strip.sh": {
+      "bytes": 239,
+      "mode": 509,
+      "sha256": "11bc3916e28f5e2032dd80470048912f17149129c6ed7012be2efceeb9b3844d"
+    },
+    "test/tiff2rgba-minisblack-1c-16b.sh": {
+      "bytes": 241,
+      "mode": 509,
+      "sha256": "57adc35fc491dd0471a572d66db9756944e42d92d665305e7699a05862946037"
+    },
+    "test/tiff2rgba-minisblack-1c-8b.sh": {
+      "bytes": 239,
+      "mode": 509,
+      "sha256": "baaedaeac7824fda7a55b1438fd3eff1b8a92edc92700f87de42aaa465b0b68f"
+    },
+    "test/tiff2rgba-minisblack-2c-8b-alpha.sh": {
+      "bytes": 251,
+      "mode": 509,
+      "sha256": "d0acfddb2fac94208a626e192349536dda60419673e1bdf0d4bdae2a3bc54974"
+    },
+    "test/tiff2rgba-miniswhite-1c-1b.sh": {
+      "bytes": 239,
+      "mode": 509,
+      "sha256": "90bd05004e39fc680d813dbc5a871612fe04caca5e893958cd545c1cb1a84f87"
+    },
+    "test/tiff2rgba-ojpeg_chewey_subsamp21_multi_strip.sh": {
+      "bytes": 275,
+      "mode": 509,
+      "sha256": "946b8ce4c79a7f0d1da01902596ed382dbe0dadb3b917643af0e79285aebce45"
+    },
+    "test/tiff2rgba-ojpeg_single_strip_no_rowsperstrip.sh": {
+      "bytes": 275,
+      "mode": 509,
+      "sha256": "6de7f0e11a862a9edcf15cdf5a3fc3e4ab0f22e9e972e955732bcbacea3983ab"
+    },
+    "test/tiff2rgba-ojpeg_zackthecat_subsamp22_single_strip.sh": {
+      "bytes": 285,
+      "mode": 509,
+      "sha256": "c2ae410800796bdfb9b09675d695768c964664a1280adc9abae5c2cf5880a8e3"
+    },
+    "test/tiff2rgba-palette-1c-1b.sh": {
+      "bytes": 233,
+      "mode": 509,
+      "sha256": "822ba22037d2808905e819c73e2ff91079b152ec15ac6054c7d8f3342725bb04"
+    },
+    "test/tiff2rgba-palette-1c-4b.sh": {
+      "bytes": 233,
+      "mode": 509,
+      "sha256": "3eae08099e9b32a97a92f6e46d04b446b827969aa2e5a00f318ebf51180af3b1"
+    },
+    "test/tiff2rgba-palette-1c-8b.sh": {
+      "bytes": 233,
+      "mode": 509,
+      "sha256": "097425d8d035de2dbf6ee3267d0b72483ab394d9528db2896b0f484d3ec494d4"
+    },
+    "test/tiff2rgba-quad-lzw-compat.sh": {
+      "bytes": 237,
+      "mode": 509,
+      "sha256": "7e7e3169937b87b58f7e38eab697d0327e1943fa21101907e71a9bb8b4e5110f"
+    },
+    "test/tiff2rgba-quad-tile.jpg.sh": {
+      "bytes": 233,
+      "mode": 509,
+      "sha256": "805ff32451f1f499b8e297c76a2ae0d51c32c7a2df10ea9242f2ba6cf5ab39ac"
+    },
+    "test/tiff2rgba-quad-tile.jpg.t1iff.sh": {
+      "bytes": 240,
+      "mode": 509,
+      "sha256": "46c76a742c2bf3f3f0bf9365c45e41803d5f6a8bbb6cc10bc7ca9735c3e64472"
+    },
+    "test/tiff2rgba-rgb-3c-16b.sh": {
+      "bytes": 227,
+      "mode": 509,
+      "sha256": "5e3ae4ff99cd08bf307f7a08c842cd1b001feb9fb0e279620cedb15cbd1bd47d"
+    },
+    "test/tiff2rgba-rgb-3c-8b.sh": {
+      "bytes": 225,
+      "mode": 509,
+      "sha256": "a5de408ad68f707fbd1bac392c959453f78f5080eeb05fc0cb342389d6bc9428"
+    },
+    "test/tiffcp-32bpp-None-jpeg.sh": {
+      "bytes": 247,
+      "mode": 509,
+      "sha256": "5d5945ee71a625576f11d285e7c1f621e4592ef754f889a5027c77bee39040a1"
+    },
+    "test/tiffcp-g3-1d-fill.sh": {
+      "bytes": 239,
+      "mode": 509,
+      "sha256": "dba4b763d9cfae0417e0660c4d68d50db60df2af4c0df2f2bc69610fd98dd594"
+    },
+    "test/tiffcp-g3-1d.sh": {
+      "bytes": 202,
+      "mode": 509,
+      "sha256": "3b56e4c0f8f8b9246e57db119f6416974214e40b984b42629a2e1fdd9bf0636f"
+    },
+    "test/tiffcp-g3-2d-fill.sh": {
+      "bytes": 240,
+      "mode": 509,
+      "sha256": "373a1131bc9ba7d35b414308148d0cbe540f68aa8acc0d2f7962b04bbf0317b7"
+    },
+    "test/tiffcp-g3-2d.sh": {
+      "bytes": 202,
+      "mode": 509,
+      "sha256": "f99687a9874848ef41ae60a8bf7c789091ad25885b33a4cc2ab7506014af5317"
+    },
+    "test/tiffcp-g3.sh": {
+      "bytes": 168,
+      "mode": 509,
+      "sha256": "a8d17ad1c52c27b6d6cfe6dd47f9f137f4445606971c653b8764e9d2f5396c22"
+    },
+    "test/tiffcp-g4.sh": {
+      "bytes": 168,
+      "mode": 509,
+      "sha256": "1527770f38bcb92fea2839f16384d221ffe12d42b5efcb13bd329a40ce69cc3b"
+    },
+    "test/tiffcp-logluv.sh": {
+      "bytes": 288,
+      "mode": 509,
+      "sha256": "07435d74fd03ad4d99fb1e764f3311c10fb6e71918143a5863f21e1546996dcf"
+    },
+    "test/tiffcp-lzw-compat.sh": {
+      "bytes": 188,
+      "mode": 509,
+      "sha256": "d4073771094be200046a6fe3de2a0ec377e1d24a33dbd2433edca68005919d4e"
+    },
+    "test/tiffcp-lzw-scanline-decode.sh": {
+      "bytes": 195,
+      "mode": 509,
+      "sha256": "14b990f7a699ed266470c6b2de11f86c2b1067f8b7b232afb1256ba9dfb90f31"
+    },
+    "test/tiffcp-lzw-single-strip-jbig.sh": {
+      "bytes": 248,
+      "mode": 509,
+      "sha256": "0835e21afb5c3a0b235329038ee8da6d0b95096c54bde174f6a38f744e183443"
+    },
+    "test/tiffcp-split-join.sh": {
+      "bytes": 569,
+      "mode": 509,
+      "sha256": "c3293064d4b5695a5cb01374eb7761529258b0ee18bbcfef07cefb47633fb044"
+    },
+    "test/tiffcp-split.sh": {
+      "bytes": 402,
+      "mode": 509,
+      "sha256": "73df270039c264b2fdb9118162c7f38c63b51dec9294812c15537078ef4bdd28"
+    },
+    "test/tiffcp-thumbnail.sh": {
+      "bytes": 279,
+      "mode": 509,
+      "sha256": "f354f67cbcd87eb04cabeb799be023775f7ebabe1315a48b40fd7107d223a7ca"
+    },
+    "test/tiffcrop-32bpp-None-jpeg.sh": {
+      "bytes": 251,
+      "mode": 509,
+      "sha256": "8dcad71d4cd38729ea10406dc27bc420ff8b540fc9016d44d81869e39e0b751a"
+    },
+    "test/tiffcrop-R90-logluv-3c-16b.sh": {
+      "bytes": 240,
+      "mode": 509,
+      "sha256": "bc64bedb077282848b4644c4cb6404b16cceeef7d3eb4f6711d20dbfe4f43559"
+    },
+    "test/tiffcrop-R90-lzw-single-strip.sh": {
+      "bytes": 246,
+      "mode": 509,
+      "sha256": "f38c9c1bd047853914f4a26d0a39ad7c5870e81c6026491b6d918956dcab590d"
+    },
+    "test/tiffcrop-R90-minisblack-1c-16b.sh": {
+      "bytes": 248,
+      "mode": 509,
+      "sha256": "f5af6cecf7766c445e34d2e0e968a42b3ad19235f6620508910aa3050b6bc4d3"
+    },
+    "test/tiffcrop-R90-minisblack-1c-8b.sh": {
+      "bytes": 246,
+      "mode": 509,
+      "sha256": "5744eed6a23dffeca1253e9508e5dacb25afc4969381fb2c824b609a4f94ce1f"
+    },
+    "test/tiffcrop-R90-minisblack-2c-8b-alpha.sh": {
+      "bytes": 258,
+      "mode": 509,
+      "sha256": "88f8996b423cb54dec43bcb30e4a8d8949854506a3d3bf12593d05736f02b9a1"
+    },
+    "test/tiffcrop-R90-miniswhite-1c-1b.sh": {
+      "bytes": 246,
+      "mode": 509,
+      "sha256": "00a583e2ebe131a71bbe3b09d4fb0ba2cd726d6810dd5b337edd51aa48e26fe7"
+    },
+    "test/tiffcrop-R90-ojpeg_chewey_subsamp21_multi_strip.sh": {
+      "bytes": 282,
+      "mode": 509,
+      "sha256": "5c991770caa3cc933bef41a23305446c16179b354fbe7ae411e3f438db4c4272"
+    },
+    "test/tiffcrop-R90-ojpeg_zackthecat_subsamp22_single_strip.sh": {
+      "bytes": 292,
+      "mode": 509,
+      "sha256": "987d045a6a14d72f1feb55725d54571347c17f6ae7bffcc904e6006de43d4e16"
+    },
+    "test/tiffcrop-R90-palette-1c-1b.sh": {
+      "bytes": 240,
+      "mode": 509,
+      "sha256": "aaeddf278ab304b0c45b2e59cbcea8451ff9621842df69dfbdfc2e8cd48c13d7"
+    },
+    "test/tiffcrop-R90-palette-1c-4b.sh": {
+      "bytes": 240,
+      "mode": 509,
+      "sha256": "740b619d537a8196feda4947027dafeab9d36bf7ff0790d29a08171df0963f4a"
+    },
+    "test/tiffcrop-R90-palette-1c-8b.sh": {
+      "bytes": 240,
+      "mode": 509,
+      "sha256": "cec3796b0fa2f7daa60d8f9f1c9d8cde73fa96d9382a86a2159a47b912eb36b6"
+    },
+    "test/tiffcrop-R90-quad-lzw-compat.sh": {
+      "bytes": 244,
+      "mode": 509,
+      "sha256": "9d55cf66d9388c7bc87debbf7ab6476bc540dde2e35cad4be73e853bbabb2ac0"
+    },
+    "test/tiffcrop-R90-quad-tile.jpg.sh": {
+      "bytes": 240,
+      "mode": 509,
+      "sha256": "747c1dacb6b5ef036a423ca216b39341824aa121f4e23a7c9cf28c09ab5f883e"
+    },
+    "test/tiffcrop-R90-quad-tile.jpg.t1iff.sh": {
+      "bytes": 247,
+      "mode": 509,
+      "sha256": "796f02d9fc64d4bc9b0a72a5083e0743749ac1fc355cac33bbb9fc641919de97"
+    },
+    "test/tiffcrop-R90-rgb-3c-16b.sh": {
+      "bytes": 234,
+      "mode": 509,
+      "sha256": "da76676c23da8b8f7c6091ea65a290e2d50dcc89f351acaf3d0952a55d5f369f"
+    },
+    "test/tiffcrop-R90-rgb-3c-8b.sh": {
+      "bytes": 232,
+      "mode": 509,
+      "sha256": "302c1da4284d7bcaa0bb81f88dfc8f74c63646a7be5b65d0ee056bcb8c0b2324"
+    },
+    "test/tiffcrop-doubleflip-logluv-3c-16b.sh": {
+      "bytes": 250,
+      "mode": 509,
+      "sha256": "8328f69eda27279c6b9c1e74d9c6dde7d0751c234a3ed79d993ef79683aa408a"
+    },
+    "test/tiffcrop-doubleflip-lzw-single-strip.sh": {
+      "bytes": 256,
+      "mode": 509,
+      "sha256": "40826d92d167ca75ce07fb0b6671f540d7641a35df2826202091bf9e0e837d32"
+    },
+    "test/tiffcrop-doubleflip-minisblack-1c-16b.sh": {
+      "bytes": 258,
+      "mode": 509,
+      "sha256": "121a6cf4f3422260c166c11901329c48632228913b70385fd95f6e81b5ad1e83"
+    },
+    "test/tiffcrop-doubleflip-minisblack-1c-8b.sh": {
+      "bytes": 256,
+      "mode": 509,
+      "sha256": "21c3aa3b04014fb26d4ec31b07ee4f412aee16b7d7cbc10f24fa5e8c2100c386"
+    },
+    "test/tiffcrop-doubleflip-minisblack-2c-8b-alpha.sh": {
+      "bytes": 268,
+      "mode": 509,
+      "sha256": "2909f8d5bef2bc55303103e372a31e0519bf98b2ce2eaa19f8210550b36c36d6"
+    },
+    "test/tiffcrop-doubleflip-miniswhite-1c-1b.sh": {
+      "bytes": 256,
+      "mode": 509,
+      "sha256": "e169a64557e810a88cbe6ec52185e15436ddb469122d5e525b74ba69ede22feb"
+    },
+    "test/tiffcrop-doubleflip-ojpeg_chewey_subsamp21_multi_strip.sh": {
+      "bytes": 292,
+      "mode": 509,
+      "sha256": "90cc28b35bf44917eb79edd1e792b690ba48271f8b0b891e673b668b6e3437a2"
+    },
+    "test/tiffcrop-doubleflip-ojpeg_zackthecat_subsamp22_single_strip.sh": {
+      "bytes": 302,
+      "mode": 509,
+      "sha256": "5738ceb04e7598e0f69b98afe900a17a24ebc6f30b8b0a9daac4d0ced236958d"
+    },
+    "test/tiffcrop-doubleflip-palette-1c-1b.sh": {
+      "bytes": 250,
+      "mode": 509,
+      "sha256": "1af6be1c00fa220ba930f5941d57b539edb78e4f0b293b41f287fc4461a5a197"
+    },
+    "test/tiffcrop-doubleflip-palette-1c-4b.sh": {
+      "bytes": 250,
+      "mode": 509,
+      "sha256": "94109e5445865989f6175a506a461b0bc7bf7473f33faf13c539251d9e5412ad"
+    },
+    "test/tiffcrop-doubleflip-palette-1c-8b.sh": {
+      "bytes": 250,
+      "mode": 509,
+      "sha256": "b5acff72c8bebe19ce8adabf5be3cf709a5dc8131823c8fa1f0ddff9711afd01"
+    },
+    "test/tiffcrop-doubleflip-quad-lzw-compat.sh": {
+      "bytes": 254,
+      "mode": 509,
+      "sha256": "dd6c68876c9aaa2417ed6ab83c2d6a3ed310eb5d6b6a93d20e45dc40b1262d69"
+    },
+    "test/tiffcrop-doubleflip-quad-tile.jpg.sh": {
+      "bytes": 250,
+      "mode": 509,
+      "sha256": "9787f3b9c1cdefedb2ddd3b84855950c1f30d3fbc895a440bd4504779ac16019"
+    },
+    "test/tiffcrop-doubleflip-quad-tile.jpg.t1iff.sh": {
+      "bytes": 257,
+      "mode": 509,
+      "sha256": "6b111024e75311b2708ca1208eaf8dd783e3ab4c3d7fdff68d1fda74a5fd53a6"
+    },
+    "test/tiffcrop-doubleflip-rgb-3c-16b.sh": {
+      "bytes": 244,
+      "mode": 509,
+      "sha256": "eeeafd36e4ca7da57ae5a62bdf2dc68f5727af264b6e717a9dc0d711a70408ab"
+    },
+    "test/tiffcrop-doubleflip-rgb-3c-8b.sh": {
+      "bytes": 242,
+      "mode": 509,
+      "sha256": "caab541df64a6acbced90f0d1fa1dc328bdd69c998633cba7472dae884db2468"
+    },
+    "test/tiffcrop-extract-logluv-3c-16b.sh": {
+      "bytes": 264,
+      "mode": 509,
+      "sha256": "c21894eb52bf744b6a258f00c4d9193ad2a198d688c3085c81a97938976a9dd4"
+    },
+    "test/tiffcrop-extract-lzw-single-strip.sh": {
+      "bytes": 270,
+      "mode": 509,
+      "sha256": "5f9aa42b341f89f10e1d18fa21392ce0f88d66010b4a2fec8308b8e2a33694c5"
+    },
+    "test/tiffcrop-extract-minisblack-1c-16b.sh": {
+      "bytes": 272,
+      "mode": 509,
+      "sha256": "c4a6b1774ce519e1afde9b6e9023cfc1ae61d608c1b1b418db5847c3f1c6399a"
+    },
+    "test/tiffcrop-extract-minisblack-1c-8b.sh": {
+      "bytes": 270,
+      "mode": 509,
+      "sha256": "06ff644aef8b68425bbe7e75a200d5cfad460fe4431c9532a65b92e2e6226de1"
+    },
+    "test/tiffcrop-extract-minisblack-2c-8b-alpha.sh": {
+      "bytes": 282,
+      "mode": 509,
+      "sha256": "b25ea5f293e09e729e18c8ac447b137ee94740b355a9ac9ae384b1cc337a6c5b"
+    },
+    "test/tiffcrop-extract-miniswhite-1c-1b.sh": {
+      "bytes": 270,
+      "mode": 509,
+      "sha256": "34cd7f90d69d1d90642ed188712f79caffab42ae8b684d92dda8cba8b9cb1580"
+    },
+    "test/tiffcrop-extract-ojpeg_chewey_subsamp21_multi_strip.sh": {
+      "bytes": 306,
+      "mode": 509,
+      "sha256": "67de4cd16d05f7544eeeb94f470ce116b66ae59ea83eb450ba36f429a97655ce"
+    },
+    "test/tiffcrop-extract-ojpeg_zackthecat_subsamp22_single_strip.sh": {
+      "bytes": 316,
+      "mode": 509,
+      "sha256": "93afa9db3ebc5916f751b88cd173d6d69ea525057a67ddac6ffe9b5cf8d5dc33"
+    },
+    "test/tiffcrop-extract-palette-1c-1b.sh": {
+      "bytes": 264,
+      "mode": 509,
+      "sha256": "a7c66e161a559e0f9be2799c3feffe73df0c0d6049a264c183ff04baf14efd88"
+    },
+    "test/tiffcrop-extract-palette-1c-4b.sh": {
+      "bytes": 264,
+      "mode": 509,
+      "sha256": "5ea5af6db13b7a3e35fc179606c2881420ad1176c05a09248bce584264801c90"
+    },
+    "test/tiffcrop-extract-palette-1c-8b.sh": {
+      "bytes": 264,
+      "mode": 509,
+      "sha256": "2c9b2c793bfbf08b7fddd7234b7d99685b86772b7dee2e1c81ea6f65f07b190a"
+    },
+    "test/tiffcrop-extract-quad-lzw-compat.sh": {
+      "bytes": 268,
+      "mode": 509,
+      "sha256": "dd53875a60f8b52c4ac8ea49f9e4ac122e5173026288e8ffa81f5dec105db570"
+    },
+    "test/tiffcrop-extract-quad-tile.jpg.sh": {
+      "bytes": 264,
+      "mode": 509,
+      "sha256": "68075231d13b73a884bc63ed916c9b4742aaf3169dd7540226e9c31f07d198a3"
+    },
+    "test/tiffcrop-extract-quad-tile.jpg.t1iff.sh": {
+      "bytes": 271,
+      "mode": 509,
+      "sha256": "2af272dc7185acabd96a671ebcb60d1fe045b035d3b89b37cea7d6b89590357a"
+    },
+    "test/tiffcrop-extract-rgb-3c-16b.sh": {
+      "bytes": 258,
+      "mode": 509,
+      "sha256": "4eb78aab7328f21405b4397089468529e826672c9c323beae306ce5da8e5f682"
+    },
+    "test/tiffcrop-extract-rgb-3c-8b.sh": {
+      "bytes": 256,
+      "mode": 509,
+      "sha256": "48d4ffdd0ac601b4b75ee9fd701d60f8e456518dbcfa796dd5fdc1ee42e00c72"
+    },
+    "test/tiffcrop-extractz14-logluv-3c-16b.sh": {
+      "bytes": 260,
+      "mode": 509,
+      "sha256": "942e525e85e76c02f58a24e04d52de5b930dc937399b88de511de81600233aab"
+    },
+    "test/tiffcrop-extractz14-lzw-single-strip.sh": {
+      "bytes": 266,
+      "mode": 509,
+      "sha256": "49985e8705d7d6bae443bb3f1e843109c6971fcfd80be2edba1dea2d1d866259"
+    },
+    "test/tiffcrop-extractz14-minisblack-1c-16b.sh": {
+      "bytes": 268,
+      "mode": 509,
+      "sha256": "9d35290b0041dbd1e02fca9edde0759435a6214f5260dd42e5fa2b69c51fcb7a"
+    },
+    "test/tiffcrop-extractz14-minisblack-1c-8b.sh": {
+      "bytes": 266,
+      "mode": 509,
+      "sha256": "4ecb84e1a21d12a84a687a430863d393698283bf8f78b67fcaa831691e101ea7"
+    },
+    "test/tiffcrop-extractz14-minisblack-2c-8b-alpha.sh": {
+      "bytes": 278,
+      "mode": 509,
+      "sha256": "49fc35e391876d8ba4d865072ab5dbb1ec525eaf1bfd5034467ecac0152b4339"
+    },
+    "test/tiffcrop-extractz14-miniswhite-1c-1b.sh": {
+      "bytes": 266,
+      "mode": 509,
+      "sha256": "44bd5664c8de4d59bc075b147b580f5d1491ad189addba3fdc96d4863f17d8f8"
+    },
+    "test/tiffcrop-extractz14-ojpeg_chewey_subsamp21_multi_strip.sh": {
+      "bytes": 302,
+      "mode": 509,
+      "sha256": "6bfbaa70d60b096c554c00f323646913571cfde555b3e9fa2af23f792ab76184"
+    },
+    "test/tiffcrop-extractz14-ojpeg_zackthecat_subsamp22_single_strip.sh": {
+      "bytes": 312,
+      "mode": 509,
+      "sha256": "221b0ebe0e2c8aa332860fba4db44be57a967917086cfd0d6adca444bda63c24"
+    },
+    "test/tiffcrop-extractz14-palette-1c-1b.sh": {
+      "bytes": 260,
+      "mode": 509,
+      "sha256": "b07d34573dd9b3fd5c1a1be1f86b1ca0432e41f04df40e23233c92f69d080077"
+    },
+    "test/tiffcrop-extractz14-palette-1c-4b.sh": {
+      "bytes": 260,
+      "mode": 509,
+      "sha256": "92b27e68389d47931725fb630a77f49dd5c0f7c55a438aa8e78b65d080f45c05"
+    },
+    "test/tiffcrop-extractz14-palette-1c-8b.sh": {
+      "bytes": 260,
+      "mode": 509,
+      "sha256": "c6d6c75e7a45a37f26119693dc1afd97e88d19a26f82018af65af66d766a0564"
+    },
+    "test/tiffcrop-extractz14-quad-lzw-compat.sh": {
+      "bytes": 264,
+      "mode": 509,
+      "sha256": "837016e19bf38d87e9f281e0bd2c8e0f9bd7ecf987c13efdc29cdd2b90023735"
+    },
+    "test/tiffcrop-extractz14-quad-tile.jpg.sh": {
+      "bytes": 260,
+      "mode": 509,
+      "sha256": "3f278d20d730af38ed6237ec4fe41585aec2525dd1475a04b40d296eafbc2aec"
+    },
+    "test/tiffcrop-extractz14-quad-tile.jpg.t1iff.sh": {
+      "bytes": 267,
+      "mode": 509,
+      "sha256": "09442a2ab75eabee0f1f2d4af719bf8de61338b0a8600ce0c380eb390d513046"
+    },
+    "test/tiffcrop-extractz14-rgb-3c-16b.sh": {
+      "bytes": 254,
+      "mode": 509,
+      "sha256": "0b2e5fbb8e7227264611b48446e8dcdead6c4a7d28815ba9259706822a0214cb"
+    },
+    "test/tiffcrop-extractz14-rgb-3c-8b.sh": {
+      "bytes": 252,
+      "mode": 509,
+      "sha256": "234627071afc259693c5f2d14f7a9ae1ece05d6199a6dc522ffe2fea804bb353"
+    },
+    "test/tiffdump.sh": {
+      "bytes": 126,
+      "mode": 509,
+      "sha256": "6af87c5cef0eed426903001d00ada53f687fba73efeddb8745eb050f2c6089d2"
+    },
+    "test/tiffinfo.sh": {
+      "bytes": 207,
+      "mode": 509,
+      "sha256": "218d38658a51a09f55b9316ad8734b5e2b3e55abbea9117035e952d9a99de86e"
+    },
+    "test/tifftest.h": {
+      "bytes": 1337,
+      "mode": 436,
+      "sha256": "696d3f45cc9cf4bc9ae3b4980bf0f9352e5069860b9683205591a0673042bdde"
+    },
+    "tools/CMakeLists.txt": {
+      "bytes": 9300,
+      "mode": 509,
+      "sha256": "2c3a7b2b2043702261394c507f31ebcb7b57fe9e67b093dce3e3fc2f982d0fd3"
+    },
+    "tools/Makefile.am": {
+      "bytes": 4311,
+      "mode": 436,
+      "sha256": "0e10915f6913f56394ec19ef33fdf54a6db37d2512c5859fdccd675897918ac3"
+    },
+    "tools/fax2ps.c": {
+      "bytes": 16892,
+      "mode": 436,
+      "sha256": "0de7e7222fb7ab11ed88165baeb798dd5d5b0c53403d94dea8372ef057c1a406"
+    },
+    "tools/fax2tiff.c": {
+      "bytes": 18917,
+      "mode": 436,
+      "sha256": "9d055a2571b9875545021aba0e4338d39b1a5c8e771b950f2e286cabaf2b49d7"
+    },
+    "tools/mkg3states.c": {
+      "bytes": 10264,
+      "mode": 436,
+      "sha256": "6a194e77584f669b518d3724cd64c8a422ca78f8cbded60ead51b4725e667229"
+    },
+    "tools/pal2rgb.c": {
+      "bytes": 17620,
+      "mode": 436,
+      "sha256": "ef9dc0ab5389bb2c0c8c5158807cda6d9ab7285e8b87ba6e7d90ad8d1892cb6e"
+    },
+    "tools/ppm2tiff.c": {
+      "bytes": 15653,
+      "mode": 436,
+      "sha256": "a879dca11fea4c088c11578a928c5f0feaae8031222d4832072809cb42468e55"
+    },
+    "tools/raw2tiff.c": {
+      "bytes": 33393,
+      "mode": 436,
+      "sha256": "3d1efb3b1c8757a1aaee63a918dbced12b23a7c44369baf0b921371697158b87"
+    },
+    "tools/rgb2ycbcr.c": {
+      "bytes": 16738,
+      "mode": 436,
+      "sha256": "17d42734bc399a202befc3b820558587182181b392a87feadd59ee3c53eafb38"
+    },
+    "tools/thumbnail.c": {
+      "bytes": 26273,
+      "mode": 436,
+      "sha256": "ac24234cab395b51733ae086d9daa114eae57dc921bd818ddc77f4f47cd65fba"
+    },
+    "tools/tif_tools_versioninfo.rc": {
+      "bytes": 1235,
+      "mode": 436,
+      "sha256": "36019730c2f83ffcb8d2156fdf7f0cb58f25440b4ad3c1f6b79301bb55f516c8"
+    },
+    "tools/tiff2bw.c": {
+      "bytes": 19647,
+      "mode": 436,
+      "sha256": "ddbba41572a7d20b2ac83f1882802018b47d325add59f2c8fe536a8cbad50c39"
+    },
+    "tools/tiff2pdf.c": {
+      "bytes": 256506,
+      "mode": 436,
+      "sha256": "e4510a88c659ddf7528d786008961620609bf7f74b685398578cdf801b67d88e"
+    },
+    "tools/tiff2ps.c": {
+      "bytes": 132962,
+      "mode": 436,
+      "sha256": "715df0e452a685a056c49a5d2b4cb94a316d3b822af2cd22c0ddf8662bd930e3"
+    },
+    "tools/tiff2rgba.c": {
+      "bytes": 22221,
+      "mode": 436,
+      "sha256": "c683741615d630bfe103dde80d91192eb281cc7b66bdf3c9b9e2bc3ada9817d4"
+    },
+    "tools/tiff_tools.c": {
+      "bytes": 1054,
+      "mode": 436,
+      "sha256": "7949c84d27f4d0ef57bbfc0bf4a4341345ada94696c7e3cc5aebc144084bce6d"
+    },
+    "tools/tiff_tools.h": {
+      "bytes": 271,
+      "mode": 436,
+      "sha256": "a37fe8f8347c3d0bd6f6070de6d0b7515f637edfd79d7528b35d7f599c181de9"
+    },
+    "tools/tiffcmp.c": {
+      "bytes": 27255,
+      "mode": 436,
+      "sha256": "e14b8b312c1d7f784c5c70d1deede30ed28c744a5e619b5da17c8c57affb78d4"
+    },
+    "tools/tiffcp.c": {
+      "bytes": 85944,
+      "mode": 436,
+      "sha256": "0712fa65bb86cc373a7cf0b49150a998ef6f7d4de912ba9e80ae5cfebe1d63fc"
+    },
+    "tools/tiffcrop.c": {
+      "bytes": 471246,
+      "mode": 436,
+      "sha256": "05f79178b2a6e1d3124186811b8042bf772f920c0c8b18b4ee655d8651cf04e6"
+    },
+    "tools/tiffdither.c": {
+      "bytes": 12400,
+      "mode": 436,
+      "sha256": "1577dfb7c496d198534fa35fb70b71260160a8f037091130e57485cf3fdc813f"
+    },
+    "tools/tiffdump.c": {
+      "bytes": 30684,
+      "mode": 436,
+      "sha256": "784c5893f3cfbda13441c159d4638a6506f12860b81ac8611c0761aa073386fc"
+    },
+    "tools/tiffgt.c": {
+      "bytes": 14810,
+      "mode": 436,
+      "sha256": "047aebd8894c631ffdd7cb463bee5974f891a435c4119c3efada33c57b91315a"
+    },
+    "tools/tiffinfo.c": {
+      "bytes": 26436,
+      "mode": 436,
+      "sha256": "81115fe239257cbfad55e3c0eb0d7493ca45d0f49b1d4af3205317d91f3fa1ed"
+    },
+    "tools/tiffmedian.c": {
+      "bytes": 33919,
+      "mode": 436,
+      "sha256": "61abf31c78099e7e000d9ca818818eecafa521223000cc1a90fe4c0662e9a829"
+    },
+    "tools/tiffset.c": {
+      "bytes": 20615,
+      "mode": 436,
+      "sha256": "34222f817edb6509c63e56baeee56d29ed689127d9cf417c1b5bc087a16078d3"
+    },
+    "tools/tiffsplit.c": {
+      "bytes": 13706,
+      "mode": 436,
+      "sha256": "ce40b175136e589ab2859691a7c66cd48cc3b8baa6d0ec122d10a7ccc258daa3"
+    }
+  },
+  "complete_preferred_source_claimed": false,
+  "excluded": {
+    ".clang-format": {
+      "bytes": 103,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "2004340e8e42547fcdb4e795d84407e58f37783cc5f3a4b00bb86bcaa70d7c3e"
+    },
+    ".git-blame-ignore-revs": {
+      "bytes": 164,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "121c2cdd364fc51d66bd962936772e61da9d4d8942e29c9369a6e95b01cf1849"
+    },
+    ".gitattributes": {
+      "bytes": 358,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "f55ff40c9d3c109300bb126dbc55b2629cd0ecf38b5b8f7ba6bb4935cdfe720a"
+    },
+    ".gitignore": {
+      "bytes": 1269,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "4e93f3ce4d62e3d83eb050034d6362a2696bc746d09a23f62074542ad831b2bb"
+    },
+    ".gitlab-ci.yml": {
+      "bytes": 5679,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "77b29500c6eceb2750051823a117dd5593407ae178dc7079aa123c1362a37179"
+    },
+    ".pre-commit-config.yaml": {
+      "bytes": 1069,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "4211c570fcf6d160bb01148275038f767e17999c17df7ef534e8507be5238052"
+    },
+    "CONTRIBUTING.md": {
+      "bytes": 745,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "e1e0ea59d1baa331ac10d8e1365b459d1a58542ed7e3e91226e05d18ef37c876"
+    },
+    "ChangeLog": {
+      "bytes": 717023,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "2066a620e2d8d6c0ea9b56d397d1ef934deb3dad1308423c6930657422c49141"
+    },
+    "HOWTO-RELEASE": {
+      "bytes": 5368,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "e69c84adaa57dedc54de94aaf8c043e251721b6cb900a79a8c743fbbcb4c86dd"
+    },
+    "HOWTO-SECURITY-RELEASE": {
+      "bytes": 816,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "6f508549f423aa63a67354d05bed4676a44266a65c6d126994d53c2731226e62"
+    },
+    "Makefile.am": {
+      "bytes": 3567,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "aa2b3e62feebcf17d85f4baff673ea814ec37890b6d2f49023e23029dbcc5ae0"
+    },
+    "TODO": {
+      "bytes": 345,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "863e1ed2759171363cd7a87c3cf17b7f7ade090b72a117a92dd916e42586d51c"
+    },
+    "archive/html/man/bmp2tiff.1.html": {
+      "bytes": 3570,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "81d4387d8d8d2f2b75e53b3cad019ec15e08b89860a01942493e82f7c9855696"
+    },
+    "archive/html/man/gif2tiff.1.html": {
+      "bytes": 3893,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "0865cb6e90683ddb599e0e1389aada872b566221cce5822e6ddb29819d6d1d3d"
+    },
+    "archive/html/man/ras2tiff.1.html": {
+      "bytes": 4056,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "e03d686f74ed3db274ebb859cdf60a9e937fa9cefbfe2e768a8258932837674e"
+    },
+    "archive/html/man/sgi2tiff.1.html": {
+      "bytes": 4036,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "6692d6d604157bac0c56a042da9f514ca035fe4b8cd0cf6c8d426946248f3905"
+    },
+    "archive/html/man/tiffsv.1.html": {
+      "bytes": 6184,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "93f34945518bc27b660121bf90d770fca00734221cb6fd699b06b67a6d39b43e"
+    },
+    "archive/man/bmp2tiff.1": {
+      "bytes": 2708,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "748e34c2c47b1ba0e9a14c6277a466597cfe3a40a17db7b0049988bedf07f955"
+    },
+    "archive/man/gif2tiff.1": {
+      "bytes": 2552,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "bc9c10999ee0ddfcf4744350470eff4c8b107600fb9dfe7b49f416d07e1b4626"
+    },
+    "archive/man/ras2tiff.1": {
+      "bytes": 2952,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "15f8dd6c0fcbdd6f62a97d48098e37d162048a70ac3f7f1af1aa23a367f3a52c"
+    },
+    "archive/man/sgi2tiff.1": {
+      "bytes": 2782,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "8a3a21b759915b4bd13f2ef4f554e101fbbdfac8df833a1278f555bd735374c7"
+    },
+    "archive/man/tiffsv.1": {
+      "bytes": 4088,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "4c5adce7cec6d681a5b78fbb5c580d831625cb3b3d59bb7a808d2adb203f3149"
+    },
+    "archive/tools/bmp2tiff.c": {
+      "bytes": 34672,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "d6e9d14f298711a60fbe36a24d1daf319e54cf79dbb161254879e2d4689d053b"
+    },
+    "archive/tools/gif2tiff.c": {
+      "bytes": 16960,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "08f7a39db2688e8caecbcb2fb959b979003a78850afb91ab8641412ae225cc77"
+    },
+    "archive/tools/ras2tiff.c": {
+      "bytes": 11716,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "35a2b070617a35c57ce83c43ce423494e087bce2a9d6d114cbee6e0b60cf243f"
+    },
+    "archive/tools/rasterfile.h": {
+      "bytes": 1851,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "bbf80ef2471a67e5a60d12a67585ff034e4014a0d469fdd80ae080b0c48cdaaa"
+    },
+    "archive/tools/sgi2tiff.c": {
+      "bytes": 10544,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "9ad90a63cdc0a0c733329feb6ffdd20dca68a175d6bc4bcead79968718bfa6bf"
+    },
+    "archive/tools/sgisv.c": {
+      "bytes": 10404,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "5bfbf4170c7dffbf3db4d00cbf12c80e9e3dd99ec3a1c2f26dd8e013cdf21dd6"
+    },
+    "archive/tools/ycbcr.c": {
+      "bytes": 4448,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "7a5e8c8dc23d08ef4f2f70ae430cff207883d7ba576b42d21f4e95327db8a7a3"
+    },
+    "autogen.sh": {
+      "bytes": 614,
+      "kind": "file",
+      "mode": 509,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "aaf7a3e2bb1a0ce6c3b7a012d4ff0f6df5ea2bbe2514c0ef4a45d1bcc2623bfb"
+    },
+    "build/Makefile.am": {
+      "bytes": 1317,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "8b08e6f5e4f185a9bf055f56ead0fb7fe656a212a0ffb795d1fb1c213a5ba83d"
+    },
+    "build/README": {
+      "bytes": 118,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "9b117ab56cf84d59fdc1f7f0559265312d4bdfc9b908adf7e37d43c8eb3dcdd3"
+    },
+    "build/gitlab-ci": {
+      "bytes": 3816,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "49b8ca0e3373c6f1829aa4418a6a2d90ee516036fa2a664ffcea9bb50939944c"
+    },
+    "build/gitlab-ci-cygwin": {
+      "bytes": 5142,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "a57054598cf4dd0d4dfe9446a7809cb720552e65533ba9f833d1846a7d0d755d"
+    },
+    "build/gitlab-ci-mingw": {
+      "bytes": 5142,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "1f77704978470b5d42b3bb295638051b95540c8f242c25c1438cc92ed3e3f88d"
+    },
+    "build/gitlab-ci.ps1": {
+      "bytes": 9857,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "e3298b1756ae75931c9b92cfbcec08311c750e3897748d09f1e75d78cf31c3f0"
+    },
+    "contrib/CMakeLists.txt": {
+      "bytes": 1315,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "be91317807f5cd466bd4806f81ddb01ee493f88c557ebb4ff8d98e47e34d4686"
+    },
+    "contrib/Makefile.am": {
+      "bytes": 1368,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "db0cd294f3653ccc3de25d54dc269c4f91fbdd489b92cd402423aaa143524374"
+    },
+    "contrib/README": {
+      "bytes": 67,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "4e95e2c73fda2df57b89e3ca6d9a0b33bf5f634d0f6711553a7eec79c3a5c7ba"
+    },
+    "contrib/addtiffo/CMakeLists.txt": {
+      "bytes": 1742,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "4cb7015142f9695e9a03cbf35636327be6b06c209eb85f3832a9c0178be43afe"
+    },
+    "contrib/addtiffo/Makefile.am": {
+      "bytes": 1542,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "c2c130c9b32f205e3d0b520096681e266f68998f6f54357bbcb99be3df77312b"
+    },
+    "contrib/addtiffo/README": {
+      "bytes": 4563,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "e0e0b77d9895f1fc284f24436396ee08e10738fd7c45b01196454b0c8beb7d9a"
+    },
+    "contrib/addtiffo/addtiffo.c": {
+      "bytes": 6147,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "0a116dc942c6b44845fd1061ab678aa4e028d6ee6097f8bfce8cc41dbeded9ce"
+    },
+    "contrib/addtiffo/tif_overview.c": {
+      "bytes": 52996,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "d948e65ee96f286e467725a4b524f869f8e36801307ad7aee77d5078a0ebef58"
+    },
+    "contrib/addtiffo/tif_ovrcache.c": {
+      "bytes": 23265,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "46dd17b7aa268c1c0099c1f51bc111c086a9f86e1666d9becd8de9d5423f7a30"
+    },
+    "contrib/addtiffo/tif_ovrcache.h": {
+      "bytes": 3621,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "50ec7c36be2ddfe757f12677cb467b796d57258ffdf2b153ea2bb5647394ecf6"
+    },
+    "contrib/dbs/CMakeLists.txt": {
+      "bytes": 2448,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "81977cf00dcb13f2f5494211c3f40dcd4e6f874773cf8c46afdc205bd2eb1710"
+    },
+    "contrib/dbs/Makefile.am": {
+      "bytes": 1751,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "069c6595be21fbebbb4871ce763338013b0312490704d031403200f2e61149cc"
+    },
+    "contrib/dbs/README": {
+      "bytes": 160,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "5ca1890c3cc8716f49b7ca59afda19a6687636eba23fc0813b8d121c67cb5723"
+    },
+    "contrib/dbs/tiff-bi.c": {
+      "bytes": 2690,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "2355553d836cd630b637ee7b5bf04c159d61b56b9c2f96afedbd2cf34529f331"
+    },
+    "contrib/dbs/tiff-grayscale.c": {
+      "bytes": 4446,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "694d36ee04cf613379be93b2da631446c823fdd0d74a8a0f26593db45306db3b"
+    },
+    "contrib/dbs/tiff-palette.c": {
+      "bytes": 8551,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "d7badf55c2bf40ba2dd6e3166a352bd4698b9ff0dcbc2542c61d1a142bc36b86"
+    },
+    "contrib/dbs/tiff-rgb.c": {
+      "bytes": 6861,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "ff0f00327ef4fb82c00b840766242c4af86b58262ab99fa9de84a777b07fb65c"
+    },
+    "contrib/dbs/xtiff/Makefile.am": {
+      "bytes": 1632,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "35b64cfab7e6d103a9ad66e721f58c97dbeb055b4381cc5066a3bf850b9ac630"
+    },
+    "contrib/dbs/xtiff/README": {
+      "bytes": 313,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "bf7cadcae50cb2054ac9bf2bc9545ffc33aec4052c9dede2ad23acd4feeebdd8"
+    },
+    "contrib/dbs/xtiff/patchlevel.h": {
+      "bytes": 21,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "301e1318ea4b494287383dacddfdfe06a22dbd75f2ea1c1caa9525fafffc219a"
+    },
+    "contrib/dbs/xtiff/xtiff.c": {
+      "bytes": 45195,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "58c45af34eed894f20a9d505208b210c06908d2f8bc528fb1f1cc8e926742d70"
+    },
+    "contrib/dbs/xtiff/xtifficon.h": {
+      "bytes": 901,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "f6436c30d9f6d3f807fa47f77883ea566ed8fdfd74e36741e405d327dcda0707"
+    },
+    "contrib/iptcutil/CMakeLists.txt": {
+      "bytes": 1465,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "d74d85780b1857d6f06e7ade5df1dbe65ebca0d147f9360c25ae05a03fea5343"
+    },
+    "contrib/iptcutil/Makefile.am": {
+      "bytes": 1522,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "9cc51595d6a9f13e135d423cd78c5a0f45660e621623125cc6d5254155082754"
+    },
+    "contrib/iptcutil/README": {
+      "bytes": 1179,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "d324414e0dcb4968fb23bc92cd4c8348478cf030945a340c98d113a5c0d77c99"
+    },
+    "contrib/iptcutil/iptcutil.c": {
+      "bytes": 29393,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "55951566897d35b1cb66e18e1f62a349f88f46721313a981d3d04ed82e5ed841"
+    },
+    "contrib/iptcutil/test.iptc": {
+      "bytes": 1107,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "5e06252fb4ebf94acced11c6497f899ca736bac380dfc5a0295910df192c605a"
+    },
+    "contrib/iptcutil/test.txt": {
+      "bytes": 2106,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "e76ee011212b8796c92981e3afa942d51c0f9494641e5b6eeffe32742fc5dbc5"
+    },
+    "contrib/mfs/Makefile.am": {
+      "bytes": 1298,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "6ef49cdb7d0d542f0dd27d02e062887aa4cc8042e0973cab0f7015fc008f8e89"
+    },
+    "contrib/mfs/README": {
+      "bytes": 1342,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "03f41095a7a7c3c4b7fd75c5c6960422262b591382a508423dce175bebf9852c"
+    },
+    "contrib/mfs/mfs_file.c": {
+      "bytes": 14569,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "fdc9c9636da2e4a2d19ee1620cfd9066b7293412af08101ba6d7cce2fbb506d8"
+    },
+    "contrib/oss-fuzz/build.sh": {
+      "bytes": 3108,
+      "kind": "file",
+      "mode": 509,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "09aed0d918468c988b542eecf2af694aedeb9378b1d20ab53ef8f778ce399bbd"
+    },
+    "contrib/oss-fuzz/tiff_read_rgba_fuzzer.cc": {
+      "bytes": 7080,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "064150d06798f4a9f06e6699a94ae3c4ec917d770c8c8b3085951eab379641e7"
+    },
+    "contrib/oss-fuzz/write_fuzzer.cc": {
+      "bytes": 4322,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "b96680ae9352f747fa1674b099935537cec3f5de3afe855eca7b930b5901c2e4"
+    },
+    "contrib/pds/Makefile.am": {
+      "bytes": 1363,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "dc368a81c7acae6de04e67fc73bb493fd696baf36aa2dd766773a19ae1071c2b"
+    },
+    "contrib/pds/README": {
+      "bytes": 4619,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "7852a75df3a3154e85239f8d7ec4c838f46b0ab32244240d7735a700c8859b55"
+    },
+    "contrib/pds/tif_imageiter.c": {
+      "bytes": 18529,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "c11299d432f64c7aa0364e3ba42b3bf79fa36d33b334d3d0f7c326954bbc48a8"
+    },
+    "contrib/pds/tif_imageiter.h": {
+      "bytes": 2659,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "2751eb5b21f676eb2f350c9d6d8181c3dbc0724b598ff06a54dfde4f04ed9a4b"
+    },
+    "contrib/pds/tif_pdsdirread.c": {
+      "bytes": 39690,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "85ac6353384d3a0f1a41027938b9139f7962fac3c170f5cb81fa6a7854c80d29"
+    },
+    "contrib/pds/tif_pdsdirwrite.c": {
+      "bytes": 35841,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "0f12b616f4faa1a23eddab3824a8f548675eb4b40e571710bc172c41c793d880"
+    },
+    "contrib/ras/Makefile.am": {
+      "bytes": 1310,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "8cb82572b624083813521d8265d7c908e7a4ba58015c03dcdbd6a4484a7cfa84"
+    },
+    "contrib/ras/README": {
+      "bytes": 328,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "cd7d5871dd139521459e4e116e9271f784ecca6fd23dff37163d9529e786c8c7"
+    },
+    "contrib/ras/ras2tif.c": {
+      "bytes": 7240,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "f568be025b8e94dc075414bdd31e56d90631551a533d3784beaee7a7b7201438"
+    },
+    "contrib/ras/tif2ras.c": {
+      "bytes": 10992,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "710b69ea418f83d4c25964e2c12f39f481ef73ddf0b16d76bd21811baa9495ac"
+    },
+    "contrib/stream/Makefile.am": {
+      "bytes": 1318,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "36caf78031e8ac5a10ee51eca0badb6aa53c03df8ed8174a434409789b746f7a"
+    },
+    "contrib/stream/README": {
+      "bytes": 1543,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "c42de3ebdc04e508d448c13eb68467bcd69068d4ce2517a3b6381fe61c5fbbf5"
+    },
+    "contrib/stream/tiffstream.cpp": {
+      "bytes": 4765,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "9f8ec8772f0c00402a59b60ee4b5e02c4264fd0e98b062668d65526368163230"
+    },
+    "contrib/stream/tiffstream.h": {
+      "bytes": 1460,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "e79a722ddad91804109aa2d1e5bbf6ec13c35f674fe2614056fcef44d62ab9e3"
+    },
+    "contrib/tags/Makefile.am": {
+      "bytes": 1351,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "91b1f0e9303425af13037435131e43175e6ba9d934f7fef515ec35ccd316ddc8"
+    },
+    "contrib/tags/README": {
+      "bytes": 4852,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "b0380cd65ab3f615f49861ea1580ef6fe887b414a5990d07977c0e9a194e3b19"
+    },
+    "contrib/tags/listtif.c": {
+      "bytes": 593,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "d22e4625236abfe01c794316f0a332c95c23ea4074b4dd5d4ac23cb6cd81adf5"
+    },
+    "contrib/tags/maketif.c": {
+      "bytes": 1653,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "8534166c558549764762404eb4263db93f187d3261f136ba6d61e9a2d72c9b3f"
+    },
+    "contrib/tags/xtif_dir.c": {
+      "bytes": 9631,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "37a1558c7d495ae9f7824c331c4b424eddca2999b8c8ffa08f559d6b008e55bb"
+    },
+    "contrib/tags/xtiffio.h": {
+      "bytes": 1415,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "d51d7d4beb075186ac8f95bf8cd36c1016a8a37eab2b55afb7eb5920691fda3e"
+    },
+    "contrib/tags/xtiffiop.h": {
+      "bytes": 1980,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "c5299f188380aa127f3557e266c07327dd4fb260ea8642a8dc4003359b26d0a4"
+    },
+    "contrib/win_dib/Makefile.am": {
+      "bytes": 1356,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "1096a29ae8dbc5b9e25fac44569dde72879b6a9a662ea7a14083ca776033cb79"
+    },
+    "contrib/win_dib/Makefile.w95": {
+      "bytes": 3167,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "ffd5fa6f83f90a30262400348db66069a26510e9ec58cf6546e8c272249d53a6"
+    },
+    "contrib/win_dib/README.Tiffile": {
+      "bytes": 1238,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "0d6cefd5a32e06f86f40ae94f6491312901cfd788272b32360a37223c63b3062"
+    },
+    "contrib/win_dib/README.tiff2dib": {
+      "bytes": 1569,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "becd1f40f6305889511a1ad08d34ade2d55475db60c2d2c8650aaad0ecddf83c"
+    },
+    "contrib/win_dib/Tiffile.cpp": {
+      "bytes": 13382,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "e9a8e631209a77d2f83232fd5e7656c8417f7eb4da83dc2cb07e2d25f3d4858d"
+    },
+    "contrib/win_dib/tiff2dib.c": {
+      "bytes": 10993,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "689763a379b745ef8642755e1a6492a43a7f8a419215868121bbb2a2ad8dc5e2"
+    },
+    "doc/CMakeLists.txt": {
+      "bytes": 6967,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "917e5c89d1e8fc65aae4dc0263e310e602cb8a9daa30786787d568609dbdb56f"
+    },
+    "doc/Makefile.am": {
+      "bytes": 7976,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "8136f546a71b04fb1112d636240c72eec7baa3050d9b800a383d42af5d729bb8"
+    },
+    "doc/_static/.gitignore": {
+      "bytes": 0,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "doc/addingtags.rst": {
+      "bytes": 15687,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "0352c44eff2d458b5c4ca12c11d98bb59375504a68aed94daf18643cd15a2fb2"
+    },
+    "doc/build.rst": {
+      "bytes": 25874,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "21385f4cb1c74195ba5351b14f6ce2608b2ed1a5019f46eb37b2829c8bb4bd79"
+    },
+    "doc/conf.py": {
+      "bytes": 12545,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "1cfc09e3ba2c2bf22c9fce3382a02cea397ba4b4e989d7c0df44e8066754eb51"
+    },
+    "doc/contrib.rst": {
+      "bytes": 3161,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "ba717b895152131666d8eef42cb8533f7fd6cef7d4442a3073d7af745c90e8ef"
+    },
+    "doc/functions.rst": {
+      "bytes": 1890,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "188495a65878e752c23fc439a4014498330eb42bb99b867cbd02c562b81879dc"
+    },
+    "doc/functions/TIFFAccessTagMethods.rst": {
+      "bytes": 426,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "034b242707940b86b2ff9b74e9e841e6cced74150c814a0ed709b9f44284c314"
+    },
+    "doc/functions/TIFFClientInfo.rst": {
+      "bytes": 890,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "49a2e03870b7e01951c7df49e52fd9b8183fe9a9df070bdec9a54d61e19efa4d"
+    },
+    "doc/functions/TIFFClose.rst": {
+      "bytes": 1442,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "998e873e2fefa94014b21aa4ed43c5ac5c2ce7a82e708ea7e57e0b0cd99a5725"
+    },
+    "doc/functions/TIFFCreateDirectory.rst": {
+      "bytes": 2916,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "f8d0278b5fecdfefa9ef93531c16640bafbbe9d2f04c12df021805cb7006d969"
+    },
+    "doc/functions/TIFFCustomDirectory.rst": {
+      "bytes": 7507,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "317cc38244540d29ba3c8067cd320b1ef8adc27657380d482af196b172fc052d"
+    },
+    "doc/functions/TIFFCustomTagList.rst": {
+      "bytes": 1023,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "5cbc7e7db0504c2eacf94ce7d9931c917c2108a65664f416d526482adf39578c"
+    },
+    "doc/functions/TIFFDataWidth.rst": {
+      "bytes": 916,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "c7557aaaf423b255f834feff38fb920c3ccf6fa87ecd1c024ea180e0d50ba24d"
+    },
+    "doc/functions/TIFFDeferStrileArrayWriting.rst": {
+      "bytes": 1900,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "8fcb196c72ab35b9ab53dc7045f9df02477a640e6add370b7bf06a284e9d796c"
+    },
+    "doc/functions/TIFFError.rst": {
+      "bytes": 4202,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "12dafb1b749f23e8fbd3074f94ae3cb570d029541bbcd133568c175224c14839"
+    },
+    "doc/functions/TIFFFieldDataType.rst": {
+      "bytes": 772,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "7541a66b4e323dcde16fbd0347691cae0e083c05e86138668ef939c7d55a5942"
+    },
+    "doc/functions/TIFFFieldName.rst": {
+      "bytes": 723,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "6493ed73599d038d2c40c5662ad77521041520068dadd7f4be534d48b275cac2"
+    },
+    "doc/functions/TIFFFieldPassCount.rst": {
+      "bytes": 1356,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "f5f9c0db5450dab1255b8e32f6f9b2b2fd4b50514d512af5ca4b91cc02a32d9f"
+    },
+    "doc/functions/TIFFFieldQuery.rst": {
+      "bytes": 3019,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "cb78a1cf24eb661bb7f9654b0502efb11f5c62a3def6bd8764cc303180bedbfb"
+    },
+    "doc/functions/TIFFFieldReadCount.rst": {
+      "bytes": 1445,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "49180b647f2d7240d8e7fe5e13a7824b2eb9909e1961170c9aff838653c53730"
+    },
+    "doc/functions/TIFFFieldTag.rst": {
+      "bytes": 853,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "6959d960aaade26335985f3060c0315b2fe96b904d7ab1f537698f95f6cb57b5"
+    },
+    "doc/functions/TIFFFieldWriteCount.rst": {
+      "bytes": 1697,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "7f80ab3c01079fc83829fdd7b2643f4b9db6b6ec9645055a7366443e10c5f492"
+    },
+    "doc/functions/TIFFFlush.rst": {
+      "bytes": 1137,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "9107080ddcc012a605f549d026eb655c3de5aa86353d81373950444b9da4e948"
+    },
+    "doc/functions/TIFFGetField.rst": {
+      "bytes": 10959,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "e1ab99a8cb16fcb683b9b5fe177f4d0e150150af30b79a70d5aaa30f590489bc"
+    },
+    "doc/functions/TIFFGetMaxCompressionRatio.rst": {
+      "bytes": 1066,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "367a279fc1edca34b37619b7e951486e1d2645abd8e1eab0cd17a23fa911e40f"
+    },
+    "doc/functions/TIFFMergeFieldInfo.rst": {
+      "bytes": 662,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "2064c8737a56923482872c23ef6627af18bcf014c05dc70e59a978f780abeb7a"
+    },
+    "doc/functions/TIFFOpen.rst": {
+      "bytes": 13051,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "e36699253a30a043ad6bc55e6f5d095b257c1e72a3112b631402c13bc6fc96ee"
+    },
+    "doc/functions/TIFFOpenOptions.rst": {
+      "bytes": 4648,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "249fb3bf6c5986f04ac05b1206d0af6cc42dcf32d29bd30f6a4bf2dd4ad2c61e"
+    },
+    "doc/functions/TIFFPrintDirectory.rst": {
+      "bytes": 1433,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "958a3aa171bebbf34055ae3715f0060499cf48a54cdd28c6b47d4f97d19923f9"
+    },
+    "doc/functions/TIFFProcFunctions.rst": {
+      "bytes": 1273,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "2a2784eaebcc753ea7436e12f240a9c531a7b1edc6c9dcf331f8c9d5e321d5ff"
+    },
+    "doc/functions/TIFFRGBAImage.rst": {
+      "bytes": 9136,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "06689e5f3b8d939397b58116b0ef768f196a0afe36c1a0ca43e6074c960537c8"
+    },
+    "doc/functions/TIFFReadDirectory.rst": {
+      "bytes": 4883,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "dcaee0b301107cf14bde76251963619aa04fac8e97e968d1b300aa7f70ccffbf"
+    },
+    "doc/functions/TIFFReadEncodedStrip.rst": {
+      "bytes": 1651,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "25bc5ae4c2631d6119f410d838890c20ea9b5294a8924ec941acce8d9a26f544"
+    },
+    "doc/functions/TIFFReadEncodedTile.rst": {
+      "bytes": 1610,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "a50286c98ffbddbad16bbf86db8625f8be7283bd1487ecab5098eb7afe52cdb4"
+    },
+    "doc/functions/TIFFReadFromUserBuffer.rst": {
+      "bytes": 1146,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "f47b7e626ee89644abc668b7d99679b56ca4213640d59671cb22f9d665466a37"
+    },
+    "doc/functions/TIFFReadRGBAImage.rst": {
+      "bytes": 5181,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "2f38993afe9b620176d6203a35409edcc6b4c11912109c8834179feeb8f0b6da"
+    },
+    "doc/functions/TIFFReadRGBAStrip.rst": {
+      "bytes": 4246,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "53de02f3c235b7986bf3d1c7ff123c836f5964d95b8e7a2034a874b96afa7003"
+    },
+    "doc/functions/TIFFReadRGBATile.rst": {
+      "bytes": 4285,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "a995608689552fa58fab8129ab3197625acc3a4ff60624003786b7039066275e"
+    },
+    "doc/functions/TIFFReadRawStrip.rst": {
+      "bytes": 1054,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "6e538d2cba2d54bd838596697f21fbf7e550d5d6893c60c2b38152b672f85d47"
+    },
+    "doc/functions/TIFFReadRawTile.rst": {
+      "bytes": 1160,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "fd98b85b3415592c55197cd7b52f852507467c6bc27c37dd08cd92086d931b9d"
+    },
+    "doc/functions/TIFFReadScanline.rst": {
+      "bytes": 2427,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "511612e85697bc1eaf689962dc322c53d15c8f22bcea1a234c695fa8f432b3df"
+    },
+    "doc/functions/TIFFReadTile.rst": {
+      "bytes": 1699,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "53cd736357161bc3f3a6b9e123a971af4f78fe42c02d379fb5b90777fdd2799a"
+    },
+    "doc/functions/TIFFSetDirectory.rst": {
+      "bytes": 2124,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "78d9e913cc4968dd5d30fbd95f615048ff5f8ed031e14c24a876adbf3d72fc5b"
+    },
+    "doc/functions/TIFFSetField.rst": {
+      "bytes": 9953,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "0eb7a6134ddf99550299c6c8ba12f792542794745ce14430476dbb760295cc42"
+    },
+    "doc/functions/TIFFSetTagExtender.rst": {
+      "bytes": 724,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "fdecaedbd1bc6322d8c609d12450f552b0d99b34550d69f2d5cb3c36f771c9af"
+    },
+    "doc/functions/TIFFStrileQuery.rst": {
+      "bytes": 2737,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "3088e64ed3fdf677a58e9112b8e26fc15e838f19fe7dbf1048f3db7855975b05"
+    },
+    "doc/functions/TIFFWarning.rst": {
+      "bytes": 4230,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "c8998f10b10b2f13fd5933ae75e4779b244200c4379ac2805e0e05ac77a50daa"
+    },
+    "doc/functions/TIFFWriteDirectory.rst": {
+      "bytes": 4968,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "b7e822056d6242c6c4e7d98125e9b890ca84f2c75b8bec82ea7dd2cd4f23ee99"
+    },
+    "doc/functions/TIFFWriteEncodedStrip.rst": {
+      "bytes": 2164,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "3548618ee9a85ead63bc71712d7488038598c247a879b35004a88a40f7fd9784"
+    },
+    "doc/functions/TIFFWriteEncodedTile.rst": {
+      "bytes": 2015,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "106db7ab034b20ad9f6658bc210c6e10db5b163010bec8f3c69ff55372d1cb11"
+    },
+    "doc/functions/TIFFWriteRawStrip.rst": {
+      "bytes": 1804,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "30bd5383b1af3d894b48940bcba59f3049a5d60d1a80aa08edb320be4b57ea6a"
+    },
+    "doc/functions/TIFFWriteRawTile.rst": {
+      "bytes": 1547,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "0cda08d346994aaff04831a9583b2a72f7ffe18590c624bc734b6ce673048513"
+    },
+    "doc/functions/TIFFWriteScanline.rst": {
+      "bytes": 4257,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "01a6adccfdf2779c076937b3eba9be0f85b1258ef8e21d52eeef97583480a840"
+    },
+    "doc/functions/TIFFWriteTile.rst": {
+      "bytes": 1399,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "227a5152fa0c409a26cac054b5e4c5a0ed4b988cf70eb1eb6ad6bbbcbadae7ee"
+    },
+    "doc/functions/TIFFbuffer.rst": {
+      "bytes": 1856,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "ce52b99e2dbb24443c38356155f6e9a4e15929cd623c8cb6a96b4136ae08b201"
+    },
+    "doc/functions/TIFFcodec.rst": {
+      "bytes": 2221,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "7175a437006601e4716618b70bc8f280f58fdc6d331d8d3383c77d08c59ac15b"
+    },
+    "doc/functions/TIFFcolor.rst": {
+      "bytes": 7354,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "1eb9b9a97a2926f84180bef467f5b6b4a5395f27fea29ab57b54e052ab6e8ec6"
+    },
+    "doc/functions/TIFFmemory.rst": {
+      "bytes": 1832,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "8b5041f61de70968dcbe3c62fe019f8f94fe7de6e93dc34f512136d7c9f5b44b"
+    },
+    "doc/functions/TIFFquery.rst": {
+      "bytes": 5311,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "25298366162ff22271fbce8268d1ccd233201479edf252387bc99da56ce53a7f"
+    },
+    "doc/functions/TIFFsize.rst": {
+      "bytes": 1423,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "ce6db5dc0a2812b1405e954ca97441e1dbb7b73b71b3dbb32cb73493a3a58599"
+    },
+    "doc/functions/TIFFstrip.rst": {
+      "bytes": 3100,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "43b23329fff09cf36a092d26e228194c5fe83edd53dacc1786e88920566d51c9"
+    },
+    "doc/functions/TIFFswab.rst": {
+      "bytes": 2283,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "953c2e7a6754fb5fe03fcfb5d10d3dd92321bf389acbfba7ff248262a29e027e"
+    },
+    "doc/functions/TIFFtile.rst": {
+      "bytes": 3164,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "a19752071d6a5bfbef99559127ed7d59e15b1ad1d2c1007d029930d05832f170"
+    },
+    "doc/functions/_TIFFRewriteField.rst": {
+      "bytes": 682,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "a30315c0d7d96e8912e097540a1b1ec05e85a9139fb17ce7b140dd79d64f92ad"
+    },
+    "doc/functions/_TIFFauxiliary.rst": {
+      "bytes": 886,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "71736ab1a725c52e2de4ffc56929c8102c5893d7b576d502c956df42cd0e9517"
+    },
+    "doc/functions/libtiff.rst": {
+      "bytes": 32241,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "d7fd34610772157e0b62495a0745ec5657ba35a5887cdba878ce9e29f28777e5"
+    },
+    "doc/images.rst": {
+      "bytes": 846,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "a6c0983df3a5870f8bc09a044a01ba4572073a07db55cb5fc05a2c5c61519e39"
+    },
+    "doc/images/back.gif": {
+      "bytes": 1000,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "2183def97c23fbdc52d9480f6440ae4a48ba2ef50820cb0391d21ac063227703"
+    },
+    "doc/images/bali.jpg": {
+      "bytes": 26152,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "57fbce241665df2822435f44322637200aacfe1a7f6148b980c2a2cca58c6bbd"
+    },
+    "doc/images/cat.gif": {
+      "bytes": 12477,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "ed2814eeef7e921c3147d331a1e31bacef5ec590097843e7f0316412ee20c953"
+    },
+    "doc/images/cover.jpg": {
+      "bytes": 20189,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "dfd70d65eb33dea306da1a307fb9f72630a21250bf728b41529762b12d0295e7"
+    },
+    "doc/images/cramps.gif": {
+      "bytes": 13137,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "9bb21338ae3863dcfc9bde1ac24c497a8791d9392f90d82efb745bacb7f7e362"
+    },
+    "doc/images/dave.gif": {
+      "bytes": 8220,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "2a08404ea8e5f50524c8830ea75f7055d36953089ed3e4f62b1656078b30f46d"
+    },
+    "doc/images/info.gif": {
+      "bytes": 131,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "b8d71c204132c07c0edf6587b8bd95c018618ba12a510b68f42b039745e636e1"
+    },
+    "doc/images/jello.jpg": {
+      "bytes": 13744,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "2c41ada2948b00667e0f7347ba7a9ebe8534049808f921c6837a8832fe869306"
+    },
+    "doc/images/jim.gif": {
+      "bytes": 14493,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "d260032455466bae854b9d2721bb3b937dd6fee1bdfb864e614869fbeddeab03"
+    },
+    "doc/images/note.gif": {
+      "bytes": 264,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "25a93fa3fb4eb402c4a08b68b8d3f39c9c44a2da9cd7d81cd1e76d96e102e256"
+    },
+    "doc/images/oxford.gif": {
+      "bytes": 6069,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "cf30c0be907027287a1b9fd76d60da18bde6cc231928510d40852283dc666e51"
+    },
+    "doc/images/quad.jpg": {
+      "bytes": 23904,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "36a886608ca0dde3501bdf46fcdfa10e40739a1d78ca17acbd60e08c1610d824"
+    },
+    "doc/images/ring.gif": {
+      "bytes": 4275,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "778f692d0429b8b619eadc19f61ee21437cc67fd81fea7576e9d378ef17b183f"
+    },
+    "doc/images/smallliz.jpg": {
+      "bytes": 16463,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "7e29ac5dfaab783ea2b144ee67833c7a07e83e60098ff4988cc71a73c9a5faf9"
+    },
+    "doc/images/strike.gif": {
+      "bytes": 5610,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "fd9bd5d12ef19b77162d1f3519a79712514dc03c9978b710482b6e66c2c1c68f"
+    },
+    "doc/images/warning.gif": {
+      "bytes": 287,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "dcd5415fb41476d261752969a610c8287cb8d9c50bd1a8ff1c8a1afbee22f7d9"
+    },
+    "doc/index.rst": {
+      "bytes": 2247,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "315e095af9e6d9e2d6169ed1965c28cd516259a826c459643bc95fcd9dae8ee5"
+    },
+    "doc/internals.rst": {
+      "bytes": 16782,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "10680bdae966cb557bfdeb9b3d287f038eb0bb965b442769b8733bce52229467"
+    },
+    "doc/libtiff.rst": {
+      "bytes": 27957,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "0551989cb28cdae56869e220c25b77b68c053a2c56a22b190c51b351be50176b"
+    },
+    "doc/multi_page.rst": {
+      "bytes": 8120,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "9e725342c36752aa539871bef22834525395dfb56217cfbb9f4aaf2e0f8c2f80"
+    },
+    "doc/project/acknowledgements.rst": {
+      "bytes": 2916,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "f25936c5b1c1707ab216c0169734cdb66ce656c66a25d434fae8f390d71a7ace"
+    },
+    "doc/project/bugs.rst": {
+      "bytes": 2166,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "dc03ab1f97f8ab913bda1dc68841f9eb15ce5d65482ded29d77c2f052b367148"
+    },
+    "doc/project/index.rst": {
+      "bytes": 755,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "46cb41b5955a0497a029d4c738ec75cc0277c31b656ce540e7ae96d5e3de8c2c"
+    },
+    "doc/project/license.rst": {
+      "bytes": 1181,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "02e86af3b805e0f2075ebb5ac512831f6ab2a97ddeb186de076c418956418ba1"
+    },
+    "doc/project/mailinglist.rst": {
+      "bytes": 809,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "7914ced4994619894e5e07b47233c5f37ac7e17179b21873bef380680bf75947"
+    },
+    "doc/project/psc.rst": {
+      "bytes": 813,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "500016fd4b3c5af6f2316c52c99960283904943f5a82e890065a8be8fe60aafa"
+    },
+    "doc/releases/historical.rst": {
+      "bytes": 625,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "81759e416cba8fff14275d3b78470370d3613377cbdcd86edc5cb04eef4a14cf"
+    },
+    "doc/releases/index.rst": {
+      "bytes": 362,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "cf38dba67ae0c3e5be866d4b588a9db9f066e838b47af090b152a219d8053729"
+    },
+    "doc/releases/v3.4beta007.rst": {
+      "bytes": 2964,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "2dc6f2cb5506c286794220d1222605fa62b778b271b5a1fcc857c57b95eb1efc"
+    },
+    "doc/releases/v3.4beta016.rst": {
+      "bytes": 2588,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "8700e3767faae4f4b7154f30af7c08d274a44f89cd15a6b7f854598cd1dfaee3"
+    },
+    "doc/releases/v3.4beta018.rst": {
+      "bytes": 1799,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "94003bf68c2661dadd73a499a532a4ed6f69f87efcda3723c3c8a649ba35823e"
+    },
+    "doc/releases/v3.4beta024.rst": {
+      "bytes": 4177,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "97ea73579264940d66c911ba310de7e42eb9a73560270e6555d31ace7f4318af"
+    },
+    "doc/releases/v3.4beta028.rst": {
+      "bytes": 4691,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "31b8188ea30fe3ce2f15ec22efe342c058282a41ecd98b23f3f987a3fea12b5c"
+    },
+    "doc/releases/v3.4beta029.rst": {
+      "bytes": 1871,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "8319c5f616ce24f3285f1e63b5e8c8129a96abed734b70cc3ab12a8ab1268f26"
+    },
+    "doc/releases/v3.4beta031.rst": {
+      "bytes": 2462,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "1e99bd203fec51a7696152494716e3185de407e7b82eb25f849f4eda5b09109f"
+    },
+    "doc/releases/v3.4beta032.rst": {
+      "bytes": 1675,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "961271a800f3ab2465bf15cc62bf9021dd849241a3a5f732f168b85442d2f2f0"
+    },
+    "doc/releases/v3.4beta033.rst": {
+      "bytes": 1341,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "dd4526e9df8a2cdee31b3f6fe0ccb362a5ca543d7c57797f2e8fad483f35bc43"
+    },
+    "doc/releases/v3.4beta034.rst": {
+      "bytes": 1451,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "771f7950d9220daf84a4d92400f29d5ee44c82c9bb3637ddd49a9d77ff8ad67f"
+    },
+    "doc/releases/v3.4beta035.rst": {
+      "bytes": 1100,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "4ce1f532907776e743f9b187b268787c711953e5e08a4dc074706eb771f5955d"
+    },
+    "doc/releases/v3.4beta036.rst": {
+      "bytes": 3582,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "8b7c06650b22953ba50fee4d384cfce599a91efb7fb31bdda0b0667721cfae9d"
+    },
+    "doc/releases/v3.5.1.rst": {
+      "bytes": 1471,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "04a83964415d7c56e9605a96faf8184a38fdb9d639418e6865a223099e5d3146"
+    },
+    "doc/releases/v3.5.2.rst": {
+      "bytes": 2562,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "7751be068f98403b6f931f16eb0c9ebead99527d973684c4f8076a5c12f1536b"
+    },
+    "doc/releases/v3.5.3.rst": {
+      "bytes": 3477,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "b7fe90ccdd728722f85daa3ad65fe2732d57b004c2118a11f674cea1cad63211"
+    },
+    "doc/releases/v3.5.4.rst": {
+      "bytes": 1573,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "856058774b5172ed63ff5a5e2e8c89f566541b54563880e994e0fc81276f225f"
+    },
+    "doc/releases/v3.5.5.rst": {
+      "bytes": 4227,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "6fd9323290cdb3bb7aa4fab970f99edbbccca88f979871b630880cbc065f8821"
+    },
+    "doc/releases/v3.5.6beta.rst": {
+      "bytes": 5203,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "73268e9affde3109bc3bdc78abcac0a178dab5a6b47d169e860af3e9f30f916d"
+    },
+    "doc/releases/v3.5.7.rst": {
+      "bytes": 9930,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "bf250635d5fdac5a46afb788332b545bba10e48fe1a9ffeed9c6c53597795b79"
+    },
+    "doc/releases/v3.6.0.rst": {
+      "bytes": 16119,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "db586f6e575d633283aedd38cf451b15ae9d9589c776bd8af69139543abcd26b"
+    },
+    "doc/releases/v3.6.1.rst": {
+      "bytes": 5487,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "2c79512be7a59a28b4f2851c800f9e459ac4ff2aa8e912ba0fc29cec58755adb"
+    },
+    "doc/releases/v3.7.0.rst": {
+      "bytes": 2415,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "0015c6c444e0e047b69f013fc0ab01891d7e78eda9006dfb6dbf62a00c244a73"
+    },
+    "doc/releases/v3.7.0alpha.rst": {
+      "bytes": 5981,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "7afd43e08c8c36a1196ab3b41f9df2b9e0a536f63a8701c17c7a111b77fde6a4"
+    },
+    "doc/releases/v3.7.0beta.rst": {
+      "bytes": 3162,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "cd86e05ad9ee17393061532fae4313b9329e9d3083b2a47de5d590bc8d762250"
+    },
+    "doc/releases/v3.7.0beta2.rst": {
+      "bytes": 2055,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "6626dcc2546e2cac17c5390f27295022bfc0701a728384c90db10df62b4aab32"
+    },
+    "doc/releases/v3.7.1.rst": {
+      "bytes": 5435,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "b8e9f673dccd36de77dbe211bfc8d4c3e476eb8f83cdb1036e19183fda32a20f"
+    },
+    "doc/releases/v3.7.2.rst": {
+      "bytes": 4519,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "cebe97e7aa42be95dd9172ea91cf745ceb663eaef648afc72d514941997baf0f"
+    },
+    "doc/releases/v3.7.3.rst": {
+      "bytes": 6079,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "76f16ab578cee839151768db3fe2935dfadd584dd467b80b9b9f390b4f6acb4f"
+    },
+    "doc/releases/v3.7.4.rst": {
+      "bytes": 2995,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "71e339d29e3a3e42ab7ac771c66b1bb2a9e101fa823ffe7878f4b6aebb17a11a"
+    },
+    "doc/releases/v3.8.0.rst": {
+      "bytes": 4808,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "b5807cfda2e57d82693ce7a40b192ecb8b4dcad6b93e7d7c05301171eff95896"
+    },
+    "doc/releases/v3.8.1.rst": {
+      "bytes": 4883,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "a7b294cd0aa24409a82b2f1d9f63757391639da02caed713f9243ba77547e894"
+    },
+    "doc/releases/v3.8.2.rst": {
+      "bytes": 2335,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "07e77e4b8c9e10835a046bfcfd55e67783de4a77a153c6a4b11bc2f53f736321"
+    },
+    "doc/releases/v3.9.0.rst": {
+      "bytes": 7583,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "ca175fb35bfc1e8089530169d51e8a4a2fd568cc0babd7859e1cb6b4f72a5d57"
+    },
+    "doc/releases/v3.9.0beta.rst": {
+      "bytes": 8825,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "f12edd56285a5122737b32febaf0c867ed3c8371f7431f7539bae61aeb6246cd"
+    },
+    "doc/releases/v3.9.1.rst": {
+      "bytes": 1813,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "18d2b95b28d3de49f33fcc18cdda721a82811e9384203525869a2a8d18e04098"
+    },
+    "doc/releases/v3.9.2.rst": {
+      "bytes": 1977,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "5fcc8b961092926574a2f1e1d97073a5c2841508effa99a70a9fb8add01298f6"
+    },
+    "doc/releases/v3.9.3.rst": {
+      "bytes": 3365,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "57894a7b3290b74c24ddfc000255ee2f64412ea2d4abb00c5b3c04d8dc804e2c"
+    },
+    "doc/releases/v3.9.4.rst": {
+      "bytes": 2225,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "b6af42f039d72847b54d8543d6b96bb891f9c7d2f4f10da3d2ad5b30b5d9efd2"
+    },
+    "doc/releases/v3.9.5.rst": {
+      "bytes": 8029,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "66a6a82c8e1c3cdb9580c5f32f720acf712ea60b856d181907147c0a7111cb92"
+    },
+    "doc/releases/v4.0.0.rst": {
+      "bytes": 9989,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "e140de8be22668cc4f8599286767c0f0f86d4bf6f785fc44d4962a645e46743c"
+    },
+    "doc/releases/v4.0.1.rst": {
+      "bytes": 1743,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "74f98f4c9cc8a273ec3db48896a5f4bf1f38f7faa54201b579bb88394231410a"
+    },
+    "doc/releases/v4.0.10.rst": {
+      "bytes": 9912,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "214ad6fafed92fed2fff21f10f76588bf4896a9c765fe9730cbba5d45a453e97"
+    },
+    "doc/releases/v4.0.2.rst": {
+      "bytes": 1731,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "32f7558422e4f489e2291dedacaeeb3da3962102d44d73208a5568420f3ab598"
+    },
+    "doc/releases/v4.0.3.rst": {
+      "bytes": 2051,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "1096ac812deaffe226a88b288ab308ab61412323952b7595c1d6ea712e882f94"
+    },
+    "doc/releases/v4.0.4.rst": {
+      "bytes": 6152,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "f5b3c1258537f15860abc345e95ab31afedd9bc6722373f4eba6c7796e254b5e"
+    },
+    "doc/releases/v4.0.4beta.rst": {
+      "bytes": 11172,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "c821bc545705c4e8d4f0541f91976c2dc3f0bf20d91e123d684b54492b7a0d1d"
+    },
+    "doc/releases/v4.0.5.rst": {
+      "bytes": 2994,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "bd5c7b166605f96bf68e686d96cb38b68925b6eae2a89e5069b00ed49e050747"
+    },
+    "doc/releases/v4.0.6.rst": {
+      "bytes": 2356,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "517de8e683a0d9dab73da0fc8b9a5e6fde6ac5c942eaf86afb6b4d524c140cb8"
+    },
+    "doc/releases/v4.0.7.rst": {
+      "bytes": 15809,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "3ea35c5a2012c23d9f82be01d2813da132f32bdfaeb7962e9285c46eda5d10a4"
+    },
+    "doc/releases/v4.0.8.rst": {
+      "bytes": 15911,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "48d6cfa6fbfa4cb2b8c4ef19be5b28952e02c715fb6ad277e72d3a17ecab2cd8"
+    },
+    "doc/releases/v4.0.9.rst": {
+      "bytes": 16728,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "194fb81855559e87f3fc0981e15b95c5516148f7f189156bd13529a09be5f573"
+    },
+    "doc/releases/v4.1.0.rst": {
+      "bytes": 4185,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "a6df39edc7ac9e7951fa5bab06fa338b6de5f6251be7fd66df5f6ae6a659309f"
+    },
+    "doc/releases/v4.2.0.rst": {
+      "bytes": 4155,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "768a45b1c725ff4d43b57db11e56af371ac93d0303fa901782071a252d040afe"
+    },
+    "doc/releases/v4.3.0.rst": {
+      "bytes": 3229,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "a297230a653147ee948718357ccb1f6a536dc5f0f49873ac6912bf09f6d07ba9"
+    },
+    "doc/releases/v4.4.0.rst": {
+      "bytes": 5258,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "41be1d86cee977ff750d56f3eba694db467dd2b4acd2c3dcb34ef93dda32f821"
+    },
+    "doc/releases/v4.5.0.rst": {
+      "bytes": 6516,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "252473bb741f4b0201d3d50d3112b3347190d4f398571d45225e8ef24b47f65d"
+    },
+    "doc/releases/v4.5.1.rst": {
+      "bytes": 6121,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "86835d0363e47c5c2d73e689b4d1288239613bc9ad9320a3a15cfb6251596952"
+    },
+    "doc/releases/v4.6.0.rst": {
+      "bytes": 5496,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "2a57b6994744e4760419000e1d77ad50944fb25e85abc49659aa4483b3009b28"
+    },
+    "doc/releases/v4.7.0.rst": {
+      "bytes": 7849,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "dbbee4a488d7a80e7aa2edf0f1bf5dfe6ac806c90450caac94f4edddbb752eb5"
+    },
+    "doc/releases/v4.7.1.rst": {
+      "bytes": 9667,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "de3542af7f537131fe1db56269b2f26319db2aa5bcb8084d8d38ad0ec1459062"
+    },
+    "doc/releases/v4.7.2.rst": {
+      "bytes": 8506,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "7914a9210c1a0a92e4f777a1558ebcb528cb64b7c46c08a58701a4898ddf73ab"
+    },
+    "doc/rfcs/index.rst": {
+      "bytes": 275,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "bfc52915adcb1f201dc32fdf9dbccaeee6e36e36d4199fc85becedb307f45c77"
+    },
+    "doc/rfcs/rfc1_psc.rst": {
+      "bytes": 3928,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "28b2584ab51f70f4b1c5f0b1f2b7e964c0ea4a3e4897fad345aa4555e7cee7e0"
+    },
+    "doc/rfcs/rfc2_restoring_needed_tools.rst": {
+      "bytes": 2080,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "69ebfd6d22957021a7188da60e6b2044a54e3b72aa129d590edd1dd12b673c60"
+    },
+    "doc/specification/bigtiff.rst": {
+      "bytes": 6762,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "589e998edb9f6677345d9187f01e189053eff5cb6b2565974114326c796ffb28"
+    },
+    "doc/specification/bigtiffpr_images/esri.png": {
+      "bytes": 10281,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "0b08fe2974039c735b3721cd5407c8e6d37597121a46a51ef327b03932abf823"
+    },
+    "doc/specification/bigtiffpr_images/leica.png": {
+      "bytes": 6451,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "c9ee55e89a357360856bc74a9bd1a36dc2f3cf9124d55c4286559818cde0df31"
+    },
+    "doc/specification/bigtiffpr_images/safe.png": {
+      "bytes": 10285,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "d90a295292d448734a4604a8fe1ace96ddb8413d213d4946452cfd36f5cbfb83"
+    },
+    "doc/specification/bigtiffpr_images/weogeo.png": {
+      "bytes": 4160,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "f63327b4a89230c80fa845c76318486371da12079ca9d4329fcdd868298b1216"
+    },
+    "doc/specification/coverage-bigtiff.rst": {
+      "bytes": 3886,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "91f37a69bdeb6724a2beb06bc1ceb8004884e9391095a5ce1b1d70be77a53386"
+    },
+    "doc/specification/coverage.rst": {
+      "bytes": 26618,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "59a2fbc168b989095cc611bdd4d12945ee1d5f09561faca3ac5a5d3a918325ce"
+    },
+    "doc/specification/index.rst": {
+      "bytes": 849,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "f16531969d119c50d0ab9b2029d92c571b92eb4012123f1d2ffb17842c5477ec"
+    },
+    "doc/specification/technote2.rst": {
+      "bytes": 36835,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "0b2c1aaf18edbfd6256606a7fc8f995f5748102091b53ab81e8e3c9e2deea2cc"
+    },
+    "doc/terms.rst": {
+      "bytes": 2970,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "7c2ebd36cb128f2b1af456125ba1e928729db096314f8d6e4075aaeef46b8707"
+    },
+    "doc/tools.rst": {
+      "bytes": 4789,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "e8b73246eb242c70a3df95ef775792493686f364c26d8e882093bd97f447aa5c"
+    },
+    "doc/tools/fax2ps.rst": {
+      "bytes": 3446,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "39274de2ffb048ef4bcffbe6cc82e927288e53978aeff8b2917a5aeafaa1883e"
+    },
+    "doc/tools/fax2tiff.rst": {
+      "bytes": 6762,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "78eb52850cba41beb6027b3b450cd811f9121a05b4a5ade0c28eb69962511378"
+    },
+    "doc/tools/pal2rgb.rst": {
+      "bytes": 2081,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "5891f05750409e1ed39b34c1508bf28a9d5f2f0f21cde9008d30b066b3ed9d80"
+    },
+    "doc/tools/ppm2tiff.rst": {
+      "bytes": 1683,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "b61cbd5417f14f748cf90698c2bf24ffb19f4ccd67265c6391a8b2f4a0961fba"
+    },
+    "doc/tools/raw2tiff.rst": {
+      "bytes": 4625,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "c2e12817f403dc3db9a58685535a22dda6522403f0ac0ca94a1f8a5a753b65b2"
+    },
+    "doc/tools/rgb2ycbcr.rst": {
+      "bytes": 1818,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "3ae078235f29d9891187e4bfc11b2b3029c37e4c35e69074b6b9b991db476c68"
+    },
+    "doc/tools/thumbnail.rst": {
+      "bytes": 1662,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "1ee6edf750ea43a8a06f54e56a7e8573ee3fb5c8f888fce07772f2c9928b6d34"
+    },
+    "doc/tools/tiff2bw.rst": {
+      "bytes": 1564,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "d839fb7d852d60772010b8262143a155bbeaa391211dccbf5f7ac81d3c1a0d6d"
+    },
+    "doc/tools/tiff2pdf.rst": {
+      "bytes": 5978,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "106531e64eb29825db52cf18d5897c111871e48dd6b51564a50d38dd26cb63b4"
+    },
+    "doc/tools/tiff2ps.rst": {
+      "bytes": 7016,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "9b84f8534acabbef11fc6542dd79643f968f305f9f7e2fb1073fb87e8c8b891c"
+    },
+    "doc/tools/tiff2rgba.rst": {
+      "bytes": 2470,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "461c8564a84d6e9aa7bf2df1e91756fc70be729d9e801ef033001394becba73b"
+    },
+    "doc/tools/tiffcmp.rst": {
+      "bytes": 1496,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "3644c83ea8393dc03e57ba8746f58be60c5f8673f839623323ee6933b5e2dce8"
+    },
+    "doc/tools/tiffcp.rst": {
+      "bytes": 8400,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "246082d809ccc9f3da710f4eeb55a9eae30a081d36bb5cc34f8d43fe29fcaff8"
+    },
+    "doc/tools/tiffcrop.rst": {
+      "bytes": 22745,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "d89e11117149ba5418cbcf38ab9c9f430b8f326b7ce0e20472bf2ef2edb9bc90"
+    },
+    "doc/tools/tiffdither.rst": {
+      "bytes": 2781,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "9d4c033c2858c67980cf1d4446abc627768c958526f148864b43c7acce8f9e73"
+    },
+    "doc/tools/tiffdump.rst": {
+      "bytes": 1476,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "4e48515159b7e0086f45e1d3233851b07e2c3c340825f22bef36864a5eea990b"
+    },
+    "doc/tools/tiffgt.rst": {
+      "bytes": 5461,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "d28d849cb4ab85ea3ca8ee4d5d7f2d632cedc3c888af96749021af001f0e4df1"
+    },
+    "doc/tools/tiffinfo.rst": {
+      "bytes": 1408,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "6b8f8ebb4055d59119a5fb9018fb1291fb6b1585424dfc129fc1ab74916381cc"
+    },
+    "doc/tools/tiffmedian.rst": {
+      "bytes": 2099,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "375f384b6b43fe57c9d3c4058a8524c075c4483156513ffe079d5bb02b430b74"
+    },
+    "doc/tools/tiffset.rst": {
+      "bytes": 1453,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "274c1ccc9cd9223c891562e892cc9421cedd93bd7461a117e4ce3fa8bd55fcf8"
+    },
+    "doc/tools/tiffsplit.rst": {
+      "bytes": 930,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "717249bcfbc4006c46ddbe44a310d8cf33d7988c0a17a8444880ff9e8c8bd158"
+    },
+    "m4/acinclude.m4": {
+      "bytes": 32837,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "be55984a64324fc8483fff2448c5094e9277c48d433a3801e15fc768a8771fd7"
+    },
+    "m4/ice_find_athena.m4": {
+      "bytes": 5179,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "7b0ac79fb3afb6ac20a02a4a359e727164af95b6fa8b64442020055bbe82e883"
+    },
+    "scripts/fix_gdal_block_headers.py": {
+      "bytes": 1486,
+      "kind": "file",
+      "mode": 509,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "49173fd2ee89fc9dd0b2338d003d9d9c556d98e4142e731912edbcc4bd94dd60"
+    },
+    "test/images/32bpp-None-jpeg.tiff": {
+      "bytes": 4704,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Excluded image/reference/example data",
+      "sha256": "21219d01c2a1893514387d2c69cee50a0046d492554959ff23b767a011568e0b"
+    },
+    "test/images/32bpp-None.tiff": {
+      "bytes": 13222,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Excluded image/reference/example data",
+      "sha256": "a5f33714dd02a78aec1aeeacfd6c4fbaca23b1d373c0a077f86da971d7789504"
+    },
+    "test/images/README.txt": {
+      "bytes": 780,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Excluded image/reference/example data",
+      "sha256": "e750b164ea0b1b4f119955f25b91b4d22378f61bb5f2c246c551674eecd06cb7"
+    },
+    "test/images/custom_dir_EXIF_GPS.tiff": {
+      "bytes": 2504,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Excluded image/reference/example data",
+      "sha256": "70bbe67a6d1db0e562690505578ef798f61969b8c609c8886bd8545b4f9c1126"
+    },
+    "test/images/deflate-last-strip-extra-data.tiff": {
+      "bytes": 12789,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Excluded image/reference/example data",
+      "sha256": "031aa7e15c2dfb21fe2fdd89eff88c4505c306f641be8b98f3666707d698b5ae"
+    },
+    "test/images/logluv-3c-16b.tiff": {
+      "bytes": 166,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Excluded image/reference/example data",
+      "sha256": "a042e969b1f6ee47703e5187bdac782510023906cd99fdb81ad41e510f4c457d"
+    },
+    "test/images/lzw-single-strip.tiff": {
+      "bytes": 76264,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Excluded image/reference/example data",
+      "sha256": "9cbff8fbe7a487da5d56e7e7566c0f3984e7092a3b1ccfe6bc1461449d008e4e"
+    },
+    "test/images/minisblack-1c-16b.tiff": {
+      "bytes": 47733,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Excluded image/reference/example data",
+      "sha256": "4b158802cb0926445ca0e61a43e9aad16290c63950457466992d53f3e2843a02"
+    },
+    "test/images/minisblack-1c-8b.pgm": {
+      "bytes": 23722,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Excluded image/reference/example data",
+      "sha256": "48cf4b9af76ed39b860be8f89030efef02435eabbd59642e387a8c9b8069cd72"
+    },
+    "test/images/minisblack-1c-8b.tiff": {
+      "bytes": 24001,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Excluded image/reference/example data",
+      "sha256": "7993664077ea8898704d15128e563d9ddd9c85376b3e8b42b0865a2ba71ee175"
+    },
+    "test/images/minisblack-2c-8b-alpha.tiff": {
+      "bytes": 4068,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Excluded image/reference/example data",
+      "sha256": "6fcb5238fb9bd583cd78b27c51b16492d17d4768032f9ee1ed10f2d2f45730c9"
+    },
+    "test/images/miniswhite-1c-1b.g3": {
+      "bytes": 9687,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Excluded image/reference/example data",
+      "sha256": "800a933d11d2485ebe99875791cf1ce431b6b66fc7cc68bddae60c4f0c497c6d"
+    },
+    "test/images/miniswhite-1c-1b.pbm": {
+      "bytes": 3031,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Excluded image/reference/example data",
+      "sha256": "80950ac73f1e59b84db100517f22ae91da5bc2f8a9afd2603217ab6bc3e4f3ae"
+    },
+    "test/images/miniswhite-1c-1b.tiff": {
+      "bytes": 3289,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Excluded image/reference/example data",
+      "sha256": "9b303ec8e0dc83e9099af6a8c0d837772caad953d72995ad34e2f842fb66e83f"
+    },
+    "test/images/ojpeg_chewey_subsamp21_multi_strip.tiff": {
+      "bytes": 39752,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Excluded image/reference/example data",
+      "sha256": "fa829625035ed42a71d3baf0c4148903808b7c16c5e3a5a97a86909a969a57cb"
+    },
+    "test/images/ojpeg_single_strip_no_rowsperstrip.tiff": {
+      "bytes": 8258,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Excluded image/reference/example data",
+      "sha256": "bb4e0c9436da88030de5bb4f1042326fb15593d81650cfb6c51be800059ca032"
+    },
+    "test/images/ojpeg_zackthecat_subsamp22_single_strip.tiff": {
+      "bytes": 8258,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Excluded image/reference/example data",
+      "sha256": "0d31f2acb25bfbde4d79975572369c3e4bea8e978fc1935075a545e3f8321b6e"
+    },
+    "test/images/palette-1c-1b.tiff": {
+      "bytes": 3312,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Excluded image/reference/example data",
+      "sha256": "a5793c7369c07eda42c81b492661ec15511b7082df7b4eb728130ac6baec4fe4"
+    },
+    "test/images/palette-1c-4b.tiff": {
+      "bytes": 12322,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Excluded image/reference/example data",
+      "sha256": "148fc93d0effb9287aa93552efabe913a6c60093940a129d9c96b48ebe6a933f"
+    },
+    "test/images/palette-1c-8b.tiff": {
+      "bytes": 25548,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Excluded image/reference/example data",
+      "sha256": "9ef8051e9aa19f7439fdec77c7e5bdffef442572937287a83b5938bd02464286"
+    },
+    "test/images/quad-lzw-compat.tiff": {
+      "bytes": 214342,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Excluded image/reference/example data",
+      "sha256": "081118d951224d9909b105bb75f9667fd817e7b95122d141e91b43604dacd78b"
+    },
+    "test/images/quad-tile.jpg.tiff": {
+      "bytes": 27576,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Excluded image/reference/example data",
+      "sha256": "657062ada721390508c93606e2d7a33295722a171be65f55aa578f4aeeb96db4"
+    },
+    "test/images/rgb-3c-16b.ppm": {
+      "bytes": 142305,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Excluded image/reference/example data",
+      "sha256": "164de1122ff23a1d101fd584da5461fbd1c75e6f0c194dcb72760840d2c01e0b"
+    },
+    "test/images/rgb-3c-16b.tiff": {
+      "bytes": 142670,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Excluded image/reference/example data",
+      "sha256": "31ff3a1f416cb7281acfbcbb4b56ee8bb94e9f91489602ff2806e5a49abc03c0"
+    },
+    "test/images/rgb-3c-8b.ppm": {
+      "bytes": 71136,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Excluded image/reference/example data",
+      "sha256": "67b1a84936ef6cb3e383aea5bf96ee24c2d16c5d82e405138f92c7a0f059f378"
+    },
+    "test/images/rgb-3c-8b.tiff": {
+      "bytes": 71470,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Excluded image/reference/example data",
+      "sha256": "21a751d4d6cad3903e4833db726c1b645fc88a1161efffcabaf9ce9c8c8f7084"
+    },
+    "test/images/test_float64_predictor2_be_lzw.tif": {
+      "bytes": 872,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Excluded image/reference/example data",
+      "sha256": "92b52def55d4fad284fe74b447b1a4a008c4ae0c2eeb80044e18b8f5a192f670"
+    },
+    "test/images/test_float64_predictor2_le_lzw.tif": {
+      "bytes": 887,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Excluded image/reference/example data",
+      "sha256": "0aa2ac5e2513e9a9f76ac70eaab47002f255ddd3648c4335b30a1fdd337ed821"
+    },
+    "test/images/test_ifd_loop_subifd.tif": {
+      "bytes": 1654,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Excluded image/reference/example data",
+      "sha256": "9f7b0b1ef6fe925f2b4913e2e108ecfb1f9547346de17e53c61068888b7345aa"
+    },
+    "test/images/test_ifd_loop_to_first.tif": {
+      "bytes": 312,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Excluded image/reference/example data",
+      "sha256": "516a304cc30116b6f3a123544ad287d7fbe93aae1bf741a883b1d0b92f7dec9d"
+    },
+    "test/images/test_ifd_loop_to_self.tif": {
+      "bytes": 558,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Excluded image/reference/example data",
+      "sha256": "38b3093d53a1a80fdb949992ee51d6cb184894cc82ddec7a7f71ea5817e49868"
+    },
+    "test/images/test_two_ifds.tif": {
+      "bytes": 312,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Excluded image/reference/example data",
+      "sha256": "e8167ea8ec1d9e145798ac7fc19a3fd79c6eee55ed0923b17a305f4fca0d6810"
+    },
+    "test/images/testfax3_bug54_1dnoEOL.tif": {
+      "bytes": 39616,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Excluded image/reference/example data",
+      "sha256": "a0617b2e2307e2f1abf567bc97e9dc48e7a2dd2ddfacd14cba81205d884f6743"
+    },
+    "test/images/testfax3_bug_513.tiff": {
+      "bytes": 198,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Excluded image/reference/example data",
+      "sha256": "2f8639e9a1e9fc5c4561541c15dcb59f77a710b1e06aede23ed5ed6ca5580ceb"
+    },
+    "test/images/testfax4.tiff": {
+      "bytes": 39637,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Excluded image/reference/example data",
+      "sha256": "42df253cef26450582d4810ff237cb1a1725cce9a27afb50ea89aa42b3e172b9"
+    },
+    "test/images/tiff_with_subifd_chain.tif": {
+      "bytes": 19484,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Excluded image/reference/example data",
+      "sha256": "e50130294baf254b8ab54a46b96e8d8d13abe840e4d8a447086028375de97c37"
+    },
+    "test/images/webp_lossless_rgba_alpha_fully_opaque.tif": {
+      "bytes": 738,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Excluded image/reference/example data",
+      "sha256": "ca79569f94dad826998157d1415dadc4ea2930d79e772f8e0be79e09c3984b97"
+    },
+    "test/refs/o-deflate-last-strip-extra-data.tiff": {
+      "bytes": 12560,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Excluded image/reference/example data",
+      "sha256": "21173b8ec7ef4d463c7e8f9fb8800ee1137c0411bc07273c87bf37394aa6cb64"
+    },
+    "test/refs/o-testfax3_bug54_1dnoEOL.tiff": {
+      "bytes": 501708,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Excluded image/reference/example data",
+      "sha256": "2f3afe033f4e23fd7da49155f1ed08a984f24d9f9aea294ea88080aa3b50be6e"
+    },
+    "test/refs/o-testfax3_bug_513.tiff": {
+      "bytes": 154,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Excluded image/reference/example data",
+      "sha256": "3aafc32877dbec52e6187aea78b0239678613858d55bab06e61c3aecf4749de3"
+    },
+    "test/refs/o-testfax4.tiff": {
+      "bytes": 106326,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Excluded image/reference/example data",
+      "sha256": "e0c4d51726bb2b521820a491a809b022ee415a617b26f4eebd7b4e1dd4012461"
+    },
+    "test/refs/o-tiff2ps-EPS1.ps": {
+      "bytes": 6599,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Excluded image/reference/example data",
+      "sha256": "2ec7d55f89b123312c59a74a16e82ad5aa99fff2e503eba9bacc79837c612315"
+    },
+    "test/refs/o-tiff2ps-PS1.ps": {
+      "bytes": 6629,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Excluded image/reference/example data",
+      "sha256": "0aa50a31f94ea41eea280c7e73730c0e8841306e40f8060cf72586584fcbccec"
+    },
+    "test/refs/o-tiff2ps-PS2.ps": {
+      "bytes": 4912,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Excluded image/reference/example data",
+      "sha256": "0d280091a27bbf04665dad920b37b068efc53c144ba8ef2e0546caad751f3ef8"
+    },
+    "test/refs/o-tiff2ps-PS3.ps": {
+      "bytes": 4912,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Excluded image/reference/example data",
+      "sha256": "e2b7ce36f1c93a5ca26533d85aea1672cfbce1f4c7d8eb56bde57eb801cfde23"
+    },
+    "tiff.spec": {
+      "bytes": 2147,
+      "kind": "file",
+      "mode": 436,
+      "reason": "Not needed by proposed CMake library/tool/selfgenerated-test build; no blanket source-bundle grant claim",
+      "sha256": "222f50be2c2407a490664e868a9ab98560b95398c75acda2220579e194d61e77"
+    }
+  },
+  "gaps": [
+    "Historical uvcode generator absent; exact generated table and granted including tif_luv.c retained.",
+    "Linked GPL/Berkeley combination and public corresponding-source compliance route unresolved.",
+    "Top-level grant inference for project files without duplicate individual grant text; no automatic contrary-license assumption.",
+    "Native config/compiled membership/output/SO6/16K/CTest subset unexecuted.",
+    "Root exact project-jbig preferred-source/provider association not yet available."
+  ],
+  "original_archive_private_sha256": "ef90fb1beb8d75ec88be17223d7bd08b590f9e8501c8b89b78a7ea1291b02084",
+  "project_archive": {
+    "bytes": 725047,
+    "filename": "libtiff-project-4.7.2-source.tar.gz",
+    "format": "sorted USTAR then gzip level9 empty name mtime1782568888; uid/gid0; original permission bits; no filesystem archive tree extraction",
+    "root": "libtiff-project-4.7.2",
+    "sha256": "c63abdba53ef3fa510a3314bcd78183f9f2d948272c6ec52b4aeafae8cfba2af"
+  },
+  "provider_release_association": "NOT_RECORDED_POST_BUILD_RELEASE_EVIDENCE",
+  "public_promotion": false,
+  "schema_version": 1,
+  "selected_CTest_names": [
+    "ascii_tag",
+    "long_tag",
+    "short_tag"
+  ],
+  "selected_CTest_regex": "^(ascii_tag|long_tag|short_tag)$",
+  "selected_binary_test_fixtures": [],
+  "source_grant_coverage_complete": false,
+  "source_members": 318,
+  "status": "PROPOSED_REVIEWABLE_FILTER_NOT_PUBLICATION_ACCEPTANCE"
+}
