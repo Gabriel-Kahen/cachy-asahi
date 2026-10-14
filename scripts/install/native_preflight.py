@@ -21,7 +21,7 @@ HANDOFF = 'scripts/ci/development/repository_handoff.py'
 # Root must rebind after any separately reviewed issuer change.
 ISSUER_SHA = '1329653ab38468b92c08abe9426a176509b5586fab3a07a1e9432c90cb704219'
 RECEIVER = 'scripts/install/native_arm_trial.py'
-RECEIVER_SHA = '85d869c50f488e10fcf458c979a7a153e7b574bf566fd66efe21fa006d9e3468'
+RECEIVER_SHA = '597f244bbd957cfc63b4635aa769f589e78d082aac71e153240a0797a806cc97'
 PROFILE_SHA = 'db58bda8102ce098eded530f0920c21c1f09cb7a6cfb1d03ab84f0dfbf63d3f7'
 OWN = 'scripts/install/native_preflight.py'
 SOURCE_PATHS = ('scripts/install/local_transaction.py', 'scripts/install/test_local_transaction.py',
@@ -30,6 +30,9 @@ CONFIG = {'ArgsEscaped':False, 'Cmd':[], 'Entrypoint':[],
           'Env':['PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'],
           'ExposedPorts':None, 'Healthcheck':None, 'Labels':{}, 'Shell':[], 'StopSignal':None,
           'User':'alarm', 'Volumes':None, 'WorkingDir':'/tmp'}
+
+# Moby 28.0.4 container.Config JSON omitempty fields, constrained to CONFIG.
+OPTIONAL_CONFIG = ('ArgsEscaped','ExposedPorts','Healthcheck','Shell','StopSignal')
 
 
 def need(value, code):
@@ -182,12 +185,12 @@ def image_handoff(observed, controller, receiver, inputs_raw, packages_raw):
          image.get('Os') == 'linux' and sha(inputs_raw) == receiver.INPUTS_SHA and
          sha(packages_raw) == receiver.BASE_SHA, 'IMAGE_BINDING')
     full_config = image.get('Config'); need(type(full_config) is dict, 'IMAGE_CONFIG')
-    # Project the receiver's complete twelve execution-policy fields; preserve values.
-    missing = [key+':UNKNOWN' for key in CONFIG if key not in full_config]
+    # Preserve the sparse raw policy projection; defaults affect validation only.
+    missing = [key+':UNKNOWN' for key in CONFIG if key not in OPTIONAL_CONFIG and key not in full_config]
     need(not missing, 'IMAGE_CONFIG '+','.join(missing))
-    config = {key:full_config[key] for key in CONFIG}
-    canonical = dict(config)
-    # Only explicit null defaults normalize; nonempty and wrong-type values fail.
+    config = {key:full_config[key] for key in CONFIG if key in full_config}
+    canonical = {key:config.get(key) for key in CONFIG}
+    # Only reviewed absent/null defaults normalize; present wrong values fail.
     for key in ('Cmd','Entrypoint','Shell'):
         if canonical[key] is None: canonical[key] = []
     if canonical['ArgsEscaped'] is None: canonical['ArgsEscaped'] = False

@@ -202,41 +202,79 @@ class DataControls(unittest.TestCase):
             with self.subTest(mask=mask):
                 result=P.image_handoff([changed],self.controller,self.receiver,self.inputs,self.packages)
                 self.assertEqual(result['Config'],changed['Config'])
-    def test_missing_policy_fields_refuse_before_projection(self):
-        for name in P.CONFIG:
+    def test_optional_omission_preserves_sparse_handoff(self):
+        for mask in range(32):
+            changed=copy.deepcopy(self.image)
+            for number,name in enumerate(P.OPTIONAL_CONFIG):
+                if mask & (1<<number):del changed['Config'][name]
+            with self.subTest(mask=mask):
+                result=P.image_handoff([changed],self.controller,self.receiver,self.inputs,self.packages)
+                self.assertEqual(result['Config'],changed['Config'])
+                self.assertEqual(P.sha(P.encoded(result['Config'])),P.sha(P.encoded(changed['Config'])))
+    def test_missing_required_policy_fields_refuse_before_projection(self):
+        for name in P.CONFIG.keys()-set(P.OPTIONAL_CONFIG):
             changed=copy.deepcopy(self.image);del changed['Config'][name]
             with self.subTest(name=name):
                 with self.assertRaisesRegex(ValueError,'^IMAGE_CONFIG '+name+':UNKNOWN$'):
                     P.image_handoff([changed],self.controller,self.receiver,self.inputs,self.packages)
-    def test_receiver_null_defaults_bind_original_config_hash(self):
+    def test_present_optional_wrong_types_and_nondefaults_refuse(self):
+        cases={'ArgsEscaped':[0,1,True,[],{},''], 'ExposedPorts':[{},[],False,'',{'80/tcp':{}}],
+               'Healthcheck':[{},[],False,'',{'Test':['NONE']}], 'Shell':['',{},False,['/bin/sh']],
+               'StopSignal':['',False,[],{},'SIGTERM']}
+        for name,values in cases.items():
+            for value in values:
+                changed=copy.deepcopy(self.image);changed['Config'][name]=value
+                with self.subTest(name=name,value=value):
+                    with self.assertRaisesRegex(ValueError,'^IMAGE_CONFIG '):
+                        P.image_handoff([changed],self.controller,self.receiver,self.inputs,self.packages)
+    def test_extra_docker_metadata_keeps_existing_projection(self):
+        self.image['Config']['Hostname']='unused-metadata'
+        result=P.image_handoff([self.image],self.controller,self.receiver,self.inputs,self.packages)
+        self.assertEqual(result['Config'],P.CONFIG)
+    def test_receiver_sparse_and_null_defaults_bind_original_config_hash(self):
         import ast
-        # Execute only the receiver's prefix through IMAGE_CONFIG; no native checks/actors.
+        # Run only the policy prefix; no native, package, namespace or Docker actors.
         tree=ast.parse((ROOT/P.RECEIVER).read_bytes())
         node=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='verify_environment')
         stops=[i for i,n in enumerate(node.body) if isinstance(n,ast.Expr) and isinstance(n.value,ast.Call)
                and any(isinstance(a,ast.Constant) and a.value=='IMAGE_CONFIG' for a in n.value.args)]
         wrapper=ast.parse('def check(selection,end):\n    pass\n').body[0]
         wrapper.body=node.body[:max(stops)+1]
-        config=copy.deepcopy(P.CONFIG)
-        for name in ('ArgsEscaped','Cmd','Entrypoint','Shell'):config[name]=None
-        image=dict(source_commit='b'*40,image_id='sha256:'+'a'*64,inputs_sha256=R.INPUTS_SHA,
-                   packages_lock_sha256=R.BASE_SHA,architecture='arm64',os='linux',Config=config)
-        raw=P.encoded(image)
+        raw=b''
         namespace=dict(read=lambda *args:raw,require=R.require,sha=R.sha,strict=R.strict,
                        INPUTS_SHA=R.INPUTS_SHA,BASE_SHA=R.BASE_SHA,json=json)
         exec(compile(ast.fix_missing_locations(ast.Module(body=[wrapper],type_ignores=[])),
                      '<receiver-policy-prefix>','exec'),namespace)
-        selection=dict(source_commit=image['source_commit'],image_id=image['image_id'],
-                       native_handoff_sha256=R.sha(raw),image_config_sha256=R.sha(P.encoded(config)))
-        namespace['check'](selection,None)
-        normalized=copy.deepcopy(P.CONFIG)
-        selection['image_config_sha256']=R.sha(P.encoded(normalized))
-        with self.assertRaisesRegex(ValueError,'^IMAGE_CONFIG_HASH$'):namespace['check'](selection,None)
-        for name in P.CONFIG:
-            bad=copy.deepcopy(image);del bad['Config'][name];raw=P.encoded(bad)
-            selection.update(native_handoff_sha256=R.sha(raw),image_config_sha256=R.sha(P.encoded(bad['Config'])))
-            with self.subTest(missing=name):
+        def check(config,accept=True):
+            nonlocal raw
+            image=dict(source_commit='b'*40,image_id='sha256:'+'a'*64,inputs_sha256=R.INPUTS_SHA,
+                       packages_lock_sha256=R.BASE_SHA,architecture='arm64',os='linux',Config=config)
+            raw=P.encoded(image)
+            selection=dict(source_commit=image['source_commit'],image_id=image['image_id'],
+                           native_handoff_sha256=R.sha(raw),image_config_sha256=R.sha(P.encoded(config)))
+            if accept:
+                namespace['check'](selection,None)
+                if config!=P.CONFIG:
+                    selection['image_config_sha256']=R.sha(P.encoded(P.CONFIG))
+                    with self.assertRaisesRegex(ValueError,'^IMAGE_CONFIG_HASH$'):namespace['check'](selection,None)
+            else:
                 with self.assertRaisesRegex(ValueError,'^IMAGE_CONFIG$'):namespace['check'](selection,None)
+        for mask in range(32):
+            config=copy.deepcopy(P.CONFIG)
+            for number,name in enumerate(P.OPTIONAL_CONFIG):
+                if mask & (1<<number):del config[name]
+            with self.subTest(mask=mask):check(config)
+        config=copy.deepcopy(P.CONFIG)
+        for name in ('ArgsEscaped','Cmd','Entrypoint','Shell'):config[name]=None
+        check(config)
+        for name in P.CONFIG.keys()-set(P.OPTIONAL_CONFIG):
+            config=copy.deepcopy(P.CONFIG);del config[name]
+            with self.subTest(missing=name):check(config,False)
+        for name,value in [('Hostname','extra'),('ArgsEscaped',0),('StopSignal',''),('Shell',''),
+                           ('Healthcheck',{}),('ExposedPorts',{})]:
+            config=copy.deepcopy(P.CONFIG);config[name]=value
+            with self.subTest(name=name):check(config,False)
+
 
     def test_nonce_refuses_before_constructor(self):
         with self.assertRaisesRegex(ValueError,'NONCE'): P.selection(None,None,R,{},'bad')

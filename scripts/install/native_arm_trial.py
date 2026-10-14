@@ -161,8 +161,10 @@ def verify_environment(selection, end):
     require(type(config) is dict and sha((json.dumps(config,sort_keys=True)+'\n').encode())==selection['image_config_sha256'], 'IMAGE_CONFIG_HASH')
     expected={'ArgsEscaped':False,'Cmd':[],'Entrypoint':[],'Env':['PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'],
               'ExposedPorts':None,'Healthcheck':None,'Labels':{},'Shell':[],'StopSignal':None,'User':'alarm','Volumes':None,'WorkingDir':'/tmp'}
-    require(set(config)==set(expected), 'IMAGE_CONFIG')
-    canonical=dict(config)
+    # Moby 28.0.4 omits exactly these five policy fields at their zero values.
+    optional=('ArgsEscaped','ExposedPorts','Healthcheck','Shell','StopSignal')
+    require(set(expected)-set(optional)<=set(config)<=set(expected), 'IMAGE_CONFIG')
+    canonical={key:config.get(key) for key in expected}
     # Null Docker defaults carry no executable or Windows escaped command.
     for key in ('Cmd','Entrypoint','Shell'):
         if canonical[key] is None: canonical[key]=[]
