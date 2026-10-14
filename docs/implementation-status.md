@@ -2,6 +2,20 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 14, source and scheduling checkpoint: fresh platform-source review
+`5ede0dd2` authenticates105 retained leaves and35 official retrieval records.
+The selected systemd262/pacmanr9 recipe hashes still have no exact matches;
+version/date/history records do not establish selected-build custody. Exact
+source correspondence and complete licenses remain OPEN.
+
+Queue review `02235206` confirms separate standard hosted VMs and runner-local
+Docker endpoints. Root's19:28 snapshot records two active project jobs and
+seven pending native trials. A bounded future pilot reserves at most three
+project jobs; screenshot software may use the third slot before P0. Root will
+wait for that trial to terminate before dispatching P0. Existing queue, refs,
+plan variables and admission gates remain unchanged. Account/storage headroom
+outside this observation is unmeasured; no throughput gain is claimed.
+
 October 14, FDK smoke correction checkpoint: independent peer `bdf6102c`
 passes21 focused groups and exact eight-file preimages. Root publishes
 Source `220b4eb2`, packet `73a24d4f`, and verifies139 committed rows:
