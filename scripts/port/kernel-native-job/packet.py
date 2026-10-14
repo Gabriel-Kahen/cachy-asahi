@@ -13,8 +13,8 @@ PREFIX = 'scripts/port/kernel-native-job/'
 KERNEL = 'scripts/port/kernel-native-stage/'
 WORKFLOW = '.github/workflows/native-arm-kernel.yml'
 DOCUMENT = 'docs/workstreams/kernel-native-job.md'
-KERNEL_SHA = 'a5d8257f34f2c36cef1d8d16d9f07cd511bcfb36c8467b46d2a868dd586e2ffb'
-INPUTS_SHA = '3c16c37d1b12cc84a88572e82ab8ad59e7f3b5ed0d08f09ddf72a69f4711d650'
+KERNEL_SHA = '38c770954f3a58931a0d4503bf091c84117c36b4e383d5023dff589525be502c'
+INPUTS_SHA = 'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f'
 RECIPES_SHA = '20d846cdf289bfc233b0051bf33b677fd6e94e9f05d91a33595a2829a196fa63'
 EPOCH = 1791748800
 RECIPE_COUNT, KERNEL_COUNT = 71, 29
@@ -37,6 +37,8 @@ HELPERS = {
     'AGENTS.md': ('a95eaf775ac935ebdfe6b9c89aad9382639671aecdaab91503e1453d4782a056', 0o644),
 }
 
+# Only these two Source-pinned donor buffers may be nested job inputs.
+DONORS = {'donor/current-controller.py': 'bbe279edb9743f98e8feed8365859abc221b2665924658e600775c902e18299e', 'donor/current-packet.json': '9d5a7dc25fd44e127c457c72addb28272b1eb1f5391c4c5b8d5b0a226a3be048'}
 
 def need(value, code):
     if not value:
@@ -150,7 +152,11 @@ def closure(root):
     # The coordinator's external-pin map excludes itself. No other JSON/binary
     # can enter the executable closure through this directory.
     job_files.discard('packet.lock.json')
-    need(job_files and all(name.endswith('.py') and '/' not in name for name in job_files), 'packet-own-file')
+    need(set(DONORS) <= job_files and job_files and all(
+        name in DONORS or name.endswith('.py') and '/' not in name for name in job_files), 'packet-own-file')
+    for name, pin in DONORS.items():
+        donor, mode = capture(root / PREFIX / relative(name), 2 * 1024**2)
+        need(mode == 0o644 and sha(donor) == pin, 'packet-donor-pin')
     files.update(PREFIX + name for name in job_files)
     need(len(files) <= MAX_FILES, 'packet-file-count')
     for name in files:

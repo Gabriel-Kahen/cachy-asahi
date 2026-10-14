@@ -1,6 +1,6 @@
 {
-  "base_inputs_sha256": "3c16c37d1b12cc84a88572e82ab8ad59e7f3b5ed0d08f09ddf72a69f4711d650",
-  "base_inventory_sha256": "89bdb06fea1862b5a6e02b77a4b98f6e04755b02327d875a716bd792929f3a4f",
+  "base_inputs_sha256": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f",
+  "base_inventory_sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25",
   "development_only": true,
   "files": {
     "scripts/ci/commit_image.py": {
@@ -13,7 +13,7 @@
     },
     "scripts/port/fdk-native-stage/evidence.py": {
       "mode": 420,
-      "sha256": "aab9c7961bfe3cdd1fd298c7609cfcb5d9853201a110016a9f0348b6fe9fb175"
+      "sha256": "0e08186ce54b0d2f57ffef3be5e97e11592da92cfc615a4f70aa1d06221f8c29"
     },
     "scripts/port/kernel-candidates/candidate.json": {
       "mode": 420,
@@ -29,7 +29,7 @@
     },
     "scripts/port/kernel-native-stage/acquisition.py": {
       "mode": 493,
-      "sha256": "ad4517e3906a059a4a5d73780ebdeff91e1b560cda9afdbc88c676c37f5734bf"
+      "sha256": "15d60936b5fab7da163792f5bfd2b8d286f64c0fcbb452a2f107fd24bc6df155"
     },
     "scripts/port/kernel-native-stage/broker.py": {
       "mode": 420,
@@ -37,15 +37,15 @@
     },
     "scripts/port/kernel-native-stage/common.py": {
       "mode": 420,
-      "sha256": "acc0b86bcca8b76de0b515aa90f5f484f7e81a39ce4b267dc37ec48e9c68e28b"
+      "sha256": "80a8a2b897f609044978773b359778d9816d27b2225dd65bc934e019da24dd8d"
     },
     "scripts/port/kernel-native-stage/dependencies.json": {
       "mode": 420,
-      "sha256": "cf4d6eaa80ab15f1b1359d161b7b07e187f37df6071e5f628e235cb9689a93d6"
+      "sha256": "895758671bb41a0fadc4aa4c44f4484844bf14d0c34df79ced95123542de4757"
     },
     "scripts/port/kernel-native-stage/dependency_audit.py": {
       "mode": 493,
-      "sha256": "6fd158e4f28383d13d231b5b7d224589ac7332605323a8930b7644ef3248bd4f"
+      "sha256": "c6f639be6e7e9da08933f23f18aa3185bad64dc75fab036e7057dad0e258fd05"
     },
     "scripts/port/kernel-native-stage/embedded-config.txt": {
       "mode": 420,

@@ -29,7 +29,7 @@ MAX_TOTAL = 1200 * 1024**2
 MAX_SECONDS = 1800
 CHUNK = 1024**2
 PINS = {
-    PREFIX+'dependencies.json':'cf4d6eaa80ab15f1b1359d161b7b07e187f37df6071e5f628e235cb9689a93d6',
+    PREFIX+'dependencies.json':'895758671bb41a0fadc4aa4c44f4484844bf14d0c34df79ced95123542de4757',
     SOURCE+'candidate.json':'d26f691006a24f76db11f2f353e0ec10d93425ce2b6f8970a446b7bd34c98617',
     SOURCE+'harness.py':'f2d6fc62d28b0c189469ca7cf8293f10c574ecd0459c33c013bf1a271b8a5ebf',
     'scripts/ci/native_arm.py':'a8b6ed8971a38089a4499dcec605477c4e48d7a47c3de485d205f6a44678b898',

@@ -258,10 +258,18 @@ class JobContracts(unittest.TestCase):
                     return SimpleNamespace(returncode=self.child_exit, stdout=b'')
                 instance.run.side_effect = child
             phases.append((seconds, instance)); return instance
-        def source(*args, **kwargs): args[5].mkdir(parents=True); return {'status': 'PASS'}
+        def source(*args, **kwargs): args[5].mkdir(parents=True); return {'status': 'PASS', 'files_map': {}}
+        def seed(snapshot, private, setup, start, files_map):
+            # Controller fixture only: the real adapter has separate inert tests.
+            value = {'status': 'SEEDED_TRANSPORT_ONLY', 'objects': 4, 'bytes': 404428,
+                'signature_authentication': 'NOT RUN', 'native_build': 'NOT RUN',
+                'resource_uncertain': False, 'cancelled': False, 'secondary_errors': 0}
+            setup.current_cache_observation = value
+            return value
         self.patches = [patch.object(job, '__file__', str(self.root / 'scripts/port/kernel-native-job/job.py')),
             patch.dict(job.os.environ, {'GITHUB_WORKSPACE': str(self.root), 'GITHUB_RUN_ID': '1', 'GITHUB_RUN_ATTEMPT': '1'}),
             patch.object(job, 'ordinary'), patch.object(job.packet, 'verify', side_effect=source),
+            patch.object(job.current_cache, 'seed', side_effect=seed),
             patch.object(job, 'Docker', return_value=fake), patch.object(job.runtime, 'Runner', side_effect=runner),
             patch.object(job, 'accepted_producer', return_value=(self.image, accepted)),
             patch.object(job, 'acquired_paths', return_value={key: self.root / key for key in

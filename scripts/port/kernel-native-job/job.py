@@ -19,10 +19,11 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import packet
 import public
 import runtime
+import current_cache
 
 SETUP, PARALLEL, KERNEL_ENVELOPE, CLEANUP, GUARD = 300, 2050, 18240, 150, 20
 DEADLINE = SETUP + PARALLEL + KERNEL_ENVELOPE + CLEANUP + GUARD
-BASE_SHA = '89bdb06fea1862b5a6e02b77a4b98f6e04755b02327d875a716bd792929f3a4f'
+BASE_SHA = 'fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25'
 KERNEL_API_VERSION = '1.48'
 HOST_ENV = ('GITHUB_SHA', 'GITHUB_REPOSITORY', 'GITHUB_RUN_ID', 'GITHUB_RUN_ATTEMPT',
             'RUNNER_ARCH', 'RUNNER_OS', 'ImageVersion', 'ImageOS')
@@ -627,6 +628,15 @@ def work(args, terminal, start):
         context = ('source', 'SOURCE_REJECTED')
         snapshot = private / 'source'
         evidence['source'] = packet.verify(root, args.packet, args.packet_sha256, args.source_commit, setup, snapshot)
+        # Seed only the four recovered inputs under the existing SETUP endpoint.
+        try:
+            evidence['cache_seed'] = current_cache.seed(snapshot, private, setup, start,
+                                                       evidence['source']['files_map'])
+        finally:
+            observed = getattr(setup, 'current_cache_observation', None)
+            if type(observed) is dict:
+                evidence['cache_seed'] = observed
+                if observed['cancelled']: status['cancelled'] = True
         context = ('source', 'DOCKER_REJECTED')
         docker = Docker(args); evidence['daemon'] = docker.info(setup)
         context = ('source', 'DAEMON_BASELINE_UNVERIFIED')
