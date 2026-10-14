@@ -268,6 +268,18 @@ def validate_compiler_fact(value):
     need(value['scan_status'] == 'COMPLETE' or value['output_bytes'] > 0)
     return value
 
+OUTPUT_PREDICATES = frozenset((*(f'CHECK_{n:03d}' for n in range(1, 114)),
+    'ELF_FILE_SECTION', 'ELF_SYMBOL_MISSING', 'IMAGE_SECTION_CONTENT',
+    'GENERATED_CONFIG_DIFFERENCE', 'OTHER'))
+
+
+def validate_output_fact(value):
+    need(type(value) is dict and set(value) == {'call_boundary', 'predicate'})
+    need(type(value['call_boundary']) is str and value['call_boundary'] == 'VERIFY_OUTPUTS')
+    need(type(value['predicate']) is str and value['predicate'] in OUTPUT_PREDICATES)
+    return value
+
+
 def child_validate_inner_group(group):
     need(type(group) is dict and set(group) == {'availability', 'reason', 'raw_sha256', 'diagnostic'})
     availability = group['availability']
@@ -280,8 +292,8 @@ def child_validate_inner_group(group):
         return group
     need(pin is not None)
     row = group['diagnostic']
-    need(type(row) is dict and type(row.get('schema_version')) is int and row['schema_version'] in (1, 2, 3))
-    need(set(row) == CHILD_INNER_PUBLIC_KEYS | ({'config_failure'} if row['schema_version'] == 2 else {'compiler_failure'} if row['schema_version'] == 3 else set()))
+    need(type(row) is dict and type(row.get('schema_version')) is int and row['schema_version'] in (1, 2, 3, 4))
+    need(set(row) == CHILD_INNER_PUBLIC_KEYS | ({'config_failure'} if row['schema_version'] == 2 else {'compiler_failure'} if row['schema_version'] == 3 else {'output_failure'} if row['schema_version'] == 4 else set()))
     need(type(row['binding_sha256']) is str and re.fullmatch('[0-9a-f]{64}', row['binding_sha256']))
     need(type(row['phase']) is str and row['phase'] in CHILD_INNER_PHASES and type(row['command']) is str and row['command'] in CHILD_INNER_COMMANDS)
     need(type(row['attempt']) is str and row['attempt'] in ('NOT_ISSUED', 'ISSUED'))
@@ -307,6 +319,11 @@ def child_validate_inner_group(group):
     if row['schema_version'] == 3:
         validate_compiler_fact(row['compiler_failure'])
         need(row['first_failure'] == {'phase': 'KERNEL', 'command': 'KERNEL', 'error_kind': 'DATA_REFUSAL'} and row['command'] == 'KERNEL' and (row['attempt'] == 'ISSUED') and (row['natural_return'] == {'kind': 'RETURNED', 'code': row['compiler_failure']['return_code']}))
+    if row['schema_version'] == 4:
+        validate_output_fact(row['output_failure'])
+        need(row['first_failure'] == {'phase': 'OUTPUTS', 'command': 'KERNEL', 'error_kind': 'DATA_REFUSAL'} and
+             row['command'] == 'KERNEL' and row['attempt'] == 'ISSUED' and
+             row['natural_return'] == {'kind': 'RETURNED', 'code': 0})
     need(len(json.dumps(row, sort_keys=True, separators=(',', ':'), allow_nan=False).encode()) <= 2048)
     return group
 

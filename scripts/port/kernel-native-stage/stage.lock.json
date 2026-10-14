@@ -53,7 +53,7 @@
     },
     "scripts/port/kernel-native-stage/evidence.py": {
       "mode": 420,
-      "sha256": "ed5f9935944716512841a9ab6d7442ab222d87d04207120eaa8135ecc2b94fb6"
+      "sha256": "71fff679498bf88624847e3cf1f47543ec24f2ca004e2bb2fe1e7b10dcdcdacf"
     },
     "scripts/port/kernel-native-stage/image.py": {
       "mode": 420,
