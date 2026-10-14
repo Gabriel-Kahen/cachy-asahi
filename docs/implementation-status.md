@@ -2,6 +2,13 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 14, changed kernel diagnostic checkpoint: Source `46f8cdb4` and
+packet `d33fc24e` publish ten reviewed replacements. All124 committed packet
+rows verify; external review `66c43a2f` passes14 groups/105 assertions. Two
+unchanged worker subtest failures reproduce on the baseline, so the full suite
+is not green. Trial `38632413885` is running. The prior CHECK_001 conjunct
+remains UNKNOWN; no output verifier rule or hardware gate is relaxed.
+
 October 14, reviewed correction checkpoint: virtual SVG preflight now preserves
 cancellation/exit identity after its bounded diagnostic. Source `269d3d95` is
 published after independent review `481082d7`; eleven focused controls pass.
