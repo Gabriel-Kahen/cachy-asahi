@@ -18,6 +18,32 @@ class InnerResult(unittest.TestCase):
         value.update(extra)
         return json.dumps(value).encode()
 
+    def test_check001_closed_conjuncts_preserve_capture_and_privacy(self):
+        import evidence
+        labels = ('ALIGN_MIN', 'ALIGN_POWER_TWO', 'VA_ALIGN', 'PA_ALIGN', 'VA_16K', 'PA_16K', 'PERMISSIONS', 'MEMORY_SIZE')
+        prefix = '16K ELF load geometry/permissions required; WX refused'
+        for label in labels:
+            row = self.row(); diag.phase(row, 'KERNEL'); diag.issued(row, 'KERNEL'); diag.returned(row, 0)
+            diag.phase(row, 'OUTPUTS'); error = ValueError(prefix + ' [' + label + ']')
+            diag.failure(row, error); first = copy.deepcopy(row['first_failure'])
+            diag.output_failure(row, error)
+            fact = {'call_boundary': 'VERIFY_OUTPUTS', 'predicate': 'CHECK_001_' + label}
+            self.assertEqual(row['output_failure'], fact); evidence.validate_output_fact(fact)
+            group = diag.capture(self.report(row), BINDING); diag.validate_group(group)
+            self.assertEqual(group['availability'], 'VERIFIED')
+            self.assertEqual(group['diagnostic']['output_failure'], fact)
+            diag.failure(row, OSError('/private'), cleanup=True)
+            self.assertEqual(row['first_failure'], first)
+            self.assertEqual(row['natural_return'], {'kind': 'RETURNED', 'code': 0})
+            self.assertNotIn('/private', json.dumps(diag.capture(self.report(row), BINDING)))
+        for code in ('CHECK_001_PRIVATE', 'CHECK_001_VA_16K /private', '/private', True):
+            with self.assertRaises(ValueError):
+                evidence.validate_output_fact({'call_boundary': 'VERIFY_OUTPUTS', 'predicate': code})
+        for text, code in ((prefix, 'CHECK_001'), (prefix + ' [PRIVATE]', 'OTHER')):
+            row = self.row(); diag.phase(row, 'KERNEL'); diag.issued(row, 'KERNEL'); diag.returned(row, 0)
+            diag.phase(row, 'OUTPUTS'); error = ValueError(text); diag.failure(row, error); diag.output_failure(row, error)
+            self.assertEqual(row['output_failure']['predicate'], code)
+
     def test_frozen_business_and_independent_cleanup(self):
         row = self.row(); diag.phase(row, 'KERNEL'); diag.issued(row, 'KERNEL')
         diag.returned(row, -15); diag.failure(row, ValueError('command failed: kernel'))

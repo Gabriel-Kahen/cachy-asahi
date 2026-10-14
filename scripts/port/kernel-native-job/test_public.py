@@ -922,6 +922,17 @@ class InnerFailurePublicTests(unittest.TestCase):
                                  'diagnostics': evidence.project(row)}
         return value
 
+    def test_check001_conjuncts_are_closed_public_values(self):
+        labels = ('ALIGN_MIN', 'ALIGN_POWER_TWO', 'VA_ALIGN', 'PA_ALIGN', 'VA_16K', 'PA_16K', 'PERMISSIONS', 'MEMORY_SIZE')
+        for label in labels:
+            fact = {'call_boundary': 'VERIFY_OUTPUTS', 'predicate': 'CHECK_001_' + label}
+            self.assertEqual(public.validate_output_fact(fact), fact)
+        for code in ('CHECK_001_PRIVATE', 'CHECK_001_PERMISSIONS /private', True, None):
+            with self.assertRaises(ValueError):
+                public.validate_output_fact({'call_boundary': 'VERIFY_OUTPUTS', 'predicate': code})
+        with self.assertRaises(ValueError):
+            public.validate_output_fact({'call_boundary': 'VERIFY_OUTPUTS', 'predicate': 'CHECK_001_VA_16K', 'address': 1})
+
     def test_new_failure_diagnostic_preserves_all_outcome_failures(self):
         value = self.value(); original = copy.deepcopy(value['kernel_child'])
         for outcome in ('success', 'failure', 'cancelled', 'skipped', ''):

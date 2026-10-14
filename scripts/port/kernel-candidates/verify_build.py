@@ -239,9 +239,14 @@ class ELF:
                 harness.need(off + filesz <= self.size and filesz <= memsz and va + memsz <= 2**64 and pa + memsz <= 2**64,
                              'ELF segment range invalid')
                 if ptype == 1:
-                    harness.need(align >= 4096 and align & (align - 1) == 0 and va % align == off % align and pa % align == off % align and
-                                 va % 16384 == off % 16384 and pa % 16384 == off % 16384 and
-                                 perm in (4, 5, 6) and memsz > 0, '16K ELF load geometry/permissions required; WX refused')
+                    harness.need(align >= 4096, '16K ELF load geometry/permissions required; WX refused [ALIGN_MIN]')
+                    harness.need(align & (align - 1) == 0, '16K ELF load geometry/permissions required; WX refused [ALIGN_POWER_TWO]')
+                    harness.need(va % align == off % align, '16K ELF load geometry/permissions required; WX refused [VA_ALIGN]')
+                    harness.need(pa % align == off % align, '16K ELF load geometry/permissions required; WX refused [PA_ALIGN]')
+                    harness.need(va % 16384 == off % 16384, '16K ELF load geometry/permissions required; WX refused [VA_16K]')
+                    harness.need(pa % 16384 == off % 16384, '16K ELF load geometry/permissions required; WX refused [PA_16K]')
+                    harness.need(perm in (4, 5, 6), '16K ELF load geometry/permissions required; WX refused [PERMISSIONS]')
+                    harness.need(memsz > 0, '16K ELF load geometry/permissions required; WX refused [MEMORY_SIZE]')
                     self.loads.append({'offset': off, 'addr': va, 'paddr': pa, 'filesz': filesz, 'memsz': memsz, 'alignment': align, 'flags': perm})
                 elif ptype == 0x6474e551:
                     harness.need(not perm & 1, 'executable ELF stack refused')
