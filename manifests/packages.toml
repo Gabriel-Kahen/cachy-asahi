@@ -72,12 +72,14 @@ license = "MIT"
 audit = "docs/audits/desktop.md"
 selected_for_development = true
 selected_for_release = false
-native_build = "PASS"
-native_build_commit = "ebd5812640b0b69f5c09a47752b739e37e338754"
-native_evidence = "docs/validation/native-arm.md"
+native_build = "NOT RUN"
+candidate_version = "0.1.0-2"
+historical_native_build = "PASS"
+historical_native_build_commit = "ebd5812640b0b69f5c09a47752b739e37e338754"
+historical_native_evidence = "docs/validation/native-arm.md"
 installation = "NOT RUN"
 hardware_validation = "NOT RUN"
-next_step = "Native build pair passed; freeze the actual Asahi-compatible target dependency transaction and execute exact-M2 configuration/session lifecycle checks."
+next_step = "Build the exact 0.1.0-2 screenshot-helper candidate natively; reuse the existing grim/slurp provider proposals, freeze the Asahi-compatible dependency transaction, and verify installation/removal plus explicit full/region capture on both M2 Air sizes. Earlier pkgrel1 build evidence remains historical."
 
 [[packages]]
 name = "cachy-asahi-fish-config"

@@ -2,6 +2,37 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+
+October 14, source-delivery and screenshot integration: Root publishes source
+associations and recipient lookup/export in `c53ad695`, following author
+`61e039ee` and independent peer `7051b4be`. All 104 canonical helper, release
+and client tests pass with synthetic packages and temporary TEST GPG keys
+outside the checkout. This proves the signed association/export behavior;
+actual package source completeness, licensed public delivery and hardware
+acceptance remain open.
+
+The six-file screenshot candidate `0.1.0-2` passes author `0349de6e` and
+independent peer `eb04404c` (72 focused controls). Root adopts the exact files
+and verifies eight source checksums, syntax, all 36 default bindings, two
+optional capture bindings, and eight isolated staged files. Existing workspace
+shortcuts are preserved. Real compositor capture, the updated native archive,
+installation/removal and both M2 Air sizes remain NOT RUN. The inventory now
+keeps the earlier pkgrel1 native PASS as historical evidence rather than
+assigning it to this candidate; grim/slurp provider closure remains open.
+
+The latest kernel `38547085071`, Pair `38546975061`, Zsh `38546975187` and
+library CLI `38547424804` runs are terminal FAIL and their exact evidence is
+being retained. Signer `38551373141` fails before a natural shim result is
+established; ABI compilation and inspection remain NOT RUN. Managed libraries
+`38533034332` fail the materializer's existing derived-output length/hash
+check; the specific output remains unidentified. Composed `38536780960`
+passes seven initial components but fails a later preflight RUN boundary.
+FDK `38537043450` fails preflight, updater `38537248373` fails launching its
+data worker, and KSM `38541805780` retains GRAPH_LOAD/producer-unbound-import
+with the rejected module root unknown. Separate bounded diagnostics and
+proven Source corrections remain active; these failures do not yet require
+physical M2 access. Full R1–R5/M5–M9/A01–A15 development continues.
+
 October 14, 10:30 UTC: actual signer failure review `a8e0acac` and peer
 `03a938ea` authenticate against all retained captures. The selected ARM-header
 audit finds one mismatch among 116 ABI expectations: `O_NOFOLLOW` is 32768.
