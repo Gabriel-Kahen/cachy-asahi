@@ -21,21 +21,21 @@ from types import ModuleType
 ROOT_CODE_ROWS=None
 BASE='/var/tmp/cachy-asahi-test-signer-compile'
 PREFIX='scripts/ci/test-signer-compile-v2'
-SOURCE13_COMMIT='06557a7f209db3c4513329c9e7eab9f054a565b1'
-BASELINE_COMMIT='06557a7f209db3c4513329c9e7eab9f054a565b1'
-MANIFEST_SHA='889347eaa5175e3943fe646d144a823fd915674d874d15bd585fc21e092cbf33'
+SOURCE13_COMMIT='ea698489f29eae42aba35e3cc224180f95a42887'
+BASELINE_COMMIT='ea698489f29eae42aba35e3cc224180f95a42887'
+MANIFEST_SHA='51e4486016951d94ed414db376645efcc0868aef60304dd03df874cd313f1f66'
 OUTER_SHA='22ab60121191de19244a832eed139a5ba7a1bfef9d4f959f6159d1450603f4e4'
 GATE_SHA='9f46925bf72bcdf86c33d706c7d3110f1de41b59f702754eff6e09b2e1afab90'
 WORKFLOW='.github/workflows/native-arm-runner-observation.yml'
 BRANCH='codex/signer-native-compile-receiver'
 RUNTIME_ROW={'bytes':7845048,'mode':493,'sha256':'c86f21d0da9290ece2d7d49a3f7ed52aed59cb029abdf0ea25c79634f6cbe960'}
-SOURCE_ROWS={'abi_layout.c': {'bytes': 22614, 'mode': 420, 'sha256': '31072027916ab85ddc9b2d70f487665fa9a762f20b82b2964565f3148250ad0a'}, 'compile_lane_v2.py': {'bytes': 14816, 'mode': 420, 'sha256': '13c06d5a1b2316f517cca74c2ffaf568c3051268256a1cf659f7e990bcdfeae4'}, 'exec_filter.inc': {'bytes': 735, 'mode': 420, 'sha256': '0e26f261f2f9d1c9eb2de15fa70eb3a6c4158c3eaab5bb9f330ceb8dd32bdc19'}, 'group_process_v2.py': {'bytes': 19256, 'mode': 420, 'sha256': 'a8c9044e13f16ead4ed0271b4448f0ec0e3be8a891de66f23a836245ac0bfffb'}, 'guardian.py': {'bytes': 23775, 'mode': 420, 'sha256': 'f2a832f3e01c59a2fd61907301818cb85dc511828f0ea40b416ecb3c66ef4446'}, 'inspection.py': {'bytes': 11896, 'mode': 420, 'sha256': '0a4977cb241a537f5ee01d7c2988690c85a354ab881324269c0027b1a7b80c8d'}, 'observation_entry.py': {'bytes': 12522, 'mode': 420, 'sha256': '540db1ab5a877fd2486673e86d2a1216c036dd9d8bec3953f44f467ee4966071'}, 'passive.py': {'bytes': 40917, 'mode': 420, 'sha256': 'b844e94ae9cf69882550526a93aed3606398e9252175472be0bf6f2888eba1c9'}, 'reobserve.py': {'bytes': 42040, 'mode': 420, 'sha256': '045620837bb30cdfa719a4e45e216b3aeec389b7fc7da3c08ed86db81e44bdc7'}, 'root_entry.py': {'bytes': 5930, 'mode': 420, 'sha256': '24467b0cc3fc0bbbdee45e5e4905cc4a1e51484712b219c92d2ed555b0774299'}, 'thread_filter.inc': {'bytes': 828, 'mode': 420, 'sha256': '0811954954a107744eaef4592d2be070e30312ed5dbbae716acf6c65e83039ed'}, 'witness_shim.c': {'bytes': 6826, 'mode': 420, 'sha256': 'f5ad7cc5d6247bfa673226c842ee9795a4619f6adfd6062b9edfd0b5872af537'}, 'workspace.py': {'bytes': 8724, 'mode': 420, 'sha256': '8fe059b38492ef56c25d34157774db56087b86e265fb7c64a9ae8dc15ae305f8'}}
+SOURCE_ROWS={'abi_layout.c': {'bytes': 22614, 'mode': 420, 'sha256': '31072027916ab85ddc9b2d70f487665fa9a762f20b82b2964565f3148250ad0a'}, 'compile_lane_v2.py': {'bytes': 14950, 'mode': 420, 'sha256': 'de6acb3c8bda4ec2a7946235f1eb949655778097fc20dcecdbd8665f77623829'}, 'exec_filter.inc': {'bytes': 735, 'mode': 420, 'sha256': '0e26f261f2f9d1c9eb2de15fa70eb3a6c4158c3eaab5bb9f330ceb8dd32bdc19'}, 'group_process_v2.py': {'bytes': 22109, 'mode': 420, 'sha256': 'bc4be94861dee7db998c340b86952adb2d7c606937fe499fa3a1dfc23e8198af'}, 'guardian.py': {'bytes': 23775, 'mode': 420, 'sha256': 'f2a832f3e01c59a2fd61907301818cb85dc511828f0ea40b416ecb3c66ef4446'}, 'inspection.py': {'bytes': 11896, 'mode': 420, 'sha256': '0a4977cb241a537f5ee01d7c2988690c85a354ab881324269c0027b1a7b80c8d'}, 'observation_entry.py': {'bytes': 12522, 'mode': 420, 'sha256': '540db1ab5a877fd2486673e86d2a1216c036dd9d8bec3953f44f467ee4966071'}, 'passive.py': {'bytes': 40917, 'mode': 420, 'sha256': 'b844e94ae9cf69882550526a93aed3606398e9252175472be0bf6f2888eba1c9'}, 'reobserve.py': {'bytes': 42040, 'mode': 420, 'sha256': '045620837bb30cdfa719a4e45e216b3aeec389b7fc7da3c08ed86db81e44bdc7'}, 'root_entry.py': {'bytes': 5930, 'mode': 420, 'sha256': '24467b0cc3fc0bbbdee45e5e4905cc4a1e51484712b219c92d2ed555b0774299'}, 'thread_filter.inc': {'bytes': 828, 'mode': 420, 'sha256': '0811954954a107744eaef4592d2be070e30312ed5dbbae716acf6c65e83039ed'}, 'witness_shim.c': {'bytes': 6826, 'mode': 420, 'sha256': 'f5ad7cc5d6247bfa673226c842ee9795a4619f6adfd6062b9edfd0b5872af537'}, 'workspace.py': {'bytes': 8724, 'mode': 420, 'sha256': '8fe059b38492ef56c25d34157774db56087b86e265fb7c64a9ae8dc15ae305f8'}}
 CODE_NAMES={'bootstrap.py','native_workspace.py','trusted_entry.py','correspondence.py'}
-FIXED_BOOTSTRAP={'bytes': 21103, 'mode': 420, 'sha256': 'e0bc58171c802b90e596a4a4bef9373267b0add96e8040ad7e146ae9935564cd'}
+FIXED_BOOTSTRAP={'bytes': 21103, 'mode': 420, 'sha256': 'ff20df629f7a555d0cb156d3ca7b6dc4f56534c32c194ee608b711ed78087cc0'}
 FIXED_WORKSPACE={'bytes':11033,'mode':420,'sha256':'1f9667ba10006eb1d010c5e69e50b3e950d12f05baaa22600e0f4804a801ea96'}
-MANIFEST_ROW={'bytes': 3817, 'mode': 420, 'sha256': 'b4e570a6689cd09a27423ed0e2bdb61aac75ce4d1be59844c973950d74177e7f'}
-BASELINE_PINS_ROW={'bytes': 751, 'mode': 420, 'sha256': '492ce8cb29a6fae3883e963ad356555e7984598143e1656cd974116b7dc87c91'}
-PUBLICATION_ROW={'bytes': 4075, 'mode': 420, 'sha256': 'bf02cee2b5342a1b15452e5e272b2af3d85e2ff026adb821109d89e445360922'}
+MANIFEST_ROW={'bytes': 3817, 'mode': 420, 'sha256': 'b1e14c7aeabc3151788c36eedbcc347399bf140d0096ff55a77c4f231a4de2e7'}
+BASELINE_PINS_ROW={'bytes': 751, 'mode': 420, 'sha256': 'f03d51e00b1fa5040e17a31eda9916722d0383032dce0ca8a06cbf42cdd57144'}
+PUBLICATION_ROW={'bytes': 3358, 'mode': 420, 'sha256': '8b9085f51ec2b78f477d18baf90971d6bbde52479448df624997a7b240eba620'}
 # These are selected ordinary hosted-runner premises, not sampled measurements.
 PREMISES={k:True for k in (
  'trusted_fixed_compiler_and_helper_call_paths','no_group_or_session_escape',
@@ -215,8 +215,8 @@ def main(*,entry,expected_binding_commit):
         publication_raw=c.read(prefix_fd,'receiver-publication.json',PUBLICATION_ROW);publication=json.loads(publication_raw)
         need(publication.get('status')=='PASS_RECEIVER_SOURCE_ONLY_BINDING_PENDING' and publication.get('source_commit')==BASELINE_COMMIT
              and publication.get('manifest_canonical_sha256')==MANIFEST_SHA and publication.get('source_rows')==13
-             and publication.get('changed_source_rows')==2 and publication.get('held_source_rows')==11
-             and publication.get('native_acceptance') is False and publication.get('dispatch') is False,'published-baseline-proof')
+             and publication.get('changed_rows')==['compile_lane_v2.py','group_process_v2.py'] and publication.get('held_rows')==11
+             and publication.get('native_acceptance') is False and publication.get('dispatch')=='NOT_RUN_BINDING_PENDING','published-baseline-proof')
         workflow_raw=c.read(prefix_fd,'compile-workflow.yml');workflow_row=row(workflow_raw)
         f.live();bootstrap=load(code['bootstrap.py'],'bootstrap.py');passive=load(raw['passive.py'],'passive.py')
         correspondence=load(code['correspondence.py'],'correspondence.py');f.live()
