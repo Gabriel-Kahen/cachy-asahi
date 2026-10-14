@@ -2,6 +2,32 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 14, 05:35 UTC: the narrow package-field correction is published as
+Source `a1762efe`, with all ten committed copy rows verified and independent
+peer `0906a82d` passing 79 assertions. Actual observation `38515440452` advances
+through the package parser, then fails the `file` guard while sampling
+`/usr/lib/python3.12/urllib/__init__.py`. Root completion `4eea6b75` and peer
+`cba78660` retain the precise path and sixteen-inventory/2,029-sample progress.
+The failing stat condition is not recorded; empty-file attribution is unconfirmed.
+A bounded same-observation diagnostic is in development. Compilation and signing
+remain unaccepted.
+
+The isolated KSM recovery proposal `a6c34ebd` is implemented: 158 selected Source
+files and eighteen copy rows rebind the current 341/501 baseline and add the
+registered cache handoff before the original producer. Root authenticates all
+34 support leaves; independent integration review is active. Original 8-build/
+4-comparison, lifecycle, cleanup, mutation and 8,460-second gates are retained;
+no new KSM native result is claimed.
+
+The three-package/six-output proposal has corrected private capacity arithmetic
+and explicit coupled work/grant budgets after review found stale four-output
+checks and insufficient grant capacity. These changes are unadmitted Source
+preparation only: the active Topmem/Fish limits, job and registration remain
+unchanged. Focused controls and full Source review precede any activation.
+Library run `38510908030` remains live and Topmem/Fish `38511520135` pending;
+no new shared-group dispatch replaces that pending run. Full R1–R5/M5–M9 and
+M2 hardware acceptance remain incomplete, with the development goal ACTIVE.
+
 October 14, 04:58 UTC: Root adopts the five-file capability correction after
 independent peer `2f164000` passes 26 causal cases, preserves all 182 existing
 methods and authenticates the exact cascade. Source `eaacbb42` proves all 271
