@@ -2,6 +2,32 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 14, P0 source freeze and composed registration checkpoint: the four
+reviewed same-job P0 launcher files are published in `d10708f3`, followed by
+metadata-only `58b0d9e3`, which commits the actual 269-file packet. Root's
+read-only freeze returns zero on both commits; packet SHA256 `bae75a18` is
+unchanged and matches committed bytes. All 273 runtime/workflow/administration
+files match Git and checkout bytes. The 19 authorized package/signature secret
+names are present; values were not read. Root selected the existing null-slot
+templates with an explicit Source review decision. Final admission and variable
+registration are underway; native observation, preparation and P0 remain NOT RUN.
+
+The composed image-policy correction is published as Source `96e2713c` and
+selection Data `d8fa351c`, with held launcher Code `677d3ba9`. Root authenticates
+1,541 proposal leaves and 1,348 inputs, verifies all 271 committed custody rows,
+and registers two plan variables with exact literal readback. The changed trial
+has not been triggered. Explicit-null defaults are corrected; the old failure's
+missing-versus-null cause remains UNKNOWN.
+
+Native screenshot Source `079f146e` adds nine reviewed files on a separate
+branch from the accepted x86 trial. Root authenticates the author and independent
+review chains and verifies all twelve locked files plus the lock itself. The
+commit is awaiting its actual-Source peer and publication/registration; native
+ARM capture remains NOT RUN. The FDK provenance proposal is withheld after a
+fresh peer identifies a schema-2 workflow consumer rejecting schema-3 records;
+a separate workflow correction is being prepared. No failed trial is upgraded
+to a pass by these changes. All R1–R5, M5–M9 and hardware gates remain required.
+
 October 14, kernel/KSM and region review checkpoint: all original native trials
 are now terminal. Kernel `38632413885` remains FAIL on Source `46f8cdb4`.
 Review `c3c8f079` authenticates174 retained/proof leaves: baseline kernel command
