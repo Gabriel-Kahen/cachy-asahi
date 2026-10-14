@@ -1,12 +1,23 @@
 {
-  "activation_held": true,
-  "committed_source_proof_sha256": "8d59de3b1c5e9172059cdbe60e070f36172343fba7c577e97f2272fff130c9a2",
-  "metadata_correction_receipt_sha256": "b9ff0e8c97dd26f2756b472270a7b006758fb84090745fa92416cb6ce34cf5c0",
-  "native_result_inferred": false,
-  "purpose": "ROOT_ACCEPTED_SOURCE_REVIEW_CHAIN",
-  "queue_source_peer_receipt_sha256": "548490a3fc99e68ee5ecb762ac98b74ee471d6367d995d746fbbf4690742c115",
-  "schema_version": 1,
-  "source_actor_bytes_unchanged": true,
-  "source_commit": "fe69f03ecf11de79b5cd7cb21f4729274de4e739",
-  "unchanged_actor_peer_receipt_sha256": "2f164000ea67231a861a1f88dc306d1befa554277b8b7926fc8dbaea2aaa054e"
+  "Root_authentication_sha256": "6091011eaad2e13949268208d59dfa2e76ba80e10c822c344c37fc7cbb6d072c",
+  "Root_focus_cases": 12,
+  "committed_source_proof_sha256": "40d1d0875cdc8c10b4948d9484cda29182c41b0a64937428714ed72e6309ec1e",
+  "formatting_only_receipt_sha256": "da726a6bd882ac10914ade5c6c453829a1d483c73689c623bf0870417f0776f8",
+  "native_acceptance": false,
+  "prior_source_review": {
+    "activation_held": true,
+    "committed_source_proof_sha256": "8d59de3b1c5e9172059cdbe60e070f36172343fba7c577e97f2272fff130c9a2",
+    "metadata_correction_receipt_sha256": "b9ff0e8c97dd26f2756b472270a7b006758fb84090745fa92416cb6ce34cf5c0",
+    "native_result_inferred": false,
+    "purpose": "ROOT_ACCEPTED_SOURCE_REVIEW_CHAIN",
+    "queue_source_peer_receipt_sha256": "548490a3fc99e68ee5ecb762ac98b74ee471d6367d995d746fbbf4690742c115",
+    "schema_version": 1,
+    "source_actor_bytes_unchanged": true,
+    "source_commit": "fe69f03ecf11de79b5cd7cb21f4729274de4e739",
+    "unchanged_actor_peer_receipt_sha256": "2f164000ea67231a861a1f88dc306d1befa554277b8b7926fc8dbaea2aaa054e"
+  },
+  "purpose": "ROOT_ACCEPTED_QUEUE_AND_INSTALLER_BOUNDARY_CANCELLATION_SOURCE_REVIEW_CHAIN",
+  "schema": 1,
+  "source_commit": "014a36996d86e4139a4e6b3de48233dce7345351",
+  "successor_receipt_sha256": "eec668df9afce8eb650e8ac3a3430baf9a958394d8c73c7ca555f12db4e4ae04"
 }
