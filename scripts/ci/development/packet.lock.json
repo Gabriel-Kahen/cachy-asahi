@@ -1978,15 +1978,15 @@
     },
     "scripts/install/local_transaction.py": {
       "mode": 420,
-      "sha256": "52d8157bfcb4aa4e1380d6ef1a6a64a97bf0b7652b45c877ed1629927c6267e7"
+      "sha256": "71ca8500c623277d3478800c554b0dfff878302ef041f95e30bad9dd32df403b"
     },
     "scripts/install/native_arm_trial.py": {
       "mode": 420,
-      "sha256": "733a1198799790675afd25df8113191a158549992882a2e48cd1cbd4b34a95da"
+      "sha256": "85d869c50f488e10fcf458c979a7a153e7b574bf566fd66efe21fa006d9e3468"
     },
     "scripts/install/native_preflight.py": {
       "mode": 420,
-      "sha256": "1302bc4308595b548d144c8acdf50153c54926e2f76eddd3d28cc287439c501f"
+      "sha256": "4a2bbacf28ba190b12ebb4825e568e26b382a643729b1ff5cd1faab830583502"
     },
     "scripts/install/test_local_transaction.py": {
       "mode": 420,
@@ -1998,7 +1998,7 @@
     },
     "scripts/install/test_native_preflight.py": {
       "mode": 420,
-      "sha256": "f257ede7ef9ed1642fb2b95c24c2be40597bed79aec5f826abf17491e4c24417"
+      "sha256": "2b3ae147428070e3a218730a4c3e48da288366383650e33891b510220e582c80"
     },
     "scripts/integration/desktop.py": {
       "mode": 420,

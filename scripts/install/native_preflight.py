@@ -21,7 +21,7 @@ HANDOFF = 'scripts/ci/development/repository_handoff.py'
 # Root must rebind after any separately reviewed issuer change.
 ISSUER_SHA = '1329653ab38468b92c08abe9426a176509b5586fab3a07a1e9432c90cb704219'
 RECEIVER = 'scripts/install/native_arm_trial.py'
-RECEIVER_SHA = '733a1198799790675afd25df8113191a158549992882a2e48cd1cbd4b34a95da'
+RECEIVER_SHA = '85d869c50f488e10fcf458c979a7a153e7b574bf566fd66efe21fa006d9e3468'
 PROFILE_SHA = 'db58bda8102ce098eded530f0920c21c1f09cb7a6cfb1d03ab84f0dfbf63d3f7'
 OWN = 'scripts/install/native_preflight.py'
 SOURCE_PATHS = ('scripts/install/local_transaction.py', 'scripts/install/test_local_transaction.py',
@@ -183,8 +183,14 @@ def image_handoff(observed, controller, receiver, inputs_raw, packages_raw):
          sha(packages_raw) == receiver.BASE_SHA, 'IMAGE_BINDING')
     full_config = image.get('Config'); need(type(full_config) is dict, 'IMAGE_CONFIG')
     # Project the receiver's complete twelve execution-policy fields; preserve values.
-    config = {key:full_config.get(key) for key in CONFIG}
+    missing = [key+':UNKNOWN' for key in CONFIG if key not in full_config]
+    need(not missing, 'IMAGE_CONFIG '+','.join(missing))
+    config = {key:full_config[key] for key in CONFIG}
     canonical = dict(config)
+    # Only explicit null defaults normalize; nonempty and wrong-type values fail.
+    for key in ('Cmd','Entrypoint','Shell'):
+        if canonical[key] is None: canonical[key] = []
+    if canonical['ArgsEscaped'] is None: canonical['ArgsEscaped'] = False
     if canonical.get('Entrypoint') == ['']: canonical['Entrypoint'] = []
     if canonical.get('Labels') is None: canonical['Labels'] = {}
     changed=[key+':'+type_label(canonical[key]) for key in CONFIG
