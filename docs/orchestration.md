@@ -3,6 +3,32 @@
 Coordinator: Codex chat `01a12d58-9194-7643-81eb-fc9d62e4d923`.
 Started October 11, 2026, from `271e7c2` plus the user-provided `outline.md`.
 
+October 14, 02:38 UTC: diagnostic ARM run `38500392517` completes with
+native acquisition/signature/eight-build/four-comparison checkpoint PASS, while
+composed integration remains FAIL. Root completion `4a05d69d` and independent
+peer `acebb2ea` (53 authenticated leaves) retain the thirteen public bundles.
+Repository diagnostics identify `INSPECT_CREATED` / `INSPECT_RESOURCES`, also
+failing resource ownership inspection during cleanup. The precise resource field
+is unknown. The later hook identifies `GRAPH_OBJECT_BINDING`; its exact failed
+term/callsite is unknown. The other six component-stage projections pass, and
+final owned-image absence passes separately from failed repository-container
+ownership/absence. Build investigates bounded resource observations; a separate
+Source owner proves and adapts the required active executor interposition.
+
+All sixteen consumer archives now complete passive inspection. Their 26 direct
+JBIG/TIFF edges include 21 matching declarations and five old SONAME references
+inside the two packages being replaced. The fourteen unchanged consumers have
+no unresolved direct replacement-pair edge. The final inspection/migration
+receipts are being sealed; symbol binding, runtime and M2 ABI remain open.
+No compatibility SONAME aliases are invented.
+
+Compiler-helper discovery Source `2d107f64` is published after 91-file review.
+Run `38501515886` reads the libexec `13/cc1` path and then refuses
+`signer-tool-elf`; Root retains its failure artifact (`2c0ef5ba`). A bounded
+header/predicate diagnostic is assigned. No usable compiler/signing admission
+follows. Private project-library and Topmem/Fish native lanes continue against
+explicitly recorded base revisions. Full scope and the development goal remain ACTIVE.
+
 October 14, 02:20 UTC: the fresh whole maintained354 metadata query actually
 PASSES (`e0ac1f90` / independently authenticated peer `500852dc`, 55 leaves).
 The authoritative parent returns PASS and exits zero; guardian observes natural
