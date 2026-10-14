@@ -144,7 +144,7 @@ def elf_dependencies(raw):
         need(len(wanted)<=32,'elf-needed-count')
         need(table is not None,'elf-strtab-missing')
         need(length is not None,'elf-strsz-missing')
-        need(length<=1024**2,'elf-strtab-cap')
+        need(length<=2*1024**2,'elf-strtab-cap')
     names=[]
     if wanted:
         matches=[pos+table-address for address,pos,size in loads if address<=table and table+length<=address+size]
