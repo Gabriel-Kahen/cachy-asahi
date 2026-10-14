@@ -2,6 +2,25 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 14, 03:12 UTC: the isolated native project-library lane is published in
+[draft PR13](https://github.com/Gabriel-Kahen/cachy-asahi/pull/13). Root authenticates
+all 129 support files (`224c3f84`), adopts exactly 28 files with all old/new joins,
+and verifies the committed 278-file packet plus its lock. Code `9ea7c81a` and
+Source `d912be01` are distinct; the selected packet is unchanged across the later
+read-only observer addition. Fixed-tool ARM observation `38504784744` passes:
+GPGV `e4d7e8ce`, Docker `94128e4a`, Git `4cda0087`, with no tool invocation.
+Root retains completion `ba54e0dd`. Data/plan registration and the four native
+library builds/two comparisons are still pending. Public promotion remains open.
+
+The resource-only diagnostic (`80cfacd3`) authenticates 1,170 support and 273
+external files, preserving all resource guards. Independent review blocks the
+first hook proposal (`8d2c55b2`) after reproducing foreign equality admission.
+The exact-type successor (`80579bb6`, 37 Root-authenticated leaves) is under
+independent review. The ELF diagnostic (`04b5483c`, 77 Root-authenticated leaves)
+also awaits independent review before adoption and the next observation.
+Both actual failure causes remain scoped to their retained diagnostics. Full
+R1–R5/M5–M9 acceptance is incomplete; the development goal remains ACTIVE.
+
 October 14, 02:38 UTC: diagnostic ARM run `38500392517` completes with
 native acquisition/signature/eight-build/four-comparison checkpoint PASS, while
 composed integration remains FAIL. Root completion `4a05d69d` and independent
