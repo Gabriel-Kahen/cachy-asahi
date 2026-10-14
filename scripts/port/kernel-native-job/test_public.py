@@ -595,16 +595,18 @@ class BootstrapTests(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory(); self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name) / 'source'; self.root.mkdir()
         self.ns = bootstrap()
-        for name in self.ns['REQUIRED']:
+        fixture_files = self.ns['REQUIRED'] | {'scripts/port/kernel-native-job/current_cache.py'}
+        for name in fixture_files:
             path = self.root / name; path.parent.mkdir(parents=True, exist_ok=True)
             path.write_bytes((ROOT / name).read_bytes() if name in
                             {self.ns['PUBLIC'], self.ns['JOB'], 'scripts/port/kernel-native-job/packet.py',
-                             'scripts/port/kernel-native-job/runtime.py'} else
+                             'scripts/port/kernel-native-job/runtime.py',
+                             'scripts/port/kernel-native-job/current_cache.py'} else
                              (name + '\n').encode())
             path.chmod(0o755 if name == self.ns['JOB'] else 0o644)
         self.rows = {name: {'bytes': len((self.root / name).read_bytes()),
                     'sha256': hashlib.sha256((self.root / name).read_bytes()).hexdigest(),
-                    'mode': stat.S_IMODE((self.root / name).stat().st_mode)} for name in self.ns['REQUIRED']}
+                    'mode': stat.S_IMODE((self.root / name).stat().st_mode)} for name in fixture_files}
         self.packet = self.root / self.ns['PACKET']
         self.write_packet()
         self.git('init', '-q'); self.git('add', '.')
@@ -629,7 +631,7 @@ class BootstrapTests(unittest.TestCase):
 
     def test_real_git_blob_mode_and_full_capture_pass(self):
         captured = self.source()
-        self.assertEqual(set(captured), self.ns['REQUIRED'])
+        self.assertEqual(set(captured), set(self.rows))
         self.assertEqual(captured[self.ns['PUBLIC']], (self.root / self.ns['PUBLIC']).read_bytes())
 
     def test_live_source_byte_and_mode_changes_refused(self):

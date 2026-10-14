@@ -486,9 +486,9 @@
       "sha256": "24e15b0b2f3f627ac25bdbe8105235da1736391d7058145855b38355d14c26ac"
     },
     "scripts/port/kernel-native-job/test_public.py": {
-      "bytes": 59013,
+      "bytes": 59174,
       "mode": 420,
-      "sha256": "6d49f5336b1a313c38a70eba8b2d4c2e8ccd19edff9ddb821000464fdd426f4d"
+      "sha256": "c538779983f5380247a56381286a039bd2d61b307bc34c6ce42193598633fd97"
     },
     "scripts/port/kernel-native-job/test_runtime.py": {
       "bytes": 13019,
