@@ -5,6 +5,7 @@ import hashlib
 import json
 import os
 import resource
+import runpy
 import signal
 import socket
 import stat
@@ -141,6 +142,7 @@ def main():
         bg=spawn(['/usr/bin/swaybg','-o',output,'-c','#654321'],client,'background-B')
         ipc(3);time.sleep(min(0.25,left(0.25)));capture('#654321')
         result['captures']=captures;result['positive_capture']='THREE_REAL_COLOR_CHECKED_CAPTURES'
+        result['region']=runpy.run_path(str(SOURCE/'scripts/ci/screenshot-headless/region_trial.py'))['exercise'](sway,output,client,shots,end,owned,previous,call,spawn,retire,file_record)
         offline=Path('/tmp/screenshot-offline');private(offline)
         absent={**client,'XDG_RUNTIME_DIR':str(offline),'WAYLAND_DISPLAY':str(offline/'absent')}
         before={str(p):file_record(p) for p in shots.iterdir()}
