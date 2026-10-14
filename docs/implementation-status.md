@@ -2,6 +2,31 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 14, 08:09 UTC: kernel `38531276470` completes FAIL, retained under
+completion `afae9cd2`. The baseline progresses past configuration handling to
+KERNEL, whose natural return is 2; the exact compiler error is unexported.
+Candidate remains NOT RUN. Producer/probe/provision and cleanup pass. A bounded
+diagnostic from existing captured compiler output is being implemented.
+
+Pair `38531570132` and Zsh `38531574136` complete FAIL with retained completions
+`912bf7cd` and `3c9aef5e`. Both acquire all 501 inputs successfully, then refuse
+at native-shallow-checker-root before package builds. Their result members are
+empty. The exact failed owner/group/mode bit is unknown; a correction is being
+implemented to use positively owned job directories instead of assuming runner
+home metadata. KSM `38531573783` completes FAIL, completion `9538c9b3`, with
+producer child return 125 and zero recorded producer RPCs. Cleanup remains FAIL
+with ownership uncertainty despite positive container/image absence and daemon
+preservation; its precise producer failure is under review.
+
+Library diagnostic successor `a4c4945c` passes peer `e564ee1a`. Root adopts only
+three files from the admitted baseline, verifies all 278 packet Source rows,
+and publishes Source `e2879768` / Data `39680f26` / unchanged Code `9ea7c81a`.
+Plan `fd03e637` passes the existing selectors and exact variable readbacks.
+Push-triggered native run `38533034332` is active. A redundant manual dispatch
+`38533034570` was cancelled; it is not a separate validation result. Updater and
+FDK current-baseline adaptations proceed in parallel with the runnable compiler
+job, library CLI and installer-handoff diagnostics. Full acceptance stays open.
+
 October 14, 07:56 UTC: the grammar correction passes independent peer
 `247dfeca` and is published as Source `2b0cc2ac`, packet `7c91cc1e`. All 124
 committed Source rows and the packet match. Fresh native kernel run `38531276470`
