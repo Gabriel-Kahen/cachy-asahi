@@ -2,6 +2,27 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 14, retained screenshot and library checkpoint: screenshot trial
+`38634245640` completes SUCCESS on exactSource `453699c2`. Root authenticates
+actual review `15d9e50f`, its13 owned/5 external rows and87 retained files.
+The evidence records196 installed inventory rows, three real320x240 captures,
+four expected refusals and owned process/runtime/container cleanup. A fresh
+independent actual review is underway. Successful region selection is NOT
+TESTED; ARM archive, Hyprland/M2, licensing and performance acceptance remain
+open. Image/build-cache/build-context retirement is UNKNOWN_UNRECORDED.
+
+Library trial `38610255544` completes FAIL on exactSource `32dea27b`.
+Terminal retention finds no library frame or API artifact. Preliminary readout
+records a visible signal14 OSError and controller1, with first business cause
+and signal origin still UNKNOWN. Its original producer summary is not proof
+of the later library stages or actual producer exit. Full actual review is
+pending. The native queue advances to Pair `38611783071` without a restart.
+
+P0 materialization finds three pinned empty evidence files in the actual
+selected Source set that its reader rejects. A narrowly scoped reader
+correction and actual packet/template materializer are being prepared; the
+published Source and original deadlines remain unchanged in this checkpoint.
+
 October 14, corrected software execution checkpoint: screenshot Source
 `453699c2` publishes the two-file offline APT correction after external Source
 review `99640471` and registration review `a4dabb3d`. The complete seven-file
