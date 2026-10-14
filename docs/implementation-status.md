@@ -2,6 +2,27 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 14, 06:25 UTC: the narrow empty-stdlib correction is published as
+Source `1294a456`, after Root authenticates author `b7ea54d4`, independent
+peer `8feab6ff`, all ten committed byte/mode rows and the scoped source changes.
+Fresh passive ARM observation `38521634535` completes SUCCESS with natural
+observer exit zero. Root completion `ff0b20d3` retains the exact four files and
+verified artifact digest; independent full-envelope gate review is active.
+The result is complete observation data, with selection, compilation and
+execution grants still false. The compile receiver adapter is being implemented
+against the complete provenance envelope and fresh same-job identity rules.
+
+The six-output plan `370e8a91` is registered in separate future-lane variables
+with exact readbacks; both static CI runs pass. Its execution ref remains held
+while Topmem/Fish `38511520135` is pending behind library `38510908030`.
+The finite kernel current-baseline adapter is under implementation, preserving
+the existing actual dependency gate and original experiment deadlines. A smaller
+library CLI is separately being implemented from reviewed plan `f4cd23cb`, with
+explicit owned launch/log/cleanup work; it does not change the current run.
+The bounded current systemd/pacman source search `a5c0a28e` finds no exact recipe
+match. Full source correspondence, installation, R1–R5/M5–M9, measurements and
+both-size M2 acceptance remain open; the development goal stays ACTIVE.
+
 October 14, 06:04 UTC: the six-output Topmem/Fish/Zsh successor is published
 as Source `e0cba793` on a nonexecution review branch in
 [draft PR15](https://github.com/Gabriel-Kahen/cachy-asahi/pull/15).
