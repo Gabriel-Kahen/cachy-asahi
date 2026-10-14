@@ -172,6 +172,50 @@ def validate_inventory_diagnostic(value):
     return value
 
 
+def validate_package_diagnostic(value):
+    """Closed unaccepted format-failure bytes; never package parse acceptance."""
+    if value is None:return None
+    keys={'schema_version','purpose','predicate','status_row','stanza_index','stanza_row','line_index',
+          'line_bytes','line_sha256','line_b64','line_truncated','field_name','last_field','package_name'}
+    need(type(value) is dict and set(value)==keys and type(value['schema_version']) is int and
+         value['schema_version']==1 and value['purpose']=='SIGNER_PASSIVE_PACKAGE_FIELD_DIAGNOSTIC_V1'
+         and value['predicate']=='colon-space-delimiter','closed-package-diagnostic')
+    def digest(value):return type(value) is str and re.fullmatch('[0-9a-f]{64}',value)
+    def bounded(value,maximum):return type(value) is int and 1<=value<=maximum
+    for name,bound in (('status_row',16*1024**2),('stanza_row',65536)):
+        row=value[name]
+        need(type(row) is dict and set(row)=={'bytes','sha256'} and bounded(row['bytes'],bound)
+             and digest(row['sha256']),'package-diagnostic-buffer-row')
+    need(value['stanza_row']['bytes']<=value['status_row']['bytes'] and
+         bounded(value['stanza_index'],16384) and bounded(value['line_index'],65536) and
+         type(value['line_bytes']) is int and 0<=value['line_bytes']<=8192 and value['line_bytes']<=value['stanza_row']['bytes'] and
+         digest(value['line_sha256']),'package-diagnostic-line-index')
+    encoded=value['line_b64']
+    need(type(encoded) is str and 0<=len(encoded)<=5464,'package-diagnostic-prefix-bound')
+    try:prefix=base64.b64decode(encoded,validate=True)
+    except (ValueError,UnicodeError) as error:raise Refused('package-diagnostic-base64') from error
+    need(base64.b64encode(prefix).decode('ascii')==encoded and
+         len(prefix)==min(value['line_bytes'],4096) and type(value['line_truncated']) is bool and
+         value['line_truncated']==(value['line_bytes']>4096),'package-diagnostic-prefix-shape')
+    need(b': ' not in prefix,'package-diagnostic-predicate')
+    if value['line_truncated'] is False:
+        need(hashlib.sha256(prefix).hexdigest()==value['line_sha256'],'package-diagnostic-full-line-hash')
+    expected=None
+    if b':' in prefix:
+        key=prefix.split(b':',1)[0]
+        if re.fullmatch(b'[A-Za-z][A-Za-z0-9-]{0,63}',key):expected=key.decode('ascii')
+    field=value['field_name']
+    need((field is None or type(field) is str and re.fullmatch('[A-Za-z][A-Za-z0-9-]{0,63}',field))
+         and field==expected,'package-diagnostic-field-prefix')
+    last=value['last_field'];package=value['package_name']
+    need(last is None or type(last) is str and re.fullmatch('[A-Za-z][A-Za-z0-9-]{0,63}',last),
+         'package-diagnostic-last-field')
+    need(package is None or type(package) is str and re.fullmatch('[a-z0-9][a-z0-9+.-]{0,127}',package),
+         'package-diagnostic-package-name')
+    need(len(canonical(value))<=8192,'package-diagnostic-byte-bound')
+    return value
+
+
 class NativeIO:
     """Deferred local syscalls; no native constructor side effects."""
     now=staticmethod(time.monotonic)
@@ -403,7 +447,7 @@ class Retention:
             need(set(value)=={'schema_version','purpose','status','candidate_valid','first_phase',
                  'first_cause','first_reason','first_errno','cancelled','context','source_packet_sha256',
                  'configuration_sha256','public_issuer_sha256','entry','deadline_at','progress',
-                 'observer_returncode','selected','execution_grant_issued','compile_allowed','elf_diagnostic','inventory_diagnostic'},
+                 'observer_returncode','selected','execution_grant_issued','compile_allowed','elf_diagnostic','inventory_diagnostic','package_diagnostic'},
                  'failure-record-shape')
             need(type(value['schema_version']) is int and value['schema_version']==1 and
                  value['purpose']=='SIGNER_NATIVE_PASSIVE_FAILURE_V1' and value['status']=='FAIL' and
@@ -448,6 +492,7 @@ class Retention:
                      0<=progress[name]<=bound,'failure-progress-bound')
             validate_elf_diagnostic(value['elf_diagnostic'])
             validate_inventory_diagnostic(value['inventory_diagnostic'])
+            validate_package_diagnostic(value['package_diagnostic'])
             self._live()
             descriptors['failure.json']=self._write('failure.json',failure_raw)
         except BaseException as error:self._remember(error)

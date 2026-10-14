@@ -105,7 +105,38 @@ class MetadataReader:
         return result
 
 
-def package_records(raw,*,gcc_major):
+def package_field_diagnostic(raw,stanza,line,stanza_index,line_index,last,fields,*,endpoint=None,clock=None):
+    """Bounded refusal facts from the already-read package status buffer."""
+    import base64
+    def live():
+        if endpoint is not None:
+            check=time.monotonic if clock is None else clock
+            need(type(endpoint) in (int,float) and math.isfinite(endpoint) and check()<endpoint,
+                 'original-observation-deadline')
+    live()
+    need(type(raw) is bytes and 0<len(raw)<=16*1024**2 and type(stanza) is bytes and
+         0<len(stanza)<=65536 and type(line) is bytes and 0<=len(line)<=8192,
+         'package-diagnostic-buffer-budget')
+    need(type(stanza_index) is int and 1<=stanza_index<=16384 and
+         type(line_index) is int and 1<=line_index<=65536,'package-diagnostic-index')
+    def key(value):
+        return value.decode('ascii') if type(value) is bytes and re.fullmatch(b'[A-Za-z][A-Za-z0-9-]{0,63}',value) else None
+    field_name=key(line.split(b':',1)[0]) if b':' in line else None
+    package=fields.get(b'Package')
+    package_name=package.decode('ascii') if type(package) is bytes and re.fullmatch(b'[a-z0-9][a-z0-9+.-]{0,127}',package) else None
+    facts=dict(schema_version=1,purpose='SIGNER_PASSIVE_PACKAGE_FIELD_DIAGNOSTIC_V1',
+               predicate='colon-space-delimiter',status_row={'bytes':len(raw),'sha256':sha(raw)},
+               stanza_index=stanza_index,stanza_row={'bytes':len(stanza),'sha256':sha(stanza)},
+               line_index=line_index,line_bytes=len(line),line_sha256=sha(line),
+               line_b64=base64.b64encode(line[:4096]).decode('ascii'),line_truncated=len(line)>4096,
+               field_name=field_name,last_field=key(last),package_name=package_name)
+    need(len(json.dumps(facts,sort_keys=True,separators=(',',':'),allow_nan=False).encode())<=8192,
+         'package-diagnostic-output-budget')
+    live()
+    return facts
+
+
+def package_records(raw,*,gcc_major,endpoint=None,clock=None):
     required,additional,family=package_sets(gcc_major)
     need(type(raw) is bytes and 0<len(raw)<=16*1024**2 and b'\0' not in raw,'package-status-budget')
     records={};count=0
@@ -113,11 +144,25 @@ def package_records(raw,*,gcc_major):
         if not stanza.strip():continue
         count+=1;need(count<=16384 and len(stanza)<=65536,'package-stanza-budget')
         fields={};last=None
-        for line in stanza.splitlines():
+        for line_index,line in enumerate(stanza.splitlines(),1):
             need(len(line)<=8192,'package-line-budget')
             if line.startswith((b' ',b'\t')):
                 need(last is not None,'package-orphan-continuation');continue
-            need(b': ' in line,'package-field-format');key,value=line.split(b': ',1)
+            try:need(b': ' in line,'package-field-format')
+            except Refused as error:
+                diagnostic=None;diagnostic_cancelled=False
+                try:diagnostic=package_field_diagnostic(raw,stanza,line,count,line_index,last,fields,
+                                                       endpoint=endpoint,clock=clock)
+                except BaseException as problem:diagnostic_cancelled=isinstance(problem,KeyboardInterrupt)
+                try:
+                    error.package_diagnostic=diagnostic
+                    error.package_diagnostic_cancelled=diagnostic_cancelled
+                except BaseException as problem:
+                    if isinstance(problem,KeyboardInterrupt):
+                        try:error.package_diagnostic_cancelled=True
+                        except BaseException:pass
+                raise
+            key,value=line.split(b': ',1)
             need(key not in fields and re.fullmatch(b'[A-Za-z][A-Za-z0-9-]{0,63}',key),'package-duplicate-field')
             fields[key]=value;last=key
         name=fields.get(b'Package',b'').decode('ascii')
@@ -214,7 +259,7 @@ def capture(io,*,endpoint,source_rows,gcc_directory,host=None,runtime=None,modul
     # Kernel/proc and dpkg observations share the same counters/cutoff as tools/headers.
     proc=reader.read('/proc/version',io,endpoint,clock)
     proc_text=proc.decode('utf-8');need(proc_text.startswith('Linux version '+kernel['release']+' '),'kernel-release-proc-version')
-    status=reader.read('/var/lib/dpkg/status',io,endpoint,clock);packages=package_records(status,gcc_major=major)
+    status=reader.read('/var/lib/dpkg/status',io,endpoint,clock);packages=package_records(status,gcc_major=major,endpoint=endpoint,clock=clock)
     expected_python='.'.join(str(v) for v in version_info[:3])
     need(all(packages[name]['version'].split(':')[-1].startswith(expected_python+'-') for name in (
          'python3.12','python3.12-minimal','libpython3.12-stdlib')),'runtime-package-version-correspondence')
