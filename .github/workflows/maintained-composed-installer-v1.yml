@@ -23,6 +23,28 @@ jobs:
       - name: Invoke the Root-selected maintained composition
         timeout-minutes: 185
         shell: bash
+        env:
+          CACHY_OLD_FOUR_SCHEMA: '1'
+          CACHY_OLD_FOUR_SOURCE_EPOCH: '1791748800'
+          CACHY_OLD_FOUR_JBIGKIT_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_01 }}
+          CACHY_OLD_FOUR_JBIGKIT_02: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_02 }}
+          CACHY_OLD_FOUR_JBIGKIT_SIG_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_SIG_01 }}
+          CACHY_OLD_FOUR_LIBTIFF_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_01 }}
+          CACHY_OLD_FOUR_LIBTIFF_02: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_02 }}
+          CACHY_OLD_FOUR_LIBTIFF_03: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_03 }}
+          CACHY_OLD_FOUR_LIBTIFF_04: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_04 }}
+          CACHY_OLD_FOUR_LIBTIFF_05: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_05 }}
+          CACHY_OLD_FOUR_LIBTIFF_06: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_06 }}
+          CACHY_OLD_FOUR_LIBTIFF_07: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_07 }}
+          CACHY_OLD_FOUR_LIBTIFF_08: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_08 }}
+          CACHY_OLD_FOUR_LIBTIFF_09: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_09 }}
+          CACHY_OLD_FOUR_LIBTIFF_10: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_10 }}
+          CACHY_OLD_FOUR_LIBTIFF_11: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_11 }}
+          CACHY_OLD_FOUR_LIBTIFF_12: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_12 }}
+          CACHY_OLD_FOUR_LIBTIFF_13: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_13 }}
+          CACHY_OLD_FOUR_LIBTIFF_14: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_14 }}
+          CACHY_OLD_FOUR_LIBTIFF_15: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_15 }}
+          CACHY_OLD_FOUR_LIBTIFF_SIG_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_SIG_01 }}
         run: |
           set -euo pipefail
           python3 -I -B - <<'PYTHON'
@@ -50,7 +72,7 @@ jobs:
           ISSUER_SHA = '9e3271b8cb21e7be1940c2aa9f17f84357d0a438ed45a19ad34ae226ec9d4581'
           EXECUTION_REF = 'refs/heads/codex/maintained-composed-execution-v1'
           COMPOSITION = 'installer-preflight-maintained-v1'
-          PACKET_SHA = '37fe0902cac0c0a82f73c7fb8916f7248a14a535b99e4756924207b7f419dd33'
+          PACKET_SHA = '9d5a7dc25fd44e127c457c72addb28272b1eb1f5391c4c5b8d5b0a226a3be048'
           PLAN_ENV = 'ROOT_REGISTERED_MAINTAINED_COMPOSED_PLAN_B64'
           PIN_ENV = 'ROOT_REGISTERED_MAINTAINED_COMPOSED_PLAN_SHA256'
 
