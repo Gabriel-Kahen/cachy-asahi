@@ -63,6 +63,15 @@ def initial(args):
             'legacy_build_cache': 'NOT_ESTABLISHED'}}
 
 
+def observe_parallel_first_failure(status, runner):
+    """Optional finite data only, after the original parallel call returns."""
+    try:
+        codes=getattr(runner,'parallel_first_failure',None)
+        if codes is not None:status['parallel_first_failure']=public.parallel_failure_record(codes)
+    except Exception:
+        return
+
+
 def failure_reason(error, phase, fallback):
     # Match only exact known errors; never publish arbitrary exception text.
     message = error.args[0] if type(error) is ValueError and len(error.args) == 1 and type(error.args[0]) is str else None
@@ -660,6 +669,7 @@ def work(args, terminal, start):
         packet.need(type(results) in (list, tuple) and len(results) == 2, 'parallel-results')
         exits = [public.exit_record(result.returncode) for result in results]
         status.update(producer_exit=exits[0], acquisition_exit=exits[1])
+        observe_parallel_first_failure(status, phase)
         failed = [result['code'] != 0 for result in exits]
         if any(failed):
             if failed[0]: status['producer'] = 'FAIL'

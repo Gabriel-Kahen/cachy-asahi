@@ -70,6 +70,27 @@ def exit_record(code):
             'code': code}
 
 
+def parallel_failure_record(codes):
+    """First deciding poll, before cleanup; None means no exit observed at that poll."""
+    need(type(codes) is tuple and len(codes)==2)
+    rows=[{'kind':'UNOBSERVED','code':None} if code is None else exit_record(code) for code in codes]
+    need(any(code is not None and code!=0 for code in codes))
+    return dict(zip(('producer','acquisition'),rows))
+
+
+def parallel_failure(value):
+    if 'parallel_first_failure' not in value:return
+    need(value['schema_version']==4 and value['status']=='FAIL' and value['first_failed_phase']=='parallel')
+    row=value['parallel_first_failure']
+    need(type(row) is dict and set(row)=={'producer','acquisition'})
+    need(all(type(part) is dict and set(part)=={'kind','code'} for part in row.values()))
+    need(row==parallel_failure_record(tuple(row[name]['code'] for name in ('producer','acquisition'))))
+    for name in ('producer','acquisition'):
+        final=value[name+'_exit']
+        need(final['kind']!='NOT_RUN')
+        if row[name]['code'] is not None and final['kind']!='UNOBSERVED':need(row[name]==final)
+
+
 def diagnostics(value):
     failure_pair(value['first_failed_phase'], value['failure_reason'])
     for name in ('producer_exit', 'acquisition_exit'):
@@ -490,7 +511,7 @@ def project(data, commit, pin, outcome):
     value = decode(data)
     need(type(value['schema_version']) is int and
          ((value['schema_version'] == 3 and set(value) == LEGACY_KEYS) or
-          (value['schema_version'] == 4 and set(value) == KEYS)) and value['stage'] == 'kernel-native-development-job' and
+          (value['schema_version'] == 4 and set(value) in (KEYS, KEYS | {'parallel_first_failure'}))) and value['stage'] == 'kernel-native-development-job' and
          type(value['cancelled']) is bool and value['selected_for_release'] is False and
          value['source_commit'] == commit and value['packet_sha256'] == pin)
     need(value['status'] in {'PASS', 'FAIL'} and value['phase'] in PHASES and
@@ -502,6 +523,7 @@ def project(data, commit, pin, outcome):
          value['performance'] == 'NOT MEASURED')
     diagnostics(value)
     daemon_baseline(value)
+    parallel_failure(value)
     if value['schema_version'] == 4:
         kernel_child(value['kernel_child'])
     accepted = (value['phase'] == 'complete' and not value['cancelled'] and
