@@ -6,6 +6,14 @@ on:
         description: Actual published preparation/runtime/workflow Source SHA
         required: true
         type: string
+      root_publication_sha256:
+        description: Exact Root publication proof hash
+        required: true
+        type: string
+      root_source_review_sha256:
+        description: Exact existing Root Source review hash
+        required: true
+        type: string
       preparation_bundle_sha256:
         description: Separately Root-selected preparation template hash
         required: true
@@ -29,15 +37,20 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
-      - name: Prepare exact signed inputs then enter fresh installer P0 and retire owned tag
+      - name: Root observe, freeze and materialize, then prepare signed inputs and enter P0
         shell: /usr/bin/python3 -I -B -S {0}
         env:
           EXPECTED_SOURCE_COMMIT: ${{ inputs.expected_source_commit }}
-          PREPARATION_BUNDLE_ZLIB_B64: ${{ vars.P0_PREPARATION_TEMPLATE_ZLIB_B64 }}
-          PREPARATION_BUNDLE_SHA256: ${{ inputs.preparation_bundle_sha256 }}
+          ROOT_PUBLICATION_PROOF_ZLIB_B64: ${{ vars.P0_ROOT_PUBLICATION_PROOF_ZLIB_B64 }}
+          ROOT_PUBLICATION_PROOF_SHA256: ${{ inputs.root_publication_sha256 }}
+          ROOT_SOURCE_REVIEW_ZLIB_B64: ${{ vars.P0_ROOT_SOURCE_REVIEW_ZLIB_B64 }}
+          ROOT_SOURCE_REVIEW_SHA256: ${{ inputs.root_source_review_sha256 }}
+          ROOT_RECIPE_SOURCE_COMMIT: ${{ vars.P0_RECIPE_SOURCE_COMMIT }}
+          ROOT_PREPARATION_TEMPLATE_ZLIB_B64: ${{ vars.P0_PREPARATION_TEMPLATE_ZLIB_B64 }}
+          ROOT_PREPARATION_TEMPLATE_SHA256: ${{ inputs.preparation_bundle_sha256 }}
           PREPARATION_TRUSTED_OUTER_END: ${{ vars.P0_PREPARATION_TRUSTED_OUTER_END }}
-          P0_PRIVATE_BUNDLE_ZLIB_B64: ${{ vars.P0_PRIVATE_INPUT_TEMPLATE_ZLIB_B64 }}
-          P0_PRIVATE_BUNDLE_SHA256: ${{ inputs.private_bundle_sha256 }}
+          ROOT_P0_TEMPLATE_ZLIB_B64: ${{ vars.P0_PRIVATE_INPUT_TEMPLATE_ZLIB_B64 }}
+          ROOT_P0_TEMPLATE_SHA256: ${{ inputs.private_bundle_sha256 }}
           CACHY_OLD_FOUR_SCHEMA: '1'
           CACHY_OLD_FOUR_SOURCE_EPOCH: '1791748800'
           CACHY_OLD_FOUR_JBIGKIT_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_01 }}
@@ -62,70 +75,85 @@ jobs:
         run: |
           import time
           entry=time.monotonic()
-          import base64,hashlib,json,math,os,stat,types,zlib
+          import base64,hashlib,json,math,os,stat,sys,types,zlib
           from pathlib import Path
+          # Capture before helper Git/project/tool constructors; never pass to providers.
+          captured={k:os.environ.pop(k) for k in tuple(os.environ) if k.startswith('CACHY_OLD_FOUR_')}
           expected=os.environ['EXPECTED_SOURCE_COMMIT']
-          if expected!=os.environ['GITHUB_SHA'] or expected!=os.environ['GITHUB_WORKFLOW_SHA'] or len(expected)!=40 or any(c not in '0123456789abcdef' for c in expected):
-              raise SystemExit('P0 manual Source selection refused')
+          if expected!=os.environ['GITHUB_SHA'] or expected!=os.environ['GITHUB_WORKFLOW_SHA'] or len(expected)!=40 or any(c not in '0123456789abcdef' for c in expected):raise ValueError('Root Source context refused')
           outer_end=entry+1890
           inherited=os.environ.get('PREPARATION_TRUSTED_OUTER_END','')
           if inherited:
               inherited=float(inherited)
-              if not math.isfinite(inherited):raise SystemExit('P0 enclosing cutoff refused')
+              if not math.isfinite(inherited):raise ValueError('Root enclosing cutoff refused')
               outer_end=min(outer_end,inherited)
-          if not math.isfinite(outer_end) or not entry<min(outer_end,entry+1890):
-              raise SystemExit('P0 original cutoff refused')
-          root=Path(os.environ['GITHUB_WORKSPACE']).resolve()
-          path=root/'scripts/ci/development/p0_ci.py'
-          def ident(node):return tuple(getattr(node,k) for k in ('st_dev','st_ino','st_mode','st_uid','st_gid','st_nlink','st_size','st_mtime_ns','st_ctime_ns'))
-          before=path.lstat();parent=path.parent.lstat()
-          if not stat.S_ISREG(before.st_mode) or before.st_nlink!=1 or stat.S_IMODE(before.st_mode)!=0o644 or before.st_size!=66238:
-              raise SystemExit('P0 driver row refused')
-          fd=None;held=None;first=None;body=None;opening=False
+          end=min(entry+60,outer_end-90)
+          def live():
+              if time.monotonic()>=end:raise ValueError('original Root endpoint refused')
+          def unpack(value):
+              live();raw=base64.b64decode(value,validate=True)
+              if len(raw)>65536:raise ValueError('Root packed input cap')
+              decoder=zlib.decompressobj();body=decoder.decompress(raw,2*1024**2+1)
+              if len(body)>2*1024**2 or not decoder.eof or decoder.unconsumed_tail or decoder.unused_data:raise ValueError('Root decoded input cap')
+              return body
+          proof_raw=unpack(os.environ['ROOT_PUBLICATION_PROOF_ZLIB_B64'])
+          if hashlib.sha256(proof_raw).hexdigest()!=os.environ['ROOT_PUBLICATION_PROOF_SHA256']:raise ValueError('Root proof pin refused')
+          proof=json.loads(proof_raw)
+          if proof.get('Source')!=expected or proof.get('remote')!=expected or sum(k in proof for k in ('rows','files'))!=1:raise ValueError('Root proof Source refused')
+          rows=proof.get('rows',proof.get('files'))
+          root=Path(os.environ['GITHUB_WORKSPACE']).resolve();relative='scripts/ci/root-administration/p0_launch.py'
+          wanted={'bytes': 13678, 'mode': 420, 'sha256': '9a3f32013564e0564ec676c51fe2ed72257348c3120f98672fc98968f19d694a'}
+          if rows.get(relative)!=wanted:raise ValueError('Root launch publication refused')
+          path=root/relative
+          def ident(n):return tuple(getattr(n,k) for k in ('st_dev','st_ino','st_mode','st_uid','st_gid','st_nlink','st_size','st_mtime_ns','st_ctime_ns'))
+          live();before=path.lstat();parent=ident(path.parent.lstat())
+          if not stat.S_ISREG(before.st_mode) or before.st_nlink!=1 or stat.S_IMODE(before.st_mode)!=wanted['mode'] or before.st_size!=wanted['bytes']:raise ValueError('Root launcher shape')
+          fd=None;held=None;first=None;opening=False;body=None
           try:
-              opening=True
-              fd=os.open(path,os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK|os.O_CLOEXEC)
-              node=os.fstat(fd)
-              if ident(node)!=ident(before):raise ValueError('P0 driver replaced')
-              held=ident(node);parts=[];size=0
+              opening=True;fd=os.open(path,os.O_RDONLY|os.O_NOFOLLOW|os.O_CLOEXEC)
+              candidate=ident(os.fstat(fd))
+              if candidate!=ident(before):raise ValueError('Root launcher replaced')
+              held=candidate;parts=[];size=0
               while True:
-                  if time.monotonic()>=min(outer_end,entry+1890):raise ValueError('P0 original cutoff refused')
-                  part=os.read(fd,min(65536,66239-size))
+                  live();part=os.read(fd,min(65536,wanted['bytes']+1-size))
                   if not part:break
                   parts.append(part);size+=len(part)
-                  if size>66238:raise ValueError('P0 driver cap refused')
+                  if size>wanted['bytes']:raise ValueError('Root launcher overlong')
               body=b''.join(parts)
-              if ident(os.fstat(fd))!=held or ident(path.lstat())!=held or ident(path.parent.lstat())!=ident(parent) or len(body)!=66238 or hashlib.sha256(body).hexdigest()!='67021e3e4e8b7c23cb6db5ffef7b29b6032e5b8a996b04c1b814e17c3762365f':
-                  raise ValueError('P0 driver body refused')
+              if ident(os.fstat(fd))!=held or ident(path.lstat())!=held or ident(path.parent.lstat())!=parent or len(body)!=wanted['bytes'] or hashlib.sha256(body).hexdigest()!=wanted['sha256']:raise ValueError('Root launcher bytes refused')
           except BaseException as error:
               first=error
               if opening and fd is None:BaseException.__setattr__(first,'native_preflight_cleanup_uncertain',True)
           finally:
               if fd is not None:
                   try:
-                      if held is None or ident(os.fstat(fd))!=held:raise ValueError('P0 driver close custody refused')
+                      if held is None or ident(os.fstat(fd))!=held:raise ValueError('Root launcher FD custody')
                       os.close(fd)
                   except BaseException as error:
                       if first is None:first=error
                       BaseException.__setattr__(first,'native_preflight_cleanup_uncertain',True)
                       if isinstance(error,KeyboardInterrupt):BaseException.__setattr__(first,'native_preflight_cancelled',True)
           if first is not None:raise first
-          if time.monotonic()>=min(outer_end,entry+1890):raise SystemExit('P0 original cutoff refused')
-          module=types.ModuleType('development_p0_ci');module.__file__=str(path)
-          if module.__name__ in __import__('sys').modules:raise SystemExit('P0 driver registry collision')
-          __import__('sys').modules[module.__name__]=module
+          live();module=types.ModuleType('root_p0_launch');module.__file__=str(path)
+          if module.__name__ in sys.modules:raise ValueError('Root launcher collision')
+          sys.modules[module.__name__]=module
           exec(compile(body,str(path),'exec',dont_inherit=True),module.__dict__)
+          # The already-popped chunks are handed directly, never inherited by Git.
+          os.environ.update(captured)
           try:
-              prep=module.packed_template(os.environ['PREPARATION_BUNDLE_ZLIB_B64'])
-              value=module.pipeline(entry=entry,outer_end=outer_end,expected_source_commit=expected,
-                  source_root=root,work_root=Path(os.environ['RUNNER_TEMP'])/('prepared-P0-'+os.environ['GITHUB_RUN_ID']+'-'+os.environ['GITHUB_RUN_ATTEMPT']),
-                  cache=Path(os.environ['RUNNER_TEMP'])/('3c16-cache-'+os.environ['GITHUB_RUN_ID']+'-'+os.environ['GITHUB_RUN_ATTEMPT']),prep_template_raw=prep,
-                  prep_template_sha256=os.environ['PREPARATION_BUNDLE_SHA256'])
+              result=module.run(entry=entry,outer_end=outer_end,root=root,
+                  scratch=Path(os.environ['RUNNER_TEMP'])/('Root-P0-'+os.environ['GITHUB_RUN_ID']+'-'+os.environ['GITHUB_RUN_ATTEMPT']),
+                  cache=Path(os.environ['RUNNER_TEMP'])/('3c16-cache-'+os.environ['GITHUB_RUN_ID']+'-'+os.environ['GITHUB_RUN_ATTEMPT']),
+                  proof_raw=proof_raw,proof_sha256=os.environ['ROOT_PUBLICATION_PROOF_SHA256'],
+                  preparation_raw=unpack(os.environ['ROOT_PREPARATION_TEMPLATE_ZLIB_B64']),preparation_sha256=os.environ['ROOT_PREPARATION_TEMPLATE_SHA256'],
+                  P0_raw=unpack(os.environ['ROOT_P0_TEMPLATE_ZLIB_B64']),P0_sha256=os.environ['ROOT_P0_TEMPLATE_SHA256'],
+                  review_raw=unpack(os.environ['ROOT_SOURCE_REVIEW_ZLIB_B64']),review_sha256=os.environ['ROOT_SOURCE_REVIEW_SHA256'],environment=os.environ)
           except BaseException as error:
               flags=BaseException.__getattribute__(error,'__dict__')
-              print(json.dumps({'status':'FAIL_PREPARATION_OR_P0',
-                  'cancelled':isinstance(error,KeyboardInterrupt) or flags.get('native_preflight_cancelled') is True,
-                  'cleanup_uncertain':flags.get('native_preflight_cleanup_uncertain') is True,
-                  'global_digest_absence_claimed':False,'ABI':'NOT_RUN','matrix':'NOT_RUN'},sort_keys=True))
+              print(json.dumps({'status':'FAIL_ROOT_SELECTION_OR_PREPARATION_OR_P0','cancelled':isinstance(error,KeyboardInterrupt) or flags.get('native_preflight_cancelled') is True or flags.get('freeze_cancelled') is True,'cleanup_uncertain':flags.get('native_preflight_cleanup_uncertain') is True or flags.get('freeze_cleanup_uncertain') is True,'actual_matrix':'NOT_RUN','global_digest_absence_claimed':False},sort_keys=True))
               raise SystemExit(1) from None
-          print(json.dumps(value,sort_keys=True,allow_nan=False))
+          finally:
+              captured.clear()
+              for k in tuple(os.environ):
+                  if k.startswith('CACHY_OLD_FOUR_'):os.environ.pop(k)
+          print(json.dumps(result,sort_keys=True,allow_nan=False))
