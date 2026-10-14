@@ -2,6 +2,31 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 14, 04:58 UTC: Root adopts the five-file capability correction after
+independent peer `2f164000` passes 26 causal cases, preserves all 182 existing
+methods and authenticates the exact cascade. Source `eaacbb42` proves all 271
+committed byte/mode rows; Data `d7356a2f`, selection `93d2ce21` and proposed plan
+`1b1f32e0` pass the unchanged bootstrap's selection validator and are published
+on the review branch. The operational execution ref/variables still select
+Source `5ea0987c`: the composed retry waits for queued Topmem/Fish run
+`38511520135` to start, preserving that pending job. Library run `38510908030`
+remains active. Neither result is inferred.
+
+Signer diagnostic Source `3182cd2c` passes all ten committed copy rows after
+independent peer `2c083505` passes 41 causal cases and 193 assertions. Actual
+run `38513825858` completes FAIL with Root completion `0fb21628`. Its exact
+untruncated diagnostic identifies adduser's ten-byte `Conffiles:` header, which
+has no space after its colon; the parser requires a literal colon-space delimiter.
+The header bytes and SHA are verified. The full field value and continuations
+were not exported. A narrow metadata-parser correction is assigned; the prior
+run's unrecorded field remains unknown. No compiler or signing grant is issued.
+
+The finite six-output Topmem/Fish/Zsh proposal remains under implementation.
+Its source preflight exceeds the previous four-output backend-call budget;
+optimization and explicit bounded-budget evidence are being prepared. The active
+pair's limits and job remain unchanged, and no six-output native pass is claimed.
+Full installation, M2 hardware, performance and R1–R5/M5–M9 remain incomplete.
+
 October 14, 04:41 UTC: independent actual12 review `9cfa0a0f` authenticates
 42 leaves and its guide, all 22 retained completion files, and thirteen frames.
 It proves the repository failure is the exact bare-name CapAdd equality clause,
