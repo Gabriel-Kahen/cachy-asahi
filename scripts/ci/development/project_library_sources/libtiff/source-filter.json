@@ -3983,11 +3983,11 @@
   ],
   "original_archive_private_sha256": "ef90fb1beb8d75ec88be17223d7bd08b590f9e8501c8b89b78a7ea1291b02084",
   "project_archive": {
-    "bytes": 725047,
+    "bytes": 4546928,
     "filename": "libtiff-project-4.7.2-source.tar.gz",
-    "format": "sorted USTAR then gzip level9 empty name mtime1782568888; uid/gid0; original permission bits; no filesystem archive tree extraction",
+    "format": "sorted USTAR then canonical gzip-stored-v1, empty name, mtime1782568888, XFL0, OS255, 65535-byte stored blocks; uid/gid0; original permission bits; no filesystem archive tree extraction",
     "root": "libtiff-project-4.7.2",
-    "sha256": "c63abdba53ef3fa510a3314bcd78183f9f2d948272c6ec52b4aeafae8cfba2af"
+    "sha256": "1dd373bd4ff29847b659545d753ea68bb0355ace971b8abcc522cfd7f854a76d"
   },
   "provider_release_association": "NOT_RECORDED_POST_BUILD_RELEASE_EVIDENCE",
   "public_promotion": false,

@@ -6,6 +6,7 @@ The caller owns one existing deadline/cancellation frame and supplies check(labe
 Every effect and bounded data step checks that frame; this module never renews it.
 Exceptions leave any partial private destination unaccepted for caller custody.
 """
+import binascii
 import difflib
 import gzip
 import hashlib
@@ -17,7 +18,7 @@ import re
 import stat
 import tarfile
 
-PLAN_SHA256 = "557214038227f80762cec07a2b98cbb66d4a6ea9a0bc12ee3679a842fa6ddb96"
+PLAN_SHA256 = "0bc87cda6c02df5c643da1a3790ea9eab343f5f6f1c0647889e646ea98069799"
 CHUNK = 65536
 
 
@@ -129,6 +130,25 @@ def unpack(body, specification, check):
     return files
 
 
+def canonical_gzip(body, epoch, check):
+    """RFC 1951 stored blocks and fixed RFC 1952 framing, without a compressor."""
+    size = len(body)
+    blocks = max(1, (size + 65534) // 65535)
+    need(size + 18 + 5 * blocks <= 8388608, "filtered archive output cap")
+    result = bytearray(b"\x1f\x8b\x08\x00" + epoch.to_bytes(4, "little") + b"\x00\xff")
+    crc = 0
+    for offset in range(0, max(1, size), 65535):
+        check("before-filtered-gzip-block")
+        chunk = body[offset:offset + 65535]
+        count = len(chunk)
+        result.append(int(offset + count == size))
+        result += count.to_bytes(2, "little") + (count ^ 65535).to_bytes(2, "little") + chunk
+        crc = binascii.crc32(chunk, crc)
+        check("after-filtered-gzip-block")
+    result += crc.to_bytes(4, "little") + size.to_bytes(4, "little")
+    return bytes(result)
+
+
 def pack(files, selected, root, epoch, directories_first, check):
     need(0 < len(selected) <= 318, "filtered file count")
     directories = {root}
@@ -140,24 +160,23 @@ def pack(files, selected, root, epoch, directories_first, check):
     names = sorted(directories) + [root + "/" + n for n in sorted(selected)] if directories_first else sorted(directories | {root + "/" + n for n in selected})
     output = io.BytesIO()
     check("before-filtered-gzip-open")
-    with gzip.GzipFile(fileobj=output, filename="", mode="wb", mtime=epoch, compresslevel=9) as zipped:
-        with tarfile.open(fileobj=zipped, mode="w|", format=tarfile.USTAR_FORMAT) as stream:
-            for full in names:
-                check("before-filtered-tar-member")
-                info = tarfile.TarInfo(full)
-                info.mtime = epoch
-                if full in directories:
-                    info.mode, info.type = 0o755, tarfile.DIRTYPE
-                    stream.addfile(info)
-                else:
-                    name = full[len(root) + 1:]
-                    info.mode = selected[name]["mode"]
-                    body = files[name]["body"]
-                    info.size = len(body)
-                    stream.addfile(info, io.BytesIO(body))
-                check("after-filtered-tar-member")
+    with tarfile.open(fileobj=output, mode="w|", format=tarfile.USTAR_FORMAT) as stream:
+        for full in names:
+            check("before-filtered-tar-member")
+            info = tarfile.TarInfo(full)
+            info.mtime = epoch
+            if full in directories:
+                info.mode, info.type = 0o755, tarfile.DIRTYPE
+                stream.addfile(info)
+            else:
+                name = full[len(root) + 1:]
+                info.mode = selected[name]["mode"]
+                body = files[name]["body"]
+                info.size = len(body)
+                stream.addfile(info, io.BytesIO(body))
+            check("after-filtered-tar-member")
+    result = canonical_gzip(output.getvalue(), epoch, check)
     check("after-filtered-gzip-close")
-    result = output.getvalue()
     need(len(result) <= 8388608, "filtered archive output cap")
     return result
 
