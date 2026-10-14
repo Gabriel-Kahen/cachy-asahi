@@ -2,6 +2,30 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 14, kernel/KSM and region review checkpoint: all original native trials
+are now terminal. Kernel `38632413885` remains FAIL on Source `46f8cdb4`.
+Review `c3c8f079` authenticates174 retained/proof leaves: baseline kernel command
+returns0, output verification refuses CHECK_001_PERMISSIONS, worker returns1,
+and candidate is NOT RUN. Actual permission bits/segment are UNKNOWN; no RWX
+or kernel-role cause is inferred. Scoped cleanup, absence and daemon
+preservation pass separately. A role-specific Source audit is underway.
+
+KSM review `f605276f` authenticates25 leaves/14 inputs and the selectedSource
+proof. Trial `38618847844` refuses at RECORD_KERNEL, the exact expression
+platform.uname()._asdict(); its underlying TypeError remains UNKNOWN.
+Producer codes are1, builds NOT RUN, cleanupFAIL with ownership uncertain.
+A possible lazy processor/subprocess path is under Source investigation and
+is not an actual-cause claim.
+
+Region client proposal `b81e3aff` is blocked for adoption after fresh review
+`1aa1ad9e` reproduces a cancellation cleanup gap: helper interruption kills
+the wrapper before it can retire real slurp. Root authenticates6 owned/183
+external review records. No region actor or capture ran; a separate custody
+successor is being prepared. This component finding does not block the whole
+development goal. P0's materializer component `706d7b3e`/peer `f8c4135c` passes
+limited Source review; actual packet freeze, same-job observer/launcher,
+runtime pins, templates and P0 execution remain separate pending work.
+
 October 14, accepted native FDK development checkpoint: actual trial
 `38623533412` completes SUCCESS on Source `220b4eb2`. Fresh review `a480fe8d`
 passes36 checks plus4 pure malformed-vector controls. Root authenticates151
