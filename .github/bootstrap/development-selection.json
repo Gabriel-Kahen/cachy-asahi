@@ -71,10 +71,10 @@
     "scripts/virtual/tooling-audit.json": "d3289a52f3269ba44f1437b69a112dcbd2086ee16ebe8d44658e65e7fb8e2095",
     "scripts/virtual/tooling.lock.json": "c18afc5bde9868594d41bd576a956960a7b01b190d148ba03ca4c41d4394e1b0"
   },
-  "peer_receipt_sha256": "8003d5f33fc5238d90b8393e6917c7114479341c83e56572a1a95adc52678e56",
+  "peer_receipt_sha256": "e3b87909336f0830088b1b723572f45ab9e00bb59353807a1832095f42fe481c",
   "purpose": "root-selected-maintained-v1-development-source",
   "schema_version": 3,
-  "source_commit": "242612c637582cda654a2bf3fb004ae49236b6c6",
+  "source_commit": "e28797686dbd354b5c34ae2ce4793431246c3c2e",
   "source_files": {
     ".github/workflows/native-arm-build.yml": {
       "mode": 420,
@@ -706,7 +706,7 @@
     },
     "scripts/ci/development/project_libraries.py": {
       "mode": 420,
-      "sha256": "7ba90b804652f2355837ab550c35b55c37e809d7fce6b4d627e56584d6b5360d"
+      "sha256": "534cf4c5d453183af856c67d816fdf71adc0cb5f92f8e3e345906e65ed05883c"
     },
     "scripts/ci/development/project_library_sources/jbigkit/LICENSE.recipe": {
       "mode": 420,
@@ -1189,5 +1189,5 @@
       "sha256": "1023f493a5ff1991b382ed42b9960c6e0e98774c75e1a2aa90deff15dad7add1"
     }
   },
-  "source_packet_sha256": "e67cee8e2fd1befb7e73005e4155a89e292fcda79e7fa00a3cca0f5d17ff517c"
+  "source_packet_sha256": "056fb035e84a065cc37afdb8f3fda1982de1dbfc47cd5402fcc7f7979c8db793"
 }
