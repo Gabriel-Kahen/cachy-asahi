@@ -1,0 +1,61 @@
+name: project-library-tool-observation
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  observe:
+    if: github.repository == 'Gabriel-Kahen/cachy-asahi' && github.ref == 'refs/heads/codex/project-private-libraries-v1'
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 2
+    steps:
+      - name: Read fixed tool bytes without invocation
+        shell: bash
+        run: |
+          /usr/bin/python3.12 -I -B -S - <<'PYTHON'
+          import hashlib, json, os, platform, stat, time
+          entered = time.monotonic()
+          def stable(s):
+              return (s.st_dev, s.st_ino, s.st_mode, s.st_nlink, s.st_uid, s.st_gid,
+                      s.st_size, s.st_mtime_ns, s.st_ctime_ns)
+          result = {'purpose': 'project-library-fixed-tool-observation-v1',
+                    'source_commit': os.environ['GITHUB_SHA'],
+                    'run_id': os.environ['GITHUB_RUN_ID'],
+                    'machine': platform.machine(), 'tool_invocations': 0,
+                    'image_version': os.environ.get('ImageVersion'), 'tools': {}}
+          assert result['machine'] == 'aarch64'
+          for name, path, cap in [('gpgv', '/usr/bin/gpgv', 8*1024**2),
+                                  ('docker', '/usr/bin/docker', 128*1024**2),
+                                  ('git', '/usr/bin/git', 16*1024**2)]:
+              assert time.monotonic() < entered+45
+              before = os.lstat(path)
+              assert stat.S_ISREG(before.st_mode) and before.st_uid == 0
+              assert not before.st_mode & 0o022 and 0 < before.st_size <= cap
+              fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC)
+              try:
+                  assert stable(os.fstat(fd)) == stable(before)
+                  digest = hashlib.sha256(); count = 0
+                  while True:
+                      assert time.monotonic() < entered+45
+                      raw = os.read(fd, min(1024**2, cap-count+1))
+                      if not raw: break
+                      count += len(raw); assert count <= cap; digest.update(raw)
+                  assert count == before.st_size and stable(os.fstat(fd)) == stable(before)
+                  assert stable(os.lstat(path)) == stable(before)
+              finally:
+                  os.close(fd)
+              result['tools'][name] = {'path': path, 'bytes': count,
+                  'sha256': digest.hexdigest(), 'mode': stat.S_IMODE(before.st_mode),
+                  'uid': before.st_uid, 'gid': before.st_gid,
+                  'regular_stable_nofollow_read': True}
+          assert time.monotonic() < entered+45
+          result['elapsed_seconds'] = time.monotonic()-entered
+          with open('project-library-tools.json', 'x') as stream:
+              json.dump(result, stream, sort_keys=True, indent=2); stream.write('\n')
+          PYTHON
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: project-library-tools
+          path: project-library-tools.json
+          if-no-files-found: error
+          retention-days: 7
