@@ -2,6 +2,34 @@
 
 Coordinator: Lila in chat `01a12d58-9194-7643-81eb-fc9d62e4d923`. Source workers have bounded ownership in `docs/orchestration.md`; execution owners must reserve actual capacity before changing a shared machine. The full acceptance matrix is `docs/acceptance.md`.
 
+October 14, 00:15 UTC execution batch:
+
+- Root: host common02398 fixture actual `4f689c31` / peer `971bb47b` PASS,
+  eight nominal checks and owned-child reap/publication verified; retain as
+  regression evidence. Exact ARM/M2 checks remain separate.
+- Root/Tools: two replacement package signatures actual `24753627` / peer
+  `8d519bd5` PASS; correct the caller's armored versus binary
+  certificate binding. Preserve first refusal `0d55d488` and prior trial08.
+- Intake author/reviewer: finish bounded byte-only package/ELF Source review,
+  then Root executes it on the two authenticated packages. Sixteen reverse
+  consumer payload/ABI checks and source/license correspondence remain open.
+- Build/Desktop: construct and review the exact two-package successor for the
+  maintained341/501 input and packet cascade. Root adopts/registers after
+  applicable evidence; execution899 is unchanged.
+- Release/Performance: integrate checker `f44dd302` and adapter `9cb66de2`
+  into the native Topmem/Fish driver, close actual operation capacity/current
+  native bindings, then execute four builds and two comparisons.
+- Query author/Desktop/Root: review final terminal gate `0662cf11` and finish
+  whole invocation, deadline, publication and private-context bindings before
+  the metadata query actor.
+- Native CI: prepare minimal executable passive observation adoption from the
+  sealed signer compilation lane, then Root dispatches it. Native compilation
+  and signing/probes remain subsequent tasks.
+
+These support R1/R4/R5 and A05/A06/A12/A13 without closing full-port acceptance.
+Both Air sizes, final measurements, installation/recovery, ongoing maintenance
+and the subsequent full-port release remain required.
+
 October 13, 22:52 UTC: the coordinator re-read the current outline, roadmap,
 goal, acceptance contract and package inventory and propagated them to all six
 worker chats. Full R1–R5/M5–M9 and A01–A15 remain mandatory. Their current

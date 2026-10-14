@@ -5,6 +5,17 @@ Started October 11, 2026, from `271e7c2` plus the user-provided `outline.md`.
 
 The full outline is the project scope. Milestones advance only on their specified evidence. Original project material uses MIT; third-party source licensing must be recorded separately before redistribution.
 
+Execution frontier, October 14, 00:15 UTC: Root's common02398 host fixture is
+actually built/run and independently reviewed (`4f689c31` / `971bb47b`), eight
+nominal checks PASS. Two replacement package detached signatures are actual
+PASS (`24753627` / independent peer `8d519bd5`); the original armored-keyring
+failure remains visible. Corrected checker/live adapter are authenticated and
+assigned concrete Release integration. Exact two-package input cascade,
+passive intake, final query gate/whole invocation and native signer observation
+adoption proceed under separate ownership. Root keeps all shared Source/Git,
+registration and dispatch authority. Execution899 and historical ARM failures
+remain unchanged. Full R1–R5/M5–M9/A01–A15 and the ACTIVE goal remain required.
+
 Roadmap reconciliation, October 13, 23:58 UTC: the coordinator reread the current
 `outline.md`, `goal.md`, `docs/roadmap.md`, `docs/acceptance.md` and
 `manifests/packages.toml` after the user's reminder. Their SHA-256 prefixes are

@@ -4,6 +4,36 @@ October 12, 2026. This record tracks the complete `outline.md` scope; an impleme
 
 The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with owned tasks and corrective next actions in `docs/backlog.md`. The destination now explicitly requires the maintained ARM package repository, native performance engineering, integrated Apple stack, broader Cachy system experience, and complete installation/release lifecycle. Both Air sizes, published final measurements, independent onboarding/contribution, subsequent full-port maintenance release, other-ARM reuse and actual upstream submissions remain required; an early overlay release or feasibility decision would not complete the goal. This scope update does not change any recorded execution result.
 
+October 14, 00:15 UTC: the isolated-startup host fixture is built and independently
+verified. New binary `9252c517` is a pinned x86 PIE; all eight common02398 nominal
+checks pass with real self-signals. Its original owned child is reaped,
+postflight input checks pass, and publication completes in 0.071192 seconds
+within the original 10+2-second frame. Separate Root teardown is clean.
+Actual `4f689c31` and peer `971bb47b` cover this host result only; compiler-tree
+disposal, ARM/16K/M2 and full-port acceptance are not inferred.
+[Actual review](reviews/maintained-composed-02398-host-fixture-root-actual01-peer.md).
+
+Replacement jbigkit 2.2-1 and libtiff 4.7.2-2 now have actual detached-signature
+verification: two natural gpgv exits of zero, exact primary
+`68B3537F39A313B3E574D06777193F152BDBE6A6` and digest identifier 10.
+Receipt `24753627` records 0.009253 seconds in one original 120-second frame;
+independent retained peer `8d519bd5` passes. The first armored-keyring failure
+remains `0d55d488`. Strict Base64/CRC24 transformation of the same pinned public
+certificate yields binary `9403f923`; no host trust or secret key is changed.
+Ordinary trusted CLI evidence establishes these signatures, not guardian
+ownership, full341 acceptance, source/license or ABI correspondence. Passive
+package/ELF intake and the new input cascade remain separate tasks; historical
+trial08 and execution899 are unchanged.
+[Signature review](reviews/maintained-jbigkit-libtiff-trusted-cli-signatures-root-peer.md).
+
+Corrected native checker `f44dd302` and live adapter `9cb66de2` are sealed with
+independent Source controls; all 213 indexed files authenticate. Release is
+implementing their concrete driver/capacity integration. Final terminal query
+gate `0662cf11` binds the final query/runtime/envelope and strict terminal
+packets, with 92 corruption refusals; independent adoption review and Root's
+whole invocation/publication binding remain pending. Other native build,
+installation, recovery and hardware results retain their recorded states.
+
 October 13, 22:52 UTC: the coordinator re-read the current outline, roadmap,
 goal, acceptance contract and package inventory and propagated them to all six
 worker chats. Full R1–R5/M5–M9 and A01–A15 remain mandatory. Their current
