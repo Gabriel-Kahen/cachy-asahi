@@ -4,6 +4,33 @@ October 12, 2026. This record tracks the complete `outline.md` scope; an impleme
 
 
 
+
+October 14, latest terminal checkpoint: updater's two recipe-pin correction
+passes peer `f4adefca`, is published as `fa98df53`, and verifies all 90 Source
+rows plus workflow. Trial `38558154233` now passes materialization of all 167
+registry sources with exact regenerated archive hashes, then fails a later
+ValueError before compilation. Cleanup/recovery pass; daemon disposal is
+unverified. Completion `bbcfc6be` retains three metadata frames.
+
+FDK corrected trial `38557145714` passes preflight, original 501-input producer,
+eight builds/four comparisons and producer cleanup, then fails FDK build-1.
+CONTAINER_ATTACH returns 4; the bound inner record has 397 compiler attempts
+and natural returns, first natural return 0 and no first-failure record. The
+exact builder cause remains unknown; build-2 and comparison are NOT RUN.
+Completion `0d46686c` retains only public JSON metadata. Binary publication
+remains NOT RUN; owned absence checks have separate scopes.
+
+KSM corrected trial `38556638406` fails with natural/reaped producer code 1
+and zero RPC; the reason is unexported and cleanup remains ownership-uncertain.
+Completion `28f9ced7` is retained. No earlier cause is backfilled.
+
+Library failure-only output diagnostics pass independent peer `e3943f5b`.
+Root publishes `9f37d693`, verifies all 283 captured Source files/278 packet
+rows, and retains all 27 expected output pins. Draft PR22 exposes this
+successor; concrete Root-plan/Data registration is being prepared before a
+fresh native trial. Composed first-cause and diagnostic proposals remain
+separately under independent review. Parallel Source work remains actionable.
+
 October 14, native successor checkpoint: source-delivery and screenshot changes
 are published in `c53ad695` and `4c9b1a1`, respectively, on integration PR6.
 KSM optional-import compatibility passes independent peer `1afd165e` with 103
