@@ -14,7 +14,7 @@ ISSUER={
     'schema_version':1,'purpose':'SIGNER_NATIVE_PASSIVE_PUBLIC_ISSUER_V1',
     'repository':'Gabriel-Kahen/cachy-asahi',
     'branch':'codex/signer-native-passive-observation-20261014',
-    'workflow':'.github/workflows/test-signer-native-passive-observation.yml',
+    'workflow':'.github/workflows/native-arm-runner-observation.yml',
     'job_name':'observe','runner_label':'ubuntu-24.04-arm',
     'argv':['/usr/bin/python3.12','-I','-B','-S','-'],
     'operation':'ONE_READ_ONLY_HOSTED_ARM_TOOLCHAIN_OBSERVATION',

@@ -20,5 +20,5 @@
   "seconds": 60,
   "signing_allowed": false,
   "system_mutation_allowed": false,
-  "workflow": ".github/workflows/test-signer-native-passive-observation.yml"
+  "workflow": ".github/workflows/native-arm-runner-observation.yml"
 }

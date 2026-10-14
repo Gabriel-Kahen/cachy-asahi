@@ -207,12 +207,12 @@ def validate_observation(observation):
 
 ISSUER = {'schema_version':1,'purpose':'SIGNER_NATIVE_PASSIVE_PUBLIC_ISSUER_V1',
     'repository':'Gabriel-Kahen/cachy-asahi','branch':'codex/signer-native-passive-observation-20261014',
-    'workflow':'.github/workflows/test-signer-native-passive-observation.yml','job_name':'observe',
+    'workflow':'.github/workflows/native-arm-runner-observation.yml','job_name':'observe',
     'runner_label':'ubuntu-24.04-arm','argv':['/usr/bin/python3.12','-I','-B','-S','-'],
     'gcc_directory':'/usr/lib/gcc/aarch64-linux-gnu/13','seconds':60,
     'operation':'ONE_READ_ONLY_HOSTED_ARM_TOOLCHAIN_OBSERVATION','compile_allowed':False,
     'GPG_allowed':False,'probe_allowed':False,'signing_allowed':False,'system_mutation_allowed':False}
-ISSUER_SHA = 'dfc2aa08330327a832bd5848be362e761aae82ec102fd070cc21d29a6cd13629'
+ISSUER_SHA = '9b93d7783ac99374b9b35596a79a9f8d5fae7dc6e7413efb720191db4ca2dc23'
 SOURCE_NAMES = {'passive.py','observation_entry.py','provenance.py','retention.py','adoption_entry.py'}
 OBSERVER_STEP = 'Observe and retain Source-pinned read-only ARM toolchain'
 
