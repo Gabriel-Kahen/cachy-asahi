@@ -69,7 +69,7 @@ class Budget:
         need(type(start) in (int,float) and type(J) in (int,float) and
              math.isfinite(start) and math.isfinite(J) and start>0 and J==start+7200,
              'guardian-original-clock')
-        self.authority=authority; self.start=start; self.J=J; self.E=J-360
+        self.authority=authority; self.start=start; self.J=J; self.E=start+6840
         self.end=J-180; self.first=None; self.last=None; self.stopped=False
 
     def fail(self, error):

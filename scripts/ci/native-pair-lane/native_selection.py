@@ -15,7 +15,8 @@ import re
 import stat
 import struct
 import sys
-from types import ModuleType
+from types import BuiltinFunctionType, ModuleType
+from importlib.machinery import BuiltinImporter, ModuleSpec
 
 API = 'root-current-ubuntu-arm-selection-v1'
 STDLIB = ('math','hashlib','re','dataclasses','ctypes','json')
@@ -27,7 +28,7 @@ LIBRARY = {'path':'usr/lib/aarch64-linux-gnu/libzstd.so.1.5.5',
            'uid':0,'gid':0}
 CORE_BINDING = '7b383d3b267fad8a2891af284a055c6e8eade17f231a89f06222183b30388cd2'
 ADAPTER_BINDING = 'ca21d384846e3ac1b2aa30dd655e94f91a8c730b4e03b5001754d64f8395d034'
-ROLE_PINS = {'bridge': '96169422bd0e19b9b09af4c4493d6376a77619bc30aa2a10ed9e402c3e6f5139', 'capabilities': '7fd72715ff270a85039aa0de37b62f988a86d0844aa45be59040fadce36770bc', 'capacity': '3cdf93e97edee64c351712f099e0c92b16735f0d2340262d8993d83953eed2fa'}
+ROLE_PINS = {'bridge': '96169422bd0e19b9b09af4c4493d6376a77619bc30aa2a10ed9e402c3e6f5139', 'capabilities': '755e8bcd54a842a2d021cb1808b4f9801f9f3f0be3e8de40379a5c1ba1f8025c', 'capacity': '3cdf93e97edee64c351712f099e0c92b16735f0d2340262d8993d83953eed2fa'}
 BOOTSTRAP_PIN = 'd65104d312ccbd2c56c60f1c8c22b07418c567ee0f545b32be6344fcc98d4bd1'
 ABI = {'pointer_bits':64,'size_t_bits':64,'signatures':{
     'ZSTD_createDStream':((),'ptr'),'ZSTD_initDStream':(('ptr',),'size_t'),
@@ -366,6 +367,25 @@ def prepare_current_packet(packet,*,guard,process_owner,stdlib_modules,ctypes_mo
     selection.verify();return packet,selection
 
 
+def _stdlib_role(name,module,builtin_spec=None):
+    """File provenance or narrowly recognized math built into selected CPython."""
+    need(type(module)is ModuleType and module.__name__==name,'native-current-stdlib-module')
+    attrs=vars(module)
+    if type(attrs.get('__file__'))is str:
+        need(name!='math' or builtin_spec is None and attrs.get('__loader__')is not BuiltinImporter,
+             'native-builtin-math-file-refused')
+        return 'regular-file',attrs['__file__']
+    need(name=='math' and module is math and '__file__'not in attrs,'native-builtin-math-only')
+    selected=attrs.get('__spec__')
+    need(type(selected)is ModuleSpec and type(builtin_spec)is ModuleSpec
+         and all(type(s.name)is str and type(s.origin)is str and s.name=='math' and s.loader is BuiltinImporter and s.origin=='built-in'
+                 and s.has_location is False and s.submodule_search_locations is None
+                 for s in (selected,builtin_spec))
+         and attrs.get('__loader__')is BuiltinImporter,'native-builtin-math-loader')
+    need(all(type(attrs.get(n))is BuiltinFunctionType and attrs[n].__self__ is module
+             for n in ('sqrt','isfinite')),'native-builtin-math-functions')
+    return 'builtin-interpreter',None
+
 def _observe(value,integration,guard,process_owner,stdlib_modules,ctypes_module,backend,checker_node):
     owner=HeldSelection(guard,backend)
     try:
@@ -398,13 +418,19 @@ def _observe(value,integration,guard,process_owner,stdlib_modules,ctypes_module,
         interpreter=owner.file(executable,executable=True)['row']
         need(identity(owner.act(backend.lstat,owner.canonical('/proc/self/exe')))==owner.nodes[interpreter['path']]['identity'],'native-current-interpreter')
         need(type(stdlib_modules)is dict and set(stdlib_modules)==set(STDLIB) and stdlib_modules['ctypes']is ctypes_module,'native-current-stdlib-set')
-        stdlib={}
+        stdlib={};math_role=None
         for name in STDLIB:
             module=stdlib_modules[name]
-            need(type(module)is ModuleType and module.__name__==name and type(module.__file__)is str,'native-current-stdlib-module')
+            need(type(module)is ModuleType and module.__name__==name,'native-current-stdlib-module')
             need(owner.act(backend.current_module,name)is module,'native-existing-stdlib-object')
-            node=owner.file(module.__file__)
-            need(node['row']['path']==module.__file__,'native-stdlib-file-must-be-canonical')
+            builtin_spec=owner.act(BuiltinImporter.find_spec,name) if name=='math' else None
+            role,path=_stdlib_role(name,module,builtin_spec)
+            if name=='math':math_role=role
+            if role=='builtin-interpreter':
+                path=interpreter['path'];node=owner.nodes[path]
+                need(node['row']==interpreter,'native-builtin-interpreter-provenance')
+            else:node=owner.file(path)
+            need(node['row']['path']==path,'native-stdlib-file-must-be-canonical')
             stdlib[name]=node['row']
         need(owner.act(ctypes_module.sizeof,ctypes_module.c_void_p)==8
              and owner.act(ctypes_module.sizeof,ctypes_module.c_size_t)==8,'native-current-typed-ABI')
@@ -473,7 +499,7 @@ def _observe(value,integration,guard,process_owner,stdlib_modules,ctypes_module,
                 'abi_binding':digest(ABI),'enabled':True,'initialization_admitted':True,'confinement_admitted':True}}
         owner.value,owner.native=value,native
         owner.observation={'policy':API,'selection_binding':digest((value,native)),'job':job,
-            'trusted_roles':'Root-reviewed Ubuntu CPython312/stdlib/compiler; exact libzstd ABI and initialization; root-controlled glibc dependencies/IFUNC; native Linux held-FD mapping assumptions',
+            'trusted_roles':'Root-reviewed Ubuntu CPython312/stdlib/compiler; exact libzstd ABI and initialization; root-controlled glibc dependencies/IFUNC; native Linux held-FD mapping assumptions; math provenance='+math_role,
             'current_maps_sha256':digest(maps.hex()),'current_executable_map_count':len(mapped),
             'checker_root_observation':{'path':checker,'identity5':list(checker_node[2]),
                 'parent_identity5':list(checker_node[4]),'Root_retains_and_retires_borrowed_FDs':True},

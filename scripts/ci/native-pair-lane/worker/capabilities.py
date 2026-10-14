@@ -12,7 +12,8 @@ import os
 import re
 import stat
 import struct
-from types import ModuleType
+from types import BuiltinFunctionType, ModuleType
+from importlib.machinery import BuiltinImporter, ModuleSpec
 
 
 def need(ok, code):
@@ -28,6 +29,25 @@ def record(authority,error,cleanup=False):
     try: authority.record_failure(error,cleanup=cleanup)
     except BaseException: pass
 
+
+def _stdlib_role(name,module,builtin_spec=None):
+    """File provenance or narrowly recognized math built into selected CPython."""
+    need(type(module)is ModuleType and module.__name__==name,'native-current-stdlib-module')
+    attrs=vars(module)
+    if type(attrs.get('__file__'))is str:
+        need(name!='math' or builtin_spec is None and attrs.get('__loader__')is not BuiltinImporter,
+             'native-builtin-math-file-refused')
+        return 'regular-file',attrs['__file__']
+    need(name=='math' and module is math and '__file__'not in attrs,'native-builtin-math-only')
+    selected=attrs.get('__spec__')
+    need(type(selected)is ModuleSpec and type(builtin_spec)is ModuleSpec
+         and all(type(s.name)is str and type(s.origin)is str and s.name=='math' and s.loader is BuiltinImporter and s.origin=='built-in'
+                 and s.has_location is False and s.submodule_search_locations is None
+                 for s in (selected,builtin_spec))
+         and attrs.get('__loader__')is BuiltinImporter,'native-builtin-math-loader')
+    need(all(type(attrs.get(n))is BuiltinFunctionType and attrs[n].__self__ is module
+             for n in ('sqrt','isfinite')),'native-builtin-math-functions')
+    return 'builtin-interpreter',None
 
 class RuntimeObserver:
     """Nonrecursive observer using original Runtime custody and selected holders.
@@ -153,8 +173,14 @@ class RuntimeObserver:
                 need(node is original and row==pin and tuple(node[2])==before and node[1]==descriptor,'observer-selected-holder-drift')
                 self._node(node,row,cleanup)
             for name,module in self._stdlib.items():
-                need(self.selection['stdlib'][name] is module and type(module) is ModuleType
-                     and module.__name__==name and module.__file__==str(self.nodes['stdlib'][name][0]),'observer-selected-stdlib')
+                need(self.selection['stdlib'][name] is module,'observer-selected-stdlib')
+                builtin_spec=self._action(cleanup,BuiltinImporter.find_spec,name) if name=='math' else None
+                role,path=_stdlib_role(name,module,builtin_spec)
+                if role=='builtin-interpreter':
+                    path=self.selection['interpreter']['path']
+                    need(self.pins['stdlib'][name]==self.selection['interpreter'],
+                         'observer-builtin-interpreter-provenance')
+                need(path==str(self.nodes['stdlib'][name][0]),'observer-selected-stdlib')
             now=self.authority.check(cleanup=cleanup)
             s=self.selection
             evidence={'job':s['job'],'source_binding':s['source_binding'],'stdlib_binding':s['job']['stdlib_binding'],
