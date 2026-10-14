@@ -1,0 +1,17 @@
+{
+  "coherent_corruption_controls": 17,
+  "compile_allowed": false,
+  "execution_grant_issued": false,
+  "external_input_authentication": "PASS_BYTES_MODES",
+  "external_input_count": 24,
+  "full_four_file_gate": "PASS",
+  "guide_authenticated": true,
+  "peer_leaves": 3,
+  "peer_receipt_sha256": "30b16970fb49ac8a8b3533ce0171478d804ddfe11813c1760673292d21b52290",
+  "root_completion_sha256": "ff0b20d3e793dc06bda8231290abf90208abdd2475d1fc3ef6333c776da1b1f8",
+  "run_id": "38521634535",
+  "selected": false,
+  "signing_hardware_full_port_acceptance": false,
+  "source_commit": "1294a456ac7ae12616265f46edd89f7bb52b7849",
+  "status": "PASS_RETAINED_PASSIVE_DATA_ONLY"
+}

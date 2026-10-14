@@ -1,0 +1,28 @@
+{
+  "status": "PASS",
+  "source_commit": "1044f34c75d331d177ebd27115ec56c5e048e561",
+  "source_rows": 16,
+  "Source13_changed": false,
+  "author_receipt_sha256": "e6af1072889c3fa38dfa3f246476d7a63f489ea2b4cab6fc0ada35de9c8419ca",
+  "peer_receipt_sha256": "efa636be4d7820985293b112cf002ea20dce02dd0701dfe2a5b260dffdbfa22f",
+  "files": [
+    "scripts/ci/test-signer-compile-v2/abi_layout.c",
+    "scripts/ci/test-signer-compile-v2/compile_lane_v2.py",
+    "scripts/ci/test-signer-compile-v2/exec_filter.inc",
+    "scripts/ci/test-signer-compile-v2/group_process_v2.py",
+    "scripts/ci/test-signer-compile-v2/guardian.py",
+    "scripts/ci/test-signer-compile-v2/inspection.py",
+    "scripts/ci/test-signer-compile-v2/observation_entry.py",
+    "scripts/ci/test-signer-compile-v2/passive.py",
+    "scripts/ci/test-signer-compile-v2/reobserve.py",
+    "scripts/ci/test-signer-compile-v2/root_entry.py",
+    "scripts/ci/test-signer-compile-v2/thread_filter.inc",
+    "scripts/ci/test-signer-compile-v2/witness_shim.c",
+    "scripts/ci/test-signer-compile-v2/workspace.py",
+    "scripts/ci/test-signer-compile-v2/bootstrap-source-pins.json",
+    "scripts/ci/test-signer-compile-v2/bootstrap.py",
+    "scripts/ci/test-signer-compile-v2/native_workspace.py"
+  ],
+  "execution_grants": false,
+  "workflow": false
+}

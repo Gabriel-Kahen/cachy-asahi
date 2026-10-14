@@ -1,0 +1,48 @@
+{
+  "Source13_manifest_sha256": "606a4cda2ffb9ae240d1482751eec2dfd41adcd0e5b4c5d466d516b0ee82b564",
+  "ancestor_Source13_commit": "0e5d40ab4fa165727a2829dbb5eeaaa7e266b3ad",
+  "author_native_entry_executed": false,
+  "baseline_commit": "1044f34c75d331d177ebd27115ec56c5e048e561",
+  "code_rows": {
+    "bootstrap.py": {
+      "bytes": 21103,
+      "mode": 420,
+      "sha256": "4e6e386111080d5bb4167919e938a7f44be6533e0feb5d752994ceffeab8f006"
+    },
+    "correspondence.py": {
+      "bytes": 13465,
+      "mode": 420,
+      "sha256": "0cd79c9f57bc36f5db05a4db2625b359404f7e3db02ddbbf449807663884442b"
+    },
+    "native_workspace.py": {
+      "bytes": 11033,
+      "mode": 420,
+      "sha256": "1f9667ba10006eb1d010c5e69e50b3e950d12f05baaa22600e0f4804a801ea96"
+    },
+    "trusted_entry.py": {
+      "bytes": 22297,
+      "mode": 420,
+      "sha256": "df6ecb4fe2caa968a13392aef4a3d4c0812cec79bd22550da8d5d80b68a8adf6"
+    }
+  },
+  "future_binding_commit": "ROOT_WORKFLOW_INPUT_EQUALS_GITHUB_SHA",
+  "purpose": "ROOT_REVIEWED_RUNNABLE_CODE_BYTE_PINS",
+  "resources": {
+    "accepted-candidate.json": {
+      "bytes": 1834114,
+      "mode": 420,
+      "sha256": "22ab60121191de19244a832eed139a5ba7a1bfef9d4f959f6159d1450603f4e4"
+    },
+    "receiver-publication.json": {
+      "bytes": 1306,
+      "mode": 420,
+      "sha256": "c0afcf4075a65f8e8740e738fcfd6af08344f7f9182f5249f586b059c5ac4efe"
+    },
+    "root-gate-receipt.json": {
+      "bytes": 670,
+      "mode": 420,
+      "sha256": "9f46925bf72bcdf86c33d706c7d3110f1de41b59f702754eff6e09b2e1afab90"
+    }
+  },
+  "schema_version": 1
+}
