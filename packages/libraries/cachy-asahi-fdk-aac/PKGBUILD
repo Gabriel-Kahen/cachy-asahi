@@ -39,11 +39,12 @@ check() {
     python -B /inputs/test_inner_observation.py || { local _cachy_asahi_fdk_failure_status=$?; printf '__CACHY_ASAHI_FDK_FAILURE_V1__ STAGE=CHECK_INNER_OBSERVATION STATUS=%s\n' "$_cachy_asahi_fdk_failure_status" >&2 || :; return "$_cachy_asahi_fdk_failure_status"; }
     cd "$srcdir/codec-build" || { local _cachy_asahi_fdk_failure_status=$?; printf '__CACHY_ASAHI_FDK_FAILURE_V1__ STAGE=CHECK_DIRECTORY STATUS=%s\n' "$_cachy_asahi_fdk_failure_status" >&2 || :; return "$_cachy_asahi_fdk_failure_status"; }
     python -B "$startdir/check-built.py" || { local _cachy_asahi_fdk_failure_status=$?; printf '__CACHY_ASAHI_FDK_FAILURE_V1__ STAGE=CHECK_BUILT STATUS=%s\n' "$_cachy_asahi_fdk_failure_status" >&2 || :; return "$_cachy_asahi_fdk_failure_status"; }
+    printf '__CACHY_ASAHI_FDK_SMOKE_V1__ BEGIN\n' >&2 || :
     cc -std=c11 -Wall -Wextra -Werror \
-        -I"$srcdir/fdk-aac-3.0.0/cpp/libAACenc/include" \
-        -I"$srcdir/fdk-aac-3.0.0/cpp/libAACdec/include" \
-        -I"$srcdir/fdk-aac-3.0.0/cpp/libSYS/include" \
-        -I"$srcdir/fdk-aac-3.0.0/xhe-aac/xHEAACEnc/include" \
+        -isystem "$srcdir/fdk-aac-3.0.0/cpp/libAACenc/include" \
+        -isystem "$srcdir/fdk-aac-3.0.0/cpp/libAACdec/include" \
+        -isystem "$srcdir/fdk-aac-3.0.0/cpp/libSYS/include" \
+        -isystem "$srcdir/fdk-aac-3.0.0/xhe-aac/xHEAACEnc/include" \
         "$startdir/codec-smoke.c" -L. -lfdk-aac -lfdk-xhe-aac -o "$srcdir/codec-smoke" || { local _cachy_asahi_fdk_failure_status=$?; printf '__CACHY_ASAHI_FDK_FAILURE_V1__ STAGE=SMOKE_COMPILE STATUS=%s\n' "$_cachy_asahi_fdk_failure_status" >&2 || :; return "$_cachy_asahi_fdk_failure_status"; }
     LD_LIBRARY_PATH="$srcdir/codec-build" timeout 60 "$srcdir/codec-smoke" || { local _cachy_asahi_fdk_failure_status=$?; printf '__CACHY_ASAHI_FDK_FAILURE_V1__ STAGE=SMOKE_RUN STATUS=%s\n' "$_cachy_asahi_fdk_failure_status" >&2 || :; return "$_cachy_asahi_fdk_failure_status"; }
 }
