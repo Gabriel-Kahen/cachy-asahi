@@ -16,6 +16,13 @@ adoption proceed under separate ownership. Root keeps all shared Source/Git,
 registration and dispatch authority. Execution899 and historical ARM failures
 remain unchanged. Full R1–R5/M5–M9/A01–A15 and the ACTIVE goal remain required.
 
+October 14, 00:22 UTC: passive pair intake actual `4b9f9153` fails on repeated
+libtiff `makedepend` metadata, diagnosed separately in `45a1499d`. Author and
+reviewer own a new narrow correction; original Source/peer/actual seals are
+immutable. Root reserves the next actual intake after review. The query whole
+invocation now has a separate Source implementation owner; native pair capacity
+correction and signer passive observation adoption continue in parallel.
+
 Roadmap reconciliation, October 13, 23:58 UTC: the coordinator reread the current
 `outline.md`, `goal.md`, `docs/roadmap.md`, `docs/acceptance.md` and
 `manifests/packages.toml` after the user's reminder. Their SHA-256 prefixes are

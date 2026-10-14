@@ -26,6 +26,17 @@ package/ELF intake and the new input cascade remain separate tasks; historical
 trial08 and execution899 are unchanged.
 [Signature review](reviews/maintained-jbigkit-libtiff-trusted-cli-signatures-root-peer.md).
 
+Passive pair intake actually ran next and FAILED (`4b9f9153`) after 0.033086
+seconds with `METADATA_AMBIGUOUS`. A separate bounded read-only diagnosis
+(`45a1499d`) retains jbigkit's 440-byte and libtiff's 732-byte `.PKGINFO`.
+The latter contains five `makedepend` entries; Source `32c12a79` treats that
+otherwise valid repeated build-dependency key as ambiguous. Its original Source
+and peer seals remain unchanged. A narrow successor and independent review are
+assigned; no pair ELF/ABI success follows from this failure. The operation used
+CPU 15 seconds, address-space 512 MiB, file-size 4 MiB, 64 FDs and zero core size,
+with explicit inherited trusted codec/runtime assumptions. No package was
+extracted, executed, installed or loaded.
+
 Corrected native checker `f44dd302` and live adapter `9cb66de2` are sealed with
 independent Source controls; all 213 indexed files authenticate. Release is
 implementing their concrete driver/capacity integration. Final terminal query

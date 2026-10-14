@@ -10,8 +10,10 @@ October 14, 00:15 UTC execution batch:
 - Root/Tools: two replacement package signatures actual `24753627` / peer
   `8d519bd5` PASS; correct the caller's armored versus binary
   certificate binding. Preserve first refusal `0d55d488` and prior trial08.
-- Intake author/reviewer: finish bounded byte-only package/ELF Source review,
-  then Root executes it on the two authenticated packages. Sixteen reverse
+- Intake author/reviewer: correct actual `4b9f9153` metadata refusal, independently
+  review repeatable `makedepend` handling against diagnosis `45a1499d`, then
+  Root runs a fresh pair intake. Preserve original Source `32c12a79` and peer
+  `99d9f892`. Sixteen reverse
   consumer payload/ABI checks and source/license correspondence remain open.
 - Build/Desktop: construct and review the exact two-package successor for the
   maintained341/501 input and packet cascade. Root adopts/registers after
