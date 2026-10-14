@@ -2,6 +2,34 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 14, 04:34 UTC: composed ARM run `38510386112` completes FAIL at
+Source `5ea0987c`, with Root completion `6b4ed1d6` retaining 13 hash-framed
+metadata bundles. Native build/comparison, fixtures, signer fixtures, lifecycle,
+onboarding, desktop and source suites pass their scoped checks. Repository
+validation fails: its resource observation records failed mask 128, with six
+recognized `CAP_`-prefixed capabilities and no unknowns or duplicates. Independent
+review is binding that observation to the exact Source predicate; repository
+cleanup failure remains separate from final owned-image absence PASS. Full
+composed acceptance and downstream installation checks remain open.
+
+The reviewed library namespace fix is committed as Source `d0828a1b`, Data
+`b9e85512`, plan `6413ada7`; all 279 committed byte/mode rows and both variable
+readbacks pass. Native run `38510908030` is in progress. No library result is
+inferred. Standalone Topmem/Fish Source `5c50316c` is published in
+[draft PR14](https://github.com/Gabriel-Kahen/cachy-asahi/pull/14), with all 55
+manifest rows verified against immutable Source/Data and plan `d90c9d85`
+registered before first push. Static CI passes; native run `38511520135` is
+queued. Its standalone package scope does not establish installation or M2
+acceptance.
+
+Signer inventory Source `961a93c8` authenticates ten exact copy rows after
+independent peer `8ad3ee9e` passes 63 causal cases and 415 assertions. Actual
+observation `38511588937` completes all 16 inventories, then refuses
+`package-field-format` during provenance. Root completion `7199c081` retains
+that failure; the precise package field is not recorded. A bounded diagnostic
+is assigned. Compilation and signing remain unaccepted. Full R1–R5/M5–M9 and
+hardware acceptance remain incomplete; the development goal is ACTIVE.
+
 October 14, 04:15 UTC: Root's managed handoff suite passes all 154 tests in
 98.686 seconds, without failures, errors or skips. Independent Root peer
 `d41ef5c6` (36 authenticated leaves) confirms all 182 test/helper methods and
