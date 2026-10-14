@@ -2,6 +2,31 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 14, isolated library Source/Data publication:
+Root commits diagnostic Source `18c08cc5` directly on held Data `2c9d61b7`,
+with exactly three changed files and280 authenticated source bodies. Bound
+Data `836f3964` is its direct child with exactly two administrative payload
+changes. Finalization and pure held-Code/workflow plan parsers pass. Source
+and Data are published to `codex/library-diagnostic-dormant-source-v1` and
+`codex/library-diagnostic-dormant-data-v1`, with exact remote readback.
+The existing worktree, runtime variables and execution branch retain their
+prior state. New native library trial remains NOT RUN pending P0 admission;
+old Signal14 business cause remains UNKNOWN. Fresh preparation peer
+`62dea402` and Root execution preparation `1314e060` record this bounded scope.
+
+October 14, KSM expression diagnostic publication:
+Source `afae76af` separates the held kernel-record calls and retains the exact
+historical acquisition donor. Independent proposal peer `73036fd7` and
+committed-source peer `d8346d23` pass. Root verifies the eight-file delta,
+159 locked rows and160 unique Git/physical source roles. The changed native
+trial `38652336866` is running with packet `2aac0ffe`; the prior TypeError
+cause stays UNKNOWN and prior cleanup ownership stays uncertain.
+Library diagnostic preparation passes fresh peer `62dea402` and can prepare
+isolated Source/Data commits before P0 runtime admission. Registration and
+runtime execution remain pending. The screenshot selector-retirement proposal
+is withheld after independent trace validation findings; a corrected successor
+is being prepared while exact pixel acceptance remains held.
+
 October 14, native FDK provenance acceptance and changed kernel trial:
 FDK run `38647710278` on Source `843fff11` is accepted as one finite native
 build pair with current schema-3 provenance. Fresh peer `ef085d96` passes
