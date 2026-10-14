@@ -196,6 +196,45 @@ class PrivateText(io.TextIOBase):
         super().close()
 
 
+def initial_kind(error):
+    if error is None:return 'NO_FIRST_OBSERVED'
+    names = ((ValueError,'VALUE_ERROR'),(OSError,'OS_ERROR'),(TypeError,'TYPE_ERROR'),(KeyError,'KEY_ERROR'),
+             (TimeoutError,'TIMEOUT_ERROR'),(KeyboardInterrupt,'KEYBOARD_INTERRUPT'),(SystemExit,'SYSTEM_EXIT'))
+    for cls, name in names:
+        if type(error) is cls:return name
+    return 'OTHER_EXCEPTION' if isinstance(error,Exception) else 'OTHER_CONTROL'
+
+
+def retain_initial_control(first, secondary):
+    """Retain the original throw and any diagnostic control without formatting."""
+    if isinstance(secondary,Exception):return 'NONE'
+    if first is not None and first is not secondary:
+        prior = first.__cause__
+        first.__cause__ = secondary if prior is None else BaseExceptionGroup('initial diagnostic controls',[prior,secondary])
+        first.__suppress_context__ = True
+    RETAINED.append(dict(kind='INITIAL_DIAGNOSTIC_CONTROL',first=first,secondary=secondary))
+    return 'KEYBOARD_INTERRUPT' if type(secondary) is KeyboardInterrupt else 'SYSTEM_EXIT' if type(secondary) is SystemExit else 'OTHER_CONTROL'
+
+
+def initial_failure_snapshot(identity, rows, boundary, initial_first, first, detail, original, log, record,
+                             original_returned, original_code, terminal, cleanup, secondary_control):
+    """Already-held observations only; NOT_OBSERVED makes no absence claim."""
+    binding = {key:identity[key] for key in ('code_commit','source_commit','data_commit','run_id','run_attempt')}
+    binding.update(job_sha256=rows[CLI+'job.py']['sha256'],publication_sha256=rows[CLI+'publication.py']['sha256'])
+    status = terminal.get('status') if type(terminal) is dict else None
+    status = status if type(status) is str and status in ('PRIVATE_CHECKED','INCOMPLETE','FAIL') else 'NOT_OBSERVED'
+    pin, count = (None,None) if detail is None else (detail['detail_sha256'],detail['detail_bytes'])
+    if type(count) is not int or not 0 <= count <= 65536:pin,count=None,None
+    return dict(schema_version=1,binding=binding,stage=boundary[0],operation=boundary[1],
+        tag_basis='FIRST_FAILURE' if initial_first is not None else 'LAST_ENTERED_NO_FIRST',
+        first_kind=initial_kind(initial_first),job_first_kind=initial_kind(first),
+        detail_sha256=pin,detail_bytes=count,original_observation='PRESENT' if original is not None else 'NOT_OBSERVED',
+        private_log_observation='PRESENT' if log is not None else 'NOT_OBSERVED',
+        consumer_record_observation='PRESENT' if record is not None else 'NOT_OBSERVED',
+        original_exit_code=original_code if original_returned else None,terminal_status=status,
+        raw_cleanup=dict(cleanup),secondary_control=secondary_control)
+
+
 def run(context):
     """Issue registration, execute the supervised original plus child, finalize."""
     plan, earliest = context['plan'], context['earliest_entry']
@@ -235,50 +274,78 @@ def run(context):
     report = {}; original = None; original_code = 1; terminal = record = None
     uncertainties, cancelled, baseline_absent = 0, False, False
     producer_closed = False; first = None; log = None
+    initial_boundary = ('ORIGINAL_PREPARATION','INTEGRATION_LOCK_READ')
+    failure_boundary = None; initial_first = None; original_returned = False; diagnostic_cancelled = False
+    detail = None; secondary_control = 'NONE'; initial_failure = None
     saved_environment = dict(os.environ)
     try:
+        initial_boundary = ('ORIGINAL_PREPARATION','INTEGRATION_LOCK_READ')
         integration_raw = regular(source/'scripts/ci/integration.lock.json')
+        initial_boundary = ('ORIGINAL_PREPARATION','INTEGRATION_LOCK_VALIDATE')
         need(sha(integration_raw) == INTEGRATION_PIN, 'ORIGINAL_INTEGRATION_LOCK')
         original_rows = json.loads(integration_raw)['source_files']
         need(len(original_rows) == 159, 'ORIGINAL_159_SOURCE_SET')
         original_rows = {name:dict(row,bytes=rows[name]['bytes']) for name,row in original_rows.items()}
         name = 'scripts/ci/integration.lock.json'; original_rows[name] = rows[name]
         original_root = private/'original-source'
+        initial_boundary = ('ORIGINAL_PREPARATION','ORIGINAL_SOURCE_CAPSULE')
         capsule(source,original_root,original_rows,cutoff,readonly=False)
+        initial_boundary = ('SEED_INTAKE','SEED_DECODE')
         seed_receipt = consume_seeds(context['seed_environment'],cache,original_root/'scripts/ci/inputs.lock.json',cutoff)
+        initial_boundary = ('SEED_INTAKE','SEED_RECEIPT_WRITE')
         create(private/'seed-intake.json',encoded(seed_receipt))
         clean = dict(PATH='/usr/bin:/bin',DOCKER_HOST='unix:///run/docker.sock',DOCKER_BUILDKIT='0',
                      LC_ALL='C',GITHUB_SHA=plan['source_commit'],PYTHONDONTWRITEBYTECODE='1')
+        initial_boundary = ('RUNTIME_BINDING','ENVIRONMENT_DIRECTORIES')
         for key,leaf in (('HOME','home'),('DOCKER_CONFIG','docker-config'),('TMPDIR','tmp')):
             directory = private/leaf; directory.mkdir(mode=0o700); clean[key]=str(directory)
+        initial_boundary = ('RUNTIME_BINDING','DAEMON_SOCKET')
         socket = Path('/run/docker.sock').lstat()
         tool_pins = {key:dict(plan['tools'][key]) for key in ('interpreter','docker','gpgv')}
         tool_pins['socket'] = dict(path='/run/docker.sock',identity=[socket.st_dev,socket.st_ino,
             socket.st_mode,socket.st_uid,socket.st_gid,socket.st_nlink])
+        initial_boundary = ('RUNTIME_BINDING','RUNTIME_OBSERVE')
         modules['consumer_adapter'].observe_runtime(tool_pins,cutoff)
+        initial_boundary = ('REGISTRATION','PRODUCER_SOURCE_ROWS')
         producer_sources = {}
         for key in ('native_arm','integration'):
             name = 'scripts/ci/'+key+'.py'; row = original_rows[name]
             producer_sources[key] = dict(path=str(original_root/name),**row)
+        initial_boundary = ('REGISTRATION','CLOCK_RECORD')
         clock_ref = create(private/'clock.json',encoded(clock),0o444)
+        initial_boundary = ('REGISTRATION','ROOT_SELECTION_VALIDATE')
         selection = dict(schema_version=1,purpose='project-libraries-cli-root-selection',identity=identity,
             nonce=nonce,clock=clock_ref,original_entry_monotonic=earliest,
             sources=dict(root=str(private/'library-source'),files=selected,manifest_sha256=sha(boundary.encoded(selected))),
             inputs=plan['metadata'],producer_sources=producer_sources,tool_pins=tool_pins,
             environment=clean,output_path=str(output),credentials=dict(uid=os.getuid(),gid=os.getgid()),cache_path=str(cache))
         modules['consumer_adapter'].selection_shape(selection)
+        initial_boundary = ('REGISTRATION','SELECTION_WRITE')
         pin = create(private/'selection.json',boundary.encoded(selection),0o444)
+        initial_boundary = ('REGISTRATION','PRIVATE_LOG_OPEN')
         log = PrivateText(private/'original-python.log')
         producer_environment = {key:value for key,value in clean.items() if not key.startswith('DOCKER_')}
         os.environ.clear(); os.environ.update(producer_environment)
         with redirect_stdout(log),redirect_stderr(log):
+            initial_boundary = ('ORIGINAL_EXECUTION','PRODUCER_ENTER')
             with supervisor.Producer(original_root,original_rows,clock,earliest,producer_environment,private,
                                      source_checkout=source) as original:
                 try:
+                    initial_boundary = ('ORIGINAL_EXECUTION','RUN_ORIGINAL')
                     original_code,terminal = modules['consumer_adapter'].run_original(pin,
                         {key:original.modules[key] for key in ('native_arm','integration')},cache=cache,
                         native_output=private/'native-output',integration_output=private/'integration-output',report=report)
+                    original_returned = True
+                except BaseException as error:
+                    try:
+                        initial_first = error; failure_boundary = initial_boundary
+                    except BaseException as secondary:
+                        control = retain_initial_control(error,secondary)
+                        initial_first = error; failure_boundary = initial_boundary
+                        if control != 'NONE':secondary_control = control; diagnostic_cancelled = True
+                    raise
                 finally:
+                    initial_boundary = ('BASELINE_RETIREMENT','CONSUMER_STATE')
                     consumer = report.get('consumer')
                     record = consumer.record if consumer is not None else None
                     terminal = consumer.result if consumer is not None else terminal
@@ -287,12 +354,23 @@ def run(context):
                     registration = consumer.registration if consumer is not None else None
                     retained = bool(registration is not None and getattr(registration,'retained',False))
                     if not retained and not bridge.HELD:
+                        initial_boundary = ('BASELINE_RETIREMENT','BASELINE_RETIRE')
                         baseline_absent = original.cleanup_baseline(private/'native-output')
                     else:
                         uncertainties += 1
+                    initial_boundary = ('FINALIZATION','PRODUCER_EXIT')
             producer_closed = original.closed
     except BaseException as error:
         first = error; cancelled = isinstance(error,KeyboardInterrupt)
+        try:
+            if initial_first is None and failure_boundary is None:
+                initial_first = error; failure_boundary = initial_boundary
+        except BaseException as secondary:
+            uncertainties += 1
+            control = retain_initial_control(first,secondary)
+            if initial_first is None and failure_boundary is None:
+                initial_first = error; failure_boundary = initial_boundary
+            if control != 'NONE':secondary_control = control; diagnostic_cancelled = True
         uncertainties += 1
         RETAINED.append(dict(kind='JOB_FIRST_CAUSE',error=error,producer=original,report=report))
     finally:
@@ -302,26 +380,61 @@ def run(context):
         os.environ.clear(); os.environ.update({k:v for k,v in saved_environment.items() if not k.startswith(PREFIX)})
         saved_environment.clear()
         if log is not None:
-            try:log.close()
+            try:
+                initial_boundary = ('FINALIZATION','PRIVATE_LOG_CLOSE')
+                log.close()
             except BaseException as error:
                 uncertainties += 1
-                if first is None:first=error
+                if first is None:
+                    first=error
+                    try:
+                        initial_first=error; failure_boundary=initial_boundary
+                    except BaseException as secondary:
+                        control = retain_initial_control(first,secondary)
+                        initial_first = error; failure_boundary = initial_boundary
+                        if control != 'NONE':secondary_control = control; diagnostic_cancelled = True
         if original is not None:
             producer_closed = original.closed
             cancelled = cancelled or original.cancelled
             uncertainties += len(original.uncertainties)
+    cancelled = cancelled or diagnostic_cancelled
     cleanup = dict(schema_version=1,status='PASS' if not uncertainties and producer_closed and baseline_absent else 'FAIL',
         baseline_image_absent=baseline_absent,producer_closed=producer_closed,cancelled=cancelled,
         uncertainties=uncertainties+len(bridge.HELD))
     if first is not None:
-        create(private/'job-failure.json',encoded(dict(schema_version=1,exception_type=type(first).__name__,
-            detail_sha256=sha(str(first).encode()),detail_bytes=len(str(first).encode()),cancelled=cancelled)))
+        try:
+            raw_detail = str(first).encode()
+            detail = dict(schema_version=1,exception_type=type(first).__name__,
+                detail_sha256=sha(raw_detail),detail_bytes=len(raw_detail),cancelled=cancelled)
+            create(private/'job-failure.json',encoded(detail))
+        except BaseException as secondary:
+            cleanup['status'] = 'FAIL'; cleanup['uncertainties'] += 1
+            control = retain_initial_control(first,secondary)
+            if control != 'NONE':
+                secondary_control = control
+                cancelled = True; cleanup['cancelled'] = True
+                cleanup['status'] = 'FAIL'
+    try:
+        if ((initial_first is None) == (failure_boundary is None)) and (first is not None or
+            record is None or original_code != 0 or type(terminal) is not dict or
+            type(terminal.get('status')) is not str or terminal['status'] != 'PRIVATE_CHECKED' or
+            cleanup['status'] != 'PASS' or not cleanup['baseline_image_absent'] or
+            not cleanup['producer_closed'] or cleanup['cancelled'] or cleanup['uncertainties']):
+            initial_failure = initial_failure_snapshot(identity,rows,failure_boundary or initial_boundary,
+                initial_first,first,detail,original,log,record,original_returned,original_code,terminal,cleanup,secondary_control)
+    except BaseException as secondary:
+        control = retain_initial_control(first,secondary)
+        if control != 'NONE':
+            if first is None:first = secondary
+            secondary_control = control
+            cancelled = True; cleanup['cancelled'] = True
+            cleanup['status'] = 'FAIL'; cleanup['uncertainties'] += 1
     if record is None:
         return publication.emit_failure(identity,clock,selection['sources'] if 'selection' in locals() else dict(
             root=str(private/'library-source'),files=selected,manifest_sha256=sha(boundary.encoded(selected))),
-            cleanup,public_output,sys.stdout,child_output=output,producer_root=private/'original-source',first_error=first)['exit_code']
+            cleanup,public_output,sys.stdout,child_output=output,producer_root=private/'original-source',first_error=first,initial_failure=initial_failure)['exit_code']
     public_context = publication.Context(record,producer_root=private/'original-source')
     if first is not None:public_context.fail(first)
     result = publication.publish(public_context,
-        terminal,original_code,cleanup,clock,public_output,sys.stdout)
+        terminal,original_code,cleanup,clock,public_output,sys.stdout,initial_failure=initial_failure)
     return result['exit_code']

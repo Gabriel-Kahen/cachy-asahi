@@ -73,16 +73,84 @@ def signature_status(text):
     return {'status': 'PASS', 'primary': PRIMARY, 'digest_algorithm': '10'}
 
 
+INITIAL_BOUNDARIES = {
+    'ORIGINAL_PREPARATION': ('INTEGRATION_LOCK_READ','INTEGRATION_LOCK_VALIDATE','ORIGINAL_SOURCE_CAPSULE'),
+    'SEED_INTAKE': ('SEED_DECODE','SEED_RECEIPT_WRITE'),
+    'RUNTIME_BINDING': ('ENVIRONMENT_DIRECTORIES','DAEMON_SOCKET','RUNTIME_OBSERVE'),
+    'REGISTRATION': ('PRODUCER_SOURCE_ROWS','CLOCK_RECORD','ROOT_SELECTION_VALIDATE','SELECTION_WRITE','PRIVATE_LOG_OPEN'),
+    'ORIGINAL_EXECUTION': ('PRODUCER_ENTER','RUN_ORIGINAL'),
+    'BASELINE_RETIREMENT': ('CONSUMER_STATE','BASELINE_RETIRE'),
+    'FINALIZATION': ('PRODUCER_EXIT','PRIVATE_LOG_CLOSE'),
+}
+INITIAL_KINDS = ('VALUE_ERROR','OS_ERROR','TYPE_ERROR','KEY_ERROR','TIMEOUT_ERROR',
+                 'KEYBOARD_INTERRUPT','SYSTEM_EXIT','OTHER_EXCEPTION','OTHER_CONTROL','NO_FIRST_OBSERVED')
+INITIAL_BINDING = ('code_commit','source_commit','data_commit','run_id','run_attempt','job_sha256','publication_sha256')
+
+
+def validate_initial_failure(value):
+    """Finite observations, not a syscall diagnosis or registration authority."""
+    keys = {'schema_version','binding','stage','operation','tag_basis','first_kind','job_first_kind','detail_sha256','detail_bytes',
+            'original_observation','private_log_observation','consumer_record_observation','original_exit_code',
+            'terminal_status','raw_cleanup','secondary_control'}
+    require(type(value) is dict and all(type(k) is str for k in value) and set(value) == keys, 'library-initial-failure-fields')
+    require(type(value['schema_version']) is int and value['schema_version'] == 1, 'library-initial-failure-version')
+    binding = value['binding']
+    require(type(binding) is dict and all(type(k) is str for k in binding) and set(binding) == set(INITIAL_BINDING), 'library-initial-failure-binding')
+    for key in INITIAL_BINDING:
+        item = binding[key]
+        require(type(item) is str, 'library-initial-failure-binding-type')
+        if key in ('run_id','run_attempt'):
+            require(1 <= len(item) <= 20 and item.isascii() and item.isdecimal() and item[0] != '0', 'library-initial-failure-run')
+        else:
+            size = 40 if key.endswith('_commit') else 64
+            require(len(item) == size and all(c in '0123456789abcdef' for c in item), 'library-initial-failure-pin')
+    stage, operation = value['stage'], value['operation']
+    require(type(stage) is str and type(operation) is str and stage in INITIAL_BOUNDARIES and
+            operation in INITIAL_BOUNDARIES[stage], 'library-initial-failure-boundary')
+    require(type(value['tag_basis']) is str and value['tag_basis'] in ('FIRST_FAILURE','LAST_ENTERED_NO_FIRST') and
+            type(value['first_kind']) is str and value['first_kind'] in INITIAL_KINDS and
+            (value['first_kind'] == 'NO_FIRST_OBSERVED') == (value['tag_basis'] == 'LAST_ENTERED_NO_FIRST'),
+            'library-initial-failure-kind')
+    require(type(value['job_first_kind']) is str and value['job_first_kind'] in INITIAL_KINDS, 'library-initial-job-first-kind')
+    require((value['first_kind'] == 'NO_FIRST_OBSERVED') ==
+            (value['job_first_kind'] == 'NO_FIRST_OBSERVED'), 'library-initial-first-presence')
+    pin, count = value['detail_sha256'], value['detail_bytes']
+    require((pin is None and count is None) or
+            (type(pin) is str and PIN.fullmatch(pin) and type(count) is int and 0 <= count <= 65536 and
+             value['job_first_kind'] != 'NO_FIRST_OBSERVED'), 'library-initial-failure-detail')
+    for key in ('original_observation','private_log_observation','consumer_record_observation'):
+        require(type(value[key]) is str and value[key] in ('PRESENT','NOT_OBSERVED'), 'library-initial-failure-presence')
+    code = value['original_exit_code']
+    require(code is None or type(code) is int and 0 <= code <= 255 and value['original_observation'] == 'PRESENT',
+            'library-initial-failure-exit')
+    require(type(value['terminal_status']) is str and value['terminal_status'] in
+            ('PRIVATE_CHECKED','INCOMPLETE','FAIL','NOT_OBSERVED'), 'library-initial-failure-terminal')
+    require(type(value['secondary_control']) is str and value['secondary_control'] in
+            ('NONE','KEYBOARD_INTERRUPT','SYSTEM_EXIT','OTHER_CONTROL'), 'library-initial-failure-control')
+    cleanup = value['raw_cleanup']
+    require(type(cleanup) is dict and all(type(k) is str for k in cleanup) and set(cleanup) == {'schema_version','status','baseline_image_absent',
+            'producer_closed','cancelled','uncertainties'}, 'library-initial-failure-cleanup-fields')
+    require(type(cleanup['schema_version']) is int and cleanup['schema_version'] == 1 and
+            type(cleanup['status']) is str and cleanup['status'] in ('PASS','FAIL') and
+            all(type(cleanup[k]) is bool for k in ('baseline_image_absent','producer_closed','cancelled')) and
+            type(cleanup['uncertainties']) is int and 0 <= cleanup['uncertainties'] <= 128,
+            'library-initial-failure-cleanup')
+    require(value['secondary_control'] == 'NONE' or cleanup['cancelled'] is True, 'library-initial-failure-control-cancel')
+    result = dict(value); result['binding'] = dict(binding); result['raw_cleanup'] = dict(cleanup)
+    return result
+
+
 def public_metadata(value):
     """Explicit positive projection. Internal paths, notes and records never pass."""
-    require(value.get('stage') == STAGE and value.get('status') in ('PASS', 'FAIL') and
+    require(type(value) is dict and type(value.get('stage')) is str and value['stage'] == STAGE and
+            type(value.get('status')) is str and value['status'] in ('PASS', 'FAIL') and
             value.get('public_promotion') is False and value.get('publication_license_acceptance') is False,
             'library-public-schema')
     phases = value.get('phases')
-    require(type(phases) is dict and set(phases) == set(PHASES) and
-            all(v in ('PASS','FAIL','NOT RUN') for v in phases.values()), 'library-public-phases')
+    require(type(phases) is dict and all(type(k) is str for k in phases) and set(phases) == set(PHASES) and
+            all(type(v) is str and v in ('PASS','FAIL','NOT RUN') for v in phases.values()), 'library-public-phases')
     cleanup = value.get('cleanup', {})
-    require(cleanup.get('status') in ('PASS','FAIL','NOT RUN') and type(cleanup.get('uncertainties')) is int and
+    require(type(cleanup) is dict and type(cleanup.get('status')) is str and cleanup['status'] in ('PASS','FAIL','NOT RUN') and type(cleanup.get('uncertainties')) is int and
             0 <= cleanup['uncertainties'] <= 128, 'library-public-cleanup')
     result = {'schema_version':1, 'stage':STAGE, 'status':value['status'], 'hardware_validation':'NOT RUN',
               'public_promotion':False, 'publication_license_acceptance':False, 'phases':dict(phases),
@@ -95,8 +163,11 @@ def public_metadata(value):
                 all(type(pin) is str and PIN.fullmatch(pin) for pin in row) for row in rows.values()), 'library-public-artifact-pins')
         result['artifact_sha256'] = rows
     if 'failed_phase' in value:
-        require(value['failed_phase'] in PHASES, 'library-public-failure-phase')
+        require(type(value['failed_phase']) is str and value['failed_phase'] in PHASES, 'library-public-failure-phase')
         result['failed_phase'] = value['failed_phase']
+    if 'initial_failure' in value:
+        require(type(value['status']) is str and value['status'] == 'FAIL', 'library-initial-failure-positive')
+        result['initial_failure'] = validate_initial_failure(value['initial_failure'])
     if value['status'] == 'PASS':
         require(all(v == 'PASS' for v in phases.values()) and cleanup['status'] == 'PASS' and
                 cleanup['uncertainties'] == 0 and result['cancelled'] is False and
@@ -108,9 +179,10 @@ def public_metadata(value):
 def validate_public_metadata(value):
     required = {'schema_version','stage','status','hardware_validation','public_promotion','publication_license_acceptance',
                 'phases','cleanup_status','cleanup_uncertainty','cancelled'}
-    require(type(value) is dict and required <= set(value) <= required | {'artifact_sha256','failed_phase'} and
-            value.get('schema_version') == 1 and value.get('hardware_validation') == 'NOT RUN' and
-            type(value.get('cancelled')) is bool and value.get('cleanup_uncertainty') in ('NONE','OWNED_CLEANUP_UNCERTAIN'), 'library-public-schema')
+    require(type(value) is dict and all(type(k) is str for k in value) and required <= set(value) <= required | {'artifact_sha256','failed_phase','initial_failure'} and
+            type(value.get('schema_version')) is int and value['schema_version'] == 1 and
+            type(value.get('hardware_validation')) is str and value['hardware_validation'] == 'NOT RUN' and
+            type(value.get('cancelled')) is bool and type(value.get('cleanup_uncertainty')) is str and value['cleanup_uncertainty'] in ('NONE','OWNED_CLEANUP_UNCERTAIN'), 'library-public-schema')
     internal = dict(value, cleanup={'status':value['cleanup_status'], 'uncertainties':int(value['cleanup_uncertainty'] != 'NONE')})
     require(public_metadata(internal) == value, 'library-public-schema')
     return value

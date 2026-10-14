@@ -27,7 +27,7 @@ JSON_CAP, EXPANDED_CAP, COMPRESSED_CAP = 65536, 128*1024, 8*1024**2
 FRAME_CAP = 12*1024**2
 PHASE_RECEIPT = 'private-phases.json'
 POLICY_PATH = 'scripts/ci/development/project_libraries.py'
-POLICY_SHA256 = '7ba90b804652f2355837ab550c35b55c37e809d7fce6b4d627e56584d6b5360d'
+POLICY_SHA256 = '78f19b8c657b01b6365c7e0c41138f969a2ae2aa4fb13b90e00027ba24847b08'
 CLEANUP_KEYS = ('schema_version','status','baseline_image_absent','producer_closed','cancelled','uncertainties')
 
 
@@ -212,6 +212,37 @@ def _phases(context):
     return {k:('NOT RUN'if v=='RUNNING'else v)for k,v in value['phases'].items()}
 
 
+def _retain_initial_control(context, secondary):
+    if isinstance(secondary,Exception):return
+    context.cancelled = True
+    first = context.first
+    if first is None:context.first = secondary
+    if first is not None and first is not secondary:
+        prior = first.__cause__
+        first.__cause__ = secondary if prior is None else BaseExceptionGroup('initial diagnostic controls',[prior,secondary])
+        first.__suppress_context__ = True
+    if not hasattr(context,'initial_controls'):context.initial_controls = []
+    context.initial_controls.append(secondary)
+
+
+def _initial_failure(context, internal):
+    """Optional failure projection; construction and binding have no gate authority."""
+    try:
+        if internal['status'] != 'FAIL':return
+        value = getattr(context,'initial_failure',None)
+        if value is None:return
+        snapshot = context.library.validate_initial_failure(value)
+        identity, rows = context.record['identity'], context.record['sources']['files']
+        expected = {key:identity[key] for key in ('code_commit','source_commit','data_commit','run_id','run_attempt')}
+        expected.update(job_sha256=rows['scripts/ci/private-library-cli/job.py']['sha256'],
+                        publication_sha256=rows['scripts/ci/private-library-cli/publication.py']['sha256'])
+        need(all(type(v) is str for v in expected.values()) and snapshot['binding'] == expected,'PUBLICATION_INITIAL_FAILURE_BINDING')
+        internal['initial_failure'] = snapshot
+    except BaseException as secondary:
+        _retain_initial_control(context,secondary)
+        internal['cancelled'] = internal['cancelled'] or context.cancelled
+
+
 def project(context, terminal, original_code, cleanup):
     need(type(original_code)is int and 0<=original_code<=255,'PUBLICATION_ORIGINAL_EXIT')
     clean=_cleanup(cleanup)
@@ -234,6 +265,7 @@ def project(context, terminal, original_code, cleanup):
             for key in context.library.PACKAGES}
     failed=[name for name in context.library.PHASES if phases[name]=='FAIL']
     if failed:internal['failed_phase']=failed[0]
+    if not positive:_initial_failure(context,internal)
     result=context.library.public_metadata(internal)
     context.library.validate_public_metadata(result)
     return result
@@ -251,6 +283,7 @@ def _fallback(context, cleanup):
         publication_license_acceptance=False,phases=phases,cancelled=context.cancelled or known and cleanup['cancelled'],
         cleanup=dict(status=('PASS'if clean else'FAIL')if known else'NOT RUN',uncertainties=0 if clean or not known else 1))
     if known and not clean:internal['failed_phase']='cleanup'
+    _initial_failure(context,internal)
     return context.library.validate_public_metadata(context.library.public_metadata(internal))
 
 
@@ -264,7 +297,7 @@ def _failure(context):
     return value
 
 
-def publish(context, terminal, original_code, cleanup, clock, output, stream):
+def publish(context, terminal, original_code, cleanup, clock, output, stream, *, initial_failure=None):
     """Return local metadata/exit status; remote completion is always pending.
 
     cleanup comes directly from selected Root supervision, not a downloaded PASS
@@ -273,6 +306,8 @@ def publish(context, terminal, original_code, cleanup, clock, output, stream):
     """
     need(type(context)is Context and not context.used,'PUBLICATION_CONTEXT_REPLAY')
     context.used=True
+    try:context.initial_failure=initial_failure
+    except BaseException as secondary:_retain_initial_control(context,secondary)
     summary=None;frame=None;frame_attempted=False;local='FAIL';exit_code=1
     try:
         context.check(clock)
@@ -329,7 +364,7 @@ def publish(context, terminal, original_code, cleanup, clock, output, stream):
 
 
 def emit_failure(identity, clock, sources, cleanup, output, stream, *, child_output,
-                 producer_root=None, first_error=None):
+                 producer_root=None, first_error=None, initial_failure=None):
     """Failure after pinned capsule import but before any issued child record.
 
     Earlier bootstrap failure without the pinned policy must use generic stderr
@@ -339,4 +374,4 @@ def emit_failure(identity, clock, sources, cleanup, output, stream, *, child_out
                 output={'path':str(parent_bridge.checked_path(child_output))})
     context=Context(record,producer_root=producer_root)
     if first_error is not None:context.fail(first_error)
-    return publish(context,None,1,cleanup,clock,output,stream)
+    return publish(context,None,1,cleanup,clock,output,stream,initial_failure=initial_failure)
