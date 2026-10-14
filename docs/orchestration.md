@@ -3,6 +3,36 @@
 Coordinator: Codex chat `01a12d58-9194-7643-81eb-fc9d62e4d923`.
 Started October 11, 2026, from `271e7c2` plus the user-provided `outline.md`.
 
+October 14, 02:20 UTC: the fresh whole maintained354 metadata query actually
+PASSES (`e0ac1f90` / independently authenticated peer `500852dc`, 55 leaves).
+The authoritative parent returns PASS and exits zero; guardian observes natural
+exit, owned reap, group absence and cleanup, with no signals sent. Strict nested
+validation covers 354 rows, 1,642 relations, 458 targets and four natural-zero
+read-only CLI calls. Processing through final acknowledgement takes
+2.339122 seconds in the original 300/304-second frame; final metadata sealing is
+separate. Current25 postflight is recorded PASS. This closes the complete
+whole-query metadata checkpoint, not archive/ABI/install/hardware acceptance.
+Original actual01 remains failed and uncertain.
+
+Root adopts the closed repository/hook diagnostics (`0bc41de7`, 599 leaves) as
+Source `50e81e32`, Data `b8c2fdff`, plan `1490445e`; all271 committed source
+files prove. Exact remote plan and existing19 private input secret names read
+back. Native run `38500392517` is in progress; static `38500392407` PASS.
+The original341/501 selection and private-cache controller are unchanged.
+
+The Source-filtered project recipes (`57891aa0`, 155 authenticated support
+files) exclude nonessential image/reference fixtures and use generated tests.
+They are source-reviewed; native compilation is NOT RUN and public promotion
+remains blocked by recorded licensing/corresponding-source/output joins.
+Tools prepares a concrete private native build lane. The corrected pair runner
+has independent cutoff review (`82282f5f`), and Release/Desktop prepare its
+registered hosted execution path. Ordinary compiler helper observation still
+fails at the selected GCC path in run `38498603144`; current helper-layout
+discovery is assigned. Sixteen-consumer inspection preserves three distinct
+failures (dynamic padding, repeated check dependencies, tar links); reviewed
+padding/metadata corrections have advanced six packages, while a link-header
+batch diagnostic prepares the next actual attempt. Full scope and goal remain ACTIVE.
+
 October 14, 01:49 UTC: the native checkpoint now has independently
 reviewed retained evidence (`1040b56e`, 47 authenticated leaves): 501 acquisitions,
 249 signature observations, eight builds and four equal comparisons. Composed
