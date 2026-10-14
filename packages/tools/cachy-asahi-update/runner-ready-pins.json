@@ -7,10 +7,10 @@
   "candidate_status": "Earlier87c/890f/f493 candidates superseded by spawn/teardown cancellation correction; regenerate from this reviewed immutable map",
   "dispatch_status": "READY_FOR_COORDINATOR_NATIVE_TRIAL; ACTUAL_NATIVE_EXECUTION_NOT_RUN",
   "files_sha256": {
-    ".SRCINFO": "af8f1b196daf4d94c201cd5c40b8c7e223c2cce5e8827f6c61a5b31259447d0c",
+    ".SRCINFO": "1a4547e2945039ef912cfd66b53119ee88791e9275ca8f9c7a2005e7ba2f17e3",
     "ICON-LICENSE": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
     "NOTICE": "286afc1bf4cf9becf04ae571df48d6b23f56b801955f28675909713de548679b",
-    "PKGBUILD": "8d4fd4380890cb2005b6156391c78d4200219fefef233e97c3981f81d4ea6512",
+    "PKGBUILD": "1e9f2c82c96e5324f09ac904587757ea1bba7f97d67b491aee69e24879c11528",
     "README.md": "ad899ca188721aa52f6a5846a9f9fabebadbd521affc7714525b0f716b19327f",
     "additional-cargo-licenses.json": "74a1dbfa75de13df5c82525af8d684e38b772c31bdf912d61f7fe74e7646c591",
     "apple-policy.patch": "8201ed41b9790cbb004f3ce62d80ce1e9f25d314e7ef685ffea44d2f1594b783",
@@ -45,7 +45,7 @@
     "native-entry.py": "469d45ab1b779c123ddbe0f8e8e60c7d62ef99f5a9f2f28cfc2f946392b1b7a7",
     "patched-source-ledger.json": "9907b83ef689531248a3b5264a24faaff26cbca19e9b9c46261a2e62cb182f0e",
     "portable-gzip.py": "ad049022c111aeafac20921e3d84f4ad16894deea85c65722ac07ffc4708ccb5",
-    "public-evidence.py": "e707a2c9ac652b5f7e7c49a6b36b9c11b9baae821564677bbca867529fae3330",
+    "public-evidence.py": "d44545ddc7617f0fade50c790c7404c331f981249d50d06c27f15b75d6a643df",
     "recipe-validation.json": "141f23474d14ac597917846cdc18303657d6f2248484fb338cc78fe9c94278d9",
     "runner-inputs.lock.json": "a488f9e3915049d3fe43d4f146e8e9109f8834d595b7a65e7f1c27c010531016",
     "source-audit.json": "f0ab84e1295c4f2df7640266944901eac7fa052c00ee4ef48fb498f5a1ff2c85",
@@ -69,7 +69,7 @@
     "validation.json": "bddcb09484ef23f07544dfccfbe5bae4b0fc7d1ffa13c8101cbc1f91f649ea26",
     "verify-updater.py": "862b960338cdcf71dc4762e9a418192f12c31d13988758cd9283f90082cb1211",
     "worker-build.py": "e7a45792b38902b533e80575f7e1192d8936f579f87428ab3c9b6d28b027529a",
-    "worker-diagnostic.py": "69e4ba40e882cd62fa1aee8cf4bc7ce788eb8230ce19ca83e95682b9254d668a",
+    "worker-diagnostic.py": "9b5d8e726db04cd9e63cde0c98d99177f9508dc5ce4653157ee2e0e4a8ae1b07",
     "worker-metadata.py": "76ecbd345f571366ee9e11df8df96bbc6f9be5500b626920b5eaa203ab155572"
   },
   "helper_checkpoint": {
