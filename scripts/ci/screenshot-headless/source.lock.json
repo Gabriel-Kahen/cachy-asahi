@@ -73,10 +73,10 @@
       "sha256": "d854f6a19064bed98e4879f70fa1b13d4d81f45247ce65f2dc8d3885363b6a9b"
     },
     {
-      "bytes": 15481,
+      "bytes": 15566,
       "mode": 420,
       "path": "scripts/ci/screenshot-headless/region_trial.py",
-      "sha256": "634e99250671f15b029c32d0b5e2ab550c5c3cf97a6b122161b1d33cfd7b11b5"
+      "sha256": "8ae93e5113e9f7cd80a7cb3deaa48986218be38ae3f42b94117fa1596ff459e8"
     },
     {
       "bytes": 2253,

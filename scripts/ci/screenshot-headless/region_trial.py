@@ -178,6 +178,8 @@ def exercise(sway,output,client,shots,end,owned,previous,call,spawn,retire,file_
         def guard():
             custody.alive();need(helper.poll() is None,'held helper lost during selection');need(slurp.poll() is None,'direct actual slurp lost during selection')
         trace=Trace('selection',3);watch=Watch(EVIDENCE/'slurp-protocol.log',trace,guard)
+        watch.until(lambda:trace.committed,helper,end)
+        pointer.position(X,Y)
         watch.until(lambda:trace.ready(X,Y),helper,end)
         entered=trace.enter
         pointer.button(1);watch.until(lambda:trace.buttons==[1],helper,end)
