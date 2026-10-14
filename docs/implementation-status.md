@@ -2,6 +2,23 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 14, 06:04 UTC: the six-output Topmem/Fish/Zsh successor is published
+as Source `e0cba793` on a nonexecution review branch in
+[draft PR15](https://github.com/Gabriel-Kahen/cachy-asahi/pull/15).
+Independent successor peer `56ec8053` passes fourteen focused controls and
+resolves the two guardian counts without changing the remaining gates. Root
+verifies all 67 committed Source/Data byte/mode rows and derives plan `370e8a91`.
+The plan is not registered and the execution ref is not pushed; the existing
+Topmem/Fish pending run remains preserved. Native six-output builds and
+whole-operation capacity remain unverified.
+
+Independent signer actual review `9988ff6f` authenticates four leaves, its guide
+and 22 retained inputs, passing 51 checks including five corruption controls.
+The current before-open stat proves size zero is the only failed predicate;
+held content and the prior run's unrecorded condition remain unknown. A narrow
+empty-stdlib sampling correction is in development. Full installation,
+R1–R5/M5–M9, performance and both M2 Air sizes remain incomplete.
+
 October 14, 05:57 UTC: signer diagnostic Source `896c0182` completes actual
 `38518739152` FAIL with Root completion `c84e44bb`. Its same-observation stat
 record proves the sole failed condition is an empty Python standard-library
