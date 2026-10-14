@@ -39,7 +39,8 @@ OWNERS = {"/usr/bin/cachy-asahi-setup": "cachy-asahi-setup",
 TOOLS = {name: "/usr/bin/" + name for name in ("python3", "pacman", "fish", "zsh", "cc", "vim")}
 TOOLS["setup"] = "/usr/bin/cachy-asahi-setup"
 TEST_INPUTS = ("scripts/setup/setup.py", "scripts/setup/test_setup.py",
-               "scripts/release/release.py", "scripts/release/test_release.py")
+               "scripts/release/release.py", "scripts/release/test_release.py",
+               "scripts/release/source_delivery.py")
 TEST_TOOLS = ("gpg", "gpgconf", "repo-add", "bsdtar", "vercmp")
 RUNTIME_MOUNTS = {"/", "/inputs", "/out", "/tmp", "/proc", "/sys", "/sys/fs/cgroup", "/dev", "/dev/pts",
                   "/dev/shm", "/dev/mqueue", "/etc/hostname", "/etc/hosts", "/etc/resolv.conf",
