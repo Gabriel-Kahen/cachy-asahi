@@ -1,11 +1,11 @@
 {
   "files": {
     ".github/workflows/maintained-composed-installer-v1.yml": {
-      "bytes": 15830,
+      "bytes": 15843,
       "mode": 420,
       "origin": "source",
       "remote_path": ".github/workflows/maintained-composed-installer-v1.yml",
-      "sha256": "b4acf09831d1b49a1574970e02393f3356e1c6c1661fafa3499fa19a1a08c363"
+      "sha256": "d2fd7381fe8bac4d9235132598474b35250b3ad7f2ffb09c1261bd134df9212e"
     },
     "data/scripts/ci/inputs.lock.json": {
       "bytes": 328101,
