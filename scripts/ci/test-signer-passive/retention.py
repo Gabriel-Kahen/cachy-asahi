@@ -8,6 +8,7 @@ import os
 from pathlib import Path
 import re
 import stat
+import struct
 import time
 
 CANDIDATE='SIGNER_PASSIVE_ADOPTION_CANDIDATE='
@@ -47,6 +48,93 @@ def parse(raw,bound):
 
 def descriptor(raw):
     return dict(bytes=len(raw),mode=0o600,sha256=hashlib.sha256(raw).hexdigest())
+
+
+def validate_elf_diagnostic(value):
+    """Closed unaccepted same-sample facts; never a candidate or execution proof."""
+    if value is None:return None
+    keys={'schema_version','purpose','request_path','canonical','row','identity','header_hex','header',
+          'phdr_count','phdrs_scanned','phdrs_truncated','phdr_bounds_ok','segments','dynamic'}
+    need(type(value) is dict and set(value)==keys and type(value['schema_version']) is int
+         and value['schema_version']==1 and value['purpose']=='SIGNER_PASSIVE_ELF_DIAGNOSTIC_V1',
+         'closed-elf-diagnostic')
+    def uint(number,bits=64):return type(number) is int and 0<=number<2**bits
+    def closed_path(name):
+        need(type(name) is str and 0<len(name)<=1024 and str(Path(name))==name and
+             Path(name).is_absolute() and len(Path(name).parts)<=32 and '..' not in Path(name).parts
+             and all(32<=ord(c)<127 for c in name) and (name in ('/','/usr') or
+             any(name==root or name.startswith(root+'/') for root in
+                 ('/usr/bin','/usr/lib','/usr/libexec','/usr/include','/lib'))),'elf-diagnostic-path')
+    closed_path(value['request_path']);closed_path(value['canonical'])
+    row=value['row'];ident=value['identity']
+    need(type(row) is dict and set(row)=={'bytes','mode','sha256'} and uint(row['bytes']) and
+         0<row['bytes']<=64*1024**2 and type(row['mode']) is int and row['mode'] in (0o644,0o755)
+         and type(row['sha256']) is str and re.fullmatch('[0-9a-f]{64}',row['sha256']),
+         'elf-diagnostic-row')
+    need(type(ident) is list and len(ident)==9 and all(uint(n) for n in ident) and
+         ident[2]==stat.S_IFREG|row['mode'] and ident[3]==ident[4]==0 and ident[5]==1
+         and ident[6]==row['bytes'],'elf-diagnostic-identity')
+    raw=value['header_hex'];header=value['header'];count=value['phdr_count'];scanned=value['phdrs_scanned']
+    segments=value['segments'];dynamic=value['dynamic']
+    need(raw is None or type(raw) is str and re.fullmatch('[0-9a-f]{8,128}',raw) and
+         len(raw)==2*min(row['bytes'],64) and raw.startswith('7f454c46'),'elf-diagnostic-header-hex')
+    need(count is None or uint(count,16),'elf-diagnostic-phdr-count')
+    need(uint(scanned) and scanned<=128 and type(value['phdrs_truncated']) is bool and
+         (value['phdr_bounds_ok'] is None or type(value['phdr_bounds_ok']) is bool) and
+         type(segments) is list and len(segments)<=16,'elf-diagnostic-phdr-bounds')
+    header_widths={'e_type':16,'e_machine':16,'e_version':32,'e_entry':64,'e_phoff':64,'e_shoff':64,
+                   'e_flags':32,'e_ehsize':16,'e_phentsize':16,'e_phnum':16,'e_shentsize':16,
+                   'e_shnum':16,'e_shstrndx':16}
+    if header is None:
+        need(count is None and scanned==0 and segments==[] and dynamic is None and
+             value['phdr_bounds_ok'] is None and value['phdrs_truncated'] is False,
+             'elf-diagnostic-unavailable-header')
+        need(raw is None or len(raw)<128 or not raw.startswith('7f454c460201'),
+             'elf-diagnostic-missing-decodable-header')
+    else:
+        need(type(header) is dict and set(header)==set(header_widths) and
+             all(uint(header[k],width) for k,width in header_widths.items()) and
+             type(raw) is str and len(raw)==128 and raw.startswith('7f454c460201') and
+             dict(zip(header_widths,struct.unpack_from('<HHIQQQIHHHHHH',bytes.fromhex(raw),16)))==header
+             and count==header['e_phnum'],'elf-diagnostic-decoded-header')
+        if header['e_phentsize']!=56:
+            need(scanned==0 and segments==[] and dynamic is None and value['phdr_bounds_ok'] is None
+                 and value['phdrs_truncated']==(count>0),'elf-diagnostic-unscanned-phdrs')
+        else:
+            available=max(0,(row['bytes']-header['e_phoff'])//56)
+            need(scanned==min(count,128,available) and len(segments)<=scanned and
+                 value['phdr_bounds_ok']==(header['e_phoff']+count*56<=row['bytes']) and
+                 value['phdrs_truncated']==(count!=len(segments)),'elf-diagnostic-phdr-accounting')
+    segment_keys={'index','p_type','p_flags','p_offset','p_vaddr','p_paddr','p_filesz','p_memsz','p_align'}
+    for index,segment in enumerate(segments):
+        need(type(segment) is dict and set(segment)==segment_keys and segment['index']==index and
+             uint(segment['index']) and index<scanned and all(uint(segment[k],32 if k in
+             ('p_type','p_flags') else 64) for k in segment_keys-{'index'}),'elf-diagnostic-segment')
+    if dynamic is not None:
+        keys={'segment_count','bytes','tags_scanned','terminated','needed_count','strtab_address',
+              'strtab_bytes','strtab_count','strsz_count','load_match_count','truncated','bounds_ok',
+              'search_override'}
+        need(type(dynamic) is dict and set(dynamic)==keys and uint(dynamic['segment_count']) and
+             0<dynamic['segment_count']<=scanned and type(dynamic['truncated']) is bool and
+             type(dynamic['search_override']) is bool,'elf-diagnostic-dynamic-shape')
+        for name in ('bytes','strtab_address','strtab_bytes'):
+            need(dynamic[name] is None or uint(dynamic[name]),'elf-diagnostic-dynamic-uint')
+        for name in ('terminated','bounds_ok'):
+            need(dynamic[name] is None or type(dynamic[name]) is bool,'elf-diagnostic-dynamic-flag')
+        for name in ('tags_scanned','needed_count','strtab_count','strsz_count'):
+            need(uint(dynamic[name]) and dynamic[name]<=4096,'elf-diagnostic-dynamic-count')
+        need(dynamic['needed_count']+dynamic['strtab_count']+dynamic['strsz_count']<=dynamic['tags_scanned']
+             and (dynamic['terminated'] is not True or dynamic['tags_scanned']>0) and
+             (dynamic['search_override'] is False or dynamic['tags_scanned']>0) and
+             (dynamic['strtab_address'] is None)==(dynamic['strtab_count']==0) and
+             (dynamic['strtab_bytes'] is None)==(dynamic['strsz_count']==0),
+             'elf-diagnostic-dynamic-accounting')
+        matches=dynamic['load_match_count']
+        need(matches is None or uint(matches) and matches<=128,'elf-diagnostic-load-count')
+        need((matches is None)==(dynamic['strtab_address'] is None or dynamic['strtab_bytes'] is None),
+             'elf-diagnostic-load-availability')
+    need(len(canonical(value))<=8192,'elf-diagnostic-byte-bound')
+    return value
 
 
 class NativeIO:
@@ -280,7 +368,7 @@ class Retention:
             need(set(value)=={'schema_version','purpose','status','candidate_valid','first_phase',
                  'first_cause','first_reason','first_errno','cancelled','context','source_packet_sha256',
                  'configuration_sha256','public_issuer_sha256','entry','deadline_at','progress',
-                 'observer_returncode','selected','execution_grant_issued','compile_allowed'},
+                 'observer_returncode','selected','execution_grant_issued','compile_allowed','elf_diagnostic'},
                  'failure-record-shape')
             need(type(value['schema_version']) is int and value['schema_version']==1 and
                  value['purpose']=='SIGNER_NATIVE_PASSIVE_FAILURE_V1' and value['status']=='FAIL' and
@@ -323,6 +411,7 @@ class Retention:
             for name,bound in (('nodes',65536),('bytes_read',512*1024**2)):
                 need(progress[name] is None or type(progress[name]) is int and
                      0<=progress[name]<=bound,'failure-progress-bound')
+            validate_elf_diagnostic(value['elf_diagnostic'])
             self._live()
             descriptors['failure.json']=self._write('failure.json',failure_raw)
         except BaseException as error:self._remember(error)

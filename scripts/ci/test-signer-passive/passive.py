@@ -113,22 +113,27 @@ class NativeIO:
 
 def elf_dependencies(raw):
     """Finite ELF64 linkage declarations; dynamic search overrides are refused."""
-    need(raw[:6]==b'\x7fELF\x02\x01' and len(raw)>=64,'signer-tool-elf')
+    need(raw[:6]==b'\x7fELF\x02\x01','elf-ident')
+    need(len(raw)>=64,'elf-header-size')
     header=struct.unpack_from('<HHIQQQIHHHHHH',raw,16)
-    need(header[1]==183 and header[8]==56 and 0<header[9]<=128,'signer-tool-elf')
+    need(header[1]==183,'elf-machine')
+    need(header[8]==56,'elf-phentsize')
+    need(0<header[9]<=128,'elf-phnum')
     loads=[];dynamic=None;interpreter=None
     for i in range(header[9]):
-        offset=header[4]+i*56;need(offset+56<=len(raw),'signer-tool-elf')
+        offset=header[4]+i*56;need(offset+56<=len(raw),'elf-phdr-bounds')
         kind,flags,pos,address,physical,size,memory,align=struct.unpack_from('<IIQQQQQQ',raw,offset)
-        need(pos+size<=len(raw),'signer-tool-elf')
+        need(pos+size<=len(raw),'elf-segment-bounds')
         if kind==1:loads.append((address,pos,size))
         if kind==2:dynamic=(pos,size)
         if kind==3:
-            body=raw[pos:pos+size];need(body.endswith(b'\0') and b'\0' not in body[:-1],'signer-tool-elf')
+            body=raw[pos:pos+size];need(body.endswith(b'\0'),'elf-interpreter-termination')
+            need(b'\0' not in body[:-1],'elf-interpreter-interior-nul')
             interpreter=body[:-1].decode('ascii')
     wanted=[];table=None;length=None
     if dynamic:
-        need(dynamic[1]<=65536 and dynamic[1]%16==0,'signer-tool-elf')
+        need(dynamic[1]<=65536,'elf-deps-dynamic-size')
+        need(dynamic[1]%16==0,'elf-dynamic-stride')
         for pos in range(dynamic[0],dynamic[0]+dynamic[1],16):
             tag,value=struct.unpack_from('<qQ',raw,pos)
             if tag==0:break
@@ -136,44 +141,122 @@ def elf_dependencies(raw):
             elif tag==5:table=value
             elif tag==10:length=value
             elif tag in (15,29):raise ValueError('signer-tool-search-override')
-        need(len(wanted)<=32 and table is not None and length is not None and length<=1024**2,'signer-tool-elf')
+        need(len(wanted)<=32,'elf-needed-count')
+        need(table is not None,'elf-strtab-missing')
+        need(length is not None,'elf-strsz-missing')
+        need(length<=1024**2,'elf-strtab-cap')
     names=[]
     if wanted:
         matches=[pos+table-address for address,pos,size in loads if address<=table and table+length<=address+size]
-        need(len(matches)==1,'signer-tool-elf');start=matches[0]
+        need(len(matches)==1,'elf-strtab-load-match');start=matches[0]
         for index in wanted:
-            need(index<length,'signer-tool-elf')
+            need(index<length,'elf-needed-offset')
             stop=raw.find(b'\0',start+index,start+length)
             need(stop!=-1,'elf-needed-termination')
             name=raw[start+index:stop].decode('ascii')
-            need(re.fullmatch('[A-Za-z0-9_.+-]{1,128}',name),'signer-tool-elf');names.append(name)
+            need(re.fullmatch('[A-Za-z0-9_.+-]{1,128}',name),'elf-needed-name');names.append(name)
     return interpreter,names
 
 
 def linkage(raw):
-    need(type(raw) is bytes and len(raw)>=64,'elf')
+    need(type(raw) is bytes,'elf-input-type')
+    need(len(raw)>=64,'elf-header-size')
     header=struct.unpack_from('<HHIQQQIHHHHHH',raw,16)
-    need(raw[:6]==b'\x7fELF\x02\x01' and header[1]==183 and header[8]==56 and 0<header[9]<=128,'elf')
+    need(raw[:6]==b'\x7fELF\x02\x01','elf-ident')
+    need(header[1]==183,'elf-machine')
+    need(header[8]==56,'elf-phentsize')
+    need(0<header[9]<=128,'elf-phnum')
     dynamic=[];interpreter=[]
     for index in range(header[9]):
-        offset=header[4]+index*56;need(offset+56<=len(raw),'elf')
+        offset=header[4]+index*56;need(offset+56<=len(raw),'elf-phdr-bounds')
         kind,flags,pos,address,physical,size,memory,align=struct.unpack_from('<IIQQQQQQ',raw,offset)
-        need(pos+size<=len(raw),'elf')
+        need(pos+size<=len(raw),'elf-segment-bounds')
         if kind==2:dynamic.append((pos,size))
         if kind==3:interpreter.append((pos,size))
-    need(len(dynamic)<=1 and len(interpreter)<=1,'elf-duplicate-segment')
+    need(len(dynamic)<=1,'elf-dynamic-segment-count')
+    need(len(interpreter)<=1,'elf-interpreter-segment-count')
     if interpreter:need(1<interpreter[0][1]<=1024,'elf-interpreter-size')
     if dynamic:
-        pos,size=dynamic[0];need(0<size<=65536 and size%16==0,'elf-dynamic')
+        pos,size=dynamic[0];need(0<size<=65536,'elf-dynamic-size')
+        need(size%16==0,'elf-dynamic-stride')
         tags=[];terminated=False
         for offset in range(pos,pos+size,16):
             tag,value=struct.unpack_from('<qQ',raw,offset)
             if tag==0:terminated=True;break
             tags.append(tag)
-        need(terminated and tags.count(5)==1 and tags.count(10)==1,'elf-dynamic-termination')
+        need(terminated,'elf-dynamic-unterminated')
+        need(tags.count(5)==1,'elf-strtab-tag-count')
+        need(tags.count(10)==1,'elf-strsz-tag-count')
     result=elf_dependencies(raw)
     need(len(result[1])==len(set(result[1])),'elf-needed-duplicate')
     return result
+
+
+def elf_diagnostic(raw,request_path,item,endpoint):
+    """Bounded facts from this sampled byte buffer only; no I/O or admission."""
+    import json
+    live(endpoint);path_ok(Path(request_path));path_ok(Path(item['canonical']))
+    need(type(raw) is bytes and 0<len(raw)<=64*1024**2,'diagnostic-raw-bound')
+    row=item['row'];meta=item['identity']
+    need(type(row) is dict and set(row)=={'bytes','mode','sha256'} and row['bytes']==len(raw)
+         and row['mode'] in (0o644,0o755) and type(row['sha256']) is str
+         and re.fullmatch('[0-9a-f]{64}',row['sha256']) and type(meta) is list and len(meta)==9
+         and all(type(n) is int and 0<=n<2**64 for n in meta) and
+         meta[2]==stat.S_IFREG|row['mode'] and meta[3]==meta[4]==0 and meta[5]==1
+         and meta[6]==len(raw),'diagnostic-sample-binding')
+    facts=dict(schema_version=1,purpose='SIGNER_PASSIVE_ELF_DIAGNOSTIC_V1',request_path=request_path,
+        canonical=item['canonical'],row=dict(row),identity=list(meta),
+        header_hex=raw[:64].hex() if raw[:4]==b'\x7fELF' else None,header=None,
+        phdr_count=None,phdrs_scanned=0,phdrs_truncated=False,phdr_bounds_ok=None,segments=[],dynamic=None)
+    if raw[:6]==b'\x7fELF\x02\x01' and len(raw)>=64:
+        names=('e_type','e_machine','e_version','e_entry','e_phoff','e_shoff','e_flags','e_ehsize',
+               'e_phentsize','e_phnum','e_shentsize','e_shnum','e_shstrndx')
+        header=dict(zip(names,struct.unpack_from('<HHIQQQIHHHHHH',raw,16)))
+        facts['header']=header;count=header['e_phnum'];facts['phdr_count']=count
+        facts['phdrs_truncated']=count>0;loads=[];dynamics=[]
+        if header['e_phentsize']==56:
+            start=header['e_phoff'];facts['phdr_bounds_ok']=start+count*56<=len(raw)
+            available=max(0,len(raw)-start)//56
+            for index in range(min(count,128,available)):
+                live(endpoint)
+                fields=struct.unpack_from('<IIQQQQQQ',raw,start+index*56)
+                kind,flags,pos,address,physical,size,memory,align=fields
+                if index<16:
+                    facts['segments'].append(dict(index=index,p_type=kind,p_flags=flags,p_offset=pos,
+                        p_vaddr=address,p_paddr=physical,p_filesz=size,p_memsz=memory,p_align=align))
+                if kind==1:loads.append((address,pos,size))
+                if kind==2:dynamics.append((pos,size))
+                facts['phdrs_scanned']+=1
+            facts['phdrs_truncated']=count!=len(facts['segments'])
+            if dynamics:
+                pos,size=dynamics[0]
+                metrics=dict(segment_count=len(dynamics),bytes=size,tags_scanned=0,terminated=False,
+                    needed_count=0,strtab_address=None,strtab_bytes=None,strtab_count=0,strsz_count=0,
+                    load_match_count=None,truncated=False,bounds_ok=pos+size<=len(raw),search_override=False)
+                available=max(0,len(raw)-pos)//16
+                for index in range(min(4096,size//16,available)):
+                    live(endpoint);tag,value=struct.unpack_from('<qQ',raw,pos+index*16)
+                    metrics['tags_scanned']+=1
+                    if tag==0:metrics['terminated']=True;break
+                    if tag==1:metrics['needed_count']+=1
+                    elif tag==5:metrics['strtab_address']=value;metrics['strtab_count']+=1
+                    elif tag==10:metrics['strtab_bytes']=value;metrics['strsz_count']+=1
+                    elif tag in (15,29):metrics['search_override']=True
+                table,length=metrics['strtab_address'],metrics['strtab_bytes']
+                if table is not None and length is not None:
+                    metrics['load_match_count']=sum(address<=table and table+length<=address+length_in_file
+                        for address,offset,length_in_file in loads)
+                metrics['truncated']=(len(dynamics)>1 or count>facts['phdrs_scanned'] or
+                    not metrics['bounds_ok'] or size%16!=0 or
+                    not metrics['terminated'] and metrics['tags_scanned']<size//16)
+                facts['dynamic']=metrics
+    live(endpoint)
+    encoded=json.dumps(facts,sort_keys=True,separators=(',',':'),allow_nan=False).encode()
+    while len(encoded)>8192 and facts['segments']:
+        live(endpoint);facts['segments'].pop();facts['phdrs_truncated']=True
+        encoded=json.dumps(facts,sort_keys=True,separators=(',',':'),allow_nan=False).encode()
+    need(len(encoded)<=8192,'diagnostic-output-bound');live(endpoint)
+    return facts
 
 
 class PassiveIO(NativeIO):
@@ -367,7 +450,22 @@ def observe_candidate(io, *, gcc_directory, context, endpoint):
             rows[canonical]={**row,'kind':kind}
             observed[canonical]={k:v for k,v in item.items() if k!='body'}
             if kind=='ELF':
-                interpreter,needed=linkage(raw)
+                try:interpreter,needed=linkage(raw)
+                except BaseException as error:
+                    diagnostic=None;diagnostic_cancelled=isinstance(error,(KeyboardInterrupt,Cancelled))
+                    try:diagnostic=elf_diagnostic(raw,path,item,endpoint)
+                    except BaseException as problem:
+                        diagnostic_cancelled|=isinstance(problem,(KeyboardInterrupt,Cancelled))
+                    # Built-in parser errors have an owned attribute dictionary;
+                    # metadata failure cannot replace their original exception.
+                    try:
+                        error.elf_diagnostic_cancelled=diagnostic_cancelled
+                        error.elf_diagnostic=diagnostic
+                    except BaseException as problem:
+                        if isinstance(problem,(KeyboardInterrupt,Cancelled)):
+                            try:error.elf_diagnostic_cancelled=True
+                            except BaseException:pass
+                    raise
                 observed[canonical].update(interpreter=interpreter,needed=needed,resolved={})
                 pending.append(canonical)
             elif kind=='HEADER':headers.add(canonical)
