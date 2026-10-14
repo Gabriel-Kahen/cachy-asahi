@@ -2,6 +2,31 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 14, published corrections checkpoint: kernel alignment correction
+`71f05ab5` passes external `2958a276` and125 committed Source/self rows.
+Trial `38612473905` fails during parallel acquisition/producer startup before
+compilation; completion `fdeb36c0` retains cleanup FAIL and unverified owned
+absence, with bounded daemon preservation PASS separately. The verifier
+correction was not exercised. Startup review continues.
+
+Composed image diagnostic repair `1794d046` passes peer `ddbc9aa0`; its Data
+`bb5f6dee` is the exact two-file Source child. Both actual parsers accept plan
+`ae94875d`; variable readbacks precede execution publication. Trial
+`38614475627` is queued. Actual prior IMAGE_CONFIG operands remain unknown.
+
+Pair plan `442b43fe` binds Source `0e886ca6`; Zsh plan `caf0b177` binds
+`ce7af5ef`. Both registrations verify exact variable readbacks before their
+fast-forwards. Trials `38611783071` and `38611787402` are queued behind running
+library `38610255544`. Corrected native acceptance remains open.
+
+Keyless runtime Source `530069b9` is published after external `7ff86cb0`
+accepts the selected early-cancellation successor. Root verifies12 new
+adapter targets and3 held P0 targets. No runtime actor is executed. The
+separate P0 route still needs its existing typed Session gate and concrete
+CI binding. Native26, full signer API, installation, M2, performance and
+maintained-release acceptance remain open under the complete R1–R5 goal.
+
+
 October 14, implementation and execution checkpoint: Pair dictionary-result
 correction is published as `0e886ca6`, Zsh as `ce7af5ef`, after independent
 peer `ba37f3a5`. Each exact three-copy cascade and every Source/Data Git row
