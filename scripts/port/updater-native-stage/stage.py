@@ -640,6 +640,40 @@ def storage_projection(value):
     return value
 
 
+NATIVE_CHILD_STAGES=frozenset('input-validation native-probe input-authentication image-bootstrap worker-1 worker-2 pair-comparison'.split())
+NATIVE_CHILD_ERRORS=frozenset('ValueError TypeError KeyError RuntimeError OSError FileNotFoundError PermissionError FileExistsError IsADirectoryError NotADirectoryError UnicodeError UnicodeDecodeError JSONDecodeError TimeoutExpired CalledProcessError KeyboardInterrupt BuildCancelled MaterializeError Cancelled SystemExit AcquisitionError AuditError UNKNOWN'.split())
+
+
+def native_child_unknown():
+    return {'availability':'NOT_OBSERVED','failed_stage':'UNKNOWN','error_type':'UNKNOWN'}
+
+
+def native_child_projection(value):
+    need(type(value) is dict and set(value)=={'availability','failed_stage','error_type'}
+         and all(type(v) is str for v in value.values()),'native-child-fields')
+    if value['availability']=='NOT_OBSERVED':
+        need(value==native_child_unknown(),'native-child-unknown')
+    else:
+        need(value['availability']=='OBSERVED' and value['failed_stage'] in NATIVE_CHILD_STAGES
+             and value['error_type'] in NATIVE_CHILD_ERRORS,'native-child-enum')
+    return dict(value)
+
+
+def capture_native_child(path):
+    """Observe one bounded child failure record; never copy error prose or accept it."""
+    try:
+        value=json.loads(regular(path,65536),object_pairs_hook=unique)
+        need(type(value) is dict and type(value.get('schema_version')) is int
+             and value['schema_version']==1 and value.get('scope')=='private native Linux trial'
+             and value.get('native_pair')=='FAIL' and value.get('stage')=='finalized'
+             and type(value.get('failed_stage')) is str and value['failed_stage'] in NATIVE_CHILD_STAGES
+             and type(value.get('error_type')) is str,'native-child-record')
+        error=value['error_type'] if value['error_type'] in NATIVE_CHILD_ERRORS else 'UNKNOWN'
+        return native_child_projection({'availability':'OBSERVED','failed_stage':value['failed_stage'],'error_type':error})
+    except Exception:
+        return native_child_unknown()
+
+
 def public_summary(receipt):
     """Fixed scalar/hash/typed lifecycle fields; no host paths, argv or raw logs."""
     allowed=('schema_version','status','phase','controller_sha256','ready_sha256','source_commit',
@@ -648,6 +682,11 @@ def public_summary(receipt):
              'cancelled','public_bundle_sha256')
     result={k:receipt[k] for k in allowed if k in receipt}
     result.update(diagnostic_projection(receipt));result.update(cleanup_projection(receipt))
+    if 'native_child_failure' in receipt:
+        need(receipt.get('status') in ('FAIL','CANCELLED') and receipt.get('failed_phase')=='native-pair'
+             and receipt.get('runtime_reason')=='process-failed' and type(receipt.get('runtime_returncode')) is int
+             and receipt['runtime_returncode']!=0,'native-child-context')
+        result['native_child_failure']=native_child_projection(receipt['native_child_failure'])
     if 'storage' in receipt:result['storage']=storage_projection(receipt['storage'])
     return result
 
@@ -928,10 +967,15 @@ def pipeline(root,controller,controller_sha,output,runner=None):
             if cancelled:receipt['status']='CANCELLED'
             else:receipt['status']='FAIL'
         finally:
+            if receipt.get('failed_phase')=='native-pair' and receipt.get('runtime_reason')=='process-failed' and \
+               type(receipt.get('runtime_returncode')) is int and receipt['runtime_returncode']!=0:
+                receipt['native_child_failure']=native_child_unknown()
             # Project, guard and bundle in bounded owned processes while the
             # authenticated source snapshot remains available for all helpers.
             try:
                 if private is not None and private.is_dir():
+                    if 'native_child_failure' in receipt:
+                        receipt['native_child_failure']=capture_native_child(private/'native/result.json')
                     copied=private/'source'
                     empty=private/'empty-raw';empty.mkdir(mode=0o700)
                     raw=private/'native' if (private/'native').is_dir() else empty
@@ -963,7 +1007,7 @@ def pipeline(root,controller,controller_sha,output,runner=None):
             except BaseException as error:
                 if type(error).__name__ in ('RuntimeCancelled','KeyboardInterrupt','BuildCancelled','SourceCancelled') and not cancelled:cancelled.append(0)
                 failure_diagnostics(receipt,receipt['phase'],getattr(error,'receipt',None),runtime)
-                failure=failure or error;receipt.update(status='FAIL',public_projection='FAIL',failure_class=type(error).__name__)
+                failure=failure or error;receipt.update(status='FAIL',public_projection='FAIL',failure_class=type(failure).__name__)
             receipt['phase']='owned-cleanup';save(output/'result.json',receipt)
             cleanup_deadline=min(start+BUDGET['raw_retention_seconds'],time.monotonic()+BUDGET['cleanup_seconds'])
             storage_error=False

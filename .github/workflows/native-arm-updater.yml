@@ -22,7 +22,7 @@ jobs:
       REVIEWED_SOURCE_COMMIT: ${{ inputs.source_commit }}
       READY_SHA256: 458484f9533b574bc4853f86ca0d291837f147eb526370e0aa5484a2840fa94d
       # Reviewed storage/recovery checkpoint; coordinator Git/controller proof is separate.
-      STAGE_SHA256: 020193e191b51973bfadcd567cab59c5297e5e515452d044efe208e505540b4b
+      STAGE_SHA256: 93b54ec32dcfcbe9873ef9b70790435e7eb2155fa1e385c1b973af580c744374
       SOURCE_SHA256: 4d3e3fd9848aaed94154f786b04a5ae07c7816dcef82857b671b51555895eacb
     steps:
       - name: Start the shared deadline before checkout
