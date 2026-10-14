@@ -89,6 +89,30 @@ def refusal_record(error, gate):
     return result
 
 
+ROUTE_PREFIX = 'KSM_PRODUCER_ROUTE_V1 '
+
+
+def emit_route(route, gate, error=None):
+    """Finite failure route only; ordinary diagnostic faults cannot replace cause."""
+    try:
+        if route == 'native_return_nonzero':
+            category = 'RETURN_NONZERO'
+        else:
+            category = 'UNKNOWN'
+            for kind in (ImportError, TypeError, AttributeError, RuntimeError):
+                if type(error) is kind:
+                    category = kind.__name__
+                    break
+        value = {'schema_version':1, 'route':route,
+                 'last_source_gate':gate if type(gate) is str and gate in REFUSAL_GATES else 'UNKNOWN',
+                 'category':category}
+        encoded = ROUTE_PREFIX + json.dumps(value, sort_keys=True, separators=(',',':')) + '\n'
+        if len(encoded.encode('ascii')) <= 512:
+            sys.stdout.write(encoded); sys.stdout.flush()
+    except Exception:
+        pass
+
+
 def emit_refusal(error, gate):
     """Best-effort fixed record in existing stdout transport; never an outcome."""
     try:
@@ -501,11 +525,16 @@ def main(argv=None):
             result=module.main(native)
             gate='NATIVE_RETURN'
             gate='CONTEXT_EXIT'
+        if type(result) is int and result == 1:
+            emit_route('native_return_nonzero', gate)
         return result
     except (ValueError,OSError,UnicodeError,ModuleNotFoundError) as error:
         emit_refusal(error,gate)
         sys.stderr.write('scoped original producer driver refused\n')
         return 125
+    except Exception as error:
+        emit_route('driver_error', gate, error)
+        raise
 
 
 if __name__=='__main__':

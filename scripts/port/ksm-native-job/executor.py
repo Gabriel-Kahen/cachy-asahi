@@ -101,6 +101,67 @@ def producer_refusal(result, observation):
         return None
 
 
+ROUTE_PREFIX = b'KSM_PRODUCER_ROUTE_V1 '
+
+
+def producer_route(result, observation):
+    """Optional declaration after an observed natural1; never grants acceptance."""
+    try:
+        if type(result) is not subprocess.CompletedProcess or type(observation) is not dict:
+            return None
+        if any(type(key) is not str for key in observation) or set(observation) != {'started','natural_poll_code','runner_return_code','reaped_code','reaping','before_cleanup'}:
+            return None
+        state = object.__getattribute__(result, '__dict__')
+        if type(state) is not dict or any(type(key) is not str for key in state) or set(state) != {'args','returncode','stdout','stderr'}:
+            return None
+        if type(state.get('returncode')) is not int or state['returncode'] != 1:
+            return None
+        if observation.get('started') is not True or type(observation.get('reaping')) is not str or observation['reaping'] != 'COMPLETED':
+            return None
+        for key in ('natural_poll_code','runner_return_code','reaped_code'):
+            if type(observation.get(key)) is not int or observation[key] != 1:
+                return None
+        before = observation.get('before_cleanup')
+        if type(before) is not dict or any(type(key) is not str for key in before) or set(before) != {'state','returncode'}:
+            return None
+        if type(before.get('state')) is not str or before['state'] != 'exited' or type(before.get('returncode')) is not int or before['returncode'] != 1:
+            return None
+        raw = state.get('stdout')
+        if type(raw) is not bytes or not 0 < len(raw) <= 8 * 1024**2 or not raw.endswith(b'\n') or raw.count(ROUTE_PREFIX) != 1:
+            return None
+        start = raw.find(ROUTE_PREFIX)
+        if start and raw[start - 1:start] != b'\n':
+            return None
+        line = raw[start:raw.find(b'\n', start)]
+        if not line.startswith(ROUTE_PREFIX) or len(line) + 1 > 512:
+            return None
+        def pairs(items):
+            value = {}
+            for key, item in items:
+                if key in value: raise ValueError('duplicate-route-key')
+                value[key] = item
+            return value
+        def constant(_): raise ValueError('nonfinite-route')
+        value = json.loads(line[len(ROUTE_PREFIX):].decode('ascii'), object_pairs_hook=pairs, parse_constant=constant)
+        if type(value) is not dict or set(value) != {'schema_version','route','last_source_gate','category'}:
+            return None
+        if type(value['schema_version']) is not int or value['schema_version'] != 1:
+            return None
+        if any(type(value[key]) is not str for key in ('route','last_source_gate','category')) or value['last_source_gate'] not in REFUSAL_GATES:
+            return None
+        if value['route'] == 'native_return_nonzero':
+            if value['last_source_gate'] != 'CONTEXT_EXIT' or value['category'] != 'RETURN_NONZERO':
+                return None
+        elif value['route'] == 'driver_error':
+            if value['category'] not in {'ImportError','TypeError','AttributeError','RuntimeError','UNKNOWN'}:
+                return None
+        else:
+            return None
+        return value
+    except Exception:
+        return None
+
+
 SOURCE_GATES = frozenset({
     'native-coordinator', 'job-identity', 'host-capabilities', 'initial-disk-reserve',
     *('host-tool-' + name for name in ('docker', 'python3', 'gpg', 'lscpu', 'zstd', 'git')),
@@ -499,6 +560,11 @@ def pipeline(snapshot, source, private, owner, service, runner, endpoint_observa
         refusal = producer_refusal(produced, observation.summary())
         if refusal is not None: report['producer_refusal'] = refusal
     except BaseException:
+        pass
+    try:
+        route = producer_route(produced, observation.summary())
+        if route is not None: report['producer_route'] = route
+    except Exception:
         pass
     producer = contracts.validate_producer(snapshot, private / 'producer', produced.returncode, binding,
                                           journal_rows(owner), consumer=consumer, endpoint_observations=endpoint_observations)
