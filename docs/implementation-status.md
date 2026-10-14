@@ -2,6 +2,24 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 14, corrected software execution checkpoint: screenshot Source
+`453699c2` publishes the two-file offline APT correction after external Source
+review `99640471` and registration review `a4dabb3d`. The complete seven-file
+selection, ten locked rows and lock self authenticate. The529-byte plan
+`8581aa6a` reads back exactly before Source publication. Changed software
+trial `38634245640` is running; installation, inventory, captures and cleanup
+remain unaccepted until its actual terminal evidence is retained.
+
+P0 preparation Source `58eb0ef2` publishes the reviewed12-target union
+(9 changed,3 held) after peer `d94d0756` and368 focused checks. Root verifies
+all20 committed selected files and exactly9 changed paths. It writes the
+original authenticated input lock before image preparation and seeds the four
+recovered public assets from the existing19 CI secrets under the original
+preparation deadline. The complete actual269-path packet, runtime identity,
+private templates and finite grant bindings still require regeneration and
+review. Preparation, P0, native26 and hardware acceptance remain NOT RUN.
+The screenshot trial occupies the third reserved slot; P0 awaits termination.
+
 October 14, changed kernel diagnostic checkpoint: Source `46f8cdb4` and
 packet `d33fc24e` publish ten reviewed replacements. All124 committed packet
 rows verify; external review `66c43a2f` passes14 groups/105 assertions. Two
