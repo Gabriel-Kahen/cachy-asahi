@@ -15,7 +15,7 @@ from types import MappingProxyType
 
 API='integrated-pairs-v2'
 CORE_BINDING='e436b9c3d3046db3b05b1731400c9f8cbe06197ba39109ce62b595ccd29c3fca'
-ADAPTER_BINDING='c7f6edc81f4f066e85f3403c29d173a729ce71520074d198a183140ed52b9b2d'
+ADAPTER_BINDING='15d7f1c67988b24d9479f0045440f5091c37254450f0e054825d06a302d4a201'
 CORE=('authority.py','artifact_custody.py','zstd_owner.py','pair_archive.py','pair_compare.py','checker.py')
 ADAPTER=('admission.py','descriptor_ops.py','source_library_loader.py')
 LABEL_MAP={'topmem-1':'topmem-current-1','topmem-2':'topmem-current-2',

@@ -231,7 +231,7 @@ class Admission:
             need(type(plan) is dict and set(plan)==PLAN_KEYS
                  and all(type(v) is int and v>=0 for v in plan.values()),'closed-allocation-plan')
             need(plan['files']<=128 and sum(plan[k] for k in ('files','directories','mkdir_reservations','noacquisition_attempts','scanners'))<=256
-                 and plan['mask_reservations']<=1024 and plan['backend_calls']<=65536
+                 and plan['mask_reservations']<=1024 and plan['backend_calls']<=262144
                  and plan['read_requests']<=1024**3 and plan['write_requests']<=1024**3,'allocation-plan-capacity')
             for name,route in routes.items():
                 need(relative(name) and type(route) is Route and absolute(route.root)
@@ -350,7 +350,7 @@ class Admission:
             need(self.enabled and self._fields is not None,'root-current-job-grant-pending')
             now=self.authority.check(cleanup=kind=='cleanup')
             spent=getattr(self.authority,'_live_admission_checks',0)
-            need(type(spent) is int and spent<131072,'original-job-grant-check-cap')
+            need(type(spent) is int and spent<786432,'original-job-grant-check-cap')
             self.authority._live_admission_checks=spent+1
             need(type(self._observer) is self._observer_type and self._observer_type is not None,'root-observer-type')
             observed=self._observer.capture(kind)
