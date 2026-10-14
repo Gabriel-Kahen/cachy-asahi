@@ -74,7 +74,10 @@ def producer_refusal(result, observation):
         raw = state.get('stdout')
         if type(raw) is not bytes or not 0 < len(raw) <= 8 * 1024**2 or not raw.endswith(b'\n') or raw.count(REFUSAL_PREFIX) != 1:
             return None
-        line = raw.rsplit(b'\n', 2)[-2]
+        start = raw.find(REFUSAL_PREFIX)
+        if start and raw[start - 1:start] != b'\n':
+            return None
+        line = raw[start:raw.find(b'\n', start)]
         if not line.startswith(REFUSAL_PREFIX) or len(line) + 1 > 512:
             return None
         def pairs(items):
