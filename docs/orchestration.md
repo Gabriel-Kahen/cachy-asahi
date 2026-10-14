@@ -3,6 +3,34 @@
 Coordinator: Codex chat `01a12d58-9194-7643-81eb-fc9d62e4d923`.
 Started October 11, 2026, from `271e7c2` plus the user-provided `outline.md`.
 
+October 14, 01:49 UTC: the native checkpoint now has independently
+reviewed retained evidence (`1040b56e`, 47 authenticated leaves): 501 acquisitions,
+249 signature observations, eight builds and four equal comparisons. Composed
+integration and repository-container cleanup remain failed/uncertain; Build is
+adding closed diagnostics at the earlier repository and later hook boundaries.
+
+The sixteen current detached-signature checks pass (`c779fd77`, 50 authenticated
+leaves). The first actual passive consumer inspection refuses
+`ELF_DYNAMIC_TRAILING` on gdk-pixbuf2; remaining consumers are NOT RUN. Exact-byte
+and primary-ABI diagnosis identifies a parser padding restriction, and a narrow
+reviewed successor is being prepared. Runtime/symbol/16K/M2 ABI remain open.
+
+The corrected whole-query publisher passes independent Source review
+(`d89156c7` / `15f705a7`). Root's actual dedicated parent returns FAIL/exit1 with
+`PROC_VISIBILITY_INCOMPLETE`, unverified group cleanup and no accepted outer reap
+(completion `09885505`). Later worker/envelope producer receipts report PASS,
+but they do not override the parent's authoritative failure. A later absent
+reported-PID observation is not whole-group absence proof. The first Root index
+reader selected the wrong README for a relative row; the corrected read
+ authenticates all six launcher leaves, and operational hash guards held.
+A narrow proc-visibility diagnostic/correction continues.
+
+ARM observer run `38496509297` now retains its failure artifact: current selected
+GCC `13/cc1` path resolution is missing. Independent peer `5dd2cabc` authenticates
+29 leaves; compiler version and missing final/ancestor component remain unknown.
+Bounded current-driver selection replaces the fixed directory in a successor.
+The previous observation cause is not backfilled. Full scope and goal stay ACTIVE.
+
 October 14, 01:32 UTC: native retry
 [38495479762](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38495479762)
 finishes with a successful build checkpoint and failed composed integration.
