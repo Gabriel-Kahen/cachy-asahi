@@ -2,6 +2,25 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 14, 04:41 UTC: independent actual12 review `9cfa0a0f` authenticates
+42 leaves and its guide, all 22 retained completion files, and thirteen frames.
+It proves the repository failure is the exact bare-name CapAdd equality clause,
+which rejects the six recognized Docker `CAP_`-prefixed names. The top native-hook
+ValueError callsite remains unknown; outer installer callback entry and nested
+repository callback refusal are distinct. The proposed representation correction
+passes all 158 source handoff tests; independent correction review and native
+execution are still required. Root also authenticates signer actual review
+`65ca40e2` (four leaves plus guide), preserving its provenance failure and unknown
+field. These reviews do not change either failed job into a pass.
+
+Zsh next-build work confirms the selected builder already contains pinned Zsh
+5.9.2-1, requiring no dependency extension. A finite Topmem/Fish/Zsh successor is
+being implemented with six builds and three complete comparisons, preserving the
+current pair's gates and adding native ZLE/configuration fixtures. The current
+Topmem/Fish job and registration remain unchanged. KSM's next isolated lifecycle
+route is under bounded investigation against the current reviewed baseline.
+Full package installation, hardware, performance and R1–R5/M5–M9 remain open.
+
 October 14, 04:32 UTC: composed ARM run `38510386112` completes FAIL at
 Source `5ea0987c`, with Root completion `6b4ed1d6` retaining 13 hash-framed
 metadata bundles. Native build/comparison, fixtures, signer fixtures, lifecycle,
