@@ -2,6 +2,28 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 14, P0 reader publication and library actual review checkpoint:
+P0 Source `2408e967` publishes the two-file authenticated-empty-source correction
+after external review `e3f5bd11` and392 focused checks. Root verifies20 selected
+committed rows and exactly2 changed paths. Only pinned nonprivate empty bytes
+are allowed; private/unselected/wrong-pin refusals remain. Full actual269
+packet/runtime/template regeneration and preparation/P0 execution are pending.
+
+Library actual review `78ae1e8f` and fresh external review `46f65dc1` authenticate
+all110 retained files/89 inputs plus280 Source objects,3 Code and2 Data objects.
+The exact run remains FAIL/controller1/no library frame or API artifact. Its
+visible Signal14 OSError is distinct from the UNKNOWN first business cause,
+signal owner, original producer return, callback entry and library phases.
+The producer's PASS summary can be printed in finalization and proves no normal
+return. Initial cleanupPASS and repository's default/unverified FAIL are
+separate observations. No library build/reproducibility or hardware acceptance
+is issued. A bounded diagnostic proposal will expose the missing stage facts.
+
+Pair `38611783071` and Zsh `38611787402` are terminalFAIL; retained preliminary
+readouts report guardian-worker-exit with empty results. Final separate reviews
+are underway. The queue now executes composed trial `38614475627` without
+restart; the changed kernel trial remains running.
+
 October 14, accepted standalone screenshot checkpoint: fresh external actual
 review `1299d10f` passes40 checks. Root authenticates all5 owned/91 external
 rows, including87 retained files. One actual x86 standalone Sway/helper trial
