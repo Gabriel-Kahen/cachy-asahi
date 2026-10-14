@@ -3,6 +3,38 @@
 Coordinator: Codex chat `01a12d58-9194-7643-81eb-fc9d62e4d923`.
 Started October 11, 2026, from `271e7c2` plus the user-provided `outline.md`.
 
+October 14, 01:27 UTC: private frozen-input cache transport is independently
+reviewed (`f6355048` / `b2c139cf`) and adopted as Source
+`0744f413`, Data `ea1db6b5`, exact externally registered plan `bacdcb92`.
+The user explicitly approved CI export; nineteen private repository secrets are
+provisioned and their names plus the exact plan read back. Package bodies remain
+outside public Git. The original 341 packages / 501 descriptors are unchanged.
+Native retry [38495479762](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38495479762)
+is running; its result is pending. Exclusive cache access during seeding and
+rollback is an explicit operating condition. Historical HTTP404 failures remain.
+
+The newer-package Source09 candidate is separately published as `9059b7c4`,
+[PR11](https://github.com/Gabriel-Kahen/cachy-asahi/pull/11); all 271 proposed
+files match committed bytes and modes, and static validation passes. This is
+source publication, with no native upgrade or release admission.
+
+The read-only ARM signer observation is published as `06a4c47b`,
+[PR12](https://github.com/Gabriel-Kahen/cachy-asahi/pull/12). Registered workflow
+run [38495158676](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38495158676)
+FAILS at observation with a retained `Refusal` marker; no artifacts were uploaded.
+The detailed refusal cause is unknown, and a narrow diagnostic successor is
+assigned. No compilation, signing or hardware check is claimed.
+
+Old-pair signatures/current cached-byte custody now have authenticated independent
+peer `6ac2a074`. Source/license correspondence peer `3edb9f5b` confirms partial
+evidence only: both retained ALARM recipe hashes remain unmatched. Tools develops
+explicit project recipes instead of claiming upstream binary correspondence.
+Performance's fixed-sixteen passive ELF checker is sealed and awaits fresh
+sixteen-pair signatures before actual inspection. Release's concrete pair runner
+is sealed for review. Whole-query publication review found falsey-cause and
+clock-error preservation defects; adoption is withheld and a small correction
+is active. Full R1–R5/M5–M9/A01–A15 scope and the goal remain ACTIVE.
+
 The full outline is the project scope. Milestones advance only on their specified evidence. Original project material uses MIT; third-party source licensing must be recorded separately before redistribution.
 
 Execution frontier, October 14, 00:54 UTC: new-pair actual passive intake
