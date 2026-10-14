@@ -90,7 +90,7 @@ jobs:
               held=ident(node);parts=[];size=0
               while True:
                   if time.monotonic()>=min(outer_end,entry+1890):raise ValueError('P0 original cutoff refused')
-                  part=os.read(fd,min(65536,66168-size))
+                  part=os.read(fd,min(65536,66239-size))
                   if not part:break
                   parts.append(part);size+=len(part)
                   if size>66238:raise ValueError('P0 driver cap refused')
