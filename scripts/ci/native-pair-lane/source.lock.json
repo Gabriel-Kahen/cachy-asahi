@@ -1,11 +1,11 @@
 {
   "files": {
     ".github/workflows/maintained-composed-installer-v1.yml": {
-      "bytes": 15807,
+      "bytes": 16130,
       "mode": 420,
       "origin": "source",
       "remote_path": ".github/workflows/maintained-composed-installer-v1.yml",
-      "sha256": "d903d8c3a9af13abf896959a470ff24924976ee3290eee057295f28581da3dad"
+      "sha256": "4ac48cd46097a8782617a6bd3010687b7e01149fbc0b59570248bd493d959387"
     },
     "data/scripts/ci/inputs.lock.json": {
       "bytes": 328101,
@@ -190,11 +190,11 @@
       "sha256": "9d5a7dc25fd44e127c457c72addb28272b1eb1f5391c4c5b8d5b0a226a3be048"
     },
     "scripts/ci/native-pair-lane/lane.py": {
-      "bytes": 16643,
+      "bytes": 20149,
       "mode": 420,
       "origin": "source",
       "remote_path": "scripts/ci/native-pair-lane/lane.py",
-      "sha256": "ad7a9d11ea01225afa4918bd3ee42eebfa0280ed357471af90f4307b10e4f4ff"
+      "sha256": "96a79f3c0e70041416c435c2afdaca209388f882ba3f9a2961c0451b7fb7ea07"
     },
     "scripts/ci/native-pair-lane/lane_clock.py": {
       "bytes": 2354,
@@ -239,11 +239,11 @@
       "sha256": "d618e7c33c6fd5fac552157e0af6025237b4f66294b5ac41c98f36f0dbf4e0a3"
     },
     "scripts/ci/native-pair-lane/pair_guardian.py": {
-      "bytes": 22800,
+      "bytes": 26523,
       "mode": 420,
       "origin": "source",
       "remote_path": "scripts/ci/native-pair-lane/pair_guardian.py",
-      "sha256": "a3ce0125a613d574db2ad31401971d7f9dff9dbe24895321b2fe60a41ed31001"
+      "sha256": "c0d8e6abb73d08b506ee0d8f0598ad614b8fc31eaef69b8b2e8af1df0274a669"
     },
     "scripts/ci/native-pair-lane/source_custody.py": {
       "bytes": 5719,

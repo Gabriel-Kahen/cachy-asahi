@@ -259,3 +259,44 @@ def run(source_root, rows, registration, original_entry, nonce, scratch, *, cloc
         try: first.retained_registered_pair_lane = retained
         except BaseException: pass
         raise first
+
+
+def public_diagnostics(error):
+    """Closed failure observations only; no worker bytes or outcome authority."""
+    try:
+        value = BaseException.__dict__['__dict__'].__get__(error,type(error)).get('_pair_guardian_diagnostics')
+        keys = {'schema_version','first_failure_phase','launched','eof_observed','wait_returned',
+            'return_code','termination','signal_number','wait_origin','sigterm_attempted','sigkill_attempted',
+            'natural_exit','handoff_json','handoff_validated','direct_retire_reached','direct_retire_returned',
+            'root_cleanup_reached','root_cleanup_returned'}
+        phases = {'ADMISSION','SOURCE_CAPTURE','WORKER_SOURCE','WORKER_LAUNCH','WORKER_BIND','OUTPUT_SETUP',
+            'OUTPUT_READ','DIRECT_RETIRE','HANDOFF','CLI_ABSENCE','WORK_ROOT','ROOT_CLEANUP','ROOT_FINALIZE',
+            'PRIVATE_PUBLISH','UNKNOWN'}
+        if type(value) is not dict or any(type(k) is not str for k in value) or set(value) != keys:return None
+        if type(value['schema_version']) is not int or value['schema_version'] != 1:return None
+        if type(value['first_failure_phase']) is not str or value['first_failure_phase'] not in phases:return None
+        flags = ('launched','eof_observed','wait_returned','sigterm_attempted','sigkill_attempted',
+            'handoff_validated','direct_retire_reached','direct_retire_returned','root_cleanup_reached','root_cleanup_returned')
+        if any(type(value[k]) is not bool for k in flags):return None
+        if type(value['natural_exit']) is not str or value['natural_exit'] != 'UNKNOWN':return None
+        if type(value['handoff_json']) is not str or value['handoff_json'] not in {'NOT_OBSERVED','MISSING','INVALID','VALID'}:return None
+        if value['handoff_validated'] and value['handoff_json'] != 'VALID':return None
+        code, number = value['return_code'], value['signal_number']
+        if type(value['termination']) is not str or type(value['wait_origin']) is not str:return None
+        if value['wait_returned']:
+            if value['wait_origin'] != 'RETIREMENT' or not value['launched'] or not value['direct_retire_reached']:return None
+            if code is None:
+                if value['termination'] != 'UNKNOWN' or number is not None:return None
+            elif type(code) is not int or not -128 <= code <= 255:return None
+            elif code < 0:
+                if value['termination'] != 'SIGNAL' or type(number) is not int or number != -code:return None
+            elif value['termination'] != 'EXIT_CODE' or number is not None:return None
+        elif code is not None or number is not None or value['termination'] != 'NOT_OBSERVED' or value['wait_origin'] != 'NOT_OBSERVED':return None
+        if not value['launched'] and any(value[k] for k in ('eof_observed','wait_returned','sigterm_attempted',
+                'sigkill_attempted','direct_retire_reached','direct_retire_returned','root_cleanup_reached','root_cleanup_returned')):return None
+        if (value['sigterm_attempted'] or value['sigkill_attempted']) and not value['direct_retire_reached']:return None
+        if value['direct_retire_returned'] and not (value['direct_retire_reached'] and value['wait_returned']):return None
+        if value['root_cleanup_reached'] and not (value['handoff_validated'] and value['direct_retire_returned']):return None
+        if value['root_cleanup_returned'] and not value['root_cleanup_reached']:return None
+        return dict(value)
+    except BaseException:return None
