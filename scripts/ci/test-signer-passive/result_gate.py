@@ -294,7 +294,7 @@ def source_rows(rows):
              and type(row['bytes']) is int and 0<row['bytes']<=1024**2
              and type(row['mode']) is int and row['mode']==0o644 and sha(row['sha256']),'Source-row')
     need(sum(r['bytes'] for r in rows.values())<=2*1024**2,'Source-total-budget')
-    need(rows['passive.py']['sha256']=='50a077aef13b890aea98be252bf77e18733625d31fe9561f380e508480c42f7d'
+    need(rows['passive.py']['sha256']=='57c036b6c7d64b35b58ebc3d409d45dd892bebde6aeb376ef4e3c0e6ed8bc778'
          and rows['observation_entry.py']['sha256']=='540db1ab5a877fd2486673e86d2a1216c036dd9d8bec3953f44f467ee4966071',
          'literal-inherited-Source')
 

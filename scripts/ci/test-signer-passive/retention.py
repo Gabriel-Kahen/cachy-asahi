@@ -137,6 +137,41 @@ def validate_elf_diagnostic(value):
     return value
 
 
+def validate_inventory_diagnostic(value):
+    """Closed unaccepted same-held-row owner facts; never node admission."""
+    if value is None:return None
+    need(type(value) is dict and set(value)=={'schema_version','purpose','request_path','canonical',
+         'directory_path','node_path','identity','node_kind','failed_terms'} and
+         type(value['schema_version']) is int and value['schema_version']==1 and
+         value['purpose']=='SIGNER_PASSIVE_INVENTORY_DIAGNOSTIC_V1','closed-inventory-diagnostic')
+    for key in ('request_path','canonical','directory_path','node_path'):
+        name=value[key]
+        need(type(name) is str and 0<len(name)<=1024 and str(Path(name))==name and
+             Path(name).is_absolute() and len(Path(name).parts)<=32 and '..' not in Path(name).parts
+             and all(32<=ord(c)<127 for c in name) and (name in ('/','/usr') or
+             any(name==root or name.startswith(root+'/') for root in
+                 ('/usr/bin','/usr/lib','/usr/libexec','/usr/include','/lib'))),'inventory-diagnostic-path')
+    directory=Path(value['directory_path']);node=Path(value['node_path'])
+    need(directory.is_relative_to(value['canonical']) and node.parent==directory,
+         'inventory-diagnostic-child-scope')
+    ident=value['identity']
+    need(type(ident) is list and len(ident)==9 and all(type(n) is int and 0<=n<2**64 for n in ident),
+         'inventory-diagnostic-identity')
+    mode=ident[2];kind=stat.S_IFMT(mode)
+    need(0<=mode<=0o177777 and kind in (stat.S_IFDIR,stat.S_IFREG,stat.S_IFLNK,stat.S_IFBLK,
+         stat.S_IFCHR,stat.S_IFIFO,stat.S_IFSOCK),'inventory-diagnostic-mode')
+    label='directory' if kind==stat.S_IFDIR else 'regular' if kind==stat.S_IFREG else 'symlink' if kind==stat.S_IFLNK else 'other'
+    need(value['node_kind']==label,'inventory-diagnostic-node-kind')
+    terms=[]
+    if ident[3]!=0:terms.append('uid')
+    if ident[4]!=0:terms.append('gid')
+    if kind!=stat.S_IFLNK and mode&0o022:terms.append('write-bits')
+    need(type(value['failed_terms']) is list and value['failed_terms']==terms and len(terms)>0,
+         'inventory-diagnostic-owner-terms')
+    need(len(canonical(value))<=8192,'inventory-diagnostic-byte-bound')
+    return value
+
+
 class NativeIO:
     """Deferred local syscalls; no native constructor side effects."""
     now=staticmethod(time.monotonic)
@@ -368,7 +403,7 @@ class Retention:
             need(set(value)=={'schema_version','purpose','status','candidate_valid','first_phase',
                  'first_cause','first_reason','first_errno','cancelled','context','source_packet_sha256',
                  'configuration_sha256','public_issuer_sha256','entry','deadline_at','progress',
-                 'observer_returncode','selected','execution_grant_issued','compile_allowed','elf_diagnostic'},
+                 'observer_returncode','selected','execution_grant_issued','compile_allowed','elf_diagnostic','inventory_diagnostic'},
                  'failure-record-shape')
             need(type(value['schema_version']) is int and value['schema_version']==1 and
                  value['purpose']=='SIGNER_NATIVE_PASSIVE_FAILURE_V1' and value['status']=='FAIL' and
@@ -412,6 +447,7 @@ class Retention:
                 need(progress[name] is None or type(progress[name]) is int and
                      0<=progress[name]<=bound,'failure-progress-bound')
             validate_elf_diagnostic(value['elf_diagnostic'])
+            validate_inventory_diagnostic(value['inventory_diagnostic'])
             self._live()
             descriptors['failure.json']=self._write('failure.json',failure_raw)
         except BaseException as error:self._remember(error)

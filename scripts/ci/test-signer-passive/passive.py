@@ -34,6 +34,33 @@ def identity(info):
     return [getattr(info,k) for k in FIELDS]
 
 
+def inventory_diagnostic(requested,canonical,directory,node,row,endpoint):
+    """Bounded facts from the already-observed no-follow inventory row."""
+    import json
+    live(endpoint)
+    paths=[str(p) for p in (requested,canonical,directory,node)]
+    for text in paths:
+        need(str(Path(text))==text,'inventory-diagnostic-path');path_ok(Path(text))
+    need(Path(paths[3]).parent==Path(paths[2]) and
+         (paths[2]==paths[1] or Path(paths[1]) in Path(paths[2]).parents),
+         'inventory-diagnostic-containment')
+    values=identity(row)
+    need(all(type(v) is int and v>=0 for v in values),'inventory-diagnostic-identity')
+    mode=row.st_mode
+    kind=('directory' if stat.S_ISDIR(mode) else 'regular' if stat.S_ISREG(mode)
+          else 'symlink' if stat.S_ISLNK(mode) else 'other')
+    terms=[term for term,failed in (('uid',row.st_uid!=0),('gid',row.st_gid!=0),
+           ('write-bits',not stat.S_ISLNK(mode) and bool(mode&0o022))) if failed]
+    need(bool(terms),'inventory-diagnostic-terms')
+    facts=dict(schema_version=1,purpose='SIGNER_PASSIVE_INVENTORY_DIAGNOSTIC_V1',
+               request_path=paths[0],canonical=paths[1],directory_path=paths[2],
+               node_path=paths[3],identity=values,node_kind=kind,failed_terms=terms)
+    need(len(json.dumps(facts,sort_keys=True,separators=(',',':')).encode('ascii'))<=8192,
+         'inventory-diagnostic-size')
+    live(endpoint)
+    return facts
+
+
 def path_ok(path):
     text=str(path)
     need(path.is_absolute() and len(text)<=1024 and len(path.parts)<=32
@@ -375,7 +402,22 @@ class PassiveIO(NativeIO):
                 for name in names:
                     child=path/name;path_ok(child);self.charge(end)
                     row=os.stat(name,dir_fd=fd,follow_symlinks=False)
-                    need(row.st_uid==row.st_gid==0 and not row.st_mode&0o022,'inventory-owner')
+                    try:
+                        need(row.st_uid==row.st_gid==0 and
+                             (stat.S_ISLNK(row.st_mode) or not row.st_mode&0o022),'inventory-owner')
+                    except Refusal as fault:
+                        diagnostic=None;diagnostic_cancelled=False
+                        try:diagnostic=inventory_diagnostic(requested,canonical,path,child,row,end)
+                        except BaseException as problem:
+                            diagnostic_cancelled=isinstance(problem,(KeyboardInterrupt,Cancelled))
+                        try:
+                            fault.inventory_diagnostic=diagnostic
+                            fault.inventory_diagnostic_cancelled=diagnostic_cancelled
+                        except BaseException as problem:
+                            if isinstance(problem,(KeyboardInterrupt,Cancelled)):
+                                try:fault.inventory_diagnostic_cancelled=True
+                                except BaseException:pass
+                        raise
                     node={'path':str(child),'identity':identity(row)};entries.append(node)
                     if stat.S_ISDIR(row.st_mode):
                         need(len(queue)<1024,'inventory-directory-count')
@@ -407,6 +449,9 @@ class PassiveIO(NativeIO):
                 try:os.close(fd)
                 except BaseException as fault:
                     if error is None:error=fault
+                    elif isinstance(error,Refusal) and error.args==('inventory-owner',) and isinstance(fault,(KeyboardInterrupt,Cancelled)):
+                        try:error.inventory_diagnostic_cancelled=True
+                        except BaseException:pass
         if error is not None:raise error
         return result
 
