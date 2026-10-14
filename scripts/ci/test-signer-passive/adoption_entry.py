@@ -32,6 +32,45 @@ def need(value,code):
 def canonical(value):return json.dumps(value,sort_keys=True,separators=(',',':'),allow_nan=False).encode()
 def digest(raw):return hashlib.sha256(raw).hexdigest()
 
+class DiagnosticIO:
+    """Record attempted reads without changing the underlying observer or limits."""
+    def __init__(self,io):
+        self.io=io;self.operation=None;self.path=None
+        self.completed_samples=0;self.completed_inventories=0
+    @property
+    def nodes(self):return self.io.nodes
+    @nodes.setter
+    def nodes(self,value):self.io.nodes=value
+    @property
+    def bytes_read(self):return self.io.bytes_read
+    @bytes_read.setter
+    def bytes_read(self,value):self.io.bytes_read=value
+    def sample(self,path,end):
+        self.operation='sample';self.path=str(path)
+        result=self.io.sample(path,end);self.completed_samples+=1;return result
+    def inventory(self,path,end):
+        self.operation='inventory';self.path=str(path)
+        result=self.io.inventory(path,end);self.completed_inventories+=1;return result
+    def charge(self,end):
+        self.operation='charge';self.path=None;return self.io.charge(end)
+    def snapshot(self):
+        path=self.path
+        if not (type(path) is str and path.startswith('/') and len(path)<=1024
+                and str(Path(path))==path and '..' not in Path(path).parts
+                and all(32<=ord(c)<127 for c in path)):path=None
+        def bounded(value,maximum):return value if type(value) is int and 0<=value<=maximum else None
+        return dict(operation=self.operation,path=path,
+            completed_samples=self.completed_samples,completed_inventories=self.completed_inventories,
+            nodes=bounded(self.nodes,65536),bytes_read=bounded(self.bytes_read,512*1024**2))
+
+def reason(error):
+    """Static refusal codes only; never stringify exception bodies or tracebacks."""
+    code=error.args[0] if error.args else None
+    if not (type(code) is str and re.fullmatch('[A-Za-z0-9_.:-]{1,160}',code)):code=None
+    number=getattr(error,'errno',None)
+    if not (type(number) is int and 1<=number<=4095):number=None
+    return code,number
+
 def run(passive,provenance,retention,*,entry,configuration,issuer,source_pins,
         source_packet_sha256,environment,emit,host=None,clock=None,signals=None,
         io_factory=None,retention_factory=None):
@@ -54,7 +93,7 @@ def run(passive,provenance,retention,*,entry,configuration,issuer,source_pins,
     if io_factory is None:io_factory=passive.PassiveIO
     if retention_factory is None:retention_factory=retention.Retention
     first=None;first_phase=None;cancelled=False;phase='issuer';context=None
-    saved={};timer_touched=False;retained=None;store=None
+    saved={};timer_touched=False;retained=None;store=None;io=None
     def remember(error):
         nonlocal first,first_phase,cancelled
         if first is None:first=error;first_phase=phase
@@ -110,7 +149,9 @@ def run(passive,provenance,retention,*,entry,configuration,issuer,source_pins,
             live();saved[number]=signals.getsignal(number);signals.signal(number,handler)
         live();timer_touched=True
         signals.setitimer(signals.ITIMER_REAL,max(.000001,entry+60-clock()),0)
-        phase='observation';live();io=io_factory()
+        phase='retention-prepare';live()
+        store=retention_factory(directory,endpoint=entry+60,owner_uid=uid,owner_gid=gid)
+        phase='observation';live();io=DiagnosticIO(io_factory())
         observation=passive.observe_candidate(io,gcc_directory=configuration['gcc_directory'],
                                               context=context,endpoint=entry+60)
         live();phase='provenance'
@@ -146,7 +187,6 @@ def run(passive,provenance,retention,*,entry,configuration,issuer,source_pins,
                 configuration_sha256=digest(canonical(configuration)),
                 public_issuer_sha256=digest(canonical(issuer)),entry=entry,deadline_at=entry+60,
                 observer_returncode=0,selected=False,execution_grant_issued=False,compile_allowed=False)
-            store=retention_factory(directory,endpoint=entry+60,owner_uid=uid,owner_gid=gid)
             retained=store.publish(raw,final_raw,completion,endpoint=entry+60)
             cancelled|=getattr(store,'cancelled',False) is True
             live()
@@ -156,10 +196,32 @@ def run(passive,provenance,retention,*,entry,configuration,issuer,source_pins,
             live()
         except BaseException as error:remember(error)
     if first is not None:
-        phase_code=first_phase
-        failure=dict(schema_version=1,status='FAIL',candidate_valid=False,
-            first_phase=phase_code,first_cause=type(first).__name__,cancelled=cancelled,
+        first_reason,first_errno=reason(first)
+        progress=dict(operation=None,path=None,completed_samples=0,completed_inventories=0,
+                      nodes=None,bytes_read=None)
+        if io is not None:
+            try:progress=io.snapshot()
+            except BaseException:pass
+        def safe_digest(value):
+            try:return digest(canonical(value))
+            except (TypeError,ValueError,OverflowError):return None
+        valid_entry=type(entry) in (int,float) and math.isfinite(entry) and entry>0
+        failure=dict(schema_version=1,purpose='SIGNER_NATIVE_PASSIVE_FAILURE_V1',
+            status='FAIL',candidate_valid=False,first_phase=first_phase,
+            first_cause=type(first).__name__,first_reason=first_reason,first_errno=first_errno,
+            cancelled=cancelled,context=context,source_packet_sha256=source_packet_sha256,
+            configuration_sha256=safe_digest(configuration),
+            public_issuer_sha256=safe_digest(issuer),entry=entry if valid_entry else None,
+            deadline_at=entry+60 if valid_entry else None,
+            progress=progress,observer_returncode=1,
             selected=False,execution_grant_issued=False,compile_allowed=False)
+        # A fresh store has only its owned directory handles. A used/failed
+        # store already closed once and retains its original partial files.
+        if store is not None and store.used is False and store._first is None:
+            try:store.publish_failure(canonical(failure),endpoint=entry+60)
+            except BaseException as error:remember(error)
+        cancelled|=getattr(store,'cancelled',False) is True
+        failure['cancelled']=cancelled
         try:emit('SIGNER_PASSIVE_ADOPTION_FAIL='+canonical(failure).decode(),deadline=entry+60)
         except BaseException:pass
         return 1

@@ -267,3 +267,66 @@ class Retention:
         if self._first is not None:raise self._first
         self._live()
         return descriptors
+
+    def publish_failure(self,failure_raw,*,endpoint):
+        """Retain one bounded refusal record, never a candidate or natural exit proof."""
+        need(not self.used and self._first is None,'single-unused-failure-retention')
+        self.used=True;descriptors={}
+        try:
+            need(type(endpoint) is type(self.endpoint) and endpoint==self.endpoint,
+                 'single-original-retention-endpoint')
+            self._live()
+            value=parse(failure_raw,16384)
+            need(set(value)=={'schema_version','purpose','status','candidate_valid','first_phase',
+                 'first_cause','first_reason','first_errno','cancelled','context','source_packet_sha256',
+                 'configuration_sha256','public_issuer_sha256','entry','deadline_at','progress',
+                 'observer_returncode','selected','execution_grant_issued','compile_allowed'},
+                 'failure-record-shape')
+            need(type(value['schema_version']) is int and value['schema_version']==1 and
+                 value['purpose']=='SIGNER_NATIVE_PASSIVE_FAILURE_V1' and value['status']=='FAIL' and
+                 type(value['observer_returncode']) is int and value['observer_returncode']==1 and
+                 all(value[k] is False for k in ('candidate_valid','selected','execution_grant_issued',
+                                                'compile_allowed')) and type(value['cancelled']) is bool,
+                 'failure-only-intended-return')
+            need(type(value['first_phase']) is str and re.fullmatch('[A-Za-z0-9_.:-]{1,80}',value['first_phase'])
+                 and type(value['first_cause']) is str and re.fullmatch('[A-Za-z_][A-Za-z0-9_]{0,79}',value['first_cause'])
+                 and (value['first_reason'] is None or type(value['first_reason']) is str and
+                      re.fullmatch('[A-Za-z0-9_.:-]{1,160}',value['first_reason']))
+                 and (value['first_errno'] is None or type(value['first_errno']) is int and
+                      1<=value['first_errno']<=4095),'bounded-failure-cause')
+            for name in ('source_packet_sha256','configuration_sha256','public_issuer_sha256'):
+                need(type(value[name]) is str and re.fullmatch('[0-9a-f]{64}',value[name]),
+                     'failure-Source-binding')
+            need(type(value['entry']) in (int,float) and math.isfinite(value['entry']) and
+                 value['entry']>0 and value['entry']+60==endpoint and
+                 type(value['deadline_at']) in (int,float) and value['deadline_at']==endpoint,
+                 'original-failure-frame')
+            context=value['context']
+            need(type(context) is dict and set(context)=={'source_commit','workflow_commit','run_id',
+                 'run_attempt','machine','uid'} and context['machine']=='aarch64' and
+                 type(context['uid']) is int and context['uid']==self.uid and
+                 type(context['run_id']) is str and type(context['run_attempt']) is str and
+                 type(context['source_commit']) is str and re.fullmatch('[0-9a-f]{40}',context['source_commit'])
+                 and context['workflow_commit']==context['source_commit'] and
+                 self.path.name=='signer-native-passive-'+context['run_id']+'-'+context['run_attempt'],
+                 'retained-failure-job-context')
+            progress=value['progress']
+            need(type(progress) is dict and set(progress)=={'operation','path','completed_samples',
+                 'completed_inventories','nodes','bytes_read'} and
+                 progress['operation'] in (None,'sample','inventory','charge'), 'failure-progress-shape')
+            path=progress['path']
+            need(path is None or type(path) is str and 0<len(path)<=1024 and '\x00' not in path and
+                 Path(path).is_absolute() and str(Path(path))==path and '..' not in Path(path).parts,
+                 'failure-progress-path')
+            for name in ('completed_samples','completed_inventories'):
+                need(type(progress[name]) is int and 0<=progress[name]<=65536,'failure-progress-count')
+            for name,bound in (('nodes',65536),('bytes_read',512*1024**2)):
+                need(progress[name] is None or type(progress[name]) is int and
+                     0<=progress[name]<=bound,'failure-progress-bound')
+            self._live()
+            descriptors['failure.json']=self._write('failure.json',failure_raw)
+        except BaseException as error:self._remember(error)
+        finally:self._close_all()
+        if self._first is not None:raise self._first
+        self._live()
+        return descriptors
