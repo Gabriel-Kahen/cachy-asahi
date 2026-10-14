@@ -668,8 +668,8 @@ jobs:
                   fdk = files['fdk/status.json']
                   need(set(fdk) == {'schema_version', 'stage', 'status', 'phase', 'error_code', 'cancelled',
                                    'owned_container_absence', 'native_build', 'hardware', 'installation',
-                                   'selected_for_release', 'binary_publication', 'worker_diagnostics'} and
-                       type(fdk['schema_version']) is int and fdk['schema_version'] == 2 and
+                                   'selected_for_release', 'binary_publication', 'worker_diagnostics', 'accepted_outputs'} and
+                       type(fdk['schema_version']) is int and fdk['schema_version'] == 3 and
                        fdk['stage'] == 'fdk-native-development' and fdk['status'] == status['status'] and
                        fdk['hardware'] == fdk['installation'] == fdk['binary_publication'] == 'NOT RUN' and
                        fdk['selected_for_release'] is False and type(fdk['cancelled']) is bool and
@@ -681,6 +681,10 @@ jobs:
                       need(fdk['phase'] == 'complete' and not fdk['cancelled'] and fdk['owned_container_absence'])
                   need(validator is not None)
                   validator.validate_workers(fdk['worker_diagnostics'], require_complete=fdk['status'] == 'PASS')
+                  if fdk['status'] == 'PASS':
+                      validator.validate_accepted_outputs(fdk['accepted_outputs'])
+                  else:
+                      need(fdk['accepted_outputs'] is None)
               producer = {name.removeprefix('producer/'): value for name, value in files.items() if name.startswith('producer/')}
               if producer:
                   validate_producer(producer, raw, status['status'])

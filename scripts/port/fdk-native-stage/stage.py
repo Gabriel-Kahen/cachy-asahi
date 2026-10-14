@@ -14,7 +14,7 @@ import sys
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from evidence import (EPOCH, INVENTORY_SHA, INPUTS_SHA, RECIPE_SHA, TEMPLATE_SHA,
                       accepted_base, digest, finalstatus_public, inventory, load,
-                      need, read, safe_relative, save, sha)
+                      need, read, safe_relative, save, sha, validate_accepted_output, validate_accepted_outputs)
 from runtime import Cancelled, Runner, cancellation_handlers, defer_signals
 from broker import Broker
 import worker_evidence as worker_diagnostic
@@ -108,6 +108,16 @@ def worker(runner, config, action, report=None):
     need(receipt.get('status') == 'PASS' and receipt.get('cancelled') is not True, 'worker-receipt-failed')
     if action != 'compare':
         need(receipt.get('cleanup', {}).get('absence_verified') is True, 'worker-cleanup-failed')
+    if action == 'compare':
+        attempts = receipt['attempts']
+        need(type(attempts) is list and len(attempts) == 2, 'accepted-outputs-attempts')
+        validate_accepted_outputs({'schema_version': 1,
+            'builds': {'build-1': attempts[0]['accepted_output'], 'build-2': attempts[1]['accepted_output']},
+            'comparison': receipt['comparison']})
+    else:
+        output = validate_accepted_output(receipt['artifact']['accepted_output'])
+        need(receipt['artifact']['filename'] == output['archive']['name'] and
+             receipt['artifact']['sha256'] == output['archive']['sha256'], 'accepted-output-receiver-binding')
     return receipt
 
 
@@ -210,6 +220,7 @@ def execute(args, state=None):
         report['phase'] = 'compare'
         compared = worker(runner, config, 'compare', report)
         report['comparison'] = compared['comparison']
+        report['comparison_attempts'] = compared['attempts']
         report['phase'] = 'complete'
         report['status'] = 'PASS'
     except Cancelled:

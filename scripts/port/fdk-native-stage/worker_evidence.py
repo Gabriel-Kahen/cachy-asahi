@@ -6,7 +6,7 @@ from pathlib import Path
 import re
 import stat
 
-from evidence import EPOCH, ENTRY_SHA, INPUTS_SHA, INVENTORY_SHA, RECIPE_SHA, TEMPLATE_SHA, decode, load, need, read, sha
+from evidence import EPOCH, ENTRY_SHA, INPUTS_SHA, INVENTORY_SHA, RECIPE_SHA, TEMPLATE_SHA, decode, load, need, read, sha, validate_accepted_output, validate_accepted_outputs
 
 LIMIT = 4096
 PROVENANCE_LIMIT = 32 * 1024**2

@@ -122,7 +122,7 @@
     },
     "scripts/port/fdk-native-stage/evidence.py": {
       "mode": 420,
-      "sha256": "6184b93726667c9fd55d65a1561f5ac5e67d7a164b701e18db9189a9736ff457"
+      "sha256": "c65b1da75f6e4570bbfe28c921df25a24aa27aa03cbb0f94ae8992c56cf570e2"
     },
     "scripts/port/fdk-native-stage/inner_evidence.py": {
       "mode": 420,
@@ -138,7 +138,7 @@
     },
     "scripts/port/fdk-native-stage/stage.py": {
       "mode": 420,
-      "sha256": "85c257621ed9a3642bb444f76fa3cb0d18a5821f5e8748d23a4eb0fae0a06c43"
+      "sha256": "a3e5abd7fa01f1ee28948c1c38a3f48bf8b825963318a2a4f8f31f49aa600d6a"
     },
     "scripts/port/fdk-native-stage/template-inputs.json": {
       "mode": 420,
@@ -174,7 +174,7 @@
     },
     "scripts/port/fdk-native-stage/worker_evidence.py": {
       "mode": 420,
-      "sha256": "ddbae06b1709066bc260e3d1d921b5ef6f466914c053f72f80c1d7cab23f7481"
+      "sha256": "f2177f7ee038f8a2e19a45937c3e42e51f691ec08225639bb8bbe826a939eb2e"
     }
   },
   "schema_version": 1
