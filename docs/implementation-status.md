@@ -2,6 +2,18 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 14, typed installer route checkpoint: Root publishes `3438c695`
+after external `b57f1cd7` and adoption preparation `159dcc91`. Six existing
+files change and two P0 variants are added. All27 selected committed rows,
+including12 held keyless adapter targets, match reviewed hashes and modes.
+The route uses the existing typed Session gate and original60-second entry;
+its159-file logical P0 view remains separate from the physical original view.
+
+Dedicated CI execution still requires the six-field Docker endpoint correction,
+same-job image preparation, concrete Session admission and regenerated complete
+Source packet. No P0, native26, ABI or hardware execution is established by
+this publication. Full R1–R5 development remains active.
+
 October 14, KSM statement diagnostic checkpoint: independent peer `65bc72f0`
 passes both Python position modes. Root publishes Source `a90db716` and
 packet `9a657738`, verifies all158 committed rows and the exact three-file
