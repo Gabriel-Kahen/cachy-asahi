@@ -2,6 +2,39 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 14, 07:19 UTC: library run `38510908030` and Topmem/Fish run
+`38511520135` complete FAIL. Library completion `4d82b3ad` retains original
+producer build/comparison PASS and the scoped library materialize failure;
+four new library builds and comparisons remain NOT RUN, with cleanup PASS.
+The exact materializer clause is unexported. Pair completion `db0a3de3` retains
+an empty result member and the precise missing Context.replace call followed by
+missing Context.unlink during error cleanup. A shared bounded bridge correction
+is being implemented for pair, Zsh and KSM full intake; these lanes remain held.
+
+The queue-only future Sources are published after peer `548490a3` and metadata
+correction `b9ff0e8c`. All committed byte/mode rows pass. Composed Source
+`fe69f03e` / administrative Data `c2a08b69` / plan `f55819ec` is registered with
+exact readbacks and pushed once to its execution ref after the old leases finish.
+Native run `38526888627` is active under queue:max. Library future Source
+`242612c6` / Data `7b218109` and the other future lane plans remain separately
+prepared; current failed runs are not reclassified.
+
+Kernel actual `38523856782` completes FAIL with completion `c6d6d0cc`.
+Acquisition, original producer, probe and provisioning pass; baseline's CONFIG
+command returns zero, then its verified inner diagnostic reports CONFIG_DELTA
+DATA_REFUSAL. Candidate remains NOT RUN and compilation unaccepted. Cleanup,
+baseline preservation and owned absence pass. The exact configuration clause
+and keys remain unknown; a failure-only diagnostic is frozen for independent
+review. No private build logs or configuration were uploaded.
+
+Compiler receiver Source `0e5d40ab` is published in
+[draft PR16](https://github.com/Gabriel-Kahen/cachy-asahi/pull/16), with all thirteen
+Source files and manifest verified after independent peer `11a3f79f` passes
+eighteen fresh controls. The source remains inactive while concrete trusted
+selection and factory/workspace bindings are implemented. Full R1–R5/M5–M9,
+source correspondence, installation/recovery, measurements and both M2 Air sizes
+remain unfinished; the development goal stays ACTIVE.
+
 October 14, 06:45 UTC: kernel recovery Source `56bd0ab9` is published after
 independent peer `437378f3` authenticates the seventeen-copy successor and passes
 seventeen focused groups. Root verifies all 124 committed Source rows plus
