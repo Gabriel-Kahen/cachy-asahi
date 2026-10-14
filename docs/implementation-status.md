@@ -2,6 +2,29 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 14, diagnostic Source checkpoint: CLI producer-cleanup diagnostics
+pass external `53dd39c0`. Root publishes `4c388cc7`, verifies291 committed
+Source rows and four exact changes/287 held. The closed snapshot captures up
+to64 existing entries as11 labels or UNKNOWN before private formatting;
+Source-issued refusal identity preserves first cause and cleanup policy.
+Actual prior private cause and uncertainty codes remain unknown. New two-file
+Data/plan derivation is underway before a fresh manual-only trial.
+
+Updater child diagnostics pass external `518bff4e`; Source `842a821e`
+verifies90 runtime rows plus workflow. Stage `93b54ec3` and the two-copy
+cascade preserve concrete RuntimeFailure and cleanup/deadline behavior.
+Trial `38617063734` is queued. Native compilation, upgrade/removal, target
+and release acceptance remain unproven.
+
+The KSM native-probe statement diagnostic is frozen for external review.
+The corrected typed P0 route and dedicated CI driver are being reviewed;
+preparation identified a driver/transport socket-identity schema mismatch
+for correction in a new packet. A same-job image preparation route is under
+implementation, before the immutable60-second P0 stage. No P0 or native26
+execution is claimed. Existing library38610255544 remains live; Pair, Zsh
+and composed successors remain queued. Full R1–R5 development continues.
+
+
 October 14, published corrections checkpoint: kernel alignment correction
 `71f05ab5` passes external `2958a276` and125 committed Source/self rows.
 Trial `38612473905` fails during parallel acquisition/producer startup before
