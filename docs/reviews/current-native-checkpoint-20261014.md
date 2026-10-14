@@ -12,8 +12,8 @@ records implementation, actual CI evidence and unfinished validation separately.
 | Composed integration | `993487a4` | `38566446597` | Failure retained; startup initial-failed; independent review underway |
 | Pair | `eef0710d` | `38572139973` | AttributeError at Docker result observation; dictionary/object contract correction assigned |
 | Zsh pair | `cb645f34` | `38573732820` | Same exported result-shape mismatch in its separate exact run |
-| FDK | `7c51adff` | `38574961503` | Running |
-| Library CLI | `ad2ed5eb` | `38578019953` | Queued; manual dispatch performed once |
+| FDK | `7c51adff` | `38574961503` | SMOKE_COMPILE nonzero 1; producer PASS; second build/comparison not reached |
+| Library CLI | `ad2ed5eb` | `38578019953` | Producer exit 1; first VALUE_ERROR; uncertain cleanup; new work not reached |
 | Library materialization | `9f37d693` | `38560924092` | JBIG length mismatch, 109999 expected / 109846 observed; new builds not reached |
 | KSM | `4f9bbf3c` | `38561918431` | TypeError at NATIVE_ENTRY, zero RPC, ownership-uncertain cleanup |
 
@@ -31,3 +31,9 @@ selected cancellation classification defect in the separate keyless adapter;
 a corrective successor is required. The static native signer compile result
 remains six-command static evidence only. No signer runtime, native 26-case
 matrix, real screenshot execution or physical M2 acceptance is claimed.
+
+The canonical gzip correction is frozen as proposal `65d592fe`; Root
+authenticates all 158 indexed files and 457 external references. External
+review is pending before its 13 Source copies, successor Data and registration.
+It keeps all 27 strict output checks, unchanged caps and identical normalized
+tar payloads; no native compressor identity is inferred.

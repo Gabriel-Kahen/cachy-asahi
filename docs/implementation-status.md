@@ -19,7 +19,11 @@ Updater `38564810704`, composed `38566446597`, Pair `38572139973` and Zsh
 retained and assigned independent review. No old failure cause is transferred.
 Kernel schema4 propagation correction passes peer `989652b4`, is published
 as Source `a311de55` with packet `ef624894`, and trial `38583969397` is running.
-FDK `38574961503` is running; CLI `38578019953` is queued.
+FDK `38574961503` now fails at SMOKE_COMPILE with closed COMMAND_NONZERO
+exit 1; producer PASS and build-2/comparison NOT RUN remain separate. CLI
+`38578019953` now fails with initial VALUE_ERROR/PRODUCER_EXIT code 1 and
+uncertain cleanup; materialization and new builds remain NOT RUN. Both exact
+terminal records are retained for independent review.
 
 Installer P0 entry and its two reviewed caller/bridge corrections are published
 as Source `92d00c29` on the isolated runtime branch, draft PR23. The original
