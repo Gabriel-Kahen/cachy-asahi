@@ -19,9 +19,9 @@ import types
 
 HANDOFF = 'scripts/ci/development/repository_handoff.py'
 # Root must rebind after any separately reviewed issuer change.
-ISSUER_SHA = '2add51056cc56d2c5e47b6d8ca0f8793d02caab40a318169bf47a19ca2ada0b8'
+ISSUER_SHA = '3a3eef3159717ba1e5f9fd371e8162755b7b0c58bdfea86e9a7baf45a979b8bc'
 RECEIVER = 'scripts/install/native_arm_trial.py'
-RECEIVER_SHA = '733a1198799790675afd25df8113191a158549992882a2e48cd1cbd4b34a95da'
+RECEIVER_SHA = 'ff5620d34d14f07390ddaab5b55f8646c5588fdfa16b38942b520c5c68872f51'
 PROFILE_SHA = 'db58bda8102ce098eded530f0920c21c1f09cb7a6cfb1d03ab84f0dfbf63d3f7'
 OWN = 'scripts/install/native_preflight.py'
 SOURCE_PATHS = ('scripts/install/local_transaction.py', 'scripts/install/test_local_transaction.py',

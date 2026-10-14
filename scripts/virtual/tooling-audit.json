@@ -1,10 +1,10 @@
 {
   "hardware_validation": "NOT RUN",
   "maintained_selection": {
-    "base_inventory_sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25",
+    "base_inventory_sha256": "9901d32a48dc4d85874a3c3f85e34f201b6b21d3614c3549c16b9d835eb28705",
     "baseline_id": "maintained-native-baseline-v1-vim-9.2.1178-1",
     "inherited_audit_sha256": "cd11a837b29e5c757b482a79b375f65170881d73f80db4ae645ed600a45378cd",
-    "inputs_sha256": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f",
+    "inputs_sha256": "a86261268cac80a20cbaeb122d49dbb55b3380ca1c5e53ce1f630c066ab64046",
     "maintained_native_execution": "NOT RUN",
     "maintained_resolver": "NOT RUN",
     "package_audits": "inherited exact 21 package records; no new package inspection"
@@ -8878,5 +8878,5 @@
     }
   },
   "status": "PASS",
-  "tooling_lock_sha256": "c18afc5bde9868594d41bd576a956960a7b01b190d148ba03ca4c41d4394e1b0"
+  "tooling_lock_sha256": "9c39db3db8276ff8cd92cc966035b484a329f01d5537b5bd9fab65e7ebfb79b6"
 }

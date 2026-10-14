@@ -9,7 +9,7 @@ from common import decode, digest, encoded, need, pinned, read, snapshot, load_s
 ROOT = Path(__file__).resolve().parents[3]
 HELD = {
     'adapter.py': '69ad53b4bc041d37536ad15a4ced7efa4cb2d61bcd6cb4a62fdfce8a7dbd52ab',
-    'gate.py': '8804ee0273079f3d1cfdbd97f4c4f3e5ffcd6403ab3231ad8660d99d074359fd',
+    'gate.py': 'f535f5f5fe76c8680e46513a7a727b5f0652488c462d3d5295293200630f080d',
 }
 DEPENDENCIES = {
     'scripts/release/release.py': '418c850e8a44ae71517e074f86f46f5999f5fe7433ca6798de945f318191a918',

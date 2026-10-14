@@ -17,17 +17,17 @@ import stat
 import time
 
 INITIAL = 'scripts/ci/integration.lock.json'
-INITIAL_SHA = '5d0f6b1d335c1949965699d4db6658af313af8977079e9a6464f0e5db4071ed3'
-INPUTS_SHA = 'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f'
+INITIAL_SHA = '9c5cca5c9b69c59ca44cd677ed49111e03fe1edadc8abd52aaa2f8ced1a5d9ed'
+INPUTS_SHA = 'a86261268cac80a20cbaeb122d49dbb55b3380ca1c5e53ce1f630c066ab64046'
 INVENTORY = 'scripts/port/refreshed-desktop/proposed-builder-inventory.lock'
-INVENTORY_SHA = 'fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25'
+INVENTORY_SHA = '9901d32a48dc4d85874a3c3f85e34f201b6b21d3614c3549c16b9d835eb28705'
 BASELINE = 'manifests/reviewed/maintained-composed-v1.json'
-BASELINE_SHA = '662a7397e12289e5fe7de8c797dcc0cdf74e4ade9d93260bd2cbca782060a120'
+BASELINE_SHA = '0e2dd01cdb47488699364c41aaa91169a0e8653fd82e88155122c223e26b0512'
 BASELINE_ID = 'maintained-native-baseline-v1-vim-9.2.1178-1'
 LINEAGE = 'SUCCESSOR_NOT_HISTORICAL_ORIGINAL'
 PURPOSE = 'root-selected-maintained-v1-development-source'
 MODES = {'repository-svg-maintained-v1':259, 'installer-preflight-maintained-v1':266}
-BASELINE_DECLARATION = {'baseline_id': 'maintained-native-baseline-v1-vim-9.2.1178-1', 'changed_view_sources': ['scripts/ci/inputs.lock.json'], 'generated_fixtures': 125, 'hardware_validation': 'NOT RUN', 'historical_inputs_sha256': '3c16c37d1b12cc84a88572e82ab8ad59e7f3b5ed0d08f09ddf72a69f4711d650', 'historical_integration_sha256': 'd4d603146f094c86242eaafbb887042959c510c9bb948579dd749d065dd8fc31', 'inputs_sha256': 'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f', 'installation': 'NOT RUN', 'integration_sha256': '5d0f6b1d335c1949965699d4db6658af313af8977079e9a6464f0e5db4071ed3', 'inventory_sha256': 'fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25', 'lineage': 'SUCCESSOR_NOT_HISTORICAL_ORIGINAL', 'native_sha256': 'a8b6ed8971a38089a4499dcec605477c4e48d7a47c3de485d205f6a44678b898', 'original_producers': 1, 'recipe_source_commit': 'ebd5812640b0b69f5c09a47752b739e37e338754', 'recipes_sha256': '20d846cdf289bfc233b0051bf33b677fd6e94e9f05d91a33595a2829a196fa63', 'schema_version': 1, 'selected_for_release': False, 'source_captures': 2, 'source_date_epoch': 1791748800, 'unchanged_view_sources': 158, 'view_files': 160, 'view_sources': 159}
+BASELINE_DECLARATION = {'baseline_id': 'maintained-native-baseline-v1-vim-9.2.1178-1', 'changed_view_sources': ['scripts/ci/inputs.lock.json'], 'generated_fixtures': 125, 'hardware_validation': 'NOT RUN', 'historical_inputs_sha256': '3c16c37d1b12cc84a88572e82ab8ad59e7f3b5ed0d08f09ddf72a69f4711d650', 'historical_integration_sha256': 'd4d603146f094c86242eaafbb887042959c510c9bb948579dd749d065dd8fc31', 'inputs_sha256': 'a86261268cac80a20cbaeb122d49dbb55b3380ca1c5e53ce1f630c066ab64046', 'installation': 'NOT RUN', 'integration_sha256': '9c5cca5c9b69c59ca44cd677ed49111e03fe1edadc8abd52aaa2f8ced1a5d9ed', 'inventory_sha256': '9901d32a48dc4d85874a3c3f85e34f201b6b21d3614c3549c16b9d835eb28705', 'lineage': 'SUCCESSOR_NOT_HISTORICAL_ORIGINAL', 'native_sha256': 'a8b6ed8971a38089a4499dcec605477c4e48d7a47c3de485d205f6a44678b898', 'original_producers': 1, 'recipe_source_commit': 'ebd5812640b0b69f5c09a47752b739e37e338754', 'recipes_sha256': '20d846cdf289bfc233b0051bf33b677fd6e94e9f05d91a33595a2829a196fa63', 'schema_version': 1, 'selected_for_release': False, 'source_captures': 2, 'source_date_epoch': 1791748800, 'unchanged_view_sources': 158, 'view_files': 160, 'view_sources': 159}
 POLICY = 'manifests/reviewed/repository-generic-policy.json'
 POLICY_SHA = 'ff424921c5be38799f64e5c6264bb098cf71737d7be83608a4c91dee83f0365e'
 LICENSE_SHA = '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7'

@@ -18,11 +18,11 @@ import types
 
 FILE_LIMIT = 8 * 1024**2
 TOTAL_LIMIT = 64 * 1024**2
-INITIAL = '5d0f6b1d335c1949965699d4db6658af313af8977079e9a6464f0e5db4071ed3'
+INITIAL = '9c5cca5c9b69c59ca44cd677ed49111e03fe1edadc8abd52aaa2f8ced1a5d9ed'
 POLICY = 'ff424921c5be38799f64e5c6264bb098cf71737d7be83608a4c91dee83f0365e'
 LICENSE = '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7'
-PHASE_MAP = '1fcd42cb0f6da6c55915373523f63586d95c1640eab2a7deee5cfd5407560f88'
-PHASE_GATE = '8cc9dd323d4022504064a4206ffb8873368b3d97f6ed5af68e67e935a511c14c'
+PHASE_MAP = 'caddf8d390672045a8e4aad4d009d5411e9fbea033f80a804f536489bd0ea1fb'
+PHASE_GATE = '27bf2904286aef1fc85801928feba5a809c1f20e31452e84852c7f8a5a3631c4'
 HANDOFF = 'scripts/ci/development/repository_handoff.py'
 OWN = 'scripts/ci/development/repository_authority.py'
 RUNTIME = 'scripts/port/repository-native-handoff'

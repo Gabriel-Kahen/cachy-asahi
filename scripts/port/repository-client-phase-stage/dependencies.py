@@ -10,7 +10,7 @@ import sys
 import types
 
 ROOT = Path(__file__).resolve().parents[3]
-COLLECTOR_MAP_SHA256 = '4d2f0533a537eaa4582078a3e15d206457878dd5e4f0fe044daa1290995bf52b'
+COLLECTOR_MAP_SHA256 = 'b9b28f99a5e41a563390e9dcb1a9ae88a80827a1e76e2e398d0842573bc36f9c'
 COLLECTOR = {
     'entry.py': '5889e0358bd0a04122e6cfcb061337f1dc415b064ba92f46ae47893a5747e0c8',
     'worker.py': '9a513a59da3cbb58d54c236759e3299072e14194e4d297df911072daa241b060',
@@ -18,10 +18,10 @@ COLLECTOR = {
     'base.py': '94a8e2898b062a0efd0f567d1f4f472bd04d6ff5a1573cd09f3bf8d1f556cddd',
     'provenance.py': '42d18ff6cfa68d7d0a704d0612cbf505f8652b5c24bf6ae69d833b43c08ad02b',
     'crypto.py': 'a3568741238738646593b2c972589f4ae92381611c88dea1c1c234c0e59a46f0',
-    'orchestrator.py': '885b74daf24d3cae91b9f659dcc8f62c8021a1ee9557f420b7db8bf01e52e621',
+    'orchestrator.py': 'cbef9a416846c7a3d231140f902db68aa1eb32546828b21b849e61346c73efc5',
 }
 PREDECESSORS = {
-    'scripts/port/repository-client-stage/gate.py': '8804ee0273079f3d1cfdbd97f4c4f3e5ffcd6403ab3231ad8660d99d074359fd',
+    'scripts/port/repository-client-stage/gate.py': 'f535f5f5fe76c8680e46513a7a727b5f0652488c462d3d5295293200630f080d',
     'scripts/port/repository-client-stage/adapter.py': '69ad53b4bc041d37536ad15a4ced7efa4cb2d61bcd6cb4a62fdfce8a7dbd52ab',
     'scripts/release/release.py': '418c850e8a44ae71517e074f86f46f5999f5fe7433ca6798de945f318191a918',
     'scripts/client/client.py': '3025aa0e167c836e31c949e0915d4ee82a1007dc0fada598b4895240c82f5f97',

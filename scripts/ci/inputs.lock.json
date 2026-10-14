@@ -2670,22 +2670,22 @@
       "depends": [
         "glibc"
       ],
-      "filename": "jbigkit-2.1-8-aarch64.pkg.tar.xz",
+      "filename": "jbigkit-2.2-1-aarch64.pkg.tar.xz",
       "license": [
         "GPL-2.0-or-later"
       ],
       "name": "jbigkit",
       "provides": [],
       "replaces": [],
-      "sha256": "ecaddb099f4a1f1bcbc1497fd0f3dc98581552b9eacaa17c5568211c38bec1db",
-      "signature_sha256": "f00be593f9ab5855f9e450d054e6cacd319ec834ef7fc97c51bcf3be3ebfdb1f",
+      "sha256": "1be37e2dc4b2029668838e9dc7068c5674199a883ca5a0f4c11c7d8005f626ba",
+      "signature_sha256": "a9a18e51c58154f771d8139f5f1c442eefb6756a2b94563af7da67c8e66a0b40",
       "signature_size": 566,
-      "size": 48816,
+      "size": 49740,
       "source_url": [
         "https://www.cl.cam.ac.uk/~mgk25/jbigkit/"
       ],
-      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/jbigkit-2.1-8-aarch64.pkg.tar.xz",
-      "version": "2.1-8"
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/jbigkit-2.2-1-aarch64.pkg.tar.xz",
+      "version": "2.2-1"
     },
     {
       "arch": "aarch64",
@@ -3895,7 +3895,7 @@
         "zlib",
         "zstd"
       ],
-      "filename": "libtiff-4.7.2-1-aarch64.pkg.tar.xz",
+      "filename": "libtiff-4.7.2-2-aarch64.pkg.tar.xz",
       "license": [
         "libtiff"
       ],
@@ -3905,15 +3905,15 @@
         "libtiffxx.so=6-64"
       ],
       "replaces": [],
-      "sha256": "02a5d2d74019b39befd6cf63d9bde95a2d16f91b4d0d56939498375e0e491ffd",
-      "signature_sha256": "8dae1efda531e3ac7db09512cfe0c619eaae6787cc16fdea1315588b4fc340fa",
+      "sha256": "60308af15d83863b3ee1587922add34faca8d950b55aae29434de1423638a9f5",
+      "signature_sha256": "fbaa11aa24da920b08fd060172f99f70d2782e0778b0b286581585f66c705226",
       "signature_size": 566,
-      "size": 354480,
+      "size": 354120,
       "source_url": [
         "http://www.simplesystems.org/libtiff/"
       ],
-      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libtiff-4.7.2-1-aarch64.pkg.tar.xz",
-      "version": "4.7.2-1"
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libtiff-4.7.2-2-aarch64.pkg.tar.xz",
+      "version": "4.7.2-2"
     },
     {
       "arch": "aarch64",
@@ -7598,10 +7598,10 @@
     "extra dav1d 1.5.4-1 dav1d-1.5.4-1-aarch64.pkg.tar.xz https://ca.us.mirror.archlinuxarm.org/aarch64/extra/dav1d-1.5.4-1-aarch64.pkg.tar.xz",
     "extra bubblewrap 0.13.0-1 bubblewrap-0.13.0-1-aarch64.pkg.tar.xz https://ca.us.mirror.archlinuxarm.org/aarch64/extra/bubblewrap-0.13.0-1-aarch64.pkg.tar.xz",
     "extra libjpeg-turbo 3.2.0-2 libjpeg-turbo-3.2.0-2-aarch64.pkg.tar.xz https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libjpeg-turbo-3.2.0-2-aarch64.pkg.tar.xz",
-    "extra jbigkit 2.1-8 jbigkit-2.1-8-aarch64.pkg.tar.xz https://ca.us.mirror.archlinuxarm.org/aarch64/extra/jbigkit-2.1-8-aarch64.pkg.tar.xz",
+    "extra jbigkit 2.2-1 jbigkit-2.2-1-aarch64.pkg.tar.xz https://ca.us.mirror.archlinuxarm.org/aarch64/extra/jbigkit-2.2-1-aarch64.pkg.tar.xz",
     "extra libdeflate 1.26-1 libdeflate-1.26-1-aarch64.pkg.tar.xz https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libdeflate-1.26-1-aarch64.pkg.tar.xz",
     "extra libwebp 1.6.0-2 libwebp-1.6.0-2-aarch64.pkg.tar.xz https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libwebp-1.6.0-2-aarch64.pkg.tar.xz",
-    "extra libtiff 4.7.2-1 libtiff-4.7.2-1-aarch64.pkg.tar.xz https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libtiff-4.7.2-1-aarch64.pkg.tar.xz",
+    "extra libtiff 4.7.2-2 libtiff-4.7.2-2-aarch64.pkg.tar.xz https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libtiff-4.7.2-2-aarch64.pkg.tar.xz",
     "extra lcms2 2.19.1-1 lcms2-2.19.1-1-aarch64.pkg.tar.xz https://ca.us.mirror.archlinuxarm.org/aarch64/extra/lcms2-2.19.1-1-aarch64.pkg.tar.xz",
     "extra giflib 6.1.3-2 giflib-6.1.3-2-aarch64.pkg.tar.xz https://ca.us.mirror.archlinuxarm.org/aarch64/extra/giflib-6.1.3-2-aarch64.pkg.tar.xz",
     "extra libunwind 1.8.3-1 libunwind-1.8.3-1-aarch64.pkg.tar.xz https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libunwind-1.8.3-1-aarch64.pkg.tar.xz",
@@ -11583,7 +11583,7 @@
   ],
   "schema_version": 1,
   "signer_fingerprint": "68B3537F39A313B3E574D06777193F152BDBE6A6",
-  "snapshot_id": "alarm-official-retained-transaction-2026-10-12-perl-refresh",
+  "snapshot_id": "alarm-official-retained-transaction-2026-10-14-jbigkit-libtiff-source09-correction-proposal",
   "snapshot_migrations": [
     {
       "closure": "341 generic metadata records; 1582 relations satisfied; zero conflicts/removals. Native transaction/build/integration NOT RUN.",
@@ -11601,6 +11601,73 @@
       "proposal_sha256": "d39c1b744ea54e282663e99932d58976336496426f7c3c6fd12b94526ff09a8f",
       "reason": "Original pinned Perl archive and signature superseded on official mirrors; explicit authenticated replacement.",
       "scope": "Retain all other original bytes; prior repository_databases describe original capture, not a current full sync snapshot."
+    },
+    {
+      "candidate_sha256": "5bb74679c0c7d93665ffd6e75621cc372b688423da907c14a53010dab6f2fa6c",
+      "fresh_unsigned_extra_observation": {
+        "bytes": 10616459,
+        "sha256": "49d747acaed276cef6a77c0a20ffcfd0e3f949384c6328f20537d7841896dce3",
+        "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/extra.db"
+      },
+      "hardware_validation": "NOT_RUN",
+      "host_version_scope": "Two actual comparisons covering three named declarations only; not whole-341 resolution.",
+      "installation": "NOT_RUN",
+      "native_build": "NOT_RUN",
+      "packages": [
+        {
+          "name": "jbigkit",
+          "new_version": "2.2-1",
+          "old_version": "2.1-8"
+        },
+        {
+          "name": "libtiff",
+          "new_version": "4.7.2-2",
+          "old_version": "4.7.2-1"
+        }
+      ],
+      "passive_archive_ELF_intake": "PASS_RETAINED_TWO_PACKAGE_DECLARATIONS_AND_PAIR_LINKAGE_ONLY",
+      "passive_intake_evidence": {
+        "ABI_source_license_admission": "OPEN",
+        "actual_receipt": {
+          "bytes": 1582,
+          "mode": 420,
+          "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/reviews/maintained-jbigkit-libtiff-passive-intake-root-actual02-20261014/receipt.json",
+          "sha256": "a3189f4a570730fa92ea0670f5a61edc297a30d4736a6ed3b7f5f7473112eae8"
+        },
+        "peer_receipt": {
+          "bytes": 8961,
+          "mode": 420,
+          "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/reviews/maintained-jbigkit-libtiff-passive-intake-build-metadata-correction-proposal-20261014/peer/receipt.json",
+          "sha256": "28870fca47415716dac6d1d8878b480e99db87e9d9611c001b99a6a869cece18"
+        },
+        "peer_scope": "Source-only build metadata correction; not an independent actual report peer.",
+        "scope": "Retained actual two-package metadata, selected passive EM_AARCH64 library/SONAME/DT_NEEDED declarations and pair linkage only; no loader/library execution or runtime symbol/consumer ABI admission.",
+        "status": "PASS_RETAINED_TWO_PACKAGE_DECLARATIONS_AND_PAIR_LINKAGE_ONLY"
+      },
+      "previous_inputs_sha256": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f",
+      "retained_host_version_receipt_sha256": "3231a481f2f2df8a8639318cb4460e0cc53cc9b1245e155d683cd4d9f1010a12",
+      "scope": "Replace exactly two retained package descriptors and their four object selections; other 246 packages including Vim remain identical. Retain historical repository_databases; new unsigned extra observation is separate lineage, not a fresh full repository sync.",
+      "signature_admission": "PASS_TWO_EXACT_TRUSTED_CLI_SIGNATURES_ROOT_PEER_ADMITTED",
+      "signature_evidence": {
+        "ABI_source_license_admission": "OPEN",
+        "actual_receipt": {
+          "bytes": 2064,
+          "mode": 420,
+          "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/reviews/maintained-jbigkit-libtiff-trusted-cli-signatures-root-actual02-20261014/receipt.json",
+          "sha256": "247536273c9fd7910f7e022375226e87f63b9f85d9a13a40f55bdf3ea25aced1"
+        },
+        "peer_receipt": {
+          "bytes": 5485,
+          "mode": 420,
+          "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/reviews/maintained-jbigkit-libtiff-trusted-cli-signatures-root-peer-20261014/receipt.json",
+          "sha256": "8d519bd5a3bc2ad76278957c8ac130e986ee478d033dd0682aa887f40b0dd069"
+        },
+        "scope": "Two exact retained package archives and detached signatures; natural trusted host GPGV completion; accepted full primary and digest10 only. No guardian or whole transaction acceptance.",
+        "status": "PASS_TWO_EXACT_TRUSTED_CLI_SIGNATURES_ROOT_PEER_ADMITTED"
+      },
+      "source_license_ABI_admission": "OPEN",
+      "status": "PRIVATE_PROPOSAL_NOT_ADMITTED",
+      "whole_341_successor_transaction": "NOT_RUN"
     }
   ],
   "source_date_epoch": 1791748800,
