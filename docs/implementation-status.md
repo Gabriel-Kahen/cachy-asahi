@@ -2,6 +2,17 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 14, retained kernel checkpoint: review `ca3afe31` authenticates
+completion `8062415f` and exact Source `3bec0e2e` for trial `38620355690`.
+Producer and acquisition both exit0, producer/probe PASS. Baseline kernel
+command returns0, but its worker returns1 after OUTPUTS/DATA_REFUSAL at
+VERIFY_OUTPUTS/CHECK_001. The eight load-geometry/permission conjuncts map to
+the captured verifier; the actual failing conjunct/operand is UNKNOWN.
+Candidate work is NOT RUN and native compilation is NOT ACCEPTED. Outer and
+child cleanup, owned absence and daemon preservation report PASS separately.
+A closed predicate diagnostic is being prepared; no verifier is weakened and
+no old failure is backfilled. Test-only Source `1ed00455` remains distinct.
+
 October 14, screenshot terminal checkpoint: trial `38628618206` isFAIL
 on exact Source `85a84f9f`. Its registration guard and checkout pass; the
 build/runtime step fails and bounded evidence upload succeeds. Exact runtime
