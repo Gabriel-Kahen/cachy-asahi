@@ -328,7 +328,9 @@ class CacheIntake:
         for parent in path.parents:
             info = g.invoke(parent.lstat)
             need(stat.S_ISDIR(info.st_mode) and info.st_uid in (0, uid)
-                 and not info.st_mode & 0o022, 'intake-directory-ancestor')
+                 and (not info.st_mode & 0o022
+                      or parent == Path('/tmp') and info.st_uid == info.st_gid == 0
+                      and stat.S_IMODE(info.st_mode) == 0o1777), 'intake-directory-ancestor')
         info = g.invoke(path.lstat)
         need(stat.S_ISDIR(info.st_mode) and stat.S_IMODE(info.st_mode) == 0o700
              and info.st_uid == uid and info.st_gid == gid, 'intake-private-directory')

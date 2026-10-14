@@ -7,7 +7,7 @@ import stat
 import time
 
 PREFIX = 'scripts/port/updater-native-stage/'
-INTAKE_SHA = '07ada8534f4fd21def79ab98c62334e4e0e6a7f5b15a9da8c7eacf44376c334d'
+INTAKE_SHA = '25fee4637b081b442100f8669c770d25e174da6a24c73de38a559a8358382691'
 BUFFERS = {
     'scripts/ci/native_arm.py': 'a8b6ed8971a38089a4499dcec605477c4e48d7a47c3de485d205f6a44678b898',
     PREFIX+'donor/current-controller.py': 'bbe279edb9743f98e8feed8365859abc221b2665924658e600775c902e18299e',
