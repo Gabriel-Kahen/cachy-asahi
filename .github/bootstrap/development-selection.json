@@ -65,10 +65,10 @@
     "scripts/virtual/tooling-audit.json": "d3289a52f3269ba44f1437b69a112dcbd2086ee16ebe8d44658e65e7fb8e2095",
     "scripts/virtual/tooling.lock.json": "c18afc5bde9868594d41bd576a956960a7b01b190d148ba03ca4c41d4394e1b0"
   },
-  "peer_receipt_sha256": "d37e086b8f67e12c0aab67d0c650e03e60006ba548b56cdb8af6ab0a95e76a5e",
+  "peer_receipt_sha256": "c1fabf75f5ba90075e300a31c47517f3f8055e9d17816a03f580f1b1d9df494f",
   "purpose": "root-selected-maintained-v1-development-source",
   "schema_version": 3,
-  "source_commit": "96e2713cf17113eba877c3583a4fc9fb0d001839",
+  "source_commit": "0a9484508ea5ec816898073818ca3fbaa6be5a5e",
   "source_files": {
     ".github/workflows/native-arm-build.yml": {
       "mode": 420,
@@ -884,15 +884,15 @@
     },
     "scripts/install/local_transaction.py": {
       "mode": 420,
-      "sha256": "71ca8500c623277d3478800c554b0dfff878302ef041f95e30bad9dd32df403b"
+      "sha256": "47418d0bde6d9330e638baed0cb993d196190b88b2ab99ec4f144ce62cfd7d0a"
     },
     "scripts/install/native_arm_trial.py": {
       "mode": 420,
-      "sha256": "85d869c50f488e10fcf458c979a7a153e7b574bf566fd66efe21fa006d9e3468"
+      "sha256": "597f244bbd957cfc63b4635aa769f589e78d082aac71e153240a0797a806cc97"
     },
     "scripts/install/native_preflight.py": {
       "mode": 420,
-      "sha256": "4a2bbacf28ba190b12ebb4825e568e26b382a643729b1ff5cd1faab830583502"
+      "sha256": "ffcd3a7786d6d1e6b6e5f10783f78490cf400a67e19ab53d4ef0700cc1ae51c5"
     },
     "scripts/install/test_local_transaction.py": {
       "mode": 420,
@@ -904,7 +904,7 @@
     },
     "scripts/install/test_native_preflight.py": {
       "mode": 420,
-      "sha256": "2b3ae147428070e3a218730a4c3e48da288366383650e33891b510220e582c80"
+      "sha256": "86e011d71c0d4c42ab426afacbde7475e4d2bd233fca2b5beca48f56ff869456"
     },
     "scripts/integration/desktop.py": {
       "mode": 420,
@@ -1135,5 +1135,5 @@
       "sha256": "1023f493a5ff1991b382ed42b9960c6e0e98774c75e1a2aa90deff15dad7add1"
     }
   },
-  "source_packet_sha256": "212345c6ef03d9bd8d701e4e0cf7ef5bbe7189659626c5b1d72efc5f59a47c49"
+  "source_packet_sha256": "94974c1cfcc5026e8f717268ee25cd6ef5c213c2ffc73b1e1dc68f9ea5ad441a"
 }
