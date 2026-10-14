@@ -2,6 +2,25 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 14, 07:56 UTC: the grammar correction passes independent peer
+`247dfeca` and is published as Source `2b0cc2ac`, packet `7c91cc1e`. All 124
+committed Source rows and the packet match. Fresh native kernel run `38531276470`
+passes checkout and preflight and is executing; compilation is not yet accepted.
+
+Shared cache correction `bf154021` passes independent peer `bd77f58e`. Root
+adopts exact Pair/Zsh/KSM 2/2/5 copy maps and verifies all 55/67/158 Source/Data
+rows plus their locks. Published Sources are Pair `721cbed2`, Zsh `1542ffb5`,
+and KSM `5efd3e00`. Pair plan `ffe08935` and Zsh plan `2327bacc` are registered
+with exact readbacks before execution-ref pushes. Pair run `38531570132` is
+active; Zsh `38531574136` and KSM `38531573783` are queued under queue:max.
+Native intake, build/comparison and cleanup results remain pending.
+
+Compiler bootstrap/helpers are published as `1044f34c` in draft PR16 after
+Root authenticates author `e6af1072` and peer `efa636be`. All sixteen committed
+source files match; the original thirteen receiver files are unchanged. Static
+CI passes. The branch still has no runnable workflow or active compile grants;
+the concrete job binding is in development.
+
 October 14, current follow-up: composed run `38526888627` completes FAIL with
 Root completion `5a73a9df`. All seven initial integration stages, including
 repository, pass; owned image cleanup passes. The subsequent repository handoff
