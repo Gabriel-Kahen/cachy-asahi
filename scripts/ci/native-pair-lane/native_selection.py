@@ -371,7 +371,7 @@ def _observe(value,integration,guard,process_owner,stdlib_modules,ctypes_module,
     try:
         need(type(integration)is dict and set(integration)=={'core','adapter','bridge','capabilities','capacity'},'native-no-input-authority-flags')
         need(type(value)is dict and 'execution_granted'not in value and 'native'not in value,'native-no-value-grant')
-        start,J,E=value['original_entry'],value['workflow_end'],value['workflow_end']-360
+        start,J,E=value['original_entry'],value['workflow_end'],value['original_entry']+6840
         need(all(type(x)in(int,float) and math.isfinite(x)for x in (start,J,E))
              and J==start+7200 and (guard.start,guard.J,guard.E)==(start,J,E),'native-original-guard-binding')
         owner.check();value=json.loads(json.dumps(value,allow_nan=False))

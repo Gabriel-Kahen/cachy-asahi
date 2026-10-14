@@ -316,11 +316,11 @@
       "sha256": "bc95e54e299d8f9d6a17bd3315090e29ab1b76ccc8866ab4445cd614e560b8cd"
     },
     "scripts/ci/native-pair-lane/native_selection.py": {
-      "bytes": 31683,
+      "bytes": 31686,
       "mode": 420,
       "origin": "source",
       "remote_path": "scripts/ci/native-pair-lane/native_selection.py",
-      "sha256": "92dd35555adbeb75f127c2b2f3b81d8d69bf80fa0606bb7ee3b160ff6d38719e"
+      "sha256": "7cf03f177867d27faa5022353d3c83adceb5660b3a4e92bbb5f81871d1f4ae17"
     },
     "scripts/ci/native-pair-lane/pair_guardian.py": {
       "bytes": 22816,
