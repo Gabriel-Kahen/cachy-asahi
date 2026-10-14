@@ -71,10 +71,10 @@
     "scripts/virtual/tooling-audit.json": "d3289a52f3269ba44f1437b69a112dcbd2086ee16ebe8d44658e65e7fb8e2095",
     "scripts/virtual/tooling.lock.json": "c18afc5bde9868594d41bd576a956960a7b01b190d148ba03ca4c41d4394e1b0"
   },
-  "peer_receipt_sha256": "81252db2a9410198d23385fde529ced5ef23d9632745f7a1bb4995a2f41cd11e",
+  "peer_receipt_sha256": "8003d5f33fc5238d90b8393e6917c7114479341c83e56572a1a95adc52678e56",
   "purpose": "root-selected-maintained-v1-development-source",
   "schema_version": 3,
-  "source_commit": "d0828a1bae48cf7acef29e198add2b44068577bb",
+  "source_commit": "242612c637582cda654a2bf3fb004ae49236b6c6",
   "source_files": {
     ".github/workflows/native-arm-build.yml": {
       "mode": 420,
