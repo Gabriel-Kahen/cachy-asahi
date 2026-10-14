@@ -95,17 +95,40 @@ ROUTE_PREFIX = 'KSM_PRODUCER_ROUTE_V1 '
 TYPEERROR_SITES = frozenset(('FORWARD_RUN_BODY', 'GRAPH_CONTEXT_BODY', 'GRAPH_DISK_GUARD_BODY', 'GRAPH_RESTORE_BODY', 'GRAPH_VERIFY_BODY', 'NATIVE_MAIN_BODY', 'NATIVE_PROBE_BODY', 'NATIVE_RUN_BODY', 'UNKNOWN'))
 
 
+PROBE_STATEMENTS = frozenset(('CHECK_ENDPOINT', 'CHECK_PLATFORM', 'CHECK_UID', 'CONTEXT_ENDPOINT', 'LOCAL_ENDPOINTS', 'READ_CONTEXT', 'RECORD_ASSEMBLY', 'RECORD_CPU', 'RECORD_DOCKER_ARCH', 'RECORD_DOCKER_VERSION', 'RECORD_ENDPOINT', 'RECORD_ENVIRONMENT', 'RECORD_GID', 'RECORD_KERNEL', 'RECORD_PAGE_SIZE', 'RECORD_PYTHON', 'RECORD_SOURCE_HASH', 'RECORD_UID', 'RETURN_RECORD', 'SAVE_FINAL', 'SAVE_INITIAL', 'UNKNOWN'))
+PROBE_SPANS = ((300, 24, 300, 50, 'RECORD_KERNEL'), (300, 65, 300, 91, 'RECORD_PAGE_SIZE'), (301, 36, 301, 104, 'RECORD_DOCKER_ARCH'), (302, 32, 302, 70, 'RECORD_DOCKER_VERSION'), (303, 21, 303, 47, 'RECORD_CPU'), (303, 59, 303, 70, 'RECORD_PYTHON'), (304, 21, 304, 32, 'RECORD_UID'), (304, 41, 304, 52, 'RECORD_GID'), (304, 69, 304, 98, 'RECORD_ENVIRONMENT'), (305, 27, 305, 54, 'RECORD_ENVIRONMENT'), (305, 73, 305, 103, 'RECORD_ENVIRONMENT'), (306, 26, 306, 51, 'RECORD_ENVIRONMENT'), (306, 67, 306, 102, 'RECORD_ENVIRONMENT'), (307, 24, 307, 52, 'RECORD_ENVIRONMENT'), (307, 64, 307, 95, 'RECORD_ENVIRONMENT'), (308, 41, 308, 60, 'RECORD_SOURCE_HASH'), (309, 30, 309, 39, 'RECORD_ASSEMBLY'), (309, 64, 309, 73, 'RECORD_ASSEMBLY'), (300, 4, 309, 74, 'RECORD_ASSEMBLY'), (310, 4, 310, 37, 'SAVE_INITIAL'), (311, 4, 312, 93, 'CHECK_PLATFORM'), (313, 4, 314, 73, 'CHECK_UID'), (315, 4, 315, 78, 'READ_CONTEXT'), (316, 4, 316, 53, 'CONTEXT_ENDPOINT'), (317, 4, 317, 70, 'LOCAL_ENDPOINTS'), (318, 4, 319, 102, 'CHECK_ENDPOINT'), (320, 4, 320, 40, 'RECORD_ENDPOINT'), (321, 4, 321, 37, 'SAVE_FINAL'), (322, 4, 322, 17, 'RETURN_RECORD'))
+PROBE_LINES = {300: 'RECORD_ASSEMBLY', 301: 'RECORD_ASSEMBLY', 302: 'RECORD_ASSEMBLY', 303: 'RECORD_ASSEMBLY', 304: 'RECORD_ASSEMBLY', 305: 'RECORD_ASSEMBLY', 306: 'RECORD_ASSEMBLY', 307: 'RECORD_ASSEMBLY', 308: 'RECORD_ASSEMBLY', 309: 'RECORD_ASSEMBLY', 310: 'SAVE_INITIAL', 311: 'CHECK_PLATFORM', 312: 'CHECK_PLATFORM', 313: 'CHECK_UID', 314: 'CHECK_UID', 315: 'READ_CONTEXT', 316: 'CONTEXT_ENDPOINT', 317: 'LOCAL_ENDPOINTS', 318: 'CHECK_ENDPOINT', 319: 'CHECK_ENDPOINT', 320: 'RECORD_ENDPOINT', 321: 'SAVE_FINAL', 322: 'RETURN_RECORD'}
+
+
+def probe_statement(trace, probe_code):
+    """Map only the already recognized held probe frame to delivered Source sites."""
+    if trace.tb_frame.f_code is not probe_code:return 'UNKNOWN'
+    position = None
+    for offset, span in zip(range(0,len(trace.tb_frame.f_code.co_code),2),trace.tb_frame.f_code.co_positions()):
+        if offset == trace.tb_lasti:position = span; break
+    if position is None:return 'UNKNOWN'
+    if all(type(part) is int for part in position):
+        first, last, column, end_column = position
+        if (first,column) > (last,end_column):return 'UNKNOWN'
+        for start_line, start_column, end_line, end, label in PROBE_SPANS:
+            if (start_line,start_column) <= (first,column) and (last,end_column) <= (end_line,end):
+                return label
+        return 'UNKNOWN'
+    return PROBE_LINES.get(trace.tb_lineno,'UNKNOWN')
+
+
 def typeerror_callsite(error, call_codes):
-    """Return only a finite label from exact held code identities, never frame data."""
-    if type(error) is not TypeError:return 'UNKNOWN'
-    found = 'UNKNOWN'; trace = error.__traceback__
+    """Finite deepest held frame and optional probe statement; never frame data."""
+    if type(error) is not TypeError:return 'UNKNOWN', None
+    found = 'UNKNOWN'; probe = None; trace = error.__traceback__
     for _ in range(64):
-        if trace is None:return found
+        if trace is None:return found, probe_statement(*probe) if probe is not None else None
         code = trace.tb_frame.f_code
         for held, label in call_codes:
-            if code is held:found = label; break
+            if code is held:
+                found = label; probe = (trace,held) if label == 'NATIVE_PROBE_BODY' else None; break
         trace = trace.tb_next
-    return 'UNKNOWN'
+    return 'UNKNOWN', None
 
 
 def emit_route(route, gate, error=None, call_codes=()):
@@ -123,7 +146,9 @@ def emit_route(route, gate, error=None, call_codes=()):
                  'last_source_gate':gate if type(gate) is str and gate in REFUSAL_GATES else 'UNKNOWN',
                  'category':category}
         if route == 'driver_error' and category == 'TypeError' and gate == 'NATIVE_ENTRY':
-            value['callsite'] = typeerror_callsite(error,call_codes)
+            site, statement = typeerror_callsite(error,call_codes)
+            value['callsite'] = site
+            if site == 'NATIVE_PROBE_BODY':value['probe_statement'] = statement
         encoded = ROUTE_PREFIX + json.dumps(value, sort_keys=True, separators=(',',':')) + '\n'
         if len(encoded.encode('ascii')) <= 512:
             sys.stdout.write(encoded); sys.stdout.flush()

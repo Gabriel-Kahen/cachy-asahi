@@ -107,6 +107,9 @@ ROUTE_PREFIX = b'KSM_PRODUCER_ROUTE_V1 '
 TYPEERROR_SITES = frozenset(('FORWARD_RUN_BODY', 'GRAPH_CONTEXT_BODY', 'GRAPH_DISK_GUARD_BODY', 'GRAPH_RESTORE_BODY', 'GRAPH_VERIFY_BODY', 'NATIVE_MAIN_BODY', 'NATIVE_PROBE_BODY', 'NATIVE_RUN_BODY', 'UNKNOWN'))
 
 
+PROBE_STATEMENTS = frozenset(('CHECK_ENDPOINT', 'CHECK_PLATFORM', 'CHECK_UID', 'CONTEXT_ENDPOINT', 'LOCAL_ENDPOINTS', 'READ_CONTEXT', 'RECORD_ASSEMBLY', 'RECORD_CPU', 'RECORD_DOCKER_ARCH', 'RECORD_DOCKER_VERSION', 'RECORD_ENDPOINT', 'RECORD_ENVIRONMENT', 'RECORD_GID', 'RECORD_KERNEL', 'RECORD_PAGE_SIZE', 'RECORD_PYTHON', 'RECORD_SOURCE_HASH', 'RECORD_UID', 'RETURN_RECORD', 'SAVE_FINAL', 'SAVE_INITIAL', 'UNKNOWN'))
+
+
 def producer_route(result, observation):
     """Optional declaration after an observed natural1; never grants acceptance."""
     try:
@@ -147,7 +150,7 @@ def producer_route(result, observation):
         def constant(_): raise ValueError('nonfinite-route')
         value = json.loads(line[len(ROUTE_PREFIX):].decode('ascii'), object_pairs_hook=pairs, parse_constant=constant)
         fields = {'schema_version','route','last_source_gate','category'}
-        if type(value) is not dict or set(value) not in (fields, fields | {'callsite'}):
+        if type(value) is not dict or set(value) not in (fields, fields | {'callsite'}, fields | {'callsite','probe_statement'}):
             return None
         if type(value['schema_version']) is not int or value['schema_version'] != 1:
             return None
@@ -163,6 +166,9 @@ def producer_route(result, observation):
             return None
         if 'callsite' in value and (value['route'] != 'driver_error' or value['category'] != 'TypeError' or
                 value['last_source_gate'] != 'NATIVE_ENTRY' or type(value['callsite']) is not str or value['callsite'] not in TYPEERROR_SITES):
+            return None
+        if 'probe_statement' in value and (value.get('callsite') != 'NATIVE_PROBE_BODY' or
+                type(value['probe_statement']) is not str or value['probe_statement'] not in PROBE_STATEMENTS):
             return None
         return value
     except Exception:
