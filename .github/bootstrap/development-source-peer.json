@@ -1,32 +1,97 @@
 {
-  "code_commit": "677d3ba97398ad99c4bd1063f83862eaf8d981d6",
-  "common_source_model_peer_sha256": "e44b026a065982a71818eda3d67b6c0bfe2280c09120d7128cbf956b76be7905",
-  "composition": "installer-preflight-maintained-v1",
-  "composition_model_peer_sha256": "16ac5dca5694b005b1b6b248bcb93f8ed82fd5836751d6ef81c4e49ec164fd6c",
-  "diagnostic_author_sha256": "c30e7397ba9a6ee2de98eda2a2821cdb2d38ba9cc84cd44a7cc572f0fb7db60c",
-  "downstream_author_sha256": "e31a4d3dc12159b732a6f8fa70b6c5804611f43fd9d851da0c64359502a9f0a7",
-  "historical_actual_trial": "38428419937 FAIL; inner cause UNKNOWN; unchanged",
-  "historical_trial2": "38438328328 FAIL; exact hosted predicate/cleanup UNKNOWN",
-  "historical_trial3": "38444735786 FAIL construct-services/TYPE_ERROR; inner predicate UNKNOWN; unchanged",
-  "historical_trial4": "38449904816 FAIL construct-services/TYPE_ERROR/SERVICE_CANCEL_EXIT; inner predicate UNKNOWN; unchanged",
-  "historical_trial5": "38458048861 FAIL construct-services/TYPE_ERROR/SERVICE_CANCEL_EXIT_SET_HANDLER; failed operand/predicate UNKNOWN; unchanged",
-  "historical_trial6": "38462431231 FAIL construct-services/TYPE_ERROR/SERVICE_CANCEL_EXIT_SET_HANDLER; argument refinement DID_NOT_MATCH and cause UNKNOWN; unchanged",
-  "historical_trial7": "38468791930 FAIL construct-services/TYPE_ERROR/SERVICE_CANCEL_EXIT_SET_HANDLER_NONE_BAD_HANDLER_API; closed None argument and API error-text only; native origin UNKNOWN; unchanged",
-  "historical_trial8": "38480581279 FAIL original-returned/SOURCE_REFUSAL/initial-failed;501 acquisitions497PASS4HTTP404;signature/buildNOTRUN;unchanged",
-  "historical_trial8_peer_sha256": "9fcf1d50733223d9fd8772a89b01adca2a8c01b53bf1db423a1162097b680fa1",
-  "installation_hardware_performance_release": "NOT RUN",
-  "metadata_pins": 14,
-  "native_composed_execution": "NOT RUN",
-  "packet_sha256": "37fe0902cac0c0a82f73c7fb8916f7248a14a535b99e4756924207b7f419dd33",
-  "purpose": "ROOT_REGISTERED_MAINTAINED_COMPOSED_SOURCE_SELECTION",
-  "schema_version": 1,
-  "signal_successor": "Common02398 unchanged; shared launch/transport engine Source reviewed; actual current downstream runtime NOT RUN; unrelated foreign common scope eligibility not inferred",
+  "Root_owns_Source_publication_private_provisioning_exclusive_cache_and_exact_CLI_clock_job_selection": true,
+  "actor_grants": null,
+  "actors_run": 0,
+  "actual_private_chunk_values_read_encoded_copied_or_forwarded": false,
+  "author_leaves_authenticated": 594,
+  "author_receipt": {
+    "bytes": 200104,
+    "mode": 420,
+    "sha256": "f635504856a48b6959f09a3b1ddcd252644f17ebf5a74ccfdbe54f85fb5c483b"
+  },
+  "candidate_module_or_native_helper_imported": false,
+  "changed_objects": 0,
+  "changed_packages": 0,
+  "changed_source_files": 3,
+  "copy_old_joins_matching_source09": 3,
+  "crypto_archive_ELF_network_Git_admin_secret_API_calls": 0,
+  "current_HTTP_retrievability": "UNKNOWN",
+  "distinct_old_object_bytes": 404428,
+  "encoded_char_count_arithmetic_only": 539240,
+  "exclusive_cache_operating_condition": "Root must reserve sole/quiescent cache namespace during seeding and rollback; mode0700 alone does not exclude concurrent same-UID writers",
+  "external_references_authenticated": 301,
+  "fixed_chunk_count": 19,
+  "guide": {
+    "bytes": 9612,
+    "mode": 420,
+    "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/docs/reviews/maintained-old-four-private-cache-input-desktop-review.md",
+    "sha256": "28defffb8f0b9b0756f212fc1c268ba9878e71cfb00e7d23374eb3c3ce49eae5"
+  },
+  "hash_edges": 2,
+  "helper_synthetic_controls": 48,
+  "index": {
+    "bytes": 196225,
+    "mode": 420,
+    "sha256": "d9f51b65b83357b8022710aad0937cec3a1e5f347fe41779981880b39813b020"
+  },
+  "indexed_leaves": 949,
+  "initial_deadline_prefix_residual": "May remain in Root controller until exit; no downstream native/child/export/publication path found on modeled early failure",
+  "inventory_names": 341,
+  "native_build_install_Asahi_16K_both_M2_Air_performance_release": "NOT_RUN",
+  "new_source_commit": null,
+  "old_signature_admission": "LIMITED_TWO_OLD_TRUSTED_HOST_OBSERVATIONS_AND_ROOT_PEER_AUTHENTICATED_DIGEST8_JBIGKIT_DIGEST10_LIBTIFF",
+  "old_signature_metadata_receipts": {
+    "maintained-old-four-signatures-root-actual01-20261014": {
+      "leaves": 5,
+      "receipt": {
+        "bytes": 1461,
+        "mode": 420,
+        "sha256": "195349617c92c9b1b296d86caa2fb6c0f293ba0a5b7fbdc4aae7073f0be7fb5f"
+      },
+      "status": "PASS_CURRENT_OLD_FROZEN_INPUT_SIGNATURES_PENDING_PEER"
+    },
+    "maintained-old-four-signatures-root-peer-20261014": {
+      "leaves": 31,
+      "receipt": {
+        "bytes": 10294,
+        "mode": 420,
+        "sha256": "6ac2a07445b4d1379123d9e59f451ae9104a05a81bae3760eb7fa304ae07894b"
+      },
+      "status": "PASS_CURRENT32_RAW_BYTE_CUSTODY_AND_TWO_RETAINED_OLD_SIGNATURE_OBSERVATIONS"
+    }
+  },
+  "original_clock_J": "UNCHANGED_NO_RENEWAL_OR_NEW_TIMER",
+  "original_inputs_sha256": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f",
+  "preserved_receipts": {
+    "maintained-two-package-input-source09-correction-desktop-peer-20261014": "821e65ad86ec519371bc85ec00ff72ce44f86a3fb1c152f4bbc057c5fbb1757e",
+    "maintained-two-package-input-source09-correction-proposal-20261014": "dc00a469e192e8fb829b3cd738b87b690c29f494d021fb312a72c1bb918bb4f6",
+    "maintained-two-package-input-successor-desktop-peer-20261014": "be5a662960af9e1244f3ee7f18f517ddd35676ff31bc65f320f8f2b0b6bb490f",
+    "updater-maintained-query-final-terminal-gate-desktop-peer-20261014": "e3c6d8e67f3ba0a6f006ac91a26ea30d9a4128523049a073175fb02adffd062c",
+    "updater-maintained-transaction-terminal-mask-correction-proposal-20261013": "714fd155e62339099a493274401da0715bac4a3a470275bd3e7ddbf326c41fe1"
+  },
+  "private_actual_environment_or_credentials_read": false,
+  "private_copy_hash_checks": 8,
+  "private_package_signature_bodies_copied": false,
+  "private_packet_sha256": "9d5a7dc25fd44e127c457c72addb28272b1eb1f5391c4c5b8d5b0a226a3be048",
+  "private_pipeline_execution": "NOT_RUN",
+  "public_source_assertions": 6322,
+  "public_source_refusals": 13,
+  "retained_data_head": "a8222e2256f1dba944ab7fc7911ba83e02442ed8",
+  "rollback_identity_then_unlink_atomic": false,
+  "secret_provisioning": "ROOT_ONLY_NOT_DONE_HERE",
+  "selected_for_release": false,
+  "shared_Source_manifest_workflow_history_registration_mutations": false,
+  "source_and_current_managed_joins": 271,
   "source_commit": "7fde499b5dcbe216c8e17eb07abe236978300f1c",
-  "source_model_peer_sha256": "e7546c0733eae3041563126399af40a71a4e70a655db770fceccd8b9fd04a95a",
-  "source_proof_sha256": "b82c83f63319f7f1191225e0626df519d5396168a8c1e5b518f577952e86dddc",
-  "source_rows": 266,
-  "stdlib_argument_boundary": "Exact trusted stdlib wrapper code/global shape and frame only; native API bytes/origin/causality unproved",
-  "stdlib_boundary": "Inherited trusted stdlib; no independent factory byte authentication",
-  "trusted_Source3_peer_sha256": "124a0f72064ab01a6d75abbdd62448e2e3a550cf696eabe33f2a469c79cfd451",
-  "workflow_peer_sha256": "2535ac2f7a51ed6068c40eeece3c84d4db0d3a5db69c0c833f5dda004125ec64"
+  "status": "SEALED_PASS_SOURCE09_OLD_FOUR_PRIVATE_TRANSPORT_SOURCE_WITH_EXCLUSIVE_CACHE_CONDITION",
+  "subreview_receipt_sha256": {
+    "controls": "a22e23fbe20f3ae67b6260f90372c83a8b1d5116a621d861231fce8f10823768",
+    "source-scope": "c0354012534d7efae1d5fdd6459c4ebeb042572a1bc54010a1961dd76c3a5568"
+  },
+  "transport_descriptors": 501,
+  "unchanged_transport_descriptors": 501,
+  "unconditional_foreign_replacement_preservation": false,
+  "unconditional_prebootstrap_secret_scrubbing": false,
+  "upstream_source_patch_license_and_ABI": "OPEN",
+  "whole501_authentication_and_whole341_transaction": "NOT_RUN"
 }
