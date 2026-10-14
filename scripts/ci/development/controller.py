@@ -42,6 +42,10 @@ INSTALLER_NAME = 'native_install_preflight'
 ZSH_NAMES = {'zsh_addon':'development_zsh_addon', 'zsh_session':'development_zsh_session'}
 
 
+INSTALLER_RUN_STAGES = ('ENTRY', 'LIVE_OWNER', 'ACTOR_CONTRACT', 'NATIVE_HOST', 'OUTPUT_BOUNDARY', 'RECEIVER_NAMESPACE', 'OUTPUT_CREATE', 'NONCE', 'TRANSPORT_CREATE', 'TRANSPORT_GUARD', 'DAEMON_INFO', 'IMAGE_INSPECT', 'IMAGE_HANDOFF', 'TRIAL_SELECTION', 'TRIAL_WRITE', 'CONTAINER_CREATE', 'CONTAINER_ID', 'CONTAINER_INSPECT', 'CONTAINER_BINDING', 'CONTAINER_START', 'CONTAINER_REMOVE', 'CONTAINER_ABSENCE', 'TRANSPORT_CLOSE', 'RECEIVER_ACCEPT', 'FINAL_LIVE', 'RETURN')
+INSTALLER_RUN_PREDICATES = ('ACTIVE_NATIVE_OWNER_REQUIRED', 'ACTOR_CONTRACT', 'BRIDGE_NAMESPACE', 'COMMAND_CLEANUP', 'COMMAND_COUNT', 'CONTAINER_BINDING', 'CONTAINER_CREATE', 'CONTAINER_ENV', 'CONTAINER_ID', 'CONTAINER_INSPECT', 'CONTAINER_INSPECT_SHAPE', 'CONTAINER_MOUNTS', 'CONTAINER_NAME', 'CONTAINER_POLICY', 'CONTAINER_TMPFS', 'DEADLINE', 'IMAGE_BINDING', 'IMAGE_CONFIG', 'IMAGE_INSPECT', 'ISSUER_BUILTINS', 'ISSUER_CLASS', 'ISSUER_CODE', 'ISSUER_CONSTANT', 'ISSUER_IMPORT', 'ISSUER_PIN', 'ISSUER_WRAPPER', 'JSON_DUPLICATE', 'JSON_NONFINITE', 'LIVE_GRAPH_REQUIRED', 'LIVE_OWNER_REQUIRED', 'NATIVE_LOCAL_DAEMON', 'NATIVE_ORDINARY_HOST', 'NONCE', 'OUTPUT_BOUNDARY', 'P0_REFUSED', 'PROFILE_PIN', 'RECEIVER_PIN', 'RECEIVER_RESULT', 'REGISTRATION_REQUIRED', 'OTHER')
+
+
 def retain_installer_control(first, secondary):
     """Keep a newly delivered control distinct from an established first failure."""
     global CANCELLED
@@ -711,12 +715,29 @@ class Development:
             self.report['stages']['native-install-preflight'] = {
                 **{key:item for key,item in value.items() if key != 'public'},'scope':'preflight-only'}
         except BaseException as error:
-            interrupted = isinstance(error,KeyboardInterrupt) or cancelled(controller)
+            interrupted = (isinstance(error,KeyboardInterrupt) or cancelled(controller) or
+                BaseException.__dict__['__dict__'].__get__(error,type(error)).get('native_preflight_cancelled') is True)
             self.report['stages']['native-install-preflight'] = {'status':'FAIL','error_code':'cancelled' if interrupted else
                 'installer-preflight-failed','error_type':type(error).__name__,'scope':'preflight-only'}
             try:
                 self.report['stages']['native-install-preflight']['diagnostic'] = {
                     'schema_version':1,'call_boundary':boundary}
+                if boundary == 'RUN':
+                    state = BaseException.__dict__['__dict__'].__get__(error,type(error))
+                    fact = state.get('native_preflight_run_fact')
+                    if fact is not None:
+                        require(type(fact) is dict and set(fact)=={'schema_version','stage','predicate'} and
+                            type(fact['schema_version']) is int and fact['schema_version']==1 and
+                            type(fact['stage']) is str and fact['stage'] in INSTALLER_RUN_STAGES and
+                            type(fact['predicate']) is str and fact['predicate'] in INSTALLER_RUN_PREDICATES,
+                            'installer-diagnostic-refused')
+                        self.report['stages']['native-install-preflight']['diagnostic'] = {
+                            'schema_version':2,'call_boundary':boundary,'run_stage':fact['stage'],
+                            'run_predicate':fact['predicate'],'capture':'PASS'}
+                    elif state.get('native_preflight_run_fact_failed') is True:
+                        self.report['stages']['native-install-preflight']['diagnostic'] = {
+                            'schema_version':2,'call_boundary':boundary,'run_stage':None,
+                            'run_predicate':None,'capture':'FAIL'}
             except BaseException as secondary:
                 control = retain_installer_control(error, secondary)
                 if control is not None:
