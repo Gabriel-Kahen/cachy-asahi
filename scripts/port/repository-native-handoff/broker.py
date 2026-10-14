@@ -87,10 +87,11 @@ class Pending:
         capture.need(self.transport is None, 'overlapping-transport-scope')
         self.transport = transport
         try:
-            with launch.scoped_executor(integration, private_root=self.root, contract=self.resolve,
+            scope = launch.scoped_executor(integration, private_root=self.root, contract=self.resolve,
                     run=transport, deadline=self.deadline, checkpoint_handler=self.checkpoint,
-                    producer_pin=self.producer_pin, prepare_runner=self.prepare):
-                yield
+                    producer_pin=self.producer_pin, prepare_runner=self.prepare)
+            with scope as executor:
+                yield executor
         finally:
             self.transport = None
     def approve_create(self, command):

@@ -1255,22 +1255,26 @@ class StartupRefusalModels(unittest.TestCase):
         with contextlib.redirect_stdout(output):self.session.emit_startup_refusal(self.end)
         text=output.getvalue();prefix='MAINTAINED_COMPOSED_STARTUP_REFUSAL='
         self.assertTrue(text.startswith(prefix));value=json.loads(text[len(prefix):])
-        self.assertEqual(set(value),{'schema_version','purpose','status','phase','kind','site','native_hook_entered','error_code','cleanup'})
+        self.assertEqual(value['schema_version'],2)
+        self.assertEqual(set(value),{'schema_version','purpose','status','phase','kind','site','object_clause','object_callsite','native_hook_entered','error_code','cleanup'})
         self.assertEqual((value['status'],value['phase'],value['cleanup']),('FAIL','capture-original','FAIL'))
         self.assertNotIn(str(self.root),text);self.assertLessEqual(len(text),1024)
         self.session.result['status']='PASS'
         with self.assertRaises(adapter.Refused):self.session.startup_projection()
     def test_internal_closed_source_site_and_sticky_first_observation(self):
-        try:self.sources.graph_function(lambda:None,None)
+        try:self.sources.graph_function(lambda:None,None,callsite='DECLARED')
         except adapter.Refused as error:
             first=error
         else:self.fail('graph function accepted')
         self.assertEqual(str(first),'callback-refused')
         self.assertEqual(first._source_refusal_site,'GRAPH_OBJECT_BINDING')
+        self.assertEqual(first._graph_object_clause,'MODULE_TYPE')
         self.fail(error=first);before=dict(self.session.startup_failure)
         self.session.startup_phase='cleanup';self.session.startup_failed(SystemExit(17))
         self.assertEqual(self.session.startup_failure,before)
         self.assertEqual(self.session.startup_projection()['site'],'GRAPH_OBJECT_BINDING')
+        self.assertEqual(self.session.startup_projection()['object_clause'],'MODULE_TYPE')
+        self.assertEqual(self.session.startup_projection()['object_callsite'],'OTHER')
         self.assertEqual(self.session.result['error_code'],'callback-refused')
     def test_graph_held_code_binding_refusal_is_closed(self):
         module=types.ModuleType('diagnostic-held-code-model')
@@ -1286,7 +1290,8 @@ class StartupRefusalModels(unittest.TestCase):
     def test_invalid_diagnostic_and_expiry_refuse_without_output(self):
         import contextlib,io
         self.fail()
-        for key,value in [('phase','/private/path'),('kind','SECRET'),('site','traceback')]:
+        for key,value in [('phase','/private/path'),('kind','SECRET'),('site','traceback'),
+                          ('object_clause','PRIVATE'),('object_callsite','/private/callsite')]:
             previous=self.session.startup_failure[key];self.session.startup_failure[key]=value
             with self.subTest(key=key),self.assertRaises(adapter.Refused):self.session.startup_projection()
             self.session.startup_failure[key]=previous
@@ -1418,7 +1423,7 @@ class OptionalDiagnosticPublicationCorrection(unittest.TestCase):
                         self.assertIs(session.result['cancelled'],True)
                         self.assertEqual(session.result['error_code'],'callback-refused')
                         self.assertEqual(session.result['cleanup'],'FAIL' if cleanup_fault else 'PASS')
-                        self.assertEqual(session.startup_failure,{'phase':'construct-services','kind':'SOURCE_REFUSAL','site':'OTHER'})
+                        self.assertEqual(session.startup_failure,{'phase':'construct-services','kind':'SOURCE_REFUSAL','site':'OTHER','object_clause':'OTHER','object_callsite':'OTHER'})
                         if corrected:
                             self.assertEqual(result['status'],'FAIL');self.assertIs(result['cancelled'],True)
                             self.assertEqual(result['error_code'],'callback-refused');self.assertIsNone(result['initial_exit_code'])
@@ -1556,7 +1561,7 @@ class ServiceAttributionModels(unittest.TestCase):
         result_before=copy.deepcopy(session.result)
         session.startup_failed(error);before=dict(session.startup_failure)
         projection=session.startup_projection()
-        self.assertEqual(set(projection),{'schema_version','purpose','status','phase','kind','site','native_hook_entered','error_code','cleanup'})
+        self.assertEqual(set(projection),{'schema_version','purpose','status','phase','kind','site','object_clause','object_callsite','native_hook_entered','error_code','cleanup'})
         self.assertEqual((projection['status'],projection['error_code'],projection['cleanup']),('FAIL','source-refused','PASS'))
         self.assertFalse(projection['native_hook_entered']);self.assertLessEqual(len(adapter.encoded(projection)),1024)
         self.assertEqual(session.result,result_before)
@@ -1577,7 +1582,7 @@ class ServiceAttributionModels(unittest.TestCase):
         self.assertEqual(session.service_failure_site(error),'OTHER')
         session.startup_failure=None;session.service_failure_site=lambda error:(_ for _ in ()).throw(KeyboardInterrupt())
         session.startup_failed(error)
-        self.assertEqual(session.startup_failure,{'phase':'construct-services','kind':'TYPE_ERROR','site':'OTHER'})
+        self.assertEqual(session.startup_failure,{'phase':'construct-services','kind':'TYPE_ERROR','site':'OTHER','object_clause':'OTHER','object_callsite':'OTHER'})
         self.assertEqual((error.args,error.__traceback__),original)
         self.assertEqual(session.result,result_before)
 
@@ -1637,7 +1642,7 @@ class CancellationExitAttributionModels(unittest.TestCase):
         session.result.update(status='FAIL',error_code='source-refused',cleanup='PASS');session.native_hook_entered=False
         result_before=copy.deepcopy(session.result);original=(error.args,error.__traceback__)
         session.startup_failed(error);before=dict(session.startup_failure);projection=session.startup_projection()
-        self.assertEqual(set(projection),{'schema_version','purpose','status','phase','kind','site','native_hook_entered','error_code','cleanup'})
+        self.assertEqual(set(projection),{'schema_version','purpose','status','phase','kind','site','object_clause','object_callsite','native_hook_entered','error_code','cleanup'})
         self.assertEqual(projection['site'],'SERVICE_CANCEL_EXIT_SET_HANDLER')
         self.assertEqual((projection['status'],projection['error_code'],projection['cleanup']),('FAIL','source-refused','PASS'))
         self.assertFalse(projection['native_hook_entered']);self.assertLessEqual(len(adapter.encoded(projection)),1024)
@@ -1646,7 +1651,7 @@ class CancellationExitAttributionModels(unittest.TestCase):
         session.startup_failure=None
         def attribution_failed(error):raise KeyboardInterrupt()
         session.service_failure_site=attribution_failed;session.startup_failed(error)
-        self.assertEqual(session.startup_failure,{'phase':'construct-services','kind':'TYPE_ERROR','site':'OTHER'})
+        self.assertEqual(session.startup_failure,{'phase':'construct-services','kind':'TYPE_ERROR','site':'OTHER','object_clause':'OTHER','object_callsite':'OTHER'})
         self.assertEqual(session.result,result_before);self.assertEqual((error.args,error.__traceback__),original)
 
     def test_exit_provenance_refuses_foreign_namespace_hash_and_filename(self):
@@ -1746,13 +1751,13 @@ class HandlerArgumentAttributionModels(unittest.TestCase):
         session.result.update(status='FAIL',error_code='source-refused',cleanup='PASS');session.native_hook_entered=False
         before=copy.deepcopy(session.result);exception_before=(error.args,error.__traceback__)
         session.startup_failed(error);observed=dict(session.startup_failure);projection=session.startup_projection()
-        self.assertEqual(set(projection),{'schema_version','purpose','status','phase','kind','site','native_hook_entered','error_code','cleanup'})
+        self.assertEqual(set(projection),{'schema_version','purpose','status','phase','kind','site','object_clause','object_callsite','native_hook_entered','error_code','cleanup'})
         self.assertEqual(projection['site'],'SERVICE_CANCEL_EXIT_SET_HANDLER_NONE_OTHER_TYPEERROR')
         self.assertLessEqual(len(adapter.encoded(projection)),1024)
         self.assertNotIn('PRIVATE',adapter.encoded(projection).decode());self.assertNotIn('/never/',adapter.encoded(projection).decode())
         session.startup_failed(TypeError('later'));self.assertEqual(session.startup_failure,observed)
         session.startup_failure=None;session.service_failure_site=lambda error:(_ for _ in ()).throw(KeyboardInterrupt())
-        session.startup_failed(error);self.assertEqual(session.startup_failure,{'phase':'construct-services','kind':'TYPE_ERROR','site':'OTHER'})
+        session.startup_failed(error);self.assertEqual(session.startup_failure,{'phase':'construct-services','kind':'TYPE_ERROR','site':'OTHER','object_clause':'OTHER','object_callsite':'OTHER'})
         self.assertEqual(session.result,before);self.assertEqual((error.args,error.__traceback__),exception_before)
 
 class SignalWrapperCompatibilityModels(unittest.TestCase):
@@ -1821,11 +1826,11 @@ class SignalWrapperCompatibilityModels(unittest.TestCase):
         session.startup_failed(error);failure=dict(session.startup_failure);projection=session.startup_projection()
         self.assertEqual(projection['site'],'SERVICE_CANCEL_EXIT_SET_HANDLER_WRAPPER_FLAGS')
         self.assertEqual((projection['status'],projection['error_code'],projection['cleanup']),('FAIL','source-refused','PASS'))
-        self.assertFalse(projection['native_hook_entered']);self.assertEqual(len(projection),9);self.assertLessEqual(len(adapter.encoded(projection)),1024)
+        self.assertFalse(projection['native_hook_entered']);self.assertEqual(len(projection),11);self.assertLessEqual(len(adapter.encoded(projection)),1024)
         self.assertNotIn('PRIVATE',adapter.encoded(projection).decode());session.startup_failed(TypeError('later'));self.assertEqual(session.startup_failure,failure)
         def broken(error):raise KeyboardInterrupt()
         session.service_failure_site=broken;session.startup_failure=None;session.startup_failed(error)
-        self.assertEqual(session.startup_failure,{'phase':'construct-services','kind':'TYPE_ERROR','site':'OTHER'})
+        self.assertEqual(session.startup_failure,{'phase':'construct-services','kind':'TYPE_ERROR','site':'OTHER','object_clause':'OTHER','object_callsite':'OTHER'})
         self.assertEqual(session.result,result);self.assertEqual((error.args,error.__traceback__),before)
 
     def test_ambient_future_context_keeps_standard_wrapper(self):

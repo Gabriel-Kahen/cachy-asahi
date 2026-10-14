@@ -471,6 +471,7 @@ def inspect_owned(value, expected, *, terminal=False):
              'created resource policy differs')
     except BaseException as _diagnostic_error:
         _label_inspect(_diagnostic_error, 'INSPECT_RESOURCES')
+        _capture_resource_snapshot(_diagnostic_error, host)
         raise
     mounts = row.get('Mounts')
     try:
@@ -547,6 +548,147 @@ def _inspect_diagnostic(error, _refused=Refused,
     return 'OTHER'
 
 
+# Source fragment for a proposed optional diagnostic; no admission logic.
+RESOURCE_FIELDS = ('known_mask', 'failed_mask', 'network_none', 'cgroup_private',
+    'readonly_rootfs', 'privileged', 'pids_limit', 'memory', 'nano_cpus',
+    'cap_add_is_list', 'cap_add_count', 'cap_add_plain_mask', 'cap_add_prefixed_mask', 'cap_add_unknown_count',
+    'cap_add_effective_duplicates', 'cap_drop_count', 'cap_drop_all',
+    'security_opt_count', 'security_bare_nnp', 'security_true_nnp', 'security_false_nnp',
+    'tmpfs_count', 'scratch_tmpfs_match', 'home_tmpfs_match',
+    'extras_known_mask', 'extras_presence_mask')
+
+
+def _resource_snapshot(host, _caps=CAPS, _fields=RESOURCE_FIELDS):
+    """Fixed typed observations only; never return HostConfig or its strings."""
+    if type(host) is not dict or len(host) > 256 or any(type(key) is not str or len(key) > 128 for key in host):
+        return None
+    result = dict.fromkeys(_fields, None)
+    clauses = []
+    def observe(condition, ready=True):
+        clauses.append(bool(condition) if ready else None)
+    def string_match(key, expected):
+        value = host.get(key)
+        return value == expected if type(value) is str else None
+    def integer(key):
+        value = host.get(key)
+        return value if type(value) is int and -1 <= value <= 2**63-1 else None
+    def strings(key):
+        value = host.get(key)
+        return value if type(value) is list and len(value) <= 64 and all(
+            type(item) is str and len(item) <= 128 for item in value) else None
+    for key, field, expected in (('NetworkMode','network_none','none'),
+                                  ('CgroupnsMode','cgroup_private','private')):
+        result[field] = string_match(key, expected)
+        observe(result[field], result[field] is not None)
+    for key, field, expected in (('ReadonlyRootfs','readonly_rootfs',True),
+                                  ('Privileged','privileged',False)):
+        value = host.get(key)
+        result[field] = value if type(value) is bool else None
+        observe(value is expected, result[field] is not None)
+    drop = strings('CapDrop'); result['cap_drop_count'] = len(drop) if drop is not None else None
+    result['cap_drop_all'] = drop == ['ALL'] if drop is not None else None
+    observe(result['cap_drop_all'], drop is not None)
+    add = strings('CapAdd'); raw_add = host.get('CapAdd')
+    result['cap_add_is_list'] = type(raw_add) is list if type(raw_add) in (list,dict,str,int,bool,float,type(None)) else None
+    observe(result['cap_add_is_list'], result['cap_add_is_list'] is not None)
+    result['cap_add_count'] = len(raw_add) if type(raw_add) is list and len(raw_add) <= 64 else None
+    observe(result['cap_add_count'] == 6, result['cap_add_count'] is not None)
+    observe(set(add) == set(_caps) if add is not None else False, add is not None)
+    if add is not None:
+        plain = prefixed = unknown = duplicates = seen = 0
+        for item in add:
+            bit = 0
+            for number, cap in enumerate(_caps):
+                if item == cap: bit = 1 << number; plain |= bit
+                elif item == 'CAP_' + cap: bit = 1 << number; prefixed |= bit
+            if not bit: unknown += 1
+            elif seen & bit: duplicates += 1
+            seen |= bit
+        result.update(cap_add_plain_mask=plain, cap_add_prefixed_mask=prefixed,
+                      cap_add_unknown_count=unknown, cap_add_effective_duplicates=duplicates)
+    for key, field, expected in (('PidsLimit','pids_limit',512), ('Memory','memory',8*1024**3),
+                                  ('NanoCpus','nano_cpus',4*10**9)):
+        result[field] = integer(key); observe(result[field] == expected, result[field] is not None)
+    security = strings('SecurityOpt')
+    result['security_opt_count'] = len(security) if security is not None else None
+    for field, token in (('security_bare_nnp','no-new-privileges'),
+                         ('security_true_nnp','no-new-privileges:true'),
+                         ('security_false_nnp','no-new-privileges:false')):
+        result[field] = token in security if security is not None else None
+    observe(security == ['no-new-privileges'], security is not None)
+    tmpfs = host.get('Tmpfs'); typed = type(tmpfs) is dict and len(tmpfs) <= 64 and all(
+        type(key) is str and len(key) <= 128 and type(value) is str and len(value) <= 256 for key,value in tmpfs.items())
+    result['tmpfs_count'] = len(tmpfs) if typed else None
+    for field, key, expected in (('scratch_tmpfs_match','/scratch','rw,nosuid,nodev,exec,size=6g,mode=0700'),
+                                 ('home_tmpfs_match','/test-home','rw,nosuid,nodev,exec,size=128m,mode=0700')):
+        result[field] = tmpfs.get(key) == expected if typed else None
+    observe(result['tmpfs_count'] == 2 and result['scratch_tmpfs_match'] and result['home_tmpfs_match'], typed)
+    known = present = 0
+    for number,key in enumerate(('Devices','DeviceRequests','Binds','VolumesFrom')):
+        value = host.get(key)
+        if type(value) in (list,dict,str,int,bool,float,type(None)):
+            known |= 1 << number
+            if value: present |= 1 << number
+    result.update(extras_known_mask=known, extras_presence_mask=present)
+    observe(present == 0, known == 15)
+    result['known_mask'] = sum(1 << number for number,value in enumerate(clauses) if value is not None)
+    result['failed_mask'] = sum(1 << number for number,value in enumerate(clauses) if value is False)
+    return result
+
+
+def _closed_resource_snapshot(value, _fields=RESOURCE_FIELDS):
+    """A malformed optional observation becomes unknown, never a new cause."""
+    try:
+        if type(value) is not dict or len(value) != len(_fields) or any(type(key) is not str for key in value): return None
+        if set(value) != set(_fields): return None
+        result = {}
+        for field in _fields:
+            item = value[field]
+            if field in ('network_none','cgroup_private','readonly_rootfs','privileged','cap_drop_all',
+                         'security_bare_nnp','security_true_nnp','security_false_nnp',
+                         'scratch_tmpfs_match','home_tmpfs_match','cap_add_is_list'):
+                if item is not None and type(item) is not bool: return None
+            else:
+                limit = (2**63-1 if field in ('pids_limit','memory','nano_cpus') else
+                         16383 if field in ('known_mask','failed_mask') else
+                         15 if field in ('extras_known_mask','extras_presence_mask') else
+                         63 if field in ('cap_add_plain_mask','cap_add_prefixed_mask') else 64)
+                minimum = -1 if field in ('pids_limit','memory','nano_cpus') else 0
+                if item is not None and (type(item) is not int or not minimum <= item <= limit): return None
+            result[field] = item
+        if type(result['known_mask']) is not int or type(result['failed_mask']) is not int: return None
+        if result['failed_mask'] & ~result['known_mask']: return None
+        if type(result['extras_known_mask']) is not int or type(result['extras_presence_mask']) is not int: return None
+        if result['extras_presence_mask'] & ~result['extras_known_mask']: return None
+        cap_fields = ('cap_add_count','cap_add_plain_mask','cap_add_prefixed_mask',
+                      'cap_add_unknown_count','cap_add_effective_duplicates')
+        if all(type(result[field]) is int for field in cap_fields):
+            effective = result['cap_add_plain_mask'] | result['cap_add_prefixed_mask']
+            if effective.bit_count() + result['cap_add_unknown_count'] + result['cap_add_effective_duplicates'] != result['cap_add_count']: return None
+            if (result['cap_add_plain_mask'] & result['cap_add_prefixed_mask']).bit_count() > result['cap_add_effective_duplicates']: return None
+        return result
+    except BaseException:
+        return None
+
+
+def _capture_resource_snapshot(error, host, _refused=Refused):
+    try:
+        if type(error) is _refused and _inspect_diagnostic(error) == 'INSPECT_RESOURCES':
+            value = _closed_resource_snapshot(_resource_snapshot(host))
+            if value is not None: BaseException.__setattr__(error, '_repository_resource_snapshot', value)
+    except BaseException:
+        pass
+
+
+def _resource_diagnostic(error, _refused=Refused):
+    try:
+        if type(error) is _refused and _inspect_diagnostic(error) == 'INSPECT_RESOURCES':
+            return _closed_resource_snapshot(BaseException.__getattribute__(error, '_repository_resource_snapshot'))
+    except BaseException:
+        pass
+    return None
+
+
 def _observe_launch_diagnostic(observation, channel, operation, error,
                               _operations=LAUNCH_DIAGNOSTIC_OPERATIONS):
     try:
@@ -556,6 +698,7 @@ def _observe_launch_diagnostic(observation, channel, operation, error,
             observation[channel + '_operation'] = (operation if type(operation) is str
                 and operation in _operations else 'OTHER')
             observation[channel + '_check'] = _inspect_diagnostic(error)
+            observation[channel + '_resources'] = _resource_diagnostic(error)
     except BaseException:
         pass
 
@@ -576,6 +719,12 @@ def _public_launch_diagnostic(observation, _operations=LAUNCH_DIAGNOSTIC_OPERATI
             pass
         result[channel + '_operation'] = operation
         result[channel + '_check'] = check if operation == 'NONE' or check != 'NONE' else 'OTHER'
+        resources = None
+        try:
+            if type(observation) is dict and len(observation) <= 64 and all(type(key) is str for key in observation):
+                if check == 'INSPECT_RESOURCES': resources = _closed_resource_snapshot(observation.get(channel + '_resources'))
+        except BaseException:pass
+        result[channel + '_resources'] = resources
     return result
 
 
@@ -591,6 +740,7 @@ def run_repository(command, log, private_root, original_executor, *, contract, r
     state = Cancellation(); submitted = False; expected = None; work = None; protocol = None; fault = None
     diagnostic = {channel + '_' + field: 'NONE' for channel in ('first', 'cleanup', 'publication')
                   for field in ('operation', 'check')}
+    diagnostic.update({channel + '_resources': None for channel in ('first','cleanup','publication')})
     operation = cleanup_operation = publication_operation = 'OTHER'
     receipt['diagnostic'] = diagnostic
     def call(argv, end):

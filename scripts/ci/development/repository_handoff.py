@@ -379,7 +379,7 @@ class Sources:
         need(set(vars(cls)) <= allowed,'callback-refused')
         return dict(state)
 
-    def graph_function(self, function, module, compiled=None):
+    def graph_function(self, function, module, compiled=None, *, callsite='OTHER'):
         """Private loader namespaces bind objects, never filename labels alone."""
         try:
             need(type(function) is types.FunctionType and type(module) is types.ModuleType
@@ -393,6 +393,13 @@ class Sources:
                             and trace.tb_next.tb_frame.f_code is need.__code__
                             and trace.tb_next.tb_frame.f_globals is globals() and trace.tb_next.tb_next is None):
                         error._source_refusal_site = 'GRAPH_OBJECT_BINDING'
+                        error._graph_object_clause = ('FUNCTION_TYPE' if type(function) is not types.FunctionType else
+                            'MODULE_TYPE' if type(module) is not types.ModuleType else 'GLOBALS')
+                        caller = trace.tb_frame.f_back
+                        sites = ('DECLARED','OVERRIDE','IMPORTED','LAUNCH_VALIDATOR','COMMON_VALIDATOR','LANGUAGE')
+                        if (type(callsite) is str and callsite in sites and caller is not None and
+                                caller.f_code is Sources.graph_namespace.__code__ and caller.f_globals is globals()):
+                            error._graph_object_callsite = callsite
             except BaseException:pass
             raise
         filename = str(Path(module.__file__).absolute());path = self.locate(filename)
@@ -413,6 +420,107 @@ class Sources:
                         error._source_refusal_site = 'GRAPH_HELD_CODE_BINDING'
             except BaseException:pass
             raise
+
+    def native_executor_state(self, session, modules, cache):
+        """One Source-owned active interposer; no arbitrary cross-namespace route."""
+        endpoint = session.work_end if session.work_end is not None else session.job_deadline
+        check(endpoint,session.cancelled)
+        if session.native_executor_scope is None:
+            need(session.native_executor is None and session.native_services is None and
+                 session.native_runtime_contract is None,'callback-refused')
+            return None
+        integration = modules.get('scripts/ci/integration.py')
+        broker = modules[PREFIXES['runtime']+'/broker.py']
+        launch = modules[PREFIXES['runtime']+'/launch.py']
+        transport_module = modules[PREFIXES['runtime']+'/transport.py']
+        entry = modules[PREFIXES['runtime']+'/entry.py']
+        services, runtime = session.native_services, session.native_runtime_contract
+        need(type(services) is dict and all(type(key) is str for key in services) and
+             set(services) == {'pending','transport','supervise_factory'} and
+             type(runtime) is dict and all(type(key) is str for key in runtime) and
+             set(runtime) == {'cli_sha256','endpoint_identity','env'} and
+             type(runtime['cli_sha256']) is str and re.fullmatch('[0-9a-f]{64}',runtime['cli_sha256']) and
+             type(runtime['endpoint_identity']) in (tuple,list) and len(runtime['endpoint_identity']) == 6 and
+             all(type(value) is int for value in runtime['endpoint_identity']) and
+             type(runtime['env']) is dict and all(type(key) is str and type(value) is str
+                 for key,value in runtime['env'].items()) and
+             digest(encoded(runtime)) == self.grant['actor_contract_sha256'],'callback-refused')
+        pending, transport = services['pending'], services['transport']
+        self.class_state(pending,PREFIXES['runtime']+'/broker.py',broker)
+        self.class_state(transport,PREFIXES['runtime']+'/transport.py',transport_module)
+        need(type(pending) is broker.Pending and type(transport) is transport_module.DockerTransport and
+             pending.transport is transport and type(session.private) is type(self.root) and
+             type(pending.root) is type(self.root) and pending.root == session.private/'custody' and
+             pending.deadline is session.job_deadline and pending.cancelled is session.cancelled and
+             type(pending.producer_raw) is bytes and pending.producer_raw == self.raw[PREFIXES['runtime']+'/producer.py'] and
+             type(pending.producer_pin) is str and pending.producer_pin == self.grant['source_files'][PREFIXES['runtime']+'/producer.py']['sha256'] and
+             type(transport.cli) is dict and type(transport.cli.get('sha256')) is str and
+             transport.cli['sha256'] == runtime['cli_sha256'] and type(transport.env) is dict and
+             all(type(key) is str and type(value) is str for key,value in transport.env.items()) and
+             transport.env == runtime['env'] and type(transport.endpoint) is tuple and
+             all(type(value) is int for value in transport.endpoint) and
+             transport.endpoint == tuple(runtime['endpoint_identity']),'callback-refused')
+        def method(value, owner, declaration):
+            need(type(value) is types.MethodType and value.__self__ is owner and
+                 value.__func__ is declaration,'callback-refused')
+        method(transport.validator,pending,broker.Pending.approve_create)
+        guard = transport.guard
+        self.graph_function(guard,entry,cache)
+        need(guard.__code__.co_qualname == 'services.<locals>.source_guard' and
+             guard.__closure__ is not None,'callback-refused')
+        closure = dict(zip(guard.__code__.co_freevars,(cell.cell_contents for cell in guard.__closure__)))
+        need(set(closure) == {'cancelled','job_deadline','root','rows','source_identities'} and
+             closure['cancelled'] is session.cancelled and closure['job_deadline'] is session.job_deadline and
+             type(closure['root']) is type(self.root) and closure['root'] == self.root/PREFIXES['runtime'] and
+             type(closure['rows']) is dict and all(type(name) is str and type(row) is dict and
+                 all(type(key) is str and type(value) in (str,int) for key,value in row.items())
+                 for name,row in closure['rows'].items()) and closure['rows'] == decode(self.raw[self.grant['maps']['runtime']['path']]),'callback-refused')
+        self.graph_function(broker.Pending.interpose.__wrapped__,broker,cache)
+        self.graph_function(launch.scoped_executor.__wrapped__,launch,cache)
+        scope = session.native_executor_scope
+        need(type(scope) is contextmanager.__globals__['_GeneratorContextManager'],'callback-refused')
+        generator = object.__getattribute__(scope,'gen')
+        need(type(generator) is types.GeneratorType and generator.gi_frame is not None and
+             not generator.gi_running and generator.gi_code is broker.Pending.interpose.__wrapped__.__code__ and
+             generator.gi_frame.f_globals is broker.__dict__,'callback-refused')
+        outer = generator.gi_frame.f_locals
+        need(outer.get('self') is pending and outer.get('integration') is integration and
+             outer.get('transport') is transport and outer.get('executor') is session.native_executor,'callback-refused')
+        inner_scope = outer.get('scope')
+        need(type(inner_scope) is contextmanager.__globals__['_GeneratorContextManager'],'callback-refused')
+        inner = object.__getattribute__(inner_scope,'gen')
+        need(type(inner) is types.GeneratorType and inner.gi_frame is not None and not inner.gi_running and
+             inner.gi_code is launch.scoped_executor.__wrapped__.__code__ and
+             inner.gi_frame.f_globals is launch.__dict__,'callback-refused')
+        local = inner.gi_frame.f_locals
+        function, original, options = session.native_executor, local.get('original'),local.get('options')
+        need(type(integration) is types.ModuleType and local.get('module') is integration and
+             type(local.get('identity')) is int and local['identity'] == id(integration) and type(launch._SCOPES) is set and
+             all(type(value) is int for value in launch._SCOPES) and id(integration) in launch._SCOPES and local.get('executor') is function and
+             integration.__dict__.get('execute_container') is function,'callback-refused')
+        self.graph_function(function,launch,cache)
+        self.graph_function(original,integration,cache)
+        need(function.__code__.co_qualname == 'scoped_executor.<locals>.executor' and
+             type(function.__defaults__) is tuple and len(function.__defaults__) == 2 and
+             type(function.__defaults__[0]) is int and function.__defaults__[0] == 1800 and
+             type(function.__defaults__[1]) is bool and function.__defaults__[1] is False and
+             function.__kwdefaults__ is None and
+             function.__closure__ is not None and function.__code__.co_freevars == ('options','original') and
+             function.__closure__[0].cell_contents is options and function.__closure__[1].cell_contents is original and
+             original.__code__.co_qualname == 'execute_container' and original.__closure__ is None and
+             type(original.__defaults__) is tuple and len(original.__defaults__) == 2 and
+             type(original.__defaults__[0]) is int and original.__defaults__[0] == 1800 and
+             type(original.__defaults__[1]) is bool and original.__defaults__[1] is False and
+             original.__kwdefaults__ is None,'callback-refused')
+        need(type(options) is dict and all(type(key) is str for key in options) and set(options) == {'private_root','contract','run','deadline',
+             'checkpoint_handler','producer_pin','prepare_runner'} and options['private_root'] is pending.root and
+             options['run'] is transport and options['deadline'] is session.job_deadline and
+             options['producer_pin'] is pending.producer_pin,'callback-refused')
+        method(options['contract'],pending,broker.Pending.resolve)
+        method(options['checkpoint_handler'],pending,broker.Pending.checkpoint)
+        method(options['prepare_runner'],pending,broker.Pending.prepare)
+        check(endpoint,session.cancelled)
+        return (function,original)
 
     def source_graph(self, session, *, capture=False):
         """Explicit actual namespaces supplied by this Session's captured loaders."""
@@ -476,12 +584,13 @@ class Sources:
                 parent,name = label.split('.')
                 need(graph['original'][parent].__dict__.get(name) is value and type(value) is types.ModuleType
                      and value.__file__ == str(self.original_root/alias_paths[label]),'callback-refused')
+            interposer = self.native_executor_state(session,modules,compiled)
             for path,value in modules.items():
                 domain = self.original_root if path in original.values() else self.root
                 need(type(value) is types.ModuleType and value.__file__ == str(domain/path) and path in self.raw,
                      'callback-refused')
-                self.graph_namespace(value,path,modules,aliases,compiled)
-            for label,value in aliases.items():self.graph_namespace(value,alias_paths[label],modules,aliases,compiled)
+                self.graph_namespace(value,path,modules,aliases,compiled,interposer=interposer)
+            for label,value in aliases.items():self.graph_namespace(value,alias_paths[label],modules,aliases,compiled,interposer=interposer)
             if installer is not None:
                 installer.namespace(installer,self.raw[installer_path],self.grant['source_files'][installer_path]['sha256'])
             admission = ()
@@ -492,7 +601,7 @@ class Sources:
                 admission = (('zsh-admission',id(state),*(id(value) for value in state)),
                              ('zsh-guards',self.zsh_guard_identity(state)))
             else:need(self.zsh_admission is None,'callback-refused')
-            observation = self.graph_identity((module,)+tuple(modules.values())+tuple(aliases.values()))+admission
+            observation = self.graph_identity((module,)+tuple(modules.values())+tuple(aliases.values()),interposer=interposer)+admission
             proof = (('zsh-proof',self.zsh_proof()),) if admission else ()
             if capture:
                 # Only the two authenticated loader boundaries may establish it.
@@ -513,11 +622,12 @@ class Sources:
                 installer.namespace(installer,self.raw[installer_path],self.grant['source_files'][installer_path]['sha256'])
         return modules
 
-    def graph_identity(self, modules):
+    def graph_identity(self, modules, *, interposer=None):
         """Exact observed executable references plus closed loader closure data."""
         seen = set();count = 0;compiled = {};namespaces = set();functions = []
         def observe(value,depth=0):
             nonlocal count
+            if interposer is not None and value is interposer[0]:value = interposer[1]
             count += 1
             need(depth <= 64 and count <= 100000,'callback-refused')
             if value is None or type(value) in (str,bytes,int,bool,float):return (type(value),value)
@@ -629,7 +739,7 @@ class Sources:
                  and type(suffixes) is list and len(suffixes) <= 64
                  and all(type(suffix) is str for suffix in suffixes),'callback-refused')
 
-    def graph_namespace(self,module,path,modules,aliases,cache):
+    def graph_namespace(self,module,path,modules,aliases,cache, *, interposer=None):
         """All declared functions/import hooks retain their captured implementation."""
         entry_path = PREFIXES['runtime']+'/entry.py'
         overrides = {
@@ -644,8 +754,12 @@ class Sources:
         for node in ast.parse(self.raw[path]).body:
             if not isinstance(node,ast.FunctionDef):continue
             value = module.__dict__.get(node.name)
+            if path == 'scripts/ci/integration.py' and node.name == 'execute_container' and interposer is not None:
+                need(value is interposer[0] and interposer[1].__code__ == compiled.get(node.name),'callback-refused')
+                self.graph_function(value,modules[PREFIXES['runtime']+'/launch.py'],cache,callsite='OVERRIDE')
+                continue
             if (path,node.name) in overrides:
-                self.graph_function(value,modules[entry_path],cache)
+                self.graph_function(value,modules[entry_path],cache,callsite='OVERRIDE')
                 need(value.__code__.co_qualname == overrides[path,node.name],'callback-refused')
                 continue
             if node.decorator_list:
@@ -661,7 +775,7 @@ class Sources:
                      value.__code__.co_freevars == ('func',) and value.__defaults__ is None and value.__kwdefaults__ is None
                      and value.__closure__[0].cell_contents is getattr(value,'__wrapped__',None),'callback-refused')
                 value = value.__wrapped__
-            self.graph_function(value,module,cache)
+            self.graph_function(value,module,cache,callsite='DECLARED')
             need(value.__code__ == compiled.get(node.name),'callback-refused')
         for value in module.__dict__.values():
             if type(value) is types.FunctionType:
@@ -673,7 +787,7 @@ class Sources:
                 if self.project_file(filename):
                     function_path = self.locate(filename)
                     need(function_path in modules,'callback-refused')
-                    self.graph_function(unwrapped,module if function_path == path else modules[function_path],cache)
+                    self.graph_function(unwrapped,module if function_path == path else modules[function_path],cache,callsite='IMPORTED')
             if type(value) is types.ModuleType:
                 origin = getattr(value,'__file__',None)
                 if origin and self.project_file(origin):
@@ -682,14 +796,14 @@ class Sources:
                          'callback-refused')
         if path == PREFIXES['runtime']+'/launch.py':
             validator=module.__dict__.get('cancellation_state')
-            self.graph_function(validator,module,cache)
+            self.graph_function(validator,module,cache,callsite='LAUNCH_VALIDATOR')
             need(validator.__defaults__ == (None,) and validator.__kwdefaults__ is None and
                  validator.__closure__ is None,'callback-refused')
             validator()
 
         if path == PREFIXES['collector']+'/common.py':
             validator = module.__dict__.get('cancellation_state')
-            self.graph_function(validator, module, cache)
+            self.graph_function(validator, module, cache,callsite='COMMON_VALIDATOR')
             need(validator.__defaults__ is None and validator.__kwdefaults__ is None and
                  validator.__closure__ is None, 'callback-refused')
             validator()
@@ -700,7 +814,7 @@ class Sources:
             if value is vars(builtins)[name]:continue
             need(type(value) is types.FunctionType,'callback-refused')
             filename = Path(value.__code__.co_filename).absolute()
-            if filename == self.root/entry_path:self.graph_function(value,modules[entry_path],cache)
+            if filename == self.root/entry_path:self.graph_function(value,modules[entry_path],cache,callsite='LANGUAGE')
             else:self.global_function(value)
 
     def zsh_guards(self, session, modules):
@@ -1252,6 +1366,8 @@ class Session:
         self.view_root = self.view_node = self.view_parent_node = None
         self.view_receipt = self.view_receipt_sha256 = None
         self.original_scope = self.native_consumer_observation = None
+        self.native_executor_scope = self.native_executor = None
+        self.native_services = self.native_runtime_contract = None
         self.phase_export_raw = self.phase_export_sha256 = None
         self.result = {'schema_version':1, 'purpose':'same-job-repository-handoff', 'status':'NOT RUN',
             'initial_exit_code':None, 'callback_entered':False, 'input_acceptance':'NOT RUN',
@@ -1476,7 +1592,9 @@ class Session:
         if site == 'OTHER' and type(error) is TypeError:
             try:site = self.service_failure_site(error)
             except BaseException:pass  # Optional attribution never replaces the first cause.
-        self.startup_failure = {'phase':self.startup_phase,'kind':kind,'site':site}
+        self.startup_failure = {'phase':self.startup_phase,'kind':kind,'site':site,
+            'object_clause':vars(error).get('_graph_object_clause','OTHER') if type(error) is Refused else 'OTHER',
+            'object_callsite':vars(error).get('_graph_object_callsite','OTHER') if type(error) is Refused else 'OTHER'}
 
     def startup_projection(self):
         """Failure-only closed observations; never an acceptance/status receipt."""
@@ -1512,14 +1630,17 @@ class Session:
         failure = self.startup_failure
         need(type(self.startup_phase) is str and self.startup_phase in phases and
              type(self.native_hook_entered) is bool and type(failure) is dict and
-             set(failure) == {'phase','kind','site'} and
+             set(failure) == {'phase','kind','site','object_clause','object_callsite'} and
              all(type(failure[key]) is str for key in failure) and
-             failure['phase'] in phases and failure['kind'] in kinds and failure['site'] in sites,
+             failure['phase'] in phases and failure['kind'] in kinds and failure['site'] in sites and
+             failure['object_clause'] in ('FUNCTION_TYPE','MODULE_TYPE','GLOBALS','OTHER') and
+             failure['object_callsite'] in ('DECLARED','OVERRIDE','IMPORTED','LAUNCH_VALIDATOR','COMMON_VALIDATOR','LANGUAGE','OTHER'),
              'status-persistence-failed')
         status = status_projection(self.result)
         need(status['status'] == 'FAIL' and status['error_code'] in CODES,'status-persistence-failed')
-        return {'schema_version':1,'purpose':'maintained-composed-startup-refusal','status':'FAIL',
+        return {'schema_version':2,'purpose':'maintained-composed-startup-refusal','status':'FAIL',
                 'phase':failure['phase'],'kind':failure['kind'],'site':failure['site'],
+                'object_clause':failure['object_clause'],'object_callsite':failure['object_callsite'],
                 'native_hook_entered':self.native_hook_entered,
                 'error_code':status['error_code'],'cleanup':status['cleanup']}
 
@@ -2092,10 +2213,18 @@ class Session:
                     'desktop_projection.policy':original['desktop_projection'].policy}
                 self.startup_phase = 'capture-original'
                 self.sources.source_graph(self,capture=True)
-                with services['pending'].interpose(original['integration'],services['transport']):
-                    check(self.job_deadline,self.cancelled)
-                    self.startup_phase = 'call-original'
-                    code = original['native_arm'].main(argv,integration_consumers=callback)
+                native_scope = services['pending'].interpose(original['integration'],services['transport'])
+                self.native_executor_scope = native_scope
+                self.native_services = services;self.native_runtime_contract = runtime_contract
+                try:
+                    with native_scope as executor:
+                        self.native_executor = executor
+                        check(self.job_deadline,self.cancelled)
+                        self.startup_phase = 'call-original'
+                        code = original['native_arm'].main(argv,integration_consumers=callback)
+                finally:
+                    self.native_executor_scope = self.native_executor = None
+                    self.native_services = self.native_runtime_contract = None
                 need(type(code) is int, 'initial-failed')
                 self.startup_phase = 'original-returned'
                 self.result['initial_exit_code'] = code
