@@ -41,7 +41,8 @@ def _stdlib_role(name,module,builtin_spec=None):
     need(name=='math' and module is math and '__file__'not in attrs,'native-builtin-math-only')
     selected=attrs.get('__spec__')
     need(type(selected)is ModuleSpec and type(builtin_spec)is ModuleSpec
-         and all(s.name=='math' and s.loader is BuiltinImporter and s.origin=='built-in'
+         and all(type(s.name)is str and s.name=='math' and s.loader is BuiltinImporter
+                 and type(s.origin)is str and s.origin=='built-in'
                  and s.has_location is False and s.submodule_search_locations is None
                  for s in (selected,builtin_spec))
          and attrs.get('__loader__')is BuiltinImporter,'native-builtin-math-loader')

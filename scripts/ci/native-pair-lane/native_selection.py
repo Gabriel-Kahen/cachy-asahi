@@ -30,7 +30,7 @@ CORE_BINDING = 'e436b9c3d3046db3b05b1731400c9f8cbe06197ba39109ce62b595ccd29c3fca
 ADAPTER_BINDING = '15d7f1c67988b24d9479f0045440f5091c37254450f0e054825d06a302d4a201'
 ROLE_PINS = {
     'bridge':'68c42111cc299082a1c8618eec86e3cd0a1de648d38fd0876a8f1bbae717ffeb',
-    'capabilities':'7dcff8f104fa0d79157229804a6c30712eb60adf49a7c134110ebe0d88cd81b5',
+    'capabilities':'376ef21997ef77360d9d07c0e13ec73d05b54a00e51b0ce1a3243922fb0a53c8',
     'capacity':'d591a0d1d10f40b412c68dac7f055d1d15c19eee7a4fabde99d3febfff9b3f64'}
 BOOTSTRAP_PIN='3fad35ba37f94197fbb6e44cf10602960536b4807e8a165b1942f910cba8f814'
 ABI = {'pointer_bits':64,'size_t_bits':64,'signatures':{
@@ -381,7 +381,8 @@ def _stdlib_role(name,module,builtin_spec=None):
     need(name=='math' and module is math and '__file__'not in attrs,'native-builtin-math-only')
     selected=attrs.get('__spec__')
     need(type(selected)is ModuleSpec and type(builtin_spec)is ModuleSpec
-         and all(s.name=='math' and s.loader is BuiltinImporter and s.origin=='built-in'
+         and all(type(s.name)is str and s.name=='math' and s.loader is BuiltinImporter
+                 and type(s.origin)is str and s.origin=='built-in'
                  and s.has_location is False and s.submodule_search_locations is None
                  for s in (selected,builtin_spec))
          and attrs.get('__loader__')is BuiltinImporter,'native-builtin-math-loader')
