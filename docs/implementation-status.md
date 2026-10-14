@@ -2,6 +2,21 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 14, reviewed correction checkpoint: virtual SVG preflight now preserves
+cancellation/exit identity after its bounded diagnostic. Source `269d3d95` is
+published after independent review `481082d7`; eleven focused controls pass.
+The prior guest still has zero accepted frames. Full maintained composition
+and fresh runtime bindings are required before another actual guest trial.
+
+Screenshot APT3.0.3 source tracing identifies --no-download shutting down the
+queued local-file acquisition before its callback supplies an absolute path.
+A two-file correction permits local acquisition inside the unchanged offline
+Docker build, disables package repositories and preserves all196 package pins.
+Independent Source review is underway; corrected installation/capture is NOT RUN.
+P0's successor also wires the existing19 authorized secret chunks into an owned
+verified cache and materializes the authenticated input lock before image prep.
+Its final Source review and actual execution remain pending.
+
 October 14, screenshot cause and P0 integration checkpoint: review `2e49b9d8`
 and33 retained files authenticate trial `38628618206`. Base pull passes;
 APT rejects a nonabsolute libexpat1 pathname, returns100 and Docker build
