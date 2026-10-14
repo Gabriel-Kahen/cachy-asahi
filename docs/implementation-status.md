@@ -4,6 +4,34 @@ October 12, 2026. This record tracks the complete `outline.md` scope; an impleme
 
 The full-goal responsibilities R1–R5 are mapped in `docs/acceptance.md`, with owned tasks and corrective next actions in `docs/backlog.md`. The destination now explicitly requires the maintained ARM package repository, native performance engineering, integrated Apple stack, broader Cachy system experience, and complete installation/release lifecycle. Both Air sizes, published final measurements, independent onboarding/contribution, subsequent full-port maintenance release, other-ARM reuse and actual upstream submissions remain required; an early overlay release or feasibility decision would not complete the goal. This scope update does not change any recorded execution result.
 
+October 14, 00:54 UTC: corrected passive intake actually PASSES for jbigkit
+2.2-1 and libtiff 4.7.2-2 (`a3189f4a` / independent peer `eefdfef6`). Both
+PKGINFO mappings, 23/49 archive members, four ARM ELF library declarations and
+two pair links authenticate. The 17,193-byte report records libtiff.so.6 needing
+libjbig.so.2.2 and libtiffxx.so.6 needing libtiff.so.6. This is passive declaration
+evidence; reverse-consumer/symbol/runtime ABI, source/license, native installation
+and M2 checks remain open. Its 0.029819-second processing/report interval excludes
+preflight and final result publication. The earlier metadata failure is preserved.
+[Intake review](reviews/maintained-jbigkit-libtiff-passive-intake-root-actual02-review.md).
+
+The exact original jbigkit 2.1-8 and libtiff 4.7.2-1 payloads/signatures have also
+been recovered from the October 12 project cache. All sixteen selected pairs
+(32 distinct mode-0600 files, 66,649,640 bytes) match their frozen metadata;
+custody `33c43cf2` authenticates 49 indexed leaves. Current old-pair gpgv checks
+PASS (`19534961`), preserving jbigkit's digest identifier 8 and libtiff's 10;
+independent retained review is finishing. This establishes local retrievability
+and current signatures, not current mirror availability or acceptance of prior
+HTTP404 runs. A private CI cache route for the unchanged original four objects
+is assigned so the original build snapshot can resume; the newer-pair upgrade
+and sixteen-consumer dependency/ABI work continue separately.
+
+Root refused the first new-input adoption before any copy: four of 23 expected
+old files referenced Source08, while Source09 is already integrated. Record
+`91611201` preserves all checks; the corrected Source09-based proposal is under
+independent review. Shared source, execution899 and historical ARM results remain
+unchanged. Native observation adoption, build-pair capacity integration, whole
+query invocation and exact upstream source/license correspondence continue.
+
 October 14, 00:15 UTC: the isolated-startup host fixture is built and independently
 verified. New binary `9252c517` is a pinned x86 PIE; all eight common02398 nominal
 checks pass with real self-signals. Its original owned child is reaped,

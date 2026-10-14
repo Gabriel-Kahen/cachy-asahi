@@ -2,6 +2,29 @@
 
 Coordinator: Lila in chat `01a12d58-9194-7643-81eb-fc9d62e4d923`. Source workers have bounded ownership in `docs/orchestration.md`; execution owners must reserve actual capacity before changing a shared machine. The full acceptance matrix is `docs/acceptance.md`.
 
+October 14, 00:54 UTC corrective frontier:
+
+- Root: actual new-pair passive intake `a3189f4a` / peer `eefdfef6` PASS;
+  retain declaration evidence and keep runtime/symbol/sixteen-consumer ABI open.
+- Build/Desktop: correct Source08-based copy joins against the actual Source09
+  tree. Root refused all copying (`91611201`); current source remains intact.
+- Build/Root: implement and review private CI custody for the four exact old
+  cached inputs, with strict chunk/size/hash/clock checks and no package bytes in
+  public Git. Register/dispatch only after Root adoption. Preserve HTTP404 history.
+- Root/reviewer: verify current old-pair signatures `19534961` and full sixteen
+  pair custody `33c43cf2`; mirror availability remains unknown. The newer package
+  upgrade remains a separate full341 consistency/ABI corrective track.
+- Performance: implement the fixed-sixteen passive ELF dependency-delta checker,
+  accounting for Hyprland's larger archive, without package execution or ABI claims.
+- Tools/reviewer: match retained BUILDINFO recipe hashes to pinned official source
+  and license/notices; metadata declarations alone do not close correspondence.
+- Native CI/Root: finish and adopt the minimal native passive observation workflow;
+  Root owns publication, exact commit dispatch and retained result review.
+- Release/Performance and query author/Root: finish concrete build-capacity and
+  whole query-call integration. None of these software tasks requires an M2 Mac.
+
+The goal stays ACTIVE with full R1–R5/M5–M9/A01–A15 scope.
+
 October 14, 00:15 UTC execution batch:
 
 - Root: host common02398 fixture actual `4f689c31` / peer `971bb47b` PASS,

@@ -5,6 +5,19 @@ Started October 11, 2026, from `271e7c2` plus the user-provided `outline.md`.
 
 The full outline is the project scope. Milestones advance only on their specified evidence. Original project material uses MIT; third-party source licensing must be recorded separately before redistribution.
 
+Execution frontier, October 14, 00:54 UTC: new-pair actual passive intake
+`a3189f4a` / peer `eefdfef6` PASS; no runtime/symbol/16K/M2 acceptance follows.
+All sixteen old frozen pairs are locally retained in `33c43cf2`, and the original
+two package signatures actually verify (`19534961`, per-package digest8/10).
+Build prepares a private exact-four cache route and preserves the separate new-pair
+upgrade track. Root's preadoption check blocked stale Source08 joins before copy;
+Desktop reviews the Source09 correction. Tools and an independent Root reviewer
+own exact recipe/source/license correspondence; Performance prepares the fixed
+sixteen-consumer ELF checker while keeping Release integration review assigned.
+Native CI finishes minimal observer adoption, and Root prepares its isolated
+managed checkout. Query whole-call implementation continues. Goal ACTIVE;
+shared registration/dispatch and all release decisions remain with Root.
+
 Execution frontier, October 14, 00:15 UTC: Root's common02398 host fixture is
 actually built/run and independently reviewed (`4f689c31` / `971bb47b`), eight
 nominal checks PASS. Two replacement package detached signatures are actual
