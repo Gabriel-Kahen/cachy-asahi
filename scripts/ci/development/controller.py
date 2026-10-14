@@ -434,6 +434,171 @@ def run_client(controller, root, output, cache, *, deadline=None):
     return report
 
 
+
+# Optional failure observations never authorize execution or cleanup.
+EXECUTION_PHASES = ('source-bound', 'load-runtime', 'load-collector', 'load-phase', 'copy-view', 'register-installer', 'register-project-libraries', 'capture-dependencies', 'construct-services', 'load-original', 'capture-original', 'call-original', 'native-hook', 'original-returned', 'cleanup', 'status-publication')
+EXECUTION_KINDS = ('INTERRUPT', 'FATAL', 'SOURCE_REFUSAL', 'OS_ERROR', 'VALUE_ERROR', 'TYPE_ERROR', 'OTHER')
+EXECUTION_SITES = ('CLASS_STATE', 'CLASS_LITERAL', 'CALLBACK', 'GLOBAL_FUNCTION', 'GRAPH_FUNCTION', 'GRAPH_OBJECT_BINDING', 'GRAPH_HELD_CODE_BINDING', 'GRAPH_NAMESPACE', 'FROZEN_FILE_HOOK', 'GRAPH_IDENTITY', 'SOURCE_GRAPH', 'INSTALLER_REGISTRATION', 'ORIGINAL_CONTEXT', 'NATIVE_FRAME', 'OWNED_CLEANUP', 'VIEW_COPY', 'VIEW_VERIFY', 'DEADLINE_CHECK', 'CALLBACK_BINDINGS', 'AUTHORITY_STATE', 'SERVICE_CALL', 'SERVICE_SOURCE_GUARD', 'SERVICE_SOURCE_CAPTURE', 'SERVICE_SOURCE_READ', 'SERVICE_PENDING', 'SERVICE_TRANSPORT_INIT', 'SERVICE_TRANSPORT_PREFLIGHT', 'SERVICE_TRANSPORT_CLI', 'SERVICE_TRANSPORT_DIRECTORY', 'SERVICE_CANCEL_CONTEXT', 'SERVICE_CANCEL_SIGNALS', 'SERVICE_CANCEL_ENTER', 'SERVICE_CANCEL_EXIT', 'SERVICE_CANCEL_EXIT_BLOCK', 'SERVICE_CANCEL_EXIT_SET_HANDLER', 'SERVICE_CANCEL_EXIT_HANDLER_CHECK', 'SERVICE_CANCEL_EXIT_PENDING_CHECK', 'SERVICE_CANCEL_EXIT_PENDING_WAIT', 'SERVICE_CANCEL_EXIT_SET_MASK', 'SERVICE_CANCEL_EXIT_REPLAY', 'SERVICE_CANCEL_EXIT_SET_HANDLER_NONE_BAD_HANDLER_API', 'SERVICE_CANCEL_EXIT_SET_HANDLER_NONE_OTHER_TYPEERROR', 'SERVICE_CANCEL_EXIT_SET_HANDLER_DEFAULT_BAD_HANDLER_API', 'SERVICE_CANCEL_EXIT_SET_HANDLER_DEFAULT_OTHER_TYPEERROR', 'SERVICE_CANCEL_EXIT_SET_HANDLER_IGNORE_BAD_HANDLER_API', 'SERVICE_CANCEL_EXIT_SET_HANDLER_IGNORE_OTHER_TYPEERROR', 'SERVICE_CANCEL_EXIT_SET_HANDLER_CALLABLE_BAD_HANDLER_API', 'SERVICE_CANCEL_EXIT_SET_HANDLER_CALLABLE_OTHER_TYPEERROR', 'SERVICE_CANCEL_EXIT_SET_HANDLER_OTHER_BAD_HANDLER_API', 'SERVICE_CANCEL_EXIT_SET_HANDLER_OTHER_OTHER_TYPEERROR', 'SERVICE_CANCEL_EXIT_SET_HANDLER_API_MODULE', 'SERVICE_CANCEL_EXIT_SET_HANDLER_WRAPPER_TYPE', 'SERVICE_CANCEL_EXIT_SET_HANDLER_WRAPPER_GLOBALS', 'SERVICE_CANCEL_EXIT_SET_HANDLER_WRAPPER_STATE', 'SERVICE_CANCEL_EXIT_SET_HANDLER_WRAPPER_CONSTANTS', 'SERVICE_CANCEL_EXIT_SET_HANDLER_WRAPPER_FLAGS', 'SERVICE_CANCEL_EXIT_SET_HANDLER_WRAPPER_CODE', 'SERVICE_CANCEL_EXIT_SET_HANDLER_API_FRAME', 'SERVICE_CANCEL_EXIT_SET_HANDLER_API_OFFSET', 'OTHER')
+EXECUTION_CODES = ('acceptance-failed', 'authority-failed', 'baseline-failed', 'callback-refused', 'cancelled', 'capture-failed', 'cleanup-failed', 'crypto-failed', 'deadline', 'grant-refused', 'initial-failed', 'public-receiver-failed', 'restage-failed', 'source-refused', 'status-persistence-failed')
+
+
+def execution_plain(value, limit):
+    return type(value) is dict and len(value) <= limit and all(type(key) is str for key in value)
+
+
+def execution_held(session):
+    """Capture only the attested class's native dictionary descriptor."""
+    cls = type(session)
+    if type(cls) is not type:return None
+    mapping = type.__getattribute__(cls,'__dict__')
+    if len(mapping) > 128 or not all(type(key) is str for key in mapping):return None
+    descriptor = mapping.get('__dict__')
+    if (type(descriptor) is not types.GetSetDescriptorType or descriptor.__objclass__ is not cls or
+            descriptor.__name__ != '__dict__'):return None
+    held = descriptor.__get__(session,cls)
+    return held if execution_plain(held,128) else None
+
+
+def execution_kind(error):
+    for cls, label in ((KeyboardInterrupt,'KEYBOARD_INTERRUPT'),(SystemExit,'SYSTEM_EXIT'),
+            (ValueError,'VALUE_ERROR'),(OSError,'OS_ERROR'),(TimeoutError,'TIMEOUT_ERROR'),
+            (TypeError,'TYPE_ERROR'),(KeyError,'KEY_ERROR'),(AssertionError,'ASSERTION_ERROR')):
+        if type(error) is cls:return label
+    mro = type.__dict__['__mro__'].__get__(type(error))
+    return 'OTHER_EXCEPTION' if any(cls is Exception for cls in mro) else 'OTHER_CONTROL'
+
+
+def execution_snapshot(held, validated, callback, phases=EXECUTION_PHASES, kinds=EXECUTION_KINDS,
+                       sites=EXECUTION_SITES, codes=EXECUTION_CODES):
+    value = dict(schema_version=1,first_controller_boundary='NOT_OBSERVED',first_controller_kind='NOT_OBSERVED',
+        closing_boundary='NOT_OBSERVED',closing_kind='NOT_OBSERVED',
+        callback_boundary=callback if type(callback) is str and callback in ('GRAPH_CHECK','RUN_ENTERED','RUN_RETURNED') else 'NOT_OBSERVED',
+        session_observation='NOT_OBSERVED',startup_phase='NOT_OBSERVED',startup_failure_phase='NOT_OBSERVED',
+        startup_failure_kind='NOT_OBSERVED',startup_failure_site='NOT_OBSERVED',native_hook_entered=None,
+        session_callback_entered=None,session_error_code=None,initial_exit_code=None,initial_exit_class='NOT_OBSERVED',cleanup='NOT_OBSERVED')
+    if not execution_plain(held,128):return value
+    value['session_observation'] = 'HELD_UNVALIDATED'
+    phase = held.get('startup_phase')
+    if type(phase) is str and phase in phases:value['startup_phase'] = phase
+    flag = held.get('native_hook_entered')
+    if type(flag) is bool:value['native_hook_entered'] = flag
+    failure = held.get('startup_failure')
+    if (execution_plain(failure,3) and set(failure) == {'phase','kind','site'} and
+            all(type(failure[key]) is str for key in failure) and failure['phase'] in phases and
+            failure['kind'] in kinds and failure['site'] in sites):
+        for key in ('phase','kind','site'):value['startup_failure_'+key] = failure[key]
+    result = held.get('result')
+    if execution_plain(result,32):
+        flag, code = result.get('callback_entered'), result.get('error_code')
+        if type(flag) is bool:value['session_callback_entered'] = flag
+        if type(code) is str and code in codes:value['session_error_code'] = code
+    if execution_plain(validated,32):
+        code, cleanup = validated.get('initial_exit_code'), validated.get('cleanup')
+        if ((code is None or type(code) is int and -64 <= code <= 255) and
+                type(cleanup) is str and cleanup in ('PASS','FAIL','NOT RUN')):
+            value['session_observation'] = 'VALIDATED_PROJECTION'
+            value['initial_exit_code'] = code
+            value['initial_exit_class'] = 'NOT_OBSERVED' if code is None else 'ZERO' if code == 0 else 'NONZERO'
+            value['cleanup'] = cleanup
+    return value
+
+
+def execution_member(error):
+    if any(type(error) is cls for cls in (BaseException,Exception,KeyboardInterrupt,SystemExit,ValueError,OSError,
+            TimeoutError,TypeError,KeyError,AssertionError,BaseExceptionGroup,ExceptionGroup)):return error
+    carrier = BaseException('retained execution diagnostic control')
+    BaseException.__dict__['__cause__'].__set__(carrier,error)
+    return carrier
+
+
+def execution_secondary(first, secondary):
+    """Retain optional control delivery without replacing an active cause."""
+    global CANCELLED
+    mro = type.__dict__['__mro__'].__get__(type(secondary))
+    if any(cls is Exception for cls in mro):return
+    if any(cls is KeyboardInterrupt for cls in mro):CANCELLED = True
+    if first is None or first is secondary:raise secondary
+    cause = BaseException.__dict__['__cause__']
+    prior = cause.__get__(first)
+    cause.__set__(first,secondary if prior is None else BaseExceptionGroup('execution diagnostic controls',
+        [execution_member(prior),execution_member(secondary)]))
+    BaseException.__dict__['__suppress_context__'].__set__(first,True)
+
+
+def execution_diagnostic_valid(value, phases=EXECUTION_PHASES, startup_kinds=EXECUTION_KINDS,
+                               sites=EXECUTION_SITES, codes=EXECUTION_CODES):
+    keys = {'schema_version','first_controller_boundary','first_controller_kind','closing_boundary','closing_kind',
+        'callback_boundary','session_observation','startup_phase','startup_failure_phase','startup_failure_kind',
+        'startup_failure_site','native_hook_entered','session_callback_entered','session_error_code',
+        'initial_exit_code','initial_exit_class','cleanup'}
+    if not execution_plain(value,17) or set(value) != keys or type(value['schema_version']) is not int or value['schema_version'] != 1:return False
+    kinds = ('KEYBOARD_INTERRUPT','SYSTEM_EXIT','VALUE_ERROR','OS_ERROR','TIMEOUT_ERROR','TYPE_ERROR','KEY_ERROR','ASSERTION_ERROR','OTHER_EXCEPTION','OTHER_CONTROL','NOT_OBSERVED')
+    enums = {'first_controller_boundary':('RUN_COMPOSED','COMPOSED_MAIN','NOT_OBSERVED'),
+        'first_controller_kind':kinds,'closing_boundary':('RETIREMENT','CLOSE_BOUNDARY','FINALIZATION_CHECK','NOT_OBSERVED'),
+        'closing_kind':kinds+('FLAGGED_FAILURE',),'callback_boundary':('GRAPH_CHECK','RUN_ENTERED','RUN_RETURNED','NOT_OBSERVED'),
+        'session_observation':('HELD_UNVALIDATED','VALIDATED_PROJECTION','NOT_OBSERVED'),
+        'startup_phase':phases+('NOT_OBSERVED',),'startup_failure_phase':phases+('NOT_OBSERVED',),
+        'startup_failure_kind':startup_kinds+('NOT_OBSERVED',),'startup_failure_site':sites+('NOT_OBSERVED',),
+        'initial_exit_class':('ZERO','NONZERO','NOT_OBSERVED'),'cleanup':('PASS','FAIL','NOT RUN','NOT_OBSERVED')}
+    if any(type(value[key]) is not str or value[key] not in choices for key,choices in enums.items()):return False
+    if any(value[key] is not None and type(value[key]) is not bool for key in ('native_hook_entered','session_callback_entered')):return False
+    code, error = value['initial_exit_code'], value['session_error_code']
+    if error is not None and (type(error) is not str or error not in codes):return False
+    if code is not None and (type(code) is not int or not -64 <= code <= 255):return False
+    if value['initial_exit_class'] != ('NOT_OBSERVED' if code is None else 'ZERO' if code == 0 else 'NONZERO'):return False
+    if value['session_observation'] != 'VALIDATED_PROJECTION' and (code is not None or value['cleanup'] != 'NOT_OBSERVED'):return False
+    if value['session_observation'] == 'NOT_OBSERVED' and (any(value[key] is not None for key in
+            ('native_hook_entered','session_callback_entered','session_error_code')) or any(value[key] != 'NOT_OBSERVED' for key in
+            ('startup_phase','startup_failure_phase','startup_failure_kind','startup_failure_site'))):return False
+    if len({value['startup_failure_'+key] == 'NOT_OBSERVED' for key in ('phase','kind','site')}) != 1:return False
+    return all((value[a] == 'NOT_OBSERVED') == (value[b] == 'NOT_OBSERVED') for a,b in
+        (('first_controller_boundary','first_controller_kind'),('closing_boundary','closing_kind')))
+
+
+def execution_observe(development, boundary=None, error=None, *, held=None, validated=None, closing=False):
+    active = error if error is not None else sys.exception()
+    try:
+        if closing:
+            if development._execution_closing is None:
+                development._execution_closing = (boundary,'FLAGGED_FAILURE' if error is None else execution_kind(error))
+        elif error is not None and development._execution_first is None:
+            development._execution_first = (boundary,execution_kind(error))
+        previous = development._execution_diagnostic
+        candidate = (dict(previous) if execution_diagnostic_valid(previous) and
+            (previous['first_controller_boundary'] != 'NOT_OBSERVED' or held is None) else
+            execution_snapshot(held,validated,development._execution_callback))
+        if development._execution_first is not None:
+            candidate['first_controller_boundary'],candidate['first_controller_kind'] = development._execution_first
+        if development._execution_closing is not None:
+            candidate['closing_boundary'],candidate['closing_kind'] = development._execution_closing
+        if execution_diagnostic_valid(candidate):development._execution_diagnostic = candidate
+    except BaseException as secondary:execution_secondary(active,secondary)
+
+
+def execution_attach(summary, development):
+    active = sys.exception()
+    try:
+        if (execution_plain(summary,32) and type(summary.get('status')) is str and summary['status'] == 'FAIL' and
+                execution_diagnostic_valid(development._execution_diagnostic)):
+            candidate = dict(summary,execution_diagnostic=dict(development._execution_diagnostic))
+            return candidate
+    except BaseException as secondary:execution_secondary(active,secondary)
+    return summary
+
+
+def execution_fallback(development):
+    active = sys.exception()
+    try:
+        report = development.report
+        summary = {'purpose':'private-project-library-lane','status':'FAIL','public_promotion':False,
+            'cancelled':CANCELLED is True or execution_plain(report,128) and report.get('cancelled') is True,
+            'reason':'COMPOSED_BOUNDARY_FAILED'}
+        summary = execution_attach(summary,development)
+        raw = json.dumps(summary,sort_keys=True,allow_nan=False)
+        if len(raw.encode('utf-8')) <= 4096:print(raw)
+    except BaseException as secondary:execution_secondary(active,secondary)
+
+
 class Development:
     def __init__(self, root, output, cache, source_packet, *, deadline=None, composition=packet.COMPOSITION,
                  clock_nonce=None, runtime_contract=None):
@@ -455,6 +620,8 @@ class Development:
             self.report['public_promotion'] = False
         self.public = []
         self.callback_entered = False
+        self._execution_first = self._execution_closing = self._execution_diagnostic = None
+        self._execution_callback = 'NOT_OBSERVED'
         if composition == packet.ZSH_COMPOSITION:
             self.report['stages']['zsh-addon'] = {'status':'NOT RUN','prerequisite':'initial-build-not-completed'}
         (output / 'development-summary').mkdir()
@@ -593,10 +760,13 @@ class Development:
         """Add only the private library consumer; no added repository continuation."""
         output = self.output/'project-libraries'
         try:
+            self._execution_callback = 'GRAPH_CHECK'
             graph,identity = self.library_modules(controller);self.callback_entered = True
+            self._execution_callback = 'RUN_ENTERED'
             value = graph['consumer'].run_libraries(controller,self.root,output,self.cache,
                 deadline=self.deadline,session=self.repository_session,materializer=graph['materializer'],
                 trusted_gpgv=self.repository_session.sources.grant['project_library_runtime']['gpgv'])
+            self._execution_callback = 'RUN_RETURNED'
             public = graph['consumer'].validate_public_metadata({key:item for key,item in value.items() if key != 'public'})
             self.report['stages']['project-libraries'] = public
             self.recover_public('project-libraries',output)
@@ -824,6 +994,7 @@ class Development:
 
     def run_composed(self, session, callbacks, runtime_contract, argv):
         """The held Session alone owns the actual original view and sole producer."""
+        held = validated = None
         composed_mode(self.packet,self.composition)
         require(type(session.composition) is str and session.composition == self.composition and
                 self.deadline is not None and session.job_deadline == self.deadline and
@@ -837,6 +1008,9 @@ class Development:
             session.sources.class_state(session,'scripts/ci/development/repository_handoff.py',module)
             session.sources.class_state(session.sources,'scripts/ci/development/repository_handoff.py',module)
             session.sources.guard(self.deadline)
+            if self.composition == packet.LIBRARY_COMPOSITION:
+                try:held = execution_held(session)
+                except Exception:pass  # Optional capture never adds a Source refusal.
             self.repository_session = session
             if self.composition == packet.INSTALLER_COMPOSITION:
                 require(type(runtime_contract) is dict and runtime_contract == self.runtime_contract, 'installer-runtime-refused')
@@ -850,6 +1024,9 @@ class Development:
                     {key:item for key,item in value.items() if key not in ('public','phase_public')} == session.result,
                     'composed-result-refused')
             status = module.status_projection(session.result)
+            validated = status
+            if self.composition == packet.LIBRARY_COMPOSITION:
+                execution_observe(self,held=held,validated=validated)
             self.report['repository_handoff'] = status
             phase = value['phase_public']
             if self.composition == packet.LIBRARY_COMPOSITION:
@@ -871,9 +1048,13 @@ class Development:
                 if path.name == 'phase-public':
                     require(self.repository_capture is not None,'composed-phase-descriptor-refused')
                 else:self.public.append(path)
-        except KeyboardInterrupt:
+        except KeyboardInterrupt as error:
+            if self.composition == packet.LIBRARY_COMPOSITION:
+                execution_observe(self,'RUN_COMPOSED',error,held=held,validated=validated)
             self.report.update(cancelled=True,error_code=self.report.get('error_code','composed-execution-cancelled'))
         except Exception as error:
+            if self.composition == packet.LIBRARY_COMPOSITION:
+                execution_observe(self,'RUN_COMPOSED',error,held=held,validated=validated)
             if 'error_code' not in self.report:
                 self.report.update(error_code='composed-execution-failed',error_type=type(error).__name__)
         finally:
@@ -1271,6 +1452,7 @@ def publish_libraries_metadata(development, emit):
                'repository_input_acceptance':'NOT RUN','repository_restage':'NOT RUN',
                'repository_cleanup':'PASS' if repository.get('cleanup') == 'PASS' else 'FAIL',
                'cancelled':report.get('cancelled') is True,'publication':report['publication']}
+    summary = execution_attach(summary,development)
     save(development.output/'result.json',report)
     save(development.output/'development-summary/result.json',report)
     emit(json.dumps(summary,sort_keys=True))
@@ -1403,6 +1585,8 @@ def close_boundary(development, previous, timer):
             print(json.dumps({'purpose':'same-job-native-development','status':'FAIL','execution':'NOT RUN',
                 'error_code':'composed-boundary-finalization-failed','cancelled':CANCELLED},sort_keys=True))
             return
+        if development.composition == packet.LIBRARY_COMPOSITION:
+            execution_observe(development,'CLOSE_BOUNDARY',closing=True)
         development.report.update(status='FAIL', cancelled=CANCELLED)
         if 'error_code' not in development.report:development.report['error_code'] = 'terminal-finalization-failed'
         development.repository_capture = None
@@ -1410,8 +1594,9 @@ def close_boundary(development, previous, timer):
         elif development.composition == packet.ZSH_COMPOSITION:development.persist_zsh()
         else:development.persist()
         if development.composition == packet.LIBRARY_COMPOSITION:
-            print(json.dumps({'purpose':'private-project-library-lane','status':'FAIL','public_promotion':False,
-                  'cancelled':development.report.get('cancelled') is True,'reason':'TERMINAL_BOUNDARY_FAILED'},sort_keys=True))
+            summary = {'purpose':'private-project-library-lane','status':'FAIL','public_promotion':False,
+                'cancelled':development.report.get('cancelled') is True,'reason':'TERMINAL_BOUNDARY_FAILED'}
+            print(json.dumps(execution_attach(summary,development),sort_keys=True))
         else:print(json.dumps(development.report, sort_keys=True))
     if failed or CANCELLED:
         record_failure()
@@ -1516,8 +1701,11 @@ def composed_main(args, pins, *, entry):
         code = 0 if publish(development,evidence.bundle) else 1
         within(publication_end)
         return code
-    except BaseException:
+    except BaseException as error:
         if development is not None:
+            if composition == packet.LIBRARY_COMPOSITION:
+                execution_observe(development,'COMPOSED_MAIN',error)
+                execution_fallback(development)
             development.report.update(status='FAIL',publication='FAIL')
             if CANCELLED:development.report['cancelled'] = True
             if 'error_code' not in development.report:development.report['error_code'] = 'composed-boundary-failed'
@@ -1536,6 +1724,8 @@ def composed_main(args, pins, *, entry):
             if composition == packet.ZSH_COMPOSITION:
                 retirement_failed = not retire_zsh_modules(session) or retirement_failed
         except BaseException as error:
+            if composition == packet.LIBRARY_COMPOSITION and development is not None:
+                execution_observe(development,'RETIREMENT',error,closing=True)
             retirement_failed = True
             if isinstance(error,KeyboardInterrupt):
                 CANCELLED = True
@@ -1554,6 +1744,8 @@ def composed_main(args, pins, *, entry):
         try:
             try:closing_failed = close_boundary(development,previous,previous_timer)
             except BaseException as error:
+                if composition == packet.LIBRARY_COMPOSITION and development is not None:
+                    execution_observe(development,'CLOSE_BOUNDARY',error,closing=True)
                 if composition == packet.COMPOSITION or first is None:raise
                 closing_failed = True
                 if isinstance(error,KeyboardInterrupt):CANCELLED = True
@@ -1562,6 +1754,8 @@ def composed_main(args, pins, *, entry):
                     development.report.setdefault('error_code','terminal-finalization-failed')
                     development.repository_capture = None
             if closing_failed or retirement_failed:
+                if composition == packet.LIBRARY_COMPOSITION and development is not None:
+                    execution_observe(development,'FINALIZATION_CHECK',closing=True)
                 # A finally exception overrides a provisional successful return.
                 if first is None or composition == packet.COMPOSITION:raise ValueError('composed-finalization-failed')
         finally:
