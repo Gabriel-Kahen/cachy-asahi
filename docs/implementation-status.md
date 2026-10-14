@@ -2,6 +2,34 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 14, first P0 trial and parallel Source integration checkpoint:
+manual ARM trial `38645249560` on Source `58b0d9e3` fails with the broad
+Root-selection/preparation/P0 status. The exact stage and cause remain UNKNOWN.
+The public result reports matrix NOT RUN, cancelled=false and
+cleanup_uncertain=false; these fields do not establish an installation or
+cleanup pass. A closed diagnostic correction is being prepared before a retry.
+
+Changed composed trial `38645554301` runs against reviewed Source `96e2713c`
+and Data `d8fa351c`. Native screenshot trial `38645746453` is admitted against
+Source `079f146e`, after actual committed-Source peer `bed922c2` and exact plan
+readback; it is queued behind the composed trial. No new success is claimed.
+
+FDK provenance/reporting Source `843fff11` is published after the corrected
+schema-3 workflow consumer and independent peer `5e4db0da` pass 145 inert
+controls. Root authenticates 21/215 author and 15/238 peer records and all139
+committed Source objects. The old accepted FDK pair supplies no backfilled
+public package identities; a changed trial remains NOT RUN. KSM diagnostic
+Source `86631378` is published after independent peer `12de6192`; Root verifies
+all158 packet rows plus the packet itself. Its new trial remains NOT RUN and
+the prior actual cause/cleanup uncertainty remain unchanged.
+
+Region custody Source `8e256c05` is separately published with eight additions
+and two replacements after peer `09dc8338` passes76 inert controls. Root verifies
+all18 locked files plus the lock; actual region/cancellation trials remain
+NOT RUN pending final Source registration. Both native screenshot and region
+changes have separate draft PRs. Required target, hardware, performance,
+maintenance and release gates remain open across R1–R5 and M5–M9.
+
 October 14, P0 source freeze and composed registration checkpoint: the four
 reviewed same-job P0 launcher files are published in `d10708f3`, followed by
 metadata-only `58b0d9e3`, which commits the actual 269-file packet. Root's
