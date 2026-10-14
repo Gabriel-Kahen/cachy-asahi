@@ -4,7 +4,7 @@
     "bootstrap.py": {
       "bytes": 21103,
       "mode": 420,
-      "sha256": "4e6e386111080d5bb4167919e938a7f44be6533e0feb5d752994ceffeab8f006"
+      "sha256": "9009e5bfa2fc94b3bc8e7b3d8af590e0e76bd4924371a469ff47bab9ae462537"
     },
     "native_workspace.py": {
       "bytes": 11033,
@@ -14,8 +14,8 @@
   },
   "native_entry_executed": false,
   "published_receiver_prefix": "scripts/ci/test-signer-compile-v2",
-  "published_receiver_source_commit": "0e5d40ab4fa165727a2829dbb5eeaaa7e266b3ad",
+  "published_receiver_source_commit": "1e8fd873345c02dd2f678d8e143c8e22fe7a6e84",
   "purpose": "ROOT_SOURCE_ONLY_EXTERNAL_BOOTSTRAP_HELPER_ROWS",
   "schema_version": 1,
-  "unchanged_Source13_manifest_sha256": "606a4cda2ffb9ae240d1482751eec2dfd41adcd0e5b4c5d466d516b0ee82b564"
+  "unchanged_Source13_manifest_sha256": "c9e7bb8f8d2d876ec0cafe93fe855f9d864fcb264417e2396d13ce54e7637058"
 }

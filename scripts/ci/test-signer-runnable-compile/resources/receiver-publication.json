@@ -1,11 +1,19 @@
 {
-  "status": "PASS",
-  "source_commit": "1044f34c75d331d177ebd27115ec56c5e048e561",
-  "source_rows": 16,
-  "Source13_changed": false,
-  "author_receipt_sha256": "e6af1072889c3fa38dfa3f246476d7a63f489ea2b4cab6fc0ada35de9c8419ca",
-  "peer_receipt_sha256": "efa636be4d7820985293b112cf002ea20dce02dd0701dfe2a5b260dffdbfa22f",
-  "files": [
+  "status": "PASS_RECEIVER_SOURCE_ONLY_BINDING_PENDING",
+  "source_commit": "1e8fd873345c02dd2f678d8e143c8e22fe7a6e84",
+  "previous_source_commit": "6f87524e493330ecc1582a3c8b988ae8cdaee81e",
+  "source_rows": 13,
+  "changed_C_files": [
+    "abi_layout.c",
+    "witness_shim.c"
+  ],
+  "manifest_canonical_sha256": "c9e7bb8f8d2d876ec0cafe93fe855f9d864fcb264417e2396d13ce54e7637058",
+  "copies": [
+    "scripts/ci/test-signer-compile-v2/abi_layout.c",
+    "scripts/ci/test-signer-compile-v2/source-manifest.json",
+    "scripts/ci/test-signer-compile-v2/witness_shim.c"
+  ],
+  "verified_paths": [
     "scripts/ci/test-signer-compile-v2/abi_layout.c",
     "scripts/ci/test-signer-compile-v2/compile_lane_v2.py",
     "scripts/ci/test-signer-compile-v2/exec_filter.inc",
@@ -18,11 +26,10 @@
     "scripts/ci/test-signer-compile-v2/root_entry.py",
     "scripts/ci/test-signer-compile-v2/thread_filter.inc",
     "scripts/ci/test-signer-compile-v2/witness_shim.c",
-    "scripts/ci/test-signer-compile-v2/workspace.py",
-    "scripts/ci/test-signer-compile-v2/bootstrap-source-pins.json",
-    "scripts/ci/test-signer-compile-v2/bootstrap.py",
-    "scripts/ci/test-signer-compile-v2/native_workspace.py"
+    "scripts/ci/test-signer-compile-v2/workspace.py"
   ],
-  "execution_grants": false,
-  "workflow": false
+  "author_receipt_sha256": "7ea55b9cd1820a287a572cd755b5e96e5e8de7351b435dc7858a6f770ec804c0",
+  "peer_receipt_sha256": "4d106e489210b8aba4c565da13ff3c18283162e4c597bba4c13bb809988b86b6",
+  "native_trial_started": false,
+  "execution_grants": false
 }
