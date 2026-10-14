@@ -2,6 +2,19 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 14, P0 diagnostic boundary source publication:
+Source `93e37b8c` publishes exactly the launcher and P0 workflow changes after
+fresh independent review `77e62a22` passes4,827 assertions and634 extracted
+footer/SystemExit1 cases. Root verifies273 complete source roles, retains the
+same269-file packet `bae75a18`, and reruns the read-only source freezer with
+natural exit zero. No native actor or runtime grant executes during freezing.
+Committed-source admission, updated default workflow and literal operational
+variable readback remain pending before one changed P0 trial. The review is
+bounded to the new diagnostic/validated-state path: if an injected helper fault
+prevents initial flag validation, unobserved stored flags remain unknown and
+cleanup uncertainty is preserved. The original read/merge path is held.
+Old run `38645249560` remains failed with actual business cause UNKNOWN.
+
 October 14, isolated library Source/Data publication:
 Root commits diagnostic Source `18c08cc5` directly on held Data `2c9d61b7`,
 with exactly three changed files and280 authenticated source bodies. Bound
