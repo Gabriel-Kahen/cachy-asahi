@@ -922,6 +922,15 @@ class InnerFailurePublicTests(unittest.TestCase):
                                  'diagnostics': evidence.project(row)}
         return value
 
+    def test_refused_permission_subclass_is_a_closed_public_value(self):
+        for code in ('CHECK_001_PERMISSIONS_RWX', 'CHECK_001_PERMISSIONS_OTHER'):
+            fact = {'call_boundary': 'VERIFY_OUTPUTS', 'predicate': code}
+            self.assertEqual(public.validate_output_fact(fact), fact)
+            with self.assertRaises(ValueError):
+                public.validate_output_fact(dict(fact, flags=7))
+        with self.assertRaises(ValueError):
+            public.validate_output_fact({'call_boundary': 'VERIFY_OUTPUTS', 'predicate': 'CHECK_001_PERMISSIONS_7'})
+
     def test_check001_conjuncts_are_closed_public_values(self):
         labels = ('ALIGN_MIN', 'ALIGN_POWER_TWO', 'VA_ALIGN', 'PA_ALIGN', 'VA_16K', 'PA_16K', 'PERMISSIONS', 'MEMORY_SIZE')
         for label in labels:

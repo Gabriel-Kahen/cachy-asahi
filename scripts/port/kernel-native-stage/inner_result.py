@@ -329,6 +329,9 @@ OUTPUT_CHECKS = {'16K ELF load geometry/permissions required; WX refused': 'CHEC
 # Fixed labels for the ordered CHECK_001 conjuncts; no operand values.
 OUTPUT_CHECKS.update({'16K ELF load geometry/permissions required; WX refused [ALIGN_MIN]': 'CHECK_001_ALIGN_MIN', '16K ELF load geometry/permissions required; WX refused [ALIGN_POWER_TWO]': 'CHECK_001_ALIGN_POWER_TWO', '16K ELF load geometry/permissions required; WX refused [VA_ALIGN]': 'CHECK_001_VA_ALIGN', '16K ELF load geometry/permissions required; WX refused [PA_ALIGN]': 'CHECK_001_PA_ALIGN', '16K ELF load geometry/permissions required; WX refused [VA_16K]': 'CHECK_001_VA_16K', '16K ELF load geometry/permissions required; WX refused [PA_16K]': 'CHECK_001_PA_16K', '16K ELF load geometry/permissions required; WX refused [PERMISSIONS]': 'CHECK_001_PERMISSIONS', '16K ELF load geometry/permissions required; WX refused [MEMORY_SIZE]': 'CHECK_001_MEMORY_SIZE'})
 
+# Refused ELF permission class only; never an acceptance change.
+OUTPUT_CHECKS.update({'16K ELF load geometry/permissions required; WX refused [PERMISSIONS_RWX]': 'CHECK_001_PERMISSIONS_RWX', '16K ELF load geometry/permissions required; WX refused [PERMISSIONS_OTHER]': 'CHECK_001_PERMISSIONS_OTHER'})
+
 OUTPUT_PREFIXES = (('ELF file-backed section required: ', 'ELF_FILE_SECTION'), ('export/kernel symbol missing from actual ELF: ', 'ELF_SYMBOL_MISSING'), ('Image body differs from vmlinux allocated section: ', 'IMAGE_SECTION_CONTENT'), ('generated configuration differs: ', 'GENERATED_CONFIG_DIFFERENCE'))
 OUTPUT_PREDICATES = frozenset(OUTPUT_CHECKS.values()) | frozenset(code for _, code in OUTPUT_PREFIXES) | {'OTHER'}
 

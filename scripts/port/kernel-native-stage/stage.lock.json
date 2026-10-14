@@ -25,7 +25,7 @@
     },
     "scripts/port/kernel-candidates/verify_build.py": {
       "mode": 493,
-      "sha256": "6522e6223c133860ea8e4d73be98ebc6541af845508948aa0b79a40ec28d5b4a"
+      "sha256": "b82f7cf892204cc5f6f3e07ca33579e75b1b32508283ece8fe7dade27a8c368c"
     },
     "scripts/port/kernel-native-stage/acquisition.py": {
       "mode": 493,
@@ -53,7 +53,7 @@
     },
     "scripts/port/kernel-native-stage/evidence.py": {
       "mode": 420,
-      "sha256": "894b37f637276ef35c9173af996333fdb72a53264f89d9e36eaa67d8c367a993"
+      "sha256": "bb153b2a8e8d808bf30fa284114c91c9a10cf99a5356205a52e92ef5878b41bb"
     },
     "scripts/port/kernel-native-stage/image.py": {
       "mode": 420,
@@ -61,7 +61,7 @@
     },
     "scripts/port/kernel-native-stage/inner_result.py": {
       "mode": 420,
-      "sha256": "70cd564fc3e31a85e676c892e804746996f83cfbbc973b5c2399c92973f7362a"
+      "sha256": "d4c4f11b9bf7b368fc704e216575a2686249822e804b7d6184ddb644f27e3014"
     },
     "scripts/port/kernel-native-stage/regression.py": {
       "mode": 493,
@@ -97,7 +97,7 @@
     },
     "scripts/port/kernel-native-stage/test_inner_result.py": {
       "mode": 420,
-      "sha256": "beb30648b7d7fd1212e16ba180d3fb39151cba7cfb88d07fad3f664b7e158b95"
+      "sha256": "a25939f3cce345c1d294f0f7700eb9f1fcd4a5a2605e92116c1f1cab55551e53"
     },
     "scripts/port/kernel-native-stage/test_regression.py": {
       "mode": 420,

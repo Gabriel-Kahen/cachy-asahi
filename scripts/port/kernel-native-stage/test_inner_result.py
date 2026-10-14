@@ -18,6 +18,25 @@ class InnerResult(unittest.TestCase):
         value.update(extra)
         return json.dumps(value).encode()
 
+    def test_refused_elf_permission_class_is_closed_and_business_failure_held(self):
+        import evidence
+        prefix = '16K ELF load geometry/permissions required; WX refused'
+        for label in ('PERMISSIONS_RWX', 'PERMISSIONS_OTHER'):
+            row = self.row(); diag.phase(row, 'KERNEL'); diag.issued(row, 'KERNEL'); diag.returned(row, 0)
+            diag.phase(row, 'OUTPUTS'); error = ValueError(prefix + ' [' + label + ']')
+            diag.failure(row, error); first = copy.deepcopy(row['first_failure']); diag.output_failure(row, error)
+            fact = {'call_boundary': 'VERIFY_OUTPUTS', 'predicate': 'CHECK_001_' + label}
+            self.assertEqual(row['output_failure'], fact); evidence.validate_output_fact(fact)
+            group = diag.capture(self.report(row), BINDING)
+            self.assertEqual(group['availability'], 'VERIFIED')
+            self.assertEqual(group['diagnostic']['output_failure'], fact)
+            diag.failure(row, OSError('/private'), cleanup=True)
+            self.assertEqual(row['first_failure'], first)
+            self.assertNotIn('/private', json.dumps(diag.capture(self.report(row), BINDING)))
+        for label in ('PERMISSIONS_7', 'PERMISSIONS_OTHER /private'):
+            with self.assertRaises(ValueError):
+                evidence.validate_output_fact({'call_boundary': 'VERIFY_OUTPUTS', 'predicate': 'CHECK_001_' + label})
+
     def test_check001_closed_conjuncts_preserve_capture_and_privacy(self):
         import evidence
         labels = ('ALIGN_MIN', 'ALIGN_POWER_TWO', 'VA_ALIGN', 'PA_ALIGN', 'VA_16K', 'PA_16K', 'PERMISSIONS', 'MEMORY_SIZE')

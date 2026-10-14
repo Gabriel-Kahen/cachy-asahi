@@ -265,6 +265,18 @@ class BuildChecks(unittest.TestCase):
                 path.write_bytes(original); self.mutate(path,offset,fmt,value)
                 with self.assertRaises(ValueError): self.verify(build)
 
+    def test_refused_permission_value_changes_only_the_closed_diagnostic(self):
+        build = self.outputs(); path = build / 'vmlinux'; original = path.read_bytes()
+        for flags in (0, 1, 2, 3, 7, 8, 15, 0xffffffff):
+            with self.subTest(flags=flags):
+                path.write_bytes(original); self.mutate(path, 68, '<I', flags)
+                with self.assertRaises(ValueError) as caught:
+                    self.verify(build)
+                label = 'PERMISSIONS_RWX' if flags == 7 else 'PERMISSIONS_OTHER'
+                self.assertEqual(caught.exception.args, ('16K ELF load geometry/permissions required; WX refused [' + label + ']',))
+        path.write_bytes(original)
+        self.assertEqual(self.verify(build)['status'], 'BUILD_OUTPUT_STRUCTURE_VERIFIED')
+
     def test_check001_reports_first_false_conjunct_without_operands(self):
         build = self.outputs(); path = build / 'vmlinux'; original = path.read_bytes()
         cases = (
@@ -274,7 +286,7 @@ class BuildChecks(unittest.TestCase):
             ('PA_ALIGN', ((88, 0x100008),)),
             ('VA_16K', ((112, 4096), (80, TEXT_ADDR + 4096))),
             ('PA_16K', ((112, 4096), (88, 0x101000))),
-            ('PERMISSIONS', ((68, 7),)),
+            ('PERMISSIONS_RWX', ((68, 7),)),
             ('MEMORY_SIZE', ((96, 0), (104, 0))),
         )
         for label, changes in cases:

@@ -245,7 +245,9 @@ class ELF:
                     harness.need(pa % align == off % align, '16K ELF load geometry/permissions required; WX refused [PA_ALIGN]')
                     harness.need(va % 16384 == off % 16384, '16K ELF load geometry/permissions required; WX refused [VA_16K]')
                     harness.need(pa % 16384 == off % 16384, '16K ELF load geometry/permissions required; WX refused [PA_16K]')
-                    harness.need(perm in (4, 5, 6), '16K ELF load geometry/permissions required; WX refused [PERMISSIONS]')
+                    harness.need(perm in (4, 5, 6),
+                                 '16K ELF load geometry/permissions required; WX refused [PERMISSIONS_RWX]' if perm == 7 else
+                                 '16K ELF load geometry/permissions required; WX refused [PERMISSIONS_OTHER]')
                     harness.need(memsz > 0, '16K ELF load geometry/permissions required; WX refused [MEMORY_SIZE]')
                     self.loads.append({'offset': off, 'addr': va, 'paddr': pa, 'filesz': filesz, 'memsz': memsz, 'alignment': align, 'flags': perm})
                 elif ptype == 0x6474e551:
