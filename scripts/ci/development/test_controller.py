@@ -1305,3 +1305,126 @@ class EarlyEntryModels(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+class InstallerCallBoundaryModels(unittest.TestCase):
+    """Actual selected AST with inert callbacks and single trace-delivered controls."""
+    @classmethod
+    def setUpClass(cls):
+        import ast,copy,hashlib
+        tree=ast.parse(Path(__file__).with_name('controller.py').read_bytes())
+        owner=next(n for n in tree.body if isinstance(n,ast.ClassDef) and n.name=='Development')
+        cls.current=next(n for n in owner.body if isinstance(n,ast.FunctionDef) and n.name=='consume_installer')
+        cls.persist=next(n for n in owner.body if isinstance(n,ast.FunctionDef) and n.name=='persist_installer')
+        cls.helper=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='retain_installer_control')
+        cls.previous=copy.deepcopy(cls.current);removed=[0,0]
+        for node in ast.walk(cls.previous):
+            for field in ('body','orelse','finalbody'):
+                if not isinstance(getattr(node,field,None),list):continue
+                kept=[]
+                for item in getattr(node,field):
+                    if isinstance(item,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='boundary' for t in item.targets):
+                        removed[0]+=1;continue
+                    if isinstance(item,ast.Try) and len(item.body)==1 and isinstance(item.body[0],ast.Assign) and any(isinstance(c,ast.Constant) and c.value=='call_boundary' for c in ast.walk(item.body[0])):
+                        removed[1]+=1;continue
+                    kept.append(item)
+                setattr(node,field,kept)
+        assert removed==[5,1]
+        assert hashlib.sha256(ast.dump(cls.previous,include_attributes=False).encode()).hexdigest()=='7c1309589791c3fabf3866e4b8109661ba71afa1c10295729b35c293b6f1be1e'
+        cls.diagnostic_line=next(n.lineno for n in ast.walk(cls.current) if isinstance(n,ast.Assign) and any(isinstance(c,ast.Constant) and c.value=='call_boundary' for c in ast.walk(n)))
+
+    def model(self,node,boundary=None,error=None,diagnostic_fault=None,trace_control=None,persist_control=None):
+        import ast,copy,math,sys,types
+        persists=[];registrations=[];deliveries=[]
+        value={'status':'PASS','stage':'native-install-preflight','receiver':{'status':'PASS_NATIVE_PREFLIGHT_ONLY','phase':'complete','ABI':'NOT_RUN','matrix':'NOT_RUN'},
+            'cleanup':{'remove_exit':0,'absent':True},'elapsed_seconds':0.1,'ABI':'NOT RUN','native_matrix':'NOT RUN','hardware_validation':'NOT RUN','selected_for_release':False,'public':[]}
+        def require(condition,code):
+            if not condition:raise error or ValueError(code)
+        def within(deadline):
+            if boundary=='DEADLINE':raise error
+        def run(*args,**kwargs):
+            if boundary=='RUN':raise error
+            return {} if boundary=='RESULT' else value
+        module=SimpleNamespace(run=run)
+        def register(controller):
+            registrations.append(True)
+            if boundary=='REGISTER' or boundary=='REAUTH' and len(registrations)==2:raise error
+            return module
+        class FaultRecord(dict):
+            def __setitem__(self,key,value):
+                if key=='diagnostic':raise diagnostic_fault
+                super().__setitem__(key,value)
+        class Stages(dict):
+            def __setitem__(self,key,value):
+                if diagnostic_fault is not None and value['status']=='FAIL':value=FaultRecord(value)
+                super().__setitem__(key,value)
+        namespace={'cancelled':lambda controller:False,'within':within,'require':require,'sys':sys,'CANCELLED':False,
+            'finite':lambda number:type(number) in (int,float) and math.isfinite(number)}
+        exec(compile(ast.Module(body=[self.helper,self.persist,node],type_ignores=[]),'<inert-consume-installer>','exec',dont_inherit=True),namespace)
+        state=SimpleNamespace(report={'stages':Stages() if diagnostic_fault is not None else {}},callback_entered=False,repository_session=None,
+            output=Path('/inert-boundary-model'),deadline=123,clock_nonce='a'*32,runtime_contract={},installer_module=register)
+        def persist():
+            persists.append((copy.deepcopy(state.report),namespace['CANCELLED']))
+            return None
+        state.persist=persist
+        state.persist_installer=types.MethodType(namespace['persist_installer'],state)
+        persist_line=persist.__code__.co_firstlineno+2
+        def tracer(frame,event,arg):
+            selected=event=='line' and not deliveries and ((trace_control is not None and frame.f_code is namespace['consume_installer'].__code__ and frame.f_lineno==self.diagnostic_line) or
+                (persist_control is not None and frame.f_code is persist.__code__ and frame.f_lineno==persist_line))
+            if selected:
+                control=trace_control if trace_control is not None else persist_control
+                deliveries.append(control)
+                raise control
+            return tracer
+        caught=None;previous_trace=sys.gettrace()
+        try:
+            if trace_control is not None or persist_control is not None:sys.settrace(tracer)
+            namespace['consume_installer'](state,None)
+        except BaseException as item:caught=item
+        finally:sys.settrace(previous_trace)
+        self.assertEqual(len(persists),1)
+        if trace_control is not None or persist_control is not None:self.assertEqual(len(deliveries),1)
+        return state,caught,persists,namespace
+
+    def test_all_five_boundaries_preserve_original_failure(self):
+        for boundary in ('REGISTER','RUN','DEADLINE','REAUTH','RESULT'):
+            for kind in (ValueError,KeyboardInterrupt,SystemExit):
+                old_error=kind('PRIVATE_FIRST');new_error=kind('PRIVATE_FIRST')
+                old,previous,_,_=self.model(self.previous,boundary,old_error)
+                new,current,_,_=self.model(self.current,boundary,new_error)
+                self.assertIs(previous,old_error);self.assertIs(current,new_error);self.assertEqual(current.args,old_error.args)
+                diagnostic=new.report['stages']['native-install-preflight'].pop('diagnostic')
+                self.assertEqual(diagnostic,{'schema_version':1,'call_boundary':boundary});self.assertEqual(new.report,old.report)
+
+    def test_actual_control_delivery_during_plain_dict_diagnostic(self):
+        controls=[KeyboardInterrupt('PRIVATE_CONTROL'),SystemExit(7),BaseException('PRIVATE_DEFERRED'),BaseExceptionGroup('PRIVATE_GROUP',[KeyboardInterrupt()])]
+        for control in controls:
+            original=ValueError('PRIVATE_FIRST');prior=OSError('PRIVATE_PRIOR');original.__cause__=prior
+            state,caught,persists,namespace=self.model(self.current,'RUN',original,trace_control=control)
+            self.assertIs(caught,original);self.assertEqual(caught.args,('PRIVATE_FIRST',));self.assertTrue(state.report['cancelled']);self.assertTrue(namespace['CANCELLED'])
+            self.assertTrue(persists[0][0]['cancelled']);self.assertTrue(persists[0][1]);self.assertEqual(state.report['error_code'],'installer-preflight-failed')
+            self.assertEqual(state.report['stages']['native-install-preflight']['error_type'],'ValueError')
+            self.assertEqual(original.__cause__.exceptions,(prior,control))
+            tail=caught.__traceback__
+            while tail.tb_next:tail=tail.tb_next
+            self.assertEqual(tail.tb_frame.f_code.co_name,'run')
+            self.assertNotIn('PRIVATE',json.dumps(state.report))
+
+    def test_actual_control_delivery_during_final_persistence(self):
+        for control in (KeyboardInterrupt(),SystemExit(9),BaseException('deferred'),BaseExceptionGroup('group',[SystemExit(2)])):
+            original=ValueError('PRIVATE_FIRST')
+            state,caught,_,namespace=self.model(self.current,'RUN',original,persist_control=control)
+            self.assertIs(caught,original);self.assertEqual(caught.args,('PRIVATE_FIRST',));self.assertIs(caught.__cause__,control)
+            self.assertTrue(state.report['cancelled']);self.assertTrue(namespace['CANCELLED']);self.assertEqual(state.report['error_code'],'installer-preflight-failed')
+            self.assertEqual(state.report['status_persistence'],'FAIL');self.assertIn('persistence_secondary_control',state.report['stages']['native-install-preflight'])
+
+    def test_ordinary_metadata_fault_preserves_original_record(self):
+        for boundary in ('REGISTER','RUN','DEADLINE','REAUTH','RESULT'):
+            original=ValueError('PRIVATE_FIRST');prior=OSError('PRIVATE_PRIOR');original.__cause__=prior
+            old,_,_,_=self.model(self.previous,boundary,ValueError('PRIVATE_FIRST'))
+            new,caught,_,namespace=self.model(self.current,boundary,original,diagnostic_fault=OSError('PRIVATE_OPTIONAL'))
+            self.assertIs(caught,original);self.assertIs(caught.__cause__,prior);self.assertEqual(new.report,old.report);self.assertFalse(namespace['CANCELLED'])
+
+    def test_success_report_is_unchanged(self):
+        old,previous,_,_=self.model(self.previous);new,current,_,namespace=self.model(self.current)
+        self.assertIsNone(previous);self.assertIsNone(current);self.assertEqual(new.report,old.report);self.assertTrue(new.callback_entered);self.assertFalse(namespace['CANCELLED'])

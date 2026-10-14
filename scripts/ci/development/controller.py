@@ -42,6 +42,20 @@ INSTALLER_NAME = 'native_install_preflight'
 ZSH_NAMES = {'zsh_addon':'development_zsh_addon', 'zsh_session':'development_zsh_session'}
 
 
+def retain_installer_control(first, secondary):
+    """Keep a newly delivered control distinct from an established first failure."""
+    global CANCELLED
+    if isinstance(secondary, Exception):return None
+    CANCELLED = True
+    if first is not None and first is not secondary:
+        prior = first.__cause__
+        if prior is not secondary:
+            first.__cause__ = secondary if prior is None else BaseExceptionGroup(
+                'installer secondary control', [prior, secondary])
+    return ('KEYBOARD_INTERRUPT' if isinstance(secondary, KeyboardInterrupt) else
+            'SYSTEM_EXIT' if isinstance(secondary, SystemExit) else 'OTHER_CONTROL')
+
+
 def finite(value):
     try:return type(value) in (int,float) and math.isfinite(value)
     except (OverflowError,TypeError,ValueError):return False
@@ -468,12 +482,15 @@ class Development:
         first, code = sys.exception(), self.report.get('error_code')
         try:self.persist()
         except BaseException as error:
+            control = retain_installer_control(first, error)
             self.report.update(status='FAIL',status_persistence='FAIL')
             if code is not None:self.report['error_code'] = code
             else:self.report.setdefault('error_code','durable-status-persistence-failed')
             if isinstance(error,KeyboardInterrupt):self.report['cancelled'] = True
+            if control is not None:self.report['cancelled'] = True
             stage = self.report['stages'].get('native-install-preflight')
             if stage is not None:stage.update(status='FAIL',status_persistence='FAIL')
+            if stage is not None and control is not None:stage['persistence_secondary_control'] = control
             if first is None:raise
 
     def persist_zsh(self):
@@ -668,14 +685,19 @@ class Development:
         """P0 is a limited result; unrelated broad roles remain NOT RUN."""
         self.report['execution_scope'] = 'native-install-preflight-only'
         self.report['stages']['native-install-preflight'] = {'status':'NOT RUN','scope':'preflight-only'}
+        boundary = 'REGISTER'
         try:
             if cancelled(controller):raise KeyboardInterrupt()
             module = self.installer_module(controller)
             self.callback_entered = True
+            boundary = 'RUN'
             value = module.run(self.repository_session,controller,self.output/'native-install-preflight',
                 deadline=self.deadline,nonce=self.clock_nonce,runtime_contract=self.runtime_contract)
+            boundary = 'DEADLINE'
             within(self.deadline)
+            boundary = 'REAUTH'
             require(self.installer_module(controller) is module,'installer-graph-refused')
+            boundary = 'RESULT'
             require(type(value) is dict and set(value) == {'status','stage','receiver','cleanup','elapsed_seconds',
                     'ABI','native_matrix','hardware_validation','selected_for_release','public'} and value['status'] == 'PASS' and
                     value['stage'] == 'native-install-preflight' and value['ABI'] == value['native_matrix'] ==
@@ -692,6 +714,14 @@ class Development:
             interrupted = isinstance(error,KeyboardInterrupt) or cancelled(controller)
             self.report['stages']['native-install-preflight'] = {'status':'FAIL','error_code':'cancelled' if interrupted else
                 'installer-preflight-failed','error_type':type(error).__name__,'scope':'preflight-only'}
+            try:
+                self.report['stages']['native-install-preflight']['diagnostic'] = {
+                    'schema_version':1,'call_boundary':boundary}
+            except BaseException as secondary:
+                control = retain_installer_control(error, secondary)
+                if control is not None:
+                    self.report['cancelled'] = True
+                    self.report['stages']['native-install-preflight']['diagnostic_secondary_control'] = control
             self.report['status'] = 'FAIL'
             if interrupted:self.report['cancelled'] = True
             self.report.setdefault('error_code','installer-preflight-cancelled' if interrupted else 'installer-preflight-failed')
