@@ -2,6 +2,33 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 14, reviewed implementation checkpoint: canonical library gzip correction
+is published as Source `32dea27b`, packet `f425308c`, in draft PR24 after
+independent peer `c84c8a5e`. All 278 committed Source hashes/modes are verified.
+The 27 strict outputs, identical normalized tar content and existing caps are
+preserved; successor Data/plan derivation is underway before a fresh ARM run.
+
+Screenshot peer `6c02fc04` authenticates the current candidate's eight builds
+and four byte comparisons, including desktop `0.1.0-2`, its 12740-byte archive
+`0b22b778` and exact installed helper. Both builds ran in distinct recorded
+containers on the same ARM CI job. Independent-machine reproducibility,
+real capture, installation and M2 acceptance remain untested.
+
+Kernel run `38583969397` is now terminal FAIL. Completion `253db2ed` retains
+schema4 evidence: KERNEL naturally returned 0, followed by DATA_REFUSAL at
+OUTPUTS / VERIFY_OUTPUTS / CHECK_001. Baseline worker returns 1; candidate is
+NOT RUN. Cleanup, owned absence and daemon preservation pass separately.
+The new exact predicate is under Source review; earlier causes stay unknown.
+
+Concrete P0 Session routing and keyless early-cancellation successors are
+sealed for external review. Dedicated CI entry preparation continues;
+no signer runtime or native 26-case matrix is executed. Pair/Zsh dictionary
+result correction and KSM callsite diagnostics are independently reviewed
+before publication. The composed IMAGE_CONFIG diagnostic proposal needs a
+new serializer correction after a concrete external key-type countermodel;
+the blocked proposal is preserved, with no native cause inferred.
+
+
 October 14, current native checkpoint (14:55 UTC): screenshot candidate run
 `38571648129`, Source `92a3f061`, completes CI successfully. Completion
 `05cd9495` retains two public frames; independent candidate/build review is

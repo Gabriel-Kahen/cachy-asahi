@@ -6,8 +6,8 @@ records implementation, actual CI evidence and unfinished validation separately.
 
 | Lane | Current Source | Exact run | Current result |
 | --- | --- | --- | --- |
-| Screenshot candidate | `92a3f061` | `38571648129` | CI success; candidate-specific independent review underway |
-| Kernel | `a311de55` | `38583969397` | Running after reviewed schema4 propagation correction |
+| Screenshot candidate | `92a3f061` | `38571648129` | Independent review confirms eight builds/four comparisons, current desktop0.1.0-2 |
+| Kernel | `a311de55` | `38583969397` | Natural KERNEL return0; OUTPUTS refusal at VERIFY_OUTPUTS/CHECK_001; candidate not reached |
 | Updater | `2ce49ea1` | `38564810704` | Failure retained; native-pair process return 1; exact inner reason under review |
 | Composed integration | `993487a4` | `38566446597` | Failure retained; startup initial-failed; independent review underway |
 | Pair | `eef0710d` | `38572139973` | AttributeError at Docker result observation; dictionary/object contract correction assigned |
@@ -37,3 +37,7 @@ authenticates all 158 indexed files and 457 external references. External
 review is pending before its 13 Source copies, successor Data and registration.
 It keeps all 27 strict output checks, unchanged caps and identical normalized
 tar payloads; no native compressor identity is inferred.
+
+Library correction Source `32dea27b` is published in draft PR24. Its exact
+278 committed Source hashes/modes pass; actual successor Data/plan preparation
+is underway. Independent review `c84c8a5e` adds 47 focused groups.
