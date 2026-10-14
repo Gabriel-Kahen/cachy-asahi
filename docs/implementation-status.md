@@ -2,6 +2,22 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 14, CLI and kernel execution checkpoint: CLI Data `5f4f5086`
+is the exact two-file child of Source `4c388cc7`, with Code `5d7e92e8` held.
+External registration peer `405c6638` passes. Actual Code authentication and
+Source workflow selection accept finalized plan `dd11f05c`, including all291
+Source rows. Both variable readbacks precede execution-ref advancement;
+one manual trial `38620204222` is queued. Prior cleanup failure remains open.
+
+Kernel first-observed-child diagnostics pass peer `f31bf2fe`. Root publishes
+Source `3bec0e2e`, packet `329078ba`, and verifies124 committed rows plus
+packet after correcting the coordinator reader's schema assumption. Five
+exact copies change four rows;120 runtime rows, stage and workflow remain held.
+One trial `38620355690` is running. Focused review passes193 assertions;
+the full suite remains184/185 with the identical baseline fixture failure.
+Prior startup order/cause, new native compilation and cleanup acceptance
+remain unestablished until retained terminal evidence is reviewed.
+
 October 14, typed installer route checkpoint: Root publishes `3438c695`
 after external `b57f1cd7` and adoption preparation `159dcc91`. Six existing
 files change and two P0 variants are added. All27 selected committed rows,
