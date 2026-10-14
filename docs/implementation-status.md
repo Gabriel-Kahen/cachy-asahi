@@ -2,6 +2,39 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 14, actual failure retention and onboarding correction checkpoint:
+Root authenticates325 P0 retained/proof leaves and925 inputs from review
+`1b801500`. Run `38645249560` stays FAIL; exact refusal code, preparation,
+image and P0 outcomes remain UNKNOWN, with matrix NOT RUN and no retirement
+proof. The diagnostic proposal is withheld after independent review finds
+inconsistent OSError classification and unsafe flag-key lookup; a successor
+is being prepared without changing the runtime policy.
+
+Region trial `38647392979` on Source `8e256c05` stays FAIL at bounded real
+protocol readiness. Review `9e51835b` authenticates11 owned/271 external rows
+and103 retained files. Four full captures/307200 pixels and the196-package
+inventory pass separately. Owned selector reaping, runtime exhaustion and
+container absence are recorded; image/cache/context retirement is unrecorded.
+No region crop, cancellation or negative cases completed. The trace records
+capability emission and correct globals, with initial motion before overlay
+mapping and no later motion before readiness. A two-line ordering candidate
+is under independent review; the precise compositor cause remains unproven.
+
+FDK provenance trial `38647710278` runs against reviewed Source `843fff11`;
+KSM diagnostic trial `38647718228` is queued against `86631378`. The changed
+composed and native screenshot trials `38645554301` and `38645746453` are
+terminal FAIL and their strict actual reviews are assigned. No identical
+retry is submitted or failure upgraded by Source evidence.
+
+Primary `0cc39264` corrects onboarding's frozen helper closure and count-test
+fixture after independent Source review. All13 onboarding unit tests pass.
+The selected release helper now accompanies its dynamic loader; a fixed
+fixture verifies count propagation without depending on historical19/current25
+suite growth. No full native onboarding result is claimed. Existing FDK/KSM
+PR integration bases are this development branch, while their running native
+Sources stay pinned independently. A complete base merge changes selected
+packet rows and requires new Source closures before later native selection.
+
 October 14, first P0 trial and parallel Source integration checkpoint:
 manual ARM trial `38645249560` on Source `58b0d9e3` fails with the broad
 Root-selection/preparation/P0 status. The exact stage and cause remain UNKNOWN.
