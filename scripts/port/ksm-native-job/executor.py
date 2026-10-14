@@ -104,6 +104,9 @@ def producer_refusal(result, observation):
 ROUTE_PREFIX = b'KSM_PRODUCER_ROUTE_V1 '
 
 
+TYPEERROR_SITES = frozenset(('FORWARD_RUN_BODY', 'GRAPH_CONTEXT_BODY', 'GRAPH_DISK_GUARD_BODY', 'GRAPH_RESTORE_BODY', 'GRAPH_VERIFY_BODY', 'NATIVE_MAIN_BODY', 'NATIVE_PROBE_BODY', 'NATIVE_RUN_BODY', 'UNKNOWN'))
+
+
 def producer_route(result, observation):
     """Optional declaration after an observed natural1; never grants acceptance."""
     try:
@@ -143,7 +146,8 @@ def producer_route(result, observation):
             return value
         def constant(_): raise ValueError('nonfinite-route')
         value = json.loads(line[len(ROUTE_PREFIX):].decode('ascii'), object_pairs_hook=pairs, parse_constant=constant)
-        if type(value) is not dict or set(value) != {'schema_version','route','last_source_gate','category'}:
+        fields = {'schema_version','route','last_source_gate','category'}
+        if type(value) is not dict or set(value) not in (fields, fields | {'callsite'}):
             return None
         if type(value['schema_version']) is not int or value['schema_version'] != 1:
             return None
@@ -156,6 +160,9 @@ def producer_route(result, observation):
             if value['category'] not in {'ImportError','TypeError','AttributeError','RuntimeError','UNKNOWN'}:
                 return None
         else:
+            return None
+        if 'callsite' in value and (value['route'] != 'driver_error' or value['category'] != 'TypeError' or
+                value['last_source_gate'] != 'NATIVE_ENTRY' or type(value['callsite']) is not str or value['callsite'] not in TYPEERROR_SITES):
             return None
         return value
     except Exception:

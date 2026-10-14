@@ -92,7 +92,23 @@ def refusal_record(error, gate):
 ROUTE_PREFIX = 'KSM_PRODUCER_ROUTE_V1 '
 
 
-def emit_route(route, gate, error=None):
+TYPEERROR_SITES = frozenset(('FORWARD_RUN_BODY', 'GRAPH_CONTEXT_BODY', 'GRAPH_DISK_GUARD_BODY', 'GRAPH_RESTORE_BODY', 'GRAPH_VERIFY_BODY', 'NATIVE_MAIN_BODY', 'NATIVE_PROBE_BODY', 'NATIVE_RUN_BODY', 'UNKNOWN'))
+
+
+def typeerror_callsite(error, call_codes):
+    """Return only a finite label from exact held code identities, never frame data."""
+    if type(error) is not TypeError:return 'UNKNOWN'
+    found = 'UNKNOWN'; trace = error.__traceback__
+    for _ in range(64):
+        if trace is None:return found
+        code = trace.tb_frame.f_code
+        for held, label in call_codes:
+            if code is held:found = label; break
+        trace = trace.tb_next
+    return 'UNKNOWN'
+
+
+def emit_route(route, gate, error=None, call_codes=()):
     """Finite failure route only; ordinary diagnostic faults cannot replace cause."""
     try:
         if route == 'native_return_nonzero':
@@ -106,6 +122,8 @@ def emit_route(route, gate, error=None):
         value = {'schema_version':1, 'route':route,
                  'last_source_gate':gate if type(gate) is str and gate in REFUSAL_GATES else 'UNKNOWN',
                  'category':category}
+        if route == 'driver_error' and category == 'TypeError' and gate == 'NATIVE_ENTRY':
+            value['callsite'] = typeerror_callsite(error,call_codes)
         encoded = ROUTE_PREFIX + json.dumps(value, sort_keys=True, separators=(',',':')) + '\n'
         if len(encoded.encode('ascii')) <= 512:
             sys.stdout.write(encoded); sys.stdout.flush()
@@ -504,7 +522,7 @@ def main(argv=None):
     parser.add_argument('--producer-output',type=Path,required=True)
     parser.add_argument('--inventory-seconds',type=int,required=True)
     argv=list(sys.argv[1:] if argv is None else argv)
-    gate='PREFLIGHT'
+    gate='PREFLIGHT'; call_codes = ()
     try:
         need(argv.count('--')==1,'producer-native-argv')
         split=argv.index('--'); native=argv[:split]; args=parser.parse_args(argv[split+1:])
@@ -521,6 +539,10 @@ def main(argv=None):
             original=wrap_run(module,args.producer_output,deadline=args.producer_end,guard=guard,parent_identity=parent)
             grant=_GRAPHS[id(module)]
             grant[4].verify(); guard()
+            call_codes = ((module.main.__code__,'NATIVE_MAIN_BODY'),(module.probe.__code__,'NATIVE_PROBE_BODY'),
+                (original.__code__,'NATIVE_RUN_BODY'),(_Forwarder.__call__.__code__,'FORWARD_RUN_BODY'),
+                (_Custody.verify.__code__,'GRAPH_VERIFY_BODY'),(_Custody.restore.__code__,'GRAPH_RESTORE_BODY'),
+                (guard._disk.__code__,'GRAPH_DISK_GUARD_BODY'),(load_graph.__wrapped__.__code__,'GRAPH_CONTEXT_BODY'))
             gate='NATIVE_ENTRY'
             result=module.main(native)
             gate='NATIVE_RETURN'
@@ -533,7 +555,7 @@ def main(argv=None):
         sys.stderr.write('scoped original producer driver refused\n')
         return 125
     except Exception as error:
-        emit_route('driver_error', gate, error)
+        emit_route('driver_error', gate, error, call_codes)
         raise
 
 
