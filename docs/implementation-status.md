@@ -16,11 +16,14 @@ existing refusal record when stderr follows it. It does not establish the old
 producer's exact cause or turn its ownership-uncertain cleanup into a pass.
 
 Kernel compiler diagnostic successor `ba061dd0` passes independent peer
-`bf790241`. It preserves the original failure and ordered secondary controls;
-the predecessor diagnostic remains blocked. Root adoption and a fresh native
-trial remain pending. Updater optional dependency diagnostic `f1ddae68` passes
-peer `7719a603`; this future Source correction does not alter queued trial
-`38537248373` or prove that it failed.
+`bf790241`. Root publishes Source `bcdfa7a8`, verifies all 124 Source rows plus
+packet `bdbca8de`, and starts native trial `38543396235`; preflight passes and
+execution is active. It preserves the original failure and ordered secondary
+controls; the predecessor diagnostic remains blocked. Updater optional dependency
+diagnostic `f1ddae68` passes peer `7719a603`. Root publishes future Source
+`ddc83502` and verifies all 90 committed Source rows. No new updater trial is
+launched; queued `38537248373` remains bound to its original `e3cab74a` and is
+not inferred to have failed.
 
 The simpler library runnable proposal passes bounded custody and business
 controls, but its independent review holds the launch route until it uses a
