@@ -35,8 +35,8 @@ PINS = {
     'scripts/port/ksm-lifecycle/test_stage.py': 'e34c99bb71f57748c5f171f08085ca4d0ab3846e26cbc48ca07e246730218332',
     'scripts/port/ksm-lifecycle/test_worker.py': '5e9bac1045407585f26c8819c9e4d283cae3044e1cefbebabc1f4c086e517aa8',
     'scripts/port/ksm-lifecycle/source-checkpoint.json': '2d3b4fd99d708473d69c325778d0db345fab19a4d0b7e04bf346405f99f3219c',
-    'scripts/port/ksm-native-job/current_cache.py': '37fd23b59a21cd1c43fc1385b0d6445e101d812f93bb37a2cf1db491b43e84a1',
-    'scripts/port/ksm-native-job/cache_intake.py': '07ada8534f4fd21def79ab98c62334e4e0e6a7f5b15a9da8c7eacf44376c334d',
+    'scripts/port/ksm-native-job/current_cache.py': 'c0533e92a77fceb9171c29130fdf258f68a8121da454b86490e98c930dbd08f3',
+    'scripts/port/ksm-native-job/cache_intake.py': 'f454fb98d5076bab89c4927a95186e550f106ce51f42875e75971fed315e1100',
     'scripts/port/ksm-native-job/donor/current-controller.py': 'bbe279edb9743f98e8feed8365859abc221b2665924658e600775c902e18299e',
     'scripts/port/ksm-native-job/donor/current-packet.json': '9d5a7dc25fd44e127c457c72addb28272b1eb1f5391c4c5b8d5b0a226a3be048',
 }

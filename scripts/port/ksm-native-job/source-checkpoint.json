@@ -35,12 +35,12 @@
     "scripts/port/ksm-lifecycle/contract.py": "bfce5d9a5e8a9626cdedb121f299dafd730b13e484d1c4be7ba917207e4d161b",
     "scripts/port/ksm-lifecycle/stage.py": "7387ab33c353d30b04208718147f92aa2a1e26a2d2b717e81a3bb082ef376010",
     "scripts/port/ksm-lifecycle/worker.py": "8670e05d0cd51a3d3d685702768634bde50427e2a0c8173f1852f94a7ff554d1",
-    "scripts/port/ksm-native-job/cache_intake.py": "07ada8534f4fd21def79ab98c62334e4e0e6a7f5b15a9da8c7eacf44376c334d",
-    "scripts/port/ksm-native-job/current_cache.py": "37fd23b59a21cd1c43fc1385b0d6445e101d812f93bb37a2cf1db491b43e84a1",
+    "scripts/port/ksm-native-job/cache_intake.py": "f454fb98d5076bab89c4927a95186e550f106ce51f42875e75971fed315e1100",
+    "scripts/port/ksm-native-job/current_cache.py": "c0533e92a77fceb9171c29130fdf258f68a8121da454b86490e98c930dbd08f3",
     "scripts/port/ksm-native-job/donor/current-controller.py": "bbe279edb9743f98e8feed8365859abc221b2665924658e600775c902e18299e",
     "scripts/port/ksm-native-job/donor/current-packet.json": "9d5a7dc25fd44e127c457c72addb28272b1eb1f5391c4c5b8d5b0a226a3be048",
     "scripts/port/ksm-native-job/executor.py": "a182cfef670d65a481ba67079da3135ec560657c2101883c87ea911f2bf9d002",
-    "scripts/port/ksm-native-job/job.py": "b66ccf03c29efc56d2877f805f1509ebbd18d118612d0d41c4fe80b24b4003b4"
+    "scripts/port/ksm-native-job/job.py": "721f2c52c786b1d33c822636d92bf4b511b925d37f4cc6c680b024f07ccab09f"
   },
   "status": "CURRENT_CACHE_SOURCE_PROPOSAL_NATIVE_NOT_RUN"
 }

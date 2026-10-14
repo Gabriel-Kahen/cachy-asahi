@@ -22,7 +22,7 @@ import urllib.error
 import urllib.parse
 
 INTAKE = 'scripts/port/ksm-native-job/cache_intake.py'
-INTAKE_SHA = '07ada8534f4fd21def79ab98c62334e4e0e6a7f5b15a9da8c7eacf44376c334d'
+INTAKE_SHA = 'f454fb98d5076bab89c4927a95186e550f106ce51f42875e75971fed315e1100'
 BUFFERS = ('scripts/ci/native_arm.py',
            'scripts/port/ksm-native-job/donor/current-controller.py',
            'scripts/port/ksm-native-job/donor/current-packet.json',
