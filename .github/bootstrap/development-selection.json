@@ -71,10 +71,10 @@
     "scripts/virtual/tooling-audit.json": "d3289a52f3269ba44f1437b69a112dcbd2086ee16ebe8d44658e65e7fb8e2095",
     "scripts/virtual/tooling.lock.json": "c18afc5bde9868594d41bd576a956960a7b01b190d148ba03ca4c41d4394e1b0"
   },
-  "peer_receipt_sha256": "68a8edb0020fa6152b206f4b1f699ec6ecd82d793864718f21be55b6041fb40e",
+  "peer_receipt_sha256": "239d6d8c0cd7197b708da1e2c8f7a198c5f9c3ab87ceba0f434326bdd14de7e8",
   "purpose": "root-selected-maintained-v1-development-source",
   "schema_version": 3,
-  "source_commit": "d912be01b962bcc4b359a1ce011edcbb353c7b8a",
+  "source_commit": "e23ad759dfc7bc04b5a45c199861cf56844b8ab6",
   "source_files": {
     ".github/workflows/native-arm-build.yml": {
       "mode": 420,
@@ -690,7 +690,7 @@
     },
     "scripts/ci/development/controller.py": {
       "mode": 420,
-      "sha256": "73930bc2ba5555b48353447b3598a0756a8f01995dbd6b0fae41f587a66ca590"
+      "sha256": "0e227b6d56cf169ce29c10e4829613be4d6c64d267b90ef638ef5798503998ff"
     },
     "scripts/ci/development/initial_artifacts.py": {
       "mode": 420,
@@ -770,7 +770,7 @@
     },
     "scripts/ci/development/repository_handoff.py": {
       "mode": 420,
-      "sha256": "a3a220910e4f47957003512bff69e8727228d7d40b537250dca640be1993fb79"
+      "sha256": "04f2316b2be3368bf812dc06b92c4253509b5745179496864bd1e2e39777cbb8"
     },
     "scripts/ci/development/test_base_stages.py": {
       "mode": 420,
@@ -1189,5 +1189,5 @@
       "sha256": "1023f493a5ff1991b382ed42b9960c6e0e98774c75e1a2aa90deff15dad7add1"
     }
   },
-  "source_packet_sha256": "34e6eed069f0a10b8a3bbdf726be3141c6b8c57989e14168d2bf79e7e7b3595c"
+  "source_packet_sha256": "91773656c7e2e7162fe54f578c88826af8dc8f7bcf8585f32fad128bdbe339fa"
 }

@@ -1,22 +1,424 @@
 {
-  "HTTP_GPG_Docker_native_Git_upstream_actors": 0,
   "Source_rows": 278,
-  "actual_runtime_or_native_admission": false,
-  "adoption_files": 28,
-  "complete_goal_admission": false,
-  "independent_inert_controls": 108,
-  "index": {
-    "bytes": 10250,
-    "mode": 420,
-    "path": "index.json",
-    "sha256": "ccd9563bc0fc690249b4f2950ffd0ee3d2dcfcb3161bad46085effaf7611a56b"
+  "actors": 0,
+  "adoption_files": {
+    ".github/workflows/project-private-libraries-v1.yml": {
+      "bytes": 11555,
+      "mode": 420,
+      "sha256": "f19bd77d529878d1c64855f8cc9d95557c604ecb325c31aff3bb9e5b495a26e3"
+    },
+    "scripts/ci/development/controller.py": {
+      "bytes": 109554,
+      "mode": 420,
+      "sha256": "0e227b6d56cf169ce29c10e4829613be4d6c64d267b90ef638ef5798503998ff"
+    },
+    "scripts/ci/development/packet.lock.json": {
+      "bytes": 97462,
+      "mode": 420,
+      "sha256": "91773656c7e2e7162fe54f578c88826af8dc8f7bcf8585f32fad128bdbe339fa"
+    },
+    "scripts/ci/development/repository_handoff.py": {
+      "bytes": 170830,
+      "mode": 420,
+      "sha256": "04f2316b2be3368bf812dc06b92c4253509b5745179496864bd1e2e39777cbb8"
+    }
   },
-  "new_packet_archive_payload_or_upstream_Source_bodies_retained": false,
-  "ownership": "peer/** only",
-  "public_promotion": false,
-  "runtime_materialized_files_exact": 27,
+  "all_278_bodies_rehashed": false,
+  "authenticated_author_supports": 40,
+  "author_receipt_sha256": "50f226ea0c950ed45bfd687a623f1ec6cf824aedfe75459f0c9eaa3533273661",
+  "author_schedules_replayed": false,
+  "changed_Source_rows": 2,
+  "files": {
+    "attempts.json": {
+      "bytes": 308,
+      "mode": 420,
+      "sha256": "1530464e47266c524ab6c8ef091de167a1c9ab52ca02bf22c6cdd80192efeaf3"
+    },
+    "authentication.json": {
+      "bytes": 8221,
+      "mode": 420,
+      "sha256": "f813d73163da77eb056ee3a89b78198b9e95474e9134eeb4aafd019a45a9dc64"
+    },
+    "conservation-result.json": {
+      "bytes": 684,
+      "mode": 420,
+      "sha256": "b337db61c51f73aaf9037f20e852bf6a0c3ac8b7fde180e011e72d138bd3e19d"
+    },
+    "conservation.py": {
+      "bytes": 2663,
+      "mode": 420,
+      "sha256": "e515439cd253e4fcdc65eaebd27a37ff9c825d427c9497884a0a54a08f39d137"
+    },
+    "fixture-source-binding.json": {
+      "bytes": 919,
+      "mode": 420,
+      "sha256": "95fb3e858109ef533cb132ebd365e2a680d717a8333f0bc1c7fcec9e0e28bbeb"
+    },
+    "focused-controls-result.json": {
+      "bytes": 2196,
+      "mode": 420,
+      "sha256": "6351b4f505ef403be1f0be7c1c5f866daf2a463f5a293a30286e8ea683644026"
+    },
+    "focused-controls.py": {
+      "bytes": 8931,
+      "mode": 420,
+      "sha256": "9eca1cf945a64534c0a4502619fefe860d77c429060ce79dbe672cedb8aaff9c"
+    },
+    "held/author/README.md": {
+      "bytes": 1327,
+      "mode": 420,
+      "sha256": "6097548e827a74d0c4f3561aa7bc68da8deedc7759934385f2f3b8f91bcb1e55"
+    },
+    "held/author/check_successor.py": {
+      "bytes": 3490,
+      "mode": 420,
+      "sha256": "2a2d281909e3d6401dece2c32e587f63709c93eca4aa0b0a73827ac8a65edccf"
+    },
+    "held/author/copy-replay/actual-copy-receipt.json": {
+      "bytes": 95673,
+      "mode": 420,
+      "sha256": "0ac94a04d6d0165590a6660cc185517e443e8ecd9317a5a088743146fa640ed9"
+    },
+    "held/author/copy-replay/findings.md": {
+      "bytes": 3414,
+      "mode": 420,
+      "sha256": "fabc34f6298ff928e2543b77663792d1a708071f44783693b826b5ad0e3a8fe9"
+    },
+    "held/author/copy-replay/replay.py": {
+      "bytes": 8774,
+      "mode": 420,
+      "sha256": "94482d74aa6a09d05c821a6dcecd0d19c79b244c6822faee647a34c70a7a1566"
+    },
+    "held/author/copy-replay/results.json": {
+      "bytes": 5694,
+      "mode": 420,
+      "sha256": "2d44a2268b28492ff0315bcb7d8ec08e64f30cb612854b7e6a10c811c4ff0b2d"
+    },
+    "held/author/copy-replay/source-inventory.json": {
+      "bytes": 49366,
+      "mode": 420,
+      "sha256": "eacd0eb20020759023892dd59f4a3919f2c2b4d35bc871d11b85ea1b48fbf700"
+    },
+    "held/author/delta.json": {
+      "bytes": 1620,
+      "mode": 420,
+      "sha256": "a684d1bf7dec1c157037cc4b95670ba4950ac3492f0c504d0bd974b2b8747d39"
+    },
+    "held/author/file-index.json": {
+      "bytes": 7145,
+      "mode": 420,
+      "sha256": "f353f26771eda80b928c64d11071cadd6b184ed86c1640a39c3caefa27991676"
+    },
+    "held/author/guide-external.md": {
+      "bytes": 5345,
+      "mode": 420,
+      "sha256": "ed5eac6e22fc78e5d03aafcc854cd33876735b53440969eeeb27e53af0a5cf79"
+    },
+    "held/author/input-authentication.json": {
+      "bytes": 1641,
+      "mode": 420,
+      "sha256": "2a3ad3216a8f4b12b369f6567476307db01b3359c2d4a98feef91f9328f2487e"
+    },
+    "held/author/inputs/original-markers.json": {
+      "bytes": 840,
+      "mode": 420,
+      "sha256": "16f6684e37722e52cc8e00a229cbb624a78f8390503b9ab6b18bb2c606a38211"
+    },
+    "held/author/inputs/run-binding.json": {
+      "bytes": 241,
+      "mode": 420,
+      "sha256": "235fb0a88b4c6b1a637121cfd39042c65082999bc2a78b0663c8c3a0b5fae167"
+    },
+    "held/author/integrate.py": {
+      "bytes": 4090,
+      "mode": 420,
+      "sha256": "581eda29f1709b3df3134b037e586ca3747385a70daa971e51884ec2958ae534"
+    },
+    "held/author/peer/candidate-checks.py": {
+      "bytes": 6070,
+      "mode": 420,
+      "sha256": "2176db2a8e66c4f710ace9d4bf615b94571b29df27cafb032909fd0f49fd94ff"
+    },
+    "held/author/peer/candidate-results.json": {
+      "bytes": 2449,
+      "mode": 420,
+      "sha256": "93b1dd3486219c44c3a50e776095befdd073a2c201b5ad94eb65a7f2b39dfbdf"
+    },
+    "held/author/peer/control-results.json": {
+      "bytes": 2020,
+      "mode": 420,
+      "sha256": "3f1926fd9f886725e976ada6a1f35d825f6a9f787f114534bf24a5f486253af8"
+    },
+    "held/author/peer/controls.py": {
+      "bytes": 6603,
+      "mode": 420,
+      "sha256": "c701f9f72b6be1bffbf5b162a674402aead4668d325195de68a62051c82a1da8"
+    },
+    "held/author/peer/evidence-authentication.json": {
+      "bytes": 5686,
+      "mode": 420,
+      "sha256": "22119d61598c8c2dfd33a791c7e83ed7b1a42d157935925ff6bfe70d8b74fa80"
+    },
+    "held/author/peer/index.json": {
+      "bytes": 1494,
+      "mode": 420,
+      "sha256": "270a059fbbc240a4b2a6faec608fc01b6aec85acae50a235ee43be71fdc2a659"
+    },
+    "held/author/peer/receipt.json": {
+      "bytes": 610,
+      "mode": 420,
+      "sha256": "b6dbfc7350a7fa141f3b6ba8920d097b4bba13243f18608510c4ccc6d6782bcb"
+    },
+    "held/author/peer/review.json": {
+      "bytes": 2321,
+      "mode": 420,
+      "sha256": "a23ef20014b02af547a365a9db8ca9f46fbde801a424849149decc0af01559e3"
+    },
+    "held/author/peer/review.md": {
+      "bytes": 939,
+      "mode": 420,
+      "sha256": "4f8a0091a6d54cfd7ce7b61b3f7237b10c1df8ed5c079e7804e3c833a01765d1"
+    },
+    "held/author/peer/run-authentication.json": {
+      "bytes": 845,
+      "mode": 420,
+      "sha256": "b55d8f604c2d19047ea4837c057d72b6f65a3993ff90da7ca4b42ad47d0ea693"
+    },
+    "held/author/peer/seal.py": {
+      "bytes": 1876,
+      "mode": 420,
+      "sha256": "d6eb232a0b62a1fe358572344abe17d1beaf5e7dacde9e25de229d3dbf53a676"
+    },
+    "held/author/proposed-source/.github/workflows/project-private-libraries-v1.yml": {
+      "bytes": 11555,
+      "mode": 420,
+      "sha256": "f19bd77d529878d1c64855f8cc9d95557c604ecb325c31aff3bb9e5b495a26e3"
+    },
+    "held/author/proposed-source/scripts/ci/development/controller.py": {
+      "bytes": 109554,
+      "mode": 420,
+      "sha256": "0e227b6d56cf169ce29c10e4829613be4d6c64d267b90ef638ef5798503998ff"
+    },
+    "held/author/proposed-source/scripts/ci/development/packet.lock.json": {
+      "bytes": 97462,
+      "mode": 420,
+      "sha256": "91773656c7e2e7162fe54f578c88826af8dc8f7bcf8585f32fad128bdbe339fa"
+    },
+    "held/author/proposed-source/scripts/ci/development/repository_handoff.py": {
+      "bytes": 170830,
+      "mode": 420,
+      "sha256": "04f2316b2be3368bf812dc06b92c4253509b5745179496864bd1e2e39777cbb8"
+    },
+    "held/author/receipt.json": {
+      "bytes": 1474,
+      "mode": 420,
+      "sha256": "50f226ea0c950ed45bfd687a623f1ec6cf824aedfe75459f0c9eaa3533273661"
+    },
+    "held/author/registration-helper/derive_delivery.py": {
+      "bytes": 9023,
+      "mode": 420,
+      "sha256": "d776b46eedf9b3267ec65f93e2ab31bf2194321ce914bc43d0f13cfa2d1846b1"
+    },
+    "held/author/registration-replay/README.md": {
+      "bytes": 2312,
+      "mode": 420,
+      "sha256": "ad8ff5617be8daf9acedb4321c9c72c028bed1aabda7f081da515db0112846b8"
+    },
+    "held/author/registration-replay/controller.py": {
+      "bytes": 109554,
+      "mode": 420,
+      "sha256": "0e227b6d56cf169ce29c10e4829613be4d6c64d267b90ef638ef5798503998ff"
+    },
+    "held/author/registration-replay/foreign-base-candidate-first-traceback.txt": {
+      "bytes": 978,
+      "mode": 420,
+      "sha256": "7e785c82b09dfda4976cb513b72a400e38fecdc231d8a7807d3be0efbc7caa67"
+    },
+    "held/author/registration-replay/foreign-common-candidate-first-traceback.txt": {
+      "bytes": 980,
+      "mode": 420,
+      "sha256": "e043ba4ebb8aa55f86561bb44f48d9735d53528839f33acdd4d1ce7a017fb696"
+    },
+    "held/author/registration-replay/fresh-original-first-traceback.txt": {
+      "bytes": 970,
+      "mode": 420,
+      "sha256": "cca8da7b99065b1ff88b5de65d6e52ada54d0e1e16fbcd2189dcd4bb6e38ac88"
+    },
+    "held/author/registration-replay/initial-replay.json": {
+      "bytes": 11769,
+      "mode": 420,
+      "sha256": "443d4bc227c95fbcbfdbf3b90f7b4916c83f2171f06dc8d008dc7f8236a9fd0f"
+    },
+    "held/author/registration-replay/minimal.patch": {
+      "bytes": 592,
+      "mode": 420,
+      "sha256": "91cdf18b8d1359d9bcdb02e54fc1e3b501d447c170f158c8575cc0a24f1de7e8"
+    },
+    "held/author/registration-replay/replay-results.json": {
+      "bytes": 36380,
+      "mode": 420,
+      "sha256": "039968b2896469fe82c50c0e2b93a84ccdcd865e382c0023726eaf5a826ddf97"
+    },
+    "held/author/registration-replay/replay.py": {
+      "bytes": 8509,
+      "mode": 420,
+      "sha256": "c8ed803c45c645ef0df824dbfb03c6bbf236bd7c007d0af507cecc00d073ff05"
+    },
+    "held/author/seal.py": {
+      "bytes": 2244,
+      "mode": 420,
+      "sha256": "e2e889270f6d5aaf1aaca97676366b5d106632e9f34d56a0dad07c2dd92f589e"
+    },
+    "held/author/successor-check-results.json": {
+      "bytes": 596,
+      "mode": 420,
+      "sha256": "a0d9f6e9238863f5dd7ee0a3b470a1c646a6253d13758d603b2563a6e5ee03bc"
+    },
+    "held/author/successor.patch": {
+      "bytes": 2865,
+      "mode": 420,
+      "sha256": "eb01dd785ddb65a5ad81bce18f5ce2ea515d11d038e8b3342c7067f7d713f2ee"
+    },
+    "held/base/.github/workflows/project-private-libraries-v1.yml": {
+      "bytes": 11555,
+      "mode": 420,
+      "sha256": "f58719558a0985cc48aeeaf2842a766343c43473826d5cf085fe0b4dae3f476b"
+    },
+    "held/base/derive_delivery.py": {
+      "bytes": 9023,
+      "mode": 420,
+      "sha256": "a4aa09207261caae0f41912bf09d7250e8093198e136be68ea961b3ecd39cf14"
+    },
+    "held/base/scripts/ci/development/controller.py": {
+      "bytes": 109477,
+      "mode": 420,
+      "sha256": "73930bc2ba5555b48353447b3598a0756a8f01995dbd6b0fae41f587a66ca590"
+    },
+    "held/base/scripts/ci/development/packet.lock.json": {
+      "bytes": 97462,
+      "mode": 420,
+      "sha256": "34e6eed069f0a10b8a3bbdf726be3141c6b8c57989e14168d2bf79e7e7b3595c"
+    },
+    "held/base/scripts/ci/development/repository_handoff.py": {
+      "bytes": 170747,
+      "mode": 420,
+      "sha256": "a3a220910e4f47957003512bff69e8727228d7d40b537250dca640be1993fb79"
+    },
+    "held/preparation/AGENTS.md": {
+      "bytes": 1334,
+      "mode": 420,
+      "sha256": "a95eaf775ac935ebdfe6b9c89aad9382639671aecdaab91503e1453d4782a056"
+    },
+    "held/preparation/artifacts.json": {
+      "bytes": 32,
+      "mode": 420,
+      "sha256": "244563f989470892c537c9a4622920af0d228ee4528f7d00c64a06d6cd95856c"
+    },
+    "held/preparation/docs--acceptance.md": {
+      "bytes": 9623,
+      "mode": 420,
+      "sha256": "463147392379544f1af2ae2166e0213d27f3b9ae83cb10d887d25e6d6a8e00e6"
+    },
+    "held/preparation/docs--roadmap.md": {
+      "bytes": 17385,
+      "mode": 420,
+      "sha256": "6e720ad88eea80475217638fb080c8bac2d2a19046b0d3260c7e5ffd371a32ec"
+    },
+    "held/preparation/goal.md": {
+      "bytes": 8594,
+      "mode": 420,
+      "sha256": "779a2189ae77d5041e8ad2f8c7543e27f2f99968bd40e684942a4e251dcd8dd4"
+    },
+    "held/preparation/initial-retention.json": {
+      "bytes": 728,
+      "mode": 420,
+      "sha256": "f40e5af475e299271e8bf4ef2296f864d6f5846623f15e82765095e43e960d19"
+    },
+    "held/preparation/jobs.json": {
+      "bytes": 1479,
+      "mode": 420,
+      "sha256": "fdafecb06f4b320bc3a5a3198665c6328f4eadbb62899852d20fc057e98e1ab3"
+    },
+    "held/preparation/manifests--packages.toml": {
+      "bytes": 9707,
+      "mode": 420,
+      "sha256": "c2bd07f2025a7db85f20de7d271f822fde17febad615897eb1e21ba008103978"
+    },
+    "held/preparation/markers.json": {
+      "bytes": 840,
+      "mode": 420,
+      "sha256": "ffb05cd4bc7b62984a3624f01e389eed2632823705d6bb31e86df9dc9c00fcbb"
+    },
+    "held/preparation/outline.md": {
+      "bytes": 33464,
+      "mode": 420,
+      "sha256": "d8f1a628c9408d7d56b849bea2349abebcec44cb89b1239d739dafeafc4845f5"
+    },
+    "held/preparation/run.json": {
+      "bytes": 13469,
+      "mode": 420,
+      "sha256": "f953e84ea11eb8df6031adefa490888a11ba81bfce76606a6b70e81248b647e0"
+    },
+    "held/preparation/run.log": {
+      "bytes": 31656,
+      "mode": 420,
+      "sha256": "ed2b03a1e3d7994635178a1aad97bbed5be09dcc6423e83ffa0617da5555758b"
+    },
+    "held/preparation/scripts--ci--development--base_stages.py": {
+      "bytes": 73411,
+      "mode": 420,
+      "sha256": "ce4fb0fea1178b515fade95ea33fd1ab6b380ebc87feb3a70dd4198edd854fb8"
+    },
+    "held/preparation/scripts--ci--development--common.py": {
+      "bytes": 17749,
+      "mode": 420,
+      "sha256": "f240ea497dd60182141ee7a8dae58ab0aff5cb0480f0bb14b7bc9e20ba935687"
+    },
+    "held/preparation/scripts--ci--development--prepare_project_library_sources.py": {
+      "bytes": 17017,
+      "mode": 420,
+      "sha256": "a73f1571fe417e14db90ef00c147146fa0f67de7c3bc8b012636de04176931e1"
+    },
+    "held/preparation/scripts--ci--development--project_libraries.py": {
+      "bytes": 41468,
+      "mode": 420,
+      "sha256": "7ba90b804652f2355837ab550c35b55c37e809d7fce6b4d627e56584d6b5360d"
+    },
+    "held/preparation/scripts--ci--development--repository_handoff.py": {
+      "bytes": 170747,
+      "mode": 420,
+      "sha256": "a3a220910e4f47957003512bff69e8727228d7d40b537250dca640be1993fb79"
+    },
+    "helper-delta.json": {
+      "bytes": 326,
+      "mode": 420,
+      "sha256": "1801bcc3d05adac66c30d07f0dcb4f3552b04def4564f2ad8865896a4d150245"
+    },
+    "preparation.json": {
+      "bytes": 4391,
+      "mode": 420,
+      "sha256": "d95c25538556215f50ebb3f12996701b608a9d6b91bfad584b5502c282b16f26"
+    }
+  },
+  "full_Session_native_admission": false,
+  "guide": {
+    "bytes": 5306,
+    "mode": 420,
+    "path": "docs/reviews/project-native-libraries-copy-view-root-review.md",
+    "sha256": "d304864dbc5436c2254079ee06202b90f649802896aa649939ba4f04b3f351d8"
+  },
+  "historical_exact_callsite": "UNKNOWN",
+  "independent_cases": 14,
+  "leaf_count": 74,
+  "metadata_pins_unchanged": 17,
+  "operational_module_imports": 0,
+  "original_missing_helper_refusal": 1,
+  "packet_sha256": "91773656c7e2e7162fe54f578c88826af8dc8f7bcf8585f32fad128bdbe339fa",
+  "positive_interfaces": 5,
+  "refusals": 8,
+  "remaining": "Root exact four-file adoption/full Source proof/actual new Source-Data and peer/tool plan selection/fresh original-clock execution; full-port acceptance remains open",
   "schema_version": 1,
-  "status": "PASS_FINITE_SOURCE_PRIVATE_NATIVE_LANE_PROPOSAL_ONLY",
-  "support_bytes": 1048940,
-  "support_files": 54
+  "status": "PASS_BOUNDED_SOURCE_LIBRARY_HELPER_IMPORT_AND_PRECISE_PHASE",
+  "unchanged_SDK_methods": 43,
+  "unchanged_Source_rows": 276
 }
