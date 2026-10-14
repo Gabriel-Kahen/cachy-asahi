@@ -1861,7 +1861,7 @@
     },
     "scripts/ci/development/repository_handoff.py": {
       "mode": 420,
-      "sha256": "04f2316b2be3368bf812dc06b92c4253509b5745179496864bd1e2e39777cbb8"
+      "sha256": "72326474f56a871c9b184364eb6ef4b8a157aa128c9301bddb368b9761831c91"
     },
     "scripts/ci/development/test_base_stages.py": {
       "mode": 420,

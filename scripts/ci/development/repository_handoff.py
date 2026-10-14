@@ -746,6 +746,11 @@ class Sources:
                  validator.__closure__ is None, 'callback-refused')
             validator()
         language = module.__dict__.get('__builtins__')
+        if (path == 'scripts/ci/development/controller.py' and module.__name__ == '__main__'
+                and type(self.project_library_modules) is dict
+                and self.project_library_modules.get('__main__') is module
+                and sys.modules.get('__main__') is module and language is builtins):
+            language = vars(builtins)
         need(type(language) is dict,'callback-refused')
         for name in ('__import__','compile','exec'):
             value = language.get(name)
