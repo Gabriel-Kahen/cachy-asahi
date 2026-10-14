@@ -1,0 +1,67 @@
+{
+  "files": [
+    {
+      "bytes": 2596,
+      "mode": 420,
+      "path": ".github/workflows/screenshot-headless-software.yml",
+      "sha256": "fdd596db5e566e280f77788ec1f595e88cb3c892612e4eff5810021296d5d47e"
+    },
+    {
+      "bytes": 545,
+      "mode": 420,
+      "path": "scripts/ci/screenshot-headless/Containerfile",
+      "sha256": "14283ad9259b6f95532bd38455abab5c754eaec104931571165e6ee46a38f375"
+    },
+    {
+      "bytes": 10477,
+      "mode": 420,
+      "path": "scripts/ci/screenshot-headless/ci.py",
+      "sha256": "c5fc8f7aeab691d41539415f04a7f3c6a84d7ca62bb288e106aa9becd54b190b"
+    },
+    {
+      "bytes": 12103,
+      "mode": 420,
+      "path": "scripts/ci/screenshot-headless/run.py",
+      "sha256": "8b3e780907635a5cb1a0903863048fd43e3956a7bacce99d5d57dc6b4a66693a"
+    },
+    {
+      "bytes": 587257,
+      "mode": 420,
+      "path": "scripts/ci/screenshot-headless/runtime.lock.json",
+      "sha256": "dc19e9dd0d67fd9710fab57c3cddc211be931d61ef730e147dd53f4f148cbc05"
+    },
+    {
+      "bytes": 8288,
+      "mode": 420,
+      "path": "scripts/ci/screenshot-headless/validate_png.py",
+      "sha256": "0ac5cfef76545826e37a36f2d8403067a677d07795ddb2804d57d3e3d92ab8fe"
+    },
+    {
+      "bytes": 8523,
+      "mode": 493,
+      "path": "packages/desktop/cachy-asahi-hyprland-settings/cachy-asahi-screenshot",
+      "sha256": "5a920a5dd7a40463417a9b15e64a6620acfe7b2328960bf7014c9f587c4b69a8"
+    },
+    {
+      "bytes": 1081,
+      "mode": 420,
+      "path": "LICENSE",
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    {
+      "bytes": 1081,
+      "mode": 420,
+      "path": "packages/desktop/cachy-asahi-hyprland-settings/LICENSE",
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    {
+      "bytes": 1406,
+      "mode": 420,
+      "path": "packages/desktop/cachy-asahi-hyprland-settings/NOTICE",
+      "sha256": "0c8c331ce87a95b154e0e83c358a5cafc39bf08f2129ecc5be2438c6a97a325c"
+    }
+  ],
+  "lane": "screenshot-headless-software-v1",
+  "schema": 1,
+  "self_policy": "This file is excluded; Root registration binds its exact SHA256."
+}
