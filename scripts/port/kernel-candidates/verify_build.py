@@ -239,7 +239,8 @@ class ELF:
                 harness.need(off + filesz <= self.size and filesz <= memsz and va + memsz <= 2**64 and pa + memsz <= 2**64,
                              'ELF segment range invalid')
                 if ptype == 1:
-                    harness.need(align >= 16384 and align & (align - 1) == 0 and va % align == off % align and pa % align == off % align and
+                    harness.need(align >= 4096 and align & (align - 1) == 0 and va % align == off % align and pa % align == off % align and
+                                 va % 16384 == off % 16384 and pa % 16384 == off % 16384 and
                                  perm in (4, 5, 6) and memsz > 0, '16K ELF load geometry/permissions required; WX refused')
                     self.loads.append({'offset': off, 'addr': va, 'paddr': pa, 'filesz': filesz, 'memsz': memsz, 'alignment': align, 'flags': perm})
                 elif ptype == 0x6474e551:

@@ -259,11 +259,24 @@ class BuildChecks(unittest.TestCase):
 
     def test_elf_wx_alignment_entry_segments_refused(self):
         build = self.outputs(); path = build / 'vmlinux'; original = path.read_bytes()
-        for offset,fmt,value in [(68,'<I',7),(112,'<Q',4096),(88,'<Q',TEXT_ADDR+1),(24,'<Q',TEXT_ADDR+0x4000),
+        for offset,fmt,value in [(68,'<I',7),(112,'<Q',2048),(88,'<Q',TEXT_ADDR+1),(24,'<Q',TEXT_ADDR+0x4000),
                                  (96,'<Q',2**32),(104,'<Q',1),(136,'<Q',TEXT_ADDR)]:
             with self.subTest(offset=offset):
                 path.write_bytes(original); self.mutate(path,offset,fmt,value)
                 with self.assertRaises(ValueError): self.verify(build)
+
+    def test_small_declared_elf_alignment_keeps_16k_layout(self):
+        build = self.outputs(); path = build / 'vmlinux'; original = path.read_bytes()
+        for alignment in (4096, 8192, 16384):
+            with self.subTest(alignment=alignment):
+                path.write_bytes(original); self.mutate(path,112,'<Q',alignment)
+                self.assertEqual(self.verify(build)['status'], 'BUILD_OUTPUT_STRUCTURE_VERIFIED')
+        for field in (80, 88):
+            with self.subTest(field=field):
+                path.write_bytes(original); self.mutate(path,112,'<Q',4096)
+                self.mutate(path,field,'<Q',(TEXT_ADDR if field == 80 else 0x100000)+4096)
+                with self.assertRaisesRegex(ValueError,'16K ELF load geometry'):
+                    self.verify(build)
 
     def test_image_body_byte64_mutation_rejected_despite_unchanged_vmlinux(self):
         build = self.outputs(); image = build / 'arch/arm64/boot/Image'
