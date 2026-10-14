@@ -2,6 +2,20 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 14, 03:22 UTC: the private library job is registered with distinct Code,
+Source and Data (`9a6ad098`), exact plan `3a303b55`, and both variable readbacks.
+Actual run `38505301319` completes FAIL before library compilation. Retained
+startup is copy-view / callback-refused / OTHER, cleanup PASS; Source shows the
+phase label also covers unlabelled library registration. The precise predicate
+is unknown. [Root review](reviews/project-native-libraries-run-38505301319-root-review.md)
+retains this failed result; no native library build or comparison passed.
+
+The corrected interposer now passes independent Source review (`eeffc56a`,
+53 Root-authenticated leaves, 35 inert cases). All five predecessor equality
+countermodels refuse before foreign equality. Build prepares the coherent
+resource/hook cascade; fresh actual execution remains required. The original
+blocked proposal/peer remain preserved. The development goal remains ACTIVE.
+
 October 14, 03:12 UTC: the isolated native project-library lane is published in
 [draft PR13](https://github.com/Gabriel-Kahen/cachy-asahi/pull/13). Root authenticates
 all 129 support files (`224c3f84`), adopts exactly 28 files with all old/new joins,
