@@ -2,6 +2,19 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 14, screenshot cause and P0 integration checkpoint: review `2e49b9d8`
+and33 retained files authenticate trial `38628618206`. Base pull passes;
+APT rejects a nonabsolute libexpat1 pathname, returns100 and Docker build
+returns1. Installed inventory and captures are NOT REACHED; no trial container
+is created, and image/cache/build-context cleanup is unrecorded. A minimal
+pinned-runtime installation correction is being prepared without host installs.
+
+Fresh P0 Source review reproduces a missing inputs.lock.json read before Docker
+in the new preparation route. The sealed preparation proposal is not adopted;
+a successor will materialize the already authenticated bytes before their hash.
+Existing clocks, typed Session, Source/image/grant gates remain held. Actual
+preparation, P0 and native26 acceptance stay open.
+
 October 14, retained kernel checkpoint: review `ca3afe31` authenticates
 completion `8062415f` and exact Source `3bec0e2e` for trial `38620355690`.
 Producer and acquisition both exit0, producer/probe PASS. Baseline kernel
