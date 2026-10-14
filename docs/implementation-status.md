@@ -2,6 +2,35 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 14, 08:47 UTC: compiler registration successor `24220aa9` passes
+peer `5b2d774f`; Root verifies four replacements and one guarded deletion and
+publishes Source `6f87524e` using the existing registered observer workflow.
+Native run `38537449008` completes FAIL, retained under completion `7601cf1f`.
+The actual first GCC command returns 1: the shim's ioctl ABI assertions fail to
+expand their macros. Later commands remain NOT RUN, outputs and GPG are
+unexecuted, owned FD retirement passes and directory effects remain retained.
+The existing selected Linux UAPI headers contain the required ioctl definitions;
+a minimal include correction is being implemented, with capture hash roles
+reviewed separately.
+
+Current FDK recovery passes author `7d30866b` and peer `a5cc1e33`. Root publishes
+Source `ff13575d`, verifies 137 packet rows plus packet `2d56b66f`, and dispatches
+native trial `38537043450`. Updater recovery passes author `79f44dfe` and peer
+`4c4d61af`; Root publishes Source `e3cab74a`, verifies all 90 Source files and
+64+8 ready pins, and dispatches `38537248373`. Both trials are pending under the
+shared queue. Draft [PR18](https://github.com/Gabriel-Kahen/cachy-asahi/pull/18)
+and [PR19](https://github.com/Gabriel-Kahen/cachy-asahi/pull/19) expose the reviewed
+changes. No new FDK/Rust native compilation or publication acceptance is claimed.
+
+Installer diagnostic successor `eec668df` passes its peer checks and twelve
+additional Root actual-definition cancellation controls. Root normalizes one
+extra EOF newline in the test file with identical AST, rebinds only its packet
+and workflow hashes, then verifies all 271 committed Source rows. Published
+Source `014a3699` / Data `7ce78225` / plan `deb07ca7` is registered with exact
+readbacks. Push-triggered retry `38536780960` is pending behind the active library
+run `38533034332`. The failed predecessor and unknown historical handoff predicates
+remain unchanged. Full R1–R5/M5–M9/A01–A15 acceptance remains open.
+
 October 14, compiler follow-up: runnable six-command Source `81e6b632` is
 published in draft PR16. Root authenticates author `95b9172e` and peer `7586cec0`,
 verifies all seven new copies, and checks the frozen receiver/helpers are unchanged.
