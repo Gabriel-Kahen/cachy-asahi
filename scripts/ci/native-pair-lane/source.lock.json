@@ -274,11 +274,11 @@
       "sha256": "9d5a7dc25fd44e127c457c72addb28272b1eb1f5391c4c5b8d5b0a226a3be048"
     },
     "scripts/ci/native-pair-lane/lane.py": {
-      "bytes": 14393,
+      "bytes": 16641,
       "mode": 420,
       "origin": "source",
       "remote_path": "scripts/ci/native-pair-lane/lane.py",
-      "sha256": "c8f6faaf9f6e669b5b93a2a112b96f80dbd3848f9b28941b048933446c162be2"
+      "sha256": "58289b1ee887ae0248fb60f44972cfc64a1349a969001449f8bea4f39c720e70"
     },
     "scripts/ci/native-pair-lane/lane_clock.py": {
       "bytes": 2354,
@@ -316,11 +316,11 @@
       "sha256": "bc95e54e299d8f9d6a17bd3315090e29ab1b76ccc8866ab4445cd614e560b8cd"
     },
     "scripts/ci/native-pair-lane/native_selection.py": {
-      "bytes": 29649,
+      "bytes": 31683,
       "mode": 420,
       "origin": "source",
       "remote_path": "scripts/ci/native-pair-lane/native_selection.py",
-      "sha256": "e1ca082d18b0c2b7f037bc15186cba2c4e5b913e89f1a486ad9fd0ac26a9357f"
+      "sha256": "92dd35555adbeb75f127c2b2f3b81d8d69bf80fa0606bb7ee3b160ff6d38719e"
     },
     "scripts/ci/native-pair-lane/pair_guardian.py": {
       "bytes": 22816,

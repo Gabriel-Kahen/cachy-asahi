@@ -88,6 +88,43 @@ def close_slots(slots, guard):
     return errors
 
 
+
+def fresh_checker_root(nonce, guard, slots):
+    """Reserve before effects; hold only a fresh job-owned leaf, never chmod the home."""
+    need(type(nonce) is str and len(nonce) == 32 and
+         all(c in '0123456789abcdef' for c in nonce), 'lane-checker-nonce')
+    parent = '/home/runner'; leaf = 'cph-' + nonce; path = parent + '/' + leaf
+    ident = lambda node: (node.st_dev, node.st_ino, node.st_mode, node.st_uid, node.st_gid)
+    uid, gid = guard.call(os.getuid), guard.call(os.getgid)
+    for ancestor in ('/', '/home', parent):
+        node = guard.call(os.lstat, ancestor)
+        need(stat.S_ISDIR(node.st_mode) and node.st_uid in (0, uid) and not node.st_mode & 0o022,
+             'lane-checker-parent')
+    before = guard.call(os.lstat, parent)
+    parent_slot = {'fd': None, 'path': parent, 'attempted': False}; slots.append(parent_slot)
+    guard.check(); parent_slot['attempted'] = True
+    parent_slot['fd'] = os.open(parent, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC)
+    guard.check()
+    need(ident(guard.call(os.fstat, parent_slot['fd'])) == ident(before), 'lane-checker-parent-open-drift')
+    child = {'fd': None, 'path': path, 'attempted': False, 'creation_attempted': False,
+             'created': False}; slots.append(child)
+    def create():
+        child['creation_attempted'] = True
+        os.mkdir(leaf, 0o700, dir_fd=parent_slot['fd']); child['created'] = True
+    guard.call(create)
+    named = guard.call(os.stat, leaf, dir_fd=parent_slot['fd'], follow_symlinks=False)
+    need(stat.S_ISDIR(named.st_mode) and named.st_uid == uid and named.st_gid == gid
+         and stat.S_IMODE(named.st_mode) == 0o700, 'lane-checker-owned-leaf')
+    guard.check(); child['attempted'] = True
+    child['fd'] = os.open(leaf, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC,
+                         dir_fd=parent_slot['fd'])
+    guard.check()
+    need(ident(guard.call(os.fstat, child['fd'])) == ident(named) and
+         ident(guard.call(os.lstat, path)) == ident(named) and
+         ident(guard.call(os.lstat, parent)) == ident(before), 'lane-checker-root-drift')
+    return (path, child['fd'], ident(named), parent_slot['fd'], ident(before))
+
+
 def run(source_root, rows, registration, original_entry, nonce, scratch, *, clock_type, source_type):
     """Called by the registered workflow's pinned entry, never dispatch inputs.
 
@@ -146,20 +183,21 @@ def run(source_root, rows, registration, original_entry, nonce, scratch, *, cloc
                     'sha256': rows[PREFIX + 'mechanics/' + filename]['sha256']} for name, filename in (
                     ('process_owner', 'process_owner_recovery.py'), ('container_owner', 'container_owner.py'),
                     ('custody', 'custody_recovery.py'), ('input_audit', 'input_audit_successor.py'))}}
+            held_checker = fresh_checker_root(nonce, guard, slots)
             disabled = {'execution_granted': False, 'dependencies': {}, 'interpreter': {}, 'stdlib': {},
-                        'mapping_grant': {}, 'checker_root': '/home/runner'}
+                        'mapping_grant': {}, 'checker_root': held_checker[0]}
             packet = maker.make_packet(base, disabled, sources=sources)
             import math, hashlib as hashlib_module, re, dataclasses, ctypes, json as json_module
             packet, selection = native.prepare_current_packet(packet, guard=guard, process_owner=process,
                 stdlib_modules=dict(math=math, hashlib=hashlib_module, re=re, dataclasses=dataclasses, ctypes=ctypes, json=json_module),
-                ctypes_module=ctypes)
+                ctypes_module=ctypes, checker_node=held_checker)
             need(type(selection) is native.HeldSelection and packet['pins']['integration']['native'] == selection.native,
                  'lane-Source-issued-native-operation')
             retained['selection'] = selection; guard.execution_granted = True
             value, pins = packet['value'], packet['pins']
             contract.selection(value, env, guard.check(), recipes)
-            checker = Path(selection.native['checker_root']); mode = stat.S_IMODE(guard.call(os.lstat, checker).st_mode)
-            checker_node = directory(checker, guard, slots, mode=mode)
+            need(selection.native['checker_root'] == held_checker[0], 'lane-held-checker-selection')
+            checker_node = held_checker[:3]
             python_tool = guard.call(process.VerifiedTool.__new__, process.VerifiedTool); tools.append(python_tool)
             guard.call(python_tool.__init__, selection.native['interpreter']['path'],
                        selection.native['interpreter']['sha256'], end=guard.E)

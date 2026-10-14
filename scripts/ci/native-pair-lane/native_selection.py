@@ -122,6 +122,7 @@ class HeldSelection:
         self.guard,self.backend=guard,backend;self.nodes={};self.slots=[];self.tool_slots=[]
         self.calls=0;self.requested=0;self.first=None;self.closed=False;self.last=None;self.failure_at=None;self._cleanup=False
         self.value=self.native=None;self.observation={}
+        self.checker=None;self.checker_nonce=None;self.checker_uid=self.checker_gid=None
     def check(self):
         need(not self.closed,'native-observer-closed')
         if self.first is not None and not self._cleanup:raise self.first
@@ -191,11 +192,37 @@ class HeldSelection:
         need(identity(self.act(self.backend.fstat,slot['fd']))==node['identity'],'native-held-drift')
         need(identity(self.act(self.backend.lstat,path))==node['identity'],'native-named-drift')
         need(self.ancestors(path,node['root_owned'])==node['ancestors'],'native-ancestry-drift')
+
+    def verify_checker(self):
+        need(type(self.checker) is tuple and len(self.checker) == 5, 'native-held-checker-capability')
+        path, fd, expected, parent_fd, parent_expected = self.checker
+        need(type(path) is str and path == '/home/runner/cph-' + self.checker_nonce
+             and type(fd) is type(parent_fd) is int and min(fd, parent_fd) >= 0 and fd != parent_fd
+             and type(expected) is type(parent_expected) is tuple and len(expected) == len(parent_expected) == 5,
+             'native-held-checker-binding')
+        need(self.canonical('/home/runner') == '/home/runner' and self.canonical(path) == path,
+             'native-checker-canonical')
+        ident = lambda node: (node.st_dev, node.st_ino, node.st_mode, node.st_uid, node.st_gid)
+        for ancestor in ('/', '/home'):
+            row = self.act(self.backend.lstat, ancestor)
+            need(stat.S_ISDIR(row.st_mode) and row.st_uid in (0, self.checker_uid)
+                 and not row.st_mode & 0o022, 'native-checker-ancestor')
+        for row in (self.act(self.backend.fstat, parent_fd), self.act(self.backend.lstat, '/home/runner')):
+            need(ident(row) == parent_expected and stat.S_ISDIR(row.st_mode)
+                 and row.st_uid in (0, self.checker_uid) and not row.st_mode & 0o022,
+                 'native-held-checker-parent')
+        for row in (self.act(self.backend.fstat, fd), self.act(self.backend.lstat, path)):
+            need(ident(row) == expected and stat.S_ISDIR(row.st_mode)
+                 and row.st_uid == self.checker_uid and row.st_gid == self.checker_gid
+                 and stat.S_IMODE(row.st_mode) == 0o700, 'native-owned-shallow-checker-root')
+        return path
+
     def verify(self,cleanup=False):
         need(type(cleanup)is bool,'native-verification-mode')
         previous=self._cleanup;self._cleanup=cleanup
         try:
             self.check()
+            self.verify_checker()
             for path in self.nodes:self.verify_node(path)
             for slot in self.tool_slots:
                 tool=slot['object'];need(slot['initialized'] and not slot['closed'] and type(tool.fd)is int,'native-typed-tool-holder')
@@ -308,17 +335,17 @@ def _job(value,integration,stdlib,interpreter):
     return job
 
 
-def observe_current(value,integration,*,guard,process_owner,stdlib_modules,ctypes_module):
+def observe_current(value,integration,*,guard,process_owner,stdlib_modules,ctypes_module,checker_node):
     """Return HeldSelection.value/.native for existing prepare_packet.make_packet.
 
     Root supplies exact admitted Source modules and original guard, not JSON
     authority. Caller retains this observer, verifies before launch, then retires
     only its descriptors. Pair Runtime acquires different descriptors.
     """
-    return _observe(value,integration,guard,process_owner,stdlib_modules,ctypes_module,OSBackend())
+    return _observe(value,integration,guard,process_owner,stdlib_modules,ctypes_module,OSBackend(),checker_node)
 
 
-def prepare_current_packet(packet,*,guard,process_owner,stdlib_modules,ctypes_module):
+def prepare_current_packet(packet,*,guard,process_owner,stdlib_modules,ctypes_module,checker_node):
     """Concrete existing-packet integration; returns (packet, held_observer).
 
     Root prepares Sources with existing make_packet and selects the capabilities
@@ -330,16 +357,16 @@ def prepare_current_packet(packet,*,guard,process_owner,stdlib_modules,ctypes_mo
     need(type(packet)is dict and set(packet)=={'value','pins'},'native-prepared-packet')
     packet=json.loads(json.dumps(packet,allow_nan=False))
     need(packet['pins']['integration']['native']=={'execution_granted':False,'dependencies':{},
-         'interpreter':{},'stdlib':{},'mapping_grant':{},'checker_root':'/home/runner'},'native-disabled-placeholder-only')
+         'interpreter':{},'stdlib':{},'mapping_grant':{},'checker_root':checker_node[0]},'native-disabled-placeholder-only')
     integration={k:v for k,v in packet['pins']['integration'].items()if k!='native'}
     selection=observe_current(packet['value'],integration,guard=guard,process_owner=process_owner,
-        stdlib_modules=stdlib_modules,ctypes_module=ctypes_module)
+        stdlib_modules=stdlib_modules,ctypes_module=ctypes_module,checker_node=checker_node)
     packet['value']=selection.value
     packet['pins']['integration']['native']=selection.native
     selection.verify();return packet,selection
 
 
-def _observe(value,integration,guard,process_owner,stdlib_modules,ctypes_module,backend):
+def _observe(value,integration,guard,process_owner,stdlib_modules,ctypes_module,backend,checker_node):
     owner=HeldSelection(guard,backend)
     try:
         need(type(integration)is dict and set(integration)=={'core','adapter','bridge','capabilities','capacity'},'native-no-input-authority-flags')
@@ -366,8 +393,8 @@ def _observe(value,integration,guard,process_owner,stdlib_modules,ctypes_module,
         osrelease=owner.file('/etc/os-release')['raw'].decode('utf-8')
         metadata=dict(line.split('=',1)for line in osrelease.splitlines()if '='in line)
         need(metadata.get('ID')in('ubuntu','"ubuntu"') and metadata.get('VERSION_ID')in('24.04','"24.04"'),'native-Ubuntu2404-role')
-        checker='/home/runner';home=owner.act(backend.lstat,checker)
-        need(stat.S_ISDIR(home.st_mode) and home.st_uid==uid and home.st_gid==gid and stat.S_IMODE(home.st_mode)in(0o700,0o755),'native-shallow-checker-root')
+        owner.checker=checker_node;owner.checker_nonce=value['nonce'];owner.checker_uid,owner.checker_gid=uid,gid
+        checker=owner.verify_checker()
         interpreter=owner.file(executable,executable=True)['row']
         need(identity(owner.act(backend.lstat,owner.canonical('/proc/self/exe')))==owner.nodes[interpreter['path']]['identity'],'native-current-interpreter')
         need(type(stdlib_modules)is dict and set(stdlib_modules)==set(STDLIB) and stdlib_modules['ctypes']is ctypes_module,'native-current-stdlib-set')
@@ -448,6 +475,8 @@ def _observe(value,integration,guard,process_owner,stdlib_modules,ctypes_module,
         owner.observation={'policy':API,'selection_binding':digest((value,native)),'job':job,
             'trusted_roles':'Root-reviewed Ubuntu CPython312/stdlib/compiler; exact libzstd ABI and initialization; root-controlled glibc dependencies/IFUNC; native Linux held-FD mapping assumptions',
             'current_maps_sha256':digest(maps.hex()),'current_executable_map_count':len(mapped),
+            'checker_root_observation':{'path':checker,'identity5':list(checker_node[2]),
+                'parent_identity5':list(checker_node[4]),'Root_retains_and_retires_borrowed_FDs':True},
             'hard_wall_or_unmapping_proven':False}
         owner.verify();return owner
     except BaseException as error:
