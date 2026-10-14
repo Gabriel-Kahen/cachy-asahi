@@ -1,0 +1,5 @@
+# Native library lane source adoption
+
+Root authenticated all 129 proposal files from receipt `224c3f84abe3339fb3b61921b6a326d24f64ed39e6aba710585a94b456e4dc4f` and copied only the reviewed 28-file delta into this isolated branch from Data `b8c2fdff544b8b3b94fd49899ccbe114f1ac51c9`. Every prior file join and proposed byte/hash/mode agrees. Code commit `9ea7c81a83cf4339f2ab697292723a85ed999666` passes the candidate's composed packet preflight against all 278 committed source files; packet SHA256 is `34e6eed069f0a10b8a3bbdf726be3141c6b8c57989e14168d2bf79e7e7b3595c`.
+
+This source identity adds only this adoption record and the two source/build guides outside the selected packet. Native construction, byte comparisons, provider/runtime checks and owned cleanup are not yet executed. Registration metadata and exact external plan belong to a separate later Data commit. Public source/package promotion, installation, M2 compatibility and full-port acceptance remain open. The lane preserves original input selection and private-cache transport while bypassing unrelated broad consumers explicitly.
