@@ -42,6 +42,24 @@ INSTALLER_NAME = 'native_install_preflight'
 ZSH_NAMES = {'zsh_addon':'development_zsh_addon', 'zsh_session':'development_zsh_session'}
 
 
+INSTALLER_RUN_STAGES = ('ENTRY', 'LIVE_OWNER', 'ACTOR_CONTRACT', 'NATIVE_HOST', 'OUTPUT_BOUNDARY', 'RECEIVER_NAMESPACE', 'OUTPUT_CREATE', 'NONCE', 'TRANSPORT_CREATE', 'TRANSPORT_GUARD', 'DAEMON_INFO', 'IMAGE_INSPECT', 'IMAGE_HANDOFF', 'TRIAL_SELECTION', 'TRIAL_WRITE', 'CONTAINER_CREATE', 'CONTAINER_ID', 'CONTAINER_INSPECT', 'CONTAINER_BINDING', 'CONTAINER_START', 'CONTAINER_REMOVE', 'CONTAINER_ABSENCE', 'TRANSPORT_CLOSE', 'RECEIVER_ACCEPT', 'FINAL_LIVE', 'RETURN')
+INSTALLER_RUN_PREDICATES = ('ACTIVE_NATIVE_OWNER_REQUIRED', 'ACTOR_CONTRACT', 'BRIDGE_NAMESPACE', 'COMMAND_CLEANUP', 'COMMAND_COUNT', 'CONTAINER_BINDING', 'CONTAINER_CREATE', 'CONTAINER_ENV', 'CONTAINER_ID', 'CONTAINER_INSPECT', 'CONTAINER_INSPECT_SHAPE', 'CONTAINER_MOUNTS', 'CONTAINER_NAME', 'CONTAINER_POLICY', 'CONTAINER_TMPFS', 'DEADLINE', 'IMAGE_BINDING', 'IMAGE_CONFIG', 'IMAGE_INSPECT', 'ISSUER_BUILTINS', 'ISSUER_CLASS', 'ISSUER_CODE', 'ISSUER_CONSTANT', 'ISSUER_IMPORT', 'ISSUER_PIN', 'ISSUER_WRAPPER', 'JSON_DUPLICATE', 'JSON_NONFINITE', 'LIVE_GRAPH_REQUIRED', 'LIVE_OWNER_REQUIRED', 'NATIVE_LOCAL_DAEMON', 'NATIVE_ORDINARY_HOST', 'NONCE', 'OUTPUT_BOUNDARY', 'P0_REFUSED', 'PROFILE_PIN', 'RECEIVER_PIN', 'RECEIVER_RESULT', 'REGISTRATION_REQUIRED', 'OTHER')
+
+
+def retain_installer_control(first, secondary):
+    """Keep a newly delivered control distinct from an established first failure."""
+    global CANCELLED
+    if isinstance(secondary, Exception):return None
+    CANCELLED = True
+    if first is not None and first is not secondary:
+        prior = first.__cause__
+        if prior is not secondary:
+            first.__cause__ = secondary if prior is None else BaseExceptionGroup(
+                'installer secondary control', [prior, secondary])
+    return ('KEYBOARD_INTERRUPT' if isinstance(secondary, KeyboardInterrupt) else
+            'SYSTEM_EXIT' if isinstance(secondary, SystemExit) else 'OTHER_CONTROL')
+
+
 def finite(value):
     try:return type(value) in (int,float) and math.isfinite(value)
     except (OverflowError,TypeError,ValueError):return False
@@ -50,6 +68,135 @@ def finite(value):
 def within(deadline):
     require(finite(deadline) and time.monotonic() < deadline,
             'development-deadline-exceeded')
+
+
+# Insert into the authenticated controller before main_composed; no raw bodies.
+OLD_FOUR_PRIVATE_PREFIX = 'CACHY_OLD_FOUR_'
+OLD_FOUR_PRIVATE_ROWS = (
+    ('jbigkit-2.1-8-aarch64.pkg.tar.xz', 48816,
+     'ecaddb099f4a1f1bcbc1497fd0f3dc98581552b9eacaa17c5568211c38bec1db', 'JBIGKIT', 2),
+    ('jbigkit-2.1-8-aarch64.pkg.tar.xz.sig', 566,
+     'f00be593f9ab5855f9e450d054e6cacd319ec834ef7fc97c51bcf3be3ebfdb1f', 'JBIGKIT_SIG', 1),
+    ('libtiff-4.7.2-1-aarch64.pkg.tar.xz', 354480,
+     '02a5d2d74019b39befd6cf63d9bde95a2d16f91b4d0d56939498375e0e491ffd', 'LIBTIFF', 15),
+    ('libtiff-4.7.2-1-aarch64.pkg.tar.xz.sig', 566,
+     '8dae1efda531e3ac7db09512cfe0c619eaae6787cc16fdea1315588b4fc340fa', 'LIBTIFF_SIG', 1),
+)
+
+
+def seed_old_four_private_cache(cache, source_packet, deadline):
+    """Exact old transport only; inherit J and erase chunks before native work."""
+    within(deadline)
+    header = {OLD_FOUR_PRIVATE_PREFIX + 'SCHEMA', OLD_FOUR_PRIVATE_PREFIX + 'SOURCE_EPOCH'}
+    names = {OLD_FOUR_PRIVATE_PREFIX + f'{tag}_{i:02d}'
+             for _, _, _, tag, count in OLD_FOUR_PRIVATE_ROWS for i in range(1, count + 1)}
+    # All matching names are removed even if a surplus chunk causes refusal.
+    captured = {name: os.environ.pop(name) for name in tuple(os.environ)
+                if name.startswith(OLD_FOUR_PRIVATE_PREFIX)}
+    within(deadline)
+    require(len(captured) <= 21 and set(captured) <= names | header, 'private-cache-schema-refused')
+    supplied = any(captured.get(name, '') for name in names)
+    if not supplied:
+        require(not captured or captured.get(OLD_FOUR_PRIVATE_PREFIX + 'SCHEMA') == '1' and
+                captured.get(OLD_FOUR_PRIVATE_PREFIX + 'SOURCE_EPOCH') == '1791748800',
+                'private-cache-schema-refused')
+        return
+    require(set(captured) == names | header and
+            captured[OLD_FOUR_PRIVATE_PREFIX + 'SCHEMA'] == '1' and
+            captured[OLD_FOUR_PRIVATE_PREFIX + 'SOURCE_EPOCH'] == '1791748800' and
+            source_packet['metadata_pins']['scripts/ci/inputs.lock.json'] ==
+            'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f',
+            'private-cache-input-binding-refused')
+    decoded = []
+    for filename, size, pin, tag, count in OLD_FOUR_PRIVATE_ROWS:
+        within(deadline)
+        length = 4 * ((size + 2) // 3)
+        require(count == (length + 32767) // 32768, 'private-cache-schema-refused')
+        parts = []
+        for i in range(1, count + 1):
+            within(deadline)
+            part = captured.pop(OLD_FOUR_PRIVATE_PREFIX + f'{tag}_{i:02d}')
+            expected = min(32768, length - (i - 1) * 32768)
+            require(type(part) is str and len(part) == expected and
+                    re.fullmatch(r'[A-Za-z0-9+/]*={0,2}', part) is not None,
+                    'private-cache-chunk-refused')
+            parts.append(part)
+        text = ''.join(parts)
+        within(deadline)
+        try:
+            body = base64.b64decode(text.encode('ascii'), validate=True)
+        except (ValueError, UnicodeError):
+            raise ValueError('private-cache-base64-refused') from None
+        within(deadline)
+        require(base64.b64encode(body).decode('ascii') == text and len(body) == size and
+                hashlib.sha256(body).hexdigest() == pin, 'private-cache-bytes-refused')
+        decoded.append((filename, body))
+    captured.clear()
+    require(sum(len(body) for _, body in decoded) == 404428, 'private-cache-bound-refused')
+    parent = cache.lstat()
+    require(stat.S_ISDIR(parent.st_mode) and stat.S_IMODE(parent.st_mode) == 0o700 and
+            parent.st_uid == os.geteuid(), 'private-cache-owner-refused')
+    directory = os.open(cache, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC)
+    owned = []
+    identity = lambda node: (node.st_dev, node.st_ino, node.st_mode, node.st_uid, node.st_gid)
+    try:
+        require(identity(os.fstat(directory)) == identity(parent), 'private-cache-owner-refused')
+        for filename, body in decoded:
+            within(deadline)
+            fd = os.open(filename, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW |
+                         os.O_CLOEXEC, 0o600, dir_fd=directory)
+            node = None
+            try:
+                try:
+                    node = os.fstat(fd)
+                except BaseException as first:
+                    first.add_note('private-cache-unbound-creation-cleanup-uncertain')
+                    raise
+                owned.append((filename, identity(node)))
+                require(stat.S_ISREG(node.st_mode) and stat.S_IMODE(node.st_mode) == 0o600 and
+                        node.st_uid == os.geteuid() and node.st_nlink == 1, 'private-cache-owner-refused')
+                offset = 0
+                while offset < len(body):
+                    within(deadline)
+                    written = os.write(fd, body[offset:offset + 65536])
+                    within(deadline)
+                    require(type(written) is int and written > 0, 'private-cache-write-refused')
+                    offset += written
+                final = os.fstat(fd)
+                require(identity(final) == identity(node) and final.st_nlink == 1 and
+                        final.st_size == len(body), 'private-cache-owner-refused')
+            finally:
+                first = sys.exception()
+                try:
+                    os.close(fd)
+                except BaseException:
+                    if first is None:
+                        raise
+                    first.add_note('private-cache-close-uncertain')
+            require(identity(os.stat(filename, dir_fd=directory, follow_symlinks=False)) == identity(node),
+                    'private-cache-owner-refused')
+        within(deadline)
+        require(identity(cache.lstat()) == identity(parent), 'private-cache-owner-refused')
+    except BaseException as first:
+        # Remove only these exact owned creations; never foreign/replaced files.
+        for filename, wanted in reversed(owned):
+            try:
+                within(deadline)
+                node = os.stat(filename, dir_fd=directory, follow_symlinks=False)
+                if identity(node) != wanted:
+                    raise ValueError('private-cache-owner-refused')
+                os.unlink(filename, dir_fd=directory)
+            except BaseException:
+                first.add_note('private-cache-cleanup-uncertain')
+        raise
+    finally:
+        first = sys.exception()
+        try:
+            os.close(directory)
+        except BaseException:
+            if first is None:
+                raise
+            first.add_note('private-cache-close-uncertain')
 
 
 def private_input(path, pin, environment, limit):
@@ -140,7 +287,7 @@ def workflow_clock(raw, *, entry, controller_entry=None):
 
 
 def original_argv(output, cache, pins):
-    view = output / 'repository-handoff/original-view'
+    view = output / 'repository-handoff/maintained-view'
     result = ['integration']
     for flag, name in (('inputs','inputs.lock.json'), ('recipes','recipes.lock.json'), ('integration','integration.lock.json')):
         result.extend(('--' + flag, str(view / 'scripts/ci' / name), '--' + flag + '-sha256', pins['scripts/ci/' + name]))
@@ -151,7 +298,10 @@ def original_argv(output, cache, pins):
 def composed_mode(source_packet, composition):
     require(type(composition) is str and composition in packet.COMPOSED_MODES and
             type(source_packet) is dict and type(source_packet.get('schema_version')) is int and
-            source_packet['schema_version'] == 2 and type(source_packet.get('composition')) is str and
+            source_packet['schema_version'] == 3 and type(source_packet.get('composition')) is str and
+            source_packet.get('baseline_id') == packet.BASELINE_ID and source_packet.get('lineage') == packet.LINEAGE and
+            type(source_packet.get('source_files')) is dict and
+            len(source_packet['source_files']) == {packet.COMPOSITION:259,packet.INSTALLER_COMPOSITION:266}[composition] and
             source_packet['composition'] == composition, 'composed-packet-contract-refused')
     return composition
 
@@ -312,7 +462,7 @@ class Development:
                        'development_only': True, 'selected_for_release': False, 'hardware_validation': 'NOT RUN',
                        'performance_acceptance': 'NOT RUN', 'production_trust': 'NOT RUN',
                        'source_commit': os.environ.get('GITHUB_SHA'), 'initial_integration': 'NOT RUN',
-                       'publication': 'NOT RUN', 'stages': {name: {'status': 'NOT RUN', 'prerequisite': 'initial-build-not-completed'}
+                       'baseline_id':packet.BASELINE_ID, 'lineage':packet.LINEAGE, 'publication': 'NOT RUN', 'stages': {name: {'status': 'NOT RUN', 'prerequisite': 'initial-build-not-completed'}
                                                      for name in STAGES}}
         self.public = []
         self.callback_entered = False
@@ -336,12 +486,15 @@ class Development:
         first, code = sys.exception(), self.report.get('error_code')
         try:self.persist()
         except BaseException as error:
+            control = retain_installer_control(first, error)
             self.report.update(status='FAIL',status_persistence='FAIL')
             if code is not None:self.report['error_code'] = code
             else:self.report.setdefault('error_code','durable-status-persistence-failed')
             if isinstance(error,KeyboardInterrupt):self.report['cancelled'] = True
+            if control is not None:self.report['cancelled'] = True
             stage = self.report['stages'].get('native-install-preflight')
             if stage is not None:stage.update(status='FAIL',status_persistence='FAIL')
+            if stage is not None and control is not None:stage['persistence_secondary_control'] = control
             if first is None:raise
 
     def persist_zsh(self):
@@ -363,7 +516,7 @@ class Development:
             within(self.deadline)
             signal.setitimer(signal.ITIMER_REAL, self.deadline - time.monotonic())
         require(type(self.composition) is str and self.composition in packet.COMPOSED_MODES, 'composed-packet-contract-refused')
-        if self.deadline is not None and self.packet.get('schema_version') == 2:
+        if self.deadline is not None and self.packet.get('schema_version') == 3:
             composed_mode(self.packet,self.composition)
         if self.composition == packet.INSTALLER_COMPOSITION:
             return self.consume_installer(controller)
@@ -536,14 +689,19 @@ class Development:
         """P0 is a limited result; unrelated broad roles remain NOT RUN."""
         self.report['execution_scope'] = 'native-install-preflight-only'
         self.report['stages']['native-install-preflight'] = {'status':'NOT RUN','scope':'preflight-only'}
+        boundary = 'REGISTER'
         try:
             if cancelled(controller):raise KeyboardInterrupt()
             module = self.installer_module(controller)
             self.callback_entered = True
+            boundary = 'RUN'
             value = module.run(self.repository_session,controller,self.output/'native-install-preflight',
                 deadline=self.deadline,nonce=self.clock_nonce,runtime_contract=self.runtime_contract)
+            boundary = 'DEADLINE'
             within(self.deadline)
+            boundary = 'REAUTH'
             require(self.installer_module(controller) is module,'installer-graph-refused')
+            boundary = 'RESULT'
             require(type(value) is dict and set(value) == {'status','stage','receiver','cleanup','elapsed_seconds',
                     'ABI','native_matrix','hardware_validation','selected_for_release','public'} and value['status'] == 'PASS' and
                     value['stage'] == 'native-install-preflight' and value['ABI'] == value['native_matrix'] ==
@@ -557,9 +715,49 @@ class Development:
             self.report['stages']['native-install-preflight'] = {
                 **{key:item for key,item in value.items() if key != 'public'},'scope':'preflight-only'}
         except BaseException as error:
-            interrupted = isinstance(error,KeyboardInterrupt) or cancelled(controller)
+            interrupted = (isinstance(error,KeyboardInterrupt) or cancelled(controller) or
+                BaseException.__dict__['__dict__'].__get__(error,type(error)).get('native_preflight_cancelled') is True)
             self.report['stages']['native-install-preflight'] = {'status':'FAIL','error_code':'cancelled' if interrupted else
                 'installer-preflight-failed','error_type':type(error).__name__,'scope':'preflight-only'}
+            try:
+                self.report['stages']['native-install-preflight']['diagnostic'] = {
+                    'schema_version':1,'call_boundary':boundary}
+                if boundary == 'RUN':
+                    state = BaseException.__dict__['__dict__'].__get__(error,type(error))
+                    fact = state.get('native_preflight_run_fact')
+                    if fact is not None:
+                        require(type(fact) is dict and all(type(key) is str for key in fact) and set(fact)=={'schema_version','stage','predicate','image_config'} and
+                            type(fact['schema_version']) is int and fact['schema_version']==2 and
+                            type(fact['stage']) is str and fact['stage'] in INSTALLER_RUN_STAGES and
+                            type(fact['predicate']) is str and fact['predicate'] in INSTALLER_RUN_PREDICATES,
+                            'installer-diagnostic-refused')
+                        detail = fact['image_config']
+                        if fact['stage'] == 'IMAGE_HANDOFF' and fact['predicate'] == 'IMAGE_CONFIG':
+                            names = ('ArgsEscaped','Cmd','Entrypoint','Env','ExposedPorts','Healthcheck','Labels','Shell','StopSignal','User','Volumes','WorkingDir')
+                            kinds = ('NoneType','bool','int','float','str','list','dict','UNKNOWN')
+                            require(type(detail) is dict and all(type(key) is str for key in detail) and set(detail)=={'boundary','fields'} and
+                                type(detail['boundary']) is str and detail['boundary'] in ('CONFIG_TYPE','POLICY_FIELDS','UNKNOWN') and
+                                type(detail['fields']) is list and len(detail['fields'])<=12 and
+                                all(type(item) is dict and all(type(key) is str for key in item) and set(item)=={'name','kind'} and type(item['name']) is str and
+                                    item['name'] in names and type(item['kind']) is str and item['kind'] in kinds for item in detail['fields']),
+                                'installer-image-config-diagnostic-refused')
+                            fields = [item['name'] for item in detail['fields']]
+                            require((detail['boundary']=='POLICY_FIELDS') == bool(fields) and len(set(fields))==len(fields) and
+                                tuple(fields)==tuple(name for name in names if name in fields),'installer-image-config-diagnostic-refused')
+                            detail = {'boundary':detail['boundary'],'fields':[{'name':item['name'],'kind':item['kind']} for item in detail['fields']]}
+                        else:require(detail is None,'installer-image-config-diagnostic-refused')
+                        self.report['stages']['native-install-preflight']['diagnostic'] = {
+                            'schema_version':3,'call_boundary':boundary,'run_stage':fact['stage'],
+                            'run_predicate':fact['predicate'],'capture':'PASS','image_config':detail}
+                    elif state.get('native_preflight_run_fact_failed') is True:
+                        self.report['stages']['native-install-preflight']['diagnostic'] = {
+                            'schema_version':2,'call_boundary':boundary,'run_stage':None,
+                            'run_predicate':None,'capture':'FAIL'}
+            except BaseException as secondary:
+                control = retain_installer_control(error, secondary)
+                if control is not None:
+                    self.report['cancelled'] = True
+                    self.report['stages']['native-install-preflight']['diagnostic_secondary_control'] = control
             self.report['status'] = 'FAIL'
             if interrupted:self.report['cancelled'] = True
             self.report.setdefault('error_code','installer-preflight-cancelled' if interrupted else 'installer-preflight-failed')
@@ -1050,7 +1248,7 @@ def publish(development, bundle, emit=print):
             if path.exists() or initial_status.get('stages', {}).get(stage, {}).get('status') == 'PASS':
                 roots.append(path)
     records = []
-    if development.packet.get('schema_version') == 2:
+    if development.packet.get('schema_version') == 3:
         try:
             require(development.publication_deadline is not None,'publication-deadline-required')
             data = phase_bundle(phase_capture(development,development.publication_deadline),development.publication_deadline)
@@ -1092,7 +1290,7 @@ def publish(development, bundle, emit=print):
     stages = report['stages']
     required = (report.get('initial_integration') == 'PASS' and report.get('initial_cleanup', {}).get('status') == 'PASS'
                 and not report.get('cancelled') and report['publication'] == 'PASS')
-    if development.packet.get('schema_version') == 2:
+    if development.packet.get('schema_version') == 3:
         repository = report.get('repository_handoff',{})
         required = required and repository.get('status') == repository.get('cleanup') == repository.get('restage') == repository.get('input_acceptance') == 'PASS' and report.get('repository_publication') == 'PASS'
     required = required and all(stages[name]['status'] == 'PASS' for name in STAGES[:-1])
@@ -1251,6 +1449,7 @@ def composed_main(args, pins, *, entry):
                                                             runtime_raw,output,cache,deadline,composition=composition)
         within(deadline)
         output.mkdir(mode=0o700);cache.mkdir(mode=0o700,exist_ok=True)
+        seed_old_four_private_cache(cache,source_packet,deadline)
         development = Development(ROOT,output,cache,source_packet,deadline=deadline,composition=composition,
             clock_nonce=packet.decode(clock_raw)['nonce'],runtime_contract=runtime)
         development.report.update(source_packet_sha256=args.development_sha256,composition=composition,
@@ -1326,7 +1525,7 @@ def main(argv=None):
     parser.add_argument('--cache', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--check-only', action='store_true')
-    parser.add_argument('--composition',choices=packet.COMPOSED_MODES)
+    parser.add_argument('--composition',choices=packet.COMPOSED_MODES,required=True)
     parser.add_argument('--controller-entry-monotonic',type=float)
     for name in ('clock','execution-grant','runtime-contract'):
         parser.add_argument('--'+name,type=Path)

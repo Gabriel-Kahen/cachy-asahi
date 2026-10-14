@@ -65,6 +65,7 @@ def decode(raw):
 
 
 def alive(deadline):
+    cancellation_checkpoint()
     need(type(deadline) in (int, float) and math.isfinite(deadline) and time.monotonic() < deadline,
          'launch deadline exceeded or invalid')
 
@@ -123,64 +124,213 @@ def write_new(path, raw):
         need(read(path, max(len(raw), 1)) == raw, 'private write reread differs')
 
 
+def _raise_signal_faults(body_error, faults):
+    """Keep the original object primary and retain every distinct secondary cause."""
+    if not faults:
+        return
+    causes = []
+    if body_error is not None and body_error.__cause__ is not None:
+        causes.append(body_error.__cause__)
+    for fault in faults:
+        if fault is not body_error and not any(fault is item for item in causes):
+            causes.append(fault)
+    if not causes:
+        return
+    cause = causes[0] if len(causes) == 1 else BaseExceptionGroup('signal teardown failed', causes)
+    if body_error is not None:
+        raise body_error from cause
+    raise cause
+
+
+# SPDX-License-Identifier: MIT
+# Original downstream adaptation of the reviewed common02398 signal transaction.
+SIGNAL_SCOPES = []
+CANCELLATION_EVENTS = set()
+CANCELLATION_UNCERTAIN = set()
+UNCERTAINTY = frozenset(('block','set','get','handler','pending','wait','mask','registry','replay'))
+
+def cancellation_state(state=None):
+    need(type(SIGNALS) is set and SIGNALS == {signal.SIGINT,signal.SIGTERM},'signal constants differ')
+    need(type(UNCERTAINTY) is frozenset and UNCERTAINTY == frozenset(
+         ('block','set','get','handler','pending','wait','mask','registry','replay')),'signal uncertainty constants differ')
+    def number(value):
+        return type(value) in (int,type(signal.SIGINT)) and value in SIGNALS
+    def checked(value):
+        need(type(value) is Cancellation and set(vars(value)) ==
+             {'pending','depth','deferring','numbers','uncertain'}, 'signal state differs')
+        need(type(value.pending) is bool and type(value.deferring) is bool and
+             type(value.depth) is int and 0 <= value.depth <= 64 and
+             type(value.numbers) is set and len(value.numbers) <= 2 and
+             all(number(item) for item in value.numbers) and type(value.uncertain) is set and
+             all(type(item) is str and item in UNCERTAINTY for item in value.uncertain),
+             'signal state fields differ')
+    need(type(SIGNAL_SCOPES) is list and len(SIGNAL_SCOPES) <= 64,'signal registry differs')
+    for scope in SIGNAL_SCOPES:
+        need(type(scope) is tuple and len(scope) == 5,'signal scope differs')
+        owner,opaque,mask,deferred,depth = scope
+        checked(owner)
+        need(type(opaque) is tuple and len(opaque) <= 2 and all(number(item) for item in opaque) and
+             len(set(opaque)) == len(opaque) and type(mask) is set and
+             all(type(item) in (int,type(signal.SIGINT)) for item in mask) and
+             type(deferred) is bool and type(depth) is int and 0 <= depth <= 64,'signal scope fields differ')
+    for owner in [scope[0] for scope in SIGNAL_SCOPES]+([state] if state is not None else []):
+        checked(owner)
+        need(owner.depth == sum(scope[3] for scope in SIGNAL_SCOPES if scope[0] is owner),
+             'signal deferral depth differs')
+    need(type(CANCELLATION_EVENTS) is set and len(CANCELLATION_EVENTS) <= 3 and
+         all(number(item) or type(item) is str and item == 'INTERRUPT' for item in CANCELLATION_EVENTS),
+         'signal events differ')
+    need(type(CANCELLATION_UNCERTAIN) is set and all(type(item) is str and item in UNCERTAINTY
+         for item in CANCELLATION_UNCERTAIN),'signal uncertainty differs')
+
+def cancellation_requested():
+    cancellation_state(); return bool(CANCELLATION_EVENTS)
+
+def cancellation_uncertain():
+    cancellation_state(); return bool(CANCELLATION_UNCERTAIN)
+
+def cancellation_checkpoint():
+    cancellation_state()
+    if SIGNAL_SCOPES:
+        state,opaque,_,_,_ = SIGNAL_SCOPES[-1]
+        pending = signal.sigpending()
+        for number in opaque:
+            if number in pending:
+                signal.sigwait({number}); state.handler(number,None)
+
+def retain_fault(primary, secondary):
+    if primary is None: return secondary
+    if secondary is primary: return primary
+    try: _raise_signal_faults(primary,[secondary])
+    except BaseException as first: return first
+
 class Cancellation:
     def __init__(self):
-        self.pending = False
-        self.depth = 0
+        self.pending=False; self.depth=0; self.deferring=False
+        self.numbers=set(); self.uncertain=set()
+
+    @property
+    def cancelled(self): return self.pending
+
+    @cancelled.setter
+    def cancelled(self,value): self.pending=value
 
     def handler(self, number, frame):
-        self.pending = True
-        if not self.depth:
-            raise Cancelled('launch cancelled')
+        cancellation_state(self)
+        need(type(number) in (int,type(signal.SIGINT)) and number in SIGNALS,'signal number differs')
+        self.pending=True; self.numbers.add(number); CANCELLATION_EVENTS.add(number)
+        if not self.depth and not self.deferring: raise Cancelled('launch cancelled')
 
     @contextmanager
     def defer(self):
-        mask = signal.pthread_sigmask(signal.SIG_BLOCK, SIGNALS)
-        self.depth += 1
-        try:
-            signal.pthread_sigmask(signal.SIG_SETMASK, mask)
-            yield
-        finally:
-            signal.pthread_sigmask(signal.SIG_BLOCK, SIGNALS)
-            self.depth -= 1
-            signal.pthread_sigmask(signal.SIG_SETMASK, mask)
-            if self.pending and not self.depth:
-                raise Cancelled('launch cancelled after cleanup')
+        with _signal_handlers(self,deferred=True): yield
 
+@contextmanager
+def _signal_handlers(state, *, deferred=False):
+    global SIGNAL_SCOPES,CANCELLATION_EVENTS,CANCELLATION_UNCERTAIN
+    need(threading.current_thread() is threading.main_thread(),'main-thread cancellation required')
+    cancellation_state(state); need(type(deferred) is bool,'typed signal deferral required')
+    registry,events,uncertain=SIGNAL_SCOPES,CANCELLATION_EVENTS,CANCELLATION_UNCERTAIN
+    state_numbers,state_uncertain,depth=state.numbers,state.uncertain,state.depth
+    prefix=tuple(registry); previous={}; scope=None; body_error=None
+    mask=signal.pthread_sigmask(signal.SIG_BLOCK,SIGNALS)
+    try:
+        previous={number:signal.getsignal(number) for number in SIGNALS}
+        inherited=registry[-1][1] if registry else ()
+        opaque=tuple(number for number in SIGNALS if previous[number] is None and
+                     (number not in mask or number in inherited))
+        if deferred: state.depth += 1
+        for number,original in previous.items():
+            if original is not None: signal.signal(number,state.handler)
+        scope=(state,opaque,set(mask),deferred,depth); registry.append(scope)
+        signal.pthread_sigmask(signal.SIG_SETMASK,set(mask)|{
+            number for number,original in previous.items() if original is None})
+        # The exec target inherits the caller's mask, not enclosing polling blocks.
+        yield set(registry[0][2])
+    except BaseException as error:
+        body_error=error; raise
+    finally:
+        faults,queued,unsafe=[],[],set()
+        def failed(site,error):
+            uncertain.add(site); state_uncertain.add(site)
+            if isinstance(error,KeyboardInterrupt):
+                events.add('INTERRUPT'); state.pending=True
+            faults.append(error)
+        try:
+            blocked=False
+            for _ in range(2):
+                try:
+                    signal.pthread_sigmask(signal.SIG_BLOCK,SIGNALS); blocked=True; break
+                except BaseException as error: failed('block',error)
+            if not blocked: unsafe.update(SIGNALS)
+            for number,original in previous.items():
+                if original is None: continue
+                if not blocked:
+                    unsafe.add(number); uncertain.add('handler'); state_uncertain.add('handler'); continue
+                restored=False
+                for _ in range(2):
+                    try: signal.signal(number,original)
+                    except BaseException as error: failed('set',error)
+                    try: restored=signal.getsignal(number)==original
+                    except BaseException as error: failed('get',error)
+                    if restored: break
+                if not restored:
+                    unsafe.add(number); failed('get',Refused('signal handler restoration differs'))
+            if blocked:
+                for number in SIGNALS:
+                    if number in mask and (scope is None or number not in scope[1]): continue
+                    try: pending=number in signal.sigpending()
+                    except BaseException as error:
+                        unsafe.add(number); failed('pending',error); continue
+                    if pending:
+                        queued.append(number); consumed=False
+                        for _ in range(2):
+                            try: signal.sigwait({number}); consumed=True; break
+                            except BaseException as error: failed('wait',error)
+                        if not consumed: unsafe.add(number)
+        finally:
+            try:
+                expected=prefix+((scope,) if scope is not None else ())
+                if SIGNAL_SCOPES is not registry or len(registry)!=len(expected) or any(
+                        actual is not wanted for actual,wanted in zip(registry,expected)):
+                    failed('registry',Refused('signal scope restoration differs'))
+                registry[:]=prefix; SIGNAL_SCOPES=registry; state.depth=depth
+                for name,wanted in (('numbers',state_numbers),('uncertain',state_uncertain)):
+                    if getattr(state,name) is not wanted:
+                        failed('registry',Refused('signal state registry differs')); setattr(state,name,wanted)
+                if CANCELLATION_EVENTS is not events:
+                    failed('registry',Refused('signal event registry differs')); CANCELLATION_EVENTS=events
+                if CANCELLATION_UNCERTAIN is not uncertain:
+                    failed('registry',Refused('signal uncertainty registry differs')); CANCELLATION_UNCERTAIN=uncertain
+            finally:
+                target_mask=set(mask)|unsafe
+                if unsafe: uncertain.add('mask'); state_uncertain.add('mask')
+                for _ in range(2):
+                    try: signal.pthread_sigmask(signal.SIG_SETMASK,target_mask); break
+                    except BaseException as error: failed('mask',error)
+        for number in queued:
+            try: state.handler(number,None)
+            except BaseException as error:
+                if isinstance(error,KeyboardInterrupt): faults.append(error)
+                else: failed('replay',error)
+        # Relay opaque events through the shared Source scope, and known events
+        # through the actual original callable. Never invoke an opaque disposition.
+        for number in tuple(state_numbers):
+            target=prefix[-1][0].handler if prefix else previous.get(number)
+            if callable(target):
+                try: target(number,None)
+                except BaseException as error:
+                    if isinstance(error,KeyboardInterrupt): faults.append(error)
+                    else: failed('replay',error)
+        if state.pending and not state.depth and not state.deferring:
+            cancelled=Cancelled('launch cancelled after teardown')
+            if body_error is None: _raise_signal_faults(cancelled,faults); raise cancelled
+            if not isinstance(body_error,KeyboardInterrupt): faults.append(cancelled)
+        _raise_signal_faults(body_error,faults)
 
 @contextmanager
 def cancellation_handlers(state):
-    need(threading.current_thread() is threading.main_thread(), 'main-thread signal supervision required')
-    mask = signal.pthread_sigmask(signal.SIG_BLOCK, SIGNALS)
-    original = {number: signal.getsignal(number) for number in SIGNALS}
-    error = None
-    try:
-        for number in SIGNALS:
-            signal.signal(number, state.handler)
-        signal.pthread_sigmask(signal.SIG_SETMASK, mask)
-        yield
-    finally:
-        signal.pthread_sigmask(signal.SIG_BLOCK, SIGNALS)
-        for number, handler in original.items():
-            for _ in range(2):
-                try:
-                    signal.signal(number, handler)
-                except BaseException as fault:
-                    error = error or fault
-                if signal.getsignal(number) == handler:
-                    break
-        transition = []
-        pending = signal.sigpending() & (SIGNALS - set(mask))
-        while pending:
-            transition.append(signal.sigwait(pending))
-            pending = signal.sigpending() & (SIGNALS - set(mask))
-        signal.pthread_sigmask(signal.SIG_SETMASK, mask)
-        if transition:
-            state.pending = True
-        if error:
-            raise error
-        if state.pending:
-            raise Cancelled('launch cancelled')
+    with _signal_handlers(state): yield
 
 
 def validate_command(command, contract):
@@ -283,45 +433,314 @@ class Protocol:
         need(len(self.frames) == 2 and not self.acks and len(self.plain) <= 4 * 1024**2, 'two delivered ACKs required')
 
 
+def _cap_add_matches(value, _caps=CAPS):
+    """Accept only six distinct frozen capabilities, bare or Docker CAP_ names."""
+    if type(value) is not list or len(value) != 6:
+        return False
+    seen = set()
+    for item in value:
+        if type(item) is not str or len(item) > 32:
+            return False
+        name = item[4:] if item.startswith('CAP_') else item
+        if name not in _caps or name in seen:
+            return False
+        seen.add(name)
+    return len(seen) == len(_caps)
+
+
 def inspect_owned(value, expected, *, terminal=False):
-    need(isinstance(value, list) and len(value) == 1 and isinstance(value[0], dict), 'one inspect record required')
+    try:
+        need(isinstance(value, list) and len(value) == 1 and isinstance(value[0], dict), 'one inspect record required')
+    except BaseException as _diagnostic_error:
+        _label_inspect(_diagnostic_error, 'INSPECT_SHAPE')
+        raise
     row = value[0]; config, host = row.get('Config', {}), row.get('HostConfig', {})
-    need(row.get('Id') == expected['cid'] and row.get('Name') == '/' + expected['name']
-         and row.get('Image') == expected['image'], 'container ownership differs')
+    try:
+        need(row.get('Id') == expected['cid'] and row.get('Name') == '/' + expected['name']
+             and row.get('Image') == expected['image'], 'container ownership differs')
+    except BaseException as _diagnostic_error:
+        _label_inspect(_diagnostic_error, 'INSPECT_IDENTITY')
+        raise
     required_env = {'CACHY_ASAHI_REPOSITORY_CONTAINER=1', 'CACHY_ASAHI_DISPOSABLE_REPOSITORY=' + expected['nonce'],
                     'CACHY_ASAHI_IMAGE_ID=' + expected['image']}
-    need(config.get('User') == '0:0' and config.get('OpenStdin') is True and config.get('Tty') is False
-         and config.get('Entrypoint') == ['/usr/bin/python3'] and config.get('Cmd') == expected['worker_args']
-         and isinstance(config.get('Env'), list) and required_env <= set(config['Env'])
-         and all(sum(item.startswith(key) for item in config['Env']) == 1 for key in
-                 ('CACHY_ASAHI_REPOSITORY_CONTAINER=', 'CACHY_ASAHI_DISPOSABLE_REPOSITORY=', 'CACHY_ASAHI_IMAGE_ID=')),
-         'created producer config differs')
-    need(host.get('NetworkMode') == 'none' and host.get('CgroupnsMode') == 'private'
-         and host.get('ReadonlyRootfs') is True and host.get('Privileged') is False
-         and host.get('CapDrop') == ['ALL'] and isinstance(host.get('CapAdd'), list)
-         and len(host['CapAdd']) == 6 and set(host['CapAdd']) == set(CAPS)
-         and host.get('PidsLimit') == 512 and host.get('Memory') == 8 * 1024**3
-         and host.get('NanoCpus') == 4 * 10**9 and host.get('SecurityOpt') == ['no-new-privileges']
-         and host.get('Tmpfs') == {'/scratch': 'rw,nosuid,nodev,exec,size=6g,mode=0700',
-                                  '/test-home': 'rw,nosuid,nodev,exec,size=128m,mode=0700'}
-         and not any(host.get(key) for key in ('Devices', 'DeviceRequests', 'Binds', 'VolumesFrom')),
-         'created resource policy differs')
+    try:
+        need(config.get('User') == '0:0' and config.get('OpenStdin') is True and config.get('Tty') is False
+             and config.get('Entrypoint') == ['/usr/bin/python3'] and config.get('Cmd') == expected['worker_args']
+             and isinstance(config.get('Env'), list) and required_env <= set(config['Env'])
+             and all(sum(item.startswith(key) for item in config['Env']) == 1 for key in
+                     ('CACHY_ASAHI_REPOSITORY_CONTAINER=', 'CACHY_ASAHI_DISPOSABLE_REPOSITORY=', 'CACHY_ASAHI_IMAGE_ID=')),
+             'created producer config differs')
+    except BaseException as _diagnostic_error:
+        _label_inspect(_diagnostic_error, 'INSPECT_CONFIG')
+        raise
+    try:
+        need(host.get('NetworkMode') == 'none' and host.get('CgroupnsMode') == 'private'
+             and host.get('ReadonlyRootfs') is True and host.get('Privileged') is False
+             and host.get('CapDrop') == ['ALL'] and type(host.get('CapAdd')) is list
+             and len(host['CapAdd']) == 6 and _cap_add_matches(host['CapAdd'])
+             and host.get('PidsLimit') == 512 and host.get('Memory') == 8 * 1024**3
+             and host.get('NanoCpus') == 4 * 10**9 and host.get('SecurityOpt') == ['no-new-privileges']
+             and host.get('Tmpfs') == {'/scratch': 'rw,nosuid,nodev,exec,size=6g,mode=0700',
+                                      '/test-home': 'rw,nosuid,nodev,exec,size=128m,mode=0700'}
+             and not any(host.get(key) for key in ('Devices', 'DeviceRequests', 'Binds', 'VolumesFrom')),
+             'created resource policy differs')
+    except BaseException as _diagnostic_error:
+        _label_inspect(_diagnostic_error, 'INSPECT_RESOURCES')
+        _capture_resource_snapshot(_diagnostic_error, host)
+        raise
     mounts = row.get('Mounts')
-    need(isinstance(mounts, list) and all(isinstance(m, dict) for m in mounts)
-         and len({m.get('Destination') for m in mounts}) == len(mounts), 'created mounts malformed')
+    try:
+        need(isinstance(mounts, list) and all(isinstance(m, dict) for m in mounts)
+             and len({m.get('Destination') for m in mounts}) == len(mounts), 'created mounts malformed')
+    except BaseException as _diagnostic_error:
+        _label_inspect(_diagnostic_error, 'INSPECT_MOUNT_SHAPE')
+        raise
     binds = [m for m in mounts if m.get('Type') == 'bind']
-    need(len(binds) == 3 and {m.get('Destination') for m in binds} == set(expected['binds'])
-         and all(m.get('Source') == str(expected['binds'][m['Destination']])
-                 and m.get('RW') is (m['Destination'] == '/out') for m in binds)
-         and all(m.get('Type') == 'bind' or m.get('Type') == 'tmpfs'
-                 and m.get('Destination') in ('/scratch', '/test-home') and m.get('RW') is True
-                 and m.get('Source') in ('', None) for m in mounts), 'created bind mounts differ')
+    try:
+        need(len(binds) == 3 and {m.get('Destination') for m in binds} == set(expected['binds'])
+             and all(m.get('Source') == str(expected['binds'][m['Destination']])
+                     and m.get('RW') is (m['Destination'] == '/out') for m in binds)
+             and all(m.get('Type') == 'bind' or m.get('Type') == 'tmpfs'
+                     and m.get('Destination') in ('/scratch', '/test-home') and m.get('RW') is True
+                     and m.get('Source') in ('', None) for m in mounts), 'created bind mounts differ')
+    except BaseException as _diagnostic_error:
+        _label_inspect(_diagnostic_error, 'INSPECT_MOUNTS')
+        raise
     if terminal:
         state = row.get('State', {})
-        need(state.get('Status') == 'exited' and state.get('Running') is False and state.get('OOMKilled') is False
-             and type(state.get('ExitCode')) is int and state['ExitCode'] == 0 and state.get('Error') == '',
-             'producer terminal state differs')
+        try:
+            need(state.get('Status') == 'exited' and state.get('Running') is False and state.get('OOMKilled') is False
+                 and type(state.get('ExitCode')) is int and state['ExitCode'] == 0 and state.get('Error') == '',
+                 'producer terminal state differs')
+        except BaseException as _diagnostic_error:
+            _label_inspect(_diagnostic_error, 'INSPECT_TERMINAL')
+            raise
     return row
+
+
+
+INSPECT_DIAGNOSTIC_CHECKS = frozenset(('INSPECT_SHAPE', 'INSPECT_IDENTITY', 'INSPECT_CONFIG',
+    'INSPECT_RESOURCES', 'INSPECT_MOUNT_SHAPE', 'INSPECT_MOUNTS', 'INSPECT_TERMINAL'))
+LAUNCH_DIAGNOSTIC_OPERATIONS = frozenset(('NONE', 'OTHER', 'CONTRACT', 'PRIVATE_CUSTODY',
+    'PREPARE_OBSERVER', 'OBSERVER_SOURCE', 'IMAGE_INSPECT', 'DAEMON_ARCH', 'NAME_AVAILABILITY',
+    'CREATE', 'INSPECT_CREATED', 'ATTACH', 'CHECKPOINT_FINISH', 'INSPECT_TERMINAL',
+    'PRODUCER_PASS', 'SOURCE_RECHECK', 'CANCELLATION_BOUNDARY', 'CLEANUP', 'PUBLICATION',
+    'OWNERSHIP_RECOVERY', 'OWNERSHIP_INSPECT', 'REMOVE', 'ABSENCE_QUERY', 'ABSENCE_VERIFY',
+    'PRIVATE_RECEIPT_OPEN', 'PLAIN_LOG', 'CLEANUP_LOG', 'LAUNCHER_LOG', 'RECEIPT_COMMIT'))
+
+
+def _label_inspect(error, label, _refused=Refused, _checks=INSPECT_DIAGNOSTIC_CHECKS):
+    try:
+        if type(error) is _refused and type(label) is str and label in _checks:
+            BaseException.__setattr__(error, '_repository_inspect_check', label)
+    except BaseException:
+        pass
+
+
+def _inspect_diagnostic(error, _refused=Refused,
+                        _need_code=need.__code__, _caller_code=inspect_owned.__code__,
+                        _checks=INSPECT_DIAGNOSTIC_CHECKS):
+    try:
+        if type(error) is not _refused:
+            return 'OTHER'
+        label = BaseException.__getattribute__(error, '_repository_inspect_check')
+        if type(label) is not str or label not in _checks:
+            return 'OTHER'
+        trace = BaseException.__getattribute__(error, '__traceback__')
+        tail = []; count = 0
+        while trace is not None:
+            count += 1
+            if count > 32:
+                return 'OTHER'
+            tail.append(trace.tb_frame)
+            if len(tail) > 2:
+                tail.pop(0)
+            trace = trace.tb_next
+        if len(tail) == 2 and tail[0].f_code is _caller_code and tail[1].f_code is _need_code                 and all(frame.f_globals is globals() for frame in tail):
+            return label
+    except BaseException:
+        pass
+    return 'OTHER'
+
+
+# Source fragment for a proposed optional diagnostic; no admission logic.
+RESOURCE_FIELDS = ('known_mask', 'failed_mask', 'network_none', 'cgroup_private',
+    'readonly_rootfs', 'privileged', 'pids_limit', 'memory', 'nano_cpus',
+    'cap_add_is_list', 'cap_add_count', 'cap_add_plain_mask', 'cap_add_prefixed_mask', 'cap_add_unknown_count',
+    'cap_add_effective_duplicates', 'cap_drop_count', 'cap_drop_all',
+    'security_opt_count', 'security_bare_nnp', 'security_true_nnp', 'security_false_nnp',
+    'tmpfs_count', 'scratch_tmpfs_match', 'home_tmpfs_match',
+    'extras_known_mask', 'extras_presence_mask')
+
+
+def _resource_snapshot(host, _caps=CAPS, _fields=RESOURCE_FIELDS):
+    """Fixed typed observations only; never return HostConfig or its strings."""
+    if type(host) is not dict or len(host) > 256 or any(type(key) is not str or len(key) > 128 for key in host):
+        return None
+    result = dict.fromkeys(_fields, None)
+    clauses = []
+    def observe(condition, ready=True):
+        clauses.append(bool(condition) if ready else None)
+    def string_match(key, expected):
+        value = host.get(key)
+        return value == expected if type(value) is str else None
+    def integer(key):
+        value = host.get(key)
+        return value if type(value) is int and -1 <= value <= 2**63-1 else None
+    def strings(key):
+        value = host.get(key)
+        return value if type(value) is list and len(value) <= 64 and all(
+            type(item) is str and len(item) <= 128 for item in value) else None
+    for key, field, expected in (('NetworkMode','network_none','none'),
+                                  ('CgroupnsMode','cgroup_private','private')):
+        result[field] = string_match(key, expected)
+        observe(result[field], result[field] is not None)
+    for key, field, expected in (('ReadonlyRootfs','readonly_rootfs',True),
+                                  ('Privileged','privileged',False)):
+        value = host.get(key)
+        result[field] = value if type(value) is bool else None
+        observe(value is expected, result[field] is not None)
+    drop = strings('CapDrop'); result['cap_drop_count'] = len(drop) if drop is not None else None
+    result['cap_drop_all'] = drop == ['ALL'] if drop is not None else None
+    observe(result['cap_drop_all'], drop is not None)
+    add = strings('CapAdd'); raw_add = host.get('CapAdd')
+    result['cap_add_is_list'] = type(raw_add) is list if type(raw_add) in (list,dict,str,int,bool,float,type(None)) else None
+    observe(result['cap_add_is_list'], result['cap_add_is_list'] is not None)
+    result['cap_add_count'] = len(raw_add) if type(raw_add) is list and len(raw_add) <= 64 else None
+    observe(result['cap_add_count'] == 6, result['cap_add_count'] is not None)
+    observe(_cap_add_matches(add, _caps) if add is not None else False, add is not None)
+    if add is not None:
+        plain = prefixed = unknown = duplicates = seen = 0
+        for item in add:
+            bit = 0
+            for number, cap in enumerate(_caps):
+                if item == cap: bit = 1 << number; plain |= bit
+                elif item == 'CAP_' + cap: bit = 1 << number; prefixed |= bit
+            if not bit: unknown += 1
+            elif seen & bit: duplicates += 1
+            seen |= bit
+        result.update(cap_add_plain_mask=plain, cap_add_prefixed_mask=prefixed,
+                      cap_add_unknown_count=unknown, cap_add_effective_duplicates=duplicates)
+    for key, field, expected in (('PidsLimit','pids_limit',512), ('Memory','memory',8*1024**3),
+                                  ('NanoCpus','nano_cpus',4*10**9)):
+        result[field] = integer(key); observe(result[field] == expected, result[field] is not None)
+    security = strings('SecurityOpt')
+    result['security_opt_count'] = len(security) if security is not None else None
+    for field, token in (('security_bare_nnp','no-new-privileges'),
+                         ('security_true_nnp','no-new-privileges:true'),
+                         ('security_false_nnp','no-new-privileges:false')):
+        result[field] = token in security if security is not None else None
+    observe(security == ['no-new-privileges'], security is not None)
+    tmpfs = host.get('Tmpfs'); typed = type(tmpfs) is dict and len(tmpfs) <= 64 and all(
+        type(key) is str and len(key) <= 128 and type(value) is str and len(value) <= 256 for key,value in tmpfs.items())
+    result['tmpfs_count'] = len(tmpfs) if typed else None
+    for field, key, expected in (('scratch_tmpfs_match','/scratch','rw,nosuid,nodev,exec,size=6g,mode=0700'),
+                                 ('home_tmpfs_match','/test-home','rw,nosuid,nodev,exec,size=128m,mode=0700')):
+        result[field] = tmpfs.get(key) == expected if typed else None
+    observe(result['tmpfs_count'] == 2 and result['scratch_tmpfs_match'] and result['home_tmpfs_match'], typed)
+    known = present = 0
+    for number,key in enumerate(('Devices','DeviceRequests','Binds','VolumesFrom')):
+        value = host.get(key)
+        if type(value) in (list,dict,str,int,bool,float,type(None)):
+            known |= 1 << number
+            if value: present |= 1 << number
+    result.update(extras_known_mask=known, extras_presence_mask=present)
+    observe(present == 0, known == 15)
+    result['known_mask'] = sum(1 << number for number,value in enumerate(clauses) if value is not None)
+    result['failed_mask'] = sum(1 << number for number,value in enumerate(clauses) if value is False)
+    return result
+
+
+def _closed_resource_snapshot(value, _fields=RESOURCE_FIELDS):
+    """A malformed optional observation becomes unknown, never a new cause."""
+    try:
+        if type(value) is not dict or len(value) != len(_fields) or any(type(key) is not str for key in value): return None
+        if set(value) != set(_fields): return None
+        result = {}
+        for field in _fields:
+            item = value[field]
+            if field in ('network_none','cgroup_private','readonly_rootfs','privileged','cap_drop_all',
+                         'security_bare_nnp','security_true_nnp','security_false_nnp',
+                         'scratch_tmpfs_match','home_tmpfs_match','cap_add_is_list'):
+                if item is not None and type(item) is not bool: return None
+            else:
+                limit = (2**63-1 if field in ('pids_limit','memory','nano_cpus') else
+                         16383 if field in ('known_mask','failed_mask') else
+                         15 if field in ('extras_known_mask','extras_presence_mask') else
+                         63 if field in ('cap_add_plain_mask','cap_add_prefixed_mask') else 64)
+                minimum = -1 if field in ('pids_limit','memory','nano_cpus') else 0
+                if item is not None and (type(item) is not int or not minimum <= item <= limit): return None
+            result[field] = item
+        if type(result['known_mask']) is not int or type(result['failed_mask']) is not int: return None
+        if result['failed_mask'] & ~result['known_mask']: return None
+        if type(result['extras_known_mask']) is not int or type(result['extras_presence_mask']) is not int: return None
+        if result['extras_presence_mask'] & ~result['extras_known_mask']: return None
+        cap_fields = ('cap_add_count','cap_add_plain_mask','cap_add_prefixed_mask',
+                      'cap_add_unknown_count','cap_add_effective_duplicates')
+        if all(type(result[field]) is int for field in cap_fields):
+            effective = result['cap_add_plain_mask'] | result['cap_add_prefixed_mask']
+            if effective.bit_count() + result['cap_add_unknown_count'] + result['cap_add_effective_duplicates'] != result['cap_add_count']: return None
+            if (result['cap_add_plain_mask'] & result['cap_add_prefixed_mask']).bit_count() > result['cap_add_effective_duplicates']: return None
+        return result
+    except BaseException:
+        return None
+
+
+def _capture_resource_snapshot(error, host, _refused=Refused):
+    try:
+        if type(error) is _refused and _inspect_diagnostic(error) == 'INSPECT_RESOURCES':
+            value = _closed_resource_snapshot(_resource_snapshot(host))
+            if value is not None: BaseException.__setattr__(error, '_repository_resource_snapshot', value)
+    except BaseException:
+        pass
+
+
+def _resource_diagnostic(error, _refused=Refused):
+    try:
+        if type(error) is _refused and _inspect_diagnostic(error) == 'INSPECT_RESOURCES':
+            return _closed_resource_snapshot(BaseException.__getattribute__(error, '_repository_resource_snapshot'))
+    except BaseException:
+        pass
+    return None
+
+
+def _observe_launch_diagnostic(observation, channel, operation, error,
+                              _operations=LAUNCH_DIAGNOSTIC_OPERATIONS):
+    try:
+        if channel not in ('first', 'cleanup', 'publication'):
+            return
+        if observation[channel + '_operation'] == 'NONE':
+            observation[channel + '_operation'] = (operation if type(operation) is str
+                and operation in _operations else 'OTHER')
+            observation[channel + '_check'] = _inspect_diagnostic(error)
+            observation[channel + '_resources'] = _resource_diagnostic(error)
+    except BaseException:
+        pass
+
+
+def _public_launch_diagnostic(observation, _operations=LAUNCH_DIAGNOSTIC_OPERATIONS,
+                             _checks=INSPECT_DIAGNOSTIC_CHECKS):
+    result = {'schema_version': 1}
+    for channel in ('first', 'cleanup', 'publication'):
+        operation = check = 'OTHER'
+        try:
+            candidate = observation[channel + '_operation']
+            if type(candidate) is str and candidate in _operations:
+                operation = candidate
+            candidate = observation[channel + '_check']
+            if type(candidate) is str and candidate in _checks | {'NONE', 'OTHER'}:
+                check = candidate
+        except BaseException:
+            pass
+        result[channel + '_operation'] = operation
+        result[channel + '_check'] = check if operation == 'NONE' or check != 'NONE' else 'OTHER'
+        resources = None
+        try:
+            if type(observation) is dict and len(observation) <= 64 and all(type(key) is str for key in observation):
+                if check == 'INSPECT_RESOURCES': resources = _closed_resource_snapshot(observation.get(channel + '_resources'))
+        except BaseException:pass
+        result[channel + '_resources'] = resources
+    return result
 
 
 def run_repository(command, log, private_root, original_executor, *, contract, run, deadline,
@@ -334,6 +753,11 @@ def run_repository(command, log, private_root, original_executor, *, contract, r
                'name_absence_verified': False, 'id_absence_verified': False, 'absence_verified': False,
                'checkpoints': [], 'commands': [], 'native_admission': 'NOT RUN'}
     state = Cancellation(); submitted = False; expected = None; work = None; protocol = None; fault = None
+    diagnostic = {channel + '_' + field: 'NONE' for channel in ('first', 'cleanup', 'publication')
+                  for field in ('operation', 'check')}
+    diagnostic.update({channel + '_resources': None for channel in ('first','cleanup','publication')})
+    operation = cleanup_operation = publication_operation = 'OTHER'
+    receipt['diagnostic'] = diagnostic
     def call(argv, end):
         alive(end); value = run.run(list(map(str, argv)), deadline=end, limit=LIMIT)
         record(argv, value); alive(end)
@@ -354,8 +778,10 @@ def run_repository(command, log, private_root, original_executor, *, contract, r
     try:
         with cancellation_handlers(state):
             try:
+                operation = 'CONTRACT'
                 alive(deadline); value = contract(command) if callable(contract) else contract
                 expected = validate_command(command, value); receipt.update(container=expected['name'], image_id=expected['image'], nonce=expected['nonce'])
+                operation = 'PRIVATE_CUSTODY'
                 root = Path(private_root).absolute()
                 with directory(root) as fd:
                     need(stat.S_IMODE(os.fstat(fd).st_mode) == 0o700, 'private custody mode required')
@@ -363,20 +789,26 @@ def run_repository(command, log, private_root, original_executor, *, contract, r
                      'custody/mount overlap refused')
                 work = root / ('launch-' + expected['nonce']); work.mkdir(mode=0o700)
                 if prepare_runner is not None:
+                    operation = 'PREPARE_OBSERVER'
                     prepared = prepare_runner(command)
                     need(prepared is None or prepared == producer_pin, 'prepared observer pin differs')
+                operation = 'OBSERVER_SOURCE'
                 alive(deadline); validate_command(command, value)
                 need(isinstance(producer_pin, str) and re.fullmatch('[0-9a-f]{64}', producer_pin)
                      and digest(read(expected['binds']['/runner'] / 'producer.py')) == producer_pin, 'observer source differs')
                 cidfile = work / 'cid'
+                operation = 'IMAGE_INSPECT'
                 image = decode(call(['docker', 'image', 'inspect', expected['image']], deadline))
                 need(isinstance(image, list) and len(image) == 1 and image[0].get('Id') == expected['image']
                      and image[0].get('Architecture') == 'arm64' and image[0].get('Os') == 'linux', 'native image differs')
+                operation = 'DAEMON_ARCH'
                 daemon = call(['docker', 'info', '--format', '{{.Architecture}}'], deadline)
                 need(daemon.strip() in (b'arm64', b'aarch64'), 'native daemon required')
+                operation = 'NAME_AVAILABILITY'
                 listing = call(['docker', 'container', 'ls', '-a', '--no-trunc', '--filter',
                                 'name=^/' + expected['name'] + '$', '--format', '{{.ID}} {{.Names}}'], deadline)
                 need(listing == b'', 'repository name already occupied')
+                operation = 'CREATE'
                 original = list(command); create = ['docker', 'create', '-i', '--cidfile', str(cidfile)] + original[2:]
                 index = create.index('/runner/repository.py')
                 create[index:index+1] = ['-I', '/runner/producer.py', '--handoff-deadline', repr(deadline)]
@@ -388,25 +820,32 @@ def run_repository(command, log, private_root, original_executor, *, contract, r
                     cid = read(cidfile, 128).decode().strip()
                     need(re.fullmatch('[0-9a-f]{64}', cid) and raw.strip().decode() == cid, 'full creation CID differs')
                     expected['cid'] = cid; receipt['container_id'] = cid
+                operation = 'INSPECT_CREATED'
                 inspect_owned(decode(call(['docker', 'container', 'inspect', cid], deadline)), expected)
                 receipt['ownership_verified'] = True
+                operation = 'ATTACH'
                 protocol = Protocol(expected['nonce'], checkpoint_handler, deadline)
                 argv = ['docker', 'start', '--attach', '--interactive', cid]
                 response = run.attach(argv, on_stdout=protocol.feed, on_stdin=protocol.stdin, deadline=deadline, limit=2*LIMIT+4*1024**2)
                 record(argv, response, 2*LIMIT+4*1024**2); alive(deadline)
                 need(response['exit_code'] == 0 and RESERVED not in response['stderr']
                      and response['stdout'] == bytes(protocol.raw), 'attach failed or raw callback stream differs')
+                operation = 'CHECKPOINT_FINISH'
                 protocol.finish(); receipt['checkpoints'] = protocol.frames
+                operation = 'INSPECT_TERMINAL'
                 inspect_owned(decode(call(['docker', 'container', 'inspect', cid], deadline)), expected, terminal=True)
+                operation = 'PRODUCER_PASS'
                 need(b'PASS: disposable generic repository transactions; hardware/stable gates unchanged.' in protocol.plain,
                      'original producer PASS missing')
+                operation = 'SOURCE_RECHECK'
                 need(digest(read(expected['binds']['/runner'] / 'repository.py')) == ORIGINAL_PIN
                      and digest(read(expected['binds']['/runner'] / 'producer.py')) == producer_pin
                      and digest(read(expected['binds']['/inputs'] / 'manifest.json')) == command[-2],
                      'source or contract drift after producer')
                 receipt['status'] = 'PASS'
             except BaseException as error:
-                fault = error; receipt['error_type'] = type(error).__name__
+                _observe_launch_diagnostic(diagnostic, 'first', operation, error)
+                fault = error; receipt['error_type'] = type(fault).__name__
             finally:
                 if submitted:
                     try:
@@ -414,6 +853,7 @@ def run_repository(command, log, private_root, original_executor, *, contract, r
                             cleanup_end = time.monotonic() + 30
                             if 'cid' not in expected:
                                 receipt['ownership_uncertain'] = True; receipt['status'] = 'FAIL'
+                                cleanup_operation = 'OWNERSHIP_RECOVERY'
                                 rows = decode(call(['docker', 'container', 'inspect', expected['name']], cleanup_end))
                                 need(isinstance(rows, list) and len(rows) == 1 and re.fullmatch('[0-9a-f]{64}', rows[0].get('Id', '')),
                                      'partial creation recovery uncertain')
@@ -425,20 +865,29 @@ def run_repository(command, log, private_root, original_executor, *, contract, r
                                 expected['cid'] = recovered; receipt['container_id'] = expected['cid']
                                 inspect_owned(rows, expected)
                             else:
+                                cleanup_operation = 'OWNERSHIP_INSPECT'
                                 inspect_owned(decode(call(['docker', 'container', 'inspect', expected['cid']], cleanup_end)), expected)
+                            cleanup_operation = 'REMOVE'
                             call(['docker', 'container', 'rm', '-f', expected['cid']], cleanup_end)
+                            cleanup_operation = 'ABSENCE_QUERY'
                             listing = call(['docker', 'container', 'ls', '-a', '--no-trunc', '--format', '{{.ID}} {{.Names}}'], cleanup_end)
                             rows = [line.split() for line in listing.decode().splitlines()]
                             need(all(len(row) == 2 and re.fullmatch('[0-9a-f]{64}', row[0]) for row in rows), 'absence query malformed')
                             receipt['name_absence_verified'] = all(expected['name'] not in row[1].split(',') for row in rows)
                             receipt['id_absence_verified'] = all(expected['cid'] != row[0] for row in rows)
                             receipt['absence_verified'] = receipt['name_absence_verified'] and receipt['id_absence_verified']
+                            cleanup_operation = 'ABSENCE_VERIFY'
                             need(receipt['absence_verified'], 'name or ID remains')
                             receipt['cleanup'] = 'PASS'
                     except BaseException as error:
-                        fault = fault or error; receipt['status'] = 'FAIL'; receipt['cleanup_error_type'] = type(error).__name__
+                        _observe_launch_diagnostic(diagnostic, 'cleanup', cleanup_operation, error)
+                        _observe_launch_diagnostic(diagnostic, 'first', 'CLEANUP', error)
+                        fault = retain_fault(fault,error); receipt['status'] = 'FAIL'; receipt['cleanup_error_type'] = type(error).__name__
     except BaseException as error:
-        fault = fault or error; receipt['status'] = 'FAIL'; receipt['error_type'] = type(error).__name__
+        _observe_launch_diagnostic(diagnostic, 'first', 'CANCELLATION_BOUNDARY', error)
+        fault = retain_fault(fault,error); receipt['status'] = 'FAIL'; receipt['error_type'] = type(fault).__name__
+    if state.uncertain:
+        receipt.update(status='FAIL',cleanup='FAIL',signal_teardown_uncertain=True)
     if state.pending:
         receipt.update(status='FAIL', cancelled=True)
     if work is not None:
@@ -458,20 +907,27 @@ def run_repository(command, log, private_root, original_executor, *, contract, r
         try:
             with cancellation_handlers(state):
                 with state.defer():
+                    publication_operation = 'PRIVATE_RECEIPT_OPEN'
                     with directory(work) as parent:
                         receipt_fd = os.open('receipt.json', os.O_RDWR | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
                                              0o600, dir_fd=parent)
                         os.fsync(parent)
+                    publication_operation = 'PLAIN_LOG'
                     write_new(log, bytes(protocol.plain) if protocol is not None else b'')
+                    publication_operation = 'CLEANUP_LOG'
                     write_new(Path(log).with_suffix('.cleanup.json'), encoded(dict(summary, status=receipt['cleanup'])) + b'\n')
-                    write_new(Path(log).with_suffix('.launcher.json'), encoded({'status': receipt['status']}) + b'\n')
+                    publication_operation = 'LAUNCHER_LOG'
+                    write_new(Path(log).with_suffix('.launcher.json'), encoded({'status': receipt['status'], 'diagnostic': _public_launch_diagnostic(diagnostic)}) + b'\n')
                     if state.pending:
                         receipt.update(status='FAIL', cancelled=True)
+                    publication_operation = 'RECEIPT_COMMIT'
                     commit()
                     if state.pending:
                         receipt.update(status='FAIL', cancelled=True); commit()
         except BaseException as error:
-            fault = fault or error; receipt['status'] = 'FAIL'; receipt['publication_error_type'] = type(error).__name__
+            _observe_launch_diagnostic(diagnostic, 'publication', publication_operation, error)
+            _observe_launch_diagnostic(diagnostic, 'first', 'PUBLICATION', error)
+            fault = retain_fault(fault,error); receipt['status'] = 'FAIL'; receipt['publication_error_type'] = type(error).__name__
             receipt['cancelled'] = state.pending or isinstance(error, (Cancelled, KeyboardInterrupt))
             if receipt_fd is not None:
                 mask = signal.pthread_sigmask(signal.SIG_BLOCK, SIGNALS)
@@ -483,6 +939,8 @@ def run_repository(command, log, private_root, original_executor, *, contract, r
         finally:
             if receipt_fd is not None:
                 os.close(receipt_fd)
+    if state.uncertain:
+        receipt.update(status='FAIL',cleanup='FAIL',signal_teardown_uncertain=True)
     if fault is not None or receipt['status'] != 'PASS':
         error = Refused('repository custody launch refused'); error.receipt = receipt
         raise error from fault

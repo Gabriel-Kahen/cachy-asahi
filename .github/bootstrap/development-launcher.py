@@ -22,13 +22,15 @@ from contextlib import contextmanager
 
 REPOSITORY = 'Gabriel-Kahen/cachy-asahi'
 REMOTE = 'https://github.com/' + REPOSITORY + '.git'
-BOOTSTRAP_SHA = '507e5ac1cecbb1a82d38f2bdee077d24cc73e69b4f9f4f8ae1cbbaab05ee92d4'
+BOOTSTRAP_SHA = '1675fa4834f556f1eec5d10f2f53b20d0475dd1a922b4c80fb0adc38f95e9391'
 ISSUER_SHA = '9e3271b8cb21e7be1940c2aa9f17f84357d0a438ed45a19ad34ae226ec9d4581'
 CODE_PATHS = {'bootstrap':'.github/bootstrap/development-bootstrap.py',
               'issuer':'.github/bootstrap/development-clock-issuer.py'}
 DATA_PATHS = {'selection':'.github/bootstrap/development-selection.json',
               'peer':'.github/bootstrap/development-source-peer.json'}
-MODES = {'repository-svg':258,'installer-preflight':265}
+MODES = {'repository-svg-maintained-v1':259,'installer-preflight-maintained-v1':266}
+BASELINE_ID = 'maintained-native-baseline-v1-vim-9.2.1178-1'
+LINEAGE = 'SUCCESSOR_NOT_HISTORICAL_ORIGINAL'
 CLOCK_KEYS = {'schema_version','purpose','source_commit','run_id','run_attempt','nonce',
     'issued_monotonic','deadline_monotonic','allowance_seconds','clock_domain',
     'issuer_source_sha256','issuer_workflow_commit'}
@@ -298,25 +300,31 @@ def controller_bridge_cutoff(issued, workflow_end, supplied_entry, local_startup
 def _launch(plan, environment, preparation_entry, *, delivery, runner, workspace_owner=None):
     """Retain one controlling process and Owned FDs through verification/child exit."""
     preparation_end=preparation_entry+60
-    need(type(plan)is dict and set(plan)=={'root_pins','data_commit','composition','git_sha256',
+    need(type(plan)is dict and set(plan)=={'root_pins','code_commit','data_commit','composition','git_sha256',
         'development_sha256'} and plan['composition'] in MODES and
+        type(plan['code_commit']) is str and re.fullmatch('[0-9a-f]{40}',plan['code_commit']) and
         re.fullmatch('[0-9a-f]{40}',plan['data_commit']) and
         plan['data_commit']!=plan['root_pins']['source_commit'] and
         all(re.fullmatch('[0-9a-f]{64}',plan[key])for key in ('git_sha256','development_sha256')),
         'Root-launch-plan')
-    source=plan['root_pins']['source_commit']
+    source=plan['root_pins']['source_commit'];code_source=plan['code_commit']
     need(environment.get('GITHUB_REPOSITORY')==REPOSITORY and
          environment.get('GITHUB_SHA')==environment.get('GITHUB_WORKFLOW_SHA')==source,'workflow-source')
     check(preparation_end)
     if workspace_owner is not None:
         need(environment.get('GITHUB_WORKSPACE')==str(workspace_owner.path),'workspace-environment-binding')
         workspace_owner.verify(preparation_end,empty=True)
-    bootstrap=module(delivery(source,CODE_PATHS['bootstrap'],BOOTSTRAP_SHA,256*1024,preparation_end),BOOTSTRAP_SHA,'trusted_bootstrap')
-    issuer=module(delivery(source,CODE_PATHS['issuer'],ISSUER_SHA,256*1024,preparation_end),ISSUER_SHA,'trusted_issuer')
+    bootstrap=module(delivery(code_source,CODE_PATHS['bootstrap'],BOOTSTRAP_SHA,256*1024,preparation_end),BOOTSTRAP_SHA,'trusted_bootstrap')
+    issuer=module(delivery(code_source,CODE_PATHS['issuer'],ISSUER_SHA,256*1024,preparation_end),ISSUER_SHA,'trusted_issuer')
     selection=delivery(plan['data_commit'],DATA_PATHS['selection'],plan['root_pins']['selection_sha256'],8*1024**2,preparation_end)
     peer=delivery(plan['data_commit'],DATA_PATHS['peer'],plan['root_pins']['peer_receipt_sha256'],8*1024**2,preparation_end)
     value=bootstrap.decode(selection)
-    need(len(value['source_files'])==MODES[plan['composition']],'composition-row-count')
+    need(value.get('schema_version') == 3 and type(value.get('schema_version')) is int and
+        value.get('purpose') == 'root-selected-maintained-v1-development-source' and
+        value.get('composition') == plan['composition'] and value.get('baseline_id') == BASELINE_ID and
+        value.get('lineage') == LINEAGE and value.get('source_packet_sha256') == plan['development_sha256'] and
+        type(value.get('source_files')) is dict and len(value['source_files'])==MODES[plan['composition']],
+        'composition-row-count')
     prepared=None;first=None;code=None;retirement=[]
     try:
         with defer_controls():
@@ -372,7 +380,9 @@ def _launch(plan, environment, preparation_entry, *, delivery, runner, workspace
     need(not retirement,'bootstrap-retirement-uncertain')
     check(workflow_end)
     return {'controller_exit_code':code,'retained_cutoff':cutoff,'workflow_end':workflow_end,
-            'scope':'same-J depends on Root implementing the validated optional early-entry CLI bridge'}
+            'code_commit':code_source,'source_commit':source,'data_commit':plan['data_commit'],
+            'composition':plan['composition'],'baseline_id':BASELINE_ID,'lineage':LINEAGE,
+            'scope':'maintained source proposal; actual Root registration and execution remain separate'}
 
 
 def launch(plan, environment, *, delivery=fetch, runner=run):

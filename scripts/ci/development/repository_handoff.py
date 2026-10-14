@@ -11,6 +11,7 @@ import builtins
 from contextlib import contextmanager
 import hashlib
 import json
+import importlib.machinery as machinery
 import math
 import os
 from pathlib import Path, PurePath
@@ -23,7 +24,7 @@ import time
 import types
 
 FILE_LIMIT, TOTAL_LIMIT = 8 * 1024**2, 64 * 1024**2
-INITIAL = 'd4d603146f094c86242eaafbb887042959c510c9bb948579dd749d065dd8fc31'
+INITIAL = '5d0f6b1d335c1949965699d4db6658af313af8977079e9a6464f0e5db4071ed3'
 POLICY = 'ff424921c5be38799f64e5c6264bb098cf71737d7be83608a4c91dee83f0365e'
 LICENSE = '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7'
 BLOCKED_RUNTIME_MAP = '9e6aa90e3cf9f6fc65bb8d410ec5acdbdfe2024f0bd1462cd51d52a5479d085e'
@@ -54,7 +55,26 @@ class Refused(ValueError):
 
 def need(value, reason):
     if not value:
-        raise Refused(reason)
+        error = Refused(reason)
+        frame = sys._getframe(1)
+        # A closed source-method label only; no filename, code or raw message.
+        site = {
+            'Sources.class_state':'CLASS_STATE',
+            'Sources.class_state.<locals>.literal':'CLASS_LITERAL',
+            'Sources.callback':'CALLBACK', 'Sources.global_function':'GLOBAL_FUNCTION',
+            'Sources.graph_function':'GRAPH_FUNCTION', 'Sources.frozen_file_hook':'FROZEN_FILE_HOOK', 'Sources.graph_namespace':'GRAPH_NAMESPACE',
+            'Sources.graph_identity':'GRAPH_IDENTITY',
+            'Sources.graph_identity.<locals>.observe':'GRAPH_IDENTITY',
+            'Sources.source_graph':'SOURCE_GRAPH', 'Session.register_native_preflight':'INSTALLER_REGISTRATION',
+            'Session._original_context':'ORIGINAL_CONTEXT',
+            'Session.prepare_view':'VIEW_COPY', 'Session.verify_view':'VIEW_VERIFY',
+            'check':'DEADLINE_CHECK', 'bindings':'CALLBACK_BINDINGS',
+            'authority_state':'AUTHORITY_STATE',
+            'authority_state.<locals>.inspect_state':'AUTHORITY_STATE',
+            'Session.observe_native_consumer':'NATIVE_FRAME', 'remove_private':'OWNED_CLEANUP',
+        }.get(frame.f_code.co_qualname, 'OTHER') if frame.f_globals is globals() else 'OTHER'
+        error._source_refusal_site = site
+        raise error
 
 
 def digest(raw):
@@ -359,16 +379,148 @@ class Sources:
         need(set(vars(cls)) <= allowed,'callback-refused')
         return dict(state)
 
-    def graph_function(self, function, module, compiled=None):
+    def graph_function(self, function, module, compiled=None, *, callsite='OTHER'):
         """Private loader namespaces bind objects, never filename labels alone."""
-        need(type(function) is types.FunctionType and type(module) is types.ModuleType
-             and function.__globals__ is module.__dict__,'callback-refused')
+        try:
+            need(type(function) is types.FunctionType and type(module) is types.ModuleType
+                 and function.__globals__ is module.__dict__,'callback-refused')
+        except Refused as error:
+            try:
+                if type(error) is Refused:
+                    trace = error.__traceback__
+                    if (trace is not None and trace.tb_frame.f_code is Sources.graph_function.__code__
+                            and trace.tb_frame.f_globals is globals() and trace.tb_next is not None
+                            and trace.tb_next.tb_frame.f_code is need.__code__
+                            and trace.tb_next.tb_frame.f_globals is globals() and trace.tb_next.tb_next is None):
+                        error._source_refusal_site = 'GRAPH_OBJECT_BINDING'
+                        error._graph_object_clause = ('FUNCTION_TYPE' if type(function) is not types.FunctionType else
+                            'MODULE_TYPE' if type(module) is not types.ModuleType else 'GLOBALS')
+                        caller = trace.tb_frame.f_back
+                        sites = ('DECLARED','OVERRIDE','IMPORTED','LAUNCH_VALIDATOR','COMMON_VALIDATOR','LANGUAGE')
+                        if (type(callsite) is str and callsite in sites and caller is not None and
+                                caller.f_code is Sources.graph_namespace.__code__ and caller.f_globals is globals()):
+                            error._graph_object_callsite = callsite
+            except BaseException:pass
+            raise
         filename = str(Path(module.__file__).absolute());path = self.locate(filename)
         if compiled is None:compiled = {}
         if path in self.raw and filename not in compiled:
             compiled[filename] = tuple(code_objects(compile(self.raw[path],filename,'exec')))
-        need(path in self.raw and function.__code__.co_filename == filename and
-             any(function.__code__ == code for code in compiled.get(filename,())),'callback-refused')
+        try:
+            need(path in self.raw and function.__code__.co_filename == filename and
+                 any(function.__code__ == code for code in compiled.get(filename,())),'callback-refused')
+        except Refused as error:
+            try:
+                if type(error) is Refused:
+                    trace = error.__traceback__
+                    if (trace is not None and trace.tb_frame.f_code is Sources.graph_function.__code__
+                            and trace.tb_frame.f_globals is globals() and trace.tb_next is not None
+                            and trace.tb_next.tb_frame.f_code is need.__code__
+                            and trace.tb_next.tb_frame.f_globals is globals() and trace.tb_next.tb_next is None):
+                        error._source_refusal_site = 'GRAPH_HELD_CODE_BINDING'
+            except BaseException:pass
+            raise
+
+    def native_executor_state(self, session, modules, cache):
+        """One Source-owned active interposer; no arbitrary cross-namespace route."""
+        endpoint = session.work_end if session.work_end is not None else session.job_deadline
+        check(endpoint,session.cancelled)
+        if session.native_executor_scope is None:
+            need(session.native_executor is None and session.native_services is None and
+                 session.native_runtime_contract is None,'callback-refused')
+            return None
+        integration = modules.get('scripts/ci/integration.py')
+        broker = modules[PREFIXES['runtime']+'/broker.py']
+        launch = modules[PREFIXES['runtime']+'/launch.py']
+        transport_module = modules[PREFIXES['runtime']+'/transport.py']
+        entry = modules[PREFIXES['runtime']+'/entry.py']
+        services, runtime = session.native_services, session.native_runtime_contract
+        need(type(services) is dict and all(type(key) is str for key in services) and
+             set(services) == {'pending','transport','supervise_factory'} and
+             type(runtime) is dict and all(type(key) is str for key in runtime) and
+             set(runtime) == {'cli_sha256','endpoint_identity','env'} and
+             type(runtime['cli_sha256']) is str and re.fullmatch('[0-9a-f]{64}',runtime['cli_sha256']) and
+             type(runtime['endpoint_identity']) in (tuple,list) and len(runtime['endpoint_identity']) == 6 and
+             all(type(value) is int for value in runtime['endpoint_identity']) and
+             type(runtime['env']) is dict and all(type(key) is str and type(value) is str
+                 for key,value in runtime['env'].items()) and
+             digest(encoded(runtime)) == self.grant['actor_contract_sha256'],'callback-refused')
+        pending, transport = services['pending'], services['transport']
+        self.class_state(pending,PREFIXES['runtime']+'/broker.py',broker)
+        self.class_state(transport,PREFIXES['runtime']+'/transport.py',transport_module)
+        need(type(pending) is broker.Pending and type(transport) is transport_module.DockerTransport and
+             pending.transport is transport and type(session.private) is type(self.root) and
+             type(pending.root) is type(self.root) and pending.root == session.private/'custody' and
+             pending.deadline is session.job_deadline and pending.cancelled is session.cancelled and
+             type(pending.producer_raw) is bytes and pending.producer_raw == self.raw[PREFIXES['runtime']+'/producer.py'] and
+             type(pending.producer_pin) is str and pending.producer_pin == self.grant['source_files'][PREFIXES['runtime']+'/producer.py']['sha256'] and
+             type(transport.cli) is dict and type(transport.cli.get('sha256')) is str and
+             transport.cli['sha256'] == runtime['cli_sha256'] and type(transport.env) is dict and
+             all(type(key) is str and type(value) is str for key,value in transport.env.items()) and
+             transport.env == runtime['env'] and type(transport.endpoint) is tuple and
+             all(type(value) is int for value in transport.endpoint) and
+             transport.endpoint == tuple(runtime['endpoint_identity']),'callback-refused')
+        def method(value, owner, declaration):
+            need(type(value) is types.MethodType and value.__self__ is owner and
+                 value.__func__ is declaration,'callback-refused')
+        method(transport.validator,pending,broker.Pending.approve_create)
+        guard = transport.guard
+        self.graph_function(guard,entry,cache)
+        need(guard.__code__.co_qualname == 'services.<locals>.source_guard' and
+             guard.__closure__ is not None,'callback-refused')
+        closure = dict(zip(guard.__code__.co_freevars,(cell.cell_contents for cell in guard.__closure__)))
+        need(set(closure) == {'cancelled','job_deadline','root','rows','source_identities'} and
+             closure['cancelled'] is session.cancelled and closure['job_deadline'] is session.job_deadline and
+             type(closure['root']) is type(self.root) and closure['root'] == self.root/PREFIXES['runtime'] and
+             type(closure['rows']) is dict and all(type(name) is str and type(row) is dict and
+                 all(type(key) is str and type(value) in (str,int) for key,value in row.items())
+                 for name,row in closure['rows'].items()) and closure['rows'] == decode(self.raw[self.grant['maps']['runtime']['path']]),'callback-refused')
+        self.graph_function(broker.Pending.interpose.__wrapped__,broker,cache)
+        self.graph_function(launch.scoped_executor.__wrapped__,launch,cache)
+        scope = session.native_executor_scope
+        need(type(scope) is contextmanager.__globals__['_GeneratorContextManager'],'callback-refused')
+        generator = object.__getattribute__(scope,'gen')
+        need(type(generator) is types.GeneratorType and generator.gi_frame is not None and
+             not generator.gi_running and generator.gi_code is broker.Pending.interpose.__wrapped__.__code__ and
+             generator.gi_frame.f_globals is broker.__dict__,'callback-refused')
+        outer = generator.gi_frame.f_locals
+        need(outer.get('self') is pending and outer.get('integration') is integration and
+             outer.get('transport') is transport and outer.get('executor') is session.native_executor,'callback-refused')
+        inner_scope = outer.get('scope')
+        need(type(inner_scope) is contextmanager.__globals__['_GeneratorContextManager'],'callback-refused')
+        inner = object.__getattribute__(inner_scope,'gen')
+        need(type(inner) is types.GeneratorType and inner.gi_frame is not None and not inner.gi_running and
+             inner.gi_code is launch.scoped_executor.__wrapped__.__code__ and
+             inner.gi_frame.f_globals is launch.__dict__,'callback-refused')
+        local = inner.gi_frame.f_locals
+        function, original, options = session.native_executor, local.get('original'),local.get('options')
+        need(type(integration) is types.ModuleType and local.get('module') is integration and
+             type(local.get('identity')) is int and local['identity'] == id(integration) and type(launch._SCOPES) is set and
+             all(type(value) is int for value in launch._SCOPES) and id(integration) in launch._SCOPES and local.get('executor') is function and
+             integration.__dict__.get('execute_container') is function,'callback-refused')
+        self.graph_function(function,launch,cache)
+        self.graph_function(original,integration,cache)
+        need(function.__code__.co_qualname == 'scoped_executor.<locals>.executor' and
+             type(function.__defaults__) is tuple and len(function.__defaults__) == 2 and
+             type(function.__defaults__[0]) is int and function.__defaults__[0] == 1800 and
+             type(function.__defaults__[1]) is bool and function.__defaults__[1] is False and
+             function.__kwdefaults__ is None and
+             function.__closure__ is not None and function.__code__.co_freevars == ('options','original') and
+             function.__closure__[0].cell_contents is options and function.__closure__[1].cell_contents is original and
+             original.__code__.co_qualname == 'execute_container' and original.__closure__ is None and
+             type(original.__defaults__) is tuple and len(original.__defaults__) == 2 and
+             type(original.__defaults__[0]) is int and original.__defaults__[0] == 1800 and
+             type(original.__defaults__[1]) is bool and original.__defaults__[1] is False and
+             original.__kwdefaults__ is None,'callback-refused')
+        need(type(options) is dict and all(type(key) is str for key in options) and set(options) == {'private_root','contract','run','deadline',
+             'checkpoint_handler','producer_pin','prepare_runner'} and options['private_root'] is pending.root and
+             options['run'] is transport and options['deadline'] is session.job_deadline and
+             options['producer_pin'] is pending.producer_pin,'callback-refused')
+        method(options['contract'],pending,broker.Pending.resolve)
+        method(options['checkpoint_handler'],pending,broker.Pending.checkpoint)
+        method(options['prepare_runner'],pending,broker.Pending.prepare)
+        check(endpoint,session.cancelled)
+        return (function,original)
 
     def source_graph(self, session, *, capture=False):
         """Explicit actual namespaces supplied by this Session's captured loaders."""
@@ -378,9 +530,9 @@ class Sources:
         self.class_state(self,'scripts/ci/development/repository_handoff.py',module)
         graph = state['source_graph']
         composition = state.get('composition')
-        need(type(composition) is str and composition in ('repository-svg','installer-preflight','repository-svg-zsh'),'callback-refused')
+        need(type(composition) is str and composition in ('repository-svg-maintained-v1','installer-preflight-maintained-v1'),'callback-refused')
         fields = {'entry','runtime','collector','phase','original','original_aliases'}
-        if composition == 'installer-preflight':fields.add('native_preflight')
+        if composition == 'installer-preflight-maintained-v1':fields.add('native_preflight')
         if composition == 'repository-svg-zsh':fields.add('zsh')
         need(type(graph) is dict and (not graph or set(graph) == fields),
              'callback-refused')
@@ -404,7 +556,7 @@ class Sources:
                 need(all(context['original'][name] is value for name,value in graph['original'].items()),'callback-refused')
             for name,value in graph['original'].items():modules[original[name]] = value
             installer = None
-            if composition == 'installer-preflight':
+            if composition == 'installer-preflight-maintained-v1':
                 installer = graph['native_preflight']
                 installer_path,name,qualname = ('scripts/install/native_preflight.py','native_install_preflight','run')
                 need(type(installer) is types.ModuleType and type(installer.__name__) is str and installer.__name__ == name and
@@ -432,12 +584,13 @@ class Sources:
                 parent,name = label.split('.')
                 need(graph['original'][parent].__dict__.get(name) is value and type(value) is types.ModuleType
                      and value.__file__ == str(self.original_root/alias_paths[label]),'callback-refused')
+            interposer = self.native_executor_state(session,modules,compiled)
             for path,value in modules.items():
                 domain = self.original_root if path in original.values() else self.root
                 need(type(value) is types.ModuleType and value.__file__ == str(domain/path) and path in self.raw,
                      'callback-refused')
-                self.graph_namespace(value,path,modules,aliases,compiled)
-            for label,value in aliases.items():self.graph_namespace(value,alias_paths[label],modules,aliases,compiled)
+                self.graph_namespace(value,path,modules,aliases,compiled,interposer=interposer)
+            for label,value in aliases.items():self.graph_namespace(value,alias_paths[label],modules,aliases,compiled,interposer=interposer)
             if installer is not None:
                 installer.namespace(installer,self.raw[installer_path],self.grant['source_files'][installer_path]['sha256'])
             admission = ()
@@ -448,7 +601,7 @@ class Sources:
                 admission = (('zsh-admission',id(state),*(id(value) for value in state)),
                              ('zsh-guards',self.zsh_guard_identity(state)))
             else:need(self.zsh_admission is None,'callback-refused')
-            observation = self.graph_identity((module,)+tuple(modules.values())+tuple(aliases.values()))+admission
+            observation = self.graph_identity((module,)+tuple(modules.values())+tuple(aliases.values()),interposer=interposer)+admission
             proof = (('zsh-proof',self.zsh_proof()),) if admission else ()
             if capture:
                 # Only the two authenticated loader boundaries may establish it.
@@ -469,11 +622,12 @@ class Sources:
                 installer.namespace(installer,self.raw[installer_path],self.grant['source_files'][installer_path]['sha256'])
         return modules
 
-    def graph_identity(self, modules):
+    def graph_identity(self, modules, *, interposer=None):
         """Exact observed executable references plus closed loader closure data."""
         seen = set();count = 0;compiled = {};namespaces = set();functions = []
         def observe(value,depth=0):
             nonlocal count
+            if interposer is not None and value is interposer[0]:value = interposer[1]
             count += 1
             need(depth <= 64 and count <= 100000,'callback-refused')
             if value is None or type(value) in (str,bytes,int,bool,float):return (type(value),value)
@@ -497,6 +651,13 @@ class Sources:
                 items = []
                 for name,item in sorted(value.__dict__.items()):
                     if type(item) is types.FunctionType:
+                        if path == PREFIXES['runtime']+'/entry.py' and name == 'FILE_HOOK':
+                            self.frozen_file_hook(item,value)
+                            details = item.__closure__[1].cell_contents
+                            items.append((name,('frozen-file-hook',id(item),item.__code__,id(item.__globals__),
+                                tuple((key,id(cell),id(cell.cell_contents)) for key,cell in zip(item.__code__.co_freevars,item.__closure__)),
+                                tuple((id(pair),id(pair[0]),id(pair[1]),tuple(pair[1])) for pair in details))))
+                            continue
                         filename = Path(getattr(item,'__wrapped__',item).__code__.co_filename).absolute()
                         if self.project_file(filename):
                             if filename == Path(origin).absolute():
@@ -544,7 +705,41 @@ class Sources:
         need(all(id(function.__globals__) in namespaces for function in functions),'callback-refused')
         return result
 
-    def graph_namespace(self,module,path,modules,aliases,cache):
+    def frozen_file_hook(self, value, module):
+        """The entry's exact stdlib factory hook is not a project filename.
+
+        Bind code/globals/defaults/cells and the reviewed constructor; never
+        grant arbitrary frozen-looking filenames or foreign hook namespaces.
+        """
+        path = PREFIXES['runtime']+'/entry.py'
+        declarations = [node for node in ast.parse(self.raw[path]).body if isinstance(node,ast.Assign)
+                        and any(isinstance(name,ast.Name) and name.id == 'FILE_HOOK' for name in node.targets)]
+        expected = ast.parse("FILE_HOOK = machinery.FileFinder.path_hook((machinery.ExtensionFileLoader, machinery.EXTENSION_SUFFIXES), (machinery.SourceFileLoader, machinery.SOURCE_SUFFIXES))").body[0]
+        need(len(declarations) == 1 and ast.dump(declarations[0]) == ast.dump(expected)
+             and type(module) is types.ModuleType and module.__dict__.get('machinery') is machinery
+             and module.__dict__.get('FILE_HOOK') is value
+             and {name for name,item in module.__dict__.items() if item is value} == {'FILE_HOOK'},'callback-refused')
+        reference = machinery.FileFinder.path_hook(
+            (machinery.ExtensionFileLoader,machinery.EXTENSION_SUFFIXES),
+            (machinery.SourceFileLoader,machinery.SOURCE_SUFFIXES))
+        need(type(value) is types.FunctionType and value.__code__ is reference.__code__
+             and value.__globals__ is reference.__globals__ and value.__name__ == reference.__name__
+             and value.__qualname__ == reference.__qualname__ and value.__module__ == reference.__module__
+             and value.__defaults__ is None and value.__kwdefaults__ is None
+             and type(value.__dict__) is dict and not value.__dict__
+             and type(value.__annotations__) is dict and not value.__annotations__
+             and value.__code__.co_freevars == ('cls','loader_details')
+             and type(value.__closure__) is tuple and len(value.__closure__) == 2
+             and all(type(cell) is types.CellType for cell in value.__closure__),'callback-refused')
+        cls,details = (cell.cell_contents for cell in value.__closure__)
+        need(cls is machinery.FileFinder and type(details) is tuple and len(details) == 2,'callback-refused')
+        for item,loader,suffixes in zip(details,(machinery.ExtensionFileLoader,machinery.SourceFileLoader),
+                                       (machinery.EXTENSION_SUFFIXES,machinery.SOURCE_SUFFIXES)):
+            need(type(item) is tuple and len(item) == 2 and item[0] is loader and item[1] is suffixes
+                 and type(suffixes) is list and len(suffixes) <= 64
+                 and all(type(suffix) is str for suffix in suffixes),'callback-refused')
+
+    def graph_namespace(self,module,path,modules,aliases,cache, *, interposer=None):
         """All declared functions/import hooks retain their captured implementation."""
         entry_path = PREFIXES['runtime']+'/entry.py'
         overrides = {
@@ -559,8 +754,12 @@ class Sources:
         for node in ast.parse(self.raw[path]).body:
             if not isinstance(node,ast.FunctionDef):continue
             value = module.__dict__.get(node.name)
+            if path == 'scripts/ci/integration.py' and node.name == 'execute_container' and interposer is not None:
+                need(value is interposer[0] and interposer[1].__code__ == compiled.get(node.name),'callback-refused')
+                self.graph_function(value,modules[PREFIXES['runtime']+'/launch.py'],cache,callsite='OVERRIDE')
+                continue
             if (path,node.name) in overrides:
-                self.graph_function(value,modules[entry_path],cache)
+                self.graph_function(value,modules[entry_path],cache,callsite='OVERRIDE')
                 need(value.__code__.co_qualname == overrides[path,node.name],'callback-refused')
                 continue
             if node.decorator_list:
@@ -576,22 +775,38 @@ class Sources:
                      value.__code__.co_freevars == ('func',) and value.__defaults__ is None and value.__kwdefaults__ is None
                      and value.__closure__[0].cell_contents is getattr(value,'__wrapped__',None),'callback-refused')
                 value = value.__wrapped__
-            self.graph_function(value,module,cache)
+            self.graph_function(value,module,cache,callsite='DECLARED')
             need(value.__code__ == compiled.get(node.name),'callback-refused')
         for value in module.__dict__.values():
             if type(value) is types.FunctionType:
+                if path == entry_path and value is module.__dict__.get('FILE_HOOK'):
+                    self.frozen_file_hook(value,module)
+                    continue
                 unwrapped = getattr(value,'__wrapped__',value)
                 filename = Path(unwrapped.__code__.co_filename).absolute()
                 if self.project_file(filename):
                     function_path = self.locate(filename)
                     need(function_path in modules,'callback-refused')
-                    self.graph_function(unwrapped,module if function_path == path else modules[function_path],cache)
+                    self.graph_function(unwrapped,module if function_path == path else modules[function_path],cache,callsite='IMPORTED')
             if type(value) is types.ModuleType:
                 origin = getattr(value,'__file__',None)
                 if origin and self.project_file(origin):
                     relative_path = self.locate(origin)
                     need(modules.get(relative_path) is value or any(value is item for item in aliases.values()),
                          'callback-refused')
+        if path == PREFIXES['runtime']+'/launch.py':
+            validator=module.__dict__.get('cancellation_state')
+            self.graph_function(validator,module,cache,callsite='LAUNCH_VALIDATOR')
+            need(validator.__defaults__ == (None,) and validator.__kwdefaults__ is None and
+                 validator.__closure__ is None,'callback-refused')
+            validator()
+
+        if path == PREFIXES['collector']+'/common.py':
+            validator = module.__dict__.get('cancellation_state')
+            self.graph_function(validator, module, cache,callsite='COMMON_VALIDATOR')
+            need(validator.__defaults__ is None and validator.__kwdefaults__ is None and
+                 validator.__closure__ is None, 'callback-refused')
+            validator()
         language = module.__dict__.get('__builtins__')
         need(type(language) is dict,'callback-refused')
         for name in ('__import__','compile','exec'):
@@ -599,7 +814,7 @@ class Sources:
             if value is vars(builtins)[name]:continue
             need(type(value) is types.FunctionType,'callback-refused')
             filename = Path(value.__code__.co_filename).absolute()
-            if filename == self.root/entry_path:self.graph_function(value,modules[entry_path],cache)
+            if filename == self.root/entry_path:self.graph_function(value,modules[entry_path],cache,callsite='LANGUAGE')
             else:self.global_function(value)
 
     def zsh_guards(self, session, modules):
@@ -929,7 +1144,7 @@ def preflight(root, grant_raw, grant_pin, *, deadline):
     need(set(grant) == {'schema_version', 'purpose', 'source_peer_preflight', 'development_only',
         'added_seconds', 'source_commit', 'recipe_source_commit', 'run_id', 'run_attempt',
         'source_files', 'maps', 'callbacks', 'policy_path', 'license_path','actor_contract_sha256',
-        'initial_invocation_sha256','original_view'} and
+        'initial_invocation_sha256','baseline_view'} and
         type(grant['schema_version']) is int and grant['schema_version'] == 2 and
         grant['purpose'] == 'reviewed-same-job-handoff-execution' and
         grant['source_peer_preflight'] == 'PASS' and grant['development_only'] is True and
@@ -947,11 +1162,12 @@ def preflight(root, grant_raw, grant_pin, *, deadline):
     lock = decode(sources.raw[initial])
     need(len(lock['source_files']) == 159 and len(lock['generated_fixture_files']) == 125 and
          all(grant['source_files'].get(name) == row for name, row in lock['source_files'].items()), 'source-refused')
-    view = grant['original_view']
+    view = grant['baseline_view']
     need(type(view) is dict and set(view) == {'schema_version','purpose','full_source_root','root',
-         'integration_lock_sha256','source_rows_sha256','file_count','argv_mode'} and
-         type(view['schema_version']) is int and view['schema_version'] == 1 and
-         view['purpose'] == 'original-159-copy-view' and view['full_source_root'] == str(sources.root) and
+         'integration_lock_sha256','source_rows_sha256','file_count','argv_mode','baseline_id'} and
+         type(view['schema_version']) is int and view['schema_version'] == 2 and
+         view['baseline_id'] == 'maintained-native-baseline-v1-vim-9.2.1178-1' and
+         view['purpose'] == 'maintained-v1-159-copy-view' and view['full_source_root'] == str(sources.root) and
          type(view['root']) is str and Path(view['root']).is_absolute() and '..' not in Path(view['root']).parts and
          view['integration_lock_sha256'] == INITIAL and
          view['source_rows_sha256'] == digest(encoded(lock['source_files'])) and
@@ -1133,9 +1349,9 @@ def authority_matches(candidate, accepted):
 
 class Session:
     """One original producer plus one deadline-bound baseline/phase consumer."""
-    def __init__(self, sources, output, *, job_deadline, cancelled=None, composition='repository-svg'):
+    def __init__(self, sources, output, *, job_deadline, cancelled=None, composition='repository-svg-maintained-v1'):
         check(job_deadline, cancelled)
-        need(type(composition) is str and composition in ('repository-svg','installer-preflight','repository-svg-zsh'),'grant-refused')
+        need(type(composition) is str and composition in ('repository-svg-maintained-v1','installer-preflight-maintained-v1'),'grant-refused')
         self.composition = composition
         self.sources, self.output = sources, Path(output).absolute()
         self.job_deadline, self.cancelled = job_deadline, cancelled
@@ -1143,10 +1359,15 @@ class Session:
         self.controller = self.pending_capture = self.collected = self.supervise = None
         self.private = None; self.private_node = None
         self.operation = 'source-refused'
+        self.startup_phase = 'source-bound'
+        self.startup_failure = None
+        self.native_hook_entered = False
         self.source_graph = {}
         self.view_root = self.view_node = self.view_parent_node = None
         self.view_receipt = self.view_receipt_sha256 = None
         self.original_scope = self.native_consumer_observation = None
+        self.native_executor_scope = self.native_executor = None
+        self.native_services = self.native_runtime_contract = None
         self.phase_export_raw = self.phase_export_sha256 = None
         self.result = {'schema_version':1, 'purpose':'same-job-repository-handoff', 'status':'NOT RUN',
             'initial_exit_code':None, 'callback_entered':False, 'input_acceptance':'NOT RUN',
@@ -1160,9 +1381,283 @@ class Session:
             'actor_contract_sha256':getattr(sources,'grant',{}).get('actor_contract_sha256'),
             'initial_invocation_sha256':getattr(sources,'grant',{}).get('initial_invocation_sha256')}
 
+    def service_failure_site(self, error):
+        """Diagnostic-only labels from held Source code and exact graph namespaces."""
+        if type(error) is not TypeError or self.startup_phase != 'construct-services':return 'OTHER'
+        graph = self.source_graph
+        if type(graph) is not dict:return 'OTHER'
+        runtime,collector = graph.get('runtime'),graph.get('collector')
+        if type(runtime) is not dict or type(collector) is not dict:return 'OTHER'
+        rows = (
+            (PREFIXES['runtime']+'/entry.py',graph.get('entry'),{
+                'services':'SERVICE_CALL','services.<locals>.source_guard':'SERVICE_SOURCE_GUARD',
+                'captures':'SERVICE_SOURCE_CAPTURE','pinned':'SERVICE_SOURCE_READ','read':'SERVICE_SOURCE_READ'}),
+            (PREFIXES['runtime']+'/broker.py',runtime.get('broker'),{'Pending.__init__':'SERVICE_PENDING'}),
+            (PREFIXES['runtime']+'/transport.py',runtime.get('transport'),{
+                'DockerTransport.__init__':'SERVICE_TRANSPORT_INIT','DockerTransport._preflight':'SERVICE_TRANSPORT_PREFLIGHT',
+                'read_file':'SERVICE_TRANSPORT_CLI','directory':'SERVICE_TRANSPORT_DIRECTORY'}),
+            (PREFIXES['collector']+'/common.py',collector.get('common'),{
+                'defer_cancellation':'SERVICE_CANCEL_CONTEXT','_signal_handlers':'SERVICE_CANCEL_SIGNALS'}))
+        if type(self.sources) is not Sources:return 'OTHER'
+        if type(self.sources.root) is not type(Path('/')):return 'OTHER'
+        raw,grants = self.sources.raw,self.sources.grant
+        if type(raw) is not dict or type(grants) is not dict or type(grants.get('source_files')) is not dict:return 'OTHER'
+        candidates=[]
+        for path,module,labels in rows:
+            if type(module) is not types.ModuleType or path not in raw:continue
+            data,pin = raw[path],grants['source_files'].get(path)
+            if type(data) is not bytes or len(data)>FILE_LIMIT or type(pin) is not dict or type(pin.get('sha256')) is not str or digest(data)!=pin['sha256']:continue
+            filename=str(self.sources.root/path)
+            if type(module.__dict__.get('__file__')) is not str or module.__dict__['__file__'] != filename:continue
+            compiled={code.co_qualname:code for code in code_objects(compile(data,filename,'exec'))}
+            exits,exit_calls={},{}
+            if path == PREFIXES['collector']+'/common.py':
+                calls={ast.dump(ast.parse(expression,mode='eval').body,include_attributes=False):label
+                    for expression,label in (
+                        ('signal.pthread_sigmask(signal.SIG_BLOCK, SIGNALS)','SERVICE_CANCEL_EXIT_BLOCK'),
+                        ('signal.signal(number, original)','SERVICE_CANCEL_EXIT_SET_HANDLER'),
+                        ('signal.getsignal(number) == original','SERVICE_CANCEL_EXIT_HANDLER_CHECK'),
+                        ('number not in mask and number in signal.sigpending()','SERVICE_CANCEL_EXIT_PENDING_CHECK'),
+                        ('signal.sigwait({number})','SERVICE_CANCEL_EXIT_PENDING_WAIT'),
+                        ('signal.pthread_sigmask(signal.SIG_SETMASK, mask)','SERVICE_CANCEL_EXIT_SET_MASK'),
+                        ('handler(number, None)','SERVICE_CANCEL_EXIT_REPLAY'))}
+                for node in ast.parse(data).body:
+                    if type(node) is ast.FunctionDef and node.name in ('defer_cancellation','_signal_handlers'):
+                        regions=[part for item in ast.walk(node) if type(item) is ast.Try for part in item.finalbody]
+                        exits[node.name]=tuple((part.lineno,part.end_lineno) for part in regions)
+                        if node.name == '_signal_handlers':
+                            matches={}
+                            for region in regions:
+                                for call in ast.walk(region):
+                                    if type(call) in (ast.Call,ast.Compare,ast.BoolOp):
+                                        label=calls.get(ast.dump(call,include_attributes=False))
+                                        if label is not None:matches[(call.lineno,call.end_lineno)]=label
+                            exit_calls[node.name]=tuple((start,end,label) for (start,end),label in matches.items())
+            candidates.append((module.__dict__,filename,compiled,labels,exits,exit_calls))
+        site='OTHER';trace=error.__traceback__;count=0
+        while trace is not None:
+            if type(trace) is not types.TracebackType or count>=64:return 'OTHER'
+            count+=1;frame=trace.tb_frame;code=frame.f_code
+            for namespace,filename,compiled,labels,exits,exit_calls in candidates:
+                name=code.co_qualname
+                if frame.f_globals is namespace and code.co_filename==filename and name in labels and code==compiled.get(name):
+                    site=labels[name]
+                    if name in exits:
+                        site='SERVICE_CANCEL_EXIT' if any(start<=trace.tb_lineno<=end for start,end in exits[name]) else 'SERVICE_CANCEL_ENTER'
+                        for start,end,label in exit_calls.get(name,()):
+                            if start<=trace.tb_lineno<=end:
+                                site=label
+                                if label == 'SERVICE_CANCEL_EXIT_SET_HANDLER':
+                                    api=frame.f_globals.get('signal')
+                                    wrapper=api.__dict__.get('signal') if type(api) is types.ModuleType else None
+                                    child=trace.tb_next
+                                    # Saved restoration errors outlive the loop's current original.
+                                    # Read only the direct API frame before its handler assignment.
+                                    templates=tuple(next(code for code in code_objects(compile(prefix+
+                                        'def signal(signalnum, handler):\n    handler = _signal.signal(_enum_to_int(signalnum), _enum_to_int(handler))\n    return _int_to_enum(handler, Handlers)\n',
+                                        '<closed-signal-api-shape>','exec',dont_inherit=True)) if code.co_name == 'signal')
+                                        for prefix in ('import _signal\n',''))
+                                    template=templates[0]
+                                    fields=('co_code','co_names','co_varnames','co_argcount','co_posonlyargcount',
+                                        'co_kwonlyargcount','co_freevars','co_cellvars')
+                                    refusal=None
+                                    if type(api) is not types.ModuleType or type(api.__dict__.get('__name__')) is not str or api.__dict__['__name__'] != 'signal':
+                                        refusal='API_MODULE'
+                                    elif type(wrapper) is not types.FunctionType:
+                                        refusal='WRAPPER_TYPE'
+                                    elif wrapper.__globals__ is not api.__dict__:
+                                        refusal='WRAPPER_GLOBALS'
+                                    elif wrapper.__defaults__ is not None or wrapper.__kwdefaults__ is not None or wrapper.__closure__ is not None:
+                                        refusal='WRAPPER_STATE'
+                                    elif len(wrapper.__code__.co_consts) != 1 or wrapper.__code__.co_consts[0] is not None:
+                                        refusal='WRAPPER_CONSTANTS'
+                                    elif type(wrapper.__code__.co_flags) is not type(template.co_flags) or wrapper.__code__.co_flags != template.co_flags:
+                                        refusal='WRAPPER_FLAGS'
+                                    elif not any(all(type(getattr(wrapper.__code__,key)) is type(getattr(candidate,key)) and
+                                            (all(type(item) is str for item in getattr(wrapper.__code__,key)) if type(getattr(candidate,key)) is tuple else True) and
+                                            getattr(wrapper.__code__,key) == getattr(candidate,key) for key in fields) for candidate in templates):
+                                        refusal='WRAPPER_CODE'
+                                    elif type(child) is not types.TracebackType or child.tb_frame.f_code is not wrapper.__code__ or child.tb_frame.f_globals is not api.__dict__:
+                                        refusal='API_FRAME'
+                                    else:
+                                        template=next(candidate for candidate in templates if all(getattr(wrapper.__code__,key) == getattr(candidate,key) for key in fields))
+                                        if not any(start<=child.tb_lasti<end and line == template.co_firstlineno+1 for start,end,line in template.co_lines()):
+                                            refusal='API_OFFSET'
+                                    if refusal is not None:
+                                        site='SERVICE_CANCEL_EXIT_SET_HANDLER_'+refusal
+                                    else:
+                                        original=child.tb_frame.f_locals['handler']
+                                        handler_kind=('NONE' if original is None else
+                                            'DEFAULT' if original is api.__dict__.get('SIG_DFL') or type(original) is int and original == 0 else
+                                            'IGNORE' if original is api.__dict__.get('SIG_IGN') or type(original) is int and original == 1 else
+                                            'CALLABLE' if callable(original) else 'OTHER')
+                                        args=error.args
+                                        api_code=('BAD_HANDLER_API' if type(args) is tuple and len(args) == 1 and type(args[0]) is str and
+                                            args[0] == 'signal handler must be signal.SIG_IGN, signal.SIG_DFL, or a callable object' else 'OTHER_TYPEERROR')
+                                        site='SERVICE_CANCEL_EXIT_SET_HANDLER_'+handler_kind+'_'+api_code
+            trace=trace.tb_next
+        return site
+
+    def cancellation_observed(self, collector, events):
+        """Failure disposition from the exact captured common observer/registry."""
+        path = PREFIXES['collector']+'/common.py'
+        need(type(collector) is dict and type(events) is set and type(self.sources) is Sources,
+             'callback-refused')
+        module = collector.get('common')
+        need(type(module) is types.ModuleType and type(module.__dict__.get('__file__')) is str and
+             module.__file__ == str(self.sources.root/path) and
+             module.__dict__.get('CANCELLATION_EVENTS') is events, 'callback-refused')
+        callback = module.__dict__.get('cancellation_requested')
+        self.sources.graph_function(callback, module)
+        need(callback.__defaults__ is None and callback.__kwdefaults__ is None and
+             callback.__closure__ is None, 'callback-refused')
+        validator = module.__dict__.get('cancellation_state')
+        self.sources.graph_function(validator, module)
+        for name in ('defer_cancellation', 'cancellation_handlers'):
+            factory = module.__dict__.get(name)
+            need(type(factory) is types.FunctionType and
+                 factory.__code__ == contextmanager(lambda:None).__code__ and
+                 factory.__globals__ is contextmanager.__globals__ and
+                 type(factory.__closure__) is tuple and len(factory.__closure__) == 1 and
+                 factory.__closure__[0].cell_contents is getattr(factory,'__wrapped__',None),
+                 'callback-refused')
+            self.sources.graph_function(factory.__wrapped__, module)
+        result = callback()
+        need(type(result) is bool, 'callback-refused')
+        return result
+
+    def cancellation_teardown_uncertain(self, collector, registry):
+        """Authenticated closed uncertainty, independent of first error/cancel."""
+        path = PREFIXES['collector']+'/common.py'
+        need(type(collector) is dict and type(registry) is set and type(self.sources) is Sources,
+             'callback-refused')
+        module = collector.get('common')
+        need(type(module) is types.ModuleType and type(module.__dict__.get('__file__')) is str and
+             module.__file__ == str(self.sources.root/path) and
+             module.__dict__.get('CANCELLATION_UNCERTAIN') is registry, 'callback-refused')
+        for name in ('cancellation_state','cancellation_uncertain'):
+            callback = module.__dict__.get(name)
+            self.sources.graph_function(callback, module)
+            need(callback.__defaults__ is None and callback.__kwdefaults__ is None and
+                 callback.__closure__ is None, 'callback-refused')
+        result = module.cancellation_uncertain()
+        need(type(result) is bool, 'callback-refused')
+        return result
+
+    def downstream_signal_disposition(self, runtime, events, uncertainty):
+        """Exact Source observer; cancellation and teardown uncertainty stay independent."""
+        path=PREFIXES['runtime']+'/launch.py'
+        need(type(runtime) is dict and type(events) is set and type(uncertainty) is set and
+             type(self.sources) is Sources,'callback-refused')
+        module=runtime.get('launch')
+        need(type(module) is types.ModuleType and module.__dict__.get('__file__') == str(self.sources.root/path)
+             and module.__dict__.get('CANCELLATION_EVENTS') is events and
+             module.__dict__.get('CANCELLATION_UNCERTAIN') is uncertainty,'callback-refused')
+        for name in ('cancellation_state','cancellation_requested','cancellation_uncertain','_raise_signal_faults','retain_fault'):
+            callback=module.__dict__.get(name);self.sources.graph_function(callback,module)
+            need(callback.__closure__ is None and callback.__kwdefaults__ is None and
+                 callback.__defaults__ == ((None,) if name == 'cancellation_state' else None),'callback-refused')
+        factory=module.__dict__.get('_signal_handlers')
+        need(type(factory) is types.FunctionType and factory.__code__ == contextmanager(lambda:None).__code__ and
+             factory.__globals__ is contextmanager.__globals__ and type(factory.__closure__) is tuple and
+             len(factory.__closure__)==1 and factory.__closure__[0].cell_contents is getattr(factory,'__wrapped__',None),
+             'callback-refused')
+        self.sources.graph_function(factory.__wrapped__,module)
+        cls=module.__dict__.get('Cancellation')
+        need(type(cls) is type and cls.__module__ == module.__name__,'callback-refused')
+        for name in ('__init__','handler'):
+            self.sources.graph_function(vars(cls).get(name),module)
+        deferred=vars(cls).get('defer')
+        need(type(deferred) is types.FunctionType and deferred.__code__ == contextmanager(lambda:None).__code__ and
+             deferred.__globals__ is contextmanager.__globals__ and type(deferred.__closure__) is tuple and
+             len(deferred.__closure__)==1 and deferred.__closure__[0].cell_contents is getattr(deferred,'__wrapped__',None),
+             'callback-refused')
+        self.sources.graph_function(deferred.__wrapped__,module)
+        cancelled=vars(cls).get('cancelled');need(type(cancelled) is property,'callback-refused')
+        for callback in (cancelled.fget,cancelled.fset):self.sources.graph_function(callback,module)
+        result=module.cancellation_requested(),module.cancellation_uncertain()
+        need(all(type(value) is bool for value in result),'callback-refused')
+        return result
+
+    def startup_failed(self, error):
+        """Keep the first finite observation without changing the exception/cause."""
+        if self.startup_failure is not None:return
+        kind = ('INTERRUPT' if isinstance(error,KeyboardInterrupt) else
+                'FATAL' if isinstance(error,SystemExit) else
+                'SOURCE_REFUSAL' if type(error) is Refused else
+                'OS_ERROR' if isinstance(error,OSError) else
+                'VALUE_ERROR' if isinstance(error,ValueError) else
+                'TYPE_ERROR' if isinstance(error,TypeError) else 'OTHER')
+        site = vars(error).get('_source_refusal_site','OTHER') if type(error) is Refused else 'OTHER'
+        if site == 'OTHER' and type(error) is TypeError:
+            try:site = self.service_failure_site(error)
+            except BaseException:pass  # Optional attribution never replaces the first cause.
+        self.startup_failure = {'phase':self.startup_phase,'kind':kind,'site':site,
+            'object_clause':vars(error).get('_graph_object_clause','OTHER') if type(error) is Refused else 'OTHER',
+            'object_callsite':vars(error).get('_graph_object_callsite','OTHER') if type(error) is Refused else 'OTHER'}
+
+    def startup_projection(self):
+        """Failure-only closed observations; never an acceptance/status receipt."""
+        phases = ('source-bound', 'load-runtime', 'load-collector', 'load-phase', 'copy-view', 'register-installer', 'capture-dependencies', 'construct-services', 'load-original', 'capture-original', 'call-original', 'native-hook', 'original-returned', 'cleanup', 'status-publication')
+        kinds = ('INTERRUPT','FATAL','SOURCE_REFUSAL','OS_ERROR','VALUE_ERROR','TYPE_ERROR','OTHER')
+        sites = ('CLASS_STATE','CLASS_LITERAL','CALLBACK','GLOBAL_FUNCTION','GRAPH_FUNCTION',
+                 'GRAPH_OBJECT_BINDING','GRAPH_HELD_CODE_BINDING',
+                 'GRAPH_NAMESPACE','FROZEN_FILE_HOOK','GRAPH_IDENTITY','SOURCE_GRAPH','INSTALLER_REGISTRATION',
+                 'ORIGINAL_CONTEXT','NATIVE_FRAME','OWNED_CLEANUP','VIEW_COPY','VIEW_VERIFY',
+                 'DEADLINE_CHECK','CALLBACK_BINDINGS','AUTHORITY_STATE',
+                 'SERVICE_CALL','SERVICE_SOURCE_GUARD','SERVICE_SOURCE_CAPTURE','SERVICE_SOURCE_READ',
+                 'SERVICE_PENDING','SERVICE_TRANSPORT_INIT','SERVICE_TRANSPORT_PREFLIGHT',
+                 'SERVICE_TRANSPORT_CLI','SERVICE_TRANSPORT_DIRECTORY','SERVICE_CANCEL_CONTEXT',
+                 'SERVICE_CANCEL_SIGNALS','SERVICE_CANCEL_ENTER','SERVICE_CANCEL_EXIT',
+                 'SERVICE_CANCEL_EXIT_BLOCK','SERVICE_CANCEL_EXIT_SET_HANDLER','SERVICE_CANCEL_EXIT_HANDLER_CHECK',
+                 'SERVICE_CANCEL_EXIT_PENDING_CHECK','SERVICE_CANCEL_EXIT_PENDING_WAIT',
+                 'SERVICE_CANCEL_EXIT_SET_MASK','SERVICE_CANCEL_EXIT_REPLAY',
+                 'SERVICE_CANCEL_EXIT_SET_HANDLER_NONE_BAD_HANDLER_API',
+                 'SERVICE_CANCEL_EXIT_SET_HANDLER_NONE_OTHER_TYPEERROR',
+                 'SERVICE_CANCEL_EXIT_SET_HANDLER_DEFAULT_BAD_HANDLER_API',
+                 'SERVICE_CANCEL_EXIT_SET_HANDLER_DEFAULT_OTHER_TYPEERROR',
+                 'SERVICE_CANCEL_EXIT_SET_HANDLER_IGNORE_BAD_HANDLER_API',
+                 'SERVICE_CANCEL_EXIT_SET_HANDLER_IGNORE_OTHER_TYPEERROR',
+                 'SERVICE_CANCEL_EXIT_SET_HANDLER_CALLABLE_BAD_HANDLER_API',
+                 'SERVICE_CANCEL_EXIT_SET_HANDLER_CALLABLE_OTHER_TYPEERROR',
+                 'SERVICE_CANCEL_EXIT_SET_HANDLER_OTHER_BAD_HANDLER_API',
+                 'SERVICE_CANCEL_EXIT_SET_HANDLER_OTHER_OTHER_TYPEERROR',
+                 'SERVICE_CANCEL_EXIT_SET_HANDLER_API_MODULE','SERVICE_CANCEL_EXIT_SET_HANDLER_WRAPPER_TYPE',
+                 'SERVICE_CANCEL_EXIT_SET_HANDLER_WRAPPER_GLOBALS','SERVICE_CANCEL_EXIT_SET_HANDLER_WRAPPER_STATE',
+                 'SERVICE_CANCEL_EXIT_SET_HANDLER_WRAPPER_CONSTANTS','SERVICE_CANCEL_EXIT_SET_HANDLER_WRAPPER_FLAGS',
+                 'SERVICE_CANCEL_EXIT_SET_HANDLER_WRAPPER_CODE','SERVICE_CANCEL_EXIT_SET_HANDLER_API_FRAME',
+                 'SERVICE_CANCEL_EXIT_SET_HANDLER_API_OFFSET','OTHER')
+        failure = self.startup_failure
+        need(type(self.startup_phase) is str and self.startup_phase in phases and
+             type(self.native_hook_entered) is bool and type(failure) is dict and
+             set(failure) == {'phase','kind','site','object_clause','object_callsite'} and
+             all(type(failure[key]) is str for key in failure) and
+             failure['phase'] in phases and failure['kind'] in kinds and failure['site'] in sites and
+             failure['object_clause'] in ('FUNCTION_TYPE','MODULE_TYPE','GLOBALS','OTHER') and
+             failure['object_callsite'] in ('DECLARED','OVERRIDE','IMPORTED','LAUNCH_VALIDATOR','COMMON_VALIDATOR','LANGUAGE','OTHER'),
+             'status-persistence-failed')
+        status = status_projection(self.result)
+        need(status['status'] == 'FAIL' and status['error_code'] in CODES,'status-persistence-failed')
+        return {'schema_version':2,'purpose':'maintained-composed-startup-refusal','status':'FAIL',
+                'phase':failure['phase'],'kind':failure['kind'],'site':failure['site'],
+                'object_clause':failure['object_clause'],'object_callsite':failure['object_callsite'],
+                'native_hook_entered':self.native_hook_entered,
+                'error_code':status['error_code'],'cleanup':status['cleanup']}
+
+    def emit_startup_refusal(self, deadline):
+        """Existing endpoint and captured class/source custody; no new allowance."""
+        check(deadline)
+        owner = sys.modules.get(type(self).__module__)
+        self.sources.class_state(self,'scripts/ci/development/repository_handoff.py',owner)
+        self.sources.guard(deadline)
+        raw = encoded(self.startup_projection())
+        need(len(raw) <= 1024,'status-persistence-failed')
+        check(deadline)
+        print('MAINTAINED_COMPOSED_STARTUP_REFUSAL='+raw.decode('ascii').replace('\n',''),flush=True)
+
     def register_native_preflight(self):
         """Explicit source-only registration before the first dependency capture."""
-        need(type(self.composition) is str and self.composition == 'installer-preflight' and self.used is True and self.controller is None and
+        need(type(self.composition) is str and self.composition == 'installer-preflight-maintained-v1' and self.used is True and self.controller is None and
              self.sources.graph_observation is None and type(self.source_graph) is dict and
              set(self.source_graph) == {'entry','runtime','collector','phase','original','original_aliases'} and
              not self.source_graph['original'] and not self.source_graph['original_aliases'], 'callback-refused')
@@ -1259,8 +1754,8 @@ class Session:
     def view_plan(self, argv):
         grant = self.sources.grant
         need(type(grant.get('schema_version')) is int and grant['schema_version'] == 2,'grant-refused')
-        need(grant.get('schema_version') == 2 and type(grant.get('original_view')) is dict,'grant-refused')
-        plan = grant['original_view'];root = self.output/'original-view'
+        need(grant.get('schema_version') == 2 and type(grant.get('baseline_view')) is dict,'grant-refused')
+        plan = grant['baseline_view'];root = self.output/'maintained-view'
         need(plan['root'] == str(root) and plan['full_source_root'] == str(self.sources.root) and
              not root.is_relative_to(self.sources.root),'grant-refused')
         selected = {}
@@ -1283,11 +1778,11 @@ class Session:
         return root
 
     def prepare_view(self, root):
-        """One original159+lock copy; original budget, no actor or E renewal."""
+        """One maintained159+lock copy; original producer budget, no actor or E renewal."""
         deadline = self.job_deadline
         self.sources.guard(deadline,self.cancelled)
-        need(self.view_root is None and root == self.output/'original-view' and
-             str(root) == self.sources.grant['original_view']['root'] and
+        need(self.view_root is None and root == self.output/'maintained-view' and
+             str(root) == self.sources.grant['baseline_view']['root'] and
              not root.exists() and not root.is_symlink(),'source-refused')
         lock = decode(self.sources.raw['scripts/ci/integration.lock.json'])
         rows = {**lock['source_files'],'scripts/ci/integration.lock.json':{'sha256':INITIAL,'mode':0o644}}
@@ -1334,8 +1829,8 @@ class Session:
                 if parent == root:break
                 relative_parent = parent.relative_to(root).as_posix()
                 directories[relative_parent] = list(identity(parent.lstat()))
-        receipt = {'schema_version':1,'purpose':'original-159-copy-custody',
-            'selection':self.sources.grant['original_view'],
+        receipt = {'schema_version':1,'purpose':'maintained-v1-159-copy-custody',
+            'selection':self.sources.grant['baseline_view'],
             **{key:self.sources.grant[key] for key in ('source_commit','run_id','run_attempt',
                  'actor_contract_sha256','initial_invocation_sha256')},
             'execution_grant_sha256':self.sources.grant_pin,'view_node':list(self.view_node),
@@ -1355,7 +1850,7 @@ class Session:
         need(set(receipt) == {'schema_version','purpose','selection','source_commit','run_id','run_attempt',
              'actor_contract_sha256','initial_invocation_sha256','execution_grant_sha256','view_node','parent_node',
              'directories','files','file_count','bytes'} and type(receipt['schema_version']) is int and
-             receipt['schema_version'] == 1 and receipt['purpose'] == 'original-159-copy-custody' and
+             receipt['schema_version'] == 1 and receipt['purpose'] == 'maintained-v1-159-copy-custody' and
              type(receipt['file_count']) is int and receipt['file_count'] == 160 and
              all(receipt[key] == self.sources.grant[key] for key in ('source_commit','run_id','run_attempt',
                  'actor_contract_sha256','initial_invocation_sha256')) and
@@ -1363,7 +1858,7 @@ class Session:
         stable = lambda row:(row[0],row[1],row[2],row[4],row[5])
         need(stable(identity(self.view_root.lstat())) == stable(self.view_node) and
              stable(identity(self.view_root.parent.lstat())) == stable(self.view_parent_node) and
-             self.view_root == self.output/'original-view' and receipt['selection'] == self.sources.grant['original_view']
+             self.view_root == self.output/'maintained-view' and receipt['selection'] == self.sources.grant['baseline_view']
              and receipt['execution_grant_sha256'] == self.sources.grant_pin,'source-refused')
         expected = self.sources.original_rows
         locked = {**decode(self.sources.raw['scripts/ci/integration.lock.json'])['source_files'],
@@ -1647,47 +2142,68 @@ class Session:
         self.output.mkdir(mode=0o700,parents=False)
         self.private = Path(tempfile.mkdtemp(prefix='handoff-',dir=self.output))
         self.private_node = identity(self.private.lstat())
-        services = collector = None
+        services = collector = modules = None
+        cancellation_events = None
+        cancellation_uncertain = None
+        downstream_events = downstream_uncertainty = None
         try:
             root = self.sources.root
             entry_path = PREFIXES['runtime']+'/entry.py'
+            self.startup_phase = 'load-runtime'
             entry = self.sources.module('root_handoff_entry',entry_path)
             maps = grant['maps']
             modules,_ = entry.authenticated(root/maps['runtime']['path'],maps['runtime']['sha256'],
                 deadline=self.job_deadline,source_root=root/PREFIXES['runtime'])
+            downstream_events = modules['launch'].CANCELLATION_EVENTS
+            downstream_uncertainty = modules['launch'].CANCELLATION_UNCERTAIN
+            self.startup_phase = 'load-collector'
             collector,collector_pins = entry.dependency_entry(root,PREFIXES['collector']+'/entry.py',
                 grant['source_files'][PREFIXES['collector']+'/entry.py']['sha256'],maps['collector']['path'],
                 maps['collector']['sha256'],deadline=self.job_deadline)
+            cancellation_events = collector['common'].CANCELLATION_EVENTS
+            cancellation_uncertain = collector['common'].CANCELLATION_UNCERTAIN
+            self.startup_phase = 'load-phase'
             phase,_ = entry.dependency_entry(root,PREFIXES['phase']+'/entry.py',
                 grant['source_files'][PREFIXES['phase']+'/entry.py']['sha256'],maps['phase']['path'],
                 maps['phase']['sha256'],deadline=self.job_deadline,phase=True)
+            self.startup_phase = 'copy-view'
             self.prepare_view(view_root)
             self.source_graph = {'entry':entry,'runtime':modules,'collector':collector,'phase':phase,
                                  'original':{},'original_aliases':{}}
-            if self.composition == 'installer-preflight':self.register_native_preflight()
+            if self.composition == 'installer-preflight-maintained-v1':
+                self.startup_phase = 'register-installer'
+                self.register_native_preflight()
             if self.composition == 'repository-svg-zsh':self.register_zsh()
+            self.startup_phase = 'capture-dependencies'
             self.sources.source_graph(self,capture=True)
             (self.private/'custody').mkdir(mode=0o700)
             # Registration precedes replay of TERM/INT from service construction.
+            self.startup_phase = 'construct-services'
             with collector['common'].defer_cancellation():
                 services = entry.services(modules,decode(self.sources.raw[maps['runtime']['path']]),
                     source_root=root/PREFIXES['runtime'],private_root=self.private/'custody',
                     job_deadline=self.job_deadline,cancelled=self.cancelled,**runtime_contract)
             # Checkpoint storage must be a distinct private0700 original-budget root.
             def callback(controller):
-                self.observe_native_consumer(controller)
-                self.sources.callback('existing_consumers',callbacks['existing_consumers'],self.job_deadline)
-                callbacks['existing_consumers'](controller)
-                self.sources.callback('existing_consumers',callbacks['existing_consumers'],self.job_deadline)
-                # Original native.main catches consumer errors; retain the first
-                # finite added failure before that enclosing returned exit1.
-                try:return self.pending_consumer(controller,services,modules,collector,collector_pins)
+                self.startup_phase = 'native-hook';self.native_hook_entered = True
+                try:
+                    self.observe_native_consumer(controller)
+                    self.sources.callback('existing_consumers',callbacks['existing_consumers'],self.job_deadline)
+                    callbacks['existing_consumers'](controller)
+                    self.sources.callback('existing_consumers',callbacks['existing_consumers'],self.job_deadline)
+                    # Original native.main catches consumer errors; retain the first
+                    # finite added failure before that enclosing returned exit1.
+                    try:return self.pending_consumer(controller,services,modules,collector,collector_pins)
+                    except BaseException as error:
+                        if self.result['error_code'] is None:
+                            self.result['error_code'] = 'cancelled' if isinstance(error,KeyboardInterrupt) else (
+                                str(error) if type(error) is Refused and str(error) in CODES else self.operation)
+                        raise
                 except BaseException as error:
-                    if self.result['error_code'] is None:
-                        self.result['error_code'] = 'cancelled' if isinstance(error,KeyboardInterrupt) else (
-                            str(error) if type(error) is Refused and str(error) in CODES else self.operation)
+                    self.startup_failed(error)
                     raise
             self.operation = 'initial-failed'
+            self.startup_phase = 'load-original'
             self.original_scope = entry.original_modules(view_root,view_root/'scripts/ci/integration.lock.json',INITIAL,
                     deadline=self.job_deadline,verification_deadline=self.job_deadline)
             with self.original_scope as original:
@@ -1695,11 +2211,22 @@ class Session:
                 self.source_graph['original_aliases'] = {
                     'repository_projection.inventory':original['repository_projection'].inventory,
                     'desktop_projection.policy':original['desktop_projection'].policy}
+                self.startup_phase = 'capture-original'
                 self.sources.source_graph(self,capture=True)
-                with services['pending'].interpose(original['integration'],services['transport']):
-                    check(self.job_deadline,self.cancelled)
-                    code = original['native_arm'].main(argv,integration_consumers=callback)
+                native_scope = services['pending'].interpose(original['integration'],services['transport'])
+                self.native_executor_scope = native_scope
+                self.native_services = services;self.native_runtime_contract = runtime_contract
+                try:
+                    with native_scope as executor:
+                        self.native_executor = executor
+                        check(self.job_deadline,self.cancelled)
+                        self.startup_phase = 'call-original'
+                        code = original['native_arm'].main(argv,integration_consumers=callback)
+                finally:
+                    self.native_executor_scope = self.native_executor = None
+                    self.native_services = self.native_runtime_contract = None
                 need(type(code) is int, 'initial-failed')
+                self.startup_phase = 'original-returned'
                 self.result['initial_exit_code'] = code
                 if self.end is not None:
                     self.tick()
@@ -1709,9 +2236,11 @@ class Session:
                     raise Refused('initial-failed')
             self.tick()
             self.result['status'] = 'PASS'
-        except KeyboardInterrupt:
+        except KeyboardInterrupt as error:
+            self.startup_failed(error)
             self.result.update(status='FAIL',cancelled=True,error_code=self.result['error_code'] or 'cancelled')
         except BaseException as error:
+            self.startup_failed(error)
             code = str(error) if type(error) is Refused and str(error) in CODES else self.operation
             self.result.update(status='FAIL',error_code=self.result['error_code'] or code)
         finally:
@@ -1736,9 +2265,31 @@ class Session:
                     with collector['common'].defer_cancellation(): cleanup()
                 else: cleanup()
             except BaseException as error:
+                if self.startup_failure is None:
+                    self.startup_phase = 'cleanup';self.startup_failed(error)
                 self.result.update(status='FAIL',cleanup='FAIL')
                 if isinstance(error,KeyboardInterrupt): self.result['cancelled'] = True
                 if self.result['error_code'] is None: self.result['error_code'] = 'cleanup-failed'
+            try:
+                if modules is not None:
+                    downstream_cancelled,downstream_uncertain=self.downstream_signal_disposition(
+                        modules,downstream_events,downstream_uncertainty)
+                    if downstream_cancelled:
+                        self.result.update(status='FAIL',cancelled=True,error_code=self.result['error_code'] or 'cancelled')
+                    if downstream_uncertain:
+                        self.result.update(status='FAIL',cleanup='FAIL',error_code=self.result['error_code'] or 'cleanup-failed')
+                if collector is not None and self.cancellation_observed(collector, cancellation_events):
+                    self.result.update(status='FAIL', cancelled=True,
+                                       error_code=self.result['error_code'] or 'cancelled')
+                if collector is not None and self.cancellation_teardown_uncertain(collector, cancellation_uncertain):
+                    self.result.update(status='FAIL', cleanup='FAIL',
+                                       error_code=self.result['error_code'] or 'cleanup-failed')
+            except BaseException as error:
+                # Observer refusal cannot replace an earlier failure or allow PASS.
+                if self.startup_failure is None:
+                    self.startup_phase = 'cleanup'; self.startup_failed(error)
+                self.result.update(status='FAIL', cleanup='FAIL',
+                                   error_code=self.result['error_code'] or 'callback-refused')
             if self.cancelled is not None and self.cancelled():
                 self.result.update(status='FAIL',cancelled=True,error_code=self.result['error_code'] or 'cancelled')
             if self.result['status'] != 'PASS':
@@ -1751,11 +2302,22 @@ class Session:
                 publish_status(self.output/'status',self.result)
                 check(cleanup_end,self.cancelled)
             except BaseException as error:
+                if self.startup_failure is None:
+                    self.startup_phase = 'status-publication';self.startup_failed(error)
                 self.result.update(status='FAIL',cancelled=self.result['cancelled'] or isinstance(error,KeyboardInterrupt),
                     error_code=self.result['error_code'] or ('cancelled' if isinstance(error,KeyboardInterrupt) else 'status-persistence-failed'))
                 revoke_phase_receipt(self.output/'phase-public')
                 # The first publication's close/check is part of the transaction.
                 publish_status(self.output/'status',self.result,replace=True)
+        if self.result['status'] == 'FAIL' and self.startup_failure is not None:
+            try:self.emit_startup_refusal(cleanup_end)
+            except KeyboardInterrupt:
+                self.result['cancelled'] = True
+                try:publish_status(self.output/'status',self.result,replace=True)
+                except BaseException:
+                    pass  # Optional re-publication cannot replace the first failure.
+            except BaseException:
+                pass  # Optional diagnostic cannot replace the retained first failure.
         return {**self.result,'public':[str(self.output/'status')]+(
             [str(self.output/'phase-public')] if self.result['status']=='PASS' else []),
             'phase_public':{'descriptor_bytes':self.phase_export_raw,'sha256':self.phase_export_sha256}

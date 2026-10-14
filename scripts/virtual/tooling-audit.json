@@ -1,5 +1,14 @@
 {
   "hardware_validation": "NOT RUN",
+  "maintained_selection": {
+    "base_inventory_sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25",
+    "baseline_id": "maintained-native-baseline-v1-vim-9.2.1178-1",
+    "inherited_audit_sha256": "cd11a837b29e5c757b482a79b375f65170881d73f80db4ae645ed600a45378cd",
+    "inputs_sha256": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f",
+    "maintained_native_execution": "NOT RUN",
+    "maintained_resolver": "NOT RUN",
+    "package_audits": "inherited exact 21 package records; no new package inspection"
+  },
   "native_execution": "NOT RUN",
   "packages": {
     "capstone": {
@@ -8869,5 +8878,5 @@
     }
   },
   "status": "PASS",
-  "tooling_lock_sha256": "a8060f5dab01277de200fb7c9a4418b565984eb6d1cfb4971f0a3bd013ee8073"
+  "tooling_lock_sha256": "c18afc5bde9868594d41bd576a956960a7b01b190d148ba03ca4c41d4394e1b0"
 }

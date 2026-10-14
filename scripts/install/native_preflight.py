@@ -19,10 +19,10 @@ import types
 
 HANDOFF = 'scripts/ci/development/repository_handoff.py'
 # Root must rebind after any separately reviewed issuer change.
-ISSUER_SHA = '5a4a6d7cd7a58b40a89428da76fd882ab5d80bb12b6457844354589242469c0e'
+ISSUER_SHA = '1329653ab38468b92c08abe9426a176509b5586fab3a07a1e9432c90cb704219'
 RECEIVER = 'scripts/install/native_arm_trial.py'
-RECEIVER_SHA = 'fe2becb4fe6c22e50903ab390db5a79aae311b7284fc71bf4b1c4b79e99824c4'
-PROFILE_SHA = 'b7fbd65e357e132949432fb00e765a05e3c76ea29a41d1df93413870d9fd1ed8'
+RECEIVER_SHA = '85d869c50f488e10fcf458c979a7a153e7b574bf566fd66efe21fa006d9e3468'
+PROFILE_SHA = 'db58bda8102ce098eded530f0920c21c1f09cb7a6cfb1d03ab84f0dfbf63d3f7'
 OWN = 'scripts/install/native_preflight.py'
 SOURCE_PATHS = ('scripts/install/local_transaction.py', 'scripts/install/test_local_transaction.py',
                 RECEIVER, 'scripts/install/test_native_arm_trial.py', 'scripts/port/kernel-native-job/runtime.py')
@@ -151,7 +151,7 @@ def live(session, controller, end):
     methods['graph_namespace'](sources,own_module,OWN,{OWN:own_module},{},{})
     namespace(own_module,raw[OWN],rows[OWN]['sha256'])
     graph=methods['source_graph'](sources,session); selected=state.get('source_graph'); composition=state.get('composition')
-    need(type(composition) is str and composition=='installer-preflight' and type(selected) is dict and
+    need(type(composition) is str and composition=='installer-preflight-maintained-v1' and type(selected) is dict and
          all(type(key) is str for key in selected) and set(selected)=={
              'entry','runtime','collector','phase','original','original_aliases','native_preflight'} and
          selected['native_preflight'] is own_module and type(graph) is dict and
@@ -183,8 +183,14 @@ def image_handoff(observed, controller, receiver, inputs_raw, packages_raw):
          sha(packages_raw) == receiver.BASE_SHA, 'IMAGE_BINDING')
     full_config = image.get('Config'); need(type(full_config) is dict, 'IMAGE_CONFIG')
     # Project the receiver's complete twelve execution-policy fields; preserve values.
-    config = {key:full_config.get(key) for key in CONFIG}
+    missing = [key+':UNKNOWN' for key in CONFIG if key not in full_config]
+    need(not missing, 'IMAGE_CONFIG '+','.join(missing))
+    config = {key:full_config[key] for key in CONFIG}
     canonical = dict(config)
+    # Only explicit null defaults normalize; nonempty and wrong-type values fail.
+    for key in ('Cmd','Entrypoint','Shell'):
+        if canonical[key] is None: canonical[key] = []
+    if canonical['ArgsEscaped'] is None: canonical['ArgsEscaped'] = False
     if canonical.get('Entrypoint') == ['']: canonical['Entrypoint'] = []
     if canonical.get('Labels') is None: canonical['Labels'] = {}
     changed=[key+':'+type_label(canonical[key]) for key in CONFIG
@@ -197,7 +203,7 @@ def image_handoff(observed, controller, receiver, inputs_raw, packages_raw):
 def selection(sources, controller, receiver, handoff, nonce):
     need(type(nonce) is str and re.fullmatch('[0-9a-f]{32}',nonce), 'NONCE')
     need(sha(receiver.PROFILE_BYTES) == PROFILE_SHA, 'PROFILE_PIN')
-    value = dict(schema_version=1,purpose='native-arm-synthetic-installer',phase='preflight',
+    value = dict(schema_version=1,purpose='maintained-native-arm-synthetic-installer-v1',phase='preflight',
         source_commit=controller.commit,sources={name:{'size':len(sources.raw[name]),'sha256':sha(sources.raw[name])}
         for name in SOURCE_PATHS},tool_profile_sha256=PROFILE_SHA,native_inputs_sha256=receiver.INPUTS_SHA,
         builder_packages_sha256=receiver.BASE_SHA,image_id=controller.image,
@@ -259,91 +265,174 @@ def accept(result, public_raw, private_raw, receiver, cleanup, end):
     return record
 
 
+def retain_failure(first, secondary):
+    """Keep an established first cause, including falsey errors and controls."""
+    if first is None:first = secondary
+    if first is not secondary:
+        prior = first.__cause__
+        if prior is not secondary:
+            first.__cause__ = secondary if prior is None else BaseExceptionGroup(
+                'native preflight secondary failure', [prior, secondary])
+    if not isinstance(secondary, Exception):
+        state = BaseException.__dict__['__dict__'].__get__(first, type(first))
+        state['native_preflight_cancelled'] = True
+    return first
+
+
+RUN_DIAGNOSTIC_STAGES = ('ENTRY', 'LIVE_OWNER', 'ACTOR_CONTRACT', 'NATIVE_HOST', 'OUTPUT_BOUNDARY', 'RECEIVER_NAMESPACE', 'OUTPUT_CREATE', 'NONCE', 'TRANSPORT_CREATE', 'TRANSPORT_GUARD', 'DAEMON_INFO', 'IMAGE_INSPECT', 'IMAGE_HANDOFF', 'TRIAL_SELECTION', 'TRIAL_WRITE', 'CONTAINER_CREATE', 'CONTAINER_ID', 'CONTAINER_INSPECT', 'CONTAINER_BINDING', 'CONTAINER_START', 'CONTAINER_REMOVE', 'CONTAINER_ABSENCE', 'TRANSPORT_CLOSE', 'RECEIVER_ACCEPT', 'FINAL_LIVE', 'RETURN')
+RUN_DIAGNOSTIC_PREDICATES = ('ACTIVE_NATIVE_OWNER_REQUIRED', 'ACTOR_CONTRACT', 'BRIDGE_NAMESPACE', 'COMMAND_CLEANUP', 'COMMAND_COUNT', 'CONTAINER_BINDING', 'CONTAINER_CREATE', 'CONTAINER_ENV', 'CONTAINER_ID', 'CONTAINER_INSPECT', 'CONTAINER_INSPECT_SHAPE', 'CONTAINER_MOUNTS', 'CONTAINER_NAME', 'CONTAINER_POLICY', 'CONTAINER_TMPFS', 'DEADLINE', 'IMAGE_BINDING', 'IMAGE_CONFIG', 'IMAGE_INSPECT', 'ISSUER_BUILTINS', 'ISSUER_CLASS', 'ISSUER_CODE', 'ISSUER_CONSTANT', 'ISSUER_IMPORT', 'ISSUER_PIN', 'ISSUER_WRAPPER', 'JSON_DUPLICATE', 'JSON_NONFINITE', 'LIVE_GRAPH_REQUIRED', 'LIVE_OWNER_REQUIRED', 'NATIVE_LOCAL_DAEMON', 'NATIVE_ORDINARY_HOST', 'NONCE', 'OUTPUT_BOUNDARY', 'P0_REFUSED', 'PROFILE_PIN', 'RECEIVER_PIN', 'RECEIVER_RESULT', 'REGISTRATION_REQUIRED')
+
+
+def run_failure_fact(error, stage):
+    """Closed existing exception facts only; preserve the exception and validators."""
+    need(type(stage) is str and stage in RUN_DIAGNOSTIC_STAGES, 'DIAGNOSTIC_STAGE')
+    predicate = 'OTHER'; image_config = None
+    if type(error) is ValueError and type(error.args) is tuple and len(error.args) == 1 and type(error.args[0]) is str:
+        value = error.args[0]
+        if value in RUN_DIAGNOSTIC_PREDICATES:predicate = value
+        elif value.startswith('IMAGE_CONFIG '):predicate = 'IMAGE_CONFIG'
+        elif value.startswith('CONTAINER_POLICY '):predicate = 'CONTAINER_POLICY'
+        if stage == 'IMAGE_HANDOFF' and predicate == 'IMAGE_CONFIG':
+            image_config = {'boundary':'UNKNOWN','fields':[]}
+            if value == 'IMAGE_CONFIG':
+                image_config['boundary'] = 'CONFIG_TYPE'
+            elif len(value) <= 512:
+                parts = [part.split(':') for part in value[len('IMAGE_CONFIG '):].split(',')]
+                kinds = ('NoneType','bool','int','float','str','list','dict','UNKNOWN')
+                if (1 <= len(parts) <= len(CONFIG) and all(len(part) == 2 and part[0] in CONFIG and part[1] in kinds for part in parts)):
+                    names = [part[0] for part in parts]
+                    if len(set(names)) == len(names) and tuple(names) == tuple(name for name in CONFIG if name in names):
+                        image_config = {'boundary':'POLICY_FIELDS','fields':[{'name':name,'kind':kind} for name,kind in parts]}
+    return {'schema_version':2,'stage':stage,'predicate':predicate,'image_config':image_config}
+
+
 def run(session, controller, output, *, deadline, nonce, runtime_contract):
     """Root-wired in-process bridge; construction/registration grants no execution."""
-    started = time.monotonic(); tick(deadline); end = min(deadline,started+60)
-    context = live(session,controller,end); sources = session.sources
-    need(type(runtime_contract) is dict and set(runtime_contract)=={'cli_sha256','endpoint_identity','env'} and
-         sha((json.dumps(runtime_contract,sort_keys=True,indent=2)+'\n').encode()) == sources.grant['actor_contract_sha256'],
-         'ACTOR_CONTRACT')
-    need(sys.platform == 'linux' and os.uname().machine == 'aarch64' and
-         os.getuid() == os.geteuid() != 0 and os.getgid() == os.getegid() != 0, 'NATIVE_ORDINARY_HOST')
-    output = Path(output)
-    need(output.is_absolute() and '..' not in output.parts and not output.exists() and
-         all(stat.S_ISDIR(p.lstat().st_mode) for p in output.parents) and
-         not any(output.is_relative_to(p) or p.is_relative_to(output) for p in
-                 (sources.root,context['root'],Path(controller.native_out))), 'OUTPUT_BOUNDARY')
-    receiver = sources.module('native_install_receiver',RECEIVER)
-    # Authenticate loaded code and immutable global facts through captured Sources.
-    sources.graph_namespace(receiver,RECEIVER,{RECEIVER:receiver},{},{})
-    namespace(receiver,sources.raw[RECEIVER],RECEIVER_SHA)
-    transport = session.source_graph['runtime']['transport']
-    output.mkdir(mode=0o700); inputs=output/'inputs'; inputs.mkdir(mode=0o700)
-    child=output/'child'; child.mkdir(mode=0o700)
-    need(type(nonce) is str and re.fullmatch('[0-9a-f]{32}',nonce), 'NONCE')
-    name='cachy-asahi-install-'+nonce; cli=None; cid=None; cleanup={'remove_exit':None,'absent':False}
-    result=None; failure=None; report=None; command_rows=[]
-    def guard(): live(session,controller,end); cli._preflight()
-    def command(args, cutoff):
-        tick(cutoff); live(session,controller,cutoff); cli._preflight()
-        value, observation = transport.supervise(['/proc/self/fd/'+str(cli.fd),*args],env=cli.env,
-            deadline=cutoff,limit=1024**2,pass_fds=(cli.fd,),preflight=cli._preflight)
-        need(observation['direct_child_reaped'] is True and observation['group_disposal_requested'] is True and
-             observation['forced_teardown'] is False and observation['cancelled'] is False, 'COMMAND_CLEANUP')
-        need(len(command_rows)<8,'COMMAND_COUNT')
-        path=output/('docker-'+str(len(command_rows))+'.json');command_rows.append(path)
-        with path.open('xb') as stream:
-            stream.write(encoded({'argv':args,'result':{'exit_code':value['exit_code'],
-                         'stdout':value['stdout'].decode('utf-8','replace'),'stderr':value['stderr'].decode('utf-8','replace')},
-                         'observation':observation}))
-        path.chmod(0o600)
-        return value
+    stage = 'ENTRY'; failure_stage = None
     try:
-        cli=transport.DockerTransport(**runtime_contract,create_validator=lambda _:None)
-        guard()
-        info=command(['info','--format','{{json .}}'],end-10)
-        daemon=strict(info['stdout']); need(info['exit_code']==0 and daemon.get('Architecture') in ('aarch64','arm64') and
-                                           daemon.get('OSType')=='linux','NATIVE_LOCAL_DAEMON')
-        inspected=command(['image','inspect',controller.image],end-10)
-        need(inspected['exit_code']==0,'IMAGE_INSPECT')
-        raw,_,_=session.sources.module('_preflight_issuer',HANDOFF).read(Path(controller.native_out)/'inputs.lock.json',end)
-        packages,_,_=session.sources.module('_preflight_issuer',HANDOFF).read(Path(controller.native_out)/'packages.lock',end)
-        image=image_handoff(strict(inspected['stdout']),controller,receiver,raw,packages)
-        trial=selection(sources,controller,receiver,image,nonce)
-        for path,data in ((inputs/'image.json',encoded(image)),(inputs/'trial.json',encoded(trial))):
-            with path.open('xb') as stream: stream.write(data)
+        started = time.monotonic(); tick(deadline); end = min(deadline,started+60)
+        stage = 'LIVE_OWNER'
+        context = live(session,controller,end); sources = session.sources
+        stage = 'ACTOR_CONTRACT'
+        need(type(runtime_contract) is dict and set(runtime_contract)=={'cli_sha256','endpoint_identity','env'} and
+             sha((json.dumps(runtime_contract,sort_keys=True,indent=2)+'\n').encode()) == sources.grant['actor_contract_sha256'],
+             'ACTOR_CONTRACT')
+        stage = 'NATIVE_HOST'
+        need(sys.platform == 'linux' and os.uname().machine == 'aarch64' and
+             os.getuid() == os.geteuid() != 0 and os.getgid() == os.getegid() != 0, 'NATIVE_ORDINARY_HOST')
+        stage = 'OUTPUT_BOUNDARY'
+        output = Path(output)
+        need(output.is_absolute() and '..' not in output.parts and not output.exists() and
+             all(stat.S_ISDIR(p.lstat().st_mode) for p in output.parents) and
+             not any(output.is_relative_to(p) or p.is_relative_to(output) for p in
+                     (sources.root,context['root'],Path(controller.native_out))), 'OUTPUT_BOUNDARY')
+        stage = 'RECEIVER_NAMESPACE'
+        receiver = sources.module('native_install_receiver',RECEIVER)
+        # Authenticate loaded code and immutable global facts through captured Sources.
+        sources.graph_namespace(receiver,RECEIVER,{RECEIVER:receiver},{},{})
+        namespace(receiver,sources.raw[RECEIVER],RECEIVER_SHA)
+        transport = session.source_graph['runtime']['transport']
+        stage = 'OUTPUT_CREATE'
+        output.mkdir(mode=0o700); inputs=output/'inputs'; inputs.mkdir(mode=0o700)
+        child=output/'child'; child.mkdir(mode=0o700)
+        stage = 'NONCE'
+        need(type(nonce) is str and re.fullmatch('[0-9a-f]{32}',nonce), 'NONCE')
+        name='cachy-asahi-install-'+nonce; cli=None; cid=None; cleanup={'remove_exit':None,'absent':False}
+        result=None; failure=None; report=None; command_rows=[]
+        def guard(): live(session,controller,end); cli._preflight()
+        def command(args, cutoff):
+            tick(cutoff); live(session,controller,cutoff); cli._preflight()
+            value, observation = transport.supervise(['/proc/self/fd/'+str(cli.fd),*args],env=cli.env,
+                deadline=cutoff,limit=1024**2,pass_fds=(cli.fd,),preflight=cli._preflight)
+            need(observation['direct_child_reaped'] is True and observation['group_disposal_requested'] is True and
+                 observation['forced_teardown'] is False and observation['cancelled'] is False, 'COMMAND_CLEANUP')
+            need(len(command_rows)<8,'COMMAND_COUNT')
+            path=output/('docker-'+str(len(command_rows))+'.json');command_rows.append(path)
+            with path.open('xb') as stream:
+                stream.write(encoded({'argv':args,'result':{'exit_code':value['exit_code'],
+                             'stdout':value['stdout'].decode('utf-8','replace'),'stderr':value['stderr'].decode('utf-8','replace')},
+                             'observation':observation}))
             path.chmod(0o600)
-        guard(); args=receiver.docker_command(trial,sources.root,inputs,child)
-        need(args[3]==name,'CONTAINER_NAME')
-        args[1]='create'; args[2:2]=['--cidfile',str(output/'container-id')]
-        created=command(args[1:],end-10)
-        need(created['exit_code']==0,'CONTAINER_CREATE')
-        cid_raw,_,_=session.sources.module('_preflight_issuer',HANDOFF).read(output/'container-id',end,limit=128)
-        candidate=cid_raw.decode('ascii').strip()
-        need(re.fullmatch('[0-9a-f]{64}',candidate) and created['stdout'].strip()==candidate.encode(), 'CONTAINER_ID')
-        cid=candidate
-        inspected=command(['container','inspect',candidate],end-10)
-        need(inspected['exit_code']==0,'CONTAINER_INSPECT')
-        container_binding(strict(inspected['stdout']),candidate,name,trial,sources.root,inputs,child)
-        cid=candidate
-        result=command(['start','--attach',cid],end-10)
+            return value
+        try:
+            stage = 'TRANSPORT_CREATE'
+            cli=transport.DockerTransport(**runtime_contract,create_validator=lambda _:None)
+            stage = 'TRANSPORT_GUARD'
+            guard()
+            stage = 'DAEMON_INFO'
+            info=command(['info','--format','{{json .}}'],end-10)
+            daemon=strict(info['stdout']); need(info['exit_code']==0 and daemon.get('Architecture') in ('aarch64','arm64') and
+                                               daemon.get('OSType')=='linux','NATIVE_LOCAL_DAEMON')
+            stage = 'IMAGE_INSPECT'
+            inspected=command(['image','inspect',controller.image],end-10)
+            need(inspected['exit_code']==0,'IMAGE_INSPECT')
+            stage = 'IMAGE_HANDOFF'
+            raw,_,_=session.sources.module('_preflight_issuer',HANDOFF).read(Path(controller.native_out)/'inputs.lock.json',end)
+            packages,_,_=session.sources.module('_preflight_issuer',HANDOFF).read(Path(controller.native_out)/'packages.lock',end)
+            image=image_handoff(strict(inspected['stdout']),controller,receiver,raw,packages)
+            stage = 'TRIAL_SELECTION'
+            trial=selection(sources,controller,receiver,image,nonce)
+            stage = 'TRIAL_WRITE'
+            for path,data in ((inputs/'image.json',encoded(image)),(inputs/'trial.json',encoded(trial))):
+                with path.open('xb') as stream: stream.write(data)
+                path.chmod(0o600)
+            stage = 'CONTAINER_CREATE'
+            guard(); args=receiver.docker_command(trial,sources.root,inputs,child)
+            need(args[3]==name,'CONTAINER_NAME')
+            args[1]='create'; args[2:2]=['--cidfile',str(output/'container-id')]
+            created=command(args[1:],end-10)
+            need(created['exit_code']==0,'CONTAINER_CREATE')
+            stage = 'CONTAINER_ID'
+            cid_raw,_,_=session.sources.module('_preflight_issuer',HANDOFF).read(output/'container-id',end,limit=128)
+            candidate=cid_raw.decode('ascii').strip()
+            need(re.fullmatch('[0-9a-f]{64}',candidate) and created['stdout'].strip()==candidate.encode(), 'CONTAINER_ID')
+            cid=candidate
+            stage = 'CONTAINER_INSPECT'
+            inspected=command(['container','inspect',candidate],end-10)
+            need(inspected['exit_code']==0,'CONTAINER_INSPECT')
+            stage = 'CONTAINER_BINDING'
+            container_binding(strict(inspected['stdout']),candidate,name,trial,sources.root,inputs,child)
+            cid=candidate
+            stage = 'CONTAINER_START'
+            result=command(['start','--attach',cid],end-10)
+        except BaseException as error:
+            failure_stage = stage
+            failure=retain_failure(None,error)
+        finally:
+            if cli is not None:
+                if cid is not None:
+                    try:
+                        stage = 'CONTAINER_REMOVE'
+                        removed=command(['rm','-f',cid],end-5); cleanup['remove_exit']=removed['exit_code']
+                        stage = 'CONTAINER_ABSENCE'
+                        remaining=command(['container','ls','-a','--no-trunc','--filter','id='+cid,'--format','{{.ID}}'],end)
+                        cleanup['absent']=remaining['exit_code']==0 and remaining['stdout']==b''
+                    except BaseException as error:
+                        if failure is None:failure_stage = stage
+                        failure=retain_failure(failure,error)
+                stage = 'TRANSPORT_CLOSE'
+                try: cli.close()
+                except BaseException as error:
+                    if failure is None:failure_stage = stage
+                    failure=retain_failure(failure,error)
+        if failure is None:
+            stage = 'RECEIVER_ACCEPT'
+            raw,_,_=session.sources.module('_preflight_issuer',HANDOFF).read(child/'result.json',end,limit=4096)
+            report=accept(result,result['stdout'],raw,receiver,cleanup,end)
+            stage = 'FINAL_LIVE'
+            live(session,controller,end)
+        if failure is not None: raise failure
+        stage = 'RETURN'
+        return {'status':'PASS','stage':'native-install-preflight','receiver':report,'cleanup':cleanup,
+                'elapsed_seconds':time.monotonic()-started,'ABI':'NOT RUN','native_matrix':'NOT RUN',
+                'hardware_validation':'NOT RUN','selected_for_release':False,'public':[]}
     except BaseException as error:
-        failure=error
-    finally:
-        if cli is not None:
-            if cid is not None:
-                try:
-                    removed=command(['rm','-f',cid],end-5); cleanup['remove_exit']=removed['exit_code']
-                    remaining=command(['container','ls','-a','--no-trunc','--filter','id='+cid,'--format','{{.ID}}'],end)
-                    cleanup['absent']=remaining['exit_code']==0 and remaining['stdout']==b''
-                except BaseException as error: failure=failure or error
-            try: cli.close()
-            except BaseException as error: failure=failure or error
-    if failure is None:
-        raw,_,_=session.sources.module('_preflight_issuer',HANDOFF).read(child/'result.json',end,limit=4096)
-        report=accept(result,result['stdout'],raw,receiver,cleanup,end)
-        live(session,controller,end)
-    if failure is not None: raise failure
-    return {'status':'PASS','stage':'native-install-preflight','receiver':report,'cleanup':cleanup,
-            'elapsed_seconds':time.monotonic()-started,'ABI':'NOT RUN','native_matrix':'NOT RUN',
-            'hardware_validation':'NOT RUN','selected_for_release':False,'public':[]}
+        try:
+            fact = run_failure_fact(error, failure_stage if failure_stage is not None else stage)
+            state = BaseException.__dict__['__dict__'].__get__(error,type(error))
+            state['native_preflight_run_fact'] = fact
+        except BaseException as secondary:
+            retain_failure(error, secondary)
+            state = BaseException.__dict__['__dict__'].__get__(error,type(error))
+            state['native_preflight_run_fact_failed'] = True
+        raise

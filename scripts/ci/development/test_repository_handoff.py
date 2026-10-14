@@ -18,6 +18,8 @@ import types
 import unittest
 from unittest.mock import patch
 
+ROOT = Path(__file__).resolve().parents[3]
+LEGACY_CANCEL_SOURCE = b'@contextmanager\ndef _signal_handlers(handler):\n    """Install/restore the entire pair while kernel delivery is blocked."""\n    mask = signal.pthread_sigmask(signal.SIG_BLOCK, SIGNALS)\n    previous = {}\n    try:\n        # Record all originals before mutation; signal.signal can be interrupted\n        # after installing its handler but before returning the original value.\n        previous = {number: signal.getsignal(number) for number in SIGNALS}\n        for number in SIGNALS:\n            signal.signal(number, handler)\n        signal.pthread_sigmask(signal.SIG_SETMASK, mask)\n        yield\n    finally:\n        signal.pthread_sigmask(signal.SIG_BLOCK, SIGNALS)\n        queued = []\n        restoration_error = None\n        try:\n            for number, original in previous.items():\n                # One failed setter must not skip restoring the other signal.\n                # Retry only if the original disposition was not actually set.\n                for _ in range(2):\n                    try:\n                        signal.signal(number, original)\n                    except BaseException as error:\n                        restoration_error = restoration_error or error\n                    if signal.getsignal(number) == original:\n                        break\n                else:\n                    restoration_error = restoration_error or Refused(\'signal handler restoration differs\')\n            # Consume transition events before restoring unblocked defaults.\n            # Signals blocked on entry retain their original pending state.\n            for number in SIGNALS:\n                if number not in mask and number in signal.sigpending():\n                    signal.sigwait({number})\n                    queued.append(number)\n        finally:\n            signal.pthread_sigmask(signal.SIG_SETMASK, mask)\n        for number in queued:\n            handler(number, None)\n        if restoration_error is not None:\n            raise restoration_error\n\n\n@contextmanager\ndef defer_cancellation():\n    pending = []\n    def remember(sig, _):\n        pending.append(sig)\n    try:\n        with _signal_handlers(remember):\n            PENDING.append(pending)\n            try:\n                yield\n            finally:\n                PENDING.pop()\n    finally:\n        if pending:\n            if PENDING:\n                PENDING[-1].extend(pending)\n            else:\n                raise KeyboardInterrupt(\'cancelled\')\n\n\n@contextmanager\ndef cancellation_handlers():\n    def interrupted(*_):\n        raise KeyboardInterrupt(\'cancelled\')\n    with _signal_handlers(interrupted):\n        yield\n'
 PATH = Path(__file__).with_name('repository_handoff.py')
 spec = importlib.util.spec_from_file_location('repository_handoff',PATH)
 adapter = importlib.util.module_from_spec(spec)
@@ -270,10 +272,10 @@ class WiringModels(unittest.TestCase):
             if close_error:raise close_error
         @contextmanager
         def defer():yield
-        collector={'common':types.SimpleNamespace(defer_cancellation=defer)}
+        collector={'common':types.SimpleNamespace(CANCELLATION_EVENTS=set(),CANCELLATION_UNCERTAIN=set(),defer_cancellation=defer)}
         def dependencies(*args,**kwargs):return ({}, {}) if kwargs.get('phase') else (collector,{})
         service={'pending':types.SimpleNamespace(interpose=interpose),'transport':types.SimpleNamespace(close=close)}
-        entry=types.SimpleNamespace(authenticated=lambda *a,**kw:({},{}),dependency_entry=dependencies,
+        entry=types.SimpleNamespace(authenticated=lambda *a,**kw:({'launch':types.SimpleNamespace(CANCELLATION_EVENTS=set(),CANCELLATION_UNCERTAIN=set())},{}),dependency_entry=dependencies,
             services=lambda *a,**kw:service,original_modules=originals)
         sources.module=lambda *a:entry
         def pending(*args):
@@ -291,6 +293,7 @@ class WiringModels(unittest.TestCase):
         callbacks={'existing_consumers':broad,'public_receiver':lambda *a:None,'authority_provider':lambda *a:None}
         session.pending_consumer=pending;session.terminal_consumer=terminal
         # Budget-only models; explicit view/frame custody is exercised by actual-source fixtures below.
+        session.cancellation_observed=lambda *args:False;session.cancellation_teardown_uncertain=lambda *args:False;session.downstream_signal_disposition=lambda *args:(False,False)
         session.view_plan=lambda argv:root/'output'/'original-view'
         session.prepare_view=lambda path:None
         session.observe_native_consumer=lambda controller:setattr(session,'controller',controller)
@@ -695,8 +698,8 @@ packages/shells/cachy-asahi-zsh-autosuggestions/zsh-autosuggestions.zsh
             'initial_invocation_sha256':adapter.digest(adapter.encoded({'argv':['SOURCE-ONLY-NO-ACTOR'],
                                                                        'output':str(cls.output)}))}
         initial=json.loads((cls.root/'scripts/ci/integration.lock.json').read_bytes())
-        cls.grant['original_view']={'schema_version':1,'purpose':'original-159-copy-view',
-            'full_source_root':str(cls.root),'root':str(cls.output/'original-view'),
+        cls.grant['baseline_view']={'schema_version':2,'baseline_id':'maintained-native-baseline-v1-vim-9.2.1178-1','purpose':'maintained-v1-159-copy-view',
+            'full_source_root':str(cls.root),'root':str(cls.output/'maintained-view'),
             'integration_lock_sha256':cls.a.INITIAL,'source_rows_sha256':cls.a.digest(cls.a.encoded(initial['source_files'])),
             'file_count':160,'argv_mode':'absolute-view-metadata'}
         for role,prefix in cls.a.PREFIXES.items():
@@ -717,12 +720,12 @@ packages/shells/cachy-asahi-zsh-autosuggestions/zsh-autosuggestions.zsh
                 cls.grant['maps'][role]['path'],cls.grant['maps'][role]['sha256'],deadline=cls.deadline,phase=role=='phase')[0]
         cls.collector=load('collector');cls.phase=load('phase')
         cls.session=cls.a.Session(cls.sources,cls.output,job_deadline=cls.deadline,
-                                 composition=getattr(cls,'COMPOSITION','repository-svg'))
-        cls.output.mkdir(mode=0o700);cls.session.prepare_view(cls.output/'original-view')
+                                 composition=getattr(cls,'COMPOSITION','repository-svg-maintained-v1'))
+        cls.output.mkdir(mode=0o700);cls.session.prepare_view(cls.output/'maintained-view')
         cls.session.used=True  # Inert registration model; Session.execute is never called.
         cls.session.source_graph={'entry':cls.entry,'runtime':cls.runtime,'collector':cls.collector,
             'phase':cls.phase,'original':{},'original_aliases':{}}
-        if cls.session.composition == 'installer-preflight':
+        if cls.session.composition == 'installer-preflight-maintained-v1':
             cls.session.register_native_preflight()
             cls.installer=cls.session.source_graph['native_preflight']
             def unregister():
@@ -901,7 +904,7 @@ packages/shells/cachy-asahi-zsh-autosuggestions/zsh-autosuggestions.zsh
         self.assertEqual(len(self.original['integration'].scan(self.session.view_root)),159)
 
     def test_old_schema_refuses_current_preflight(self):
-        grant=copy.deepcopy(self.grant);grant['schema_version']=1;grant.pop('original_view')
+        grant=copy.deepcopy(self.grant);grant['schema_version']=1;grant.pop('baseline_view')
         raw=self.a.encoded(grant)
         with self.assertRaises(self.a.Refused):self.a.preflight(self.root,raw,self.a.digest(raw),deadline=self.deadline)
 
@@ -948,7 +951,7 @@ packages/shells/cachy-asahi-zsh-autosuggestions/zsh-autosuggestions.zsh
         except ValueError as error:self.assertEqual(str(error),'original-source-drift')
         self.a.remove_private(self.session.view_root,self.session.view_node,self.deadline)
         self.session.view_root=None;self.session.view_receipt=None
-        self.session.prepare_view(self.output/'original-view')
+        self.session.prepare_view(self.output/'maintained-view')
         scope=self.entry.original_modules(self.session.view_root,self.session.view_root/'scripts/ci/integration.lock.json',
             self.a.INITIAL,deadline=self.deadline,verification_deadline=self.deadline)
         original=scope.__enter__();type(self).scope=scope;type(self).addClassCleanup(scope.__exit__,None,None,None)
@@ -1019,7 +1022,7 @@ packages/shells/cachy-asahi-zsh-autosuggestions/zsh-autosuggestions.zsh
     def isolated_view(self):
         temporary=tempfile.TemporaryDirectory(prefix='original-view-control-');self.addCleanup(temporary.cleanup)
         output=Path(temporary.name)/'output';output.mkdir(mode=0o700)
-        grant=copy.deepcopy(self.grant);grant['original_view']['root']=str(output/'original-view')
+        grant=copy.deepcopy(self.grant);grant['baseline_view']['root']=str(output/'maintained-view')
         sources=self.a.Sources(self.root,grant,self.deadline);sources.grant_pin=self.a.digest(self.a.encoded(grant))
         session=self.a.Session(sources,output,job_deadline=self.deadline)
         def cleanup():
@@ -1031,7 +1034,7 @@ packages/shells/cachy-asahi-zsh-autosuggestions/zsh-autosuggestions.zsh
     def test_partial_copy_write_failure_registers_only_owned_cleanup(self):
         session=self.isolated_view()
         with patch.object(self.a.os,'write',side_effect=OSError('PRIVATE')):
-            with self.assertRaises(OSError):session.prepare_view(session.output/'original-view')
+            with self.assertRaises(OSError):session.prepare_view(session.output/'maintained-view')
         self.assertIsNotNone(session.view_node)
         self.assertIsNone(session.view_receipt)
         self.a.remove_private(session.view_root,session.view_node,self.deadline)
@@ -1043,12 +1046,12 @@ packages/shells/cachy-asahi-zsh-autosuggestions/zsh-autosuggestions.zsh
             session=self.isolated_view()
             if mode=='cancel':session.cancelled=lambda:True
             if mode=='expired':session.job_deadline=time.monotonic()-1
-            root=session.output/('foreign' if mode=='wrong-root' else 'original-view')
+            root=session.output/('foreign' if mode=='wrong-root' else 'maintained-view')
             with self.assertRaises((self.a.Refused,KeyboardInterrupt)):session.prepare_view(root)
             self.assertFalse(root.exists())
 
     def test_directory_replacement_preserving_file_nodes_refuses(self):
-        session=self.isolated_view();session.prepare_view(session.output/'original-view')
+        session=self.isolated_view();session.prepare_view(session.output/'maintained-view')
         directory=session.view_root/'examples';moved=session.output/'moved-examples'
         directory.rename(moved);directory.mkdir(mode=0o700)
         for child in list(moved.iterdir()):child.rename(directory/child.name)
@@ -1058,7 +1061,7 @@ packages/shells/cachy-asahi-zsh-autosuggestions/zsh-autosuggestions.zsh
 
     def test_symlink_fifo_hardlink_and_added_file_refuse(self):
         for kind in ('symlink','fifo','hardlink','file'):
-            session=self.isolated_view();session.prepare_view(session.output/'original-view')
+            session=self.isolated_view();session.prepare_view(session.output/'maintained-view')
             extra=session.view_root/'extra'
             if kind=='symlink':extra.symlink_to(session.view_root/'LICENSE')
             elif kind=='fifo':os.mkfifo(extra)
@@ -1069,7 +1072,7 @@ packages/shells/cachy-asahi-zsh-autosuggestions/zsh-autosuggestions.zsh
             finally:extra.unlink()
 
     def test_view_cleanup_refuses_replaced_root_preserves_foreign_node(self):
-        session=self.isolated_view();session.prepare_view(session.output/'original-view')
+        session=self.isolated_view();session.prepare_view(session.output/'maintained-view')
         original=session.output/'original-owned';session.view_root.rename(original)
         session.view_root.mkdir(mode=0o700);(session.view_root/'foreign').write_bytes(b'UNRELATED')
         try:
@@ -1082,7 +1085,7 @@ packages/shells/cachy-asahi-zsh-autosuggestions/zsh-autosuggestions.zsh
 
 class InstallerGraphFixtures(unittest.TestCase):
     """Actual Session/Sources registration; no admitted controller/native frames."""
-    COMPOSITION='installer-preflight'
+    COMPOSITION='installer-preflight-maintained-v1'
     ADDITIONAL_SOURCES=('scripts/install/native_preflight.py','scripts/install/test_native_preflight.py',
         'scripts/install/local_transaction.py','scripts/install/test_local_transaction.py',
         'scripts/install/native_arm_trial.py','scripts/install/test_native_arm_trial.py',
@@ -1091,7 +1094,7 @@ class InstallerGraphFixtures(unittest.TestCase):
     def setUpClass(cls): CapturedGraphFixtures.setUpClass.__func__(cls)
     def check(self): return self.sources.source_graph(self.session)
     @contextmanager
-    def fresh_registration(self,composition='installer-preflight'):
+    def fresh_registration(self,composition='installer-preflight-maintained-v1'):
         session=self.a.Session(self.sources,self.root/'no-actor-output',job_deadline=self.deadline,
                                composition=composition)
         session.used=True
@@ -1107,7 +1110,7 @@ class InstallerGraphFixtures(unittest.TestCase):
         self.assertEqual((module.OWN,module.run.__module__,module.run.__qualname__),
             ('scripts/install/native_preflight.py','native_install_preflight','run'))
         self.assertEqual(len(self.sources.raw),265)
-        self.assertEqual(len(self.sources.grant),17); self.assertEqual(len(self.sources.grant['original_view']),8)
+        self.assertEqual(len(self.sources.grant),17); self.assertEqual(len(self.sources.grant['baseline_view']),9)
         self.assertEqual(len(self.sources.grant['callbacks']),3)
         self.assertEqual(set(self.session.source_graph),
             {'entry','runtime','collector','phase','original','original_aliases','native_preflight'})
@@ -1132,15 +1135,15 @@ class InstallerGraphFixtures(unittest.TestCase):
                 self.assertIs(actual,module);self.assertIs(raw,self.sources.raw[module.OWN])
                 self.assertEqual(pin,self.sources.grant['source_files'][module.OWN]['sha256'])
     def test_unknown_modes_refuse_and_legacy_registration_starts_no_loader(self):
-        for mode in ('installer',True,None,{}):
+        for mode in ('installer','repository-svg','installer-preflight',True,None,{}):
             with self.assertRaises(self.a.Refused):
                 self.a.Session(self.sources,self.root/'absent',job_deadline=self.deadline,composition=mode)
-        with self.fresh_registration('repository-svg') as session:
+        with self.fresh_registration('repository-svg-maintained-v1') as session:
             with self.assertRaises(self.a.Refused):session.register_native_preflight()
             self.assertNotIn('native_install_preflight',sys.modules)
             self.assertNotIn('native_preflight',session.source_graph)
     def test_graph_mode_missing_extra_or_wrong_module_keys_refuse(self):
-        with patch.object(self.session,'composition','repository-svg'):
+        with patch.object(self.session,'composition','repository-svg-maintained-v1'):
             with self.assertRaises(self.a.Refused):self.check()
         for change in ({'extra':self.installer},{'native_preflight':None}):
             with patch.dict(self.session.source_graph,change):
@@ -1226,5 +1229,1443 @@ class InstallerGraphFixtures(unittest.TestCase):
             self.assertNotIn('native_install_preflight',sys.modules)
             self.assertNotIn('native_preflight',session.source_graph)
 
+
+class StartupRefusalModels(unittest.TestCase):
+    """Closed diagnostics only: partial dummy contracts/actor boundaries are models."""
+    def setUp(self):
+        self.end=time.monotonic()+60
+        self.root=PATH.resolve().parents[3]
+        raw=PATH.read_bytes()
+        rows=copy.deepcopy(json.loads((self.root/'scripts/ci/development/packet.lock.json').read_bytes())['source_files'])
+        for name,row in rows.items():row['sha256']=adapter.digest((self.root/name).read_bytes())
+        self.grant={'source_files':rows,
+            'source_commit':'a'*40,'run_id':'1','run_attempt':'1','actor_contract_sha256':'b'*64,'initial_invocation_sha256':'c'*64}
+        self.sources=adapter.Sources(self.root,self.grant,self.end)
+        self.session=adapter.Session(self.sources,self.root/'never-allocated',job_deadline=self.end,
+                                     composition='installer-preflight-maintained-v1')
+        self.module=patch.dict(sys.modules,{adapter.__name__:adapter});self.module.start();self.addCleanup(self.module.stop)
+    def fail(self,phase='capture-original',error=None):
+        self.session.startup_phase=phase
+        self.session.startup_failed(error or adapter.Refused('callback-refused'))
+        self.session.result.update(status='FAIL',error_code='callback-refused',cleanup='FAIL')
+    def test_actual_class_source_guard_failure_only_marker_and_privacy(self):
+        import contextlib,io
+        self.fail()
+        output=io.StringIO()
+        with contextlib.redirect_stdout(output):self.session.emit_startup_refusal(self.end)
+        text=output.getvalue();prefix='MAINTAINED_COMPOSED_STARTUP_REFUSAL='
+        self.assertTrue(text.startswith(prefix));value=json.loads(text[len(prefix):])
+        self.assertEqual(value['schema_version'],2)
+        self.assertEqual(set(value),{'schema_version','purpose','status','phase','kind','site','object_clause','object_callsite','native_hook_entered','error_code','cleanup'})
+        self.assertEqual((value['status'],value['phase'],value['cleanup']),('FAIL','capture-original','FAIL'))
+        self.assertNotIn(str(self.root),text);self.assertLessEqual(len(text),1024)
+        self.session.result['status']='PASS'
+        with self.assertRaises(adapter.Refused):self.session.startup_projection()
+    def test_internal_closed_source_site_and_sticky_first_observation(self):
+        try:self.sources.graph_function(lambda:None,None,callsite='DECLARED')
+        except adapter.Refused as error:
+            first=error
+        else:self.fail('graph function accepted')
+        self.assertEqual(str(first),'callback-refused')
+        self.assertEqual(first._source_refusal_site,'GRAPH_OBJECT_BINDING')
+        self.assertEqual(first._graph_object_clause,'MODULE_TYPE')
+        self.fail(error=first);before=dict(self.session.startup_failure)
+        self.session.startup_phase='cleanup';self.session.startup_failed(SystemExit(17))
+        self.assertEqual(self.session.startup_failure,before)
+        self.assertEqual(self.session.startup_projection()['site'],'GRAPH_OBJECT_BINDING')
+        self.assertEqual(self.session.startup_projection()['object_clause'],'MODULE_TYPE')
+        self.assertEqual(self.session.startup_projection()['object_callsite'],'OTHER')
+        self.assertEqual(self.session.result['error_code'],'callback-refused')
+    def test_graph_held_code_binding_refusal_is_closed(self):
+        module=types.ModuleType('diagnostic-held-code-model')
+        module.__file__=str(self.root/'scripts/ci/development/repository_handoff.py')
+        exec(compile('def callback():pass',module.__file__,'exec'),module.__dict__)
+        try:self.sources.graph_function(module.callback,module)
+        except adapter.Refused as error:first=error
+        else:self.fail('foreign held code accepted')
+        self.assertEqual(str(first),'callback-refused')
+        self.assertEqual(first._source_refusal_site,'GRAPH_HELD_CODE_BINDING')
+        self.fail(error=first)
+        self.assertEqual(self.session.startup_projection()['site'],'GRAPH_HELD_CODE_BINDING')
+    def test_invalid_diagnostic_and_expiry_refuse_without_output(self):
+        import contextlib,io
+        self.fail()
+        for key,value in [('phase','/private/path'),('kind','SECRET'),('site','traceback'),
+                          ('object_clause','PRIVATE'),('object_callsite','/private/callsite')]:
+            previous=self.session.startup_failure[key];self.session.startup_failure[key]=value
+            with self.subTest(key=key),self.assertRaises(adapter.Refused):self.session.startup_projection()
+            self.session.startup_failure[key]=previous
+        self.session.native_hook_entered=1
+        with self.assertRaises(adapter.Refused):self.session.startup_projection()
+        self.session.native_hook_entered=False
+        output=io.StringIO()
+        with contextlib.redirect_stdout(output),self.assertRaises(adapter.Refused):
+            self.session.emit_startup_refusal(time.monotonic()-1)
+        self.assertEqual(output.getvalue(),'')
+    def test_execute_causal_phase_and_unaccepted_native_hook_models(self):
+        from contextlib import ExitStack
+        # These are explicit inert SDK/graph/native models, never valid Source grants/frames.
+        cases=[(phase,adapter.Refused('callback-refused'),False,None) for phase in ('construct-services','capture-original','native-hook')]
+        cases.extend([('capture-original',adapter.Refused('callback-refused'),True,SystemExit(42)),
+                      ('construct-services',KeyboardInterrupt('private-cancel'),False,None),
+                      ('construct-services',SystemExit(18),False,None),
+                      ('capture-original',adapter.Refused('callback-refused'),False,KeyboardInterrupt('private-emit'))])
+        for phase,first,cleanup_fault,emit_fault in cases:
+            with self.subTest(phase=phase,kind=type(first).__name__),tempfile.TemporaryDirectory(prefix='diagnostic-model-') as temporary:
+                output=Path(temporary)/'handoff';runtime={'cli_sha256':'d'*64,'endpoint_identity':[1]*6,'env':{}}
+                argv=['integration'];models=[];status=[]
+                def refused():raise first
+                entry=types.SimpleNamespace(authenticated=lambda *a,**k:({'launch':types.SimpleNamespace(CANCELLATION_EVENTS=set(),CANCELLATION_UNCERTAIN=set())},{}),
+                    dependency_entry=lambda *a,**k:({'common':types.SimpleNamespace(CANCELLATION_EVENTS=set(),CANCELLATION_UNCERTAIN=set(),defer_cancellation=lambda:__import__('contextlib').nullcontext())},{}))
+                if phase=='construct-services':entry.services=lambda *a,**k:refused()
+                else:
+                    def close():
+                        if cleanup_fault:raise OSError('private-cleanup')
+                    entry.services=lambda *a,**k:{'transport':types.SimpleNamespace(close=close)}
+                @contextmanager
+                def original(*a,**k):
+                    def native(argv,*,integration_consumers):return integration_consumers(object())
+                    yield {'native_arm':types.SimpleNamespace(main=native),
+                           'repository_projection':types.SimpleNamespace(inventory=None),
+                           'desktop_projection':types.SimpleNamespace(policy=None)}
+                entry.original_modules=original
+                grant={'source_commit':'a'*40,'run_id':'1','run_attempt':'1','actor_contract_sha256':adapter.digest(adapter.encoded(runtime)),
+                    'initial_invocation_sha256':adapter.digest(adapter.encoded({'argv':argv,'output':str(output)})),
+                    'maps':{name:{'path':'model-map','sha256':'e'*64} for name in ('runtime','collector','phase')},
+                    'source_files':{adapter.PREFIXES['collector']+'/entry.py':{'sha256':'f'*64},adapter.PREFIXES['phase']+'/entry.py':{'sha256':'f'*64}}}
+                sources=types.SimpleNamespace(grant=grant,grant_pin='0'*64,root=self.root,raw={'model-map':b'{}'},
+                    module=lambda *a:entry)
+                session=adapter.Session(sources,output,job_deadline=self.end,composition='installer-preflight-maintained-v1')
+                def graph(owner,*,capture=False):
+                    if phase=='capture-original' and owner.source_graph['original']:refused()
+                sources.source_graph=graph
+                def remove(path,node,end):
+                    if path is None:return
+                    # Tiny model-only paths: never source custody or production cleanup.
+                    shutil.rmtree(path)
+                observed=[];real_failed=adapter.Session.startup_failed
+                def record_failed(self,error):observed.append(error);return real_failed(self,error)
+                def emit(self,end):
+                    models.append(self.startup_projection())
+                    if emit_fault is not None:raise emit_fault
+                with ExitStack() as stack:
+                    for name,value in [('bindings',lambda *a:None),('remove_private',remove),('revoke_phase_receipt',lambda *a:None),
+                        ('publish_status',lambda *a,**k:status.append(copy.deepcopy(a[1])))]:stack.enter_context(patch.object(adapter,name,value))
+                    stack.enter_context(patch.dict(os.environ,{'GITHUB_SHA':'a'*40,'GITHUB_RUN_ID':'1','GITHUB_RUN_ATTEMPT':'1'}))
+                    for name,value in [('cancellation_observed',lambda *args:False),('cancellation_teardown_uncertain',lambda *args:False),('downstream_signal_disposition',lambda *args:(False,False)),('view_plan',lambda self,argv:output/'view'),('prepare_view',lambda self,root:None),
+                        ('register_native_preflight',lambda self:None),('observe_native_consumer',lambda self,controller:refused()),
+                        ('emit_startup_refusal',emit),('startup_failed',record_failed)]:
+                        stack.enter_context(patch.object(adapter.Session,name,value))
+                    result=session.execute(argv,{},runtime)
+                self.assertEqual(result['status'],'FAIL')
+                self.assertEqual(result['error_code'],'cancelled' if isinstance(first,KeyboardInterrupt) else 'source-refused' if isinstance(first,SystemExit) else 'callback-refused')
+                self.assertIs(observed[0],first)
+                self.assertIsNone(result['initial_exit_code']);self.assertFalse(result['callback_entered'])
+                self.assertEqual(models[0]['phase'],phase)
+                self.assertIs(models[0]['native_hook_entered'],phase=='native-hook')
+                self.assertIsNone(result['phase_public']);self.assertEqual(result['cleanup'],'FAIL' if cleanup_fault else 'PASS')
+                self.assertIs(result['cancelled'],isinstance(first,KeyboardInterrupt) or isinstance(emit_fault,KeyboardInterrupt))
+                self.assertTrue(all(item['status']=='FAIL' for item in status))
+    def test_ordinary_interrupt_fatal_kinds_preserve_cause_objects(self):
+        for error,kind in ((ValueError('SECRET /private/path'),'VALUE_ERROR'),(KeyboardInterrupt('SECRET'),'INTERRUPT'),(SystemExit(77),'FATAL')):
+            self.session.startup_failure=None;self.fail(error=error)
+            self.assertEqual(self.session.startup_projection()['kind'],kind)
+            self.assertEqual(self.session.result['error_code'],'callback-refused')
+            self.assertNotIn('SECRET',adapter.encoded(self.session.startup_projection()).decode())
+            # Capturing metadata never modifies or replaces the provided cause object.
+            self.assertEqual(error.args,('SECRET /private/path',) if kind=='VALUE_ERROR' else ('SECRET',) if kind=='INTERRUPT' else (77,))
+
+
+class OptionalDiagnosticPublicationCorrection(unittest.TestCase):
+    """Actual execute body with tiny inert boundaries, never valid native grants/frames."""
+    def test_compound_interrupt_replacement_fault_old_red_new_green(self):
+        from contextlib import ExitStack,nullcontext
+        corrected_raw=PATH.read_text()
+        self.assertEqual(hashlib.sha256(corrected_raw.encode()).hexdigest(),'1329653ab38468b92c08abe9426a176509b5586fab3a07a1e9432c90cb704219')
+        # Counterfactual of this pinned Source: reverse only the optional publication branch.
+        new_branch="                try:publish_status(self.output/'status',self.result,replace=True)\n                except BaseException:\n                    pass  # Optional re-publication cannot replace the first failure.\n"
+        old_branch="                publish_status(self.output/'status',self.result,replace=True)\n"
+        self.assertEqual(corrected_raw.count(new_branch),1)
+        old_raw=corrected_raw.replace(new_branch,old_branch,1).encode()
+        self.assertEqual(hashlib.sha256(old_raw).hexdigest(),'5df49cdc736016ab8f021ea23e50d758b6c3c9e63bd5bdabe8a1583fb7dd4c8a')
+        old=types.ModuleType('frozen_optional_diagnostic_old');old.__file__=str(PATH)
+        exec(compile(old_raw,str(PATH),'exec'),old.__dict__)
+        for late_type in (OSError,KeyboardInterrupt,SystemExit):
+            for cleanup_fault in (False,True):
+                for module,corrected in ((old,False),(adapter,True)):
+                    with self.subTest(late=late_type.__name__,cleanup=cleanup_fault,corrected=corrected),tempfile.TemporaryDirectory(prefix='optional-diagnostic-compound-') as temporary:
+                        output=Path(temporary)/'handoff';runtime={'cli_sha256':'d'*64,'endpoint_identity':[1]*6,'env':{}}
+                        argv=['integration'];first=module.Refused('callback-refused');emit_fault=KeyboardInterrupt('PRIVATE_EMIT');late=late_type('PRIVATE_REPLACEMENT');published=[]
+                        def refuse(*a,**k):raise first
+                        entry=types.SimpleNamespace(authenticated=lambda *a,**k:({'launch':types.SimpleNamespace(CANCELLATION_EVENTS=set(),CANCELLATION_UNCERTAIN=set())},{}),dependency_entry=lambda *a,**k:({'common':types.SimpleNamespace(CANCELLATION_EVENTS=set(),CANCELLATION_UNCERTAIN=set(),defer_cancellation=nullcontext)},{}),services=refuse)
+                        grant={'source_commit':'a'*40,'run_id':'1','run_attempt':'1','actor_contract_sha256':module.digest(module.encoded(runtime)),
+                            'initial_invocation_sha256':module.digest(module.encoded({'argv':argv,'output':str(output)})),
+                            'maps':{name:{'path':'model-map','sha256':'e'*64} for name in ('runtime','collector','phase')},
+                            'source_files':{module.PREFIXES[name]+'/entry.py':{'sha256':'f'*64} for name in ('collector','phase')}}
+                        source=types.SimpleNamespace(grant=grant,grant_pin='0'*64,root=PATH.resolve().parents[3],raw={'model-map':b'{}'},module=lambda *a:entry,source_graph=lambda *a,**k:None)
+                        session=module.Session(source,output,job_deadline=time.monotonic()+60,composition='installer-preflight-maintained-v1')
+                        if hasattr(module.Session,'cancellation_observed'):session.cancellation_observed=lambda *args:False;session.cancellation_teardown_uncertain=lambda *args:False;session.downstream_signal_disposition=lambda *args:(False,False)
+                        def emit(self,end):raise emit_fault
+                        def publish(path,value,**kwargs):
+                            published.append(copy.deepcopy(value))
+                            if kwargs.get('replace'):raise late
+                        def remove(path,*args):
+                            if cleanup_fault:raise OSError('PRIVATE_CLEANUP')
+                            if path is not None and Path(path).exists():shutil.rmtree(path)
+                        with ExitStack() as stack:
+                            for name,fn in [('bindings',lambda *a:None),('remove_private',remove),('revoke_phase_receipt',lambda *a:None),('publish_status',publish)]:stack.enter_context(patch.object(module,name,fn))
+                            stack.enter_context(patch.dict(os.environ,{'GITHUB_SHA':'a'*40,'GITHUB_RUN_ID':'1','GITHUB_RUN_ATTEMPT':'1'}))
+                            for name,fn in [('view_plan',lambda self,argv:output/'view'),('prepare_view',lambda *a:None),('register_native_preflight',lambda *a:None),('emit_startup_refusal',emit)]:stack.enter_context(patch.object(module.Session,name,fn))
+                            if corrected:result=session.execute(argv,{},runtime)
+                            else:
+                                try:session.execute(argv,{},runtime)
+                                except BaseException as got:self.assertIs(got,late)
+                                else:raise AssertionError('old source no longer reproduces late escape')
+                        self.assertEqual(len(published),2);self.assertTrue(all(p['status']=='FAIL' for p in published))
+                        self.assertIs(session.result['cancelled'],True)
+                        self.assertEqual(session.result['error_code'],'callback-refused')
+                        self.assertEqual(session.result['cleanup'],'FAIL' if cleanup_fault else 'PASS')
+                        self.assertEqual(session.startup_failure,{'phase':'construct-services','kind':'SOURCE_REFUSAL','site':'OTHER','object_clause':'OTHER','object_callsite':'OTHER'})
+                        if corrected:
+                            self.assertEqual(result['status'],'FAIL');self.assertIs(result['cancelled'],True)
+                            self.assertEqual(result['error_code'],'callback-refused');self.assertIsNone(result['initial_exit_code'])
+                            self.assertFalse(result['callback_entered']);self.assertIsNone(result['phase_public'])
+                            self.assertEqual(len(result['public']),1)
+
+
+
+class FrozenFileHookModels(unittest.TestCase):
+    """Exact reviewed stdlib constructor only; no Source grant/native actors."""
+    def test_exact_factory_and_foreign_globals_defaults_cells_refuse(self):
+        import importlib.machinery as machinery
+        path = adapter.PREFIXES['runtime']+'/entry.py'
+        source = b'FILE_HOOK = machinery.FileFinder.path_hook((machinery.ExtensionFileLoader, machinery.EXTENSION_SUFFIXES), (machinery.SourceFileLoader, machinery.SOURCE_SUFFIXES))'
+        owner = types.ModuleType('owned_entry');owner.machinery=machinery
+        hook = machinery.FileFinder.path_hook((machinery.ExtensionFileLoader,machinery.EXTENSION_SUFFIXES),
+                                             (machinery.SourceFileLoader,machinery.SOURCE_SUFFIXES))
+        owner.FILE_HOOK=hook
+        sources = object.__new__(adapter.Sources);sources.raw={path:source}
+        sources.frozen_file_hook(hook,owner)
+        foreign = types.FunctionType(hook.__code__,dict(hook.__globals__),closure=hook.__closure__)
+        foreign.__qualname__=hook.__qualname__;foreign.__module__=hook.__module__
+        owner.FILE_HOOK=foreign
+        with self.assertRaises(adapter.Refused):sources.frozen_file_hook(foreign,owner)
+        owner.FILE_HOOK=hook
+        hook.__defaults__=(False,)
+        with self.assertRaises(adapter.Refused):sources.frozen_file_hook(hook,owner)
+        hook.__defaults__=None
+        hook.__closure__[0].cell_contents=object
+        with self.assertRaises(adapter.Refused):sources.frozen_file_hook(hook,owner)
+
+    def test_source_constructor_and_extra_metadata_refuse(self):
+        import importlib.machinery as machinery
+        path=adapter.PREFIXES['runtime']+'/entry.py';owner=types.ModuleType('owned_entry');owner.machinery=machinery
+        hook=machinery.FileFinder.path_hook((machinery.ExtensionFileLoader,machinery.EXTENSION_SUFFIXES),
+                                          (machinery.SourceFileLoader,machinery.SOURCE_SUFFIXES))
+        owner.FILE_HOOK=hook
+        sources=object.__new__(adapter.Sources)
+        sources.raw={path:b'FILE_HOOK = machinery.FileFinder.path_hook()'}
+        with self.assertRaises(adapter.Refused):sources.frozen_file_hook(hook,owner)
+        sources.raw[path]=b'FILE_HOOK = machinery.FileFinder.path_hook((machinery.ExtensionFileLoader, machinery.EXTENSION_SUFFIXES), (machinery.SourceFileLoader, machinery.SOURCE_SUFFIXES))'
+        hook.unregistered=True
+        with self.assertRaises(adapter.Refused):sources.frozen_file_hook(hook,owner)
+
+
+class ServiceAttributionModels(unittest.TestCase):
+    """Exact source traceback provenance; inert file/signal seams only."""
+    def model(self):
+        import ast,contextlib
+        root=Path('/diagnostic-source-model')
+        paths={name:adapter.PREFIXES['runtime']+'/'+name+'.py' for name in ('entry','broker','transport')}
+        paths['common']=adapter.PREFIXES['collector']+'/common.py'
+        raw={paths[name]:(LEGACY_CANCEL_SOURCE if name=='common' else (ROOT/paths[name]).read_bytes()) for name in paths}
+        selected={'entry':{'read','captures','services'},'broker':{'Pending'},
+                  'transport':{'read_file','directory','DockerTransport'},'common':{'_signal_handlers','defer_cancellation'}}
+        modules={}
+        for name,path in paths.items():
+            module=types.ModuleType('diagnostic_'+name);module.__file__=str(root/path)
+            module.__dict__.update(Path=Path,contextmanager=contextlib.contextmanager,need=adapter.need,
+                re=__import__('re'),stat=__import__('stat'),SOURCES={n+'.py' for n in ('entry','capture','producer','launch','transport','supervisor','broker')},
+                MODULES=('capture','producer','launch','transport','supervisor','broker'),check=lambda end:None,
+                capture=types.SimpleNamespace(need=adapter.need,digest=adapter.digest),ENV_KEYS={'PATH','HOME','DOCKER_CONFIG','DOCKER_HOST','DOCKER_BUILDKIT','LC_ALL','TMPDIR'},PENDING=[],SIGNALS=(2,15),Refused=ValueError,MAX_BYTES=64*1024**2)
+            tree=ast.parse(raw[path]);nodes=[n for n in tree.body if isinstance(n,(ast.FunctionDef,ast.ClassDef)) and n.name in selected[name]]
+            codes={code.co_qualname:code for code in adapter.code_objects(compile(raw[path],module.__file__,'exec'))}
+            def function(node,qualname):
+                defaults=tuple(eval(compile(ast.Expression(value),'literal-model-default','eval'),module.__dict__) for value in node.args.defaults)
+                value=types.FunctionType(codes[qualname],module.__dict__,node.name,defaults or None)
+                value.__kwdefaults__={arg.arg:eval(compile(ast.Expression(default),'literal-model-default','eval'),module.__dict__) for arg,default in zip(node.args.kwonlyargs,node.args.kw_defaults) if default is not None} or None
+                for decorator in reversed(node.decorator_list):
+                    self.assertIsInstance(decorator,ast.Name);self.assertEqual(decorator.id,'contextmanager')
+                    value=contextlib.contextmanager(value)
+                return value
+            for node in nodes:
+                if isinstance(node,ast.FunctionDef):module.__dict__[node.name]=function(node,node.name)
+                else:module.__dict__[node.name]=type(node.name,(object,),{'__module__':module.__name__,**{method.name:function(method,node.name+'.'+method.name) for method in node.body if isinstance(method,ast.FunctionDef)}})
+            modules[name]=module
+        sources=object.__new__(adapter.Sources);sources.root=root;sources.raw=raw
+        sources.grant={'source_files':{p:{'sha256':adapter.digest(data),'mode':0o644} for p,data in raw.items()}}
+        session=object.__new__(adapter.Session);session.sources=sources
+        session.source_graph={'entry':modules['entry'],'runtime':{name:modules[name] for name in ('broker','transport')},'collector':{'common':modules['common']}}
+        session.startup_phase='construct-services';session.startup_failure=None
+        return session,modules
+
+    def error(self,callback):
+        try:callback()
+        except TypeError as error:return error
+        raise AssertionError('expected inert TypeError')
+
+    def test_source_read_capture_pending_and_transport_sites(self):
+        session,m=self.model()
+        cases=[(lambda:m['entry'].read(None),'SERVICE_SOURCE_READ'),
+               (lambda:m['entry'].captures(None,{'one.py':{'sha256':'a'*64,'mode':0o644}},deadline=200),'SERVICE_SOURCE_CAPTURE'),
+               (lambda:m['broker'].Pending(None,b'x',adapter.digest(b'x'),job_deadline=200),'SERVICE_PENDING'),
+               (lambda:m['transport'].read_file(None),'SERVICE_TRANSPORT_CLI'),
+               (lambda:m['transport'].directory(None).__enter__(),'SERVICE_TRANSPORT_DIRECTORY')]
+        for callback,expected in cases:
+            with self.subTest(site=expected):
+                error=self.error(callback);before=(error.args,error.__traceback__)
+                self.assertEqual(session.service_failure_site(error),expected)
+                self.assertEqual((error.args,error.__traceback__),before)
+        module=m['transport'];module.signal=types.SimpleNamespace(SIG_BLOCK=0,SIG_SETMASK=1,pthread_sigmask=lambda *a:set())
+        module.CLI=Path('/never-read');module.read_file=lambda *a,**k:None
+        env={'PATH':'/usr/bin:/bin','DOCKER_HOST':'unix:///run/docker.sock','DOCKER_BUILDKIT':'0','LC_ALL':'C'}
+        error=self.error(lambda:module.DockerTransport(cli_sha256='a'*64,endpoint_identity=[1]*6,env=env,create_validator=lambda *a:None))
+        self.assertEqual(session.service_failure_site(error),'SERVICE_TRANSPORT_INIT')
+        value=object.__new__(module.DockerTransport);value.fd=1;value.cli={'sha256':'a'*64}
+        error=self.error(value._preflight)
+        self.assertEqual(session.service_failure_site(error),'SERVICE_TRANSPORT_PREFLIGHT')
+
+    def test_cancellation_entry_exit_and_no_kernel_operations(self):
+        session,m=self.model();module=m['common']
+        def fail(*args):raise TypeError('SECRET /private/path')
+        module.signal=types.SimpleNamespace(SIG_BLOCK=0,SIG_SETMASK=1,pthread_sigmask=fail)
+        error=self.error(lambda:module.defer_cancellation().__enter__())
+        self.assertEqual(session.service_failure_site(error),'SERVICE_CANCEL_ENTER')
+        handlers={2:0,15:0}
+        def setter(number,value):
+            if value==0:raise TypeError('SECRET /private/path')
+            previous=handlers[number];handlers[number]=value;return previous
+        module.signal=types.SimpleNamespace(SIG_BLOCK=0,SIG_SETMASK=1,pthread_sigmask=lambda *a:set(),getsignal=lambda n:handlers[n],signal=setter,sigpending=lambda:set())
+        context=module.defer_cancellation();context.__enter__()
+        error=self.error(lambda:context.__exit__(None,None,None))
+        self.assertEqual(session.service_failure_site(error),'SERVICE_CANCEL_EXIT_SET_HANDLER_API_MODULE')
+        self.assertEqual(module.PENDING,[])
+
+    def test_foreign_provenance_optional_failure_first_cause_privacy(self):
+        import ast,copy
+        session,m=self.model();error=self.error(lambda:m['entry'].read(None))
+        tree=ast.parse((ROOT/'scripts/ci/development/repository_handoff.py').read_bytes())
+        owner=next(node for node in tree.body if isinstance(node,ast.ClassDef) and node.name=='Session')
+        init=next(node for node in owner.body if isinstance(node,ast.FunctionDef) and node.name=='__init__')
+        state=next(node.value for node in init.body if isinstance(node,ast.Assign) and any(isinstance(target,ast.Attribute) and target.attr=='result' for target in node.targets))
+        session.result=eval(compile(ast.Expression(state),'model-result-literal','eval'),{'self':session,'sources':session.sources})
+        session.result.update(status='FAIL',error_code='source-refused',cleanup='PASS');session.native_hook_entered=False
+        result_before=copy.deepcopy(session.result)
+        session.startup_failed(error);before=dict(session.startup_failure)
+        projection=session.startup_projection()
+        self.assertEqual(set(projection),{'schema_version','purpose','status','phase','kind','site','object_clause','object_callsite','native_hook_entered','error_code','cleanup'})
+        self.assertEqual((projection['status'],projection['error_code'],projection['cleanup']),('FAIL','source-refused','PASS'))
+        self.assertFalse(projection['native_hook_entered']);self.assertLessEqual(len(adapter.encoded(projection)),1024)
+        self.assertEqual(session.result,result_before)
+        session.startup_failed(TypeError('SECRET /private/path'))
+        self.assertEqual(session.startup_failure,before)
+        text=adapter.encoded(before).decode();self.assertNotIn('SECRET',text);self.assertNotIn('/diagnostic-source-model',text)
+        foreign=types.FunctionType(m['entry'].read.__code__,dict(m['entry'].__dict__))
+        foreign.__defaults__=m['entry'].read.__defaults__;foreign.__kwdefaults__=dict(m['entry'].read.__kwdefaults__)
+        error=self.error(lambda:foreign(None));self.assertEqual(session.service_failure_site(error),'OTHER')
+        error=self.error(lambda:m['entry'].read(None));path=adapter.PREFIXES['runtime']+'/entry.py'
+        original=(error.args,error.__traceback__);pin=session.sources.grant['source_files'][path]['sha256']
+        session.sources.grant['source_files'][path]['sha256']='0'*64
+        self.assertEqual(session.service_failure_site(error),'OTHER')
+        session.sources.grant['source_files'][path]['sha256']=pin
+        class Poison:
+            def __eq__(self,other):raise AssertionError('foreign equality hook')
+        m['entry'].__file__=Poison()
+        self.assertEqual(session.service_failure_site(error),'OTHER')
+        session.startup_failure=None;session.service_failure_site=lambda error:(_ for _ in ()).throw(KeyboardInterrupt())
+        session.startup_failed(error)
+        self.assertEqual(session.startup_failure,{'phase':'construct-services','kind':'TYPE_ERROR','site':'OTHER','object_clause':'OTHER','object_callsite':'OTHER'})
+        self.assertEqual((error.args,error.__traceback__),original)
+        self.assertEqual(session.result,result_before)
+
+class CancellationExitAttributionModels(unittest.TestCase):
+    """Exact compiled cancellation code; all signal operations are inert seams."""
+    model=ServiceAttributionModels.model
+    error=ServiceAttributionModels.error
+
+    def failure(self,operation):
+        session,modules=self.model();common=modules['common']
+        handlers={2:0,15:0};counts={'mask':0,'read':0};first=TypeError('PRIVATE /never/exported')
+        def fail():raise first
+        def mask(*args):
+            counts['mask']+=1
+            if (operation=='block' and counts['mask']==3) or (operation=='mask' and counts['mask']==4):fail()
+            return set()
+        def setter(number,value):
+            if operation=='set' and value==0:fail()
+            previous=handlers[number];handlers[number]=value;return previous
+        def getter(number):
+            counts['read']+=1
+            if operation=='get' and counts['read']==3:fail()
+            return handlers[number]
+        def pending():
+            if operation=='query':fail()
+            return {2} if operation in ('wait','replay') else set()
+        def wait(numbers):
+            if operation=='wait':fail()
+            return 2
+        common.signal=types.SimpleNamespace(SIG_BLOCK=0,SIG_SETMASK=1,pthread_sigmask=mask,
+            signal=setter,getsignal=getter,sigpending=pending,sigwait=wait)
+        if operation=='replay':
+            def handler(*args):fail()
+            context=common._signal_handlers(handler)
+        else:context=common.defer_cancellation()
+        context.__enter__();error=self.error(lambda:context.__exit__(None,None,None))
+        self.assertIs(error,first);self.assertEqual(common.PENDING,[])
+        return session,common,error
+
+    def test_seven_exact_exit_api_sites_and_unchanged_errors(self):
+        labels={'block':'BLOCK','set':'SET_HANDLER_API_MODULE','get':'HANDLER_CHECK','query':'PENDING_CHECK',
+                'wait':'PENDING_WAIT','mask':'SET_MASK','replay':'REPLAY'}
+        for operation,suffix in labels.items():
+            with self.subTest(operation=operation):
+                session,common,error=self.failure(operation);before=(error.args,error.__traceback__)
+                self.assertEqual(session.service_failure_site(error),'SERVICE_CANCEL_EXIT_'+suffix)
+                self.assertEqual((error.args,error.__traceback__),before)
+
+    def test_optional_projection_and_first_cause_keep_closed_failure(self):
+        import ast,copy
+        session,common,error=self.failure('set')
+        tree=ast.parse((ROOT/'scripts/ci/development/repository_handoff.py').read_bytes())
+        owner=next(node for node in tree.body if isinstance(node,ast.ClassDef) and node.name=='Session')
+        init=next(node for node in owner.body if isinstance(node,ast.FunctionDef) and node.name=='__init__')
+        state=next(node.value for node in init.body if isinstance(node,ast.Assign) and any(isinstance(target,ast.Attribute) and target.attr=='result' for target in node.targets))
+        session.result=eval(compile(ast.Expression(state),'inert-result-literal','eval'),{'self':session,'sources':session.sources})
+        session.result.update(status='FAIL',error_code='source-refused',cleanup='PASS');session.native_hook_entered=False
+        result_before=copy.deepcopy(session.result);original=(error.args,error.__traceback__)
+        session.startup_failed(error);before=dict(session.startup_failure);projection=session.startup_projection()
+        self.assertEqual(set(projection),{'schema_version','purpose','status','phase','kind','site','object_clause','object_callsite','native_hook_entered','error_code','cleanup'})
+        self.assertEqual(projection['site'],'SERVICE_CANCEL_EXIT_SET_HANDLER_API_MODULE')
+        self.assertEqual((projection['status'],projection['error_code'],projection['cleanup']),('FAIL','source-refused','PASS'))
+        self.assertFalse(projection['native_hook_entered']);self.assertLessEqual(len(adapter.encoded(projection)),1024)
+        self.assertNotIn('PRIVATE',adapter.encoded(projection).decode());self.assertNotIn('/never/',adapter.encoded(projection).decode())
+        session.startup_failed(TypeError('later'));self.assertEqual(session.startup_failure,before)
+        session.startup_failure=None
+        def attribution_failed(error):raise KeyboardInterrupt()
+        session.service_failure_site=attribution_failed;session.startup_failed(error)
+        self.assertEqual(session.startup_failure,{'phase':'construct-services','kind':'TYPE_ERROR','site':'OTHER','object_clause':'OTHER','object_callsite':'OTHER'})
+        self.assertEqual(session.result,result_before);self.assertEqual((error.args,error.__traceback__),original)
+
+    def test_exit_provenance_refuses_foreign_namespace_hash_and_filename(self):
+        import contextlib
+        session,common,error=self.failure('set')
+        path=adapter.PREFIXES['collector']+'/common.py'
+        pin=session.sources.grant['source_files'][path]['sha256']
+        session.sources.grant['source_files'][path]['sha256']='0'*64
+        self.assertEqual(session.service_failure_site(error),'OTHER')
+        session.sources.grant['source_files'][path]['sha256']=pin
+        filename=common.__file__;common.__file__='/foreign'
+        self.assertEqual(session.service_failure_site(error),'OTHER');common.__file__=filename
+        underlying=common._signal_handlers.__wrapped__
+        foreign=types.FunctionType(underlying.__code__,dict(common.__dict__))
+        # Use a fresh valid inert signal state; only the matching globals differ.
+        handlers={2:0,15:0}
+        def setter(number,value):
+            if value==0:raise TypeError('PRIVATE')
+            previous=handlers[number];handlers[number]=value;return previous
+        foreign.__globals__['signal']=types.SimpleNamespace(SIG_BLOCK=0,SIG_SETMASK=1,
+            pthread_sigmask=lambda *args:set(),getsignal=lambda number:handlers[number],signal=setter,sigpending=lambda:set())
+        context=contextlib.contextmanager(foreign)(lambda *args:None);context.__enter__()
+        observed=self.error(lambda:context.__exit__(None,None,None))
+        self.assertEqual(session.service_failure_site(observed),'OTHER')
+
+class HandlerArgumentAttributionModels(unittest.TestCase):
+    """Exact Source setter frame plus closed API body; no kernel operations."""
+    model = ServiceAttributionModels.model
+    error = ServiceAttributionModels.error
+    MESSAGE = 'signal handler must be signal.SIG_IGN, signal.SIG_DFL, or a callable object'
+
+    def failure(self, original, text=None, later=0):
+        session, modules = self.model(); common = modules['common']
+        api = types.ModuleType('signal'); handlers = {2:original, 15:later}
+        first = TypeError(self.MESSAGE if text is None else text)
+        calls = []
+        def setter(number, value):
+            calls.append((number, value))
+            if number == 2 and value is original: raise first
+            previous = handlers[number]; handlers[number] = value; return previous
+        api.__dict__.update(_signal=types.SimpleNamespace(signal=setter), _enum_to_int=lambda v:v,
+            _int_to_enum=lambda v,k:v, Handlers=object(), SIG_DFL=0, SIG_IGN=1,
+            SIG_BLOCK=0, SIG_SETMASK=1, pthread_sigmask=lambda *a:set(),
+            getsignal=lambda number:handlers[number], sigpending=lambda:set())
+        exec('def signal(signalnum, handler):\n    handler = _signal.signal(_enum_to_int(signalnum), _enum_to_int(handler))\n    return _int_to_enum(handler, Handlers)\n', api.__dict__)
+        common.signal = api
+        context = common.defer_cancellation(); context.__enter__()
+        error = self.error(lambda:context.__exit__(None,None,None))
+        self.assertIs(error, first); self.assertEqual(common.PENDING, [])
+        return session, common, error, calls
+
+    def test_five_closed_handler_kinds_and_two_api_codes(self):
+        values = [('NONE',None),('DEFAULT',0),('IGNORE',1),('CALLABLE',lambda *a:None),('OTHER',object())]
+        for kind, original in values:
+            for message, code in ((None,'BAD_HANDLER_API'),('PRIVATE /do/not/export','OTHER_TYPEERROR')):
+                with self.subTest(kind=kind,code=code):
+                    session, common, error, calls = self.failure(original,message)
+                    before = (error.args,error.__traceback__)
+                    self.assertEqual(session.service_failure_site(error),'SERVICE_CANCEL_EXIT_SET_HANDLER_'+kind+'_'+code)
+                    self.assertEqual((error.args,error.__traceback__),before)
+                    self.assertEqual(sum(number == 2 and value is original for number,value in calls),2)
+                    self.assertEqual(common.signal.getsignal(15),0)
+
+    def test_saved_error_uses_api_argument_not_later_loop_original(self):
+        session, common, error, _ = self.failure(None,later=0)
+        trace = error.__traceback__
+        while trace and not (trace.tb_frame.f_code.co_name == '_signal_handlers' and trace.tb_next is not None and trace.tb_next.tb_frame.f_code.co_name == 'signal'): trace=trace.tb_next
+        self.assertIsNotNone(trace); self.assertEqual(trace.tb_frame.f_locals['original'],0)
+        self.assertIsNone(trace.tb_next.tb_frame.f_locals['handler'])
+        self.assertEqual(session.service_failure_site(error),'SERVICE_CANCEL_EXIT_SET_HANDLER_NONE_BAD_HANDLER_API')
+
+    def test_exact_source_and_api_shape_refuse_foreign_observations(self):
+        session, common, error, _ = self.failure(None)
+        path=adapter.PREFIXES['collector']+'/common.py'; pin=session.sources.grant['source_files'][path]['sha256']
+        session.sources.grant['source_files'][path]['sha256']='0'*64
+        self.assertEqual(session.service_failure_site(error),'OTHER')
+        session.sources.grant['source_files'][path]['sha256']=pin
+        original=common.signal.signal
+        common.signal.signal=lambda *a:None
+        self.assertEqual(session.service_failure_site(error),'SERVICE_CANCEL_EXIT_SET_HANDLER_WRAPPER_GLOBALS')
+        common.signal.signal=original
+        class Poison:
+            def __eq__(self, other): raise AssertionError('opaque equality must never run')
+        common.signal.signal=types.FunctionType(original.__code__.replace(co_consts=(Poison(),)),original.__globals__)
+        self.assertEqual(session.service_failure_site(error),'SERVICE_CANCEL_EXIT_SET_HANDLER_WRAPPER_CONSTANTS')
+        common.signal.signal=original
+        name=common.__file__; common.__file__='/foreign'
+        self.assertEqual(session.service_failure_site(error),'OTHER'); common.__file__=name
+
+    def test_first_cause_closed_projection_and_optional_failure_preserved(self):
+        import ast,copy
+        session, common, error, _ = self.failure(None,'PRIVATE /never/export')
+        owner=next(n for n in ast.parse((ROOT/'scripts/ci/development/repository_handoff.py').read_bytes()).body if isinstance(n,ast.ClassDef) and n.name=='Session')
+        init=next(n for n in owner.body if isinstance(n,ast.FunctionDef) and n.name=='__init__')
+        state=next(n.value for n in init.body if isinstance(n,ast.Assign) and any(isinstance(t,ast.Attribute) and t.attr=='result' for t in n.targets))
+        session.result=eval(compile(ast.Expression(state),'model-state','eval'),{'self':session,'sources':session.sources})
+        session.result.update(status='FAIL',error_code='source-refused',cleanup='PASS');session.native_hook_entered=False
+        before=copy.deepcopy(session.result);exception_before=(error.args,error.__traceback__)
+        session.startup_failed(error);observed=dict(session.startup_failure);projection=session.startup_projection()
+        self.assertEqual(set(projection),{'schema_version','purpose','status','phase','kind','site','object_clause','object_callsite','native_hook_entered','error_code','cleanup'})
+        self.assertEqual(projection['site'],'SERVICE_CANCEL_EXIT_SET_HANDLER_NONE_OTHER_TYPEERROR')
+        self.assertLessEqual(len(adapter.encoded(projection)),1024)
+        self.assertNotIn('PRIVATE',adapter.encoded(projection).decode());self.assertNotIn('/never/',adapter.encoded(projection).decode())
+        session.startup_failed(TypeError('later'));self.assertEqual(session.startup_failure,observed)
+        session.startup_failure=None;session.service_failure_site=lambda error:(_ for _ in ()).throw(KeyboardInterrupt())
+        session.startup_failed(error);self.assertEqual(session.startup_failure,{'phase':'construct-services','kind':'TYPE_ERROR','site':'OTHER','object_clause':'OTHER','object_callsite':'OTHER'})
+        self.assertEqual(session.result,before);self.assertEqual((error.args,error.__traceback__),exception_before)
+
+class SignalWrapperCompatibilityModels(unittest.TestCase):
+    """Pinned CPython body shape; inert signal API and exact project code only."""
+    model=ServiceAttributionModels.model
+    error=ServiceAttributionModels.error
+    MESSAGE=HandlerArgumentAttributionModels.MESSAGE
+    # Same body in pinned CPython 3.12.3 and 3.14.0; Python-2.0 provenance retained.
+    BODY='def signal(signalnum, handler):\n    handler = _signal.signal(_enum_to_int(signalnum), _enum_to_int(handler))\n    return _int_to_enum(handler, Handlers)\n'
+
+    def failure(self,original=None,text=None,variant=None,context='bare'):
+        import __future__
+        session,modules=self.model();common=modules['common'];api=types.ModuleType('signal')
+        handlers={2:original,15:0};first=TypeError(self.MESSAGE if text is None else text);restoring=[False]
+        def setter(number,value):
+            restoring[0]=number==2 and value is original
+            if restoring[0] and variant!='OFFSET':raise first
+            previous=handlers[number];handlers[number]=value;return previous
+        def convert(value,kind):
+            if variant=='OFFSET' and restoring[0]:raise first
+            return value
+        api.__dict__.update(_signal=types.SimpleNamespace(signal=setter),_enum_to_int=lambda value:value,
+            _int_to_enum=convert,Handlers=object(),SIG_DFL=0,SIG_IGN=1,SIG_BLOCK=0,SIG_SETMASK=1,
+            pthread_sigmask=lambda *a:set(),getsignal=lambda n:handlers[n],sigpending=lambda:set())
+        flags=__future__.annotations.compiler_flag if variant=='FLAGS' else 0
+        prefix='import _signal\n' if context=='module' else ''
+        code=next(code for code in adapter.code_objects(compile(prefix+self.BODY,'<closed-pinned-signal-body>','exec',flags=flags,dont_inherit=True)) if code.co_name=='signal')
+        api.signal=types.FunctionType(code,api.__dict__)
+        if variant=='STATE':api.signal.__defaults__=(0,)
+        if variant=='CONSTANTS':api.signal.__code__=api.signal.__code__.replace(co_consts=(object(),))
+        if variant=='CODE':api.signal.__code__=api.signal.__code__.replace(co_varnames=('signalnum','replacement'))
+        common.signal=api;context=common.defer_cancellation();context.__enter__()
+        error=self.error(lambda:context.__exit__(None,None,None));self.assertIs(error,first);self.assertEqual(common.PENDING,[])
+        if variant=='MODULE':api.__name__='foreign'
+        if variant=='TYPE':api.signal=object()
+        if variant=='GLOBALS':api.signal=types.FunctionType(api.signal.__code__,dict(api.__dict__))
+        if variant=='FRAME':api.signal=types.FunctionType(api.signal.__code__.replace(),api.__dict__)
+        return session,error,common
+
+    def test_selected_body_keeps_all_ten_handler_observations(self):
+        for context in ('bare','module'):
+            for kind,value in (('NONE',None),('DEFAULT',0),('IGNORE',1),('CALLABLE',lambda:None),('OTHER',object())):
+                for text,code in ((None,'BAD_HANDLER_API'),('PRIVATE /never/export','OTHER_TYPEERROR')):
+                    session,error,common=self.failure(value,text,context=context);before=(error.args,error.__traceback__)
+                    self.assertEqual(session.service_failure_site(error),'SERVICE_CANCEL_EXIT_SET_HANDLER_'+kind+'_'+code)
+                    self.assertEqual((error.args,error.__traceback__),before)
+
+    def test_nine_closed_refusals_keep_handler_unobserved(self):
+        suffixes={'MODULE':'API_MODULE','TYPE':'WRAPPER_TYPE','GLOBALS':'WRAPPER_GLOBALS','STATE':'WRAPPER_STATE',
+            'CONSTANTS':'WRAPPER_CONSTANTS','FLAGS':'WRAPPER_FLAGS','CODE':'WRAPPER_CODE','FRAME':'API_FRAME','OFFSET':'API_OFFSET'}
+        for variant,suffix in suffixes.items():
+            with self.subTest(variant=variant):
+                session,error,common=self.failure(variant=variant);before=(error.args,error.__traceback__)
+                self.assertEqual(session.service_failure_site(error),'SERVICE_CANCEL_EXIT_SET_HANDLER_'+suffix)
+                self.assertEqual((error.args,error.__traceback__),before)
+
+    def test_closed_projection_first_cause_and_optional_fault(self):
+        import ast,copy
+        session,error,common=self.failure(variant='FLAGS')
+        owner=next(node for node in ast.parse((ROOT/'scripts/ci/development/repository_handoff.py').read_bytes()).body if isinstance(node,ast.ClassDef) and node.name=='Session')
+        init=next(node for node in owner.body if isinstance(node,ast.FunctionDef) and node.name=='__init__')
+        state=next(node.value for node in init.body if isinstance(node,ast.Assign) and any(isinstance(target,ast.Attribute) and target.attr=='result' for target in node.targets))
+        session.result=eval(compile(ast.Expression(state),'inert-result-literal','eval'),{'self':session,'sources':session.sources})
+        session.result.update(status='FAIL',error_code='source-refused',cleanup='PASS');session.native_hook_entered=False
+        result=copy.deepcopy(session.result);before=(error.args,error.__traceback__)
+        session.startup_failed(error);failure=dict(session.startup_failure);projection=session.startup_projection()
+        self.assertEqual(projection['site'],'SERVICE_CANCEL_EXIT_SET_HANDLER_WRAPPER_FLAGS')
+        self.assertEqual((projection['status'],projection['error_code'],projection['cleanup']),('FAIL','source-refused','PASS'))
+        self.assertFalse(projection['native_hook_entered']);self.assertEqual(len(projection),11);self.assertLessEqual(len(adapter.encoded(projection)),1024)
+        self.assertNotIn('PRIVATE',adapter.encoded(projection).decode());session.startup_failed(TypeError('later'));self.assertEqual(session.startup_failure,failure)
+        def broken(error):raise KeyboardInterrupt()
+        session.service_failure_site=broken;session.startup_failure=None;session.startup_failed(error)
+        self.assertEqual(session.startup_failure,{'phase':'construct-services','kind':'TYPE_ERROR','site':'OTHER','object_clause':'OTHER','object_callsite':'OTHER'})
+        self.assertEqual(session.result,result);self.assertEqual((error.args,error.__traceback__),before)
+
+    def test_ambient_future_context_keeps_standard_wrapper(self):
+        import ast,__future__
+        flags=__future__.annotations.compiler_flag
+        raw=(ROOT/'scripts/ci/development/repository_handoff.py').read_bytes()
+        module=types.ModuleType('inert_future_wrapper_adapter');module.__file__=str(ROOT/'scripts/ci/development/repository_handoff.py')
+        exec(compile(raw,module.__file__,'exec',flags=flags,dont_inherit=True),module.__dict__)
+        nodes=[node for node in ast.parse((ROOT/'scripts/ci/development/test_repository_handoff.py').read_bytes()).body
+            if isinstance(node,ast.ClassDef) and node.name in ('ServiceAttributionModels','HandlerArgumentAttributionModels','SignalWrapperCompatibilityModels')]
+        namespace=dict(unittest=unittest,adapter=module,types=types,Path=Path,ROOT=ROOT)
+        exec(compile(ast.Module(body=nodes,type_ignores=[]),'<inert-future-models>','exec',flags=flags,dont_inherit=True),namespace)
+        model=namespace['SignalWrapperCompatibilityModels']('test_selected_body_keeps_all_ten_handler_observations')
+        with self.assertRaisesRegex(NameError,'LEGACY_CANCEL_SOURCE'):
+            model.failure(context='bare')
+        namespace['LEGACY_CANCEL_SOURCE']=LEGACY_CANCEL_SOURCE
+        for context in ('bare','module'):
+            session,error,common=model.failure(context=context)
+            self.assertEqual(session.service_failure_site(error),'SERVICE_CANCEL_EXIT_SET_HANDLER_NONE_BAD_HANDLER_API')
+
+# SPDX-License-Identifier: MIT
+import signal
+class OpaqueCancellationModels(unittest.TestCase):
+    """No process or kernel calls: explicit model of Python-cache/native opacity."""
+    class Signals:
+        SIG_BLOCK, SIG_SETMASK = signal.SIG_BLOCK, signal.SIG_SETMASK
+        def __init__(self, blocked=()):
+            self.mask=set(blocked);self.pending=set();self.handlers={signal.SIGINT:signal.default_int_handler,signal.SIGTERM:None}
+            self.initial=dict(self.handlers);self.setters=[];self.waits=[];self.fault=None
+        def pthread_sigmask(self,how,values):
+            old=set(self.mask)
+            self.mask=self.mask|set(values) if how==self.SIG_BLOCK else set(values)
+            return old
+        def getsignal(self,number):return self.handlers[number]
+        def signal(self,number,value):
+            self.setters.append((number,value))
+            if value is None:raise TypeError('signal handler must be signal.SIG_IGN, signal.SIG_DFL, or a callable object')
+            old=self.handlers[number];self.handlers[number]=value
+            if self.fault and value is self.initial[number]:raise self.fault
+            return old
+        def sigpending(self):return set(self.pending)
+        def sigwait(self,values):
+            assert set(values)<=self.mask and self.pending&set(values)
+            number=next(iter(self.pending&set(values)));self.pending.remove(number);self.waits.append(number);return number
+    def setUp(self):
+        path=Path(adapter.__file__).resolve().parents[3]/'scripts/port/repository-client-native/common.py'
+        self.common=types.ModuleType('opaque_model_common');self.common.__file__=str(path)
+        exec(compile(path.read_bytes(),str(path),'exec',dont_inherit=True),self.common.__dict__)
+        self.api=self.Signals();self.original=self.common.signal;self.common.signal=self.api
+        self.assertEqual((self.common.PENDING,self.common.SIGNAL_SCOPES),([],[]))
+    def tearDown(self):
+        self.common.signal=self.original
+        self.assertEqual((self.common.PENDING,self.common.SIGNAL_SCOPES),([],[]))
+    def restored(self,mask=()):
+        self.assertEqual(self.api.handlers,self.api.initial);self.assertEqual(self.api.mask,set(mask))
+        self.assertFalse(any(number==signal.SIGTERM for number,value in self.api.setters))
+    def test_no_signal_preserves_opaque_and_known_pair(self):
+        for factory in (self.common.defer_cancellation,self.common.cancellation_handlers):
+            with factory():self.assertEqual(self.api.mask,{signal.SIGTERM})
+            self.restored()
+    def test_prompt_checkpoint_and_exit_both_cancel(self):
+        for checkpoint in (True,False):
+            reached=[]
+            with self.assertRaises(KeyboardInterrupt):
+                with self.common.cancellation_handlers():
+                    self.api.pending.add(signal.SIGTERM)
+                    if checkpoint:self.common.need(True,'unused')
+                    reached.append(True)
+            self.assertEqual(reached,[] if checkpoint else [True]);self.restored()
+        self.assertEqual(self.api.waits,[signal.SIGTERM]*2)
+    def test_nested_defer_inherits_pollable_block_and_finishes(self):
+        reached=[]
+        with self.assertRaises(KeyboardInterrupt):
+            with self.common.defer_cancellation():
+                with self.common.defer_cancellation():
+                    self.api.pending.add(signal.SIGTERM);self.common.need(True,'unused');reached.append('inner')
+                    self.assertEqual(self.common.PENDING[-1],[signal.SIGTERM])
+                self.assertEqual(self.common.PENDING[-1],[signal.SIGTERM]);reached.append('outer')
+        self.assertEqual(reached,['inner','outer']);self.restored()
+    def test_originally_blocked_pending_is_not_consumed(self):
+        self.api.mask={signal.SIGTERM};self.api.pending={signal.SIGTERM}
+        with self.common.cancellation_handlers():
+            with self.common.defer_cancellation():self.common.need(True,'unused')
+        self.assertEqual(self.api.pending,{signal.SIGTERM});self.assertEqual(self.api.waits,[]);self.restored({signal.SIGTERM})
+    def test_body_first_failure_retains_cancellation_and_setter_fault(self):
+        failure=ValueError('first-model-failure')
+        with self.assertRaises(ValueError) as got:
+            with self.common.defer_cancellation():
+                self.api.pending.add(signal.SIGTERM);raise failure
+        self.assertIs(got.exception,failure);self.assertIsInstance(failure.__cause__,KeyboardInterrupt);self.restored()
+        self.assertIs(self.common.cancellation_requested(),True)
+        fault=RuntimeError('restoration-model-fault');self.api.fault=fault
+        with self.assertRaises(ValueError) as got:
+            with self.common.cancellation_handlers():raise failure
+        self.assertIs(got.exception,failure);self.assertIn(fault,failure.__cause__.exceptions);self.restored()
+    def test_restoration_fault_is_not_ignored(self):
+        fault=RuntimeError('restoration-model-fault');self.api.fault=fault
+        with self.assertRaises(RuntimeError) as got:
+            with self.common.defer_cancellation():pass
+        self.assertIs(got.exception,fault);self.restored()
+    def test_wait_checkpoints_at_fifty_ms_and_preserves_deadline(self):
+        api=self.api
+        class Child:
+            args=['inert'];calls=[]
+            def wait(self,timeout):
+                self.calls.append(timeout);api.pending.add(signal.SIGTERM)
+                raise subprocess.TimeoutExpired(self.args,timeout)
+        child=Child()
+        with self.assertRaises(KeyboardInterrupt):
+            with self.common.cancellation_handlers():self.common.wait_process(child,self.common.time.monotonic()+1)
+        self.assertEqual(len(child.calls),1);self.assertLessEqual(child.calls[0],.05);self.restored()
+        with self.assertRaises(subprocess.TimeoutExpired):self.common.wait_process(child,self.common.time.monotonic()-1)
+    def test_owned_child_setup_restores_original_mask_without_polling_block(self):
+        self.api.mask={signal.SIGINT}
+        calls=[];original=self.common.resource
+        class Limits:
+            RLIMIT_AS,RLIMIT_CPU,RLIMIT_NOFILE,RLIMIT_FSIZE,RLIMIT_CORE=range(5)
+            def setrlimit(self,kind,value):calls.append((kind,value))
+        self.common.resource=Limits()
+        try:
+            with self.common.defer_cancellation():self.common.limits()
+        finally:
+            self.common.resource=original
+        self.assertEqual(self.api.mask,{signal.SIGINT});self.assertEqual(len(calls),5)
+        self.assertEqual(self.api.waits,[])
+    def test_sticky_cancellation_query_is_closed_and_independent_of_failure(self):
+        self.assertIs(self.common.cancellation_requested(),False)
+        with self.assertRaises(KeyboardInterrupt):
+            with self.common.cancellation_handlers():
+                self.api.pending.add(signal.SIGTERM);self.common.cancellation_checkpoint()
+        self.assertIs(self.common.cancellation_requested(),True)
+        for foreign in ({True},{99},['15']):
+            self.common.CANCELLATION_EVENTS=foreign
+            with self.assertRaises(self.common.Refused):self.common.cancellation_requested()
+        self.common.CANCELLATION_EVENTS=set()
+    def test_scope_refuses_foreign_callbacks_and_signal_objects_without_execution(self):
+        called=[]
+        class Foreign:
+            def __hash__(self):called.append('hash');raise AssertionError('foreign hash executed')
+        with self.common.defer_cancellation():
+            scope=self.common.SIGNAL_SCOPES[-1]
+            for bad in ((lambda *args:called.append('callback'),scope[1],scope[2]),(scope[0],(Foreign(),),scope[2])):
+                self.common.SIGNAL_SCOPES[-1]=bad
+                with self.assertRaises(self.common.Refused):self.common.cancellation_checkpoint()
+            self.common.SIGNAL_SCOPES[-1]=scope
+        self.assertEqual(called,[])
+
+# SPDX-License-Identifier: MIT
+class OpaqueCancellationReportingModels(unittest.TestCase):
+    """Exact Session.execute with inert service/actor/source boundaries."""
+    def common(self):
+        path=Path(adapter.__file__).resolve().parents[3]/'scripts/port/repository-client-native/common.py'
+        module=types.ModuleType('reporting_model_common');module.__file__=str(path)
+        exec(compile(path.read_bytes(),str(path),'exec',dont_inherit=True),module.__dict__)
+        module.signal=OpaqueCancellationModels.Signals()
+        return module
+    def test_first_failure_and_cancellation_are_independent_execute_fields(self):
+        from contextlib import ExitStack
+        for first_failure,pending,observer_fault in ((True,True,None),(True,False,None),(False,True,None),
+                (True,False,'registry'),(True,False,'function'),(True,False,'enum'),(True,True,'teardown'),(True,False,'interrupt')):
+            with self.subTest(first=first_failure,pending=pending,observer=observer_fault),tempfile.TemporaryDirectory(prefix='opaque-disposition-model-') as temporary:
+                common=self.common();output=Path(temporary)/'handoff';runtime={'cli_sha256':'d'*64,'endpoint_identity':[1]*6,'env':{}};argv=['integration'];published=[];seen=[]
+                first=adapter.Refused('callback-refused')
+                original_mask=common.signal.pthread_sigmask
+                mask_calls=[]
+                def teardown_mask(*args):
+                    mask_calls.append(args)
+                    if len(mask_calls)==3:
+                        if observer_fault=='interrupt':raise KeyboardInterrupt('inert final-block interrupt')
+                        raise OSError('inert final-block fault')
+                    return original_mask(*args)
+                if observer_fault in ('teardown','interrupt'):common.signal.pthread_sigmask=teardown_mask
+                def services(*args,**kwargs):
+                    if pending:common.signal.pending.add(signal.SIGTERM)
+                    if observer_fault=='registry':common.CANCELLATION_EVENTS=set()
+                    if observer_fault=='function':common.cancellation_requested=lambda:True
+                    if observer_fault=='enum':common.CANCELLATION_EVENTS.add(99)
+                    if first_failure:raise first
+                    return {'transport':types.SimpleNamespace(close=lambda:None)}
+                collector={'common':common}
+                entry=types.SimpleNamespace(authenticated=lambda *a,**k:({'launch':types.SimpleNamespace(CANCELLATION_EVENTS=set(),CANCELLATION_UNCERTAIN=set())},{}),
+                    dependency_entry=lambda *a,**k:({}, {}) if k.get('phase') else (collector,{}),services=services)
+                sources=adapter.Sources.__new__(adapter.Sources)
+                sources.root=Path(adapter.__file__).resolve().parents[3];sources.original_root=None
+                path=adapter.PREFIXES['collector']+'/common.py'
+                sources.raw={path:Path(common.__file__).read_bytes(),'model-map':b'{}'}
+                sources.grant={'source_commit':'a'*40,'run_id':'1','run_attempt':'1',
+                    'actor_contract_sha256':adapter.digest(adapter.encoded(runtime)),
+                    'initial_invocation_sha256':adapter.digest(adapter.encoded({'argv':argv,'output':str(output)})),
+                    'maps':{role:{'path':'model-map','sha256':'e'*64} for role in ('runtime','collector','phase')},
+                    'source_files':{adapter.PREFIXES[role]+'/entry.py':{'sha256':'f'*64} for role in ('collector','phase')}}
+                sources.grant_pin='0'*64;sources.module=lambda *args:entry;sources.source_graph=lambda *a,**k:None
+                session=adapter.Session(sources,output,job_deadline=time.monotonic()+30,composition='installer-preflight-maintained-v1')
+                session.downstream_signal_disposition=lambda *args:(False,False)
+                original_failed=adapter.Session.startup_failed
+                def failed(self,error):seen.append(error);return original_failed(self,error)
+                def remove(path,*args):
+                    if path is not None and Path(path).exists():shutil.rmtree(path)
+                with ExitStack() as stack:
+                    for name,value in [('bindings',lambda *a:None),('remove_private',remove),
+                            ('revoke_phase_receipt',lambda *a:None),('publish_status',lambda p,v,**k:published.append(copy.deepcopy(v)))]:
+                        stack.enter_context(patch.object(adapter,name,value))
+                    stack.enter_context(patch.dict(os.environ,{'GITHUB_SHA':'a'*40,'GITHUB_RUN_ID':'1','GITHUB_RUN_ATTEMPT':'1'}))
+                    for name,value in [('view_plan',lambda *a:output/'view'),('prepare_view',lambda *a:None),
+                            ('register_native_preflight',lambda *a:None),('emit_startup_refusal',lambda *a:None),('startup_failed',failed)]:
+                        stack.enter_context(patch.object(adapter.Session,name,value))
+                    result=session.execute(argv,{},runtime)
+                self.assertEqual(result['status'],'FAIL');self.assertFalse(result['callback_entered'])
+                self.assertIsNone(result['initial_exit_code']);self.assertEqual(len(published),1)
+                if first_failure:
+                    self.assertIs(seen[0],first);self.assertEqual(result['error_code'],'callback-refused')
+                    self.assertEqual(session.startup_failure['kind'],'SOURCE_REFUSAL')
+                else:
+                    self.assertIsInstance(seen[0],KeyboardInterrupt);self.assertEqual(result['error_code'],'cancelled')
+                self.assertIs(result['cancelled'],pending or observer_fault=='interrupt')
+                self.assertEqual(result['cleanup'],'FAIL' if observer_fault else 'PASS')
+                if first_failure and pending:
+                    causes=first.__cause__.exceptions if isinstance(first.__cause__,BaseExceptionGroup) else (first.__cause__,)
+                    self.assertTrue(any(isinstance(item,KeyboardInterrupt) for item in causes))
+                self.assertEqual(common.PENDING,[]);self.assertEqual(common.SIGNAL_SCOPES,[])
+    def test_observer_binds_code_globals_and_registry_identity(self):
+        common=self.common();sources=adapter.Sources.__new__(adapter.Sources)
+        sources.root=Path(adapter.__file__).resolve().parents[3]
+        sources.original_root=None
+        path=adapter.PREFIXES['collector']+'/common.py';sources.raw={path:Path(common.__file__).read_bytes()}
+        session=adapter.Session.__new__(adapter.Session);session.sources=sources
+        events=common.CANCELLATION_EVENTS;collector={'common':common}
+        self.assertIs(session.cancellation_observed(collector,events),False)
+        events.add(signal.SIGTERM);self.assertIs(session.cancellation_observed(collector,events),True)
+        with self.assertRaises(adapter.Refused):session.cancellation_observed(collector,set(events))
+        callback=common.cancellation_requested
+        for foreign in (lambda:True,types.FunctionType(callback.__code__,dict(callback.__globals__))):
+            common.cancellation_requested=foreign
+            with self.assertRaises(adapter.Refused):session.cancellation_observed(collector,events)
+        common.cancellation_requested=callback;events.add(True)
+        with self.assertRaises(common.Refused):session.cancellation_observed(collector,events)
+
+# SPDX-License-Identifier: MIT
+class SignalTeardownFailureModels(unittest.TestCase):
+    """Every teardown API is an inert seam; no real signal operation."""
+    class Signals(OpaqueCancellationModels.Signals):
+        def __init__(self,site,known=False,permanent=False):
+            super().__init__();self.site=site;self.permanent=permanent;self.fault=OSError('inert teardown fault')
+            self.counts={};self.armed=False;self.primary=self.fault
+            # Parent model's setter fault hook is distinct from this site injector.
+            self.fault=None
+            if known:self.handlers={signal.SIGINT:0,signal.SIGTERM:0};self.initial=dict(self.handlers)
+        def fault_at(self,site):
+            self.counts[site]=self.counts.get(site,0)+1
+            if self.armed and site==self.site and (self.permanent or self.counts[site]==1):raise self.primary
+        def pthread_sigmask(self,how,values):
+            if self.armed:self.fault_at('block' if how==self.SIG_BLOCK else 'mask')
+            return super().pthread_sigmask(how,values)
+        def signal(self,number,value):
+            if self.armed:self.fault_at('set')
+            return super().signal(number,value)
+        def getsignal(self,number):
+            if self.armed:self.fault_at('get')
+            return super().getsignal(number)
+        def sigpending(self):self.fault_at('pending');return super().sigpending()
+        def sigwait(self,values):self.fault_at('wait');return super().sigwait(values)
+    def common(self):
+        path=Path(adapter.__file__).resolve().parents[3]/'scripts/port/repository-client-native/common.py'
+        module=types.ModuleType('teardown_model_common');module.__file__=str(path)
+        exec(compile(path.read_bytes(),str(path),'exec',dont_inherit=True),module.__dict__)
+        return module
+    def causes(self,error):
+        if isinstance(error,BaseExceptionGroup):
+            return [leaf for child in error.exceptions for leaf in self.causes(child)]
+        return [error]
+    def test_six_api_fault_sites_keep_body_and_dispose_scope(self):
+        for site in ('block','mask','get','set','pending','wait'):
+            with self.subTest(site=site):
+                common=self.common();api=self.Signals(site,known=site in ('get','set'));common.signal=api
+                first=ValueError('first body failure')
+                try:
+                    with common.defer_cancellation():
+                        if site=='wait':api.pending.add(signal.SIGTERM)
+                        api.armed=True;raise first
+                except ValueError as error:
+                    self.assertIs(error,first);self.assertIn(api.primary,self.causes(error.__cause__))
+                else:self.fail('body error missing')
+                self.assertEqual((common.SIGNAL_SCOPES,common.PENDING),([],[]))
+                self.assertEqual(api.handlers,api.initial)
+                self.assertIn(site,common.CANCELLATION_UNCERTAIN)
+                self.assertIs(common.cancellation_uncertain(),True)
+                if site not in ('pending',):self.assertEqual(api.mask,set())
+                self.assertFalse(any(value is None for number,value in api.setters))
+                if site=='wait':
+                    self.assertIs(common.cancellation_requested(),True)
+                    self.assertTrue(any(isinstance(item,KeyboardInterrupt) for item in self.causes(first.__cause__)))
+    def test_fault_without_body_is_raised_not_ignored(self):
+        common=self.common();api=self.Signals('block');common.signal=api
+        with self.assertRaises(OSError) as got:
+            with common.defer_cancellation():api.armed=True
+        self.assertIs(got.exception,api.primary);self.assertEqual(common.SIGNAL_SCOPES,[])
+        self.assertTrue(common.cancellation_uncertain())
+    def test_multiple_faults_and_preexisting_cause_are_retained(self):
+        common=self.common();api=self.Signals('mask',permanent=True);common.signal=api
+        prior=RuntimeError('preexisting cause');first=ValueError('body');first.__cause__=prior
+        try:
+            with common.defer_cancellation():api.pending.add(signal.SIGTERM);api.armed=True;raise first
+        except ValueError as got:self.assertIs(got,first)
+        leaves=self.causes(first.__cause__)
+        self.assertIn(prior,leaves);self.assertIn(api.primary,leaves)
+        self.assertTrue(any(isinstance(item,KeyboardInterrupt) for item in leaves))
+        self.assertEqual((common.SIGNAL_SCOPES,common.PENDING),([],[]))
+        self.assertTrue(common.cancellation_requested());self.assertTrue(common.cancellation_uncertain())
+    def test_permanent_wait_failure_retains_event_and_protective_block(self):
+        common=self.common();api=self.Signals('wait',permanent=True);common.signal=api
+        first=ValueError('body')
+        try:
+            with common.defer_cancellation():api.pending.add(signal.SIGTERM);api.armed=True;raise first
+        except ValueError as got:self.assertIs(got,first)
+        self.assertEqual(api.counts['wait'],2);self.assertIn(signal.SIGTERM,api.mask)
+        self.assertIn(signal.SIGTERM,api.pending);self.assertEqual((common.SIGNAL_SCOPES,common.PENDING),([],[]))
+        self.assertTrue(common.cancellation_requested());self.assertTrue(common.cancellation_uncertain())
+        self.assertIn('wait',common.CANCELLATION_UNCERTAIN);self.assertIn('mask',common.CANCELLATION_UNCERTAIN)
+    def test_scope_mismatch_and_rebinding_restore_exact_owned_prefix(self):
+        for rebind in (False,True):
+            common=self.common();api=self.Signals(None);common.signal=api
+            first=ValueError('body');registry=common.SIGNAL_SCOPES
+            try:
+                with common.defer_cancellation():
+                    if rebind:common.SIGNAL_SCOPES=[]
+                    else:common.SIGNAL_SCOPES.append(('foreign-row',))
+                    raise first
+            except ValueError as got:self.assertIs(got,first)
+            self.assertIs(common.SIGNAL_SCOPES,registry);self.assertEqual(registry,[])
+            self.assertEqual(common.PENDING,[]);self.assertIn('registry',common.CANCELLATION_UNCERTAIN)
+            self.assertTrue(any(isinstance(item,common.Refused) for item in self.causes(first.__cause__)))
+            self.assertEqual(api.mask,set())
+    def test_nested_failure_disposes_inner_and_preserves_outer_pending_transfer(self):
+        common=self.common();api=self.Signals('block');common.signal=api
+        first=ValueError('body');reached=[]
+        try:
+            with common.defer_cancellation():
+                outer=common.SIGNAL_SCOPES[0]
+                try:
+                    with common.defer_cancellation():
+                        api.pending.add(signal.SIGTERM);api.armed=True;raise first
+                except ValueError as got:
+                    self.assertIs(got,first);self.assertEqual(common.SIGNAL_SCOPES,[outer]);reached.append('outer')
+                self.assertEqual(common.PENDING[-1],[signal.SIGTERM])
+                raise first
+        except ValueError as got:self.assertIs(got,first)
+        self.assertEqual(reached,['outer']);self.assertEqual((common.SIGNAL_SCOPES,common.PENDING),([],[]))
+        self.assertTrue(common.cancellation_requested());self.assertTrue(common.cancellation_uncertain())
+    def test_uncertainty_registry_is_closed(self):
+        common=self.common()
+        for bad in ({'raw errno/path'}, {True}, ['block']):
+            common.CANCELLATION_UNCERTAIN=bad
+            with self.assertRaises(common.Refused):common.cancellation_uncertain()
+    def test_replay_failure_retains_body_and_marks_uncertainty(self):
+        common=self.common();api=self.Signals(None);common.signal=api
+        body=ValueError('body');fault=OSError('inert replay fault')
+        def handler(*args):raise fault
+        try:
+            with common._signal_handlers(handler):api.pending.add(signal.SIGTERM);raise body
+        except ValueError as got:self.assertIs(got,body)
+        self.assertIn(fault,self.causes(body.__cause__));self.assertIn('replay',common.CANCELLATION_UNCERTAIN)
+        self.assertEqual(common.SIGNAL_SCOPES,[]);self.assertEqual(api.mask,set())
+    def test_teardown_interrupt_retains_cancel_without_guessing_signal_number(self):
+        common=self.common();api=self.Signals('mask');common.signal=api
+        api.primary=KeyboardInterrupt('inert teardown interrupt');body=ValueError('body')
+        try:
+            with common.defer_cancellation():api.armed=True;raise body
+        except ValueError as got:self.assertIs(got,body)
+        self.assertIn(api.primary,self.causes(body.__cause__))
+        self.assertEqual(common.CANCELLATION_EVENTS,{'INTERRUPT'})
+        self.assertTrue(common.cancellation_requested());self.assertTrue(common.cancellation_uncertain())
+        self.assertEqual(common.SIGNAL_SCOPES,[]);self.assertEqual(api.mask,set())
+    def test_permanent_block_failure_never_attempts_unprotected_handler_restoration(self):
+        common=self.common();api=self.Signals('block',known=True,permanent=True);common.signal=api
+        body=ValueError('body');setters=[]
+        try:
+            with common.defer_cancellation():setters=list(api.setters);api.armed=True;raise body
+        except ValueError as got:self.assertIs(got,body)
+        self.assertEqual(api.setters,setters);self.assertEqual(api.mask,set(common.SIGNALS))
+        self.assertEqual(common.SIGNAL_SCOPES,[]);self.assertEqual(common.PENDING,[])
+        self.assertEqual(common.CANCELLATION_UNCERTAIN,{'block','handler','mask'})
+
+# SPDX-License-Identifier: MIT
+class DownstreamSignalModels(unittest.TestCase):
+    """Selected Source contexts and polls; every kernel/process seam is inert."""
+    class Signals:
+        SIGINT,SIGTERM,SIG_BLOCK,SIG_SETMASK=signal.SIGINT,signal.SIGTERM,signal.SIG_BLOCK,signal.SIG_SETMASK
+        SIGKILL=signal.SIGKILL
+        def __init__(self,opaque=True,blocked=()):
+            self.handlers={2:0,15:None if opaque else 1};self.initial=dict(self.handlers)
+            self.mask=set(blocked);self.pending=set();self.setters=[];self.waits=[]
+            self.armed=False;self.site=None;self.permanent=False;self.counts={}
+            self.fault=OSError('inert downstream API fault')
+        def trip(self,site):
+            if self.armed and site==self.site:
+                self.counts[site]=self.counts.get(site,0)+1
+                if self.permanent or self.counts[site]==1:raise self.fault
+        def pthread_sigmask(self,how,numbers):
+            self.trip('block' if how==self.SIG_BLOCK else 'mask');old=set(self.mask)
+            self.mask=self.mask|set(numbers) if how==self.SIG_BLOCK else set(numbers);return old
+        def getsignal(self,number):self.trip('get');return self.handlers[number]
+        def signal(self,number,handler):
+            self.trip('set');self.setters.append((number,handler))
+            if handler is None:raise TypeError('signal handler must be signal.SIG_IGN, signal.SIG_DFL, or a callable object')
+            old=self.handlers[number];self.handlers[number]=handler;return old
+        def sigpending(self):self.trip('pending');return set(self.pending)
+        def sigwait(self,numbers):
+            self.trip('wait');assert set(numbers)<=self.mask and self.pending&set(numbers)
+            number=next(iter(self.pending&set(numbers)));self.pending.remove(number);self.waits.append(number);return number
+        def emit(self,number=15):
+            if number in self.mask:self.pending.add(number)
+            else:self.handlers[number](number,None)
+    @staticmethod
+    def modules(root=None):
+        root=Path(root or Path(adapter.__file__).resolve().parents[3])
+        prefix=root/'scripts/port/repository-native-handoff'
+        launch=types.ModuleType('downstream_model_launch');launch.__file__=str(prefix/'launch.py')
+        exec(compile((prefix/'launch.py').read_bytes(),launch.__file__,'exec',dont_inherit=True),launch.__dict__)
+        transport=types.ModuleType('downstream_model_transport');transport.__file__=str(prefix/'transport.py')
+        with patch.dict(sys.modules,launch=launch):
+            exec(compile((prefix/'transport.py').read_bytes(),transport.__file__,'exec',dont_inherit=True),transport.__dict__)
+        return launch,transport
+    @staticmethod
+    def causes(error,seen=None):
+        seen=set() if seen is None else seen
+        if error is None or id(error) in seen:return []
+        seen.add(id(error))
+        if isinstance(error,BaseExceptionGroup):
+            return [leaf for child in error.exceptions for leaf in DownstreamSignalModels.causes(child,seen)]
+        return [error]+DownstreamSignalModels.causes(error.__cause__,seen)
+    def fresh(self,opaque=True,blocked=()):
+        launch,transport=self.modules();api=self.Signals(opaque,blocked)
+        launch.signal=transport.signal=api;return launch,transport,api
+    def restored(self,launch,api,mask=()):
+        self.assertEqual(api.handlers,api.initial);self.assertEqual(api.mask,set(mask))
+        self.assertEqual(launch.SIGNAL_SCOPES,[])
+        self.assertFalse(any(handler is None for number,handler in api.setters))
+    def test_both_scopes_known_opaque_and_body_identity(self):
+        for opaque in (False,True):
+            for which in ('launch','transport'):
+                for failing in (False,True):
+                    launch,transport,api=self.fresh(opaque);state=launch.Cancellation();first=ValueError('body')
+                    factory=launch.cancellation_handlers if which=='launch' else transport.handlers
+                    try:
+                        with factory(state):
+                            if failing:raise first
+                    except ValueError as got:self.assertIs(got,first);self.assertTrue(failing)
+                    else:self.assertFalse(failing)
+                    self.restored(launch,api);self.assertFalse(launch.cancellation_uncertain())
+    def test_both_clean_cancel_and_body_plus_pending_keep_cause(self):
+        for which in ('launch','transport'):
+            for failing in (False,True):
+                launch,transport,api=self.fresh();state=launch.Cancellation();first=ValueError('body')
+                prior=RuntimeError('prior');first.__cause__=prior
+                factory=launch.cancellation_handlers if which=='launch' else transport.handlers
+                try:
+                    with factory(state):
+                        api.emit()
+                        if failing:raise first
+                except BaseException as got:
+                    if failing:
+                        self.assertIs(got,first);self.assertIn(prior,self.causes(got.__cause__))
+                        self.assertTrue(any(isinstance(leaf,launch.Cancelled) for leaf in self.causes(got.__cause__)))
+                    else:self.assertIsInstance(got,launch.Cancelled)
+                else:self.fail('cancellation lost')
+                self.restored(launch,api);self.assertTrue(state.pending);self.assertTrue(launch.cancellation_requested())
+                self.assertFalse(launch.cancellation_uncertain())
+    def test_checkpoints_preserve_prompt_and_known_asynchronous_behavior(self):
+        for which in ('launch','transport'):
+            launch,transport,api=self.fresh();state=launch.Cancellation();steps=[]
+            factory=launch.cancellation_handlers if which=='launch' else transport.handlers
+            alive=launch.alive if which=='launch' else transport.alive
+            with self.assertRaises(launch.Cancelled):
+                with factory(state):api.emit();alive(time.monotonic()+10);steps.append('too-late')
+            self.assertEqual(steps,[]);self.restored(launch,api)
+        launch,transport,api=self.fresh(False);state=transport.Events();steps=[]
+        with self.assertRaises(transport.Cancelled):
+            with transport.handlers(state):api.emit(2);steps.append('too-late')
+        self.assertEqual(steps,[]);self.restored(launch,api)
+    def test_nested_opaque_transport_propagates_and_child_mask_is_outer_entry(self):
+        launch,transport,api=self.fresh(blocked={2});outer=launch.Cancellation();inner=transport.Events()
+        first=None
+        try:
+            with launch.cancellation_handlers(outer):
+                with transport.handlers(inner) as child_mask:
+                    self.assertEqual(child_mask,{2});self.assertEqual(api.mask,{2,15})
+                    api.emit();transport.alive(time.monotonic()+10)
+        except launch.Cancelled as got:first=got
+        self.assertIsNotNone(first);self.assertTrue(outer.pending);self.assertTrue(inner.cancelled)
+        self.restored(launch,api,{2});self.assertFalse(launch.cancellation_uncertain())
+    def test_nested_defer_finishes_and_keeps_first_body(self):
+        for failing in (False,True):
+            launch,transport,api=self.fresh();state=launch.Cancellation();steps=[];first=ValueError('body')
+            try:
+                with launch.cancellation_handlers(state):
+                    with state.defer():
+                        with state.defer():api.emit();launch.alive(time.monotonic()+10);steps.append('inner')
+                        steps.append('outer')
+                        if failing:raise first
+            except BaseException as got:
+                if failing:self.assertIs(got,first)
+                else:self.assertIsInstance(got,launch.Cancelled)
+            else:self.fail('deferred cancel lost')
+            self.assertEqual(steps,['inner','outer']);self.assertEqual(state.depth,0);self.restored(launch,api)
+    def test_originally_blocked_pending_is_preserved_across_both_scopes(self):
+        launch,transport,api=self.fresh(blocked={15});api.pending.add(15)
+        outer=launch.Cancellation();inner=transport.Events()
+        with launch.cancellation_handlers(outer):
+            with transport.handlers(inner) as child_mask:
+                self.assertEqual(child_mask,{15});transport.alive(time.monotonic()+10)
+                with inner.defer():launch.alive(time.monotonic()+10)
+        self.restored(launch,api,{15});self.assertEqual(api.pending,{15});self.assertEqual(api.waits,[])
+        self.assertFalse(outer.pending);self.assertFalse(inner.pending);self.assertFalse(launch.cancellation_requested())
+    def test_all_six_teardown_sites_preserve_body_and_secondary_causes(self):
+        for which in ('launch','transport'):
+            for site in ('block','mask','get','set','pending','wait'):
+                launch,transport,api=self.fresh(site not in ('get','set'));state=launch.Cancellation()
+                factory=launch.cancellation_handlers if which=='launch' else transport.handlers
+                first=ValueError('body');prior=RuntimeError('prior');first.__cause__=prior
+                try:
+                    with factory(state):
+                        if site=='wait':api.pending.add(15)
+                        api.site=site;api.armed=True;raise first
+                except ValueError as got:
+                    self.assertIs(got,first);self.assertIn(prior,self.causes(got.__cause__))
+                    self.assertIn(api.fault,self.causes(got.__cause__))
+                else:self.fail('first body lost')
+                self.assertTrue(launch.cancellation_uncertain());self.assertEqual(launch.SIGNAL_SCOPES,[])
+                self.assertEqual(state.depth,0);self.assertFalse(any(handler is None for number,handler in api.setters))
+                self.assertEqual(state.pending,site=='wait')
+    def test_permanent_wait_retains_pending_and_protective_block(self):
+        launch,transport,api=self.fresh();state=transport.Events();first=ValueError('body')
+        try:
+            with transport.handlers(state):api.pending.add(15);api.site='wait';api.permanent=True;api.armed=True;raise first
+        except ValueError as got:self.assertIs(got,first)
+        self.assertIn(api.fault,self.causes(first.__cause__));self.assertEqual(api.counts['wait'],2)
+        self.assertEqual(api.pending,{15});self.assertIn(15,api.mask);self.assertTrue(state.cancelled)
+        self.assertTrue(launch.cancellation_uncertain());self.assertEqual(launch.SIGNAL_SCOPES,[])
+    def test_registry_disposal_and_retained_unknown_interrupt(self):
+        for mode in ('row','rebind','interrupt'):
+            launch,transport,api=self.fresh();state=launch.Cancellation();first=ValueError('body');registry=launch.SIGNAL_SCOPES
+            try:
+                with launch.cancellation_handlers(state):
+                    if mode=='row':registry.append(('foreign',))
+                    elif mode=='rebind':launch.SIGNAL_SCOPES=[]
+                    else:api.site='block';api.fault=KeyboardInterrupt('inert unknown number');api.armed=True
+                    raise first
+            except ValueError as got:self.assertIs(got,first)
+            self.assertIs(launch.SIGNAL_SCOPES,registry);self.assertEqual(registry,[])
+            self.assertTrue(launch.cancellation_uncertain());self.assertEqual(state.pending,mode=='interrupt')
+            if mode=='interrupt':self.assertEqual(launch.CANCELLATION_EVENTS,{'INTERRUPT'})
+    def test_permanent_block_and_replay_faults_keep_body_and_closed_uncertainty(self):
+        launch,transport,api=self.fresh(False);state=transport.Events();first=ValueError('body')
+        try:
+            with transport.handlers(state):api.site='block';api.permanent=True;api.armed=True;raise first
+        except ValueError as got:self.assertIs(got,first)
+        self.assertEqual(api.counts['block'],2);self.assertEqual(api.mask,{2,15})
+        self.assertTrue(launch.cancellation_uncertain());self.assertIn('handler',state.uncertain)
+        self.assertEqual(launch.SIGNAL_SCOPES,[]);self.assertIn(api.fault,self.causes(first.__cause__))
+        launch,transport,api=self.fresh();state=launch.Cancellation();first=ValueError('body');fault=OSError('inert replay')
+        def original(number,frame):raise fault
+        api.handlers[2]=api.initial[2]=original
+        try:
+            with state.defer():api.emit(2);raise first
+        except ValueError as got:self.assertIs(got,first)
+        self.assertIn(fault,self.causes(first.__cause__));self.assertIn('replay',state.uncertain)
+        self.assertTrue(state.pending);self.assertTrue(launch.cancellation_requested());self.assertTrue(launch.cancellation_uncertain())
+        self.restored(launch,api)
+    def test_captured_global_and_state_set_identities_roll_back_after_rebinding(self):
+        for name in ('CANCELLATION_EVENTS','CANCELLATION_UNCERTAIN','numbers','uncertain'):
+            launch,transport,api=self.fresh();state=launch.Cancellation();first=ValueError('body')
+            owner=launch if name.startswith('CANCELLATION_') else state;registry=getattr(owner,name)
+            try:
+                with launch.cancellation_handlers(state):setattr(owner,name,set());raise first
+            except ValueError as got:self.assertIs(got,first)
+            self.assertIs(getattr(owner,name),registry);self.assertTrue(launch.cancellation_uncertain())
+            self.assertIn('registry',state.uncertain);self.restored(launch,api)
+    def test_retain_fault_keeps_primary_and_both_prior_and_secondary(self):
+        launch,_,_=self.fresh();first=ValueError('body');prior=RuntimeError('prior');first.__cause__=prior
+        secondary=OSError('secondary');self.assertIs(launch.retain_fault(first,secondary),first)
+        self.assertEqual(self.causes(first.__cause__),[prior,secondary])
+        self.assertIs(launch.retain_fault(first,first),first)
+    def test_observer_binds_source_registries_and_closed_fields(self):
+        launch,transport,api=self.fresh();sources=adapter.Sources.__new__(adapter.Sources)
+        root=Path(adapter.__file__).resolve().parents[3];sources.root=root;sources.original_root=None
+        path=adapter.PREFIXES['runtime']+'/launch.py';sources.raw={path:Path(launch.__file__).read_bytes()}
+        session=adapter.Session.__new__(adapter.Session);session.sources=sources
+        events,uncertainty=launch.CANCELLATION_EVENTS,launch.CANCELLATION_UNCERTAIN
+        observe=lambda:session.downstream_signal_disposition({'launch':launch},events,uncertainty)
+        self.assertEqual(observe(),(False,False));events.add(15);self.assertEqual(observe(),(True,False))
+        uncertainty.add('wait');self.assertEqual(observe(),(True,True))
+        with self.assertRaises(adapter.Refused):session.downstream_signal_disposition({'launch':launch},set(events),uncertainty)
+        saved=launch.cancellation_requested
+        for foreign in (lambda:True,types.FunctionType(saved.__code__,dict(saved.__globals__))):
+            launch.cancellation_requested=foreign
+            with self.assertRaises(adapter.Refused):observe()
+        launch.cancellation_requested=saved
+        for bad in (True,99,'private/path'):
+            events.add(bad)
+            with self.assertRaises(launch.Refused):observe()
+            events.remove(bad)
+        uncertainty.add('raw errno')
+        with self.assertRaises(launch.Refused):observe()
+    def test_exact_supervisor_inert_pipe_child_mask_and_failure_reporting(self):
+        for failing in (False,True):
+            launch,transport,api=self.fresh(blocked={2});first=ValueError('callback first cause');calls=[]
+            class Stream:
+                closed=False
+                def __init__(self,number):self.number=number
+                def fileno(self):return self.number
+                def close(self):self.closed=True
+            process=types.SimpleNamespace(pid=41000,stdin=None,stdout=Stream(31),stderr=Stream(32),
+                wait=lambda timeout:0)
+            class Selector:
+                def __init__(self):self.keys={}
+                def __enter__(self):return self
+                def __exit__(self,*args):pass
+                def register(self,stream,events,data):self.keys[stream]=types.SimpleNamespace(fileobj=stream,fd=stream.fileno(),data=data)
+                def unregister(self,stream):self.keys.pop(stream)
+                def select(self,timeout):calls.append(('selector_timeout',timeout));return [(key,1) for key in list(self.keys.values())]
+            def popen(*args,**options):
+                options['preexec_fn']();calls.append(('child_mask',set(api.mask)))
+                return process
+            delivered=set()
+            def read(fd,count):
+                if failing and fd==31 and fd not in delivered:delivered.add(fd);return b'x'
+                return b''
+            def callback(chunk):
+                api.pending.add(15)
+                # The first block belongs to entering cleanup defer. Fault only
+                # its teardown block; this is a modeled API fault, not a syscall.
+                original=api.trip;armed_counts=[]
+                def fault(site):
+                    if site=='block':
+                        armed_counts.append(site)
+                        if len(armed_counts)==2:raise api.fault
+                    return original(site)
+                api.trip=fault;raise first
+            transport.os=types.SimpleNamespace(set_blocking=lambda *a:None,read=read)
+            transport.subprocess=types.SimpleNamespace(Popen=popen,PIPE=-1,DEVNULL=-3)
+            transport.selectors=types.SimpleNamespace(DefaultSelector=Selector,EVENT_READ=1,EVENT_WRITE=2)
+            transport.exited=lambda p:0
+            transport.group_signal=lambda pid,number:calls.append(('owned_model_group',pid,number))
+            outer=launch.Cancellation();outer.deferring=True
+            with launch.cancellation_handlers(outer):
+                try:
+                    result,observation=transport.supervise(['inert-child'],env={},deadline=time.monotonic()+10,
+                        limit=100,on_stdout=callback if failing else None)
+                except transport.Refused as error:
+                    self.assertTrue(failing);self.assertIs(error.__cause__,first)
+                    observation=error.observation;result=error.result
+                    self.assertTrue(any(isinstance(item,launch.Cancelled) for item in self.causes(first.__cause__)))
+                    self.assertIn(api.fault,self.causes(first.__cause__))
+                else:self.assertFalse(failing);self.assertEqual(result['exit_code'],0)
+                self.assertTrue(observation['direct_child_reaped']);self.assertTrue(observation['group_disposal_requested'])
+                self.assertEqual(observation['cancelled'],failing)
+                self.assertEqual(observation['signal_teardown_uncertain'],failing)
+                self.assertEqual(next(row[1] for row in calls if row[0]=='child_mask'),{2})
+                self.assertTrue(all(0<=row[1]<=.05 for row in calls if row[0]=='selector_timeout'))
+                self.assertTrue(process.stdout.closed and process.stderr.closed)
+                self.assertEqual(outer.pending,failing)
+            self.assertEqual(outer.pending,failing);self.restored(launch,api,{2})
+
+# SPDX-License-Identifier: MIT
+class DownstreamCancellationReportingModels(OpaqueCancellationReportingModels):
+    """Use the actual downstream observer in the exact inert Session.execute."""
+    def test_downstream_body_cancel_and_uncertainty_are_independent_execute_fields(self):
+        from contextlib import ExitStack
+        for pending,uncertain,fault in ((False,False,None),(True,False,None),(False,True,None),
+                (True,True,None),(True,False,'registry'),(False,False,'function'),(False,False,'enum')):
+            with self.subTest(cancel=pending,uncertain=uncertain,observer=fault),tempfile.TemporaryDirectory(prefix='downstream-reporting-') as temporary:
+                launch,transport=DownstreamSignalModels.modules();api=DownstreamSignalModels.Signals()
+                launch.signal=transport.signal=api;state=launch.Cancellation()
+                common=self.common();output=Path(temporary)/'handoff';published=[];seen=[]
+                runtime_contract={'cli_sha256':'d'*64,'endpoint_identity':[1]*6,'env':{}};argv=['integration']
+                first=adapter.Refused('callback-refused')
+                def services(*args,**kwargs):
+                    try:
+                        with launch.cancellation_handlers(state):
+                            # A typed call to the exact Source handler models an
+                            # observed event, independently of the primary failure.
+                            if pending:
+                                state.deferring=True;state.handler(signal.SIGTERM,None);state.deferring=False
+                            if uncertain:api.site='block';api.armed=True
+                            raise first
+                    finally:
+                        if fault=='registry':launch.CANCELLATION_EVENTS=set()
+                        elif fault=='function':launch.cancellation_requested=lambda:True
+                        elif fault=='enum':launch.CANCELLATION_EVENTS.add(99)
+                collector={'common':common};runtime={'launch':launch}
+                entry=types.SimpleNamespace(authenticated=lambda *a,**k:(runtime,{}),
+                    dependency_entry=lambda *a,**k:({}, {}) if k.get('phase') else (collector,{}),services=services)
+                sources=adapter.Sources.__new__(adapter.Sources)
+                sources.root=Path(adapter.__file__).resolve().parents[3];sources.original_root=None
+                sources.raw={adapter.PREFIXES['collector']+'/common.py':Path(common.__file__).read_bytes(),
+                    adapter.PREFIXES['runtime']+'/launch.py':Path(launch.__file__).read_bytes(),'model-map':b'{}'}
+                sources.grant={'source_commit':'a'*40,'run_id':'1','run_attempt':'1',
+                    'actor_contract_sha256':adapter.digest(adapter.encoded(runtime_contract)),
+                    'initial_invocation_sha256':adapter.digest(adapter.encoded({'argv':argv,'output':str(output)})),
+                    'maps':{role:{'path':'model-map','sha256':'e'*64} for role in ('runtime','collector','phase')},
+                    'source_files':{adapter.PREFIXES[role]+'/entry.py':{'sha256':'f'*64} for role in ('collector','phase')}}
+                sources.grant_pin='0'*64;sources.module=lambda *a:entry;sources.source_graph=lambda *a,**k:None
+                session=adapter.Session(sources,output,job_deadline=time.monotonic()+30,composition='installer-preflight-maintained-v1')
+                original_failed=adapter.Session.startup_failed
+                def failed(self,error):seen.append(error);return original_failed(self,error)
+                def remove(path,*args):
+                    if path is not None and Path(path).exists():shutil.rmtree(path)
+                with ExitStack() as stack:
+                    for name,value in [('bindings',lambda *a:None),('remove_private',remove),
+                            ('revoke_phase_receipt',lambda *a:None),('publish_status',lambda p,v,**k:published.append(copy.deepcopy(v)))]:
+                        stack.enter_context(patch.object(adapter,name,value))
+                    stack.enter_context(patch.dict(os.environ,{'GITHUB_SHA':'a'*40,'GITHUB_RUN_ID':'1','GITHUB_RUN_ATTEMPT':'1'}))
+                    for name,value in [('view_plan',lambda *a:output/'view'),('prepare_view',lambda *a:None),
+                            ('register_native_preflight',lambda *a:None),('emit_startup_refusal',lambda *a:None),('startup_failed',failed)]:
+                        stack.enter_context(patch.object(adapter.Session,name,value))
+                    result=session.execute(argv,{},runtime_contract)
+                self.assertEqual(result['status'],'FAIL');self.assertFalse(result['callback_entered'])
+                self.assertIs(seen[0],first);self.assertEqual(result['error_code'],'callback-refused')
+                self.assertEqual(session.startup_failure['kind'],'SOURCE_REFUSAL');self.assertEqual(len(published),1)
+                self.assertIs(result['cancelled'],pending and fault is None)
+                self.assertEqual(result['cleanup'],'FAIL' if uncertain or fault else 'PASS')
+                if pending:self.assertTrue(any(isinstance(leaf,launch.Cancelled) for leaf in DownstreamSignalModels.causes(first.__cause__)))
+                self.assertEqual(launch.SIGNAL_SCOPES,[]);self.assertEqual((common.PENDING,common.SIGNAL_SCOPES),([],[]))
+
+
+class CapabilityRepresentationModels(unittest.TestCase):
+    """Source inspection predicates on inert data; no container or kernel API."""
+    @classmethod
+    def setUpClass(cls):
+        raw=(ROOT/'scripts/port/repository-native-handoff/launch.py').read_text()
+        current="type(host.get('CapAdd')) is list\n             and len(host['CapAdd']) == 6 and _cap_add_matches(host['CapAdd'])"
+        previous="isinstance(host.get('CapAdd'), list)\n             and len(host['CapAdd']) == 6 and set(host['CapAdd']) == set(CAPS)"
+        current_observe='observe(_cap_add_matches(add, _caps) if add is not None else False, add is not None)'
+        previous_observe='observe(set(add) == set(_caps) if add is not None else False, add is not None)'
+        assert raw.count(current)==raw.count(current_observe)==1
+        selected={'Refused','need','_cap_add_matches','inspect_owned','_label_inspect','_inspect_diagnostic',
+                  '_resource_snapshot','_closed_resource_snapshot','_capture_resource_snapshot','_resource_diagnostic'}
+        literals={'CAPS','RESOURCE_FIELDS','INSPECT_DIAGNOSTIC_CHECKS'}
+        def model(text):
+            nodes=[node for node in ast.parse(text).body if
+                isinstance(node,(ast.FunctionDef,ast.ClassDef)) and node.name in selected or
+                isinstance(node,ast.Assign) and any(isinstance(target,ast.Name) and target.id in literals for target in node.targets)]
+            module=types.ModuleType('inert_capability_inspection');module.Path=Path
+            exec(compile(ast.Module(body=nodes,type_ignores=[]),'<inert-capability-predicates>','exec',dont_inherit=True),module.__dict__)
+            return module
+        cls.new=model(raw);cls.old=model(raw.replace(current,previous,1).replace(current_observe,previous_observe,1))
+
+    def record(self,caps=None):
+        module=self.new;expected={'cid':'a'*64,'name':'owned-model','image':'sha256:'+'b'*64,'nonce':'c'*32,
+            'worker_args':['-B','/runner/repository.py'],'binds':{key:Path('/model'+key) for key in ('/inputs','/runner','/out')}}
+        host={'NetworkMode':'none','CgroupnsMode':'private','ReadonlyRootfs':True,'Privileged':False,
+            'CapDrop':['ALL'],'CapAdd':list(module.CAPS) if caps is None else caps,
+            'PidsLimit':512,'Memory':8*1024**3,'NanoCpus':4*10**9,'SecurityOpt':['no-new-privileges'],
+            'Tmpfs':{'/scratch':'rw,nosuid,nodev,exec,size=6g,mode=0700',
+                     '/test-home':'rw,nosuid,nodev,exec,size=128m,mode=0700'}}
+        row={'Id':expected['cid'],'Name':'/'+expected['name'],'Image':expected['image'],'HostConfig':host,
+            'Config':{'User':'0:0','OpenStdin':True,'Tty':False,'Entrypoint':['/usr/bin/python3'],
+                'Cmd':expected['worker_args'],'Env':['CACHY_ASAHI_REPOSITORY_CONTAINER=1',
+                    'CACHY_ASAHI_DISPOSABLE_REPOSITORY='+expected['nonce'],'CACHY_ASAHI_IMAGE_ID='+expected['image']]},
+            'Mounts':[{'Type':'bind','Destination':key,'Source':str(path),'RW':key=='/out'} for key,path in expected['binds'].items()],
+            'State':{'Status':'exited','Running':False,'OOMKilled':False,'ExitCode':0,'Error':''}}
+        return row,expected
+
+    def refused(self,module,row,expected,terminal=False):
+        try:module.inspect_owned([row],expected,terminal=terminal)
+        except module.Refused as error:return error  # Preserve traceback custody for diagnostics.
+        self.fail('inspection unexpectedly accepted the negative fixture')
+
+    def test_observed_prefixed_set_old_red_new_green_and_all64_spellings(self):
+        prefixed=['CAP_'+cap for cap in self.new.CAPS];row,expected=self.record(prefixed)
+        caught=self.refused(self.old,row,expected)
+        old=self.old._resource_diagnostic(caught)
+        self.assertEqual((old['known_mask'],old['failed_mask'],old['cap_add_count'],old['cap_add_plain_mask'],
+            old['cap_add_prefixed_mask'],old['cap_add_unknown_count'],old['cap_add_effective_duplicates']),
+            (16383,128,6,0,63,0,0))
+        self.assertEqual(self.old._inspect_diagnostic(caught),'INSPECT_RESOURCES')
+        for mask in range(64):
+            caps=[('CAP_' if mask&(1<<number) else '')+cap for number,cap in enumerate(self.new.CAPS)]
+            for values in (caps,list(reversed(caps))):
+                row,expected=self.record(values)
+                self.assertIs(self.new.inspect_owned([row],expected,terminal=True),row)
+                state=self.new._resource_snapshot(row['HostConfig'])
+                self.assertEqual((state['known_mask'],state['failed_mask'],state['cap_add_plain_mask'],state['cap_add_prefixed_mask']),
+                                 (16383,0,63^mask,mask))
+                self.assertEqual(len(state),26);self.assertEqual(self.new._closed_resource_snapshot(state),state)
+
+    def test_alias_duplicates_unknown_and_foreign_protocols_refuse(self):
+        calls=[]
+        class ForeignList(list):
+            def __len__(self):calls.append('len');raise AssertionError('foreign length')
+        class ForeignString(str):
+            def __eq__(self,value):calls.append('eq');raise AssertionError('foreign equality')
+            def __hash__(self):calls.append('hash');raise AssertionError('foreign hash')
+        caps=list(self.new.CAPS)
+        bad=[caps[:-1],caps+['NET_ADMIN'],caps[:-1]+['NET_ADMIN'],caps[:-1]+['ALL'],caps[:-1]+['cap_SYS_CHROOT'],
+             caps[:-1]+['CAP_CAP_SYS_CHROOT'],caps[:-1]+['sys_chroot'],caps[:-1]+[caps[0]],
+             caps[:-1]+['CAP_'+caps[0]],caps[:-1]+[True],caps[:-1]+['x'*33],caps[:-1]+['x'*100000],
+             tuple(caps),ForeignList(caps),caps[:-1]+[ForeignString(caps[-1])],None,{},'CHOWN']
+        for value in bad:
+            self.assertFalse(self.new._cap_add_matches(value))
+            row,expected=self.record();row['HostConfig']['CapAdd']=value
+            caught=self.refused(self.new,row,expected)
+            self.assertEqual(self.new._inspect_diagnostic(caught),'INSPECT_RESOURCES')
+            diagnostic=self.new._resource_diagnostic(caught)
+            self.assertIsNotNone(diagnostic);self.assertEqual(len(diagnostic),26)
+            self.assertTrue(all(item is None or type(item) in (int,bool) for item in diagnostic.values()))
+        self.assertEqual(calls,[])
+
+    def test_other_resource_limits_and_negative_masks_remain_closed(self):
+        changes=[('NetworkMode','bridge',0),('CgroupnsMode','host',1),('ReadonlyRootfs',False,2),('Privileged',True,3),
+                 ('CapDrop',[],4),('PidsLimit',513,8),('Memory',8*1024**3-1,9),('NanoCpus',4*10**9+1,10),
+                 ('SecurityOpt',['no-new-privileges:true'],11),('Devices',['device'],13),
+                 ('DeviceRequests',[{}],13),('Binds',['bind'],13),('VolumesFrom',['foreign'],13)]
+        for key,value,bit in changes:
+            row,expected=self.record(['CAP_'+cap for cap in self.new.CAPS]);row['HostConfig'][key]=value
+            caught=self.refused(self.new,row,expected)
+            self.assertEqual(self.new._resource_diagnostic(caught)['failed_mask'],1<<bit)
+        row,expected=self.record();row['HostConfig']['Tmpfs']['/scratch']='rw,nosuid,nodev,exec,size=7g,mode=0700'
+        caught=self.refused(self.new,row,expected)
+        self.assertEqual(self.new._resource_diagnostic(caught)['failed_mask'],1<<12)
+
+    def test_identity_config_mount_and_terminal_refusals_preserved(self):
+        changes=[('Id','foreign','INSPECT_IDENTITY'),('Name','/foreign','INSPECT_IDENTITY'),
+                 ('Image','sha256:'+'f'*64,'INSPECT_IDENTITY'),('Mounts',[],'INSPECT_MOUNTS')]
+        for key,value,label in changes:
+            row,expected=self.record(['CAP_'+cap for cap in self.new.CAPS]);row[key]=value
+            caught=self.refused(self.new,row,expected,terminal=True)
+            self.assertEqual(self.new._inspect_diagnostic(caught),label)
+        for group,key,value,label in [('Config','User','1000:1000','INSPECT_CONFIG'),
+                ('Config','OpenStdin',False,'INSPECT_CONFIG'),('State','ExitCode',1,'INSPECT_TERMINAL'),
+                ('State','Running',True,'INSPECT_TERMINAL'),('State','OOMKilled',True,'INSPECT_TERMINAL')]:
+            row,expected=self.record(['CAP_'+cap for cap in self.new.CAPS]);row[group][key]=value
+            caught=self.refused(self.new,row,expected,terminal=True)
+            self.assertEqual(self.new._inspect_diagnostic(caught),label)
 
 if __name__ == '__main__':unittest.main()

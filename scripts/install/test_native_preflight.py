@@ -193,6 +193,51 @@ class DataControls(unittest.TestCase):
         image=dict(Config=copy.deepcopy(P.CONFIG)); trial=P.selection(sources,self.controller,R,image,'d'*32)
         self.assertEqual(trial['phase'],'preflight'); self.assertEqual(trial['tool_profile_sha256'],P.PROFILE_SHA)
         self.assertEqual(trial['sources'][P.RECEIVER]['sha256'],P.RECEIVER_SHA)
+    def test_explicit_null_defaults_preserve_raw_handoff(self):
+        names=('ArgsEscaped','Cmd','Entrypoint','Shell')
+        for mask in range(16):
+            changed=copy.deepcopy(self.image)
+            for number,name in enumerate(names):
+                if mask & (1<<number):changed['Config'][name]=None
+            with self.subTest(mask=mask):
+                result=P.image_handoff([changed],self.controller,self.receiver,self.inputs,self.packages)
+                self.assertEqual(result['Config'],changed['Config'])
+    def test_missing_policy_fields_refuse_before_projection(self):
+        for name in P.CONFIG:
+            changed=copy.deepcopy(self.image);del changed['Config'][name]
+            with self.subTest(name=name):
+                with self.assertRaisesRegex(ValueError,'^IMAGE_CONFIG '+name+':UNKNOWN$'):
+                    P.image_handoff([changed],self.controller,self.receiver,self.inputs,self.packages)
+    def test_receiver_null_defaults_bind_original_config_hash(self):
+        import ast
+        # Execute only the receiver's prefix through IMAGE_CONFIG; no native checks/actors.
+        tree=ast.parse((ROOT/P.RECEIVER).read_bytes())
+        node=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='verify_environment')
+        stops=[i for i,n in enumerate(node.body) if isinstance(n,ast.Expr) and isinstance(n.value,ast.Call)
+               and any(isinstance(a,ast.Constant) and a.value=='IMAGE_CONFIG' for a in n.value.args)]
+        wrapper=ast.parse('def check(selection,end):\n    pass\n').body[0]
+        wrapper.body=node.body[:max(stops)+1]
+        config=copy.deepcopy(P.CONFIG)
+        for name in ('ArgsEscaped','Cmd','Entrypoint','Shell'):config[name]=None
+        image=dict(source_commit='b'*40,image_id='sha256:'+'a'*64,inputs_sha256=R.INPUTS_SHA,
+                   packages_lock_sha256=R.BASE_SHA,architecture='arm64',os='linux',Config=config)
+        raw=P.encoded(image)
+        namespace=dict(read=lambda *args:raw,require=R.require,sha=R.sha,strict=R.strict,
+                       INPUTS_SHA=R.INPUTS_SHA,BASE_SHA=R.BASE_SHA,json=json)
+        exec(compile(ast.fix_missing_locations(ast.Module(body=[wrapper],type_ignores=[])),
+                     '<receiver-policy-prefix>','exec'),namespace)
+        selection=dict(source_commit=image['source_commit'],image_id=image['image_id'],
+                       native_handoff_sha256=R.sha(raw),image_config_sha256=R.sha(P.encoded(config)))
+        namespace['check'](selection,None)
+        normalized=copy.deepcopy(P.CONFIG)
+        selection['image_config_sha256']=R.sha(P.encoded(normalized))
+        with self.assertRaisesRegex(ValueError,'^IMAGE_CONFIG_HASH$'):namespace['check'](selection,None)
+        for name in P.CONFIG:
+            bad=copy.deepcopy(image);del bad['Config'][name];raw=P.encoded(bad)
+            selection.update(native_handoff_sha256=R.sha(raw),image_config_sha256=R.sha(P.encoded(bad['Config'])))
+            with self.subTest(missing=name):
+                with self.assertRaisesRegex(ValueError,'^IMAGE_CONFIG$'):namespace['check'](selection,None)
+
     def test_nonce_refuses_before_constructor(self):
         with self.assertRaisesRegex(ValueError,'NONCE'): P.selection(None,None,R,{},'bad')
     def test_duplicate_json_and_nonfinite_refuse(self):
