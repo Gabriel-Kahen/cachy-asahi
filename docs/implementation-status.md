@@ -2,6 +2,20 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 14, KSM statement diagnostic checkpoint: independent peer `65bc72f0`
+passes both Python position modes. Root publishes Source `a90db716` and
+packet `9a657738`, verifies all158 committed rows and the exact three-file
+cascade, then dispatches trial `38618847844` once. The trial is queued.
+Prior run `38609728294` still identifies only NATIVE_PROBE_BODY; its exact
+statement, original cause and cleanup ownership remain unresolved.
+
+The typed P0 Session correction passes external `b57f1cd7` at Source level.
+Root is preparing its eight-file adoption against `530069b9`. The dedicated
+CI packet has source review only; the concrete six-field Docker endpoint and
+same-job prepared-image successor remain under implementation. Native P0,
+26-case matrix, ABI, M2 and release acceptance remain open. CLI Data and
+kernel first-observed-child diagnostics are under independent Root review.
+
 October 14, diagnostic Source checkpoint: CLI producer-cleanup diagnostics
 pass external `53dd39c0`. Root publishes `4c388cc7`, verifies291 committed
 Source rows and four exact changes/287 held. The closed snapshot captures up
