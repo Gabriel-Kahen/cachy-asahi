@@ -2,6 +2,29 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 14, 03:41 UTC: compiler observation `38506491884` retains the precise
+`elf-strtab-cap` failure for held cc1: dynamic string table 1,293,706 bytes
+against the existing 1 MiB bound. Root completion `4cb74e79` retains the header,
+segment and dynamic facts. This is a parser-bound finding, not compiler
+acceptance. A finite 2 MiB successor with other guards preserved is under review.
+
+The combined resource/hook Source is committed as `73ff3525` after all 1,317
+proposal and 276 external files authenticate, eight old/new copy joins pass,
+and all 271 committed Source byte/mode checks pass. The fresh handoff source
+suite runs 107 tests and fails two assertions plus three setup/model errors.
+Root holds its native rerun; a bounded correction is assigned. Derived Data
+files are uncommitted and no new operational plan has been registered.
+
+The library startup successor (`50f226ea`, 40 authenticated support files)
+loads the required genuine helper and labels registration precisely; independent
+Root review is pending. The standalone Topmem/Fish proposal (`b7024ec5`, 377
+Root-authenticated leaves) has two peer findings: an EOF read can exceed its
+lifetime bound by one byte, and close failure can lose its first-cause deadline.
+Those corrections are assigned before adoption. Actual checkout inspection
+also finds seven already-present Topmem files exactly equal to proposed bytes;
+Root retains them and explicitly reconciles 47 mutations without changing the
+proposed Source manifest. Full scope and the development goal remain ACTIVE.
+
 October 14, 03:22 UTC: the private library job is registered with distinct Code,
 Source and Data (`9a6ad098`), exact plan `3a303b55`, and both variable readbacks.
 Actual run `38505301319` completes FAIL before library compilation. Retained
