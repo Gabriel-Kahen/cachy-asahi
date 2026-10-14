@@ -10,6 +10,7 @@ permissions:
 concurrency:
   group: native-arm-build
   cancel-in-progress: false
+  queue: max
 jobs:
   maintained:
     if: github.repository == 'Gabriel-Kahen/cachy-asahi' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/codex/project-private-libraries-v1' && github.event.repository.private == false
