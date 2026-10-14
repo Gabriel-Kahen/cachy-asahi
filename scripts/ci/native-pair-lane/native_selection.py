@@ -486,8 +486,8 @@ def _observe(value,integration,guard,process_owner,stdlib_modules,ctypes_module,
         result=owner.act(process_owner.run,('/usr/bin/docker','--host=unix:///run/docker.sock','info','--format','{{json .}}'),
             {'PATH':'/usr/bin:/bin','LANG':'C','LC_ALL':'C','TZ':'UTC','HOME':checker},checker,
             tool=tool,work_end=E,cleanup_end=J-180,limit=2*1024**2)
-        need(result.code==0 and type(result.stdout)is bytes and len(result.stdout)<=2*1024**2,'native-current-Docker-info')
-        daemon=json.loads(result.stdout)
+        need(result['code']==0 and type(result['stdout'])is bytes and len(result['stdout'])<=2*1024**2,'native-current-Docker-info')
+        daemon=json.loads(result['stdout'])
         need(type(daemon)is dict and daemon.get('Architecture')in('aarch64','arm64') and daemon.get('OSType')=='linux'
              and type(daemon.get('ID'))is str and re.fullmatch('[A-Za-z0-9:_-]{8,128}',daemon['ID']),'native-current-Docker-daemon')
         need(identity(owner.act(backend.lstat,'/run/docker.sock'))==identity(socket),'native-Docker-socket-drift')

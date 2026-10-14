@@ -222,7 +222,7 @@ def run(source_root, rows, registration, original_entry, nonce, scratch, *, cloc
                 guard.check(cleanup=True); sources.verify(cleanup=True)
                 result = process.run(('/usr/bin/docker', '--host=unix:///run/docker.sock', *args), env, work_parent[0],
                     tool=docker_tool, work_end=min(end, guard.J - 180), cleanup_end=min(end, guard.recovery_end), limit=1024**2)
-                guard.check(cleanup=True); need(result.code == 0, 'lane-readonly-Docker-observation'); return result.stdout
+                guard.check(cleanup=True); need(result['code'] == 0, 'lane-readonly-Docker-observation'); return result['stdout']
             stored = []
             intake.verify(); sources.verify(); selection.verify()
             guardian.launch(spec, process_owner=process, python_tool=python_tool, contract=contract, authority=guard,
