@@ -2,6 +2,27 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 14, 01:32 UTC: native retry
+[38495479762](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38495479762)
+finishes with a successful build checkpoint and failed composed integration.
+All 501 frozen objects acquire; 249 signature commands return zero. Eight native
+builds pass, and all four package comparisons report byte/content/metadata equality.
+Root retains thirteen hash-framed bundles and 260 native evidence members;
+completion `344c70cb` indexes 26 files. The startup marker identifies a
+`SOURCE_REFUSAL` at `native-hook` / `GRAPH_FUNCTION`; the exact downstream cause
+remains unknown. Callback entry is false, initial exit is null, and phase
+publication fails. Owned-image cleanup reports PASS/absence verified, while the repository
+container cleanup separately records failed ownership/absence checks; complete
+composed acceptance remains FAIL, and hardware remains NOT RUN. Build reviews
+the retained result and prepares a bounded corrective next step.
+
+The read-only observer diagnostic successor `2f58097a` is authenticated across
+73 files, adopted/published as `1def1ef8`, and dispatched in run `38496509297`.
+Its result is pending. Whole-query publisher correction `d89156c7` has fake-only
+controls and awaits independent admission. Fresh sixteen-pair signature
+verification reports all sixteen natural-zero checks; its final receipt precedes
+actual dependency decoding. No full-port acceptance is inferred.
+
 October 14, 01:27 UTC: private frozen-input cache transport is independently
 reviewed (`f6355048` / `b2c139cf`) and adopted as Source
 `0744f413`, Data `ea1db6b5`, exact externally registered plan `bacdcb92`.
