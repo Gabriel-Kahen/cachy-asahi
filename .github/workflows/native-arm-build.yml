@@ -9,7 +9,7 @@ on:
         type: choice
         options: [probe, audit, build, integration]
       inputs_sha256:
-        description: Reviewed SHA-256 of scripts/ci/inputs.lock.json (audit/build)
+        description: Reviewed SHA-256 of selected input lock (build uses maintained successor)
         type: string
         default: ''
       recipes_sha256:
@@ -25,6 +25,7 @@ permissions:
 concurrency:
   group: native-arm-build
   cancel-in-progress: false
+  queue: max
 jobs:
   native:
     if: github.repository == 'Gabriel-Kahen/cachy-asahi' && github.event.repository.private == false
@@ -49,8 +50,32 @@ jobs:
           --output "$RUNNER_TEMP/native-probe"
       - name: Authenticate inputs or build in isolated native containers
         if: inputs.mode != 'probe'
+        env:
+          NATIVE_INPUTS_PATH: ${{ inputs.mode == 'build' && 'scripts/ci/maintained-native/locks/inputs-successor.lock.json' || 'scripts/ci/inputs.lock.json' }}
+          CACHY_OLD_FOUR_SCHEMA: ${{ inputs.mode == 'build' && '1' || '' }}
+          CACHY_OLD_FOUR_SOURCE_EPOCH: ${{ inputs.mode == 'build' && '1791748800' || '' }}
+          CACHY_OLD_FOUR_JBIGKIT_01: ${{ inputs.mode == 'build' && secrets.CACHY_OLD_FOUR_JBIGKIT_01 || '' }}
+          CACHY_OLD_FOUR_JBIGKIT_02: ${{ inputs.mode == 'build' && secrets.CACHY_OLD_FOUR_JBIGKIT_02 || '' }}
+          CACHY_OLD_FOUR_JBIGKIT_SIG_01: ${{ inputs.mode == 'build' && secrets.CACHY_OLD_FOUR_JBIGKIT_SIG_01 || '' }}
+          CACHY_OLD_FOUR_LIBTIFF_01: ${{ inputs.mode == 'build' && secrets.CACHY_OLD_FOUR_LIBTIFF_01 || '' }}
+          CACHY_OLD_FOUR_LIBTIFF_02: ${{ inputs.mode == 'build' && secrets.CACHY_OLD_FOUR_LIBTIFF_02 || '' }}
+          CACHY_OLD_FOUR_LIBTIFF_03: ${{ inputs.mode == 'build' && secrets.CACHY_OLD_FOUR_LIBTIFF_03 || '' }}
+          CACHY_OLD_FOUR_LIBTIFF_04: ${{ inputs.mode == 'build' && secrets.CACHY_OLD_FOUR_LIBTIFF_04 || '' }}
+          CACHY_OLD_FOUR_LIBTIFF_05: ${{ inputs.mode == 'build' && secrets.CACHY_OLD_FOUR_LIBTIFF_05 || '' }}
+          CACHY_OLD_FOUR_LIBTIFF_06: ${{ inputs.mode == 'build' && secrets.CACHY_OLD_FOUR_LIBTIFF_06 || '' }}
+          CACHY_OLD_FOUR_LIBTIFF_07: ${{ inputs.mode == 'build' && secrets.CACHY_OLD_FOUR_LIBTIFF_07 || '' }}
+          CACHY_OLD_FOUR_LIBTIFF_08: ${{ inputs.mode == 'build' && secrets.CACHY_OLD_FOUR_LIBTIFF_08 || '' }}
+          CACHY_OLD_FOUR_LIBTIFF_09: ${{ inputs.mode == 'build' && secrets.CACHY_OLD_FOUR_LIBTIFF_09 || '' }}
+          CACHY_OLD_FOUR_LIBTIFF_10: ${{ inputs.mode == 'build' && secrets.CACHY_OLD_FOUR_LIBTIFF_10 || '' }}
+          CACHY_OLD_FOUR_LIBTIFF_11: ${{ inputs.mode == 'build' && secrets.CACHY_OLD_FOUR_LIBTIFF_11 || '' }}
+          CACHY_OLD_FOUR_LIBTIFF_12: ${{ inputs.mode == 'build' && secrets.CACHY_OLD_FOUR_LIBTIFF_12 || '' }}
+          CACHY_OLD_FOUR_LIBTIFF_13: ${{ inputs.mode == 'build' && secrets.CACHY_OLD_FOUR_LIBTIFF_13 || '' }}
+          CACHY_OLD_FOUR_LIBTIFF_14: ${{ inputs.mode == 'build' && secrets.CACHY_OLD_FOUR_LIBTIFF_14 || '' }}
+          CACHY_OLD_FOUR_LIBTIFF_15: ${{ inputs.mode == 'build' && secrets.CACHY_OLD_FOUR_LIBTIFF_15 || '' }}
+          CACHY_OLD_FOUR_LIBTIFF_SIG_01: ${{ inputs.mode == 'build' && secrets.CACHY_OLD_FOUR_LIBTIFF_SIG_01 || '' }}
         run: >-
           python3 scripts/ci/native_arm.py "$BUILD_MODE"
+          --inputs "$NATIVE_INPUTS_PATH"
           --inputs-sha256 "$INPUTS_SHA256"
           --recipes-sha256 "$RECIPES_SHA256"
           --integration-sha256 "$INTEGRATION_SHA256"
