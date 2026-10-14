@@ -4,9 +4,11 @@
 """Offline DEVELOPMENT metadata checks; no installation, fetching or key/trust creation."""
 import argparse
 import contextlib
+import copy
 from datetime import datetime, timezone
 import fcntl
 import hashlib
+import importlib.util
 import json
 import os
 from pathlib import Path, PurePosixPath
@@ -183,6 +185,57 @@ def reference(path, value):
     return {'path': path, 'sha256': value}
 
 
+
+def source_delivery_helper():
+    """Load only our explicit sibling Source bytes, never CWD/sys.path or pyc."""
+    path = Path(__file__).absolute().parents[1] / 'release/source_delivery.py'
+    raw = read_path(path, MAX_JSON)
+    spec = importlib.util.spec_from_file_location('cachy_asahi_client_source_delivery', path)
+    module = importlib.util.module_from_spec(spec)
+    exec(compile(raw, str(path), 'exec'), module.__dict__)
+    return module
+
+
+def source_readers(root, spec, release):
+    """Every callback rechecks actual bytes against both enclosing selections."""
+    def read_evidence(identifier, limit):
+        need(type(identifier) is str and NAME.fullmatch(identifier), 'source evidence ID invalid')
+        need(type(limit) is int and 0 < limit <= MAX_FILE, 'source evidence bound invalid')
+        rows = [row for row in spec.get('evidence', [])
+                if isinstance(row, dict) and row.get('id') == identifier]
+        need(len(rows) == 1, 'source evidence missing/duplicated in spec')
+        expected = rows[0].get('sha256')
+        path = 'evidence/' + identifier
+        need(isinstance(expected, str) and HEX.fullmatch(expected) and
+             release['files'].get(path) == expected, 'source evidence differs from signed release/spec')
+        raw = read_member(root, path, limit)
+        need(digest(raw) == expected, 'source evidence bytes changed')
+        return raw
+
+    def read_provenance(package):
+        identity = {key: package[key] for key in ('name', 'version', 'arch', 'sha256')}
+        rows = [row for row in release['packages'] if all(row.get(k) == v for k, v in identity.items())]
+        need(len(rows) == 1, 'source provenance package differs from release')
+        path = rows[0].get('provenance')
+        relative(path)
+        need(path.startswith('provenance/') and path in release['files'], 'source provenance not in signed payload')
+        raw = read_member(root, path)
+        need(digest(raw) == release['files'][path], 'source provenance bytes changed')
+        provenance = decode(raw)
+        need(provenance.get('artifact_sha256') == identity['sha256'] and
+             provenance.get('package') == {key: identity[key] for key in ('name', 'version', 'arch')},
+             'source provenance artifact identity differs')
+        return provenance
+    return read_evidence, read_provenance
+
+
+def source_associations(root, spec, release):
+    if 'source_delivery' not in spec:
+        return None
+    readers = source_readers(root, spec, release)
+    return source_delivery_helper().verify_associations(spec, release['packages'], *readers)
+
+
 def describe(root):
     raw = read_member(root, 'release.json')
     release = decode(raw)
@@ -225,6 +278,7 @@ def describe(root):
         filenames.add(filename)
     signed_targets = database_paths + [p['path'] for p in result]
     need(all(path in files and path + '.sig' in files for path in signed_targets), 'database/package checksum or signature binding missing')
+    source_associations(root, spec, release)  # Opt-in association; envelope v1 targets stay exact.
     # Only regular target paths are consumed; repo-add's basename aliases are unused.
     targets = {'release_record': reference('release.json', digest(raw)), 'spec': reference('spec.json', files['spec.json']),
                'databases': [reference(path, files[path]) for path in database_paths],
@@ -409,6 +463,53 @@ def verify(args, *, now=None):
         return result
 
 
+
+def sources(args, *, now=None):
+    """Authenticated DEVELOPMENT lookup/export; never advance a checkpoint."""
+    selected = dict(name=args.package, version=args.version, arch=args.arch, sha256=args.artifact_sha256)
+    need(NAME.fullmatch(selected['name']) and NAME.fullmatch(selected['version']) and
+         selected['arch'] in {'aarch64', 'any'} and HEX.fullmatch(selected['sha256']),
+         'exact source package/version/arch/artifact identity required')
+    output = absolute(args.output) if args.output is not None else None
+    if output is not None:
+        need(not output.is_relative_to(absolute(args.bundle)) and
+             not output.is_relative_to(absolute(args.state_dir)),
+             'source export must stay outside bundle and checkpoint directory')
+    readonly = copy.copy(args)
+    readonly.apply = False
+    verified = verify(readonly, now=now)
+    root = directory(args.bundle)
+    try:
+        _, release, raw = describe(root)
+        need(digest(raw) == verified['release_sha256'], 'source bundle changed after verification')
+        spec_raw = read_member(root, 'spec.json')
+        need(digest(spec_raw) == release['files']['spec.json'], 'source spec changed after verification')
+        spec = decode(spec_raw)
+        index = source_associations(root, spec, release)
+        need(index is not None, 'source delivery not declared by this development bundle')
+        rows = [row for row in index['packages'] if row['package'] == selected]
+        need(len(rows) == 1, 'requested source package identity absent')
+        record = rows[0]
+        result = dict(status='source-delivery-lookup-development', scope=SCOPE, stable_accepted=False,
+            state_changed=False, release_sha256=verified['release_sha256'], package=selected,
+            source_delivery=record, review_status=record['review_status'], source_completeness_accepted=False, legal_acceptance=False,
+            native_validation=False, hardware_validation=False, public_delivery_accepted=False)
+        if output is not None:
+            read_evidence, _ = source_readers(root, spec, release)
+            receipt = source_delivery_helper().export_package(record, read_evidence, output,
+                                                              verified['release_sha256'])
+            result.update(status='source-delivery-export-development', export=receipt)
+        return result
+    finally:
+        primary = sys.exception()
+        try:
+            os.close(root)
+        except BaseException as error:
+            if primary is None:
+                raise
+            primary.add_note('source bundle close uncertainty: ' + type(error).__name__)
+
+
 def build(args):
     now = datetime.now(timezone.utc)
     root = directory(args.bundle)
@@ -449,7 +550,8 @@ def main():
     commands = parser.add_subparsers(dest='command', required=True)
     draft = commands.add_parser('build', help='write new unsigned development envelope; caller signs separately')
     check = commands.add_parser('verify', help='offline development verification; checkpoint changes only with --apply')
-    for command in (draft, check):
+    lookup = commands.add_parser('sources', help='readonly development source lookup or fresh private export')
+    for command in (draft, check, lookup):
         command.add_argument('--bundle', required=True)
         command.add_argument('--namespace', required=True)
         command.add_argument('--signer', required=True)
@@ -457,12 +559,17 @@ def main():
     draft.add_argument('--sequence', type=int, required=True)
     draft.add_argument('--issued-utc', required=True)
     draft.add_argument('--expires-utc', required=True)
-    for name in ('metadata', 'signature', 'public-keyring', 'state-dir'):
-        check.add_argument('--' + name, required=True)
+    for command in (check, lookup):
+        for name in ('metadata', 'signature', 'public-keyring', 'state-dir'):
+            command.add_argument('--' + name, required=True)
+        command.add_argument('--minimum-sequence', type=int, default=1)
     check.add_argument('--apply', action='store_true')
-    check.add_argument('--minimum-sequence', type=int, default=1)
+    for name in ('package', 'version', 'arch', 'artifact-sha256'):
+        lookup.add_argument('--' + name, required=True)
+    lookup.add_argument('--output')
     args = parser.parse_args()
-    print(json.dumps(build(args) if args.command == 'build' else verify(args), sort_keys=True))
+    operation = {'build': build, 'verify': verify, 'sources': sources}[args.command]
+    print(json.dumps(operation(args), sort_keys=True))
 
 
 if __name__ == '__main__':

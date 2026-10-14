@@ -41,6 +41,32 @@ class PortableTests(unittest.TestCase):
                              release_id='fixture', repo_name='fixture', targets={},
                              **{k: self.value[k] for k in ('schema_version', 'scope', 'namespace', 'signer', 'sequence', 'issued_utc')})
 
+    def test_source_helper_loads_exact_sibling_bytes_ignoring_cwd_module(self):
+        from types import SimpleNamespace
+        fake=SimpleNamespace(verify_associations=lambda *args: 'FOREIGN')
+        with mock.patch.dict(sys.modules,{'source_delivery':fake}):
+            helper=c.source_delivery_helper()
+        self.assertNotEqual(helper,fake)
+        self.assertEqual(Path(helper.__file__).absolute(),Path(c.__file__).absolute().parents[1]/'release/source_delivery.py')
+        self.assertIsNone(helper.verify_associations({},[],lambda *args:b'',lambda *args:{}))
+
+    def test_sources_primary_survives_owned_root_close_uncertainty(self):
+        raw=c.encoded({});release={'files':{'spec.json':c.digest(raw)}}
+        args=argparse.Namespace(package='fixture',version='1-1',arch='any',artifact_sha256='a'*64,
+            output=None,bundle=str(self.base),state_dir=str(self.state),apply=True)
+        fd=os.open(self.base,os.O_RDONLY|os.O_DIRECTORY);close=os.close
+        primary=c.Error('FIRST ASSOCIATION REFUSAL')
+        def uncertain(number):close(number);raise OSError('SECOND CLOSE UNCERTAINTY')
+        with mock.patch.object(c,'verify',return_value={'release_sha256':c.digest(raw)}) as verify, \
+             mock.patch.object(c,'directory',return_value=fd),mock.patch.object(c,'describe',return_value=({},release,raw)), \
+             mock.patch.object(c,'read_member',return_value=raw),mock.patch.object(c,'source_associations',side_effect=primary), \
+             mock.patch.object(c.os,'close',side_effect=uncertain):
+            with self.assertRaises(c.Error) as caught:c.sources(args)
+        self.assertIs(caught.exception,primary)
+        self.assertEqual(primary.__notes__,['source bundle close uncertainty: OSError'])
+        self.assertIs(verify.call_args.args[0].apply,False)
+        self.assertIs(args.apply,True)
+
     def test_json_rejects_duplicate_float_nonfinite_and_nonobject(self):
         for data in (b'{"sequence":1,"sequence":2}', b'{"v":1.0}', b'{"v":NaN}', b'[]'):
             with self.subTest(data=data), self.assertRaises(c.Error):
@@ -564,7 +590,8 @@ class GPGTests(unittest.TestCase):
         fixture = module.ReleaseTests(methodName='test_signed_stage_and_verify')
         fixture.setUp()
         self.addCleanup(fixture.doCleanups)
-        fixture.stage()  # Real repo-add/package signatures, only existing synthetic fixture inputs.
+        fixture.source_delivery_fixture()
+        fixture.stage()  # Real existing stage/signature actors, synthetic source-delivery materials and retained review bytes.
         metadata = self.directory / 'actual-stage-envelope.json'
         args = copy.copy(self.build_args)
         args.bundle, args.output, args.signer = str(fixture.directory), str(metadata), fixture.key
@@ -581,6 +608,200 @@ class GPGTests(unittest.TestCase):
         self.assertFalse(result['stable_accepted'])
         self.assertEqual(result['signer']['signing_fingerprint'], fixture.key)
         self.assertEqual(result['release_sha256'], module.r.sha(fixture.directory / 'release.json'))
+        source_args=copy.copy(check)
+        selected=fixture.source_record['package']
+        source_args.package,source_args.version,source_args.arch=(selected[key] for key in ('name','version','arch'))
+        source_args.artifact_sha256=selected['sha256'];source_args.output=str(self.directory/'real-stage-source-export')
+        before=(self.state/c.CHECKPOINT).read_bytes()
+        result=c.sources(source_args)
+        self.assertEqual(result['status'],'source-delivery-export-development')
+        self.assertEqual(result['source_delivery'],fixture.source_record)
+        self.assertEqual(result['release_sha256'],module.r.sha(fixture.directory/'release.json'))
+        self.assertEqual((self.state/c.CHECKPOINT).read_bytes(),before)
+        self.assertFalse(result['source_completeness_accepted'])
+
+    def source_fixture(self):
+        """Opted-in opaque source bytes with an opaque retained review and supplied status label."""
+        release = c.decode((self.local_bundle / 'release.json').read_bytes())
+        package = release['packages'][0]
+        identity = {key: package[key] for key in ('name', 'version', 'arch', 'sha256')}
+        materials = {}
+        def material(identifier, raw):
+            materials[identifier] = raw
+            return dict(id=identifier, path='publisher-inputs/' + identifier,
+                        sha256=c.digest(raw), bytes=len(raw))
+        recipe = material('fixture-recipe.txt', b'# INERT TEST RECIPE; NEVER EXECUTE\n')
+        record = dict(package=identity, bundle=material('fixture-source.tar.gz', b'OPAQUE INERT SOURCE BUNDLE\n'),
+            notices=[material('fixture-notice.txt', b'TEST ONLY permission attestation; no real source grant\n')],
+            source_map=material('fixture-source-map.json', c.encoded({'PKGBUILD': recipe['sha256']})),
+            recipe=recipe, recipe_key='PKGBUILD',review_status='REVIEWED_SOURCE_ONLY')
+        record['authorization'] = material('fixture-existing-review.txt',
+            b'OPAQUE RETAINED TEST REVIEW; source preparation only, no delivery/completeness assertion\n')
+        index = dict(schema_version=1,purpose='release-source-delivery',synthetic=True,packages=[record])
+        index_descriptor = material('fixture-source-index.json',c.encoded(index))
+        spec = c.decode((self.local_bundle / 'spec.json').read_bytes())
+        spec.update(policy=dict(selected_packages=['fixture']), evidence=[
+            {key:row[key] for key in ('id','path','sha256')} for row in [index_descriptor,record['bundle'],
+             *record['notices'],record['source_map'],record['recipe'],record['authorization']]],
+            source_delivery=dict(schema_version=1,index={key:index_descriptor[key] for key in ('id','path','sha256')}))
+        evidence = self.local_bundle / 'evidence'; evidence.mkdir()
+        for identifier, raw in materials.items(): (evidence / identifier).write_bytes(raw)
+        (self.local_bundle / 'spec.json').write_bytes(c.encoded(spec))
+        provenance = self.local_bundle / 'provenance'; provenance.mkdir()
+        (provenance / 'fixture.json').write_bytes(c.encoded(dict(package={k:identity[k] for k in ('name','version','arch')},
+            artifact_sha256=identity['sha256'],recipe_sha256=recipe['sha256'])))
+        package['provenance']='provenance/fixture.json'
+        (self.local_bundle / 'release.json').write_bytes(c.encoded(release))
+        self.source_reseal()
+        self.source_record=record
+        self.source_args=copy.copy(self.args)
+        self.source_args.package,self.source_args.version,self.source_args.arch='fixture','1-1','any'
+        self.source_args.artifact_sha256=identity['sha256']; self.source_args.output=None
+        return spec, index
+
+    def source_reseal(self):
+        release_path=self.local_bundle/'release.json';release=c.decode(release_path.read_bytes())
+        release['files']={path.relative_to(self.local_bundle).as_posix():c.digest(path.read_bytes())
+            for path in self.local_bundle.rglob('*') if path.is_file() and not path.is_symlink()
+            and path.relative_to(self.local_bundle).as_posix() not in ('release.json','release.json.sig')}
+        release_path.write_bytes(c.encoded(release)); self.sign(release_path)
+        # A fixture publisher can sign malformed source associations. This does
+        # not bypass the actual client verifier or source association validator.
+        value=c.decode(self.metadata.read_bytes())
+        value['targets']['release_record']['sha256']=c.digest(release_path.read_bytes())
+        value['targets']['spec']['sha256']=release['files']['spec.json']
+        self.metadata.write_bytes(c.encoded(value)); self.sign(self.metadata)
+
+    def test_sources_actual_signed_lookup_export_and_unchanged_envelope_checkpoint(self):
+        self.apply(); before=self.checkpoint_bytes(); original_keys=set(c.decode(self.metadata.read_bytes()))
+        self.source_fixture()
+        # The real unsigned builder also accepts the opted-in index, with exact
+        # old envelope-v1 targets. Verification/export cannot apply a checkpoint.
+        other=copy.copy(self.build_args);other.output=str(self.directory/'opted-envelope.json')
+        c.build(other)
+        fresh=c.decode(Path(other.output).read_bytes())
+        self.assertEqual(set(fresh),original_keys)
+        self.assertEqual(set(fresh['targets']),{'release_record','spec','databases','packages'})
+        # A higher signed sequence is needed after the old checkpoint, even for lookup.
+        self.changed_metadata(sequence=2)
+        self.source_args.apply=True
+        result=c.sources(self.source_args)
+        self.assertEqual(result['status'],'source-delivery-lookup-development')
+        self.assertEqual(result['source_delivery'],self.source_record)
+        self.assertEqual(result['review_status'],'REVIEWED_SOURCE_ONLY')
+        for name in ('stable_accepted','state_changed','source_completeness_accepted','legal_acceptance',
+                     'native_validation','hardware_validation','public_delivery_accepted'):
+            self.assertIs(result[name],False)
+        self.assertEqual(self.checkpoint_bytes(),before)
+        self.assertFalse((self.directory/'export').exists())
+        self.source_args.output=str(self.directory/'export')
+        exported=c.sources(self.source_args)
+        self.assertEqual(exported['status'],'source-delivery-export-development')
+        self.assertEqual(exported['export']['package'],result['package'])
+        self.assertEqual(exported['export']['review_status'],'REVIEWED_SOURCE_ONLY')
+        self.assertFalse(exported['export']['source_completeness_accepted'])
+        self.assertFalse(exported['export']['legal_acceptance'])
+        self.assertEqual(exported['export']['release_sha256'],result['release_sha256'])
+        expected=c.source_delivery_helper().materials(self.source_record)
+        self.assertEqual(set(path.name for path in Path(self.source_args.output).iterdir()),
+            {row['id'] for row in expected}|{'source-delivery-receipt.json'})
+        for row in expected:
+            actual=Path(self.source_args.output)/row['id']
+            self.assertEqual(c.digest(actual.read_bytes()),row['sha256'])
+            self.assertEqual(actual.stat().st_mode&0o777,0o600)
+        self.assertEqual(Path(self.source_args.output).stat().st_mode&0o777,0o700)
+        self.assertEqual(self.checkpoint_bytes(),before)
+
+    def test_sources_generic_bundle_not_declared_never_exports(self):
+        args=copy.copy(self.args);args.package,args.version,args.arch='fixture','1-1','any'
+        args.artifact_sha256=c.decode((self.local_bundle/'release.json').read_bytes())['packages'][0]['sha256']
+        args.output=str(self.directory/'absent-export');args.apply=True
+        self.assertEqual(c.verify(self.args)['status'],'verified-development')
+        with self.assertRaisesRegex(c.Error,'not declared'):c.sources(args)
+        self.assertFalse(Path(args.output).exists());self.assertEqual(list(self.state.iterdir()),[])
+
+    def test_sources_exact_requested_identity_and_unsafe_output(self):
+        self.source_fixture()
+        for key,value in (('package','other'),('version','2-1'),('arch','aarch64'),('artifact_sha256','a'*64)):
+            args=copy.copy(self.source_args);setattr(args,key,value)
+            with self.subTest(key=key),self.assertRaisesRegex(c.Error,'identity absent'):c.sources(args)
+        alias=self.directory/'export-alias';alias.symlink_to(self.local_bundle,target_is_directory=True)
+        for output in (str(self.local_bundle),str(alias),str(self.directory/'new/../escape'),
+                       str(self.local_bundle/'new-export'),str(self.state/'new-export'),
+                       str(self.directory)+'//noncanonical-export','relative-export'):
+            args=copy.copy(self.source_args);args.output=output
+            with self.subTest(output=output),self.assertRaises((c.Error,ValueError,OSError)):c.sources(args)
+        self.assertEqual(list(self.state.iterdir()),[])
+
+    def test_sources_reject_material_tamper_missing_and_spec_signed_map_disagreement(self):
+        self.source_fixture();target=self.local_bundle/'evidence/fixture-notice.txt';raw=target.read_bytes()
+        target.write_bytes(b'TAMPER')
+        with self.assertRaisesRegex(c.Error,'payload checksum'):c.sources(self.source_args)
+        target.unlink()
+        with self.assertRaises(OSError):c.sources(self.source_args)
+        target.write_bytes(raw)
+        spec=c.decode((self.local_bundle/'spec.json').read_bytes())
+        spec['source_delivery']['index']['sha256']='a'*64
+        next(row for row in spec['evidence'] if row['id']=='fixture-source-index.json')['sha256']='a'*64
+        (self.local_bundle/'spec.json').write_bytes(c.encoded(spec));self.source_reseal()
+        with self.assertRaisesRegex(c.Error,'signed release/spec'):c.sources(self.source_args)
+        self.assertEqual(list(self.state.iterdir()),[])
+
+    def test_sources_provenance_and_index_coverage_cannot_be_foreign_even_resigned(self):
+        self.source_fixture();path=self.local_bundle/'provenance/fixture.json';raw=path.read_bytes()
+        value=c.decode(raw);value['artifact_sha256']='a'*64;path.write_bytes(c.encoded(value));self.source_reseal()
+        with self.assertRaisesRegex(c.Error,'provenance artifact identity'):c.sources(self.source_args)
+        path.write_bytes(raw)
+        spec_path=self.local_bundle/'spec.json';spec=c.decode(spec_path.read_bytes())
+        spec['policy']['selected_packages']=['other'];spec_path.write_bytes(c.encoded(spec));self.source_reseal()
+        with self.assertRaisesRegex(ValueError,'selected release package set'):c.sources(self.source_args)
+
+    def test_sources_reopen_substitution_refused_without_export(self):
+        self.source_fixture();self.source_args.output=str(self.directory/'never-export')
+        actual_verify=c.verify
+        def substituted(args,**kwargs):
+            result=actual_verify(args,**kwargs)
+            release_path=self.local_bundle/'release.json';release=c.decode(release_path.read_bytes())
+            release['created_utc']='2099-01-01T00:00:00Z';release_path.write_bytes(c.encoded(release))
+            return result
+        with mock.patch.object(c,'verify',side_effect=substituted):
+            with self.assertRaisesRegex(c.Error,'changed after verification'):c.sources(self.source_args)
+        self.assertFalse(Path(self.source_args.output).exists());self.assertEqual(list(self.state.iterdir()),[])
+
+    def test_sources_material_changes_after_describe_refused_before_lookup_and_export(self):
+        self.source_fixture();actual=c.describe;calls=[]
+        def changed(root):
+            result=actual(root);calls.append(1)
+            if len(calls)==2:(self.local_bundle/'evidence/fixture-notice.txt').write_bytes(b'REOPEN TAMPER')
+            return result
+        with mock.patch.object(c,'describe',side_effect=changed):
+            with self.assertRaisesRegex(c.Error,'source evidence bytes changed'):c.sources(self.source_args)
+        self.assertEqual(len(calls),2);self.assertEqual(list(self.state.iterdir()),[])
+
+    def test_sources_export_rechecks_material_after_last_association(self):
+        self.source_fixture();self.source_args.output=str(self.directory/'never-export')
+        load=c.source_delivery_helper;calls=[]
+        def changed():
+            helper=load();calls.append(1)
+            if len(calls)==4:
+                (self.local_bundle/'evidence/fixture-notice.txt').write_bytes(b'LAST READ TAMPER')
+            return helper
+        with mock.patch.object(c,'source_delivery_helper',side_effect=changed):
+            with self.assertRaisesRegex(c.Error,'source evidence bytes changed'):c.sources(self.source_args)
+        self.assertEqual(len(calls),4)
+        self.assertFalse(Path(self.source_args.output).exists());self.assertEqual(list(self.state.iterdir()),[])
+
+    def test_sources_cli_readonly_lookup_and_apply_flag_refused(self):
+        self.source_fixture()
+        argv=[sys.executable,'-B',str(Path(__file__).with_name('client.py')),'sources']
+        for key in ('bundle','metadata','signature','public_keyring','signer','namespace','state_dir',
+                    'package','version','arch','artifact_sha256'):
+            argv+=['--'+key.replace('_','-'),str(getattr(self.source_args,key))]
+        result=subprocess.run(argv,capture_output=True,text=True,timeout=30)
+        self.assertEqual(result.returncode,0,result.stderr)
+        self.assertEqual(json.loads(result.stdout)['status'],'source-delivery-lookup-development')
+        result=subprocess.run(argv+['--apply'],capture_output=True,text=True,timeout=30)
+        self.assertEqual(result.returncode,2);self.assertEqual(list(self.state.iterdir()),[])
 
     def test_builder_refuses_overwrite_and_output_inside_bundle(self):
         original = self.metadata.read_bytes()

@@ -4,6 +4,7 @@
 """Synthetic unit/integration tests. No native build or hardware evidence."""
 import argparse
 import copy
+import hashlib
 import importlib.util
 import io
 import json
@@ -175,9 +176,126 @@ class ReleaseTests(unittest.TestCase):
             "base_sha256": self.release_spec["base"]["sha256"], "project_license_sha256": self.release_spec["project_license"]["sha256"],
             "package_sha256": {"fixture": self.digest}, "records": records}
 
+    def source_delivery_fixture(self):
+        """Tiny original source/materials; attestation is synthetic, never a legal grant."""
+        source = self.inputs / 'source-inputs'; source.mkdir()
+        recipe = b'# Original synthetic fixture recipe; no build executed.\n'
+        (source / 'PKGBUILD.fixture').write_bytes(recipe)
+        (source / 'NOTICE.fixture').write_bytes(b'Original synthetic MIT notice; fixture only.\n')
+        code = b'/* Original synthetic source; never compiled. */\n'
+        with tarfile.open(source / 'fixture-source.tar.gz', 'w:gz') as archive:
+            item = tarfile.TarInfo('fixture/source.c'); item.size = len(code)
+            archive.addfile(item, io.BytesIO(code))
+        r.write(source / 'source-map.json', {'PKGBUILD': r.sha(source / 'PKGBUILD.fixture'),
+                                          'src/source.c': hashlib.sha256(code).hexdigest()})
+        def material(name, eid):
+            path = source / name
+            return dict(id=eid, path='source-inputs/' + name, sha256=r.sha(path), bytes=path.stat().st_size)
+        package = dict(name='fixture', version='1.0-1', arch='any', sha256=self.digest)
+        record = dict(package=package, review_status='REVIEWED_SOURCE_ONLY',
+                      bundle=material('fixture-source.tar.gz', 'fixture-source.tar.gz'),
+                      notices=[material('NOTICE.fixture', 'fixture-NOTICE')],
+                      source_map=material('source-map.json', 'fixture-source-map.json'),
+                      recipe=material('PKGBUILD.fixture', 'fixture-PKGBUILD'), recipe_key='PKGBUILD')
+        # Reuse opaque existing review data; do not mint a new approval boolean/schema.
+        (source / 'package-review.txt').write_bytes(
+            b'Existing synthetic package review: REVIEWED_SOURCE_ONLY. No real completeness or legal result.\n')
+        record['authorization'] = material('package-review.txt', 'fixture-package-review.txt')
+        self.source_index = dict(schema_version=1, purpose='release-source-delivery', synthetic=True, packages=[record])
+        self.source_record = record
+        self.save_source_index()
+        provenance = r.load(self.inputs / 'provenance.json')
+        provenance['recipe_sha256'] = record['recipe']['sha256']
+        self.put('provenance.json', provenance)
+        self.release_spec['packages'][0]['provenance'] = self.ref('provenance.json')
+        return record
+
+    def save_source_index(self):
+        self.put('source-delivery-v1.json', self.source_index)
+        self.release_spec['source_delivery'] = dict(schema_version=1,
+            index=dict(id='source-delivery-v1.json', **self.ref('source-delivery-v1.json')))
+
+    def test_source_delivery_assembles_stages_and_verifies_retained_materials(self):
+        record = self.source_delivery_fixture()
+        result = self.stage()
+        manifest, spec = self.verify()
+        self.assertEqual(result['source_delivery'], 'CHECKED_DECLARED_ASSOCIATIONS')
+        self.assertFalse(result['source_completeness_accepted'])
+        ids = {m['id'] for m in [record['bundle'], *record['notices'], record['source_map'], record['recipe'], record['authorization']]}
+        self.assertEqual({x['id'] for x in spec['evidence']}, ids | {'source-delivery-v1.json'})
+        for material in [record['bundle'], *record['notices'], record['source_map'], record['recipe'], record['authorization']]:
+            retained = self.directory / 'evidence' / material['id']
+            self.assertEqual(retained.read_bytes(), (self.inputs / material['path']).read_bytes())
+            self.assertEqual(manifest['files']['evidence/' + material['id']], material['sha256'])
+        self.assertNotIn('release_sha256', r.load(self.directory / 'evidence/source-delivery-v1.json'))
+
+    def test_source_delivery_missing_input_stops_before_signing(self):
+        record = self.source_delivery_fixture()
+        (self.inputs / record['bundle']['path']).unlink()
+        with mock.patch.object(r, 'sign') as sign, self.assertRaises((r.Error, ValueError, OSError)):
+            self.stage()
+        sign.assert_not_called()
+        self.assertFalse((self.root / 'staging/fixture-1').exists())
+
+    def test_source_delivery_complete_identity_and_duplicate_set_required_before_signing(self):
+        self.source_delivery_fixture()
+        original = copy.deepcopy(self.source_index)
+        cases = [[], [copy.deepcopy(original['packages'][0]), copy.deepcopy(original['packages'][0])]]
+        for field, value in [('name', 'foreign'), ('version', '2-1'), ('arch', 'aarch64'), ('sha256', 'f'*64)]:
+            row = copy.deepcopy(original['packages'][0]); row['package'][field] = value; cases.append([row])
+        for rows in cases:
+            self.source_index = {**original, 'packages':rows}; self.save_source_index()
+            with self.subTest(rows=rows), mock.patch.object(r, 'sign') as sign, self.assertRaises((r.Error, ValueError)):
+                self.stage()
+            sign.assert_not_called()
+            self.assertFalse((self.root / 'staging/fixture-1').exists())
+
+    def test_source_delivery_recipe_must_join_existing_provenance(self):
+        self.source_delivery_fixture()
+        provenance = r.load(self.inputs / 'provenance.json'); provenance['recipe_sha256'] = 'b'*64
+        self.put('provenance.json', provenance)
+        self.release_spec['packages'][0]['provenance'] = self.ref('provenance.json')
+        with mock.patch.object(r, 'sign') as sign, self.assertRaises((r.Error, ValueError)):
+            self.stage()
+        sign.assert_not_called()
+
+    def test_source_delivery_resigned_payload_still_requires_recipe_map_binding(self):
+        record = self.source_delivery_fixture(); self.stage()
+        recipe = self.directory / 'evidence' / record['recipe']['id']
+        recipe.write_bytes(b'# Different synthetic recipe outside the existing source map.\n')
+        index_path = self.directory / 'evidence/source-delivery-v1.json'
+        index = r.load(index_path); index['packages'][0]['recipe'].update(sha256=r.sha(recipe), bytes=recipe.stat().st_size)
+        r.write(index_path, index)
+        spec = r.load(self.directory / 'spec.json')
+        for item in spec['evidence']:
+            if item['id'] == record['recipe']['id']: item['sha256'] = r.sha(recipe)
+            if item['id'] == 'source-delivery-v1.json': item['sha256'] = r.sha(index_path)
+        spec['source_delivery']['index']['sha256'] = r.sha(index_path)
+        r.write(self.directory / 'spec.json', spec)
+        manifest = r.load(self.directory / 'release.json'); manifest['files'] = r.payload_files(self.directory)
+        r.write(self.directory / 'release.json', manifest)
+        (self.directory / 'release.json.sig').unlink()  # Replace only this owned synthetic signature.
+        r.sign(self.directory / 'release.json', self.key, self.env)
+        with self.assertRaisesRegex(r.Error, 'source delivery'):
+            self.verify()
+
+    def test_source_delivery_retains_incomplete_existing_review_without_approval_claim(self):
+        self.source_delivery_fixture()
+        self.source_index['packages'][0]['review_status'] = 'INCOMPLETE'
+        self.save_source_index()
+        result = self.stage()
+        self.verify()
+        self.assertFalse(result['source_completeness_accepted'])
+        index = r.load(self.directory / 'evidence/source-delivery-v1.json')
+        self.assertEqual(index['packages'][0]['review_status'], 'INCOMPLETE')
+        self.assertIn(b'Existing synthetic package review',
+                      (self.directory / 'evidence/fixture-package-review.txt').read_bytes())
+
     def test_signed_stage_and_verify(self):
         result = self.stage()
         self.assertEqual(result["status"], "local-staging")
+        self.assertEqual(result["source_delivery"], "NOT_DECLARED")
+        self.assertFalse(result["source_completeness_accepted"])
         self.verify()
         self.assertTrue((self.directory / "repo/fixture.db").is_symlink())
         self.assertTrue((self.directory / "repo/fixture.files.tar.gz.sig").is_file())

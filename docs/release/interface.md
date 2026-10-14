@@ -82,6 +82,68 @@ Per-artifact release provenance is:
 
 A source uses either an exact Git `commit` or archive `sha256`; all licenses/notices and source verification receipts belong in retained review evidence. Architecture-neutral package metadata (`any`) still requires native aarch64 build execution for stable. Release provenance is an assembly envelope: it supplements, never replaces, the build worker's raw provenance. No adapter guesses a PASS from `.SRCINFO`, README declarations, or successful static checks.
 
+## Optional recipient-source association, version 1
+
+A draft specification may opt in with `source_delivery: {schema_version: 1,
+index: {id: "source-delivery-v1.json", path: "delivery/index.json", sha256:
+"<actual-index-SHA256>"}}`. The index is an already prepared, hash-pinned input.
+Staging calls `scripts/release/source_delivery.py` to assemble its exact finite
+evidence set, merges those references with existing evidence, and copies them
+through the normal evidence transport before signing. A conflicting ID refuses
+staging. The staged specification records the complete assembled evidence set;
+the original draft is unchanged.
+
+The index has exactly `schema_version: 1`, `purpose: "release-source-delivery"`,
+an explicit `synthetic` boolean and `packages`. There must be exactly one row for
+every package in the release's explicit selected set. Each row has:
+
+- `package`: exact `name`, full `version`, `arch` and binary `sha256`;
+- `bundle`, `source_map`, `recipe`, `authorization`: material descriptors;
+- a nonempty `notices` array of material descriptors;
+- `recipe_key`: the recipe's canonical relative key in the flat source map;
+- `review_status`: the supplied existing package-review status, retained as data.
+
+A material descriptor is exactly `{id, path, sha256, bytes}`. IDs are unique
+simple evidence basenames across the index and all materials. `path` is a safe
+input-relative publisher path; recipients read only the corresponding signed
+`evidence/ID`, never that input path. Required materials must be nonempty.
+`source-delivery-receipt.json` is reserved for recipient output. File, aggregate
+and count ceilings remain 512 MiB, 2 GiB and 4,096, with 4 MiB JSON limits.
+
+The source map is the existing producer's flat canonical relative-path to
+SHA-256 map. Its `recipe_key` must equal both the actual retained recipe hash
+and the existing package provenance's `recipe_sha256`. No generic archive
+reconstruction is performed. Consume an existing reviewed package source bundle,
+its source map and notices; FDK already provides its own pack/read/reconstruct
+implementation.
+
+The `authorization` material retains an existing package completeness/review
+artifact as opaque, nonempty, hash-bound data. It need not use a new JSON schema,
+name a new approver or contain an approval boolean. `review_status` is the
+supplier's existing status label; values such as INCOMPLETE or NOT RUN remain
+visible and do not prevent a byte-association check. The helper does not turn
+that label into license permission, source completeness or binary/source
+correspondence. Existing package-specific review records, producer verification
+and stable/license gates retain their own authority. The signed payload binds
+which exact binary and materials were associated; it does not establish that a
+supplied review statement is true.
+
+The index contains no enclosing release digest. Its material hashes are fixed
+first, then the signed release's existing payload map binds the index and all
+material bytes. Release verification repeats the complete association check.
+The existing development client validates it without changing the envelope's
+version or target vocabulary. Its `sources` command first verifies the existing
+signatures/freshness/namespace, rejoins the actual enclosing release SHA and
+payload bytes, and then performs exact-identity lookup or private local export.
+Export copies data only, with no build, fetch, install, upload or source execution.
+
+Without opt-in, staging explicitly reports `source_delivery: "NOT_DECLARED"`.
+A checked association or export always leaves source-completeness acceptance
+false. Legacy development fixtures are not full-port source-delivery evidence.
+Existing stable, licensing, signing, native-build and hardware gates remain in
+force; this optional versioned interface does not promote any release or add an
+admission prerequisite to queued jobs.
+
 ## Stable gate envelope, version 1
 
 A gate envelope contains `schema_version: 1`, `release_id`, `release_sha256` (signed `release.json` digest), `source_commit`, `base_sha256`, `project_license_sha256`, `package_sha256: {name: digest}`, `synthetic: false`, and `records`. Every record requires `kind`, `result: "PASS"`, a named `operator`, `date_utc`, nonempty `commands` (actual command strings), and nonempty `logs` (IDs of nonempty checksum-bound staged evidence). FAIL, NOT RUN, duplicate required records, synthetic records, missing IDs or mismatched release hashes are rejected.
