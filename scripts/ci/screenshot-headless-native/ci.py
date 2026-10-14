@@ -183,7 +183,29 @@ def main():
         need(result['status']=='SOFTWARE_SCREENSHOT_PASS' and result['positive_capture']=='THREE_REAL_COLOR_CHECKED_CAPTURES' and result['first_failure'] is None and result['runtime_remaining']==[],'actual capture and cleanup results')
         need(result['native_execution']['system']=='Linux' and result['native_execution']['machine'] in ('aarch64','arm64') and result['native_execution']['interpreter']['e_machine']==183 and result['native_execution']['loader']['e_machine']==183,'running native ARM interpreter evidence')
         checks={'trial_pass':True,'image_id':image,'container_exit':0,'native_execution':result['native_execution'],'native_archive_helper':archive['helper']}
-    except BaseException as error:first={'type':type(error).__name__,'message':str(error)}
+    except BaseException as error:
+        first={'type':type(error).__name__,'message':str(error)}
+        try:
+            if type(error).__name__=='Refusal' and type(error).__module__=='screenshot_native_archive_input' and str(error)=='archive-input-download-origin':
+                origin=getattr(error,'archive_origin',None)
+                if (type(origin) is dict and set(origin)=={'request_role','hop','check','scheme','hostname','port','userinfo_present'}
+                    and type(origin['request_role']) is str and origin['request_role'] in ('run_attempt','job','attempt_logs')
+                    and type(origin['hop']) is int and 0<=origin['hop']<=2
+                    and type(origin['check']) is str and origin['check'] in ('shape','route')
+                    and type(origin['userinfo_present']) is bool
+                    and (origin['scheme'] is None or (type(origin['scheme']) is str and re.fullmatch(r'[a-z][a-z0-9+.-]{0,15}',origin['scheme'])))
+                    and (origin['hostname'] is None or (type(origin['hostname']) is str and len(origin['hostname'])<=253 and re.fullmatch(r'(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\.)+[A-Za-z]{2,63}',origin['hostname']) and origin['hostname'].rsplit('.',1)[-1].lower() not in ('localhost','localdomain','local','internal','home','lan','corp','private','intranet','invalid','test','example','onion','arpa')))
+                    and (origin['port'] is None or (type(origin['port']) is int and 0<=origin['port']<=65535))):
+                    first['archive_origin']=dict(origin)
+        except Exception:
+            pass  # Preserve the primary failure if diagnostic validation fails.
+        try:
+            if type(error).__name__=='Refusal' and type(error).__module__=='screenshot_native_archive_input':
+                cleanup=getattr(error,'archive_cleanup',None)
+                if type(cleanup) is str and cleanup=='UNRESOLVED':
+                    first['archive_cleanup']='UNRESOLVED'
+        except Exception:
+            pass  # Cleanup telemetry cannot replace the original failure.
     finally:
         if name:
             try:

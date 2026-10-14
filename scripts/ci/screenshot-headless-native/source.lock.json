@@ -13,10 +13,10 @@
       "sha256": "38bba9e88e94167ada913621bbcc2c6fd0efe2395e01dd226775fd3db11a7a37"
     },
     {
-      "bytes": 16151,
+      "bytes": 18138,
       "mode": 420,
       "path": "scripts/ci/screenshot-headless-native/ci.py",
-      "sha256": "7fa491b9fc18bf15297c96940f8df55126d65127f6f6bb1d58b85db073bfb328"
+      "sha256": "16d2ef44e2d758e6a4b90c05a4d0a776cf8d85f94cbd4d02cfd54cf42af26f5a"
     },
     {
       "bytes": 14581,
@@ -37,10 +37,10 @@
       "sha256": "0ac5cfef76545826e37a36f2d8403067a677d07795ddb2804d57d3e3d92ab8fe"
     },
     {
-      "bytes": 16130,
+      "bytes": 30643,
       "mode": 420,
       "path": "scripts/ci/screenshot-headless-native/archive_input.py",
-      "sha256": "7eebdb31e9801328e113304ac19e357819a7b0fd4e57ca92f2a680f8e7406473"
+      "sha256": "9c05e9a6d6366d97766e2c465a9b168e361657de3a7ba183f0e99d0035b859f8"
     },
     {
       "bytes": 1171,

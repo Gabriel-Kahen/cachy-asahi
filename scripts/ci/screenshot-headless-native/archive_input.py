@@ -2,19 +2,25 @@
 import base64
 import gzip
 import hashlib
+import http.client
 import io
+import ipaddress
 import json
 import lzma
+import math
 import os
 from pathlib import Path, PurePosixPath
 import re
+import signal
+import socket
+import ssl
 import stat
+import subprocess
 import sys
 import tarfile
+import threading
 import time
-import urllib.error
 import urllib.parse
-import urllib.request
 import zipfile
 
 REPOSITORY = 'Gabriel-Kahen/cachy-asahi'
@@ -58,73 +64,372 @@ def checked(data, spec, code):
     return data
 
 
-class NoRedirect(urllib.request.HTTPRedirectHandler):
-    def redirect_request(self, *args):
-        return None
-
-
-def download(url, limit, token, deadline):
-    """Fixed API origin; credentials never follow the signed storage redirect."""
-    opener = urllib.request.build_opener(urllib.request.ProxyHandler({}), NoRedirect())
-    for hop in range(3):
-        parsed = urllib.parse.urlsplit(url)
-        need(parsed.scheme == 'https' and not parsed.username and not parsed.password
-             and parsed.port in (None, 443), 'download-origin')
-        api = parsed.hostname == 'api.github.com'
-        storage = re.fullmatch(r'productionresultssa[0-9]+\.blob\.core\.windows\.net', parsed.hostname or '')
-        need((hop == 0 and api and url.startswith(API + '/actions/')) or
-             (hop > 0 and storage), 'download-origin')
-        headers = {'Accept': 'application/vnd.github+json', 'User-Agent': 'cachy-asahi-native-custody',
-                   'X-GitHub-Api-Version': '2026-03-10'}
-        if api and token is not None:
-            headers['Authorization'] = 'Bearer ' + token
-        need(time.monotonic() < deadline, 'deadline')
+def origin_refusal(ok, request_role, hop, check, parsed):
+    """Retain only bounded origin context; never export URL components."""
+    if not ok:
+        error = Refusal('archive-input-download-origin')
+        error.archive_origin = {
+            'request_role': request_role if type(request_role) is str and request_role in ('run_attempt', 'job', 'attempt_logs') else 'unknown',
+            'hop': hop if type(hop) is int and 0 <= hop <= 2 else None,
+            'check': check if type(check) is str and check in ('shape', 'route') else 'unknown',
+            'scheme': None, 'hostname': None, 'port': None, 'userinfo_present': False,
+        }
         try:
-            response = opener.open(urllib.request.Request(url, headers=headers),
-                                   timeout=min(15, deadline - time.monotonic()))
-        except urllib.error.HTTPError as exc:
-            if exc.code in (301, 302, 303, 307, 308):
-                location = exc.headers.get('Location', '')
-                exc.close()
-                need(bool(location), 'redirect-location')
-                url = urllib.parse.urljoin(url, location)
-                continue
-            code = exc.code
-            exc.close()
-            raise ValueError('archive-input-http-' + str(code)) from None
+            error.archive_origin['userinfo_present'] = parsed.username is not None or parsed.password is not None
+            scheme = parsed.scheme
+            if type(scheme) is str and re.fullmatch(r'[a-z][a-z0-9+.-]{0,15}', scheme):
+                error.archive_origin['scheme'] = scheme
+            hostname = parsed.hostname
+            if type(hostname) is str and len(hostname) <= 253 and re.fullmatch(r'(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\.)+[A-Za-z]{2,63}', hostname) and hostname.rsplit('.', 1)[-1].lower() not in ('localhost', 'localdomain', 'local', 'internal', 'home', 'lan', 'corp', 'private', 'intranet', 'invalid', 'test', 'example', 'onion', 'arpa'):
+                error.archive_origin['hostname'] = hostname
+            try:
+                port = parsed.port
+            except ValueError:
+                port = None
+            if type(port) is int and 0 <= port <= 65535:
+                error.archive_origin['port'] = port
         except Exception:
-            raise ValueError('archive-input-download-failed') from None
-        primary = None
+            pass  # Telemetry must not replace the already established refusal.
+        raise error
+
+
+class AlarmExpired(BaseException):
+    pass
+
+
+def unresolved_cleanup(error):
+    try:
+        error.archive_cleanup = 'UNRESOLVED'
+    except Exception:
+        pass
+
+
+class Deadline:
+    """Linux/main-thread only; no existing alarm ownership may be displaced."""
+    def __init__(self, end):
+        need(type(end) in (int, float) and math.isfinite(end), 'deadline')
+        self.end = end
+
+    def remaining(self):
+        remaining = self.end - time.monotonic()
+        need(remaining > 0, 'deadline')
+        return remaining
+
+    def expire(self, *_):
+        raise AlarmExpired()
+
+    def tighten(self, end):
+        self.end = min(self.end, end)
+        signal.setitimer(signal.ITIMER_REAL, self.remaining())
+
+    def cancel(self):
+        signal.setitimer(signal.ITIMER_REAL, 0)
+
+    def __enter__(self):
+        need(sys.platform == 'linux' and threading.current_thread() is threading.main_thread(), 'deadline-owner')
+        need(signal.getitimer(signal.ITIMER_REAL) == (0.0, 0.0) and
+             signal.SIGALRM not in signal.sigpending() and
+             signal.SIGALRM not in signal.pthread_sigmask(signal.SIG_BLOCK, []), 'deadline-owner')
+        self.previous = signal.getsignal(signal.SIGALRM)
+        need(self.previous in (signal.SIG_DFL, signal.SIG_IGN) or callable(self.previous), 'deadline-handler')
+        signal.signal(signal.SIGALRM, self.expire)
         try:
-            need(response.status == 200, 'http-status')
-            declared = response.headers.get('Content-Length')
-            need(declared is None or (declared.isdecimal() and int(declared) <= limit), 'download-size')
-            data = bytearray()
-            while True:
-                need(time.monotonic() < deadline, 'deadline')
-                chunk = response.read(min(65536, limit + 1 - len(data)))
-                if not chunk:
-                    break
-                data.extend(chunk)
-                need(len(data) <= limit, 'download-size')
-            need(time.monotonic() < deadline, 'deadline')
-            return bytes(data)
-        except Refusal as exc:
-            primary = exc
+            signal.setitimer(signal.ITIMER_REAL, self.remaining())
+        except BaseException as error:
+            for cleanup in (lambda: self.cancel(), lambda: signal.signal(signal.SIGALRM, self.previous)):
+                try:
+                    cleanup()
+                except BaseException:
+                    unresolved_cleanup(error)
+            if isinstance(error, AlarmExpired):
+                primary = Refusal('archive-input-deadline')
+                if getattr(error, 'archive_cleanup', None) == 'UNRESOLVED':
+                    unresolved_cleanup(primary)
+                raise primary from None
             raise
-        except Exception:
-            primary = ValueError('archive-input-download-failed')
+        return self
+
+    def __exit__(self, kind, value, traceback):
+        failed = False
+        for cleanup in (lambda: self.cancel(), lambda: signal.signal(signal.SIGALRM, self.previous)):
+            try:
+                cleanup()
+            except BaseException:
+                failed = True
+        if failed and value is not None:
+            unresolved_cleanup(value)
+        if kind is AlarmExpired:
+            primary = Refusal('archive-input-deadline')
+            if getattr(value, 'archive_cleanup', None) == 'UNRESOLVED':
+                unresolved_cleanup(primary)
             raise primary from None
-        except BaseException as exc:
-            primary = exc
+        if failed and kind is None:
+            primary = Refusal('archive-input-deadline-cleanup')
+            unresolved_cleanup(primary)
+            raise primary
+
+
+def delegated_url(url, request_role, hop):
+    """Location is opaque, but only a bounded absolute HTTPS DNS URL is usable."""
+    empty = urllib.parse.urlsplit('')
+    shape = type(url) is str and 0 < len(url) <= 8192 and all(33 <= ord(c) < 127 for c in url) and '\\' not in url and '#' not in url
+    origin_refusal(shape, request_role, hop, 'shape', empty)
+    try:
+        parsed = urllib.parse.urlsplit(url)
+        valid = (parsed.scheme == 'https' and parsed.username is None and parsed.password is None and
+                 parsed.port in (None, 443) and type(parsed.hostname) is str and len(parsed.hostname) <= 253 and
+                 re.fullmatch(r'(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\.)+[A-Za-z]{2,63}', parsed.hostname) is not None and
+                 parsed.netloc.lower() in (parsed.hostname, parsed.hostname + ':443'))
+    except (ValueError, UnicodeError):
+        origin_refusal(False, request_role, hop, 'shape', empty)
+    origin_refusal(valid, request_role, hop, 'shape', parsed)
+    return parsed
+
+
+def public_address(value):
+    address = ipaddress.ip_address(value)
+    if not address.is_global or any((address.is_private, address.is_loopback, address.is_link_local,
+                                    address.is_multicast, address.is_reserved, address.is_unspecified)):
+        return False
+    if address.version == 4:
+        return address not in ipaddress.ip_network('192.0.0.0/24')
+    return (address in ipaddress.ip_network('2000::/3') and not address.is_site_local and address.ipv4_mapped is None and address.sixtofour is None and
+            address.teredo is None and not any(address in ipaddress.ip_network(prefix) for prefix in
+            ('64:ff9b::/96', '64:ff9b:1::/48', '2001::/23', '2002::/16', '2001:db8::/32', '3fff::/20')))
+
+
+RESOLVER_CODE = """import json,socket,sys
+try:
+ rows=socket.getaddrinfo(sys.argv[1],443,type=socket.SOCK_STREAM,proto=socket.IPPROTO_TCP)
+ if not 0<len(rows)<=32:sys.exit(2)
+ data=json.dumps([[f,k,p,list(a)] for f,k,p,_,a in rows],separators=(',',':')).encode('ascii')
+ if len(data)>16384:sys.exit(2)
+ sys.stdout.buffer.write(data)
+except Exception:sys.exit(2)
+"""
+
+
+def public_addresses(hostname, deadline):
+    """One isolated resolution; never leave libc DNS blocking the parent."""
+    process = None
+    primary = None
+    previous_mask = None
+    try:
+        previous_mask = signal.pthread_sigmask(signal.SIG_BLOCK, [signal.SIGALRM])
+        spawn_primary = None
+        try:
+            process = subprocess.Popen([sys.executable, '-I', '-S', '-c', RESOLVER_CODE, hostname],
+                                       stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+                                       env={}, close_fds=True)
+        except BaseException as error:
+            spawn_primary = error
             raise
         finally:
             try:
-                response.close()
-            except Exception:
-                if primary is None:
-                    raise ValueError('archive-input-response-close') from None
-    raise ValueError('archive-input-redirect-limit')
+                signal.pthread_sigmask(signal.SIG_SETMASK, previous_mask)
+            except BaseException:
+                if spawn_primary is None:
+                    raise
+                unresolved_cleanup(spawn_primary)
+        output, _ = process.communicate(timeout=min(15, deadline.remaining()))
+        need(process.returncode == 0 and len(output) <= 16384, 'dns-result')
+        rows = json.loads(output)
+    except subprocess.TimeoutExpired:
+        primary = Refusal('archive-input-dns-timeout')
+        raise primary from None
+    except BaseException as error:
+        primary = error
+        raise
+    finally:
+        # Bound cleanup separately; expired alarm must not interrupt kill/reap.
+        cleanup_failed = False
+        try:
+            deadline.cancel()
+        except BaseException:
+            cleanup_failed = True
+        if previous_mask is not None:
+            try:
+                signal.pthread_sigmask(signal.SIG_SETMASK, previous_mask)
+            except BaseException:
+                cleanup_failed = True
+        if process is not None:
+            try:
+                if process.poll() is None:
+                    process.kill()
+            except BaseException:
+                cleanup_failed = True
+            try:
+                process.wait(timeout=2)
+            except BaseException:
+                cleanup_failed = True
+            try:
+                if process.stdout is not None:
+                    process.stdout.close()
+            except BaseException:
+                cleanup_failed = True
+        if primary is None:
+            if cleanup_failed:
+                error = Refusal('archive-input-dns-cleanup')
+                unresolved_cleanup(error)
+                raise error
+            deadline.tighten(deadline.end)
+        elif cleanup_failed:
+            unresolved_cleanup(primary)
+    need(type(rows) is list and 0 < len(rows) <= 32, 'dns-answers')
+    addresses = []
+    for row in rows:
+        need(type(row) is list and len(row) == 4, 'dns-answer-shape')
+        family, kind, protocol, address = row
+        need(all(type(v) is int for v in (family, kind, protocol)) and type(address) is list and
+             family in (socket.AF_INET, socket.AF_INET6) and kind == socket.SOCK_STREAM and
+             protocol == socket.IPPROTO_TCP and len(address) == (2 if family == socket.AF_INET else 4) and
+             type(address[0]) is str and type(address[1]) is int and address[1] == 443 and '%' not in address[0] and
+             (family == socket.AF_INET or (all(type(v) is int for v in address[2:]) and address[2:] == [0, 0])), 'dns-answer-shape')
+        parsed = ipaddress.ip_address(address[0])
+        need(parsed.version == (4 if family == socket.AF_INET else 6) and public_address(address[0]), 'dns-public')
+        item = (family, tuple(address))
+        if item not in addresses:
+            addresses.append(item)
+    return addresses
+
+
+class PublicHTTPSConnection(http.client.HTTPSConnection):
+    """Numeric dial only; HTTP cannot auto-open/re-resolve after socket loss."""
+    def __init__(self, hostname, addresses, deadline):
+        context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+        context.load_default_certs(ssl.Purpose.SERVER_AUTH)
+        need(context.check_hostname and context.verify_mode == ssl.CERT_REQUIRED, 'tls-verification')
+        super().__init__(hostname, 443, timeout=deadline.remaining(), context=context)
+        self.addresses, self.deadline = addresses, deadline
+        self.auto_open = 0
+
+    def checked_peer(self, stream):
+        peer = stream.getpeername()
+        need(len(peer) in (2, 4) and peer[1] == 443 and
+             (len(peer) == 2 or peer[2:] == (0, 0)), 'connected-peer')
+        value = ipaddress.ip_address(peer[0])
+        need(public_address(peer[0]) and any(value == ipaddress.ip_address(row[1][0]) for row in self.addresses), 'connected-peer')
+
+    def connect(self):
+        for family, address in self.addresses:
+            raw = None
+            try:
+                raw = socket.socket(family, socket.SOCK_STREAM, socket.IPPROTO_TCP)
+                raw.settimeout(min(5, self.deadline.remaining()))
+                raw.connect(address)
+            except OSError:
+                if raw is not None:
+                    try:
+                        raw.close()
+                    except BaseException:
+                        error = Refusal('archive-input-connect-cleanup')
+                        unresolved_cleanup(error)
+                        raise error from None
+                self.deadline.remaining()
+                continue  # TCP only: no TLS attempt, HTTP resend or new DNS query.
+            except BaseException as error:
+                if raw is not None:
+                    try:
+                        raw.close()
+                    except BaseException:
+                        unresolved_cleanup(error)
+                raise
+            held = raw
+            try:
+                self.checked_peer(raw)
+                raw.settimeout(self.deadline.remaining())
+                held = self._context.wrap_socket(raw, server_hostname=self.host)
+                self.checked_peer(held)
+                held.settimeout(self.deadline.remaining())
+                self.sock = held
+                return
+            except BaseException as error:
+                try:
+                    held.close()
+                except BaseException:
+                    unresolved_cleanup(error)
+                raise  # Peer/certificate/TLS failures never select another address.
+        raise Refusal('archive-input-connect-failed')
+
+
+def download(url, limit, token, deadline, request_role):
+    """Fixed API metadata or fresh API-delegated logs; never persist Location."""
+    fixed = {'run_attempt': API + f'/actions/runs/{RUN}/attempts/{ATTEMPT}',
+             'job': API + f'/actions/jobs/{JOB}',
+             'attempt_logs': API + f'/actions/runs/{RUN}/attempts/{ATTEMPT}/logs'}
+    need(request_role in fixed and url == fixed[request_role], 'request-role')
+    try:
+        with Deadline(deadline) as clock:
+            for hop in range(3):
+                parsed = delegated_url(url, request_role, hop)
+                addresses = public_addresses(parsed.hostname, clock)
+                clock.remaining()
+                connection = PublicHTTPSConnection(parsed.hostname, addresses, clock)
+                response = None
+                primary = None
+                try:
+                    connection.connect()
+                    # Slice the original value: preserve empty query delimiters and escape case.
+                    target = url[url.index('://') + 3 + len(parsed.netloc):]
+                    if not target or target.startswith('?'):
+                        target = '/' + target
+                    headers = {'Host': parsed.netloc, 'User-Agent': 'cachy-asahi-native-custody'}
+                    if hop == 0:
+                        headers.update({'Accept': 'application/vnd.github+json', 'X-GitHub-Api-Version': '2026-03-10'})
+                        if token is not None:
+                            headers['Authorization'] = 'Bearer ' + token
+                    connection.request('GET', target, headers=headers)
+                    response = connection.getresponse()
+                    received_at = time.monotonic()
+                    clock.remaining()
+                    if request_role == 'attempt_logs' and (hop == 0 or response.status in (301, 302, 303, 307, 308)):
+                        need(response.status == 302 if hop == 0 else hop < 2, 'redirect-status-or-limit')
+                        locations = response.headers.get_all('Location', [])
+                        need(len(locations) == 1, 'redirect-location')
+                        if hop == 0:
+                            clock.tighten(received_at + 45)
+                        url = locations[0]
+                        # Validate before any following request; no urljoin or reconstruction.
+                        delegated_url(url, request_role, hop + 1)
+                        continue
+                    need(response.status == 200, 'http-status')
+                    declared = response.headers.get_all('Content-Length', [])
+                    need(len(declared) <= 1 and (not declared or
+                         (declared[0].isdecimal() and len(declared[0]) <= 12 and int(declared[0]) <= limit)), 'download-size')
+                    data = bytearray()
+                    while True:
+                        clock.remaining()
+                        chunk = response.read(min(65536, limit + 1 - len(data)))
+                        if not chunk:
+                            break
+                        data.extend(chunk)
+                        need(len(data) <= limit, 'download-size')
+                    clock.remaining()
+                    need(not declared or len(data) == int(declared[0]), 'download-size')
+                    return bytes(data)
+                except BaseException as error:
+                    primary = error
+                    raise
+                finally:
+                    for resource in (response, connection):
+                        if resource is not None:
+                            try:
+                                resource.close()
+                            except BaseException as error:
+                                if primary is None:
+                                    primary = error if isinstance(error, AlarmExpired) else Refusal('archive-input-response-close')
+                                unresolved_cleanup(primary)
+                    if primary is not None and not sys.exc_info()[0]:
+                        raise primary
+    except Refusal:
+        raise
+    except Exception as error:
+        # HTTP/TLS/DNS exception strings may contain credentials or signed URLs.
+        primary = Refusal('archive-input-download-failed')
+        if getattr(error, 'archive_cleanup', None) == 'UNRESOLVED':
+            unresolved_cleanup(primary)
+        raise primary from None
+    raise Refusal('archive-input-redirect-limit')
 
 
 def document(data):
@@ -323,10 +628,10 @@ def acquire_helper(destination: Path, *, token: str | None = None) -> dict:
     destination = Path(destination)
     need(destination.name not in ('', '.', '..'), 'destination-name')
     deadline = time.monotonic() + LIMITS['seconds']
-    run = document(download(API + f'/actions/runs/{RUN}/attempts/{ATTEMPT}', LIMITS['json_bytes'], token, deadline))
-    job = document(download(API + f'/actions/jobs/{JOB}', LIMITS['json_bytes'], token, deadline))
+    run = document(download(API + f'/actions/runs/{RUN}/attempts/{ATTEMPT}', LIMITS['json_bytes'], token, deadline, 'run_attempt'))
+    job = document(download(API + f'/actions/jobs/{JOB}', LIMITS['json_bytes'], token, deadline, 'job'))
     identities(run, job)
-    logs = download(API + f'/actions/runs/{RUN}/attempts/{ATTEMPT}/logs', LIMITS['zip_bytes'], token, deadline)
+    logs = download(API + f'/actions/runs/{RUN}/attempts/{ATTEMPT}/logs', LIMITS['zip_bytes'], token, deadline, 'attempt_logs')
     log = log_from_zip(logs)
     helper = helper_from_tgz(framed_tgz(log))
     need(time.monotonic() < deadline, 'deadline')
