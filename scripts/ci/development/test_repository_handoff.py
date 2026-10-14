@@ -698,8 +698,8 @@ packages/shells/cachy-asahi-zsh-autosuggestions/zsh-autosuggestions.zsh
             'initial_invocation_sha256':adapter.digest(adapter.encoded({'argv':['SOURCE-ONLY-NO-ACTOR'],
                                                                        'output':str(cls.output)}))}
         initial=json.loads((cls.root/'scripts/ci/integration.lock.json').read_bytes())
-        cls.grant['original_view']={'schema_version':1,'purpose':'original-159-copy-view',
-            'full_source_root':str(cls.root),'root':str(cls.output/'original-view'),
+        cls.grant['baseline_view']={'schema_version':2,'baseline_id':'maintained-native-baseline-v1-vim-9.2.1178-1','purpose':'maintained-v1-159-copy-view',
+            'full_source_root':str(cls.root),'root':str(cls.output/'maintained-view'),
             'integration_lock_sha256':cls.a.INITIAL,'source_rows_sha256':cls.a.digest(cls.a.encoded(initial['source_files'])),
             'file_count':160,'argv_mode':'absolute-view-metadata'}
         for role,prefix in cls.a.PREFIXES.items():
@@ -720,12 +720,12 @@ packages/shells/cachy-asahi-zsh-autosuggestions/zsh-autosuggestions.zsh
                 cls.grant['maps'][role]['path'],cls.grant['maps'][role]['sha256'],deadline=cls.deadline,phase=role=='phase')[0]
         cls.collector=load('collector');cls.phase=load('phase')
         cls.session=cls.a.Session(cls.sources,cls.output,job_deadline=cls.deadline,
-                                 composition=getattr(cls,'COMPOSITION','repository-svg'))
-        cls.output.mkdir(mode=0o700);cls.session.prepare_view(cls.output/'original-view')
+                                 composition=getattr(cls,'COMPOSITION','repository-svg-maintained-v1'))
+        cls.output.mkdir(mode=0o700);cls.session.prepare_view(cls.output/'maintained-view')
         cls.session.used=True  # Inert registration model; Session.execute is never called.
         cls.session.source_graph={'entry':cls.entry,'runtime':cls.runtime,'collector':cls.collector,
             'phase':cls.phase,'original':{},'original_aliases':{}}
-        if cls.session.composition == 'installer-preflight':
+        if cls.session.composition == 'installer-preflight-maintained-v1':
             cls.session.register_native_preflight()
             cls.installer=cls.session.source_graph['native_preflight']
             def unregister():
@@ -904,7 +904,7 @@ packages/shells/cachy-asahi-zsh-autosuggestions/zsh-autosuggestions.zsh
         self.assertEqual(len(self.original['integration'].scan(self.session.view_root)),159)
 
     def test_old_schema_refuses_current_preflight(self):
-        grant=copy.deepcopy(self.grant);grant['schema_version']=1;grant.pop('original_view')
+        grant=copy.deepcopy(self.grant);grant['schema_version']=1;grant.pop('baseline_view')
         raw=self.a.encoded(grant)
         with self.assertRaises(self.a.Refused):self.a.preflight(self.root,raw,self.a.digest(raw),deadline=self.deadline)
 
@@ -951,7 +951,7 @@ packages/shells/cachy-asahi-zsh-autosuggestions/zsh-autosuggestions.zsh
         except ValueError as error:self.assertEqual(str(error),'original-source-drift')
         self.a.remove_private(self.session.view_root,self.session.view_node,self.deadline)
         self.session.view_root=None;self.session.view_receipt=None
-        self.session.prepare_view(self.output/'original-view')
+        self.session.prepare_view(self.output/'maintained-view')
         scope=self.entry.original_modules(self.session.view_root,self.session.view_root/'scripts/ci/integration.lock.json',
             self.a.INITIAL,deadline=self.deadline,verification_deadline=self.deadline)
         original=scope.__enter__();type(self).scope=scope;type(self).addClassCleanup(scope.__exit__,None,None,None)
@@ -1022,7 +1022,7 @@ packages/shells/cachy-asahi-zsh-autosuggestions/zsh-autosuggestions.zsh
     def isolated_view(self):
         temporary=tempfile.TemporaryDirectory(prefix='original-view-control-');self.addCleanup(temporary.cleanup)
         output=Path(temporary.name)/'output';output.mkdir(mode=0o700)
-        grant=copy.deepcopy(self.grant);grant['original_view']['root']=str(output/'original-view')
+        grant=copy.deepcopy(self.grant);grant['baseline_view']['root']=str(output/'maintained-view')
         sources=self.a.Sources(self.root,grant,self.deadline);sources.grant_pin=self.a.digest(self.a.encoded(grant))
         session=self.a.Session(sources,output,job_deadline=self.deadline)
         def cleanup():
@@ -1034,7 +1034,7 @@ packages/shells/cachy-asahi-zsh-autosuggestions/zsh-autosuggestions.zsh
     def test_partial_copy_write_failure_registers_only_owned_cleanup(self):
         session=self.isolated_view()
         with patch.object(self.a.os,'write',side_effect=OSError('PRIVATE')):
-            with self.assertRaises(OSError):session.prepare_view(session.output/'original-view')
+            with self.assertRaises(OSError):session.prepare_view(session.output/'maintained-view')
         self.assertIsNotNone(session.view_node)
         self.assertIsNone(session.view_receipt)
         self.a.remove_private(session.view_root,session.view_node,self.deadline)
@@ -1046,12 +1046,12 @@ packages/shells/cachy-asahi-zsh-autosuggestions/zsh-autosuggestions.zsh
             session=self.isolated_view()
             if mode=='cancel':session.cancelled=lambda:True
             if mode=='expired':session.job_deadline=time.monotonic()-1
-            root=session.output/('foreign' if mode=='wrong-root' else 'original-view')
+            root=session.output/('foreign' if mode=='wrong-root' else 'maintained-view')
             with self.assertRaises((self.a.Refused,KeyboardInterrupt)):session.prepare_view(root)
             self.assertFalse(root.exists())
 
     def test_directory_replacement_preserving_file_nodes_refuses(self):
-        session=self.isolated_view();session.prepare_view(session.output/'original-view')
+        session=self.isolated_view();session.prepare_view(session.output/'maintained-view')
         directory=session.view_root/'examples';moved=session.output/'moved-examples'
         directory.rename(moved);directory.mkdir(mode=0o700)
         for child in list(moved.iterdir()):child.rename(directory/child.name)
@@ -1061,7 +1061,7 @@ packages/shells/cachy-asahi-zsh-autosuggestions/zsh-autosuggestions.zsh
 
     def test_symlink_fifo_hardlink_and_added_file_refuse(self):
         for kind in ('symlink','fifo','hardlink','file'):
-            session=self.isolated_view();session.prepare_view(session.output/'original-view')
+            session=self.isolated_view();session.prepare_view(session.output/'maintained-view')
             extra=session.view_root/'extra'
             if kind=='symlink':extra.symlink_to(session.view_root/'LICENSE')
             elif kind=='fifo':os.mkfifo(extra)
@@ -1072,7 +1072,7 @@ packages/shells/cachy-asahi-zsh-autosuggestions/zsh-autosuggestions.zsh
             finally:extra.unlink()
 
     def test_view_cleanup_refuses_replaced_root_preserves_foreign_node(self):
-        session=self.isolated_view();session.prepare_view(session.output/'original-view')
+        session=self.isolated_view();session.prepare_view(session.output/'maintained-view')
         original=session.output/'original-owned';session.view_root.rename(original)
         session.view_root.mkdir(mode=0o700);(session.view_root/'foreign').write_bytes(b'UNRELATED')
         try:
@@ -1085,7 +1085,7 @@ packages/shells/cachy-asahi-zsh-autosuggestions/zsh-autosuggestions.zsh
 
 class InstallerGraphFixtures(unittest.TestCase):
     """Actual Session/Sources registration; no admitted controller/native frames."""
-    COMPOSITION='installer-preflight'
+    COMPOSITION='installer-preflight-maintained-v1'
     ADDITIONAL_SOURCES=('scripts/install/native_preflight.py','scripts/install/test_native_preflight.py',
         'scripts/install/local_transaction.py','scripts/install/test_local_transaction.py',
         'scripts/install/native_arm_trial.py','scripts/install/test_native_arm_trial.py',
@@ -1094,7 +1094,7 @@ class InstallerGraphFixtures(unittest.TestCase):
     def setUpClass(cls): CapturedGraphFixtures.setUpClass.__func__(cls)
     def check(self): return self.sources.source_graph(self.session)
     @contextmanager
-    def fresh_registration(self,composition='installer-preflight'):
+    def fresh_registration(self,composition='installer-preflight-maintained-v1'):
         session=self.a.Session(self.sources,self.root/'no-actor-output',job_deadline=self.deadline,
                                composition=composition)
         session.used=True
@@ -1110,7 +1110,7 @@ class InstallerGraphFixtures(unittest.TestCase):
         self.assertEqual((module.OWN,module.run.__module__,module.run.__qualname__),
             ('scripts/install/native_preflight.py','native_install_preflight','run'))
         self.assertEqual(len(self.sources.raw),265)
-        self.assertEqual(len(self.sources.grant),17); self.assertEqual(len(self.sources.grant['original_view']),8)
+        self.assertEqual(len(self.sources.grant),17); self.assertEqual(len(self.sources.grant['baseline_view']),9)
         self.assertEqual(len(self.sources.grant['callbacks']),3)
         self.assertEqual(set(self.session.source_graph),
             {'entry','runtime','collector','phase','original','original_aliases','native_preflight'})
@@ -1135,15 +1135,15 @@ class InstallerGraphFixtures(unittest.TestCase):
                 self.assertIs(actual,module);self.assertIs(raw,self.sources.raw[module.OWN])
                 self.assertEqual(pin,self.sources.grant['source_files'][module.OWN]['sha256'])
     def test_unknown_modes_refuse_and_legacy_registration_starts_no_loader(self):
-        for mode in ('installer',True,None,{}):
+        for mode in ('installer','repository-svg','installer-preflight',True,None,{}):
             with self.assertRaises(self.a.Refused):
                 self.a.Session(self.sources,self.root/'absent',job_deadline=self.deadline,composition=mode)
-        with self.fresh_registration('repository-svg') as session:
+        with self.fresh_registration('repository-svg-maintained-v1') as session:
             with self.assertRaises(self.a.Refused):session.register_native_preflight()
             self.assertNotIn('native_install_preflight',sys.modules)
             self.assertNotIn('native_preflight',session.source_graph)
     def test_graph_mode_missing_extra_or_wrong_module_keys_refuse(self):
-        with patch.object(self.session,'composition','repository-svg'):
+        with patch.object(self.session,'composition','repository-svg-maintained-v1'):
             with self.assertRaises(self.a.Refused):self.check()
         for change in ({'extra':self.installer},{'native_preflight':None}):
             with patch.dict(self.session.source_graph,change):
@@ -1381,11 +1381,13 @@ class OptionalDiagnosticPublicationCorrection(unittest.TestCase):
     def test_compound_interrupt_replacement_fault_old_red_new_green(self):
         from contextlib import ExitStack,nullcontext
         corrected_raw=PATH.read_text()
+        self.assertEqual(hashlib.sha256(corrected_raw.encode()).hexdigest(),'1329653ab38468b92c08abe9426a176509b5586fab3a07a1e9432c90cb704219')
+        # Counterfactual of this pinned Source: reverse only the optional publication branch.
         new_branch="                try:publish_status(self.output/'status',self.result,replace=True)\n                except BaseException:\n                    pass  # Optional re-publication cannot replace the first failure.\n"
         old_branch="                publish_status(self.output/'status',self.result,replace=True)\n"
         self.assertEqual(corrected_raw.count(new_branch),1)
         old_raw=corrected_raw.replace(new_branch,old_branch,1).encode()
-        self.assertEqual(hashlib.sha256(old_raw).hexdigest(),'a868b0bee44d2c75be49496c9b6292c6906971d230773f5df43eb603cb8488a3')
+        self.assertEqual(hashlib.sha256(old_raw).hexdigest(),'5df49cdc736016ab8f021ea23e50d758b6c3c9e63bd5bdabe8a1583fb7dd4c8a')
         old=types.ModuleType('frozen_optional_diagnostic_old');old.__file__=str(PATH)
         exec(compile(old_raw,str(PATH),'exec'),old.__dict__)
         for late_type in (OSError,KeyboardInterrupt,SystemExit):
@@ -1643,7 +1645,7 @@ class CancellationExitAttributionModels(unittest.TestCase):
         result_before=copy.deepcopy(session.result);original=(error.args,error.__traceback__)
         session.startup_failed(error);before=dict(session.startup_failure);projection=session.startup_projection()
         self.assertEqual(set(projection),{'schema_version','purpose','status','phase','kind','site','object_clause','object_callsite','native_hook_entered','error_code','cleanup'})
-        self.assertEqual(projection['site'],'SERVICE_CANCEL_EXIT_SET_HANDLER')
+        self.assertEqual(projection['site'],'SERVICE_CANCEL_EXIT_SET_HANDLER_API_MODULE')
         self.assertEqual((projection['status'],projection['error_code'],projection['cleanup']),('FAIL','source-refused','PASS'))
         self.assertFalse(projection['native_hook_entered']);self.assertLessEqual(len(adapter.encoded(projection)),1024)
         self.assertNotIn('PRIVATE',adapter.encoded(projection).decode());self.assertNotIn('/never/',adapter.encoded(projection).decode())
@@ -1844,6 +1846,9 @@ class SignalWrapperCompatibilityModels(unittest.TestCase):
         namespace=dict(unittest=unittest,adapter=module,types=types,Path=Path,ROOT=ROOT)
         exec(compile(ast.Module(body=nodes,type_ignores=[]),'<inert-future-models>','exec',flags=flags,dont_inherit=True),namespace)
         model=namespace['SignalWrapperCompatibilityModels']('test_selected_body_keeps_all_ten_handler_observations')
+        with self.assertRaisesRegex(NameError,'LEGACY_CANCEL_SOURCE'):
+            model.failure(context='bare')
+        namespace['LEGACY_CANCEL_SOURCE']=LEGACY_CANCEL_SOURCE
         for context in ('bare','module'):
             session,error,common=model.failure(context=context)
             self.assertEqual(session.service_failure_site(error),'SERVICE_CANCEL_EXIT_SET_HANDLER_NONE_BAD_HANDLER_API')

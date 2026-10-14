@@ -1810,7 +1810,7 @@
     },
     "scripts/ci/development/test_repository_handoff.py": {
       "mode": 420,
-      "sha256": "0afecaa3a717bdb7f61ef010ace0866afd8d4d720bda3f231947ac69d99781e2"
+      "sha256": "b8bf19e3cda1ec71bc677470e900e0950006bd4980da67da9ee52e360791bf3a"
     },
     "scripts/ci/development/test_virtual_stage.py": {
       "mode": 420,
