@@ -270,12 +270,20 @@ def _stop(process, grace=90, *, deadline=None):
         raise CleanupFailure() from errors[0]
 
 
-def command(argv, log, timeout, *, cleanup_grace=90, deadline=None):
+def command(argv, log, timeout, *, cleanup_grace=90, deadline=None, runtime_env=None):
     """One work cutoff and original cleanup allowance inside the captured deadline."""
     require(type(timeout) in (int, float) and 0 < timeout <= 3600 and math.isfinite(timeout) and
             type(cleanup_grace) in (int, float) and 0 <= cleanup_grace <= 120 and
             math.isfinite(cleanup_grace), 'finite-command-bounds-required')
     check_deadline(deadline)
+    if runtime_env is not None:
+        require(type(runtime_env) is dict and set(runtime_env) == {'PATH','HOME','DOCKER_CONFIG','DOCKER_HOST','DOCKER_BUILDKIT','LC_ALL','TMPDIR','GITHUB_SHA','PYTHONDONTWRITEBYTECODE'} and
+                all(type(key) is str and type(value) is str and '\0' not in value and len(value) <= 4096
+                    for key,value in runtime_env.items()) and runtime_env['PATH'] == '/usr/bin:/bin' and
+                runtime_env['DOCKER_HOST'] == 'unix:///run/docker.sock' and runtime_env['DOCKER_BUILDKIT'] == '0' and
+                runtime_env['LC_ALL'] == 'C' and runtime_env['PYTHONDONTWRITEBYTECODE'] == '1' and
+                re.fullmatch('[0-9a-f]{40}',runtime_env['GITHUB_SHA']),'runtime-environment-refused')
+        runtime_env = dict(runtime_env)
     work_end = None
     if deadline is not None:
         now = time.monotonic()
@@ -291,7 +299,7 @@ def command(argv, log, timeout, *, cleanup_grace=90, deadline=None):
         spawning_error = None
         try:
             arguments = [str(item) for item in argv]
-            environment = controlled_env()
+            environment = controlled_env() if runtime_env is None else dict(runtime_env)
             check_deadline(deadline)
             require(work_end is None or time.monotonic() < work_end, 'stage-deadline-exceeded')
             process = subprocess.Popen(arguments, stdout=subprocess.PIPE,

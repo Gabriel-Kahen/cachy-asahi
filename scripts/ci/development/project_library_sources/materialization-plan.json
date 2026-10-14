@@ -1,0 +1,2356 @@
+{
+  "frozen_copy_map_sha256": "ccbc18c2e2914d0a1b0bf4252ffe49f3b9683bbecd10b22eef0021e5ca72c09b",
+  "frozen_receipt_sha256": "57891aa0cd2f95211e618093e16efec89816e88e705d0393d02eb7c2c827846b",
+  "jbig_notice": {
+    "members": [
+      {
+        "length": 1265,
+        "member": "libjbig/jbig.c",
+        "offset": 0,
+        "source_sha256": "74f308fd5fa8c664cf1b377fae18d30e7f5eabcd3c686b0d62e01f6046f63f00"
+      },
+      {
+        "length": 142,
+        "member": "libjbig/jbig.h",
+        "offset": 0,
+        "source_sha256": "4a8b2d69757ba0774119cd8894d87c2fe595aeee9abbf5878a0c61ad12b8ec32"
+      },
+      {
+        "length": 1293,
+        "member": "libjbig/jbig85.c",
+        "offset": 0,
+        "source_sha256": "cb61ea4104a60374196f3c17f7182e971c28d0b49c409398d2d155c5ba572437"
+      },
+      {
+        "length": 180,
+        "member": "libjbig/jbig85.h",
+        "offset": 0,
+        "source_sha256": "4112dfb645afe794936f110fd7a0b133ea9efac5d8bd25447d8b5168065fabff"
+      },
+      {
+        "length": 1226,
+        "member": "libjbig/jbig_ar.c",
+        "offset": 0,
+        "source_sha256": "730fba898bbd24a0874ed0b426e4226d4a52ba35d43d3574b7c8b7f7a612e0ef"
+      },
+      {
+        "length": 169,
+        "member": "libjbig/jbig_ar.h",
+        "offset": 0,
+        "source_sha256": "c9f31dcc191620ad13302679d466a8941dd3ee75a1641a53600b34fd4e6d3039"
+      },
+      {
+        "length": 199,
+        "member": "libjbig/tstcodec.c",
+        "offset": 0,
+        "source_sha256": "04f8a2f3c0a3011331af6a5796c45348ef28f3c39a5c8283cacca3bcd292552b"
+      },
+      {
+        "length": 199,
+        "member": "libjbig/tstcodec85.c",
+        "offset": 0,
+        "source_sha256": "90541c66e62b050fe84a8043308a54356b2a5db63df6a3c9f19dc0397696767d"
+      },
+      {
+        "length": 204,
+        "member": "libjbig/tstjoint.c",
+        "offset": 0,
+        "source_sha256": "d670167c04069ef16a4d2db236398717599decfc6f44b6729300a71276a65b80"
+      },
+      {
+        "length": 118,
+        "member": "pbmtools/jbgtopbm.c",
+        "offset": 0,
+        "source_sha256": "5c9f363bdc365d7e6c625282f98adeb71e64e1b132b3114fe954dfc30d36dd22"
+      },
+      {
+        "length": 135,
+        "member": "pbmtools/jbgtopbm85.c",
+        "offset": 0,
+        "source_sha256": "29af3a52a5e14e9cfca59436a8d941ed9abe122eae0672274daac8214bd28bf9"
+      },
+      {
+        "length": 118,
+        "member": "pbmtools/pbmtojbg.c",
+        "offset": 0,
+        "source_sha256": "ff6079969754184b8177168947cfe38aa942af237e52799799942f23786333d3"
+      },
+      {
+        "length": 135,
+        "member": "pbmtools/pbmtojbg85.c",
+        "offset": 0,
+        "source_sha256": "faf4727e9d89e5503f50cc4e4980417d042caace9e264b0397d7c7606b3a39f8"
+      }
+    ],
+    "project_authored_prefix": "cachy-asahi-jbigkit 2.2-1.1 \u2014 proposed filtered project build\n\nOriginal recipe, checker, synthetic P4 fixtures/generator and project docs:\nCopyright (c) 2026 cachy-asahi contributors. SPDX-License-Identifier: MIT.\nFull grant/disclaimer: LICENSE.recipe, copied from the project LICENSE.\n\nJBIG-KIT Source: Markus Kuhn, https://www.cl.cam.ac.uk/~mgk25/jbigkit/.\nCore jbig.c, jbig85.c and jbig_ar.c explicitly grant GPL version 2 or later.\nFull GPLv2 text is COPYING. The retained original ANNOUNCE supplies the\npackage-wide public GPL notice. All author/translator and Poskanzer permissive\nnotices in the 37 retained Source files remain byte-identical in the archive.\n\nShared-library patch: Reilly Brogan, 2026-10-11, original author/date/hunks\npreserved in the complete 4,481-byte patch. Official packaging REUSE declares\nGPL-2.0-or-later / jbigkit contributors for this patch; that declaration is held.\nThe separate project filter/test patch is GPL-2.0-or-later and adds prominent\n2026-10-13 modification notices to all three changed Makefiles. It removes\nexternal-image/fuzz test recipes and directs conversion tests to original\nproject synthetic fixtures. No C/header bytes are modified.\n\nThe full unfiltered original archive, all 13 example/data/generator files and\nfull author-homepage prose are excluded from the public source pack. The\noriginal tar hash remains private audit provenance, not a rebuild requirement.\nNo commercial/dependency licence or downstream combined-work clearance is\nclaimed. This is a distinct project candidate rather than ALARM binary/recipe\nequivalence. Every selected library/header/tool and serial-test author notice\nis reproduced below; the complete preferred source is in the filtered archive.\n"
+  },
+  "outputs": [
+    {
+      "bytes": 5669,
+      "filename": "PKGBUILD",
+      "kind": "project_asset",
+      "mode": 420,
+      "package": "jbigkit",
+      "sha256": "adebfdb5a3584a18754da2530fc2d66fdfb1e30afa779a0d88e926e510124eb9"
+    },
+    {
+      "bytes": 109999,
+      "filename": "jbigkit-2.2-project-filtered.tar.gz",
+      "kind": "filtered_archive",
+      "mode": 420,
+      "package": "jbigkit",
+      "sha256": "b9de615842035efd64d8718cce4b5daa01764dc0b04380ba52e1d30d1f9d2945"
+    },
+    {
+      "bytes": 4481,
+      "filename": "jbigkit-2.2-shared_lib.patch",
+      "kind": "shared_patch",
+      "mode": 420,
+      "package": "jbigkit",
+      "sha256": "58d80618c27dd089a2f3db87d91bf37fa443d1ef8418f3d2958aabb850120b2a"
+    },
+    {
+      "bytes": 6221,
+      "filename": "jbigkit-project-filter-tests.patch",
+      "kind": "project_patch",
+      "mode": 420,
+      "package": "jbigkit",
+      "sha256": "f454137f0153a66049c33f6b37bbeeb0b9f61af0d426d2398f655398683625dc"
+    },
+    {
+      "bytes": 17982,
+      "filename": "COPYING",
+      "kind": "COPYING",
+      "mode": 420,
+      "package": "jbigkit",
+      "sha256": "91df39d1816bfb17a4dda2d3d2c83b1f6f2d38d53e53e41e8f97ad5ac46a0cad"
+    },
+    {
+      "bytes": 7221,
+      "filename": "upstream-ANNOUNCE",
+      "kind": "ANNOUNCE",
+      "mode": 420,
+      "package": "jbigkit",
+      "sha256": "99a69c828cd4a22b6b35563b9da81275bb6dbfe9a380bb6986a21f56b6c7dedf"
+    },
+    {
+      "bytes": 594,
+      "filename": "packaging-REUSE.toml",
+      "kind": "reuse",
+      "mode": 420,
+      "package": "jbigkit",
+      "sha256": "e6c1853cd358b709bb88a909b5ec606bdce9605893aa948cf5ce216c4edb7b37"
+    },
+    {
+      "bytes": 1081,
+      "filename": "LICENSE.recipe",
+      "kind": "project_asset",
+      "mode": 420,
+      "package": "jbigkit",
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    {
+      "bytes": 7383,
+      "filename": "NOTICE",
+      "kind": "notice",
+      "mode": 420,
+      "package": "jbigkit",
+      "sha256": "091b618c777879a3a510015da3e59608c49f85ea6f377521bf54193afbb210eb"
+    },
+    {
+      "bytes": 3765,
+      "filename": "PUBLICATION.md",
+      "kind": "project_asset",
+      "mode": 420,
+      "package": "jbigkit",
+      "sha256": "e72663a7aa17b92a8232d4d8fc03d6cb614df4b30edea182463db251bc5d2b81"
+    },
+    {
+      "bytes": 660,
+      "filename": "removal.md",
+      "kind": "project_asset",
+      "mode": 420,
+      "package": "jbigkit",
+      "sha256": "329b9f6ecee0b35e2b5e34f639c0f1e2f1b5e918fcd00cefaf775dc82d6051fd"
+    },
+    {
+      "bytes": 4825,
+      "filename": "inputs.json",
+      "kind": "project_asset",
+      "mode": 420,
+      "package": "jbigkit",
+      "sha256": "577fea4fac15648beae140f64e2ef8bf14d8d8a02d9bc406483f6c509bdf61c8"
+    },
+    {
+      "bytes": 10391,
+      "filename": "source-filter.json",
+      "kind": "project_asset",
+      "mode": 420,
+      "package": "jbigkit",
+      "sha256": "e906020fd3affd7d6b7968aebca6ec7518ac3c11f801df2a221742864750f14d"
+    },
+    {
+      "bytes": 5864,
+      "filename": "source-check.py",
+      "kind": "project_asset",
+      "mode": 420,
+      "package": "jbigkit",
+      "sha256": "a4da54ea4a002048c83ec16cb9e7f78e6fb520343b6a7d7a029c6bf6bfbccc82"
+    },
+    {
+      "bytes": 3389,
+      "filename": "synthetic-pbm.py",
+      "kind": "project_asset",
+      "mode": 420,
+      "package": "jbigkit",
+      "sha256": "744f59f38524370bf633246c405a3c75a556e799f7d46357e2e84124869c7407"
+    },
+    {
+      "bytes": 8,
+      "filename": "synthetic-0.pbm",
+      "kind": "synthetic",
+      "mode": 420,
+      "package": "jbigkit",
+      "sha256": "a8ed35a163cba662b15fe455af22d5f91668d6eb59ef9a2aa9e19e1658745819"
+    },
+    {
+      "bytes": 8,
+      "filename": "synthetic-1.pbm",
+      "kind": "synthetic",
+      "mode": 420,
+      "package": "jbigkit",
+      "sha256": "a293aabff7eae7f96579e5e6bec8665d16b608f2a66a4d7053f7d6b432224291"
+    },
+    {
+      "bytes": 22,
+      "filename": "synthetic-2.pbm",
+      "kind": "synthetic",
+      "mode": 420,
+      "package": "jbigkit",
+      "sha256": "9055d3cd1d93cd4aa12e6a5f795ae15e69f3c0d04dcf6a43ca3e8750f9c8b20a"
+    },
+    {
+      "bytes": 44,
+      "filename": "synthetic-3.pbm",
+      "kind": "synthetic",
+      "mode": 420,
+      "package": "jbigkit",
+      "sha256": "287e22786b17c8d45aada473e7dce37e4bcd5741f00eff3ef9884438e5eae080"
+    },
+    {
+      "bytes": 42,
+      "filename": "synthetic-4.pbm",
+      "kind": "synthetic",
+      "mode": 420,
+      "package": "jbigkit",
+      "sha256": "c88997d1c7530db94f625659af6cf582bebe5fd69ba6ff207975d22f3c4020fb"
+    },
+    {
+      "bytes": 4950,
+      "filename": "PKGBUILD",
+      "kind": "project_asset",
+      "mode": 420,
+      "package": "libtiff",
+      "sha256": "1bebd2b71821fa81b70b95617d87734f81a6f825375ce9c3df54130b6784ea6c"
+    },
+    {
+      "bytes": 725047,
+      "filename": "libtiff-project-4.7.2-source.tar.gz",
+      "kind": "filtered_archive",
+      "mode": 420,
+      "package": "libtiff",
+      "sha256": "c63abdba53ef3fa510a3314bcd78183f9f2d948272c6ec52b4aeafae8cfba2af"
+    },
+    {
+      "bytes": 213631,
+      "filename": "UPSTREAM-NOTICES.txt",
+      "kind": "notice",
+      "mode": 420,
+      "package": "libtiff",
+      "sha256": "86f781c2c05c4a20c4c4ecfe0e3b24c3e119781af6f0dce1714ad6a6c98833c1"
+    },
+    {
+      "bytes": 1081,
+      "filename": "LICENSE.MIT",
+      "kind": "project_asset",
+      "mode": 420,
+      "package": "libtiff",
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    {
+      "bytes": 4506,
+      "filename": "PUBLICATION.md",
+      "kind": "project_asset",
+      "mode": 420,
+      "package": "libtiff",
+      "sha256": "0e971e7a9986e0c6ad5ecafd0497a93ee66e7d483a5929392245edad2d72b81e"
+    },
+    {
+      "bytes": 157644,
+      "filename": "source-filter.json",
+      "kind": "project_asset",
+      "mode": 420,
+      "package": "libtiff",
+      "sha256": "560a94716b3ee906886556f9bf26450b51b692b07742291feffe614e6427afbb"
+    },
+    {
+      "bytes": 4904,
+      "filename": "stage-source.py",
+      "kind": "project_asset",
+      "mode": 420,
+      "package": "libtiff",
+      "sha256": "f051a1d5ff522d67c660160644a919501d3cd3a1bba68cd24ee1d6f0864ca598"
+    }
+  ],
+  "schema": 1,
+  "scope": "Project-authored metadata; no upstream text bodies/archive/source chunks; original headers/notices reconstructed by exact byte spans from supplied pinned originals. Existing caller HTTP runner owns downloads/deadline.",
+  "tiff_notice": {
+    "members": [
+      {
+        "member": "CMakeLists.txt",
+        "parts": [
+          {
+            "length": 1352,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n\n\n"
+          }
+        ],
+        "source_sha256": "d9f329087a02ee9d89420658ffcb123815008fd02cb1c36e75cb9c69c76b43d5"
+      },
+      {
+        "member": "LICENSE.md",
+        "parts": [
+          {
+            "length": 2415,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n\n"
+          }
+        ],
+        "source_sha256": "0e27c2382d7b8147972bbb746e04059a1152c8d0fda9d03ef1399d1a433c4ade"
+      },
+      {
+        "member": "build/CMakeLists.txt",
+        "parts": [
+          {
+            "length": 1237,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n\n"
+          }
+        ],
+        "source_sha256": "778d68e1cd698d38ffcfc898016297f532ed25a5ee328175b46f2cca33a760d7"
+      },
+      {
+        "member": "build/Makefile.am",
+        "parts": [
+          {
+            "length": 1261,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n\n\n"
+          }
+        ],
+        "source_sha256": "8b08e6f5e4f185a9bf055f56ead0fb7fe656a212a0ffb795d1fb1c213a5ba83d"
+      },
+      {
+        "member": "cmake/AutotoolsCompat.cmake",
+        "parts": [
+          {
+            "length": 1331,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n\n"
+          }
+        ],
+        "source_sha256": "1626039ee311e2feaf7d9a820afc2399b166cd4a0eaaa2a01aecde06d6608e5f"
+      },
+      {
+        "member": "cmake/AutotoolsVersion.cmake",
+        "parts": [
+          {
+            "length": 1346,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n\n"
+          }
+        ],
+        "source_sha256": "417f7bdecf9447024c7abefc6ec81e96300bb61828648cf5efc0ca4810f32546"
+      },
+      {
+        "member": "cmake/CXXLibrary.cmake",
+        "parts": [
+          {
+            "length": 1302,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n\n"
+          }
+        ],
+        "source_sha256": "983cd9434d47515fdf28544055ecdcfc7f03d00a44f9bbe63b6bcb762986d906"
+      },
+      {
+        "member": "cmake/CompilerChecks.cmake",
+        "parts": [
+          {
+            "length": 1292,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n\n\n\n"
+          }
+        ],
+        "source_sha256": "14d8c4ce5a0b1306f637b386aae0f9813aa13ceb1b838f17a9d95150684a0e9b"
+      },
+      {
+        "member": "cmake/DeflateCodec.cmake",
+        "parts": [
+          {
+            "length": 1310,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n\n"
+          }
+        ],
+        "source_sha256": "bdaa1fcb74ac70b5adcd11b80a79e20f0c45af4205e4f7832b766ac45bf7e0e2"
+      },
+      {
+        "member": "cmake/FindCMath.cmake",
+        "parts": [
+          {
+            "length": 222,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n\n"
+          }
+        ],
+        "source_sha256": "962c55983b387a992159884414eadaa05e768c7e465e55361d5a9a0861fc2090"
+      },
+      {
+        "member": "cmake/FindDeflate.cmake",
+        "parts": [
+          {
+            "length": 222,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n\n"
+          }
+        ],
+        "source_sha256": "c31a12d3b10d505c8b5f4b449e8e809e2fd243f2f3d3f6eadc2a3ecd77325c21"
+      },
+      {
+        "member": "cmake/FindJBIG.cmake",
+        "parts": [
+          {
+            "length": 222,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n\n"
+          }
+        ],
+        "source_sha256": "9f5345f427a35c5b955f2d4b4bd330a2508adc4e1dcc48411edda1e4a496262c"
+      },
+      {
+        "member": "cmake/FindJPEG.cmake",
+        "parts": [
+          {
+            "length": 222,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n\n"
+          }
+        ],
+        "source_sha256": "32eafff5aa4121e0c7c82a0abf5ca81bf7dfdd8686d20b9575da89eec17494df"
+      },
+      {
+        "member": "cmake/FindLERC.cmake",
+        "parts": [
+          {
+            "length": 222,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n\n"
+          }
+        ],
+        "source_sha256": "96720d284580525c1ef825ea5fb1e633a8f67a9c9ddd74fa01e2bc23d294fec0"
+      },
+      {
+        "member": "cmake/FindWebP.cmake",
+        "parts": [
+          {
+            "length": 222,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n\n"
+          }
+        ],
+        "source_sha256": "e6d6636145e78bf8eb998489ffe6f156e3ddd460c8e57f960954981b26e72fd7"
+      },
+      {
+        "member": "cmake/FindZSTD.cmake",
+        "parts": [
+          {
+            "length": 222,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n\n"
+          }
+        ],
+        "source_sha256": "a57c1ec9c98351bd7ca52025ceabf104f39135c0a2a558fe35eb608e956f097c"
+      },
+      {
+        "member": "cmake/Findliblzma.cmake",
+        "parts": [
+          {
+            "length": 222,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n\n"
+          }
+        ],
+        "source_sha256": "399ac9b3ef4319184a62f1c2b8f29d8eeb25890392d4c50a9d18a1633168ade8"
+      },
+      {
+        "member": "cmake/IncludeChecks.cmake",
+        "parts": [
+          {
+            "length": 1287,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n\n\n\n"
+          }
+        ],
+        "source_sha256": "cfc4047c3efc515dfa171eb47089ebecc8ab3902df936ffbf25237d06e55ef61"
+      },
+      {
+        "member": "cmake/InternalCodecs.cmake",
+        "parts": [
+          {
+            "length": 1314,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n\n\n\n"
+          }
+        ],
+        "source_sha256": "e400b7e48530620b00f0b68a6f6ea1ea4ea1585e24a4a4cf846813f0256d128d"
+      },
+      {
+        "member": "cmake/JBIGCodec.cmake",
+        "parts": [
+          {
+            "length": 1311,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n\n"
+          }
+        ],
+        "source_sha256": "e712aaa2ca57d0dd5adfaf941d9fa2908ea3a858b01050de701f4440dda898de"
+      },
+      {
+        "member": "cmake/JPEGCodec.cmake",
+        "parts": [
+          {
+            "length": 1307,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n\n"
+          }
+        ],
+        "source_sha256": "455515fea711a49300fe76a6156a6a5bad1d5a832bb48eb621b1b559fefd0f04"
+      },
+      {
+        "member": "cmake/LERCCodec.cmake",
+        "parts": [
+          {
+            "length": 1267,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n\n"
+          }
+        ],
+        "source_sha256": "95eafa0cfe0d04d7c8baae93c80895b435f54432a71760c73d44eca8b40a3186"
+      },
+      {
+        "member": "cmake/LZMACodec.cmake",
+        "parts": [
+          {
+            "length": 1311,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n\n"
+          }
+        ],
+        "source_sha256": "b67dce57ec3bd3e0283ad1a646e27bd9a427c1d395ba61362c2b8331f4e32865"
+      },
+      {
+        "member": "cmake/LargeFileSupport.cmake",
+        "parts": [
+          {
+            "length": 1287,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n\n\n\n"
+          }
+        ],
+        "source_sha256": "868b09d7b5ecb0febd34cbbaaa6787cd51436e05ff136f471f06250727dceb3f"
+      },
+      {
+        "member": "cmake/LibraryFeatures.cmake",
+        "parts": [
+          {
+            "length": 1305,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n\n"
+          }
+        ],
+        "source_sha256": "bb8f89fe682ad40d69649941965d850912d7626bcf8275690cc1359f1e561b15"
+      },
+      {
+        "member": "cmake/LinkerChecks.cmake",
+        "parts": [
+          {
+            "length": 1294,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n\n\n\n"
+          }
+        ],
+        "source_sha256": "6292660791c8cada1d0266f82d9904dc84d8bde2846e4f04f267b1699f3a9676"
+      },
+      {
+        "member": "cmake/OpenGLChecks.cmake",
+        "parts": [
+          {
+            "length": 1322,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n\n"
+          }
+        ],
+        "source_sha256": "343798a0b6fb74bd639ee9afc4aa295234f2c5fce0db5d8046ff72ccbbc9b01b"
+      },
+      {
+        "member": "cmake/PixarLogCodec.cmake",
+        "parts": [
+          {
+            "length": 1363,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n\n"
+          }
+        ],
+        "source_sha256": "3d57d43fb7ab8dbd71cf10b2bb196fce2c95a7edbf7e2ac5288f89d886b2f2a1"
+      },
+      {
+        "member": "cmake/PkgConfig.cmake",
+        "parts": [
+          {
+            "length": 1331,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n\n"
+          }
+        ],
+        "source_sha256": "2cb931535e54e78b179d03a44b479aed3ff5b7efff4a8fcd0e9e2a31bd2b78aa"
+      },
+      {
+        "member": "cmake/ProcessorChecks.cmake",
+        "parts": [
+          {
+            "length": 1395,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n\n"
+          }
+        ],
+        "source_sha256": "1c4a3db99829e227fddc6dd1cc07518960f99f927fcde06389ef06e15709b57c"
+      },
+      {
+        "member": "cmake/Release.cmake",
+        "parts": [
+          {
+            "length": 1320,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n\n"
+          }
+        ],
+        "source_sha256": "2fd35100655742327ad998647015b3a77d4df0a4e33c39b8b5410f8ca71527e0"
+      },
+      {
+        "member": "cmake/ReleaseScript.cmake",
+        "parts": [
+          {
+            "length": 1252,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n\n"
+          }
+        ],
+        "source_sha256": "f2c0423f3a3699d81aa18462fee94a66382973f9d7772bc8e0ec43b036dda274"
+      },
+      {
+        "member": "cmake/Sphinx.cmake",
+        "parts": [
+          {
+            "length": 1824,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n\n\n"
+          }
+        ],
+        "source_sha256": "65d0dc63685827d28ee1720224e6860d6662f8cb7c4aa173b23b8296312926d2"
+      },
+      {
+        "member": "cmake/SymbolChecks.cmake",
+        "parts": [
+          {
+            "length": 1287,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n\n\n\n"
+          }
+        ],
+        "source_sha256": "6007222b23752a55fcef24f1d80b18a70cad1aef2550bbb734f13281370bebfb"
+      },
+      {
+        "member": "cmake/TypeSizeChecks.cmake",
+        "parts": [
+          {
+            "length": 1285,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n\n\n\n"
+          }
+        ],
+        "source_sha256": "42530ea7410abacab290357cd430c68ef94e6719383be7094f0bd05e384b65c8"
+      },
+      {
+        "member": "cmake/WebPCodec.cmake",
+        "parts": [
+          {
+            "length": 1309,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n\n"
+          }
+        ],
+        "source_sha256": "f1c828900fc304105b2ff474096a33e3d78a09f9b47d09ea11255073c8b27392"
+      },
+      {
+        "member": "cmake/WindowsSupport.cmake",
+        "parts": [
+          {
+            "length": 1284,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n\n\n"
+          }
+        ],
+        "source_sha256": "d9974124858084b64c7091968a450a3d33fdb199f29d5c3e4caba53f35555dda"
+      },
+      {
+        "member": "cmake/ZSTDCodec.cmake",
+        "parts": [
+          {
+            "length": 1310,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n\n"
+          }
+        ],
+        "source_sha256": "8be4fa4a062b09d6068452fd7cdc5fc1f52dfc2b37eec50a19b2b2bda4226594"
+      },
+      {
+        "member": "libtiff/CMakeLists.txt",
+        "parts": [
+          {
+            "length": 1328,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n\n"
+          }
+        ],
+        "source_sha256": "b1efe57e92027beeb6b0d700d238e4f4df9f61bcb33fef31833b3a8d7649513a"
+      },
+      {
+        "member": "libtiff/Makefile.am",
+        "parts": [
+          {
+            "length": 1259,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n\n\n"
+          }
+        ],
+        "source_sha256": "98c3bf3f953d3fbdd7fd27ee74d6f373ef698edb86e4d9514a40b2f952593e30"
+      },
+      {
+        "member": "libtiff/mkspans.c",
+        "parts": [
+          {
+            "length": 1205,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "05e0a5a5886002770d3b1da5d7baf8c256f47fde34a98f4ed381cec0275decf2"
+      },
+      {
+        "member": "libtiff/t4.h",
+        "parts": [
+          {
+            "length": 1205,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "68fea8b3e6ac6f9c02395de1ac7759686d82c773024caa9c112784dfa967cae5"
+      },
+      {
+        "member": "libtiff/tif_aux.c",
+        "parts": [
+          {
+            "length": 1205,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "f60471ca247420de0676efc334ea1573c2fb16fc8415b73e9d9259ae12833084"
+      },
+      {
+        "member": "libtiff/tif_close.c",
+        "parts": [
+          {
+            "length": 1205,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "c08aa975b642b5034962d1dbdbadc944c979843764de4ce440055ccc72be57a1"
+      },
+      {
+        "member": "libtiff/tif_codec.c",
+        "parts": [
+          {
+            "length": 1205,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "ba6c41b956bfccb221b8e9d088502880544f7dedb751f50fdaddefd1edd263cb"
+      },
+      {
+        "member": "libtiff/tif_color.c",
+        "parts": [
+          {
+            "whitespace": ""
+          },
+          {
+            "length": 1205,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          },
+          {
+            "length": 195,
+            "offset": 1207
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "4e5183a58f908ad6d2fa1805d657fbde67fde90a66b3e431005221bf190983ac"
+      },
+      {
+        "member": "libtiff/tif_compress.c",
+        "parts": [
+          {
+            "length": 1205,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "e569f3502c4af70f4ccd56b7f78aac0f809fedb438419cb1ae09f69e3b1bfb8e"
+      },
+      {
+        "member": "libtiff/tif_dir.c",
+        "parts": [
+          {
+            "length": 1205,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "633bede16c3b1829d8ded69c97be9dd16d976121eed99ab8ccacf707d14625db"
+      },
+      {
+        "member": "libtiff/tif_dir.h",
+        "parts": [
+          {
+            "length": 1205,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "2d9c36a036f169b8521e0e3f0de968576136b5b43f38d8b9904791a6137d342f"
+      },
+      {
+        "member": "libtiff/tif_dirinfo.c",
+        "parts": [
+          {
+            "length": 1205,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "f0c2d4c491cfc148ac8cb02ad12ee3d17b6a9e64a6f7de2f12fcd5d18ed5f711"
+      },
+      {
+        "member": "libtiff/tif_dirread.c",
+        "parts": [
+          {
+            "length": 1205,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "9a9220abd10e952c5147207461725630ccd9a0886e157ccabbe8c5a3006445fe"
+      },
+      {
+        "member": "libtiff/tif_dirwrite.c",
+        "parts": [
+          {
+            "length": 1205,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "6c0fa9956a82abe68c5eb517c36bbfaafd6eed4d04af6aae85797b5d3ada52c2"
+      },
+      {
+        "member": "libtiff/tif_dumpmode.c",
+        "parts": [
+          {
+            "length": 1205,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "e850f24a63acc1e67f133a1c783b2ecde72a6816e37e840f206f5c8a5d633fe5"
+      },
+      {
+        "member": "libtiff/tif_error.c",
+        "parts": [
+          {
+            "length": 1205,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "ec178c0dcb7d1e4e6a5aec3220549ab5372cdc1725b185584972c005d11f5abd"
+      },
+      {
+        "member": "libtiff/tif_extension.c",
+        "parts": [
+          {
+            "length": 1205,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "b49abfbd8f153237ff1187c6c1d34ffd0a6f26013b70d133b41ba64cbbf725ca"
+      },
+      {
+        "member": "libtiff/tif_fax3.c",
+        "parts": [
+          {
+            "whitespace": ""
+          },
+          {
+            "length": 1205,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          },
+          {
+            "length": 354,
+            "offset": 1249
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "21e3a1efe3a309662736d4d745a01c305e411cc22fd17453cb48adcc1498c31f"
+      },
+      {
+        "member": "libtiff/tif_fax3.h",
+        "parts": [
+          {
+            "whitespace": ""
+          },
+          {
+            "length": 1205,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          },
+          {
+            "length": 246,
+            "offset": 1237
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "1f76e5301166899b22409c31192d9f91be00bbe61f6d2badc529ece3b839de2d"
+      },
+      {
+        "member": "libtiff/tif_flush.c",
+        "parts": [
+          {
+            "length": 1205,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "0d6277cc2c3c898056290be7162913b148ce13f0d27a1146e1f1f30e34a014ae"
+      },
+      {
+        "member": "libtiff/tif_getimage.c",
+        "parts": [
+          {
+            "length": 1205,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "9ebfe8afe9d74f6b3d23d5172d1e20150c3162082a80d2eb0fa776817915dc07"
+      },
+      {
+        "member": "libtiff/tif_hash_set.c",
+        "parts": [
+          {
+            "length": 1505,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "f3d3aaf6ac8bfa79626e48fa4cc17c65abee3caa7577154370391c82a74120f4"
+      },
+      {
+        "member": "libtiff/tif_hash_set.h",
+        "parts": [
+          {
+            "length": 1560,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "de1ba012c293a798301e445e2d65b8a37bfd60426b7a6be59891058163c896eb"
+      },
+      {
+        "member": "libtiff/tif_jbig.c",
+        "parts": [
+          {
+            "length": 1205,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "1df9b75fef78ab9472fa78bc1604a2a5f26dace49e9b197f669ac640f4718d77"
+      },
+      {
+        "member": "libtiff/tif_jpeg.c",
+        "parts": [
+          {
+            "length": 1205,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "f6b80b90e7fb8f17448d07ceebb075dc1b8371fba5f84ab3ed00df2730a13c21"
+      },
+      {
+        "member": "libtiff/tif_lerc.c",
+        "parts": [
+          {
+            "length": 1195,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "49002d1ce1a608d9cf0e694fe9ff5b3f491e27e32356092ca9f06ad90a5c822a"
+      },
+      {
+        "member": "libtiff/tif_luv.c",
+        "parts": [
+          {
+            "length": 1239,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "21144d655c24e7ef0aea38db8852ec90130b55a003a2f2a0ab54c7f5c5787fa6"
+      },
+      {
+        "member": "libtiff/tif_lzma.c",
+        "parts": [
+          {
+            "length": 1176,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "1389c2731b6ba4ca821ee6b6c5c2deda924e31e90637e550927ab3d8e6c54f6c"
+      },
+      {
+        "member": "libtiff/tif_lzw.c",
+        "parts": [
+          {
+            "whitespace": ""
+          },
+          {
+            "length": 1240,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          },
+          {
+            "length": 350,
+            "offset": 1282
+          },
+          {
+            "whitespace": "\n"
+          },
+          {
+            "length": 983,
+            "offset": 46845
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "d313ba3ff2e358e9a516f7c5e7ce9b2f86ef12f505e667b2c6526da1a5085099"
+      },
+      {
+        "member": "libtiff/tif_next.c",
+        "parts": [
+          {
+            "length": 1205,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "10a71e4975baac7278c6ed3ae4b0eb18402027ce1e4a2feb58873250269b9022"
+      },
+      {
+        "member": "libtiff/tif_ojpeg.c",
+        "parts": [
+          {
+            "whitespace": ""
+          },
+          {
+            "length": 2229,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          },
+          {
+            "length": 5018,
+            "offset": 2231
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "e0dcb8bf12d3b403407155ac84402158c4efb0f19d2c6e10f16329b2bf311bc4"
+      },
+      {
+        "member": "libtiff/tif_open.c",
+        "parts": [
+          {
+            "length": 1205,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "d536531e0323cc007982e8ec10d4cae03b984f19523d1b3e66dd60a7f33ce959"
+      },
+      {
+        "member": "libtiff/tif_packbits.c",
+        "parts": [
+          {
+            "length": 1205,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "6882b72c2770de2f5c491d34f81a40be6b0782a65f04b6c5b7b4a18035db7e83"
+      },
+      {
+        "member": "libtiff/tif_pixarlog.c",
+        "parts": [
+          {
+            "length": 1204,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "3dd66ae360355845b2e69c24892ea3c053650317f162d9a824700d6aa507f862"
+      },
+      {
+        "member": "libtiff/tif_predict.c",
+        "parts": [
+          {
+            "length": 1205,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "5480cb89241e7c0095b4a85c37aeb91a1c7ddf62ab05c2ac634e9ce96bc0618a"
+      },
+      {
+        "member": "libtiff/tif_predict.h",
+        "parts": [
+          {
+            "length": 1205,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "a1a7241bac6631f1161921f5158a96c7ee53dbe293f7caefdf945cd279046c48"
+      },
+      {
+        "member": "libtiff/tif_print.c",
+        "parts": [
+          {
+            "length": 1205,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "d60c90ebb8c30af1374022a42760034ff751a83470de340d00d9ed8d1b637de2"
+      },
+      {
+        "member": "libtiff/tif_read.c",
+        "parts": [
+          {
+            "length": 1205,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "332043d298faf86609a1e07eed21fb4da95b0e42d2df0af43e7e25cd2578997e"
+      },
+      {
+        "member": "libtiff/tif_stream.cxx",
+        "parts": [
+          {
+            "length": 1205,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "80fe30ffefee7bab48fe9699af5cba5aac72b8d3e22bb90e768623c5751a24db"
+      },
+      {
+        "member": "libtiff/tif_strip.c",
+        "parts": [
+          {
+            "length": 1205,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "30796199aec3fa7f6c37386cf464ca5941701bf90e77a70c52a6cf0dd00a1757"
+      },
+      {
+        "member": "libtiff/tif_swab.c",
+        "parts": [
+          {
+            "length": 1205,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "c18d2549216dbcc2111726473c15dd5e2bd40653e2c64984ac51ca720fdbc3ac"
+      },
+      {
+        "member": "libtiff/tif_thunder.c",
+        "parts": [
+          {
+            "length": 1205,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "0e1013bc534f49f8b1d99439b19fe87ac18bfcb9bcda390f43d4a909f0236ae6"
+      },
+      {
+        "member": "libtiff/tif_tile.c",
+        "parts": [
+          {
+            "length": 1205,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "40b00f3b91e54a88e541a6ad634bad2044f5eb0b9d749ed92fac7b37e66d32df"
+      },
+      {
+        "member": "libtiff/tif_unix.c",
+        "parts": [
+          {
+            "length": 1205,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "b731c27df24670eaae8fe42abdfef118c4a344e10cd9901ca3df87952eb9bf7e"
+      },
+      {
+        "member": "libtiff/tif_version.c",
+        "parts": [
+          {
+            "length": 1205,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "c6bc3af2cc77a377f780bbe87087d2fc7a49686dd88b9a1a69d57b95530b95b0"
+      },
+      {
+        "member": "libtiff/tif_warning.c",
+        "parts": [
+          {
+            "length": 1205,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "cfb6a08e9240ca789b061be18b980173d07fe6d645a5eace7557f33d076369bb"
+      },
+      {
+        "member": "libtiff/tif_webp.c",
+        "parts": [
+          {
+            "length": 1187,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "fa0e2b6da3190db562b9a462ed6e24156ae430c9f0870f8ae1b052441ef4520f"
+      },
+      {
+        "member": "libtiff/tif_win32.c",
+        "parts": [
+          {
+            "length": 1282,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "e5406870a620641a0907a35974e886fb9691a6d975f01338d42359a0d4b4284e"
+      },
+      {
+        "member": "libtiff/tif_write.c",
+        "parts": [
+          {
+            "length": 1205,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "2d970aacf60e6e6e884353361c1e781c2fe5f90fdd2fe1aaee7cf93863e53f78"
+      },
+      {
+        "member": "libtiff/tif_zip.c",
+        "parts": [
+          {
+            "length": 1205,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "1ca068ada61c583f20dcd969d1acabc2b9c58eea4a4b18964644d34d5452e207"
+      },
+      {
+        "member": "libtiff/tif_zstd.c",
+        "parts": [
+          {
+            "length": 1194,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "0a6aad14cf27109cf819d68117693c610294a403c9f2899a885d84dadc01fc1a"
+      },
+      {
+        "member": "libtiff/tiff.h",
+        "parts": [
+          {
+            "whitespace": ""
+          },
+          {
+            "length": 1205,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          },
+          {
+            "length": 22,
+            "offset": 23983
+          },
+          {
+            "whitespace": "\n"
+          },
+          {
+            "length": 44,
+            "offset": 34428
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "ff8668357867cefdb31d7807a441fea04422bcff929303be09e16d99c7528fa6"
+      },
+      {
+        "member": "libtiff/tiffio.h",
+        "parts": [
+          {
+            "length": 1205,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "03ed4a148b230ae5ae3636b07b66e97d55956f9a13c4baf98ed707fc7e712f5e"
+      },
+      {
+        "member": "libtiff/tiffio.hxx",
+        "parts": [
+          {
+            "length": 1205,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "cd7ebd22cdba45167415b000e923f7d0ef9301028a3e775e3ace9e8c60d15ece"
+      },
+      {
+        "member": "libtiff/tiffiop.h",
+        "parts": [
+          {
+            "length": 1205,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "45f09bf096c43a776456e23045ade192d9b20adbdbaaa20bd14df0570ea7d668"
+      },
+      {
+        "member": "port/CMakeLists.txt",
+        "parts": [
+          {
+            "length": 1257,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n\n"
+          }
+        ],
+        "source_sha256": "a55a3448dc5dc4024e998f578d7b82ca00a8de505514527a95029ad1028d3a38"
+      },
+      {
+        "member": "port/Makefile.am",
+        "parts": [
+          {
+            "length": 1259,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n\n\n"
+          }
+        ],
+        "source_sha256": "7ccb88e7002053f7e7974a71b235221f065616b3d1c4bb46f133b77dda4afaa7"
+      },
+      {
+        "member": "port/getopt.c",
+        "parts": [
+          {
+            "length": 1599,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "d59d7be5e45aa8b889ce456a0261bb61b35869432d60bd6ff7badaab778bd702"
+      },
+      {
+        "member": "port/libport.h",
+        "parts": [
+          {
+            "length": 1154,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "a89bfeed430e22059128a166d94bf3645726fd3c9b503077c3a837c554ba689f"
+      },
+      {
+        "member": "test/CMakeLists.txt",
+        "parts": [
+          {
+            "length": 1276,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n\n"
+          }
+        ],
+        "source_sha256": "bce7df0847ce9c91658ad6431499ff8f88dc7be494a3dccc947a819c104592e4"
+      },
+      {
+        "member": "test/Makefile.am",
+        "parts": [
+          {
+            "length": 1259,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n\n\n"
+          }
+        ],
+        "source_sha256": "3d37221d1bdb28d6b233819b258bdae7bf648b08e66e29e706e45495259cb5e3"
+      },
+      {
+        "member": "test/TiffSplitTest.cmake",
+        "parts": [
+          {
+            "length": 1237,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n\n\n"
+          }
+        ],
+        "source_sha256": "43f4141551e5b3f9a3cc557e278c9f900bbee95b66ede147ae38d88c104a6d61"
+      },
+      {
+        "member": "test/TiffTest.cmake",
+        "parts": [
+          {
+            "length": 1237,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n\n\n"
+          }
+        ],
+        "source_sha256": "b802d0ada10e7d3f88805309dd0289b6a98920dd275c24a3fdc3ab517cf5c046"
+      },
+      {
+        "member": "test/TiffTestCommon.cmake",
+        "parts": [
+          {
+            "length": 1341,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n\n"
+          }
+        ],
+        "source_sha256": "2b1c8c76c4b440e11eaccd2a56f8d204612ed4ccc746f40b43ac4c92d9009096"
+      },
+      {
+        "member": "test/ascii_tag.c",
+        "parts": [
+          {
+            "length": 1177,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "6135f3a19f2dde6a96c0106a49a6972a5d235dc4a236a1afef7e91065cb9bd92"
+      },
+      {
+        "member": "test/check_tag.c",
+        "parts": [
+          {
+            "length": 1177,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "ca9bc0665f8b3f8af3ef9282788a8527f737e44b15c4f63edd76982f849edda8"
+      },
+      {
+        "member": "test/custom_dir.c",
+        "parts": [
+          {
+            "length": 1177,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "d4336f8452c6bb845c8b97680729837ab5d9a523d891fbcc18886d3aa669e2ca"
+      },
+      {
+        "member": "test/custom_dir_EXIF_231.c",
+        "parts": [
+          {
+            "length": 1177,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "442daa8a993b958a7691a956d3e8c20992e236be8476651807e840086e825398"
+      },
+      {
+        "member": "test/defer_strile_loading.c",
+        "parts": [
+          {
+            "length": 1184,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "f18773193fe635be24293411386a8bce55354b8b05cda60b670f7c94c43457d0"
+      },
+      {
+        "member": "test/defer_strile_writing.c",
+        "parts": [
+          {
+            "length": 1184,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "2140d8dda0919332010f06b5214399560393f339d2023f640fd7132c8d257df8"
+      },
+      {
+        "member": "test/long_tag.c",
+        "parts": [
+          {
+            "length": 1177,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "d8f6175410360da83f98847ed1420c5b265d3fe33b06224dc31f265c8d2932be"
+      },
+      {
+        "member": "test/rational_precision2double.c",
+        "parts": [
+          {
+            "length": 1177,
+            "offset": 1
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "3488e7d48d072704205757488f15748e53d9538dd5521b4d9c534ff8c1aed93d"
+      },
+      {
+        "member": "test/raw_decode.c",
+        "parts": [
+          {
+            "length": 1177,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "d21fd725943b81890bc29296b3015058f0511483b36fa31145b81ee8f93669e5"
+      },
+      {
+        "member": "test/rewrite_tag.c",
+        "parts": [
+          {
+            "length": 1177,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "d8776b90e0af13c36d3f6d4dece165a571e6feb7b5ad0f294520907d23fe84d2"
+      },
+      {
+        "member": "test/short_tag.c",
+        "parts": [
+          {
+            "length": 1177,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "3a55173ad43737c15d4ceb8921bab84f8296afd5b6ac68e157f2dfe63dd21cf6"
+      },
+      {
+        "member": "test/strip.c",
+        "parts": [
+          {
+            "length": 1177,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "3554d15a222c7b15ec2abcf0dfd6fde1103941d0baf5e8fde009d2b576ad204d"
+      },
+      {
+        "member": "test/strip_rw.c",
+        "parts": [
+          {
+            "length": 1177,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "9fcb8c921162f16a6ebe39c24d15bf1303cf321cb7ee3945cf511e4f362a4a4b"
+      },
+      {
+        "member": "test/test_RGBAImage.c",
+        "parts": [
+          {
+            "length": 1111,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "8f63ee481199b805e422a9f3f2f6b711c25f40dcd4fd79375b36cf31864f5b5c"
+      },
+      {
+        "member": "test/test_append_to_strip.c",
+        "parts": [
+          {
+            "length": 1184,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "3d6f2fcdad4d96f324fa1d2d16dd41f37225830bd3349f3e7959c28444a0af5e"
+      },
+      {
+        "member": "test/test_arrays.c",
+        "parts": [
+          {
+            "length": 1177,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "d8d30b65b3d409a79ec42757efe1a371368fdd00689bc32c0f57bd96b698640b"
+      },
+      {
+        "member": "test/test_arrays.h",
+        "parts": [
+          {
+            "length": 1177,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "2caacc13c39cbf9c5cd2ae8e0b11535bd99e8124c92f116580d55b784472dc67"
+      },
+      {
+        "member": "test/test_ifd_loop_detection.c",
+        "parts": [
+          {
+            "length": 1184,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "330086fec66da45cddf683fe912f3e8adace15f346f78a9dba67ae22e98bf990"
+      },
+      {
+        "member": "test/test_open_options.c",
+        "parts": [
+          {
+            "length": 1184,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "c45387097ca1ee8df43fc45124cc648309cfd33ba5c21faaabb4254e294c0824"
+      },
+      {
+        "member": "test/test_signed_tags.c",
+        "parts": [
+          {
+            "length": 1092,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "ae306fce64de980c700158f5cf772d7a86b18fe072099bc79dd06e284ccf6609"
+      },
+      {
+        "member": "test/test_write_read_tags.c",
+        "parts": [
+          {
+            "length": 1160,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "bba29e33f502522e3bf6d0099d5ca750cf6b959a34a706ce19e225e5b2410e24"
+      },
+      {
+        "member": "test/testtypes.c",
+        "parts": [
+          {
+            "length": 1174,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "feb26f0a6af8d161fba29af50394e82e4e824e4cae08e94b58622bb445df9876"
+      },
+      {
+        "member": "test/tifftest.h",
+        "parts": [
+          {
+            "length": 1177,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "696d3f45cc9cf4bc9ae3b4980bf0f9352e5069860b9683205591a0673042bdde"
+      },
+      {
+        "member": "tools/CMakeLists.txt",
+        "parts": [
+          {
+            "length": 1278,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n\n"
+          }
+        ],
+        "source_sha256": "2c3a7b2b2043702261394c507f31ebcb7b57fe9e67b093dce3e3fc2f982d0fd3"
+      },
+      {
+        "member": "tools/Makefile.am",
+        "parts": [
+          {
+            "length": 1259,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n\n\n"
+          }
+        ],
+        "source_sha256": "0e10915f6913f56394ec19ef33fdf54a6db37d2512c5859fdccd675897918ac3"
+      },
+      {
+        "member": "tools/fax2ps.c",
+        "parts": [
+          {
+            "length": 1205,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "0de7e7222fb7ab11ed88165baeb798dd5d5b0c53403d94dea8372ef057c1a406"
+      },
+      {
+        "member": "tools/fax2tiff.c",
+        "parts": [
+          {
+            "length": 1205,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "9d055a2571b9875545021aba0e4338d39b1a5c8e771b950f2e286cabaf2b49d7"
+      },
+      {
+        "member": "tools/mkg3states.c",
+        "parts": [
+          {
+            "whitespace": ""
+          },
+          {
+            "length": 1205,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          },
+          {
+            "length": 189,
+            "offset": 1207
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "6a194e77584f669b518d3724cd64c8a422ca78f8cbded60ead51b4725e667229"
+      },
+      {
+        "member": "tools/pal2rgb.c",
+        "parts": [
+          {
+            "length": 1205,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "ef9dc0ab5389bb2c0c8c5158807cda6d9ab7285e8b87ba6e7d90ad8d1892cb6e"
+      },
+      {
+        "member": "tools/ppm2tiff.c",
+        "parts": [
+          {
+            "length": 1205,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "a879dca11fea4c088c11578a928c5f0feaae8031222d4832072809cb42468e55"
+      },
+      {
+        "member": "tools/raw2tiff.c",
+        "parts": [
+          {
+            "length": 1390,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "3d1efb3b1c8757a1aaee63a918dbced12b23a7c44369baf0b921371697158b87"
+      },
+      {
+        "member": "tools/rgb2ycbcr.c",
+        "parts": [
+          {
+            "length": 1205,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "17d42734bc399a202befc3b820558587182181b392a87feadd59ee3c53eafb38"
+      },
+      {
+        "member": "tools/thumbnail.c",
+        "parts": [
+          {
+            "length": 1205,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "ac24234cab395b51733ae086d9daa114eae57dc921bd818ddc77f4f47cd65fba"
+      },
+      {
+        "member": "tools/tiff2bw.c",
+        "parts": [
+          {
+            "length": 1205,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "ddbba41572a7d20b2ac83f1882802018b47d325add59f2c8fe536a8cbad50c39"
+      },
+      {
+        "member": "tools/tiff2pdf.c",
+        "parts": [
+          {
+            "whitespace": ""
+          },
+          {
+            "length": 1159,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          },
+          {
+            "length": 5357,
+            "offset": 21561
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "e4510a88c659ddf7528d786008961620609bf7f74b685398578cdf801b67d88e"
+      },
+      {
+        "member": "tools/tiff2ps.c",
+        "parts": [
+          {
+            "length": 1205,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "715df0e452a685a056c49a5d2b4cb94a316d3b822af2cd22c0ddf8662bd930e3"
+      },
+      {
+        "member": "tools/tiff2rgba.c",
+        "parts": [
+          {
+            "length": 1205,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "c683741615d630bfe103dde80d91192eb281cc7b66bdf3c9b9e2bc3ada9817d4"
+      },
+      {
+        "member": "tools/tiffcmp.c",
+        "parts": [
+          {
+            "length": 1205,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "e14b8b312c1d7f784c5c70d1deede30ed28c744a5e619b5da17c8c57affb78d4"
+      },
+      {
+        "member": "tools/tiffcp.c",
+        "parts": [
+          {
+            "length": 1667,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "0712fa65bb86cc373a7cf0b49150a998ef6f7d4de912ba9e80ae5cfebe1d63fc"
+      },
+      {
+        "member": "tools/tiffcrop.c",
+        "parts": [
+          {
+            "length": 7605,
+            "offset": 23
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "05f79178b2a6e1d3124186811b8042bf772f920c0c8b18b4ee655d8651cf04e6"
+      },
+      {
+        "member": "tools/tiffdither.c",
+        "parts": [
+          {
+            "length": 1205,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "1577dfb7c496d198534fa35fb70b71260160a8f037091130e57485cf3fdc813f"
+      },
+      {
+        "member": "tools/tiffdump.c",
+        "parts": [
+          {
+            "length": 1205,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "784c5893f3cfbda13441c159d4638a6506f12860b81ac8611c0761aa073386fc"
+      },
+      {
+        "member": "tools/tiffgt.c",
+        "parts": [
+          {
+            "length": 1265,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "047aebd8894c631ffdd7cb463bee5974f891a435c4119c3efada33c57b91315a"
+      },
+      {
+        "member": "tools/tiffinfo.c",
+        "parts": [
+          {
+            "length": 1205,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "81115fe239257cbfad55e3c0eb0d7493ca45d0f49b1d4af3205317d91f3fa1ed"
+      },
+      {
+        "member": "tools/tiffset.c",
+        "parts": [
+          {
+            "length": 1539,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "34222f817edb6509c63e56baeee56d29ed689127d9cf417c1b5bc087a16078d3"
+      },
+      {
+        "member": "tools/tiffsplit.c",
+        "parts": [
+          {
+            "length": 1205,
+            "offset": 0
+          },
+          {
+            "whitespace": "\n"
+          }
+        ],
+        "source_sha256": "ce40b175136e589ab2859691a7c66cd48cc3b8baa6d0ec122d10a7ccc258daa3"
+      }
+    ],
+    "project_authored_prefix": "Pinned upstream notices; exact source comments, not a blanket source-bundle grant.\nCommit d01a94be176f5f6a87f7ee1c0b32e65416aa2b4d\n"
+  },
+  "upstream": {
+    "jbigkit": {
+      "bytes": 441594,
+      "expanded_cap": 16777216,
+      "member_cap": 2048,
+      "sha256": "3302109c93b7befbffa3cfe8bceb4355f19dea0ee7dcb5f33710b1648bf6645c",
+      "url": "https://www.cl.cam.ac.uk/~mgk25/jbigkit/download/jbigkit-2.2.tar.gz"
+    },
+    "libtiff": {
+      "bytes": 2617672,
+      "expanded_cap": 33554432,
+      "member_cap": 4096,
+      "sha256": "ef90fb1beb8d75ec88be17223d7bd08b590f9e8501c8b89b78a7ea1291b02084",
+      "url": "https://gitlab.com/api/v4/projects/libtiff%2Flibtiff/repository/archive.tar.gz?sha=d01a94be176f5f6a87f7ee1c0b32e65416aa2b4d"
+    },
+    "reuse": {
+      "bytes": 594,
+      "sha256": "e6c1853cd358b709bb88a909b5ec606bdce9605893aa948cf5ce216c4edb7b37",
+      "url": "https://raw.githubusercontent.com/archlinuxarm/PKGBUILDs/6cf4ef6a21f1a623dd621ecd216f6b60fa4bdd78/extra/jbigkit/REUSE.toml"
+    },
+    "shared_patch": {
+      "bytes": 4481,
+      "sha256": "58d80618c27dd089a2f3db87d91bf37fa443d1ef8418f3d2958aabb850120b2a",
+      "url": "https://raw.githubusercontent.com/archlinuxarm/PKGBUILDs/6cf4ef6a21f1a623dd621ecd216f6b60fa4bdd78/extra/jbigkit/jbigkit-2.2-shared_lib.patch"
+    }
+  }
+}

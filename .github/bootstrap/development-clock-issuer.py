@@ -137,6 +137,59 @@ def private_reference(reference, checkout, limit, end):
     return str(path), pin
 
 
+def project_library_runtime_check(grant_path, grant_pin, deadline):
+    """Observe the bootstrap-selected tool under the original clock, no execution."""
+    alive(deadline)
+    grant_fd = os.open(grant_path,os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK|os.O_CLOEXEC)
+    try:
+        info = os.fstat(grant_fd)
+        need(stat.S_ISREG(info.st_mode) and info.st_nlink == 1 and info.st_uid == os.getuid() and
+             stat.S_IMODE(info.st_mode) == 0o600 and 0 < info.st_size <= 8*1024**2,'project-grant-custody')
+        body = bytearray()
+        while True:
+            alive(deadline);chunk = os.read(grant_fd,65536);alive(deadline)
+            if not chunk:break
+            body.extend(chunk);need(len(body) <= 8*1024**2,'project-grant-bound')
+        need(len(body) == info.st_size and hashlib.sha256(body).hexdigest() == grant_pin,'project-grant-pin')
+        grant = json.loads(body)
+    finally:
+        close_owned(grant_fd)
+    row = grant.get('project_library_runtime')
+    if row is None:return
+    need(type(row) is dict and set(row) == {'gpgv','docker'},'project-tool-binding')
+    for name,path in (('gpgv','/usr/bin/gpgv'),('docker','/usr/bin/docker')):
+        tool = row[name]
+        expected = {'path','sha256','identity'} | ({'endpoint_identity'} if name == 'docker' else set())
+        need(type(tool) is dict and set(tool) == expected and tool['path'] == path and
+             type(tool['sha256']) is str and re.fullmatch('[0-9a-f]{64}',tool['sha256']) and
+             type(tool['identity']) is list and len(tool['identity']) == 9 and
+             all(type(x) is int for x in tool['identity']),'project-tool-binding')
+        limit = (128 if name == 'docker' else 8)*1024**2
+        fd = os.open(path,os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK|os.O_CLOEXEC)
+        try:
+            before = os.fstat(fd)
+            fields = ('st_dev','st_ino','st_mode','st_nlink','st_uid','st_gid','st_size','st_mtime_ns','st_ctime_ns')
+            identity = lambda info:[getattr(info,key) for key in fields]
+            need(stat.S_ISREG(before.st_mode) and before.st_uid == 0 and stat.S_IMODE(before.st_mode) == 0o755
+                 and before.st_nlink == 1 and 0 < before.st_size <= limit and identity(before) == tool['identity'],
+                 'project-tool-custody')
+            proof = hashlib.sha256();size = 0
+            while True:
+                alive(deadline);body = os.read(fd,65536);alive(deadline)
+                if not body:break
+                size += len(body);need(size <= limit,'project-tool-bound');proof.update(body)
+            need(size == before.st_size and proof.hexdigest() == tool['sha256'] and
+                 identity(os.fstat(fd)) == identity(Path(path).lstat()) == tool['identity'],'project-tool-drift')
+        finally:
+            close_owned(fd)
+    endpoint = Path('/run/docker.sock').lstat()
+    expected = row['docker']['endpoint_identity']
+    need(type(expected) is list and len(expected) == 6 and all(type(x) is int for x in expected) and
+         stat.S_ISSOCK(endpoint.st_mode) and endpoint.st_uid == 0 and expected == [endpoint.st_dev,
+             endpoint.st_ino,endpoint.st_mode,endpoint.st_uid,endpoint.st_gid,endpoint.st_nlink],'project-socket-binding')
+    alive(deadline)
+
+
 def issue(environment, source_sha256, execution_grant, runtime_contract):
     """References are selected externally; this function creates only the clock."""
     issued = time.monotonic()
@@ -162,6 +215,7 @@ def issue(environment, source_sha256, execution_grant, runtime_contract):
     clock_domain = domain()
     grant_path, grant_pin = private_reference(execution_grant, checkout, 8 * 1024**2, end)
     runtime_path, runtime_pin = private_reference(runtime_contract, checkout, 16 * 1024, end)
+    project_library_runtime_check(grant_path,grant_pin,end)
     value = {'schema_version': 1, 'purpose': 'development-workflow-clock',
         'source_commit': values['GITHUB_SHA'], 'run_id': values['GITHUB_RUN_ID'],
         'run_attempt': values['GITHUB_RUN_ATTEMPT'], 'nonce': os.urandom(16).hex(),

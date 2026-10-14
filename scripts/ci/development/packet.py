@@ -40,7 +40,20 @@ ZSH_COMPOSITION = 'repository-svg-zsh'
 ZSH_CONTRACT = 'manifests/reviewed/zsh-native-addon.json'
 ZSH_EXTRA = frozenset(('scripts/ci/development/zsh_addon.py', 'scripts/ci/development/test_zsh_addon.py',
     'scripts/ci/development/zsh_session.py', 'scripts/ci/development/test_zsh_session.py', ZSH_CONTRACT))
-COMPOSED_MODES = (COMPOSITION, INSTALLER_COMPOSITION)
+LIBRARY_COMPOSITION = 'project-libraries-maintained-v1'
+LIBRARY_CONTRACT = 'manifests/reviewed/project-private-libraries.json'
+LIBRARY_INPUT_MAPS = frozenset(('manifests/reviewed/project-jbigkit-inputs.json','manifests/reviewed/project-libtiff-inputs.json'))
+LIBRARY_METADATA = LIBRARY_INPUT_MAPS | {LIBRARY_CONTRACT}
+LIBRARY_ASSETS = {
+    'jbigkit': ('PKGBUILD','LICENSE.recipe','PUBLICATION.md','removal.md','inputs.json','source-filter.json','source-check.py','synthetic-pbm.py'),
+    'libtiff': ('PKGBUILD','LICENSE.MIT','PUBLICATION.md','source-filter.json','stage-source.py'),
+}
+LIBRARY_EXTRA = frozenset({'scripts/ci/development/project_libraries.py',
+    'scripts/ci/development/prepare_project_library_sources.py',
+    'scripts/ci/development/project_library_sources/materialization-plan.json', *LIBRARY_METADATA,
+    *(f'scripts/ci/development/project_library_sources/{package}/{name}' for package,names in LIBRARY_ASSETS.items() for name in names)})
+COMPOSED_SOURCE_COUNTS = {COMPOSITION:259, INSTALLER_COMPOSITION:266, LIBRARY_COMPOSITION:278}
+COMPOSED_MODES = (COMPOSITION, INSTALLER_COMPOSITION, LIBRARY_COMPOSITION)
 INSTALLER_EXTRA = frozenset(('scripts/install/local_transaction.py', 'scripts/install/native_arm_trial.py', 'scripts/install/native_preflight.py', 'scripts/install/test_local_transaction.py', 'scripts/install/test_native_arm_trial.py', 'scripts/install/test_native_preflight.py', 'scripts/port/kernel-native-job/runtime.py'))
 GENERIC_POLICY = 'manifests/reviewed/repository-generic-policy.json'
 COMPOSED_EXTRA = frozenset('''
@@ -386,8 +399,11 @@ def composed_paths(initial, composition=COMPOSITION):
     paths = set(initial['source_files']) | COMPOSED_EXTRA | {BASELINE_CONTRACT}
     if composition == INSTALLER_COMPOSITION:paths |= INSTALLER_EXTRA
     if composition == ZSH_COMPOSITION:paths |= ZSH_EXTRA
+    if composition == LIBRARY_COMPOSITION:
+        need(len(LIBRARY_EXTRA) == 19 and not paths & LIBRARY_EXTRA, 'project-library-source-selection-refused')
+        paths |= LIBRARY_EXTRA
     need(len(INSTALLER_EXTRA) == 7 and len(ZSH_EXTRA) == 5 and
-         len(paths) == {COMPOSITION:259, INSTALLER_COMPOSITION:266}[composition],
+         len(paths) == COMPOSED_SOURCE_COUNTS[composition],
          'composed-source-selection-refused')
     return paths
 
@@ -395,6 +411,7 @@ def composed_paths(initial, composition=COMPOSITION):
 def composed_pins(pins, composition=COMPOSITION):
     need(type(composition) is str and composition in COMPOSED_MODES, 'composed-source-selection-refused')
     expected = COMPOSED_PINS | {BASELINE_CONTRACT, BASELINE_INVENTORY}
+    if composition == LIBRARY_COMPOSITION:expected |= LIBRARY_METADATA
     need(type(pins) is dict and set(pins) == expected, 'exact-composed-metadata-pins-required')
     for name, value in pins.items():
         relative(name); pin(value)
@@ -432,6 +449,18 @@ def composed_bindings(root, source, pins, composition=COMPOSITION):
          baseline['recipes_sha256'] == pins['scripts/ci/recipes.lock.json'],
          'maintained-baseline-contract-refused')
     need(all(source[name]['sha256'] == value for name, value in pins.items()), 'packet-metadata-pin-drift')
+    if composition == LIBRARY_COMPOSITION:
+        contract = pinned(root/LIBRARY_CONTRACT, pins[LIBRARY_CONTRACT])
+        need(type(contract) is dict and contract.get('purpose') == 'private-project-jbigkit-libtiff-native-builds'
+             and contract.get('public_promotion') is False,'project-library-contract-refused')
+        for package,path in zip(('jbigkit','libtiff'),sorted(LIBRARY_INPUT_MAPS)):
+            mapping = pinned(root/path,pins[path])
+            need(type(mapping) is dict and len(mapping) == {'jbigkit':20,'libtiff':7}[package]
+                 and contract['recipes'][package]['inputs'] == mapping,'project-library-input-map-refused')
+            for name,value in mapping.items():relative(name);pin(value)
+            prefix = 'scripts/ci/development/project_library_sources/'+package+'/'
+            need(all(mapping[name] == source[prefix+name]['sha256'] for name in LIBRARY_ASSETS[package]),
+                 'project-library-input-pin-drift')
     for name, prefix in COMPOSED_MAPS.items():
         value = pinned(root / name, pins[name]); validate_map(value)
         expected = {relative(path).name for path in COMPOSED_EXTRA

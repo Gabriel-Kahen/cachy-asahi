@@ -22,13 +22,13 @@ from contextlib import contextmanager
 
 REPOSITORY = 'Gabriel-Kahen/cachy-asahi'
 REMOTE = 'https://github.com/' + REPOSITORY + '.git'
-BOOTSTRAP_SHA = '1675fa4834f556f1eec5d10f2f53b20d0475dd1a922b4c80fb0adc38f95e9391'
-ISSUER_SHA = '9e3271b8cb21e7be1940c2aa9f17f84357d0a438ed45a19ad34ae226ec9d4581'
+BOOTSTRAP_SHA = '02f0f7057673e3915ae90542bf6fe3e41a266d72ff1ee4fcc49b4a1bad05a415'
+ISSUER_SHA = 'e51d38388b363362768dd4ea834c10e6be01666e63f3541cd00ba2e9577b8762'
 CODE_PATHS = {'bootstrap':'.github/bootstrap/development-bootstrap.py',
               'issuer':'.github/bootstrap/development-clock-issuer.py'}
 DATA_PATHS = {'selection':'.github/bootstrap/development-selection.json',
               'peer':'.github/bootstrap/development-source-peer.json'}
-MODES = {'repository-svg-maintained-v1':259,'installer-preflight-maintained-v1':266}
+MODES = {'repository-svg-maintained-v1':259,'installer-preflight-maintained-v1':266,'project-libraries-maintained-v1':278}
 BASELINE_ID = 'maintained-native-baseline-v1-vim-9.2.1178-1'
 LINEAGE = 'SUCCESSOR_NOT_HISTORICAL_ORIGINAL'
 CLOCK_KEYS = {'schema_version','purpose','source_commit','run_id','run_attempt','nonce',

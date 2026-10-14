@@ -4,7 +4,8 @@
 
 Root supplies literal pins through a separately reviewed trusted launcher. A
 matching local file or PASS string cannot select those pins. This module emits
-only the existing grant17/runtime3 contracts; it never issues a clock.
+the legacy grant17/runtime3 contracts and the explicit private-library grant18
+extension; it never issues a clock.
 """
 from contextlib import contextmanager
 import hashlib
@@ -26,7 +27,9 @@ BASELINE_SHA = '662a7397e12289e5fe7de8c797dcc0cdf74e4ade9d93260bd2cbca782060a120
 BASELINE_ID = 'maintained-native-baseline-v1-vim-9.2.1178-1'
 LINEAGE = 'SUCCESSOR_NOT_HISTORICAL_ORIGINAL'
 PURPOSE = 'root-selected-maintained-v1-development-source'
-MODES = {'repository-svg-maintained-v1':259, 'installer-preflight-maintained-v1':266}
+MODES = {'repository-svg-maintained-v1':259, 'installer-preflight-maintained-v1':266, 'project-libraries-maintained-v1':278}
+PROJECT_MODE = 'project-libraries-maintained-v1'
+PROJECT_METADATA = {'manifests/reviewed/project-private-libraries.json','manifests/reviewed/project-jbigkit-inputs.json','manifests/reviewed/project-libtiff-inputs.json'}
 BASELINE_DECLARATION = {'baseline_id': 'maintained-native-baseline-v1-vim-9.2.1178-1', 'changed_view_sources': ['scripts/ci/inputs.lock.json'], 'generated_fixtures': 125, 'hardware_validation': 'NOT RUN', 'historical_inputs_sha256': '3c16c37d1b12cc84a88572e82ab8ad59e7f3b5ed0d08f09ddf72a69f4711d650', 'historical_integration_sha256': 'd4d603146f094c86242eaafbb887042959c510c9bb948579dd749d065dd8fc31', 'inputs_sha256': 'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f', 'installation': 'NOT RUN', 'integration_sha256': '5d0f6b1d335c1949965699d4db6658af313af8977079e9a6464f0e5db4071ed3', 'inventory_sha256': 'fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25', 'lineage': 'SUCCESSOR_NOT_HISTORICAL_ORIGINAL', 'native_sha256': 'a8b6ed8971a38089a4499dcec605477c4e48d7a47c3de485d205f6a44678b898', 'original_producers': 1, 'recipe_source_commit': 'ebd5812640b0b69f5c09a47752b739e37e338754', 'recipes_sha256': '20d846cdf289bfc233b0051bf33b677fd6e94e9f05d91a33595a2829a196fa63', 'schema_version': 1, 'selected_for_release': False, 'source_captures': 2, 'source_date_epoch': 1791748800, 'unchanged_view_sources': 158, 'view_files': 160, 'view_sources': 159}
 POLICY = 'manifests/reviewed/repository-generic-policy.json'
 POLICY_SHA = 'ff424921c5be38799f64e5c6264bb098cf71737d7be83608a4c91dee83f0365e'
@@ -189,11 +192,36 @@ def observe_runtime(cli_sha256, deadline):
     return cli_identity, endpoint
 
 
+def metadata_keys(composition):
+    return METADATA | (PROJECT_METADATA if composition == PROJECT_MODE else set())
+
+
+def selected_callbacks(composition):
+    result = {name:dict(row) for name,row in CALLBACKS.items()}
+    if composition == PROJECT_MODE:result['existing_consumers']['qualname'] = 'Development.consume_libraries_private'
+    return result
+
+
+def observe_project_library_runtime(gpgv_sha256, cli_sha256, deadline):
+    result = {}
+    fields = ('st_dev','st_ino','st_mode','st_nlink','st_uid','st_gid','st_size','st_mtime_ns','st_ctime_ns')
+    for name,path,pinned in (('gpgv',Path('/usr/bin/gpgv'),gpgv_sha256),('docker',CLI,cli_sha256)):
+        check(deadline);before = path.lstat()
+        raw,_,_ = read(path,deadline,limit=(128 if name == 'docker' else 8)*1024**2,owner=0,mode=0o755)
+        check(deadline);node = [getattr(before,key) for key in fields]
+        need(pin(pinned) and digest(raw) == pinned and node == [getattr(path.lstat(),key) for key in fields],
+             'project-tool-binding')
+        result[name] = {'path':str(path),'sha256':pinned,'identity':node}
+    _,endpoint = observe_runtime(cli_sha256,deadline)
+    result['docker']['endpoint_identity'] = list(endpoint)
+    return result
+
+
 def selection(raw, peer_raw, root_pins, deadline):
     """Root's external literal tuple is the trust input, never file self-PASS."""
     check(deadline)
-    need(type(root_pins) is dict and set(root_pins) == PIN_KEYS and
-         all(pin(root_pins[key]) for key in PIN_KEYS - {'source_commit'}) and
+    need(type(root_pins) is dict and set(root_pins) in (PIN_KEYS, PIN_KEYS | {'gpgv_sha256'}) and
+         all(pin(root_pins[key]) for key in set(root_pins) - {'source_commit'}) and
          type(root_pins['source_commit']) is str and
          re.fullmatch('[0-9a-f]{40}', root_pins['source_commit']), 'root-pins')
     need(type(peer_raw) is bytes and 0 < len(peer_raw) <= LIMIT and
@@ -206,6 +234,7 @@ def selection(raw, peer_raw, root_pins, deadline):
          value['baseline_id'] == BASELINE_ID and value['lineage'] == LINEAGE and
          pin(value['source_packet_sha256']) and value['source_commit'] == root_pins['source_commit'] and
          value['peer_receipt_sha256'] == root_pins['peer_receipt_sha256'], 'selection-provenance')
+    need(set(root_pins) == PIN_KEYS | ({'gpgv_sha256'} if value['composition'] == PROJECT_MODE else set()),'root-pins')
     rows = value['source_files']
     need(type(rows) is dict and len(rows) == MODES[value['composition']] and
          digest(encoded(rows)) == root_pins['source_rows_sha256'], 'selected-rows')
@@ -214,12 +243,12 @@ def selection(raw, peer_raw, root_pins, deadline):
         need(type(row) is dict and set(row) == {'sha256', 'mode'} and pin(row['sha256']) and
              type(row['mode']) is int and row['mode'] in (0o644, 0o755), 'source-row')
     pins, hexes = value['metadata_pins'], value['metadata_hex']
-    need(type(pins) is dict and set(pins) == METADATA and
-         type(hexes) is dict and set(hexes) == METADATA and
-         value['callbacks'] == CALLBACKS and type(value['maps']) is dict and
+    need(type(pins) is dict and set(pins) == metadata_keys(value['composition']) and
+         type(hexes) is dict and set(hexes) == metadata_keys(value['composition']) and
+         value['callbacks'] == selected_callbacks(value['composition']) and type(value['maps']) is dict and
          set(value['maps']) == set(PREFIXES), 'selection-closure')
     metadata = {}
-    for name in sorted(METADATA):
+    for name in sorted(metadata_keys(value['composition'])):
         check(deadline)
         need(pin(pins[name]) and type(hexes[name]) is str and
              len(hexes[name]) <= 2 * LIMIT and len(hexes[name]) % 2 == 0 and
@@ -433,12 +462,16 @@ def prepare(selection_raw, peer_raw, root_pins, environment, *, preparation_dead
                                    'integration_lock_sha256': INITIAL_SHA,
                                    'source_rows_sha256': digest(encoded(lock['source_files'])),
                                    'file_count': 160, 'argv_mode': 'absolute-view-metadata'}}
+        if value['composition'] == PROJECT_MODE:
+            grant['project_library_runtime'] = observe_project_library_runtime(root_pins['gpgv_sha256'],root_pins['cli_sha256'],preparation_deadline)
         runtime_ref = owned.write(layout['bootstrap'] / 'runtime.json', runtime_raw, preparation_deadline, 16 * 1024)
         grant_ref = owned.write(layout['bootstrap'] / 'grant.json', encoded(grant), preparation_deadline, LIMIT)
         # Fixed Root-selected envelope retained separately from empty tool state.
         source_ref = owned.write(layout['bootstrap'] / 'selection.json', selection_raw, preparation_deadline, LIMIT)
         cli_after, endpoint_after = observe_runtime(root_pins['cli_sha256'], preparation_deadline)
         need((cli_before, endpoint) == (cli_after, endpoint_after), 'runtime-identity-drift')
+        if value['composition'] == PROJECT_MODE:
+            need(grant['project_library_runtime'] == observe_project_library_runtime(root_pins['gpgv_sha256'],root_pins['cli_sha256'],preparation_deadline),'project-gpgv-drift')
         owned.verify(preparation_deadline)
         check(preparation_deadline)
         return {'execution_grant': grant_ref, 'runtime_contract': runtime_ref, 'selection': source_ref,
@@ -480,7 +513,7 @@ def verify_checkout(prepared, root_pins, environment, *, deadline):
          value['baseline_id'] == BASELINE_ID and value['lineage'] == LINEAGE and
          pin(value['source_packet_sha256']) and value['source_commit'] == root_pins['source_commit'] and
          value['peer_receipt_sha256'] == root_pins['peer_receipt_sha256'] and
-         set(value['metadata_pins']) == METADATA and set(value['metadata_hex']) == METADATA,
+         set(value['metadata_pins']) == metadata_keys(value['composition']) and set(value['metadata_hex']) == metadata_keys(value['composition']),
          'checkout-selection')
     lock = decode(bytes.fromhex(value['metadata_hex'][INITIAL]))
     expected_view = {'schema_version': 2, 'purpose': 'maintained-v1-159-copy-view',
@@ -492,7 +525,7 @@ def verify_checkout(prepared, root_pins, environment, *, deadline):
     need(set(grant) == {'schema_version', 'purpose', 'source_peer_preflight', 'development_only',
          'added_seconds', 'source_commit', 'recipe_source_commit', 'run_id', 'run_attempt',
          'source_files', 'maps', 'callbacks', 'policy_path', 'license_path', 'actor_contract_sha256',
-         'initial_invocation_sha256', 'baseline_view'} and type(grant['schema_version']) is int and
+         'initial_invocation_sha256', 'baseline_view'} | ({'project_library_runtime'} if value['composition'] == PROJECT_MODE else set()) and type(grant['schema_version']) is int and
          grant['schema_version'] == 2 and grant['purpose'] == 'reviewed-same-job-handoff-execution' and
          grant['source_peer_preflight'] == 'PASS' and grant['development_only'] is True and
          type(grant['added_seconds']) is int and grant['added_seconds'] == 1200 and
@@ -521,6 +554,9 @@ def verify_checkout(prepared, root_pins, environment, *, deadline):
             with directory(path) as fd:
                 need(os.fstat(fd).st_uid == os.getuid() and stat.S_IMODE(os.fstat(fd).st_mode) == 0o700 and
                      not os.listdir(fd), 'tool-state')
+    need(set(root_pins) == PIN_KEYS | ({'gpgv_sha256'} if value['composition'] == PROJECT_MODE else set()),'root-pins')
+    if value['composition'] == PROJECT_MODE:
+        need(grant['project_library_runtime'] == observe_project_library_runtime(root_pins['gpgv_sha256'],root_pins['cli_sha256'],deadline),'project-gpgv-drift')
     _, endpoint = observe_runtime(root_pins['cli_sha256'], deadline)
     need(list(endpoint) == runtime['endpoint_identity'], 'runtime-endpoint-drift')
     for path in (layout['output'], layout['cache']):

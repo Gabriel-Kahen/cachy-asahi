@@ -1,6 +1,6 @@
 {
   "baseline_id": "maintained-native-baseline-v1-vim-9.2.1178-1",
-  "composition": "installer-preflight-maintained-v1",
+  "composition": "project-libraries-maintained-v1",
   "development_only": true,
   "generated_fixture_files": {
     "baseline-recipes.lock.json": {
@@ -1147,6 +1147,9 @@
   "metadata_pins": {
     "manifests/reviewed/ksmctl.json": "f933ccfcfb52ca97ea809d904344f6ec72eb5907ef458b5c2e7f7f1797dc1d44",
     "manifests/reviewed/maintained-composed-v1.json": "662a7397e12289e5fe7de8c797dcc0cdf74e4ade9d93260bd2cbca782060a120",
+    "manifests/reviewed/project-jbigkit-inputs.json": "e2fa53b9d62e96ce05a22ebddd4277b6fdcdc1ffe820ca648487b1b505480982",
+    "manifests/reviewed/project-libtiff-inputs.json": "f2e36a19b57769a956aaae7743a80f9f82be0095c94bf3b2f015f1b0e60e7046",
+    "manifests/reviewed/project-private-libraries.json": "8df657577844920872512681539de297b9644c24e0218a89798597ab6aa16793",
     "manifests/reviewed/repository-generic-policy.json": "ff424921c5be38799f64e5c6264bb098cf71737d7be83608a4c91dee83f0365e",
     "scripts/ci/inputs.lock.json": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f",
     "scripts/ci/integration.lock.json": "5d0f6b1d335c1949965699d4db6658af313af8977079e9a6464f0e5db4071ed3",
@@ -1199,6 +1202,18 @@
     "manifests/reviewed/maintained-composed-v1.json": {
       "mode": 420,
       "sha256": "662a7397e12289e5fe7de8c797dcc0cdf74e4ade9d93260bd2cbca782060a120"
+    },
+    "manifests/reviewed/project-jbigkit-inputs.json": {
+      "mode": 420,
+      "sha256": "e2fa53b9d62e96ce05a22ebddd4277b6fdcdc1ffe820ca648487b1b505480982"
+    },
+    "manifests/reviewed/project-libtiff-inputs.json": {
+      "mode": 420,
+      "sha256": "f2e36a19b57769a956aaae7743a80f9f82be0095c94bf3b2f015f1b0e60e7046"
+    },
+    "manifests/reviewed/project-private-libraries.json": {
+      "mode": 420,
+      "sha256": "8df657577844920872512681539de297b9644c24e0218a89798597ab6aa16793"
     },
     "manifests/reviewed/repository-generic-policy.json": {
       "mode": 420,
@@ -1762,11 +1777,11 @@
     },
     "scripts/ci/development/common.py": {
       "mode": 420,
-      "sha256": "a9fd67f8ca192a5d27f95377fae3804a2ae69f6675440b1104c4411a35dc8a12"
+      "sha256": "f240ea497dd60182141ee7a8dae58ab0aff5cb0480f0bb14b7bc9e20ba935687"
     },
     "scripts/ci/development/controller.py": {
       "mode": 420,
-      "sha256": "bbe279edb9743f98e8feed8365859abc221b2665924658e600775c902e18299e"
+      "sha256": "73930bc2ba5555b48353447b3598a0756a8f01995dbd6b0fae41f587a66ca590"
     },
     "scripts/ci/development/initial_artifacts.py": {
       "mode": 420,
@@ -1774,7 +1789,71 @@
     },
     "scripts/ci/development/packet.py": {
       "mode": 420,
-      "sha256": "97b9314b84bb29eac5c2a8fb3c572def97d2372d5840cc16d1d70bdb0bd8d955"
+      "sha256": "e0cbde96d8917bd5c0bb68c94c387086e605c27f013ec3085af3e484bc68f2f9"
+    },
+    "scripts/ci/development/prepare_project_library_sources.py": {
+      "mode": 420,
+      "sha256": "a73f1571fe417e14db90ef00c147146fa0f67de7c3bc8b012636de04176931e1"
+    },
+    "scripts/ci/development/project_libraries.py": {
+      "mode": 420,
+      "sha256": "7ba90b804652f2355837ab550c35b55c37e809d7fce6b4d627e56584d6b5360d"
+    },
+    "scripts/ci/development/project_library_sources/jbigkit/LICENSE.recipe": {
+      "mode": 420,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "scripts/ci/development/project_library_sources/jbigkit/PKGBUILD": {
+      "mode": 420,
+      "sha256": "adebfdb5a3584a18754da2530fc2d66fdfb1e30afa779a0d88e926e510124eb9"
+    },
+    "scripts/ci/development/project_library_sources/jbigkit/PUBLICATION.md": {
+      "mode": 420,
+      "sha256": "e72663a7aa17b92a8232d4d8fc03d6cb614df4b30edea182463db251bc5d2b81"
+    },
+    "scripts/ci/development/project_library_sources/jbigkit/inputs.json": {
+      "mode": 420,
+      "sha256": "577fea4fac15648beae140f64e2ef8bf14d8d8a02d9bc406483f6c509bdf61c8"
+    },
+    "scripts/ci/development/project_library_sources/jbigkit/removal.md": {
+      "mode": 420,
+      "sha256": "329b9f6ecee0b35e2b5e34f639c0f1e2f1b5e918fcd00cefaf775dc82d6051fd"
+    },
+    "scripts/ci/development/project_library_sources/jbigkit/source-check.py": {
+      "mode": 420,
+      "sha256": "a4da54ea4a002048c83ec16cb9e7f78e6fb520343b6a7d7a029c6bf6bfbccc82"
+    },
+    "scripts/ci/development/project_library_sources/jbigkit/source-filter.json": {
+      "mode": 420,
+      "sha256": "e906020fd3affd7d6b7968aebca6ec7518ac3c11f801df2a221742864750f14d"
+    },
+    "scripts/ci/development/project_library_sources/jbigkit/synthetic-pbm.py": {
+      "mode": 420,
+      "sha256": "744f59f38524370bf633246c405a3c75a556e799f7d46357e2e84124869c7407"
+    },
+    "scripts/ci/development/project_library_sources/libtiff/LICENSE.MIT": {
+      "mode": 420,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "scripts/ci/development/project_library_sources/libtiff/PKGBUILD": {
+      "mode": 420,
+      "sha256": "1bebd2b71821fa81b70b95617d87734f81a6f825375ce9c3df54130b6784ea6c"
+    },
+    "scripts/ci/development/project_library_sources/libtiff/PUBLICATION.md": {
+      "mode": 420,
+      "sha256": "0e971e7a9986e0c6ad5ecafd0497a93ee66e7d483a5929392245edad2d72b81e"
+    },
+    "scripts/ci/development/project_library_sources/libtiff/source-filter.json": {
+      "mode": 420,
+      "sha256": "560a94716b3ee906886556f9bf26450b51b692b07742291feffe614e6427afbb"
+    },
+    "scripts/ci/development/project_library_sources/libtiff/stage-source.py": {
+      "mode": 420,
+      "sha256": "f051a1d5ff522d67c660160644a919501d3cd3a1bba68cd24ee1d6f0864ca598"
+    },
+    "scripts/ci/development/project_library_sources/materialization-plan.json": {
+      "mode": 420,
+      "sha256": "557214038227f80762cec07a2b98cbb66d4a6ea9a0bc12ee3679a842fa6ddb96"
     },
     "scripts/ci/development/repository_authority.py": {
       "mode": 420,
@@ -1782,7 +1861,7 @@
     },
     "scripts/ci/development/repository_handoff.py": {
       "mode": 420,
-      "sha256": "e5d1fc2d562f28fff14fd9f87de1037b833c0f97c484149e238e13872522be99"
+      "sha256": "a3a220910e4f47957003512bff69e8727228d7d40b537250dca640be1993fb79"
     },
     "scripts/ci/development/test_base_stages.py": {
       "mode": 420,
@@ -1976,30 +2055,6 @@
       "mode": 420,
       "sha256": "9de6088c8bfe60cdaa177494112c385710f97c6bbb2c5d31adf3be43d1e4fccf"
     },
-    "scripts/install/local_transaction.py": {
-      "mode": 420,
-      "sha256": "52d8157bfcb4aa4e1380d6ef1a6a64a97bf0b7652b45c877ed1629927c6267e7"
-    },
-    "scripts/install/native_arm_trial.py": {
-      "mode": 420,
-      "sha256": "733a1198799790675afd25df8113191a158549992882a2e48cd1cbd4b34a95da"
-    },
-    "scripts/install/native_preflight.py": {
-      "mode": 420,
-      "sha256": "b9b0ea549c59a5bbbf2b8ecb54cacba361e7f5981a8ac24e5413794b72eae8f8"
-    },
-    "scripts/install/test_local_transaction.py": {
-      "mode": 420,
-      "sha256": "ea5299f12b4d325035ebca1476feb2832e0d8e95980a456910ac302e845aefdb"
-    },
-    "scripts/install/test_native_arm_trial.py": {
-      "mode": 420,
-      "sha256": "e7d9564548819d340852923d704abd6c234f3f61d9aaad2624be34c974ccbc55"
-    },
-    "scripts/install/test_native_preflight.py": {
-      "mode": 420,
-      "sha256": "f257ede7ef9ed1642fb2b95c24c2be40597bed79aec5f826abf17491e4c24417"
-    },
     "scripts/integration/desktop.py": {
       "mode": 420,
       "sha256": "ed3a2c65a60fa070832061c69f7bf8ec7a616d34aacdf2e6b7080935c0bdde2f"
@@ -2039,10 +2094,6 @@
     "scripts/integration/test_repository.py": {
       "mode": 420,
       "sha256": "a7857437d1cf3e513720351299d241d7a6c97d3f58f0ef9b4bc92655dffd7274"
-    },
-    "scripts/port/kernel-native-job/runtime.py": {
-      "mode": 420,
-      "sha256": "8a7cd5e73cf383b2d81ad577b8513c6fd7d49f9fd2572961c73ae9d289cab821"
     },
     "scripts/port/refreshed-desktop/proposed-builder-inventory.lock": {
       "mode": 420,

@@ -1,0 +1,89 @@
+# SPDX-License-Identifier: MIT
+# Candidate only: Root owns provider selection, locked builder and publication.
+pkgname=cachy-asahi-libtiff
+pkgver=4.7.2
+pkgrel=1.1
+pkgdesc='Pinned project-built TIFF library and command-line tools'
+arch=(aarch64)
+url='https://gitlab.com/libtiff/libtiff'
+license=(libtiff MIT BSD-3-Clause LicenseRef-LibTIFF-Additional-Notices)
+depends=(glibc libstdc++ 'jbigkit=2.2' libdeflate libjpeg-turbo libwebp xz zlib zstd)
+makedepends=(cmake gcc make python)
+provides=('libtiff=4.7.2' 'libtiff.so=6-64' 'libtiffxx.so=6-64')
+conflicts=(libtiff)
+options=('!staticlibs' '!lto' '!debug')
+_commit=d01a94be176f5f6a87f7ee1c0b32e65416aa2b4d
+_tree=libtiff-project-4.7.2
+# Root stages these exact local bytes; this recipe does not fetch VCS sources.
+source=('libtiff-project-4.7.2-source.tar.gz' UPSTREAM-NOTICES.txt LICENSE.MIT PUBLICATION.md source-filter.json stage-source.py)
+sha256sums=('c63abdba53ef3fa510a3314bcd78183f9f2d948272c6ec52b4aeafae8cfba2af' '86f781c2c05c4a20c4c4ecfe0e3b24c3e119781af6f0dce1714ad6a6c98833c1' '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7' '0e971e7a9986e0c6ad5ecafd0497a93ee66e7d483a5929392245edad2d72b81e' '560a94716b3ee906886556f9bf26450b51b692b07742291feffe614e6427afbb' 'f051a1d5ff522d67c660160644a919501d3cd3a1bba68cd24ee1d6f0864ca598')
+
+_guard() {
+  [[ $CARCH == aarch64 && $(uname -m) == aarch64 && $(uname -s) == Linux ]] || return 1
+  # A caller assertion, not proof of isolation: Root must retain builder custody.
+  [[ ${CACHY_ASAHI_CONTAINER:-} == 1 ]] || return 1
+  [[ ( -f /.dockerenv && ! -L /.dockerenv ) || ( -f /run/.containerenv && ! -L /run/.containerenv ) ]] || return 1
+  [[ $srcdir == /* && $srcdir != / && $pkgdir == /* && $pkgdir != / ]] || return 1
+  [[ ${SOURCE_DATE_EPOCH:-} == 1782568888 ]] || return 1
+  export SOURCE_DATE_EPOCH
+}
+
+_assert_config() {
+  local feature
+  for feature in CCITT PACKBITS LZW THUNDER NEXT LOGLUV MDI JPEG JBIG OJPEG PIXARLOG ZIP LIBDEFLATE; do
+    grep -Eq "^#define ${feature}_SUPPORT( 1)?$" "$srcdir/build/libtiff/tiffconf.h" || return 1
+  done
+  for feature in LZMA ZSTD WEBP CXX; do
+    grep -Eq "^#define ${feature}_SUPPORT 1$" "$srcdir/build/libtiff/tif_config.h" || return 1
+  done
+  ! grep -Eq '^#define LERC_SUPPORT( 1)?$' "$srcdir/build/libtiff/tif_config.h" || return 1
+  grep -Fxq 'tiff-opengl:BOOL=OFF' "$srcdir/build/CMakeCache.txt" || return 1
+  grep -Fxq 'tiff-contrib:BOOL=OFF' "$srcdir/build/CMakeCache.txt" || return 1
+  grep -Fxq 'tiff-docs:BOOL=OFF' "$srcdir/build/CMakeCache.txt" || return 1
+}
+
+prepare() {
+  _guard || return 1
+  [[ -f $srcdir/$_tree/CMakeLists.txt && -f $srcdir/$_tree/LICENSE.md ]] || return 1
+}
+
+build() {
+  _guard || return 1
+  cmake -S "$srcdir/$_tree" -B "$srcdir/build" -G 'Unix Makefiles' \
+    -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_INSTALL_LIBDIR=lib -DCMAKE_BUILD_TYPE=None \
+    -DCMAKE_POLICY_VERSION_MINIMUM=3.10 -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+    -DBUILD_SHARED_LIBS=ON -Dtiff-static=OFF -Dtiff-install=ON \
+    -Dtiff-tests=ON -Dtiff-tools=ON -Dtiff-cxx=ON -Dtiff-opengl=OFF \
+    -Dtiff-contrib=OFF -Dtiff-docs=OFF -Dtiff-deprecated=OFF \
+    -Dccitt=ON -Dpackbits=ON -Dlzw=ON -Dthunder=ON -Dnext=ON -Dlogluv=ON -Dmdi=ON \
+    -Dzlib=ON -Dlibdeflate=ON -Dpixarlog=ON -Djpeg=ON -Dold-jpeg=ON \
+    -Djpeg-prefer-standard=OFF -Djpeg12=OFF -Djbig=ON -Dlerc=OFF \
+    -Dlzma=ON -Dzstd=ON -Dwebp=ON || return 1
+  _assert_config || return 1
+  cmake --build "$srcdir/build" || return 1
+}
+
+check() {
+  _guard || return 1
+  _assert_config || return 1
+  ctest --test-dir "$srcdir/build" --show-only=json-v1 -R '^(ascii_tag|long_tag|short_tag)$' > "$srcdir/test-selection.json" || return 1
+  python -I -B -S -W error "$startdir/stage-source.py" check-tests --selection "$srcdir/test-selection.json" || return 1
+  ctest --test-dir "$srcdir/build" --output-on-failure --no-tests=error -R '^(ascii_tag|long_tag|short_tag)$' || return 1
+}
+
+package() {
+  _guard || return 1
+  _assert_config || return 1
+  [[ $pkgdir != "$srcdir" && $pkgdir != "$srcdir/$_tree" ]] || return 1
+  DESTDIR="$pkgdir" cmake --install "$srcdir/build" || return 1
+  install -Dm644 "$srcdir/$_tree/LICENSE.md" "$pkgdir/usr/share/licenses/$pkgname/LICENSE.md" || return 1
+  install -Dm644 "$srcdir/UPSTREAM-NOTICES.txt" "$pkgdir/usr/share/licenses/$pkgname/UPSTREAM-NOTICES.txt" || return 1
+  install -Dm644 "$srcdir/LICENSE.MIT" "$pkgdir/usr/share/licenses/$pkgname/LICENSE.MIT" || return 1
+  install -Dm644 "$srcdir/PUBLICATION.md" "$pkgdir/usr/share/licenses/$pkgname/PUBLICATION.md" || return 1
+  python -I -B -S -W error "$startdir/stage-source.py" stage \
+    --startdir "$startdir" --builddir "$srcdir/build" \
+    --destination "$pkgdir/usr/share/$pkgname/corresponding-source" || return 1
+  # SO provides and dependency admission still require Root's passive ELF gate.
+  [[ -e $pkgdir/usr/lib/libtiff.so && -e $pkgdir/usr/lib/libtiffxx.so ]] || return 1
+  [[ ! -e $pkgdir/usr/bin/tiffgt ]] || return 1
+}
