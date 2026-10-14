@@ -26,7 +26,7 @@ jobs:
       - name: Published receiver and helpers baseline
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
-          ref: 1e8fd873345c02dd2f678d8e143c8e22fe7a6e84
+          ref: 06557a7f209db3c4513329c9e7eab9f054a565b1
           path: baseline
           persist-credentials: false
       - name: Root checked six-command compile; no output execution
@@ -39,9 +39,9 @@ jobs:
           import time
           entry=time.monotonic()
           import hashlib,json,os,pathlib,re,stat,sys
-          CODE_ROWS={'trusted_entry.py': {'bytes': 22768, 'mode': 420, 'sha256': 'e4b17ec8d20a611c6ad71f7014f97925930b11f53e146d6f96e2fcc4f4ad7d5e'}, 'correspondence.py': {'bytes': 13467, 'mode': 420, 'sha256': 'd7be9bd836ec560b9549d45325e15f9709d34246acb9430ff5ffcfa6f201b1b1'}, 'bootstrap.py': {'bytes': 21103, 'mode': 420, 'sha256': '9009e5bfa2fc94b3bc8e7b3d8af590e0e76bd4924371a469ff47bab9ae462537'}, 'native_workspace.py': {'bytes': 11033, 'mode': 420, 'sha256': '1f9667ba10006eb1d010c5e69e50b3e950d12f05baaa22600e0f4804a801ea96'}}
-          RESOURCE_ROWS={'accepted-candidate.json': {'bytes': 1834114, 'mode': 420, 'sha256': '22ab60121191de19244a832eed139a5ba7a1bfef9d4f959f6159d1450603f4e4'}, 'root-gate-receipt.json': {'bytes': 670, 'mode': 420, 'sha256': '9f46925bf72bcdf86c33d706c7d3110f1de41b59f702754eff6e09b2e1afab90'}, 'receiver-publication.json': {'bytes': 1582, 'mode': 420, 'sha256': 'ca62e926f12c411184f50d65fd37972a450f80f43525a25584f6d0bf7a57dd26'}}
-          BASELINE='1e8fd873345c02dd2f678d8e143c8e22fe7a6e84'
+          CODE_ROWS={'trusted_entry.py': {'bytes': 22773, 'mode': 420, 'sha256': '8ff3fcb369836d188308de6494e225e2d4debd5f95369c68f5d1b9be788746df'}, 'correspondence.py': {'bytes': 13467, 'mode': 420, 'sha256': '77138c0375ad08c7b1e60283a0e2979e478aa7e2eea0af02260db1b2ec0acbdb'}, 'bootstrap.py': {'bytes': 21103, 'mode': 420, 'sha256': 'e0bc58171c802b90e596a4a4bef9373267b0add96e8040ad7e146ae9935564cd'}, 'native_workspace.py': {'bytes': 11033, 'mode': 420, 'sha256': '1f9667ba10006eb1d010c5e69e50b3e950d12f05baaa22600e0f4804a801ea96'}}
+          RESOURCE_ROWS={'accepted-candidate.json': {'bytes': 1834114, 'mode': 420, 'sha256': '22ab60121191de19244a832eed139a5ba7a1bfef9d4f959f6159d1450603f4e4'}, 'root-gate-receipt.json': {'bytes': 670, 'mode': 420, 'sha256': '9f46925bf72bcdf86c33d706c7d3110f1de41b59f702754eff6e09b2e1afab90'}, 'receiver-publication.json': {'bytes': 4075, 'mode': 420, 'sha256': 'bf02cee2b5342a1b15452e5e272b2af3d85e2ff026adb821109d89e445360922'}}
+          BASELINE='06557a7f209db3c4513329c9e7eab9f054a565b1'
           NEW_PREFIX='scripts/ci/test-signer-runnable-compile'
           OLD_PREFIX='scripts/ci/test-signer-compile-v2'
           BASE='/var/tmp/cachy-asahi-test-signer-compile'
@@ -127,11 +127,11 @@ jobs:
           binding=checkout/'binding'/NEW_PREFIX;baseline=checkout/'baseline'/OLD_PREFIX
           publication=json.loads(checked(binding/'resources/receiver-publication.json',RESOURCE_ROWS['receiver-publication.json']))
           need(publication.get('source_commit')==BASELINE and publication.get('status')=='PASS_RECEIVER_SOURCE_ONLY_BINDING_PENDING'
-               and publication.get('manifest_canonical_sha256')=='c9e7bb8f8d2d876ec0cafe93fe855f9d864fcb264417e2396d13ce54e7637058' and publication.get('source_rows')==13
-               and publication.get('changed_C_files')==['abi_layout.c','witness_shim.c']
-               and publication.get('native_trial_started') is False and publication.get('execution_grants') is False,'launcher-baseline-publication')
+               and publication.get('manifest_canonical_sha256')=='889347eaa5175e3943fe646d144a823fd915674d874d15bd585fc21e092cbf33' and publication.get('source_rows')==13
+               and publication.get('changed_source_rows')==2 and publication.get('held_source_rows')==11
+               and publication.get('native_acceptance') is False and publication.get('dispatch') is False,'launcher-baseline-publication')
           manifest_raw=checked(baseline/'source-manifest.json');manifest=json.loads(manifest_raw)
-          need(hashlib.sha256(json.dumps(manifest,sort_keys=True,separators=(',',':'),allow_nan=False).encode()).hexdigest()=='c9e7bb8f8d2d876ec0cafe93fe855f9d864fcb264417e2396d13ce54e7637058','launcher-manifest')
+          need(hashlib.sha256(json.dumps(manifest,sort_keys=True,separators=(',',':'),allow_nan=False).encode()).hexdigest()=='889347eaa5175e3943fe646d144a823fd915674d874d15bd585fc21e092cbf33','launcher-manifest')
           need(len(manifest['source_rows'])==13,'launcher-exact-source13')
           payloads={'source-manifest.json':manifest_raw}
           for name,expected_row in manifest['source_rows'].items():

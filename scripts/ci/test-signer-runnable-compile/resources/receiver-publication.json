@@ -1,35 +1,102 @@
 {
-  "status": "PASS_RECEIVER_SOURCE_ONLY_BINDING_PENDING",
-  "source_commit": "1e8fd873345c02dd2f678d8e143c8e22fe7a6e84",
-  "previous_source_commit": "6f87524e493330ecc1582a3c8b988ae8cdaee81e",
-  "source_rows": 13,
-  "changed_C_files": [
-    "abi_layout.c",
-    "witness_shim.c"
-  ],
-  "manifest_canonical_sha256": "c9e7bb8f8d2d876ec0cafe93fe855f9d864fcb264417e2396d13ce54e7637058",
+  "base_source": "377885cf1baba5d1d8e63a113768c610c386d98a",
+  "changed_source_rows": 2,
   "copies": [
     "scripts/ci/test-signer-compile-v2/abi_layout.c",
-    "scripts/ci/test-signer-compile-v2/source-manifest.json",
-    "scripts/ci/test-signer-compile-v2/witness_shim.c"
-  ],
-  "verified_paths": [
-    "scripts/ci/test-signer-compile-v2/abi_layout.c",
-    "scripts/ci/test-signer-compile-v2/compile_lane_v2.py",
-    "scripts/ci/test-signer-compile-v2/exec_filter.inc",
-    "scripts/ci/test-signer-compile-v2/group_process_v2.py",
-    "scripts/ci/test-signer-compile-v2/guardian.py",
     "scripts/ci/test-signer-compile-v2/inspection.py",
-    "scripts/ci/test-signer-compile-v2/observation_entry.py",
-    "scripts/ci/test-signer-compile-v2/passive.py",
-    "scripts/ci/test-signer-compile-v2/reobserve.py",
-    "scripts/ci/test-signer-compile-v2/root_entry.py",
-    "scripts/ci/test-signer-compile-v2/thread_filter.inc",
-    "scripts/ci/test-signer-compile-v2/witness_shim.c",
-    "scripts/ci/test-signer-compile-v2/workspace.py"
+    "scripts/ci/test-signer-compile-v2/source-manifest.json"
   ],
-  "author_receipt_sha256": "7ea55b9cd1820a287a572cd755b5e96e5e8de7351b435dc7858a6f770ec804c0",
-  "peer_receipt_sha256": "4d106e489210b8aba4c565da13ff3c18283162e4c597bba4c13bb809988b86b6",
-  "native_trial_started": false,
-  "execution_grants": false
+  "dispatch": false,
+  "files": {
+    "scripts/ci/test-signer-compile-v2/abi_layout.c": {
+      "blob": "0edc70f2e89a9d8d3c78ba5a280dc13553391c39",
+      "bytes": 22614,
+      "mode": 420,
+      "sha256": "31072027916ab85ddc9b2d70f487665fa9a762f20b82b2964565f3148250ad0a"
+    },
+    "scripts/ci/test-signer-compile-v2/compile_lane_v2.py": {
+      "blob": "eb9f99250009fd865602e5519cbd9b7b06b15f94",
+      "bytes": 14816,
+      "mode": 420,
+      "sha256": "13c06d5a1b2316f517cca74c2ffaf568c3051268256a1cf659f7e990bcdfeae4"
+    },
+    "scripts/ci/test-signer-compile-v2/exec_filter.inc": {
+      "blob": "32f5d83a16e4c1e6e904e0a8f33fa69edf8d0e14",
+      "bytes": 735,
+      "mode": 420,
+      "sha256": "0e26f261f2f9d1c9eb2de15fa70eb3a6c4158c3eaab5bb9f330ceb8dd32bdc19"
+    },
+    "scripts/ci/test-signer-compile-v2/group_process_v2.py": {
+      "blob": "040edd5e556f2f490a8b15fba80363a583e74e9f",
+      "bytes": 19256,
+      "mode": 420,
+      "sha256": "a8c9044e13f16ead4ed0271b4448f0ec0e3be8a891de66f23a836245ac0bfffb"
+    },
+    "scripts/ci/test-signer-compile-v2/guardian.py": {
+      "blob": "bc03520dc5acf9faa7107bb22380e5cd77f912a7",
+      "bytes": 23775,
+      "mode": 420,
+      "sha256": "f2a832f3e01c59a2fd61907301818cb85dc511828f0ea40b416ecb3c66ef4446"
+    },
+    "scripts/ci/test-signer-compile-v2/inspection.py": {
+      "blob": "0b26dc3ddeb625c96deef99cad06ead2da54d6a6",
+      "bytes": 11896,
+      "mode": 420,
+      "sha256": "0a4977cb241a537f5ee01d7c2988690c85a354ab881324269c0027b1a7b80c8d"
+    },
+    "scripts/ci/test-signer-compile-v2/observation_entry.py": {
+      "blob": "b8fc1f298cf5d0b9ea87be0cca879de4a779f593",
+      "bytes": 12522,
+      "mode": 420,
+      "sha256": "540db1ab5a877fd2486673e86d2a1216c036dd9d8bec3953f44f467ee4966071"
+    },
+    "scripts/ci/test-signer-compile-v2/passive.py": {
+      "blob": "33ffa3003eb3379f88d25c224164a26b8cf647a0",
+      "bytes": 40917,
+      "mode": 420,
+      "sha256": "b844e94ae9cf69882550526a93aed3606398e9252175472be0bf6f2888eba1c9"
+    },
+    "scripts/ci/test-signer-compile-v2/reobserve.py": {
+      "blob": "bc7e2967fd1fcf142282b33ae5d8eb3f4c5c1e8e",
+      "bytes": 42040,
+      "mode": 420,
+      "sha256": "045620837bb30cdfa719a4e45e216b3aeec389b7fc7da3c08ed86db81e44bdc7"
+    },
+    "scripts/ci/test-signer-compile-v2/root_entry.py": {
+      "blob": "088f90ded1a0765a01099dc574637cdebd351fd4",
+      "bytes": 5930,
+      "mode": 420,
+      "sha256": "24467b0cc3fc0bbbdee45e5e4905cc4a1e51484712b219c92d2ed555b0774299"
+    },
+    "scripts/ci/test-signer-compile-v2/source-manifest.json": {
+      "blob": "3840a04ae831eeabf9f7195dd9dec30fe966619e",
+      "bytes": 3817,
+      "mode": 420,
+      "sha256": "b4e570a6689cd09a27423ed0e2bdb61aac75ce4d1be59844c973950d74177e7f"
+    },
+    "scripts/ci/test-signer-compile-v2/thread_filter.inc": {
+      "blob": "abb9f11437af4291d5a5d30b6ff158b7a770f9cf",
+      "bytes": 828,
+      "mode": 420,
+      "sha256": "0811954954a107744eaef4592d2be070e30312ed5dbbae716acf6c65e83039ed"
+    },
+    "scripts/ci/test-signer-compile-v2/witness_shim.c": {
+      "blob": "8907f691176ca774f6ac67ac7a846e2e8ce39f01",
+      "bytes": 6826,
+      "mode": 420,
+      "sha256": "f5ad7cc5d6247bfa673226c842ee9795a4619f6adfd6062b9edfd0b5872af537"
+    },
+    "scripts/ci/test-signer-compile-v2/workspace.py": {
+      "blob": "0b60f7ed8cfa078c5495db61a50a72e3b15b9da8",
+      "bytes": 8724,
+      "mode": 420,
+      "sha256": "8fe059b38492ef56c25d34157774db56087b86e265fb7c64a9ae8dc15ae305f8"
+    }
+  },
+  "held_source_rows": 11,
+  "manifest_canonical_sha256": "889347eaa5175e3943fe646d144a823fd915674d874d15bd585fc21e092cbf33",
+  "native_acceptance": false,
+  "source_commit": "06557a7f209db3c4513329c9e7eab9f054a565b1",
+  "source_rows": 13,
+  "status": "PASS_RECEIVER_SOURCE_ONLY_BINDING_PENDING"
 }
