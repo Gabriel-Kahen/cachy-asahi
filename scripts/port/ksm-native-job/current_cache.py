@@ -23,7 +23,7 @@ import urllib.parse
 
 INTAKE = 'scripts/port/ksm-native-job/cache_intake.py'
 INTAKE_SHA = 'f454fb98d5076bab89c4927a95186e550f106ce51f42875e75971fed315e1100'
-BUFFERS = ('scripts/ci/native_arm.py',
+BUFFERS = ('scripts/port/ksm-native-job/donor/current-native-arm.py',
            'scripts/port/ksm-native-job/donor/current-controller.py',
            'scripts/port/ksm-native-job/donor/current-packet.json',
            'scripts/ci/inputs.lock.json')

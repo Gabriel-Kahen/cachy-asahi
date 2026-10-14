@@ -20,19 +20,10 @@ import sysconfig
 import time
 import types
 
-# Diagnostic metadata only; absence never grants/refuses operational work.
-try:
-    import opcode as _opcode_metadata
-    _call_opcode = _opcode_metadata.opmap['CALL']
-    CALL_OPCODES = frozenset((_call_opcode,)) if type(_call_opcode) is int and 0 <= _call_opcode <= 255 else frozenset()
-except Exception:
-    CALL_OPCODES = frozenset()
-
-
 _PATH_TYPE = type(Path('/'))
 CAP = 180
 SOURCES = {
-    'native_arm': ('scripts/ci/native_arm.py', 'a8b6ed8971a38089a4499dcec605477c4e48d7a47c3de485d205f6a44678b898'),
+    'native_arm': ('scripts/ci/native_arm.py', '7209d1f6a0a1acd38644a053d8956f3a1e17292122aef84d171368c984838924'),
     'package_checks': ('scripts/checks/package_checks.py', 'e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8')}
 STANDARD = sysconfig.get_path('stdlib')
 _GRAPHS = {}
@@ -105,31 +96,31 @@ TYPEERROR_SITES = frozenset(('FORWARD_RUN_BODY', 'GRAPH_CONTEXT_BODY', 'GRAPH_DI
 
 
 PROBE_STATEMENTS = frozenset(('CHECK_ENDPOINT', 'CHECK_PLATFORM', 'CHECK_UID', 'CONTEXT_ENDPOINT', 'LOCAL_ENDPOINTS', 'READ_CONTEXT', 'RECORD_ASSEMBLY', 'RECORD_CPU', 'RECORD_DOCKER_ARCH', 'RECORD_DOCKER_VERSION', 'RECORD_ENDPOINT', 'RECORD_ENVIRONMENT', 'RECORD_GID', 'RECORD_KERNEL', 'RECORD_PAGE_SIZE', 'RECORD_PYTHON', 'RECORD_SOURCE_HASH', 'RECORD_UID', 'RETURN_RECORD', 'SAVE_FINAL', 'SAVE_INITIAL', 'UNKNOWN'))
-PROBE_SPANS = ((300, 24, 300, 50, 'RECORD_KERNEL'), (300, 65, 300, 91, 'RECORD_PAGE_SIZE'), (301, 36, 301, 104, 'RECORD_DOCKER_ARCH'), (302, 32, 302, 70, 'RECORD_DOCKER_VERSION'), (303, 21, 303, 47, 'RECORD_CPU'), (303, 59, 303, 70, 'RECORD_PYTHON'), (304, 21, 304, 32, 'RECORD_UID'), (304, 41, 304, 52, 'RECORD_GID'), (304, 69, 304, 98, 'RECORD_ENVIRONMENT'), (305, 27, 305, 54, 'RECORD_ENVIRONMENT'), (305, 73, 305, 103, 'RECORD_ENVIRONMENT'), (306, 26, 306, 51, 'RECORD_ENVIRONMENT'), (306, 67, 306, 102, 'RECORD_ENVIRONMENT'), (307, 24, 307, 52, 'RECORD_ENVIRONMENT'), (307, 64, 307, 95, 'RECORD_ENVIRONMENT'), (308, 41, 308, 60, 'RECORD_SOURCE_HASH'), (309, 30, 309, 39, 'RECORD_ASSEMBLY'), (309, 64, 309, 73, 'RECORD_ASSEMBLY'), (300, 4, 309, 74, 'RECORD_ASSEMBLY'), (310, 4, 310, 37, 'SAVE_INITIAL'), (311, 4, 312, 93, 'CHECK_PLATFORM'), (313, 4, 314, 73, 'CHECK_UID'), (315, 4, 315, 78, 'READ_CONTEXT'), (316, 4, 316, 53, 'CONTEXT_ENDPOINT'), (317, 4, 317, 70, 'LOCAL_ENDPOINTS'), (318, 4, 319, 102, 'CHECK_ENDPOINT'), (320, 4, 320, 40, 'RECORD_ENDPOINT'), (321, 4, 321, 37, 'SAVE_FINAL'), (322, 4, 322, 17, 'RETURN_RECORD'))
-PROBE_LINES = {300: 'RECORD_ASSEMBLY', 301: 'RECORD_ASSEMBLY', 302: 'RECORD_ASSEMBLY', 303: 'RECORD_ASSEMBLY', 304: 'RECORD_ASSEMBLY', 305: 'RECORD_ASSEMBLY', 306: 'RECORD_ASSEMBLY', 307: 'RECORD_ASSEMBLY', 308: 'RECORD_ASSEMBLY', 309: 'RECORD_ASSEMBLY', 310: 'SAVE_INITIAL', 311: 'CHECK_PLATFORM', 312: 'CHECK_PLATFORM', 313: 'CHECK_UID', 314: 'CHECK_UID', 315: 'READ_CONTEXT', 316: 'CONTEXT_ENDPOINT', 317: 'LOCAL_ENDPOINTS', 318: 'CHECK_ENDPOINT', 319: 'CHECK_ENDPOINT', 320: 'RECORD_ENDPOINT', 321: 'SAVE_FINAL', 322: 'RETURN_RECORD'}
+PROBE_SPANS = ((300, 4, 300, 29, 'RECORD_KERNEL'), (301, 4, 301, 29, 'RECORD_KERNEL'), (302, 45, 302, 71, 'RECORD_PAGE_SIZE'), (303, 36, 303, 104, 'RECORD_DOCKER_ARCH'), (304, 32, 304, 70, 'RECORD_DOCKER_VERSION'), (305, 21, 305, 47, 'RECORD_CPU'), (305, 59, 305, 70, 'RECORD_PYTHON'), (306, 21, 306, 32, 'RECORD_UID'), (306, 41, 306, 52, 'RECORD_GID'), (306, 69, 306, 98, 'RECORD_ENVIRONMENT'), (307, 27, 307, 54, 'RECORD_ENVIRONMENT'), (307, 73, 307, 103, 'RECORD_ENVIRONMENT'), (308, 26, 308, 51, 'RECORD_ENVIRONMENT'), (308, 67, 308, 102, 'RECORD_ENVIRONMENT'), (309, 24, 309, 52, 'RECORD_ENVIRONMENT'), (309, 64, 309, 95, 'RECORD_ENVIRONMENT'), (310, 41, 310, 60, 'RECORD_SOURCE_HASH'), (311, 30, 311, 39, 'RECORD_ASSEMBLY'), (311, 64, 311, 73, 'RECORD_ASSEMBLY'), (302, 4, 311, 74, 'RECORD_ASSEMBLY'), (312, 4, 312, 37, 'SAVE_INITIAL'), (313, 4, 314, 93, 'CHECK_PLATFORM'), (315, 4, 316, 73, 'CHECK_UID'), (317, 4, 317, 78, 'READ_CONTEXT'), (318, 4, 318, 53, 'CONTEXT_ENDPOINT'), (319, 4, 319, 70, 'LOCAL_ENDPOINTS'), (320, 4, 321, 102, 'CHECK_ENDPOINT'), (322, 4, 322, 40, 'RECORD_ENDPOINT'), (323, 4, 323, 37, 'SAVE_FINAL'), (324, 4, 324, 17, 'RETURN_RECORD'))
+PROBE_LINES = {300: 'RECORD_KERNEL', 301: 'RECORD_KERNEL', 302: 'RECORD_ASSEMBLY', 303: 'RECORD_ASSEMBLY', 304: 'RECORD_ASSEMBLY', 305: 'RECORD_ASSEMBLY', 306: 'RECORD_ASSEMBLY', 307: 'RECORD_ASSEMBLY', 308: 'RECORD_ASSEMBLY', 309: 'RECORD_ASSEMBLY', 310: 'RECORD_ASSEMBLY', 311: 'RECORD_ASSEMBLY', 312: 'SAVE_INITIAL', 313: 'CHECK_PLATFORM', 314: 'CHECK_PLATFORM', 315: 'CHECK_UID', 316: 'CHECK_UID', 317: 'READ_CONTEXT', 318: 'CONTEXT_ENDPOINT', 319: 'LOCAL_ENDPOINTS', 320: 'CHECK_ENDPOINT', 321: 'CHECK_ENDPOINT', 322: 'RECORD_ENDPOINT', 323: 'SAVE_FINAL', 324: 'RETURN_RECORD'}
+KERNEL_CALL_LINES = {300: 'CALL_UNAME', 301: 'CALL_ASDICT'}
 
 
 def probe_location(trace, probe_code):
-    """Closed statement/call-region labels from the already recognized held probe."""
+    """Closed expression-region labels from the exact held probe Source."""
     if trace.tb_frame.f_code is not probe_code:return 'UNKNOWN', None
-    position = operation = None
+    line = trace.tb_lineno
+    if type(line) is int and line in KERNEL_CALL_LINES:
+        return 'RECORD_KERNEL', KERNEL_CALL_LINES[line]
+    position = None
     for offset, span in zip(range(0,len(probe_code.co_code),2),probe_code.co_positions()):
         if offset == trace.tb_lasti:
-            position = span; operation = probe_code.co_code[offset]; break
+            position = span; break
     if position is None:return 'UNKNOWN', None
     if all(type(part) is int for part in position):
         first, last, column, end_column = position
         if (first,column) > (last,end_column):return 'UNKNOWN', None
         for start_line, start_column, end_line, end, label in PROBE_SPANS:
             if (start_line,start_column) <= (first,column) and (last,end_column) <= (end_line,end):
-                if label != 'RECORD_KERNEL':return label, None
-                call = 'UNKNOWN'
-                if operation in CALL_OPCODES:
-                    if position == (300,300,24,40):call = 'CALL_UNAME'
-                    elif position == (300,300,24,50):call = 'CALL_ASDICT'
-                return label, call
+                return label, 'UNKNOWN' if label == 'RECORD_KERNEL' else None
         return 'UNKNOWN', None
-    return PROBE_LINES.get(trace.tb_lineno,'UNKNOWN'), None
+    label = PROBE_LINES.get(line,'UNKNOWN')
+    return label, 'UNKNOWN' if label == 'RECORD_KERNEL' else None
 
 
 def probe_statement(trace, probe_code):

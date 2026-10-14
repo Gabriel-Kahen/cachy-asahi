@@ -19,7 +19,7 @@ RECIPES_SHA = '20d846cdf289bfc233b0051bf33b677fd6e94e9f05d91a33595a2829a196fa63'
 PACKAGES_SHA = 'fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25'
 MAP_SHA = 'f933ccfcfb52ca97ea809d904344f6ec72eb5907ef458b5c2e7f7f1797dc1d44'
 PINS = {
-    'scripts/ci/native_arm.py': 'a8b6ed8971a38089a4499dcec605477c4e48d7a47c3de485d205f6a44678b898',
+    'scripts/ci/native_arm.py': '7209d1f6a0a1acd38644a053d8956f3a1e17292122aef84d171368c984838924',
     'scripts/ci/inputs.lock.json': INPUTS_SHA,
     'scripts/ci/recipes.lock.json': RECIPES_SHA,
     'scripts/client/stage.py': '13c2108aa03d76305a16bf1c9d08aa610e51f54f7726e4732c13d0824e5733f5',
@@ -35,7 +35,7 @@ PINS = {
     'scripts/port/ksm-lifecycle/test_stage.py': 'e34c99bb71f57748c5f171f08085ca4d0ab3846e26cbc48ca07e246730218332',
     'scripts/port/ksm-lifecycle/test_worker.py': '5e9bac1045407585f26c8819c9e4d283cae3044e1cefbebabc1f4c086e517aa8',
     'scripts/port/ksm-lifecycle/source-checkpoint.json': '2d3b4fd99d708473d69c325778d0db345fab19a4d0b7e04bf346405f99f3219c',
-    'scripts/port/ksm-native-job/current_cache.py': 'c0533e92a77fceb9171c29130fdf258f68a8121da454b86490e98c930dbd08f3',
+    'scripts/port/ksm-native-job/current_cache.py': '754c7291feb0787c97679f5b92e1023549db8126ebe4bf3e7232382221e9286c',
     'scripts/port/ksm-native-job/cache_intake.py': 'f454fb98d5076bab89c4927a95186e550f106ce51f42875e75971fed315e1100',
     'scripts/port/ksm-native-job/donor/current-controller.py': 'bbe279edb9743f98e8feed8365859abc221b2665924658e600775c902e18299e',
     'scripts/port/ksm-native-job/donor/current-packet.json': '9d5a7dc25fd44e127c457c72addb28272b1eb1f5391c4c5b8d5b0a226a3be048',

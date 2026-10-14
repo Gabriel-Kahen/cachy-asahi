@@ -159,5 +159,6 @@ EXPECTED_PATHS = frozenset((
     'scripts/port/ksm-native-job/cache_intake.py',
     'scripts/port/ksm-native-job/donor/current-controller.py',
     'scripts/port/ksm-native-job/donor/current-packet.json',
+    'scripts/port/ksm-native-job/donor/current-native-arm.py',
 ))
 WORKFLOW = ".github/workflows/native-arm-ksm.yml"
