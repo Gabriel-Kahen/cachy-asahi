@@ -90,7 +90,7 @@
     "required_exit": 0,
     "status": "REQUIRED_SAME_JOB_PROVISION_NOT_RUN",
     "worker": "scripts/port/kernel-native-stage/worker.py",
-    "worker_sha256": "79e4b2de07dec68a792a1c01cc9995fbf13deaedda3a65c5d7ba6d5f1e2f8669"
+    "worker_sha256": "2514b2f06d886faa98c2edb84dab5682fb2a97061c33e6de4f50ec24b7bd101a"
   },
   "current_metadata_projection": {
     "base_inputs_lock_sha256": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f",

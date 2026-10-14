@@ -230,7 +230,7 @@ def compile_variant(runner, report, contract, dependencies, action):
     make = ['/usr/bin/make', '-C', str(source), 'O=' + str(build), 'ARCH=arm64',
             'LOCALVERSION=-cachy-asahi-kernel-c01', 'CC=/usr/bin/gcc', 'HOSTCC=/usr/bin/gcc',
             'LD=/usr/bin/ld', 'AS=/usr/bin/as', 'RUSTC=/usr/bin/rustc', 'BINDGEN=/usr/bin/bindgen',
-            'PAHOLE=/usr/bin/pahole', 'CLANG=/usr/bin/clang', 'DTC=/usr/bin/dtc']
+            'PAHOLE=/usr/bin/pahole', 'CLANG=/usr/bin/clang']
     report['source'] = source_result
     observe(report, inner_result.phase, 'CONFIG')
     command(runner, report, 'config', make + ['olddefconfig'], timeout=300)

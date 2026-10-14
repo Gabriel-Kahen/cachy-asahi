@@ -29,7 +29,7 @@
     },
     "scripts/port/kernel-native-stage/acquisition.py": {
       "mode": 493,
-      "sha256": "e7345a7694919cf578bd6647b60371f95e77e45ad0453d514c76a80a80e20d6c"
+      "sha256": "066cf575d9cd868165c40954f48e14358ee62e8bfc3ae7288a50521ada7aa047"
     },
     "scripts/port/kernel-native-stage/broker.py": {
       "mode": 420,
@@ -41,7 +41,7 @@
     },
     "scripts/port/kernel-native-stage/dependencies.json": {
       "mode": 420,
-      "sha256": "b540349f7be35fd0c22c90b51c783f5d90d5b075ec58ad6dad94c03d6caa197a"
+      "sha256": "5b1e1807467883fb09dd147159bed02574b6a6a31925bdae29caf21f8d516fd6"
     },
     "scripts/port/kernel-native-stage/dependency_audit.py": {
       "mode": 493,
@@ -117,7 +117,7 @@
     },
     "scripts/port/kernel-native-stage/worker.py": {
       "mode": 493,
-      "sha256": "79e4b2de07dec68a792a1c01cc9995fbf13deaedda3a65c5d7ba6d5f1e2f8669"
+      "sha256": "2514b2f06d886faa98c2edb84dab5682fb2a97061c33e6de4f50ec24b7bd101a"
     }
   },
   "purpose": "KERNEL-NATIVE-C01",
