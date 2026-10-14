@@ -4,6 +4,7 @@
  * Layout values do not admit kernel handlers, loaders, threads or signer APIs.
  */
 #include <asm/unistd.h>
+#include <linux/ioctl.h>
 #include <linux/seccomp.h>
 #include <linux/filter.h>
 #include <linux/prctl.h>

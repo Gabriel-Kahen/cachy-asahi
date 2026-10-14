@@ -1,9 +1,11 @@
 /* SPDX-License-Identifier: MIT
- * Original aarch64 signer-only probe launcher. NOT BUILT OR EXECUTED.
+ * Aarch64 signer-only probe launcher. Predecessor compile trial 38537449008
+ * failed; this include-corrected Source is not built or executed.
  * Fixed inherited descriptors: listener194, transfer196, policy-pinned ELF197.
  * Source/native policy must admit this compiled executable before Popen.
  */
 #include <asm/unistd.h>
+#include <linux/ioctl.h>
 #include <linux/seccomp.h>
 #include <linux/filter.h>
 #include <linux/prctl.h>
