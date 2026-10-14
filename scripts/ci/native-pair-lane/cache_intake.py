@@ -40,6 +40,9 @@ class Guard:
         self.end, self.check, self.last, self.first = end, check, None, None
         self.resources = {}
         self.allocations = 0
+        self.temporaries, self.path_roots, self.destinations = {}, {}, {}
+        self.cache_path = self.evidence_path = None
+        self.cache_names = set()
 
     def fail(self, error):
         if self.first is None:
@@ -63,7 +66,7 @@ class Guard:
         self.live()
         name = getattr(function, '__name__', '')
         slot = None
-        if function in (os.open, os.fdopen, tempfile.mkstemp) or name in ('open', 'urlopen', 'getresponse', 'HTTPSConnection'):
+        if function in (os.open, os.dup, os.fdopen, tempfile.mkstemp) or name in ('open', 'urlopen', 'getresponse', 'HTTPSConnection'):
             self.allocations += 1
             slot = ('allocation', self.allocations)
             self.resources[slot] = {'operation': name, 'identity': 'UNKNOWN'}
@@ -72,10 +75,11 @@ class Guard:
             # Register before a potentially failing postcondition. These are
             # uncertainty records, never inferred absence or automatic disposal.
             bound = getattr(function, '__self__', None)
-            if function is os.open:
+            if function in (os.open, os.dup):
                 self.resources[('fd', value)] = value
             elif function is tempfile.mkstemp:
                 self.resources[('fd', value[0])] = value[0]
+                self.temporary(value, kwargs)
             elif function is os.fdopen:
                 self.resources.pop(('fd', args[0]), None)
                 self.resources[('object', id(value))] = value
@@ -95,6 +99,110 @@ class Guard:
             raise self.fail(error)
 
 
+    def temporary(self, result, options):
+        """Only the two authenticated donor mkstemp protocols; retain before checks."""
+        fd, name = result
+        slot = {'name': name, 'original_fd': fd, 'file_fd': None, 'parent_fd': None,
+                'state': 'CREATED', 'kind': None}
+        self.temporaries[name] = slot
+        self.resources[('temporary', name)] = slot
+        path = Path(name); parent = str(path.parent)
+        self.live()
+        need(path.is_absolute() and '..' not in path.parts and parent in self.path_roots
+             and options.get('suffix') == '.partial' and str(options.get('dir')) == parent,
+             'intake-temporary-protocol')
+        prefix = options.get('prefix')
+        if parent == self.evidence_path and prefix == 'acquisition.':
+            slot['kind'] = 'receipt'
+        else:
+            need(parent == self.cache_path and type(prefix) is str and prefix.endswith('.')
+                 and prefix[:-1] in self.cache_names, 'intake-temporary-role')
+            slot['kind'] = 'cache'
+        need(path.name.startswith(prefix) and path.name.endswith('.partial'), 'intake-temporary-name')
+        before = self.invoke(os.fstat, fd)
+        need(stat.S_ISREG(before.st_mode) and before.st_nlink == 1
+             and stat.S_IMODE(before.st_mode) == 0o600
+             and (before.st_uid, before.st_gid) == self.path_roots[parent][3:5],
+             'intake-temporary-file')
+        slot['birth'] = tuple(getattr(before, f) for f in FIELDS[:6])
+        slot['file_fd'] = self.invoke(os.dup, fd)
+        slot['parent_fd'] = self.invoke(os.open, parent,
+            os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC)
+        self.path_slot(slot)
+
+    def named(self, parent_fd, name):
+        try: return os.stat(name, dir_fd=parent_fd, follow_symlinks=False)
+        except FileNotFoundError: return None
+
+    def path_slot(self, slot):
+        parent = str(Path(slot['name']).parent)
+        expected = self.path_roots[parent]
+        for node in (self.invoke(os.fstat, slot['parent_fd']), self.invoke(os.lstat, parent)):
+            need(tuple(getattr(node, f) for f in FIELDS[:5]) == expected, 'intake-held-parent-drift')
+        held = self.invoke(os.fstat, slot['file_fd'])
+        need(tuple(getattr(held, f) for f in FIELDS[:6]) == slot['birth'], 'intake-held-temporary-drift')
+        return tuple(getattr(held, f) for f in FIELDS)
+
+    def retire_temporary(self, slot):
+        for field in ('file_fd', 'parent_fd'):
+            def closed(field=field):
+                fd = slot[field]; slot[field] = None; slot[field + '_retiring'] = fd
+                os.close(fd); slot[field + '_closed'] = True
+                self.resources.pop(('fd', fd), None)
+            self.invoke(closed)
+        slot['state'] = 'CLOSED'
+        self.resources.pop(('temporary', slot['name']), None)
+
+    def mutate_path(self, source, operation, target=None, *, missing_ok=False):
+        """Fixed donor temp protocol in caller-owned quiescent namespaces, not a path grant."""
+        self.live(); name = str(source)
+        need(name in self.temporaries, 'intake-unowned-temporary')
+        slot = self.temporaries[name]
+        need(operation in ('replace', 'rename', 'unlink'), 'intake-path-operation')
+        if slot['state'] == 'CLOSED':
+            need(operation == 'unlink' and missing_ok is True, 'intake-temporary-retired')
+            return None
+        held = self.path_slot(slot); parent_fd = slot['parent_fd']; leaf = Path(name).name
+        named = self.invoke(self.named, parent_fd, leaf)
+        if slot['state'] == 'COMMITTED':
+            need(operation == 'unlink' and missing_ok is True and named is None,
+                 'intake-committed-source-not-absent')
+            self.retire_temporary(slot); return None
+        need(slot['state'] == 'CREATED' and named is not None
+             and tuple(getattr(named, f) for f in FIELDS) == held, 'intake-temporary-name-drift')
+        if operation == 'unlink':
+            need(type(missing_ok) is bool, 'intake-unlink-policy')
+            def removed():
+                slot['state'] = 'UNLINK_ATTEMPTED'
+                os.unlink(leaf, dir_fd=parent_fd); slot['state'] = 'UNLINKED'
+            self.invoke(removed)
+            self.retire_temporary(slot); return None
+        if isinstance(target, Context):
+            need(target.guard is self, 'intake-target-guard')
+            target = target.value
+        destination = Path(target)
+        need(str(destination.parent) == str(Path(name).parent), 'intake-mutation-parent')
+        need(operation == ('replace' if slot['kind'] == 'receipt' else 'rename')
+             and (destination.name == 'acquisition.json' if slot['kind'] == 'receipt'
+                  else destination.name in self.cache_names), 'intake-mutation-target')
+        before = self.invoke(self.named, parent_fd, destination.name)
+        expected = self.destinations.get(str(destination))
+        need((before is None and expected is None) or before is not None and
+             tuple(getattr(before, f) for f in FIELDS) == expected, 'intake-foreign-destination')
+        def committed():
+            slot['operation'], slot['target'] = operation, str(destination)
+            slot['state'] = 'MUTATION_ATTEMPTED'
+            getattr(os, operation)(leaf, destination.name, src_dir_fd=parent_fd, dst_dir_fd=parent_fd)
+            slot['state'] = 'COMMITTED'
+        self.invoke(committed)
+        after = self.invoke(self.named, parent_fd, destination.name)
+        actual = self.path_slot(slot)
+        need(after is not None and tuple(getattr(after, f) for f in FIELDS) == actual,
+             'intake-persist-outcome-uncertain')
+        self.destinations[str(destination)] = actual
+        return destination
+
+
 class Context:
     def __init__(self, guard, value):
         self.guard, self.value = guard, value
@@ -109,6 +217,22 @@ class Context:
             self.guard.fail(error)
         # No late disposal. The first cause and retained object survive cutoff.
         return self.guard.invoke(self.value.__exit__, kind, error, trace)
+
+
+    def __fspath__(self):
+        return self.guard.invoke(os.fspath, self.value)
+
+    def stat(self):
+        return self.guard.invoke(self.value.stat)
+
+    def replace(self, target):
+        return self.guard.mutate_path(self.value, 'replace', target)
+
+    def rename(self, target):
+        return self.guard.mutate_path(self.value, 'rename', target)
+
+    def unlink(self, *, missing_ok=False):
+        return self.guard.mutate_path(self.value, 'unlink', missing_ok=missing_ok)
 
 
 class StreamCalls:
@@ -332,6 +456,7 @@ class CacheIntake:
         info = g.invoke(path.lstat)
         need(stat.S_ISDIR(info.st_mode) and stat.S_IMODE(info.st_mode) == 0o700
              and info.st_uid == uid and info.st_gid == gid, 'intake-private-directory')
+        g.path_roots[str(path)] = self.identity(info)[:5]
         return path, self.identity(info)
 
     @bounded
@@ -339,6 +464,8 @@ class CacheIntake:
         need(self.state == 'NEW', 'intake-seed-order')
         cache, known = self.directory(cache)
         need(not self.guard.invoke(os.listdir, cache), 'intake-fresh-cache')
+        self.guard.cache_path = str(cache)
+        self.guard.cache_names = {row['filename'] for row in self.items}
         self.guard.invoke(self.seed_namespace['seed_old_four_private_cache'], cache, self.packet, self.guard.end)
         need(self.identity(self.guard.invoke(cache.lstat))[:6] == known[:6], 'intake-cache-directory-drift')
         self.cache, self.cache_identity, self.state = cache, known[:6], 'SEEDED'
@@ -398,6 +525,7 @@ class CacheIntake:
         need(evidence != self.cache and not evidence.is_relative_to(self.cache)
              and not self.cache.is_relative_to(evidence), 'intake-directory-separation')
         need(not self.guard.invoke(os.listdir, evidence), 'intake-fresh-evidence')
+        self.guard.evidence_path = str(evidence)
         self.state = 'ACQUIRING'
         self.native['urllib'].request = SimpleNamespace(urlopen=Transport(self.guard, self.items).urlopen)
         try:

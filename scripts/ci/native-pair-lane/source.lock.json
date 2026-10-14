@@ -246,11 +246,11 @@
       "sha256": "59e2ad2c0ff1672dfc350e54c258d9feb7a5691d93c76189b8f9958222b447de"
     },
     "scripts/ci/native-pair-lane/cache_intake.py": {
-      "bytes": 18964,
+      "bytes": 25653,
       "mode": 420,
       "origin": "source",
       "remote_path": "scripts/ci/native-pair-lane/cache_intake.py",
-      "sha256": "07ada8534f4fd21def79ab98c62334e4e0e6a7f5b15a9da8c7eacf44376c334d"
+      "sha256": "f454fb98d5076bab89c4927a95186e550f106ce51f42875e75971fed315e1100"
     },
     "scripts/ci/native-pair-lane/donor/controller.py": {
       "bytes": 100623,
