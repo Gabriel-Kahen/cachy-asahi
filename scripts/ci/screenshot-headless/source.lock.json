@@ -19,10 +19,10 @@
       "sha256": "c5fc8f7aeab691d41539415f04a7f3c6a84d7ca62bb288e106aa9becd54b190b"
     },
     {
-      "bytes": 12103,
+      "bytes": 12305,
       "mode": 420,
       "path": "scripts/ci/screenshot-headless/run.py",
-      "sha256": "8b3e780907635a5cb1a0903863048fd43e3956a7bacce99d5d57dc6b4a66693a"
+      "sha256": "340e90836ca8a9b48a7d9352eb283eebcc11ac07fdfd9742f66574e01bd2fcc5"
     },
     {
       "bytes": 587257,
@@ -59,6 +59,54 @@
       "mode": 420,
       "path": "packages/desktop/cachy-asahi-hyprland-settings/NOTICE",
       "sha256": "0c8c331ce87a95b154e0e83c358a5cafc39bf08f2129ecc5be2438c6a97a325c"
+    },
+    {
+      "bytes": 7569,
+      "mode": 420,
+      "path": "scripts/ci/screenshot-headless/region_pointer.py",
+      "sha256": "b9a88a7752e8d079a3ba49784b8b17e22f6a2976356f152d2ed42e0ee0917f10"
+    },
+    {
+      "bytes": 4297,
+      "mode": 420,
+      "path": "scripts/ci/screenshot-headless/region_trace.py",
+      "sha256": "d854f6a19064bed98e4879f70fa1b13d4d81f45247ce65f2dc8d3885363b6a9b"
+    },
+    {
+      "bytes": 15481,
+      "mode": 420,
+      "path": "scripts/ci/screenshot-headless/region_trial.py",
+      "sha256": "634e99250671f15b029c32d0b5e2ab550c5c3cf97a6b122161b1d33cfd7b11b5"
+    },
+    {
+      "bytes": 2253,
+      "mode": 493,
+      "path": "scripts/ci/screenshot-headless/region-tools/slurp",
+      "sha256": "f796d905499bbd6706873dfe993aa7f4ee901c6d6463cb7d69a15b25eedf4cdd"
+    },
+    {
+      "bytes": 149861,
+      "mode": 420,
+      "path": "scripts/ci/screenshot-headless/region-protocols/wayland.xml",
+      "sha256": "0c371e9c31f8178008a7ddecf431cbe12ec4b29ef7714803ecd3e20af925e7ed"
+    },
+    {
+      "bytes": 6895,
+      "mode": 420,
+      "path": "scripts/ci/screenshot-headless/region-protocols/virtual-pointer.xml",
+      "sha256": "3ff6d540be0bc5228195bf072bde42117ea17945a5c2061add5d3cf97d6bb524"
+    },
+    {
+      "bytes": 18462,
+      "mode": 420,
+      "path": "scripts/ci/screenshot-headless/region-protocols/layer-shell.xml",
+      "sha256": "996b8c66e1c2276c443336d4cb174634e8e5948823779042f244930525b79cc2"
+    },
+    {
+      "bytes": 3834,
+      "mode": 420,
+      "path": "scripts/ci/screenshot-headless/REGION_PROTOCOL_NOTICES",
+      "sha256": "497da73a8d4e67b425eedf24994db6c99882c1481ccb3cf91dfd5e3b6b823477"
     }
   ],
   "lane": "screenshot-headless-software-v1",
