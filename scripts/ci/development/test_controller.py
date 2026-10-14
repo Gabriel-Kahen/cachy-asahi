@@ -1305,3 +1305,92 @@ class EarlyEntryModels(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+class MaterializedOutputProofModels(unittest.TestCase):
+    """Selected output gate/capture/validators on inert bytes; no actor imports."""
+    @classmethod
+    def setUpClass(cls):
+        import ast,copy,hashlib
+        directory=Path(__file__).parent
+        materializer=ast.parse((directory/'prepare_project_library_sources.py').read_bytes())
+        library=ast.parse((directory/'project_libraries.py').read_bytes())
+        cls.loop=next(n for n in ast.walk(materializer) if isinstance(n,ast.For) and any(isinstance(x,ast.Expr) and isinstance(x.value,ast.Call) and isinstance(x.value.func,ast.Name) and x.value.func.id=='check' and x.value.args and isinstance(x.value.args[0],ast.Constant) and x.value.args[0].value=='before-output-byte-proof' for x in n.body))
+        cls.need=next(n for n in materializer.body if isinstance(n,ast.FunctionDef) and n.name=='need')
+        constants={'PIN','MATERIALIZE_CHECKPOINTS','MATERIALIZE_REASONS','MATERIALIZE_BOUNDARIES','MATERIALIZE_EXCEPTION_TYPES','MATERIALIZE_OUTPUT_NAMES'}
+        functions={'materialize_diagnostic','validate_materialize_output_proof','validate_materialize_diagnostic'}
+        cls.library_nodes=[n for n in library.body if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id in constants for t in n.targets) or isinstance(n,ast.FunctionDef) and n.name in functions]
+        owner=next(n for n in library.body if isinstance(n,ast.ClassDef) and n.name=='Operations')
+        cls.capture=next(n for n in owner.body if isinstance(n,ast.FunctionDef) and n.name=='capture_materialize_failure')
+        cls.attachment_line=next(n.lineno for n in ast.walk(cls.loop) if isinstance(n,ast.Assign) and any(isinstance(t,ast.Attribute) and t.attr=='_materialize_output_proof' for t in n.targets))
+        cls.copy_line=next(n.lineno for n in ast.walk(cls.capture) if isinstance(n,ast.Assign) and any(isinstance(t,ast.Subscript) and isinstance(t.slice,ast.Constant) and t.slice.value=='output_proof' for t in n.targets))
+
+    def model(self,name,kind,control=None,copy_control=None):
+        import ast,copy,hashlib,json,re,sys
+        hashes=[];deliveries=[];original=[]
+        def require(value,reason):
+            if not value:raise ValueError(reason)
+        namespace={'require':require,'re':re,'json':json}
+        exec(compile(ast.Module(body=self.library_nodes+[self.need,self.capture],type_ignores=[]),'<selected-output-proof>','exec',dont_inherit=True),namespace)
+        def sha(body):
+            hashes.append(True);return hashlib.sha256(body).hexdigest()
+        namespace['sha']=sha
+        gate=ast.parse('def gate(output, expected, check):\n    pass\n').body[0];gate.body=[copy.deepcopy(self.loop)]
+        exec(compile(ast.fix_missing_locations(ast.Module(body=[gate],type_ignores=[])),'<selected-output-proof>','exec',dont_inherit=True),namespace)
+        state=SimpleNamespace(materialize_active=True,materialize_first_failure=None,materialize_failure=None,
+            materialize_secondary_control=None,materialize_boundary='MATERIALIZER',materialize_checkpoint='before-output-byte-proof')
+        body=b'fixed';expected={'bytes':len(body)+(kind=='LENGTH'),'sha256':('0'*64 if kind=='SHA256' else hashlib.sha256(body).hexdigest())}
+        def tracer(frame,event,arg):
+            if event=='exception' and frame.f_code is namespace['need'].__code__ and type(arg[1]) is ValueError and not original:original.append(arg[1])
+            target=control if control is not None else copy_control
+            selected=event=='line' and not deliveries and target is not None and ((control is not None and frame.f_code is namespace['gate'].__code__ and frame.f_lineno==self.attachment_line) or
+                (copy_control is not None and frame.f_code is namespace['capture_materialize_failure'].__code__ and frame.f_lineno==self.copy_line))
+            if selected:deliveries.append(target);raise target
+            return tracer
+        previous=sys.gettrace();error=None
+        try:
+            if control is not None or copy_control is not None:sys.settrace(tracer)
+            try:namespace['gate']({name:body},{name:expected},lambda _:None)
+            except ValueError as caught:
+                error=caught;namespace['capture_materialize_failure'](state,error)
+        finally:sys.settrace(previous)
+        if control is not None or copy_control is not None:
+            self.assertEqual(len(deliveries),1);self.assertIs(error,original[0]);self.assertIs(error.__cause__,deliveries[0]);self.assertIs(state.materialize_secondary_control,deliveries[0])
+        return namespace,state,error,hashes
+
+    def test_all27_short_circuit_and_unchanged_success(self):
+        ns,_,_,_=self.model('jbigkit/NOTICE','PASS')
+        self.assertEqual(len(ns['MATERIALIZE_OUTPUT_NAMES']),27)
+        for name in ns['MATERIALIZE_OUTPUT_NAMES']:
+            for kind in ('PASS','LENGTH','SHA256'):
+                _,state,error,hashes=self.model(name,kind)
+                self.assertEqual(len(hashes),0 if kind=='LENGTH' else 1)
+                if kind=='PASS':self.assertIsNone(error);self.assertIsNone(state.materialize_failure)
+                else:
+                    self.assertEqual(error.args,('derived output pin: '+name,));proof=state.materialize_failure['output_proof']
+                    self.assertEqual(proof['output'],name);self.assertEqual(proof['mismatch'],kind)
+                    if kind=='LENGTH':self.assertIsNone(proof['observed_sha256']);self.assertIsNone(proof['expected_sha256'])
+
+    def test_real_controls_during_attachment_and_diagnostic_copy(self):
+        for kind in ('LENGTH','SHA256'):
+            for constructor in (KeyboardInterrupt,SystemExit,BaseException):
+                for location in ('attachment','copy'):
+                    control=constructor('PRIVATE_CONTROL')
+                    args={'control':control} if location=='attachment' else {'copy_control':control}
+                    _,state,error,_=self.model('jbigkit/NOTICE',kind,**args)
+                    self.assertEqual(error.args,('derived output pin: jbigkit/NOTICE',));self.assertIs(state.materialize_first_failure,error)
+                    self.assertFalse(isinstance(state.materialize_secondary_control,Exception))
+                    tail=error.__traceback__
+                    while tail.tb_next:tail=tail.tb_next
+                    self.assertEqual(tail.tb_frame.f_code.co_name,'need')
+
+    def test_closed_schema_and_defensive_snapshot(self):
+        import copy
+        ns,state,_,_=self.model('libtiff/UPSTREAM-NOTICES.txt','SHA256');value=state.materialize_failure
+        snapshot=ns['validate_materialize_diagnostic'](value);value['output_proof']['observed_bytes']+=1
+        self.assertNotEqual(snapshot['output_proof']['observed_bytes'],value['output_proof']['observed_bytes'])
+        for key,bad in [('output','/PRIVATE/path'),('expected_bytes',True),('observed_sha256','INVALID'),('mismatch','UNKNOWN')]:
+            proof=copy.deepcopy(snapshot['output_proof']);proof[key]=bad
+            with self.assertRaises(ValueError):ns['validate_materialize_output_proof'](proof)
+        wrong=copy.deepcopy(snapshot);wrong['checkpoint']='NONE'
+        with self.assertRaises(ValueError):ns['validate_materialize_diagnostic'](wrong)
+

@@ -326,7 +326,27 @@ def prepare_sources(project_dirs, upstream, destination, check, plan_path=None):
     need(sum(map(len, output.values())) <= 8388608, "combined output cap")
     for name, body in output.items():
         check("before-output-byte-proof")
-        need(len(body) == expected[name]["bytes"] and sha(body) == expected[name]["sha256"], "derived output pin: " + name)
+        observed_bytes, expected_bytes = len(body), expected[name]["bytes"]
+        observed_sha256 = expected_sha256 = None
+        if observed_bytes == expected_bytes:
+            observed_sha256, expected_sha256 = sha(body), expected[name]["sha256"]
+        try:
+            need(observed_bytes == expected_bytes and observed_sha256 == expected_sha256,
+                 "derived output pin: " + name)
+        except ValueError as error:
+            try:
+                error._materialize_output_proof = {
+                    "schema_version": 1, "output": name,
+                    "mismatch": "LENGTH" if observed_bytes != expected_bytes else "SHA256",
+                    "expected_bytes": expected_bytes, "observed_bytes": observed_bytes,
+                    "expected_sha256": expected_sha256, "observed_sha256": observed_sha256}
+            except BaseException as secondary:
+                error._materialize_output_control = secondary
+                prior = error.__cause__
+                if secondary is not error and prior is not secondary:
+                    error.__cause__ = secondary if prior is None else BaseExceptionGroup(
+                        "materialized output diagnostic secondary cause", [prior, secondary])
+            raise
     destination = Path(destination).absolute()
     parents(destination.parent, check)
     check("before-fresh-destination")

@@ -1149,7 +1149,7 @@
     "manifests/reviewed/maintained-composed-v1.json": "662a7397e12289e5fe7de8c797dcc0cdf74e4ade9d93260bd2cbca782060a120",
     "manifests/reviewed/project-jbigkit-inputs.json": "e2fa53b9d62e96ce05a22ebddd4277b6fdcdc1ffe820ca648487b1b505480982",
     "manifests/reviewed/project-libtiff-inputs.json": "f2e36a19b57769a956aaae7743a80f9f82be0095c94bf3b2f015f1b0e60e7046",
-    "manifests/reviewed/project-private-libraries.json": "8df657577844920872512681539de297b9644c24e0218a89798597ab6aa16793",
+    "manifests/reviewed/project-private-libraries.json": "e0a9ad999a4f6b320d4008c0ba0722a19ca345d55ccfc86d03fb2a90e0d2484b",
     "manifests/reviewed/repository-generic-policy.json": "ff424921c5be38799f64e5c6264bb098cf71737d7be83608a4c91dee83f0365e",
     "scripts/ci/inputs.lock.json": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f",
     "scripts/ci/integration.lock.json": "5d0f6b1d335c1949965699d4db6658af313af8977079e9a6464f0e5db4071ed3",
@@ -1213,7 +1213,7 @@
     },
     "manifests/reviewed/project-private-libraries.json": {
       "mode": 420,
-      "sha256": "8df657577844920872512681539de297b9644c24e0218a89798597ab6aa16793"
+      "sha256": "e0a9ad999a4f6b320d4008c0ba0722a19ca345d55ccfc86d03fb2a90e0d2484b"
     },
     "manifests/reviewed/repository-generic-policy.json": {
       "mode": 420,
@@ -1793,11 +1793,11 @@
     },
     "scripts/ci/development/prepare_project_library_sources.py": {
       "mode": 420,
-      "sha256": "a73f1571fe417e14db90ef00c147146fa0f67de7c3bc8b012636de04176931e1"
+      "sha256": "e3446c05d4f3b549b616c81dd6dd71be35bc9797cbc2fa3879d31123400e81f2"
     },
     "scripts/ci/development/project_libraries.py": {
       "mode": 420,
-      "sha256": "534cf4c5d453183af856c67d816fdf71adc0cb5f92f8e3e345906e65ed05883c"
+      "sha256": "a9120d7c899081560c98a0a3169e365be3539ac5eaa56f0675ee15119f3efb4e"
     },
     "scripts/ci/development/project_library_sources/jbigkit/LICENSE.recipe": {
       "mode": 420,
@@ -1873,7 +1873,7 @@
     },
     "scripts/ci/development/test_controller.py": {
       "mode": 420,
-      "sha256": "28a9f098694c92a6c168530db07b6fd738485368fb272dcc4c21832c01ae65bf"
+      "sha256": "d2cebdf01cf7c23d5b8fde10ef6161ea074f5b3a27d0f443a15448035895f71a"
     },
     "scripts/ci/development/test_initial_artifacts.py": {
       "mode": 420,

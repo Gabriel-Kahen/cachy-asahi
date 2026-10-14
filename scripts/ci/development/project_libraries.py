@@ -64,17 +64,50 @@ def materialize_diagnostic(error, boundary, checkpoint):
     return result
 
 
+MATERIALIZE_OUTPUT_NAMES = frozenset(reason.removeprefix('derived output pin: ')
+    for reason in MATERIALIZE_REASONS if reason.startswith('derived output pin: '))
+
+
+def validate_materialize_output_proof(value):
+    """Closed failure facts, never an accepted output or path selector."""
+    require(type(value) is dict and set(value) == {'schema_version','output','mismatch',
+        'expected_bytes','observed_bytes','expected_sha256','observed_sha256'} and
+        type(value['schema_version']) is int and value['schema_version'] == 1 and
+        type(value['output']) is str and value['output'] in MATERIALIZE_OUTPUT_NAMES and
+        type(value['mismatch']) is str and value['mismatch'] in ('LENGTH','SHA256') and
+        all(type(value[key]) is int and 0 <= value[key] <= 8388608
+            for key in ('expected_bytes','observed_bytes')), 'library-materialize-output-proof-schema')
+    if value['mismatch'] == 'LENGTH':
+        require(value['observed_bytes'] != value['expected_bytes'] and
+            value['observed_sha256'] is value['expected_sha256'] is None,
+            'library-materialize-output-proof-length')
+    else:
+        require(value['observed_bytes'] == value['expected_bytes'] and
+            all(type(value[key]) is str and PIN.fullmatch(value[key])
+                for key in ('expected_sha256','observed_sha256')) and
+            value['observed_sha256'] != value['expected_sha256'],
+            'library-materialize-output-proof-sha256')
+    return dict(value)
+
+
 def validate_materialize_diagnostic(value):
-    require(type(value) is dict and set(value) == {'schema_version','boundary','checkpoint','exception','reason'} and
+    require(type(value) is dict and {'schema_version','boundary','checkpoint','exception','reason'} <= set(value) <=
+            {'schema_version','boundary','checkpoint','exception','reason','output_proof'} and
             type(value['schema_version']) is int and value['schema_version'] == 1 and
             type(value['boundary']) is str and len(value['boundary']) <= 64 and value['boundary'] in MATERIALIZE_BOUNDARIES and
             type(value['checkpoint']) is str and len(value['checkpoint']) <= 64 and value['checkpoint'] in MATERIALIZE_CHECKPOINTS | {'NONE','UNKNOWN'} and
             type(value['exception']) is str and len(value['exception']) <= 64 and value['exception'] in set(MATERIALIZE_EXCEPTION_TYPES.values()) | {'OTHER'} and
             type(value['reason']) is str and len(value['reason']) <= 64 and value['reason'] in set(MATERIALIZE_REASONS.values()) | {'UNKNOWN'},
             'library-materialize-diagnostic-schema')
+    result = dict(value)
+    if 'output_proof' in value:
+        require((value['boundary'],value['checkpoint'],value['exception'],value['reason']) ==
+            ('MATERIALIZER','before-output-byte-proof','VALUE_ERROR','MATERIALIZER_OUTPUT'),
+            'library-materialize-output-proof-context')
+        result['output_proof'] = validate_materialize_output_proof(value['output_proof'])
     require(len(json.dumps(value,ensure_ascii=True,sort_keys=True).encode()) <= 2048,
             'library-materialize-diagnostic-cap')
-    return dict(value)
+    return result
 
 
 class NoRedirect(urllib.request.HTTPRedirectHandler):
@@ -493,6 +526,15 @@ class Operations:
                 self.materialize_failure = {'schema_version':1,'boundary':'UNKNOWN',
                     'checkpoint':'UNKNOWN','exception':MATERIALIZE_EXCEPTION_TYPES.get(type(error),'OTHER'),'reason':'UNKNOWN'}
                 self.materialize_failure = materialize_diagnostic(error,self.materialize_boundary,self.materialize_checkpoint)
+                if type(error) is ValueError:
+                    attributes = object.__getattribute__(error,'__dict__')
+                    secondary = attributes.get('_materialize_output_control')
+                    if isinstance(secondary,BaseException):self.materialize_secondary_control = secondary
+                    proof = attributes.get('_materialize_output_proof')
+                    if proof is not None and (self.materialize_failure['boundary'],self.materialize_failure['checkpoint'],
+                        self.materialize_failure['exception'],self.materialize_failure['reason']) == (
+                        'MATERIALIZER','before-output-byte-proof','VALUE_ERROR','MATERIALIZER_OUTPUT'):
+                        self.materialize_failure['output_proof'] = validate_materialize_output_proof(proof)
             except BaseException as secondary:
                 # Deferred controls remain distinct from the original failure.
                 self.materialize_secondary_control = secondary
