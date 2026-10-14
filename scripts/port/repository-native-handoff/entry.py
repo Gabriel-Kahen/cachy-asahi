@@ -188,10 +188,18 @@ def authenticated(map_path, pin, *, deadline, source_root=None):
 
 
 @contextmanager
-def original_modules(root, lock_path, lock_pin, *, deadline, verification_deadline):
+def original_modules(root, lock_path, lock_pin, *, deadline, verification_deadline, source_overlay=None):
     lock = obj(pinned(lock_path, lock_pin, deadline=deadline))
+    rows = dict(lock['source_files'])
+    if source_overlay is not None:
+        if type(source_overlay) is not dict or set(source_overlay) != {'scripts/ci/native_arm.py','scripts/ci/integration.py'}:
+            raise ValueError('P0-source-overlay')
+        for name,row in source_overlay.items():
+            if type(row) is not dict or set(row) != {'sha256','mode'} or row['mode'] != 0o644 or type(row['sha256']) is not str or len(row['sha256']) != 64 or any(c not in '0123456789abcdef' for c in row['sha256']):
+                raise ValueError('P0-source-overlay')
+        rows.update(source_overlay)
     identities = {}
-    data = captures(root, lock['source_files'], count=159, deadline=deadline, identities=identities)
+    data = captures(root, rows, count=159, deadline=deadline, identities=identities)
     if not set(ORIGINAL.values()) <= set(data):
         raise ValueError('original-module-closure')
     before, paths = {name: sys.modules.get(name) for name in ORIGINAL}, list(sys.path)
@@ -206,7 +214,7 @@ def original_modules(root, lock_path, lock_pin, *, deadline, verification_deadli
             if entered:
                 for name, raw in data.items():
                     observed, mode, current = read(Path(root) / name, deadline=verification_deadline, with_identity=True)
-                    if observed != raw or mode != lock['source_files'][name]['mode'] or current != identities[name]:
+                    if observed != raw or mode != rows[name]['mode'] or current != identities[name]:
                         raise ValueError('original-source-drift')
         finally:
             sys.path[:] = paths

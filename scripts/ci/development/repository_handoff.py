@@ -138,6 +138,20 @@ def code_objects(code):
             yield from code_objects(item)
 
 
+P0_OVERLAY_ROWS = {'scripts/ci/integration.py': {'sha256': 'e448e2074ccca91d49fd07c115b9caa341efccebb3326f826b9eb0bc342ce9d4', 'mode': 420}, 'scripts/ci/native_arm.py': {'sha256': 'e650648721bf14ae6753bda3a73b45f8e0ee8a051730d212b84078418d6eea84', 'mode': 420}}
+
+P0_OVERLAY_SOURCE_IDS = {'scripts/ci/native_arm.py': 'scripts/ci/development/p0_native_arm.py', 'scripts/ci/integration.py': 'scripts/ci/development/p0_integration.py'}
+
+def selected_view_rows(sources):
+    locked = decode(sources.raw['scripts/ci/integration.lock.json'])['source_files']
+    plan = sources.grant['original_view']
+    if plan['purpose'] == 'P0-157-held-2-overlay-copy-view':
+        need(plan.get('source_overlay') == P0_OVERLAY_ROWS,'source-refused')
+        return {**locked,**P0_OVERLAY_ROWS}
+    need(plan['purpose'] == 'original-159-copy-view','source-refused')
+    return locked
+
+
 class Sources:
     def __init__(self, root, grant, deadline):
         self.root, self.grant = Path(root).absolute(), grant
@@ -168,6 +182,16 @@ class Sources:
             raw, mode, node = read(self.root / name, deadline)
             need(raw == original and mode == self.grant['source_files'][name]['mode'] and
                  node == self.identities[name], 'source-refused')
+
+    def namespace_source(self, path, filename):
+        """Only the two P0 logical filenames resolve to selected variant bodies."""
+        registration = path
+        if self.original_root is not None and Path(filename).absolute().is_relative_to(self.original_root) and self.grant['original_view']['purpose'] == 'P0-157-held-2-overlay-copy-view' and path in P0_OVERLAY_SOURCE_IDS:
+            registration = P0_OVERLAY_SOURCE_IDS[path]
+            need(registration in self.raw and self.grant['source_files'][registration] == P0_OVERLAY_ROWS[path] and
+                 digest(self.raw[registration]) == P0_OVERLAY_ROWS[path]['sha256'],'callback-refused')
+        need(registration in self.raw,'callback-refused')
+        return self.raw[registration]
 
     def module(self, name, path):
         value = types.ModuleType(name); value.__file__ = str(self.root / path)
@@ -263,7 +287,7 @@ class Sources:
         path = self.locate(filename)
         need(path in self.raw,'callback-refused')
         key = str(filename)
-        if key not in self.codes:self.codes[key] = list(code_objects(compile(self.raw[path],key,'exec')))
+        if key not in self.codes:self.codes[key] = list(code_objects(compile(self.namespace_source(path,key),key,'exec')))
         need(any(function.__code__ == code for code in self.codes[key]),'callback-refused')
         module = sys.modules.get(function.__module__)
         need(type(module) is types.ModuleType and module.__dict__ is function.__globals__ and
@@ -276,7 +300,7 @@ class Sources:
         need(type(module) is types.ModuleType and module.__file__ == str(scope/path)
              and path in self.raw, 'callback-refused')
         cls = type(value)
-        declarations = [node for node in ast.parse(self.raw[path]).body
+        declarations = [node for node in ast.parse(self.namespace_source(path,str(scope/path))).body
                         if isinstance(node, ast.ClassDef) and node.name == cls.__name__]
         need(len(declarations) == 1 and not declarations[0].bases and cls.__bases__ == (object,)
              and module.__dict__.get(cls.__name__) is cls and cls.__module__ == module.__name__
@@ -284,7 +308,7 @@ class Sources:
         declaration = declarations[0]
         methods = {node.name:node for node in declaration.body if isinstance(node,ast.FunctionDef)}
         compiled = {code.co_qualname:code for code in code_objects(
-            compile(self.raw[path], str(scope/path), 'exec'))}
+            compile(self.namespace_source(path,str(scope/path)), str(scope/path), 'exec'))}
         constants = {}
         def literal(node):
             if isinstance(node,ast.Name):
@@ -299,7 +323,7 @@ class Sources:
                 need(abs(result) <= 2**63,'callback-refused');return result
             try:return ast.literal_eval(node)
             except (ValueError,TypeError):raise Refused('callback-refused') from None
-        for node in ast.parse(self.raw[path]).body:
+        for node in ast.parse(self.namespace_source(path,str(scope/path))).body:
             if isinstance(node,ast.Assign) and len(node.targets) == 1:
                 try:constant = literal(node.value)
                 except Refused:continue
@@ -366,7 +390,7 @@ class Sources:
         filename = str(Path(module.__file__).absolute());path = self.locate(filename)
         if compiled is None:compiled = {}
         if path in self.raw and filename not in compiled:
-            compiled[filename] = tuple(code_objects(compile(self.raw[path],filename,'exec')))
+            compiled[filename] = tuple(code_objects(compile(self.namespace_source(path,filename),filename,'exec')))
         need(path in self.raw and function.__code__.co_filename == filename and
              any(function.__code__ == code for code in compiled.get(filename,())),'callback-refused')
 
@@ -415,6 +439,13 @@ class Sources:
                      type(callback.__qualname__) is str and callback.__qualname__ == qualname and callback.__globals__ is installer.__dict__,
                      'callback-refused')
                 modules[installer_path] = installer
+                p0 = state.get('p0_entry_module')
+                if p0 is not None:
+                    p0_path = 'scripts/install/p0_entry.py'
+                    need(type(p0) is types.ModuleType and p0.__name__ == 'native_install_p0_entry' and
+                         sys.modules.get(p0.__name__) is p0 and p0.__file__ == str(self.root/p0_path),'callback-refused')
+                    installer.namespace(p0,self.raw[p0_path],self.grant['source_files'][p0_path]['sha256'])
+                    modules[p0_path] = p0
             if composition == 'repository-svg-zsh':
                 zsh = graph['zsh']
                 need(type(zsh) is dict and set(zsh) == {'zsh_addon','zsh_session'},'callback-refused')
@@ -458,7 +489,7 @@ class Sources:
                 if self.graph_observation is not None:
                     prior = tuple(value for path,value in modules.items() if path not in original.values())
                     need(self.graph_identity((module,)+prior)+admission+proof == self.graph_observation,'callback-refused')
-                self.guard(session.job_deadline,session.cancelled)
+                self.guard(session.p0_scope[1] if session.p0_scope is not None else session.job_deadline,session.cancelled)
                 self.graph_observation = observation+proof
             else:
                 need(self.graph_observation is not None and observation+proof == self.graph_observation,'callback-refused')
@@ -512,7 +543,7 @@ class Sources:
                 if self.project_file(origin):
                     path = self.locate(origin)
                     if path in self.raw and str(origin) not in compiled:
-                        compiled[str(origin)] = tuple(code_objects(compile(self.raw[path],str(origin),'exec')))
+                        compiled[str(origin)] = tuple(code_objects(compile(self.namespace_source(path,str(origin)),str(origin),'exec')))
                     need(path in self.raw and value.__globals__.get('__file__') == str(origin) and
                          any(value.__code__ == code for code in compiled.get(str(origin),())),
                          'callback-refused')
@@ -554,9 +585,9 @@ class Sources:
             (PREFIXES['phase']+'/dependencies.py','source'):'dependency_entry.<locals>.source',
         }
         filename = module.__file__
-        if filename not in cache:cache[filename] = tuple(code_objects(compile(self.raw[path],filename,'exec')))
+        if filename not in cache:cache[filename] = tuple(code_objects(compile(self.namespace_source(path,filename),filename,'exec')))
         compiled = {code.co_qualname:code for code in cache[filename]}
-        for node in ast.parse(self.raw[path]).body:
+        for node in ast.parse(self.namespace_source(path,filename)).body:
             if not isinstance(node,ast.FunctionDef):continue
             value = module.__dict__.get(node.name)
             if (path,node.name) in overrides:
@@ -946,17 +977,21 @@ def preflight(root, grant_raw, grant_pin, *, deadline):
     need(initial in sources.raw and digest(sources.raw[initial]) == INITIAL, 'source-refused')
     lock = decode(sources.raw[initial])
     need(len(lock['source_files']) == 159 and len(lock['generated_fixture_files']) == 125 and
-         all(grant['source_files'].get(name) == row for name, row in lock['source_files'].items()), 'source-refused')
+         all(grant['source_files'].get(name) == row for name,row in lock['source_files'].items()),'source-refused')
+    if grant['original_view']['purpose'] == 'P0-157-held-2-overlay-copy-view':
+        need(all(grant['source_files'].get(P0_OVERLAY_SOURCE_IDS[name]) == row for name,row in P0_OVERLAY_ROWS.items()),'source-refused')
     view = grant['original_view']
+    overlay_view = type(view) is dict and view.get('purpose') == 'P0-157-held-2-overlay-copy-view'
     need(type(view) is dict and set(view) == {'schema_version','purpose','full_source_root','root',
-         'integration_lock_sha256','source_rows_sha256','file_count','argv_mode'} and
+         'integration_lock_sha256','source_rows_sha256','file_count','argv_mode'} | ({'source_overlay'} if overlay_view else set()) and
          type(view['schema_version']) is int and view['schema_version'] == 1 and
-         view['purpose'] == 'original-159-copy-view' and view['full_source_root'] == str(sources.root) and
+         view['purpose'] == ('P0-157-held-2-overlay-copy-view' if overlay_view else 'original-159-copy-view') and
+        (not overlay_view or view['source_overlay'] == P0_OVERLAY_ROWS) and view['full_source_root'] == str(sources.root) and
          type(view['root']) is str and Path(view['root']).is_absolute() and '..' not in Path(view['root']).parts and
          view['integration_lock_sha256'] == INITIAL and
-         view['source_rows_sha256'] == digest(encoded(lock['source_files'])) and
+         view['source_rows_sha256'] == digest(encoded(selected_view_rows(sources))) and
          type(view['file_count']) is int and view['file_count'] == 160 and
-         view['argv_mode'] == 'absolute-view-metadata','grant-refused')
+         view['argv_mode'] == ('absolute-P0-overlay-metadata' if overlay_view else 'absolute-view-metadata'),'grant-refused')
     for path, pin in ((grant['policy_path'], POLICY), (grant['license_path'], LICENSE)):
         need(relative(path) in sources.raw and digest(sources.raw[path]) == pin, 'grant-refused')
     policy = decode(sources.raw[grant['policy_path']])
@@ -1147,6 +1182,7 @@ class Session:
         self.view_root = self.view_node = self.view_parent_node = None
         self.view_receipt = self.view_receipt_sha256 = None
         self.original_scope = self.native_consumer_observation = None
+        self.p0_entry_module = self.p0_scope = self.p0_result = None
         self.phase_export_raw = self.phase_export_sha256 = None
         self.result = {'schema_version':1, 'purpose':'same-job-repository-handoff', 'status':'NOT RUN',
             'initial_exit_code':None, 'callback_entered':False, 'input_acceptance':'NOT RUN',
@@ -1175,7 +1211,7 @@ class Session:
         owner = sys.modules.get(type(self).__module__)
         self.sources.class_state(self,'scripts/ci/development/repository_handoff.py',owner)
         self.sources.class_state(self.sources,'scripts/ci/development/repository_handoff.py',owner)
-        self.sources.guard(self.job_deadline,self.cancelled)
+        self.sources.guard(self.p0_scope[1] if self.p0_scope is not None else self.job_deadline,self.cancelled)
         module = self.sources.module(name,path)
         self.sources.graph_namespace(module,path,{path:module},{},{})
         callback = module.__dict__.get(qualname)
@@ -1185,7 +1221,7 @@ class Session:
         self.source_graph['native_preflight'] = module
         sys.modules[name] = module
         try:
-            self.sources.guard(self.job_deadline,self.cancelled)
+            self.sources.guard(self.p0_scope[1] if self.p0_scope is not None else self.job_deadline,self.cancelled)
             module.namespace(module,self.sources.raw[path],self.sources.grant['source_files'][path]['sha256'])
         except BaseException:
             if sys.modules.get(name) is module:del sys.modules[name]
@@ -1284,20 +1320,21 @@ class Session:
 
     def prepare_view(self, root):
         """One original159+lock copy; original budget, no actor or E renewal."""
-        deadline = self.job_deadline
+        deadline = self.p0_scope[1] if self.p0_scope is not None else self.job_deadline
         self.sources.guard(deadline,self.cancelled)
         need(self.view_root is None and root == self.output/'original-view' and
              str(root) == self.sources.grant['original_view']['root'] and
              not root.exists() and not root.is_symlink(),'source-refused')
         lock = decode(self.sources.raw['scripts/ci/integration.lock.json'])
-        rows = {**lock['source_files'],'scripts/ci/integration.lock.json':{'sha256':INITIAL,'mode':0o644}}
+        rows = {**selected_view_rows(self.sources),'scripts/ci/integration.lock.json':{'sha256':INITIAL,'mode':0o644}}
         root.mkdir(mode=0o700)
         self.view_root,self.view_node = root,identity(root.lstat())  # Register before copying.
         self.view_parent_node = identity(root.parent.lstat())
         nodes = {};total = 0
         for name,row in sorted(rows.items()):
             check(deadline,self.cancelled)
-            raw = self.sources.raw[name];total += len(raw)
+            registration = P0_OVERLAY_SOURCE_IDS.get(name,name) if self.p0_scope is not None else name
+            raw = self.sources.raw[registration];total += len(raw)
             need(total <= TOTAL_LIMIT and digest(raw) == row['sha256'],'source-refused')
             target = root/name
             parents = [os.open(root,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW|os.O_CLOEXEC)]
@@ -1326,7 +1363,8 @@ class Session:
             need(observed == raw and mode == row['mode'] and node[4] == os.geteuid() and node[3] == 1,
                  'source-refused')
             nodes[name] = {'sha256':row['sha256'],'mode':mode,'bytes':len(raw),
-                           'source_node':list(self.sources.identities[name]),'copy_node':list(node)}
+                           'source_node':list(self.sources.identities[registration]),'copy_node':list(node)}
+            if self.p0_scope is not None:nodes[name]['source_path'] = registration
         self.sources.guard(deadline,self.cancelled)
         directories = {'.':list(identity(root.lstat()))}
         for name in rows:
@@ -1334,7 +1372,7 @@ class Session:
                 if parent == root:break
                 relative_parent = parent.relative_to(root).as_posix()
                 directories[relative_parent] = list(identity(parent.lstat()))
-        receipt = {'schema_version':1,'purpose':'original-159-copy-custody',
+        receipt = {'schema_version':1,'purpose':('P0-157-held-2-overlay-copy-custody' if self.p0_scope is not None else 'original-159-copy-custody'),
             'selection':self.sources.grant['original_view'],
             **{key:self.sources.grant[key] for key in ('source_commit','run_id','run_attempt',
                  'actor_contract_sha256','initial_invocation_sha256')},
@@ -1355,7 +1393,7 @@ class Session:
         need(set(receipt) == {'schema_version','purpose','selection','source_commit','run_id','run_attempt',
              'actor_contract_sha256','initial_invocation_sha256','execution_grant_sha256','view_node','parent_node',
              'directories','files','file_count','bytes'} and type(receipt['schema_version']) is int and
-             receipt['schema_version'] == 1 and receipt['purpose'] == 'original-159-copy-custody' and
+             receipt['schema_version'] == 1 and receipt['purpose'] == ('P0-157-held-2-overlay-copy-custody' if self.p0_scope is not None else 'original-159-copy-custody') and
              type(receipt['file_count']) is int and receipt['file_count'] == 160 and
              all(receipt[key] == self.sources.grant[key] for key in ('source_commit','run_id','run_attempt',
                  'actor_contract_sha256','initial_invocation_sha256')) and
@@ -1366,11 +1404,10 @@ class Session:
              self.view_root == self.output/'original-view' and receipt['selection'] == self.sources.grant['original_view']
              and receipt['execution_grant_sha256'] == self.sources.grant_pin,'source-refused')
         expected = self.sources.original_rows
-        locked = {**decode(self.sources.raw['scripts/ci/integration.lock.json'])['source_files'],
-                  'scripts/ci/integration.lock.json':{'sha256':INITIAL,'mode':0o644}}
+        locked = {**selected_view_rows(self.sources),'scripts/ci/integration.lock.json':{'sha256':INITIAL,'mode':0o644}}
         need(type(expected) is dict and expected == locked and len(expected) == 160 and
              set(receipt['files']) == set(expected) and type(receipt['bytes']) is int and
-             receipt['bytes'] == sum(len(self.sources.raw[name]) for name in expected),'source-refused')
+             receipt['bytes'] == sum(len(self.sources.raw[P0_OVERLAY_SOURCE_IDS.get(name,name) if self.p0_scope is not None else name]) for name in expected),'source-refused')
         node_shape = lambda node:type(node) is list and len(node) == 9 and all(type(item) is int for item in node)
         need(node_shape(receipt['view_node']) and node_shape(receipt['parent_node']) and
              receipt['view_node'] == list(self.view_node) and receipt['parent_node'] == list(self.view_parent_node) and
@@ -1384,7 +1421,7 @@ class Session:
             if name != '.':relative(name)
         need(set(receipt['directories']) == expected_directories,'source-refused')
         for row in receipt['files'].values():
-            need(type(row) is dict and set(row) == {'sha256','mode','bytes','source_node','copy_node'} and
+            need(type(row) is dict and set(row) == {'sha256','mode','bytes','source_node','copy_node'} | ({'source_path'} if self.p0_scope is not None else set()) and
                  type(row['sha256']) is str and re.fullmatch('[0-9a-f]{64}',row['sha256']) and
                  type(row['mode']) is int and type(row['bytes']) is int and
                  node_shape(row['source_node']) and node_shape(row['copy_node']),'source-refused')
@@ -1406,9 +1443,10 @@ class Session:
                     need(relative_name in expected and stat.S_ISREG(node.st_mode) and node.st_nlink == 1
                          and node.st_uid == os.geteuid(),'source-refused')
                     raw,mode,current = read(child,deadline);row = receipt['files'][relative_name]
-                    need(raw == self.sources.raw[relative_name] and digest(raw) == row['sha256'] and
+                    registration = P0_OVERLAY_SOURCE_IDS.get(relative_name,relative_name) if self.p0_scope is not None else relative_name
+                    need((self.p0_scope is None or row['source_path'] == registration) and raw == self.sources.raw[registration] and digest(raw) == row['sha256'] and
                          len(raw) == row['bytes'] and mode == row['mode'] == expected[relative_name]['mode'] and
-                         list(current) == row['copy_node'] and row['source_node'] == list(self.sources.identities[relative_name]),
+                         list(current) == row['copy_node'] and row['source_node'] == list(self.sources.identities[registration]),
                          'source-refused');actual.add(relative_name)
                     need(len(actual) <= 160,'source-refused')
         walk(self.view_root)
@@ -1438,8 +1476,9 @@ class Session:
         local = generator.gi_frame.f_locals
         need(local.get('entered') is True and local.get('modules') is self.source_graph['original'] and
              local.get('root') == self.view_root and local.get('lock_path') == self.view_root/'scripts/ci/integration.lock.json'
-             and local.get('lock_pin') == INITIAL and local.get('deadline') == self.job_deadline
-             and local.get('verification_deadline') == self.job_deadline,'source-refused')
+             and local.get('lock_pin') == INITIAL and local.get('deadline') == (self.p0_scope[1] if self.p0_scope is not None else self.job_deadline)
+             and local.get('verification_deadline') == (self.p0_scope[1] if self.p0_scope is not None else self.job_deadline) and
+             local.get('source_overlay') == (P0_OVERLAY_ROWS if self.p0_scope is not None else None),'source-refused')
         if controller is not None:
             observation = self.native_consumer_observation
             need(type(observation) is tuple and len(observation) == 3 and observation[2] is controller
@@ -1471,8 +1510,9 @@ class Session:
         need(type(controller) is self.source_graph['original']['integration'].Controller,'source-refused')
         native = self.source_graph['original']['native_arm'];module = self.source_graph['original']['integration']
         frame = sys._getframe().f_back
-        callback_code = next(code for code in self.execute.__code__.co_consts if type(code) is types.CodeType and
-                             code.co_qualname == 'Session.execute.<locals>.callback')
+        method = self.execute_p0 if self.p0_scope is not None else self.execute
+        callback_code = next(code for code in method.__code__.co_consts if type(code) is types.CodeType and
+                             code.co_qualname == ('Session.execute_p0.<locals>.callback' if self.p0_scope is not None else 'Session.execute.<locals>.callback'))
         need(frame.f_code is callback_code and frame.f_globals is self.execute.__globals__ and
              frame.f_locals.get('self') is self and frame.f_locals.get('controller') is controller,'source-refused')
         run_frame = None
@@ -1485,7 +1525,7 @@ class Session:
                      and frame.f_locals.get('accepted_commit') == self.sources.grant['source_commit']
                      and run_frame is not None,'source-refused')
                 self.native_consumer_observation = (frame,run_frame,controller);self.controller = controller
-                self.original_context(deadline=self.job_deadline,controller=controller);return
+                self.original_context(deadline=self.p0_scope[1] if self.p0_scope is not None else self.job_deadline,controller=controller);return
             frame = frame.f_back
         raise Refused('source-refused')
 
@@ -1623,6 +1663,156 @@ class Session:
         need(len(self.phase_export_raw) <= FILE_LIMIT,'restage-failed')
         self.phase_export_sha256 = digest(self.phase_export_raw)
         self.result['restage'] = 'PASS'
+
+    def register_p0_entry(self):
+        need(self.p0_scope is not None and self.p0_entry_module is None and
+             self.sources.graph_observation is None,'callback-refused')
+        path,name = 'scripts/install/p0_entry.py','native_install_p0_entry'
+        need(path in self.sources.raw and name not in sys.modules,'callback-refused')
+        module = self.sources.module(name,path)
+        self.sources.graph_namespace(module,path,{path:module},{},{})
+        bridge = self.source_graph['native_preflight']
+        bridge.namespace(module,self.sources.raw[path],self.sources.grant['source_files'][path]['sha256'])
+        need(type(module.run) is types.FunctionType and module.run.__globals__ is vars(module) and
+             module.OWN == path,'callback-refused')
+        self.p0_entry_module = module;sys.modules[name] = module
+
+    def p0_context(self):
+        issuer = sys.modules.get(type(self).__module__)
+        self.sources.class_state(self,'scripts/ci/development/repository_handoff.py',issuer)
+        self.sources.class_state(self.sources,'scripts/ci/development/repository_handoff.py',issuer)
+        scope = self.p0_scope
+        need(type(scope) is tuple and len(scope) == 4 and self.used is True and
+             self.composition == 'installer-preflight','grant-refused')
+        frame = sys._getframe();active = None
+        for _ in range(64):
+            if frame.f_code is self.execute_p0.__func__.__code__ and frame.f_globals is vars(issuer):
+                need(frame.f_locals.get('self') is self and frame.f_locals.get('scope') is scope,'source-refused')
+                active = frame;break
+            frame = frame.f_back
+            if frame is None:break
+        need(active is not None,'source-refused')
+        entry,end,image,packages_raw = scope
+        check(end,self.cancelled);self.sources.guard(end,self.cancelled)
+        lock = decode(self.sources.raw['scripts/ci/integration.lock.json'])
+        lock = {**lock,'source_files':selected_view_rows(self.sources)}
+        return {'entry':entry,'end':end,'image':image,'packages_raw':packages_raw,
+                'inputs_raw':self.sources.raw['scripts/ci/inputs.lock.json'],'lock':lock,
+                'source_commit':self.sources.grant['source_commit']}
+
+    def p0_controller(self, controller):
+        self.p0_context()
+        modules = self.source_graph['original'];native = modules['native_arm'];integration = modules['integration']
+        need(type(controller) is integration.Controller and controller.image == self.p0_scope[2] and
+             controller.commit == self.sources.grant['source_commit'],'source-refused')
+        main_frame = run_frame = None;frame = sys._getframe()
+        for _ in range(64):
+            if frame.f_code is integration.Controller.run.__code__ and frame.f_globals is vars(integration):
+                need(frame.f_locals.get('self') is controller and frame.f_locals.get('installer_p0_owner') is self,'source-refused');run_frame = frame
+            if frame.f_code is native.main.__code__ and frame.f_globals is vars(native):
+                need(frame.f_locals.get('controller') is controller and frame.f_locals.get('installer_p0_owner') is self and
+                     frame.f_locals.get('accepted_commit') == controller.commit,'source-refused');main_frame = frame
+            frame = frame.f_back
+            if frame is None:break
+        need(main_frame is not None and run_frame is not None,'source-refused')
+
+    def p0_complete(self, controller):
+        self.p0_controller(controller)
+        need(controller is self.controller and self.p0_result is not None and
+             controller.cancelled is False and not self.source_graph['original']['integration'].CANCEL_REQUESTED and
+             controller.installed is None and controller.installed_owned is None,'source-refused')
+        controller.report.update(status='PASS_P0_ONLY',execution_scope='installer-P0',stages={'native-install-preflight':self.p0_result})
+        return True
+
+    def execute_p0(self, argv, consumer, runtime_contract, *, entry, image, packages_raw):
+        """Independent actual owner/main/run stage, one original60 budget."""
+        need(self.used is False and self.composition == 'installer-preflight' and
+             type(entry) in (int,float) and math.isfinite(entry) and
+             type(image) is str and re.fullmatch('sha256:[0-9a-f]{64}',image) and
+             type(packages_raw) is bytes and len(packages_raw) <= 1024**2,'grant-refused')
+        end = min(self.job_deadline,entry+60);check(end,self.cancelled)
+        need(entry <= time.monotonic() < end and
+             os.getuid() == os.geteuid() > 0 and os.getgid() == os.getegid() > 0 and
+             threading.current_thread() is threading.main_thread(),'grant-refused')
+        need(type(argv) is list and 0 < len(argv) <= 64 and argv[0] == 'installer-P0' and
+             all(type(a) is str and len(a) <= 4096 and '\0' not in a for a in argv) and
+             type(runtime_contract) is dict and set(runtime_contract) == {'cli_sha256','endpoint_identity','env'},'grant-refused')
+        grant = self.sources.grant
+        need(grant['original_view']['purpose'] == 'P0-157-held-2-overlay-copy-view' and
+             digest(encoded({'argv':argv,'output':str(self.output)})) == grant['initial_invocation_sha256'] and
+             digest(encoded(runtime_contract)) == grant['actor_contract_sha256'],'grant-refused')
+        need(all(os.environ.get(env) == grant[key] for env,key in
+             (('GITHUB_SHA','source_commit'),('GITHUB_RUN_ID','run_id'),('GITHUB_RUN_ATTEMPT','run_attempt'))),'grant-refused')
+        self.sources.callback('existing_consumers',consumer,end)
+        scope = (entry,end,image,packages_raw)
+        self.p0_scope = scope;self.end = self.work_end = end;self.used = True
+        first = None;cancelled = uncertain = False;result = None
+        try:
+            view_root = self.view_plan(argv)
+            need(not self.output.exists(),'grant-refused');self.output.mkdir(mode=0o700,parents=False)
+            self.private = Path(tempfile.mkdtemp(prefix='p0-',dir=self.output));self.private_node = identity(self.private.lstat())
+            root = self.sources.root;entry_path = PREFIXES['runtime']+'/entry.py'
+            loader = self.sources.module('root_handoff_entry',entry_path)
+            maps = grant['maps']
+            modules,_ = loader.authenticated(root/maps['runtime']['path'],maps['runtime']['sha256'],deadline=end,source_root=root/PREFIXES['runtime'])
+            collector,_ = loader.dependency_entry(root,PREFIXES['collector']+'/entry.py',grant['source_files'][PREFIXES['collector']+'/entry.py']['sha256'],maps['collector']['path'],maps['collector']['sha256'],deadline=end)
+            phase,_ = loader.dependency_entry(root,PREFIXES['phase']+'/entry.py',grant['source_files'][PREFIXES['phase']+'/entry.py']['sha256'],maps['phase']['path'],maps['phase']['sha256'],deadline=end,phase=True)
+            self.source_graph = {'entry':loader,'runtime':modules,'collector':collector,'phase':phase,'original':{},'original_aliases':{}}
+            self.prepare_view(view_root)
+            self.register_native_preflight();self.register_p0_entry()
+            receiver = self.sources.module('native_install_receiver','scripts/install/native_arm_trial.py')
+            need(digest(packages_raw) == receiver.BASE_SHA and
+                 digest(self.sources.raw['scripts/ci/inputs.lock.json']) == receiver.INPUTS_SHA,'source-refused')
+            self.sources.source_graph(self,capture=True)
+            def callback(controller):
+                self.observe_native_consumer(controller)
+                self.sources.callback('existing_consumers',consumer,end)
+                value = consumer(controller)
+                self.sources.callback('existing_consumers',consumer,end)
+                need(type(value) is dict and value.get('status') == 'PASS_P0_ONLY' and value.get('matrix') == value.get('ABI') == 'NOT_RUN','source-refused')
+                self.p0_result = value
+            self.original_scope = loader.original_modules(view_root,view_root/'scripts/ci/integration.lock.json',INITIAL,deadline=end,verification_deadline=end,source_overlay=P0_OVERLAY_ROWS)
+            with self.original_scope as original:
+                self.source_graph['original'] = original
+                self.source_graph['original_aliases'] = {'repository_projection.inventory':original['repository_projection'].inventory,'desktop_projection.policy':original['desktop_projection'].policy}
+                self.sources.source_graph(self,capture=True)
+                code = original['native_arm'].main(argv,integration_consumers=callback,installer_p0_owner=self)
+                self.result['initial_exit_code'] = code
+                need(type(code) is int and code == 0 and self.p0_result is not None,'source-refused')
+                check(end,self.cancelled);result = dict(self.p0_result)
+        except BaseException as error:
+            first = error;cancelled = isinstance(error,KeyboardInterrupt)
+            try:
+                markers = BaseException.__getattribute__(error,'__dict__')
+                if type(markers) is dict:
+                    cancelled |= markers.get('native_preflight_cancelled') is True
+                    uncertain |= markers.get('native_preflight_cleanup_uncertain') is True
+            except BaseException as error:
+                cancelled |= isinstance(error,KeyboardInterrupt);uncertain = True
+        finally:
+            for name,module in (('native_install_p0_entry',self.p0_entry_module),('native_install_preflight',self.source_graph.get('native_preflight'))):
+                try:
+                    registered = sys.modules.get(name)
+                    if registered is module and module is not None:del sys.modules[name]
+                    elif registered is not None:raise Refused('cleanup-failed')
+                except BaseException as error:
+                    cancelled |= isinstance(error,KeyboardInterrupt);uncertain = True
+                    if first is None:first = error
+            for path,node in ((self.view_root,self.view_node),(self.private,self.private_node)):
+                if path is not None:
+                    try:remove_private(path,node,end)
+                    except BaseException as error:
+                        cancelled |= isinstance(error,KeyboardInterrupt);uncertain = True
+                        if first is None:first = error
+            try:check(end,self.cancelled)
+            except BaseException as error:
+                cancelled |= isinstance(error,KeyboardInterrupt)
+                if first is None:first = error
+        if first is not None:
+            BaseException.__setattr__(first,'native_preflight_cancelled',cancelled)
+            BaseException.__setattr__(first,'native_preflight_cleanup_uncertain',uncertain)
+            raise first
+        return result
 
     def execute(self, argv, callbacks, runtime_contract):
         """Explicit root contract required; no default native executable callback."""
