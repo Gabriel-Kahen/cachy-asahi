@@ -18,7 +18,7 @@ ISSUER={
     'job_name':'observe','runner_label':'ubuntu-24.04-arm',
     'argv':['/usr/bin/python3.12','-I','-B','-S','-'],
     'operation':'ONE_READ_ONLY_HOSTED_ARM_TOOLCHAIN_OBSERVATION',
-    'gcc_directory':'/usr/lib/gcc/aarch64-linux-gnu/13','seconds':60,
+    'gcc_directory':'CURRENT_DEFAULT_GCC','seconds':60,
     'compile_allowed':False,'GPG_allowed':False,'probe_allowed':False,
     'signing_allowed':False,'system_mutation_allowed':False}
 
@@ -51,6 +51,9 @@ class DiagnosticIO:
     def inventory(self,path,end):
         self.operation='inventory';self.path=str(path)
         result=self.io.inventory(path,end);self.completed_inventories+=1;return result
+    def gcc_directories(self,end):
+        self.operation='inventory';self.path='/usr/lib/gcc/aarch64-linux-gnu'
+        result=self.io.gcc_directories(end);self.completed_inventories+=1;return result
     def charge(self,end):
         self.operation='charge';self.path=None;return self.io.charge(end)
     def snapshot(self):
@@ -155,7 +158,8 @@ def run(passive,provenance,retention,*,entry,configuration,issuer,source_pins,
         observation=passive.observe_candidate(io,gcc_directory=configuration['gcc_directory'],
                                               context=context,endpoint=entry+60)
         live();phase='provenance'
-        versions=provenance.capture(io,endpoint=entry+60,source_rows=source_pins)
+        versions=provenance.capture(io,endpoint=entry+60,source_rows=source_pins,
+            gcc_directory=observation['candidate']['gcc_directory'])
         live()
         payload=dict(schema_version=1,purpose=PURPOSE,source_pins=source_pins,
             configuration=configuration,context=context,observation=observation,provenance=versions,

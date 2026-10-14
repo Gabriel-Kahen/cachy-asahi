@@ -177,6 +177,76 @@ def linkage(raw):
 
 
 class PassiveIO(NativeIO):
+    def gcc_directories(self,end):
+        """Shallow complete GCC version directories; no child contents or execution."""
+        requested=Path('/usr/lib/gcc/aarch64-linux-gnu')
+        canonical,aliases,ancestors=self.resolve(requested,end)
+        need(canonical==requested,'gcc-discovery-canonical')
+        before=self.metadata(canonical,end)
+        need(stat.S_ISDIR(before.st_mode) and before.st_uid==before.st_gid==0
+             and not before.st_mode&0o022,'gcc-discovery-root')
+        handles=[];held_ancestors=[];children=[];error=None;result=None
+        def hold(path,expected,*,parentfd=None,name=None):
+            self.charge(end)
+            fd=os.open(path if parentfd is None else name,
+                       os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW|os.O_NONBLOCK,
+                       **({} if parentfd is None else {'dir_fd':parentfd}))
+            handles.append((fd,path,expected,parentfd,name))
+            need(identity(os.fstat(fd))==expected,'gcc-discovery-open-drift')
+            return fd
+        try:
+            for item in ancestors:
+                path=Path(item['path'])
+                fd=hold(path,item['identity'])
+                held_ancestors.append((path,fd,item['identity']))
+            expected=identity(before);rootfd=hold(canonical,expected)
+            self.charge(end);names=os.listdir(rootfd)
+            need(len(names)<=32 and len(names)==len(set(names)) and all(type(name) is str and
+                 re.fullmatch(r'[1-9][0-9]{0,2}(?:\.[0-9]{1,3}){0,2}',name) for name in names),
+                 'gcc-discovery-version-names')
+            names=sorted(names)
+            for name in names:
+                path=canonical/name;path_ok(path);self.charge(end)
+                info=os.stat(name,dir_fd=rootfd,follow_symlinks=False)
+                need(stat.S_ISDIR(info.st_mode) and info.st_uid==info.st_gid==0
+                     and not info.st_mode&0o022,'gcc-discovery-version-directory')
+                child_identity=identity(info)
+                fd=hold(path,child_identity,parentfd=rootfd,name=name)
+                children.append((path,fd,child_identity,name))
+            self.charge(end)
+            need(names==sorted(os.listdir(rootfd)) and expected==identity(os.fstat(rootfd))
+                 ==identity(self.metadata(canonical,end)),'gcc-discovery-root-drift')
+            for path,fd,child_identity,name in children:
+                self.charge(end)
+                need(child_identity==identity(os.fstat(fd))==identity(os.stat(name,dir_fd=rootfd,
+                     follow_symlinks=False)),'gcc-discovery-version-drift')
+            for path,fd,ancestor_identity in held_ancestors:
+                need(ancestor_identity==identity(os.fstat(fd))==identity(self.metadata(path,end)),
+                     'gcc-discovery-ancestor-drift')
+            for item in aliases:
+                need(item['identity']==identity(self.metadata(Path(item['path']),end)) and
+                     os.readlink(item['path'])==item['target'],'gcc-discovery-alias-drift')
+            result={'canonical':str(canonical),'aliases':aliases,'ancestors':ancestors,'identity':expected,
+                    'directories':[{'path':str(path),'identity':child_identity}
+                                   for path,fd,child_identity,name in children]}
+            live(end)
+        except BaseException as fault:error=fault
+        finally:
+            for fd,path,expected,parentfd,name in reversed(handles):
+                try:
+                    # Cleanup still attempts held ownership after deadline; no
+                    # late observation can be accepted. Never retry an FD number.
+                    named=os.stat(path if parentfd is None else name,
+                                  follow_symlinks=False,**({} if parentfd is None else {'dir_fd':parentfd}))
+                    need(expected==identity(os.fstat(fd))==identity(named),'gcc-discovery-close-drift')
+                    os.close(fd);live(end)
+                except BaseException as fault:
+                    cancel=lambda e:isinstance(e,(KeyboardInterrupt,Cancelled))
+                    if error is None or (cancel(fault) and not cancel(error)):error=fault
+        if error is not None:raise error
+        live(end)
+        return result
+
     def inventory(self, requested, end):
         """Held root-owned directory tree; never follow interior directory aliases."""
         try:canonical, aliases, ancestors = self.resolve(requested, end)
@@ -250,8 +320,7 @@ class PassiveIO(NativeIO):
 def observe_candidate(io, *, gcc_directory, context, endpoint):
     """Return metadata candidates. Root selects tools and driver/loader policy later."""
     live(endpoint)
-    need(type(gcc_directory) is str and re.fullmatch(
-         r'/usr/lib/gcc/aarch64-linux-gnu/[0-9]+(?:\.[0-9]+)*',gcc_directory),'gcc-directory')
+    need(type(gcc_directory) is str and gcc_directory=='CURRENT_DEFAULT_GCC','gcc-directory-policy')
     need(type(context) is dict and set(context)=={'source_commit','workflow_commit','run_id',
          'run_attempt','machine','uid'} and context['machine']=='aarch64'
          and type(context['uid']) is int and context['uid']>0
@@ -293,10 +362,44 @@ def observe_candidate(io, *, gcc_directory, context, endpoint):
             elif kind=='HEADER':headers.add(canonical)
         safe={k:v for k,v in item.items() if k!='body'};requests[path]=safe
         return safe
+    live(endpoint);gcc_discovery=io.gcc_directories(endpoint)
+    root='/usr/lib/gcc/aarch64-linux-gnu'
+    need(type(gcc_discovery) is dict and set(gcc_discovery)=={'canonical','aliases','ancestors','identity',
+         'directories'} and gcc_discovery['canonical']==root and type(gcc_discovery['directories']) is list
+         and len(gcc_discovery['directories'])<=32 and type(gcc_discovery['aliases']) is list
+         and type(gcc_discovery['ancestors']) is list,'gcc-discovery-shape')
+    paths=[]
+    for item in [{'path':root,'identity':gcc_discovery['identity']}]+gcc_discovery['directories']:
+        need(type(item) is dict and set(item)=={'path','identity'} and type(item['path']) is str and
+             type(item['identity']) is list and len(item['identity'])==len(FIELDS) and
+             all(type(value) is int for value in item['identity']) and stat.S_ISDIR(item['identity'][2])
+             and item['identity'][3]==item['identity'][4]==0 and not item['identity'][2]&0o022,
+             'gcc-discovery-directory-row')
+        if item['path']!=root:
+            need(str(Path(item['path']))==item['path'] and Path(item['path']).parent==Path(root) and re.fullmatch(
+                 r'[1-9][0-9]{0,2}(?:\.[0-9]{1,3}){0,2}',Path(item['path']).name),
+                 'gcc-discovery-version-path')
+            paths.append(item['path'])
+    need(paths==sorted(set(paths)) and len(paths)==len(gcc_discovery['directories']),
+         'gcc-discovery-complete-order')
+    driver=sample('/usr/bin/gcc','ELF')
+    match=re.fullmatch(r'/usr/bin/(?:aarch64-linux-gnu-)?gcc-([1-9][0-9]{0,2})',driver['canonical'])
+    need(match is not None,'gcc-default-driver-version')
+    major=match.group(1)
+    matches=[path for path in paths if Path(path).name.split('.')[0]==major]
+    need(len(matches)==1,'gcc-default-version-unique')
+    gcc_directory=matches[0]
     for role,path in {'gcc':'/usr/bin/gcc','as':'/usr/bin/as','ld':'/usr/bin/ld',
                       'readelf':'/usr/bin/readelf','objdump':'/usr/bin/objdump',
                       'python_candidate':'/usr/bin/python3','cc1':gcc_directory+'/cc1'}.items():
         item=sample(path,'ELF');need(item['row']['mode']==0o755,'tool-mode');roles[role]=item['canonical']
+    chosen=next(item for item in gcc_discovery['directories'] if item['path']==gcc_directory)
+    for witness in gcc_discovery['ancestors']+[{'path':root,'identity':gcc_discovery['identity']},chosen]:
+        need(type(witness) is dict and set(witness)=={'path','identity'},'gcc-discovery-ancestor-row')
+        helper_ancestors=[item for item in requests[gcc_directory+'/cc1']['ancestors']
+                          if item['path']==witness['path']]
+        need(len(helper_ancestors)==1 and helper_ancestors[0]['identity']==witness['identity'],
+             'gcc-default-helper-ancestor')
     for role in ('collect2','lto-wrapper'):
         item=sample(gcc_directory+'/'+role,'ELF',False)
         if item is not None:need(item['row']['mode']==0o755,'tool-mode')
@@ -341,8 +444,9 @@ def observe_candidate(io, *, gcc_directory, context, endpoint):
                  'final-file-drift')
     for name,item in inventories.items():
         live(endpoint);need(io.inventory(name,endpoint)==item,'final-inventory-drift')
+    live(endpoint);need(io.gcc_directories(endpoint)==gcc_discovery,'final-gcc-discovery-drift')
     candidate={'schema_version':1,'purpose':'NATIVE_SIGNER_COMPILE_TOOLCHAIN_CANDIDATE_V1',
-               'gcc_directory':gcc_directory,'roles':roles,'files':rows,'headers':sorted(headers),
+               'gcc_directory':gcc_directory,'gcc_discovery':gcc_discovery,'roles':roles,'files':rows,'headers':sorted(headers),
                'inventories':inventories,'selected':False,'execution_grant_issued':False}
     evidence={'schema_version':1,'status':'OBSERVED_CANDIDATE_NOT_SELECTED','context':dict(context),
               'observations':observed,'requests':requests,'deadline_at':endpoint,'file_bytes':total,

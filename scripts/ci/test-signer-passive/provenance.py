@@ -10,10 +10,24 @@ import time
 
 FIELDS=('st_dev','st_ino','st_mode','st_uid','st_gid','st_nlink','st_size','st_mtime_ns','st_ctime_ns')
 STDLIB='/usr/lib/python3.12'
-REQUIRED_PACKAGES={'gcc','gcc-13','binutils','python3.12','python3.12-minimal',
-                   'libpython3.12-stdlib','libc6','linux-libc-dev','libc6-dev'}
-ADDITIONAL_PACKAGES={'gcc-13-base','gcc-13-aarch64-linux-gnu','cpp-13','cpp-13-aarch64-linux-gnu',
-                     'binutils-aarch64-linux-gnu','libgcc-13-dev','libstdc++-13-dev','libpython3.12-minimal'}
+BASE_PACKAGES={'gcc','binutils','python3.12','python3.12-minimal',
+               'libpython3.12-stdlib','libc6','linux-libc-dev','libc6-dev'}
+BASE_OPTIONAL={'binutils-aarch64-linux-gnu','libpython3.12-minimal'}
+GCC_DIRECTORY=r'/usr/lib/gcc/aarch64-linux-gnu/([1-9][0-9]{0,2})(?:\.[0-9]{1,3}){0,2}'
+
+def gcc_major(directory):
+    need(type(directory) is str,'concrete-gcc-directory')
+    match=re.fullmatch(GCC_DIRECTORY,directory)
+    need(match is not None,'concrete-gcc-directory')
+    return match.group(1)
+
+def package_sets(major):
+    need(type(major) is str and re.fullmatch('[1-9][0-9]{0,2}',major),'selected-gcc-major')
+    required=BASE_PACKAGES|{'gcc-'+major}
+    family={'gcc-'+major,'gcc-'+major+'-base','gcc-'+major+'-aarch64-linux-gnu',
+            'cpp-'+major,'cpp-'+major+'-aarch64-linux-gnu',
+            'libgcc-'+major+'-dev','libstdc++-'+major+'-dev'}
+    return required,BASE_OPTIONAL|(family-required),family
 
 class Refused(ValueError):pass
 
@@ -91,7 +105,8 @@ class MetadataReader:
         return result
 
 
-def package_records(raw):
+def package_records(raw,*,gcc_major):
+    required,additional,family=package_sets(gcc_major)
     need(type(raw) is bytes and 0<len(raw)<=16*1024**2 and b'\0' not in raw,'package-status-budget')
     records={};count=0
     for stanza in raw.split(b'\n\n'):
@@ -106,22 +121,22 @@ def package_records(raw):
             need(key not in fields and re.fullmatch(b'[A-Za-z][A-Za-z0-9-]{0,63}',key),'package-duplicate-field')
             fields[key]=value;last=key
         name=fields.get(b'Package',b'').decode('ascii')
-        if name not in REQUIRED_PACKAGES|ADDITIONAL_PACKAGES:continue
+        if name not in required|additional:continue
         need(name not in records,'package-duplicate-record')
         status=fields.get(b'Status',b'').decode('ascii');arch=fields.get(b'Architecture',b'').decode('ascii')
         version=fields.get(b'Version',b'').decode('ascii')
         need(status=='install ok installed' and arch in ('arm64','all') and re.fullmatch('[0-9A-Za-z.+:~_-]{1,128}',version),
              'installed-package-version-architecture')
-        need(name not in REQUIRED_PACKAGES or arch=='arm64','required-native-package-architecture')
+        need(name not in required or arch=='arm64','required-native-package-architecture')
         records[name]={'version':version,'architecture':arch,'status':status,
                        'stanza_bytes':len(stanza),'stanza_sha256':sha(stanza)}
-    need(REQUIRED_PACKAGES<=set(records),'missing-required-package-version')
-    gcc=records['gcc-13']['version'].split(':')[-1]
-    need(re.match(r'^13(?:\.|-)',gcc),'gcc13-package-version')
+    need(required<=set(records),'missing-required-package-version')
+    need(all(re.match(r'^'+re.escape(gcc_major)+r'(?:\.|-)',records[name]['version'].split(':')[-1])
+             for name in family&set(records)),'selected-gcc-package-version-family')
     return dict(sorted(records.items()))
 
 
-def capture(io,*,endpoint,source_rows,host=None,runtime=None,modules=None,reader=None,clock=None):
+def capture(io,*,endpoint,source_rows,gcc_directory,host=None,runtime=None,modules=None,reader=None,clock=None):
     """Use the already trusted running runtime and the SAME observation IO/frame.
 
     sys.modules origins and dpkg records are observed metadata, not proof of
@@ -139,7 +154,7 @@ def capture(io,*,endpoint,source_rows,host=None,runtime=None,modules=None,reader
     def live():
         need(type(endpoint) in (int,float) and math.isfinite(endpoint) and clock()<endpoint,
              'original-observation-deadline')
-    live()
+    live();major=gcc_major(gcc_directory)
     need(type(io.nodes) is int and 0<=io.nodes<=65536 and type(io.bytes_read) is int
          and 0<=io.bytes_read<=512*1024**2,'shared-passive-counters')
     need(type(source_rows) is dict and 0<len(source_rows)<=32,'observer-Source-row-count')
@@ -199,7 +214,7 @@ def capture(io,*,endpoint,source_rows,host=None,runtime=None,modules=None,reader
     # Kernel/proc and dpkg observations share the same counters/cutoff as tools/headers.
     proc=reader.read('/proc/version',io,endpoint,clock)
     proc_text=proc.decode('utf-8');need(proc_text.startswith('Linux version '+kernel['release']+' '),'kernel-release-proc-version')
-    status=reader.read('/var/lib/dpkg/status',io,endpoint,clock);packages=package_records(status)
+    status=reader.read('/var/lib/dpkg/status',io,endpoint,clock);packages=package_records(status,gcc_major=major)
     expected_python='.'.join(str(v) for v in version_info[:3])
     need(all(packages[name]['version'].split(':')[-1].startswith(expected_python+'-') for name in (
          'python3.12','python3.12-minimal','libpython3.12-stdlib')),'runtime-package-version-correspondence')

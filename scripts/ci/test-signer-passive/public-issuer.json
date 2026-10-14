@@ -9,7 +9,7 @@
   ],
   "branch": "codex/signer-native-passive-observation-20261014",
   "compile_allowed": false,
-  "gcc_directory": "/usr/lib/gcc/aarch64-linux-gnu/13",
+  "gcc_directory": "CURRENT_DEFAULT_GCC",
   "job_name": "observe",
   "operation": "ONE_READ_ONLY_HOSTED_ARM_TOOLCHAIN_OBSERVATION",
   "probe_allowed": false,

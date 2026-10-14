@@ -131,12 +131,44 @@ def inventory_shape(item):
     return result
 
 
+def validate_gcc_discovery(candidate,requests):
+    root='/usr/lib/gcc/aarch64-linux-gnu';item=candidate['gcc_discovery']
+    need(type(item) is dict and set(item)=={'canonical','aliases','ancestors','identity','directories'}
+         and item['canonical']==root,'complete-gcc-discovery')
+    identity(item['identity'],'directory');aliases(item['aliases']);ancestors(item['ancestors'])
+    required={str(p) for p in Path(root).parents}
+    need(required<={a['path'] for a in item['ancestors']},'gcc-discovery-ancestor-coverage')
+    directories=item['directories']
+    need(type(directories) is list and 0<len(directories)<=32,'gcc-discovery-directory-bound')
+    names=[]
+    for row in directories:
+        need(type(row) is dict and set(row)=={'path','identity'},'gcc-discovery-directory-shape')
+        name=path(row['path']);gcc_major(name)
+        need(str(Path(name).parent)==root,'gcc-discovery-immediate-directory')
+        identity(row['identity'],'directory');names.append(name)
+    need(names==sorted(set(names)),'gcc-discovery-sorted-unique-directories')
+    request=requests.get('/usr/bin/gcc');target=candidate['roles']['gcc']
+    need(type(target) is str and request is not None and request['canonical']==target,'default-gcc-driver-binding')
+    match=re.fullmatch(r'/usr/bin/(?:aarch64-linux-gnu-)?gcc-([1-9][0-9]{0,2})',target)
+    need(match is not None,'default-gcc-driver-canonical-major')
+    selected=[name for name in names if gcc_major(name)==match.group(1)]
+    need(len(selected)==1 and candidate['gcc_directory']==selected[0],'unique-default-gcc-directory')
+    chosen=next(row['identity'] for row in directories if row['path']==selected[0])
+    # Bind this shallow directory observation to the existing held cc1 witness.
+    cc1=requests.get(selected[0]+'/cc1')
+    need(cc1 is not None,'gcc-discovery-cc1-witness')
+    held={a['path']:a['identity'] for a in cc1['ancestors']}
+    need(held.get(selected[0])==chosen and held.get(root)==item['identity']
+         and all(held.get(a['path'])==a['identity'] for a in item['ancestors']),
+         'gcc-discovery-cc1-directory-identity')
+
+
 def validate_observation(observation):
     need(type(observation) is dict and set(observation) == {'candidate', 'evidence'}, 'complete-observation-shape')
     candidate = observation['candidate']
     evidence = observation['evidence']
-    need(type(candidate) is dict and set(candidate) == {'schema_version', 'purpose', 'gcc_directory', 'roles', 'files', 'headers', 'inventories', 'selected', 'execution_grant_issued'} and (type(candidate['schema_version']) is int) and (candidate['schema_version'] == 1) and (candidate['purpose'] == 'NATIVE_SIGNER_COMPILE_TOOLCHAIN_CANDIDATE_V1') and (candidate['selected'] is False) and (candidate['execution_grant_issued'] is False), 'unselected-observation')
-    need(type(candidate['gcc_directory']) is str and re.fullmatch('/usr/lib/gcc/aarch64-linux-gnu/[0-9]+(?:\\.[0-9]+)*', candidate['gcc_directory']), 'Root-gcc-directory')
+    need(type(candidate) is dict and set(candidate) == {'schema_version', 'purpose', 'gcc_directory', 'gcc_discovery', 'roles', 'files', 'headers', 'inventories', 'selected', 'execution_grant_issued'} and (type(candidate['schema_version']) is int) and (candidate['schema_version'] == 1) and (candidate['purpose'] == 'NATIVE_SIGNER_COMPILE_TOOLCHAIN_CANDIDATE_V1') and (candidate['selected'] is False) and (candidate['execution_grant_issued'] is False), 'unselected-observation')
+    gcc_major(candidate['gcc_directory'])
     rows = candidate['files']
     need(type(rows) is dict and 0 < len(rows) <= 4096, 'snapshot-file-count')
     for name, row in rows.items():
@@ -192,6 +224,7 @@ def validate_observation(observation):
             need(role in ('collect2', 'lto-wrapper', 'specs') and request is None, 'negative-role-witness')
         else:
             need(request is not None and request['canonical'] == target and (target in rows) and (rows[target]['kind'] == ('DATA' if role == 'specs' else 'ELF')) and (role == 'specs' or rows[target]['mode'] == 493), 'role-request-binding')
+    validate_gcc_discovery(candidate,requests)
     roots = {gcc + '/include', gcc + '/include-fixed', gcc + '/plugin', '/usr/include/aarch64-linux-gnu/asm', '/usr/include/linux', '/usr/include/asm-generic'}
     need(type(candidate['inventories']) is dict and set(candidate['inventories']) == roots, 'complete-inventory-roots')
     for root, item in candidate['inventories'].items():
@@ -209,10 +242,10 @@ ISSUER = {'schema_version':1,'purpose':'SIGNER_NATIVE_PASSIVE_PUBLIC_ISSUER_V1',
     'repository':'Gabriel-Kahen/cachy-asahi','branch':'codex/signer-native-passive-observation-20261014',
     'workflow':'.github/workflows/native-arm-runner-observation.yml','job_name':'observe',
     'runner_label':'ubuntu-24.04-arm','argv':['/usr/bin/python3.12','-I','-B','-S','-'],
-    'gcc_directory':'/usr/lib/gcc/aarch64-linux-gnu/13','seconds':60,
+    'gcc_directory':'CURRENT_DEFAULT_GCC','seconds':60,
     'operation':'ONE_READ_ONLY_HOSTED_ARM_TOOLCHAIN_OBSERVATION','compile_allowed':False,
     'GPG_allowed':False,'probe_allowed':False,'signing_allowed':False,'system_mutation_allowed':False}
-ISSUER_SHA = '9b93d7783ac99374b9b35596a79a9f8d5fae7dc6e7413efb720191db4ca2dc23'
+ISSUER_SHA = 'b3b55b55ad887acd6fc9cea66bf006afd0e2b9c643b2b4ac9bf9fc56d7d89a16'
 SOURCE_NAMES = {'passive.py','observation_entry.py','provenance.py','retention.py','adoption_entry.py'}
 OBSERVER_STEP = 'Observe and retain Source-pinned read-only ARM toolchain'
 
@@ -224,7 +257,7 @@ def source_rows(rows):
              and type(row['bytes']) is int and 0<row['bytes']<=1024**2
              and type(row['mode']) is int and row['mode']==0o644 and sha(row['sha256']),'Source-row')
     need(sum(r['bytes'] for r in rows.values())<=2*1024**2,'Source-total-budget')
-    need(rows['passive.py']['sha256']=='790e7dbf6d0b7d60c4eec82d786bb0291120570c6995c54200301b5bfaf7e210'
+    need(rows['passive.py']['sha256']=='8b34901a08e1ee5fa195da76ca0abf7a8a1db12dbb58d852a012855ebbb2a859'
          and rows['observation_entry.py']['sha256']=='540db1ab5a877fd2486673e86d2a1216c036dd9d8bec3953f44f467ee4966071',
          'literal-inherited-Source')
 
@@ -310,7 +343,7 @@ def _validate_root_result(records, expectation, job, artifact_files):
          'authenticated-payload-context')
     validate_artifacts(artifact_files,records,raw,final_raw,candidate,final,expectation)
     c,e=validate_observation(candidate['observation'])
-    need(c['gcc_directory']==configuration['gcc_directory'] and canonical(e['context'])==canonical(ctx)
+    need(configuration['gcc_directory']=='CURRENT_DEFAULT_GCC' and canonical(e['context'])==canonical(ctx)
          and type(e['deadline_at']) is type(end) and e['deadline_at']==end,'original-observation-binding')
     validate_provenance(candidate['provenance'],candidate['source_pins'],candidate['observation'])
     return {'status':'ROOT_VALIDATED_PASSIVE_DATA_ONLY','candidate_sha256':digest(raw),
@@ -347,10 +380,24 @@ def validate_artifacts(files,records,raw,final_raw,candidate,final,expectation):
          and math.isfinite(completion['ended']) and final['ended']<=completion['ended']<candidate['deadline_at'],
          'retention-original-frame')
 
-REQUIRED_PACKAGES={'gcc','gcc-13','binutils','python3.12','python3.12-minimal','libpython3.12-stdlib',
-                   'libc6','linux-libc-dev','libc6-dev'}
-OPTIONAL_PACKAGES={'gcc-13-base','gcc-13-aarch64-linux-gnu','cpp-13','cpp-13-aarch64-linux-gnu',
-                   'binutils-aarch64-linux-gnu','libgcc-13-dev','libstdc++-13-dev','libpython3.12-minimal'}
+BASE_PACKAGES={'gcc','binutils','python3.12','python3.12-minimal',
+               'libpython3.12-stdlib','libc6','linux-libc-dev','libc6-dev'}
+BASE_OPTIONAL={'binutils-aarch64-linux-gnu','libpython3.12-minimal'}
+GCC_DIRECTORY=r'/usr/lib/gcc/aarch64-linux-gnu/([1-9][0-9]{0,2})(?:\.[0-9]{1,3}){0,2}'
+
+def gcc_major(directory):
+    need(type(directory) is str,'concrete-gcc-directory')
+    match=re.fullmatch(GCC_DIRECTORY,directory)
+    need(match is not None,'concrete-gcc-directory')
+    return match.group(1)
+
+def package_sets(major):
+    need(type(major) is str and re.fullmatch('[1-9][0-9]{0,2}',major),'selected-gcc-major')
+    required=BASE_PACKAGES|{'gcc-'+major}
+    family={'gcc-'+major,'gcc-'+major+'-base','gcc-'+major+'-aarch64-linux-gnu',
+            'cpp-'+major,'cpp-'+major+'-aarch64-linux-gnu',
+            'libgcc-'+major+'-dev','libstdc++-'+major+'-dev'}
+    return required,BASE_OPTIONAL|(family-required),family
 
 def text(value,bound=4096):
     return type(value) is str and 0<len(value)<=bound and '\0' not in value and value!='UNKNOWN'
@@ -438,17 +485,20 @@ def validate_provenance(provenance,source_pins,observation):
     status=d['status_file'];packages=d['packages']
     need(type(status) is dict and set(status)=={'bytes','sha256'} and type(status['bytes']) is int
          and 0<status['bytes']<=32*1024**2 and sha(status['sha256']),'dpkg-status-file')
-    need(type(packages) is dict and REQUIRED_PACKAGES<=set(packages)<=REQUIRED_PACKAGES|OPTIONAL_PACKAGES,
+    required,optional,family=package_sets(gcc_major(observation['candidate']['gcc_directory']))
+    need(type(packages) is dict and required<=set(packages)<=required|optional,
          'complete-selected-package-records')
     for name,row in packages.items():
         need(type(row) is dict and set(row)=={'version','architecture','status','stanza_sha256','stanza_bytes'}
              and text(row['version'],256) and re.fullmatch('[A-Za-z0-9.+:~_-]+',row['version'])
-             and (row['architecture']=='arm64' if name in REQUIRED_PACKAGES else row['architecture'] in ('arm64','all')),
+             and (row['architecture']=='arm64' if name in required else row['architecture'] in ('arm64','all')),
              'package-version-architecture')
         need(row['status']=='install ok installed' and sha(row['stanza_sha256'])
              and type(row['stanza_bytes']) is int and 0<row['stanza_bytes']<=65536,'installed-package-stanza')
     need(sum(row['stanza_bytes'] for row in packages.values())<=status['bytes'],'dpkg-status-stanza-budget')
-    need(re.match(r'^13(?:\.|-)',packages['gcc-13']['version'].split(':')[-1]),'gcc13-installed-record')
+    major=gcc_major(observation['candidate']['gcc_directory'])
+    need(all(re.match(r'^'+re.escape(major)+r'(?:\.|-)',packages[name]['version'].split(':')[-1])
+             for name in family&set(packages)),'selected-gcc-installed-family')
     version='.'.join(str(v) for v in info[:3])
     need(all(packages[name]['version'].split(':')[-1].startswith(version+'-') for name in
          ('python3.12','python3.12-minimal','libpython3.12-stdlib')),'Python-installed-record-correspondence')

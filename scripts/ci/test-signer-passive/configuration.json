@@ -1,5 +1,5 @@
 {
-  "gcc_directory": "/usr/lib/gcc/aarch64-linux-gnu/13",
+  "gcc_directory": "CURRENT_DEFAULT_GCC",
   "purpose": "NATIVE_SIGNER_COMPILE_PASSIVE_OBSERVATION_V1",
   "schema_version": 1
 }
