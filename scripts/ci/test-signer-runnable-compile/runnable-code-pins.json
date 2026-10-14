@@ -10,9 +10,9 @@
       "sha256": "4e6e386111080d5bb4167919e938a7f44be6533e0feb5d752994ceffeab8f006"
     },
     "correspondence.py": {
-      "bytes": 13465,
+      "bytes": 13469,
       "mode": 420,
-      "sha256": "0cd79c9f57bc36f5db05a4db2625b359404f7e3db02ddbbf449807663884442b"
+      "sha256": "b7edb82c6d43be9d901b25e64b983881e3adabc1a744dc4afbaf129272b0af09"
     },
     "native_workspace.py": {
       "bytes": 11033,
@@ -20,9 +20,9 @@
       "sha256": "1f9667ba10006eb1d010c5e69e50b3e950d12f05baaa22600e0f4804a801ea96"
     },
     "trusted_entry.py": {
-      "bytes": 22297,
+      "bytes": 22301,
       "mode": 420,
-      "sha256": "df6ecb4fe2caa968a13392aef4a3d4c0812cec79bd22550da8d5d80b68a8adf6"
+      "sha256": "c86317b28f65da454091c3fbed592833602daea82122673e0f9d6d315965ef84"
     }
   },
   "future_binding_commit": "ROOT_WORKFLOW_INPUT_EQUALS_GITHUB_SHA",
