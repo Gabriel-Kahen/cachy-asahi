@@ -2,6 +2,30 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 14, screenshot software checkpoint: independent peer `7881871a`
+authenticates76 retained leaves and four actualx86 helper failure/cleanup
+cases. Each exits1 without a PNG and preserves the protected directory and
+sentinel. The helper matches the published Source bytes. Positive capture,
+PNG pixel checks, ARM archive execution, accelerated desktop and M2 behavior
+remain NOT RUN. Installed Hyprland's reported matching source path requires
+DRM; exact binary/source build equivalence is unproven. No compositor was
+launched on the user's desktop. A pinned Sway/wlroots software CI proposal
+is being implemented in a separate lane; its image closure and execution
+remain open.
+
+October 14, kernel unit-fixture checkpoint: Root publishes test-only successor
+`1ed00455`, packet `9307d5bb`, after independent composition `6001d7e7`.
+The fixture includes the actual current_cache dependency needed by CLI help;
+production workflow minimum10 and all runtime/stage code stay unchanged.
+All212 tests in the four current kernel job suites pass, with zero failures,
+errors or skips and empty owned fixture temp directories. The test and packet
+are the only two changes;123 of124 Source rows remain held. Prior184/185
+failure records remain unchanged. No additional native trial is dispatched.
+
+Running native trial `38620355690` remains bound to preceding Source
+`3bec0e2e` / packet `329078ba`. Local unit success does not establish its
+native compile/cleanup result or any hardware acceptance.
+
 October 14, CLI and kernel execution checkpoint: CLI Data `5f4f5086`
 is the exact two-file child of Source `4c388cc7`, with Code `5d7e92e8` held.
 External registration peer `405c6638` passes. Actual Code authentication and

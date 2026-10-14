@@ -1,0 +1,19 @@
+# Screenshot headless evidence — independent Root peer
+
+PASS for retained four x86 negative cases and the bounded Source proposal. Positive software capture, PNG/pixel validation, ARM execution, accelerated Hyprland/Asahi and both M2 Air captures remain NOT RUN. Full R1–R5/M5–M9 acceptance remains open.
+
+Author receipt34ebca8c24313c46e0a2523143108ae0301489b2141e6ba9f64aa6fb658577c1 and all76 indexed leaves authenticate by SHA256/bytes/mode. Ninety-one distinct input paths bind the selected tool/helper/context pins and retained Source snapshots. No actor, GUI, desktop restart, network, install, CI trial or Git write was performed.
+
+Helper8523B/0755/SHA5a920a5dd7a40463417a9b15e64a6620acfe7b2328960bf7014c9f587c4b69a8 matches the actual record and current primary worktree. Read-only captured Git proof binds the same body/mode to observed primary Source06d0a821956e4a597c5b0014ab93d03ce1c3684c. Retained helper text copy is0644 with identical bytes/hash; its mode is kept separate.
+
+Four actual calls exited1 with empty stdout: absent-socket full, repeated full, absent-socket region and insecure0755-directory refusal. Each before/after directory record is identical. Full/region cases produced no PNG or partial; region explicitly had no full-screen fallback. The insecure directory retained its0755 mode and0600 sentinel hash5650a9489fbb517ded67425ad2594a793444eb943c665e12eceb50d5141ca293. The environment used an absolute absent private socket and private HOME/runtime, excluding inherited display/session addresses. Retained outputs/runtime are empty. This is retained evidence and a current owned-directory check, not independent replay of process absence or the helper actors.
+
+Ten bounded groups pass, including five metadata corruptions that refuse positive-capture promotion, wrong exit, sentinel mutation, inherited DISPLAY and region-to-full substitution. Source branch checks conserve the honest boundaries below.
+
+Matching reported Hyprland efb50993780079460b0cbed1363e2166a2de1d9f selects mandatory headless together with DRM-if-available and Wayland fallback; matching Aquamarine f31c47a1b9d300847d8fc3108ad959448103dfc1 requires its DRM-FD allocator path. That Source path does not satisfy the required zero-DRM launch selection. No compositor was launched. Installed binary/upstream-build equivalence is NOT PROVEN; no universal claim about patched binaries is made.
+
+Pinned Sway990b23c0e584114c3694447344d6bbf44b2d748f/wlroots13a62a23a258d96f902c740310d5c7c59784a4d1/swaybg dcb5ebc76adcfef81c1a275ae7ed21a7936cbd7c supports proposing explicit headless/pixman/SHM with a fresh private runtime and absent SWAYSOCK. The retained sources show explicit backend success before automatic probing, explicit pixman and SHM allocator branches. Their built feature/image/runtime dependency closure remains OPEN; the retained meson_options.txt404 is not a proven build-option set.
+
+The proposed positive invariant uses real compositor/background/helper output, full PNG CRC/decode/load validation at320x240, every RGB pixel first #123456 then #654321, distinct private0600 publications with older files preserved, and no partials. No generated PNG/fake capture fixture can count as success. Those are unimplemented/unrun acceptance requirements, not a reviewed executable pixel validator. Positive region selection remains a separate unrun fixture.
+
+Desktop owns future CI implementation and exact image/build/runtime/tool closure, bounded readiness/retirement and actual capture evidence. Root owns selection/admission. This peer changes no future workflow or policy. Source review cannot substitute for actual ARM, supported Asahi transaction, installation/removal or M2 capture. Initial harness path/mode/wording corrections are retained in attempts.json; author bytes remain unchanged.
