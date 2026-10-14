@@ -2,6 +2,26 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 14, 10:30 UTC: actual signer failure review `a8e0acac` and peer
+`03a938ea` authenticate against all retained captures. The selected ARM-header
+audit finds one mismatch among 116 ABI expectations: `O_NOFOLLOW` is 32768.
+Minimal correction `b70d9854` and independent peer `1fb1210c` preserve all other
+115 expectations and eleven receiver bodies. Root publishes receiver
+`06557a7f`, verifies its thirteen files plus manifest against Git, and retains
+canonical manifest `889347ea`. A concrete workflow/helper binding to this actual
+ancestor is being prepared before retry. Corrected ABI compilation remains
+NOT RUN; no output execution or numeric CPython flag observation is claimed.
+
+The full-port software gap audit identifies two actionable M5/M6 behaviors
+outside the current native corrections: explicitly invoked screenshot-to-file,
+and package-to-recipient-source/notices lookup/export using the existing signed
+release files. Desktop owns the screenshot proposal; Tools owns the connected
+source-delivery proposal. Both work in isolated proposal namespaces, preserving
+queued Source and shared manifests. Missing screenshot dependencies, real
+capture, source completeness/publication, package lifecycle and full-port
+acceptance remain open. Active kernel `38547085071` and library `38533034332`
+trials and the queued package/installer/CLI work remain under observation.
+
 October 14, 10:10 UTC: the minimal Asahi in-tree DTC correction passes author
 `59d35faf` and independent peer `3daedacf`. Root publishes Source `1ab4269c`,
 verifies all 124 packet rows plus packet `a36ce52b`, and launches native kernel
