@@ -2,6 +2,29 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 14, 10:10 UTC: the minimal Asahi in-tree DTC correction passes author
+`59d35faf` and independent peer `3daedacf`. Root publishes Source `1ab4269c`,
+verifies all 124 packet rows plus packet `a36ce52b`, and launches native kernel
+trial `38547085071`. Its result is pending; older failures remain unchanged.
+
+Root adopts the reviewed Pair7/Zsh3 corrections and proves both committed
+Source closures with the original Data rows held. Sources `b434bfdc` and
+`b5ab31d2`, plans `1fccf9fc` and `9af3e105`, and exact variable readbacks are
+published before atomic execution-ref pushes. Automatically triggered Pair
+`38546975061` and Zsh `38546975187` are queued. No duplicate manual trials or
+actual capacity claims are made.
+
+The simpler CLI registered-route successor passes independent peer `6c48b4a8`.
+Root authenticates 351 author leaves/22 inputs and 694 peer artifacts/733 inputs,
+then creates actual Code `5d7e92e8`, Source `8871d325` and Data `3ce9bb70` from
+verified base `1294a456`. All 1/291/2 selected Git blobs/modes and the parent
+chain pass. External plan `a9b23f36` is registered with exact readbacks; native
+trial `38547424804` is queued on the registered workflow. Draft
+[PR20](https://github.com/Gabriel-Kahen/cachy-asahi/pull/20) exposes the isolated
+implementation. Previously observed ARM tool pins must still reauthenticate in
+that fresh job. Library builds, runtime, installation and hardware acceptance
+remain pending. Full R1–R5/M5–M9/A01–A15 work remains active.
+
 October 14, 10:00 UTC: concrete signer binding `a71981bd` passes independent
 peer `c337e9fe`. Root publishes Source `377885cf`, verifies seven replacements
 and fifteen unchanged receiver/workspace/manifest paths, then starts trial
