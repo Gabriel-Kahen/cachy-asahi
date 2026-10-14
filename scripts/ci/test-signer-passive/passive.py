@@ -34,6 +34,31 @@ def identity(info):
     return [getattr(info,k) for k in FIELDS]
 
 
+def file_stat_diagnostic(requested,canonical,before,endpoint):
+    """Unaccepted pre-open facts from the same already-observed leaf stat."""
+    import json
+    live(endpoint)
+    paths=[str(p) for p in (requested,canonical)]
+    for text in paths:
+        need(str(Path(text))==text,'file-diagnostic-path');path_ok(Path(text))
+    values=identity(before);mode=before.st_mode
+    need(all(type(v) is int and 0<=v<2**64 for v in values) and mode<=0o177777 and
+         stat.S_IFMT(mode) in (stat.S_IFIFO,stat.S_IFCHR,stat.S_IFDIR,stat.S_IFBLK,
+                              stat.S_IFREG,stat.S_IFLNK,stat.S_IFSOCK),'file-diagnostic-identity')
+    terms=[name for name,failed in (('kind',not stat.S_ISREG(mode)),('uid',before.st_uid!=0),
+        ('gid',before.st_gid!=0),('nlink',before.st_nlink!=1),
+        ('mode',stat.S_IMODE(mode) not in (0o644,0o755)),('empty',before.st_size<=0),
+        ('size-cap',before.st_size>64*1024**2)) if failed]
+    need(bool(terms),'file-diagnostic-terms')
+    facts=dict(schema_version=1,purpose='SIGNER_PASSIVE_FILE_STAT_DIAGNOSTIC_V1',
+               request_path=paths[0],canonical=paths[1],identity=values,stage='before-open',
+               predicate='sample-file-gate',failed_terms=terms)
+    need(len(json.dumps(facts,sort_keys=True,separators=(',',':')).encode('ascii'))<=8192,
+         'file-diagnostic-size')
+    live(endpoint)
+    return facts
+
+
 def inventory_diagnostic(requested,canonical,directory,node,row,endpoint):
     """Bounded facts from the already-observed no-follow inventory row."""
     import json
@@ -101,8 +126,21 @@ class NativeIO:
         try:canonical,aliases,ancestors=self.resolve(path,end)
         except FileNotFoundError:return None
         before=self.metadata(canonical,end)
-        need(stat.S_ISREG(before.st_mode) and before.st_uid==before.st_gid==0 and before.st_nlink==1
-            and stat.S_IMODE(before.st_mode) in (0o644,0o755) and 0<before.st_size<=64*1024**2,'file')
+        try:
+            need(stat.S_ISREG(before.st_mode) and before.st_uid==before.st_gid==0 and before.st_nlink==1
+                and stat.S_IMODE(before.st_mode) in (0o644,0o755) and 0<before.st_size<=64*1024**2,'file')
+        except Refusal as error:
+            diagnostic=None;diagnostic_cancelled=False
+            try:diagnostic=file_stat_diagnostic(path,canonical,before,end)
+            except BaseException as problem:diagnostic_cancelled=isinstance(problem,(KeyboardInterrupt,Cancelled))
+            try:
+                error.file_diagnostic=diagnostic
+                error.file_diagnostic_cancelled=diagnostic_cancelled
+            except BaseException as problem:
+                if isinstance(problem,(KeyboardInterrupt,Cancelled)):
+                    try:error.file_diagnostic_cancelled=True
+                    except BaseException:pass
+            raise
         handles=[];held=[];error=None;result=None
         try:
             for item in ancestors:

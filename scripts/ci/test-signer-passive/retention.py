@@ -216,6 +216,36 @@ def validate_package_diagnostic(value):
     return value
 
 
+def validate_file_diagnostic(value):
+    """Unaccepted same-pre-open stat facts; no body or file admission."""
+    if value is None:return None
+    need(type(value) is dict and set(value)=={'schema_version','purpose','request_path','canonical',
+         'identity','stage','predicate','failed_terms'} and type(value['schema_version']) is int and
+         value['schema_version']==1 and value['purpose']=='SIGNER_PASSIVE_FILE_STAT_DIAGNOSTIC_V1'
+         and value['stage']=='before-open' and value['predicate']=='sample-file-gate',
+         'closed-file-diagnostic')
+    for key in ('request_path','canonical'):
+        name=value[key]
+        need(type(name) is str and 0<len(name)<=1024 and str(Path(name))==name and
+             Path(name).is_absolute() and len(Path(name).parts)<=32 and '..' not in Path(name).parts
+             and all(32<=ord(c)<127 for c in name) and (name in ('/','/usr') or
+             any(name==root or name.startswith(root+'/') for root in
+                 ('/usr/bin','/usr/lib','/usr/libexec','/usr/include','/lib'))),'file-diagnostic-path')
+    ident=value['identity']
+    need(type(ident) is list and len(ident)==9 and all(type(n) is int and 0<=n<2**64 for n in ident),
+         'file-diagnostic-identity')
+    mode=ident[2]
+    need(mode<=0o177777 and stat.S_IFMT(mode) in (stat.S_IFDIR,stat.S_IFREG,stat.S_IFLNK,
+         stat.S_IFBLK,stat.S_IFCHR,stat.S_IFIFO,stat.S_IFSOCK),'file-diagnostic-mode')
+    terms=[term for term,failed in (('kind',not stat.S_ISREG(mode)),('uid',ident[3]!=0),
+           ('gid',ident[4]!=0),('nlink',ident[5]!=1),('mode',stat.S_IMODE(mode) not in (0o644,0o755)),
+           ('empty',ident[6]==0),('size-cap',ident[6]>64*1024**2)) if failed]
+    need(type(value['failed_terms']) is list and value['failed_terms']==terms and len(terms)>0,
+         'file-diagnostic-failed-terms')
+    need(len(canonical(value))<=8192,'file-diagnostic-byte-bound')
+    return value
+
+
 class NativeIO:
     """Deferred local syscalls; no native constructor side effects."""
     now=staticmethod(time.monotonic)
@@ -447,7 +477,7 @@ class Retention:
             need(set(value)=={'schema_version','purpose','status','candidate_valid','first_phase',
                  'first_cause','first_reason','first_errno','cancelled','context','source_packet_sha256',
                  'configuration_sha256','public_issuer_sha256','entry','deadline_at','progress',
-                 'observer_returncode','selected','execution_grant_issued','compile_allowed','elf_diagnostic','inventory_diagnostic','package_diagnostic'},
+                 'observer_returncode','selected','execution_grant_issued','compile_allowed','elf_diagnostic','inventory_diagnostic','package_diagnostic','file_diagnostic'},
                  'failure-record-shape')
             need(type(value['schema_version']) is int and value['schema_version']==1 and
                  value['purpose']=='SIGNER_NATIVE_PASSIVE_FAILURE_V1' and value['status']=='FAIL' and
@@ -493,6 +523,7 @@ class Retention:
             validate_elf_diagnostic(value['elf_diagnostic'])
             validate_inventory_diagnostic(value['inventory_diagnostic'])
             validate_package_diagnostic(value['package_diagnostic'])
+            validate_file_diagnostic(value['file_diagnostic'])
             self._live()
             descriptors['failure.json']=self._write('failure.json',failure_raw)
         except BaseException as error:self._remember(error)

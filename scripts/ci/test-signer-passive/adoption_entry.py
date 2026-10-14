@@ -99,9 +99,9 @@ def run(passive,provenance,retention,*,entry,configuration,issuer,source_pins,
     if io_factory is None:io_factory=passive.PassiveIO
     if retention_factory is None:retention_factory=retention.Retention
     first=None;first_phase=None;cancelled=False;phase='issuer';context=None
-    saved={};timer_touched=False;retained=None;store=None;io=None;first_elf_diagnostic=None;first_inventory_diagnostic=None;first_package_diagnostic=None
+    saved={};timer_touched=False;retained=None;store=None;io=None;first_elf_diagnostic=None;first_inventory_diagnostic=None;first_package_diagnostic=None;first_file_diagnostic=None
     def remember(error):
-        nonlocal first,first_phase,cancelled,first_elf_diagnostic,first_inventory_diagnostic,first_package_diagnostic
+        nonlocal first,first_phase,cancelled,first_elf_diagnostic,first_inventory_diagnostic,first_package_diagnostic,first_file_diagnostic
         if first is None:
             first=error;first_phase=phase
             try:
@@ -125,7 +125,14 @@ def run(passive,provenance,retention,*,entry,configuration,issuer,source_pins,
             except BaseException as diagnostic_error:
                 first_package_diagnostic=None
                 cancelled|=isinstance(diagnostic_error,(KeyboardInterrupt,Cancelled))
-        cancelled|=isinstance(error,(KeyboardInterrupt,Cancelled)) or getattr(store,'cancelled',False) is True or getattr(error,'elf_diagnostic_cancelled',False) is True or getattr(error,'inventory_diagnostic_cancelled',False) is True or getattr(error,'package_diagnostic_cancelled',False) is True
+            try:
+                facts=getattr(error,'file_diagnostic',None)
+                retention.validate_file_diagnostic(facts)
+                first_file_diagnostic=json.loads(canonical(facts))
+            except BaseException as diagnostic_error:
+                first_file_diagnostic=None
+                cancelled|=isinstance(diagnostic_error,(KeyboardInterrupt,Cancelled))
+        cancelled|=isinstance(error,(KeyboardInterrupt,Cancelled)) or getattr(store,'cancelled',False) is True or getattr(error,'elf_diagnostic_cancelled',False) is True or getattr(error,'inventory_diagnostic_cancelled',False) is True or getattr(error,'package_diagnostic_cancelled',False) is True or getattr(error,'file_diagnostic_cancelled',False) is True
     def live():
         need(type(entry) in (int,float) and math.isfinite(entry) and entry>0,'original-entry')
         if clock()>=entry+60:raise Deadline('original-observation-end')
@@ -242,7 +249,7 @@ def run(passive,provenance,retention,*,entry,configuration,issuer,source_pins,
             configuration_sha256=safe_digest(configuration),
             public_issuer_sha256=safe_digest(issuer),entry=entry if valid_entry else None,
             deadline_at=entry+60 if valid_entry else None,
-            progress=progress,elf_diagnostic=first_elf_diagnostic,inventory_diagnostic=first_inventory_diagnostic,package_diagnostic=first_package_diagnostic,observer_returncode=1,
+            progress=progress,elf_diagnostic=first_elf_diagnostic,inventory_diagnostic=first_inventory_diagnostic,package_diagnostic=first_package_diagnostic,file_diagnostic=first_file_diagnostic,observer_returncode=1,
             selected=False,execution_grant_issued=False,compile_allowed=False)
         # A fresh store has only its owned directory handles. A used/failed
         # store already closed once and retains its original partial files.
