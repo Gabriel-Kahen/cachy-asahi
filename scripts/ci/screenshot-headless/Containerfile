@@ -2,7 +2,10 @@ FROM docker.io/library/debian@sha256:918311b7b6c4c6f68b232ba516584925f6c78ad82b6
 COPY debs/ /debs/
 RUN printf '#!/bin/sh\nexit 101\n' > /usr/sbin/policy-rc.d \
  && chmod 755 /usr/sbin/policy-rc.d \
- && DEBIAN_FRONTEND=noninteractive apt-get --no-download --no-install-recommends -y install /debs/*.deb \
+ && rm -rf /var/lib/apt/lists/* \
+ && DEBIAN_FRONTEND=noninteractive apt-get \
+      -o Dir::Etc::sourcelist=/dev/null -o Dir::Etc::sourceparts=/dev/null \
+      --no-install-recommends -y install /debs/*.deb \
  && rm -rf /debs /var/lib/apt/lists/* /var/cache/apt/archives/*.deb
 ENV PATH=/usr/bin:/bin LANG=C LC_ALL=C TZ=UTC
 WORKDIR /tmp

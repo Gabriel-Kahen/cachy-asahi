@@ -7,10 +7,10 @@
       "sha256": "fdd596db5e566e280f77788ec1f595e88cb3c892612e4eff5810021296d5d47e"
     },
     {
-      "bytes": 545,
+      "bytes": 650,
       "mode": 420,
       "path": "scripts/ci/screenshot-headless/Containerfile",
-      "sha256": "14283ad9259b6f95532bd38455abab5c754eaec104931571165e6ee46a38f375"
+      "sha256": "e0b98f019bb7a574d2a8d18d4d38277db245b51362239bb95b86397a585e0e3c"
     },
     {
       "bytes": 10477,
