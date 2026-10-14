@@ -79,7 +79,7 @@ jobs:
           path=root/'scripts/ci/development/p0_ci.py'
           def ident(node):return tuple(getattr(node,k) for k in ('st_dev','st_ino','st_mode','st_uid','st_gid','st_nlink','st_size','st_mtime_ns','st_ctime_ns'))
           before=path.lstat();parent=path.parent.lstat()
-          if not stat.S_ISREG(before.st_mode) or before.st_nlink!=1 or stat.S_IMODE(before.st_mode)!=0o644 or before.st_size!=66167:
+          if not stat.S_ISREG(before.st_mode) or before.st_nlink!=1 or stat.S_IMODE(before.st_mode)!=0o644 or before.st_size!=66238:
               raise SystemExit('P0 driver row refused')
           fd=None;held=None;first=None;body=None;opening=False
           try:
@@ -93,9 +93,9 @@ jobs:
                   part=os.read(fd,min(65536,66168-size))
                   if not part:break
                   parts.append(part);size+=len(part)
-                  if size>66167:raise ValueError('P0 driver cap refused')
+                  if size>66238:raise ValueError('P0 driver cap refused')
               body=b''.join(parts)
-              if ident(os.fstat(fd))!=held or ident(path.lstat())!=held or ident(path.parent.lstat())!=ident(parent) or len(body)!=66167 or hashlib.sha256(body).hexdigest()!='a97da59ede88996cc60c5cb5e5dd96fde33fee44c0865232c55bae1ac9c5b6ea':
+              if ident(os.fstat(fd))!=held or ident(path.lstat())!=held or ident(path.parent.lstat())!=ident(parent) or len(body)!=66238 or hashlib.sha256(body).hexdigest()!='67021e3e4e8b7c23cb6db5ffef7b29b6032e5b8a996b04c1b814e17c3762365f':
                   raise ValueError('P0 driver body refused')
           except BaseException as error:
               first=error

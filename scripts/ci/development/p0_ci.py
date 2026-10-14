@@ -92,7 +92,8 @@ def read(path,end,*,wanted=None,limit=1024**2,private=False):
     for parent in path.parents:
         need(stat.S_ISDIR(parent.lstat().st_mode),'p0-input-ancestor')
     parent=path.parent.lstat();before=path.lstat()
-    need(stat.S_ISREG(before.st_mode) and before.st_nlink==1 and 0<before.st_size<=limit and
+    need(stat.S_ISREG(before.st_mode) and before.st_nlink==1 and 0<=before.st_size<=limit and
+         (before.st_size>0 or wanted is not None and not private) and
          stat.S_IMODE(before.st_mode) in ((0o600,) if private else (0o644,0o755)), 'p0-input-file')
     if private:
         need(parent.st_uid==before.st_uid==os.geteuid() and stat.S_IMODE(parent.st_mode)==0o700,
