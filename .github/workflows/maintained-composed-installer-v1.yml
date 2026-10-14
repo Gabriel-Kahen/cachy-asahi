@@ -220,6 +220,12 @@ jobs:
                       delivery.publication_check()
                       failure = {'status': 'PAIR_FAIL', 'scope': manifest['scope'], 'source_commit': plan['source_commit'],
                                  'first_failure_type': type(error).__name__, 'original_start': original_entry, 'original_J': delivery.J}
+                      try:
+                          diagnostics = modules['lane.py'].public_diagnostics(error)
+                      except BaseException:
+                          diagnostics = None
+                      if diagnostics is not None:
+                          failure['guardian_diagnostics'] = diagnostics
                       delivery.publication_call((scratch / 'failure.json').write_text, json.dumps(failure, sort_keys=True) + '\n')
                   except BaseException:
                       pass  # The primary failure survives; uncertain resources stay retained.

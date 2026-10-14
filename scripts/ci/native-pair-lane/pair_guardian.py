@@ -64,6 +64,27 @@ def read_journal(root_fd,budget,uid):
 
 
 
+def _diagnostic_update(observations, **values):
+    try:
+        if type(observations) is dict:observations.update(values)
+    except Exception:pass
+
+
+def _diagnostic_wait(observations, value):
+    code = value if type(value) is int and -128 <= value <= 255 else None
+    _diagnostic_update(observations, wait_returned=True, return_code=code,
+        termination='UNKNOWN' if code is None else 'SIGNAL' if code < 0 else 'EXIT_CODE',
+        signal_number=-code if code is not None and code < 0 else None, wait_origin='RETIREMENT')
+
+
+def _attach_diagnostics(error, observations):
+    try:
+        value = dict(observations); value.pop('phase')
+        if value['first_failure_phase'] is None:value['first_failure_phase'] = 'UNKNOWN'
+        BaseException.__dict__['__dict__'].__get__(error,type(error))['_pair_guardian_diagnostics'] = value
+    except BaseException:pass  # Optional failure metadata cannot replace the first error.
+
+
 class Budget:
     def __init__(self, authority, start, J):
         need(type(start) in (int,float) and type(J) in (int,float) and
@@ -75,6 +96,11 @@ class Budget:
     def fail(self, error):
         if self.first is None:
             self.first=error
+            try:
+                observations = getattr(self,'_pair_guardian_observations',None)
+                if type(observations) is dict and observations['first_failure_phase'] is None:
+                    observations['first_failure_phase'] = observations['phase']
+            except BaseException:pass
             try:observed=time.monotonic()
             except BaseException:observed=self.last if self.last is not None else self.start
             if type(observed)not in(int,float)or not math.isfinite(observed)or observed<self.start:
@@ -114,6 +140,7 @@ class Physical:
     def __init__(self,budget):
         self.budget=budget;self.members={};self.proven=set();self.close_attempted=set()
         self.pid=None;self.birth=None;self.reaped=False;self.receipt=None
+        self.diagnostics=getattr(budget,'_pair_guardian_observations',None)
 
     def row(self,pid):
         b=self.budget;slot={'fd':None,'path':f'/proc/{pid}/stat'};RETAINED.append(slot)
@@ -162,7 +189,10 @@ class Physical:
     def retire(self,proc):
         # Keep the direct child unreaped until all session-member identities
         # have been enumerated. No killpg, numeric signal or poll fallback.
-        if self.receipt is not None:return self.receipt
+        _diagnostic_update(self.diagnostics,direct_retire_reached=True)
+        if self.receipt is not None:
+            _diagnostic_update(self.diagnostics,direct_retire_returned=True)
+            return self.receipt
         for row in ([]if self.reaped else self.scan()):
             pid=row['pid']
             if pid not in self.members:
@@ -173,11 +203,15 @@ class Physical:
         for number in (signal.SIGTERM,signal.SIGKILL):
             for pid,(row,fd) in tuple(self.members.items()):
                 if pid not in self.proven or pid in self.close_attempted:continue
-                try:self.budget.call(lambda fd=fd:signal.pidfd_send_signal(fd,number,None,0))
+                def signalled(fd=fd):
+                    _diagnostic_update(self.diagnostics,**{'sigterm_attempted' if number==signal.SIGTERM else 'sigkill_attempted':True})
+                    return signal.pidfd_send_signal(fd,number,None,0)
+                try:self.budget.call(signalled)
                 except ProcessLookupError:pass
         if not self.reaped:
             def waited():
                 value=proc.wait(timeout=max(0,min(2,self.budget.end-time.monotonic())));self.reaped=True
+                _diagnostic_wait(self.diagnostics,value)
                 if value!=0:self.budget.fail(ValueError('guardian-worker-exit'))
                 return value
             self.budget.call(waited)
@@ -190,6 +224,7 @@ class Physical:
         self.receipt={'pid':self.pid,'start':self.birth['start'],'session':self.birth['session'],
                 'pidfd_used':True,'direct_reaped':True,'direct_proc_absent':True,'session_absent':True,
                 'executable':getattr(self,'executable',None)}
+        _diagnostic_update(self.diagnostics,direct_retire_returned=True)
         return self.receipt
 
 
@@ -243,8 +278,10 @@ def inspect_cleanup(handoff,spec,budget,docker_call):
             'full_image_ids_absent':image_ids,'nonce_resources_absent':True,'roots':roots}
 
 
-def validate_handoff(raw,spec,contract):
+def validate_handoff(raw,spec,contract,diagnostics=None):
+    _diagnostic_update(diagnostics,handoff_json='MISSING' if type(raw) is bytes and not raw.strip() else 'INVALID')
     handoff=decode(raw)
+    _diagnostic_update(diagnostics,handoff_json='VALID')
     need(handoff['schema']==1 and handoff['status']=='PRIVATE_ROOT_CONTAINMENT_REQUIRED' and
          handoff['publication_allowed']is False,'guardian-private-status')
     value=spec['value'];J=value['workflow_end'];start=value['original_entry']
@@ -263,6 +300,7 @@ def validate_handoff(raw,spec,contract):
         need(row['kind']in('docker','gpg')and row['code']==0 and row['scope']=='direct-child-only' and
              row['identity']['pidfd_used']is True and type(row['identity']['pid'])is int and row['identity']['pid']>0 and
              row['identity']['tool_sha256']==value['tools'][row['kind']], 'guardian-cli-retirement-source-binding')
+    _diagnostic_update(diagnostics,handoff_validated=True)
     return handoff
 
 
@@ -276,6 +314,12 @@ def launch(spec,*,process_owner,python_tool,contract,authority,observer,docker_c
     observer and tools and restores controls before its separate public write.
     """
     value=spec['value'];b=Budget(authority,value['original_entry'],value['workflow_end'])
+    diagnostics = dict(schema_version=1,phase='ADMISSION',first_failure_phase=None,
+        launched=False,eof_observed=False,wait_returned=False,return_code=None,termination='NOT_OBSERVED',
+        signal_number=None,wait_origin='NOT_OBSERVED',sigterm_attempted=False,sigkill_attempted=False,
+        natural_exit='UNKNOWN',handoff_json='NOT_OBSERVED',handoff_validated=False,
+        direct_retire_reached=False,direct_retire_returned=False,root_cleanup_reached=False,root_cleanup_returned=False)
+    b._pair_guardian_observations=diagnostics
     proc=selector=pipe=None;physical=Physical(b);output=bytearray();slot={};RETAINED.append(slot)
     try:
         b.check(b.E)
@@ -287,6 +331,7 @@ def launch(spec,*,process_owner,python_tool,contract,authority,observer,docker_c
                       'GITHUB_RUN_ATTEMPT':value['run_attempt']}
         need(all(environment.get(k)==v for k,v in expected_env.items()),'guardian-current-job-environment')
         worker_env=expected_env|{'PATH':'/usr/bin:/bin','LANG':'C','LC_ALL':'C','TZ':'UTC','HOME':spec['cwd']}
+        _diagnostic_update(diagnostics,phase='SOURCE_CAPTURE')
         b.call(lambda:observer.capture('source'),b.E)
         need(type(python_tool)is process_owner.VerifiedTool,'guardian-held-interpreter')
         b.call(lambda:python_tool.verify(b.E),b.E);b.call(process_owner.single_threaded,b.E)
@@ -305,6 +350,7 @@ def launch(spec,*,process_owner,python_tool,contract,authority,observer,docker_c
         # prohibit their legitimate fork/initial setsid. Root explicitly admits
         # the selected worker/native Source's bounded child/session assumption.
         need(spec['trusted_worker_children_stay_owned']is True,'guardian-worker-source-policy')
+        _diagnostic_update(diagnostics,phase='WORKER_SOURCE')
         worker_path,worker_fd,worker_identity=spec['worker_node']
         need(worker_path==spec['worker_path'] and type(worker_fd)is int and worker_fd>=0 and
              worker_fd!=python_tool.fd and re.fullmatch('[0-9a-f]{64}',spec['worker_sha']), 'guardian-held-worker-source')
@@ -322,35 +368,51 @@ def launch(spec,*,process_owner,python_tool,contract,authority,observer,docker_c
         argv=[python_tool.path,'-I','-B','/proc/self/fd/'+str(worker_fd),'--packet',spec['packet_path'],
               '--packet-sha',spec['packet_sha'],'--driver',spec['driver_path'],'--driver-sha',spec['driver_sha'],
               '--original-entry',str(value['original_entry']),'--original-J',str(value['workflow_end'])]
+        _diagnostic_update(diagnostics,phase='WORKER_LAUNCH')
         with process_owner.masked() as previous:
             b.check(b.E)
             proc=subprocess.Popen(argv,executable='/proc/self/fd/'+str(python_tool.fd),env=worker_env,cwd=spec['cwd'],
                  stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,close_fds=True,
                  pass_fds=(python_tool.fd,worker_fd),shell=False,start_new_session=True,
                  preexec_fn=lambda:signal.pthread_sigmask(signal.SIG_SETMASK,previous))
-            slot['process']=proc;pipe=proc.stdout;slot['pipe']=pipe;slot['physical']=physical;physical.bind(proc,python_tool)
+            slot['process']=proc;pipe=proc.stdout;slot['pipe']=pipe;slot['physical']=physical
+            _diagnostic_update(diagnostics,launched=True,phase='WORKER_BIND')
+            physical.bind(proc,python_tool)
+        _diagnostic_update(diagnostics,phase='OUTPUT_SETUP')
         b.call(lambda:os.set_blocking(pipe.fileno(),False));selector=b.call(selectors.DefaultSelector);slot['selector']=selector
         b.call(lambda:selector.register(pipe,selectors.EVENT_READ));eof=False
+        _diagnostic_update(diagnostics,phase='OUTPUT_READ')
+        def read_output():
+            raw=os.read(pipe.fileno(),65536)
+            if not raw:_diagnostic_update(diagnostics,eof_observed=True)
+            return raw
         while not eof:
             events=b.call(lambda:selector.select(min(.1,max(0,b.end-time.monotonic()))))
             for key,event in events:
-                raw=b.call(lambda:os.read(pipe.fileno(),65536))
+                raw=b.call(read_output)
                 if not raw:eof=True;break
                 output.extend(raw);need(len(output)<=1024**2,'guardian-private-output-cap')
         b.check()
         # Reap/nonzero classification precedes subsequent close/JSON faults.
+        _diagnostic_update(diagnostics,phase='DIRECT_RETIRE')
         retired=physical.retire(proc)
         if b.first is not None:raise b.first
         need(proc.returncode==0,'guardian-worker-exit')
-        handoff=validate_handoff(bytes(output),spec,contract)
+        _diagnostic_update(diagnostics,phase='HANDOFF')
+        handoff=validate_handoff(bytes(output),spec,contract,diagnostics)
+        _diagnostic_update(diagnostics,phase='CLI_ABSENCE')
         for pid in {row['identity']['pid']for row in handoff['process_records']}:
             need(pid!=proc.pid and physical.row(pid)is None,'guardian-reported-cli-proc-absence')
+        _diagnostic_update(diagnostics,phase='WORK_ROOT')
         b.call(lambda:slot.update(work_fd=os.open(os.path.basename(value['work_root']),os.O_RDONLY|os.O_NOFOLLOW|os.O_DIRECTORY|os.O_CLOEXEC,dir_fd=parent_fd)))
         work=b.call(lambda:os.fstat(slot['work_fd']));work_named=b.call(lambda:os.stat(os.path.basename(value['work_root']),dir_fd=parent_fd,follow_symlinks=False))
         need(root_identity(work)==root_identity(work_named)and stat.S_ISDIR(work.st_mode)and work.st_uid==value['uid']and
              work.st_gid==value['gid']and stat.S_IMODE(work.st_mode)==0o700,'guardian-work-root-custody')
         cleanup_spec=dict(spec);cleanup_spec['held_roots']=[*spec['held_roots'],(value['work_root'],slot['work_fd'],root_identity(work))]
+        _diagnostic_update(diagnostics,phase='ROOT_CLEANUP',root_cleanup_reached=True)
         cleanup=inspect_cleanup(handoff,cleanup_spec,b,docker_call)
+        _diagnostic_update(diagnostics,root_cleanup_returned=True)
+        _diagnostic_update(diagnostics,phase='ROOT_FINALIZE')
         b.call(lambda:os.close(slot['work_fd']));slot.pop('work_fd')
         b.call(selector.close);slot.pop('selector');b.call(pipe.close);slot.pop('pipe')
         b.call(lambda:observer.capture('cleanup'))
@@ -359,6 +421,7 @@ def launch(spec,*,process_owner,python_tool,contract,authority,observer,docker_c
                 'pair_result':public_pair,'worker_retirement':retired,'root_cleanup':cleanup,
                 'reported_cli_processes_absent':sorted({row['identity']['pid']for row in handoff['process_records']}),
                 'original_start':b.start,'original_E':b.E,'original_J':b.J}
+        _diagnostic_update(diagnostics,phase='PRIVATE_PUBLISH')
         b.call(lambda:publish(result),b.J);RETAINED.remove(slot);return result
     except BaseException as error:
         b.fail(error)
@@ -368,4 +431,5 @@ def launch(spec,*,process_owner,python_tool,contract,authority,observer,docker_c
         slot['private_stdout']=bytes(output);slot['budget']=b
         try:b.first.retained_pair_guardian=slot
         except BaseException:pass
+        _attach_diagnostics(b.first,diagnostics)
         raise b.first
