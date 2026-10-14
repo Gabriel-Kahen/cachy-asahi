@@ -791,9 +791,9 @@
       "sha256": "a73f1571fe417e14db90ef00c147146fa0f67de7c3bc8b012636de04176931e1"
     },
     "scripts/ci/development/project_libraries.py": {
-      "bytes": 47369,
+      "bytes": 49384,
       "mode": 420,
-      "sha256": "78f19b8c657b01b6365c7e0c41138f969a2ae2aa4fb13b90e00027ba24847b08"
+      "sha256": "e8000cacb0847b8726774c3121b2381b54bddcee71fbf466c020ba99d578e6fa"
     },
     "scripts/ci/development/project_library_sources/jbigkit/LICENSE.recipe": {
       "bytes": 1081,
@@ -996,9 +996,9 @@
       "sha256": "433c43d538347683b16b4ed4de702f28e19a6be0bf3afa00a443f6de74a7f786"
     },
     "scripts/ci/private-library-cli/job.py": {
-      "bytes": 24978,
+      "bytes": 28617,
       "mode": 420,
-      "sha256": "205fc5cd436e07e03f4e163bc013cf40625d0f5497931c203cc9adb9a0a79f27"
+      "sha256": "65137e67998c8ea2b2813b24871aa16d16e0047acd7b0a5c4a89ddf8e00254d4"
     },
     "scripts/ci/private-library-cli/operations.py": {
       "bytes": 20279,
@@ -1016,14 +1016,14 @@
       "sha256": "609b9cdfb5bc0e4caafaa21e9fb702f685f1d47ad2c9a83f6935fc8536c30156"
     },
     "scripts/ci/private-library-cli/producer_supervisor.py": {
-      "bytes": 50604,
+      "bytes": 50719,
       "mode": 420,
-      "sha256": "8a5cdcd35b7ac8a74faeafa03901d74b93af2a39eeaaddd6f3ff79088a8a17f0"
+      "sha256": "f8f5f96670745554fb824a27ec441b9ddf10d3050fc9781a8decf89d322cd9fc"
     },
     "scripts/ci/private-library-cli/publication.py": {
       "bytes": 20110,
       "mode": 420,
-      "sha256": "d3b3de2f964bd0d22dac015a8d11919bf8575b9cb7cce450e4bea53f6ce78dd0"
+      "sha256": "a54e411d27c40c05067e65377e459d31b615738a75f29bb5e986877014d55f27"
     },
     "scripts/ci/recipes.lock.json": {
       "bytes": 7002,
