@@ -209,7 +209,7 @@ def validate_config_fact(value):
     need(all(type(first[name]) is bool for name in ('before_present', 'after_present', 'truncated')))
     key = first['key']
     need(key is None and first['truncated'] or type(key) is str and len(key) <= 128 and
-          re.fullmatch('CONFIG_[A-Z0-9_]+', key) and hashlib.sha256(key.encode()).hexdigest() == first['key_sha256'])
+          re.fullmatch('CONFIG_[A-Za-z0-9_]+', key) and hashlib.sha256(key.encode()).hexdigest() == first['key_sha256'])
     for name in ('before', 'after'):
         item = first[name]
         need(item is None or type(item) is str and len(item) <= 96 and all(32 <= ord(c) < 127 for c in item))

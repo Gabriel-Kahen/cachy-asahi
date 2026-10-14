@@ -21,8 +21,8 @@ def config_bytes(raw):
     text = raw.decode('utf-8')
     settings = {}
     for line in text.splitlines():
-        match = re.fullmatch(r'(CONFIG_[A-Z0-9_]+)=(.*)', line)
-        disabled = re.fullmatch(r'# (CONFIG_[A-Z0-9_]+) is not set', line)
+        match = re.fullmatch(r'(CONFIG_[A-Za-z0-9_]+)=(.*)', line)
+        disabled = re.fullmatch(r'# (CONFIG_[A-Za-z0-9_]+) is not set', line)
         if match or disabled:
             name = (match or disabled)[1]
             harness.need(name not in settings, 'duplicate config setting')

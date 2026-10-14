@@ -68,7 +68,7 @@ def _config_fact(value):
     _need(all(type(first[name]) is bool for name in ('before_present', 'after_present', 'truncated')))
     key = first['key']
     _need(key is None and first['truncated'] or type(key) is str and len(key) <= 128 and
-          re.fullmatch('CONFIG_[A-Z0-9_]+', key) and hashlib.sha256(key.encode()).hexdigest() == first['key_sha256'])
+          re.fullmatch('CONFIG_[A-Za-z0-9_]+', key) and hashlib.sha256(key.encode()).hexdigest() == first['key_sha256'])
     for name in ('before', 'after'):
         item = first[name]
         _need(item is None or type(item) is str and len(item) <= 96 and all(32 <= ord(c) < 127 for c in item))
@@ -78,7 +78,7 @@ def _config_fact(value):
 
 def _parsed_config_sha(value):
     _need(type(value) is dict and len(value) <= 65536)
-    _need(all(type(key) is str and re.fullmatch('CONFIG_[A-Z0-9_]+', key) and
+    _need(all(type(key) is str and re.fullmatch('CONFIG_[A-Za-z0-9_]+', key) and
               type(item) is str for key, item in value.items()))
     raw = _encoded(value)
     _need(len(raw) <= 4 * 1024**2)
