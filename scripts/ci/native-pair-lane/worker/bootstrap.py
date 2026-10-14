@@ -13,13 +13,12 @@ import stat
 import time
 from types import MappingProxyType
 
-API='integrated-pairs-v2'
-CORE_BINDING='e436b9c3d3046db3b05b1731400c9f8cbe06197ba39109ce62b595ccd29c3fca'
-ADAPTER_BINDING='c7f6edc81f4f066e85f3403c29d173a729ce71520074d198a183140ed52b9b2d'
+API='integrated-pairs-v3'
+CORE_BINDING = '7b383d3b267fad8a2891af284a055c6e8eade17f231a89f06222183b30388cd2'
+ADAPTER_BINDING = 'ca21d384846e3ac1b2aa30dd655e94f91a8c730b4e03b5001754d64f8395d034'
 CORE=('authority.py','artifact_custody.py','zstd_owner.py','pair_archive.py','pair_compare.py','checker.py')
 ADAPTER=('admission.py','descriptor_ops.py','source_library_loader.py')
-LABEL_MAP={'topmem-1':'topmem-current-1','topmem-2':'topmem-current-2',
-           'fish-1':'fish-current-1','fish-2':'fish-current-2'}
+LABEL_MAP = {'topmem-1': 'topmem-current-1', 'topmem-2': 'topmem-current-2', 'fish-1': 'fish-current-1', 'fish-2': 'fish-current-2', 'zsh-1': 'zsh-current-1', 'zsh-2': 'zsh-current-2'}
 
 def need(ok,code):
     if not ok:raise ValueError(code)
@@ -176,7 +175,7 @@ class Session:
             return node
         for i,(name,row) in enumerate(p['core'].items()):self.source_nodes[name]=capture(row,target='c'+str(i))
         for i,(name,row) in enumerate(recipes.items()):
-            family='topmem' if '/cachy-asahi-topmem/' in name else 'fish'
+            family={v:k for k,v in self.driver.FAMILIES.items()}[name.rsplit('/',1)[0]]
             self.recipe_nodes[name]=capture({'path':str(Path(self.value['source_root'])/name),**row},target='r'+str(i))
         inv={'path':self.value['inventory_path'],'bytes':6674,'mode':0o644,'sha256':'fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25'}
         self.inventory_node=capture(inv,target='inventory.lock')
@@ -246,7 +245,7 @@ class Session:
         selected['inventory.lock']=route(self.inventory_node);selected[self.library_row['path']]=route(self.library_node)
         bindings={};bounds={}
         for old,canonical in LABEL_MAP.items():
-            spec=evidence[old];package='cachy-asahi-'+('topmem' if old.startswith('topmem') else 'fish-bang-bang')+'-0.1.0-1-any.pkg.tar.zst'
+            spec=evidence[old];package=self.modules['pair_compare'].ARTIFACTS[old.split('-')[0]]
             output=spec['root'];rootnode=r.files.paths[str(output)];rootidentity=directory(rootnode)
             binding=a.LeaseBinding(canonical,reservations[canonical].row['id'],image,context,rootidentity)
             for name in (package,'packages.lock'):
@@ -278,8 +277,8 @@ class Session:
             'inventory_count':341,'epoch':1791748800,'source19_sha256':pair.digest(pair.SELECTED_INPUTS),
             'checker_source_sha256':CORE_BINDING,'decoded_metadata_source_sha256':self.core_rows['pair_archive.py']['sha256']}
         expected=dict(common,schema_version=1,reservations={k:v.row['id'] for k,v in reservations.items()},packages={
-            name:{'artifact':'cachy-asahi-'+('topmem' if name=='topmem' else 'fish-bang-bang')+'-0.1.0-1-any.pkg.tar.zst',
-                  'recipe_inputs':pair.SELECTED_INPUTS[name],'recipe_metadata':pair.SELECTED_METADATA[name]} for name in ('topmem','fish')})
+            name:{'artifact':pair.ARTIFACTS[name],
+                  'recipe_inputs':pair.SELECTED_INPUTS[name],'recipe_metadata':pair.SELECTED_METADATA[name]} for name in ('topmem','fish','zsh')})
         self.bridge=self.bridge_module.CheckerBridge.from_loaded(self.authority,self.modules,self.adapters,admission,expected,roles,
             recovery_check=self.clock.cleanup,failure_callback=r.fail,
             descriptor_type=self.capacity.bind_descriptor_type(self.adapters['descriptor_ops'].DescriptorOps),
@@ -291,7 +290,7 @@ class Session:
         if self.bridge is None:return {'status':'NO_CHECKER_ALLOCATIONS','mapping_retirement':'NO_MAPPING_ATTEMPT'}
         result=self.bridge.close();self.clock.cleanup()
         ops=self.bridge.ops;tokens=ops._tokens;backend=ops.backend
-        need(result['status']=='CONTAINMENT_REQUIRED' and len(self.bridge.builds)==4 and self.bridge._result is not None,
+        need(result['status']=='CONTAINMENT_REQUIRED' and len(self.bridge.builds)==6 and self.bridge._result is not None,
              'complete-native-checker-path-required')
         measured={'files':len(self.bridge.owner._artifacts),'directories':len(ops._dirs),
             'mkdir_reservations':sum(t.kind=='mkdir' for t in tokens),

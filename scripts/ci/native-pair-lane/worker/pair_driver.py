@@ -17,11 +17,10 @@ import stat
 import time
 import types
 
-LANE='native-topmem-fish-integrated-pairs-v2'
+LANE='native-topmem-fish-zsh-integrated-pairs-v3'
 ENTRY_SHA='89723f0a0b2ef80391160f451e877f15fb1e0c4d9a4fec6dbbb8e0d66d8d0f24'
-RECIPES_SHA='d44d749724d64c85f363392143cee05fa54b1d057a964aa86793adbac5826753'
-FAMILIES={'topmem':'packages/tools/cachy-asahi-topmem',
-          'fish':'packages/shells/cachy-asahi-fish-bang-bang'}
+RECIPES_SHA = 'd8344c4c6c0e2c640da1e40f21c16035f93d4d9839c03b2ca093cf713f40b5ea'
+FAMILIES = {'topmem': 'packages/tools/cachy-asahi-topmem', 'fish': 'packages/shells/cachy-asahi-fish-bang-bang', 'zsh': 'packages/shells/cachy-asahi-zsh-autosuggestions'}
 CONTROL=(signal.SIGINT,signal.SIGTERM,signal.SIGALRM)
 
 
@@ -234,7 +233,7 @@ def preflight(value,pins,environment):
     need(deadlines=={'work_end':E,'cleanup_end':end-180,'publication_end':end},'integrated-original-end-binding')
     need(pins['entry']['sha256']==ENTRY_SHA and pins['helper_admission']==value['helper_bundle'],'root-original-entry-integration-pins')
     helper=module(load_pin({k:value['helper_bundle'][k] for k in ('path','sha256')},E),'pair_integrated_bootstrap',end=E)
-    need(helper.API=='integrated-pairs-v2','integrated-bootstrap-api')
+    need(helper.API=='integrated-pairs-v3','integrated-bootstrap-api')
     source=types.SimpleNamespace(load_pin=load_pin,module=module,ENTRY_SHA=ENTRY_SHA)
     session=helper.Session(source,value,pins,clock=time.monotonic)
     mechanics={name:module(load_pin(row,E),'pair_'+name+'_pinned',end=E) for name,row in value['mechanics'].items()}
@@ -553,12 +552,12 @@ def builds(runtime,contract,recipes,session,snapshots,image,entry,pins):
         ticket=runtime.owner.reserve(label,image,mounts=mounts,command=['/builder-entry.sh'],
             environment=['CACHY_ASAHI_CONTAINER=1','SOURCE_DATE_EPOCH='+str(contract.EPOCH)])
         cid=runtime.owner.create(ticket);tickets[label]=(ticket,cid,output)
-    need(len({cid for _,cid,_ in tickets.values()})==4,'four-created-full-cids')
+    need(len({cid for _,cid,_ in tickets.values()})==6,'four-created-full-cids')
     for label in contract.LABELS:
         ticket,cid,output=tickets[label];runtime.owner.start(ticket);code=runtime.owner.wait(ticket)
         completed=session.authority.check()
         canonical=session.driver_labels[label] if hasattr(session,'driver_labels') else {
-            'topmem-1':'topmem-current-1','topmem-2':'topmem-current-2','fish-1':'fish-current-1','fish-2':'fish-current-2'}[label]
+            'topmem-1':'topmem-current-1','topmem-2':'topmem-current-2','fish-1':'fish-current-1','fish-2':'fish-current-2','zsh-1':'zsh-current-1','zsh-2':'zsh-current-2'}[label]
         row=runtime.owner._ticket(ticket)
         reservations[canonical]=session.capabilities.LeaseReservation(canonical,ticket,row,completed,runtime.owner.source_sha)
         files.write(output/'container.log',runtime.owner.logs(ticket),end)
@@ -570,19 +569,24 @@ def builds(runtime,contract,recipes,session,snapshots,image,entry,pins):
             mode=stat.S_IMODE(node[2][2]);need(mode in (0o600,0o644,0o755),'output-mode')
             rows[name]={'sha256':digest,'bytes':node[2][6],'mode':mode};nodes[name]=node
         required={'packages.lock','environment.txt','config.sha256','makepkg.conf','pacman.conf','generated.SRCINFO','container.log'}
-        package='cachy-asahi-'+('topmem' if label.startswith('topmem') else 'fish-bang-bang')+'-0.1.0-1-any.pkg.tar.zst'
+        package=session.modules['pair_compare'].ARTIFACTS[family]
         need(required|{package}<=set(rows) and all(name.endswith('.log') for name in set(rows)-required-{package}),'closed-build-output-and-log-members')
         need(rows[package]['mode']==0o644 and rows[package]['bytes']<=4*1024**2 and rows['packages.lock']['mode']==0o644,'core-output-bounds')
         need(read(nodes['packages.lock'],end)==read(files.paths[str(runtime.paths['context']/'expected-packages.lock')],end),'build-exact341')
         need(recipe_metadata(read(nodes['generated.SRCINFO'],end))==session.modules['pair_compare'].SELECTED_METADATA[label.split('-')[0]],'actual-generated-recipe-metadata')
         files.verify(end);names(files,output,end,set(rows));runtime.closed_dirs[output]=set(rows)
         evidence[label]={'root':output,'nodes':nodes,'evidence':rows}
+        fixture_report=None
+        if family=='zsh':
+            need('zsh-native-fixtures.log' in nodes and rows['zsh-native-fixtures.log']['bytes']<=262144,'zsh-fixture-log-required')
+            fixture_report=contract.zsh_fixtures(decode(read(nodes['zsh-native-fixtures.log'],end)))
         records[label]={'label':label,'image_id':image,'container_id':cid,'exit_code':code,
           'source_date_epoch':contract.EPOCH,'status':'built-package-static-pass','evidence':rows,
           'recipe_rows_sha256':RECIPES_SHA,'helper_sha256':runtime.value['helper_bundle']['sha256'],'inventory_sha256':contract.INVENTORY}
+        if family=='zsh':records[label]['zsh_fixture_report']=fixture_report
     bridge=session.prepare_checker(reservations,evidence,image,runtime.owner.context_sha)
     for old in contract.LABELS:
-        canonical={'topmem-1':'topmem-current-1','topmem-2':'topmem-current-2','fish-1':'fish-current-1','fish-2':'fish-current-2'}[old]
+        canonical={'topmem-1':'topmem-current-1','topmem-2':'topmem-current-2','fish-1':'fish-current-1','fish-2':'fish-current-2','zsh-1':'zsh-current-1','zsh-2':'zsh-current-2'}[old]
         family=old.split('-')[0];common={k:bridge.expected[k] for k in session.modules['pair_compare'].COMMON}
         row={**common,'label':canonical,'container_id':records[old]['container_id'],'mode':'native','exit_code':records[old]['exit_code'],
             'recipe_inputs':bridge.expected['packages'][family]['recipe_inputs'],'recipe_metadata':bridge.expected['packages'][family]['recipe_metadata']}
@@ -591,7 +595,7 @@ def builds(runtime,contract,recipes,session,snapshots,image,entry,pins):
         need(checked['summary']['compressed_sha256']==records[old]['evidence'][package]['sha256'],'independent-runtime-package-sha')
         records[old]['checker_build']=checked
     private_gate=bridge.finish();comparisons={}
-    for family,labels in (('topmem',contract.LABELS[:2]),('fish',contract.LABELS[2:])):
+    for family,labels in (('topmem',contract.LABELS[:2]),('fish',contract.LABELS[2:4]),('zsh',contract.LABELS[4:])):
         strict=bridge.comparisons[family] if hasattr(bridge,'comparisons') else {
             'equalities':private_gate['packages'][family],'artifact':bridge.expected['packages'][family]['artifact']}
         need(all(strict['equalities'][k] is True for k in contract.GATES),'actual-strict-four-equalities')

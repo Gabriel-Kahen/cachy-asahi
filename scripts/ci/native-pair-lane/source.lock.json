@@ -1,11 +1,11 @@
 {
   "files": {
     ".github/workflows/maintained-composed-installer-v1.yml": {
-      "bytes": 15794,
+      "bytes": 15843,
       "mode": 420,
       "origin": "source",
       "remote_path": ".github/workflows/maintained-composed-installer-v1.yml",
-      "sha256": "ba56e151c595f2654ecb8c4665fd2141168de54edd84fc4ba875f9ccbcf8dd0c"
+      "sha256": "d2fd7381fe8bac4d9235132598474b35250b3ad7f2ffb09c1261bd134df9212e"
     },
     "data/scripts/ci/inputs.lock.json": {
       "bytes": 328101,
@@ -105,6 +105,90 @@
       "remote_path": "packages/shells/cachy-asahi-fish-bang-bang/usage.md",
       "sha256": "37a52ff036984a5beb4f42b8837a78f3de3391081240b470177ecc0b03aa6890"
     },
+    "packages/shells/cachy-asahi-zsh-autosuggestions/.SRCINFO": {
+      "bytes": 1086,
+      "mode": 420,
+      "origin": "source",
+      "remote_path": "packages/shells/cachy-asahi-zsh-autosuggestions/.SRCINFO",
+      "sha256": "792f2eecf1e573ea5db849e363ac5e539278767e087b7f640eb58cefbabb798c"
+    },
+    "packages/shells/cachy-asahi-zsh-autosuggestions/LICENSE.project": {
+      "bytes": 1081,
+      "mode": 420,
+      "origin": "source",
+      "remote_path": "packages/shells/cachy-asahi-zsh-autosuggestions/LICENSE.project",
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "packages/shells/cachy-asahi-zsh-autosuggestions/LICENSE.upstream": {
+      "bytes": 1096,
+      "mode": 420,
+      "origin": "source",
+      "remote_path": "packages/shells/cachy-asahi-zsh-autosuggestions/LICENSE.upstream",
+      "sha256": "4598a6be0b8d7f2b708da5259d2a30d4e15e59b3c66781bab9e27744a9f859d8"
+    },
+    "packages/shells/cachy-asahi-zsh-autosuggestions/NOTICE": {
+      "bytes": 633,
+      "mode": 420,
+      "origin": "source",
+      "remote_path": "packages/shells/cachy-asahi-zsh-autosuggestions/NOTICE",
+      "sha256": "9171e9a773c8b7c60ae8e489608f7ef4a4dba3a762156aa57e4673960ab2c921"
+    },
+    "packages/shells/cachy-asahi-zsh-autosuggestions/PKGBUILD": {
+      "bytes": 2209,
+      "mode": 420,
+      "origin": "source",
+      "remote_path": "packages/shells/cachy-asahi-zsh-autosuggestions/PKGBUILD",
+      "sha256": "12d3fb64c53b23d1e07131a82a6319dee9cb2ac0ebb233e569167947c5ac44e7"
+    },
+    "packages/shells/cachy-asahi-zsh-autosuggestions/README.md": {
+      "bytes": 3269,
+      "mode": 420,
+      "origin": "source",
+      "remote_path": "packages/shells/cachy-asahi-zsh-autosuggestions/README.md",
+      "sha256": "775d480926b42496f937aaa019978ae26db6d21cbfa331ef33999f1874c1e4fd"
+    },
+    "packages/shells/cachy-asahi-zsh-autosuggestions/check-module.py": {
+      "bytes": 13447,
+      "mode": 420,
+      "origin": "source",
+      "remote_path": "packages/shells/cachy-asahi-zsh-autosuggestions/check-module.py",
+      "sha256": "fa81e94383b3d7caa1522ea6be165579ba7a4d0775f6cc7f1e14c343fb6946bc"
+    },
+    "packages/shells/cachy-asahi-zsh-autosuggestions/integration-proposal.json": {
+      "bytes": 1130,
+      "mode": 420,
+      "origin": "source",
+      "remote_path": "packages/shells/cachy-asahi-zsh-autosuggestions/integration-proposal.json",
+      "sha256": "40949e6667a2859c7fbc8ce82b78183db3bf353669e2ea1291ff47c2551d6c3d"
+    },
+    "packages/shells/cachy-asahi-zsh-autosuggestions/opt-in.zsh": {
+      "bytes": 253,
+      "mode": 420,
+      "origin": "source",
+      "remote_path": "packages/shells/cachy-asahi-zsh-autosuggestions/opt-in.zsh",
+      "sha256": "692bca1e9ba1a2e9bd32de08cb6ffa5d15b19f85b48e1c08d85a48e41fe6f768"
+    },
+    "packages/shells/cachy-asahi-zsh-autosuggestions/source-provenance.json": {
+      "bytes": 1482,
+      "mode": 420,
+      "origin": "source",
+      "remote_path": "packages/shells/cachy-asahi-zsh-autosuggestions/source-provenance.json",
+      "sha256": "0e46b589fefba600766591e8cc02897111c5f45e17415f4a2aac004d46418f36"
+    },
+    "packages/shells/cachy-asahi-zsh-autosuggestions/usage.md": {
+      "bytes": 2776,
+      "mode": 420,
+      "origin": "source",
+      "remote_path": "packages/shells/cachy-asahi-zsh-autosuggestions/usage.md",
+      "sha256": "3b43dee6a8f3c20796bb6e0965fd60b3b2e7b7e8c2d508efc011ba36aada6760"
+    },
+    "packages/shells/cachy-asahi-zsh-autosuggestions/zsh-autosuggestions.zsh": {
+      "bytes": 27017,
+      "mode": 420,
+      "origin": "source",
+      "remote_path": "packages/shells/cachy-asahi-zsh-autosuggestions/zsh-autosuggestions.zsh",
+      "sha256": "eec7ba8f7a71414ace0ea0fab0908d005b24cf65d83b169c0ff97815d3cfc51a"
+    },
     "packages/tools/cachy-asahi-topmem/.SRCINFO": {
       "bytes": 779,
       "mode": 420,
@@ -155,18 +239,18 @@
       "sha256": "207d3c924e37b3e27be2e0024dfe786716cd4464d3042125af543dfbdec6b847"
     },
     "scripts/ci/native-pair-lane/admission.py": {
-      "bytes": 3375,
+      "bytes": 3379,
       "mode": 420,
       "origin": "source",
       "remote_path": "scripts/ci/native-pair-lane/admission.py",
-      "sha256": "af6f44e646151473ef504f07c9054330412564d6ac64ce1bdd96bb5ea7124892"
+      "sha256": "59e2ad2c0ff1672dfc350e54c258d9feb7a5691d93c76189b8f9958222b447de"
     },
     "scripts/ci/native-pair-lane/cache_intake.py": {
-      "bytes": 18964,
+      "bytes": 25653,
       "mode": 420,
       "origin": "source",
       "remote_path": "scripts/ci/native-pair-lane/cache_intake.py",
-      "sha256": "07ada8534f4fd21def79ab98c62334e4e0e6a7f5b15a9da8c7eacf44376c334d"
+      "sha256": "f454fb98d5076bab89c4927a95186e550f106ce51f42875e75971fed315e1100"
     },
     "scripts/ci/native-pair-lane/donor/controller.py": {
       "bytes": 100623,
@@ -190,11 +274,11 @@
       "sha256": "9d5a7dc25fd44e127c457c72addb28272b1eb1f5391c4c5b8d5b0a226a3be048"
     },
     "scripts/ci/native-pair-lane/lane.py": {
-      "bytes": 14389,
+      "bytes": 14393,
       "mode": 420,
       "origin": "source",
       "remote_path": "scripts/ci/native-pair-lane/lane.py",
-      "sha256": "292da62e25fe12763670e147c25bc7360382fa8e98683843b46fd09e7f9e953f"
+      "sha256": "c8f6faaf9f6e669b5b93a2a112b96f80dbd3848f9b28941b048933446c162be2"
     },
     "scripts/ci/native-pair-lane/lane_clock.py": {
       "bytes": 2354,
@@ -232,18 +316,18 @@
       "sha256": "bc95e54e299d8f9d6a17bd3315090e29ab1b76ccc8866ab4445cd614e560b8cd"
     },
     "scripts/ci/native-pair-lane/native_selection.py": {
-      "bytes": 29657,
+      "bytes": 29649,
       "mode": 420,
       "origin": "source",
       "remote_path": "scripts/ci/native-pair-lane/native_selection.py",
-      "sha256": "db66c085de55762068edb56304b60890b735cf2c783d9019fe5a77d026387531"
+      "sha256": "e1ca082d18b0c2b7f037bc15186cba2c4e5b913e89f1a486ad9fd0ac26a9357f"
     },
     "scripts/ci/native-pair-lane/pair_guardian.py": {
-      "bytes": 22800,
+      "bytes": 22816,
       "mode": 420,
       "origin": "source",
       "remote_path": "scripts/ci/native-pair-lane/pair_guardian.py",
-      "sha256": "a3ce0125a613d574db2ad31401971d7f9dff9dbe24895321b2fe60a41ed31001"
+      "sha256": "10138e9732e9d68439bfa970e1fbd6fdb10c1d05bc84d34647cf61ac04d2f038"
     },
     "scripts/ci/native-pair-lane/source_custody.py": {
       "bytes": 5719,
@@ -253,74 +337,74 @@
       "sha256": "74b9321b64fa40d753a1a6b9b922404a8e77d1ad864819318ed54c4f3c359fcb"
     },
     "scripts/ci/native-pair-lane/worker/bootstrap.py": {
-      "bytes": 26117,
+      "bytes": 26073,
       "mode": 420,
       "origin": "source",
       "remote_path": "scripts/ci/native-pair-lane/worker/bootstrap.py",
-      "sha256": "df03612bcdec9140a6ad09331d37073beec4ef49e09e524df03ec367fec3db51"
+      "sha256": "d65104d312ccbd2c56c60f1c8c22b07418c567ee0f545b32be6344fcc98d4bd1"
     },
     "scripts/ci/native-pair-lane/worker/capabilities.py": {
-      "bytes": 26260,
+      "bytes": 26308,
       "mode": 420,
       "origin": "source",
       "remote_path": "scripts/ci/native-pair-lane/worker/capabilities.py",
-      "sha256": "82afc15b554dd64525ee4d4206c55a4f9e3e3c1414107ccc35c8c601d6164149"
+      "sha256": "7fd72715ff270a85039aa0de37b62f988a86d0844aa45be59040fadce36770bc"
     },
     "scripts/ci/native-pair-lane/worker/capacity/boundary-followup/capacity_plan.py": {
-      "bytes": 28462,
+      "bytes": 29069,
       "mode": 420,
       "origin": "source",
       "remote_path": "scripts/ci/native-pair-lane/worker/capacity/boundary-followup/capacity_plan.py",
-      "sha256": "b715f014f2a53c5e18160369323a303786c2b362d0a7ba6c54d278fead2d9558"
+      "sha256": "3cdf93e97edee64c351712f099e0c92b16735f0d2340262d8993d83953eed2fa"
     },
     "scripts/ci/native-pair-lane/worker/checker_bridge.py": {
-      "bytes": 21012,
+      "bytes": 21061,
       "mode": 420,
       "origin": "source",
       "remote_path": "scripts/ci/native-pair-lane/worker/checker_bridge.py",
-      "sha256": "68c42111cc299082a1c8618eec86e3cd0a1de648d38fd0876a8f1bbae717ffeb"
+      "sha256": "96169422bd0e19b9b09af4c4493d6376a77619bc30aa2a10ed9e402c3e6f5139"
     },
     "scripts/ci/native-pair-lane/worker/pair_contract.py": {
-      "bytes": 8342,
+      "bytes": 9691,
       "mode": 420,
       "origin": "source",
       "remote_path": "scripts/ci/native-pair-lane/worker/pair_contract.py",
-      "sha256": "f43dbc3ec6a1480e4065687f7f0a0cfc9a1c5363e146de707858a81f061d867b"
+      "sha256": "062f3e9e9d9a2f084a322030493d25ad17c077b254a48433fefd7224cedcaec8"
     },
     "scripts/ci/native-pair-lane/worker/pair_driver.py": {
-      "bytes": 43261,
+      "bytes": 43754,
       "mode": 420,
       "origin": "source",
       "remote_path": "scripts/ci/native-pair-lane/worker/pair_driver.py",
-      "sha256": "1f969a981908c289c254008fa9c05b538aa5992f0a9240575cd6d4841ef4513a"
+      "sha256": "60240529ad9575ae1aa8714ba2487c94bc63dada31618999b62c35c577a9272e"
     },
     "scripts/ci/native-pair-lane/worker/prepare_packet.py": {
-      "bytes": 3125,
+      "bytes": 3129,
       "mode": 420,
       "origin": "source",
       "remote_path": "scripts/ci/native-pair-lane/worker/prepare_packet.py",
-      "sha256": "ff7b23dcef7d322cfe5e2d539ad2045c71bd5178050c3cf2f0e4ccf23cbac061"
+      "sha256": "4c457b65211cbbafce8293a29baea371f6ccab0a9a797cf3132840d12ec3f731"
     },
     "scripts/ci/native-pair-lane/worker/recipe_rows.json": {
-      "bytes": 3491,
+      "bytes": 5792,
       "mode": 420,
       "origin": "source",
       "remote_path": "scripts/ci/native-pair-lane/worker/recipe_rows.json",
-      "sha256": "d44d749724d64c85f363392143cee05fa54b1d057a964aa86793adbac5826753"
+      "sha256": "d8344c4c6c0e2c640da1e40f21c16035f93d4d9839c03b2ca093cf713f40b5ea"
     },
     "scripts/ci/native-pair-lane/worker/selected/adapter/admission.py": {
-      "bytes": 23877,
+      "bytes": 23915,
       "mode": 420,
       "origin": "source",
       "remote_path": "scripts/ci/native-pair-lane/worker/selected/adapter/admission.py",
-      "sha256": "38abfa9be879df629431035366c6ab7356f30ddb1ee703ca4d7c0c7f50f9d01c"
+      "sha256": "844f81659dca1f2c8922d9896f0143391eb706909692c7b584b4aabb34703d94"
     },
     "scripts/ci/native-pair-lane/worker/selected/adapter/descriptor_ops.py": {
-      "bytes": 24904,
+      "bytes": 24905,
       "mode": 420,
       "origin": "source",
       "remote_path": "scripts/ci/native-pair-lane/worker/selected/adapter/descriptor_ops.py",
-      "sha256": "a6e5709eea97b00a91fcc8a2b6d8a8f61a80c9c4648de0dbdd2b24f9d62e7f48"
+      "sha256": "829c2edeb40584eb47c4e7a55a983cc0c9689f0257f30942e953666796f0ea13"
     },
     "scripts/ci/native-pair-lane/worker/selected/adapter/source_library_loader.py": {
       "bytes": 21287,
@@ -330,11 +414,11 @@
       "sha256": "81e99d97dd3260273adcc8c2d069e93b8b4771dd56582469dbce911a3764a591"
     },
     "scripts/ci/native-pair-lane/worker/selected/core/artifact_custody.py": {
-      "bytes": 19782,
+      "bytes": 21867,
       "mode": 420,
       "origin": "source",
       "remote_path": "scripts/ci/native-pair-lane/worker/selected/core/artifact_custody.py",
-      "sha256": "67bfcb0f23a21fd5b95726352b17314b6d244583e278120db3dcad0fc6d010b7"
+      "sha256": "b8a2e28f454c45c3c80639f22dd3464063bbbff831030cbd094dc9a73b7187b4"
     },
     "scripts/ci/native-pair-lane/worker/selected/core/authority.py": {
       "bytes": 3565,
@@ -344,25 +428,25 @@
       "sha256": "139d1236ed823a9fd344f6e2485121c53aeadfe79d78cd0fb03ed45b609ac80b"
     },
     "scripts/ci/native-pair-lane/worker/selected/core/checker.py": {
-      "bytes": 8202,
+      "bytes": 8244,
       "mode": 420,
       "origin": "source",
       "remote_path": "scripts/ci/native-pair-lane/worker/selected/core/checker.py",
-      "sha256": "8db8314b8720d0dbe34280ee29faec0e38b24b562d774c30710e31a8339d7928"
+      "sha256": "b300b5b1a7461a8e979bbac032f22ac7a9d281539a6dd3c2dbeadb695aeb0d9c"
     },
     "scripts/ci/native-pair-lane/worker/selected/core/pair_archive.py": {
-      "bytes": 13669,
+      "bytes": 13016,
       "mode": 420,
       "origin": "source",
       "remote_path": "scripts/ci/native-pair-lane/worker/selected/core/pair_archive.py",
-      "sha256": "b5fd255a8779fccc0b598cabf01743ddc597d2b314703ae1f77f38fcb3c801fe"
+      "sha256": "83269aff3f3b9153ae3bc2b2fc3f9b5986c5c3b13fbdf2a318ef115dca89d453"
     },
     "scripts/ci/native-pair-lane/worker/selected/core/pair_compare.py": {
-      "bytes": 12801,
+      "bytes": 15015,
       "mode": 420,
       "origin": "source",
       "remote_path": "scripts/ci/native-pair-lane/worker/selected/core/pair_compare.py",
-      "sha256": "54acd6085d9fb84e5955a6970994a24788fda513ff1de78c3a4baa581eda817f"
+      "sha256": "15d573e21c1fbaadf8df202d7e5a14b67a4ee164663c2a80dbe295a628ffe29a"
     },
     "scripts/ci/native-pair-lane/worker/selected/core/zstd_owner.py": {
       "bytes": 9634,
@@ -387,5 +471,5 @@
     }
   },
   "schema": 1,
-  "scope": "standalone-original501-topmem-fish-pairs"
+  "scope": "standalone-original501-topmem-fish-zsh-pairs"
 }

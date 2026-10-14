@@ -14,42 +14,11 @@ MEMBER_COUNT_LIMIT = 64
 PATH_LIMIT = 200
 METADATA_LIMIT = 65536
 EPOCH = 1791748800
-RECIPE_PIN = {'cachy-asahi-fish-bang-bang': '05a1b2cb4710cc14f62678df37d1236fee909874b5b709d82d54fe4b8dc0f93d',
- 'cachy-asahi-topmem': 'fc17b0af876ae0dfb97b00e2293bb01fb8c054702d19252804e8ab11196315d2'}
-PAYLOAD = {'cachy-asahi-fish-bang-bang': {'usr/share/cachy-asahi/fish-bang-bang/README.md': {'mode': 420,
-                                                                                   'sha256': '37a52ff036984a5beb4f42b8837a78f3de3391081240b470177ecc0b03aa6890',
-                                                                                   'size': 2810},
-                                'usr/share/cachy-asahi/fish-bang-bang/__history_previous_command.fish': {'mode': 420,
-                                                                                                         'sha256': 'd34b75125a34199775eaa74dd47ae37488c4e67f95f40f71b101b6a8f6f32e50',
-                                                                                                         'size': 170},
-                                'usr/share/cachy-asahi/fish-bang-bang/__history_previous_command_arguments.fish': {'mode': 420,
-                                                                                                                   'sha256': '4e72dcce435d0fe1cf332fb339ed9608f10b29295b28f85ed6e7411ef8c05b64',
-                                                                                                                   'size': 198},
-                                'usr/share/cachy-asahi/fish-bang-bang/opt-in.fish': {'mode': 420,
-                                                                                     'sha256': 'd4dbd9dc123ebb31f821afd78c4b55554b4f17929d214baff35e405436e4cce7',
-                                                                                     'size': 2599},
-                                'usr/share/licenses/cachy-asahi-fish-bang-bang/LICENSE.project': {'mode': 420,
-                                                                                                  'sha256': '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7',
-                                                                                                  'size': 1081},
-                                'usr/share/licenses/cachy-asahi-fish-bang-bang/LICENSE.upstream': {'mode': 420,
-                                                                                                   'sha256': '14c6826a7e33a6c74194ece88b26b5f5aee8473474001946a73d0f298b69fce0',
-                                                                                                   'size': 1108},
-                                'usr/share/licenses/cachy-asahi-fish-bang-bang/NOTICE': {'mode': 420,
-                                                                                         'sha256': '0704c1ff8bcd8c94ad40888b35c5e25468ea9152b5781e7722ff0d04fb8aa879',
-                                                                                         'size': 811}},
- 'cachy-asahi-topmem': {'usr/bin/cachy-asahi-topmem': {'mode': 493,
-                                                       'sha256': '96c1b49a92cb6e97d1fe5c51c23f452d79341f2d71cd624cd3197d33b29633b1',
-                                                       'size': 4203},
-                        'usr/share/doc/cachy-asahi-topmem/README.md': {'mode': 420,
-                                                                       'sha256': '90082e9119cdea843b0e060f4061a300015dffd6a25c55d12a72b0a75348cf2b',
-                                                                       'size': 2543},
-                        'usr/share/licenses/cachy-asahi-topmem/LICENSE': {'mode': 420,
-                                                                          'sha256': '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7',
-                                                                          'size': 1081},
-                        'usr/share/licenses/cachy-asahi-topmem/NOTICE': {'mode': 420,
-                                                                         'sha256': '07227afce6f380bcf3deaf9b273fb286f6bcee69b5f1dddec9ebcd1dc2ecd098',
-                                                                         'size': 395}}}
+RECIPE_PIN = {'cachy-asahi-fish-bang-bang': '05a1b2cb4710cc14f62678df37d1236fee909874b5b709d82d54fe4b8dc0f93d', 'cachy-asahi-topmem': 'fc17b0af876ae0dfb97b00e2293bb01fb8c054702d19252804e8ab11196315d2', 'cachy-asahi-zsh-autosuggestions': '12d3fb64c53b23d1e07131a82a6319dee9cb2ac0ebb233e569167947c5ac44e7'}
+PAYLOAD = {'cachy-asahi-fish-bang-bang': {'usr/share/cachy-asahi/fish-bang-bang/README.md': {'mode': 420, 'sha256': '37a52ff036984a5beb4f42b8837a78f3de3391081240b470177ecc0b03aa6890', 'size': 2810}, 'usr/share/cachy-asahi/fish-bang-bang/__history_previous_command.fish': {'mode': 420, 'sha256': 'd34b75125a34199775eaa74dd47ae37488c4e67f95f40f71b101b6a8f6f32e50', 'size': 170}, 'usr/share/cachy-asahi/fish-bang-bang/__history_previous_command_arguments.fish': {'mode': 420, 'sha256': '4e72dcce435d0fe1cf332fb339ed9608f10b29295b28f85ed6e7411ef8c05b64', 'size': 198}, 'usr/share/cachy-asahi/fish-bang-bang/opt-in.fish': {'mode': 420, 'sha256': 'd4dbd9dc123ebb31f821afd78c4b55554b4f17929d214baff35e405436e4cce7', 'size': 2599}, 'usr/share/licenses/cachy-asahi-fish-bang-bang/LICENSE.project': {'mode': 420, 'sha256': '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7', 'size': 1081}, 'usr/share/licenses/cachy-asahi-fish-bang-bang/LICENSE.upstream': {'mode': 420, 'sha256': '14c6826a7e33a6c74194ece88b26b5f5aee8473474001946a73d0f298b69fce0', 'size': 1108}, 'usr/share/licenses/cachy-asahi-fish-bang-bang/NOTICE': {'mode': 420, 'sha256': '0704c1ff8bcd8c94ad40888b35c5e25468ea9152b5781e7722ff0d04fb8aa879', 'size': 811}}, 'cachy-asahi-topmem': {'usr/bin/cachy-asahi-topmem': {'mode': 493, 'sha256': '96c1b49a92cb6e97d1fe5c51c23f452d79341f2d71cd624cd3197d33b29633b1', 'size': 4203}, 'usr/share/doc/cachy-asahi-topmem/README.md': {'mode': 420, 'sha256': '90082e9119cdea843b0e060f4061a300015dffd6a25c55d12a72b0a75348cf2b', 'size': 2543}, 'usr/share/licenses/cachy-asahi-topmem/LICENSE': {'mode': 420, 'sha256': '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7', 'size': 1081}, 'usr/share/licenses/cachy-asahi-topmem/NOTICE': {'mode': 420, 'sha256': '07227afce6f380bcf3deaf9b273fb286f6bcee69b5f1dddec9ebcd1dc2ecd098', 'size': 395}}, 'cachy-asahi-zsh-autosuggestions': {'usr/share/cachy-asahi/zsh-autosuggestions/README.md': {'mode': 420, 'sha256': '3b43dee6a8f3c20796bb6e0965fd60b3b2e7b7e8c2d508efc011ba36aada6760', 'size': 2776}, 'usr/share/cachy-asahi/zsh-autosuggestions/opt-in.zsh': {'mode': 420, 'sha256': '692bca1e9ba1a2e9bd32de08cb6ffa5d15b19f85b48e1c08d85a48e41fe6f768', 'size': 253}, 'usr/share/cachy-asahi/zsh-autosuggestions/zsh-autosuggestions.zsh': {'mode': 420, 'sha256': 'eec7ba8f7a71414ace0ea0fab0908d005b24cf65d83b169c0ff97815d3cfc51a', 'size': 27017}, 'usr/share/licenses/cachy-asahi-zsh-autosuggestions/LICENSE.project': {'mode': 420, 'sha256': '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7', 'size': 1081}, 'usr/share/licenses/cachy-asahi-zsh-autosuggestions/LICENSE.upstream': {'mode': 420, 'sha256': '4598a6be0b8d7f2b708da5259d2a30d4e15e59b3c66781bab9e27744a9f859d8', 'size': 1096}, 'usr/share/licenses/cachy-asahi-zsh-autosuggestions/NOTICE': {'mode': 420, 'sha256': '9171e9a773c8b7c60ae8e489608f7ef4a4dba3a762156aa57e4673960ab2c921', 'size': 633}}}
 
+
+VERSIONS = {'cachy-asahi-topmem': '0.1.0-1', 'cachy-asahi-fish-bang-bang': '0.1.0-1', 'cachy-asahi-zsh-autosuggestions': '0.7.1-1'}
 
 def need(ok, reason):
     if not ok:
@@ -176,14 +145,14 @@ def interpret(raw, package, epoch, pkgbuild_sha256, authority):
         need(info.get('size') == [str(sum(v['size'] for v in allowed.values()))], 'pkginfo-size')
         need(info.get('xdata', ['pkgtype=pkg']) == ['pkgtype=pkg'], 'pkginfo-kind')
         need(info.get('pkgbase', [package]) == build.get('pkgbase', [package]) == [package], 'metadata-pkgbase')
-        for key, value in {'pkgname': package, 'pkgver': '0.1.0-1', 'arch': 'any', 'license': 'MIT', 'builddate': str(epoch)}.items():
+        for key, value in {'pkgname': package, 'pkgver': VERSIONS[package], 'arch': 'any', 'license': 'MIT', 'builddate': str(epoch)}.items():
             need(info.get(key) == [value], 'pkginfo-identity')
         need(not (set(info) & {'install', 'backup', 'conflict', 'replaces', 'provides'}), 'pkginfo-unreviewed')
-        dependencies = ['python>=3.11'] if package == 'cachy-asahi-topmem' else ['fish>=4.0']
+        dependencies = {'cachy-asahi-topmem':['python>=3.11'], 'cachy-asahi-fish-bang-bang':['fish>=4.0'], 'cachy-asahi-zsh-autosuggestions':['zsh>=4.3.11']}[package]
         need(info.get('depend') == dependencies, 'pkginfo-dependencies')
-        expected_optional = [] if package == 'cachy-asahi-topmem' else ['cachy-asahi-fish-config: separately enabled original shell helpers']
+        expected_optional = {'cachy-asahi-topmem':[], 'cachy-asahi-fish-bang-bang':['cachy-asahi-fish-config: separately enabled original shell helpers'], 'cachy-asahi-zsh-autosuggestions':['coreutils: stty for upstream optional completion suggestions']}[package]
         need(info.get('optdepend', []) == expected_optional, 'pkginfo-optional')
-        for key, value in {'format': '2', 'pkgname': package, 'pkgver': '0.1.0-1', 'pkgarch': 'any',
+        for key, value in {'format': '2', 'pkgname': package, 'pkgver': VERSIONS[package], 'pkgarch': 'any',
                            'pkgbuild_sha256sum': pkgbuild_sha256, 'builddate': str(epoch)}.items():
             need(build.get(key) == [value], 'buildinfo-identity')
         authority.check()

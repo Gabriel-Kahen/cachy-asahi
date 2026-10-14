@@ -59,6 +59,66 @@
     "mode": 420,
     "sha256": "37a52ff036984a5beb4f42b8837a78f3de3391081240b470177ecc0b03aa6890"
   },
+  "packages/shells/cachy-asahi-zsh-autosuggestions/.SRCINFO": {
+    "bytes": 1086,
+    "mode": 420,
+    "sha256": "792f2eecf1e573ea5db849e363ac5e539278767e087b7f640eb58cefbabb798c"
+  },
+  "packages/shells/cachy-asahi-zsh-autosuggestions/LICENSE.project": {
+    "bytes": 1081,
+    "mode": 420,
+    "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+  },
+  "packages/shells/cachy-asahi-zsh-autosuggestions/LICENSE.upstream": {
+    "bytes": 1096,
+    "mode": 420,
+    "sha256": "4598a6be0b8d7f2b708da5259d2a30d4e15e59b3c66781bab9e27744a9f859d8"
+  },
+  "packages/shells/cachy-asahi-zsh-autosuggestions/NOTICE": {
+    "bytes": 633,
+    "mode": 420,
+    "sha256": "9171e9a773c8b7c60ae8e489608f7ef4a4dba3a762156aa57e4673960ab2c921"
+  },
+  "packages/shells/cachy-asahi-zsh-autosuggestions/PKGBUILD": {
+    "bytes": 2209,
+    "mode": 420,
+    "sha256": "12d3fb64c53b23d1e07131a82a6319dee9cb2ac0ebb233e569167947c5ac44e7"
+  },
+  "packages/shells/cachy-asahi-zsh-autosuggestions/README.md": {
+    "bytes": 3269,
+    "mode": 420,
+    "sha256": "775d480926b42496f937aaa019978ae26db6d21cbfa331ef33999f1874c1e4fd"
+  },
+  "packages/shells/cachy-asahi-zsh-autosuggestions/check-module.py": {
+    "bytes": 13447,
+    "mode": 420,
+    "sha256": "fa81e94383b3d7caa1522ea6be165579ba7a4d0775f6cc7f1e14c343fb6946bc"
+  },
+  "packages/shells/cachy-asahi-zsh-autosuggestions/integration-proposal.json": {
+    "bytes": 1130,
+    "mode": 420,
+    "sha256": "40949e6667a2859c7fbc8ce82b78183db3bf353669e2ea1291ff47c2551d6c3d"
+  },
+  "packages/shells/cachy-asahi-zsh-autosuggestions/opt-in.zsh": {
+    "bytes": 253,
+    "mode": 420,
+    "sha256": "692bca1e9ba1a2e9bd32de08cb6ffa5d15b19f85b48e1c08d85a48e41fe6f768"
+  },
+  "packages/shells/cachy-asahi-zsh-autosuggestions/source-provenance.json": {
+    "bytes": 1482,
+    "mode": 420,
+    "sha256": "0e46b589fefba600766591e8cc02897111c5f45e17415f4a2aac004d46418f36"
+  },
+  "packages/shells/cachy-asahi-zsh-autosuggestions/usage.md": {
+    "bytes": 2776,
+    "mode": 420,
+    "sha256": "3b43dee6a8f3c20796bb6e0965fd60b3b2e7b7e8c2d508efc011ba36aada6760"
+  },
+  "packages/shells/cachy-asahi-zsh-autosuggestions/zsh-autosuggestions.zsh": {
+    "bytes": 27017,
+    "mode": 420,
+    "sha256": "eec7ba8f7a71414ace0ea0fab0908d005b24cf65d83b169c0ff97815d3cfc51a"
+  },
   "packages/tools/cachy-asahi-topmem/.SRCINFO": {
     "bytes": 779,
     "mode": 420,

@@ -115,8 +115,8 @@ def check_artifact(artifact, library, grant, *, package, label, loader):
         need(getattr(artifact, '_output', False) is True
              and grant.owner.ops.output_owned(artifact.path) is True,
              'checker-positive-output-lease')
-        name = 'cachy-asahi-' + ('topmem' if package == 'topmem' else 'fish-bang-bang')
-        artifact_name = name + '-0.1.0-1-any.pkg.tar.zst'
+        name = {'topmem':'cachy-asahi-topmem','fish':'cachy-asahi-fish-bang-bang','zsh':'cachy-asahi-zsh-autosuggestions'}[package]
+        artifact_name = pair_compare.ARTIFACTS[package]
         need(artifact.path.rsplit('/', 1)[-1] == artifact_name, 'checker-output-name')
         # Decoder hashes compressed bytes through the very same held descriptor.
         decoded = zstd_owner.decode(artifact, library, authority, loader=loader)

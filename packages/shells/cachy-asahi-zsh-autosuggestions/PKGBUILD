@@ -10,7 +10,7 @@ url='https://github.com/zsh-users/zsh-autosuggestions'
 license=('MIT')
 depends=('zsh>=4.3.11')
 optdepends=('coreutils: stty for upstream optional completion suggestions')
-source=('zsh-autosuggestions.zsh' 'opt-in.zsh' 'usage.md' 'NOTICE' 'LICENSE.upstream' 'LICENSE.project')
+source=('zsh-autosuggestions.zsh' 'opt-in.zsh' 'usage.md' 'NOTICE' 'LICENSE.upstream' 'LICENSE.project' 'check-module.py')
 sha256sums=(
   'eec7ba8f7a71414ace0ea0fab0908d005b24cf65d83b169c0ff97815d3cfc51a'
   '692bca1e9ba1a2e9bd32de08cb6ffa5d15b19f85b48e1c08d85a48e41fe6f768'
@@ -18,11 +18,17 @@ sha256sums=(
   '9171e9a773c8b7c60ae8e489608f7ef4a4dba3a762156aa57e4673960ab2c921'
   '4598a6be0b8d7f2b708da5259d2a30d4e15e59b3c66781bab9e27744a9f859d8'
   '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7'
+  'fa81e94383b3d7caa1522ea6be165579ba7a4d0775f6cc7f1e14c343fb6946bc'
 )
 
 check() {
   zsh -n "$srcdir/zsh-autosuggestions.zsh"
   zsh -n "$srcdir/opt-in.zsh"
+  python3 "$srcdir/check-module.py" --wrapper "$srcdir/opt-in.zsh" \
+    --wrapper-sha256 692bca1e9ba1a2e9bd32de08cb6ffa5d15b19f85b48e1c08d85a48e41fe6f768 \
+    --module-sha256 eec7ba8f7a71414ace0ea0fab0908d005b24cf65d83b169c0ff97815d3cfc51a \
+    --output "$srcdir/native-opt-in-fixtures"
+  cp "$srcdir/native-opt-in-fixtures/receipt.json" "$startdir/zsh-native-fixtures.log"
 }
 
 package() {

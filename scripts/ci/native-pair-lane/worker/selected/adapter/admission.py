@@ -17,7 +17,7 @@ SOURCE_BINDING = '8fbbcb8f5a4365e4f1a46dda6e05d03eb31b3edd76ea0dbf7f28a556334246
 INVENTORY = 'fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25'
 INPUTS = 'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f'
 LIBRARY_SHA = 'fe726238b170b83aa83bf1f8a79109b8b61b9eb45234304511d093bbe5f5fb20'
-LABELS = ('topmem-current-1','topmem-current-2','fish-current-1','fish-current-2')
+LABELS = ('topmem-current-1', 'topmem-current-2', 'fish-current-1', 'fish-current-2', 'zsh-current-1', 'zsh-current-2')
 SIGNATURES = {
     'ZSTD_createDStream': ((), 'ptr'),
     'ZSTD_initDStream': (('ptr',), 'size_t'),
@@ -231,7 +231,7 @@ class Admission:
             need(type(plan) is dict and set(plan)==PLAN_KEYS
                  and all(type(v) is int and v>=0 for v in plan.values()),'closed-allocation-plan')
             need(plan['files']<=128 and sum(plan[k] for k in ('files','directories','mkdir_reservations','noacquisition_attempts','scanners'))<=256
-                 and plan['mask_reservations']<=1024 and plan['backend_calls']<=65536
+                 and plan['mask_reservations']<=1024 and plan['backend_calls']<=262144
                  and plan['read_requests']<=1024**3 and plan['write_requests']<=1024**3,'allocation-plan-capacity')
             for name,route in routes.items():
                 need(relative(name) and type(route) is Route and absolute(route.root)
@@ -260,7 +260,7 @@ class Admission:
                 need(binding.label not in bylabel or bylabel[binding.label][:3]==(binding.container_id,binding.image_id,binding.context_sha256),'same-label-binding')
                 bylabel[binding.label]=(binding.container_id,binding.image_id,binding.context_sha256,binding.output_root)
             if bindings:
-                need(set(bylabel)==set(LABELS) and len({b[0] for b in bylabel.values()})==4
+                need(set(bylabel)==set(LABELS) and len({b[0] for b in bylabel.values()})==6
                      and len({b[1] for b in bylabel.values()})==1 and len({b[2] for b in bylabel.values()})==1,'four-distinct-selected-containers')
             rows=selection['source_rows'];need(ROOT_SOURCE_ROWS is not None and type(rows) is dict
                  and set(rows)=={'authority.py','artifact_custody.py','zstd_owner.py','pair_archive.py','pair_compare.py','checker.py'},'source6-membership')
@@ -350,7 +350,7 @@ class Admission:
             need(self.enabled and self._fields is not None,'root-current-job-grant-pending')
             now=self.authority.check(cleanup=kind=='cleanup')
             spent=getattr(self.authority,'_live_admission_checks',0)
-            need(type(spent) is int and spent<131072,'original-job-grant-check-cap')
+            need(type(spent) is int and spent<786432,'original-job-grant-check-cap')
             self.authority._live_admission_checks=spent+1
             need(type(self._observer) is self._observer_type and self._observer_type is not None,'root-observer-type')
             observed=self._observer.capture(kind)

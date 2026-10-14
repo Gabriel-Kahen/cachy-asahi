@@ -9,10 +9,10 @@ closing its input descriptor does not prove unmapping or permit publication.
 from types import MappingProxyType, ModuleType
 
 API = 'sealed-checker-bridge-v1'
-SOURCE_BINDING = 'e436b9c3d3046db3b05b1731400c9f8cbe06197ba39109ce62b595ccd29c3fca'
+SOURCE_BINDING = '7b383d3b267fad8a2891af284a055c6e8eade17f231a89f06222183b30388cd2'
 LABEL_MAP = MappingProxyType({
     'topmem-1': 'topmem-current-1', 'topmem-2': 'topmem-current-2',
-    'fish-1': 'fish-current-1', 'fish-2': 'fish-current-2'})
+    'fish-1': 'fish-current-1', 'fish-2': 'fish-current-2', 'zsh-1':'zsh-current-1','zsh-2':'zsh-current-2'})
 LABELS = tuple(LABEL_MAP.values())
 CORE = ('authority', 'artifact_custody', 'zstd_owner', 'pair_archive',
         'pair_compare', 'checker')
@@ -155,7 +155,7 @@ class CheckerBridge:
              and checker.pair_archive is modules['pair_archive']
              and checker.zstd_owner is modules['zstd_owner'], 'bridge-private-module-graph')
         compare = modules['pair_compare']
-        need(tuple(compare.LABELS) == LABELS and len(set(LABEL_MAP.values())) == 4,
+        need(tuple(compare.LABELS) == LABELS and len(set(LABEL_MAP.values())) == 6,
              'bridge-label-bijection')
         self._action(compare.validate_expected, expected, self.authority)
         need(admission.source_binding == SOURCE_BINDING
