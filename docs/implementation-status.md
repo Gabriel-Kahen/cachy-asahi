@@ -2,6 +2,25 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 14, 05:57 UTC: signer diagnostic Source `896c0182` completes actual
+`38518739152` FAIL with Root completion `c84e44bb`. Its same-observation stat
+record proves the sole failed condition is an empty Python standard-library
+`urllib/__init__.py` (regular 0644, root-owned, one link, zero bytes). Independent
+actual review and a narrow role-aware sampling correction are in progress.
+Compilation and signing remain unaccepted.
+
+KSM recovery Source `db448727` is published after independent peer `53eb4ec7`
+and verification of all 158 committed packet rows plus the packet. The workflow
+is dispatch-only; no new native KSM result is claimed. Dispatch waits behind
+library run `38510908030` and pending Topmem/Fish run `38511520135`.
+
+Independent six-output review `daa57c2b` authenticates the proposal and passes
+nine focused control groups, but finds two cleanup guardian counts still require
+five containers while the closed roles require seven. A separate successor is
+correcting those two checks and their hash cascade. The proposal remains
+unadmitted; the active pair registration and job are unchanged. Full R1–R5/M5–M9,
+installation, measured performance and both-size M2 acceptance remain open.
+
 October 14, 05:35 UTC: the narrow package-field correction is published as
 Source `a1762efe`, with all ten committed copy rows verified and independent
 peer `0906a82d` passing 79 assertions. Actual observation `38515440452` advances
