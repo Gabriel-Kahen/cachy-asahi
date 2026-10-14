@@ -293,6 +293,8 @@ def composed_sources(root, source_packet, grant_raw, grant_pin, runtime_raw, out
     """Authenticate exact packet and explicit per-run contracts before allocation."""
     within(deadline)
     composed_mode(source_packet,composition)
+    if composition == packet.LIBRARY_COMPOSITION:
+        import base_stages
     grant = packet.decode(grant_raw);runtime = packet.decode(runtime_raw)
     require(type(grant) is dict and grant.get('source_files') == source_packet['source_files'] and
             grant.get('policy_path') == packet.GENERIC_POLICY and grant.get('license_path') == 'LICENSE' and

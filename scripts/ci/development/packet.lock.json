@@ -1781,7 +1781,7 @@
     },
     "scripts/ci/development/controller.py": {
       "mode": 420,
-      "sha256": "73930bc2ba5555b48353447b3598a0756a8f01995dbd6b0fae41f587a66ca590"
+      "sha256": "0e227b6d56cf169ce29c10e4829613be4d6c64d267b90ef638ef5798503998ff"
     },
     "scripts/ci/development/initial_artifacts.py": {
       "mode": 420,
@@ -1861,7 +1861,7 @@
     },
     "scripts/ci/development/repository_handoff.py": {
       "mode": 420,
-      "sha256": "a3a220910e4f47957003512bff69e8727228d7d40b537250dca640be1993fb79"
+      "sha256": "04f2316b2be3368bf812dc06b92c4253509b5745179496864bd1e2e39777cbb8"
     },
     "scripts/ci/development/test_base_stages.py": {
       "mode": 420,

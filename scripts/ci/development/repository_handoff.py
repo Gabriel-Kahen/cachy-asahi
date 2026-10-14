@@ -2208,7 +2208,9 @@ class Session:
                 self.startup_phase = 'register-installer'
                 self.register_native_preflight()
             if self.composition == 'repository-svg-zsh':self.register_zsh()
-            if self.composition == 'project-libraries-maintained-v1':self.register_project_libraries()
+            if self.composition == 'project-libraries-maintained-v1':
+                self.startup_phase = 'register-project-libraries'
+                self.register_project_libraries()
             self.startup_phase = 'capture-dependencies'
             self.sources.source_graph(self,capture=True)
             (self.private/'custody').mkdir(mode=0o700)

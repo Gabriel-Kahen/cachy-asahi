@@ -71,7 +71,7 @@ jobs:
           ISSUER_SHA = 'e51d38388b363362768dd4ea834c10e6be01666e63f3541cd00ba2e9577b8762'
           EXECUTION_REF = 'refs/heads/codex/project-private-libraries-v1'
           COMPOSITION = 'project-libraries-maintained-v1'
-          PACKET_SHA = '34e6eed069f0a10b8a3bbdf726be3141c6b8c57989e14168d2bf79e7e7b3595c'
+          PACKET_SHA = '91773656c7e2e7162fe54f578c88826af8dc8f7bcf8585f32fad128bdbe339fa'
           PLAN_ENV = 'ROOT_REGISTERED_PROJECT_LIBRARY_PLAN_B64'
           PIN_ENV = 'ROOT_REGISTERED_PROJECT_LIBRARY_PLAN_SHA256'
 
