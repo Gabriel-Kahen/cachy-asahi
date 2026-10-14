@@ -1266,12 +1266,23 @@ class StartupRefusalModels(unittest.TestCase):
             first=error
         else:self.fail('graph function accepted')
         self.assertEqual(str(first),'callback-refused')
-        self.assertEqual(first._source_refusal_site,'GRAPH_FUNCTION')
+        self.assertEqual(first._source_refusal_site,'GRAPH_OBJECT_BINDING')
         self.fail(error=first);before=dict(self.session.startup_failure)
         self.session.startup_phase='cleanup';self.session.startup_failed(SystemExit(17))
         self.assertEqual(self.session.startup_failure,before)
-        self.assertEqual(self.session.startup_projection()['site'],'GRAPH_FUNCTION')
+        self.assertEqual(self.session.startup_projection()['site'],'GRAPH_OBJECT_BINDING')
         self.assertEqual(self.session.result['error_code'],'callback-refused')
+    def test_graph_held_code_binding_refusal_is_closed(self):
+        module=types.ModuleType('diagnostic-held-code-model')
+        module.__file__=str(self.root/'scripts/ci/development/repository_handoff.py')
+        exec(compile('def callback():pass',module.__file__,'exec'),module.__dict__)
+        try:self.sources.graph_function(module.callback,module)
+        except adapter.Refused as error:first=error
+        else:self.fail('foreign held code accepted')
+        self.assertEqual(str(first),'callback-refused')
+        self.assertEqual(first._source_refusal_site,'GRAPH_HELD_CODE_BINDING')
+        self.fail(error=first)
+        self.assertEqual(self.session.startup_projection()['site'],'GRAPH_HELD_CODE_BINDING')
     def test_invalid_diagnostic_and_expiry_refuse_without_output(self):
         import contextlib,io
         self.fail()

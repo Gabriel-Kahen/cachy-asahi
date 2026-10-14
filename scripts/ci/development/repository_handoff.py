@@ -381,14 +381,38 @@ class Sources:
 
     def graph_function(self, function, module, compiled=None):
         """Private loader namespaces bind objects, never filename labels alone."""
-        need(type(function) is types.FunctionType and type(module) is types.ModuleType
-             and function.__globals__ is module.__dict__,'callback-refused')
+        try:
+            need(type(function) is types.FunctionType and type(module) is types.ModuleType
+                 and function.__globals__ is module.__dict__,'callback-refused')
+        except Refused as error:
+            try:
+                if type(error) is Refused:
+                    trace = error.__traceback__
+                    if (trace is not None and trace.tb_frame.f_code is Sources.graph_function.__code__
+                            and trace.tb_frame.f_globals is globals() and trace.tb_next is not None
+                            and trace.tb_next.tb_frame.f_code is need.__code__
+                            and trace.tb_next.tb_frame.f_globals is globals() and trace.tb_next.tb_next is None):
+                        error._source_refusal_site = 'GRAPH_OBJECT_BINDING'
+            except BaseException:pass
+            raise
         filename = str(Path(module.__file__).absolute());path = self.locate(filename)
         if compiled is None:compiled = {}
         if path in self.raw and filename not in compiled:
             compiled[filename] = tuple(code_objects(compile(self.raw[path],filename,'exec')))
-        need(path in self.raw and function.__code__.co_filename == filename and
-             any(function.__code__ == code for code in compiled.get(filename,())),'callback-refused')
+        try:
+            need(path in self.raw and function.__code__.co_filename == filename and
+                 any(function.__code__ == code for code in compiled.get(filename,())),'callback-refused')
+        except Refused as error:
+            try:
+                if type(error) is Refused:
+                    trace = error.__traceback__
+                    if (trace is not None and trace.tb_frame.f_code is Sources.graph_function.__code__
+                            and trace.tb_frame.f_globals is globals() and trace.tb_next is not None
+                            and trace.tb_next.tb_frame.f_code is need.__code__
+                            and trace.tb_next.tb_frame.f_globals is globals() and trace.tb_next.tb_next is None):
+                        error._source_refusal_site = 'GRAPH_HELD_CODE_BINDING'
+            except BaseException:pass
+            raise
 
     def source_graph(self, session, *, capture=False):
         """Explicit actual namespaces supplied by this Session's captured loaders."""
@@ -1459,6 +1483,7 @@ class Session:
         phases = ('source-bound', 'load-runtime', 'load-collector', 'load-phase', 'copy-view', 'register-installer', 'capture-dependencies', 'construct-services', 'load-original', 'capture-original', 'call-original', 'native-hook', 'original-returned', 'cleanup', 'status-publication')
         kinds = ('INTERRUPT','FATAL','SOURCE_REFUSAL','OS_ERROR','VALUE_ERROR','TYPE_ERROR','OTHER')
         sites = ('CLASS_STATE','CLASS_LITERAL','CALLBACK','GLOBAL_FUNCTION','GRAPH_FUNCTION',
+                 'GRAPH_OBJECT_BINDING','GRAPH_HELD_CODE_BINDING',
                  'GRAPH_NAMESPACE','FROZEN_FILE_HOOK','GRAPH_IDENTITY','SOURCE_GRAPH','INSTALLER_REGISTRATION',
                  'ORIGINAL_CONTEXT','NATIVE_FRAME','OWNED_CLEANUP','VIEW_COPY','VIEW_VERIFY',
                  'DEADLINE_CHECK','CALLBACK_BINDINGS','AUTHORITY_STATE',

@@ -434,44 +434,149 @@ class Protocol:
 
 
 def inspect_owned(value, expected, *, terminal=False):
-    need(isinstance(value, list) and len(value) == 1 and isinstance(value[0], dict), 'one inspect record required')
+    try:
+        need(isinstance(value, list) and len(value) == 1 and isinstance(value[0], dict), 'one inspect record required')
+    except BaseException as _diagnostic_error:
+        _label_inspect(_diagnostic_error, 'INSPECT_SHAPE')
+        raise
     row = value[0]; config, host = row.get('Config', {}), row.get('HostConfig', {})
-    need(row.get('Id') == expected['cid'] and row.get('Name') == '/' + expected['name']
-         and row.get('Image') == expected['image'], 'container ownership differs')
+    try:
+        need(row.get('Id') == expected['cid'] and row.get('Name') == '/' + expected['name']
+             and row.get('Image') == expected['image'], 'container ownership differs')
+    except BaseException as _diagnostic_error:
+        _label_inspect(_diagnostic_error, 'INSPECT_IDENTITY')
+        raise
     required_env = {'CACHY_ASAHI_REPOSITORY_CONTAINER=1', 'CACHY_ASAHI_DISPOSABLE_REPOSITORY=' + expected['nonce'],
                     'CACHY_ASAHI_IMAGE_ID=' + expected['image']}
-    need(config.get('User') == '0:0' and config.get('OpenStdin') is True and config.get('Tty') is False
-         and config.get('Entrypoint') == ['/usr/bin/python3'] and config.get('Cmd') == expected['worker_args']
-         and isinstance(config.get('Env'), list) and required_env <= set(config['Env'])
-         and all(sum(item.startswith(key) for item in config['Env']) == 1 for key in
-                 ('CACHY_ASAHI_REPOSITORY_CONTAINER=', 'CACHY_ASAHI_DISPOSABLE_REPOSITORY=', 'CACHY_ASAHI_IMAGE_ID=')),
-         'created producer config differs')
-    need(host.get('NetworkMode') == 'none' and host.get('CgroupnsMode') == 'private'
-         and host.get('ReadonlyRootfs') is True and host.get('Privileged') is False
-         and host.get('CapDrop') == ['ALL'] and isinstance(host.get('CapAdd'), list)
-         and len(host['CapAdd']) == 6 and set(host['CapAdd']) == set(CAPS)
-         and host.get('PidsLimit') == 512 and host.get('Memory') == 8 * 1024**3
-         and host.get('NanoCpus') == 4 * 10**9 and host.get('SecurityOpt') == ['no-new-privileges']
-         and host.get('Tmpfs') == {'/scratch': 'rw,nosuid,nodev,exec,size=6g,mode=0700',
-                                  '/test-home': 'rw,nosuid,nodev,exec,size=128m,mode=0700'}
-         and not any(host.get(key) for key in ('Devices', 'DeviceRequests', 'Binds', 'VolumesFrom')),
-         'created resource policy differs')
+    try:
+        need(config.get('User') == '0:0' and config.get('OpenStdin') is True and config.get('Tty') is False
+             and config.get('Entrypoint') == ['/usr/bin/python3'] and config.get('Cmd') == expected['worker_args']
+             and isinstance(config.get('Env'), list) and required_env <= set(config['Env'])
+             and all(sum(item.startswith(key) for item in config['Env']) == 1 for key in
+                     ('CACHY_ASAHI_REPOSITORY_CONTAINER=', 'CACHY_ASAHI_DISPOSABLE_REPOSITORY=', 'CACHY_ASAHI_IMAGE_ID=')),
+             'created producer config differs')
+    except BaseException as _diagnostic_error:
+        _label_inspect(_diagnostic_error, 'INSPECT_CONFIG')
+        raise
+    try:
+        need(host.get('NetworkMode') == 'none' and host.get('CgroupnsMode') == 'private'
+             and host.get('ReadonlyRootfs') is True and host.get('Privileged') is False
+             and host.get('CapDrop') == ['ALL'] and isinstance(host.get('CapAdd'), list)
+             and len(host['CapAdd']) == 6 and set(host['CapAdd']) == set(CAPS)
+             and host.get('PidsLimit') == 512 and host.get('Memory') == 8 * 1024**3
+             and host.get('NanoCpus') == 4 * 10**9 and host.get('SecurityOpt') == ['no-new-privileges']
+             and host.get('Tmpfs') == {'/scratch': 'rw,nosuid,nodev,exec,size=6g,mode=0700',
+                                      '/test-home': 'rw,nosuid,nodev,exec,size=128m,mode=0700'}
+             and not any(host.get(key) for key in ('Devices', 'DeviceRequests', 'Binds', 'VolumesFrom')),
+             'created resource policy differs')
+    except BaseException as _diagnostic_error:
+        _label_inspect(_diagnostic_error, 'INSPECT_RESOURCES')
+        raise
     mounts = row.get('Mounts')
-    need(isinstance(mounts, list) and all(isinstance(m, dict) for m in mounts)
-         and len({m.get('Destination') for m in mounts}) == len(mounts), 'created mounts malformed')
+    try:
+        need(isinstance(mounts, list) and all(isinstance(m, dict) for m in mounts)
+             and len({m.get('Destination') for m in mounts}) == len(mounts), 'created mounts malformed')
+    except BaseException as _diagnostic_error:
+        _label_inspect(_diagnostic_error, 'INSPECT_MOUNT_SHAPE')
+        raise
     binds = [m for m in mounts if m.get('Type') == 'bind']
-    need(len(binds) == 3 and {m.get('Destination') for m in binds} == set(expected['binds'])
-         and all(m.get('Source') == str(expected['binds'][m['Destination']])
-                 and m.get('RW') is (m['Destination'] == '/out') for m in binds)
-         and all(m.get('Type') == 'bind' or m.get('Type') == 'tmpfs'
-                 and m.get('Destination') in ('/scratch', '/test-home') and m.get('RW') is True
-                 and m.get('Source') in ('', None) for m in mounts), 'created bind mounts differ')
+    try:
+        need(len(binds) == 3 and {m.get('Destination') for m in binds} == set(expected['binds'])
+             and all(m.get('Source') == str(expected['binds'][m['Destination']])
+                     and m.get('RW') is (m['Destination'] == '/out') for m in binds)
+             and all(m.get('Type') == 'bind' or m.get('Type') == 'tmpfs'
+                     and m.get('Destination') in ('/scratch', '/test-home') and m.get('RW') is True
+                     and m.get('Source') in ('', None) for m in mounts), 'created bind mounts differ')
+    except BaseException as _diagnostic_error:
+        _label_inspect(_diagnostic_error, 'INSPECT_MOUNTS')
+        raise
     if terminal:
         state = row.get('State', {})
-        need(state.get('Status') == 'exited' and state.get('Running') is False and state.get('OOMKilled') is False
-             and type(state.get('ExitCode')) is int and state['ExitCode'] == 0 and state.get('Error') == '',
-             'producer terminal state differs')
+        try:
+            need(state.get('Status') == 'exited' and state.get('Running') is False and state.get('OOMKilled') is False
+                 and type(state.get('ExitCode')) is int and state['ExitCode'] == 0 and state.get('Error') == '',
+                 'producer terminal state differs')
+        except BaseException as _diagnostic_error:
+            _label_inspect(_diagnostic_error, 'INSPECT_TERMINAL')
+            raise
     return row
+
+
+
+INSPECT_DIAGNOSTIC_CHECKS = frozenset(('INSPECT_SHAPE', 'INSPECT_IDENTITY', 'INSPECT_CONFIG',
+    'INSPECT_RESOURCES', 'INSPECT_MOUNT_SHAPE', 'INSPECT_MOUNTS', 'INSPECT_TERMINAL'))
+LAUNCH_DIAGNOSTIC_OPERATIONS = frozenset(('NONE', 'OTHER', 'CONTRACT', 'PRIVATE_CUSTODY',
+    'PREPARE_OBSERVER', 'OBSERVER_SOURCE', 'IMAGE_INSPECT', 'DAEMON_ARCH', 'NAME_AVAILABILITY',
+    'CREATE', 'INSPECT_CREATED', 'ATTACH', 'CHECKPOINT_FINISH', 'INSPECT_TERMINAL',
+    'PRODUCER_PASS', 'SOURCE_RECHECK', 'CANCELLATION_BOUNDARY', 'CLEANUP', 'PUBLICATION',
+    'OWNERSHIP_RECOVERY', 'OWNERSHIP_INSPECT', 'REMOVE', 'ABSENCE_QUERY', 'ABSENCE_VERIFY',
+    'PRIVATE_RECEIPT_OPEN', 'PLAIN_LOG', 'CLEANUP_LOG', 'LAUNCHER_LOG', 'RECEIPT_COMMIT'))
+
+
+def _label_inspect(error, label, _refused=Refused, _checks=INSPECT_DIAGNOSTIC_CHECKS):
+    try:
+        if type(error) is _refused and type(label) is str and label in _checks:
+            BaseException.__setattr__(error, '_repository_inspect_check', label)
+    except BaseException:
+        pass
+
+
+def _inspect_diagnostic(error, _refused=Refused,
+                        _need_code=need.__code__, _caller_code=inspect_owned.__code__,
+                        _checks=INSPECT_DIAGNOSTIC_CHECKS):
+    try:
+        if type(error) is not _refused:
+            return 'OTHER'
+        label = BaseException.__getattribute__(error, '_repository_inspect_check')
+        if type(label) is not str or label not in _checks:
+            return 'OTHER'
+        trace = BaseException.__getattribute__(error, '__traceback__')
+        tail = []; count = 0
+        while trace is not None:
+            count += 1
+            if count > 32:
+                return 'OTHER'
+            tail.append(trace.tb_frame)
+            if len(tail) > 2:
+                tail.pop(0)
+            trace = trace.tb_next
+        if len(tail) == 2 and tail[0].f_code is _caller_code and tail[1].f_code is _need_code                 and all(frame.f_globals is globals() for frame in tail):
+            return label
+    except BaseException:
+        pass
+    return 'OTHER'
+
+
+def _observe_launch_diagnostic(observation, channel, operation, error,
+                              _operations=LAUNCH_DIAGNOSTIC_OPERATIONS):
+    try:
+        if channel not in ('first', 'cleanup', 'publication'):
+            return
+        if observation[channel + '_operation'] == 'NONE':
+            observation[channel + '_operation'] = (operation if type(operation) is str
+                and operation in _operations else 'OTHER')
+            observation[channel + '_check'] = _inspect_diagnostic(error)
+    except BaseException:
+        pass
+
+
+def _public_launch_diagnostic(observation, _operations=LAUNCH_DIAGNOSTIC_OPERATIONS,
+                             _checks=INSPECT_DIAGNOSTIC_CHECKS):
+    result = {'schema_version': 1}
+    for channel in ('first', 'cleanup', 'publication'):
+        operation = check = 'OTHER'
+        try:
+            candidate = observation[channel + '_operation']
+            if type(candidate) is str and candidate in _operations:
+                operation = candidate
+            candidate = observation[channel + '_check']
+            if type(candidate) is str and candidate in _checks | {'NONE', 'OTHER'}:
+                check = candidate
+        except BaseException:
+            pass
+        result[channel + '_operation'] = operation
+        result[channel + '_check'] = check if operation == 'NONE' or check != 'NONE' else 'OTHER'
+    return result
 
 
 def run_repository(command, log, private_root, original_executor, *, contract, run, deadline,
@@ -484,6 +589,10 @@ def run_repository(command, log, private_root, original_executor, *, contract, r
                'name_absence_verified': False, 'id_absence_verified': False, 'absence_verified': False,
                'checkpoints': [], 'commands': [], 'native_admission': 'NOT RUN'}
     state = Cancellation(); submitted = False; expected = None; work = None; protocol = None; fault = None
+    diagnostic = {channel + '_' + field: 'NONE' for channel in ('first', 'cleanup', 'publication')
+                  for field in ('operation', 'check')}
+    operation = cleanup_operation = publication_operation = 'OTHER'
+    receipt['diagnostic'] = diagnostic
     def call(argv, end):
         alive(end); value = run.run(list(map(str, argv)), deadline=end, limit=LIMIT)
         record(argv, value); alive(end)
@@ -504,8 +613,10 @@ def run_repository(command, log, private_root, original_executor, *, contract, r
     try:
         with cancellation_handlers(state):
             try:
+                operation = 'CONTRACT'
                 alive(deadline); value = contract(command) if callable(contract) else contract
                 expected = validate_command(command, value); receipt.update(container=expected['name'], image_id=expected['image'], nonce=expected['nonce'])
+                operation = 'PRIVATE_CUSTODY'
                 root = Path(private_root).absolute()
                 with directory(root) as fd:
                     need(stat.S_IMODE(os.fstat(fd).st_mode) == 0o700, 'private custody mode required')
@@ -513,20 +624,26 @@ def run_repository(command, log, private_root, original_executor, *, contract, r
                      'custody/mount overlap refused')
                 work = root / ('launch-' + expected['nonce']); work.mkdir(mode=0o700)
                 if prepare_runner is not None:
+                    operation = 'PREPARE_OBSERVER'
                     prepared = prepare_runner(command)
                     need(prepared is None or prepared == producer_pin, 'prepared observer pin differs')
+                operation = 'OBSERVER_SOURCE'
                 alive(deadline); validate_command(command, value)
                 need(isinstance(producer_pin, str) and re.fullmatch('[0-9a-f]{64}', producer_pin)
                      and digest(read(expected['binds']['/runner'] / 'producer.py')) == producer_pin, 'observer source differs')
                 cidfile = work / 'cid'
+                operation = 'IMAGE_INSPECT'
                 image = decode(call(['docker', 'image', 'inspect', expected['image']], deadline))
                 need(isinstance(image, list) and len(image) == 1 and image[0].get('Id') == expected['image']
                      and image[0].get('Architecture') == 'arm64' and image[0].get('Os') == 'linux', 'native image differs')
+                operation = 'DAEMON_ARCH'
                 daemon = call(['docker', 'info', '--format', '{{.Architecture}}'], deadline)
                 need(daemon.strip() in (b'arm64', b'aarch64'), 'native daemon required')
+                operation = 'NAME_AVAILABILITY'
                 listing = call(['docker', 'container', 'ls', '-a', '--no-trunc', '--filter',
                                 'name=^/' + expected['name'] + '$', '--format', '{{.ID}} {{.Names}}'], deadline)
                 need(listing == b'', 'repository name already occupied')
+                operation = 'CREATE'
                 original = list(command); create = ['docker', 'create', '-i', '--cidfile', str(cidfile)] + original[2:]
                 index = create.index('/runner/repository.py')
                 create[index:index+1] = ['-I', '/runner/producer.py', '--handoff-deadline', repr(deadline)]
@@ -538,24 +655,31 @@ def run_repository(command, log, private_root, original_executor, *, contract, r
                     cid = read(cidfile, 128).decode().strip()
                     need(re.fullmatch('[0-9a-f]{64}', cid) and raw.strip().decode() == cid, 'full creation CID differs')
                     expected['cid'] = cid; receipt['container_id'] = cid
+                operation = 'INSPECT_CREATED'
                 inspect_owned(decode(call(['docker', 'container', 'inspect', cid], deadline)), expected)
                 receipt['ownership_verified'] = True
+                operation = 'ATTACH'
                 protocol = Protocol(expected['nonce'], checkpoint_handler, deadline)
                 argv = ['docker', 'start', '--attach', '--interactive', cid]
                 response = run.attach(argv, on_stdout=protocol.feed, on_stdin=protocol.stdin, deadline=deadline, limit=2*LIMIT+4*1024**2)
                 record(argv, response, 2*LIMIT+4*1024**2); alive(deadline)
                 need(response['exit_code'] == 0 and RESERVED not in response['stderr']
                      and response['stdout'] == bytes(protocol.raw), 'attach failed or raw callback stream differs')
+                operation = 'CHECKPOINT_FINISH'
                 protocol.finish(); receipt['checkpoints'] = protocol.frames
+                operation = 'INSPECT_TERMINAL'
                 inspect_owned(decode(call(['docker', 'container', 'inspect', cid], deadline)), expected, terminal=True)
+                operation = 'PRODUCER_PASS'
                 need(b'PASS: disposable generic repository transactions; hardware/stable gates unchanged.' in protocol.plain,
                      'original producer PASS missing')
+                operation = 'SOURCE_RECHECK'
                 need(digest(read(expected['binds']['/runner'] / 'repository.py')) == ORIGINAL_PIN
                      and digest(read(expected['binds']['/runner'] / 'producer.py')) == producer_pin
                      and digest(read(expected['binds']['/inputs'] / 'manifest.json')) == command[-2],
                      'source or contract drift after producer')
                 receipt['status'] = 'PASS'
             except BaseException as error:
+                _observe_launch_diagnostic(diagnostic, 'first', operation, error)
                 fault = error; receipt['error_type'] = type(fault).__name__
             finally:
                 if submitted:
@@ -564,6 +688,7 @@ def run_repository(command, log, private_root, original_executor, *, contract, r
                             cleanup_end = time.monotonic() + 30
                             if 'cid' not in expected:
                                 receipt['ownership_uncertain'] = True; receipt['status'] = 'FAIL'
+                                cleanup_operation = 'OWNERSHIP_RECOVERY'
                                 rows = decode(call(['docker', 'container', 'inspect', expected['name']], cleanup_end))
                                 need(isinstance(rows, list) and len(rows) == 1 and re.fullmatch('[0-9a-f]{64}', rows[0].get('Id', '')),
                                      'partial creation recovery uncertain')
@@ -575,19 +700,26 @@ def run_repository(command, log, private_root, original_executor, *, contract, r
                                 expected['cid'] = recovered; receipt['container_id'] = expected['cid']
                                 inspect_owned(rows, expected)
                             else:
+                                cleanup_operation = 'OWNERSHIP_INSPECT'
                                 inspect_owned(decode(call(['docker', 'container', 'inspect', expected['cid']], cleanup_end)), expected)
+                            cleanup_operation = 'REMOVE'
                             call(['docker', 'container', 'rm', '-f', expected['cid']], cleanup_end)
+                            cleanup_operation = 'ABSENCE_QUERY'
                             listing = call(['docker', 'container', 'ls', '-a', '--no-trunc', '--format', '{{.ID}} {{.Names}}'], cleanup_end)
                             rows = [line.split() for line in listing.decode().splitlines()]
                             need(all(len(row) == 2 and re.fullmatch('[0-9a-f]{64}', row[0]) for row in rows), 'absence query malformed')
                             receipt['name_absence_verified'] = all(expected['name'] not in row[1].split(',') for row in rows)
                             receipt['id_absence_verified'] = all(expected['cid'] != row[0] for row in rows)
                             receipt['absence_verified'] = receipt['name_absence_verified'] and receipt['id_absence_verified']
+                            cleanup_operation = 'ABSENCE_VERIFY'
                             need(receipt['absence_verified'], 'name or ID remains')
                             receipt['cleanup'] = 'PASS'
                     except BaseException as error:
+                        _observe_launch_diagnostic(diagnostic, 'cleanup', cleanup_operation, error)
+                        _observe_launch_diagnostic(diagnostic, 'first', 'CLEANUP', error)
                         fault = retain_fault(fault,error); receipt['status'] = 'FAIL'; receipt['cleanup_error_type'] = type(error).__name__
     except BaseException as error:
+        _observe_launch_diagnostic(diagnostic, 'first', 'CANCELLATION_BOUNDARY', error)
         fault = retain_fault(fault,error); receipt['status'] = 'FAIL'; receipt['error_type'] = type(fault).__name__
     if state.uncertain:
         receipt.update(status='FAIL',cleanup='FAIL',signal_teardown_uncertain=True)
@@ -610,19 +742,26 @@ def run_repository(command, log, private_root, original_executor, *, contract, r
         try:
             with cancellation_handlers(state):
                 with state.defer():
+                    publication_operation = 'PRIVATE_RECEIPT_OPEN'
                     with directory(work) as parent:
                         receipt_fd = os.open('receipt.json', os.O_RDWR | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
                                              0o600, dir_fd=parent)
                         os.fsync(parent)
+                    publication_operation = 'PLAIN_LOG'
                     write_new(log, bytes(protocol.plain) if protocol is not None else b'')
+                    publication_operation = 'CLEANUP_LOG'
                     write_new(Path(log).with_suffix('.cleanup.json'), encoded(dict(summary, status=receipt['cleanup'])) + b'\n')
-                    write_new(Path(log).with_suffix('.launcher.json'), encoded({'status': receipt['status']}) + b'\n')
+                    publication_operation = 'LAUNCHER_LOG'
+                    write_new(Path(log).with_suffix('.launcher.json'), encoded({'status': receipt['status'], 'diagnostic': _public_launch_diagnostic(diagnostic)}) + b'\n')
                     if state.pending:
                         receipt.update(status='FAIL', cancelled=True)
+                    publication_operation = 'RECEIPT_COMMIT'
                     commit()
                     if state.pending:
                         receipt.update(status='FAIL', cancelled=True); commit()
         except BaseException as error:
+            _observe_launch_diagnostic(diagnostic, 'publication', publication_operation, error)
+            _observe_launch_diagnostic(diagnostic, 'first', 'PUBLICATION', error)
             fault = retain_fault(fault,error); receipt['status'] = 'FAIL'; receipt['publication_error_type'] = type(error).__name__
             receipt['cancelled'] = state.pending or isinstance(error, (Cancelled, KeyboardInterrupt))
             if receipt_fd is not None:
