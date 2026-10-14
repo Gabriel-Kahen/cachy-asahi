@@ -726,14 +726,29 @@ class Development:
                     state = BaseException.__dict__['__dict__'].__get__(error,type(error))
                     fact = state.get('native_preflight_run_fact')
                     if fact is not None:
-                        require(type(fact) is dict and set(fact)=={'schema_version','stage','predicate'} and
-                            type(fact['schema_version']) is int and fact['schema_version']==1 and
+                        require(type(fact) is dict and all(type(key) is str for key in fact) and set(fact)=={'schema_version','stage','predicate','image_config'} and
+                            type(fact['schema_version']) is int and fact['schema_version']==2 and
                             type(fact['stage']) is str and fact['stage'] in INSTALLER_RUN_STAGES and
                             type(fact['predicate']) is str and fact['predicate'] in INSTALLER_RUN_PREDICATES,
                             'installer-diagnostic-refused')
+                        detail = fact['image_config']
+                        if fact['stage'] == 'IMAGE_HANDOFF' and fact['predicate'] == 'IMAGE_CONFIG':
+                            names = ('ArgsEscaped','Cmd','Entrypoint','Env','ExposedPorts','Healthcheck','Labels','Shell','StopSignal','User','Volumes','WorkingDir')
+                            kinds = ('NoneType','bool','int','float','str','list','dict','UNKNOWN')
+                            require(type(detail) is dict and all(type(key) is str for key in detail) and set(detail)=={'boundary','fields'} and
+                                type(detail['boundary']) is str and detail['boundary'] in ('CONFIG_TYPE','POLICY_FIELDS','UNKNOWN') and
+                                type(detail['fields']) is list and len(detail['fields'])<=12 and
+                                all(type(item) is dict and all(type(key) is str for key in item) and set(item)=={'name','kind'} and type(item['name']) is str and
+                                    item['name'] in names and type(item['kind']) is str and item['kind'] in kinds for item in detail['fields']),
+                                'installer-image-config-diagnostic-refused')
+                            fields = [item['name'] for item in detail['fields']]
+                            require((detail['boundary']=='POLICY_FIELDS') == bool(fields) and len(set(fields))==len(fields) and
+                                tuple(fields)==tuple(name for name in names if name in fields),'installer-image-config-diagnostic-refused')
+                            detail = {'boundary':detail['boundary'],'fields':[{'name':item['name'],'kind':item['kind']} for item in detail['fields']]}
+                        else:require(detail is None,'installer-image-config-diagnostic-refused')
                         self.report['stages']['native-install-preflight']['diagnostic'] = {
-                            'schema_version':2,'call_boundary':boundary,'run_stage':fact['stage'],
-                            'run_predicate':fact['predicate'],'capture':'PASS'}
+                            'schema_version':3,'call_boundary':boundary,'run_stage':fact['stage'],
+                            'run_predicate':fact['predicate'],'capture':'PASS','image_config':detail}
                     elif state.get('native_preflight_run_fact_failed') is True:
                         self.report['stages']['native-install-preflight']['diagnostic'] = {
                             'schema_version':2,'call_boundary':boundary,'run_stage':None,

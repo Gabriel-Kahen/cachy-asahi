@@ -278,15 +278,26 @@ RUN_DIAGNOSTIC_PREDICATES = ('ACTIVE_NATIVE_OWNER_REQUIRED', 'ACTOR_CONTRACT', '
 
 
 def run_failure_fact(error, stage):
-    """Closed Source facts only: no exception messages, paths or new observations."""
+    """Closed existing exception facts only; preserve the exception and validators."""
     need(type(stage) is str and stage in RUN_DIAGNOSTIC_STAGES, 'DIAGNOSTIC_STAGE')
-    predicate = 'OTHER'
+    predicate = 'OTHER'; image_config = None
     if type(error) is ValueError and type(error.args) is tuple and len(error.args) == 1 and type(error.args[0]) is str:
         value = error.args[0]
         if value in RUN_DIAGNOSTIC_PREDICATES:predicate = value
         elif value.startswith('IMAGE_CONFIG '):predicate = 'IMAGE_CONFIG'
         elif value.startswith('CONTAINER_POLICY '):predicate = 'CONTAINER_POLICY'
-    return {'schema_version':1,'stage':stage,'predicate':predicate}
+        if stage == 'IMAGE_HANDOFF' and predicate == 'IMAGE_CONFIG':
+            image_config = {'boundary':'UNKNOWN','fields':[]}
+            if value == 'IMAGE_CONFIG':
+                image_config['boundary'] = 'CONFIG_TYPE'
+            elif len(value) <= 512:
+                parts = [part.split(':') for part in value[len('IMAGE_CONFIG '):].split(',')]
+                kinds = ('NoneType','bool','int','float','str','list','dict','UNKNOWN')
+                if (1 <= len(parts) <= len(CONFIG) and all(len(part) == 2 and part[0] in CONFIG and part[1] in kinds for part in parts)):
+                    names = [part[0] for part in parts]
+                    if len(set(names)) == len(names) and tuple(names) == tuple(name for name in CONFIG if name in names):
+                        image_config = {'boundary':'POLICY_FIELDS','fields':[{'name':name,'kind':kind} for name,kind in parts]}
+    return {'schema_version':2,'stage':stage,'predicate':predicate,'image_config':image_config}
 
 
 def run(session, controller, output, *, deadline, nonce, runtime_contract):
