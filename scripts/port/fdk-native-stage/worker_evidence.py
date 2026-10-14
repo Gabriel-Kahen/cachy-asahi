@@ -34,6 +34,53 @@ INNER_FIELDS = frozenset(('schema_version', 'binding_sha256', 'phase', 'first_fa
     'first_compiler_attempt', 'first_compiler_natural', 'publication'))
 
 
+# Failure metadata only; Bash command status does not establish termination kind.
+BUILDER_FAILURE_PREFIX = b'__CACHY_ASAHI_FDK_FAILURE_V1__'
+BUILDER_FAILURE_STAGES = frozenset(('SOURCE_CHECK', 'CODEC_BUILD', 'BUILD_METADATA_COPY',
+    'CHECK_SOURCE', 'CHECK_BUILD', 'CHECK_PUBLICATION', 'CHECK_INNER_OBSERVATION',
+    'CHECK_DIRECTORY', 'CHECK_BUILT', 'SMOKE_COMPILE', 'SMOKE_RUN', 'PACKAGE_STAGE',
+    'PACKAGE_NOTICE', 'PACKAGE_DOCUMENT'))
+BUILDER_FAILURE_LINE_LIMIT = 96
+BUILDER_FAILURE_DETAIL_LIMIT = 128
+
+
+def validate_builder_failure_detail(value):
+    need(type(value) is dict and set(value) == {'category', 'stage', 'exit_status'} and
+         type(value['category']) is str and value['category'] == 'COMMAND_NONZERO' and
+         type(value['stage']) is str and value['stage'] in BUILDER_FAILURE_STAGES and
+         type(value['exit_status']) is int and 1 <= value['exit_status'] <= 255,
+         'worker-builder-failure-detail')
+    need(len(json.dumps(value, sort_keys=True, separators=(',', ':'), allow_nan=False).encode()) <=
+         BUILDER_FAILURE_DETAIL_LIMIT, 'worker-builder-failure-bound')
+    return dict(value)
+
+
+def builder_failure_detail(raw):
+    """Unique closed line from already captured bytes; no log body is projected."""
+    if type(raw) is not bytes or len(raw) > LOG_LIMIT or raw.count(BUILDER_FAILURE_PREFIX) != 1:
+        return None
+    start = raw.find(BUILDER_FAILURE_PREFIX)
+    end = raw.find(b'\n', start)
+    if start and raw[start - 1:start] != b'\n' or end < 0 or end - start > BUILDER_FAILURE_LINE_LIMIT:
+        return None
+    match = re.fullmatch(rb'__CACHY_ASAHI_FDK_FAILURE_V1__ STAGE=([A-Z_]+) STATUS=([1-9][0-9]{0,2})', raw[start:end])
+    if match is None:
+        return None
+    stage, code = match[1].decode('ascii'), int(match[2])
+    if stage not in BUILDER_FAILURE_STAGES or code > 255:
+        return None
+    return validate_builder_failure_detail({'category': 'COMMAND_NONZERO', 'stage': stage, 'exit_status': code})
+
+
+def builder_failure_context(row):
+    builder, commands = row['builder'], row['commands']
+    attached, container = commands['attach'], commands['container']
+    return (builder['status'] == 'FAILED' and builder['reason'] == 'CONTAINER_EXIT' and
+        builder['provenance'] is not None and builder['log'] is not None and
+        attached == container and attached['kind'] == 'EXIT_NONZERO' and
+        type(attached['code']) is int and 1 <= attached['code'] <= 255)
+
+
 def inner_need(value):
     need(value, 'worker-inner-observation')
 
@@ -162,7 +209,8 @@ def validate_fields(row):
         need(type(row[name]) is str and row[name] in allowed, 'worker-diagnostic-code')
     need((row['first_failed_predicate'] == 'NONE') == (row['failure_reason'] == 'NONE'), 'worker-first-failure')
     builder = row['builder']
-    need(type(builder) is dict and set(builder) == {'exit', 'status', 'reason', 'provenance', 'log'}, 'worker-builder')
+    need(type(builder) is dict and set(builder) in ({'exit', 'status', 'reason', 'provenance', 'log'},
+         {'exit', 'status', 'reason', 'provenance', 'log', 'failure_detail'}), 'worker-builder')
     validate_exit(builder['exit'])
     need(type(builder['status']) is str and builder['status'] in ('NOT_RUN', 'UNAVAILABLE', 'UNVERIFIED', 'FAILED', 'STATIC_PASS') and
          type(builder['reason']) is str and builder['reason'] in BUILDER_REASONS, 'worker-builder')
@@ -184,6 +232,9 @@ def validate_fields(row):
     for value in commands.values(): validate_exit(value)
     # These are actual daemon State codes, never shell signal return codes.
     need(commands['container']['kind'] != 'EXIT_SIGNAL', 'worker-container-state')
+    if 'failure_detail' in builder:
+        need(builder_failure_context(row), 'worker-builder-failure-context')
+        validate_builder_failure_detail(builder['failure_detail'])
     clean = row['cleanup']
     need(type(clean) is dict and set(clean) == {'status', 'absence', 'reason'} and
          type(clean['status']) is str and clean['status'] in ('NOT_RUN', 'PASS', 'FAIL') and
@@ -328,6 +379,7 @@ def builder_reason(error):
 def observe_builder(row, directory, config, reviewed):
     """Capture fixed provenance/log files once; no recursive export or raw text."""
     result = row['builder']; result.update(status='UNAVAILABLE', reason='NONE')
+    result.pop('failure_detail', None)  # Independently reparse; never retain receipt-injected metadata.
     captured = None
     try:
         raw, stamp = capture(Path(directory) / 'provenance.json', PROVENANCE_LIMIT)
@@ -369,6 +421,17 @@ def observe_builder(row, directory, config, reviewed):
         result['log'] = None
     if result['status'] == 'STATIC_PASS' and result['log'] is None:
         result.update(status='UNVERIFIED', reason='NONE')
+    try:
+        if (builder_failure_context(row) and captured is not None and
+                type(captured.get('exit_code')) is int and
+                captured['exit_code'] == row['commands']['attach']['code']):
+            detail = builder_failure_detail(log_bytes)
+            if detail is not None:
+                result['failure_detail'] = detail
+    except Exception:
+        # Ordinary diagnostic uncertainty leaves the old failed result intact.
+        result.pop('failure_detail', None)
+    # BaseException controls propagate into existing worker cancellation/cleanup policy.
     return captured, log_bytes
 
 
