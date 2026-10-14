@@ -166,6 +166,32 @@ def tools(runner, report):
     return result
 
 
+def configuration_delta(verifier, before_path, after_path, policy, report):
+    """Preserve the original two reads, allowlist and failure; add no actor or clock."""
+    before = after = None
+    stage = 'BEFORE_CONFIG_PARSE'
+    try:
+        before = verifier.config(before_path)
+        stage = 'AFTER_CONFIG_PARSE'
+        after = verifier.config(after_path)
+        stage = 'DELTA_COMPARE'
+        return delta_config(before, after, policy)
+    except BaseException as first:
+        controls = []
+        try:
+            observe_failure(report, first, False, controls)
+            observe(report, inner_result.config_failure, stage, before, after, policy, deferred=controls)
+        except BaseException as secondary:
+            row = report.get('inner_diagnostic')
+            if row is not None:
+                row['write_failed'] = True
+                if isinstance(secondary, (Cancelled, KeyboardInterrupt, SystemExit)):
+                    row['cancelled'] = True
+                    report.update(cancelled=True)
+            controls.append(secondary)
+        raise
+
+
 def compile_variant(runner, report, contract, dependencies, action):
     observe(report, inner_result.phase, 'SOURCE')
     held = CODE / SOURCE
@@ -189,7 +215,7 @@ def compile_variant(runner, report, contract, dependencies, action):
     observe(report, inner_result.phase, 'CONFIG')
     command(runner, report, 'config', make + ['olddefconfig'], timeout=300)
     observe(report, inner_result.phase, 'CONFIG_DELTA')
-    report['generated_config_delta'] = delta_config(verifier.config(INPUTS / 'embedded-config'), verifier.config(build / '.config'), dependencies['allowed_generated_config_delta'])
+    report['generated_config_delta'] = configuration_delta(verifier, INPUTS / 'embedded-config', build / '.config', dependencies['allowed_generated_config_delta'], report)
     if action == 'candidate':
         observe(report, inner_result.phase, 'PAIRED_CONFIG')
         regular(INPUTS / 'baseline-config', 1024**2)
@@ -259,7 +285,7 @@ def execute(action, nonce=None, contract_sha=None):
                 compile_variant(runner, report, contract, dependencies, action)
         report['status'] = 'PASS'
     except BaseException as error:
-        report.update(status='FAIL', cancelled=isinstance(error, (Cancelled, KeyboardInterrupt)), error_type=type(error).__name__)
+        report.update(status='FAIL', cancelled=report.get('cancelled') is True or isinstance(error, (Cancelled, KeyboardInterrupt, SystemExit)), error_type=type(error).__name__)
         try:
             observe_failure(report, error, False, observation_controls)
         except (Cancelled, KeyboardInterrupt, SystemExit) as error:

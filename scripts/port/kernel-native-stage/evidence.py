@@ -49,6 +49,49 @@ INNER_PUBLIC_KEYS = frozenset(('schema_version', 'binding_sha256', 'phase', 'com
     'natural_return', 'first_failure', 'cleanup_failure', 'cancelled', 'write_failed'))
 
 
+
+
+CONFIG_STAGES = frozenset(('BEFORE_CONFIG_PARSE', 'AFTER_CONFIG_PARSE', 'DELTA_COMPARE'))
+
+
+def config_sha(value):
+    return type(value) is str and re.fullmatch('[0-9a-f]{64}', value) is not None
+
+
+def validate_config_fact(value):
+    keys = {'stage', 'before_parsed_sha256', 'after_parsed_sha256', 'difference_count',
+            'unexpected_count', 'difference_keys_sha256', 'first_unexpected', 'rust_capability_mismatch'}
+    need(type(value) is dict and set(value) == keys and type(value['stage']) is str and value['stage'] in CONFIG_STAGES)
+    for name in ('before_parsed_sha256', 'after_parsed_sha256', 'difference_keys_sha256'):
+        need(value[name] is None or config_sha(value[name]))
+    if value['stage'] != 'DELTA_COMPARE':
+        need(value['after_parsed_sha256'] is None and value['difference_keys_sha256'] is None and
+              value['difference_count'] is value['unexpected_count'] is value['first_unexpected'] is
+              value['rust_capability_mismatch'] is None)
+        need(value['before_parsed_sha256'] is None if value['stage'] == 'BEFORE_CONFIG_PARSE'
+              else config_sha(value['before_parsed_sha256']))
+        return value
+    need(config_sha(value['before_parsed_sha256']) and config_sha(value['after_parsed_sha256']) and
+          config_sha(value['difference_keys_sha256']) and type(value['difference_count']) is int and
+          type(value['unexpected_count']) is int and 0 <= value['unexpected_count'] <= value['difference_count'] <= 131072 and
+          type(value['rust_capability_mismatch']) is bool)
+    first = value['first_unexpected']
+    if value['unexpected_count'] == 0:
+        need(first is None)
+        return value
+    need(type(first) is dict and set(first) == {'key', 'key_sha256', 'before', 'after',
+          'before_present', 'after_present', 'truncated'} and config_sha(first['key_sha256']))
+    need(all(type(first[name]) is bool for name in ('before_present', 'after_present', 'truncated')))
+    key = first['key']
+    need(key is None and first['truncated'] or type(key) is str and len(key) <= 128 and
+          re.fullmatch('CONFIG_[A-Z0-9_]+', key) and hashlib.sha256(key.encode()).hexdigest() == first['key_sha256'])
+    for name in ('before', 'after'):
+        item = first[name]
+        need(item is None or type(item) is str and len(item) <= 96 and all(32 <= ord(c) < 127 for c in item))
+        need(item is None if not first[name + '_present'] else item is not None or first['truncated'])
+    return value
+
+
 def validate_inner_group(group):
     need(type(group) is dict and set(group) == {'availability', 'reason', 'raw_sha256', 'diagnostic'})
     availability = group['availability']
@@ -61,7 +104,8 @@ def validate_inner_group(group):
         return group
     need(pin is not None)
     row = group['diagnostic']
-    need(type(row) is dict and set(row) == INNER_PUBLIC_KEYS and type(row['schema_version']) is int and row['schema_version'] == 1)
+    need(type(row) is dict and type(row.get('schema_version')) is int and row['schema_version'] in (1, 2))
+    need(set(row) == INNER_PUBLIC_KEYS | ({'config_failure'} if row['schema_version'] == 2 else set()))
     need(type(row['binding_sha256']) is str and re.fullmatch('[0-9a-f]{64}', row['binding_sha256']))
     need(type(row['phase']) is str and row['phase'] in INNER_PHASES and type(row['command']) is str and row['command'] in INNER_COMMANDS)
     need(type(row['attempt']) is str and row['attempt'] in ('NOT_ISSUED', 'ISSUED'))
@@ -79,6 +123,11 @@ def validate_inner_group(group):
                 type(failure['command']) is str and failure['command'] in INNER_COMMANDS and
                 type(failure['error_kind']) is str and failure['error_kind'] in INNER_ERRORS)
             need(failure['error_kind'] != 'CANCELLED' or row['cancelled'])
+    if row['schema_version'] == 2:
+        validate_config_fact(row['config_failure'])
+        need(row['first_failure'] is not None and row['first_failure']['phase'] == 'CONFIG_DELTA' and
+             row['first_failure']['command'] == row['command'] == 'CONFIG' and row['attempt'] == 'ISSUED' and
+             row['natural_return'] == {'kind': 'RETURNED', 'code': 0})
     need(len(json.dumps(row, sort_keys=True, separators=(',', ':'), allow_nan=False).encode()) <= 2048)
     return group
 

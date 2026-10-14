@@ -19,6 +19,8 @@ KEYS = frozenset(('schema_version', 'binding', 'phase', 'command', 'attempt', 'n
     'first_failure', 'cleanup_failure', 'cancelled', 'write_failed'))
 PUBLIC_KEYS = (KEYS - {'binding'}) | {'binding_sha256'}
 GROUP_KEYS = frozenset(('availability', 'reason', 'raw_sha256', 'diagnostic'))
+CONFIG_STAGES = frozenset(('BEFORE_CONFIG_PARSE', 'AFTER_CONFIG_PARSE', 'DELTA_COMPARE'))
+CONFIG_SPECIAL = 'CONFIG_RUSTC_HAS_SUSPICIOUS_RUNTIME_SYMBOL_DEFINITIONS'
 
 
 def _need(value):
@@ -38,6 +40,85 @@ def _binding(value):
     _need(type(value['nonce']) is str and re.fullmatch('[0-9a-f]{32}', value['nonce']))
     _need(type(value['action']) is str and value['action'] in ('probe', 'baseline', 'candidate'))
     _need(_sha(value['contract_sha256']) and _sha(value['worker_sha256']))
+
+
+def _config_fact(value):
+    keys = {'stage', 'before_parsed_sha256', 'after_parsed_sha256', 'difference_count',
+            'unexpected_count', 'difference_keys_sha256', 'first_unexpected', 'rust_capability_mismatch'}
+    _need(type(value) is dict and set(value) == keys and type(value['stage']) is str and value['stage'] in CONFIG_STAGES)
+    for name in ('before_parsed_sha256', 'after_parsed_sha256', 'difference_keys_sha256'):
+        _need(value[name] is None or _sha(value[name]))
+    if value['stage'] != 'DELTA_COMPARE':
+        _need(value['after_parsed_sha256'] is None and value['difference_keys_sha256'] is None and
+              value['difference_count'] is value['unexpected_count'] is value['first_unexpected'] is
+              value['rust_capability_mismatch'] is None)
+        _need(value['before_parsed_sha256'] is None if value['stage'] == 'BEFORE_CONFIG_PARSE'
+              else _sha(value['before_parsed_sha256']))
+        return value
+    _need(_sha(value['before_parsed_sha256']) and _sha(value['after_parsed_sha256']) and
+          _sha(value['difference_keys_sha256']) and type(value['difference_count']) is int and
+          type(value['unexpected_count']) is int and 0 <= value['unexpected_count'] <= value['difference_count'] <= 131072 and
+          type(value['rust_capability_mismatch']) is bool)
+    first = value['first_unexpected']
+    if value['unexpected_count'] == 0:
+        _need(first is None)
+        return value
+    _need(type(first) is dict and set(first) == {'key', 'key_sha256', 'before', 'after',
+          'before_present', 'after_present', 'truncated'} and _sha(first['key_sha256']))
+    _need(all(type(first[name]) is bool for name in ('before_present', 'after_present', 'truncated')))
+    key = first['key']
+    _need(key is None and first['truncated'] or type(key) is str and len(key) <= 128 and
+          re.fullmatch('CONFIG_[A-Z0-9_]+', key) and hashlib.sha256(key.encode()).hexdigest() == first['key_sha256'])
+    for name in ('before', 'after'):
+        item = first[name]
+        _need(item is None or type(item) is str and len(item) <= 96 and all(32 <= ord(c) < 127 for c in item))
+        _need(item is None if not first[name + '_present'] else item is not None or first['truncated'])
+    return value
+
+
+def _parsed_config_sha(value):
+    _need(type(value) is dict and len(value) <= 65536)
+    _need(all(type(key) is str and re.fullmatch('CONFIG_[A-Z0-9_]+', key) and
+              type(item) is str for key, item in value.items()))
+    raw = _encoded(value)
+    _need(len(raw) <= 4 * 1024**2)
+    return hashlib.sha256(raw).hexdigest()
+
+
+def config_failure(row, stage, before, after, policy):
+    """Only parsed objects already returned by the original worker calls; no IO."""
+    _need(stage in CONFIG_STAGES and row['first_failure'] is not None)
+    detail = {'stage': stage, 'before_parsed_sha256': None, 'after_parsed_sha256': None,
+              'difference_count': None, 'unexpected_count': None, 'difference_keys_sha256': None,
+              'first_unexpected': None, 'rust_capability_mismatch': None}
+    if stage != 'BEFORE_CONFIG_PARSE': detail['before_parsed_sha256'] = _parsed_config_sha(before)
+    if stage == 'DELTA_COMPARE':
+        detail['after_parsed_sha256'] = _parsed_config_sha(after)
+        changed = sorted(key for key in before.keys() | after.keys() if before.get(key) != after.get(key))
+        allowed = set(policy['version_symbols'])
+        unexpected = sorted(set(changed) - allowed - {CONFIG_SPECIAL})
+        detail.update(difference_count=len(changed), unexpected_count=len(unexpected),
+            difference_keys_sha256=hashlib.sha256(_encoded(changed)).hexdigest(),
+            rust_capability_mismatch=CONFIG_SPECIAL in changed and
+                not (before.get(CONFIG_SPECIAL) in (None, 'n') and after.get(CONFIG_SPECIAL) == 'y'))
+        if unexpected:
+            key = unexpected[0]; old, new = before.get(key), after.get(key)
+            bounded = lambda item: item is None or len(item) <= 96 and all(32 <= ord(c) < 127 for c in item)
+            detail['first_unexpected'] = {'key': key if len(key) <= 128 else None,
+                'key_sha256': hashlib.sha256(key.encode()).hexdigest(),
+                'before': old if bounded(old) else None, 'after': new if bounded(new) else None,
+                'before_present': key in before, 'after_present': key in after,
+                'truncated': len(key) > 128 or not bounded(old) or not bounded(new)}
+    _config_fact(detail)
+    candidate = dict(row, schema_version=2, config_failure=detail)
+    validate(candidate)  # Atomic update; ordinary diagnostic faults refuse capture.
+    row.update(schema_version=2, config_failure=detail)
+    return row
+
+
+def _keys(row, public=False):
+    _need(type(row) is dict and type(row.get('schema_version')) is int and row['schema_version'] in (1, 2))
+    return (PUBLIC_KEYS if public else KEYS) | ({'config_failure'} if row['schema_version'] == 2 else set())
 
 
 def initial(binding):
@@ -91,7 +172,7 @@ def invalidate(row):
 
 
 def _body(row):
-    _need(type(row['schema_version']) is int and row['schema_version'] == 1)
+    _need(type(row['schema_version']) is int and row['schema_version'] in (1, 2))
     _need(type(row['phase']) is str and row['phase'] in PHASES)
     _need(type(row['command']) is str and row['command'] in COMMANDS)
     _need(type(row['attempt']) is str and row['attempt'] in ('NOT_ISSUED', 'ISSUED'))
@@ -111,11 +192,16 @@ def _body(row):
         _need(type(item['error_kind']) is str and item['error_kind'] in ERRORS)
     _need(type(row['cancelled']) is bool and type(row['write_failed']) is bool)
     _need(not any(row[k] and row[k]['error_kind'] == 'CANCELLED' for k in ('first_failure', 'cleanup_failure')) or row['cancelled'])
+    if row['schema_version'] == 2:
+        _config_fact(row['config_failure'])
+        _need(row['first_failure'] is not None and row['first_failure']['phase'] == 'CONFIG_DELTA' and
+              row['first_failure']['command'] == row['command'] == 'CONFIG' and row['attempt'] == 'ISSUED' and
+              row['natural_return'] == {'kind': 'RETURNED', 'code': 0})
     _need(len(_encoded(row)) <= LIMIT)
 
 
 def validate(row, expected=None):
-    _need(type(row) is dict and row.keys() == KEYS)
+    _need(type(row) is dict and row.keys() == _keys(row))
     _binding(row['binding']); _body(row)
     if expected is not None:
         _binding(expected); _need(row['binding'] == expected)
@@ -170,6 +256,6 @@ def validate_group(group):
         if pair == ('REFUSED', 'INVALID'): _need(group['diagnostic'] is None)
         else:
             row = group['diagnostic']
-            _need(type(row) is dict and row.keys() == PUBLIC_KEYS and _sha(row['binding_sha256']))
+            _need(type(row) is dict and row.keys() == _keys(row, public=True) and _sha(row['binding_sha256']))
             _body(row); _need(not row['write_failed'])
     return group
