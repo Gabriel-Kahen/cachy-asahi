@@ -21,6 +21,28 @@ PUBLIC_KEYS = (KEYS - {'binding'}) | {'binding_sha256'}
 GROUP_KEYS = frozenset(('availability', 'reason', 'raw_sha256', 'diagnostic'))
 CONFIG_STAGES = frozenset(('BEFORE_CONFIG_PARSE', 'AFTER_CONFIG_PARSE', 'DELTA_COMPARE'))
 CONFIG_SPECIAL = 'CONFIG_RUSTC_HAS_SUSPICIOUS_RUNTIME_SYMBOL_DEFINITIONS'
+COMPILER_OUTPUT_LIMIT = 8 * 1024**2
+COMPILER_LINE_LIMIT = 131072
+COMPILER_LINE_BYTES = 4096
+COMPILER_TEXT_BYTES = 192
+COMPILER_PRIVATE_WORDS = ('password', 'passwd', 'secret', 'token', 'authorization',
+    'bearer', 'api_key', 'api-key', 'privatekey', 'private_key', 'private-key',
+    'private key', 'access_key', 'access-key', 'access key', 'cookie', 'credential')
+COMPILER_SOURCE_PREFIX = '/tmp/artifacts/kernel-candidates/trial/source-tree/linux-asahi-7.1.13-3/'
+COMPILER_SCAN = frozenset(('COMPLETE', 'LINE_CAP', 'LINE_LENGTH_CAP'))
+COMPILER_SOURCE_ROOTS = frozenset(('arch', 'drivers', 'include', 'kernel', 'mm', 'fs',
+    'net', 'lib', 'block', 'security', 'crypto', 'sound', 'virt', 'init', 'rust', 'scripts'))
+RUST_CODES = {'E0425': 'RUST_UNRESOLVED_NAME', 'E0432': 'RUST_UNRESOLVED_IMPORT',
+    'E0433': 'RUST_UNRESOLVED_PATH', 'E0308': 'RUST_TYPE_MISMATCH',
+    'E0277': 'RUST_TRAIT_BOUND', 'E0609': 'RUST_UNKNOWN_FIELD',
+    'E0599': 'RUST_MISSING_METHOD', 'E0658': 'RUST_UNSTABLE_FEATURE',
+    'E0635': 'RUST_UNKNOWN_FEATURE', 'E0463': 'RUST_MISSING_CRATE',
+    'E0583': 'RUST_MISSING_MODULE'}
+COMPILER_C_CATEGORIES = frozenset(('MISSING_HEADER', 'UNDECLARED_IDENTIFIER',
+    'IMPLICIT_DECLARATION', 'INCOMPATIBLE_POINTER', 'TYPE_MISMATCH', 'UNSUPPORTED_OPTION',
+    'INTERNAL_COMPILER_ERROR', 'LINK_UNDEFINED_REFERENCE', 'DTC_ERROR',
+    'RESOURCE_MARKER', 'MAKE_ERROR', 'OTHER_ERROR'))
+COMPILER_CATEGORIES = COMPILER_C_CATEGORIES | frozenset(RUST_CODES.values()) | {'RUST_OTHER_CODE'}
 
 
 def _need(value):
@@ -116,9 +138,197 @@ def config_failure(row, stage, before, after, policy):
     return row
 
 
+def _compiler_location_fact(value):
+    _need(type(value) is dict and set(value) == {'path', 'line', 'column'})
+    path = value['path']
+    _need(type(path) is str and 0 < len(path) <= 128 and
+          re.fullmatch('[A-Za-z0-9_./+-]+', path) is not None and
+          path.split('/')[0] in COMPILER_SOURCE_ROOTS and len(path.split('/')) >= 2 and
+          all(part not in ('', '.', '..') for part in path.split('/')) and
+          not any(word in path.lower() for word in COMPILER_PRIVATE_WORDS))
+    _need(type(value['line']) is int and 1 <= value['line'] <= 10000000 and
+          (value['column'] is None or type(value['column']) is int and 1 <= value['column'] <= 1000000))
+    return value
+
+
+def _compiler_span(value, total):
+    _need(type(value) is dict and set(value) == {'category', 'error_code', 'location', 'offset', 'bytes', 'sha256', 'text', 'text_truncated'})
+    _need(type(value['category']) is str and value['category'] in COMPILER_CATEGORIES)
+    code = value['error_code']
+    if code is None:
+        _need(value['category'] in COMPILER_C_CATEGORIES)
+    else:
+        _need(type(code) is str and re.fullmatch('E[0-9]{4}', code) is not None and
+              value['category'] == RUST_CODES.get(code, 'RUST_OTHER_CODE'))
+    if value['location'] is not None: _compiler_location_fact(value['location'])
+    _need(type(value['text_truncated']) is bool)
+    text = value['text']
+    _need(text is None and not value['text_truncated'] or type(text) is str and
+          0 < len(text) <= COMPILER_TEXT_BYTES and all(32 <= ord(c) < 127 for c in text) and
+          not any(word in text.lower() for word in COMPILER_PRIVATE_WORDS) and
+          '://' not in text and '/home/' not in text.lower() and '/root/' not in text.lower() and
+          (not value['text_truncated'] or len(text) == COMPILER_TEXT_BYTES))
+    _need(type(value['offset']) is int and 0 <= value['offset'] < total and
+          type(value['bytes']) is int and 1 <= value['bytes'] <= COMPILER_LINE_BYTES and
+          value['offset'] + value['bytes'] <= total and _sha(value['sha256']))
+    return value
+
+
+def _compiler_fact(value):
+    _need(type(value) is dict and set(value) == {'return_code', 'output_bytes', 'output_sha256',
+          'log_sha256', 'scan_status', 'matched_lines', 'first', 'last'})
+    _need(type(value['return_code']) is int and -64 <= value['return_code'] <= 255 and value['return_code'] != 0)
+    _need(type(value['output_bytes']) is int and 0 <= value['output_bytes'] <= COMPILER_OUTPUT_LIMIT and
+          _sha(value['output_sha256']) and _sha(value['log_sha256']) and
+          value['output_sha256'] == value['log_sha256'])
+    _need(type(value['scan_status']) is str and value['scan_status'] in COMPILER_SCAN and
+          type(value['matched_lines']) is int and 0 <= value['matched_lines'] <= COMPILER_LINE_LIMIT and
+          value['matched_lines'] <= value['output_bytes'])
+    if value['matched_lines'] == 0:
+        _need(value['first'] is value['last'] is None)
+    else:
+        first, last = (_compiler_span(value[name], value['output_bytes']) for name in ('first', 'last'))
+        _need(first == last if value['matched_lines'] == 1 else
+              first['offset'] + first['bytes'] <= last['offset'])
+    _need(value['scan_status'] == 'COMPLETE' or value['output_bytes'] > 0)
+    return value
+
+
+def _compiler_private(line):
+    """Conservative gate for optional Source locations."""
+    lower = line.lower()
+    return (any(c >= 127 or c < 32 and c not in (9, 10, 13) for c in line) or
+            any(word.encode() in lower for word in COMPILER_PRIVATE_WORDS))
+
+
+def _compiler_text(line):
+    """Bounded recognized-error excerpt; raw span provenance stays separate."""
+    # Remove terminal escapes before inspecting words, including split markers.
+    clean = re.sub(br'\x1b(?:\[[0-?]*[ -/]*[@-~]|\][^\x07\x1b]*(?:\x07|\x1b\\)|[@-_])', b'', line)
+    if any(c < 32 and c not in (9, 10, 13) or c == 127 for c in clean):
+        return None, False  # Interrupted URLs/paths must not leave a public suffix.
+    flattened = bytes(c for c in clean if 32 <= c < 127).decode('ascii').lower()
+    clean = bytes(c if 32 <= c < 127 else 32 for c in clean).decode('ascii').strip()
+    lower = clean.lower()
+    if (any(word in lower or word in flattened for word in COMPILER_PRIVATE_WORDS) or
+            '/home/' in lower or '/root/' in lower or
+            re.match(r'(?:export\s|env\s|[A-Z_][A-Z0-9_]*=)', clean)):
+        return None, False
+    clean = re.sub(r'[A-Za-z][A-Za-z0-9+.-]*://[^\s]+', '<url>', clean)
+    # Unknown URL fragments also disappear rather than exporting their payload.
+    if '://' in clean: return None, False
+    clean = clean.replace(COMPILER_SOURCE_PREFIX, '').replace('/tmp/build/', '<build>/')
+    return (clean[:COMPILER_TEXT_BYTES], len(clean) > COMPILER_TEXT_BYTES) if clean else (None, False)
+
+
+def _compiler_location(line, arrow=False):
+    if _compiler_private(line): return None
+    prefix = br'\s*-->\s+' if arrow else b''
+    match = re.match(prefix + br'([A-Za-z0-9_./+-]+):([0-9]{1,8})(?::([0-9]{1,7}))?(?=:|\s|$)', line)
+    if match is None: return None
+    value = {'path': match[1].decode('ascii'), 'line': int(match[2]),
+             'column': int(match[3]) if match[3] is not None else None}
+    try: return _compiler_location_fact(value)
+    except ValueError: return None
+
+
+def _compiler_match(line):
+    """Closed lexical categories, not proof of tool identity or actual root cause."""
+    line = re.sub(br'\x1b(?:\[[0-?]*[ -/]*[@-~]|\][^\x07\x1b]*(?:\x07|\x1b\\)|[@-_])', b'', line)
+    codes = re.findall(br'\berror\[(E[0-9]{4})\]:', line)
+    if len(codes) == 1:
+        code = codes[0].decode('ascii')
+        return RUST_CODES.get(code, 'RUST_OTHER_CODE'), code
+    if len(codes) > 1: return 'OTHER_ERROR', None
+    lower = line.lower()
+    error = re.search(br'\b(?:fatal )?error:', lower) is not None
+    found = set()
+    if error:
+        patterns = {
+            'MISSING_HEADER': (b'no such file or directory', b'file not found'),
+            'UNDECLARED_IDENTIFIER': (b'undeclared',),
+            'IMPLICIT_DECLARATION': (b'implicit declaration of function',),
+            'INCOMPATIBLE_POINTER': (b'incompatible pointer',),
+            'TYPE_MISMATCH': (b'incompatible type', b'conflicting types', b'invalid conversion', b'cannot convert', b'invalid operands'),
+            'UNSUPPORTED_OPTION': (b'unrecognized command-line option', b'unrecognized command line option', b'unknown argument', b'unsupported option', b'unknown warning option'),
+        }
+        found.update(name for name, markers in patterns.items() if any(marker in lower for marker in markers))
+    if b'internal compiler error' in lower: found.add('INTERNAL_COMPILER_ERROR')
+    if any(marker in lower for marker in (b'undefined reference to', b'undefined symbol', b'unresolved symbol')):
+        found.add('LINK_UNDEFINED_REFERENCE')
+    if re.search(br'\berror \([a-z0-9_]+\):', lower) or b'unable to parse input tree' in lower:
+        found.add('DTC_ERROR')
+    if any(marker in lower for marker in (b'out of memory', b'cannot allocate memory', b'killed signal')) or re.search(br'^\s*killed\s*$', lower):
+        found.add('RESOURCE_MARKER')
+    if re.search(br'^make(?:\[[0-9]{1,3}\])?: \*\*\* ', lower): found.add('MAKE_ERROR')
+    if re.search(br'^(?:/bin/sh: [0-9]+: |/bin/(?:ba)?sh: (?:line [0-9]+: )?)[a-z0-9_./+-]+: (?:command )?not found\s*$', lower):
+        found.add('OTHER_ERROR')
+    if found: return (next(iter(found)) if len(found) == 1 else 'OTHER_ERROR'), None
+    if error: return 'OTHER_ERROR', None
+    return None
+
+
+def compiler_failure(row, output, log_sha256):
+    """Project original merged stdout and existing log hash; no IO or actors.
+
+    COMPLETE first/last span the whole output; capped results describe only the
+    proven prefix. Only bounded sanitized recognized-error excerpts are exported.
+    """
+    validate(row)
+    if row['schema_version'] == 3: return row  # Preserve the first observation.
+    _need(row['schema_version'] == 1 and not row['write_failed'] and row['phase'] == 'KERNEL' and
+          row['command'] == 'KERNEL' and row['attempt'] == 'ISSUED' and
+          row['first_failure'] == {'phase': 'KERNEL', 'command': 'KERNEL', 'error_kind': 'DATA_REFUSAL'} and
+          row['natural_return']['kind'] == 'RETURNED' and type(row['natural_return']['code']) is int and
+          row['natural_return']['code'] != 0)
+    _need(type(output) is bytes and len(output) <= COMPILER_OUTPUT_LIMIT and _sha(log_sha256))
+    digest = hashlib.sha256(output).hexdigest()
+    _need(digest == log_sha256)
+    detail = {'return_code': row['natural_return']['code'], 'output_bytes': len(output),
+        'output_sha256': digest, 'log_sha256': log_sha256, 'scan_status': 'COMPLETE',
+        'matched_lines': 0, 'first': None, 'last': None}
+    offset = lines = 0
+    pending = None
+    pending_lines = 0
+    while offset < len(output):
+        if lines == COMPILER_LINE_LIMIT:
+            detail['scan_status'] = 'LINE_CAP'; break
+        end = output.find(b'\n', offset)
+        end = len(output) if end == -1 else end + 1
+        if end - offset > COMPILER_LINE_BYTES:
+            detail['scan_status'] = 'LINE_LENGTH_CAP'; break
+        line = output[offset:end]
+        if pending is not None:
+            if line.lstrip().startswith(b'-->'):
+                pending['location'] = _compiler_location(line, arrow=True)
+                pending = None
+            else:
+                pending_lines -= 1
+                if pending_lines == 0: pending = None
+        match = _compiler_match(line)
+        if match is not None:
+            category, code = match
+            text, truncated = _compiler_text(line)
+            span = {'category': category, 'error_code': code, 'location': _compiler_location(line),
+                    'offset': offset, 'bytes': len(line), 'sha256': hashlib.sha256(line).hexdigest(),
+                    'text': text, 'text_truncated': truncated}
+            if detail['first'] is None: detail['first'] = span
+            detail['last'] = span
+            detail['matched_lines'] += 1
+            pending = span if code is not None and not _compiler_private(line) else None
+            pending_lines = 3
+        offset, lines = end, lines + 1
+    _compiler_fact(detail)
+    candidate = dict(row, schema_version=3, compiler_failure=detail)
+    validate(candidate)  # Atomic update; diagnostic faults leave the old row intact.
+    row.update(schema_version=3, compiler_failure=detail)
+    return row
+
+
 def _keys(row, public=False):
-    _need(type(row) is dict and type(row.get('schema_version')) is int and row['schema_version'] in (1, 2))
-    return (PUBLIC_KEYS if public else KEYS) | ({'config_failure'} if row['schema_version'] == 2 else set())
+    _need(type(row) is dict and type(row.get('schema_version')) is int and row['schema_version'] in (1, 2, 3))
+    extra = {2: {'config_failure'}, 3: {'compiler_failure'}}.get(row['schema_version'], set())
+    return (PUBLIC_KEYS if public else KEYS) | extra
 
 
 def initial(binding):
@@ -172,7 +382,7 @@ def invalidate(row):
 
 
 def _body(row):
-    _need(type(row['schema_version']) is int and row['schema_version'] in (1, 2))
+    _need(type(row['schema_version']) is int and row['schema_version'] in (1, 2, 3))
     _need(type(row['phase']) is str and row['phase'] in PHASES)
     _need(type(row['command']) is str and row['command'] in COMMANDS)
     _need(type(row['attempt']) is str and row['attempt'] in ('NOT_ISSUED', 'ISSUED'))
@@ -197,6 +407,11 @@ def _body(row):
         _need(row['first_failure'] is not None and row['first_failure']['phase'] == 'CONFIG_DELTA' and
               row['first_failure']['command'] == row['command'] == 'CONFIG' and row['attempt'] == 'ISSUED' and
               row['natural_return'] == {'kind': 'RETURNED', 'code': 0})
+    if row['schema_version'] == 3:
+        _compiler_fact(row['compiler_failure'])
+        _need(row['first_failure'] == {'phase': 'KERNEL', 'command': 'KERNEL', 'error_kind': 'DATA_REFUSAL'} and
+              row['command'] == 'KERNEL' and row['attempt'] == 'ISSUED' and
+              row['natural_return'] == {'kind': 'RETURNED', 'code': row['compiler_failure']['return_code']})
     _need(len(_encoded(row)) <= LIMIT)
 
 

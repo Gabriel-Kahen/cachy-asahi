@@ -217,6 +217,57 @@ def validate_config_fact(value):
     return value
 
 
+def compiler_sha(value):
+    return type(value) is str and re.fullmatch("[0-9a-f]{64}", value) is not None
+
+COMPILER_OUTPUT_LIMIT = 8 * 1024 ** 2
+COMPILER_LINE_LIMIT = 131072
+COMPILER_LINE_BYTES = 4096
+COMPILER_TEXT_BYTES = 192
+COMPILER_PRIVATE_WORDS = ('password', 'passwd', 'secret', 'token', 'authorization', 'bearer', 'api_key', 'api-key', 'privatekey', 'private_key', 'private-key', 'private key', 'access_key', 'access-key', 'access key', 'cookie', 'credential')
+COMPILER_SOURCE_PREFIX = '/tmp/artifacts/kernel-candidates/trial/source-tree/linux-asahi-7.1.13-3/'
+COMPILER_SCAN = frozenset(('COMPLETE', 'LINE_CAP', 'LINE_LENGTH_CAP'))
+COMPILER_SOURCE_ROOTS = frozenset(('arch', 'drivers', 'include', 'kernel', 'mm', 'fs', 'net', 'lib', 'block', 'security', 'crypto', 'sound', 'virt', 'init', 'rust', 'scripts'))
+RUST_CODES = {'E0425': 'RUST_UNRESOLVED_NAME', 'E0432': 'RUST_UNRESOLVED_IMPORT', 'E0433': 'RUST_UNRESOLVED_PATH', 'E0308': 'RUST_TYPE_MISMATCH', 'E0277': 'RUST_TRAIT_BOUND', 'E0609': 'RUST_UNKNOWN_FIELD', 'E0599': 'RUST_MISSING_METHOD', 'E0658': 'RUST_UNSTABLE_FEATURE', 'E0635': 'RUST_UNKNOWN_FEATURE', 'E0463': 'RUST_MISSING_CRATE', 'E0583': 'RUST_MISSING_MODULE'}
+COMPILER_C_CATEGORIES = frozenset(('MISSING_HEADER', 'UNDECLARED_IDENTIFIER', 'IMPLICIT_DECLARATION', 'INCOMPATIBLE_POINTER', 'TYPE_MISMATCH', 'UNSUPPORTED_OPTION', 'INTERNAL_COMPILER_ERROR', 'LINK_UNDEFINED_REFERENCE', 'DTC_ERROR', 'RESOURCE_MARKER', 'MAKE_ERROR', 'OTHER_ERROR'))
+COMPILER_CATEGORIES = COMPILER_C_CATEGORIES | frozenset(RUST_CODES.values()) | {'RUST_OTHER_CODE'}
+
+def validate_compiler_location(value):
+    need(type(value) is dict and set(value) == {'path', 'line', 'column'})
+    path = value['path']
+    need(type(path) is str and 0 < len(path) <= 128 and (re.fullmatch('[A-Za-z0-9_./+-]+', path) is not None) and (path.split('/')[0] in COMPILER_SOURCE_ROOTS) and (len(path.split('/')) >= 2) and all((part not in ('', '.', '..') for part in path.split('/'))) and (not any((word in path.lower() for word in COMPILER_PRIVATE_WORDS))))
+    need(type(value['line']) is int and 1 <= value['line'] <= 10000000 and (value['column'] is None or (type(value['column']) is int and 1 <= value['column'] <= 1000000)))
+    return value
+
+def validate_compiler_span(value, total):
+    need(type(value) is dict and set(value) == {'category', 'error_code', 'location', 'offset', 'bytes', 'sha256', 'text', 'text_truncated'})
+    need(type(value['category']) is str and value['category'] in COMPILER_CATEGORIES)
+    code = value['error_code']
+    if code is None:
+        need(value['category'] in COMPILER_C_CATEGORIES)
+    else:
+        need(type(code) is str and re.fullmatch('E[0-9]{4}', code) is not None and (value['category'] == RUST_CODES.get(code, 'RUST_OTHER_CODE')))
+    if value['location'] is not None:
+        validate_compiler_location(value['location'])
+    need(type(value['text_truncated']) is bool)
+    text = value['text']
+    need(text is None and (not value['text_truncated']) or (type(text) is str and 0 < len(text) <= COMPILER_TEXT_BYTES and all((32 <= ord(c) < 127 for c in text)) and (not any((word in text.lower() for word in COMPILER_PRIVATE_WORDS))) and ('://' not in text) and ('/home/' not in text.lower()) and ('/root/' not in text.lower()) and (not value['text_truncated'] or len(text) == COMPILER_TEXT_BYTES)))
+    need(type(value['offset']) is int and 0 <= value['offset'] < total and (type(value['bytes']) is int) and (1 <= value['bytes'] <= COMPILER_LINE_BYTES) and (value['offset'] + value['bytes'] <= total) and compiler_sha(value['sha256']))
+    return value
+
+def validate_compiler_fact(value):
+    need(type(value) is dict and set(value) == {'return_code', 'output_bytes', 'output_sha256', 'log_sha256', 'scan_status', 'matched_lines', 'first', 'last'})
+    need(type(value['return_code']) is int and -64 <= value['return_code'] <= 255 and (value['return_code'] != 0))
+    need(type(value['output_bytes']) is int and 0 <= value['output_bytes'] <= COMPILER_OUTPUT_LIMIT and compiler_sha(value['output_sha256']) and compiler_sha(value['log_sha256']) and (value['output_sha256'] == value['log_sha256']))
+    need(type(value['scan_status']) is str and value['scan_status'] in COMPILER_SCAN and (type(value['matched_lines']) is int) and (0 <= value['matched_lines'] <= COMPILER_LINE_LIMIT) and (value['matched_lines'] <= value['output_bytes']))
+    if value['matched_lines'] == 0:
+        need(value['first'] is value['last'] is None)
+    else:
+        first, last = (validate_compiler_span(value[name], value['output_bytes']) for name in ('first', 'last'))
+        need(first == last if value['matched_lines'] == 1 else first['offset'] + first['bytes'] <= last['offset'])
+    need(value['scan_status'] == 'COMPLETE' or value['output_bytes'] > 0)
+    return value
+
 def child_validate_inner_group(group):
     need(type(group) is dict and set(group) == {'availability', 'reason', 'raw_sha256', 'diagnostic'})
     availability = group['availability']
@@ -229,8 +280,8 @@ def child_validate_inner_group(group):
         return group
     need(pin is not None)
     row = group['diagnostic']
-    need(type(row) is dict and type(row.get('schema_version')) is int and row['schema_version'] in (1, 2))
-    need(set(row) == CHILD_INNER_PUBLIC_KEYS | ({'config_failure'} if row['schema_version'] == 2 else set()))
+    need(type(row) is dict and type(row.get('schema_version')) is int and row['schema_version'] in (1, 2, 3))
+    need(set(row) == CHILD_INNER_PUBLIC_KEYS | ({'config_failure'} if row['schema_version'] == 2 else {'compiler_failure'} if row['schema_version'] == 3 else set()))
     need(type(row['binding_sha256']) is str and re.fullmatch('[0-9a-f]{64}', row['binding_sha256']))
     need(type(row['phase']) is str and row['phase'] in CHILD_INNER_PHASES and type(row['command']) is str and row['command'] in CHILD_INNER_COMMANDS)
     need(type(row['attempt']) is str and row['attempt'] in ('NOT_ISSUED', 'ISSUED'))
@@ -253,6 +304,9 @@ def child_validate_inner_group(group):
         need(row['first_failure'] is not None and row['first_failure']['phase'] == 'CONFIG_DELTA' and
              row['first_failure']['command'] == row['command'] == 'CONFIG' and row['attempt'] == 'ISSUED' and
              row['natural_return'] == {'kind': 'RETURNED', 'code': 0})
+    if row['schema_version'] == 3:
+        validate_compiler_fact(row['compiler_failure'])
+        need(row['first_failure'] == {'phase': 'KERNEL', 'command': 'KERNEL', 'error_kind': 'DATA_REFUSAL'} and row['command'] == 'KERNEL' and (row['attempt'] == 'ISSUED') and (row['natural_return'] == {'kind': 'RETURNED', 'code': row['compiler_failure']['return_code']}))
     need(len(json.dumps(row, sort_keys=True, separators=(',', ':'), allow_nan=False).encode()) <= 2048)
     return group
 

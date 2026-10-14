@@ -67,6 +67,12 @@ def observe(report, operation, *args, deferred=None, **kwargs):
     except Exception:
         # Ordinary diagnostic faults cannot change the original business path.
         row['write_failed'] = True
+    except BaseException as error:
+        # Non-Exception controls are delivered or retained, never swallowed.
+        row.update(write_failed=True, cancelled=True)
+        report.update(status='FAIL', cancelled=True)
+        if deferred is None: raise
+        deferred.append(error)
 
 
 
@@ -103,7 +109,21 @@ def command(runner, report, label, argv, timeout=60):
             observe(report, inner_result.invalidate)
     report['commands'].append({'label': label, 'argv': argv, 'exit': result.returncode,
                               'log_sha256': digest(runner.log_dir / (label + '.log'))})
-    need(result.returncode == 0, 'command failed: ' + label)
+    try:
+        need(result.returncode == 0, 'command failed: ' + label)
+    except BaseException as first:
+        if type(label) is str and label == 'kernel':
+            if type(result) is subprocess.CompletedProcess and type(result.returncode) is int:
+                if result.returncode != 0:
+                    controls = []
+                    observe_failure(report, first, False, controls)
+                    observe(report, inner_result.compiler_failure, result.stdout,
+                            report['commands'][-1]['log_sha256'], deferred=controls)
+                    if controls:
+                        prior_cause = first.__cause__
+                        causes = ([prior_cause] if prior_cause is not None else []) + controls
+                        first.__cause__ = BaseExceptionGroup('compiler diagnostic controls', causes)
+        raise
     return result.stdout
 
 
