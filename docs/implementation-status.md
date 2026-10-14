@@ -2,6 +2,13 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 14, screenshot terminal checkpoint: trial `38628618206` isFAIL
+on exact Source `85a84f9f`. Its registration guard and checkout pass; the
+build/runtime step fails and bounded evidence upload succeeds. Exact runtime
+cause, image/capture progress and cleanup results remain unclassified pending
+terminal retention. No retry is dispatched. The third-slot scheduling hold
+for P0 ends with the pilot; P0 Source/admission/preparation checks remain open.
+
 October 14, screenshot CI execution checkpoint: Root publishes Source
 `85a84f9f` in draftPR26 after independent peer `5717c4ef` (53 inert controls)
 and registration peer `46bf659f` (24 controls). Seven additions, ten locked
