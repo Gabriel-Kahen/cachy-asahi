@@ -2,6 +2,28 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 14, current follow-up: composed run `38526888627` completes FAIL with
+Root completion `5a73a9df`. All seven initial integration stages, including
+repository, pass; owned image cleanup passes. The subsequent repository handoff
+and phase publication fail, and the original failing predicate remains unknown.
+Independent actual review is tracing that boundary. This is integration progress,
+not acceptance of the full composed operation.
+
+Kernel diagnostic Source `2fac02d7` completes run `38527999980` FAIL, retained
+under completion `e647d553`. CONFIG returns zero and the diagnostic localizes
+refusal to BEFORE_CONFIG_PARSE. A pure check of the exact pinned configuration
+finds that the selected parser rejects twelve legitimate mixed-case Kconfig
+symbols. Grammar-only correction `94e82b3e` preserves symbol case and all guards;
+independent review and a fresh native attempt remain required. The pure source
+reproducer does not attest the unexported native configuration contents.
+
+The shared Pair/Zsh/KSM cache correction `bf154021` is sealed and undergoing
+independent review before these lanes restart. Library materialize diagnostic
+`d9b294c4` is held: peer `cfc4349a` demonstrates swallowed secondary cancellation;
+a successor is being implemented. The compile bootstrap/workspace proposal
+`e6af1072` is sealed, and a concrete runnable job binding is being implemented.
+No new compilation, signing, installation or M2 acceptance is claimed.
+
 October 14, 07:19 UTC: library run `38510908030` and Topmem/Fish run
 `38511520135` complete FAIL. Library completion `4d82b3ad` retains original
 producer build/comparison PASS and the scoped library materialize failure;
