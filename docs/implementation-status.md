@@ -2,6 +2,29 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 14, 04:15 UTC: Root's managed handoff suite passes all 154 tests in
+98.686 seconds, without failures, errors or skips. Independent Root peer
+`d41ef5c6` (36 authenticated leaves) confirms all 182 test/helper methods and
+assertion counts are retained. The corrected Source `5ea0987c` proves all 271
+committed byte/mode rows. Separate Data `a5f9e4b4`, selection `a62592b8` and plan
+`34f6039b` are published and both variables read back exactly. Push-triggered
+ARM run `38510386112` is confirmed in progress. No result is inferred yet.
+
+The library startup fix advanced actual run `38508141673` beyond registration,
+then capture-dependencies failed at GRAPH_NAMESPACE, callback-refused, cleanup
+PASS. Root retains completion `e82503b5`; no project-library compilation ran.
+The pure Source replay finds the held controller's normal builtins-module
+representation meeting a dictionary-only check. The narrow successor `85fb2bbb`
+has independent review `81252db2`; Root adoption and fresh execution are next.
+
+Compiler cap successor `9ff74269` passes the earlier bound in actual observation
+`38508542523`, then refuses inventory-owner in the GCC plugin inventory. Root
+completion `22618fcc` retains the seven-inventory/908-sample-call progress; the
+precise node and ownership term remain unknown. A bounded diagnostic is assigned.
+The Topmem/Fish budget/retirement successor `41e4e448` has Source-only peer PASS
+for both fixes; Root exact peer authentication and actual publication remain
+pending. Full R1–R5/M5–M9 and hardware acceptance remain incomplete; goal ACTIVE.
+
 October 14, 03:39 UTC: compiler observation `38506491884` retains the precise
 `elf-strtab-cap` failure for held cc1: dynamic string table 1,293,706 bytes
 against the existing 1 MiB bound. Root completion `4cb74e79` retains the header,
