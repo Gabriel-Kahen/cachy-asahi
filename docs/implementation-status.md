@@ -2,6 +2,32 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 14, 10:00 UTC: concrete signer binding `a71981bd` passes independent
+peer `c337e9fe`. Root publishes Source `377885cf`, verifies seven replacements
+and fifteen unchanged receiver/workspace/manifest paths, then starts trial
+`38545639655`. It completes FAIL, retained under completion `2604a075`.
+The shim compiler returns 0 and produces a retained 3,888-byte unexecuted
+output. The ABI compiler returns 1 at its `O_NOFOLLOW == 0x20000` assertion;
+the four later inspection commands remain NOT RUN. Owned FD retirement passes,
+directories remain retained, and no output or GPG is executed. A minimal
+ARM-definition correction is being reviewed against the exact selected headers.
+
+Kernel actual review `107ff545` confirms the new bounded DTC diagnostic and
+pinned Asahi float-cell source trace. Minimal proposal `59d35faf` removes only
+the explicit system-DTC argument, restoring the pinned tree's compiler; its
+six-file hash cascade has an independent internal peer and is receiving Root
+review. Platform source/configuration, compiler guards and deadlines are held.
+No corrected native kernel compilation is yet established.
+
+Pair/checker-root capacity successor `bc52cbd2` passes independent peer
+`96ef5de6`, including exact seven/three copy maps, full 55/67 Source closures,
+120 targeted replay outcomes and bounded independent ownership/planner controls.
+Root integration and fresh native preflight/counters remain pending. The simpler
+library registered-route successor `620c33cf` is sealed and under independent
+review. Root verifies live workflow ID 382820833, retains the actual proposed-base
+workflow, and prepares an isolated checkout; Code/Source/Data publication and
+native execution remain pending.
+
 October 14, 09:32 UTC: the ioctl include correction passes author `7ea55b9c`
 and independent peer `4d106e48`. Root publishes receiver Source `1e8fd873`,
 verifying its thirteen rows: two C files changed and eleven held. Canonical
