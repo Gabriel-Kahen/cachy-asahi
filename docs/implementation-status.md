@@ -2,6 +2,32 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 14, implementation and execution checkpoint: Pair dictionary-result
+correction is published as `0e886ca6`, Zsh as `ce7af5ef`, after independent
+peer `ba37f3a5`. Each exact three-copy cascade and every Source/Data Git row
+are verified. Separate execution registrations are being derived; no corrected
+native result is claimed.
+
+KSM TypeError-callsite diagnostics pass peer `e53059bb` and are published as
+`a5d7e178`, packet `1cfc8ffc`. Trial `38609728294` fails; completion `236f152e`
+retains the new callsite `NATIVE_PROBE_BODY`. This identifies a propagation
+frame, not the exact expression or an earlier cause. Cleanup ownership remains
+uncertain. Concrete probe/wrapper review continues.
+
+Library Data `2c9d61b7` is the exact two-file child of Source `32dea27b`;
+Code `9ea7c81a` stays distinct. Both actual workflow and bootstrap parsers
+accept the finalized plan `24fa555a`. Root verifies variable readbacks before
+advancing the execution ref, then observes native run `38610255544` running.
+Separate static run `38610255427` passes. Draft PR25 exposes the Data change;
+materialization/new native builds remain unaccepted until terminal evidence.
+
+Kernel declared-alignment correction, composed IMAGE_CONFIG serializer repair
+and the concrete P0 runtime route remain under bounded external review. P0
+review found a direct-callable Session-type gap; its new narrow successor is
+being prepared while the old packet stays frozen. No signer runtime, native
+26-case matrix or M2 hardware acceptance is claimed. Full R1–R5 remains active.
+
+
 October 14, reviewed implementation checkpoint: canonical library gzip correction
 is published as Source `32dea27b`, packet `f425308c`, in draft PR24 after
 independent peer `c84c8a5e`. All 278 committed Source hashes/modes are verified.
