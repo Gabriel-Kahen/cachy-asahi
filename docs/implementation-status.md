@@ -17,9 +17,15 @@ producer's exact cause or turn its ownership-uncertain cleanup into a pass.
 
 Kernel compiler diagnostic successor `ba061dd0` passes independent peer
 `bf790241`. Root publishes Source `bcdfa7a8`, verifies all 124 Source rows plus
-packet `bdbca8de`, and starts native trial `38543396235`; preflight passes and
-execution is active. It preserves the original failure and ordered secondary
-controls; the predecessor diagnostic remains blocked. Updater optional dependency
+packet `bdbca8de`, and starts native trial `38543396235`. It completes FAIL,
+retained under completion `0c383957`. The baseline KERNEL return is 2; the new
+bounded diagnostic exposes `apple/t8103.dtsi:498` float-cell syntax failure.
+Producer/probe/provision and cleanup pass; candidate remains NOT RUN. Root finds
+that the worker overrides Asahi's in-tree DTC with `/usr/bin/dtc`, while the
+pinned in-tree grammar supports the floating literal at that line. Independent
+actual review and a minimal tool-selection correction are in progress. The
+historical unexported compiler cause remains unknown, and the earlier diagnostic
+proposal remains blocked. Updater optional dependency
 diagnostic `f1ddae68` passes peer `7719a603`. Root publishes future Source
 `ddc83502` and verifies all 90 committed Source rows. No new updater trial is
 launched; queued `38537248373` remains bound to its original `e3cab74a` and is
