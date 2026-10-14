@@ -1,0 +1,89 @@
+{
+  "status": "PASS_RECEIVER_SOURCE_ONLY_BINDING_PENDING",
+  "source_commit": "ea698489f29eae42aba35e3cc224180f95a42887",
+  "base_source": "81c161c3b40db04f3e4a3461e94b41400e0880f6",
+  "manifest_canonical_sha256": "51e4486016951d94ed414db376645efcc0868aef60304dd03df874cd313f1f66",
+  "manifest_raw_sha256": "b1e14c7aeabc3151788c36eedbcc347399bf140d0096ff55a77c4f231a4de2e7",
+  "files": {
+    "scripts/ci/test-signer-compile-v2/abi_layout.c": {
+      "bytes": 22614,
+      "mode": 420,
+      "sha256": "31072027916ab85ddc9b2d70f487665fa9a762f20b82b2964565f3148250ad0a"
+    },
+    "scripts/ci/test-signer-compile-v2/compile_lane_v2.py": {
+      "bytes": 14950,
+      "mode": 420,
+      "sha256": "de6acb3c8bda4ec2a7946235f1eb949655778097fc20dcecdbd8665f77623829"
+    },
+    "scripts/ci/test-signer-compile-v2/exec_filter.inc": {
+      "bytes": 735,
+      "mode": 420,
+      "sha256": "0e26f261f2f9d1c9eb2de15fa70eb3a6c4158c3eaab5bb9f330ceb8dd32bdc19"
+    },
+    "scripts/ci/test-signer-compile-v2/group_process_v2.py": {
+      "bytes": 22109,
+      "mode": 420,
+      "sha256": "bc4be94861dee7db998c340b86952adb2d7c606937fe499fa3a1dfc23e8198af"
+    },
+    "scripts/ci/test-signer-compile-v2/guardian.py": {
+      "bytes": 23775,
+      "mode": 420,
+      "sha256": "f2a832f3e01c59a2fd61907301818cb85dc511828f0ea40b416ecb3c66ef4446"
+    },
+    "scripts/ci/test-signer-compile-v2/inspection.py": {
+      "bytes": 11896,
+      "mode": 420,
+      "sha256": "0a4977cb241a537f5ee01d7c2988690c85a354ab881324269c0027b1a7b80c8d"
+    },
+    "scripts/ci/test-signer-compile-v2/observation_entry.py": {
+      "bytes": 12522,
+      "mode": 420,
+      "sha256": "540db1ab5a877fd2486673e86d2a1216c036dd9d8bec3953f44f467ee4966071"
+    },
+    "scripts/ci/test-signer-compile-v2/passive.py": {
+      "bytes": 40917,
+      "mode": 420,
+      "sha256": "b844e94ae9cf69882550526a93aed3606398e9252175472be0bf6f2888eba1c9"
+    },
+    "scripts/ci/test-signer-compile-v2/reobserve.py": {
+      "bytes": 42040,
+      "mode": 420,
+      "sha256": "045620837bb30cdfa719a4e45e216b3aeec389b7fc7da3c08ed86db81e44bdc7"
+    },
+    "scripts/ci/test-signer-compile-v2/root_entry.py": {
+      "bytes": 5930,
+      "mode": 420,
+      "sha256": "24467b0cc3fc0bbbdee45e5e4905cc4a1e51484712b219c92d2ed555b0774299"
+    },
+    "scripts/ci/test-signer-compile-v2/thread_filter.inc": {
+      "bytes": 828,
+      "mode": 420,
+      "sha256": "0811954954a107744eaef4592d2be070e30312ed5dbbae716acf6c65e83039ed"
+    },
+    "scripts/ci/test-signer-compile-v2/witness_shim.c": {
+      "bytes": 6826,
+      "mode": 420,
+      "sha256": "f5ad7cc5d6247bfa673226c842ee9795a4619f6adfd6062b9edfd0b5872af537"
+    },
+    "scripts/ci/test-signer-compile-v2/workspace.py": {
+      "bytes": 8724,
+      "mode": 420,
+      "sha256": "8fe059b38492ef56c25d34157774db56087b86e265fb7c64a9ae8dc15ae305f8"
+    },
+    "scripts/ci/test-signer-compile-v2/source-manifest.json": {
+      "bytes": 3817,
+      "mode": 420,
+      "sha256": "b1e14c7aeabc3151788c36eedbcc347399bf140d0096ff55a77c4f231a4de2e7"
+    }
+  },
+  "source_rows": 13,
+  "changed_rows": [
+    "compile_lane_v2.py",
+    "group_process_v2.py"
+  ],
+  "held_rows": 11,
+  "peer_receipt": "40088148a693f59bece00aa891ed29cd4de9df2946d99d8f88ba495ffbd67387",
+  "actual_previous_firstcause": "UNKNOWN",
+  "native_acceptance": false,
+  "dispatch": "NOT_RUN_BINDING_PENDING"
+}
