@@ -65,10 +65,10 @@
     "scripts/virtual/tooling-audit.json": "d3289a52f3269ba44f1437b69a112dcbd2086ee16ebe8d44658e65e7fb8e2095",
     "scripts/virtual/tooling.lock.json": "c18afc5bde9868594d41bd576a956960a7b01b190d148ba03ca4c41d4394e1b0"
   },
-  "peer_receipt_sha256": "f56359240b643ec284b6d334f501e90fc5291fff5e270e86107f8221ebf44a39",
+  "peer_receipt_sha256": "1bd80a64e52287c5321051707dda482ee256463d3f1bf13b4be64bd02a1726a2",
   "purpose": "root-selected-maintained-v1-development-source",
   "schema_version": 3,
-  "source_commit": "993487a4a9c5dad6027b2eee5cfc9131d4f0cb49",
+  "source_commit": "1794d046724681408462beff297de7ba03fc651f",
   "source_files": {
     ".github/workflows/native-arm-build.yml": {
       "mode": 420,
@@ -672,7 +672,7 @@
     },
     "scripts/ci/development/controller.py": {
       "mode": 420,
-      "sha256": "4e37ad4c8f9a2b8fa9f6f421f7a1c2c4e0f22394bbfe47778c922bc2c1b55aa8"
+      "sha256": "df240b71a42e2bce7df3a1c546bbbb9178193d281138378bbf3c59bf4d4905f6"
     },
     "scripts/ci/development/initial_artifacts.py": {
       "mode": 420,
@@ -892,7 +892,7 @@
     },
     "scripts/install/native_preflight.py": {
       "mode": 420,
-      "sha256": "d7b0fa11a7c0e2d61c718a807390e64d0a972e1db073bd9110f9eae2f49915f7"
+      "sha256": "1302bc4308595b548d144c8acdf50153c54926e2f76eddd3d28cc287439c501f"
     },
     "scripts/install/test_local_transaction.py": {
       "mode": 420,
@@ -1135,5 +1135,5 @@
       "sha256": "1023f493a5ff1991b382ed42b9960c6e0e98774c75e1a2aa90deff15dad7add1"
     }
   },
-  "source_packet_sha256": "1c9e4c4161119ea4073ef2a0478f6fc12248502c4ad3276e4d3d6510dcc63bc7"
+  "source_packet_sha256": "e58ac582574c3bc614e137c80b15b178150ccdcfebfb46d4c4ebbc33845f120c"
 }
