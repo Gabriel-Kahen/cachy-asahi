@@ -11,6 +11,7 @@ permissions:
 concurrency:
   group: native-arm-build
   cancel-in-progress: false
+  queue: max
 jobs:
   updater:
     if: github.repository == 'Gabriel-Kahen/cachy-asahi' && github.event.repository.private == false
@@ -19,9 +20,9 @@ jobs:
     env:
       PYTHONDONTWRITEBYTECODE: '1'
       REVIEWED_SOURCE_COMMIT: ${{ inputs.source_commit }}
-      READY_SHA256: 6dc5515b411bcaa9cff7caa844fcc623a7a0dba39cb0c28e1c6859db457438e2
+      READY_SHA256: 1d42b637226690f276f97fca2ec14212f45e1dd06c38e334aee6a1e0571bb34f
       # Reviewed storage/recovery checkpoint; coordinator Git/controller proof is separate.
-      STAGE_SHA256: de7f19f58c2773896879a1997a7ea707619d47644ce0f3b4f0a7b11ce3feb3a5
+      STAGE_SHA256: df34695d4a356cb205e7ebb0bbcfdea6164af90c0d68f059618e644fbf574084
       SOURCE_SHA256: 4d3e3fd9848aaed94154f786b04a5ae07c7816dcef82857b671b51555895eacb
     steps:
       - name: Start the shared deadline before checkout
@@ -58,6 +59,29 @@ jobs:
           echo "UPDATER_CONTROLLER_SHA256=$controller_sha" >> "$GITHUB_ENV"
       - name: Run the finite private native pair
         id: native
+        env:
+          CACHY_OLD_FOUR_SCHEMA: '1'
+          CACHY_OLD_FOUR_SOURCE_EPOCH: '1791748800'
+          CACHY_OLD_FOUR_JBIGKIT_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_01 }}
+          CACHY_OLD_FOUR_JBIGKIT_02: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_02 }}
+          CACHY_OLD_FOUR_JBIGKIT_SIG_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_SIG_01 }}
+          CACHY_OLD_FOUR_LIBTIFF_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_01 }}
+          CACHY_OLD_FOUR_LIBTIFF_02: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_02 }}
+          CACHY_OLD_FOUR_LIBTIFF_03: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_03 }}
+          CACHY_OLD_FOUR_LIBTIFF_04: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_04 }}
+          CACHY_OLD_FOUR_LIBTIFF_05: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_05 }}
+          CACHY_OLD_FOUR_LIBTIFF_06: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_06 }}
+          CACHY_OLD_FOUR_LIBTIFF_07: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_07 }}
+          CACHY_OLD_FOUR_LIBTIFF_08: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_08 }}
+          CACHY_OLD_FOUR_LIBTIFF_09: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_09 }}
+          CACHY_OLD_FOUR_LIBTIFF_10: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_10 }}
+          CACHY_OLD_FOUR_LIBTIFF_11: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_11 }}
+          CACHY_OLD_FOUR_LIBTIFF_12: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_12 }}
+          CACHY_OLD_FOUR_LIBTIFF_13: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_13 }}
+          CACHY_OLD_FOUR_LIBTIFF_14: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_14 }}
+          CACHY_OLD_FOUR_LIBTIFF_15: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_15 }}
+          CACHY_OLD_FOUR_LIBTIFF_SIG_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_SIG_01 }}
+        shell: bash
         timeout-minutes: 111
         run: |
           set -euo pipefail

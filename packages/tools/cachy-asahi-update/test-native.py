@@ -254,7 +254,7 @@ class NativeTests(unittest.TestCase):
             inflight.write_bytes(fixture.read_bytes()+b'\n# in-flight helper fixture\n')
             with self.assertRaisesRegex(ValueError,'frozen input changed'):
                 native.pinned(inflight,pin)
-        self.assertEqual(native.PINS['scripts/ci/inputs.lock.json'],'3c16c37d1b12cc84a88572e82ab8ad59e7f3b5ed0d08f09ddf72a69f4711d650')
+        self.assertEqual(native.PINS['scripts/ci/inputs.lock.json'],'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f')
 
     def test_live_plan_uses_authorized_helper_bytes(self):
         # Data reads only: the shared helper is hashed, never imported/executed.

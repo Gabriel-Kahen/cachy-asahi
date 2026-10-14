@@ -19,7 +19,7 @@ sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
 PACKAGE = 'packages/tools/cachy-asahi-update/'
-READY_SHA = '6dc5515b411bcaa9cff7caa844fcc623a7a0dba39cb0c28e1c6859db457438e2'
+READY_SHA = '1d42b637226690f276f97fca2ec14212f45e1dd06c38e334aee6a1e0571bb34f'
 BUDGET = {'total_seconds':6900, 'raw_retention_seconds':7100, 'materialize_seconds':910,
           'freeze_seconds':120, 'native_seconds':5400, 'projection_seconds':60,
           'export_seconds':60, 'cleanup_seconds':180, 'private_bytes':8*1024**3,
@@ -831,7 +831,7 @@ def pipeline(root,controller,controller_sha,output,runner=None):
             python=contract['tools']['python']['path'];package=copied/PACKAGE
             materialized=private/'materialized';candidate=private/'candidate';native=private/'native'
             storage=None;last_tick=0
-            def command(phase,argv,seconds):
+            def command(phase,argv,seconds,absolute_end=None):
                 receipt['phase']=phase;save(output/'result.json',receipt)
                 need(not cancelled,'stage-cancelled');verify_snapshot(copied,contract['source']);tool_check(contract['tools'])
                 tick_failure={}
@@ -856,10 +856,13 @@ def pipeline(root,controller,controller_sha,output,runner=None):
                                         raise ValueError('docker-storage-budget') from None
                                     raise
                             tick_observation('daemon-storage',storage_tick,tick_failure)
+                endpoint = min(deadline, time.monotonic()+seconds) if absolute_end is None else absolute_end
+                need(type(endpoint) in (int,float) and endpoint <= deadline and time.monotonic() < endpoint,
+                     'stage-phase-deadline')
                 try:
                     item=tracked_process(owner,output,run_process,phase,argv,
                                          private/'logs'/f'{phase}.stdout',private/'logs'/f'{phase}.stderr',
-                                         min(deadline,time.monotonic()+seconds),env,copied,tick)
+                                         endpoint,env,copied,tick)
                     receipt['processes'][phase]=item;failure_diagnostics(receipt,phase,item,runtime,tick_failure)
                 except BaseException as error:
                     item=getattr(error,'receipt',{'status':'FAIL','reason_code':'stage-process-failed'})
@@ -896,8 +899,23 @@ def pipeline(root,controller,controller_sha,output,runner=None):
             command('freeze',[python,'-I','-B',str(package/'updater-native.py'),'freeze','--source',str(source_archive),
                               '--vendor',str(vendor),'--output',str(candidate)],BUDGET['freeze_seconds'])
             candidate_sha=digest(regular(candidate/'candidate.json'));receipt['candidate_sha256']=candidate_sha
+            native_end = min(deadline,time.monotonic()+BUDGET['native_seconds'])
+            def seed_check():
+                need(not cancelled,'stage-cancelled')
+                need(time.monotonic() < native_end,'stage-native-deadline')
+            seed_holder = {}
+            seed_helper = module(copied/(prefix+'current_cache.py'),rows[prefix+'current_cache.py']['sha256'])
+            receipt['phase'] = 'native-cache-seed'
+            try:
+                receipt['cache_seed'] = seed_helper.seed(copied,private,contract['source'],native_end,
+                    seed_check,seed_holder,module,regular,verify_snapshot)
+            except BaseException:
+                if seed_holder.get('observation',{}).get('cancelled') is True and not cancelled:
+                    cancelled.append(0)  # Existing unknown-number cancellation marker.
+                raise
+            save(output/'result.json',receipt)
             command('native-pair',[python,'-I','-B',str(package/'updater-native.py'),'build','--candidate',str(candidate/'candidate.json'),
-                                   '--candidate-sha256',candidate_sha,'--cache',str(private/'archives'),'--output',str(native)],BUDGET['native_seconds'])
+                                   '--candidate-sha256',candidate_sha,'--cache',str(private/'archives'),'--output',str(native)],BUDGET['native_seconds'],absolute_end=native_end)
             need(load(native/'result.json')['native_pair']=='PASS','native-pair-not-passed')
             source.verify(root,contract['source']);verify_snapshot(copied,contract['source'])
             receipt['native_compilation']='PASS PRIVATE NATIVE PAIR'

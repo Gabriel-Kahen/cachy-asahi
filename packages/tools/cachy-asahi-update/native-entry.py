@@ -52,6 +52,7 @@ def main():
             if inventory != expected:
                 error = ValueError('installed worker package inventory differs')
                 diagnostic.fail('entry-inventory', error); raise error
+            worker.run(['/usr/bin/pacman', '-Dk'], work, env, out, 'dependency-check-entry', timeout=60)
             (out / 'packages.lock').write_bytes(inventory)
         with diagnostic.step('entry-config-copy'):
             for name in ('makepkg.conf', 'pacman.conf'):

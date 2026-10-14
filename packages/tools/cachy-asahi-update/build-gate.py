@@ -24,7 +24,7 @@ EVIDENCE = {
     "build-script-review.json": "11e687a1633cd09db2a24a9a6f7c32086a86e83dec615ec08a05143ed273ac49",
     "additional-cargo-licenses.json": "74a1dbfa75de13df5c82525af8d684e38b772c31bdf912d61f7fe74e7646c591",
 }
-INVENTORY = "d5e2b02a4af36b763c24c0eded8d4b7326874448996f94126fbfc3f787946271"
+INVENTORY = "5c72ffef2fadecc631861ef12ab7f48e083694a402d0428a395da64fa592dcee"
 MODULE_PINS = {
     "linux-closure.py": "a73d7ba17018d2fd359e630675b7ca207965b01eca358f7574a80f690124d2a2",
     "worker-metadata.py": "76ecbd345f571366ee9e11df8df96bbc6f9be5500b626920b5eaa203ab155572",
