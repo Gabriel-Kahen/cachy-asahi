@@ -2,6 +2,27 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 14, screenshot CI execution checkpoint: Root publishes Source
+`85a84f9f` in draftPR26 after independent peer `5717c4ef` (53 inert controls)
+and registration peer `46bf659f` (24 controls). Seven additions, ten locked
+Git rows plus the lock, and four existing helper/license bodies verify exactly.
+The runtime closure pins196 Debian packages and an immutable base image.
+
+Only the guarded manual workflow is added to default main at `3ab577f9`.
+Root reads back the exact529-byte plan `83f4176e` before publishing the Source
+ref. Workflow384750899 launches one manual trial `38628618206`, now running
+on the exact Source. Actual pre-dispatch project activity is one library job;
+existing native queues stay untouched. P0 waits for this pilot to terminate.
+Image build, real captures/pixel checks and capture cleanup remain unaccepted
+until terminal evidence is retained. Always-upload can run after guard refusal;
+built image/cache retirement is outside this CI result. ARM archive execution,
+accelerated Hyprland and Asahi/M2 acceptance remain separate.
+
+Kernel trial `38620355690` is now terminalFAIL on preceding native Source
+`3bec0e2e`. Exact terminal retention is underway before any cause inference or
+retry. The test-only successor `1ed00455`/212 passing unit tests does not
+establish this native result. Full R1–R5 development remains active.
+
 October 14, source and scheduling checkpoint: fresh platform-source review
 `5ede0dd2` authenticates105 retained leaves and35 official retrieval records.
 The selected systemd262/pacmanr9 recipe hashes still have no exact matches;
