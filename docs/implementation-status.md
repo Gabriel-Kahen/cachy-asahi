@@ -2,6 +2,28 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 14, pretrial workflow correction checkpoint: Source `857aa6aa` fixes
+one P0 workflow read-limit constant. A focused exact-loop reproducer shows
+published2408 truncating the66238-byte driver at66168; the new66239 bound reads
+it exactly and still refuses an extra byte. External review `7bbdd652` passes
+25 checks/six cases. Root authenticates20 committed selected rows and exactly
+one changed workflow. P0 is NOT RUN; the actual packet and same-job trusted
+runtime selector/materializer still require review and integration.
+
+Region audit `6629f50d` authenticates112 leaves/26 inputs and establishes why
+cursor IPC alone cannot provide slurp pointer capability in the selected
+headless setup. A confined virtual-pointer client is under development.
+Native screenshot feasibility `6453a461` authenticates55 leaves/58 inputs;
+all196 ARM64 counterpart package names are metadata-feasible. Exact binary
+closure and native execution remain separate. Wayland core sources are
+retained against the existing runtime pins, with no source execution.
+
+The original native queue is now terminal except kernel `38632413885`.
+FDK `38623533412` completes SUCCESS on Source `220b4eb2`; its actual build,
+smoke/comparison and cleanup review is pending. KSM `38618847844` and CLI
+`38620204222` complete FAIL. Exact terminal retention is assigned before any
+acceptance or further failure inference; no identical retries are launched.
+
 October 14, P0 reader publication and library actual review checkpoint:
 P0 Source `2408e967` publishes the two-file authenticated-empty-source correction
 after external review `e3f5bd11` and392 focused checks. Root verifies20 selected
