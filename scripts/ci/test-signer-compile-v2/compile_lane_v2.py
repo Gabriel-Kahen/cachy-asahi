@@ -182,6 +182,8 @@ def execute(*,workspace,runner,selection,sources,source_rows,inspect_outputs,reo
             result['commands'].append(dict(name=name,natural_returncode=outcome['natural_returncode'],
                 stdout_sha256=digest(outcome['stdout']),stderr_sha256=digest(outcome['stderr']),
                 descendants_absent=outcome['descendants_absent']))
+            if outcome['first_cause']=='work:REFUSED':
+                result['commands'][-1]['work_refusal']=outcome['work_refusal']
             need(outcome['status']=='PASS_NATURAL_ZERO_OWNED_ABSENCE_BYTES_ONLY' and outcome['natural_returncode']==0
                  and outcome['reaped_returncode']==0 and outcome['child_reaped'] is True
                  and outcome['descendants_absent'] is True

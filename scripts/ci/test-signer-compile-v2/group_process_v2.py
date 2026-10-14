@@ -14,6 +14,10 @@ GUARDIAN_SHA = 'f2a832f3e01c59a2fd61907301818cb85dc511828f0ea40b416ecb3c66ef4446
 GUARDIAN_PEER_SHA = 'ec2871f460a23556adb3b8dcefb54cf67fc2b03eccbf091b6e06946dc03e9338'
 MAX_OUTPUT = 4 * 1024 * 1024
 
+# Guard declaration identities only; no runtime caller or host strings.
+GROUP_WORK_REFUSALS = {'TMPDIR-held-output-binding': 'group.OwnedCommands.run', 'bounded-held-bytes': 'group.OwnedCommands._bytes', 'clock-domain-or-rewind': 'group.OwnedCommands._live', 'command-shape': 'group.OwnedCommands.run', 'distinct-borrowed-FDs': 'group.OwnedCommands.run', 'exact-argv': 'group.OwnedCommands.run', 'fresh-private-output': 'group.OwnedCommands._bytes', 'held-Root-ELF': 'group.OwnedCommands.run', 'held-executable-SHA': 'group.OwnedCommands._bytes', 'held-file-drift': 'group.OwnedCommands._bytes', 'held-file-shape': 'group.OwnedCommands._bytes', 'held-private-cwd': 'group.OwnedCommands.run', 'inflight-output-bound': 'group.OwnedCommands.run', 'natural-zero-without-helper-residue': 'group.OwnedCommands.run', 'output-bound': 'group.OwnedCommands._bytes', 'output-limit': 'group.OwnedCommands.run', 'previous-owned-child-not-retired': 'group.NativeBackend.birth', 'private-stream-owner': 'group.OwnedCommands.run', 'single-owner-thread': 'group.NativeBackend.establish_waitability'}
+GUARDIAN_WORK_REFUSALS = {'ADAPTER_ACTION_AFTER_ORIGINAL_END': 'guardian.Linux._action_guard', 'BIRTH_OWNERSHIP_UNKNOWN': 'guardian.Linux.token', 'CHILD_OWNERSHIP_RELEASED': 'guardian.Linux.peek', 'GROUP_MEMBER_BOUND': 'guardian.Linux.members', 'LEADER_OWNERSHIP_UNKNOWN': 'guardian.disposition', 'PRIVATE_SESSION_NOT_ESTABLISHED': 'guardian.Linux.token', 'PROC_NUMERIC_SHAPE': 'guardian.structural', 'PROC_SCAN_BOUND': 'guardian.Linux.members', 'PROC_STATE': 'guardian.structural', 'PROC_STAT_LIMIT': 'guardian.structural', 'PROC_STAT_SHAPE': 'guardian.structural', 'PROC_VISIBILITY_INCOMPLETE': 'guardian.Linux.members', 'SESSION_GROUP_ESCAPE': 'guardian.disposition', 'TERMINAL_LEADER_NOT_UNREAPED_ZOMBIE': 'guardian.disposition', 'WAITID_CHILD_MISMATCH': 'guardian.Linux.peek', 'WAITID_TERMINAL_CODE': 'guardian.Linux.peek'}
+
 
 class Refused(ValueError):
     pass
@@ -227,13 +231,33 @@ class OwnedCommands:
             child_reaped=False,leader_reaped=False,leader_custody_retired=False,
             descendants_absent=False,stdout=b'',stderr=b'')
 
+    def _work_refusal(self,error):
+        facts=dict(operation=None,predicate=None)
+        if type(error) is Refused:
+            guards=GROUP_WORK_REFUSALS
+        elif type(error) is self.io.guardian.Refusal:
+            guards=GUARDIAN_WORK_REFUSALS
+        else:
+            return facts
+        args=error.args
+        if (type(args) is tuple and len(args)==1 and type(args[0]) is str and args[0] in guards):
+            facts=dict(operation=guards[args[0]],predicate=args[0])
+        return facts
+
     def _failure(self,result,error,stage):
+        first=result['first_cause'] is None
         cancel=isinstance(error,(Cancelled,KeyboardInterrupt))
         result['first_cause']=result['first_cause'] or stage+':'+(
             'CANCELLED' if cancel else 'DEADLINE' if isinstance(error,Deadline) else
             'REFUSED' if isinstance(error,(Refused,self.io.guardian.Refusal)) else
             'IO_FAILED' if isinstance(error,OSError) else 'OTHER')
         result['cancelled'] |= cancel
+        if first and result['first_cause']=='work:REFUSED':
+            result['work_refusal']=dict(operation=None,predicate=None)
+            try: result['work_refusal']=self._work_refusal(error)
+            except BaseException as diagnostic_error:
+                result['cancelled'] |= isinstance(diagnostic_error,(Cancelled,KeyboardInterrupt))
+                result['uncertain']=True
 
     def _dispose(self,result):
         try:
