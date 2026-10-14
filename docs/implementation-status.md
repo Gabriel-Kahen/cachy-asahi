@@ -3,6 +3,37 @@
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
 
+
+October 14, native successor checkpoint: source-delivery and screenshot changes
+are published in `c53ad695` and `4c9b1a1`, respectively, on integration PR6.
+KSM optional-import compatibility passes independent peer `1afd165e` with 103
+controls. Root publishes `b5c42de9`, verifies all 158 Source rows and packet
+`f8ae24f1`, and queues exact-Source trial `38556638406` (draft PR21). The
+allowlist is held; denied imports are never delegated. The earlier rejected
+root remains unknown, so no native cause or repair is claimed.
+
+FDK's two workflow consumers expected 133 files against the unchanged
+137-file packet. Minimal correction passes independent peer `3e69ab4e` and
+18 controls; Root publishes `d82cfb5f` and proves all 137 Source rows, packet
+`2d56b66f` and the workflow. Fresh trial `38557145714` starts on exact Source.
+The earlier preflight's first runtime predicate remains unknown. This job
+permits private build validation and bounded metadata, not binary publication.
+
+All four latest kernel/Pair/Zsh/CLI terminal records now authenticate. Kernel
+`38547085071` reaches inner KERNEL natural return 0, then refuses OUTPUTS with
+DATA_REFUSAL. Its baseline worker returns 1; candidate remains NOT RUN and
+cleanup/daemon preservation pass separately. Output acceptance remains open.
+Pair `38546975061` records an AttributeError at `math.__file__` in its runtime
+observer. Zsh `38546975187` records `native-original-guard-binding`, with the
+failed conjunct unknown. Both retain empty result JSON, which establishes no
+cleanup pass. CLI `38547424804` reports OWNED_CLEANUP_UNCERTAIN with every work
+phase NOT RUN; its initial underlying cause remains unknown.
+
+Parallel work continues on the proven Pair observer defect, updater's two
+stale recipe-lock pins, screenshot native-build inputs, and bounded diagnostics
+for kernel outputs, library output proof, Zsh, CLI, signer and composed
+preflight. No full-release or hardware acceptance is inferred.
+
 October 14, source-delivery and screenshot integration: Root publishes source
 associations and recipient lookup/export in `c53ad695`, following author
 `61e039ee` and independent peer `7051b4be`. All 104 canonical helper, release
