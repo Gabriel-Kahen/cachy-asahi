@@ -433,6 +433,21 @@ class Protocol:
         need(len(self.frames) == 2 and not self.acks and len(self.plain) <= 4 * 1024**2, 'two delivered ACKs required')
 
 
+def _cap_add_matches(value, _caps=CAPS):
+    """Accept only six distinct frozen capabilities, bare or Docker CAP_ names."""
+    if type(value) is not list or len(value) != 6:
+        return False
+    seen = set()
+    for item in value:
+        if type(item) is not str or len(item) > 32:
+            return False
+        name = item[4:] if item.startswith('CAP_') else item
+        if name not in _caps or name in seen:
+            return False
+        seen.add(name)
+    return len(seen) == len(_caps)
+
+
 def inspect_owned(value, expected, *, terminal=False):
     try:
         need(isinstance(value, list) and len(value) == 1 and isinstance(value[0], dict), 'one inspect record required')
@@ -461,8 +476,8 @@ def inspect_owned(value, expected, *, terminal=False):
     try:
         need(host.get('NetworkMode') == 'none' and host.get('CgroupnsMode') == 'private'
              and host.get('ReadonlyRootfs') is True and host.get('Privileged') is False
-             and host.get('CapDrop') == ['ALL'] and isinstance(host.get('CapAdd'), list)
-             and len(host['CapAdd']) == 6 and set(host['CapAdd']) == set(CAPS)
+             and host.get('CapDrop') == ['ALL'] and type(host.get('CapAdd')) is list
+             and len(host['CapAdd']) == 6 and _cap_add_matches(host['CapAdd'])
              and host.get('PidsLimit') == 512 and host.get('Memory') == 8 * 1024**3
              and host.get('NanoCpus') == 4 * 10**9 and host.get('SecurityOpt') == ['no-new-privileges']
              and host.get('Tmpfs') == {'/scratch': 'rw,nosuid,nodev,exec,size=6g,mode=0700',
@@ -593,7 +608,7 @@ def _resource_snapshot(host, _caps=CAPS, _fields=RESOURCE_FIELDS):
     observe(result['cap_add_is_list'], result['cap_add_is_list'] is not None)
     result['cap_add_count'] = len(raw_add) if type(raw_add) is list and len(raw_add) <= 64 else None
     observe(result['cap_add_count'] == 6, result['cap_add_count'] is not None)
-    observe(set(add) == set(_caps) if add is not None else False, add is not None)
+    observe(_cap_add_matches(add, _caps) if add is not None else False, add is not None)
     if add is not None:
         plain = prefixed = unknown = duplicates = seen = 0
         for item in add:

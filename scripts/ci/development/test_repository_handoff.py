@@ -2557,4 +2557,115 @@ class DownstreamCancellationReportingModels(OpaqueCancellationReportingModels):
                 if pending:self.assertTrue(any(isinstance(leaf,launch.Cancelled) for leaf in DownstreamSignalModels.causes(first.__cause__)))
                 self.assertEqual(launch.SIGNAL_SCOPES,[]);self.assertEqual((common.PENDING,common.SIGNAL_SCOPES),([],[]))
 
+
+class CapabilityRepresentationModels(unittest.TestCase):
+    """Source inspection predicates on inert data; no container or kernel API."""
+    @classmethod
+    def setUpClass(cls):
+        raw=(ROOT/'scripts/port/repository-native-handoff/launch.py').read_text()
+        current="type(host.get('CapAdd')) is list\n             and len(host['CapAdd']) == 6 and _cap_add_matches(host['CapAdd'])"
+        previous="isinstance(host.get('CapAdd'), list)\n             and len(host['CapAdd']) == 6 and set(host['CapAdd']) == set(CAPS)"
+        current_observe='observe(_cap_add_matches(add, _caps) if add is not None else False, add is not None)'
+        previous_observe='observe(set(add) == set(_caps) if add is not None else False, add is not None)'
+        assert raw.count(current)==raw.count(current_observe)==1
+        selected={'Refused','need','_cap_add_matches','inspect_owned','_label_inspect','_inspect_diagnostic',
+                  '_resource_snapshot','_closed_resource_snapshot','_capture_resource_snapshot','_resource_diagnostic'}
+        literals={'CAPS','RESOURCE_FIELDS','INSPECT_DIAGNOSTIC_CHECKS'}
+        def model(text):
+            nodes=[node for node in ast.parse(text).body if
+                isinstance(node,(ast.FunctionDef,ast.ClassDef)) and node.name in selected or
+                isinstance(node,ast.Assign) and any(isinstance(target,ast.Name) and target.id in literals for target in node.targets)]
+            module=types.ModuleType('inert_capability_inspection');module.Path=Path
+            exec(compile(ast.Module(body=nodes,type_ignores=[]),'<inert-capability-predicates>','exec',dont_inherit=True),module.__dict__)
+            return module
+        cls.new=model(raw);cls.old=model(raw.replace(current,previous,1).replace(current_observe,previous_observe,1))
+
+    def record(self,caps=None):
+        module=self.new;expected={'cid':'a'*64,'name':'owned-model','image':'sha256:'+'b'*64,'nonce':'c'*32,
+            'worker_args':['-B','/runner/repository.py'],'binds':{key:Path('/model'+key) for key in ('/inputs','/runner','/out')}}
+        host={'NetworkMode':'none','CgroupnsMode':'private','ReadonlyRootfs':True,'Privileged':False,
+            'CapDrop':['ALL'],'CapAdd':list(module.CAPS) if caps is None else caps,
+            'PidsLimit':512,'Memory':8*1024**3,'NanoCpus':4*10**9,'SecurityOpt':['no-new-privileges'],
+            'Tmpfs':{'/scratch':'rw,nosuid,nodev,exec,size=6g,mode=0700',
+                     '/test-home':'rw,nosuid,nodev,exec,size=128m,mode=0700'}}
+        row={'Id':expected['cid'],'Name':'/'+expected['name'],'Image':expected['image'],'HostConfig':host,
+            'Config':{'User':'0:0','OpenStdin':True,'Tty':False,'Entrypoint':['/usr/bin/python3'],
+                'Cmd':expected['worker_args'],'Env':['CACHY_ASAHI_REPOSITORY_CONTAINER=1',
+                    'CACHY_ASAHI_DISPOSABLE_REPOSITORY='+expected['nonce'],'CACHY_ASAHI_IMAGE_ID='+expected['image']]},
+            'Mounts':[{'Type':'bind','Destination':key,'Source':str(path),'RW':key=='/out'} for key,path in expected['binds'].items()],
+            'State':{'Status':'exited','Running':False,'OOMKilled':False,'ExitCode':0,'Error':''}}
+        return row,expected
+
+    def refused(self,module,row,expected,terminal=False):
+        try:module.inspect_owned([row],expected,terminal=terminal)
+        except module.Refused as error:return error  # Preserve traceback custody for diagnostics.
+        self.fail('inspection unexpectedly accepted the negative fixture')
+
+    def test_observed_prefixed_set_old_red_new_green_and_all64_spellings(self):
+        prefixed=['CAP_'+cap for cap in self.new.CAPS];row,expected=self.record(prefixed)
+        caught=self.refused(self.old,row,expected)
+        old=self.old._resource_diagnostic(caught)
+        self.assertEqual((old['known_mask'],old['failed_mask'],old['cap_add_count'],old['cap_add_plain_mask'],
+            old['cap_add_prefixed_mask'],old['cap_add_unknown_count'],old['cap_add_effective_duplicates']),
+            (16383,128,6,0,63,0,0))
+        self.assertEqual(self.old._inspect_diagnostic(caught),'INSPECT_RESOURCES')
+        for mask in range(64):
+            caps=[('CAP_' if mask&(1<<number) else '')+cap for number,cap in enumerate(self.new.CAPS)]
+            for values in (caps,list(reversed(caps))):
+                row,expected=self.record(values)
+                self.assertIs(self.new.inspect_owned([row],expected,terminal=True),row)
+                state=self.new._resource_snapshot(row['HostConfig'])
+                self.assertEqual((state['known_mask'],state['failed_mask'],state['cap_add_plain_mask'],state['cap_add_prefixed_mask']),
+                                 (16383,0,63^mask,mask))
+                self.assertEqual(len(state),26);self.assertEqual(self.new._closed_resource_snapshot(state),state)
+
+    def test_alias_duplicates_unknown_and_foreign_protocols_refuse(self):
+        calls=[]
+        class ForeignList(list):
+            def __len__(self):calls.append('len');raise AssertionError('foreign length')
+        class ForeignString(str):
+            def __eq__(self,value):calls.append('eq');raise AssertionError('foreign equality')
+            def __hash__(self):calls.append('hash');raise AssertionError('foreign hash')
+        caps=list(self.new.CAPS)
+        bad=[caps[:-1],caps+['NET_ADMIN'],caps[:-1]+['NET_ADMIN'],caps[:-1]+['ALL'],caps[:-1]+['cap_SYS_CHROOT'],
+             caps[:-1]+['CAP_CAP_SYS_CHROOT'],caps[:-1]+['sys_chroot'],caps[:-1]+[caps[0]],
+             caps[:-1]+['CAP_'+caps[0]],caps[:-1]+[True],caps[:-1]+['x'*33],caps[:-1]+['x'*100000],
+             tuple(caps),ForeignList(caps),caps[:-1]+[ForeignString(caps[-1])],None,{},'CHOWN']
+        for value in bad:
+            self.assertFalse(self.new._cap_add_matches(value))
+            row,expected=self.record();row['HostConfig']['CapAdd']=value
+            caught=self.refused(self.new,row,expected)
+            self.assertEqual(self.new._inspect_diagnostic(caught),'INSPECT_RESOURCES')
+            diagnostic=self.new._resource_diagnostic(caught)
+            self.assertIsNotNone(diagnostic);self.assertEqual(len(diagnostic),26)
+            self.assertTrue(all(item is None or type(item) in (int,bool) for item in diagnostic.values()))
+        self.assertEqual(calls,[])
+
+    def test_other_resource_limits_and_negative_masks_remain_closed(self):
+        changes=[('NetworkMode','bridge',0),('CgroupnsMode','host',1),('ReadonlyRootfs',False,2),('Privileged',True,3),
+                 ('CapDrop',[],4),('PidsLimit',513,8),('Memory',8*1024**3-1,9),('NanoCpus',4*10**9+1,10),
+                 ('SecurityOpt',['no-new-privileges:true'],11),('Devices',['device'],13),
+                 ('DeviceRequests',[{}],13),('Binds',['bind'],13),('VolumesFrom',['foreign'],13)]
+        for key,value,bit in changes:
+            row,expected=self.record(['CAP_'+cap for cap in self.new.CAPS]);row['HostConfig'][key]=value
+            caught=self.refused(self.new,row,expected)
+            self.assertEqual(self.new._resource_diagnostic(caught)['failed_mask'],1<<bit)
+        row,expected=self.record();row['HostConfig']['Tmpfs']['/scratch']='rw,nosuid,nodev,exec,size=7g,mode=0700'
+        caught=self.refused(self.new,row,expected)
+        self.assertEqual(self.new._resource_diagnostic(caught)['failed_mask'],1<<12)
+
+    def test_identity_config_mount_and_terminal_refusals_preserved(self):
+        changes=[('Id','foreign','INSPECT_IDENTITY'),('Name','/foreign','INSPECT_IDENTITY'),
+                 ('Image','sha256:'+'f'*64,'INSPECT_IDENTITY'),('Mounts',[],'INSPECT_MOUNTS')]
+        for key,value,label in changes:
+            row,expected=self.record(['CAP_'+cap for cap in self.new.CAPS]);row[key]=value
+            caught=self.refused(self.new,row,expected,terminal=True)
+            self.assertEqual(self.new._inspect_diagnostic(caught),label)
+        for group,key,value,label in [('Config','User','1000:1000','INSPECT_CONFIG'),
+                ('Config','OpenStdin',False,'INSPECT_CONFIG'),('State','ExitCode',1,'INSPECT_TERMINAL'),
+                ('State','Running',True,'INSPECT_TERMINAL'),('State','OOMKilled',True,'INSPECT_TERMINAL')]:
+            row,expected=self.record(['CAP_'+cap for cap in self.new.CAPS]);row[group][key]=value
+            caught=self.refused(self.new,row,expected,terminal=True)
+            self.assertEqual(self.new._inspect_diagnostic(caught),label)
+
 if __name__ == '__main__':unittest.main()
