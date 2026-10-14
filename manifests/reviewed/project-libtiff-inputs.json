@@ -1,9 +1,9 @@
 {
   "LICENSE.MIT": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
-  "PKGBUILD": "1bebd2b71821fa81b70b95617d87734f81a6f825375ce9c3df54130b6784ea6c",
+  "PKGBUILD": "217634ec9084aacf2c2583c566cc6a82167d00a27195d45636ad9552fbe86630",
   "PUBLICATION.md": "0e971e7a9986e0c6ad5ecafd0497a93ee66e7d483a5929392245edad2d72b81e",
   "UPSTREAM-NOTICES.txt": "86f781c2c05c4a20c4c4ecfe0e3b24c3e119781af6f0dce1714ad6a6c98833c1",
-  "libtiff-project-4.7.2-source.tar.gz": "c63abdba53ef3fa510a3314bcd78183f9f2d948272c6ec52b4aeafae8cfba2af",
-  "source-filter.json": "560a94716b3ee906886556f9bf26450b51b692b07742291feffe614e6427afbb",
+  "libtiff-project-4.7.2-source.tar.gz": "1dd373bd4ff29847b659545d753ea68bb0355ace971b8abcc522cfd7f854a76d",
+  "source-filter.json": "91c199acfe7099251dc5b20e8020524f2800b9d408bc0e40adf2a13dcd6b7560",
   "stage-source.py": "f051a1d5ff522d67c660160644a919501d3cd3a1bba68cd24ee1d6f0864ca598"
 }

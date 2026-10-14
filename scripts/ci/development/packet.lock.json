@@ -1147,9 +1147,9 @@
   "metadata_pins": {
     "manifests/reviewed/ksmctl.json": "f933ccfcfb52ca97ea809d904344f6ec72eb5907ef458b5c2e7f7f1797dc1d44",
     "manifests/reviewed/maintained-composed-v1.json": "662a7397e12289e5fe7de8c797dcc0cdf74e4ade9d93260bd2cbca782060a120",
-    "manifests/reviewed/project-jbigkit-inputs.json": "e2fa53b9d62e96ce05a22ebddd4277b6fdcdc1ffe820ca648487b1b505480982",
-    "manifests/reviewed/project-libtiff-inputs.json": "f2e36a19b57769a956aaae7743a80f9f82be0095c94bf3b2f015f1b0e60e7046",
-    "manifests/reviewed/project-private-libraries.json": "e0a9ad999a4f6b320d4008c0ba0722a19ca345d55ccfc86d03fb2a90e0d2484b",
+    "manifests/reviewed/project-jbigkit-inputs.json": "311b7538f7ecf98ccd0e73531a050e4a555a809af68ac36765d829c0f81a327f",
+    "manifests/reviewed/project-libtiff-inputs.json": "cacb1400f89cecc2dca980c2dbe4d6845bed309661e7c4364f87565c5afa0b78",
+    "manifests/reviewed/project-private-libraries.json": "941270aa5d5330cfb2920c4f12f73422931172a7076053be03ee1c09328c8694",
     "manifests/reviewed/repository-generic-policy.json": "ff424921c5be38799f64e5c6264bb098cf71737d7be83608a4c91dee83f0365e",
     "scripts/ci/inputs.lock.json": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f",
     "scripts/ci/integration.lock.json": "5d0f6b1d335c1949965699d4db6658af313af8977079e9a6464f0e5db4071ed3",
@@ -1205,15 +1205,15 @@
     },
     "manifests/reviewed/project-jbigkit-inputs.json": {
       "mode": 420,
-      "sha256": "e2fa53b9d62e96ce05a22ebddd4277b6fdcdc1ffe820ca648487b1b505480982"
+      "sha256": "311b7538f7ecf98ccd0e73531a050e4a555a809af68ac36765d829c0f81a327f"
     },
     "manifests/reviewed/project-libtiff-inputs.json": {
       "mode": 420,
-      "sha256": "f2e36a19b57769a956aaae7743a80f9f82be0095c94bf3b2f015f1b0e60e7046"
+      "sha256": "cacb1400f89cecc2dca980c2dbe4d6845bed309661e7c4364f87565c5afa0b78"
     },
     "manifests/reviewed/project-private-libraries.json": {
       "mode": 420,
-      "sha256": "e0a9ad999a4f6b320d4008c0ba0722a19ca345d55ccfc86d03fb2a90e0d2484b"
+      "sha256": "941270aa5d5330cfb2920c4f12f73422931172a7076053be03ee1c09328c8694"
     },
     "manifests/reviewed/repository-generic-policy.json": {
       "mode": 420,
@@ -1793,11 +1793,11 @@
     },
     "scripts/ci/development/prepare_project_library_sources.py": {
       "mode": 420,
-      "sha256": "e3446c05d4f3b549b616c81dd6dd71be35bc9797cbc2fa3879d31123400e81f2"
+      "sha256": "7dbe6db5757783889861e210ba607020c8db632bed7d6ebc90f64db81f00c8fd"
     },
     "scripts/ci/development/project_libraries.py": {
       "mode": 420,
-      "sha256": "a9120d7c899081560c98a0a3169e365be3539ac5eaa56f0675ee15119f3efb4e"
+      "sha256": "74e6b8c6eb7777f6f2c03d36f9ec14306609e948847ece9efbeda61d77e772c5"
     },
     "scripts/ci/development/project_library_sources/jbigkit/LICENSE.recipe": {
       "mode": 420,
@@ -1805,7 +1805,7 @@
     },
     "scripts/ci/development/project_library_sources/jbigkit/PKGBUILD": {
       "mode": 420,
-      "sha256": "adebfdb5a3584a18754da2530fc2d66fdfb1e30afa779a0d88e926e510124eb9"
+      "sha256": "57be29e8614aaf9db74262c036d044cfe12e293b7702cc19a1481e0adaae2717"
     },
     "scripts/ci/development/project_library_sources/jbigkit/PUBLICATION.md": {
       "mode": 420,
@@ -1813,7 +1813,7 @@
     },
     "scripts/ci/development/project_library_sources/jbigkit/inputs.json": {
       "mode": 420,
-      "sha256": "577fea4fac15648beae140f64e2ef8bf14d8d8a02d9bc406483f6c509bdf61c8"
+      "sha256": "f4ea294c8868d5d842f488e231ceb79909cbd5092de4401f7ffe7bb3beb42cc9"
     },
     "scripts/ci/development/project_library_sources/jbigkit/removal.md": {
       "mode": 420,
@@ -1825,7 +1825,7 @@
     },
     "scripts/ci/development/project_library_sources/jbigkit/source-filter.json": {
       "mode": 420,
-      "sha256": "e906020fd3affd7d6b7968aebca6ec7518ac3c11f801df2a221742864750f14d"
+      "sha256": "33548774657e432868407231e7de3295302e81c552142d45f9fc33f93deca9a7"
     },
     "scripts/ci/development/project_library_sources/jbigkit/synthetic-pbm.py": {
       "mode": 420,
@@ -1837,7 +1837,7 @@
     },
     "scripts/ci/development/project_library_sources/libtiff/PKGBUILD": {
       "mode": 420,
-      "sha256": "1bebd2b71821fa81b70b95617d87734f81a6f825375ce9c3df54130b6784ea6c"
+      "sha256": "217634ec9084aacf2c2583c566cc6a82167d00a27195d45636ad9552fbe86630"
     },
     "scripts/ci/development/project_library_sources/libtiff/PUBLICATION.md": {
       "mode": 420,
@@ -1845,7 +1845,7 @@
     },
     "scripts/ci/development/project_library_sources/libtiff/source-filter.json": {
       "mode": 420,
-      "sha256": "560a94716b3ee906886556f9bf26450b51b692b07742291feffe614e6427afbb"
+      "sha256": "91c199acfe7099251dc5b20e8020524f2800b9d408bc0e40adf2a13dcd6b7560"
     },
     "scripts/ci/development/project_library_sources/libtiff/stage-source.py": {
       "mode": 420,
@@ -1853,7 +1853,7 @@
     },
     "scripts/ci/development/project_library_sources/materialization-plan.json": {
       "mode": 420,
-      "sha256": "557214038227f80762cec07a2b98cbb66d4a6ea9a0bc12ee3679a842fa6ddb96"
+      "sha256": "0bc87cda6c02df5c643da1a3790ea9eab343f5f6f1c0647889e646ea98069799"
     },
     "scripts/ci/development/repository_authority.py": {
       "mode": 420,

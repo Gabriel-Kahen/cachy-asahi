@@ -83,8 +83,9 @@
     }
   ],
   "filter_policy": "Exact37 unchanged covered Source/text members; exclude13 nonessential example/generator/data files. No full homepage prose. Original archive is not a public rebuild input.",
-  "filtered_bytes": 109999,
-  "filtered_sha256": "b9de615842035efd64d8718cce4b5daa01764dc0b04380ba52e1d30d1f9d2945",
+  "filtered_bytes": 460858,
+  "filtered_format": "sorted normalized USTAR then canonical gzip-stored-v1; fixed epoch, empty name, XFL0, OS255, 65535-byte stored blocks",
+  "filtered_sha256": "fdf0cb07cd6c94ad4131d4dc1d869ec3b60f20d7a7ab8ed5d987bccf1f1c7c66",
   "grants": "Original GPL2-or-later core notices, package ANNOUNCE/COPYING, all original author/translator and Poskanzer permissive notices preserved byte-exactly. This is evidence rather than legal clearance.",
   "included_file_count": 37,
   "included_files": [
