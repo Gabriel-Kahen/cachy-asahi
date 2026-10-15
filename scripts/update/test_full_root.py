@@ -4,6 +4,7 @@
 import ctypes as C
 import hashlib
 import importlib.util
+import json
 import os
 from pathlib import Path
 import shutil
@@ -172,6 +173,75 @@ class FullRootTests(unittest.TestCase):
             self.module.node(self.root, 'alias/data', limits=self.limits)
         with self.assertRaises(ValueError):
             self.module.node(self.root, '../escape', limits=self.limits)
+
+    def test_absolute_paths_are_complete_beyond_samples_without_following_targets(self):
+        for index in range(100):
+            (self.root / f'link-{index:03}').symlink_to('/usr/never-read')
+        (self.root / 'relative').symlink_to('link-000/child')
+        (self.root / 'cycle-a').symlink_to('cycle-b')
+        (self.root / 'cycle-b').symlink_to('cycle-a')
+        (self.root / 'escape').symlink_to('../outside')
+        report = self.module.observe(self.root, limits=self.limits, shape_examples=8, absolute_paths=True)
+        diagnostic = report['absolute_chain_paths']
+        self.assertTrue(diagnostic['complete']); self.assertFalse(diagnostic['truncated'])
+        self.assertEqual(diagnostic['observed_count'], 101)
+        self.assertEqual({entry['path'] for entry in diagnostic['entries']},
+                         {f'link-{index:03}' for index in range(100)} | {'relative'})
+        self.assertEqual({entry['target_class'] for entry in diagnostic['entries']}, {'usr-path'})
+        self.assertEqual(len(report['shape_diagnostics']['categories']['absolute-symlink']['examples']), 8)
+        self.assertEqual(report['footprint']['bytes'], 0)
+        self.assertNotIn('/usr/never-read', json.dumps(diagnostic))
+        self.assertFalse(report['eligible'])
+        with self.assertRaises(ValueError): self.module.require_eligible(report)
+
+    def test_absolute_paths_are_opt_in_and_do_not_change_eligibility(self):
+        (self.root / 'absolute').symlink_to('/dev/null')
+        old = self.module.observe(self.root, limits=self.limits)
+        new = self.module.observe(self.root, limits=self.limits, absolute_paths=True)
+        self.assertNotIn('absolute_chain_paths', old)
+        self.assertEqual(old['nodes'], new['nodes'])
+        self.assertEqual(old['unsupported_counts'], new['unsupported_counts'])
+        self.assertEqual(old['eligible'], new['eligible'])
+        self.assertEqual(new['absolute_chain_paths']['entries'],
+                         [{'path': 'absolute', 'target_class': 'runtime-dev'}])
+
+    def test_absolute_path_count_overflow_is_explicit_not_permission(self):
+        for index in range(4): (self.root / str(index)).symlink_to('/etc/never-read')
+        with patch.object(self.module, 'ABSOLUTE_PATH_LIMIT', 3):
+            report = self.module.observe(self.root, limits=self.limits, absolute_paths=True)
+        diagnostic = report['absolute_chain_paths']
+        self.assertTrue(report['complete']); self.assertFalse(report['eligible'])
+        self.assertEqual(diagnostic['observed_count'], 4); self.assertEqual(len(diagnostic['entries']), 3)
+        self.assertFalse(diagnostic['complete']); self.assertTrue(diagnostic['truncated'])
+        self.assertEqual(diagnostic['entry_limit'], 3)
+
+    def test_absolute_path_json_byte_overflow_never_emits_partial_names(self):
+        name = 'snow-雪' * 15 + '\n'
+        (self.root / name).symlink_to('/proc/never-read')
+        (self.root / 'short').symlink_to('/tmp/never-read')
+        with patch.object(self.module, 'ABSOLUTE_PATH_BYTES', 150):
+            report = self.module.observe(self.root, limits=self.limits, absolute_paths=True)
+        diagnostic = report['absolute_chain_paths']
+        encoded = json.dumps(diagnostic['entries'], sort_keys=True, separators=(',', ':')).encode('ascii')
+        self.assertEqual(diagnostic['entry_json_bytes'], len(encoded)); self.assertLessEqual(len(encoded), 150)
+        self.assertEqual(diagnostic['entries'], [{'path': 'short', 'target_class': 'runtime-tmp'}])
+        self.assertEqual(diagnostic['observed_count'], 2)
+        self.assertTrue(diagnostic['truncated']); self.assertFalse(diagnostic['complete'])
+        self.assertFalse(report['eligible'])
+
+    def test_partial_observation_cannot_claim_complete_absolute_paths(self):
+        for index in range(3): (self.root / str(index)).symlink_to('/var/never-read')
+        report = self.module.observe(self.root, limits=self.limits_with(max_nodes=2), absolute_paths=True)
+        diagnostic = report['absolute_chain_paths']
+        self.assertFalse(report['complete']); self.assertFalse(report['eligible'])
+        self.assertFalse(diagnostic['observation_complete']); self.assertFalse(diagnostic['complete'])
+        self.assertFalse(diagnostic['truncated'])
+        self.assertEqual(len(diagnostic['entries']), diagnostic['observed_count'])
+
+    def test_absolute_path_flag_requires_actual_boolean(self):
+        for value in (1, 'yes', None):
+            with self.subTest(value=value), self.assertRaisesRegex(ValueError, 'boolean'):
+                self.module.observe(self.root, limits=self.limits, absolute_paths=value)
 
     def test_cross_device_child_is_recorded_without_opening_it(self):
         (self.root / 'cross').mkdir()

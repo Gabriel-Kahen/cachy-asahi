@@ -55,6 +55,27 @@ class CopyMeasurement(unittest.TestCase):
         self.assertNotIn('nodes',row)
         self.assertFalse(row['eligible']);self.assertFalse((self.target/'fifo').exists())
 
+    def test_absolute_path_diagnostic_survives_copy_without_changing_links_or_policy(self):
+        (self.source/'absolute').symlink_to('/usr/never-read')
+        (self.source/'relative').symlink_to('absolute/child')
+        row=measure.copy_data(self.source,self.target,limits=self.limits,absolute_paths=True)
+        self.assertEqual(os.readlink(self.target/'absolute'),'/usr/never-read')
+        self.assertEqual(os.readlink(self.source/'relative'),'absolute/child')
+        self.assertTrue(row['absolute_chain_paths']['complete'])
+        self.assertEqual(row['absolute_chain_paths']['observed_count'],2)
+        self.assertEqual({entry['path'] for entry in row['absolute_chain_paths']['entries']},{'absolute','relative'})
+        self.assertEqual(row['unsupported_observation']['absolute-symlink'],2)
+        self.assertFalse(row['eligible']);self.assertNotIn('nodes',row)
+        self.assertNotIn('shape_diagnostics',row)
+
+    def test_default_copy_omits_absolute_path_diagnostic_and_invalid_flag_refuses(self):
+        for value in (1,'yes',None):
+            with self.subTest(value=value),self.assertRaisesRegex(ValueError,'boolean'):
+                measure.copy_data(self.source,self.target,limits=self.limits,absolute_paths=value)
+            self.assertFalse(self.target.exists())
+        row=measure.copy_data(self.source,self.target,limits=self.limits)
+        self.assertNotIn('absolute_chain_paths',row)
+
     def test_capacity_refuses_before_any_copy_allocation(self):
         with patch.object(measure,'check_capacity',side_effect=ValueError('insufficient')):
             with self.assertRaisesRegex(ValueError,'insufficient'):

@@ -12,10 +12,10 @@ import time
 import subprocess
 
 SOURCES = {
-    'scripts/install/local_transaction.py': 'e4bc965a62cceb09aa2213d8da05815c0bdce82028e2eba7b20820b4d12c1fef',
+    'scripts/install/local_transaction.py': '757841a9af84cd2fe84c292711c93745f5985738c4186d219c34783891319ba8',
     'scripts/update/capacity.py': 'dcb9899cd24daa21f75e6da6b0214393f093d140a70769092da091e0cfdf7c87',
-    'scripts/update/full_root.py': 'ba3fdb842819fc047ca67de04609967d880cd2afd57945c86cbeeab65f775e3a',
-    'scripts/update/measure_copy.py': 'b530c77ac8cdc82a81d4a48fa6ff2b92b8fd747b8fd9eb52cbc7e1ed260ce546',
+    'scripts/update/full_root.py': 'cece1c597b2e2eb98b0e3087cc7e7c148b54332f8a1c4f18e04e4552a71fb51d',
+    'scripts/update/measure_copy.py': 'e582245bd114b0b9d83f2de4fdc81a35d2f48493ba6147879871af794476813b',
     'scripts/update/supervision.py': 'f18bcbd2a6279cff8fe6c7e9c9f80fc01c9818844b01df8c4e97b83d61704b10',
 }
 LIMITS = {'max_bytes': 8 * 1024**3, 'max_nodes': 500000,
@@ -204,7 +204,7 @@ def collect(plan, expected, source, composition):
                    '--workspace', str(workspace), '--expected-lock', str(source / 'expected-setup4.lock'),
                    '--expected-lock-sha256', plan['setup4']['expected_inventory_sha256']]
         for key, value in LIMITS.items(): command.extend(['--' + key.replace('_', '-'), str(value)])
-        command.extend(['--shape-examples-per-category', '8'])
+        command.extend(['--shape-examples-per-category', '8', '--absolute-chain-paths'])
         phase = 'worker'
         summary.update(worker_returncode='UNKNOWN', worker_termination='UNKNOWN')
         row = supervisor.run(command, env={'PATH': '/usr/bin:/bin', 'HOME': str(workspace), 'TMPDIR': '/tmp',
