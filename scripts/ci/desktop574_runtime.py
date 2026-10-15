@@ -84,8 +84,8 @@ def docker_args(image, name, out, source, runner, *, root=False):
 def qemu_command(image, name, out, source, runner):
     """Keep QEMU snapshot files on the container's existing private tmpfs."""
     cmd = docker_args(image, name, out, source, runner)
-    cmd[-2:-2] = ['--env=TMPDIR=/tmp']
-    cmd += ['-c', 'exec qemu-system-aarch64 -nodefaults -machine virt-11.1 -accel tcg -cpu max -smp 2 -m 4096 -kernel /out/Image -append "console=ttyAMA0 root=/dev/vda rw systemd.unit=desktop574.target cachy_asahi_desktop574=1 cachy_asahi_virtual_proof=1" -drive if=none,id=root,file=/out/guest.raw,format=raw,snapshot=on -device virtio-blk-pci,drive=root -device virtio-gpu-pci,id=gpu,xres=1024,yres=768 -nic none -display none -audiodev none,id=noaudio -monitor none -serial stdio -qmp unix:/out/qmp.sock,server=on,wait=off']
+    cmd[-2:-2] = ['--env=TMPDIR=/tmp/desktop574-qemu']
+    cmd += ['-c', 'mkdir -m 700 -- "$TMPDIR" && exec qemu-system-aarch64 -nodefaults -machine virt-11.1 -accel tcg -cpu max -smp 2 -m 4096 -kernel /out/Image -append "console=ttyAMA0 root=/dev/vda rw systemd.unit=desktop574.target cachy_asahi_desktop574=1 cachy_asahi_virtual_proof=1" -drive if=none,id=root,file=/out/guest.raw,format=raw,snapshot=on -device virtio-blk-pci,drive=root -device virtio-gpu-pci,id=gpu,xres=1024,yres=768 -nic none -display none -audiodev none,id=noaudio -monitor none -serial stdio -qmp unix:/out/qmp.sock,server=on,wait=off']
     return cmd
 
 

@@ -4,6 +4,9 @@ import ast
 import copy
 import importlib.util
 from pathlib import Path
+import os
+import stat
+import subprocess
 import tempfile
 import unittest
 from unittest.mock import patch, Mock
@@ -95,14 +98,35 @@ class RuntimeTests(unittest.TestCase):
     def test_qemu_snapshot_uses_the_private_writable_tmpfs(self):
         image = 'sha256:' + 'a' * 64
         cmd = runtime.qemu_command(image, 'owned', Path('/task/out'), Path('/task/src'), Path('/task/runner'))
-        self.assertIn('--env=TMPDIR=/tmp', cmd[:cmd.index(image)])
+        self.assertIn('--env=TMPDIR=/tmp/desktop574-qemu', cmd[:cmd.index(image)])
         self.assertIn('/tmp:rw,nosuid,nodev,exec,size=1g', cmd)
         self.assertIn('snapshot=on', cmd[-1])
         for flag in ('--network=none', '--read-only', '--cap-drop=ALL'):
             self.assertIn(flag, cmd)
         self.assertFalse(any(flag.startswith(('--device', '--privileged')) for flag in cmd))
         ordinary = runtime.docker_args(image, 'config', Path('/task/out'), Path('/task/src'), Path('/task/runner'))
-        self.assertNotIn('--env=TMPDIR=/tmp', ordinary)
+        self.assertFalse(any(arg.startswith('--env=TMPDIR=') for arg in ordinary))
+
+    def test_qemu_private_temp_directory_exists_before_exec(self):
+        cmd = runtime.qemu_command('sha256:' + 'a' * 64, 'owned', Path('/task/out'), Path('/task/src'), Path('/task/runner'))
+        selected = next(arg.split('=', 2)[2] for arg in cmd if arg.startswith('--env=TMPDIR='))
+        # Pinned QEMU rewrites the exact /tmp path to /var/tmp; a child is retained.
+        self.assertNotEqual(selected, '/tmp')
+        self.assertEqual(Path(selected).parent, Path('/tmp'))
+        prefix, separator, executable = cmd[-1].partition(' && exec ')
+        self.assertTrue(separator)
+        self.assertTrue(executable.startswith('qemu-system-aarch64 '))
+        with tempfile.TemporaryDirectory() as directory:
+            target = Path(directory) / 'qemu-private'
+            env = {'PATH': '/usr/bin:/bin', 'TMPDIR': str(target)}
+            done = subprocess.run(['/bin/sh', '-c', prefix], env=env, capture_output=True, timeout=5)
+            self.assertEqual(done.returncode, 0, done.stderr.decode())
+            self.assertTrue(target.is_dir())
+            self.assertEqual(stat.S_IMODE(target.stat().st_mode), 0o700)
+            self.assertEqual(target.stat().st_uid, os.getuid())
+            # An unexpected preexisting entry refuses startup rather than reuse.
+            repeated = subprocess.run(['/bin/sh', '-c', prefix], env=env, capture_output=True, timeout=5)
+            self.assertNotEqual(repeated.returncode, 0)
 
     def test_actual_cleanup_loop_keeps_base_identity_for_alias_release(self):
         # Execute the production finally statements together: helper-only tests
