@@ -754,7 +754,8 @@ class RepositoryTests(unittest.TestCase):
             calls.append(source)
             target.mkdir()
             if source == '/var/lib/pacman/local':
-                (target / 'ALPM_DB_VERSION').write_bytes(Path('/var/lib/pacman/local/ALPM_DB_VERSION').read_bytes())
+                # Synthetic ALPM v9 fixture, independent of the host's package database.
+                (target / 'ALPM_DB_VERSION').write_bytes(b'9\n')
                 package = target / 'runtime-1-1'
                 package.mkdir()
                 (package / 'desc').write_text('%NAME%\nruntime\n\n%VERSION%\n1-1\n\n%ARCH%\nany\n\n')
@@ -961,7 +962,11 @@ class RepositoryTests(unittest.TestCase):
         self.runner.keys['signer-B'] = {'home': self.runner.home / 'signer-B', 'fingerprint': key}
         valid = f'[GNUPG:] VALIDSIG {key} 2026-10-11 1791748800 0 4 0 22 8 00 {key}\n'
         def command(label, argv, **kwargs):
-            if label.startswith('repo-add-'):
+            if argv[:2] == ['repo-add', '--version']:
+                return b'repo-add (pacman) 6.1.0\n'
+            if argv[:2] == ['repo-add', '--help']:
+                return b'usage\n'
+            if label == 'repo-add-missing-probe':
                 for name in ('integration.db.tar.gz', 'integration.files.tar.gz'):
                     (Path(argv[5]).parent / name).write_bytes(b'public TEST database')
             return valid
@@ -1059,7 +1064,7 @@ class RepositoryTests(unittest.TestCase):
         r.fixture(probe, '1-1', 'SYNTHETIC TEST ONLY\n')
         execute, temps = self.runner.command, []
         def observe(label, argv, **options):
-            if label.startswith('repo-add-'):
+            if label == 'repo-add-real-temp-fixture':
                 directory = Path(options['env']['TMPDIR'])
                 self.assertTrue(directory.is_dir())
                 self.assertEqual(directory.parent, self.runner.scratch)
@@ -1082,19 +1087,77 @@ class RepositoryTests(unittest.TestCase):
         package = self.base / 'fixture.pkg.tar.xz'
         package.write_bytes(b'TEST-only archive bytes')
         self.runner.keys['signer-A'] = {'home': self.runner.home / 'signer-A', 'fingerprint': 'A' * 40}
-        temps = []
-        def fail(label, argv, **options):
-            self.assertTrue(label.startswith('repo-add-'))
-            directory = Path(options['env']['TMPDIR'])
-            self.assertEqual(directory.parent, self.runner.scratch)
-            (directory / 'partial').write_text('TEST temporary state')
-            temps.append(directory)
-            raise r.Refused('TEST repo-add failure')
-        with mock.patch.object(self.runner, 'sign'), mock.patch.object(self.runner, 'command', side_effect=fail):
-            with self.assertRaisesRegex(r.Refused, 'TEST repo-add failure'):
-                self.runner.repository('failed-temp-fixture', {}, package, 'signer-A')
-        self.assertEqual(len(temps), 1)
-        self.assertFalse(temps[0].exists())
+        class FirstFailure(r.Refused):
+            def __bool__(self):return False
+        for boundary in (1, 2, 3):
+            with self.subTest(boundary=boundary):
+                temps, calls = [], []
+                failure = FirstFailure('TEST first repo-add failure')
+                def fail(label, argv, **options):
+                    calls.append(argv)
+                    directory = Path(options['env']['TMPDIR'])
+                    self.assertEqual(directory.parent, self.runner.scratch)
+                    (directory / 'partial').write_text('TEST temporary state')
+                    temps.append(directory)
+                    if len(calls) == boundary:
+                        raise failure
+                    return b'repo-add (pacman) 6.1.0\n' if argv[1] == '--version' else b'usage\n'
+                with mock.patch.object(self.runner, 'sign'), mock.patch.object(self.runner, 'command', side_effect=fail):
+                    with self.assertRaises(FirstFailure) as caught:
+                        self.runner.repository('failed-temp-fixture-' + str(boundary), {}, package, 'signer-A')
+                self.assertIs(caught.exception, failure)
+                self.assertEqual(len(calls), boundary)
+                self.assertTrue(all(not directory.exists() for directory in temps))
+
+    def test_repo_add_version_selection_has_observable_probes_and_one_database_command(self):
+        env = {'GNUPGHOME': str(self.runner.home / 'TEST'), 'TMPDIR': str(self.runner.scratch), 'LC_ALL': 'held'}
+        for version in ('6.0.2', '6.1.0', '7.0.0', '7.1.0.r1.gabc-2'):
+            for help_text in (b'usage\n', b'  --include-sigs option\n', b'--include-sigs-extra\n'):
+                with self.subTest(version=version, help=help_text):
+                    commands = []
+                    def execute(argv, **options):
+                        commands.append((argv, options))
+                        if argv[1] in ('--version', '--help'):
+                            self.assertEqual(options['env'], dict(env, LC_ALL='C'))
+                        else:
+                            self.assertIs(options['env'], env)
+                        output = (f'repo-add (pacman) {version}\n'.encode() if argv[1] == '--version'
+                                  else help_text if argv[1] == '--help' else b'created\n')
+                        return subprocess.CompletedProcess(argv, 0, output, b'')
+                    with mock.patch.object(r.subprocess, 'run', side_effect=execute):
+                        self.runner.add_database('selection', self.base / 'TEST.db.tar.gz', [self.base / 'TEST.pkg'], 'A' * 40, env)
+                    self.assertEqual(len(commands), 3)
+                    expected = version != '6.0.2' or help_text == b'  --include-sigs option\n'
+                    self.assertEqual('--include-sigs' in commands[-1][0], expected)
+                    self.assertEqual(commands[-1][0][-4:], ['--key', 'A' * 40, str(self.base / 'TEST.db.tar.gz'), str(self.base / 'TEST.pkg')])
+                    self.assertEqual([x['label'] for x in self.runner.receipts[-3:]],
+                                     ['repo-add-version-selection', 'repo-add-help-selection', 'repo-add-selection'])
+                    for receipt in self.runner.receipts[-3:]:
+                        self.assertEqual(receipt['exit_code'], 0)
+                        self.assertEqual(receipt['sha256'], r.sha(self.runner.out / receipt['log']))
+                    self.assertTrue(all('stderr_log' in x for x in self.runner.receipts[-3:-1]))
+        self.assertEqual(env['LC_ALL'], 'held')
+
+    def test_repo_add_unknown_versions_and_nonzero_probe_failures_are_terminal(self):
+        env = {'GNUPGHOME': str(self.runner.home), 'TMPDIR': str(self.runner.scratch)}
+        for banner in (b'', b'repo-add (pacman) 8.0.0\n', b'repo-add (pacman) 6.0.2 counterfeit\n'):
+            with self.subTest(banner=banner):
+                with mock.patch.object(r.subprocess, 'run', return_value=subprocess.CompletedProcess(['TEST'], 0, banner, b'')) as call:
+                    with self.assertRaises(r.Refused):
+                        self.runner.add_database('unknown', self.base / 'TEST.db.tar.gz', [], 'A' * 40, env)
+                self.assertEqual(call.call_count, 1)
+        for boundary in (1, 2, 3):
+            with self.subTest(boundary=boundary):
+                calls = []
+                def execute(argv, **options):
+                    calls.append(argv)
+                    output = b'repo-add (pacman) 6.0.2\n' if argv[1] == '--version' else b'usage\n'
+                    return subprocess.CompletedProcess(argv, 2 if len(calls) == boundary else 0, output, b'')
+                with mock.patch.object(r.subprocess, 'run', side_effect=execute):
+                    with self.assertRaisesRegex(r.Refused, 'unexpected exit 2'):
+                        self.runner.add_database('nonzero', self.base / 'TEST.db.tar.gz', [], 'A' * 40, env)
+                self.assertEqual(len(calls), boundary)
+                self.assertEqual(self.runner.receipts[-1]['exit_code'], 2)
 
     def test_private_state_cleanup_including_partial_revocation(self):
         home = self.runner.home / 'signer-A'

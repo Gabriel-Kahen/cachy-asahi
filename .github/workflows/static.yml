@@ -11,6 +11,12 @@ jobs:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
+      - name: Install test prerequisites on disposable runner
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y bash fish zsh vim build-essential gnupg libarchive-tools pacman-package-manager makepkg
+          for tool in bash fish zsh vim cc gpg gpgconf repo-add bsdtar vercmp pacman; do command -v "$tool"; done
+          dpkg-query -W bash fish zsh vim build-essential gnupg libarchive-tools pacman-package-manager makepkg
       - name: Verify packaged setup source and sync boundaries
         env:
           PYTHONDONTWRITEBYTECODE: '1'
@@ -22,19 +28,32 @@ jobs:
         env:
           PYTHONDONTWRITEBYTECODE: '1'
         run: |
-          python3 -m unittest discover -s tests -v
-          python3 -m unittest discover -s scripts/setup -p 'test_*.py' -v
-          python3 -m unittest discover -s scripts/ci -p 'test_*.py' -v
-          python3 -m unittest discover -s scripts/integration -p 'test_*.py' -v
-          python3 -m unittest discover -s scripts/hardware -p 'test_*.py' -v
-          python3 -m unittest discover -s scripts/benchmarks -p 'test_*.py' -v
+          python3 -B - <<'PY'
+          import os
+          from pathlib import Path
+          import subprocess
+          import sys
+          import tempfile
+
+          if os.getuid() == 0 or os.geteuid() == 0:
+              raise SystemExit('software fixtures require an ordinary non-root runner')
+          runner = """import sys, unittest
+          suite = unittest.TestLoader().discover(sys.argv[1], pattern='test_*.py')
+          result = unittest.TextTestRunner(verbosity=2).run(suite)
+          if not result.wasSuccessful() or result.skipped or result.testsRun == 0:
+              raise SystemExit(f'{sys.argv[1]}: failures, skips, or empty suite')
+          """
+          with tempfile.TemporaryDirectory(prefix='static-fixtures-') as temporary:
+              home = Path(temporary) / 'home'
+              home.mkdir(mode=0o700)
+              env = dict(os.environ, HOME=str(home), ZDOTDIR=str(home),
+                         XDG_CONFIG_HOME=str(home / '.config'), XDG_STATE_HOME=str(home / '.local/state'),
+                         XDG_CACHE_HOME=str(home / '.cache'), XDG_DATA_HOME=str(home / '.local/share'))
+              for directory in ('tests', 'scripts/setup', 'scripts/ci', 'scripts/integration',
+                                'scripts/hardware', 'scripts/benchmarks'):
+                  subprocess.run([sys.executable, '-B', '-c', runner, directory], env=env, check=True)
+          PY
           bash -n scripts/build/container-entry.sh
-      - name: Install repository test tools on disposable runner
-        run: |
-          sudo apt-get update
-          sudo apt-get install --no-install-recommends -y gnupg libarchive-tools pacman-package-manager makepkg
-          for tool in gpg gpgconf repo-add bsdtar vercmp; do command -v "$tool"; done
-          dpkg-query -W gnupg libarchive-tools pacman-package-manager makepkg
       - name: Exercise release and client contracts without skipped tests
         env:
           PYTHONDONTWRITEBYTECODE: '1'

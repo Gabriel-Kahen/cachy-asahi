@@ -2,6 +2,21 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 14, complete static prerequisites ready for hosted validation:
+The primary workflow installs shell/editor/compiler and repository tools before
+the affected suites, uses a private temporary home on an ordinary non-root
+runner, and refuses skipped or empty tooling suites. The integration producer
+now probes known repo-add versions with observable receipts and performs one
+signed database command without a weaker retry. Private scratch cleanup stays
+required. Independent review `c8c7b76d` passes624 tests in six tooling suites,
+plus9 packaged-sync and13 topmem tests separately, all without skips. An additional
+signed fixture passes with unchanged Ubuntu repo-add6.0.2 bytes. This corrects
+the frozen author's inaccurate wording of646 tests "across six suites".
+The release/client workflow step is held. Hosted successor execution remains
+pending. Frozen native inventories retain their historical selections; this
+primary-source correction does not silently advance them.
+See the [fresh review](reviews/static-full-prerequisites-fresh-peer.md).
+
 October 14, repository compatibility correction passes hosted validation:
 Hosted run `38660953536` failed because Ubuntu's repo-add6.0.2 rejects
 `--include-sigs`; its release fixtures ran rather than skipping. The corrected
