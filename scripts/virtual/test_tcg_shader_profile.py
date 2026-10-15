@@ -24,7 +24,8 @@ class ShaderProfile(unittest.TestCase):
             card = path('/dev/dri/card0'); card.touch()
             with patch('guest.guest_guard'), patch('guest.Path', side_effect=path), \
                     patch.dict('guest.os.environ', {'DBUS_SESSION_BUS_ADDRESS': 'private-fixture',
-                                                  'GALLIVM_PERF': 'untrusted-host-value'}, clear=True), \
+                                                  'GALLIVM_PERF': 'untrusted-host-value',
+                                                  'LP_NUM_THREADS': '99'}, clear=True), \
                     patch('guest.command', return_value='{"status":"PASS"}') as probe, \
                     patch('guest.phase') as phases, patch('guest.emit'):
                 guest.run_user()
@@ -33,7 +34,7 @@ class ShaderProfile(unittest.TestCase):
             env = probe.call_args.args[1]
             self.assertEqual(env['GALLIVM_PERF'], 'nopt')
             self.assertEqual(env['GALLIUM_DRIVER'], 'llvmpipe')
-            self.assertEqual(env['LP_NUM_THREADS'], '2')
+            self.assertEqual(env['LP_NUM_THREADS'], '0')
             self.assertEqual([call.args[0] for call in phases.call_args_list], ['minimal', 'overlay'])
             self.assertTrue(all(call.args[2] is env for call in phases.call_args_list))
             self.assertNotIn('NO_AT_BRIDGE', env)
