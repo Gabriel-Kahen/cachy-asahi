@@ -1,0 +1,313 @@
+[
+  {
+    "input_sha256": {
+      "0001-j504-Write-the-full-speaker-names-in-conf.patch": "9c1060ca170f52ceb2a68fd1d3c67a31edc4171473b65c239de2115ac8c1870f",
+      "PKGBUILD": "d243ce80dc01c4107388cbe2b29d6f2c5e53dd76370874d8a6f2e9995b2144fd",
+      "cargo-vendor-117.tar.xz": "64cd55473b19f104f3a90570409d58c5ab69f63c61396541c4ad1e56e8d6293f",
+      "speakersafetyd-2.0.1.tar.gz": "0e1cb05a2f5521d80f9a502daa0b75ef5c7f2b9e8913b0f88c2d19a97d4439e5"
+    },
+    "metadata": {
+      "arch": [
+        "aarch64"
+      ],
+      "depends": [
+        "alsa-lib"
+      ],
+      "license": [
+        "MIT"
+      ],
+      "makedepends": [
+        "rust",
+        "make",
+        "pkgconf"
+      ],
+      "pkgname": [
+        "speakersafetyd"
+      ],
+      "pkgrel": [
+        "2"
+      ],
+      "pkgver": [
+        "2.0.1"
+      ],
+      "sha256sums": [
+        "0e1cb05a2f5521d80f9a502daa0b75ef5c7f2b9e8913b0f88c2d19a97d4439e5",
+        "64cd55473b19f104f3a90570409d58c5ab69f63c61396541c4ad1e56e8d6293f",
+        "9c1060ca170f52ceb2a68fd1d3c67a31edc4171473b65c239de2115ac8c1870f"
+      ],
+      "source": [
+        "speakersafetyd-2.0.1.tar.gz",
+        "cargo-vendor-117.tar.xz",
+        "0001-j504-Write-the-full-speaker-names-in-conf.patch"
+      ]
+    },
+    "name": "speakersafetyd",
+    "path": "packages/audio/speakersafetyd",
+    "payload": {
+      "usr/bin/speakersafetyd": {
+        "ELF": true,
+        "mode": 493,
+        "sha256": null
+      },
+      "usr/lib/systemd/system/speakersafetyd.service": {
+        "ELF": false,
+        "mode": 420,
+        "sha256": "8dca285ca0f3c74a6504228f95732d7cce6ad60c586d5308879fb848d16486c4"
+      },
+      "usr/lib/udev/rules.d/95-speakersafetyd.rules": {
+        "ELF": false,
+        "mode": 420,
+        "sha256": "b67a3116231d63ce6e44f2571889cf1bbb9f4e0347db38349e56420a8ddc7bfa"
+      },
+      "usr/share/licenses/speakersafetyd/LICENSE": {
+        "ELF": false,
+        "mode": 420,
+        "sha256": "b8ccaf94cb87451dfdbc96343ef0b47cdefe83f7b71bd3b9e6c3debd544e434f"
+      },
+      "usr/share/speakersafetyd/apple/j180.conf": {
+        "ELF": false,
+        "mode": 420,
+        "sha256": "a28735c119520232590b418d0226843f0d56c62ce646367ce700cebb408df4b8"
+      },
+      "usr/share/speakersafetyd/apple/j274.conf": {
+        "ELF": false,
+        "mode": 420,
+        "sha256": "e06f09bce008ec6b8557bf7725e78f93982c78d6cb56ebd6be71de033cac19de"
+      },
+      "usr/share/speakersafetyd/apple/j293.conf": {
+        "ELF": false,
+        "mode": 420,
+        "sha256": "66a0740164d06e9525cabb7016b77bfb9c7b7ef827012b4f6e0d548f6aed9495"
+      },
+      "usr/share/speakersafetyd/apple/j313.conf": {
+        "ELF": false,
+        "mode": 420,
+        "sha256": "cb778800e3423c6c9f7ac92a90a89981a82b01b6334c797777baa53f480f2a5e"
+      },
+      "usr/share/speakersafetyd/apple/j314.conf": {
+        "ELF": false,
+        "mode": 420,
+        "sha256": "95de31393a1c1742aa694d014f724a0ae869650bbde77144d407b49337480b9a"
+      },
+      "usr/share/speakersafetyd/apple/j316.conf": {
+        "ELF": false,
+        "mode": 420,
+        "sha256": "ffc81b081c22601420eb4ee7037af36c2cc522e7bdbc9e7e8dd146530304543a"
+      },
+      "usr/share/speakersafetyd/apple/j375.conf": {
+        "ELF": false,
+        "mode": 420,
+        "sha256": "1b44f31aa7def71d7a25ae28125558336514397804545487f52333b68fc49982"
+      },
+      "usr/share/speakersafetyd/apple/j413.conf": {
+        "ELF": false,
+        "mode": 420,
+        "sha256": "ca005e6d9a2f1619b6e05d7abb79647bab59387b239db76eee1d87ba72c33327"
+      },
+      "usr/share/speakersafetyd/apple/j414.conf": {
+        "ELF": false,
+        "mode": 420,
+        "sha256": "95de31393a1c1742aa694d014f724a0ae869650bbde77144d407b49337480b9a"
+      },
+      "usr/share/speakersafetyd/apple/j415.conf": {
+        "ELF": false,
+        "mode": 420,
+        "sha256": "bc97ebfe121455ac946e1a70c2ab1359b2617d76aee155c7112c0fdf6245b033"
+      },
+      "usr/share/speakersafetyd/apple/j416.conf": {
+        "ELF": false,
+        "mode": 420,
+        "sha256": "ffc81b081c22601420eb4ee7037af36c2cc522e7bdbc9e7e8dd146530304543a"
+      },
+      "usr/share/speakersafetyd/apple/j456.conf": {
+        "ELF": false,
+        "mode": 420,
+        "sha256": "e337f4826cf0c9e5e2de4f46f6c6ac789d64cf50b7afcf84ea531373f163429b"
+      },
+      "usr/share/speakersafetyd/apple/j457.conf": {
+        "ELF": false,
+        "mode": 420,
+        "sha256": "e337f4826cf0c9e5e2de4f46f6c6ac789d64cf50b7afcf84ea531373f163429b"
+      },
+      "usr/share/speakersafetyd/apple/j473.conf": {
+        "ELF": false,
+        "mode": 420,
+        "sha256": "1b44f31aa7def71d7a25ae28125558336514397804545487f52333b68fc49982"
+      },
+      "usr/share/speakersafetyd/apple/j474.conf": {
+        "ELF": false,
+        "mode": 420,
+        "sha256": "1b44f31aa7def71d7a25ae28125558336514397804545487f52333b68fc49982"
+      },
+      "usr/share/speakersafetyd/apple/j475.conf": {
+        "ELF": false,
+        "mode": 420,
+        "sha256": "1b44f31aa7def71d7a25ae28125558336514397804545487f52333b68fc49982"
+      },
+      "usr/share/speakersafetyd/apple/j493.conf": {
+        "ELF": false,
+        "mode": 420,
+        "sha256": "245108b93a257ba4dcac16bb4df33db7fb0dc46ea466c266e497f2a038055557"
+      },
+      "usr/share/speakersafetyd/apple/j504.conf": {
+        "ELF": false,
+        "mode": 420,
+        "sha256": "06a66a382772c24322c5de53db46229f0926d9f3c6cd50e30d03cf038ce1daf4"
+      },
+      "usr/share/speakersafetyd/apple/j514.conf": {
+        "ELF": false,
+        "mode": 420,
+        "sha256": "95de31393a1c1742aa694d014f724a0ae869650bbde77144d407b49337480b9a"
+      },
+      "usr/share/speakersafetyd/apple/j516.conf": {
+        "ELF": false,
+        "mode": 420,
+        "sha256": "ffc81b081c22601420eb4ee7037af36c2cc522e7bdbc9e7e8dd146530304543a"
+      },
+      "usr/share/speakersafetyd/apple/j575.conf": {
+        "ELF": false,
+        "mode": 420,
+        "sha256": "1b44f31aa7def71d7a25ae28125558336514397804545487f52333b68fc49982"
+      },
+      "usr/share/speakersafetyd/apple/j613.conf": {
+        "ELF": false,
+        "mode": 420,
+        "sha256": "ca005e6d9a2f1619b6e05d7abb79647bab59387b239db76eee1d87ba72c33327"
+      },
+      "usr/share/speakersafetyd/apple/j615.conf": {
+        "ELF": false,
+        "mode": 420,
+        "sha256": "bc97ebfe121455ac946e1a70c2ab1359b2617d76aee155c7112c0fdf6245b033"
+      }
+    },
+    "version": "2.0.1-2"
+  },
+  {
+    "input_sha256": {
+      "PKGBUILD": "3c20352f84534493f1d3eb1e080e5df88ba49698874f3d5e4152aaa08a0e0316",
+      "bankstown-1.1.0.tar.gz": "e877508b73fe90774d74526d838f75e8ea278bdbcee0a1f92e3eca67ed734675",
+      "cargo-vendor-117.tar.xz": "64cd55473b19f104f3a90570409d58c5ab69f63c61396541c4ad1e56e8d6293f"
+    },
+    "metadata": {
+      "arch": [
+        "aarch64"
+      ],
+      "depends": [
+        "lv2"
+      ],
+      "license": [
+        "MIT"
+      ],
+      "makedepends": [
+        "rust",
+        "make"
+      ],
+      "pkgname": [
+        "bankstown"
+      ],
+      "pkgrel": [
+        "3"
+      ],
+      "pkgver": [
+        "1.1.0"
+      ],
+      "sha256sums": [
+        "e877508b73fe90774d74526d838f75e8ea278bdbcee0a1f92e3eca67ed734675",
+        "64cd55473b19f104f3a90570409d58c5ab69f63c61396541c4ad1e56e8d6293f"
+      ],
+      "source": [
+        "bankstown-1.1.0.tar.gz",
+        "cargo-vendor-117.tar.xz"
+      ]
+    },
+    "name": "bankstown",
+    "path": "packages/audio/bankstown",
+    "payload": {
+      "usr/lib/lv2/bankstown.lv2/bankstown.so": {
+        "ELF": true,
+        "mode": 493,
+        "sha256": null
+      },
+      "usr/lib/lv2/bankstown.lv2/bankstown.ttl": {
+        "ELF": false,
+        "mode": 420,
+        "sha256": "9a200a1135ea0b1e4e3e44067a73e433239db396a1125f036f88e4dc71a21034"
+      },
+      "usr/lib/lv2/bankstown.lv2/manifest.ttl": {
+        "ELF": false,
+        "mode": 420,
+        "sha256": "e9fe8d95fa1e6807066af1562b14cb53afeb757f7297b7dca6a21c9cb0d0bf3c"
+      },
+      "usr/share/licenses/bankstown/LICENSE": {
+        "ELF": false,
+        "mode": 420,
+        "sha256": "8fa04678b3448b93afe2753a819f3723cd3d5de48766153d67a24fb55e987d3b"
+      }
+    },
+    "version": "1.1.0-3"
+  },
+  {
+    "input_sha256": {
+      "PKGBUILD": "781039d63edbb0b9100b720fb01ba9111d828c5b70802374bec35c0ac285ca21",
+      "cargo-vendor-117.tar.xz": "64cd55473b19f104f3a90570409d58c5ab69f63c61396541c4ad1e56e8d6293f",
+      "triforce-lv2-0.3.2.tar.gz": "1d081222d0bfe2c961ac44b368c9f1d2dd9ec0833a35bab87863bac07e9df019"
+    },
+    "metadata": {
+      "arch": [
+        "aarch64"
+      ],
+      "depends": [
+        "lv2"
+      ],
+      "license": [
+        "GPL-2.0-or-later"
+      ],
+      "makedepends": [
+        "rust",
+        "make"
+      ],
+      "pkgname": [
+        "triforce-lv2"
+      ],
+      "pkgrel": [
+        "2"
+      ],
+      "pkgver": [
+        "0.3.2"
+      ],
+      "sha256sums": [
+        "1d081222d0bfe2c961ac44b368c9f1d2dd9ec0833a35bab87863bac07e9df019",
+        "64cd55473b19f104f3a90570409d58c5ab69f63c61396541c4ad1e56e8d6293f"
+      ],
+      "source": [
+        "triforce-lv2-0.3.2.tar.gz",
+        "cargo-vendor-117.tar.xz"
+      ]
+    },
+    "name": "triforce-lv2",
+    "path": "packages/audio/triforce-lv2",
+    "payload": {
+      "usr/lib/lv2/triforce.lv2/manifest.ttl": {
+        "ELF": false,
+        "mode": 420,
+        "sha256": "f3ccd14d4bb94abbebc53d0d6ebb8a089312a216288fa0c8cfb5a87ce65977f3"
+      },
+      "usr/lib/lv2/triforce.lv2/triforce.so": {
+        "ELF": true,
+        "mode": 493,
+        "sha256": null
+      },
+      "usr/lib/lv2/triforce.lv2/triforce.ttl": {
+        "ELF": false,
+        "mode": 420,
+        "sha256": "b7317d9a9bc66415ac282cb2f707931a17e8739d254f8be720eea21f1e9de485"
+      },
+      "usr/share/licenses/triforce-lv2/LICENCE.txt": {
+        "ELF": false,
+        "mode": 420,
+        "sha256": "edaef632cbb643e4e7a221717a6c441a4c1a7c918e6e4d56debc3d8739b233f6"
+      }
+    },
+    "version": "0.3.2-2"
+  }
+]
