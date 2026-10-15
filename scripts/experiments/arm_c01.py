@@ -873,7 +873,7 @@ def host(args):
     try:
         context = json.loads(runner.run('context', ['docker', 'context', 'inspect']))
         endpoint = context[0]['Endpoints']['docker']['Host']
-        need(endpoint in ('unix:///var/run/docker.sock', f'unix:///run/user/{os.getuid()}/docker.sock'), 'local Docker daemon required')
+        need(endpoint in ('unix:///var/run/docker.sock', 'unix:///run/docker.sock', f'unix:///run/user/{os.getuid()}/docker.sock'), 'local Docker daemon required')
         docker = ['docker', '--host=' + endpoint]
         daemon = json.loads(runner.run('daemon', docker + ['info', '--format', '{{json .}}']))
         need(daemon['Architecture'] in ('aarch64', 'arm64') and daemon['OSType'] == 'linux', 'native Linux ARM daemon required')
