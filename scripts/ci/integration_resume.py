@@ -54,7 +54,10 @@ def main(argv=None):
     parser.add_argument('--recipes-sha256', required=True)
     parser.add_argument('--source-commit', required=True)
     parser.add_argument('--output', required=True, type=Path)
+    parser.add_argument('--virtual-tooling-cache', type=Path)
+    parser.add_argument('--virtual-output', type=Path)
     args = parser.parse_args(argv)
+    integration.need(bool(args.virtual_tooling_cache) == bool(args.virtual_output), 'both virtual options required')
     # Refuse emulation/host mutation before creating output or invoking Docker.
     integration.need(platform.system() == 'Linux' and platform.machine() in ('aarch64', 'arm64')
                      and os.getuid() != 0, 'non-root native ARM Linux host required')
@@ -78,7 +81,11 @@ def main(argv=None):
                             '/builder-packages.lock'], timeout=60) + '\n'
     integration.need(inventory == (native_out / 'packages.lock').read_text(), 'image inventory differs from build')
     controller = integration.Controller(image, native_out, output, lock, args.source_commit, package_only=True)
-    return 0 if controller.run() else 1
+    if args.virtual_tooling_cache is None:
+        return 0 if controller.run() else 1
+    from virtual_retry import consume
+    return 0 if controller.run(consumers=lambda current: consume(
+        current, args.virtual_tooling_cache, args.virtual_output)) else 1
 
 
 if __name__ == '__main__':

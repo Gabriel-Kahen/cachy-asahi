@@ -31,7 +31,7 @@ AUDIT_PIN = 'cd11a837b29e5c757b482a79b375f65170881d73f80db4ae645ed600a45378cd'
 AUDITOR_PIN = '6677f391f2de23540bc147770148729fe4c993850b7bbed0b71fb7e48d296fdc'
 CORE = {
     'common.py': 'b5099507b27fd9f86259c0096d0128b3a2480c546469312763a84438202fa4c3',
-    'guest.py': '721712f627d44df6eaae5c701b4c5cc28ebe30f6f5e6ce5751f48c4208a6f32b',
+    'guest.py': '9435c5a578fd0f08364118977e86b15ff1ba73c025373f21c8321af41d94ce81',
     'prepare.py': '5729166f2e0315ef31fccb436eefd3ce79ce5e9b631110332f1c9aa1506314dd',
     'run.py': '84361c8f118aec1195c19bb99dc3a3e7408e181bc6b8e6a84993a440f86f730f',
     'gbm_probe.c': 'fe0bb7b15df0bc93c4b5115543619e182ba3dac2ed22d0d8b1ab541d77a72efd',
@@ -90,6 +90,13 @@ def native_guard():
             'docker_root_dir': info.get('DockerRootDir'), 'uid': os.getuid(), 'gid': os.getgid()}
 
 
+def accepted_base_inputs(actual, tooling_base):
+    # Reviewed successor changes only vim/vim-runtime, outside the tooling closure.
+    return actual == tooling_base or (
+        tooling_base == '3c16c37d1b12cc84a88572e82ab8ad59e7f3b5ed0d08f09ddf72a69f4711d650'
+        and actual == 'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f')
+
+
 def validate_input(c, root):
     require(c.get('schema_version') == 1 and c.get('execution') == 'native-aarch64-controller-qemu-tcg-guest', 'wrong controller contract')
     require(type(c.get('run_id')) is str and re.fullmatch('[1-9][0-9]{0,19}', c['run_id']) and
@@ -146,7 +153,8 @@ def validate_input(c, root):
     require(c['files']['tooling_lock']['sha256'] == LOCK_PIN and c['files']['tooling_audit']['sha256'] == AUDIT_PIN,
             'unreviewed tooling closure/audit')
     lock, audit = loaded['tooling_lock'], loaded['tooling_audit']
-    require(c['files']['base_inputs_lock']['sha256'] == lock['base_inputs_lock_sha256'], 'accepted native base input snapshot differs')
+    require(accepted_base_inputs(c['files']['base_inputs_lock']['sha256'], lock['base_inputs_lock_sha256']),
+            'accepted native base input snapshot differs')
     upstream = loaded['base_inputs_lock']
     frozen_base = {r['name'][0]: r['version'][0] for r in upstream['rootfs_packages']}
     frozen_base.update({r['name']: r['version'] for r in upstream['packages']})
@@ -510,7 +518,7 @@ def save_final_report(path, report):
         save(path, report)
 
 
-def main():
+def main(argv=None):
     global CANCELLED
     CANCELLED = False
     ap = argparse.ArgumentParser(description=__doc__)
@@ -519,7 +527,7 @@ def main():
     ap.add_argument('--output', type=Path)
     ap.add_argument('--inside-tooling', action='store_true')
     ap.add_argument('--inside-verify', action='store_true')
-    args = ap.parse_args()
+    args = ap.parse_args(argv)
     if args.inside_tooling or args.inside_verify:
         require(args.inside_tooling != args.inside_verify, 'one explicit child stage required')
         return inside(args.contract_sha256, args.inside_tooling)
