@@ -4,6 +4,7 @@ import copy
 import hashlib
 import importlib.util
 import json
+import os
 from pathlib import Path
 from types import SimpleNamespace
 import tempfile
@@ -60,6 +61,8 @@ class LdconfigCheckpoint(unittest.TestCase):
         (self.root / 'usr/lib/libfixture.so.1').symlink_to('libfixture.so.1.0')
         self.c = SimpleNamespace(pin=Mock(), need=container.need, run=Mock(side_effect=self.printed))
         self.real_node = audio.ld_node
+        diagnostic = patch.object(audio, 'ld_aux_diagnostic')
+        diagnostic.start(); self.addCleanup(diagnostic.stop)
 
     def printed(self, argv):
         self.assertEqual(argv, [str(self.root / 'usr/bin/ldconfig'), '-p', '-C', str(self.root / 'etc/ld.so.cache')])
@@ -251,6 +254,64 @@ class LdconfigCheckpoint(unittest.TestCase):
         # Parent alias resolves into a scan root, but the alias itself is unobserved.
         indirect.symlink_to('unconfigured/redirect/libobserved.so')
         with self.assertRaisesRegex(ValueError, 'cache-target-shape'): self.observe()
+
+
+class AuxDiagnostic(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(); self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name); self.output = self.root / 'public'; self.output.mkdir()
+        self.cache = self.root / 'aux-cache'; self.cache.write_bytes(b'raw-aux-A'); self.cache.chmod(0o600)
+        for name, value in (('LD_AUX_INPUT', self.cache), ('LD_AUX_OUTPUT', self.output)):
+            patched = patch.object(audio, name, value); patched.start(); self.addCleanup(patched.stop)
+        printed = patch('builtins.print'); printed.start(); self.addCleanup(printed.stop)
+
+    def state(self):
+        state = ld_fixture(); state['caches'][audio.LD_AUX_NAME] = audio.ld_node(self.cache)
+        return state
+
+    def metadata(self, label):
+        return json.loads((self.output / ('audio-aux-' + label + '.json')).read_text())
+
+    def test_b0_b1_raw_join_capture_precedes_unchanged_refusal(self):
+        before = self.state()
+        with patch.object(audio, 'ld_state', return_value=before):
+            self.assertIs(audio.ld_checkpoint(None, [], self.root, 'B0-587'), before)
+        self.cache.write_bytes(b'raw-aux-B'); after = self.state()
+        with patch.object(audio, 'ld_state', return_value=after):
+            with self.assertRaisesRegex(ValueError, 'AUDIO_LDCONFIG_UNACCEPTED B1-593 aux-cache-byte-change'):
+                audio.ld_checkpoint(None, [], self.root, 'B1-593', before)
+        for label, data, state in [('B0-587', b'raw-aux-A', before), ('B1-593', b'raw-aux-B', after)]:
+            path = self.output / ('audio-aux-' + label + '.bin'); row = self.metadata(label)
+            self.assertEqual(path.read_bytes(), data); self.assertEqual(path.stat().st_mode & 0o777, 0o600)
+            self.assertEqual(row['status'], 'CAPTURED'); self.assertEqual(row['node'], state['caches'][audio.LD_AUX_NAME])
+            self.assertEqual(row['read_identity'][6], len(data))
+        self.assertEqual(self.cache.read_bytes(), b'raw-aux-B')
+        audio.ld_aux_diagnostic('B2-592', after)
+        self.assertEqual(len(list(self.output.iterdir())), 4)
+
+    def test_failed_read_is_explicit_and_cannot_waive_aux_refusal(self):
+        before = self.state(); self.cache.write_bytes(b'raw-aux-B'); after = self.state()
+        real_open = os.open
+        def refuse(path, *args, **kwargs):
+            if path == self.cache: raise PermissionError('private error text must not escape')
+            return real_open(path, *args, **kwargs)
+        with patch.object(audio.os, 'open', side_effect=refuse), patch.object(audio, 'ld_state', return_value=after):
+            with self.assertRaisesRegex(ValueError, 'aux-cache-byte-change'):
+                audio.ld_checkpoint(None, [], self.root, 'B1-593', before)
+        row = self.metadata('B1-593')
+        self.assertEqual((row['status'], row['reason']), ('UNAVAILABLE', 'PermissionError'))
+        self.assertNotIn('private error', json.dumps(row)); self.assertFalse(list(self.output.glob('*.bin')))
+        self.assertEqual(self.cache.read_bytes(), b'raw-aux-B')
+
+    def test_read_identity_drift_does_not_publish_raw_bytes(self):
+        state = self.state(); before = self.cache.stat()
+        fields = ('st_dev', 'st_ino', 'st_mode', 'st_nlink', 'st_uid', 'st_gid', 'st_size', 'st_ctime_ns', 'st_mtime_ns')
+        changed = SimpleNamespace(**{name: getattr(before, name) for name in fields}); changed.st_ctime_ns += 1
+        with patch.object(audio.os, 'fstat', side_effect=[before, changed]):
+            audio.ld_aux_diagnostic('B0-587', state)
+        row = self.metadata('B0-587')
+        self.assertEqual((row['status'], row['reason']), ('UNAVAILABLE', 'aux-diagnostic-read-drift'))
+        self.assertFalse(list(self.output.glob('*.bin')))
 
 
 class Audio(unittest.TestCase):
