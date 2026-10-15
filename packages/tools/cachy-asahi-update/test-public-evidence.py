@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 """Receipt projection tests; temp data only, no build/container operations."""
+import ast
+import re
 import importlib.util
 import copy
 import hashlib
@@ -822,6 +824,73 @@ class ElfPredicateProjectionTests(unittest.TestCase):
             with self.subTest(tag=tag), self.assertRaises(ValueError): public.diagnostic(value)
         value = copy.deepcopy(original); value['elf_header'] = {'machine':183}
         with self.assertRaises(ValueError): public.diagnostic(value)
+
+
+
+class MakepkgObservationTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        DiagnosticTests.setUpClass.__func__(cls)
+        path=BASE.parents[2]/'scripts/port/updater-native-stage/stage.py'
+        tree=ast.parse(path.read_bytes())
+        names={'native_diagnostic_need','native_diagnostic_encoded','native_diagnostic_nullable_hash',
+               'native_diagnostic_command','native_diagnostic_makepkg','native_diagnostic'}
+        nodes=[n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name in names or
+               isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id.startswith('NATIVE_DIAGNOSTIC_') for t in n.targets)]
+        scope=dict(json=json,re=re,need=lambda value, _reason: public.need(value))
+        exec(compile(ast.Module(nodes,type_ignores=[]),'finite-stage-diagnostic-projector','exec'),scope)
+        cls.stage=staticmethod(scope['native_diagnostic'])
+
+    record=DiagnosticTests.record
+
+    def validators(self):return (self.helper.validate,public.diagnostic,self.stage)
+
+    def test_old17_new18_and_all_closed_phase_event_code_combinations(self):
+        original=self.record(); old=copy.deepcopy(original);old.pop('makepkg')
+        for validator in self.validators():
+            self.assertEqual(validator(old),old)
+            self.assertEqual(validator(original),original)
+        for selector in ('srcinfo','verify-source','build-package'):
+            cases=[('config-setup','issued',None)]
+            cases += [(phase,event,code) for phase in ('recipe-load','prepare','build','check','package')
+                      for event,code in [('enter',None),('return',0),('return',255)]]
+            for phase,event,code in cases:
+                value=copy.deepcopy(original);value['makepkg']=dict(selector=selector,phase=phase,event=event,returncode=code)
+                for validator in self.validators():
+                    with self.subTest(selector=selector,phase=phase,event=event,code=code,validator=validator):
+                        self.assertEqual(validator(value),value)
+                        self.assertFalse(public.accepted_worker_diagnostic(value))
+
+    def test_malformed_sensitive_extra_and_boolean_observations_are_refused_everywhere(self):
+        original=self.record(); valid=dict(selector='build-package',phase='build',event='enter',returncode=None)
+        bad=[True,False,[],POISON,{}, valid|{'extra':POISON}]
+        for key in valid:
+            row=valid.copy();row.pop(key);bad.append(row)
+            bad.extend([valid|{key:item} for item in (True,False,[],{},POISON)])
+        bad += [valid|{'phase':'config-setup'},valid|{'event':'issued'},valid|{'event':'return'},
+                valid|{'returncode':0},valid|{'event':'return','returncode':-1},
+                valid|{'event':'return','returncode':256},valid|{'event':'return','returncode':1.0},
+                valid|{'phase':'config-setup','event':'return','returncode':0}]
+        for observation in bad:
+            value=copy.deepcopy(original);value['makepkg']=observation
+            for validator in self.validators():
+                with self.subTest(observation=observation,validator=validator),self.assertRaises(ValueError):validator(value)
+        value=copy.deepcopy(original);value['raw_stderr']=POISON
+        for validator in self.validators():
+            with self.assertRaises(ValueError):validator(value)
+
+    def test_observation_preserves_first_failure_compiler_and_binding_projection(self):
+        value=self.record();first=copy.deepcopy(value['first_failure'])
+        value.update(compiler_launch_attempted=True,compiler_return_observed=True,compiler_returncode=0,compilation_accepted=True,
+                     makepkg=dict(selector='build-package',phase='check',event='return',returncode=4))
+        for validator in self.validators():
+            checked=validator(copy.deepcopy(value));self.assertEqual(checked,value)
+            self.assertEqual(checked['first_failure'],first);self.assertTrue(checked['compilation_accepted'])
+        kwargs=dict(controller_sha256='b'*64,image_id='sha256:'+H,entry_script_sha256='f'*64,
+                    observed_state=observed_worker()['worker_container_state'])
+        self.assertEqual(public.bound_worker_diagnostic(value,**kwargs),value)
+        self.assertFalse(public.accepted_worker_diagnostic(value))
+        self.assertNotIn(POISON,json.dumps(value))
 
 
 if __name__ == '__main__':

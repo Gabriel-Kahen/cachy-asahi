@@ -1,10 +1,10 @@
 {
   "cross_generator_reproduction": "Exact gzip-stored-v1 archive SHA comparisons required; no zlib compressor calls",
   "files_sha256": {
-    ".SRCINFO": "57577106984738b425e8cca808cbbb2d920c210356b5d7b11ca45097ccc1a076",
+    ".SRCINFO": "1bd7d8812dff59e54301f371b910cd35969eb37246f2fc1dc7b68ac719fb2c76",
     "ICON-LICENSE": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
     "NOTICE": "286afc1bf4cf9becf04ae571df48d6b23f56b801955f28675909713de548679b",
-    "PKGBUILD": "c191226dba5eaeb3b12bbf11dcad4662a92640a8fc46a51fee340ca15f9befef",
+    "PKGBUILD": "2281359ce075a4144991995b8ae4ef0092a6a29d8ef2c8c5e8a8ab2db2801daf",
     "additional-cargo-licenses.json": "74a1dbfa75de13df5c82525af8d684e38b772c31bdf912d61f7fe74e7646c591",
     "audit-cargo.py": "b4bfefccda42394602f899a2d6fa9b3ba4153dbe77282518c06a79d323fc153f",
     "audit-source.py": "81d1b0d8ab88b3094f123f6a8d1112c58d2d36361d9c347d9ec5365a8cb85a2e",

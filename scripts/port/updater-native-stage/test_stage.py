@@ -89,7 +89,7 @@ class StageTests(unittest.TestCase):
         self.root = self.base / 'checkout'; self.root.mkdir(mode=0o700)
         self.output = self.base / 'evidence'
         self.storage = self.base / 'docker-storage'; self.storage.mkdir(mode=0o700)
-        self.rows = {}; self.commands = []; self.guard_inputs = []; self.cleanup_calls = []
+        self.rows = {}; self.commands = []; self.guard_inputs = []; self.cleanup_calls = []; self.seed_calls = []
         self.mode = 'pass'; self.source_drift = False; self.project_fail = False; self.guard_fail = False
         self.create_gpg = False; self.gpg_status = 'PASS'; self.docker_status = 'PASS'
         self.put(PREFIX + 'stage.py', STAGE_BYTES)
@@ -97,8 +97,9 @@ class StageTests(unittest.TestCase):
             self.put(PREFIX + name, (HERE / name).read_bytes())
         self.put(PREFIX + 'public_worker.py', (HERE / 'public_worker.py').read_bytes())
         self.put(PREFIX + 'broker.py', b'#!/usr/bin/env python3\n# never executed fixture\n')
+        self.put(PREFIX + 'current_cache.py', b'# intercepted synthetic cache seed; never executed\n')
         self.put(stage.PACKAGE + 'runner-inputs.lock.json', b'{}\n')
-        for name in ('updater-native.py', 'materialize-inputs.py'):
+        for name in ('updater-native.py', 'materialize-inputs.py', 'native-entry.py'):
             self.put(stage.PACKAGE + name, b'# intercepted; never executed\n')
         for name in ('scripts/ci/integration_export.py', 'scripts/ci/log_evidence.py',
                      stage.PACKAGE + 'public-evidence.py'):
@@ -165,10 +166,31 @@ class StageTests(unittest.TestCase):
         if path.name == 'runtime.py': return self.runtime
         if path.name == 'source.py': return self.source
         if path.name == 'broker.py': return self.broker
+        if path.name == 'current_cache.py': return types.SimpleNamespace(seed=self.cache_seed)
         if path.name == 'integration_export.py': return types.SimpleNamespace(export_evidence=self.export)
         if path.name == 'public-evidence.py': return types.SimpleNamespace(project_evidence=self.project)
         if path.name == 'log_evidence.py': return self.actual_bundle
         self.fail('unexpected project module import')
+
+    def cache_seed(self, snapshot, private, contract, end, check, holder, module, regular, verify_snapshot):
+        """Isolate orchestration; no intake/acquire/GPG/private body is replayed."""
+        self.assertEqual(snapshot, private / 'source')
+        self.assertEqual(contract, self.contract['source'])
+        self.assertEqual(contract['files'][PREFIX + 'current_cache.py']['sha256'],
+                         stage.digest((snapshot / PREFIX / 'current_cache.py').read_bytes()))
+        self.assertLess(time.monotonic(), end)
+        self.assertLessEqual(end, time.monotonic() + stage.BUDGET['native_seconds'])
+        self.assertEqual(holder, {})
+        verify_snapshot(snapshot, contract); check()
+        self.seed_calls.append({'snapshot': str(snapshot), 'end': end})
+        # Native commands are independently synthetic in fake_run. This models
+        # only the new stage dependency, and grants no actual seed acceptance.
+        (private / 'archives').mkdir(mode=0o700)
+        observation = dict(status='SYNTHETIC_TEST_ONLY', objects=0, bytes=0,
+                           resource_uncertain=False, cancelled=False,
+                           signature_authentication='NOT RUN', native_build='NOT RUN', secondary_errors=0)
+        holder['observation'] = observation
+        return dict(observation)
 
     def project(self, raw, output, **kwargs):
         result = self.actual_selector.project_evidence(raw, output, **kwargs)
@@ -316,9 +338,116 @@ class StageTests(unittest.TestCase):
         self.assertEqual(result['cancelled'], cancelled)
         for row in self.terminal(): self.assertNotEqual(row['status'], 'PASS')
 
+    def test_private_pair_progress_requires_public_pair_corroboration(self):
+        result = self.pipeline()
+        self.assertEqual(result['status'], 'PASS')
+        self.assertIs(result['private_native_pair_verified'], True)
+        self.assertEqual(result['native_compilation'], 'PASS PRIVATE NATIVE PAIR')
+        self.assertEqual(stage.load(self.output / 'guarded/native-result.json')['native_pair'], 'PASS')
+        for terminal in self.terminal():
+            self.assertIs(terminal['private_native_pair_verified'], True)
+            self.assertEqual(terminal['native_compilation'], 'PASS PRIVATE NATIVE PAIR')
+
+    def test_native_attempt_is_unattested_until_verified_and_failure_is_not_not_run(self):
+        self.mode = 'native-fail'; original = self.fake_run; observed = []
+        def observe(argv, stdout, stderr, deadline, env, cwd, **kwargs):
+            if stdout.stem == 'native-pair':
+                row = stage.load(self.output / 'result.json')
+                observed.append((row['native_compilation'], row['private_native_pair_verified']))
+            return original(argv, stdout, stderr, deadline, env, cwd, **kwargs)
+        with mock.patch.object(self, 'fake_run', side_effect=observe): result = self.pipeline()
+        self.assertEqual(observed, [('NOT ATTESTED', False)])
+        self.assert_clean_failure(result)
+        self.assertEqual(result['native_compilation'], 'NOT ATTESTED')
+        self.assertIs(result['private_native_pair_verified'], False)
+        self.assertEqual(result['failed_phase'], 'native-pair')
+        self.assertEqual(result['runtime_reason'], 'process-failed')
+        self.assertEqual(result['runtime_returncode'], 1)
+
+    def test_projection_failure_keeps_private_progress_without_claiming_public_pair(self):
+        self.project_fail = True; result = self.pipeline()
+        self.assert_clean_failure(result)
+        self.assertEqual(result['native_compilation'], 'NOT ATTESTED')
+        self.assertIs(result['private_native_pair_verified'], True)
+        self.assertEqual(stage.load(self.output / 'projected/native-result.json')['native_pair'], 'PASS')
+        self.assertFalse((self.output / 'guarded').exists())
+        self.assertNotIn('public-guard', self.commands)
+        for terminal in self.terminal():
+            self.assertEqual(terminal['native_compilation'], 'NOT ATTESTED')
+            self.assertIs(terminal['private_native_pair_verified'], True)
+            self.assertNotIn(POISON.decode(), json.dumps(terminal))
+
+    def test_guard_refusal_before_copy_keeps_private_progress_without_public_pass(self):
+        original = self.export
+        def refuse(raw, output):
+            if raw.name == 'projected':
+                raise self.runtime.RuntimeFailure(self.process_receipt('FAIL'))
+            return original(raw, output)
+        with mock.patch.object(self, 'export', side_effect=refuse): result = self.pipeline()
+        self.assert_clean_failure(result)
+        self.assertEqual(result['native_compilation'], 'NOT ATTESTED')
+        self.assertIs(result['private_native_pair_verified'], True)
+        self.assertFalse((self.output / 'guarded').exists())
+        self.assertNotIn('public-bundle', self.commands)
+
+    def test_missing_or_nonpass_guarded_pair_never_promotes_private_progress(self):
+        original = self.fake_run
+        for pair in (None, 'FAIL', 'STARTING'):
+            with self.subTest(pair=pair):
+                self.output = self.base / ('missing-pair' if pair is None else pair.lower() + '-pair')
+                def corrupt(argv, stdout, stderr, deadline, env, cwd, **kwargs):
+                    item = original(argv, stdout, stderr, deadline, env, cwd, **kwargs)
+                    if stdout.stem == 'public-bundle':
+                        path = self.output / 'guarded/native-result.json'
+                        if pair is None: path.unlink()
+                        else:
+                            row = stage.load(path); row['native_pair'] = pair; stage.save(path, row)
+                            manifest_path = self.output / 'guarded/export-manifest.json'
+                            manifest = stage.load(manifest_path)
+                            entries = [row for row in manifest['accepted'] if row['path'] == 'native-result.json']
+                            self.assertEqual(len(entries), 1); entry = entries[0]; data = path.read_bytes()
+                            manifest['accepted_bytes'] += len(data) - entry['bytes']
+                            entry.update(bytes=len(data), sha256=stage.digest(data)); stage.save(manifest_path, manifest)
+                    return item
+                with mock.patch.object(self, 'fake_run', side_effect=corrupt): result = self.pipeline()
+                self.assert_clean_failure(result)
+                self.assertEqual(result['native_compilation'], 'NOT ATTESTED')
+                self.assertIs(result['private_native_pair_verified'], True)
+                self.assertIn('public-bundle', self.commands)
+
+    def test_private_pair_progress_is_closed_boolean_and_cannot_override_public_status(self):
+        valid = {'status': 'FAIL', 'native_compilation': 'NOT ATTESTED',
+                 'private_native_pair_verified': True}
+        self.assertEqual(stage.public_summary(dict(valid, raw_env=POISON.decode())), valid)
+        self.assertEqual(stage.public_summary(dict(valid, private_native_pair_verified=False)),
+                         dict(valid, private_native_pair_verified=False))
+        invalid = [dict(valid, private_native_pair_verified=value) for value in (0, 1, 'true', None, {}, [])]
+        invalid += [dict(valid, status='PASS'),
+                    dict(valid, native_compilation='NOT RUN'),
+                    dict(valid, status='PASS', native_compilation='PASS PRIVATE NATIVE PAIR',
+                         private_native_pair_verified=False)]
+        for value in invalid:
+            with self.subTest(value=value), self.assertRaises(ValueError): stage.public_summary(value)
+
+    def test_guarded_pair_pass_with_unmanifested_bytes_cannot_promote_private_progress(self):
+        original = self.fake_run
+        def corrupt(argv, stdout, stderr, deadline, env, cwd, **kwargs):
+            item = original(argv, stdout, stderr, deadline, env, cwd, **kwargs)
+            if stdout.stem == 'public-bundle':
+                path = self.output / 'guarded/native-result.json'; row = stage.load(path)
+                self.assertEqual(row['native_pair'], 'PASS')
+                row['owned_unmanifested'] = True; stage.save(path, row)
+            return item
+        with mock.patch.object(self, 'fake_run', side_effect=corrupt): result = self.pipeline()
+        self.assert_clean_failure(result)
+        self.assertEqual(result['native_compilation'], 'NOT ATTESTED')
+        self.assertIs(result['private_native_pair_verified'], True)
+        self.assertEqual(stage.load(self.output / 'guarded/native-result.json')['native_pair'], 'PASS')
+
     def test_success_is_fixture_only_with_real_cleanup_and_guarded_projection(self):
         result = self.pipeline()
         self.assertEqual(result['status'], 'PASS')
+        self.assertEqual(len(self.seed_calls), 1)
         self.assertFalse((self.output / 'private').exists())
         self.assertEqual(self.commands, ['native-daemon', 'materialize', 'freeze', 'native-pair',
                                         'public-projection', 'public-guard', 'public-bundle'])
@@ -574,14 +703,16 @@ class StageTests(unittest.TestCase):
     def test_projection_failure_invalidates_pass_native_pair(self):
         self.project_fail = True; result = self.pipeline()
         self.assert_clean_failure(result)
-        self.assertEqual(result['native_compilation'], 'PASS PRIVATE NATIVE PAIR')
+        self.assertEqual(result['native_compilation'], 'NOT ATTESTED')
+        self.assertIs(result['private_native_pair_verified'], True)
         self.assertEqual(result['public_projection'], 'FAIL')
         self.assertNotIn('public-guard', self.commands); self.assertNotIn('public-bundle', self.commands)
 
     def test_guard_failure_invalidates_pass_native_pair(self):
         self.guard_fail = True; result = self.pipeline()
         self.assert_clean_failure(result)
-        self.assertEqual(result['native_compilation'], 'PASS PRIVATE NATIVE PAIR')
+        self.assertEqual(result['native_compilation'], 'NOT ATTESTED')
+        self.assertIs(result['private_native_pair_verified'], True)
         self.assertNotIn('public-bundle', self.commands)
 
     def test_public_worker_cancellation_preserves_cancel_state_with_attested_cleanup(self):
@@ -1713,6 +1844,315 @@ class SignalHelperTests(unittest.TestCase):
         finally:
             for number, handler in handlers.items(): signal.signal(number, handler)
             original(signal.SIG_SETMASK, mask)
+
+
+
+
+class NativeWorkerFailureDetailControls(unittest.TestCase):
+    def model(self):
+        controller={'schema_version':1,'image_id':'sha256:'+'a'*64,'entry_script_sha256':'b'*64}
+        raw=(json.dumps(controller,sort_keys=True)+'\n').encode()
+        value={'schema_version':1,'stage':'finalized','native_compilation':'FAIL','failed_stage':'worker-inspection',
+            'controller_sha256':hashlib.sha256(raw).hexdigest(),'image_id':controller['image_id'],
+            'entry_script_sha256':controller['entry_script_sha256'],'error_type':'ValueError','error':POISON.decode(),
+            'worker_check':'worker-run-result','worker_failure_code':'worker-nonzero-returncode',
+            'worker_run_returncode':1,'worker_launch_attempted':True,'container_cleanup_attempted':True,
+            'container_removal_succeeded':True,'container_absence_verified':True,'container_cleanup_complete':True}
+        return controller,raw,value
+    def observe(self,value=None,entry='b'*64):
+        controller,raw,record=self.model()
+        if value is not None:record=value
+        def read(path,limit):
+            return (raw,controller) if Path(path).name=='controller-input.json' else (b'{}',record)
+        with mock.patch.object(stage,'diagnostic_json',side_effect=read):
+            return stage.capture_native_worker(Path('/private'),{'availability':'OBSERVED','failed_stage':'worker-1'},entry)
+    def test_bound_failure_preserves_issued_return_and_retirement(self):
+        value=self.observe();self.assertEqual(value['availability'],'OBSERVED')
+        row=value['record'];self.assertEqual(row['worker_returncode'],1)
+        self.assertEqual(row['retirement'],dict(attempted=True,removed=True,absent=True,complete=True))
+        self.assertNotIn(POISON.decode(),json.dumps(value));self.assertNotIn('native_compilation',row)
+    def test_missing_unknown_retirement_never_passes(self):
+        for key in ('container_cleanup_attempted','container_removal_succeeded','container_absence_verified','container_cleanup_complete'):
+            _,_,value=self.model();value.pop(key)
+            with self.subTest(key=key):self.assertEqual(self.observe(value)['availability'],'NOT_OBSERVED')
+    def test_partial_retirement_stays_partial(self):
+        _,_,value=self.model();value.update(container_absence_verified=False,container_cleanup_complete=False)
+        result=self.observe(value)['record']['retirement']
+        self.assertTrue(result['removed']);self.assertFalse(result['absent']);self.assertFalse(result['complete'])
+    def test_wrong_controller_and_source_entry_refuse_binding(self):
+        _,_,value=self.model();value['controller_sha256']='c'*64
+        self.assertEqual(self.observe(value)['reason'],'unbound')
+        self.assertEqual(self.observe(entry='c'*64)['reason'],'unbound')
+    def test_invalid_return_and_cause_refuse(self):
+        for code in (True,256,-65,0):
+            _,_,value=self.model();value['worker_run_returncode']=code
+            with self.subTest(code=code):self.assertEqual(self.observe(value)['availability'],'NOT_OBSERVED')
+    def test_absent_or_invalid_private_record_stays_unknown(self):
+        for error,reason in ((FileNotFoundError(),'unavailable'),(ValueError('private text'),'invalid')):
+            with mock.patch.object(stage,'diagnostic_json',side_effect=error):
+                value=stage.capture_native_worker(Path('/private'),{'availability':'OBSERVED','failed_stage':'worker-1'},'b'*64)
+            self.assertEqual(value,stage.native_detail_unknown(reason))
+    def test_nonworker_stage_does_not_read(self):
+        with mock.patch.object(stage,'diagnostic_json',side_effect=AssertionError('must not read')):
+            value=stage.capture_native_worker(Path('/private'),{'availability':'OBSERVED','failed_stage':'image-bootstrap'},'b'*64)
+        self.assertEqual(value,stage.native_detail_unknown('not-worker'))
+    def test_observation_controls_preserve_identity(self):
+        error=KeyboardInterrupt()
+        with mock.patch.object(stage,'diagnostic_json',side_effect=error):
+            with self.assertRaises(KeyboardInterrupt) as caught:
+                stage.capture_native_worker(Path('/private'),{'availability':'OBSERVED','failed_stage':'worker-1'},'b'*64)
+        self.assertIs(caught.exception,error)
+    def test_private_reader_joins_named_and_held_inode_before_read(self):
+        values=dict(st_dev=1,st_ino=11,st_mode=stat.S_IFREG|0o600,st_nlink=1,st_uid=os.getuid(),
+                    st_gid=os.getgid(),st_size=2,st_mtime_ns=1,st_ctime_ns=1)
+        named=types.SimpleNamespace(**values);opened=types.SimpleNamespace(**dict(values,st_ino=22))
+        with mock.patch.object(Path,'is_symlink',return_value=False),mock.patch.object(Path,'lstat',return_value=named), \
+             mock.patch.object(stage.os,'open',return_value=7),mock.patch.object(stage.os,'fstat',return_value=opened), \
+             mock.patch.object(stage.os,'read',side_effect=AssertionError('must refuse before read')),mock.patch.object(stage.os,'close'):
+            with self.assertRaisesRegex(ValueError,'^native-detail-drift$'):stage.diagnostic_json(Path('/private/receipt'),4096)
+
+
+
+class NativeGuardianFailureDetailControls(unittest.TestCase):
+    def model(self):
+        controller={'schema_version':1,'nonce':'a'*32};raw=(json.dumps(controller)+'\n').encode()
+        pin=hashlib.sha256(raw).hexdigest()
+        fact=dict(schema_version=1,purpose='updater-broker-guardian-diagnostic',broker_controller_sha256=pin,
+                  phase='CLIENT_DONE',first_error='BROKER_ERROR',first_predicate='client-group-ambiguous',retirement='FAIL')
+        return controller,raw,pin,fact
+    def test_bound_guardian_is_separate_from_outer_controller(self):
+        controller,raw,pin,fact=self.model()
+        def read(path,limit):return (raw,controller) if Path(path).name=='broker-controller.json' else ((json.dumps(fact,sort_keys=True,separators=(',',':'))+'\n').encode(),fact)
+        with mock.patch.object(stage,'diagnostic_json',side_effect=read):
+            value=stage.capture_native_guardian(Path('/private'),pin)
+        self.assertEqual(value['record'],fact);self.assertEqual(value['record']['retirement'],'FAIL')
+        self.assertNotIn('nonce',json.dumps(value))
+    def test_unbound_guardian_stays_unknown(self):
+        controller,raw,pin,fact=self.model();fact['broker_controller_sha256']='c'*64
+        def read(path,limit):return (raw,controller) if Path(path).name=='broker-controller.json' else ((json.dumps(fact,sort_keys=True,separators=(',',':'))+'\n').encode(),fact)
+        with mock.patch.object(stage,'diagnostic_json',side_effect=read):
+            value=stage.capture_native_guardian(Path('/private'),pin)
+        self.assertEqual(value,stage.native_detail_unknown('unbound'))
+    def test_partial_first_publication_stays_unknown(self):
+        with mock.patch.object(stage,'diagnostic_json',side_effect=ValueError('private partial JSON')):
+            value=stage.capture_native_guardian(Path('/private'),'a'*64)
+        self.assertEqual(value,stage.native_detail_unknown('invalid'))
+    def test_parseable_short_write_without_newline_stays_unknown(self):
+        controller,raw,pin,fact=self.model()
+        partial=json.dumps(fact,sort_keys=True,separators=(',',':')).encode()
+        def read(path,limit):return (raw,controller) if Path(path).name=='broker-controller.json' else (partial,fact)
+        with mock.patch.object(stage,'diagnostic_json',side_effect=read):
+            value=stage.capture_native_guardian(Path('/private'),pin)
+        self.assertEqual(value,stage.native_detail_unknown('invalid'))
+    def test_guardian_private_enum_and_unknown_removal_refuse(self):
+        _,_,_,fact=self.model()
+        fact['retirement']='UNKNOWN'
+        self.assertEqual(stage.native_guardian_projection(dict(availability='OBSERVED',reason='bound',record=fact))['record']['retirement'],'UNKNOWN')
+        for key in ('phase','first_error','first_predicate','retirement'):
+            changed=dict(fact);changed[key]=POISON.decode()
+            with self.subTest(key=key):
+                with self.assertRaises(ValueError):stage.native_guardian_projection(dict(availability='OBSERVED',reason='bound',record=changed))
+
+
+class NativeWorkerDiagnosticTransportControls(unittest.TestCase):
+    """Captured bounded diagnostic transport only; no worker/provider execution."""
+    def model(self):
+        _, raw, value=NativeWorkerFailureDetailControls().model()
+        checksum=hashlib.sha256(raw).hexdigest()
+        diagnostic=dict(schema_version=1,controller_sha256=checksum,image_id=value['image_id'],
+            entry_script_sha256=value['entry_script_sha256'],controller_validated=False,status='FAIL',
+            operation='entry-guard',first_failure=dict(operation='entry-guard',predicate='worker-boundary',error_kind='ValueError',command=None),
+            command=None,compiler_launch_attempted=False,compiler_return_observed=False,compiler_returncode=None,
+            compilation_accepted=False,cancelled=False,diagnostic_write_failed=False,publication='NOT ACCEPTED',hardware='NOT RUN')
+        value.update(worker_diagnostic_status='BOUND',worker_diagnostic_reason='bound',
+            worker_diagnostic_sha256=stage.digest(stage.native_diagnostic_encoded(diagnostic)),worker_diagnostic=diagnostic,
+            worker_container_state=dict(controller_sha256=checksum,image_id=value['image_id']))
+        return value
+    def observe(self,value):return NativeWorkerFailureDetailControls().observe(value)
+    def test_bound_first_diagnostic_survives_worker_failure_terminal_projection(self):
+        value=self.model();captured=self.observe(value);detail=captured['record']['diagnostic']
+        self.assertEqual(detail['availability'],'OBSERVED');self.assertEqual(detail['record']['first_failure']['predicate'],'worker-boundary')
+        self.assertEqual(captured['record']['worker_returncode'],1);self.assertIsNone(detail['record']['compiler_returncode'])
+        receipt=dict(status='FAIL',failed_phase='native-pair',runtime_reason='process-failed',runtime_returncode=1,
+            native_child_failure=dict(availability='OBSERVED',failed_stage='worker-1',error_type='ValueError'),native_worker_failure=captured)
+        projected=stage.public_summary(receipt);self.assertEqual(projected['native_worker_failure']['record']['diagnostic'],detail)
+        self.assertNotIn(POISON.decode(),json.dumps(projected));self.assertEqual(projected['status'],'FAIL')
+    def test_absent_and_missing_stay_unknown_without_losing_wrapper_fact(self):
+        _,_,old=NativeWorkerFailureDetailControls().model()
+        self.assertEqual(self.observe(old)['record']['diagnostic']['reason'],'not-observed')
+        old.update(worker_diagnostic_status='UNKNOWN',worker_diagnostic_reason='missing',worker_diagnostic_sha256=None,worker_diagnostic=None)
+        result=self.observe(old)['record'];self.assertEqual(result['diagnostic']['reason'],'missing');self.assertEqual(result['worker_returncode'],1)
+        self.assertEqual(result['diagnostic']['availability'],'NOT_OBSERVED')
+    def test_snapshot_hash_drift_is_not_reread_or_promoted(self):
+        value=self.model();value['worker_diagnostic']['first_failure']['predicate']='controller-binding'
+        result=self.observe(value)['record'];self.assertEqual(result['diagnostic']['reason'],'invalid');self.assertEqual(result['worker_returncode'],1)
+    def test_controller_image_entry_and_inspected_state_joins(self):
+        for target,key in [('worker_diagnostic','controller_sha256'),('worker_diagnostic','image_id'),('worker_diagnostic','entry_script_sha256'),('worker_container_state','controller_sha256'),('worker_container_state','image_id')]:
+            value=self.model();value[target][key]=('sha256:' if key=='image_id' else '')+'c'*64
+            value['worker_diagnostic_sha256']=stage.digest(stage.native_diagnostic_encoded(value['worker_diagnostic']))
+            with self.subTest(target=target,key=key):self.assertEqual(self.observe(value)['record']['diagnostic']['reason'],'unbound')
+    def test_closed_diagnostic_fields_and_labels_reject_private_content(self):
+        for scope,key in [('root','operation'),('first','predicate'),('first','error_kind'),('root','private_argv')]:
+            value=self.model();record=value['worker_diagnostic'];target=record if scope=='root' else record['first_failure'];target[key]=POISON.decode()
+            value['worker_diagnostic_sha256']=stage.digest(stage.native_diagnostic_encoded(record));result=self.observe(value)
+            self.assertEqual(result['record']['diagnostic']['availability'],'NOT_OBSERVED');self.assertNotIn(POISON.decode(),json.dumps(result))
+    def test_partial_group_wrong_status_and_bool_returncode_stay_unknown(self):
+        for change in ('partial','status','reason','bool'):
+            value=self.model()
+            if change=='partial':value.pop('worker_diagnostic_reason')
+            elif change=='status':value['worker_diagnostic_status']=True
+            elif change=='reason':value['worker_diagnostic_reason']=POISON.decode()
+            else:
+                value['worker_diagnostic'].update(compiler_launch_attempted=True,compiler_return_observed=True,compiler_returncode=True)
+                value['worker_diagnostic_sha256']=stage.digest(stage.native_diagnostic_encoded(value['worker_diagnostic']))
+            with self.subTest(change=change):self.assertEqual(self.observe(value)['record']['diagnostic']['availability'],'NOT_OBSERVED')
+    def test_command_facts_are_closed_hashes_not_logs_or_argv(self):
+        value=self.model();command=dict(kind='inventory-entry',launch_attempted=True,return_observed=True,returncode=1,
+            stdout=dict(bytes=5,sha256='d'*64),stderr=dict(bytes=6,sha256='e'*64))
+        value['worker_diagnostic']['first_failure'].update(predicate='command-nonzero',command=command)
+        value['worker_diagnostic_sha256']=stage.digest(stage.native_diagnostic_encoded(value['worker_diagnostic']))
+        self.assertEqual(self.observe(value)['record']['diagnostic']['record']['first_failure']['command'],command)
+        command['stderr']['raw']=POISON.decode();value['worker_diagnostic_sha256']=stage.digest(stage.native_diagnostic_encoded(value['worker_diagnostic']))
+        self.assertEqual(self.observe(value)['record']['diagnostic']['availability'],'NOT_OBSERVED')
+    def test_public_transport_refuses_hash_controller_and_extra_fields(self):
+        result=self.observe(self.model());row=result['record']
+        for change in ('hash','controller','extra'):
+            altered=json.loads(json.dumps(result));item=altered['record']
+            if change=='hash':item['diagnostic']['sha256']='c'*64
+            elif change=='controller':item['controller_sha256']='c'*64
+            else:item['diagnostic']['private']=POISON.decode()
+            with self.subTest(change=change),self.assertRaises(ValueError):stage.native_worker_projection(altered)
+        self.assertTrue(row['retirement']['complete']);self.assertEqual(row['worker_returncode'],1)
+    def test_diagnostic_control_exception_keeps_identity(self):
+        first=KeyboardInterrupt()
+        with mock.patch.object(stage,'native_diagnostic',side_effect=first):
+            with self.assertRaises(KeyboardInterrupt) as caught:self.observe(self.model())
+        self.assertIs(caught.exception,first)
+    def test_successful_inner_diagnostic_does_not_promote_failed_wrapper(self):
+        value=self.model();value['worker_diagnostic'].update(controller_validated=True,status='PASS',operation='complete',first_failure=None,
+            compiler_launch_attempted=True,compiler_return_observed=True,compiler_returncode=0,compilation_accepted=True)
+        value['worker_diagnostic_sha256']=stage.digest(stage.native_diagnostic_encoded(value['worker_diagnostic']))
+        result=self.observe(value)['record'];self.assertEqual(result['worker_returncode'],1)
+        self.assertEqual(result['failure_code'],'worker-nonzero-returncode');self.assertEqual(result['diagnostic']['record']['compiler_returncode'],0)
+        self.assertNotIn('native_compilation',result)
+
+
+class ExportRefusalTests(unittest.TestCase):
+    """Exact workflow helpers with inert metadata; no Source/provider/native actors."""
+    @classmethod
+    def setUpClass(cls):
+        import ast, textwrap
+        workflow = (ROOT / '.github/workflows/native-arm-updater.yml').read_text()
+        start = workflow.index('          import base64, gzip, hashlib, io, json, math, os, re, sys, tarfile, tempfile, types\n')
+        end = workflow.index('          PY\n', start)
+        cls.tree = ast.parse(textwrap.dedent(workflow[start:end]))
+        cls.ast = ast
+
+    def scope(self):
+        names = {'ExportRefusal', 'at_export_boundary', 'export_refusal_diagnostic', 'need', 'checksum', 'decoded_json'}
+        nodes = [n for n in self.tree.body if isinstance(n, (self.ast.Import, self.ast.ImportFrom, self.ast.Assign))
+                 or isinstance(n, (self.ast.FunctionDef, self.ast.ClassDef)) and n.name in names]
+        scope = {}; exec(compile(self.ast.Module(nodes, type_ignores=[]), '<exact-exporter-helpers>', 'exec'), scope)
+        return scope
+
+    def footer(self, scope, error):
+        value = scope['export_refusal_diagnostic'](error)
+        self.assertEqual(set(value), {'updater_export_diagnostic'})
+        row = value['updater_export_diagnostic']
+        self.assertEqual(set(row), {'schema_version', 'status', 'boundary', 'source_predicate', 'source_authentication_completed'})
+        self.assertIs(type(row['schema_version']), int); self.assertEqual(row['schema_version'], 1)
+        self.assertEqual(row['status'], 'REFUSED'); self.assertIs(type(row['source_authentication_completed']), bool)
+        raw = json.dumps(value, sort_keys=True)
+        self.assertLess(len(raw), 512); self.assertNotIn(POISON.decode(), raw)
+        return row
+
+    def test_all_source_predicates_have_one_fixed_id(self):
+        calls = [n for n in self.ast.walk(self.tree) if isinstance(n, self.ast.Call) and isinstance(n.func, self.ast.Name) and n.func.id == 'need']
+        self.assertEqual(len(calls), 94)
+        self.assertTrue(all(len(n.args) == 2 and not n.keywords and isinstance(n.args[1], self.ast.Constant) for n in calls))
+        self.assertEqual({n.args[1].value for n in calls}, {'P%03d' % i for i in range(1, 95)})
+        scope = self.scope()
+        for code in sorted(scope['EXPORT_PREDICATES']):
+            with self.subTest(code=code):
+                self.assertIsNone(scope['need'](True, code))
+                with self.assertRaises(scope['ExportRefusal']) as caught: scope['need'](False, code)
+                self.assertEqual(self.footer(scope, caught.exception)['source_predicate'], code)
+
+    def test_unknown_exceptions_and_hostile_fields_never_leak(self):
+        scope = self.scope()
+        class Hostile(ValueError):
+            @property
+            def predicate(self): raise AssertionError('untrusted exception attribute accessed')
+        for error in (ValueError(POISON.decode()), Hostile(POISON.decode()), scope['ExportRefusal'](POISON.decode()),
+                      scope['ExportRefusal'](True), scope['ExportRefusal'](None)):
+            with self.subTest(kind=type(error).__name__):
+                row = self.footer(scope, error); self.assertEqual(row['source_predicate'], 'UNKNOWN')
+                self.assertFalse(row['source_authentication_completed'])
+        scope['export_boundary'] = POISON.decode(); scope['source_authentication_completed'] = 1
+        row = self.footer(scope, ValueError(POISON.decode()))
+        self.assertEqual(row['boundary'], 'UNKNOWN'); self.assertFalse(row['source_authentication_completed'])
+
+    def test_nested_first_boundary_and_same_exception_are_preserved(self):
+        scope = self.scope(); first = scope['ExportRefusal']('P062')
+        def failed(): raise first
+        inner = scope['at_export_boundary']('public-tree-manifest')(failed)
+        outer = scope['at_export_boundary']('terminal-record')(inner)
+        with self.assertRaises(scope['ExportRefusal']) as caught: outer()
+        self.assertIs(caught.exception, first)
+        self.assertEqual(scope['export_boundary'], 'source-authentication')
+        row = self.footer(scope, first); self.assertEqual(row['boundary'], 'public-tree-manifest')
+        self.assertEqual(row['source_predicate'], 'P062')
+
+    def test_success_restores_boundary_before_a_later_failure(self):
+        scope = self.scope()
+        self.assertEqual(scope['at_export_boundary']('receipt-roundtrip')(lambda: 42)(), 42)
+        self.assertIsNone(scope['export_failed_boundary']); self.assertEqual(scope['export_boundary'], 'source-authentication')
+        def failed(): raise OSError(POISON.decode())
+        with self.assertRaises(OSError) as caught: scope['at_export_boundary']('projection-metadata')(failed)()
+        row = self.footer(scope, caught.exception)
+        self.assertEqual(row['boundary'], 'projection-metadata'); self.assertEqual(row['source_predicate'], 'UNKNOWN')
+
+    def test_original_guard_fail_manifest_still_refuses_before_leaf_reads(self):
+        scope = self.scope(); manifest = dict(schema_version=1, evidence_export='FAIL', accepted=[], rejected=[],
+            accepted_bytes=0, limits={}, inventory_limit_exceeded=False, inventory_scope='sensitive subtrees are rejected without enumeration')
+        scope.update(output=Path('/inert-output'), worker=types.SimpleNamespace(public_tree=lambda *a: None),
+            stage=types.SimpleNamespace(load=lambda *a: manifest, regular=lambda *a: self.fail('leaf read after refusal')))
+        function = next(n for n in self.ast.walk(self.tree) if isinstance(n, self.ast.FunctionDef) and n.name == 'checked')
+        exec(compile(self.ast.Module([function], type_ignores=[]), '<exact-checked-manifest>', 'exec'), scope)
+        with self.assertRaises(scope['ExportRefusal']) as caught: scope['checked'](Path('/inert-output/guarded'), set())
+        row = self.footer(scope, caught.exception)
+        self.assertEqual(row['boundary'], 'public-tree-manifest'); self.assertEqual(row['source_predicate'], 'P062')
+
+    def test_io_refusal_needs_no_untrusted_body_validator(self):
+        scope = self.scope(); calls = []
+        def refuse(*args): calls.append('tree'); raise OSError(POISON.decode())
+        scope.update(output=Path('/inert-output'), worker=types.SimpleNamespace(public_tree=refuse),
+            stage=types.SimpleNamespace(load=lambda *a: self.fail('body validation after tree refusal')))
+        function = next(n for n in self.ast.walk(self.tree) if isinstance(n, self.ast.FunctionDef) and n.name == 'checked')
+        exec(compile(self.ast.Module([function], type_ignores=[]), '<exact-checked-io>', 'exec'), scope)
+        with self.assertRaises(OSError) as caught: scope['checked'](Path('/inert-output/guarded'), set())
+        row = self.footer(scope, caught.exception)
+        self.assertEqual(calls, ['tree']); self.assertEqual(row['boundary'], 'public-tree-manifest')
+        self.assertEqual(row['source_predicate'], 'UNKNOWN')
+
+    def test_source_flag_follows_all_helper_pin_loads_and_legacy_output_is_held(self):
+        body = next(n for n in self.tree.body if isinstance(n, self.ast.Try)).body
+        flag = next(i for i,n in enumerate(body) if isinstance(n, self.ast.Assign) and any(isinstance(t,self.ast.Name) and t.id=='source_authentication_completed' for t in n.targets))
+        helpers = [i for i,n in enumerate(body) if any(isinstance(v,self.ast.Call) and isinstance(v.func,self.ast.Name) and v.func.id=='helper' for v in self.ast.walk(n))]
+        self.assertGreater(flag, max(helpers))
+        handler = next(n for n in self.tree.body if isinstance(n, self.ast.Try)).handlers[0]
+        first = handler.body[0].value.args[0].args[0]
+        self.assertEqual([k.value for k in first.keys], ['updater_workflow','reason','phase'])
+        self.assertEqual([self.ast.literal_eval(v) for v in first.values[:2]], ['FAIL','public-evidence-refused'])
+        self.assertIsInstance(first.values[2], self.ast.Name); self.assertEqual(first.values[2].id, 'phase')
+        self.assertEqual(self.ast.unparse(handler.body[-1]), 'sys.exit(1)')
+
+    def test_control_exceptions_propagate_without_becoming_public_refusals(self):
+        scope = self.scope(); first = KeyboardInterrupt()
+        def interrupted(): raise first
+        with self.assertRaises(KeyboardInterrupt) as caught: scope['at_export_boundary']('receipt-roundtrip')(interrupted)()
+        self.assertIs(caught.exception, first); self.assertIsNone(scope['export_failed_boundary'])
+        self.assertEqual(scope['export_boundary'], 'source-authentication')
 
 
 if __name__ == '__main__':

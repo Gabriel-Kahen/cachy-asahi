@@ -135,9 +135,78 @@ def quiet():
                 finally:os.close(duplicate)
 
 
-def execute(operation, module_path, module_sha256, input_path, output_path, stage_output, materialized=None):
+PROJECTION_BOUNDARIES = frozenset(('arguments', 'input-contract', 'module-authentication',
+    'module-execution', 'projection-call', 'projection-result', 'output-tree', 'finalization', 'UNKNOWN'))
+PROJECTION_TARGETS = ('native-result.json', 'comparison.json', 'acquisition.json', 'bootstrap.json',
+    'inventory.json', 'tools.json') + tuple(f'build-{n}-{name}' for n in (1, 2) for name in (
+    'status.json', 'inputs.json', 'package.json', 'entry.json', 'diagnostic.json',
+    'compile-result.json', 'compilation-units.json', 'worker.json', 'selected-closure.json')) + ('materializer.json',)
+
+
+def projection_point(observation, boundary):
+    try:
+        if type(observation) is dict and observation['first'] is None:
+            observation['current'] = boundary if boundary in PROJECTION_BOUNDARIES else 'UNKNOWN'
+    except Exception:
+        pass
+
+
+def projection_failed(observation):
+    try:
+        if type(observation) is dict and observation['first'] is None:
+            observation['first'] = observation['current']
+    except BaseException:
+        pass
+
+
+def projection_manifest(value):
+    """Only fixed target IDs and bounded counts; no input values, paths or hashes."""
+    unknown = {'availability': 'NOT_OBSERVED', 'reason': 'invalid', 'accepted': None,
+               'rejected': None, 'missing': None, 'first_rejected': None}
+    try:
+        need(type(value) is dict and value.get('projection') == 'FAIL')
+        need(value.get('publication') == 'NOT ACCEPTED' and value.get('hardware') == 'NOT RUN')
+        accepted, rejected, missing = (value[key] for key in ('accepted', 'rejected', 'missing'))
+        need(all(type(rows) is list and len(rows) <= 25 for rows in (accepted, rejected, missing)))
+        names = []
+        for row in accepted:
+            need(type(row) is dict and set(row) == {'receipt', 'bytes', 'sha256'})
+            need(type(row['bytes']) is int and 0 <= row['bytes'] <= 4 * 1024**2)
+            need(type(row['sha256']) is str and re.fullmatch('[0-9a-f]{64}', row['sha256']))
+            names.append(row['receipt'])
+        for row in rejected:
+            need(type(row) is dict and set(row) == {'receipt', 'reason'} and row['reason'] == 'invalid-schema-or-file')
+            names.append(row['receipt'])
+        names += missing
+        need(all(type(name) is str and name in PROJECTION_TARGETS for name in names))
+        need(len(set(names)) == len(names) and set(names) in (set(PROJECTION_TARGETS[:-1]), set(PROJECTION_TARGETS)))
+        need(rejected or not accepted)
+        return {'availability': 'OBSERVED', 'reason': 'rejected-selector' if rejected else 'no-accepted-selector',
+                'accepted': len(accepted), 'rejected': len(rejected), 'missing': len(missing),
+                'first_rejected': PROJECTION_TARGETS.index(rejected[0]['receipt']) + 1 if rejected else None}
+    except Exception:
+        return unknown
+
+
+def projection_record(observation):
+    """Failure-only observation; it never changes the worker's original verdict."""
+    result = {'schema_version': 1, 'operation': 'project', 'boundary': 'UNKNOWN',
+              'manifest': {'availability': 'NOT_OBSERVED', 'reason': 'not-returned', 'accepted': None,
+                           'rejected': None, 'missing': None, 'first_rejected': None}}
+    try:
+        boundary = observation['first']
+        if type(boundary) is str and boundary in PROJECTION_BOUNDARIES:
+            result['boundary'] = boundary
+        if boundary == 'projection-result' and observation['manifest'] is not None:
+            result['manifest'] = observation['manifest']
+    except BaseException:
+        pass
+    return result
+
+def execute(operation, module_path, module_sha256, input_path, output_path, stage_output, materialized=None, observation=None):
     """Fixed project/guard/bundle ABI; the CLI emits only fixed status JSON."""
     sys.dont_write_bytecode = True
+    projection_point(observation, 'input-contract')
     need(operation in MODULES)
     root = absolute(stage_output)
     need(Path('/tmp') in root.parents and root != Path('/tmp'))
@@ -158,15 +227,21 @@ def execute(operation, module_path, module_sha256, input_path, output_path, stag
             materialized = absolute(materialized)
             need(operation == 'project' and materialized == root/'private/materialized')
             fd = directory(materialized, root);os.close(fd)
+        projection_point(observation, 'module-authentication')
         raw = module_bytes(module_path, module_sha256, root)
         imported = types.ModuleType('_authenticated_public_' + operation)
         imported.__file__ = str(module_path)
         imported.__package__ = None
         # Suppress even module-level Python diagnostics; public stdout is fixed.
         with quiet():
+            projection_point(observation, 'module-execution')
             exec(compile(raw, str(module_path), 'exec'), imported.__dict__)
             if operation == 'project':
+                projection_point(observation, 'projection-call')
                 result = imported.project_evidence(input_path, output_path, materialized=materialized)
+                projection_point(observation, 'projection-result')
+                if type(observation) is dict and type(result) is dict and result.get('projection') == 'FAIL':
+                    observation['manifest'] = projection_manifest(result)
                 need(type(result) is dict and result.get('projection') == 'PASS')
             elif operation == 'guard':
                 result = imported.export_evidence(input_path, output_path)
@@ -174,10 +249,21 @@ def execute(operation, module_path, module_sha256, input_path, output_path, stag
             else:
                 atomic_bundle(rootfd, output_path.name, imported.bundle(input_path))
         if operation != 'bundle':
+            projection_point(observation, 'output-tree')
             public_tree(output_path, root)
         return {'status': 'PASS', 'operation': operation}
+    except BaseException:
+        projection_failed(observation)
+        raise
     finally:
-        os.close(rootfd)
+        try:
+            projection_point(observation, 'finalization')
+        finally:
+            try:
+                os.close(rootfd)
+            except BaseException:
+                projection_failed(observation)
+                raise
 
 
 class Parser(argparse.ArgumentParser):
@@ -187,6 +273,7 @@ class Parser(argparse.ArgumentParser):
 
 def main(argv=None):
     operation = None
+    observation = {'current': 'arguments', 'first': None, 'manifest': None}
     try:
         parser = Parser(add_help=False)
         parser.add_argument('--operation', choices=tuple(MODULES), required=True)
@@ -195,9 +282,12 @@ def main(argv=None):
         parser.add_argument('--materialized')
         args = parser.parse_args(argv)
         operation = args.operation
-        result = execute(operation, args.module, args.module_sha256, args.input, args.output, args.stage_output, args.materialized)
+        result = execute(operation, args.module, args.module_sha256, args.input, args.output, args.stage_output, args.materialized, observation)
     except BaseException:
+        projection_failed(observation)
         result = {'status': 'FAIL', 'operation': operation}
+        if operation == 'project':
+            result['diagnostic'] = projection_record(observation)
     print(json.dumps(result, sort_keys=True))
     return 0 if result['status'] == 'PASS' else 1
 

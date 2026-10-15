@@ -11,6 +11,7 @@ permissions:
 concurrency:
   group: native-arm-build
   cancel-in-progress: false
+  queue: max
 jobs:
   updater:
     if: github.repository == 'Gabriel-Kahen/cachy-asahi' && github.event.repository.private == false
@@ -19,9 +20,9 @@ jobs:
     env:
       PYTHONDONTWRITEBYTECODE: '1'
       REVIEWED_SOURCE_COMMIT: ${{ inputs.source_commit }}
-      READY_SHA256: 6dc5515b411bcaa9cff7caa844fcc623a7a0dba39cb0c28e1c6859db457438e2
+      READY_SHA256: a2b4872bec579306e2d22ebe14061ed479ae56f7c52756ee961ea70db1dbda00
       # Reviewed storage/recovery checkpoint; coordinator Git/controller proof is separate.
-      STAGE_SHA256: de7f19f58c2773896879a1997a7ea707619d47644ce0f3b4f0a7b11ce3feb3a5
+      STAGE_SHA256: 54e97b6589ecf6303c16478d24b5e52ad84ea9ebd55ce90d7114a5f7ad485774
       SOURCE_SHA256: 4d3e3fd9848aaed94154f786b04a5ae07c7816dcef82857b671b51555895eacb
     steps:
       - name: Start the shared deadline before checkout
@@ -58,6 +59,32 @@ jobs:
           echo "UPDATER_CONTROLLER_SHA256=$controller_sha" >> "$GITHUB_ENV"
       - name: Run the finite private native pair
         id: native
+        env:
+          CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01 }}
+          CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02 }}
+          CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01 }}
+          CACHY_OLD_FOUR_SCHEMA: '1'
+          CACHY_OLD_FOUR_SOURCE_EPOCH: '1791748800'
+          CACHY_OLD_FOUR_JBIGKIT_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_01 }}
+          CACHY_OLD_FOUR_JBIGKIT_02: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_02 }}
+          CACHY_OLD_FOUR_JBIGKIT_SIG_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_SIG_01 }}
+          CACHY_OLD_FOUR_LIBTIFF_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_01 }}
+          CACHY_OLD_FOUR_LIBTIFF_02: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_02 }}
+          CACHY_OLD_FOUR_LIBTIFF_03: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_03 }}
+          CACHY_OLD_FOUR_LIBTIFF_04: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_04 }}
+          CACHY_OLD_FOUR_LIBTIFF_05: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_05 }}
+          CACHY_OLD_FOUR_LIBTIFF_06: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_06 }}
+          CACHY_OLD_FOUR_LIBTIFF_07: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_07 }}
+          CACHY_OLD_FOUR_LIBTIFF_08: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_08 }}
+          CACHY_OLD_FOUR_LIBTIFF_09: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_09 }}
+          CACHY_OLD_FOUR_LIBTIFF_10: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_10 }}
+          CACHY_OLD_FOUR_LIBTIFF_11: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_11 }}
+          CACHY_OLD_FOUR_LIBTIFF_12: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_12 }}
+          CACHY_OLD_FOUR_LIBTIFF_13: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_13 }}
+          CACHY_OLD_FOUR_LIBTIFF_14: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_14 }}
+          CACHY_OLD_FOUR_LIBTIFF_15: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_15 }}
+          CACHY_OLD_FOUR_LIBTIFF_SIG_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_SIG_01 }}
+        shell: bash
         timeout-minutes: 111
         run: |
           set -euo pipefail
@@ -109,31 +136,67 @@ jobs:
           timeout --signal=TERM --kill-after=13s "${seconds}s" python3 -I -B - <<'PY'
           import base64, gzip, hashlib, io, json, math, os, re, sys, tarfile, tempfile, types
           from pathlib import Path
-          def need(value):
-              if not value: raise ValueError('updater-public-evidence-refused')
+          EXPORT_BOUNDARIES = frozenset(('source-authentication', 'helper-authentication', 'terminal-verification', 'guarded-verification', 'bundle-verification', 'credential-verification', 'terminal-record', 'public-tree-manifest', 'projection-metadata', 'receipt-roundtrip', 'worker-diagnostic', 'successful-pair'))
+          EXPORT_PREDICATES = frozenset('P%03d' % i for i in range(1, 95))
+          export_boundary = 'source-authentication'
+          export_failed_boundary = None
+          source_authentication_completed = False
+          class ExportRefusal(ValueError):
+              def __init__(self, predicate):
+                  super().__init__('updater-public-evidence-refused')
+                  self.predicate = predicate
+          def at_export_boundary(label):
+              if type(label) is not str or label not in EXPORT_BOUNDARIES:
+                  raise ValueError('invalid-export-boundary')
+              def decorate(function):
+                  def observed(*args, **kwargs):
+                      global export_boundary, export_failed_boundary
+                      previous = export_boundary; export_boundary = label
+                      try:
+                          return function(*args, **kwargs)
+                      except Exception:
+                          if export_failed_boundary is None: export_failed_boundary = label
+                          raise
+                      finally:
+                          export_boundary = previous
+                  return observed
+              return decorate
+          def export_refusal_diagnostic(error):
+              boundary = export_failed_boundary or export_boundary
+              if type(boundary) is not str or boundary not in EXPORT_BOUNDARIES: boundary = 'UNKNOWN'
+              predicate = getattr(error, 'predicate', None) if type(error) is ExportRefusal else None
+              if type(predicate) is not str or predicate not in EXPORT_PREDICATES: predicate = 'UNKNOWN'
+              return {'updater_export_diagnostic': {'schema_version': 1, 'status': 'REFUSED',
+                  'boundary': boundary, 'source_predicate': predicate,
+                  'source_authentication_completed': source_authentication_completed is True}}
+          def need(value, predicate):
+              if not value: raise ExportRefusal(predicate)
           def checksum(data): return hashlib.sha256(data).hexdigest()
           def decoded_json(data):
               def invalid(_): raise ValueError('nonfinite-public-json')
               def finite(number):
-                  value = float(number); need(math.isfinite(value)); return value
+                  value = float(number); need(math.isfinite(value), 'P001'); return value
               return json.loads(data, object_pairs_hook=stage.unique, parse_constant=invalid, parse_float=finite)
           def emit(name, data):
               print(f'CACHY_ASAHI_EVIDENCE_BEGIN {name} sha256={checksum(data)} bytes={len(data)}')
               print(base64.encodebytes(data).decode(), end='')
               print(f'CACHY_ASAHI_EVIDENCE_END {name}')
           phase = 'source-authentication'
+          export_boundary = phase
           try:
               root = Path(os.environ['GITHUB_WORKSPACE']); control = Path(os.environ['UPDATER_CONTROL'])
               path = root / 'scripts/port/updater-native-stage/stage.py'; raw = path.read_bytes()
-              need(checksum(raw) == os.environ['STAGE_SHA256'])
+              need(checksum(raw) == os.environ['STAGE_SHA256'], 'P002')
               stage = types.ModuleType('trusted_updater'); stage.__file__ = str(path)
               exec(compile(raw, str(path), 'exec'), stage.__dict__)
               contract, _ = stage.authenticate(root, control / 'controller.json', os.environ['UPDATER_CONTROLLER_SHA256'])
               rows = contract['source']['files']
               def helper(name): return stage.module(root / name, rows[name]['sha256'])
+              export_boundary = 'helper-authentication'
               worker = helper('scripts/port/updater-native-stage/public_worker.py')
               projector = helper('packages/tools/cachy-asahi-update/public-evidence.py')
               guard = helper('scripts/ci/integration_export.py'); bundler = helper('scripts/ci/log_evidence.py')
+              source_authentication_completed = True
               output = control / 'stage'
               sanitizers = {row[1]: row[2] for row in projector.selectors()}
               allowed = set(sanitizers) | {'materializer.json', 'projection.json'}
@@ -141,22 +204,23 @@ jobs:
               def error_list(value):
                   return [''] * projector.integer(4096)(value)
               def cargo_source(identity):
-                  need(type(identity) is str)
+                  need(type(identity) is str, 'P003')
                   prefix = 'path+file:///tmp/project#' if identity == 'arch-update-tray@4.4.2' else 'registry+https://github.com/rust-lang/crates.io-index#'
-                  raw = prefix + identity; need(projector.cargo_identity(raw) == identity); return raw
+                  raw = prefix + identity; need(projector.cargo_identity(raw) == identity, 'P004'); return raw
               def inverse_counts(value):
                   if 'error_count' in value: value['errors'] = error_list(value.pop('error_count'))
                   return value
+              @at_export_boundary('receipt-roundtrip')
               def projected_receipt(name, data):
                   value = decoded_json(data); projector.load(data)
                   if name == 'materializer.json':
-                      need(projector.materializer(value) == value); return
+                      need(projector.materializer(value) == value, 'P005'); return
                   handler = sanitizers[name]
                   if name in diagnostic_names:
-                      need(len(data) <= 4096 and handler is projector.diagnostic)
+                      need(len(data) <= 4096 and handler is projector.diagnostic, 'P006')
                   raw = json.loads(json.dumps(value))
                   if handler is projector.inventory:
-                      need(set(value) == {'schema_version','inventory_sha256','packages'})
+                      need(set(value) == {'schema_version','inventory_sha256','packages'}, 'P007')
                       projector.sequence(lambda row: row, 1024)(value['packages'])
                       raw = ''.join(row['name'] + ' ' + row['version'] + '\n' for row in value['packages']).encode('ascii')
                   elif handler is projector.comparison:
@@ -164,7 +228,7 @@ jobs:
                   elif handler is projector.acquisition and 'inputs' in raw:
                       projector.sequence(lambda row: row, 1024)(raw['inputs']); raw['inputs'] = {str(i): row for i,row in enumerate(raw['inputs'])}
                   elif handler is projector.tool_pins and 'tools' in raw:
-                      need(type(raw['tools']) is dict and len(raw['tools']) <= len(projector.TOOLS))
+                      need(type(raw['tools']) is dict and len(raw['tools']) <= len(projector.TOOLS), 'P008')
                       raw['tools'] = {'/usr/bin/' + name: {'sha256': pin} for name,pin in raw['tools'].items()}
                   elif handler is projector.units:
                       for key in ('compiler_artifacts','build_script_runs'):
@@ -180,51 +244,53 @@ jobs:
                           inverse_counts(row)
                           if 'package' in row: row['metadata'] = {'.PKGINFO': row.pop('package')}
                           if 'elf' in row:
-                              need(type(row['elf']) is list and len(row['elf']) <= 16)
+                              need(type(row['elf']) is list and len(row['elf']) <= 16, 'P009')
                               elfs = {}
                               for item in row['elf']:
-                                  member = item.pop('member'); need(member not in elfs)
+                                  member = item.pop('member'); need(member not in elfs, 'P010')
                                   elfs[member] = inverse_counts(item)
                               row['elf'] = elfs
-                  need(json.dumps(handler(raw), sort_keys=True) == json.dumps(value, sort_keys=True))
+                  need(json.dumps(handler(raw), sort_keys=True) == json.dumps(value, sort_keys=True), 'P011')
+              @at_export_boundary('worker-diagnostic')
               def required_worker_diagnostic(prefix, row, files):
                   # Modern success requires the group; the pure projector retains historical compatibility.
-                  need(projector.WORKER_DIAGNOSTIC_FIELDS <= set(row))
+                  need(projector.WORKER_DIAGNOSTIC_FIELDS <= set(row), 'P012')
                   group = projector.worker_diagnostic_observation(row)
-                  need(group['worker_diagnostic_status'] == 'BOUND' and group['worker_diagnostic_reason'] == 'bound')
+                  need(group['worker_diagnostic_status'] == 'BOUND' and group['worker_diagnostic_reason'] == 'bound', 'P013')
                   projector.HASH(group['worker_diagnostic_sha256'])
                   name = prefix + '-diagnostic.json'
-                  need(name in diagnostic_names and name in files and sanitizers.get(name) is projector.diagnostic)
-                  need((prefix + '/artifacts/worker-diagnostic.json', name, projector.diagnostic) in projector.selectors())
-                  data = files[name]; need(type(data) is bytes and len(data) <= 4096)
+                  need(name in diagnostic_names and name in files and sanitizers.get(name) is projector.diagnostic, 'P014')
+                  need((prefix + '/artifacts/worker-diagnostic.json', name, projector.diagnostic) in projector.selectors(), 'P015')
+                  data = files[name]; need(type(data) is bytes and len(data) <= 4096, 'P016')
                   record = projector.bound_worker_diagnostic(decoded_json(data),
                       controller_sha256=row['controller_sha256'], image_id=row['image_id'],
                       entry_script_sha256=row['entry_script_sha256'], observed_state=row['worker_container_state'])
-                  need(record == group['worker_diagnostic'] and projector.accepted_worker_diagnostic(record))
+                  need(record == group['worker_diagnostic'] and projector.accepted_worker_diagnostic(record), 'P017')
                   # The parent's hash is of its once-captured raw record; selector formatting may differ.
+              @at_export_boundary('successful-pair')
               def successful_pair(files, native):
-                  need('comparison.json' in files)
+                  need('comparison.json' in files, 'P018')
                   compare = decoded_json(files['comparison.json'])
                   need(all(compare.get(key) is True for key in ('installed_contents_equal', 'pkginfo_equal', 'bytes_equal')) and
-                       type(compare.get('error_count')) is int and compare['error_count'] == 0)
+                       type(compare.get('error_count')) is int and compare['error_count'] == 0, 'P019')
                   need(native.get('cancelled') is not True and native.get('failed_stage') is None and
-                       'error_type' not in native and 'cancel_signal' not in native and not native.get('worker_cleanup_errors'))
-                  if 'stage' in native: need(native['stage'] == 'finalized')
-                  if 'container_cleanup' in native: need(native['container_cleanup'] == 'PASS')
+                       'error_type' not in native and 'cancel_signal' not in native and not native.get('worker_cleanup_errors'), 'P020')
+                  if 'stage' in native: need(native['stage'] == 'finalized', 'P021')
+                  if 'container_cleanup' in native: need(native['container_cleanup'] == 'PASS', 'P022')
                   if 'native_compilation' in native:
-                      need(native['native_compilation'] in {'PASS', 'PASS-private-native-package-static-checks'})
+                      need(native['native_compilation'] in {'PASS', 'PASS-private-native-package-static-checks'}, 'P023')
                   names = ('build-1-status.json', 'build-2-status.json')
-                  need(all(sanitizers[name] is projector.provenance for name in names))
+                  need(all(sanitizers[name] is projector.provenance for name in names), 'P024')
                   records = {name: decoded_json(files[name]) for name in names if name in files}
-                  need(set(records) == set(names))
+                  need(set(records) == set(names), 'P025')
                   observed = ('packages/tools/cachy-asahi-update/updater-native.py' in rows or 'image_id' in native or
                               any(projector.WORKER_FIELDS & set(row) for row in records.values()))
                   if observed:
-                      need(set(records) == set(names))
+                      need(set(records) == set(names), 'P026')
                       projector.IMAGE(native.get('image_id'))
-                      need(all(projector.WORKER_FIELDS <= set(row) and row['worker_container_state'] is not None for row in records.values()))
+                      need(all(projector.WORKER_FIELDS <= set(row) and row['worker_container_state'] is not None for row in records.values()), 'P027')
                       for key in ('container_id', 'name_sha256', 'nonce_sha256', 'controller_sha256'):
-                          need(len({row['worker_container_state'][key] for row in records.values()}) == 2)
+                          need(len({row['worker_container_state'][key] for row in records.values()}) == 2, 'P028')
                   hashes = []; images = [native['image_id']] if 'image_id' in native else []
                   if 'bootstrap.json' in files:
                       bootstrap = decoded_json(files['bootstrap.json'])
@@ -235,32 +301,32 @@ jobs:
                       if name in records:
                           need(row.get('native_compilation') in {'PASS', 'PASS-private-native-package-static-checks'} and
                                row.get('cancelled') is not True and row.get('worker_launch_attempted') is not False and row.get('failed_stage') is None and
-                               not {'error_type', 'cancel_signal', 'container_cleanup_error_type', 'container_absence_error_type'} & set(row))
-                          if 'stage' in row: need(row['stage'] == 'finalized')
-                          if 'container_cleanup' in row: need(row['container_cleanup'] == 'PASS')
+                               not {'error_type', 'cancel_signal', 'container_cleanup_error_type', 'container_absence_error_type'} & set(row), 'P029')
+                          if 'stage' in row: need(row['stage'] == 'finalized', 'P030')
+                          if 'container_cleanup' in row: need(row['container_cleanup'] == 'PASS', 'P031')
                       cleanup = ('container_cleanup_attempted', 'container_removal_succeeded',
                                  'container_absence_verified', 'container_cleanup_complete')
-                      need(all(row.get(key) is not False for key in cleanup))
+                      need(all(row.get(key) is not False for key in cleanup), 'P032')
                       if observed:
                           need(projector.WORKER_FIELDS <= set(row) and row['worker_check'] == 'complete' and
                                row['worker_failure_code'] is None and row['worker_run_returncode'] == 0 and
-                               row['worker_launch_attempted'] is True and all(row.get(key) is True for key in cleanup))
+                               row['worker_launch_attempted'] is True and all(row.get(key) is True for key in cleanup), 'P033')
                           state = row['worker_container_state']
                           need(state is not None and projector.accepted_container_state(state) and
                                state['image_id'] == row['image_id'] == native['image_id'] and
-                               state['controller_sha256'] == row['controller_sha256'])
+                               state['controller_sha256'] == row['controller_sha256'], 'P034')
                       elif 'image_id' in row and 'image_id' in native:
-                          need(row['image_id'] == native['image_id'])
+                          need(row['image_id'] == native['image_id'], 'P035')
                       prefix = name.removesuffix('-status.json')
                       required_worker_diagnostic(prefix, row, files)
                       package_name = prefix + '-package.json'
                       if package_name in files:
-                          need(sanitizers[package_name] is projector.package_validation)
+                          need(sanitizers[package_name] is projector.package_validation, 'P036')
                           package = decoded_json(files[package_name]); artifacts = package['artifacts']
                           need(package.get('error_count', 0) == 0 and len(artifacts) == 1 and
                                artifacts[0].get('status') == 'artifact-static-pass' and artifacts[0].get('error_count', 0) == 0 and
-                               all(item.get('error_count', 0) == 0 for item in artifacts[0].get('elf', [])))
-                          if 'package_sha256' in row: need(artifacts[0].get('sha256') == row['package_sha256'])
+                               all(item.get('error_count', 0) == 0 for item in artifacts[0].get('elf', [])), 'P037')
+                          if 'package_sha256' in row: need(artifacts[0].get('sha256') == row['package_sha256'], 'P038')
                           if 'sha256' in artifacts[0]: hashes.append(artifacts[0]['sha256'])
                       elif 'package_sha256' in row:
                           hashes.append(row['package_sha256'])
@@ -269,89 +335,93 @@ jobs:
                           child = decoded_json(files[prefix + suffix])
                           if 'image_id' in child: images.append(child['image_id'])
                           need(child.get('cancelled') is not True and child.get('failed_stage') is None and
-                               not {'error_type', 'cancel_signal'} & set(child))
-                          if 'stage' in child: need(child['stage'] in {'complete', 'finalized'})
-                          if 'container_cleanup' in child: need(child['container_cleanup'] == 'PASS')
+                               not {'error_type', 'cancel_signal'} & set(child), 'P039')
+                          if 'stage' in child: need(child['stage'] in {'complete', 'finalized'}, 'P040')
+                          if 'container_cleanup' in child: need(child['container_cleanup'] == 'PASS', 'P041')
                           if 'native_compilation' in child:
                               statuses = {'PASS', 'PASS-private-native-package-static-checks'}
                               if suffix == '-worker.json': statuses.add('NOT RUN')
-                              need(child['native_compilation'] in statuses)
+                              need(child['native_compilation'] in statuses, 'P042')
                           if observed and suffix == '-worker.json' and child.get('native_compilation') == 'NOT RUN':
                               compile_name = prefix + '-compile-result.json'
-                              need(compile_name in files and sanitizers[compile_name] is projector.compile_receipt)
+                              need(compile_name in files and sanitizers[compile_name] is projector.compile_receipt, 'P043')
                               compiled = decoded_json(files[compile_name])
                               need(compiled.get('native_compilation') == 'PASS' and
                                    compiled.get('image_id') == child.get('image_id') == row['image_id'] and
-                                   child.get('controller_sha256') == row['controller_sha256'])
+                                   child.get('controller_sha256') == row['controller_sha256'], 'P044')
                               inputs = compiled.get('input_sha256')
-                              need(type(inputs) is dict and set(inputs) == {'manifest', 'lock', 'audit', 'metadata', 'cfg'} and inputs == child.get('sha256'))
+                              need(type(inputs) is dict and set(inputs) == {'manifest', 'lock', 'audit', 'metadata', 'cfg'} and inputs == child.get('sha256'), 'P045')
                               for key in ('binary_sha256', 'compiler_output_sha256', 'compiler_diagnostic_sha256',
                                           'elf_inspection_sha256', 'compilation_units_sha256'):
                                   projector.HASH(compiled.get(key))
-                              need(compiled.get('elf_16k_segments') == 'PASS-static; loader NOT RUN')
+                              need(compiled.get('elf_16k_segments') == 'PASS-static; loader NOT RUN', 'P046')
                           for key in ('image_id', 'controller_sha256', 'entry_script_sha256'):
-                              if observed and key in child: need(key in row)
-                              if key in child and key in row: need(child[key] == row[key])
-                  need(len(set(hashes)) <= 1 and len(set(images)) <= 1)
+                              if observed and key in child: need(key in row, 'P047')
+                              if key in child and key in row: need(child[key] == row[key], 'P048')
+                  need(len(set(hashes)) <= 1 and len(set(images)) <= 1, 'P049')
+              @at_export_boundary('projection-metadata')
               def projection_metadata(files):
-                  need('projection.json' in files)
+                  need('projection.json' in files, 'P050')
                   value = decoded_json(files['projection.json']); projector.load(files['projection.json'])
-                  need(set(value) == {'schema_version','projection','publication','hardware','accepted','rejected','missing','retention_policy','limits'})
-                  need(type(value['schema_version']) is int and value['schema_version'] == 1 and value['projection'] == 'PASS' and value['publication'] == 'NOT ACCEPTED' and value['hardware'] == 'NOT RUN' and value['rejected'] == [])
-                  need(type(value.get('retention_policy', {}).get('max_seconds')) is int and all(type(number) is int for number in value.get('limits', {}).values()))
-                  need(value['retention_policy'] == {'raw_outputs':'ephemeral only','max_seconds':projector.RETENTION_SECONDS,'cleanup_execution':'NOT ATTESTED'})
-                  need(value['limits'] == {'input_bytes':projector.TOTAL_INPUT_LIMIT,'output_bytes':projector.TOTAL_OUTPUT_LIMIT,'file_bytes':projector.FILE_LIMIT})
+                  need(set(value) == {'schema_version','projection','publication','hardware','accepted','rejected','missing','retention_policy','limits'}, 'P051')
+                  need(type(value['schema_version']) is int and value['schema_version'] == 1 and value['projection'] == 'PASS' and value['publication'] == 'NOT ACCEPTED' and value['hardware'] == 'NOT RUN' and value['rejected'] == [], 'P052')
+                  need(type(value.get('retention_policy', {}).get('max_seconds')) is int and all(type(number) is int for number in value.get('limits', {}).values()), 'P053')
+                  need(value['retention_policy'] == {'raw_outputs':'ephemeral only','max_seconds':projector.RETENTION_SECONDS,'cleanup_execution':'NOT ATTESTED'}, 'P054')
+                  need(value['limits'] == {'input_bytes':projector.TOTAL_INPUT_LIMIT,'output_bytes':projector.TOTAL_OUTPUT_LIMIT,'file_bytes':projector.FILE_LIMIT}, 'P055')
                   names = set(files) - {'projection.json','export-manifest.json'}
                   projector.sequence(lambda row: row, len(allowed))(value['accepted']); projector.sequence(lambda row: row, len(allowed))(value['missing'])
                   seen = set()
                   for row in value['accepted']:
-                      need(type(row) is dict and set(row) == {'receipt','sha256','bytes'} and row['receipt'] in names and row['receipt'] not in seen)
+                      need(type(row) is dict and set(row) == {'receipt','sha256','bytes'} and row['receipt'] in names and row['receipt'] not in seen, 'P056')
                       data = files[row['receipt']]
-                      need(type(row['bytes']) is int and len(data) == row['bytes'] and checksum(data) == row['sha256'])
+                      need(type(row['bytes']) is int and len(data) == row['bytes'] and checksum(data) == row['sha256'], 'P057')
                       seen.add(row['receipt'])
                   missing = value['missing']
-                  need(seen == names and all(type(name) is str and name in allowed - {'projection.json'} for name in missing) and len(set(missing)) == len(missing) and not seen & set(missing))
+                  need(seen == names and all(type(name) is str and name in allowed - {'projection.json'} for name in missing) and len(set(missing)) == len(missing) and not seen & set(missing), 'P058')
                   order = list(sanitizers) + (['materializer.json'] if 'materializer.json' in seen | set(missing) else [])
-                  need([row['receipt'] for row in value['accepted']] == [name for name in order if name in seen] and missing == [name for name in order if name not in seen])
-                  need(sum(len(files[name]) for name in names) <= projector.TOTAL_OUTPUT_LIMIT - 65536)
+                  need([row['receipt'] for row in value['accepted']] == [name for name in order if name in seen] and missing == [name for name in order if name not in seen], 'P059')
+                  need(sum(len(files[name]) for name in names) <= projector.TOTAL_OUTPUT_LIMIT - 65536, 'P060')
                   for name in names: projected_receipt(name, files[name])
+              @at_export_boundary('public-tree-manifest')
               def checked(directory, names):
                   worker.public_tree(directory, output)
                   manifest = stage.load(directory / 'export-manifest.json')
-                  need(set(manifest) == {'schema_version','evidence_export','accepted','rejected','accepted_bytes','limits','inventory_limit_exceeded','inventory_scope'})
-                  need(type(manifest['schema_version']) is int and manifest['schema_version'] == 1 and manifest['evidence_export'] == 'PASS' and manifest['rejected'] == [] and manifest['inventory_limit_exceeded'] is False)
-                  need(manifest['limits'] == {'per_file_bytes':guard.FILE_LIMIT,'total_bytes_including_manifest':guard.TOTAL_LIMIT,'entries':guard.ENTRY_LIMIT,'depth':guard.DEPTH_LIMIT})
-                  need(manifest['inventory_scope'] == 'sensitive subtrees are rejected without enumeration')
+                  need(set(manifest) == {'schema_version','evidence_export','accepted','rejected','accepted_bytes','limits','inventory_limit_exceeded','inventory_scope'}, 'P061')
+                  need(type(manifest['schema_version']) is int and manifest['schema_version'] == 1 and manifest['evidence_export'] == 'PASS' and manifest['rejected'] == [] and manifest['inventory_limit_exceeded'] is False, 'P062')
+                  need(manifest['limits'] == {'per_file_bytes':guard.FILE_LIMIT,'total_bytes_including_manifest':guard.TOTAL_LIMIT,'entries':guard.ENTRY_LIMIT,'depth':guard.DEPTH_LIMIT}, 'P063')
+                  need(manifest['inventory_scope'] == 'sensitive subtrees are rejected without enumeration', 'P064')
                   files = {'export-manifest.json': stage.regular(directory / 'export-manifest.json')}
                   for row in manifest['accepted']:
-                      need(set(row) == {'path','bytes','sha256'} and row['path'] in names and row['path'] not in files)
+                      need(set(row) == {'path','bytes','sha256'} and row['path'] in names and row['path'] not in files, 'P065')
                       data = (stage.regular(directory / row['path'], 4096) if row['path'] in diagnostic_names
                               else stage.regular(directory / row['path']))
-                      need(type(row['bytes']) is int and len(data) == row['bytes'] and checksum(data) == row['sha256'])
-                      need(type(decoded_json(data)) is dict)
+                      need(type(row['bytes']) is int and len(data) == row['bytes'] and checksum(data) == row['sha256'], 'P066')
+                      need(type(decoded_json(data)) is dict, 'P067')
                       files[row['path']] = data
-                  need(set(files) == {p.name for p in directory.iterdir()} and manifest['accepted_bytes'] == sum(len(data) for name,data in files.items() if name != 'export-manifest.json'))
+                  need(set(files) == {p.name for p in directory.iterdir()} and manifest['accepted_bytes'] == sum(len(data) for name,data in files.items() if name != 'export-manifest.json'), 'P068')
                   return files
+              @at_export_boundary('terminal-record')
               def terminal(name, recovery=False):
-                  files = checked(output / name, {'terminal.json'}); need(set(files) == {'terminal.json','export-manifest.json'})
-                  value = decoded_json(files['terminal.json']); need(stage.public_summary(value) == value)
+                  files = checked(output / name, {'terminal.json'}); need(set(files) == {'terminal.json','export-manifest.json'}, 'P069')
+                  value = decoded_json(files['terminal.json']); need(stage.public_summary(value) == value, 'P070')
                   diagnostic_fields = {'failed_phase','runtime_reason','runtime_returncode','tick_operation','tick_reason','directory_leaf'}
-                  need(stage.diagnostic_projection(value) == {key: value[key] for key in diagnostic_fields if key in value})
-                  need(type(value.get('schema_version')) is int and value['schema_version'] == 1 and value.get('phase') == 'finalized' and value.get('status') in {'PASS','FAIL','CANCELLED'})
-                  need(value.get('source_commit') == os.environ['REVIEWED_SOURCE_COMMIT'] == os.environ['GITHUB_SHA'] and value.get('controller_sha256') == os.environ['UPDATER_CONTROLLER_SHA256'] and value.get('ready_sha256') == os.environ['READY_SHA256'])
-                  need(value.get('publication') == 'NOT ACCEPTED' and value.get('hardware') == 'NOT RUN')
-                  need(value.get('native_compilation') in {'NOT RUN','PASS PRIVATE NATIVE PAIR','NOT ATTESTED BY RECOVERY'} and value.get('cleanup_status') in {'PASS','FAIL','NOT RUN'})
-                  need(all(type(value.get(k)) is bool for k in ('private_data_removed','cancelled')))
-                  if 'raw_retention_within_budget' in value: need(type(value['raw_retention_within_budget']) is bool)
+                  need(stage.diagnostic_projection(value) == {key: value[key] for key in diagnostic_fields if key in value}, 'P071')
+                  need(type(value.get('schema_version')) is int and value['schema_version'] == 1 and value.get('phase') == 'finalized' and value.get('status') in {'PASS','FAIL','CANCELLED'}, 'P072')
+                  need(value.get('source_commit') == os.environ['REVIEWED_SOURCE_COMMIT'] == os.environ['GITHUB_SHA'] and value.get('controller_sha256') == os.environ['UPDATER_CONTROLLER_SHA256'] and value.get('ready_sha256') == os.environ['READY_SHA256'], 'P073')
+                  need(value.get('publication') == 'NOT ACCEPTED' and value.get('hardware') == 'NOT RUN', 'P074')
+                  need(value.get('native_compilation') in {'NOT RUN','NOT ATTESTED','PASS PRIVATE NATIVE PAIR','NOT ATTESTED BY RECOVERY'} and value.get('cleanup_status') in {'PASS','FAIL','NOT RUN'}, 'P075')
+                  need(all(type(value.get(k)) is bool for k in ('private_data_removed','cancelled')), 'P076')
+                  if 'raw_retention_within_budget' in value: need(type(value['raw_retention_within_budget']) is bool, 'P077')
                   for key in ('candidate_sha256','public_bundle_sha256'):
-                      if key in value: need(type(value[key]) is str and re.fullmatch('[0-9a-f]{64}', value[key]))
-                  if 'elapsed_seconds' in value: need(type(value['elapsed_seconds']) is int and 0 <= value['elapsed_seconds'] <= 86400)
-                  if 'failure_class' in value: need(value['failure_class'] in projector.ERROR_TYPES | {'RuntimeFailure','RuntimeCancelled','SourceCancelled','BrokerError'})
+                      if key in value: need(type(value[key]) is str and re.fullmatch('[0-9a-f]{64}', value[key]), 'P078')
+                  if 'elapsed_seconds' in value: need(type(value['elapsed_seconds']) is int and 0 <= value['elapsed_seconds'] <= 86400, 'P079')
+                  if 'failure_class' in value: need(value['failure_class'] in projector.ERROR_TYPES | {'RuntimeFailure','RuntimeCancelled','SourceCancelled','BrokerError'}, 'P080')
                   if value['status'] == 'PASS':
-                      need(value.get('cleanup_status') == 'PASS' and value.get('private_data_removed') is True and value.get('raw_retention_within_budget') is True and value.get('cancelled') is False)
-                      need(value.get('native_compilation') == ('NOT ATTESTED BY RECOVERY' if recovery else 'PASS PRIVATE NATIVE PAIR'))
+                      need(value.get('cleanup_status') == 'PASS' and value.get('private_data_removed') is True and value.get('raw_retention_within_budget') is True and value.get('cancelled') is False, 'P081')
+                      need(value.get('native_compilation') == ('NOT ATTESTED BY RECOVERY' if recovery else 'PASS PRIVATE NATIVE PAIR'), 'P082')
                   return files, value
               phase = 'terminal-verification'
+              export_boundary = phase
               payloads = []; result = {'status':'NOT ATTESTED'}; recovery = {'status':'NOT RUN'}
               original_present = all((output / 'terminal-public' / name).exists() for name in ('terminal.json','export-manifest.json'))
               if original_present:
@@ -360,47 +430,51 @@ jobs:
               if all((output / 'recovery-terminal-public' / name).exists() for name in ('terminal.json','export-manifest.json')):
                   recovery_files, recovery = terminal('recovery-terminal-public', True)
                   payloads.append(('recovery-terminal-public', recovery_files))
-              need(payloads)
+              need(payloads, 'P083')
               bundle = None; guarded_files = None
               phase = 'guarded-verification'
+              export_boundary = phase
               if original_present and (output / 'guarded').exists():
                   files = checked(output / 'guarded', allowed); projection_metadata(files); payloads.insert(0, ('guarded', files))
                   guarded_files = files
                   if (output / 'public-evidence.tar.gz').exists():
                       phase = 'bundle-verification'
+                      export_boundary = phase
                       bundle = stage.regular(output / 'public-evidence.tar.gz', 8 * 1024**2)
-                      need(checksum(bundle) == result.get('public_bundle_sha256'))
+                      need(checksum(bundle) == result.get('public_bundle_sha256'), 'P084')
                       with gzip.GzipFile(fileobj=io.BytesIO(bundle)) as stream: decoded = stream.read(20 * 1024**2 + 1)
-                      need(len(decoded) <= 20 * 1024**2); observed = {}
+                      need(len(decoded) <= 20 * 1024**2, 'P085'); observed = {}
                       with tarfile.open(fileobj=io.BytesIO(decoded), mode='r:') as archive:
-                          need(not archive.pax_headers)
+                          need(not archive.pax_headers, 'P086')
                           for member in archive:
-                              need(member.isfile() and member.name.startswith('guarded/') and member.name[8:] in files and member.name not in observed and member.size == len(files[member.name[8:]]))
-                              need(set(member.pax_headers) <= {'mtime'} and all(re.fullmatch('[0-9]{1,20}(?:\\.[0-9]{1,9})?', value) for value in member.pax_headers.values()))
+                              need(member.isfile() and member.name.startswith('guarded/') and member.name[8:] in files and member.name not in observed and member.size == len(files[member.name[8:]]), 'P087')
+                              need(set(member.pax_headers) <= {'mtime'} and all(re.fullmatch('[0-9]{1,20}(?:\\.[0-9]{1,9})?', value) for value in member.pax_headers.values()), 'P088')
                               data = archive.extractfile(member).read(guard.FILE_LIMIT + 1)
-                              need(data == files[member.name[8:]]); observed[member.name] = data
-                      need(set(observed) == {'guarded/' + name for name in files})
+                              need(data == files[member.name[8:]], 'P089'); observed[member.name] = data
+                      need(set(observed) == {'guarded/' + name for name in files}, 'P090')
               native = decoded_json(guarded_files['native-result.json']) if guarded_files is not None and 'native-result.json' in guarded_files else None
               if result.get('native_compilation') == 'PASS PRIVATE NATIVE PAIR':
-                  need(native is not None and native.get('native_pair') == 'PASS')
+                  need(native is not None and native.get('native_pair') == 'PASS', 'P091')
               if native is not None and native.get('native_pair') == 'PASS': successful_pair(guarded_files, native)
               if result['status'] == 'PASS':
-                  need(bundle is not None)
-                  need(decoded_json(files['native-result.json']).get('native_pair') == 'PASS')
+                  need(bundle is not None, 'P092')
+                  need(decoded_json(files['native-result.json']).get('native_pair') == 'PASS', 'P093')
               # Reuse the authenticated generic credential guard for captured JSON.
               phase = 'credential-verification'
+              export_boundary = phase
               for name, files in payloads:
                   with tempfile.TemporaryDirectory(prefix='updater-public-', dir=control) as temporary:
                       source = Path(temporary) / 'selected'; source.mkdir(mode=0o700)
                       for filename, data in files.items():
                           if filename != 'export-manifest.json': (source / filename).write_bytes(data)
                       target = Path(temporary) / name
-                      need(guard.export_evidence(source, target)['evidence_export'] == 'PASS')
+                      need(guard.export_evidence(source, target)['evidence_export'] == 'PASS', 'P094')
                       emit(name, bundler.bundle(target))
               passed = result['status'] == recovery['status'] == 'PASS' and os.environ.get('UPDATER_RUN_EXIT') == os.environ.get('UPDATER_CLEANUP_EXIT') == '0' and os.environ['NATIVE_OUTCOME'] == 'success'
               print(json.dumps({'updater_workflow':'PASS' if passed else 'FAIL','native_stage':result['status'],'recovery':recovery['status'],'publication':'NOT ACCEPTED','hardware':'NOT RUN'}, sort_keys=True))
               sys.exit(0 if passed else 1)
-          except Exception:
+          except Exception as error:
               print(json.dumps({'updater_workflow':'FAIL','reason':'public-evidence-refused','phase':phase}, sort_keys=True))
+              print(json.dumps(export_refusal_diagnostic(error), sort_keys=True))
               sys.exit(1)
           PY

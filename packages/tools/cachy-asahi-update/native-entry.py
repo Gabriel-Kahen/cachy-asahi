@@ -40,7 +40,7 @@ def main():
         with diagnostic.step('entry-home'):
             home.mkdir(mode=0o700)
         env = {'PATH': '/usr/bin:/bin', 'LC_ALL': 'C.UTF-8', 'TZ': 'UTC', 'HOME': str(home),
-               'SOURCE_DATE_EPOCH': '1789753605', 'CARCH': 'aarch64',
+               'SOURCE_DATE_EPOCH': '1789753605', 'CARCH': 'aarch64', 'CACHY_ASAHI_MAKEPKG_DIAGNOSTIC': '1',
                'CACHY_ASAHI_CONTAINER': '1', 'CACHY_ASAHI_IMAGE_ID': facts['image_id'],
                'CACHY_ASAHI_UPDATE_BUILD_NONCE': facts['nonce'],
                'CACHY_ASAHI_CONTROLLER_SHA256': os.environ['CACHY_ASAHI_CONTROLLER_SHA256']}
@@ -52,6 +52,7 @@ def main():
             if inventory != expected:
                 error = ValueError('installed worker package inventory differs')
                 diagnostic.fail('entry-inventory', error); raise error
+            worker.run(['/usr/bin/pacman', '-Dk'], work, env, out, 'dependency-check-entry', timeout=60)
             (out / 'packages.lock').write_bytes(inventory)
         with diagnostic.step('entry-config-copy'):
             for name in ('makepkg.conf', 'pacman.conf'):

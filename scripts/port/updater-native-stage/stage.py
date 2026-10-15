@@ -19,7 +19,7 @@ sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
 PACKAGE = 'packages/tools/cachy-asahi-update/'
-READY_SHA = '6dc5515b411bcaa9cff7caa844fcc623a7a0dba39cb0c28e1c6859db457438e2'
+READY_SHA = 'a2b4872bec579306e2d22ebe14061ed479ae56f7c52756ee961ea70db1dbda00'
 BUDGET = {'total_seconds':6900, 'raw_retention_seconds':7100, 'materialize_seconds':910,
           'freeze_seconds':120, 'native_seconds':5400, 'projection_seconds':60,
           'export_seconds':60, 'cleanup_seconds':180, 'private_bytes':8*1024**3,
@@ -640,6 +640,380 @@ def storage_projection(value):
     return value
 
 
+NATIVE_CHILD_STAGES=frozenset('input-validation native-probe input-authentication image-bootstrap worker-1 worker-2 pair-comparison'.split())
+NATIVE_CHILD_ERRORS=frozenset('ValueError TypeError KeyError RuntimeError OSError FileNotFoundError PermissionError FileExistsError IsADirectoryError NotADirectoryError UnicodeError UnicodeDecodeError JSONDecodeError TimeoutExpired CalledProcessError KeyboardInterrupt BuildCancelled MaterializeError Cancelled SystemExit AcquisitionError AuditError UNKNOWN'.split())
+
+
+def native_child_unknown():
+    return {'availability':'NOT_OBSERVED','failed_stage':'UNKNOWN','error_type':'UNKNOWN'}
+
+
+def native_child_projection(value):
+    need(type(value) is dict and set(value)=={'availability','failed_stage','error_type'}
+         and all(type(v) is str for v in value.values()),'native-child-fields')
+    if value['availability']=='NOT_OBSERVED':
+        need(value==native_child_unknown(),'native-child-unknown')
+    else:
+        need(value['availability']=='OBSERVED' and value['failed_stage'] in NATIVE_CHILD_STAGES
+             and value['error_type'] in NATIVE_CHILD_ERRORS,'native-child-enum')
+    return dict(value)
+
+
+def capture_native_child(path):
+    """Observe one bounded child failure record; never copy error prose or accept it."""
+    try:
+        value=json.loads(regular(path,65536),object_pairs_hook=unique)
+        need(type(value) is dict and type(value.get('schema_version')) is int
+             and value['schema_version']==1 and value.get('scope')=='private native Linux trial'
+             and value.get('native_pair')=='FAIL' and value.get('stage')=='finalized'
+             and type(value.get('failed_stage')) is str and value['failed_stage'] in NATIVE_CHILD_STAGES
+             and type(value.get('error_type')) is str,'native-child-record')
+        error=value['error_type'] if value['error_type'] in NATIVE_CHILD_ERRORS else 'UNKNOWN'
+        return native_child_projection({'availability':'OBSERVED','failed_stage':value['failed_stage'],'error_type':error})
+    except Exception:
+        return native_child_unknown()
+
+
+NATIVE_WORKER_PHASES=frozenset(('input-snapshot','worker-launch','worker-inspection','package-inspection','container-cleanup'))
+NATIVE_WORKER_CAUSES={
+    'not-started':frozenset(),
+    'worker-run':frozenset(('worker-run-launch-failed','worker-run-timeout','worker-run-cancelled','worker-run-failed','worker-returncode-invalid')),
+    'container-inspection':frozenset(('inspection-launch-failed','inspection-command-failed','inspection-timeout','inspection-output-limit','inspection-json-invalid','inspection-schema-invalid','inspection-identity-mismatch','inspection-id-drift','inspection-state-invalid','inspection-cancelled','inspection-io-failed','inspection-cleanup-failed')),
+    'worker-run-result':frozenset(('worker-nonzero-returncode','worker-container-state-unaccepted')),
+    'worker-diagnostic':frozenset(('worker-diagnostic-incomplete',)),
+    'worker-inventory':frozenset(('worker-inventory-unavailable','worker-inventory-mismatch','worker-observation-cancelled')),
+    'worker-artifact-shape':frozenset(('worker-output-symlink','worker-output-observation-failed','worker-observation-cancelled')),
+    'complete':frozenset(),
+}
+NATIVE_DETAIL_REASONS=frozenset(('unavailable','invalid','unbound','not-worker','bound'))
+
+
+def native_detail_unknown(reason='unavailable'):
+    need(type(reason) is str and reason in NATIVE_DETAIL_REASONS and reason!='bound','native-detail-reason')
+    return {'availability':'NOT_OBSERVED','reason':reason,'record':None}
+
+
+def diagnostic_json(path,limit):
+    """Private bytes bind the held FD and named inode, ownership and mode."""
+    path=Path(path)
+    need(type(limit) is int and 0<limit<=65536 and not any(p.is_symlink() for p in (path,*path.parents)),'native-detail-path')
+    fields=('st_dev','st_ino','st_mode','st_nlink','st_uid','st_gid','st_size','st_mtime_ns','st_ctime_ns')
+    fd=os.open(path,os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK)
+    try:
+        before=os.fstat(fd);named=path.lstat()
+        need(stat.S_ISREG(before.st_mode) and before.st_nlink==1 and before.st_uid==os.getuid()
+             and before.st_gid==os.getgid() and stat.S_IMODE(before.st_mode)==0o600
+             and before.st_size<=limit,'native-detail-file')
+        need(all(getattr(before,k)==getattr(named,k) for k in fields),'native-detail-drift')
+        data=bytearray()
+        while len(data)<=limit:
+            part=os.read(fd,min(65536,limit+1-len(data)))
+            if not part:break
+            data.extend(part)
+        after=os.fstat(fd);named=path.lstat()
+        need(len(data)==before.st_size and all(getattr(before,k)==getattr(after,k)==getattr(named,k) for k in fields),'native-detail-drift')
+        raw=bytes(data)
+    finally:
+        active=sys.exc_info()[1]
+        try:os.close(fd)
+        except BaseException as close_error:
+            if active is None or isinstance(active,Exception) and not isinstance(close_error,Exception):raise
+    def invalid(_):raise ValueError('native-detail-nonfinite')
+    return raw,json.loads(raw,object_pairs_hook=unique,parse_constant=invalid)
+
+
+def native_diagnostic_need(value):
+    need(value, 'native-worker-diagnostic')
+
+
+NATIVE_DIAGNOSTIC_OPERATIONS = frozenset(('startup', 'entry-worker-import', 'entry-observe', 'entry-guard', 'entry-controller', 'entry-recipe-copy', 'entry-home', 'entry-builder-lock', 'entry-inventory', 'entry-config-copy', 'entry-srcinfo', 'entry-verifysource', 'entry-makepkg', 'entry-package', 'entry-log-copy', 'entry-receipt', 'metadata-observe', 'metadata-guard', 'metadata-paths', 'metadata-ambient', 'metadata-output', 'metadata-controller', 'metadata-builder', 'metadata-source', 'metadata-home', 'metadata-inventory', 'metadata-rust-version', 'metadata-target-cfg', 'metadata-cargo', 'metadata-recheck', 'metadata-receipt', 'compile-worker-import', 'compile-controller', 'compile-metadata', 'compile-gate', 'compile-target', 'compile-cargo', 'compile-elf', 'compile-units', 'compile-readelf', 'compile-copy', 'compile-receipt', 'complete'))
+NATIVE_DIAGNOSTIC_PREDICATES = frozenset(('UNKNOWN', 'worker-boundary', 'worker-identity', 'root-readonly', 'mount-contract', 'mount-nesting', 'private-tmpfs', 'unexpected-mount', 'mask-readonly', 'system-readonly', 'entry-readonly', 'runtime-filesystem', 'worker-limits', 'controller-hash-format', 'controller-input-paths', 'controller-digest', 'controller-binding', 'controller-hash-field', 'tool-ledger', 'builder-lock', 'tool-pin-path', 'tool-resolution', 'entry-digest', 'recipe-ledger', 'recipe-input', 'scratch-paths', 'ambient-cargo-config', 'metadata-output', 'builder-pin', 'source-pins', 'audit-lock', 'builder-inventory', 'forbidden-tool', 'rust-version', 'source-drift', 'vendor-ledger', 'vendor-directories', 'vendor-directory', 'vendor-registry', 'vendor-file-ledger', 'vendor-path', 'vendor-traversal', 'vendor-link', 'vendor-expanded', 'vendor-file', 'command-spawn', 'command-timeout', 'command-output-limit', 'command-nonzero', 'command-wait-timeout', 'command-cleanup', 'entry-inventory', 'entry-srcinfo', 'entry-package-count', 'fresh-target', 'unit-metadata-json', 'unit-metadata-fields', 'unit-compiler-json', 'unit-event-fields', 'unit-log-read', 'unit-receipt-write', 'unit-source', 'unit-build-script', 'unit-feature', 'unit-gettext', 'unit-system-deps', 'unit-complete', 'unit-build-script-record', 'compile-destination', 'compile-binary-drift', 'elf-read-symlink', 'elf-read-type-link-size', 'elf-read-bound', 'elf-read-drift', 'elf-header', 'elf-machine', 'elf-program-headers', 'elf-load-alignment', 'elf-load-bounds', 'elf-load-absent'))
+NATIVE_DIAGNOSTIC_COMMANDS = frozenset(('dependency-check-entry', 'inventory-entry', 'srcinfo', 'source-verification', 'makepkg', 'inventory', 'rustc-version', 'target-cfg', 'cargo-metadata', 'compile-gate', 'cargo-build', 'elf-inspection'))
+NATIVE_DIAGNOSTIC_ERROR_KINDS = frozenset(('ValueError', 'TypeError', 'KeyError', 'RuntimeError', 'OSError', 'TimeoutExpired', 'Cancelled', 'UNKNOWN'))
+NATIVE_DIAGNOSTIC_LIMIT = 4096
+NATIVE_DIAGNOSTIC_LOG_LIMIT = 16 * 1024 ** 2
+NATIVE_DIAGNOSTIC_FIELDS = frozenset(('schema_version', 'controller_sha256', 'image_id', 'entry_script_sha256', 'controller_validated', 'status', 'operation', 'first_failure', 'command', 'compiler_launch_attempted', 'compiler_return_observed', 'compiler_returncode', 'compilation_accepted', 'cancelled', 'diagnostic_write_failed', 'publication', 'hardware'))
+
+def native_diagnostic_encoded(value):
+    return json.dumps(value, sort_keys=True, separators=(',', ':'), allow_nan=False).encode() + b'\n'
+
+def native_diagnostic_nullable_hash(value, image=False):
+    native_diagnostic_need(value is None or (type(value) is str and re.fullmatch(('sha256:' if image else '') + '[0-9a-f]{64}', value)))
+
+def native_diagnostic_command(value):
+    if value is None:
+        return
+    native_diagnostic_need(type(value) is dict and set(value) == {'kind', 'launch_attempted', 'return_observed', 'returncode', 'stdout', 'stderr'})
+    native_diagnostic_need(type(value['kind']) is str and value['kind'] in NATIVE_DIAGNOSTIC_COMMANDS)
+    native_diagnostic_need(type(value['launch_attempted']) is type(value['return_observed']) is bool)
+    code = value['returncode']
+    native_diagnostic_need(code is None or (type(code) is int and -64 <= code <= 255))
+    native_diagnostic_need(value['return_observed'] == (code is not None) and (not value['return_observed'] or value['launch_attempted']))
+    total = 0
+    for key in ('stdout', 'stderr'):
+        row = value[key]
+        if row is not None:
+            native_diagnostic_need(type(row) is dict and set(row) == {'bytes', 'sha256'})
+            native_diagnostic_need(type(row['bytes']) is int and 0 <= row['bytes'] <= NATIVE_DIAGNOSTIC_LOG_LIMIT)
+            native_diagnostic_nullable_hash(row['sha256'])
+            native_diagnostic_need(row['sha256'] is not None)
+            total += row['bytes']
+    native_diagnostic_need(total <= NATIVE_DIAGNOSTIC_LOG_LIMIT)
+
+def native_diagnostic_makepkg(value):
+    if value is None:
+        return
+    native_diagnostic_need(type(value) is dict and set(value) == {'selector', 'phase', 'event', 'returncode'})
+    native_diagnostic_need(type(value['selector']) is str and value['selector'] in {'srcinfo', 'verify-source', 'build-package'})
+    native_diagnostic_need(type(value['phase']) is str and value['phase'] in {'config-setup', 'recipe-load', 'prepare', 'build', 'check', 'package'})
+    event, code = value['event'], value['returncode']
+    native_diagnostic_need(type(event) is str and event in {'issued', 'enter', 'return'})
+    native_diagnostic_need((event == 'issued' and value['phase'] == 'config-setup' and code is None) or
+         (event == 'enter' and value['phase'] != 'config-setup' and code is None) or
+         (event == 'return' and value['phase'] != 'config-setup' and type(code) is int and 0 <= code <= 255))
+
+
+def native_diagnostic(value):
+    native_diagnostic_need(type(value) is dict and set(value) in (NATIVE_DIAGNOSTIC_FIELDS, NATIVE_DIAGNOSTIC_FIELDS | {'makepkg'}) and (type(value['schema_version']) is int) and (value['schema_version'] == 1))
+    for key in ('controller_sha256', 'entry_script_sha256'):
+        native_diagnostic_nullable_hash(value[key])
+    native_diagnostic_nullable_hash(value['image_id'], True)
+    for key in ('controller_validated', 'compiler_launch_attempted', 'compiler_return_observed', 'compilation_accepted', 'cancelled', 'diagnostic_write_failed'):
+        native_diagnostic_need(type(value[key]) is bool)
+    native_diagnostic_need(type(value['operation']) is str and value['operation'] in NATIVE_DIAGNOSTIC_OPERATIONS)
+    native_diagnostic_need(type(value['status']) is str and value['status'] in {'RUNNING', 'PASS', 'FAIL', 'CANCELLED'})
+    native_diagnostic_need(value['status'] != 'CANCELLED' or value['cancelled'])
+    native_diagnostic_need(value['publication'] == 'NOT ACCEPTED' and value['hardware'] == 'NOT RUN')
+    native_diagnostic_makepkg(value.get('makepkg'))
+    native_diagnostic_command(value['command'])
+    first = value['first_failure']
+    if first is not None:
+        native_diagnostic_need(type(first) is dict and set(first) == {'operation', 'predicate', 'error_kind', 'command'})
+        native_diagnostic_need(type(first['operation']) is str and first['operation'] in NATIVE_DIAGNOSTIC_OPERATIONS)
+        native_diagnostic_need(type(first['predicate']) is str and first['predicate'] in NATIVE_DIAGNOSTIC_PREDICATES)
+        native_diagnostic_need(type(first['error_kind']) is str and first['error_kind'] in NATIVE_DIAGNOSTIC_ERROR_KINDS)
+        native_diagnostic_command(first['command'])
+        native_diagnostic_need(value['status'] in {'FAIL', 'CANCELLED'})
+        if first['error_kind'] == 'Cancelled':
+            native_diagnostic_need(value['cancelled'] and value['status'] == 'CANCELLED')
+    elif value['status'] == 'FAIL':
+        native_diagnostic_need(value['diagnostic_write_failed'])
+    if value['controller_validated']:
+        native_diagnostic_need(all((value[key] is not None for key in ('controller_sha256', 'image_id', 'entry_script_sha256'))))
+    if value['status'] == 'PASS':
+        native_diagnostic_need(first is None and value['controller_validated'] and (not value['cancelled']) and (not value['diagnostic_write_failed']))
+    code = value['compiler_returncode']
+    native_diagnostic_need(code is None or (type(code) is int and -64 <= code <= 255))
+    native_diagnostic_need(value['compiler_return_observed'] == (code is not None))
+    native_diagnostic_need(not value['compiler_return_observed'] or value['compiler_launch_attempted'])
+    if value['compilation_accepted']:
+        native_diagnostic_need(value['compiler_launch_attempted'] and value['compiler_return_observed'] and (code == 0))
+    native_diagnostic_need(len(native_diagnostic_encoded(value)) <= NATIVE_DIAGNOSTIC_LIMIT)
+    return value
+
+
+NATIVE_DIAGNOSTIC_REASONS=frozenset(('not-observed','not-started','state-unavailable','missing','unavailable','source-invalid','invalid','unbound','bound'))
+
+
+def native_worker_diagnostic_unknown(reason='not-observed', checksum=None):
+    return {'availability':'NOT_OBSERVED','reason':reason,'sha256':checksum,'record':None}
+
+
+def native_worker_diagnostic_projection(value):
+    need(type(value) is dict and set(value)=={'availability','reason','sha256','record'}, 'native-worker-diagnostic-fields')
+    need(type(value['reason']) is str and value['reason'] in NATIVE_DIAGNOSTIC_REASONS, 'native-worker-diagnostic-reason')
+    native_diagnostic_nullable_hash(value['sha256'])
+    if value['availability']=='NOT_OBSERVED':
+        need(value['reason']!='bound' and value['record'] is None, 'native-worker-diagnostic-unknown')
+    else:
+        need(value['availability']=='OBSERVED' and value['reason']=='bound' and value['sha256'] is not None, 'native-worker-diagnostic-bound')
+        record=native_diagnostic(value['record'])
+        need(digest(native_diagnostic_encoded(record))==value['sha256'], 'native-worker-diagnostic-hash')
+    return dict(value)
+
+
+def capture_native_worker_diagnostic(value, controller_sha, image, entry_sha):
+    """Project only the already captured record; never reread a later diagnostic."""
+    try:
+        fields={'worker_diagnostic_status','worker_diagnostic_reason','worker_diagnostic_sha256','worker_diagnostic'}
+        present=set(value)&fields
+        if not present:return native_worker_diagnostic_unknown()
+        need(present==fields, 'native-worker-diagnostic-group')
+        status=value['worker_diagnostic_status'];reason=value['worker_diagnostic_reason'];checksum=value['worker_diagnostic_sha256']
+        need(type(status) is str and status in ('NOT OBSERVED','UNKNOWN','BOUND'), 'native-worker-diagnostic-status')
+        if status!='BOUND':
+            need(value['worker_diagnostic'] is None and reason!='bound', 'native-worker-diagnostic-unknown')
+            if status=='NOT OBSERVED':
+                need(reason=='not-started' and checksum is None and value.get('worker_launch_attempted') is False, 'native-worker-diagnostic-not-started')
+            else:need(reason not in ('not-started','not-observed'), 'native-worker-diagnostic-unknown')
+            return native_worker_diagnostic_projection(native_worker_diagnostic_unknown(reason,checksum))
+        need(reason=='bound' and value.get('worker_launch_attempted') is True, 'native-worker-diagnostic-bound')
+        result=native_worker_diagnostic_projection({'availability':'OBSERVED','reason':reason,'sha256':checksum,'record':value['worker_diagnostic']})
+        record=result['record'];state=value.get('worker_container_state')
+        need(type(state) is dict, 'native-worker-diagnostic-state')
+        if not (record['controller_sha256']==controller_sha==state.get('controller_sha256') and
+                record['image_id']==image==state.get('image_id') and record['entry_script_sha256']==entry_sha):
+            return native_worker_diagnostic_unknown('unbound',checksum)
+        return result
+    except Exception:return native_worker_diagnostic_unknown('invalid')
+
+
+def native_worker_projection(value):
+    need(type(value) is dict and set(value)=={'availability','reason','record'},'native-worker-fields')
+    if value['availability']=='NOT_OBSERVED':
+        need(value==native_detail_unknown(value['reason']),'native-worker-unknown');return dict(value)
+    need(value['availability']=='OBSERVED' and value['reason']=='bound','native-worker-availability')
+    row=value['record'];fields={'worker','failed_stage','error_type','worker_check','failure_code','worker_returncode',
+        'launch_attempted','controller_sha256','retirement'}
+    need(type(row) is dict and set(row) in (fields,fields|{'diagnostic'}) and type(row['worker']) is int and row['worker'] in (1,2),'native-worker-record')
+    need(type(row['failed_stage']) is str and row['failed_stage'] in NATIVE_WORKER_PHASES and
+         type(row['error_type']) is str and row['error_type'] in NATIVE_CHILD_ERRORS,'native-worker-phase')
+    check=row['worker_check'];cause=row['failure_code'];code=row['worker_returncode']
+    need(type(check) is str and check in NATIVE_WORKER_CAUSES and
+         (cause is None or type(cause) is str and cause in NATIVE_WORKER_CAUSES[check]),'native-worker-check')
+    need(code is None or type(code) is int and -64<=code<=255,'native-worker-code')
+    need(type(row['launch_attempted']) is bool and (code is None or row['launch_attempted']),'native-worker-launch')
+    need(check!='not-started' or code is None and cause is None,'native-worker-not-started')
+    need(cause!='worker-returncode-invalid' or code is None,'native-worker-invalid-return')
+    need(cause!='worker-nonzero-returncode' or code is not None and code!=0,'native-worker-nonzero')
+    need(check not in ('worker-run-result','worker-diagnostic','worker-inventory','worker-artifact-shape','complete') or code is not None,'native-worker-return-observation')
+    need(type(row['controller_sha256']) is str and re.fullmatch('[0-9a-f]{64}',row['controller_sha256']),'native-worker-controller')
+    retirement=row['retirement']
+    need(type(retirement) is dict and set(retirement)=={'attempted','removed','absent','complete'}
+         and all(type(v) is bool for v in retirement.values()),'native-worker-retirement')
+    need(retirement['complete']==(retirement['removed'] and retirement['absent']) and
+         (retirement['attempted'] or not any(retirement.values())),'native-worker-retirement-coherence')
+    result=dict(row,retirement=dict(retirement))
+    if 'diagnostic' in row:
+        result['diagnostic']=native_worker_diagnostic_projection(row['diagnostic'])
+        detail=result['diagnostic']
+        if detail['availability']=='OBSERVED':
+            need(detail['record']['controller_sha256']==row['controller_sha256'], 'native-worker-diagnostic-controller')
+    return {'availability':'OBSERVED','reason':'bound','record':result}
+
+
+def capture_native_worker(private,child,entry_sha):
+    """Fixed observed worker selector; no recipe helper import or private prose."""
+    if child.get('availability')!='OBSERVED' or child.get('failed_stage') not in ('worker-1','worker-2'):
+        return native_detail_unknown('not-worker')
+    worker=int(child['failed_stage'][-1]);base=Path(private)/'native'/('build-'+str(worker))
+    try:
+        raw,controller=diagnostic_json(base/'inputs/controller-input.json',65536)
+        _,value=diagnostic_json(base/'provenance.json',65536)
+    except OSError:return native_detail_unknown('unavailable')
+    except ValueError:return native_detail_unknown('invalid')
+    try:
+        need(type(controller) is dict and type(value) is dict and value.get('schema_version')==1
+             and type(value.get('schema_version')) is int and value.get('stage')=='finalized'
+             and value.get('native_compilation') in ('FAIL','FAIL-container-cleanup'),'native-worker-terminal')
+        need(type(controller.get('schema_version')) is int and controller['schema_version']==1 and
+             type(controller.get('image_id')) is str and re.fullmatch('sha256:[0-9a-f]{64}',controller['image_id']) and
+             type(entry_sha) is str and re.fullmatch('[0-9a-f]{64}',entry_sha),'native-worker-controller-shape')
+        if not (value.get('controller_sha256')==digest(raw) and
+             value.get('image_id')==controller.get('image_id') and
+             value.get('entry_script_sha256')==controller.get('entry_script_sha256')==entry_sha):
+            return native_detail_unknown('unbound')
+        error=value.get('error_type');need(type(error) is str,'native-worker-error')
+        result={'worker':worker,'failed_stage':value.get('failed_stage'),'error_type':error if error in NATIVE_CHILD_ERRORS else 'UNKNOWN',
+            'worker_check':value.get('worker_check'),'failure_code':value.get('worker_failure_code'),
+            'worker_returncode':value.get('worker_run_returncode'),'launch_attempted':value.get('worker_launch_attempted'),
+            'controller_sha256':value['controller_sha256'],
+            'retirement':{key:value.get(field) for key,field in (('attempted','container_cleanup_attempted'),
+                ('removed','container_removal_succeeded'),('absent','container_absence_verified'),('complete','container_cleanup_complete'))}}
+        result['diagnostic']=capture_native_worker_diagnostic(value,digest(raw),controller['image_id'],entry_sha)
+        return native_worker_projection({'availability':'OBSERVED','reason':'bound','record':result})
+    except Exception:return native_detail_unknown('invalid')
+GUARDIAN_PHASES = frozenset(('ADMISSION', 'SOCKET_PIN', 'EXECUTABLE_PIN', 'CLIENT_INTENT', 'SIGNAL_MASK', 'STORAGE_ADMISSION', 'SPAWN', 'CLIENT_REGISTER', 'SIGNAL_RESTORE', 'SELECTOR_SETUP', 'WAIT', 'CAPTURE', 'PROCESS_RETIRE', 'STDOUT_RETIRE', 'CLIENT_DONE'))
+GUARDIAN_ERROR_CLASSES = frozenset(('BROKER_ERROR', 'VALUE_ERROR', 'OS_ERROR', 'TIMEOUT', 'KEYBOARD_INTERRUPT', 'SYSTEM_EXIT', 'OTHER_CONTROL', 'UNKNOWN'))
+GUARDIAN_PREDICATES = frozenset(('command-deadline', 'cancelled', 'socket-identity-changed', 'docker-executable-pin', 'client-registry-required', 'client-count', 'client-pid', 'client-stat-bound', 'client-session-identity', 'query-output-bound', 'client-group-ambiguous', 'docker-storage-budget', 'storage-identity', 'storage-root-identity', 'storage-lock-owner', 'storage-lock-deadline', 'storage-lock-identity', 'storage-state-binding', 'storage-state-schema', 'storage-state-latch', 'storage-state-nonfresh', 'storage-policy-schema', 'storage-policy-root', 'storage-policy-device', 'storage-path', 'storage-depth-bound', 'storage-directory', 'storage-sample-bound', 'bounded-regular-file', 'writable-file', 'special-file-mode', 'file-drift'))
+
+
+def native_guardian_projection(value):
+    need(type(value) is dict and set(value)=={'availability','reason','record'},'native-guardian-fields')
+    if value['availability']=='NOT_OBSERVED':
+        need(value==native_detail_unknown(value['reason']),'native-guardian-unknown');return dict(value)
+    need(value['availability']=='OBSERVED' and value['reason']=='bound','native-guardian-availability')
+    row=value['record']
+    need(type(row) is dict and set(row)=={'schema_version','purpose','broker_controller_sha256','phase','first_error','first_predicate','retirement'},'native-guardian-record')
+    need(type(row['schema_version']) is int and row['schema_version']==1 and
+         row['purpose']=='updater-broker-guardian-diagnostic','native-guardian-schema')
+    need(type(row['broker_controller_sha256']) is str and re.fullmatch('[0-9a-f]{64}',row['broker_controller_sha256']),'native-guardian-controller')
+    need(type(row['phase']) is str and row['phase'] in GUARDIAN_PHASES and
+         type(row['first_error']) is str and row['first_error'] in GUARDIAN_ERROR_CLASSES and
+         type(row['first_predicate']) is str and row['first_predicate'] in GUARDIAN_PREDICATES|{'UNKNOWN'} and
+         type(row['retirement']) is str and row['retirement'] in ('PASS','FAIL','UNKNOWN'),'native-guardian-enum')
+    need(row['first_error']=='BROKER_ERROR' or row['first_predicate']=='UNKNOWN','native-guardian-predicate')
+    return {'availability':'OBSERVED','reason':'bound','record':dict(row)}
+
+
+def capture_native_guardian(private,expected):
+    """Bind the first published broker fact to the separately held private controller."""
+    if type(expected) is not str or re.fullmatch('[0-9a-f]{64}',expected) is None:
+        return native_detail_unknown('unavailable')
+    try:
+        raw,controller=diagnostic_json(Path(private)/'broker-controller.json',65536)
+        fact_raw,row=diagnostic_json(Path(private)/'broker-diagnostic.json',4096)
+    except OSError:return native_detail_unknown('unavailable')
+    except ValueError:return native_detail_unknown('invalid')
+    try:
+        need(type(controller) is dict and type(controller.get('schema_version')) is int and
+             controller['schema_version']==1,'native-guardian-controller-schema')
+        need(fact_raw==(json.dumps(row,sort_keys=True,separators=(',',':'),allow_nan=False)+'\n').encode(),'native-guardian-canonical')
+        if not (digest(raw)==expected and type(row) is dict and row.get('broker_controller_sha256')==expected):
+            return native_detail_unknown('unbound')
+        return native_guardian_projection({'availability':'OBSERVED','reason':'bound','record':row})
+    except Exception:return native_detail_unknown('invalid')
+
+PROJECTION_BOUNDARIES = frozenset(('arguments', 'input-contract', 'module-authentication',
+    'module-execution', 'projection-call', 'projection-result', 'output-tree', 'finalization', 'UNKNOWN'))
+
+
+def projection_unknown(reason='unavailable'):
+    need(type(reason) is str and reason in ('unavailable', 'invalid'), 'projection-unavailable')
+    return {'availability': 'NOT_OBSERVED', 'reason': reason, 'record': None}
+
+
+def projection_failure(value):
+    need(type(value) is dict and set(value) == {'availability', 'reason', 'record'}, 'projection-fields')
+    if value['availability'] == 'NOT_OBSERVED':
+        need(value == projection_unknown(value['reason']), 'projection-unobserved')
+        return dict(value)
+    need(value['availability'] == 'OBSERVED' and value['reason'] == 'bound', 'projection-observed')
+    row = value['record']
+    need(type(row) is dict and set(row) == {'schema_version', 'operation', 'boundary', 'manifest'}, 'projection-record')
+    need(type(row['schema_version']) is int and row['schema_version'] == 1 and row['operation'] == 'project', 'projection-operation')
+    need(type(row['boundary']) is str and row['boundary'] in PROJECTION_BOUNDARIES, 'projection-boundary')
+    manifest = row['manifest']
+    need(type(manifest) is dict and set(manifest) == {'availability', 'reason', 'accepted', 'rejected', 'missing', 'first_rejected'}, 'projection-manifest')
+    counts = tuple(manifest[key] for key in ('accepted', 'rejected', 'missing'))
+    first = manifest['first_rejected']
+    if manifest['availability'] == 'NOT_OBSERVED':
+        need(manifest['reason'] in ('not-returned', 'invalid') and counts == (None, None, None) and first is None, 'projection-no-manifest')
+        need(manifest['reason'] != 'invalid' or row['boundary'] == 'projection-result', 'projection-invalid-context')
+    else:
+        need(manifest['availability'] == 'OBSERVED' and row['boundary'] == 'projection-result', 'projection-manifest-context')
+        need(all(type(n) is int and 0 <= n <= 25 for n in counts) and sum(counts) in (24, 25), 'projection-counts')
+        if counts[1]:
+            need(manifest['reason'] == 'rejected-selector' and type(first) is int and 1 <= first <= 25, 'projection-selector')
+            need(first != 25 or sum(counts) == 25, 'projection-materializer-context')
+        else:
+            need(manifest['reason'] == 'no-accepted-selector' and counts[0] == 0 and first is None, 'projection-empty')
+    need(len(json.dumps(value, sort_keys=True, allow_nan=False).encode()) <= 2048, 'projection-bound')
+    return {'availability': 'OBSERVED', 'reason': 'bound', 'record': dict(row, manifest=dict(manifest))}
+
+
+def capture_projection_failure(path):
+    try:
+        raw, value = diagnostic_json(path, 4096)
+        need(raw == (json.dumps(value, sort_keys=True) + '\n').encode(), 'projection-canonical')
+        need(type(value) is dict and set(value) == {'status', 'operation', 'diagnostic'} and
+             value['status'] == 'FAIL' and value['operation'] == 'project', 'projection-worker-failure')
+        return projection_failure({'availability': 'OBSERVED', 'reason': 'bound', 'record': value['diagnostic']})
+    except OSError:
+        return projection_unknown('unavailable')
+    except (ValueError, TypeError, KeyError, UnicodeError, RecursionError, OverflowError):
+        return projection_unknown('invalid')
+
 def public_summary(receipt):
     """Fixed scalar/hash/typed lifecycle fields; no host paths, argv or raw logs."""
     allowed=('schema_version','status','phase','controller_sha256','ready_sha256','source_commit',
@@ -647,8 +1021,35 @@ def public_summary(receipt):
              'failure_class','private_data_removed','raw_retention_within_budget','cleanup_status',
              'cancelled','public_bundle_sha256')
     result={k:receipt[k] for k in allowed if k in receipt}
+    if 'private_native_pair_verified' in receipt:
+        verified=receipt['private_native_pair_verified']
+        need(type(verified) is bool,'native-private-pair-type')
+        need(not verified or receipt.get('native_compilation') in ('NOT ATTESTED','PASS PRIVATE NATIVE PAIR'),
+             'native-private-pair-context')
+        need(receipt.get('native_compilation')!='PASS PRIVATE NATIVE PAIR' or verified,
+             'native-private-pair-unverified')
+        result['private_native_pair_verified']=verified
+    if receipt.get('native_compilation')=='NOT ATTESTED':
+        need(type(receipt.get('status')) is str and receipt['status'] in ('FAIL','CANCELLED'),
+             'native-unattested-final-status')
     result.update(diagnostic_projection(receipt));result.update(cleanup_projection(receipt))
+    if 'native_child_failure' in receipt:
+        need(receipt.get('status') in ('FAIL','CANCELLED') and receipt.get('failed_phase')=='native-pair'
+             and receipt.get('runtime_reason')=='process-failed' and type(receipt.get('runtime_returncode')) is int
+             and receipt['runtime_returncode']!=0,'native-child-context')
+        result['native_child_failure']=native_child_projection(receipt['native_child_failure'])
+        for key,project in (('native_worker_failure',native_worker_projection),('native_guardian_failure',native_guardian_projection)):
+            if key in receipt:result[key]=project(receipt[key])
+        detail=result.get('native_worker_failure')
+        if detail is not None and detail['availability']=='OBSERVED':
+            need(result['native_child_failure']['availability']=='OBSERVED' and
+                 result['native_child_failure']['failed_stage']=='worker-'+str(detail['record']['worker']),'native-worker-context')
     if 'storage' in receipt:result['storage']=storage_projection(receipt['storage'])
+    if 'projection_failure' in receipt:
+        need(receipt.get('status') in ('FAIL','CANCELLED') and receipt.get('failed_phase')=='public-projection'
+             and receipt.get('runtime_reason')=='process-failed' and type(receipt.get('runtime_returncode')) is int
+             and receipt['runtime_returncode']!=0,'projection-failure-context')
+        result['projection_failure']=projection_failure(receipt['projection_failure'])
     return result
 
 
@@ -794,7 +1195,8 @@ def pipeline(root,controller,controller_sha,output,runner=None):
     guard=module(root/'scripts/ci/integration_export.py',rows['scripts/ci/integration_export.py']['sha256'])
     receipt={'schema_version':1,'status':'RUNNING','phase':'private-registration','controller_sha256':controller_sha,
              'ready_sha256':READY_SHA,'source_commit':contract['source']['source_commit'],
-             'native_compilation':'NOT RUN','publication':'NOT ACCEPTED','hardware':'NOT RUN',
+             'native_compilation':'NOT RUN','private_native_pair_verified':False,
+             'publication':'NOT ACCEPTED','hardware':'NOT RUN',
              'private_data_removed':False,'cleanup_status':'NOT RUN','raw_retention_within_budget':False,'processes':{}}
     info=output.stat()
     owner={'schema_version':1,'controller_sha256':controller_sha,'source_commit':receipt['source_commit'],
@@ -831,7 +1233,7 @@ def pipeline(root,controller,controller_sha,output,runner=None):
             python=contract['tools']['python']['path'];package=copied/PACKAGE
             materialized=private/'materialized';candidate=private/'candidate';native=private/'native'
             storage=None;last_tick=0
-            def command(phase,argv,seconds):
+            def command(phase,argv,seconds,absolute_end=None):
                 receipt['phase']=phase;save(output/'result.json',receipt)
                 need(not cancelled,'stage-cancelled');verify_snapshot(copied,contract['source']);tool_check(contract['tools'])
                 tick_failure={}
@@ -856,10 +1258,13 @@ def pipeline(root,controller,controller_sha,output,runner=None):
                                         raise ValueError('docker-storage-budget') from None
                                     raise
                             tick_observation('daemon-storage',storage_tick,tick_failure)
+                endpoint = min(deadline, time.monotonic()+seconds) if absolute_end is None else absolute_end
+                need(type(endpoint) in (int,float) and endpoint <= deadline and time.monotonic() < endpoint,
+                     'stage-phase-deadline')
                 try:
                     item=tracked_process(owner,output,run_process,phase,argv,
                                          private/'logs'/f'{phase}.stdout',private/'logs'/f'{phase}.stderr',
-                                         min(deadline,time.monotonic()+seconds),env,copied,tick)
+                                         endpoint,env,copied,tick)
                     receipt['processes'][phase]=item;failure_diagnostics(receipt,phase,item,runtime,tick_failure)
                 except BaseException as error:
                     item=getattr(error,'receipt',{'status':'FAIL','reason_code':'stage-process-failed'})
@@ -896,11 +1301,27 @@ def pipeline(root,controller,controller_sha,output,runner=None):
             command('freeze',[python,'-I','-B',str(package/'updater-native.py'),'freeze','--source',str(source_archive),
                               '--vendor',str(vendor),'--output',str(candidate)],BUDGET['freeze_seconds'])
             candidate_sha=digest(regular(candidate/'candidate.json'));receipt['candidate_sha256']=candidate_sha
+            native_end = min(deadline,time.monotonic()+BUDGET['native_seconds'])
+            def seed_check():
+                need(not cancelled,'stage-cancelled')
+                need(time.monotonic() < native_end,'stage-native-deadline')
+            seed_holder = {}
+            seed_helper = module(copied/(prefix+'current_cache.py'),rows[prefix+'current_cache.py']['sha256'])
+            receipt['phase'] = 'native-cache-seed'
+            try:
+                receipt['cache_seed'] = seed_helper.seed(copied,private,contract['source'],native_end,
+                    seed_check,seed_holder,module,regular,verify_snapshot)
+            except BaseException:
+                if seed_holder.get('observation',{}).get('cancelled') is True and not cancelled:
+                    cancelled.append(0)  # Existing unknown-number cancellation marker.
+                raise
+            save(output/'result.json',receipt)
+            receipt['native_compilation']='NOT ATTESTED'
             command('native-pair',[python,'-I','-B',str(package/'updater-native.py'),'build','--candidate',str(candidate/'candidate.json'),
-                                   '--candidate-sha256',candidate_sha,'--cache',str(private/'archives'),'--output',str(native)],BUDGET['native_seconds'])
+                                   '--candidate-sha256',candidate_sha,'--cache',str(private/'archives'),'--output',str(native)],BUDGET['native_seconds'],absolute_end=native_end)
             need(load(native/'result.json')['native_pair']=='PASS','native-pair-not-passed')
             source.verify(root,contract['source']);verify_snapshot(copied,contract['source'])
-            receipt['native_compilation']='PASS PRIVATE NATIVE PAIR'
+            receipt['private_native_pair_verified']=True
         except BaseException as error:
             failure=error;receipt['failure_class']=type(error).__name__
             if owner['private_record'] is None and getattr(error,'receipt',{}).get('registered'):
@@ -910,10 +1331,21 @@ def pipeline(root,controller,controller_sha,output,runner=None):
             if cancelled:receipt['status']='CANCELLED'
             else:receipt['status']='FAIL'
         finally:
+            if receipt.get('failed_phase')=='native-pair' and receipt.get('runtime_reason')=='process-failed' and \
+               type(receipt.get('runtime_returncode')) is int and receipt['runtime_returncode']!=0:
+                receipt['native_child_failure']=native_child_unknown()
+                receipt['native_worker_failure']=native_detail_unknown()
+                receipt['native_guardian_failure']=native_detail_unknown()
             # Project, guard and bundle in bounded owned processes while the
             # authenticated source snapshot remains available for all helpers.
             try:
                 if private is not None and private.is_dir():
+                    if 'native_child_failure' in receipt:
+                        receipt['native_child_failure']=capture_native_child(private/'native/result.json')
+                        receipt['native_worker_failure']=capture_native_worker(private,receipt['native_child_failure'],
+                            rows['packages/tools/cachy-asahi-update/native-entry.py']['sha256'])
+                        receipt['native_guardian_failure']=capture_native_guardian(private,
+                            broker_contract.get('_sha256') if type(broker_contract) is dict else None)
                     copied=private/'source'
                     empty=private/'empty-raw';empty.mkdir(mode=0o700)
                     raw=private/'native' if (private/'native').is_dir() else empty
@@ -942,10 +1374,30 @@ def pipeline(root,controller,controller_sha,output,runner=None):
                     need(load(output/'guarded/export-manifest.json')['evidence_export']=='PASS','credential-guard-failed')
                     receipt['public_bundle_sha256']=digest(regular(output/'public-evidence.tar.gz',8*1024**2))
                     receipt['public_projection']='PASS';receipt['credential_guard']='PASS'
+                    if receipt['private_native_pair_verified']:
+                        public_raw=regular(output/'guarded/native-result.json')
+                        public_rows=[row for row in load(output/'guarded/export-manifest.json')['accepted']
+                                     if row.get('path')=='native-result.json']
+                        need(len(public_rows)==1 and set(public_rows[0])=={'path','bytes','sha256'}
+                             and type(public_rows[0]['bytes']) is int and public_rows[0]['bytes']==len(public_raw)
+                             and public_rows[0]['sha256']==digest(public_raw),'public-native-pair-byte-join')
+                        public_native=json.loads(public_raw,object_pairs_hook=unique)
+                        need(type(public_native) is dict and public_native.get('native_pair')=='PASS',
+                             'public-native-pair-not-passed')
+                        receipt['native_compilation']='PASS PRIVATE NATIVE PAIR'
             except BaseException as error:
                 if type(error).__name__ in ('RuntimeCancelled','KeyboardInterrupt','BuildCancelled','SourceCancelled') and not cancelled:cancelled.append(0)
                 failure_diagnostics(receipt,receipt['phase'],getattr(error,'receipt',None),runtime)
-                failure=failure or error;receipt.update(status='FAIL',public_projection='FAIL',failure_class=type(error).__name__)
+                failure=failure or error;receipt.update(status='FAIL',public_projection='FAIL',failure_class=type(failure).__name__)
+                if receipt.get('failed_phase')=='public-projection' and receipt.get('runtime_reason')=='process-failed' and \
+                   type(receipt.get('runtime_returncode')) is int and receipt['runtime_returncode']!=0:
+                    try:
+                        receipt['projection_failure']=projection_unknown()
+                        receipt['projection_failure']=capture_projection_failure(private/'logs/public-projection.stdout')
+                    except (KeyboardInterrupt, runtime.RuntimeCancelled):
+                        if not cancelled:cancelled.append(0)
+                    except BaseException:
+                        pass
             receipt['phase']='owned-cleanup';save(output/'result.json',receipt)
             cleanup_deadline=min(start+BUDGET['raw_retention_seconds'],time.monotonic()+BUDGET['cleanup_seconds'])
             storage_error=False

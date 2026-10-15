@@ -509,47 +509,147 @@ class Signals:
                 if not self.seen: self.seen.append(signal.SIGTERM)
 
 
+GUARDIAN_PHASES = frozenset(('ADMISSION','SOCKET_PIN','EXECUTABLE_PIN','CLIENT_INTENT',
+    'SIGNAL_MASK','STORAGE_ADMISSION','SPAWN','CLIENT_REGISTER','SIGNAL_RESTORE',
+    'SELECTOR_SETUP','WAIT','CAPTURE','PROCESS_RETIRE','STDOUT_RETIRE','CLIENT_DONE'))
+GUARDIAN_ERROR_CLASSES = frozenset(('BROKER_ERROR','VALUE_ERROR','OS_ERROR','TIMEOUT',
+    'KEYBOARD_INTERRUPT','SYSTEM_EXIT','OTHER_CONTROL','UNKNOWN'))
+GUARDIAN_PREDICATES = frozenset(('command-deadline','cancelled','socket-identity-changed',
+    'docker-executable-pin','client-registry-required','client-count','client-pid',
+    'client-stat-bound','client-session-identity','query-output-bound','client-group-ambiguous',
+    'docker-storage-budget','storage-identity','storage-root-identity','storage-lock-owner',
+    'storage-lock-deadline','storage-lock-identity','storage-state-binding','storage-state-schema',
+    'storage-state-latch','storage-state-nonfresh','storage-policy-schema','storage-policy-root',
+    'storage-policy-device','storage-path','storage-depth-bound','storage-directory',
+    'storage-sample-bound','bounded-regular-file','writable-file','special-file-mode','file-drift'))
+
+
+def guardian_first(state, error):
+    if state['first'] is None:
+        state['first'] = error
+        state['first_phase'] = state['phase']
+
+
+def guardian_fact(c, state):
+    error = state['first'];kind = type(error)
+    need(error is not None and state['first_phase'] in GUARDIAN_PHASES and
+         state['retirement'] in ('PASS','FAIL','UNKNOWN') and
+         type(c['_sha256']) is str and re.fullmatch('[0-9a-f]{64}',c['_sha256']), 'guardian-diagnostic-binding')
+    label = 'UNKNOWN'
+    for cls, name in ((BrokerError,'BROKER_ERROR'),(ValueError,'VALUE_ERROR'),(OSError,'OS_ERROR'),
+                      (subprocess.TimeoutExpired,'TIMEOUT'),(KeyboardInterrupt,'KEYBOARD_INTERRUPT'),
+                      (SystemExit,'SYSTEM_EXIT'),(BaseException,'OTHER_CONTROL')):
+        if kind is cls:label = name;break
+    predicate = 'UNKNOWN'
+    if kind is BrokerError:
+        code = vars(error).get('code')
+        if type(code) is str and code in GUARDIAN_PREDICATES:predicate = code
+    return {'schema_version':1,'purpose':'updater-broker-guardian-diagnostic',
+            'broker_controller_sha256':c['_sha256'],'phase':state['first_phase'],
+            'first_error':label,'first_predicate':predicate,'retirement':state['retirement']}
+
+
+def guardian_write(c, value):
+    # First publication only. A partial first write stays unusable, never replaced.
+    raw = json.dumps(value,sort_keys=True,separators=(',',':')).encode()+b'\n'
+    need(len(raw)<=4096,'guardian-diagnostic-bound')
+    fd = os.open(Path(c['root'])/'broker-diagnostic.json',
+                 os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600)
+    first = None
+    try:
+        need(os.write(fd,raw)==len(raw),'guardian-diagnostic-short-write')
+        os.fsync(fd)
+    except BaseException as error:
+        first = error
+        raise
+    finally:
+        try:os.close(fd)
+        except Exception:
+            if first is None:raise
+        except BaseException:
+            if first is None or isinstance(first,Exception):raise
+
+
+def guardian_emit(c, state):
+    active = sys.exc_info()[1]
+    try:guardian_write(c,guardian_fact(c,state))
+    except Exception:pass  # Optional diagnostic never replaces an ordinary cause.
+    except BaseException:
+        if active is None or isinstance(active,Exception):raise
+
+
 def execute(c, args, signals, capture=False, seconds=COMMAND_SECONDS, honor_cancel=True):
+    state = {'phase':'ADMISSION','first_phase':None,'first':None,'retirement':'UNKNOWN'}
+    try:
+        return _guardian_execute(c,args,signals,state,capture=capture,seconds=seconds,honor_cancel=honor_cancel)
+    except BaseException as error:
+        guardian_first(state,error)
+        raise
+    finally:
+        if state['first'] is not None:guardian_emit(c,state)
+
+
+def _guardian_execute(c, args, signals, state, capture=False, seconds=COMMAND_SECONDS, honor_cancel=True):
     deadline = min(c['deadline_monotonic'], time.monotonic() + seconds)
     need(time.monotonic() < deadline, 'command-deadline')
     if honor_cancel: need(not signals.seen, 'cancelled')
+    state['phase'] = 'SOCKET_PIN'
     socket_identity(c)
+    state['phase'] = 'EXECUTABLE_PIN'
     need(sha(regular(Path(c['real_docker']), 64 * 1024**2)) == c['real_docker_sha256'], 'docker-executable-pin')
     env = {'PATH': '/usr/bin:/bin', 'LC_ALL': 'C.UTF-8', 'HOME': c['root'], 'DOCKER_CONFIG': str(Path(c['root']) / 'docker-config'),
            'DOCKER_HOST': c['docker_endpoint']}
     if args[:2] == ['context', 'inspect']: env['DOCKER_CONTEXT'] = 'default'
     command = [c['real_docker'], '--host', c['docker_endpoint'], *args]
     need(all(key in c for key in ('_client_intent', '_client_started', '_client_done')), 'client-registry-required')
+    state['phase'] = 'CLIENT_INTENT'
     client = c['_client_intent']()
     process, output = None, bytearray()
     try:
+        state['phase'] = 'SIGNAL_MASK'
         prior = signal.pthread_sigmask(signal.SIG_BLOCK, signals.signals)
         try:
+            state['phase'] = 'STORAGE_ADMISSION'
             with storage_admission(c) if args[0] in ('build', 'run') else nullcontext():
                 need(time.monotonic() < deadline, 'command-deadline')
                 if honor_cancel: need(not signals.seen and not (signal.sigpending() & signals.signals), 'cancelled')
+                state['phase'] = 'SPAWN'
                 process = subprocess.Popen(command, stdout=subprocess.PIPE if capture else None,
                     stderr=subprocess.DEVNULL if capture else None, env=env, start_new_session=True,
                     preexec_fn=lambda: signal.pthread_sigmask(signal.SIG_SETMASK, prior))
+                state['phase'] = 'CLIENT_REGISTER'
                 c['_client_started'](client, process.pid)  # Durable generation before unmask/wait.
-        finally: signal.pthread_sigmask(signal.SIG_SETMASK, prior)
+        except BaseException as error:
+            guardian_first(state,error)
+            raise
+        finally:
+            state['phase'] = 'SIGNAL_RESTORE'
+            signal.pthread_sigmask(signal.SIG_SETMASK, prior)
+        state['phase'] = 'SELECTOR_SETUP'
         with selectors.DefaultSelector() as selector:
             if capture:
                 os.set_blocking(process.stdout.fileno(), False);selector.register(process.stdout, selectors.EVENT_READ)
             while True:
+                state['phase'] = 'WAIT'
                 if honor_cancel: need(not signals.seen, 'cancelled')
                 need(time.monotonic() < deadline, 'command-deadline')
+                state['phase'] = 'CAPTURE'
                 for key, _ in selector.select(.1) if capture else []:
                     chunk = os.read(key.fd, 65536)
                     if not chunk: selector.unregister(key.fileobj)
                     output.extend(chunk);need(len(output) <= QUERY_BYTES, 'query-output-bound')
+                state['phase'] = 'WAIT'
                 if process.poll() is not None and (not capture or not selector.get_map()): break
                 if not capture:
                     try: process.wait(timeout=.1)
                     except subprocess.TimeoutExpired: pass
         return process.returncode, bytes(output)
+    except BaseException as error:
+        guardian_first(state,error)
+        raise
     finally:
         try:
+            state['phase'] = 'PROCESS_RETIRE'
             if process is not None:
                 if process.poll() is None:
                     # This unreaped child was created by this Popen. Immediate
@@ -561,8 +661,22 @@ def execute(c, args, signals, capture=False, seconds=COMMAND_SECONDS, honor_canc
                         try: os.killpg(process.pid, signal.SIGKILL)
                         except ProcessLookupError: pass
                 process.wait(timeout=3)
+                state['phase'] = 'STDOUT_RETIRE'
                 if process.stdout is not None: process.stdout.close()
-        finally: c['_client_done'](client, process is not None)
+        except BaseException as error:
+            state['retirement'] = 'FAIL'
+            guardian_first(state,error)
+            raise
+        finally:
+            state['phase'] = 'CLIENT_DONE'
+            try:c['_client_done'](client, process is not None)
+            except BaseException as error:
+                state['retirement'] = 'FAIL'
+                guardian_first(state,error)
+                raise
+            else:
+                if state['retirement'] != 'FAIL':
+                    state['retirement'] = 'PASS' if client.get('status') in ('ABSENT','NOT_STARTED') else 'UNKNOWN'
 
 
 def query(c, args, signals, honor_cancel=True):
