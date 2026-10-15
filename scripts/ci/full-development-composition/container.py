@@ -255,6 +255,11 @@ def main():
             need(final == expected, 'setup4 did not restore exact initial checkpoint')
             result.update(phase='completed', final_package_count=len(final),
                           final_inventory_sha256=hashlib.sha256(''.join(k + ' ' + v + '\n' for k, v in sorted(final.items())).encode()).hexdigest())
+        if 'footprint' in plan:
+            need(result['setup4']['footprint']['status'] == 'MEASURED_SCOPED_COPY'
+                 and result['setup4']['footprint']['source_inventory_preserved']
+                 and result['setup4']['footprint']['source_database_preserved'],
+                 'footprint failed after setup4 rollback completed')
         result['status'] = 'PASS'
     except Exception as error:
         result.update(status='FAIL', error_type=type(error).__name__, error=str(error)[:2048])

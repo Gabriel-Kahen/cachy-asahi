@@ -47,3 +47,21 @@ The initial checkpoint still installs setup3. A normal required-signature, scrip
 The installed repository CLI then previews, explicitly enrolls, repeats enrollment and disables twice using an inert canonical TEST URL and the same TEST public fingerprint. Its public certificate is copied to a scoped root-owned directory beneath `/root`, satisfying the unmodified safe-parent policy. The container's initialized ALARM keyring is preserved; enrollment imports and locally signs the TEST public certificate through the installed CLI. Effective package/database signatures remain required and trusted-only. Disable restores original main configuration bytes and removes only the managed include/block; imported TEST public trust intentionally remains in this disposable keyring. No repository network request occurs, and no keyring is initialized or reset.
 
 Normal setup4 removal must leave586 packages and preserve fixture user files; reinstall returns587. A final signed setup3 transaction restores the exact initial checkpoint, removes the setup4-only command/documentation, preserves user files and leaves enrollment disabled. Overall PASS is set only after this stage and existing cleanup succeed. This mode adds only the existing bounded-helper CAP_KILL and1200second timeout. Public diagnostics add one bounded retained-input summary; private source copies, certificates and signing state follow the existing cleanup. New combined native execution, target installation/recovery, production repository enrollment, hardware, performance and release acceptance remain NOT RUN.
+
+## Optional actual filesystem footprint
+
+With the retained setup4 pair and explicitly selected updater-v2 source, add
+`--measure-footprint` to copy and measure bounded filesystem data after setup4
+installation, before user/enrollment fixtures. A fresh nonce-owned local Docker
+volume supplies disk-backed storage; the optional caller preserves setgid modes
+with FSETID. It requires capacity for8GiB plus500000 nodes and reserves before
+allocation. The helper has a900-second bound and the owned worker960 seconds.
+Runtime/mounted paths, xattrs and timestamps are excluded or omitted explicitly.
+The before/after source package database and exact587 inventory must agree.
+
+The output is a scoped, non-atomic footprint with unsupported shape examples,
+not a whole-root snapshot or update acceptance. A measurement failure remains
+visible while setup removal/reinstall and setup3 rollback continue; the overall
+job then fails. Cleanup removes the exact owned volume only after verifying the
+composition container absent. No system mutation, copied executable or ldconfig
+execution is added by this measurement path.

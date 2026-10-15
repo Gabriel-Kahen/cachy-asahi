@@ -129,6 +129,10 @@ def run(pacman, plan, checkpoint, source, work, composition, core, payload_helpe
             composition.run(pacman + ['-T', *dependencies])
             payload_helper.payloads(pacman, payload, composition)
         installed(expected, projects)
+        footprint = None
+        if 'footprint' in plan:
+            phase = 'installed-setup4-scoped-copy-measurement'
+            footprint = composition.load('composition_footprint', Path('/footprint.py')).collect(plan, expected, source, composition)
         composition.run(['/usr/bin/cachy-asahi-setup', '--help'])
         composition.run([CLI, '--help'])
         composition.need(main.read_bytes() == original_main and not include.exists(), 'upgrade automatically changed enrollment')
@@ -177,6 +181,7 @@ def run(pacman, plan, checkpoint, source, work, composition, core, payload_helpe
         composition.need(main.read_bytes() == original_main and not include.exists(), 'final disabled configuration changed')
         adapter.check('setup3-restoration-preserves-user-files', homes == [adapter.snapshot(u) for u in (fresh, existing)])
         return {'status': 'PASS', 'checks': adapter.checks, 'repository_enrollment': enrollment,
+                **({'footprint': footprint} if footprint is not None else {}),
                 'installed_versions': ['0.1.0-3', '0.1.0-4'], 'removed_package_count': 586,
                 'final_package_count': len(checkpoint), 'final_inventory_sha256': inventory_sha(checkpoint),
                 'scriptlets': 'DISABLED', 'hooks': 'MASKED', 'automatic_enrollment': False, 'production': 'NOT RUN',
