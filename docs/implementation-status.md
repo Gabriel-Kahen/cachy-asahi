@@ -2,6 +2,16 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 15, kernel verifier diagnostic:
+Actual ARM run `38680751411` failed after the baseline kernel command naturally
+returned zero: output verification rejected
+`CHECK_002_IMAGE_REFERENCE_SYMBOL_TABLE_TYPE`. Root admits retained review
+`fe6a3d7d`; candidate and comparison did not run. The original ELF and offending
+relocation operands were not exported. Cleanup and daemon preservation report
+PASS; legacy build-cache absence remains unestablished. A separate source audit
+is checking valid image relocation semantics before any correction or retry.
+See [actual failure review](reviews/kernel-relocation-check002-run-38680751411-20261015.md).
+
 October 15, updater Cargo stream correction:
 The updater source now removes Cargo's verbose flag while retaining strict JSON
 parsing. Its exact-command maintained test is corrected with the same one-element
