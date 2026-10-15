@@ -1,11 +1,13 @@
 # Native updater scale fixture suite, 2026-10-15
 
-[Actual run 38803000053](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38803000053)
+[Final clean run 38804763328](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38804763328)
 succeeded: **106 tests, 106 PASS, zero failures/errors/skips**, native aarch64.
-Product Source `6d24c3a647add2550f3612b79f14efb7e6b5a1a2` and workflow
+Product Source `293293f12acab0f29be88c82fe2981a1a7b980cf` and workflow
 `31472381d46444cd32d65ed724ca285bf1f26b7b` are recorded in checkout/result.
-The selected Source adds Docker `--init` to the owned fixture container, retaining
-its 128-process limit, isolation, original signature assertions and deadlines.
+The selected Source restores the two original pre-diagnostic test files and keeps
+Docker `--init` in the owned fixture container, with its 128-process limit,
+isolation, original signature assertions and deadlines. The temporary C bridge,
+engine/handle getters, post-failure GPG probes and diagnostic classifier are absent.
 This is synthetic-scale/tiny-transaction evidence, not an update of the actual
 587-package composition or a supported Apple system.
 
@@ -33,10 +35,13 @@ Native libalpm SHA256 is
 
 ## Intended scale-drift refusal
 
-`test_scale_input_drift_after_prepare_refused` now reports PASS. Exact Source
+`test_scale_input_drift_after_prepare_refused` reports PASS with its original
+simple callback and inherited preservation assertions. Exact Source
 rechecks a bound scale configuration in `Runtime.precommit`. This fixture's
 patched callback appends one byte and calls the original precommit, whose hash
-guard reports `scale configuration changed`. The callback sits after real signed
+guard reports `scale configuration changed`. The original test requires
+`self.assert_refused(self.run_update(), 'scale configuration changed')`.
+The callback sits after real signed
 package load, add and transaction prepare, prepared-set checks, policy/trust/
 protected-payload rechecks and snapshot validation; commit starts afterward.
 
@@ -60,19 +65,19 @@ packages in these tests are synthetic inputs, not Apple hardware observations.
 
 ## Retention and cleanup
 
-Root's once-collected [logs.zip](../../artifacts/development/updater-bound-scale-run38803000053/logs.zip)
-is 22464 bytes, SHA256
-`bff7028a934ade64ff8bd33ac7af4e1656c0d73f4dabc38085a46f9bc738d229`.
+Root's once-collected [logs.zip](../../artifacts/development/updater-bound-scale-run38804763328/logs.zip)
+is 22497 bytes, SHA256
+`98033d425410a3a7fd0b98d84e3976b6a13cb5835734bd4a899b50859a3ce90a`.
 Its ZIP members pass read/CRC checks. 106 unique PASS identifiers independently
-match the aggregate counts. Readable [result](../../artifacts/development/updater-scale-drift-diagnostic-20261015/followup/actual-run38803000053/result.json)
-and [test identifiers](../../artifacts/development/updater-scale-drift-diagnostic-20261015/followup/actual-run38803000053/tests.log)
+match the aggregate counts. Readable [result](../../artifacts/development/updater-scale-drift-diagnostic-20261015/followup/actual-run38804763328/result.json)
+and [test identifiers](../../artifacts/development/updater-scale-drift-diagnostic-20261015/followup/actual-run38804763328/tests.log)
 were derived only from that retained log; no collection, test replay or actor ran
 for this review. Raw per-case state, private TEST keys and a page-size/CPU probe
 are not retained. Behavioral conclusions join identifiers to exact Source.
 
 The final cleanup-only step reports PASS: absence of owned container
-`cachy-asahi-bound-8d969c51e5491b2469623c7da80baf3d`, absence of recorded image
-`sha256:9c09999a53588db32585b13aa97da06385434dd1d54b2a475ae501e2968440b7`,
+`cachy-asahi-bound-33943cdc51088500a0a9786b19bdf854`, absence of recorded image
+`sha256:aca1afc6dc3197b20e7a64ffff70fba36c3afde7fe7dbff8af1808932bc1fcf3`,
 and `private_data_removed=true`. This is scoped owner-reported retirement;
 it does not certify all host processes, Docker cache/layers or acquisition-cache
 removal. The runtime uses network-none/private IPC, read-only root/source,
@@ -81,9 +86,25 @@ private/tmp, explicit writable workspace and the existing clean environment.
 The earlier failure's text matched the published ENOTTY class. This success
 after adding a container reaper does **not** measure or prove earlier PID-limit
 exhaustion, zombie counts, a failed second fork or actual stale errno. The
-successful Source still includes temporary TEST diagnostics; their later
-artifact-only removal proposal is not validated by this run.
+final clean Source has no temporary TEST diagnostics. Its passing result now
+validates the restored original assertion path with the retained reaper flag.
 
 Full supported-root updates, installed end-user integration, coordinated actual
 Asahi changes, production/release trust, physical 16K behaviour, boot/session
 recovery, both M2 Air sizes and performance remain NOT RUN/unestablished here.
+
+## Earlier instrumented result
+
+[Run 38803000053](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38803000053)
+also passed all 106 cases with scoped cleanup PASS, using Source
+`6d24c3a647add2550f3612b79f14efb7e6b5a1a2` and the same workflow. That Source
+still contained temporary TEST diagnostics. Its separate
+[retained logs](../../artifacts/development/updater-bound-scale-run38803000053/logs.zip)
+are 22464 bytes, SHA256
+`bff7028a934ade64ff8bd33ac7af4e1656c0d73f4dabc38085a46f9bc738d229`;
+[readout/result](../../artifacts/development/updater-scale-drift-diagnostic-20261015/followup/actual-run38803000053/README.md)
+remain retained. It is earlier instrumented evidence, separate from the final
+clean run above. The subsequent removal proposal restored test_scale_update.py
+and native_container.py to their pre-diagnostic bytes; exact final Source matches
+those two reviewed replacements. No new test instrumentation was added for this
+review.

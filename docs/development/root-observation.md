@@ -70,3 +70,12 @@ cannot strand its newly opened child or trigger a blind close retry. These are
 bounded local filesystem checks. The CLI and full-root updater do not opt in;
 source/destination quiescence, cross-pass inode continuity, atomicity and crash
 recovery remain caller obligations or unestablished properties.
+
+
+`root_path.resolve(nodes, path, limits=limits)` is a separate pure path primitive.
+It resolves literal absolute targets against the supplied observed root and
+returns an endpoint plus a bounded ordered dependency trace. It performs no
+filesystem I/O and validates only visited node shapes. Seventeen synthetic data
+methods cover ordered dot/dotdot behavior, root resets, cycles, finite revisits,
+byte/depth/work/deadline limits and absence of host lookups. No observer, archive,
+projection or Runtime currently uses it; absolute links remain refused there.
