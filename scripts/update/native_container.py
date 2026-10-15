@@ -190,10 +190,16 @@ def scale_drift_diagnostic(test):
         'OBSERVED','TIMEOUT','DIAGNOSTIC_ERROR'}),gpg_exit=gpg_exit,gpg_status=statuses,
         unknown_status=fact(probe.get('unknown_status')),archive_equal=fact(probe.get('archive_equal')),
         signature_equal=fact(probe.get('signature_equal')),inputs_stable=fact(probe.get('inputs_stable')))
+    engine=row.get('test_scale_post_load_engine');engine=engine if type(engine) is dict else {}
+    engine_probe=dict(state=label(engine.get('state'),{'NOT_RUN','UNAVAILABLE','API_ERROR',
+        'ENGINE_LIST_BOUND','NO_UNIQUE_OPENPGP_ENGINE','OBSERVED','DIAGNOSTIC_ERROR'}))
+    for key in ('handle_getter_available','handle_home_matches','engine_getter_available','engine_home_matches',
+                'engine_home_default','engine_binary_matches'):
+        engine_probe[key]=fact(engine.get(key))
     return dict(stage=label(raw.get('stage'),SCALE_DRIFT_STAGES),
         status=label(row.get('status'),{'PASS','FAIL'}),phase=label(row.get('phase'),SCALE_DRIFT_PHASES),
         error_type=label(row.get('error_type'),SCALE_DRIFT_ERRORS),
-        error_category=category,alpm_errno=alpm_errno,post_load_signature=signature_probe,
+        error_category=category,alpm_errno=alpm_errno,post_load_signature=signature_probe,post_load_engine=engine_probe,
         commit_started=fact(row.get('commit_started')),packages_committed=fact(row.get('packages_committed')),
         checkpoint_changed=fact(row.get('checkpoint_changed')),callback_reached=fact(row.get('test_scale_precommit_reached')))
 

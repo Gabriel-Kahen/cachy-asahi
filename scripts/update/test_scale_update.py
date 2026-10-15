@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: MIT
 """Synthetic 587-name capacity fixtures; never the real 587-package composition."""
 import argparse
+import ctypes as C
 import json
 import functools
 import os
@@ -22,6 +23,56 @@ scale = module('scale_under_test',Path(__file__).with_name('scale_update.py'))
 SIGNATURE_STATUS = {'NEWSIG','KEY_CONSIDERED','SIG_ID','GOODSIG','VALIDSIG','BADSIG','ERRSIG','NO_PUBKEY',
     'EXPSIG','EXPKEYSIG','REVKEYSIG','TRUST_UNDEFINED','TRUST_NEVER','TRUST_MARGINAL','TRUST_FULLY',
     'TRUST_ULTIMATE','NODATA','FAILURE','ERROR','UNEXPECTED','KEYEXPIRED','SIGEXPIRED','KEYREVOKED'}
+
+
+# Public read-only GPGME 2.2.0 engine-info ABI; see retained headers in proposal.
+class GpgmeEngineInfo(C.Structure):
+    pass
+GpgmeEngineInfo._fields_=[('next',C.POINTER(GpgmeEngineInfo)),('protocol',C.c_int),
+    ('file_name',C.c_char_p),('version',C.c_char_p),('req_version',C.c_char_p),('home_dir',C.c_char_p)]
+
+
+def pre_load_handle(alpm,gpgdir):
+    """Capture before load: libalpm option getters clear handle errno."""
+    value=dict(handle_getter_available=False,handle_home_matches='UNKNOWN')
+    try:
+        home=alpm.lib.alpm_option_get_gpgdir
+        home.restype=C.c_char_p;home.argtypes=[C.c_void_p]
+        value['handle_getter_available']=True
+        actual=home(alpm.handle)
+        value['handle_home_matches']=actual is not None and actual.rstrip(b'/') == os.fsencode(gpgdir).rstrip(b'/')
+    except Exception:pass
+    return value
+
+
+def post_load_engine(alpm,configuration,gpgdir):
+    """Read global configuration after refusal; never touch ALPM handle errno."""
+    value=dict(configuration,state='UNAVAILABLE',engine_getter_available=False,
+        engine_home_matches='UNKNOWN',engine_home_default='UNKNOWN',engine_binary_matches='UNKNOWN')
+    try:
+        engines=alpm.lib.gpgme_get_engine_info
+        engines.restype=C.c_uint;engines.argtypes=[C.POINTER(C.POINTER(GpgmeEngineInfo))]
+        value['engine_getter_available']=True
+        info=C.POINTER(GpgmeEngineInfo)()
+        if engines(C.byref(info)) != 0:
+            value['state']='API_ERROR';return value
+        seen=set();openpgp=[]
+        while info:
+            address=C.cast(info,C.c_void_p).value
+            if address in seen or len(seen)>=16:
+                value['state']='ENGINE_LIST_BOUND';return value
+            seen.add(address);entry=info.contents
+            if entry.protocol == 0:  # GPGME_PROTOCOL_OpenPGP, public enum.
+                openpgp.append((entry.home_dir,entry.file_name))
+            info=entry.next
+        if len(openpgp) != 1:
+            value['state']='NO_UNIQUE_OPENPGP_ENGINE';return value
+        engine_home,binary=openpgp[0]
+        value.update(state='OBSERVED',engine_home_default=engine_home is None,
+            engine_home_matches=engine_home is not None and engine_home.rstrip(b'/') == os.fsencode(gpgdir).rstrip(b'/'),
+            engine_binary_matches=binary == b'/usr/bin/gpg')
+    except Exception:value['state']='DIAGNOSTIC_ERROR'
+    return value
 
 
 class ScaleTransactions(unittest.TestCase):
@@ -94,6 +145,7 @@ class ScaleTransactions(unittest.TestCase):
                 if hasattr(self,'_scale_drift_diagnostic'):
                     row['test_scale_precommit_reached']=self._scale_drift_precommit_reached
                     row['test_scale_post_load_signature']=self._scale_drift_post_load_signature
+                    row['test_scale_post_load_engine']=self._scale_drift_post_load_engine
                 with os.fdopen(write,'wb') as stream:stream.write(encoded(row))
             finally:os._exit(0)
         os.close(write)
@@ -167,14 +219,17 @@ class ScaleTransactions(unittest.TestCase):
         diagnostic=self._scale_drift_diagnostic={'stage':'invoke','row':None}
         self._scale_drift_precommit_reached=False
         self._scale_drift_post_load_signature={'state':'NOT_RUN'}
+        self._scale_drift_post_load_engine={'state':'NOT_RUN'}
         class ObserveLoad(scale.roots.Alpm):
             def __init__(alpm,root,gpgdir,log,architecture='aarch64',*,limits):
                 super().__init__(root,gpgdir,log,architecture,limits=limits)
+                configuration=pre_load_handle(alpm,gpgdir)
                 load=alpm.alpm_pkg_load
                 def observed(handle,filename,full,level,package):
                     code=load(handle,filename,full,level,package)
                     try:
                         if code != 0 and alpm.alpm_strerror(alpm.alpm_errno(handle)) == b'invalid or corrupted package (PGP signature)':
+                            self._scale_drift_post_load_engine=post_load_engine(alpm,configuration,gpgdir)
                             self._scale_drift_post_load_signature=self.post_load_signature(filename,gpgdir)
                     except Exception:
                         self._scale_drift_post_load_signature={'state':'DIAGNOSTIC_ERROR'}
