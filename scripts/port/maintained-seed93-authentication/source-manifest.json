@@ -6,14 +6,14 @@
       "sha256": "4cda7f57152332dc3886b13b3ab9a3a3bffdd5734cb79f635537ad86d60f1272"
     },
     "source/common.py": {
-      "bytes": 20342,
+      "bytes": 24559,
       "mode": 420,
-      "sha256": "2292e753ed470336c4bfb94ad2c922d225ea53767a28df5f90befcfa1dfe6edb"
+      "sha256": "75c157877f0274d17519fe6ff507aa105bbe4eb2a43bdac7a5781a50ef912c40"
     },
     "source/composition.py": {
-      "bytes": 27734,
+      "bytes": 32116,
       "mode": 420,
-      "sha256": "f0804a724a1b33b2bce1fa11bd353114e617f7b919d6d34d15b8e71c7c7fae8e"
+      "sha256": "625094e2a655d4b602e3e5105e2ca3b99fed912d8dd096bb148ca63581f27be0"
     },
     "source/helper_policy.py": {
       "bytes": 11517,
@@ -28,7 +28,7 @@
     "source/seed93.py": {
       "bytes": 7635,
       "mode": 420,
-      "sha256": "ebb384cbc274de2febb7bf80ece514c7348182917d1e3a252e55749c75861156"
+      "sha256": "a79640139ed9b2329eece54ba65628e43e0c5986407319ea8ef48561cf6274b0"
     }
   },
   "schema": "seed93-source-manifest-v1"

@@ -297,7 +297,7 @@ shadow 4.20.0.arch1-1
 shared-mime-info 2.5.1-2
 source-highlight 3.1.9-19
 spirv-tools 1:1.4.363.0-1
-sqlite 3.53.4-1
+sqlite 3.54.0-1
 sudo 1.9.17.p2-6
 swaylock 1.8.6-1
 systemd 262-1

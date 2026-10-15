@@ -1,12 +1,12 @@
 {
   "Root_actor_grant": false,
   "enrichment93": {
-    "bytes": 92476,
+    "bytes": 92467,
     "mode": 420,
-    "sha256": "14a85c194f4312879a239a8a6e728af3fa94b464c8ef3b6485be8ee74b51538d"
+    "sha256": "bcb6f532837d3d13bcbaee7282207250ee7a23a61fa1e8b18df33862b4e08bea"
   },
-  "held_final_lock_sha256": "adf91712422e86817d027c4c8089023df980c53dede701e8599402e743dd0641",
-  "held_seed_lock_sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25",
+  "held_final_lock_sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac",
+  "held_seed_lock_sha256": "b02e9e2e2cb64bfb6d11b5add47060d8276a23f327237ea3dee6c6c46e97a54c",
   "rows": [
     {
       "descriptor": {
@@ -16759,29 +16759,29 @@
           "zlib",
           "glibc"
         ],
-        "filename": "sqlite-3.53.4-1-aarch64.pkg.tar.xz",
-        "isize": 21161566,
+        "filename": "sqlite-3.54.0-1-aarch64.pkg.tar.xz",
+        "isize": 21231389,
         "license": [
           "LicenseRef-Sqlite"
         ],
         "name": "sqlite",
         "provides": [
-          "sqlite3=3.53.4",
+          "sqlite3=3.54.0",
           "libsqlite3.so=0-64"
         ],
         "replaces": [
           "sqlite3"
         ],
         "repo": "core",
-        "sha256": "9512d37af4ac6910e10e2a8e6f85078ab72a2ece17a8e6b51755898f50b900ba",
-        "signature_sha256": "3ebd5713a768e6de587faf3869485fb2563346d2570afc9cdf6d3549ce28a762",
+        "sha256": "88c1b8d04c68597ea09bc1e393ad79fb0faf94b7fe45f507f663a6e68c1c7102",
+        "signature_sha256": "567c1ca19cbee1f80b166232b0d0cc2619f1ad2100d3faf0aedcdf47656c1177",
         "signature_size": 566,
-        "size": 1850368,
+        "size": 1849948,
         "source_url": [
           "https://www.sqlite.org/"
         ],
-        "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/sqlite-3.53.4-1-aarch64.pkg.tar.xz",
-        "version": "3.53.4-1"
+        "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/sqlite-3.54.0-1-aarch64.pkg.tar.xz",
+        "version": "3.54.0-1"
       },
       "origin": "proposed_seed93_17"
     },
@@ -19366,6 +19366,6 @@
     }
   ],
   "schema_version": 1,
-  "status": "UNSELECTED_METADATA_COMPLETE_NOT_ARCHIVE_AUTHENTICATED",
+  "status": "UNSELECTED_SQLITE_ONLY_SUCCESSOR_METADATA_NOT_WHOLE93_AUTHENTICATED",
   "whole574_trust": "NOT_ESTABLISHED"
 }

@@ -495,7 +495,7 @@ spdlog 1.17.0-2
 speex 1.2.1-2
 speexdsp 1.2.1-2
 spirv-tools 1:1.4.363.0-1
-sqlite 3.53.4-1
+sqlite 3.54.0-1
 sratom 0.6.22-1
 srt 1.5.7-2
 startup-notification 0.12-9

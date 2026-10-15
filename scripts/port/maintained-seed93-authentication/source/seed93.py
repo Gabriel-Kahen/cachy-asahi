@@ -26,7 +26,7 @@ def preview(bound):
     need(type(bound) is Bound, 'BOUND_TYPE')
     rows = bound.rows()
     return {'schema':'seed93-preparation-v1', 'status':'METADATA_BOUND_ACTUAL_NOT_RUN',
-            'scope':SCOPE, 'packages':len(rows), 'declared_package_signature_bytes':56462822,
+            'scope':SCOPE, 'packages':len(rows), 'declared_package_signature_bytes':56462402,
             'profile_sha256':bound.profile_sha256, 'source_manifest_sha256':bound.source_manifest_sha256,
             'actor_grant':False, 'actual_authentication':'NOT_RUN', 'limits':dict(LIMITS)}
 

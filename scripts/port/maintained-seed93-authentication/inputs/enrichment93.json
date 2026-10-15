@@ -2,9 +2,9 @@
   "Root_actor_grant": false,
   "archive_authentication_performed": false,
   "current2_original_233_unchanged": true,
-  "held_final_lock_sha256": "adf91712422e86817d027c4c8089023df980c53dede701e8599402e743dd0641",
-  "held_seed_lock_sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25",
-  "held_seed_metadata_sha256": "a0e0dc168ceccddf80eff3de57f9515973f0c6810f021425813d46d9425a3e88",
+  "held_final_lock_sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac",
+  "held_seed_lock_sha256": "b02e9e2e2cb64bfb6d11b5add47060d8276a23f327237ea3dee6c6c46e97a54c",
+  "held_seed_metadata_sha256": "9d0c30351f0b1e537647a26bb416de8f562135c6ba0ac7e080dde353f297267a",
   "packages": [
     {
       "arch": "aarch64",
@@ -2725,29 +2725,29 @@
         "zlib",
         "glibc"
       ],
-      "filename": "sqlite-3.53.4-1-aarch64.pkg.tar.xz",
-      "isize": 21161566,
+      "filename": "sqlite-3.54.0-1-aarch64.pkg.tar.xz",
+      "isize": 21231389,
       "license": [
         "LicenseRef-Sqlite"
       ],
       "name": "sqlite",
       "provides": [
-        "sqlite3=3.53.4",
+        "sqlite3=3.54.0",
         "libsqlite3.so=0-64"
       ],
       "replaces": [
         "sqlite3"
       ],
       "repo": "core",
-      "sha256": "9512d37af4ac6910e10e2a8e6f85078ab72a2ece17a8e6b51755898f50b900ba",
-      "signature_sha256": "3ebd5713a768e6de587faf3869485fb2563346d2570afc9cdf6d3549ce28a762",
+      "sha256": "88c1b8d04c68597ea09bc1e393ad79fb0faf94b7fe45f507f663a6e68c1c7102",
+      "signature_sha256": "567c1ca19cbee1f80b166232b0d0cc2619f1ad2100d3faf0aedcdf47656c1177",
       "signature_size": 566,
-      "size": 1850368,
+      "size": 1849948,
       "source_url": [
         "https://www.sqlite.org/"
       ],
-      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/sqlite-3.53.4-1-aarch64.pkg.tar.xz",
-      "version": "3.53.4-1"
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/sqlite-3.54.0-1-aarch64.pkg.tar.xz",
+      "version": "3.54.0-1"
     },
     {
       "arch": "aarch64",
@@ -3194,11 +3194,11 @@
       "repo": "core"
     },
     "sqlite": {
-      "kind": "historical_core_metadata",
-      "metadata_group": "sqlite-3.53.4-1",
-      "path": "artifacts/platform/target-metadata-20261012/core.db",
-      "scope": "UNSIGNED_HISTORICAL_REPOSITORY_METADATA_DECLARATION_NOT_PACKAGE_AUTHENTICATION",
-      "snapshot_sha256": "5f184763bad034ac02662ee37d87edad8124244c8609f4a441947da1855b0b08"
+      "kind": "current2_repository_metadata",
+      "metadata_group": "sqlite-3.54.0-1",
+      "repo": "core",
+      "scope": "DECLARED_CURRENT_METADATA_PLUS_SEPARATE_ROOT_PAIR_RECEIPT_NOT_WHOLE93_AUTHENTICATION",
+      "snapshot_sha256": "91b52f917c664d5c6c16686b4749b2c4bb3f2673b49097f736d145ba88016364"
     },
     "which": {
       "kind": "current2_repository_metadata",
@@ -3217,7 +3217,7 @@
     }
   },
   "schema": "PROPOSED_METADATA_ONLY_SEED_PIN_ENRICHMENT93_V1",
-  "seed_versions_changed": 0,
-  "status": "UNSELECTED_DECLARATIONS_ONLY_NO_TRUST",
+  "seed_versions_changed": 1,
+  "status": "SQLITE_ONLY_SUCCESSOR_METADATA_COMPLETE_NOT_WHOLE93_AUTHENTICATED",
   "unresolved_metadata_identities": []
 }

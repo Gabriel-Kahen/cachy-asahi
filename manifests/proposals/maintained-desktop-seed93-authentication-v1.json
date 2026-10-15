@@ -2,8 +2,8 @@
   "bounds": {
     "aggregate_deadline": "UNASSIGNED_SEPARATE_ROOT_PLAN",
     "operation_timeout_seconds": 60,
-    "package_bytes": 56410184,
-    "package_signature_bytes": 56462822,
+    "package_bytes": 56409764,
+    "package_signature_bytes": 56462402,
     "packages": 93,
     "signature_bytes": 52638
   },
@@ -94,22 +94,22 @@
       "sha256": "d536a11eb27a3cade695351c3f6475d438de865b4240d9990207e42146abeca0"
     },
     "enrichment93": {
-      "bytes": 92476,
+      "bytes": 92467,
       "filename": "inputs/enrichment93.json",
-      "origin": "artifacts/reviews/maintained-desktop-current2-whole574-trust-gap-audit-20261015/transaction-audit/seed-pin-enrichment93.json",
-      "sha256": "14a85c194f4312879a239a8a6e728af3fa94b464c8ef3b6485be8ee74b51538d"
+      "origin": "artifacts/reviews/maintained-desktop-seed93-sqlite-acquisition-correction-20261015/source-audit/corrected/inputs/enrichment93.json",
+      "sha256": "bcb6f532837d3d13bcbaee7282207250ee7a23a61fa1e8b18df33862b4e08bea"
     },
     "enrichment_spec": {
-      "bytes": 4520,
+      "bytes": 9339,
       "filename": "inputs/enrichment_spec.json",
-      "origin": "artifacts/reviews/maintained-desktop-current2-whole574-trust-gap-audit-20261015/transaction-audit/adapter-spec-historical-successor.json",
-      "sha256": "f086a35eba4d01ed91336e994dfa7f27d8778a3723db991d3c2ab16a3522bb6b"
+      "origin": "artifacts/reviews/maintained-desktop-seed93-sqlite-acquisition-correction-20261015/source-audit/corrected/inputs/enrichment_spec.json",
+      "sha256": "1beb6db4b8d45ecd16e9e1ec304788f46a3c098c45b8e4ef87a5d86ec8c78624"
     },
     "final_lock": {
       "bytes": 11117,
       "filename": "inputs/final_lock.lock",
-      "origin": "artifacts/reviews/maintained-desktop-current2-authentication-source-20261015/inputs/final.lock",
-      "sha256": "adf91712422e86817d027c4c8089023df980c53dede701e8599402e743dd0641"
+      "origin": "artifacts/reviews/maintained-desktop-seed93-sqlite-acquisition-correction-20261015/source-audit/corrected/inputs/final_lock.lock",
+      "sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac"
     },
     "gap_receipt": {
       "bytes": 3318,
@@ -216,26 +216,26 @@
     "projection": {
       "bytes": 661251,
       "filename": "inputs/projection.json",
-      "origin": "artifacts/reviews/maintained-desktop-current2-authentication-source-20261015/inputs/projection-metadata.json",
-      "sha256": "2214b5170d8f2f0e0e86d7f1a88efc8a421c40d7186263d5c0c9913686d5a00a"
+      "origin": "artifacts/reviews/maintained-desktop-seed93-sqlite-acquisition-correction-20261015/source-audit/corrected/inputs/projection.json",
+      "sha256": "fa4eead520f10385828bfa3a0116718ed7fdf23770cb7e9d8b69682913da3e6e"
     },
     "proposal574": {
-      "bytes": 589943,
+      "bytes": 589956,
       "filename": "inputs/proposal574.json",
-      "origin": "artifacts/reviews/maintained-desktop-current2-whole574-trust-gap-audit-20261015/proposed-whole574-descriptors.json",
-      "sha256": "b853ef2e4568cdf0e4c669515e6dcd6eaa60cedd2c14d7228ee24cf1914bd07a"
+      "origin": "artifacts/reviews/maintained-desktop-seed93-sqlite-acquisition-correction-20261015/source-audit/corrected/inputs/proposal574.json",
+      "sha256": "1ab7b81ab9ec36331c487d0c3d444990d78ee6f109a7c489fee89cf410b2185e"
     },
     "seed": {
       "bytes": 229285,
       "filename": "inputs/seed.json",
-      "origin": "artifacts/reviews/maintained-desktop-current2-authentication-source-20261015/inputs/seed-metadata.json",
-      "sha256": "a0e0dc168ceccddf80eff3de57f9515973f0c6810f021425813d46d9425a3e88"
+      "origin": "artifacts/reviews/maintained-desktop-seed93-sqlite-acquisition-correction-20261015/source-audit/corrected/inputs/seed.json",
+      "sha256": "9d0c30351f0b1e537647a26bb416de8f562135c6ba0ac7e080dde353f297267a"
     },
     "seed_lock": {
       "bytes": 6674,
       "filename": "inputs/seed_lock.lock",
-      "origin": "artifacts/reviews/maintained-desktop-current2-authentication-source-20261015/inputs/seed.lock",
-      "sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25"
+      "origin": "artifacts/reviews/maintained-desktop-seed93-sqlite-acquisition-correction-20261015/source-audit/corrected/inputs/seed_lock.lock",
+      "sha256": "b02e9e2e2cb64bfb6d11b5add47060d8276a23f327237ea3dee6c6c46e97a54c"
     }
   },
   "keyring_files": [
@@ -258,7 +258,7 @@
       "url": "https://raw.githubusercontent.com/archlinuxarm/PKGBUILDs/29432c01130efc4ad297dfe8f487d5b79cbaf8e9/core/archlinuxarm-keyring/archlinuxarm-revoked"
     }
   ],
-  "package_rows_sha256": "3e99edd9604b04a42db9db093ccfde98c74dfb7216cff9245b7d6f8a53127f8e",
+  "package_rows_sha256": "1f0bb89d87d95da38660d75ab4662ada3fa9cbf082cf8710f438811ac98950d3",
   "packages": [
     {
       "arch": "aarch64",
@@ -2979,29 +2979,29 @@
         "zlib",
         "glibc"
       ],
-      "filename": "sqlite-3.53.4-1-aarch64.pkg.tar.xz",
-      "isize": 21161566,
+      "filename": "sqlite-3.54.0-1-aarch64.pkg.tar.xz",
+      "isize": 21231389,
       "license": [
         "LicenseRef-Sqlite"
       ],
       "name": "sqlite",
       "provides": [
-        "sqlite3=3.53.4",
+        "sqlite3=3.54.0",
         "libsqlite3.so=0-64"
       ],
       "replaces": [
         "sqlite3"
       ],
       "repo": "core",
-      "sha256": "9512d37af4ac6910e10e2a8e6f85078ab72a2ece17a8e6b51755898f50b900ba",
-      "signature_sha256": "3ebd5713a768e6de587faf3869485fb2563346d2570afc9cdf6d3549ce28a762",
+      "sha256": "88c1b8d04c68597ea09bc1e393ad79fb0faf94b7fe45f507f663a6e68c1c7102",
+      "signature_sha256": "567c1ca19cbee1f80b166232b0d0cc2619f1ad2100d3faf0aedcdf47656c1177",
       "signature_size": 566,
-      "size": 1850368,
+      "size": 1849948,
       "source_url": [
         "https://www.sqlite.org/"
       ],
-      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/sqlite-3.53.4-1-aarch64.pkg.tar.xz",
-      "version": "3.53.4-1"
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/sqlite-3.54.0-1-aarch64.pkg.tar.xz",
+      "version": "3.54.0-1"
     },
     {
       "arch": "aarch64",
@@ -3093,5 +3093,5 @@
   "schema": "seed93-authentication-profile-v1",
   "scope": "GENERIC-held-seed93-data-authentication",
   "signer_fingerprint": "68B3537F39A313B3E574D06777193F152BDBE6A6",
-  "source_manifest_sha256": "7e3d53110cc868f4e7783cd8d494a5efdd9bca6e9008f447d9399ce0cf782cc7"
+  "source_manifest_sha256": "bd72c0d2da36117071b0a1683ed96857c71e50f73a220488f5d20f6463ba906e"
 }
