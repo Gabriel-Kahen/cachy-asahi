@@ -34,7 +34,7 @@ def save(path, value):
 
 def retain(raw, public):
     names = ['desktop574/report.json', 'desktop574/build.log', 'dependency.log',
-             'lifecycle-fixture-summary.json', 'updater-v2-summary.json']
+             'lifecycle-fixture-summary.json', 'updater-v2-summary.json', 'setup4-summary.json']
     for name in ('ksmctl', 'topmem', 'zsh-autosuggestions', 'fish-bang-bang'):
         names += [f'cachy-asahi-{name}/{file}' for file in ('build.log', 'provenance.json', 'validation.json')]
     for name in names:
@@ -173,6 +173,19 @@ def payload(report):
     return rows
 
 
+def setup4_checkpoint(successor, rows, projects, inputs):
+    """Select v2 before the initial transaction only in explicit setup4 mode."""
+    if successor is None:
+        return rows, projects, FINAL
+    row = successor['package']
+    assert row['name'] == 'cachy-asahi-update' and row['version'] == '4.4.2-2'
+    rows = [row if p['name'] == row['name'] else p for p in rows]
+    projects = [dict(row, archive=row['filename']) if p['name'] == row['name'] else p for p in projects]
+    shutil.copyfile(HERE / 'expected-updater-v2.lock', inputs / 'expected-installed.lock')
+    assert sha(inputs / 'expected-installed.lock') == successor['expected_inventory_sha256']
+    return rows, projects, successor['expected_inventory_sha256']
+
+
 def compose(args, raw, public, result):
     py = sys.executable
     pins = json.loads((HERE / 'recipes.json').read_text())
@@ -254,6 +267,12 @@ def compose(args, raw, public, result):
         preparation = module('composition_updater_v2_inputs', HERE / 'updater_v2_inputs.py')
         successor, archive = preparation.prepare(args, raw, inputs, checks, build_api, sys.modules[__name__])
         archives.append(archive)
+    setup4 = None
+    if args.setup4_pair:
+        result['phase'] = 'prepare-retained-setup4-native-pair'
+        preparation = module('composition_setup4_inputs', HERE / 'setup4_inputs.py')
+        setup4, archive = preparation.prepare(args, raw, inputs, checks, build_api, sys.modules[__name__])
+        archives.append(archive)
     fingerprint = sign(inputs, raw, archives)
     for row in rows:
         sig = inputs / (row['filename'] + '.sig')
@@ -265,6 +284,13 @@ def compose(args, raw, public, result):
     if successor:
         row = successor['package']; sig = inputs / (row['filename'] + '.sig')
         row.update(signature_sha256=sha(sig), signature_size=sig.stat().st_size)
+    if setup4:
+        row = setup4['package']; sig = inputs / (row['filename'] + '.sig')
+        row.update(signature_sha256=sha(sig), signature_size=sig.stat().st_size)
+    checkpoint_sha = FINAL
+    if setup4:
+        rows, projects, checkpoint_sha = setup4_checkpoint(successor, rows, projects, inputs)
+        successor = None
     for row in dependency['packages']:
         if row['name'] == 'xdg-utils': continue
         assert row['name'] not in base
@@ -276,6 +302,7 @@ def compose(args, raw, public, result):
         'signer_fingerprint': dependency['signer_fingerprint'], 'test_signer_fingerprint': fingerprint}
     if lifecycle: plan['lifecycle'] = lifecycle
     if successor: plan['updater_v2'] = successor
+    if setup4: plan['setup4'] = setup4
     save(inputs / 'plan.json', plan)
     save(public / 'packages.json', {r['name']: {'version': r['version'], 'sha256': r['sha256']} for r in rows})
     result['phase'] = 'signed-offline-composition'
@@ -286,16 +313,18 @@ def compose(args, raw, public, result):
         '--memory=2g', '--cpus=2', '--tmpfs=/tmp:rw,nosuid,nodev,exec,size=512m',
         '--env=CACHY_ASAHI_COMPOSITION=' + uuid.uuid4().hex, '--env=LC_ALL=C', '--env=PYTHONDONTWRITEBYTECODE=1']
     for cap in ('CHOWN', 'DAC_OVERRIDE', 'FOWNER', 'SETUID', 'SETGID', 'SYS_CHROOT', 'SETFCAP'): argv.append('--cap-add=' + cap)
-    if lifecycle: argv.append('--cap-add=KILL')
+    if lifecycle or setup4: argv.append('--cap-add=KILL')
     for source, target, ro in ((inputs, '/inputs', True), (HERE / 'container.py', '/runner.py', True), (public, '/out', False)):
         argv += ['--mount', f'type=bind,src={source},dst={target}' + (',readonly' if ro else '')]
-    if lifecycle or successor:
+    if lifecycle or successor or setup4:
         argv += ['--mount', f'type=bind,src={HERE / "lifecycle.py"},dst=/lifecycle.py,readonly']
     if successor:
         argv += ['--mount', f'type=bind,src={HERE / "updater_v2.py"},dst=/updater-v2.py,readonly',
                  '--env=CACHY_ASAHI_UPDATER_RUNTIME=' + uuid.uuid4().hex]
+    if setup4:
+        argv += ['--mount', f'type=bind,src={HERE / "setup4.py"},dst=/setup4.py,readonly']
     command(argv + ['--entrypoint=/usr/bin/python3', image, '-I', '-B', '/runner.py'],
-            public / 'transaction.log', 1200 if lifecycle or successor else 480)
+            public / 'transaction.log', 1200 if lifecycle or successor or setup4 else 480)
     result['composition'] = json.loads((public / 'result.json').read_text())
     assert result['composition']['status'] == 'PASS'
     if lifecycle:
@@ -306,6 +335,11 @@ def compose(args, raw, public, result):
         assert result['composition']['updater_v2']['status'] == 'PASS'
         assert result['composition']['final_package_count'] == 587
         assert result['composition']['final_inventory_sha256'] == FINAL
+    if setup4:
+        assert result['composition']['setup4']['status'] == 'PASS'
+        assert result['composition']['installed_inventory_sha256'] == checkpoint_sha
+        assert result['composition']['final_package_count'] == 587
+        assert result['composition']['final_inventory_sha256'] == checkpoint_sha
 
 
 def main():
@@ -314,7 +348,12 @@ def main():
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument('--lifecycle', action='store_true', help='Run the explicit disposable lifecycle after v1 composition checks')
     mode.add_argument('--updater-v2-source', type=Path, help='Exact Source480053 checkout for v1 upgrade, real Check and v1 rollback')
+    parser.add_argument('--setup4-pair', type=Path, help='Retained Source98 native pair for the explicit setup3-to-4-to-3 development trial; with approved v2 source, select v2 in the initial checkpoint')
     args = parser.parse_args()
+    if args.setup4_pair and args.lifecycle:
+        parser.error('--setup4-pair is incompatible with --lifecycle')
+    if args.setup4_pair:
+        args.setup4_pair = args.setup4_pair.resolve(strict=True)
     assert platform.machine() == 'aarch64' and os.getuid() != 0
     for name, source in SOURCES.items():
         path = getattr(args, name).resolve(); setattr(args, name, path)
@@ -332,6 +371,7 @@ def main():
     result = {'status': 'FAIL', 'phase': 'startup', 'sources': dict(SOURCES),
               'hardware': 'NOT RUN', 'target_lifecycle': 'NOT RUN', 'release': 'NOT ACCEPTED'}
     if args.updater_v2_source: result['sources']['updater_v2'] = UPDATER_V2
+    if args.setup4_pair: result['sources']['setup4'] = '98fecf28a3cde63a9dd7531501c2187825349310'
     previous = signal.signal(signal.SIGTERM, lambda *_: (_ for _ in ()).throw(KeyboardInterrupt()))
     try:
         compose(args, raw, public, result)

@@ -138,7 +138,7 @@ def main():
         guard()
         source = Path('/inputs')
         plan = json.loads((source / 'plan.json').read_text())
-        need(not ('lifecycle' in plan and 'updater_v2' in plan), 'select one composed successor mode')
+        need(len({'lifecycle', 'updater_v2', 'setup4'} & set(plan)) <= 1, 'select one composed successor mode')
         base = lock((source / 'expectedbase.lock').read_text())
         expected = lock((source / 'expected-installed.lock').read_text())
         result['phase'] = 'input-pins-and-base'
@@ -239,6 +239,20 @@ def main():
             need(result['updater_v2']['status'] == 'PASS', 'updater v2 successor did not pass')
             final = inventory()
             need(final == expected, 'updater successor did not restore exact v1 composition')
+            result.update(phase='completed', final_package_count=len(final),
+                          final_inventory_sha256=hashlib.sha256(''.join(k + ' ' + v + '\n' for k, v in sorted(final.items())).encode()).hexdigest())
+        if 'setup4' in plan:
+            result['phase'] = 'setup4-upgrade-enrollment-and-checkpoint-rollback'
+            result['composition_checks'] = 'PASS-exact587-before-setup4'
+            core, _provider = lifecycle_helpers(plan['setup4'], source)
+            setup4 = load('composition_setup4', Path('/setup4.py'))
+            payload_helper = load('composition_payload_checks', Path('/lifecycle.py'))
+            import sys
+            result['setup4'] = setup4.run(pacman, plan, expected, source, work,
+                                        sys.modules[__name__], core, payload_helper)
+            need(result['setup4']['status'] == 'PASS', 'setup4 trial did not pass')
+            final = inventory()
+            need(final == expected, 'setup4 did not restore exact initial checkpoint')
             result.update(phase='completed', final_package_count=len(final),
                           final_inventory_sha256=hashlib.sha256(''.join(k + ' ' + v + '\n' for k, v in sorted(final.items())).encode()).hexdigest())
         result['status'] = 'PASS'
