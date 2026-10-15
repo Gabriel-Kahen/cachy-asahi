@@ -1674,5 +1674,29 @@ class ReceiverPublicRecordProjectionModels(unittest.TestCase):
             else:self.assertIs(original.__cause__,secondary);self.assertTrue(namespace['CANCELLED']);self.assertTrue(state.report['cancelled'])
 
 
+class ReceiverPreflightObservationProjectionControls(unittest.TestCase):
+    model=InstallerCallBoundaryModels.model
+    record=ReceiverPublicRecordProjectionModels.record
+    fact=ReceiverPublicRecordProjectionModels.fact
+    project=ReceiverPublicRecordProjectionModels.project
+
+    @classmethod
+    def setUpClass(cls):ReceiverAcceptanceProjectionModels.setUpClass.__func__(cls)
+    def test_optional_closed_diagnostic_reaches_existing_schema5(self):
+        for aggregate in controller.BARRIER_PREDICATES:
+            value=self.record();value['preflight_diagnostic']=dict(schema_version=1,operation='BARRIER_GATE',aggregate=aggregate)
+            fact=self.fact(value);diagnostic=self.project(fact)
+            self.assertEqual(diagnostic['schema_version'],5)
+            self.assertEqual(diagnostic['receiver_accept']['receiver_public'],value)
+            self.assertNotIn('PRIVATE',json.dumps(diagnostic))
+
+    def test_optional_forged_diagnostic_falls_back_without_grant(self):
+        for key,item in (('schema_version',True),('operation','PRIVATE'),('aggregate',[]),('extra',True)):
+            value=self.record();value['preflight_diagnostic']=dict(schema_version=1,operation='BARRIER_GATE',aggregate='RESULT_UNSUCCESSFUL')
+            value['preflight_diagnostic'][key]=item
+            self.assertEqual(self.project(self.fact(value)),{'schema_version':1,'call_boundary':'RUN'})
+
+
+
 if __name__ == '__main__':
     unittest.main()

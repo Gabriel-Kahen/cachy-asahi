@@ -746,7 +746,7 @@ class LiveGraphBindingControls(unittest.TestCase):
         finally:sys.settrace(previous)
         raise AssertionError('native admission must not complete in a source model')
     def test_selected_issuer_pin_and_captured_graph_reach_only_source_gate(self):
-        self.assertEqual(P.ISSUER_SHA,'1c50e0a38e3a34ddf89d94a92ffabf4b5b28f810df2ce2c3bbd2388870d322af')
+        self.assertEqual(P.ISSUER_SHA,'b21a466e3bd6bf4a215f3eb2a904b6d1e10389da28a89636f8b995dc336cf913')
         self.assertEqual(P.sha(BASE.read_bytes()),P.ISSUER_SHA)
         self.assertEqual(self.check(),'SOURCE_GATE_ONLY')
         self.assertIsNone(self.session.native_consumer_observation)
@@ -976,6 +976,31 @@ class ReceiverPublicRecordDiagnosticControls(unittest.TestCase):
             start_success=False,receiver_preflight_only=True,native_cleanup_pass=True)
         fact=P.run_failure_fact(error,'RECEIVER_ACCEPT');self.assertEqual(fact['schema_version'],3)
         self.assertNotIn('receiver_public',fact['receiver_accept'])
+
+
+class ReceiverPreflightObservationControls(unittest.TestCase):
+    failure=ReceiverPublicRecordDiagnosticControls.failure
+    refused=ReceiverPublicRecordDiagnosticControls.refused
+    def test_optional_diagnostic_roundtrips_and_reaches_bound_failure(self):
+        for operation in R.PREFLIGHT_OPERATIONS:
+            value=self.refused();value['preflight_diagnostic']=dict(schema_version=1,operation=operation,aggregate='NOT_OBSERVED')
+            raw=R.public(value)
+            self.assertEqual(P.receiver_public_record(value,P.sha(raw)),value)
+            error=self.failure(value)
+            self.assertEqual(P.run_failure_fact(error,'RECEIVER_ACCEPT')['receiver_accept']['receiver_public'],value)
+
+    def test_nested_malformed_types_enums_and_hash_are_refused(self):
+        good=dict(schema_version=1,operation='BARRIER_GATE',aggregate='RESULT_UNSUCCESSFUL')
+        class Foreign(str):
+            def __eq__(self,other):raise AssertionError('foreign equality')
+        for key,item in (('schema_version',True),('operation',Foreign('BARRIER_GATE')),('aggregate','PRIVATE'),('extra',True)):
+            value=self.refused();value['preflight_diagnostic']=dict(good,**{key:item})
+            digest=P.sha((json.dumps(value,sort_keys=True)+'\n').encode())
+            self.assertIsNone(P.receiver_public_record(value,digest))
+        value=self.refused();value['preflight_diagnostic']=good
+        self.assertIsNone(P.receiver_public_record(value,'0'*64))
+        self.assertEqual(len(json.loads(R.public(record()))),13)
+
 
 
 if __name__=='__main__': unittest.main()

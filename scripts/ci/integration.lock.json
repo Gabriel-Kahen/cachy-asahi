@@ -584,7 +584,7 @@
     },
     "packages/desktop/check-local.py": {
       "mode": 420,
-      "sha256": "62a2999dde37443242bc06a8b051b9d1eeccefe395787a2b946242c016894042"
+      "sha256": "aa389c40421cba7147d7e54318f0d79b14e7d87fba92be8a9368cba5e061a719"
     },
     "packages/desktop/evidence/artifact-check.json": {
       "mode": 420,
@@ -1000,11 +1000,11 @@
     },
     "scripts/ci/installed_handoff.py": {
       "mode": 420,
-      "sha256": "cecdd3bbe8a915da31a6e997f7d59c6f95fab327ea70e42b0cbcb950e6f62f12"
+      "sha256": "a16d1bd07f6d672fcc25694debc09115be50a131fb6b5846c57d4e3dd317d2c8"
     },
     "scripts/ci/integration.py": {
       "mode": 420,
-      "sha256": "5ceaa566f1084b25e8ebbbe8585b577de64595f70035e89943e87fbb83c6becf"
+      "sha256": "e6ba8364ebf14fe503260133f1af8d27432094f760aed9d5f46e8919864d13d6"
     },
     "scripts/ci/integration_export.py": {
       "mode": 420,
@@ -1048,7 +1048,7 @@
     },
     "scripts/ci/test_desktop_projection.py": {
       "mode": 420,
-      "sha256": "85b3c32105efce9a20e10eab813c3d804d1e99ca15565f5bcecda61925e03f2d"
+      "sha256": "6016469b5ea226a493911a3eb4beecc64045392cfa3c6b9bb8357c882ecac6b8"
     },
     "scripts/ci/test_installed_handoff.py": {
       "mode": 420,
@@ -1056,11 +1056,11 @@
     },
     "scripts/ci/test_integration.py": {
       "mode": 420,
-      "sha256": "1d76e688b409ab5afb748ece66aa8f80cbc1cd49dbb606c4b4968ea7de3b88d4"
+      "sha256": "c181ef244dc75f0358de7e9d6133a9cb0aa315c94bf3661dbfd011747ba51880"
     },
     "scripts/ci/test_integration_export.py": {
       "mode": 420,
-      "sha256": "43f0d22ecccdba14efe4d3645dfd22d0c5e784454e5f03c440bcf7396e2cf8bf"
+      "sha256": "1ba970e2f560624e1124e9c68ddf2b61824fd3473b6168e9b4e5013fb2508d84"
     },
     "scripts/ci/test_lifecycle_inventory.py": {
       "mode": 420,
@@ -1108,7 +1108,7 @@
     },
     "scripts/integration/lifecycle.py": {
       "mode": 420,
-      "sha256": "ac0b1e0db088e55768388a312db91ebd3c15a49f8ea3c1cb10c1aaac8ac1e211"
+      "sha256": "21dc5f781c561f25ff0cffcc39e17c6e78ad63f011978b4e6ec531191a447dba"
     },
     "scripts/integration/onboarding.py": {
       "mode": 420,
@@ -1116,7 +1116,7 @@
     },
     "scripts/integration/repository.py": {
       "mode": 420,
-      "sha256": "f860ff970093c7aac0788571d36ab32f1617e2dc9b2a703e42e16782f10a7641"
+      "sha256": "f931997db811325774dec9f4f9126560da27fd14fc5436b37b4578f9c3492cfd"
     },
     "scripts/integration/test_desktop.py": {
       "mode": 420,
@@ -1128,7 +1128,7 @@
     },
     "scripts/integration/test_lifecycle.py": {
       "mode": 420,
-      "sha256": "498c79b54014d27ea21a7aab6bb1f401485cdc5209ed1a31d72745201952151e"
+      "sha256": "9adf967a0b415d6aa7fb116f004d25f6c61f616acef840b436c5267f67c2faa1"
     },
     "scripts/integration/test_onboarding.py": {
       "mode": 420,
@@ -1136,7 +1136,7 @@
     },
     "scripts/integration/test_repository.py": {
       "mode": 420,
-      "sha256": "6a4780734a1872943e6ee5b2d14a7d75454f7103a7c5a947f9c8e5aad50f2af2"
+      "sha256": "b9df5b10b84f42ea62ccf386f30b01654ccd32eeaf4b794c5301cf99809f02a3"
     },
     "scripts/release/release.py": {
       "mode": 493,

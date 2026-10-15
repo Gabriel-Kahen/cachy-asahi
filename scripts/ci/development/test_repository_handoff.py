@@ -1394,13 +1394,13 @@ class OptionalDiagnosticPublicationCorrection(unittest.TestCase):
     def test_compound_interrupt_replacement_fault_old_red_new_green(self):
         from contextlib import ExitStack,nullcontext
         corrected_raw=PATH.read_text()
-        self.assertEqual(hashlib.sha256(corrected_raw.encode()).hexdigest(),'1c50e0a38e3a34ddf89d94a92ffabf4b5b28f810df2ce2c3bbd2388870d322af')
+        self.assertEqual(hashlib.sha256(corrected_raw.encode()).hexdigest(),'b21a466e3bd6bf4a215f3eb2a904b6d1e10389da28a89636f8b995dc336cf913')
         # Counterfactual of this pinned Source: reverse only the optional publication branch.
         new_branch="                try:publish_status(self.output/'status',self.result,replace=True)\n                except BaseException:\n                    pass  # Optional re-publication cannot replace the first failure.\n"
         old_branch="                publish_status(self.output/'status',self.result,replace=True)\n"
         self.assertEqual(corrected_raw.count(new_branch),1)
         old_raw=corrected_raw.replace(new_branch,old_branch,1).encode()
-        self.assertEqual(hashlib.sha256(old_raw).hexdigest(),'5576e09d4d8b4ee87b2d98b3f277871a2021235bb83ea209d7000200e8c39d78')
+        self.assertEqual(hashlib.sha256(old_raw).hexdigest(),'3be0ddfa301e8ff4227cabc34089ea54aba01daf2d36f40b55cd1c91c6140b50')
         old=types.ModuleType('frozen_optional_diagnostic_old');old.__file__=str(PATH)
         exec(compile(old_raw,str(PATH),'exec'),old.__dict__)
         for late_type in (OSError,KeyboardInterrupt,SystemExit):

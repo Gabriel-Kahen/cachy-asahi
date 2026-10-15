@@ -580,7 +580,7 @@
     },
     "packages/desktop/check-local.py": {
       "mode": 420,
-      "sha256": "62a2999dde37443242bc06a8b051b9d1eeccefe395787a2b946242c016894042"
+      "sha256": "aa389c40421cba7147d7e54318f0d79b14e7d87fba92be8a9368cba5e061a719"
     },
     "packages/desktop/evidence/artifact-check.json": {
       "mode": 420,
@@ -996,11 +996,11 @@
     },
     "scripts/ci/installed_handoff.py": {
       "mode": 420,
-      "sha256": "cecdd3bbe8a915da31a6e997f7d59c6f95fab327ea70e42b0cbcb950e6f62f12"
+      "sha256": "a16d1bd07f6d672fcc25694debc09115be50a131fb6b5846c57d4e3dd317d2c8"
     },
     "scripts/ci/integration.py": {
       "mode": 420,
-      "sha256": "5ceaa566f1084b25e8ebbbe8585b577de64595f70035e89943e87fbb83c6becf"
+      "sha256": "e6ba8364ebf14fe503260133f1af8d27432094f760aed9d5f46e8919864d13d6"
     },
     "scripts/ci/integration_export.py": {
       "mode": 420,
@@ -1044,7 +1044,7 @@
     },
     "scripts/ci/test_desktop_projection.py": {
       "mode": 420,
-      "sha256": "85b3c32105efce9a20e10eab813c3d804d1e99ca15565f5bcecda61925e03f2d"
+      "sha256": "6016469b5ea226a493911a3eb4beecc64045392cfa3c6b9bb8357c882ecac6b8"
     },
     "scripts/ci/test_installed_handoff.py": {
       "mode": 420,
@@ -1052,11 +1052,11 @@
     },
     "scripts/ci/test_integration.py": {
       "mode": 420,
-      "sha256": "1d76e688b409ab5afb748ece66aa8f80cbc1cd49dbb606c4b4968ea7de3b88d4"
+      "sha256": "c181ef244dc75f0358de7e9d6133a9cb0aa315c94bf3661dbfd011747ba51880"
     },
     "scripts/ci/test_integration_export.py": {
       "mode": 420,
-      "sha256": "43f0d22ecccdba14efe4d3645dfd22d0c5e784454e5f03c440bcf7396e2cf8bf"
+      "sha256": "1ba970e2f560624e1124e9c68ddf2b61824fd3473b6168e9b4e5013fb2508d84"
     },
     "scripts/ci/test_lifecycle_inventory.py": {
       "mode": 420,
@@ -1104,7 +1104,7 @@
     },
     "scripts/integration/lifecycle.py": {
       "mode": 420,
-      "sha256": "ac0b1e0db088e55768388a312db91ebd3c15a49f8ea3c1cb10c1aaac8ac1e211"
+      "sha256": "21dc5f781c561f25ff0cffcc39e17c6e78ad63f011978b4e6ec531191a447dba"
     },
     "scripts/integration/onboarding.py": {
       "mode": 420,
@@ -1112,7 +1112,7 @@
     },
     "scripts/integration/repository.py": {
       "mode": 420,
-      "sha256": "f860ff970093c7aac0788571d36ab32f1617e2dc9b2a703e42e16782f10a7641"
+      "sha256": "f931997db811325774dec9f4f9126560da27fd14fc5436b37b4578f9c3492cfd"
     },
     "scripts/integration/test_desktop.py": {
       "mode": 420,
@@ -1124,7 +1124,7 @@
     },
     "scripts/integration/test_lifecycle.py": {
       "mode": 420,
-      "sha256": "498c79b54014d27ea21a7aab6bb1f401485cdc5209ed1a31d72745201952151e"
+      "sha256": "9adf967a0b415d6aa7fb116f004d25f6c61f616acef840b436c5267f67c2faa1"
     },
     "scripts/integration/test_onboarding.py": {
       "mode": 420,
@@ -1132,7 +1132,7 @@
     },
     "scripts/integration/test_repository.py": {
       "mode": 420,
-      "sha256": "6a4780734a1872943e6ee5b2d14a7d75454f7103a7c5a947f9c8e5aad50f2af2"
+      "sha256": "b9df5b10b84f42ea62ccf386f30b01654ccd32eeaf4b794c5301cf99809f02a3"
     },
     "scripts/release/release.py": {
       "mode": 493,
@@ -1162,17 +1162,17 @@
   "lineage": "CURRENT_PRODUCT_SUCCESSOR_NOT_HISTORICAL_EVIDENCE",
   "metadata_pins": {
     "manifests/reviewed/ksmctl.json": "f933ccfcfb52ca97ea809d904344f6ec72eb5907ef458b5c2e7f7f1797dc1d44",
-    "manifests/reviewed/maintained-composed-v1.json": "5774ca63c40c0a06305ad8362de14b76a4e45de74060d35775608bcc163b355f",
+    "manifests/reviewed/maintained-composed-v1.json": "ca87521f90a559c29315f6afb79e6689c128b1315d4a5d26308612117ff40985",
     "manifests/reviewed/repository-generic-policy.json": "ff424921c5be38799f64e5c6264bb098cf71737d7be83608a4c91dee83f0365e",
     "scripts/ci/inputs.lock.json": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f",
-    "scripts/ci/integration.lock.json": "6d4bbbb5d51959930518be5e24367694f0d3f83672e6ea36afd6cdffb07b1b0d",
+    "scripts/ci/integration.lock.json": "408897610b5bc4c51f3e75638eb6cd6f04f1c224ec156260f538d29710d0779e",
     "scripts/ci/recipes.lock.json": "a5fb287b4dda2a90bf61d4fa8cbbc5d666dad8bb450a70544d00545b091f36e3",
     "scripts/experiments/stage.lock.json": "8e0d982e136f8f1c79bebbeca8448f48a8466e95dbb8695042e7528a26f731ca",
     "scripts/port/refreshed-desktop/proposed-builder-inventory.lock": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25",
     "scripts/port/repository-client-native/source-map.json": "98e7bf51ddf0f716043fe61538b444c59adfa29a703f66062d289e0a9357527e",
     "scripts/port/repository-client-phase-stage/dependencies.py": "6e8a539f60e0170434e7e833127e4c38746cae7172c1b7af3a48061ecfb3ee9c",
     "scripts/port/repository-client-phase-stage/source-map.json": "162fd6a31703c3bd5628b085e6084d4d2084a6781226e90413c611240d820c80",
-    "scripts/port/repository-native-handoff/source-map.json": "40a785ba6f5dcc0ac2769482cc80e1a12117e9f7b70550079f26736524477d43",
+    "scripts/port/repository-native-handoff/source-map.json": "4afe1db438cbf6b47508096ec172e48bfcfaf69254d37af58e6ff4df610e2a2c",
     "scripts/virtual/tooling-audit.json": "d3289a52f3269ba44f1437b69a112dcbd2086ee16ebe8d44658e65e7fb8e2095",
     "scripts/virtual/tooling.lock.json": "c18afc5bde9868594d41bd576a956960a7b01b190d148ba03ca4c41d4394e1b0"
   },
@@ -1214,7 +1214,7 @@
     },
     "manifests/reviewed/maintained-composed-v1.json": {
       "mode": 420,
-      "sha256": "5774ca63c40c0a06305ad8362de14b76a4e45de74060d35775608bcc163b355f"
+      "sha256": "ca87521f90a559c29315f6afb79e6689c128b1315d4a5d26308612117ff40985"
     },
     "manifests/reviewed/repository-generic-policy.json": {
       "mode": 420,
@@ -1262,7 +1262,7 @@
     },
     "packages/desktop/check-local.py": {
       "mode": 420,
-      "sha256": "62a2999dde37443242bc06a8b051b9d1eeccefe395787a2b946242c016894042"
+      "sha256": "aa389c40421cba7147d7e54318f0d79b14e7d87fba92be8a9368cba5e061a719"
     },
     "packages/desktop/evidence/artifact-check.json": {
       "mode": 420,
@@ -1786,7 +1786,7 @@
     },
     "scripts/ci/development/controller.py": {
       "mode": 420,
-      "sha256": "875e7c6d28ee62876b6e2b9e66513ce7da16bf5e788f990d2caee055940c1a06"
+      "sha256": "66b3575463881a6a7f9b3333b06d15e1339b0e9136e147804615b657bb86f52b"
     },
     "scripts/ci/development/initial_artifacts.py": {
       "mode": 420,
@@ -1794,15 +1794,15 @@
     },
     "scripts/ci/development/packet.py": {
       "mode": 420,
-      "sha256": "a1ed0c4561bff2b8bb7c3c45ad13d47fb2054f360da4889a45a1860f9ef604d4"
+      "sha256": "e8126c99762d9fb93810136884ff56e847a2ff09bab895c0f45bb3d7b9de2dab"
     },
     "scripts/ci/development/repository_authority.py": {
       "mode": 420,
-      "sha256": "4b6e1c6a8481c94b3eda41dbf218e6573fb8846346d4962cebf11528a9f0b439"
+      "sha256": "beecde2beeb228713753b0116f50101fc3ed3f69a0845bb40950c9eaec0b7303"
     },
     "scripts/ci/development/repository_handoff.py": {
       "mode": 420,
-      "sha256": "1c50e0a38e3a34ddf89d94a92ffabf4b5b28f810df2ce2c3bbd2388870d322af"
+      "sha256": "b21a466e3bd6bf4a215f3eb2a904b6d1e10389da28a89636f8b995dc336cf913"
     },
     "scripts/ci/development/test_base_stages.py": {
       "mode": 420,
@@ -1814,7 +1814,7 @@
     },
     "scripts/ci/development/test_controller.py": {
       "mode": 420,
-      "sha256": "a24c19292abeca7564bb534abf5f194628011396e33f8d113c1a31c936c0b05a"
+      "sha256": "06464b4d2331d5f92f8c3e47312def28d5808ebefc5cc042aa8a492877f3387f"
     },
     "scripts/ci/development/test_initial_artifacts.py": {
       "mode": 420,
@@ -1830,7 +1830,7 @@
     },
     "scripts/ci/development/test_repository_handoff.py": {
       "mode": 420,
-      "sha256": "65fb23f1c34dea0122c1491bce832f5ae24ec3001d6525bfbc0c60ab91716b66"
+      "sha256": "1fa79cf94c62b7edd2ef4933bc8da05a44b800eb9d5cd681411accb519fb2d26"
     },
     "scripts/ci/development/test_virtual_stage.py": {
       "mode": 420,
@@ -1850,15 +1850,15 @@
     },
     "scripts/ci/installed_handoff.py": {
       "mode": 420,
-      "sha256": "cecdd3bbe8a915da31a6e997f7d59c6f95fab327ea70e42b0cbcb950e6f62f12"
+      "sha256": "a16d1bd07f6d672fcc25694debc09115be50a131fb6b5846c57d4e3dd317d2c8"
     },
     "scripts/ci/integration.lock.json": {
       "mode": 420,
-      "sha256": "6d4bbbb5d51959930518be5e24367694f0d3f83672e6ea36afd6cdffb07b1b0d"
+      "sha256": "408897610b5bc4c51f3e75638eb6cd6f04f1c224ec156260f538d29710d0779e"
     },
     "scripts/ci/integration.py": {
       "mode": 420,
-      "sha256": "5ceaa566f1084b25e8ebbbe8585b577de64595f70035e89943e87fbb83c6becf"
+      "sha256": "e6ba8364ebf14fe503260133f1af8d27432094f760aed9d5f46e8919864d13d6"
     },
     "scripts/ci/integration_export.py": {
       "mode": 420,
@@ -1902,7 +1902,7 @@
     },
     "scripts/ci/test_desktop_projection.py": {
       "mode": 420,
-      "sha256": "85b3c32105efce9a20e10eab813c3d804d1e99ca15565f5bcecda61925e03f2d"
+      "sha256": "6016469b5ea226a493911a3eb4beecc64045392cfa3c6b9bb8357c882ecac6b8"
     },
     "scripts/ci/test_installed_handoff.py": {
       "mode": 420,
@@ -1910,11 +1910,11 @@
     },
     "scripts/ci/test_integration.py": {
       "mode": 420,
-      "sha256": "1d76e688b409ab5afb748ece66aa8f80cbc1cd49dbb606c4b4968ea7de3b88d4"
+      "sha256": "c181ef244dc75f0358de7e9d6133a9cb0aa315c94bf3661dbfd011747ba51880"
     },
     "scripts/ci/test_integration_export.py": {
       "mode": 420,
-      "sha256": "43f0d22ecccdba14efe4d3645dfd22d0c5e784454e5f03c440bcf7396e2cf8bf"
+      "sha256": "1ba970e2f560624e1124e9c68ddf2b61824fd3473b6168e9b4e5013fb2508d84"
     },
     "scripts/ci/test_lifecycle_inventory.py": {
       "mode": 420,
@@ -1998,15 +1998,15 @@
     },
     "scripts/install/local_transaction.py": {
       "mode": 420,
-      "sha256": "11b5d9c85e8f7581835af3300afd0925243008a39f0e71dbdacf55e136dedc55"
+      "sha256": "5f933cb6edd1a67b1bc9e3070483355c2aff3c7c9ea87ce187f0f237f25ea34b"
     },
     "scripts/install/native_arm_trial.py": {
       "mode": 420,
-      "sha256": "597f244bbd957cfc63b4635aa769f589e78d082aac71e153240a0797a806cc97"
+      "sha256": "8187ed00c06efbef2c05ae952f13a8bce1828e116e733d8324b2166b6adf62a2"
     },
     "scripts/install/native_preflight.py": {
       "mode": 420,
-      "sha256": "b8c5dbbc6e6d262599cf65d8c8edd69be90480512cd679d544cf90c1550692ea"
+      "sha256": "564d6e4e1cff3640b1eb839b7fc20904b4e4618296e96f8299e56c2092c761e6"
     },
     "scripts/install/test_local_transaction.py": {
       "mode": 420,
@@ -2014,11 +2014,11 @@
     },
     "scripts/install/test_native_arm_trial.py": {
       "mode": 420,
-      "sha256": "cae984e0bf1a2e634eac95046237ed92d01fd68b33617770515f1115d1b56230"
+      "sha256": "fdc0232c00a2e2fd08ed270a683aa4a6d956e60b351db84cce8427c37b56e9eb"
     },
     "scripts/install/test_native_preflight.py": {
       "mode": 420,
-      "sha256": "1a1cf5db098dbbe81e4bc3eac841f295f1c1707f5cb6c47a4b7b025f27f1b338"
+      "sha256": "a6097c49efd0522d8b7b147747c135e018be41eba37d4a57325fba3f3350e172"
     },
     "scripts/integration/desktop.py": {
       "mode": 420,
@@ -2030,7 +2030,7 @@
     },
     "scripts/integration/lifecycle.py": {
       "mode": 420,
-      "sha256": "ac0b1e0db088e55768388a312db91ebd3c15a49f8ea3c1cb10c1aaac8ac1e211"
+      "sha256": "21dc5f781c561f25ff0cffcc39e17c6e78ad63f011978b4e6ec531191a447dba"
     },
     "scripts/integration/onboarding.py": {
       "mode": 420,
@@ -2038,7 +2038,7 @@
     },
     "scripts/integration/repository.py": {
       "mode": 420,
-      "sha256": "f860ff970093c7aac0788571d36ab32f1617e2dc9b2a703e42e16782f10a7641"
+      "sha256": "f931997db811325774dec9f4f9126560da27fd14fc5436b37b4578f9c3492cfd"
     },
     "scripts/integration/test_desktop.py": {
       "mode": 420,
@@ -2050,7 +2050,7 @@
     },
     "scripts/integration/test_lifecycle.py": {
       "mode": 420,
-      "sha256": "498c79b54014d27ea21a7aab6bb1f401485cdc5209ed1a31d72745201952151e"
+      "sha256": "9adf967a0b415d6aa7fb116f004d25f6c61f616acef840b436c5267f67c2faa1"
     },
     "scripts/integration/test_onboarding.py": {
       "mode": 420,
@@ -2058,7 +2058,7 @@
     },
     "scripts/integration/test_repository.py": {
       "mode": 420,
-      "sha256": "6a4780734a1872943e6ee5b2d14a7d75454f7103a7c5a947f9c8e5aad50f2af2"
+      "sha256": "b9df5b10b84f42ea62ccf386f30b01654ccd32eeaf4b794c5301cf99809f02a3"
     },
     "scripts/port/kernel-native-job/runtime.py": {
       "mode": 420,
@@ -2154,15 +2154,15 @@
     },
     "scripts/port/repository-native-handoff/launch.py": {
       "mode": 420,
-      "sha256": "8bba56928f690fdedb8f0ef9eabda97f2709e166f80bec12c3bbe336a63775a5"
+      "sha256": "dea419a89d73043217bd9d2f8bfa42540bfd6bb0e72e58fd66d28c4ce0a8d969"
     },
     "scripts/port/repository-native-handoff/producer.py": {
       "mode": 420,
-      "sha256": "b2836bdecb04f33066a88a6bb1d5452245aa0230c5216ab8905ed6c0712d6fc8"
+      "sha256": "47a9630d62929ac93296a87a8259e2aa6ad7e1c8d0123989ac8f1f266afad077"
     },
     "scripts/port/repository-native-handoff/source-map.json": {
       "mode": 420,
-      "sha256": "40a785ba6f5dcc0ac2769482cc80e1a12117e9f7b70550079f26736524477d43"
+      "sha256": "4afe1db438cbf6b47508096ec172e48bfcfaf69254d37af58e6ff4df610e2a2c"
     },
     "scripts/port/repository-native-handoff/supervisor.py": {
       "mode": 420,

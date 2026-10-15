@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Exercise the reviewed data-only recipe; never install packages or launch a session.
+"""Exercise the reviewed desktop recipe; never install packages or launch a session.
 
 Existing-host packaging is not a clean ARM build. Outputs remain development
 evidence even when this runs on an ARM host. Requires the existing makepkg,
@@ -57,6 +57,7 @@ def main():
         for name in ("hyprland.lua", "waybar.json", "waybar.css", "mako.conf")
     }
     expected.update({
+        "usr/bin/cachy-asahi-screenshot": sha((RECIPE / "cachy-asahi-screenshot").read_bytes()),
         "usr/share/doc/cachy-asahi-hyprland-settings/README.md": sha((RECIPE / "README.md").read_bytes()),
         **{"usr/share/licenses/cachy-asahi-hyprland-settings/" + name:
            sha((RECIPE / name).read_bytes()) for name in ("NOTICE", "LICENSE")},
@@ -83,7 +84,7 @@ def main():
             payload = {name: sha(subprocess.check_output(["bsdtar", "-xOf", str(artifact), name]))
                        for name in files if not name.endswith("/") and not name.startswith(".")}
             if payload != expected or any(name in files for name in (".INSTALL",)):
-                raise RuntimeError("package payload differs from the seven reviewed text inputs")
+                raise RuntimeError("package payload differs from the reviewed desktop inputs")
             for name in (".PKGINFO", ".BUILDINFO"):
                 content = subprocess.check_output(["bsdtar", "-xOf", str(artifact), name])
                 (EVIDENCE / f"host-package-{number}-{name[1:]}.txt").write_bytes(content)

@@ -217,14 +217,18 @@ class PipelineMockTests(unittest.TestCase):
         self.assertEqual(json.loads((self.root/'out/result.json').read_bytes())['status'],'FAIL')
     def test_first_barrier_failure_not_replaced_by_late_cancel(self):
         r=self.pipeline(success=False,pending=True);self.assertEqual(r['status'],'FAIL');self.assertEqual(r['first_failure'],'BARRIER_FAILED');self.assertTrue(r['termination'])
-    def pipeline(self,success=True,ordinal=1,pending=False,close_fail=False):
+    def pipeline(self,success=True,ordinal=1,pending=False,close_fail=False,handler_events=None,result_override=None):
         m=self.m;s=self.selection();out=self.root/'out';out.mkdir(mode=0o700);factory=m.module;runtime=types.SimpleNamespace(__name__='mock_runtime',SIGNALS=(2,15),Cancelled=type('Cancelled',(BaseException,),{}))
         @contextlib.contextmanager
-        def handlers(callback):yield
+        def handlers(callback):
+            if handler_events is not None:handler_events.append("enter")
+            try:yield
+            finally:
+                if handler_events is not None:handler_events.append("exit")
         @contextlib.contextmanager
         def deferred():yield [15] if pending else []
         runtime._handlers=handlers;runtime.defer_signals=deferred
-        worker=None;class_result=types.SimpleNamespace(testsRun=1,skipped=[],wasSuccessful=lambda:success)
+        worker=None;class_result=types.SimpleNamespace(testsRun=1,skipped=[],wasSuccessful=lambda:success) if result_override is None else result_override
         class FakeCalls:
             def __init__(self,*args):self.ordinal=ordinal;self.cleanup=True
             def run(self,*args,**kwargs):raise AssertionError('actual actor forbidden')
@@ -273,6 +277,143 @@ class CompletePhaseProjectionTests(unittest.TestCase):
                 with self.subTest(status=status,phase=phase):
                     record=self.record();record.update(status=status,phase=phase,first_failure='INPUT_REFUSED')
                     self.assertEqual(json.loads(self.m.public(record)),record)
+
+
+class PreflightObservationControls(unittest.TestCase):
+    setUp=ReceiverTests.setUp
+    selection=ReceiverTests.selection
+    record=ReceiverTests.record
+    pipeline=PipelineMockTests.pipeline
+
+    def test_false_gate_latches_operation_and_first_predicate(self):
+        for options,expected in (({'success':False},'RESULT_UNSUCCESSFUL'),({'ordinal':0},'CALL_COUNT')):
+            with self.subTest(expected=expected):
+                self.setUp()
+                value=self.pipeline(**options)
+                self.assertEqual(value['first_failure'],'BARRIER_FAILED')
+                self.assertEqual(value['preflight_diagnostic'],dict(schema_version=1,operation='BARRIER_GATE',aggregate=expected))
+                self.assertEqual(json.loads(self.m.public(value)),value)
+
+    def test_success_stays_legacy_thirteen_fields(self):
+        value=self.pipeline()
+        self.assertEqual(value['status'],'PASS_NATIVE_PREFLIGHT_ONLY')
+        self.assertNotIn('preflight_diagnostic',value)
+        self.assertEqual(len(json.loads(self.m.public(value))),13)
+
+    def test_late_cleanup_cancel_cannot_rewrite_first_observation(self):
+        value=self.pipeline(success=False,pending=True)
+        self.assertEqual(value['first_failure'],'BARRIER_FAILED');self.assertTrue(value['termination'])
+        self.assertEqual(value['preflight_diagnostic']['operation'],'BARRIER_GATE')
+        self.assertEqual(value['preflight_diagnostic']['aggregate'],'RESULT_UNSUCCESSFUL')
+
+    def test_optional_recorder_fault_never_replaces_first_failure_or_skips_exit(self):
+        for error,cancelled in ((OSError('PRIVATE'),False),(BaseException('PRIVATE'),False),
+                                (KeyboardInterrupt('PRIVATE'),True),(SystemExit(8),True)):
+            with self.subTest(cancelled=cancelled):
+                self.setUp();events=[]
+                with patch.object(self.m,'record_preflight_failure',side_effect=error):
+                    value=self.pipeline(success=False,handler_events=events)
+                self.assertEqual(events,['enter','exit'])
+                self.assertEqual(value['first_failure'],'BARRIER_FAILED')
+                self.assertIs(value['termination'],cancelled)
+                self.assertEqual(value['status'],'FAIL');self.assertNotIn('PRIVATE',self.m.public(value).decode())
+
+    def test_hostile_primary_metadata_is_not_invoked(self):
+        class Hostile(RuntimeError):
+            @property
+            def __class__(self):raise AssertionError('foreign class')
+            def __str__(self):raise AssertionError('foreign string')
+        class Operand:
+            def __str__(self):raise AssertionError('foreign argument string')
+        for primary in (Hostile(),ValueError(Operand())):
+            with self.subTest(primary_type=type(primary).__name__):
+                self.setUp();events=[]
+                with patch.object(self.m,'check_functions',side_effect=primary):
+                    value=self.pipeline(handler_events=events)
+                self.assertEqual(events,['enter','exit'])
+                self.assertEqual(value['first_failure'],'INTERNAL');self.assertFalse(value['termination'])
+                self.assertEqual(value['preflight_diagnostic']['operation'],'GUARD')
+
+    def test_metaclass_mro_descriptor_cannot_replace_primary(self):
+        class Meta(type):
+            @property
+            def __mro__(cls):raise AssertionError('foreign MRO')
+        class Primary(RuntimeError,metaclass=Meta):pass
+        with patch.object(self.m,'check_functions',side_effect=Primary()):value=self.pipeline()
+        self.assertEqual(value['first_failure'],'INTERNAL');self.assertFalse(value['termination'])
+
+    def test_spoofed_barrier_code_does_not_claim_false_operand(self):
+        class Result:
+            def wasSuccessful(self):raise ValueError('BARRIER_FAILED')
+        value=self.pipeline(result_override=Result())
+        self.assertEqual(value['first_failure'],'BARRIER_FAILED')
+        self.assertEqual(value['preflight_diagnostic']['operation'],'BARRIER_GATE')
+        self.assertEqual(value['preflight_diagnostic']['aggregate'],'NOT_OBSERVED')
+
+    def test_success_refuses_any_optional_failure_diagnostic(self):
+        value=self.record();value['preflight_diagnostic']=dict(schema_version=1,operation='NOT_OBSERVED',aggregate='NONE')
+        with self.assertRaisesRegex(ValueError,'PUBLIC_DIAGNOSTIC'):self.m.public(value)
+
+    def test_genuine_keyboard_interrupt_subclass_is_sticky(self):
+        class Interrupt(KeyboardInterrupt):
+            @property
+            def __class__(self):raise AssertionError('foreign class')
+        with patch.object(self.m,'check_functions',side_effect=Interrupt()):value=self.pipeline()
+        self.assertEqual(value['first_failure'],'CANCELLED');self.assertTrue(value['termination'])
+
+    def test_diagnostic_exact_types_and_enums_are_closed(self):
+        good=dict(schema_version=1,operation='BARRIER_GATE',aggregate='RESULT_UNSUCCESSFUL')
+        self.assertEqual(self.m.preflight_diagnostic(good),good)
+        class Hostile:
+            def __eq__(self,other):raise AssertionError('foreign equality')
+            def __bool__(self):raise AssertionError('foreign truth')
+            @property
+            def __class__(self):raise AssertionError('foreign class')
+        class ForeignDict(dict):
+            def __iter__(self):raise AssertionError('foreign iterator')
+        bad=[ForeignDict(good)]
+        for key,value in (('schema_version',True),('operation',Hostile()),('aggregate',Hostile()),
+                          ('operation','PRIVATE'),('aggregate','PRIVATE'),('extra',True)):
+            bad.append(dict(good,**{key:value}))
+        for value in bad:
+            self.assertIsNone(self.m.preflight_diagnostic(value))
+            with self.assertRaisesRegex(ValueError,'PUBLIC_DIAGNOSTIC'):
+                self.m.public(dict(self.record(),preflight_diagnostic=value))
+
+    def test_original_short_circuit_truth_and_accessor_order_are_held(self):
+        import ast
+        tree=ast.parse((HERE/'native_arm_trial.py').read_text())
+        gate=next(n.args[0] for n in ast.walk(tree) if isinstance(n,ast.Call) and
+            isinstance(n.func,ast.Name) and n.func.id=='require' and len(n.args)>1 and
+            isinstance(n.args[1],ast.Constant) and n.args[1].value=='BARRIER_FAILED')
+        code=compile(ast.Expression(gate),'<new-gate>','eval')
+        old=compile('result.wasSuccessful() and result.testsRun==1 and not result.skipped and calls.ordinal==1 and calls.cleanup','<held-gate>','eval')
+        for failing in range(6):
+            traces=[]
+            for expression in (old,code):
+                events=[];diagnostic=dict(aggregate='NOT_OBSERVED')
+                class Truth:
+                    def __init__(self,index):self.index=index
+                    def __bool__(self):events.append(('truth',self.index));return self.index!=failing
+                class Equal:
+                    def __init__(self,index):self.index=index
+                    def __eq__(self,value):events.append(('equal',self.index));return Truth(self.index)
+                class Result:
+                    def wasSuccessful(self):events.append('success');return Truth(0)
+                    @property
+                    def testsRun(self):events.append('count');return Equal(1)
+                    @property
+                    def skipped(self):events.append('skips');return not bool(Truth(2))
+                class Calls:
+                    @property
+                    def ordinal(self):events.append('calls');return Equal(3)
+                    @property
+                    def cleanup(self):events.append('cleanup');return Truth(4)
+                result=eval(expression,dict(result=Result(),calls=Calls(),diagnostic=diagnostic,
+                            barrier_predicate=self.m.barrier_predicate,rt=types.SimpleNamespace(Cancelled=BaseException)))
+                traces.append((bool(result),events))
+            self.assertEqual(traces[0],traces[1])
+
 
 
 if __name__=='__main__':unittest.main()

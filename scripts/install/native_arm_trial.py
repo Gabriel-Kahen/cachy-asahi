@@ -49,8 +49,8 @@ SELECTED = {
     'BarrierTests': ('test_actual_isolate_keeps_host_readonly_and_only_evidence_persistent',)}
 
 
-def require(value, code):
-    if not value: raise ValueError(code)
+def require(value, code, *, error=None):
+    if not value: raise ValueError(code) if error is None else error
 
 
 def sha(data): return hashlib.sha256(data).hexdigest()
@@ -262,6 +262,49 @@ class Calls:
         return result
 
 
+PREFLIGHT_OPERATIONS = ('NOT_OBSERVED','WORKER_LOAD','RUNTIME_LOAD','EVIDENCE_OPEN','HANDLERS',
+    'TEMPORARY_SOURCE','TEST_LOAD','PROFILE_BINDING','BARRIER_RUN','BARRIER_REPORT','BARRIER_GATE',
+    'BARRIER_BINDING','EVIDENCE_SAVE','GUARD','ABI','MATRIX','TEMPORARY_CLEANUP','ENVIRONMENT',
+    'TERMINAL_WRITE','HANDLERS_EXIT','TERMINAL_CHECK','FINALIZE')
+BARRIER_PREDICATES = ('NOT_OBSERVED','RESULT_UNSUCCESSFUL','TEST_COUNT','SKIPPED','CALL_COUNT','CHILD_CLEANUP','NONE')
+
+
+def preflight_diagnostic(value):
+    """Closed optional facts only; never an acceptance decision or error classifier."""
+    if (type(value) is not dict or not all(type(key) is str for key in value) or
+            set(value) != {'schema_version','operation','aggregate'}): return None
+    if (type(value['schema_version']) is not int or value['schema_version'] != 1 or
+            type(value['operation']) is not str or type(value['aggregate']) is not str or
+            value['operation'] not in PREFLIGHT_OPERATIONS or value['aggregate'] not in BARRIER_PREDICATES): return None
+    return {key:value[key] for key in ('schema_version','operation','aggregate')}
+
+
+def exception_matches(error, kind):
+    """Actual exception ancestry only, bypassing instance and metaclass hooks."""
+    return any(base is kind for base in type.__dict__['__mro__'].__get__(type(error),type))
+
+
+def failure_code(error):
+    if type(error) is not ValueError:return None
+    args=BaseException.__dict__['args'].__get__(error,type(error))
+    return args[0] if type(args) is tuple and len(args)==1 and type(args[0]) is str and args[0] in FAILURES else None
+
+
+def record_preflight_failure(record, diagnostic, operation):
+    if diagnostic['operation']=='NOT_OBSERVED':diagnostic['operation']=operation
+    record['preflight_diagnostic']=dict(diagnostic)
+
+
+def barrier_predicate(value, label, diagnostic, cancelled_type=None):
+    """Pass through unchanged: original and/require retain every truth test."""
+    try:
+        if type(diagnostic) is dict:diagnostic['aggregate']=label
+    except BaseException as error:
+        if any(exception_matches(error,kind) for kind in (cancelled_type,KeyboardInterrupt,SystemExit)):
+            raise
+    return value
+
+
 def public(record):
     keys=('schema_version','status','phase','barrier','ABI','matrix','tests','failures','errors','skips','termination','owned_child_cleanup','first_failure')
     value={k:record[k] for k in keys}
@@ -273,6 +316,9 @@ def public(record):
             all(type(value[k]) is int and 0<=value[k]<=26 for k in ('tests','failures','errors','skips')), 'PUBLIC_SCHEMA')
     require(value['status']!='PASS_NATIVE_PREFLIGHT_ONLY' or value['phase']=='complete' and value['barrier']=='PASS' and value['ABI']==value['matrix']=='NOT_RUN' and value['tests']==1 and value['owned_child_cleanup']=='PASS' and value['first_failure']=='NONE' and not any(value[k] for k in ('failures','errors','skips','termination')), 'PUBLIC_PASS')
     require(value['status']!='PASS_NATIVE_FIXTURE_ONLY' or value['phase']=='complete' and value['barrier']==value['ABI']==value['matrix']=='PASS' and value['tests']==26 and value['owned_child_cleanup']=='PASS' and value['first_failure']=='NONE' and not any(value[k] for k in ('failures','errors','skips','termination')), 'PUBLIC_PASS')
+    if 'preflight_diagnostic' in record:
+        diagnostic=preflight_diagnostic(record['preflight_diagnostic'])
+        require(diagnostic is not None and value['status'] in ('FAIL','REFUSED'),'PUBLIC_DIAGNOSTIC');value['preflight_diagnostic']=diagnostic
     data=(json.dumps(value,sort_keys=True)+'\n').encode();require(len(data)<=4096,'PUBLIC_CAP');return data
 
 
@@ -284,30 +330,40 @@ def execute(selection,source,output,end,preflight_end):
     # No actor or CDLL has occurred before all required source/tool/profile checks.
     record=dict(schema_version=1,status='FAIL',phase='preflight',barrier='NOT_RUN',ABI='NOT_RUN',matrix='NOT_RUN',
                 tests=0,failures=0,errors=0,skips=0,termination=False,owned_child_cleanup='UNKNOWN',first_failure='NONE')
+    diagnostic=dict(schema_version=1,operation='NOT_OBSERVED',aggregate='NOT_OBSERVED')
+    operation='WORKER_LOAD'
     output=Path(output);require(output.is_dir() and not output.is_symlink() and output.stat().st_uid==os.getuid() and
                                 stat.S_IMODE(output.stat().st_mode)==0o700,'OUTPUT_DIRECTORY')
-    worker=module(blobs[SOURCE_PATHS[0]],source/SOURCE_PATHS[0],'selected_installer');rt=worker.runtime()
+    worker=module(blobs[SOURCE_PATHS[0]],source/SOURCE_PATHS[0],'selected_installer');operation='RUNTIME_LOAD';rt=worker.runtime()
     if TERMINAL_LEASE is not None:TERMINAL_LEASE.close();TERMINAL_LEASE=None
-    evidence=worker.Evidence(output);evidence.save('result.json',record);TERMINAL_LEASE=evidence.duplicate();LAST_RECORD=record
-    cancelled=[];temporary=None
+    operation='EVIDENCE_OPEN';evidence=worker.Evidence(output);evidence.save('result.json',record);TERMINAL_LEASE=evidence.duplicate();LAST_RECORD=record
+    cancelled=[];temporary=None;barrier_error=None
     def cancel(n,frame):cancelled.append(n);raise rt.Cancelled(n)
     def failure(error):
-        record['status']='FAIL';record['termination']=record['termination'] or bool(cancelled) or isinstance(error,rt.Cancelled)
+        record['status']='FAIL'
+        record['termination']=record['termination'] or bool(cancelled) or any(exception_matches(error,kind) for kind in (rt.Cancelled,KeyboardInterrupt))
         if record['first_failure']=='NONE':
-            code=str(error) if type(error) is ValueError else None
-            record['first_failure']='CANCELLED' if record['termination'] else code if code in FAILURES else 'IO_OR_TOOL_FAILED' if isinstance(error,OSError) else 'INTERNAL'
+            code=failure_code(error)
+            record['first_failure']='CANCELLED' if record['termination'] else code if code is not None else 'IO_OR_TOOL_FAILED' if exception_matches(error,OSError) else 'INTERNAL'
+        if operation=='BARRIER_GATE' and error is not barrier_error:diagnostic['aggregate']='NOT_OBSERVED'
+        try:record_preflight_failure(record,diagnostic,operation)
+        except BaseException as secondary:
+            if any(exception_matches(secondary,kind) for kind in (rt.Cancelled,KeyboardInterrupt,SystemExit)):
+                record['termination']=True
         (evidence if evidence.fd is not None else TERMINAL_LEASE).revoke(record)
     try:
+        operation='HANDLERS'
         with rt._handlers(cancel):
-            temporary=tempfile.TemporaryDirectory(prefix='caa-arm-trial-');tree=Path(temporary.name);tree.chmod(0o700)
+            operation='TEMPORARY_SOURCE';temporary=tempfile.TemporaryDirectory(prefix='caa-arm-trial-');tree=Path(temporary.name);tree.chmod(0o700)
             for name,b in blobs.items():
                 p=tree/name;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(b);p.chmod(0o400)
-            tests=module(blobs[SOURCE_PATHS[1]],tree/SOURCE_PATHS[1],'selected_native_tests')
+            operation='TEST_LOAD';tests=module(blobs[SOURCE_PATHS[1]],tree/SOURCE_PATHS[1],'selected_native_tests')
             tests.REVIEWED_WORKER_SHA256=selection['sources'][SOURCE_PATHS[0]]['sha256']
             tests.LIBALPM_SHA256=worker.NATIVE_LIBRARY_SHA;tests.FIXTURE_SELECTION_SHA256=sha((json.dumps(selection,sort_keys=True)+'\n').encode())
             tests.ARTIFACTS=output/'attempts'
             bound=functions(tests)+functions(worker)+functions(rt)
             expected_library=worker.NATIVE_LIBRARY_SHA;expected_profile=worker.NATIVE_PROFILE_SHA
+            operation='PROFILE_BINDING'
             require(expected_profile==selection['tool_profile_sha256'] and expected_library==next(r['sha256'] for r in strict(PROFILE_BYTES)['files'] if r['path']=='/usr/lib/libalpm.so.16.0.1'), 'ENGINE_PROFILE_BINDING')
             def guard():
                 check_functions(bound);source_blobs(selection,source,end)
@@ -324,18 +380,26 @@ def execute(selection,source,output,end,preflight_end):
             with contextlib.ExitStack() as stack:
                 from unittest.mock import patch
                 stack.enter_context(patch.object(subprocess,'run',calls.run))
+                operation='BARRIER_RUN'
                 result=unittest.TextTestRunner(stream=stream,verbosity=2).run(unittest.TestSuite([tests.BarrierTests(SELECTED['BarrierTests'][0])]))
-            evidence.write('preflight.log',stream.getvalue().encode(),exclusive=True)
-            require(result.wasSuccessful() and result.testsRun==1 and not result.skipped and calls.ordinal==1 and calls.cleanup,'BARRIER_FAILED');record['barrier']='PASS'
+            operation='BARRIER_REPORT';evidence.write('preflight.log',stream.getvalue().encode(),exclusive=True)
+            operation='BARRIER_GATE';barrier_error=ValueError('BARRIER_FAILED')
+            require(barrier_predicate(result.wasSuccessful(),'RESULT_UNSUCCESSFUL',diagnostic,rt.Cancelled) and
+                    barrier_predicate(result.testsRun==1,'TEST_COUNT',diagnostic,rt.Cancelled) and
+                    barrier_predicate(not result.skipped,'SKIPPED',diagnostic,rt.Cancelled) and
+                    barrier_predicate(calls.ordinal==1,'CALL_COUNT',diagnostic,rt.Cancelled) and
+                    barrier_predicate(calls.cleanup,'CHILD_CLEANUP',diagnostic,rt.Cancelled),'BARRIER_FAILED',error=barrier_error)
+            diagnostic['aggregate']='NONE';record['barrier']='PASS'
             record['tests']=1
+            operation='BARRIER_BINDING'
             require(tests.BarrierTests.last_report['worker_sha256']==tests.REVIEWED_WORKER_SHA256,'BARRIER_BINDING')
-            evidence.save('result.json',record);guard()
+            operation='EVIDENCE_SAVE';evidence.save('result.json',record);operation='GUARD';guard()
             if selection['phase']=='matrix':
-                record['phase']='ABI';verify_environment(selection,end);guard()
+                operation='ABI';record['phase']='ABI';verify_environment(selection,end);guard()
                 # ABI query must follow an independently checked complete barrier.
                 import ctypes
                 library=ctypes.CDLL('/usr/lib/libalpm.so.16.0.1');library.alpm_version.restype=ctypes.c_char_p
-                require(library.alpm_version()==b'16.0.1','ABI_FAILED');record['ABI']='PASS';record['phase']='matrix';evidence.save('result.json',record)
+                require(library.alpm_version()==b'16.0.1','ABI_FAILED');record['ABI']='PASS';operation='MATRIX';record['phase']='matrix';evidence.save('result.json',record)
                 calls.end=end
                 with contextlib.ExitStack() as stack:
                     stack.enter_context(patch.object(subprocess,'run',calls.run));matrix=unittest.TestSuite()
@@ -346,13 +410,14 @@ def execute(selection,source,output,end,preflight_end):
                 evidence.write('matrix.log',stream.getvalue().encode(),exclusive=True)
                 require(result.wasSuccessful() and result.testsRun==26 and not result.skipped,'MATRIX_FAILED');record['matrix']='PASS'
             record['owned_child_cleanup']='PASS' if calls.cleanup else 'FAIL'
-            temporary.cleanup();temporary=None;guard();verify_environment(selection,end);check_time(end);require(not cancelled,'TERMINATED')
-            record.update(status='PASS_NATIVE_PREFLIGHT_ONLY' if selection['phase']=='preflight' else 'PASS_NATIVE_FIXTURE_ONLY',phase='complete');evidence.save('result.json',record)
-        require(not cancelled,'TERMINATED');check_time(end);evidence.check();return record
+            operation='TEMPORARY_CLEANUP';temporary.cleanup();temporary=None;operation='GUARD';guard();operation='ENVIRONMENT';verify_environment(selection,end);check_time(end);require(not cancelled,'TERMINATED')
+            operation='TERMINAL_WRITE';record.update(status='PASS_NATIVE_PREFLIGHT_ONLY' if selection['phase']=='preflight' else 'PASS_NATIVE_FIXTURE_ONLY',phase='complete');evidence.save('result.json',record);operation='HANDLERS_EXIT'
+        operation='TERMINAL_CHECK';require(not cancelled,'TERMINATED');check_time(end);evidence.check();return record
     except BaseException as error:
         record.update(owned_child_cleanup=('PASS' if calls.cleanup else 'FAIL') if 'calls' in locals() and calls.ordinal else 'NOT_STARTED')
         failure(error);return record
     finally:
+        operation='FINALIZE'
         try:
             errors=[]
             with rt.defer_signals() as pending:

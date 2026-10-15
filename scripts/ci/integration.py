@@ -41,6 +41,75 @@ REPOSITORY_PUBLIC_LOGS = {
 CANCEL_REQUESTED = False
 
 
+HANDOFF_DIAGNOSTIC_PREFIX = b'INSTALLED_HANDOFF_DIAGNOSTIC_V1 '
+HANDOFF_DIAGNOSTIC_OPERATIONS = frozenset(('UNKNOWN', 'CONSTRUCT', 'ENVIRONMENT', 'COMMIT', 'LIFECYCLE_CONTRACT', 'RUNNER', 'BASE_PACKAGES', 'OUTPUT', 'EXECUTE'))
+HANDOFF_DIAGNOSTIC_REFUSALS = frozenset(('UNKNOWN', 'HANDOFF_CHECK', 'SAFE_RELATIVE_01', 'SAFE_RELATIVE_02', 'REGULAR_01', 'REGULAR_02', 'PINNED_01', 'PINNED_02', 'STRICT_JSON_01', 'ENVIRONMENT_GUARD_01', 'ENVIRONMENT_GUARD_02', 'ENVIRONMENT_GUARD_03', 'ENVIRONMENT_GUARD_04', 'ENVIRONMENT_GUARD_05', 'ENVIRONMENT_GUARD_06', 'ENVIRONMENT_GUARD_07', 'ENVIRONMENT_GUARD_08', 'ENVIRONMENT_GUARD_09', 'ENVIRONMENT_GUARD_10', 'ENVIRONMENT_GUARD_11', 'ENVIRONMENT_GUARD_12', 'ENVIRONMENT_GUARD_13', 'ENVIRONMENT_GUARD_14', 'ENVIRONMENT_GUARD_15', 'ENVIRONMENT_GUARD_16', 'ENVIRONMENT_GUARD_17', 'ENVIRONMENT_GUARD_18', 'ENVIRONMENT_GUARD_19', 'ENVIRONMENT_GUARD_20', 'ENVIRONMENT_GUARD_21', 'VALIDATE_CONTRACT_01', 'VALIDATE_CONTRACT_02', 'VALIDATE_CONTRACT_03', 'VALIDATE_CONTRACT_04', 'VALIDATE_CONTRACT_05', 'VALIDATE_CONTRACT_06', 'VALIDATE_CONTRACT_07', 'VALIDATE_CONTRACT_08', 'VALIDATE_CONTRACT_09', 'VALIDATE_CONTRACT_10', 'VALIDATE_CONTRACT_11', 'VALIDATE_CONTRACT_12', 'VALIDATE_CONTRACT_13', 'VALIDATE_CONTRACT_14', 'VALIDATE_CONTRACT_15', 'VALIDATE_CONTRACT_16', 'VALIDATE_CONTRACT_17', 'VALIDATE_CONTRACT_18', 'VALIDATE_CONTRACT_19', 'IMAGE_TMP_VIEW_01', 'INVENTORY_01', 'INVENTORY_02', 'LOAD_01', 'LOAD_02', 'HANDOFF_INIT_01', 'HANDOFF_INIT_02', 'HANDOFF_INIT_03', 'HANDOFF_INIT_04', 'HANDOFF_INIT_05', 'HANDOFF_INIT_06', 'HANDOFF_INIT_07', 'HANDOFF_INIT_08', 'HANDOFF_INIT_09', 'HANDOFF_INIT_10'))
+
+
+def handoff_diagnostic_record(raw):
+    """Untrusted closed observation only; never an acceptance or READY input."""
+    if type(raw) is not bytes or len(raw) > 1024**2:
+        return None
+    rows = [line[len(HANDOFF_DIAGNOSTIC_PREFIX):] for line in raw.splitlines()
+            if line.startswith(HANDOFF_DIAGNOSTIC_PREFIX)]
+    if len(rows) != 1 or len(rows[0]) > 4096:
+        return None
+    def pairs(items):
+        value = {}
+        for key, item in items:
+            if key in value:
+                raise ValueError('duplicate diagnostic key')
+            value[key] = item
+        return value
+    value = json.loads(rows[0], object_pairs_hook=pairs)
+    if type(value) is not dict or set(value) != {'schema_version', 'operation', 'refusal', 'cancelled'}:
+        return None
+    if (type(value['schema_version']) is not int or value['schema_version'] != 1 or
+            type(value['operation']) is not str or value['operation'] not in HANDOFF_DIAGNOSTIC_OPERATIONS or
+            type(value['refusal']) is not str or value['refusal'] not in HANDOFF_DIAGNOSTIC_REFUSALS or
+            type(value['cancelled']) is not bool):
+        return None
+    return value
+
+
+def retain_handoff_diagnostic(raw):
+    """Read one bounded ordinary FD; publish only a fresh closed projection."""
+    directory = os.open(raw, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC)
+    try:
+        fd = os.open('container.log', os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK | os.O_CLOEXEC,
+                     dir_fd=directory)
+        try:
+            before = os.fstat(fd)
+            if not stat.S_ISREG(before.st_mode) or before.st_nlink != 1 or before.st_size > 1024**2:
+                return
+            data = bytearray()
+            while len(data) <= 1024**2:
+                part = os.read(fd, min(65536, 1024**2 + 1 - len(data)))
+                if not part:
+                    break
+                data.extend(part)
+            after = os.fstat(fd)
+            fields = ('st_dev', 'st_ino', 'st_mode', 'st_nlink', 'st_size', 'st_mtime_ns', 'st_ctime_ns')
+            if any(getattr(before, key) != getattr(after, key) for key in fields):
+                return
+        finally:
+            os.close(fd)
+        value = handoff_diagnostic_record(bytes(data))
+        if value is None:
+            return
+        payload = (json.dumps(value, sort_keys=True, separators=(',', ':')) + '\n').encode('ascii')
+        fd = os.open('handoff-diagnostic.json', os.O_WRONLY | os.O_CREAT | os.O_EXCL |
+                     os.O_NOFOLLOW | os.O_CLOEXEC, 0o600, dir_fd=directory)
+        try:
+            with os.fdopen(fd, 'wb', closefd=False) as stream:
+                stream.write(payload)
+        finally:
+            os.close(fd)
+    finally:
+        os.close(directory)
+
+
+
 class Cancelled(ValueError):
     pass
 
@@ -991,6 +1060,11 @@ class Controller:
                                       'recovery_tag': owned['tag'], 'requires_final_owned_cleanup': True}
             native.save(raw / 'derivative-cleanup.json', derivative_cleanup)
             native.save(raw / 'handoff-controller.json', diagnostic)
+            if original_failure:
+                try:
+                    retain_handoff_diagnostic(raw)
+                except BaseException:
+                    pass
             if cleanup['status'] != 'PASS' and not original_failure:
                 need(False, 'lifecycle container removal not verified')
 

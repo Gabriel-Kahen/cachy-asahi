@@ -580,5 +580,54 @@ class LifecycleTests(unittest.TestCase):
                 lifecycle.environment_guard(changed)
 
 
+class HandoffDiagnosticTests(unittest.TestCase):
+    def setUp(self):
+        lifecycle.handoff_diagnostic_start()
+
+    def test_first_refusal_and_later_cancellation_are_closed(self):
+        lifecycle.handoff_diagnostic_site('COMMIT')
+        with self.assertRaises(lifecycle.Error):
+            lifecycle.require(False, 'private fixture input', diagnostic='LOAD_01')
+        lifecycle.handoff_diagnostic_site('OUTPUT')
+        lifecycle.handoff_diagnostic_failure('HANDOFF_INIT_10')
+        lifecycle.handoff_diagnostic_cancel()
+        stream = io.StringIO()
+        with contextlib.redirect_stderr(stream):
+            lifecycle.handoff_diagnostic_emit()
+            lifecycle.handoff_diagnostic_emit()
+        lines = stream.getvalue().splitlines()
+        self.assertEqual(len(lines), 1)
+        value = json.loads(lines[0][len(lifecycle.HANDOFF_DIAGNOSTIC_PREFIX):])
+        self.assertEqual(value, {'schema_version': 1, 'operation': 'COMMIT',
+                                'refusal': 'LOAD_01', 'cancelled': True})
+        self.assertNotIn('private fixture', stream.getvalue())
+
+    def test_refusal_recorder_baseexceptions_preserve_original_guard(self):
+        for secondary in (RuntimeError('recorder'), KeyboardInterrupt(), SystemExit(), BaseException()):
+            lifecycle.handoff_diagnostic_start()
+            with self.subTest(kind=type(secondary)), patch.object(lifecycle, 'handoff_diagnostic_failure', side_effect=secondary):
+                with self.assertRaises(lifecycle.Error) as raised:
+                    lifecycle.require(False, 'original guard', diagnostic='LOAD_01')
+                self.assertEqual(raised.exception.args, ('original guard',))
+            if type(secondary) is KeyboardInterrupt:
+                self.assertTrue(lifecycle._HANDOFF_DIAGNOSTIC['cancelled'])
+
+    def test_unknown_labels_are_projected_and_malformed_state_not_emitted(self):
+        lifecycle.handoff_diagnostic_site('private arbitrary text')
+        lifecycle.handoff_diagnostic_failure('private arbitrary text')
+        self.assertEqual(lifecycle._HANDOFF_DIAGNOSTIC['first']['operation'], 'UNKNOWN')
+        self.assertEqual(lifecycle._HANDOFF_DIAGNOSTIC['first']['refusal'], 'UNKNOWN')
+        lifecycle._HANDOFF_DIAGNOSTIC['first']['path'] = '/private'
+        stream = io.StringIO()
+        with contextlib.redirect_stderr(stream):
+            lifecycle.handoff_diagnostic_emit()
+        self.assertEqual(stream.getvalue(), '')
+
+    def test_successful_require_never_calls_optional_recorder(self):
+        with patch.object(lifecycle, 'handoff_diagnostic_failure', side_effect=KeyboardInterrupt()) as observer:
+            lifecycle.require(True, 'held guard', diagnostic='LOAD_01')
+        observer.assert_not_called()
+
+
 if __name__ == '__main__':
     unittest.main()

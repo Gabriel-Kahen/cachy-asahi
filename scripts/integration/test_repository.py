@@ -895,6 +895,132 @@ class RepositoryTests(unittest.TestCase):
         self.assertEqual(inspected['payload_metadata']['usr/bin/cachy-asahi-setup'], {'mode': 0o755, 'uid': 123, 'gid': 456})
         self.assertEqual(inspected['payload_sha256']['usr/bin/cachy-asahi-setup'], hashlib.sha256(b'#!/bin/sh\n# TEST ONLY\n').hexdigest())
 
+    def screenshot_archive(self, **changes):
+        # Inert archive only: the exact reviewed helper is inspected, never executed.
+        if not shutil.which('bsdtar'):
+            self.skipTest('preinstalled bsdtar required for read-only package scope cases')
+        values = {'name': 'cachy-asahi-hyprland-settings', 'version': '0.1.0-2', 'arch': 'any',
+                  'license': 'MIT', 'member': 'usr/bin/cachy-asahi-screenshot', 'mode': 0o755,
+                  'uid': 0, 'gid': 0, 'type': tarfile.REGTYPE,
+                  'data': (Path(__file__).resolve().parents[2] / 'packages/desktop/'
+                           'cachy-asahi-hyprland-settings/cachy-asahi-screenshot').read_bytes()}
+        values.update(changes)
+        path = self.base / 'scope-fixture.pkg.tar.gz'
+        info = (f"pkgname = {values['name']}\npkgver = {values['version']}\narch = {values['arch']}\n"
+                f"license = {values['license']}\n").encode()
+        with tarfile.open(path, 'w:gz') as package:
+            header = tarfile.TarInfo('.PKGINFO'); header.size = len(info)
+            package.addfile(header, io.BytesIO(info))
+            header = tarfile.TarInfo(values['member'])
+            header.mode, header.uid, header.gid, header.type = (values[k] for k in ('mode', 'uid', 'gid', 'type'))
+            header.linkname = 'other'
+            header.size = len(values['data']) if header.type == tarfile.REGTYPE else 0
+            package.addfile(header, io.BytesIO(values['data']) if header.size else None)
+        return path
+
+    def test_reviewed_desktop_screenshot_has_exact_scope_and_header(self):
+        inspected = self.runner.metadata(self.screenshot_archive())
+        member = 'usr/bin/cachy-asahi-screenshot'
+        self.assertEqual(inspected['name'], 'cachy-asahi-hyprland-settings')
+        self.assertEqual(inspected['version'], '0.1.0-2')
+        self.assertEqual(inspected['payload_sha256'][member],
+                         '5a920a5dd7a40463417a9b15e64a6620acfe7b2328960bf7014c9f587c4b69a8')
+        self.assertEqual(inspected['payload_metadata'][member], {'mode': 0o755, 'uid': 0, 'gid': 0})
+
+    def test_screenshot_scope_refuses_identity_content_and_header_drift(self):
+        for change in ({'name': 'cachy-asahi-setup'}, {'version': '0.1.0-3'}, {'arch': 'aarch64'},
+                       {'license': 'GPL'}, {'data': b'unreviewed helper'}, {'mode': 0o644},
+                       {'mode': 0o4755}, {'uid': 1}, {'gid': 1}, {'type': tarfile.DIRTYPE},
+                       {'type': tarfile.SYMTYPE}, {'type': tarfile.LNKTYPE}):
+            with self.subTest(change=change), self.assertRaises(r.Refused):
+                self.runner.metadata(self.screenshot_archive(**change))
+
+    def test_screenshot_admission_does_not_admit_other_paths_or_hooks(self):
+        for member in ('usr/bin/cachy-asahi-screenshot-extra', 'usr/bin/other',
+                       'usr/lib/cachy-asahi-screenshot', 'usr/share/libalpm/hooks/test.hook',
+                       '.INSTALL', '../usr/bin/cachy-asahi-screenshot', '/usr/bin/cachy-asahi-screenshot'):
+            with self.subTest(member=member), self.assertRaises(r.Refused):
+                self.runner.metadata(self.screenshot_archive(member=member))
+
+    def normalized_destination_fixture(self, names, listing, *, contents=False):
+        # Inert listing/selector observations only; no archive command or helper runs.
+        path = self.base / 'normalized-destination-fixture.pkg.tar.xz'
+        path.write_bytes(b'INERT LISTING FIXTURE')
+        reviewed = (Path(__file__).resolve().parents[2] / 'packages/desktop/'
+                    'cachy-asahi-hyprland-settings/cachy-asahi-screenshot').read_bytes()
+        calls = []
+        def command(operation, argv, binary=False):
+            calls.append(operation)
+            if operation == 'archive-names':
+                return '\n'.join(names) + '\n'
+            if operation == 'archive-types':
+                return '\n'.join(listing) + '\n'
+            self.assertTrue(contents, 'normalized aliases must refuse before any content read')
+            if operation == 'pkginfo':
+                return 'pkgname = cachy-asahi-hyprland-settings\npkgver = 0.1.0-2\narch = any\nlicense = MIT\n'
+            self.assertEqual(operation, 'payload-read')
+            self.assertTrue(binary)
+            return reviewed
+        return path, command, calls
+
+    def test_normalized_empty_first_screenshot_aliases_refuse_before_content_in_both_orders(self):
+        member = 'usr/bin/cachy-asahi-screenshot'
+        package = '-rw-r--r--  0 0 0 82 Oct 15 20:00 .PKGINFO'
+        headers = [(member, '-rw-r--r--  0 1 1 0 Oct 15 20:00 ' + member),
+                   ('./' + member, '-rwxr-xr-x  0 0 0 8523 Oct 15 20:00 ./' + member)]
+        for ordered in (headers, list(reversed(headers))):
+            with self.subTest(first=ordered[0][0]):
+                names = ['.PKGINFO', *(name for name, _ in ordered)]
+                listing = [package, *(header for _, header in ordered)]
+                path, command, calls = self.normalized_destination_fixture(names, listing)
+                with mock.patch.object(self.runner, 'command', side_effect=command):
+                    with self.assertRaisesRegex(r.Refused, 'duplicate normalized package destination'):
+                        self.runner.metadata(path)
+                self.assertEqual(calls, ['archive-names', 'archive-types'])
+
+    def test_normalized_directory_and_metadata_aliases_refuse_before_content(self):
+        for first, second, mode in (('usr/bin/', './usr/bin', 'd'),
+                                    ('usr/share/doc', './usr/share/doc/', 'd'),
+                                    ('.PKGINFO', './.PKGINFO', '-'),
+                                    ('.BUILDINFO', './.BUILDINFO', '-'),
+                                    ('.MTREE', './.MTREE/', '-')):
+            for pair in ((first, second), (second, first)):
+                with self.subTest(pair=pair):
+                    names = ['.PKGINFO'] if first != '.PKGINFO' else []
+                    listing = ['-rw-r--r--  0 0 0 82 Oct 15 20:00 .PKGINFO'] if names else []
+                    names += list(pair)
+                    listing += [mode + 'rwxr-xr-x  0 0 0 0 Oct 15 20:00 ' + name for name in pair]
+                    path, command, calls = self.normalized_destination_fixture(names, listing)
+                    with mock.patch.object(self.runner, 'command', side_effect=command):
+                        with self.assertRaisesRegex(r.Refused, 'duplicate normalized package destination'):
+                            self.runner.metadata(path)
+                    self.assertEqual(calls, ['archive-names', 'archive-types'])
+
+    def test_single_canonical_or_dot_alias_screenshot_preserves_admission(self):
+        member = 'usr/bin/cachy-asahi-screenshot'
+        for name in (member, './' + member):
+            with self.subTest(name=name):
+                path, command, calls = self.normalized_destination_fixture(
+                    ['.PKGINFO', name], ['-rw-r--r--  0 0 0 82 Oct 15 20:00 .PKGINFO',
+                                         '-rwxr-xr-x  0 0 0 8523 Oct 15 20:00 ' + name], contents=True)
+                with mock.patch.object(self.runner, 'command', side_effect=command):
+                    result = self.runner.metadata(path)
+                self.assertEqual(result['payload_sha256'],
+                                 {member: '5a920a5dd7a40463417a9b15e64a6620acfe7b2328960bf7014c9f587c4b69a8'})
+                self.assertEqual(result['payload_metadata'], {member: {'mode': 0o755, 'uid': 0, 'gid': 0}})
+                self.assertEqual(calls, ['archive-names', 'archive-types', 'pkginfo', 'payload-read'])
+
+    def test_raw_duplicate_member_refusal_is_preserved_before_content(self):
+        name = 'usr/bin/cachy-asahi-screenshot'
+        names = ['.PKGINFO', name, name]
+        listing = ['-rw-r--r--  0 0 0 82 Oct 15 20:00 .PKGINFO',
+                   *['-rwxr-xr-x  0 0 0 8523 Oct 15 20:00 ' + name] * 2]
+        path, command, calls = self.normalized_destination_fixture(names, listing)
+        with mock.patch.object(self.runner, 'command', side_effect=command):
+            with self.assertRaisesRegex(r.Refused, 'nonregular/duplicate or inconsistent'):
+                self.runner.metadata(path)
+        self.assertEqual(calls, ['archive-names', 'archive-types'])
+
     def test_successful_setup_payload_rejects_mode_and_owner_changes(self):
         self.runner.target = self.base / 'target'
         self.runner.base_versions = {'runtime': '1'}

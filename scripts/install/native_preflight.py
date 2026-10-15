@@ -19,9 +19,9 @@ import types
 
 HANDOFF = 'scripts/ci/development/repository_handoff.py'
 # Root must rebind after any separately reviewed issuer change.
-ISSUER_SHA = '1c50e0a38e3a34ddf89d94a92ffabf4b5b28f810df2ce2c3bbd2388870d322af'
+ISSUER_SHA = 'b21a466e3bd6bf4a215f3eb2a904b6d1e10389da28a89636f8b995dc336cf913'
 RECEIVER = 'scripts/install/native_arm_trial.py'
-RECEIVER_SHA = '597f244bbd957cfc63b4635aa769f589e78d082aac71e153240a0797a806cc97'
+RECEIVER_SHA = '8187ed00c06efbef2c05ae952f13a8bce1828e116e733d8324b2166b6adf62a2'
 PROFILE_SHA = 'db58bda8102ce098eded530f0920c21c1f09cb7a6cfb1d03ab84f0dfbf63d3f7'
 OWN = 'scripts/install/native_preflight.py'
 SOURCE_PATHS = ('scripts/install/local_transaction.py', 'scripts/install/test_local_transaction.py',
@@ -274,10 +274,27 @@ def container_binding(rows, cid, name, trial, source, inputs, output):
          {(m.get('Source'),m.get('Destination'),m.get('RW')) for m in mounts}==expected, 'CONTAINER_MOUNTS')
 
 
+PREFLIGHT_OPERATIONS = ('NOT_OBSERVED','WORKER_LOAD','RUNTIME_LOAD','EVIDENCE_OPEN','HANDLERS',
+    'TEMPORARY_SOURCE','TEST_LOAD','PROFILE_BINDING','BARRIER_RUN','BARRIER_REPORT','BARRIER_GATE',
+    'BARRIER_BINDING','EVIDENCE_SAVE','GUARD','ABI','MATRIX','TEMPORARY_CLEANUP','ENVIRONMENT',
+    'TERMINAL_WRITE','HANDLERS_EXIT','TERMINAL_CHECK','FINALIZE')
+BARRIER_PREDICATES = ('NOT_OBSERVED','RESULT_UNSUCCESSFUL','TEST_COUNT','SKIPPED','CALL_COUNT','CHILD_CLEANUP','NONE')
+
+
+def preflight_diagnostic(value):
+    """Closed optional facts only; never an acceptance decision or error classifier."""
+    if (type(value) is not dict or not all(type(key) is str for key in value) or
+            set(value) != {'schema_version','operation','aggregate'}): return None
+    if (type(value['schema_version']) is not int or value['schema_version'] != 1 or
+            type(value['operation']) is not str or type(value['aggregate']) is not str or
+            value['operation'] not in PREFLIGHT_OPERATIONS or value['aggregate'] not in BARRIER_PREDICATES): return None
+    return {key:value[key] for key in ('schema_version','operation','aggregate')}
+
+
 def receiver_public_record(record, public_sha256):
     """Closed receiver.public schema and canonical-byte binding; no acceptance grant."""
     keys=('schema_version','status','phase','barrier','ABI','matrix','tests','failures','errors','skips','termination','owned_child_cleanup','first_failure')
-    if (type(record) is not dict or not all(type(key) is str for key in record) or set(record)!=set(keys) or
+    if (type(record) is not dict or not all(type(key) is str for key in record) or set(record) not in (set(keys),set(keys)|{'preflight_diagnostic'}) or
             type(public_sha256) is not str or len(public_sha256)!=64):return None
     if not all(type(record[key]) is str for key in ('status','phase','barrier','ABI','matrix','owned_child_cleanup','first_failure')):return None
     if not (type(record['schema_version']) is int and record['schema_version']==1 and
@@ -290,6 +307,10 @@ def receiver_public_record(record, public_sha256):
     if record['status']=='PASS_NATIVE_PREFLIGHT_ONLY' and not (record['phase']=='complete' and record['barrier']=='PASS' and record['ABI']==record['matrix']=='NOT_RUN' and record['tests']==1 and record['owned_child_cleanup']=='PASS' and record['first_failure']=='NONE' and not any(record[key] for key in ('failures','errors','skips','termination'))):return None
     if record['status']=='PASS_NATIVE_FIXTURE_ONLY' and not (record['phase']=='complete' and record['barrier']==record['ABI']==record['matrix']=='PASS' and record['tests']==26 and record['owned_child_cleanup']=='PASS' and record['first_failure']=='NONE' and not any(record[key] for key in ('failures','errors','skips','termination'))):return None
     value={key:record[key] for key in keys}
+    if 'preflight_diagnostic' in record:
+        diagnostic=preflight_diagnostic(record['preflight_diagnostic'])
+        if diagnostic is None or value['status'] not in ('FAIL','REFUSED'):return None
+        value['preflight_diagnostic']=diagnostic
     raw=(json.dumps(value,sort_keys=True)+'\n').encode()
     if len(raw)>4096 or hashlib.sha256(raw).hexdigest()!=public_sha256:return None
     return value

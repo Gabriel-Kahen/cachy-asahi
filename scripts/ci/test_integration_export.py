@@ -47,6 +47,19 @@ class ExportTests(unittest.TestCase):
         self.assertEqual(receipt["sha256"], hashlib.sha256(data).hexdigest())
         self.assertEqual((self.output / receipt["path"]).read_bytes(), data)
 
+    def test_closed_handoff_diagnostic_is_evidence_only_and_byte_bound(self):
+        record = {"schema_version": 1, "operation": "UNKNOWN",
+                  "refusal": "UNKNOWN", "cancelled": False}
+        data = (json.dumps(record, sort_keys=True, indent=2) + "\n").encode()
+        self.put("lifecycle/handoff-diagnostic.json", data)
+        result = self.export()
+        row = next(item for item in result["accepted"]
+                   if item["path"] == "lifecycle/handoff-diagnostic.json")
+        self.assertEqual(row["sha256"], hashlib.sha256(data).hexdigest())
+        self.assertEqual(row["bytes"], len(data))
+        self.assertEqual((self.output / row["path"]).read_bytes(), data)
+        self.assertNotIn("status", record)
+
     def test_nested_sensitive_state_is_never_read_or_copied(self):
         names = ("gpg", ".gnupg", "private-keys-v1.d", "secret", "home", "scratch",
                  "rootfs", "dependency-cache", "PRIVATE", "test-secret-state", "secretKey")

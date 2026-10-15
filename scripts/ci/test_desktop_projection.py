@@ -532,5 +532,70 @@ class DesktopProjectionTests(unittest.TestCase):
             projection.project(self.raw, authority)
 
 
+
+
+class DesktopLocalPayloadTests(unittest.TestCase):
+    """Only fake command results and owned files: no packaging or session actors."""
+    def check(self, change=None):
+        source=Path(__file__).resolve().parents[2]/'packages/desktop/check-local.py'
+        spec=importlib.util.spec_from_file_location('desktop_local_payload_fixture',source)
+        checker=importlib.util.module_from_spec(spec);spec.loader.exec_module(checker)
+        recipe=source.parent/'cachy-asahi-hyprland-settings'
+        expected={
+            **{'usr/share/cachy-asahi/hyprland/'+n:(recipe/n).read_bytes()
+               for n in ('hyprland.lua','waybar.json','waybar.css','mako.conf')},
+            'usr/share/doc/cachy-asahi-hyprland-settings/README.md':(recipe/'README.md').read_bytes(),
+            **{'usr/share/licenses/cachy-asahi-hyprland-settings/'+n:(recipe/n).read_bytes()
+               for n in ('NOTICE','LICENSE')},
+            'usr/bin/cachy-asahi-screenshot':(recipe/'cachy-asahi-screenshot').read_bytes()}
+        if change is not None:change(expected)
+        calls=[]
+        def run(argv,cwd):
+            calls.append(tuple(argv))
+            if argv[0]=='makepkg' and '--nodeps' in argv:
+                (Path(cwd)/'owned-fixture.pkg.tar.zst').write_bytes(b'inert mocked package fixture')
+            return 0,b'owned command fixture'
+        def output(argv,**kwargs):
+            calls.append(tuple(argv))
+            if argv[:2]==['bsdtar','-tf']:
+                return '\n'.join(['.PKGINFO','.BUILDINFO','.MTREE','usr/',*expected])+'\n'
+            if argv[:2]==['bsdtar','-xOf']:
+                name=argv[-1]
+                return expected[name] if name in expected else b'owned metadata fixture'
+            if argv==['Hyprland','--version']:return 'owned version fixture'
+            raise AssertionError(argv)
+        with tempfile.TemporaryDirectory() as tmp:
+            evidence=Path(tmp)/'evidence'
+            with patch.object(checker,'EVIDENCE',evidence),patch.object(checker,'run',side_effect=run), \
+                 patch.object(checker.subprocess,'check_output',side_effect=output):
+                # Suppress only this command's JSON report in the unit test.
+                import contextlib,io
+                with contextlib.redirect_stdout(io.StringIO()):checker.main()
+            record=json.loads((evidence/'host-packaging.json').read_text())
+        return record,calls
+
+    def test_exact_current_eight_file_payload_passes_both_mocked_runs(self):
+        record,calls=self.check()
+        self.assertEqual(len(record['runs']),2)
+        for row in record['runs']:
+            self.assertEqual(len(row['payload_sha256']),8)
+            self.assertEqual(row['payload_sha256']['usr/bin/cachy-asahi-screenshot'],
+                hashlib.sha256((Path(__file__).resolve().parents[2]/
+                    'packages/desktop/cachy-asahi-hyprland-settings/cachy-asahi-screenshot').read_bytes()).hexdigest())
+        self.assertTrue(record['payload_matches']);self.assertTrue(record['artifact_bytes_match'])
+        self.assertEqual(record['installed'],'NOT RUN');self.assertEqual(record['hardware_tested'],'NOT RUN')
+        self.assertEqual(calls.count(('makepkg','--nodeps','--noconfirm')),2)
+        self.assertNotIn(('Hyprland','--version'),calls[:-1])
+
+    def test_missing_changed_extra_or_hook_payloads_are_still_refused(self):
+        cases=(lambda p:p.pop('usr/bin/cachy-asahi-screenshot'),
+               lambda p:p.update({'usr/bin/cachy-asahi-screenshot':b'changed'}),
+               lambda p:p.update({'usr/bin/unreviewed':b'extra'}),
+               lambda p:p.update({'.INSTALL':b'owned inert hook marker'}))
+        for change in cases:
+            with self.subTest(change=change),self.assertRaisesRegex(RuntimeError,'package payload differs'):
+                self.check(change)
+
+
 if __name__ == '__main__':
     unittest.main()
