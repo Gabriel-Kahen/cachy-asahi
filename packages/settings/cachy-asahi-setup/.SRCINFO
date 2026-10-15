@@ -1,11 +1,13 @@
 pkgbase = cachy-asahi-setup
-	pkgdesc = Explicit per-user setup and removal of cachy-asahi configuration
+	pkgdesc = Explicit cachy-asahi user setup and repository enrollment
 	pkgver = 0.1.0
-	pkgrel = 3
+	pkgrel = 4
 	url = https://github.com/Gabriel-Kahen/cachy-asahi
 	arch = any
 	license = MIT
 	depends = python>=3.11
+	depends = gnupg
+	depends = pacman
 	optdepends = cachy-asahi-hyprland-settings: optional desktop template
 	optdepends = cachy-asahi-fish-config: optional Fish template
 	optdepends = cachy-asahi-zsh-config: optional Zsh template
@@ -16,12 +18,16 @@ pkgbase = cachy-asahi-setup
 	source = source-provenance.json
 	source = check-sync.py
 	source = test-sync.py
+	source = cachy-asahi-repository
+	source = repository-enrollment.md
 	sha256sums = 3e652bff75f6202cd3c13c327e50a298f7b25149b3c5cb55cdf4912d35af5919
-	sha256sums = 47624410d7d02beacb0386c3f1448842277aa32ba71fae2434d17bcd1e656b78
-	sha256sums = 2c28b96b5e4dca86c8a71aa0df728a049820d5951812f20241be96e7000d9744
+	sha256sums = e868fe3ab18b6a4a175b2be011847ae830e2a589d8264bf8d3e6974dc6529a78
+	sha256sums = a885656c42b81e413549976eb56fa1aad59018af1cad8954f00f45cbd1c2d018
 	sha256sums = 51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7
-	sha256sums = c1011858a1b8c778df26e07bf74a90ca970946bc685b83c2642bce6a39d6b489
-	sha256sums = ce66c6fc4b66d358378143f585fd3d1a708fddee80942e12900d5b76b2ff009b
-	sha256sums = f2694ef9e7ccca7201f444e5cad28aa524da374faae364e8bcbb75200149e6bb
+	sha256sums = ccdf67333850ed7e862b969b88423523c4a9e36ffc31bab0f529533626ddec2e
+	sha256sums = 9fb6ff8f1a9304f6e55895b5d83845a8776c77669aac0ec55a58c47b25150a1a
+	sha256sums = 9596373cef5469512b6bae3e0bf1dc6a1b093012779f1488765281aef27de9b3
+	sha256sums = 38db2d45955b569a4c74c3f31d6b6c79611126238e1bbe1e5cf819f81d0fb54f
+	sha256sums = a14a53311e7c995b468ddcec1e4996611d7cfe9bb08eb255e0cb6bfee6dcc7e1
 
 pkgname = cachy-asahi-setup
