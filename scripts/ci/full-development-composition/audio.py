@@ -12,6 +12,10 @@ EXPECTED = '89d78d034a2ca1750157d93151719c360ee8c788bfe587c04c17740db072538d'
 LD_HELPER = ('8794bf13f7a651963a219d8031fe04800d06ac6e44a29fbdfd81b64855b2bd98', 865664)
 LD_CONF = '785c6c3614a27ae6115a27c1ca55bbf333654780997c4ba7e181172b021d1bf3'
 LD_DIRS = ('/usr/lib', '/usr/lib64')
+LD_FAKEROOT_CONF = '/usr/lib/ld.so.conf.d/fakeroot.conf'
+LD_FAKEROOT_DIR = '/usr/lib/libfakeroot'
+LD_FAKEROOT_NODE = {'type': 'file', 'mode': 0o644, 'uid': 0, 'gid': 0, 'size': 21,
+                    'sha256': '564c4c4d369d005702d825d34edc5e5568cb1ab6ee1b19fa03d0d672fb8b3aee'}
 
 
 
@@ -68,11 +72,16 @@ def ld_state(c, rows, root=Path('/')):
             ld_need(path.lstat().st_size <= 4096, 'include-file-size ' + name)
             node = ld_node(path)
             ld_need(node['type'] == 'file' and node['size'] <= 4096, 'include-file-shape ' + name)
+            if name == LD_FAKEROOT_CONF:
+                ld_need(node == LD_FAKEROOT_NODE, 'fixed-fakeroot-config')
+                configs[name] = node
+                continue
             # Only audited literal standard dirs; no nested includes, flags or globs.
             for line in path.read_text(encoding='ascii').split('\n'):
                 line = line.split('#', 1)[0].strip(' \t')
                 ld_need(not line or line in LD_DIRS, 'unsupported-include ' + name)
             configs[name] = node
+    ld_need(configs.get(LD_FAKEROOT_CONF) == LD_FAKEROOT_NODE, 'missing-fixed-fakeroot-config')
     ld_need(all(n['type'] == 'absent' or n['uid'] == n['gid'] == 0 and not n['mode'] & 0o022 for n in configs.values()), 'config-metadata')
     aliases, scan = {}, set()
     for name in LD_DIRS:
@@ -82,6 +91,11 @@ def ld_state(c, rows, root=Path('/')):
         resolved = path.resolve(strict=True)
         ld_need(resolved in {at(n) for n in LD_DIRS} and resolved.is_dir(), 'scan-alias-shape')
         scan.add(resolved)
+    path = at(LD_FAKEROOT_DIR); node = ld_node(path)
+    ld_need(node == {'type': 'directory', 'mode': 0o755, 'uid': 0, 'gid': 0}
+            and path.resolve(strict=True) == path, 'fixed-fakeroot-scan-directory')
+    aliases[LD_FAKEROOT_DIR] = node
+    scan.add(path)
     for path in tuple(scan):
         hwcaps = path / 'glibc-hwcaps'; name = '/' + str(hwcaps.relative_to(root)); aliases[name] = ld_node(hwcaps)
         ld_need(aliases[name]['type'] in ('absent', 'directory'), 'hwcaps-shape')

@@ -125,14 +125,14 @@ at most32 entries each and at most4096 bytes per ordinary included conf file.
 Included syntax is deliberately finite: blank/comment lines or literal /usr/lib
 and /usr/lib64, with ASCII space/tab and trailing comments. No nested include,
 glob, flag, other directory or symlinked configuration is interpreted. Config
-nodes must be root-owned and not group/world writable. The destroyed actual
-container's included files were not retained: this narrow proposal does NOT
-claim the unseen current include expansion is supported. An unfamiliar include,
+nodes must be root-owned and not group/world writable. The held package audit
+and exact fakeroot exception are described below. An unfamiliar include,
 e.g. a separate vendor-library directory, produces a bounded UNACCEPTED result;
 its exact source/data shape must be audited before adding explicit support.
 
 Scan directories are the two fixed standard spellings, resolved only to those
-same two paths, plus ordinary glibc-hwcaps children (at most32 per root). All
+same two paths, the exact fakeroot directory below, and ordinary glibc-hwcaps
+children (at most32 per root). All
 resolved roots/aliases and hwcaps metadata are recorded. Any audio ELF bundle
 parent selected as a scan directory is refused. Direct regular files and symlinks
 are snapshotted with bytes/hash/type/mode/UID/GID and stat identity; regular files
@@ -168,6 +168,41 @@ force a pass, and no ALPM helper exit status is fabricated from state equality.
 Only audio.py, test_audio.py and this scope note change. Source pins/caller Source
 selection need a new Root freeze if adopted; no shared lock or workflow is edited
 here. Inert fixtures mock all commands and target ownership, using ordinary
-private temp data. Actual configuration support, generic-native checkpoint
+private temp data. Actual native configuration acceptance, generic-native checkpoint
 results, loader correctness, user homes, audio/plugin operation, M2/16KiB,
 performance and release acceptance remain NOT RUN/unestablished by this proposal.
+
+
+## B0 fixed fakeroot include correction after38808131262
+
+Artifact-only correction against exact Source7c96efd7454d18a43f2ed4f0dc9f93c7bd0530b3.
+That actual attempt stopped at B0 before cache inspection or audio U because
+/usr/lib/ld.so.conf.d/fakeroot.conf was outside the original finite syntax.
+All574 already-held package archives and signatures match their input-lock byte
+pins (lock SHA256b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9;
+no fresh GPG verification). Their bounded MTREE metadata identifies only the
+main config and fakeroot include in the two included directories. Actual config
+members confirm that finite closure. The retained fakeroot1:1.37.2-3 input
+contains exactly21 bytes
+`/usr/lib/libfakeroot\n` (SHA256564c4c4d369d005702d825d34edc5e5568cb1ab6ee1b19fa03d0d672fb8b3aee),
+root-owned0644, with ordinary root-owned0755 /usr/lib/libfakeroot. Only that exact
+file path/content/hash/size/mode/UID/GID now enables that exact additional scan
+directory. It is required on this held base. Symlinked directory/alternate alias,
+changed metadata/content, missing file, or the same path directive in another
+include remains UNACCEPTED. Generic include syntax and standard-dir alias rules
+are unchanged; no arbitrary vendor directories were added to their allowlist.
+The referenced directory contains regular0755 root-owned libfakeroot-0.so
+(69168 bytes, SHA256c76794dc4470a2f57aeae1db1cfe4d2332beccec2c61211bf13a66025740dd9b)
+and symlink libfakeroot.so -> libfakeroot-0.so. These bytes were read as data,
+without extracting or executing the library. Their installed state is observed
+at B0 and compared at later checkpoints; this correction does not replace the
+existing package ownership/signature checks with a new payload allowlist.
+
+The fixed directory joins the existing direct library/link, hwcaps, cache-target
+and four-checkpoint comparisons; its libraries are not loaded. Actual cache
+presence/mappings/aux bytes and all later checkpoint outcomes remain unknown.
+Aux raw byte differences still fail with bounded before/after hashes; no decoder,
+extra regeneration, cache restore or ownership/payload/signature/lock relaxation
+is added. Existing587/593 inputs and exact locks remain held (original587 runtime
+checkpoint). Historical38797262875 remains a separate bounded older-input PASS;
+this failed attempt does not establish current audio install/removal/cache PASS.
