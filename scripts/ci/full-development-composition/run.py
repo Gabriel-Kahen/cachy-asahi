@@ -34,7 +34,7 @@ def save(path, value):
 
 def retain(raw, public):
     names = ['desktop574/report.json', 'desktop574/build.log', 'dependency.log',
-             'lifecycle-fixture-summary.json', 'updater-v2-summary.json', 'setup4-summary.json']
+             'lifecycle-fixture-summary.json', 'updater-v2-summary.json', 'setup4-summary.json', 'audio-summary.json']
     for name in ('ksmctl', 'topmem', 'zsh-autosuggestions', 'fish-bang-bang'):
         names += [f'cachy-asahi-{name}/{file}' for file in ('build.log', 'provenance.json', 'validation.json')]
     for name in names:
@@ -255,6 +255,12 @@ def compose(args, raw, public, result):
         rows.append({'name': row['name'], 'version': row['version'], 'filename': target.name,
                      'sha256': sha(target), 'size': target.stat().st_size})
         archives.append(target)
+    audio = None
+    if getattr(args, 'audio_inputs', None):
+        result['phase'] = 'prepare-retained-audio-additions'
+        preparation = module('composition_audio_inputs', HERE / 'audio_inputs.py')
+        audio, audio_archives = preparation.prepare(args, raw, inputs, checks, sys.modules[__name__])
+        archives.extend(audio_archives)
     lifecycle = None
     if args.lifecycle:
         result['phase'] = 'prepare-development-lifecycle-inputs'
@@ -287,6 +293,13 @@ def compose(args, raw, public, result):
     if setup4:
         row = setup4['package']; sig = inputs / (row['filename'] + '.sig')
         row.update(signature_sha256=sha(sig), signature_size=sig.stat().st_size)
+    if audio:
+        for row in audio['packages']:
+            sig = inputs / (row['filename'] + '.sig')
+            if row['origin'] == 'ALARM':
+                assert sha(sig) == row['signature_sha256'] and sig.stat().st_size == row['signature_size']
+            else:
+                row.update(signature_sha256=sha(sig), signature_size=sig.stat().st_size)
     checkpoint_sha = FINAL
     if setup4:
         rows, projects, checkpoint_sha = setup4_checkpoint(successor, rows, projects, inputs)
@@ -303,6 +316,7 @@ def compose(args, raw, public, result):
     if lifecycle: plan['lifecycle'] = lifecycle
     if successor: plan['updater_v2'] = successor
     if setup4: plan['setup4'] = setup4
+    if audio: plan['audio'] = audio
     if getattr(args, 'measure_footprint', False):
         footprint = module('composition_footprint', HERE / 'footprint.py')
         assert setup4 and successor is None and setup4['expected_inventory_sha256'] == footprint.EXPECTED
@@ -329,8 +343,10 @@ def compose(args, raw, public, result):
     if getattr(args, 'measure_footprint', False): argv.append('--cap-add=FSETID')  # Preserve copied setgid modes.
     for source, target, ro in ((inputs, '/inputs', True), (HERE / 'container.py', '/runner.py', True), (public, '/out', False)):
         argv += ['--mount', f'type=bind,src={source},dst={target}' + (',readonly' if ro else '')]
-    if lifecycle or successor or setup4:
+    if lifecycle or successor or setup4 or audio:
         argv += ['--mount', f'type=bind,src={HERE / "lifecycle.py"},dst=/lifecycle.py,readonly']
+    if audio:
+        argv += ['--mount', f'type=bind,src={HERE / "audio.py"},dst=/audio.py,readonly']
     if successor:
         argv += ['--mount', f'type=bind,src={HERE / "updater_v2.py"},dst=/updater-v2.py,readonly',
                  '--env=CACHY_ASAHI_UPDATER_RUNTIME=' + uuid.uuid4().hex]
@@ -341,9 +357,13 @@ def compose(args, raw, public, result):
                  '--mount', f'type=bind,src={raw / "footprint-source"},dst=/measurement-source,readonly',
                  '--mount', f'type=bind,src={HERE / "footprint.py"},dst=/footprint.py,readonly']
     command(argv + ['--entrypoint=/usr/bin/python3', image, '-I', '-B', '/runner.py'],
-            public / 'transaction.log', 2400 if getattr(args, 'measure_footprint', False) else 1200 if lifecycle or successor or setup4 else 480)
+            public / 'transaction.log', 2400 if getattr(args, 'measure_footprint', False) else 1200 if lifecycle or successor or setup4 or audio else 480)
     result['composition'] = json.loads((public / 'result.json').read_text())
     assert result['composition']['status'] == 'PASS'
+    if audio:
+        assert result['composition']['audio']['status'] == 'PASS'
+        assert result['composition']['final_package_count'] == 587
+        assert result['composition']['final_inventory_sha256'] == FINAL
     if lifecycle:
         assert result['composition']['lifecycle']['status'] == 'PASS'
         assert result['composition']['final_package_count'] == 574
@@ -367,11 +387,14 @@ def main():
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument('--lifecycle', action='store_true', help='Run the explicit disposable lifecycle after v1 composition checks')
     mode.add_argument('--updater-v2-source', type=Path, help='Exact Source480053 checkout for v1 upgrade, real Check and v1 rollback')
+    mode.add_argument('--audio-inputs', type=Path, help='Exact retained six audio archives plus official LSP signature; install/remove after the original587 checkpoint')
     parser.add_argument('--setup4-pair', type=Path, help='Retained Source98 native pair for the explicit setup3-to-4-to-3 development trial; with approved v2 source, select v2 in the initial checkpoint')
     parser.add_argument('--measure-footprint', action='store_true', help='Measure the exact setup4/updater-v2 scoped copy on a private disk-backed volume')
     args = parser.parse_args()
     if getattr(args, 'measure_footprint', False) and not (args.setup4_pair and args.updater_v2_source):
         parser.error('--measure-footprint requires --setup4-pair and --updater-v2-source')
+    if args.audio_inputs and args.setup4_pair:
+        parser.error('--audio-inputs is incompatible with --setup4-pair')
     if args.setup4_pair and args.lifecycle:
         parser.error('--setup4-pair is incompatible with --lifecycle')
     if args.setup4_pair:
