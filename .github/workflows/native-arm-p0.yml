@@ -453,6 +453,20 @@ jobs:
                   child=re.match(r'(-?[0-9]{1,3}) != 0 :(?: |$)',message)
                   if kind=='AssertionError' and child and -64<=int(child[1])<=255 and int(child[1])!=0:
                       record.update(code='CHILD_NONZERO',child_exit=int(child[1]))
+                      # Held util-linux 2.42.4 strings, selected argv and LC_ALL=C only.
+                      # This observes tool text; it does not identify an LSM or a syscall trace.
+                      stages={'unshare failed':'UNSHARE_CALL',
+                              'cannot change root filesystem propagation':'ROOT_PROPAGATION',
+                              'mount /proc failed':'PROC_MOUNT'}
+                      errors={'Operation not permitted':1,'Permission denied':13,'Invalid argument':22,
+                              'Function not implemented':38,'Cannot allocate memory':12,
+                              'Resource temporarily unavailable':11,'No such file or directory':2}
+                      suffix=message[child.end():]
+                      tool={'stage':'UNRECOGNIZED_OR_ABSENT','errno':'UNAVAILABLE'}
+                      for text,stage in stages.items():
+                          for error,number in errors.items():
+                              if suffix=='unshare: '+text+': '+error:tool={'stage':stage,'errno':number}
+                      record['unshare_tool_error']=tool
                   if len(rows)<8:rows.append(record)
                   else:partial=True
                   frames=[]
