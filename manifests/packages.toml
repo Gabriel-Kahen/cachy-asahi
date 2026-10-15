@@ -190,7 +190,7 @@ native_build_commit = "804b418f14459e82031046fb28a0308b4cb9348e"
 native_evidence = "docs/validation/fdk-current-native-20261015.md"
 installation = "NOT RUN"
 hardware_validation = "NOT RUN"
-next_step = "Native ARM build pair and codec smoke passed. Verify explicit libfdk-aac provider substitution and PipeWire AAC integration, then actual target lifecycle before release selection."
+next_step = "Native ARM pair, provider replacement/restoration and the shipped PipeWire AAC-LC codec passed; see docs/validation/fdk-provider-native-20261015.md. Verify daemon audio graphs, Bluetooth transport and actual target lifecycle before release selection."
 
 [[packages]]
 name = "cachy-asahi-zsh-autosuggestions"
