@@ -85,6 +85,8 @@ jobs:
         run: |
           python3 -B scripts/virtual/test_barrier_mode.py
           python3 -B scripts/virtual/test_transaction_mode.py
+      - name: Check fixed project source retrieval with inert transport
+        run: python3 -B scripts/ci/asahi-audio-rust/test_sources.py
       - name: Check offline audio graph caller without plugin actors
         run: python3 -B -m unittest discover -s scripts/ci/asahi-audio-offline-graph -p 'test_*.py'
       - name: Check bounded root observations without package actors
