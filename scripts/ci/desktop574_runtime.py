@@ -81,6 +81,34 @@ def docker_args(image, name, out, source, runner, *, root=False):
     return args + ['--entrypoint=/bin/bash', image]
 
 
+def bind_local_base(image, reference, execute, inspect):
+    """BuildKit FROM needs a named local image; bind it to the checked ID."""
+    require(re.fullmatch(r'sha256:[0-9a-f]{64}', image), 'immutable base ID required')
+    require(re.fullmatch(r'cachy-asahi-desktop574-base:[0-9a-f]{32}', reference), 'owned base reference required')
+    execute(['docker', 'image', 'tag', image, reference], 'base-reference', 30)
+    require(inspect(['docker', 'image', 'inspect', '--format', '{{.Id}}', reference]) == image,
+            'local base reference differs from selected image')
+    return reference
+
+
+def release_local_base(image, reference, cleanup):
+    """Remove only the owned tag after all base consumers; never force-remove IDs."""
+    found = cleanup(['docker', 'image', 'ls', '--no-trunc', '-q', '--filter',
+                     'reference=' + reference], 'check-base-alias')
+    if found is None:
+        return {'ok': False, 'base_image_present': None}
+    if found.strip():
+        if set(found.decode().splitlines()) != {image}:
+            return {'ok': False, 'base_image_present': None, 'error': 'base alias changed; not removed'}
+        if cleanup(['docker', 'image', 'rm', '--no-prune', reference], 'remove-base-alias') is None:
+            return {'ok': False, 'base_image_present': None}
+    remaining = cleanup(['docker', 'image', 'ls', '--no-trunc', '-q', '--filter',
+                         'reference=' + reference], 'check-base-alias-absent')
+    images = cleanup(['docker', 'image', 'ls', '--no-trunc', '-q'], 'check-base-image-after-alias')
+    return {'ok': remaining is not None and not remaining.strip() and images is not None,
+            'base_image_present': image in images.decode().splitlines() if images is not None else None}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--source', type=Path, required=True)
@@ -101,6 +129,7 @@ def main():
     report = {'status': 'FAIL', 'hardware_validation': 'NOT_RUN', 'graphics_acceleration': 'NOT_RUN',
               'commands': [], 'frames': {}, 'events': [], 'cleanup': []}
     containers, images, active = [], [], None
+    base_reference = None
     def execute(argv, label, seconds=300):
         nonlocal active
         report['commands'].append({'argv': argv, 'log': label + '.log'})
@@ -168,7 +197,10 @@ def main():
         (context / 'expected.lock').write_text(''.join(f'{n} {v}\n' for n, v in sorted(expected.items())))
         # Only this exact locally built project archive uses the local unsigned policy.
         (context / 'project.conf').write_text(hosted.PACMAN.replace('LocalFileSigLevel = Required', 'LocalFileSigLevel = Optional'))
-        (context / 'Dockerfile').write_text(f'FROM {image}\nCOPY tooling/ /tmp/tooling/\nCOPY desktop.pkg.tar.zst /tmp/project/desktop.pkg.tar.zst\nCOPY project.conf /tmp/project.conf\nCOPY expected.lock /expected-runtime.lock\nRUN pacman -U --noconfirm --noscriptlet /tmp/tooling/*.pkg.tar.xz && pacman -U --noconfirm --noscriptlet --config /tmp/project.conf /tmp/project/desktop.pkg.tar.zst && ldconfig && pacman -Q | LC_ALL=C sort > /runtime-packages.lock && cmp /expected-runtime.lock /runtime-packages.lock && rm -rf /tmp/tooling /tmp/project /tmp/project.conf\n')
+        base_reference = 'cachy-asahi-desktop574-base:' + os.urandom(16).hex()
+        bind_local_base(image, base_reference, execute, text_command)
+        report['base_reference'] = base_reference
+        (context / 'Dockerfile').write_text(f'FROM {base_reference}\nCOPY tooling/ /tmp/tooling/\nCOPY desktop.pkg.tar.zst /tmp/project/desktop.pkg.tar.zst\nCOPY project.conf /tmp/project.conf\nCOPY expected.lock /expected-runtime.lock\nRUN pacman -U --noconfirm --noscriptlet /tmp/tooling/*.pkg.tar.xz && pacman -U --noconfirm --noscriptlet --config /tmp/project.conf /tmp/project/desktop.pkg.tar.zst && ldconfig && pacman -Q | LC_ALL=C sort > /runtime-packages.lock && cmp /expected-runtime.lock /runtime-packages.lock && rm -rf /tmp/tooling /tmp/project /tmp/project.conf\n')
         iid = out / 'runtime-image-id'
         execute(['docker', 'build', '--network=none', '--pull=false', '--iidfile', str(iid), str(context)], 'runtime-image', 300)
         derived = iid.read_text().strip()
@@ -284,6 +316,10 @@ def main():
             except Exception as error:
                 report['cleanup'].append({'guest_disk_removed': False, 'error': type(error).__name__})
                 report['status'] = 'FAIL_CLEANUP'
+        if base_reference is not None:
+            released = release_local_base(image, base_reference, cleanup)
+            report['base_reference_cleanup'] = released
+            if not released['ok']: report['status'] = 'FAIL_CLEANUP'
         (out / 'runtime.json').write_text(json.dumps(report, indent=2) + '\n')
         print(json.dumps(report, indent=2), flush=True)
         for sig, handler in previous.items(): signal.signal(sig, handler)

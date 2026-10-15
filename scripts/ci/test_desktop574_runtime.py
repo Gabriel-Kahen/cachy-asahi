@@ -64,6 +64,32 @@ class RuntimeTests(unittest.TestCase):
             self.assertTrue(runtime.log_complete(collector, path, path.stat().st_size))
             self.assertIn(b'"complete"', path.read_bytes())
 
+    def test_named_build_base_is_bound_to_exact_local_image(self):
+        image = 'sha256:' + 'a' * 64
+        reference = 'cachy-asahi-desktop574-base:' + 'b' * 32
+        execute = Mock()
+        inspect = Mock(return_value=image)
+        self.assertEqual(runtime.bind_local_base(image, reference, execute, inspect), reference)
+        execute.assert_called_once_with(['docker', 'image', 'tag', image, reference], 'base-reference', 30)
+        inspect.assert_called_once_with(['docker', 'image', 'inspect', '--format', '{{.Id}}', reference])
+        inspect.return_value = 'sha256:' + 'c' * 64
+        with self.assertRaises(ValueError):
+            runtime.bind_local_base(image, reference, execute, inspect)
+        with self.assertRaises(ValueError):
+            runtime.bind_local_base(image, image, execute, inspect)
+
+    def test_base_alias_cleanup_refuses_changed_binding_and_removes_only_owned_tag(self):
+        image = 'sha256:' + 'a' * 64
+        reference = 'cachy-asahi-desktop574-base:' + 'b' * 32
+        changed = Mock(return_value=('sha256:' + 'c' * 64 + '\n').encode())
+        self.assertFalse(runtime.release_local_base(image, reference, changed)['ok'])
+        self.assertFalse(any('rm' in call.args[0] for call in changed.call_args_list))
+        cleanup = Mock(side_effect=[(image + '\n').encode(), b'untagged', b'', b''])
+        result = runtime.release_local_base(image, reference, cleanup)
+        self.assertEqual(result, {'ok': True, 'base_image_present': False})
+        self.assertEqual(cleanup.call_args_list[1].args[0], ['docker', 'image', 'rm', '--no-prune', reference])
+        self.assertFalse(any('--force' in call.args[0] or '-f' in call.args[0] for call in cleanup.call_args_list))
+
     def test_root_fixture_capabilities_are_metadata_only(self):
         args = runtime.docker_args('sha256:' + 'a' * 64, 'owned', Path('/task/out'), Path('/task/src'), Path('/task/runner'), root=True)
         self.assertEqual({arg for arg in args if arg.startswith('--cap-add')},
