@@ -1,0 +1,127 @@
+{
+  "files": [
+    {
+      "bytes": 2729,
+      "mode": 420,
+      "path": ".github/workflows/screenshot-headless-native-software.yml",
+      "sha256": "e54906e6e2361a07420f7d3e1b21233572010d72be9dde4b028b24401bbcd0ac"
+    },
+    {
+      "bytes": 657,
+      "mode": 420,
+      "path": "scripts/ci/screenshot-headless-native/Containerfile",
+      "sha256": "38bba9e88e94167ada913621bbcc2c6fd0efe2395e01dd226775fd3db11a7a37"
+    },
+    {
+      "bytes": 20974,
+      "mode": 420,
+      "path": "scripts/ci/screenshot-headless-native/ci.py",
+      "sha256": "02a320cec1bc6c89006e5b952792c94c8c0879f81a716b7a72cd0ae6b3e8a321"
+    },
+    {
+      "bytes": 16077,
+      "mode": 420,
+      "path": "scripts/ci/screenshot-headless-native/run.py",
+      "sha256": "bb283b6b71cb63b3c1c90e8f1056855ead738b81b8a29985a26618159b632f24"
+    },
+    {
+      "bytes": 649265,
+      "mode": 420,
+      "path": "scripts/ci/screenshot-headless-native/runtime.lock.json",
+      "sha256": "2a63d48f5fdc19f73ab05f3c52f26b29d2ee09e2a963c359f1027a07f654ebd6"
+    },
+    {
+      "bytes": 8288,
+      "mode": 420,
+      "path": "scripts/ci/screenshot-headless-native/validate_png.py",
+      "sha256": "0ac5cfef76545826e37a36f2d8403067a677d07795ddb2804d57d3e3d92ab8fe"
+    },
+    {
+      "bytes": 30643,
+      "mode": 420,
+      "path": "scripts/ci/screenshot-headless-native/archive_input.py",
+      "sha256": "9c05e9a6d6366d97766e2c465a9b168e361657de3a7ba183f0e99d0035b859f8"
+    },
+    {
+      "bytes": 1171,
+      "mode": 420,
+      "path": "scripts/ci/screenshot-headless-native/candidate-input.lock.json",
+      "sha256": "edbbfc7cd68421e2f001f2ce656f549f52f767eb8bd51b91413c119e8170c717"
+    },
+    {
+      "bytes": 8523,
+      "mode": 493,
+      "path": "packages/desktop/cachy-asahi-hyprland-settings/cachy-asahi-screenshot",
+      "sha256": "5a920a5dd7a40463417a9b15e64a6620acfe7b2328960bf7014c9f587c4b69a8"
+    },
+    {
+      "bytes": 1081,
+      "mode": 420,
+      "path": "LICENSE",
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    {
+      "bytes": 1081,
+      "mode": 420,
+      "path": "packages/desktop/cachy-asahi-hyprland-settings/LICENSE",
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    {
+      "bytes": 1406,
+      "mode": 420,
+      "path": "packages/desktop/cachy-asahi-hyprland-settings/NOTICE",
+      "sha256": "0c8c331ce87a95b154e0e83c358a5cafc39bf08f2129ecc5be2438c6a97a325c"
+    },
+    {
+      "bytes": 7569,
+      "mode": 420,
+      "path": "scripts/ci/screenshot-headless-native/region_pointer.py",
+      "sha256": "8f6d4c278bf9370856210da43990c5c323102e6604eab7afadeda25321aa9d0f"
+    },
+    {
+      "bytes": 5776,
+      "mode": 420,
+      "path": "scripts/ci/screenshot-headless-native/region_trace.py",
+      "sha256": "f7e50d30a749fca1af52e9e21e0a05a6d5b1173fbba0066092b9a2b8254971c8"
+    },
+    {
+      "bytes": 21946,
+      "mode": 420,
+      "path": "scripts/ci/screenshot-headless-native/region_trial.py",
+      "sha256": "a2e893cb26948f4b36770aafcc04079ac32553017006e7b56c9203a57c6c6036"
+    },
+    {
+      "bytes": 2260,
+      "mode": 493,
+      "path": "scripts/ci/screenshot-headless-native/region-tools/slurp",
+      "sha256": "7aa72b2184c9fe37d0d402d4f03e3944c4a56f600b1489f4bd3cae5d230b6e12"
+    },
+    {
+      "bytes": 149861,
+      "mode": 420,
+      "path": "scripts/ci/screenshot-headless-native/region-protocols/wayland.xml",
+      "sha256": "0c371e9c31f8178008a7ddecf431cbe12ec4b29ef7714803ecd3e20af925e7ed"
+    },
+    {
+      "bytes": 6895,
+      "mode": 420,
+      "path": "scripts/ci/screenshot-headless-native/region-protocols/virtual-pointer.xml",
+      "sha256": "3ff6d540be0bc5228195bf072bde42117ea17945a5c2061add5d3cf97d6bb524"
+    },
+    {
+      "bytes": 18462,
+      "mode": 420,
+      "path": "scripts/ci/screenshot-headless-native/region-protocols/layer-shell.xml",
+      "sha256": "996b8c66e1c2276c443336d4cb174634e8e5948823779042f244930525b79cc2"
+    },
+    {
+      "bytes": 3834,
+      "mode": 420,
+      "path": "scripts/ci/screenshot-headless-native/REGION_PROTOCOL_NOTICES",
+      "sha256": "497da73a8d4e67b425eedf24994db6c99882c1481ccb3cf91dfd5e3b6b823477"
+    }
+  ],
+  "lane": "screenshot-headless-native-software-v1",
+  "schema": 1,
+  "self_policy": "This file is excluded; Root registration binds its exact SHA256."
+}
