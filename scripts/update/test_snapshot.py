@@ -73,15 +73,16 @@ def signing(root):
                        env=env, capture_output=True, timeout=30)
 
 
-def make_bundle(root, signer, sign, *, base_packages=None, payload=None, name='fixture', version='1-1'):
+def make_bundle(root, signer, sign, *, base_packages=None, payload=None, name='fixture', version='1-1', compression='gz'):
     """One signed synthetic archive/database plus full existing release semantics."""
     bundle = Path(root) / 'bundle'
     (bundle / 'repo').mkdir(parents=True)
     (bundle / 'provenance').mkdir()
-    archive = bundle / f'repo/{name}-{version}-any.pkg.tar.gz'
+    assert compression in ('gz','xz','zst')
+    archive = bundle / f'repo/{name}-{version}-any.pkg.tar.{compression}'
     payload = {'.PKGINFO': f'pkgname = {name}\npkgver = {version}\narch = any\nlicense = MIT\n'.encode(),
                **(payload if payload is not None else {f'usr/share/{name}/config': b'TEST ONLY\n'})}
-    with tarfile.open(archive, 'w:gz') as stream:
+    with tarfile.open(archive, 'w:' + compression) as stream:
         for member_name, data in payload.items():
             item = tarfile.TarInfo(member_name)
             item.size = len(data)

@@ -102,9 +102,9 @@ def files(alpm, policy):
             for name in policy['platform_roles']['kernel']}
 
 
-def expected_base(snapshot, before):
+def expected_base(snapshot, before, package_map=install.package_map):
     base = client.decode((snapshot['bundle'] / 'base.json').read_bytes())
-    expected = install.package_map({row['name']: row['version'] for row in base['packages']})
+    expected = package_map({row['name']: row['version'] for row in base['packages']})
     selected = {row['name']: row['version'] for row in snapshot['release']['packages']}
     need(set(before) - set(selected) == set(expected) - set(selected)
          and all(before.get(name) == version for name, version in expected.items() if name not in selected),
@@ -133,8 +133,8 @@ def public_keys(snapshot, work, signer):
 
 
 @contextmanager
-def transaction(root, keys, work):
-    alpm = install.Alpm(root, keys, work / 'alpm.log', os.uname().machine)
+def transaction(root, keys, work, factory=install.Alpm):
+    alpm = factory(root, keys, work / 'alpm.log', os.uname().machine)
     try:
         alpm.ok(alpm.alpm_trans_init(alpm.handle, install.FLAGS), 'transaction lock')
         alpm.started = True
@@ -152,15 +152,17 @@ def transaction(root, keys, work):
                 need(code == 0, 'package-manager handle release failed')
 
 
-def apply(args):
+def apply(args, *, adapter=None):
+    runtime = adapter if adapter is not None else install
     result = {'status': 'FAIL', 'phase': 'configuration', 'commit_started': False, 'packages_committed': False,
-              'checkpoint_changed': False, 'scope': 'tiny-disposable-generic-root', 'target_safety': 'NOT ESTABLISHED'}
+              'checkpoint_changed': False, 'scope': 'scaled-disposable-root' if adapter is not None else 'tiny-disposable-generic-root',
+              'target_safety': 'NOT ESTABLISHED'}
     try:
         workspace, root = Path(args.workspace), Path(args.root)
         guard(root, workspace)
         need(args.operation == 'repository-update', 'unsupported update operation')
         settings = configuration(args.settings, args.settings_sha256)
-        policy_module = module('bound_platform', ROOT / 'scripts/update/platform_policy.py')
+        policy_module = adapter.policy_module if adapter is not None else module('bound_platform', ROOT / 'scripts/update/platform_policy.py')
         policy = policy_module.read_policy(args.policy, args.policy_sha256)
         snapshot_module = module('bound_snapshot', ROOT / 'scripts/update/snapshot.py')
         with tempfile.TemporaryDirectory(prefix='bound-update-', dir=workspace) as temporary:
@@ -175,19 +177,21 @@ def apply(args):
                                          snapshot['metadata_sha256'], now, settings['minimum_sequence'])
                     keys = public_keys(snapshot, work, settings['signer'])
                     result['phase'] = 'package-manager-lock'
-                    with transaction(root, keys, work) as alpm:
+                    with transaction(root, keys, work, runtime.Alpm) as alpm:
                         result['phase'] = 'observe-before'
                         before = alpm.inventory()
-                        seed = install.tree(root)
+                        seed = runtime.tree(root)
                         need(trust_digest(seed) == settings['base_trust_sha256'], 'actual base trust differs from pinned configuration')
-                        desired = expected_base(snapshot, before)
+                        desired = expected_base(snapshot, before, runtime.package_map)
+                        if adapter is not None:
+                            adapter.selection(snapshot, before, desired)
                         protected = policy_module.protected_names(policy)
                         need(not set(desired) & protected, 'release selects protected platform package')
-                        preserved = {path: install.node(root / path) for path in alpm.owned_files(protected)}
+                        preserved = {path: runtime.node(root / path) for path in alpm.owned_files(protected)}
                         before_files = files(alpm, policy)
                         old_paths = alpm.owned_files(set(desired) & set(before))
                         protected_paths = set(preserved) | {install.resolve_nodes(seed, path) for path in preserved}
-                        old_payload = {path: install.node(root / path) for path in old_paths}
+                        old_payload = {path: runtime.node(root / path) for path in old_paths}
                         need(all(target not in protected_paths or node['type'] == 'directory' and seed.get(target) == node
                                  for path, node in old_payload.items()
                                  for target in {path, install.resolve_nodes(seed, path)}), 'selected package removes actual protected ownership')
@@ -202,14 +206,14 @@ def apply(args):
                         payload, added = {}, {}
                         result['phase'] = 'prepare'
                         rows = snapshot['release']['packages']
-                        need(len(rows) <= install.MAX_PACKAGES, 'release exceeds tiny-root package limit')
+                        need(len(rows) <= runtime.MAX_PACKAGES, 'release exceeds tiny-root package limit')
                         need(sum((snapshot['bundle'] / 'repo' / row['filename']).stat().st_size
                                  + (snapshot['bundle'] / 'repo' / (row['filename'] + '.sig')).stat().st_size
-                                 for row in rows) <= install.MAX_INPUTS, 'aggregate package inputs exceed tiny-root limit')
+                                 for row in rows) <= runtime.MAX_INPUTS, 'aggregate package inputs exceed tiny-root limit')
                         for row in rows:
                             path = snapshot['bundle'] / 'repo' / row['filename']
-                            need(path.stat().st_size <= install.MAX_ARCHIVE, 'archive exceeds tiny-root caller limit')
-                            nodes = install.archive_payload(path, accounting)
+                            need(path.stat().st_size <= runtime.MAX_ARCHIVE, 'archive exceeds tiny-root caller limit')
+                            nodes = runtime.archive_payload(path, accounting)
                             protected_payload(nodes, policy, seed)
                             for name, node in nodes.items():
                                 need(name not in payload or node['type'] == payload[name]['type'] == 'directory', 'package payload overlap')
@@ -224,45 +228,53 @@ def apply(args):
                                  'loaded package identity differs')
                             alpm.ok(alpm.alpm_add_pkg(alpm.handle, package), 'add authenticated package')
                             added[row['name']] = row['version']
-                        projected = install.projected_paths(seed, payload)
+                        projected = runtime.projected_paths(seed, payload)
                         protected_payload({install.resolve_nodes(projected, path): value
                                            for path, value in payload.items()}, policy, seed)
                         need(all(target not in protected_paths or node['type'] == 'directory' and seed.get(target) == node
                                  for path, node in payload.items()
                                  for target in {path, install.resolve_nodes(projected, path)}), 'selected package writes actual protected ownership')
-                        need(shutil.disk_usage(workspace).free >= sum(row.get('bytes', 0) for row in projected.values())
-                             + 8 * 1024**2, 'insufficient disposable transaction capacity')
-                        details = install.Ptr()
+                        if adapter is None:
+                            need(shutil.disk_usage(workspace).free >= sum(row.get('bytes', 0) for row in projected.values())
+                                 + 8 * 1024**2, 'insufficient disposable transaction capacity')
+                        else:
+                            result['capacity'] = adapter.capacity(root, work, projected, payload, old_payload)
+                        details = runtime.Ptr()
                         alpm.ok(alpm.alpm_trans_prepare(alpm.handle, C.byref(details)), 'prepare immutable transaction')
                         install.check_prepared(alpm.packages(alpm.alpm_trans_get_add(alpm.handle)),
                                                alpm.packages(alpm.alpm_trans_get_remove(alpm.handle)), added, {})
                         after_expected = dict(before, **desired)
-                        policy_module.authorize(policy, settings, snapshot, before, after_expected,
+                        authorize = adapter.authorize if adapter is not None else policy_module.authorize
+                        authorize(policy, settings, snapshot, before, after_expected,
                                                 before_files, before_files, phase='pre-transaction')
-                        need(trust_rows(install.tree(root)) == trust_rows(seed), 'base trust changed before commit')
+                        need(trust_rows(runtime.tree(root)) == trust_rows(seed), 'base trust changed before commit')
                         for path, value in preserved.items():
-                            need(install.node(root / path) == value, 'protected payload changed before commit')
+                            need(runtime.node(root / path) == value, 'protected payload changed before commit')
                         configuration(args.settings, args.settings_sha256)
                         policy_module.read_policy(args.policy, args.policy_sha256)
                         snapshot['recheck']()
                         client.validate_envelope(snapshot['metadata'], datetime.now(timezone.utc))
+                        if adapter is not None:
+                            adapter.precommit()
                         result['phase'] = 'commit'
                         result['commit_started'] = bool(added)
                         if added:
                             result['packages_committed'] = 'UNKNOWN'
-                            details = install.Ptr()
+                            details = runtime.Ptr()
                             alpm.ok(alpm.alpm_trans_commit(alpm.handle, C.byref(details)), 'commit prepared transaction')
                             result['packages_committed'] = True
                         result['phase'] = 'observe-after'
                         after = alpm.inventory()
-                        install.check_inventory(after, after_expected, 'actual post-commit')
-                        policy_module.authorize(policy, settings, snapshot, before, after,
+                        if adapter is not None:
+                            adapter.observed_after(after)
+                        runtime.check_inventory(after, after_expected, 'actual post-commit')
+                        authorize(policy, settings, snapshot, before, after,
                                                 before_files, files(alpm, policy), phase='post-transaction')
-                        need(trust_rows(install.tree(root)) == trust_rows(seed), 'base trust changed after commit')
+                        need(trust_rows(runtime.tree(root)) == trust_rows(seed), 'base trust changed after commit')
                         for path, value in preserved.items():
-                            need(install.node(root / path) == value, 'protected payload changed after commit')
+                            need(runtime.node(root / path) == value, 'protected payload changed after commit')
                         for path, value in payload.items():
-                            need(install.node(root / path) == value, 'installed payload differs')
+                            need(runtime.node(root / path) == value, 'installed payload differs')
                         result.update(before=before, after=after, phase='checkpoint')
                         metadata = snapshot['metadata']
                         value = {key: metadata[key] for key in ('scope', 'namespace', 'signer', 'sequence', 'issued_utc')}
