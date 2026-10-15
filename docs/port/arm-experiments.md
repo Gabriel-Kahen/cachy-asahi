@@ -1,6 +1,6 @@
 # Bounded native ARM compiler experiments
 
-October 15, 2026. **ARM-C01 passed hosted native build, correctness and within-variant byte reproduction.** The [actual run record](../validation/arm-c01-native-20261015.md) covers four builds and the complete 505-command graph on a generic 4 KiB ARM builder. C02–C04, physical 16 KiB execution, optimized package installation, M2 validation and performance acceptance remain unfinished. This bounded M7/R2 work cannot complete R1–R5 or replace final-system A07 measurements. The original experimental contract below remains in force.
+October 15, 2026. **ARM-C01 and ARM-C02 passed hosted native build, correctness and within-variant byte reproduction.** The [C01](../validation/arm-c01-native-20261015.md) and [C02](../validation/arm-c02-native-20261015.md) actual records each cover four builds and the complete 505-command graph on a generic 4 KiB ARM builder. C02 baseline artifacts also match C01 exactly. C03–C04, physical 16 KiB execution, optimized package installation, M2 validation and performance acceptance remain unfinished. This bounded M7/R2 work cannot complete R1–R5 or replace final-system A07 measurements. The original experimental contract below remains in force.
 
 ## First code workload and retrievable inputs
 
@@ -46,8 +46,8 @@ inferred from its Neoverse CPU. [GCC AArch64 options](https://gcc.gnu.org/online
 
 | ID | One comparison variable | Intended check | Execution gate |
 | --- | --- | --- | --- |
-| ARM-C01 | Baseline versus added `-flto=2` | Build/link integration, output correctness, artifact reproducibility and build cost | Next hosted native ARM trial |
-| ARM-C02 | Baseline versus `-O3` replacing `-O2` | Correctness and throughput/code-size tradeoffs | After C01; separate trial |
+| ARM-C01 | Baseline versus added `-flto=2` | Build/link integration, output correctness, artifact reproducibility and build cost | Hosted correctness/reproduction PASS; M2 measurements NOT RUN |
+| ARM-C02 | Baseline versus `-O3` replacing `-O2` | Correctness and throughput/code-size tradeoffs | Hosted correctness/reproduction PASS; throughput/M2 measurements NOT RUN |
 | ARM-C03 | Baseline versus instrument/train/rebuild using GCC PGO; no LTO or O3 change | Profile identity, coverage failures, correctness and build/profile cost | After source-audited profile adapter |
 | ARM-C04 | Baseline versus `-mtune=apple-m2`, same `-march=armv8-a` | Locked compiler recognizes target; target-specific measurement | Compile probe may run hosted; performance acceptance requires each M2 Air |
 
@@ -57,7 +57,7 @@ or link/type diagnostics. Use the same archive wrappers in baseline. Combining
 LTO/PGO/tuning is a later independent experiment.
 [GCC optimization options](https://gcc.gnu.org/onlinedocs/gcc/Optimize-Options.html)
 
-## Next actual trial: ARM-C01
+## Initial actual trial contract: ARM-C01
 
 The narrow runner is `scripts/experiments/arm_c01.py`, with deterministic inputs
 in `corpus.py`. The coordinator runs it separately from V01–V09; no workflow or
