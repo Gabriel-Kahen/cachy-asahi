@@ -82,6 +82,7 @@ jobs:
           path: |
             ${{ runner.temp }}/desktop574-runtime/runtime.json
             ${{ runner.temp }}/desktop574-runtime/guest.log
+            ${{ runner.temp }}/desktop574-runtime/events.log
             ${{ runner.temp }}/desktop574-runtime/configuration.log
             ${{ runner.temp }}/desktop574-runtime/package-build.log
             ${{ runner.temp }}/desktop574-runtime/package/build.log

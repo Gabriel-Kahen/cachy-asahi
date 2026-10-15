@@ -16,6 +16,7 @@ import time
 SHARE = Path('/usr/local/share/desktop574')
 HOME = Path('/home/desktop574')
 RUNTIME = Path('/run/desktop574/runtime')
+EVENTS = Path('/dev/virtio-ports/desktop574.events')
 SEAT = '/run/seatd.sock'  # Pinned seatd 0.9.3 uses this compiled-in path inside the private VM.
 MAX_LOG = 256 * 1024
 ENV = {'PATH': '/usr/bin', 'LANG': 'C.UTF-8', 'LC_ALL': 'C.UTF-8'}
@@ -27,7 +28,10 @@ def need(ok, reason):
 
 
 def emit(event, **values):
-    print('DESKTOP574_EVENT ' + json.dumps(dict(event=event, **values), sort_keys=True), flush=True)
+    # A dedicated non-console port keeps printk out of structured records.
+    fd = os.open(EVENTS, os.O_WRONLY | os.O_NOCTTY)  # Never create a missing device.
+    with os.fdopen(fd, 'w') as stream:
+        stream.write('DESKTOP574_EVENT ' + json.dumps(dict(event=event, **values), sort_keys=True) + '\n')
 
 
 def guard(root):
@@ -277,6 +281,9 @@ def boot():
     logs = Path('/run/desktop574/root-logs')
     env = dict(ENV, CACHY_ASAHI_VIRTUAL_GUEST='1', SEATD_VTBOUND='0')
     try:
+        need(stat.S_ISCHR(EVENTS.stat().st_mode), 'dedicated event character device required')
+        os.chown(EVENTS, 23001, 23001)
+        EVENTS.chmod(0o600)
         os.umask(0o077)
         logs.parent.mkdir(mode=0o755, exist_ok=True)
         need(not logs.parent.is_symlink(), 'guest runtime parent symlink')
@@ -307,7 +314,7 @@ def boot():
             seatd.healthy()
             need(time.monotonic() < until, 'seatd readiness deadline')
             time.sleep(.1)
-        # User session events pass directly to the serial console. Its own child logs are capped.
+        # Root and user emit sequentially to the dedicated event port; child logs are capped.
         session = subprocess.Popen(['/usr/bin/runuser', '-u', 'desktop574', '--',
             '/usr/bin/dbus-run-session', '--', '/usr/bin/python3', '-I', '-B', str(SHARE / 'guest.py'), 'user'],
             env=env, stdin=subprocess.DEVNULL, start_new_session=True, close_fds=True)
@@ -329,10 +336,14 @@ def boot():
             except BaseException as error:
                 if first is None:
                     first = error
-        if first is None:
-            emit('complete', status='PASS', software_session='PASS', waybar='NOT_RUN', mako='NOT_RUN', hardware='NOT_RUN')
-        else:
-            emit('failed', error_type=type(first).__name__, reason=str(first)[:512], hardware='NOT_RUN')
+        try:
+            if first is None:
+                emit('complete', status='PASS', software_session='PASS', waybar='NOT_RUN', mako='NOT_RUN', hardware='NOT_RUN')
+            else:
+                emit('failed', error_type=type(first).__name__, reason=str(first)[:512], hardware='NOT_RUN')
+        except BaseException as error:
+            if first is None:
+                first = error
         try:
             subprocess.run(['/usr/bin/systemctl', 'poweroff'], env=env, timeout=10, check=True)
         except BaseException as error:
@@ -348,7 +359,8 @@ def main():
     try:
         return boot() if sys.argv[1] == 'boot' else user()
     except Exception as error:
-        emit('failed', error_type=type(error).__name__, reason=str(error)[:512], hardware='NOT_RUN')
+        # boot() emits guarded failures; keep guard/transport refusals on the console.
+        print(type(error).__name__ + ': ' + str(error)[:512], file=sys.stderr, flush=True)
         return 1
 
 
