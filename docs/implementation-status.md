@@ -2,6 +2,23 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 15, ARM transaction reopening and source-pin maintenance:
+The local transaction worker now preserves the selected architecture when it
+reopens ALPM after commit. The maintained regression checks both constructor
+sites for x86_64 and aarch64 through the library-load boundary. The captured
+worker suite passes 111 tests and integration passes 157 with zero skips or errors;
+these include disposable x86 fixtures, not native ARM or M2 acceptance. Existing
+native profile pins and the on-disk review gate remain intact. The historical
+installer packet is unchanged and needs refreezing before future selection.
+
+The offline release source-pin preview verifies a signed release and compares
+its selected project-built provenance with an explicit unsigned candidate.
+It reports coverage and recipe/source drift, preserves JSON type distinctions,
+and bounds report serialization before accumulating oversized output. The full
+release suite passes 135 tests with zero skips; tests use disposable TEST signatures.
+Base source coverage, upstream freshness, rebuild policy and stable eligibility
+are not established. See [operator usage](release/source-pin-maintenance.md).
+
 October 15, current CI and integration frontier:
 P0 Source `b86eb515` selects the retained bubblewrap inputs and current Vim
 objects while preserving the remaining 497 acquisitions. Five maintained suites
