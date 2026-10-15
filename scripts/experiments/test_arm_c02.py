@@ -45,7 +45,7 @@ class C02Tests(fixtures.IsolatedTests):
             with self.subTest(variant=variant), self.assertRaises(ValueError):
                 a.build_flags(variant)
         with self.assertRaises(ValueError):
-            a.select_experiment('ARM-C03')
+            a.select_experiment('ARM-C99')
         self.assertEqual(a.EXPERIMENT, 'ARM-C02')
 
     def test_c01_default_controls_and_labels_remain_exact(self):

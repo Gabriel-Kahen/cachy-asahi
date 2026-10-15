@@ -23,7 +23,7 @@ import zlib
 sys.dont_write_bytecode = True
 import corpus
 
-EXPERIMENTS = {'ARM-C01': 'lto', 'ARM-C02': 'o3'}
+EXPERIMENTS = {'ARM-C01': 'lto', 'ARM-C02': 'o3', 'ARM-C03': 'pgo'}
 EXPERIMENT = 'ARM-C01'
 CANDIDATE = 'lto'
 PURPOSE = 'ARM-C01-native-correctness-only'
@@ -50,6 +50,17 @@ def build_names():
 
 def container_prefix():
     return 'cachy-asahi-' + EXPERIMENT.lower() + '-'
+
+
+def profile_adapter():
+    if EXPERIMENT == 'ARM-C03':
+        import pgo
+        return pgo
+    return None
+
+
+def tool_names():
+    return TOOLS + (('gcov-dump',) if EXPERIMENT == 'ARM-C03' else ())
 
 SOURCE_SHA = 'bb329a0a2cd0274d05519d61c667c062e06990d72e125ee2dfa8de64f0119d16'
 LIMIT = 4 * 1024**2
@@ -259,7 +270,9 @@ class Cancelled(Exception):
 
 
 class Commands:
-    def __init__(self, output, seconds=840):
+    def __init__(self, output, seconds=None):
+        if seconds is None:
+            seconds = 1140 if EXPERIMENT == 'ARM-C03' else 840
         self.output, self.deadline, self.child = output, time.monotonic() + seconds, None
         self.records = []
         self.log_bytes = 0
@@ -435,12 +448,26 @@ def trial_env():
 def build_flags(variant):
     need(variant in variants(), 'variant differs from selected experiment')
     flags = BASE_FLAGS.replace('-O2 ', '-O3 ', 1) if variant == 'o3' else BASE_FLAGS
+    if variant == 'pgo':
+        use = ' -fprofile-use=/tmp/profile -Werror=missing-profile -Werror=coverage-mismatch'
+        return flags + ' -fno-lto' + use, LINK_FLAGS + ' -fno-lto' + use
     return (flags + (' -flto=2 -Werror=lto-type-mismatch' if variant == 'lto' else ' -fno-lto'),
             LINK_FLAGS + (' -flto=2' if variant == 'lto' else ' -fno-lto'))
 
 
+def configure_flags(variant):
+    # Configure's temporary probes have no retained profiles. Final C03 object
+    # compilations receive the fatal profile policy after those probes finish.
+    return build_flags('baseline' if variant == 'pgo' else variant)
+
+
+def strict_flags(prefix):
+    # The independent oracle has no training TU/profile; keep it fixed in C03.
+    return build_flags('baseline' if EXPERIMENT == 'ARM-C03' else prefix.split('-')[0])
+
+
 def strict_compile(prefix):
-    cflags, ldflags = build_flags(prefix.split('-')[0])
+    cflags, ldflags = strict_flags(prefix)
     return ['gcc', *shlex.split(cflags.replace('$@', 'strict-gzip')), '-I/tmp/build', '/out/strict-gzip.c',
             '/out/' + prefix + '/libz.a', '-o', '/out/' + prefix + '/strict-gzip', *shlex.split(ldflags)]
 
@@ -461,6 +488,13 @@ def configured_flags(makefile, configure_log, variant):
             need(len(found) == 1, 'one final configured assignment required: ' + key)
             record[key] = ' '.join(shlex.split(found[0]))
         values.append(record)
+    if variant == 'pgo':
+        probe = configured_flags(configure_log, configure_log, 'baseline')
+        suffix = shlex.split(probe['CFLAGS'])[len(shlex.split(build_flags('baseline')[0])):]
+        cflags, ldflags = build_flags(variant)
+        expected = {**probe, 'CFLAGS': ' '.join(shlex.split(cflags) + suffix), 'LDFLAGS': ldflags}
+        need(values[0] == expected, 'profile-use Makefile differs from validated configure probes')
+        return {**values[0], 'configure_probe': probe}
     need(values[0] == values[1], 'Makefile/configure.log effective flags differ')
     record = values[0]
     need(all(record[key] == value for key, value in (('CC', 'gcc'), ('AR', 'gcc-ar'), ('RANLIB', 'gcc-ranlib'))),
@@ -485,11 +519,15 @@ def command_plan(manifest):
     add('inventory', ['/usr/bin/pacman', '-Q'])
     for name, argv in [('gcc', ['gcc', '-v']), ('ld', ['ld', '--version']), ('ar', ['gcc-ar', '--version']), ('cpu', ['lscpu', '--json'])]:
         add('tool-' + name, argv)
+    if profile_adapter():
+        rows.extend(profile_adapter().command_plan(sys.modules[__name__], manifest))
     for prefix in names:
         cflags, ldflags = build_flags(prefix.split('-')[0])
         build_env = {**env, 'CFLAGS': cflags, 'LDFLAGS': ldflags}
         for label, argv in [('configure', ['./configure', '--static']), ('build', ['make', '-j2', 'static']), ('test', ['make', 'teststatic'])]:
-            add(prefix + '-' + label, argv, '/tmp/build', build_env)
+            probe_c, probe_l = configure_flags(prefix.split('-')[0])
+            selected_env = {**env, 'CFLAGS': probe_c, 'LDFLAGS': probe_l} if label == 'configure' else build_env
+            add(prefix + '-' + label, argv, '/tmp/build', selected_env)
         binary = '/out/' + prefix + '/minigzip'
         for label, argv in [('elf', ['readelf', '-W', '-h', '-l', '-d', binary]),
                             ('dependencies', ['ldd', binary]), ('symbols', ['gcc-nm', '/tmp/build/libz.a']),
@@ -564,6 +602,8 @@ def verify_result(raw, contract, expected_packages=None, source=None):
     need(contract.get('purpose') == PURPOSE and contract['source_sha256'] == SOURCE_SHA, 'receiver source contract differs')
     need(sha(Path(__file__).resolve()) == contract['runner_sha256']
          and sha(Path(corpus.__file__).resolve()) == contract['corpus_sha256'], 'receiver helper source pins differ')
+    if profile_adapter():
+        need(sha(Path(profile_adapter().__file__).resolve()) == contract.get('pgo_sha256'), 'profile adapter source differs')
     material = source_material(source_bytes)
     regular(raw / 'result.json')
     report = json.loads((raw / 'result.json').read_text())
@@ -582,7 +622,7 @@ def verify_result(raw, contract, expected_packages=None, source=None):
          and isinstance(environment.get('python'), str) and environment['python']
          and isinstance(environment.get('zlib_runtime'), str) and environment['zlib_runtime'], 'native environment fields required')
     tools = environment.get('tool_files', {})
-    need(set(tools) == set(TOOLS), 'complete native tool file pins required')
+    need(set(tools) == set(tool_names()), 'complete native tool file pins required')
     for row in tools.values():
         path = PurePosixPath(row['path'])
         need(set(row) == {'path', 'sha256'} and path.is_absolute() and path.is_relative_to('/usr')
@@ -715,6 +755,8 @@ def verify_result(raw, contract, expected_packages=None, source=None):
             else:
                 need(row.get('status') == 'OBSERVED' and row.get('rejection_acceptance') == 'NOT CLAIMED',
                      'sample truncation observation must not become rejection acceptance')
+    if profile_adapter():
+        report['profile_verification'] = profile_adapter().verify(sys.modules[__name__], raw, report.get('profile'), manifest, source_bytes, commands)
     return {**report, 'receiver_verification': {
         'status': 'PASS', 'command_count': len(commands), 'build_count': len(builds),
         'cross_decode_count': len(positives), 'rejection_count': len(rejected),
@@ -732,12 +774,18 @@ def inside():
     regular(inputs / 'contract.json')
     need(sha(inputs / 'contract.json') == os.environ.get(MARKER + '_CONTRACT'), 'contract pin differs')
     contract = json.loads((inputs / 'contract.json').read_text())
-    need(set(contract) == {'purpose', 'nonce', 'image', 'source_commit', 'source_sha256', 'packages_sha256', 'runner_sha256', 'corpus_sha256'}, 'unexpected contract fields')
+    expected_keys = {'purpose', 'nonce', 'image', 'source_commit', 'source_sha256', 'packages_sha256', 'runner_sha256', 'corpus_sha256'}
+    if profile_adapter():
+        expected_keys.add('pgo_sha256')
+    need(set(contract) == expected_keys, 'unexpected contract fields')
     need(contract['purpose'] == PURPOSE and contract['nonce'] == os.environ.get(MARKER), 'contract identity differs')
     need(re.fullmatch(r'sha256:[0-9a-f]{64}', contract['image']) and re.fullmatch(r'[0-9a-f]{40}', contract['source_commit']), 'image/commit identity required')
     for name, pin in [('arm_c01.py', 'runner_sha256'), ('corpus.py', 'corpus_sha256'), ('packages.lock', 'packages_sha256'), ('zlib.tar.gz', 'source_sha256')]:
         regular(inputs / name, 8 * 1024**2)
         need(PIN.fullmatch(contract[pin]) and sha(inputs / name) == contract[pin], 'input/source pin differs')
+    if profile_adapter():
+        regular(inputs / 'pgo.py', 8 * 1024**2)
+        need(sha(inputs / 'pgo.py') == contract['pgo_sha256'] and Path(profile_adapter().__file__).resolve() == inputs / 'pgo.py', 'profile adapter input differs')
     need(contract['source_sha256'] == SOURCE_SHA and Path(__file__).resolve() == inputs / 'arm_c01.py', 'entry/source differs')
     need(out.is_dir() and not out.is_symlink() and not list(out.iterdir()), 'empty real evidence mount required')
     report = {'purpose': PURPOSE, 'status': 'FAIL', 'contract': contract, 'hardware_validation': 'NOT RUN',
@@ -745,7 +793,7 @@ def inside():
               'strict_driver_source_sha256': STRICT_SHA, 'strict_valid': [], 'sample_crc': [], 'sample_truncation': [],
               'random_seed_control': {'flag': RANDOM_SEED_FLAG, 'policy': 'GNU make output target; shared by baseline and LTO',
                                       'native_reproducibility': 'Requires exact rebuilt artifact comparisons; not inferred from seed choice'}}
-    runner = Commands(out, 780)
+    runner = Commands(out, 1080 if EXPERIMENT == 'ARM-C03' else 780)
     previous = {sig: signal.signal(sig, runner.cancel) for sig in (signal.SIGTERM, signal.SIGINT)}
     try:
         Path('/tmp/home').mkdir(mode=0o700)
@@ -753,7 +801,7 @@ def inside():
         actual = runner.run('inventory', ['/usr/bin/pacman', '-Q'], env=env)
         need(inventory(actual) == inventory((inputs / 'packages.lock').read_bytes()), 'runtime inventory differs')
         tools = {}
-        for name in TOOLS:
+        for name in tool_names():
             path = Path('/usr/bin', name).resolve()
             need(path.is_relative_to('/usr'), 'tool escapes immutable system tree')
             regular(path, 64 * 1024**2, single_link=False)
@@ -775,15 +823,23 @@ def inside():
         # Retain corpus bytes as exact retrievable experiment inputs.
         shutil.copytree(corpus_root, out / 'corpus')
         (out / 'strict-gzip.c').write_bytes(STRICT_DRIVER)
+        if profile_adapter():
+            report['profile'] = profile_adapter().prepare(sys.modules[__name__], runner, inputs, out, env, corpus_root, manifest)
         for variant in variants():
             for attempt in (1, 2):
                 guard(observed(), contract['nonce'])
                 work.mkdir(); extract(inputs / 'zlib.tar.gz', work)
                 prefix = f'{variant}-{attempt}'
+                if variant == 'pgo':
+                    report['profile']['restores'].append(profile_adapter().restore(sys.modules[__name__], out, attempt))
                 flags, ldflags = build_flags(variant)
                 build_env = {**env, 'CFLAGS': flags, 'LDFLAGS': ldflags}
                 for label, argv in [('configure', ['./configure', '--static']), ('build', ['make', '-j2', 'static']), ('test', ['make', 'teststatic'])]:
-                    runner.run(prefix + '-' + label, argv, cwd=work, env=build_env)
+                    probe_c, probe_l = configure_flags(variant)
+                    selected_env = {**env, 'CFLAGS': probe_c, 'LDFLAGS': probe_l} if label == 'configure' else build_env
+                    runner.run(prefix + '-' + label, argv, cwd=work, env=selected_env)
+                    if variant == 'pgo' and label == 'configure':
+                        profile_adapter().apply_use_flags(sys.modules[__name__], work)
                 hashes = artifacts(work)
                 dest = out / prefix; dest.mkdir()
                 for name in hashes:
@@ -806,6 +862,8 @@ def inside():
                 regular(dest / 'strict-gzip', 8 * 1024**2); (dest / 'strict-gzip').chmod(0o755)
                 strict_elf = runner.run(prefix + '-strict-elf', ['readelf', '-W', '-h', '-l', '-d', str(dest / 'strict-gzip')], env=env)
                 strict = {'source_sha256': STRICT_SHA, 'binary_sha256': sha(dest / 'strict-gzip'), 'elf': elf_layout(strict_elf)}
+                if variant == 'pgo':
+                    report['profile']['unchanged_after_build'].append(profile_adapter().assert_unchanged(sys.modules[__name__], out, attempt))
                 report['builds'].append({'variant': variant, 'attempt': attempt, 'artifacts': hashes, 'cflags': flags,
                                        'ldflags': build_env['LDFLAGS'], 'configured_flags': effective,
                                        'strict_driver': strict,
@@ -854,6 +912,8 @@ def inside():
                               source=corpus_root / 'truncated-trailer.gz', target=out / (label + '-sample-truncation.bin'), timeout=30, allowed=(0, 1))
             report['sample_truncation'].append({'decoder': label, 'exit_code': code, 'status': 'OBSERVED',
                                                 'rejection_acceptance': 'NOT CLAIMED'})
+        if profile_adapter():
+            profile_adapter().assert_unchanged(sys.modules[__name__], out, 2)
         report['reproducibility'] = {}
         for variant in variants():
             pair = [b for b in report['builds'] if b['variant'] == variant]
@@ -913,10 +973,15 @@ def host(args):
             regular(source, 8 * 1024**2); shutil.copyfile(source, inputs / filename)
         need(sha(inputs / 'zlib.tar.gz') == SOURCE_SHA and sha(inputs / 'packages.lock') == args.expected_packages_sha256,
              'reviewed input changed during snapshot')
+        if profile_adapter():
+            regular(Path(profile_adapter().__file__).resolve(), 8 * 1024**2)
+            shutil.copyfile(profile_adapter().__file__, inputs / 'pgo.py')
         nonce = os.urandom(16).hex(); name = container_prefix() + nonce
         contract = {'purpose': PURPOSE, 'nonce': nonce, 'image': args.image, 'source_commit': args.source_commit,
                     'source_sha256': SOURCE_SHA, 'packages_sha256': args.expected_packages_sha256,
                     'runner_sha256': sha(inputs / 'arm_c01.py'), 'corpus_sha256': sha(inputs / 'corpus.py')}
+        if profile_adapter():
+            contract['pgo_sha256'] = sha(inputs / 'pgo.py')
         save(inputs / 'contract.json', contract)
         raw = out / 'raw'; raw.mkdir(mode=0o700)
         command = docker + ['run', '--name', name, '--pull=never', '--platform=linux/arm64',
@@ -931,7 +996,7 @@ def host(args):
         if EXPERIMENT != 'ARM-C01':
             command += ['--experiment', EXPERIMENT]
         report.update(contract=contract, command=command, image=image['Id'], daemon_arch=daemon['Architecture'])
-        runner.run('container', command, timeout=800)
+        runner.run('container', command, timeout=1100 if EXPERIMENT == 'ARM-C03' else 800)
         verified = verify_result(raw, contract, inputs / 'packages.lock', inputs / 'zlib.tar.gz')
         report['receiver_verification'] = verified['receiver_verification']
         report['status'] = 'PASS'
