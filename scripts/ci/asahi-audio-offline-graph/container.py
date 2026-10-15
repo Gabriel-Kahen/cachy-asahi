@@ -334,11 +334,45 @@ def project_host(raw, case, expect, graph, libraries):
     return validate_projected_host(value, case, expect)
 
 
+def validate_host_failure(row):
+    exact(row, ('case', 'expect', 'projection_failure_class', 'host_status', 'host_failure_class',
+                'rate', 'process_calls', 'counts', 'gates', 'cleanup'), 'runtime_schema')
+    require(type(row['case']) is str and row['case'] in s.cases() and
+            type(row['expect']) is str and row['expect'] in ('positive', *NEGATIVES) and
+            type(row['projection_failure_class']) is str and row['projection_failure_class'] in failure_codes() and
+            row['host_status'] in ('PASS', 'FAIL') and
+            ((row['host_status'] == 'PASS' and row['host_failure_class'] is None) or
+             (row['host_status'] == 'FAIL' and type(row['host_failure_class']) is str and
+              row['host_failure_class'] in HOST_FAILURES)) and
+            type(row['rate']) is int and row['rate'] == 48000 and
+            type(row['process_calls']) is int and row['process_calls'] == 0, 'runtime_schema')
+    exact(row['counts'], COUNTS, 'runtime_schema')
+    exact(row['gates'], GATES, 'runtime_schema'); exact(row['cleanup'], CLEANUP, 'runtime_schema')
+    for number in row['counts'].values(): integer(number)
+    require(all(type(v) is bool for v in [*row['gates'].values(), *row['cleanup'].values()]), 'runtime_schema')
+    return row
+
+
+def capture_host_failure(raw, case, expect, code):
+    """Finite failure-only facts; never retain paths, libraries, FIRs or raw text."""
+    try:
+        value = strict_json(raw)
+        exact(value, ('schema', 'status', 'failure_class', 'case', 'expect', 'rate', 'process_calls',
+                      'counts', 'gates', 'stage_names', 'fir_selections', 'libraries', 'cleanup'))
+        require(value['schema'] == 'asahi-audio-offline-graph-host-v1' and
+                value['case'] == case['id'] and value['expect'] == expect, 'host_schema')
+        row = {key: value[key] for key in ('case', 'expect', 'rate', 'process_calls', 'counts', 'gates', 'cleanup')}
+        row.update(projection_failure_class=code, host_status=value['status'], host_failure_class=value['failure_class'])
+        return validate_host_failure(row)
+    except (common().Failure, ValueError, TypeError, KeyError):
+        return None  # Diagnostic refusal never replaces the original failure.
+
+
 def validate_public(value):
     """Pure closed projection, also reused by the outer caller; no runtime actors."""
     exact(value, ('schema_version', 'status', 'failure_class', 'stage', 'inventory', 'headers', 'tools',
                   'engines', 'candidates', 'host', 'elf', 'parsing', 'positive_cases', 'negative_controls',
-                  'host_children', 'converter_children', 'safety'), 'runtime_schema')
+                  'host_children', 'converter_children', 'first_host_failure', 'safety'), 'runtime_schema')
     require(type(value['schema_version']) is int and value['schema_version'] == 1 and
             type(value['stage']) is str and value['stage'] in STAGES and value['status'] in ('PASS', 'FAIL') and
             json.dumps(value['safety'], sort_keys=True) == json.dumps(SAFETY, sort_keys=True),
@@ -403,7 +437,19 @@ def validate_public(value):
     for row in value['negative_controls']:
         require(type(row) is dict and type(row.get('expect')) is str and row['expect'] in NEGATIVES, 'case_grid')
         validate_projected_host(row, s.cases()['j413-speakers'], row['expect'])
+    if value['first_host_failure'] is not None:
+        row = validate_host_failure(value['first_host_failure'])
+        sequence = [(case, 'positive') for case in s.cases()] + [('j413-speakers', name) for name in s.CONTROLS]
+        completed = [(r['case'], r['expect']) for r in value['positive_cases'] + value['negative_controls']]
+        require(value['status'] == 'FAIL' and value['stage'] in ('host', 'inventory_after') and
+                (value['stage'] == 'inventory_after' or value['failure_class'] == row['projection_failure_class']) and
+                len(completed) < 12 and completed == sequence[:len(completed)] and
+                value['host_children'] == len(completed) + 1 and
+                (row['case'], row['expect']) == sequence[len(completed)] and
+                value['converter_children'] == 4 and len(value['parsing']) == 4 and
+                {r['id'] for r in value['parsing']} == set(s.cases()), 'runtime_schema')
     if value['status'] == 'PASS':
+        require(value['first_host_failure'] is None, 'runtime_schema')
         require(value['stage'] == 'complete' and value['host_children'] == 12 and value['converter_children'] == 4,
                 'case_grid')
         require(value['headers'] == expected_headers and value['candidates'] == expected_candidates and
@@ -425,7 +471,8 @@ def main():
     os.umask(0o077); c = common(); budget = Budget(420)
     report = dict(schema_version=1, status='FAIL', failure_class=None, stage='isolation', inventory=None,
                   headers={}, tools={}, engines={}, candidates={}, host=None, elf={}, parsing=[],
-                  positive_cases=[], negative_controls=[], host_children=0, converter_children=0, safety=SAFETY)
+                  positive_cases=[], negative_controls=[], host_children=0, converter_children=0,
+                  first_host_failure=None, safety=SAFETY)
     before = None
     try:
         c.assert_isolation()
@@ -474,7 +521,11 @@ def main():
                           'host-' + (case['id'] if expect == 'positive' else expect), 30, budget,
                           allowed=(0, 1), group=children)
             report['host_children'] += 1
-            row = project_host(raw, case, expect, path, libraries)
+            try:
+                row = project_host(raw, case, expect, path, libraries)
+            except c.Failure as error:
+                report['first_host_failure'] = capture_host_failure(raw, case, expect, error.code)
+                raise
             report['positive_cases' if expect == 'positive' else 'negative_controls'].append(row)
         require(all(c.digest(path) == digest for path, digest in files.items()), 'candidate_hash')
         report.update(status='PASS', stage='complete')
