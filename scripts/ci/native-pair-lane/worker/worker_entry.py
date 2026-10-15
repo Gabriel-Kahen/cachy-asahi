@@ -76,34 +76,60 @@ def private_packet(handoff):
     raw=json.dumps(serial,sort_keys=True,separators=(',',':'),allow_nan=False).encode()
     need(len(raw)<=1024**2,'worker-private-record-bound');return raw+b'\n'
 
+def report_failure(phase,error,J):
+    """Optional closed worker report; never message, traceback or authority."""
+    try:
+        now=time.monotonic()
+        if type(J) not in (int,float) or not math.isfinite(J) or not 0<now<J:return
+        kinds=(ValueError,TypeError,OSError,RuntimeError,KeyError,ImportError,SystemExit,KeyboardInterrupt)
+        kind=next((item.__name__ for item in kinds if type(error) is item),'OTHER')
+        raw=('\n\x1ePAIR_WORKER_FAILURE_V1 '+phase+' '+kind+'\n').encode('ascii')
+        sys.stderr.buffer.write(raw);sys.stderr.buffer.flush()
+    except BaseException:pass  # Preserve the original exception and clock.
+
 def main(argv=None):
-    parser=argparse.ArgumentParser()
-    for name in ('packet','packet-sha','driver','driver-sha','original-entry','original-J'):
-        parser.add_argument('--'+name,required=True)
-    args=parser.parse_args(argv);start=float(args.original_entry);J=float(args.original_J)
-    need(math.isfinite(start) and math.isfinite(J) and start>0 and J==start+7200,'worker-original-clock')
-    E=J-360;need(start<=time.monotonic()<E,'worker-original-bootstrap')
-    packet_raw=bounded_source(args.packet,args.packet_sha,E)
-    packet=json.loads(packet_raw);need(type(packet)is dict and set(packet)=={'value','pins'},'worker-closed-packet')
-    value=packet['value'];need(value['original_entry']==start and value['workflow_end']==J,'worker-packet-original-clock')
-    source=bounded_source(args.driver,args.driver_sha,E)
-    need(time.monotonic()<E and not RETAINED,'worker-source-compile-eligibility')
-    driver=ModuleType('root_admitted_integrated_pair_driver')
-    need(time.monotonic()<E,'worker-source-module-late')
-    code=compile(source,args.driver,'exec',dont_inherit=True)
-    need(time.monotonic()<E,'worker-source-compile-late')
-    exec(code,driver.__dict__)
-    need(time.monotonic()<E,'worker-source-initialization-late')
-    handoff=driver.execute(value,packet['pins'],dict(os.environ))
-    handoff['packet_sha256']=args.packet_sha;handoff['driver_sha256']=args.driver_sha
-    raw=private_packet(handoff);need(time.monotonic()<J,'worker-original-publication')
-    count=sys.stdout.buffer.write(raw)
-    need(time.monotonic()<J,'worker-private-write-late')
-    need(count==len(raw),'worker-private-write-short')
-    need(time.monotonic()<J,'worker-private-flush-eligibility');sys.stdout.buffer.flush()
-    need(time.monotonic()<J,'worker-private-write-late')
-    # Root captures stdout under its existing held process owner. This worker
-    # publishes no PASS and cannot prove its own exit, absence or unmapping.
-    return 0
+    phase='ARGUMENTS';J=None
+    try:
+        phase='ARGUMENTS'
+        parser=argparse.ArgumentParser()
+        for name in ('packet','packet-sha','driver','driver-sha','original-entry','original-J'):
+            parser.add_argument('--'+name,required=True)
+        args=parser.parse_args(argv);start=float(args.original_entry);J=float(args.original_J)
+        phase='CLOCK'
+        need(math.isfinite(start) and math.isfinite(J) and start>0 and J==start+7200,'worker-original-clock')
+        E=J-360;need(start<=time.monotonic()<E,'worker-original-bootstrap')
+        phase='PACKET_READ'
+        packet_raw=bounded_source(args.packet,args.packet_sha,E)
+        phase='PACKET_VALIDATE'
+        packet=json.loads(packet_raw);need(type(packet)is dict and set(packet)=={'value','pins'},'worker-closed-packet')
+        value=packet['value'];need(value['original_entry']==start and value['workflow_end']==J,'worker-packet-original-clock')
+        phase='DRIVER_READ'
+        source=bounded_source(args.driver,args.driver_sha,E)
+        phase='DRIVER_COMPILE'
+        need(time.monotonic()<E and not RETAINED,'worker-source-compile-eligibility')
+        driver=ModuleType('root_admitted_integrated_pair_driver')
+        need(time.monotonic()<E,'worker-source-module-late')
+        code=compile(source,args.driver,'exec',dont_inherit=True)
+        need(time.monotonic()<E,'worker-source-compile-late')
+        phase='DRIVER_INITIALIZE'
+        exec(code,driver.__dict__)
+        need(time.monotonic()<E,'worker-source-initialization-late')
+        phase='DRIVER_EXECUTE'
+        handoff=driver.execute(value,packet['pins'],dict(os.environ))
+        phase='HANDOFF_SERIALIZE'
+        handoff['packet_sha256']=args.packet_sha;handoff['driver_sha256']=args.driver_sha
+        raw=private_packet(handoff);need(time.monotonic()<J,'worker-original-publication')
+        phase='PRIVATE_WRITE'
+        count=sys.stdout.buffer.write(raw)
+        need(time.monotonic()<J,'worker-private-write-late')
+        need(count==len(raw),'worker-private-write-short')
+        need(time.monotonic()<J,'worker-private-flush-eligibility');sys.stdout.buffer.flush()
+        need(time.monotonic()<J,'worker-private-write-late')
+        # Root captures stdout under its existing held process owner. This worker
+        # publishes no PASS and cannot prove its own exit, absence or unmapping.
+        return 0
+    except BaseException as error:
+        report_failure(phase,error,J)
+        raise
 
 if __name__=='__main__':raise SystemExit(main())
