@@ -41,9 +41,16 @@ def emit(event, **data):
     print(PREFIX + json.dumps({'event': event, **data}, sort_keys=True), flush=True)
 
 
+class ClientIPCReplyTimeout(ValueError):
+    """Only the observed Hyprland clients reply timeout is retryable."""
+
+
 def command(argv, env=None, timeout=30):
     result = bounded(argv, env=env, timeout=timeout, limit=MAX_LOG)
     emit('command', argv=argv, **result)
+    if argv == ['/usr/bin/hyprctl', '-j', 'clients'] and result == {
+            'returncode': 6, 'error': None, 'stdout': IPC_TIMEOUT_REPLY, 'stderr': ''}:
+        raise ClientIPCReplyTimeout('Hyprland clients reply timeout')
     require(result['error'] is None and result['returncode'] == 0, 'command failed/overflowed: ' + argv[0])
     return result['stdout']
 
@@ -321,7 +328,12 @@ def phase(stage, config, env, root, *, nonce=None):
             check_logs()
             require(alive(), 'client/compositor exited before frame')
             require(log.stat().st_size <= MAX_LOG and client_log.stat().st_size <= MAX_LOG, 'session/client log overflow')
-            clients = json.loads(command(['/usr/bin/hyprctl', '-j', 'clients'], env))
+            clients = []
+            try:
+                clients = json.loads(command(['/usr/bin/hyprctl', '-j', 'clients'], env))
+            except ClientIPCReplyTimeout:
+                pass
+            require(time.monotonic() < deadline, 'Wayland client mapping deadline')
             if any(c.get('pid') == client.pid and c.get('mapped') is True and
                    all(x > 0 for x in c.get('size', [0, 0])) for c in clients):
                 break

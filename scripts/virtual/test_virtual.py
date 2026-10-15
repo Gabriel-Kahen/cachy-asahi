@@ -758,7 +758,7 @@ class GuestDiagnostics(unittest.TestCase):
                         patch('guest.wait_for_ipc', side_effect=phase_failure, return_value=env), \
                         patch('guest.image_decode_preflight'), \
                         patch('guest.command', side_effect=command), patch('guest.terminate', side_effect=reap), \
-                        patch('guest.time.monotonic', side_effect=[0, 0, 0, 16]), \
+                        patch('guest.time.monotonic', side_effect=[0, 0, 0, 0, 16]), \
                         patch('guest.emit', side_effect=emit), \
                         patch('guest.print', side_effect=summary_failure if closed_summary else None) as summary:
                     try: guest.phase('minimal', root / 'config', env, root)
