@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
     inputs:
       source_commit:
-        description: Reviewed full source SHA containing the reviewed two-plugin Rust offline helpers
+        description: Reviewed full source SHA containing the reviewed four-graph loadability helpers
         required: true
         type: string
 permissions:
@@ -20,13 +20,13 @@ jobs:
     timeout-minutes: 150
     env:
       PYTHONDONTWRITEBYTECODE: '1'
-      SOURCE_COMMIT: ${{ inputs.source_commit }}
+      SOURCE_COMMIT: 15b0884ab157c56bc4b09fc9e7ce92aafd669758
     steps:
-      - name: Check out reviewed Rust offline LV2 source
+      - name: Check out reviewed offline Asahi graph source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
-          ref: ${{ inputs.source_commit }}
-          path: rust-lv2-source
+          ref: 15b0884ab157c56bc4b09fc9e7ce92aafd669758
+          path: audio-graph-source
           persist-credentials: false
       - name: Check out unchanged package APIs
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
@@ -46,10 +46,10 @@ jobs:
         run: |
           set -euo pipefail
           env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP" LANG=C.UTF-8 TZ=UTC \
-            python3 -I -B "$GITHUB_WORKSPACE/rust-lv2-source/scripts/ci/asahi-rust-lv2-offline/job.py" init \
-            --source-commit "$SOURCE_COMMIT" --source "$GITHUB_WORKSPACE/rust-lv2-source" \
+            python3 -I -B "$GITHUB_WORKSPACE/audio-graph-source/scripts/ci/asahi-audio-offline-graph/job.py" init \
+            --source-commit "$SOURCE_COMMIT" --source "$GITHUB_WORKSPACE/audio-graph-source" \
             --product "$GITHUB_WORKSPACE/product-api" --desktop "$GITHUB_WORKSPACE/desktop-base" \
-            --root "$RUNNER_TEMP/rust-lv2-job" >"$RUNNER_TEMP/rust-lv2-init-controller.log" 2>&1
+            --root "$RUNNER_TEMP/audio-graph-job" >"$RUNNER_TEMP/audio-graph-init-controller.log" 2>&1
       - name: Seed only the six exact retained inputs
         timeout-minutes: 2
         shell: bash
@@ -78,20 +78,20 @@ jobs:
           CACHY_OLD_FOUR_LIBTIFF_SIG_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_SIG_01 }}
         run: |
           set -euo pipefail
-          python3 -I -B "$GITHUB_WORKSPACE/rust-lv2-source/scripts/ci/asahi-rust-lv2-offline/job.py" seed \
-            --source-commit "$SOURCE_COMMIT" --source "$GITHUB_WORKSPACE/rust-lv2-source" \
+          python3 -I -B "$GITHUB_WORKSPACE/audio-graph-source/scripts/ci/asahi-audio-offline-graph/job.py" seed \
+            --source-commit "$SOURCE_COMMIT" --source "$GITHUB_WORKSPACE/audio-graph-source" \
             --product "$GITHUB_WORKSPACE/product-api" --desktop "$GITHUB_WORKSPACE/desktop-base" \
-            --root "$RUNNER_TEMP/rust-lv2-job" >"$RUNNER_TEMP/rust-lv2-job/seed-controller.log" 2>&1
+            --root "$RUNNER_TEMP/audio-graph-job" >"$RUNNER_TEMP/audio-graph-job/seed-controller.log" 2>&1
       - name: Prepare only the unchanged signed574 builder
         timeout-minutes: 40
         shell: bash
         run: |
           set -euo pipefail
           env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP" LANG=C.UTF-8 TZ=UTC \
-            python3 -I -B "$GITHUB_WORKSPACE/rust-lv2-source/scripts/ci/asahi-rust-lv2-offline/job.py" build \
-            --source-commit "$SOURCE_COMMIT" --source "$GITHUB_WORKSPACE/rust-lv2-source" \
+            python3 -I -B "$GITHUB_WORKSPACE/audio-graph-source/scripts/ci/asahi-audio-offline-graph/job.py" build \
+            --source-commit "$SOURCE_COMMIT" --source "$GITHUB_WORKSPACE/audio-graph-source" \
             --product "$GITHUB_WORKSPACE/product-api" --desktop "$GITHUB_WORKSPACE/desktop-base" \
-            --root "$RUNNER_TEMP/rust-lv2-job" >"$RUNNER_TEMP/rust-lv2-job/base-controller.log" 2>&1
+            --root "$RUNNER_TEMP/audio-graph-job" >"$RUNNER_TEMP/audio-graph-job/base-controller.log" 2>&1
       - name: Retrieve only the fixed accepted audio inputs privately
         timeout-minutes: 11
         shell: bash
@@ -100,20 +100,20 @@ jobs:
         run: |
           set -euo pipefail
           env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP" LANG=C.UTF-8 TZ=UTC \
-            GH_TOKEN="$GH_TOKEN" python3 -I -B "$GITHUB_WORKSPACE/rust-lv2-source/scripts/ci/asahi-rust-lv2-offline/job.py" retrieve \
-            --source-commit "$SOURCE_COMMIT" --source "$GITHUB_WORKSPACE/rust-lv2-source" \
+            GH_TOKEN="$GH_TOKEN" python3 -I -B "$GITHUB_WORKSPACE/audio-graph-source/scripts/ci/asahi-audio-offline-graph/job.py" retrieve \
+            --source-commit "$SOURCE_COMMIT" --source "$GITHUB_WORKSPACE/audio-graph-source" \
             --product "$GITHUB_WORKSPACE/product-api" --desktop "$GITHUB_WORKSPACE/desktop-base" \
-            --root "$RUNNER_TEMP/rust-lv2-job" >"$RUNNER_TEMP/rust-lv2-job/retrieval-controller.log" 2>&1
-      - name: Run only the fixed Rust LV2 properties with zero package rebuilds
+            --root "$RUNNER_TEMP/audio-graph-job" >"$RUNNER_TEMP/audio-graph-job/retrieval-controller.log" 2>&1
+      - name: Run only the four graph loadability cases and eight controls with zero package rebuilds
         timeout-minutes: 10
         shell: bash
         run: |
           set -euo pipefail
           env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP" LANG=C.UTF-8 TZ=UTC \
-            python3 -I -B "$GITHUB_WORKSPACE/rust-lv2-source/scripts/ci/asahi-rust-lv2-offline/job.py" trial \
-            --source-commit "$SOURCE_COMMIT" --source "$GITHUB_WORKSPACE/rust-lv2-source" \
+            python3 -I -B "$GITHUB_WORKSPACE/audio-graph-source/scripts/ci/asahi-audio-offline-graph/job.py" trial \
+            --source-commit "$SOURCE_COMMIT" --source "$GITHUB_WORKSPACE/audio-graph-source" \
             --product "$GITHUB_WORKSPACE/product-api" --desktop "$GITHUB_WORKSPACE/desktop-base" \
-            --root "$RUNNER_TEMP/rust-lv2-job" >"$RUNNER_TEMP/rust-lv2-job/trial-controller.log" 2>&1
+            --root "$RUNNER_TEMP/audio-graph-job" >"$RUNNER_TEMP/audio-graph-job/trial-controller.log" 2>&1
       - name: Retire only owned trial resources and the owned574 image
         id: cleanup
         if: always()
@@ -123,11 +123,11 @@ jobs:
           set -euo pipefail
           cleanup_status=0
           env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP" LANG=C.UTF-8 TZ=UTC \
-            python3 -I -B "$GITHUB_WORKSPACE/rust-lv2-source/scripts/ci/asahi-rust-lv2-offline/job.py" cleanup \
-            --source-commit "$SOURCE_COMMIT" --source "$GITHUB_WORKSPACE/rust-lv2-source" \
+            python3 -I -B "$GITHUB_WORKSPACE/audio-graph-source/scripts/ci/asahi-audio-offline-graph/job.py" cleanup \
+            --source-commit "$SOURCE_COMMIT" --source "$GITHUB_WORKSPACE/audio-graph-source" \
             --product "$GITHUB_WORKSPACE/product-api" --desktop "$GITHUB_WORKSPACE/desktop-base" \
-            --root "$RUNNER_TEMP/rust-lv2-job" >"$RUNNER_TEMP/rust-lv2-cleanup-controller.log" 2>&1 || cleanup_status=$?
-          rm -f -- "$RUNNER_TEMP/rust-lv2-init-controller.log" "$RUNNER_TEMP/rust-lv2-cleanup-controller.log"
+            --root "$RUNNER_TEMP/audio-graph-job" >"$RUNNER_TEMP/audio-graph-cleanup-controller.log" 2>&1 || cleanup_status=$?
+          rm -f -- "$RUNNER_TEMP/audio-graph-init-controller.log" "$RUNNER_TEMP/audio-graph-cleanup-controller.log"
           exit "$cleanup_status"
       - name: Retain only the closed public JSON observations
         if: always()
@@ -141,7 +141,7 @@ jobs:
           import json
           import os
           from pathlib import Path
-          root = Path(os.environ['RUNNER_TEMP']) / 'rust-lv2-job/public'
+          root = Path(os.environ['RUNNER_TEMP']) / 'audio-graph-job/public'
           root.mkdir(parents=True, exist_ok=True, mode=0o700)
           path = root / 'result.json'
           allowed = {'result.json', 'runtime.json'}
@@ -154,15 +154,15 @@ jobs:
               except (OSError, ValueError):
                   result = {}
               result.update(status='FAIL', cleanup_step=os.environ['CLEANUP_OUTCOME'],
-                            target_audio='NOT RUN', hardware='NOT RUN', native_rebuilds=0, lsp_processing='NOT RUN', selected_for_release=False)
+                            target_audio='NOT RUN', hardware='NOT RUN', native_rebuilds=0, lsp_processing='NOT RUN', processing='NOT RUN', selected_for_release=False)
               path.write_text(json.dumps(result, indent=2, sort_keys=True) + '\n')
           if sum(p.stat().st_size for p in root.iterdir()) > 16 * 1024 * 1024:
               raise SystemExit('public-output-size-refused')
           PY
           env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP" LANG=C.UTF-8 TZ=UTC \
             python3 -I -B "$GITHUB_WORKSPACE/product-api/scripts/ci/log_evidence.py" \
-            "$RUNNER_TEMP/rust-lv2-job/public"
-          rm -f -- "$RUNNER_TEMP/rust-lv2-init-controller.log" "$RUNNER_TEMP/rust-lv2-job/seed-controller.log" \
-            "$RUNNER_TEMP/rust-lv2-job/base-controller.log" "$RUNNER_TEMP/rust-lv2-job/trial-controller.log" \
-            "$RUNNER_TEMP/rust-lv2-job/retrieval-controller.log" \
-            "$RUNNER_TEMP/rust-lv2-cleanup-controller.log"
+            "$RUNNER_TEMP/audio-graph-job/public"
+          rm -f -- "$RUNNER_TEMP/audio-graph-init-controller.log" "$RUNNER_TEMP/audio-graph-job/seed-controller.log" \
+            "$RUNNER_TEMP/audio-graph-job/base-controller.log" "$RUNNER_TEMP/audio-graph-job/trial-controller.log" \
+            "$RUNNER_TEMP/audio-graph-job/retrieval-controller.log" \
+            "$RUNNER_TEMP/audio-graph-cleanup-controller.log"
