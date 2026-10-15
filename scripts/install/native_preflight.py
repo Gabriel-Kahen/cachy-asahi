@@ -266,8 +266,8 @@ def container_binding(rows, cid, name, trial, source, inputs, output):
          config.get('User')==f'{os.getuid()}:{os.getgid()}' and config.get('Entrypoint')==['/usr/bin/python3'] and
          config.get('Cmd')==['-I','-B','/source/scripts/install/native_arm_trial.py','--selection','/inputs/trial.json',
                             '--selection-sha256',sha(encoded(trial))], 'CONTAINER_BINDING')
-    need(config.get('Env')==CONFIG['Env']+['CACHY_ASAHI_INSTALL_NONCE='+trial['nonce'],
-         'CACHY_ASAHI_INSTALL_IMAGE='+trial['image_id']] and not config.get('Volumes') and
+    need(environment_matches(config.get('Env'),CONFIG['Env']+['CACHY_ASAHI_INSTALL_NONCE='+trial['nonce'],
+         'CACHY_ASAHI_INSTALL_IMAGE='+trial['image_id']]) and not config.get('Volumes') and
          not config.get('Healthcheck'), 'CONTAINER_ENV')
     need(host.get('NetworkMode')=='none' and host.get('CgroupnsMode')=='private' and
          host.get('Privileged') is False and host.get('ReadonlyRootfs') is True and host.get('CapDrop')==['ALL'] and
@@ -405,3 +405,9 @@ def run(session, controller, output, *, deadline, nonce, runtime_contract):
         value.update(input_successor=receiver.validate_input_successor(context['input_successor']),
                      tool_profile_lineage=receiver.TOOL_PROFILE_LINEAGE)
     return value
+
+
+def environment_matches(observed, expected):
+    """Unique exact entries; image/CLI environment merging may reorder them."""
+    return (type(observed) is list and len(observed) == len(expected) and
+            all(type(value) is str for value in observed) and set(observed) == set(expected))

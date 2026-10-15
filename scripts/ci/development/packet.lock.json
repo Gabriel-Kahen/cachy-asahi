@@ -1990,11 +1990,11 @@
     },
     "scripts/install/native_preflight.py": {
       "mode": 420,
-      "sha256": "575f9d8dbc32162d4255887da7814d3a09ac849b9f63480fdca80ccbb9e1570b"
+      "sha256": "e47e90fb958a6c11dff30278c4c294f957fb108ac047a1826b67551748b5773d"
     },
     "scripts/install/p0_entry.py": {
       "mode": 420,
-      "sha256": "36dce91060442f0857c9893a9a6fb9cef5839b05d23b3eab13a339a87fbb3b46"
+      "sha256": "92d1cfa3e556cb1f4f885655909c14ebea72910446df58d1aa1016435d89e2f9"
     },
     "scripts/install/test_local_transaction.py": {
       "mode": 420,
