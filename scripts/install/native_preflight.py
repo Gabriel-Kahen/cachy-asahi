@@ -292,10 +292,10 @@ def accept(result, public_raw, private_raw, receiver, cleanup, end, *, input_suc
              record.get('tool_profile_lineage') == receiver.TOOL_PROFILE_LINEAGE, 'INPUT_SUCCESSOR')
     else:
         need('input_successor' not in record and 'tool_profile_lineage' not in record, 'INPUT_SUCCESSOR')
-    need(type(result['exit_code']) is int and result['exit_code'] == 0 and record['status'] == 'PASS_NATIVE_PREFLIGHT_ONLY' and
+    need_preflight_result(type(result['exit_code']) is int and result['exit_code'] == 0 and record['status'] == 'PASS_NATIVE_PREFLIGHT_ONLY' and
          record['phase'] == 'complete' and record['ABI'] == record['matrix'] == 'NOT_RUN' and
          type(cleanup) is dict and cleanup == {'remove_exit':0,'absent':True} and
-         type(cleanup['remove_exit']) is int and type(cleanup['absent']) is bool, 'P0_REFUSED')
+         type(cleanup['remove_exit']) is int and type(cleanup['absent']) is bool, 'P0_REFUSED', record, receiver)
     return record
 
 
@@ -411,3 +411,23 @@ def environment_matches(observed, expected):
     """Unique exact entries; image/CLI environment merging may reorder them."""
     return (type(observed) is list and len(observed) == len(expected) and
             all(type(value) is str for value in observed) and set(observed) == set(expected))
+
+
+def need_preflight_result(value, code, record, receiver):
+    """Best-effort existing public fields only; original refusal remains primary."""
+    try:
+        need(value, code)
+    except BaseException as first:
+        try:
+            keys = ('schema_version','status','phase','barrier','ABI','matrix','tests',
+                    'failures','errors','skips','termination','owned_child_cleanup','first_failure')
+            sys.stderr.buffer.write(receiver.public({key: record[key] for key in keys}))
+            sys.stderr.buffer.flush()
+        except BaseException as error:
+            if isinstance(error, (KeyboardInterrupt, SystemExit)):
+                try:
+                    BaseException.__setattr__(first, 'native_preflight_cancelled', True)
+                    BaseException.__setattr__(first, 'native_preflight_cleanup_uncertain', True)
+                except BaseException:
+                    pass
+        raise
