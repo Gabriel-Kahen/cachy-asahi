@@ -103,6 +103,19 @@ class ContainerTests(unittest.TestCase):
         for raw in (b'{}', b'{bad', self.failed_host_raw().replace(b'"metadata"', b'"/private/error"')):
             self.assertIsNone(c.capture_host_failure(raw, case, 'positive', 'host_gates'))
 
+    def test_activation_cannot_replace_observation_fir_or_readback_gates(self):
+        for gate in ('stages', 'fir_selection', 'libraries', 'readback', 'volumes'):
+            value = passing(); row = value['positive_cases'][0]
+            self.assertTrue(row['gates']['activation'])
+            row['gates'][gate] = False
+            self.rejects(value)
+        value = passing(); row = value['positive_cases'][0]
+        row.update(status='FAIL', failure_class='observe')
+        row['counts']['readbacks'] = 0
+        for gate in ('stages', 'fir_selection', 'libraries', 'readback', 'volumes'):
+            row['gates'][gate] = False
+        self.rejects(value)
+
     def test_main_preserves_projection_failure_and_finite_host_evidence(self):
         expected = passing(); headers = {path: digest for path, digest in {**COMMON.HEADERS, **c.GRAPH_HEADERS}.values()}
         def command(args, name, *unused, **kwargs):
