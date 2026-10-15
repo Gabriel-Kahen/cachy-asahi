@@ -103,3 +103,37 @@ Root collected the logs once at `artifacts/development/desktop-run38763443973/lo
 | summary | 976 | `6706b67e3dc4ad3537cfb91d1de81460f65c445f1b2289c923b413e2a3f452f7` |
 
 No broad suites or new native operations were run for this note. Both M2 Air sizes, physical 16 KiB execution, the Asahi stack, an actual accelerated desktop session, full-system installation/recovery and measured performance remain outside this result.
+
+## Canonical source-adoption runtime — run 38767488680
+
+[Run 38767488680](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38767488680) completed successfully on exact canonical product **`a58fca33c4db5f2ab3ea6111f4d7842a932cc336`**, after adoption of all 18 tested consumer/test files. Workflow **`4765538bfed218d2d9ae1047dd8d7f1be78c2a08`** differs from the successful `61f1715…` workflow only in its two product-source pins. It builds the original packages and resumes package-only integration on the same native ARM daemon. This supplies actual runtime evidence for the adopted core path on a58, while the complete supported composition remains unverified.
+
+The actual job freezes a new external `package-integration.lock.json` from its checked-out source before resume. Its freezer output is SHA256 `6c1b64d022c67f0a8743b5b33ec389ba4b32d1832eb148d6c1a238b142bdde9b`; the earlier local preparation lock is not this run's source authority. The historical integration lock is preserved. Input and recipe pins remain `beca39e0…` / `a5fb287b…` as specified above.
+
+| Observed result | Actual canonical evidence |
+| --- | --- |
+| Native original packages | `native-builds-and-byte-comparison-pass`, `native_build=PASS`; all four pairs `contents-reproduced`, no comparison errors. Offline hashes of all eight retained original archives equal their corresponding earlier-run hashes in the package table above. |
+| Integration summary | `status=PASS`, exact `source_commit=a58fca33…`, `scope=package-lifecycle-and-desktop-only`; fixtures, signer, lifecycle, repository and desktop stages PASS; `cancelled=false` |
+| Lifecycle | 166 checks, all PASS; 82 commands; result bound to a58. This repeats the configuration/upgrade/removal/reinstall/recovery path described above on the canonical adoption. |
+| Repository | 11 cases PASS, 208 commands, result bound to a58; all seven rejection before/after snapshots remain equal. `test_private_state_removed=true`, `published=false`, `stable_promotion=NOT RUN`. The missing-database-sidecar precheck limitation above still applies. |
+| Desktop software | `desktop-container-verifier-pass`; seven check groups PASS and 24 commands, including eight installed payload hashes and default/optional Hyprland configuration verification |
+| Owned-image cleanup | PASS, `absence_verified=true`, `cleanup_uncertain=false` for installed derivative `sha256:8095c5f1aab745485223ce42d8b55c06ac06fd5474bc6a607d8f2c9c9589927d`; base image is `sha256:67f6e6a58fadc742d28583820452a48122f0df286646b645bca6547e0305b93f`. Absence applies only to the owned derivative. |
+
+The canonical receipt still records headless compositor **BLOCKED, attempted=false** for the DRM-backed GBM requirement. Waybar/Mako runtime remain **NOT RUN**, with both optional applications absent. Onboarding and source suites are intentionally **NOT RUN**; hardware and production trust are **NOT RUN**, and `selected_for_release=false`. No actual graphical session, M2 compatibility, full-system installation or performance result follows from this run. The later interactive helper in `b183388…` was not selected by this core path.
+
+The separate static run [38767420831](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38767420831) failed on a58 in the local desktop checker: its expected payload omitted the screenshot helper. The existing positive and negative mocked tests expose that mismatch. A one-file correction has been prepared with both formerly failing tests and the 22-test focused module passing locally; this native success does not establish a passing static pipeline or acceptance of later source changes. Later static stages were not reached in that failed run.
+
+Root collected `artifacts/development/desktop-canonical-run38767488680/logs.zip` once: **4,306,376 bytes**, SHA256 `62f03ee695c51729de02a5596d0801202ee302ee51d52726f886c3b24bd6feaf`. This append read it offline, verified all ten frame sizes/digests and bounded regular tar members in memory, and compared the seven rejection snapshots and eight original package hashes. No evidence was recollected or executed, and no tests were replayed for this documentation append.
+
+| Canonical curated frame | Compressed bytes | SHA256 |
+| --- | ---: | --- |
+| native-evidence | 1276945 | `268ee1e45dd2f6d1a89b8d1ee622132ea8049bc1c26f82b76a109da1797ed5c2` |
+| desktop | 30325 | `e6dcd0436623d1650b59e44bd9a3e69f7ea46aa92a2f0161edba767b7f6f834b` |
+| fixture-archives | 40273 | `d25bd86210f802f158c950b1e02c427252732723691e8fe98e583dc4532b8cb8` |
+| fixtures | 59956 | `5d4fa8fb1a36a57d418a47c2fde664998a8205a0f0a196fbb459764c9f65a0c5` |
+| lifecycle | 66101 | `88c930ef30a8ee27c6365c2443ced58d8bfb1740b98f627ac0aeafc231156eb7` |
+| repository | 137027 | `0ea1e9ad4caf198d4ee76601057c9e236ea09f190ede1155a205c8d5c8de7479` |
+| repository-public-artifacts | 279137 | `6dffc20280e00ffa45863456f51eae0d836921adc0a452fafcd9ea718f19a206` |
+| signer | 4365 | `ce81050502d0c6a789ad36d8df12a05552d08c8a81f4cae24e1d9ab3cee97605` |
+| signer-public-artifacts | 5048 | `6d1e3e915abd00b9489ad82d9557cebc52662fa8b67e3fd3c08e6e5dbe74ba00` |
+| summary | 979 | `0288d0cba1bed6caf8496cc5aaec8fcd86ce0fad8ba5175128096494357bd6f9` |
