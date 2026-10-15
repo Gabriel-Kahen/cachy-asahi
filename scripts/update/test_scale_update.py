@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: MIT
 """Synthetic 587-name capacity fixtures; never the real 587-package composition."""
 import argparse
-import ctypes as C
 import json
 import functools
 import os
@@ -17,228 +16,6 @@ from test_snapshot import module, encoded, digest, make_bundle, make_envelope
 
 legacy = module('legacy_tiny_transaction_tests',Path(__file__).with_name('test_bound_update.py'))
 scale = module('scale_under_test',Path(__file__).with_name('scale_update.py'))
-
-
-# Fixed status tags only; signature identities/UIDs/arguments are never retained.
-SIGNATURE_STATUS = {'NEWSIG','KEY_CONSIDERED','SIG_ID','GOODSIG','VALIDSIG','BADSIG','ERRSIG','NO_PUBKEY',
-    'EXPSIG','EXPKEYSIG','REVKEYSIG','TRUST_UNDEFINED','TRUST_NEVER','TRUST_MARGINAL','TRUST_FULLY',
-    'TRUST_ULTIMATE','NODATA','FAILURE','ERROR','UNEXPECTED','KEYEXPIRED','SIGEXPIRED','KEYREVOKED'}
-
-
-# Public read-only GPGME 2.2.0 engine-info ABI; see retained headers in proposal.
-class GpgmeEngineInfo(C.Structure):
-    pass
-GpgmeEngineInfo._fields_=[('next',C.POINTER(GpgmeEngineInfo)),('protocol',C.c_int),
-    ('file_name',C.c_char_p),('version',C.c_char_p),('req_version',C.c_char_p),('home_dir',C.c_char_p)]
-
-
-def pre_load_handle(alpm,gpgdir):
-    """Capture before load: libalpm option getters clear handle errno."""
-    value=dict(handle_getter_available=False,handle_home_matches='UNKNOWN')
-    try:
-        home=alpm.lib.alpm_option_get_gpgdir
-        home.restype=C.c_char_p;home.argtypes=[C.c_void_p]
-        value['handle_getter_available']=True
-        actual=home(alpm.handle)
-        value['handle_home_matches']=actual is not None and actual.rstrip(b'/') == os.fsencode(gpgdir).rstrip(b'/')
-    except Exception:pass
-    return value
-
-
-def post_load_engine(alpm,configuration,gpgdir):
-    """Read global configuration after refusal; never touch ALPM handle errno."""
-    value=dict(configuration,state='UNAVAILABLE',engine_getter_available=False,
-        engine_home_matches='UNKNOWN',engine_home_default='UNKNOWN',engine_binary_matches='UNKNOWN')
-    try:
-        engines=alpm.lib.gpgme_get_engine_info
-        engines.restype=C.c_uint;engines.argtypes=[C.POINTER(C.POINTER(GpgmeEngineInfo))]
-        value['engine_getter_available']=True
-        info=C.POINTER(GpgmeEngineInfo)()
-        if engines(C.byref(info)) != 0:
-            value['state']='API_ERROR';return value
-        seen=set();openpgp=[]
-        while info:
-            address=C.cast(info,C.c_void_p).value
-            if address in seen or len(seen)>=16:
-                value['state']='ENGINE_LIST_BOUND';return value
-            seen.add(address);entry=info.contents
-            if entry.protocol == 0:  # GPGME_PROTOCOL_OpenPGP, public enum.
-                openpgp.append((entry.home_dir,entry.file_name))
-            info=entry.next
-        if len(openpgp) != 1:
-            value['state']='NO_UNIQUE_OPENPGP_ENGINE';return value
-        engine_home,binary=openpgp[0]
-        value.update(state='OBSERVED',engine_home_default=engine_home is None,
-            engine_home_matches=engine_home is not None and engine_home.rstrip(b'/') == os.fsencode(gpgdir).rstrip(b'/'),
-            engine_binary_matches=binary == b'/usr/bin/gpg')
-    except Exception:value['state']='DIAGNOSTIC_ERROR'
-    return value
-
-
-ORIGINAL_VERIFY_LIMITS=(19,13,19,19,8,19,8,4)
-ORIGINAL_ERROR_RANGES=((0, 271), (273, 281), (300, 323), (666, 666), (711, 718), (721, 729), (750, 752), (754, 782), (784, 789), (800, 804), (815, 822), (832, 839), (844, 844), (848, 848), (881, 891), (1024, 1039), (1500, 1528), (1600, 1601), (16381, 16383), (32768, 32908))
-ORIGINAL_VERIFY_C = r'''/* TEST-only callback bridge: public alpm.h owns the va_list ABI. */
-#include <alpm.h>
-#include <errno.h>
-#include <gpgme.h>
-#include <stdarg.h>
-#include <stdint.h>
-#include <string.h>
-
-static int active;
-static uint64_t values[10];
-/* All586 published codes in retained gpg-error.h; no unassigned slots. */
-_Static_assert(GPG_ERR_CODE_DIM==65536 && GPG_ERR_SYSTEM_ERROR==32768,"public error domain changed");
-static const unsigned public_codes[][2]={{0,271},{273,281},{300,323},{666,666},{711,718},{721,729},{750,752},{754,782},{784,789},{800,804},{815,822},{832,839},{844,844},{848,848},{881,891},{1024,1039},{1500,1528},{1600,1601},{16381,16383},{32768,32908}};
-static unsigned error_events,error_matches,error_after_start,error_codes[16];
-static void classify_error(const char *text)
-{
-    if(error_events<4095) error_events++;
-    if(error_events!=1) return; /* First capital GPGME message only. */
-    error_after_start=(values[0] & (UINT64_C(1)<<14))!=0;
-    for(unsigned range=0;range<sizeof(public_codes)/sizeof(public_codes[0]);range++) {
-        for(unsigned code=public_codes[range][0];code<=public_codes[range][1];code++) {
-            if(text && strcmp(text,gpgme_strerror(code))==0) {
-                if(error_matches<16) error_codes[error_matches]=code;
-                error_matches++;
-            }
-        }
-    }
-}
-
-static const char *const summaries[]={"valid","green","red","key revoked","key expired",
-    "sig expired","key missing","crl missing","crl too old","bad policy","sys error","(empty)"};
-static const char *const validity[]={"unknown","undefined","never","marginal","full","ultimate","???"};
-static const int errors[]={GPG_ERR_NO_ERROR,GPG_ERR_GENERAL,GPG_ERR_BAD_SIGNATURE,GPG_ERR_NO_PUBKEY,
-    GPG_ERR_BAD_DATA,GPG_ERR_NO_DATA,GPG_ERR_INV_VALUE,GPG_ERR_INV_ENGINE,GPG_ERR_NO_AGENT,
-    GPG_ERR_NOT_SUPPORTED,GPG_ERR_UNSUPPORTED_PROTOCOL,GPG_ERR_KEY_EXPIRED,GPG_ERR_SIG_EXPIRED,
-    GPG_ERR_EOF,GPG_ERR_ENOENT,GPG_ERR_EACCES,GPG_ERR_EIO,GPG_ERR_ENOMEM};
-
-static unsigned token(const char *value,const char *const *allowed,unsigned count)
-{
-    for(unsigned i=0;value && i<count;i++) if(strcmp(value,allowed[i])==0) return i;
-    return count;
-}
-static unsigned error_class(const char *value)
-{
-    for(unsigned i=0;value && i<sizeof(errors)/sizeof(errors[0]);i++)
-        if(strcmp(value,gpgme_strerror(errors[i]))==0) return i;
-    return sizeof(errors)/sizeof(errors[0]);
-}
-static void record(const char *fmt,va_list args)
-{
-    static const char *const events[]={
-        "Signature verification will fail!\n","no signatures returned\n","key lookup failed, unknown key\n",
-        "signature timestamp is greater than system time.\n","missing optional signature\n",
-        "missing required signature\n","signature check failed\n","signature is valid\n",
-        "signature is fully trusted\n","signature is marginal trust\n","signature is unknown trust\n",
-        "signature should never be trusted\n","signature is not valid\n",
-        "required key missing from keyring\n"};
-    unsigned found=token(fmt,events,sizeof(events)/sizeof(events[0]));
-    if(found<sizeof(events)/sizeof(events[0])) {values[0]|=UINT64_C(1)<<found;return;}
-    if(strcmp(fmt,"checking signature for %s\n")==0) {values[0]|=UINT64_C(1)<<14;return;}
-    if(strcmp(fmt,"sig path %s could not be opened\n")==0) {values[0]|=UINT64_C(1)<<15;return;}
-    if(strcmp(fmt,"Public keyring not found; have you run '%s'?\n")==0) {values[0]|=UINT64_C(1)<<16;return;}
-    if(strcmp(fmt,"failed to read signature file: %s\n")==0) {values[0]|=UINT64_C(1)<<17;return;}
-    va_list copy;va_copy(copy,args);
-    if(strcmp(fmt,"summary: %s\n")==0) {
-        values[1]|=UINT64_C(1)<<token(va_arg(copy,const char *),summaries,sizeof(summaries)/sizeof(summaries[0]));
-    } else if(strcmp(fmt,"status: %s\n")==0) {
-        values[2]|=UINT64_C(1)<<error_class(va_arg(copy,const char *));
-    } else if(strcmp(fmt,"GPGME error: %s\n")==0) {
-        const char *original=va_arg(copy,const char *);
-        char text[512];unsigned bounded=0;
-        if(original) for(unsigned i=0;i<sizeof(text);i++) {
-            text[i]=original[i];if(text[i]=='\0') {bounded=1;break;}
-        }
-        /* gpgme_strerror may reuse storage: classify a stable, private copy. */
-        values[3]|=UINT64_C(1)<<(bounded?error_class(text):18);
-        classify_error(bounded?text:NULL);
-    } else if(strcmp(fmt,"validity: %s; reason: %s\n")==0) {
-        values[4]|=UINT64_C(1)<<token(va_arg(copy,const char *),validity,sizeof(validity)/sizeof(validity[0]));
-        values[5]|=UINT64_C(1)<<error_class(va_arg(copy,const char *));
-    } else if(strcmp(fmt,"key: %s, %s, owner_trust %s, disabled %d\n")==0) {
-        (void)va_arg(copy,const char *);(void)va_arg(copy,const char *); /* Never inspect fpr/UID. */
-        values[6]|=UINT64_C(1)<<token(va_arg(copy,const char *),validity,sizeof(validity)/sizeof(validity[0]));
-        if(va_arg(copy,int)) values[0]|=UINT64_C(1)<<18;
-    } else if(strcmp(fmt,"%d signatures returned\n")==0) {
-        int count=va_arg(copy,int);values[7]|=UINT64_C(1)<<(count==0?0:count==1?1:count>1?2:3);
-    } else if(values[9]<4095) values[9]++;
-    va_end(copy);
-}
-static void capture(void *ctx,alpm_loglevel_t level,const char *fmt,va_list args)
-{
-    (void)ctx;(void)level;
-    if(!active || !fmt) return;
-    int saved=errno;
-    if(values[8]<4095) values[8]++;
-    record(fmt,args);
-    errno=saved;
-}
-int probe_install(alpm_handle_t *handle)
-{
-    if(alpm_option_get_logcb(handle)!=NULL) return 1;
-    return alpm_option_set_logcb(handle,capture,NULL)==0?0:2;
-}
-void probe_begin(void)
-{
-    memset(values,0,sizeof(values));memset(error_codes,0,sizeof(error_codes));
-    error_events=error_matches=error_after_start=0;active=1;
-}
-void probe_end(void) {active=0;}
-uint64_t probe_read(unsigned index) {return index<10?values[index]:0;}
-unsigned probe_error(unsigned index)
-{
-    if(index==0) return error_events;
-    if(index==1) return error_matches;
-    if(index==2) return error_after_start;
-    return index>=3 && index<19?error_codes[index-3]:0;
-}
-'''
-
-
-def compile_original_probe(case):
-    """TEST-only fixed source; outside copied root/workspace; never fatal to load."""
-    try:
-        directory=case/'original-verification-bridge';directory.mkdir(mode=0o700)
-        output=directory/'probe.so'
-        result=subprocess.run(['/usr/bin/cc','-shared','-fPIC','-O2','-Wall','-Wextra','-Werror',
-            '-std=c11','-x','c','-','-o',str(output),'-lalpm','-lgpgme'],input=ORIGINAL_VERIFY_C.encode(),
-            capture_output=True,timeout=5,env={'PATH':'/usr/bin:/bin','LC_ALL':'C','TMPDIR':str(directory)})
-        return output if result.returncode==0 and len(result.stdout)+len(result.stderr)<=65536 else None
-    except Exception:return None
-
-
-def install_original_probe(path,alpm):
-    try:
-        if path is None:return None
-        bridge=C.CDLL(str(path))
-        bridge.probe_install.restype=C.c_int;bridge.probe_install.argtypes=[C.c_void_p]
-        bridge.probe_begin.restype=bridge.probe_end.restype=None
-        bridge.probe_begin.argtypes=bridge.probe_end.argtypes=[]
-        bridge.probe_read.restype=C.c_uint64;bridge.probe_read.argtypes=[C.c_uint]
-        bridge.probe_error.restype=C.c_uint;bridge.probe_error.argtypes=[C.c_uint]
-        return bridge if bridge.probe_install(alpm.handle)==0 else None
-    except Exception:return None
-
-
-def original_probe_result(bridge):
-    if bridge is None:return {'state':'UNAVAILABLE'}
-    try:
-        values=[bridge.probe_read(index) for index in range(10)]
-        if any(type(value) is not int or not 0<=value<2**bits for value,bits in zip(values,ORIGINAL_VERIFY_LIMITS)) or any(
-                type(value) is not int or not 0<=value<=4095 for value in values[8:]):
-            return {'state':'UNAVAILABLE'}
-        events,matches,after=[bridge.probe_error(index) for index in range(3)]
-        codes=[bridge.probe_error(3+index) for index in range(min(matches,16))] if type(matches) is int and 0<=matches<=586 else []
-        valid=(type(events) is int and 0<=events<=4095 and type(matches) is int and 0<=matches<=586 and
-            type(after) is int and after in (0,1) and (events>0 or matches==after==0) and
-            len(codes)==min(matches,16) and all(type(code) is int and any(low<=code<=high for low,high in ORIGINAL_ERROR_RANGES) for code in codes) and
-            codes==sorted(set(codes)))
-        error=dict(state='OBSERVED',events=events,matches=matches,codes=codes,
-            unique=matches==1,complete=matches<=16,after_check_start=bool(after) if events else 'UNKNOWN') if valid else {'state':'UNAVAILABLE'}
-        return dict(state='OBSERVED',bits=values,gpgme_error_text=error)
-    except Exception:return {'state':'UNAVAILABLE'}
 
 
 class ScaleTransactions(unittest.TestCase):
@@ -308,59 +85,12 @@ class ScaleTransactions(unittest.TestCase):
                 with mock.patch.object(scale.space,'check',functools.partial(check,statvfs=fixture_statvfs)):
                     row=scale.apply(self.args)
                 row['synthetic_inode_budget_injected']=bool(override)
-                if hasattr(self,'_scale_drift_diagnostic'):
-                    row['test_scale_precommit_reached']=self._scale_drift_precommit_reached
-                    row['test_scale_post_load_signature']=self._scale_drift_post_load_signature
-                    row['test_scale_post_load_engine']=self._scale_drift_post_load_engine
-                    row['test_scale_original_verification']=self._scale_original_verification
                 with os.fdopen(write,'wb') as stream:stream.write(encoded(row))
             finally:os._exit(0)
         os.close(write)
         with os.fdopen(read,'rb') as stream:data=stream.read(1024**2+1)
-        _,status=os.waitpid(pid,0)
-        diagnostic=getattr(self,'_scale_drift_diagnostic',None)
-        if diagnostic is not None:diagnostic['stage']='child-exit'
-        self.assertEqual(status,0)
-        if diagnostic is not None:diagnostic['stage']='child-output-size'
-        self.assertLessEqual(len(data),1024**2)
-        if diagnostic is not None:diagnostic['stage']='child-json'
+        _,status=os.waitpid(pid,0);self.assertEqual(status,0);self.assertLessEqual(len(data),1024**2)
         return json.loads(data)
-
-    def post_load_signature(self,filename,gpgdir):
-        """TEST-only, after failed ALPM load, while its exact inputs still exist."""
-        value=dict(state='STARTED',gpg_exit='UNAVAILABLE',gpg_status=[],unknown_status=False,
-                   archive_equal='UNKNOWN',signature_equal='UNKNOWN',inputs_stable='UNKNOWN')
-        try:
-            path=Path(os.fsdecode(filename));gpgdir=Path(gpgdir)
-            name='fixture-1-1-any.pkg.tar.gz'
-            expected=gpgdir.parent/'authenticated/bundle/repo'/name
-            if path != expected or path.is_symlink() or Path(str(path)+'.sig').is_symlink():
-                value['state']='INPUT_REFUSED';return value
-            original=self.bundle/'repo'/name;signature=Path(str(path)+'.sig')
-            release=json.loads((self.bundle/'release.json').read_text())['files']
-            before=(digest(path),digest(signature))
-            value['archive_equal']=before[0] == digest(original) == release['repo/'+name]
-            value['signature_equal']=before[1] == digest(str(original)+'.sig') == release['repo/'+name+'.sig']
-            command=['/usr/bin/gpg','--no-options','--batch','--no-tty','--no-autostart',
-                '--homedir',str(gpgdir),'--no-auto-key-retrieve','--no-auto-key-import',
-                '--auto-key-locate','clear','--disable-dirmngr','--no-auto-check-trustdb',
-                '--status-fd','1','--verify',str(signature),str(path)]
-            result=subprocess.run(command,stdin=subprocess.DEVNULL,capture_output=True,timeout=5,
-                env={'PATH':'/usr/bin:/bin','HOME':str(gpgdir),'GNUPGHOME':str(gpgdir),'LC_ALL':'C'})
-            if len(result.stdout)+len(result.stderr)>65536:
-                value['state']='OUTPUT_BOUND';return value
-            value['gpg_exit']=result.returncode if result.returncode in (0,1,2) else 'OTHER'
-            statuses=set()
-            for line in result.stdout.splitlines():
-                parts=line.split(b' ',2)
-                token=parts[1].decode('ascii',errors='replace') if len(parts)>1 and parts[0]==b'[GNUPG:]' else None
-                if token in SIGNATURE_STATUS:statuses.add(token)
-                elif line:value['unknown_status']=True
-            value.update(state='OBSERVED',gpg_status=sorted(statuses),
-                         inputs_stable=before == (digest(path),digest(signature)))
-        except subprocess.TimeoutExpired:value.update(state='TIMEOUT',gpg_exit='TIMEOUT')
-        except (OSError,ValueError,KeyError,TypeError):value['state']='DIAGNOSTIC_ERROR'
-        return value
 
     def upgrade(self,compression):
         self.select(compression)
@@ -382,69 +112,12 @@ class ScaleTransactions(unittest.TestCase):
         self.assert_refused(self.run_update(),'insufficient')
 
     def test_scale_input_drift_after_prepare_refused(self):
-        # Only this test exposes finite diagnostic facts through native Results.
-        diagnostic=self._scale_drift_diagnostic={'stage':'invoke','row':None}
-        self._scale_drift_precommit_reached=False
-        self._scale_drift_post_load_signature={'state':'NOT_RUN'}
-        self._scale_drift_post_load_engine={'state':'NOT_RUN'}
-        self._scale_original_verification={'state':'NOT_RUN'}
-        bridge_path=compile_original_probe(self.case)
-        class ObserveLoad(scale.roots.Alpm):
-            def __init__(alpm,root,gpgdir,log,architecture='aarch64',*,limits):
-                super().__init__(root,gpgdir,log,architecture,limits=limits)
-                configuration=pre_load_handle(alpm,gpgdir)
-                # Retain the CDLL/callback until the owned handle is released.
-                bridge=alpm._test_original_bridge=install_original_probe(bridge_path,alpm)
-                load=alpm.alpm_pkg_load
-                def observed(handle,filename,full,level,package):
-                    active_bridge=bridge
-                    try:
-                        if active_bridge is not None:active_bridge.probe_begin()
-                    except Exception:active_bridge=None
-                    try:
-                        code=load(handle,filename,full,level,package)
-                    finally:
-                        # No ALPM calls here: setters/getters would clear failure errno.
-                        try:
-                            if active_bridge is not None:active_bridge.probe_end()
-                        except Exception:active_bridge=None
-                    self._scale_original_verification=original_probe_result(active_bridge)
-                    try:
-                        if code != 0 and alpm.alpm_strerror(alpm.alpm_errno(handle)) == b'invalid or corrupted package (PGP signature)':
-                            self._scale_drift_post_load_engine=post_load_engine(alpm,configuration,gpgdir)
-                            self._scale_drift_post_load_signature=self.post_load_signature(filename,gpgdir)
-                    except Exception:
-                        self._scale_drift_post_load_signature={'state':'DIAGNOSTIC_ERROR'}
-                    return code
-                alpm.alpm_pkg_load=observed
         precommit=scale.Runtime.precommit
         def change(runtime):
-            self._scale_drift_precommit_reached=True
             Path(runtime.args.scale).write_bytes(Path(runtime.args.scale).read_bytes()+b' ')
             return precommit(runtime)
-        with mock.patch.object(scale.roots,'Alpm',ObserveLoad), mock.patch.object(scale.Runtime,'precommit',change):
-            value=self.invoke();diagnostic['row']=value
-            # Preserve run_update/assert_refused checks and order, marking the
-            # stage before every assertion, including the early trust checks.
-            diagnostic['stage']='trust-stable'
-            self.assertEqual(legacy.bound.trust_rows(legacy.bound.install.tree(self.root)),self.trust)
-            diagnostic['stage']='package-lock-absent'
-            self.assertFalse((self.root/'var/lib/pacman/db.lck').exists())
-            diagnostic['stage']='workspace-clean'
-            self.assertEqual(list(self.workspace.iterdir()),[self.root])
-            diagnostic['stage']='refusal-status'
-            self.assertEqual(value['status'],'FAIL',value)
-            diagnostic['stage']='commit-not-started'
-            self.assertFalse(value['commit_started'],value)
-            diagnostic['stage']='checkpoint-unchanged'
-            self.assertFalse(value['checkpoint_changed'],value)
-            diagnostic['stage']='fixture-unchanged'
-            self.assertEqual((self.root/self.owned['fixture'][0]).read_bytes(),b'BASE TEST ONLY\n')
-            diagnostic['stage']='checkpoint-empty'
-            self.assertEqual(list(self.state.iterdir()),[])
-            diagnostic['stage']='scale-error-match'
-            self.assertIn('scale configuration changed',value.get('error',''))
-            diagnostic['stage']='complete'
+        with mock.patch.object(scale.Runtime,'precommit',change):
+            self.assert_refused(self.run_update(),'scale configuration changed')
 
     def test_existing_ldconfig_still_refuses(self):
         path=self.root/'usr/bin/ldconfig';path.parent.mkdir(parents=True)
