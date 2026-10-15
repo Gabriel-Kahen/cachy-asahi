@@ -140,6 +140,12 @@ P0_VALUE_OPERATIONS = ('controller-installer', 'controller-consumer', 'original-
 PIPELINE_FAILURE_OPERATIONS |= frozenset('run-P0-' + name for name in P0_VALUE_OPERATIONS)
 
 
+P0_PREFLIGHT_FUNCTIONS = ('run', 'image_handoff', 'container_binding', 'selection', 'accept')
+P0_PREFLIGHT_CALL_LINES = (191, 193, 194, 195, 196, 198, 199, 200, 201, 203, 207, 208, 209, 210, 211, 212, 213, 214, 217, 222, 223, 224, 225, 226, 229, 231, 232, 233, 234, 235, 236, 237, 238, 239, 251, 252, 253, 256, 257, 258, 259, 260, 261, 262, 263, 264, 265, 266, 267, 268, 269, 270, 271, 272, 273, 274, 275, 276, 277, 278, 279, 280, 281, 282, 286, 287, 288, 290, 291, 292, 294, 295, 297, 298, 304, 305, 306, 307, 309, 310, 311, 312, 313, 314, 315, 316, 318, 319, 321, 322, 323, 326, 328, 329, 331, 333, 334, 335, 336, 337, 339, 342, 343, 344, 345, 346, 347, 348, 349, 350, 351, 353, 354, 356, 357, 358, 359, 360, 361, 362, 363, 364, 365, 366, 367, 369, 370, 371, 373, 376, 381, 382, 385, 388, 390, 394, 395, 396, 398, 399, 402, 404, 405)
+PIPELINE_FAILURE_OPERATIONS |= frozenset('run-P0-preflight-' + name for name in P0_PREFLIGHT_FUNCTIONS)
+PIPELINE_FAILURE_OPERATIONS |= frozenset('run-P0-preflight-L' + str(line) for line in P0_PREFLIGHT_CALL_LINES)
+
+
 def p0_value_code_boundaries(controller, sdk, session):
     """Only fixed members of the already-loaded Source/Session module anchors."""
     result = []
@@ -161,8 +167,7 @@ def p0_value_code_boundaries(controller, sdk, session):
         body = vars(bridge)
         add('preflight-namespace', body.get('namespace'))
         add('preflight-live', body.get('live'))
-        add('preflight-run', *(body.get(name) for name in
-            ('run', 'image_handoff', 'container_binding', 'selection', 'accept')))
+        for name in P0_PREFLIGHT_FUNCTIONS: add('preflight-' + name, body.get(name))
     entry = state.get('p0_entry_module')
     if type(entry) is types.ModuleType:
         body = vars(entry)
@@ -193,7 +198,12 @@ def mark_callback_failure(error, refusal_type, boundaries, *, value_error=False)
         for _ in range(64):
             if trace is None: break
             for code, selected in boundaries:
-                if trace.tb_frame.f_code is code: operation = selected
+                if trace.tb_frame.f_code is code:
+                    operation = selected
+                    if (value_error is True and selected in
+                            tuple('run-P0-preflight-' + name for name in P0_PREFLIGHT_FUNCTIONS) and
+                            trace.tb_lineno in P0_PREFLIGHT_CALL_LINES):
+                        operation = 'run-P0-preflight-L' + str(trace.tb_lineno)
             trace = trace.tb_next
         if operation is not None: mark_pipeline_failure(error, operation)
     except BaseException as secondary:
