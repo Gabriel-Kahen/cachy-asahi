@@ -68,6 +68,8 @@ jobs:
           PY
       - name: Check fixed build-only Asahi data candidate boundaries
         run: python3 -B scripts/ci/asahi-audio-data/test_run.py
+      - name: Check fixed build-only audio Rust candidate boundaries
+        run: python3 -B scripts/ci/asahi-audio-rust/test_scoped_build.py
       - name: Inspect recipes without sourcing them
         run: python3 scripts/checks/package_checks.py recipes --require-recipes
       - name: Check recipe syntax without executing it
