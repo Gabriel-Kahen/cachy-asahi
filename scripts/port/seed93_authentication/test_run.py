@@ -1,5 +1,6 @@
 """Focused harness controls; no package/network/GPG or product Source execution."""
 import importlib.util
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -7,7 +8,7 @@ import stat
 import tempfile
 import types
 import unittest
-from unittest.mock import Mock
+from unittest.mock import Mock,patch
 
 HERE=Path(__file__).absolute().parent
 spec=importlib.util.spec_from_file_location('development_run',HERE/'run.py')
@@ -42,10 +43,13 @@ class HarnessTests(unittest.TestCase):
         self.assertIn('--guarded',argv)
         self.assertNotIn('HOME',run.ENV)
         self.assertNotIn('SSH_AUTH_SOCK',run.ENV)
+        seeded=run.guarded_argv(self.base/'source',self.base/'run',[self.base/'a',self.base/'b'])
+        self.assertEqual(seeded[-4:],['--seed-cache',str(self.base/'a'),'--seed-cache',str(self.base/'b')])
 
     def test_corrected_source_pins(self):
         self.assertEqual(caller.PROFILE,'2f32684073cd945843a5685ca72d951435bb96c252d43344368193c5d3ca9155')
         self.assertEqual(caller.MANIFEST,'bd72c0d2da36117071b0a1683ed96857c71e50f73a220488f5d20f6463ba906e')
+        self.assertEqual(run.PROFILE,caller.PROFILE)
 
     def test_namespace_exposes_only_selected_public_source_and_new_work(self):
         argv=caller.namespace(self.base/'runtime',self.base/'frozen',HERE,['worker'])
@@ -80,6 +84,67 @@ class HarnessTests(unittest.TestCase):
         path=self.base/'untouched'
         with self.assertRaises(ValueError):run.main(['--layout',str(self.base/'absent'),'--runtime',str(path)])
         self.assertFalse(path.exists())
+
+
+    def seed_fixture(self):
+        layout=self.base/'layout';layout.mkdir()
+        first=self.base/'first';first.mkdir()
+        second=self.base/'second';second.mkdir()
+        target=self.base/'cache';target.mkdir(mode=0o700)
+        row=dict(filename='selected.pkg.tar.xz',size=7,sha256=hashlib.sha256(b'archive').hexdigest(),
+                 signature_size=9,signature_sha256=hashlib.sha256(b'signature').hexdigest())
+        raw=json.dumps(dict(packages=[row])).encode()
+        (layout/'profile.json').write_bytes(raw)
+        self.addCleanup(patch.stopall)
+        patch.object(run,'PROFILE',hashlib.sha256(raw).hexdigest()).start()
+        return layout,first,second,target,row
+
+    def test_seed_copies_only_selected_bytes_across_directories(self):
+        layout,first,second,target,row=self.seed_fixture();name=row['filename']
+        (first/name).write_bytes(b'archive');(second/(name+'.sig')).write_bytes(b'signature')
+        (first/'reports.json').write_bytes(b'not selected');(first/'gpg-home').mkdir()
+        self.assertEqual(run.seed_cache(layout,target,[first,second]),2)
+        self.assertEqual({p.name for p in target.iterdir()},{name,name+'.sig'})
+        self.assertEqual((target/name).read_bytes(),b'archive')
+        self.assertNotEqual((target/name).stat().st_ino,(first/name).stat().st_ino)
+        self.assertEqual(stat.S_IMODE((target/name).stat().st_mode),0o600)
+        (target/name).write_bytes(b'changed')
+        self.assertEqual((first/name).read_bytes(),b'archive')
+
+    def test_bad_seed_hash_refuses_without_leaving_target(self):
+        layout,first,second,target,row=self.seed_fixture()
+        (first/row['filename']).write_bytes(b'corrupt')
+        with self.assertRaisesRegex(ValueError,'hash or identity mismatch'):
+            run.seed_cache(layout,target,[first])
+        self.assertEqual(list(target.iterdir()),[])
+
+    def test_selected_symlink_and_fifo_are_refused(self):
+        layout,first,second,target,row=self.seed_fixture();source=first/row['filename']
+        payload=self.base/'payload';payload.write_bytes(b'archive');source.symlink_to(payload)
+        with self.assertRaises(OSError):run.seed_cache(layout,target,[first])
+        source.unlink();os.mkfifo(source)
+        with self.assertRaisesRegex(ValueError,'regular file'):run.seed_cache(layout,target,[first])
+        self.assertEqual(list(target.iterdir()),[])
+
+    def test_wrong_profile_pin_refuses_before_seeding(self):
+        layout,first,second,target,row=self.seed_fixture()
+        (layout/'profile.json').write_bytes(b'{}')
+        with self.assertRaisesRegex(ValueError,'profile pin mismatch'):
+            run.seed_cache(layout,target,[first])
+        self.assertEqual(list(target.iterdir()),[])
+
+    def test_existing_cache_file_is_not_overwritten(self):
+        layout,first,second,target,row=self.seed_fixture();name=row['filename']
+        (first/name).write_bytes(b'archive');(target/name).write_bytes(b'retain')
+        with self.assertRaises(FileExistsError):run.seed_cache(layout,target,[first])
+        self.assertEqual((target/name).read_bytes(),b'retain')
+
+    def test_missing_seed_directory_refuses_before_copy(self):
+        layout,first,second,target,row=self.seed_fixture()
+        (first/row['filename']).write_bytes(b'archive')
+        with self.assertRaisesRegex(ValueError,'physical directory'):
+            run.seed_cache(layout,target,[first,self.base/'absent'])
+        self.assertEqual(list(target.iterdir()),[])
 
 
 if __name__=='__main__':unittest.main()
