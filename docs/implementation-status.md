@@ -2,6 +2,45 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 15, 02:50 UTC, current native software corrections:
+Installer Source `53e7cfdb` and Data `f13db0ee` are published with held Code
+`677d3ba9`. Six diagnostic changes pass semantic `9c629f75`, actual Source
+`df7f0503` and Source/Data/plan `7d2657f6` reviews. A separate correction
+`3a377032` fixes the review's confusion between workflow environment keys and
+repository variable names. No writes occurred under the wrong names. Exactly
+`MAINTAINED_COMPOSED_ROOT_PLAN_B64` and `MAINTAINED_COMPOSED_ROOT_PLAN_SHA256`
+then read back their reviewed values. The execution ref advances normally to
+Source53; the single changed trial is `38672786958`. No new installer pass is
+claimed. See the [integration record](reviews/native-software-integration-20261015.md).
+
+Updater Source `781d43c4` publishes three reviewed diagnostic transport changes.
+Semantic `b771fc1d` and actual Source `7fee6d5a` pass, with 91 roles and 88 held.
+Its single changed trial `38672326640` has ended FAIL; strict actual review is
+being sealed. The new bound diagnostic reports compiler return 0 followed by
+`compile-elf / elf-read-type-link-size` refusal. The exact rejected type/link/size
+operand remains unknown. This establishes no accepted native package.
+
+Kernel Source `2525f178` publishes seven retained-input changes after semantic
+`b0ed311f` and actual Source `d27c6b00` review. All 126 roles and the 124-row
+packet match. The separate 35-object acquisition and kernel role policy stay
+held. Its single changed trial is `38672997567`; no new kernel result is claimed.
+
+P0 run `38669119568` is retained and Root-admitted as an authenticated failed
+readout under review `8ead91a3`: pipeline/run-pipeline, precise cause unknown,
+cleanup uncertain, matrix NOT RUN. Absence of the old policy label does not
+prove policy passage, completed preparation or P0 entry. KSM run `38670087832`
+likewise retains ValueError/PRODUCER/UNKNOWN, zero reported RPC requests and no
+producer route, with cleanup FAIL and ownership uncertainty; review `90c0e950`
+does not establish runtime validation of the inline finalizer change.
+
+A concrete KSM Path-context compatibility fix passes 18 controls using real
+Python 3.14 paths and owned files. Its three semantic method changes must be
+reviewed and composed with the separately reviewed retained-input supplier;
+no new KSM trial has been selected. Current 48-test client/repository convergence
+also requires an explicit 160/267 successor Source contract and sibling helper
+custody; those software changes are being implemented. Full R1–R5/M5–M9,
+installation/recovery, exact-machine and performance gates remain open.
+
 October 14, native screenshot region and cancellation admitted:
 Root accepts run `38666490804` on Source `6dd1a88c` after actual review
 `d85b39c9` and independent review `01197222`. Five native ARM PNGs pass311,507
@@ -41,15 +80,15 @@ P0 run `38667054387` retains its unknown policy-source refusal operands and
 cause. A separate confirmed static path mismatch is corrected in Source
 `8d01dff4`: three exact changes, unchanged 269-file packet and passing read-only
 freezer. Committed-source peer `7768a3ae`, default workflow `14131f8f`, paired
-corrected templates and all five variable readbacks pass. The single selected
-trial `38669119568` is running; no new P0 acceptance is claimed.
+corrected templates and all five variable readbacks pass. The selected trial `38669119568` is terminal FAIL; its authenticated readout
+and cleanup uncertainty are recorded above. No P0 acceptance is claimed.
 
 KSM Source `c843b30e` is published with exactly three reviewed changes after
 semantic peer `d463a1ae`, actual-source peer `c452de4a` and Root's complete
 160-role Git/physical verification. Inline finalizers partially preserve pending
 primary errors; generator-close restoration errors remain outward. Covered
 secondary diagnostics can be lost. The single changed native trial
-`38670087832` is terminal FAIL; strict actual retention is in progress.
+`38670087832` is terminal FAIL; its actual review is sealed as `90c0e950`.
 The earlier `CALL_ASDICT` cause remains unknown and
 its cleanup failure/ownership uncertainty remain recorded. See the
 [committed-source review](reviews/ksm-first-cause-actual-source-peer-20261015.md).
