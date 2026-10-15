@@ -16,6 +16,13 @@ LD_FAKEROOT_CONF = '/usr/lib/ld.so.conf.d/fakeroot.conf'
 LD_FAKEROOT_DIR = '/usr/lib/libfakeroot'
 LD_FAKEROOT_NODE = {'type': 'file', 'mode': 0o644, 'uid': 0, 'gid': 0, 'size': 21,
                     'sha256': '564c4c4d369d005702d825d34edc5e5568cb1ab6ee1b19fa03d0d672fb8b3aee'}
+LD_TARGET_PARENTS = ('/usr/lib/pkcs11', '/usr/lib/python3.14',
+                     '/usr/lib/python3.14/site-packages', '/usr/lib/python3.14/site-packages/vapoursynth')
+LD_TARGETS = {
+    '/usr/lib/pkcs11/p11-kit-trust.so': (396568, 'd945af27e9e9d9ca7b2879cbfdf0d3fe17d8b94fc61dde4408f482793c0bffa7'),
+    '/usr/lib/python3.14/site-packages/vapoursynth/libvapoursynth.so.4': (3284304, 'd946d71543f23536392e568268f59f5e1f83f7a2767bb2fc1bcbf7c192973111'),
+    '/usr/lib/python3.14/site-packages/vapoursynth/libvsscript.so': (67816, '3ba72b1bc64942269cc29de3343a6250fcfb0a1b89f9a5d615d2f78973b3e65c'),
+}
 
 
 
@@ -48,6 +55,21 @@ def ld_entries(path, limit):
         ld_need(len(entries) < limit, 'directory-entry-bound')
         entries.append(entry)
     return sorted(entries)
+
+
+def ld_target_chain(path, root, scan, libraries, targets):
+    """Only observed root links may lead to one exact pinned off-scan file."""
+    for _ in range(16):
+        if '/' + str(path.relative_to(root)) in targets: return True
+        if path.parent not in scan and path.parent not in {root / name.lstrip('/') for name in LD_DIRS}: return False
+        parent = path.parent.resolve(strict=True)
+        if parent not in scan: return False
+        node = libraries.get('/' + str((parent / path.name).relative_to(root)), {})
+        if node.get('type') != 'link': return False
+        link = Path(node['target'])
+        if '..' in link.parts: return False
+        path = root / str(link).lstrip('/') if link.is_absolute() else parent / link
+    return False
 
 
 def ld_state(c, rows, root=Path('/')):
@@ -120,6 +142,24 @@ def ld_state(c, rows, root=Path('/')):
             name = '/' + str(path.relative_to(root)); libraries[name] = node
             info = path.lstat()
             node['identity'] = [info.st_dev, info.st_ino, info.st_ctime_ns, info.st_mtime_ns]
+    # Observe only the three audited link targets; these parents are NOT scan roots.
+    for name in LD_TARGET_PARENTS:
+        path = at(name); node = ld_node(path)
+        ld_need(node == {'type': 'directory', 'mode': 0o755, 'uid': 0, 'gid': 0}
+                and path.resolve(strict=True) == path, 'fixed-target-parent ' + name)
+        aliases[name] = node
+    targets = {}
+    for name, (expected_size, expected_sha) in LD_TARGETS.items():
+        path = at(name); info = path.lstat()
+        ld_need(stat.S_ISREG(info.st_mode) and info.st_size == expected_size, 'fixed-target-size-type ' + name)
+        size += info.st_size; ld_need(size <= 2 * 1024**3, 'scan-byte-budget')
+        count += 1; ld_need(count <= 8192, 'scan-entry-count')
+        node = ld_node(path)
+        ld_need(node == {'type': 'file', 'mode': 0o755, 'uid': 0, 'gid': 0,
+                        'size': expected_size, 'sha256': expected_sha}, 'fixed-target-node ' + name)
+        info = path.lstat()
+        node['identity'] = [info.st_dev, info.st_ino, info.st_ctime_ns, info.st_mtime_ns]
+        targets[name] = node
     cache_names = ('/etc/ld.so.cache', '/var/cache/ldconfig/aux-cache')
     for name in cache_names:
         ld_need(at(name).is_file() and at(name).stat().st_size <= 16 * 1024**2, 'missing-or-invalid-cache ' + name)
@@ -141,8 +181,15 @@ def ld_state(c, rows, root=Path('/')):
         match = re.fullmatch(r'\t([^\s]+) \(([^\r\n]+)\) => (/[^\s]+)', line)
         ld_need(match is not None, 'printed-cache-entry')
         path = Path(match[3]); target = at(str(path))
-        ld_need('..' not in path.parts and target.parent.resolve() in scan and target.resolve().is_relative_to(root) and target.is_file() and libraries.get('/' + str(target.resolve().relative_to(root)), {}).get('type') == 'file', 'cache-target-shape ' + str(path)[:200])
-    return {'helper': identity, 'configs': configs, 'aliases': aliases, 'scan': libraries,
+        message = 'cache-target-shape ' + str(path)[:200]
+        ld_need('..' not in path.parts and target.parent.resolve() in scan, message)
+        resolved = target.resolve()
+        ld_need(resolved.is_relative_to(root) and target.is_file(), message)
+        name = '/' + str(resolved.relative_to(root))
+        observed = libraries.get(name, {}).get('type') == 'file'
+        explicit = name in targets and ld_target_chain(target, root, scan, libraries, targets)
+        ld_need(observed or explicit, message)
+    return {'helper': identity, 'configs': configs, 'aliases': aliases, 'scan': libraries, 'targets': targets,
             'caches': caches, 'mapping': mapping, 'generator': tail}
 
 
@@ -157,7 +204,7 @@ def ld_checkpoint(c, rows, work, label, baseline=None):
             aux = '/var/cache/ldconfig/aux-cache'
             ld_need(baseline['caches'][aux]['sha256'] == state['caches'][aux]['sha256'],
                     'aux-cache-byte-change ' + json.dumps({'before': baseline['caches'][aux], 'after': state['caches'][aux]}, sort_keys=True))
-            for field in ('helper', 'configs', 'aliases', 'scan', 'mapping', 'generator', 'caches'):
+            for field in ('helper', 'configs', 'aliases', 'scan', 'targets', 'mapping', 'generator', 'caches'):
                 before, after = baseline[field], state[field]
                 if field == 'caches':
                     before = {k: {a: v for a, v in n.items() if a != 'sha256' or k != '/etc/ld.so.cache'} for k, n in before.items()}
@@ -178,7 +225,8 @@ def ld_summary(states):
             'checkpoints': [{'state_sha256': hashlib.sha256(json.dumps(s, sort_keys=True).encode()).hexdigest(),
                              'main_sha256': s['caches']['/etc/ld.so.cache']['sha256'],
                              'aux_sha256': s['caches']['/var/cache/ldconfig/aux-cache']['sha256'],
-                             'ordered_mappings': len(s['mapping']), 'scan_entries': len(s['scan'])} for s in states]}
+                             'ordered_mappings': len(s['mapping']), 'scan_entries': len(s['scan']),
+                             'explicit_target_entries': len(s['targets'])} for s in states]}
 
 
 def encoded(rows):
