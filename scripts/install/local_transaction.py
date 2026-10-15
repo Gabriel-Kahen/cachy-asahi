@@ -475,19 +475,127 @@ def native_authority(selection_sha256, worker_sha256):
     receiver.verify_environment(selection,TASK_DEADLINE)
 
 
-def validate_contract(contract, selection_sha256=None):
+GENERIC_VM_CONTRACT = Path('/usr/local/share/virtual-proof/virtual-contract.json')
+GENERIC_SOURCE_ROOT = GENERIC_VM_CONTRACT.parent / 'transaction-source'
+GENERIC_PROFILE = GENERIC_VM_CONTRACT.parent / 'tool-profile.json'
+GENERIC_SCOPE = 'generic-aarch64-fixture'
+GENERIC_SOURCE_NAMES = ('scripts/install/local_transaction.py', 'scripts/install/test_local_transaction.py',
+                        'scripts/port/kernel-native-job/runtime.py')
+
+
+def generic_readonly(path, size, pin, maximum, *, single=True):
+    """Read fixed root-owned guest inputs/tools; this is not VM attestation."""
+    tick(); path = Path(path)
+    need(path.is_absolute() and '..' not in path.parts and type(size) is int and 0 < size <= maximum and
+         type(pin) is str and HEX.fullmatch(pin) and not any(p.is_symlink() for p in (path, *path.parents)),
+         'generic fixture input reference refused')
+    for parent in path.parents:
+        info = parent.stat()
+        need(stat.S_ISDIR(info.st_mode) and info.st_uid == info.st_gid == 0 and not info.st_mode & 0o022,
+             'generic fixture protected parent required')
+    fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+    with os.fdopen(fd, 'rb') as stream:
+        before = os.fstat(stream.fileno())
+        need(stat.S_ISREG(before.st_mode) and before.st_uid == before.st_gid == 0 and not before.st_mode & 0o022 and
+             (not single or before.st_nlink == 1) and before.st_size == size, 'generic fixture protected file required')
+        raw = stream.read(size + 1); after = os.fstat(stream.fileno())
+    stable = lambda st: (st.st_dev, st.st_ino, st.st_size, st.st_mode, st.st_uid, st.st_gid, st.st_nlink, st.st_mtime_ns, st.st_ctime_ns)
+    need(stable(before) == stable(after) and len(raw) == size and hashlib.sha256(raw).hexdigest() == pin,
+         'generic fixture input bytes changed')
+    tick(); return raw
+
+
+def generic_vm_data(value, worker_sha256):
+    """Join reviewed VM-owner data. External Root selection stays a premise."""
+    need(type(value) is dict and type(value.get('schema_version')) is int and value['schema_version'] == 1 and
+         value.get('execution') == 'qemu-tcg-generic-aarch64' and value.get('purpose') == 'installer-transaction-only' and
+         type(value.get('source_commit')) is str and re.fullmatch('[0-9a-f]{40}', value['source_commit']) and
+         type(value.get('nonce')) is str and re.fullmatch('[0-9a-f]{32}', value['nonce']) and
+         type(value.get('image_id')) is str and re.fullmatch('sha256:[0-9a-f]{64}', value['image_id']),
+         'generic fixture VM data differs')
+    fixture = value.get('transaction_fixture')
+    need(type(fixture) is dict and set(fixture) == {'source_commit', 'sources', 'tool_profile'} and
+         type(fixture['source_commit']) is str and re.fullmatch('[0-9a-f]{40}', fixture['source_commit']) and
+         type(fixture['sources']) is dict and set(fixture['sources']) == set(GENERIC_SOURCE_NAMES),
+         'generic fixture Source data differs')
+    for row in fixture['sources'].values():
+        need(type(row) is dict and set(row) == {'bytes', 'sha256'} and type(row['bytes']) is int and
+             0 < row['bytes'] <= 128*1024 and type(row['sha256']) is str and HEX.fullmatch(row['sha256']),
+             'generic fixture Source reference differs')
+    need(type(worker_sha256) is str and HEX.fullmatch(worker_sha256) and
+         fixture['sources'][GENERIC_SOURCE_NAMES[0]]['sha256'] == worker_sha256 and
+         fixture['sources'][GENERIC_SOURCE_NAMES[2]]['sha256'] == RUNTIME_SHA,
+         'generic fixture worker/runtime pin differs')
+    profile = fixture['tool_profile']
+    need(type(profile) is dict and set(profile) == {'path', 'size', 'sha256'} and
+         profile['path'] == str(GENERIC_PROFILE) and type(profile['size']) is int and profile['size'] == 47593 and
+         profile['sha256'] == NATIVE_PROFILE_SHA, 'generic fixture fixed tool-profile data differs')
+    return fixture
+
+
+def generic_preflight(vm_contract, vm_sha256, worker_sha256):
+    """No GPG/CDLL/process action. Refuse the unchanged boot's unestablished NNP/caps."""
+    need(Path(vm_contract) == GENERIC_VM_CONTRACT and type(vm_sha256) is str and HEX.fullmatch(vm_sha256),
+         'generic fixture exact VM contract required')
+    need(sys.platform == 'linux' and os.uname().machine == 'aarch64' and
+         os.uname().release == '7.2.10-1-aarch64-ARCH' and os.sysconf('SC_PAGE_SIZE') == 4096 and
+         os.getuid() == os.geteuid() == os.getgid() == os.getegid() == 23001,
+         'generic fixture ordinary guest required')
+    status = {}
+    for name, maximum in (('/proc/self/status', 65536), ('/proc/cmdline', 4096)):
+        with open(name, 'rb') as stream: raw = stream.read(maximum + 1)
+        need(len(raw) <= maximum, 'generic fixture proc bound')
+        if name.endswith('status'):
+            for line in raw.decode('ascii').splitlines():
+                if ':' in line:
+                    key, text = line.split(':', 1)
+                    need(key not in status, 'generic fixture duplicate proc field'); status[key] = text.strip()
+        else:
+            need('cachy_asahi_virtual_proof=1' in raw.decode('ascii').split(), 'generic fixture real guest marker required')
+    need(status.get('NoNewPrivs') == '1' and all(status.get(key) is not None and
+         re.fullmatch('[0-9a-fA-F]{1,16}', status[key]) and int(status[key], 16) == 0
+         for key in ('CapEff', 'CapPrm', 'CapInh', 'CapAmb', 'CapBnd')), 'generic fixture zero-capability NNP parent required')
+    raw = generic_readonly(GENERIC_VM_CONTRACT, GENERIC_VM_CONTRACT.stat().st_size, vm_sha256, 1024**2)
+    value = decode(raw); fixture = generic_vm_data(value, worker_sha256)
+    need(Path(__file__).absolute() == GENERIC_SOURCE_ROOT / GENERIC_SOURCE_NAMES[0], 'generic fixture fixed worker location required')
+    for name, row in fixture['sources'].items():
+        generic_readonly(GENERIC_SOURCE_ROOT / name, row['bytes'], row['sha256'], 128*1024)
+    ref = fixture['tool_profile']
+    profile = decode(generic_readonly(GENERIC_PROFILE, ref['size'], ref['sha256'], 1024**2))
+    need(profile.get('architecture') == 'aarch64' and profile.get('libalpm_expected_abi') == '16.0.1' and
+         type(profile.get('files')) is list and len(profile['files']) == 136 and
+         sum(row['size'] for row in profile['files']) == 85445048, 'generic fixture tool closure differs')
+    for alias, target in profile['aliases'].items():
+        tick(); need(str(Path(alias).resolve(strict=True)) == target, 'generic fixture tool alias differs')
+    libraries = [row for row in profile['files'] if row['path'] == str(LIBRARY)]
+    need(len(libraries) == 1 and libraries[0]['sha256'] == architecture_profile('aarch64')[0],
+         'generic fixture library profile differs')
+    for row in profile['files']:
+        generic_readonly(row['path'], row['size'], row['sha256'], 64*1024**2, single=False)
+    return value
+
+
+def validate_contract(contract, selection_sha256=None, *, generic_vm_contract_sha256=None):
     fields = {'schema_version', 'scope', 'workspace', 'architecture', 'before', 'after', 'protected',
               'add', 'remove', 'keyring', 'timeout_seconds', 'libalpm_sha256'}
     native = type(contract) is dict and contract.get('schema_version') == 2
-    need(type(contract) is dict and set(contract) == fields | ({'profile_sha256', 'input_selection_sha256'} if native else set()) and
-         type(contract['schema_version']) is int and contract['schema_version'] == (2 if native else 1), 'closed transaction contract required')
-    if native:
-        need(contract['scope'] == 'native-aarch64-fixture' and contract['architecture'] == 'aarch64' and
+    generic = type(contract) is dict and contract.get('schema_version') == 3
+    extra = {'profile_sha256', 'generic_vm_contract_sha256'} if generic else {'profile_sha256', 'input_selection_sha256'} if native else set()
+    need(type(contract) is dict and set(contract) == fields | extra and
+         type(contract['schema_version']) is int and contract['schema_version'] == (3 if generic else 2 if native else 1), 'closed transaction contract required')
+    if generic:
+        need(selection_sha256 is None and type(generic_vm_contract_sha256) is str and HEX.fullmatch(generic_vm_contract_sha256) and
+             contract['scope'] == GENERIC_SCOPE and contract['architecture'] == 'aarch64' and
+             contract['generic_vm_contract_sha256'] == generic_vm_contract_sha256 and
+             contract['profile_sha256'] == NATIVE_PROFILE_SHA and
+             contract['libalpm_sha256'] == architecture_profile('aarch64')[0], 'selected generic fixture required')
+    elif native:
+        need(generic_vm_contract_sha256 is None and contract['scope'] == 'native-aarch64-fixture' and contract['architecture'] == 'aarch64' and
              type(selection_sha256) is str and HEX.fullmatch(selection_sha256) and
              contract['input_selection_sha256'] == selection_sha256 and contract['profile_sha256'] == NATIVE_PROFILE_SHA and
              contract['libalpm_sha256'] == architecture_profile('aarch64')[0], 'selected native fixture profile required')
     else:
-        need(contract['scope'] == 'synthetic-fixture' and selection_sha256 is None,
+        need(contract['scope'] == 'synthetic-fixture' and selection_sha256 is None and generic_vm_contract_sha256 is None,
              'real candidate/unadopted inputs are not authorized by this initial worker')
         need(contract['architecture'] == 'x86_64' and contract['libalpm_sha256'] == LIBRARY_SHA,
              'only pinned x86 synthetic engine supported')
@@ -500,7 +608,7 @@ def validate_contract(contract, selection_sha256=None):
         package_map({row['name']: row['version']})
         need(row['name'] not in planned and type(row['signer']) is str and FPR.fullmatch(row['signer']), 'duplicate add or signer refused')
         planned[row['name']] = row['version']
-    if native:
+    if native or generic:
         need(all(name.startswith('caa-install-fixture-') for rows in (before, after, protected, remove, planned) for name in rows),
              'native profile admits inert fixture identities only')
     need(declared_after(before, planned, remove) == after, 'declared full after map differs')
@@ -978,7 +1086,8 @@ def engine(spec_path, spec_sha256):
     need(type(spec['evidence_nodes']) is dict and set(spec['evidence_nodes']) == {'result.json', 'candidate-packages.lock'} and
          all(type(v) is list and len(v) == 2 and all(type(n) is int and n >= 0 for n in v) for v in spec['evidence_nodes'].values()),
          'bound evidence node identities required')
-    contract = validate_contract(spec['contract'], spec['contract'].get('input_selection_sha256'))
+    contract = validate_contract(spec['contract'], spec['contract'].get('input_selection_sha256'),
+                                 generic_vm_contract_sha256=spec['contract'].get('generic_vm_contract_sha256'))
     need(type(spec['deadline']) in (int, float) and math.isfinite(spec['deadline']) and
          0 < spec['deadline'] - time.monotonic() <= contract['timeout_seconds'], 'engine deadline refused')
     TASK_DEADLINE = spec['deadline']; workspace = isolate(spec)
@@ -1058,7 +1167,7 @@ def engine(spec_path, spec_sha256):
         result.update(phase='commit', commit_started=True, before=before); evidence.save('result.json', result)
         details = Ptr(); alpm.ok(alpm.alpm_trans_commit(alpm.handle, C.byref(details)), 'actual commit')
         result['committed'] = True
-        alpm.close(); alpm = Alpm(root, keys, out / 'alpm.log')
+        alpm.close(); alpm = Alpm(root, keys, out / 'alpm.log', contract['architecture'])
         after = alpm.inventory(); result['after'] = after; check_inventory(after, contract['after'], 'after')
         for package, paths in ownership.items(): need(alpm.owned_files([package]) == paths, 'installed package ownership differs')
         for name, expected in payload.items(): need(node(root / name) == expected, 'installed payload differs: ' + name)
@@ -1136,7 +1245,8 @@ def validate_export_tree(exported, output, contract, copied, seed, result):
     return expected_lock
 
 
-def execute(contract_path, contract_sha256, output_path, *, worker_source_sha256=None, selection_sha256=None, allow=False):
+def execute(contract_path, contract_sha256, output_path, *, worker_source_sha256=None, selection_sha256=None, allow=False,
+            generic_vm_contract=None, generic_vm_contract_sha256=None):
     global TASK_DEADLINE, OWNED_OUTPUT, ENGINE_STARTED, OWNED_CAPSULES
     need(OWNED_CAPSULES is None or not OWNED_CAPSULES.owned, 'owned source capsules pending disposal')
     if isinstance(OWNED_OUTPUT, Evidence): OWNED_OUTPUT.close()
@@ -1147,8 +1257,11 @@ def execute(contract_path, contract_sha256, output_path, *, worker_source_sha256
     worker_path = Path(__file__).absolute()
     worker_bytes = capture({'path': str(worker_path), 'size': worker_path.stat().st_size, 'sha256': worker_source_sha256}, 128 * 1024)
     contract_path = Path(contract_path); raw = capture({'path': str(contract_path.absolute()), 'size': contract_path.stat().st_size, 'sha256': contract_sha256}, 1024**2)
-    contract = validate_contract(decode(raw), selection_sha256); TASK_DEADLINE = started + contract['timeout_seconds']; tick()
-    if contract['architecture']=='aarch64':native_authority(selection_sha256,worker_source_sha256)
+    need((generic_vm_contract is None) == (generic_vm_contract_sha256 is None), 'complete generic fixture selection required')
+    contract = validate_contract(decode(raw), selection_sha256, generic_vm_contract_sha256=generic_vm_contract_sha256); TASK_DEADLINE = started + contract['timeout_seconds']; tick()
+    if contract['scope'] == GENERIC_SCOPE:
+        generic_preflight(generic_vm_contract, generic_vm_contract_sha256, worker_source_sha256)
+    elif contract['architecture']=='aarch64':native_authority(selection_sha256,worker_source_sha256)
     workspace = private(contract['workspace'], os.getuid())
     output = Path(output_path); need(output == workspace / 'evidence' and not output.exists() and not output.is_symlink(), 'new fixed evidence output required')
     result = {'status': 'FAIL', 'phase': 'snapshot', 'commit_started': False, 'committed': False,
@@ -1294,6 +1407,7 @@ def main():
     parser.add_argument('--engine', type=Path, help=argparse.SUPPRESS); parser.add_argument('--engine-sha256', help=argparse.SUPPRESS)
     parser.add_argument('--contract', type=Path); parser.add_argument('--contract-sha256'); parser.add_argument('--output', type=Path)
     parser.add_argument('--worker-source-sha256')
+    parser.add_argument('--generic-vm-contract', type=Path); parser.add_argument('--generic-vm-contract-sha256')
     parser.add_argument('--selection-sha256'); parser.add_argument('--allow-disposable-payload-commit', action='store_true')
     args = parser.parse_args()
     if args.engine is not None:
@@ -1306,7 +1420,8 @@ def main():
             try:
                 need(all((args.contract, args.contract_sha256, args.output, args.worker_source_sha256)), 'complete CLI arguments required')
                 result = execute(args.contract, args.contract_sha256, args.output, selection_sha256=args.selection_sha256,
-                                 worker_source_sha256=args.worker_source_sha256, allow=args.allow_disposable_payload_commit)
+                                 worker_source_sha256=args.worker_source_sha256, allow=args.allow_disposable_payload_commit,
+                                 generic_vm_contract=args.generic_vm_contract, generic_vm_contract_sha256=args.generic_vm_contract_sha256)
                 accepted = result['status'] == 'PASS-disposable-payload-transaction'
                 if accepted: check_terminal()
                 publish_terminal({'status': result['status'], 'output': str(args.output)})

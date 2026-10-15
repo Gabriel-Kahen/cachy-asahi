@@ -15,7 +15,8 @@ import subprocess
 import sys
 import time
 from common import (bounded, inventory, LoggedProcess, BARRIER_PURPOSE, BARRIER_TEST,
-                    BARRIER_FILES, BARRIER_SOURCE, BARRIER_FRAME_LINES, barrier_contract, barrier_event, json_load)
+                    BARRIER_FILES, BARRIER_SOURCE, BARRIER_FRAME_LINES, barrier_contract, barrier_event, json_load, TRANSACTION_PURPOSE, TRANSACTION_FILES, TRANSACTION_TESTS,
+                    TRANSACTION_SELECTORS, TRANSACTION_FRAME_LINES, transaction_contract, transaction_launcher, transaction_event, transaction_method)
 from image_decode_report import (ASSET_PATH, ASSET_SHA256, MAX_REPORT,
                                  decode, inventory_sha256, parse_report, validate_guest_contract, validate_event)
 
@@ -545,7 +546,7 @@ def run_user():
     emit('guest_pass', nonce=nonce, software_session='PASS', hardware_validation='NOT RUN', graphics_acceleration='NOT RUN')
 
 
-def barrier_failure(error, source_paths):
+def barrier_failure(error, source_paths, frame_lines=BARRIER_FRAME_LINES):
     """Closed fixture diagnostics: no traceback, text, private path or hash output."""
     kind, value, trace = error
     known = (AssertionError, OSError, PermissionError, FileNotFoundError,
@@ -557,7 +558,7 @@ def barrier_failure(error, source_paths):
     frames = []
     while trace is not None:
         label = source_paths.get(trace.tb_frame.f_code.co_filename)
-        if label in BARRIER_FRAME_LINES and len(frames) < 8 and 1 <= trace.tb_lineno <= BARRIER_FRAME_LINES[label]:
+        if label in frame_lines and len(frames) < 8 and 1 <= trace.tb_lineno <= frame_lines[label]:
             frames.append({'source': label, 'line': trace.tb_lineno})
         trace = trace.tb_next
     tool = {'stage': 'UNRECOGNIZED_OR_ABSENT', 'errno': 'UNAVAILABLE'}
@@ -664,24 +665,175 @@ def boot_barrier(contract):
          returncode=0, error=None)
 
 
+def transaction_execution(record, index):
+    """Project only fixed facts from the selected test's already retained worker result."""
+    require(type(record) is dict and record.get('test') == TRANSACTION_TESTS[index] and
+            record.get('worker_sha256') == record.get('worker_after_sha256') ==
+            TRANSACTION_FILES['scripts/install/local_transaction.py']['sha256'], 'selected worker record differs')
+    body = record.get('report')
+    require(type(body) is dict, 'worker report absent')
+    row = dict(method=TRANSACTION_SELECTORS[index], returncode=record.get('returncode'), worker_status=body.get('status'),
+               phase=body.get('phase'), commit_started=body.get('commit_started'), committed=body.get('committed'))
+    transaction_method(row, index)
+    if index == 0:
+        require(body.get('installed_payload_verified') is True and body.get('parent_export_verified') is True and
+                body.get('before') == {} and body.get('after') == {'caa-install-fixture-a':'1.0-1','caa-install-fixture-b':'1.0-1'},
+                'signed pair export differs')
+    elif index == 1:
+        # Reject an earlier import/keyring failure masquerading as the invalid-signature negative.
+        path = Path(record['retained_evidence']) / 'evidence/authentication-command.json'
+        auth = json.loads(identity_bytes(path, MAX_LOG))
+        argv = auth.get('argv')
+        require(type(argv) is list and len(argv) <= 32 and argv[:2] == ['/usr/bin/gpg','--batch'] and
+                argv[-3:-2] == ['--verify'] and type(auth.get('returncode')) is int and
+                1 <= auth['returncode'] <= 255, 'invalid signature did not reach original GPG verify refusal')
+    return row
+
+
+def transaction_test(module, source_paths, nonce, selection, source):
+    import unittest
+    class Result(unittest.TestResult):
+        def __init__(self):
+            super().__init__(); self.first_failure = None; self.methods = []; self.cancellation = None
+        def failed(self, error):
+            if self.first_failure is None: self.first_failure = barrier_failure(error, source_paths, TRANSACTION_FRAME_LINES)
+            if (error[0] is KeyboardInterrupt or error[0] is SystemExit) and self.cancellation is None: self.cancellation = error[1]
+            self.stop()
+        def addFailure(self, test, error):
+            self.failed(error); self.failures.append((test,'closed failure'))
+        def addError(self, test, error):
+            self.failed(error); self.errors.append((test,'closed error'))
+        def addSkip(self, test, reason):
+            self.skipped.append((test,'closed skip')); self.stop()
+        def addSuccess(self, test):
+            try:
+                index = len(self.methods)
+                require(index < 3 and test._testMethodName == TRANSACTION_TESTS[index], 'selected method order differs')
+                self.methods.append(transaction_execution(getattr(type(test),'last_execution',None), index))
+            except BaseException:
+                self.addError(test, sys.exc_info())
+    result = Result(); cls = module.ActualTransactionTests
+    cases = [cls(name) for name in TRANSACTION_TESTS]
+    suite = unittest.TestSuite(cases)
+    try:
+        suite.run(result)  # Real class setup/registered class cleanups, no direct method invocation.
+    except BaseException:
+        result.addError(None, sys.exc_info())
+    finally:
+        # KeyboardInterrupt can bypass unittest's remaining instance/class cleanup stacks.
+        # Retain the three cases; finish each pending pinned duty once, independently.
+        stacks = [(case, getattr(case, '_cleanups', [])) for case in cases]
+        stacks.append((None, getattr(cls, '_class_cleanups', [])))
+        for case, pending in stacks:
+            if len(pending) > 4:
+                try: require(False, 'unexpected fixture cleanup count')
+                except ValueError: result.addError(case, sys.exc_info())
+                continue
+            while pending:
+                function, args, kwargs = pending.pop()
+                try: function(*args, **kwargs)
+                except BaseException: result.addError(case, sys.exc_info())
+        row = {'event':'transaction_result','nonce':nonce,'selection_sha256':selection,'fixture_source':source,
+               'uid':os.geteuid(),'gid':os.getegid(),'tests':result.testsRun,'failures':len(result.failures),
+               'errors':len(result.errors),'skips':len(result.skipped),'status':'FAIL','methods':result.methods,
+               'first_failure':result.first_failure,'class_cleanups_returned':not any(stack for case,stack in stacks) and not result.errors,
+               'cancelled':result.cancellation is not None}
+        if result.testsRun == 3 and result.wasSuccessful() and not result.skipped and result.first_failure is None:
+            row['status'] = 'PASS_TRANSACTION_ONLY'
+        transaction_event(row, nonce, selection, source)
+        emit('transaction_result', **{k:v for k,v in row.items() if k!='event'})
+    if result.cancellation is not None: raise result.cancellation
+    require(row['status'] == 'PASS_TRANSACTION_ONLY', 'selected transaction fixture failed')
+    return row
+
+
+def transaction_user():
+    import types
+    guest_guard()
+    root = DECODE_ROOT; sources = root / 'transaction-source'
+    labels = {str(sources/name):label for name,label in zip(TRANSACTION_FILES,
+              ('SELECTED_WORKER','SELECTED_TEST','SELECTED_RUNTIME'))}; labels[str(Path(__file__))] = 'GUEST'
+    small = json_load(root / 'contract.json'); raw = identity_bytes(root / 'virtual-contract.json', MAX_LOG)
+    selection = hashlib.sha256(raw).hexdigest(); c = json.loads(raw)
+    require(selection == small['proof_contract_sha256'] and c['nonce'] == small['nonce'] and
+            transaction_contract(c, sources), 'transaction selection differs')
+    entered = False
+    try:
+        worker = sources / 'scripts/install/local_transaction.py'; code = identity_bytes(worker, 128*1024)
+        require(hashlib.sha256(code).hexdigest() == TRANSACTION_FILES['scripts/install/local_transaction.py']['sha256'], 'worker capture differs')
+        module = types.ModuleType('_selected_generic_worker'); module.__file__ = str(worker)
+        exec(compile(code, str(worker), 'exec'), module.__dict__)
+        # Genuine status/NNP/capabilities and all Root-protected Source/profile/tool bytes before any signing.
+        module.generic_preflight(root/'virtual-contract.json', selection, TRANSACTION_FILES['scripts/install/local_transaction.py']['sha256'])
+        test = sources / 'scripts/install/test_local_transaction.py'; code = identity_bytes(test,128*1024)
+        require(hashlib.sha256(code).hexdigest() == TRANSACTION_FILES['scripts/install/test_local_transaction.py']['sha256'], 'test capture differs')
+        tests = types.ModuleType('_selected_transaction_tests'); tests.__file__ = str(test)
+        exec(compile(code, str(test), 'exec'), tests.__dict__)
+        tests.REVIEWED_WORKER_SHA256 = TRANSACTION_FILES['scripts/install/local_transaction.py']['sha256']
+        tests.GENERIC_VM_CONTRACT = root/'virtual-contract.json'; tests.GENERIC_VM_CONTRACT_SHA256 = selection
+        require(tests.FIXTURE_SELECTION_SHA256 is None, 'native selection must remain absent')
+        evidence = Path('/run/virtual-proof/transaction-evidence'); info = evidence.stat()
+        require(not evidence.is_symlink() and stat.S_ISDIR(info.st_mode) and info.st_uid == info.st_gid == 23001 and
+                stat.S_IMODE(info.st_mode) == 0o700 and not any(evidence.iterdir()), 'fresh private fixture evidence required')
+        tests.ARTIFACTS = evidence
+        entered = True
+        return transaction_test(tests, labels, c['nonce'], selection, c['source_commit'])
+    except BaseException:
+        if not entered:
+            failure = barrier_failure(sys.exc_info(), labels, TRANSACTION_FRAME_LINES)
+            row = dict(event='transaction_result',nonce=c['nonce'],selection_sha256=selection,fixture_source=c['source_commit'],
+                       uid=os.geteuid(),gid=os.getegid(),tests=0,failures=0,errors=1,skips=0,status='FAIL',methods=[],
+                       first_failure=failure,class_cleanups_returned=True,cancelled=sys.exc_info()[0] is KeyboardInterrupt or sys.exc_info()[0] is SystemExit)
+            transaction_event(row,c['nonce'],selection,c['source_commit'])
+            emit('transaction_result', **{k:v for k,v in row.items() if k!='event'})
+        raise
+
+
+def boot_transaction(contract):
+    require(contract.get('purpose') == TRANSACTION_PURPOSE, 'transaction purpose required')
+    transaction_launcher(Path('/'))  # Fixed signed-archive-derived launcher bytes, not learned boot hashes.
+    env = {'PATH':'/usr/bin','HOME':'/home/virtual-proof','LANG':'C.UTF-8',
+           'CACHY_ASAHI_VIRTUAL_GUEST':'1','PYTHONDONTWRITEBYTECODE':'1'}
+    for path in (Path('/home/virtual-proof'),Path('/run/virtual-proof')):
+        path.mkdir(mode=0o700,exist_ok=True); os.chown(path,23001,23001); path.chmod(0o700)
+    evidence=Path('/run/virtual-proof/transaction-evidence'); evidence.mkdir(mode=0o700)
+    os.chown(evidence,23001,23001)
+    argv=['/usr/lib/ld-linux-aarch64.so.1','--inhibit-cache','--glibc-hwcaps-mask','','--library-path','/usr/lib',
+          '/usr/bin/setpriv','--reuid=23001','--regid=23001','--clear-groups',
+          '--inh-caps=-all','--ambient-caps=-all','--bounding-set=-all','--no-new-privs','--',
+          '/usr/bin/python3','-B',__file__,'transaction-user']
+    result=bounded(argv,env=env,timeout=900,limit=16384)
+    lines=result['stdout'].splitlines()
+    require(len(lines)==1 and lines[0].startswith(PREFIX), 'one closed transaction event required')
+    event=json.loads(lines[0][len(PREFIX):]); source=contract['fixture_source']
+    transaction_event(event,contract['nonce'],contract['proof_contract_sha256'],source)
+    emit('transaction_result', **{k:v for k,v in event.items() if k!='event'})
+    require(result['error'] is None and result['returncode']==0 and result['stderr']=='' and
+            event['status']=='PASS_TRANSACTION_ONLY', 'transaction child did not naturally succeed')
+    emit('transaction_child_exit',nonce=contract['nonce'],selection_sha256=contract['proof_contract_sha256'],returncode=0,error=None)
+
+
 def boot():
     guest_guard(root=True)
     contract = json.loads(Path('/usr/local/share/virtual-proof/contract.json').read_text())
     emit('boot', nonce=contract['nonce'], arch=platform.machine(), page_size=os.sysconf('SC_PAGE_SIZE'),
          kernel=platform.release(), execution='qemu-tcg-generic-aarch64', hardware_validation='NOT RUN')
     require(platform.release() == '7.2.10-1-aarch64-ARCH' and os.sysconf('SC_PAGE_SIZE') == 4096, 'wrong guest kernel/page size')
-    if contract.get('purpose', 'desktop') != BARRIER_PURPOSE:
+    if contract.get('purpose', 'desktop') not in (BARRIER_PURPOSE, TRANSACTION_PURPOSE):
         command(['/usr/bin/modprobe', 'virtio_gpu'])
     command(['/usr/bin/udevadm', 'settle', '--timeout=30'])
     command(['/usr/bin/dmesg'])
     actual = command(['/usr/bin/pacman', '-Q'])
     expected = Path('/usr/local/share/virtual-proof/runtime.lock').read_text()
     require(actual.strip() == expected.strip(), 'guest installed inventory differs from prepared full image')
-    if contract.get('purpose', 'desktop') != BARRIER_PURPOSE:
+    if contract.get('purpose', 'desktop') not in (BARRIER_PURPOSE, TRANSACTION_PURPOSE):
         image_decode_identity(contract['nonce'], actual_inventory=inventory(actual))
     for row in contract['baseline']:
         for name, value in row['payload_sha256'].items():
             require(hashlib.sha256((Path('/') / name).read_bytes()).hexdigest() == value, 'guest original overlay payload differs')
+    if contract.get('purpose') == TRANSACTION_PURPOSE:
+        boot_transaction(contract)
+        return
     if contract.get('purpose') == BARRIER_PURPOSE:
         boot_barrier(contract)
         return
@@ -709,13 +861,15 @@ def boot():
 
 if __name__ == '__main__':
     try:
-        require(len(sys.argv) == 2 and sys.argv[1] in ('boot', 'user', 'barrier-user'), 'explicit guest stage required')
-        {'boot': boot, 'user': run_user, 'barrier-user': barrier_user}[sys.argv[1]]()
+        require(len(sys.argv) == 2 and sys.argv[1] in ('boot', 'user', 'barrier-user', 'transaction-user'), 'explicit guest stage required')
+        {'boot': boot, 'user': run_user, 'barrier-user': barrier_user, 'transaction-user': transaction_user}[sys.argv[1]]()
     except Exception as exc:
-        if sys.argv[1:] != ['barrier-user']:
+        if sys.argv[1:] not in (['barrier-user'], ['transaction-user']):
             try:
-                barrier = json_load(DECODE_ROOT / 'contract.json').get('purpose') == BARRIER_PURPOSE
+                purpose = json_load(DECODE_ROOT / 'contract.json').get('purpose')
+                barrier = purpose == BARRIER_PURPOSE
             except Exception:
                 barrier = True
-            emit('guest_failed', error='BARRIER_ENTRY_FAILED' if barrier else str(exc), hardware_validation='NOT RUN')
+                purpose = BARRIER_PURPOSE
+            emit('guest_failed', error='BARRIER_ENTRY_FAILED' if barrier else 'TRANSACTION_ENTRY_FAILED' if purpose == TRANSACTION_PURPOSE else str(exc), hardware_validation='NOT RUN')
         sys.exit(1)

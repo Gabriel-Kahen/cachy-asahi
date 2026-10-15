@@ -11,7 +11,7 @@ import signal
 import socket
 import subprocess
 import time
-from common import GIB, MAX_LOG, IMAGE_SHA, KERNEL, bounded, check_runtime, contract, digest, free_bytes, guard, json_load, pinned, require, save, LoggedProcess, terminal, await_terminal, reap, registered_spawn, barrier_contract, barrier_event, BARRIER_PURPOSE
+from common import GIB, MAX_LOG, IMAGE_SHA, KERNEL, bounded, check_runtime, contract, digest, free_bytes, guard, json_load, pinned, require, save, LoggedProcess, terminal, await_terminal, reap, registered_spawn, barrier_contract, barrier_event, BARRIER_PURPOSE, transaction_contract, transaction_event, TRANSACTION_PURPOSE
 from image_decode_report import (parse_bound_report, validate_build, validate_context,
                                  validate_event)
 
@@ -108,6 +108,22 @@ def validate_barrier_completion(events, nonce, selection):
             events.index(rows[0]) < events.index(exits[0]) and
             not any(event.get('event') in ('guest_failed', 'guest_pass', 'gbm_pass', 'frame_ready',
                 'phase_pass', 'image_decode_probe') for event in events), 'barrier child completion differs')
+    return row
+
+
+def validate_transaction_completion(events, nonce, selection, source):
+    rows=[e for e in events if e.get('event')=='transaction_result']
+    require(len(rows)==1, 'one transaction result required')
+    row=transaction_event(rows[0],nonce,selection,source)
+    boots=[e for e in events if e.get('event')=='boot']
+    exits=[e for e in events if e.get('event')=='transaction_child_exit']
+    require(len(boots)==1 and boots[0].get('nonce')==nonce and boots[0].get('arch')=='aarch64' and
+            type(boots[0].get('page_size')) is int and boots[0]['page_size']==4096 and boots[0].get('kernel')==KERNEL and
+            events.index(boots[0])<events.index(rows[0]) and row['status']=='PASS_TRANSACTION_ONLY', 'transaction boot/order/result differs')
+    require(exits==[dict(event='transaction_child_exit',nonce=nonce,selection_sha256=selection,returncode=0,error=None)] and
+            events.index(rows[0])<events.index(exits[0]) and not any(e.get('event') in
+            ('barrier_result','barrier_child_exit','guest_failed','guest_pass','gbm_pass','frame_ready','phase_pass','image_decode_probe') for e in events),
+            'transaction child completion differs')
     return row
 
 
@@ -287,6 +303,8 @@ def main():
     f = guard()
     c = contract(args.contract, args.contract_sha256, f)
     barrier = barrier_contract(c)
+    transaction = transaction_contract(c)
+    fixture = barrier or transaction
     require(os.geteuid() == c['output_uid'], 'runner must use controller UID')
     memory = Path('/sys/fs/cgroup/memory.max').read_text().strip()
     require(memory.isdecimal() and int(memory) <= 6 * GIB, 'outer memory ceiling <=6 GiB required')
@@ -343,10 +361,12 @@ def main():
                 collector = LoggedProcess(argv, output / 'qemu.log', env=env, limit=1024 ** 2, owner_signals_only=True)
                 process = collector.process
             boot_deadline = min(start + 1200, time.monotonic() + 600)
+            transaction_deadline = min(start + 1200, time.monotonic() + 900) if transaction else None
             boot, gbm, passed = False, False, set()
             offset, partial = 0, b''
             while True:
                 require(time.monotonic() < start + 1200, '20-minute proof deadline')
+                require(not transaction or time.monotonic() < transaction_deadline, 'transaction completion deadline')
                 require(terminal(process) is None, 'QEMU exited before proof completion')
                 require(collector.error is None, 'QEMU logging failed')
                 require(free_bytes(output) >= 128 * 1024 ** 2, 'snapshot/evidence disk margin exhausted')
@@ -381,7 +401,7 @@ def main():
                         kind = event.get('event')
                         require(kind != 'guest_failed', 'guest failed: ' + str(event.get('error')))
                         if kind == 'boot':
-                            require(not barrier or event.get('kernel') == KERNEL, 'barrier kernel differs')
+                            require(not fixture or event.get('kernel') == KERNEL, 'barrier kernel differs')
                             require(not boot and event.get('nonce') == c['nonce'] and event.get('arch') == 'aarch64' and
                                     event.get('page_size') == 4096, 'guest boot identity differs')
                             boot = True
@@ -393,8 +413,16 @@ def main():
                             require(barrier and boot, 'unexpected barrier completion')
                             validate_barrier_completion(report['events'], c['nonce'], args.contract_sha256)
                             report['status'] = 'PASS_BARRIER_ONLY'
+                        elif kind == 'transaction_result':
+                            require(transaction and boot and 'transaction_result' not in report, 'unexpected/duplicate transaction result')
+                            report['transaction_result'] = transaction_event(event,c['nonce'],args.contract_sha256,c['source_commit'])
+                            require(event['status']=='PASS_TRANSACTION_ONLY', 'selected transaction failed')
+                        elif kind == 'transaction_child_exit':
+                            require(transaction and boot, 'unexpected transaction completion')
+                            validate_transaction_completion(report['events'],c['nonce'],args.contract_sha256,c['source_commit'])
+                            report['status']='PASS_TRANSACTION_ONLY'
                         elif kind == 'gbm_pass':
-                            require(not barrier, 'desktop event in barrier mode')
+                            require(not fixture, 'desktop event in fixture mode')
                             require(boot and event.get('nonce') == c['nonce'] and event.get('probe', {}).get('status') == 'PASS', 'software GBM event invalid')
                             gbm = True
                         elif kind == 'image_decode_probe':
@@ -411,16 +439,18 @@ def main():
                             require(event.get('stage') in report['frames'], 'phase passed without captured frame')
                             passed.add(event['stage'])
                         elif kind == 'guest_pass':
-                            require(not barrier, 'desktop event in barrier mode')
+                            require(not fixture, 'desktop event in fixture mode')
                             validate_guest_completion(event, c['nonce'], gbm, passed, report)
                             report['software_session_ipc'] = 'PASS'
                             report['software_compositor'] = 'REVIEW REQUIRED'
                             report['frame_proof'] = 'REVIEW REQUIRED'
                             report['status'] = 'CAPTURED_REQUIRES_VISUAL_REVIEW'
                             break
-                    if report['status'] in ('CAPTURED_REQUIRES_VISUAL_REVIEW', 'PASS_BARRIER_ONLY'):
+                    if report['status'] in ('CAPTURED_REQUIRES_VISUAL_REVIEW', 'PASS_BARRIER_ONLY', 'PASS_TRANSACTION_ONLY'):
                         if barrier:
                             require(not partial, 'partial trailing barrier UART record')
+                        if transaction:
+                            require(not partial, 'partial trailing transaction UART record')
                         break
                 require(boot or time.monotonic() < boot_deadline, 'guest boot 10-minute deadline')
                 time.sleep(.1)
@@ -428,7 +458,7 @@ def main():
             qmp.execute('quit')
             observed = await_terminal(process, shutdown_end)
             require(observed.si_code == os.CLD_EXITED and observed.si_status == 0, 'unclean QEMU shutdown')
-            if barrier:
+            if fixture:
                 finish_barrier_uart(uart, serial_output, offset, shutdown_end)
         report['free_after_bytes'] = free_bytes(output)
     except Exception as exc:

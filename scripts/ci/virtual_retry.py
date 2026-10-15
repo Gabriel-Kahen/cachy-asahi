@@ -100,19 +100,20 @@ def consume(controller, tooling_cache, output):
         integration.need(path.stat().st_size == row['size'], 'tooling input size differs')
         copy_pinned(path, inputs / 'tooling-cache' / row['filename'], row['sha256'])
     with owner_module(source) as owner:
-        # This isolated feature selects only the owner's closed barrier fixture.
-        from common import BARRIER_PURPOSE, BARRIER_FILES, BARRIER_SOURCE, BARRIER_TEST
-        for name, row in BARRIER_FILES.items():
+        # This isolated feature selects only the owner's reviewed generic transaction fixture.
+        from common import TRANSACTION_PURPOSE, TRANSACTION_FILES, TRANSACTION_PROFILE, TRANSACTION_LAUNCHER
+        for name, row in TRANSACTION_FILES.items():
             fixture = native.ROOT / name
-            integration.need(fixture.stat().st_size == row['bytes'], 'barrier fixture size differs')
+            integration.need(fixture.stat().st_size == row['bytes'], 'transaction fixture size differs')
             copy_pinned(fixture, inputs / name, row['sha256'])
         contract = {'schema_version': 1, 'execution': 'native-aarch64-controller-qemu-tcg-guest',
                     'installed_image_id': controller.installed, 'source_commit': controller.commit,
                     'baseline_source_commit': controller.commit, 'run_id': run_id, 'run_attempt': attempt,
                     'core_sha256': owner.CORE, 'audit_tooling_sha256': owner.AUDITOR_PIN,
                     'controller_sha256': native.sha(source / 'controller.py'), 'baseline': rows,
-                    'files': files, 'cache_dir': 'tooling-cache', 'purpose': BARRIER_PURPOSE,
-                    'barrier_fixture': {'source_commit': BARRIER_SOURCE, 'test': BARRIER_TEST, 'files': BARRIER_FILES}}
+                    'files': files, 'cache_dir': 'tooling-cache', 'purpose': TRANSACTION_PURPOSE,
+                    'transaction_fixture': {'source_commit': controller.commit, 'sources': TRANSACTION_FILES, 'tool_profile': TRANSACTION_PROFILE},
+                    'transaction_launcher': TRANSACTION_LAUNCHER}
         path = inputs / 'controller-contract.json'; native.save(path, contract)
         # In-process invocation preserves the owner's signal/deadline/cleanup path.
         # The outer integration finally still removes the lifecycle-installed image.
@@ -123,7 +124,7 @@ def consume(controller, tooling_cache, output):
             if getattr(owner, 'CANCELLED', False):
                 controller.cancelled = True
     report = json.loads((output / 'owner-public/result.json').read_text())
-    integration.need(passed and report['status'] == 'PASS_BARRIER_ONLY'
+    integration.need(passed and report['status'] == 'PASS_TRANSACTION_ONLY'
                      and report.get('private_workspace_cleanup') == 'PASS'
                      and all(row['status'] == 'PASS' for row in report['cleanup']),
                      'virtual trial failed; inspect owner result and bounded diagnostics')
