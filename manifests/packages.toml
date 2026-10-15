@@ -172,7 +172,7 @@ native_build_commit = "1aea667aec50a62ba0ab2dad44be24a4dc3bd098"
 native_evidence = "docs/validation/updater-current-native-20261015.md"
 installation = "NOT RUN"
 hardware_validation = "NOT RUN"
-next_step = "Native ARM build pair and exact-byte comparison passed for the adopted recipe. Verify complete runtime dependency transaction, installed tray/private-D-Bus behavior and target lifecycle; Apple platform updates and release notice closure remain required."
+next_step = "Native ARM pair, signed complete runtime installation and installed private-D-Bus tray behavior passed; see docs/validation/updater-runtime-native-20261015.md. Test actual updater checks, target lifecycle and coordinated Apple updates; release notice closure remains required."
 
 [[packages]]
 name = "cachy-asahi-fdk-aac"
