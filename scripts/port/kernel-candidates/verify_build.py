@@ -174,12 +174,12 @@ def verify_dtb(path, expected):
 
 class ELF:
     """Bounded ELF64 reader; never execute tools or map a multi-GiB ELF into RAM."""
-    def __init__(self, path, kind, cap):
+    def __init__(self, path, kind, cap, *, artifact_role='elf'):
         harness.regular(path, cap)
         self.path, self.size = path, path.stat().st_size
         self.stream = path.open('rb')
         try:
-            self.parse(kind)
+            self.parse(kind, artifact_role=artifact_role)
         except BaseException:
             self.stream.close()
             raise
@@ -197,7 +197,12 @@ class ELF:
         harness.need(len(data) == size, 'ELF short read')
         return data
 
-    def parse(self, kind):
+    def parse(self, kind, *, artifact_role='elf'):
+        # Only the Source-bound Image projection caller selects this artifact role.
+        harness.need(type(artifact_role) is str and artifact_role in ('elf', 'arm64-image-reference') and
+                     (artifact_role == 'elf' or kind in (2, 3)),
+                     'valid config-selected AArch64 ELF type/version/header required')
+        kernel_image = artifact_role == 'arm64-image-reference'
         header = self.read(0, 64)
         ident = header[:16]
         harness.need(ident[:7] == b'\x7fELF\x02\x01\x01' and ident[7] in (0, 3) and ident[8] == 0 and not any(ident[9:]),
@@ -245,14 +250,14 @@ class ELF:
                     harness.need(pa % align == off % align, '16K ELF load geometry/permissions required; WX refused [PA_ALIGN]')
                     harness.need(va % 16384 == off % 16384, '16K ELF load geometry/permissions required; WX refused [VA_16K]')
                     harness.need(pa % 16384 == off % 16384, '16K ELF load geometry/permissions required; WX refused [PA_16K]')
-                    harness.need(perm in (4, 5, 6),
+                    harness.need(perm in ((4, 5, 6, 7) if kernel_image else (4, 5, 6)),
                                  '16K ELF load geometry/permissions required; WX refused [PERMISSIONS_RWX]' if perm == 7 else
                                  '16K ELF load geometry/permissions required; WX refused [PERMISSIONS_OTHER]')
                     harness.need(memsz > 0, '16K ELF load geometry/permissions required; WX refused [MEMORY_SIZE]')
                     self.loads.append({'offset': off, 'addr': va, 'paddr': pa, 'filesz': filesz, 'memsz': memsz, 'alignment': align, 'flags': perm})
                 elif ptype == 0x6474e551:
                     harness.need(not perm & 1, 'executable ELF stack refused')
-            harness.need(self.loads and any(p['flags'] == 5 and p['addr'] <= self.entry < p['addr'] + p['filesz'] for p in self.loads),
+            harness.need(self.loads and any(p['flags'] in ((5, 7) if kernel_image else (5,)) and p['addr'] <= self.entry < p['addr'] + p['filesz'] for p in self.loads),
                          'ELF entry must be in file-backed executable load')
             loads = sorted(self.loads, key=lambda p: p['addr'])
             harness.need(all(a['addr'] + a['memsz'] <= b['addr'] for a, b in zip(loads, loads[1:])), 'overlapping ELF load memory ranges')
@@ -546,7 +551,8 @@ def verify_outputs(build, source, expected_config=None):
     by_owner = {owner: set() for owner in owners}
     for symbol, owner in exports:
         by_owner[owner].add(symbol)
-    with ELF(elf, 3 if settings.get('CONFIG_RELOCATABLE') == 'y' else 2, 4 * 1024**3) as reader:
+    with ELF(elf, 3 if settings.get('CONFIG_RELOCATABLE') == 'y' else 2, 4 * 1024**3,
+             artifact_role='arm64-image-reference') as reader:
         definitions = reader.definitions(by_owner['vmlinux'] | {'_text', '_end'})
         text, end = definitions['_text']['value'], definitions['_end']['value']
         harness.need(reader.entry == text and text >= 0xffff000000000000 and end - text == size, 'Image size/entry differ from vmlinux _text/_end')

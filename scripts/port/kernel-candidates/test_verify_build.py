@@ -259,15 +259,21 @@ class BuildChecks(unittest.TestCase):
 
     def test_elf_wx_alignment_entry_segments_refused(self):
         build = self.outputs(); path = build / 'vmlinux'; original = path.read_bytes()
-        for offset,fmt,value in [(68,'<I',7),(112,'<Q',2048),(88,'<Q',TEXT_ADDR+1),(24,'<Q',TEXT_ADDR+0x4000),
+        for offset,fmt,value in [(112,'<Q',2048),(88,'<Q',TEXT_ADDR+1),(24,'<Q',TEXT_ADDR+0x4000),
                                  (96,'<Q',2**32),(104,'<Q',1),(136,'<Q',TEXT_ADDR)]:
             with self.subTest(offset=offset):
                 path.write_bytes(original); self.mutate(path,offset,fmt,value)
                 with self.assertRaises(ValueError): self.verify(build)
 
+        path.write_bytes(original)
+        shoff = struct.unpack_from('<Q', original, 40)[0]
+        self.mutate(path, shoff + 64 + 8, '<Q', 7)
+        with self.assertRaisesRegex(ValueError, 'ELF writable executable section refused'):
+            self.verify(build)
+
     def test_refused_permission_value_changes_only_the_closed_diagnostic(self):
         build = self.outputs(); path = build / 'vmlinux'; original = path.read_bytes()
-        for flags in (0, 1, 2, 3, 7, 8, 15, 0xffffffff):
+        for flags in (0, 1, 2, 3, 8, 15, 0xffffffff):
             with self.subTest(flags=flags):
                 path.write_bytes(original); self.mutate(path, 68, '<I', flags)
                 with self.assertRaises(ValueError) as caught:
@@ -286,7 +292,7 @@ class BuildChecks(unittest.TestCase):
             ('PA_ALIGN', ((88, 0x100008),)),
             ('VA_16K', ((112, 4096), (80, TEXT_ADDR + 4096))),
             ('PA_16K', ((112, 4096), (88, 0x101000))),
-            ('PERMISSIONS_RWX', ((68, 7),)),
+            ('PERMISSIONS_OTHER', ((68, 0),)),
             ('MEMORY_SIZE', ((96, 0), (104, 0))),
         )
         for label, changes in cases:
@@ -299,6 +305,69 @@ class BuildChecks(unittest.TestCase):
                 self.assertEqual(caught.exception.args, ('16K ELF load geometry/permissions required; WX refused [' + label + ']',))
         path.write_bytes(original)
         self.assertEqual(self.verify(build)['status'], 'BUILD_OUTPUT_STRUCTURE_VERIFIED')
+
+    def test_image_reference_rwx_is_explicit_and_default_elf_remains_strict(self):
+        build = self.outputs(); path = build / 'vmlinux'
+        self.mutate(path, 68, '<I', 7)
+        for role in (None, 'elf'):
+            with self.subTest(role=role):
+                options = {} if role is None else {'artifact_role': role}
+                with self.assertRaisesRegex(ValueError, 'PERMISSIONS_RWX'):
+                    with verifier.ELF(path, 3, 4 * 1024**3, **options): pass
+        with verifier.ELF(path, 3, 4 * 1024**3, artifact_role='arm64-image-reference') as reader:
+            self.assertEqual(reader.loads[0]['flags'], 7)
+            self.assertEqual(reader.entry, TEXT_ADDR)
+        self.assertEqual(self.verify(build)['status'], 'BUILD_OUTPUT_STRUCTURE_VERIFIED')
+
+    def test_image_reference_keeps_finite_flags_and_file_backed_executable_entry(self):
+        build = self.outputs(); path = build / 'vmlinux'; original = path.read_bytes()
+        for flags in (0, 1, 2, 3, 8, 15, 0x80000007, 0xffffffff):
+            with self.subTest(flags=flags):
+                path.write_bytes(original); self.mutate(path, 68, '<I', flags)
+                with self.assertRaisesRegex(ValueError, 'PERMISSIONS_OTHER'):
+                    self.verify(build)
+        for flags in (4, 6):
+            with self.subTest(non_executable_entry=flags):
+                path.write_bytes(original); self.mutate(path, 68, '<I', flags)
+                with self.assertRaisesRegex(ValueError, 'ELF entry must be in file-backed executable load'):
+                    self.verify(build)
+        path.write_bytes(original); self.mutate(path, 68, '<I', 7)
+        self.mutate(path, 24, '<Q', TEXT_ADDR + 0x4000)
+        with self.assertRaisesRegex(ValueError, 'ELF entry must be in file-backed executable load'):
+            self.verify(build)
+
+    def test_image_reference_role_rejects_unknown_subclass_and_module_context(self):
+        build = self.outputs(); path = build / 'vmlinux'
+        class Role(str): pass
+        for role in ('vmlinux', 'kernel', '', None, True, Role('arm64-image-reference')):
+            with self.subTest(role=role):
+                with self.assertRaisesRegex(ValueError, 'valid config-selected AArch64 ELF type/version/header required'):
+                    with verifier.ELF(path, 3, 4 * 1024**3, artifact_role=role): pass
+        module = self.root / 'module.ko'
+        module.write_bytes(elf_bytes(b'\x00'*4, module=True, modinfo=b'license=GPL\0'))
+        with self.assertRaisesRegex(ValueError, 'valid config-selected AArch64 ELF type/version/header required'):
+            with verifier.ELF(module, 1, 1024**3, artifact_role='arm64-image-reference'): pass
+        with verifier.ELF(module, 1, 1024**3): pass
+
+    def test_image_reference_rwx_preserves_complete_section_projection(self):
+        raw, image = flat_kernel_bytes(b'\x00'*128)
+        raw = bytearray(raw)
+        struct.pack_into('<H', raw, 56, 1)
+        struct.pack_into('<IIQQQQQQ', raw, 64, 1, 7, 0x4000, TEXT_ADDR, 0x100000,
+                         0x8000+len(b'owned_data_block'), 0x10000, 0x4000)
+        path = self.root / 'merged-vmlinux'; path.write_bytes(raw)
+        target = self.root / 'Image'; target.write_bytes(image)
+        with self.assertRaisesRegex(ValueError, 'PERMISSIONS_RWX'):
+            with verifier.ELF(path, 3, 4 * 1024**3): pass
+        with verifier.ELF(path, 3, 4 * 1024**3, artifact_role='arm64-image-reference') as reader:
+            self.assertEqual(verifier.image_relation(reader, target, TEXT_ADDR)['status'], 'IMAGE_ELF_BYTES_VERIFIED')
+            for offset in (64, 0x2000, len(image)-1):
+                changed = bytearray(image); changed[offset] ^= 1; target.write_bytes(changed)
+                with self.assertRaises(ValueError): verifier.image_relation(reader, target, TEXT_ADDR)
+        target.write_bytes(image + b'\0')
+        with verifier.ELF(path, 3, 4 * 1024**3, artifact_role='arm64-image-reference') as reader:
+            with self.assertRaisesRegex(ValueError, 'Image length differs'):
+                verifier.image_relation(reader, target, TEXT_ADDR)
 
     def test_small_declared_elf_alignment_keeps_16k_layout(self):
         build = self.outputs(); path = build / 'vmlinux'; original = path.read_bytes()
