@@ -19,18 +19,19 @@ is published on `codex/updater-directory-mode-v1`, with 20 passing focused tests
 and one independent review. Next: rerun the corrected native updater path.
 
 The [SQLite 3.54.0 source refresh](https://github.com/Gabriel-Kahen/cachy-asahi/commit/2643e1755d402399035976d1f12cd4e8296148bd)
-is published on `codex/seed93-sqlite-refresh-v1`. Actual93 authentication
-`sqlite02` finished with natural return 1: 91/93 verified, including SQLite and
-which, then zlib acquisition failed with HTTPError; its HTTP code was not
-exported. zstd is NOT RUN. The 91-item public cache was retained; separate fresh
-isolated-GPG child cleanup passed. The original attempt stopped at 89/93 with
-SQLite HTTP404. Next: resolve the exact pinned zlib location and complete the
-remaining authentication before using the full input set.
+is published on `codex/seed93-sqlite-refresh-v1`. Fresh authentication `sqlite03`
+passed all 93 archive, signature and package-metadata checks with natural exit 0
+and verified child cleanup. The exact pinned zlib pair was recovered from an
+archive mirror; copied input bytes were rechecked with fresh GPG state and no
+report reuse. Earlier attempts stopped at SQLite (89/93) and zlib (91/93).
+See the [actual result and limits](validation/maintained-desktop-seed93-20261015.md).
+Next: finish the remaining maintained desktop input closure and native integration.
 
 The [P0 held-interval Source](https://github.com/Gabriel-Kahen/cachy-asahi/commit/e93aa99cc6e77dc522c7ae053e2c9aa131e6991a)
-is published on `codex/p0-held-source-interval-v1`. Its next ARM retry awaits
-the input carriers. Publication does not establish preparation, P0 or native
-matrix acceptance. Next: supply the carriers and run the changed ARM attempt.
+is published on `codex/p0-held-source-interval-v1`. After two bootstrap hash repairs
+and three public CI variable updates, ARM retry
+[38756589899](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38756589899)
+is running. Preparation, P0 and native matrix acceptance await its actual result.
 
 KSM trial
 [38753691479](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38753691479)
