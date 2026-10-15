@@ -85,11 +85,19 @@ class ScaleTransactions(unittest.TestCase):
                 with mock.patch.object(scale.space,'check',functools.partial(check,statvfs=fixture_statvfs)):
                     row=scale.apply(self.args)
                 row['synthetic_inode_budget_injected']=bool(override)
+                if hasattr(self,'_scale_drift_diagnostic'):
+                    row['test_scale_precommit_reached']=self._scale_drift_precommit_reached
                 with os.fdopen(write,'wb') as stream:stream.write(encoded(row))
             finally:os._exit(0)
         os.close(write)
         with os.fdopen(read,'rb') as stream:data=stream.read(1024**2+1)
-        _,status=os.waitpid(pid,0);self.assertEqual(status,0);self.assertLessEqual(len(data),1024**2)
+        _,status=os.waitpid(pid,0)
+        diagnostic=getattr(self,'_scale_drift_diagnostic',None)
+        if diagnostic is not None:diagnostic['stage']='child-exit'
+        self.assertEqual(status,0)
+        if diagnostic is not None:diagnostic['stage']='child-output-size'
+        self.assertLessEqual(len(data),1024**2)
+        if diagnostic is not None:diagnostic['stage']='child-json'
         return json.loads(data)
 
     def upgrade(self,compression):
@@ -112,12 +120,37 @@ class ScaleTransactions(unittest.TestCase):
         self.assert_refused(self.run_update(),'insufficient')
 
     def test_scale_input_drift_after_prepare_refused(self):
+        # Only this test exposes finite diagnostic facts through native Results.
+        diagnostic=self._scale_drift_diagnostic={'stage':'invoke','row':None}
+        self._scale_drift_precommit_reached=False
         precommit=scale.Runtime.precommit
         def change(runtime):
+            self._scale_drift_precommit_reached=True
             Path(runtime.args.scale).write_bytes(Path(runtime.args.scale).read_bytes()+b' ')
             return precommit(runtime)
         with mock.patch.object(scale.Runtime,'precommit',change):
-            self.assert_refused(self.run_update(),'scale configuration changed')
+            value=self.invoke();diagnostic['row']=value
+            # Preserve run_update/assert_refused checks and order, marking the
+            # stage before every assertion, including the early trust checks.
+            diagnostic['stage']='trust-stable'
+            self.assertEqual(legacy.bound.trust_rows(legacy.bound.install.tree(self.root)),self.trust)
+            diagnostic['stage']='package-lock-absent'
+            self.assertFalse((self.root/'var/lib/pacman/db.lck').exists())
+            diagnostic['stage']='workspace-clean'
+            self.assertEqual(list(self.workspace.iterdir()),[self.root])
+            diagnostic['stage']='refusal-status'
+            self.assertEqual(value['status'],'FAIL',value)
+            diagnostic['stage']='commit-not-started'
+            self.assertFalse(value['commit_started'],value)
+            diagnostic['stage']='checkpoint-unchanged'
+            self.assertFalse(value['checkpoint_changed'],value)
+            diagnostic['stage']='fixture-unchanged'
+            self.assertEqual((self.root/self.owned['fixture'][0]).read_bytes(),b'BASE TEST ONLY\n')
+            diagnostic['stage']='checkpoint-empty'
+            self.assertEqual(list(self.state.iterdir()),[])
+            diagnostic['stage']='scale-error-match'
+            self.assertIn('scale configuration changed',value.get('error',''))
+            diagnostic['stage']='complete'
 
     def test_existing_ldconfig_still_refuses(self):
         path=self.root/'usr/bin/ldconfig';path.parent.mkdir(parents=True)
