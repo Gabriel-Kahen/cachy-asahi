@@ -250,7 +250,7 @@ def build(args):
                SOURCE_DATE_EPOCH='1789753605', TZ='UTC',
                RUSTFLAGS='-C linker=/usr/bin/cc -C link-arg=-Wl,-z,max-page-size=16384')
     command = ['/usr/bin/cargo', 'build', '--release', '--frozen', '--offline', '--locked',
-               '--target', worker.TARGET, '--jobs', '2', '--message-format=json-render-diagnostics', '-vv',
+               '--target', worker.TARGET, '--jobs', '2', '--message-format=json-render-diagnostics',
                '--manifest-path', str(args.manifest.absolute())]
     receipt = {'schema_version': 1, 'scope': 'private native Linux compile', 'command': command,
                'image_id': record['image_id'], 'input_sha256': record['sha256'],

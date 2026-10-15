@@ -247,7 +247,7 @@ class DiagnosticBuildTests(unittest.TestCase):
         self.assertEqual(receipt['elf_16k_segments'], 'PASS-static; loader NOT RUN')
         self.assertEqual([(row[1], row[2]) for row in self.commands], [('compile-gate',180),('cargo-build',1200),('elf-inspection',None)])
         self.assertEqual(self.commands[1][0], ['/usr/bin/cargo','build','--release','--frozen','--offline','--locked',
-            '--target','aarch64-unknown-linux-gnu','--jobs','2','--message-format=json-render-diagnostics','-vv',
+            '--target','aarch64-unknown-linux-gnu','--jobs','2','--message-format=json-render-diagnostics',
             '--manifest-path',str(self.work / 'Cargo.toml')])
         self.assertEqual(self.commands[2][0][:4], ['/usr/bin/readelf','-h','-l','-d'])
 

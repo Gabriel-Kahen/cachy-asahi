@@ -20,9 +20,9 @@ jobs:
     env:
       PYTHONDONTWRITEBYTECODE: '1'
       REVIEWED_SOURCE_COMMIT: ${{ inputs.source_commit }}
-      READY_SHA256: dabb78113ef595de144ed0004a0b12fe7ddf7dcaeb8d6326d71d90365882c45e
+      READY_SHA256: e351dc90fa325c2bbfd41c21f495b6c2f9a9b796160f862541eee37dcf8a13bf
       # Reviewed storage/recovery checkpoint; coordinator Git/controller proof is separate.
-      STAGE_SHA256: e4da69b8308bf42384568467cb1bebc9d08b2363eed9769f89074d79bcf0a09a
+      STAGE_SHA256: 5c2d5ac93ef48c76db12313328eda82cd6e2b8da07c255d5f90c9597fddf7a6c
       SOURCE_SHA256: 4d3e3fd9848aaed94154f786b04a5ae07c7816dcef82857b671b51555895eacb
     steps:
       - name: Start the shared deadline before checkout
