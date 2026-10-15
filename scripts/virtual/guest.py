@@ -229,6 +229,7 @@ def wait_for_ipc(stage, compositor, env, log, check_logs):
 def mapped_client(row, pid):
     size = row.get('size')
     return (row.get('pid') == pid and row.get('mapped') is True and
+            row.get('visible') is True and row.get('hidden') is False and
             type(size) is list and len(size) == 2 and
             all(type(value) is int and value > 0 for value in size))
 
@@ -268,19 +269,19 @@ def private_ipc(env, request, deadline, check, deadline_message):
     return bytes(reply)
 
 
-def query_clients(env, deadline, check):
+def query_clients(env, deadline, check, *, deadline_message='Wayland client mapping deadline'):
     start = time.monotonic()
-    reply = private_ipc(env, b'j/clients', deadline, check, 'Wayland client mapping deadline')
+    reply = private_ipc(env, b'j/clients', deadline, check, deadline_message)
     clients = json.loads(reply.decode('utf-8'))
     require(type(clients) is list and all(type(row) is dict for row in clients), 'invalid clients IPC reply')
     check()
-    require(time.monotonic() < deadline, 'Wayland client mapping deadline')
+    require(time.monotonic() < deadline, deadline_message)
     emit('client_ipc', transport='private-unix-socket', request='j/clients',
          elapsed_ms=int((time.monotonic() - start) * 1000), stdout=reply.decode('utf-8'))
     return clients
 
 
-def capture_window(stage, monitors, clients, check):
+def capture_window(stage, monitors, pid, env, check):
     # Spend the first 5s of the existing 15s live window before QMP capture.
     # Mapping alone does not mean a queued output update is already visible.
     start = time.monotonic()
@@ -290,6 +291,11 @@ def capture_window(stage, monitors, clients, check):
         now = time.monotonic()
         require(now < until, 'capture window expired before snapshot')
         if not emitted and now >= start + 5:
+            clients = query_clients(env, until, check,
+                                    deadline_message='capture window expired before snapshot')
+            require(time.monotonic() < until, 'capture window expired before snapshot')
+            require(any(mapped_client(row, pid) for row in clients),
+                    'own client not mapped/visible at capture')
             emit('frame_ready', stage=stage, monitors=monitors, clients=clients)
             emitted = True
         time.sleep(min(.25, max(0, until - time.monotonic())))
@@ -417,7 +423,7 @@ def phase(stage, config, env, root, *, nonce=None):
             require(alive() and
                     log.stat().st_size <= MAX_LOG and client_log.stat().st_size <= MAX_LOG,
                     'session failed/overflowed during capture window')
-        capture_window(stage, monitors, clients, check_capture)
+        capture_window(stage, monitors, client.pid, env, check_capture)
         terminate(client)
         client = None
         collectors[-1].finish()
@@ -521,7 +527,7 @@ def run_user():
            'XDG_CACHE_HOME': '/home/virtual-proof/cache', 'XDG_SESSION_TYPE': 'wayland',
            'SEATD_SOCK': '/run/seatd.sock', 'LIBSEAT_BACKEND': 'seatd',
            'GBM_ALWAYS_SOFTWARE': '1', 'LIBGL_ALWAYS_SOFTWARE': '1', 'GALLIUM_DRIVER': 'llvmpipe',
-           'LP_NUM_THREADS': '2', 'GALLIVM_PERF': 'nopt', 'CACHY_ASAHI_VIRTUAL_GUEST': '1',
+           'LP_NUM_THREADS': '0', 'GALLIVM_PERF': 'nopt', 'CACHY_ASAHI_VIRTUAL_GUEST': '1',
            'DBUS_SESSION_BUS_ADDRESS': os.environ['DBUS_SESSION_BUS_ADDRESS']}
     for name in ('config', 'cache'):
         (Path(env['HOME']) / name).mkdir(mode=0o700)
