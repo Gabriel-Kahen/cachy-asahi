@@ -2,6 +2,22 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 15, current CI and integration frontier:
+P0 Source `b86eb515` selects the retained bubblewrap inputs and current Vim
+objects while preserving the remaining 497 acquisitions. Five maintained suites
+pass 353 tests independently with zero skips. After actual Source review and
+metadata freeze, default main `1339d7f6` registers exactly one workflow change.
+Four guarded variable replacements preserve the recipe Source and read back all
+five values after each write. One native ARM trial, `38690090964`, is running;
+preparation, signing pipeline and hardware acceptance remain unestablished.
+
+KSM run `38683848545`, admitted under `f2b723f4`, reports producer, both builds
+and comparison PASS before lifecycle / ValueError. The precise lifecycle step
+and operands were not exported. Cleanup FAIL and ownership uncertainty remain
+recorded despite reported absence of owned containers and image. Bounded daemon
+preservation passes; legacy cache absence remains unestablished. A source audit
+is active; these results do not establish completed package lifecycle acceptance.
+
 October 15, signed-release dependency impact:
 Release comparison now reports unchanged runtime consumers of changed or removed
 packages through deterministic dependency paths in both verified inventories.
@@ -20,8 +36,14 @@ onboarding, and corrects the two stale unit fixtures. Author and independent
 runs each pass native-preflight98, onboarding13 and integration157 with zero
 errors or skips. Root admits actual Source/held-Code review `68feed0d`, with
 all 272 selected roles and the exact eleven-file change checked against Git.
-Data and execution-plan selection remain pending; native48, actual installation,
-current-package lifecycle and hardware acceptance are not established.
+Data `e236f3d7` and its execution plan were subsequently registered. Trial
+`38688272042`, admitted under `d08e1cd4`, failed at bootstrap `immutable-pins`
+before native entry and exported zero evidence frames. Native48 and receiver
+remain NOT RUN; product cleanup was not exported. Separate semantic audit
+`a5571c09` confirms stale initial/baseline bindings in held Code `c6d43be2`.
+The desktop successor must update the expected hashes, baseline declaration
+and launcher binding together, then receive fresh Code/Source/Data/plan review.
+Actual installation, current-package lifecycle and hardware remain unestablished.
 
 October 15, kernel verifier diagnostic:
 Actual ARM run `38680751411` failed after the baseline kernel command naturally
@@ -38,8 +60,13 @@ The updater source now removes Cargo's verbose flag while retaining strict JSON
 parsing. Its exact-command maintained test is corrected with the same one-element
 change; both author and independent runs pass all 51 tests with zero skips.
 Actual Source `5ae872c6` is published after complete eight-file and 91-role review.
-Native ARM trial `38685664071` has been dispatched once; native acceptance is
-pending. The previous run's exact failing line and cause remain unexported.
+Native ARM trial `38685664071`, admitted under `6a1d2d6a`, accepts compilation
+after compiler return zero, then fails at entry-makepkg / ValueError with
+makepkg return four. The command output and exact inner step were not exported.
+Source audit `7930ea17` proves no static argument/path/configuration defect;
+version-specific exit-code interpretation does not identify the failing command.
+A bounded inner-step diagnostic is in development. Native package acceptance
+remains open, and the previous run's exact failing line and cause stay unknown.
 
 October 15, current native package builds accepted:
 Run `38683309592`, Source `465bf535`, built all four selected recipes twice
