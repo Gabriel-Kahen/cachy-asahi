@@ -235,11 +235,11 @@ def barrier_event(event, nonce, selection):
 
 TRANSACTION_PURPOSE = 'installer-transaction-only'
 TRANSACTION_FILES = {
-    'scripts/install/local_transaction.py': {'bytes': 90846, 'sha256': '757841a9af84cd2fe84c292711c93745f5985738c4186d219c34783891319ba8'},
+    'scripts/install/local_transaction.py': {'bytes': 91431, 'sha256': 'c34202676e30a5085828f92d413cad0aaeacda1c9ac95e86155952db430d62d2'},
     'scripts/install/test_local_transaction.py': {'bytes': 131063, 'sha256': '1987ed23821da917215e9e3366545810d565ece08406fafd429a8c3c772eb2cd'},
     'scripts/port/kernel-native-job/runtime.py': {'bytes': 11345, 'sha256': '8a7cd5e73cf383b2d81ad577b8513c6fd7d49f9fd2572961c73ae9d289cab821'},
 }
-# Exact16 actual methods; the extra declared-after contract control is excluded.
+# Exact17 methods in original definition order; declared-after has its own closed refusal.
 TRANSACTION_CASES = (
     ('SIGNED_PAIR', 'test_actual_signed_tiny_dependency_pair_commit', ('PAIR',)),
     ('MISSING_DEPENDENCY', 'test_actual_missing_dependency_refuses_before_commit', ('PREPARE',)),
@@ -251,6 +251,7 @@ TRANSACTION_CASES = (
     ('ESCAPING_ARCHIVE', 'test_actual_escaping_signed_archive_refused_without_escape', ('ESCAPE',)),
     ('EXTERNAL_ROOT_HARDLINK', 'test_actual_existing_root_external_hardlink_refused', ('SNAPSHOT',)),
     ('FILE_CONFLICT', 'test_actual_file_conflict_preserves_foreign_bytes', ('CONFLICT',)),
+    ('DECLARED_AFTER', 'test_declared_after_mismatch_refuses_before_commit', ('DECLARED',)),
     ('PROTECTED_UPGRADE', 'test_actual_protected_upgrade_refuses_before_commit', ('ADD', 'REFUSED')),
     ('PROTECTED_REMOVAL', 'test_actual_protected_removal_refuses_before_commit', ('ADD', 'REFUSED')),
     ('SIGNED_SEED_REMOVAL', 'test_actual_signed_removal_uses_installed_seed', ('ADD', 'REMOVE')),
@@ -260,7 +261,7 @@ TRANSACTION_CASES = (
 )
 TRANSACTION_TESTS = tuple(row[1] for row in TRANSACTION_CASES)
 TRANSACTION_SELECTORS = tuple(row[0] for row in TRANSACTION_CASES)
-TRANSACTION_FRAME_LINES = {'SELECTED_WORKER': 1440, 'SELECTED_TEST': 1958, 'SELECTED_RUNTIME': 280, 'GUEST': 2048}
+TRANSACTION_FRAME_LINES = {'SELECTED_WORKER': 1450, 'SELECTED_TEST': 1958, 'SELECTED_RUNTIME': 280, 'GUEST': 2048}
 TRANSACTION_PROFILE = {'path': '/usr/local/share/virtual-proof/tool-profile.json', 'size': 47593,
                        'sha256': 'b7fbd65e357e132949432fb00e765a05e3c76ea29a41d1df93413870d9fd1ed8'}
 TRANSACTION_LAUNCHER = {
@@ -324,11 +325,11 @@ def transaction_call(row, pattern):
             0<=row['returncode']<=255 and type(row['commit_started']) is bool and type(row['committed']) is bool,
             'transaction hop fields differ')
     positive = pattern in ('PAIR','ADD','REMOVE','UPGRADE','PROTECTED_ADD')
-    expected = ('complete',True,True) if positive else ('NOT_REPORTED',False,False) if pattern=='REFUSED' else (
+    expected = ('complete',True,True) if positive else ('NOT_REPORTED',False,False) if pattern=='REFUSED' else ('declaration-after',False,False) if pattern=='DECLARED' else (
         'commit',True,False) if pattern=='CONFLICT' else ('snapshot',False,False) if pattern=='SNAPSHOT' else (
         'prepare',False,False) if pattern=='PREPARE' else ('isolated',False,False)
     require((row['phase'],row['commit_started'],row['committed'])==expected and
-            row['worker_status']==('PASS-disposable-payload-transaction' if positive else 'REFUSED' if pattern=='REFUSED' else 'FAIL') and
+            row['worker_status']==('PASS-disposable-payload-transaction' if positive else 'REFUSED' if pattern in ('REFUSED','DECLARED') else 'FAIL') and
             (row['returncode']==0 if positive else row['returncode']!=0), 'selected transaction hop differs')
     return row
 
@@ -349,10 +350,10 @@ def transaction_event(event, nonce, selection, source):
             event['nonce'] == nonce and event['selection_sha256'] == selection and event['fixture_source'] == source and
             type(source) is str and re.fullmatch('[0-9a-f]{40}', source) and
             type(event['uid']) is int and event['uid'] == 23001 and type(event['gid']) is int and event['gid'] == 23001 and
-            all(type(event[k]) is int and 0 <= event[k] <= (16 if k == 'tests' else 32) for k in ('tests','failures','errors','skips')) and
+            all(type(event[k]) is int and 0 <= event[k] <= (17 if k == 'tests' else 32) for k in ('tests','failures','errors','skips')) and
             type(event['class_cleanups_returned']) is bool and type(event['cancelled']) is bool,
             'transaction event identity/counts differ')
-    require(type(event['methods']) is list and len(event['methods']) <= 16, 'bounded transaction methods required')
+    require(type(event['methods']) is list and len(event['methods']) <= 17, 'bounded transaction methods required')
     for i,row in enumerate(event['methods']):
         transaction_method(row,i,complete=event['status']=='PASS_TRANSACTION_ONLY' or i<len(event['methods'])-1)
     failure = event['first_failure']
@@ -367,8 +368,8 @@ def transaction_event(event, nonce, selection, source):
         proxy['first_failure'] = failure | {'frames': []}
         barrier_event(proxy, nonce, selection)
     if event['status'] == 'PASS_TRANSACTION_ONLY':
-        require(event['tests'] == 16 and not any(event[k] for k in ('failures','errors','skips')) and
-                len(event['methods']) == 16 and sum(len(row['calls']) for row in event['methods']) == 21 and failure is None and event['class_cleanups_returned'] and not event['cancelled'],
+        require(event['tests'] == 17 and not any(event[k] for k in ('failures','errors','skips')) and
+                len(event['methods']) == 17 and sum(len(row['calls']) for row in event['methods']) == 22 and failure is None and event['class_cleanups_returned'] and not event['cancelled'],
                 'incomplete transaction fixture proof')
     else:
         require(event['status'] == 'FAIL' and (failure is not None or event['skips'] > 0), 'invalid failed transaction fixture')

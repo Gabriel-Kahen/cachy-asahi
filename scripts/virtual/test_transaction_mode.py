@@ -30,14 +30,14 @@ class TransactionMode(unittest.TestCase):
                 tool_profile=copy.deepcopy(common.TRANSACTION_PROFILE)),transaction_launcher=copy.deepcopy(common.TRANSACTION_LAUNCHER))
     def call(self,pattern):
         positive=pattern in ('PAIR','ADD','REMOVE','UPGRADE','PROTECTED_ADD')
-        phase='complete' if positive else dict(REFUSED='NOT_REPORTED',CONFLICT='commit',SNAPSHOT='snapshot',PREPARE='prepare').get(pattern,'isolated')
-        return dict(returncode=0 if positive else 2,worker_status='PASS-disposable-payload-transaction' if positive else 'REFUSED' if pattern=='REFUSED' else 'FAIL',
+        phase='complete' if positive else dict(REFUSED='NOT_REPORTED',DECLARED='declaration-after',CONFLICT='commit',SNAPSHOT='snapshot',PREPARE='prepare').get(pattern,'isolated')
+        return dict(returncode=0 if positive else 2,worker_status='PASS-disposable-payload-transaction' if positive else 'REFUSED' if pattern in ('REFUSED','DECLARED') else 'FAIL',
                     phase=phase,commit_started=positive or pattern=='CONFLICT',committed=positive)
     def methods(self):
         return [dict(method=name,calls=[self.call(p) for p in patterns]) for name,method,patterns in common.TRANSACTION_CASES]
     def event(self):
         return dict(event='transaction_result',nonce=self.nonce,selection_sha256=self.selection,fixture_source=self.source,
-            uid=23001,gid=23001,tests=16,failures=0,errors=0,skips=0,status='PASS_TRANSACTION_ONLY',methods=self.methods(),
+            uid=23001,gid=23001,tests=17,failures=0,errors=0,skips=0,status='PASS_TRANSACTION_ONLY',methods=self.methods(),
             first_failure=None,class_cleanups_returned=True,cancelled=False)
     def boot(self):
         return dict(event='boot',nonce=self.nonce,arch='aarch64',page_size=4096,kernel=common.KERNEL)
@@ -113,7 +113,7 @@ class TransactionMode(unittest.TestCase):
                 patch.object(guest.os,'geteuid',return_value=23001),patch.object(guest.os,'getegid',return_value=23001):
             result=guest.transaction_test(module,{},self.nonce,self.selection,self.source)
         return result,emitted
-    def test_real_testsuite_model_orders_sixteen_and_runs_class_cleanup(self):
+    def test_real_testsuite_model_orders_seventeen_and_runs_class_cleanup(self):
         module,seen=self.fake_module();result,emitted=self.run_model(module)
         self.assertEqual(seen,[*common.TRANSACTION_TESTS,'first-cleanup','last-cleanup'])
         self.assertEqual(result['status'],'PASS_TRANSACTION_ONLY');self.assertEqual(len(emitted),1)
@@ -237,13 +237,13 @@ class TransactionMode(unittest.TestCase):
         pin=common.TRANSACTION_FILES['scripts/install/local_transaction.py']['sha256']
         return dict(test=common.TRANSACTION_TESTS[index],worker_sha256=pin,worker_after_sha256=pin,
                     returncode=call['returncode'],report=body,retained_evidence='/inert')
-    def test_fixed_definition_order_excludes_only_extra_contract_control(self):
+    def test_fixed_definition_order_includes_declared_after_control(self):
         tree=ast.parse((Path(__file__).resolve().parents[1]/'install/test_local_transaction.py').read_text())
         cls=next(n for n in tree.body if isinstance(n,ast.ClassDef) and n.name=='ActualTransactionTests')
         methods=[n.name for n in cls.body if isinstance(n,ast.FunctionDef) and n.name.startswith('test_')]
         self.assertEqual(len(methods),17)
-        self.assertEqual(tuple(n for n in methods if n.startswith('test_actual_')),common.TRANSACTION_TESTS)
-        self.assertEqual(sum(len(p) for _,_,p in common.TRANSACTION_CASES),21)
+        self.assertEqual(tuple(methods),common.TRANSACTION_TESTS)
+        self.assertEqual(sum(len(p) for _,_,p in common.TRANSACTION_CASES),22)
         self.assertEqual(len(json.dumps(self.event())),len(json.dumps(common.transaction_event(self.event(),self.nonce,self.selection,self.source))))
         self.assertLess(len(json.dumps(self.event())),8192)
     def test_every_positive_hop_requires_exact_maps_payload_and_export(self):
@@ -256,7 +256,7 @@ class TransactionMode(unittest.TestCase):
                     with self.subTest(index=index,hop=hop,key=key),self.assertRaises(ValueError):guest.transaction_execution(bad,index,hop)
     def test_conflict_started_and_refused_phase_not_invented(self):
         self.assertTrue(guest.transaction_execution(self.record(9),9)['commit_started'])
-        for index in (10,11):
+        for index in (11,12):
             row=guest.transaction_execution(self.record(index,1),index,1)
             self.assertEqual(row['phase'],'NOT_REPORTED');self.assertFalse(row['commit_started'])
             bad=self.record(index,1);bad['report']['phase']='prepare'
@@ -296,17 +296,17 @@ class TransactionMode(unittest.TestCase):
         def partial(test):
             type(test).execution_history.append(dict(test=test._testMethodName))
             raise AssertionError('PRIVATE second operation missing')
-        setattr(module.ActualTransactionTests,common.TRANSACTION_TESTS[10],partial)
+        setattr(module.ActualTransactionTests,common.TRANSACTION_TESTS[11],partial)
         with self.assertRaises(ValueError):self.run_model(module)
         event=self.last_emitted[0]
-        self.assertEqual(len(event['methods']),11);self.assertEqual(len(event['methods'][-1]['calls']),1)
+        self.assertEqual(len(event['methods']),12);self.assertEqual(len(event['methods'][-1]['calls']),1)
         self.assertEqual(event['methods'][-1]['method'],'PROTECTED_UPGRADE')
         self.assertEqual(seen[-2:],['first-cleanup','last-cleanup']);self.assertNotIn('PRIVATE',json.dumps(event))
     def test_projection_cancellation_after_prior_methods_is_sticky(self):
         module,seen=self.fake_module();primary=KeyboardInterrupt()
         emitted=[]
         def project(record,index,hop):
-            if index==10 and hop==1:raise primary
+            if index==11 and hop==1:raise primary
             return self.methods()[index]['calls'][hop]
         with patch.object(guest,'transaction_execution',side_effect=project),patch.object(guest,'emit',side_effect=lambda name,**row:emitted.append(row)), \
              patch.object(guest.os,'geteuid',return_value=23001),patch.object(guest.os,'getegid',return_value=23001),self.assertRaises(KeyboardInterrupt) as caught:
