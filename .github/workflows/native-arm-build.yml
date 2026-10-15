@@ -269,7 +269,7 @@ jobs:
         if: ${{ !cancelled() && steps.fdk_pair.outcome == 'success' }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
-          ref: ec014db3cc599793f1df5284a4dbcbd96305e0a6
+          ref: 231667d06e11bb20a878ca1830dde6eb5b75c3aa
           path: provider-source
           persist-credentials: false
       - name: Required offline provider and shipped PipeWire AAC codec trial
