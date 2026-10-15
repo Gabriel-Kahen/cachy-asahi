@@ -330,7 +330,7 @@ class GuestImageDecode(unittest.TestCase):
             identity.assert_called_once_with(self.nonce, actual_inventory={'fixture-package': '1-1'})
             seatd.assert_not_called(); user.assert_not_called()
 
-    def test_valid_observation_precedes_same_env_client_and_survives_original_phase_failure(self):
+    def test_valid_observation_precedes_isolated_client_and_survives_original_phase_failure(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary); runtime = root / 'runtime'; runtime.mkdir()
             wayland = socket.socket(socket.AF_UNIX); wayland.bind(str(runtime / 'wayland-0'))
@@ -350,7 +350,10 @@ class GuestImageDecode(unittest.TestCase):
                     self.assertRaises(ValueError) as caught:
                 guest.phase('minimal', root / 'config', env, root, nonce=self.nonce)
             self.assertIs(caught.exception, original)
-            self.assertEqual(client_env, [env]); self.assertIs(client_env[0], process.call_args.kwargs['env'])
+            self.assertIs(env, process.call_args.kwargs['env'])
+            self.assertIsNot(client_env[0], env)
+            self.assertEqual(client_env[0], dict(env, NO_AT_BRIDGE='1', WAYLAND_DEBUG='client'))
+            self.assertNotIn('NO_AT_BRIDGE', env); self.assertNotIn('WAYLAND_DEBUG', env)
             self.assertEqual(client_env[0]['WAYLAND_DISPLAY'], 'wayland-0')
             delivered = [{'event': call.args[0], **call.kwargs} for call in events.call_args_list]
             self.assertEqual(delivered[0]['event'], 'image_decode_probe')
