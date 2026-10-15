@@ -294,13 +294,15 @@ license = "MIT"
 candidate_version = "2.0.1-3"
 selected_for_development = false
 selected_for_release = false
-native_build = "NOT RUN for current notice-only candidate"
+native_build = "PASS"
+native_build_commit = "b83c0f539034f10112a2d1e9743810344f13bb9d"
+native_evidence = "docs/validation/asahi-audio-rust-notices-native-20261015.md"
 prior_native_build_commit = "6983455c92ac39064909923836d7c5122d423f0f"
 prior_native_evidence = "docs/validation/asahi-audio-rust-native-20261015.md"
 installation = "PASS generic native ARM signed install/removal; actual38797262875, historical 2.0.1-2"
 installation_evidence = "docs/validation/full-composition-audio-native-20261015.md"
 hardware_validation = "NOT RUN"
-next_step = "Build and compare the new notice-only candidate; prior native pair and signed installation evidence cover 2.0.1-2 only. Signed generic native installation/removal passed for the exact old archives in actual38797262875. Audio/plugin/service execution, source/license closure, implicit ldconfig effects and M2 acceptance remain open."
+next_step = "Current notice-bearing native pair passed. Validate installation/removal of this exact version and implicit ldconfig state; the earlier audio593 transaction covers the old version only. Audio/service execution, complete source/license delivery and M2 acceptance remain open."
 
 [[packages]]
 name = "bankstown"
@@ -313,13 +315,15 @@ license = "MIT"
 candidate_version = "1.1.0-4"
 selected_for_development = false
 selected_for_release = false
-native_build = "NOT RUN for current notice-only candidate"
+native_build = "PASS"
+native_build_commit = "b83c0f539034f10112a2d1e9743810344f13bb9d"
+native_evidence = "docs/validation/asahi-audio-rust-notices-native-20261015.md"
 prior_native_build_commit = "6983455c92ac39064909923836d7c5122d423f0f"
 prior_native_evidence = "docs/validation/asahi-audio-rust-native-20261015.md"
 installation = "PASS generic native ARM signed install/removal; actual38797262875, historical 1.1.0-3"
 installation_evidence = "docs/validation/full-composition-audio-native-20261015.md"
 hardware_validation = "NOT RUN"
-next_step = "Build and compare the new notice-only candidate; prior native pair and signed installation evidence cover 1.1.0-3 only. Signed generic native installation/removal passed for the exact old archives in actual38797262875. Audio/plugin/service execution, source/license closure, implicit ldconfig effects and M2 acceptance remain open."
+next_step = "Current notice-bearing native pair passed. Validate installation/removal of this exact version and implicit ldconfig state; the earlier audio593 transaction covers the old version only. Audio/service execution, complete source/license delivery and M2 acceptance remain open."
 
 [[packages]]
 name = "triforce-lv2"
@@ -332,13 +336,15 @@ license = "GPL-3.0-only AND Apache-2.0 AND MIT AND Zlib AND Unicode-3.0; propose
 candidate_version = "0.3.2-3"
 selected_for_development = false
 selected_for_release = false
-native_build = "NOT RUN for current notice-only candidate"
+native_build = "PASS"
+native_build_commit = "b83c0f539034f10112a2d1e9743810344f13bb9d"
+native_evidence = "docs/validation/asahi-audio-rust-notices-native-20261015.md"
 prior_native_build_commit = "6983455c92ac39064909923836d7c5122d423f0f"
 prior_native_evidence = "docs/validation/asahi-audio-rust-native-20261015.md"
 installation = "PASS generic native ARM signed install/removal; actual38797262875, historical 0.3.2-2"
 installation_evidence = "docs/validation/full-composition-audio-native-20261015.md"
 hardware_validation = "NOT RUN"
-next_step = "Build and compare the new notice-only candidate; prior native pair and signed installation evidence cover 0.3.2-2 only. Signed generic native installation/removal passed for the exact old archives in actual38797262875. Audio/plugin/service execution, source/license closure, implicit ldconfig effects and M2 acceptance remain open."
+next_step = "Current notice-bearing native pair passed. Validate installation/removal of this exact version and implicit ldconfig state; the earlier audio593 transaction covers the old version only. Audio/service execution, complete source/license delivery and M2 acceptance remain open."
 
 [[packages]]
 name = "lsp-plugins-lv2-headless-development"
