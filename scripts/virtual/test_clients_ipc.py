@@ -102,20 +102,44 @@ class MappedClient(unittest.TestCase):
     def test_two_positive_integer_dimensions_are_accepted(self):
         for size in ([420, 220], [1, 1]):
             with self.subTest(size=size):
-                self.assertTrue(guest.mapped_client({'pid': 42, 'mapped': True, 'size': size}, 42))
+                self.assertTrue(guest.mapped_client({'pid': 42, 'mapped': True, 'visible': True, 'hidden': False, 'size': size}, 42))
 
     def test_empty_wrong_shape_wrong_type_and_nonpositive_dimensions_are_rejected(self):
         for size in (None, [], [1], [1, 2, 3], (420, 220), '420x220',
                      [True, 220], [420, False], [420.0, 220], [420, float('nan')],
                      [float('inf'), 220], [420, '220'], [0, 220], [420, -1]):
             with self.subTest(size=size):
-                self.assertFalse(guest.mapped_client({'pid': 42, 'mapped': True, 'size': size}, 42))
-        self.assertFalse(guest.mapped_client({'pid': 42, 'mapped': True}, 42))
+                self.assertFalse(guest.mapped_client({'pid': 42, 'mapped': True, 'visible': True, 'hidden': False, 'size': size}, 42))
+        self.assertFalse(guest.mapped_client({'pid': 42, 'mapped': True, 'visible': True, 'hidden': False}, 42))
 
     def test_own_pid_and_true_mapping_flag_are_still_required(self):
         for pid, mapped in ((41, True), (42, False), (42, 1), (42, None)):
             with self.subTest(pid=pid, mapped=mapped):
-                self.assertFalse(guest.mapped_client({'pid': pid, 'mapped': mapped, 'size': [420, 220]}, 42))
+                self.assertFalse(guest.mapped_client({'pid': pid, 'mapped': mapped, 'visible': True, 'hidden': False, 'size': [420, 220]}, 42))
+
+    def test_capture_requires_strict_visible_and_not_hidden_flags(self):
+        ready = {'pid': 42, 'mapped': True, 'visible': True, 'hidden': False, 'size': [420, 220]}
+        self.assertTrue(guest.mapped_client(ready, 42))
+        for field, values in (('visible', (None, False, 1, 'true')),
+                              ('hidden', (None, True, 0, 'false'))):
+            missing = dict(ready); del missing[field]
+            self.assertFalse(guest.mapped_client(missing, 42))
+            for value in values:
+                with self.subTest(field=field, value=value):
+                    self.assertFalse(guest.mapped_client(dict(ready, **{field: value}), 42))
+
+
+class QueryBudget(unittest.TestCase):
+    def test_capture_deadline_and_error_label_reach_fixed_private_transport(self):
+        check = Mock()
+        env = {'instance': 'held'}
+        with patch('guest.time.monotonic', return_value=7), \
+                patch('guest.private_ipc', return_value=b'[]') as request, patch('guest.emit'):
+            self.assertEqual(guest.query_clients(env, 15, check,
+                             deadline_message='capture window expired before snapshot'), [])
+            request.assert_called_once_with(env, b'j/clients', 15, check,
+                                            'capture window expired before snapshot')
+            check.assert_called_once()
 
 
 if __name__ == '__main__': unittest.main()
