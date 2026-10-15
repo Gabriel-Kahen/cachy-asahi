@@ -644,7 +644,7 @@ def user():
                XDG_CONFIG_HOME=str(HOME / 'config'), XDG_CACHE_HOME=str(HOME / 'cache'),
                XDG_SESSION_TYPE='wayland', SEATD_SOCK=SEAT, LIBSEAT_BACKEND='seatd',
                LIBGL_ALWAYS_SOFTWARE='1', GBM_ALWAYS_SOFTWARE='1', GALLIUM_DRIVER='llvmpipe',
-               LP_NUM_THREADS='2', CACHY_ASAHI_VIRTUAL_GUEST='1',
+               LP_NUM_THREADS='0', GALLIVM_PERF='nopt', CACHY_ASAHI_VIRTUAL_GUEST='1',
                DBUS_SESSION_BUS_ADDRESS=os.environ['DBUS_SESSION_BUS_ADDRESS'])
     card = drm_card()
     need(card is not None, 'DRM card unavailable')
