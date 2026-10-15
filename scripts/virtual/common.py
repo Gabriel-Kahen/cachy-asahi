@@ -152,7 +152,84 @@ def contract(path, sha, f):
             'successful original installed-image handoff required')
     require(receipt.get('handoff_package_versions') == {r['name']: r['version'] for r in rows} and
             receipt.get('handoff_payload_sha256') == {r['name']: r['payload_sha256'] for r in rows}, 'handoff originals differ')
+    barrier_contract(c, Path('/inputs'))
     return c
+
+
+BARRIER_PURPOSE = 'installer-barrier-only'
+BARRIER_FRAME_LINES = {'SELECTED_WORKER': 1325, 'SELECTED_TEST': 1757, 'SELECTED_RUNTIME': 280, 'GUEST': 2048}
+BARRIER_TEST = 'test_actual_isolate_keeps_host_readonly_and_only_evidence_persistent'
+BARRIER_SOURCE = 'd4313163538f51d85bc03e6a4adfde0c850cbc30'
+BARRIER_FILES = {
+    'scripts/install/local_transaction.py': {'bytes': 82312, 'sha256': '966aedf602511bedfc8ee8e12c29f21a7ff6b79523e4c5800b2a22a2af826eca'},
+    'scripts/install/test_local_transaction.py': {'bytes': 114659, 'sha256': 'ea5299f12b4d325035ebca1476feb2832e0d8e95980a456910ac302e845aefdb'},
+    'scripts/port/kernel-native-job/runtime.py': {'bytes': 11345, 'sha256': '8a7cd5e73cf383b2d81ad577b8513c6fd7d49f9fd2572961c73ae9d289cab821'},
+}
+
+
+def barrier_contract(c, root=None):
+    purpose = c.get('purpose', 'desktop')
+    require(purpose in ('desktop', BARRIER_PURPOSE), 'unsupported virtual purpose')
+    if purpose == 'desktop':
+        require('barrier_fixture' not in c, 'barrier fixture requires explicit purpose')
+        return False
+    expected = {'source_commit': BARRIER_SOURCE, 'test': BARRIER_TEST, 'files': BARRIER_FILES}
+    require(json.dumps(c.get('barrier_fixture'), sort_keys=True) == json.dumps(expected, sort_keys=True),
+            'exact selected barrier fixture required')
+    if root is not None:
+        for name, row in BARRIER_FILES.items():
+            path = pinned(root, name, row['sha256'])
+            require(path.stat().st_size == row['bytes'] and not path.stat().st_mode & 0o022,
+                    'barrier fixture size/protection differs')
+    return True
+
+
+def barrier_event(event, nonce, selection):
+    """One fixed result, never raw unittest failure text or a desktop claim."""
+    keys = {'event', 'nonce', 'selection_sha256', 'fixture_source', 'uid', 'gid',
+            'tests', 'failures', 'errors', 'skips', 'status', 'report', 'first_failure'}
+    require(type(event) is dict and set(event) == keys and event['event'] == 'barrier_result' and
+            event['nonce'] == nonce and event['selection_sha256'] == selection and
+            event['fixture_source'] == BARRIER_SOURCE and
+            type(event['uid']) is int and event['uid'] == 23001 and
+            type(event['gid']) is int and event['gid'] == 23001,
+            'barrier result identity differs')
+    require(all(type(event[k]) is int and 0 <= event[k] <= 1 for k in ('tests', 'failures', 'errors', 'skips')),
+            'invalid single test counts')
+    failure = event['first_failure']
+    if failure is not None:
+        require(type(failure) is dict and set(failure) == {'exception', 'errno', 'frames', 'unshare_tool_error'},
+                'invalid barrier failure')
+        require(failure['exception'] in ('AssertionError', 'OSError', 'PermissionError', 'FileNotFoundError',
+                'TimeoutExpired', 'ValueError', 'RuntimeError', 'KeyboardInterrupt', 'SystemExit', 'OTHER') and
+                (failure['errno'] is None or type(failure['errno']) is int and 1 <= failure['errno'] <= 4095),
+                'invalid barrier exception')
+        require(type(failure['frames']) is list and len(failure['frames']) <= 8 and all(
+                type(row) is dict and set(row) == {'source', 'line'} and
+                row['source'] in BARRIER_FRAME_LINES and
+                type(row['line']) is int and 1 <= row['line'] <= BARRIER_FRAME_LINES[row['source']] for row in failure['frames']),
+                'invalid barrier source frame')
+        tool = failure['unshare_tool_error']
+        require(type(tool) is dict and set(tool) == {'stage', 'errno'} and
+                tool['stage'] in ('PROC_MOUNT', 'ROOT_PROPAGATION', 'UNSHARE_CALL', 'UNRECOGNIZED_OR_ABSENT') and
+                (tool['errno'] == 'UNAVAILABLE' or type(tool['errno']) is int and 1 <= tool['errno'] <= 4095),
+                'invalid unshare suffix')
+    if event['status'] == 'PASS_BARRIER_ONLY':
+        expected = {'status': 'PASS-barrier-only', 'worker_sha256': BARRIER_FILES['scripts/install/local_transaction.py']['sha256'],
+            'outside_errno': 30, 'uid': 0, 'namespace_changed': True,
+            'denied_service_syscalls': {str(n): 1 for n in (203, 206, 211, 269, 425, 426, 427)},
+            'capabilities': {'CapEff': 0x400cb, 'CapPrm': 0x400cb, 'CapBnd': 0x400cb, 'CapInh': 0, 'CapAmb': 0},
+            'no_new_privileges': 1, 'libalpm_initialized': False, 'package_commit': False,
+            'host_namespace_unchanged': True, 'outside_bytes_unchanged': True,
+            'guest_file_absent_on_host': True, 'evidence_marker_persisted': True}
+        # Canonical JSON also distinguishes booleans from integers in nested facts.
+        require(event['tests'] == 1 and not any(event[k] for k in ('failures', 'errors', 'skips')) and
+                failure is None and json.dumps(event['report'], sort_keys=True) == json.dumps(expected, sort_keys=True),
+                'incomplete barrier proof')
+    else:
+        require(event['status'] == 'FAIL' and event['report'] is None and
+                (failure is not None or event['skips'] == 1), 'invalid failed barrier result')
+    return event
 
 
 def check_runtime(c):
@@ -228,13 +305,44 @@ def registered_spawn():
                 raise InterruptedError('cancelled during process registration: ' + str(sig))
 
 
-def reap(process):
+def terminal(process):
+    """Single owner only: observe without releasing the PID/PGID reservation."""
+    require(hasattr(os, 'WNOWAIT') and hasattr(os, 'waitid'), 'WNOWAIT required')
+    require(process.returncode is None, 'child already reaped; group ownership lost')
+    try:
+        return os.waitid(os.P_PID, process.pid, os.WEXITED | os.WNOHANG | os.WNOWAIT)
+    except ChildProcessError as error:
+        raise Refused('child reservation lost; cleanup uncertain') from error
+
+
+def await_terminal(process, deadline):
+    import time
+    while (row := terminal(process)) is None:
+        require(time.monotonic() < deadline, 'child terminal deadline')
+        time.sleep(min(.01, max(0, deadline - time.monotonic())))
+    return row
+
+
+def reap(process, timeout=5, verify_absence=False):
+    """Reserve through the LAST group signal, then reap; never signal after wait."""
     import signal
+    import time
+    deadline = time.monotonic() + timeout
+    terminal(process)  # ECHILD/another waiter => no numeric mutating signal.
     try:
         os.killpg(process.pid, signal.SIGKILL)
     except ProcessLookupError:
         pass
-    process.wait(timeout=5)
+    process.wait(timeout=max(.001, deadline - time.monotonic()))
+    if verify_absence:
+        while True:
+            try:
+                os.killpg(process.pid, 0)  # Nonmutating; reuse can only cause refusal.
+            except ProcessLookupError:
+                break
+            require(time.monotonic() < deadline, 'owned group absence unverified')
+            time.sleep(min(.01, max(0, deadline - time.monotonic())))
+    return process.returncode
 
 
 def bounded(argv, *, env=None, timeout=30, limit=1024 ** 2, log=None):
@@ -242,6 +350,7 @@ def bounded(argv, *, env=None, timeout=30, limit=1024 ** 2, log=None):
     import selectors
     import signal
     import time
+    require(hasattr(os, 'WNOWAIT') and hasattr(os, 'waitid'), 'WNOWAIT required before spawn')
     process = None
     streams = {'stdout': bytearray(), 'stderr': bytearray()}
     total, error = 0, None
@@ -275,26 +384,46 @@ def bounded(argv, *, env=None, timeout=30, limit=1024 ** 2, log=None):
                 if error:
                     break
         if not error:
-            process.wait(timeout=max(.1, timeout - (time.monotonic() - start)))
-    finally:
-        with registered_spawn():
             try:
-                if process:
-                    reap(process)
-                    process.stdout.close()
-                    process.stderr.close()
-            finally:
+                await_terminal(process, start + timeout)
+            except Refused:
+                if time.monotonic() < start + timeout:
+                    raise
+                error = 'timeout'
+    finally:
+        import sys
+        primary, faults = sys.exc_info()[1], []
+        try:
+            with registered_spawn():
+                duties = ([lambda: reap(process), process.stdout.close, process.stderr.close] if process else [])
                 if output:
-                    output.close()
+                    duties.append(output.close)
+                for duty in duties:
+                    try:
+                        duty()
+                    except BaseException as exc:
+                        faults.append(exc)
+        except BaseException as exc:
+            faults.append(exc)
+        if faults:
+            if primary is not None:
+                primary.add_note('owned process cleanup uncertain: ' + type(faults[0]).__name__)
+            elif error is not None:
+                first = Refused(error)
+                first.add_note('owned process cleanup uncertain: ' + type(faults[0]).__name__)
+                raise first from faults[0]
+            else:
+                raise faults[0]
     return {'returncode': process.returncode, 'error': error,
             **{name: data.decode(errors='replace') for name, data in streams.items()}}
 
 
 class LoggedProcess:
     """Immediately drain/cap a long-lived session's merged output to one log."""
-    def __init__(self, argv, path, *, env=None, limit=1024 ** 2, stdin=None):
+    def __init__(self, argv, path, *, env=None, limit=1024 ** 2, stdin=None, owner_signals_only=False):
         import signal
         import threading
+        require(not owner_signals_only or hasattr(os, 'WNOWAIT'), 'WNOWAIT required before spawn')
         self.error = None
         self.limit = limit
         self.process = self.thread = None
@@ -314,7 +443,7 @@ class LoggedProcess:
             except Exception as exc:
                 self.error = str(exc)
             finally:
-                if self.error:
+                if self.error and not owner_signals_only:
                     try:
                         os.killpg(self.process.pid, signal.SIGKILL)
                     except ProcessLookupError:
@@ -326,17 +455,25 @@ class LoggedProcess:
                                                 stderr=subprocess.STDOUT, start_new_session=True)
                 self.thread = threading.Thread(target=drain, daemon=True)
                 self.thread.start()
-        except BaseException:
-            with registered_spawn():
-                try:
+        except BaseException as primary:
+            faults = []
+            try:
+                with registered_spawn():
+                    duties = []
                     if self.process is not None:
-                        reap(self.process)
+                        duties.extend((lambda: reap(self.process), self.process.stdout.close))
                     if self.thread is not None and self.thread.ident is not None:
-                        self.thread.join(timeout=5)
-                    if self.process is not None:
-                        self.process.stdout.close()
-                finally:
-                    output.close()
+                        duties.append(lambda: self.thread.join(timeout=5))
+                    duties.append(output.close)
+                    for duty in duties:
+                        try:
+                            duty()
+                        except BaseException as exc:
+                            faults.append(exc)
+            except BaseException as exc:
+                faults.append(exc)
+            if faults:
+                primary.add_note('logged process cleanup uncertain: ' + type(faults[0]).__name__)
             raise
 
     def finish(self):

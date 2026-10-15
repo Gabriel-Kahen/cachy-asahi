@@ -70,6 +70,10 @@ jobs:
         run: python3 -B scripts/ci/asahi-audio-data/test_run.py
       - name: Check fixed build-only audio Rust candidate boundaries
         run: python3 -B scripts/ci/asahi-audio-rust/test_scoped_build.py
+      - name: Check fixed audio retrieval without network access
+        run: python3 -B scripts/ci/full-development-composition/test_retrieve_audio.py
+      - name: Check private VM barrier and owned process controls
+        run: python3 -B scripts/virtual/test_barrier_mode.py
       - name: Check bounded root observations without package actors
         run: |
           python3 -B scripts/update/test_full_root.py
