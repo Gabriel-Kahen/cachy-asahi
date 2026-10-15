@@ -14,8 +14,8 @@ import subprocess
 SOURCES = {
     'scripts/install/local_transaction.py': 'e4bc965a62cceb09aa2213d8da05815c0bdce82028e2eba7b20820b4d12c1fef',
     'scripts/update/capacity.py': 'dcb9899cd24daa21f75e6da6b0214393f093d140a70769092da091e0cfdf7c87',
-    'scripts/update/full_root.py': '01299102004e23a14c66759591b64c4915b8ea9a376f37f4d455bc3558a9d342',
-    'scripts/update/measure_copy.py': '44214a39c00d3f635948c015a073df2dee5b91bb5275ab0bc58973e0434d1292',
+    'scripts/update/full_root.py': 'ba3fdb842819fc047ca67de04609967d880cd2afd57945c86cbeeab65f775e3a',
+    'scripts/update/measure_copy.py': 'b530c77ac8cdc82a81d4a48fa6ff2b92b8fd747b8fd9eb52cbc7e1ed260ce546',
     'scripts/update/supervision.py': 'f18bcbd2a6279cff8fe6c7e9c9f80fc01c9818844b01df8c4e97b83d61704b10',
 }
 LIMITS = {'max_bytes': 8 * 1024**3, 'max_nodes': 500000,
@@ -204,6 +204,7 @@ def collect(plan, expected, source, composition):
                    '--workspace', str(workspace), '--expected-lock', str(source / 'expected-setup4.lock'),
                    '--expected-lock-sha256', plan['setup4']['expected_inventory_sha256']]
         for key, value in LIMITS.items(): command.extend(['--' + key.replace('_', '-'), str(value)])
+        command.extend(['--shape-examples-per-category', '8'])
         phase = 'worker'
         summary.update(worker_returncode='UNKNOWN', worker_termination='UNKNOWN')
         row = supervisor.run(command, env={'PATH': '/usr/bin:/bin', 'HOME': str(workspace), 'TMPDIR': '/tmp',
