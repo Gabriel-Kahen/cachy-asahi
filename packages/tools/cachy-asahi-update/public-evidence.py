@@ -301,7 +301,7 @@ def package_validation(value):
         metadata = row.get('metadata', {})
         if '.PKGINFO' in metadata:
             result['package'] = pick(metadata['.PKGINFO'], {'pkgname': sequence(enum('cachy-asahi-update'), 1),
-                'pkgver': sequence(enum('4.4.2-1'), 1), 'arch': sequence(enum('aarch64', 'any'), 1),
+                'pkgver': sequence(enum('4.4.2-2'), 1), 'arch': sequence(enum('aarch64', 'any'), 1),
                 'license': sequence(enum('GPL-3.0-or-later', 'MIT', 'Apache-2.0', 'ISC', 'Unicode-3.0'), 8)})
         if 'elf' in row:
             need(type(row['elf']) is dict and len(row['elf']) <= 16)

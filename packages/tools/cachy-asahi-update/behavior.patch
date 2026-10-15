@@ -18,11 +18,11 @@
  fi
 --- a/src/lib/check.sh
 +++ b/src/lib/check.sh
-@@ -3,10 +3,14 @@
+@@ -3,27 +3,43 @@
  # check.sh: Check for available updates
  # https://github.com/Antiz96/arch-update
  # SPDX-License-Identifier: GPL-3.0-or-later
-+# Modified 2026-10-11 by cachy-asahi contributors: propagate automated-check timer activation failures.
++# Modified 2026-10-11 by cachy-asahi contributors: propagate automated-check timer and repository-check failures.
  
  # shellcheck disable=SC2154
  if [ "${2}" == "--enable" ]; then
@@ -33,7 +33,43 @@
 +	fi
  	info_msg "$(eval_gettext "Automated update checks have been enabled")"
  	exit 0
++fi
++
++# Capture the repository result before changing any previous check state.
++# checkupdates returns 2 for a successful check with no available updates.
++# shellcheck disable=SC2154
++if ! checkupdates_db_tmpdir=$(mktemp -d "${checkupdates_db_tmpdir_prefix}XXXXX"); then
++	error_msg "$(eval_gettext "Unable to create a private repository check database; previous check state has been preserved")"
++	exit 20
++fi
++if repository_updates=$(CHECKUPDATES_DB="${checkupdates_db_tmpdir}" checkupdates); then
++	repository_check_status=0
++else
++	repository_check_status=$?
++fi
++if [[ "${repository_check_status}" != 0 && "${repository_check_status}" != 2 ]]; then
++	error_msg "$(eval_gettext "Unable to check repository updates; previous check state has been preserved")"
++	exit 20
  fi
+ 
+ # shellcheck disable=SC2154
+ touch "${statedir}"/last_updates_check_{packages,aur,flatpak}
+ 
+ # shellcheck disable=SC2154
+-checkupdates_db_tmpdir=$(mktemp -d "${checkupdates_db_tmpdir_prefix}XXXXX")
+-
+-# shellcheck disable=SC2154
+ if [ -z "${no_version}" ]; then
+-	# shellcheck disable=SC2154
+-	CHECKUPDATES_DB="${checkupdates_db_tmpdir}" checkupdates > "${statedir}/last_updates_check_packages"
++	printf '%s\n' "${repository_updates}" > "${statedir}/last_updates_check_packages"
+ else
+-	# shellcheck disable=SC2154
+-	CHECKUPDATES_DB="${checkupdates_db_tmpdir}" checkupdates | awk '{print $1}' > "${statedir}/last_updates_check_packages"
++	printf '%s\n' "${repository_updates}" | awk '{print $1}' > "${statedir}/last_updates_check_packages"
+ fi
+ 
+ if [ -n "${aur_helper}" ]; then
 --- a/src/lib/flatpak_unused_packages.sh
 +++ b/src/lib/flatpak_unused_packages.sh
 @@ -1,40 +1,27 @@

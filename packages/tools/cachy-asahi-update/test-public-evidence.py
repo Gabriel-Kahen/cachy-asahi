@@ -383,7 +383,7 @@ class ProjectionTests(unittest.TestCase):
 
     def test_package_elf_metadata_without_payload_or_buildinfo_environment(self):
         self.write('build-1/package-validation.json', {'artifacts': [{'sha256': H, 'status': 'artifact-static-pass',
-            'metadata': {'.PKGINFO': {'pkgname': ['cachy-asahi-update'], 'pkgver': ['4.4.2-1'], 'arch': ['aarch64'],
+            'metadata': {'.PKGINFO': {'pkgname': ['cachy-asahi-update'], 'pkgver': ['4.4.2-2'], 'arch': ['aarch64'],
                 'license': ['GPL-3.0-or-later', 'MIT'], 'packager': POISON}, '.BUILDINFO': {'buildenv': [POISON]}},
             'members': {POISON: {'sha256': H}}, 'elf': {'usr/lib/arch-update/arch-update-tray': {'machine': 183,
                 'load_segments': 4, 'errors': [], 'hardware_status': 'NOT RUN'}}}], 'errors': []})
@@ -393,6 +393,11 @@ class ProjectionTests(unittest.TestCase):
         self.assertIn('183', text)
         self.assertNotIn(POISON, text)
         self.assertNotIn('members', text)
+
+    def test_package_projection_refuses_previous_recipe_version(self):
+        with self.assertRaises(public.Invalid):
+            public.package_validation({'artifacts': [{'sha256': H, 'status': 'artifact-static-pass',
+                'metadata': {'.PKGINFO': {'pkgname': ['cachy-asahi-update'], 'pkgver': ['4.4.2-1']}}}]})
 
     def test_materializer_partial_cancelled_projection(self):
         materialized = self.root / 'materialized';materialized.mkdir()
