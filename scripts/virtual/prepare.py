@@ -277,7 +277,9 @@ def main():
         shared = 'usr/local/share/virtual-proof/'
         changed(root, shared + 'common.py', Path('/runner/virtual/common.py').read_bytes(), report)
         changed(root, shared + 'guest.py', Path('/runner/virtual/guest.py').read_bytes(), report)
-        changed(root, shared + 'minimal.lua', b'hl.monitor({ output = "", mode = "preferred", position = "auto", scale = 1 })\n', report)
+        changed(root, shared + 'minimal.lua',
+                b'hl.monitor({ output = "", mode = "preferred", position = "auto", scale = 1 })\n'
+                b'hl.config({ debug = { disable_logs = false, enable_stdout_logs = true } })\n', report)
         changed(root, shared + 'contract.json', (json.dumps({'nonce': c['nonce'], 'baseline': c['baseline']}, sort_keys=True) + '\n').encode(), report)
         changed(root, shared + 'runtime.lock', ''.join(k + ' ' + v + '\n' for k, v in sorted(runtime.items())).encode(), report)
         flags = subprocess.check_output(['/usr/bin/pkg-config', '--cflags', '--libs', 'egl', 'gbm', 'glesv2', 'libdrm'], text=True, timeout=15).split()
