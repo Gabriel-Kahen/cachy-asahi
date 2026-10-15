@@ -32,7 +32,8 @@ def save(path, value):
 
 
 def retain(raw, public):
-    names = ['desktop574/report.json', 'desktop574/build.log', 'dependency.log']
+    names = ['desktop574/report.json', 'desktop574/build.log', 'dependency.log',
+             'lifecycle-fixture-summary.json']
     for name in ('ksmctl', 'topmem', 'zsh-autosuggestions', 'fish-bang-bang'):
         names += [f'cachy-asahi-{name}/{file}' for file in ('build.log', 'provenance.json', 'validation.json')]
     for name in names:
@@ -158,6 +159,19 @@ def sign(inputs, root, packages):
     return fingerprints[0]
 
 
+def payload(report):
+    rows = []
+    for path, item in report['members'].items():
+        if path.startswith('.') or item['type'] == '5': continue
+        assert item['type'] in ('0', '2') and path.startswith('usr/')
+        row = {'path': '/' + path, 'type': 'file' if item['type'] == '0' else 'symlink',
+               'mode': item['mode']}
+        if item['type'] == '2': row['target'] = item['link']
+        else: row['sha256'] = item['sha256']
+        rows.append(row)
+    return rows
+
+
 def compose(args, raw, public, result):
     py = sys.executable
     pins = json.loads((HERE / 'recipes.json').read_text())
@@ -219,25 +233,28 @@ def compose(args, raw, public, result):
         target = inputs / original.name; shutil.copyfile(original, target)
         assert sha(target) == digest
         pkg = report['metadata']['.PKGINFO']
-        payload = []
-        for path, item in report['members'].items():
-            if path.startswith('.') or item['type'] == '5': continue
-            assert item['type'] in ('0', '2') and path.startswith('usr/')
-            member = {'path': '/' + path, 'type': 'file' if item['type'] == '0' else 'symlink'}
-            if item['type'] == '2': member['target'] = item['link']
-            payload.append(member)
         assert '.INSTALL' not in report['members']
         hooks.update(Path(path).name for path in report['members'] if path.endswith('.hook'))
         projects.append({'name': row['name'], 'version': row['version'], 'archive': target.name,
             'sha256': sha(target), 'depends': pkg.get('depend', []), 'provides': pkg.get('provides', []),
-            'conflicts': pkg.get('conflict', []), 'payload': payload})
+            'conflicts': pkg.get('conflict', []), 'payload': payload(report)})
         rows.append({'name': row['name'], 'version': row['version'], 'filename': target.name,
                      'sha256': sha(target), 'size': target.stat().st_size})
         archives.append(target)
+    lifecycle = None
+    if args.lifecycle:
+        result['phase'] = 'prepare-development-lifecycle-inputs'
+        preparation = module('composition_lifecycle_inputs', HERE / 'lifecycle_inputs.py')
+        lifecycle, upgrades = preparation.prepare(args, raw, inputs, core, checks, build_api, sys.modules[__name__])
+        archives.extend(upgrades)
     fingerprint = sign(inputs, raw, archives)
     for row in rows:
         sig = inputs / (row['filename'] + '.sig')
         row.update(signature_sha256=sha(sig), signature_size=sig.stat().st_size)
+    if lifecycle:
+        for row in lifecycle['upgrades']:
+            sig = inputs / (row['filename'] + '.sig')
+            row.update(signature_sha256=sha(sig), signature_size=sig.stat().st_size)
     for row in dependency['packages']:
         if row['name'] == 'xdg-utils': continue
         assert row['name'] not in base
@@ -245,8 +262,10 @@ def compose(args, raw, public, result):
             old = args.cache / (row['filename'] + suffix); assert sha(old) == digest
             shutil.copyfile(old, inputs / old.name)
         rows.append(row)
-    save(inputs / 'plan.json', {'packages': rows, 'projects': projects, 'hooks': sorted(hooks),
-        'signer_fingerprint': dependency['signer_fingerprint'], 'test_signer_fingerprint': fingerprint})
+    plan = {'packages': rows, 'projects': projects, 'hooks': sorted(hooks),
+        'signer_fingerprint': dependency['signer_fingerprint'], 'test_signer_fingerprint': fingerprint}
+    if lifecycle: plan['lifecycle'] = lifecycle
+    save(inputs / 'plan.json', plan)
     save(public / 'packages.json', {r['name']: {'version': r['version'], 'sha256': r['sha256']} for r in rows})
     result['phase'] = 'signed-offline-composition'
     name = 'cachy-asahi-composition-' + uuid.uuid4().hex
@@ -256,16 +275,25 @@ def compose(args, raw, public, result):
         '--memory=2g', '--cpus=2', '--tmpfs=/tmp:rw,nosuid,nodev,exec,size=512m',
         '--env=CACHY_ASAHI_COMPOSITION=' + uuid.uuid4().hex, '--env=LC_ALL=C', '--env=PYTHONDONTWRITEBYTECODE=1']
     for cap in ('CHOWN', 'DAC_OVERRIDE', 'FOWNER', 'SETUID', 'SETGID', 'SYS_CHROOT', 'SETFCAP'): argv.append('--cap-add=' + cap)
+    if lifecycle: argv.append('--cap-add=KILL')
     for source, target, ro in ((inputs, '/inputs', True), (HERE / 'container.py', '/runner.py', True), (public, '/out', False)):
         argv += ['--mount', f'type=bind,src={source},dst={target}' + (',readonly' if ro else '')]
-    command(argv + ['--entrypoint=/usr/bin/python3', image, '-I', '-B', '/runner.py'], public / 'transaction.log', 480)
+    if lifecycle:
+        argv += ['--mount', f'type=bind,src={HERE / "lifecycle.py"},dst=/lifecycle.py,readonly']
+    command(argv + ['--entrypoint=/usr/bin/python3', image, '-I', '-B', '/runner.py'],
+            public / 'transaction.log', 1200 if lifecycle else 480)
     result['composition'] = json.loads((public / 'result.json').read_text())
     assert result['composition']['status'] == 'PASS'
+    if lifecycle:
+        assert result['composition']['lifecycle']['status'] == 'PASS'
+        assert result['composition']['final_package_count'] == 574
+        assert result['composition']['final_inventory_sha256'] == FULL
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ('product', 'updater', 'desktop', 'native', 'fdk', 'cache', 'output'): parser.add_argument('--' + name, required=True, type=Path)
+    parser.add_argument('--lifecycle', action='store_true', help='Run the explicit disposable lifecycle after v1 composition checks')
     args = parser.parse_args()
     assert platform.machine() == 'aarch64' and os.getuid() != 0
     for name, source in SOURCES.items():
