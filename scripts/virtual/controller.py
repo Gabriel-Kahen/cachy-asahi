@@ -31,8 +31,8 @@ LOCK_PIN = 'c18afc5bde9868594d41bd576a956960a7b01b190d148ba03ca4c41d4394e1b0'
 AUDIT_PIN = 'd3289a52f3269ba44f1437b69a112dcbd2086ee16ebe8d44658e65e7fb8e2095'
 AUDITOR_PIN = '6677f391f2de23540bc147770148729fe4c993850b7bbed0b71fb7e48d296fdc'
 CORE = {
-    'common.py': 'b6ed93d09ecee3afe5117518434db846b7ceaf6bffa7b0a119815221f4d86e5c',
-    'guest.py': 'a8e4ab6fa19f742cacd9506571625f5af90184309492cb118bd139ad46c84ceb',
+    'common.py': 'dc9dcca82e3773adb7c125a230677b18db0271e5a7a17d70fc0384126363f3d1',
+    'guest.py': 'a8562b3fd5ef8890eefc0cd4d65b00da75b1b45cbe7becc97e31f580b6fe2fb9',
     'prepare.py': '5a9fbfbbafb56244b6a6c960fa40bbfc574bfd6bb4c3d5338e17082714c69488',
     'run.py': 'e96ec9b61dc26fa622702ef871bcdf9f53f3fd08ee12b5df03991163460d5766',
     'gbm_probe.c': 'fe0bb7b15df0bc93c4b5115543619e182ba3dac2ed22d0d8b1ab541d77a72efd',
