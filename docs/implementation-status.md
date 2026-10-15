@@ -2,6 +2,18 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 15, isolated comparison import correction:
+The shared build comparator now explicitly resolves its selected sibling helper
+when run with Python isolated/site-disabled flags. A focused regression runs the
+actual CLI help path with poisoned cwd/PYTHONPATH and confirms that ambient code
+is not imported. Comparison and artifact-validation functions are unchanged.
+KSM proposal `d3f56810` and independent review `f6206390` pass; its separate
+three-file native packet successor is awaiting actual Source admission. Actual
+KSM run `38678792213`, admitted under `eb2a8da2`, reports producer and both builds
+PASS followed by comparison/ValueError; the precise actual substep/cause remain
+unexported. Cleanup FAIL, explicit false ownership uncertainty, bounded daemon
+preservation PASS and nine unverified unowned image IDs remain recorded.
+
 October 15, package-cache maintenance:
 The standalone `scripts/maintenance/package_cache.py` previews an explicitly
 selected package cache and applies only reviewed archive selections. It preserves

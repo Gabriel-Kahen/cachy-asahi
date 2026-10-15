@@ -5,6 +5,7 @@ import json
 import sys
 import tarfile
 from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'checks'))
 from package_checks import digest, package, PACKAGE_METADATA
 from build import bind_artifact
