@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
-"""ARM-C01: isolated zlib baseline/LTO correctness trial; never install packages."""
+"""Isolated zlib baseline/LTO or O3 correctness trial; never install packages."""
 import argparse
 import hashlib
 import io
@@ -23,7 +23,34 @@ import zlib
 sys.dont_write_bytecode = True
 import corpus
 
+EXPERIMENTS = {'ARM-C01': 'lto', 'ARM-C02': 'o3'}
+EXPERIMENT = 'ARM-C01'
+CANDIDATE = 'lto'
 PURPOSE = 'ARM-C01-native-correctness-only'
+MARKER = 'CACHY_ASAHI_ARM_C01'
+
+
+def select_experiment(name):
+    """Closed caller selection; never infer acceptance rules from a receipt."""
+    global EXPERIMENT, CANDIDATE, PURPOSE, MARKER
+    if name not in EXPERIMENTS:
+        raise ValueError('unknown experiment')
+    EXPERIMENT, CANDIDATE = name, EXPERIMENTS[name]
+    PURPOSE = name + '-native-correctness-only'
+    MARKER = 'CACHY_ASAHI_' + name.replace('-', '_')
+
+
+def variants():
+    return ('baseline', CANDIDATE)
+
+
+def build_names():
+    return tuple(f'{variant}-{attempt}' for variant in variants() for attempt in (1, 2))
+
+
+def container_prefix():
+    return 'cachy-asahi-' + EXPERIMENT.lower() + '-'
+
 SOURCE_SHA = 'bb329a0a2cd0274d05519d61c667c062e06990d72e125ee2dfa8de64f0119d16'
 LIMIT = 4 * 1024**2
 PIN = re.compile(r'[0-9a-f]{64}')
@@ -178,7 +205,7 @@ def observed():
                            for p in NULL_MASKS if p in table},
             'directory_masks': {p: Path(p).is_dir() and not Path(p).is_symlink() and not any(Path(p).iterdir())
                                 for p in MASKS - NULL_MASKS - PROC_MASKS if p in table},
-            'home': os.environ.get('HOME'), 'nonce': os.environ.get('CACHY_ASAHI_ARM_C01')}
+            'home': os.environ.get('HOME'), 'nonce': os.environ.get(MARKER)}
 
 
 def guard(record, nonce):
@@ -406,7 +433,9 @@ def trial_env():
 
 
 def build_flags(variant):
-    return (BASE_FLAGS + (' -flto=2 -Werror=lto-type-mismatch' if variant == 'lto' else ' -fno-lto'),
+    need(variant in variants(), 'variant differs from selected experiment')
+    flags = BASE_FLAGS.replace('-O2 ', '-O3 ', 1) if variant == 'o3' else BASE_FLAGS
+    return (flags + (' -flto=2 -Werror=lto-type-mismatch' if variant == 'lto' else ' -fno-lto'),
             LINK_FLAGS + (' -flto=2' if variant == 'lto' else ' -fno-lto'))
 
 
@@ -449,7 +478,7 @@ def configured_flags(makefile, configure_log, variant):
 def command_plan(manifest):
     """Exact native command/dataflow graph; stdout bytes remain producer evidence."""
     rows, env = [], trial_env()
-    names = [f'{v}-{a}' for v in ('baseline', 'lto') for a in (1, 2)]
+    names = list(build_names())
     def add(name, argv, cwd=None, environment=None, source=None, target=None, reject=False, sample=False, observe=False):
         rows.append({'name': name, 'argv': argv, 'cwd': cwd, 'environment': environment or env,
                      'source': source, 'target': target, 'reject': reject, 'sample': sample, 'observe': observe})
@@ -532,7 +561,7 @@ def verify_result(raw, contract, expected_packages=None, source=None):
     packages = input_bytes(expected_packages, raw.parent / 'inputs/packages.lock')
     need(hashlib.sha256(packages).hexdigest() == contract['packages_sha256'], 'receiver package inventory pin differs')
     source_bytes = input_bytes(source, raw.parent / 'inputs/zlib.tar.gz')
-    need(contract['source_sha256'] == SOURCE_SHA, 'receiver source contract differs')
+    need(contract.get('purpose') == PURPOSE and contract['source_sha256'] == SOURCE_SHA, 'receiver source contract differs')
     need(sha(Path(__file__).resolve()) == contract['runner_sha256']
          and sha(Path(corpus.__file__).resolve()) == contract['corpus_sha256'], 'receiver helper source pins differ')
     material = source_material(source_bytes)
@@ -574,7 +603,7 @@ def verify_result(raw, contract, expected_packages=None, source=None):
     need((raw / 'strict-gzip.c').read_bytes() == STRICT_DRIVER and report.get('strict_driver_source_sha256') == STRICT_SHA,
          'strict driver source binding differs')
     builds = report.get('builds', [])
-    expected_builds = [(v, n) for v in ('baseline', 'lto') for n in (1, 2)]
+    expected_builds = [(v, n) for v in variants() for n in (1, 2)]
     need([(b['variant'], b['attempt']) for b in builds] == expected_builds, 'all four ordered build receipts required')
     for build in builds:
         root = raw / f"{build['variant']}-{build['attempt']}"
@@ -596,8 +625,8 @@ def verify_result(raw, contract, expected_packages=None, source=None):
              and build['strict_driver'].get('source_sha256') == STRICT_SHA, 'strict driver binary/source binding differs')
     suffixes = [shlex.split(b['configured_flags']['CFLAGS'])[len(shlex.split(build_flags(b['variant'])[0])):] for b in builds]
     need(all(value == suffixes[0] for value in suffixes), 'configure feature flags differ between builds/variants')
-    need(report.get('reproducibility') == {'baseline': 'PASS', 'lto': 'PASS'}, 'both rebuild pairs required')
-    for variant in ('baseline', 'lto'):
+    need(report.get('reproducibility') == {variant: 'PASS' for variant in variants()}, 'both rebuild pairs required')
+    for variant in variants():
         pair = [b['artifacts'] for b in builds if b['variant'] == variant]
         need(pair[0] == pair[1], 'retained rebuild pair bytes differ')
         drivers = [b['strict_driver']['binary_sha256'] for b in builds if b['variant'] == variant]
@@ -699,12 +728,12 @@ def verify_result(raw, contract, expected_packages=None, source=None):
 def inside():
     inputs, out = Path('/inputs'), Path('/out')
     # Real guard precedes contract/file reads and all output writes.
-    guard(observed(), os.environ.get('CACHY_ASAHI_ARM_C01'))
+    guard(observed(), os.environ.get(MARKER))
     regular(inputs / 'contract.json')
-    need(sha(inputs / 'contract.json') == os.environ.get('CACHY_ASAHI_ARM_C01_CONTRACT'), 'contract pin differs')
+    need(sha(inputs / 'contract.json') == os.environ.get(MARKER + '_CONTRACT'), 'contract pin differs')
     contract = json.loads((inputs / 'contract.json').read_text())
     need(set(contract) == {'purpose', 'nonce', 'image', 'source_commit', 'source_sha256', 'packages_sha256', 'runner_sha256', 'corpus_sha256'}, 'unexpected contract fields')
-    need(contract['purpose'] == PURPOSE and contract['nonce'] == os.environ.get('CACHY_ASAHI_ARM_C01'), 'contract identity differs')
+    need(contract['purpose'] == PURPOSE and contract['nonce'] == os.environ.get(MARKER), 'contract identity differs')
     need(re.fullmatch(r'sha256:[0-9a-f]{64}', contract['image']) and re.fullmatch(r'[0-9a-f]{40}', contract['source_commit']), 'image/commit identity required')
     for name, pin in [('arm_c01.py', 'runner_sha256'), ('corpus.py', 'corpus_sha256'), ('packages.lock', 'packages_sha256'), ('zlib.tar.gz', 'source_sha256')]:
         regular(inputs / name, 8 * 1024**2)
@@ -746,7 +775,7 @@ def inside():
         # Retain corpus bytes as exact retrievable experiment inputs.
         shutil.copytree(corpus_root, out / 'corpus')
         (out / 'strict-gzip.c').write_bytes(STRICT_DRIVER)
-        for variant in ('baseline', 'lto'):
+        for variant in variants():
             for attempt in (1, 2):
                 guard(observed(), contract['nonce'])
                 work.mkdir(); extract(inputs / 'zlib.tar.gz', work)
@@ -826,7 +855,7 @@ def inside():
             report['sample_truncation'].append({'decoder': label, 'exit_code': code, 'status': 'OBSERVED',
                                                 'rejection_acceptance': 'NOT CLAIMED'})
         report['reproducibility'] = {}
-        for variant in ('baseline', 'lto'):
+        for variant in variants():
             pair = [b for b in report['builds'] if b['variant'] == variant]
             report['reproducibility'][variant] = 'PASS' if (pair[0]['artifacts'] == pair[1]['artifacts']
                 and pair[0]['strict_driver']['binary_sha256'] == pair[1]['strict_driver']['binary_sha256']) else 'FAIL'
@@ -884,7 +913,7 @@ def host(args):
             regular(source, 8 * 1024**2); shutil.copyfile(source, inputs / filename)
         need(sha(inputs / 'zlib.tar.gz') == SOURCE_SHA and sha(inputs / 'packages.lock') == args.expected_packages_sha256,
              'reviewed input changed during snapshot')
-        nonce = os.urandom(16).hex(); name = 'cachy-asahi-arm-c01-' + nonce
+        nonce = os.urandom(16).hex(); name = container_prefix() + nonce
         contract = {'purpose': PURPOSE, 'nonce': nonce, 'image': args.image, 'source_commit': args.source_commit,
                     'source_sha256': SOURCE_SHA, 'packages_sha256': args.expected_packages_sha256,
                     'runner_sha256': sha(inputs / 'arm_c01.py'), 'corpus_sha256': sha(inputs / 'corpus.py')}
@@ -896,9 +925,11 @@ def host(args):
                    '--read-only', '--pids-limit=256', '--memory=4g', '--cpus=2',
                    '--tmpfs', f'/tmp:rw,nosuid,nodev,exec,size=2g,mode=0700,uid={os.getuid()},gid={os.getgid()}',
                    '--mount', f'type=bind,src={inputs},dst=/inputs,readonly', '--mount', f'type=bind,src={raw},dst=/out',
-                   '--env', 'HOME=/tmp/home', '--env', f'CACHY_ASAHI_ARM_C01={nonce}',
-                   '--env', f'CACHY_ASAHI_ARM_C01_CONTRACT={sha(inputs / "contract.json")}',
+                   '--env', 'HOME=/tmp/home', '--env', f'{MARKER}={nonce}',
+                   '--env', f'{MARKER}_CONTRACT={sha(inputs / "contract.json")}',
                    '--entrypoint=/usr/bin/python3', args.image, '-B', '/inputs/arm_c01.py', '--inside']
+        if EXPERIMENT != 'ARM-C01':
+            command += ['--experiment', EXPERIMENT]
         report.update(contract=contract, command=command, image=image['Id'], daemon_arch=daemon['Architecture'])
         runner.run('container', command, timeout=800)
         verified = verify_result(raw, contract, inputs / 'packages.lock', inputs / 'zlib.tar.gz')
@@ -937,11 +968,13 @@ def host(args):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--experiment', choices=tuple(EXPERIMENTS), default='ARM-C01')
     parser.add_argument('--inside', action='store_true', help=argparse.SUPPRESS)
     parser.add_argument('--image'); parser.add_argument('--source', type=Path)
     parser.add_argument('--source-commit'); parser.add_argument('--expected-packages', type=Path)
     parser.add_argument('--expected-packages-sha256'); parser.add_argument('--output', type=Path)
     args = parser.parse_args()
+    select_experiment(args.experiment)
     try:
         if args.inside:
             return inside()
@@ -950,7 +983,7 @@ def main():
         receipt = json.loads((args.output / 'result.json').read_text())
         return code if receipt['status'] == 'PASS' else 1
     except (OSError, ValueError, KeyError, subprocess.SubprocessError):
-        print('ARM-C01 refused; native reviewed disposable inputs required', file=sys.stderr)
+        print(EXPERIMENT + ' refused; native reviewed disposable inputs required', file=sys.stderr)
         return 1
 
 
