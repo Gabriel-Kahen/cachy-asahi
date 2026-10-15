@@ -23,13 +23,13 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: native-arm-fdk-current
+  group: native-arm-development-composition
   cancel-in-progress: false
 jobs:
   native:
     if: github.repository == 'Gabriel-Kahen/cachy-asahi' && github.event.repository.private == false
     runs-on: ubuntu-24.04-arm
-    timeout-minutes: 100
+    timeout-minutes: 290
     env:
       SOURCE_COMMIT: a79c4ca92486854f9edb639cd970d2c90fda4b12
       INPUTS_SHA256: ${{ inputs.inputs_sha256 }}
@@ -316,3 +316,55 @@ jobs:
           (public / 'scope.txt').write_text('Generic ARM disposable provider and shipped AAC codec trial; no Bluetooth, daemon graph or M2 validation; no binaries retained.\n')
           PYPROVIDERLOG
           python3 -B scripts/ci/log_evidence.py "$RUNNER_TEMP/fdk-provider-metadata"
+      - name: Checkout the ten current development recipes
+        if: ${{ !cancelled() && steps.fdk_pair.outcome == 'success' }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: a58fca33c4db5f2ab3ea6111f4d7842a932cc336
+          path: composition-product
+          persist-credentials: false
+      - name: Checkout the exact updater compiler implementation
+        if: ${{ !cancelled() && steps.fdk_pair.outcome == 'success' }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 1aea667aec50a62ba0ab2dad44be24a4dc3bd098
+          path: composition-updater
+          persist-credentials: false
+      - name: Checkout the proven 574-package runtime builder
+        if: ${{ !cancelled() && steps.fdk_pair.outcome == 'success' }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 8d8e2f5d5a94ab3ebee2d8b1cc20aecf98e435e2
+          path: composition-desktop
+          persist-credentials: false
+      - name: Required signed complete development composition
+        id: composition
+        if: ${{ always() && !cancelled() }}
+        timeout-minutes: 180
+        shell: bash
+        env:
+          FDK_PAIR_OUTCOME: ${{ steps.fdk_pair.outcome }}
+        run: |
+          set -euo pipefail
+          test "$FDK_PAIR_OUTCOME" = success
+          install -d -m 700 "$RUNNER_TEMP/composition-home"
+          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP/composition-home" LANG=C.UTF-8 TZ=UTC \
+            PYTHONDONTWRITEBYTECODE=1 \
+            python3 -B "$GITHUB_WORKSPACE/provider-source/scripts/ci/full-development-composition/run.py" \
+              --product "$GITHUB_WORKSPACE/composition-product" \
+              --updater "$GITHUB_WORKSPACE/composition-updater" \
+              --desktop "$GITHUB_WORKSPACE/composition-desktop" \
+              --native "$RUNNER_TEMP/native-evidence" --fdk "$RUNNER_TEMP/fdk-evidence" \
+              --cache "$RUNNER_TEMP/alarm-cache" --output "/tmp/cachy-asahi-composition-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+      - name: Retain bounded development composition metadata
+        if: always()
+        shell: bash
+        env:
+          COMPOSITION_OUTCOME: ${{ steps.composition.outcome }}
+        run: |
+          set -euo pipefail
+          printf '\nDevelopment composition step: %s; target/platform/release NOT ACCEPTED.\n' \
+            "$COMPOSITION_OUTCOME" | tee -a "$GITHUB_STEP_SUMMARY"
+          if [ -d "/tmp/cachy-asahi-composition-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT/public" ]; then
+            python3 -B scripts/ci/log_evidence.py "/tmp/cachy-asahi-composition-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT/public"
+          fi
