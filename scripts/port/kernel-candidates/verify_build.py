@@ -281,16 +281,29 @@ class ELF:
                 harness.need(row['type'] == 4, 'AArch64 ELF RELA metadata invalid [' + relocation_role + '_TYPE_RELA]')
                 harness.need(row['entsize'] == 24, 'AArch64 ELF RELA metadata invalid [' + relocation_role + '_ENTRY_SIZE]')
                 harness.need(row['size'] % 24 == 0, 'AArch64 ELF RELA metadata invalid [' + relocation_role + '_SIZE_MULTIPLE]')
-                harness.need(self.sections[row['link']]['type'] in (2, 11), 'AArch64 ELF RELA metadata invalid [' + relocation_role + '_SYMBOL_TABLE_TYPE]')
+                harness.need(self.sections[row['link']]['type'] in (2, 11) or
+                             (artifact_role == 'arm64-image-reference' and kind in (2, 3) and
+                              row['link'] == 0 and row['info'] == 0 and row['flags'] & 2),
+                             'AArch64 ELF RELA metadata invalid [' + relocation_role + '_SYMBOL_TABLE_TYPE]')
                 harness.need(row['info'] < shnum, 'AArch64 ELF RELA metadata invalid [' + relocation_role + '_TARGET_INDEX]')
                 harness.need(kind != 1 or row['info'] > 0, 'AArch64 ELF RELA metadata invalid [' + relocation_role + '_MODULE_TARGET]')
+                relative = row['link'] == 0
                 linked = self.sections[row['link']]
-                harness.need(linked['entsize'] == 24 and linked['size'] % 24 == 0, 'relocation symbol table invalid')
+                if not relative:
+                    harness.need(linked['entsize'] == 24 and linked['size'] % 24 == 0, 'relocation symbol table invalid')
                 target = self.sections[row['info']]
                 for pos in range(0, row['size'], 24 * 4096):
                     raw = self.read(row['offset'] + pos, min(24 * 4096, row['size'] - pos))
                     for offset, info, _ in struct.iter_unpack('<QQq', raw):
-                        harness.need(info >> 32 < linked['size'] // 24 and (kind != 1 or offset < target['size']), 'ELF relocation index/offset invalid')
+                        if relative:
+                            # Linux arm64 keeps allocated RELA after discarding .dynsym.
+                            # Its self-relocator applies only R_AARCH64_RELATIVE (1027).
+                            harness.need(info == 1027 and any(s['flags'] & 2 and s['addr'] <= offset and
+                                         offset + 8 <= s['addr'] + s['size'] for s in self.sections) and
+                                         any(p['addr'] <= offset and offset + 8 <= p['addr'] + p['memsz'] for p in self.loads),
+                                         'ELF relocation index/offset invalid')
+                        else:
+                            harness.need(info >> 32 < linked['size'] // 24 and (kind != 1 or offset < target['size']), 'ELF relocation index/offset invalid')
 
     def section_bytes(self, name, cap=128 * 1024**2):
         row = self.by_name.get(name)

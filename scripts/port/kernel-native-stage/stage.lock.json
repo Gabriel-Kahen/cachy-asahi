@@ -25,7 +25,7 @@
     },
     "scripts/port/kernel-candidates/verify_build.py": {
       "mode": 493,
-      "sha256": "53f3496a11e2637ae9d0a0c454396e075d532fe0539fd94949c9bbfe4bcd54a9"
+      "sha256": "47b4814e6a61459a56ea078b6b39a6f4de9791c607c7584248d2efb72134800e"
     },
     "scripts/port/kernel-native-stage/acquisition.py": {
       "mode": 493,

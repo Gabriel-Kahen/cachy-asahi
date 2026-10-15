@@ -729,5 +729,110 @@ class RelocationConjunctDiagnosticTests(unittest.TestCase):
         self.assertEqual(seen,['type'])
 
 
+class ImageRelativeRelocationTests(unittest.TestCase):
+    """Owned synthetic bytes only: no relocation application or native acceptance."""
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory(); self.addCleanup(self.tmp.cleanup)
+        self.path = Path(self.tmp.name) / 'reference.elf'
+
+    def fixture(self, offset=TEXT_ADDR+0x8000, info=1027, *, kind=3, flags=2, link=0, target=0):
+        raw,image = flat_kernel_bytes(b'owned_instruction_fixture'*4,readonly_kind=4)
+        raw,image = bytearray(raw),bytearray(image)
+        shoff = struct.unpack_from('<Q',raw,40)[0]
+        struct.pack_into('<H',raw,16,kind)
+        struct.pack_into('<Q',raw,shoff+3*64+8,flags)
+        struct.pack_into('<II',raw,shoff+3*64+40,link,target)
+        payload = struct.pack('<QQq',offset,info,0)
+        raw[0x8020:0x8038] = payload; image[0x4020:0x4038] = payload
+        return raw,image
+
+    def read(self, raw, role='arm64-image-reference', kind=3):
+        self.path.write_bytes(raw)
+        return verifier.ELF(self.path,kind,4*1024**3,artifact_role=role)
+
+    def test_symbol_free_relative_virtual_targets_and_unaligned_nobits(self):
+        for kind in (2,3):
+            for offset in (TEXT_ADDR,TEXT_ADDR+1,TEXT_ADDR+0x8000,TEXT_ADDR+0x8001,
+                           TEXT_ADDR+0x9000,TEXT_ADDR+0x9001,TEXT_ADDR+0xfff7,TEXT_ADDR+0xfff8):
+                with self.subTest(kind=kind,offset=offset):
+                    raw,_ = self.fixture(offset,kind=kind)
+                    with self.read(raw,kind=kind) as elf:
+                        self.assertEqual(elf.by_name['.rela.dyn']['link'],0)
+                        self.assertEqual(elf.symbols['type'],2)
+
+    def test_symbol_free_rejects_symbolic_unknown_and_irelative(self):
+        for info in (0,257,1026,1028,1032,0xffffffff,(1<<32)|1027,(0xffffffff<<32)|1027):
+            with self.subTest(info=info):
+                raw,_ = self.fixture(info=info)
+                with self.assertRaisesRegex(ValueError,'ELF relocation index/offset invalid'):
+                    self.read(raw)
+
+    def test_null_link_requires_exact_image_context_and_allocated_whole_image_table(self):
+        for updates in (dict(flags=0),dict(target=1),dict(link=9)):
+            raw,_ = self.fixture(**updates)
+            with self.subTest(updates=updates),self.assertRaisesRegex(ValueError,'SYMBOL_TABLE_TYPE'):
+                self.read(raw)
+        raw,_ = self.fixture()
+        with self.assertRaisesRegex(ValueError,'ELF_SYMBOL_TABLE_TYPE'):
+            self.read(raw,role='elf')
+        raw = bytearray(elf_bytes(b'owned_module',module=True))
+        shoff = struct.unpack_from('<Q',raw,40)[0]
+        # .rela.text is section six in the maintained module fixture.
+        struct.pack_into('<Q',raw,shoff+6*64+8,2)
+        struct.pack_into('<II',raw,shoff+6*64+40,0,0)
+        with self.assertRaisesRegex(ValueError,'RELOCATABLE_SYMBOL_TABLE_TYPE'):
+            self.read(raw,role='elf',kind=1)
+
+    def test_relative_destination_requires_full_eight_bytes_in_allocated_memory(self):
+        for offset in (0,TEXT_ADDR-1,TEXT_ADDR+0x100,TEXT_ADDR+0x401c,
+                       TEXT_ADDR+0xfff9,TEXT_ADDR+0x10000,2**64-4):
+            with self.subTest(offset=offset):
+                raw,_ = self.fixture(offset)
+                with self.assertRaisesRegex(ValueError,'ELF relocation index/offset invalid'):
+                    self.read(raw)
+
+    def test_symbol_table_still_required_and_rela_shape_still_checked(self):
+        raw,_ = self.fixture(); shoff=struct.unpack_from('<Q',raw,40)[0]
+        cases=((shoff+8*64+4,'<I',1,'bounded actual ELF symbol table required'),
+               (shoff+3*64+4,'<I',9,'TYPE_RELA'),
+               (shoff+3*64+56,'<Q',16,'ENTRY_SIZE'),
+               (shoff+3*64+32,'<Q',23,'SIZE_MULTIPLE'))
+        for position,fmt,value,error in cases:
+            altered=bytearray(raw);struct.pack_into(fmt,altered,position,value)
+            with self.subTest(error=error),self.assertRaisesRegex(ValueError,error):
+                self.read(altered)
+
+    def test_linked_symbol_relocations_keep_existing_index_and_table_checks(self):
+        raw,_ = flat_kernel_bytes(b'owned_instruction_fixture'*4,readonly_kind=4)
+        for role in ('elf','arm64-image-reference'):
+            with self.read(raw,role=role): pass
+            altered=bytearray(raw);struct.pack_into('<Q',altered,0x8028,100<<32)
+            with self.assertRaisesRegex(ValueError,'ELF relocation index/offset invalid'):
+                self.read(altered,role=role)
+            altered=bytearray(raw);shoff=struct.unpack_from('<Q',altered,40)[0]
+            struct.pack_into('<Q',altered,shoff+8*64+56,16)
+            with self.assertRaisesRegex(ValueError,'bounded actual ELF symbol table required'):
+                self.read(altered,role=role)
+
+    def test_relative_table_remains_in_complete_image_projection(self):
+        raw,image = self.fixture(); output=Path(self.tmp.name)/'Image';output.write_bytes(image)
+        with self.read(raw) as elf:
+            result=verifier.image_relation(elf,output,TEXT_ADDR)
+        self.assertIn('.rela.dyn',[s['name'] for s in result['copied_sections']])
+        image[0x4020] ^= 1;output.write_bytes(image)
+        with self.read(raw) as elf,self.assertRaisesRegex(ValueError,'Image body differs from vmlinux allocated section'):
+            verifier.image_relation(elf,output,TEXT_ADDR)
+
+    def test_symbol_free_path_preserves_section_wx_and_load_geometry_gates(self):
+        raw,_=self.fixture();shoff=struct.unpack_from('<Q',raw,40)[0]
+        altered=bytearray(raw);struct.pack_into('<Q',altered,shoff+3*64+8,7)
+        with self.assertRaisesRegex(ValueError,'ELF writable executable section refused'):
+            self.read(altered)
+        altered=bytearray(raw);struct.pack_into('<Q',altered,64+48,8192)
+        struct.pack_into('<Q',altered,64+16,TEXT_ADDR+8192)
+        with self.assertRaisesRegex(ValueError,'VA_16K'):
+            self.read(altered)
+
+
 if __name__ == '__main__':
     unittest.main()
