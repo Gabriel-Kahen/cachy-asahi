@@ -7,12 +7,19 @@ Client Source `fb3c3b7d`, Data `3ccf41c1` and Code `c6d43be2` are published.
 Actual Source review `8580f4c7`, historical planning-input reader `97fde0b9`
 and Source/Data/plan review `7ebc7e1b` pass. Two guarded plan-variable updates
 read back literally before execution ref 53→fb3 selects exactly one push trial
-`38678550956`, attempt 1. Its actual result review remains separate; no current
-native48 or installer success is claimed.
+`38678550956`, attempt 1. Root admits review `70c02bce`: load-original /
+initial-failed, native hook NOT ENTERED and native48 NOT RUN. Handoff and startup
+refusal cleanup pass; publication fails and promotion/restaging are NOT RUN.
+The private cause remains unknown. A separate source audit proves that the
+current 160-file initial bundle is rejected by a stale 159-file count; its
+four-file correction is under independent review, without actual-cause backfill.
 
 Updater Source `56a90a7b` repairs two stale generator-lock hashes through an
 exact four-file pin cascade after reviews `352c1b70` and `47e7cff3`. All 21
-generator pins match; one changed trial is `38678420443`. Its preceding run
+generator pins match; changed trial `38678420443`, admitted under `b3c16968`,
+reports compiler return0 followed by compile-units refusal and wrapper return1.
+The failing suboperation and operand remain unexported; compilation is not
+accepted. A failure-only diagnostic proposal is under independent review. Its preceding run
 `38676918007` is admitted under `fa76e91c`: materialize/process-failed/return1,
 native compilation NOT RUN, inner operand unknown, scoped cleanup reported
 PASS and daemon disposal NOT ATTESTED. The separate stale-lock proof does not
@@ -27,15 +34,24 @@ acquisition exit0, probe PASS and baseline build-command return0. Output
 verification then refuses CHECK_002, AArch64 ELF RELA metadata invalid; artifact
 and failed conjunct are unexported. Candidate NOT RUN; current scoped cleanup
 and bounded daemon preservation pass, legacy cache preservation is unestablished.
-A failure-only diagnostic is under review. P0 trial `38676597240` has its own
-terminal review; no policy/P0 entry or matrix pass is inferred from stage names.
+The failure-only diagnostic passes semantic review `4e48d6a7` and actual Source
+review `2bd3b97a`. Source `8dba2fa3` is published with eight changed files and
+118 held roles; exactly one changed ARM trial is `38680751411`, attempt1.
+P0 trial `38676597240`, admitted under `2fdfa93a`, reports pipeline /
+download-http-error, with failed URL/status unexported and cleanup uncertainty
+true. P0 entry and preparation completion are unestablished; its matrix is NOT RUN.
+Independent source/HTTP audit `31bdac3f` observes 404 for the exact pinned
+bubblewrap pair and four old Vim objects. P0-specific retained-input delivery
+work is separate from the generic build CLI; no unchanged retry is selected.
 
 Hosted primary setup run `38677157047` fails 15 integration fixtures because
 the primary recipe lock still names the previous setup inputs. Correction
 `1794f905` refreshes exactly five of 72 hashes in one file, preserving the other
 67 and all fixture checks. Root rederives every current recipe hash and passes
 all 157 integration tests, including the real GPG fixture outside the restricted
-sandbox. Hosted validation of this correction remains pending. Primary
+sandbox. Hosted run `38679445337` passes all 848 tests with zero skips, plus
+recipe inspection and syntax checks. Root retains and verifies its complete log
+under `primary-static-38679445337-root-observation-20261015`. Primary
 integration/packet/donor snapshots remain a historical native baseline and will
 refuse the changed primary until a separately reviewed new baseline is prepared.
 Frozen fb3/Data3cc/C6 and recipe ebd remain intact; setup 0.1.0-3 still needs its
