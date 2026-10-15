@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Pure fixture/argv tests; never execute package tools or Docker locally."""
 import importlib.util
+import json
+import subprocess
 from pathlib import Path
 import tarfile
 import tempfile
@@ -48,6 +50,41 @@ class FixtureTests(unittest.TestCase):
         self.assertNotIn('Include', config)
         with self.assertRaises(ValueError):
             fixture.configuration(Path('/tmp/bad\n[evil]'), Path('/tmp/public'))
+
+    def test_owned_payload_query_accepts_all_recorded_notice_paths(self):
+        ledger = json.loads((Path(__file__).resolve().parents[4] /
+                             'packages/tools/cachy-asahi-update/cargo-audit.json').read_text())
+        paths = set()
+        prefix = '/usr/share/licenses/cachy-asahi-update/cargo/'
+        for row in ledger['registry_sources']:
+            key = row['name'] + '-' + row['version']
+            for item in row['license_notices'] + row['license_declarations']:
+                paths.add(prefix + key + '/' + item['path'])
+            for item in row.get('embedded_gettext', {}).get('license_notices', []):
+                self.assertTrue(item['bundle_path'].startswith('LICENSES/'))
+                paths.add(prefix + item['bundle_path'][len('LICENSES/'):])
+        data = ''.join(path + '\n' for path in sorted(paths)).encode()
+        self.assertEqual(len(paths), 1113)
+        self.assertEqual(len(data), 88073)
+        argv = ['/usr/bin/pacman', '-Qlq', 'cachy-asahi-update']
+        process = subprocess.CompletedProcess(argv, 0, stdout=data, stderr=b'')
+        with patch.object(fixture.subprocess, 'run', return_value=process) as actor:
+            self.assertEqual(fixture.capture(argv, timeout=17).stdout, data)
+        actor.assert_called_once_with(argv, input=None, capture_output=True, timeout=17, env=None)
+
+    def test_other_commands_keep_original_output_bound(self):
+        for argv in (['/usr/bin/pacman', '-Q'], ['/usr/bin/pacman', '-Qlq', 'other-package']):
+            process = subprocess.CompletedProcess(argv, 0, stdout=b'x' * 65537, stderr=b'')
+            with self.subTest(argv=argv), patch.object(fixture.subprocess, 'run', return_value=process), \
+                    self.assertRaisesRegex(ValueError, 'diagnostic exceeds bound'):
+                fixture.capture(argv)
+
+    def test_owned_payload_query_still_bounds_combined_output(self):
+        argv = ['/usr/bin/pacman', '-Qlq', 'cachy-asahi-update']
+        process = subprocess.CompletedProcess(argv, 0, stdout=b'x' * (1024**2), stderr=b'x')
+        with patch.object(fixture.subprocess, 'run', return_value=process), \
+                self.assertRaisesRegex(ValueError, 'diagnostic exceeds bound'):
+            fixture.capture(argv)
 
     def test_container_guard_precedes_any_command_or_filesystem_mutation(self):
         with patch.object(fixture.platform, 'machine', return_value='x86_64'), \
