@@ -138,7 +138,7 @@ def main():
         guard()
         source = Path('/inputs')
         plan = json.loads((source / 'plan.json').read_text())
-        need(len({'lifecycle', 'updater_v2', 'setup4'} & set(plan)) <= 1, 'select one composed successor mode')
+        need(len({'lifecycle', 'updater_v2', 'setup4', 'audio'} & set(plan)) <= 1, 'select one composed successor mode')
         base = lock((source / 'expectedbase.lock').read_text())
         expected = lock((source / 'expected-installed.lock').read_text())
         result['phase'] = 'input-pins-and-base'
@@ -218,6 +218,19 @@ def main():
                       installed_inventory_sha256=hashlib.sha256(''.join(k + ' ' + v + '\n' for k, v in sorted(installed.items())).encode()).hexdigest(),
                       package_count=len(installed), dependency_checks='PASS-no-waivers', payload_ownership='PASS',
                       pyalpm='PASS-native-import', fdk='PASS-installed-provider-load', scriptlets='DISABLED', hooks='MASKED')
+        if 'audio' in plan:
+            result['phase'] = 'audio-six-additions-and-original587-restoration'
+            result['composition_checks'] = 'PASS-exact587-before-audio'
+            audio = load('composition_audio', Path('/audio.py'))
+            payload_helper = load('composition_payload_checks', Path('/lifecycle.py'))
+            import sys
+            result['audio'] = audio.run(pacman, plan, expected, source, work,
+                                        sys.modules[__name__], payload_helper)
+            need(result['audio']['status'] == 'PASS', 'audio additions did not pass')
+            final = inventory()
+            need(final == expected, 'audio did not restore exact original587')
+            result.update(phase='completed', final_package_count=len(final),
+                          final_inventory_sha256=hashlib.sha256(''.join(k + ' ' + v + '\n' for k, v in sorted(final.items())).encode()).hexdigest())
         if lifecycle:
             result['phase'] = 'composed-package-configuration-lifecycle'
             result['composition_checks'] = 'PASS-exact587-before-lifecycle'

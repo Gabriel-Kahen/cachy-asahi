@@ -65,3 +65,44 @@ visible while setup removal/reinstall and setup3 rollback continue; the overall
 job then fails. Cleanup removes the exact owned volume only after verifying the
 composition container absent. No system mutation, copied executable or ldconfig
 execution is added by this measurement path.
+
+## Explicit retained-audio install/removal slice
+
+Append `--audio-inputs /absolute/owned/audio-archives` to select the separate audio
+trial. It is mutually exclusive with `--lifecycle`, `--updater-v2-source`,
+`--setup4-pair` and footprint measurement. The default composition and every
+existing lock remain unchanged. This mode starts from the original 587 v1
+checkpoint, not a setup4/updater-v2 checkpoint.
+
+Supply exactly six pinned archives in that directory and the retained official
+LSP detached signature; `audio-inputs.json` lists their exact versions/hashes,
+actual package metadata, complete payload maps and closed generic error sets.
+The five project archives come from the successful audio native pairs; no audio
+build is repeated. The existing temporary TEST signer signs only those five.
+LSP keeps its exact official ALARM signature. No acquisition helper is added.
+
+After ordinary 587 composition checks, the same offline ARM container installs
+all six with required signatures, hooks masked and scriptlets disabled. It
+requires exact 593, dependency consistency, all 22 runtime relationships, package
+integrity and payload byte/mode/ownership checks. Existing files cannot be
+replaced. It then removes asahi-audio first and the remaining five additions in
+one normal dependency-aware removal; no dependency bypass or recursive removal
+is used. Exact 587 inventory and original local package database bytes/modes/
+ownership, pre-existing payload-directory attributes, absence of added files,
+and original project payloads must be restored.
+
+There is no service manager or `/dev/snd`, and no produced daemon, LV2 plugin,
+audio command or helper is executed/loaded. Unit/udev/runtime configuration files
+are installed only as package data. This is a disposable generic transaction
+proposal, not target audio/speaker-safety validation, trust enrollment or release
+acceptance. Existing source/recipe and complete license-closure gaps remain.
+The actual native transaction has not run merely because these source checks pass.
+
+The three additional ALPM mutations retain the existing libalpm auxiliary path:
+when ld.so.conf and ldconfig are present, each invokes ldconfig despite disabled
+hooks/scriptlets. ALPM ignores its return. These are three eligible additional
+calls; no cache/link correctness or auxiliary-success result follows from a
+successful transaction. ELF scanning is not plugin loading, but SONAME links,
+ld.so.cache and aux-cache may change. No auxiliary waiver/stub/removal is added.
+Preservation checks cover original package DB records, selected payloads and
+ancestor attributes; they do not restore/validate all base files, caches or links.
