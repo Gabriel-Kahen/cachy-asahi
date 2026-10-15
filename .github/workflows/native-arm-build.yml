@@ -3,27 +3,27 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: Probe, audit, original builds, or frozen development-only integration
+        description: Same-job native build and package lifecycle retry
         required: true
-        default: probe
+        default: integration
         type: choice
         options: [probe, audit, build, integration]
       inputs_sha256:
-        description: Reviewed SHA-256 of scripts/ci/inputs.lock.json (audit/build)
+        description: Exact pinned Source input lock
         type: string
-        default: ''
+        default: beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f
       recipes_sha256:
-        description: Reviewed SHA-256 of scripts/ci/recipes.lock.json (build)
+        description: Exact pinned four-package recipe lock
         type: string
-        default: ''
+        default: a5fb287b4dda2a90bf61d4fa8cbbc5d666dad8bb450a70544d00545b091f36e3
       integration_sha256:
-        description: Reviewed SHA-256 of scripts/ci/integration.lock.json (integration)
+        description: Leave empty; this retry freezes the exact checkout once
         type: string
         default: ''
 permissions:
   contents: read
 concurrency:
-  group: native-arm-build
+  group: native-arm-desktop-integration
   cancel-in-progress: false
 jobs:
   native:
@@ -31,44 +31,114 @@ jobs:
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 50
     env:
-      PYTHONDONTWRITEBYTECODE: '1'
-      BUILD_MODE: ${{ inputs.mode }}
+      SOURCE_COMMIT: a79c4ca92486854f9edb639cd970d2c90fda4b12
       INPUTS_SHA256: ${{ inputs.inputs_sha256 }}
       RECIPES_SHA256: ${{ inputs.recipes_sha256 }}
-      INTEGRATION_SHA256: ${{ inputs.integration_sha256 }}
+      RETRY_MODE: ${{ inputs.mode }}
+      REQUESTED_INTEGRATION_SHA256: ${{ inputs.integration_sha256 }}
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1, verified upstream ref
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          ref: a79c4ca92486854f9edb639cd970d2c90fda4b12
           persist-credentials: false
-      - name: Validate bootstrap boundaries
-        run: python3 -m unittest discover -s scripts/ci -p 'test_*.py' -v
-      - name: Record native runner evidence
-        run: >-
-          python3 scripts/ci/native_arm.py probe
-          --cache "$RUNNER_TEMP/alarm-cache"
-          --output "$RUNNER_TEMP/native-probe"
-      - name: Authenticate inputs or build in isolated native containers
-        if: inputs.mode != 'probe'
-        run: >-
-          python3 scripts/ci/native_arm.py "$BUILD_MODE"
-          --inputs-sha256 "$INPUTS_SHA256"
-          --recipes-sha256 "$RECIPES_SHA256"
-          --integration-sha256 "$INTEGRATION_SHA256"
-          --integration-output "$RUNNER_TEMP/integration-evidence"
-          --cache "$RUNNER_TEMP/alarm-cache"
-          --output "$RUNNER_TEMP/native-evidence"
-      - name: Retain bounded evidence and package artifacts in free workflow logs
-        if: always()
+      - name: Seed the four frozen private cache objects before native work
+        if: inputs.mode == 'integration'
+        shell: bash
+        env:
+          CACHY_OLD_FOUR_SCHEMA: '1'
+          CACHY_OLD_FOUR_SOURCE_EPOCH: '1791748800'
+          CACHY_OLD_FOUR_JBIGKIT_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_01 }}
+          CACHY_OLD_FOUR_JBIGKIT_02: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_02 }}
+          CACHY_OLD_FOUR_JBIGKIT_SIG_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_SIG_01 }}
+          CACHY_OLD_FOUR_LIBTIFF_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_01 }}
+          CACHY_OLD_FOUR_LIBTIFF_02: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_02 }}
+          CACHY_OLD_FOUR_LIBTIFF_03: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_03 }}
+          CACHY_OLD_FOUR_LIBTIFF_04: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_04 }}
+          CACHY_OLD_FOUR_LIBTIFF_05: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_05 }}
+          CACHY_OLD_FOUR_LIBTIFF_06: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_06 }}
+          CACHY_OLD_FOUR_LIBTIFF_07: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_07 }}
+          CACHY_OLD_FOUR_LIBTIFF_08: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_08 }}
+          CACHY_OLD_FOUR_LIBTIFF_09: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_09 }}
+          CACHY_OLD_FOUR_LIBTIFF_10: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_10 }}
+          CACHY_OLD_FOUR_LIBTIFF_11: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_11 }}
+          CACHY_OLD_FOUR_LIBTIFF_12: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_12 }}
+          CACHY_OLD_FOUR_LIBTIFF_13: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_13 }}
+          CACHY_OLD_FOUR_LIBTIFF_14: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_14 }}
+          CACHY_OLD_FOUR_LIBTIFF_15: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_15 }}
+          CACHY_OLD_FOUR_LIBTIFF_SIG_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_SIG_01 }}
         run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$SOURCE_COMMIT"
+          test "$INPUTS_SHA256" = beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f
+          timeout --signal=TERM --kill-after=5s 60s python3 -B - <<'PYSEED'
+          import hashlib
+          import os
+          from pathlib import Path
+          import sys
+          import time
+          sys.path.insert(0, 'scripts/ci')
+          from old_four_seed import OLD_FOUR_PRIVATE_ROWS, seed_old_four_private_cache
+          pin = 'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f'
+          if hashlib.sha256(Path('scripts/ci/inputs.lock.json').read_bytes()).hexdigest() != pin:
+              raise SystemExit('private-cache-input-binding-refused')
+          names = {'CACHY_OLD_FOUR_' + f'{tag}_{i:02d}'
+                   for _, _, _, tag, count in OLD_FOUR_PRIVATE_ROWS for i in range(1, count + 1)}
+          if len(names) != 19 or not all(os.environ.get(name) for name in names):
+              raise SystemExit('private-cache-required-secrets-missing')
+          cache = Path(os.environ['RUNNER_TEMP']) / 'alarm-cache'
+          cache.mkdir(mode=0o700)
+          keep = names | {'CACHY_OLD_FOUR_SCHEMA', 'CACHY_OLD_FOUR_SOURCE_EPOCH'}
+          for name in tuple(os.environ):
+              if name not in keep:
+                  os.environ.pop(name)
+          seed_old_four_private_cache(cache, {'metadata_pins': {'scripts/ci/inputs.lock.json': pin}},
+                                      time.monotonic() + 50)
+          PYSEED
+      - name: Build once, then run package lifecycle integration on the same ARM daemon
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$RETRY_MODE" = integration
+          test "$INPUTS_SHA256" = beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f
+          test "$RECIPES_SHA256" = a5fb287b4dda2a90bf61d4fa8cbbc5d666dad8bb450a70544d00545b091f36e3
+          test -z "$REQUESTED_INTEGRATION_SHA256"
+          test "$(git rev-parse HEAD)" = "$SOURCE_COMMIT"
+          install -d -m 700 "$RUNNER_TEMP/desktop-docker-config"
+          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$HOME" LANG=C.UTF-8 TZ=UTC \
+            RUNNER_TEMP="$RUNNER_TEMP" DOCKER_CONFIG="$RUNNER_TEMP/desktop-docker-config" \
+            GITHUB_SHA="$SOURCE_COMMIT" GITHUB_REPOSITORY="$GITHUB_REPOSITORY" \
+            GITHUB_RUN_ID="$GITHUB_RUN_ID" GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" \
+            PYTHONDONTWRITEBYTECODE=1 INPUTS_SHA256="$INPUTS_SHA256" RECIPES_SHA256="$RECIPES_SHA256" \
+            /bin/bash --noprofile --norc -euo pipefail <<'RUN_PACKAGE_INTEGRATION'
+          export TMPDIR="$RUNNER_TEMP"
+          python3 -B scripts/ci/native_arm.py build \
+            --inputs-sha256 "$INPUTS_SHA256" --recipes-sha256 "$RECIPES_SHA256" \
+            --cache "$RUNNER_TEMP/alarm-cache" --output "$RUNNER_TEMP/native-evidence"
+          python3 -B scripts/ci/integration.py --freeze \
+            --output "$RUNNER_TEMP/package-integration.lock.json" \
+            --recipes-sha256 "$RECIPES_SHA256" \
+            --recipe-source-commit 465bf53545e1d83053bf3c412e210493961b74ae \
+            --source-date-epoch 1791748800
+          task_integration_sha=$(sha256sum "$RUNNER_TEMP/package-integration.lock.json" | cut -d ' ' -f 1)
+          python3 -B scripts/ci/integration_resume.py \
+            --native-output "$RUNNER_TEMP/native-evidence" \
+            --integration-lock "$RUNNER_TEMP/package-integration.lock.json" \
+            --integration-sha256 "$task_integration_sha" --recipes-sha256 "$RECIPES_SHA256" \
+            --source-commit "$GITHUB_SHA" --output "$RUNNER_TEMP/integration-evidence"
+          RUN_PACKAGE_INTEGRATION
+      - name: Retain bounded native and sanitized integration evidence
+        if: always()
+        shell: bash
+        run: |
+          set -uo pipefail
           evidence_status=0
-          python3 scripts/ci/log_evidence.py "$RUNNER_TEMP/native-probe" || evidence_status=1
           if [ -d "$RUNNER_TEMP/native-evidence" ]; then
-            python3 scripts/ci/log_evidence.py "$RUNNER_TEMP/native-evidence" || evidence_status=1
+            python3 -B scripts/ci/log_evidence.py "$RUNNER_TEMP/native-evidence" || evidence_status=1
           fi
           if [ -d "$RUNNER_TEMP/integration-evidence/public" ]; then
             for stage in "$RUNNER_TEMP/integration-evidence/public"/*; do
               if [ -d "$stage" ]; then
-                python3 scripts/ci/log_evidence.py "$stage" || evidence_status=1
+                python3 -B scripts/ci/log_evidence.py "$stage" || evidence_status=1
               fi
             done
             if [ -f "$RUNNER_TEMP/integration-evidence/public/summary/result.json" ]; then
