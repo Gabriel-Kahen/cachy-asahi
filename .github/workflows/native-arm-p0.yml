@@ -325,7 +325,7 @@ jobs:
         shell: /usr/bin/python3 -I -B -S {0}
         run: |
           """Proposed read-only Actions diagnostic; never prints raw kernel/private messages."""
-          import contextlib,json,os,re,stat,subprocess
+          import contextlib,json,os,re,stat,subprocess,shutil
           from pathlib import Path
           
           def target_class(value):
@@ -362,7 +362,7 @@ jobs:
                   flags=sorted(set(flags)&known),flags_other=bool(set(flags)-known),
                   target=target_class(fields.get('name')),source=target_class(fields.get('srcname')))
           
-          def barrier_record(raw):
+          def legacy_category(raw):
               lines=raw.decode('utf-8','replace').splitlines()
               fixed={'ValueError: recursive read-only barrier refused':'RECURSIVE_READONLY_REFUSED',
                      'ValueError: actual namespace identity/map refused':'NAMESPACE_IDENTITY_REFUSED',
@@ -378,6 +378,119 @@ jobs:
                   found=re.fullmatch(r'ValueError: namespace mount refused: ([0-9]{1,4})',line)
                   if found and 0<int(found[1])<=4095:return {'trace_category':'NAMESPACE_MOUNT_REFUSED','errno':int(found[1])}
               return {'trace_category':'OTHER_OR_NOT_EXPORTED'}
+          
+          # Location labels and upper bounds refer only to the held Source08e9194 bytes.
+          # Textual observations are not proof of a first/deciding syscall.
+          def source_frame(path, line):
+              if path=='<string>':return {'module':'BARRIER_INLINE','line':line} if 1<=line<=32 else None
+              if path=='/receiver.py':return {'module':'NATIVE_RECEIVER','line':line} if 1<=line<=460 else None
+              roots=(r'/source',r'/tmp/caa-arm-trial-[A-Za-z0-9_-]{1,80}',
+                     r'/tmp/caa-install-barrier-[A-Za-z0-9_-]{1,80}/captured-source')
+              for suffix,label,limit in (('/scripts/install/local_transaction.py','WORKER',1325),
+                                         ('/scripts/install/test_local_transaction.py','NATIVE_TESTS',1757),
+                                         ('/scripts/port/kernel-native-job/runtime.py','WORKER_RUNTIME',280)):
+                  if 1<=line<=limit and any(re.fullmatch(root+re.escape(suffix),path) for root in roots):
+                      return {'module':label,'line':line}
+              return None
+          
+          EXCEPTIONS={name:name for name in ('AssertionError','ValueError','TypeError','NameError','AttributeError','KeyError',
+              'IndexError','RuntimeError','MemoryError','SyntaxError','IndentationError','ImportError','ModuleNotFoundError',
+              'UnicodeDecodeError','BufferError','OverflowError','ZeroDivisionError','OSError','PermissionError','FileNotFoundError','NotADirectoryError',
+              'IsADirectoryError','TimeoutError','InterruptedError','ProcessLookupError','Exception','SystemExit','KeyboardInterrupt')}
+          EXCEPTIONS.update({'subprocess.SubprocessError':'SubprocessError','subprocess.CalledProcessError':'CalledProcessError',
+                             'subprocess.TimeoutExpired':'TimeoutExpired','json.decoder.JSONDecodeError':'JSONDecodeError','ctypes.ArgumentError':'ArgumentError'})
+          TRACE_CODES={
+              'recursive read-only barrier refused':'RECURSIVE_READONLY_REFUSED',
+              'actual namespace identity/map refused':'NAMESPACE_IDENTITY_REFUSED',
+              'mount propagation is not private':'PROPAGATION_REFUSED',
+              'unexpected writable inherited mount':'WRITABLE_MOUNT_REFUSED',
+              'private writable mounts missing':'PRIVATE_MOUNTS_MISSING',
+              'unexpected exposed device':'DEVICE_SET_REFUSED',
+              'guest device identity differs':'DEVICE_IDENTITY_REFUSED',
+              'reviewed barrier worker source changed':'WORKER_SOURCE_PIN',
+              'external write unexpectedly succeeded':'OUTSIDE_WRITE_SUCCEEDED',
+              'retained inherited evidence FD required':'EVIDENCE_FD_REQUIRED',
+              'current evidence namespace identity differs':'EVIDENCE_NAMESPACE_DRIFT',
+              'evidence descriptor mount identity missing':'EVIDENCE_MOUNT_ID_MISSING',
+              'evidence descriptor mount identity changed':'EVIDENCE_MOUNT_ID_DRIFT',
+              'evidence descriptor mount outside current namespace':'EVIDENCE_MOUNT_NAMESPACE_MISMATCH',
+              'mapped x86 Linux namespace required':'MAPPED_NAMESPACE_REFUSED',
+              'captured runtime bytes differ':'RUNTIME_SOURCE_PIN',
+              'unsupported seccomp architecture':'SECCOMP_ARCHITECTURE',
+              'invalid-time-bound':'RUNTIME_TIME_BOUND','host-address-space-limit':'RUNTIME_ADDRESS_SPACE',
+              'process-cleanup':'RUNTIME_CLEANUP','command-timeout':'RUNTIME_COMMAND_TIMEOUT',
+              'deadline-exhausted':'RUNTIME_DEADLINE'}
+          TRACE_CODES.update({name:name for name in ('DEADLINE','CALL_CAP','COMMAND_REFUSED','CALL_OPTIONS','CALL_TIME','OUTPUT_CAP',
+              'LOADED_CODE_DRIFT','LOADED_BINDING_DRIFT','TOOL_PROFILE_DRIFT','TEST_BINDING_DRIFT','REPORT_SHAPE','REPORT_CAP',
+              'FILE_PATH','FILE_SHAPE','FILE_IDENTITY','FILE_CAP','FILE_DRIFT','SOURCE_SET','SOURCE_ROW','SOURCE_HASH','RUNTIME_HASH')})
+          
+          def trace_observations(lines):
+              rows=[];frames=[];partial=False
+              for line in lines:
+                  found=re.fullmatch(r'\s*File "([^"\r\n]{1,512})", line ([0-9]{1,4})(?:, in [^\r\n]*)?',line)
+                  if found:
+                      frame=source_frame(found[1],int(found[2]))
+                      if frame is None:partial=True
+                      else:
+                          frames.append(frame)
+                          if len(frames)>6:frames=frames[-6:];partial=True
+                      continue
+                  if line=='Traceback (most recent call last):':frames=[];continue
+                  found=re.fullmatch(r'([A-Za-z_][A-Za-z0-9_.]*)(?::(?: (.*))?)?',line)
+                  if not found:continue
+                  kind=EXCEPTIONS.get(found[1])
+                  if kind is None:
+                      if frames:partial=True
+                      continue
+                  message=found[2] or '';error='UNAVAILABLE';code=TRACE_CODES.get(message,'UNKNOWN')
+                  record={'frames':frames,'exception_type':kind,'errno':error,'code':code}
+                  mount=re.fullmatch(r'namespace mount refused: ([0-9]{1,4})',message)
+                  number=re.match(r'\[Errno ([0-9]{1,4})\](?: |$)',message)
+                  if kind=='ValueError' and mount and 1<=int(mount[1])<=4095:
+                      record.update(code='NAMESPACE_MOUNT_REFUSED',errno=int(mount[1]))
+                  elif kind in ('OSError','PermissionError','FileNotFoundError','NotADirectoryError','IsADirectoryError','TimeoutError','InterruptedError','ProcessLookupError') and number and 1<=int(number[1])<=4095:
+                      record['errno']=int(number[1])
+                  child=re.match(r'(-?[0-9]{1,3}) != 0 :(?: |$)',message)
+                  if kind=='AssertionError' and child and -64<=int(child[1])<=255 and int(child[1])!=0:
+                      record.update(code='CHILD_NONZERO',child_exit=int(child[1]))
+                  if len(rows)<8:rows.append(record)
+                  else:partial=True
+                  frames=[]
+              return rows,partial
+          
+          def barrier_record(raw):
+              record=legacy_category(raw)
+              rows,partial=trace_observations(raw.decode('utf-8','replace').splitlines())
+              record.update(trace_observations=rows,trace_partial=partial)
+              return record
+          
+          
+          def tool_status(name):
+              try:return 'FOUND_EXECUTABLE' if shutil.which(name) is not None else 'MISSING_OR_NOT_EXECUTABLE'
+              except Exception:return 'LOOKUP_ERROR'
+          
+          
+          def journal_capture(name):
+              record={'state':'NOT_STARTED','exit_code':'UNAVAILABLE','errno':'UNAVAILABLE','exception_type':'NONE',
+                      'sudo_tool':tool_status('sudo'),'journalctl_tool':tool_status('/usr/bin/journalctl'),
+                      'stdout_state':'UNAVAILABLE','stderr_state':'UNAVAILABLE'}
+              try:
+                  p=subprocess.run(['sudo','-n','/usr/bin/journalctl','--dmesg','--boot=0','--no-pager','--quiet','--lines=128',
+                                    '--output=json','--output-fields=MESSAGE','--grep=profile="'+name+'"'],
+                                   stdin=subprocess.DEVNULL,capture_output=True,timeout=5)
+                  record['exit_code']=p.returncode if type(p.returncode) is int and -64<=p.returncode<=255 else 'OUT_OF_DOMAIN'
+                  record['stdout_state']='EMPTY' if not p.stdout else 'PRESENT' if len(p.stdout)<=1024*1024 else 'OVER_LIMIT'
+                  record['stderr_state']='EMPTY' if not p.stderr else 'PRESENT' if len(p.stderr)<=8192 else 'OVER_LIMIT'
+                  record['state']='COMPLETED' if p.returncode==0 else 'NONZERO_EXIT'
+                  if len(p.stdout)>1024*1024 or len(p.stderr)>8192:record['state']='OUTPUT_OVER_LIMIT'
+                  return record,p.stdout if record['state']=='COMPLETED' else None
+              except subprocess.TimeoutExpired:
+                  record.update(state='TIMEOUT',exception_type='TimeoutExpired')
+              except OSError as error:
+                  record.update(state='SPAWN_OSERROR',exception_type=EXCEPTIONS.get(type(error).__name__,'OTHER'),
+                                errno=error.errno if type(error.errno) is int and 1<=error.errno<=4095 else 'UNAVAILABLE')
+              except Exception as error:record.update(state='OTHER_EXCEPTION',exception_type=EXCEPTIONS.get(type(error).__name__,'OTHER'))
+              return record,None
           
           def read_barrier(base,parts):
               # Exact documented leaf only; no search, recursive traversal or private bundle reads.
@@ -407,25 +520,21 @@ jobs:
               parts=(os.environ.get('GITHUB_RUN_ID',''),os.environ.get('GITHUB_RUN_ATTEMPT',''))
               if not all(re.fullmatch('[0-9]{1,20}',v) for v in parts):print(json.dumps(result,sort_keys=True));return
               name='cachy-asahi-p0-dev-'+'-'.join(parts)
-              try:
-                  p=subprocess.run(['sudo','-n','/usr/bin/journalctl','--dmesg','--boot=0','--no-pager','--quiet','--lines=128',
-                                    '--output=json','--output-fields=MESSAGE','--grep=profile="'+name+'"'],
-                                   stdin=subprocess.DEVNULL,capture_output=True,timeout=5)
-                  if p.returncode==0 and len(p.stdout)<=1024*1024 and len(p.stderr)<=8192:
-                      rows=p.stdout.splitlines();result['journal']='BOUNDED_WINDOW_NO_MATCH';partial=False
-                      for raw in rows:
-                          try:
-                              row=json.loads(raw);message=row.get('MESSAGE')
-                              if type(message) is not str:raise ValueError('no text')
-                              record=projected(message,name)
-                          except Exception:partial=True;continue
-                          if record is not None:
-                              result['journal']='OBSERVED'
-                              if len(result['denials'])<32:result['denials'].append(record)
-                              else:partial=True
-                      result['journal_partial']=partial;result['journal_window_limit']=128
-                      result['journal_window_full']=len(rows)==128
-              except Exception:result['journal']='UNAVAILABLE'
+              result['journal_command'],raw=journal_capture(name)
+              if raw is not None:
+                  rows=raw.splitlines();result['journal']='BOUNDED_WINDOW_NO_MATCH';partial=False
+                  for raw in rows:
+                      try:
+                          row=json.loads(raw);message=row.get('MESSAGE')
+                          if type(message) is not str:raise ValueError('no text')
+                          record=projected(message,name)
+                      except Exception:partial=True;continue
+                      if record is not None:
+                          result['journal']='OBSERVED'
+                          if len(result['denials'])<32:result['denials'].append(record)
+                          else:partial=True
+                  result['journal_partial']=partial;result['journal_window_limit']=128
+                  result['journal_window_full']=len(rows)==128
               try:result['barrier_log']=read_barrier(Path(os.environ['RUNNER_TEMP']),parts)
               except Exception:pass
               print(json.dumps(result,sort_keys=True))
