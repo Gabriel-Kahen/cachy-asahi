@@ -68,7 +68,7 @@ def preflight(args):
 
 
 def container_command(docker, image, name, nonce, source, workspace, *, scale_fixtures=False):
-    return docker + ['run', '--name', name, '--pull=never', '--platform=linux/arm64', '--user=0:0',
+    return docker + ['run', '--init', '--name', name, '--pull=never', '--platform=linux/arm64', '--user=0:0',
         '--network=none', '--ipc=private', '--cap-drop=ALL', '--cap-add=CHOWN', '--cap-add=DAC_OVERRIDE',
         '--cap-add=FOWNER', '--security-opt=no-new-privileges', '--read-only', '--pids-limit=128', '--memory=1g', '--cpus=2',
         '--tmpfs=/tmp:rw,nosuid,nodev,exec,size=256m,mode=1777',
