@@ -363,12 +363,12 @@ class Boundaries(unittest.TestCase):
         from test_desktop_projection import write_bound_fixture
         raw = self.root / 'raw'; raw.mkdir()
         _, authority = write_bound_fixture(raw)
-        (raw / 'desktop/command-22.txt').write_bytes(b'\x1b[1;32munknown\x1b[0m')
+        (raw / 'desktop/command-24.txt').write_bytes(b'\x1b[1;32munknown\x1b[0m')
         work = self.root / 'work'; work.mkdir()
         with self.assertRaises(ValueError):
             i.safe_public(raw, self.root / 'public', work, desktop_authority=authority)
         rejected = json.loads((self.root / 'public/export-manifest.json').read_text())['rejected']
-        self.assertTrue(any(row['path'] == 'desktop/command-22.txt' for row in rejected))
+        self.assertTrue(any(row['path'] == 'desktop/command-24.txt' for row in rejected))
 
     def test_desktop_receipt_replacement_after_projection_is_refused(self):
         from test_desktop_projection import write_bound_fixture
@@ -904,6 +904,25 @@ class Boundaries(unittest.TestCase):
             i.native.save(raw / 'commit-receipt.json', {'installed_packages_sha256': 'a' * 64})
         return controller, raw, execute
 
+    def test_lifecycle_failed_observer_cannot_replace_primary_or_skip_cleanup(self):
+        controller, raw, execute = self.lifecycle_fixture()
+        original = ValueError('private operand fixture')
+        order = []
+        def failed(*args, **kwargs):
+            order.append('execute')
+            raise original
+        with patch.object(i, 'execute_container', side_effect=failed), \
+             patch.object(i.native, 'run', return_value=json.dumps([{'Config': {'User': 'alarm'}}])), \
+             patch.object(i, 'remove_container', side_effect=lambda *a: order.append('container-cleanup') or {'status': 'PASS'}), \
+             patch.object(i, 'remove_derivative', side_effect=lambda *a: order.append('derivative-cleanup') or {'status': 'PASS'}), \
+             patch.object(i, 'retain_handoff_diagnostic', side_effect=lambda *a: order.append('observation') or (_ for _ in ()).throw(KeyboardInterrupt())), \
+             self.assertRaises(ValueError) as raised:
+            controller.lifecycle(raw)
+        self.assertIs(raised.exception, original)
+        self.assertEqual(order, ['execute', 'container-cleanup', 'derivative-cleanup', 'observation'])
+        self.assertEqual(json.loads((raw / 'handoff-controller.json').read_text())['status'], 'FAIL')
+        self.assertIsNone(controller.installed)
+
     def test_lifecycle_config_refusal_retains_only_changed_key_names_and_cleanup(self):
         controller, raw, execute = self.lifecycle_fixture()
         base_config = {'User': 'alarm', 'Env': ['PUBLIC=1'], 'Cmd': ['/bin/bash']}
@@ -999,6 +1018,35 @@ class Boundaries(unittest.TestCase):
         self.assertEqual(order,['stages','consumer','cleanup','summary'])
         self.assertIsNone(controller.installed)
 
+    def test_package_only_runs_lifecycle_repository_and_desktop_without_broad_suites(self):
+        controller = self.controller()
+        controller.package_only = True
+        controller.installed = 'sha256:' + 'a'*64
+        seen = []
+        def stage(name, action):
+            seen.append(name)
+            controller.report['stages'][name] = {'status': 'PASS'}
+            return True
+        with patch.object(controller, 'stage', side_effect=stage):
+            controller.run_stages()
+        self.assertEqual(seen, ['fixtures', 'signer', 'lifecycle', 'repository', 'desktop'])
+        self.assertEqual(controller.report['stages']['source-suites']['status'], 'NOT RUN')
+        self.assertEqual(controller.report['stages']['onboarding']['status'], 'NOT RUN')
+        self.assertTrue(controller.finish())
+
+    def test_package_only_cannot_pass_failed_lifecycle(self):
+        controller = self.controller()
+        controller.package_only = True
+        controller.installed = None
+        def stage(name, action):
+            passed = name != 'lifecycle'
+            controller.report['stages'][name] = {'status': 'PASS' if passed else 'FAIL'}
+            return passed
+        with patch.object(controller, 'stage', side_effect=stage):
+            controller.run_stages()
+        self.assertFalse(controller.finish())
+        self.assertEqual(controller.report['stages']['desktop']['status'], 'NOT RUN')
+
     def test_final_owned_image_cleanup_failure_and_consumer_failure_cannot_preserve_pass(self):
         controller=self.controller();controller.image='sha256:'+'b'*64;controller.installed=None
         for stage in ('fixtures','signer','lifecycle','repository','onboarding','desktop','source-suites'):
@@ -1070,6 +1118,145 @@ class Boundaries(unittest.TestCase):
         with self.assertRaises(ValueError):
             i.verify_commit(*values)
 
+
+
+class HandoffDiagnosticBoundaries(unittest.TestCase):
+    def setUp(self):
+        self.temporary = tempfile.TemporaryDirectory(prefix='handoff-observer-fixture-')
+        self.addCleanup(self.temporary.cleanup)
+        self.root = Path(self.temporary.name)
+        self.value = {'schema_version': 1, 'operation': 'COMMIT', 'refusal': 'LOAD_01', 'cancelled': False}
+        self.frame = i.HANDOFF_DIAGNOSTIC_PREFIX + json.dumps(self.value).encode() + b'\n'
+
+    def test_closed_record_and_ambiguous_or_malformed_records(self):
+        self.assertEqual(i.handoff_diagnostic_record(b'held public output\n' + self.frame), self.value)
+        invalid = [b'', self.frame * 2, self.frame[:-3], b'x' * (1024**2 + 1)]
+        for key, value in (('schema_version', True), ('operation', 'foreign'), ('refusal', '/private'),
+                           ('cancelled', 1), ('extra', 'private')):
+            row = dict(self.value, **{key: value})
+            invalid.append(i.HANDOFF_DIAGNOSTIC_PREFIX + json.dumps(row).encode())
+        invalid.append(i.HANDOFF_DIAGNOSTIC_PREFIX + b'{"schema_version":1,"schema_version":1}')
+        for data in invalid:
+            with self.subTest(data=data[:80]):
+                try:
+                    result = i.handoff_diagnostic_record(data)
+                except (ValueError, UnicodeError):
+                    result = None
+                self.assertIsNone(result)
+
+    def test_collector_fresh_output_is_private_and_exclusive(self):
+        (self.root / 'container.log').write_bytes(self.frame)
+        i.retain_handoff_diagnostic(self.root)
+        output = self.root / 'handoff-diagnostic.json'
+        self.assertEqual(json.loads(output.read_bytes()), self.value)
+        self.assertEqual(output.stat().st_mode & 0o777, 0o600)
+        before = output.read_bytes()
+        with self.assertRaises(FileExistsError):
+            i.retain_handoff_diagnostic(self.root)
+        self.assertEqual(output.read_bytes(), before)
+
+    def test_collector_refuses_input_symlink_hardlink_fifo_and_large_file(self):
+        target = self.root / 'owned-target'; target.write_bytes(self.frame)
+        log = self.root / 'container.log'; output = self.root / 'handoff-diagnostic.json'
+        log.symlink_to(target)
+        with self.assertRaises(OSError):
+            i.retain_handoff_diagnostic(self.root)
+        self.assertFalse(output.exists()); log.unlink()
+        os.link(target, log)
+        i.retain_handoff_diagnostic(self.root)
+        self.assertFalse(output.exists()); log.unlink()
+        os.mkfifo(log)
+        i.retain_handoff_diagnostic(self.root)
+        self.assertFalse(output.exists()); log.unlink()
+        log.write_bytes(b'x' * (1024**2 + 1))
+        i.retain_handoff_diagnostic(self.root)
+        self.assertFalse(output.exists())
+
+    def test_collector_never_follows_existing_output_symlink(self):
+        (self.root / 'container.log').write_bytes(self.frame)
+        target = self.root / 'owned-target'; target.write_bytes(b'held')
+        (self.root / 'handoff-diagnostic.json').symlink_to(target)
+        with self.assertRaises(FileExistsError):
+            i.retain_handoff_diagnostic(self.root)
+        self.assertEqual(target.read_bytes(), b'held')
+
+    def test_collector_unstable_read_is_not_projected_and_fd_closes(self):
+        (self.root / 'container.log').write_bytes(self.frame)
+        original = i.os.read
+        def changed(fd, size):
+            data = original(fd, size)
+            if data:
+                with (self.root / 'container.log').open('ab') as stream:
+                    stream.write(b'x')
+            return data
+        # A finite first read mutates the file; the second read is forced EOF.
+        calls = 0
+        def read(fd, size):
+            nonlocal calls
+            calls += 1
+            return changed(fd, size) if calls == 1 else b''
+        with patch.object(i.os, 'read', side_effect=read), patch.object(i.os, 'close', wraps=i.os.close) as closed:
+            i.retain_handoff_diagnostic(self.root)
+        self.assertEqual(closed.call_count, 2)
+        self.assertFalse((self.root / 'handoff-diagnostic.json').exists())
+
+    def handoff(self):
+        spec = importlib.util.spec_from_file_location('diagnostic_handoff_fixture', Path(__file__).with_name('installed_handoff.py'))
+        module = importlib.util.module_from_spec(spec); spec.loader.exec_module(module)
+        return module
+
+    def test_main_failure_observer_cannot_replace_refusal_or_execute_constructor(self):
+        h = self.handoff()
+        for secondary in (RuntimeError(), KeyboardInterrupt(), SystemExit(), BaseException()):
+            with self.subTest(kind=type(secondary)), patch.object(h, 'Handoff', side_effect=ValueError('private operand')) as factory, \
+                 patch.object(h.lifecycle, 'handoff_diagnostic_failure', side_effect=secondary), \
+                 patch.object(h.lifecycle, 'handoff_diagnostic_emit', side_effect=secondary), \
+                 patch.object(h.sys, 'stderr'):
+                self.assertEqual(h.main(['--contract', 'fixture', '--contract-sha256', 'unit']), 1)
+                self.assertEqual(factory.call_count, 1)
+
+    def test_main_success_observation_control_exceptions_cannot_become_pass(self):
+        h = self.handoff()
+        for hook in ('handoff_diagnostic_start', 'handoff_diagnostic_emit'):
+            for secondary in (KeyboardInterrupt(), SystemExit(), h.Cancelled()):
+                with self.subTest(hook=hook, kind=type(secondary)), patch.object(h, 'Handoff') as factory, \
+                     patch.object(h.lifecycle, hook, side_effect=secondary), patch.object(h.sys, 'stderr'):
+                    factory.return_value.execute.return_value = 0
+                    if type(secondary) is SystemExit:
+                        with self.assertRaises(SystemExit):
+                            h.main(['--contract', 'fixture', '--contract-sha256', 'unit'])
+                    elif hook.endswith('start'):
+                        self.assertEqual(h.main(['--contract', 'fixture', '--contract-sha256', 'unit']), 1)
+                        factory.assert_not_called()
+                    else:
+                        with self.assertRaises(type(secondary)):
+                            h.main(['--contract', 'fixture', '--contract-sha256', 'unit'])
+
+    def test_execute_hostile_errors_keep_cleanup_and_real_cancel_subclasses_sticky(self):
+        h = self.handoff()
+        class Hostile(ValueError):
+            @property
+            def __class__(self):
+                raise AssertionError('foreign class inspected')
+        class Interrupt(KeyboardInterrupt):
+            pass
+        class Cancel(h.Cancelled):
+            pass
+        for n, error in enumerate((Hostile(), Interrupt(), Cancel())):
+            current = object.__new__(h.Handoff)
+            current.receipt = self.root / ('receipt-' + str(n) + '.json')
+            current.report = {'status': 'FAIL'}; current.cancelled = False
+            current.commit = {'lifecycle_contract_sha256': 'unit'}
+            order = []
+            current.command = lambda *a: (_ for _ in ()).throw(error)
+            current.stop_child = lambda: order.append('stop')
+            with patch.object(h.signal, 'signal', return_value='previous') as signals, \
+                 patch.object(h.lifecycle, 'handoff_diagnostic_failure', side_effect=BaseException()):
+                self.assertEqual(current.execute(), 1)
+            self.assertEqual(order, ['stop'])
+            self.assertEqual(signals.call_count, 6)
+            self.assertEqual(current.cancelled, n != 0)
+            self.assertEqual(json.loads(current.receipt.read_bytes()).get('cancelled', False), n != 0)
 
 if __name__ == '__main__':
     unittest.main()

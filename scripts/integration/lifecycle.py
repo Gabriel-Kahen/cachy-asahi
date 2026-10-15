@@ -31,7 +31,7 @@ PACKAGES = {'cachy-asahi-hyprland-settings': 'hyprland', 'cachy-asahi-fish-confi
 META = {'.PKGINFO', '.BUILDINFO', '.MTREE', '.Changelog'}
 HASH = re.compile(r'[0-9a-f]{64}\Z')
 FIXED_HELPER = '/usr/bin/cachy-asahi-setup'
-BASELINE_HELPER_SHA256 = 'a6251142b9c7e54796285c1a301fb590599d8aaa1625ea0bfebd7fc21622fdc2'
+BASELINE_HELPER_SHA256 = '3e652bff75f6202cd3c13c327e50a298f7b25149b3c5cb55cdf4912d35af5919'
 NULL_MASKS = {'/proc/kcore', '/proc/keys', '/proc/latency_stats', '/proc/timer_list',
               '/proc/timer_stats', '/proc/sched_debug', '/proc/interrupts'}
 DIRECTORY_MASKS = {'/proc/acpi', '/proc/scsi', '/proc/asound', '/sys/firmware',
@@ -52,8 +52,68 @@ class Error(Exception):
     pass
 
 
-def require(condition, message):
+
+HANDOFF_DIAGNOSTIC_PREFIX = 'INSTALLED_HANDOFF_DIAGNOSTIC_V1 '
+HANDOFF_DIAGNOSTIC_OPERATIONS = frozenset(('UNKNOWN', 'CONSTRUCT', 'ENVIRONMENT', 'COMMIT', 'LIFECYCLE_CONTRACT', 'RUNNER', 'BASE_PACKAGES', 'OUTPUT', 'EXECUTE'))
+HANDOFF_DIAGNOSTIC_REFUSALS = frozenset(('UNKNOWN', 'HANDOFF_CHECK', 'SAFE_RELATIVE_01', 'SAFE_RELATIVE_02', 'REGULAR_01', 'REGULAR_02', 'PINNED_01', 'PINNED_02', 'STRICT_JSON_01', 'ENVIRONMENT_GUARD_01', 'ENVIRONMENT_GUARD_02', 'ENVIRONMENT_GUARD_03', 'ENVIRONMENT_GUARD_04', 'ENVIRONMENT_GUARD_05', 'ENVIRONMENT_GUARD_06', 'ENVIRONMENT_GUARD_07', 'ENVIRONMENT_GUARD_08', 'ENVIRONMENT_GUARD_09', 'ENVIRONMENT_GUARD_10', 'ENVIRONMENT_GUARD_11', 'ENVIRONMENT_GUARD_12', 'ENVIRONMENT_GUARD_13', 'ENVIRONMENT_GUARD_14', 'ENVIRONMENT_GUARD_15', 'ENVIRONMENT_GUARD_16', 'ENVIRONMENT_GUARD_17', 'ENVIRONMENT_GUARD_18', 'ENVIRONMENT_GUARD_19', 'ENVIRONMENT_GUARD_20', 'ENVIRONMENT_GUARD_21', 'VALIDATE_CONTRACT_01', 'VALIDATE_CONTRACT_02', 'VALIDATE_CONTRACT_03', 'VALIDATE_CONTRACT_04', 'VALIDATE_CONTRACT_05', 'VALIDATE_CONTRACT_06', 'VALIDATE_CONTRACT_07', 'VALIDATE_CONTRACT_08', 'VALIDATE_CONTRACT_09', 'VALIDATE_CONTRACT_10', 'VALIDATE_CONTRACT_11', 'VALIDATE_CONTRACT_12', 'VALIDATE_CONTRACT_13', 'VALIDATE_CONTRACT_14', 'VALIDATE_CONTRACT_15', 'VALIDATE_CONTRACT_16', 'VALIDATE_CONTRACT_17', 'VALIDATE_CONTRACT_18', 'VALIDATE_CONTRACT_19', 'IMAGE_TMP_VIEW_01', 'INVENTORY_01', 'INVENTORY_02', 'LOAD_01', 'LOAD_02', 'HANDOFF_INIT_01', 'HANDOFF_INIT_02', 'HANDOFF_INIT_03', 'HANDOFF_INIT_04', 'HANDOFF_INIT_05', 'HANDOFF_INIT_06', 'HANDOFF_INIT_07', 'HANDOFF_INIT_08', 'HANDOFF_INIT_09', 'HANDOFF_INIT_10'))
+_HANDOFF_DIAGNOSTIC = None
+
+
+def handoff_diagnostic_start():
+    global _HANDOFF_DIAGNOSTIC
+    _HANDOFF_DIAGNOSTIC = {'operation': 'UNKNOWN', 'first': None, 'cancelled': False, 'emitted': False}
+
+
+def handoff_diagnostic_site(operation):
+    state = _HANDOFF_DIAGNOSTIC
+    if type(state) is dict and type(operation) is str and operation in HANDOFF_DIAGNOSTIC_OPERATIONS:
+        state['operation'] = operation
+
+
+def handoff_diagnostic_failure(refusal='UNKNOWN'):
+    state = _HANDOFF_DIAGNOSTIC
+    if type(state) is dict and state.get('first') is None:
+        operation = state.get('operation')
+        state['first'] = {'schema_version': 1,
+                          'operation': operation if type(operation) is str and operation in HANDOFF_DIAGNOSTIC_OPERATIONS else 'UNKNOWN',
+                          'refusal': refusal if type(refusal) is str and refusal in HANDOFF_DIAGNOSTIC_REFUSALS else 'UNKNOWN',
+                          'cancelled': state.get('cancelled') is True}
+
+
+def handoff_diagnostic_cancel():
+    state = _HANDOFF_DIAGNOSTIC
+    if type(state) is dict:
+        state['cancelled'] = True
+
+
+def handoff_diagnostic_emit():
+    state = _HANDOFF_DIAGNOSTIC
+    if type(state) is not dict or state.get('emitted') is True:
+        return
+    state['emitted'] = True
+    first = state.get('first')
+    if type(first) is not dict or set(first) != {'schema_version', 'operation', 'refusal', 'cancelled'}:
+        return
+    if (type(first['schema_version']) is not int or first['schema_version'] != 1 or
+            type(first['operation']) is not str or first['operation'] not in HANDOFF_DIAGNOSTIC_OPERATIONS or
+            type(first['refusal']) is not str or first['refusal'] not in HANDOFF_DIAGNOSTIC_REFUSALS or
+            type(first['cancelled']) is not bool):
+        return
+    record = dict(first, cancelled=first['cancelled'] or state.get('cancelled') is True)
+    print(HANDOFF_DIAGNOSTIC_PREFIX + json.dumps(record, sort_keys=True, separators=(',', ':')), file=sys.stderr, flush=True)
+
+
+def require(condition, message, *, diagnostic='UNKNOWN'):
     if not condition:
+        try:
+            handoff_diagnostic_failure(diagnostic)
+        except KeyboardInterrupt:
+            try:
+                handoff_diagnostic_cancel()
+            except BaseException:
+                pass
+        except BaseException:
+            pass
         raise Error(message)
 
 
@@ -63,24 +123,24 @@ def sha(path):
 
 
 def safe_relative(value):
-    require(isinstance(value, str) and value and not any(ord(c) < 32 or ord(c) == 127 for c in value), 'invalid input path')
+    require(isinstance(value, str) and value and not any(ord(c) < 32 or ord(c) == 127 for c in value), 'invalid input path', diagnostic='SAFE_RELATIVE_01')
     parts = value.split('/')
-    require(all(p not in ('', '.', '..') for p in parts) and '\\' not in value and not value.startswith('/'), 'escaping input path')
+    require(all(p not in ('', '.', '..') for p in parts) and '\\' not in value and not value.startswith('/'), 'escaping input path', diagnostic='SAFE_RELATIVE_02')
     return value
 
 
 def regular(path):
     for item in (path, *path.parents):
-        require(not item.is_symlink(), 'symlink input refused')
+        require(not item.is_symlink(), 'symlink input refused', diagnostic='REGULAR_01')
     info = path.stat()
-    require(stat.S_ISREG(info.st_mode) and info.st_nlink == 1, 'input must be a singly linked regular file')
+    require(stat.S_ISREG(info.st_mode) and info.st_nlink == 1, 'input must be a singly linked regular file', diagnostic='REGULAR_02')
 
 
 def pinned(root, relative, digest):
     path = root / safe_relative(relative)
-    require(isinstance(digest, str) and HASH.fullmatch(digest), 'invalid SHA-256 pin')
+    require(isinstance(digest, str) and HASH.fullmatch(digest), 'invalid SHA-256 pin', diagnostic='PINNED_01')
     regular(path)
-    require(sha(path) == digest, 'input checksum differs from reviewed contract')
+    require(sha(path) == digest, 'input checksum differs from reviewed contract', diagnostic='PINNED_02')
     return path
 
 
@@ -88,7 +148,7 @@ def strict_json(text):
     def pairs(rows):
         result = {}
         for key, value in rows:
-            require(key not in result, 'duplicate contract/state JSON key')
+            require(key not in result, 'duplicate contract/state JSON key', diagnostic='STRICT_JSON_01')
             result[key] = value
         return result
     def constant(value):
@@ -151,29 +211,29 @@ def mount_role(entry, filesystems, access, security=()):
 
 
 def environment_guard(probe, nonce=None, image_id=None):
-    require(probe.get('docker_marker') is True, 'actual Docker marker required; host execution refused')
-    require(probe.get('uid') == 0 and probe.get('arch') == 'aarch64', 'native aarch64 container root required')
+    require(probe.get('docker_marker') is True, 'actual Docker marker required; host execution refused', diagnostic='ENVIRONMENT_GUARD_01')
+    require(probe.get('uid') == 0 and probe.get('arch') == 'aarch64', 'native aarch64 container root required', diagnostic='ENVIRONMENT_GUARD_02')
     privileges = probe.get('privileges')
-    require(isinstance(privileges, dict) and type(privileges.get('NoNewPrivs')) is int and privileges['NoNewPrivs'] == 1, 'no-new-privileges observation required')
+    require(isinstance(privileges, dict) and type(privileges.get('NoNewPrivs')) is int and privileges['NoNewPrivs'] == 1, 'no-new-privileges observation required', diagnostic='ENVIRONMENT_GUARD_03')
     for name in ('CapEff', 'CapPrm', 'CapBnd', 'CapInh', 'CapAmb'):
         value = privileges.get(name)
-        require(type(value) is int and value >= 0 and not value & ~SAFE_CAPS, 'unsafe/missing capability set: ' + name)
-    require(privileges['CapEff'] & (1 << 5), 'CAP_KILL required for bounded demoted-child cleanup')
-    require(probe.get('caps') == privileges['CapEff'] and probe.get('device_exposure') is False, 'privileged capabilities/device exposure refused')
-    require(probe.get('interfaces') == ['lo'] and not probe.get('docker_socket'), 'network/socket exposure refused')
+        require(type(value) is int and value >= 0 and not value & ~SAFE_CAPS, 'unsafe/missing capability set: ' + name, diagnostic='ENVIRONMENT_GUARD_04')
+    require(privileges['CapEff'] & (1 << 5), 'CAP_KILL required for bounded demoted-child cleanup', diagnostic='ENVIRONMENT_GUARD_05')
+    require(probe.get('caps') == privileges['CapEff'] and probe.get('device_exposure') is False, 'privileged capabilities/device exposure refused', diagnostic='ENVIRONMENT_GUARD_06')
+    require(probe.get('interfaces') == ['lo'] and not probe.get('docker_socket'), 'network/socket exposure refused', diagnostic='ENVIRONMENT_GUARD_07')
     table = probe['mounts']
-    require(mount_role(table.get('/', {}), ('overlay', 'fuse-overlayfs'), 'rw'), 'writable disposable overlay root required')
-    require('/inputs' in table and set(table['/inputs']['options']) & {'ro', 'rw'} == {'ro'}, 'read-only /inputs mount required')
-    require('/out' in table and set(table['/out']['options']) & {'ro', 'rw'} == {'rw'}, 'explicit /out evidence mount required')
-    require('/runner' in table and set(table['/runner']['options']) & {'ro', 'rw'} == {'ro'}, 'read-only /runner mount required')
-    require({'/proc', '/sys', '/dev'} <= set(table), 'standard kernel/device mounts required')
+    require(mount_role(table.get('/', {}), ('overlay', 'fuse-overlayfs'), 'rw'), 'writable disposable overlay root required', diagnostic='ENVIRONMENT_GUARD_08')
+    require('/inputs' in table and set(table['/inputs']['options']) & {'ro', 'rw'} == {'ro'}, 'read-only /inputs mount required', diagnostic='ENVIRONMENT_GUARD_09')
+    require('/out' in table and set(table['/out']['options']) & {'ro', 'rw'} == {'rw'}, 'explicit /out evidence mount required', diagnostic='ENVIRONMENT_GUARD_10')
+    require('/runner' in table and set(table['/runner']['options']) & {'ro', 'rw'} == {'ro'}, 'read-only /runner mount required', diagnostic='ENVIRONMENT_GUARD_11')
+    require({'/proc', '/sys', '/dev'} <= set(table), 'standard kernel/device mounts required', diagnostic='ENVIRONMENT_GUARD_12')
     protected = ('/etc', '/usr', '/var', '/home', '/tmp', '/root')
     standard = {'/etc/hosts', '/etc/hostname', '/etc/resolv.conf'}
     for path, entry in table.items():
         if any(path == root or path.startswith(root + '/') for root in protected):
-            require(path in standard or (path == '/tmp' and entry['fs'] == 'tmpfs'), 'host/system-path mount refused')
+            require(path in standard or (path == '/tmp' and entry['fs'] == 'tmpfs'), 'host/system-path mount refused', diagnostic='ENVIRONMENT_GUARD_13')
     for path, entry in table.items():
-        require(not any(path.startswith(root + '/') for root in ('/inputs', '/runner', '/out')), 'nested input/runner/output mount refused')
+        require(not any(path.startswith(root + '/') for root in ('/inputs', '/runner', '/out')), 'nested input/runner/output mount refused', diagnostic='ENVIRONMENT_GUARD_14')
         expected = path in {'/', '/inputs', '/out', '/runner', *standard}
         secured = ('nosuid', 'nodev', 'noexec')
         proc = (path == '/proc' and mount_role(entry, ('proc',), 'rw', secured)) or (path in PROC_READONLY and mount_role(entry, ('proc',), 'ro', secured))
@@ -182,58 +242,60 @@ def environment_guard(probe, nonce=None, image_id=None):
         directory_mask = path in DIRECTORY_MASKS and mount_role(entry, ('tmpfs',), 'ro')
         if null_mask or directory_mask:
             node = probe.get('mask_nodes', {}).get(path, {})
-            require(node.get('symlink') is False, 'mask node identity observation required')
+            require(node.get('symlink') is False, 'mask node identity observation required', diagnostic='ENVIRONMENT_GUARD_15')
             if null_mask:
-                require(node.get('kind') == 'char' and node.get('device') == [1, 3], 'mask must be the null device')
+                require(node.get('kind') == 'char' and node.get('device') == [1, 3], 'mask must be the null device', diagnostic='ENVIRONMENT_GUARD_16')
             else:
-                require(node.get('kind') == 'directory', 'mask must be a read-only directory')
+                require(node.get('kind') == 'directory', 'mask must be a read-only directory', diagnostic='ENVIRONMENT_GUARD_17')
         device_roles = {'/dev': (('tmpfs',), ('nosuid',)), '/dev/pts': (('devpts',), ('nosuid', 'noexec')),
                         '/dev/shm': (('tmpfs',), secured), '/dev/mqueue': (('mqueue',), secured)}
         device = path in device_roles and mount_role(entry, device_roles[path][0], 'rw', device_roles[path][1])
         temporary = path == '/tmp' and mount_role(entry, ('tmpfs',), 'rw', ('nosuid', 'nodev'))
-        require(expected or proc or system or null_mask or directory_mask or device or temporary, 'unexpected external mount refused')
-    require(isinstance(probe.get('nonce'), str) and re.fullmatch(r'[0-9a-f]{32}', probe['nonce']), 'explicit disposable-test nonce required')
-    require(isinstance(probe.get('image_id'), str) and re.fullmatch(r'sha256:[0-9a-f]{64}', probe['image_id']), 'immutable image identity required')
+        require(expected or proc or system or null_mask or directory_mask or device or temporary, 'unexpected external mount refused', diagnostic='ENVIRONMENT_GUARD_18')
+    require(isinstance(probe.get('nonce'), str) and re.fullmatch(r'[0-9a-f]{32}', probe['nonce']), 'explicit disposable-test nonce required', diagnostic='ENVIRONMENT_GUARD_19')
+    require(isinstance(probe.get('image_id'), str) and re.fullmatch(r'sha256:[0-9a-f]{64}', probe['image_id']), 'immutable image identity required', diagnostic='ENVIRONMENT_GUARD_20')
     if nonce is not None:
-        require(probe['nonce'] == nonce and probe['image_id'] == image_id, 'container identity differs from test contract')
+        require(probe['nonce'] == nonce and probe['image_id'] == image_id, 'container identity differs from test contract', diagnostic='ENVIRONMENT_GUARD_21')
 
 
 def validate_contract(contract):
-    require(isinstance(contract, dict) and contract.get('schema_version') == 1, 'unsupported contract schema')
-    require(contract.get('execution') == 'native-aarch64-disposable-docker' and contract.get('allow_system_mutation') is True, 'explicit disposable mutation contract required')
-    require(contract.get('daemon_arch') == 'aarch64', 'caller must record a native aarch64 Docker daemon')
-    require(re.fullmatch(r'[0-9a-f]{32}', contract.get('nonce', '')), 'invalid contract nonce')
-    require(re.fullmatch(r'sha256:[0-9a-f]{64}', contract.get('image_id', '')), 'invalid image ID')
-    require(re.fullmatch(r'[0-9a-f]{40}', contract.get('source_commit', '')), 'accepted source commit required')
-    require(re.fullmatch(r'[0-9A-F]{40}', contract.get('signing_key_fingerprint', '')), 'expected primary signer required')
-    require(contract.get('pacman_conf') == 'pacman.conf' and HASH.fullmatch(contract.get('pacman_conf_sha256', '')), 'pinned local pacman configuration required')
-    require(contract.get('public_cert') == 'signing/test-key.asc' and HASH.fullmatch(contract.get('public_cert_sha256', '')), 'pinned fixture public certificate required')
-    require(isinstance(contract.get('baseline_handoff', False), bool), 'invalid handoff contract')
+    require(isinstance(contract, dict) and contract.get('schema_version') == 1, 'unsupported contract schema', diagnostic='VALIDATE_CONTRACT_01')
+    require(contract.get('execution') == 'native-aarch64-disposable-docker' and contract.get('allow_system_mutation') is True, 'explicit disposable mutation contract required', diagnostic='VALIDATE_CONTRACT_02')
+    require(contract.get('daemon_arch') == 'aarch64', 'caller must record a native aarch64 Docker daemon', diagnostic='VALIDATE_CONTRACT_03')
+    require(re.fullmatch(r'[0-9a-f]{32}', contract.get('nonce', '')), 'invalid contract nonce', diagnostic='VALIDATE_CONTRACT_04')
+    require(re.fullmatch(r'sha256:[0-9a-f]{64}', contract.get('image_id', '')), 'invalid image ID', diagnostic='VALIDATE_CONTRACT_05')
+    require(re.fullmatch(r'[0-9a-f]{40}', contract.get('source_commit', '')), 'accepted source commit required', diagnostic='VALIDATE_CONTRACT_06')
+    require(re.fullmatch(r'[0-9A-F]{40}', contract.get('signing_key_fingerprint', '')), 'expected primary signer required', diagnostic='VALIDATE_CONTRACT_07')
+    require(contract.get('pacman_conf') == 'pacman.conf' and HASH.fullmatch(contract.get('pacman_conf_sha256', '')), 'pinned local pacman configuration required', diagnostic='VALIDATE_CONTRACT_08')
+    require(contract.get('public_cert') == 'signing/test-key.asc' and HASH.fullmatch(contract.get('public_cert_sha256', '')), 'pinned fixture public certificate required', diagnostic='VALIDATE_CONTRACT_09')
+    require(isinstance(contract.get('baseline_handoff', False), bool), 'invalid handoff contract', diagnostic='VALIDATE_CONTRACT_10')
     for stage in ('baseline', 'upgrade'):
         rows = contract.get(stage)
-        require(isinstance(rows, list) and len(rows) == 4 and all(isinstance(r, dict) for r in rows) and {r.get('name') for r in rows} == set(PACKAGES), 'exact four-package transaction required')
+        require(isinstance(rows, list) and len(rows) == 4 and all(isinstance(r, dict) for r in rows) and {r.get('name') for r in rows} == set(PACKAGES), 'exact four-package transaction required', diagnostic='VALIDATE_CONTRACT_11')
         for row in rows:
-            require(isinstance(row.get('version'), str) and re.fullmatch(r'[A-Za-z0-9._+:~-]+', row['version']), 'invalid package version')
+            require(isinstance(row.get('version'), str) and re.fullmatch(r'[A-Za-z0-9._+:~-]+', row['version']), 'invalid package version', diagnostic='VALIDATE_CONTRACT_12')
             path = safe_relative(row.get('archive'))
-            require(path.startswith(stage + '/') and path.endswith(('.pkg.tar.zst', '.pkg.tar.xz', '.pkg.tar.gz')), 'archive must be in its pinned stage directory')
-            require(HASH.fullmatch(row.get('sha256', '')) and HASH.fullmatch(row.get('signature_sha256', '')), 'archive/signature pins required')
+            require(path.startswith(stage + '/') and path.endswith(('.pkg.tar.zst', '.pkg.tar.xz', '.pkg.tar.gz')), 'archive must be in its pinned stage directory', diagnostic='VALIDATE_CONTRACT_13')
+            require(HASH.fullmatch(row.get('sha256', '')) and HASH.fullmatch(row.get('signature_sha256', '')), 'archive/signature pins required', diagnostic='VALIDATE_CONTRACT_14')
             payload = row.get('payload_sha256')
-            require(isinstance(payload, dict) and PRIMARY_FILES[row['name']] in payload, 'complete payload map including primary template/helper required')
+            require(isinstance(payload, dict) and PRIMARY_FILES[row['name']] in payload, 'complete payload map including primary template/helper required', diagnostic='VALIDATE_CONTRACT_15')
             for name, digest in payload.items():
                 safe_relative(name)
-                require(allowed_file(row['name'], name) and HASH.fullmatch(digest), 'payload escapes package scope or lacks pin')
+                require(allowed_file(row['name'], name) and HASH.fullmatch(digest), 'payload escapes package scope or lacks pin', diagnostic='VALIDATE_CONTRACT_16')
     baseline = {row['name']: row for row in contract['baseline']}
-    require(baseline['cachy-asahi-setup']['payload_sha256'].get('usr/bin/cachy-asahi-setup') == BASELINE_HELPER_SHA256, 'original accepted a625 setup baseline required')
+    require(baseline['cachy-asahi-setup']['payload_sha256'].get('usr/bin/cachy-asahi-setup') == BASELINE_HELPER_SHA256, 'reviewed strict setup 0.1.0-3 baseline required', diagnostic='VALIDATE_CONTRACT_17')
     for row in contract['upgrade']:
         old = baseline[row['name']]
-        require(row['sha256'] != old['sha256'] and row['version'] != old['version'], 'upgrade cannot reuse baseline archive/version')
+        require(row['sha256'] != old['sha256'] and row['version'] != old['version'], 'upgrade cannot reuse baseline archive/version', diagnostic='VALIDATE_CONTRACT_18')
         main = PRIMARY_FILES[row['name']]
-        require(row['payload_sha256'][main] != old['payload_sha256'][main], 'changed primary template/helper required for upgrade fixture')
+        require(row['payload_sha256'][main] != old['payload_sha256'][main], 'changed primary template/helper required for upgrade fixture', diagnostic='VALIDATE_CONTRACT_19')
 
 
 def allowed_file(package, path):
     component = PACKAGES[package]
     prefixes = (f'usr/share/licenses/{package}/', f'usr/share/doc/{package}/')
+    if package == 'cachy-asahi-hyprland-settings' and path == 'usr/bin/cachy-asahi-screenshot':
+        return True
     if component == 'setup':
         return path == 'usr/bin/cachy-asahi-setup' or path.startswith(prefixes)
     return path.startswith((*prefixes, f'usr/share/cachy-asahi/{component}/'))

@@ -39,7 +39,7 @@ class Cancelled(Exception):
 
 def image_tmp_view(observed):
     lifecycle.require(not any(path == '/tmp' or path.startswith('/tmp/') for path in observed['mounts']),
-                      'handoff must inspect the image /tmp; mounted temporary view refused')
+                      'handoff must inspect the image /tmp; mounted temporary view refused', diagnostic='IMAGE_TMP_VIEW_01')
 
 
 def inventory(text):
@@ -48,9 +48,9 @@ def inventory(text):
         parts = line.split(' ')
         lifecycle.require(len(parts) == 2 and re.fullmatch(r'[A-Za-z0-9@._+:-]+', parts[0])
                           and re.fullmatch(r'[A-Za-z0-9._+:~-]+', parts[1])
-                          and parts[0] not in rows, 'invalid/duplicate installed inventory')
+                          and parts[0] not in rows, 'invalid/duplicate installed inventory', diagnostic='INVENTORY_01')
         rows[parts[0]] = parts[1]
-    lifecycle.require(bool(rows), 'empty installed inventory')
+    lifecycle.require(bool(rows), 'empty installed inventory', diagnostic='INVENTORY_02')
     return rows
 
 
@@ -60,9 +60,9 @@ def inventory_bytes(rows):
 
 def load(root, name, digest):
     path = lifecycle.pinned(root, name, digest)
-    lifecycle.require(path.stat().st_size <= LIMIT, 'contract exceeds input bound')
+    lifecycle.require(path.stat().st_size <= LIMIT, 'contract exceeds input bound', diagnostic='LOAD_01')
     data = path.read_bytes()
-    lifecycle.require(hashlib.sha256(data).hexdigest() == digest, 'input changed during contract read')
+    lifecycle.require(hashlib.sha256(data).hexdigest() == digest, 'input changed during contract read', diagnostic='LOAD_02')
     return lifecycle.strict_json(data.decode('utf-8'))
 
 
@@ -77,38 +77,74 @@ def parents(path):
 class Handoff:
     def __init__(self, contract_path, digest):
         # Use the actual lifecycle guard before parsing even the commit input.
+        try:
+            lifecycle.handoff_diagnostic_site('ENVIRONMENT')
+        except (Cancelled, KeyboardInterrupt, SystemExit):
+            raise
+        except BaseException:
+            pass
         observed = lifecycle.actual_environment()
         lifecycle.environment_guard(observed)
         image_tmp_view(observed)
-        lifecycle.require(contract_path == INPUTS / 'commit.json', 'fixed commit input required')
+        lifecycle.require(contract_path == INPUTS / 'commit.json', 'fixed commit input required', diagnostic='HANDOFF_INIT_01')
+        try:
+            lifecycle.handoff_diagnostic_site('COMMIT')
+        except (Cancelled, KeyboardInterrupt, SystemExit):
+            raise
+        except BaseException:
+            pass
         self.commit = load(INPUTS, 'commit.json', digest)
         lifecycle.require(isinstance(self.commit, dict) and set(self.commit) == FIELDS
                           and self.commit['schema_version'] == 1 and self.commit['purpose'] == PURPOSE,
-                          'explicit exact commit contract required')
+                          'explicit exact commit contract required', diagnostic='HANDOFF_INIT_02')
         lifecycle.require(isinstance(self.commit['source_commit'], str)
-                          and re.fullmatch(r'[0-9a-f]{40}', self.commit['source_commit']), 'source commit required')
+                          and re.fullmatch(r'[0-9a-f]{40}', self.commit['source_commit']), 'source commit required', diagnostic='HANDOFF_INIT_03')
+        try:
+            lifecycle.handoff_diagnostic_site('LIFECYCLE_CONTRACT')
+        except (Cancelled, KeyboardInterrupt, SystemExit):
+            raise
+        except BaseException:
+            pass
         self.contract = load(INPUTS, 'lifecycle.json', self.commit['lifecycle_contract_sha256'])
         lifecycle.validate_contract(self.contract)
         lifecycle.require(self.contract.get('baseline_handoff') is True
                           and self.contract['source_commit'] == self.commit['source_commit']
-                          and self.contract['baseline'] == self.commit['baseline'], 'lifecycle baseline/source binding differs')
+                          and self.contract['baseline'] == self.commit['baseline'], 'lifecycle baseline/source binding differs', diagnostic='HANDOFF_INIT_04')
+        try:
+            lifecycle.handoff_diagnostic_site('RUNNER')
+        except (Cancelled, KeyboardInterrupt, SystemExit):
+            raise
+        except BaseException:
+            pass
         lifecycle.pinned(RUNNER, 'lifecycle.py', self.commit['lifecycle_script_sha256'])
-        lifecycle.require(Path(lifecycle.__file__).resolve() == RUNNER / 'lifecycle.py', 'guard must come from pinned runner snapshot')
+        lifecycle.require(Path(lifecycle.__file__).resolve() == RUNNER / 'lifecycle.py', 'guard must come from pinned runner snapshot', diagnostic='HANDOFF_INIT_05')
+        try:
+            lifecycle.handoff_diagnostic_site('BASE_PACKAGES')
+        except (Cancelled, KeyboardInterrupt, SystemExit):
+            raise
+        except BaseException:
+            pass
         base_path = lifecycle.pinned(INPUTS, 'base-packages.lock', self.commit['base_packages_sha256'])
-        lifecycle.require(base_path.stat().st_size <= LIMIT, 'base inventory exceeds bound')
+        lifecycle.require(base_path.stat().st_size <= LIMIT, 'base inventory exceeds bound', diagnostic='HANDOFF_INIT_06')
         base_bytes = base_path.read_bytes()
-        lifecycle.require(hashlib.sha256(base_bytes).hexdigest() == self.commit['base_packages_sha256'], 'base inventory read drift')
+        lifecycle.require(hashlib.sha256(base_bytes).hexdigest() == self.commit['base_packages_sha256'], 'base inventory read drift', diagnostic='HANDOFF_INIT_07')
         self.base = inventory(base_bytes.decode('ascii'))
-        lifecycle.require(not set(self.base) & set(lifecycle.PACKAGES), 'base already contains overlay')
+        lifecycle.require(not set(self.base) & set(lifecycle.PACKAGES), 'base already contains overlay', diagnostic='HANDOFF_INIT_08')
         self.versions = {row['name']: row['version'] for row in self.contract['baseline']}
         self.payloads = {row['name']: row['payload_sha256'] for row in self.contract['baseline']}
         self.guard()
-        lifecycle.require(OUTPUT.is_dir() and not OUTPUT.is_symlink(), 'existing real evidence mount required')
+        try:
+            lifecycle.handoff_diagnostic_site('OUTPUT')
+        except (Cancelled, KeyboardInterrupt, SystemExit):
+            raise
+        except BaseException:
+            pass
+        lifecycle.require(OUTPUT.is_dir() and not OUTPUT.is_symlink(), 'existing real evidence mount required', diagnostic='HANDOFF_INIT_09')
         self.receipt = OUTPUT / 'commit-receipt.json'
         self.lock = OUTPUT / 'installed-packages.lock'
         lifecycle.require(not self.receipt.exists() and not self.receipt.is_symlink()
                           and not self.lock.exists() and not self.lock.is_symlink()
-                          and not (OUTPUT / 'lifecycle').exists() and not (OUTPUT / 'lifecycle').is_symlink(), 'fresh handoff output required')
+                          and not (OUTPUT / 'lifecycle').exists() and not (OUTPUT / 'lifecycle').is_symlink(), 'fresh handoff output required', diagnostic='HANDOFF_INIT_10')
         self.report = {'schema_version': 1, 'purpose': PURPOSE, 'status': 'FAIL',
                        'source_commit': self.commit['source_commit'], 'image_id': self.contract['image_id'],
                        'nonce': self.contract['nonce'], 'commit_contract_sha256': digest,
@@ -128,6 +164,10 @@ class Handoff:
     def cancel(self, *_):
         self.cancelled = True
         self.report.update(status='FAIL', cancelled=True)
+        try:
+            lifecycle.handoff_diagnostic_cancel()
+        except BaseException:
+            pass
         raise Cancelled()
 
     def stop_child(self):
@@ -283,6 +323,12 @@ class Handoff:
         self.report['private_cleanup'] = 'PASS; no private contents or hashes recorded'
 
     def execute(self):
+        try:
+            lifecycle.handoff_diagnostic_site('EXECUTE')
+        except (Cancelled, KeyboardInterrupt, SystemExit):
+            raise
+        except BaseException:
+            pass
         # Seed a failure receipt only after every source/contract pin has passed.
         with self.receipt.open('x') as stream:
             json.dump(self.report, stream, indent=2, sort_keys=True)
@@ -314,7 +360,17 @@ class Handoff:
             return 0
         except (Cancelled, KeyboardInterrupt, lifecycle.Error, OSError, ValueError, KeyError, TypeError, subprocess.SubprocessError) as error:
             # Never put lifecycle stderr, rejected inputs or private paths in this receipt.
-            self.cancelled |= isinstance(error, (Cancelled, KeyboardInterrupt))
+            self.cancelled |= any(kind is Cancelled or kind is KeyboardInterrupt
+                                  for kind in type.__dict__['__mro__'].__get__(type(error)))
+            try:
+                if self.cancelled:
+                    lifecycle.handoff_diagnostic_cancel()
+            except BaseException:
+                pass
+            try:
+                lifecycle.handoff_diagnostic_failure()
+            except BaseException:
+                pass
             self.report.update(status='FAIL', error='handoff assertion, command or cleanup failed; review public check records')
             return 1
         finally:
@@ -335,11 +391,45 @@ def main(argv=None):
     parser.add_argument('--contract', required=True, type=Path)
     parser.add_argument('--contract-sha256', required=True)
     args = parser.parse_args(argv)
+    result = None
     try:
-        return Handoff(args.contract, args.contract_sha256).execute()
+        try:
+            try:
+                lifecycle.handoff_diagnostic_start()
+            except (Cancelled, KeyboardInterrupt, SystemExit):
+                raise
+            except BaseException:
+                pass
+            result = Handoff(args.contract, args.contract_sha256).execute()
+            return result
+        except (Cancelled, KeyboardInterrupt):
+            try:
+                lifecycle.handoff_diagnostic_cancel()
+            except BaseException:
+                pass
+            raise
     except (Cancelled, KeyboardInterrupt, lifecycle.Error, OSError, ValueError, KeyError, TypeError, subprocess.SubprocessError):
+        try:
+            lifecycle.handoff_diagnostic_failure()
+        except BaseException:
+            pass
         print('Installed handoff refused before execution; no READY receipt.', file=sys.stderr)
+        result = 1
         return 1
+    finally:
+        if type(result) is int and result == 0:
+            try:
+                lifecycle.handoff_diagnostic_emit()
+            except (Cancelled, KeyboardInterrupt, SystemExit):
+                raise
+            except BaseException:
+                pass
+        else:
+            try:
+                lifecycle.handoff_diagnostic_emit()
+            except BaseException:
+                pass
+
 
 
 if __name__ == '__main__':
