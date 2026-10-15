@@ -22,7 +22,7 @@ import urllib.error
 import urllib.parse
 
 INTAKE = 'scripts/port/ksm-native-job/cache_intake.py'
-INTAKE_SHA = 'f454fb98d5076bab89c4927a95186e550f106ce51f42875e75971fed315e1100'
+INTAKE_SHA = 'c474a32b7be41d73504906932cab8022318cdd81e49ca6da45ed942c5bf3d5dc'
 BUFFERS = ('scripts/port/ksm-native-job/donor/current-native-arm.py',
            'scripts/port/ksm-native-job/donor/current-controller.py',
            'scripts/port/ksm-native-job/donor/current-packet.json',
@@ -39,6 +39,18 @@ def need(ok, reason):
         raise ValueError(reason)
 
 
+RETAINED_BUBBLEWRAP_PRIVATE_PREFIX = 'CACHY_RETAINED_BUBBLEWRAP_V1_'
+
+
+def capture_retained_private_environment():
+    return {name: os.environ.pop(name) for name in tuple(os.environ)
+            if name.startswith(RETAINED_BUBBLEWRAP_PRIVATE_PREFIX)}
+
+
+def ordinary_error(error):
+    return any(base is Exception for base in type.__dict__['__mro__'].__get__(type(error)))
+
+
 def prefill(snapshot, source, private, runner, state, producer_end):
     """Return TRANSPORT_ONLY; retain intake before construction, never dispose it.
 
@@ -48,6 +60,10 @@ def prefill(snapshot, source, private, runner, state, producer_end):
     """
     first = receipt = intake = original_deadline = None
     last = None
+    captured = None
+    seed_receipt = {}
+    handed_off = False
+    cleanup_control = None
 
     def check():
         nonlocal last
@@ -71,6 +87,7 @@ def prefill(snapshot, source, private, runner, state, producer_end):
              'current-cache-resource-observation')
 
     try:
+        captured = capture_retained_private_environment()
         original_deadline = runner.deadline
         check()
         source, private = Path(source), Path(private)
@@ -101,7 +118,16 @@ def prefill(snapshot, source, private, runner, state, producer_end):
             check()
             path.mkdir(mode=0o700)
             check()
-        intake.seed(cache)
+        intake.seed(cache, captured=captured, receipt=seed_receipt)
+        check()
+        # The unchanged acquisition refuses retained resources. Complete the
+        # six-file seed lifetime before transfer into its existing 501 protocol.
+        resources()
+        intake.finish_seed(seed_receipt)
+        need(seed_receipt.get('state') == 'HANDED_OFF' and seed_receipt.get('uncertain') is False
+             and type(intake.guard.resources) is dict and not intake.guard.resources,
+             'current-cache-seed-handoff')
+        handed_off = True
         check()
         receipt = intake.acquire(cache, evidence)
         check()
@@ -122,7 +148,7 @@ def prefill(snapshot, source, private, runner, state, producer_end):
         try:
             names = tuple(os.environ)
             for name in names:
-                if name.startswith('CACHY_OLD_FOUR_'):
+                if name.startswith(('CACHY_OLD_FOUR_', RETAINED_BUBBLEWRAP_PRIVATE_PREFIX)):
                     try:
                         del os.environ[name]
                     except BaseException as error:
@@ -132,14 +158,32 @@ def prefill(snapshot, source, private, runner, state, producer_end):
             if first is None:
                 first = error
         try:
+            if type(captured) is dict:
+                captured.clear()
+        except BaseException as error:
+            if first is None:
+                first = error
+        try:
             resources()
         except BaseException as error:
             if first is None:
                 first = error
     if first is not None:
+        # Once handed off, acquire owns a possibly partial501 namespace. Do not
+        # use a six-file seed journal as authority over those later objects.
+        if intake is not None and not handed_off:
+            try:
+                intake.rollback_seed(seed_receipt, first)
+            except BaseException as error:
+                if not ordinary_error(error) and ordinary_error(first):
+                    cleanup_control = error
         try:
+            first.retained_seed_receipt = seed_receipt
+            first.retained_cache_handed_off = handed_off
             first.retained_cache_intake = intake
         except BaseException:
             pass
+        if cleanup_control is not None:
+            raise cleanup_control from first
         raise first
     return receipt

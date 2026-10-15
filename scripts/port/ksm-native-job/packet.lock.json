@@ -2,8 +2,8 @@
   "files": {
     ".github/workflows/native-arm-ksm.yml": {
       "mode": "0644",
-      "sha256": "9d840c67d6afef15f337bfb401bd81b599b9918754a546ea7db413da1f701e27",
-      "size_bytes": 8929
+      "sha256": "77af4a601893d8c409aa42755601c3f723aa8bd3818d20680e2c7ec3d5477782",
+      "size_bytes": 9251
     },
     "AGENTS.md": {
       "mode": "0644",
@@ -572,8 +572,8 @@
     },
     "scripts/port/ksm-native-job/cache_intake.py": {
       "mode": "0644",
-      "sha256": "f454fb98d5076bab89c4927a95186e550f106ce51f42875e75971fed315e1100",
-      "size_bytes": 25653
+      "sha256": "c474a32b7be41d73504906932cab8022318cdd81e49ca6da45ed942c5bf3d5dc",
+      "size_bytes": 34371
     },
     "scripts/port/ksm-native-job/consumer.py": {
       "mode": "0644",
@@ -582,13 +582,13 @@
     },
     "scripts/port/ksm-native-job/current_cache.py": {
       "mode": "0644",
-      "sha256": "754c7291feb0787c97679f5b92e1023549db8126ebe4bf3e7232382221e9286c",
-      "size_bytes": 5744
+      "sha256": "ab0229e957807c9dec63325d81aed80d77ff74708a2af31a4e720a8ee247ca4e",
+      "size_bytes": 7658
     },
     "scripts/port/ksm-native-job/donor/current-controller.py": {
       "mode": "0644",
-      "sha256": "bbe279edb9743f98e8feed8365859abc221b2665924658e600775c902e18299e",
-      "size_bytes": 100623
+      "sha256": "6d11dedad65470650e9ada0cff47f9f5a3337ddcdc390fce76742b61598f3d61",
+      "size_bytes": 111516
     },
     "scripts/port/ksm-native-job/donor/current-native-arm.py": {
       "mode": "0644",
@@ -597,7 +597,7 @@
     },
     "scripts/port/ksm-native-job/donor/current-packet.json": {
       "mode": "0644",
-      "sha256": "9d5a7dc25fd44e127c457c72addb28272b1eb1f5391c4c5b8d5b0a226a3be048",
+      "sha256": "2233f89144232c33bea9a756a7efb9aa6f5f720ba74d2bfcb5ef1e61a2ffefc5",
       "size_bytes": 94735
     },
     "scripts/port/ksm-native-job/executor.py": {
@@ -687,7 +687,7 @@
     },
     "scripts/port/ksm-native-job/job.py": {
       "mode": "0644",
-      "sha256": "4f8d66dc463096fabbfa8e352818b493e4947d6dc23338cc4aa7391fd3d018ea",
+      "sha256": "a9ccda835a5dcdd0cee9f3084b08f1a644bc22514cf3c810b29c9430b9b0249a",
       "size_bytes": 9745
     },
     "scripts/port/ksm-native-job/producer_driver.py": {

@@ -35,10 +35,10 @@ PINS = {
     'scripts/port/ksm-lifecycle/test_stage.py': 'e34c99bb71f57748c5f171f08085ca4d0ab3846e26cbc48ca07e246730218332',
     'scripts/port/ksm-lifecycle/test_worker.py': '5e9bac1045407585f26c8819c9e4d283cae3044e1cefbebabc1f4c086e517aa8',
     'scripts/port/ksm-lifecycle/source-checkpoint.json': '2d3b4fd99d708473d69c325778d0db345fab19a4d0b7e04bf346405f99f3219c',
-    'scripts/port/ksm-native-job/current_cache.py': '754c7291feb0787c97679f5b92e1023549db8126ebe4bf3e7232382221e9286c',
-    'scripts/port/ksm-native-job/cache_intake.py': 'f454fb98d5076bab89c4927a95186e550f106ce51f42875e75971fed315e1100',
-    'scripts/port/ksm-native-job/donor/current-controller.py': 'bbe279edb9743f98e8feed8365859abc221b2665924658e600775c902e18299e',
-    'scripts/port/ksm-native-job/donor/current-packet.json': '9d5a7dc25fd44e127c457c72addb28272b1eb1f5391c4c5b8d5b0a226a3be048',
+    'scripts/port/ksm-native-job/current_cache.py': 'ab0229e957807c9dec63325d81aed80d77ff74708a2af31a4e720a8ee247ca4e',
+    'scripts/port/ksm-native-job/cache_intake.py': 'c474a32b7be41d73504906932cab8022318cdd81e49ca6da45ed942c5bf3d5dc',
+    'scripts/port/ksm-native-job/donor/current-controller.py': '6d11dedad65470650e9ada0cff47f9f5a3337ddcdc390fce76742b61598f3d61',
+    'scripts/port/ksm-native-job/donor/current-packet.json': '2233f89144232c33bea9a756a7efb9aa6f5f720ba74d2bfcb5ef1e61a2ffefc5',
 }
 CHECKPOINT_SOURCES = ('scripts/client/stage.py', 'scripts/ci/source_suites.py', 'scripts/port/ksm-lifecycle/contract.py', 'scripts/port/ksm-lifecycle/stage.py', 'scripts/port/ksm-lifecycle/worker.py')
 HISTORICAL_147 = {'checkpoint_sha256': 'f3966ce9d97b6a3661a57474740052eaa837929c7b7553ac2d82702562f03fc8', 'test_receipt_sha256': 'c0d5255a81443a4af927fff30c6ca04326abbe753b48a0ea46a1153b295f33aa', 'count': 147, 'inputs_sha256': '3c16c37d1b12cc84a88572e82ab8ad59e7f3b5ed0d08f09ddf72a69f4711d650', 'packages_sha256': '89bdb06fea1862b5a6e02b77a4b98f6e04755b02327d875a716bd792929f3a4f', 'client_stage_sha256': 'dc0c75969ed79548c3eb0ab1692f57ebffe7464d9192e591cdcf61aeaeb77154', 'worker_sha256': '76a3e94f317bea79d1e2444630d719b8acaed6c6cb6427c0bb19beedbc4d6b83'}
