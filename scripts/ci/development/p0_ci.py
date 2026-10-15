@@ -134,12 +134,59 @@ def callback_code_boundaries(module):
     return tuple(result)
 
 
-def mark_callback_failure(error, refusal_type, boundaries):
+P0_VALUE_OPERATIONS = ('controller-installer', 'controller-consumer', 'original-main',
+    'original-controller', 'preflight-namespace', 'preflight-live', 'preflight-run',
+    'entry-authenticate', 'entry-run', 'entry-projection')
+PIPELINE_FAILURE_OPERATIONS |= frozenset('run-P0-' + name for name in P0_VALUE_OPERATIONS)
+
+
+def p0_value_code_boundaries(controller, sdk, session):
+    """Only fixed members of the already-loaded Source/Session module anchors."""
+    result = []
+    def add(operation, *functions):
+        for function in functions:
+            if type(function) is not types.FunctionType: continue
+            pending = [function.__code__]
+            while pending:
+                code = pending.pop(); result.append((code, 'run-P0-' + operation))
+                pending.extend(value for value in code.co_consts if type(value) is types.CodeType)
+    add('controller-installer', controller.Development.installer_module)
+    add('controller-consumer', controller.Development.consume_p0)
+    if type(session) is not sdk.Session: return tuple(result)
+    state = object.__getattribute__(session, '__dict__')
+    graph = state.get('source_graph')
+    if type(graph) is not dict: return tuple(result)
+    bridge = graph.get('native_preflight')
+    if type(bridge) is types.ModuleType:
+        body = vars(bridge)
+        add('preflight-namespace', body.get('namespace'))
+        add('preflight-live', body.get('live'))
+        add('preflight-run', *(body.get(name) for name in
+            ('run', 'image_handoff', 'container_binding', 'selection', 'accept')))
+    entry = state.get('p0_entry_module')
+    if type(entry) is types.ModuleType:
+        body = vars(entry)
+        add('entry-authenticate', body.get('authenticate'), body.get('verified_bridge'))
+        add('entry-run', body.get('run'))
+        add('entry-projection', body.get('projection'))
+    original = graph.get('original')
+    if type(original) is dict:
+        native = original.get('native_arm'); integration = original.get('integration')
+        if type(native) is types.ModuleType: add('original-main', vars(native).get('main'))
+        if type(integration) is types.ModuleType:
+            body = vars(integration); owner = body.get('Controller')
+            if type(owner) is type: add('original-controller', vars(owner).get('__init__'))
+            add('original-controller', body.get('snapshot'), body.get('scan'), body.get('require_source_snapshot'))
+    return tuple(result)
+
+
+def mark_callback_failure(error, refusal_type, boundaries, *, value_error=False):
     """Optional fixed boundary facts; never publish operands or replace failure."""
     try:
         args = BaseException.__dict__['args'].__get__(error)
-        if (type(error) is not refusal_type or type(args) is not tuple or len(args) != 1 or
-                type(args[0]) is not str or args[0] != 'callback-refused'):
+        if not ((value_error is True and type(error) is ValueError) or
+                (value_error is False and type(error) is refusal_type and type(args) is tuple and len(args) == 1 and
+                 type(args[0]) is str and args[0] == 'callback-refused')):
             return
         trace = BaseException.__dict__['__traceback__'].__get__(error)
         operation = None
@@ -619,6 +666,13 @@ def run(*,entry,outer_end,expected_source_commit,source_root,private_root,output
     except BaseException as error:
         first=error
         mark_callback_failure(error,callback_refusal,callback_boundaries)
+        try:
+            value_boundaries=p0_value_code_boundaries(controller,sdk,session)
+            mark_callback_failure(error,callback_refusal,value_boundaries,value_error=True)
+        except BaseException as secondary:
+            if type(secondary) is KeyboardInterrupt:
+                BaseException.__setattr__(error,'native_preflight_cancelled',True)
+                BaseException.__setattr__(error,'native_preflight_cleanup_uncertain',True)
     finally:
         if timer:
             try:signal.setitimer(signal.ITIMER_REAL,0)
