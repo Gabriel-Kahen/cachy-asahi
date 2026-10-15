@@ -1,0 +1,67 @@
+name: maintained-desktop574
+on:
+  workflow_dispatch:
+  push:
+    paths: ['.github/workflows/maintained-desktop574.yml']
+permissions:
+  contents: read
+concurrency:
+  group: native-arm-build
+  cancel-in-progress: false
+jobs:
+  native:
+    if: github.repository == 'Gabriel-Kahen/cachy-asahi'
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Focused hosted entry tests
+        run: python3 -I -B scripts/ci/test_maintained_desktop574.py
+      - name: Seed the six exact retained inputs using existing secrets only
+        timeout-minutes: 2
+        env:
+          CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01 }}
+          CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02 }}
+          CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01 }}
+          CACHY_OLD_FOUR_SCHEMA: '1'
+          CACHY_OLD_FOUR_SOURCE_EPOCH: '1791748800'
+          CACHY_OLD_FOUR_JBIGKIT_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_01 }}
+          CACHY_OLD_FOUR_JBIGKIT_02: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_02 }}
+          CACHY_OLD_FOUR_JBIGKIT_SIG_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_SIG_01 }}
+          CACHY_OLD_FOUR_LIBTIFF_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_01 }}
+          CACHY_OLD_FOUR_LIBTIFF_02: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_02 }}
+          CACHY_OLD_FOUR_LIBTIFF_03: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_03 }}
+          CACHY_OLD_FOUR_LIBTIFF_04: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_04 }}
+          CACHY_OLD_FOUR_LIBTIFF_05: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_05 }}
+          CACHY_OLD_FOUR_LIBTIFF_06: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_06 }}
+          CACHY_OLD_FOUR_LIBTIFF_07: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_07 }}
+          CACHY_OLD_FOUR_LIBTIFF_08: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_08 }}
+          CACHY_OLD_FOUR_LIBTIFF_09: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_09 }}
+          CACHY_OLD_FOUR_LIBTIFF_10: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_10 }}
+          CACHY_OLD_FOUR_LIBTIFF_11: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_11 }}
+          CACHY_OLD_FOUR_LIBTIFF_12: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_12 }}
+          CACHY_OLD_FOUR_LIBTIFF_13: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_13 }}
+          CACHY_OLD_FOUR_LIBTIFF_14: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_14 }}
+          CACHY_OLD_FOUR_LIBTIFF_15: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_15 }}
+          CACHY_OLD_FOUR_LIBTIFF_SIG_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_SIG_01 }}
+        run: >-
+          python3 -I -B scripts/ci/maintained_desktop574.py seed
+          --inputs scripts/ci/maintained-desktop574-inputs.json
+          --output "$RUNNER_TEMP/desktop574"
+      - name: Reconstruct pinned inputs and run offline native574 transaction
+        timeout-minutes: 40
+        run: >-
+          timeout --signal=TERM --kill-after=10s 2300s
+          python3 -I -B scripts/ci/maintained_desktop574.py build
+          --inputs scripts/ci/maintained-desktop574-inputs.json
+          --output "$RUNNER_TEMP/desktop574"
+      - name: Retain bounded metadata only; never upload the input cache
+        if: always()
+        run: |
+          for name in seed-report.json report.json installed-packages.lock; do
+            if [ -f "$RUNNER_TEMP/desktop574/$name" ]; then
+              cat "$RUNNER_TEMP/desktop574/$name"
+            fi
+          done
