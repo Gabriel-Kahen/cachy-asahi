@@ -67,7 +67,7 @@ def preflight(args):
     return native.load_pinned(ROOT / 'scripts/ci/inputs.lock.json', bootstrap.INPUTS_SHA)
 
 
-def container_command(docker, image, name, nonce, source, workspace):
+def container_command(docker, image, name, nonce, source, workspace, *, scale_fixtures=False):
     return docker + ['run', '--name', name, '--pull=never', '--platform=linux/arm64', '--user=0:0',
         '--network=none', '--ipc=private', '--cap-drop=ALL', '--cap-add=CHOWN', '--cap-add=DAC_OVERRIDE',
         '--cap-add=FOWNER', '--security-opt=no-new-privileges', '--read-only', '--pids-limit=128', '--memory=1g', '--cpus=2',
@@ -75,7 +75,8 @@ def container_command(docker, image, name, nonce, source, workspace):
         '--mount', f'type=bind,src={source},dst=/source,readonly',
         '--mount', f'type=bind,src={workspace},dst=/workspace', '--entrypoint=/usr/bin/env', image,
         '-i', 'PATH=/usr/bin:/bin', 'HOME=/tmp/home', 'TMPDIR=/tmp', 'LC_ALL=C',
-        'CACHY_ASAHI_BOUND_UPDATE=' + nonce, '/usr/bin/python3', '-B', '/source/scripts/update/native_container.py']
+        'CACHY_ASAHI_BOUND_UPDATE=' + nonce, '/usr/bin/python3', '-B', '/source/scripts/update/native_container.py',
+        *(['--scale-fixtures'] if scale_fixtures else [])]
 
 
 def cleanup(output, docker, state):
@@ -167,7 +168,7 @@ def run(args):
             snapshot(args.source_commit, source); workspace.mkdir(mode=0o700)
             nonce = os.urandom(16).hex(); name = 'cachy-asahi-bound-' + nonce
             state['container'] = name; native.save(state_path, state)
-            argv = container_command(docker, image, name, nonce, source, workspace)
+            argv = container_command(docker, image, name, nonce, source, workspace, scale_fixtures=getattr(args, 'scale_fixtures', False))
             with (private / 'container.log').open('wb') as log:
                 row = subprocess.run(argv, stdin=subprocess.DEVNULL, stdout=log, stderr=subprocess.STDOUT, timeout=240)
             raw = (workspace / 'result.json').read_bytes()
@@ -176,7 +177,8 @@ def run(args):
             result['native_tests'] = record
             log = (workspace / 'tests.log').read_bytes(); need(len(log) <= 32768, 'public log bound')
             (output / 'tests.log').write_bytes(log)
-            need(record.get('status') == 'PASS' and record.get('tests') == 39 and record.get('architecture') == 'aarch64'
+            expected = 106 if getattr(args, 'scale_fixtures', False) else 39
+            need(record.get('status') == 'PASS' and record.get('tests') == expected and record.get('architecture') == 'aarch64'
                  and not any(record.get(key) for key in ('failures', 'errors', 'skips')) and row.returncode == 0,
                  'native tiny checks failed')
             result.update(status='PASS', native_tests=record, image=image, packages_sha256=bootstrap.PACKAGES_SHA)
@@ -204,6 +206,7 @@ def main():
     parser.add_argument('--cache', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--cleanup-only', action='store_true')
+    parser.add_argument('--scale-fixtures', action='store_true', help='Also run the synthetic scale backend cases')
     return run(parser.parse_args())
 
 

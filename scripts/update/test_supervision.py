@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: MIT
 """Owned inert child commands only; no package or service execution."""
 import os
-from pathlib import Path
 import sys
 import tempfile
 import time
@@ -17,7 +16,7 @@ from supervision import run
 
 class Supervision(unittest.TestCase):
     def setUp(self):
-        self.temporary = tempfile.TemporaryDirectory(dir=Path(__file__).resolve().parents[3])
+        self.temporary = tempfile.TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)
         self.cwd = self.temporary.name
         self.env = {'PATH':'/usr/bin:/bin'}
