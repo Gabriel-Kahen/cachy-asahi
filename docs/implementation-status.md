@@ -2,6 +2,17 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 15, signed-release dependency impact:
+Release comparison now reports unchanged runtime consumers of changed or removed
+packages through deterministic dependency paths in both verified inventories.
+It respects versioned virtual providers and overlay precedence. Global matching,
+edge, traversal-work and output bounds refuse excessive reports; the cyclic
+zero-output regression verifies the traversal limit. Author full116 and fresh
+peer focused26 tests pass with zero skips, using disposable TEST signatures.
+Signature and final-reread verification remain intact. This identifies possible
+runtime-consumer review; build dependencies and rebuild requirements are not
+established. See [operator usage](release-comparison.md).
+
 October 15, installer registration and onboarding correction:
 Published Source `66e6f250` binds the installer bridge and maintained issuer
 assertion to the composed handoff, copies the required release helper into

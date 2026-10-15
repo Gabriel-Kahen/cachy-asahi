@@ -2,6 +2,8 @@
 # SPDX-License-Identifier: MIT
 """Preview differences between two authenticated local release bundles."""
 import argparse
+from collections import deque
+from functools import lru_cache
 import hashlib
 import importlib.util
 import json
@@ -11,6 +13,10 @@ import sys
 spec = importlib.util.spec_from_file_location("comparison_release", Path(__file__).with_name("release.py"))
 r = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(r)
+MAX_IMPACT_EDGES = 65536
+MAX_IMPACT_STEPS = 65536
+MAX_IMPACT_CHECKS = 65536
+MAX_IMPACT_WORK = 262144
 
 
 def directory(value):
@@ -63,6 +69,72 @@ def package_changes(before, after, artifacts=False):
     return result
 
 
+def dependency_impact(old_packages, new_packages, old_base, new_base):
+    """Possible runtime consumers, using every matching provider, never a solver."""
+    def effective(packages, base):
+        result = {name: ("base", row) for name, row in indexed(base, "base package").items()}
+        result.update({name: ("release", row) for name, row in indexed(packages, "release package").items()})
+        return result
+    def identity(item):
+        origin, package = item
+        return origin, metadata(package), package.get("filename"), package.get("sha256")
+    left, right = effective(old_packages, old_base), effective(new_packages, new_base)
+    unchanged = {name for name in left.keys() & right.keys() if identity(left[name]) == identity(right[name])}
+    roots = sorted(left.keys() - unchanged)
+    probes = 0
+    @lru_cache(maxsize=MAX_IMPACT_CHECKS)
+    def matches(dependency, name, version, provides):
+        nonlocal probes
+        probes += 1
+        r.require(probes <= MAX_IMPACT_CHECKS, "dependency impact graph exceeds match limit")
+        return r.satisfies(dependency, {"name": name, "version": version, "provides": provides})
+    edge_count = 0
+    def reverse(packages):
+        nonlocal edge_count
+        offers, edges = {}, {}
+        for name, (_, package) in sorted(packages.items()):
+            for offer in [name, *[r.relation(value)[0] for value in package.get("provides", [])]]:
+                offers.setdefault(offer, set()).add(name)
+        for name, (_, package) in sorted(packages.items()):
+            for dependency in sorted(set(package.get("depend", []))):
+                for provider in sorted(offers.get(r.relation(dependency)[0], ())):
+                    candidate = packages[provider][1]
+                    if matches(dependency, provider, candidate["version"], tuple(candidate.get("provides", []))):
+                        edge_count += 1
+                        r.require(edge_count <= MAX_IMPACT_EDGES, "dependency impact graph exceeds edge limit")
+                        edges.setdefault(provider, []).append({"package": name, "dependency": dependency, "provider": provider})
+        return edges
+    graphs = {"before": reverse(left), "after": reverse(right)} if roots else {}
+    affected, reported_steps, work = {}, 0, 0
+    for root in roots:
+        for side, graph in graphs.items():
+            parents, queue = {root: None}, deque([root])
+            while queue:
+                edges = graph.get(queue.popleft(), [])
+                work += 1 + len(edges)
+                r.require(work <= MAX_IMPACT_WORK, "dependency impact traversal exceeds work limit")
+                for edge in edges:
+                    name = edge["package"]
+                    if name not in parents:
+                        parents[name] = edge
+                        queue.append(name)
+            for name in sorted(unchanged & parents.keys()):
+                path, node = [], name
+                while node != root:
+                    reported_steps += 1
+                    r.require(reported_steps <= MAX_IMPACT_STEPS, "dependency impact report exceeds path limit")
+                    edge = parents[node];path.append(edge);node = edge["provider"]
+                affected.setdefault(name, {}).setdefault(root, {})[side] = path
+    return {"scope": "possible-runtime-consumer-review", "provider_policy": "all-matching-providers",
+            "build_dependencies_checked": False, "rebuild_requirement": "NOT_ESTABLISHED",
+            "changed_packages": [{"name": name, "change": "removed" if name not in right else "changed",
+                                  "before_origin": left[name][0], "after_origin": right[name][0] if name in right else None}
+                                 for name in roots],
+            "unchanged_dependents": [{"name": name, "origin": right[name][0],
+                "impacts": [{"name": root, "paths": paths} for root, paths in sorted(impacts.items())]}
+                for name, impacts in sorted(affected.items())]}
+
+
 def verified(directory, key, env):
     # All reported values come from the verified manifest or a payload whose
     # exact bytes join its signed file map, rather than a later unbound reread.
@@ -100,6 +172,7 @@ def compare_releases(before, after, key, env):
               "dependency_inventory": {"before_snapshot": old_base["snapshot_id"], "after_snapshot": new_base["snapshot_id"],
                   "packages": package_changes(indexed(old_base["packages"], "base package"),
                                               indexed(new_base["packages"], "base package"))},
+              "dependency_impact": dependency_impact(left["packages"], right["packages"], old_base["packages"], new_base["packages"]),
               "coordinated_sets": [{"name": row["name"], "packages": changes(row["before"] or {}, row["after"] or {})}
                                    for row in changes(old_groups, new_groups)],
               "policy": changes({k: sorted(old_spec["policy"][k]) for k in

@@ -2,6 +2,8 @@
 # SPDX-License-Identifier: MIT
 """Signed synthetic bundles, real ALPM ordering, no host installation or trust changes."""
 import argparse
+import copy
+import gzip
 import importlib.util
 import io
 import json
@@ -27,6 +29,136 @@ def module(name, filename):
 c = module("compare_releases", "compare_releases.py")
 fixture = module("comparison_fixture", "test_release.py")
 fixture.r = c.r
+
+
+class DependencyImpactTests(unittest.TestCase):
+    def package(self, name, version="1", depend=(), provides=(), **extra):
+        return dict(name=name, version=version, arch="any", depend=list(depend),
+                    provides=list(provides), conflict=[], files=["usr/share/" + name], **extra)
+
+    def impact(self, before, after, old_overlay=(), new_overlay=()):
+        saved = copy.deepcopy((before, after, old_overlay, new_overlay))
+        value = c.dependency_impact(old_overlay, new_overlay, before, after)
+        self.assertEqual((before, after, old_overlay, new_overlay), saved)
+        self.assertFalse(value["build_dependencies_checked"])
+        self.assertEqual(value["rebuild_requirement"], "NOT_ESTABLISHED")
+        return value
+
+    def test_transitive_paths_and_cycles_terminate(self):
+        before = [self.package("lib", depend=["app"]), self.package("middle", depend=["lib>=1"]),
+                  self.package("app", depend=["middle"])]
+        after = copy.deepcopy(before);after[0]["version"] = "2"
+        value = self.impact(before, after)
+        self.assertEqual([p["name"] for p in value["unchanged_dependents"]], ["app", "middle"])
+        path = value["unchanged_dependents"][0]["impacts"][0]["paths"]["before"]
+        self.assertEqual(path, [{"package":"app", "dependency":"middle", "provider":"middle"},
+                                {"package":"middle", "dependency":"lib>=1", "provider":"lib"}])
+        self.assertEqual(len(path), 2)
+
+    def test_removed_provider_keeps_before_path_and_alternatives_are_not_selected(self):
+        provider = self.package("removed", provides=["virtual=2"])
+        kept = [self.package("alternative", provides=["virtual=2"]), self.package("app", depend=["virtual>=2"])]
+        value = self.impact([provider, *kept], kept)
+        self.assertEqual(value["changed_packages"][0]["change"], "removed")
+        paths = value["unchanged_dependents"][0]["impacts"][0]["paths"]
+        self.assertEqual(set(paths), {"before"})
+        self.assertEqual(paths["before"][0]["provider"], "removed")
+        self.assertEqual(value["provider_policy"], "all-matching-providers")
+
+    def test_provided_version_not_provider_package_version_matches_requirement(self):
+        before = [self.package("older-api", "99", provides=["api=1"]),
+                  self.package("current-api", provides=["api=2"]), self.package("app", depend=["api>=2"])]
+        after = copy.deepcopy(before);after[0]["version"] = "100"
+        self.assertEqual(self.impact(before, after)["unchanged_dependents"], [])
+        after[1]["provides"] = ["api=3"]
+        impacts = self.impact(before, after)["unchanged_dependents"][0]["impacts"]
+        self.assertEqual([p["name"] for p in impacts], ["current-api"])
+
+    def test_unversioned_provide_cannot_satisfy_versioned_requirement(self):
+        before = [self.package("plain", provides=["api"]), self.package("versioned", provides=["api=2"]),
+                  self.package("needs-version", depend=["api>=2"]), self.package("unversioned", depend=["api"])]
+        after = copy.deepcopy(before);after[0]["version"] = "2"
+        self.assertEqual([p["name"] for p in self.impact(before, after)["unchanged_dependents"]], ["unversioned"])
+
+    def test_alpm_epoch_pkgrel_and_relation_boundaries(self):
+        before = [self.package("lib", "2:1.0-2"), self.package("exact", depend=["lib=2:1.0-2"]),
+                  self.package("newer", depend=["lib>=2:1.0-3"]), self.package("fallback", provides=["lib=2:1.0-2", "lib=2:1.0-3"])]
+        after = copy.deepcopy(before);after[0]["version"] = "2:1.0-3"
+        value = self.impact(before, after)
+        paths = {p["name"]:p["impacts"][0]["paths"] for p in value["unchanged_dependents"]}
+        self.assertEqual(set(paths["exact"]), {"before"})
+        self.assertEqual(set(paths["newer"]), {"after"})
+
+    def test_overlay_shadows_changed_base_package(self):
+        old = [self.package("lib"), self.package("app", depend=["lib"])]
+        new = copy.deepcopy(old);new[0]["version"] = "2"
+        overlay = [self.package("lib", filename="lib.pkg", sha256="a"*64)]
+        self.assertEqual(self.impact(old, new, overlay, overlay)["changed_packages"], [])
+
+    def test_changed_dependents_excluded_and_overlay_bytes_are_a_cause(self):
+        base = [self.package("app", depend=["lib"])]
+        old = [self.package("lib", filename="lib.pkg", sha256="a"*64)]
+        new = [self.package("lib", filename="lib.pkg", sha256="b"*64)]
+        self.assertEqual(self.impact(base, base, old, new)["unchanged_dependents"][0]["name"], "app")
+        changed = copy.deepcopy(base);changed[0]["version"] = "2"
+        self.assertEqual(self.impact(base, changed, old, new)["unchanged_dependents"], [])
+
+    def test_irrelevant_changes_and_added_only_providers_do_not_seed_review(self):
+        old = [self.package("lib"), self.package("app", depend=["lib"]), self.package("unrelated")]
+        new = copy.deepcopy(old);new[2]["version"] = "2"
+        self.assertEqual(self.impact(old, new)["unchanged_dependents"], [])
+        new = [*old, self.package("added", provides=["lib"])]
+        self.assertEqual(self.impact(old, new)["changed_packages"], [])
+
+    def test_ordering_and_shortest_path_are_deterministic(self):
+        old = [self.package("lib"), self.package("z", depend=["lib"]),
+               self.package("a", depend=["lib"]), self.package("app", depend=["z", "a"])]
+        new = copy.deepcopy(old);new[0]["version"] = "2"
+        value = self.impact(old, new)
+        self.assertEqual(value, self.impact(list(reversed(old)), list(reversed(new))))
+        app = next(p for p in value["unchanged_dependents"] if p["name"] == "app")
+        self.assertEqual(app["impacts"][0]["paths"]["before"][0]["provider"], "a")
+
+    def test_version_tool_failure_propagates_without_fallback(self):
+        old = [self.package("lib"), self.package("app", depend=["lib>=1"])]
+        new = copy.deepcopy(old);new[0]["version"] = "2"
+        failure = c.r.Error("version tool unavailable")
+        with mock.patch.object(c.r, "run", side_effect=failure) as run:
+            with self.assertRaises(c.r.Error) as caught:self.impact(old, new)
+        self.assertIs(caught.exception, failure);self.assertEqual(run.call_count, 1)
+
+    def test_provider_index_skips_unrelated_and_reuses_matching_version_probe(self):
+        old = [self.package("lib"), self.package("app", depend=["lib>=1"]),
+               *[self.package("unrelated-" + str(i)) for i in range(100)]]
+        new = copy.deepcopy(old);new[0]["files"] = ["usr/share/changed-lib"]
+        with mock.patch.object(c.r, "satisfies", wraps=c.r.satisfies) as matches, \
+                mock.patch.object(c.r, "run", wraps=c.r.run) as commands:
+            self.assertEqual(len(self.impact(old, new)["unchanged_dependents"]), 1)
+        self.assertEqual(matches.call_count, 1)
+        self.assertEqual(matches.call_args.args[1]["name"], "lib")
+        self.assertEqual(commands.call_args_list, [mock.call(["vercmp", "1", "1"])])
+
+    def test_graph_and_path_limits_refuse_instead_of_truncating(self):
+        old = [self.package("lib"), self.package("a", depend=["lib"]), self.package("b", depend=["a"])]
+        new = copy.deepcopy(old);new[0]["version"] = "2"
+        for limit, reason in (("MAX_IMPACT_EDGES", "graph exceeds edge limit"), ("MAX_IMPACT_STEPS", "report exceeds path limit"),
+                              ("MAX_IMPACT_CHECKS", "graph exceeds match limit")):
+            with mock.patch.object(c, limit, 1):
+                with self.assertRaisesRegex(c.r.Error, reason):self.impact(old, new)
+
+    def test_global_traversal_limit_bounds_changed_cycle_with_zero_output_paths(self):
+        old = [self.package("cycle-" + str(i), depend=["cycle-" + str((i + 1) % 4)]) for i in range(4)]
+        old.append(self.package("isolated-unchanged"))
+        new = copy.deepcopy(old)
+        for package in new[:4]:package["version"] = "2"
+        with mock.patch.object(c, "MAX_IMPACT_WORK", 64), mock.patch.object(c, "MAX_IMPACT_STEPS", 1):
+            value = self.impact(old, new)
+        self.assertEqual(len(value["changed_packages"]), 4)
+        self.assertEqual(value["unchanged_dependents"], [])
+        # All roots and both releases share one budget, even without emitted paths.
+        with mock.patch.object(c, "MAX_IMPACT_WORK", 63), mock.patch.object(c, "MAX_IMPACT_STEPS", 1):
+            with self.assertRaisesRegex(c.r.Error, "traversal exceeds work limit"):
+                self.impact(old, new)
 
 
 class ComparisonTests(unittest.TestCase):
@@ -67,7 +199,8 @@ class ComparisonTests(unittest.TestCase):
             archive = self.inputs / filename
             metadata = (f"pkgname = {name}\npkgver = {version}\narch = any\nlicense = MIT\n"
                         f"depend = {dependency}\n")
-            with tarfile.open(archive, "w:gz") as tar:
+            with archive.open("wb") as stream, gzip.GzipFile(filename="", mode="wb", fileobj=stream, mtime=1700000000) as packed, \
+                    tarfile.open(fileobj=packed, mode="w") as tar:
                 for path, data in {".PKGINFO": metadata.encode(), "usr/share/" + name + "/config": payload}.items():
                     entry = tarfile.TarInfo(path);entry.size = len(data);entry.mtime = 1700000000
                     tar.addfile(entry, io.BytesIO(data))
@@ -139,6 +272,42 @@ class ComparisonTests(unittest.TestCase):
         for key in ("packages", "files", "symlinks", "coordinated_sets", "policy"):
             self.assertEqual(result[key], [])
         self.assertEqual(result["dependency_inventory"]["packages"], [])
+        self.assertEqual(result["dependency_impact"]["unchanged_dependents"], [])
+        self.assertEqual(result["dependency_impact"]["changed_packages"], [])
+
+    def test_signed_transitive_unchanged_overlay_consumer(self):
+        bridge = dict(name="bridge", version="1", arch="any", depend=["virtual-runtime>=2"],
+                      provides=[], conflict=[], files=["usr/share/bridge"])
+        before = self.bundle("old", extra_base=bridge, dependency="bridge>=1")
+        after = self.bundle("new", runtime="3", dependency="bridge>=1")
+        result = self.compare(before, after)
+        self.assertEqual(result["packages"], [])
+        affected = result["dependency_impact"]["unchanged_dependents"]
+        self.assertEqual([p["name"] for p in affected], ["bridge", "fixture"])
+        self.assertEqual(affected[1]["origin"], "release")
+        path = affected[1]["impacts"][0]["paths"]["before"]
+        self.assertEqual([p["provider"] for p in path], ["bridge", "runtime"])
+
+    def test_signed_removed_matching_provider_with_remaining_alternative(self):
+        provider = dict(name="removed-provider", version="1", arch="any", depend=[],
+                        provides=["virtual-runtime=2"], conflict=[], files=["usr/share/provider"])
+        before = self.bundle("old", extra_base=provider)
+        base = c.r.load(self.inputs / "base.json")
+        base["packages"] = [p for p in base["packages"] if p["name"] != "removed-provider"]
+        self.put("base.json", base)
+        after = self.bundle("new")
+        impact = self.compare(before, after)["dependency_impact"]
+        self.assertEqual([p["name"] for p in impact["unchanged_dependents"]], ["fixture"])
+        self.assertEqual(set(impact["unchanged_dependents"][0]["impacts"][0]["paths"]), {"before"})
+
+    def test_signed_same_version_byte_change_impacts_unchanged_base_consumer(self):
+        consumer = dict(name="consumer", version="1", arch="any", depend=["fixture>=1"],
+                        provides=[], conflict=[], files=["usr/share/consumer"])
+        before = self.bundle("old", packages=[("fixture", "1-1", b"old")], extra_base=consumer)
+        after = self.bundle("new", packages=[("fixture", "1-1", b"new")])
+        result = self.compare(before, after)
+        self.assertEqual(result["packages"][0]["change"], "same-version-byte-change")
+        self.assertEqual(result["dependency_impact"]["unchanged_dependents"][0]["name"], "consumer")
 
     def test_dependency_inventory_and_coordinated_platform_changes(self):
         before = self.bundle("old")
