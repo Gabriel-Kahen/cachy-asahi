@@ -26,8 +26,16 @@ components remain unrun, and phase publication fails. See the
 The new three recovered-input chunks are supported by mandatory authenticated
 seed control flow and downstream cache/signature evidence; raw Secret value
 readback remains unavailable. The old nineteen names and timestamps are held.
-Updater Source `51af5b59` trial `38668405842` is terminal FAIL; strict actual
-retention and fresh native-freeze authentication are in progress.
+Updater Source `51af5b59` trial `38668405842` is terminal FAIL. Actual review
+`b917e90f` and Root's read-only final seal check authenticate 159 leaves.
+The freeze reports a fresh outer controller hash, but its raw contents were not
+exported. The first worker wrapper returns 1; container inspection succeeds
+before the existing `worker-run-result / worker-nonzero-returncode` refusal.
+Compiler return and deeper cause remain unknown. Scoped exported cleanup passes;
+daemon disposal is not attested. Direct seed and signature receipts were not
+exported. See the [actual review](reviews/updater-retained-bubblewrap-run-38668405842-actual.md).
+The already-captured worker diagnostics need bounded terminal transport before
+another changed native trial.
 
 P0 run `38667054387` retains its unknown policy-source refusal operands and
 cause. A separate confirmed static path mismatch is corrected in Source
@@ -41,7 +49,8 @@ semantic peer `d463a1ae`, actual-source peer `c452de4a` and Root's complete
 160-role Git/physical verification. Inline finalizers partially preserve pending
 primary errors; generator-close restoration errors remain outward. Covered
 secondary diagnostics can be lost. The single changed native trial
-`38670087832` is running. The earlier `CALL_ASDICT` cause remains unknown and
+`38670087832` is terminal FAIL; strict actual retention is in progress.
+The earlier `CALL_ASDICT` cause remains unknown and
 its cleanup failure/ownership uncertainty remain recorded. See the
 [committed-source review](reviews/ksm-first-cause-actual-source-peer-20261015.md).
 
