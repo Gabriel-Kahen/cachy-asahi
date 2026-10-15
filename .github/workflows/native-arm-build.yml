@@ -31,7 +31,7 @@ jobs:
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 90
     env:
-      SOURCE_COMMIT: dbd783d4b8535ebd23d319e2d9ab90b9f1ce4c2e
+      SOURCE_COMMIT: 064bf31484de48ff0c7d0b43b52bc3aa09abbc87
       INPUTS_SHA256: ${{ inputs.inputs_sha256 }}
       RECIPES_SHA256: ${{ inputs.recipes_sha256 }}
       RETRY_MODE: ${{ inputs.mode }}
@@ -39,7 +39,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: dbd783d4b8535ebd23d319e2d9ab90b9f1ce4c2e
+          ref: 064bf31484de48ff0c7d0b43b52bc3aa09abbc87
           persist-credentials: false
       - name: Seed the six frozen private cache objects before native work
         if: inputs.mode == 'integration'
