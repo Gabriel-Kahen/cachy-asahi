@@ -3,11 +3,12 @@ on:
   workflow_dispatch:
     inputs:
       source_commit:
-        description: Reviewed full source SHA containing the reviewed offline LV2 trial helpers
+        description: Reviewed full source SHA containing the reviewed two-plugin Rust offline helpers
         required: true
         type: string
 permissions:
   contents: read
+  actions: read
 concurrency:
   group: native-arm-build
   cancel-in-progress: false
@@ -21,11 +22,11 @@ jobs:
       PYTHONDONTWRITEBYTECODE: '1'
       SOURCE_COMMIT: ${{ inputs.source_commit }}
     steps:
-      - name: Check out reviewed offline LV2 source
+      - name: Check out reviewed Rust offline LV2 source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: ${{ inputs.source_commit }}
-          path: lsp-source
+          path: rust-lv2-source
           persist-credentials: false
       - name: Check out unchanged package APIs
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
@@ -45,10 +46,10 @@ jobs:
         run: |
           set -euo pipefail
           env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP" LANG=C.UTF-8 TZ=UTC \
-            python3 -I -B "$GITHUB_WORKSPACE/lsp-source/scripts/ci/asahi-lsp-offline/job.py" init \
-            --source-commit "$SOURCE_COMMIT" --source "$GITHUB_WORKSPACE/lsp-source" \
+            python3 -I -B "$GITHUB_WORKSPACE/rust-lv2-source/scripts/ci/asahi-rust-lv2-offline/job.py" init \
+            --source-commit "$SOURCE_COMMIT" --source "$GITHUB_WORKSPACE/rust-lv2-source" \
             --product "$GITHUB_WORKSPACE/product-api" --desktop "$GITHUB_WORKSPACE/desktop-base" \
-            --root "$RUNNER_TEMP/lsp-offline-job" >"$RUNNER_TEMP/lsp-init-controller.log" 2>&1
+            --root "$RUNNER_TEMP/rust-lv2-job" >"$RUNNER_TEMP/rust-lv2-init-controller.log" 2>&1
       - name: Seed only the six exact retained inputs
         timeout-minutes: 2
         shell: bash
@@ -77,30 +78,42 @@ jobs:
           CACHY_OLD_FOUR_LIBTIFF_SIG_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_SIG_01 }}
         run: |
           set -euo pipefail
-          python3 -I -B "$GITHUB_WORKSPACE/lsp-source/scripts/ci/asahi-lsp-offline/job.py" seed \
-            --source-commit "$SOURCE_COMMIT" --source "$GITHUB_WORKSPACE/lsp-source" \
+          python3 -I -B "$GITHUB_WORKSPACE/rust-lv2-source/scripts/ci/asahi-rust-lv2-offline/job.py" seed \
+            --source-commit "$SOURCE_COMMIT" --source "$GITHUB_WORKSPACE/rust-lv2-source" \
             --product "$GITHUB_WORKSPACE/product-api" --desktop "$GITHUB_WORKSPACE/desktop-base" \
-            --root "$RUNNER_TEMP/lsp-offline-job" >"$RUNNER_TEMP/lsp-offline-job/seed-controller.log" 2>&1
+            --root "$RUNNER_TEMP/rust-lv2-job" >"$RUNNER_TEMP/rust-lv2-job/seed-controller.log" 2>&1
       - name: Prepare only the unchanged signed574 builder
         timeout-minutes: 40
         shell: bash
         run: |
           set -euo pipefail
           env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP" LANG=C.UTF-8 TZ=UTC \
-            python3 -I -B "$GITHUB_WORKSPACE/lsp-source/scripts/ci/asahi-lsp-offline/job.py" build \
-            --source-commit "$SOURCE_COMMIT" --source "$GITHUB_WORKSPACE/lsp-source" \
+            python3 -I -B "$GITHUB_WORKSPACE/rust-lv2-source/scripts/ci/asahi-rust-lv2-offline/job.py" build \
+            --source-commit "$SOURCE_COMMIT" --source "$GITHUB_WORKSPACE/rust-lv2-source" \
             --product "$GITHUB_WORKSPACE/product-api" --desktop "$GITHUB_WORKSPACE/desktop-base" \
-            --root "$RUNNER_TEMP/lsp-offline-job" >"$RUNNER_TEMP/lsp-offline-job/base-controller.log" 2>&1
-      - name: Rebuild once and run only the fixed offline LV2 properties
-        timeout-minutes: 60
+            --root "$RUNNER_TEMP/rust-lv2-job" >"$RUNNER_TEMP/rust-lv2-job/base-controller.log" 2>&1
+      - name: Retrieve only the fixed accepted audio inputs privately
+        timeout-minutes: 11
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP" LANG=C.UTF-8 TZ=UTC \
+            GH_TOKEN="$GH_TOKEN" python3 -I -B "$GITHUB_WORKSPACE/rust-lv2-source/scripts/ci/asahi-rust-lv2-offline/job.py" retrieve \
+            --source-commit "$SOURCE_COMMIT" --source "$GITHUB_WORKSPACE/rust-lv2-source" \
+            --product "$GITHUB_WORKSPACE/product-api" --desktop "$GITHUB_WORKSPACE/desktop-base" \
+            --root "$RUNNER_TEMP/rust-lv2-job" >"$RUNNER_TEMP/rust-lv2-job/retrieval-controller.log" 2>&1
+      - name: Run only the fixed Rust LV2 properties with zero package rebuilds
+        timeout-minutes: 10
         shell: bash
         run: |
           set -euo pipefail
           env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP" LANG=C.UTF-8 TZ=UTC \
-            python3 -I -B "$GITHUB_WORKSPACE/lsp-source/scripts/ci/asahi-lsp-offline/job.py" trial \
-            --source-commit "$SOURCE_COMMIT" --source "$GITHUB_WORKSPACE/lsp-source" \
+            python3 -I -B "$GITHUB_WORKSPACE/rust-lv2-source/scripts/ci/asahi-rust-lv2-offline/job.py" trial \
+            --source-commit "$SOURCE_COMMIT" --source "$GITHUB_WORKSPACE/rust-lv2-source" \
             --product "$GITHUB_WORKSPACE/product-api" --desktop "$GITHUB_WORKSPACE/desktop-base" \
-            --root "$RUNNER_TEMP/lsp-offline-job" >"$RUNNER_TEMP/lsp-offline-job/trial-controller.log" 2>&1
+            --root "$RUNNER_TEMP/rust-lv2-job" >"$RUNNER_TEMP/rust-lv2-job/trial-controller.log" 2>&1
       - name: Retire only owned trial resources and the owned574 image
         id: cleanup
         if: always()
@@ -110,11 +123,11 @@ jobs:
           set -euo pipefail
           cleanup_status=0
           env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP" LANG=C.UTF-8 TZ=UTC \
-            python3 -I -B "$GITHUB_WORKSPACE/lsp-source/scripts/ci/asahi-lsp-offline/job.py" cleanup \
-            --source-commit "$SOURCE_COMMIT" --source "$GITHUB_WORKSPACE/lsp-source" \
+            python3 -I -B "$GITHUB_WORKSPACE/rust-lv2-source/scripts/ci/asahi-rust-lv2-offline/job.py" cleanup \
+            --source-commit "$SOURCE_COMMIT" --source "$GITHUB_WORKSPACE/rust-lv2-source" \
             --product "$GITHUB_WORKSPACE/product-api" --desktop "$GITHUB_WORKSPACE/desktop-base" \
-            --root "$RUNNER_TEMP/lsp-offline-job" >"$RUNNER_TEMP/lsp-cleanup-controller.log" 2>&1 || cleanup_status=$?
-          rm -f -- "$RUNNER_TEMP/lsp-init-controller.log" "$RUNNER_TEMP/lsp-cleanup-controller.log"
+            --root "$RUNNER_TEMP/rust-lv2-job" >"$RUNNER_TEMP/rust-lv2-cleanup-controller.log" 2>&1 || cleanup_status=$?
+          rm -f -- "$RUNNER_TEMP/rust-lv2-init-controller.log" "$RUNNER_TEMP/rust-lv2-cleanup-controller.log"
           exit "$cleanup_status"
       - name: Retain only the closed public JSON observations
         if: always()
@@ -128,10 +141,10 @@ jobs:
           import json
           import os
           from pathlib import Path
-          root = Path(os.environ['RUNNER_TEMP']) / 'lsp-offline-job/public'
+          root = Path(os.environ['RUNNER_TEMP']) / 'rust-lv2-job/public'
           root.mkdir(parents=True, exist_ok=True, mode=0o700)
           path = root / 'result.json'
-          allowed = {'result.json', 'build-1.json', 'runtime.json'}
+          allowed = {'result.json', 'runtime.json'}
           valid = all(p.is_file() and not p.is_symlink() and p.name in allowed for p in root.iterdir())
           if not valid:
               raise SystemExit('public-output-set-refused')
@@ -141,14 +154,15 @@ jobs:
               except (OSError, ValueError):
                   result = {}
               result.update(status='FAIL', cleanup_step=os.environ['CLEANUP_OUTCOME'],
-                            target_audio='NOT RUN', hardware='NOT RUN', selected_for_release=False)
+                            target_audio='NOT RUN', hardware='NOT RUN', native_rebuilds=0, lsp_processing='NOT RUN', selected_for_release=False)
               path.write_text(json.dumps(result, indent=2, sort_keys=True) + '\n')
           if sum(p.stat().st_size for p in root.iterdir()) > 16 * 1024 * 1024:
               raise SystemExit('public-output-size-refused')
           PY
           env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP" LANG=C.UTF-8 TZ=UTC \
             python3 -I -B "$GITHUB_WORKSPACE/product-api/scripts/ci/log_evidence.py" \
-            "$RUNNER_TEMP/lsp-offline-job/public"
-          rm -f -- "$RUNNER_TEMP/lsp-init-controller.log" "$RUNNER_TEMP/lsp-offline-job/seed-controller.log" \
-            "$RUNNER_TEMP/lsp-offline-job/base-controller.log" "$RUNNER_TEMP/lsp-offline-job/trial-controller.log" \
-            "$RUNNER_TEMP/lsp-cleanup-controller.log"
+            "$RUNNER_TEMP/rust-lv2-job/public"
+          rm -f -- "$RUNNER_TEMP/rust-lv2-init-controller.log" "$RUNNER_TEMP/rust-lv2-job/seed-controller.log" \
+            "$RUNNER_TEMP/rust-lv2-job/base-controller.log" "$RUNNER_TEMP/rust-lv2-job/trial-controller.log" \
+            "$RUNNER_TEMP/rust-lv2-job/retrieval-controller.log" \
+            "$RUNNER_TEMP/rust-lv2-cleanup-controller.log"
