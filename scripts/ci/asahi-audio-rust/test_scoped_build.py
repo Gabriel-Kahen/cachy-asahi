@@ -37,6 +37,8 @@ class AudioBuildTests(unittest.TestCase):
         content={}
         with tarfile.open(directory/row['metadata']['source'][0]) as stream:
             source={str(Path(m.name).relative_to(Path(m.name).parts[0])):stream.extractfile(m).read() for m in stream if m.isfile() or m.issym()}
+        with tarfile.open(directory/'audio-rust-notices-v1.tar.xz') as stream:
+            notices={str(Path('usr/share/licenses')/Path(m.name).relative_to('audio-rust-notices')):stream.extractfile(m).read() for m in stream if m.isfile()}
         if name=='speakersafetyd':
             work=self.base/'patch-source';target=work/'conf/apple/j504.conf';target.parent.mkdir(parents=True)
             target.write_bytes(source['conf/apple/j504.conf'])
@@ -49,6 +51,7 @@ class AudioBuildTests(unittest.TestCase):
         for path,expected in row['payload'].items():
             if expected['ELF']:content[path]=elf
             elif path.endswith('.conf'):content[path]=source['conf/apple/'+Path(path).name]
+            elif path in notices:content[path]=notices[path]
             else:content[path]=source[Path(path).name]
         data=scoped.existing_build.normalize_metadata(row['metadata'])
         pkg={'pkgname':data['pkgname'],'pkgbase':data['pkgbase'],'pkgver':[row['version']],'arch':data['arch'],'license':data['license']}
@@ -92,7 +95,8 @@ class AudioBuildTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'ELF check failed'):scoped.package(self.fixture(mutate=mutate))
 
     def test_wrong_metadata_refused(self):
-        def mutate(c):c['.PKGINFO']=c['.PKGINFO'].replace(b'pkgver = 2.0.1-2',b'pkgver = 2.0.1-99')
+        version=next(r['version'] for r in scoped.RECIPES if r['name']=='speakersafetyd')
+        def mutate(c):c['.PKGINFO']=c['.PKGINFO'].replace(f'pkgver = {version}\n'.encode(),f'pkgver = {version}-unreviewed\n'.encode())
         with self.assertRaisesRegex(ValueError,'metadata/source binding'):scoped.package(self.fixture(mutate=mutate))
 
     def test_unknown_bootstrap_cleanup_fails(self):
