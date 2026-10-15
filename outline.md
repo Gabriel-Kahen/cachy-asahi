@@ -2,7 +2,7 @@
 
 Turn the five responsibilities R1–R5 in [goal.md](goal.md) into a complete, maintained CachyOS-derived ARM distribution on Apple Silicon, beginning with the small overlay defined in [docs/roadmap.md](docs/roadmap.md). Develop independent pieces in parallel, then integrate them through shared package, hardware, and release gates.
 
-**Current evidence:** implementation and four native ARM package build pairs are recorded in [implementation status](docs/implementation-status.md). Exact Asahi target integration, supported releases, hardware behavior and performance remain unfinished. This sequence defines required work; it does not mark any milestone complete.
+**Current evidence:** implementation and ten selected native ARM package build pairs are recorded in [implementation status](docs/implementation-status.md). Exact Asahi target integration, supported releases, hardware behavior and performance remain unfinished. This sequence defines required work; it does not mark any milestone complete.
 
 **Completion rule:** an initial overlay release and a distribution feasibility decision are intermediate results. Completing the goal requires R1–R5 on the same maintained port release and the evidence in section 11, including both M2 Air sizes and published final-system performance/power results. A plan cannot guarantee hardware behavior, access to resources, or upstream agreements; unresolved core requirements remain unfinished work. Official CachyOS recognition is an external outcome, separate from technical acceptance.
 
