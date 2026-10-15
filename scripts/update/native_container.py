@@ -40,6 +40,38 @@ def load(name):
     return value
 
 
+SCALE_DRIFT_TEST = 'test_scale_update.ScaleTransactions.test_scale_input_drift_after_prepare_refused'
+SCALE_DRIFT_STAGES = {'invoke','child-exit','child-output-size','child-json','trust-stable',
+    'package-lock-absent','workspace-clean','refusal-status','commit-not-started','checkpoint-unchanged',
+    'fixture-unchanged','checkpoint-empty','scale-error-match','complete'}
+SCALE_DRIFT_PHASES = {'configuration','checkpoint-lock','package-manager-lock','observe-before','prepare',
+    'commit','observe-after','checkpoint','completed','scale-reporting','scale-configuration','worker'}
+SCALE_DRIFT_ERRORS = {'ValueError','Invalid','OSError','TimeoutError','RuntimeError','AssertionError','Error','KeyboardInterrupt'}
+SCALE_DRIFT_REASONS = {'scale configuration changed':'SCALE_DRIFT',
+    'root observation deadline':'ROOT_DEADLINE','archive deadline exhausted':'ARCHIVE_DEADLINE',
+    'insufficient or unknown filesystem free inode count':'CAPACITY_INODES',
+    'insufficient future transaction bytes/inodes':'CAPACITY_FUTURE'}
+
+
+def scale_drift_diagnostic(test):
+    """Project only this fixture's fixed labels/facts; never its raw result/error."""
+    if test.id() != SCALE_DRIFT_TEST:return None
+    raw=getattr(test,'_scale_drift_diagnostic',None)
+    raw=raw if type(raw) is dict else {}
+    row=raw.get('row');row=row if type(row) is dict else {}
+    def label(value,allowed):
+        return value if type(value) is str and value in allowed else 'OTHER' if value is not None else 'UNAVAILABLE'
+    def fact(value):
+        return value if type(value) is bool or type(value) is str and value == 'UNKNOWN' else 'UNAVAILABLE'
+    error=row.get('error')
+    return dict(stage=label(raw.get('stage'),SCALE_DRIFT_STAGES),
+        status=label(row.get('status'),{'PASS','FAIL'}),phase=label(row.get('phase'),SCALE_DRIFT_PHASES),
+        error_type=label(row.get('error_type'),SCALE_DRIFT_ERRORS),
+        error_category=SCALE_DRIFT_REASONS.get(error,'OTHER') if type(error) is str else 'UNAVAILABLE',
+        commit_started=fact(row.get('commit_started')),packages_committed=fact(row.get('packages_committed')),
+        checkpoint_changed=fact(row.get('checkpoint_changed')),callback_reached=fact(row.get('test_scale_precommit_reached')))
+
+
 class Results(unittest.TestResult):
     def __init__(self):
         super().__init__()
@@ -51,7 +83,10 @@ class Results(unittest.TestResult):
 
     def addFailure(self, test, error):
         super().addFailure(test, error)
-        self.lines.append(test.id() + ' FAIL ' + error[0].__name__)
+        line=test.id() + ' FAIL ' + error[0].__name__
+        diagnostic=scale_drift_diagnostic(test)
+        if diagnostic is not None:line += ' ' + json.dumps(diagnostic,sort_keys=True,separators=(',',':'))
+        self.lines.append(line)
 
     def addError(self, test, error):
         super().addError(test, error)
