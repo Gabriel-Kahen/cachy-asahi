@@ -15,10 +15,15 @@ claimed. See the [integration record](reviews/native-software-integration-202610
 
 Updater Source `781d43c4` publishes three reviewed diagnostic transport changes.
 Semantic `b771fc1d` and actual Source `7fee6d5a` pass, with 91 roles and 88 held.
-Its single changed trial `38672326640` has ended FAIL; strict actual review is
-being sealed. The new bound diagnostic reports compiler return 0 followed by
-`compile-elf / elf-read-type-link-size` refusal. The exact rejected type/link/size
-operand remains unknown. This establishes no accepted native package.
+Its single changed trial `38672326640` is Root-admitted as an authenticated
+failed readout after actual review `af746428` and passive verification of
+118 owned files, 30 inputs and 19 retained files. The bound diagnostic reports
+compiler return 0 followed by `compile-elf / elf-read-type-link-size` refusal.
+The exact rejected type/link/size operand remains unknown. Scoped original and
+recovery cleanup pass; daemon/cache retirement remains unverified. This
+establishes no accepted native package. A separate local Cargo reproduction
+finds a normal two-link executable rejected by the old reader; a scoped
+snapshot correction is being implemented without backfilling the CI operand.
 
 Kernel Source `2525f178` publishes seven retained-input changes after semantic
 `b0ed311f` and actual Source `d27c6b00` review. All 126 roles and the 124-row
