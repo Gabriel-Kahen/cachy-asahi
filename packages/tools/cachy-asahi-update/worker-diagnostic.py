@@ -52,8 +52,21 @@ def command(value):
     need(total <= LOG_LIMIT)
 
 
+def makepkg_observation(value):
+    if value is None:
+        return
+    need(type(value) is dict and set(value) == {'selector', 'phase', 'event', 'returncode'})
+    need(type(value['selector']) is str and value['selector'] in {'srcinfo', 'verify-source', 'build-package'})
+    need(type(value['phase']) is str and value['phase'] in {'config-setup', 'recipe-load', 'prepare', 'build', 'check', 'package'})
+    event, code = value['event'], value['returncode']
+    need(type(event) is str and event in {'issued', 'enter', 'return'})
+    need((event == 'issued' and value['phase'] == 'config-setup' and code is None) or
+         (event == 'enter' and value['phase'] != 'config-setup' and code is None) or
+         (event == 'return' and value['phase'] != 'config-setup' and type(code) is int and 0 <= code <= 255))
+
+
 def validate(value):
-    need(type(value) is dict and set(value) == FIELDS and type(value['schema_version']) is int and value['schema_version'] == 1)
+    need(type(value) is dict and set(value) in (FIELDS, FIELDS | {'makepkg'}) and type(value['schema_version']) is int and value['schema_version'] == 1)
     for key in ('controller_sha256', 'entry_script_sha256'):
         nullable_hash(value[key])
     nullable_hash(value['image_id'], True)
@@ -64,6 +77,7 @@ def validate(value):
     need(type(value['status']) is str and value['status'] in {'RUNNING', 'PASS', 'FAIL', 'CANCELLED'})
     need(value['publication'] == 'NOT ACCEPTED' and value['hardware'] == 'NOT RUN')
     need(value['status'] != 'CANCELLED' or value['cancelled'])
+    makepkg_observation(value.get('makepkg'))
     command(value['command'])
     first = value['first_failure']
     if first is not None:
@@ -196,7 +210,7 @@ def error_kind(error):
 
 
 class Recorder:
-    def __init__(self, output=Path('/out'), bindings=None):
+    def __init__(self, output=Path('/out'), bindings=None, *, observe_only=False):
         self.output = Path(output)
         self.bindings = dict(binding_values() if bindings is None else bindings)
         self.operation = 'startup'
@@ -204,8 +218,8 @@ class Recorder:
         self._row = dict(schema_version=1, **self.bindings, controller_validated=False, status='RUNNING',
             operation='startup', first_failure=None, command=None, compiler_launch_attempted=False,
             compiler_return_observed=False, compiler_returncode=None, compilation_accepted=False,
-            cancelled=False, diagnostic_write_failed=False, publication='NOT ACCEPTED', hardware='NOT RUN')
-        self._update(lambda row: None)
+            cancelled=False, diagnostic_write_failed=False, publication='NOT ACCEPTED', hardware='NOT RUN', makepkg=None)
+        self._update(lambda row: None, observation_only=observe_only)
 
     def _root(self):
         fd, info = directory(self.output)
@@ -254,10 +268,10 @@ class Recorder:
         elif row['diagnostic_write_failed']:
             row['status'] = 'FAIL'
 
-    def _update(self, action):
+    def _update(self, action, *, makepkg_action=None, observation_only=False):
         root, lock, temporary, temporary_identity, published_identity = None, None, None, None, None
         original, update_failed = sys.exc_info()[1], False
-        published_identity = self._published_identity
+        published_identity = None if observation_only else self._published_identity
         try:
             # Keep the issued cause in memory even if the very first write fails.
             local = json.loads(json.dumps(self._row))
@@ -276,10 +290,11 @@ class Recorder:
             try:
                 row = loads(regular_at(root, 'worker-diagnostic.json', LIMIT, 0o600))
                 existing = os.stat('worker-diagnostic.json', dir_fd=root, follow_symlinks=False)
-                published_identity = (existing.st_dev, existing.st_ino)
+                if not observation_only:
+                    published_identity = (existing.st_dev, existing.st_ino)
                 need({key: row[key] for key in self.bindings} == self.bindings)
             except FileNotFoundError:
-                need(not self._published)
+                need(not self._published and not observation_only)
                 row = json.loads(json.dumps(local))
             if self._durable_first is not None:
                 need(row['first_failure'] == self._durable_first)
@@ -293,6 +308,12 @@ class Recorder:
                 need(local['compiler_returncode'] in (None, row['compiler_returncode']))
                 local['compiler_returncode'] = row['compiler_returncode']
             local['first_failure'] = first
+            local['makepkg'] = row.get('makepkg')
+            if makepkg_action is not None:
+                local['makepkg'] = makepkg_action(local['makepkg'])
+            if observation_only:
+                for key in ('operation', 'command', 'status'):
+                    local[key] = row[key]
             self._status(local)
             self._row = local
             data = encoded(validate(local))
@@ -406,7 +427,17 @@ class Recorder:
                               'returncode': None, 'stdout': None, 'stderr': None}
             if stem == 'cargo-build':
                 row['compiler_launch_attempted'] = True
-        self._update(apply)
+        selectors = {'srcinfo': 'srcinfo', 'source-verification': 'verify-source', 'makepkg': 'build-package'}
+        marker = (lambda _: dict(selector=selectors[stem], phase='config-setup', event='issued', returncode=None)) if stem in selectors else None
+        self._update(apply, makepkg_action=marker)
+
+    def makepkg_phase(self, phase, event, code):
+        def observation(previous):
+            need(type(previous) is dict)
+            value = dict(selector=previous['selector'], phase=phase, event=event, returncode=code)
+            makepkg_observation(value)
+            return value
+        self._update(lambda row: None, makepkg_action=observation, observation_only=True)
 
     def command_result(self, stem, launch_attempted, return_observed, returncode, failure_code=None, error=None):
         def apply(row):
@@ -454,3 +485,26 @@ class Recorder:
 
     def snapshot(self):
         return json.loads(json.dumps(self._row))
+
+
+def main(argv=None):
+    """Best-effort fixed observation only; no stdout/stderr content is emitted."""
+    args = sys.argv[1:] if argv is None else argv
+    try:
+        need(len(args) == 4 and args[0] == '--makepkg-phase')
+        need(os.environ.get('CACHY_ASAHI_MAKEPKG_DIAGNOSTIC') == '1')
+        raw = args[3]
+        need(raw == 'null' or re.fullmatch('[0-9]{1,3}', raw) is not None)
+        code = None if raw == 'null' else int(raw)
+        makepkg_observation(dict(selector='srcinfo', phase=args[1], event=args[2], returncode=code))
+        bindings = binding_values()
+        need(all(value is not None for value in bindings.values()))
+        recorder = Recorder(bindings=bindings, observe_only=True)
+        recorder.makepkg_phase(args[1], args[2], code)
+        return 1 if recorder.snapshot()['diagnostic_write_failed'] else 0
+    except Exception:
+        return 1
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())

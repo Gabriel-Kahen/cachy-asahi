@@ -19,7 +19,7 @@ sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
 PACKAGE = 'packages/tools/cachy-asahi-update/'
-READY_SHA = 'e351dc90fa325c2bbfd41c21f495b6c2f9a9b796160f862541eee37dcf8a13bf'
+READY_SHA = 'c127bd304cb43ff978cd2ee6040d152560b7b566a4a10febbc8fdaa0907c427e'
 BUDGET = {'total_seconds':6900, 'raw_retention_seconds':7100, 'materialize_seconds':910,
           'freeze_seconds':120, 'native_seconds':5400, 'projection_seconds':60,
           'export_seconds':60, 'cleanup_seconds':180, 'private_bytes':8*1024**3,
@@ -760,8 +760,21 @@ def native_diagnostic_command(value):
             total += row['bytes']
     native_diagnostic_need(total <= NATIVE_DIAGNOSTIC_LOG_LIMIT)
 
+def native_diagnostic_makepkg(value):
+    if value is None:
+        return
+    native_diagnostic_need(type(value) is dict and set(value) == {'selector', 'phase', 'event', 'returncode'})
+    native_diagnostic_need(type(value['selector']) is str and value['selector'] in {'srcinfo', 'verify-source', 'build-package'})
+    native_diagnostic_need(type(value['phase']) is str and value['phase'] in {'config-setup', 'recipe-load', 'prepare', 'build', 'check', 'package'})
+    event, code = value['event'], value['returncode']
+    native_diagnostic_need(type(event) is str and event in {'issued', 'enter', 'return'})
+    native_diagnostic_need((event == 'issued' and value['phase'] == 'config-setup' and code is None) or
+         (event == 'enter' and value['phase'] != 'config-setup' and code is None) or
+         (event == 'return' and value['phase'] != 'config-setup' and type(code) is int and 0 <= code <= 255))
+
+
 def native_diagnostic(value):
-    native_diagnostic_need(type(value) is dict and set(value) == NATIVE_DIAGNOSTIC_FIELDS and (type(value['schema_version']) is int) and (value['schema_version'] == 1))
+    native_diagnostic_need(type(value) is dict and set(value) in (NATIVE_DIAGNOSTIC_FIELDS, NATIVE_DIAGNOSTIC_FIELDS | {'makepkg'}) and (type(value['schema_version']) is int) and (value['schema_version'] == 1))
     for key in ('controller_sha256', 'entry_script_sha256'):
         native_diagnostic_nullable_hash(value[key])
     native_diagnostic_nullable_hash(value['image_id'], True)
@@ -771,6 +784,7 @@ def native_diagnostic(value):
     native_diagnostic_need(type(value['status']) is str and value['status'] in {'RUNNING', 'PASS', 'FAIL', 'CANCELLED'})
     native_diagnostic_need(value['status'] != 'CANCELLED' or value['cancelled'])
     native_diagnostic_need(value['publication'] == 'NOT ACCEPTED' and value['hardware'] == 'NOT RUN')
+    native_diagnostic_makepkg(value.get('makepkg'))
     native_diagnostic_command(value['command'])
     first = value['first_failure']
     if first is not None:

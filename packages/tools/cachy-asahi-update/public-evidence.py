@@ -482,8 +482,21 @@ def diagnostic_command(value):
             total += row['bytes']
     need(total <= DIAGNOSTIC_LOG_LIMIT)
 
+def diagnostic_makepkg(value):
+    if value is None:
+        return
+    need(type(value) is dict and set(value) == {'selector', 'phase', 'event', 'returncode'})
+    need(type(value['selector']) is str and value['selector'] in {'srcinfo', 'verify-source', 'build-package'})
+    need(type(value['phase']) is str and value['phase'] in {'config-setup', 'recipe-load', 'prepare', 'build', 'check', 'package'})
+    event, code = value['event'], value['returncode']
+    need(type(event) is str and event in {'issued', 'enter', 'return'})
+    need((event == 'issued' and value['phase'] == 'config-setup' and code is None) or
+         (event == 'enter' and value['phase'] != 'config-setup' and code is None) or
+         (event == 'return' and value['phase'] != 'config-setup' and type(code) is int and 0 <= code <= 255))
+
+
 def diagnostic(value):
-    need(type(value) is dict and set(value) == DIAGNOSTIC_FIELDS and (type(value['schema_version']) is int) and (value['schema_version'] == 1))
+    need(type(value) is dict and set(value) in (DIAGNOSTIC_FIELDS, DIAGNOSTIC_FIELDS | {'makepkg'}) and (type(value['schema_version']) is int) and (value['schema_version'] == 1))
     for key in ('controller_sha256', 'entry_script_sha256'):
         diagnostic_nullable_hash(value[key])
     diagnostic_nullable_hash(value['image_id'], True)
@@ -493,6 +506,7 @@ def diagnostic(value):
     need(type(value['status']) is str and value['status'] in {'RUNNING', 'PASS', 'FAIL', 'CANCELLED'})
     need(value['status'] != 'CANCELLED' or value['cancelled'])
     need(value['publication'] == 'NOT ACCEPTED' and value['hardware'] == 'NOT RUN')
+    diagnostic_makepkg(value.get('makepkg'))
     diagnostic_command(value['command'])
     first = value['first_failure']
     if first is not None:

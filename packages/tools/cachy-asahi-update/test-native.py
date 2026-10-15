@@ -1371,7 +1371,7 @@ class EntryDiagnosticTests(unittest.TestCase):
     def test_original_srcinfo_predicate_is_not_promoted(self):
         value, calls = self.failed('srcinfo')
         self.assertEqual(value['first_failure']['predicate'], 'entry-srcinfo')
-        self.assertEqual([item[1] for item in calls], ['inventory-entry', 'srcinfo'])
+        self.assertEqual([item[1] for item in calls], ['inventory-entry', 'dependency-check-entry', 'srcinfo'])
 
     def test_nested_first_failure_is_not_replaced_by_makepkg_or_finally(self):
         value, calls = self.failed('nested')
@@ -1402,7 +1402,7 @@ class EntryDiagnosticTests(unittest.TestCase):
         self.assertEqual(value['status'], 'PASS'); self.assertIsNone(value['first_failure'])
         self.assertTrue((out / 'entry-result.json').exists())
         self.assertFalse(value['compiler_launch_attempted']); self.assertFalse(value['compilation_accepted'])
-        self.assertEqual([item[1] for item in calls], ['inventory-entry', 'srcinfo', 'source-verification', 'makepkg'])
+        self.assertEqual([item[1] for item in calls], ['inventory-entry', 'dependency-check-entry', 'srcinfo', 'source-verification', 'makepkg'])
         self.assertEqual(calls[-2][0], ['/usr/bin/makepkg', '--verifysource', '--nodeps', '--noconfirm'])
         self.assertEqual(calls[-1][0], ['/usr/bin/makepkg', '--cleanbuild', '--clean', '--force', '--log', '--nodeps', '--noconfirm'])
         self.assertEqual(calls[-2][2], {'timeout': 120}); self.assertEqual(calls[-1][2], {'timeout': 1500})
@@ -1517,6 +1517,139 @@ class DiagnosticCorrectionTests(unittest.TestCase):
         self.assertTrue(mutations); self.assertTrue(recorder.snapshot()['diagnostic_write_failed'])
         self.assertFalse((other/'.worker-diagnostic.lock').exists())
         self.assertFalse((other/'worker-diagnostic.json').exists())
+
+
+
+class MakepkgProtocolTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        spec = importlib.util.spec_from_file_location('makepkg_protocol_recorder', BASE/'worker-diagnostic.py')
+        cls.helper = importlib.util.module_from_spec(spec); spec.loader.exec_module(cls.helper)
+
+    def fixture(self):
+        temp = tempfile.TemporaryDirectory(); self.addCleanup(temp.cleanup)
+        root = Path(temp.name); root.chmod(0o700)
+        bindings = dict(controller_sha256='a'*64, image_id='sha256:'+'b'*64, entry_script_sha256='c'*64)
+        return root, bindings, self.helper.Recorder(root, bindings)
+
+    def test_each_command_start_explicitly_resets_selector_and_preserves_compiler_facts(self):
+        root, bindings, parent = self.fixture()
+        parent.command_start('cargo-build'); parent.command_result('cargo-build', True, True, 0)
+        parent.compiler_accepted()
+        for stem, selector in [('srcinfo','srcinfo'), ('source-verification','verify-source'), ('makepkg','build-package')]:
+            parent.command_start(stem)
+            row = self.helper.loads((root/'worker-diagnostic.json').read_bytes())
+            self.assertEqual(row['makepkg'], dict(selector=selector, phase='config-setup', event='issued', returncode=None))
+            self.assertTrue(row['compilation_accepted']); self.assertEqual(row['compiler_returncode'], 0)
+
+    def test_child_phase_survives_parent_return4_and_later_updates_without_claiming_failure(self):
+        root, bindings, parent = self.fixture()
+        parent.operation='entry-makepkg'; parent.command_start('makepkg')
+        parent.command_start('cargo-build'); parent.command_result('cargo-build', True, True, 0); parent.compiler_accepted()
+        # Cargo does not reset the enclosing makepkg selector.
+        child = self.helper.Recorder(root, bindings, observe_only=True)
+        child.makepkg_phase('build', 'enter', None)
+        child.makepkg_phase('build', 'return', 0)
+        observed = child.snapshot()['makepkg']
+        self.assertIsNone(child.snapshot()['first_failure'])
+        self.assertEqual(child.snapshot()['operation'], 'entry-makepkg')
+        parent.command_result('makepkg', True, True, 4, failure_code='UNKNOWN', error=ValueError('private'))
+        first = parent.snapshot()['first_failure']
+        self.assertEqual(first['command']['returncode'], 4)
+        self.assertEqual(parent.snapshot()['makepkg'], observed)
+        self.assertTrue(parent.snapshot()['compilation_accepted'])
+        with parent.step('entry-log-copy'): pass
+        self.assertEqual(parent.snapshot()['makepkg'], observed)
+        self.assertEqual(parent.snapshot()['first_failure'], first)
+        self.assertEqual(self.helper.loads((root/'worker-diagnostic.json').read_bytes()), parent.snapshot())
+
+    def test_marker_constructor_and_update_preserve_existing_failure_command_status_and_flags(self):
+        root, bindings, parent = self.fixture()
+        parent.operation='entry-makepkg'; parent.command_start('makepkg')
+        parent.command_result('makepkg', True, True, 4, failure_code='UNKNOWN', error=ValueError('private'))
+        original = parent.snapshot()
+        child = self.helper.Recorder(root, bindings, observe_only=True)
+        child.makepkg_phase('check','return',23)
+        for key in ('operation','command','status','first_failure','compiler_launch_attempted','compiler_returncode','compilation_accepted'):
+            self.assertEqual(child.snapshot()[key], original[key])
+        parent.finish(False)
+        self.assertEqual(parent.snapshot()['makepkg'], dict(selector='build-package',phase='check',event='return',returncode=23))
+        self.assertEqual(parent.snapshot()['first_failure'], original['first_failure'])
+
+    def test_phase_intent_uses_latest_locked_selector_and_ordinary_updates_do_not_erase_it(self):
+        root, bindings, parent = self.fixture(); parent.command_start('srcinfo')
+        child = self.helper.Recorder(root, bindings, observe_only=True)
+        parent.command_start('makepkg')
+        child.makepkg_phase('recipe-load','enter',None)
+        self.assertEqual(child.snapshot()['makepkg']['selector'],'build-package')
+        parent.controller_validated()
+        self.assertEqual(parent.snapshot()['makepkg'],child.snapshot()['makepkg'])
+
+    def test_cli_uses_bound_existing_record_and_emits_no_private_text(self):
+        root, bindings, parent = self.fixture(); parent.command_start('makepkg')
+        real = self.helper.Recorder
+        with mock.patch.dict(os.environ, {'CACHY_ASAHI_MAKEPKG_DIAGNOSTIC':'1'}), \
+             mock.patch.object(self.helper,'binding_values',return_value=bindings), \
+             mock.patch.object(self.helper,'Recorder',side_effect=lambda **kw:real(root,**kw)):
+            self.assertEqual(self.helper.main(['--makepkg-phase','prepare','enter','null']),0)
+            self.assertEqual(self.helper.main(['--makepkg-phase','prepare','return','255']),0)
+            for code in ('true','-1','256','1.0','private'):
+                self.assertEqual(self.helper.main(['--makepkg-phase','prepare','return',code]),1)
+        row=self.helper.loads((root/'worker-diagnostic.json').read_bytes())
+        self.assertEqual(row['makepkg']['returncode'],255)
+        self.assertIsNone(row['first_failure']); self.assertFalse(row['compilation_accepted'])
+        self.assertNotIn('private',json.dumps(row))
+
+    def test_cli_requires_guard_and_complete_bindings(self):
+        with mock.patch.dict(os.environ, {'CACHY_ASAHI_MAKEPKG_DIAGNOSTIC':'0'}), mock.patch.object(self.helper,'Recorder') as recorder:
+            self.assertEqual(self.helper.main(['--makepkg-phase','build','enter','null']),1)
+            recorder.assert_not_called()
+        with mock.patch.dict(os.environ, {'CACHY_ASAHI_MAKEPKG_DIAGNOSTIC':'1'}), \
+             mock.patch.object(self.helper,'binding_values',return_value=dict(controller_sha256=None,image_id=None,entry_script_sha256=None)), \
+             mock.patch.object(self.helper,'Recorder') as recorder:
+            self.assertEqual(self.helper.main(['--makepkg-phase','build','enter','null']),1)
+            recorder.assert_not_called()
+
+    def test_marker_refuses_missing_or_mismatched_record_without_replacing_it(self):
+        root, bindings, parent=self.fixture(); parent.command_start('makepkg')
+        before=(root/'worker-diagnostic.json').read_bytes()
+        child=self.helper.Recorder(root,bindings|{'controller_sha256':'d'*64},observe_only=True)
+        child.makepkg_phase('build','enter',None)
+        self.assertTrue(child.snapshot()['diagnostic_write_failed'])
+        self.assertEqual((root/'worker-diagnostic.json').read_bytes(),before)
+        (root/'worker-diagnostic.json').unlink()
+        child=self.helper.Recorder(root,bindings,observe_only=True)
+        child.makepkg_phase('build','enter',None)
+        self.assertFalse((root/'worker-diagnostic.json').exists())
+
+    def test_marker_io_failure_is_best_effort_and_control_remains_outward(self):
+        root, bindings, parent=self.fixture(); parent.command_start('makepkg')
+        child=self.helper.Recorder(root,bindings,observe_only=True)
+        original=ValueError('primary')
+        try:
+            try: raise original
+            except ValueError:
+                with mock.patch.object(self.helper.os,'replace',side_effect=OSError('private')):
+                    child.makepkg_phase('build','return',4)
+                raise
+        except ValueError as caught: self.assertIs(caught,original)
+        self.assertTrue(child.snapshot()['diagnostic_write_failed'])
+        # Use a fresh healthy record for each independent control case.
+        for control in (KeyboardInterrupt(),SystemExit(7)):
+            root, bindings, parent=self.fixture(); parent.command_start('makepkg')
+            child=self.helper.Recorder(root,bindings,observe_only=True)
+            with mock.patch.object(child,'_root',side_effect=control):
+                with self.assertRaises(type(control)) as caught: child.makepkg_phase('build','enter',None)
+            self.assertIs(caught.exception,control)
+
+    def test_historical17_record_is_accepted_and_upgraded_without_forged_observation(self):
+        root, bindings, parent=self.fixture()
+        old=parent.snapshot(); old.pop('makepkg')
+        self.assertEqual(self.helper.validate(old),old)
+        (root/'worker-diagnostic.json').write_bytes(self.helper.encoded(old))
+        child=self.helper.Recorder(root,bindings,observe_only=True)
+        self.assertIsNone(child.snapshot()['makepkg']); self.assertIsNone(child.snapshot()['first_failure'])
+        self.assertEqual(len(child.snapshot()),18)
 
 
 if __name__ == '__main__':

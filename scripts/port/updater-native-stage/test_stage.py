@@ -89,7 +89,7 @@ class StageTests(unittest.TestCase):
         self.root = self.base / 'checkout'; self.root.mkdir(mode=0o700)
         self.output = self.base / 'evidence'
         self.storage = self.base / 'docker-storage'; self.storage.mkdir(mode=0o700)
-        self.rows = {}; self.commands = []; self.guard_inputs = []; self.cleanup_calls = []
+        self.rows = {}; self.commands = []; self.guard_inputs = []; self.cleanup_calls = []; self.seed_calls = []
         self.mode = 'pass'; self.source_drift = False; self.project_fail = False; self.guard_fail = False
         self.create_gpg = False; self.gpg_status = 'PASS'; self.docker_status = 'PASS'
         self.put(PREFIX + 'stage.py', STAGE_BYTES)
@@ -97,8 +97,9 @@ class StageTests(unittest.TestCase):
             self.put(PREFIX + name, (HERE / name).read_bytes())
         self.put(PREFIX + 'public_worker.py', (HERE / 'public_worker.py').read_bytes())
         self.put(PREFIX + 'broker.py', b'#!/usr/bin/env python3\n# never executed fixture\n')
+        self.put(PREFIX + 'current_cache.py', b'# intercepted synthetic cache seed; never executed\n')
         self.put(stage.PACKAGE + 'runner-inputs.lock.json', b'{}\n')
-        for name in ('updater-native.py', 'materialize-inputs.py'):
+        for name in ('updater-native.py', 'materialize-inputs.py', 'native-entry.py'):
             self.put(stage.PACKAGE + name, b'# intercepted; never executed\n')
         for name in ('scripts/ci/integration_export.py', 'scripts/ci/log_evidence.py',
                      stage.PACKAGE + 'public-evidence.py'):
@@ -165,10 +166,31 @@ class StageTests(unittest.TestCase):
         if path.name == 'runtime.py': return self.runtime
         if path.name == 'source.py': return self.source
         if path.name == 'broker.py': return self.broker
+        if path.name == 'current_cache.py': return types.SimpleNamespace(seed=self.cache_seed)
         if path.name == 'integration_export.py': return types.SimpleNamespace(export_evidence=self.export)
         if path.name == 'public-evidence.py': return types.SimpleNamespace(project_evidence=self.project)
         if path.name == 'log_evidence.py': return self.actual_bundle
         self.fail('unexpected project module import')
+
+    def cache_seed(self, snapshot, private, contract, end, check, holder, module, regular, verify_snapshot):
+        """Isolate orchestration; no intake/acquire/GPG/private body is replayed."""
+        self.assertEqual(snapshot, private / 'source')
+        self.assertEqual(contract, self.contract['source'])
+        self.assertEqual(contract['files'][PREFIX + 'current_cache.py']['sha256'],
+                         stage.digest((snapshot / PREFIX / 'current_cache.py').read_bytes()))
+        self.assertLess(time.monotonic(), end)
+        self.assertLessEqual(end, time.monotonic() + stage.BUDGET['native_seconds'])
+        self.assertEqual(holder, {})
+        verify_snapshot(snapshot, contract); check()
+        self.seed_calls.append({'snapshot': str(snapshot), 'end': end})
+        # Native commands are independently synthetic in fake_run. This models
+        # only the new stage dependency, and grants no actual seed acceptance.
+        (private / 'archives').mkdir(mode=0o700)
+        observation = dict(status='SYNTHETIC_TEST_ONLY', objects=0, bytes=0,
+                           resource_uncertain=False, cancelled=False,
+                           signature_authentication='NOT RUN', native_build='NOT RUN', secondary_errors=0)
+        holder['observation'] = observation
+        return dict(observation)
 
     def project(self, raw, output, **kwargs):
         result = self.actual_selector.project_evidence(raw, output, **kwargs)
@@ -319,6 +341,7 @@ class StageTests(unittest.TestCase):
     def test_success_is_fixture_only_with_real_cleanup_and_guarded_projection(self):
         result = self.pipeline()
         self.assertEqual(result['status'], 'PASS')
+        self.assertEqual(len(self.seed_calls), 1)
         self.assertFalse((self.output / 'private').exists())
         self.assertEqual(self.commands, ['native-daemon', 'materialize', 'freeze', 'native-pair',
                                         'public-projection', 'public-guard', 'public-bundle'])

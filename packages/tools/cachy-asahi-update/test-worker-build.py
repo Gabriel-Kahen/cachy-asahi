@@ -695,7 +695,7 @@ class UnitDiagnosticTests(unittest.TestCase):
         public = worker_build.module('unit_phase_public', base/'public-evidence.py')
         stage = base.parents[2]/'scripts/port/updater-native-stage/stage.py'
         tree = ast.parse(stage.read_bytes())
-        names = {'need', 'native_diagnostic_need', 'native_diagnostic_encoded', 'native_diagnostic_nullable_hash', 'native_diagnostic_command', 'native_diagnostic'}
+        names = {'need', 'native_diagnostic_need', 'native_diagnostic_encoded', 'native_diagnostic_nullable_hash', 'native_diagnostic_command', 'native_diagnostic_makepkg', 'native_diagnostic'}
         nodes = [n for n in tree.body if isinstance(n, ast.Assign) and isinstance(n.targets[0], ast.Name) and n.targets[0].id.startswith('NATIVE_DIAGNOSTIC_') or isinstance(n, ast.FunctionDef) and n.name in names]
         env = dict(json=json,re=re); exec(compile(ast.Module(body=nodes,type_ignores=[]),'pure-stage-diagnostic-validator','exec'),env)
         predicates = ('unit-metadata-json','unit-metadata-fields','unit-compiler-json','unit-event-fields','unit-log-read','unit-receipt-write')
