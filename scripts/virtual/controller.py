@@ -24,16 +24,16 @@ import types
 import audit_tooling
 from common import (GIB, IMAGE_SHA, OVERLAYS, SAFE_CAPS, allocated, bounded, digest,
                     facts, free_bytes, inventory, json_load, pinned, relative,
-                    require, save)
+                    require, save, barrier_contract, barrier_event, BARRIER_PURPOSE)
 
 LOCK_PIN = 'c18afc5bde9868594d41bd576a956960a7b01b190d148ba03ca4c41d4394e1b0'
 AUDIT_PIN = 'd3289a52f3269ba44f1437b69a112dcbd2086ee16ebe8d44658e65e7fb8e2095'
 AUDITOR_PIN = '6677f391f2de23540bc147770148729fe4c993850b7bbed0b71fb7e48d296fdc'
 CORE = {
-    'common.py': 'b5099507b27fd9f86259c0096d0128b3a2480c546469312763a84438202fa4c3',
-    'guest.py': 'd64db4642e4b403d8f4b5e2d5784b4fdb3a179abd05350e0ff026e6c4f6ce705',
-    'prepare.py': '7040f992903ee5b35386d00811f6338ee57a15b5536e27648142f32beb0064b5',
-    'run.py': '84361c8f118aec1195c19bb99dc3a3e7408e181bc6b8e6a84993a440f86f730f',
+    'common.py': '49ee5aac4919bccbb0b2bcb6995a386a038ec6dab813edbf25d87b2f74e4791a',
+    'guest.py': 'a026369f9a5b9d1f272bc3ab1494d45a655adf4b2039a5cdf5542653f52a3660',
+    'prepare.py': 'b11f0b77ce045ee38efadad745ffe1b7121d726686bbcc8d7f7f4fecf28ca8c2',
+    'run.py': 'af8e287abcc7c576feca39a1f26e449d28628bac47f734b0176f1c4eee00ffb4',
     'gbm_probe.c': 'fe0bb7b15df0bc93c4b5115543619e182ba3dac2ed22d0d8b1ab541d77a72efd',
     'image_decode_probe.c': 'e5857f60f664ccfeb8a2275396c4a4f8ed6412f14bb5237e71bd34582479ba3a',
     'image_decode_report.py': '377efb140ec7b5e50a18ae3c3d312f31f25676818f45942bde1c3acb5dceaacd',
@@ -107,6 +107,7 @@ def validate_input(c, root):
             re.fullmatch('[0-9a-f]{40}', c.get('baseline_source_commit', '')), 'immutable installed image/source commit required')
     require(c.get('core_sha256') == CORE and c.get('audit_tooling_sha256') == AUDITOR_PIN and
             c.get('controller_sha256') == digest(Path(__file__)), 'reviewed exact controller/core/auditor source required')
+    barrier_contract(c, root)
     rows = c.get('baseline')
     require(isinstance(rows, list) and len(rows) == 4 and {r.get('name') for r in rows} == OVERLAYS, 'all four original overlays required')
     require(set(c.get('files', {})) == ALIASES, 'complete accepted handoff/lock receipts required')
@@ -469,9 +470,26 @@ def project(raw, target, report, *, image_decode_context=None):
     if result is not None:
         report['guest'] = {k: result.get(k) for k in ('status', 'execution', 'contract_sha256', 'prepare_receipt_sha256', 'image_id',
                           'nonce', 'software_compositor', 'software_session_ipc', 'frame_proof', 'hardware_validation',
-                          'graphics_acceleration', 'm2_16k_pages', 'performance', 'elapsed_seconds', 'error', 'logging_error', 'logs')}
-        allowed = {'boot', 'gbm_pass', 'frame_ready', 'phase_pass', 'guest_pass', 'guest_failed', 'command', 'session_log', 'ipc_probe', 'process_state', 'image_decode_probe'}
+                          'graphics_acceleration', 'm2_16k_pages', 'performance', 'elapsed_seconds', 'error', 'logging_error', 'logs',
+                          'owned_group_retirement', 'cleanup_uncertain')}
+        allowed = {'barrier_result', 'barrier_child_exit', 'boot', 'gbm_pass', 'frame_ready', 'phase_pass', 'guest_pass', 'guest_failed', 'command', 'session_log', 'ipc_probe', 'process_state', 'image_decode_probe'}
         events = [e for e in result.get('events', []) if e.get('event') in allowed]
+        if report.get('purpose') == BARRIER_PURPOSE:
+            require(result.get('contract_sha256') == report['proof_contract_sha256'] and
+                    result.get('prepare_receipt_sha256') == report['prepare_receipt_sha256'] and
+                    result.get('nonce') == report['barrier_nonce'] and
+                    result.get('image_id') == report['stages']['tooling']['image_id'], 'barrier result authority differs')
+            rows = [e for e in events if e['event'] == 'barrier_result']
+            require(len(rows) <= 1 and not result.get('frames'), 'unexpected barrier evidence')
+            require(result.get('barrier_result') == (rows[0] if rows else None), 'barrier result/event differs')
+            if rows:
+                report['barrier_result'] = barrier_event(rows[0], result['nonce'], report['proof_contract_sha256'])
+            if result['status'] == 'PASS_BARRIER_ONLY':
+                reviewed_decode_run().validate_barrier_completion(events, result['nonce'], report['proof_contract_sha256'])
+                require(result.get('owned_group_retirement') == 'PASS' and result.get('cleanup_uncertain') is False,
+                        'barrier QEMU retirement incomplete')
+        else:
+            require(not any(e['event'].startswith('barrier_') for e in events), 'unselected barrier evidence')
         decode_events = [e for e in events if e['event'] == 'image_decode_probe']
         require(len(decode_events) <= 1, 'duplicate image decode observation')
         if decode_events:
@@ -547,6 +565,8 @@ def main(argv=None):
     derived, name_tooling, private_tag = None, None, None
     commit_uncertain = False
     decode_context = None
+    if barrier_contract(c):
+        report['purpose'] = BARRIER_PURPOSE
     start = time.monotonic()
     def interrupted(*_):
         global CANCELLED
@@ -638,6 +658,14 @@ def main(argv=None):
                      'tooling_lock': 'tooling.lock.json', 'tooling_lock_sha256': LOCK_PIN,
                      'tooling_audit': 'tooling-audit.json', 'tooling_audit_sha256': AUDIT_PIN,
                      'baseline': c['baseline'], 'runner_sha256': CORE}
+            if barrier_contract(c):
+                proof.update(purpose=c['purpose'], barrier_fixture=c['barrier_fixture'])
+                report['barrier_nonce'] = nonce
+                for name, row in c['barrier_fixture']['files'].items():
+                    source = pinned(root, name, row['sha256'])
+                    dest = inputs / name; dest.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.copyfile(source, dest)
+                    require(digest(dest) == row['sha256'], 'barrier input copy changed')
             save(inputs / 'virtual-contract.json', proof)
             report['proof_contract_sha256'] = digest(inputs / 'virtual-contract.json')
             identity = ['CACHY_ASAHI_DISPOSABLE_VIRTUAL=1', 'CACHY_ASAHI_VIRTUAL_NONCE=' + nonce,
@@ -660,7 +688,8 @@ def main(argv=None):
                                 '--prepare-receipt-sha256', report['prepare_receipt_sha256']]
             run_container(argv, raw / 'runtime-container.log', derived, False, False, True, 1260, report['cleanup'])
             result = json_load(runtime / 'proof/result.json')
-            require(result['status'] == 'CAPTURED_REQUIRES_VISUAL_REVIEW', 'software trial did not reach captured review point')
+            require(result['status'] == ('PASS_BARRIER_ONLY' if barrier_contract(c) else 'CAPTURED_REQUIRES_VISUAL_REVIEW'),
+                    'software trial did not reach selected completion point')
             report['status'] = result['status']
         except BaseException as exc:
             report['status'] = 'FAIL'
@@ -713,7 +742,7 @@ def main(argv=None):
             for sig, handler in old.items():
                 signal.signal(sig, handler)
     save_final_report(output / 'result.json', report)
-    return not CANCELLED and report['status'] == 'CAPTURED_REQUIRES_VISUAL_REVIEW'
+    return not CANCELLED and report['status'] in ('CAPTURED_REQUIRES_VISUAL_REVIEW', 'PASS_BARRIER_ONLY')
 
 
 if __name__ == '__main__':

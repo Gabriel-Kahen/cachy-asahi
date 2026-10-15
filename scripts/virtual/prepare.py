@@ -17,7 +17,7 @@ import struct
 import re
 from image_decode_report import (ASSET_PATH, ASSET_SHA256, HEADER_ROOTS, PC_NAMES, PKG_ARGV,
     COMPILE_PREFIX, C_SHA256, core_sha256, inventory_sha256, canonical_sha256, validate_elf, validate_build)
-from common import GIB, IMAGE_SHA, KERNEL, Refused, check_runtime, contract, digest, free_bytes, guard, require, save, allocated, bounded
+from common import GIB, IMAGE_SHA, KERNEL, Refused, check_runtime, contract, digest, free_bytes, guard, require, save, allocated, bounded, barrier_contract, BARRIER_FILES, pinned
 
 ASSETS = ('common.py', 'guest.py', 'prepare.py', 'run.py', 'gbm_probe.c',
           'image_decode_probe.c', 'image_decode_report.py')
@@ -67,6 +67,20 @@ def prepare_mime_database(root, command, report):
     report['fixture_changes'].append({'path': 'usr/share/mime',
         'reason': 'guest-only MIME metadata generation; package hooks remain masked',
         'mime_cache_sha256': digest(cache)})
+
+
+def stage_barrier(root, c, proof_path, proof_sha256, report):
+    if not barrier_contract(c):
+        return
+    require(digest(proof_path) == proof_sha256, 'selected proof changed')
+    shared = 'usr/local/share/virtual-proof/'
+    changed(root, shared + 'virtual-contract.json', proof_path.read_bytes(), report)
+    for name, row in BARRIER_FILES.items():
+        source = pinned('/inputs', name, row['sha256'])
+        require(source.stat().st_size == row['bytes'], 'selected fixture size differs')
+        target = shared + 'barrier-source/' + name
+        changed(root, target, source.read_bytes(), report)
+        require(digest(root / target) == row['sha256'], 'staged barrier source differs')
 
 
 def stage_size(paths):
@@ -280,7 +294,11 @@ def main():
         changed(root, shared + 'minimal.lua',
                 b'hl.monitor({ output = "", mode = "preferred", position = "auto", scale = 1 })\n'
                 b'hl.config({ debug = { disable_logs = false, enable_stdout_logs = true } })\n', report)
-        changed(root, shared + 'contract.json', (json.dumps({'nonce': c['nonce'], 'baseline': c['baseline']}, sort_keys=True) + '\n').encode(), report)
+        guest_contract = {'nonce': c['nonce'], 'baseline': c['baseline']}
+        if barrier_contract(c):
+            guest_contract.update(purpose=c['purpose'], proof_contract_sha256=args.contract_sha256)
+        changed(root, shared + 'contract.json', (json.dumps(guest_contract, sort_keys=True) + '\n').encode(), report)
+        stage_barrier(root, c, args.contract, args.contract_sha256, report)
         changed(root, shared + 'runtime.lock', ''.join(k + ' ' + v + '\n' for k, v in sorted(runtime.items())).encode(), report)
         flags = subprocess.check_output(['/usr/bin/pkg-config', '--cflags', '--libs', 'egl', 'gbm', 'glesv2', 'libdrm'], text=True, timeout=15).split()
         (root / 'usr/local/bin').mkdir(parents=True, exist_ok=True)
