@@ -512,8 +512,8 @@
     },
     "scripts/port/ksm-lifecycle/source-checkpoint.json": {
       "mode": "0644",
-      "sha256": "310157862aa338a29ea8f06e800984fee1c5f91cc01c873aaec65ea942f82b7a",
-      "size_bytes": 1472
+      "sha256": "5e97b5e4f9706411d92c199cfd86244b2ce7c03c5c00de91b93874cd0351a8ea",
+      "size_bytes": 1469
     },
     "scripts/port/ksm-lifecycle/source-test-results-135.json": {
       "mode": "0644",
@@ -532,8 +532,8 @@
     },
     "scripts/port/ksm-lifecycle/stage.py": {
       "mode": "0644",
-      "sha256": "fbf690808a062bf06f75006771316a194acfb0a90525f74d68ee63d4a4d0bfa6",
-      "size_bytes": 29105
+      "sha256": "20c685560b99a96d6b86fd3b006b5005f5c4906f2815e781180e5ba9b0d94110",
+      "size_bytes": 41823
     },
     "scripts/port/ksm-lifecycle/test_contract.py": {
       "mode": "0644",
@@ -542,8 +542,8 @@
     },
     "scripts/port/ksm-lifecycle/test_stage.py": {
       "mode": "0644",
-      "sha256": "e9d07909d67c02d7c64ef6b73eaa57d2e61b3701c29bebde8188eb61df6bd147",
-      "size_bytes": 40850
+      "sha256": "9e143137a12dc7085a60af733be116859773685141949809f08222d194f6ea82",
+      "size_bytes": 79395
     },
     "scripts/port/ksm-lifecycle/test_worker.py": {
       "mode": "0644",
@@ -602,8 +602,8 @@
     },
     "scripts/port/ksm-native-job/executor.py": {
       "mode": "0644",
-      "sha256": "521705ded8fe4c414ee97ae729df9bf93f2addf66a48d2dd20962648a561c2f5",
-      "size_bytes": 48033
+      "sha256": "ebd0df598df37ae3e5e764b0c32d9d65613a611a63e9694f54a961954b3735fc",
+      "size_bytes": 64816
     },
     "scripts/port/ksm-native-job/executor_contract.py": {
       "mode": "0644",
@@ -687,8 +687,8 @@
     },
     "scripts/port/ksm-native-job/job.py": {
       "mode": "0644",
-      "sha256": "eed849cc5ce64f87a0e5e0b24bc5c04dd423430927816cc1609e44187d519e2e",
-      "size_bytes": 9757
+      "sha256": "532698905334991792dae3329ae8da15c632fb21a39647d54d4260f45dd52e7e",
+      "size_bytes": 9754
     },
     "scripts/port/ksm-native-job/producer_driver.py": {
       "mode": "0644",
@@ -747,8 +747,8 @@
     },
     "scripts/port/ksm-native-job/test_executor.py": {
       "mode": "0644",
-      "sha256": "7ad0b079f5660c52df90f72bd56a4b6f39df09de00f05fbf9854d4676953d3bb",
-      "size_bytes": 51009
+      "sha256": "94142b36d485dd39e0d416308ec1b169678b3727a458a0ef48aa6ce7ba853021",
+      "size_bytes": 94100
     },
     "scripts/port/ksm-native-job/test_executor_contract.py": {
       "mode": "0644",

@@ -768,5 +768,647 @@ class ProducerObservationTests(unittest.TestCase):
                 self.assertNotIn('private',json.dumps(row));self.assertIsNone(row['cleanup'])
 
 
+class LifecycleDiagnosticTests(unittest.TestCase):
+    def leaf(self):
+        return {'schema_version':1,'source_commit':'a'*40,'run_id':'7','first_failure':
+            {'selector':'LIFECYCLE','site':'WORKER_RESULT','check':'worker-phase-failed','category':'VALUE_ERROR'},
+            'cleanup_failure':None,'cancelled':False,'attach_return':{'SIGN':0,'LIFECYCLE':1}}
+
+    def observation(self, code=1):
+        return {'started':True,'natural_poll_code':code,'runner_return_code':code,'reaped_code':code,
+            'reaping':'COMPLETED','before_cleanup':{'state':'exited','returncode':code}}
+
+    def result(self, leaf=None, code=1):
+        if leaf is None: leaf=self.leaf()
+        return subprocess.CompletedProcess(['/selected/lifecycle'],code,
+            b'KSM_LIFECYCLE_DIAGNOSTIC_V1 '+json.dumps(leaf).encode()+b'\n',None)
+
+    def parse(self, result=None, observation=None, binding=None):
+        return e.lifecycle_diagnostic(self.result() if result is None else result,
+            self.observation() if observation is None else observation,
+            {'source_commit':'a'*40,'run_id':'7'} if binding is None else binding)
+
+    def test_exact_bound_controller_leaf_accepts_coherent_natural_zero_or_nonzero_only(self):
+        for code in (0,1,-15,255,-128):
+            with self.subTest(code=code):
+                self.assertEqual(self.parse(self.result(code=code),self.observation(code)),self.leaf())
+
+    def test_process_observations_do_not_infer_natural_return_from_reaping(self):
+        for key,value in (('started',False),('natural_poll_code',None),('runner_return_code',None),
+                ('reaped_code',-15),('reaping','FAILED'),('before_cleanup',{'state':'alive','returncode':None}),
+                ('before_cleanup',{'state':'exited','returncode':True}),('natural_poll_code',True)):
+            with self.subTest(key=key,value=value):
+                self.assertIsNone(self.parse(observation={**self.observation(),key:value}))
+        self.assertIsNone(self.parse(result=self.result(code=True)))
+        self.assertIsNone(self.parse(result=self.result(code=256),observation=self.observation(256)))
+        self.assertIsNone(self.parse(observation={**self.observation(),'extra':1}))
+
+    def test_parser_rejects_unknown_fields_enums_types_bindings_and_private_text(self):
+        mutations=[lambda x:x.update(extra='PRIVATE SENTINEL'),lambda x:x.update(schema_version=True),
+            lambda x:x.update(source_commit='b'*40),lambda x:x.update(run_id='8'),
+            lambda x:x.update(cancelled=1),lambda x:x.update(attach_return={'SIGN':True,'LIFECYCLE':0}),
+            lambda x:x.update(attach_return={'SIGN':0,'LIFECYCLE':256}),
+            lambda x:x.update(attach_return={'SIGN':0}),lambda x:x.update(first_failure=[])]
+        for key in ('selector','site','check','category'):
+            mutations.append(lambda x,key=key:x['first_failure'].update({key:'PRIVATE SENTINEL'}))
+            mutations.append(lambda x,key=key:x['first_failure'].update({key:1}))
+        for mutate in mutations:
+            leaf=self.leaf();mutate(leaf)
+            with self.subTest(leaf=leaf):self.assertIsNone(self.parse(self.result(leaf)))
+        self.assertIsNone(self.parse(binding={'source_commit':'a'*39,'run_id':'7'}))
+        self.assertIsNone(self.parse(binding={'source_commit':'a'*40,'run_id':7}))
+        self.assertIsNone(self.parse(binding={'source_commit':'a'*40,'run_id':'7'*21}))
+        self.assertNotIn('PRIVATE',json.dumps(self.parse()))
+
+    def test_duplicate_keys_tokens_truncation_utf8_nonfinite_and_byte_bounds_are_unavailable(self):
+        good=self.result().stdout
+        raws=(b'',b'no marker\n',good[:-1],b'x'+good,good+good,
+            good.replace(b'"schema_version": 1',b'"schema_version": 1,"schema_version":1'),
+            good.replace(b'"cancelled": false',b'"cancelled": NaN'),
+            good.replace(b'"category": "VALUE_ERROR"',b'"category":"VALUE_ERROR","category":"UNKNOWN"'),
+            e.LIFECYCLE_PREFIX+b'\xff\n',e.LIFECYCLE_PREFIX+b' '+b' '*16384+b'\n',
+            b' '* (8*1024**2)+good)
+        for raw in raws:
+            with self.subTest(length=len(raw)):
+                result=self.result();result.stdout=raw;self.assertIsNone(self.parse(result))
+        raw=b'PRIVATE SENTINEL\n'+good+b'private output\n'
+        result=self.result();result.stdout=raw
+        self.assertEqual(self.parse(result),self.leaf())
+        self.assertNotIn('PRIVATE',json.dumps(self.parse(result)))
+
+    def test_exact_completed_process_and_observation_shape_required(self):
+        class Foreign(subprocess.CompletedProcess):pass
+        self.assertIsNone(self.parse(result=Foreign([],1,self.result().stdout)))
+        result=self.result();result.extra='private';self.assertIsNone(self.parse(result))
+        result=self.result();result.stdout=bytearray(result.stdout);self.assertIsNone(self.parse(result))
+        self.assertIsNone(self.parse(observation={'started':True}))
+
+    def test_optional_parser_does_not_swallow_cancel_or_keyboard_interrupt(self):
+        for failure in (e.runtime.Cancelled(15),KeyboardInterrupt()):
+            with self.subTest(failure=type(failure).__name__),patch.object(e.json,'loads',side_effect=failure), \
+                 self.assertRaises(type(failure)):
+                self.parse()
+
+    def interval_fixture(self, code=0, fault=None, previous='present', exit_error=None, grant_enter_error=None):
+        leaf=self.leaf();result=self.result(leaf,code)
+        calls=[];prior=object();runner=SimpleNamespace(deadline=time.monotonic()+8460)
+        if previous=='present':runner.observation=prior
+        runner.phase_scope=lambda end: nullcontext()
+        class Grant:
+            def __enter__(self):
+                calls.append('grant-enter')
+                if grant_enter_error:raise grant_enter_error
+            def __exit__(self,*args):
+                calls.append('grant-exit')
+                if exit_error:raise exit_error
+        runner.lifecycle_outputs=lambda *a:Grant()
+        def run(command,**kwargs):
+            calls.append(('run',command,kwargs));observation=runner.observation
+            observation.started=True
+            if fault:
+                observation.before_cleanup={'state':'alive','returncode':None}
+                observation.reaping='COMPLETED';observation.reaped_code=-15
+                raise fault
+            observation.natural_poll_code=code;observation.runner_return_code=code
+            observation.reaping='COMPLETED';observation.reaped_code=code
+            observation.before_cleanup={'state':'exited','returncode':code}
+            return result
+        runner.run=run
+        owner=SimpleNamespace(backend=SimpleNamespace(cli_sha256='b'*64,socket_identity=(1,2)))
+        producer={'image_id':'sha256:'+'c'*64,'runner_endpoint':'unix:///run/docker.sock',
+            'sha256':{'runner.json':'d'*64,'bootstrap.json':'e'*64}}
+        pair={'provenance_sha256':['f'*64,'1'*64]}
+        binding={'source_commit':'a'*40,'run_id':'7','daemon_id':'daemon1234'}
+        report={'lifecycle':'NOT RUN'}
+        return runner,prior,owner,producer,pair,binding,report,calls
+
+    def call_interval(self, fixture, *, grant_inputs=None, capture=None, decode=None, observe=None, command=None, allowance=None):
+        runner,prior,owner,producer,pair,binding,report,calls=fixture
+        with ExitStack() as stack:
+            stack.enter_context(patch.object(e.consumer,'lifecycle_command',side_effect=command or (lambda *a:['/python','-B','/stage'])))
+            if allowance is not None:stack.enter_context(patch.object(e,'allowance',side_effect=allowance))
+            stack.enter_context(patch.object(e,'lifecycle_grant_inputs',side_effect=grant_inputs or (lambda *a:(None,None,None))))
+            stack.enter_context(patch.object(e,'baseline_observe',side_effect=observe or (lambda *a:calls.append(a[1]))))
+            captured=stack.enter_context(patch.object(e.contracts,'capture',side_effect=capture or (lambda *a:b'{}')))
+            decoded=stack.enter_context(patch.object(e.contracts,'decode',side_effect=decode or (lambda *a:{})))
+            try:
+                return e.lifecycle_interval(Path('/source'),Path('/private'),owner,runner,binding,producer,pair,report)
+            finally:
+                calls.append(('captures',captured.call_count,decoded.call_count))
+
+    def test_nonzero_controller_exposes_optional_diagnostic_before_clean_exit_without_capture(self):
+        fixture=self.interval_fixture(code=1)
+        with self.assertRaises(ValueError):self.call_interval(fixture)
+        runner,prior,_,_,_,_,report,calls=fixture
+        diagnostics=report['lifecycle_diagnostics']
+        self.assertEqual(diagnostics['controller'],self.leaf())
+        self.assertEqual(diagnostics['first_failure'],{'site':'CLEAN_EXIT','category':'VALUE_ERROR','check':'UNKNOWN'})
+        self.assertEqual(report['lifecycle'],'NOT RUN');self.assertIs(runner.observation,prior)
+        self.assertEqual(calls[-1],('captures',0,0))
+        self.assertEqual(diagnostics['process'],self.observation(1))
+
+    def test_successful_controller_preserves_gates_argument_order_and_restores_absent_attribute(self):
+        fixture=self.interval_fixture(previous='absent');result,receipt,end=self.call_interval(fixture)
+        runner,_,_,_,_,_,report,calls=fixture
+        self.assertEqual(result.returncode,0);self.assertEqual(receipt,{})
+        self.assertFalse(hasattr(runner,'observation'));self.assertIsNone(report['lifecycle_diagnostics']['first_failure'])
+        self.assertEqual(report['lifecycle_diagnostics']['site'],'BASELINE_AFTER')
+        self.assertEqual(report['lifecycle'],'NOT RUN');self.assertEqual(calls[-1],('captures',1,1))
+        self.assertEqual(next(row[1] for row in calls if type(row) is tuple and row[0]=='run'),['/python','-I','-B','-S','/stage'])
+
+    def test_runner_primary_precedes_grant_cleanup_exception_and_preserves_process_unknowns(self):
+        original=ValueError('PRIVATE primary');cleanup=OSError('PRIVATE cleanup')
+        fixture=self.interval_fixture(fault=original,exit_error=cleanup)
+        with self.assertRaises(OSError) as caught:self.call_interval(fixture)
+        self.assertIs(caught.exception,cleanup)
+        runner,prior,_,_,_,_,report,calls=fixture;diagnostics=report['lifecycle_diagnostics']
+        self.assertIs(runner.observation,prior)
+        self.assertEqual(diagnostics['first_failure'],{'site':'RUNNER','category':'VALUE_ERROR','check':'UNKNOWN'})
+        self.assertEqual(diagnostics['cleanup_failure'],{'site':'GRANT_EXIT','category':'OS_ERROR','check':'UNKNOWN'})
+        self.assertIsNone(diagnostics['process']['natural_poll_code']);self.assertEqual(diagnostics['process']['reaped_code'],-15)
+        self.assertEqual(diagnostics['process']['before_cleanup'],{'state':'alive','returncode':None})
+        self.assertIsNone(diagnostics['controller']);self.assertNotIn('PRIVATE',json.dumps(diagnostics))
+        self.assertEqual(calls[-1],('captures',0,0))
+
+    def test_cancellation_is_separate_sticky_and_preserves_primary_under_context_cleanup(self):
+        for fault,cleanup in ((e.runtime.Cancelled(15),OSError('cleanup')),(KeyboardInterrupt(),None),
+                (ValueError('primary'),e.runtime.Cancelled(15))):
+            fixture=self.interval_fixture(fault=fault,exit_error=cleanup)
+            with self.subTest(fault=type(fault).__name__),self.assertRaises(type(cleanup or fault)):
+                self.call_interval(fixture)
+            runner,prior,_,_,_,_,report,_=fixture;diagnostics=report['lifecycle_diagnostics']
+            self.assertTrue(diagnostics['cancelled']);self.assertIs(runner.observation,prior)
+            expected='VALUE_ERROR' if isinstance(fault,ValueError) else ('CANCELLED' if isinstance(fault,e.runtime.Cancelled) else 'KEYBOARD_INTERRUPT')
+            self.assertEqual(diagnostics['first_failure']['category'],expected)
+
+    def test_prelaunch_grant_refusal_is_not_launch_and_input_scope_precedes_enter(self):
+        for fault_site in ('inputs','enter'):
+            fixture=self.interval_fixture(grant_enter_error=ValueError('private') if fault_site=='enter' else None)
+            runner,prior,_,_,_,_,report,calls=fixture
+            def fail(*args):raise ValueError('private')
+            with self.subTest(site=fault_site),self.assertRaises(ValueError):
+                self.call_interval(fixture,grant_inputs=fail if fault_site=='inputs' else None)
+            diagnostics=report['lifecycle_diagnostics'];self.assertIs(runner.observation,prior)
+            self.assertFalse(diagnostics['process']['started'])
+            self.assertEqual(diagnostics['first_failure']['site'],'GRANT_INPUTS' if fault_site=='inputs' else 'GRANT_ENTER')
+            self.assertFalse(any(type(row) is tuple and row[0]=='run' for row in calls))
+
+    def test_capture_decode_and_after_baseline_refusals_are_separate_observed_sites(self):
+        for site in ('CAPTURE','DECODE','BASELINE_AFTER'):
+            fixture=self.interval_fixture()
+            def fail(*args):raise ValueError('PRIVATE')
+            def observe(*args):
+                if args[1]=='after_lifecycle':raise ValueError('PRIVATE')
+            with self.subTest(site=site),self.assertRaises(ValueError):
+                self.call_interval(fixture,capture=fail if site=='CAPTURE' else None,
+                    decode=fail if site=='DECODE' else None,observe=observe if site=='BASELINE_AFTER' else None)
+            runner,prior,_,_,_,_,report,calls=fixture;diagnostics=report['lifecycle_diagnostics']
+            self.assertEqual(diagnostics['first_failure']['site'],site)
+            self.assertEqual(diagnostics['process'],self.observation(0));self.assertIs(runner.observation,prior)
+            self.assertNotIn('PRIVATE',json.dumps(diagnostics));self.assertEqual(report['lifecycle'],'NOT RUN')
+
+    def test_diagnostic_first_failure_never_rewrites_and_categories_are_closed(self):
+        value=e.lifecycle_initial();e.lifecycle_failure(value,'CAPTURE',KeyError('private'))
+        first=dict(value['first_failure']);e.lifecycle_failure(value,'RUNNER',e.runtime.Cancelled(15))
+        self.assertEqual(value['first_failure'],first);self.assertTrue(value['cancelled'])
+        for error,category in ((OSError('x'),'OS_ERROR'),(TypeError('x'),'TYPE_ERROR'),
+                (subprocess.SubprocessError('x'),'SUBPROCESS_ERROR'),(RuntimeError('x'),'UNKNOWN')):
+            value=e.lifecycle_initial();e.lifecycle_failure(value,'unsafe-private-site',error)
+            self.assertEqual(value['first_failure'],{'site':'UNOBSERVED','category':category,'check':'UNKNOWN'})
+
+
+    def test_unavailable_diagnostic_cannot_advance_nonzero_exit_or_promote_lifecycle(self):
+        fixture=self.interval_fixture(code=1);runner,prior,_,_,_,_,report,calls=fixture
+        run=runner.run
+        def invalid(*args,**kwargs):
+            returned=run(*args,**kwargs);returned.stdout=b'PRIVATE invalid marker\n';return returned
+        runner.run=invalid
+        with self.assertRaises(ValueError):self.call_interval(fixture)
+        self.assertIsNone(report['lifecycle_diagnostics']['controller'])
+        self.assertEqual(report['lifecycle'],'NOT RUN');self.assertEqual(calls[-1],('captures',0,0))
+        self.assertIs(runner.observation,prior)
+
+    def test_returned_child_diagnostic_survives_later_grant_disposal_error(self):
+        error=OSError('PRIVATE cleanup');fixture=self.interval_fixture(code=1,exit_error=error)
+        with self.assertRaises(OSError) as caught:self.call_interval(fixture)
+        self.assertIs(caught.exception,error)
+        runner,prior,_,_,_,_,report,calls=fixture
+        self.assertEqual(report['lifecycle_diagnostics']['controller'],self.leaf())
+        self.assertEqual(report['lifecycle_diagnostics']['process'],self.observation(1))
+        self.assertEqual(report['lifecycle_diagnostics']['first_failure']['site'],'GRANT_EXIT')
+        self.assertEqual(report['lifecycle_diagnostics']['cleanup_failure']['site'],'GRANT_EXIT')
+        self.assertEqual(report['lifecycle'],'NOT RUN');self.assertIs(runner.observation,prior)
+        self.assertEqual(calls[-1],('captures',0,0))
+
+    def test_foreign_keys_cannot_execute_hash_or_equality_during_parser(self):
+        calls=[]
+        class Foreign:
+            def __hash__(self):calls.append('hash');return hash('started')
+            def __eq__(self,other):calls.append('eq');return False
+        key=Foreign()
+        for target in ('binding','observation','before','result'):
+            observation=self.observation();binding={'source_commit':'a'*40,'run_id':'7'};result=self.result()
+            selected={'binding':binding,'observation':observation,'before':observation['before_cleanup'],
+                'result':result.__dict__}[target]
+            selected[key]='PRIVATE';calls.clear()
+            self.assertIsNone(self.parse(result,observation,binding));self.assertEqual(calls,[])
+
+    def test_binding_command_allowance_and_baseline_before_have_prelaunch_sites(self):
+        for site in ('BINDING','COMMAND','ALLOWANCE','BASELINE_BEFORE'):
+            fixture=self.interval_fixture();runner,prior,_,_,_,binding,report,calls=fixture
+            def fail(*args,**kwargs):raise ValueError('PRIVATE')
+            if site=='BINDING':del binding['daemon_id']
+            with self.subTest(site=site),self.assertRaises(KeyError if site=='BINDING' else ValueError):
+                self.call_interval(fixture,command=fail if site=='COMMAND' else None,
+                    allowance=fail if site=='ALLOWANCE' else None,observe=fail if site=='BASELINE_BEFORE' else None)
+            diagnostics=report['lifecycle_diagnostics'];self.assertFalse(diagnostics['process']['started'])
+            self.assertEqual(diagnostics['first_failure']['site'],site);self.assertIs(runner.observation,prior)
+            self.assertFalse(any(type(row) is tuple and row[0]=='run' for row in calls))
+
+    def test_grant_input_evaluation_stays_inside_existing_phase_scope(self):
+        fixture=self.interval_fixture();runner=fixture[0];inside=[]
+        class Phase:
+            def __enter__(self):inside.append(True)
+            def __exit__(self,*args):inside.pop()
+        runner.phase_scope=lambda end:Phase()
+        def inputs(*args):self.assertEqual(inside,[True]);return None,None,None
+        self.call_interval(fixture,grant_inputs=inputs);self.assertEqual(inside,[])
+
+    def test_parser_cancellation_after_return_stays_sticky_and_restores_observation(self):
+        fixture=self.interval_fixture()
+        with patch.object(e,'lifecycle_diagnostic',side_effect=e.runtime.Cancelled(15)), \
+             self.assertRaises(e.runtime.Cancelled):self.call_interval(fixture)
+        runner,prior,_,_,_,_,report,calls=fixture;diagnostics=report['lifecycle_diagnostics']
+        self.assertIs(runner.observation,prior);self.assertTrue(diagnostics['cancelled'])
+        self.assertEqual(diagnostics['process'],self.observation(0))
+        self.assertEqual(diagnostics['first_failure']['category'],'CANCELLED')
+        self.assertEqual(calls[-1],('captures',0,0))
+
+
+    def test_phase_disposal_failure_is_distinct_from_natural_success_or_prior_grant_failure(self):
+        for primary in (None,ValueError('PRIVATE primary')):
+            cleanup=OSError('PRIVATE phase cleanup');fixture=self.interval_fixture(fault=primary)
+            runner,prior,_,_,_,_,report,calls=fixture
+            class Phase:
+                def __enter__(self):return None
+                def __exit__(self,*args):raise cleanup
+            runner.phase_scope=lambda end:Phase()
+            with self.subTest(primary=primary is not None),self.assertRaises(OSError) as caught:
+                self.call_interval(fixture)
+            self.assertIs(caught.exception,cleanup);self.assertIs(runner.observation,prior)
+            diagnostics=report['lifecycle_diagnostics']
+            self.assertEqual(diagnostics['first_failure']['site'],'RUNNER' if primary else 'PHASE_EXIT')
+            self.assertEqual(diagnostics['cleanup_failure'],{'site':'PHASE_EXIT','category':'OS_ERROR','check':'UNKNOWN'})
+            self.assertEqual(diagnostics['process']['natural_poll_code'],None if primary else 0)
+            self.assertEqual(calls[-1],('captures',0,0));self.assertEqual(report['lifecycle'],'NOT RUN')
+
+    def test_propagated_identical_body_exception_is_not_a_cleanup_failure(self):
+        error=ValueError('PRIVATE');fixture=self.interval_fixture(fault=error,exit_error=error)
+        with self.assertRaises(ValueError) as caught:self.call_interval(fixture)
+        self.assertIs(caught.exception,error)
+        diagnostics=fixture[6]['lifecycle_diagnostics']
+        self.assertEqual(diagnostics['first_failure']['site'],'RUNNER')
+        self.assertIsNone(diagnostics['cleanup_failure'])
+
+
+    def test_ordinary_summary_or_parser_error_cannot_replace_business_result(self):
+        for stage in ('summary','parser'):
+            for code in (0,1):
+                fixture=self.interval_fixture(code=code);runner,prior=fixture[:2];run=runner.run
+                def fail():raise ValueError('PRIVATE observer')
+                def fault(*args,**kwargs):
+                    result=run(*args,**kwargs)
+                    if stage=='summary':runner.observation.summary=fail
+                    return result
+                runner.run=fault
+                with self.subTest(stage=stage,code=code),ExitStack() as stack:
+                    if stage=='parser':stack.enter_context(patch.object(e,'lifecycle_diagnostic',side_effect=ValueError('PRIVATE parser')))
+                    if code:
+                        with self.assertRaises(ValueError) as caught:self.call_interval(fixture)
+                        self.assertNotIn('PRIVATE',str(caught.exception))
+                        self.assertEqual(fixture[6]['lifecycle_diagnostics']['first_failure']['site'],'CLEAN_EXIT')
+                    else:
+                        self.assertEqual(self.call_interval(fixture)[0].returncode,0)
+                        self.assertIsNone(fixture[6]['lifecycle_diagnostics']['first_failure'])
+                self.assertIs(runner.observation,prior)
+                self.assertNotIn('PRIVATE',json.dumps(fixture[6]['lifecycle_diagnostics']))
+
+    def test_summary_failure_during_primary_or_cancellation_always_restores_prior_observer(self):
+        for summary_error in (ValueError('PRIVATE observer'),e.runtime.Cancelled(15)):
+            primary=TypeError('PRIVATE primary');fixture=self.interval_fixture(fault=primary)
+            runner,prior=fixture[:2];run=runner.run
+            def fail():raise summary_error
+            def fault(*args,**kwargs):
+                try:return run(*args,**kwargs)
+                finally:runner.observation.summary=fail
+            runner.run=fault
+            with self.subTest(summary=type(summary_error).__name__), \
+                 self.assertRaises(TypeError) as caught:
+                self.call_interval(fixture)
+            self.assertIs(caught.exception,primary)
+            self.assertIs(runner.observation,prior)
+            diagnostics=fixture[6]['lifecycle_diagnostics']
+            self.assertEqual(diagnostics['first_failure'],{'site':'RUNNER','category':'TYPE_ERROR','check':'UNKNOWN'})
+            self.assertEqual(diagnostics['cancelled'],isinstance(summary_error,e.runtime.Cancelled))
+            self.assertNotIn('PRIVATE',json.dumps(diagnostics))
+
+
+    def test_pipeline_acceptance_refusal_is_observed_without_lifecycle_pass_or_public_export(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            private=Path(temporary);(private/'lifecycle').mkdir();(private/'lifecycle/receipt.json').write_bytes(b'{}')
+            producer={'image_id':'sha256:'+'c'*64,'runner_endpoint':'unix:///run/docker.sock',
+                'sha256':{'runner.json':'d'*64,'bootstrap.json':'e'*64}}
+            pair={'package':{'filename':'fixture.pkg.tar.xz','sha256':'f'*64},'provenance_sha256':['a'*64,'b'*64]}
+            runner=SimpleNamespace(deadline=time.monotonic()+8460,phase_scope=lambda end:nullcontext(),
+                lifecycle_outputs=lambda *args:nullcontext(),run=lambda command,**kwargs:subprocess.CompletedProcess(command,0,b'{}',b''))
+            owner=SimpleNamespace(failed=False,backend=SimpleNamespace(cli_sha256='c'*64,socket_identity=(1,2),runner=runner),
+                operation_deadline=None,cleanup_end=runner.deadline-30,
+                baseline=SimpleNamespace(protected=lambda:frozenset(),summary=lambda:{'preservation':'PASS'}))
+            files={'packages/tools/cachy-asahi-ksmctl/'+name:b'fixture' for name in e.job.KSM_INPUTS}
+            snapshot=SimpleNamespace(files=files,module=lambda *a,**k:SimpleNamespace())
+            approved={name:e.job.sha(b'fixture') for name in e.job.KSM_INPUTS}
+            map_sha=e.job.sha((json.dumps(approved,sort_keys=True,indent=2)+'\n').encode())
+            report=e.initial(SimpleNamespace(source_commit='a'*40,packet_sha256='b'*64))
+            original=ValueError('PRIVATE acceptance refusal')
+            with ExitStack() as stack:
+                for target,name,value in ((e.current_cache,'prefill',lambda *a,**k:None),
+                        (e,'check_source_tree',lambda *a,**k:None),(e,'baseline_observe',lambda *a,**k:None),
+                        (e,'journal_rows',lambda *a:[]),(e.contracts,'validate_producer',lambda *a,**k:producer),
+                        (e.contracts,'validate_ksm_pair',lambda *a,**k:pair),
+                        (e.consumer,'validate_comparison',lambda *a:None),
+                        (e,'lifecycle_grant_inputs',lambda *a:(None,None,None)),
+                        (e,'owned_cleanup',lambda *a:{'status':'PASS'})):
+                    stack.enter_context(patch.object(target,name,side_effect=value))
+                stack.enter_context(patch.object(e.job,'MAP_SHA',map_sha))
+                stack.enter_context(patch.object(e.contracts,'public_acceptance',side_effect=original))
+                export=stack.enter_context(patch.object(e.public,'export'))
+                with self.assertRaises(ValueError) as caught:
+                    e.pipeline(snapshot,Path('/source'),private,owner,SimpleNamespace(poll=lambda:None),runner,{},
+                        {'source_commit':'a'*40,'run_id':'7','daemon_id':'daemon1234'},report,SimpleNamespace(check=lambda:None))
+                self.assertIs(caught.exception,original);export.assert_not_called()
+            self.assertEqual(report['lifecycle'],'NOT ACCEPTED');self.assertEqual(report['public_export'],'NOT RUN')
+            self.assertEqual(report['lifecycle_diagnostics']['first_failure'],{'site':'ACCEPTANCE','category':'VALUE_ERROR','check':'UNKNOWN'})
+            self.assertIsNone(report['lifecycle_diagnostics']['controller'])
+            self.assertNotIn('PRIVATE',json.dumps(report['lifecycle_diagnostics']))
+
+
+class LifecycleErrorPreservationTests(unittest.TestCase):
+    def prepared(self, error):
+        cause=RuntimeError('PRIVATE cause')
+        try:raise error from cause
+        except BaseException as primary:
+            return primary,object.__getattribute__(primary,'args'),object.__getattribute__(primary,'__cause__'),object.__getattribute__(primary,'__traceback__')
+
+    def run_context(self, primary, *, wrapped, suppression=False, cleanup=None, diagnostics=None):
+        class Context:
+            def __init__(self):self.received=None;self.events=[]
+            def __enter__(self):self.events.append('enter');return self
+            def __exit__(self,kind,error,traceback):
+                self.received=(kind,error,traceback);self.events.append('exit')
+                if cleanup is not None:raise cleanup
+                return suppression
+        context=Context();value=e.lifecycle_initial() if diagnostics is None else diagnostics
+        selected=e._LifecycleScope(context,value,'PHASE_EXIT') if wrapped else context
+        observed=None;returned=False
+        try:
+            with selected:
+                if primary is not None:raise primary
+            returned=True
+        except BaseException as error:observed=error
+        return context,value,observed,returned
+
+    def assert_primary_held(self, context, prepared, observed, *, suppressed=False):
+        primary,args,cause,tail=prepared
+        self.assertEqual(context.events,['enter','exit'])
+        self.assertIs(context.received[0],type(primary));self.assertIs(context.received[1],primary)
+        self.assertIs(context.received[2].tb_next,tail)
+        self.assertIs(object.__getattribute__(primary,'args'),args)
+        self.assertIs(object.__getattribute__(primary,'__cause__'),cause)
+        self.assertIs(observed,None if suppressed else primary)
+
+    def test_hostile_primary_class_metadata_preserves_paired_original_exit_tuple_and_primary(self):
+        touches=[];secondary=LookupError('PRIVATE secondary')
+        class Hostile(ValueError):
+            @property
+            def __class__(self):touches.append(True);raise secondary
+        for wrapped in (False,True):
+            prepared=self.prepared(Hostile('PRIVATE primary'))
+            context,diagnostics,observed,returned=self.run_context(prepared[0],wrapped=wrapped)
+            self.assert_primary_held(context,prepared,observed);self.assertFalse(returned)
+            if wrapped:self.assertEqual(diagnostics['first_failure']['category'],'VALUE_ERROR')
+        self.assertEqual(touches,[])
+
+    def test_spoofed_class_and_hostile_metaclass_hooks_are_not_classification_authority(self):
+        touches=[]
+        class Meta(type):
+            def __getattribute__(cls,name):touches.append(('get',name));raise LookupError('PRIVATE meta')
+            def __eq__(cls,other):touches.append(('eq',));raise LookupError('PRIVATE equality')
+            def __hash__(cls):touches.append(('hash',));raise LookupError('PRIVATE hash')
+            def __instancecheck__(cls,obj):touches.append(('instance',));raise LookupError('PRIVATE instance')
+            def __subclasscheck__(cls,obj):touches.append(('subclass',));raise LookupError('PRIVATE subclass')
+        class Genuine(ValueError,metaclass=Meta):pass
+        class Spoof(RuntimeError):
+            @property
+            def __class__(self):touches.append(('spoof',));return e.runtime.Cancelled
+        for error,category in ((Genuine('PRIVATE'),'VALUE_ERROR'),(Spoof('PRIVATE'),'UNKNOWN')):
+            value=e.lifecycle_initial();e.lifecycle_failure(value,'RUNNER',error)
+            self.assertEqual(value['first_failure']['category'],category);self.assertFalse(value['cancelled'])
+        self.assertEqual(touches,[])
+
+    def test_genuine_cancel_subclasses_remain_sticky_under_suppression_and_recorder_fault(self):
+        touches=[]
+        class Meta(type):
+            def __getattribute__(cls,name):touches.append(name);raise LookupError('PRIVATE meta')
+            def __eq__(cls,other):touches.append('eq');raise LookupError('PRIVATE equality')
+        class Cancel(e.runtime.Cancelled,metaclass=Meta):
+            @property
+            def __class__(self):touches.append('class');raise LookupError('PRIVATE property')
+        class Interrupt(KeyboardInterrupt,metaclass=Meta):pass
+        for error in (Cancel(15),Interrupt('PRIVATE')):
+            for recorder_fault in (False,True):
+                prepared=self.prepared(error)
+                with ExitStack() as stack:
+                    if recorder_fault:stack.enter_context(patch.object(e,'lifecycle_failure',side_effect=LookupError('PRIVATE recorder')))
+                    context,value,observed,returned=self.run_context(error,wrapped=True,suppression=True)
+                self.assert_primary_held(context,prepared,observed,suppressed=True)
+                self.assertTrue(returned);self.assertTrue(value['cancelled'])
+        self.assertEqual(touches,[])
+
+    def test_recorder_secondary_fault_cannot_skip_exit_or_replace_primary_and_cancellation_is_independent(self):
+        for secondary in (LookupError('PRIVATE secondary'),KeyboardInterrupt('PRIVATE secondary'),e.runtime.Cancelled(15)):
+            for suppress in (False,True):
+                prepared=self.prepared(TypeError('PRIVATE primary'))
+                with patch.object(e,'lifecycle_failure',side_effect=secondary):
+                    context,value,observed,returned=self.run_context(prepared[0],wrapped=True,suppression=suppress)
+                self.assert_primary_held(context,prepared,observed,suppressed=suppress)
+                self.assertEqual(returned,suppress)
+                self.assertEqual(value['cancelled'],type(secondary) is not LookupError)
+                self.assertNotIn('PRIVATE',json.dumps(value))
+
+    def test_record_construction_fault_preserves_first_error_and_cleanup_error_precedence(self):
+        for wrapped in (False,True):
+            for failed_record in (False,True):
+                primary=self.prepared(ValueError('PRIVATE primary'));cleanup=self.prepared(OSError('PRIVATE cleanup'))
+                with ExitStack() as stack:
+                    if failed_record:stack.enter_context(patch.object(e,'lifecycle_failure_record',side_effect=LookupError('PRIVATE record')))
+                    context,value,observed,returned=self.run_context(primary[0],wrapped=wrapped,cleanup=cleanup[0])
+                self.assert_primary_held(context,primary,None,suppressed=True)
+                self.assertIs(observed,cleanup[0]);self.assertFalse(returned)
+                self.assertIs(object.__getattribute__(cleanup[0],'args'),cleanup[1])
+                self.assertIs(object.__getattribute__(cleanup[0],'__cause__'),cleanup[2])
+                trace=object.__getattribute__(cleanup[0],'__traceback__')
+                while trace is not cleanup[3] and trace is not None:trace=trace.tb_next
+                self.assertIs(trace,cleanup[3])
+                if wrapped and not failed_record:
+                    self.assertEqual(value['first_failure']['category'],'VALUE_ERROR')
+                    self.assertEqual(value['cleanup_failure']['category'],'OS_ERROR')
+
+    def test_foreign_site_and_diagnostic_tables_cannot_prevent_original_exit(self):
+        touches=[]
+        class Site(str):
+            def __hash__(self):touches.append('hash');raise LookupError('PRIVATE site')
+            def __eq__(self,other):touches.append('eq');raise LookupError('PRIVATE site')
+        record=e.lifecycle_failure_record(Site('RUNNER'),ValueError('PRIVATE'))
+        self.assertEqual(record['site'],'UNOBSERVED')
+        class Table(dict):
+            def __getitem__(self,key):touches.append('get');raise LookupError('PRIVATE table')
+            def __setitem__(self,key,value):touches.append('set');raise LookupError('PRIVATE table')
+        primary=self.prepared(ValueError('PRIVATE primary'))
+        context,_,observed,_=self.run_context(primary[0],wrapped=True,diagnostics=Table(site='RUNNER'))
+        self.assert_primary_held(context,primary,observed);self.assertEqual(touches,[])
+
+    def test_snapshot_active_primary_is_held_while_no_primary_genuine_cancel_remains_operative(self):
+        class Cancel(e.runtime.Cancelled):pass
+        class Interrupt(KeyboardInterrupt):pass
+        class Spoof(LookupError):
+            @property
+            def __class__(self):raise LookupError('PRIVATE class')
+        for secondary in (LookupError('PRIVATE'),Spoof('PRIVATE'),Cancel(15),Interrupt('PRIVATE')):
+            def summary():raise secondary
+            for primary in (None,TypeError('PRIVATE primary'),Cancel(15)):
+                value=e.lifecycle_initial();observed=None
+                try:
+                    if primary is None:e.lifecycle_snapshot(value,SimpleNamespace(summary=summary))
+                    else:
+                        try:raise primary
+                        except BaseException:
+                            e.lifecycle_snapshot(value,SimpleNamespace(summary=summary))
+                            raise
+                except BaseException as error:observed=error
+                genuine=type(secondary) is Cancel or type(secondary) is Interrupt
+                self.assertIs(observed,primary if primary is not None else secondary if genuine else None)
+                self.assertEqual(value['cancelled'],genuine)
+
+    def test_same_primary_recorder_fault_does_not_change_context_suppression(self):
+        for suppress in (False,True):
+            prepared=self.prepared(ValueError('PRIVATE primary'))
+            with patch.object(e,'lifecycle_failure',side_effect=prepared[0]):
+                context,value,observed,returned=self.run_context(prepared[0],wrapped=True,suppression=suppress)
+            self.assert_primary_held(context,prepared,observed,suppressed=suppress)
+            self.assertEqual(returned,suppress)
+
+    def test_original_exit_nonboolean_return_is_forwarded_by_identity(self):
+        sentinel=object();calls=[];error=ValueError('PRIVATE')
+        class Context:
+            def __enter__(self):return None
+            def __exit__(self,*args):calls.append(args);return sentinel
+        value=e.lifecycle_initial();trace=object()
+        with patch.object(e,'lifecycle_failure',side_effect=LookupError('PRIVATE recorder')):
+            result=e._LifecycleScope(Context(),value,'PHASE_EXIT').__exit__(ValueError,error,trace)
+        self.assertIs(result,sentinel);self.assertEqual(len(calls),1)
+        self.assertIs(calls[0][0],ValueError);self.assertIs(calls[0][1],error);self.assertIs(calls[0][2],trace)
+
+
+    def test_real_mro_descriptor_ignores_hostile_metaclass_mro_property_for_genuine_cancel(self):
+        touches=[]
+        class Meta(type):
+            @property
+            def __mro__(cls):touches.append('mro-property');raise LookupError('PRIVATE mro')
+        class Cancel(e.runtime.Cancelled,metaclass=Meta):pass
+        class Interrupt(KeyboardInterrupt,metaclass=Meta):pass
+        for error,category in ((Cancel(15),'CANCELLED'),(Interrupt('PRIVATE'),'KEYBOARD_INTERRUPT')):
+            value=e.lifecycle_initial();e.lifecycle_failure(value,'RUNNER',error)
+            self.assertTrue(value['cancelled']);self.assertEqual(value['first_failure']['category'],category)
+            prepared=self.prepared(error)
+            context,value,observed,returned=self.run_context(error,wrapped=True,suppression=True)
+            self.assert_primary_held(context,prepared,observed,suppressed=True)
+            self.assertTrue(returned);self.assertTrue(value['cancelled'])
+        self.assertEqual(touches,[])
+
+    def test_same_primary_recorder_mutation_restores_all_builtin_slots_before_context_exit(self):
+        for suppress in (False,True):
+            primary=self.prepared(ValueError('PRIVATE original'));original=primary[0]
+            seen=[]
+            def corrupt(*args,**kwargs):
+                before=e.lifecycle_error_state(original);seen.append(before)
+                for name,value in (('args',('PRIVATE mutated',)),('__cause__',TypeError('PRIVATE mutated cause')),
+                        ('__context__',OSError('PRIVATE mutated context')),('__suppress_context__',False)):
+                    BaseException.__dict__[name].__set__(original,value)
+                raise original
+            with patch.object(e,'lifecycle_failure',side_effect=corrupt):
+                context,_,observed,returned=self.run_context(original,wrapped=True,suppression=suppress)
+            self.assert_primary_held(context,primary,observed,suppressed=suppress)
+            state=e.lifecycle_error_state(original)
+            self.assertIs(state[0],primary[1]);self.assertIs(state[1],primary[2])
+            self.assertIs(state[2],seen[0][2]);self.assertIs(state[3],context.received[2])
+            self.assertIs(state[4],seen[0][4]);self.assertEqual(returned,suppress)
+
+    def test_same_cleanup_recorder_fault_preserves_cleanup_object_and_traceback_chain(self):
+        cleanup=self.prepared(OSError('PRIVATE cleanup'));observed_states=[]
+        def recorder(diagnostics,site,error):
+            if error is cleanup[0]:
+                observed_states.append(e.lifecycle_error_state(error))
+                BaseException.__dict__['args'].__set__(error,('PRIVATE changed',))
+                raise error
+        with patch.object(e,'lifecycle_failure',side_effect=recorder):
+            context,_,observed,_=self.run_context(ValueError('PRIVATE primary'),wrapped=True,cleanup=cleanup[0])
+        self.assertIs(observed,cleanup[0]);current=e.lifecycle_error_state(observed)
+        self.assertIs(current[0],cleanup[1]);self.assertIs(current[1],cleanup[2])
+        self.assertIs(current[2],observed_states[0][2])
+        trace=current[3]
+        while trace is not observed_states[0][3] and trace is not None:
+            self.assertNotIn(trace.tb_frame.f_code.co_name,('recorder','_execute_mock_call'))
+            trace=trace.tb_next
+        self.assertIs(trace,observed_states[0][3])
+        self.assertIs(current[4],observed_states[0][4]);self.assertEqual(context.events,['enter','exit'])
+
+    def test_faulting_recorder_and_faulting_cancellation_fallback_still_delegate_original_exit(self):
+        for suppress in (False,True):
+            prepared=self.prepared(ValueError('PRIVATE primary'))
+            with patch.object(e,'lifecycle_failure',side_effect=LookupError('PRIVATE recorder')), \
+                 patch.object(e,'lifecycle_cancelled',side_effect=RuntimeError('PRIVATE fallback')):
+                context,_,observed,returned=self.run_context(prepared[0],wrapped=True,suppression=suppress)
+            self.assert_primary_held(context,prepared,observed,suppressed=suppress);self.assertEqual(returned,suppress)
+
+    def test_snapshot_after_success_preserves_nonexception_baseexception_and_active_primary_identity(self):
+        for secondary in (SystemExit(7),GeneratorExit('PRIVATE')):
+            def summary():raise secondary
+            value=e.lifecycle_initial()
+            with self.assertRaises(type(secondary)) as caught:e.lifecycle_snapshot(value,SimpleNamespace(summary=summary))
+            self.assertIs(caught.exception,secondary)
+            primary=self.prepared(TypeError('PRIVATE primary'))
+            try:
+                try:raise primary[0]
+                except TypeError:
+                    before=e.lifecycle_error_state(primary[0])
+                    e.lifecycle_snapshot(value,SimpleNamespace(summary=summary))
+                    after=e.lifecycle_error_state(primary[0])
+                    for left,right in zip(before,after):self.assertIs(left,right)
+                    raise
+            except BaseException as observed:self.assertIs(observed,primary[0])
+
+    def test_snapshot_same_active_primary_raise_restores_metadata_without_optional_frames(self):
+        primary=self.prepared(TypeError('PRIVATE primary'));value=e.lifecycle_initial()
+        def summary():raise primary[0]
+        try:
+            try:raise primary[0]
+            except TypeError:
+                before=e.lifecycle_error_state(primary[0]);e.lifecycle_snapshot(value,SimpleNamespace(summary=summary))
+                after=e.lifecycle_error_state(primary[0])
+                for left,right in zip(before,after):self.assertIs(left,right)
+                raise
+        except BaseException as observed:self.assertIs(observed,primary[0])
+
+
 if __name__ == '__main__':
     unittest.main()

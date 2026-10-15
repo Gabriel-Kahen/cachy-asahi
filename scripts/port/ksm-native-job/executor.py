@@ -181,6 +181,231 @@ def producer_route(result, observation):
         return None
 
 
+LIFECYCLE_PREFIX = b'KSM_LIFECYCLE_DIAGNOSTIC_V1 '
+LIFECYCLE_SELECTORS = frozenset(('UNKNOWN', 'CONTROLLER', 'SIGN', 'LIFECYCLE'))
+LIFECYCLE_SITES = frozenset(('UNKNOWN', 'COORDINATOR', 'PLATFORM', 'JOB_BINDING', 'IMAGE_BINDING', 'DOCKER_BOUNDARY', 'DAEMON_ARCH', 'IMAGE_INSPECT', 'RUNNER_PROVENANCE', 'LOCK_BOOTSTRAP', 'CURRENT_INPUTS', 'CONTRACT_MODULE', 'BUILD_PROVENANCE', 'BUILD_PAIR', 'SOURCES', 'APPROVED_INPUTS', 'PUBLIC_OUTPUT', 'PRIVATE_TEMP', 'SOURCE_COPY', 'CONTRACT_WRITE', 'PHASE_BINDING', 'FRESH_NAME', 'CREATE', 'CREATED_ID', 'INSPECT_BEFORE', 'ATTACH', 'RECEIPT_READ', 'RECEIPT_DECODE', 'RECEIPT_VALIDATE', 'WORKER_RESULT', 'INSPECT_AFTER', 'STOPPED_STATE', 'CLEANUP_INSPECT', 'CLEANUP_OWNERSHIP', 'CLEANUP_REMOVE', 'CLEANUP_ABSENCE', 'PHASE_FINALIZE', 'SIGN_OUTPUTS', 'SIGNATURE_CAPTURE', 'PUBLIC_KEY_CAPTURE', 'LIFECYCLE_OUTPUTS', 'PRIVATE_CLEANUP', 'DOCKER_CLOSE', 'PUBLIC_RECEIPT', 'CLI_OUTPUT'))
+LIFECYCLE_CHECKS = frozenset(('UNKNOWN', 'ambient-container-environment', 'build-provenance-read-drift', 'closed-docker-boundary', 'controller-receipt-byte-bound', 'controller-receipt-file-contract', 'coordinator-identity-drift', 'docker-boundary-pin-schema', 'docker-cli-byte-drift', 'docker-cli-identity-drift', 'docker-cli-path-drift', 'docker-cli-read-drift', 'docker-operation-failed', 'docker-snapshot-write-failed', 'duplicate-worker-check', 'fresh-container-name-required', 'fresh-public-output-required', 'frozen-helper-drift', 'genuine-same-job-source-required', 'immutable-image-required', 'incomplete-worker-pass', 'invalid-created-container-id', 'invalid-owned-container-id', 'lifecycle-signing-binding', 'local-daemon-identity-drift', 'local-socket-identity-drift', 'local-socket-pin-mismatch', 'matching-positive-coordinator-uid-gid-required', 'native-daemon-required', 'native-image-required', 'native-nonroot-coordinator-required', 'owned-container-absence-unconfirmed', 'phase-docker-binding', 'phase-or-cleanup-failed', 'private-controller-removal-unconfirmed', 'private-tmpfs-drift', 'runner-provenance-binding', 'sandbox-isolation-drift', 'stage-cancelled', 'unbound-docker-command', 'unexpected-container-mount', 'unexpected-lifecycle-output', 'unexpected-sign-output', 'unknown-worker-check', 'unowned-container-refused', 'unsafe-docker-cli', 'unsafe-frozen-helper', 'worker-check-bound', 'worker-cleanup-schema', 'worker-command-drift', 'worker-phase-failed', 'worker-receipt-binding', 'worker-receipt-fields', 'worker-receipt-scope', 'worker-signing-schema'))
+LIFECYCLE_CATEGORIES = frozenset(('UNKNOWN', 'VALUE_ERROR', 'OS_ERROR', 'KEY_ERROR', 'TYPE_ERROR', 'SUBPROCESS_ERROR', 'CANCELLED', 'KEYBOARD_INTERRUPT'))
+LIFECYCLE_OUTER_SITES = frozenset(('UNOBSERVED', 'BINDING', 'COMMAND', 'ALLOWANCE', 'BASELINE_BEFORE',
+    'GRANT_INPUTS', 'GRANT_ENTER', 'GRANT_EXIT', 'PHASE_ENTER', 'PHASE_EXIT', 'RUNNER', 'CLEAN_EXIT', 'CAPTURE', 'DECODE', 'BASELINE_AFTER', 'ACCEPTANCE'))
+
+
+def lifecycle_initial():
+    return {'site': 'UNOBSERVED', 'process': runtime.RunObservation().summary(), 'controller': None,
+            'first_failure': None, 'cleanup_failure': None, 'cancelled': False}
+
+
+def lifecycle_failure_record(site, error):
+    """Read the real type hierarchy by identity, never foreign error metadata."""
+    category = 'UNKNOWN'
+    try:
+        hierarchy = type.__dict__['__mro__'].__get__(type(error))
+        if type(hierarchy) is tuple:
+            for kind, name in ((runtime.Cancelled, 'CANCELLED'), (KeyboardInterrupt, 'KEYBOARD_INTERRUPT'),
+                    (ValueError, 'VALUE_ERROR'), (OSError, 'OS_ERROR'), (KeyError, 'KEY_ERROR'),
+                    (TypeError, 'TYPE_ERROR'), (subprocess.SubprocessError, 'SUBPROCESS_ERROR')):
+                if any(base is kind for base in hierarchy):
+                    category = name
+                    break
+    except BaseException:
+        pass  # Optional classification cannot replace the operative exception.
+    return {'site': site if type(site) is str and site in LIFECYCLE_OUTER_SITES else 'UNOBSERVED',
+            'category': category, 'check': 'UNKNOWN'}
+
+
+def lifecycle_cancelled(diagnostics, error):
+    """Cancellation is sticky even when independent optional recording fails."""
+    cancelled = False
+    try:
+        hierarchy = type.__dict__['__mro__'].__get__(type(error))
+        cancelled = type(hierarchy) is tuple and any(base is runtime.Cancelled or base is KeyboardInterrupt for base in hierarchy)
+        if cancelled and type(diagnostics) is dict and all(type(key) is str for key in diagnostics):
+            dict.__setitem__(diagnostics, 'cancelled', True)
+    except BaseException:
+        pass
+    return cancelled
+
+
+def lifecycle_error_state(error):
+    """Snapshot builtin exception slots without foreign attribute access."""
+    try:
+        return tuple(BaseException.__dict__[name].__get__(error) for name in
+                     ('args', '__cause__', '__context__', '__traceback__', '__suppress_context__'))
+    except BaseException:
+        return None
+
+
+def lifecycle_error_restore(error, state):
+    if type(state) is tuple and len(state) == 5:
+        for name, value in zip(('args', '__cause__', '__context__', '__traceback__', '__suppress_context__'), state):
+            try:
+                BaseException.__dict__[name].__set__(error, value)
+            except BaseException:
+                pass
+
+
+def lifecycle_failure(diagnostics, site, error):
+    """Contain optional writes independently; preserve the immutable first error."""
+    state = None
+    try: state = lifecycle_error_state(error)
+    except BaseException: pass
+    try:
+        try:
+            if type(diagnostics) is dict and all(type(key) is str for key in diagnostics) and dict.get(diagnostics, 'first_failure') is None:
+                record = lifecycle_failure_record(site, error)
+                dict.__setitem__(diagnostics, 'first_failure', record)
+        except BaseException as secondary:
+            try: lifecycle_cancelled(diagnostics, secondary)
+            except BaseException: pass
+        try: lifecycle_cancelled(diagnostics, error)
+        except BaseException: pass
+    finally:
+        try: lifecycle_error_restore(error, state)
+        except BaseException: pass
+
+
+def lifecycle_snapshot(diagnostics, observation):
+    """Hold an active primary; original BaseException policy after success is held."""
+    primary = sys.exception()
+    state = None
+    try: state = lifecycle_error_state(primary)
+    except BaseException: pass
+    try:
+        try:
+            diagnostics['process'] = observation.summary()
+        except BaseException as secondary:
+            try: lifecycle_cancelled(diagnostics, secondary)
+            except BaseException: pass
+            hierarchy = type.__dict__['__mro__'].__get__(type(secondary))
+            if primary is None and not any(base is Exception for base in hierarchy):
+                raise
+    finally:
+        try: lifecycle_error_restore(primary, state)
+        except BaseException: pass
+
+
+def lifecycle_scope_failure(diagnostics, site, error, cleanup=False):
+    """Every optional recorder and cancellation update is independently bounded."""
+    try: lifecycle_failure(diagnostics, site, error)
+    except BaseException as secondary:
+        try: lifecycle_cancelled(diagnostics, secondary)
+        except BaseException: pass
+    try: lifecycle_cancelled(diagnostics, error)
+    except BaseException: pass
+    try:
+        if cleanup and type(diagnostics) is dict and all(type(key) is str for key in diagnostics) and dict.get(diagnostics, 'cleanup_failure') is None:
+            record = lifecycle_failure_record(site, error)
+            dict.__setitem__(diagnostics, 'cleanup_failure', record)
+    except BaseException as secondary:
+        try: lifecycle_cancelled(diagnostics, secondary)
+        except BaseException: pass
+
+
+class _LifecycleScope:
+    """Delegate original context exit exactly once despite any optional failure."""
+    def __init__(self, context, diagnostics, exit_site):
+        self.context, self.diagnostics, self.exit_site = context, diagnostics, exit_site
+
+    def __enter__(self):
+        return type(self.context).__enter__(self.context)
+
+    def __exit__(self, kind, error, traceback):
+        state = None
+        try:
+            state = lifecycle_error_state(error)
+            if error is not None:
+                site = dict.get(self.diagnostics, 'site', 'UNOBSERVED') if type(self.diagnostics) is dict and all(type(key) is str for key in self.diagnostics) else 'UNOBSERVED'
+                lifecycle_scope_failure(self.diagnostics, site, error)
+            if type(self.diagnostics) is dict and all(type(key) is str for key in self.diagnostics):
+                dict.__setitem__(self.diagnostics, 'site', self.exit_site)
+        except BaseException as secondary:
+            try: lifecycle_cancelled(self.diagnostics, secondary)
+            except BaseException: pass
+        finally:
+            try: lifecycle_error_restore(error, state)
+            except BaseException: pass
+        # Mandatory delegation is outside every optional observation boundary.
+        try:
+            return type(self.context).__exit__(self.context, kind, error, traceback)
+        except BaseException as cleanup:
+            state = None
+            try:
+                state = lifecycle_error_state(cleanup)
+                lifecycle_scope_failure(self.diagnostics, self.exit_site, cleanup, cleanup is not error)
+            except BaseException as secondary:
+                try: lifecycle_cancelled(self.diagnostics, secondary)
+                except BaseException: pass
+            finally:
+                try: lifecycle_error_restore(cleanup, state)
+                except BaseException: pass
+            raise
+
+
+def lifecycle_diagnostic(result, observation, binding):
+    """Bounded optional declaration after a coherent natural return; never acceptance."""
+    try:
+        if type(result) is not subprocess.CompletedProcess or type(observation) is not dict or type(binding) is not dict:
+            return None
+        if any(type(key) is not str for key in observation) or any(type(key) is not str for key in binding):
+            return None
+        state = object.__getattribute__(result, '__dict__')
+        if type(state) is not dict or any(type(key) is not str for key in state) or set(state) != {'args', 'returncode', 'stdout', 'stderr'}:
+            return None
+        code = state['returncode']
+        if type(code) is not int or not -128 <= code <= 255:
+            return None
+        if set(observation) != {'started', 'natural_poll_code', 'runner_return_code', 'reaping', 'reaped_code', 'before_cleanup'}:
+            return None
+        if observation['started'] is not True or type(observation['reaping']) is not str or observation['reaping'] != 'COMPLETED':
+            return None
+        for key in ('natural_poll_code', 'runner_return_code', 'reaped_code'):
+            if type(observation[key]) is not int or observation[key] != code:
+                return None
+        before = observation['before_cleanup']
+        if type(before) is not dict or any(type(key) is not str for key in before) or set(before) != {'state', 'returncode'} or type(before['state']) is not str or before['state'] != 'exited' or type(before['returncode']) is not int or before['returncode'] != code:
+            return None
+        source, run_id = binding.get('source_commit'), binding.get('run_id')
+        if type(source) is not str or not re.fullmatch(r'[0-9a-f]{40}', source) or type(run_id) is not str or not re.fullmatch(r'[0-9]{1,20}', run_id):
+            return None
+        raw = state['stdout']
+        if type(raw) is not bytes or not 0 < len(raw) <= 8 * 1024**2 or not raw.endswith(b'\n') or raw.count(LIFECYCLE_PREFIX) != 1:
+            return None
+        start = raw.find(LIFECYCLE_PREFIX)
+        if start and raw[start - 1:start] != b'\n':
+            return None
+        end = raw.find(b'\n', start)
+        record = raw[start + len(LIFECYCLE_PREFIX):end]
+        if not 0 < len(record) <= 16384:
+            return None
+        def pairs(rows):
+            value = {}
+            for key, child in rows:
+                if key in value: raise ValueError('duplicate-lifecycle-diagnostic-key')
+                value[key] = child
+            return value
+        def constant(_): raise ValueError('nonfinite-lifecycle-diagnostic')
+        value = json.loads(record.decode('utf-8'), object_pairs_hook=pairs, parse_constant=constant)
+        if type(value) is not dict or set(value) != {'schema_version', 'source_commit', 'run_id', 'first_failure', 'cleanup_failure', 'cancelled', 'attach_return'}:
+            return None
+        if type(value['schema_version']) is not int or value['schema_version'] != 1 or type(value['source_commit']) is not str or value['source_commit'] != source or type(value['run_id']) is not str or value['run_id'] != run_id or type(value['cancelled']) is not bool:
+            return None
+        for key in ('first_failure', 'cleanup_failure'):
+            row = value[key]
+            if row is None: continue
+            if type(row) is not dict or set(row) != {'selector', 'site', 'check', 'category'}:
+                return None
+            if any(type(row[field]) is not str or row[field] not in allowed for field, allowed in (
+                    ('selector', LIFECYCLE_SELECTORS), ('site', LIFECYCLE_SITES),
+                    ('check', LIFECYCLE_CHECKS), ('category', LIFECYCLE_CATEGORIES))):
+                return None
+        returned = value['attach_return']
+        if type(returned) is not dict or set(returned) != {'SIGN', 'LIFECYCLE'} or any(code is not None and (type(code) is not int or not -128 <= code <= 255) for code in returned.values()):
+            return None
+        return value
+    except Exception:
+        return None
+
+
 SOURCE_GATES = frozenset({
     'native-coordinator', 'job-identity', 'host-capabilities', 'initial-disk-reserve',
     *('host-tool-' + name for name in ('docker', 'python3', 'gpg', 'lscpu', 'zstd', 'git')),
@@ -226,6 +451,7 @@ def initial(args):
             'source_observations': {}, 'producer': 'NOT RUN', 'builds': ['NOT RUN', 'NOT RUN'],
             'producer_mutation': 'NOT_STARTED', 'daemon_baseline': None,
             'producer_diagnostics': broker.Diagnostics().snapshot(runtime.RunObservation().summary()),
+            'lifecycle_diagnostics': lifecycle_initial(),
             'comparison': 'NOT RUN', 'lifecycle': 'NOT RUN', 'cleanup': 'NOT RUN',
             'public_export': 'NOT RUN', 'cancelled': False, 'ownership_uncertain': False,
             'hardware': 'NOT RUN', 'management': 'NOT RUN', 'performance': 'NOT RUN',
@@ -541,6 +767,74 @@ def lifecycle_grant_inputs(producer, pair, binding):
     return expected, pins, inputs
 
 
+def lifecycle_interval(source, private, owner, runner, binding, producer, pair, report):
+    """Observe the existing lifecycle interval without changing its acceptance gates."""
+    diagnostics = report.setdefault('lifecycle_diagnostics', lifecycle_initial())
+    try:
+        diagnostics['site'] = 'BINDING'
+        lifecycle_binding = {'image': producer['image_id'], 'daemon-id': binding['daemon_id'],
+            'docker-endpoint': producer['runner_endpoint'], 'docker-sha256': owner.backend.cli_sha256,
+            'docker-socket-device': str(owner.backend.socket_identity[0]),
+            'docker-socket-inode': str(owner.backend.socket_identity[1]), 'source-commit': binding['source_commit'],
+            'run-id': binding['run_id'], 'runner-sha256': producer['sha256']['runner.json'],
+            'bootstrap-sha256': producer['sha256']['bootstrap.json'],
+            'stage-sha256': job.PINS['scripts/port/ksm-lifecycle/stage.py'],
+            'worker-sha256': job.PINS['scripts/port/ksm-lifecycle/worker.py'],
+            'contract-source-sha256': job.PINS['scripts/port/ksm-lifecycle/contract.py'],
+            'build-1-provenance-sha256': pair['provenance_sha256'][0],
+            'build-2-provenance-sha256': pair['provenance_sha256'][1]}
+        diagnostics['site'] = 'COMMAND'
+        command = consumer.lifecycle_command(source, private, lifecycle_binding, job.PINS)
+        command.insert(1, '-I'); command.insert(3, '-S')
+        diagnostics['site'] = 'ALLOWANCE'
+        lifecycle_end = time.monotonic() + allowance(runner.deadline, 600, 210)
+        diagnostics['site'] = 'BASELINE_BEFORE'
+        baseline_observe(owner, 'before_lifecycle', lifecycle_end)
+        diagnostics['site'] = 'PHASE_ENTER'
+        with _LifecycleScope(runner.phase_scope(lifecycle_end), diagnostics, 'PHASE_EXIT'):
+            diagnostics['site'] = 'GRANT_INPUTS'
+            grant_inputs = lifecycle_grant_inputs(producer, pair, binding)
+            diagnostics['site'] = 'GRANT_ENTER'
+            with _LifecycleScope(runner.lifecycle_outputs(*grant_inputs), diagnostics, 'GRANT_EXIT'):
+                diagnostics['site'] = 'RUNNER'
+                missing = object()
+                previous = getattr(runner, 'observation', missing)
+                observation = runtime.RunObservation()
+                runner.observation = observation
+                try:
+                    lifecycle_child = runner.run(command, timeout=max(.001, lifecycle_end-time.monotonic()), log='lifecycle.log')
+                    # Preserve optional returned facts before grant/phase disposal can fail.
+                    lifecycle_snapshot(diagnostics, observation)
+                    try:
+                        diagnostics['controller'] = lifecycle_diagnostic(lifecycle_child, diagnostics['process'], binding)
+                    except Exception:
+                        pass  # Optional diagnostics never replace the business result.
+                except (Exception, runtime.Cancelled, KeyboardInterrupt) as error:
+                    lifecycle_failure(diagnostics, diagnostics['site'], error)
+                    raise
+                finally:
+                    try:
+                        lifecycle_snapshot(diagnostics, observation)
+                    finally:
+                        if previous is missing:
+                            del runner.observation
+                        else:
+                            runner.observation = previous
+        # Business refusal still follows disposal; no private receipt fallback.
+        diagnostics['site'] = 'CLEAN_EXIT'
+        contracts.clean_exit(lifecycle_child.returncode)
+        diagnostics['site'] = 'CAPTURE'
+        receipt = contracts.capture(private / 'lifecycle/receipt.json')
+        diagnostics['site'] = 'DECODE'
+        lifecycle = contracts.decode(receipt)
+        diagnostics['site'] = 'BASELINE_AFTER'
+        baseline_observe(owner, 'after_lifecycle', lifecycle_end)
+        return lifecycle_child, lifecycle, lifecycle_end
+    except (Exception, runtime.Cancelled, KeyboardInterrupt) as error:
+        lifecycle_failure(diagnostics, diagnostics['site'], error)
+        raise
+
+
 def pipeline(snapshot, source, private, owner, service, runner, endpoint_observations, binding, report, state):
     """Only observed zero-exit operations can advance to the next consumer."""
     need(not owner.failed, 'failed-broker-refuses-producer')
@@ -620,26 +914,8 @@ def pipeline(snapshot, source, private, owner, service, runner, endpoint_observa
     comparison = contracts.decode(compared.stdout)
     consumer.validate_comparison(comparison, pair['package']['filename']); report['comparison'] = 'PASS'
     report['phase'] = 'lifecycle'
-    lifecycle_binding = {'image': producer['image_id'], 'daemon-id': binding['daemon_id'],
-        'docker-endpoint': producer['runner_endpoint'], 'docker-sha256': owner.backend.cli_sha256,
-        'docker-socket-device': str(owner.backend.socket_identity[0]),
-        'docker-socket-inode': str(owner.backend.socket_identity[1]), 'source-commit': binding['source_commit'],
-        'run-id': binding['run_id'], 'runner-sha256': producer['sha256']['runner.json'],
-        'bootstrap-sha256': producer['sha256']['bootstrap.json'],
-        'stage-sha256': job.PINS['scripts/port/ksm-lifecycle/stage.py'],
-        'worker-sha256': job.PINS['scripts/port/ksm-lifecycle/worker.py'],
-        'contract-source-sha256': job.PINS['scripts/port/ksm-lifecycle/contract.py'],
-        'build-1-provenance-sha256': pair['provenance_sha256'][0],
-        'build-2-provenance-sha256': pair['provenance_sha256'][1]}
-    command = consumer.lifecycle_command(source, private, lifecycle_binding, job.PINS)
-    command.insert(1, '-I'); command.insert(3, '-S')
-    lifecycle_end = time.monotonic() + allowance(runner.deadline, 600, 210)
-    baseline_observe(owner, 'before_lifecycle', lifecycle_end)
-    with runner.phase_scope(lifecycle_end), runner.lifecycle_outputs(*lifecycle_grant_inputs(producer, pair, binding)):
-        lifecycle_child = runner.run(command, timeout=max(.001, lifecycle_end-time.monotonic()), log='lifecycle.log')
-    contracts.clean_exit(lifecycle_child.returncode)
-    lifecycle = contracts.decode(contracts.capture(private / 'lifecycle/receipt.json'))
-    baseline_observe(owner, 'after_lifecycle', lifecycle_end)
+    lifecycle_child, lifecycle, lifecycle_end = lifecycle_interval(
+        source, private, owner, runner, binding, producer, pair, report)
     report['lifecycle'] = 'NOT ACCEPTED'
     report['phase'] = 'cleanup'
     cleaned = owned_cleanup(owner, runner.deadline)
@@ -648,8 +924,13 @@ def pipeline(snapshot, source, private, owner, service, runner, endpoint_observa
     report['daemon_baseline'] = owner.baseline.summary()
     need(report['daemon_baseline']['preservation'] == 'PASS', 'baseline-final-preservation-required')
     report['cleanup'] = 'PASS'
-    encoded, expected = contracts.public_acceptance(snapshot, producer, pair, comparison, compared.returncode,
-            lifecycle, lifecycle_child.returncode, journal_rows(owner), consumer=consumer, public=public)
+    report['lifecycle_diagnostics']['site'] = 'ACCEPTANCE'
+    try:
+        encoded, expected = contracts.public_acceptance(snapshot, producer, pair, comparison, compared.returncode,
+                lifecycle, lifecycle_child.returncode, journal_rows(owner), consumer=consumer, public=public)
+    except (Exception, runtime.Cancelled, KeyboardInterrupt) as error:
+        lifecycle_failure(report['lifecycle_diagnostics'], 'ACCEPTANCE', error)
+        raise
     report['lifecycle'] = 'PASS'
     state.check(); report['phase'] = 'public'
     public_end = time.monotonic() + allowance(runner.deadline, 30, 0)
