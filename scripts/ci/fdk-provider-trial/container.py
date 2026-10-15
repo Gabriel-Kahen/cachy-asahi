@@ -27,6 +27,16 @@ def unprivileged():
     os.setgroups([]); os.setgid(65534); os.setuid(65534)
 
 
+def library_identity(path, owner, expected=None):
+    loaded = Path(path).resolve(strict=True)
+    assert run(['pacman', '-Qqo', str(loaded)]).stdout.strip() == owner
+    identity = {'owner': owner, 'path': str(loaded),
+                'sha256': hashlib.sha256(loaded.read_bytes()).hexdigest()}
+    if expected is not None:
+        assert identity == expected, 'restored library differs from upstream baseline'
+    return identity
+
+
 def smoke(label, owner):
     result = subprocess.run(['/tmp/pipewire-aac-smoke', PLUGIN], capture_output=True,
         text=True, timeout=30, preexec_fn=unprivileged)
@@ -38,10 +48,9 @@ def smoke(label, owner):
     assert len(paths) == 1 and paths[0].startswith('/usr/lib/libfdk-aac.so.2')
     loaded = Path(paths[0]).resolve(strict=True)
     assert loaded.parent == Path('/usr/lib')
-    assert run(['pacman', '-Qqo', str(loaded)]).stdout.strip() == owner
-    digest = hashlib.sha256(loaded.read_bytes()).hexdigest()
-    print(label, 'loaded provider', owner, loaded, digest, flush=True)
-    return {'owner': owner, 'path': str(loaded), 'sha256': digest}
+    identity = library_identity(loaded, owner)
+    print(label, 'loaded provider', owner, loaded, identity['sha256'], flush=True)
+    return identity
 
 
 def main():
@@ -73,6 +82,7 @@ def main():
     run(['cc', '-std=gnu11', '-Wall', '-Wextra', '-Werror', '-I/runner/headers',
         '-I/usr/include/spa-0.2', '/runner/smoke.c', '-ldl', '-lm', '-o', '/tmp/pipewire-aac-smoke'])
     consumed = {'upstream-before': smoke('upstream-before', 'libfdk-aac')}
+    upstream_xhe = library_identity('/usr/lib/libfdk-xhe-aac.so.0', 'libfdk-aac')
     plugin_hash = hashlib.sha256(Path(PLUGIN).read_bytes()).hexdigest()
     assert plugin_hash == '25ce30c727b37acea500aa49842f1a58e371fa70d5f0b50ae7526fb951855ab5'
     candidate = Path('/inputs') / plan['candidate']
@@ -98,7 +108,7 @@ def main():
     run(['pacman', '-T', 'libfdk-aac', 'libfdk-aac.so=2-64'])
     run(['pacman', '-Dk'])
     assert run(['pacman', '-Qqo', '/usr/lib/libfdk-aac.so.2']).stdout.strip() == 'libfdk-aac'
-    assert not Path('/usr/lib/libfdk-xhe-aac.so.0').exists()
+    restored_xhe = library_identity('/usr/lib/libfdk-xhe-aac.so.0', 'libfdk-aac', upstream_xhe)
     assert hashlib.sha256(Path(PLUGIN).read_bytes()).hexdigest() == plugin_hash
     consumed['upstream-restored'] = smoke('upstream-restored', 'libfdk-aac')
     assert consumed['upstream-before'] == consumed['upstream-restored']
@@ -107,6 +117,7 @@ def main():
         'upstream_restored': True, 'shipped_pipewire_aac_codec': 'PASS',
         'plugin_sha256': plugin_hash, 'candidate_sha256': plan['candidate_sha256'],
         'consumed_providers': consumed,
+        'restored_upstream_xhe': restored_xhe,
         'bluetooth_transport': 'NOT RUN', 'pipewire_daemon_graph': 'NOT RUN',
         'hardware_validation': 'NOT RUN', 'target_lifecycle': 'NOT RUN'}, indent=2) + '\n')
 
