@@ -1,15 +1,21 @@
-# Original setup/removal CLI
+# Original setup and repository CLIs
 
-Development candidate. This package ships the original, self-contained runtime
-helper as `/usr/bin/cachy-asahi-setup`. It requires Python 3.11+ and its standard library
-only; Hyprland/Fish/Zsh template packages are optional, separately installed and
-separately owned. No third-party files or compiled payload are bundled. Original
-material is MIT-licensed; the complete project license is installed.
+Development candidate 0.1.0-4. This package ships unchanged original helpers as
+`/usr/bin/cachy-asahi-setup` and `/usr/bin/cachy-asahi-repository`, plus the repository
+guide under `/usr/share/doc/cachy-asahi-setup/repository-enrollment.md`. Runtime
+dependencies are Python 3.11+, gnupg, and pacman. The existing per-user helper still
+uses only Python's standard library; the separate repository helper invokes GPG
+and pacman-key. Hyprland/Fish/Zsh templates remain optional, separately installed
+and separately owned. No third-party files or compiled payload are bundled.
+Original material is MIT-licensed; the complete project license is installed.
 
-Installing/upgrading/removing the package owns one CLI and its documentation and
+Installing/upgrading/removing the package owns two CLIs and their documentation and
 notices below `/usr/share`. There are no hooks, `/etc` or default-session changes,
 service operations, package installation or automatic user activation/removal.
-The helper creates no user configuration unless explicitly invoked with `--apply`.
+The per-user helper creates no user configuration unless explicitly invoked with
+`--apply`. Package lifecycle operations never invoke either helper and never
+change repository selection or public-key trust. Removing/reinstalling the package
+leaves existing managed user/system configuration and imported trust untouched.
 
 ## Explicit per-user operation
 
@@ -73,14 +79,38 @@ Exit codes distinguish success (0), error/refusal (1) and preserved conflicts or
 pending previewed recovery (2). Inspect all reported actions; a zero exit code is
 not hardware or package lifecycle acceptance.
 
+## Explicit repository operation
+
+Read the installed repository guide before use. This command is a separate
+system-administration operation; it is not a per-user setup component:
+
+```sh
+cachy-asahi-repository --help
+cachy-asahi-repository enroll --snapshot-url "$SNAPSHOT_URL" \
+  --public-key /etc/pacman.d/operator-public.gpg --fingerprint "$EXPECTED_PRIMARY_FINGERPRINT"
+```
+
+Preview is the default. An authenticated full primary fingerprint, separately
+obtained root-owned public export, existing initialized base keyring, and explicit
+HTTPS generation URL are required. Only an operator invocation with global
+`--apply` before `enroll` or `disable` changes configuration/trust. Both package
+and database signatures are mandatory. Disabling retains public keys and local
+signatures. Neither helper installs packages or fetches a repository. The URL
+selects a location without proving remote immutability, currency, or release
+authorization; no production endpoint/key is selected here. Partial keyring edits
+are not automatically rolled back. See the unchanged installed guide for refusal
+conditions, recovery, global pacman-trust limitations, and target-test boundaries.
+
 ## Source synchronization and build review
 
-`source-provenance.json` pins the exact canonical file under `scripts/setup/` and
-root LICENSE bytes. The packaged CLI is copied byte-for-byte without a shebang or
-behavior change. Before every source snapshot/build/release from this checkout:
+`source-provenance.json` retains the existing setup-source pin and adds the exact
+canonical repository CLI and guide pins. Both CLIs and the guide are copied
+byte-for-byte, without a shebang or behavior change. Root LICENSE bytes are pinned. Before every source snapshot/build/release from this checkout:
 
 ```sh
 python -B check-sync.py
+python -B check-sync.py --source repository
+python -B check-sync.py --source repository-doc
 python -B test-sync.py -v
 ```
 
@@ -106,10 +136,16 @@ replay or committing state. Metadata schema must be exact integer 1. Refused sta
 or journal bytes are preserved for inspection; this does not authorize recovery
 of malformed metadata. It adds no automatic user activation or removal.
 
+The 0.1.0-4 delivery candidate leaves that per-user helper byte-identical and
+adds only the reviewed repository helper, guide, and explicit GPG/pacman runtime
+dependencies. Existing source-level repository fixture tests are separate from
+package-delivery validation and are not rerun by makepkg.
+
 `host-validation.json` and `evidence/` retain historical 0.1.0-2 host build, content
 and isolated packaged-CLI results unchanged. They do not validate this corrected
-0.1.0-3 helper. Current successor package build/rebuild, install, native ARM and
-hardware validation are NOT RUN. Historical x86_64 development checks are not
+0.1.0-4 package. Separately recorded 0.1.0-3 native evidence remains evidence for
+that frozen recipe; it is not validation of this 0.1.0-4 delivery change. Candidate
+native ARM build pairs, install/lifecycle, and hardware validation are NOT RUN. Historical x86_64 development checks are not
 clean native aarch64 builds or actual package installation. Published
 ARM Python availability does not establish the selected Asahi dependency/trust
 snapshot. Native ARM build/rebuild, package-manager install/upgrade/remove/reinstall,
