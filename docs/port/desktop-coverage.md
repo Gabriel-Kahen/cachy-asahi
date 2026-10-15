@@ -13,9 +13,18 @@ The reviewed maintained-builder successor is now available as
 [proposed metadata](../../manifests/proposals/maintained-desktop-v1.json), with the
 [finite source/evidence responsibilities](source-evidence-responsibilities.json).
 It preserves the existing roots and providers, updates the maintained Vim pair
-and corrects the descriptive editor versions. It has no fresh dependency-resolution,
-installation or release admission. The earlier observations below remain historical.
-See [reconciliation review](../reviews/full-port-coverage-reconciliation-root-review.md).
+and corrects the descriptive editor versions. A separately frozen and independently
+reviewed [actual host metadata query](../reviews/maintained-desktop-resolution-actual01-root-review.md)
+now binds this exact proposal, maintained input lock and 341-row seed to the
+unchanged 233 additions and expected 574-row result. Its five private pacman
+print/deptest commands returned naturally with zero exit and verified owned
+cleanup; the recorded libalpm audit reports 2,933 satisfied relationships.
+This is x86-host resolution of generic aarch64 metadata. It admits no ARM-native
+execution, archive/source/license/trust coverage, installation, Asahi target,
+M2 compatibility or release. The proposal's frozen limitation text and earlier
+observations below remain historical; their bytes are unchanged. See the
+[current binding reconciliation](../reviews/maintained-desktop-resolver-current-source-20261015.md)
+and [earlier metadata review](../reviews/full-port-coverage-reconciliation-root-review.md).
 
 ## Current evidence and the target boundary
 

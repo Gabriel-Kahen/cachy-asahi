@@ -2,6 +2,17 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 15, maintained desktop archive-authentication adapter:
+The current 341-to-574 metadata resolution now has a separately pinned adapter
+for the unchanged 233 added archives. It checks the exact current nine-file
+metadata bundle before delegating signatures and package inspection to the held
+legacy engine. Mixed old/current bindings refuse. Independent review passes
+14 maintained, 6 legacy authentication, 10 preview and 6 independent tests, plus
+42 binding controls, with zero skips. Source and metadata resolution do not prove
+archive trust: real acquisition/GPG remains NOT RUN. Actual execution still needs
+a separately reviewed whole-process deadline and cleanup envelope. The legacy
+233 identities, signer policy and Asahi platform selection are unchanged.
+
 October 15, native-handoff test fixture repair:
 Three maintained test fixtures now bind their explicitly modeled runner to the
 authenticated current public bytes and restore the fixture module's pin during
