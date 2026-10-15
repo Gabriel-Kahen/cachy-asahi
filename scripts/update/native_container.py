@@ -155,6 +155,11 @@ ALPM_LOAD_ERRNOS = {
 }
 
 
+SCALE_SIGNATURE_STATUS = {'NEWSIG','KEY_CONSIDERED','SIG_ID','GOODSIG','VALIDSIG','BADSIG','ERRSIG','NO_PUBKEY',
+    'EXPSIG','EXPKEYSIG','REVKEYSIG','TRUST_UNDEFINED','TRUST_NEVER','TRUST_MARGINAL','TRUST_FULLY',
+    'TRUST_ULTIMATE','NODATA','FAILURE','ERROR','UNEXPECTED','KEYEXPIRED','SIGEXPIRED','KEYREVOKED'}
+
+
 def scale_drift_diagnostic(test):
     """Project only this fixture's fixed labels/facts; never its raw result/error."""
     if test.id() != SCALE_DRIFT_TEST:return None
@@ -174,10 +179,21 @@ def scale_drift_diagnostic(test):
     alpm_errno='UNAVAILABLE'
     if type(error) is str and error.startswith('signed package load: '):
         alpm_errno=ALPM_LOAD_ERRNOS.get(error[len('signed package load: '):],'UNRECOGNIZED')
+    probe=row.get('test_scale_post_load_signature');probe=probe if type(probe) is dict else {}
+    statuses=probe.get('gpg_status')
+    statuses=(sorted(set(statuses)) if type(statuses) is list and len(statuses)<=len(SCALE_SIGNATURE_STATUS)
+              and all(type(tag) is str and tag in SCALE_SIGNATURE_STATUS for tag in statuses) else [])
+    gpg_exit=probe.get('gpg_exit')
+    gpg_exit=(gpg_exit if type(gpg_exit) is int and gpg_exit in (0,1,2) or
+              type(gpg_exit) is str and gpg_exit in {'OTHER','TIMEOUT','UNAVAILABLE'} else 'UNAVAILABLE')
+    signature_probe=dict(state=label(probe.get('state'),{'NOT_RUN','STARTED','INPUT_REFUSED','OUTPUT_BOUND',
+        'OBSERVED','TIMEOUT','DIAGNOSTIC_ERROR'}),gpg_exit=gpg_exit,gpg_status=statuses,
+        unknown_status=fact(probe.get('unknown_status')),archive_equal=fact(probe.get('archive_equal')),
+        signature_equal=fact(probe.get('signature_equal')),inputs_stable=fact(probe.get('inputs_stable')))
     return dict(stage=label(raw.get('stage'),SCALE_DRIFT_STAGES),
         status=label(row.get('status'),{'PASS','FAIL'}),phase=label(row.get('phase'),SCALE_DRIFT_PHASES),
         error_type=label(row.get('error_type'),SCALE_DRIFT_ERRORS),
-        error_category=category,alpm_errno=alpm_errno,
+        error_category=category,alpm_errno=alpm_errno,post_load_signature=signature_probe,
         commit_started=fact(row.get('commit_started')),packages_committed=fact(row.get('packages_committed')),
         checkpoint_changed=fact(row.get('checkpoint_changed')),callback_reached=fact(row.get('test_scale_precommit_reached')))
 
