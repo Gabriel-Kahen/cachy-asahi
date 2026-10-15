@@ -76,6 +76,7 @@ def post_load_engine(alpm,configuration,gpgdir):
 
 
 ORIGINAL_VERIFY_LIMITS=(19,13,19,19,8,19,8,4)
+ORIGINAL_ERROR_RANGES=((0, 271), (273, 281), (300, 323), (666, 666), (711, 718), (721, 729), (750, 752), (754, 782), (784, 789), (800, 804), (815, 822), (832, 839), (844, 844), (848, 848), (881, 891), (1024, 1039), (1500, 1528), (1600, 1601), (16381, 16383), (32768, 32908))
 ORIGINAL_VERIFY_C = r'''/* TEST-only callback bridge: public alpm.h owns the va_list ABI. */
 #include <alpm.h>
 #include <errno.h>
@@ -86,6 +87,25 @@ ORIGINAL_VERIFY_C = r'''/* TEST-only callback bridge: public alpm.h owns the va_
 
 static int active;
 static uint64_t values[10];
+/* All586 published codes in retained gpg-error.h; no unassigned slots. */
+_Static_assert(GPG_ERR_CODE_DIM==65536 && GPG_ERR_SYSTEM_ERROR==32768,"public error domain changed");
+static const unsigned public_codes[][2]={{0,271},{273,281},{300,323},{666,666},{711,718},{721,729},{750,752},{754,782},{784,789},{800,804},{815,822},{832,839},{844,844},{848,848},{881,891},{1024,1039},{1500,1528},{1600,1601},{16381,16383},{32768,32908}};
+static unsigned error_events,error_matches,error_after_start,error_codes[16];
+static void classify_error(const char *text)
+{
+    if(error_events<4095) error_events++;
+    if(error_events!=1) return; /* First capital GPGME message only. */
+    error_after_start=(values[0] & (UINT64_C(1)<<14))!=0;
+    for(unsigned range=0;range<sizeof(public_codes)/sizeof(public_codes[0]);range++) {
+        for(unsigned code=public_codes[range][0];code<=public_codes[range][1];code++) {
+            if(text && strcmp(text,gpgme_strerror(code))==0) {
+                if(error_matches<16) error_codes[error_matches]=code;
+                error_matches++;
+            }
+        }
+    }
+}
+
 static const char *const summaries[]={"valid","green","red","key revoked","key expired",
     "sig expired","key missing","crl missing","crl too old","bad policy","sys error","(empty)"};
 static const char *const validity[]={"unknown","undefined","never","marginal","full","ultimate","???"};
@@ -126,7 +146,14 @@ static void record(const char *fmt,va_list args)
     } else if(strcmp(fmt,"status: %s\n")==0) {
         values[2]|=UINT64_C(1)<<error_class(va_arg(copy,const char *));
     } else if(strcmp(fmt,"GPGME error: %s\n")==0) {
-        values[3]|=UINT64_C(1)<<error_class(va_arg(copy,const char *));
+        const char *original=va_arg(copy,const char *);
+        char text[512];unsigned bounded=0;
+        if(original) for(unsigned i=0;i<sizeof(text);i++) {
+            text[i]=original[i];if(text[i]=='\0') {bounded=1;break;}
+        }
+        /* gpgme_strerror may reuse storage: classify a stable, private copy. */
+        values[3]|=UINT64_C(1)<<(bounded?error_class(text):18);
+        classify_error(bounded?text:NULL);
     } else if(strcmp(fmt,"validity: %s; reason: %s\n")==0) {
         values[4]|=UINT64_C(1)<<token(va_arg(copy,const char *),validity,sizeof(validity)/sizeof(validity[0]));
         values[5]|=UINT64_C(1)<<error_class(va_arg(copy,const char *));
@@ -153,9 +180,20 @@ int probe_install(alpm_handle_t *handle)
     if(alpm_option_get_logcb(handle)!=NULL) return 1;
     return alpm_option_set_logcb(handle,capture,NULL)==0?0:2;
 }
-void probe_begin(void) {memset(values,0,sizeof(values));active=1;}
+void probe_begin(void)
+{
+    memset(values,0,sizeof(values));memset(error_codes,0,sizeof(error_codes));
+    error_events=error_matches=error_after_start=0;active=1;
+}
 void probe_end(void) {active=0;}
 uint64_t probe_read(unsigned index) {return index<10?values[index]:0;}
+unsigned probe_error(unsigned index)
+{
+    if(index==0) return error_events;
+    if(index==1) return error_matches;
+    if(index==2) return error_after_start;
+    return index>=3 && index<19?error_codes[index-3]:0;
+}
 '''
 
 
@@ -179,6 +217,7 @@ def install_original_probe(path,alpm):
         bridge.probe_begin.restype=bridge.probe_end.restype=None
         bridge.probe_begin.argtypes=bridge.probe_end.argtypes=[]
         bridge.probe_read.restype=C.c_uint64;bridge.probe_read.argtypes=[C.c_uint]
+        bridge.probe_error.restype=C.c_uint;bridge.probe_error.argtypes=[C.c_uint]
         return bridge if bridge.probe_install(alpm.handle)==0 else None
     except Exception:return None
 
@@ -190,7 +229,15 @@ def original_probe_result(bridge):
         if any(type(value) is not int or not 0<=value<2**bits for value,bits in zip(values,ORIGINAL_VERIFY_LIMITS)) or any(
                 type(value) is not int or not 0<=value<=4095 for value in values[8:]):
             return {'state':'UNAVAILABLE'}
-        return dict(state='OBSERVED',bits=values)
+        events,matches,after=[bridge.probe_error(index) for index in range(3)]
+        codes=[bridge.probe_error(3+index) for index in range(min(matches,16))] if type(matches) is int and 0<=matches<=586 else []
+        valid=(type(events) is int and 0<=events<=4095 and type(matches) is int and 0<=matches<=586 and
+            type(after) is int and after in (0,1) and (events>0 or matches==after==0) and
+            len(codes)==min(matches,16) and all(type(code) is int and any(low<=code<=high for low,high in ORIGINAL_ERROR_RANGES) for code in codes) and
+            codes==sorted(set(codes)))
+        error=dict(state='OBSERVED',events=events,matches=matches,codes=codes,
+            unique=matches==1,complete=matches<=16,after_check_start=bool(after) if events else 'UNKNOWN') if valid else {'state':'UNAVAILABLE'}
+        return dict(state='OBSERVED',bits=values,gpgme_error_text=error)
     except Exception:return {'state':'UNAVAILABLE'}
 
 

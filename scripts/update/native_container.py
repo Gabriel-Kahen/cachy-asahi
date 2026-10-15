@@ -203,6 +203,16 @@ def scale_drift_diagnostic(test):
         all(type(value) is int and 0<=value<=4095 for value in bits[8:]))
     original_probe=dict(state=label(original.get('state'),{'NOT_RUN','UNAVAILABLE','OBSERVED'}),bits=bits if valid else [])
     if original_probe['state']=='OBSERVED' and not valid:original_probe['state']='UNAVAILABLE'
+    detail=original.get('gpgme_error_text');detail=detail if type(detail) is dict else {}
+    events=detail.get('events');matches=detail.get('matches');codes=detail.get('codes');after=detail.get('after_check_start')
+    ranges=((0, 271), (273, 281), (300, 323), (666, 666), (711, 718), (721, 729), (750, 752), (754, 782), (784, 789), (800, 804), (815, 822), (832, 839), (844, 844), (848, 848), (881, 891), (1024, 1039), (1500, 1528), (1600, 1601), (16381, 16383), (32768, 32908))
+    valid=(detail.get('state')=='OBSERVED' and type(events) is int and 0<=events<=4095 and
+        type(matches) is int and 0<=matches<=586 and (events>0 or matches==0) and
+        type(codes) is list and len(codes)==min(matches,16) and
+        all(type(code) is int and any(low<=code<=high for low,high in ranges) for code in codes) and codes==sorted(set(codes)) and
+        (type(after) is bool if events else type(after) is str and after=='UNKNOWN'))
+    original_probe['gpgme_error_text']=(dict(state='OBSERVED',events=events,matches=matches,codes=codes,
+        unique=matches==1,complete=matches<=16,after_check_start=after) if valid else dict(state='UNAVAILABLE'))
     return dict(stage=label(raw.get('stage'),SCALE_DRIFT_STAGES),
         status=label(row.get('status'),{'PASS','FAIL'}),phase=label(row.get('phase'),SCALE_DRIFT_PHASES),
         error_type=label(row.get('error_type'),SCALE_DRIFT_ERRORS),
