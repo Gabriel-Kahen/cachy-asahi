@@ -1,0 +1,45 @@
+# SPDX-License-Identifier: MIT
+# Build-only candidate from asahi-alarm/PKGBUILDs 9717359f2feac55830f8d57e50e4746e98ba6e99.
+pkgname=triforce-lv2
+pkgver=0.3.2
+pkgrel=2
+pkgdesc='Asahi audio component; protected target integration pending'
+arch=('aarch64')
+url='https://asahilinux.org'
+license=('GPL-2.0-or-later')
+depends=('lv2')
+makedepends=('rust' 'make')
+source=('triforce-lv2-0.3.2.tar.gz' 'cargo-vendor-117.tar.xz')
+sha256sums=('1d081222d0bfe2c961ac44b368c9f1d2dd9ec0833a35bab87863bac07e9df019' '64cd55473b19f104f3a90570409d58c5ab69f63c61396541c4ad1e56e8d6293f')
+
+prepare() {
+  cd "${srcdir}/triforce-0.3.2"
+  printf '%s  Cargo.lock\n' '453d5232d8309f7aba2c83ec3b5c27cef585181c31bd9345752e46e857d13ce3' | sha256sum -c -
+  install -dm700 "${srcdir}/cargo-home"
+  cat > "${srcdir}/cargo-home/config.toml" <<EOF
+[source.crates-io]
+replace-with = "vendored-sources"
+[source.vendored-sources]
+directory = "${srcdir}/vendor"
+[net]
+offline = true
+EOF
+}
+
+build() {
+  cd "${srcdir}/triforce-0.3.2"
+  CARGO_HOME="${srcdir}/cargo-home" cargo build --release --frozen --offline
+  printf '%s  Cargo.lock\n' '453d5232d8309f7aba2c83ec3b5c27cef585181c31bd9345752e46e857d13ce3' | sha256sum -c -
+}
+
+check() {
+  cd "${srcdir}/triforce-0.3.2"
+  test -s target/release/libtriforce.so
+  readelf -h target/release/libtriforce.so | grep -Eq 'Machine: +AArch64'
+}
+
+package() {
+  cd "${srcdir}/triforce-0.3.2"
+  make LIBDIR=/usr/lib DESTDIR="${pkgdir}" install
+  install -Dm644 LICENCE.txt "${pkgdir}/usr/share/licenses/triforce-lv2/LICENCE.txt"
+}
