@@ -2,6 +2,36 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 14, native screenshot region and cancellation admitted:
+Root accepts run `38666490804` on Source `6dd1a88c` after actual review
+`d85b39c9` and independent review `01197222`. Five native ARM PNGs pass311,507
+pixel comparisons with zero mismatches, including the4,307-pixel region.
+Real region selection, stationary-click cancellation, four existing refusals
+and scoped owned cleanup pass. Root authenticates199 independent-review files
+and1,410 inputs. The external sentinel body was not retained; broader host
+resource retirement remains unknown. Package lifecycle, M2/Hyprland/Asahi,
+16K hardware, performance and full-port acceptance remain open.
+See the [finite Root admission](reviews/screenshot-native-region-cancel-root-admission-20261014.md).
+
+Retained-input installer Source `148f8a98`, bound Data `2b312bf8` and held Code
+`677d3ba9` pass independent actual registration review `8d14e179`; plan
+`3d3cd660` reads back exactly. Three new recovered-input Secret names are
+registered; all nineteen old names and timestamps remain held. The single
+changed installer trial `38668263227` is running. Updater Source `51af5b59`
+passes actual-source review `c404e810`; its single changed trial `38668405842`
+is queued and still requires an actual native freeze. Neither trial has new
+acceptance credit yet.
+
+P0 run `38667054387` remains FAIL with reported preparation SDK policy-source
+refusal; actual operands and first cause remain unknown. Strict review
+`004629fb` and Root's303-file/402-input authentication retain that outcome.
+A separate static mismatch is confirmed: the selected policy path is absent,
+while the reviewed policy exists at its manifest path with the expected hash.
+The independently reviewed correction is published as Source `8d01dff4`, with
+three exact changes, unchanged269-file packet and a passing read-only freezer.
+Fresh committed-source admission and intentional selection of both corrected
+templates remain required before any new trial.
+
 October 14, complete static prerequisites pass hosted validation:
 The primary workflow installs shell/editor/compiler and repository tools before
 the affected suites, uses a private temporary home on an ordinary non-root
