@@ -1,0 +1,13 @@
+Development-only independently packaged Asahi platform data.
+Upstream source and its grant are unchanged. No Asahi/CachyOS endorsement is claimed.
+
+asahi-audio 4.1 source: AsahiLinux/asahi-audio
+Tag v4.1; commit 687d8cd0f6dc4b12fc0d9c3aebe360656de2882e
+Archive SHA-256 e2c3887fe20481675698ac8174f53b66276f75a2b3c0853daf9b1a70dda690c5
+
+Upstream MIT grant and copyright are installed as LICENSE.asahi.
+Independent packaging/documentation: Copyright (c) 2026 cachy-asahi contributors.
+The project MIT grant is installed as PACKAGING.LICENSE.
+Reference community recipe: asahi-alarm/PKGBUILDs commit
+9717359f2feac55830f8d57e50e4746e98ba6e99; maintainers Jos Dehaes and Matthias Kurz.
+The recipe reference does not authorize this candidate as a supported platform release.

@@ -1,0 +1,660 @@
+{
+  "alsa-ucm-conf-asahi": {
+    "original_data_files": 43,
+    "package_errors": [
+      "protected platform package name: alsa-ucm-conf-asahi",
+      "protected platform path: usr/share/alsa/ucm2",
+      "protected platform path: usr/share/alsa/ucm2/conf.d",
+      "protected platform path: usr/share/alsa/ucm2/conf.d/aop_audio",
+      "protected platform path: usr/share/alsa/ucm2/conf.d/aop_audio/3chan",
+      "protected platform path: usr/share/alsa/ucm2/conf.d/aop_audio/3chan/HiFi.conf",
+      "protected platform path: usr/share/alsa/ucm2/conf.d/aop_audio/MacBook Air J313 High-Power Audio Interface.conf",
+      "protected platform path: usr/share/alsa/ucm2/conf.d/aop_audio/MacBook Air J413 High-Power Audio Interface.conf",
+      "protected platform path: usr/share/alsa/ucm2/conf.d/aop_audio/MacBook Air J415 High-Power Audio Interface.conf",
+      "protected platform path: usr/share/alsa/ucm2/conf.d/aop_audio/MacBook Air J613 High-Power Audio Interface.conf",
+      "protected platform path: usr/share/alsa/ucm2/conf.d/aop_audio/MacBook Air J615 High-Power Audio Interface.conf",
+      "protected platform path: usr/share/alsa/ucm2/conf.d/aop_audio/MacBook Pro J293 High-Power Audio Interface.conf",
+      "protected platform path: usr/share/alsa/ucm2/conf.d/aop_audio/MacBook Pro J314 High-Power Audio Interface.conf",
+      "protected platform path: usr/share/alsa/ucm2/conf.d/aop_audio/MacBook Pro J316 High-Power Audio Interface.conf",
+      "protected platform path: usr/share/alsa/ucm2/conf.d/aop_audio/MacBook Pro J414 High-Power Audio Interface.conf",
+      "protected platform path: usr/share/alsa/ucm2/conf.d/aop_audio/MacBook Pro J416 High-Power Audio Interface.conf",
+      "protected platform path: usr/share/alsa/ucm2/conf.d/aop_audio/MacBook Pro J493 High-Power Audio Interface.conf",
+      "protected platform path: usr/share/alsa/ucm2/conf.d/aop_audio/MacBook Pro J504 High-Power Audio Interface.conf",
+      "protected platform path: usr/share/alsa/ucm2/conf.d/aop_audio/MacBook Pro J514 High-Power Audio Interface.conf",
+      "protected platform path: usr/share/alsa/ucm2/conf.d/aop_audio/MacBook Pro J516 High-Power Audio Interface.conf",
+      "protected platform path: usr/share/alsa/ucm2/conf.d/macaudio",
+      "protected platform path: usr/share/alsa/ucm2/conf.d/macaudio/Mac Studio J375.conf",
+      "protected platform path: usr/share/alsa/ucm2/conf.d/macaudio/Mac Studio J475.conf",
+      "protected platform path: usr/share/alsa/ucm2/conf.d/macaudio/Mac Studio J575.conf",
+      "protected platform path: usr/share/alsa/ucm2/conf.d/macaudio/Mac mini J274.conf",
+      "protected platform path: usr/share/alsa/ucm2/conf.d/macaudio/Mac mini J473.conf",
+      "protected platform path: usr/share/alsa/ucm2/conf.d/macaudio/Mac mini J474.conf",
+      "protected platform path: usr/share/alsa/ucm2/conf.d/macaudio/MacBook Air J313.conf",
+      "protected platform path: usr/share/alsa/ucm2/conf.d/macaudio/MacBook Air J413.conf",
+      "protected platform path: usr/share/alsa/ucm2/conf.d/macaudio/MacBook Air J415.conf",
+      "protected platform path: usr/share/alsa/ucm2/conf.d/macaudio/MacBook Air J613.conf",
+      "protected platform path: usr/share/alsa/ucm2/conf.d/macaudio/MacBook Air J615.conf",
+      "protected platform path: usr/share/alsa/ucm2/conf.d/macaudio/MacBook Pro J293.conf",
+      "protected platform path: usr/share/alsa/ucm2/conf.d/macaudio/MacBook Pro J314.conf",
+      "protected platform path: usr/share/alsa/ucm2/conf.d/macaudio/MacBook Pro J316.conf",
+      "protected platform path: usr/share/alsa/ucm2/conf.d/macaudio/MacBook Pro J414.conf",
+      "protected platform path: usr/share/alsa/ucm2/conf.d/macaudio/MacBook Pro J416.conf",
+      "protected platform path: usr/share/alsa/ucm2/conf.d/macaudio/MacBook Pro J493.conf",
+      "protected platform path: usr/share/alsa/ucm2/conf.d/macaudio/MacBook Pro J504.conf",
+      "protected platform path: usr/share/alsa/ucm2/conf.d/macaudio/MacBook Pro J514.conf",
+      "protected platform path: usr/share/alsa/ucm2/conf.d/macaudio/MacBook Pro J516.conf",
+      "protected platform path: usr/share/alsa/ucm2/conf.d/macaudio/cs42l83",
+      "protected platform path: usr/share/alsa/ucm2/conf.d/macaudio/cs42l83/Headphones.conf",
+      "protected platform path: usr/share/alsa/ucm2/conf.d/macaudio/cs42l84",
+      "protected platform path: usr/share/alsa/ucm2/conf.d/macaudio/cs42l84/Headphones.conf",
+      "protected platform path: usr/share/alsa/ucm2/conf.d/macaudio/desktops",
+      "protected platform path: usr/share/alsa/ucm2/conf.d/macaudio/desktops/mono",
+      "protected platform path: usr/share/alsa/ucm2/conf.d/macaudio/desktops/mono/HiFi.conf",
+      "protected platform path: usr/share/alsa/ucm2/conf.d/macaudio/iMac J433.conf",
+      "protected platform path: usr/share/alsa/ucm2/conf.d/macaudio/iMac J434.conf",
+      "protected platform path: usr/share/alsa/ucm2/conf.d/macaudio/iMac J456.conf",
+      "protected platform path: usr/share/alsa/ucm2/conf.d/macaudio/iMac J457.conf",
+      "protected platform path: usr/share/alsa/ucm2/conf.d/macaudio/laptops",
+      "protected platform path: usr/share/alsa/ucm2/conf.d/macaudio/laptops/HiFi.conf"
+    ],
+    "payload": {
+      "usr/share/alsa/ucm2/conf.d/aop_audio/3chan/HiFi.conf": {
+        "mode": 420,
+        "sha256": "e6cfd0dfc86ee2a607ccc13671495b044a8eb851a4b528a119ff1b1c9821510b"
+      },
+      "usr/share/alsa/ucm2/conf.d/aop_audio/MacBook Air J313 High-Power Audio Interface.conf": {
+        "mode": 420,
+        "sha256": "66c1da54fb834923d3a42c08c04d74758778356417e1edbb191af131a4911483"
+      },
+      "usr/share/alsa/ucm2/conf.d/aop_audio/MacBook Air J413 High-Power Audio Interface.conf": {
+        "mode": 420,
+        "sha256": "66c1da54fb834923d3a42c08c04d74758778356417e1edbb191af131a4911483"
+      },
+      "usr/share/alsa/ucm2/conf.d/aop_audio/MacBook Air J415 High-Power Audio Interface.conf": {
+        "mode": 420,
+        "sha256": "66c1da54fb834923d3a42c08c04d74758778356417e1edbb191af131a4911483"
+      },
+      "usr/share/alsa/ucm2/conf.d/aop_audio/MacBook Air J613 High-Power Audio Interface.conf": {
+        "mode": 420,
+        "sha256": "66c1da54fb834923d3a42c08c04d74758778356417e1edbb191af131a4911483"
+      },
+      "usr/share/alsa/ucm2/conf.d/aop_audio/MacBook Air J615 High-Power Audio Interface.conf": {
+        "mode": 420,
+        "sha256": "66c1da54fb834923d3a42c08c04d74758778356417e1edbb191af131a4911483"
+      },
+      "usr/share/alsa/ucm2/conf.d/aop_audio/MacBook Pro J293 High-Power Audio Interface.conf": {
+        "mode": 420,
+        "sha256": "66c1da54fb834923d3a42c08c04d74758778356417e1edbb191af131a4911483"
+      },
+      "usr/share/alsa/ucm2/conf.d/aop_audio/MacBook Pro J314 High-Power Audio Interface.conf": {
+        "mode": 420,
+        "sha256": "66c1da54fb834923d3a42c08c04d74758778356417e1edbb191af131a4911483"
+      },
+      "usr/share/alsa/ucm2/conf.d/aop_audio/MacBook Pro J316 High-Power Audio Interface.conf": {
+        "mode": 420,
+        "sha256": "66c1da54fb834923d3a42c08c04d74758778356417e1edbb191af131a4911483"
+      },
+      "usr/share/alsa/ucm2/conf.d/aop_audio/MacBook Pro J414 High-Power Audio Interface.conf": {
+        "mode": 420,
+        "sha256": "66c1da54fb834923d3a42c08c04d74758778356417e1edbb191af131a4911483"
+      },
+      "usr/share/alsa/ucm2/conf.d/aop_audio/MacBook Pro J416 High-Power Audio Interface.conf": {
+        "mode": 420,
+        "sha256": "66c1da54fb834923d3a42c08c04d74758778356417e1edbb191af131a4911483"
+      },
+      "usr/share/alsa/ucm2/conf.d/aop_audio/MacBook Pro J493 High-Power Audio Interface.conf": {
+        "mode": 420,
+        "sha256": "66c1da54fb834923d3a42c08c04d74758778356417e1edbb191af131a4911483"
+      },
+      "usr/share/alsa/ucm2/conf.d/aop_audio/MacBook Pro J504 High-Power Audio Interface.conf": {
+        "mode": 420,
+        "sha256": "66c1da54fb834923d3a42c08c04d74758778356417e1edbb191af131a4911483"
+      },
+      "usr/share/alsa/ucm2/conf.d/aop_audio/MacBook Pro J514 High-Power Audio Interface.conf": {
+        "mode": 420,
+        "sha256": "66c1da54fb834923d3a42c08c04d74758778356417e1edbb191af131a4911483"
+      },
+      "usr/share/alsa/ucm2/conf.d/aop_audio/MacBook Pro J516 High-Power Audio Interface.conf": {
+        "mode": 420,
+        "sha256": "66c1da54fb834923d3a42c08c04d74758778356417e1edbb191af131a4911483"
+      },
+      "usr/share/alsa/ucm2/conf.d/macaudio/Mac Studio J375.conf": {
+        "mode": 420,
+        "sha256": "e3230147f703fd281dccb3c2b1b9f6cf90afe6925cc47e11db68db063c55b29e"
+      },
+      "usr/share/alsa/ucm2/conf.d/macaudio/Mac Studio J475.conf": {
+        "mode": 420,
+        "sha256": "e3230147f703fd281dccb3c2b1b9f6cf90afe6925cc47e11db68db063c55b29e"
+      },
+      "usr/share/alsa/ucm2/conf.d/macaudio/Mac Studio J575.conf": {
+        "mode": 420,
+        "sha256": "e3230147f703fd281dccb3c2b1b9f6cf90afe6925cc47e11db68db063c55b29e"
+      },
+      "usr/share/alsa/ucm2/conf.d/macaudio/Mac mini J274.conf": {
+        "mode": 420,
+        "sha256": "29fc7317ae1f38245e71b3a9778f2b6a2f87d3f3da5ec761b1c55133795528bb"
+      },
+      "usr/share/alsa/ucm2/conf.d/macaudio/Mac mini J473.conf": {
+        "mode": 420,
+        "sha256": "e3230147f703fd281dccb3c2b1b9f6cf90afe6925cc47e11db68db063c55b29e"
+      },
+      "usr/share/alsa/ucm2/conf.d/macaudio/Mac mini J474.conf": {
+        "mode": 420,
+        "sha256": "e3230147f703fd281dccb3c2b1b9f6cf90afe6925cc47e11db68db063c55b29e"
+      },
+      "usr/share/alsa/ucm2/conf.d/macaudio/MacBook Air J313.conf": {
+        "mode": 420,
+        "sha256": "26774fbc20043f501ee8bb1847bb2cff643bce6aafbc22625888f774ccd23747"
+      },
+      "usr/share/alsa/ucm2/conf.d/macaudio/MacBook Air J413.conf": {
+        "mode": 420,
+        "sha256": "d5a30686cb4795e4096d247476a12b5dc4925dfbf0c77348adfc5580d94a2203"
+      },
+      "usr/share/alsa/ucm2/conf.d/macaudio/MacBook Air J415.conf": {
+        "mode": 420,
+        "sha256": "64a7594002f84d15a1fd9a0735ace44df4f9bca341112950850371a6f28213f0"
+      },
+      "usr/share/alsa/ucm2/conf.d/macaudio/MacBook Air J613.conf": {
+        "mode": 420,
+        "sha256": "d5a30686cb4795e4096d247476a12b5dc4925dfbf0c77348adfc5580d94a2203"
+      },
+      "usr/share/alsa/ucm2/conf.d/macaudio/MacBook Air J615.conf": {
+        "mode": 420,
+        "sha256": "64a7594002f84d15a1fd9a0735ace44df4f9bca341112950850371a6f28213f0"
+      },
+      "usr/share/alsa/ucm2/conf.d/macaudio/MacBook Pro J293.conf": {
+        "mode": 420,
+        "sha256": "5fe2bc361a6fc168ddedbdd48af5b6ec26df1e96b0ffbf95c02150207cae1fea"
+      },
+      "usr/share/alsa/ucm2/conf.d/macaudio/MacBook Pro J314.conf": {
+        "mode": 420,
+        "sha256": "64a7594002f84d15a1fd9a0735ace44df4f9bca341112950850371a6f28213f0"
+      },
+      "usr/share/alsa/ucm2/conf.d/macaudio/MacBook Pro J316.conf": {
+        "mode": 420,
+        "sha256": "64a7594002f84d15a1fd9a0735ace44df4f9bca341112950850371a6f28213f0"
+      },
+      "usr/share/alsa/ucm2/conf.d/macaudio/MacBook Pro J414.conf": {
+        "mode": 420,
+        "sha256": "64a7594002f84d15a1fd9a0735ace44df4f9bca341112950850371a6f28213f0"
+      },
+      "usr/share/alsa/ucm2/conf.d/macaudio/MacBook Pro J416.conf": {
+        "mode": 420,
+        "sha256": "64a7594002f84d15a1fd9a0735ace44df4f9bca341112950850371a6f28213f0"
+      },
+      "usr/share/alsa/ucm2/conf.d/macaudio/MacBook Pro J493.conf": {
+        "mode": 420,
+        "sha256": "0d404f9ef4aa634dc211d7879459d8aa9627ececb233164bf634af9ab875e318"
+      },
+      "usr/share/alsa/ucm2/conf.d/macaudio/MacBook Pro J504.conf": {
+        "mode": 420,
+        "sha256": "64a7594002f84d15a1fd9a0735ace44df4f9bca341112950850371a6f28213f0"
+      },
+      "usr/share/alsa/ucm2/conf.d/macaudio/MacBook Pro J514.conf": {
+        "mode": 420,
+        "sha256": "64a7594002f84d15a1fd9a0735ace44df4f9bca341112950850371a6f28213f0"
+      },
+      "usr/share/alsa/ucm2/conf.d/macaudio/MacBook Pro J516.conf": {
+        "mode": 420,
+        "sha256": "64a7594002f84d15a1fd9a0735ace44df4f9bca341112950850371a6f28213f0"
+      },
+      "usr/share/alsa/ucm2/conf.d/macaudio/cs42l83/Headphones.conf": {
+        "mode": 420,
+        "sha256": "3f9c8f3baa410d930114940e9791cdf0f3bf57b4596c8d7dbe3d223d59f96655"
+      },
+      "usr/share/alsa/ucm2/conf.d/macaudio/cs42l84/Headphones.conf": {
+        "mode": 420,
+        "sha256": "13dfd64731257af28c3d33f32c452dfecc2f4b091a36f7ef4c12caff8d3ef6fa"
+      },
+      "usr/share/alsa/ucm2/conf.d/macaudio/desktops/mono/HiFi.conf": {
+        "mode": 420,
+        "sha256": "ba400dfacdc13f50510255fab5044a63655405af108f1362f843ca8f3b195b08"
+      },
+      "usr/share/alsa/ucm2/conf.d/macaudio/iMac J433.conf": {
+        "mode": 420,
+        "sha256": "f86375efc174f33b856ef42dac1c730d00cb0c9707ce70991ffb2047fbd37ddd"
+      },
+      "usr/share/alsa/ucm2/conf.d/macaudio/iMac J434.conf": {
+        "mode": 420,
+        "sha256": "f86375efc174f33b856ef42dac1c730d00cb0c9707ce70991ffb2047fbd37ddd"
+      },
+      "usr/share/alsa/ucm2/conf.d/macaudio/iMac J456.conf": {
+        "mode": 420,
+        "sha256": "ce293d286a43b4f95846c1e50b6232f185be44da75a0db9d62b0d75e0bc6ecf1"
+      },
+      "usr/share/alsa/ucm2/conf.d/macaudio/iMac J457.conf": {
+        "mode": 420,
+        "sha256": "ce293d286a43b4f95846c1e50b6232f185be44da75a0db9d62b0d75e0bc6ecf1"
+      },
+      "usr/share/alsa/ucm2/conf.d/macaudio/laptops/HiFi.conf": {
+        "mode": 420,
+        "sha256": "09ea22cf5d1d56255bf0a358b5b9ebd7f41ae96e0d222b41e49cef2a8b7da6f3"
+      },
+      "usr/share/doc/alsa-ucm-conf-asahi/README.md": {
+        "mode": 420,
+        "sha256": "1d62c3c6df227893b4dde9ec9fc9ff13167eab99339629a652abfbf14162973f"
+      },
+      "usr/share/doc/alsa-ucm-conf-asahi/source-provenance.json": {
+        "mode": 420,
+        "sha256": "809c68fcf459c27ba8fb617d917a1913e5b1502daed2e106e0ddaf0f7f8442f2"
+      },
+      "usr/share/licenses/alsa-ucm-conf-asahi/LICENSE.asahi": {
+        "mode": 420,
+        "sha256": "95c164b4181b61f830a05293e6e7e9bc34dbe76e7f5fa593cd20f5aa49029559"
+      },
+      "usr/share/licenses/alsa-ucm-conf-asahi/NOTICE": {
+        "mode": 420,
+        "sha256": "ea8d4dd8a097645b45a7d45cfe9db156b096ccad34f53095dad82ffe7c1df40a"
+      },
+      "usr/share/licenses/alsa-ucm-conf-asahi/PACKAGING.LICENSE": {
+        "mode": 420,
+        "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+      }
+    },
+    "recipe_errors": [
+      "protected platform package name: alsa-ucm-conf-asahi"
+    ],
+    "version": "10-2"
+  },
+  "asahi-audio": {
+    "original_data_files": 90,
+    "package_errors": [
+      "protected platform package name: asahi-audio",
+      "protected platform path: usr/share/pipewire/pipewire-pulse.conf.d",
+      "protected platform path: usr/share/pipewire/pipewire-pulse.conf.d/99-asahi.conf",
+      "protected platform path: usr/share/pipewire/pipewire.conf.d",
+      "protected platform path: usr/share/pipewire/pipewire.conf.d/99-asahi.conf",
+      "protected platform path: usr/share/wireplumber/scripts",
+      "protected platform path: usr/share/wireplumber/scripts/device",
+      "protected platform path: usr/share/wireplumber/scripts/device/asahi-lock-volume.lua",
+      "protected platform path: usr/share/wireplumber/wireplumber.conf.d",
+      "protected platform path: usr/share/wireplumber/wireplumber.conf.d/99-asahi.conf"
+    ],
+    "payload": {
+      "usr/share/asahi-audio/j274/192.wav": {
+        "mode": 420,
+        "sha256": "443bccb1ec65f07b83ea3176ae3a59fb511b4c393fee789b98d23a3e0c441ad4"
+      },
+      "usr/share/asahi-audio/j274/44.wav": {
+        "mode": 420,
+        "sha256": "28acc673045f970e80f5313699e96e9eb2086fc4018ac754196059a9266f08dc"
+      },
+      "usr/share/asahi-audio/j274/48.wav": {
+        "mode": 420,
+        "sha256": "dece2b5e2da1c750a939134a07981ff37d66a301ed1857a6206bbd66e3a3f7d8"
+      },
+      "usr/share/asahi-audio/j274/96.wav": {
+        "mode": 420,
+        "sha256": "4fad78c5b29c9f86785b45ae8caae2f73a079ee5f17d507eaad819fe432fbe5a"
+      },
+      "usr/share/asahi-audio/j274/graph-j473.json": {
+        "mode": 420,
+        "sha256": "702f755ffc35ebd3e9806296f9ae17cf0aac545e7c7271d7b797dc37d40832a5"
+      },
+      "usr/share/asahi-audio/j274/graph-j474.json": {
+        "mode": 420,
+        "sha256": "9d6d8cfdda31468d9981c3c49a0d48ec1c7591bf51fd02162166fad2a441b697"
+      },
+      "usr/share/asahi-audio/j274/graph.json": {
+        "mode": 420,
+        "sha256": "96e3ef1fb29afe3b74c685f9ce5facf5747d9d00d95a41c9953d431ccf55e9d5"
+      },
+      "usr/share/asahi-audio/j293/front-192.wav": {
+        "mode": 420,
+        "sha256": "eedcdc29e658080d7785b1271d8263bad362c006a567582c0f5ffdd0187384fa"
+      },
+      "usr/share/asahi-audio/j293/front-44.wav": {
+        "mode": 420,
+        "sha256": "0dd032212eb33166dbbf87b11c91a862408bb6c450964cd3a3d9138aaab00637"
+      },
+      "usr/share/asahi-audio/j293/front-48.wav": {
+        "mode": 420,
+        "sha256": "8dbd707b75e456b2b7fc126f93bfb3ea5e93cca362844a5ec0099fbe5775d4e3"
+      },
+      "usr/share/asahi-audio/j293/front-96.wav": {
+        "mode": 420,
+        "sha256": "81fc79f6e3c842049d66d8082134964cce6979c84b6b6c8a6628c387cfbd9efa"
+      },
+      "usr/share/asahi-audio/j293/graph-j493.json": {
+        "mode": 420,
+        "sha256": "337b5761907f523f06f18e92608feb0c9581bcd1ba60c22a30288d5f3698cf68"
+      },
+      "usr/share/asahi-audio/j293/graph.json": {
+        "mode": 420,
+        "sha256": "c6695f9495ccb15eb759e221e6e17ba224727cfff24183fd614d00c2e2300d3a"
+      },
+      "usr/share/asahi-audio/j293/mic-j493.json": {
+        "mode": 420,
+        "sha256": "f7a72f74f650e3c53f47aa5885ad316028bd6ea5fecccc5e862dd127357641d4"
+      },
+      "usr/share/asahi-audio/j293/mic.json": {
+        "mode": 420,
+        "sha256": "72b59ddde0241799fda226003d4b64850f02eccb19266c3dc05911ddc68ddd5d"
+      },
+      "usr/share/asahi-audio/j293/rear-192.wav": {
+        "mode": 420,
+        "sha256": "a171cc0493b0d148c61ba3f2b035ff264cb64e8933d296185f8e1f9581277e2f"
+      },
+      "usr/share/asahi-audio/j293/rear-44.wav": {
+        "mode": 420,
+        "sha256": "b885fded490c22ee0baecc7d4a0a6db526e15012cd31fca7f57bc5047a4283fc"
+      },
+      "usr/share/asahi-audio/j293/rear-48.wav": {
+        "mode": 420,
+        "sha256": "725cb0c04811d67637ec06c36fd5cc9dd90c4fa48d502e51e1facf667a0dcd5b"
+      },
+      "usr/share/asahi-audio/j293/rear-96.wav": {
+        "mode": 420,
+        "sha256": "ca803371b0cf376aefe39424f7cded8a7792e8820e40a01ad4954e1c1b3d2367"
+      },
+      "usr/share/asahi-audio/j313/192.wav": {
+        "mode": 420,
+        "sha256": "4ebe87309d7cae907919422a750eb4c81551135adc08ecb252d8c62b76f40770"
+      },
+      "usr/share/asahi-audio/j313/44.wav": {
+        "mode": 420,
+        "sha256": "87b61529c71dab355142474b6d9cfd0d3f77307feb55f4c20c2aecd416f15f91"
+      },
+      "usr/share/asahi-audio/j313/48.wav": {
+        "mode": 420,
+        "sha256": "c24020c0dfafcb04de52cbc8e4ca14e2fadabc3ee7bc2571cac67aa9b26c3759"
+      },
+      "usr/share/asahi-audio/j313/96.wav": {
+        "mode": 420,
+        "sha256": "08a78a9928f5f307b57a3546281c37213c9d0abc7917a9a4f79aa79657df20f5"
+      },
+      "usr/share/asahi-audio/j313/graph.json": {
+        "mode": 420,
+        "sha256": "bb4dc3bf6bec2adb64113f2659a05f73b32f0a12efce2c154d01ea8cf7c5ef2e"
+      },
+      "usr/share/asahi-audio/j313/mic.json": {
+        "mode": 420,
+        "sha256": "27cb45225ca1ad39c7687f1e2d1f55c19ecfb3b2712875a651ed09593e915c2f"
+      },
+      "usr/share/asahi-audio/j314/graph-j414.json": {
+        "mode": 420,
+        "sha256": "0b8353c9242064a84108c625aa9a1fc6a8258f9285e7648369eec1d3499700c5"
+      },
+      "usr/share/asahi-audio/j314/graph-j504.json": {
+        "mode": 420,
+        "sha256": "6c1ca7c9c711c25b517f8c0965bc9ab59c25a3b895a8a9d2539bb3c2a63d48cc"
+      },
+      "usr/share/asahi-audio/j314/graph-j514.json": {
+        "mode": 420,
+        "sha256": "ec57f27220fde06c7c96d25404042a1ea54e59aac1293cd3a8ec8142d1e77228"
+      },
+      "usr/share/asahi-audio/j314/graph.json": {
+        "mode": 420,
+        "sha256": "f8e7a9b83686ff122d0347579ae28f3fb5c931c44c9b27d12aaceed8150cf0f9"
+      },
+      "usr/share/asahi-audio/j314/mic-j414.json": {
+        "mode": 420,
+        "sha256": "44eece6f12828fe2cf184e6556740b82868fac2cea36e8f348981d8728b31004"
+      },
+      "usr/share/asahi-audio/j314/mic-j504.json": {
+        "mode": 420,
+        "sha256": "350a7a95598cbb2253c9aa155d5ee733a459d09600f405be16cec851f9cd0f4f"
+      },
+      "usr/share/asahi-audio/j314/mic-j514.json": {
+        "mode": 420,
+        "sha256": "6b51cfc3be469111b7c877d147ec91b8c6592a782c2935caf99020519c948baa"
+      },
+      "usr/share/asahi-audio/j314/mic.json": {
+        "mode": 420,
+        "sha256": "c346ffc9c72014bf9927676ddf7bbfed79b194f608e709da7a7ca0ed5aca7976"
+      },
+      "usr/share/asahi-audio/j314/tweeters-192.wav": {
+        "mode": 420,
+        "sha256": "3825f79f5b1c87daf42f7de8a80533cec6cacf3d722e54a864002dc58529fd2b"
+      },
+      "usr/share/asahi-audio/j314/tweeters-44.wav": {
+        "mode": 420,
+        "sha256": "9198b953b687da6ebf192b13e7a434238d7ae9cb38cac66ea1a5c143a8c9e0ae"
+      },
+      "usr/share/asahi-audio/j314/tweeters-48.wav": {
+        "mode": 420,
+        "sha256": "d7b4e310856634ee408585dde78d92361de8dc302d24108b62c2ffdbb52ef507"
+      },
+      "usr/share/asahi-audio/j314/tweeters-96.wav": {
+        "mode": 420,
+        "sha256": "55671097a99cbf3f78828defdbd731e1eeefae68623452efbe69ffc2181b336a"
+      },
+      "usr/share/asahi-audio/j314/woofers-192.wav": {
+        "mode": 420,
+        "sha256": "8678776305c9c6c22cc7461f7a7dc218ecfa39ef626c59b55344ef4484e5123d"
+      },
+      "usr/share/asahi-audio/j314/woofers-44.wav": {
+        "mode": 420,
+        "sha256": "f9d62b55b1c83e1d8ebcccebbe2dfbaee940dbe6405b3eee4c81eaf7db3008c9"
+      },
+      "usr/share/asahi-audio/j314/woofers-48.wav": {
+        "mode": 420,
+        "sha256": "6b02f1d491e19a8e10e09354f1277481bcb50d0fef3fb26374564dd7741faa57"
+      },
+      "usr/share/asahi-audio/j314/woofers-96.wav": {
+        "mode": 420,
+        "sha256": "5da3619431db687a1514eab340812e94306a32d43a425d9fc07605db343a55a0"
+      },
+      "usr/share/asahi-audio/j316/graph-j416.json": {
+        "mode": 420,
+        "sha256": "efac81daee7d40e3ab791b8f77ebbbdbbd8d4d674e1a629dcdf828eb28d7d8db"
+      },
+      "usr/share/asahi-audio/j316/graph-j516.json": {
+        "mode": 420,
+        "sha256": "e9fb2344c1b53b7095e0f9a44159e473ca29544640844b4673121de0ef97b094"
+      },
+      "usr/share/asahi-audio/j316/graph.json": {
+        "mode": 420,
+        "sha256": "f6f8eba98e9ff39a745ec303a2c6fc88f27b4b81cf8289e67cf180114796b965"
+      },
+      "usr/share/asahi-audio/j316/mic-j416.json": {
+        "mode": 420,
+        "sha256": "72c48c90f40cdd5d326e1f3ea3c79637ca507c391fbbb1c8db9194b8db1add13"
+      },
+      "usr/share/asahi-audio/j316/mic-j516.json": {
+        "mode": 420,
+        "sha256": "8f9c0725e069cfdf91f23f381a0a2d6a7a22b4b59786ccbd1213fc890d85c808"
+      },
+      "usr/share/asahi-audio/j316/mic.json": {
+        "mode": 420,
+        "sha256": "1f1183f799e7b323aaa755a4bb835c458d3349ee0ef2a79184cee7e15545ad22"
+      },
+      "usr/share/asahi-audio/j316/tweeters-192.wav": {
+        "mode": 420,
+        "sha256": "8a95bf3791bc063bc7dbcc6e241f037745abeb03306e34339ecbd7bd83a65be5"
+      },
+      "usr/share/asahi-audio/j316/tweeters-44.wav": {
+        "mode": 420,
+        "sha256": "be25c922ca233a58948834b9f339bbf5764d056e225281292d13900db3735b31"
+      },
+      "usr/share/asahi-audio/j316/tweeters-48.wav": {
+        "mode": 420,
+        "sha256": "b5c8a971e7e10ad2ac012e17452d4782d3f54cce3c9d3db91c32995d8073aeeb"
+      },
+      "usr/share/asahi-audio/j316/tweeters-96.wav": {
+        "mode": 420,
+        "sha256": "9a7892d9dea367837e6dbef14e90e25e4157adcf9e4f1a94a602f342423f3d52"
+      },
+      "usr/share/asahi-audio/j316/woofers-192.wav": {
+        "mode": 420,
+        "sha256": "f53ca117cee8c513bfe31f24ede1715ec693d0d8d65730dc4b1d576ade9c5d27"
+      },
+      "usr/share/asahi-audio/j316/woofers-44.wav": {
+        "mode": 420,
+        "sha256": "4cce8c975cce6c48fa7443ce79da8e4a5e68491a189540cdd9ee12e2c9691776"
+      },
+      "usr/share/asahi-audio/j316/woofers-48.wav": {
+        "mode": 420,
+        "sha256": "3bc1567a0698be87bffe87d7ecc93ce122398337454bb987a844d090f2cbaf7c"
+      },
+      "usr/share/asahi-audio/j316/woofers-96.wav": {
+        "mode": 420,
+        "sha256": "b3cb7880c732263e51f6314c08d4b048e2db6eba050fca21397c6e6f0eefdc45"
+      },
+      "usr/share/asahi-audio/j375/192.wav": {
+        "mode": 420,
+        "sha256": "a6a18ff67bc575eb06f8f42e89584691fbed36204baa567d7745669f627c593f"
+      },
+      "usr/share/asahi-audio/j375/44.wav": {
+        "mode": 420,
+        "sha256": "a1e17f0765fdd09ef6beb3e1530907aba461665d71d95f58296209c9466a226f"
+      },
+      "usr/share/asahi-audio/j375/48.wav": {
+        "mode": 420,
+        "sha256": "c42d4d92c83fad9c6459293b69e5635c0d19ebd976262cd6916bad700e541293"
+      },
+      "usr/share/asahi-audio/j375/96.wav": {
+        "mode": 420,
+        "sha256": "a30a42e4b243acbe2cdae131ce987fc1f5ea7e96355ae0c91042fa768f2d2236"
+      },
+      "usr/share/asahi-audio/j375/graph-j475.json": {
+        "mode": 420,
+        "sha256": "70aa705e0ee4497c14896433e3c3d2d9939cd2bd359fc670b5fa931535535019"
+      },
+      "usr/share/asahi-audio/j375/graph-j575.json": {
+        "mode": 420,
+        "sha256": "5251649b97bba4755868008286341dabd406bf2355422612c0339d2467ab8972"
+      },
+      "usr/share/asahi-audio/j375/graph.json": {
+        "mode": 420,
+        "sha256": "a868d0c19873348059ed5eacbd4ffbb8941594364a240163ba3f88d6b95bbc81"
+      },
+      "usr/share/asahi-audio/j413/graph-j613.json": {
+        "mode": 420,
+        "sha256": "97e7dcc84e5f83a0dd61ba0f405d75b6994c39e4d0fb7b439573e5ab29f8f4ff"
+      },
+      "usr/share/asahi-audio/j413/graph.json": {
+        "mode": 420,
+        "sha256": "cf337e47a0fda5afa38d8891c94ab350ab02c85a30f14072569b61ca3f0f7417"
+      },
+      "usr/share/asahi-audio/j413/mic-j613.json": {
+        "mode": 420,
+        "sha256": "0a60431f3d927d9b5a93f6751d3f216310675d4c949c244a0e2defbcc7867873"
+      },
+      "usr/share/asahi-audio/j413/mic.json": {
+        "mode": 420,
+        "sha256": "612f46efa9b314e9fe59cd09495228a336edbd3aef808b5c459f2d8d99398294"
+      },
+      "usr/share/asahi-audio/j413/tweeters-192.wav": {
+        "mode": 420,
+        "sha256": "15fee3cb2185868b2abe948f8d22d93550805e6869dc09fbc7359c049f421733"
+      },
+      "usr/share/asahi-audio/j413/tweeters-44.wav": {
+        "mode": 420,
+        "sha256": "f08763713a4efc0036f54c56dbd0fba980be4af5c741c02f60c4ac2efdbd3e9d"
+      },
+      "usr/share/asahi-audio/j413/tweeters-48.wav": {
+        "mode": 420,
+        "sha256": "a3c073d2924e9e0f147bc16e024ceca5f7f83dfdbb9b7a6b000ec9f388ab4912"
+      },
+      "usr/share/asahi-audio/j413/tweeters-96.wav": {
+        "mode": 420,
+        "sha256": "7f230a8320d3ef432231c7331156c98fb2d5b5f62f35c3f1bdf438ce1b0ffc7a"
+      },
+      "usr/share/asahi-audio/j413/woofers-192.wav": {
+        "mode": 420,
+        "sha256": "688e828c311d1cd44f0c84fa0a1d4ee2b590997226199913c040bf123180445d"
+      },
+      "usr/share/asahi-audio/j413/woofers-44.wav": {
+        "mode": 420,
+        "sha256": "937eefa59c9b173d631ce4373b0a272f0d29ef8b38e8c4d845e7689eef7dd94a"
+      },
+      "usr/share/asahi-audio/j413/woofers-48.wav": {
+        "mode": 420,
+        "sha256": "b586f2a29eb598f2f8a6eee10028658de663a6c81481deaff8203f2c09a8c736"
+      },
+      "usr/share/asahi-audio/j413/woofers-96.wav": {
+        "mode": 420,
+        "sha256": "45f1878583d501d7b33d9ce356a7be4c3ba272ef0cf0a0394f64ed209aae780f"
+      },
+      "usr/share/asahi-audio/j415/graph-j615.json": {
+        "mode": 420,
+        "sha256": "2387ebd611132bce6fcb7879163b95d909bd32d12f38447f273ac2fc2004c1cf"
+      },
+      "usr/share/asahi-audio/j415/graph.json": {
+        "mode": 420,
+        "sha256": "944f3b71a1ec4853f6fd717d406356268f3ac4171b3e65eebfb84269777d345f"
+      },
+      "usr/share/asahi-audio/j415/mic-j615.json": {
+        "mode": 420,
+        "sha256": "cf2db82cb9e9924d809380483dbd811ec82a04eb42d62467746c812308d9e46e"
+      },
+      "usr/share/asahi-audio/j415/mic.json": {
+        "mode": 420,
+        "sha256": "3d5931298a48f0d4e8b5b5f34d8a216aedc62e57686654053fbfd8e5ffe61fe7"
+      },
+      "usr/share/asahi-audio/j415/tweeters-192.wav": {
+        "mode": 420,
+        "sha256": "c2944d2cfc7b9d2ff65928dc4a916d3c798f06198cefcada440e7c6012f62824"
+      },
+      "usr/share/asahi-audio/j415/tweeters-44.wav": {
+        "mode": 420,
+        "sha256": "1fbc4d096de1795f1c47f96636b4b0e8565925de83d872784ae63f6bc0891db5"
+      },
+      "usr/share/asahi-audio/j415/tweeters-48.wav": {
+        "mode": 420,
+        "sha256": "79997776b519de3f6d7de22989093bd58d036d77674eca7ea7a67e24490d2073"
+      },
+      "usr/share/asahi-audio/j415/tweeters-96.wav": {
+        "mode": 420,
+        "sha256": "c8051b3d44a061964134602f5e43cef7aab13978073da0afcdd585fc03b3bcda"
+      },
+      "usr/share/asahi-audio/j415/woofers-192.wav": {
+        "mode": 420,
+        "sha256": "c94db36a1d80ba34b25ff9688a729cc8c0d3074fda4ed9ba1696e1fe1cf9afd1"
+      },
+      "usr/share/asahi-audio/j415/woofers-44.wav": {
+        "mode": 420,
+        "sha256": "f66a458a6f456f6e87cf3d0cc5a3c87c8fbeb1a34f7ad8257e9da87778018099"
+      },
+      "usr/share/asahi-audio/j415/woofers-48.wav": {
+        "mode": 420,
+        "sha256": "b3907e2779be94db56ebe850f9f557802bf654bce50086fa6e663803a73c443a"
+      },
+      "usr/share/asahi-audio/j415/woofers-96.wav": {
+        "mode": 420,
+        "sha256": "eff5be80eb2e883dd0df7ed690f15a0320f04d81adcff250204aa8f15e3c8dae"
+      },
+      "usr/share/doc/asahi-audio/README.md": {
+        "mode": 420,
+        "sha256": "d958e9aa11a81b2a7283d98968aa2705a79d1968b77fa1864bc0b4d3347d9df1"
+      },
+      "usr/share/doc/asahi-audio/source-provenance.json": {
+        "mode": 420,
+        "sha256": "3da39cbdd69b1367fdb32ff9e4087f20812ea7c2491efbd81eab9642fb487ed1"
+      },
+      "usr/share/licenses/asahi-audio/LICENSE.asahi": {
+        "mode": 420,
+        "sha256": "e387c0e93b7e329eedea013214adbf447a5483bd7496db5cbef9b5078aef4aa6"
+      },
+      "usr/share/licenses/asahi-audio/NOTICE": {
+        "mode": 420,
+        "sha256": "910a4f8a8426f28922e3cfe0d50f7cdb14d67b01549097ccadae639e59ec1007"
+      },
+      "usr/share/licenses/asahi-audio/PACKAGING.LICENSE": {
+        "mode": 420,
+        "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+      },
+      "usr/share/pipewire/pipewire-pulse.conf.d/99-asahi.conf": {
+        "mode": 420,
+        "sha256": "00b6258c7052826d435141b39b5cb32fe528c70800cc745ab3488776f40da411"
+      },
+      "usr/share/pipewire/pipewire.conf.d/99-asahi.conf": {
+        "mode": 420,
+        "sha256": "00b6258c7052826d435141b39b5cb32fe528c70800cc745ab3488776f40da411"
+      },
+      "usr/share/wireplumber/scripts/device/asahi-lock-volume.lua": {
+        "mode": 420,
+        "sha256": "c6edddd5d8708a646514195866d848a59a628ba8640eed272dbf10414ecd5ed6"
+      },
+      "usr/share/wireplumber/wireplumber.conf.d/99-asahi.conf": {
+        "mode": 420,
+        "sha256": "fca59914cabbdcea255a890ffbe3956f1aaa36fd1e26a568b6c41afe5737b617"
+      }
+    },
+    "recipe_errors": [
+      "protected platform package name: asahi-audio"
+    ],
+    "version": "4.1-2"
+  }
+}
