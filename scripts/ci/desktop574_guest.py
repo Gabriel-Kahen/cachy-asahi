@@ -124,9 +124,10 @@ class Logged:
         need(not self.errors and not self.overflow, 'process log overflow/failure')
 
 
-def command(argv, env, logs, name, timeout=20):
+def command(argv, env, logs, name, timeout=20, *, retry_timeout=False):
     logged = Logged(argv, name, logs, env)
     first = None
+    cleanup_ok = True
     try:
         logged.process.wait(timeout=timeout)
     except BaseException as error:
@@ -136,9 +137,12 @@ def command(argv, env, logs, name, timeout=20):
             try:
                 cleanup()
             except BaseException as error:
+                cleanup_ok = False
                 if first is None:
                     first = error
     if first is not None:
+        if retry_timeout and cleanup_ok and isinstance(first, subprocess.TimeoutExpired):
+            return None  # Only a fully retired probe can become a readiness retry.
         raise first
     need(logged.process.returncode == 0, 'command failed: ' + name)
     return logged.paths[0].read_text()
@@ -215,8 +219,11 @@ def phase(stage, config, env, logs):
         client.process.stdin.close()
         for attempt in range(20):
             client.healthy(); compositor.healthy()
-            clients = json.loads(command(['/usr/bin/hyprctl', '-j', 'clients'], selected, logs,
-                                         stage + '-clients-' + str(attempt), timeout=3))
+            response = command(['/usr/bin/hyprctl', '-j', 'clients'], selected, logs,
+                               stage + '-clients-' + str(attempt), timeout=3, retry_timeout=True)
+            if response is None:
+                continue
+            clients = json.loads(response)
             if mapped_client(clients, client.process.pid):
                 break
             time.sleep(.5)
