@@ -23,7 +23,7 @@ import zlib
 sys.dont_write_bytecode = True
 import corpus
 
-EXPERIMENTS = {'ARM-C01': 'lto', 'ARM-C02': 'o3', 'ARM-C03': 'pgo'}
+EXPERIMENTS = {'ARM-C01': 'lto', 'ARM-C02': 'o3', 'ARM-C03': 'pgo', 'ARM-C04': 'm2'}
 EXPERIMENT = 'ARM-C01'
 CANDIDATE = 'lto'
 PURPOSE = 'ARM-C01-native-correctness-only'
@@ -448,6 +448,8 @@ def trial_env():
 def build_flags(variant):
     need(variant in variants(), 'variant differs from selected experiment')
     flags = BASE_FLAGS.replace('-O2 ', '-O3 ', 1) if variant == 'o3' else BASE_FLAGS
+    if variant == 'm2':
+        flags = flags.replace('-mtune=generic ', '-mtune=apple-m2 ', 1)
     if variant == 'pgo':
         use = ' -fprofile-use=/tmp/profile -Werror=missing-profile -Werror=coverage-mismatch'
         return flags + ' -fno-lto' + use, LINK_FLAGS + ' -fno-lto' + use
