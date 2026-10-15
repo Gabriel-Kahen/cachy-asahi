@@ -728,7 +728,7 @@ def safe_public(raw, public, work, *, lifecycle_authority=None, repository_autho
 
 
 class Controller:
-    def __init__(self, image, native_out, output, lock, source_commit):
+    def __init__(self, image, native_out, output, lock, source_commit, *, package_only=False):
         need(os.getuid() != 0 and re.fullmatch(r'[0-9a-f]{40}', source_commit or ''), 'non-root controller/accepted commit required')
         self.image, self.native_out, self.out, self.lock, self.commit = image, native_out, output, lock, source_commit
         output.mkdir()
@@ -742,6 +742,9 @@ class Controller:
         self.installed_owned = None
         self.desktop_contract = None
         self.cancelled = False
+        self.package_only = package_only
+        if package_only:
+            self.report['scope'] = 'package-lifecycle-and-desktop-only'
 
     def stage(self, name, action):
         raw = self.work / (name + '-raw'); raw.mkdir()
@@ -1173,11 +1176,15 @@ class Controller:
         if fixture_ok and not self.cancelled:
             self.stage('repository', self.repository)
         if life_ok and self.installed and not self.cancelled:
-            self.stage('onboarding', self.onboarding)
+            if not getattr(self, 'package_only', False):
+                self.stage('onboarding', self.onboarding)
             if not self.cancelled:
                 self.stage('desktop', self.desktop)
-        if not self.cancelled:
+        if not self.cancelled and not getattr(self, 'package_only', False):
             self.stage('source-suites', self.suites)
+        if getattr(self, 'package_only', False):
+            for name in ('onboarding', 'source-suites'):
+                self.report['stages'][name] = {'status': 'NOT RUN', 'reason': 'not selected by package-only integration'}
         return None
 
     def finish(self):
@@ -1187,7 +1194,8 @@ class Controller:
         self.report['status'] = 'PASS' if (not self.cancelled and not CANCEL_REQUESTED
             and self.report.get('controller_execution') != 'FAIL'
             and self.report.get('owned_image_cleanup', {}).get('status', 'PASS') == 'PASS'
-            and all(r['status'] == 'PASS' for r in self.report['stages'].values())) else 'FAIL'
+            and all(r['status'] == 'PASS' for name, r in self.report['stages'].items()
+                    if not (getattr(self, 'package_only', False) and name in ('onboarding', 'source-suites')))) else 'FAIL'
         self.report['cancelled'] = self.cancelled or CANCEL_REQUESTED
         native.save(self.out / 'result.json', self.report)
         summary = self.work / 'summary'; summary.mkdir(); native.save(summary / 'result.json', self.report)
