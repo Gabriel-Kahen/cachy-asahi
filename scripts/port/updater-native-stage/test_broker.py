@@ -884,4 +884,152 @@ class StorageTests(unittest.TestCase):
         self.assertEqual(b.storage_projection(self.c)['reason'], 'reserve-floor')
 
 
+class GuardianDiagnosticControls(unittest.TestCase):
+    """Exact extracted guardian definitions; every actor primitive is a fake."""
+    @staticmethod
+    def fixture(faults=None):
+        import ast
+        import re
+        from contextlib import nullcontext
+        raw=Path(b.__file__).read_bytes();tree=ast.parse(raw)
+        names={'BrokerError','need','sha','guardian_first','guardian_fact','guardian_write',
+               'guardian_emit','execute','_guardian_execute'}
+        constants={'COMMAND_SECONDS','QUERY_BYTES','GUARDIAN_PHASES','GUARDIAN_ERROR_CLASSES','GUARDIAN_PREDICATES'}
+        nodes=[n for n in tree.body if isinstance(n,(ast.FunctionDef,ast.ClassDef)) and n.name in names or
+               isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id in constants for t in n.targets)]
+        ns={'hashlib':hashlib,'re':re,'json':json,'Path':Path,'sys':sys}
+        exec(compile(ast.Module(body=nodes,type_ignores=[]),'<guardian-extracted>','exec'),ns)
+        faults=dict(faults or {});events=[];storage={'file':None};client={'status':'INTENT'}
+        def hit(name):
+            events.append(name);error=faults.pop(name,None)
+            if error is not None:raise error
+        class Process:
+            pid=1234;stdout=None;returncode=0
+            def poll(self):hit('WAIT');return self.returncode
+            def wait(self,timeout):hit('RETIRE');return self.returncode
+        process=Process()
+        def popen(*args,**kwargs):hit('SPAWN');return process
+        def started(row,pid):hit('REGISTER');row['status']='LIVE'
+        def done(row,started):hit('DONE');row['status']='ABSENT' if started else 'NOT_STARTED'
+        def mask(how,value):
+            hit('UNMASK' if how==2 else 'MASK');return set()
+        class Selector:
+            def __enter__(self):return self
+            def __exit__(self,*args):return False
+        def opening(path,flags,mode):
+            hit('OPEN')
+            assert str(path)=='/tmp/fixture/broker-diagnostic.json' and mode==0o600
+            assert flags==os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW
+            if storage['file'] is not None:raise FileExistsError()
+            storage['file']=b'';return 99
+        def writing(fd,raw):
+            hit('WRITE');assert fd==99 and len(raw)<=4096
+            if faults.pop('SHORT',False):storage['file']=raw[:-1];return len(raw)-1
+            storage['file']=raw;return len(raw)
+        fakeos=SimpleNamespace(open=opening,write=writing,fsync=lambda fd:hit('FSYNC'),
+            close=lambda fd:hit('CLOSE'),killpg=lambda *args:hit('KILLPG'),
+            O_WRONLY=os.O_WRONLY,O_CREAT=os.O_CREAT,O_EXCL=os.O_EXCL,O_NOFOLLOW=os.O_NOFOLLOW)
+        ns.update(os=fakeos,time=SimpleNamespace(monotonic=lambda:1),
+            signal=SimpleNamespace(SIG_BLOCK=1,SIG_SETMASK=2,SIGTERM=15,SIGKILL=9,
+                pthread_sigmask=mask,sigpending=lambda:set()),
+            subprocess=SimpleNamespace(Popen=popen,PIPE=-1,DEVNULL=-3,TimeoutExpired=subprocess.TimeoutExpired),
+            selectors=SimpleNamespace(DefaultSelector=Selector),
+            socket_identity=lambda c:hit('SOCKET'),regular=lambda *args:b'exe',
+            nullcontext=nullcontext,storage_admission=lambda c:nullcontext())
+        c=dict(root='/tmp/fixture',_sha256='a'*64,deadline_monotonic=100,
+            real_docker='/bin/fixture',real_docker_sha256=hashlib.sha256(b'exe').hexdigest(),
+            docker_endpoint='unix:///fixture',_client_intent=lambda:client,_client_started=started,_client_done=done)
+        signals=SimpleNamespace(seen=[],signals={15,2})
+        return ns,c,signals,storage,events,faults,process
+    def run_call(self,fixture):
+        ns,c,signals,*_=fixture
+        return ns['execute'](c,['version'],signals)
+    def test_success_does_not_publish(self):
+        f=self.fixture();self.assertEqual(self.run_call(f),(0,b''));self.assertIsNone(f[3]['file'])
+        self.assertNotIn('OPEN',f[4])
+    def test_first_error_phase_survives_retirement_failure(self):
+        first=ValueError('PRIVATE first');second=OSError('PRIVATE retirement')
+        f=self.fixture({'REGISTER':first,'DONE':second})
+        with self.assertRaises(OSError) as caught:self.run_call(f)
+        self.assertIs(caught.exception,second)  # Existing finally override remains held.
+        fact=json.loads(f[3]['file']);self.assertEqual(fact['first_error'],'VALUE_ERROR')
+        self.assertEqual(fact['phase'],'CLIENT_REGISTER');self.assertEqual(fact['retirement'],'FAIL')
+        self.assertNotIn('PRIVATE',f[3]['file'].decode())
+    def test_falsey_original_identity_and_ordinary_writer_fault(self):
+        class Falsey(OSError):
+            def __bool__(self):return False
+        first=Falsey('PRIVATE');f=self.fixture({'REGISTER':first,'OPEN':OSError('writer')})
+        with self.assertRaises(Falsey) as caught:self.run_call(f)
+        self.assertIs(caught.exception,first);self.assertIsNone(f[3]['file'])
+    def test_control_identity_survives_writer_control(self):
+        first=KeyboardInterrupt();writer=SystemExit(7)
+        f=self.fixture({'REGISTER':first,'WRITE':writer})
+        with self.assertRaises(KeyboardInterrupt) as caught:self.run_call(f)
+        self.assertIs(caught.exception,first);self.assertEqual(f[3]['file'],b'')
+        self.assertEqual(f[4].count('CLOSE'),1)
+    def test_retirement_failure_without_work_error(self):
+        first=OSError('retirement');f=self.fixture({'RETIRE':first})
+        with self.assertRaises(OSError) as caught:self.run_call(f)
+        self.assertIs(caught.exception,first)
+        fact=json.loads(f[3]['file']);self.assertEqual(fact['phase'],'PROCESS_RETIRE')
+        self.assertEqual(fact['retirement'],'FAIL')
+    def test_early_error_retirement_unknown(self):
+        first=ValueError('socket');f=self.fixture({'SOCKET':first})
+        with self.assertRaises(ValueError) as caught:self.run_call(f)
+        self.assertIs(caught.exception,first)
+        fact=json.loads(f[3]['file']);self.assertEqual(fact['phase'],'SOCKET_PIN')
+        self.assertEqual(fact['retirement'],'UNKNOWN');self.assertNotIn('SPAWN',f[4])
+    def test_closed_predicate_and_unknown_code_redaction(self):
+        for code in ('cancelled','query-output-bound','PRIVATE code'):
+            f=self.fixture();error=f[0]['BrokerError'](code);f[5]['REGISTER']=error
+            with self.assertRaises(f[0]['BrokerError']):self.run_call(f)
+            fact=json.loads(f[3]['file'])
+            self.assertEqual(fact['first_predicate'],code if code!='PRIVATE code' else 'UNKNOWN')
+            self.assertNotIn('PRIVATE',f[3]['file'].decode())
+    def test_first_publication_is_not_overwritten(self):
+        f=self.fixture({'REGISTER':ValueError('first')})
+        with self.assertRaises(ValueError):self.run_call(f)
+        original=f[3]['file'];f[5]['REGISTER']=OSError('later')
+        with self.assertRaises(OSError):self.run_call(f)
+        self.assertEqual(f[3]['file'],original)
+        self.assertEqual(f[4].count('WRITE'),1)
+    def test_partial_first_publication_is_not_retried(self):
+        f=self.fixture({'REGISTER':ValueError('first'),'SHORT':True})
+        with self.assertRaises(ValueError):self.run_call(f)
+        partial=f[3]['file'];self.assertFalse(partial.endswith(b'\n'))
+        f[5]['REGISTER']=OSError('later')
+        with self.assertRaises(OSError):self.run_call(f)
+        self.assertEqual(f[3]['file'],partial);self.assertEqual(f[4].count('WRITE'),1)
+    def test_fact_closed_shape_and_type_redaction(self):
+        f=self.fixture();ns,c=f[:2]
+        error=ns['BrokerError']('PRIVATE');error.code=object()
+        state=dict(first=error,phase='WAIT',first_phase='WAIT',retirement='PASS')
+        fact=ns['guardian_fact'](c,state)
+        self.assertEqual(set(fact),{'schema_version','purpose','broker_controller_sha256','phase','first_error','first_predicate','retirement'})
+        self.assertEqual(fact['first_predicate'],'UNKNOWN');self.assertLessEqual(len(json.dumps(fact).encode()),4096)
+        for key,value in [('first_phase','FOREIGN'),('retirement','FOREIGN')]:
+            bad=dict(state);bad[key]=value
+            with self.assertRaises(ns['BrokerError']):ns['guardian_fact'](c,bad)
+    def test_new_writer_control_propagates_without_active_cause(self):
+        f=self.fixture({'OPEN':KeyboardInterrupt()});ns,c=f[:2]
+        state=dict(first=ValueError('past'),first_phase='WAIT',retirement='UNKNOWN')
+        with self.assertRaises(KeyboardInterrupt):ns['guardian_emit'](c,state)
+    def test_writer_preserves_first_control_over_close_fault(self):
+        first=KeyboardInterrupt();f=self.fixture({'WRITE':first,'CLOSE':OSError('close')});ns,c=f[:2]
+        state=dict(first=ValueError('past'),first_phase='WAIT',retirement='UNKNOWN')
+        with self.assertRaises(KeyboardInterrupt) as caught:ns['guardian_write'](c,ns['guardian_fact'](c,state))
+        self.assertIs(caught.exception,first);self.assertEqual(f[4].count('CLOSE'),1)
+    def test_writer_control_propagates_over_active_ordinary_error(self):
+        first=ValueError('first');control=KeyboardInterrupt()
+        f=self.fixture({'REGISTER':first,'OPEN':control})
+        with self.assertRaises(KeyboardInterrupt) as caught:self.run_call(f)
+        self.assertIs(caught.exception,control);self.assertIs(control.__context__,first)
+    def test_close_control_propagates_over_ordinary_write_error(self):
+        first=OSError('write');control=SystemExit(9)
+        f=self.fixture({'WRITE':first,'CLOSE':control});ns,c=f[:2]
+        state=dict(first=ValueError('past'),first_phase='WAIT',retirement='UNKNOWN')
+        with self.assertRaises(SystemExit) as caught:ns['guardian_write'](c,ns['guardian_fact'](c,state))
+        self.assertIs(caught.exception,control);self.assertIs(control.__context__,first)
+
+
 if __name__ == '__main__':unittest.main()

@@ -674,6 +674,153 @@ def capture_native_child(path):
         return native_child_unknown()
 
 
+NATIVE_WORKER_PHASES=frozenset(('input-snapshot','worker-launch','worker-inspection','package-inspection','container-cleanup'))
+NATIVE_WORKER_CAUSES={
+    'not-started':frozenset(),
+    'worker-run':frozenset(('worker-run-launch-failed','worker-run-timeout','worker-run-cancelled','worker-run-failed','worker-returncode-invalid')),
+    'container-inspection':frozenset(('inspection-launch-failed','inspection-command-failed','inspection-timeout','inspection-output-limit','inspection-json-invalid','inspection-schema-invalid','inspection-identity-mismatch','inspection-id-drift','inspection-state-invalid','inspection-cancelled','inspection-io-failed','inspection-cleanup-failed')),
+    'worker-run-result':frozenset(('worker-nonzero-returncode','worker-container-state-unaccepted')),
+    'worker-diagnostic':frozenset(('worker-diagnostic-incomplete',)),
+    'worker-inventory':frozenset(('worker-inventory-unavailable','worker-inventory-mismatch','worker-observation-cancelled')),
+    'worker-artifact-shape':frozenset(('worker-output-symlink','worker-output-observation-failed','worker-observation-cancelled')),
+    'complete':frozenset(),
+}
+NATIVE_DETAIL_REASONS=frozenset(('unavailable','invalid','unbound','not-worker','bound'))
+
+
+def native_detail_unknown(reason='unavailable'):
+    need(type(reason) is str and reason in NATIVE_DETAIL_REASONS and reason!='bound','native-detail-reason')
+    return {'availability':'NOT_OBSERVED','reason':reason,'record':None}
+
+
+def diagnostic_json(path,limit):
+    """Private bytes bind the held FD and named inode, ownership and mode."""
+    path=Path(path)
+    need(type(limit) is int and 0<limit<=65536 and not any(p.is_symlink() for p in (path,*path.parents)),'native-detail-path')
+    fields=('st_dev','st_ino','st_mode','st_nlink','st_uid','st_gid','st_size','st_mtime_ns','st_ctime_ns')
+    fd=os.open(path,os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK)
+    try:
+        before=os.fstat(fd);named=path.lstat()
+        need(stat.S_ISREG(before.st_mode) and before.st_nlink==1 and before.st_uid==os.getuid()
+             and before.st_gid==os.getgid() and stat.S_IMODE(before.st_mode)==0o600
+             and before.st_size<=limit,'native-detail-file')
+        need(all(getattr(before,k)==getattr(named,k) for k in fields),'native-detail-drift')
+        data=bytearray()
+        while len(data)<=limit:
+            part=os.read(fd,min(65536,limit+1-len(data)))
+            if not part:break
+            data.extend(part)
+        after=os.fstat(fd);named=path.lstat()
+        need(len(data)==before.st_size and all(getattr(before,k)==getattr(after,k)==getattr(named,k) for k in fields),'native-detail-drift')
+        raw=bytes(data)
+    finally:
+        active=sys.exc_info()[1]
+        try:os.close(fd)
+        except BaseException as close_error:
+            if active is None or isinstance(active,Exception) and not isinstance(close_error,Exception):raise
+    def invalid(_):raise ValueError('native-detail-nonfinite')
+    return raw,json.loads(raw,object_pairs_hook=unique,parse_constant=invalid)
+
+
+def native_worker_projection(value):
+    need(type(value) is dict and set(value)=={'availability','reason','record'},'native-worker-fields')
+    if value['availability']=='NOT_OBSERVED':
+        need(value==native_detail_unknown(value['reason']),'native-worker-unknown');return dict(value)
+    need(value['availability']=='OBSERVED' and value['reason']=='bound','native-worker-availability')
+    row=value['record'];fields={'worker','failed_stage','error_type','worker_check','failure_code','worker_returncode',
+        'launch_attempted','controller_sha256','retirement'}
+    need(type(row) is dict and set(row)==fields and type(row['worker']) is int and row['worker'] in (1,2),'native-worker-record')
+    need(type(row['failed_stage']) is str and row['failed_stage'] in NATIVE_WORKER_PHASES and
+         type(row['error_type']) is str and row['error_type'] in NATIVE_CHILD_ERRORS,'native-worker-phase')
+    check=row['worker_check'];cause=row['failure_code'];code=row['worker_returncode']
+    need(type(check) is str and check in NATIVE_WORKER_CAUSES and
+         (cause is None or type(cause) is str and cause in NATIVE_WORKER_CAUSES[check]),'native-worker-check')
+    need(code is None or type(code) is int and -64<=code<=255,'native-worker-code')
+    need(type(row['launch_attempted']) is bool and (code is None or row['launch_attempted']),'native-worker-launch')
+    need(check!='not-started' or code is None and cause is None,'native-worker-not-started')
+    need(cause!='worker-returncode-invalid' or code is None,'native-worker-invalid-return')
+    need(cause!='worker-nonzero-returncode' or code is not None and code!=0,'native-worker-nonzero')
+    need(check not in ('worker-run-result','worker-diagnostic','worker-inventory','worker-artifact-shape','complete') or code is not None,'native-worker-return-observation')
+    need(type(row['controller_sha256']) is str and re.fullmatch('[0-9a-f]{64}',row['controller_sha256']),'native-worker-controller')
+    retirement=row['retirement']
+    need(type(retirement) is dict and set(retirement)=={'attempted','removed','absent','complete'}
+         and all(type(v) is bool for v in retirement.values()),'native-worker-retirement')
+    need(retirement['complete']==(retirement['removed'] and retirement['absent']) and
+         (retirement['attempted'] or not any(retirement.values())),'native-worker-retirement-coherence')
+    return {'availability':'OBSERVED','reason':'bound','record':dict(row,retirement=dict(retirement))}
+
+
+def capture_native_worker(private,child,entry_sha):
+    """Fixed observed worker selector; no recipe helper import or private prose."""
+    if child.get('availability')!='OBSERVED' or child.get('failed_stage') not in ('worker-1','worker-2'):
+        return native_detail_unknown('not-worker')
+    worker=int(child['failed_stage'][-1]);base=Path(private)/'native'/('build-'+str(worker))
+    try:
+        raw,controller=diagnostic_json(base/'inputs/controller-input.json',65536)
+        _,value=diagnostic_json(base/'provenance.json',65536)
+    except OSError:return native_detail_unknown('unavailable')
+    except ValueError:return native_detail_unknown('invalid')
+    try:
+        need(type(controller) is dict and type(value) is dict and value.get('schema_version')==1
+             and type(value.get('schema_version')) is int and value.get('stage')=='finalized'
+             and value.get('native_compilation') in ('FAIL','FAIL-container-cleanup'),'native-worker-terminal')
+        need(type(controller.get('schema_version')) is int and controller['schema_version']==1 and
+             type(controller.get('image_id')) is str and re.fullmatch('sha256:[0-9a-f]{64}',controller['image_id']) and
+             type(entry_sha) is str and re.fullmatch('[0-9a-f]{64}',entry_sha),'native-worker-controller-shape')
+        if not (value.get('controller_sha256')==digest(raw) and
+             value.get('image_id')==controller.get('image_id') and
+             value.get('entry_script_sha256')==controller.get('entry_script_sha256')==entry_sha):
+            return native_detail_unknown('unbound')
+        error=value.get('error_type');need(type(error) is str,'native-worker-error')
+        result={'worker':worker,'failed_stage':value.get('failed_stage'),'error_type':error if error in NATIVE_CHILD_ERRORS else 'UNKNOWN',
+            'worker_check':value.get('worker_check'),'failure_code':value.get('worker_failure_code'),
+            'worker_returncode':value.get('worker_run_returncode'),'launch_attempted':value.get('worker_launch_attempted'),
+            'controller_sha256':value['controller_sha256'],
+            'retirement':{key:value.get(field) for key,field in (('attempted','container_cleanup_attempted'),
+                ('removed','container_removal_succeeded'),('absent','container_absence_verified'),('complete','container_cleanup_complete'))}}
+        return native_worker_projection({'availability':'OBSERVED','reason':'bound','record':result})
+    except Exception:return native_detail_unknown('invalid')
+GUARDIAN_PHASES = frozenset(('ADMISSION', 'SOCKET_PIN', 'EXECUTABLE_PIN', 'CLIENT_INTENT', 'SIGNAL_MASK', 'STORAGE_ADMISSION', 'SPAWN', 'CLIENT_REGISTER', 'SIGNAL_RESTORE', 'SELECTOR_SETUP', 'WAIT', 'CAPTURE', 'PROCESS_RETIRE', 'STDOUT_RETIRE', 'CLIENT_DONE'))
+GUARDIAN_ERROR_CLASSES = frozenset(('BROKER_ERROR', 'VALUE_ERROR', 'OS_ERROR', 'TIMEOUT', 'KEYBOARD_INTERRUPT', 'SYSTEM_EXIT', 'OTHER_CONTROL', 'UNKNOWN'))
+GUARDIAN_PREDICATES = frozenset(('command-deadline', 'cancelled', 'socket-identity-changed', 'docker-executable-pin', 'client-registry-required', 'client-count', 'client-pid', 'client-stat-bound', 'client-session-identity', 'query-output-bound', 'client-group-ambiguous', 'docker-storage-budget', 'storage-identity', 'storage-root-identity', 'storage-lock-owner', 'storage-lock-deadline', 'storage-lock-identity', 'storage-state-binding', 'storage-state-schema', 'storage-state-latch', 'storage-state-nonfresh', 'storage-policy-schema', 'storage-policy-root', 'storage-policy-device', 'storage-path', 'storage-depth-bound', 'storage-directory', 'storage-sample-bound', 'bounded-regular-file', 'writable-file', 'special-file-mode', 'file-drift'))
+
+
+def native_guardian_projection(value):
+    need(type(value) is dict and set(value)=={'availability','reason','record'},'native-guardian-fields')
+    if value['availability']=='NOT_OBSERVED':
+        need(value==native_detail_unknown(value['reason']),'native-guardian-unknown');return dict(value)
+    need(value['availability']=='OBSERVED' and value['reason']=='bound','native-guardian-availability')
+    row=value['record']
+    need(type(row) is dict and set(row)=={'schema_version','purpose','broker_controller_sha256','phase','first_error','first_predicate','retirement'},'native-guardian-record')
+    need(type(row['schema_version']) is int and row['schema_version']==1 and
+         row['purpose']=='updater-broker-guardian-diagnostic','native-guardian-schema')
+    need(type(row['broker_controller_sha256']) is str and re.fullmatch('[0-9a-f]{64}',row['broker_controller_sha256']),'native-guardian-controller')
+    need(type(row['phase']) is str and row['phase'] in GUARDIAN_PHASES and
+         type(row['first_error']) is str and row['first_error'] in GUARDIAN_ERROR_CLASSES and
+         type(row['first_predicate']) is str and row['first_predicate'] in GUARDIAN_PREDICATES|{'UNKNOWN'} and
+         type(row['retirement']) is str and row['retirement'] in ('PASS','FAIL','UNKNOWN'),'native-guardian-enum')
+    need(row['first_error']=='BROKER_ERROR' or row['first_predicate']=='UNKNOWN','native-guardian-predicate')
+    return {'availability':'OBSERVED','reason':'bound','record':dict(row)}
+
+
+def capture_native_guardian(private,expected):
+    """Bind the first published broker fact to the separately held private controller."""
+    if type(expected) is not str or re.fullmatch('[0-9a-f]{64}',expected) is None:
+        return native_detail_unknown('unavailable')
+    try:
+        raw,controller=diagnostic_json(Path(private)/'broker-controller.json',65536)
+        fact_raw,row=diagnostic_json(Path(private)/'broker-diagnostic.json',4096)
+    except OSError:return native_detail_unknown('unavailable')
+    except ValueError:return native_detail_unknown('invalid')
+    try:
+        need(type(controller) is dict and type(controller.get('schema_version')) is int and
+             controller['schema_version']==1,'native-guardian-controller-schema')
+        need(fact_raw==(json.dumps(row,sort_keys=True,separators=(',',':'),allow_nan=False)+'\n').encode(),'native-guardian-canonical')
+        if not (digest(raw)==expected and type(row) is dict and row.get('broker_controller_sha256')==expected):
+            return native_detail_unknown('unbound')
+        return native_guardian_projection({'availability':'OBSERVED','reason':'bound','record':row})
+    except Exception:return native_detail_unknown('invalid')
+
 def public_summary(receipt):
     """Fixed scalar/hash/typed lifecycle fields; no host paths, argv or raw logs."""
     allowed=('schema_version','status','phase','controller_sha256','ready_sha256','source_commit',
@@ -687,6 +834,12 @@ def public_summary(receipt):
              and receipt.get('runtime_reason')=='process-failed' and type(receipt.get('runtime_returncode')) is int
              and receipt['runtime_returncode']!=0,'native-child-context')
         result['native_child_failure']=native_child_projection(receipt['native_child_failure'])
+        for key,project in (('native_worker_failure',native_worker_projection),('native_guardian_failure',native_guardian_projection)):
+            if key in receipt:result[key]=project(receipt[key])
+        detail=result.get('native_worker_failure')
+        if detail is not None and detail['availability']=='OBSERVED':
+            need(result['native_child_failure']['availability']=='OBSERVED' and
+                 result['native_child_failure']['failed_stage']=='worker-'+str(detail['record']['worker']),'native-worker-context')
     if 'storage' in receipt:result['storage']=storage_projection(receipt['storage'])
     return result
 
@@ -970,12 +1123,18 @@ def pipeline(root,controller,controller_sha,output,runner=None):
             if receipt.get('failed_phase')=='native-pair' and receipt.get('runtime_reason')=='process-failed' and \
                type(receipt.get('runtime_returncode')) is int and receipt['runtime_returncode']!=0:
                 receipt['native_child_failure']=native_child_unknown()
+                receipt['native_worker_failure']=native_detail_unknown()
+                receipt['native_guardian_failure']=native_detail_unknown()
             # Project, guard and bundle in bounded owned processes while the
             # authenticated source snapshot remains available for all helpers.
             try:
                 if private is not None and private.is_dir():
                     if 'native_child_failure' in receipt:
                         receipt['native_child_failure']=capture_native_child(private/'native/result.json')
+                        receipt['native_worker_failure']=capture_native_worker(private,receipt['native_child_failure'],
+                            rows['packages/tools/cachy-asahi-update/native-entry.py']['sha256'])
+                        receipt['native_guardian_failure']=capture_native_guardian(private,
+                            broker_contract.get('_sha256') if type(broker_contract) is dict else None)
                     copied=private/'source'
                     empty=private/'empty-raw';empty.mkdir(mode=0o700)
                     raw=private/'native' if (private/'native').is_dir() else empty

@@ -1715,5 +1715,113 @@ class SignalHelperTests(unittest.TestCase):
             original(signal.SIG_SETMASK, mask)
 
 
+
+
+class NativeWorkerFailureDetailControls(unittest.TestCase):
+    def model(self):
+        controller={'schema_version':1,'image_id':'sha256:'+'a'*64,'entry_script_sha256':'b'*64}
+        raw=(json.dumps(controller,sort_keys=True)+'\n').encode()
+        value={'schema_version':1,'stage':'finalized','native_compilation':'FAIL','failed_stage':'worker-inspection',
+            'controller_sha256':hashlib.sha256(raw).hexdigest(),'image_id':controller['image_id'],
+            'entry_script_sha256':controller['entry_script_sha256'],'error_type':'ValueError','error':POISON.decode(),
+            'worker_check':'worker-run-result','worker_failure_code':'worker-nonzero-returncode',
+            'worker_run_returncode':1,'worker_launch_attempted':True,'container_cleanup_attempted':True,
+            'container_removal_succeeded':True,'container_absence_verified':True,'container_cleanup_complete':True}
+        return controller,raw,value
+    def observe(self,value=None,entry='b'*64):
+        controller,raw,record=self.model()
+        if value is not None:record=value
+        def read(path,limit):
+            return (raw,controller) if Path(path).name=='controller-input.json' else (b'{}',record)
+        with mock.patch.object(stage,'diagnostic_json',side_effect=read):
+            return stage.capture_native_worker(Path('/private'),{'availability':'OBSERVED','failed_stage':'worker-1'},entry)
+    def test_bound_failure_preserves_issued_return_and_retirement(self):
+        value=self.observe();self.assertEqual(value['availability'],'OBSERVED')
+        row=value['record'];self.assertEqual(row['worker_returncode'],1)
+        self.assertEqual(row['retirement'],dict(attempted=True,removed=True,absent=True,complete=True))
+        self.assertNotIn(POISON.decode(),json.dumps(value));self.assertNotIn('native_compilation',row)
+    def test_missing_unknown_retirement_never_passes(self):
+        for key in ('container_cleanup_attempted','container_removal_succeeded','container_absence_verified','container_cleanup_complete'):
+            _,_,value=self.model();value.pop(key)
+            with self.subTest(key=key):self.assertEqual(self.observe(value)['availability'],'NOT_OBSERVED')
+    def test_partial_retirement_stays_partial(self):
+        _,_,value=self.model();value.update(container_absence_verified=False,container_cleanup_complete=False)
+        result=self.observe(value)['record']['retirement']
+        self.assertTrue(result['removed']);self.assertFalse(result['absent']);self.assertFalse(result['complete'])
+    def test_wrong_controller_and_source_entry_refuse_binding(self):
+        _,_,value=self.model();value['controller_sha256']='c'*64
+        self.assertEqual(self.observe(value)['reason'],'unbound')
+        self.assertEqual(self.observe(entry='c'*64)['reason'],'unbound')
+    def test_invalid_return_and_cause_refuse(self):
+        for code in (True,256,-65,0):
+            _,_,value=self.model();value['worker_run_returncode']=code
+            with self.subTest(code=code):self.assertEqual(self.observe(value)['availability'],'NOT_OBSERVED')
+    def test_absent_or_invalid_private_record_stays_unknown(self):
+        for error,reason in ((FileNotFoundError(),'unavailable'),(ValueError('private text'),'invalid')):
+            with mock.patch.object(stage,'diagnostic_json',side_effect=error):
+                value=stage.capture_native_worker(Path('/private'),{'availability':'OBSERVED','failed_stage':'worker-1'},'b'*64)
+            self.assertEqual(value,stage.native_detail_unknown(reason))
+    def test_nonworker_stage_does_not_read(self):
+        with mock.patch.object(stage,'diagnostic_json',side_effect=AssertionError('must not read')):
+            value=stage.capture_native_worker(Path('/private'),{'availability':'OBSERVED','failed_stage':'image-bootstrap'},'b'*64)
+        self.assertEqual(value,stage.native_detail_unknown('not-worker'))
+    def test_observation_controls_preserve_identity(self):
+        error=KeyboardInterrupt()
+        with mock.patch.object(stage,'diagnostic_json',side_effect=error):
+            with self.assertRaises(KeyboardInterrupt) as caught:
+                stage.capture_native_worker(Path('/private'),{'availability':'OBSERVED','failed_stage':'worker-1'},'b'*64)
+        self.assertIs(caught.exception,error)
+    def test_private_reader_joins_named_and_held_inode_before_read(self):
+        values=dict(st_dev=1,st_ino=11,st_mode=stat.S_IFREG|0o600,st_nlink=1,st_uid=os.getuid(),
+                    st_gid=os.getgid(),st_size=2,st_mtime_ns=1,st_ctime_ns=1)
+        named=types.SimpleNamespace(**values);opened=types.SimpleNamespace(**dict(values,st_ino=22))
+        with mock.patch.object(Path,'is_symlink',return_value=False),mock.patch.object(Path,'lstat',return_value=named), \
+             mock.patch.object(stage.os,'open',return_value=7),mock.patch.object(stage.os,'fstat',return_value=opened), \
+             mock.patch.object(stage.os,'read',side_effect=AssertionError('must refuse before read')),mock.patch.object(stage.os,'close'):
+            with self.assertRaisesRegex(ValueError,'^native-detail-drift$'):stage.diagnostic_json(Path('/private/receipt'),4096)
+
+
+
+class NativeGuardianFailureDetailControls(unittest.TestCase):
+    def model(self):
+        controller={'schema_version':1,'nonce':'a'*32};raw=(json.dumps(controller)+'\n').encode()
+        pin=hashlib.sha256(raw).hexdigest()
+        fact=dict(schema_version=1,purpose='updater-broker-guardian-diagnostic',broker_controller_sha256=pin,
+                  phase='CLIENT_DONE',first_error='BROKER_ERROR',first_predicate='client-group-ambiguous',retirement='FAIL')
+        return controller,raw,pin,fact
+    def test_bound_guardian_is_separate_from_outer_controller(self):
+        controller,raw,pin,fact=self.model()
+        def read(path,limit):return (raw,controller) if Path(path).name=='broker-controller.json' else ((json.dumps(fact,sort_keys=True,separators=(',',':'))+'\n').encode(),fact)
+        with mock.patch.object(stage,'diagnostic_json',side_effect=read):
+            value=stage.capture_native_guardian(Path('/private'),pin)
+        self.assertEqual(value['record'],fact);self.assertEqual(value['record']['retirement'],'FAIL')
+        self.assertNotIn('nonce',json.dumps(value))
+    def test_unbound_guardian_stays_unknown(self):
+        controller,raw,pin,fact=self.model();fact['broker_controller_sha256']='c'*64
+        def read(path,limit):return (raw,controller) if Path(path).name=='broker-controller.json' else ((json.dumps(fact,sort_keys=True,separators=(',',':'))+'\n').encode(),fact)
+        with mock.patch.object(stage,'diagnostic_json',side_effect=read):
+            value=stage.capture_native_guardian(Path('/private'),pin)
+        self.assertEqual(value,stage.native_detail_unknown('unbound'))
+    def test_partial_first_publication_stays_unknown(self):
+        with mock.patch.object(stage,'diagnostic_json',side_effect=ValueError('private partial JSON')):
+            value=stage.capture_native_guardian(Path('/private'),'a'*64)
+        self.assertEqual(value,stage.native_detail_unknown('invalid'))
+    def test_parseable_short_write_without_newline_stays_unknown(self):
+        controller,raw,pin,fact=self.model()
+        partial=json.dumps(fact,sort_keys=True,separators=(',',':')).encode()
+        def read(path,limit):return (raw,controller) if Path(path).name=='broker-controller.json' else (partial,fact)
+        with mock.patch.object(stage,'diagnostic_json',side_effect=read):
+            value=stage.capture_native_guardian(Path('/private'),pin)
+        self.assertEqual(value,stage.native_detail_unknown('invalid'))
+    def test_guardian_private_enum_and_unknown_removal_refuse(self):
+        _,_,_,fact=self.model()
+        fact['retirement']='UNKNOWN'
+        self.assertEqual(stage.native_guardian_projection(dict(availability='OBSERVED',reason='bound',record=fact))['record']['retirement'],'UNKNOWN')
+        for key in ('phase','first_error','first_predicate','retirement'):
+            changed=dict(fact);changed[key]=POISON.decode()
+            with self.subTest(key=key):
+                with self.assertRaises(ValueError):stage.native_guardian_projection(dict(availability='OBSERVED',reason='bound',record=changed))
+
+
 if __name__ == '__main__':
     unittest.main()
