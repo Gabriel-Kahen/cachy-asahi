@@ -59,7 +59,8 @@ def suite(api, signer, source, work, result):
     conf = work / 'pacman.conf'
     conf.write_text('[options]\nArchitecture = aarch64\nSigLevel = Required\nLocalFileSigLevel = Required\n'
                     'GPGDir = ' + str(trust) + '\nHookDir = ' + str(hooks) + '\n')
-    pacman = ['pacman', '--config', str(conf), '--noconfirm', '--noscriptlet']
+    pacman = ['pacman', '--config', str(conf)]
+    transaction = pacman + ['--noconfirm', '--noscriptlet']
     main = Path('/etc/pacman.conf'); original_main = main.read_bytes()
     include = Path('/etc/pacman.d/cachy-asahi.conf')
     api.need(not include.exists() and b'cachy-asahi repository enrollment' not in original_main,
@@ -109,7 +110,7 @@ def suite(api, signer, source, work, result):
             api.need(api.run(pacman + ['-Qqo', str(path)]).strip() == row['name'], 'package owner differs')
 
     for row in plan:
-        api.run(pacman + ['-U', str(incoming / row['filename'])]); installed(row); kept()
+        api.run(transaction + ['-U', str(incoming / row['filename'])]); installed(row); kept()
         check('no-automatic-enrollment-' + row['version'], main.read_bytes() == original_main and not include.exists())
         if row['version'] == '0.1.0-3':
             check('predecessor-has-no-repository-command', not Path('/usr/bin/cachy-asahi-repository').exists())
@@ -139,15 +140,15 @@ def suite(api, signer, source, work, result):
         check('manual-public-trust-preserved', certificates([fingerprint]) == enrolled_cert)
         kept()
 
-    api.run(pacman + ['-R', 'cachy-asahi-setup'])
+    api.run(transaction + ['-R', 'cachy-asahi-setup'])
     check('removed-exact-base-inventory', api.inventory() == base)
     check('removed-all-package-files', all(not (Path('/') / name).exists() for name in plan[1]['payload']))
     enrollment_kept()
-    api.run(pacman + ['-U', str(incoming / plan[1]['filename'])]); installed(plan[1]); enrollment_kept()
+    api.run(transaction + ['-U', str(incoming / plan[1]['filename'])]); installed(plan[1]); enrollment_kept()
     disabled = json.loads(api.run(cli + ['--apply', 'disable']))
     check('explicit-installed-disable', disabled['status'] == 'disabled' and not include.exists() and main.read_bytes() == original_main)
     check('disable-retains-public-trust', certificates([fingerprint]) == enrolled_cert); kept()
-    api.run(pacman + ['-R', 'cachy-asahi-setup'])
+    api.run(transaction + ['-R', 'cachy-asahi-setup'])
     check('final-exact-base-inventory', api.inventory() == base)
     check('final-package-files-absent', all(not (Path('/') / name).exists() for name in plan[1]['payload']))
     check('final-removal-retains-public-trust', certificates([fingerprint]) == enrolled_cert); kept()
