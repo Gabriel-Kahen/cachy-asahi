@@ -3,11 +3,11 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: Same-job native build and package lifecycle retry
+        description: Fresh native original-four builder and required FDK pair
         required: true
-        default: integration
+        default: build
         type: choice
-        options: [probe, audit, build, integration]
+        options: [build]
       inputs_sha256:
         description: Exact pinned Source input lock
         type: string
@@ -17,19 +17,19 @@ on:
         type: string
         default: a5fb287b4dda2a90bf61d4fa8cbbc5d666dad8bb450a70544d00545b091f36e3
       integration_sha256:
-        description: Leave empty; this retry freezes the exact checkout once
+        description: Leave empty; this FDK-only job does not run integration
         type: string
         default: ''
 permissions:
   contents: read
 concurrency:
-  group: native-arm-desktop-integration
+  group: native-arm-fdk-current
   cancel-in-progress: false
 jobs:
   native:
     if: github.repository == 'Gabriel-Kahen/cachy-asahi' && github.event.repository.private == false
     runs-on: ubuntu-24.04-arm
-    timeout-minutes: 50
+    timeout-minutes: 85
     env:
       SOURCE_COMMIT: a79c4ca92486854f9edb639cd970d2c90fda4b12
       INPUTS_SHA256: ${{ inputs.inputs_sha256 }}
@@ -42,7 +42,7 @@ jobs:
           ref: a79c4ca92486854f9edb639cd970d2c90fda4b12
           persist-credentials: false
       - name: Seed the six frozen private cache objects before native work
-        if: inputs.mode == 'integration'
+        if: inputs.mode == 'build'
         shell: bash
         env:
           CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01 }}
@@ -100,11 +100,13 @@ jobs:
                   os.environ.pop(name)
           seed_current_build_cache(cache, pin)
           PYSEED
-      - name: Build once, then run package lifecycle integration on the same ARM daemon
+      - name: Build the fresh native base and original package pairs
+        id: original_build
+        timeout-minutes: 50
         shell: bash
         run: |
           set -euo pipefail
-          test "$RETRY_MODE" = integration
+          test "$RETRY_MODE" = build
           test "$INPUTS_SHA256" = beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f
           test "$RECIPES_SHA256" = a5fb287b4dda2a90bf61d4fa8cbbc5d666dad8bb450a70544d00545b091f36e3
           test -z "$REQUESTED_INTEGRATION_SHA256"
@@ -115,40 +117,150 @@ jobs:
             GITHUB_SHA="$SOURCE_COMMIT" GITHUB_REPOSITORY="$GITHUB_REPOSITORY" \
             GITHUB_RUN_ID="$GITHUB_RUN_ID" GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" \
             PYTHONDONTWRITEBYTECODE=1 INPUTS_SHA256="$INPUTS_SHA256" RECIPES_SHA256="$RECIPES_SHA256" \
-            /bin/bash --noprofile --norc -euo pipefail <<'RUN_PACKAGE_INTEGRATION'
+            /bin/bash --noprofile --norc -euo pipefail <<'RUN_ORIGINAL_BUILDS'
           export TMPDIR="$RUNNER_TEMP"
           python3 -B scripts/ci/native_arm.py build \
             --inputs-sha256 "$INPUTS_SHA256" --recipes-sha256 "$RECIPES_SHA256" \
             --cache "$RUNNER_TEMP/alarm-cache" --output "$RUNNER_TEMP/native-evidence"
-          python3 -B scripts/ci/integration.py --freeze \
-            --output "$RUNNER_TEMP/package-integration.lock.json" \
-            --recipes-sha256 "$RECIPES_SHA256" \
-            --recipe-source-commit 465bf53545e1d83053bf3c412e210493961b74ae \
-            --source-date-epoch 1791748800
-          task_integration_sha=$(sha256sum "$RUNNER_TEMP/package-integration.lock.json" | cut -d ' ' -f 1)
-          python3 -B scripts/ci/integration_resume.py \
-            --native-output "$RUNNER_TEMP/native-evidence" \
-            --integration-lock "$RUNNER_TEMP/package-integration.lock.json" \
-            --integration-sha256 "$task_integration_sha" --recipes-sha256 "$RECIPES_SHA256" \
-            --source-commit "$GITHUB_SHA" --output "$RUNNER_TEMP/integration-evidence"
-          RUN_PACKAGE_INTEGRATION
-      - name: Retain bounded native and sanitized integration evidence
+          RUN_ORIGINAL_BUILDS
+      - name: Retain bounded original-four and base evidence
         if: always()
         shell: bash
         run: |
-          set -uo pipefail
-          evidence_status=0
+          set -euo pipefail
           if [ -d "$RUNNER_TEMP/native-evidence" ]; then
-            python3 -B scripts/ci/log_evidence.py "$RUNNER_TEMP/native-evidence" || evidence_status=1
+            python3 -B scripts/ci/log_evidence.py "$RUNNER_TEMP/native-evidence"
           fi
-          if [ -d "$RUNNER_TEMP/integration-evidence/public" ]; then
-            for stage in "$RUNNER_TEMP/integration-evidence/public"/*; do
-              if [ -d "$stage" ]; then
-                python3 -B scripts/ci/log_evidence.py "$stage" || evidence_status=1
+      - name: Checkout the fixed FDK source
+        id: fdk_source
+        if: ${{ !cancelled() && steps.original_build.outcome == 'success' }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 804b418f14459e82031046fb28a0308b4cb9348e
+          path: fdk-source
+          persist-credentials: false
+      - name: Required FDK pair on this job native base
+        id: fdk_pair
+        if: ${{ always() && !cancelled() }}
+        timeout-minutes: 25
+        shell: bash
+        env:
+          FDK_CHECKOUT_OUTCOME: ${{ steps.fdk_source.outcome }}
+        run: |
+          set -euo pipefail
+          test "$FDK_CHECKOUT_OUTCOME" = success
+          install -d -m 700 "$RUNNER_TEMP/fdk-home" "$RUNNER_TEMP/fdk-docker-config"
+          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP/fdk-home" LANG=C.UTF-8 TZ=UTC \
+            RUNNER_TEMP="$RUNNER_TEMP" TMPDIR="$RUNNER_TEMP" PYTHONDONTWRITEBYTECODE=1 \
+            DOCKER_CONFIG="$RUNNER_TEMP/fdk-docker-config" \
+            FDK_SOURCE_ROOT="$GITHUB_WORKSPACE/fdk-source" \
+            FDK_NATIVE_OUTPUT="$RUNNER_TEMP/native-evidence" \
+            FDK_OUTPUT="$RUNNER_TEMP/fdk-evidence" \
+            /bin/bash --noprofile --norc -euo pipefail > "$RUNNER_TEMP/fdk-driver.log" 2>&1 <<'RUN_FDK'
+          # Optional post-core step. Uses only the original base builder on this daemon.
+          set -euo pipefail
+          source_root=${FDK_SOURCE_ROOT:?}
+          native_out=${FDK_NATIVE_OUTPUT:?}
+          out=${FDK_OUTPUT:?}
+          mkdir -m 700 "$out"
+          status=FAIL
+          finish() {
+              rc=$?
+              printf 'FDK_PAIR=%s\nEXIT=%s\n' "$status" "$rc" > "$out/result.txt" || :
+              cat "$out/result.txt" || :
+              if [[ $status == FAIL ]]; then
+                  for log in "$out"/build-*/build.log "$out"/*.log; do
+                      [[ ! -f $log ]] || tail -n 40 "$log" || :
+                  done
               fi
-            done
-            if [ -f "$RUNNER_TEMP/integration-evidence/public/summary/result.json" ]; then
-              cat "$RUNNER_TEMP/integration-evidence/public/summary/result.json"
-            fi
+              return "$rc"
+          }
+          trap finish EXIT
+          image=$(python3 - "$source_root" "$native_out" "$out" <<'PY'
+          from pathlib import Path
+          import hashlib, json, re, sys
+          source, native, out = map(Path, sys.argv[1:])
+          result = native / 'result.json'
+          if not result.exists() or json.loads(result.read_text()).get('native_build') != 'PASS':
+              raise SystemExit(0)
+          bootstrap = json.loads((native / 'bootstrap.json').read_text())
+          image = (native / 'image-id').read_text().strip()
+          assert re.fullmatch(r'sha256:[0-9a-f]{64}', image)
+          assert bootstrap['status'] == 'image-provisioned' and bootstrap['image_id'] == image
+          assert hashlib.sha256((native / 'packages.lock').read_bytes()).hexdigest() == bootstrap['packages_lock_sha256']
+          recipe = source / 'packages/libraries/cachy-asahi-fdk-aac/PKGBUILD'
+          digest = hashlib.sha256(recipe.read_bytes()).hexdigest()
+          assert digest == '774803633213d77e9879005608ff23528b6780465c7bd00f3234430c9a7346df'
+          for name in ('template-inputs.json', 'reviewed-inputs.json'):
+              data = json.loads((source / 'scripts/port/fdk-native-stage' / name).read_text())
+              data['PKGBUILD'] = digest
+              (out / name).write_text(json.dumps(data, sort_keys=True, indent=2) + '\n')
+          print(image)
+          PY
+          )
+          if [[ -z $image ]]; then
+              status=SKIPPED
+              printf 'No successful original-four builder; FDK was not run.\n'
+              exit 0
           fi
-          exit "$evidence_status"
+          python3 -B "$source_root/packages/libraries/cachy-asahi-fdk-aac/select-source.py" \
+              --fetch-upstream --output "$out/selected-source.tar" > "$out/selection.log" 2>&1
+          template_sha=$(sha256sum "$out/template-inputs.json" | cut -d ' ' -f 1)
+          python3 -B "$source_root/packages/libraries/cachy-asahi-fdk-aac/materialize.py" \
+              --archive "$out/selected-source.tar" --output "$out/recipe" \
+              --reviewed-template "$out/template-inputs.json" \
+              --reviewed-template-sha256 "$template_sha" > "$out/materialize.log" 2>&1
+          for attempt in 1 2; do
+              python3 -B "$source_root/scripts/build/build.py" "$out/recipe" \
+                  --image "$image" --output "$out/build-$attempt" --mode native \
+                  --source-date-epoch 1791748800 --network none --timeout 600 \
+                  --expected-packages "$native_out/packages.lock" \
+                  --reviewed-inputs "$out/reviewed-inputs.json" > "$out/build-$attempt.log" 2>&1
+          done
+          python3 -B "$source_root/scripts/build/compare.py" \
+              "$out/build-1" "$out/build-2" --require-bytes > "$out/compare.json" 2> "$out/compare.log"
+          cat "$out/compare.json"
+          status=PASS
+          RUN_FDK
+          grep -qx 'FDK_PAIR=PASS' "$RUNNER_TEMP/fdk-evidence/result.txt"
+      - name: Retain bounded FDK metadata and separate outcome
+        if: always()
+        shell: bash
+        env:
+          ORIGINAL_BUILD_OUTCOME: ${{ steps.original_build.outcome }}
+          FDK_CHECKOUT_OUTCOME: ${{ steps.fdk_source.outcome }}
+          FDK_PAIR_OUTCOME: ${{ steps.fdk_pair.outcome }}
+        run: |
+          set -euo pipefail
+          {
+            printf '\n### FDK-only native job\nOriginal pairs: %s; FDK checkout: %s; FDK step: %s\n' \
+              "$ORIGINAL_BUILD_OUTCOME" "$FDK_CHECKOUT_OUTCOME" "$FDK_PAIR_OUTCOME"
+            if [ -f "$RUNNER_TEMP/fdk-evidence/result.txt" ]; then
+              cat "$RUNNER_TEMP/fdk-evidence/result.txt"
+            else
+              printf 'No FDK script result; this is not a pair PASS.\n'
+            fi
+            printf 'Core lifecycle/integration: NOT RUN in this dedicated job.\n'
+          } | tee -a "$GITHUB_STEP_SUMMARY"
+          python3 -B - <<'PYFDKLOG'
+          from pathlib import Path
+          import os, shutil
+          root = Path(os.environ['RUNNER_TEMP'])
+          source, public = root / 'fdk-evidence', root / 'fdk-metadata'
+          public.mkdir()
+          names = ['result.txt', 'compare.json', 'template-inputs.json', 'reviewed-inputs.json']
+          names += [f'build-{i}/{name}' for i in (1, 2) for name in ('provenance.json', 'validation.json')]
+          for name in names:
+              original, target = source / name, public / name
+              if original.is_file():
+                  target.parent.mkdir(parents=True, exist_ok=True)
+                  shutil.copyfile(original, target)
+          for name, original in [('driver-tail.log', root / 'fdk-driver.log')] + [
+                  (f'build-{i}-tail.log', source / f'build-{i}/build.log') for i in (1, 2)]:
+              if original.is_file():
+                  with original.open('rb') as stream:
+                      stream.seek(max(0, original.stat().st_size - 65536))
+                      (public / name).write_bytes(stream.read(65536))
+          (public / 'scope.txt').write_text('FDK build-pair metadata only; lifecycle/integration NOT RUN; no package binaries uploaded.\n')
+          PYFDKLOG
+          python3 -B scripts/ci/log_evidence.py "$RUNNER_TEMP/fdk-metadata"
