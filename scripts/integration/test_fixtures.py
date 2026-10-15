@@ -19,6 +19,8 @@ import unittest
 
 
 ROOT = Path(__file__).resolve().parents[2]
+# Fixture generation stays on its complete retained v1 source/lock snapshot.
+FROZEN = ROOT / "scripts/ci/maintained-native/native"
 PATHS = (
     "packages/desktop/cachy-asahi-hyprland-settings",
     "packages/settings/cachy-asahi-setup",
@@ -76,19 +78,19 @@ class FixtureTests(unittest.TestCase):
         self.repo.mkdir()
         self.lock = self.repo / "scripts/ci/recipes.lock.json"
         self.lock.parent.mkdir(parents=True)
-        self.record = json.loads((ROOT / "scripts/ci/recipes.lock.json").read_bytes())
+        self.record = json.loads((FROZEN / "scripts/ci/recipes.lock.json").read_bytes())
         self.assertEqual(set(self.record), set(PATHS))
         for directory, files in self.record.items():
             for name, digest in files.items():
-                data = (ROOT / directory / name).read_bytes()
-                self.assertEqual(sha(data), digest, f"live frozen input drift: {directory}/{name}")
+                data = (FROZEN / directory / name).read_bytes()
+                self.assertEqual(sha(data), digest, f"retained frozen input drift: {directory}/{name}")
                 destination = self.repo / directory / name
                 destination.parent.mkdir(parents=True, exist_ok=True)
                 destination.write_bytes(data)
-        (self.repo / "LICENSE").write_bytes((ROOT / "LICENSE").read_bytes())
+        (self.repo / "LICENSE").write_bytes((FROZEN / "LICENSE").read_bytes())
         canonical = self.repo / "scripts/setup/setup.py"
         canonical.parent.mkdir(parents=True)
-        canonical.write_bytes((ROOT / "scripts/setup/setup.py").read_bytes())
+        canonical.write_bytes((FROZEN / "scripts/setup/setup.py").read_bytes())
         self.save_lock()
         self.output = self.work / "output"
 
