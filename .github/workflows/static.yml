@@ -74,6 +74,11 @@ jobs:
         run: |
           python3 -B scripts/update/test_full_root.py
           python3 -B scripts/update/test_full_root_hardlinks.py
+      - name: Check isolated offline LV2 caller boundaries without actors
+        run: |
+          python3 -B scripts/ci/asahi-lsp-offline/test_container.py
+          python3 -B scripts/ci/asahi-lsp-offline/test_run.py
+          python3 -B scripts/ci/asahi-lsp-offline/test_job.py
       - name: Inspect recipes without sourcing them
         run: python3 scripts/checks/package_checks.py recipes --require-recipes
       - name: Check recipe syntax without executing it
