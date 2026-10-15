@@ -462,8 +462,8 @@
     },
     "scripts/build/compare.py": {
       "mode": "0644",
-      "sha256": "d75d9177cb741d7ae8e13466aa4b9e96587470b88749735ef2923f9a4446748d",
-      "size_bytes": 5763
+      "sha256": "4198864c264642b196a090a67b36185e5c194e38edc4cb928d08eb65b9f710cd",
+      "size_bytes": 5820
     },
     "scripts/build/container-entry.sh": {
       "mode": "0644",
@@ -687,7 +687,7 @@
     },
     "scripts/port/ksm-native-job/job.py": {
       "mode": "0644",
-      "sha256": "16ffc6c9b4bd2b77b3b2641d88072d37928d709b72aa6832f91510761acc0b52",
+      "sha256": "955fd0d8fdfbc03bd67ecfab1c0d90f45aea797a58a3216724b721365db464a1",
       "size_bytes": 9745
     },
     "scripts/port/ksm-native-job/producer_driver.py": {

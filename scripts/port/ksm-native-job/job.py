@@ -25,7 +25,7 @@ PINS = {
     'scripts/client/stage.py': '13c2108aa03d76305a16bf1c9d08aa610e51f54f7726e4732c13d0824e5733f5',
     'scripts/ci/source_suites.py': '4bfec1387f87768e5b37475d6172bde302ef52c01c68f81297435048be7f2100',
     'scripts/build/build.py': 'e520b37e5dfc285914203cfab99daecc80543505fef7ded6704b3fb06f001d45',
-    'scripts/build/compare.py': 'd75d9177cb741d7ae8e13466aa4b9e96587470b88749735ef2923f9a4446748d',
+    'scripts/build/compare.py': '4198864c264642b196a090a67b36185e5c194e38edc4cb928d08eb65b9f710cd',
     'scripts/build/container-entry.sh': '89723f0a0b2ef80391160f451e877f15fb1e0c4d9a4fec6dbbb8e0d66d8d0f24',
     'scripts/port/refreshed-desktop/proposed-builder-inventory.lock': PACKAGES_SHA,
     'scripts/port/ksm-lifecycle/contract.py': 'bfce5d9a5e8a9626cdedb121f299dafd730b13e484d1c4be7ba917207e4d161b',
