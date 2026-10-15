@@ -6,6 +6,7 @@ from pathlib import Path
 import sys
 import tempfile
 from types import SimpleNamespace
+import hashlib
 import unittest
 from unittest.mock import patch
 
@@ -46,6 +47,18 @@ class DirectRetry(unittest.TestCase):
             row = blob('package'+str(n)); signature = blob(row['filename']+'.sig')
             packages.append(row | {'signature_size': signature['size'], 'signature_sha256': signature['sha256']})
         (self.source/'tooling.lock.json').write_text(json.dumps({'keyring_files': keys, 'packages': packages}))
+        self.common = SimpleNamespace(BARRIER_PURPOSE='installer-barrier-only',
+            BARRIER_SOURCE='d4313163538f51d85bc03e6a4adfde0c850cbc30',
+            BARRIER_TEST='test_actual_isolate_keeps_host_readonly_and_only_evidence_persistent', BARRIER_FILES={})
+        for name, data in (('scripts/install/local_transaction.py', b'inert worker'),
+                           ('scripts/install/test_local_transaction.py', b'inert test'),
+                           ('scripts/port/kernel-native-job/runtime.py', b'inert runtime')):
+            path = self.repo / name; path.parent.mkdir(parents=True, exist_ok=True); path.write_bytes(data)
+            self.common.BARRIER_FILES[name] = {'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()}
+        common_patch = patch.dict(sys.modules, {'common': self.common})
+        common_patch.start(); self.addCleanup(common_patch.stop)
+        self.result = {'status': 'PASS_BARRIER_ONLY', 'private_workspace_cleanup': 'PASS', 'cleanup': [{'status': 'PASS'}]}
+        self.owner_passed = True
         self.owner = SimpleNamespace(CORE={}, AUDITOR_PIN='d'*64, main=self.owner_main)
         self.patch_root = patch.object(v.native, 'ROOT', self.repo)
         self.patch_root.start(); self.addCleanup(self.patch_root.stop)
@@ -58,9 +71,8 @@ class DirectRetry(unittest.TestCase):
         self.contract = json.loads(path.read_text())
         self.assertEqual(argv[argv.index('--contract-sha256')+1], v.native.sha(path))
         target = Path(argv[argv.index('--output')+1]); target.mkdir()
-        (target/'result.json').write_text(json.dumps({'status': 'CAPTURED_REQUIRES_VISUAL_REVIEW',
-            'private_workspace_cleanup': 'PASS', 'cleanup': [{'status': 'PASS'}]}))
-        return True
+        (target/'result.json').write_text(json.dumps(self.result))
+        return self.owner_passed
 
     def consume(self):
         with patch.object(v, 'owner_module', return_value=nullcontext(self.owner)):
@@ -72,7 +84,15 @@ class DirectRetry(unittest.TestCase):
         self.assertEqual(len(self.contract['files']), 10)
         self.assertEqual(self.contract['baseline'], self.c.rows['baseline'])
         self.assertEqual(self.contract['installed_image_id'], self.c.installed)
-        self.assertEqual(self.c.report['virtual']['status'], 'CAPTURED_REQUIRES_VISUAL_REVIEW')
+        self.assertEqual(self.c.report['virtual']['status'], 'PASS_BARRIER_ONLY')
+        self.assertEqual(self.c.report['virtual']['visual_review'], 'NOT RUN')
+        self.assertEqual(self.contract['purpose'], self.common.BARRIER_PURPOSE)
+        self.assertEqual(self.contract['barrier_fixture'], {'source_commit': self.common.BARRIER_SOURCE,
+            'test': self.common.BARRIER_TEST, 'files': self.common.BARRIER_FILES})
+        for name, row in self.common.BARRIER_FILES.items():
+            path = self.output / 'inputs' / name
+            self.assertEqual(path.stat().st_size, row['bytes'])
+            self.assertEqual(v.native.sha(path), row['sha256'])
 
     def test_missing_or_changed_tooling_is_refused_without_owner_execution(self):
         (self.cache/'package0').write_bytes(b'drift')
@@ -84,6 +104,38 @@ class DirectRetry(unittest.TestCase):
         self.c.report['stages']['lifecycle']['status'] = 'FAIL'
         with self.assertRaises(ValueError): self.consume()
         self.assertFalse(self.output.exists())
+
+    def test_missing_size_or_hash_changed_fixture_refuses_owner_execution(self):
+        for change in ('missing', 'size', 'hash'):
+            with self.subTest(change=change):
+                path = self.repo / 'scripts/install/local_transaction.py'
+                original = path.read_bytes()
+                if change == 'missing': path.unlink()
+                else: path.write_bytes(original + b'changed' if change == 'size' else b'X' * len(original))
+                with patch.object(v, 'owner_module', return_value=nullcontext(self.owner)), patch.object(self.owner, 'main') as main:
+                    with self.assertRaises((ValueError, FileNotFoundError)):
+                        v.consume(self.c, self.cache, self.output)
+                    main.assert_not_called()
+                path.write_bytes(original)
+                import shutil
+                shutil.rmtree(self.output)
+
+    def test_desktop_status_and_unclean_barrier_result_are_refused(self):
+        variants = [{'status': 'CAPTURED_REQUIRES_VISUAL_REVIEW'}, {'status': 'FAIL'},
+                    {'private_workspace_cleanup': 'FAIL'}, {'cleanup': [{'status': 'FAIL'}]}]
+        for variant in variants:
+            with self.subTest(variant=variant):
+                self.result = {'status': 'PASS_BARRIER_ONLY', 'private_workspace_cleanup': 'PASS', 'cleanup': [{'status': 'PASS'}]} | variant
+                with self.assertRaisesRegex(ValueError, 'virtual trial failed'): self.consume()
+                self.assertEqual(self.c.report['virtual']['status'], 'FAIL')
+                self.assertEqual(self.c.report['virtual']['visual_review'], 'NOT RUN')
+                import shutil
+                shutil.rmtree(self.output)
+
+    def test_false_owner_return_cannot_accept_barrier_result(self):
+        self.owner_passed = False
+        with self.assertRaisesRegex(ValueError, 'virtual trial failed'): self.consume()
+        self.assertEqual(self.c.report['virtual']['status'], 'FAIL')
 
     def test_owner_failure_and_cancellation_keep_outer_owned_image_cleanup(self):
         for failure in (ValueError('trial failed'), KeyboardInterrupt()):

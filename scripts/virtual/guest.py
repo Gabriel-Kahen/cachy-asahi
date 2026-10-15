@@ -14,7 +14,8 @@ import stat
 import subprocess
 import sys
 import time
-from common import bounded, inventory, LoggedProcess
+from common import (bounded, inventory, LoggedProcess, BARRIER_PURPOSE, BARRIER_TEST,
+                    BARRIER_FILES, BARRIER_SOURCE, BARRIER_FRAME_LINES, barrier_contract, barrier_event, json_load)
 from image_decode_report import (ASSET_PATH, ASSET_SHA256, MAX_REPORT,
                                  decode, inventory_sha256, parse_report, validate_guest_contract, validate_event)
 
@@ -544,22 +545,146 @@ def run_user():
     emit('guest_pass', nonce=nonce, software_session='PASS', hardware_validation='NOT RUN', graphics_acceleration='NOT RUN')
 
 
+def barrier_failure(error, source_paths):
+    """Closed fixture diagnostics: no traceback, text, private path or hash output."""
+    kind, value, trace = error
+    known = (AssertionError, OSError, PermissionError, FileNotFoundError,
+             subprocess.TimeoutExpired, ValueError, RuntimeError, KeyboardInterrupt, SystemExit)
+    name = next((item.__name__ for item in known if kind is item), 'OTHER')
+    number = value.errno if any(kind is item for item in (OSError, PermissionError, FileNotFoundError)) else None
+    if type(number) is not int or not 1 <= number <= 4095:
+        number = None
+    frames = []
+    while trace is not None:
+        label = source_paths.get(trace.tb_frame.f_code.co_filename)
+        if label in BARRIER_FRAME_LINES and len(frames) < 8 and 1 <= trace.tb_lineno <= BARRIER_FRAME_LINES[label]:
+            frames.append({'source': label, 'line': trace.tb_lineno})
+        trace = trace.tb_next
+    tool = {'stage': 'UNRECOGNIZED_OR_ABSENT', 'errno': 'UNAVAILABLE'}
+    # Exact existing P0 util-linux suffix vocabulary; never emit the input string.
+    if kind is AssertionError and type(value.args) is tuple and value.args and type(value.args[0]) is str:
+        lines = value.args[0].splitlines()
+        message = lines[0] if len(lines) == 1 else ''
+        child = re.match(r'(-?[0-9]{1,3}) != 0 :(?: |$)', message)
+        if child and -64 <= int(child[1]) <= 255 and int(child[1]) != 0:
+            stages = {'unshare failed': 'UNSHARE_CALL',
+                      'cannot change root filesystem propagation': 'ROOT_PROPAGATION',
+                      'mount /proc failed': 'PROC_MOUNT'}
+            errors = {'Operation not permitted': 1, 'Permission denied': 13, 'Invalid argument': 22,
+                      'Function not implemented': 38, 'Cannot allocate memory': 12,
+                      'Resource temporarily unavailable': 11, 'No such file or directory': 2}
+            # unittest's selected assertEqual strips the subprocess stderr newline.
+            suffix = message[child.end():]
+            for text, stage in stages.items():
+                for text_error, code in errors.items():
+                    if suffix == 'unshare: ' + text + ': ' + text_error:
+                        tool = {'stage': stage, 'errno': code}
+    return {'exception': name, 'errno': number, 'frames': frames, 'unshare_tool_error': tool}
+
+
+def barrier_test(module, source_paths, nonce, selection):
+    import unittest
+    class Result(unittest.TestResult):
+        first_failure = None
+        def failed(self, error):
+            if self.first_failure is None:
+                self.first_failure = barrier_failure(error, source_paths)
+        def addFailure(self, test, error):
+            self.failed(error)
+            self.failures.append((test, 'closed failure'))
+        def addError(self, test, error):
+            self.failed(error)
+            if error[0] is KeyboardInterrupt or error[0] is SystemExit:
+                raise error[1]
+            self.errors.append((test, 'closed error'))
+    result = Result()
+    # Exactly one selected method; no discovery, TextTestRunner or signing class.
+    case = module.BarrierTests(BARRIER_TEST)
+    try:
+        case.run(result)
+    except BaseException:
+        result.failed(sys.exc_info())
+        raise
+    finally:
+        row = {'event': 'barrier_result', 'nonce': nonce, 'selection_sha256': selection,
+               'fixture_source': BARRIER_SOURCE, 'uid': os.geteuid(), 'gid': os.getegid(),
+               'tests': result.testsRun, 'failures': len(result.failures), 'errors': len(result.errors),
+               'skips': len(result.skipped), 'status': 'FAIL', 'report': None,
+               'first_failure': result.first_failure}
+        if result.testsRun == 1 and result.wasSuccessful() and not result.skipped and result.first_failure is None:
+            row.update(status='PASS_BARRIER_ONLY', report=getattr(module.BarrierTests, 'last_report', None))
+        barrier_event(row, nonce, selection)
+        emit('barrier_result', **{k: v for k, v in row.items() if k != 'event'})
+    require(row['status'] == 'PASS_BARRIER_ONLY', 'selected barrier fixture failed')
+    return row
+
+
+def barrier_user():
+    import types
+    guest_guard()
+    require(os.geteuid() == os.getegid() == 23001, 'ordinary fixture account required')
+    root = DECODE_ROOT
+    small = json_load(root / 'contract.json')
+    raw = identity_bytes(root / 'virtual-contract.json', MAX_LOG)
+    selection = hashlib.sha256(raw).hexdigest()
+    require(selection == small['proof_contract_sha256'], 'barrier selection differs')
+    c = json_load(root / 'virtual-contract.json')
+    require(barrier_contract(c, root / 'barrier-source') and c['nonce'] == small['nonce'], 'barrier purpose differs')
+    sources = root / 'barrier-source'
+    test = sources / 'scripts/install/test_local_transaction.py'
+    module = types.ModuleType('_selected_barrier_test')
+    module.__file__ = str(test)
+    exec(compile(test.read_bytes(), str(test), 'exec'), module.__dict__)
+    module.REVIEWED_WORKER_SHA256 = BARRIER_FILES['scripts/install/local_transaction.py']['sha256']
+    module.FIXTURE_SELECTION_SHA256 = selection  # Generic guest architecture routing only.
+    labels = {str(sources / name): label for name, label in zip(BARRIER_FILES,
+              ('SELECTED_WORKER', 'SELECTED_TEST', 'SELECTED_RUNTIME'))}
+    labels[str(Path(__file__))] = 'GUEST'
+    return barrier_test(module, labels, c['nonce'], selection)
+
+
+def boot_barrier(contract):
+    require(contract.get('purpose') == BARRIER_PURPOSE, 'barrier purpose required')
+    env = {'PATH': '/usr/bin', 'HOME': '/home/virtual-proof', 'LANG': 'C.UTF-8',
+           'CACHY_ASAHI_VIRTUAL_GUEST': '1', 'PYTHONDONTWRITEBYTECODE': '1'}
+    for path in (Path('/home/virtual-proof'), Path('/run/virtual-proof')):
+        path.mkdir(mode=0o700, exist_ok=True)
+        os.chown(path, 23001, 23001)
+    result = bounded(['/usr/bin/runuser', '-u', 'virtual-proof', '--', '/usr/bin/python', '-B',
+                      __file__, 'barrier-user'], env=env, timeout=600, limit=16384)
+    # Forward only one parsed/validated event; never raw command stderr/stdout.
+    lines = result['stdout'].splitlines()
+    require(len(lines) == 1 and lines[0].startswith(PREFIX), 'one closed barrier event required')
+    event = json.loads(lines[0][len(PREFIX):])
+    barrier_event(event, contract['nonce'], contract['proof_contract_sha256'])
+    emit('barrier_result', **{k: v for k, v in event.items() if k != 'event'})
+    require(result['error'] is None and result['returncode'] == 0 and result['stderr'] == '' and
+            event['status'] == 'PASS_BARRIER_ONLY', 'barrier child did not naturally succeed')
+    emit('barrier_child_exit', nonce=contract['nonce'], selection_sha256=contract['proof_contract_sha256'],
+         returncode=0, error=None)
+
+
 def boot():
     guest_guard(root=True)
     contract = json.loads(Path('/usr/local/share/virtual-proof/contract.json').read_text())
     emit('boot', nonce=contract['nonce'], arch=platform.machine(), page_size=os.sysconf('SC_PAGE_SIZE'),
          kernel=platform.release(), execution='qemu-tcg-generic-aarch64', hardware_validation='NOT RUN')
     require(platform.release() == '7.2.10-1-aarch64-ARCH' and os.sysconf('SC_PAGE_SIZE') == 4096, 'wrong guest kernel/page size')
-    command(['/usr/bin/modprobe', 'virtio_gpu'])
+    if contract.get('purpose', 'desktop') != BARRIER_PURPOSE:
+        command(['/usr/bin/modprobe', 'virtio_gpu'])
     command(['/usr/bin/udevadm', 'settle', '--timeout=30'])
     command(['/usr/bin/dmesg'])
     actual = command(['/usr/bin/pacman', '-Q'])
     expected = Path('/usr/local/share/virtual-proof/runtime.lock').read_text()
     require(actual.strip() == expected.strip(), 'guest installed inventory differs from prepared full image')
-    image_decode_identity(contract['nonce'], actual_inventory=inventory(actual))
+    if contract.get('purpose', 'desktop') != BARRIER_PURPOSE:
+        image_decode_identity(contract['nonce'], actual_inventory=inventory(actual))
     for row in contract['baseline']:
         for name, value in row['payload_sha256'].items():
             require(hashlib.sha256((Path('/') / name).read_bytes()).hexdigest() == value, 'guest original overlay payload differs')
+    if contract.get('purpose') == BARRIER_PURPOSE:
+        boot_barrier(contract)
+        return
     uid = 23001
     for p in [Path('/run/virtual-proof'), Path('/home/virtual-proof')]:
         p.mkdir(mode=0o700, exist_ok=True)
@@ -584,8 +709,13 @@ def boot():
 
 if __name__ == '__main__':
     try:
-        require(len(sys.argv) == 2 and sys.argv[1] in ('boot', 'user'), 'explicit guest stage required')
-        boot() if sys.argv[1] == 'boot' else run_user()
+        require(len(sys.argv) == 2 and sys.argv[1] in ('boot', 'user', 'barrier-user'), 'explicit guest stage required')
+        {'boot': boot, 'user': run_user, 'barrier-user': barrier_user}[sys.argv[1]]()
     except Exception as exc:
-        emit('guest_failed', error=str(exc), hardware_validation='NOT RUN')
+        if sys.argv[1:] != ['barrier-user']:
+            try:
+                barrier = json_load(DECODE_ROOT / 'contract.json').get('purpose') == BARRIER_PURPOSE
+            except Exception:
+                barrier = True
+            emit('guest_failed', error='BARRIER_ENTRY_FAILED' if barrier else str(exc), hardware_validation='NOT RUN')
         sys.exit(1)
