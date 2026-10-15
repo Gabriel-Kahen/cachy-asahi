@@ -666,7 +666,8 @@ class DiagnosticTests(unittest.TestCase):
              patch.object(guest, 'Logged', side_effect=[compositor, client]) as launch, \
              patch.object(guest, 'ipc', return_value=selected), \
              patch.object(guest, 'command', side_effect=replies) as command, \
-             patch.object(guest.time, 'monotonic', side_effect=[0, 9]), \
+             patch.object(guest.time, 'monotonic', side_effect=[0, 0, 9]), \
+             patch.object(guest, 'owned_thread_state', return_value=dict(status='unavailable')), \
              patch.object(guest, 'terminate'), patch.object(guest, 'emit') as emit, \
              patch.object(guest, 'collect_phase_diagnostics') as collect:
             guest.phase('minimal', Path('/inert/config'), env, Path('/inert/logs'))

@@ -36,7 +36,7 @@ chown 23001:23001 "$root/home/desktop574"
 chmod 700 "$root/home/desktop574"
 cp /runner/desktop574_guest.py "$root/usr/local/share/desktop574/guest.py"
 cp /runtime-packages.lock "$root/usr/local/share/desktop574/expected.lock"
-printf '%s\n' 'hl.monitor({ output = "", mode = "preferred", position = "auto", scale = 1 })' > "$root/usr/local/share/desktop574/minimal.lua"
+printf '%s\n' 'hl.monitor({ output = "", mode = "preferred", position = "auto", scale = 1 })' 'hl.config({ debug = { disable_logs = false, enable_stdout_logs = true } })' > "$root/usr/local/share/desktop574/minimal.lua"
 cc -std=c11 -O2 -Wall -Wextra -Werror /source/scripts/virtual/gbm_probe.c -o "$root/usr/local/bin/gbm-probe" $(pkg-config --cflags --libs egl gbm glesv2 libdrm)
 printf '%s\n' '/dev/vda / ext4 defaults 0 0' > "$root/etc/fstab"
 printf '%s\n' 'desktop574-generic' > "$root/etc/hostname"
