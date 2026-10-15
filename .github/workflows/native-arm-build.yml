@@ -1,61 +1,38 @@
-name: native-arm-build
+name: arm-c04-native
 on:
   workflow_dispatch:
     inputs:
-      mode:
-        description: Probe, audit, original builds, or frozen development-only integration
+      source_commit:
+        description: Exact reviewed 40-hex product commit containing this experiment helper
         required: true
-        default: probe
-        type: choice
-        options: [probe, audit, build, integration]
-      inputs_sha256:
-        description: Reviewed SHA-256 of selected input lock (build uses maintained successor)
         type: string
-        default: ''
-      recipes_sha256:
-        description: Reviewed SHA-256 of selected four-package recipe lock (build)
-        type: string
-        default: ''
-      integration_sha256:
-        description: Reviewed SHA-256 of scripts/ci/integration.lock.json (integration)
-        type: string
-        default: ''
 permissions:
   contents: read
 concurrency:
-  group: native-arm-build
+  group: arm-c04-native
   cancel-in-progress: false
-  queue: max
 jobs:
-  native:
+  trial:
     if: github.repository == 'Gabriel-Kahen/cachy-asahi' && github.event.repository.private == false
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 50
     env:
+      SOURCE_COMMIT: ${{ inputs.source_commit }}
+      INPUTS_SHA256: beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f
       PYTHONDONTWRITEBYTECODE: '1'
-      BUILD_MODE: ${{ inputs.mode }}
-      INPUTS_SHA256: ${{ inputs.inputs_sha256 }}
-      RECIPES_SHA256: ${{ inputs.recipes_sha256 }}
-      INTEGRATION_SHA256: ${{ inputs.integration_sha256 }}
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1, verified upstream ref
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          ref: ${{ inputs.source_commit }}
           persist-credentials: false
-      - name: Record native runner evidence
+      - name: Require an exact product selection
         shell: bash
         run: |
           set -euo pipefail
-          install -d -m 700 "$RUNNER_TEMP/native-home"
-          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP/native-home" LANG=C.UTF-8 TZ=UTC \
-            RUNNER_TEMP="$RUNNER_TEMP" TMPDIR="$RUNNER_TEMP" PYTHONDONTWRITEBYTECODE=1 \
-            RUNNER_ARCH="$RUNNER_ARCH" RUNNER_OS="$RUNNER_OS" \
-            ImageVersion="${ImageVersion:-}" ImageOS="${ImageOS:-}" \
-            GITHUB_SHA="$GITHUB_SHA" GITHUB_REPOSITORY="$GITHUB_REPOSITORY" \
-            GITHUB_RUN_ID="$GITHUB_RUN_ID" GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" \
-            python3 -B scripts/ci/native_arm.py probe \
-            --cache "$RUNNER_TEMP/alarm-cache" --output "$RUNNER_TEMP/native-probe"
+          [[ "$SOURCE_COMMIT" =~ ^[0-9a-f]{40}$ ]]
+          test "$(git rev-parse HEAD)" = "$SOURCE_COMMIT"
+          install -d -m 700 "$RUNNER_TEMP/c01-home"
       - name: Seed the six frozen private cache objects before native work
-        if: inputs.mode == 'build'
         shell: bash
         env:
           CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01 }}
@@ -84,7 +61,7 @@ jobs:
           CACHY_OLD_FOUR_LIBTIFF_SIG_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_SIG_01 }}
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$(git rev-parse HEAD)" = "$SOURCE_COMMIT"
           test "$INPUTS_SHA256" = beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f
           test "$(sha256sum scripts/ci/maintained-native/locks/inputs-successor.lock.json | cut -d ' ' -f 1)" = "$INPUTS_SHA256"
           timeout --signal=TERM --kill-after=5s 75s python3 -B - <<'PYSEED'
@@ -114,42 +91,36 @@ jobs:
                   os.environ.pop(name)
           seed_current_build_cache(cache, pin)
           PYSEED
-      - name: Authenticate inputs or build in isolated native containers
-        if: inputs.mode != 'probe'
+      - name: Build the signed native base and run baseline twice plus Apple M2 tuning twice
         shell: bash
-        env:
-          NATIVE_RECIPES_PATH: ${{ inputs.mode == 'build' && 'scripts/ci/setup-0.1.0-4-recipes.lock.json' || 'scripts/ci/recipes.lock.json' }}
-          NATIVE_INPUTS_PATH: ${{ inputs.mode == 'build' && 'scripts/ci/maintained-native/locks/inputs-successor.lock.json' || 'scripts/ci/inputs.lock.json' }}
+        timeout-minutes: 43
         run: |
           set -euo pipefail
-          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP/native-home" LANG=C.UTF-8 TZ=UTC \
+          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP/c01-home" LANG=C.UTF-8 TZ=UTC \
             RUNNER_TEMP="$RUNNER_TEMP" TMPDIR="$RUNNER_TEMP" PYTHONDONTWRITEBYTECODE=1 \
             RUNNER_ARCH="$RUNNER_ARCH" RUNNER_OS="$RUNNER_OS" \
             ImageVersion="${ImageVersion:-}" ImageOS="${ImageOS:-}" \
-            GITHUB_SHA="$GITHUB_SHA" GITHUB_REPOSITORY="$GITHUB_REPOSITORY" \
+            GITHUB_SHA="$SOURCE_COMMIT" WORKFLOW_SHA="$GITHUB_SHA" GITHUB_REPOSITORY="$GITHUB_REPOSITORY" \
             GITHUB_RUN_ID="$GITHUB_RUN_ID" GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" \
-            python3 -B scripts/ci/native_arm.py "$BUILD_MODE" \
-            --inputs "$NATIVE_INPUTS_PATH" --inputs-sha256 "$INPUTS_SHA256" \
-            --recipes "$NATIVE_RECIPES_PATH" --recipes-sha256 "$RECIPES_SHA256" \
-            --integration-sha256 "$INTEGRATION_SHA256" \
-            --integration-output "$RUNNER_TEMP/integration-evidence" \
-            --cache "$RUNNER_TEMP/alarm-cache" --output "$RUNNER_TEMP/native-evidence"
-      - name: Retain bounded evidence and package artifacts in free workflow logs
+            python3 -B scripts/experiments/native_trial.py --experiment ARM-C04 --source-commit "$SOURCE_COMMIT" \
+              --cache "$RUNNER_TEMP/alarm-cache" --output "$RUNNER_TEMP/arm-c04"
+      - name: Retain source, complete command records and experiment outputs
         if: always()
+        shell: bash
+        timeout-minutes: 5
         run: |
-          evidence_status=0
-          python3 scripts/ci/log_evidence.py "$RUNNER_TEMP/native-probe" || evidence_status=1
-          if [ -d "$RUNNER_TEMP/native-evidence" ]; then
-            python3 scripts/ci/log_evidence.py "$RUNNER_TEMP/native-evidence" || evidence_status=1
-          fi
-          if [ -d "$RUNNER_TEMP/integration-evidence/public" ]; then
-            for stage in "$RUNNER_TEMP/integration-evidence/public"/*; do
-              if [ -d "$stage" ]; then
-                python3 scripts/ci/log_evidence.py "$stage" || evidence_status=1
+          set -uo pipefail
+          task_evidence_status=0
+          for directory in summary native source experiment-text experiment-artifacts trial/inputs; do
+            if [ -d "$RUNNER_TEMP/arm-c04/$directory" ]; then
+              python3 -B scripts/ci/log_evidence.py "$RUNNER_TEMP/arm-c04/$directory" || task_evidence_status=1
+            fi
+          done
+          if [ ! -d "$RUNNER_TEMP/arm-c04/experiment-artifacts" ]; then
+            for prefix in baseline-1 baseline-2 m2-1 m2-2; do
+              if [ -d "$RUNNER_TEMP/arm-c04/trial/raw/$prefix" ]; then
+                python3 -B scripts/ci/log_evidence.py "$RUNNER_TEMP/arm-c04/trial/raw/$prefix" || task_evidence_status=1
               fi
             done
-            if [ -f "$RUNNER_TEMP/integration-evidence/public/summary/result.json" ]; then
-              cat "$RUNNER_TEMP/integration-evidence/public/summary/result.json"
-            fi
           fi
-          exit "$evidence_status"
+          exit "$task_evidence_status"
