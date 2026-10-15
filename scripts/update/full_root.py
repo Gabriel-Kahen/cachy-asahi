@@ -34,15 +34,21 @@ class Limits:
     max_depth: int = 128
     max_unsupported: int = 64
     allow_cross_device: bool = False
+    max_hardlink_groups: int = 4096
+    max_hardlink_aliases: int = 16384
+    max_hardlink_members: int = 4096
 
     def __post_init__(self):
         need(type(self.deadline) in (int, float) and math.isfinite(self.deadline), 'finite deadline required')
         for name in ('max_packages', 'max_nodes', 'max_bytes', 'max_file_bytes',
-                     'max_package_files', 'max_depth', 'max_unsupported'):
+                     'max_package_files', 'max_depth', 'max_unsupported',
+                     'max_hardlink_groups', 'max_hardlink_aliases', 'max_hardlink_members'):
             value = getattr(self, name)
             need(type(value) is int and 0 < value <= 2**63 - 1, 'finite positive limit required')
         need(self.max_packages <= 4096 and self.max_depth <= 256
-             and self.max_unsupported <= 1024 and type(self.allow_cross_device) is bool,
+             and self.max_unsupported <= 1024 and type(self.allow_cross_device) is bool
+             and self.max_hardlink_groups <= 4096 and self.max_hardlink_aliases <= 16384
+             and self.max_hardlink_members <= 4096,
              'bounded inventory/depth/diagnostics required')
 
     def tick(self):
@@ -225,10 +231,29 @@ def absolute_target_class(nodes, name, limits):
     return 'unclassified-chain'
 
 
-def observe(root, *, limits, shape_examples=0):
+def _mount_id(descriptor, limits):
+    """Bounded Linux descriptor identity; same-device binds have different IDs."""
+    limits.tick()
+    with Path('/proc/self/fdinfo/' + str(descriptor)).open('rb') as stream:
+        raw = stream.read(4097)
+    need(len(raw) <= 4096, 'mount identity byte limit')
+    fields = [row.split(b':', 1)[1].strip() for row in raw.splitlines()
+              if row.startswith(b'mnt_id:')]
+    need(len(fields) == 1 and fields[0].isdigit() and int(fields[0]) > 0,
+         'mount identity unavailable')
+    return int(fields[0])
+
+
+def observe(root, *, limits, shape_examples=0, hardlinks='refuse'):
     """Measure a root without following links; incomplete/unsupported is ineligible."""
     limits.tick()
     need(type(shape_examples) is int and 0 <= shape_examples <= 16, 'bounded shape samples required')
+    need(type(hardlinks) is str and hardlinks in ('refuse', 'generic-development-internal'),
+         'invalid hardlink observation mode')
+    internal = hardlinks == 'generic-development-internal'
+    need(not internal or not limits.allow_cross_device, 'internal hardlinks require one device')
+    groups, directories = {}, {}
+    aliases = 0
     nodes, problems, counts = {}, [], {}
     categories, target_classes, auxiliary_paths = {}, {}, []
     allocated_inodes, hardlinked_inodes = set(), set()
@@ -272,9 +297,13 @@ def observe(root, *, limits, shape_examples=0):
                 row['examples'].append(sample)
 
     def walk(directory, prefix='', depth=0):
+        nonlocal aliases
         limits.tick()
         need(depth <= limits.max_depth, 'directory depth limit')
         before_directory = os.fstat(directory)
+        if internal:
+            need(_mount_id(directory, limits) == root_mount, 'mount crossing refused')
+            directories[prefix.rstrip('/')] = _identity(before_directory)
         with os.scandir(directory) as entries:
             for entry in entries:
                 limits.tick()
@@ -325,14 +354,36 @@ def observe(root, *, limits, shape_examples=0):
                             hardlinked_inodes.add(inode)
                             footprint['hardlink_inodes'] += 1
                             footprint['hardlink_declared_links'] += before.st_nlink
-                        problem('hardlink', name)
-                        continue
+                        if not internal:
+                            problem('hardlink', name)
+                            continue
+                        aliases += 1
+                        need(aliases <= limits.max_hardlink_aliases, 'hardlink alias limit')
+                        need(2 <= before.st_nlink <= limits.max_hardlink_members, 'hardlink member limit')
                     file = os.open(entry.name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK | os.O_CLOEXEC,
                                    dir_fd=directory)
                     try:
-                        common['sha256'] = _file_hash(file, before, limits)
+                        if internal:
+                            need(_mount_id(file, limits) == root_mount, 'mount crossing refused')
+                        if internal and before.st_nlink > 1:
+                            group = groups.get(inode)
+                            if group is None:
+                                need(len(groups) < limits.max_hardlink_groups, 'hardlink group limit')
+                                digest = _file_hash(file, before, limits)
+                                group = {'fd': file, 'identity': _identity(before),
+                                         'members': [], 'sha256': digest}
+                                groups[inode] = group
+                                file = None  # Group owns this descriptor until final validation.
+                            else:
+                                need(_identity(os.fstat(file)) == group['identity'] == _identity(before),
+                                     'hardlink identity drift')
+                            group['members'].append(name)
+                            need(len(group['members']) <= limits.max_hardlink_members, 'hardlink member limit')
+                        else:
+                            common['sha256'] = _file_hash(file, before, limits)
                     finally:
-                        os.close(file)
+                        if file is not None:
+                            os.close(file)
                 else:
                     common['type'] = 'special'
                     problem('special-node', name)
@@ -340,8 +391,55 @@ def observe(root, *, limits, shape_examples=0):
                      == _identity(before), 'named entry drift')
         need(_identity(os.fstat(directory)) == _identity(before_directory), 'directory content drift')
 
+    def validate_groups():
+        result = {}
+        for group in groups.values():
+            limits.tick()
+            identity, retained = group['identity'], group['fd']
+            members = tuple(sorted(group['members']))
+            need(len(members) == len(set(members)) == identity[5], 'hardlink group not closed')
+            for name in members:
+                limits.tick()
+                parent = os.dup(descriptor)
+                prefix = ''
+                try:
+                    for part in name.split('/')[:-1]:
+                        limits.tick()
+                        child = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC,
+                                        dir_fd=parent)
+                        os.close(parent)
+                        parent = child
+                        prefix = part if not prefix else prefix + '/' + part
+                        need(_identity(os.fstat(parent)) == directories.get(prefix)
+                             and _mount_id(parent, limits) == root_mount, 'hardlink parent drift')
+                    file = os.open(name.split('/')[-1], os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK | os.O_CLOEXEC,
+                                   dir_fd=parent)
+                    try:
+                        need(_mount_id(file, limits) == root_mount
+                             and _identity(os.fstat(file)) == identity == _identity(os.fstat(retained))
+                             and _identity(os.stat(name.split('/')[-1], dir_fd=parent, follow_symlinks=False)) == identity,
+                             'hardlink named entry drift')
+                    finally:
+                        os.close(file)
+                finally:
+                    os.close(parent)
+            need(_identity(os.fstat(retained)) == identity and _mount_id(retained, limits) == root_mount,
+                 'hardlink retained entry drift')
+            common = nodes[members[0]]
+            result[members[0]] = {key: common[key] for key in ('bytes', 'mode', 'uid', 'gid')}
+            result[members[0]].update(members=members, nlink=len(members), sha256=group['sha256'])
+        # Publish group tags only after all groups have passed.
+        for key, group in result.items():
+            for name in group['members']:
+                nodes[name].update(sha256=group['sha256'], hardlink_group=key)
+        report['hardlink_groups'] = result
+
     try:
+        if internal:
+            root_mount = _mount_id(descriptor, limits)
         walk(descriptor)
+        if internal:
+            validate_groups()
         for name, node in nodes.items():
             limits.tick()
             if node['type'] == 'symlink':
@@ -366,6 +464,12 @@ def observe(root, *, limits, shape_examples=0):
         rebound = _open_root(root)
         try:
             need(_identity(os.fstat(rebound)) == _identity(root_info), 'root path drift')
+            if internal:
+                need(_mount_id(descriptor, limits) == root_mount == _mount_id(rebound, limits),
+                     'root mount drift')
+                for group in groups.values():
+                    limits.tick()
+                    need(_identity(os.fstat(group['fd'])) == group['identity'], 'hardlink final drift')
         finally:
             os.close(rebound)
         report['complete'] = True
@@ -374,7 +478,13 @@ def observe(root, *, limits, shape_examples=0):
         reason = str(error) if type(error) is ValueError else 'filesystem-observation-failed'
         problem(reason, '')
     finally:
-        os.close(descriptor)
+        for closing in [group['fd'] for group in groups.values()] + [descriptor]:
+            try:
+                os.close(closing)
+            except OSError:
+                # A failed close may already have released the FD. Never retry it.
+                report['complete'] = False
+                problem('filesystem-cleanup-failed', '')
     if shape_examples:
         for row in categories.values():
             row['examples_complete'] = report['complete'] and len(row['examples']) == row['count'] and not any(x['path_truncated'] for x in row['examples'])
@@ -395,9 +505,15 @@ def require_eligible(observation):
     return observation['nodes']
 
 
-def projected_paths(seed, added, *, limits):
+def _projected_paths(seed, added, *, limits, internal=False):
     """The existing path/ldconfig refusals with explicit per-caller size bounds."""
     limits.tick()
+    need(type(seed) is dict and type(added) is dict
+         and len(seed) <= limits.max_nodes and len(added) <= limits.max_nodes, 'projected input limit')
+    if not internal:
+        need(all(type(value) is dict and 'hardlink_group' not in value
+                 for graph in (seed, added) for value in graph.values()),
+             'hardlink projection requires explicit mode')
     combined = dict(seed)
     combined.update(added)
     need(len(combined) <= limits.max_nodes, 'projected node limit')
@@ -405,6 +521,7 @@ def projected_paths(seed, added, *, limits):
     for name, node in combined.items():
         limits.tick()
         installer.relative(name)
+        need(type(node) is dict and (internal or 'hardlink_group' not in node), 'hardlink projection requires explicit mode')
         need(len(name.split('/')) <= limits.max_depth + 1, 'projected depth limit')
         need(node.get('type') in ('file', 'directory', 'symlink'), 'unsupported projected shape')
         if node['type'] == 'file':
@@ -422,3 +539,146 @@ def projected_paths(seed, added, *, limits):
         resolved = installer.resolve_nodes(combined, name)
         need(name not in combined and resolved not in combined, 'unaudited auxiliary executable or alias refused')
     return combined
+
+
+def projected_paths(seed, added, *, limits):
+    return _projected_paths(seed, added, limits=limits)
+
+
+def _path_set(value, limits):
+    need(type(value) in (set, frozenset, tuple, list) and len(value) <= limits.max_nodes,
+         'bounded path collection required')
+    result = set()
+    for name in value:
+        limits.tick()
+        installer.relative(name)
+        need(len(name.split('/')) <= limits.max_depth + 1, 'path depth limit')
+        result.add(name)
+    return result
+
+
+def _group_graph(observation, limits):
+    """Validate ordinary in-memory observations, never a permission token."""
+    limits.tick()
+    need(type(observation) is dict, 'hardlink observation required')
+    nodes = require_eligible(observation)
+    groups = observation.get('hardlink_groups')
+    need(type(groups) is dict and len(groups) <= limits.max_hardlink_groups,
+         'bounded hardlink groups required')
+    _projected_paths(nodes, {}, limits=limits, internal=True)
+    members = set()
+    for key, group in groups.items():
+        limits.tick()
+        installer.relative(key)
+        need(type(group) is dict and set(group) ==
+             {'members', 'nlink', 'bytes', 'mode', 'uid', 'gid', 'sha256'}, 'invalid hardlink group record')
+        paths = group['members']
+        need(type(paths) is tuple and 2 <= len(paths) <= limits.max_hardlink_members,
+             'invalid hardlink membership')
+        for name in paths:
+            limits.tick()
+            installer.relative(name)
+        need(paths == tuple(sorted(set(paths))) and key == paths[0]
+             and type(group['nlink']) is int and group['nlink'] == len(paths), 'invalid hardlink membership')
+        need(type(group['bytes']) is int and 0 <= group['bytes'] <= limits.max_file_bytes
+             and type(group['sha256']) is str and installer.HEX.fullmatch(group['sha256']),
+             'invalid hardlink content')
+        for field in ('mode', 'uid', 'gid'):
+            need(type(group[field]) is int and 0 <= group[field] <= (0o7777 if field == 'mode' else 2**32 - 1),
+                 'invalid hardlink metadata')
+        for name in paths:
+            limits.tick()
+            need(name not in members, 'duplicate hardlink membership')
+            members.add(name)
+            need(len(members) <= limits.max_hardlink_aliases, 'hardlink alias limit')
+            value = nodes.get(name)
+            need(type(value) is dict and value.get('type') == 'file'
+                 and value.get('hardlink_group') == key
+                 and all(type(value.get(field)) is int for field in ('bytes', 'mode', 'uid', 'gid'))
+                 and all(value.get(field) == group[field] for field in ('bytes', 'mode', 'uid', 'gid', 'sha256')),
+                 'hardlink member differs')
+            parts = name.split('/')
+            for index in range(1, len(parts)):
+                limits.tick()
+                parent = nodes.get('/'.join(parts[:index]), {})
+                need(parent.get('type') == 'directory'
+                     and all(type(parent.get(field)) is int and 0 <= parent[field] <=
+                             (0o7777 if field == 'mode' else 2**32 - 1) for field in ('mode', 'uid', 'gid')),
+                     'hardlink parent missing or redirected')
+    for name, value in nodes.items():
+        limits.tick()
+        need('hardlink_group' not in value or name in members, 'unknown hardlink member')
+    return nodes, groups
+
+
+def _same_groups(before, after, before_groups, after_groups, limits):
+    need(before_groups == after_groups, 'hardlink groups changed')
+    for group in before_groups.values():
+        for name in group['members']:
+            limits.tick()
+            need(before[name] == after.get(name), 'hardlink member changed')
+            parts = name.split('/')
+            for index in range(1, len(parts)):
+                limits.tick()
+                parent = '/'.join(parts[:index])
+                need(before[parent] == after.get(parent), 'hardlink parent changed')
+
+
+def projected_internal_hardlinks(observation, added, *, selected_old_paths,
+                                 removed_paths, protected_paths, limits):
+    """Only unrelated updates: retain every existing group and its ancestors."""
+    seed, groups = _group_graph(observation, limits)
+    old = _path_set(selected_old_paths, limits)
+    removed = _path_set(removed_paths, limits)
+    _path_set(protected_paths, limits)  # Every group is preserved, including all protected aliases.
+    need(type(added) is dict and len(added) <= limits.max_nodes, 'projected input limit')
+    for name, value in added.items():
+        limits.tick()
+        installer.relative(name)
+        need(type(value) is dict and 'hardlink_group' not in value, 'payload hardlink marker refused')
+    need(removed <= old and removed <= seed.keys(), 'unaccounted removal')
+    for name in old:
+        limits.tick()
+        need(name in seed, 'selected old path missing')
+        need(name in added or name in removed or seed[name]['type'] == 'directory',
+             'selected old removal missing')
+    retained = {name: value for name, value in seed.items() if name not in removed}
+    combined = _projected_paths(retained, added, limits=limits, internal=True)
+    # A removed directory with retained children is an ambiguous extraction model.
+    # Do not invent ALPM's rmdir decisions.
+    for name in combined:
+        limits.tick()
+        parts = name.split('/')
+        for index in range(1, len(parts)):
+            limits.tick()
+            parent = '/'.join(parts[:index])
+            resolved = installer.resolve_nodes(combined, parent)
+            need(combined.get(resolved, {}).get('type') == 'directory', 'projected parent missing or not directory')
+    sensitive = set()
+    for group in groups.values():
+        for name in group['members']:
+            parts = name.split('/')
+            for index in range(1, len(parts) + 1):
+                limits.tick()
+                sensitive.add('/'.join(parts[:index]))
+    for name in old | set(added) | removed:
+        limits.tick()
+        for graph in (seed, combined):
+            resolved = installer.resolve_nodes(graph, name)
+            if name in sensitive or resolved in sensitive:
+                need(name not in removed and seed.get(name, {}).get('type') == 'directory'
+                     and seed[name] == combined.get(name) and name == resolved
+                     and (name not in added or seed[name] == added[name]), 'selected hardlink path touched')
+    projected = dict(observation, nodes=combined)
+    _, projected_groups = _group_graph(projected, limits)
+    _same_groups(seed, combined, groups, projected_groups, limits)
+    return combined
+
+
+def check_hardlink_preservation(before_observation, after_observation, *, protected_paths, limits):
+    """Pure all-group content/topology comparison; no write exclusion or rollback."""
+    _path_set(protected_paths, limits)
+    before, groups = _group_graph(before_observation, limits)
+    after, after_groups = _group_graph(after_observation, limits)
+    _same_groups(before, after, groups, after_groups, limits)
+    return True

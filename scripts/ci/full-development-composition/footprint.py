@@ -14,7 +14,7 @@ import subprocess
 SOURCES = {
     'scripts/install/local_transaction.py': 'e4bc965a62cceb09aa2213d8da05815c0bdce82028e2eba7b20820b4d12c1fef',
     'scripts/update/capacity.py': 'dcb9899cd24daa21f75e6da6b0214393f093d140a70769092da091e0cfdf7c87',
-    'scripts/update/full_root.py': '10b53b2f73c61f6358e1f2fa2abccac005a1929b9e8eeb8b3a21f3e7b551f26b',
+    'scripts/update/full_root.py': '46072687daf78fcb2f46c10075c69149bcd940766b0c5524d43ed2730f0f0125',
     'scripts/update/measure_copy.py': '6dd3139629c7cbb606571e024d789c5f845e0e0f19616a2a9a5093a37c58ddf9',
     'scripts/update/supervision.py': 'f18bcbd2a6279cff8fe6c7e9c9f80fc01c9818844b01df8c4e97b83d61704b10',
 }
