@@ -102,6 +102,23 @@ jobs:
                   os.environ.pop(name)
           seed_current_build_cache(cache, pin)
           PYSEED
+      - name: Checkout exact retained public input source
+        if: inputs.mode == 'build'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # existing pinned checkout
+        with:
+          ref: 88a88bc5f3be3998e992881bf090137df16f1aae
+          path: retained-public-inputs
+          persist-credentials: false
+      - name: Seed twelve exact public ARM input files
+        if: inputs.mode == 'build'
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C "$GITHUB_WORKSPACE/retained-public-inputs" rev-parse HEAD)" = 88a88bc5f3be3998e992881bf090137df16f1aae
+          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$HOME" LANG=C.UTF-8 TZ=UTC \
+            TMPDIR="$RUNNER_TEMP" \
+            python3 -I -B "$GITHUB_WORKSPACE/retained-public-inputs/seed.py" \
+              --cache "$RUNNER_TEMP/alarm-cache"
       - name: Build the fresh native base and original package pairs
         id: original_build
         timeout-minutes: 50
