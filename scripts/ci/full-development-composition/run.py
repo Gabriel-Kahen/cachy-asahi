@@ -21,6 +21,7 @@ SOURCES = {'product': 'a58fca33c4db5f2ab3ea6111f4d7842a932cc336',
 BASE = 'fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25'
 FULL = 'cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac'
 FINAL = 'c309aaeb12e2e2d51cb0aceb1b4acc9e5b95cbba87df1880936bc2bf1b125463'
+UPDATER_V2 = '480053c0866a922138d85af2b9880fb0e10d7b2c'
 
 
 def sha(path):
@@ -33,7 +34,7 @@ def save(path, value):
 
 def retain(raw, public):
     names = ['desktop574/report.json', 'desktop574/build.log', 'dependency.log',
-             'lifecycle-fixture-summary.json']
+             'lifecycle-fixture-summary.json', 'updater-v2-summary.json']
     for name in ('ksmctl', 'topmem', 'zsh-autosuggestions', 'fish-bang-bang'):
         names += [f'cachy-asahi-{name}/{file}' for file in ('build.log', 'provenance.json', 'validation.json')]
     for name in names:
@@ -87,11 +88,11 @@ def standard(build, recipe_pin, image, lock_pin=BASE):
     return paths[0], record['artifacts'][paths[0].name]
 
 
-def updater(source, root, cache):
+def updater(source, root, cache, *, materializer_pin='2ce747b22ecf7fee9b31673cbcef9167041bbd754cd7e59dfd30534a294c17a3'):
     package = source / 'packages/tools/cachy-asahi-update'
     work = root / 'updater'; work.mkdir()
     command([sys.executable, '-I', '-B', package / 'materialize-inputs.py', '--output', work / 'materialized',
-        '--pins-sha256', '2ce747b22ecf7fee9b31673cbcef9167041bbd754cd7e59dfd30534a294c17a3'], work / 'materialize.log', 930)
+        '--pins-sha256', materializer_pin], work / 'materialize.log', 930)
     command([sys.executable, '-B', package / 'updater-native.py', 'freeze', '--source',
         work / 'materialized/private-sanitized/cachy-update-e2b1b7144be71cf392809f48d1440f8da1d9c81a-sanitized.tar.gz',
         '--vendor', work / 'materialized/private-cache/cachy-update-vendor.tar.gz', '--output', work / 'candidate'],
@@ -247,6 +248,12 @@ def compose(args, raw, public, result):
         preparation = module('composition_lifecycle_inputs', HERE / 'lifecycle_inputs.py')
         lifecycle, upgrades = preparation.prepare(args, raw, inputs, core, checks, build_api, sys.modules[__name__])
         archives.extend(upgrades)
+    successor = None
+    if args.updater_v2_source:
+        result['phase'] = 'prepare-updater-v2-native-pair'
+        preparation = module('composition_updater_v2_inputs', HERE / 'updater_v2_inputs.py')
+        successor, archive = preparation.prepare(args, raw, inputs, checks, build_api, sys.modules[__name__])
+        archives.append(archive)
     fingerprint = sign(inputs, raw, archives)
     for row in rows:
         sig = inputs / (row['filename'] + '.sig')
@@ -255,6 +262,9 @@ def compose(args, raw, public, result):
         for row in lifecycle['upgrades']:
             sig = inputs / (row['filename'] + '.sig')
             row.update(signature_sha256=sha(sig), signature_size=sig.stat().st_size)
+    if successor:
+        row = successor['package']; sig = inputs / (row['filename'] + '.sig')
+        row.update(signature_sha256=sha(sig), signature_size=sig.stat().st_size)
     for row in dependency['packages']:
         if row['name'] == 'xdg-utils': continue
         assert row['name'] not in base
@@ -265,6 +275,7 @@ def compose(args, raw, public, result):
     plan = {'packages': rows, 'projects': projects, 'hooks': sorted(hooks),
         'signer_fingerprint': dependency['signer_fingerprint'], 'test_signer_fingerprint': fingerprint}
     if lifecycle: plan['lifecycle'] = lifecycle
+    if successor: plan['updater_v2'] = successor
     save(inputs / 'plan.json', plan)
     save(public / 'packages.json', {r['name']: {'version': r['version'], 'sha256': r['sha256']} for r in rows})
     result['phase'] = 'signed-offline-composition'
@@ -278,27 +289,39 @@ def compose(args, raw, public, result):
     if lifecycle: argv.append('--cap-add=KILL')
     for source, target, ro in ((inputs, '/inputs', True), (HERE / 'container.py', '/runner.py', True), (public, '/out', False)):
         argv += ['--mount', f'type=bind,src={source},dst={target}' + (',readonly' if ro else '')]
-    if lifecycle:
+    if lifecycle or successor:
         argv += ['--mount', f'type=bind,src={HERE / "lifecycle.py"},dst=/lifecycle.py,readonly']
+    if successor:
+        argv += ['--mount', f'type=bind,src={HERE / "updater_v2.py"},dst=/updater-v2.py,readonly',
+                 '--env=CACHY_ASAHI_UPDATER_RUNTIME=' + uuid.uuid4().hex]
     command(argv + ['--entrypoint=/usr/bin/python3', image, '-I', '-B', '/runner.py'],
-            public / 'transaction.log', 1200 if lifecycle else 480)
+            public / 'transaction.log', 1200 if lifecycle or successor else 480)
     result['composition'] = json.loads((public / 'result.json').read_text())
     assert result['composition']['status'] == 'PASS'
     if lifecycle:
         assert result['composition']['lifecycle']['status'] == 'PASS'
         assert result['composition']['final_package_count'] == 574
         assert result['composition']['final_inventory_sha256'] == FULL
+    if successor:
+        assert result['composition']['updater_v2']['status'] == 'PASS'
+        assert result['composition']['final_package_count'] == 587
+        assert result['composition']['final_inventory_sha256'] == FINAL
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ('product', 'updater', 'desktop', 'native', 'fdk', 'cache', 'output'): parser.add_argument('--' + name, required=True, type=Path)
-    parser.add_argument('--lifecycle', action='store_true', help='Run the explicit disposable lifecycle after v1 composition checks')
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument('--lifecycle', action='store_true', help='Run the explicit disposable lifecycle after v1 composition checks')
+    mode.add_argument('--updater-v2-source', type=Path, help='Exact Source480053 checkout for v1 upgrade, real Check and v1 rollback')
     args = parser.parse_args()
     assert platform.machine() == 'aarch64' and os.getuid() != 0
     for name, source in SOURCES.items():
         path = getattr(args, name).resolve(); setattr(args, name, path)
         assert subprocess.check_output(['git', '-C', str(path), 'rev-parse', 'HEAD'], text=True).strip() == source
+    if args.updater_v2_source:
+        args.updater_v2_source = args.updater_v2_source.resolve(strict=True)
+        assert subprocess.check_output(['git', '-C', str(args.updater_v2_source), 'rev-parse', 'HEAD'], text=True).strip() == UPDATER_V2
     for name in ('native', 'fdk', 'cache', 'output'):
         path = getattr(args, name).resolve(); setattr(args, name, path)
         assert ',' not in str(path) and '\n' not in str(path)
@@ -306,8 +329,9 @@ def main():
     args.output.mkdir(mode=0o700)
     raw = args.output / 'private'; raw.mkdir(mode=0o700)
     public = args.output / 'public'; public.mkdir()
-    result = {'status': 'FAIL', 'phase': 'startup', 'sources': SOURCES,
+    result = {'status': 'FAIL', 'phase': 'startup', 'sources': dict(SOURCES),
               'hardware': 'NOT RUN', 'target_lifecycle': 'NOT RUN', 'release': 'NOT ACCEPTED'}
+    if args.updater_v2_source: result['sources']['updater_v2'] = UPDATER_V2
     previous = signal.signal(signal.SIGTERM, lambda *_: (_ for _ in ()).throw(KeyboardInterrupt()))
     try:
         compose(args, raw, public, result)
@@ -321,6 +345,11 @@ def main():
         except (OSError, ValueError): failures.append('bounded-diagnostics')
         try: retain_updater(args.updater, raw, public)
         except Exception: failures.append('updater-public-projection')
+        if args.updater_v2_source and (raw / 'updater-v2/updater/native').is_dir():
+            try:
+                (public / 'updater-v2').mkdir()
+                retain_updater(args.updater_v2_source, raw / 'updater-v2', public / 'updater-v2')
+            except Exception: failures.append('updater-v2-public-projection')
         owned = args.output / 'owned.json'
         if owned.exists():
             name = json.loads(owned.read_text())['container']
@@ -330,24 +359,27 @@ def main():
             try:
                 assert subprocess.check_output(['docker', 'container', 'ls', '-a', '--filter', 'name=^/' + name + '$', '--format', '{{.ID}}'], timeout=20) == b''
             except (OSError, subprocess.SubprocessError, AssertionError): failures.append('container-absence')
-        for relative in ('updater/native/image-id', 'desktop574/image-id'):
+        removed = set()
+        for relative in ('updater/native/image-id', 'desktop574/image-id', 'updater-v2/updater/native/image-id'):
             path = raw / relative
             if not path.exists(): continue
             image = path.read_text().strip()
             try:
                 assert re.fullmatch(r'sha256:[0-9a-f]{64}', image)
                 assert image != (args.native / 'image-id').read_text().strip(), 'borrowed core image protected'
+                if image in removed: continue
                 subprocess.run(['docker', 'image', 'rm', '--no-prune', image], check=True, capture_output=True, timeout=30)
                 observed = subprocess.run(['docker', 'image', 'inspect', image], capture_output=True, timeout=20)
                 assert observed.returncode != 0 and 'No such image' in observed.stderr.decode(errors='replace')
+                removed.add(image)
             except (OSError, subprocess.SubprocessError, AssertionError): failures.append('owned-image')
-        for relative in ('test-signing', 'updater/native/gpg'):
+        for relative in ('test-signing', 'updater/native/gpg', 'updater-v2/updater/native/gpg'):
             home = raw / relative
             if home.exists():
                 try: subprocess.run(['gpgconf', '--homedir', str(home), '--kill', 'all'], check=True, capture_output=True, timeout=15)
                 except (OSError, subprocess.SubprocessError): failures.append('owned-gpg')
         result['cleanup'] = {'status': 'FAIL' if failures else 'PASS', 'failures': failures,
-                             'scope': 'owned composition container, two new builder images and private trial files'}
+                             'scope': 'owned composition container, selected new builder images and private trial files'}
         if failures: result['status'] = 'FAIL'
         else: shutil.rmtree(raw)
         save(public / 'coordinator.json', result)
