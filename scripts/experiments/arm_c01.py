@@ -60,7 +60,7 @@ def profile_adapter():
 
 
 def tool_names():
-    return TOOLS + (('gcov-dump',) if EXPERIMENT == 'ARM-C03' else ())
+    return TOOLS + (('gcov-tool',) if EXPERIMENT == 'ARM-C03' else ())
 
 SOURCE_SHA = 'bb329a0a2cd0274d05519d61c667c062e06990d72e125ee2dfa8de64f0119d16'
 LIMIT = 4 * 1024**2

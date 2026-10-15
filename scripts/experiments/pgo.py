@@ -90,9 +90,10 @@ def command_plan(core, manifest):
         add(prefix + '-train-example', ['/tmp/build/example', dest + '/example.gz'], '/tmp/build')
         add(prefix + '-train-gun', ['/tmp/build/gun'],
             source=dest + '/train.gz', target=dest + '/gun.decoded')
-        for name in PROFILE_NAMES:
-            add(prefix + '-dump-' + name.removeprefix('#tmp#build#').removesuffix('.gcda'),
-                ['gcov-dump', '-l', dest + '/profiles/' + name])
+        # This separate diagnostic copy doubles counters; final builds always
+        # restore untouched raw attempt-one profiles, never this decoder output.
+        add(prefix + '-profile-check', ['gcov-tool', 'merge', '-v', '-w', '1,1',
+                                       '-o', dest + '/decoded-profiles', dest + '/profiles', dest + '/profiles'])
     return rows
 
 
@@ -123,6 +124,29 @@ def profile_map(core, directory):
         rows.append({'name': name, **binding})
     core.need(total <= 16 * 1024**2 and len(versions) == 1, 'profile aggregate/version differs')
     return rows
+
+
+def check_profile_output(core, data):
+    """Require both decoder reads; the weighted copy is checked separately."""
+    text = data.decode('utf-8')
+    core.need(not re.search(r'not a gcov|corrupt|malformed|\b(?:warning|error)\b|cannot open|'
+                            r'cannot access directory|is not a directory|incorrect gcov version|'
+                            r'mismatch|skipping|counter overflow|read error', text, re.IGNORECASE),
+              'gcov-tool profile decoding diagnostic refused')
+    names = re.findall(r'^[ \t]*reading file:[ \t]+(?:\./)?([^\r\n]*?)[ \t]*$', text, re.MULTILINE)
+    core.need(len(names) == 2 * len(PROFILE_NAMES) and set(names) == set(PROFILE_NAMES)
+              and all(names.count(name) == 2 for name in PROFILE_NAMES),
+              'complete exact gcov-tool profile reader coverage required')
+
+
+def decoded_profile_map(core, dest):
+    """Check decoded copy closure/version without requiring identical encoding."""
+    result = profile_map(core, dest / 'decoded-profiles')
+    for name in PROFILE_NAMES:
+        core.need((dest / 'profiles' / name).read_bytes()[:8]
+                  == (dest / 'decoded-profiles' / name).read_bytes()[:8],
+                  'decoded gcov-tool profile magic/version differs')
+    return result
 
 
 def _configured(core, makefile, log):
@@ -185,12 +209,17 @@ def prepare(core, runner, inputs, out, env, corpus_root, manifest):
                 training_elapsed = time.monotonic() - training_started
                 core.need(training_elapsed <= TRAIN_SECONDS, 'aggregate training timeout')
                 shutil.copytree(PROFILE, dest / 'profiles')
+                profiles = profile_map(core, dest / 'profiles')
             is_training = '-train-' in plan['name']
             timeout = TRAIN_SECONDS - (time.monotonic() - training_started) if is_training else 180
             core.need(timeout > 0, 'aggregate training timeout')
-            runner.run(plan['name'], plan['argv'], cwd=plan['cwd'], env=plan['environment'],
-                       source=Path(plan['source']) if plan['source'] else None,
-                       target=Path(plan['target']) if plan['target'] else None, timeout=timeout)
+            output = runner.run(plan['name'], plan['argv'], cwd=plan['cwd'], env=plan['environment'],
+                                source=Path(plan['source']) if plan['source'] else None,
+                                target=Path(plan['target']) if plan['target'] else None, timeout=timeout)
+            if index == 8:
+                check_profile_output(core, output)
+                core.need(profile_map(core, dest / 'profiles') == profiles, 'gcov-tool mutated retained profiles')
+                decoded_profiles = decoded_profile_map(core, dest)
         for filename in ('train.decoded', 'gun.decoded'):
             core.need((dest / filename).read_bytes() == core.corpus.TRAIN, 'training roundtrip bytes differ')
         for name in BUILD_FILES:
@@ -199,8 +228,7 @@ def prepare(core, runner, inputs, out, env, corpus_root, manifest):
             shutil.copyfile(WORK / name, dest / (name + '.txt'))
         effective = _configured(core, (dest / 'Makefile.txt').read_bytes(), (dest / 'configure.log.txt').read_bytes())
         files = {p.name: _binding(core, p) for p in sorted(dest.iterdir()) if p.is_file()}
-        profiles = profile_map(core, dest / 'profiles')
-        report['attempts'].append({'attempt': attempt, 'files': files, 'profiles': profiles,
+        report['attempts'].append({'attempt': attempt, 'files': files, 'profiles': profiles, 'decoded_profiles': decoded_profiles,
                                    'configured_flags': effective, 'training_elapsed_seconds': training_elapsed})
         shutil.rmtree(WORK)
     report['profile_regeneration'] = ('identical' if report['attempts'][0]['profiles'] == report['attempts'][1]['profiles'] else 'different')
@@ -251,7 +279,7 @@ def verify(core, raw, report, manifest, source_bytes, commands):
         prefix = f"pgo-training-{record['attempt']}"
         dest = raw / prefix
         core.need(dest.is_dir() and not dest.is_symlink()
-                  and {p.name for p in dest.iterdir()} == expected_files | {'profiles'}
+                  and {p.name for p in dest.iterdir()} == expected_files | {'profiles', 'decoded-profiles'}
                   and set(record['files']) == expected_files, 'complete exact training artifacts required')
         for name, binding in record['files'].items():
             core.need(_binding(core, dest / name) == binding, 'retained training artifact differs')
@@ -261,6 +289,7 @@ def verify(core, raw, report, manifest, source_bytes, commands):
         effective = _configured(core, (dest / 'Makefile.txt').read_bytes(), (dest / 'configure.log.txt').read_bytes())
         core.need(record['configured_flags'] == effective, 'training effective flags receipt differs')
         core.need(profile_map(core, dest / 'profiles') == record['profiles'], 'retained profile map differs')
+        core.need(decoded_profile_map(core, dest) == record.get('decoded_profiles'), 'retained decoded profile map differs')
         elapsed = record['training_elapsed_seconds']
         core.need(isinstance(elapsed, (int, float)) and not isinstance(elapsed, bool) and 0 <= elapsed <= TRAIN_SECONDS,
                   'bounded training elapsed required')
@@ -279,14 +308,13 @@ def verify(core, raw, report, manifest, source_bytes, commands):
             decoded = decoder.decompress(data, len(expected) + 1)
             core.need(decoded == expected and decoder.eof and not decoder.unused_data and not decoder.unconsumed_tail,
                       'retained training gzip payload differs')
-        for name in PROFILE_NAMES:
-            row = by_name[prefix + '-dump-' + name.removeprefix('#tmp#build#').removesuffix('.gcda')]
-            data = (raw / row['log']).read_bytes()
-            core.need(row['argv'] == ['gcov-dump', '-l', '/out/' + prefix + '/profiles/' + name]
-                      and row['status'] == row['cleanup'] == 'PASS' and row['exit_code'] == 0
-                      and b"magic `gcda'" in data and b'COUNTERS' in data
-                      and b'not a gcov file' not in data and b'version mismatch' not in data,
-                      'usable retained gcov-dump record required')
+        row = by_name[prefix + '-profile-check']
+        directory = '/out/' + prefix + '/profiles'
+        core.need(row['argv'] == ['gcov-tool', 'merge', '-v', '-w', '1,1', '-o',
+                                 '/out/' + prefix + '/decoded-profiles', directory, directory]
+                  and row['status'] == row['cleanup'] == 'PASS' and row['exit_code'] == 0,
+                  'successful retained gcov-tool profile check required')
+        check_profile_output(core, (raw / row['log']).read_bytes())
     equality = 'identical' if attempts[0]['profiles'] == attempts[1]['profiles'] else 'different'
     core.need(report.get('profile_regeneration') == equality, 'profile regeneration observation differs')
     wanted = [{'attempt': n, 'profiles': attempts[0]['profiles']} for n in (1, 2)]
@@ -305,5 +333,8 @@ def artifact_files(core, raw, verified):
             result[prefix + '/' + name] = core.sha(path)
         for profile in record['profiles']:
             relative = prefix + '/profiles/' + profile['name']
+            result[relative] = core.sha(Path(raw) / relative)
+        for profile in record['decoded_profiles']:
+            relative = prefix + '/decoded-profiles/' + profile['name']
             result[relative] = core.sha(Path(raw) / relative)
     return result
