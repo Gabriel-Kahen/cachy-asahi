@@ -2,6 +2,19 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 15, package-cache maintenance:
+The standalone `scripts/maintenance/package_cache.py` previews an explicitly
+selected package cache and applies only reviewed archive selections. It preserves
+protected rollback identities and retained versions, refuses existing ALPM locks,
+and checks claimed files before deleting them. Replacement collisions retain
+bytes in a private quarantine; cancellation reports partial progress. Root review
+corrects lock-identity and close-error cleanup paths so errors cannot silently
+replace the first failure or skip signal-mask restoration. All 23 temporary-cache
+tests pass, including compression corruption, real ALPM ordering, replacement
+races and cancellation. Static CI now discovers this suite. No live cache was
+modified, and target packaging/lifecycle acceptance remains open. See
+[operator usage](package-cache-maintenance.md).
+
 October 15, current setup native-build preparation:
 The primary build-only workflow now selects the reviewed setup 0.1.0-3 recipe
 lock and supplies the existing recovered four inputs plus the pinned bubblewrap

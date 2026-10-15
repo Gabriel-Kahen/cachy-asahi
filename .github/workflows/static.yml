@@ -50,7 +50,7 @@ jobs:
                          XDG_CONFIG_HOME=str(home / '.config'), XDG_STATE_HOME=str(home / '.local/state'),
                          XDG_CACHE_HOME=str(home / '.cache'), XDG_DATA_HOME=str(home / '.local/share'))
               for directory in ('tests', 'scripts/setup', 'scripts/ci', 'scripts/integration',
-                                'scripts/hardware', 'scripts/benchmarks'):
+                                'scripts/hardware', 'scripts/benchmarks', 'scripts/maintenance'):
                   subprocess.run([sys.executable, '-B', '-c', runner, directory], env=env, check=True)
           PY
           bash -n scripts/build/container-entry.sh
