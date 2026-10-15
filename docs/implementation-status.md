@@ -10,8 +10,12 @@ Installer Source `53e7cfdb` and Data `f13db0ee` are published with held Code
 repository variable names. No writes occurred under the wrong names. Exactly
 `MAINTAINED_COMPOSED_ROOT_PLAN_B64` and `MAINTAINED_COMPOSED_ROOT_PLAN_SHA256`
 then read back their reviewed values. The execution ref advances normally to
-Source53; the single changed trial is `38672786958`. No new installer pass is
-claimed. See the [integration record](reviews/native-software-integration-20261015.md).
+Source53; the single changed trial is `38672786958`. Actual review `ad4dac01`
+and Root seal verification authenticate its failed readout: start_success false,
+receiver_preflight_only false, native_cleanup_pass true. All 501 acquisition
+pins, 249 signatures, four original package pairs and seven initial components
+pass; receiver private cause remains unexported, restaging is NOT RUN and
+publication fails. No installer pass is claimed. See the [integration record](reviews/native-software-integration-20261015.md).
 
 Updater Source `781d43c4` publishes three reviewed diagnostic transport changes.
 Semantic `b771fc1d` and actual Source `7fee6d5a` pass, with 91 roles and 88 held.
@@ -23,7 +27,9 @@ The exact rejected type/link/size operand remains unknown. Scoped original and
 recovery cleanup pass; daemon/cache retirement remains unverified. This
 establishes no accepted native package. A separate local Cargo reproduction
 finds a normal two-link executable rejected by the old reader; a scoped
-snapshot correction is being implemented without backfilling the CI operand.
+snapshot correction was independently reviewed. Four introduced descriptor,
+destination-parent and error-retirement gaps require a successor before another
+trial; the actual CI operand remains unknown.
 
 Kernel Source `2525f178` publishes seven retained-input changes after semantic
 `b0ed311f` and actual Source `d27c6b00` review. All 126 roles and the 124-row
@@ -38,12 +44,26 @@ likewise retains ValueError/PRODUCER/UNKNOWN, zero reported RPC requests and no
 producer route, with cleanup FAIL and ownership uncertainty; review `90c0e950`
 does not establish runtime validation of the inline finalizer change.
 
-A concrete KSM Path-context compatibility fix passes 18 controls using real
-Python 3.14 paths and owned files. Its three semantic method changes must be
-reviewed and composed with the separately reviewed retained-input supplier;
-no new KSM trial has been selected. Current 48-test client/repository convergence
-also requires an explicit 160/267 successor Source contract and sibling helper
-custody; those software changes are being implemented. Full R1–R5/M5–M9,
+The combined KSM retained-input supplier and three-method Path correction
+passes fresh whole-candidate review `26e5f135`, including the synthetic 501 flow
+on real Python 3.14 Path without fake context hooks. Root commits exactly seven
+changes as `30f5efaa`, with 160 roles and 153 held; actual committed-Source review
+is pending. This Source is not yet published or selected for a trial, and
+historical failure and cleanup uncertainty remain unchanged.
+
+P0 diagnostic Source `78f605be` is published. Actual Source review `f5422a2e`
+authenticates its four-file delta and corrected read-only freeze. The initial
+overwide publication-proof refusal remains retained. Next registration changes
+only the Root review/publication variables and default workflow; both templates
+and recipe `ebd58126` stay held. No new trial or P0 pass is claimed.
+
+Current client/repository convergence now passes all 48 host tests without skips.
+Root commits separate Code `c6d43be2` and Source `ba63d6d9`: the new explicit
+baseline has 160 initial rows, 267 selected roles and sibling helper custody.
+Actual Source/Code review is pending; no Data, registration or native acceptance
+is claimed. The reviewed closed receiver public-record diagnostic is being
+composed with this successor before selection. Historical four-package evidence
+does not validate the current client product. Full R1–R5/M5–M9,
 installation/recovery, exact-machine and performance gates remain open.
 
 October 14, native screenshot region and cancellation admitted:

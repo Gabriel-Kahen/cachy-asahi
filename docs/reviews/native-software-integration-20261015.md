@@ -19,3 +19,12 @@ The kernel adds the retained bubblewrap package/signature to its original produc
 Root's corresponding updater and kernel adoption namespaces retain immutable intent, commit, complete Source proof, admission, ref readback and one dispatch. Trial results must be admitted separately from these Source checks. Historical failures and cleanup uncertainty remain recorded.
 
 Subsequent updater actual admission: [strict review](updater-worker-diagnostic-run-38672326640-20261015.md) `af746428` and Root's passive 118/30/19 readback authenticate the failed result. Compiler return 0, wrapper return 1 and failed ELF inspection stay separate; raw deciding filesystem operands remain unknown. Scoped original/recovery cleanup passes, while broader daemon/cache retirement is unverified. Root retains the decision at `artifacts/reviews/updater-run-38672326640-root-admission-20261015/admission.json`. A local minimal Cargo build separately reproduces a normal hardlinked output rejected by the strict reader; this proves a compatibility defect without establishing that run's unknown operand.
+
+Installer actual admission now authenticates the failed run under review
+`ad4dac01`: start_success false, receiver_preflight_only false and
+native_cleanup_pass true. Acquisition, input signatures, the four original
+package pairs and seven initial components pass; the receiver private cause
+remains unexported, handoff/restaging stays NOT RUN and publication fails.
+The current client successor and a closed 13-field receiver public-record
+transport are being composed for the next selection. Neither private Source
+commits nor host fixtures supply native product or hardware acceptance.
