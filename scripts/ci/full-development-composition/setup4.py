@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
 """Installed setup3→4→3 trial inside the existing disposable composition."""
 import hashlib
+import importlib.util
 import json
 import os
 from pathlib import Path
 import re
+import stat
+import sys
 import tempfile
+import time
 
 NAME = 'cachy-asahi-setup'
 CLI = '/usr/bin/cachy-asahi-repository'
@@ -17,10 +21,145 @@ PATHS = {'/usr/bin/cachy-asahi-setup', CLI,
 NEW_PATHS = {CLI, '/usr/share/doc/' + NAME + '/repository-enrollment.md'}
 BLOCK = (b'\n# BEGIN cachy-asahi repository enrollment v1\nInclude = /etc/pacman.d/cachy-asahi.conf\n'
          b'# END cachy-asahi repository enrollment v1\n')
+KEYRING_HOME = Path('/etc/pacman.d/gnupg')
+KEYRING_SOCKETS = ('S.gpg-agent', 'S.gpg-agent.browser', 'S.gpg-agent.extra', 'S.gpg-agent.ssh')
+KEYRING_FILES = ('pubring.kbx', 'pubring.gpg', 'trustdb.gpg', 'tofu.db', 'gpg.conf',
+                 'gpg-agent.conf', 'common.conf', 'public-keys.d/pubring.db')
 
 
 def inventory_sha(rows):
     return hashlib.sha256(''.join(k + ' ' + v + '\n' for k, v in sorted(rows.items())).encode()).hexdigest()
+
+
+def _measurement_roots(measurement, composition):
+    root = Path('/measurement-source')
+    for name, digest in measurement.SOURCES.items():
+        path = root / name
+        composition.need(path.is_file() and not path.is_symlink() and path.stat().st_size <= 512 * 1024,
+                         'ordinary bounded measurement source required')
+        composition.pin(path, digest, path.stat().st_size)
+    spec = importlib.util.spec_from_file_location('setup4_keyring_roots', root / 'scripts/update/full_root.py')
+    roots = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = roots
+    spec.loader.exec_module(roots)
+    return roots
+
+
+def _keyring_guard(roots, limits):
+    for path in (Path('/'), Path('/etc'), Path('/etc/pacman.d'), KEYRING_HOME):
+        limits.tick()
+        info = path.lstat()
+        roots.need(stat.S_ISDIR(info.st_mode) and info.st_uid == 0 and not info.st_mode & 0o022,
+                   'unsafe system keyring directory')
+    descriptors = []
+    failure = None
+    try:
+        root = roots._open_root(Path('/')); descriptors.append(root)
+        home = roots._open_root(KEYRING_HOME); descriptors.append(home)
+        mount = roots._mount_id(home, limits)
+        roots.need(os.fstat(root).st_dev == os.fstat(home).st_dev
+                   and roots._mount_id(root, limits) == mount,
+                   'system keyring must belong to disposable root mount')
+        for name in KEYRING_SOCKETS:
+            limits.tick()
+            try:
+                endpoint = os.open(name, os.O_PATH | os.O_NOFOLLOW | os.O_CLOEXEC, dir_fd=home)
+            except FileNotFoundError:
+                continue
+            descriptors.append(endpoint)
+            info = os.fstat(endpoint)
+            roots.need(stat.S_ISSOCK(info.st_mode) and info.st_uid == 0
+                       and info.st_dev == os.fstat(home).st_dev
+                       and roots._mount_id(endpoint, limits) == mount,
+                       'system keyring endpoint must belong to disposable root mount')
+    except BaseException as error:
+        failure = error
+    finally:
+        for descriptor in reversed(descriptors):
+            try:
+                os.close(descriptor)
+            except OSError as error:
+                if failure is None: failure = error
+                else: failure.add_note('system keyring descriptor cleanup failed')
+    if failure is not None: raise failure
+
+
+def _agent_sockets():
+    present = []
+    for name in KEYRING_SOCKETS:
+        try:
+            info = (KEYRING_HOME / name).lstat()
+        except FileNotFoundError:
+            continue
+        if not stat.S_ISSOCK(info.st_mode) or info.st_uid != 0:
+            raise ValueError('unsafe system keyring agent endpoint')
+        present.append(name)
+    return tuple(present)
+
+
+def _persistent_state(roots, measurement, limits):
+    files = {}
+    paths = [str(KEYRING_HOME / name) for name in KEYRING_FILES]
+    paths.extend(('/etc/pacman.conf', '/etc/pacman.d/cachy-asahi.conf'))
+    for path in paths:
+        try:
+            row = roots.node(Path('/'), path.lstrip('/'), limits=limits)
+        except FileNotFoundError:
+            row = None
+        roots.need((row is not None or path != '/etc/pacman.conf')
+                   and (row is None or row['type'] == 'file'), 'ordinary persistent keyring/config file required')
+        files[path] = row
+    return {'files': files, 'database': measurement.database(roots)}
+
+
+def _bounded_keyring(core, argv):
+    row = core.bounded_process(argv, timeout=15, stdout_limit=65536, stderr_limit=65536,
+        env={'PATH': '/usr/bin:/bin', 'HOME': '/root', 'LC_ALL': 'C', 'LANG': 'C'})
+    if row['reason'] != 'exit' or row['returncode'] != 0 or row.get('cleanup', {}).get('errors'):
+        raise ValueError('bounded system keyring command failed')
+    return row['stdout']
+
+
+def _keyring_fingerprints(core, fingerprint):
+    raw = _bounded_keyring(core, ['/usr/bin/gpg', '--no-options', '--batch', '--no-autostart',
+        '--homedir', str(KEYRING_HOME), '--no-auto-key-retrieve', '--no-auto-check-trustdb',
+        '--lock-never', '--with-colons', '--fingerprint', '--list-keys', fingerprint])
+    fingerprints = tuple(sorted(line.split(b':')[9].decode('ascii') for line in raw.splitlines()
+        if line.startswith(b'fpr:') and len(line.split(b':')) > 9))
+    if fingerprint not in fingerprints:
+        raise ValueError('original ALARM fingerprint missing')
+    return fingerprints
+
+
+def _quiesce_system_keyring(plan, expected, composition, core, measurement):
+    """Stop only this disposable system home's agent before measurement baselines."""
+    composition.guard()
+    composition.need(plan['footprint'] == {'limits': measurement.LIMITS, 'sources': measurement.SOURCES}
+        and plan['setup4']['expected_inventory_sha256'] == measurement.EXPECTED
+        and len(expected) == 587 and expected.get(NAME) == '0.1.0-4'
+        and expected.get('cachy-asahi-update') == '4.4.2-2'
+        and inventory_sha(expected) == measurement.EXPECTED, 'fixed keyring quiescence selection differs')
+    fingerprint = plan['signer_fingerprint']
+    composition.need(re.fullmatch('[0-9A-F]{40}', fingerprint), 'exact ALARM fingerprint required')
+    roots = _measurement_roots(measurement, composition)
+    limits = roots.Limits(deadline=time.monotonic() + 120, max_nodes=20000,
+                          max_bytes=256 * 1024**2, max_file_bytes=32 * 1024**2)
+    _keyring_guard(roots, limits)
+    composition.need(composition.inventory() == expected, 'keyring initial inventory differs')
+    before = _persistent_state(roots, measurement, limits)
+    fingerprints = _keyring_fingerprints(core, fingerprint)
+    present = _agent_sockets()
+    if present:
+        _bounded_keyring(core, ['/usr/bin/gpgconf', '--homedir', str(KEYRING_HOME), '--kill', 'gpg-agent'])
+    composition.need(not _agent_sockets(), 'system keyring agent endpoints remain')
+    composition.need(_keyring_fingerprints(core, fingerprint) == fingerprints, 'ALARM fingerprints changed')
+    composition.need(composition.inventory() == expected, 'keyring final inventory differs')
+    composition.need(_persistent_state(roots, measurement, limits) == before, 'persistent keyring/config/database changed')
+    composition.need(not _agent_sockets(), 'system keyring agent endpoints reappeared')
+    _keyring_guard(roots, limits)
+    return {'status': 'PASS-absence-verified', 'action': 'TARGETED_STOP' if present else 'NOT_NEEDED',
+            'initial_endpoints': len(present), 'absent_endpoints': 4,
+            'persistent_keyring_config_preserved': True, 'package_database_inventory_preserved': True}
 
 
 def inputs(plan, checkpoint, source, composition):
@@ -131,8 +270,11 @@ def run(pacman, plan, checkpoint, source, work, composition, core, payload_helpe
         installed(expected, projects)
         footprint = None
         if 'footprint' in plan:
+            measurement = composition.load('composition_footprint', Path('/footprint.py'))
+            phase = 'owned-system-keyring-agent-quiescence'
+            quiescence = _quiesce_system_keyring(plan, expected, composition, core, measurement)
             phase = 'installed-setup4-scoped-copy-measurement'
-            footprint = composition.load('composition_footprint', Path('/footprint.py')).collect(plan, expected, source, composition)
+            footprint = measurement.collect(plan, expected, source, composition)
         composition.run(['/usr/bin/cachy-asahi-setup', '--help'])
         composition.run([CLI, '--help'])
         composition.need(main.read_bytes() == original_main and not include.exists(), 'upgrade automatically changed enrollment')
@@ -181,7 +323,7 @@ def run(pacman, plan, checkpoint, source, work, composition, core, payload_helpe
         composition.need(main.read_bytes() == original_main and not include.exists(), 'final disabled configuration changed')
         adapter.check('setup3-restoration-preserves-user-files', homes == [adapter.snapshot(u) for u in (fresh, existing)])
         return {'status': 'PASS', 'checks': adapter.checks, 'repository_enrollment': enrollment,
-                **({'footprint': footprint} if footprint is not None else {}),
+                **({'footprint': footprint, 'keyring_quiescence': quiescence} if footprint is not None else {}),
                 'installed_versions': ['0.1.0-3', '0.1.0-4'], 'removed_package_count': 586,
                 'final_package_count': len(checkpoint), 'final_inventory_sha256': inventory_sha(checkpoint),
                 'scriptlets': 'DISABLED', 'hooks': 'MASKED', 'automatic_enrollment': False, 'production': 'NOT RUN',
