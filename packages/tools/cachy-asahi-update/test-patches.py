@@ -22,7 +22,7 @@ HERE = Path(__file__).resolve().parent
 HARNESS = HERE / "test-upstream.py"
 HARNESS_SHA = "8e499516cbf77f8c8d5f272e20865acf5f1e979f3890af04d4705ba153c464f3"
 PATCH = HERE / "behavior.patch"
-PATCH_SHA = "08a781eeae66881359207ed93cbe808f3fdff884de646ec09c9bc640ad527db6"
+PATCH_SHA = "29fb848c84049f62d07cbf96cbe01f55e473ed6d790b045fda5ece539e57e29e"
 FULL_UPGRADE_SHA = "103c965d6d7b86b558b3fc686975a3a649de3cc2e0b94f7dee608c7bdaeaef0a"
 if hashlib.sha256(HARNESS.read_bytes()).hexdigest() != HARNESS_SHA:
     raise SystemExit("Frozen upstream harness changed")
@@ -120,6 +120,81 @@ info_msg() { record success_message; }
 ''')
         self.assertEqual(result.returncode, 0)
         self.assertEqual(self.logs(), ["systemctl\t--user\tenable\t--now\tarch-update.timer", "success_message"])
+
+    def run_repository_check(self, status=0, output="fixture-package 1 -> 2\n", no_version=""):
+        return self.run_lib("check", '''
+checkupdates_db_tmpdir_prefix="$XDG_RUNTIME_DIR/checkupdates-"
+checkupdates() {
+    record checkupdates "$@"
+    [[ -d "$CHECKUPDATES_DB" ]] || return 99
+    printf '%s' "$CHECK_OUTPUT"
+    return "$CHECK_EXIT"
+}
+''', CHECK_EXIT=str(status), CHECK_OUTPUT=output, no_version=no_version)
+
+    def test_repository_check_pending_preserves_versions_and_optional_results(self):
+        result = self.run_repository_check()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(self.logs(), ["checkupdates"])
+        self.assertEqual((self.state / "last_updates_check_packages").read_text(), "fixture-package 1 -> 2\n")
+        self.assertEqual((self.state / "last_updates_check").read_text(),
+                         "fixture-package 1 -> 2\naur pending\nflatpak pending\n")
+        self.assertEqual((self.state / "tray_icon").read_text(), "updates-available\n")
+        self.assertTrue((self.state / "last_updates_check_time").read_text().splitlines()[0].isdigit())
+
+    def test_repository_check_no_version_formats_only_after_success(self):
+        result = self.run_repository_check(no_version="true")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(self.logs(), ["checkupdates"])
+        self.assertEqual((self.state / "last_updates_check_packages").read_text(), "fixture-package\n")
+
+    def test_repository_check_no_updates_is_success_with_either_version_setting(self):
+        for no_version in ("", "true"):
+            with self.subTest(no_version=no_version):
+                for path in self.state.iterdir():
+                    path.unlink()
+                result = self.run_repository_check(status=2, output="", no_version=no_version)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual((self.state / "last_updates_check_packages").read_bytes(), b"")
+                self.assertEqual((self.state / "last_updates_check").read_text().strip(), "")
+                self.assertEqual((self.state / "tray_icon").read_text(), "up-to-date\n")
+                self.assertTrue((self.state / "last_updates_check_time").exists())
+
+    def test_repository_check_failure_preserves_all_state_and_returns_twenty(self):
+        for name in ("last_updates_check", "current_updates_check", "tray_icon", "last_updates_check_time"):
+            (self.state / name).write_text("previous " + name + "\n")
+        before = {path.name: (path.read_bytes(), path.stat().st_mtime_ns) for path in self.state.iterdir()}
+        for status in (1, 7, 127):
+            for no_version in ("", "true"):
+                with self.subTest(status=status, no_version=no_version):
+                    self.calls.write_text("")
+                    result = self.run_repository_check(status=status, output="incomplete result\n", no_version=no_version)
+                    self.assertEqual(result.returncode, 20, result.stderr)
+                    self.assertEqual(self.logs(), ["checkupdates", "error"])
+                    after = {path.name: (path.read_bytes(), path.stat().st_mtime_ns) for path in self.state.iterdir()}
+                    self.assertEqual(after, before)
+
+    def test_repository_check_failure_creates_no_state_on_first_run(self):
+        for path in self.state.iterdir():
+            path.unlink()
+        for no_version in ("", "true"):
+            with self.subTest(no_version=no_version):
+                result = self.run_repository_check(status=1, no_version=no_version)
+                self.assertEqual(result.returncode, 20, result.stderr)
+                self.assertEqual(list(self.state.iterdir()), [])
+
+    def test_repository_check_database_creation_failure_stops_before_helper_or_state(self):
+        for name in ("last_updates_check", "tray_icon", "last_updates_check_time"):
+            (self.state / name).write_text("previous " + name + "\n")
+        before = {path.name: (path.read_bytes(), path.stat().st_mtime_ns) for path in self.state.iterdir()}
+        result = self.run_lib("check", '''
+mktemp() { return 1; }
+checkupdates() { record checkupdates; printf 'unexpected fallback result\\n'; }
+''')
+        self.assertEqual(result.returncode, 20, result.stderr)
+        self.assertEqual(self.logs(), ["error"])
+        self.assertEqual({path.name: (path.read_bytes(), path.stat().st_mtime_ns)
+                          for path in self.state.iterdir()}, before)
 
     def test_flatpak_decline_calls_no_uninstall(self):
         # Override original behavior: declining makes no Flatpak command call.
