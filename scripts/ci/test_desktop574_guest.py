@@ -22,13 +22,78 @@ spec.loader.exec_module(guest)
 
 
 class GuestTests(unittest.TestCase):
-    def test_udev_readiness_waits_for_only_the_required_initialized_devices(self):
+    def test_event_port_matches_exact_kernel_name_type_and_device_number(self):
+        with tempfile.TemporaryDirectory() as directory:
+            sysfs, devices = Path(directory) / 'sysfs', Path(directory) / 'dev'
+            sysfs.mkdir(); devices.mkdir()
+            self.assertIsNone(guest.event_port(sysfs, devices))
+            port = sysfs / 'vport0p1'; port.mkdir()
+            self.assertIsNone(guest.event_port(sysfs, devices))
+            (port / 'name').write_text('desktop574.events\n')
+            (port / 'dev').write_text('240:1\n')
+            node = devices / port.name
+            self.assertIsNone(guest.event_port(sysfs, devices))
+            node.touch()
+            with self.assertRaisesRegex(ValueError, 'character-device identity'):
+                guest.event_port(sysfs, devices)
+            value = SimpleNamespace(st_mode=stat.S_IFCHR | 0o600, st_rdev=guest.os.makedev(240, 1))
+            with patch.object(Path, 'lstat', return_value=value):
+                self.assertEqual(guest.event_port(sysfs, devices), node)
+                value.st_rdev = guest.os.makedev(240, 2)
+                with self.assertRaisesRegex(ValueError, 'character-device identity'):
+                    guest.event_port(sysfs, devices)
+            node.unlink(); node.symlink_to('/inert')
+            with self.assertRaisesRegex(ValueError, 'character-device identity'):
+                guest.event_port(sysfs, devices)
+            (port / 'name').write_text('wrong-channel\n')
+            with self.assertRaisesRegex(ValueError, 'wrong event port name'):
+                guest.event_port(sysfs, devices)
+            (sysfs / 'vport1p1').mkdir()
+            with self.assertRaisesRegex(ValueError, 'ambiguous event ports'):
+                guest.event_port(sysfs, devices)
+
+    def test_event_port_wait_keeps_twenty_second_deadline(self):
+        with patch.object(guest, 'event_port', side_effect=[None, Path('/inert/vport0p1')]) as probe, \
+             patch.object(guest.time, 'monotonic', side_effect=[0, 0, 19.9]), \
+             patch.object(guest.time, 'sleep'):
+            self.assertEqual(guest.wait_event_port(), Path('/inert/vport0p1'))
+            self.assertEqual(probe.call_count, 2)
+        with patch.object(guest, 'event_port', return_value=None) as probe, \
+             patch.object(guest.time, 'monotonic', side_effect=[0, 0, 20]), \
+             patch.object(guest.time, 'sleep'):
+            with self.assertRaisesRegex(ValueError, 'event port readiness deadline'):
+                guest.wait_event_port()
+            self.assertEqual(probe.call_count, 1)
+
+    def test_user_revalidates_event_identity_and_private_access_after_guard(self):
+        body = ast.parse(inspect.getsource(guest.user)).body[0].body[:6]
+        code = compile(ast.Module(body=body, type_ignores=[]), '<user-event-boundary>', 'exec')
+        node = Mock()
+        value = SimpleNamespace(st_uid=23001, st_gid=23001, st_mode=stat.S_IFCHR | 0o600)
+        node.lstat.return_value = value
+        with patch.object(guest, 'EVENTS', None), patch.object(guest, 'guard') as guard, \
+             patch.object(guest, 'event_port', return_value=node) as resolve:
+            exec(code, guest.__dict__)
+            guard.assert_called_once_with(False)
+            resolve.assert_called_once_with()
+            for values in (dict(st_uid=0), dict(st_gid=0), dict(st_mode=stat.S_IFCHR | 0o666)):
+                with self.subTest(values=values):
+                    node.lstat.return_value = SimpleNamespace(**(value.__dict__ | values))
+                    with self.assertRaisesRegex(ValueError, 'private user event port'):
+                        exec(code, guest.__dict__)
+            guard.side_effect = ValueError('synthetic guard refusal')
+            resolve.reset_mock()
+            with self.assertRaisesRegex(ValueError, 'guard refusal'):
+                exec(code, guest.__dict__)
+            resolve.assert_not_called()
+
+    def test_private_event_rule_and_initialized_drm_wait_are_held(self):
         fixture = Path(guest.__file__).with_name('desktop574_fixture.sh').read_text()
         pre = [shlex.split(line.removeprefix('ExecStartPre=')) for line in fixture.splitlines()
                if line.startswith('ExecStartPre=')]
-        self.assertIn(['/usr/bin/udevadm', 'wait', '--timeout=20', '--initialized=yes',
-                       '/dev/virtio-ports/desktop574.events'], pre)
-        self.assertFalse(any('settle' in argv or '--settle' in argv for argv in pre))
+        self.assertEqual(pre, [['/usr/bin/modprobe', 'virtio_console']])
+        self.assertIn('SUBSYSTEM=="virtio-ports", KERNEL=="vport*", ATTR{name}=="desktop574.events", '
+                      'OWNER:="23001", GROUP:="23001", MODE:="0600"', fixture)
         tree = ast.parse(inspect.getsource(guest.boot))
         body = next(node.body for node in tree.body[0].body if isinstance(node, ast.Try))
         index = next(i for i, node in enumerate(body) if isinstance(node, ast.Assign) and
@@ -128,7 +193,9 @@ class GuestTests(unittest.TestCase):
     def test_missing_event_port_and_failed_emit_still_power_off_guarded_guest(self):
         with tempfile.TemporaryDirectory() as directory:
             missing = Path(directory) / 'missing-port'
+            failure = FileNotFoundError(2, 'synthetic missing kernel event port', str(missing))
             with patch.object(guest, 'guard') as guard, patch.object(guest, 'EVENTS', missing), \
+                 patch.object(guest, 'wait_event_port', side_effect=failure), \
                  patch.object(guest, 'emit', side_effect=OSError('synthetic transport failure')), \
                  patch.object(guest.subprocess, 'run') as run:
                 with self.assertRaises(FileNotFoundError) as caught:
@@ -156,6 +223,13 @@ class GuestTests(unittest.TestCase):
                 with self.assertRaises(FileNotFoundError):
                     guest.emit('boot')
             self.assertFalse(port.exists())
+            other = Path(directory) / 'other'
+            other.write_text('held')
+            port.symlink_to(other)
+            with patch.object(guest, 'EVENTS', port):
+                with self.assertRaises(OSError):
+                    guest.emit('boot')
+            self.assertEqual(other.read_text(), 'held')
 
     def test_seatd_compiled_socket_and_supported_cli(self):
         # Evaluate the actual boot call without starting a child process.
