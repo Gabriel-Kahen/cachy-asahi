@@ -1,5 +1,7 @@
 """Inert real Source guards through the existing fixed public codec."""
 from pathlib import Path
+import ast
+import time
 import types
 import unittest
 from unittest import mock
@@ -42,7 +44,7 @@ class ValueBoundaryTests(unittest.TestCase):
         cases = (
             (lambda: B.namespace(None, b'PRIVATE_BODY', 'PRIVATE_PIN'), 'preflight-namespace'),
             (lambda: B.image_handoff([], None, types.SimpleNamespace(input_selection=lambda _: ('a','b')),
-                                     b'PRIVATE_INPUT', b'PRIVATE_PACKAGES'), 'preflight-run'),
+                                     b'PRIVATE_INPUT', b'PRIVATE_PACKAGES'), 'preflight-L196'),
             (lambda: E.projection({'PRIVATE_RETURN': 'PRIVATE_VALUE'}), 'entry-projection'),
         )
         for action, operation in cases:
@@ -91,6 +93,58 @@ class ValueBoundaryTests(unittest.TestCase):
         error = self.caught(lambda: E.projection({}))
         with mock.patch.object(D, 'mark_pipeline_failure', side_effect=KeyboardInterrupt): self.mark(error)
         self.assertTrue(error.native_preflight_cancelled and error.native_preflight_cleanup_uncertain)
+
+    def test_exact_source_lines_and_functions_cover_every_preflight_call_site(self):
+        raw = (ROOT/'scripts/install/native_preflight.py').read_text()
+        calls = tuple(sorted({node.lineno for function in ast.parse(raw).body
+            if isinstance(function, ast.FunctionDef) and function.name in D.P0_PREFLIGHT_FUNCTIONS
+            for node in ast.walk(function) if isinstance(node, ast.Call)}))
+        self.assertEqual(D.P0_PREFLIGHT_CALL_LINES, calls)
+        cases = (
+            (lambda: B.selection(None, None, types.SimpleNamespace(input_selection=lambda _: ('a','b')), None, 'PRIVATE_NONCE'), 223),
+            (lambda: B.container_binding([], None, None, None, None, None, None), 251),
+            (lambda: B.run(types.SimpleNamespace(sources=types.SimpleNamespace(grant={})), None, None,
+                           deadline=time.monotonic()+60, nonce='PRIVATE', runtime_contract={}), 306),
+        )
+        for action, line in cases:
+            with self.subTest(line=line), mock.patch.object(B, 'live', return_value={}):
+                error = self.caught(action); self.assertIs(type(error), ValueError); self.mark(error)
+                self.assertEqual(error.nativeci_pipeline_operation, 'run-P0-preflight-L'+str(line))
+        for name in D.P0_PREFLIGHT_FUNCTIONS:
+            record = {'schema_version':1, 'stage':'pipeline', 'operation':'run-P0-preflight-'+name,
+                      'exception_type':'ValueError', 'refusal_code':'UNKNOWN'}
+            self.assertEqual(type(self).validate(record), record)
+        for line in calls:
+            record = {'schema_version':1, 'stage':'pipeline', 'operation':'run-P0-preflight-L'+str(line),
+                      'exception_type':'ValueError', 'refusal_code':'UNKNOWN'}
+            self.assertEqual(type(self).validate(record), record)
+
+    def test_modeled_daemon_guard_retains_primary_over_failed_descriptor_cleanup(self):
+        fixture = prior.load('value_preflight_pipeline_fixture', ROOT/'scripts/install/test_native_preflight.py')
+        model = fixture.PipelineModels()
+        model.setUp()
+        self.addCleanup(model.doCleanups)
+        transport = model.session.source_graph['runtime']['transport']
+        original_supervise = transport.supervise
+        def refused_daemon(argv, **kwargs):
+            value, observation = original_supervise(argv, **kwargs)
+            if argv[1] == 'info': value['stdout'] = fixture.P.encoded({'Architecture':'PRIVATE_FOREIGN', 'OSType':'linux'})
+            return value, observation
+        def failed_close(self): raise ValueError('PRIVATE_CLOSE_FAILURE')
+        transport.supervise = refused_daemon
+        with mock.patch.object(transport.DockerTransport, 'close', failed_close):
+            error = self.caught(model.run_model)
+        self.assertIs(type(error), ValueError)
+        self.assertEqual(error.args, ('NATIVE_LOCAL_DAEMON',))
+        self.assertTrue(error.native_preflight_cleanup_uncertain)
+        self.assertIs(error.native_preflight_cancelled, False)
+        self.session.source_graph = {'native_preflight':fixture.P, 'original':{}}
+        boundaries = D.p0_value_code_boundaries(C, S, self.session)
+        self.mark(error, boundaries)
+        self.assertEqual(error.nativeci_pipeline_operation, 'run-P0-preflight-L345')
+        self.assertEqual(error.args, ('NATIVE_LOCAL_DAEMON',))
+        self.assertTrue(error.native_preflight_cleanup_uncertain)
+        self.assertEqual([row[0][0] for row in model.commands], ['info'])
 
     def test_workflow_pins_actual_launcher_and_all_fixed_operations_survive(self):
         body = existing.LAUNCHER.read_bytes()
