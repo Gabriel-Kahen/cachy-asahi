@@ -16,6 +16,7 @@ from test_arm_c02 import load
 
 a = fixtures.a
 stage = load('c03_export_fixture', 'stage.py', {'arm_c01': a})
+PROFILE_OK = ''.join('reading file: ./' + name + '\n' for _ in range(2) for name in pgo.PROFILE_NAMES).encode()
 
 
 class C03Tests(fixtures.IsolatedTests):
@@ -49,7 +50,7 @@ class C03Tests(fixtures.IsolatedTests):
     def test_exact_plan_trains_no_heldout_and_gun_has_no_filename(self):
         manifest = self.manifest()
         plans = pgo.command_plan(a, manifest)
-        self.assertEqual(len(plans), 50)
+        self.assertEqual(len(plans), 18)
         for attempt in (1, 2):
             prefix = f'pgo-training-{attempt}'
             selected = [p for p in plans if p['name'].startswith(prefix + '-')]
@@ -57,15 +58,40 @@ class C03Tests(fixtures.IsolatedTests):
             self.assertEqual(len(training), 4)
             self.assertEqual(training[0]['source'], '/tmp/corpus/repeated.txt')
             self.assertEqual(training[3]['argv'], ['/tmp/build/gun'])
-            self.assertEqual([p['argv'] for p in selected if '-dump-' in p['name']],
-                             [['gcov-dump', '-l', '/out/' + prefix + '/profiles/' + n] for n in pgo.PROFILE_NAMES])
+            directory = '/out/' + prefix + '/profiles'
+            self.assertEqual(selected[-1]['name'], prefix + '-profile-check')
+            self.assertEqual(selected[-1]['argv'], ['gcov-tool', 'merge', '-v', '-w', '1,1', '-o',
+                                                  '/out/' + prefix + '/decoded-profiles', directory, directory])
             self.assertFalse(any('heldout' in str(p) or 'teststatic' in str(p) for p in selected))
             gun_compile = selected[2]['argv']
             self.assertFalse(any('-fprofile-' in v for v in gun_compile))
             self.assertIn('-fprofile-generate=/tmp/profile', selected[3]['argv'])
         full = a.command_plan(manifest)
-        self.assertEqual(full[5:55], plans)
-        self.assertEqual(full[55]['name'], 'baseline-1-configure')
+        self.assertEqual(full[5:23], plans)
+        self.assertEqual(full[23]['name'], 'baseline-1-configure')
+
+    def test_shipped_profile_decoder_is_used_without_gcov_dump_dependency(self):
+        self.assertIn('gcov-tool', a.tool_names())
+        self.assertNotIn('gcov-dump', a.tool_names())
+        for plan in pgo.command_plan(a, self.manifest()):
+            self.assertNotIn('gcov-dump', str(plan))
+
+    def test_decoder_requires_exact_reader_coverage_and_no_read_errors(self):
+        self.assertIsNone(pgo.check_profile_output(a, PROFILE_OK))
+        self.assertIsNone(pgo.check_profile_output(a, PROFILE_OK.replace(b'./', b'')))
+        self.assertIsNone(pgo.check_profile_output(a, PROFILE_OK + b'tag one function id=123\n'))
+        first = PROFILE_OK.splitlines(keepends=True)[0]
+        malformed = [PROFILE_OK.replace(first, b'', 1), PROFILE_OK[:len(PROFILE_OK) // 2], PROFILE_OK + first,
+                     PROFILE_OK.replace(first, b'reading file: ./extra.gcda\n'),
+                     b'Program level overlap result is 100.00%\n']
+        malformed += [PROFILE_OK + error for error in (b'not a gcov data file\n', b'Version mismatch\n',
+                                                        b'corrupted input\n', b'MALFORMED profile\n', b'warning: bad counters\n',
+                                                        b'Cannot Open input\n', b'cannot access directory\n', b'is not a directory\n',
+                                                        b'incorrect gcov version\n', b'cfg_checksum mismatch, skipping\n',
+                                                        b'skipping counter\n', b'counter overflow\n', b'read error\n')]
+        for output in malformed:
+            with self.subTest(output=output), self.assertRaisesRegex(ValueError, 'gcov-tool'):
+                pgo.check_profile_output(a, output)
 
     def test_training_role_bytes_and_extra_train_are_refused(self):
         manifest = self.manifest()
@@ -169,7 +195,7 @@ class C03Tests(fixtures.IsolatedTests):
             pgo.apply_use_flags(a, work)
         self.assertEqual((work / 'Makefile').read_bytes(), before)
 
-    def receipt(self, different_profiles=False):
+    def receipt(self, different_profiles=False, mutate_profile=False):
         # Reuse the complete existing 505-command receiver fixture, then splice
         # only the adapter's real plan into its common tool/final-build boundary.
         original_configured = a.configured_flags
@@ -197,7 +223,7 @@ class C03Tests(fixtures.IsolatedTests):
         contract.update(source_sha256=a.SOURCE_SHA, pgo_sha256=a.sha(Path(pgo.__file__).resolve()))
         report['contract'] = contract
         environment = json.loads((raw / 'environment.json').read_text())
-        environment['tool_files']['gcov-dump'] = {'path': '/usr/bin/gcov-dump', 'sha256': 'b' * 64}
+        environment['tool_files']['gcov-tool'] = {'path': '/usr/bin/gcov-tool', 'sha256': 'b' * 64}
         a.save(raw / 'environment.json', environment); report['environment_sha256'] = a.sha(raw / 'environment.json')
         private = self.root / 'private'; private.mkdir()
         work, profile = private / 'build', private / 'profile'
@@ -234,7 +260,16 @@ class C03Tests(fixtures.IsolatedTests):
             target, source_path = path(kwargs.get('target')), path(kwargs.get('source'))
             if target:
                 target.write_bytes(gzip.compress(a.corpus.TRAIN, mtime=0) if name.endswith('-encode') else a.corpus.TRAIN)
-            data = b"synthetic: data:magic `gcda' COUNTERS arcs\n" if '-dump-' in name else b'synthetic retained adapter log\n'
+            data = PROFILE_OK if name.endswith('-profile-check') else b'synthetic retained adapter log\n'
+            if name.endswith('-profile-check'):
+                destination = raw / name.removesuffix('-profile-check') / 'decoded-profiles'
+                self.profile_fixture(destination)
+                # The separate weighted decoder copy may change GCDA encoding.
+                for file in destination.iterdir():
+                    file.write_bytes(file.read_bytes() + b'synthetic rewritten encoding')
+            if mutate_profile and name.endswith('-profile-check'):
+                file = raw / name.removesuffix('-profile-check') / 'profiles' / pgo.PROFILE_NAMES[0]
+                file.write_bytes(file.read_bytes() + b'mutated by decoder')
             log = raw / ('adapter-' + name + '.log'); log.write_bytes(data)
             def binding(logical, actual):
                 return {'path': str(logical), 'sha256': a.sha(actual), 'bytes': actual.stat().st_size} if actual else None
@@ -244,7 +279,7 @@ class C03Tests(fixtures.IsolatedTests):
                              'log': log.name, 'log_sha256': a.sha(log), 'log_bytes': len(data),
                              'timeout_seconds': kwargs['timeout'], 'elapsed_seconds': 1.0})
             clock[0] += 1.0
-            return b'' if target is None else 0
+            return data if target is None else 0
         with patch.object(pgo, 'WORK', work), patch.object(pgo, 'PROFILE', profile), \
              patch.object(a, 'extract', side_effect=extract), patch.object(pgo.time, 'monotonic', side_effect=lambda: clock[0]):
             profile_report = pgo.prepare(a, SimpleNamespace(run=run), self.root / 'inputs', raw, a.trial_env(), raw / 'corpus', manifest)
@@ -256,7 +291,7 @@ class C03Tests(fixtures.IsolatedTests):
         report['profile'] = profile_report
         combined = common[:5] + commands + common[5:]
         # Rename through private temporary names to avoid collisions with later
-        # common log names when inserting the fifty adapter commands.
+        # common log names when inserting the eighteen adapter commands.
         for index, row in enumerate(combined):
             old = raw / row['log']; old.rename(raw / f'renumber-{index}')
         for index, row in enumerate(combined, 1):
@@ -268,13 +303,15 @@ class C03Tests(fixtures.IsolatedTests):
     def test_complete_c03_receiver_and_export_without_execution(self):
         raw, contract, report, _, _ = self.receipt()
         verified = a.verify_result(raw, contract)
-        self.assertEqual(verified['receiver_verification']['command_count'], 555)
+        self.assertEqual(verified['receiver_verification']['command_count'], 523)
         self.assertEqual(verified['profile_verification']['profile_regeneration'], 'identical')
         exported = stage.export_artifacts(raw, self.root / 'export', verified)
         self.assertEqual(exported['purpose'], 'ARM-C03-same-job-followup')
         with tarfile.open(self.root / 'export/development-ARM-C03-outputs.tar.gz') as archive:
-            self.assertEqual(len(archive.getmembers()), 145)
-            self.assertEqual(sum(n.endswith('.gcda') for n in archive.getnames()), 34)
+            self.assertEqual(len(archive.getmembers()), 179)
+            self.assertEqual(sum(n.endswith('.gcda') for n in archive.getnames()), 68)
+        for record in verified['profile_verification']['attempts']:
+            self.assertNotEqual(record['profiles'], record['decoded_profiles'])
 
     def test_independent_profile_regeneration_difference_is_honest_not_a_gate(self):
         raw, contract, report, _, _ = self.receipt(different_profiles=True)
@@ -294,14 +331,50 @@ class C03Tests(fixtures.IsolatedTests):
         with self.assertRaisesRegex(ValueError, 'training artifact'):
             a.verify_result(raw, contract)
 
-    def test_receiver_rejects_dump_binding_and_profile_restore_mismatch(self):
+    def test_prepare_refuses_decoder_mutation_of_retained_profile_bytes(self):
+        with self.assertRaisesRegex(ValueError, 'mutated retained profiles'):
+            self.receipt(mutate_profile=True)
+
+    def test_receiver_rejects_missing_changed_or_wrong_version_decoded_profiles(self):
+        raw, contract, report, _, _ = self.receipt()
+        directory = raw / 'pgo-training-1/decoded-profiles'
+        file = directory / pgo.PROFILE_NAMES[0]; before = file.read_bytes()
+        for kind in ('missing', 'changed', 'extra', 'version'):
+            with self.subTest(kind=kind):
+                if kind == 'missing':
+                    file.unlink()
+                elif kind == 'extra':
+                    (directory / 'extra.gcda').write_bytes(before)
+                elif kind == 'version':
+                    # Change every rewritten version consistently to exercise
+                    # the comparison against the original header/version.
+                    for path in directory.iterdir():
+                        data = path.read_bytes(); path.write_bytes(data[:4] + b'old!' + data[8:])
+                else:
+                    file.write_bytes(before + b'changed after decoding')
+                with self.assertRaises(ValueError):
+                    a.verify_result(raw, contract)
+                if kind == 'extra':
+                    (directory / 'extra.gcda').unlink()
+                elif kind == 'version':
+                    for path in directory.iterdir():
+                        data = path.read_bytes(); path.write_bytes(data[:4] + b'B62*' + data[8:])
+                else:
+                    file.write_bytes(before)
+
+    def test_receiver_rejects_bogus_reader_coverage_and_profile_restore_mismatch(self):
         raw, contract, report, _, commands = self.receipt()
-        row = next(r for r in commands if '-dump-' in r['name'])
-        log = raw / row['log']; log.write_bytes(b"data:magic `gcda' no counters or usable coverage\n")
-        row.update(log_sha256=a.sha(log), log_bytes=log.stat().st_size); a.save(raw / 'commands.json', commands)
-        with self.assertRaisesRegex(ValueError, 'gcov-dump'):
-            a.verify_result(raw, contract)
-        log.write_bytes(b"data:magic `gcda' COUNTERS arcs\n")
+        row = next(r for r in commands if r['name'].endswith('-profile-check'))
+        log = raw / row['log']
+        first = PROFILE_OK.splitlines(keepends=True)[0]
+        for data in (PROFILE_OK + first, PROFILE_OK.replace(first, b''),
+                     PROFILE_OK + b'cannot open ./input.gcda\n',
+                     PROFILE_OK + b'cfg_checksum mismatch, skipping\n'):
+            log.write_bytes(data)
+            row.update(log_sha256=a.sha(log), log_bytes=log.stat().st_size); a.save(raw / 'commands.json', commands)
+            with self.assertRaisesRegex(ValueError, 'gcov-tool'):
+                a.verify_result(raw, contract)
+        log.write_bytes(PROFILE_OK)
         row.update(log_sha256=a.sha(log), log_bytes=log.stat().st_size); a.save(raw / 'commands.json', commands)
         report['profile']['restores'][1]['profiles'] = []; a.save(raw / 'result.json', report)
         with self.assertRaisesRegex(ValueError, 'unchanged first-attempt'):

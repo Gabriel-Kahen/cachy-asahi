@@ -104,7 +104,7 @@ threshold adopted from this host.
 
 ## PGO follow-up contract
 
-The C03 adapter uses `/tmp/profile` inside the existing private 2 GiB tmpfs, preserving the same canonical path for generation and both use builds. Configure feature probes use baseline flags; only final candidate objects use fatal missing-profile/coverage diagnostics. Preparation has focused synthetic coverage; native execution is pending.
+The C03 adapter uses `/tmp/profile` inside the existing private 2 GiB tmpfs, preserving the same canonical path for generation and both use builds. Configure feature probes use baseline flags; only final candidate objects use fatal missing-profile/coverage diagnostics. The initial native trial stopped before training because the frozen GCC package omits gcov-dump. The correction uses its shipped gcov-tool to decode separate diagnostic copies; final builds still consume untouched raw profiles. Focused synthetic checks pass; repaired native execution is pending.
 
 ARM-C03 uses the same source, tools, ISA, baseline optimization and canonical
 source/object paths throughout. Compile **and link** the training binary with
