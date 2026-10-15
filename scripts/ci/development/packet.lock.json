@@ -1766,7 +1766,7 @@
     },
     "scripts/ci/development/controller.py": {
       "mode": 420,
-      "sha256": "4b7644039367523386c0a87b21e4128c3d3cb7fa147c8e091ce8a1a130cb5647"
+      "sha256": "b9b73146f78beb73f0b46e669368bfedcaca677639057f8f7f9471d83bba24fd"
     },
     "scripts/ci/development/initial_artifacts.py": {
       "mode": 420,
