@@ -245,30 +245,53 @@ FILE_HOOK=machinery.FileFinder.path_hook(
 @contextmanager
 def quarantine(end):
     """Use fixed finders/stdlib bytes, never caller cache entries or forged labels."""
-    paths=[STANDARD,str(Path(STANDARD)/'lib-dynload')]
-    old_modules=dict(sys.modules); old_path=list(sys.path); old_meta=list(sys.meta_path)
-    old_hooks=list(sys.path_hooks); old_cache=dict(sys.path_importer_cache)
-    operations={k:getattr(builtins,k) for k in ('__import__','compile','exec')}
+    _first_cause_policy = (LANGUAGE['type'], LANGUAGE['GeneratorExit'], LANGUAGE['BaseException'], LANGUAGE['Exception'], (LANGUAGE['ValueError'], LANGUAGE['TypeError'], LANGUAGE['AttributeError'], LANGUAGE['KeyError'], LANGUAGE['IndexError'], LANGUAGE['RuntimeError'], LANGUAGE['OSError'], LANGUAGE['FileNotFoundError'], LANGUAGE['PermissionError'], LANGUAGE['NotADirectoryError'], LANGUAGE['IsADirectoryError'], LANGUAGE['UnicodeError'], LANGUAGE['UnicodeDecodeError'], LANGUAGE['UnicodeEncodeError'], LANGUAGE['UnicodeTranslateError'], LANGUAGE['ImportError'], LANGUAGE['ModuleNotFoundError']))
+    paths = [STANDARD, str(Path(STANDARD) / 'lib-dynload')]
+    old_modules = dict(sys.modules)
+    old_path = list(sys.path)
+    old_meta = list(sys.meta_path)
+    old_hooks = list(sys.path_hooks)
+    old_cache = dict(sys.path_importer_cache)
+    operations = {k: getattr(builtins, k) for k in ('__import__', 'compile', 'exec')}
+
     def standard_import(name, globals=None, locals=None, fromlist=(), level=0):
         alive(end)
-        root=((globals or {}).get('__package__') or '').split('.')[0] if level else name.split('.')[0]
-        need(root in STDLIB,'producer-unbound-import', import_root=root)
-        return LANGUAGE['__import__'](name,globals,locals,fromlist,level)
+        root = ((globals or {}).get('__package__') or '').split('.')[0] if level else name.split('.')[0]
+        need(root in STDLIB, 'producer-unbound-import', import_root=root)
+        return LANGUAGE['__import__'](name, globals, locals, fromlist, level)
+    _preserve_0 = False
     try:
         for key in tuple(sys.modules):
-            if key.split('.')[0] in STDLIB: sys.modules.pop(key,None)
+            if key.split('.')[0] in STDLIB:
+                sys.modules.pop(key, None)
         sys.modules.update(BOOTSTRAP)
-        sys.path[:]=paths; sys.meta_path[:]=FINDERS
-        sys.path_hooks[:]=[FILE_HOOK]
+        sys.path[:] = paths
+        sys.meta_path[:] = FINDERS
+        sys.path_hooks[:] = [FILE_HOOK]
         sys.path_importer_cache.clear()
-        builtins.__import__=standard_import; builtins.compile=LANGUAGE['compile']; builtins.exec=LANGUAGE['exec']
-        yield standard_import,paths
+        builtins.__import__ = standard_import
+        builtins.compile = LANGUAGE['compile']
+        builtins.exec = LANGUAGE['exec']
+        yield (standard_import, paths)
         alive(end)
+    except _first_cause_policy[2] as _primary_0:
+        _preserve_0 = _first_cause_policy[0](_primary_0) is not _first_cause_policy[1]
+        raise
     finally:
-        sys.path[:]=old_path; sys.meta_path[:]=old_meta; sys.path_hooks[:]=old_hooks
-        sys.path_importer_cache.clear(); sys.path_importer_cache.update(old_cache)
-        for key,value in operations.items(): setattr(builtins,key,value)
-        sys.modules.clear(); sys.modules.update(old_modules)
+        try:
+            sys.path[:] = old_path
+            sys.meta_path[:] = old_meta
+            sys.path_hooks[:] = old_hooks
+            sys.path_importer_cache.clear()
+            sys.path_importer_cache.update(old_cache)
+            for key, value in operations.items():
+                setattr(builtins, key, value)
+            sys.modules.clear()
+            sys.modules.update(old_modules)
+        except _first_cause_policy[3] as _secondary_0:
+            _secondary_type_0 = _first_cause_policy[0](_secondary_0)
+            if not _preserve_0 or not (_secondary_type_0 is _first_cause_policy[4][0] or _secondary_type_0 is _first_cause_policy[4][1] or _secondary_type_0 is _first_cause_policy[4][2] or (_secondary_type_0 is _first_cause_policy[4][3]) or (_secondary_type_0 is _first_cause_policy[4][4]) or (_secondary_type_0 is _first_cause_policy[4][5]) or (_secondary_type_0 is _first_cause_policy[4][6]) or (_secondary_type_0 is _first_cause_policy[4][7]) or (_secondary_type_0 is _first_cause_policy[4][8]) or (_secondary_type_0 is _first_cause_policy[4][9]) or (_secondary_type_0 is _first_cause_policy[4][10]) or (_secondary_type_0 is _first_cause_policy[4][11]) or (_secondary_type_0 is _first_cause_policy[4][12]) or (_secondary_type_0 is _first_cause_policy[4][13]) or (_secondary_type_0 is _first_cause_policy[4][14]) or (_secondary_type_0 is _first_cause_policy[4][15]) or (_secondary_type_0 is _first_cause_policy[4][16])):
+                raise
 
 
 class _Custody:
@@ -458,47 +481,108 @@ class _Guard:
 @contextmanager
 def load_graph(root, *, deadline):
     """Authenticate the complete two-module closure before any project import."""
-    root=absolute(root); captured={}
-    for name,(relative,pin) in SOURCES.items():
-        raw,identity=read(root/relative,deadline,{0o644},1024**2)
-        need(hashlib.sha256(raw).hexdigest()==pin,'producer-source-pin')
-        captured[name]=(raw,identity)
+    _first_cause_policy = (LANGUAGE['type'], LANGUAGE['GeneratorExit'], LANGUAGE['BaseException'], LANGUAGE['Exception'], (LANGUAGE['ValueError'], LANGUAGE['TypeError'], LANGUAGE['AttributeError'], LANGUAGE['KeyError'], LANGUAGE['IndexError'], LANGUAGE['RuntimeError'], LANGUAGE['OSError'], LANGUAGE['FileNotFoundError'], LANGUAGE['PermissionError'], LANGUAGE['NotADirectoryError'], LANGUAGE['IsADirectoryError'], LANGUAGE['UnicodeError'], LANGUAGE['UnicodeDecodeError'], LANGUAGE['UnicodeEncodeError'], LANGUAGE['UnicodeTranslateError'], LANGUAGE['ImportError'], LANGUAGE['ModuleNotFoundError']))
+    root = absolute(root)
+    captured = {}
+    for name, (relative, pin) in SOURCES.items():
+        raw, identity = read(root / relative, deadline, {420}, 1024 ** 2)
+        need(hashlib.sha256(raw).hexdigest() == pin, 'producer-source-pin')
+        captured[name] = (raw, identity)
+
     def disk_guard():
-        for name,(relative,_) in SOURCES.items():
-            raw,identity=read(root/relative,deadline,{0o644},1024**2)
-            need((raw,identity)==captured[name],'producer-source-drift')
-    guard=_Guard(disk_guard)
-    modules={name:types.ModuleType('_ksm_'+name) for name in SOURCES}
+        for name, (relative, _) in SOURCES.items():
+            raw, identity = read(root / relative, deadline, {420}, 1024 ** 2)
+            need((raw, identity) == captured[name], 'producer-source-drift')
+    guard = _Guard(disk_guard)
+    modules = {name: types.ModuleType('_ksm_' + name) for name in SOURCES}
+    _preserve_4 = False
     try:
-        with quarantine(deadline) as (standard_import,paths):
-            def importer(name,globals=None,locals=None,fromlist=(),level=0):
-                guard(); need(not level,'producer-relative-project-import')
-                if name=='package_checks' and not level:
-                    need((globals or {}).get('__name__')=='_ksm_native_arm' and fromlist==('recipe',),'producer-project-import')
-                    result=modules[name]
-                else: result=standard_import(name,globals,locals,fromlist,level)
-                guard(); return result
-            for name in ('package_checks','native_arm'):
-                module=modules[name]; module.__file__=str(root/SOURCES[name][0])
-                module.__dict__['__builtins__']={**LANGUAGE,'__import__':importer}
+        with quarantine(deadline) as (standard_import, paths):
+
+            def importer(name, globals=None, locals=None, fromlist=(), level=0):
                 guard()
-                try: LANGUAGE['exec'](LANGUAGE['compile'](captured[name][0],module.__file__,'exec'),module.__dict__)
-                finally: sys.path[:]=paths
+                need(not level, 'producer-relative-project-import')
+                if name == 'package_checks' and (not level):
+                    need((globals or {}).get('__name__') == '_ksm_native_arm' and fromlist == ('recipe',), 'producer-project-import')
+                    result = modules[name]
+                else:
+                    result = standard_import(name, globals, locals, fromlist, level)
                 guard()
-            native=modules['native_arm']; original=native.run
-            custody=_Custody(modules,guard,original,deadline)
-            _GRAPHS[id(native)]=(native,guard,deadline,original,custody)
-            _GUARDS[id(guard)]=custody
+                return result
+            for name in ('package_checks', 'native_arm'):
+                module = modules[name]
+                module.__file__ = str(root / SOURCES[name][0])
+                module.__dict__['__builtins__'] = {**LANGUAGE, '__import__': importer}
+                guard()
+                _preserve_0 = False
+                try:
+                    LANGUAGE['exec'](LANGUAGE['compile'](captured[name][0], module.__file__, 'exec'), module.__dict__)
+                except _first_cause_policy[2] as _primary_0:
+                    _preserve_0 = _first_cause_policy[0](_primary_0) is not _first_cause_policy[1]
+                    raise
+                finally:
+                    try:
+                        sys.path[:] = paths
+                    except _first_cause_policy[3] as _secondary_0:
+                        _secondary_type_0 = _first_cause_policy[0](_secondary_0)
+                        if not _preserve_0 or not (_secondary_type_0 is _first_cause_policy[4][0] or _secondary_type_0 is _first_cause_policy[4][1] or _secondary_type_0 is _first_cause_policy[4][2] or (_secondary_type_0 is _first_cause_policy[4][3]) or (_secondary_type_0 is _first_cause_policy[4][4]) or (_secondary_type_0 is _first_cause_policy[4][5]) or (_secondary_type_0 is _first_cause_policy[4][6]) or (_secondary_type_0 is _first_cause_policy[4][7]) or (_secondary_type_0 is _first_cause_policy[4][8]) or (_secondary_type_0 is _first_cause_policy[4][9]) or (_secondary_type_0 is _first_cause_policy[4][10]) or (_secondary_type_0 is _first_cause_policy[4][11]) or (_secondary_type_0 is _first_cause_policy[4][12]) or (_secondary_type_0 is _first_cause_policy[4][13]) or (_secondary_type_0 is _first_cause_policy[4][14]) or (_secondary_type_0 is _first_cause_policy[4][15]) or (_secondary_type_0 is _first_cause_policy[4][16])):
+                            raise
+                guard()
+            native = modules['native_arm']
+            original = native.run
+            custody = _Custody(modules, guard, original, deadline)
+            _GRAPHS[id(native)] = (native, guard, deadline, original, custody)
+            _GUARDS[id(guard)] = custody
+            _preserve_3 = False
             try:
-                guard(); yield native,guard
+                guard()
+                yield (native, guard)
+            except _first_cause_policy[2] as _primary_3:
+                _preserve_3 = _first_cause_policy[0](_primary_3) is not _first_cause_policy[1]
+                raise
             finally:
                 try:
-                    custody.verify(); custody.guard._disk()
-                finally:
-                    try: custody.restore()
+                    _preserve_2 = False
+                    try:
+                        custody.verify()
+                        custody.guard._disk()
+                    except _first_cause_policy[2] as _primary_2:
+                        _preserve_2 = _first_cause_policy[0](_primary_2) is not _first_cause_policy[1]
+                        raise
                     finally:
-                        _GRAPHS.pop(id(custody.native),None); _GUARDS.pop(id(custody.guard),None)
-    finally: disk_guard()
+                        try:
+                            _preserve_1 = False
+                            try:
+                                custody.restore()
+                            except _first_cause_policy[2] as _primary_1:
+                                _preserve_1 = _first_cause_policy[0](_primary_1) is not _first_cause_policy[1]
+                                raise
+                            finally:
+                                try:
+                                    _GRAPHS.pop(id(custody.native), None)
+                                    _GUARDS.pop(id(custody.guard), None)
+                                except _first_cause_policy[3] as _secondary_1:
+                                    _secondary_type_1 = _first_cause_policy[0](_secondary_1)
+                                    if not _preserve_1 or not (_secondary_type_1 is _first_cause_policy[4][0] or _secondary_type_1 is _first_cause_policy[4][1] or _secondary_type_1 is _first_cause_policy[4][2] or (_secondary_type_1 is _first_cause_policy[4][3]) or (_secondary_type_1 is _first_cause_policy[4][4]) or (_secondary_type_1 is _first_cause_policy[4][5]) or (_secondary_type_1 is _first_cause_policy[4][6]) or (_secondary_type_1 is _first_cause_policy[4][7]) or (_secondary_type_1 is _first_cause_policy[4][8]) or (_secondary_type_1 is _first_cause_policy[4][9]) or (_secondary_type_1 is _first_cause_policy[4][10]) or (_secondary_type_1 is _first_cause_policy[4][11]) or (_secondary_type_1 is _first_cause_policy[4][12]) or (_secondary_type_1 is _first_cause_policy[4][13]) or (_secondary_type_1 is _first_cause_policy[4][14]) or (_secondary_type_1 is _first_cause_policy[4][15]) or (_secondary_type_1 is _first_cause_policy[4][16])):
+                                        raise
+                        except _first_cause_policy[3] as _secondary_2:
+                            _secondary_type_2 = _first_cause_policy[0](_secondary_2)
+                            if not _preserve_2 or not (_secondary_type_2 is _first_cause_policy[4][0] or _secondary_type_2 is _first_cause_policy[4][1] or _secondary_type_2 is _first_cause_policy[4][2] or (_secondary_type_2 is _first_cause_policy[4][3]) or (_secondary_type_2 is _first_cause_policy[4][4]) or (_secondary_type_2 is _first_cause_policy[4][5]) or (_secondary_type_2 is _first_cause_policy[4][6]) or (_secondary_type_2 is _first_cause_policy[4][7]) or (_secondary_type_2 is _first_cause_policy[4][8]) or (_secondary_type_2 is _first_cause_policy[4][9]) or (_secondary_type_2 is _first_cause_policy[4][10]) or (_secondary_type_2 is _first_cause_policy[4][11]) or (_secondary_type_2 is _first_cause_policy[4][12]) or (_secondary_type_2 is _first_cause_policy[4][13]) or (_secondary_type_2 is _first_cause_policy[4][14]) or (_secondary_type_2 is _first_cause_policy[4][15]) or (_secondary_type_2 is _first_cause_policy[4][16])):
+                                raise
+                except _first_cause_policy[3] as _secondary_3:
+                    _secondary_type_3 = _first_cause_policy[0](_secondary_3)
+                    if not _preserve_3 or not (_secondary_type_3 is _first_cause_policy[4][0] or _secondary_type_3 is _first_cause_policy[4][1] or _secondary_type_3 is _first_cause_policy[4][2] or (_secondary_type_3 is _first_cause_policy[4][3]) or (_secondary_type_3 is _first_cause_policy[4][4]) or (_secondary_type_3 is _first_cause_policy[4][5]) or (_secondary_type_3 is _first_cause_policy[4][6]) or (_secondary_type_3 is _first_cause_policy[4][7]) or (_secondary_type_3 is _first_cause_policy[4][8]) or (_secondary_type_3 is _first_cause_policy[4][9]) or (_secondary_type_3 is _first_cause_policy[4][10]) or (_secondary_type_3 is _first_cause_policy[4][11]) or (_secondary_type_3 is _first_cause_policy[4][12]) or (_secondary_type_3 is _first_cause_policy[4][13]) or (_secondary_type_3 is _first_cause_policy[4][14]) or (_secondary_type_3 is _first_cause_policy[4][15]) or (_secondary_type_3 is _first_cause_policy[4][16])):
+                        raise
+    except _first_cause_policy[2] as _primary_4:
+        _preserve_4 = _first_cause_policy[0](_primary_4) is not _first_cause_policy[1]
+        raise
+    finally:
+        try:
+            disk_guard()
+        except _first_cause_policy[3] as _secondary_4:
+            _secondary_type_4 = _first_cause_policy[0](_secondary_4)
+            if not _preserve_4 or not (_secondary_type_4 is _first_cause_policy[4][0] or _secondary_type_4 is _first_cause_policy[4][1] or _secondary_type_4 is _first_cause_policy[4][2] or (_secondary_type_4 is _first_cause_policy[4][3]) or (_secondary_type_4 is _first_cause_policy[4][4]) or (_secondary_type_4 is _first_cause_policy[4][5]) or (_secondary_type_4 is _first_cause_policy[4][6]) or (_secondary_type_4 is _first_cause_policy[4][7]) or (_secondary_type_4 is _first_cause_policy[4][8]) or (_secondary_type_4 is _first_cause_policy[4][9]) or (_secondary_type_4 is _first_cause_policy[4][10]) or (_secondary_type_4 is _first_cause_policy[4][11]) or (_secondary_type_4 is _first_cause_policy[4][12]) or (_secondary_type_4 is _first_cause_policy[4][13]) or (_secondary_type_4 is _first_cause_policy[4][14]) or (_secondary_type_4 is _first_cause_policy[4][15]) or (_secondary_type_4 is _first_cause_policy[4][16])):
+                raise
 
 
 def bind_output(root, output):
@@ -524,29 +608,56 @@ class _Forwarder:
         return (tuple(_Custody.token(object.__getattribute__(self,k)) for k in self.__slots__),
                 _Custody.path_state(self._output))
     def __call__(self, command, log=None, timeout=1800):
-        grant=_GRAPHS.get(id(self._native))
-        need(grant is not None and grant[4].wrapper is self,'producer-wrapper-grant')
+        grant = _GRAPHS.get(id(self._native))
+        need(grant is not None and grant[4].wrapper is self, 'producer-wrapper-grant')
         grant[4].verify()
-        guard=self._guard; deadline=self._end; output=self._output; parent_identity=self._parent; original=self._original
-        guard(); alive(deadline)
-        selected=timeout
-        if (type(command) is list and len(command)==11 and log is None and type(timeout) is int and timeout==60
-                and type(command[9]) is str and re.fullmatch(r'sha256:[0-9a-f]{64}',command[9])):
-            expected=['docker','run','--rm','--pull=never','--network=none','--cap-drop=ALL',
-                      '--security-opt=no-new-privileges','--read-only','--entrypoint=/bin/cat',command[9],'/builder-packages.lock']
-            if command==expected:
-                need(directory(output.parent)==parent_identity,'producer-output-parent-drift')
-                info=output.lstat()
-                need(stat.S_ISDIR(info.st_mode) and info.st_uid==os.geteuid() and not info.st_mode & 0o022,'producer-output-directory')
-                raw,image_identity=read(output/'image-id',deadline,{0o600,0o644},128)
-                need(raw.decode('ascii').strip()==command[9],'producer-image-binding')
-                selected=min(CAP,deadline-time.monotonic()); need(selected>0,'producer-deadline')
-                try: return original(command,log,selected)
+        guard = self._guard
+        deadline = self._end
+        output = self._output
+        parent_identity = self._parent
+        original = self._original
+        guard()
+        alive(deadline)
+        _first_cause_policy = (LANGUAGE['type'], LANGUAGE['GeneratorExit'], LANGUAGE['BaseException'], LANGUAGE['Exception'], (LANGUAGE['ValueError'], LANGUAGE['TypeError'], LANGUAGE['AttributeError'], LANGUAGE['KeyError'], LANGUAGE['IndexError'], LANGUAGE['RuntimeError'], LANGUAGE['OSError'], LANGUAGE['FileNotFoundError'], LANGUAGE['PermissionError'], LANGUAGE['NotADirectoryError'], LANGUAGE['IsADirectoryError'], LANGUAGE['UnicodeError'], LANGUAGE['UnicodeDecodeError'], LANGUAGE['UnicodeEncodeError'], LANGUAGE['UnicodeTranslateError'], LANGUAGE['ImportError'], LANGUAGE['ModuleNotFoundError']))
+        selected = timeout
+        if type(command) is list and len(command) == 11 and (log is None) and (type(timeout) is int) and (timeout == 60) and (type(command[9]) is str) and re.fullmatch('sha256:[0-9a-f]{64}', command[9]):
+            expected = ['docker', 'run', '--rm', '--pull=never', '--network=none', '--cap-drop=ALL', '--security-opt=no-new-privileges', '--read-only', '--entrypoint=/bin/cat', command[9], '/builder-packages.lock']
+            if command == expected:
+                need(directory(output.parent) == parent_identity, 'producer-output-parent-drift')
+                info = output.lstat()
+                need(stat.S_ISDIR(info.st_mode) and info.st_uid == os.geteuid() and (not info.st_mode & 18), 'producer-output-directory')
+                raw, image_identity = read(output / 'image-id', deadline, {384, 420}, 128)
+                need(raw.decode('ascii').strip() == command[9], 'producer-image-binding')
+                selected = min(CAP, deadline - time.monotonic())
+                need(selected > 0, 'producer-deadline')
+                _preserve_0 = False
+                try:
+                    return original(command, log, selected)
+                except _first_cause_policy[2] as _primary_0:
+                    _preserve_0 = _first_cause_policy[0](_primary_0) is not _first_cause_policy[1]
+                    raise
                 finally:
-                    observed,current=read(output/'image-id',deadline,{0o600,0o644},128)
-                    need((observed,current)==(raw,image_identity),'producer-image-drift'); guard()
-        try: return original(command,log,selected)
-        finally: guard()
+                    try:
+                        observed, current = read(output / 'image-id', deadline, {384, 420}, 128)
+                        need((observed, current) == (raw, image_identity), 'producer-image-drift')
+                        guard()
+                    except _first_cause_policy[3] as _secondary_0:
+                        _secondary_type_0 = _first_cause_policy[0](_secondary_0)
+                        if not _preserve_0 or not (_secondary_type_0 is _first_cause_policy[4][0] or _secondary_type_0 is _first_cause_policy[4][1] or _secondary_type_0 is _first_cause_policy[4][2] or (_secondary_type_0 is _first_cause_policy[4][3]) or (_secondary_type_0 is _first_cause_policy[4][4]) or (_secondary_type_0 is _first_cause_policy[4][5]) or (_secondary_type_0 is _first_cause_policy[4][6]) or (_secondary_type_0 is _first_cause_policy[4][7]) or (_secondary_type_0 is _first_cause_policy[4][8]) or (_secondary_type_0 is _first_cause_policy[4][9]) or (_secondary_type_0 is _first_cause_policy[4][10]) or (_secondary_type_0 is _first_cause_policy[4][11]) or (_secondary_type_0 is _first_cause_policy[4][12]) or (_secondary_type_0 is _first_cause_policy[4][13]) or (_secondary_type_0 is _first_cause_policy[4][14]) or (_secondary_type_0 is _first_cause_policy[4][15]) or (_secondary_type_0 is _first_cause_policy[4][16])):
+                            raise
+        _preserve_1 = False
+        try:
+            return original(command, log, selected)
+        except _first_cause_policy[2] as _primary_1:
+            _preserve_1 = _first_cause_policy[0](_primary_1) is not _first_cause_policy[1]
+            raise
+        finally:
+            try:
+                guard()
+            except _first_cause_policy[3] as _secondary_1:
+                _secondary_type_1 = _first_cause_policy[0](_secondary_1)
+                if not _preserve_1 or not (_secondary_type_1 is _first_cause_policy[4][0] or _secondary_type_1 is _first_cause_policy[4][1] or _secondary_type_1 is _first_cause_policy[4][2] or (_secondary_type_1 is _first_cause_policy[4][3]) or (_secondary_type_1 is _first_cause_policy[4][4]) or (_secondary_type_1 is _first_cause_policy[4][5]) or (_secondary_type_1 is _first_cause_policy[4][6]) or (_secondary_type_1 is _first_cause_policy[4][7]) or (_secondary_type_1 is _first_cause_policy[4][8]) or (_secondary_type_1 is _first_cause_policy[4][9]) or (_secondary_type_1 is _first_cause_policy[4][10]) or (_secondary_type_1 is _first_cause_policy[4][11]) or (_secondary_type_1 is _first_cause_policy[4][12]) or (_secondary_type_1 is _first_cause_policy[4][13]) or (_secondary_type_1 is _first_cause_policy[4][14]) or (_secondary_type_1 is _first_cause_policy[4][15]) or (_secondary_type_1 is _first_cause_policy[4][16])):
+                    raise
 
 
 def wrap_run(native, output, *, deadline, guard, parent_identity):
