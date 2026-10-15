@@ -47,9 +47,11 @@ does not establish runtime validation of the inline finalizer change.
 The combined KSM retained-input supplier and three-method Path correction
 passes fresh whole-candidate review `26e5f135`, including the synthetic 501 flow
 on real Python 3.14 Path without fake context hooks. Root commits exactly seven
-changes as `30f5efaa`, with 160 roles and 153 held; actual committed-Source review
-is pending. This Source is not yet published or selected for a trial, and
-historical failure and cleanup uncertainty remain unchanged.
+changes as `30f5efaa`, with 160 roles and 153 held. Actual committed-Source review
+`f54943c1` passes, and Root publishes the Source by normal fast-forward with exact
+remote readback. One changed native trial `38675975893`, attempt 1, is selected
+with packet `b7021695`; no result is claimed. Historical failure and cleanup
+uncertainty remain unchanged.
 
 P0 diagnostic Source `78f605be` is published. Actual Source review `f5422a2e`
 authenticates its four-file delta and corrected read-only freeze. The initial
@@ -60,9 +62,10 @@ and recipe `ebd58126` stay held. No new trial or P0 pass is claimed.
 Current client/repository convergence now passes all 48 host tests without skips.
 Root commits separate Code `c6d43be2` and Source `ba63d6d9`: the new explicit
 baseline has 160 initial rows, 267 selected roles and sibling helper custody.
-Actual Source/Code review is pending; no Data, registration or native acceptance
-is claimed. The reviewed closed receiver public-record diagnostic is being
-composed with this successor before selection. Historical four-package evidence
+Actual Source/Code review `418547fc` passes and both commits are published to
+dormant refs; no Data, registration or native acceptance is claimed. The closed
+receiver public-record diagnostic composition `22b2083e` passes 22 focused tests
+and is undergoing fresh whole-candidate review before selection. Historical four-package evidence
 does not validate the current client product. Full R1–R5/M5–M9,
 installation/recovery, exact-machine and performance gates remain open.
 
