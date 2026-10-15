@@ -38,7 +38,7 @@ HELPERS = {
 }
 
 # Only these two Source-pinned donor buffers may be nested job inputs.
-DONORS = {'donor/current-controller.py': 'bbe279edb9743f98e8feed8365859abc221b2665924658e600775c902e18299e', 'donor/current-packet.json': '9d5a7dc25fd44e127c457c72addb28272b1eb1f5391c4c5b8d5b0a226a3be048'}
+DONORS = {'donor/current-controller.py': '6d11dedad65470650e9ada0cff47f9f5a3337ddcdc390fce76742b61598f3d61', 'donor/current-packet.json': '2233f89144232c33bea9a756a7efb9aa6f5f720ba74d2bfcb5ef1e61a2ffefc5'}
 
 def need(value, code):
     if not value:

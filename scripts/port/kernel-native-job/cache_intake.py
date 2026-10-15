@@ -13,16 +13,11 @@ import stat
 import sys
 import tempfile
 import time
-from types import SimpleNamespace
+from types import FunctionType, SimpleNamespace
 import urllib.error
 import urllib.parse
 
-PINS = {
-    'native': 'a8b6ed8971a38089a4499dcec605477c4e48d7a47c3de485d205f6a44678b898',
-    'controller': 'bbe279edb9743f98e8feed8365859abc221b2665924658e600775c902e18299e',
-    'packet': '9d5a7dc25fd44e127c457c72addb28272b1eb1f5391c4c5b8d5b0a226a3be048',
-    'inputs': 'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f',
-}
+PINS = {'native': 'a8b6ed8971a38089a4499dcec605477c4e48d7a47c3de485d205f6a44678b898', 'controller': '6d11dedad65470650e9ada0cff47f9f5a3337ddcdc390fce76742b61598f3d61', 'packet': '2233f89144232c33bea9a756a7efb9aa6f5f720ba74d2bfcb5ef1e61a2ffefc5', 'inputs': 'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f'}
 HOSTS = {'ca.us.mirror.archlinuxarm.org', 'raw.githubusercontent.com'}
 FIELDS = ('st_dev', 'st_ino', 'st_mode', 'st_uid', 'st_gid', 'st_nlink',
           'st_size', 'st_mtime_ns', 'st_ctime_ns')
@@ -271,6 +266,143 @@ def bounded(function):
     return run
 
 
+def selected_rollback(raw, guard):
+    """Precompile only two pinned cleanup definitions; no actor/import namespace."""
+    tree = guard.invoke(ast.parse, raw)
+    names = {'retained_cache_identity', 'rollback_retained_private_cache'}
+    nodes = [node for node in tree.body if isinstance(node, ast.FunctionDef) and node.name in names]
+    need(len(nodes) == 2 and {node.name for node in nodes} == names, 'intake-cleanup-definitions')
+    code = guard.invoke(compile, ast.Module(nodes, []), '<authenticated-seed-cleanup>', 'exec')
+    namespace = {'__builtins__': {}}
+    guard.invoke(exec, code, namespace)
+    return {name: namespace[name].__code__ for name in names}
+
+
+class SeedCleanup:
+    """Fixed seed-disposal authority under original check/E, never resume Guard."""
+    def __init__(self, guard, receipt, rows):
+        need(type(receipt) is dict and len(receipt) <= 16 and
+             all(type(key) is str for key in receipt), 'intake-cleanup-receipt')
+        need(type(receipt.get('owned')) is list and len(receipt['owned']) <= 6 and
+             type(receipt.get('errors')) is list and len(receipt['errors']) <= 64,
+             'intake-cleanup-receipt')
+        self.guard, self.receipt, self.end, self.last = guard, receipt, guard.end, guard.last
+        need(type(guard.resources) is dict and len(guard.resources) <= 32 and
+             all(type(key) is tuple and len(key) == 2 and type(key[0]) is str and
+                 type(key[1]) is int for key in guard.resources), 'intake-cleanup-resources')
+        self.cache, self.parent, self.directory = receipt.get('cache'), receipt.get('parent'), receipt.get('directory')
+        need(type(self.cache) is type(Path('/')) and type(self.parent) is tuple and
+             len(self.parent) == 5 and all(type(value) is int for value in self.parent),
+             'intake-cleanup-parent')
+        allowed = {row[0] for row in rows}
+        self.journal = {}
+        for row in receipt['owned']:
+            need(type(row) is tuple and len(row) == 2 and type(row[0]) is str and
+                 row[0] in allowed and row[0] not in self.journal, 'intake-cleanup-journal')
+            name, wanted = row
+            need(wanted is None or type(wanted) is tuple and len(wanted) == 5 and
+                 all(type(value) is int for value in wanted), 'intake-cleanup-journal')
+            self.journal[name] = wanted
+        self.os = SimpleNamespace(fstat=self.fstat, stat=self.stat, unlink=self.unlink,
+            close=self.close, lseek=self.lseek, listdir=self.listdir, SEEK_SET=os.SEEK_SET)
+
+    def live(self):
+        # No Guard.first reset: this is disposal, not another business operation.
+        self.guard.check()
+        now = time.monotonic()
+        need(type(now) in (int, float) and math.isfinite(now) and
+             (self.last is None or now >= self.last) and now < self.end,
+             'intake-cleanup-original-end')
+        self.last = now
+
+    def within(self, end):
+        need(type(end) in (int, float) and end == self.end, 'intake-cleanup-original-end')
+        self.live()
+
+    def identity(self, node):
+        return (node.st_dev, node.st_ino, node.st_mode, node.st_uid, node.st_gid)
+
+    def parent_fd(self, fd):
+        need(type(fd) is int and type(self.directory) is int and fd == self.directory,
+             'intake-cleanup-dirfd')
+        held = self.guard.resources.get(('fd', fd))
+        need(type(held) is int and held == fd, 'intake-cleanup-dirfd')
+        self.live()
+        node = os.fstat(fd)
+        need(self.identity(node) == self.parent and stat.S_ISDIR(node.st_mode), 'intake-cleanup-parent')
+        self.live()
+        return node
+
+    def cache_stat(self):
+        self.live()
+        node = self.cache.lstat()
+        need(self.identity(node) == self.parent and stat.S_ISDIR(node.st_mode), 'intake-cleanup-parent')
+        self.live()
+        return node
+
+    def fstat(self, fd):
+        return self.parent_fd(fd)
+
+    def stat(self, name, *, dir_fd, follow_symlinks):
+        need(type(name) is str and name in self.journal and follow_symlinks is False,
+             'intake-cleanup-name')
+        self.parent_fd(dir_fd); self.cache_stat()
+        node = os.stat(name, dir_fd=dir_fd, follow_symlinks=False)
+        self.live()
+        return node
+
+    def unlink(self, name, *, dir_fd):
+        node = self.stat(name, dir_fd=dir_fd, follow_symlinks=False)
+        wanted = self.journal[name]
+        need(wanted is not None and self.identity(node) == wanted and
+             stat.S_ISREG(node.st_mode) and stat.S_IMODE(node.st_mode) == 0o600 and node.st_nlink == 1,
+             'intake-cleanup-owner')
+        os.unlink(name, dir_fd=dir_fd)
+        self.live()
+
+    def lseek(self, fd, offset, whence):
+        need(type(offset) is int and offset == 0 and type(whence) is int and whence == os.SEEK_SET,
+             'intake-cleanup-seek')
+        self.parent_fd(fd); self.cache_stat()
+        value = os.lseek(fd, offset, whence)
+        self.live()
+        return value
+
+    def listdir(self, fd):
+        self.parent_fd(fd); self.cache_stat()
+        value = os.listdir(fd)
+        self.live()
+        return value
+
+    def close(self, fd):
+        self.parent_fd(fd); self.cache_stat()
+        os.close(fd)
+        self.guard.resources.pop(('fd', fd))
+        self.live()
+
+    def retire_descriptors(self):
+        """Close only recorded seed fds whose live identity is independently held."""
+        need(type(self.guard.resources) is dict and len(self.guard.resources) <= 32,
+             'intake-cleanup-resources')
+        for key, fd in tuple(self.guard.resources.items()):
+            need(type(key) is tuple and len(key) == 2 and type(key[0]) is str and key[0] == 'fd' and
+                 type(key[1]) is int and type(fd) is int and key == ('fd', fd),
+                 'intake-cleanup-unbound-resource')
+            if fd == self.directory:
+                continue
+            self.live()
+            node = os.fstat(fd)
+            wanted = self.identity(node)
+            parent = wanted == self.parent and stat.S_ISDIR(node.st_mode)
+            owned = wanted in tuple(value for value in self.journal.values() if value is not None)
+            owned = owned and stat.S_ISREG(node.st_mode) and stat.S_IMODE(node.st_mode) == 0o600 and node.st_nlink == 1
+            need(parent or owned, 'intake-cleanup-unbound-resource')
+            self.live()
+            os.close(fd)
+            self.guard.resources.pop(key)
+            self.live()
+
+
 class CacheIntake:
     @bounded
     def __init__(self, native_raw, controller_raw, packet_raw, inputs_raw, *, work_end, check):
@@ -299,7 +431,12 @@ class CacheIntake:
                     within=lambda end: (need(end == g.end, 'intake-original-end'), g.live()))
         self.seed_namespace = dict(base)
         selected(controller_raw, {'OLD_FOUR_PRIVATE_PREFIX', 'OLD_FOUR_PRIVATE_ROWS',
-                                  'seed_old_four_private_cache'}, self.seed_namespace, g)
+                                  'seed_old_four_private_cache', 'RETAINED_BUBBLEWRAP_PRIVATE_PREFIX',
+                                  'RETAINED_BUBBLEWRAP_PRIVATE_ROWS', 'RETAINED_BUBBLEWRAP_INPUT_SHA256',
+                                  'capture_retained_private_environment', 'retained_cache_identity',
+                                  'seed_retained_private_cache', 'finish_retained_private_cache',
+                                  'rollback_retained_private_cache'}, self.seed_namespace, g)
+        self.rollback_codes = selected_rollback(controller_raw, g)
         self.native = dict(base)
         self.native['json'] = SimpleNamespace(dump=self.receipt_dump)
         self.native['urllib'] = SimpleNamespace(error=urllib.error)
@@ -328,20 +465,52 @@ class CacheIntake:
         for parent in path.parents:
             info = g.invoke(parent.lstat)
             need(stat.S_ISDIR(info.st_mode) and info.st_uid in (0, uid)
-                 and not info.st_mode & 0o022, 'intake-directory-ancestor')
+                 and (not info.st_mode & 0o022
+                      or parent == Path('/tmp') and info.st_uid == info.st_gid == 0
+                      and stat.S_IMODE(info.st_mode) == 0o1777), 'intake-directory-ancestor')
         info = g.invoke(path.lstat)
         need(stat.S_ISDIR(info.st_mode) and stat.S_IMODE(info.st_mode) == 0o700
              and info.st_uid == uid and info.st_gid == gid, 'intake-private-directory')
         return path, self.identity(info)
 
     @bounded
-    def seed(self, cache):
+    def seed(self, cache, *, captured, receipt):
         need(self.state == 'NEW', 'intake-seed-order')
         cache, known = self.directory(cache)
         need(not self.guard.invoke(os.listdir, cache), 'intake-fresh-cache')
-        self.guard.invoke(self.seed_namespace['seed_old_four_private_cache'], cache, self.packet, self.guard.end)
+        self.retained_seed_receipt = receipt
+        self.guard.invoke(self.seed_namespace['seed_retained_private_cache'], cache, self.packet,
+                          self.guard.end, receipt, captured)
         need(self.identity(self.guard.invoke(cache.lstat))[:6] == known[:6], 'intake-cache-directory-drift')
         self.cache, self.cache_identity, self.state = cache, known[:6], 'SEEDED'
+
+    def finish_seed(self, receipt):
+        return self.guard.invoke(self.seed_namespace['finish_retained_private_cache'],
+                                 receipt, self.guard.end)
+
+    def rollback_seed(self, receipt, first):
+        need(receipt is self.retained_seed_receipt, 'intake-cleanup-receipt')
+        receipt['uncertain'] = True
+        if 'parent' not in receipt:
+            return
+        cleanup = SeedCleanup(self.guard, receipt,
+            self.seed_namespace['OLD_FOUR_PRIVATE_ROWS'] + self.seed_namespace['RETAINED_BUBBLEWRAP_PRIVATE_ROWS'])
+        cleanup.retire_descriptors()
+        builtins = dict(BaseException=BaseException, Exception=Exception, ValueError=ValueError,
+                        reversed=reversed, isinstance=isinstance)
+        namespace = {'__builtins__': builtins, 'os': cleanup.os, 'within': cleanup.within,
+                     'require': need, 'stat': stat}
+        for name, code in self.rollback_codes.items():
+            namespace[name] = FunctionType(code, namespace, name)
+        view = dict(receipt)
+        view['cache'] = SimpleNamespace(lstat=cleanup.cache_stat)
+        try:
+            return namespace['rollback_retained_private_cache'](view, self.guard.end, first)
+        finally:
+            for name in ('directory', 'state', 'uncertain'):
+                if name in view:receipt[name] = view[name]
+            if self.guard.resources:
+                receipt['uncertain'] = True
 
     def file_hash(self, path):
         g = self.guard
