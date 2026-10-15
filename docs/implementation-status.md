@@ -2,6 +2,18 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 15, current setup native-build preparation:
+The primary build-only workflow now selects the reviewed setup 0.1.0-3 recipe
+lock and supplies the existing recovered four inputs plus the pinned bubblewrap
+archive/signature. The legacy four-input helper remains unchanged; the current
+build wrapper requires all six, erases both input namespaces and preserves
+rollback versus uncertain-finalization outcomes. Proposal `1ec273be` and fresh
+review `78bda3c5` pass; Root copies exactly three source files. All 363 existing
+CI tests and six new maintained regressions pass. Synthetic seed fixtures do
+not establish real package/signature authentication. Actual native build and
+byte comparisons remain pending. Frozen integration snapshots remain historical
+and unselected; this build-only change does not refresh their acceptance.
+
 October 15, signed release comparison:
 The maintainer command `scripts/release/compare_releases.py` verifies both signed
 release bundles and reports package/version/artifact, dependency, coordinated-set

@@ -13,7 +13,7 @@ on:
         type: string
         default: ''
       recipes_sha256:
-        description: Reviewed SHA-256 of scripts/ci/recipes.lock.json (build)
+        description: Reviewed SHA-256 of selected four-package recipe lock (build)
         type: string
         default: ''
       integration_sha256:
@@ -51,7 +51,11 @@ jobs:
       - name: Authenticate inputs or build in isolated native containers
         if: inputs.mode != 'probe'
         env:
+          NATIVE_RECIPES_PATH: ${{ inputs.mode == 'build' && 'scripts/ci/setup-0.1.0-3-recipes.lock.json' || 'scripts/ci/recipes.lock.json' }}
           NATIVE_INPUTS_PATH: ${{ inputs.mode == 'build' && 'scripts/ci/maintained-native/locks/inputs-successor.lock.json' || 'scripts/ci/inputs.lock.json' }}
+          CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01: ${{ inputs.mode == 'build' && secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01 || '' }}
+          CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02: ${{ inputs.mode == 'build' && secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02 || '' }}
+          CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01: ${{ inputs.mode == 'build' && secrets.CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01 || '' }}
           CACHY_OLD_FOUR_SCHEMA: ${{ inputs.mode == 'build' && '1' || '' }}
           CACHY_OLD_FOUR_SOURCE_EPOCH: ${{ inputs.mode == 'build' && '1791748800' || '' }}
           CACHY_OLD_FOUR_JBIGKIT_01: ${{ inputs.mode == 'build' && secrets.CACHY_OLD_FOUR_JBIGKIT_01 || '' }}
@@ -77,6 +81,7 @@ jobs:
           python3 scripts/ci/native_arm.py "$BUILD_MODE"
           --inputs "$NATIVE_INPUTS_PATH"
           --inputs-sha256 "$INPUTS_SHA256"
+          --recipes "$NATIVE_RECIPES_PATH"
           --recipes-sha256 "$RECIPES_SHA256"
           --integration-sha256 "$INTEGRATION_SHA256"
           --integration-output "$RUNNER_TEMP/integration-evidence"
