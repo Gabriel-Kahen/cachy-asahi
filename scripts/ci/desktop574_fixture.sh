@@ -26,6 +26,9 @@ chmod 1777 "$root/tmp"
 printf '%s\n' 'desktop574:x:23001:23001:Disposable ARM desktop:/home/desktop574:/bin/bash' >> "$root/etc/passwd"
 printf '%s\n' 'desktop574:x:23001:' >> "$root/etc/group"
 printf '%s\n' 'desktop574:!:20000:0:99999:7:::' >> "$root/etc/shadow"
+# Late udev processing must keep the exact private channel's guest ownership.
+mkdir -p "$root/etc/udev/rules.d"
+printf '%s\n' 'SUBSYSTEM=="virtio-ports", KERNEL=="vport*", ATTR{name}=="desktop574.events", OWNER:="23001", GROUP:="23001", MODE:="0600"' > "$root/etc/udev/rules.d/99-desktop574-events.rules"
 chown 23001:23001 "$root/home/desktop574"
 chmod 700 "$root/home/desktop574"
 cp /runner/desktop574_guest.py "$root/usr/local/share/desktop574/guest.py"
@@ -47,7 +50,6 @@ After=basic.target systemd-udev-trigger.service
 Type=oneshot
 Environment=CACHY_ASAHI_VIRTUAL_GUEST=1
 ExecStartPre=/usr/bin/modprobe virtio_console
-ExecStartPre=/usr/bin/udevadm wait --timeout=20 --initialized=yes /dev/virtio-ports/desktop574.events
 ExecStart=/usr/bin/python3 -I -B /usr/local/share/desktop574/guest.py boot
 TimeoutStartSec=650
 StandardOutput=tty

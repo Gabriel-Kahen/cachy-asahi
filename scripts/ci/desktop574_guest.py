@@ -16,7 +16,8 @@ import time
 SHARE = Path('/usr/local/share/desktop574')
 HOME = Path('/home/desktop574')
 RUNTIME = Path('/run/desktop574/runtime')
-EVENTS = Path('/dev/virtio-ports/desktop574.events')
+EVENT_NAME = 'desktop574.events'
+EVENTS = None
 SEAT = '/run/seatd.sock'  # Pinned seatd 0.9.3 uses this compiled-in path inside the private VM.
 MAX_LOG = 256 * 1024
 ENV = {'PATH': '/usr/bin', 'LANG': 'C.UTF-8', 'LC_ALL': 'C.UTF-8'}
@@ -27,9 +28,39 @@ def need(ok, reason):
         raise ValueError(reason)
 
 
+def event_port(sysfs=Path('/sys/class/virtio-ports'), devices=Path('/dev')):
+    """Join the fixed QEMU channel name to its kernel character-device number."""
+    ports = list(sysfs.glob('vport*'))
+    need(len(ports) <= 1, 'ambiguous event ports')
+    if not ports:
+        return None
+    port = ports[0]
+    try:
+        need((port / 'name').read_text().strip() == EVENT_NAME, 'wrong event port name')
+        major, minor = map(int, (port / 'dev').read_text().strip().split(':'))
+        device = devices / port.name
+        value = device.lstat()
+    except FileNotFoundError:
+        return None
+    need(stat.S_ISCHR(value.st_mode) and value.st_rdev == os.makedev(major, minor),
+         'event port character-device identity differs')
+    return device
+
+
+def wait_event_port():
+    until = time.monotonic() + 20
+    while time.monotonic() < until:
+        device = event_port()
+        if device is not None:
+            return device
+        time.sleep(.1)
+    raise ValueError('event port readiness deadline')
+
+
 def emit(event, **values):
     # A dedicated non-console port keeps printk out of structured records.
-    fd = os.open(EVENTS, os.O_WRONLY | os.O_NOCTTY)  # Never create a missing device.
+    need(EVENTS is not None, 'event port unavailable')
+    fd = os.open(EVENTS, os.O_WRONLY | os.O_NOCTTY | os.O_NOFOLLOW)  # Never create a missing device.
     with os.fdopen(fd, 'w') as stream:
         stream.write('DESKTOP574_EVENT ' + json.dumps(dict(event=event, **values), sort_keys=True) + '\n')
 
@@ -256,7 +287,13 @@ def phase(stage, config, env, logs):
 
 
 def user():
+    global EVENTS
     guard(False)
+    EVENTS = event_port()
+    need(EVENTS is not None, 'event port unavailable')
+    event_stat = EVENTS.lstat()
+    need(event_stat.st_uid == event_stat.st_gid == 23001 and event_stat.st_mode & 0o777 == 0o600,
+         'private user event port required')
     need(HOME.stat().st_uid == RUNTIME.stat().st_uid == 23001 and
          HOME.stat().st_mode & 0o777 == RUNTIME.stat().st_mode & 0o777 == 0o700,
          'private home/runtime required')
@@ -282,13 +319,14 @@ def user():
 
 
 def boot():
+    global EVENTS
     guard(True)  # Never power off a host that failed the guest guard.
     seatd = session = None
     first = None
     logs = Path('/run/desktop574/root-logs')
     env = dict(ENV, CACHY_ASAHI_VIRTUAL_GUEST='1', SEATD_VTBOUND='0')
     try:
-        need(stat.S_ISCHR(EVENTS.stat().st_mode), 'dedicated event character device required')
+        EVENTS = wait_event_port()
         os.chown(EVENTS, 23001, 23001)
         EVENTS.chmod(0o600)
         os.umask(0o077)
