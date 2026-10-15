@@ -54,6 +54,21 @@ def changed(root, name, data, report, mode=0o644):
     report['fixture_changes'].append({'path': name, 'before_sha256': previous, 'after_sha256': digest(path), 'mode': oct(mode)})
 
 
+def prepare_mime_database(root, command, report):
+    """Generate only the staged guest's metadata omitted by masked hooks."""
+    mime = root / 'usr/share/mime'
+    require(all(not path.is_symlink() for path in (mime, *mime.parents)) and
+            (mime / 'packages').is_dir() and not (mime / 'packages').is_symlink(),
+            'staged MIME package directory required')
+    command(['/usr/bin/update-mime-database', str(mime)], timeout=30)
+    cache = mime / 'mime.cache'
+    require(cache.is_file() and not cache.is_symlink() and 0 < cache.stat().st_size <= 16 * 1024**2,
+            'generated staged MIME cache missing or invalid')
+    report['fixture_changes'].append({'path': 'usr/share/mime',
+        'reason': 'guest-only MIME metadata generation; package hooks remain masked',
+        'mime_cache_sha256': digest(cache)})
+
+
 def stage_size(paths):
     # du does not follow source symlinks; all inputs are immutable container paths.
     result = subprocess.check_output(['/usr/bin/du', '-s', '-B1', '--', *paths], text=True, timeout=60)
@@ -226,6 +241,7 @@ def main():
         require(size < 6 * GIB and available >= 2 * size + GIB, 'disk preflight fails; no dependency trimming')
         root.mkdir(mode=0o755)
         command(['/usr/bin/cp', '-a', '--no-preserve=xattr', '--reflink=never', '--', *sources, str(root)], timeout=300)
+        prepare_mime_database(root, command, report)
         report['special_modes'] = {}
         for source_root in sources:
             for source in Path(source_root).rglob('*'):
