@@ -308,9 +308,10 @@ def boot():
         need(sorted(actual.splitlines()) == sorted((SHARE / 'expected.lock').read_text().splitlines()),
              'installed package inventory differs')
         command(['/usr/bin/modprobe', 'virtio_gpu'], env, logs, 'virtio-gpu')
-        command(['/usr/bin/udevadm', 'settle', '--timeout=20'], env, logs, 'udev')
         cards = list(Path('/dev/dri').glob('card*'))
         need(len(cards) == 1, 'one virtio DRM card required')
+        command(['/usr/bin/udevadm', 'wait', '--timeout=20', '--initialized=yes', str(cards[0])],
+                env, logs, 'udev')
         os.chown(cards[0], 23001, 23001)
         cards[0].chmod(0o600)
         need(not os.path.lexists(SEAT), 'preexisting seatd socket path')

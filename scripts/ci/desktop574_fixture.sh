@@ -43,7 +43,7 @@ After=basic.target systemd-udev-trigger.service
 Type=oneshot
 Environment=CACHY_ASAHI_VIRTUAL_GUEST=1
 ExecStartPre=/usr/bin/modprobe virtio_console
-ExecStartPre=/usr/bin/udevadm settle --timeout=20
+ExecStartPre=/usr/bin/udevadm wait --timeout=20 --initialized=yes /dev/virtio-ports/desktop574.events
 ExecStart=/usr/bin/python3 -I -B /usr/local/share/desktop574/guest.py boot
 TimeoutStartSec=650
 StandardOutput=tty
