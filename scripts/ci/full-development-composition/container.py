@@ -102,7 +102,7 @@ def archive_metadata(row, directory):
 
 def install(pacman, archives, expected):
     # Conflict answer bit 4 is allowed only after validating the sole FDK conflict.
-    run(pacman + ['--ask', '4', '-U', *archives])
+    run(pacman + ['--noconfirm', '--noscriptlet', '--ask', '4', '-U', *archives])
     actual = inventory()
     need(actual == expected, 'installed inventory differs from exact 587-package composition')
     return actual
@@ -163,7 +163,7 @@ def main():
         conf = work / 'pacman.conf'
         conf.write_text('[options]\nArchitecture = aarch64\nSigLevel = Required\n'
                         'LocalFileSigLevel = Required\nHookDir = ' + str(hooks) + '\nGPGDir = ' + str(trust) + '\n')
-        pacman = ['pacman', '--config', str(conf), '--noconfirm', '--noscriptlet']
+        pacman = ['pacman', '--config', str(conf)]
         result['phase'] = 'required-signature-offline-transaction'
         installed = install(pacman, [str(source / r['filename']) for r in plan['packages']], expected)
         result['phase'] = 'installed-dependencies-and-ownership'
