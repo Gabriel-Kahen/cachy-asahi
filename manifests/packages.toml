@@ -244,3 +244,93 @@ native_evidence = "docs/validation/tools-batch-native-20261015.md"
 installation = "NOT RUN"
 hardware_validation = "NOT RUN"
 next_step = "Native ARM pair, lifecycle and real installed history-buffer expansion/user-binding checks passed; see docs/validation/tools-interactive-native-20261015.md. Test remaining Fish modes, both target Air workflows and signed release integration."
+
+[[packages]]
+name = "asahi-audio"
+phase = "platform-build-only"
+status = "candidate"
+source = "https://github.com/AsahiLinux/asahi-audio"
+upstream_commit = "687d8cd0f6dc4b12fc0d9c3aebe360656de2882e"
+recipe = "packages/platform/asahi-audio/PKGBUILD"
+license = "MIT"
+candidate_version = "4.1-2"
+selected_for_development = false
+selected_for_release = false
+native_build = "PASS"
+native_build_commit = "56b44dfde8d9b86ac9c48b830fa678ef1778232c"
+native_evidence = "docs/validation/asahi-audio-data-native-20261015.md"
+installation = "NOT RUN"
+hardware_validation = "NOT RUN"
+next_step = "Build-only pair passed; resolve full audio dependency, source/license and coordinated platform policy before a disposable installation/lifecycle trial. No produced daemon/plugin/audio execution or target acceptance is credited."
+
+[[packages]]
+name = "alsa-ucm-conf-asahi"
+phase = "platform-build-only"
+status = "candidate"
+source = "https://github.com/AsahiLinux/alsa-ucm-conf-asahi"
+upstream_commit = "1473329acab595dfef039f38c384ce16674d6b15"
+recipe = "packages/platform/alsa-ucm-conf-asahi/PKGBUILD"
+license = "BSD-3-Clause AND MIT"
+candidate_version = "10-2"
+selected_for_development = false
+selected_for_release = false
+native_build = "PASS"
+native_build_commit = "56b44dfde8d9b86ac9c48b830fa678ef1778232c"
+native_evidence = "docs/validation/asahi-audio-data-native-20261015.md"
+installation = "NOT RUN"
+hardware_validation = "NOT RUN"
+next_step = "Build-only pair passed; resolve full audio dependency, source/license and coordinated platform policy before a disposable installation/lifecycle trial. No produced daemon/plugin/audio execution or target acceptance is credited."
+
+[[packages]]
+name = "speakersafetyd"
+phase = "platform-build-only"
+status = "candidate"
+source = "https://github.com/AsahiLinux/speakersafetyd"
+upstream_commit = "63a92658a4daec170f6472e38162374206e593fb"
+recipe = "packages/audio/speakersafetyd/PKGBUILD"
+license = "MIT"
+candidate_version = "2.0.1-2"
+selected_for_development = false
+selected_for_release = false
+native_build = "PASS"
+native_build_commit = "6983455c92ac39064909923836d7c5122d423f0f"
+native_evidence = "docs/validation/asahi-audio-rust-native-20261015.md"
+installation = "NOT RUN"
+hardware_validation = "NOT RUN"
+next_step = "Build-only pair passed; resolve full audio dependency, source/license and coordinated platform policy before a disposable installation/lifecycle trial. No produced daemon/plugin/audio execution or target acceptance is credited."
+
+[[packages]]
+name = "bankstown"
+phase = "platform-build-only"
+status = "candidate"
+source = "https://github.com/AsahiLinux/bankstown"
+upstream_commit = "e9829c9bccf5ed73768135c0ddd506f5a6690f9e"
+recipe = "packages/audio/bankstown/PKGBUILD"
+license = "MIT"
+candidate_version = "1.1.0-3"
+selected_for_development = false
+selected_for_release = false
+native_build = "PASS"
+native_build_commit = "6983455c92ac39064909923836d7c5122d423f0f"
+native_evidence = "docs/validation/asahi-audio-rust-native-20261015.md"
+installation = "NOT RUN"
+hardware_validation = "NOT RUN"
+next_step = "Build-only pair passed; resolve full audio dependency, source/license and coordinated platform policy before a disposable installation/lifecycle trial. No produced daemon/plugin/audio execution or target acceptance is credited."
+
+[[packages]]
+name = "triforce-lv2"
+phase = "platform-build-only"
+status = "candidate"
+source = "https://github.com/AsahiLinux/triforce"
+upstream_commit = "c5e9cacb88e6d2bae476e5c2394ce022793c6d5c"
+recipe = "packages/audio/triforce-lv2/PKGBUILD"
+license = "GPL-2.0-or-later"
+candidate_version = "0.3.2-2"
+selected_for_development = false
+selected_for_release = false
+native_build = "PASS"
+native_build_commit = "6983455c92ac39064909923836d7c5122d423f0f"
+native_evidence = "docs/validation/asahi-audio-rust-native-20261015.md"
+installation = "NOT RUN"
+hardware_validation = "NOT RUN"
+next_step = "Build-only pair passed; resolve full audio dependency, source/license and coordinated platform policy before a disposable installation/lifecycle trial. No produced daemon/plugin/audio execution or target acceptance is credited."
