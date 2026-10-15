@@ -106,3 +106,68 @@ successful transaction. ELF scanning is not plugin loading, but SONAME links,
 ld.so.cache and aux-cache may change. No auxiliary waiver/stub/removal is added.
 Preservation checks cover original package DB records, selected payloads and
 ancestor attributes; they do not restore/validate all base files, caches or links.
+
+
+## Proposed four audio ldconfig-state checkpoints
+
+Artifact-only successor to actual audio run38797262875. That historical bounded
+signed593 transaction/restoration PASS is unchanged. This proposal records B0
+before audio U at587, B1 after U at593, B2 after first R at592 and B3 after final
+R at587. No extra cache-generation call is introduced. The existing normal helper,
+U/R/R commands, signature rules, package/dependency/payload/database checks,
+hooks/scriptlets isolation, global guards and owned cleanup remain held.
+
+Each checkpoint pins the normal helper's known bytes/size and root-owned0755
+identity. The main configuration must match retained filesystem SHA256
+785c6c3614a27ae6115a27c1ca55bbf333654780997c4ba7e181172b021d1bf3 (the exact two
+include-glob file). Only those two fixed include directories are examined, with
+at most32 entries each and at most4096 bytes per ordinary included conf file.
+Included syntax is deliberately finite: blank/comment lines or literal /usr/lib
+and /usr/lib64, with ASCII space/tab and trailing comments. No nested include,
+glob, flag, other directory or symlinked configuration is interpreted. Config
+nodes must be root-owned and not group/world writable. The destroyed actual
+container's included files were not retained: this narrow proposal does NOT
+claim the unseen current include expansion is supported. An unfamiliar include,
+e.g. a separate vendor-library directory, produces a bounded UNACCEPTED result;
+its exact source/data shape must be audited before adding explicit support.
+
+Scan directories are the two fixed standard spellings, resolved only to those
+same two paths, plus ordinary glibc-hwcaps children (at most32 per root). All
+resolved roots/aliases and hwcaps metadata are recorded. Any audio ELF bundle
+parent selected as a scan directory is refused. Direct regular files and symlinks
+are snapshotted with bytes/hash/type/mode/UID/GID and stat identity; regular files
+are capped at256MiB and aggregate scanned bytes at2GiB, with8192 entries total.
+Enumeration/count and aggregate size checks precede sorting/hashing. Ordinary
+non-hwcaps child data directories are not recursively observed or compared;
+normal package-created LV2 directories are outside this library/link scope.
+This is not a complete directory-tree or all-writes observer.
+
+Both cache files have presence/type/root ownership/mode/size/hash recorded,
+with a16MiB per-cache cap; the auxiliary directory metadata is recorded too.
+Both temporary ~ leaves must be absent. Main-cache ordered mapping rows and
+generator text come from the pinned read-only `ldconfig -p -C /etc/ld.so.cache`
+branch under existing bounded c.run supervision and clean C locale. Every listed
+target must resolve to a recorded ordinary scanned library, not an unobserved
+nested/off-scan target. Duplicate priority/order is retained. Main bytes may
+change only while mapping/generator and other metadata including size stay equal;
+the new raw hash remains in the result. Auxiliary raw bytes/metadata must match
+B0 exactly: ANY byte difference is AUDIO_LDCONFIG_UNACCEPTED. No auxiliary semantic
+decoder is added until a real raw change demonstrates that it is needed.
+
+Helper/config, selected root metadata and regular/link identities must remain
+stable. Missing/stale baseline state, leftover temporaries, configuration drift,
+changed unowned SONAME links, unexplained mappings or auxiliary byte changes
+fail closed, with checkpoint and bounded changed-field/path/hash diagnostics.
+Private complete state records remain in the existing temporary container work;
+normal public audio results contain only hashes/counts/status, not cache bytes.
+Unrelated exceptions expose their class rather than arbitrary text/private paths.
+A post-commit check failure stops this branch; it is not a rollback. Existing
+container cleanup still owns disposal. No cache is restored or normalized to
+force a pass, and no ALPM helper exit status is fabricated from state equality.
+
+Only audio.py, test_audio.py and this scope note change. Source pins/caller Source
+selection need a new Root freeze if adopted; no shared lock or workflow is edited
+here. Inert fixtures mock all commands and target ownership, using ordinary
+private temp data. Actual configuration support, generic-native checkpoint
+results, loader correctness, user homes, audio/plugin operation, M2/16KiB,
+performance and release acceptance remain NOT RUN/unestablished by this proposal.
