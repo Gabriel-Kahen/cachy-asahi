@@ -33,7 +33,7 @@ jobs:
     timeout-minutes: 290
     env:
       SOURCE_COMMIT: a79c4ca92486854f9edb639cd970d2c90fda4b12
-      AUDIO_SOURCE_COMMIT: b44baf215b14c45b26e7a5f242060579d20f100c
+      AUDIO_SOURCE_COMMIT: 65d50336b8137e67f871fc1b45811724c7e57a23
       INPUTS_SHA256: ${{ inputs.inputs_sha256 }}
       RECIPES_SHA256: ${{ inputs.recipes_sha256 }}
       RETRY_MODE: ${{ inputs.mode }}
