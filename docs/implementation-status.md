@@ -2,7 +2,7 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
-October 14, complete static prerequisites ready for hosted validation:
+October 14, complete static prerequisites pass hosted validation:
 The primary workflow installs shell/editor/compiler and repository tools before
 the affected suites, uses a private temporary home on an ordinary non-root
 runner, and refuses skipped or empty tooling suites. The integration producer
@@ -12,8 +12,12 @@ required. Independent review `c8c7b76d` passes624 tests in six tooling suites,
 plus9 packaged-sync and13 topmem tests separately, all without skips. An additional
 signed fixture passes with unchanged Ubuntu repo-add6.0.2 bytes. This corrects
 the frozen author's inaccurate wording of646 tests "across six suites".
-The release/client workflow step is held. Hosted successor execution remains
-pending. Frozen native inventories retain their historical selections; this
+The release/client workflow step is held. Published Source `496e66da` passes
+hosted run `38666032870`:842 tests total with zero skips, followed by successful
+recipe inspection and syntax checks. Counts are9,13,33,40,363,157,3,28,87,109;
+the final two suites are release and client. Root retains the complete log and
+result under `artifacts/reviews/repository-ci-root-observations-20261014/`.
+Frozen native inventories retain their historical selections; this
 primary-source correction does not silently advance them.
 See the [fresh review](reviews/static-full-prerequisites-fresh-peer.md).
 
