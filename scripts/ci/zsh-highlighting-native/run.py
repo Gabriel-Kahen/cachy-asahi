@@ -20,7 +20,7 @@ import native_arm as native
 from package_checks import recipe,PACKAGE_METADATA
 
 RECIPE='packages/tools/cachy-asahi-zsh-syntax-highlighting'
-BUILDER_SHA='6ca8813aa7a704251d842e1d7e05404aa56e4029067ccacb57b0a7a3c8af80e5'
+BUILDER_SHA='ebf62455e25b5471427224c4df9d75c0c1fd3a0f09a1864596171498740d4527'
 INPUTS_SHA='b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9'
 PACKAGES_SHA='cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac'
 AUTOSUGGEST={'opt-in.zsh':'692bca1e9ba1a2e9bd32de08cb6ffa5d15b19f85b48e1c08d85a48e41fe6f768',
@@ -59,7 +59,7 @@ def preflight(args):
     need(all(not a.is_relative_to(b) and not b.is_relative_to(a) for i,a in enumerate(paths) for b in paths[i+1:]),'separate source/base/output required')
     need(json.loads((args.base/'seed-report.json').read_text())['status']=='SIX_EXACT_EXISTING_SEED_FILES_READY','same-job574 seed required')
     helper=ROOT/'scripts/ci/maintained_desktop574.py';inputs=ROOT/'scripts/ci/maintained-desktop574-inputs.json'
-    need(native.sha(helper)==BUILDER_SHA and native.sha(inputs)==INPUTS_SHA,'held8d8 builder/input pins differ')
+    need(native.sha(helper)==BUILDER_SHA and native.sha(inputs)==INPUTS_SHA,'selected builder/input pins differ')
     selected=['scripts/ci','scripts/build','scripts/checks',RECIPE,'packages/shells/cachy-asahi-zsh-autosuggestions']
     subprocess.run(['git','-C',str(ROOT),'diff','--exit-code','HEAD','--',*selected],check=True,timeout=10,stdout=subprocess.DEVNULL)
     for relative in (RECIPE,'scripts/ci/zsh-highlighting-native'):
@@ -114,7 +114,7 @@ def cleanup(base,output,started,docker,bootstrap_started,bootstrap_completed,bef
     try:
         path=base/'image-id'
         if bootstrap_started and not bootstrap_completed:
-            # An iid cannot prove retirement of 8d8's unnamed probe/backend.
+            # An iid cannot prove retirement of the legacy unnamed probe/backend.
             result.update(status='FAIL',bootstrap_retirement='UNKNOWN',
                           image={'status':'UNKNOWN','absence_verified':False,'removal':'NOT ATTEMPTED'})
         elif path.exists():

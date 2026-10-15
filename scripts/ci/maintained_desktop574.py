@@ -2,6 +2,7 @@
 """Reconstruct pinned public574 context; reuse existing six-file secret seed only."""
 import argparse
 from concurrent.futures import ThreadPoolExecutor
+import fcntl
 import hashlib
 import importlib.util
 import json
@@ -19,6 +20,106 @@ import urllib.request
 ENV={'PATH':'/usr/bin:/bin','LC_ALL':'C.UTF-8','LANG':'C.UTF-8'}
 ZLIB='zlib-1:1.3.2-3-aarch64.pkg.tar.xz'
 ARCHBOOT='https://archboot.com/src/release/aarch64/2026.10/'
+OWNER_LABEL='org.cachy-asahi.bootstrap574.job'
+
+
+def need(value,reason):
+    if not value:raise ValueError(reason)
+
+
+def owner_names(token):
+    need(type(token)is str and re.fullmatch('[0-9a-f]{16}',token),'invalid job token')
+    return 'cachy-asahi-574-owned:'+token,'cachy-asahi-574-probe-'+token
+
+
+def docker(*args):
+    return subprocess.check_output(['/usr/bin/docker',*args],text=True,env=os.environ,timeout=20).strip()
+
+
+def save_report(output,report):
+    path=output/'report.json';temporary=output/'.report.json.partial'
+    with temporary.open('x')as stream:
+        json.dump(report,stream,sort_keys=True,indent=2);stream.write('\n');stream.flush();os.fsync(stream.fileno())
+    temporary.replace(path)
+
+
+def owner_begin(output,token):
+    tag,name=owner_names(token)
+    need(not any((output/p).exists()or(output/p).is_symlink()for p in('report.json','image-id','probe-cid')),'fresh owned build required')
+    before=docker('image','ls','-a','--no-trunc','-q').splitlines()
+    need(all(re.fullmatch('sha256:[0-9a-f]{64}',image)for image in before),'invalid baseline image list')
+    need(not docker('image','ls','-a','--filter','reference='+tag,'-q')and
+         not docker('image','ls','-a','--filter','label='+OWNER_LABEL+'='+token,'-q')and
+         not docker('container','ls','-a','--filter','name=^/'+name+'$','--format','{{.Names}}'),'job identity collision')
+    return dict(token=token,image_tag=tag,probe_name=name,probe_cidfile='probe-cid',before_images=sorted(set(before)),
+                build_started=False,build_complete=False,probe_started=False,probe_complete=False)
+
+
+def inspect_image(reference,token):
+    rows=json.loads(docker('image','inspect',reference));need(len(rows)==1,'ambiguous image')
+    row=rows[0]
+    labels=row['Config'].get('Labels')or{}
+    need(re.fullmatch('sha256:[0-9a-f]{64}',row['Id'])and row['Architecture']=='arm64'and row['Os']=='linux'and
+         type(labels)is dict and labels.get(OWNER_LABEL)==token,'image ownership differs')
+    return row
+
+
+def retire_owned(output,token,report):
+    """Only a confirmed finished build; no active-build cancellation claim."""
+    result=dict(status='FAIL',build='UNKNOWN',probe='UNKNOWN',image='PRESERVED-OR-UNKNOWN')
+    try:
+        tag,name=owner_names(token);owner=report['ownership']
+        need(owner['token']==token and owner['image_tag']==tag and owner['probe_name']==name and
+             owner['probe_cidfile']=='probe-cid','job identity differs')
+        need(all(type(owner[k])is bool for k in('build_started','build_complete','probe_started','probe_complete')),'partial ownership state')
+        need(owner['build_started']and owner['build_complete']and report['build_returncode']==0,'build outcome unknown')
+        result['build']='COMPLETED'
+        baseline=owner['before_images'];need(type(baseline)is list and all(re.fullmatch('sha256:[0-9a-f]{64}',v)for v in baseline),'invalid baseline')
+        ids=docker('image','ls','-a','--no-trunc','--filter','reference='+tag,'-q').splitlines()
+        need(len(ids)<=1,'ambiguous owned tag')
+        iid=output/'image-id';image=owner.get('image')
+        if iid.exists()or iid.is_symlink():
+            need(iid.is_file()and not iid.is_symlink(),'invalid iidfile')
+            value=iid.read_text().strip();need(image in(None,value),'iid differs');image=value
+        if ids:
+            need(image in(None,ids[0]),'tag differs from iid');image=ids[0]
+        need(type(image)is str and re.fullmatch('sha256:[0-9a-f]{64}',image)and image not in baseline,'preexisting or unknown image preserved')
+        present=image in docker('image','ls','-a','--no-trunc','-q').splitlines()
+        metadata=inspect_image(image,token)if present else None
+        need(not ids or present,'tag/image state differs')
+        if metadata:
+            need(metadata['Id']==image,'inspected image ID differs')
+            need(set(metadata.get('RepoTags')or[])<= {tag}and not metadata.get('RepoDigests'),'foreign image reference preserved')
+        cidfile=output/'probe-cid';cid=None
+        if cidfile.exists()or cidfile.is_symlink():
+            need(cidfile.is_file()and not cidfile.is_symlink(),'invalid probe cidfile')
+            cid=cidfile.read_text().strip();need(re.fullmatch('[0-9a-f]{64}',cid),'invalid probe CID')
+        names=docker('container','ls','-a','--filter','name=^/'+name+'$','--format','{{.Names}}')
+        need(names in('',name),'ambiguous probe')
+        need(not owner['probe_complete']or owner['probe_started'],'partial probe state')
+        need(owner['probe_started']or(not names and cid is None),'unexpected probe')
+        if names:
+            rows=json.loads(docker('container','inspect',name));need(len(rows)==1,'ambiguous probe inspect');container=rows[0]
+            labels=container['Config'].get('Labels')or{}
+            actual=container['Id'];need(re.fullmatch('[0-9a-f]{64}',actual)and cid in(None,actual)and
+                container['Name']=='/'+name and container['Image']==image and
+                type(labels)is dict and labels.get(OWNER_LABEL)==token,'probe identity differs')
+            cid=actual
+            subprocess.run(['/usr/bin/docker','rm','-f',cid],check=True,capture_output=True,timeout=20,env=os.environ)
+        elif owner['probe_started']and not owner['probe_complete']and cid is None:
+            raise ValueError('probe creation outcome unknown')
+        need(not docker('container','ls','-a','--filter','name=^/'+name+'$','--format','{{.Names}}'),'probe name remains')
+        if cid:need(not docker('container','ls','-a','--no-trunc','--filter','id='+cid,'--format','{{.ID}}'),'probe CID remains')
+        result['probe']=dict(name=name,cid=cid,absence_verified=True)
+        need(not docker('container','ls','-a','--filter','ancestor='+image,'--format','{{.Names}}'),'image still referenced')
+        if present:
+            subprocess.run(['/usr/bin/docker','image','rm','--no-prune',image],check=True,capture_output=True,timeout=30,env=os.environ)
+        need(not docker('image','ls','-a','--filter','reference='+tag,'-q')and
+             image not in docker('image','ls','-a','--no-trunc','-q').splitlines(),'owned image remains')
+        result.update(status='PASS',image=dict(id=image,absence_verified=True))
+    except (OSError,ValueError,KeyError,TypeError,IndexError,AttributeError,subprocess.SubprocessError)as error:
+        result['error_kind']=type(error).__name__
+    return result
 
 
 def digest(path):
@@ -105,16 +206,37 @@ def configure(inputs,context):
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('mode',choices=['seed','build'])
+    parser.add_argument('mode',choices=['seed','build','cleanup'])
     parser.add_argument('--inputs',type=Path,required=True)
     parser.add_argument('--output',type=Path,required=True)
+    parser.add_argument('--job-token')
     args=parser.parse_args();os.umask(0o077)
     output=args.output.absolute();context=output/'context'
+    owner=None;directory=None
+    if args.job_token is not None or args.mode=='cleanup':
+        owner_names(args.job_token)
+        need(args.mode!='seed','owned token is build/cleanup only')
+        need(output.is_dir()and not any(p.is_symlink()for p in(output,*output.parents))and
+             output.stat().st_uid==os.getuid()and not output.stat().st_mode&0o077,'private owned output required')
+        directory=os.open(output,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW|os.O_CLOEXEC)
+        try:fcntl.flock(directory,fcntl.LOCK_EX|fcntl.LOCK_NB)
+        except BaseException:
+            os.close(directory);raise
+        if args.mode=='cleanup':
+            try:
+                os.environ.clear();os.environ.update(dict(ENV,HOME=str(output/'home')))
+                report=json.loads((output/'report.json').read_text());result=retire_owned(output,args.job_token,report)
+                report['owned_cleanup']=result;save_report(output,report);print(json.dumps(result,sort_keys=True))
+                return int(result['status']!='PASS')
+            finally:os.close(directory)
     if args.mode=='seed':
         output.mkdir(mode=0o700);context.mkdir(mode=0o700)
         for name in['deps','keys']:(context/name).mkdir(mode=0o700)
         (output/'home').mkdir(mode=0o700)
-    inputs=json.loads(args.inputs.read_bytes());items=plan(inputs,context)
+    try:inputs=json.loads(args.inputs.read_bytes());items=plan(inputs,context)
+    except BaseException:
+        if directory is not None:os.close(directory)
+        raise
     report=dict(status='FAILED',packages=574,native_build='NOT_RUN',hardware='NOT_RUN')
     try:
         if args.mode=='seed':
@@ -129,6 +251,8 @@ def main():
         architecture=subprocess.check_output(['/usr/bin/docker','info','--format','{{.Architecture}}'],text=True,env=os.environ).strip()
         if architecture not in('aarch64','arm64'):raise ValueError('native ARM Docker daemon required')
         report.update(host_arch=platform.machine(),daemon_arch=architecture)
+        if args.job_token is not None:
+            owner=owner_begin(output,args.job_token);report['ownership']=owner;save_report(output,report)
         failures=[];success=[]
         def acquire(item):
             try:return fetch(item),None
@@ -143,12 +267,22 @@ def main():
         configure(inputs,context)
         command=['/usr/bin/docker','build','--progress=plain','--network=none','--pull=false',
                  '--platform=linux/arm64','--iidfile',str(output/'image-id'),str(context)]
+        if owner:
+            command[-1:-1]=['--tag',owner['image_tag'],'--label',OWNER_LABEL+'='+owner['token']]
+            owner['build_started']=True;save_report(output,report)
         completed=subprocess.run(command,env=os.environ,stdin=subprocess.DEVNULL)
         report['build_returncode']=completed.returncode
         if completed.returncode:return 1
+        if owner:owner['build_complete']=True;save_report(output,report)
         image=(output/'image-id').read_text().strip()
-        installed=subprocess.check_output(['/usr/bin/docker','run','--rm','--pull=never','--network=none',
-            '--cap-drop=ALL','--security-opt=no-new-privileges','--read-only','--entrypoint=/bin/cat',image,'/builder-packages.lock'],env=os.environ)
+        probe=['/usr/bin/docker','run','--rm','--pull=never','--network=none',
+            '--cap-drop=ALL','--security-opt=no-new-privileges','--read-only','--entrypoint=/bin/cat',image,'/builder-packages.lock']
+        if owner:
+            metadata=inspect_image(image,owner['token']);need(metadata['Id']==image and image not in owner['before_images'],'preexisting image preserved')
+            owner['image']=image;owner['probe_started']=True;save_report(output,report)
+            probe[2:2]=['--name',owner['probe_name'],'--cidfile',str(output/owner['probe_cidfile']),'--label',OWNER_LABEL+'='+owner['token']]
+        installed=subprocess.check_output(probe,env=os.environ)
+        if owner:owner['probe_complete']=True;save_report(output,report)
         (output/'installed-packages.lock').write_bytes(installed)
         if installed!=(context/'expected-packages.lock').read_bytes():raise ValueError('installed574 inventory differs')
         report.update(status='PASS_NATIVE_OFFLINE_574_TRANSACTION',native_build='PASS',image=image)
@@ -161,7 +295,12 @@ def main():
         for name in tuple(os.environ):
             if name.startswith(('CACHY_OLD_FOUR_','CACHY_RETAINED_BUBBLEWRAP_')):os.environ.pop(name,None)
         raw=json.dumps(report,sort_keys=True,indent=2)+'\n'
-        (output/('seed-report.json'if args.mode=='seed'else'report.json')).write_text(raw);print(raw)
+        try:
+            if owner:save_report(output,report)
+            elif args.job_token is None:(output/('seed-report.json'if args.mode=='seed'else'report.json')).write_text(raw)
+            print(raw)
+        finally:
+            if directory is not None:os.close(directory)
 
 
 DOCKERFILE = 'FROM scratch\nADD rootfs.tar.gz /\nCOPY keys/ /usr/share/pacman/keyrings/\nCOPY deps/ /tmp/deps/\nCOPY --chmod=0644 pacman.conf /etc/pacman.conf\nCOPY disabled-hooks.txt /tmp/disabled-hooks.txt\nCOPY expected-packages.lock /expected-packages.lock\nRUN mkdir -p /builder-disabled-hooks \\\n && while IFS= read -r hook; do ln -s /dev/null "/builder-disabled-hooks/$hook"; done < /tmp/disabled-hooks.txt \\\n && pacman-key --init && pacman-key --populate archlinuxarm \\\n && pacman -U --noconfirm --noscriptlet /tmp/deps/*.pkg.tar.xz \\\n && ldconfig \\\n && pacman -Q | LC_ALL=C sort > /builder-packages.lock \\\n && cmp /expected-packages.lock /builder-packages.lock \\\n && rm -rf /tmp/deps /var/cache/pacman/pkg/*\n'
