@@ -16,7 +16,7 @@
     "scripts/ci/source_suites.py": "4bfec1387f87768e5b37475d6172bde302ef52c01c68f81297435048be7f2100",
     "scripts/client/stage.py": "13c2108aa03d76305a16bf1c9d08aa610e51f54f7726e4732c13d0824e5733f5",
     "scripts/port/ksm-lifecycle/contract.py": "bfce5d9a5e8a9626cdedb121f299dafd730b13e484d1c4be7ba917207e4d161b",
-    "scripts/port/ksm-lifecycle/stage.py": "20c685560b99a96d6b86fd3b006b5005f5c4906f2815e781180e5ba9b0d94110",
+    "scripts/port/ksm-lifecycle/stage.py": "1ae16e8ecd610f8c6539fdf07f112cd8b63f06413252c3cdbb7d4d8e5f363471",
     "scripts/port/ksm-lifecycle/worker.py": "8670e05d0cd51a3d3d685702768634bde50427e2a0c8173f1852f94a7ff554d1"
   },
   "status": "CURRENT_LIFECYCLE_DIAGNOSTICS_SOURCE_ONLY"

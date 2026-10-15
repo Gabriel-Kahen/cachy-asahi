@@ -1410,5 +1410,58 @@ class LifecycleErrorPreservationTests(unittest.TestCase):
         except BaseException as observed:self.assertIs(observed,primary[0])
 
 
+class IsolationSelectorExtractionTests(unittest.TestCase):
+    """Closed controller declarations remain observations, never lifecycle acceptance."""
+    SUFFIXES = ('user', 'readonly-rootfs', 'network-mode', 'ipc-mode', 'pid-mode',
+        'uts-mode', 'privileged', 'cap-drop', 'cap-add', 'security-opt', 'memory-and-swap',
+        'nano-cpus', 'pids-limit', 'devices', 'device-requests', 'volumes-from',
+        'port-bindings', 'device-cgroup-rules', 'ulimits')
+
+    def fixture(self, code, phase='LIFECYCLE'):
+        leaf = {'schema_version': 1, 'source_commit': 'a' * 40, 'run_id': '7',
+            'first_failure': {'selector': phase, 'site': 'INSPECT_BEFORE',
+                'check': code, 'category': 'VALUE_ERROR'},
+            'cleanup_failure': {'selector': phase, 'site': 'CLEANUP_REMOVE',
+                'check': 'unowned-container-refused', 'category': 'VALUE_ERROR'},
+            'cancelled': False, 'attach_return': {'SIGN': 0, 'LIFECYCLE': None}}
+        result = subprocess.CompletedProcess([], 1, e.LIFECYCLE_PREFIX + json.dumps(leaf).encode() + b'\n', b'')
+        observation = {'started': True, 'natural_poll_code': 1, 'runner_return_code': 1,
+            'reaped_code': 1, 'reaping': 'COMPLETED', 'before_cleanup': {'state': 'exited', 'returncode': 1}}
+        binding = {'source_commit': 'a' * 40, 'run_id': '7'}
+        return leaf, result, observation, binding
+
+    def test_all_nineteen_closed_codes_and_historical_code_extract_with_cleanup_separate(self):
+        codes = ['sandbox-isolation-' + suffix + '-drift' for suffix in self.SUFFIXES]
+        self.assertEqual(len(set(codes)), 19)
+        for phase in ('SIGN', 'LIFECYCLE'):
+            for code in codes + ['sandbox-isolation-drift']:
+                with self.subTest(phase=phase, code=code):
+                    leaf, result, observation, binding = self.fixture(code, phase)
+                    self.assertEqual(e.lifecycle_diagnostic(result, observation, binding), leaf)
+                    self.assertEqual(leaf['cleanup_failure']['check'], 'unowned-container-refused')
+                    self.assertIsNone(leaf['attach_return']['LIFECYCLE'])
+
+    def test_nearby_unregistered_codes_and_raw_operands_are_refused(self):
+        for code in ('sandbox-isolation-cap-add-normalized', 'sandbox-isolation-memory-drift',
+                     'sandbox-isolation-memory-swap-drift', 'sandbox-isolation-CapAdd-drift'):
+            _, result, observation, binding = self.fixture(code)
+            self.assertIsNone(e.lifecycle_diagnostic(result, observation, binding))
+        leaf, result, observation, binding = self.fixture('sandbox-isolation-cap-add-drift')
+        leaf['first_failure']['operand'] = ['PRIVATE_CAPABILITY']
+        result.stdout = e.LIFECYCLE_PREFIX + json.dumps(leaf).encode() + b'\n'
+        self.assertIsNone(e.lifecycle_diagnostic(result, observation, binding))
+
+    def test_new_closed_code_cannot_bypass_binding_natural_return_or_cancellation_shape(self):
+        for suffix in self.SUFFIXES:
+            code = 'sandbox-isolation-' + suffix + '-drift'
+            leaf, result, observation, binding = self.fixture(code)
+            self.assertIsNone(e.lifecycle_diagnostic(result, observation, {**binding, 'run_id': '8'}))
+            self.assertIsNone(e.lifecycle_diagnostic(result, {**observation, 'natural_poll_code': None}, binding))
+            self.assertIsNone(e.lifecycle_diagnostic(result, {**observation, 'reaping': 'UNKNOWN'}, binding))
+            leaf['cancelled'] = 1
+            result.stdout = e.LIFECYCLE_PREFIX + json.dumps(leaf).encode() + b'\n'
+            self.assertIsNone(e.lifecycle_diagnostic(result, observation, binding))
+
+
 if __name__ == '__main__':
     unittest.main()

@@ -36,7 +36,8 @@ CHECKS = {
 # Closed Source-defined diagnostics; this channel grants no worker or lifecycle acceptance.
 DIAGNOSTIC_SELECTORS = frozenset(('UNKNOWN', 'CONTROLLER', 'SIGN', 'LIFECYCLE'))
 DIAGNOSTIC_SITES = frozenset(('UNKNOWN', 'COORDINATOR', 'PLATFORM', 'JOB_BINDING', 'IMAGE_BINDING', 'DOCKER_BOUNDARY', 'DAEMON_ARCH', 'IMAGE_INSPECT', 'RUNNER_PROVENANCE', 'LOCK_BOOTSTRAP', 'CURRENT_INPUTS', 'CONTRACT_MODULE', 'BUILD_PROVENANCE', 'BUILD_PAIR', 'SOURCES', 'APPROVED_INPUTS', 'PUBLIC_OUTPUT', 'PRIVATE_TEMP', 'SOURCE_COPY', 'CONTRACT_WRITE', 'PHASE_BINDING', 'FRESH_NAME', 'CREATE', 'CREATED_ID', 'INSPECT_BEFORE', 'ATTACH', 'RECEIPT_READ', 'RECEIPT_DECODE', 'RECEIPT_VALIDATE', 'WORKER_RESULT', 'INSPECT_AFTER', 'STOPPED_STATE', 'CLEANUP_INSPECT', 'CLEANUP_OWNERSHIP', 'CLEANUP_REMOVE', 'CLEANUP_ABSENCE', 'PHASE_FINALIZE', 'SIGN_OUTPUTS', 'SIGNATURE_CAPTURE', 'PUBLIC_KEY_CAPTURE', 'LIFECYCLE_OUTPUTS', 'PRIVATE_CLEANUP', 'DOCKER_CLOSE', 'PUBLIC_RECEIPT', 'CLI_OUTPUT'))
-DIAGNOSTIC_CHECKS = frozenset(('UNKNOWN', 'ambient-container-environment', 'build-provenance-read-drift', 'closed-docker-boundary', 'controller-receipt-byte-bound', 'controller-receipt-file-contract', 'coordinator-identity-drift', 'docker-boundary-pin-schema', 'docker-cli-byte-drift', 'docker-cli-identity-drift', 'docker-cli-path-drift', 'docker-cli-read-drift', 'docker-operation-failed', 'docker-snapshot-write-failed', 'duplicate-worker-check', 'fresh-container-name-required', 'fresh-public-output-required', 'frozen-helper-drift', 'genuine-same-job-source-required', 'immutable-image-required', 'incomplete-worker-pass', 'invalid-created-container-id', 'invalid-owned-container-id', 'lifecycle-signing-binding', 'local-daemon-identity-drift', 'local-socket-identity-drift', 'local-socket-pin-mismatch', 'matching-positive-coordinator-uid-gid-required', 'native-daemon-required', 'native-image-required', 'native-nonroot-coordinator-required', 'owned-container-absence-unconfirmed', 'phase-docker-binding', 'phase-or-cleanup-failed', 'private-controller-removal-unconfirmed', 'private-tmpfs-drift', 'runner-provenance-binding', 'sandbox-isolation-drift', 'stage-cancelled', 'unbound-docker-command', 'unexpected-container-mount', 'unexpected-lifecycle-output', 'unexpected-sign-output', 'unknown-worker-check', 'unowned-container-refused', 'unsafe-docker-cli', 'unsafe-frozen-helper', 'worker-check-bound', 'worker-cleanup-schema', 'worker-command-drift', 'worker-phase-failed', 'worker-receipt-binding', 'worker-receipt-fields', 'worker-receipt-scope', 'worker-signing-schema'))
+DIAGNOSTIC_CHECKS = frozenset(('UNKNOWN', 'ambient-container-environment', 'build-provenance-read-drift', 'closed-docker-boundary', 'controller-receipt-byte-bound', 'controller-receipt-file-contract', 'coordinator-identity-drift', 'docker-boundary-pin-schema', 'docker-cli-byte-drift', 'docker-cli-identity-drift', 'docker-cli-path-drift', 'docker-cli-read-drift', 'docker-operation-failed', 'docker-snapshot-write-failed', 'duplicate-worker-check', 'fresh-container-name-required', 'fresh-public-output-required', 'frozen-helper-drift', 'genuine-same-job-source-required', 'immutable-image-required', 'incomplete-worker-pass', 'invalid-created-container-id', 'invalid-owned-container-id', 'lifecycle-signing-binding', 'local-daemon-identity-drift', 'local-socket-identity-drift', 'local-socket-pin-mismatch', 'matching-positive-coordinator-uid-gid-required', 'native-daemon-required', 'native-image-required', 'native-nonroot-coordinator-required', 'owned-container-absence-unconfirmed', 'phase-docker-binding', 'phase-or-cleanup-failed', 'private-controller-removal-unconfirmed', 'private-tmpfs-drift', 'runner-provenance-binding', 'sandbox-isolation-drift',
+    'sandbox-isolation-user-drift', 'sandbox-isolation-readonly-rootfs-drift', 'sandbox-isolation-network-mode-drift', 'sandbox-isolation-ipc-mode-drift', 'sandbox-isolation-pid-mode-drift', 'sandbox-isolation-uts-mode-drift', 'sandbox-isolation-privileged-drift', 'sandbox-isolation-cap-drop-drift', 'sandbox-isolation-cap-add-drift', 'sandbox-isolation-security-opt-drift', 'sandbox-isolation-memory-and-swap-drift', 'sandbox-isolation-nano-cpus-drift', 'sandbox-isolation-pids-limit-drift', 'sandbox-isolation-devices-drift', 'sandbox-isolation-device-requests-drift', 'sandbox-isolation-volumes-from-drift', 'sandbox-isolation-port-bindings-drift', 'sandbox-isolation-device-cgroup-rules-drift', 'sandbox-isolation-ulimits-drift', 'stage-cancelled', 'unbound-docker-command', 'unexpected-container-mount', 'unexpected-lifecycle-output', 'unexpected-sign-output', 'unknown-worker-check', 'unowned-container-refused', 'unsafe-docker-cli', 'unsafe-frozen-helper', 'worker-check-bound', 'worker-cleanup-schema', 'worker-command-drift', 'worker-phase-failed', 'worker-receipt-binding', 'worker-receipt-fields', 'worker-receipt-scope', 'worker-signing-schema'))
 DIAGNOSTIC_PREFIX = 'KSM_LIFECYCLE_DIAGNOSTIC_V1 '
 DIAGNOSTIC_MAX_BYTES = 16384
 _CHECK_PROVENANCE = object()
@@ -394,15 +395,25 @@ def inspect_isolation(record, contract, source, output):
     need(c['Entrypoint'] == ['/usr/bin/python']
          and c['Cmd'] == ['-I', '-B', '/source/scripts/port/ksm-lifecycle/worker.py', '--phase', contract['phase'],
                           '--contract-sha256', sha(json.dumps(contract, sort_keys=True).encode())], 'worker-command-drift')
-    need(c['User'] == f'{owner}:{owner}' and h['ReadonlyRootfs'] is (not root)
-         and h['NetworkMode'] == 'none' and h['IpcMode'] == 'private' and not h['PidMode'] and not h['UTSMode']
-         and not h['Privileged'] and h['CapDrop'] == ['ALL']
-         and set(h.get('CapAdd') or []) == ({'CHOWN', 'DAC_OVERRIDE', 'FOWNER', 'SETUID', 'SETGID'} if root else set())
-         and h['SecurityOpt'] in (['no-new-privileges'], ['no-new-privileges:true'])
-         and h['Memory'] == h['MemorySwap'] == memory and h['NanoCpus'] == 2 * 10**9 and h['PidsLimit'] == pids
-         and not h.get('Devices') and not h.get('DeviceRequests') and not h.get('VolumesFrom')
-         and not h.get('PortBindings') and not h.get('DeviceCgroupRules')
-         and h['Ulimits'] == [{'Name': 'nofile', 'Soft': 256, 'Hard': 256}], 'sandbox-isolation-drift')
+    need(c['User'] == f'{owner}:{owner}', 'sandbox-isolation-user-drift')
+    need(h['ReadonlyRootfs'] is (not root), 'sandbox-isolation-readonly-rootfs-drift')
+    need(h['NetworkMode'] == 'none', 'sandbox-isolation-network-mode-drift')
+    need(h['IpcMode'] == 'private', 'sandbox-isolation-ipc-mode-drift')
+    need(not h['PidMode'], 'sandbox-isolation-pid-mode-drift')
+    need(not h['UTSMode'], 'sandbox-isolation-uts-mode-drift')
+    need(not h['Privileged'], 'sandbox-isolation-privileged-drift')
+    need(h['CapDrop'] == ['ALL'], 'sandbox-isolation-cap-drop-drift')
+    need(set(h.get('CapAdd') or []) == ({'CHOWN', 'DAC_OVERRIDE', 'FOWNER', 'SETUID', 'SETGID'} if root else set()), 'sandbox-isolation-cap-add-drift')
+    need(h['SecurityOpt'] in (['no-new-privileges'], ['no-new-privileges:true']), 'sandbox-isolation-security-opt-drift')
+    need(h['Memory'] == h['MemorySwap'] == memory, 'sandbox-isolation-memory-and-swap-drift')
+    need(h['NanoCpus'] == 2 * 10 ** 9, 'sandbox-isolation-nano-cpus-drift')
+    need(h['PidsLimit'] == pids, 'sandbox-isolation-pids-limit-drift')
+    need(not h.get('Devices'), 'sandbox-isolation-devices-drift')
+    need(not h.get('DeviceRequests'), 'sandbox-isolation-device-requests-drift')
+    need(not h.get('VolumesFrom'), 'sandbox-isolation-volumes-from-drift')
+    need(not h.get('PortBindings'), 'sandbox-isolation-port-bindings-drift')
+    need(not h.get('DeviceCgroupRules'), 'sandbox-isolation-device-cgroup-rules-drift')
+    need(h['Ulimits'] == [{'Name': 'nofile', 'Soft': 256, 'Hard': 256}], 'sandbox-isolation-ulimits-drift')
     expected_env = {'HOME': '/tmp/ksm-stage', 'PATH': '/usr/bin:/bin', 'PYTHONDONTWRITEBYTECODE': '1',
                     'CACHY_ASAHI_IMAGE_ID': contract['image_id'], 'CACHY_ASAHI_CLIENT_UID': str(contract['uid'])}
     need(c['Env'] == [key + '=' + value for key, value in expected_env.items()] or

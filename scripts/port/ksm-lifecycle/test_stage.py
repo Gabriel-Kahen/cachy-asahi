@@ -1407,5 +1407,115 @@ class StageDiagnosticPreservationTests(unittest.TestCase):
         self.assertEqual(events, [])
 
 
+class IsolationSelectorTests(unittest.TestCase):
+    """Memory-only isolation predicates; no constructor, process or daemon call."""
+    CASES = (
+        ('Config', 'User', 'other', 'user'),
+        ('HostConfig', 'ReadonlyRootfs', None, 'readonly-rootfs'),
+        ('HostConfig', 'NetworkMode', 'host', 'network-mode'),
+        ('HostConfig', 'IpcMode', 'host', 'ipc-mode'),
+        ('HostConfig', 'PidMode', 'host', 'pid-mode'),
+        ('HostConfig', 'UTSMode', 'host', 'uts-mode'),
+        ('HostConfig', 'Privileged', True, 'privileged'),
+        ('HostConfig', 'CapDrop', [], 'cap-drop'),
+        ('HostConfig', 'CapAdd', ['SYS_ADMIN'], 'cap-add'),
+        ('HostConfig', 'SecurityOpt', ['seccomp=unconfined'], 'security-opt'),
+        ('HostConfig', 'Memory', 1, 'memory-and-swap'),
+        ('HostConfig', 'NanoCpus', 1, 'nano-cpus'),
+        ('HostConfig', 'PidsLimit', 1, 'pids-limit'),
+        ('HostConfig', 'Devices', [{}], 'devices'),
+        ('HostConfig', 'DeviceRequests', [{}], 'device-requests'),
+        ('HostConfig', 'VolumesFrom', ['foreign'], 'volumes-from'),
+        ('HostConfig', 'PortBindings', {'80/tcp': []}, 'port-bindings'),
+        ('HostConfig', 'DeviceCgroupRules', ['a *:* rwm'], 'device-cgroup-rules'),
+        ('HostConfig', 'Ulimits', [], 'ulimits'),
+    )
+
+    def record(self, phase):
+        c = contract(phase)
+        return c, inspected(c, Path('/fixture-source'), Path('/fixture-out'))
+
+    def run_record(self, c, record):
+        return s.inspect_isolation(record, c, Path('/fixture-source'), Path('/fixture-out'))
+
+    def test_both_phases_accept_and_each_false_predicate_has_closed_provenance(self):
+        for phase in ('sign', 'lifecycle'):
+            c, record = self.record(phase)
+            self.run_record(c, record)
+            for section, field, value, suffix in self.CASES:
+                with self.subTest(phase=phase, field=field):
+                    bad = copy.deepcopy(record)
+                    bad[section][field] = value
+                    with self.assertRaises(ValueError) as caught:
+                        self.run_record(c, bad)
+                    code = 'sandbox-isolation-' + suffix + '-drift'
+                    self.assertEqual(caught.exception.args, (code,))
+                    provenance = caught.exception.__dict__['_ksm_check']
+                    self.assertIs(provenance[0], s._CHECK_PROVENANCE)
+                    self.assertEqual(provenance[1], code)
+                    self.assertIn(code, s.DIAGNOSTIC_CHECKS)
+
+    def test_every_two_false_predicate_pair_reports_first_in_original_order(self):
+        for phase in ('sign', 'lifecycle'):
+            c, record = self.record(phase)
+            for first, left in enumerate(self.CASES):
+                for second, right in enumerate(self.CASES):
+                    with self.subTest(phase=phase, first=first, second=second):
+                        bad = copy.deepcopy(record)
+                        for section, field, value, _ in (left, right):
+                            bad[section][field] = value
+                        with self.assertRaises(ValueError) as caught:
+                            self.run_record(c, bad)
+                        self.assertEqual(caught.exception.args,
+                            ('sandbox-isolation-' + self.CASES[min(first, second)][3] + '-drift',))
+
+    def test_later_missing_or_malformed_values_are_not_read_after_false_predicate(self):
+        for phase in ('sign', 'lifecycle'):
+            c, record = self.record(phase)
+            for section, field, value, suffix in self.CASES[:-1]:
+                bad = copy.deepcopy(record)
+                bad[section][field] = value
+                del bad['HostConfig']['Ulimits']
+                with self.subTest(phase=phase, field=field), self.assertRaises(ValueError) as caught:
+                    self.run_record(c, bad)
+                self.assertEqual(caught.exception.args, ('sandbox-isolation-' + suffix + '-drift',))
+            bad = copy.deepcopy(record)
+            bad['Config']['User'] = 'other'
+            bad['HostConfig']['CapAdd'] = [['not-hashable']]
+            with self.assertRaisesRegex(ValueError, '^sandbox-isolation-user-drift$'):
+                self.run_record(c, bad)
+
+    def test_memory_and_swap_remain_one_chained_predicate_and_no_normalization_added(self):
+        for phase in ('sign', 'lifecycle'):
+            c, record = self.record(phase)
+            for field in ('Memory', 'MemorySwap'):
+                bad = copy.deepcopy(record)
+                bad['HostConfig'][field] = 1
+                with self.assertRaisesRegex(ValueError, '^sandbox-isolation-memory-and-swap-drift$'):
+                    self.run_record(c, bad)
+            for field, value, suffix in (
+                    ('CapAdd', ['CAP_CHOWN'], 'cap-add'),
+                    ('Ulimits', record['HostConfig']['Ulimits'] + [{'Name': 'nproc', 'Soft': 1, 'Hard': 1}], 'ulimits')):
+                bad = copy.deepcopy(record)
+                bad['HostConfig'][field] = value
+                with self.assertRaisesRegex(ValueError, '^sandbox-isolation-' + suffix + '-drift$'):
+                    self.run_record(c, bad)
+
+    def test_missing_and_malformed_fields_preserve_exception_category(self):
+        for phase in ('sign', 'lifecycle'):
+            c, record = self.record(phase)
+            for section, field in (('Config', 'User'), ('HostConfig', 'NetworkMode'),
+                                   ('HostConfig', 'CapDrop'), ('HostConfig', 'Ulimits')):
+                bad = copy.deepcopy(record)
+                del bad[section][field]
+                with self.assertRaises(KeyError) as caught:
+                    self.run_record(c, bad)
+                self.assertEqual(caught.exception.args, (field,))
+            bad = copy.deepcopy(record)
+            bad['HostConfig']['CapAdd'] = [['not-hashable']]
+            with self.assertRaises(TypeError):
+                self.run_record(c, bad)
+
+
 if __name__ == '__main__':
     unittest.main()
