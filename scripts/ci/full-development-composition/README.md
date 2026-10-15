@@ -256,3 +256,45 @@ were unavailable locally. This gap is not reported as a complete fourteen-archiv
 inventory, and no frames were decoded to fill it. Unknown actual targets continue
 to fail closed. Generic-native retry and all four checkpoint outcomes remain
 unestablished until Root adopts and tests a fresh source selection.
+
+## B0/B1 raw auxiliary diagnostic proposal after38816517554
+
+Artifact-only against Source65d50336b8137e67f871fc1b45811724c7e57a23. That actual
+completed B0, installed six additions with exact593 inventory, then failed B1
+auxiliary raw hash equality. Same68552-byte/root0600 auxiliary nodes had different
+hashes. General equality comparisons, postinstall payload/dependency/database
+checks and both removals were not reached. The actual bytes were not retained;
+their semantics/cause remain unknown. Raw equality and every existing acceptance
+comparison remain unchanged in this proposal.
+
+For B0-587 and B1-593 only, after state collection/private snapshot and before any
+comparison or following package mutation, read the sole fixed
+/var/cache/ldconfig/aux-cache path with NOFOLLOW/NONBLOCK/CLOEXEC. Require a singly
+linked regular file, positive size at most256KiB, and stable dev/inode/mode/nlink/
+UID/GID/size/ctime_ns/mtime_ns across descriptor reads and the pathname check.
+Read at most size+1 bytes; require the complete raw size/hash/type/mode/UID/GID
+node to equal the already-collected checkpoint node. This join does not claim an
+identity that the earlier ld_node did not record. Refuse raced/unavailable/more
+than256KiB diagnostic data explicitly; this smaller diagnostic bound does not
+alter the existing16MiB acceptance cache bound.
+
+Write only fresh /out/audio-aux-B0-587.bin and /out/audio-aux-B1-593.bin (each at
+most256KiB) with corresponding fixed-name JSON metadata companions (each at
+most4KiB), exclusive/nofollow0600 leaves. The existing public /out bind and bounded
+public-evidence bundle carry these four files without a workflow/exporter change.
+There is no user-supplied path, host/user-root read, package/key/source binary,
+directory sweep or additional helper command. At most512KiB of raw data is added;
+the existing16MiB total/8MiB compressed bundle limits remain intact. The raw data
+can include runtime keys/strings and source-level unclassified padding; Root must
+review this exact public diagnostic scope before adoption/dispatch. No current
+raw cache is exported by preparing this artifact.
+
+Capture/read failures produce bounded UNAVAILABLE metadata and a fixed diagnostic
+log marker with controlled reason/class only; no raw bytes enter the log. Partial
+owned output is removed where possible. Metadata-output failure is explicit in
+that marker. Capture success is not auxiliary acceptance; capture failure cannot
+waive or replace the existing raw hash mismatch. B0 occurs before six-audio -U,
+B1 before its first comparison; no B2/B3 or extra capture is selected. No existing
+cache is written, restored, normalized, regenerated or decoded. Repeated fixed
+output names are refused rather than overwritten. Root owns source selection,
+publication and any next actual run.
