@@ -118,7 +118,7 @@ jobs:
         if: inputs.mode != 'probe'
         shell: bash
         env:
-          NATIVE_RECIPES_PATH: ${{ inputs.mode == 'build' && 'scripts/ci/setup-0.1.0-3-recipes.lock.json' || 'scripts/ci/recipes.lock.json' }}
+          NATIVE_RECIPES_PATH: ${{ inputs.mode == 'build' && 'scripts/ci/setup-0.1.0-4-recipes.lock.json' || 'scripts/ci/recipes.lock.json' }}
           NATIVE_INPUTS_PATH: ${{ inputs.mode == 'build' && 'scripts/ci/maintained-native/locks/inputs-successor.lock.json' || 'scripts/ci/inputs.lock.json' }}
         run: |
           set -euo pipefail

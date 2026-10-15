@@ -39,13 +39,14 @@ class SyncTests(unittest.TestCase):
     def write_record(self):
         self.copy.with_name("source-provenance.json").write_text(json.dumps(self.record))
 
-    def run_check(self, success=True, default=False):
+    def run_check(self, success=True, default=False, source="setup"):
         checker = CHECKER
         arguments = ["--canonical", str(self.canonical), "--copy", str(self.copy), "--license", str(self.license)]
         if default:
             checker = self.copy.with_name("check-sync.py")
             checker.write_bytes(CHECKER.read_bytes())
             arguments = []
+        arguments += ["--source", source]
         env = dict(os.environ, HOME=str(self.root / "home"), XDG_CONFIG_HOME=str(self.root / "config"),
                    XDG_DATA_HOME=str(self.root / "data"), XDG_CACHE_HOME=str(self.root / "cache"),
                    PYTHONDONTWRITEBYTECODE="1")
@@ -118,6 +119,37 @@ class SyncTests(unittest.TestCase):
         target.symlink_to(outside)
         self.copy = package / "cachy-asahi-setup"
         self.assertIn("outside the repository", self.run_check(False, default=True))
+
+    def test_additional_pinned_sources_and_drift(self):
+        for source, packaged, canonical in (
+            ("repository", "cachy-asahi-repository", "scripts/repository/enroll.py"),
+            ("repository-doc", "repository-enrollment.md", "docs/repository-enrollment.md"),
+        ):
+            with self.subTest(source=source):
+                original_copy, original_canonical = self.copy, self.canonical
+                self.copy = self.copy.with_name(packaged)
+                self.canonical = self.root / canonical
+                self.canonical.parent.mkdir(parents=True, exist_ok=True)
+                self.canonical.write_bytes(b"raise RuntimeError('read-only source check')\n")
+                self.copy.write_bytes(self.canonical.read_bytes())
+                entry = {"canonical_path": canonical, "packaged_source": packaged,
+                         "sha256": hashlib.sha256(self.canonical.read_bytes()).hexdigest()}
+                self.record["additional_sources"] = {source: entry}
+                self.write_record()
+                self.run_check(source=source)
+                self.run_check(source=source, default=True)
+                self.copy.write_bytes(b"packaged drift\n")
+                self.assertIn("packaged helper", self.run_check(False, source=source))
+                self.copy.write_bytes(self.canonical.read_bytes())
+                self.canonical.write_bytes(b"canonical drift\n")
+                self.assertIn("canonical helper", self.run_check(False, source=source))
+                self.canonical.write_bytes(self.copy.read_bytes())
+                entry["canonical_path"] = "scripts/setup/wrong.py"
+                self.write_record()
+                self.assertIn("unsafe canonical_path", self.run_check(False, source=source))
+                self.copy, self.canonical = original_copy, original_canonical
+                del self.record["additional_sources"]
+                self.write_record()
 
     def test_bad_provenance(self):
         for key, value in (("packaged_source", "other"), ("sha256", "bad"), ("license_sha256", None)):
