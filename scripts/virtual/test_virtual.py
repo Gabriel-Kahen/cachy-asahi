@@ -760,6 +760,7 @@ class GuestDiagnostics(unittest.TestCase):
                 with patch('guest.LoggedProcess', side_effect=launch), \
                         patch('guest.wait_for_ipc', side_effect=phase_failure, return_value=env), \
                         patch('guest.image_decode_preflight'), \
+                        patch('guest.query_clients', side_effect=lambda env, deadline, check: (check(), json.loads(command(['/usr/bin/hyprctl', '-j', 'clients'], env)))[1]), \
                         patch('guest.command', side_effect=command), patch('guest.terminate', side_effect=reap), \
                         patch('guest.time.monotonic', side_effect=[0, 0, 0, 0, 16]), \
                         patch('guest.emit', side_effect=emit), \
@@ -888,6 +889,7 @@ class GuestProcessDiagnostics(unittest.TestCase):
                 with patch('guest.LoggedProcess', side_effect=launch), \
                         patch('guest.wait_for_ipc', return_value={'XDG_RUNTIME_DIR': str(runtime)}), \
                         patch('guest.image_decode_preflight'), \
+                        patch('guest.query_clients', side_effect=lambda env, deadline, check: (check(), json.loads(command(['/usr/bin/hyprctl', '-j', 'clients'], env)))[1]), \
                         patch('guest.command', side_effect=command), patch('guest.terminate', side_effect=terminate), \
                         patch('guest.time.monotonic', return_value=0), patch('guest.time.sleep'), \
                         patch('guest.emit', side_effect=emit), patch('guest.print'):
