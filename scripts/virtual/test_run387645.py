@@ -42,7 +42,7 @@ class ClientsReply(unittest.TestCase):
             env = {'XDG_RUNTIME_DIR': str(runtime)}
             with patch('guest.LoggedProcess', side_effect=launch), patch('guest.wait_for_ipc', return_value=env), \
                  patch('guest.image_decode_preflight'), patch('guest.bounded', side_effect=bounded), \
-                 patch('guest.capture_window', side_effect=lambda stage, monitors, clients, check: (check(), guest.emit('frame_ready', stage=stage, monitors=monitors, clients=clients))), \
+                 patch('guest.capture_window', side_effect=lambda stage, monitors, pid, env, check: (check(), guest.emit('frame_ready', stage=stage, monitors=monitors, clients=[{'pid': pid}]))), \
                  patch('guest.shutdown_compositor', side_effect=lambda env, compositor, check: (check(), compositor.wait(timeout=15))), \
                  patch('guest.query_clients', side_effect=query_clients), \
                  patch('guest.terminate', side_effect=terminate), patch('guest.time.monotonic', side_effect=clock), \
@@ -56,7 +56,7 @@ class ClientsReply(unittest.TestCase):
 
     def test_empty_reply_retries_then_requires_real_mapped_client(self):
         empty = {'returncode': 0, 'error': None, 'stdout': '[]', 'stderr': ''}
-        mapped = {'returncode': 0, 'error': None, 'stdout': '[{"pid":42,"mapped":true,"size":[420,220]}]', 'stderr': ''}
+        mapped = {'returncode': 0, 'error': None, 'stdout': '[{"pid":42,"mapped":true,"visible":true,"hidden":false,"size":[420,220]}]', 'stderr': ''}
         failure, events = self.phase([empty, mapped], [0, 0, 1, 2, 3, 3, 20])
         self.assertIsNone(failure)
         self.assertEqual(sum(row.args == ('frame_ready',) for row in events), 1)
