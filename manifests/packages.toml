@@ -334,3 +334,21 @@ native_evidence = "docs/validation/asahi-audio-rust-native-20261015.md"
 installation = "NOT RUN"
 hardware_validation = "NOT RUN"
 next_step = "Build-only pair passed; resolve full audio dependency, source/license and coordinated platform policy before a disposable installation/lifecycle trial. No produced daemon/plugin/audio execution or target acceptance is credited."
+
+[[packages]]
+name = "lsp-plugins-lv2-headless-development"
+phase = "platform-build-only"
+status = "candidate"
+source = "https://github.com/lsp-plugins/lsp-plugins"
+upstream_commit = "2df6eea03604109eeb29f8c62a3b80ce4836d1b7"
+recipe = "scripts/ci/asahi-lsp-build/recipe/PKGBUILD"
+license = "LGPL-3.0-or-later AND ISC"
+candidate_version = "1.2.35-1"
+selected_for_development = false
+selected_for_release = false
+native_build = "PASS"
+native_build_commit = "71af5525cd7a62775e82b84aac702d384cf66c58"
+native_evidence = "docs/validation/asahi-lsp-native-20261015.md"
+installation = "NOT RUN"
+hardware_validation = "NOT RUN"
+next_step = "Headless native byte pair passed. This private build candidate overlaps the upstream LV2 bundle/URIs and is not an installation replacement. Resolve corresponding-source/relinking, complete binary-license and source-fixture terms; validate runtime plugin interfaces and audio separately. No M2, speaker or performance acceptance."
