@@ -27,8 +27,9 @@ import dependencies
 
 ROOT = Path(__file__).resolve().parents[3]
 SOURCES = {
-    'scripts/release/release.py': '418c850e8a44ae71517e074f86f46f5999f5fe7433ca6798de945f318191a918',
-    'scripts/client/client.py': '3025aa0e167c836e31c949e0915d4ee82a1007dc0fada598b4895240c82f5f97',
+    'scripts/release/release.py': '750a214003cbc921ab53c4e818feb8bb9d82876285b03816e109fc34d2a88d32',
+    'scripts/client/client.py': '48f936fc28536f8d5c2cac25c77ddb591b6bd029062d4b4fe2ce901533e8fdb7',
+    'scripts/release/source_delivery.py': '8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e',
 }
 ORIGINALS = {'cachy-asahi-hyprland-settings', 'cachy-asahi-fish-config',
              'cachy-asahi-zsh-config', 'cachy-asahi-setup'}
@@ -184,11 +185,63 @@ class Commands:
         return bytes(out), bytes(err)
 
 
-def load_release(source, commands):
+def checked_source_layout(work):
+    root = work / 'source'
+    for directory, names in ((root, {'scripts'}), (root / 'scripts', {'release', 'client'}),
+                             (root / 'scripts/release', {'release.py', 'source_delivery.py'}),
+                             (root / 'scripts/client', {'client.py'})):
+        node = directory.lstat()
+        need(stat.S_ISDIR(node.st_mode) and node.st_uid == os.geteuid() and
+             stat.S_IMODE(node.st_mode) == 0o700, 'owned sibling source directory required')
+        need(set(os.listdir(directory)) == names, 'exact sibling source entries required')
+    captured = {}
+    for name, expected in SOURCES.items():
+        path = root / name; node = path.lstat()
+        need(stat.S_ISREG(node.st_mode) and node.st_uid == os.geteuid() and
+             stat.S_IMODE(node.st_mode) == 0o600, 'owned sibling source file required')
+        captured[name] = read(path)
+        need(digest(captured[name]) == expected, 'sibling source bytes changed')
+    return captured
+
+
+def stage_source_layout(sources, work):
+    need(type(sources) is dict and set(sources) == set(SOURCES) and
+         all(type(sources[name]) is bytes and digest(sources[name]) == expected
+             for name, expected in SOURCES.items()), 'exact sibling source inputs required')
+    root = work / 'source'
+    for directory in (root, root / 'scripts', root / 'scripts/release', root / 'scripts/client'):
+        directory.mkdir(mode=0o700)
+    for name, data in sources.items():put(root / name, data)
+    checked_source_layout(work)
+
+
+def source_command(commands, work, argv, **options):
+    checked_source_layout(work)
+    try:result = commands.run(argv, **options)
+    except BaseException as first:
+        try:checked_source_layout(work)
+        except BaseException as secondary:
+            try:BaseException.add_note(first, 'sibling source recheck uncertainty: ' + type(secondary).__name__)
+            except BaseException:pass
+        raise
+    checked_source_layout(work)
+    return result
+
+
+def load_release(sources, commands, work):
+    stage_source_layout(sources, work)
+    captured = checked_source_layout(work)
     module = types.ModuleType('frozen_repository_client_release')
-    module.__file__ = '<verified-frozen-release>'
-    exec(compile(source, module.__file__, 'exec'), module.__dict__)
-    module.run = lambda argv, env=None: commands.run(argv, env=env)[0]
+    module.__file__ = str(work / 'source/scripts/release/release.py')
+    exec(compile(captured['scripts/release/release.py'], module.__file__, 'exec'), module.__dict__)
+    def source_delivery_module():
+        raw = checked_source_layout(work)['scripts/release/source_delivery.py']
+        helper = types.ModuleType('release_source_delivery')
+        helper.__file__ = str(work / 'source/scripts/release/source_delivery.py')
+        exec(compile(raw, helper.__file__, 'exec'), helper.__dict__)
+        return helper
+    module.source_delivery_module = source_delivery_module
+    module.run = lambda argv, env=None: source_command(commands, work, argv, env=env)[0]
     return module
 
 
@@ -227,7 +280,7 @@ def metadata_check(raw, pin, acceptance_pin, accepted):
 
 
 def restage(accepted, metadata, authority_pin, metadata_pin, sources, work, commands):
-    release = load_release(sources['scripts/release/release.py'], commands)
+    release = load_release(sources, commands, work)
     bundle = work / 'bundle'
     for path in (bundle, bundle / 'repo', bundle / 'provenance', bundle / 'evidence'):
         path.mkdir(mode=0o700)
@@ -306,7 +359,6 @@ def restage(accepted, metadata, authority_pin, metadata_pin, sources, work, comm
     release.verify_release(bundle, signer, commands.env)
     public = commands.run(['gpg', '--batch', '--no-options', '--export', signer])[0]
     put(work / 'public-key.gpg', public)
-    put(work / 'client.py', sources['scripts/client/client.py'])
     results = client_cases(work, signer, authority_pin, commands, sign)
     return {'signer': signer, 'namespace': 'test-restage.' + authority_pin[:16],
             'lineage': lineage, 'release_sha256': digest(read(bundle / 'release.json')),
@@ -330,10 +382,10 @@ def client_cases(work, signer, pin, commands, sign):
     namespace = 'test-restage.' + pin[:16]
     now = datetime.now(timezone.utc).replace(microsecond=0)
     utc = lambda dt: dt.strftime('%Y-%m-%dT%H:%M:%SZ')
-    prefix = ['python3', '-I', work / 'client.py']
+    prefix = ['python3', '-I', '-B', work / 'source/scripts/client/client.py']
     for sequence in (1, 2):
         path = work / f'envelope-{sequence}.json'
-        commands.run(prefix + ['build', '--bundle', work / 'bundle', '--namespace', namespace, '--signer', signer,
+        source_command(commands, work, prefix + ['build', '--bundle', work / 'bundle', '--namespace', namespace, '--signer', signer,
                               '--sequence', sequence, '--issued-utc', utc(now),
                               '--expires-utc', utc(now + timedelta(hours=1)), '--output', path])
         sign(path)
@@ -354,7 +406,7 @@ def client_cases(work, signer, pin, commands, sign):
                          '--state-dir', work / 'state', '--minimum-sequence', 1]
         if apply:
             argv += ['--apply']
-        out, err = commands.run(argv, expected='nonzero' if rejection else 0)
+        out, err = source_command(commands, work, argv, expected='nonzero' if rejection else 0)
         after = checkpoint(work)
         if rejection:
             need(rejection in err.decode() and not out and before == after, 'wrong rejection or changed checkpoint')

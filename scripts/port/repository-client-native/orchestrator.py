@@ -7,13 +7,10 @@ import tempfile
 from common import decode, digest, encoded, need, pinned, read, snapshot, load_snapshot, write_new
 
 ROOT = Path(__file__).resolve().parents[3]
-HELD = {
-    'adapter.py': '69ad53b4bc041d37536ad15a4ced7efa4cb2d61bcd6cb4a62fdfce8a7dbd52ab',
-    'gate.py': '8804ee0273079f3d1cfdbd97f4c4f3e5ffcd6403ab3231ad8660d99d074359fd',
-}
+HELD = {'adapter.py': 'a6e710baf7874bc84d3393b73445d0f586da1b8e00ce1568b061fbc2f769306a', 'gate.py': '8804ee0273079f3d1cfdbd97f4c4f3e5ffcd6403ab3231ad8660d99d074359fd'}
 DEPENDENCIES = {
-    'scripts/release/release.py': '418c850e8a44ae71517e074f86f46f5999f5fe7433ca6798de945f318191a918',
-    'scripts/client/client.py': '3025aa0e167c836e31c949e0915d4ee82a1007dc0fada598b4895240c82f5f97',
+    'scripts/release/release.py': '750a214003cbc921ab53c4e818feb8bb9d82876285b03816e109fc34d2a88d32',
+    'scripts/client/client.py': '48f936fc28536f8d5c2cac25c77ddb591b6bd029062d4b4fe2ce901533e8fdb7',
 }
 
 

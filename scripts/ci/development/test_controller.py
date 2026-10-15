@@ -1549,3 +1549,20 @@ class ReceiverAcceptanceProjectionModels(unittest.TestCase):
             self.assertIs(caught,original);self.assertIs(caught.__cause__,control)
             self.assertTrue(state.report['cancelled']);self.assertTrue(namespace['CANCELLED'])
             self.assertNotIn('PRIVATE',json.dumps(state.report))
+
+
+class CurrentProductSuccessorCountModels(unittest.TestCase):
+    def test_exact_current_successor_counts_and_no_historical_count_fallback(self):
+        packet=controller.packet
+        for mode,count in ((packet.COMPOSITION,260),(packet.INSTALLER_COMPOSITION,267)):
+            def value(n):
+                return {'schema_version':3,'composition':mode,'baseline_id':packet.BASELINE_ID,
+                        'lineage':packet.LINEAGE,'source_files':{str(i):{} for i in range(n)}}
+            controller.composed_mode(value(count),mode)
+            for n in (count-1,count+1):
+                with self.subTest(mode=mode,count=n),self.assertRaisesRegex(ValueError,'composed-packet-contract-refused'):
+                    controller.composed_mode(value(n),mode)
+            for key in ('baseline_id','lineage'):
+                bad=value(count);bad[key]='HISTORICAL_OR_FOREIGN'
+                with self.subTest(mode=mode,key=key),self.assertRaisesRegex(ValueError,'composed-packet-contract-refused'):
+                    controller.composed_mode(bad,mode)

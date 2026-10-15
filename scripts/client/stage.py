@@ -29,17 +29,19 @@ INPUTS_SHA = 'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f'
 GUARD_SHA = '4bfec1387f87768e5b37475d6172bde302ef52c01c68f81297435048be7f2100'
 PACKAGES_SHA = 'fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25'
 FROZEN = {
-    'scripts/client/client.py': '3025aa0e167c836e31c949e0915d4ee82a1007dc0fada598b4895240c82f5f97',
-    'scripts/client/test_client.py': '11d475979806af12a514c9e860f614f22b6b4517078f97fceacc18c13563afd8',
-    'scripts/release/release.py': '418c850e8a44ae71517e074f86f46f5999f5fe7433ca6798de945f318191a918',
-    'scripts/release/test_release.py': 'fc24466be0f058a395705c923b12d7b0b7764a2321f63aba549117e9a034d773',
+    'scripts/client/client.py': '48f936fc28536f8d5c2cac25c77ddb591b6bd029062d4b4fe2ce901533e8fdb7',
+    'scripts/client/test_client.py': '74ec58c2e442ba941d040d0bd8f52d74538ea38a4ccd6d2404729834e9795cd8',
+    'scripts/release/release.py': '750a214003cbc921ab53c4e818feb8bb9d82876285b03816e109fc34d2a88d32',
+    'scripts/release/test_release.py': '0f980201c7a01d40861c8af98b4914beca097cf94959a9ee37e6e134e4509247',
+    'scripts/release/source_delivery.py': '8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e',
 }
 TOOLS = ('python', 'gpg', 'gpgconf', 'repo-add', 'bsdtar', 'vercmp', 'pacman')
 LIMIT = 1024 * 1024
 TIMEOUT = 300
-PURPOSE = 'maintained-v1-frozen-37-client-native-source-tests'
+PURPOSE = 'maintained-v1-frozen-48-client-native-source-tests'
+TEST_COUNT = 48
 LOCAL_ENDPOINTS = {'unix:///var/run/docker.sock', 'unix:///run/docker.sock'}
-# Derived from the checksum-pinned test_client.py; no additional client behavior.
+# Derived from current checksum-pinned client48 Source; no additional client behavior.
 TEST_IDS = frozenset({
     'client_stage_tests.GPGTests.test_apply_then_readonly_and_idempotent_verification',
     'client_stage_tests.GPGTests.test_bad_database_signature_with_resigned_manifest_and_envelope',
@@ -60,6 +62,15 @@ TEST_IDS = frozenset({
     'client_stage_tests.GPGTests.test_real_wrong_primary_in_mixed_keyring_is_rejected',
     'client_stage_tests.GPGTests.test_release_record_signature_failure_prevents_apply',
     'client_stage_tests.GPGTests.test_signed_envelope_targets_must_match_actual_bytes',
+    'client_stage_tests.GPGTests.test_sources_actual_signed_lookup_export_and_unchanged_envelope_checkpoint',
+    'client_stage_tests.GPGTests.test_sources_cli_readonly_lookup_and_apply_flag_refused',
+    'client_stage_tests.GPGTests.test_sources_exact_requested_identity_and_unsafe_output',
+    'client_stage_tests.GPGTests.test_sources_export_rechecks_material_after_last_association',
+    'client_stage_tests.GPGTests.test_sources_generic_bundle_not_declared_never_exports',
+    'client_stage_tests.GPGTests.test_sources_material_changes_after_describe_refused_before_lookup_and_export',
+    'client_stage_tests.GPGTests.test_sources_provenance_and_index_coverage_cannot_be_foreign_even_resigned',
+    'client_stage_tests.GPGTests.test_sources_reject_material_tamper_missing_and_spec_signed_map_disagreement',
+    'client_stage_tests.GPGTests.test_sources_reopen_substitution_refused_without_export',
     'client_stage_tests.GPGTests.test_valid_resign_race_cannot_change_consumed_signature_bytes',
     'client_stage_tests.PortableTests.test_atomic_checkpoint_mode_and_precommit_failure',
     'client_stage_tests.PortableTests.test_bad_expired_revoked_and_multiple_statuses',
@@ -76,6 +87,8 @@ TEST_IDS = frozenset({
     'client_stage_tests.PortableTests.test_read_bounds',
     'client_stage_tests.PortableTests.test_rollback_same_sequence_changes_namespace_signer_and_clock',
     'client_stage_tests.PortableTests.test_sequence_rejects_bool_zero_negative_large_and_float',
+    'client_stage_tests.PortableTests.test_source_helper_loads_exact_sibling_bytes_ignoring_cwd_module',
+    'client_stage_tests.PortableTests.test_sources_primary_survives_owned_root_close_uncertainty',
     'client_stage_tests.PortableTests.test_state_private_permissions_owner_symlink_and_missing',
     'client_stage_tests.PortableTests.test_sync_failure_before_and_after_commit_has_distinct_outcome',
 })
@@ -336,14 +349,14 @@ def run_tests(home):
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     suite = unittest.defaultTestLoader.loadTestsFromModule(module)
-    need(suite.countTestCases() == 37, 'frozen-test-count-mismatch')
+    need(suite.countTestCases() == TEST_COUNT, 'frozen-test-count-mismatch')
     result = Result()
     # Even accidental prints and uncaught assertion diagnostics stay in tmpfs.
     with (home / 'private-test.log').open('w') as log, redirect_stdout(log), redirect_stderr(log):
         suite.run(result)
     return {'tests': result.testsRun, 'skipped': len(result.skipped), 'failures': len(result.failures),
             'errors': len(result.errors), 'outcomes': result.rows,
-            'status': 'PASS' if result.testsRun == 37 and result.wasSuccessful() and not result.skipped else 'FAIL'}
+            'status': 'PASS' if result.testsRun == TEST_COUNT and result.wasSuccessful() and not result.skipped else 'FAIL'}
 
 
 def finalize_receipt(path, report):
@@ -454,9 +467,9 @@ def validate_receipt(record):
                   or row['test'] in ('fixture-or-test-error', 'skipped-source-test', 'failed-source-subtest')), 'invalid-outcome-receipt')
         ids.append(row['test'])
     if record['status'] == 'PASS' or record['native_client_tests'] == 'PASS' or suite['status'] == 'PASS':
-        need(record['native_client_tests'] == suite['status'] == 'PASS' and suite['tests'] == 37
+        need(record['native_client_tests'] == suite['status'] == 'PASS' and suite['tests'] == TEST_COUNT
              and suite['skipped'] == suite['failures'] == suite['errors'] == 0
-             and len(ids) == len(set(ids)) == 37 and set(ids) == TEST_IDS and all(x['status'] == 'PASS' for x in suite['outcomes']), 'incomplete-client-suite')
+             and len(ids) == len(set(ids)) == TEST_COUNT and set(ids) == TEST_IDS and all(x['status'] == 'PASS' for x in suite['outcomes']), 'incomplete-client-suite')
 
 
 def docker_command(endpoint, *arguments):

@@ -24,7 +24,7 @@ import time
 import types
 
 FILE_LIMIT, TOTAL_LIMIT = 8 * 1024**2, 64 * 1024**2
-INITIAL = '5d0f6b1d335c1949965699d4db6658af313af8977079e9a6464f0e5db4071ed3'
+INITIAL = '50947880c7d72a982221d0416ba758fb922fb2595cbfe6ebbdc08db972ce504f'
 POLICY = 'ff424921c5be38799f64e5c6264bb098cf71737d7be83608a4c91dee83f0365e'
 LICENSE = '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7'
 BLOCKED_RUNTIME_MAP = '9e6aa90e3cf9f6fc65bb8d410ec5acdbdfe2024f0bd1462cd51d52a5479d085e'
@@ -1160,18 +1160,18 @@ def preflight(root, grant_raw, grant_pin, *, deadline):
     initial = 'scripts/ci/integration.lock.json'
     need(initial in sources.raw and digest(sources.raw[initial]) == INITIAL, 'source-refused')
     lock = decode(sources.raw[initial])
-    need(len(lock['source_files']) == 159 and len(lock['generated_fixture_files']) == 125 and
+    need(len(lock['source_files']) == 160 and len(lock['generated_fixture_files']) == 125 and
          all(grant['source_files'].get(name) == row for name, row in lock['source_files'].items()), 'source-refused')
     view = grant['baseline_view']
     need(type(view) is dict and set(view) == {'schema_version','purpose','full_source_root','root',
          'integration_lock_sha256','source_rows_sha256','file_count','argv_mode','baseline_id'} and
          type(view['schema_version']) is int and view['schema_version'] == 2 and
-         view['baseline_id'] == 'maintained-native-baseline-v1-vim-9.2.1178-1' and
-         view['purpose'] == 'maintained-v1-159-copy-view' and view['full_source_root'] == str(sources.root) and
+         view['baseline_id'] == 'maintained-native-baseline-v2-client48-vim-9.2.1178-1' and
+         view['purpose'] == 'maintained-v2-160-copy-view' and view['full_source_root'] == str(sources.root) and
          type(view['root']) is str and Path(view['root']).is_absolute() and '..' not in Path(view['root']).parts and
          view['integration_lock_sha256'] == INITIAL and
          view['source_rows_sha256'] == digest(encoded(lock['source_files'])) and
-         type(view['file_count']) is int and view['file_count'] == 160 and
+         type(view['file_count']) is int and view['file_count'] == 161 and
          view['argv_mode'] == 'absolute-view-metadata','grant-refused')
     for path, pin in ((grant['policy_path'], POLICY), (grant['license_path'], LICENSE)):
         need(relative(path) in sources.raw and digest(sources.raw[path]) == pin, 'grant-refused')
@@ -1778,7 +1778,7 @@ class Session:
         return root
 
     def prepare_view(self, root):
-        """One maintained159+lock copy; original producer budget, no actor or E renewal."""
+        """One maintained160+lock copy; original producer budget, no actor or E renewal."""
         deadline = self.job_deadline
         self.sources.guard(deadline,self.cancelled)
         need(self.view_root is None and root == self.output/'maintained-view' and
@@ -1829,13 +1829,13 @@ class Session:
                 if parent == root:break
                 relative_parent = parent.relative_to(root).as_posix()
                 directories[relative_parent] = list(identity(parent.lstat()))
-        receipt = {'schema_version':1,'purpose':'maintained-v1-159-copy-custody',
+        receipt = {'schema_version':1,'purpose':'maintained-v2-160-copy-custody',
             'selection':self.sources.grant['baseline_view'],
             **{key:self.sources.grant[key] for key in ('source_commit','run_id','run_attempt',
                  'actor_contract_sha256','initial_invocation_sha256')},
             'execution_grant_sha256':self.sources.grant_pin,'view_node':list(self.view_node),
             'parent_node':list(self.view_parent_node),'directories':directories,
-            'files':nodes,'file_count':160,'bytes':total}
+            'files':nodes,'file_count':161,'bytes':total}
         raw = encoded(receipt);need(len(raw) <= 256*1024,'source-refused')
         self.view_receipt = raw;self.view_receipt_sha256 = digest(raw)
         self.sources.original_root = root;self.sources.original_rows = rows
@@ -1850,8 +1850,8 @@ class Session:
         need(set(receipt) == {'schema_version','purpose','selection','source_commit','run_id','run_attempt',
              'actor_contract_sha256','initial_invocation_sha256','execution_grant_sha256','view_node','parent_node',
              'directories','files','file_count','bytes'} and type(receipt['schema_version']) is int and
-             receipt['schema_version'] == 1 and receipt['purpose'] == 'maintained-v1-159-copy-custody' and
-             type(receipt['file_count']) is int and receipt['file_count'] == 160 and
+             receipt['schema_version'] == 1 and receipt['purpose'] == 'maintained-v2-160-copy-custody' and
+             type(receipt['file_count']) is int and receipt['file_count'] == 161 and
              all(receipt[key] == self.sources.grant[key] for key in ('source_commit','run_id','run_attempt',
                  'actor_contract_sha256','initial_invocation_sha256')) and
              type(receipt['directories']) is dict and type(receipt['files']) is dict,'source-refused')
@@ -1863,7 +1863,7 @@ class Session:
         expected = self.sources.original_rows
         locked = {**decode(self.sources.raw['scripts/ci/integration.lock.json'])['source_files'],
                   'scripts/ci/integration.lock.json':{'sha256':INITIAL,'mode':0o644}}
-        need(type(expected) is dict and expected == locked and len(expected) == 160 and
+        need(type(expected) is dict and expected == locked and len(expected) == 161 and
              set(receipt['files']) == set(expected) and type(receipt['bytes']) is int and
              receipt['bytes'] == sum(len(self.sources.raw[name]) for name in expected),'source-refused')
         node_shape = lambda node:type(node) is list and len(node) == 9 and all(type(item) is int for item in node)
@@ -1905,7 +1905,7 @@ class Session:
                          len(raw) == row['bytes'] and mode == row['mode'] == expected[relative_name]['mode'] and
                          list(current) == row['copy_node'] and row['source_node'] == list(self.sources.identities[relative_name]),
                          'source-refused');actual.add(relative_name)
-                    need(len(actual) <= 160,'source-refused')
+                    need(len(actual) <= 161,'source-refused')
         walk(self.view_root)
         need(actual == set(expected) and {'.' if path == self.view_root else path.relative_to(self.view_root).as_posix()
              for path,node in directory_nodes} == expected_directories and

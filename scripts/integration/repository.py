@@ -418,6 +418,23 @@ class Integration:
         need(set(packages) == ORIGINALS, 'all four actual original archives required')
         return packages
 
+    def add_database(self, label, database, packages, key, env):
+        probe_env = dict(env, LC_ALL='C')
+        version = self.command('repo-add-version-' + label, ['repo-add', '--version'],
+                               env=probe_env, binary=True, stdout_only=True).splitlines()
+        match = re.fullmatch(rb'repo-add \(pacman\) (\d+)\.(\d+)\.(\d+)(?:\.r\d+\.g[0-9a-f]+)?(?:-\d+)?',
+                             version[0] if version else b'')
+        need(match is not None, 'unrecognized repo-add version')
+        family = tuple(int(value) for value in match.groups()[:2])
+        # Upstream 6.0 embeds signatures by default; 6.1 introduced the opt-in.
+        need(family in {(6, 0), (6, 1), (7, 0), (7, 1)}, 'unsupported repo-add version')
+        help_text = self.command('repo-add-help-' + label, ['repo-add', '--help'],
+                                 env=probe_env, binary=True, stdout_only=True)
+        advertised = re.search(rb'(?<![\w-])--include-sigs(?![\w-])', help_text) is not None
+        options = ['--include-sigs'] if family != (6, 0) or advertised else []
+        # A failed database command is terminal: never retry with weaker options.
+        self.command('repo-add-' + label, ['repo-add', *options, '--sign', '--key', key, database, *packages], env=env)
+
     def repository(self, label, packages, fixture_path, signer, *, preserve_fixture_signature=None,
                    omit_fixture_signature=False):
         directory = self.scratch / 'repos' / label
@@ -439,8 +456,7 @@ class Integration:
         # The root's /tmp is read-only; isolate repo-add/mktemp below scratch.
         with tempfile.TemporaryDirectory(prefix='repo-add-', dir=self.scratch) as temporary:
             env = dict(os.environ, GNUPGHOME=str(key['home']), TMPDIR=temporary)
-            self.command('repo-add-' + label, ['repo-add', '--include-sigs', '--sign', '--key', key['fingerprint'],
-                         directory / 'integration.db.tar.gz', *paths], env=env)
+            self.add_database(label, directory / 'integration.db.tar.gz', paths, key['fingerprint'], env)
         for name in ('integration.db.tar.gz', 'integration.files.tar.gz'):
             path = directory / name
             if not Path(str(path) + '.sig').exists():

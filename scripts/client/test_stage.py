@@ -30,7 +30,7 @@ def receipt():
             'source_sha256': dict(s.FROZEN), 'architecture': 'aarch64', 'uid': 1001,
             'native_client_tests': 'PASS', 'hardware': 'NOT RUN', 'production_acceptance': 'NOT RUN',
             'cleanup': {'processes': 'PASS', 'private_tmpfs': 'PASS'},
-            'suite': {'tests': 37, 'skipped': 0, 'failures': 0, 'errors': 0, 'status': 'PASS',
+            'suite': {'tests': 48, 'skipped': 0, 'failures': 0, 'errors': 0, 'status': 'PASS',
                       'outcomes': [{'test': ident, 'status': 'PASS'} for ident in sorted(s.TEST_IDS)]}}
 
 
@@ -72,7 +72,7 @@ class StageTests(unittest.TestCase):
             with self.assertRaises(ValueError):s.inventory(wrong)
 
     def test_bootstrap_actual_inventory_and_image_binding(self):
-        lock = Path('scripts/port/refreshed-desktop/proposed-builder-inventory.lock').read_bytes()
+        lock = Path('scripts/ci/maintained-native/locks/builder-successor.lock').read_bytes()
         value = {'status': 'image-provisioned', 'image_id': IMAGE, 'inputs_sha256': s.INPUTS_SHA,
                  'packages_lock_sha256': s.PACKAGES_SHA}
         self.assertEqual(s.bootstrap(json.dumps(value).encode(), lock, IMAGE), value)
@@ -83,10 +83,29 @@ class StageTests(unittest.TestCase):
     def test_frozen_sources_rechecked_and_guard_is_fixed(self):
         root = Path(__file__).resolve().parents[2]
         files, pins = s.source_pins(root, hashlib.sha256(s.read(root / 'scripts/client/stage.py')).hexdigest(), s.GUARD_SHA)
-        self.assertEqual(len(files), 6)
+        self.assertEqual(len(files), 7)
         self.assertEqual({k: pins[k] for k in s.FROZEN}, s.FROZEN)
         with self.assertRaises(ValueError):s.source_pins(root, '0' * 64, s.GUARD_SHA)
         with self.assertRaises(ValueError):s.source_pins(root, '0' * 64, '0' * 64)
+
+    def test_source_delivery_is_required_checked_worker_source(self):
+        root = Path(__file__).resolve().parents[2]
+        stage_sha = s.digest(s.read(root / 'scripts/client/stage.py'))
+        files, pins = s.source_pins(root, stage_sha, s.GUARD_SHA)
+        helper = 'scripts/release/source_delivery.py'
+        self.assertIn(helper, s.FROZEN)
+        self.assertEqual(s.digest(files[helper]), pins[helper])
+        for name, data in files.items():
+            target = self.root / name
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(data)
+        s.source_pins(self.root, stage_sha, s.GUARD_SHA)
+        path = self.root / helper
+        path.write_bytes(files[helper] + b'\n# unreviewed drift\n')
+        with self.assertRaisesRegex(ValueError, 'input-pin-mismatch'):
+            s.source_pins(self.root, stage_sha, s.GUARD_SHA)
+        path.unlink()
+        with self.assertRaises(FileNotFoundError):s.source_pins(self.root, stage_sha, s.GUARD_SHA)
 
     def test_live_host_worker_refusal_precedes_input_or_write(self):
         with mock.patch.object(s, 'worker_guard') as guard:
@@ -165,15 +184,27 @@ class StageTests(unittest.TestCase):
         value['Mounts'][0]['RW'] = True
         with self.assertRaises(ValueError):s.inspect_container(value, IMAGE, self.root, self.root / 'out', 1001)
 
-    def test_receipt_requires_37_unique_passes_zero_skips_and_counts(self):
+    def test_receipt_requires_48_unique_passes_zero_skips_and_counts(self):
         s.validate_receipt(receipt())
-        for field, wrong in [('tests', 36), ('skipped', 1), ('failures', 1), ('errors', 1)]:
+        for field, wrong in [('tests', 37), ('tests', 47), ('tests', 49), ('tests', True),
+                             ('skipped', 1), ('failures', 1), ('errors', 1)]:
             bad = receipt()
             bad['suite'][field] = wrong
             with self.assertRaises(ValueError):s.validate_receipt(bad)
         bad = receipt()
         bad['suite']['outcomes'][-1] = bad['suite']['outcomes'][0]
         with self.assertRaises(ValueError):s.validate_receipt(bad)
+
+    def test_current48_refuses_historical_purpose_missing_or_failed_outcomes(self):
+        bad = receipt()
+        bad['purpose'] = 'frozen-37-client-native-source-tests'
+        with self.assertRaises(ValueError):s.validate_receipt(bad)
+        bad = receipt()
+        bad['suite']['outcomes'].pop()
+        with self.assertRaisesRegex(ValueError, 'incomplete-client-suite'):s.validate_receipt(bad)
+        bad = receipt()
+        bad['suite']['outcomes'][0]['status'] = 'FAIL'
+        with self.assertRaisesRegex(ValueError, 'incomplete-client-suite'):s.validate_receipt(bad)
 
     def test_receipt_refuses_unexpected_private_text_and_extra_fields(self):
         bad = receipt()
@@ -232,7 +263,7 @@ class StageTests(unittest.TestCase):
                         'inputs_sha256': s.INPUTS_SHA, 'packages_lock_sha256': s.PACKAGES_SHA}))
         source = Path(__file__).resolve().parents[2]
         args = argparse.Namespace(image=IMAGE, bootstrap=boot, bootstrap_sha256=s.digest(boot.read_bytes()),
-                    packages=source / 'scripts/port/refreshed-desktop/proposed-builder-inventory.lock',
+                    packages=source / 'scripts/ci/maintained-native/locks/builder-successor.lock',
                     packages_sha256=s.PACKAGES_SHA, source=source,
                     stage_sha256=s.digest(s.read(source / 'scripts/client/stage.py')),
                     guard_sha256=s.GUARD_SHA, output=self.root / 'evidence')
@@ -389,7 +420,7 @@ class StageTests(unittest.TestCase):
         for endpoint in ('tcp://remote:2375', 'unix:///tmp/unknown.sock', ''):
             with self.assertRaises(ValueError):s.docker_command(endpoint, 'rm', 'fixture')
 
-    def test_expected_ids_match_exact_frozen_17_portable_and_20_gpg_source(self):
+    def test_expected_ids_match_exact_frozen_19_portable_and_29_gpg_source(self):
         data = Path(__file__).with_name('test_client.py').read_bytes()
         self.assertEqual(s.digest(data), s.FROZEN['scripts/client/test_client.py'])
         classes = [node for node in ast.parse(data).body if isinstance(node, ast.ClassDef)
@@ -397,20 +428,20 @@ class StageTests(unittest.TestCase):
         actual = {f'client_stage_tests.{cls.name}.{method.name}' for cls in classes for method in cls.body
                   if isinstance(method, ast.FunctionDef) and method.name.startswith('test_')}
         self.assertEqual(s.TEST_IDS, actual)
-        self.assertEqual(sum('.PortableTests.' in ident for ident in actual), 17)
-        self.assertEqual(sum('.GPGTests.' in ident for ident in actual), 20)
+        self.assertEqual(sum('.PortableTests.' in ident for ident in actual), 19)
+        self.assertEqual(sum('.GPGTests.' in ident for ident in actual), 29)
 
-    def test_pass_rejects_37_unique_invented_cases_despite_valid_count_and_regex(self):
+    def test_pass_rejects_48_unique_invented_cases_despite_valid_count_and_regex(self):
         value = receipt()
-        value['suite']['outcomes'] = [{'test': f'client_stage_tests.PortableTests.test_case_{i}', 'status': 'PASS'} for i in range(37)]
+        value['suite']['outcomes'] = [{'test': f'client_stage_tests.PortableTests.test_case_{i}', 'status': 'PASS'} for i in range(48)]
         with self.assertRaisesRegex(ValueError, 'incomplete-client-suite'):s.validate_receipt(value)
 
-    def test_pass_requires_all_20_gpg_cases_in_addition_to_real_portable_cases(self):
+    def test_pass_requires_all_29_gpg_cases_in_addition_to_real_portable_cases(self):
         value = receipt()
         portable = [row for row in value['suite']['outcomes'] if '.PortableTests.' in row['test']]
-        replacements = [{'test': f'client_stage_tests.PortableTests.test_extra_{i}', 'status': 'PASS'} for i in range(20)]
+        replacements = [{'test': f'client_stage_tests.PortableTests.test_extra_{i}', 'status': 'PASS'} for i in range(29)]
         value['suite']['outcomes'] = portable + replacements
-        self.assertEqual(len({row['test'] for row in value['suite']['outcomes']}), 37)
+        self.assertEqual(len({row['test'] for row in value['suite']['outcomes']}), 48)
         with self.assertRaisesRegex(ValueError, 'incomplete-client-suite'):s.validate_receipt(value)
 
     def test_result_export_omits_tracebacks_and_reasons(self):

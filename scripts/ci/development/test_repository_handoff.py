@@ -562,7 +562,7 @@ class InitialInvocationFixtures(unittest.TestCase):
                 self.assertFalse(output.exists())
 
 class CapturedGraphFixtures(unittest.TestCase):
-    """Actual selected258 source/slot graph; modeled registered policy, no actors."""
+    """Actual successor selected259 source/slot graph; modeled registered policy, no actors."""
     @classmethod
     def setUpClass(cls):
         cls.temporary=tempfile.TemporaryDirectory(prefix='handoff-actual-graph-')
@@ -698,10 +698,10 @@ packages/shells/cachy-asahi-zsh-autosuggestions/zsh-autosuggestions.zsh
             'initial_invocation_sha256':adapter.digest(adapter.encoded({'argv':['SOURCE-ONLY-NO-ACTOR'],
                                                                        'output':str(cls.output)}))}
         initial=json.loads((cls.root/'scripts/ci/integration.lock.json').read_bytes())
-        cls.grant['baseline_view']={'schema_version':2,'baseline_id':'maintained-native-baseline-v1-vim-9.2.1178-1','purpose':'maintained-v1-159-copy-view',
+        cls.grant['baseline_view']={'schema_version':2,'baseline_id':'maintained-native-baseline-v2-client48-vim-9.2.1178-1','purpose':'maintained-v2-160-copy-view',
             'full_source_root':str(cls.root),'root':str(cls.output/'maintained-view'),
             'integration_lock_sha256':cls.a.INITIAL,'source_rows_sha256':cls.a.digest(cls.a.encoded(initial['source_files'])),
-            'file_count':160,'argv_mode':'absolute-view-metadata'}
+            'file_count':161,'argv_mode':'absolute-view-metadata'}
         for role,prefix in cls.a.PREFIXES.items():
             path=prefix+'/source-map.json';cls.grant['maps'][role]={'path':path,'sha256':rows[path]['sha256']}
         cls.grant['callbacks']['existing_consumers']={'path':'scripts/ci/development/repository_handoff.py',
@@ -761,7 +761,7 @@ packages/shells/cachy-asahi-zsh-autosuggestions/zsh-autosuggestions.zsh
         self.check()
         with patch.dict(os.environ,GITHUB_SHA=self.grant['source_commit'],GITHUB_RUN_ID='123',GITHUB_RUN_ATTEMPT='2'):
             self.assertEqual(len(self.callback.handoff_binding()),12)
-        self.assertEqual(len(self.sources.raw),258)
+        self.assertEqual(len(self.sources.raw),259)
         self.assertIs(self.sources.source_graph(self.session)['scripts/ci/integration.py'],self.original['integration'])
 
     def test_unobserved_graph_refuses_before_authority(self):
@@ -880,16 +880,16 @@ packages/shells/cachy-asahi-zsh-autosuggestions/zsh-autosuggestions.zsh
         self.assertEqual(supervisor.receipts,[])
         self.assertFalse(supervisor.active)
 
-    def test_view_is_exact160_original_only_with_real_original_scan(self):
+    def test_view_is_exact161_original_only_with_real_original_scan(self):
         context=self.session.original_context(deadline=self.deadline)
         self.assertIs(context['original']['native_arm'],self.original['native_arm'])
         self.assertEqual(context['root'],self.session.view_root)
-        self.assertEqual(len(self.original['integration'].scan(self.session.view_root)),159)
+        self.assertEqual(len(self.original['integration'].scan(self.session.view_root)),160)
         target=self.output/'freeze-source-only.json'
         self.original['native_arm'].freeze_recipes(target)
         data=json.loads(target.read_bytes())
         self.assertEqual(len(data),4);self.assertEqual(sum(len(row) for row in data.values()),71)
-        self.assertEqual(len(self.a.decode(context['receipt'])['files']),160)
+        self.assertEqual(len(self.a.decode(context['receipt'])['files']),161)
         self.assertEqual(self.original['native_arm'].ROOT,self.session.view_root)
 
     def test_current_full_checkout_scanner_sees_addon_view_remains_original(self):
@@ -901,7 +901,7 @@ packages/shells/cachy-asahi-zsh-autosuggestions/zsh-autosuggestions.zsh
             for name in ('.SRCINFO','LICENSE.project','LICENSE.upstream','NOTICE','PKGBUILD','README.md',
                          'check-module.py','integration-proposal.json','opt-in.zsh','source-provenance.json',
                          'usage.md','zsh-autosuggestions.zsh')) <= set(actual)-set(initial))
-        self.assertEqual(len(self.original['integration'].scan(self.session.view_root)),159)
+        self.assertEqual(len(self.original['integration'].scan(self.session.view_root)),160)
 
     def test_old_schema_refuses_current_preflight(self):
         grant=copy.deepcopy(self.grant);grant['schema_version']=1;grant.pop('baseline_view')
@@ -1109,7 +1109,7 @@ class InstallerGraphFixtures(unittest.TestCase):
         self.assertIs(module,self.installer); self.assertIs(sys.modules['native_install_preflight'],module)
         self.assertEqual((module.OWN,module.run.__module__,module.run.__qualname__),
             ('scripts/install/native_preflight.py','native_install_preflight','run'))
-        self.assertEqual(len(self.sources.raw),265)
+        self.assertEqual(len(self.sources.raw),266)
         self.assertEqual(len(self.sources.grant),17); self.assertEqual(len(self.sources.grant['baseline_view']),9)
         self.assertEqual(len(self.sources.grant['callbacks']),3)
         self.assertEqual(set(self.session.source_graph),

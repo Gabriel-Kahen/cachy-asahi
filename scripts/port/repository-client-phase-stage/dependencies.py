@@ -10,22 +10,9 @@ import sys
 import types
 
 ROOT = Path(__file__).resolve().parents[3]
-COLLECTOR_MAP_SHA256 = '4d2f0533a537eaa4582078a3e15d206457878dd5e4f0fe044daa1290995bf52b'
-COLLECTOR = {
-    'entry.py': '5889e0358bd0a04122e6cfcb061337f1dc415b064ba92f46ae47893a5747e0c8',
-    'worker.py': '9a513a59da3cbb58d54c236759e3299072e14194e4d297df911072daa241b060',
-    'common.py': '02398b4008f06947fe3dfe8e95c45e0f77cf8627ecff258a7c64128314665a15',
-    'base.py': '94a8e2898b062a0efd0f567d1f4f472bd04d6ff5a1573cd09f3bf8d1f556cddd',
-    'provenance.py': '42d18ff6cfa68d7d0a704d0612cbf505f8652b5c24bf6ae69d833b43c08ad02b',
-    'crypto.py': 'a3568741238738646593b2c972589f4ae92381611c88dea1c1c234c0e59a46f0',
-    'orchestrator.py': '885b74daf24d3cae91b9f659dcc8f62c8021a1ee9557f420b7db8bf01e52e621',
-}
-PREDECESSORS = {
-    'scripts/port/repository-client-stage/gate.py': '8804ee0273079f3d1cfdbd97f4c4f3e5ffcd6403ab3231ad8660d99d074359fd',
-    'scripts/port/repository-client-stage/adapter.py': '69ad53b4bc041d37536ad15a4ced7efa4cb2d61bcd6cb4a62fdfce8a7dbd52ab',
-    'scripts/release/release.py': '418c850e8a44ae71517e074f86f46f5999f5fe7433ca6798de945f318191a918',
-    'scripts/client/client.py': '3025aa0e167c836e31c949e0915d4ee82a1007dc0fada598b4895240c82f5f97',
-}
+COLLECTOR_MAP_SHA256 = '98e7bf51ddf0f716043fe61538b444c59adfa29a703f66062d289e0a9357527e'
+COLLECTOR = {'base.py': '94a8e2898b062a0efd0f567d1f4f472bd04d6ff5a1573cd09f3bf8d1f556cddd', 'common.py': '02398b4008f06947fe3dfe8e95c45e0f77cf8627ecff258a7c64128314665a15', 'crypto.py': 'a3568741238738646593b2c972589f4ae92381611c88dea1c1c234c0e59a46f0', 'entry.py': '5889e0358bd0a04122e6cfcb061337f1dc415b064ba92f46ae47893a5747e0c8', 'orchestrator.py': '6dd32b5615f5b90dacd9be56e63912b0cf14f6d5cdfa29c29939f6207d42f579', 'provenance.py': '42d18ff6cfa68d7d0a704d0612cbf505f8652b5c24bf6ae69d833b43c08ad02b', 'worker.py': '9a513a59da3cbb58d54c236759e3299072e14194e4d297df911072daa241b060'}
+PREDECESSORS = {'scripts/port/repository-client-stage/gate.py': '8804ee0273079f3d1cfdbd97f4c4f3e5ffcd6403ab3231ad8660d99d074359fd', 'scripts/port/repository-client-stage/adapter.py': 'a6e710baf7874bc84d3393b73445d0f586da1b8e00ce1568b061fbc2f769306a', 'scripts/release/release.py': '750a214003cbc921ab53c4e818feb8bb9d82876285b03816e109fc34d2a88d32', 'scripts/client/client.py': '48f936fc28536f8d5c2cac25c77ddb591b6bd029062d4b4fe2ce901533e8fdb7'}
 PREDECESSOR_MODES = {name: (0o755 if name == 'scripts/release/release.py' else 0o644)
                      for name in PREDECESSORS}
 CACHE = {}
