@@ -17,17 +17,17 @@ import stat
 import time
 
 INITIAL = 'scripts/ci/integration.lock.json'
-INITIAL_SHA = '5d0f6b1d335c1949965699d4db6658af313af8977079e9a6464f0e5db4071ed3'
+INITIAL_SHA = '50947880c7d72a982221d0416ba758fb922fb2595cbfe6ebbdc08db972ce504f'
 INPUTS_SHA = 'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f'
 INVENTORY = 'scripts/port/refreshed-desktop/proposed-builder-inventory.lock'
 INVENTORY_SHA = 'fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25'
 BASELINE = 'manifests/reviewed/maintained-composed-v1.json'
-BASELINE_SHA = '662a7397e12289e5fe7de8c797dcc0cdf74e4ade9d93260bd2cbca782060a120'
-BASELINE_ID = 'maintained-native-baseline-v1-vim-9.2.1178-1'
-LINEAGE = 'SUCCESSOR_NOT_HISTORICAL_ORIGINAL'
+BASELINE_SHA = 'a4825a2170b0ddc7e87d88b1d937355bb42f856d1483d8bc8c87fb06a91453ff'
+BASELINE_ID = 'maintained-native-baseline-v2-client48-vim-9.2.1178-1'
+LINEAGE = 'CURRENT_PRODUCT_SUCCESSOR_NOT_HISTORICAL_EVIDENCE'
 PURPOSE = 'root-selected-maintained-v1-development-source'
-MODES = {'repository-svg-maintained-v1':259, 'installer-preflight-maintained-v1':266}
-BASELINE_DECLARATION = {'baseline_id': 'maintained-native-baseline-v1-vim-9.2.1178-1', 'changed_view_sources': ['scripts/ci/inputs.lock.json'], 'generated_fixtures': 125, 'hardware_validation': 'NOT RUN', 'historical_inputs_sha256': '3c16c37d1b12cc84a88572e82ab8ad59e7f3b5ed0d08f09ddf72a69f4711d650', 'historical_integration_sha256': 'd4d603146f094c86242eaafbb887042959c510c9bb948579dd749d065dd8fc31', 'inputs_sha256': 'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f', 'installation': 'NOT RUN', 'integration_sha256': '5d0f6b1d335c1949965699d4db6658af313af8977079e9a6464f0e5db4071ed3', 'inventory_sha256': 'fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25', 'lineage': 'SUCCESSOR_NOT_HISTORICAL_ORIGINAL', 'native_sha256': 'a8b6ed8971a38089a4499dcec605477c4e48d7a47c3de485d205f6a44678b898', 'original_producers': 1, 'recipe_source_commit': 'ebd5812640b0b69f5c09a47752b739e37e338754', 'recipes_sha256': '20d846cdf289bfc233b0051bf33b677fd6e94e9f05d91a33595a2829a196fa63', 'schema_version': 1, 'selected_for_release': False, 'source_captures': 2, 'source_date_epoch': 1791748800, 'unchanged_view_sources': 158, 'view_files': 160, 'view_sources': 159}
+MODES = {'repository-svg-maintained-v1':260, 'installer-preflight-maintained-v1':267}
+BASELINE_DECLARATION = {'baseline_id': 'maintained-native-baseline-v2-client48-vim-9.2.1178-1', 'changed_view_sources': ['scripts/ci/inputs.lock.json', 'scripts/integration/repository.py', 'scripts/integration/test_repository.py', 'scripts/release/release.py', 'scripts/release/test_release.py', 'scripts/release/source_delivery.py'], 'current_product_native_validation': 'NOT RUN', 'generated_fixtures': 125, 'hardware_validation': 'NOT RUN', 'historical_inputs_sha256': '3c16c37d1b12cc84a88572e82ab8ad59e7f3b5ed0d08f09ddf72a69f4711d650', 'historical_integration_sha256': 'd4d603146f094c86242eaafbb887042959c510c9bb948579dd749d065dd8fc31', 'historical_pair_evidence_scope': 'UNCHANGED_RECIPE_INPUTS_ONLY_NOT_CURRENT_PRODUCT_ACCEPTANCE', 'inputs_sha256': 'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f', 'installation': 'NOT RUN', 'integration_sha256': '50947880c7d72a982221d0416ba758fb922fb2595cbfe6ebbdc08db972ce504f', 'inventory_sha256': 'fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25', 'lineage': 'CURRENT_PRODUCT_SUCCESSOR_NOT_HISTORICAL_EVIDENCE', 'native_sha256': 'a8b6ed8971a38089a4499dcec605477c4e48d7a47c3de485d205f6a44678b898', 'original_producers': 1, 'previous_baseline_id': 'maintained-native-baseline-v1-vim-9.2.1178-1', 'previous_integration_sha256': '5d0f6b1d335c1949965699d4db6658af313af8977079e9a6464f0e5db4071ed3', 'recipe_source_commit': 'ebd5812640b0b69f5c09a47752b739e37e338754', 'recipes_sha256': '20d846cdf289bfc233b0051bf33b677fd6e94e9f05d91a33595a2829a196fa63', 'schema_version': 1, 'selected_for_release': False, 'source_captures': 3, 'source_date_epoch': 1791748800, 'unchanged_view_sources': 154, 'view_files': 161, 'view_sources': 160}
 POLICY = 'manifests/reviewed/repository-generic-policy.json'
 POLICY_SHA = 'ff424921c5be38799f64e5c6264bb098cf71737d7be83608a4c91dee83f0365e'
 LICENSE_SHA = '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7'
@@ -239,12 +239,12 @@ def selection(raw, peer_raw, root_pins, deadline):
          audit.get('tooling_lock_sha256') == pins['scripts/virtual/tooling.lock.json'], 'virtual-binding')
     lock = decode(metadata[INITIAL])
     original = lock['source_files']
-    need(type(original) is dict and len(original) == 159 and len(lock['generated_fixture_files']) == 125 and
+    need(type(original) is dict and len(original) == 160 and len(lock['generated_fixture_files']) == 125 and
          all(rows.get(name) == row for name, row in original.items()) and
          lock['recipes_sha256'] == pins['scripts/ci/recipes.lock.json'] and
          len(decode(metadata['scripts/ci/recipes.lock.json'])) == 4 and
          type(lock['recipe_source_commit']) is str and
-         re.fullmatch('[0-9a-f]{40}', lock['recipe_source_commit']), 'original-159')
+         re.fullmatch('[0-9a-f]{40}', lock['recipe_source_commit']), 'original-160')
     for role, prefix in PREFIXES.items():
         path = prefix + '/source-map.json'
         need(value['maps'][role] == {'path': path, 'sha256': pins[path]}, 'selected-map')
@@ -427,12 +427,12 @@ def prepare(selection_raw, peer_raw, root_pins, environment, *, preparation_dead
                  'policy_path': POLICY, 'license_path': 'LICENSE', 'actor_contract_sha256': digest(runtime_raw),
                  'initial_invocation_sha256': digest(encoded({'argv': original_argv(layout['output'], layout['cache'],
                                                    value['metadata_pins']), 'output': str(adapter)})),
-                 'baseline_view': {'schema_version': 2, 'purpose': 'maintained-v1-159-copy-view',
+                 'baseline_view': {'schema_version': 2, 'purpose': 'maintained-v2-160-copy-view',
                                    'baseline_id': BASELINE_ID,
                                    'full_source_root': str(layout['workspace']), 'root': str(view),
                                    'integration_lock_sha256': INITIAL_SHA,
                                    'source_rows_sha256': digest(encoded(lock['source_files'])),
-                                   'file_count': 160, 'argv_mode': 'absolute-view-metadata'}}
+                                   'file_count': 161, 'argv_mode': 'absolute-view-metadata'}}
         runtime_ref = owned.write(layout['bootstrap'] / 'runtime.json', runtime_raw, preparation_deadline, 16 * 1024)
         grant_ref = owned.write(layout['bootstrap'] / 'grant.json', encoded(grant), preparation_deadline, LIMIT)
         # Fixed Root-selected envelope retained separately from empty tool state.
@@ -483,12 +483,12 @@ def verify_checkout(prepared, root_pins, environment, *, deadline):
          set(value['metadata_pins']) == METADATA and set(value['metadata_hex']) == METADATA,
          'checkout-selection')
     lock = decode(bytes.fromhex(value['metadata_hex'][INITIAL]))
-    expected_view = {'schema_version': 2, 'purpose': 'maintained-v1-159-copy-view',
+    expected_view = {'schema_version': 2, 'purpose': 'maintained-v2-160-copy-view',
         'baseline_id': BASELINE_ID, 'full_source_root': str(layout['workspace']),
         'root': str(layout['output'] / 'repository-handoff/maintained-view'),
         'integration_lock_sha256': INITIAL_SHA,
         'source_rows_sha256': digest(encoded(lock['source_files'])),
-        'file_count': 160, 'argv_mode': 'absolute-view-metadata'}
+        'file_count': 161, 'argv_mode': 'absolute-view-metadata'}
     need(set(grant) == {'schema_version', 'purpose', 'source_peer_preflight', 'development_only',
          'added_seconds', 'source_commit', 'recipe_source_commit', 'run_id', 'run_attempt',
          'source_files', 'maps', 'callbacks', 'policy_path', 'license_path', 'actor_contract_sha256',
