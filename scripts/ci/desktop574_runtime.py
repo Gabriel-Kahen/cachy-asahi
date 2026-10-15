@@ -81,6 +81,14 @@ def docker_args(image, name, out, source, runner, *, root=False):
     return args + ['--entrypoint=/bin/bash', image]
 
 
+def qemu_command(image, name, out, source, runner):
+    """Keep QEMU snapshot files on the container's existing private tmpfs."""
+    cmd = docker_args(image, name, out, source, runner)
+    cmd[-2:-2] = ['--env=TMPDIR=/tmp']
+    cmd += ['-c', 'exec qemu-system-aarch64 -nodefaults -machine virt-11.1 -accel tcg -cpu max -smp 2 -m 4096 -kernel /out/Image -append "console=ttyAMA0 root=/dev/vda rw systemd.unit=desktop574.target cachy_asahi_desktop574=1 cachy_asahi_virtual_proof=1" -drive if=none,id=root,file=/out/guest.raw,format=raw,snapshot=on -device virtio-blk-pci,drive=root -device virtio-gpu-pci,id=gpu,xres=1024,yres=768 -nic none -display none -audiodev none,id=noaudio -monitor none -serial stdio -qmp unix:/out/qmp.sock,server=on,wait=off']
+    return cmd
+
+
 def bind_local_base(image, reference, execute, inspect):
     """BuildKit FROM needs a named local image; bind it to the checked ID."""
     require(re.fullmatch(r'sha256:[0-9a-f]{64}', image), 'immutable base ID required')
@@ -230,8 +238,7 @@ def main():
         cmd[-2:-2] = ['--env=CACHY_DESKTOP574_FIXTURE=1']
         execute(cmd + ['/runner/desktop574_fixture.sh'], 'fixture', 600)
         name = 'desktop574-vm-' + os.urandom(8).hex(); containers.append(name)
-        cmd = docker_args(derived, name, fixture, source, runner)
-        cmd += ['-c', 'exec qemu-system-aarch64 -nodefaults -machine virt-11.1 -accel tcg -cpu max -smp 2 -m 4096 -kernel /out/Image -append "console=ttyAMA0 root=/dev/vda rw systemd.unit=desktop574.target cachy_asahi_desktop574=1 cachy_asahi_virtual_proof=1" -drive if=none,id=root,file=/out/guest.raw,format=raw,snapshot=on -device virtio-blk-pci,drive=root -device virtio-gpu-pci,id=gpu,xres=1024,yres=768 -nic none -display none -audiodev none,id=noaudio -monitor none -serial stdio -qmp unix:/out/qmp.sock,server=on,wait=off']
+        cmd = qemu_command(derived, name, fixture, source, runner)
         frames = out / 'frames'; frames.mkdir()
         active = common.LoggedProcess(cmd, out / 'guest.log', env=dict(os.environ), limit=8 * 1024**2)
         pending = b''; offset = 0; complete = False; phases = set(); deadline = time.monotonic() + 700
@@ -297,8 +304,8 @@ def main():
             except Exception as error:
                 report['cleanup'].append({'active_process': type(error).__name__})
                 report['status'] = 'FAIL_CLEANUP'
-        for image in images:
-            cleanup(['docker', 'image', 'rm', image], 'remove-image:' + image)
+        for owned_image in images:
+            cleanup(['docker', 'image', 'rm', owned_image], 'remove-image:' + owned_image)
         fixture = out / 'fixture'
         if fixture.exists():
             try:
