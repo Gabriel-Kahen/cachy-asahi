@@ -32,7 +32,8 @@ H = 'a' * 64
 POISON = b'password=DO_NOT_EXPORT_RAW_SOURCE_CACHE_OR_ENV'
 
 
-def directory_leaf_fixture(root, check='PATH_IDENTITY', scope='ROOT', component='INODE'):
+def directory_leaf_fixture(root, check='PATH_IDENTITY', scope='ROOT', component='INODE',
+                           *, mode=0o500, stat_observation=2, expect_refusal=True):
     """Exercise the source predicate using finite stat races; retain no private values."""
     root = Path(root)
     target = root if scope == 'ROOT' else root / 'leaf-child'
@@ -42,7 +43,7 @@ def directory_leaf_fixture(root, check='PATH_IDENTITY', scope='ROOT', component=
     def changed(info, component):
         values = {name: getattr(info, name) for name in dir(info) if name.startswith('st_')}
         field = {'DEVICE': 'st_dev', 'INODE': 'st_ino', 'OWNER': 'st_uid', 'MODE': 'st_mode', 'TYPE': 'st_mode'}[component]
-        if component == 'MODE': values[field] = stat.S_IFMT(info.st_mode) | 0o500
+        if component == 'MODE': values[field] = stat.S_IFMT(info.st_mode) | mode
         elif component == 'TYPE': values[field] = stat.S_IFREG | stat.S_IMODE(info.st_mode)
         else: values[field] += 1
         return types.SimpleNamespace(**values)
@@ -51,7 +52,7 @@ def directory_leaf_fixture(root, check='PATH_IDENTITY', scope='ROOT', component=
         info = real_stat(path, *args, **kwargs)
         if not isinstance(path, int) and Path(os.fsdecode(path)).name == target.name:
             seen_stat += 1
-            if seen_stat == 2:
+            if seen_stat == stat_observation:
                 if check in ('ROOT_PATH_MISSING', 'LINKED_CHILD_PATH_MISSING'):
                     raise FileNotFoundError(errno.ENOENT, 'finite missing fixture')
                 if check in ('PATH_IDENTITY', 'PATH_NOT_DIRECTORY'):
@@ -77,7 +78,7 @@ def directory_leaf_fixture(root, check='PATH_IDENTITY', scope='ROOT', component=
             mock.patch.object(stage.os, 'close', side_effect=close):
         try: stage.disk_check(root)
         except ValueError as refused: error = refused
-    if error is None: raise AssertionError('original private directory predicate did not refuse')
+    if expect_refusal and error is None: raise AssertionError('private directory predicate did not refuse')
     return error, acquired, closed
 
 
@@ -1444,6 +1445,7 @@ class DiskCheckTests(unittest.TestCase):
         for check, scopes, components in proposal:
             for scope in scopes:
                 for component in components:
+                    if scope == 'DESCENDANT' and component == 'MODE':continue
                     with self.subTest(check=check, scope=scope, component=component):
                         error, acquired, closed = directory_leaf_fixture(self.root, check, scope, component)
                         self.assertIs(type(error), ValueError)
@@ -1455,7 +1457,7 @@ class DiskCheckTests(unittest.TestCase):
                         for fd in acquired:
                             with self.assertRaises(OSError): os.fstat(fd)
                         cases += 1
-        self.assertEqual(cases, 19)
+        self.assertEqual(cases, 17)
 
     def test_directory_leaf_component_selection_preserves_original_identity_order(self):
         real_stat = os.stat
@@ -2154,6 +2156,58 @@ class ExportRefusalTests(unittest.TestCase):
         self.assertIs(caught.exception, first); self.assertIsNone(scope['export_failed_boundary'])
         self.assertEqual(scope['export_boundary'], 'source-authentication')
 
+
+
+class DirectoryModePolicyTests(unittest.TestCase):
+    """Only scanner fixtures: no runtime, network, native build or actors."""
+    def setUp(self):
+        self.temp=tempfile.TemporaryDirectory(prefix='updater-mode-policy-',dir='/tmp')
+        self.addCleanup(self.temp.cleanup)
+        self.root=Path(self.temp.name);self.root.chmod(0o700)
+
+    def fixture(self,check='PATH_IDENTITY',mode=0o500,observation=2,component='MODE',scope='DESCENDANT',refuse=False):
+        error,opened,closed=directory_leaf_fixture(self.root,check,scope,component,
+            mode=mode,stat_observation=observation,expect_refusal=refuse)
+        self.assertCountEqual(opened,closed)
+        for fd in opened:
+            with self.assertRaises(OSError):os.fstat(fd)
+        return error
+
+    def test_permitted_descendant_mode_change_at_open(self):
+        for mode in (0o500,0o555,0o700,0o750,0o755):
+            with self.subTest(mode=mode):self.assertIsNone(self.fixture('OPEN_FD_IDENTITY',mode))
+
+    def test_permitted_descendant_mode_change_at_named_entry_and_exit(self):
+        for observation in (2,3):
+            for mode in (0o500,0o555,0o700,0o750,0o755):
+                with self.subTest(mode=mode,observation=observation):
+                    self.assertIsNone(self.fixture(mode=mode,observation=observation))
+
+    def test_forbidden_opened_permissions_still_refuse(self):
+        for mode in (0o777,0o770,0o707,0o1700,0o2700,0o4700,0o400,0o100,0):
+            with self.subTest(mode=mode):
+                self.assertEqual(str(self.fixture('OPEN_FD_IDENTITY',mode,refuse=True)),'private-directory-permission')
+
+    def test_forbidden_named_permissions_refuse_at_entry_and_exit(self):
+        for observation in (2,3):
+            for mode in (0o777,0o770,0o707,0o1700,0o2700,0o4700,0o400,0o100,0):
+                with self.subTest(mode=mode,observation=observation):
+                    self.assertEqual(str(self.fixture(mode=mode,observation=observation,refuse=True)),
+                                     'private-directory-permission')
+
+    def test_root_mode_constancy_is_unchanged(self):
+        for check in ('OPEN_FD_IDENTITY','PATH_IDENTITY'):
+            with self.subTest(check=check):
+                error=self.fixture(check,scope='ROOT',refuse=True)
+                self.assertEqual(stage._directory_leaf_issued(error)[1:],(check,'ROOT','MODE'))
+
+    def test_descendant_device_inode_owner_and_type_still_refuse(self):
+        for check,components in (('OPEN_FD_IDENTITY',('DEVICE','INODE','OWNER','TYPE')),
+                                 ('PATH_IDENTITY',('DEVICE','INODE','OWNER')),
+                                 ('PATH_NOT_DIRECTORY',('TYPE',))):
+            for component in components:
+                with self.subTest(check=check,component=component):
+                    self.assertIsNotNone(self.fixture(check,component=component,refuse=True))
 
 if __name__ == '__main__':
     unittest.main()
