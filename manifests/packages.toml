@@ -203,10 +203,12 @@ license = "MIT"
 audit = "docs/workstreams/zsh-autosuggestions.md"
 selected_for_development = true
 selected_for_release = false
-native_build = "NOT RUN"
+native_build = "PASS"
+native_build_commit = "4ee5a99e6ce7a83e2e5a5bdf4b71a1080e91d21c"
+native_evidence = "docs/validation/tools-batch-native-20261015.md"
 installation = "NOT RUN"
 hardware_validation = "NOT RUN"
-next_step = "Reviewed source and isolated x86 ZLE controls pass; two native ARM build attempts and package lifecycle remain required. Register a bounded addon consumer in the existing development job."
+next_step = "Native ARM pair, byte comparison and disposable lifecycle passed. Exercise actual interactive suggestions and terminal coexistence, then both target Air workflows and signed release integration."
 
 [[packages]]
 name = "cachy-asahi-topmem"
@@ -218,10 +220,12 @@ license = "MIT"
 audit = "docs/reviews/topmem-source-registration-root-review.md"
 selected_for_development = true
 selected_for_release = false
-native_build = "NOT RUN"
+native_build = "PASS"
+native_build_commit = "4ee5a99e6ce7a83e2e5a5bdf4b71a1080e91d21c"
+native_evidence = "docs/validation/tools-batch-native-20261015.md"
 installation = "NOT RUN"
 hardware_validation = "NOT RUN"
-next_step = "Two clean native ARM package builds, signed ownership/install/remove checks and independent terminal use on both Air sizes. Current-user RSS inspection has no tuning or performance claim."
+next_step = "Native ARM pair, byte comparison and disposable lifecycle passed. Verify controlled live-process RSS correctness and independent terminal use on both Air sizes; no tuning or performance gain is claimed."
 
 [[packages]]
 name = "cachy-asahi-fish-bang-bang"
@@ -234,7 +238,9 @@ license = "MIT"
 audit = "docs/workstreams/fish-history-module.md"
 selected_for_development = true
 selected_for_release = false
-native_build = "NOT RUN"
+native_build = "PASS"
+native_build_commit = "4ee5a99e6ce7a83e2e5a5bdf4b71a1080e91d21c"
+native_evidence = "docs/validation/tools-batch-native-20261015.md"
 installation = "NOT RUN"
 hardware_validation = "NOT RUN"
-next_step = "Register exact recipe/local-source pins in the existing bounded addon build/compare path; run native ARM builds and package/user-configuration lifecycle, then both M2 Air terminal workflows."
+next_step = "Native ARM pair, byte comparison and disposable lifecycle passed. Exercise interactive history expansion, then both target Air terminal workflows and signed release integration."

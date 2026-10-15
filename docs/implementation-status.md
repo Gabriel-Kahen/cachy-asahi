@@ -2,49 +2,15 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
-October 15, current integration frontier (Root snapshot):
-The corrected offline reader for failed desktop trial
-[38746698027](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38746698027)
-now reveals `LIFECYCLE_CONTRACT / VALIDATE_CONTRACT_16`. The
-[helper-inventory fix](https://github.com/Gabriel-Kahen/cachy-asahi/commit/16aefa06503a0cbfed5a0a223fe76501799924b9)
-is published on `codex/desktop-lifecycle-helper-v1`; no product rerun has occurred.
-Next: exercise the corrected lifecycle path in the native integration job.
+October 15, current integration frontier (16:10 UTC Root snapshot):
 
-Updater trial
-[38748257957](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38748257957)
-failed at `private-scan / private-directory-identity`, reporting predicate group
-`OPEN_FD_IDENTITY/MODE/DESCENDANT`. Its cleanup component passed; compilation
-remains NOT ATTESTED. The [focused correction](https://github.com/Gabriel-Kahen/cachy-asahi/commit/7a9c65c729fd4839f85165642c8d5ab4cf483cef)
-is published on `codex/updater-directory-mode-v1`, with 20 passing focused tests
-and one independent review. Next: rerun the corrected native updater path.
+- All ten selected development recipes have passed native ARM build pairs and exact-byte comparisons. The current updater recipe and its pinned builder inputs are adopted; FDK and the three additional shell/diagnostic tools match their tested recipe bytes. See the inventory and [FDK](validation/fdk-current-native-20261015.md), [updater](validation/updater-current-native-20261015.md), [KSM](validation/ksm-lifecycle-native-20261015.md) and [tools batch](validation/tools-batch-native-20261015.md) records. This is individual recipe evidence, not a tested complete distribution composition.
+- [Core desktop integration](validation/desktop-core-native-20261015.md) passed 166 package/configuration lifecycle checks, eleven signed test-repository transaction/rejection cases, and desktop configuration verification. Real compositor, Waybar/Mako, target installation and Apple hardware are outside that result. The tested consumer source is being integrated separately; no whole-branch rollback is used.
+- The [full574 transaction](validation/maintained-desktop574-native-20261015.md) passed its required-signature offline installation and exact installed inventory. These are existing upstream ARM binaries in a disposable generic builder, not 574 project source rebuilds or an Asahi installation. A same-job configuration/compositor trial is running against a rebuilt 574 image; its runtime result is pending.
+- P0 run 38763965692 failed before its actual matrix at prepare-image/prep-image-contract. Its exact historical operands are unretained. A focused correction for equivalent null/empty Docker execution defaults is published as 661c744; native retry is pending. No installer or recovery acceptance is inferred.
+- The normal KSM lifecycle and three-tool install/upgrade/remove/reinstall checks passed in disposable ARM containers. Updater private compilation/cleanup passed; its complete dependency/tray session and FDK provider/PipeWire integration remain separate runtime work. The first direct 341-package virtual desktop trial failed and is under diagnosis.
 
-The [SQLite 3.54.0 source refresh](https://github.com/Gabriel-Kahen/cachy-asahi/commit/2643e1755d402399035976d1f12cd4e8296148bd)
-is published on `codex/seed93-sqlite-refresh-v1`. Fresh authentication `sqlite03`
-passed all 93 archive, signature and package-metadata checks with natural exit 0
-and verified child cleanup. The exact pinned zlib pair was recovered from an
-archive mirror; copied input bytes were rechecked with fresh GPG state and no
-report reuse. Earlier attempts stopped at SQLite (89/93) and zlib (91/93).
-See the [actual result and limits](validation/maintained-desktop-seed93-20261015.md).
-Next: finish the remaining maintained desktop input closure and native integration.
-
-The [P0 held-interval Source](https://github.com/Gabriel-Kahen/cachy-asahi/commit/e93aa99cc6e77dc522c7ae053e2c9aa131e6991a)
-is published on `codex/p0-held-source-interval-v1`. After two bootstrap hash repairs
-and three public CI variable updates, ARM retry
-[38756589899](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38756589899)
-is running. Preparation, P0 and native matrix acceptance await its actual result.
-
-KSM trial
-[38753691479](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38753691479)
-is active after all five publication/dispatch stages returned naturally with
-zero. Next: inspect the actual lifecycle and cleanup outcome; stage returns
-alone do not establish native lifecycle acceptance.
-
-FDK's accepted historical native pair remains recorded, but the current recipe
-differs from that tested recipe. Current native_build stays NOT RUN and release
-selection stays false. Next: reconcile and build the exact current recipe;
-provider/PipeWire integration, target installation/removal/recovery, physical
-16KiB/M2 execution and measured performance remain unaccepted. The package
-inventory is unchanged. Full-roadmap and hardware gates remain unfinished.
+Release selection remains false. Both M2 Air sizes, actual 16 KiB execution, coordinated Asahi platform updates/boot recovery and measured performance remain untested. Full R1–R5 and M5–M9 completion is unchanged. Earlier dated entries below are historical development records; this frontier supersedes their then-current trial statuses.
 
 October 15, maintained desktop archive-authentication adapter:
 The current 341-to-574 metadata resolution now has a separately pinned adapter
