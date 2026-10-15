@@ -116,6 +116,50 @@ def attach_sdk_preflight(error, boundary):
 PIPELINE_FAILURE_OPERATIONS = frozenset(['load-preparation', 'verify-preparation-packet', 'load-preparation-sources', 'initialize-preparation', 'prepare-image', 'finish-preparation', 'materialize-P0', 'run-P0', 'pipeline-cleanup', 'download-input', 'download-http-error', 'download-url-error', 'download-timeout', 'supervise-child', 'supervise-child-timeout', 'check-child-outcome'])
 
 
+
+CALLBACK_OPERATIONS = ('callback', 'class_state', 'source_graph', 'graph_namespace',
+                       'graph_identity', 'global_function', 'graph_function', 'namespace_source', 'locate')
+PIPELINE_FAILURE_OPERATIONS |= frozenset('run-P0-sdk-' + name for name in CALLBACK_OPERATIONS)
+
+
+def callback_code_boundaries(module):
+    """Bind identities immediately after the already-pinned SDK body is loaded."""
+    result = []
+    for name in CALLBACK_OPERATIONS:
+        pending = [vars(module.Sources)[name].__code__]
+        while pending:
+            code = pending.pop()
+            result.append((code, 'run-P0-sdk-' + name))
+            pending.extend(value for value in code.co_consts if type(value) is types.CodeType)
+    return tuple(result)
+
+
+def mark_callback_failure(error, refusal_type, boundaries):
+    """Optional fixed boundary facts; never publish operands or replace failure."""
+    try:
+        args = BaseException.__dict__['args'].__get__(error)
+        if (type(error) is not refusal_type or type(args) is not tuple or len(args) != 1 or
+                type(args[0]) is not str or args[0] != 'callback-refused'):
+            return
+        trace = BaseException.__dict__['__traceback__'].__get__(error)
+        operation = None
+        for _ in range(64):
+            if trace is None: break
+            for code, selected in boundaries:
+                if trace.tb_frame.f_code is code: operation = selected
+            trace = trace.tb_next
+        if operation is not None: mark_pipeline_failure(error, operation)
+    except BaseException as secondary:
+        if type(secondary) is KeyboardInterrupt:
+            try:
+                state = BaseException.__dict__['__dict__'].__get__(error)
+                if type(state) is dict and all(type(key) is str for key in state):
+                    state['native_preflight_cancelled'] = True
+                    state['native_preflight_cleanup_uncertain'] = True
+            except BaseException:
+                pass
+
+
 def mark_pipeline_failure(error, operation):
     """First closed operation only; no arguments, paths, rows or child output."""
     try:
@@ -544,6 +588,7 @@ def run(*,entry,outer_end,expected_source_commit,source_root,private_root,output
              'sha256':digest(bodies[path])},'p0-bootstrap-body')
     modules=load(bodies,root)
     controller=modules['development_p0_controller'];sdk=modules['development_repository_handoff'];packet=modules['packet']
+    callback_boundaries=callback_code_boundaries(sdk);callback_refusal=sdk.Refused
     first=None;result=None;session=development=None;previous={};timer=False
     try:
         need(signal.getitimer(signal.ITIMER_REAL)==(0.0,0.0),'p0-existing-timer')
@@ -571,7 +616,9 @@ def run(*,entry,outer_end,expected_source_commit,source_root,private_root,output
         result=development.run_p0(session,runtime,invocation,entry=entry,image=prepared['image'],
             inputs_raw=current_inputs_raw,packages_raw=raw['packages.lock'])
         live(end);need(type(result) is dict and result.get('status')=='PASS_P0_ONLY','p0-result')
-    except BaseException as error:first=error
+    except BaseException as error:
+        first=error
+        mark_callback_failure(error,callback_refusal,callback_boundaries)
     finally:
         if timer:
             try:signal.setitimer(signal.ITIMER_REAL,0)
