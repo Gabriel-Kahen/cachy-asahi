@@ -26,8 +26,8 @@ from common import (GIB, IMAGE_SHA, OVERLAYS, SAFE_CAPS, allocated, bounded, dig
                     facts, free_bytes, inventory, json_load, pinned, relative,
                     require, save)
 
-LOCK_PIN = 'a8060f5dab01277de200fb7c9a4418b565984eb6d1cfb4971f0a3bd013ee8073'
-AUDIT_PIN = 'cd11a837b29e5c757b482a79b375f65170881d73f80db4ae645ed600a45378cd'
+LOCK_PIN = 'c18afc5bde9868594d41bd576a956960a7b01b190d148ba03ca4c41d4394e1b0'
+AUDIT_PIN = 'd3289a52f3269ba44f1437b69a112dcbd2086ee16ebe8d44658e65e7fb8e2095'
 AUDITOR_PIN = '6677f391f2de23540bc147770148729fe4c993850b7bbed0b71fb7e48d296fdc'
 CORE = {
     'common.py': 'b5099507b27fd9f86259c0096d0128b3a2480c546469312763a84438202fa4c3',
