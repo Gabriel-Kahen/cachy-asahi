@@ -20,7 +20,6 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'scripts/checks'))
 from package_checks import recipe
-from old_four_seed import seed_current_build_cache
 
 RECIPES = ('cachy-asahi-hyprland-settings', 'cachy-asahi-fish-config',
            'cachy-asahi-zsh-config', 'cachy-asahi-setup')
@@ -461,8 +460,6 @@ def main(argv=None, integration_consumers=None):
         else:
             inputs = load_pinned(args.inputs, args.inputs_sha256)
             save(out / 'inputs.lock.json', inputs)
-            if args.mode == 'build':
-                seed_current_build_cache(args.cache.resolve(), args.inputs_sha256)
             reviews = None
             integration_lock = None
             if args.mode in ('build', 'integration'):

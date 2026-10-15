@@ -50,36 +50,60 @@ sha256sums=(
     'f0ab84e1295c4f2df7640266944901eac7fa052c00ee4ef48fb498f5a1ff2c85'
     '01d8fdc321d58f0153019b576db5abfd3e4a66320d5c26507cb40df7e9ff7ff8'
     '74a1dbfa75de13df5c82525af8d684e38b772c31bdf912d61f7fe74e7646c591'
-    '2d47d7db696a76b26772866510a5739207f97f08d1a2d1dcdc1a41729492d56e'
-    '312772f143602ec58d08e5eebac3f64edb8723bccd5836c1f53cf832f7c27861'
+    '3aaad661c40396042b9be1742f132cfbe9d2ec47ff491598502ea77e8f0ac970'
+    '314b3365de30bdc3db33efb4157ee4195acd376ed79bac565351ba277946c111'
     '08a781eeae66881359207ed93cbe808f3fdff884de646ec09c9bc640ad527db6'
     '8e499516cbf77f8c8d5f272e20865acf5f1e979f3890af04d4705ba153c464f3'
     '27dd4506ac8a76fdfee91a5663d4ce059d92426c6dd7832d7579dee7e1e710c7'
     '8201ed41b9790cbb004f3ce62d80ce1e9f25d314e7ef685ffea44d2f1594b783'
     '80cda05980b064a9cb2ad47e5525ddba03dbaefaf350d44d18a27c63ac1ffbaf'
     'faf47dd5419aef2ceceabd2f2b70fa96fd0953986176b300f07f87c29597fbcc'
-    'e7a45792b38902b533e80575f7e1192d8936f579f87428ab3c9b6d28b027529a'
+    '3adfd4c203a6323107173a716b26a4e231c033dd64932acd0b3a40c1de0aa71c'
     '76ecbd345f571366ee9e11df8df96bbc6f9be5500b626920b5eaa203ab155572'
-    '69e4ba40e882cd62fa1aee8cf4bc7ce788eb8230ce19ca83e95682b9254d668a'
+    '1daeb67344d620ffa753eca47777f51261c8f4daff566bd59bfaa151810b4051'
     'a73d7ba17018d2fd359e630675b7ca207965b01eca358f7574a80f690124d2a2'
     '11e687a1633cd09db2a24a9a6f7c32086a86e83dec615ec08a05143ed273ac49'
     '862b960338cdcf71dc4762e9a418192f12c31d13988758cd9283f90082cb1211'
     '9907b83ef689531248a3b5264a24faaff26cbca19e9b9c46261a2e62cb182f0e'
 )
 
-prepare() {
-    local tree="$srcdir/cachy-update-e2b1b7144be71cf392809f48d1440f8da1d9c81a"
-    cp -a "$tree" "$srcdir/unpatched-source" || return
-    patch --batch --forward --fuzz=0 -d "$tree" -p1 < "$srcdir/behavior.patch" || return
-    patch --batch --forward --fuzz=0 -d "$tree" -p1 < "$srcdir/apple-policy.patch" || return
-    export CARGO_HOME="$srcdir/cargo-home"
-    install -dm700 "$CARGO_HOME" || return
-    printf '[source.crates-io]\nreplace-with = "vendored-sources"\n[source.vendored-sources]\ndirectory = "%s/vendor"\n' "$srcdir" > "$CARGO_HOME/config.toml" || return
+# Closed observations only; reporting never replaces the recipe's status.
+_makepkg_phase() {
+    if [[ ${CACHY_ASAHI_MAKEPKG_DIAGNOSTIC:-} == 1 ]]; then
+        /usr/bin/python /inputs/recipe/worker-diagnostic.py --makepkg-phase "$@" >/dev/null 2>&1 || :
+    fi
+    return 0
 }
+
+_makepkg_exit() {
+    local phase=$1 code=$2
+    _makepkg_phase "$phase" return "$code"
+    return "$code"
+}
+
+_makepkg_phase recipe-load enter null
+
+prepare() {
+    _makepkg_phase prepare enter null
+    local tree="$srcdir/cachy-update-e2b1b7144be71cf392809f48d1440f8da1d9c81a"
+    cp -a "$tree" "$srcdir/unpatched-source" || { _makepkg_exit prepare "$?"; return; }
+    patch --batch --forward --fuzz=0 -d "$tree" -p1 < "$srcdir/behavior.patch" || { _makepkg_exit prepare "$?"; return; }
+    patch --batch --forward --fuzz=0 -d "$tree" -p1 < "$srcdir/apple-policy.patch" || { _makepkg_exit prepare "$?"; return; }
+    export CARGO_HOME="$srcdir/cargo-home"
+    install -dm700 "$CARGO_HOME" || { _makepkg_exit prepare "$?"; return; }
+    printf '[source.crates-io]\nreplace-with = "vendored-sources"\n[source.vendored-sources]\ndirectory = "%s/vendor"\n' "$srcdir" > "$CARGO_HOME/config.toml" || { _makepkg_exit prepare "$?"; return; }
+    _makepkg_exit prepare 0
+}
+
+# Observe real worker identity while the package shell retains fakeroot.
+_review_python() (
+    unset "${!LD_@}" FAKEROOTKEY || return
+    exec /usr/bin/python -I -B "$@"
+)
 
 _review_gate() {
     local tree="$srcdir/cachy-update-e2b1b7144be71cf392809f48d1440f8da1d9c81a"
-    python /inputs/recipe/build-gate.py \
+    _review_python /inputs/recipe/build-gate.py \
         --metadata /out/target-metadata/cargo-metadata.stdout \
         --worker /out/target-metadata/worker.json \
         --cfg /out/target-metadata/target-cfg.stdout \
@@ -93,49 +117,57 @@ _review_gate() {
 }
 
 build() {
+    _makepkg_phase build enter null
     local tree="$srcdir/cachy-update-e2b1b7144be71cf392809f48d1440f8da1d9c81a"
     python /inputs/recipe/worker-build.py --manifest "$tree/src/tray/Cargo.toml" \
-        --vendor "$srcdir/vendor" --cargo-audit /inputs/recipe/cargo-audit.json || return
-    python /inputs/recipe/verify-updater.py --source "$tree" || return
-    cd "$tree" || return
+        --vendor "$srcdir/vendor" --cargo-audit /inputs/recipe/cargo-audit.json || { _makepkg_exit build "$?"; return; }
+    python /inputs/recipe/verify-updater.py --source "$tree" || { _makepkg_exit build "$?"; return; }
+    cd "$tree" || { _makepkg_exit build "$?"; return; }
     # The worker retains the actual compiled tray in the Makefile's expected path.
     # Generate manuals/translations without invoking Cargo a second time.
-    make WITH_TRAY=false
+    make WITH_TRAY=false || { _makepkg_exit build "$?"; return; }
+    _makepkg_exit build 0
 }
 
 check() {
-    _review_gate || return
-    python /inputs/recipe/test-patches.py --source "$srcdir/unpatched-source" -v || return
-    python /inputs/recipe/test-asahi-policy.py --source "$srcdir/unpatched-source" -v || return
+    _makepkg_phase check enter null
+    _review_gate || { _makepkg_exit check "$?"; return; }
+    python /inputs/recipe/test-patches.py --source "$srcdir/unpatched-source" -v || { _makepkg_exit check "$?"; return; }
+    python /inputs/recipe/test-asahi-policy.py --source "$srcdir/unpatched-source" -v || { _makepkg_exit check "$?"; return; }
     export HOME="$srcdir/check-home" XDG_RUNTIME_DIR="$srcdir/check-runtime"
     export XDG_CONFIG_HOME="$srcdir/check-config" XDG_DATA_HOME="$srcdir/check-data"
     export XDG_STATE_HOME="$srcdir/check-state" XDG_DATA_DIRS="$srcdir/check-data"
-    install -dm700 "$HOME" "$XDG_RUNTIME_DIR" "$XDG_CONFIG_HOME/arch-update" "$XDG_DATA_HOME" "$XDG_STATE_HOME" || return
-    printf 'NoAUR\nNoFlatpak\nNoALHPCheck\nNoNotification\n' > "$XDG_CONFIG_HOME/arch-update/arch-update.conf" || return
-    cd "$srcdir/cachy-update-e2b1b7144be71cf392809f48d1440f8da1d9c81a" || return
-    make test || return
-    python /inputs/recipe/build-gate.py --elf src/tray/target/release/arch-update-tray
+    install -dm700 "$HOME" "$XDG_RUNTIME_DIR" "$XDG_CONFIG_HOME/arch-update" "$XDG_DATA_HOME" "$XDG_STATE_HOME" || { _makepkg_exit check "$?"; return; }
+    printf 'NoAUR\nNoFlatpak\nNoALHPCheck\nNoNotification\n' > "$XDG_CONFIG_HOME/arch-update/arch-update.conf" || { _makepkg_exit check "$?"; return; }
+    cd "$srcdir/cachy-update-e2b1b7144be71cf392809f48d1440f8da1d9c81a" || { _makepkg_exit check "$?"; return; }
+    make test || { _makepkg_exit check "$?"; return; }
+    python /inputs/recipe/build-gate.py --elf src/tray/target/release/arch-update-tray || { _makepkg_exit check "$?"; return; }
+    _makepkg_exit check 0
 }
 
 package() {
-    _review_gate || return
-    cd "$srcdir/cachy-update-e2b1b7144be71cf392809f48d1440f8da1d9c81a" || return
-    python /inputs/recipe/build-gate.py --elf src/tray/target/release/arch-update-tray || return
-    make PREFIX=/usr DESTDIR="$pkgdir" WITH_TRAY=true install || return
-    ln -s arch-update "$pkgdir/usr/bin/cachy-asahi-update" || return
-    install -Dm755 /inputs/recipe/asahi-policy.py "$pkgdir/usr/lib/cachy-asahi-update/asahi-policy" || return
+    _makepkg_phase package enter null
+    _review_gate || { _makepkg_exit package "$?"; return; }
+    cd "$srcdir/cachy-update-e2b1b7144be71cf392809f48d1440f8da1d9c81a" || { _makepkg_exit package "$?"; return; }
+    python /inputs/recipe/build-gate.py --elf src/tray/target/release/arch-update-tray || { _makepkg_exit package "$?"; return; }
+    make PREFIX=/usr DESTDIR="$pkgdir" WITH_TRAY=true install || { _makepkg_exit package "$?"; return; }
+    ln -s arch-update "$pkgdir/usr/bin/cachy-asahi-update" || { _makepkg_exit package "$?"; return; }
+    install -Dm755 /inputs/recipe/asahi-policy.py "$pkgdir/usr/lib/cachy-asahi-update/asahi-policy" || { _makepkg_exit package "$?"; return; }
     # Upstream icon installation uses 0664; normalize to ordinary root-owned data.
-    chmod 644 "$pkgdir"/usr/share/icons/hicolor/scalable/apps/cachy-update*.svg || return
-    install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE" || return
-    install -Dm644 /inputs/recipe/ICON-LICENSE "$pkgdir/usr/share/licenses/$pkgname/ICON-LICENSE" || return
-    install -Dm644 /inputs/recipe/ICON-LICENSE "$pkgdir/usr/share/licenses/$pkgname/PROJECT-MIT" || return
-    install -Dm644 /inputs/recipe/NOTICE "$pkgdir/usr/share/licenses/$pkgname/NOTICE" || return
-    python /inputs/recipe/verify-updater.py --materialize-notices "$srcdir/verified-LICENSES" || return
-    cp -r "$srcdir/verified-LICENSES" "$pkgdir/usr/share/licenses/$pkgname/cargo" || return
-    install -Dm644 /inputs/recipe/README.md "$pkgdir/usr/share/doc/$pkgname/README.md" || return
+    chmod 644 "$pkgdir"/usr/share/icons/hicolor/scalable/apps/cachy-update*.svg || { _makepkg_exit package "$?"; return; }
+    install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE" || { _makepkg_exit package "$?"; return; }
+    install -Dm644 /inputs/recipe/ICON-LICENSE "$pkgdir/usr/share/licenses/$pkgname/ICON-LICENSE" || { _makepkg_exit package "$?"; return; }
+    install -Dm644 /inputs/recipe/ICON-LICENSE "$pkgdir/usr/share/licenses/$pkgname/PROJECT-MIT" || { _makepkg_exit package "$?"; return; }
+    install -Dm644 /inputs/recipe/NOTICE "$pkgdir/usr/share/licenses/$pkgname/NOTICE" || { _makepkg_exit package "$?"; return; }
+    python /inputs/recipe/verify-updater.py --materialize-notices "$srcdir/verified-LICENSES" || { _makepkg_exit package "$?"; return; }
+    cp -r "$srcdir/verified-LICENSES" "$pkgdir/usr/share/licenses/$pkgname/cargo" || { _makepkg_exit package "$?"; return; }
+    install -Dm644 /inputs/recipe/README.md "$pkgdir/usr/share/doc/$pkgname/README.md" || { _makepkg_exit package "$?"; return; }
     local evidence
     for evidence in source-audit.json cargo-audit.json additional-cargo-licenses.json build-policy.json; do
-        install -Dm644 "/inputs/recipe/$evidence" "$pkgdir/usr/share/doc/$pkgname/$evidence" || return
+        install -Dm644 "/inputs/recipe/$evidence" "$pkgdir/usr/share/doc/$pkgname/$evidence" || { _makepkg_exit package "$?"; return; }
     done
     # No /etc/xdg/autostart, install hooks, timer/service enablement or host updates.
+    _makepkg_exit package 0
 }
+
+_makepkg_phase recipe-load return 0
