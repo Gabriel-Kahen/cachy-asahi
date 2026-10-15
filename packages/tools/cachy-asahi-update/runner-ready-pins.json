@@ -47,7 +47,7 @@
     "portable-gzip.py": "ad049022c111aeafac20921e3d84f4ad16894deea85c65722ac07ffc4708ccb5",
     "public-evidence.py": "d44545ddc7617f0fade50c790c7404c331f981249d50d06c27f15b75d6a643df",
     "recipe-validation.json": "141f23474d14ac597917846cdc18303657d6f2248484fb338cc78fe9c94278d9",
-    "runner-inputs.lock.json": "8932ef5861624b041b783484f34aa1b3547c2cd15a8c77354397106942f9dfc4",
+    "runner-inputs.lock.json": "17e40b2dfaac25b9ae10416500993b94d109bfa8a03cf24d5d8f57403cfb9968",
     "source-audit.json": "f0ab84e1295c4f2df7640266944901eac7fa052c00ee4ef48fb498f5a1ff2c85",
     "test-asahi-policy.py": "faf47dd5419aef2ceceabd2f2b70fa96fd0953986176b300f07f87c29597fbcc",
     "test-audit-cargo.py": "524deefa883dec877bd42f9ea9afd7a0fe0751bf3addb69a63ac7e7eb5acaa33",
