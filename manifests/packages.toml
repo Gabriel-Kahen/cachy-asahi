@@ -125,12 +125,14 @@ license = "MIT"
 audit = "docs/setup-tooling.md"
 selected_for_development = true
 selected_for_release = false
-native_build = "PASS"
-native_build_commit = "ebd5812640b0b69f5c09a47752b739e37e338754"
-native_evidence = "docs/validation/native-arm.md"
+native_build = "NOT RUN"
+candidate_version = "0.1.0-3"
+historical_native_build = "PASS"
+historical_native_build_commit = "ebd5812640b0b69f5c09a47752b739e37e338754"
+historical_native_evidence = "docs/validation/native-arm.md"
 installation = "NOT RUN"
 hardware_validation = "NOT RUN"
-next_step = "Source/recovery review, synchronization and native build pair passed; execute exact-model package/setup/removal/recovery and independent onboarding."
+next_step = "Build the exact 0.1.0-3 strict recovery JSON candidate natively, then verify package/setup/removal/recovery and independent onboarding on both Air sizes. Earlier native build evidence remains historical."
 
 [[packages]]
 name = "cachy-asahi-ksmctl"

@@ -23,6 +23,20 @@ class Error(Exception):
     """Messages deliberately omit file contents and credential-bearing exceptions."""
 
 
+def recovery_json(raw):
+    """Reject ambiguous object fields and noninteger recovery JSON numbers."""
+    def pairs(items):
+        result = {}
+        for key, value in items:
+            if key in result:
+                raise ValueError('Duplicate recovery JSON field')
+            result[key] = value
+        return result
+    def noninteger(_value):
+        raise ValueError('Noninteger recovery JSON number')
+    return json.loads(raw, object_pairs_hook=pairs, parse_float=noninteger, parse_constant=noninteger)
+
+
 def checksum(data):
     return hashlib.sha256(data).hexdigest() if data is not None else None
 
@@ -271,10 +285,10 @@ class Setup:
         if snapshot['mode'] & 0o077:
             raise Error('Setup state/journal must be private')
         try:
-            data = json.loads(snapshot['data'])
+            data = recovery_json(snapshot['data'])
         except ValueError:
             raise Error('Invalid setup state/journal; no contents printed') from None
-        if not isinstance(data, dict) or data.get('schema_version') != 1 or data.get('roots') != self.roots:
+        if not isinstance(data, dict) or type(data.get('schema_version')) is not int or data.get('schema_version') != 1 or data.get('roots') != self.roots:
             raise Error('Setup state roots/schema differ; use the original configuration-root options')
         return data
 
@@ -396,7 +410,7 @@ class Setup:
         if journal.get('template_root') != str(self.templates) or not isinstance(journal.get('entries'), list):
             raise Error('Pending transaction needs its original template-root option')
         new_state = journal.get('new_state', {})
-        if new_state.get('schema_version') != 1 or new_state.get('roots') != self.roots or not isinstance(new_state.get('components'), dict):
+        if not isinstance(new_state, dict) or type(new_state.get('schema_version')) is not int or new_state.get('schema_version') != 1 or new_state.get('roots') != self.roots or not isinstance(new_state.get('components'), dict):
             raise Error('Invalid pending state')
         prior_state = self.load(self.state_path, {'schema_version': 1, 'roots': self.roots, 'components': {}})
         prior_records = prior_state.get('components', {})

@@ -2,6 +2,17 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 15, strict setup recovery parsing:
+The primary source and packaged mirror reject duplicate JSON fields, lexical
+floating/nonfinite numbers and non-integer schema versions in saved state and
+journals. Source/package proposal `bc7b9ec9` and fresh primary peer `f72bc0da`
+pass. Root integrates seven exact files and separately marks package `0.1.0-3`
+as unbuilt in the development inventory, retaining the older native build as
+historical. All 46 setup tests, nine sync tests and six packaged regressions
+pass after integration. Frozen native Source `fb3c3b7d`, recipe `ebd58126` and
+selected locks remain held; this new package still needs its own native build
+and target lifecycle evidence.
+
 October 15, 02:50 UTC, current native software corrections:
 Installer Source `53e7cfdb` and Data `f13db0ee` are published with held Code
 `677d3ba9`. Six diagnostic changes pass semantic `9c629f75`, actual Source
@@ -31,8 +42,10 @@ snapshot correction was independently reviewed. Four introduced descriptor,
 destination-parent and error-retirement gaps were corrected in successor
 `73587bc3`. Fresh independent review `3d81ac94` passes all four original
 countermodels and finds no new bounded defect. Root commits its seven-file
-91-role change as `b5869fa9`; actual Source review is pending before publication
-and another trial. The actual CI operand remains unknown.
+91-role change as `b5869fa9`. Actual Source review `78d1ecb2` passes, Root
+publishes the normal fast-forward with exact remote readback, and one changed
+trial `38676918007`, attempt 1, is queued with a fresh native freeze required.
+The prior actual CI operand remains unknown.
 
 Kernel Source `2525f178` publishes seven retained-input changes after semantic
 `b0ed311f` and actual Source `d27c6b00` review. All 126 roles and the 124-row

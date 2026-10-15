@@ -100,9 +100,17 @@ checks parse Python without writing bytecode; internal snapshot hashes verify
 provenance. These standalone snapshot checks do not replace the mandatory
 checkout-to-canonical comparison before snapshotting the recipe.
 
-Final host build, content, synchronization and isolated packaged-CLI results are
-recorded in `host-validation.json` and `evidence/`. They are x86_64 development
-checks, not clean native aarch64 builds or actual package installation. Published
+The 0.1.0-3 source-only successor refuses duplicate JSON object keys and
+floating-point, exponent-form or non-finite numbers in recovery metadata before
+replay or committing state. Metadata schema must be exact integer 1. Refused state
+or journal bytes are preserved for inspection; this does not authorize recovery
+of malformed metadata. It adds no automatic user activation or removal.
+
+`host-validation.json` and `evidence/` retain historical 0.1.0-2 host build, content
+and isolated packaged-CLI results unchanged. They do not validate this corrected
+0.1.0-3 helper. Current successor package build/rebuild, install, native ARM and
+hardware validation are NOT RUN. Historical x86_64 development checks are not
+clean native aarch64 builds or actual package installation. Published
 ARM Python availability does not establish the selected Asahi dependency/trust
 snapshot. Native ARM build/rebuild, package-manager install/upgrade/remove/reinstall,
 real-user/target lifecycle, M2 13-inch/15-inch and stable release gates remain pending.
