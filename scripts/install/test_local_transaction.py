@@ -29,6 +29,9 @@ RUNTIME_SHA256 = '8a7cd5e73cf383b2d81ad577b8513c6fd7d49f9fd2572961c73ae9d289cab8
 # Actual executions require the coordinator's independently reviewed source pin.
 REVIEWED_WORKER_SHA256 = None
 FIXTURE_SELECTION_SHA256 = None  # Native receiver only; legacy actual26 remains unchanged.
+GENERIC_VM_CONTRACT = None  # Separate explicit generic guest selection; never a P0 grant.
+GENERIC_VM_CONTRACT_SHA256 = None
+_OMITTED_TIMEOUT = object()
 
 
 def sha(path):
@@ -138,7 +141,9 @@ class Fixtures(unittest.TestCase):
                'signature': self.reference(signature), 'signer': self.keys.fingerprint}
         return row, files
 
-    def contract(self, rows, before=None, after=None, protected=None, remove=None, timeout=20):
+    def contract(self, rows, before=None, after=None, protected=None, remove=None, timeout=_OMITTED_TIMEOUT):
+        if timeout is _OMITTED_TIMEOUT:
+            timeout = 90 if GENERIC_VM_CONTRACT is not None or GENERIC_VM_CONTRACT_SHA256 is not None else 20
         before, remove = before or {}, remove or {}
         if after is None:
             after = {name: version for name, version in before.items() if name not in remove}
@@ -148,7 +153,13 @@ class Fixtures(unittest.TestCase):
                 'protected': protected or {}, 'add': rows, 'remove': remove,
                 'keyring': self.reference(self.public_key), 'timeout_seconds': timeout,
                 'libalpm_sha256': LIBALPM_SHA256}
-        if FIXTURE_SELECTION_SHA256 is not None:
+        if GENERIC_VM_CONTRACT is not None or GENERIC_VM_CONTRACT_SHA256 is not None:
+            self.module.need(FIXTURE_SELECTION_SHA256 is None and GENERIC_VM_CONTRACT is not None and
+                             GENERIC_VM_CONTRACT_SHA256 is not None, 'complete separate generic selection required')
+            contract.update(schema_version=3, scope=self.module.GENERIC_SCOPE, architecture='aarch64',
+                            generic_vm_contract_sha256=GENERIC_VM_CONTRACT_SHA256,
+                            libalpm_sha256=self.module.NATIVE_LIBRARY_SHA, profile_sha256=self.module.NATIVE_PROFILE_SHA)
+        elif FIXTURE_SELECTION_SHA256 is not None:
             contract.update(schema_version=2, scope='native-aarch64-fixture', architecture='aarch64',
                             input_selection_sha256=FIXTURE_SELECTION_SHA256,
                             profile_sha256=self.module.NATIVE_PROFILE_SHA)
@@ -1101,17 +1112,33 @@ class ActualTransactionTests(Fixtures):
     """Real GPG/libalpm fixtures, only in owned user/mount/network namespaces."""
     @classmethod
     def setUpClass(cls):
-        if REVIEWED_WORKER_SHA256 is None:
-            raise unittest.SkipTest('actual transactions held: independently reviewed worker pin not supplied')
-        if sha(WORKER) != REVIEWED_WORKER_SHA256: raise AssertionError('reviewed worker source changed')
+        generic = GENERIC_VM_CONTRACT is not None or GENERIC_VM_CONTRACT_SHA256 is not None
+        if generic:
+            # Pure prerequisites precede signing state; missing selection is refusal, not skip.
+            if FIXTURE_SELECTION_SHA256 is not None or GENERIC_VM_CONTRACT is None or GENERIC_VM_CONTRACT_SHA256 is None:
+                raise AssertionError('complete separate generic selection required')
+            if REVIEWED_WORKER_SHA256 is None or sha(WORKER) != REVIEWED_WORKER_SHA256:
+                raise AssertionError('reviewed generic worker source required')
+            module = load_worker()
+            module.generic_preflight(GENERIC_VM_CONTRACT, GENERIC_VM_CONTRACT_SHA256, REVIEWED_WORKER_SHA256)
+            if not all(shutil.which(name) for name in ('gpg', 'gpgconf', 'unshare')):
+                raise AssertionError('generic fixture tools unavailable')
+        else:
+            if REVIEWED_WORKER_SHA256 is None:
+                raise unittest.SkipTest('actual transactions held: independently reviewed worker pin not supplied')
+            if sha(WORKER) != REVIEWED_WORKER_SHA256: raise AssertionError('reviewed worker source changed')
         super().setUpClass()
         if not shutil.which('unshare') or not Path('/usr/lib/libalpm.so.16.0.1').is_file():
+            if generic: raise AssertionError('generic private namespace/libalpm prerequisites unavailable')
             raise unittest.SkipTest('actual private namespace/libalpm prerequisites unavailable')
-        if sha('/usr/lib/libalpm.so.16.0.1') != LIBALPM_SHA256:
+        expected_library = cls.module.NATIVE_LIBRARY_SHA if generic else LIBALPM_SHA256
+        if sha('/usr/lib/libalpm.so.16.0.1') != expected_library:
+            if generic: raise AssertionError('generic fixture libalpm pin changed')
             raise unittest.SkipTest('observed fixture libalpm pin changed')
         probe = subprocess.run(['/usr/bin/unshare', '--user', '--map-root-user', '--mount', '--pid', '--mount-proc', '--net',
                                 '--fork', '--', '/usr/bin/true'], capture_output=True, timeout=10)
         if probe.returncode:
+            if generic: raise AssertionError('generic fixture namespace probe refused')
             raise unittest.SkipTest('user/mount/network namespace unavailable: ' + probe.stderr.decode(errors='replace'))
 
     def execute(self, contract):
@@ -1124,6 +1151,9 @@ class ActualTransactionTests(Fixtures):
                    '--worker-source-sha256', REVIEWED_WORKER_SHA256,
                    '--allow-disposable-payload-commit']
         if FIXTURE_SELECTION_SHA256 is not None: command += ['--selection-sha256', FIXTURE_SELECTION_SHA256]
+        if GENERIC_VM_CONTRACT is not None:
+            command += ['--generic-vm-contract', str(GENERIC_VM_CONTRACT),
+                        '--generic-vm-contract-sha256', GENERIC_VM_CONTRACT_SHA256]
         result = subprocess.run(command, capture_output=True, timeout=contract['timeout_seconds'] + 30,
                                 env=environment())
         try:
@@ -1780,6 +1810,149 @@ class SeccompProfileModelTests(unittest.TestCase):
         for n in (42,44,46,307,425,426,427):self.assertEqual(self.verdict(p,0xc000003e,n),0x50001)
         self.assertEqual(self.verdict(p,0xc000003e,39),0x7fff0000)
         self.assertEqual(self.verdict(p,0xc000003e,0x40000027),0x80000000)
+
+
+class GenericFixtureModelTests(unittest.TestCase):
+    """No signing, process, namespace or shared-library action."""
+    def setUp(self): self.module = load_worker()
+    def contract(self):
+        c = NativeProfileTests.contract(self)
+        del c['input_selection_sha256']
+        c.update(schema_version=3, scope=self.module.GENERIC_SCOPE, generic_vm_contract_sha256='d'*64)
+        return c
+    def vm_data(self):
+        m = self.module
+        return dict(schema_version=1, execution='qemu-tcg-generic-aarch64', purpose='installer-transaction-only',
+                    source_commit='a'*40, nonce='b'*32, image_id='sha256:'+'c'*64,
+                    transaction_fixture=dict(source_commit='e'*40, sources={name:dict(bytes=100,
+                        sha256=m._fixture_source_sha256 if i == 0 else m.RUNTIME_SHA if i == 2 else 'f'*64)
+                        for i,name in enumerate(m.GENERIC_SOURCE_NAMES)},
+                        tool_profile=dict(path=str(m.GENERIC_PROFILE),size=47593,sha256=m.NATIVE_PROFILE_SHA)))
+    def test_generic_is_separately_selected_closed_data(self):
+        c = self.contract()
+        self.assertEqual(self.module.validate_contract(c, generic_vm_contract_sha256='d'*64), c)
+        for args in ({}, {'selection_sha256':'d'*64},
+                     {'selection_sha256':'d'*64,'generic_vm_contract_sha256':'d'*64},
+                     {'generic_vm_contract_sha256':'e'*64}):
+            with self.subTest(args=args), self.assertRaises(ValueError): self.module.validate_contract(c, **args)
+    def test_generic_wrong_scope_schema_library_profile_and_real_names_refuse(self):
+        for field,value in (('schema_version',True),('schema_version',2),('scope','native-aarch64-fixture'),
+                ('scope','real-candidate'),('architecture','x86_64'),('profile_sha256','e'*64),
+                ('libalpm_sha256',LIBALPM_SHA256),('input_selection_sha256','d'*64)):
+            c=self.contract(); c[field]=value
+            with self.subTest(field=field), self.assertRaises(ValueError):
+                self.module.validate_contract(c,generic_vm_contract_sha256='d'*64)
+        c=self.contract(); c['add'][0]['name']='cachy-asahi-setup'; c['after']={'cachy-asahi-setup':'1.0-1'}
+        with self.assertRaises(ValueError): self.module.validate_contract(c,generic_vm_contract_sha256='d'*64)
+    def test_native_and_x86_cannot_consume_generic_selection(self):
+        for c in (NativeProfileTests.contract(self), dict(self.contract(), schema_version=1, scope='synthetic-fixture')):
+            with self.assertRaises(ValueError): self.module.validate_contract(c,'b'*64,generic_vm_contract_sha256='d'*64)
+    def test_vm_data_exact_source_runtime_profile_joins(self):
+        data=self.vm_data(); self.module.generic_vm_data(data,self.module._fixture_source_sha256)
+        for change in ('worker','runtime','extra','profile','purpose'):
+            value=json.loads(json.dumps(data)); f=value['transaction_fixture']
+            if change in ('worker','runtime'): f['sources'][self.module.GENERIC_SOURCE_NAMES[0 if change=='worker' else 2]]['sha256']='0'*64
+            elif change=='extra': f['sources']['foreign.py']=dict(bytes=1,sha256='0'*64)
+            elif change=='profile': f['tool_profile']['sha256']='0'*64
+            else: value['purpose']='installer-barrier-only'
+            with self.subTest(change=change), self.assertRaises(ValueError):
+                self.module.generic_vm_data(value,self.module._fixture_source_sha256)
+    def preflight(self, *, cap='0', nnp='1', marker=True, tool_fault=False):
+        m=self.module; data=self.vm_data(); raw=encoded(data)
+        files=[dict(path=str(m.LIBRARY),size=85444913,sha256=m.NATIVE_LIBRARY_SHA)]
+        files += [dict(path='/usr/bin/inert-'+str(i),size=1,sha256='a'*64) for i in range(135)]
+        profile=encoded(dict(architecture='aarch64',libalpm_expected_abi='16.0.1',files=files,aliases={}))
+        status=('NoNewPrivs:\t'+nnp+'\n'+''.join(k+':\t'+cap+'\n' for k in ('CapEff','CapPrm','CapInh','CapAmb','CapBnd'))).encode()
+        def read(path,size,pin,maximum,**kw):
+            if Path(path)==m.GENERIC_VM_CONTRACT: return raw
+            if Path(path)==m.GENERIC_PROFILE: return profile
+            if tool_fault and str(path)==str(m.LIBRARY): raise ValueError('fixed tool drift')
+            return b'fixture'
+        with contextlib.ExitStack() as stack:
+            for name in ('getuid','geteuid','getgid','getegid'): stack.enter_context(patch.object(m.os,name,return_value=23001))
+            stack.enter_context(patch.object(m.os,'uname',return_value=types.SimpleNamespace(machine='aarch64',release='7.2.10-1-aarch64-ARCH')))
+            stack.enter_context(patch.object(m.os,'sysconf',return_value=4096))
+            stack.enter_context(patch.object(m,'__file__',str(m.GENERIC_SOURCE_ROOT/m.GENERIC_SOURCE_NAMES[0])))
+            stack.enter_context(patch.object(Path,'stat',return_value=types.SimpleNamespace(st_size=len(raw))))
+            stack.enter_context(patch('builtins.open',side_effect=lambda name,*a,**kw:io.BytesIO(status if str(name).endswith('status') else b'cachy_asahi_virtual_proof=1' if marker else b'ordinary')))
+            stack.enter_context(patch.object(m,'generic_readonly',side_effect=read))
+            stack.enter_context(patch.object(m.C,'CDLL',side_effect=AssertionError('CDLL forbidden')))
+            return m.generic_preflight(m.GENERIC_VM_CONTRACT,'d'*64,m._fixture_source_sha256)
+    def test_preflight_positive_mock_checks_all_tools_without_cdll(self):
+        self.assertEqual(self.preflight()['purpose'],'installer-transaction-only')
+    def test_actual_parent_caps_nnp_marker_and_tool_drift_refuse(self):
+        for options in ({'cap':'400cb'},{'nnp':'0'},{'marker':False},{'tool_fault':True}):
+            with self.subTest(options=options),self.assertRaises(ValueError): self.preflight(**options)
+    def test_fixed_location_and_bad_vm_digest_refuse_before_proc_reads(self):
+        for path,pin in ((Path('/tmp/contract.json'),'d'*64),(self.module.GENERIC_VM_CONTRACT,'bad')):
+            with patch('builtins.open',side_effect=AssertionError('proc forbidden')),self.assertRaises(ValueError):
+                self.module.generic_preflight(path,pin,self.module._fixture_source_sha256)
+    def test_generic_prerequisite_refuses_before_signing(self):
+        for options in ({'GENERIC_VM_CONTRACT_SHA256':None}, {'FIXTURE_SELECTION_SHA256':'b'*64},
+                        {'REVIEWED_WORKER_SHA256':None}, {}):
+            values=dict(GENERIC_VM_CONTRACT=self.module.GENERIC_VM_CONTRACT,GENERIC_VM_CONTRACT_SHA256='d'*64,
+                        REVIEWED_WORKER_SHA256=sha(WORKER),FIXTURE_SELECTION_SHA256=None); values.update(options)
+            with patch.dict(globals(),values),patch(__name__+'.load_worker',return_value=self.module), \
+                    patch.object(self.module,'generic_preflight',side_effect=ValueError('prerequisite refusal')), \
+                    patch.object(Fixtures,'setUpClass',side_effect=AssertionError('signing forbidden')) as signing:
+                with self.assertRaises((ValueError,AssertionError)): ActualTransactionTests.setUpClass()
+                signing.assert_not_called()
+    def test_fixture_timeout_values(self):
+        f=Fixtures();f.workspace=Path('/inert');f.module=self.module;f.public_key=Path('/inert/key');f.reference=lambda p:{}
+        for generic,native in ((True,False),(False,False),(False,True)):
+            with patch.dict(globals(),dict(GENERIC_VM_CONTRACT=self.module.GENERIC_VM_CONTRACT if generic else None,
+                    GENERIC_VM_CONTRACT_SHA256='d'*64 if generic else None,FIXTURE_SELECTION_SHA256='b'*64 if native else None,
+                    LIBALPM_SHA256=self.module.NATIVE_LIBRARY_SHA if native else LIBALPM_SHA256)):
+                args=dict(selection_sha256='b'*64) if native else dict(generic_vm_contract_sha256='d'*64) if generic else {}
+                row=self.contract()['add'][0]
+                c=f.contract([row]);self.assertEqual(c['timeout_seconds'],90 if generic else 20)
+                self.module.validate_contract(c,**args)
+                for value in (20,None,37,True,0):
+                    c=f.contract([row],timeout=value);self.assertIs(c['timeout_seconds'],value)
+                    if value is None or type(value) is not int or value==0:
+                        with self.assertRaises(ValueError):self.module.validate_contract(c,**args)
+                    else:self.module.validate_contract(c,**args)
+    def test_execute_keeps_native_authority_and_generic_prerequisite_before_workspace(self):
+        m=self.module
+        for generic in (False,True):
+            c=self.contract() if generic else NativeProfileTests.contract(self)
+            with tempfile.TemporaryDirectory(prefix='inert-contract-') as folder:
+                path=Path(folder)/'contract.json';path.write_bytes(encoded(c))
+                with contextlib.ExitStack() as stack:
+                    for name in ('getuid','geteuid','getgid','getegid'):stack.enter_context(patch.object(m.os,name,return_value=23001))
+                    stack.enter_context(patch.object(m,'capture',side_effect=lambda ref,maximum:encoded(c) if ref['path']==str(path) else b'worker'))
+                    native=stack.enter_context(patch.object(m,'native_authority',side_effect=ValueError('native gate')))
+                    guest=stack.enter_context(patch.object(m,'generic_preflight',side_effect=ValueError('generic gate')))
+                    private=stack.enter_context(patch.object(m,'private',side_effect=AssertionError('workspace forbidden')))
+                    with self.assertRaisesRegex(ValueError,'generic gate' if generic else 'native gate'):
+                        m.execute(path,'a'*64,Path(folder)/'evidence',worker_source_sha256=sha(WORKER),allow=True,
+                            selection_sha256=None if generic else 'b'*64,
+                            generic_vm_contract=m.GENERIC_VM_CONTRACT if generic else None,
+                            generic_vm_contract_sha256='d'*64 if generic else None)
+                    self.assertEqual(native.call_count,int(not generic));self.assertEqual(guest.call_count,int(generic));private.assert_not_called()
+
+    def test_readonly_file_identity_excludes_atime_but_refuses_replacement_and_hash_drift(self):
+        m=self.module; raw=b'fixed'; pin=hashlib.sha256(raw).hexdigest()
+        def info(**kw):
+            values=dict(st_dev=1,st_ino=2,st_size=len(raw),st_mode=stat.S_IFREG|0o644,st_uid=0,st_gid=0,
+                        st_nlink=1,st_mtime_ns=10,st_ctime_ns=20,st_atime_ns=30);values.update(kw)
+            return types.SimpleNamespace(**values)
+        class Stream(io.BytesIO):
+            def fileno(self):return 123
+        for change,selected in (({'st_atime_ns':99},pin),({'st_ino':3},pin),({},'0'*64),({'st_nlink':2},pin)):
+            with self.subTest(change=change,pin=selected),contextlib.ExitStack() as stack:
+                stack.enter_context(patch.object(Path,'is_symlink',return_value=False))
+                stack.enter_context(patch.object(Path,'stat',return_value=info(st_mode=stat.S_IFDIR|0o755)))
+                stack.enter_context(patch.object(m.os,'open',return_value=123))
+                stack.enter_context(patch.object(m.os,'fdopen',return_value=Stream(raw)))
+                stack.enter_context(patch.object(m.os,'fstat',side_effect=[info(),info(**change)]))
+                if change=={'st_atime_ns':99}: self.assertEqual(m.generic_readonly('/usr/inert',len(raw),selected,100),raw)
+                else:
+                    with self.assertRaises(ValueError):m.generic_readonly('/usr/inert',len(raw),selected,100)
+        with patch.object(Path,'is_symlink',return_value=True),patch.object(m.os,'open') as opening:
+            with self.assertRaises(ValueError):m.generic_readonly('/usr/inert',len(raw),pin,100)
+            opening.assert_not_called()
+
 
 if __name__ == '__main__':
     unittest.main()
