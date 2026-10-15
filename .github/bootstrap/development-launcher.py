@@ -22,14 +22,14 @@ from contextlib import contextmanager
 
 REPOSITORY = 'Gabriel-Kahen/cachy-asahi'
 REMOTE = 'https://github.com/' + REPOSITORY + '.git'
-BOOTSTRAP_SHA = '8323b1cc9764edcf3b8318d6d1c0a74ebcb211be324eda617d76056bfeada76f'
+BOOTSTRAP_SHA = '6d0e6e4ccd0d0c06f36fcbed204d7a8d6542e0ec461c409eda9e8ce9245215dc'
 ISSUER_SHA = '9e3271b8cb21e7be1940c2aa9f17f84357d0a438ed45a19ad34ae226ec9d4581'
 CODE_PATHS = {'bootstrap':'.github/bootstrap/development-bootstrap.py',
               'issuer':'.github/bootstrap/development-clock-issuer.py'}
 DATA_PATHS = {'selection':'.github/bootstrap/development-selection.json',
               'peer':'.github/bootstrap/development-source-peer.json'}
-MODES = {'repository-svg-maintained-v1':260,'installer-preflight-maintained-v1':267}
-BASELINE_ID = 'maintained-native-baseline-v2-client48-vim-9.2.1178-1'
+MODES = {'repository-svg-maintained-v1':261,'installer-preflight-maintained-v1':268}
+BASELINE_ID = 'maintained-native-baseline-v3-desktop2-setup3-vim-9.2.1178-1'
 LINEAGE = 'CURRENT_PRODUCT_SUCCESSOR_NOT_HISTORICAL_EVIDENCE'
 CLOCK_KEYS = {'schema_version','purpose','source_commit','run_id','run_attempt','nonce',
     'issued_monotonic','deadline_monotonic','allowance_seconds','clock_domain',

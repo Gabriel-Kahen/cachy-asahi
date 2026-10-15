@@ -17,17 +17,17 @@ import stat
 import time
 
 INITIAL = 'scripts/ci/integration.lock.json'
-INITIAL_SHA = '50947880c7d72a982221d0416ba758fb922fb2595cbfe6ebbdc08db972ce504f'
+INITIAL_SHA = '6d4bbbb5d51959930518be5e24367694f0d3f83672e6ea36afd6cdffb07b1b0d'
 INPUTS_SHA = 'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f'
 INVENTORY = 'scripts/port/refreshed-desktop/proposed-builder-inventory.lock'
 INVENTORY_SHA = 'fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25'
 BASELINE = 'manifests/reviewed/maintained-composed-v1.json'
-BASELINE_SHA = 'a4825a2170b0ddc7e87d88b1d937355bb42f856d1483d8bc8c87fb06a91453ff'
-BASELINE_ID = 'maintained-native-baseline-v2-client48-vim-9.2.1178-1'
+BASELINE_SHA = '5774ca63c40c0a06305ad8362de14b76a4e45de74060d35775608bcc163b355f'
+BASELINE_ID = 'maintained-native-baseline-v3-desktop2-setup3-vim-9.2.1178-1'
 LINEAGE = 'CURRENT_PRODUCT_SUCCESSOR_NOT_HISTORICAL_EVIDENCE'
 PURPOSE = 'root-selected-maintained-v1-development-source'
-MODES = {'repository-svg-maintained-v1':260, 'installer-preflight-maintained-v1':267}
-BASELINE_DECLARATION = {'baseline_id': 'maintained-native-baseline-v2-client48-vim-9.2.1178-1', 'changed_view_sources': ['scripts/ci/inputs.lock.json', 'scripts/integration/repository.py', 'scripts/integration/test_repository.py', 'scripts/release/release.py', 'scripts/release/test_release.py', 'scripts/release/source_delivery.py'], 'current_product_native_validation': 'NOT RUN', 'generated_fixtures': 125, 'hardware_validation': 'NOT RUN', 'historical_inputs_sha256': '3c16c37d1b12cc84a88572e82ab8ad59e7f3b5ed0d08f09ddf72a69f4711d650', 'historical_integration_sha256': 'd4d603146f094c86242eaafbb887042959c510c9bb948579dd749d065dd8fc31', 'historical_pair_evidence_scope': 'UNCHANGED_RECIPE_INPUTS_ONLY_NOT_CURRENT_PRODUCT_ACCEPTANCE', 'inputs_sha256': 'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f', 'installation': 'NOT RUN', 'integration_sha256': '50947880c7d72a982221d0416ba758fb922fb2595cbfe6ebbdc08db972ce504f', 'inventory_sha256': 'fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25', 'lineage': 'CURRENT_PRODUCT_SUCCESSOR_NOT_HISTORICAL_EVIDENCE', 'native_sha256': 'a8b6ed8971a38089a4499dcec605477c4e48d7a47c3de485d205f6a44678b898', 'original_producers': 1, 'previous_baseline_id': 'maintained-native-baseline-v1-vim-9.2.1178-1', 'previous_integration_sha256': '5d0f6b1d335c1949965699d4db6658af313af8977079e9a6464f0e5db4071ed3', 'recipe_source_commit': 'ebd5812640b0b69f5c09a47752b739e37e338754', 'recipes_sha256': '20d846cdf289bfc233b0051bf33b677fd6e94e9f05d91a33595a2829a196fa63', 'schema_version': 1, 'selected_for_release': False, 'source_captures': 3, 'source_date_epoch': 1791748800, 'unchanged_view_sources': 154, 'view_files': 161, 'view_sources': 160}
+MODES = {'repository-svg-maintained-v1':261, 'installer-preflight-maintained-v1':268}
+BASELINE_DECLARATION = {'baseline_id': 'maintained-native-baseline-v3-desktop2-setup3-vim-9.2.1178-1', 'changed_view_sources': ['packages/desktop/cachy-asahi-hyprland-settings/.SRCINFO', 'packages/desktop/cachy-asahi-hyprland-settings/NOTICE', 'packages/desktop/cachy-asahi-hyprland-settings/PKGBUILD', 'packages/desktop/cachy-asahi-hyprland-settings/README.md', 'packages/desktop/cachy-asahi-hyprland-settings/cachy-asahi-screenshot', 'packages/desktop/cachy-asahi-hyprland-settings/hyprland.lua', 'packages/settings/cachy-asahi-setup/.SRCINFO', 'packages/settings/cachy-asahi-setup/PKGBUILD', 'packages/settings/cachy-asahi-setup/README.md', 'packages/settings/cachy-asahi-setup/cachy-asahi-setup', 'packages/settings/cachy-asahi-setup/source-provenance.json', 'scripts/ci/desktop_projection.py', 'scripts/ci/inputs.lock.json', 'scripts/ci/recipes.lock.json', 'scripts/ci/test_desktop_projection.py', 'scripts/ci/test_integration.py', 'scripts/integration/desktop.py', 'scripts/integration/fixtures.py', 'scripts/integration/lifecycle.py', 'scripts/integration/onboarding.py', 'scripts/integration/repository.py', 'scripts/integration/test_desktop.py', 'scripts/integration/test_lifecycle.py', 'scripts/integration/test_onboarding.py', 'scripts/integration/test_repository.py', 'scripts/release/release.py', 'scripts/release/source_delivery.py', 'scripts/release/test_release.py', 'scripts/setup/setup.py', 'scripts/setup/test_setup.py'], 'current_product_native_validation': 'NOT RUN', 'generated_fixtures': 127, 'hardware_validation': 'NOT RUN', 'historical_inputs_sha256': '3c16c37d1b12cc84a88572e82ab8ad59e7f3b5ed0d08f09ddf72a69f4711d650', 'historical_integration_sha256': 'd4d603146f094c86242eaafbb887042959c510c9bb948579dd749d065dd8fc31', 'historical_pair_evidence_scope': 'HISTORICAL_PAIRS_EXCLUDE_CHANGED_RECIPES_CURRENT4_RUN38683309592_NOT_CLIENT_ACCEPTANCE', 'inputs_sha256': 'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f', 'installation': 'NOT RUN', 'integration_sha256': '6d4bbbb5d51959930518be5e24367694f0d3f83672e6ea36afd6cdffb07b1b0d', 'inventory_sha256': 'fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25', 'lineage': 'CURRENT_PRODUCT_SUCCESSOR_NOT_HISTORICAL_EVIDENCE', 'native_sha256': 'a8b6ed8971a38089a4499dcec605477c4e48d7a47c3de485d205f6a44678b898', 'original_producers': 1, 'previous_baseline_id': 'maintained-native-baseline-v2-client48-vim-9.2.1178-1', 'previous_integration_sha256': '3cb330785c7721cefdc94448add0fe2ce08a23e13b7d6ac7f47886cebcf88132', 'recipe_source_commit': '465bf53545e1d83053bf3c412e210493961b74ae', 'recipes_sha256': 'a5fb287b4dda2a90bf61d4fa8cbbc5d666dad8bb450a70544d00545b091f36e3', 'schema_version': 1, 'selected_for_release': False, 'source_captures': 3, 'source_date_epoch': 1791748800, 'unchanged_view_sources': 131, 'view_files': 162, 'view_sources': 161}
 POLICY = 'manifests/reviewed/repository-generic-policy.json'
 POLICY_SHA = 'ff424921c5be38799f64e5c6264bb098cf71737d7be83608a4c91dee83f0365e'
 LICENSE_SHA = '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7'
@@ -239,7 +239,7 @@ def selection(raw, peer_raw, root_pins, deadline):
          audit.get('tooling_lock_sha256') == pins['scripts/virtual/tooling.lock.json'], 'virtual-binding')
     lock = decode(metadata[INITIAL])
     original = lock['source_files']
-    need(type(original) is dict and len(original) == 160 and len(lock['generated_fixture_files']) == 125 and
+    need(type(original) is dict and len(original) == 161 and len(lock['generated_fixture_files']) == 127 and
          all(rows.get(name) == row for name, row in original.items()) and
          lock['recipes_sha256'] == pins['scripts/ci/recipes.lock.json'] and
          len(decode(metadata['scripts/ci/recipes.lock.json'])) == 4 and
@@ -432,7 +432,7 @@ def prepare(selection_raw, peer_raw, root_pins, environment, *, preparation_dead
                                    'full_source_root': str(layout['workspace']), 'root': str(view),
                                    'integration_lock_sha256': INITIAL_SHA,
                                    'source_rows_sha256': digest(encoded(lock['source_files'])),
-                                   'file_count': 161, 'argv_mode': 'absolute-view-metadata'}}
+                                   'file_count': 162, 'argv_mode': 'absolute-view-metadata'}}
         runtime_ref = owned.write(layout['bootstrap'] / 'runtime.json', runtime_raw, preparation_deadline, 16 * 1024)
         grant_ref = owned.write(layout['bootstrap'] / 'grant.json', encoded(grant), preparation_deadline, LIMIT)
         # Fixed Root-selected envelope retained separately from empty tool state.
@@ -488,7 +488,7 @@ def verify_checkout(prepared, root_pins, environment, *, deadline):
         'root': str(layout['output'] / 'repository-handoff/maintained-view'),
         'integration_lock_sha256': INITIAL_SHA,
         'source_rows_sha256': digest(encoded(lock['source_files'])),
-        'file_count': 161, 'argv_mode': 'absolute-view-metadata'}
+        'file_count': 162, 'argv_mode': 'absolute-view-metadata'}
     need(set(grant) == {'schema_version', 'purpose', 'source_peer_preflight', 'development_only',
          'added_seconds', 'source_commit', 'recipe_source_commit', 'run_id', 'run_attempt',
          'source_files', 'maps', 'callbacks', 'policy_path', 'license_path', 'actor_contract_sha256',
