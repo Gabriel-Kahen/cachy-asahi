@@ -1929,5 +1929,123 @@ class NativeWorkerDiagnosticTransportControls(unittest.TestCase):
         self.assertNotIn('native_compilation',result)
 
 
+class ExportRefusalTests(unittest.TestCase):
+    """Exact workflow helpers with inert metadata; no Source/provider/native actors."""
+    @classmethod
+    def setUpClass(cls):
+        import ast, textwrap
+        workflow = (ROOT / '.github/workflows/native-arm-updater.yml').read_text()
+        start = workflow.index('          import base64, gzip, hashlib, io, json, math, os, re, sys, tarfile, tempfile, types\n')
+        end = workflow.index('          PY\n', start)
+        cls.tree = ast.parse(textwrap.dedent(workflow[start:end]))
+        cls.ast = ast
+
+    def scope(self):
+        names = {'ExportRefusal', 'at_export_boundary', 'export_refusal_diagnostic', 'need', 'checksum', 'decoded_json'}
+        nodes = [n for n in self.tree.body if isinstance(n, (self.ast.Import, self.ast.ImportFrom, self.ast.Assign))
+                 or isinstance(n, (self.ast.FunctionDef, self.ast.ClassDef)) and n.name in names]
+        scope = {}; exec(compile(self.ast.Module(nodes, type_ignores=[]), '<exact-exporter-helpers>', 'exec'), scope)
+        return scope
+
+    def footer(self, scope, error):
+        value = scope['export_refusal_diagnostic'](error)
+        self.assertEqual(set(value), {'updater_export_diagnostic'})
+        row = value['updater_export_diagnostic']
+        self.assertEqual(set(row), {'schema_version', 'status', 'boundary', 'source_predicate', 'source_authentication_completed'})
+        self.assertIs(type(row['schema_version']), int); self.assertEqual(row['schema_version'], 1)
+        self.assertEqual(row['status'], 'REFUSED'); self.assertIs(type(row['source_authentication_completed']), bool)
+        raw = json.dumps(value, sort_keys=True)
+        self.assertLess(len(raw), 512); self.assertNotIn(POISON.decode(), raw)
+        return row
+
+    def test_all_source_predicates_have_one_fixed_id(self):
+        calls = [n for n in self.ast.walk(self.tree) if isinstance(n, self.ast.Call) and isinstance(n.func, self.ast.Name) and n.func.id == 'need']
+        self.assertEqual(len(calls), 94)
+        self.assertTrue(all(len(n.args) == 2 and not n.keywords and isinstance(n.args[1], self.ast.Constant) for n in calls))
+        self.assertEqual({n.args[1].value for n in calls}, {'P%03d' % i for i in range(1, 95)})
+        scope = self.scope()
+        for code in sorted(scope['EXPORT_PREDICATES']):
+            with self.subTest(code=code):
+                self.assertIsNone(scope['need'](True, code))
+                with self.assertRaises(scope['ExportRefusal']) as caught: scope['need'](False, code)
+                self.assertEqual(self.footer(scope, caught.exception)['source_predicate'], code)
+
+    def test_unknown_exceptions_and_hostile_fields_never_leak(self):
+        scope = self.scope()
+        class Hostile(ValueError):
+            @property
+            def predicate(self): raise AssertionError('untrusted exception attribute accessed')
+        for error in (ValueError(POISON.decode()), Hostile(POISON.decode()), scope['ExportRefusal'](POISON.decode()),
+                      scope['ExportRefusal'](True), scope['ExportRefusal'](None)):
+            with self.subTest(kind=type(error).__name__):
+                row = self.footer(scope, error); self.assertEqual(row['source_predicate'], 'UNKNOWN')
+                self.assertFalse(row['source_authentication_completed'])
+        scope['export_boundary'] = POISON.decode(); scope['source_authentication_completed'] = 1
+        row = self.footer(scope, ValueError(POISON.decode()))
+        self.assertEqual(row['boundary'], 'UNKNOWN'); self.assertFalse(row['source_authentication_completed'])
+
+    def test_nested_first_boundary_and_same_exception_are_preserved(self):
+        scope = self.scope(); first = scope['ExportRefusal']('P062')
+        def failed(): raise first
+        inner = scope['at_export_boundary']('public-tree-manifest')(failed)
+        outer = scope['at_export_boundary']('terminal-record')(inner)
+        with self.assertRaises(scope['ExportRefusal']) as caught: outer()
+        self.assertIs(caught.exception, first)
+        self.assertEqual(scope['export_boundary'], 'source-authentication')
+        row = self.footer(scope, first); self.assertEqual(row['boundary'], 'public-tree-manifest')
+        self.assertEqual(row['source_predicate'], 'P062')
+
+    def test_success_restores_boundary_before_a_later_failure(self):
+        scope = self.scope()
+        self.assertEqual(scope['at_export_boundary']('receipt-roundtrip')(lambda: 42)(), 42)
+        self.assertIsNone(scope['export_failed_boundary']); self.assertEqual(scope['export_boundary'], 'source-authentication')
+        def failed(): raise OSError(POISON.decode())
+        with self.assertRaises(OSError) as caught: scope['at_export_boundary']('projection-metadata')(failed)()
+        row = self.footer(scope, caught.exception)
+        self.assertEqual(row['boundary'], 'projection-metadata'); self.assertEqual(row['source_predicate'], 'UNKNOWN')
+
+    def test_original_guard_fail_manifest_still_refuses_before_leaf_reads(self):
+        scope = self.scope(); manifest = dict(schema_version=1, evidence_export='FAIL', accepted=[], rejected=[],
+            accepted_bytes=0, limits={}, inventory_limit_exceeded=False, inventory_scope='sensitive subtrees are rejected without enumeration')
+        scope.update(output=Path('/inert-output'), worker=types.SimpleNamespace(public_tree=lambda *a: None),
+            stage=types.SimpleNamespace(load=lambda *a: manifest, regular=lambda *a: self.fail('leaf read after refusal')))
+        function = next(n for n in self.ast.walk(self.tree) if isinstance(n, self.ast.FunctionDef) and n.name == 'checked')
+        exec(compile(self.ast.Module([function], type_ignores=[]), '<exact-checked-manifest>', 'exec'), scope)
+        with self.assertRaises(scope['ExportRefusal']) as caught: scope['checked'](Path('/inert-output/guarded'), set())
+        row = self.footer(scope, caught.exception)
+        self.assertEqual(row['boundary'], 'public-tree-manifest'); self.assertEqual(row['source_predicate'], 'P062')
+
+    def test_io_refusal_needs_no_untrusted_body_validator(self):
+        scope = self.scope(); calls = []
+        def refuse(*args): calls.append('tree'); raise OSError(POISON.decode())
+        scope.update(output=Path('/inert-output'), worker=types.SimpleNamespace(public_tree=refuse),
+            stage=types.SimpleNamespace(load=lambda *a: self.fail('body validation after tree refusal')))
+        function = next(n for n in self.ast.walk(self.tree) if isinstance(n, self.ast.FunctionDef) and n.name == 'checked')
+        exec(compile(self.ast.Module([function], type_ignores=[]), '<exact-checked-io>', 'exec'), scope)
+        with self.assertRaises(OSError) as caught: scope['checked'](Path('/inert-output/guarded'), set())
+        row = self.footer(scope, caught.exception)
+        self.assertEqual(calls, ['tree']); self.assertEqual(row['boundary'], 'public-tree-manifest')
+        self.assertEqual(row['source_predicate'], 'UNKNOWN')
+
+    def test_source_flag_follows_all_helper_pin_loads_and_legacy_output_is_held(self):
+        body = next(n for n in self.tree.body if isinstance(n, self.ast.Try)).body
+        flag = next(i for i,n in enumerate(body) if isinstance(n, self.ast.Assign) and any(isinstance(t,self.ast.Name) and t.id=='source_authentication_completed' for t in n.targets))
+        helpers = [i for i,n in enumerate(body) if any(isinstance(v,self.ast.Call) and isinstance(v.func,self.ast.Name) and v.func.id=='helper' for v in self.ast.walk(n))]
+        self.assertGreater(flag, max(helpers))
+        handler = next(n for n in self.tree.body if isinstance(n, self.ast.Try)).handlers[0]
+        first = handler.body[0].value.args[0].args[0]
+        self.assertEqual([k.value for k in first.keys], ['updater_workflow','reason','phase'])
+        self.assertEqual([self.ast.literal_eval(v) for v in first.values[:2]], ['FAIL','public-evidence-refused'])
+        self.assertIsInstance(first.values[2], self.ast.Name); self.assertEqual(first.values[2].id, 'phase')
+        self.assertEqual(self.ast.unparse(handler.body[-1]), 'sys.exit(1)')
+
+    def test_control_exceptions_propagate_without_becoming_public_refusals(self):
+        scope = self.scope(); first = KeyboardInterrupt()
+        def interrupted(): raise first
+        with self.assertRaises(KeyboardInterrupt) as caught: scope['at_export_boundary']('receipt-roundtrip')(interrupted)()
+        self.assertIs(caught.exception, first); self.assertIsNone(scope['export_failed_boundary'])
+        self.assertEqual(scope['export_boundary'], 'source-authentication')
+
+
 if __name__ == '__main__':
     unittest.main()
