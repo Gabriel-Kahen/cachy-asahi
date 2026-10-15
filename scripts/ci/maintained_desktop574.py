@@ -97,6 +97,7 @@ def configure(inputs,context):
     hooks=inputs['bootstrap_hook_masks']
     if any(re.fullmatch(r'[A-Za-z0-9_.@+-]+\.hook',name)is None for name in hooks):raise ValueError('unsafe hook name')
     (context/'Dockerfile').write_text(DOCKERFILE)
+    (context/'finish-keyring.py').write_text(KEYRING_FINALIZER)
     (context/'pacman.conf').write_text(PACMAN)
     (context/'disabled-hooks.txt').write_text(''.join(name+'\n'for name in sorted(set(hooks))))
     lock=''.join('{} {}\n'.format(row['name'],row['version'])for row in sorted(inputs['packages'],key=lambda row:row['name']))
@@ -164,7 +165,90 @@ def main():
         (output/('seed-report.json'if args.mode=='seed'else'report.json')).write_text(raw);print(raw)
 
 
-DOCKERFILE = 'FROM scratch\nADD rootfs.tar.gz /\nCOPY keys/ /usr/share/pacman/keyrings/\nCOPY deps/ /tmp/deps/\nCOPY --chmod=0644 pacman.conf /etc/pacman.conf\nCOPY disabled-hooks.txt /tmp/disabled-hooks.txt\nCOPY expected-packages.lock /expected-packages.lock\nRUN mkdir -p /builder-disabled-hooks \\\n && while IFS= read -r hook; do ln -s /dev/null "/builder-disabled-hooks/$hook"; done < /tmp/disabled-hooks.txt \\\n && pacman-key --init && pacman-key --populate archlinuxarm \\\n && pacman -U --noconfirm --noscriptlet /tmp/deps/*.pkg.tar.xz \\\n && ldconfig \\\n && pacman -Q | LC_ALL=C sort > /builder-packages.lock \\\n && cmp /expected-packages.lock /builder-packages.lock \\\n && rm -rf /tmp/deps /var/cache/pacman/pkg/*\n'
+KEYRING_FINALIZER = '''"""Finish only the system keyring producer in its owning Docker RUN."""
+import hashlib
+import os
+from pathlib import Path
+import stat
+import subprocess
+import time
+
+HOME = Path('/etc/pacman.d/gnupg')
+SOCKETS = ('S.gpg-agent', 'S.gpg-agent.browser', 'S.gpg-agent.extra', 'S.gpg-agent.ssh')
+FILES = ('pubring.kbx', 'pubring.gpg', 'trustdb.gpg', 'tofu.db', 'gpg.conf',
+         'gpg-agent.conf', 'common.conf', 'public-keys.d/pubring.db')
+
+
+def present():
+    found = []
+    for name in SOCKETS:
+        try: info = (HOME / name).lstat()
+        except FileNotFoundError: continue
+        if not stat.S_ISSOCK(info.st_mode) or info.st_uid != 0:
+            raise ValueError('unsafe producer keyring endpoint')
+        found.append(name)
+    return tuple(found)
+
+
+def snapshot():
+    result = {}
+    configuration = Path('/etc/pacman.conf')
+    try: parent = (HOME / 'public-keys.d').lstat()
+    except FileNotFoundError: parent = None
+    if parent is not None and (not stat.S_ISDIR(parent.st_mode) or parent.st_uid != 0 or parent.st_mode & 0o022):
+        raise ValueError('unsafe producer public key directory')
+    def identity(info):
+        return (info.st_dev, info.st_ino, info.st_mode, info.st_uid, info.st_gid,
+                info.st_nlink, info.st_size, info.st_mtime_ns, info.st_ctime_ns)
+    for path in [HOME / name for name in FILES] + [configuration]:
+        try: info = path.lstat()
+        except FileNotFoundError:
+            result[str(path)] = None
+            continue
+        if not stat.S_ISREG(info.st_mode) or info.st_uid != 0 or info.st_size > 32 * 1024**2:
+            raise ValueError('ordinary bounded producer trust/config required')
+        descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK | os.O_CLOEXEC)
+        with os.fdopen(descriptor, 'rb') as stream:
+            opened = os.fstat(stream.fileno())
+            data = stream.read(32 * 1024**2 + 1)
+            after = os.fstat(stream.fileno())
+        if (identity(info) != identity(opened) or identity(opened) != identity(after)
+                or identity(path.lstat()) != identity(after) or len(data) != info.st_size):
+            raise ValueError('producer trust/config changed while reading')
+        result[str(path)] = (stat.S_IMODE(info.st_mode), info.st_uid, info.st_gid,
+                             len(data), hashlib.sha256(data).hexdigest())
+    if result[str(configuration)] is None or result[str(HOME / 'trustdb.gpg')] is None:
+        raise ValueError('producer trust/config baseline absent')
+    return result
+
+
+def finish():
+    for path in (Path('/'), Path('/etc'), Path('/etc/pacman.d'), HOME):
+        info = path.lstat()
+        if not stat.S_ISDIR(info.st_mode) or info.st_uid != 0 or info.st_mode & 0o022:
+            raise ValueError('unsafe producer keyring home')
+    before = snapshot()
+    present()  # Refuse an unexpected endpoint type before contacting the agent.
+    subprocess.run(['/usr/bin/gpgconf', '--homedir', str(HOME), '--kill', 'gpg-agent'],
+        check=True, timeout=15, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        env={'PATH': '/usr/bin:/bin', 'HOME': '/root', 'LC_ALL': 'C', 'LANG': 'C'})
+    deadline = time.monotonic() + 5
+    while present():
+        if time.monotonic() >= deadline:
+            raise ValueError('producer keyring endpoints remain')
+        time.sleep(0.05)
+    if snapshot() != before:
+        raise ValueError('producer persistent trust/config changed')
+    if present():
+        raise ValueError('producer keyring endpoints reappeared')
+    print('PASS producer system-keyring agent absent; persistent trust/config preserved')
+
+
+if __name__ == '__main__':
+    finish()
+'''
+DOCKERFILE = 'FROM scratch\nADD rootfs.tar.gz /\nCOPY keys/ /usr/share/pacman/keyrings/\nCOPY deps/ /tmp/deps/\nCOPY --chmod=0644 pacman.conf /etc/pacman.conf\nCOPY disabled-hooks.txt /tmp/disabled-hooks.txt\nCOPY expected-packages.lock /expected-packages.lock\nCOPY --chmod=0644 finish-keyring.py /tmp/finish-keyring.py\nRUN mkdir -p /builder-disabled-hooks \\\n && while IFS= read -r hook; do ln -s /dev/null "/builder-disabled-hooks/$hook"; done < /tmp/disabled-hooks.txt \\\n && pacman-key --init && pacman-key --populate archlinuxarm \\\n && pacman -U --noconfirm --noscriptlet /tmp/deps/*.pkg.tar.xz \\\n && ldconfig \\\n && pacman -Q | LC_ALL=C sort > /builder-packages.lock \\\n && cmp /expected-packages.lock /builder-packages.lock \\\n && /usr/bin/python3 -B /tmp/finish-keyring.py \\\n && rm -f /tmp/finish-keyring.py \\\n && rm -rf /tmp/deps /var/cache/pacman/pkg/*\n'
 PACMAN = '[options]\nArchitecture = aarch64\nSigLevel = Required\nLocalFileSigLevel = Required\nHookDir = /builder-disabled-hooks\n'
 
 
