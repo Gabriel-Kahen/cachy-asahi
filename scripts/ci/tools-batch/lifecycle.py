@@ -80,8 +80,19 @@ def main():
         for home, _ in homes:
             shell(home, 'zsh', 'source /usr/share/cachy-asahi/zsh-autosuggestions/opt-in.zsh; source /usr/share/cachy-asahi/zsh-autosuggestions/opt-in.zsh; (( ${+functions[_zsh_autosuggest_start]} ))')
             shell(home, 'fish', 'fish_default_key_bindings; set -g fish_key_bindings fish_default_key_bindings; source /usr/share/cachy-asahi/fish-bang-bang/opt-in.fish; source /usr/share/cachy-asahi/fish-bang-bang/opt-in.fish; functions --query caa_history_bang caa_history_argument')
-            value = json.loads(run('runuser', '-u', 'alarm', '--', '/usr/bin/cachy-asahi-topmem', '--json', '--limit', '1'))
-            require(value['uid'] == alarm.pw_uid and value['scope'] == 'current-real-uid' and len(value['processes']) <= 1, 'topmem installed command failed')
+            try:
+                result = run('runuser', '-u', 'alarm', '--', '/usr/bin/python3', '-I', '-B',
+                             '/interactive.py', '--home', str(home))
+            except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as error:
+                output = error.output or ''
+                if isinstance(output, bytes):
+                    output = output.decode(errors='replace')
+                print('interactive failure ' + home.name + ': ' + output[-8192:], flush=True)
+                raise
+            report = json.loads(result)
+            require(report['status'] == 'TOOLS_INTERACTIVE_PASS' and report['user_files_preserved'] is True,
+                    'interactive/controlled-process probe failed')
+            print('interactive ' + home.name + ': ' + result.strip(), flush=True)
         preserved()
 
     def absent():

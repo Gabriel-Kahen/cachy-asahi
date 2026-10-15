@@ -124,6 +124,7 @@ def main():
              '--pids-limit=128', '--memory=1g', '--cpus=2', '--tmpfs=/tmp:rw,nosuid,nodev,size=128m',
              '--mount', f'type=bind,src={bundle},dst=/inputs,readonly',
              '--mount', f'type=bind,src={Path(__file__).parent / "lifecycle.py"},dst=/lifecycle.py,readonly',
+             '--mount', f'type=bind,src={Path(__file__).parent / "interactive.py"},dst=/interactive.py,readonly',
              '--entrypoint=/usr/bin/python3', image, '-I', '-B', '/lifecycle.py'], output / 'lifecycle.log', 180)
     finally:
         subprocess.run(['docker', 'rm', '-f', container], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
