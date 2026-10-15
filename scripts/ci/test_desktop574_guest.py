@@ -686,6 +686,8 @@ class DiagnosticTests(unittest.TestCase):
         self.assertTrue(all(call.args[1] is selected for call in command.call_args_list))
         self.assertTrue(all('WAYLAND_DEBUG' not in call.args[1] for call in command.call_args_list))
         self.assertEqual([call.args[0] for call in emit.call_args_list], ['frame_ready', 'phase_pass'])
+        self.assertEqual(command.call_args_list[-1].args[0], ['/usr/bin/hyprctl', 'dispatch', 'hl.dsp.exit()'])
+        self.assertEqual(command.call_args_list[-1].kwargs, dict(timeout=5))
         compositor.process.wait.assert_called_once_with(timeout=10)
         compositor.finish.assert_called_once()
         client.finish.assert_called_once()

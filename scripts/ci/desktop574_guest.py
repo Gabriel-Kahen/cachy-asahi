@@ -582,7 +582,7 @@ def phase(stage, config, env, logs):
             client.healthy(); compositor.healthy()
             time.sleep(.2)
         terminate(client.process)
-        command(['/usr/bin/hyprctl', 'dispatch', 'exit'], selected, logs, stage + '-exit', timeout=5)
+        command(['/usr/bin/hyprctl', 'dispatch', 'hl.dsp.exit()'], selected, logs, stage + '-exit', timeout=5)
         compositor.process.wait(timeout=10)
         need(compositor.process.returncode == 0, 'unclean Hyprland exit')
     except BaseException as error:
