@@ -91,7 +91,7 @@ def _source_alias(root,name,mount,identities,nodes,identity,limits):
              and roots._mount_id(fd,limits)==mount,'copy source alias drift')
 
 
-def _copy_internal(source,target,limits,reserve_bytes,reserve_inodes,shape_examples):
+def _copy_internal(source,target,limits,reserve_bytes,reserve_inodes,shape_examples,absolute_paths):
     need(source.is_absolute() and target.is_absolute() and '..' not in source.parts+target.parts,'absolute contained copy paths required')
     need(not target.is_relative_to(source) and not source.is_relative_to(target),'overlapping copy roots')
     need(not target.exists() and not target.is_symlink(),'fresh private copy required')
@@ -176,7 +176,7 @@ def _copy_internal(source,target,limits,reserve_bytes,reserve_inodes,shape_examp
                 need((os.fstat(fd).st_dev,os.fstat(fd).st_ino)==dest_dirs[name] and roots._mount_id(fd,limits)==dst_mount,'copy directory drift')
                 os.fchown(fd,value['uid'],value['gid']);os.fchmod(fd,value['mode']);_metadata_equal(os.fstat(fd),value)
         final_dst=roots._identity(os.fstat(dst))
-        observation=roots.observe(target,limits=limits,shape_examples=shape_examples,hardlinks=mode)
+        observation=roots.observe(target,limits=limits,shape_examples=shape_examples,hardlinks=mode,absolute_paths=absolute_paths)
         need(roots.require_eligible(observation)==nodes,'copy destination nodes differ')
         roots.check_hardlink_preservation(before,observation,protected_paths=(),limits=limits)
         footprint=before['footprint']
@@ -193,14 +193,15 @@ def _copy_internal(source,target,limits,reserve_bytes,reserve_inodes,shape_examp
     return report
 
 
-def copy_data(source,target,*,limits,excluded=(),reserve_bytes=16*1024**2,reserve_inodes=1024,shape_examples=0,hardlinks='refuse'):
+def copy_data(source,target,*,limits,excluded=(),reserve_bytes=16*1024**2,reserve_inodes=1024,shape_examples=0,hardlinks='refuse',absolute_paths=False):
     """No source mutation. Symlinks/hardlinks are preserved as data, never followed."""
     limits.tick()
     need(type(shape_examples) is int and 0 <= shape_examples <= 16,'bounded shape samples required')
+    need(type(absolute_paths) is bool,'boolean absolute path diagnostic required')
     need(type(hardlinks) is str and hardlinks in ('refuse','generic-development-internal'),'invalid copy hardlink mode')
     if hardlinks == 'generic-development-internal':
         need(not excluded and not limits.allow_cross_device,'complete single-mount copy scope required')
-        return _copy_internal(Path(source),Path(target),limits,reserve_bytes,reserve_inodes,shape_examples)
+        return _copy_internal(Path(source),Path(target),limits,reserve_bytes,reserve_inodes,shape_examples,absolute_paths)
     special_examples=[]
     source,target=Path(source),Path(target)
     need(not target.exists() and not target.is_symlink(),'fresh private copy required')
@@ -277,7 +278,7 @@ def copy_data(source,target,*,limits,excluded=(),reserve_bytes=16*1024**2,reserv
         destination_fd=os.open(target,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW|os.O_CLOEXEC);held.append(destination_fd)
         walk(source_fd,destination_fd)
         need(identity(os.fstat(source_fd))==identity(root_stat),'source root drift')
-    observation=roots.observe(target,limits=limits,shape_examples=shape_examples)
+    observation=roots.observe(target,limits=limits,shape_examples=shape_examples,absolute_paths=absolute_paths)
     return _copy_report(report,observation,shape_examples,special_examples)
 
 
@@ -285,6 +286,8 @@ def _copy_report(report,observation,shape_examples,special_examples=()):
     report.update(footprint=observation['footprint'],observation_complete=observation['complete'],
                   unsupported_observation=observation['unsupported_counts'],
                   unsupported_examples=observation['unsupported'],eligible=observation['eligible'] and report['copy_complete'])
+    if 'absolute_chain_paths' in observation:
+        report['absolute_chain_paths']=observation['absolute_chain_paths']
     if shape_examples:
         report['shape_diagnostics']=observation['shape_diagnostics']
         count=report['unsupported_counts'].get('special-node',0)
@@ -337,6 +340,7 @@ def main():
     parser.add_argument('--max-bytes',type=int,required=True);parser.add_argument('--max-nodes',type=int,required=True)
     parser.add_argument('--max-file-bytes',type=int,required=True);parser.add_argument('--seconds',type=int,default=900)
     parser.add_argument('--shape-examples-per-category',type=int,default=0,help='Optional bounded path/kind and target-class diagnostics; no target values')
+    parser.add_argument('--absolute-chain-paths',action='store_true',help='Bounded exact absolute-chain paths/classes; diagnostic only, no target values')
     args=parser.parse_args();workspace=args.workspace
     need(os.getuid()==os.geteuid()==0 and os.uname().machine=='aarch64' and Path('/.dockerenv').is_file()
          and re.fullmatch('[0-9a-f]{32}',os.environ.get('CACHY_ASAHI_BOUND_UPDATE','')),'marked native owned container required')
@@ -366,7 +370,7 @@ def main():
     excluded.add(workspace.as_posix().lstrip('/'))
     limits=roots.Limits(deadline=time.monotonic()+args.seconds,max_nodes=args.max_nodes,
                         max_bytes=args.max_bytes,max_file_bytes=args.max_file_bytes)
-    report=copy_data(Path('/'),workspace/'root',limits=limits,excluded=excluded,shape_examples=args.shape_examples_per_category)
+    report=copy_data(Path('/'),workspace/'root',limits=limits,excluded=excluded,shape_examples=args.shape_examples_per_category,absolute_paths=args.absolute_chain_paths)
     need(actual()==before,'package inventory changed during copy')
     copied=copied_inventory(workspace/'root')
     need(copied==expected,'copied package database differs from actual587 lock')
