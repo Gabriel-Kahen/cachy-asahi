@@ -196,6 +196,23 @@ def selection_contract(value, environment):
     return commit
 
 
+def source_transfer_selection(value,binding=None):
+    """Explicit conduct premise, never a filesystem immutability assertion."""
+    flags=('Root_selected','trusted_host','exclusive_writer_interval','read_only_actors')
+    slots=('source_commit','source_root','source_rows_sha256','grant_sha256','run_id','run_attempt')
+    need(type(value) is dict and set(value)=={'schema_version','purpose','selected','scope',*flags,*slots} and
+         type(value['schema_version']) is int and value['schema_version']==1 and value['purpose']=='fetch-interior-only' and
+         value['scope']=='same-UID-and-privileged-writers-alternate-path-FD-mmap-leaf-ancestor-and-code-namespace-excluded' and
+         type(value['selected']) is bool and all(type(value[key]) is bool and value[key] is value['selected'] for key in flags),
+         'prep-source-owner')
+    if binding is None or value['selected'] is False:
+        need(all(value[key] is None for key in slots),'prep-source-owner')
+    else:
+        need(type(binding) is dict and set(binding)==set(slots) and
+             all(type(value[key]) is str and value[key]==binding[key] for key in slots), 'prep-source-owner')
+    return value['selected']
+
+
 def bind(selection, packet, publication, preparation, p0, bodies, observation):
     """Pure exact metadata closure; Root selection precedes this call."""
     rows = selection['source_rows']; commit = selection['source_commit']
@@ -240,10 +257,11 @@ def bind(selection, packet, publication, preparation, p0, bodies, observation):
          and stat.S_ISSOCK(endpoint[2]) and endpoint[3] == 0 and endpoint[5] == 1
          and endpoint == selection['socket_identity'], 'observed-endpoint6')
     prep = copy.deepcopy(preparation); future_p0 = copy.deepcopy(p0)
-    need(set(prep) == {'schema_version', 'purpose', 'plan', 'packet', 'grant', 'runtime', 'publication'}
+    need(set(prep) == {'schema_version', 'purpose', 'plan', 'packet', 'grant', 'runtime', 'publication', 'source_transfer_interval'}
          and prep['schema_version'] == 1 and prep['purpose'] == 'Root-selected-P0-preparation-template'
          and set(future_p0) == {'schema_version', 'purpose', 'plan', 'packet', 'grant', 'runtime', 'publication', 'prepared_image', 'packages_b64', 'current_inputs_b64'}
          and future_p0['schema_version'] == 1 and future_p0['purpose'] == 'Root-selected-P0-private-input-template', 'held-template-schema')
+    source_transfer_selection(prep['source_transfer_interval'])
     for target in (prep['plan'], prep['grant'], future_p0['plan'], future_p0['grant'], future_p0['prepared_image']):
         validate_input_successor(target.get('input_successor'))
     need(future_p0['current_inputs_b64'] is None and

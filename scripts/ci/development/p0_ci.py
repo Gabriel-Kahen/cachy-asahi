@@ -604,15 +604,38 @@ class HTTPSRedirect(urllib.request.HTTPRedirectHandler):
         return super().redirect_request(request,fp,code,message,headers,newurl)
 
 
+def source_transfer_selection(value,binding=None):
+    """Explicit conduct premise, never a filesystem immutability assertion."""
+    flags=('Root_selected','trusted_host','exclusive_writer_interval','read_only_actors')
+    slots=('source_commit','source_root','source_rows_sha256','grant_sha256','run_id','run_attempt')
+    need(type(value) is dict and set(value)=={'schema_version','purpose','selected','scope',*flags,*slots} and
+         type(value['schema_version']) is int and value['schema_version']==1 and value['purpose']=='fetch-interior-only' and
+         value['scope']=='same-UID-and-privileged-writers-alternate-path-FD-mmap-leaf-ancestor-and-code-namespace-excluded' and
+         type(value['selected']) is bool and all(type(value[key]) is bool and value[key] is value['selected'] for key in flags),
+         'prep-source-owner')
+    if binding is None or value['selected'] is False:
+        need(all(value[key] is None for key in slots),'prep-source-owner')
+    else:
+        need(type(binding) is dict and set(binding)==set(slots) and
+             all(type(value[key]) is str and value[key]==binding[key] for key in slots), 'prep-source-owner')
+    return value['selected']
+
+
 class Preparation:
     """Local resource custody. Sources/prep grant, not this object, admits actors."""
-    def __init__(self,sources,sdk,transport,native,plan,runtime,out,cache,deadline,cleanup_end,private_chunks):
+    def __init__(self,sources,sdk,transport,native,plan,runtime,out,cache,deadline,cleanup_end,private_chunks,source_transfer_interval):
         need(type(sources) is sdk.Sources and sources.grant['purpose']=='reviewed-installer-P0-preparation', 'prep-source-owner')
         sources.class_state(sources,'scripts/ci/development/repository_handoff.py',sdk)
         sources.guard(deadline)
         self.sources,self.sdk,self.transport,self.native=sources,sdk,transport,native
         self.plan,self.runtime,self.out,self.cache=plan,runtime,out,cache
         self.deadline,self.cleanup_end=deadline,cleanup_end
+        binding={'source_commit':sources.grant['source_commit'],'source_root':str(sources.root),
+            'source_rows_sha256':digest(encoded(sources.grant['source_files'])),
+            'grant_sha256':digest(encoded(sources.grant)),'run_id':sources.grant['run_id'],'run_attempt':sources.grant['run_attempt']}
+        self.source_interval_selected=source_transfer_selection(source_transfer_interval,binding)
+        self.source_interval_binding=tuple(binding.items())
+        self.source_interval_active=None;self.source_interval_unclosed=False;self.source_interval_faults=()
         self.private_chunks=private_chunks
         self.tag='cachy-asahi-p0-prep:'+plan['nonce'];self.inventory_name='cachy-asahi-p0-inventory-'+plan['nonce']
         self.cli=self.gpg_file=None;self.image=None;self.packages=None;self.current_inputs_raw=None
@@ -621,15 +644,66 @@ class Preparation:
         self.commands=0;self.cancelled=False;self.uncertain=False;self.retained=[]
         self.download_rows=self.download_pins=self.download_binding=self.download_item=self.download_failure=self.alarm_interrupt=None
 
-    def guard(self,cleanup=False):
+    def _guard_live(self,cleanup=False):
         end=self.cleanup_end if cleanup else self.deadline
         live(end);need(not self.transport.PREP_QUARANTINE and not PREPARATION_QUARANTINE,'prep-quarantine')
-        self.sources.guard(end)
+        need(cleanup or not self.source_interval_unclosed,'prep-source-owner')
+        return end
+
+    def _guard_tools(self):
         if self.cli is not None:self.cli._preflight()
         if self.gpg_file is not None:
             current=self.transport.read_file('/usr/bin/gpg')
             need(current['sha256']==self.gpg_file['sha256'] and current['identity']==self.gpg_file['identity'] and
                  self.transport.identity(os.fstat(self.gpg_file['fd']))==current['identity'],'prep-gpg-drift')
+
+    def guard(self,cleanup=False):
+        end=self._guard_live(cleanup)
+        self.sources.guard(end)
+        self._guard_tools()
+
+    def source_interval_begin(self):
+        need(self.source_interval_active is None and not self.source_interval_unclosed,'prep-source-owner')
+        if not self.source_interval_selected:return
+        source=self.sources;rows=source.grant['source_files']
+        need(type(source.raw) is dict and type(source.identities) is dict and type(rows) is dict and
+             len(rows)==len(source.raw)==len(source.identities)==269 and set(rows)==set(source.raw)==set(source.identities),
+             'prep-source-owner')
+        frozen=tuple((name,rows[name]['mode'],rows[name]['sha256'],source.raw[name],source.identities[name]) for name in sorted(rows))
+        need(all(type(raw) is bytes and type(node) is tuple and len(node)==9 and
+             digest(raw)==sha and type(mode) is int and mode in (0o644,0o755) for name,mode,sha,raw,node in frozen),
+             'prep-source-owner')
+        need(tuple({'source_commit':source.grant['source_commit'],'source_root':str(source.root),
+             'source_rows_sha256':digest(encoded(rows)),'grant_sha256':digest(encoded(source.grant)),
+             'run_id':source.grant['run_id'],'run_attempt':source.grant['run_attempt']}.items())==self.source_interval_binding,
+             'prep-source-owner')
+        self.source_interval_active=(source,source.root,source.grant,source.raw,source.identities,rows,frozen)
+
+    def _source_interval_matches(self):
+        held=self.source_interval_active;source=self.sources
+        need(type(held) is tuple and len(held)==7 and source is held[0] and source.root==held[1] and
+             source.grant is held[2] and source.raw is held[3] and source.identities is held[4] and
+             source.grant['source_files'] is held[5] and len(source.raw)==len(source.identities)==len(held[5])==269,
+             'prep-source-owner')
+        need(all(name in source.raw and name in source.identities and name in held[5] and
+             source.raw[name] is raw and source.identities[name] is node and
+             held[5][name]=={'mode':mode,'sha256':sha} for name,mode,sha,raw,node in held[6]),
+             'prep-source-owner')
+
+    def source_interval_guard(self):
+        if not self.source_interval_selected:return self.guard()
+        self._guard_live();self._source_interval_matches();self._guard_tools()
+
+    def source_interval_end(self,cleanup=False):
+        if not self.source_interval_selected:return
+        need(self.source_interval_active is not None,'prep-source-owner')
+        try:
+            self._guard_live(cleanup);self._source_interval_matches();self.guard(cleanup)
+        except BaseException as error:
+            self.source_interval_unclosed=True
+            self.source_interval_faults+=(error,)
+            raise
+        finally:self.source_interval_active=None
 
     def invoke(self,fd,args,env,*,cleanup=False,accept_nonzero=False):
         self.guard(cleanup);need(self.commands<280,'prep-command-count');self.commands+=1
@@ -721,9 +795,11 @@ class Preparation:
             self.download_failure=(error,ordinal,(DOWNLOAD_PREFIX+str(ordinal).zfill(3),code))
         except BaseException as secondary:download_fault(error,secondary)
 
-    def download_guard(self,ordinal,item,phase):
+    def download_guard(self,ordinal,item,phase,*,transfer=False):
         """Observe only a failure of this unchanged guard; never bypass its checks."""
-        try:self.guard()
+        try:
+            if transfer:self.source_interval_guard()
+            else:self.guard()
         except BaseException as error:
             try:self.capture_download(error,ordinal,item,guard_phase=phase)
             except BaseException as secondary:
@@ -772,16 +848,20 @@ class Preparation:
                 response_held=identity(os.fstat(response.fileno()))[:6]
                 need(type(response.url) is str and response.url.startswith('https://'),'prep-download-redirect')
                 if domain is not None:need(urllib.parse.urlsplit(response.url).hostname==domain,'prep-download-domain')
+                if self.source_interval_selected:
+                    self.download_guard(ordinal,item,'before-read')
+                    self.source_interval_begin()
                 total=0;sha=hashlib.sha256()
                 while True:
-                    self.download_guard(ordinal,item,'before-read');chunk=response.read(65536)
+                    self.download_guard(ordinal,item,'before-read',transfer=True);chunk=response.read(65536)
                     if not chunk:break
                     total+=len(chunk);need(total<=item['size'],'prep-download-cap');sha.update(chunk)
                     offset=0
                     while offset<len(chunk):
-                        self.download_guard(ordinal,item,'before-write');need(identity(os.fstat(fd))[:6]==held,'prep-download-fd')
+                        self.download_guard(ordinal,item,'before-write',transfer=True);need(identity(os.fstat(fd))[:6]==held,'prep-download-fd')
                         count=os.write(fd,chunk[offset:]);need(type(count) is int and 0<count<=len(chunk)-offset,'prep-download-progress')
                         offset+=count
+                if self.source_interval_selected:self.source_interval_end()
                 node=os.fstat(fd)
                 need(total==item['size'] and sha.hexdigest()==item['sha256'] and identity(node)[:6]==held and
                      node.st_size==total and identity(partial.lstat())==identity(node),'prep-download-pin')
@@ -791,6 +871,20 @@ class Preparation:
                 if (opened and fd is None) or (connecting and response is None):
                     first=merge(first,error);self.retained.append(error)
             finally:
+                if self.source_interval_active is not None:
+                    try:
+                        # Use only the already issued cleanup frame; never start a replacement timer.
+                        live(self.cleanup_end)
+                        self.source_interval_end(cleanup=True)
+                    except BaseException as error:
+                        self.source_interval_unclosed=True
+                        if not any(error is fault for fault in self.source_interval_faults):self.source_interval_faults+=(error,)
+                        if first is None:first=error
+                        elif isinstance(error,KeyboardInterrupt):
+                            # Cancellation is sticky; Source uncertainty is not FD retirement uncertainty.
+                            self.cancelled=True
+                            BaseException.__setattr__(first,'native_preflight_cancelled',True)
+                    finally:self.source_interval_active=None
                 if response is not None:
                     try:
                         # HTTPResponse closes its own fp on a natural length/EOF.
@@ -1030,8 +1124,9 @@ def preparation_template(raw,wanted,*,entry,outer_end,expected,environment,outpu
     """Separate Root-selected data. P0 data is neither read nor decoded here."""
     live(outer_end);need(type(raw) is bytes and len(raw)<=2*1024**2 and digest(raw)==pin(wanted),'prep-template-pin')
     value=decode(raw)
-    need(type(value) is dict and set(value)=={'schema_version','purpose','plan','packet','grant','runtime','publication'} and
+    need(type(value) is dict and set(value)=={'schema_version','purpose','plan','packet','grant','runtime','publication','source_transfer_interval'} and
          value['schema_version']==1 and value['purpose']=='Root-selected-P0-preparation-template','prep-template')
+    source_transfer_selection(value['source_transfer_interval'])
     plan,grant,runtime=value['plan'],value['grant'],value['runtime']
     need(all(type(value[key]) is dict for key in ('plan','packet','grant','runtime','publication')) and
          set(plan)=={'schema_version','purpose','source_commit','run_id','run_attempt','nonce','work_seconds','cleanup_seconds','cache_mode','url_overrides','input_successor'} and
@@ -1078,6 +1173,10 @@ def preparation_template(raw,wanted,*,entry,outer_end,expected,environment,outpu
             need(namespace[key] is None,'prep-private-template');namespace[key]=str(output/(prefix+'-'+key.lower()))
     grant['actor_contract_sha256']=digest(encoded(runtime))
     grant['initial_invocation_sha256']=digest(encoded({'stage':'prepare-image-only','output':str(output)}))
+    interval=value['source_transfer_interval']
+    if interval['selected']:
+        interval.update(source_commit=expected,source_root=str(root),source_rows_sha256=digest(encoded(grant['source_files'])),
+            grant_sha256=digest(encoded(grant)),run_id=plan['run_id'],run_attempt=plan['run_attempt'])
     end=min(entry+1800,outer_end-90);cleanup_end=min(entry+1890,outer_end)
     live(end);need(entry<=time.monotonic()<end<cleanup_end,'prep-original-frame')
     return value,end,cleanup_end
@@ -1193,7 +1292,7 @@ def pipeline(*,entry,outer_end,expected_source_commit,source_root,work_root,cach
         plan={**selection['plan'],'inputs':decode(current_raw),'current_inputs_raw':current_raw,
               'plan_sha256':digest(encoded(selection['plan']))}
         need(digest(sources.raw['scripts/ci/inputs.lock.json'])==SOURCE_INPUTS_SHA,'prep-inputs')
-        owner=Preparation(sources,sdk,transport,native,plan,runtime,output,cache,end,cleanup_end,private_chunks)
+        owner=Preparation(sources,sdk,transport,native,plan,runtime,output,cache,end,cleanup_end,private_chunks,selection['source_transfer_interval'])
         need(signal.getitimer(signal.ITIMER_REAL)==(0.0,0.0),'prep-existing-timer')
         alarm_handler=signal.getsignal(signal.SIGALRM);alarm_saved=True
         def expired(number,frame):
