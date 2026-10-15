@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 import shutil
 import signal
+import stat
 
 ELF_PREDICATES = frozenset(('UNKNOWN', 'elf-read-symlink', 'elf-read-type-link-size',
     'elf-read-bound', 'elf-read-drift', 'elf-header', 'elf-machine',
@@ -75,6 +76,123 @@ def unit_evidence(metadata_data, compiler_data, binary, diagnostic=None):
             'native_runtime': 'NOT RUN', 'hardware': 'NOT RUN'}
 
 
+def stat_identity(info):
+    return tuple(getattr(info, key) for key in ('st_dev', 'st_ino', 'st_mode',
+        'st_uid', 'st_gid', 'st_size', 'st_mtime_ns', 'st_ctime_ns', 'st_nlink'))
+
+
+def output_identity(path):
+    return stat_identity(path.lstat())
+
+
+def close_descriptor(fd, primary):
+    try:
+        os.close(fd)
+    except BaseException:
+        if primary is None:
+            raise
+        # Keep the first refusal/control exception; never claim cleanup success.
+
+
+def elf_output_bytes(fd, singly_linked):
+    def fail(message, predicate):
+        error = ValueError(message)
+        error.updater_elf_predicate = predicate
+        raise error
+    limit = 64 * 1024 * 1024
+    before = os.fstat(fd)
+    if (not stat.S_ISREG(before.st_mode) or (singly_linked and before.st_nlink != 1)
+            or before.st_size > limit):
+        fail('bounded regular compiler output required', 'elf-read-type-link-size')
+    data = bytearray()
+    while chunk := os.read(fd, min(65536, limit + 1 - len(data))):
+        data.extend(chunk)
+        if len(data) > limit:
+            fail('compiler output exceeded bound', 'elf-read-bound')
+    identity = stat_identity(before)
+    if len(data) != before.st_size or stat_identity(os.fstat(fd)) != identity:
+        fail('compiler output changed while reading', 'elf-read-drift')
+    return bytes(data), identity
+
+
+def cargo_output(worker, binary):
+    # Only the fresh Cargo executable permits aliases. Its actual descriptor
+    # must match the selected path before reading, including ancestor ABA swaps.
+    before = output_identity(binary)
+    for path in (binary, *binary.parents):
+        if path.is_symlink():
+            error = ValueError('Cargo output symlink refused')
+            error.updater_elf_predicate = 'elf-read-symlink'
+            raise error
+    fd = os.open(binary, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+    primary = None
+    try:
+        require(stat_identity(os.fstat(fd)) == before,
+                'Cargo descriptor differs from selected path', 'compile-binary-drift')
+        data, identity = elf_output_bytes(fd, False)
+        require(identity == before == output_identity(binary),
+                'Cargo output path changed while capturing bytes', 'compile-binary-drift')
+        return data, identity
+    except BaseException as error:
+        primary = error
+        raise
+    finally:
+        close_descriptor(fd, primary)
+
+
+def write_compiled_output(worker, destination, data):
+    parent_identity = output_identity(destination.parent)
+    require(destination.parent.resolve(strict=True) == destination.parent,
+            'canonical compiled binary destination required', 'compile-destination')
+    parent = os.open(destination.parent, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+    primary = None
+    try:
+        require(stat_identity(os.fstat(parent)) == parent_identity
+                and output_identity(destination.parent) == parent_identity
+                and destination.parent.resolve(strict=True) == destination.parent,
+                'compiled binary parent changed before creation', 'compile-destination')
+        fd = os.open(destination.name, os.O_RDWR | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
+                     0o600, dir_fd=parent)
+        inner_primary = None
+        try:
+            remaining = memoryview(data)
+            while remaining:
+                written = os.write(fd, remaining)
+                require(0 < written <= len(remaining), 'complete compiled binary write required', 'compile-copy')
+                remaining = remaining[written:]
+            os.fchmod(fd, 0o755)
+            os.fsync(fd)
+            os.lseek(fd, 0, os.SEEK_SET)
+            reread, identity = elf_output_bytes(fd, True)
+            parent_now = os.fstat(parent)
+            current_parent = destination.parent.lstat()
+            require(reread == data
+                    and stat_identity(os.stat(destination.name, dir_fd=parent, follow_symlinks=False)) == identity
+                    and output_identity(destination) == identity
+                    and (parent_now.st_dev, parent_now.st_ino) == (current_parent.st_dev, current_parent.st_ino)
+                    and destination.parent.resolve(strict=True) == destination.parent,
+                    'compiled binary snapshot custody changed', 'compile-binary-drift')
+            return identity
+        except BaseException as error:
+            inner_primary = error
+            raise
+        finally:
+            close_descriptor(fd, inner_primary)
+    except BaseException as error:
+        primary = error
+        raise
+    finally:
+        close_descriptor(parent, primary)
+
+
+def cargo_snapshot(worker, binary, destination):
+    data, identity = cargo_output(worker, binary)
+    snapshot_identity = write_compiled_output(worker, destination, data)
+    require(cargo_output(worker, binary) == (data, identity),
+            'Cargo output changed during snapshot', 'compile-binary-drift')
+    return data, identity, snapshot_identity
+
+
 def build(args):
     base = Path(__file__).resolve().parent
     helper = module('updater_compile_diagnostic', base / 'worker-diagnostic.py')
@@ -127,7 +245,7 @@ def build(args):
         with diagnostic.step('compile-elf'):
             gate = module('updater_compile_elf_gate', base / 'build-gate.py')
             try:
-                binary_data = worker.regular(binary, 64 * 1024 * 1024, elf_observation=True)
+                binary_data, binary_identity, snapshot_identity = cargo_snapshot(worker, binary, output / 'arch-update-tray')
                 gate.elf(binary_data)
             except ValueError as error:
                 predicate = 'UNKNOWN'
@@ -145,7 +263,7 @@ def build(args):
             units = unit_evidence(metadata, (output / 'cargo-build.stdout').read_bytes(), binary, diagnostic)
             (output / 'compilation-units.json').write_text(json.dumps(units, indent=2) + '\n')
         with diagnostic.step('compile-readelf'):
-            worker.run(['/usr/bin/readelf', '-h', '-l', '-d', str(binary)],
+            worker.run(['/usr/bin/readelf', '-h', '-l', '-d', str(output / 'arch-update-tray')],
                        args.manifest.parent, env, output, 'elf-inspection')
         # Preserve upstream Makefile's expected location without an implicit rebuild.
         with diagnostic.step('compile-copy'):
@@ -153,12 +271,12 @@ def build(args):
             destination.parent.mkdir(exist_ok=True)
             require(destination.parent.resolve(strict=True) == destination.parent and not destination.exists() and not destination.is_symlink(),
                     'canonical fresh upstream binary destination required', 'compile-destination', diagnostic)
-            require(worker.regular(binary, 64 * 1024 * 1024) == binary_data,
+            require(cargo_output(worker, binary) == (binary_data, binary_identity)
+                    and worker.regular(output / 'arch-update-tray', 64 * 1024 * 1024) == binary_data
+                    and output_identity(output / 'arch-update-tray') == snapshot_identity,
                     'compiled binary changed during inspection', 'compile-binary-drift', diagnostic)
-            shutil.copyfile(binary, destination)
-            destination.chmod(0o755)
-            shutil.copyfile(binary, output / 'arch-update-tray')
-            receipt.update(native_compilation='PASS', binary_sha256=worker.digest(binary.read_bytes()),
+            write_compiled_output(worker, destination, binary_data)
+            receipt.update(native_compilation='PASS', binary_sha256=worker.digest(binary_data),
                            compiler_output_sha256=worker.digest((output / 'cargo-build.stdout').read_bytes()),
                            compiler_diagnostic_sha256=worker.digest((output / 'cargo-build.stderr').read_bytes()),
                            elf_inspection_sha256=worker.digest((output / 'elf-inspection.stdout').read_bytes()),
