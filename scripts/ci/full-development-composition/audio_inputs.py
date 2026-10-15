@@ -6,8 +6,8 @@ from pathlib import Path
 import shutil
 
 HERE = Path(__file__).resolve().parent
-POLICY = '01f8f2cdefddbb5bb86748817935777186a64ec18371922d2c7a14ec2a116f5a'
-EXPECTED = 'ff70e71ad067cb3cf261645b15173be315f02a3e91cd35e6bea5732125cce564'
+POLICY = '5dae018a1357708e85393048728a6fb44cd9c9eb02a78ab19e60435d370ffdf2'
+EXPECTED = '89d78d034a2ca1750157d93151719c360ee8c788bfe587c04c17740db072538d'
 NAMES = {'asahi-audio', 'alsa-ucm-conf-asahi', 'speakersafetyd', 'bankstown', 'triforce-lv2', 'lsp-plugins-lv2'}
 
 

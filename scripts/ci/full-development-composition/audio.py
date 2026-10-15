@@ -8,7 +8,7 @@ import stat
 
 NAMES = {'asahi-audio', 'alsa-ucm-conf-asahi', 'speakersafetyd', 'bankstown', 'triforce-lv2', 'lsp-plugins-lv2'}
 BASE = 'c309aaeb12e2e2d51cb0aceb1b4acc9e5b95cbba87df1880936bc2bf1b125463'
-EXPECTED = 'ff70e71ad067cb3cf261645b15173be315f02a3e91cd35e6bea5732125cce564'
+EXPECTED = '89d78d034a2ca1750157d93151719c360ee8c788bfe587c04c17740db072538d'
 LD_HELPER = ('8794bf13f7a651963a219d8031fe04800d06ac6e44a29fbdfd81b64855b2bd98', 865664)
 LD_CONF = '785c6c3614a27ae6115a27c1ca55bbf333654780997c4ba7e181172b021d1bf3'
 LD_DIRS = ('/usr/lib', '/usr/lib64')

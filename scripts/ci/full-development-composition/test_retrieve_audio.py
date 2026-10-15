@@ -68,6 +68,7 @@ class Retrieval(unittest.TestCase):
         trial.decode(path, 'native/retention.txt', {'fixture'}, wanted, {'fixture-package': self.row}, self.output)
 
     def test_only_exact_package_member_is_written(self):
+        self.assertEqual(hashlib.sha256((HERE / 'audio-inputs.json').read_bytes()).hexdigest(), trial.POLICY)
         path, wanted = self.bundle(); self.decode(path, wanted)
         self.assertEqual([p.name for p in self.output.iterdir()], [self.row['filename']])
         self.assertEqual((self.output / self.row['filename']).read_bytes(), b'package')

@@ -21,7 +21,7 @@ import urllib.request
 import zipfile
 
 HERE = Path(__file__).resolve().parent
-POLICY = '01f8f2cdefddbb5bb86748817935777186a64ec18371922d2c7a14ec2a116f5a'
+POLICY = '5dae018a1357708e85393048728a6fb44cd9c9eb02a78ab19e60435d370ffdf2'
 REPO = 'Gabriel-Kahen/cachy-asahi'
 MIB = 1024**2
 RUNS = (
@@ -29,11 +29,11 @@ RUNS = (
      {'summary', 'native', 'build-asahi-audio-1', 'build-asahi-audio-2', 'build-alsa-ucm-conf-asahi-1', 'build-alsa-ucm-conf-asahi-2'}, {
          'build-asahi-audio-1': ('asahi-audio', 4005256, 'ea9b2f979386f71f4d4075201fc2f6a492ac9066ff7b7d95c68c7cc780ff9b95'),
          'build-alsa-ucm-conf-asahi-1': ('alsa-ucm-conf-asahi', 33679, '5c5a64d0afbda303f355a8ae4a0c6fe7ffbfb70ebbcae55f273c3570362e12b7')}),
-    ('38789573004', 'native/6_Retain public diagnostics, source snapshots and package pairs.txt',
+    ('38801968699', 'native/6_Retain public diagnostics, source snapshots and package pairs.txt',
      {'summary', 'native', 'speakersafetyd-build-1', 'speakersafetyd-build-2', 'bankstown-build-1', 'bankstown-build-2', 'triforce-lv2-build-1', 'triforce-lv2-build-2'}, {
-         'speakersafetyd-build-1': ('speakersafetyd', 6130018, '7e81a366bbfffb0ec7d45567a1b6952f08d9fcb1784d3ba9b479d9c74858bec7'),
-         'bankstown-build-1': ('bankstown', 5892852, '1d67c9352d6a93d9f8300f3a400a065413da5d49578d984332b55ae511265d2c'),
-         'triforce-lv2-build-1': ('triforce-lv2', 6084231, '173b8495a2a06903d2cd3e428a01a55fc2488537fca748b077a43d1fa17e3a8d')}),
+         'speakersafetyd-build-1': ('speakersafetyd', 6205695, 'ee0f33561afdcf291c1c1882fe6ed6599b24e23ff3c3a986dc686aa57a420b72'),
+         'bankstown-build-1': ('bankstown', 5953806, '1cafc946a2fb30aa2cd0bf8b9ca7a27c03cabb99b42cd8f2e6a8080c4712e6ca'),
+         'triforce-lv2-build-1': ('triforce-lv2', 6157978, '72414a23ae3e5d888a4148f60ffb52c55b85693387ef7879218b62535d76f5a3')}),
 )
 LSP = 'https://ca.us.mirror.archlinuxarm.org/aarch64/extra/lsp-plugins-lv2-1.2.35-1-aarch64.pkg.tar.xz'
 
