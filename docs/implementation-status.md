@@ -2,7 +2,7 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
-October 14, repository compatibility correction ready for hosted validation:
+October 14, repository compatibility correction passes hosted validation:
 Hosted run `38660953536` failed because Ubuntu's repo-add6.0.2 rejects
 `--include-sigs`; its release fixtures ran rather than skipping. The corrected
 implementation selects the reviewed signature behavior for known repo-add
@@ -14,8 +14,13 @@ Author validation passes87 release and109 client tests without skips; fresh
 independent review `191e7d66` passes479 checks,87 release fixtures and a
 separately re-signed duplicate-header refusal control. Root authenticates all31
 review files and108 inputs. The client adapter changes only the two affected
-source pins. Successor hosted CI remains pending; native ARM, target installation
-and M2 acceptance are not established by these local tests.
+source pins. Published Source `d7bbdf2e` passes hosted run `38663759551`:
+87 release and109 client tests run without skips, followed by recipe checks.
+Earlier unrelated setup/integration suites report one and four skips respectively;
+the no-skip claim applies specifically to the release/client contract suites.
+The retained log and result are under
+`artifacts/reviews/repository-ci-root-observations-20261014/`.
+Native ARM, target installation and M2 acceptance remain open.
 See the [correction](reviews/repo-add-database-field-correction.md) and
 [independent review](reviews/repo-add-signature-capability-nativeci-peer-correction.md).
 
