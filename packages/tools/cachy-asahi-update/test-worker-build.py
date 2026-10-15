@@ -123,6 +123,8 @@ class DiagnosticBuildTests(unittest.TestCase):
                 if self.fault == 'incomplete': events[-1]['success'] = False
                 (output / 'cargo-build.stdout').write_text('\n'.join(json.dumps(event) for event in events))
                 (output / 'cargo-build.stderr').write_bytes(b'')
+                if self.fault == 'unit-log-read': (output / 'cargo-build.stdout').unlink()
+                if self.fault == 'unit-json': (output / 'cargo-build.stdout').write_bytes(b'not JSON raw/private/source')
             if stem == 'elf-inspection':
                 (output / 'elf-inspection.stdout').write_bytes(b'synthetic readelf fixture')
                 if self.fault in ('snapshot-replaced', 'source-replaced'):
@@ -164,6 +166,7 @@ class DiagnosticBuildTests(unittest.TestCase):
         def write_text(target, *args, **kwargs):
             if target.name == 'compile-result.json':
                 self.assertFalse(self.diagnostic()['compilation_accepted'])
+            if fault == 'unit-receipt-write' and target.name == 'compilation-units.json': raise OSError('synthetic private receipt write refusal')
             if fault == 'receipt-write' and target.name == 'compile-result.json': raise OSError('synthetic receipt write refusal')
             return original_write(target, *args, **kwargs)
         with mock.patch.object(worker_build, 'module', side_effect=module), \
@@ -282,6 +285,22 @@ class DiagnosticBuildTests(unittest.TestCase):
     def test_preexisting_upstream_destination_refuses_acceptance_and_preserves_bytes(self):
         self.assert_custody_failure('upstream-preexisting')
         self.assertEqual((self.work / 'target/release/arch-update-tray').read_bytes(), b'untouched upstream')
+
+
+    def test_missing_compiler_log_reports_closed_read_boundary_without_acceptance(self):
+        with self.assertRaises(FileNotFoundError): self.execute('unit-log-read')
+        self.assertEqual(self.diagnostic()['first_failure']['predicate'], 'unit-log-read')
+        self.assertFalse(self.diagnostic()['compilation_accepted'])
+
+    def test_malformed_compiler_json_reports_closed_parse_boundary_without_acceptance(self):
+        with self.assertRaises(json.JSONDecodeError): self.execute('unit-json')
+        self.assertEqual(self.diagnostic()['first_failure']['predicate'], 'unit-compiler-json')
+        self.assertFalse(self.diagnostic()['compilation_accepted'])
+
+    def test_unit_receipt_write_failure_reports_closed_boundary_without_acceptance(self):
+        with self.assertRaises(OSError): self.execute('unit-receipt-write')
+        self.assertEqual(self.diagnostic()['first_failure']['predicate'], 'unit-receipt-write')
+        self.assertFalse(self.diagnostic()['compilation_accepted'])
 
 
 class ElfObservationTests(unittest.TestCase):
@@ -621,6 +640,75 @@ class DescriptorCustodyCorrectionTests(unittest.TestCase):
         with mock.patch.object(worker_build.os, 'write', return_value=0):
             with self.assertRaisesRegex(ValueError, 'complete'):
                 worker_build.write_compiled_output(self.worker, self.root/'zero', b'bytes')
+
+
+
+class UnitDiagnosticTests(unittest.TestCase):
+    def inputs(self):
+        metadata, events = fixture()
+        return json.dumps(metadata).encode(), b'\n'.join(json.dumps(event).encode() for event in events)
+
+    def test_success_and_original_executable_path_binding_preserved(self):
+        metadata, compiler = self.inputs(); diagnostic = types.SimpleNamespace(fail=mock.Mock())
+        result = worker_build.unit_evidence(metadata, compiler, Path('/tmp/target/tray'), diagnostic)
+        self.assertEqual(len(result['compiler_artifacts']), 3); diagnostic.fail.assert_not_called()
+        with self.assertRaises(ValueError): worker_build.unit_evidence(metadata, compiler, Path('/tmp/detached'), diagnostic)
+        self.assertEqual(diagnostic.fail.call_args.args[0], 'unit-complete')
+
+    def test_json_and_field_errors_keep_original_exception_and_exact_closed_phase(self):
+        metadata, compiler = self.inputs()
+        cases = ((b'{', compiler, 'unit-metadata-json', json.JSONDecodeError),
+                 (b'{}', compiler, 'unit-metadata-fields', KeyError),
+                 (metadata, b'{', 'unit-compiler-json', json.JSONDecodeError),
+                 (metadata, b'[]', 'unit-event-fields', AttributeError),
+                 (metadata, b'{"reason":"compiler-artifact"}', 'unit-event-fields', KeyError))
+        for left, right, predicate, error_kind in cases:
+            diagnostic = types.SimpleNamespace(fail=mock.Mock())
+            with self.subTest(predicate=predicate), self.assertRaises(error_kind) as caught:
+                worker_build.unit_evidence(left, right, Path('/tmp/target/tray'), diagnostic)
+            diagnostic.fail.assert_called_once_with(predicate, caught.exception)
+
+    def test_known_unit_refusal_is_not_reported_twice_or_reclassified(self):
+        metadata, events = fixture(); events[0]['package_id'] = 'foreign'
+        diagnostic = types.SimpleNamespace(fail=mock.Mock())
+        with self.assertRaises(ValueError) as caught:
+            worker_build.unit_evidence(json.dumps(metadata).encode(), b'\n'.join(json.dumps(e).encode() for e in events), Path('/tmp/target/tray'), diagnostic)
+        diagnostic.fail.assert_called_once_with('unit-source', caught.exception)
+
+    def test_diagnostic_io_failure_preserves_parse_exception_and_control_stays_outward(self):
+        _, compiler = self.inputs()
+        for secondary in (OSError('private diagnostic unavailable'), KeyboardInterrupt()):
+            diagnostic = types.SimpleNamespace(fail=mock.Mock(side_effect=secondary))
+            expected = json.JSONDecodeError if isinstance(secondary, Exception) else KeyboardInterrupt
+            with self.subTest(error=type(secondary).__name__), self.assertRaises(expected) as caught:
+                worker_build.unit_evidence(b'{', compiler, Path('/tmp/target/tray'), diagnostic)
+            original = diagnostic.fail.call_args.args[1]
+            self.assertIs(caught.exception, original if expected is json.JSONDecodeError else secondary)
+
+    def test_no_diagnostic_keeps_original_parse_error(self):
+        with self.assertRaises(json.JSONDecodeError): worker_build.unit_evidence(b'{', b'', Path('/tmp/target/tray'))
+
+    def test_six_new_codes_survive_real_closed_projectors_without_private_content(self):
+        import re
+        base = Path(__file__).parent
+        helper = worker_build.module('unit_phase_recorder', base/'worker-diagnostic.py')
+        public = worker_build.module('unit_phase_public', base/'public-evidence.py')
+        stage = base.parents[2]/'scripts/port/updater-native-stage/stage.py'
+        tree = ast.parse(stage.read_bytes())
+        names = {'need', 'native_diagnostic_need', 'native_diagnostic_encoded', 'native_diagnostic_nullable_hash', 'native_diagnostic_command', 'native_diagnostic'}
+        nodes = [n for n in tree.body if isinstance(n, ast.Assign) and isinstance(n.targets[0], ast.Name) and n.targets[0].id.startswith('NATIVE_DIAGNOSTIC_') or isinstance(n, ast.FunctionDef) and n.name in names]
+        env = dict(json=json,re=re); exec(compile(ast.Module(body=nodes,type_ignores=[]),'pure-stage-diagnostic-validator','exec'),env)
+        predicates = ('unit-metadata-json','unit-metadata-fields','unit-compiler-json','unit-event-fields','unit-log-read','unit-receipt-write')
+        for predicate in predicates:
+            with tempfile.TemporaryDirectory() as folder:
+                rec = helper.Recorder(Path(folder)); rec.operation = 'compile-units'
+                rec.fail(predicate, ValueError('raw/private/source never exported'))
+                row = rec.snapshot(); self.assertEqual(public.diagnostic(row), row); self.assertEqual(env['native_diagnostic'](row), row)
+                raw = helper.encoded(row); self.assertLessEqual(len(raw),4096); self.assertNotIn(b'raw/private/source',raw)
+                self.assertFalse(row['compilation_accepted']); rec.fail('UNKNOWN', OSError('later')); self.assertEqual(rec.snapshot()['first_failure'],row['first_failure'])
+                bad = copy.deepcopy(row); bad['first_failure']['predicate'] = 'raw/private/source'
+                with self.assertRaises(ValueError): public.diagnostic(bad)
+                with self.assertRaises(ValueError): env['native_diagnostic'](bad)
 
 
 if __name__ == '__main__':

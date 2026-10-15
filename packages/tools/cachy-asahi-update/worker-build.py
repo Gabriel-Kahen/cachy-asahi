@@ -34,46 +34,64 @@ def require(value, message, predicate, diagnostic=None):
 
 def unit_evidence(metadata_data, compiler_data, binary, diagnostic=None):
     """Retain actual emitted Cargo unit features separately from metadata unions."""
-    metadata = json.loads(metadata_data)
-    packages = {row['id']: row for row in metadata['packages']}
-    nodes = {row['id']: row for row in metadata['resolve']['nodes']}
-    units, scripts, completed = [], [], False
-    local_binary = False
-    for line in compiler_data.splitlines():
-        event = json.loads(line)
-        kind = event.get('reason')
-        if kind == 'build-finished':
-            completed = event.get('success') is True
-        if kind not in ('compiler-artifact', 'build-script-executed'):
-            continue
-        package_id = event['package_id']
-        require(package_id in nodes and package_id in packages,
-                'actual compilation unit outside verified metadata source graph', 'unit-source', diagnostic)
-        package = packages[package_id]
-        if kind == 'build-script-executed':
-            require(any('custom-build' in target['kind'] for target in package['targets']),
-                    'unreviewed actual build-script unit', 'unit-build-script', diagnostic)
-            scripts.append(event)
-            continue
-        features = set(event['features'])
-        require(features <= set(nodes[package_id]['features']),
-                'actual unit feature outside verified metadata union', 'unit-feature', diagnostic)
-        require(package['name'] != 'gettext-sys' or 'gettext-system' in features,
-                'actual gettext unit lacks reviewed system branch', 'unit-gettext', diagnostic)
-        require(package['name'] != 'system-deps' or 'binary' not in features,
-                'actual system-deps unit activates unreviewed binary branch', 'unit-system-deps', diagnostic)
-        if event.get('executable') == str(binary):
-            local_binary |= package['name'] == 'arch-update-tray' and event['target']['kind'] == ['bin']
-        units.append(event)
-    require(completed and local_binary and units,
-            'complete successful actual tray unit evidence required', 'unit-complete', diagnostic)
-    compiled_scripts = {unit['package_id'] for unit in units if 'custom-build' in unit['target']['kind']}
-    require({script['package_id'] for script in scripts} <= compiled_scripts,
-            'build-script run has no retained compiled unit feature record', 'unit-build-script-record', diagnostic)
-    return {'schema_version': 1, 'scope': 'actual emitted Cargo artifact/build-script records',
-            'compiler_artifacts': units, 'build_script_runs': scripts,
-            'metadata_union_limit': 'Metadata source candidates may include uncompiled packages or features.',
-            'native_runtime': 'NOT RUN', 'hardware': 'NOT RUN'}
+    phase = 'unit-metadata-json'
+    def check(value, message, predicate, diagnostic=None):
+        nonlocal phase
+        phase = None
+        require(value, message, predicate, diagnostic)
+        phase = 'unit-event-fields'
+    try:
+        metadata = json.loads(metadata_data)
+        phase = 'unit-metadata-fields'
+        packages = {row['id']: row for row in metadata['packages']}
+        nodes = {row['id']: row for row in metadata['resolve']['nodes']}
+        units, scripts, completed = [], [], False
+        local_binary = False
+        for line in compiler_data.splitlines():
+            phase = 'unit-compiler-json'
+            event = json.loads(line)
+            phase = 'unit-event-fields'
+            kind = event.get('reason')
+            if kind == 'build-finished':
+                completed = event.get('success') is True
+            if kind not in ('compiler-artifact', 'build-script-executed'):
+                continue
+            package_id = event['package_id']
+            check(package_id in nodes and package_id in packages,
+                    'actual compilation unit outside verified metadata source graph', 'unit-source', diagnostic)
+            package = packages[package_id]
+            if kind == 'build-script-executed':
+                check(any('custom-build' in target['kind'] for target in package['targets']),
+                        'unreviewed actual build-script unit', 'unit-build-script', diagnostic)
+                scripts.append(event)
+                continue
+            features = set(event['features'])
+            check(features <= set(nodes[package_id]['features']),
+                    'actual unit feature outside verified metadata union', 'unit-feature', diagnostic)
+            check(package['name'] != 'gettext-sys' or 'gettext-system' in features,
+                    'actual gettext unit lacks reviewed system branch', 'unit-gettext', diagnostic)
+            check(package['name'] != 'system-deps' or 'binary' not in features,
+                    'actual system-deps unit activates unreviewed binary branch', 'unit-system-deps', diagnostic)
+            if event.get('executable') == str(binary):
+                local_binary |= package['name'] == 'arch-update-tray' and event['target']['kind'] == ['bin']
+            units.append(event)
+        check(completed and local_binary and units,
+                'complete successful actual tray unit evidence required', 'unit-complete', diagnostic)
+        phase = 'unit-event-fields'
+        compiled_scripts = {unit['package_id'] for unit in units if 'custom-build' in unit['target']['kind']}
+        check({script['package_id'] for script in scripts} <= compiled_scripts,
+                'build-script run has no retained compiled unit feature record', 'unit-build-script-record', diagnostic)
+        return {'schema_version': 1, 'scope': 'actual emitted Cargo artifact/build-script records',
+                'compiler_artifacts': units, 'build_script_runs': scripts,
+                'metadata_union_limit': 'Metadata source candidates may include uncompiled packages or features.',
+                'native_runtime': 'NOT RUN', 'hardware': 'NOT RUN'}
+    except Exception as error:
+        if diagnostic is not None and phase is not None:
+            try:
+                diagnostic.fail(phase, error)
+            except Exception:
+                pass  # Reporting cannot replace the original refusal/control.
+        raise
 
 
 def stat_identity(info):
@@ -260,8 +278,20 @@ def build(args):
                 except Exception: pass  # Reporting cannot replace the original refusal.
                 raise
         with diagnostic.step('compile-units'):
-            units = unit_evidence(metadata, (output / 'cargo-build.stdout').read_bytes(), binary, diagnostic)
-            (output / 'compilation-units.json').write_text(json.dumps(units, indent=2) + '\n')
+            unit_phase = 'unit-log-read'
+            try:
+                compiler_data = (output / 'cargo-build.stdout').read_bytes()
+                unit_phase = None
+                units = unit_evidence(metadata, compiler_data, binary, diagnostic)
+                unit_phase = 'unit-receipt-write'
+                (output / 'compilation-units.json').write_text(json.dumps(units, indent=2) + '\n')
+            except Exception as error:
+                if unit_phase is not None:
+                    try:
+                        diagnostic.fail(unit_phase, error)
+                    except Exception:
+                        pass  # Reporting cannot replace the original refusal/control.
+                raise
         with diagnostic.step('compile-readelf'):
             worker.run(['/usr/bin/readelf', '-h', '-l', '-d', str(output / 'arch-update-tray')],
                        args.manifest.parent, env, output, 'elf-inspection')
