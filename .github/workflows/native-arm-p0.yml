@@ -37,6 +37,45 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
+      - name: Add job-owned DEV nested-worker AppArmor profile
+        id: dev_apparmor
+        shell: /usr/bin/python3 -I -B -S {0}
+        env:
+          EXPECTED_SOURCE_COMMIT: ${{ inputs.expected_source_commit }}
+        run: |
+          import ast,hashlib,json,os,re,stat,subprocess
+          from pathlib import Path
+          expected=os.environ['EXPECTED_SOURCE_COMMIT']
+          if expected!=os.environ['GITHUB_SHA'] or expected!=os.environ['GITHUB_WORKFLOW_SHA']:raise ValueError('Source mismatch')
+          parts=(os.environ['GITHUB_RUN_ID'],os.environ['GITHUB_RUN_ATTEMPT'])
+          if not all(re.fullmatch('[0-9]{1,20}',v) for v in parts):raise ValueError('job identity')
+          name='cachy-asahi-p0-dev-'+'-'.join(parts)
+          template_nodes=ast.parse(Path('scripts/install/native_arm_trial.py').read_bytes()).body
+          values=[ast.literal_eval(n.value) for n in template_nodes if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='DEV_APPARMOR_TEMPLATE' for t in n.targets)]
+          if len(values)!=1 or type(values[0]) is not str or hashlib.sha256(values[0].encode()).hexdigest()!='423543c8bacbf5a5e57f9d20e4e77575c94a50274feda45d307aa865b1574173':raise ValueError('profile Source pin')
+          def command(args):
+              p=subprocess.run(args,stdin=subprocess.DEVNULL,capture_output=True,timeout=10)
+              if len(p.stdout)+len(p.stderr)>2*1024**2 or p.returncode:raise ValueError('DEV profile command refused')
+              return p.stdout
+          def profiles():return command(['sudo','-n','/bin/cat','/sys/kernel/security/apparmor/profiles']).decode().splitlines()
+          if any(row.split(' (',1)[0]==name for row in profiles()):raise ValueError('profile name already exists')
+          pid=command(['sudo','-n','/bin/cat','/run/docker.pid']).decode().strip()
+          if not re.fullmatch('[0-9]{1,10}',pid):raise ValueError('daemon PID unavailable')
+          daemon=command(['sudo','-n','/bin/cat','/proc/'+pid+'/attr/current']).decode().strip().split(' ',1)[0]
+          if not re.fullmatch('[A-Za-z0-9_./:@+-]{1,200}',daemon):raise ValueError('daemon profile unavailable')
+          body=values[0].replace('@@PROFILE@@',name).replace('@@DAEMON@@',daemon).encode()
+          root=Path(os.environ['RUNNER_TEMP'])/name
+          root.mkdir(mode=0o700)  # exclusive; an existing path refuses
+          profile=root/'profile'
+          with profile.open('xb') as f:f.write(body)
+          profile.chmod(0o600)
+          intent={'name':name,'sha256':hashlib.sha256(body).hexdigest(),'run_id':parts[0],'attempt':parts[1]}
+          with (root/'intent.json').open('x') as f:json.dump(intent,f,sort_keys=True)
+          with open(os.environ['GITHUB_OUTPUT'],'a') as f:f.write('directory='+str(root)+'\n')
+          # Add-only; never replace docker-default or an existing profile. No policy cache writes.
+          command(['sudo','-n','/usr/sbin/apparmor_parser','-a','-K',str(profile)])
+          with (root/'load-succeeded').open('x') as f:f.write(intent['sha256'])
+          if name+' (enforce)' not in profiles():raise ValueError('DEV profile not enforced')
       - name: Root observe, freeze and materialize, then prepare signed inputs and enter P0
         shell: /usr/bin/python3 -I -B -S {0}
         env:
@@ -280,3 +319,40 @@ jobs:
               for k in tuple(os.environ):
                   if k.startswith(('CACHY_OLD_FOUR_', 'CACHY_RETAINED_')):os.environ.pop(k)
           print(json.dumps(result,sort_keys=True,allow_nan=False))
+      - name: Remove only job-owned DEV profile after container retirement
+        if: ${{ always() && steps.dev_apparmor.outputs.directory != '' }}
+        shell: /usr/bin/python3 -I -B -S {0}
+        env:
+          DEV_PROFILE_DIRECTORY: ${{ steps.dev_apparmor.outputs.directory }}
+        run: |
+          import hashlib,json,os,re,stat,subprocess
+          from pathlib import Path
+          parts=(os.environ['GITHUB_RUN_ID'],os.environ['GITHUB_RUN_ATTEMPT'])
+          if not all(re.fullmatch('[0-9]{1,20}',v) for v in parts):raise ValueError('job identity')
+          name='cachy-asahi-p0-dev-'+'-'.join(parts)
+          root=Path(os.environ['RUNNER_TEMP'])/name
+          if str(root)!=os.environ['DEV_PROFILE_DIRECTORY']:raise ValueError('owned path mismatch')
+          info=root.lstat()
+          if not stat.S_ISDIR(info.st_mode) or info.st_uid!=os.getuid() or stat.S_IMODE(info.st_mode)!=0o700:raise ValueError('owned directory changed')
+          profile=root/'profile'; info=profile.lstat()
+          if not stat.S_ISREG(info.st_mode) or info.st_uid!=os.getuid() or stat.S_IMODE(info.st_mode)!=0o600 or info.st_nlink!=1:raise ValueError('profile changed')
+          body=profile.read_bytes();intent=json.loads((root/'intent.json').read_bytes())
+          if intent!={'name':name,'sha256':hashlib.sha256(body).hexdigest(),'run_id':parts[0],'attempt':parts[1]}:raise ValueError('owned profile identity changed')
+          def command(args):
+              p=subprocess.run(args,stdin=subprocess.DEVNULL,capture_output=True,timeout=10)
+              if len(p.stdout)+len(p.stderr)>2*1024**2 or p.returncode:raise ValueError('DEV profile cleanup command refused')
+              return p.stdout
+          def present():return any(row.split(' (',1)[0]==name for row in command(['sudo','-n','/bin/cat','/sys/kernel/security/apparmor/profiles']).decode().splitlines())
+          if not (root/'load-succeeded').exists():
+              if present():raise ValueError('profile load outcome unknown; no removal authority')
+          else:
+              if (root/'load-succeeded').read_text()!=intent['sha256']:raise ValueError('load ownership marker changed')
+              ids=command(['docker','container','ls','-a','-q','--no-trunc']).decode().splitlines()
+              if len(ids)>32 or any(not re.fullmatch('[0-9a-f]{64}',v) for v in ids):raise ValueError('container inventory bound')
+              rows=json.loads(command(['docker','container','inspect',*ids])) if ids else []
+              if type(rows) is not list or len(rows)!=len(ids) or {r.get('Id') for r in rows}!=set(ids):raise ValueError('container retirement unknown')
+              if any(r.get('AppArmorProfile')==name for r in rows):raise ValueError('owned-profile container remains; profile kept enforced')
+              if not present():raise ValueError('owned profile unexpectedly absent')
+              command(['sudo','-n','/usr/sbin/apparmor_parser','-R','-K',str(profile)])
+              if present():raise ValueError('owned profile removal unverified')
+          with (root/'cleanup-complete').open('x') as f:f.write('owned profile absent\n')

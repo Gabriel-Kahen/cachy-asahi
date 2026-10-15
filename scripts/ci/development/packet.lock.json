@@ -1986,15 +1986,15 @@
     },
     "scripts/install/native_arm_trial.py": {
       "mode": 420,
-      "sha256": "35a6a82137a9c49c54821a6a6ea50d4f0f25518d9e51d1eace7a83916f94a361"
+      "sha256": "90aaedaad6ea79c1c9a172d12c7e8383c4375aa8f75ec81558dbcad26077a77d"
     },
     "scripts/install/native_preflight.py": {
       "mode": 420,
-      "sha256": "19d17ec16222c42d7cb9ed47c77cd081b90bb9315f1fe08d8fee09ee51772939"
+      "sha256": "db104c0298f3295c18ad53ee0fedbde32759e5db08e41d3e68d76ebea6339603"
     },
     "scripts/install/p0_entry.py": {
       "mode": 420,
-      "sha256": "cabd09d0baf8db936560883e66ba897513ec8f0eef1f087f19db90b85a542581"
+      "sha256": "5c96f3974c2ed5673ec84e9163d0d501d75d17842d06e9ae71cc15aba79a0d7d"
     },
     "scripts/install/test_local_transaction.py": {
       "mode": 420,
