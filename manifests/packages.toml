@@ -357,3 +357,21 @@ native_evidence = "docs/validation/asahi-lsp-native-20261015.md"
 installation = "NOT RUN"
 hardware_validation = "NOT RUN"
 next_step = "Headless native byte pair passed. This private build candidate overlaps the upstream LV2 bundle/URIs and is not an installation replacement. Resolve corresponding-source/relinking, complete binary-license and source-fixture terms; validate runtime plugin interfaces and audio separately. No M2, speaker or performance acceptance."
+
+[[packages]]
+name = "cachy-asahi-zsh-syntax-highlighting"
+phase = "tools-candidate"
+status = "candidate"
+source = "https://github.com/zsh-users/zsh-syntax-highlighting"
+upstream_commit = "e6683f20e5c38d3e5447f45845d04ddda75d0f23"
+recipe = "packages/tools/cachy-asahi-zsh-syntax-highlighting/PKGBUILD"
+license = "BSD-3-Clause AND MIT"
+candidate_version = "0.8.1.dev.e6683f2-1"
+selected_for_development = false
+selected_for_release = false
+native_build = "PASS"
+native_build_commit = "e486ee56ceaac16d558e896b94f515ada19000a4"
+native_evidence = "docs/validation/zsh-highlighting-native-20261015.md"
+installation = "PASS generic native ARM signed install/remove/reinstall"
+hardware_validation = "NOT RUN"
+next_step = "Manual opt-in only; existing user module wins. Native byte pair, four lifecycle checkpoints, four installed PTYs and user-file preservation passed. Integrate a future selected composition explicitly; target workflows, arbitrary plugin ordering and production release remain open."
