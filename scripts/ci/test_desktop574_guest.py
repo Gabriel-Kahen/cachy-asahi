@@ -252,12 +252,21 @@ class GuestTests(unittest.TestCase):
                          selected={}, logs=Path('/inert'), stage='minimal')
             exec(code, scope)
         self.assertEqual(command.call_count, 2)
+        self.assertTrue(all(call.args[0] == ['/usr/bin/hyprctl', '-j', 'clients', '-a']
+                            for call in command.call_args_list))
         self.assertEqual(client.healthy.call_count, 2)
         self.assertEqual(compositor.healthy.call_count, 2)
         self.assertTrue(all(call.kwargs == dict(timeout=3, retry_timeout=True) for call in command.call_args_list))
         command = Mock(return_value=None)
         scope['command'] = command
         with self.assertRaisesRegex(ValueError, 'Wofi mapping deadline'):
+            exec(code, scope)
+        self.assertEqual(command.call_count, 20)
+        command.reset_mock(side_effect=True)
+        command.return_value = json.dumps([dict(pid=41, mapped=False, size=[420, 220]),
+                                          dict(pid=42, mapped=True, size=[420, 220]),
+                                          dict(pid=41, mapped=True, size=[0, 220])])
+        with self.assertRaisesRegex(ValueError, 'Wofi mapping deadline'), patch.object(guest.time, 'sleep'):
             exec(code, scope)
         self.assertEqual(command.call_count, 20)
         command.reset_mock(side_effect=True)
@@ -651,19 +660,101 @@ class DiagnosticTests(unittest.TestCase):
         runtime.glob.side_effect = [[], [socket]]
         replies = [json.dumps([dict(width=1024, height=768)]),
                    json.dumps([dict(pid=43, mapped=True, size=[420, 220])]), '']
+        env = dict(AT_BRIDGE='held', GDK_BACKEND='wayland')
+        selected = dict(env)
         with patch.object(guest, 'RUNTIME', runtime), \
-             patch.object(guest, 'Logged', side_effect=[compositor, client]), \
-             patch.object(guest, 'ipc', return_value={}), \
-             patch.object(guest, 'command', side_effect=replies), \
+             patch.object(guest, 'Logged', side_effect=[compositor, client]) as launch, \
+             patch.object(guest, 'ipc', return_value=selected), \
+             patch.object(guest, 'command', side_effect=replies) as command, \
              patch.object(guest.time, 'monotonic', side_effect=[0, 9]), \
              patch.object(guest, 'terminate'), patch.object(guest, 'emit') as emit, \
              patch.object(guest, 'collect_phase_diagnostics') as collect:
-            guest.phase('minimal', Path('/inert/config'), {}, Path('/inert/logs'))
+            guest.phase('minimal', Path('/inert/config'), env, Path('/inert/logs'))
+        self.assertIs(launch.call_args_list[0].args[3], env)
+        wofi = launch.call_args_list[1]
+        self.assertEqual(wofi.args[3], dict(selected, WAYLAND_DEBUG='client'))
+        self.assertIsNot(wofi.args[3], selected)
+        self.assertNotIn('WAYLAND_DEBUG', selected)
+        self.assertEqual(env, dict(AT_BRIDGE='held', GDK_BACKEND='wayland'))
+        self.assertEqual(wofi.args[0], ['/usr/bin/wofi', '--normal-window', '--show', 'dmenu',
+            '--prompt', 'Generic ARM desktop574', '--width', '420', '--height', '220'])
+        self.assertEqual(wofi.kwargs, dict(stdin=subprocess.PIPE))
+        client.process.stdin.write.assert_called_once_with(
+            b'574 packages: generic ARM software session\nNo Apple hardware claim\n')
+        client.process.stdin.close.assert_called_once_with()
+        self.assertTrue(all(call.args[1] is selected for call in command.call_args_list))
+        self.assertTrue(all('WAYLAND_DEBUG' not in call.args[1] for call in command.call_args_list))
         self.assertEqual([call.args[0] for call in emit.call_args_list], ['frame_ready', 'phase_pass'])
         compositor.process.wait.assert_called_once_with(timeout=10)
         compositor.finish.assert_called_once()
         client.finish.assert_called_once()
         collect.assert_not_called()
+
+
+class WofiLogTests(unittest.TestCase):
+    def captured(self, directory, name, raw, *, fault=False, alive=False):
+        logged = guest.Logged.__new__(guest.Logged)
+        logged.paths = [Path(directory) / (name + suffix) for suffix in ('.stdout', '.stderr')]
+        logged.errors, logged.overflow = [], False
+        logged.process = Mock(pid=350, returncode=0)
+        logged.process.poll.return_value = 0
+        logged.threads = [Mock(), Mock()]
+        for thread in logged.threads:
+            thread.is_alive.return_value = alive
+        for path, data in zip(logged.paths, (b'output', raw)):
+            guest.Logged.drain(logged, io.BytesIO(data), path)
+        if fault:
+            logged.errors.append(OSError('synthetic drain failure'))
+        return logged
+
+    def test_full_capped_wofi_stderr_preserves_startup_and_pid(self):
+        for name in ('minimal-wofi', 'overlay-wofi'):
+            for raw in (b'', b'get_toplevel\n' + b'x' * (guest.MAX_LOG - 13)):
+                with self.subTest(name=name, size=len(raw)), tempfile.TemporaryDirectory() as directory:
+                    logged = self.captured(directory, name, raw)
+                    with patch.object(guest, 'emit') as emit:
+                        logged.finish()
+                    row = emit.call_args.kwargs
+                    self.assertEqual(row['pid'], 350)
+                    stderr = row['logs'][1]
+                    self.assertTrue(stderr['capture_complete'])
+                    self.assertEqual(base64.b64decode(stderr['content_base64']), raw)
+                    self.assertEqual(base64.b64decode(stderr['tail_base64']), raw[-4096:])
+                    self.assertEqual((stderr['bytes'], stderr['sha256']),
+                                     (len(raw), hashlib.sha256(raw).hexdigest()))
+                    self.assertNotIn('content_base64', row['logs'][0])
+                    for thread in logged.threads:
+                        thread.join.assert_called_once_with(timeout=2)
+
+    def test_wofi_overflow_and_drain_fault_never_claim_complete(self):
+        for raw, fault in ((b'x' * (guest.MAX_LOG + 1), False), (b'partial', True)):
+            with self.subTest(fault=fault), tempfile.TemporaryDirectory() as directory:
+                logged = self.captured(directory, 'minimal-wofi', raw, fault=fault)
+                with patch.object(guest, 'emit') as emit, self.assertRaisesRegex(ValueError, 'log overflow/failure'):
+                    logged.finish()
+                stderr = emit.call_args.kwargs['logs'][1]
+                self.assertFalse(stderr['capture_complete'])
+                self.assertEqual(base64.b64decode(stderr['content_base64']), raw[:guest.MAX_LOG])
+                self.assertLessEqual(stderr['bytes'], guest.MAX_LOG)
+                self.assertEqual(logged.overflow, len(raw) > guest.MAX_LOG)
+
+    def test_incomplete_drain_emits_no_complete_record(self):
+        with tempfile.TemporaryDirectory() as directory:
+            logged = self.captured(directory, 'minimal-wofi', b'partial', alive=True)
+            with patch.object(guest, 'emit') as emit, self.assertRaisesRegex(ValueError, 'log drain incomplete'):
+                logged.finish()
+            emit.assert_not_called()
+
+    def test_non_wofi_log_records_keep_existing_shape(self):
+        for name in ('minimal', 'overlay', 'minimal-clients-0', 'other-wofi'):
+            with self.subTest(name=name), tempfile.TemporaryDirectory() as directory:
+                logged = self.captured(directory, name, b'x' * 5000)
+                with patch.object(guest, 'emit') as emit:
+                    logged.finish()
+                self.assertEqual(set(emit.call_args.kwargs), {'name', 'returncode', 'logs'})
+                for row in emit.call_args.kwargs['logs']:
+                    self.assertEqual(set(row), {'path', 'bytes', 'sha256', 'tail_base64'})
+                    self.assertLessEqual(len(base64.b64decode(row['tail_base64'])), 4096)
 
 
 class RenderNodeTests(unittest.TestCase):
