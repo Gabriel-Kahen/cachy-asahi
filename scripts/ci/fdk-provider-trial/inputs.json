@@ -1,0 +1,894 @@
+{
+  "base_packages_sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25",
+  "keyring": {
+    "filename": "archlinuxarm.gpg",
+    "sha256": "6ce771e853f04a38a5b533cb33e61f877b9b06b58b6db051eb8a15d737a2332f",
+    "size": 3098,
+    "url": "https://raw.githubusercontent.com/archlinuxarm/PKGBUILDs/29432c01130efc4ad297dfe8f487d5b79cbaf8e9/core/archlinuxarm-keyring/archlinuxarm.gpg"
+  },
+  "packages": [
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [],
+      "filename": "alsa-card-profiles-1:1.6.9-1-aarch64.pkg.tar.xz",
+      "isize": 203568,
+      "license": [
+        "LGPL-2.1-or-later"
+      ],
+      "name": "alsa-card-profiles",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "12248208eb6bfb7e6aacf9615a2cbf65e8c5348eb69433ed766e5b0bd0b8f5ff",
+      "signature_sha256": "7739a4598fe7dc5ab1de9a9e10eafd6961fc7af857a04b5cc50bf05f231a8e73",
+      "signature_size": 566,
+      "size": 28068,
+      "source_url": [
+        "https://pipewire.org"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/alsa-card-profiles-1:1.6.9-1-aarch64.pkg.tar.xz",
+      "version": "1:1.6.9-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "alsa-topology-conf",
+        "alsa-ucm-conf",
+        "glibc"
+      ],
+      "filename": "alsa-lib-1.2.16.1-1-aarch64.pkg.tar.xz",
+      "isize": 1991147,
+      "license": [
+        "LGPL-2.1-or-later"
+      ],
+      "name": "alsa-lib",
+      "provides": [
+        "libasound.so=2-64",
+        "libatopology.so=2-64"
+      ],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "fe32910ecf90d24b4662b9d437b3ac8f638786eef3719b558f7f98dc9e299a16",
+      "signature_sha256": "ba019ed4f093f70f20dc5ad65067a6afeffac87330c8c5d94cba8aba0e9b9861",
+      "signature_size": 566,
+      "size": 471232,
+      "source_url": [
+        "https://www.alsa-project.org"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/alsa-lib-1.2.16.1-1-aarch64.pkg.tar.xz",
+      "version": "1.2.16.1-1"
+    },
+    {
+      "arch": "any",
+      "conflicts": [],
+      "depends": [],
+      "filename": "alsa-topology-conf-1.2.5.1-4-any.pkg.tar.xz",
+      "isize": 343788,
+      "license": [
+        "BSD"
+      ],
+      "name": "alsa-topology-conf",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "fc04bacda1d93b22135985a71f0f73a8df57880d4d7f03c3368e5717a917d4cf",
+      "signature_sha256": "59692b2c252a31fdb7f62a4a164a84ac97dddd2c0e0810d0d050f0a7f72cc2c4",
+      "signature_size": 566,
+      "size": 13528,
+      "source_url": [
+        "https://alsa-project.org/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/alsa-topology-conf-1.2.5.1-4-any.pkg.tar.xz",
+      "version": "1.2.5.1-4"
+    },
+    {
+      "arch": "any",
+      "conflicts": [],
+      "depends": [],
+      "filename": "alsa-ucm-conf-1.2.16.1-1-any.pkg.tar.xz",
+      "isize": 709032,
+      "license": [
+        "BSD-3-Clause"
+      ],
+      "name": "alsa-ucm-conf",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "7c8748eb29e8bdd1632071410aab1ed19edc0f48ffbe47375a51b5a4bdef8db8",
+      "signature_sha256": "ec52fc01aa08b8a24fb6d5511b916e8c73d2e1d45b3cc5e519f50c6f44b81e64",
+      "signature_size": 566,
+      "size": 130876,
+      "source_url": [
+        "https://alsa-project.org/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/alsa-ucm-conf-1.2.16.1-1-any.pkg.tar.xz",
+      "version": "1.2.16.1-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc"
+      ],
+      "filename": "bluez-libs-5.87-2-aarch64.pkg.tar.xz",
+      "isize": 402451,
+      "license": [
+        "LGPL-2.1-only"
+      ],
+      "name": "bluez-libs",
+      "provides": [
+        "libbluetooth.so=3-64"
+      ],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "8c8be9961b8a952aeaf99b56a623d541977b563d0586512e881179eab1b12728",
+      "signature_sha256": "f34fd321d395cfad78b99ea70ed2f9581a01b4dc1ce0180bf85e9b16905a6e1d",
+      "signature_size": 566,
+      "size": 88556,
+      "source_url": [
+        "http://www.bluez.org/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/bluez-libs-5.87-2-aarch64.pkg.tar.xz",
+      "version": "5.87-2"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "bash",
+        "glibc",
+        "libgcc",
+        "libgomp",
+        "libquadmath"
+      ],
+      "filename": "fftw-3.3.11-1-aarch64.pkg.tar.xz",
+      "isize": 5352845,
+      "license": [
+        "GPL-2.0-or-later"
+      ],
+      "name": "fftw",
+      "provides": [
+        "libfftw3q_threads.so",
+        "libfftw3q_omp.so",
+        "libfftw3q.so",
+        "libfftw3l_threads.so=3-64",
+        "libfftw3l_omp.so=3-64",
+        "libfftw3l.so=3-64",
+        "libfftw3f_threads.so=3-64",
+        "libfftw3f_omp.so=3-64",
+        "libfftw3f.so=3-64",
+        "libfftw3_threads.so=3-64",
+        "libfftw3_omp.so=3-64",
+        "libfftw3.so=3-64"
+      ],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "0d6b54edd0e73ec3f0e1496d2261834cf98eae71b4489c64a0ef6e6509d2e9b9",
+      "signature_sha256": "77524923efef23372137a9174a2a8ac2cdad29296d8d4482a35b936f8369eb43",
+      "signature_size": 566,
+      "size": 1505896,
+      "source_url": [
+        "http://www.fftw.org/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/fftw-3.3.11-1-aarch64.pkg.tar.xz",
+      "version": "3.3.11-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "gcc-libs",
+        "libogg"
+      ],
+      "filename": "flac-1.5.0-1-aarch64.pkg.tar.xz",
+      "isize": 1324734,
+      "license": [
+        "BSD-3-Clause",
+        "GPL-2.0-or-later"
+      ],
+      "name": "flac",
+      "provides": [
+        "libFLAC.so=14-64",
+        "libFLAC++.so=11-64"
+      ],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "100b54b7c4efbb41f1f18a560825477f9f403b6996a226dd86ca5227f0a6b83e",
+      "signature_sha256": "42b65242d56933e5f96efddec49562ae25e8a0fad49632bfd1dd602e64fbc601",
+      "signature_size": 566,
+      "size": 276816,
+      "source_url": [
+        "https://xiph.org/flac/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/flac-1.5.0-1-aarch64.pkg.tar.xz",
+      "version": "1.5.0-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "mpg123",
+        "ncurses"
+      ],
+      "filename": "lame-4.0-1-aarch64.pkg.tar.xz",
+      "isize": 1291187,
+      "license": [
+        "LGPL-2.0-only"
+      ],
+      "name": "lame",
+      "provides": [
+        "libmp3lame.so=0-64"
+      ],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "38f9981bc4f9ecb5d42263ea5a2f9c19531364d57b3b34b0bfa6e8d9601fc24f",
+      "signature_sha256": "b61bea476a5c87aa27ea11e445821bfd10c838c44b9c2f71d7a56c9efe6752a3",
+      "signature_size": 566,
+      "size": 252564,
+      "source_url": [
+        "http://lame.sourceforge.net/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/lame-4.0-1-aarch64.pkg.tar.xz",
+      "version": "4.0-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc"
+      ],
+      "filename": "libebur128-1.2.6-2-aarch64.pkg.tar.xz",
+      "isize": 84248,
+      "license": [
+        "MIT"
+      ],
+      "name": "libebur128",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "a1b54c783cacadcea9f31974f140afeb19c385854d924ef597f159b1ea4343ae",
+      "signature_sha256": "7fd9cd596b0011a156a9e0b3dd4b11aedf5b6c1c36875add2e2f79bf39914de8",
+      "signature_size": 566,
+      "size": 16524,
+      "source_url": [
+        "https://github.com/jiixyj/libebur128"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libebur128-1.2.6-2-aarch64.pkg.tar.xz",
+      "version": "1.2.6-2"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc"
+      ],
+      "filename": "libfdk-aac-3.0.0-1-aarch64.pkg.tar.xz",
+      "isize": 3067269,
+      "license": [
+        "LicenseRef-Fraunhofer"
+      ],
+      "name": "libfdk-aac",
+      "provides": [
+        "libfdk-aac.so=2-64"
+      ],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "7dc8dc21e95888bdf8c9ee3b0a45e5adea62c2b9a5dc3a57ea502f46330b00d8",
+      "signature_sha256": "f79301738e44aba1a927472659546c7f5d40c68cd8606919f2ad96d63ac32fa7",
+      "signature_size": 566,
+      "size": 1201016,
+      "source_url": [
+        "https://sourceforge.net/projects/opencore-amr/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libfdk-aac-3.0.0-1-aarch64.pkg.tar.xz",
+      "version": "3.0.0-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc"
+      ],
+      "filename": "libfreeaptx-0.2.2-1-aarch64.pkg.tar.xz",
+      "isize": 209159,
+      "license": [
+        "LGPL-2.1-or-later"
+      ],
+      "name": "libfreeaptx",
+      "provides": [
+        "libfreeaptx.so=0-64"
+      ],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "abc0efaf4adb7838608ecf0ba15d790faa1048fade46791ee4fd79a2b2e37c1a",
+      "signature_sha256": "848b22d25389d65085d9992f79ced9cfcb08f5058a8d604a88c516801bcb20bf",
+      "signature_size": 566,
+      "size": 18272,
+      "source_url": [
+        "https://github.com/regularhunter/libfreeaptx"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libfreeaptx-0.2.2-1-aarch64.pkg.tar.xz",
+      "version": "0.2.2-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc"
+      ],
+      "filename": "liblc3-1.1.3-2-aarch64.pkg.tar.xz",
+      "isize": 437524,
+      "license": [
+        "Apache-2.0"
+      ],
+      "name": "liblc3",
+      "provides": [
+        "liblc3.so=1-64"
+      ],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "63705c3df9a27ee6673585ec2adea6bca6e1cc597c5d8da7f4e39565ad7a8e26",
+      "signature_sha256": "bbc5d5835b3ebe91d39e053b45bc6f2d1c637d33ae2cc3a2aa7094e2cd200278",
+      "signature_size": 566,
+      "size": 106540,
+      "source_url": [
+        "https://github.com/google/liblc3"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/liblc3-1.1.3-2-aarch64.pkg.tar.xz",
+      "version": "1.1.3-2"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc"
+      ],
+      "filename": "libldac-2.0.2.6-1-aarch64.pkg.tar.xz",
+      "isize": 165854,
+      "license": [
+        "Apache-2.0"
+      ],
+      "name": "libldac",
+      "provides": [
+        "libldacBT_abr.so=2-64",
+        "libldacBT_enc.so=2-64"
+      ],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "fef1b517fed8f60b0dc87a50ad73bdeec3a36329ec59d1beb5106bb9135365ec",
+      "signature_sha256": "35330da3733774cafb46a74ecd9bbf8bff22e1468697770d0150c017c3fdf97d",
+      "signature_size": 566,
+      "size": 32772,
+      "source_url": [
+        "https://github.com/EHfive/ldacBT"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libldac-2.0.2.6-1-aarch64.pkg.tar.xz",
+      "version": "2.0.2.6-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "zlib"
+      ],
+      "filename": "libmysofa-1.3.5-1-aarch64.pkg.tar.xz",
+      "isize": 1329658,
+      "license": [
+        "BSD-3-Clause"
+      ],
+      "name": "libmysofa",
+      "provides": [
+        "libmysofa.so=1-64"
+      ],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "ef2981c71c912bf871c11e0d462c5098ee6fbbdd2f0e7268a2f5d834654493a8",
+      "signature_sha256": "db758d9c05c7d13ff5f2bac3d55d87bf365d383069357551834793ee8f3e21b2",
+      "signature_size": 566,
+      "size": 1158736,
+      "source_url": [
+        "https://github.com/hoene/libmysofa/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libmysofa-1.3.5-1-aarch64.pkg.tar.xz",
+      "version": "1.3.5-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc"
+      ],
+      "filename": "libogg-1.3.6-1-aarch64.pkg.tar.xz",
+      "isize": 488625,
+      "license": [
+        "BSD"
+      ],
+      "name": "libogg",
+      "provides": [
+        "libogg.so=0-64"
+      ],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "91a402c06a669649cf463d17788fcd67c1993489008116193a900b19a7ada75e",
+      "signature_sha256": "40bf19a7184d7947f6001ae17fca2e0982f6fccc0a8bb62b19d8b0c1e5eea1ba",
+      "signature_size": 566,
+      "size": 199192,
+      "source_url": [
+        "https://www.xiph.org/ogg/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libogg-1.3.6-1-aarch64.pkg.tar.xz",
+      "version": "1.3.6-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "flac",
+        "libFLAC.so=14-64",
+        "lame",
+        "libmp3lame.so=0-64",
+        "libogg",
+        "libogg.so=0-64",
+        "libvorbis",
+        "libvorbis.so=0-64",
+        "libvorbisenc.so=2-64",
+        "mpg123",
+        "libmpg123.so=0-64",
+        "opus",
+        "libopus.so=0-64"
+      ],
+      "filename": "libsndfile-1.2.2-4-aarch64.pkg.tar.xz",
+      "isize": 1518171,
+      "license": [
+        "LGPL-2.1-or-later"
+      ],
+      "name": "libsndfile",
+      "provides": [
+        "libsndfile.so=1-64"
+      ],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "5f8995bee55c37fff098d20cc61ca7b1b4a13c4bc2c1181aea493cc267154d61",
+      "signature_sha256": "ccbc34517fbe934e2f8d72a1e33b5be18556e45ade385a5d31d294a9e226ac23",
+      "signature_size": 566,
+      "size": 297312,
+      "source_url": [
+        "https://libsndfile.github.io/libsndfile/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libsndfile-1.2.2-4-aarch64.pkg.tar.xz",
+      "version": "1.2.2-4"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "libogg",
+        "libogg.so=0-64"
+      ],
+      "filename": "libvorbis-1.3.7-4-aarch64.pkg.tar.xz",
+      "isize": 1029595,
+      "license": [
+        "BSD-3-Clause"
+      ],
+      "name": "libvorbis",
+      "provides": [
+        "libvorbis.so=0-64",
+        "libvorbisenc.so=2-64",
+        "libvorbisfile.so=3-64"
+      ],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "22d10826e1b2b72b1c5f69ba116e4a4840197d3f808c37bfa738f9dd8b493118",
+      "signature_sha256": "96463dd5a18ec68f8465f8588356bee33e69e52d4235cef41ca81d4c186a11bf",
+      "signature_size": 566,
+      "size": 168412,
+      "source_url": [
+        "https://www.xiph.org/vorbis/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/libvorbis-1.3.7-4-aarch64.pkg.tar.xz",
+      "version": "1.3.7-4"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "serd",
+        "libserd-0.so=0-64",
+        "sord",
+        "libsord-0.so=0-64",
+        "sratom",
+        "libsratom-0.so=0-64",
+        "lv2",
+        "zix"
+      ],
+      "filename": "lilv-0.28.0-1-aarch64.pkg.tar.xz",
+      "isize": 235069,
+      "license": [
+        "0BSD OR ISC",
+        "ISC"
+      ],
+      "name": "lilv",
+      "provides": [
+        "liblilv-0.so=0-64"
+      ],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "9e83a52165a501988ce86ce6dbe0dffde94a1b3607b5669a0a83a3d8a9207c68",
+      "signature_sha256": "668a8b3d9dec607f6541ad2531828ee52b0c34ac6b5fbd841d8b7c76545a56cf",
+      "signature_size": 566,
+      "size": 62260,
+      "source_url": [
+        "https://gitlab.com/lv2/lilv"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/lilv-0.28.0-1-aarch64.pkg.tar.xz",
+      "version": "0.28.0-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [],
+      "filename": "lv2-1.18.10-2-aarch64.pkg.tar.xz",
+      "isize": 1025520,
+      "license": [
+        "ISC"
+      ],
+      "name": "lv2",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "dc13974193c255df9aabf9a02837d664be6da1f394308c685773f1abeb42435c",
+      "signature_sha256": "df21ae601c225abdd79527ebe170fa1e75983f6ab797afa26c5f73175e76b6bc",
+      "signature_size": 566,
+      "size": 152852,
+      "source_url": [
+        "https://lv2plug.in/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/lv2-1.18.10-2-aarch64.pkg.tar.xz",
+      "version": "1.18.10-2"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "alsa-lib",
+        "glibc"
+      ],
+      "filename": "mpg123-1.33.7-1-aarch64.pkg.tar.xz",
+      "isize": 1764948,
+      "license": [
+        "LGPL-2.1-only"
+      ],
+      "name": "mpg123",
+      "provides": [
+        "libmpg123.so=0-64",
+        "libout123.so=0-64",
+        "libsyn123.so=0-64"
+      ],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "b7474b336fc068ab1fe324577e296bc80ad10a34cb69cd33969de81d37744275",
+      "signature_sha256": "851b379bfbeff84e3f0d2b0a3f203c15d76ae12c7eab34d660425c93ba5c8aef",
+      "signature_size": 566,
+      "size": 424156,
+      "source_url": [
+        "https://mpg123.de/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/mpg123-1.33.7-1-aarch64.pkg.tar.xz",
+      "version": "1.33.7-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc"
+      ],
+      "filename": "opus-1.6.1-1-aarch64.pkg.tar.xz",
+      "isize": 5049281,
+      "license": [
+        "BSD-3-Clause"
+      ],
+      "name": "opus",
+      "provides": [
+        "libopus.so=0-64"
+      ],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "a111defb532e8e7e12815cffa06f59be23e3d5b95539d5588289a467a2a11b1a",
+      "signature_sha256": "34103a17bd7993d51ef9a2fb15ec6e110852efa5c24350bac9276897a64dfe69",
+      "signature_size": 566,
+      "size": 3946736,
+      "source_url": [
+        "https://www.opus-codec.org/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/opus-1.6.1-1-aarch64.pkg.tar.xz",
+      "version": "1.6.1-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "libpipewire=1:1.6.9-1",
+        "libpipewire-0.3.so=0-64",
+        "pipewire=1:1.6.9-1",
+        "alsa-card-profiles",
+        "alsa-lib",
+        "libasound.so=2-64",
+        "bluez-libs",
+        "libbluetooth.so=3-64",
+        "dbus",
+        "libdbus-1.so=3-64",
+        "fftw",
+        "libfftw3f.so=3-64",
+        "glib2",
+        "libglib-2.0.so=0-64",
+        "libgobject-2.0.so=0-64",
+        "libgio-2.0.so=0-64",
+        "glibc",
+        "libebur128",
+        "libfdk-aac",
+        "libfdk-aac.so=2-64",
+        "libfreeaptx",
+        "libfreeaptx.so=0-64",
+        "libgcc",
+        "liblc3",
+        "liblc3.so=1-64",
+        "libldac",
+        "libldacBT_enc.so=2-64",
+        "libmysofa",
+        "libmysofa.so=1-64",
+        "libsndfile",
+        "libsndfile.so=1-64",
+        "libstdc++",
+        "libusb",
+        "libusb-1.0.so=0-64",
+        "lilv",
+        "liblilv-0.so=0-64",
+        "opus",
+        "libopus.so=0-64",
+        "sbc",
+        "libsbc.so=1-64",
+        "spandsp",
+        "libspandsp.so=2-64",
+        "systemd-libs",
+        "webrtc-audio-processing-1",
+        "libwebrtc-audio-processing-1.so=3-64"
+      ],
+      "filename": "pipewire-audio-1:1.6.9-1-aarch64.pkg.tar.xz",
+      "isize": 5946016,
+      "license": [
+        "MIT"
+      ],
+      "name": "pipewire-audio",
+      "provides": [
+        "ladspa-host",
+        "lv2-host"
+      ],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "7c302284562d8f43f2c515a3a3f1f6ae19a353816309b8345991ebc4de526287",
+      "signature_sha256": "54ceb1d7a7e0cd891e9ef59400e51b624bdf250ca891bd9b08e05e1ffaf1d693",
+      "signature_size": 566,
+      "size": 1135688,
+      "source_url": [
+        "https://pipewire.org"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/pipewire-audio-1:1.6.9-1-aarch64.pkg.tar.xz",
+      "version": "1:1.6.9-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc"
+      ],
+      "filename": "sbc-2.2-1-aarch64.pkg.tar.xz",
+      "isize": 273370,
+      "license": [
+        "GPL-2.0-or-later",
+        "LGPL-2.1-or-later"
+      ],
+      "name": "sbc",
+      "provides": [
+        "libsbc.so=1-64"
+      ],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "73d3213904ebd2d8f48b462d83d73cfe1922f3e2ac8aaf33127b2dffa9c51af8",
+      "signature_sha256": "8eb6c3df0fa82da323739493de29b24dfa7cc37bb51389d0af413bdea08158f3",
+      "signature_size": 566,
+      "size": 38504,
+      "source_url": [
+        "https://git.kernel.org/pub/scm/bluetooth/sbc.git"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/sbc-2.2-1-aarch64.pkg.tar.xz",
+      "version": "2.2-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc"
+      ],
+      "filename": "serd-0.32.10-1-aarch64.pkg.tar.xz",
+      "isize": 258273,
+      "license": [
+        "0BSD OR ISC",
+        "BSD-3-Clause",
+        "ISC"
+      ],
+      "name": "serd",
+      "provides": [
+        "libserd-0.so=0-64"
+      ],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "63f2c696dfd4a69a26b9241ef730dc335ccd3105c79025d8ce078404825e0418",
+      "signature_sha256": "7883216c0d3d0517722dd12e5f3bbe76606055dc779afd723ec55cce5d1bb24a",
+      "signature_size": 566,
+      "size": 59980,
+      "source_url": [
+        "https://drobilla.net/software/serd.html"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/serd-0.32.10-1-aarch64.pkg.tar.xz",
+      "version": "0.32.10-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "pcre2",
+        "serd",
+        "libserd-0.so=0-64",
+        "zix",
+        "libzix-0.so=0-64"
+      ],
+      "filename": "sord-0.16.22-1-aarch64.pkg.tar.xz",
+      "isize": 250380,
+      "license": [
+        "ISC"
+      ],
+      "name": "sord",
+      "provides": [
+        "libsord-0.so=0-64"
+      ],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "83b754b154e1fa39dd7d686f78aead58d8c7ea3360db56b975d4ee65f5bc9044",
+      "signature_sha256": "df9b5cc03c69d5963e5cd3d78fc0f75f212f74a74b4fb3b74630679fdc8d13d3",
+      "signature_size": 566,
+      "size": 35740,
+      "source_url": [
+        "https://drobilla.net/software/sord.html"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/sord-0.16.22-1-aarch64.pkg.tar.xz",
+      "version": "0.16.22-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "libtiff"
+      ],
+      "filename": "spandsp-0.0.6-7-aarch64.pkg.tar.xz",
+      "isize": 1718008,
+      "license": [
+        "LGPL-2.1-only"
+      ],
+      "name": "spandsp",
+      "provides": [
+        "libspandsp.so=2-64"
+      ],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "c3fef8569a60a66dc9605b476a9032031c91fc566a994741836dc622b8bbb7d9",
+      "signature_sha256": "dad72905341e687d158efff714dc3fe606abe876dcae14a8d5ddfb6435b86084",
+      "signature_size": 566,
+      "size": 393812,
+      "source_url": [
+        "https://www.soft-switch.org/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/spandsp-0.0.6-7-aarch64.pkg.tar.xz",
+      "version": "0.0.6-7"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "serd",
+        "libserd-0.so=0-64",
+        "sord",
+        "libsord-0.so=0-64",
+        "lv2"
+      ],
+      "filename": "sratom-0.6.22-1-aarch64.pkg.tar.xz",
+      "isize": 79120,
+      "license": [
+        "ISC"
+      ],
+      "name": "sratom",
+      "provides": [
+        "libsratom-0.so=0-64"
+      ],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "f03d5ade48ac5e482b56a6f59333869fc2f4093c04972c3e8ab1d44daed9da86",
+      "signature_sha256": "7476e118e90f7199bc84f64356f1ef09f2a688f1cdc1c42982f7240f1289e606",
+      "signature_size": 566,
+      "size": 18028,
+      "source_url": [
+        "https://drobilla.net/software/sratom.html"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/sratom-0.6.22-1-aarch64.pkg.tar.xz",
+      "version": "0.6.22-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "abseil-cpp",
+        "gcc-libs",
+        "glibc"
+      ],
+      "filename": "webrtc-audio-processing-1-1.3-5-aarch64.pkg.tar.xz",
+      "isize": 1614255,
+      "license": [
+        "BSD-3-Clause"
+      ],
+      "name": "webrtc-audio-processing-1",
+      "provides": [
+        "libwebrtc-audio-coding-1.so=3-64",
+        "libwebrtc-audio-processing-1.so=3-64"
+      ],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "3c1427562bbe5aea66f792ffd9acea87cd8c305577310057c8cf0cc1ee438fb8",
+      "signature_sha256": "9de7767e9235ccb3ab4fa8e7b07164e4457c93c7bfbc56e473c733b06083f7bd",
+      "signature_size": 566,
+      "size": 464104,
+      "source_url": [
+        "https://freedesktop.org/software/pulseaudio/webrtc-audio-processing/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/webrtc-audio-processing-1-1.3-5-aarch64.pkg.tar.xz",
+      "version": "1.3-5"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc"
+      ],
+      "filename": "zix-0.8.2-1-aarch64.pkg.tar.xz",
+      "isize": 146204,
+      "license": [
+        "0BSD OR ISC"
+      ],
+      "name": "zix",
+      "provides": [
+        "libzix-0.so=0-64"
+      ],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "27d0816a1719b6d91cc96b00c7e16cedf661a1a45ed2c431cb3fcca8e8cb5025",
+      "signature_sha256": "9367ecb93559e22d386ca04f37d555c59bf8067917883752d024e6bd441b6804",
+      "signature_size": 566,
+      "size": 40888,
+      "source_url": [
+        "https://gitlab.com/drobilla/zix"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/zix-0.8.2-1-aarch64.pkg.tar.xz",
+      "version": "0.8.2-1"
+    }
+  ],
+  "signer_fingerprint": "68B3537F39A313B3E574D06777193F152BDBE6A6"
+}
