@@ -1,0 +1,11 @@
+# Fixed development composition trial
+
+This job installs ten current project packages and four missing signed upstream dependencies on a fresh instance of the proven 574-package generic ARM runtime base. It substitutes project FDK for upstream FDK and requires the exact 587-package inventory in `expected-installed.lock`. It is a development transaction, with package scriptlets disabled and hooks masked; target/platform/release acceptance is not claimed.
+
+`run.py` consumes the original four and FDK build outputs in the same job, obtains the four small tool binaries on the unchanged 341 compiler, builds the updater pair with the unchanged 354 compiler, then constructs the unchanged 574 runtime base. Recipe Source, updater API Source and runtime builder Source are pinned in the runner. All ten actual package metadata and BUILDINFO records must match the selected recipes before temporary TEST signing. `dependencies/` reuses the existing updater helper/lock unchanged: all five are authenticated; exact already-installed xdg-utils is excluded from the four-package transaction selection.
+
+The updater caller receives an explicit clean environment and private HOME with no `DOCKER_*` variables. The 574 helper pin includes Root's mode-0644 pacman configuration correction; the selected input/configuration bytes and 574 versions remain unchanged.
+
+`container.py` requires a disposable native ARM root container with its explicit nonce, no network or host system mounts, and the fixed 14 incoming archives/signatures. It uses fresh private trust for the upstream and TEST public certificates, required signatures and one ordinary pacman transaction. Exact inventory, dependency consistency, package integrity, payload ownership/symlinks, pyalpm import and installed FDK loads must pass. All application sessions, target hardware/lifecycle and release publication remain NOT RUN.
+
+The workflow invokes the runner with explicit product, updater, desktop-builder, original native output, FDK output, cache and fresh output paths. Public output contains bounded metadata/diagnostics only. Owned temporary signing state, trial containers and two new builder images are removed after use; the borrowed original builder remains available to its existing job owner. Cleanup uncertainty fails the trial. No binary publication or accepted signing-key setup occurs.
