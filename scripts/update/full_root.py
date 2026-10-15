@@ -5,6 +5,7 @@ import ctypes as C
 from dataclasses import dataclass
 import hashlib
 import importlib.util
+import json
 import math
 import os
 from pathlib import Path
@@ -247,10 +248,15 @@ def _mount_id(descriptor, limits):
     return int(fields[0])
 
 
-def observe(root, *, limits, shape_examples=0, hardlinks='refuse'):
+ABSOLUTE_PATH_LIMIT = 4096
+ABSOLUTE_PATH_BYTES = 256 * 1024
+
+
+def observe(root, *, limits, shape_examples=0, hardlinks='refuse', absolute_paths=False):
     """Measure a root without following links; incomplete/unsupported is ineligible."""
     limits.tick()
     need(type(shape_examples) is int and 0 <= shape_examples <= 16, 'bounded shape samples required')
+    need(type(absolute_paths) is bool, 'boolean absolute path diagnostic required')
     need(type(hardlinks) is str and hardlinks in ('refuse', 'generic-development-internal'),
          'invalid hardlink observation mode')
     internal = hardlinks == 'generic-development-internal'
@@ -259,6 +265,7 @@ def observe(root, *, limits, shape_examples=0, hardlinks='refuse'):
     aliases = 0
     nodes, problems, counts = {}, [], {}
     categories, target_classes, auxiliary_paths = {}, {}, []
+    absolute_entries, absolute_bytes, absolute_truncated = [], 2, False
     allocated_inodes, hardlinked_inodes = set(), set()
     footprint = {'nodes': 0, 'bytes': 0, 'largest_file_bytes': 0, 'hardlinks': 0,
                  'hardlink_entries': 0, 'hardlink_inodes': 0, 'hardlink_declared_links': 0,
@@ -281,6 +288,7 @@ def observe(root, *, limits, shape_examples=0, hardlinks='refuse'):
                      filesystem_free_bytes_source='statvfs-f_bavail')
 
     def problem(reason, name):
+        nonlocal absolute_bytes, absolute_truncated
         counts[reason] = counts.get(reason, 0) + 1
         if len(problems) < limits.max_unsupported:
             problems.append({'reason': reason, 'path': name[:4096]})
@@ -298,6 +306,15 @@ def observe(root, *, limits, shape_examples=0, hardlinks='refuse'):
                 sample = {'path': name[:1024], 'path_truncated': len(name) > 1024}
                 if target_class is not None: sample['target_class'] = target_class
                 row['examples'].append(sample)
+        if absolute_paths and reason == 'absolute-symlink':
+            if not shape_examples: target_class = absolute_target_class(nodes, name, limits)
+            entry = {'path': name, 'target_class': target_class}
+            size = len(json.dumps(entry, sort_keys=True, separators=(',', ':')).encode('ascii'))
+            added = size + bool(absolute_entries)
+            if len(absolute_entries) < ABSOLUTE_PATH_LIMIT and absolute_bytes + added <= ABSOLUTE_PATH_BYTES:
+                absolute_entries.append(entry); absolute_bytes += added
+            else:
+                absolute_truncated = True
 
     def walk(directory, prefix='', depth=0):
         nonlocal aliases
@@ -496,6 +513,15 @@ def observe(root, *, limits, shape_examples=0, hardlinks='refuse'):
             'auxiliary_paths': auxiliary_paths, 'auxiliary_paths_complete': report['complete'],
             'absolute_classes_complete': report['complete'] and sum(target_classes.values()) == counts.get('absolute-symlink', 0),
             'target_values': 'OMITTED',
+            'scope': 'observed node-map diagnostics only; no policy permission'}
+    if absolute_paths:
+        report['absolute_chain_paths'] = {
+            'entries': sorted(absolute_entries, key=lambda entry: entry['path']),
+            'observed_count': counts.get('absolute-symlink', 0),
+            'complete': report['complete'] and not absolute_truncated and len(absolute_entries) == counts.get('absolute-symlink', 0),
+            'truncated': absolute_truncated, 'observation_complete': report['complete'],
+            'entry_limit': ABSOLUTE_PATH_LIMIT, 'entry_json_byte_limit': ABSOLUTE_PATH_BYTES,
+            'entry_json_bytes': absolute_bytes, 'target_values': 'OMITTED',
             'scope': 'observed node-map diagnostics only; no policy permission'}
     report['eligible'] = report['complete'] and not counts
     footprint['complete'] = report['complete'] and 'cross-device' not in counts
