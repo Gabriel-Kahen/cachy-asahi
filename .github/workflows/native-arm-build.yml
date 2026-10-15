@@ -41,10 +41,13 @@ jobs:
         with:
           ref: a79c4ca92486854f9edb639cd970d2c90fda4b12
           persist-credentials: false
-      - name: Seed the four frozen private cache objects before native work
+      - name: Seed the six frozen private cache objects before native work
         if: inputs.mode == 'integration'
         shell: bash
         env:
+          CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01 }}
+          CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02 }}
+          CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01 }}
           CACHY_OLD_FOUR_SCHEMA: '1'
           CACHY_OLD_FOUR_SOURCE_EPOCH: '1791748800'
           CACHY_OLD_FOUR_JBIGKIT_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_01 }}
@@ -70,20 +73,24 @@ jobs:
           set -euo pipefail
           test "$(git rev-parse HEAD)" = "$SOURCE_COMMIT"
           test "$INPUTS_SHA256" = beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f
-          timeout --signal=TERM --kill-after=5s 60s python3 -B - <<'PYSEED'
+          timeout --signal=TERM --kill-after=5s 75s python3 -B - <<'PYSEED'
           import hashlib
           import os
           from pathlib import Path
           import sys
-          import time
           sys.path.insert(0, 'scripts/ci')
-          from old_four_seed import OLD_FOUR_PRIVATE_ROWS, seed_old_four_private_cache
+          from old_four_seed import (OLD_FOUR_PRIVATE_ROWS, RETAINED_BUBBLEWRAP_PRIVATE_ROWS,
+                                     seed_current_build_cache)
           pin = 'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f'
           if hashlib.sha256(Path('scripts/ci/inputs.lock.json').read_bytes()).hexdigest() != pin:
               raise SystemExit('private-cache-input-binding-refused')
           names = {'CACHY_OLD_FOUR_' + f'{tag}_{i:02d}'
                    for _, _, _, tag, count in OLD_FOUR_PRIVATE_ROWS for i in range(1, count + 1)}
-          if len(names) != 19 or not all(os.environ.get(name) for name in names):
+          retained = {'CACHY_RETAINED_BUBBLEWRAP_V1_' + f'{tag}_{i:02d}'
+                      for _, _, _, tag, sizes in RETAINED_BUBBLEWRAP_PRIVATE_ROWS
+                      for i in range(1, len(sizes) + 1)}
+          names |= retained
+          if len(names) != 22 or len(retained) != 3 or not all(os.environ.get(name) for name in names):
               raise SystemExit('private-cache-required-secrets-missing')
           cache = Path(os.environ['RUNNER_TEMP']) / 'alarm-cache'
           cache.mkdir(mode=0o700)
@@ -91,8 +98,7 @@ jobs:
           for name in tuple(os.environ):
               if name not in keep:
                   os.environ.pop(name)
-          seed_old_four_private_cache(cache, {'metadata_pins': {'scripts/ci/inputs.lock.json': pin}},
-                                      time.monotonic() + 50)
+          seed_current_build_cache(cache, pin)
           PYSEED
       - name: Build once, then run package lifecycle integration on the same ARM daemon
         shell: bash
