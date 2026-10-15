@@ -868,6 +868,10 @@ class Preparation:
             except BaseException as error:
                 first=error
                 self.capture_download(error,ordinal,item)
+                if connecting and response is None and isinstance(error,urllib.error.HTTPError):
+                    # urllib owns an error response even when open() never returned it.
+                    try:error.close()
+                    except BaseException as close_error:first=merge(first,close_error)
                 if (opened and fd is None) or (connecting and response is None):
                     first=merge(first,error);self.retained.append(error)
             finally:
