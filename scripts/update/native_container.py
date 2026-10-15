@@ -93,6 +93,68 @@ SCALE_DRIFT_PREPARE_PREFIXES = (('signed package load: ','ALPM_SIGNED_LOAD'),
     ('unsupported root observation: ','ROOT_OBSERVATION'),('platform policy refused: ','PLATFORM_POLICY'))
 
 
+# Exact alpm_strerror messages at upstream54d94116164b0b2202c6061c4a59c6f3e70820d8.
+# All fixed strings occur in the pinned native16.0.1 ELF. One source message
+# aliases two enum names; retain both rather than infer an unavailable errno.
+ALPM_LOAD_ERRNOS = {
+    'out of memory!':'ALPM_ERR_MEMORY',
+    'unexpected system error':'ALPM_ERR_SYSTEM',
+    'permission denied':'ALPM_ERR_BADPERMS',
+    'could not find or read file':'ALPM_ERR_NOT_A_FILE',
+    'could not find or read directory':'ALPM_ERR_NOT_A_DIR',
+    'wrong or NULL argument passed':'ALPM_ERR_WRONG_ARGS',
+    'not enough free disk space':'ALPM_ERR_DISK_SPACE',
+    'library not initialized':'ALPM_ERR_HANDLE_NULL',
+    'library already initialized':'ALPM_ERR_HANDLE_NOT_NULL',
+    'unable to lock database':'ALPM_ERR_HANDLE_LOCK',
+    'could not open database':'ALPM_ERR_DB_OPEN',
+    'could not create database':'ALPM_ERR_DB_CREATE',
+    'database not initialized':'ALPM_ERR_DB_NULL',
+    'database already registered':'ALPM_ERR_DB_NOT_NULL',
+    'could not find database':'ALPM_ERR_DB_NOT_FOUND',
+    'invalid or corrupted database':'ALPM_ERR_DB_INVALID',
+    'invalid or corrupted database (PGP signature)':'ALPM_ERR_DB_INVALID_SIG',
+    'database is incorrect version':'ALPM_ERR_DB_VERSION',
+    'could not update database':'ALPM_ERR_DB_WRITE',
+    'could not remove database entry':'ALPM_ERR_DB_REMOVE',
+    'invalid url for server':'ALPM_ERR_SERVER_BAD_URL',
+    'no servers configured for repository':'ALPM_ERR_SERVER_NONE',
+    'transaction already initialized':'ALPM_ERR_TRANS_NOT_NULL',
+    'transaction not initialized':'ALPM_ERR_TRANS_NULL|ALPM_ERR_TRANS_NOT_INITIALIZED',
+    'duplicate target':'ALPM_ERR_TRANS_DUP_TARGET',
+    'duplicate filename':'ALPM_ERR_TRANS_DUP_FILENAME',
+    'transaction not prepared':'ALPM_ERR_TRANS_NOT_PREPARED',
+    'transaction aborted':'ALPM_ERR_TRANS_ABORT',
+    'operation not compatible with the transaction type':'ALPM_ERR_TRANS_TYPE',
+    'transaction commit attempt when database is not locked':'ALPM_ERR_TRANS_NOT_LOCKED',
+    'failed to run transaction hooks':'ALPM_ERR_TRANS_HOOK_FAILED',
+    'could not find or read package':'ALPM_ERR_PKG_NOT_FOUND',
+    'operation cancelled due to ignorepkg':'ALPM_ERR_PKG_IGNORED',
+    'invalid or corrupted package':'ALPM_ERR_PKG_INVALID',
+    'invalid or corrupted package (checksum)':'ALPM_ERR_PKG_INVALID_CHECKSUM',
+    'invalid or corrupted package (PGP signature)':'ALPM_ERR_PKG_INVALID_SIG',
+    'package missing required signature':'ALPM_ERR_PKG_MISSING_SIG',
+    'cannot open package file':'ALPM_ERR_PKG_OPEN',
+    'cannot remove all files for package':'ALPM_ERR_PKG_CANT_REMOVE',
+    'package filename is not valid':'ALPM_ERR_PKG_INVALID_NAME',
+    'package architecture is not valid':'ALPM_ERR_PKG_INVALID_ARCH',
+    'missing PGP signature':'ALPM_ERR_SIG_MISSING',
+    'invalid PGP signature':'ALPM_ERR_SIG_INVALID',
+    'could not satisfy dependencies':'ALPM_ERR_UNSATISFIED_DEPS',
+    'conflicting dependencies':'ALPM_ERR_CONFLICTING_DEPS',
+    'conflicting files':'ALPM_ERR_FILE_CONFLICTS',
+    'failed to initialize download':'ALPM_ERR_RETRIEVE_PREPARE',
+    'failed to retrieve some files':'ALPM_ERR_RETRIEVE',
+    'invalid regular expression':'ALPM_ERR_INVALID_REGEX',
+    'libarchive error':'ALPM_ERR_LIBARCHIVE',
+    'download library error':'ALPM_ERR_LIBCURL',
+    'gpgme error':'ALPM_ERR_GPGME',
+    'error invoking external downloader':'ALPM_ERR_EXTERNAL_DOWNLOAD',
+    'compiled without signature support':'ALPM_ERR_MISSING_CAPABILITY_SIGNATURES',
+    'unexpected error':'ALPM_STRERROR_DEFAULT',
+}
+
+
 def scale_drift_diagnostic(test):
     """Project only this fixture's fixed labels/facts; never its raw result/error."""
     if test.id() != SCALE_DRIFT_TEST:return None
@@ -109,10 +171,13 @@ def scale_drift_diagnostic(test):
         category=SCALE_DRIFT_REASONS.get(error)
         if category is None:
             category=next((label for prefix,label in SCALE_DRIFT_PREPARE_PREFIXES if error.startswith(prefix)),'OTHER')
+    alpm_errno='UNAVAILABLE'
+    if type(error) is str and error.startswith('signed package load: '):
+        alpm_errno=ALPM_LOAD_ERRNOS.get(error[len('signed package load: '):],'UNRECOGNIZED')
     return dict(stage=label(raw.get('stage'),SCALE_DRIFT_STAGES),
         status=label(row.get('status'),{'PASS','FAIL'}),phase=label(row.get('phase'),SCALE_DRIFT_PHASES),
         error_type=label(row.get('error_type'),SCALE_DRIFT_ERRORS),
-        error_category=category,
+        error_category=category,alpm_errno=alpm_errno,
         commit_started=fact(row.get('commit_started')),packages_committed=fact(row.get('packages_committed')),
         checkpoint_changed=fact(row.get('checkpoint_changed')),callback_reached=fact(row.get('test_scale_precommit_reached')))
 
