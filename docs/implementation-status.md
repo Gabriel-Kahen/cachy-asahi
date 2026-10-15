@@ -2,6 +2,16 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 15, installer registration and onboarding correction:
+Published Source `66e6f250` binds the installer bridge and maintained issuer
+assertion to the composed handoff, copies the required release helper into
+onboarding, and corrects the two stale unit fixtures. Author and independent
+runs each pass native-preflight98, onboarding13 and integration157 with zero
+errors or skips. Root admits actual Source/held-Code review `68feed0d`, with
+all 272 selected roles and the exact eleven-file change checked against Git.
+Data and execution-plan selection remain pending; native48, actual installation,
+current-package lifecycle and hardware acceptance are not established.
+
 October 15, kernel verifier diagnostic:
 Actual ARM run `38680751411` failed after the baseline kernel command naturally
 returned zero: output verification rejected
