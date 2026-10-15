@@ -195,15 +195,18 @@ def candidate_hashes():
     return result
 
 
+def validate_package_flags(flags, code):
+    require(type(flags) is list and 0 < len(flags) <= 40 and all(type(v) is str and
+            (re.fullmatch(r'-I/usr/include(?:/[A-Za-z0-9_.+-]+)*|-L/usr/lib|-l[A-Za-z0-9_.+-]+|-D_REENTRANT', v)
+             or v in ('-fno-strict-aliasing', '-fno-strict-overflow')) for v in flags) and
+            all(v in flags for v in ('-lpipewire-0.3', '-llilv-0', '-lserd-0')), code)
+
+
 def validate_flags(flags):
     prefix = ['-std=gnu11', *common().FLAGS[1:]]
     require(type(flags) is list and len(prefix) + 2 < len(flags) <= 64 and
             flags[:len(prefix)] == prefix and flags[-2:] == ['-ldl', '-lm'], 'runtime_schema')
-    package_flags = flags[len(prefix):-2]
-    require(all(type(v) is str and re.fullmatch(
-            r'-I/usr/include(?:/[A-Za-z0-9_.+-]+)*|-L/usr/lib|-l[A-Za-z0-9_.+-]+|-D_REENTRANT', v)
-            for v in package_flags) and all(v in package_flags for v in
-            ('-lpipewire-0.3', '-llilv-0', '-lserd-0')), 'runtime_schema')
+    validate_package_flags(flags[len(prefix):-2], 'runtime_schema')
 
 
 def validate_projected_host(row, case, expect):
@@ -443,9 +446,7 @@ def main():
                       'pkg-config', 10, budget, group=compile_budget)
         import shlex
         flags = shlex.split(raw.decode('ascii'))
-        require(0 < len(flags) <= 40 and all(re.fullmatch(
-                r'-I/usr/include(?:/[A-Za-z0-9_.+-]+)*|-L/usr/lib|-l[A-Za-z0-9_.+-]+|-D_REENTRANT', flag)
-                for flag in flags) and all(flag in flags for flag in ('-lpipewire-0.3', '-llilv-0', '-lserd-0')), 'pkg_config')
+        validate_package_flags(flags, 'pkg_config')
         compile_flags = ['-std=gnu11', *c.FLAGS[1:]]
         command(['/usr/bin/gcc', *compile_flags, str(SOURCE / 'host.c'), '-o', str(HOST), *flags, '-ldl', '-lm'],
                 'compile', 60, budget, group=compile_budget)
