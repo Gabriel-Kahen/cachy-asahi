@@ -108,6 +108,8 @@ def run(args):
                       sources={str(p.relative_to(ROOT)): native.sha(p) for p in
                                (Path(__file__), Path(arm.__file__), Path(stage.__file__),
                                 ROOT / 'scripts/experiments/corpus.py', ROOT / 'scripts/ci/native_arm.py')})
+        if arm.profile_adapter():
+            report['sources']['scripts/experiments/pgo.py'] = native.sha(Path(arm.profile_adapter().__file__).resolve())
         trial = output / 'trial'
         code = arm.host(SimpleNamespace(image=image, source=source, source_commit=args.source_commit,
                          expected_packages=bootstrap / 'packages.lock', expected_packages_sha256=PACKAGES_SHA,
@@ -118,6 +120,8 @@ def run(args):
         stage.export_artifacts(trial / 'raw', output / 'experiment-artifacts', verified)
         report.update(status='PASS', receiver_verification=verified['receiver_verification'],
                       reproducibility=verified['reproducibility'])
+        if arm.profile_adapter():
+            report['profile_verification'] = verified['profile_verification']
     except (KeyboardInterrupt, arm.Cancelled, OSError, ValueError, KeyError, subprocess.SubprocessError) as error:
         report.update(error_kind=type(error).__name__, error_traceback=traceback.format_exc(limit=12))
         report['cancelled'] = isinstance(error, (KeyboardInterrupt, arm.Cancelled))

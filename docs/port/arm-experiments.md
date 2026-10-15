@@ -104,16 +104,18 @@ threshold adopted from this host.
 
 ## PGO follow-up contract
 
+The C03 adapter uses `/tmp/profile` inside the existing private 2 GiB tmpfs, preserving the same canonical path for generation and both use builds. Configure feature probes use baseline flags; only final candidate objects use fatal missing-profile/coverage diagnostics. Preparation has focused synthetic coverage; native execution is pending.
+
 ARM-C03 uses the same source, tools, ISA, baseline optimization and canonical
 source/object paths throughout. Compile **and link** the training binary with
-`-fprofile-generate=/work/profile -fprofile-reproducible=serial`; execute a frozen,
+`-fprofile-generate=/tmp/profile -fprofile-reproducible=serial`; execute a frozen,
 single-threaded training corpus in a fixed order. Hash every `.gcda`, training
 binary, command, input and result. Retain the profile bundle as a build input;
 rebuilding from that bundle and regenerating profiles are distinct checks.
 [GCC instrumentation](https://gcc.gnu.org/onlinedocs/gcc/Instrumentation-Options.html)
 
 Remove build objects while retaining profiles, rebuild at identical canonical
-paths using `-fprofile-use=/work/profile`, and make missing-profile and coverage
+paths using `-fprofile-use=/tmp/profile`, and make missing-profile and coverage
 mismatch diagnostics fatal (`-Werror=missing-profile`,
 `-Werror=coverage-mismatch`, subject to locked-compiler probe). Never downgrade a
 missing profile to an accepted ordinary build. Keep training and held-out timing

@@ -275,7 +275,7 @@ def export_artifacts(raw, output, verified):
         approved[binary] = build['strict_driver']['binary_sha256']
         drivers.append({'binary': binary, 'sha256': approved[binary], 'source': 'strict-gzip.c',
                         'source_sha256': arm.STRICT_SHA, 'archive': prefix + '/libz.a',
-                        'cflags': build['cflags'], 'ldflags': build['ldflags'],
+                        'cflags': arm.strict_flags(prefix)[0], 'ldflags': arm.strict_flags(prefix)[1],
                         'configured_flags': build['configured_flags'], 'elf': build['strict_driver']['elf'],
                         'compile': command_reference(by_name[prefix + '-strict-compile']),
                         'elf_command': command_reference(by_name[prefix + '-strict-elf'])})
@@ -299,7 +299,10 @@ def export_artifacts(raw, output, verified):
                         'input': 'corpus/' + Path(plan['source']).name,
                         'stdin': command['stdin'], 'stdout': command['stdout'],
                         'command': command_reference(command)})
-    arm.need(len(approved) == 79 and len(drivers) == 4 and len(outputs) == 36, 'complete finite strict evidence archive required')
+    extras = arm.profile_adapter().artifact_files(arm, raw, verified['profile_verification']) if arm.profile_adapter() else {}
+    arm.need(not set(extras) & set(approved), 'profile export collides with existing output')
+    approved.update(extras)
+    arm.need(len(approved) == 79 + len(extras) and len(drivers) == 4 and len(outputs) == 36, 'complete finite strict evidence archive required')
     output.mkdir(mode=0o700)
     bundle = output / f'development-{arm.EXPERIMENT}-outputs.tar.gz'
     total = 0
