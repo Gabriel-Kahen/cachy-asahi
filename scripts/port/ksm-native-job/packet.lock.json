@@ -482,8 +482,8 @@
     },
     "scripts/ci/native_arm.py": {
       "mode": "0644",
-      "sha256": "7209d1f6a0a1acd38644a053d8956f3a1e17292122aef84d171368c984838924",
-      "size_bytes": 28358
+      "sha256": "077d3f8db24000dbbd7af23ba1a07757f4aeb21ff036498085618847ab5b5ce9",
+      "size_bytes": 28468
     },
     "scripts/ci/recipes.lock.json": {
       "mode": "0644",
@@ -602,12 +602,12 @@
     },
     "scripts/port/ksm-native-job/executor.py": {
       "mode": "0644",
-      "sha256": "73a306c2ac4415b5807040dc35ac8bbefb4697921d474e852b8b00c6c97eb07f",
-      "size_bytes": 48026
+      "sha256": "521705ded8fe4c414ee97ae729df9bf93f2addf66a48d2dd20962648a561c2f5",
+      "size_bytes": 48033
     },
     "scripts/port/ksm-native-job/executor_contract.py": {
       "mode": "0644",
-      "sha256": "2230b838909d8af5eec88fc22ae81014338aedbb39c51bf27425f9d71a8f7af7",
+      "sha256": "8d119ebbd493fd5ba743248c45fb64ee2a0b90bb8abf75cd869acdd4f0acaa41",
       "size_bytes": 35446
     },
     "scripts/port/ksm-native-job/history-80.json": {
@@ -687,13 +687,13 @@
     },
     "scripts/port/ksm-native-job/job.py": {
       "mode": "0644",
-      "sha256": "a9ccda835a5dcdd0cee9f3084b08f1a644bc22514cf3c810b29c9430b9b0249a",
+      "sha256": "16ffc6c9b4bd2b77b3b2641d88072d37928d709b72aa6832f91510761acc0b52",
       "size_bytes": 9745
     },
     "scripts/port/ksm-native-job/producer_driver.py": {
       "mode": "0644",
-      "sha256": "3ccc2b190181389d5b8ddc91f189e1bfec5ac3576f345b7f947ec9d64c31ccc2",
-      "size_bytes": 47264
+      "sha256": "30fc08607b78bcfa12feeed5f83e8b61260e4dda8fcf75cf5c180d4390a53979",
+      "size_bytes": 47272
     },
     "scripts/port/ksm-native-job/public.py": {
       "mode": "0644",
@@ -767,8 +767,8 @@
     },
     "scripts/port/ksm-native-job/test_producer_driver.py": {
       "mode": "0644",
-      "sha256": "d72d6d7d046eec06d22c1d2c62f1c7866b4f85db444d86ce545761c803e24e78",
-      "size_bytes": 62054
+      "sha256": "21d29e51b11c9120985e2f98edb4cf099a21e83b4856504d3a02e52655bd2376",
+      "size_bytes": 67459
     },
     "scripts/port/ksm-native-job/test_public.py": {
       "mode": "0644",

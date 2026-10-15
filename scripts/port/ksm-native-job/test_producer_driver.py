@@ -1003,4 +1003,92 @@ class CorrectionRegressionTests(unittest.TestCase):
         self.assertIs(probe.raised(generator.close),secondary)
 
 
+class KernelRecordCompatibilityTests(unittest.TestCase):
+    """Exact probe definition, inert observations; no subprocess or host probe."""
+    def fixture(self, *, system='Linux', machine='aarch64', docker_arch='aarch64', uid=1000,
+                endpoint='unix:///run/docker.sock', docker_host=None, uname_error=None):
+        path=HERE.parents[1]/'ci/native_arm.py'
+        tree=ast.parse(path.read_bytes())
+        node=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='probe')
+        calls=[];saved=[]
+        kernel=types.SimpleNamespace(sysname='Linux',nodename='inert-node',release='inert-release',
+                                     version='inert-version',machine='aarch64')
+        def uname():
+            calls.append('os.uname')
+            if uname_error is not None:raise uname_error
+            return kernel
+        def forbidden():raise AssertionError('lazy platform uname must not be requested')
+        def run(command,log=None,timeout=1800):
+            calls.append((command,log,timeout))
+            replies={('docker','info','--format','{{.Architecture}}'):docker_arch,
+                     ('docker','version'):'inert-docker-version',('lscpu',):'inert-cpu',
+                     ('docker','context','inspect'):json.dumps([{'Endpoints':{'docker':{'Host':endpoint}}}])}
+            return replies[tuple(command)]
+        env={'RUNNER_ARCH':'ARM64','RUNNER_OS':'Linux','GITHUB_REPOSITORY':'inert/repository',
+             'GITHUB_SHA':'a'*40,'GITHUB_RUN_ID':'123','ImageVersion':'inert-image','ImageOS':'inert-linux'}
+        if docker_host is not None:env['DOCKER_HOST']=docker_host
+        namespace=dict(os=types.SimpleNamespace(uname=uname,sysconf=lambda name:16384,getuid=lambda:uid,
+                        getgid=lambda:1000,environ=env),platform=types.SimpleNamespace(uname=forbidden,
+                        system=lambda:system,machine=lambda:machine),run=run,json=json,
+                        sys=types.SimpleNamespace(version='inert-python'),sha=lambda p:'b'*64,
+                        Path=Path,__file__=str(path),save=lambda path,value:saved.append(json.loads(json.dumps(value))))
+        exec(compile(ast.Module(body=[node],type_ignores=[]),str(path),'exec'),namespace)
+        return lambda:namespace['probe'](Path('/inert/output')),calls,saved
+
+    def test_five_native_kernel_fields_without_lazy_processor(self):
+        call,calls,saved=self.fixture();record=call()
+        self.assertEqual(record['kernel'],dict(system='Linux',node='inert-node',release='inert-release',
+                          version='inert-version',machine='aarch64'))
+        self.assertEqual(calls.count('os.uname'),1);self.assertNotIn('processor',record['kernel'])
+        self.assertEqual(len(calls),5);self.assertEqual(len(saved),2)
+        self.assertTrue(all(row[1:] == (None,60) for row in calls if type(row) is tuple))
+
+    def test_provenance_environment_and_page_size_preserved(self):
+        call,_,_=self.fixture();record=call()
+        expected=dict(page_size=16384,python='inert-python',uid=1000,gid=1000,runner_arch='ARM64',
+                      runner_os='Linux',repository='inert/repository',commit='a'*40,run_id='123',
+                      bootstrap_script_sha256='b'*64,image_version='inert-image',image_os='inert-linux',
+                      native_build='NOT RUN',hardware_validation='NOT RUN')
+        self.assertEqual({k:record[k] for k in expected},expected)
+
+    def test_platform_system_check_remains_required(self):
+        call,_,saved=self.fixture(system='Darwin')
+        with self.assertRaisesRegex(ValueError,'native Linux ARM'):call()
+        self.assertEqual(len(saved),1)
+
+    def test_platform_architecture_check_remains_required(self):
+        call,_,_=self.fixture(machine='x86_64')
+        with self.assertRaisesRegex(ValueError,'native Linux ARM'):call()
+
+    def test_daemon_architecture_check_remains_required(self):
+        call,_,_=self.fixture(docker_arch='amd64')
+        with self.assertRaisesRegex(ValueError,'native Linux ARM'):call()
+
+    def test_arm64_alias_remains_supported(self):
+        call,_,_=self.fixture(machine='arm64',docker_arch='arm64');self.assertEqual(call()['docker_server_arch'],'arm64')
+
+    def test_root_coordinator_remains_rejected(self):
+        call,_,_=self.fixture(uid=0)
+        with self.assertRaisesRegex(ValueError,'non-root'):call()
+
+    def test_remote_endpoint_remains_rejected(self):
+        call,_,_=self.fixture(endpoint='tcp://inert.invalid:2375')
+        with self.assertRaisesRegex(ValueError,'default local Docker socket'):call()
+
+    def test_remote_environment_override_remains_rejected(self):
+        call,_,_=self.fixture(docker_host='tcp://inert.invalid:2375')
+        with self.assertRaisesRegex(ValueError,'default local Docker socket'):call()
+
+    def test_both_local_endpoint_aliases_remain_supported(self):
+        for endpoint in ('unix:///run/docker.sock','unix:///var/run/docker.sock'):
+            call,_,_=self.fixture(endpoint=endpoint);self.assertEqual(call()['docker_endpoint'],endpoint)
+
+    def test_native_uname_error_is_not_swallowed(self):
+        error=OSError('inert uname failure');call,calls,saved=self.fixture(uname_error=error)
+        try:call()
+        except OSError as observed:self.assertIs(observed,error)
+        else:self.fail('expected exact uname error')
+        self.assertEqual(calls,['os.uname']);self.assertEqual(saved,[])
+
+
 if __name__=='__main__': unittest.main()

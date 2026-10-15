@@ -19,7 +19,7 @@ RECIPES_SHA = '20d846cdf289bfc233b0051bf33b677fd6e94e9f05d91a33595a2829a196fa63'
 PACKAGES_SHA = 'fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25'
 MAP_SHA = 'f933ccfcfb52ca97ea809d904344f6ec72eb5907ef458b5c2e7f7f1797dc1d44'
 PINS = {
-    'scripts/ci/native_arm.py': '7209d1f6a0a1acd38644a053d8956f3a1e17292122aef84d171368c984838924',
+    'scripts/ci/native_arm.py': '077d3f8db24000dbbd7af23ba1a07757f4aeb21ff036498085618847ab5b5ce9',
     'scripts/ci/inputs.lock.json': INPUTS_SHA,
     'scripts/ci/recipes.lock.json': RECIPES_SHA,
     'scripts/client/stage.py': '13c2108aa03d76305a16bf1c9d08aa610e51f54f7726e4732c13d0824e5733f5',

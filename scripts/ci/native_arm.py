@@ -297,8 +297,8 @@ def audit(inputs, cache, out):
 
 
 def probe(out):
-    kernel = platform.uname()
-    kernel = kernel._asdict()
+    kernel = os.uname()
+    kernel = {'system': kernel.sysname, 'node': kernel.nodename, 'release': kernel.release, 'version': kernel.version, 'machine': kernel.machine}
     record = {'kernel': kernel, 'page_size': os.sysconf('SC_PAGE_SIZE'),
               'docker_server_arch': run(['docker', 'info', '--format', '{{.Architecture}}'], timeout=60),
               'docker_version': run(['docker', 'version'], timeout=60),
