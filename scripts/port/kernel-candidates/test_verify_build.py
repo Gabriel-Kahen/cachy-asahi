@@ -834,5 +834,52 @@ class ImageRelativeRelocationTests(unittest.TestCase):
             self.read(altered)
 
 
+
+class RelocationDiagnosticTests(unittest.TestCase):
+    setUp = ImageRelativeRelocationTests.setUp
+    fixture = ImageRelativeRelocationTests.fixture
+    read = ImageRelativeRelocationTests.read
+    def test_null_link_failure_operands_are_original_and_closed(self):
+        for info, offset, failed in ((1028, TEXT_ADDR+0x8001, 'INFO_RELATIVE'),
+                                    ((1<<32)|1027, TEXT_ADDR+0x8001, 'INFO_RELATIVE'),
+                                    (1027, TEXT_ADDR+0xfff9, 'ALLOCATED_RANGE')):
+            raw,_ = self.fixture(offset=offset, info=info)
+            with self.assertRaises(ValueError) as caught:
+                self.read(raw)
+            error=caught.exception; self.assertIs(type(error), ValueError)
+            self.assertEqual(str(error), 'ELF relocation index/offset invalid')
+            fact=error.relocation_failure
+            self.assertEqual((fact['branch'], fact['failed_check']), ('NULL_LINK_RELATIVE', failed))
+            self.assertEqual((fact['offset'], fact['info']), (offset, info))
+            self.assertEqual(fact['role'], 'arm64-image-reference')
+            self.assertEqual(fact['section']['link'], 0)
+            self.assertIsNone(fact['symbol_count']); self.assertIsNone(fact['target_size'])
+            if failed == 'ALLOCATED_RANGE':
+                self.assertEqual(fact['allocated']['full_count'], 0)
+                self.assertEqual(fact['allocated']['start_count'], 1)
+            self.assertNotIn(str(self.path), repr(fact))
+
+    def test_linked_failure_keeps_symbol_index_and_module_offset_separate(self):
+        raw,_ = flat_kernel_bytes(b'owned_instruction_fixture'*4,readonly_kind=4)
+        altered=bytearray(raw);struct.pack_into('<Q',altered,0x8028,100<<32)
+        with self.assertRaises(ValueError) as caught:
+            self.read(altered,role='elf')
+        fact=caught.exception.relocation_failure
+        self.assertEqual((fact['branch'],fact['failed_check']), ('LINKED_SYMBOL','SYMBOL_INDEX'))
+        self.assertEqual(fact['info']>>32,100)
+        self.assertIsNone(fact['allocated']);self.assertIsNone(fact['load'])
+        self.assertIsNone(fact['target_size'])
+        raw=bytearray(elf_bytes(b'owned_module',module=True));shoff=struct.unpack_from('<Q',raw,40)[0]
+        target=struct.unpack_from('<I',raw,shoff+6*64+44)[0]
+        size=struct.unpack_from('<Q',raw,shoff+target*64+32)[0]
+        rela=struct.unpack_from('<Q',raw,shoff+6*64+24)[0]
+        struct.pack_into('<Q',raw,rela,size)
+        with self.assertRaises(ValueError) as caught:
+            self.read(raw,role='elf',kind=1)
+        fact=caught.exception.relocation_failure
+        self.assertEqual(fact['failed_check'],'MODULE_OFFSET')
+        self.assertEqual((fact['offset'],fact['target_size']), (size,size))
+
+
 if __name__ == '__main__':
     unittest.main()

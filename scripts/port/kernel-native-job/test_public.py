@@ -963,5 +963,46 @@ class InnerFailurePublicTests(unittest.TestCase):
         with self.assertRaises(ValueError): public.project(encoded(value), COMMIT, PIN, 'failure')
 
 
+
+def relocation_fixture():
+    return {'role': 'arm64-image-reference', 'elf_type': 3, 'branch': 'NULL_LINK_RELATIVE',
+        'failed_check': 'INFO_RELATIVE', 'section': {'index': 3, 'type': 4, 'flags': 2,
+        'link': 0, 'info': 0, 'entry_index': 0}, 'offset': 4097, 'info': 1028,
+        'symbol_count': None, 'target_size': None,
+        'allocated': {'start_count': 1, 'full_count': 1, 'first_start': {'index': 1, 'address': 4096, 'size': 32}},
+        'load': {'start_count': 1, 'full_count': 1, 'first_start': {'index': 0, 'address': 4096, 'size': 32}}}
+
+
+class RelocationPublicTests(unittest.TestCase):
+    value = InnerFailurePublicTests.value
+    def test_schema5_survives_full_public_projection_without_outcome_upgrade(self):
+        import importlib.util
+        path=HERE.parent/'kernel-native-stage/inner_result.py'
+        spec=importlib.util.spec_from_file_location('relocation_inner_fixture',path)
+        diag=importlib.util.module_from_spec(spec)
+        # Inner runtime is a separate module namespace from this job runtime.
+        import sys,types
+        saved=sys.modules.get('runtime');stub=types.ModuleType('runtime')
+        stub.Cancelled=type('Cancelled',(Exception,),{})
+        try:
+            sys.modules['runtime']=stub;spec.loader.exec_module(diag)
+        finally:
+            if saved is None:sys.modules.pop('runtime',None)
+            else:sys.modules['runtime']=saved
+        binding={'nonce':'a'*32,'action':'baseline','contract_sha256':'b'*64,'worker_sha256':'c'*64}
+        row=diag.initial(binding);diag.phase(row,'KERNEL');diag.issued(row,'KERNEL');diag.returned(row,0)
+        diag.phase(row,'OUTPUTS');error=ValueError('ELF relocation index/offset invalid')
+        error.relocation_failure=relocation_fixture();diag.failure(row,error);diag.output_failure(row,error)
+        report={'action':'baseline','nonce':binding['nonce'],'status':'FAIL','cancelled':False,'inner_diagnostic':row}
+        group=diag.capture(json.dumps(report).encode(),binding);value=self.value()
+        value['kernel_child']['diagnostics']['inner']['baseline']=group
+        for outcome in ('success','failure','cancelled'):
+            result=public.project(encoded(value),COMMIT,PIN,outcome)
+            self.assertEqual(result['kernel_child']['diagnostics']['inner']['baseline'],group)
+            self.assertEqual((result['status'],result['baseline'],result['candidate']),('FAIL','FAIL','NOT RUN'))
+        bad=copy.deepcopy(value);bad['kernel_child']['diagnostics']['inner']['baseline']['diagnostic']['schema_version']=4
+        with self.assertRaises(ValueError):public.project(encoded(bad),COMMIT,PIN,'failure')
+
+
 if __name__ == '__main__':
     unittest.main()

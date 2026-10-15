@@ -25,7 +25,7 @@
     },
     "scripts/port/kernel-candidates/verify_build.py": {
       "mode": 493,
-      "sha256": "47b4814e6a61459a56ea078b6b39a6f4de9791c607c7584248d2efb72134800e"
+      "sha256": "156c2f9e7080893c1d429f1d705e43a257c2419bb0e7335efe00b15e22822c05"
     },
     "scripts/port/kernel-native-stage/acquisition.py": {
       "mode": 493,
@@ -53,7 +53,7 @@
     },
     "scripts/port/kernel-native-stage/evidence.py": {
       "mode": 420,
-      "sha256": "d2868fcc4466e0356a240dff3c4ab05d0aab4ef5895bf0d12aaf3e6d2b99ad30"
+      "sha256": "4e45a360e282e1124dd49a2b37d5e486a487c1e56945eaa8af2046f62b6b743c"
     },
     "scripts/port/kernel-native-stage/image.py": {
       "mode": 420,
@@ -61,7 +61,7 @@
     },
     "scripts/port/kernel-native-stage/inner_result.py": {
       "mode": 420,
-      "sha256": "e81e20e030e93cb2b4aa2015cf4423324c7c5320e16e05246d2fc8a8ec2e0395"
+      "sha256": "3b25f6d69c316b2947acb39994f2ac06507425acf4498239dc0e92cd4a881bfb"
     },
     "scripts/port/kernel-native-stage/regression.py": {
       "mode": 493,
@@ -89,7 +89,7 @@
     },
     "scripts/port/kernel-native-stage/test_evidence.py": {
       "mode": 420,
-      "sha256": "d0816fa40033a928b23027d96e8148513a88f3b494394415cb602860a03aba92"
+      "sha256": "7dac8e68e715311546a5988bce153e30676bf3e9643ae2b6240df94aa41e013e"
     },
     "scripts/port/kernel-native-stage/test_image.py": {
       "mode": 420,
@@ -97,7 +97,7 @@
     },
     "scripts/port/kernel-native-stage/test_inner_result.py": {
       "mode": 420,
-      "sha256": "a25939f3cce345c1d294f0f7700eb9f1fcd4a5a2605e92116c1f1cab55551e53"
+      "sha256": "957bc0fe871a325151b4ba89548fd326dfc3de4734759adb0bb665e2c23f4d73"
     },
     "scripts/port/kernel-native-stage/test_regression.py": {
       "mode": 420,
@@ -113,7 +113,7 @@
     },
     "scripts/port/kernel-native-stage/test_worker.py": {
       "mode": 420,
-      "sha256": "a6677cd11b3890294bde5f56cceb4ed1415a7c59d5818d8b560dec1d72cd9a17"
+      "sha256": "30803c8cca8b82be662226e6bfc5b4e6601ddc4135cd4300c55d90f3e9f3a11c"
     },
     "scripts/port/kernel-native-stage/worker.py": {
       "mode": 493,

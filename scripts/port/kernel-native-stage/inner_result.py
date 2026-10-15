@@ -338,10 +338,74 @@ OUTPUT_CHECKS.update({'AArch64 ELF RELA metadata invalid [IMAGE_REFERENCE_TYPE_R
 OUTPUT_PREFIXES = (('ELF file-backed section required: ', 'ELF_FILE_SECTION'), ('export/kernel symbol missing from actual ELF: ', 'ELF_SYMBOL_MISSING'), ('Image body differs from vmlinux allocated section: ', 'IMAGE_SECTION_CONTENT'), ('generated configuration differs: ', 'GENERATED_CONFIG_DIFFERENCE'))
 OUTPUT_PREDICATES = frozenset(OUTPUT_CHECKS.values()) | frozenset(code for _, code in OUTPUT_PREFIXES) | {'OTHER'}
 
-def _output_fact(value):
-    _need(type(value) is dict and set(value) == {'call_boundary', 'predicate'})
+
+def _relocation_fact(value):
+    """Closed numeric CHECK_010 operands; schema5 only, never text or raw ELF."""
+    _need(type(value) is dict and set(value) == {'role', 'elf_type', 'branch', 'failed_check',
+         'section', 'offset', 'info', 'symbol_count', 'target_size', 'allocated', 'load'})
+    def uint(item, maximum=2**64 - 1):
+        _need(type(item) is int and 0 <= item <= maximum)
+    _need(type(value['role']) is str and value['role'] in ('elf', 'arm64-image-reference'))
+    _need(type(value['elf_type']) is int and value['elf_type'] in (1, 2, 3))
+    _need(value['role'] != 'arm64-image-reference' or value['elf_type'] in (2, 3))
+    _need(type(value['branch']) is str and value['branch'] in ('NULL_LINK_RELATIVE', 'LINKED_SYMBOL'))
+    _need(type(value['failed_check']) is str)
+    section = value['section']
+    _need(type(section) is dict and set(section) == {'index', 'type', 'flags', 'link', 'info', 'entry_index'})
+    for key in ('index', 'link', 'info'): uint(section[key], 8191)
+    _need(section['index'] > 0 and type(section['type']) is int and section['type'] == 4)
+    uint(section['flags']); _need(not (section['flags'] & 1 and section['flags'] & 4))
+    file_cap = (1 if value['elf_type'] == 1 else 4) * 1024**3
+    uint(section['entry_index'], file_cap // 24 - 1)
+    uint(value['offset']); uint(value['info'])
+    def ranges(item, cap, section_range=False):
+        _need(type(item) is dict and set(item) == {'start_count', 'full_count', 'first_start'})
+        uint(item['start_count'], cap); uint(item['full_count'], cap)
+        _need(item['full_count'] <= item['start_count'])
+        first = item['first_start']
+        if item['start_count'] == 0:
+            _need(first is None)
+        else:
+            _need(type(first) is dict and set(first) == {'index', 'address', 'size'})
+            uint(first['index'], cap - 1); uint(first['address']); uint(first['size'])
+            _need(item['start_count'] <= cap - first['index'])
+            _need(not section_range or first['index'] > 0)
+            _need(first['address'] <= value['offset'] < first['address'] + first['size'] <= 2**64)
+            fits = value['offset'] + 8 <= first['address'] + first['size']
+            _need(not fits or item['full_count'] > 0)
+            _need(item['full_count'] != item['start_count'] or fits)
+        return item['full_count']
+    if value['branch'] == 'NULL_LINK_RELATIVE':
+        _need(value['role'] == 'arm64-image-reference' and value['elf_type'] in (2, 3) and
+             section['link'] == section['info'] == 0 and section['flags'] & 2 and
+             value['symbol_count'] is value['target_size'] is None)
+        allocated = ranges(value['allocated'], 8192, True)
+        load = ranges(value['load'], 64)
+        _need(value['load']['start_count'] <= 1)
+        expected = 'INFO_RELATIVE' if value['info'] != 1027 else 'ALLOCATED_RANGE' if not allocated else 'LOAD_RANGE'
+        _need(value['info'] != 1027 or not allocated or not load)
+    else:
+        _need(section['link'] > 0 and value['allocated'] is value['load'] is None)
+        uint(value['symbol_count'], file_cap // 24)
+        if value['elf_type'] == 1:
+            _need(section['info'] > 0); uint(value['target_size'])
+        else:
+            _need(value['target_size'] is None)
+        symbol_invalid = value['info'] >> 32 >= value['symbol_count']
+        expected = 'SYMBOL_INDEX' if symbol_invalid else 'MODULE_OFFSET'
+        _need(symbol_invalid or value['elf_type'] == 1 and value['offset'] >= value['target_size'])
+    _need(value['failed_check'] == expected)
+    return value
+
+
+def _output_fact(value, version=4):
+    _need(type(version) is int and version in (4, 5) and type(value) is dict and
+         set(value) == ({'call_boundary', 'predicate', 'relocation'} if version == 5 else {'call_boundary', 'predicate'}))
     _need(type(value['call_boundary']) is str and value['call_boundary'] == 'VERIFY_OUTPUTS')
     _need(type(value['predicate']) is str and value['predicate'] in OUTPUT_PREDICATES)
+    if version == 5:
+        _need(value['predicate'] == 'CHECK_010')
+        _relocation_fact(value['relocation'])
     return value
 
 
@@ -357,15 +421,21 @@ def output_failure(row, error):
                     predicate = code
                     break
     detail = {'call_boundary': 'VERIFY_OUTPUTS', 'predicate': predicate}
-    candidate = dict(row, schema_version=4, output_failure=detail)
+    version = 4
+    if predicate == 'CHECK_010' and 'relocation_failure' in error.__dict__:
+        relocation = error.__dict__['relocation_failure']
+        _relocation_fact(relocation)
+        detail['relocation'] = json.loads(_encoded(relocation))
+        version = 5
+    candidate = dict(row, schema_version=version, output_failure=detail)
     validate(candidate)
-    row.update(schema_version=4, output_failure=detail)
+    row.update(schema_version=version, output_failure=detail)
     return row
 
 
 def _keys(row, public=False):
-    _need(type(row) is dict and type(row.get('schema_version')) is int and row['schema_version'] in (1, 2, 3, 4))
-    extra = {2: {'config_failure'}, 3: {'compiler_failure'}, 4: {'output_failure'}}.get(row['schema_version'], set())
+    _need(type(row) is dict and type(row.get('schema_version')) is int and row['schema_version'] in (1, 2, 3, 4, 5))
+    extra = {2: {'config_failure'}, 3: {'compiler_failure'}, 4: {'output_failure'}, 5: {'output_failure'}}.get(row['schema_version'], set())
     return (PUBLIC_KEYS if public else KEYS) | extra
 
 
@@ -420,7 +490,7 @@ def invalidate(row):
 
 
 def _body(row):
-    _need(type(row['schema_version']) is int and row['schema_version'] in (1, 2, 3, 4))
+    _need(type(row['schema_version']) is int and row['schema_version'] in (1, 2, 3, 4, 5))
     _need(type(row['phase']) is str and row['phase'] in PHASES)
     _need(type(row['command']) is str and row['command'] in COMMANDS)
     _need(type(row['attempt']) is str and row['attempt'] in ('NOT_ISSUED', 'ISSUED'))
@@ -450,8 +520,8 @@ def _body(row):
         _need(row['first_failure'] == {'phase': 'KERNEL', 'command': 'KERNEL', 'error_kind': 'DATA_REFUSAL'} and
               row['command'] == 'KERNEL' and row['attempt'] == 'ISSUED' and
               row['natural_return'] == {'kind': 'RETURNED', 'code': row['compiler_failure']['return_code']})
-    if row['schema_version'] == 4:
-        _output_fact(row['output_failure'])
+    if row['schema_version'] in (4, 5):
+        _output_fact(row['output_failure'], row['schema_version'])
         _need(row['first_failure'] == {'phase': 'OUTPUTS', 'command': 'KERNEL', 'error_kind': 'DATA_REFUSAL'} and
               row['command'] == 'KERNEL' and row['attempt'] == 'ISSUED' and
               row['natural_return'] == {'kind': 'RETURNED', 'code': 0})

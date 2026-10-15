@@ -297,10 +297,74 @@ OUTPUT_PREDICATES = frozenset((*(f'CHECK_{n:03d}' for n in range(1, 114)),
     'CHECK_002_IMAGE_REFERENCE_TYPE_RELA', 'CHECK_002_IMAGE_REFERENCE_ENTRY_SIZE', 'CHECK_002_IMAGE_REFERENCE_SIZE_MULTIPLE', 'CHECK_002_IMAGE_REFERENCE_SYMBOL_TABLE_TYPE', 'CHECK_002_IMAGE_REFERENCE_TARGET_INDEX', 'CHECK_002_RELOCATABLE_TYPE_RELA', 'CHECK_002_RELOCATABLE_ENTRY_SIZE', 'CHECK_002_RELOCATABLE_SIZE_MULTIPLE', 'CHECK_002_RELOCATABLE_SYMBOL_TABLE_TYPE', 'CHECK_002_RELOCATABLE_TARGET_INDEX', 'CHECK_002_RELOCATABLE_MODULE_TARGET', 'CHECK_002_ELF_TYPE_RELA', 'CHECK_002_ELF_ENTRY_SIZE', 'CHECK_002_ELF_SIZE_MULTIPLE', 'CHECK_002_ELF_SYMBOL_TABLE_TYPE', 'CHECK_002_ELF_TARGET_INDEX'))
 
 
-def validate_output_fact(value):
-    need(type(value) is dict and set(value) == {'call_boundary', 'predicate'})
+
+def validate_relocation_fact(value):
+    """Closed numeric CHECK_010 operands; schema5 only, never text or raw ELF."""
+    need(type(value) is dict and set(value) == {'role', 'elf_type', 'branch', 'failed_check',
+         'section', 'offset', 'info', 'symbol_count', 'target_size', 'allocated', 'load'})
+    def uint(item, maximum=2**64 - 1):
+        need(type(item) is int and 0 <= item <= maximum)
+    need(type(value['role']) is str and value['role'] in ('elf', 'arm64-image-reference'))
+    need(type(value['elf_type']) is int and value['elf_type'] in (1, 2, 3))
+    need(value['role'] != 'arm64-image-reference' or value['elf_type'] in (2, 3))
+    need(type(value['branch']) is str and value['branch'] in ('NULL_LINK_RELATIVE', 'LINKED_SYMBOL'))
+    need(type(value['failed_check']) is str)
+    section = value['section']
+    need(type(section) is dict and set(section) == {'index', 'type', 'flags', 'link', 'info', 'entry_index'})
+    for key in ('index', 'link', 'info'): uint(section[key], 8191)
+    need(section['index'] > 0 and type(section['type']) is int and section['type'] == 4)
+    uint(section['flags']); need(not (section['flags'] & 1 and section['flags'] & 4))
+    file_cap = (1 if value['elf_type'] == 1 else 4) * 1024**3
+    uint(section['entry_index'], file_cap // 24 - 1)
+    uint(value['offset']); uint(value['info'])
+    def ranges(item, cap, section_range=False):
+        need(type(item) is dict and set(item) == {'start_count', 'full_count', 'first_start'})
+        uint(item['start_count'], cap); uint(item['full_count'], cap)
+        need(item['full_count'] <= item['start_count'])
+        first = item['first_start']
+        if item['start_count'] == 0:
+            need(first is None)
+        else:
+            need(type(first) is dict and set(first) == {'index', 'address', 'size'})
+            uint(first['index'], cap - 1); uint(first['address']); uint(first['size'])
+            need(item['start_count'] <= cap - first['index'])
+            need(not section_range or first['index'] > 0)
+            need(first['address'] <= value['offset'] < first['address'] + first['size'] <= 2**64)
+            fits = value['offset'] + 8 <= first['address'] + first['size']
+            need(not fits or item['full_count'] > 0)
+            need(item['full_count'] != item['start_count'] or fits)
+        return item['full_count']
+    if value['branch'] == 'NULL_LINK_RELATIVE':
+        need(value['role'] == 'arm64-image-reference' and value['elf_type'] in (2, 3) and
+             section['link'] == section['info'] == 0 and section['flags'] & 2 and
+             value['symbol_count'] is value['target_size'] is None)
+        allocated = ranges(value['allocated'], 8192, True)
+        load = ranges(value['load'], 64)
+        need(value['load']['start_count'] <= 1)
+        expected = 'INFO_RELATIVE' if value['info'] != 1027 else 'ALLOCATED_RANGE' if not allocated else 'LOAD_RANGE'
+        need(value['info'] != 1027 or not allocated or not load)
+    else:
+        need(section['link'] > 0 and value['allocated'] is value['load'] is None)
+        uint(value['symbol_count'], file_cap // 24)
+        if value['elf_type'] == 1:
+            need(section['info'] > 0); uint(value['target_size'])
+        else:
+            need(value['target_size'] is None)
+        symbol_invalid = value['info'] >> 32 >= value['symbol_count']
+        expected = 'SYMBOL_INDEX' if symbol_invalid else 'MODULE_OFFSET'
+        need(symbol_invalid or value['elf_type'] == 1 and value['offset'] >= value['target_size'])
+    need(value['failed_check'] == expected)
+    return value
+
+
+def validate_output_fact(value, version=4):
+    need(type(version) is int and version in (4, 5) and type(value) is dict and
+         set(value) == ({'call_boundary', 'predicate', 'relocation'} if version == 5 else {'call_boundary', 'predicate'}))
     need(type(value['call_boundary']) is str and value['call_boundary'] == 'VERIFY_OUTPUTS')
     need(type(value['predicate']) is str and value['predicate'] in OUTPUT_PREDICATES)
+    if version == 5:
+        need(value['predicate'] == 'CHECK_010')
+        validate_relocation_fact(value['relocation'])
     return value
 
 
@@ -316,8 +380,8 @@ def child_validate_inner_group(group):
         return group
     need(pin is not None)
     row = group['diagnostic']
-    need(type(row) is dict and type(row.get('schema_version')) is int and row['schema_version'] in (1, 2, 3, 4))
-    need(set(row) == CHILD_INNER_PUBLIC_KEYS | ({'config_failure'} if row['schema_version'] == 2 else {'compiler_failure'} if row['schema_version'] == 3 else {'output_failure'} if row['schema_version'] == 4 else set()))
+    need(type(row) is dict and type(row.get('schema_version')) is int and row['schema_version'] in (1, 2, 3, 4, 5))
+    need(set(row) == CHILD_INNER_PUBLIC_KEYS | ({'config_failure'} if row['schema_version'] == 2 else {'compiler_failure'} if row['schema_version'] == 3 else {'output_failure'} if row['schema_version'] in (4, 5) else set()))
     need(type(row['binding_sha256']) is str and re.fullmatch('[0-9a-f]{64}', row['binding_sha256']))
     need(type(row['phase']) is str and row['phase'] in CHILD_INNER_PHASES and type(row['command']) is str and row['command'] in CHILD_INNER_COMMANDS)
     need(type(row['attempt']) is str and row['attempt'] in ('NOT_ISSUED', 'ISSUED'))
@@ -343,8 +407,8 @@ def child_validate_inner_group(group):
     if row['schema_version'] == 3:
         validate_compiler_fact(row['compiler_failure'])
         need(row['first_failure'] == {'phase': 'KERNEL', 'command': 'KERNEL', 'error_kind': 'DATA_REFUSAL'} and row['command'] == 'KERNEL' and (row['attempt'] == 'ISSUED') and (row['natural_return'] == {'kind': 'RETURNED', 'code': row['compiler_failure']['return_code']}))
-    if row['schema_version'] == 4:
-        validate_output_fact(row['output_failure'])
+    if row['schema_version'] in (4, 5):
+        validate_output_fact(row['output_failure'], row['schema_version'])
         need(row['first_failure'] == {'phase': 'OUTPUTS', 'command': 'KERNEL', 'error_kind': 'DATA_REFUSAL'} and
              row['command'] == 'KERNEL' and row['attempt'] == 'ISSUED' and
              row['natural_return'] == {'kind': 'RETURNED', 'code': 0})

@@ -294,16 +294,46 @@ class ELF:
                 target = self.sections[row['info']]
                 for pos in range(0, row['size'], 24 * 4096):
                     raw = self.read(row['offset'] + pos, min(24 * 4096, row['size'] - pos))
-                    for offset, info, _ in struct.iter_unpack('<QQq', raw):
+                    for entry_index, (offset, info, _) in enumerate(struct.iter_unpack('<QQq', raw), pos // 24):
                         if relative:
                             # Linux arm64 keeps allocated RELA after discarding .dynsym.
                             # Its self-relocator applies only R_AARCH64_RELATIVE (1027).
-                            harness.need(info == 1027 and any(s['flags'] & 2 and s['addr'] <= offset and
-                                         offset + 8 <= s['addr'] + s['size'] for s in self.sections) and
-                                         any(p['addr'] <= offset and offset + 8 <= p['addr'] + p['memsz'] for p in self.loads),
-                                         'ELF relocation index/offset invalid')
+                            valid = info == 1027 and any(s['flags'] & 2 and s['addr'] <= offset and
+                                         offset + 8 <= s['addr'] + s['size'] for s in self.sections) and any(
+                                         p['addr'] <= offset and offset + 8 <= p['addr'] + p['memsz'] for p in self.loads)
                         else:
-                            harness.need(info >> 32 < linked['size'] // 24 and (kind != 1 or offset < target['size']), 'ELF relocation index/offset invalid')
+                            valid = info >> 32 < linked['size'] // 24 and (kind != 1 or offset < target['size'])
+                        if not valid:
+                            self.relocation_refusal(artifact_role, kind, row, entry_index, offset, info, linked, target)
+
+    def relocation_refusal(self, role, kind, row, entry_index, offset, info, linked, target):
+        """Failure-only numeric operands from the original parsed objects; no IO."""
+        def ranges(rows, allocated):
+            starts, full, first = 0, 0, None
+            for index, item in enumerate(rows):
+                if allocated and not item['flags'] & 2:
+                    continue
+                address, size = item['addr'], item['size' if allocated else 'memsz']
+                if address <= offset < address + size:
+                    starts += 1
+                    if first is None:
+                        first = {'index': index, 'address': address, 'size': size}
+                    if offset + 8 <= address + size:
+                        full += 1
+            return {'start_count': starts, 'full_count': full, 'first_start': first}
+        relative = row['link'] == 0
+        allocated = ranges(self.sections, True) if relative else None
+        load = ranges(self.loads, False) if relative else None
+        failed = ('INFO_RELATIVE' if info != 1027 else 'ALLOCATED_RANGE' if not allocated['full_count']
+                  else 'LOAD_RANGE') if relative else ('SYMBOL_INDEX' if info >> 32 >= linked['size'] // 24 else 'MODULE_OFFSET')
+        error = ValueError('ELF relocation index/offset invalid')
+        error.relocation_failure = {'role': role, 'elf_type': kind,
+            'branch': 'NULL_LINK_RELATIVE' if relative else 'LINKED_SYMBOL', 'failed_check': failed,
+            'section': {**{key: row[key] for key in ('index', 'type', 'flags', 'link', 'info')}, 'entry_index': entry_index},
+            'offset': offset, 'info': info, 'symbol_count': None if relative else linked['size'] // 24,
+            'target_size': target['size'] if not relative and kind == 1 else None,
+            'allocated': allocated, 'load': load}
+        raise error
 
     def section_bytes(self, name, cap=128 * 1024**2):
         row = self.by_name.get(name)
