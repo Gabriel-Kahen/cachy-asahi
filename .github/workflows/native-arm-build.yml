@@ -31,7 +31,7 @@ jobs:
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 50
     env:
-      SOURCE_COMMIT: a79c4ca92486854f9edb639cd970d2c90fda4b12
+      SOURCE_COMMIT: 6d409e38dc86a4af66e58b944369be2f36b41865
       INPUTS_SHA256: ${{ inputs.inputs_sha256 }}
       RECIPES_SHA256: ${{ inputs.recipes_sha256 }}
       RETRY_MODE: ${{ inputs.mode }}
@@ -39,7 +39,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: a79c4ca92486854f9edb639cd970d2c90fda4b12
+          ref: 6d409e38dc86a4af66e58b944369be2f36b41865
           persist-credentials: false
       - name: Seed the six frozen private cache objects before native work
         if: inputs.mode == 'integration'
@@ -109,9 +109,9 @@ jobs:
           test "$RECIPES_SHA256" = a5fb287b4dda2a90bf61d4fa8cbbc5d666dad8bb450a70544d00545b091f36e3
           test -z "$REQUESTED_INTEGRATION_SHA256"
           test "$(git rev-parse HEAD)" = "$SOURCE_COMMIT"
-          install -d -m 700 "$RUNNER_TEMP/desktop-docker-config"
-          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$HOME" LANG=C.UTF-8 TZ=UTC \
-            RUNNER_TEMP="$RUNNER_TEMP" DOCKER_CONFIG="$RUNNER_TEMP/desktop-docker-config" \
+          mkdir -m 700 "$RUNNER_TEMP/desktop-home"
+          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP/desktop-home" LANG=C.UTF-8 TZ=UTC \
+            RUNNER_TEMP="$RUNNER_TEMP" \
             GITHUB_SHA="$SOURCE_COMMIT" GITHUB_REPOSITORY="$GITHUB_REPOSITORY" \
             GITHUB_RUN_ID="$GITHUB_RUN_ID" GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" \
             PYTHONDONTWRITEBYTECODE=1 INPUTS_SHA256="$INPUTS_SHA256" RECIPES_SHA256="$RECIPES_SHA256" \
