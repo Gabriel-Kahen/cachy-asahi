@@ -521,7 +521,7 @@ def run_user():
            'XDG_CACHE_HOME': '/home/virtual-proof/cache', 'XDG_SESSION_TYPE': 'wayland',
            'SEATD_SOCK': '/run/seatd.sock', 'LIBSEAT_BACKEND': 'seatd',
            'GBM_ALWAYS_SOFTWARE': '1', 'LIBGL_ALWAYS_SOFTWARE': '1', 'GALLIUM_DRIVER': 'llvmpipe',
-           'LP_NUM_THREADS': '2', 'CACHY_ASAHI_VIRTUAL_GUEST': '1',
+           'LP_NUM_THREADS': '2', 'GALLIVM_PERF': 'nopt', 'CACHY_ASAHI_VIRTUAL_GUEST': '1',
            'DBUS_SESSION_BUS_ADDRESS': os.environ['DBUS_SESSION_BUS_ADDRESS']}
     for name in ('config', 'cache'):
         (Path(env['HOME']) / name).mkdir(mode=0o700)
