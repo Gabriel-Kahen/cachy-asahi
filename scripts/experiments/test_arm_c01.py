@@ -799,7 +799,7 @@ class ReceiverTests(IsolatedTests):
         a.save(raw / "environment.json", environment)
         (raw / "strict-gzip.c").write_bytes(a.STRICT_DRIVER)
         builds = []
-        for variant in ("baseline", "lto"):
+        for variant in a.variants():
             for attempt in (1, 2):
                 directory = raw / f"{variant}-{attempt}"; directory.mkdir()
                 for name in ("libz.a", "example", "minigzip"):
@@ -857,7 +857,7 @@ class ReceiverTests(IsolatedTests):
         report = {"purpose": a.PURPOSE, "status": "PASS", "contract": contract, "cleanup": "PASS",
                   "selected_for_release": False, "hardware_validation": "NOT RUN", "performance_acceptance": "NOT RUN",
                   "environment_sha256": a.sha(raw / "environment.json"), "corpus_manifest_sha256": a.sha(raw / "corpus-manifest.json"),
-                  "builds": builds, "correctness": checks, "reproducibility": {"baseline": "PASS", "lto": "PASS"},
+                  "builds": builds, "correctness": checks, "reproducibility": {variant: "PASS" for variant in a.variants()},
                   "strict_driver_source_sha256": a.STRICT_SHA,
                   "strict_valid": [{"decoder": name, "status": "PASS", "decoded_sha256": hashlib.sha256(corpus.GZIP_PAYLOAD).hexdigest()} for name in names],
                   "sample_crc": [{"decoder": name, "status": "PASS", "exit_code": 1} for name in names],

@@ -226,7 +226,7 @@ def project_evidence(trial, selected):
         chosen[dest] = raw / name
         copy.update(log=dest, producer_log=name)
         projected.append(copy)
-    for prefix in ('baseline-1', 'baseline-2', 'lto-1', 'lto-2'):
+    for prefix in arm.build_names():
         for name in ('LICENSE.txt', 'Makefile.txt', 'zconf.h.txt', 'configure.log.txt'):
             source = raw / prefix / name
             if source.exists():
@@ -240,7 +240,7 @@ def project_evidence(trial, selected):
             matching = [r for r in commands if r.get('log') == path.name]
             arm.need(len(matching) == 1 and hashlib.sha256(data).hexdigest() == matching[0].get('log_sha256'), 'native log projection hash differs')
         dest = selected / name; dest.parent.mkdir(parents=True, exist_ok=True); dest.write_bytes(data)
-    arm.save(selected / 'projection.json', {'purpose': PURPOSE, 'raw_binary_and_corpus_exported': False,
+    arm.save(selected / 'projection.json', {'purpose': arm.EXPERIMENT + '-same-job-followup', 'raw_binary_and_corpus_exported': False,
                                           'files': {n: arm.sha(selected / n) for n in chosen}})
 
 
@@ -301,7 +301,7 @@ def export_artifacts(raw, output, verified):
                         'command': command_reference(command)})
     arm.need(len(approved) == 79 and len(drivers) == 4 and len(outputs) == 36, 'complete finite strict evidence archive required')
     output.mkdir(mode=0o700)
-    bundle = output / 'development-ARM-C01-outputs.tar.gz'
+    bundle = output / f'development-{arm.EXPERIMENT}-outputs.tar.gz'
     total = 0
     with bundle.open('xb') as stream, gzip.GzipFile(fileobj=stream, mode='wb', filename='', mtime=0) as compressed:
         with tarfile.open(fileobj=compressed, mode='w|') as archive:
@@ -314,7 +314,7 @@ def export_artifacts(raw, output, verified):
                 archive.addfile(entry, io.BytesIO(data))
                 arm.need(stream.tell() <= 8 * 1024**2, 'compressed development artifact bound exceeded')
     arm.regular(bundle, 8 * 1024**2)
-    receipt = {'purpose': PURPOSE, 'development_only': True, 'selected_for_release': False,
+    receipt = {'purpose': arm.EXPERIMENT + '-same-job-followup', 'development_only': True, 'selected_for_release': False,
                'source_commit': verified['contract']['source_commit'], 'source_sha256': arm.SOURCE_SHA,
                'image_id': verified['contract']['image'], 'hardware_validation': 'NOT RUN',
                'performance_acceptance': 'NOT RUN', 'scope': 'verified zlib outputs, own MIT strict driver, strict output bytes and public corpus; no image/root/private-state export or execution replay',

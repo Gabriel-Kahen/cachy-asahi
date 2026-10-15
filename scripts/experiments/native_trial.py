@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
-"""One native C01 trial on the existing signed 341-package scratch builder."""
+"""One native compiler correctness trial on the existing signed 341-package scratch builder."""
 import argparse
 import json
 import os
@@ -55,7 +55,7 @@ def cleanup(output, docker, bootstrap_started=False):
             if kind == 'container' and contract.exists():
                 nonce = json.loads(contract.read_text())['nonce']
                 arm.need(re.fullmatch('[0-9a-f]{32}', nonce), 'owned trial nonce required')
-                name = 'cachy-asahi-arm-c01-' + nonce
+                name = arm.container_prefix() + nonce
                 query = docker + ['container', 'ls', '-a', '--filter', 'name=^/' + name + '$', '--format', '{{.Names}}']
                 before = native.run(query, timeout=10)
                 arm.need(before in ('', name), 'unexpected owned-container query')
@@ -79,12 +79,13 @@ def cleanup(output, docker, bootstrap_started=False):
 
 
 def run(args):
+    arm.select_experiment(getattr(args, 'experiment', 'ARM-C01'))
     inputs = preflight(args)
     output = args.output
     output.mkdir(mode=0o700)
     summary = output / 'summary'; summary.mkdir()
     bootstrap = output / 'native'; bootstrap.mkdir()
-    report = {'status': 'FAIL', 'source_commit': args.source_commit, 'inputs_sha256': INPUTS_SHA,
+    report = {'status': 'FAIL', 'experiment': arm.EXPERIMENT, 'candidate': arm.CANDIDATE, 'source_commit': args.source_commit, 'inputs_sha256': INPUTS_SHA,
               'source': SOURCE, 'hardware_validation': 'NOT RUN', 'performance_acceptance': 'NOT RUN',
               'selected_for_release': False, 'cancelled': False, 'workflow_sha': os.environ.get('WORKFLOW_SHA')}
     docker = ['docker', '--host=unix:///var/run/docker.sock']
@@ -111,7 +112,7 @@ def run(args):
         code = arm.host(SimpleNamespace(image=image, source=source, source_commit=args.source_commit,
                          expected_packages=bootstrap / 'packages.lock', expected_packages_sha256=PACKAGES_SHA,
                          output=trial))
-        arm.need(code == 0, 'C01 failed; inspect complete retained command and native records')
+        arm.need(code == 0, arm.EXPERIMENT + ' failed; inspect complete retained command and native records')
         contract = json.loads((trial / 'inputs/contract.json').read_text())
         verified = arm.verify_result(trial / 'raw', contract)
         stage.export_artifacts(trial / 'raw', output / 'experiment-artifacts', verified)
@@ -148,6 +149,7 @@ def run(args):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--experiment', choices=tuple(arm.EXPERIMENTS), default='ARM-C01')
     parser.add_argument('--source-commit', required=True)
     parser.add_argument('--cache', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
