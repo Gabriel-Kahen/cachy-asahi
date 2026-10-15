@@ -16,7 +16,7 @@ import sys
 import time
 from common import (bounded, inventory, LoggedProcess, BARRIER_PURPOSE, BARRIER_TEST,
                     BARRIER_FILES, BARRIER_SOURCE, BARRIER_FRAME_LINES, barrier_contract, barrier_event, json_load, TRANSACTION_PURPOSE, TRANSACTION_FILES, TRANSACTION_TESTS,
-                    TRANSACTION_SELECTORS, TRANSACTION_FRAME_LINES, transaction_contract, transaction_launcher, transaction_event, transaction_method)
+                    TRANSACTION_SELECTORS, TRANSACTION_FRAME_LINES, transaction_contract, transaction_launcher, transaction_event, transaction_method, transaction_call, TRANSACTION_CASES)
 from image_decode_report import (ASSET_PATH, ASSET_SHA256, MAX_REPORT,
                                  decode, inventory_sha256, parse_report, validate_guest_contract, validate_event)
 
@@ -665,28 +665,34 @@ def boot_barrier(contract):
          returncode=0, error=None)
 
 
-def transaction_execution(record, index):
+def transaction_execution(record, index, hop=0):
     """Project only fixed facts from the selected test's already retained worker result."""
     require(type(record) is dict and record.get('test') == TRANSACTION_TESTS[index] and
             record.get('worker_sha256') == record.get('worker_after_sha256') ==
             TRANSACTION_FILES['scripts/install/local_transaction.py']['sha256'], 'selected worker record differs')
     body = record.get('report')
     require(type(body) is dict, 'worker report absent')
-    row = dict(method=TRANSACTION_SELECTORS[index], returncode=record.get('returncode'), worker_status=body.get('status'),
-               phase=body.get('phase'), commit_started=body.get('commit_started'), committed=body.get('committed'))
-    transaction_method(row, index)
-    if index == 0:
+    pattern=TRANSACTION_CASES[index][2][hop]
+    row = dict(returncode=record.get('returncode'), worker_status=body.get('status'),
+               phase=body.get('phase','NOT_REPORTED'),commit_started=body.get('commit_started'),committed=body.get('committed'))
+    transaction_call(row,pattern)
+    if pattern in ('PAIR','ADD','REMOVE','UPGRADE','PROTECTED_ADD'):
+        a,b='caa-install-fixture-a','caa-install-fixture-b'
+        before,after = ({},{a:'1.0-1',b:'1.0-1'}) if pattern=='PAIR' else ({},{a:'1.0-1'}) if pattern=='ADD' else (
+            {a:'1.0-1'}, {}) if pattern=='REMOVE' else ({a:'1.0-1'},{a:'2.0-1'}) if pattern=='UPGRADE' else (
+            {a:'1.0-1'},{a:'1.0-1',b:'1.0-1'})
         require(body.get('installed_payload_verified') is True and body.get('parent_export_verified') is True and
-                body.get('before') == {} and body.get('after') == {'caa-install-fixture-a':'1.0-1','caa-install-fixture-b':'1.0-1'},
-                'signed pair export differs')
-    elif index == 1:
-        # Reject an earlier import/keyring failure masquerading as the invalid-signature negative.
-        path = Path(record['retained_evidence']) / 'evidence/authentication-command.json'
-        auth = json.loads(identity_bytes(path, MAX_LOG))
-        argv = auth.get('argv')
-        require(type(argv) is list and len(argv) <= 32 and argv[:2] == ['/usr/bin/gpg','--batch'] and
-                argv[-3:-2] == ['--verify'] and type(auth.get('returncode')) is int and
-                1 <= auth['returncode'] <= 255, 'invalid signature did not reach original GPG verify refusal')
+                body.get('before')==before and body.get('after')==after, 'positive transaction export differs')
+    elif pattern in ('INVALID','SIGNER','ESCAPE'):
+        path=Path(record['retained_evidence'])/'evidence/authentication-command.json'
+        auth=json.loads(identity_bytes(path,MAX_LOG));argv=auth.get('argv');code=auth.get('returncode')
+        require(type(argv) is list and len(argv)<=32 and argv[:2]==['/usr/bin/gpg','--batch'] and
+                argv[-3:-2]==['--verify'] and type(code) is int and
+                (1<=code<=255 if pattern=='INVALID' else code==0), 'original signature verification boundary differs')
+        if pattern!='INVALID':
+            require(body.get('error')==('signature signer/status refused' if pattern=='SIGNER' else 'noncanonical payload path'),
+                    'fixed signer/archive refusal differs')
+
     return row
 
 
@@ -694,34 +700,61 @@ def transaction_test(module, source_paths, nonce, selection, source):
     import unittest
     class Result(unittest.TestResult):
         def __init__(self):
-            super().__init__(); self.first_failure = None; self.methods = []; self.cancellation = None
+            super().__init__(); self.first_failure = None; self.methods = []; self.cancellation = None; self.cursor = 0; self.active = None; self.collected = False
+        def history(self):
+            value=getattr(cls,'execution_history',[])
+            require(type(value) is list and len(value)<=21, 'finite exact worker history required')
+            return value
+        def startTest(self,test):
+            require(test._testMethodName==TRANSACTION_TESTS[len(self.methods)] and
+                    len(self.history())==sum(len(row['calls']) for row in self.methods), 'method/history cursor differs')
+            self.cursor=len(self.history());self.active=test;self.collected=False;super().startTest(test)
+        def collect(self,test,complete):
+            if test is not self.active or self.collected:return
+            index=len(self.methods);entries=self.history()[self.cursor:]
+            require(index<16 and test._testMethodName==TRANSACTION_TESTS[index] and
+                    len(entries)<=len(TRANSACTION_CASES[index][2]), 'selected method/history scope differs')
+            calls=[]
+            for hop,record in enumerate(entries):
+                try:calls.append(transaction_execution(record,index,hop))
+                except BaseException as error:
+                    if type(error) in (KeyboardInterrupt,SystemExit) and self.cancellation is None:self.cancellation=error
+                    if complete:raise
+                    break
+            if calls:
+                row=dict(method=TRANSACTION_SELECTORS[index],calls=calls)
+                transaction_method(row,index,complete=complete);self.methods.append(row);self.collected=True
+            elif complete:require(False,'selected method has no worker history')
         def failed(self, error):
             if self.first_failure is None: self.first_failure = barrier_failure(error, source_paths, TRANSACTION_FRAME_LINES)
             if (error[0] is KeyboardInterrupt or error[0] is SystemExit) and self.cancellation is None: self.cancellation = error[1]
             self.stop()
         def addFailure(self, test, error):
             self.failed(error); self.failures.append((test,'closed failure'))
+            try:self.collect(test,False)
+            except BaseException as error:
+                if type(error) in (KeyboardInterrupt,SystemExit) and self.cancellation is None:self.cancellation=error
         def addError(self, test, error):
             self.failed(error); self.errors.append((test,'closed error'))
+            try:self.collect(test,False)
+            except BaseException as error:
+                if type(error) in (KeyboardInterrupt,SystemExit) and self.cancellation is None:self.cancellation=error
         def addSkip(self, test, reason):
             self.skipped.append((test,'closed skip')); self.stop()
         def addSuccess(self, test):
-            try:
-                index = len(self.methods)
-                require(index < 3 and test._testMethodName == TRANSACTION_TESTS[index], 'selected method order differs')
-                self.methods.append(transaction_execution(getattr(type(test),'last_execution',None), index))
-            except BaseException:
-                self.addError(test, sys.exc_info())
+            try:self.collect(test,True)
+            except BaseException:self.addError(test,sys.exc_info())
     result = Result(); cls = module.ActualTransactionTests
     cases = [cls(name) for name in TRANSACTION_TESTS]
     suite = unittest.TestSuite(cases)
     try:
+        require(not result.history(), 'stale worker history refused')
         suite.run(result)  # Real class setup/registered class cleanups, no direct method invocation.
     except BaseException:
         result.addError(None, sys.exc_info())
     finally:
         # KeyboardInterrupt can bypass unittest's remaining instance/class cleanup stacks.
-        # Retain the three cases; finish each pending pinned duty once, independently.
+        # Retain the sixteen cases; finish each pending pinned duty once, independently.
         stacks = [(case, getattr(case, '_cleanups', [])) for case in cases]
         stacks.append((None, getattr(cls, '_class_cleanups', [])))
         for case, pending in stacks:
@@ -738,7 +771,7 @@ def transaction_test(module, source_paths, nonce, selection, source):
                'errors':len(result.errors),'skips':len(result.skipped),'status':'FAIL','methods':result.methods,
                'first_failure':result.first_failure,'class_cleanups_returned':not any(stack for case,stack in stacks) and not result.errors,
                'cancelled':result.cancellation is not None}
-        if result.testsRun == 3 and result.wasSuccessful() and not result.skipped and result.first_failure is None:
+        if result.testsRun == 16 and result.wasSuccessful() and not result.skipped and result.first_failure is None and len(result.history()) == 21:
             row['status'] = 'PASS_TRANSACTION_ONLY'
         transaction_event(row, nonce, selection, source)
         emit('transaction_result', **{k:v for k,v in row.items() if k!='event'})

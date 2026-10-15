@@ -239,10 +239,27 @@ TRANSACTION_FILES = {
     'scripts/install/test_local_transaction.py': {'bytes': 131063, 'sha256': '1987ed23821da917215e9e3366545810d565ece08406fafd429a8c3c772eb2cd'},
     'scripts/port/kernel-native-job/runtime.py': {'bytes': 11345, 'sha256': '8a7cd5e73cf383b2d81ad577b8513c6fd7d49f9fd2572961c73ae9d289cab821'},
 }
-TRANSACTION_TESTS = ('test_actual_signed_tiny_dependency_pair_commit',
-                     'test_actual_invalid_signature_refuses_before_commit',
-                     'test_actual_missing_dependency_refuses_before_commit')
-TRANSACTION_SELECTORS = ('SIGNED_PAIR', 'INVALID_SIGNATURE', 'MISSING_DEPENDENCY')
+# Exact16 actual methods; the extra declared-after contract control is excluded.
+TRANSACTION_CASES = (
+    ('SIGNED_PAIR', 'test_actual_signed_tiny_dependency_pair_commit', ('PAIR',)),
+    ('MISSING_DEPENDENCY', 'test_actual_missing_dependency_refuses_before_commit', ('PREPARE',)),
+    ('WRONG_SIGNER', 'test_actual_wrong_signer_refuses_before_commit', ('SIGNER',)),
+    ('INVALID_SIGNATURE', 'test_actual_invalid_signature_refuses_before_commit', ('INVALID',)),
+    ('SECRET_CERTIFICATE', 'test_actual_secret_certificate_refuses_before_commit', ('SECRET',)),
+    ('SIGNATURE_SUBKEY', 'test_actual_signature_subkey_binds_primary_signer', ('ADD',)),
+    ('INPUT_HARDLINK', 'test_actual_input_hardlink_refused_without_commit', ('SNAPSHOT',)),
+    ('ESCAPING_ARCHIVE', 'test_actual_escaping_signed_archive_refused_without_escape', ('ESCAPE',)),
+    ('EXTERNAL_ROOT_HARDLINK', 'test_actual_existing_root_external_hardlink_refused', ('SNAPSHOT',)),
+    ('FILE_CONFLICT', 'test_actual_file_conflict_preserves_foreign_bytes', ('CONFLICT',)),
+    ('PROTECTED_UPGRADE', 'test_actual_protected_upgrade_refuses_before_commit', ('ADD', 'REFUSED')),
+    ('PROTECTED_REMOVAL', 'test_actual_protected_removal_refuses_before_commit', ('ADD', 'REFUSED')),
+    ('SIGNED_SEED_REMOVAL', 'test_actual_signed_removal_uses_installed_seed', ('ADD', 'REMOVE')),
+    ('UPGRADE', 'test_actual_upgrade_changes_installed_version_and_payload', ('ADD', 'UPGRADE')),
+    ('PROTECTED_UNRELATED_ADD', 'test_actual_unrelated_add_preserves_protected_package_and_file', ('ADD', 'PROTECTED_ADD')),
+    ('WRONG_BEFORE_INVENTORY', 'test_actual_wrong_before_inventory_refuses_before_commit', ('PREPARE',)),
+)
+TRANSACTION_TESTS = tuple(row[1] for row in TRANSACTION_CASES)
+TRANSACTION_SELECTORS = tuple(row[0] for row in TRANSACTION_CASES)
 TRANSACTION_FRAME_LINES = {'SELECTED_WORKER': 1440, 'SELECTED_TEST': 1958, 'SELECTED_RUNTIME': 280, 'GUEST': 2048}
 TRANSACTION_PROFILE = {'path': '/usr/local/share/virtual-proof/tool-profile.json', 'size': 47593,
                        'sha256': 'b7fbd65e357e132949432fb00e765a05e3c76ea29a41d1df93413870d9fd1ed8'}
@@ -301,18 +318,27 @@ def transaction_launcher(root):
     return True
 
 
-def transaction_method(row, index):
-    keys = {'method', 'returncode', 'worker_status', 'phase', 'commit_started', 'committed'}
-    require(type(row) is dict and set(row) == keys and row['method'] == TRANSACTION_SELECTORS[index] and
-            type(row['returncode']) is int and 0 <= row['returncode'] <= 255 and
-            type(row['commit_started']) is bool and type(row['committed']) is bool, 'transaction method fields differ')
-    if index == 0:
-        require(row == dict(method='SIGNED_PAIR', returncode=0, worker_status='PASS-disposable-payload-transaction',
-                phase='complete', commit_started=True, committed=True), 'signed pair did not commit')
-    else:
-        require(row['returncode'] != 0 and row['worker_status'] == 'FAIL' and
-                row['phase'] == ('isolated' if index == 1 else 'prepare') and
-                row['commit_started'] is False and row['committed'] is False, 'selected negative did not refuse before commit')
+def transaction_call(row, pattern):
+    keys = {'returncode','worker_status','phase','commit_started','committed'}
+    require(type(row) is dict and set(row)==keys and type(row['returncode']) is int and
+            0<=row['returncode']<=255 and type(row['commit_started']) is bool and type(row['committed']) is bool,
+            'transaction hop fields differ')
+    positive = pattern in ('PAIR','ADD','REMOVE','UPGRADE','PROTECTED_ADD')
+    expected = ('complete',True,True) if positive else ('NOT_REPORTED',False,False) if pattern=='REFUSED' else (
+        'commit',True,False) if pattern=='CONFLICT' else ('snapshot',False,False) if pattern=='SNAPSHOT' else (
+        'prepare',False,False) if pattern=='PREPARE' else ('isolated',False,False)
+    require((row['phase'],row['commit_started'],row['committed'])==expected and
+            row['worker_status']==('PASS-disposable-payload-transaction' if positive else 'REFUSED' if pattern=='REFUSED' else 'FAIL') and
+            (row['returncode']==0 if positive else row['returncode']!=0), 'selected transaction hop differs')
+    return row
+
+
+def transaction_method(row, index, *, complete=True):
+    patterns=TRANSACTION_CASES[index][2]
+    require(type(row) is dict and set(row)=={'method','calls'} and row['method']==TRANSACTION_SELECTORS[index] and
+            type(row['calls']) is list and 1<=len(row['calls'])<=len(patterns) and
+            (not complete or len(row['calls'])==len(patterns)), 'transaction method fields/count differ')
+    for hop,call in enumerate(row['calls']): transaction_call(call,patterns[hop])
     return row
 
 
@@ -323,11 +349,12 @@ def transaction_event(event, nonce, selection, source):
             event['nonce'] == nonce and event['selection_sha256'] == selection and event['fixture_source'] == source and
             type(source) is str and re.fullmatch('[0-9a-f]{40}', source) and
             type(event['uid']) is int and event['uid'] == 23001 and type(event['gid']) is int and event['gid'] == 23001 and
-            all(type(event[k]) is int and 0 <= event[k] <= (3 if k == 'tests' else 8) for k in ('tests','failures','errors','skips')) and
+            all(type(event[k]) is int and 0 <= event[k] <= (16 if k == 'tests' else 32) for k in ('tests','failures','errors','skips')) and
             type(event['class_cleanups_returned']) is bool and type(event['cancelled']) is bool,
             'transaction event identity/counts differ')
-    require(type(event['methods']) is list and len(event['methods']) <= 3, 'bounded transaction methods required')
-    for i,row in enumerate(event['methods']): transaction_method(row, i)
+    require(type(event['methods']) is list and len(event['methods']) <= 16, 'bounded transaction methods required')
+    for i,row in enumerate(event['methods']):
+        transaction_method(row,i,complete=event['status']=='PASS_TRANSACTION_ONLY' or i<len(event['methods'])-1)
     failure = event['first_failure']
     if failure is not None:
         # Reuse the existing closed exception/errno/tool domain, with selected Source line bounds.
@@ -340,8 +367,8 @@ def transaction_event(event, nonce, selection, source):
         proxy['first_failure'] = failure | {'frames': []}
         barrier_event(proxy, nonce, selection)
     if event['status'] == 'PASS_TRANSACTION_ONLY':
-        require(event['tests'] == 3 and not any(event[k] for k in ('failures','errors','skips')) and
-                len(event['methods']) == 3 and failure is None and event['class_cleanups_returned'] and not event['cancelled'],
+        require(event['tests'] == 16 and not any(event[k] for k in ('failures','errors','skips')) and
+                len(event['methods']) == 16 and sum(len(row['calls']) for row in event['methods']) == 21 and failure is None and event['class_cleanups_returned'] and not event['cancelled'],
                 'incomplete transaction fixture proof')
     else:
         require(event['status'] == 'FAIL' and (failure is not None or event['skips'] > 0), 'invalid failed transaction fixture')
