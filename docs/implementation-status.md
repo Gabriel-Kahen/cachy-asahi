@@ -2,6 +2,29 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 14, local repository exporter integrated:
+The [repository endpoint exporter](repository-endpoint.md) materializes verified
+signed stable bundles into retained local generations and atomically selects
+the live route. Signed withdrawal records can select a generation without a
+live package route. Preview is read-only; hosting and client trust remain open.
+Independent review identified three defects in directory permissions, reused
+generation withdrawal checks and double-slash path aliases; all are corrected.
+Root's 26 tests and the final peer's 26 exporter tests, six independent
+regressions, 25 release tests and 31 source-delivery tests pass. Positive stable
+gate fixtures explicitly model hardware acceptance; no release or M2 gate is
+passed by those tests. Final review receipt: `8ac64e52`.
+
+Native screenshot run `38656985498` and region run `38655970029` are terminal
+SUCCESS. Strict actual artifact admission remains pending; API conclusions
+alone establish neither capture acceptance nor M2 compatibility. Updater
+Source `567877de` passes independent actual-source readiness review `6fc3769d`;
+its next trial still requires native host/controller freezing.
+Composed run `38655108742` fails its compound container environment predicate;
+the failed operand remains UNKNOWN. Pair and Zsh runs fail during direct
+retirement; overall cleanup remains unestablished. Kernel run `38651732124`
+reports a refused ELF segment with flags7; runtime memory permissions are not
+established by that diagnostic.
+
 October 14, screenshot region success pending actual admission:
 One changed software trial `38655970029` completes SUCCESS on Source
 `498231de`, after committed-source peer `8810c607` and exact560-byte plan
