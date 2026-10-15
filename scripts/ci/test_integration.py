@@ -363,12 +363,12 @@ class Boundaries(unittest.TestCase):
         from test_desktop_projection import write_bound_fixture
         raw = self.root / 'raw'; raw.mkdir()
         _, authority = write_bound_fixture(raw)
-        (raw / 'desktop/command-22.txt').write_bytes(b'\x1b[1;32munknown\x1b[0m')
+        (raw / 'desktop/command-24.txt').write_bytes(b'\x1b[1;32munknown\x1b[0m')
         work = self.root / 'work'; work.mkdir()
         with self.assertRaises(ValueError):
             i.safe_public(raw, self.root / 'public', work, desktop_authority=authority)
         rejected = json.loads((self.root / 'public/export-manifest.json').read_text())['rejected']
-        self.assertTrue(any(row['path'] == 'desktop/command-22.txt' for row in rejected))
+        self.assertTrue(any(row['path'] == 'desktop/command-24.txt' for row in rejected))
 
     def test_desktop_receipt_replacement_after_projection_is_refused(self):
         from test_desktop_projection import write_bound_fixture

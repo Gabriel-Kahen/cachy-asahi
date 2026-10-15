@@ -25,7 +25,7 @@ HYPRLAND_COMMIT = "efb50993780079460b0cbed1363e2166a2de1d9f"
 PAYLOAD = {f"usr/share/cachy-asahi/hyprland/{name}" for name in
            ("hyprland.lua", "waybar.json", "waybar.css", "mako.conf")} | {
     f"usr/share/doc/{PACKAGE}/README.md", f"usr/share/licenses/{PACKAGE}/NOTICE",
-    f"usr/share/licenses/{PACKAGE}/LICENSE"}
+    f"usr/share/licenses/{PACKAGE}/LICENSE", "usr/bin/cachy-asahi-screenshot"}
 OVERLAYS = {PACKAGE, "cachy-asahi-fish-config", "cachy-asahi-zsh-config", "cachy-asahi-setup"}
 MAX_TEXT = 1_048_576
 
@@ -258,7 +258,7 @@ def bind_payload(checked, archive, installed_root=Path("/")):
     names = checked(["/usr/bin/bsdtar", "-tf", str(archive)]).splitlines()
     regular = {name for name in names if not name.endswith("/") and name not in (".PKGINFO", ".BUILDINFO", ".MTREE")}
     if regular != PAYLOAD or len(names) != len(set(names)):
-        raise Refused("archive differs from reviewed seven-file payload")
+        raise Refused("archive differs from reviewed eight-file payload")
     hashes = {}
     for name in sorted(PAYLOAD):
         installed = installed_root / name

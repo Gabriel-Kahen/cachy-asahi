@@ -11,14 +11,14 @@ import subprocess
 import tempfile
 
 PURPOSE = 'frozen-maintained-v1-native-arm-source-packet'
-BASELINE_ID = 'maintained-native-baseline-v2-client48-vim-9.2.1178-1'
+BASELINE_ID = 'maintained-native-baseline-v3-desktop2-setup3-vim-9.2.1178-1'
 LINEAGE = 'CURRENT_PRODUCT_SUCCESSOR_NOT_HISTORICAL_EVIDENCE'
 BASELINE_CONTRACT = 'manifests/reviewed/maintained-composed-v1.json'
 BASELINE_INVENTORY = 'scripts/port/refreshed-desktop/proposed-builder-inventory.lock'
-BASELINE_INITIAL = '3cb330785c7721cefdc94448add0fe2ce08a23e13b7d6ac7f47886cebcf88132'
+BASELINE_INITIAL = '6d4bbbb5d51959930518be5e24367694f0d3f83672e6ea36afd6cdffb07b1b0d'
 BASELINE_INPUTS = 'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f'
 BASELINE_PACKAGES = 'fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25'
-BASELINE_DECLARATION = {'baseline_id': 'maintained-native-baseline-v2-client48-vim-9.2.1178-1', 'changed_view_sources': ['scripts/ci/inputs.lock.json', 'scripts/integration/repository.py', 'scripts/integration/test_repository.py', 'scripts/release/release.py', 'scripts/release/test_release.py', 'scripts/release/source_delivery.py', 'scripts/integration/onboarding.py', 'scripts/integration/test_onboarding.py'], 'generated_fixtures': 125, 'hardware_validation': 'NOT RUN', 'historical_inputs_sha256': '3c16c37d1b12cc84a88572e82ab8ad59e7f3b5ed0d08f09ddf72a69f4711d650', 'historical_integration_sha256': 'd4d603146f094c86242eaafbb887042959c510c9bb948579dd749d065dd8fc31', 'inputs_sha256': 'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f', 'installation': 'NOT RUN', 'integration_sha256': '3cb330785c7721cefdc94448add0fe2ce08a23e13b7d6ac7f47886cebcf88132', 'inventory_sha256': 'fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25', 'lineage': 'CURRENT_PRODUCT_SUCCESSOR_NOT_HISTORICAL_EVIDENCE', 'native_sha256': 'a8b6ed8971a38089a4499dcec605477c4e48d7a47c3de485d205f6a44678b898', 'original_producers': 1, 'recipe_source_commit': 'ebd5812640b0b69f5c09a47752b739e37e338754', 'recipes_sha256': '20d846cdf289bfc233b0051bf33b677fd6e94e9f05d91a33595a2829a196fa63', 'schema_version': 1, 'selected_for_release': False, 'source_captures': 3, 'source_date_epoch': 1791748800, 'unchanged_view_sources': 152, 'view_files': 161, 'view_sources': 160, 'previous_baseline_id': 'maintained-native-baseline-v1-vim-9.2.1178-1', 'previous_integration_sha256': '5d0f6b1d335c1949965699d4db6658af313af8977079e9a6464f0e5db4071ed3', 'current_product_native_validation': 'NOT RUN', 'historical_pair_evidence_scope': 'UNCHANGED_RECIPE_INPUTS_ONLY_NOT_CURRENT_PRODUCT_ACCEPTANCE'}
+BASELINE_DECLARATION = {'baseline_id': 'maintained-native-baseline-v3-desktop2-setup3-vim-9.2.1178-1', 'changed_view_sources': ['packages/desktop/cachy-asahi-hyprland-settings/.SRCINFO', 'packages/desktop/cachy-asahi-hyprland-settings/NOTICE', 'packages/desktop/cachy-asahi-hyprland-settings/PKGBUILD', 'packages/desktop/cachy-asahi-hyprland-settings/README.md', 'packages/desktop/cachy-asahi-hyprland-settings/cachy-asahi-screenshot', 'packages/desktop/cachy-asahi-hyprland-settings/hyprland.lua', 'packages/settings/cachy-asahi-setup/.SRCINFO', 'packages/settings/cachy-asahi-setup/PKGBUILD', 'packages/settings/cachy-asahi-setup/README.md', 'packages/settings/cachy-asahi-setup/cachy-asahi-setup', 'packages/settings/cachy-asahi-setup/source-provenance.json', 'scripts/ci/desktop_projection.py', 'scripts/ci/inputs.lock.json', 'scripts/ci/recipes.lock.json', 'scripts/ci/test_desktop_projection.py', 'scripts/ci/test_integration.py', 'scripts/integration/desktop.py', 'scripts/integration/fixtures.py', 'scripts/integration/lifecycle.py', 'scripts/integration/onboarding.py', 'scripts/integration/repository.py', 'scripts/integration/test_desktop.py', 'scripts/integration/test_lifecycle.py', 'scripts/integration/test_onboarding.py', 'scripts/integration/test_repository.py', 'scripts/release/release.py', 'scripts/release/source_delivery.py', 'scripts/release/test_release.py', 'scripts/setup/setup.py', 'scripts/setup/test_setup.py'], 'current_product_native_validation': 'NOT RUN', 'generated_fixtures': 127, 'hardware_validation': 'NOT RUN', 'historical_inputs_sha256': '3c16c37d1b12cc84a88572e82ab8ad59e7f3b5ed0d08f09ddf72a69f4711d650', 'historical_integration_sha256': 'd4d603146f094c86242eaafbb887042959c510c9bb948579dd749d065dd8fc31', 'historical_pair_evidence_scope': 'HISTORICAL_PAIRS_EXCLUDE_CHANGED_RECIPES_CURRENT4_RUN38683309592_NOT_CLIENT_ACCEPTANCE', 'inputs_sha256': 'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f', 'installation': 'NOT RUN', 'integration_sha256': '6d4bbbb5d51959930518be5e24367694f0d3f83672e6ea36afd6cdffb07b1b0d', 'inventory_sha256': 'fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25', 'lineage': 'CURRENT_PRODUCT_SUCCESSOR_NOT_HISTORICAL_EVIDENCE', 'native_sha256': 'a8b6ed8971a38089a4499dcec605477c4e48d7a47c3de485d205f6a44678b898', 'original_producers': 1, 'previous_baseline_id': 'maintained-native-baseline-v2-client48-vim-9.2.1178-1', 'previous_integration_sha256': '3cb330785c7721cefdc94448add0fe2ce08a23e13b7d6ac7f47886cebcf88132', 'recipe_source_commit': '465bf53545e1d83053bf3c412e210493961b74ae', 'recipes_sha256': 'a5fb287b4dda2a90bf61d4fa8cbbc5d666dad8bb450a70544d00545b091f36e3', 'schema_version': 1, 'selected_for_release': False, 'source_captures': 3, 'source_date_epoch': 1791748800, 'unchanged_view_sources': 131, 'view_files': 162, 'view_sources': 161}
 INITIAL = 'scripts/ci/integration.lock.json'
 LOCK = 'scripts/ci/development/packet.lock.json'
 INITIAL_PURPOSE = 'frozen-development-only-native-integration'
@@ -380,14 +380,14 @@ def bindings(root, source, pins):
 
 def composed_paths(initial, composition=COMPOSITION):
     need(type(composition) is str and composition in COMPOSED_MODES, 'composed-source-selection-refused')
-    need(type(initial) is dict and len(initial['source_files']) == 160 and
-         len(initial['generated_fixture_files']) == 125 and len(COMPOSED_EXTRA) == 99,
+    need(type(initial) is dict and len(initial['source_files']) == 161 and
+         len(initial['generated_fixture_files']) == 127 and len(COMPOSED_EXTRA) == 99,
          'composed-original-contract-refused')
     paths = set(initial['source_files']) | COMPOSED_EXTRA | {BASELINE_CONTRACT}
     if composition == INSTALLER_COMPOSITION:paths |= INSTALLER_EXTRA
     if composition == ZSH_COMPOSITION:paths |= ZSH_EXTRA
     need(len(INSTALLER_EXTRA) == 7 and len(ZSH_EXTRA) == 5 and
-         len(paths) == {COMPOSITION:260, INSTALLER_COMPOSITION:267}[composition],
+         len(paths) == {COMPOSITION:261, INSTALLER_COMPOSITION:268}[composition],
          'composed-source-selection-refused')
     return paths
 
@@ -413,7 +413,7 @@ def composed_scan(root, initial, composition=COMPOSITION):
     actual = rows(root, paths)
     need(all(actual[name] == row for name, row in initial['source_files'].items()), 'initial-source-map-drift')
     locked, recipes = recipe_paths(root)
-    need(len(recipes) == 4 and len(locked) == 71 and locked <= set(initial['source_files']),
+    need(len(recipes) == 4 and len(locked) == 72 and locked <= set(initial['source_files']),
          'composed-original-recipes-refused')
     for directory, inputs in recipes.items():
         for name, expected in inputs.items():

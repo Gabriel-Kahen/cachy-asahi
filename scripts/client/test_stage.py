@@ -72,7 +72,7 @@ class StageTests(unittest.TestCase):
             with self.assertRaises(ValueError):s.inventory(wrong)
 
     def test_bootstrap_actual_inventory_and_image_binding(self):
-        lock = Path('scripts/ci/maintained-native/locks/builder-successor.lock').read_bytes()
+        lock = Path('scripts/port/refreshed-desktop/proposed-builder-inventory.lock').read_bytes()
         value = {'status': 'image-provisioned', 'image_id': IMAGE, 'inputs_sha256': s.INPUTS_SHA,
                  'packages_lock_sha256': s.PACKAGES_SHA}
         self.assertEqual(s.bootstrap(json.dumps(value).encode(), lock, IMAGE), value)
@@ -263,7 +263,7 @@ class StageTests(unittest.TestCase):
                         'inputs_sha256': s.INPUTS_SHA, 'packages_lock_sha256': s.PACKAGES_SHA}))
         source = Path(__file__).resolve().parents[2]
         args = argparse.Namespace(image=IMAGE, bootstrap=boot, bootstrap_sha256=s.digest(boot.read_bytes()),
-                    packages=source / 'scripts/ci/maintained-native/locks/builder-successor.lock',
+                    packages=source / 'scripts/port/refreshed-desktop/proposed-builder-inventory.lock',
                     packages_sha256=s.PACKAGES_SHA, source=source,
                     stage_sha256=s.digest(s.read(source / 'scripts/client/stage.py')),
                     guard_sha256=s.GUARD_SHA, output=self.root / 'evidence')

@@ -31,7 +31,7 @@ PACKAGES = {'cachy-asahi-hyprland-settings': 'hyprland', 'cachy-asahi-fish-confi
 META = {'.PKGINFO', '.BUILDINFO', '.MTREE', '.Changelog'}
 HASH = re.compile(r'[0-9a-f]{64}\Z')
 FIXED_HELPER = '/usr/bin/cachy-asahi-setup'
-BASELINE_HELPER_SHA256 = 'a6251142b9c7e54796285c1a301fb590599d8aaa1625ea0bfebd7fc21622fdc2'
+BASELINE_HELPER_SHA256 = '3e652bff75f6202cd3c13c327e50a298f7b25149b3c5cb55cdf4912d35af5919'
 NULL_MASKS = {'/proc/kcore', '/proc/keys', '/proc/latency_stats', '/proc/timer_list',
               '/proc/timer_stats', '/proc/sched_debug', '/proc/interrupts'}
 DIRECTORY_MASKS = {'/proc/acpi', '/proc/scsi', '/proc/asound', '/sys/firmware',
@@ -223,7 +223,7 @@ def validate_contract(contract):
                 safe_relative(name)
                 require(allowed_file(row['name'], name) and HASH.fullmatch(digest), 'payload escapes package scope or lacks pin')
     baseline = {row['name']: row for row in contract['baseline']}
-    require(baseline['cachy-asahi-setup']['payload_sha256'].get('usr/bin/cachy-asahi-setup') == BASELINE_HELPER_SHA256, 'original accepted a625 setup baseline required')
+    require(baseline['cachy-asahi-setup']['payload_sha256'].get('usr/bin/cachy-asahi-setup') == BASELINE_HELPER_SHA256, 'reviewed strict setup 0.1.0-3 baseline required')
     for row in contract['upgrade']:
         old = baseline[row['name']]
         require(row['sha256'] != old['sha256'] and row['version'] != old['version'], 'upgrade cannot reuse baseline archive/version')

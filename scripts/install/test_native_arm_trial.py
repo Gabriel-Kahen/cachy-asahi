@@ -27,7 +27,7 @@ class ReceiverTests(unittest.TestCase):
             if p.exists():p.chmod(0o600)
             p.write_bytes(b);p.chmod(0o400)
             sources[n]={'size':len(b),'sha256':self.m.sha(b)}
-        return dict(schema_version=1,purpose='native-arm-synthetic-installer',phase='preflight',source_commit='a'*40,
+        return dict(schema_version=1,purpose='maintained-native-arm-synthetic-installer-v1',phase='preflight',source_commit='a'*40,
                     sources=sources,tool_profile_sha256=self.m.sha(self.m.PROFILE_BYTES),native_inputs_sha256=self.m.INPUTS_SHA,
                     builder_packages_sha256=self.m.BASE_SHA,image_id='sha256:'+'a'*64,image_config_sha256='b'*64,
                     native_handoff_sha256='c'*64,nonce='d'*32)

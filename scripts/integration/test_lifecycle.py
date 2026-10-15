@@ -258,7 +258,7 @@ class LifecycleTests(unittest.TestCase):
         changed = contract()
         row = next(r for r in changed['baseline'] if r['name'] == 'cachy-asahi-setup')
         row['payload_sha256']['usr/bin/cachy-asahi-setup'] = '0' * 64
-        with self.assertRaisesRegex(lifecycle.Error, 'original accepted'): lifecycle.validate_contract(changed)
+        with self.assertRaisesRegex(lifecycle.Error, r'^reviewed strict setup 0\.1\.0-3 baseline required$'): lifecycle.validate_contract(changed)
 
     def test_public_cert_retarget_rejected_before_import(self):
         inputs = self.root / 'inputs'

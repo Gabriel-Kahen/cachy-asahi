@@ -12,6 +12,21 @@ import controller
 from common import save
 
 
+def maintained_packet_model(composition, rows=None, **fields):
+    """Real current path membership; inert model metadata, never native authority."""
+    packet = controller.packet
+    if rows is None:
+        initial = json.loads((controller.ROOT / packet.INITIAL).read_bytes())
+        rows = {name: {'sha256': controller.hashlib.sha256((controller.ROOT/name).read_bytes()).hexdigest(),
+                       'mode': (controller.ROOT/name).stat().st_mode & 0o777}
+                for name in packet.composed_paths(initial, composition)}
+    expected = {packet.COMPOSITION:261, packet.INSTALLER_COMPOSITION:268}[composition]
+    if len(rows) != expected:
+        raise AssertionError('model requires the exact current Source path set')
+    return {'schema_version':3, 'composition':composition, 'baseline_id':packet.BASELINE_ID,
+            'lineage':packet.LINEAGE, 'source_files':dict(rows), **fields}
+
+
 class ControllerTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(); self.addCleanup(self.temp.cleanup)
@@ -425,7 +440,7 @@ class InstallerRoutingModels(unittest.TestCase):
         self.root = Path(self.temp.name);self.output = self.root/'output';self.output.mkdir()
         self.J = controller.time.monotonic()+300;self.events = []
         self.runtime = {'cli_sha256':'b'*64,'endpoint_identity':{'fixture':'NO ACTOR'},'env':{}}
-        self.packet = {'schema_version':2,'composition':controller.packet.INSTALLER_COMPOSITION,'source_files':{}}
+        self.packet = maintained_packet_model(controller.packet.INSTALLER_COMPOSITION)
         self.dev = controller.Development(self.root,self.output,self.root/'cache',self.packet,deadline=self.J,
             composition=controller.packet.INSTALLER_COMPOSITION,clock_nonce='c'*32,runtime_contract=self.runtime)
         self.initial = SimpleNamespace(cancelled=False)
@@ -443,6 +458,8 @@ class InstallerRoutingModels(unittest.TestCase):
                             controller.INSTALLER_PATH:b'BRIDGE SOURCE MODEL ONLY'}
         self.sources.grant = {'source_files':{controller.INSTALLER_PATH:{'sha256':controller.hashlib.sha256(self.sources.raw[controller.INSTALLER_PATH]).hexdigest()}},
             'actor_contract_sha256':controller.hashlib.sha256((json.dumps(self.runtime,sort_keys=True,indent=2)+'\n').encode()).hexdigest()}
+        self.packet['source_files'].update(self.sources.grant['source_files'])
+        self.sources.grant['source_files'] = self.packet['source_files']
         self.bridge = ModuleType(controller.INSTALLER_NAME);self.bridge.__file__ = str(self.root/controller.INSTALLER_PATH)
         self.bridge.OWN = controller.INSTALLER_PATH
         self.bridge.ISSUER_SHA = controller.hashlib.sha256(self.sources.raw['scripts/ci/development/repository_handoff.py']).hexdigest()
@@ -653,7 +670,7 @@ class InstallerCliModeModels(unittest.TestCase):
 
     def test_packet_preflight_receives_explicit_mode_and_wrong_returned_mode_refuses(self):
         args = self.fixture.boundary_args();args.composition = controller.packet.INSTALLER_COMPOSITION
-        value = {'schema_version':2,'composition':controller.packet.COMPOSITION,'metadata_pins':{}}
+        value = maintained_packet_model(controller.packet.COMPOSITION, metadata_pins={})
         with patch.object(controller,'private_input',return_value=self.fixture.raw(self.fixture.value)), \
              patch.object(controller.signal,'getitimer',return_value=(0.0,0.0)),patch.object(controller.signal,'signal'), \
              patch.object(controller.signal,'setitimer'),patch.object(controller,'close_boundary',return_value=False), \
@@ -674,7 +691,7 @@ class InstallerCliModeModels(unittest.TestCase):
 
     def test_installer_failed_retirement_overrides_only_provisional_success(self):
         args = self.fixture.boundary_args();args.composition = controller.packet.INSTALLER_COMPOSITION;args.check_only = True
-        value = {'schema_version':2,'composition':controller.packet.INSTALLER_COMPOSITION,'metadata_pins':{}}
+        value = maintained_packet_model(controller.packet.INSTALLER_COMPOSITION, metadata_pins={})
         with patch.object(controller,'private_input',return_value=self.fixture.raw(self.fixture.value)), \
              patch.object(controller.signal,'getitimer',return_value=(0.0,0.0)),patch.object(controller.signal,'signal'), \
              patch.object(controller.signal,'setitimer'),patch.object(controller,'close_boundary',return_value=False), \
@@ -687,8 +704,20 @@ class InstallerConstructorSourceTests(unittest.TestCase):
     """Actual captured SDK construction with finite synthetic contracts; no execution grant or actors."""
     @classmethod
     def setUpClass(cls):
+        import signal
         import test_repository_handoff
-        cls.fixture = test_repository_handoff.CapturedGraphFixtures;cls.fixture.setUpClass()
+        # The exact graph's isolated stdlib imports can reinitialize _signal.
+        # Own the fixture's ambient mutations; never normalize unknown production
+        # dispositions or weaken the virtual stage's restoration checks.
+        previous={number:signal.getsignal(number) for number in (signal.SIGINT,signal.SIGTERM,signal.SIGALRM)}
+        if any(handler not in (signal.SIG_DFL,signal.SIG_IGN) and not callable(handler) for handler in previous.values()):
+            raise AssertionError('fixture signal restoration requires known original handlers')
+        def restore():
+            for number,handler in previous.items():signal.signal(number,handler)
+            if any(signal.getsignal(number) is not handler and signal.getsignal(number)!=handler for number,handler in previous.items()):
+                raise AssertionError('fixture signal restoration differs')
+        cls.addClassCleanup(restore)  # Last cleanup, including failed setup.
+        cls.fixture = test_repository_handoff.InstallerGraphFixtures;cls.fixture.setUpClass()
         cls.addClassCleanup(cls.fixture.doClassCleanups)
 
     def test_actual_source_constructor_propagates_closed_installer_mode_before_allocation(self):
@@ -703,26 +732,30 @@ class InstallerConstructorSourceTests(unittest.TestCase):
                 exec(compile(sources.raw[path],module.__file__,'exec'),module.__dict__);modules[name] = module
             parent = modules['captured_installer_controller'];output = self.fixture.output.parent/'installer-proposed-output'
             cache = output.parent/'installer-proposed-cache';J = time.monotonic()+60
-            packet_model = {'schema_version':2,'composition':'installer-preflight','source_files':copy.deepcopy(sources.grant['source_files']),
-                'metadata_pins':{name:sha(sources.raw[name]) for name in modules['packet'].COMPOSED_PINS}}
+            packet_model = maintained_packet_model(parent.packet.INSTALLER_COMPOSITION,
+                copy.deepcopy(sources.grant['source_files']),
+                metadata_pins={name:sha(sources.raw[name]) for name in modules['packet'].COMPOSED_PINS})
             grant = copy.deepcopy(sources.grant)
             grant['callbacks'] = {'existing_consumers':{'path':'scripts/ci/development/controller.py','module':parent.__name__,'qualname':'Development.consume'},
                 **{role:{'path':'scripts/ci/development/repository_authority.py','module':'development_repository_authority',
                          'qualname':'RootCallbacks.'+role} for role in ('public_receiver','authority_provider')}}
-            grant['original_view']['root'] = str(output/'repository-handoff/original-view')
+            grant['baseline_view']['root'] = str(output/'repository-handoff/maintained-view')
             runtime = {'cli_sha256':'b'*64,'endpoint_identity':{'fixture':'NO ACTOR'},'env':{}}
             argv = parent.original_argv(output,cache,packet_model['metadata_pins'])
             grant['initial_invocation_sha256'] = sha(encoded({'argv':argv,'output':str(output/'repository-handoff')}))
             actor_raw = encoded(runtime);grant['actor_contract_sha256'] = sha(actor_raw)
             raw = encoded(grant);pin = sha(raw)
             env = {'GITHUB_SHA':grant['source_commit'],'GITHUB_RUN_ID':grant['run_id'],'GITHUB_RUN_ATTEMPT':grant['run_attempt']}
+            # The exact installer graph fixture already imports its selected
+            # installer module. Construction must neither replace nor add one.
+            held_installer = sys.modules.get(parent.INSTALLER_NAME)
             with patch.dict(controller.os.environ,env):
                 session,callbacks,actual,selected = parent.composed_sources(root,packet_model,raw,pin,actor_raw,output,cache,J,
-                    composition='installer-preflight')
-                self.assertEqual(session.composition,'installer-preflight');self.assertEqual(session.job_deadline,J)
+                    composition=parent.packet.INSTALLER_COMPOSITION)
+                self.assertEqual(session.composition,parent.packet.INSTALLER_COMPOSITION);self.assertEqual(session.job_deadline,J)
                 self.assertEqual(selected,argv);self.assertEqual(actual,runtime);self.assertIs(callbacks._session,session)
                 self.assertFalse(session.used);self.assertIsNone(session.view_root);self.assertEqual(session.source_graph,{})
-                self.assertFalse(output.exists());self.assertFalse(cache.exists());self.assertNotIn(parent.INSTALLER_NAME,sys.modules)
+                self.assertFalse(output.exists());self.assertFalse(cache.exists());self.assertIs(sys.modules.get(parent.INSTALLER_NAME),held_installer)
                 for name in ('development_repository_handoff','development_repository_authority'):sys.modules.pop(name,None)
                 for mode in (None,True,{},'foreign','repository-svg'):
                     with self.subTest(mode=type(mode).__name__),self.assertRaisesRegex(ValueError,'contract-refused'):
@@ -806,7 +839,7 @@ class ClockContractTests(unittest.TestCase):
         pins={'scripts/ci/'+name+'.lock.json':str(number)*64 for number,name in enumerate(('inputs','recipes','integration'),1)}
         argv=controller.original_argv(output,cache,pins)
         self.assertEqual(len(argv),19)
-        self.assertEqual(argv[argv.index('--inputs')+1],str(output/'repository-handoff/original-view/scripts/ci/inputs.lock.json'))
+        self.assertEqual(argv[argv.index('--inputs')+1],str(output/'repository-handoff/maintained-view/scripts/ci/inputs.lock.json'))
         self.assertEqual(argv[argv.index('--integration-output')+1],str(output/'integration'))
 
 
@@ -981,13 +1014,14 @@ class PhaseSchemaTests(unittest.TestCase):
                 module=types.ModuleType(name);module.__file__=str(root/path);sys.modules[name]=module
                 exec(compile(sources.raw[path],module.__file__,'exec'),module.__dict__);modules[name]=module
             parent=modules['captured_composed_controller'];output=self.fixture.output.parent/'proposed-output';cache=output.parent/'proposed-cache'
-            packet_model={'schema_version':2,'composition':'repository-svg','source_files':copy.deepcopy(sources.grant['source_files']),
-                'metadata_pins':{name:self.sha(sources.raw[name]) for name in modules['packet'].COMPOSED_PINS}}
+            packet_model=maintained_packet_model(parent.packet.COMPOSITION,
+                copy.deepcopy(sources.grant['source_files']),
+                metadata_pins={name:self.sha(sources.raw[name]) for name in modules['packet'].COMPOSED_PINS})
             grant=copy.deepcopy(sources.grant)
             grant['callbacks']={'existing_consumers':{'path':'scripts/ci/development/controller.py','module':parent.__name__,'qualname':'Development.consume'},
                 **{role:{'path':'scripts/ci/development/repository_authority.py','module':'development_repository_authority',
                          'qualname':'RootCallbacks.'+role} for role in ('public_receiver','authority_provider')}}
-            grant['original_view']['root']=str(output/'repository-handoff/original-view')
+            grant['baseline_view']['root']=str(output/'repository-handoff/maintained-view')
             runtime={'cli_sha256':'b'*64,'endpoint_identity':{'fixture':'NO ACTOR'},'env':{}}
             argv=parent.original_argv(output,cache,packet_model['metadata_pins'])
             grant['initial_invocation_sha256']=self.sha(self.a.encoded({'argv':argv,'output':str(output/'repository-handoff')}))
@@ -1240,17 +1274,17 @@ class EarlyEntryModels(unittest.TestCase):
             self.assertEqual(dispatch.call_args.args[0].controller_entry_monotonic,self.early)
         self.assertEqual(events,['entry','parser','entry','parser'])
 
-    def test_legacy_explicit_flag_refuses_before_any_packet_read(self):
+    def test_early_field_without_explicit_composition_refuses_before_packet_read(self):
         for early in (self.early,'nan','inf'):
             with self.subTest(early=early),patch.object(controller.packet,'preflight') as source, \
                  patch.object(controller,'private_input') as private,patch.object(controller,'composed_main') as composed:
-                with self.assertRaisesRegex(ValueError,'requires-composition'):controller.main(self.cli(early=early))
+                with self.assertRaises(SystemExit):controller.main(self.cli(early=early))
                 source.assert_not_called();private.assert_not_called();composed.assert_not_called()
 
-    def test_absent_flag_retains_legacy_dispatch_and_composed_local_entry(self):
+    def test_absent_composition_refuses_and_explicit_maintained_entry_forwards(self):
         with patch.object(controller.packet,'preflight',return_value={'metadata_pins':{'scripts/ci/inputs.lock.json':'a'*64,
              'scripts/ci/recipes.lock.json':'b'*64,'scripts/ci/integration.lock.json':'c'*64}}),patch('builtins.print'):
-            self.assertEqual(controller.main(self.cli()),0)
+            with self.assertRaises(SystemExit):controller.main(self.cli())
         with patch.object(controller,'composed_main',return_value=7) as dispatch:
             self.assertEqual(controller.main(self.cli(controller.packet.COMPOSITION)),7)
         self.assertIsNone(dispatch.call_args.args[0].controller_entry_monotonic)
@@ -1262,7 +1296,7 @@ class EarlyEntryModels(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary,ExitStack() as stack:
             root=Path(temporary);checkout=root/'checkout';args=self.args(self.early);args.check_only=False
             args.output=root/'output';args.cache=root/'cache'
-            value={'schema_version':2,'composition':args.composition,'metadata_pins':{}}
+            value=maintained_packet_model(args.composition, metadata_pins={})
             runtime={'cli_sha256':'b'*64,'endpoint_identity':{'model':True},'env':{}}
             session=SimpleNamespace(job_deadline=self.J,sources=SimpleNamespace(module=Mock(return_value=SimpleNamespace(bundle=Mock()))))
             callbacks=object();argv=['MODEL'];dev=Mock();dev.report={};captures=[];cutoffs=[]
@@ -1274,6 +1308,10 @@ class EarlyEntryModels(unittest.TestCase):
             preflight=stack.enter_context(patch.object(controller.packet,'preflight_composed',return_value=value))
             sources=stack.enter_context(patch.object(controller,'composed_sources',return_value=(session,callbacks,runtime,argv)))
             construct=stack.enter_context(patch.object(controller,'Development',return_value=dev))
+            # This clock-flow model has no private cache supplier. Its explicit
+            # inert seam checks the same cutoff; supplier ownership is tested separately.
+            seed=stack.enter_context(patch.object(controller,'seed_retained_private_cache'))
+            finish=stack.enter_context(patch.object(controller,'finish_retained_private_cache'))
             stack.enter_context(patch.object(controller.signal,'getitimer',return_value=(0.0,0.0)))
             stack.enter_context(patch.object(controller.signal,'signal'));timers=stack.enter_context(patch.object(controller.signal,'setitimer'))
             stack.enter_context(patch.object(controller,'close_boundary',return_value=False));stack.enter_context(patch.object(controller,'retire_installer_module',return_value=True))
@@ -1286,6 +1324,9 @@ class EarlyEntryModels(unittest.TestCase):
             self.assertEqual(construct.call_args.kwargs['clock_nonce'],self.value['nonce'])
             self.assertIs(construct.call_args.kwargs['runtime_contract'],runtime)
             dev.run_composed.assert_called_once_with(session,callbacks,runtime,argv)
+            self.assertEqual(seed.call_args.args[2],self.J)
+            self.assertEqual(finish.call_args.args[1],self.J)
+            self.assertIs(seed.call_args.args[3],finish.call_args.args[0])
             self.assertEqual(preflight.call_args.kwargs,{'composition':args.composition})
             self.assertEqual(cutoffs[:-2],[self.J]*len(cutoffs[:-2]));self.assertEqual(cutoffs[-2:],[self.entry+120]*2)
             self.assertEqual(dev.publication_deadline,self.entry+120)
@@ -1303,8 +1344,6 @@ class EarlyEntryModels(unittest.TestCase):
             controller.main(self.cli(controller.packet.INSTALLER_COMPOSITION,'true'))
         private.assert_not_called();source.assert_not_called()
 
-if __name__ == '__main__':
-    unittest.main()
 
 class InstallerCallBoundaryModels(unittest.TestCase):
     """Actual selected AST with inert callbacks and single trace-delivered controls."""
@@ -1316,6 +1355,8 @@ class InstallerCallBoundaryModels(unittest.TestCase):
         cls.current=next(n for n in owner.body if isinstance(n,ast.FunctionDef) and n.name=='consume_installer')
         cls.persist=next(n for n in owner.body if isinstance(n,ast.FunctionDef) and n.name=='persist_installer')
         cls.helper=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='retain_installer_control')
+        # Counterfactual disables only the complete optional diagnostic block
+        # and its five boundary markers; all current cancellation repairs stay.
         cls.previous=copy.deepcopy(cls.current);removed=[0,0]
         for node in ast.walk(cls.previous):
             for field in ('body','orelse','finalbody'):
@@ -1324,12 +1365,12 @@ class InstallerCallBoundaryModels(unittest.TestCase):
                 for item in getattr(node,field):
                     if isinstance(item,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='boundary' for t in item.targets):
                         removed[0]+=1;continue
-                    if isinstance(item,ast.Try) and len(item.body)==1 and isinstance(item.body[0],ast.Assign) and any(isinstance(c,ast.Constant) and c.value=='call_boundary' for c in ast.walk(item.body[0])):
+                    if isinstance(item,ast.Try) and item.body and isinstance(item.body[0],ast.Assign) and any(isinstance(c,ast.Constant) and c.value=='call_boundary' for c in ast.walk(item.body[0])):
                         removed[1]+=1;continue
                     kept.append(item)
                 setattr(node,field,kept)
         assert removed==[5,1]
-        assert hashlib.sha256(ast.dump(cls.previous,include_attributes=False).encode()).hexdigest()=='7c1309589791c3fabf3866e4b8109661ba71afa1c10295729b35c293b6f1be1e'
+        assert hashlib.sha256(ast.dump(cls.previous,include_attributes=False).encode()).hexdigest()=='43e046ba55b2a29dbefb7777b588b4b3ae0e0177f44a6b1d94d85ec419216214'
         cls.diagnostic_line=next(n.lineno for n in ast.walk(cls.current) if isinstance(n,ast.Assign) and any(isinstance(c,ast.Constant) and c.value=='call_boundary' for c in ast.walk(n)))
 
     def model(self,node,boundary=None,error=None,diagnostic_fault=None,trace_control=None,persist_control=None):
@@ -1555,7 +1596,7 @@ class ReceiverAcceptanceProjectionModels(unittest.TestCase):
 class CurrentProductSuccessorCountModels(unittest.TestCase):
     def test_exact_current_successor_counts_and_no_historical_count_fallback(self):
         packet=controller.packet
-        for mode,count in ((packet.COMPOSITION,260),(packet.INSTALLER_COMPOSITION,267)):
+        for mode,count in ((packet.COMPOSITION,261),(packet.INSTALLER_COMPOSITION,268)):
             def value(n):
                 return {'schema_version':3,'composition':mode,'baseline_id':packet.BASELINE_ID,
                         'lineage':packet.LINEAGE,'source_files':{str(i):{} for i in range(n)}}
@@ -1631,3 +1672,7 @@ class ReceiverPublicRecordProjectionModels(unittest.TestCase):
             self.assertEqual(state.report['status'],'FAIL');self.assertNotIn('PRIVATE',json.dumps(state.report))
             if isinstance(secondary,Exception):self.assertFalse(namespace['CANCELLED'])
             else:self.assertIs(original.__cause__,secondary);self.assertTrue(namespace['CANCELLED']);self.assertTrue(state.report['cancelled'])
+
+
+if __name__ == '__main__':
+    unittest.main()

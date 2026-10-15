@@ -1,15 +1,15 @@
 {
-  "observed_date": "2026-10-11",
+  "observed_date": "2026-10-15",
   "source_kind": "original-local",
   "project_url": "https://github.com/Gabriel-Kahen/cachy-asahi",
   "canonical_path": "scripts/setup/setup.py",
   "packaged_source": "cachy-asahi-setup",
-  "sha256": "a6251142b9c7e54796285c1a301fb590599d8aaa1625ea0bfebd7fc21622fdc2",
+  "sha256": "3e652bff75f6202cd3c13c327e50a298f7b25149b3c5cb55cdf4912d35af5919",
   "license_sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
-  "canonical_handoff": "docs/workstreams/setup.md; owner refroze after 40 tests covering pending source-root and 2MiB result limits",
+  "canonical_handoff": "Source-only strict recovery JSON correction: duplicate object keys and floating/exponent/non-finite numbers refuse; schema is exact integer 1; exact canonical mirror reviewed in setup-strict-recovery-json-20261015; build/install/hardware NOT RUN",
   "runtime": "Python 3.11+ standard library; Linux fcntl/path operations",
   "native_build": "NOT RUN",
   "installed": "NOT RUN",
   "hardware_tested": "NOT RUN",
-  "supersedes": "c7d4b9b93241c112af7b620a01eed55b1946232f4075f7cd52bd0ff532666f07"
+  "supersedes": "a6251142b9c7e54796285c1a301fb590599d8aaa1625ea0bfebd7fc21622fdc2"
 }

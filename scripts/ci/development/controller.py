@@ -532,7 +532,7 @@ def composed_mode(source_packet, composition):
             source_packet['schema_version'] == 3 and type(source_packet.get('composition')) is str and
             source_packet.get('baseline_id') == packet.BASELINE_ID and source_packet.get('lineage') == packet.LINEAGE and
             type(source_packet.get('source_files')) is dict and
-            len(source_packet['source_files']) == {packet.COMPOSITION:260,packet.INSTALLER_COMPOSITION:267}[composition] and
+            len(source_packet['source_files']) == {packet.COMPOSITION:261,packet.INSTALLER_COMPOSITION:268}[composition] and
             source_packet['composition'] == composition, 'composed-packet-contract-refused')
     return composition
 

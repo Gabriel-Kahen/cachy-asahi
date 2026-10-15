@@ -4,6 +4,7 @@
 import sys
 if __name__ == '__main__' and (not sys.flags.isolated or not sys.flags.dont_write_bytecode or not sys.flags.no_site):
     raise SystemExit('Launch requires python -I -B -S')
+import _signal
 import argparse
 import ast
 import builtins
@@ -191,7 +192,7 @@ def authenticated(map_path, pin, *, deadline, source_root=None):
 def original_modules(root, lock_path, lock_pin, *, deadline, verification_deadline):
     lock = obj(pinned(lock_path, lock_pin, deadline=deadline))
     identities = {}
-    data = captures(root, lock['source_files'], count=160, deadline=deadline, identities=identities)
+    data = captures(root, lock['source_files'], count=161, deadline=deadline, identities=identities)
     if not set(ORIGINAL.values()) <= set(data):
         raise ValueError('original-module-closure')
     before, paths = {name: sys.modules.get(name) for name in ORIGINAL}, list(sys.path)

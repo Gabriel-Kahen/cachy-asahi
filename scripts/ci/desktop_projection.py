@@ -27,7 +27,8 @@ SGR = re.compile(r'\x1b\[[0-9;]{0,64}m')
 PAYLOAD = tuple(sorted({f'usr/share/cachy-asahi/hyprland/{name}' for name in
                        ('hyprland.lua', 'waybar.json', 'waybar.css', 'mako.conf')} |
                       {f'usr/share/{part}/cachy-asahi-hyprland-settings/{name}' for part, name in
-                       (('doc', 'README.md'), ('licenses', 'NOTICE'), ('licenses', 'LICENSE'))}))
+                       (('doc', 'README.md'), ('licenses', 'NOTICE'), ('licenses', 'LICENSE'))} |
+                      {'usr/bin/cachy-asahi-screenshot'}))
 RECEIPT_KEYS = {'schema_version', 'record_type', 'status', 'container_arch', 'container_facts',
                 'commands', 'checks', 'hardware_validation', 'graphics_acceleration',
                 'portal_audio_session', 'optimization_acceptance', 'headless_compositor',
@@ -178,19 +179,19 @@ def _receipt(value, authority):
     require(type(payload) is dict and set(payload) == set(PAYLOAD) and
             all(type(item) is str and HEX.fullmatch(item) for item in payload.values()), 'payload-schema')
     commands = value['commands']
-    require(type(commands) is list and len(commands) == 22, 'command-count')
+    require(type(commands) is list and len(commands) == 24, 'command-count')
     for row in commands:
         require(type(row) is dict and set(row) == {'argv', 'returncode', 'error', 'log_sha256', 'stdout'} and
                 type(row['returncode']) is int and row['returncode'] == 0 and row['error'] is None and
                 type(row['log_sha256']) is str and HEX.fullmatch(row['log_sha256']) and
                 type(row['stdout']) is str and type(row['argv']) is list and
                 all(type(arg) is str for arg in row['argv']), 'command-schema-or-status')
-    archive = '/inputs/cachy-asahi-hyprland-settings-0.1.0-1-any.pkg.tar.xz'
+    archive = '/inputs/cachy-asahi-hyprland-settings-0.1.0-2-any.pkg.tar.xz'
     expected = [['/usr/bin/pacman', '-Q'], ['/usr/bin/bsdtar', '-xOf', archive, '.PKGINFO'],
                 ['/usr/bin/bsdtar', '-tf', archive]]
     for path in PAYLOAD:
         expected.extend([['/usr/bin/bsdtar', '-xOf', archive, path], ['/usr/bin/pacman', '-Qoq', '/' + path]])
-    optional = commands[20]['argv']
+    optional = commands[22]['argv']
     require(len(optional) == 4 and OPTIONAL.fullmatch(optional[3]), 'optional-config-path')
     expected.extend([['/usr/bin/Hyprland', '--version'], ['/usr/bin/luac', '-p', DEFAULT],
                      ['/usr/bin/Hyprland', '--verify-config', '--config', DEFAULT],
@@ -240,7 +241,7 @@ def project(raw, authority):
         value = _json(receipt_data)
         _receipt(value, authority)
         projected, bindings = {}, []
-        for command_index in (19, 20):
+        for command_index in (21, 22):
             relative = f'desktop/command-{command_index}.txt'
             data = _read(raw, relative)
             row = value['commands'][command_index]

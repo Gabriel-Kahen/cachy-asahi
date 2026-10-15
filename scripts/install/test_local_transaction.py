@@ -1678,6 +1678,34 @@ class NativeProfileTests(unittest.TestCase):
                     add=[dict(name='caa-install-fixture-a',version='1.0-1',archive={},signature={},signer='A'*40)],
                     keyring={}, timeout_seconds=20, libalpm_sha256=self.module.NATIVE_LIBRARY_SHA,
                     profile_sha256=self.module.NATIVE_PROFILE_SHA,input_selection_sha256='b'*64)
+    def test_engine_reopens_both_architectures_with_selected_profile(self):
+        import ast
+        tree = ast.parse(WORKER.read_bytes())
+        engine = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == 'engine')
+        assignments = sorted((n for n in ast.walk(engine) if isinstance(n, ast.Assign) and
+            any(isinstance(t, ast.Name) and t.id == 'alpm' for t in n.targets) and
+            isinstance(n.value, (ast.Call, ast.IfExp))), key=lambda n:n.lineno)
+        self.assertEqual(len(assignments), 2)
+        expressions = [compile(ast.Expression(n.value), str(WORKER), 'eval') for n in assignments]
+        for architecture in ('x86_64', 'aarch64'):
+            with self.subTest(architecture=architecture):
+                observed = []
+                def selected(root, keys, log, architecture='x86_64'):
+                    observed.append((architecture, self.module.architecture_profile(architecture)))
+                namespace = dict(root=Path('/private-fixture'), keys=Path('/private-fixture/gpg'),
+                    out=Path('/private-fixture/evidence'), contract={'architecture':architecture}, Alpm=selected)
+                for expression in expressions: eval(expression, namespace)
+                self.assertEqual(observed, [(architecture, self.module.architecture_profile(architecture))]*2)
+                # Run both actual constructor prefixes through the selected binary pin;
+                # stop at CDLL, before loading a library or touching a package database.
+                namespace['Alpm'] = self.module.Alpm
+                with patch.object(self.module, 'digest', return_value=self.module.architecture_profile(architecture)[0]), \
+                        patch.object(self.module.C, 'CDLL', side_effect=RuntimeError('fixture CDLL boundary')) as library:
+                    for expression in expressions:
+                        with self.assertRaisesRegex(RuntimeError, '^fixture CDLL boundary$'):
+                            eval(expression, namespace)
+                    self.assertEqual(library.call_count, 2)
+
     def test_legacy_profile_retains_exact_denials_and_binary(self):
         self.assertEqual(self.module.architecture_profile('x86_64'),(LIBALPM_SHA256,0xc000003e,(42,44,46,307,425,426,427)))
     def test_native_profile_pinned_and_abi_specific(self):

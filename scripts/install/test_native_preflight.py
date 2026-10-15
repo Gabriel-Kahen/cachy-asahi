@@ -746,7 +746,7 @@ class LiveGraphBindingControls(unittest.TestCase):
         finally:sys.settrace(previous)
         raise AssertionError('native admission must not complete in a source model')
     def test_selected_issuer_pin_and_captured_graph_reach_only_source_gate(self):
-        self.assertEqual(P.ISSUER_SHA,'55089b6af9458d00775d354cf3363386cf08ded1b851b89a5b621f79f348b671')
+        self.assertEqual(P.ISSUER_SHA,'1c50e0a38e3a34ddf89d94a92ffabf4b5b28f810df2ce2c3bbd2388870d322af')
         self.assertEqual(P.sha(BASE.read_bytes()),P.ISSUER_SHA)
         self.assertEqual(self.check(),'SOURCE_GATE_ONLY')
         self.assertIsNone(self.session.native_consumer_observation)

@@ -300,7 +300,7 @@ work=[sys.executable,'-c','import os,time;print(os.getpid(),flush=True);time.sle
 try:runner.run('signal',work,terminal=True)
 except o.Failure:pass
 """
-        wrapper = subprocess.Popen([sys.executable, "-I", "-c", code, str(Path(o.__file__).resolve()), str(output)],
+        wrapper = subprocess.Popen([sys.executable, "-I", "-B", "-c", code, str(Path(o.__file__).resolve()), str(output)],
                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         try:
             # Wait until the handler and controlled child are established; no real shell/HOME.

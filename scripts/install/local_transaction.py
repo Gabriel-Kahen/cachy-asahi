@@ -1058,7 +1058,7 @@ def engine(spec_path, spec_sha256):
         result.update(phase='commit', commit_started=True, before=before); evidence.save('result.json', result)
         details = Ptr(); alpm.ok(alpm.alpm_trans_commit(alpm.handle, C.byref(details)), 'actual commit')
         result['committed'] = True
-        alpm.close(); alpm = Alpm(root, keys, out / 'alpm.log')
+        alpm.close(); alpm = Alpm(root, keys, out / 'alpm.log', contract['architecture'])
         after = alpm.inventory(); result['after'] = after; check_inventory(after, contract['after'], 'after')
         for package, paths in ownership.items(): need(alpm.owned_files([package]) == paths, 'installed package ownership differs')
         for name, expected in payload.items(): need(node(root / name) == expected, 'installed payload differs: ' + name)

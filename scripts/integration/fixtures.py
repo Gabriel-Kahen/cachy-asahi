@@ -354,7 +354,7 @@ def generate(repo, lock, output, lock_sha256, source_commit, version=None, epoch
         os.utime(target, (epoch, epoch))
     for (phase, directory), files in trees.items():
         for name, data in files.items():
-            write(f'{phase}/{directory}/{name}', data, name == 'cachy-asahi-setup')
+            write(f'{phase}/{directory}/{name}', data, name in {'cachy-asahi-setup', 'cachy-asahi-screenshot'})
     license_bytes = next(iter(licenses))
     for phase in ('baseline', 'upgrade'):
         write(phase + '/LICENSE', license_bytes)

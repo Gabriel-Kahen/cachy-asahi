@@ -562,9 +562,21 @@ class InitialInvocationFixtures(unittest.TestCase):
                 self.assertFalse(output.exists())
 
 class CapturedGraphFixtures(unittest.TestCase):
-    """Actual successor selected259 source/slot graph; modeled registered policy, no actors."""
+    """Actual current selected261 source/slot graph; modeled registered policy, no actors."""
     @classmethod
     def setUpClass(cls):
+        import signal
+        # Standalone and indirect graph fixtures both own these ambient changes.
+        # Restore the genuine pre-fixture state after all graph cleanups, never
+        # replace an unknown incoming disposition with an invented default.
+        previous={number:signal.getsignal(number) for number in (signal.SIGINT,signal.SIGTERM,signal.SIGALRM)}
+        if any(handler not in (signal.SIG_DFL,signal.SIG_IGN) and not callable(handler) for handler in previous.values()):
+            raise AssertionError('fixture signal restoration requires known original handlers')
+        def restore():
+            for number,handler in previous.items():signal.signal(number,handler)
+            if any(signal.getsignal(number) is not handler and signal.getsignal(number)!=handler for number,handler in previous.items()):
+                raise AssertionError('fixture signal restoration differs')
+        cls.addClassCleanup(restore)
         cls.temporary=tempfile.TemporaryDirectory(prefix='handoff-actual-graph-')
         cls.addClassCleanup(cls.temporary.cleanup)
         cls.root=Path(cls.temporary.name)/'source';cls.root.mkdir()
@@ -574,6 +586,7 @@ class CapturedGraphFixtures(unittest.TestCase):
         names.update('''
 .github/workflows/native-arm-development.yml
 manifests/reviewed/repository-generic-policy.json
+manifests/reviewed/maintained-composed-v1.json
 manifests/reviewed/ksmctl.json
 packages/tools/cachy-asahi-ksmctl/.SRCINFO
 packages/tools/cachy-asahi-ksmctl/LICENSE
@@ -698,10 +711,10 @@ packages/shells/cachy-asahi-zsh-autosuggestions/zsh-autosuggestions.zsh
             'initial_invocation_sha256':adapter.digest(adapter.encoded({'argv':['SOURCE-ONLY-NO-ACTOR'],
                                                                        'output':str(cls.output)}))}
         initial=json.loads((cls.root/'scripts/ci/integration.lock.json').read_bytes())
-        cls.grant['baseline_view']={'schema_version':2,'baseline_id':'maintained-native-baseline-v2-client48-vim-9.2.1178-1','purpose':'maintained-v2-160-copy-view',
+        cls.grant['baseline_view']={'schema_version':2,'baseline_id':'maintained-native-baseline-v3-desktop2-setup3-vim-9.2.1178-1','purpose':'maintained-v2-160-copy-view',
             'full_source_root':str(cls.root),'root':str(cls.output/'maintained-view'),
             'integration_lock_sha256':cls.a.INITIAL,'source_rows_sha256':cls.a.digest(cls.a.encoded(initial['source_files'])),
-            'file_count':161,'argv_mode':'absolute-view-metadata'}
+            'file_count':162,'argv_mode':'absolute-view-metadata'}
         for role,prefix in cls.a.PREFIXES.items():
             path=prefix+'/source-map.json';cls.grant['maps'][role]={'path':path,'sha256':rows[path]['sha256']}
         cls.grant['callbacks']['existing_consumers']={'path':'scripts/ci/development/repository_handoff.py',
@@ -761,7 +774,7 @@ packages/shells/cachy-asahi-zsh-autosuggestions/zsh-autosuggestions.zsh
         self.check()
         with patch.dict(os.environ,GITHUB_SHA=self.grant['source_commit'],GITHUB_RUN_ID='123',GITHUB_RUN_ATTEMPT='2'):
             self.assertEqual(len(self.callback.handoff_binding()),12)
-        self.assertEqual(len(self.sources.raw),259)
+        self.assertEqual(len(self.sources.raw),261)
         self.assertIs(self.sources.source_graph(self.session)['scripts/ci/integration.py'],self.original['integration'])
 
     def test_unobserved_graph_refuses_before_authority(self):
@@ -880,16 +893,16 @@ packages/shells/cachy-asahi-zsh-autosuggestions/zsh-autosuggestions.zsh
         self.assertEqual(supervisor.receipts,[])
         self.assertFalse(supervisor.active)
 
-    def test_view_is_exact161_original_only_with_real_original_scan(self):
+    def test_view_is_exact162_maintained_only_with_real_original_scan(self):
         context=self.session.original_context(deadline=self.deadline)
         self.assertIs(context['original']['native_arm'],self.original['native_arm'])
         self.assertEqual(context['root'],self.session.view_root)
-        self.assertEqual(len(self.original['integration'].scan(self.session.view_root)),160)
+        self.assertEqual(len(self.original['integration'].scan(self.session.view_root)),161)
         target=self.output/'freeze-source-only.json'
         self.original['native_arm'].freeze_recipes(target)
         data=json.loads(target.read_bytes())
-        self.assertEqual(len(data),4);self.assertEqual(sum(len(row) for row in data.values()),71)
-        self.assertEqual(len(self.a.decode(context['receipt'])['files']),161)
+        self.assertEqual(len(data),4);self.assertEqual(sum(len(row) for row in data.values()),72)
+        self.assertEqual(len(self.a.decode(context['receipt'])['files']),162)
         self.assertEqual(self.original['native_arm'].ROOT,self.session.view_root)
 
     def test_current_full_checkout_scanner_sees_addon_view_remains_original(self):
@@ -901,7 +914,7 @@ packages/shells/cachy-asahi-zsh-autosuggestions/zsh-autosuggestions.zsh
             for name in ('.SRCINFO','LICENSE.project','LICENSE.upstream','NOTICE','PKGBUILD','README.md',
                          'check-module.py','integration-proposal.json','opt-in.zsh','source-provenance.json',
                          'usage.md','zsh-autosuggestions.zsh')) <= set(actual)-set(initial))
-        self.assertEqual(len(self.original['integration'].scan(self.session.view_root)),160)
+        self.assertEqual(len(self.original['integration'].scan(self.session.view_root)),161)
 
     def test_old_schema_refuses_current_preflight(self):
         grant=copy.deepcopy(self.grant);grant['schema_version']=1;grant.pop('baseline_view')
@@ -1109,7 +1122,7 @@ class InstallerGraphFixtures(unittest.TestCase):
         self.assertIs(module,self.installer); self.assertIs(sys.modules['native_install_preflight'],module)
         self.assertEqual((module.OWN,module.run.__module__,module.run.__qualname__),
             ('scripts/install/native_preflight.py','native_install_preflight','run'))
-        self.assertEqual(len(self.sources.raw),266)
+        self.assertEqual(len(self.sources.raw),268)
         self.assertEqual(len(self.sources.grant),17); self.assertEqual(len(self.sources.grant['baseline_view']),9)
         self.assertEqual(len(self.sources.grant['callbacks']),3)
         self.assertEqual(set(self.session.source_graph),
@@ -1381,13 +1394,13 @@ class OptionalDiagnosticPublicationCorrection(unittest.TestCase):
     def test_compound_interrupt_replacement_fault_old_red_new_green(self):
         from contextlib import ExitStack,nullcontext
         corrected_raw=PATH.read_text()
-        self.assertEqual(hashlib.sha256(corrected_raw.encode()).hexdigest(),'1329653ab38468b92c08abe9426a176509b5586fab3a07a1e9432c90cb704219')
+        self.assertEqual(hashlib.sha256(corrected_raw.encode()).hexdigest(),'1c50e0a38e3a34ddf89d94a92ffabf4b5b28f810df2ce2c3bbd2388870d322af')
         # Counterfactual of this pinned Source: reverse only the optional publication branch.
         new_branch="                try:publish_status(self.output/'status',self.result,replace=True)\n                except BaseException:\n                    pass  # Optional re-publication cannot replace the first failure.\n"
         old_branch="                publish_status(self.output/'status',self.result,replace=True)\n"
         self.assertEqual(corrected_raw.count(new_branch),1)
         old_raw=corrected_raw.replace(new_branch,old_branch,1).encode()
-        self.assertEqual(hashlib.sha256(old_raw).hexdigest(),'5df49cdc736016ab8f021ea23e50d758b6c3c9e63bd5bdabe8a1583fb7dd4c8a')
+        self.assertEqual(hashlib.sha256(old_raw).hexdigest(),'5576e09d4d8b4ee87b2d98b3f277871a2021235bb83ea209d7000200e8c39d78')
         old=types.ModuleType('frozen_optional_diagnostic_old');old.__file__=str(PATH)
         exec(compile(old_raw,str(PATH),'exec'),old.__dict__)
         for late_type in (OSError,KeyboardInterrupt,SystemExit):
@@ -2667,5 +2680,78 @@ class CapabilityRepresentationModels(unittest.TestCase):
             row,expected=self.record(['CAP_'+cap for cap in self.new.CAPS]);row[group][key]=value
             caught=self.refused(self.new,row,expected,terminal=True)
             self.assertEqual(self.new._inspect_diagnostic(caught),label)
+
+class GenuineSignalBootstrapRegression(unittest.TestCase):
+    """Actual graph/context, exact old Source counterfactual; no role actors."""
+    def test_actual_graph_retains_three_custom_handlers_and_empty_supervisor(self):
+        entry='scripts/port/repository-native-handoff/entry.py'
+        mapping='scripts/port/repository-native-handoff/source-map.json'
+        current=(ROOT/entry).read_bytes()
+        self.assertEqual(hashlib.sha256(current).hexdigest(),'3fbe452340ba4465372da189fe535e3817cf57e1c82ce34107e896e1d8e199d5')
+        self.assertEqual(current.count(b'import _signal\n'),1)
+        previous=current.replace(b'import _signal\n',b'',1)
+        self.assertEqual(hashlib.sha256(previous).hexdigest(),'ad092d5d4b9f5266327f042735f7e5d3df481209a7aa31e616c39841e3dfc79b')
+        # Root's genuine initial stdlib objects are the explicit precondition.
+        # This never authorizes a caller cache by a plausible module label.
+        model=r'''
+import _signal,json,signal,sys
+from pathlib import Path
+sys.path.insert(0,sys.argv[1])
+import test_repository_handoff as fixture
+numbers=(signal.SIGINT,signal.SIGTERM,signal.SIGALRM)
+originals={n:signal.getsignal(n) for n in numbers}
+python_getter,C_getter=signal.getsignal,_signal.getsignal
+seen=[]
+def one(*args):seen.append(2)
+def two(*args):seen.append(15)
+def three(*args):seen.append(14)
+callbacks=dict(zip(numbers,(one,two,three)))
+def held():return [python_getter(n) is callbacks[n] and C_getter(n) is callbacks[n] for n in numbers]
+cls=fixture.InstallerGraphFixtures
+try:
+ for n,callback in callbacks.items():signal.signal(n,callback)
+ before=held();cls.setUpClass();after_graph=held()
+ error=None
+ try:
+  with cls.runtime['supervisor'].handlers(lambda *_:None):pass
+ except BaseException as failure:error=type(failure).__name__
+ after_supervisor=held()
+ cls.doClassCleanups();cleanup_errors=len(cls.tearDown_exceptions);after_cleanup=held()
+ print(json.dumps({'before':before,'after_graph':after_graph,'after_supervisor':after_supervisor,
+  'after_cleanup':after_cleanup,'supervisor_error':error,'cleanup_errors':cleanup_errors,
+  'signals_observed':seen,'actors_executed':False}))
+finally:
+ cls.doClassCleanups()
+ for n,handler in originals.items():signal.signal(n,handler)
+'''
+        selected=set(json.loads((ROOT/'scripts/ci/development/packet.lock.json').read_bytes())['source_files'])
+        selected.update(('scripts/ci/development/packet.lock.json','scripts/ci/development/test_repository_handoff.py'))
+        for corrected,body in ((False,previous),(True,current)):
+            with self.subTest(corrected=corrected),tempfile.TemporaryDirectory(prefix='genuine-signal-bootstrap-') as temporary:
+                base=Path(temporary);source=base/'source';source.mkdir(mode=0o700)
+                for name in sorted(selected):
+                    original=ROOT/name;target=source/name;target.parent.mkdir(parents=True,exist_ok=True)
+                    target.write_bytes(original.read_bytes());target.chmod(original.stat().st_mode&0o777)
+                (source/entry).write_bytes(body)
+                rows=json.loads((source/mapping).read_bytes());held_rows=copy.deepcopy(rows)
+                rows['entry.py']['sha256']=hashlib.sha256(body).hexdigest()
+                self.assertEqual({n:r for n,r in rows.items() if n!='entry.py'},
+                                 {n:r for n,r in held_rows.items() if n!='entry.py'})
+                (source/mapping).write_bytes(adapter.encoded(rows))
+                home=base/'home';scratch=base/'scratch';home.mkdir(mode=0o700);scratch.mkdir(mode=0o700)
+                result=subprocess.run([sys.executable,'-I','-B','-c',model,str(source/'scripts/ci/development')],
+                    cwd=source,env={'PATH':'/usr/bin:/bin','HOME':str(home),'TMPDIR':str(scratch),
+                    'LANG':'C.UTF-8','PYTHONDONTWRITEBYTECODE':'1'},capture_output=True,timeout=90)
+                self.assertEqual(result.returncode,0,result.stderr.decode(errors='replace')[-2000:])
+                self.assertLess(len(result.stdout)+len(result.stderr),1024*1024)
+                value=json.loads(result.stdout)
+                self.assertEqual(value['before'],[True]*3)
+                self.assertEqual(value['after_graph'],[corrected]*3)
+                self.assertEqual(value['supervisor_error'],None if corrected else 'TypeError')
+                if corrected:self.assertEqual(value['after_supervisor'],[True]*3)
+                self.assertEqual(value['after_cleanup'],[True]*3);self.assertEqual(value['cleanup_errors'],0)
+                self.assertEqual(value['signals_observed'],[]);self.assertFalse(value['actors_executed'])
+                self.assertEqual(list(home.iterdir()),[]);self.assertEqual(list(scratch.iterdir()),[])
+
 
 if __name__ == '__main__':unittest.main()

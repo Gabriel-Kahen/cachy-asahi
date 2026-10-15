@@ -40,11 +40,9 @@ class GrantFixture:
         self.root = root
         initial = ROOT/'scripts/ci/integration.lock.json'
         assert a.digest(initial.read_bytes()) == a.INITIAL
-        names = set(json.loads(initial.read_bytes())['source_files']) | {a.OWN,a.HANDOFF,'scripts/ci/integration.lock.json','LICENSE'}
+        # Full current selected Source membership; no invented padding rows.
+        names = set(json.loads((ROOT/'scripts/ci/development/packet.lock.json').read_bytes())['source_files'])
         prefixes = {'runtime':a.RUNTIME,'collector':'scripts/port/repository-client-native','phase':a.PHASE}
-        for prefix in prefixes.values():
-            names.add(prefix+'/source-map.json')
-            names.update(prefix+'/'+name for name in json.loads((ROOT/prefix/'source-map.json').read_bytes()))
         self.rows = {}
         for name in sorted(names):
             source = ROOT/name
@@ -56,13 +54,14 @@ class GrantFixture:
             'source_peer_preflight':'PASS','development_only':True,'added_seconds':1200,
             'source_commit':'a'*40,'recipe_source_commit':'c'*40,'run_id':'123','run_attempt':'2',
             'source_files':self.rows,'maps':{},'callbacks':{},
-            'policy_path':'SYNTHETIC-policy.json',
+            'policy_path':'manifests/reviewed/repository-generic-policy.json',
             'license_path':'LICENSE','actor_contract_sha256':a.digest(a.encoded(self.actor))}
         original=json.loads(initial.read_bytes())
-        self.grant['original_view']={'schema_version':1,'purpose':'original-159-copy-view',
-            'full_source_root':str(root),'root':str(root/'output'/'original-view'),
+        self.grant['baseline_view']={'schema_version':2,'purpose':'maintained-v2-160-copy-view',
+            'baseline_id':'maintained-native-baseline-v3-desktop2-setup3-vim-9.2.1178-1',
+            'full_source_root':str(root),'root':str(root/'output'/'maintained-view'),
             'integration_lock_sha256':a.INITIAL,'source_rows_sha256':a.digest(a.encoded(original['source_files'])),
-            'file_count':160,'argv_mode':'absolute-view-metadata'}
+            'file_count':162,'argv_mode':'absolute-view-metadata'}
         self.grant['initial_invocation_sha256'] = a.digest(a.encoded({'argv':['integration','SYNTHETIC-NO-ACTOR'],
                                                                     'output':str(root/'output')}))
         # Test-only coherent runtime ledger follows actual current source bytes.
@@ -78,10 +77,7 @@ class GrantFixture:
             'selected_packages':['cachy-asahi-fish-config','cachy-asahi-hyprland-settings','cachy-asahi-setup','cachy-asahi-zsh-config'],
             'supported_models':[]}
         data = a.encoded(policy); assert a.digest(data) == a.POLICY
-        (root/'SYNTHETIC-policy.json').write_bytes(data); self.rows['SYNTHETIC-policy.json'] = {'sha256':a.digest(data),'mode':0o644}
-        for index in range(max(0,240-len(self.rows))):
-            name = f'SYNTHETIC-source-only-{index}.txt'; data = b'INERT SOURCE-COUNT MODEL\n'
-            (root/name).write_bytes(data); self.rows[name] = {'sha256':a.digest(data),'mode':0o644}
+        assert data == (root/self.grant['policy_path']).read_bytes()
         for role,prefix in prefixes.items():
             name = prefix+'/source-map.json'; self.grant['maps'][role] = {'path':name,'sha256':self.rows[name]['sha256']}
         self.module = a.load_module(root,'repository_authority_bound_fixture',a.OWN,self.rows[a.OWN],time.monotonic()+10)
@@ -115,6 +111,17 @@ class SourceTests(unittest.TestCase):
         self.assertEqual(callback._failure,'public-refused')
         with self.assertRaises(self.fixture.module.Refused):
             callback.authority_provider('/missing','f'*64,'/missing',deadline=time.monotonic()+20)
+
+    def test_historical_original_view_grant_refuses_current_authority(self):
+        grant=copy.deepcopy(self.fixture.grant)
+        view=grant.pop('baseline_view')
+        grant['original_view']={k:v for k,v in view.items() if k!='baseline_id'}
+        grant['original_view'].update(schema_version=1,purpose='original-159-copy-view',file_count=160)
+        raw=a.encoded(grant)
+        # The selected handoff is loaded in its own authenticated namespace.
+        with self.assertRaisesRegex(ValueError,'grant-refused'):
+            self.fixture.module.RootCallbacks(self.fixture.root,raw,a.digest(raw),a.encoded(self.fixture.actor),
+                self.fixture.root/'output',deadline=time.monotonic()+30)
 
     def test_immutable_state_and_subclass_refuse(self):
         callback = self.fixture.construct()

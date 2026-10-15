@@ -27,6 +27,12 @@ class Base(unittest.TestCase):
         self.tripwire = patch.object(packet.subprocess, 'run', side_effect=AssertionError('unmocked host command forbidden'))
         self.tripwire.start(); self.addCleanup(self.tripwire.stop)
         self.make_source()
+        # Unit-only authority for these explicit synthetic files. Production
+        # constants stay pinned; no actual checkout/native receipt is admitted.
+        for name, value in (('BASELINE_INITIAL', self.initial_sha),
+                            ('BASELINE_INPUTS', self.pins['scripts/ci/inputs.lock.json'])):
+            binding = patch.object(packet, name, value)
+            binding.start(); self.addCleanup(binding.stop)
 
     def write(self, name, data=None, mode=0o644):
         path = self.root / name; path.parent.mkdir(parents=True, exist_ok=True)
@@ -388,23 +394,24 @@ class PreflightTests(Base):
 
 
 class ComposedTests(Base):
-    """Exact258 source fixtures and read-only Git models; no actor admission."""
+    """Current maintained261 source fixtures; historical159 is refusal-only."""
     def setUp(self):
         super().setUp()
         recipes=packet.decode(packet.read(self.root/'scripts/ci/recipes.lock.json')[0])
-        for directory,count in (('packages/two',23),('packages/three',23),('packages/four',22)):
+        for directory,count in (('packages/two',23),('packages/three',23),('packages/four',23)):
             recipes[directory]={}
             for number in range(count):
                 name='input-'+str(number);path=self.write(directory+'/'+name)
                 recipes[directory][name]=digest(path.read_bytes())
         self.json('scripts/ci/recipes.lock.json',recipes)
+        self.write('scripts/ci/native_arm.py', b'# SYNTHETIC SOURCE ONLY; never executed\n')
         locked,_=packet.recipe_paths(self.root)
         original=packet.initial_paths(self.root,locked)
-        for number in range(159-len(original)):
+        for number in range(161-len(original)):
             original.add(self.write('examples/filler-'+str(number)).relative_to(self.root).as_posix())
         self.initial.update(source_files=packet.rows(self.root,original),
             recipes_sha256=digest((self.root/'scripts/ci/recipes.lock.json').read_bytes()),
-            generated_fixture_files={'baseline/file-'+str(number):{'sha256':'e'*64,'mode':0o644} for number in range(125)})
+            generated_fixture_files={'baseline/file-'+str(number):{'sha256':'e'*64,'mode':0o644} for number in range(127)})
         self.initial_sha=self.json(packet.INITIAL,self.initial)
         for name in packet.COMPOSED_EXTRA:
             if not (self.root/name).exists():self.write(name)
@@ -413,7 +420,19 @@ class ComposedTests(Base):
                    if name.startswith(prefix+'/') and name.endswith('.py')}
             self.json(path,{name:packet.read(self.root/prefix/name)[1] for name in names})
         self.json(packet.GENERIC_POLICY,{'supported_models':[],'platform_scope':'generic-builder-only','review_status':'ACCEPTED'})
-        self.pins={name:digest((self.root/name).read_bytes()) for name in packet.COMPOSED_PINS}
+        baseline = dict(packet.BASELINE_DECLARATION,
+            integration_sha256=self.initial_sha,
+            inputs_sha256=digest((self.root/'scripts/ci/inputs.lock.json').read_bytes()),
+            recipes_sha256=digest((self.root/'scripts/ci/recipes.lock.json').read_bytes()),
+            native_sha256=digest((self.root/'scripts/ci/native_arm.py').read_bytes()),
+            inventory_sha256=digest((self.root/packet.BASELINE_INVENTORY).read_bytes()))
+        self.json(packet.BASELINE_CONTRACT, baseline)
+        packet.BASELINE_INITIAL = self.initial_sha
+        for name, value in (('BASELINE_DECLARATION', baseline),
+                            ('BASELINE_PACKAGES', baseline['inventory_sha256'])):
+            binding = patch.object(packet, name, value)
+            binding.start(); self.addCleanup(binding.stop)
+        self.pins={name:digest((self.root/name).read_bytes()) for name in packet.COMPOSED_PINS | {packet.BASELINE_CONTRACT, packet.BASELINE_INVENTORY}}
 
     def freeze(self):
         self.packet_path=self.root/packet.LOCK
@@ -425,13 +444,21 @@ class ComposedTests(Base):
 
     def test_exact_union_and_git_copy_allow_separate_unexecuted_installer(self):
         value=self.freeze()
-        self.assertEqual(len(value['source_files']),258);self.assertEqual(len(value['initial_source_files']),159)
-        self.assertEqual(len(value['generated_fixture_files']),125);self.assertEqual(len(value['metadata_pins']),12)
+        self.assertEqual(len(value['source_files']),261);self.assertEqual(len(value['initial_source_files']),161)
+        self.assertEqual(len(value['generated_fixture_files']),127);self.assertEqual(len(value['metadata_pins']),14)
         self.write('scripts/install/local_transaction.py',b'UNSELECTED NO ACTOR')
         with self.git_fixture():self.assertEqual(self.check(),value)
         copied=Path(self.temp.name)/'copy';packet.snapshot(self.root,copied,value)
         self.assertFalse((copied/'scripts/install').exists())
         self.assertEqual(packet.rows(copied,value['source_files']),value['source_files'])
+
+    def test_historical159_and_prior160_do_not_fall_back_into_current_baseline(self):
+        for count, fixture_count in ((159,125),(160,125)):
+            legacy = dict(self.initial,
+                source_files=dict(list(self.initial['source_files'].items())[:count]),
+                generated_fixture_files=dict(list(self.initial['generated_fixture_files'].items())[:fixture_count]))
+            with self.subTest(count=count), self.assertRaises(packet.PacketError):
+                packet.composed_paths(legacy)
 
     def test_legacy_scan_still_refuses_expanded_root(self):
         with self.assertRaisesRegex(packet.PacketError,'initial-source-map-drift'):packet.scan(self.root,self.initial)

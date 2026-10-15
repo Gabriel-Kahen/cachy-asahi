@@ -120,7 +120,7 @@ class DesktopTests(unittest.TestCase):
 
     def test_actual_installed_bytes_are_required(self):
         checked, content = self.payload_fixture()
-        self.assertEqual(len(d.bind_payload(checked, self.root / "archive", self.root)), 7)
+        self.assertEqual(len(d.bind_payload(checked, self.root / "archive", self.root)), 8)
         name = next(iter(content))
         (self.root / name).write_text("locally changed")
         with self.assertRaisesRegex(d.Refused, "bytes differ"):
@@ -239,7 +239,7 @@ class DesktopTests(unittest.TestCase):
             self.assertEqual(d.verify(args, output), 0)
         record = json.loads((output / "desktop.json").read_text())
         self.assertEqual(record["status"], "desktop-container-verifier-pass")
-        self.assertEqual(len(record["installed_payload_sha256"]), 7)
+        self.assertEqual(len(record["installed_payload_sha256"]), 8)
         self.assertEqual(record["application_runtime"]["waybar"]["status"], "NOT RUN")
         self.assertEqual(record["application_runtime"]["mako"]["status"], "NOT RUN")
         self.assertFalse(record["headless_compositor"]["attempted"])

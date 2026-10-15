@@ -52,18 +52,33 @@ class InitialArtifacts(unittest.TestCase):
             'development_only': True, 'selected_for_release': False, 'hardware_validation': 'NOT RUN', 'production_trust': 'NOT RUN',
             'source_commit': self.commit, 'base_image': self.image,
             'stages': {n: {'status': 'PASS'} for n in ('fixtures', 'signer', 'repository')}})
-        self.recipe_commit = 'ebd5812640b0b69f5c09a47752b739e37e338754'
+        self.recipe_commit = '465bf53545e1d83053bf3c412e210493961b74ae'
         recipes = a.read_json(self.root / 'scripts/ci/recipes.lock.json')
         for directory in recipes:
             shutil.copytree(real_root / directory, self.root / directory)
         self.rows = {'baseline': [], 'upgrade': []}; packages = {}
         for name in sorted(a.ORIGINALS):
-            packages[name] = {'base_version': '0.1.0-1', 'upgrade_version': '0.2.0-1', 'recipe': a.RECIPES[name],
+            srcinfo = (real_root / a.RECIPES[name] / '.SRCINFO').read_text()
+            fields = dict(line.strip().split(' = ',1) for line in srcinfo.splitlines()
+                          if line.strip().startswith(('pkgver = ', 'pkgrel = ')))
+            base_version = fields['pkgver'] + '-' + fields['pkgrel']
+            packages[name] = {'base_version': base_version, 'upgrade_version': '0.2.0-1', 'recipe': a.RECIPES[name],
                               'base_inputs_sha256': recipes[a.RECIPES[name]]}
-            for stage, version in (('baseline', '0.1.0-1'), ('upgrade', '0.2.0-1')):
-                archive = stage + '/' + name + '-' + version + '-any.pkg.tar.xz'; data = ('MIT fixture ' + archive).encode()
+            for stage, version in (('baseline', base_version), ('upgrade', '0.2.0-1')):
+                archive = stage + '/' + name + '-' + version + '-any.pkg.tar.xz'
+                payload_name='usr/share/' + name + '/setting'
+                payload=('PORTABLE CONSTRUCTED FIXTURE ' + stage + ' ' + name + ' ' + version + '\n').encode()
+                info=f'pkgname = {name}\npkgver = {version}\narch = any\nlicense = MIT\n'.encode()
+                build=(f'format = 2\npkgname = {name}\npkgver = {version}\npkgarch = any\n'
+                       f'pkgbuild_sha256sum = {recipes[a.RECIPES[name]]["PKGBUILD"]}\n').encode()
+                stream=io.BytesIO()
+                with tarfile.open(fileobj=stream,mode='w:xz') as package:
+                    for member_name,body in (('.PKGINFO',info),('.BUILDINFO',build),('.MTREE',b'fixture mtree\n'),(payload_name,payload)):
+                        member=tarfile.TarInfo(member_name);member.size=len(body);member.mode=0o644
+                        package.addfile(member,io.BytesIO(body))
+                data=stream.getvalue()
                 self.rows[stage].append({'name': name, 'version': version, 'archive': archive, 'sha256': sha(data),
-                                        'payload_sha256': {'usr/share/' + name + '/setting': sha(data)}})
+                                        'payload_sha256': {payload_name: sha(payload)}})
                 self.put(self.evidence / 'work/archive-inputs' / archive, data)
         self.put_json(self.evidence / 'work/fixtures-raw/archives.json', self.rows)
         self.put_json(self.evidence / 'work/fixtures/fixture-manifest.json', {'schema_version': 1, 'source_commit': self.recipe_commit,
@@ -158,21 +173,51 @@ class InitialArtifacts(unittest.TestCase):
         self.assertEqual(len(self.receive(self.signer)['opaque_approved']), 9)
         self.assertEqual(len(self.receive(self.fixture)['opaque_approved']), 4)
 
-    def test_retained_actual_fixture_origin_and_full_bytes_match_frozen_authority(self):
+    def test_retained_actual_records_stay_historical_and_current_authority_refuses(self):
         real_root = HERE.parents[2]
-        # These are producer-generated retained public records, never rewritten
-        # to make recipe-origin and workflow commits equal.
+        # Preserve exact producer-generated historical bytes. They cannot be
+        # relabelled as the maintained desktop2/setup3 authority.
+        self.assertEqual(sha(ACTUAL_FIXTURE_MANIFEST),'f77b0e6f16954614d1583c37a3d165087dde684b5ee9d9887d1a7c5ff5a7273a')
+        self.assertEqual(sha(ACTUAL_ARCHIVES),'6933aa10ac2d071ec52b3b5af8894a8f3639761b939db92528821571ae907813')
         shutil.copyfile(real_root / 'scripts/ci/integration.lock.json', self.root / 'scripts/ci/integration.lock.json')
         self.put(self.evidence / 'work/fixtures/fixture-manifest.json', ACTUAL_FIXTURE_MANIFEST)
         self.put(self.evidence / 'work/fixtures-raw/archives.json', ACTUAL_ARCHIVES)
-        observed = a.fixture_rows(self.root, self.evidence, self.commit, a.public_policy(self.root))
-        self.assertEqual(set(observed), {'baseline', 'upgrade'})
+        with self.assertRaisesRegex(ValueError,'frozen-fixture-authority-refused'):
+            a.fixture_rows(self.root, self.evidence, self.commit, a.public_policy(self.root))
         generated = a.read_json(self.evidence / 'work/fixtures/fixture-manifest.json')
-        self.assertEqual(generated['source_commit'], self.recipe_commit)
+        self.assertEqual(generated['source_commit'], 'ebd5812640b0b69f5c09a47752b739e37e338754')
+        self.assertNotEqual(generated['source_commit'], self.recipe_commit)
         self.assertNotEqual(generated['source_commit'], self.commit)
-        baseline = {r['name']: r['version'] for r in observed['baseline']}
+        baseline = {r['name']: r['version'] for r in json.loads(ACTUAL_ARCHIVES)['baseline']}
         self.assertEqual(baseline['cachy-asahi-setup'], '0.1.0-2')
         self.assertEqual(baseline['cachy-asahi-fish-config'], '0.1.0-1')
+
+    def test_current_constructed_fixture_rows_bind_exact_versions_payloads_and_archives(self):
+        # Portable synthetic producer records, not actual native archives/PASS.
+        observed = a.fixture_rows(self.root,self.evidence,self.commit,a.public_policy(self.root))
+        self.assertEqual(observed,self.rows)
+        baseline = {r['name']:r['version'] for r in observed['baseline']}
+        self.assertEqual(baseline['cachy-asahi-hyprland-settings'],'0.1.0-2')
+        self.assertEqual(baseline['cachy-asahi-setup'],'0.1.0-3')
+        # Exercise the actual read-only archive/PKGINFO/payload inspector as well
+        # as the receiver's metadata authority. No makepkg/native build is run.
+        sys.path.insert(0,str(HERE.parent))
+        import integration
+        for stage in ('baseline','upgrade'):
+            for record in observed[stage]:
+                source=self.evidence/'work/archive-inputs'/record['archive']
+                directory=self.base/'constructed-artifacts'/stage/record['name']
+                self.put(directory/'artifacts'/source.name,source.read_bytes())
+                self.put_json(directory/'provenance.json',{'status':'built-package-static-pass',
+                    'artifacts':{source.name:record['sha256']}})
+                path,checked=integration.artifact(directory,record['name'])
+                self.assertEqual(checked,{k:record[k] for k in ('name','version','sha256','payload_sha256')})
+                self.assertEqual(a.digest(path),record['sha256'])
+                original=path.read_bytes();path.write_bytes(original+b'CHANGED')
+                with self.assertRaisesRegex(ValueError,'native archive changed'):
+                    integration.artifact(directory,record['name'])
+                path.write_bytes(original)
+        self.assertEqual(len(self.receive(self.fixture)['opaque_approved']),4)
 
     def test_generated_manifest_bytes_epoch_generator_and_recipe_drift_refused(self):
         path = self.evidence / 'work/fixtures/fixture-manifest.json'; original = path.read_bytes()

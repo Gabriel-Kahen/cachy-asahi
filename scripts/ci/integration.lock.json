@@ -3,7 +3,7 @@
   "generated_fixture_files": {
     "baseline-recipes.lock.json": {
       "mode": 420,
-      "sha256": "20d846cdf289bfc233b0051bf33b677fd6e94e9f05d91a33595a2829a196fa63"
+      "sha256": "a5fb287b4dda2a90bf61d4fa8cbbc5d666dad8bb450a70544d00545b091f36e3"
     },
     "baseline/AGENTS.md": {
       "mode": 420,
@@ -15,7 +15,7 @@
     },
     "baseline/packages/desktop/cachy-asahi-hyprland-settings/.SRCINFO": {
       "mode": 420,
-      "sha256": "feeb68da93a0a81f274125e00588c98ad5e7b9772377172a0973c06d5cf94c89"
+      "sha256": "6c2fd7e245f5ac15627ebef3fe34f7b5f6120b310055e9e934708c06c2126419"
     },
     "baseline/packages/desktop/cachy-asahi-hyprland-settings/LICENSE": {
       "mode": 420,
@@ -23,19 +23,23 @@
     },
     "baseline/packages/desktop/cachy-asahi-hyprland-settings/NOTICE": {
       "mode": 420,
-      "sha256": "7c108a66b5a4807f8fe7696ef1b1011386b37774fb94e674dd37c7e1dec7b9e4"
+      "sha256": "0c8c331ce87a95b154e0e83c358a5cafc39bf08f2129ecc5be2438c6a97a325c"
     },
     "baseline/packages/desktop/cachy-asahi-hyprland-settings/PKGBUILD": {
       "mode": 420,
-      "sha256": "4c55f488c5b886a88a277c058afde5266e4cefd3e348847f89801aef8d841bcc"
+      "sha256": "fcaa62480565b8bb3b88b330a989b7bb37355e3908a9251285ce15765c985436"
     },
     "baseline/packages/desktop/cachy-asahi-hyprland-settings/README.md": {
       "mode": 420,
-      "sha256": "3edac178cb92d6d06b21fe4832bbbce5f7a55ed4dde8925ac0815c5350e2c525"
+      "sha256": "68fe115241e834594d8c43330b0564c4171e21f5c039dbd48f72ad27b8fbb17c"
+    },
+    "baseline/packages/desktop/cachy-asahi-hyprland-settings/cachy-asahi-screenshot": {
+      "mode": 493,
+      "sha256": "5a920a5dd7a40463417a9b15e64a6620acfe7b2328960bf7014c9f587c4b69a8"
     },
     "baseline/packages/desktop/cachy-asahi-hyprland-settings/hyprland.lua": {
       "mode": 420,
-      "sha256": "f900ffbfdea86acc686299fd9ef88a235fb4822f7177afe75a43369ca48d158b"
+      "sha256": "f75aebb1111123dc86c7f1a85e00bff0320edef6e6f071e28370fbabd6a40a6a"
     },
     "baseline/packages/desktop/cachy-asahi-hyprland-settings/mako.conf": {
       "mode": 420,
@@ -51,7 +55,7 @@
     },
     "baseline/packages/settings/cachy-asahi-setup/.SRCINFO": {
       "mode": 420,
-      "sha256": "3b60863efc02077497206ce42a71163cac2e60286fc655c4375e575fb95b5b4e"
+      "sha256": "54691cd2b7a941fa4cc967789161757cfbe546cbb05eb9e0d4482e43e685543e"
     },
     "baseline/packages/settings/cachy-asahi-setup/LICENSE": {
       "mode": 420,
@@ -63,15 +67,15 @@
     },
     "baseline/packages/settings/cachy-asahi-setup/PKGBUILD": {
       "mode": 420,
-      "sha256": "1d4326ccfa5b0a68b4eb82351c29a99ca2c0ad8af7503e84aa01bcd3dd1cbe68"
+      "sha256": "5ee9111f43f049817e46faa5c883ea56ae5291095175e3f59674110dd0a46fab"
     },
     "baseline/packages/settings/cachy-asahi-setup/README.md": {
       "mode": 420,
-      "sha256": "434328ca04e757a2dc8bba78bea82c6ed52da64b139e88666a3ec2db52ba0e56"
+      "sha256": "47624410d7d02beacb0386c3f1448842277aa32ba71fae2434d17bcd1e656b78"
     },
     "baseline/packages/settings/cachy-asahi-setup/cachy-asahi-setup": {
       "mode": 493,
-      "sha256": "a6251142b9c7e54796285c1a301fb590599d8aaa1625ea0bfebd7fc21622fdc2"
+      "sha256": "3e652bff75f6202cd3c13c327e50a298f7b25149b3c5cb55cdf4912d35af5919"
     },
     "baseline/packages/settings/cachy-asahi-setup/check-packaged.py": {
       "mode": 420,
@@ -151,7 +155,7 @@
     },
     "baseline/packages/settings/cachy-asahi-setup/source-provenance.json": {
       "mode": 420,
-      "sha256": "3466cccc33c98f675af0779ebdc150636ed3544d78bc5c1543bd8d25c09aded7"
+      "sha256": "c1011858a1b8c778df26e07bf74a90ca970946bc685b83c2642bce6a39d6b489"
     },
     "baseline/packages/settings/cachy-asahi-setup/test-sync.py": {
       "mode": 420,
@@ -299,7 +303,7 @@
     },
     "baseline/scripts/setup/setup.py": {
       "mode": 493,
-      "sha256": "a6251142b9c7e54796285c1a301fb590599d8aaa1625ea0bfebd7fc21622fdc2"
+      "sha256": "3e652bff75f6202cd3c13c327e50a298f7b25149b3c5cb55cdf4912d35af5919"
     },
     "diffs/cachy-asahi-fish-config.diff": {
       "mode": 420,
@@ -307,11 +311,11 @@
     },
     "diffs/cachy-asahi-hyprland-settings.diff": {
       "mode": 420,
-      "sha256": "d4f742c52c901c150de0b2790585a652c538036b14d55b4646ee692f6c6c5ee7"
+      "sha256": "cf303d21ef5d2aa06ece72f6cd67dd64187a6e71a2395d8ff2abbe34a77432c6"
     },
     "diffs/cachy-asahi-setup.diff": {
       "mode": 420,
-      "sha256": "818a976b034ac9c142f922ee3db62065c4ab9a08eed25a2dfd11442f28bd30f7"
+      "sha256": "af33111fe73911a54ec54d66eff26906eff8f86fa69315f7a383f308297f9d46"
     },
     "diffs/cachy-asahi-zsh-config.diff": {
       "mode": 420,
@@ -319,11 +323,11 @@
     },
     "fixture-manifest.json": {
       "mode": 420,
-      "sha256": "f77b0e6f16954614d1583c37a3d165087dde684b5ee9d9887d1a7c5ff5a7273a"
+      "sha256": "caadd2ff756d5ba298d8239a812e1d83e66d3bd93bf0af6d92ff65f64a8817c3"
     },
     "frozen-base.lock.json": {
       "mode": 420,
-      "sha256": "20d846cdf289bfc233b0051bf33b677fd6e94e9f05d91a33595a2829a196fa63"
+      "sha256": "a5fb287b4dda2a90bf61d4fa8cbbc5d666dad8bb450a70544d00545b091f36e3"
     },
     "reviewed-inputs/baseline/cachy-asahi-fish-config.json": {
       "mode": 420,
@@ -331,11 +335,11 @@
     },
     "reviewed-inputs/baseline/cachy-asahi-hyprland-settings.json": {
       "mode": 420,
-      "sha256": "c17a0210038f6cb75dd6935f2204c800e449d7673c89ca80bd5f309608420165"
+      "sha256": "15cf55a5668cb99f54c3aa6d42e5b655d4fb22dd93c76a581487e48838e9d00f"
     },
     "reviewed-inputs/baseline/cachy-asahi-setup.json": {
       "mode": 420,
-      "sha256": "e4b6b32129240ef9fd749c8249e397f2496be490cd90f79e0622e56c771f6102"
+      "sha256": "e7b6466fc3dc7769adc7faf129d3c550b997695354464136c7f1b0a47f876152"
     },
     "reviewed-inputs/baseline/cachy-asahi-zsh-config.json": {
       "mode": 420,
@@ -347,11 +351,11 @@
     },
     "reviewed-inputs/upgrade/cachy-asahi-hyprland-settings.json": {
       "mode": 420,
-      "sha256": "31d27caf46af084418b7e1ab69909884f2102a9ef029b5f538257577262aae72"
+      "sha256": "dc3b1ac00e9427a46d773863718b74fcb8d2883defd9aea29f1ee373508b68dc"
     },
     "reviewed-inputs/upgrade/cachy-asahi-setup.json": {
       "mode": 420,
-      "sha256": "e4bbde12ae712e7fe51cfc5a194ef4b760d098f55edca6edb954573ea2ba71f4"
+      "sha256": "8950f8618b309fe44116da30a22e9d40d55e98cad7e12ea504b1bd74fff323c3"
     },
     "reviewed-inputs/upgrade/cachy-asahi-zsh-config.json": {
       "mode": 420,
@@ -359,7 +363,7 @@
     },
     "upgrade-recipes.lock.json": {
       "mode": 420,
-      "sha256": "d52d1abfa58315e954aa5f53e9973911f32bf79d096391ce15515fb92c63d039"
+      "sha256": "91b7172b7467872000b9e2c71f762c67fb0141afc3d4e606f34d9b95372b1ef3"
     },
     "upgrade/AGENTS.md": {
       "mode": 420,
@@ -371,7 +375,7 @@
     },
     "upgrade/packages/desktop/cachy-asahi-hyprland-settings/.SRCINFO": {
       "mode": 420,
-      "sha256": "06084d128d14fb680f7ff41a65b1a3d08b97462e5f5ddd575e0582461ccf6c51"
+      "sha256": "e3a3059df81085ff2ab351ff3fa39dbb6dd2e7f116c204453ecb5a8f05776bbc"
     },
     "upgrade/packages/desktop/cachy-asahi-hyprland-settings/LICENSE": {
       "mode": 420,
@@ -379,19 +383,23 @@
     },
     "upgrade/packages/desktop/cachy-asahi-hyprland-settings/NOTICE": {
       "mode": 420,
-      "sha256": "f0c2a002b4ef2578e508fd246ceb328d2a379ca58fe077cdd2c1c5b992556ba6"
+      "sha256": "7ca8ff9ce940280b9a29da0f206476c597920dc592e789b213096324ca78dcb6"
     },
     "upgrade/packages/desktop/cachy-asahi-hyprland-settings/PKGBUILD": {
       "mode": 420,
-      "sha256": "fc088528076598fdc6231e59ffa6b160eaf96648b4234ad84aa2b2fbf6ee15fc"
+      "sha256": "d9ebe18da81bfa129fee91f42a805617df3d5561308300cb85d0d31e9e4bef54"
     },
     "upgrade/packages/desktop/cachy-asahi-hyprland-settings/README.md": {
       "mode": 420,
-      "sha256": "b4f1c8cfff741790ba0eb501a72c2d1722267b201a9d42a9759d12573920b47f"
+      "sha256": "121682e9562d53fe84290b963ef6620d54719e5442ef5d9f8ed0821b658bcf33"
+    },
+    "upgrade/packages/desktop/cachy-asahi-hyprland-settings/cachy-asahi-screenshot": {
+      "mode": 493,
+      "sha256": "5a920a5dd7a40463417a9b15e64a6620acfe7b2328960bf7014c9f587c4b69a8"
     },
     "upgrade/packages/desktop/cachy-asahi-hyprland-settings/hyprland.lua": {
       "mode": 420,
-      "sha256": "2a3b7192d6f456942cb282e37d3330f1ce079fc44c5754dbeebc1c9daa6f2f0b"
+      "sha256": "695bdecc188ede8357b5babc4d86ef697f4c92c5ec0cadded9aa61c07b214a8f"
     },
     "upgrade/packages/desktop/cachy-asahi-hyprland-settings/mako.conf": {
       "mode": 420,
@@ -407,7 +415,7 @@
     },
     "upgrade/packages/settings/cachy-asahi-setup/.SRCINFO": {
       "mode": 420,
-      "sha256": "20c539cbb718e71b1d7d361f4d8893d2484892cd44a52030f5e6220bf3d28c8a"
+      "sha256": "10e3f20b03e0b34bc49d78958ff947717f7ea6b388b46ae1934f9e5cfd0c7805"
     },
     "upgrade/packages/settings/cachy-asahi-setup/LICENSE": {
       "mode": 420,
@@ -419,31 +427,31 @@
     },
     "upgrade/packages/settings/cachy-asahi-setup/PKGBUILD": {
       "mode": 420,
-      "sha256": "bfdaac37428ddb5b5a7ed9064ed5edb1344a3bc5da91881fbb1062fdac046de5"
+      "sha256": "f738faf109368d6d9f0356321fa5a3a2481bbe810f5e785610e67dc708a70a87"
     },
     "upgrade/packages/settings/cachy-asahi-setup/README.md": {
       "mode": 420,
-      "sha256": "2676bedc6fc1d3c6a945bcd37dcb65e3818a11b6435d6c6e0551a35e193a689f"
+      "sha256": "e2881492f3a324218fa6e7ae844c543f7f00bfa3ea72ac13c567928fea34cb78"
     },
     "upgrade/packages/settings/cachy-asahi-setup/base-setup.py": {
       "mode": 420,
-      "sha256": "a6251142b9c7e54796285c1a301fb590599d8aaa1625ea0bfebd7fc21622fdc2"
+      "sha256": "3e652bff75f6202cd3c13c327e50a298f7b25149b3c5cb55cdf4912d35af5919"
     },
     "upgrade/packages/settings/cachy-asahi-setup/cachy-asahi-setup": {
       "mode": 493,
-      "sha256": "131ce3941f65b1b4cf4845a96bfd04e9325c0f6afe409f8c6239a2a321597e7b"
+      "sha256": "79f31c2dbb1cc2cbbb59c6e595e13bb142c91e6f843b0d3f49efe78ad57e0b24"
     },
     "upgrade/packages/settings/cachy-asahi-setup/check-sync.py": {
       "mode": 420,
-      "sha256": "167b8aa2e503bc4551acc33365a0e6869ea55e9dffe19c602697d5711f6cfe58"
+      "sha256": "a21f4e5a8d5febe173c2f4688f240a85b70d788050698ed6cc32c3b4a7453228"
     },
     "upgrade/packages/settings/cachy-asahi-setup/source-provenance.json": {
       "mode": 420,
-      "sha256": "692730238b3458499c396baa329f775b8dc4c651c7aade83bc734d768767568c"
+      "sha256": "7e7b109f44fdffa70c30f6f18b255a9626b9519022543bb95a274aafc0ee2099"
     },
     "upgrade/packages/settings/cachy-asahi-setup/test-sync.py": {
       "mode": 420,
-      "sha256": "45d237c5b9f95ad40950678f660be4e21e79438d42e14328a15e8d1a80a26aac"
+      "sha256": "e02fdd934cc16ffcde5b147bfc259ea0dd86ac4dbc16a517f3be25a1fe637692"
     },
     "upgrade/packages/shells/cachy-asahi-fish-config/.SRCINFO": {
       "mode": 420,
@@ -499,13 +507,13 @@
     },
     "upgrade/scripts/setup/setup.py": {
       "mode": 493,
-      "sha256": "131ce3941f65b1b4cf4845a96bfd04e9325c0f6afe409f8c6239a2a321597e7b"
+      "sha256": "79f31c2dbb1cc2cbbb59c6e595e13bb142c91e6f843b0d3f49efe78ad57e0b24"
     }
   },
   "hardware_validation": "NOT RUN",
   "purpose": "frozen-development-only-native-integration",
-  "recipe_source_commit": "ebd5812640b0b69f5c09a47752b739e37e338754",
-  "recipes_sha256": "20d846cdf289bfc233b0051bf33b677fd6e94e9f05d91a33595a2829a196fa63",
+  "recipe_source_commit": "465bf53545e1d83053bf3c412e210493961b74ae",
+  "recipes_sha256": "a5fb287b4dda2a90bf61d4fa8cbbc5d666dad8bb450a70544d00545b091f36e3",
   "schema_version": 1,
   "selected_for_release": false,
   "source_date_epoch": 1791748800,
@@ -536,7 +544,7 @@
     },
     "packages/desktop/cachy-asahi-hyprland-settings/.SRCINFO": {
       "mode": 420,
-      "sha256": "feeb68da93a0a81f274125e00588c98ad5e7b9772377172a0973c06d5cf94c89"
+      "sha256": "6c2fd7e245f5ac15627ebef3fe34f7b5f6120b310055e9e934708c06c2126419"
     },
     "packages/desktop/cachy-asahi-hyprland-settings/LICENSE": {
       "mode": 420,
@@ -544,19 +552,23 @@
     },
     "packages/desktop/cachy-asahi-hyprland-settings/NOTICE": {
       "mode": 420,
-      "sha256": "7c108a66b5a4807f8fe7696ef1b1011386b37774fb94e674dd37c7e1dec7b9e4"
+      "sha256": "0c8c331ce87a95b154e0e83c358a5cafc39bf08f2129ecc5be2438c6a97a325c"
     },
     "packages/desktop/cachy-asahi-hyprland-settings/PKGBUILD": {
       "mode": 420,
-      "sha256": "4c55f488c5b886a88a277c058afde5266e4cefd3e348847f89801aef8d841bcc"
+      "sha256": "fcaa62480565b8bb3b88b330a989b7bb37355e3908a9251285ce15765c985436"
     },
     "packages/desktop/cachy-asahi-hyprland-settings/README.md": {
       "mode": 420,
-      "sha256": "3edac178cb92d6d06b21fe4832bbbce5f7a55ed4dde8925ac0815c5350e2c525"
+      "sha256": "68fe115241e834594d8c43330b0564c4171e21f5c039dbd48f72ad27b8fbb17c"
+    },
+    "packages/desktop/cachy-asahi-hyprland-settings/cachy-asahi-screenshot": {
+      "mode": 493,
+      "sha256": "5a920a5dd7a40463417a9b15e64a6620acfe7b2328960bf7014c9f587c4b69a8"
     },
     "packages/desktop/cachy-asahi-hyprland-settings/hyprland.lua": {
       "mode": 420,
-      "sha256": "f900ffbfdea86acc686299fd9ef88a235fb4822f7177afe75a43369ca48d158b"
+      "sha256": "f75aebb1111123dc86c7f1a85e00bff0320edef6e6f071e28370fbabd6a40a6a"
     },
     "packages/desktop/cachy-asahi-hyprland-settings/mako.conf": {
       "mode": 420,
@@ -688,7 +700,7 @@
     },
     "packages/settings/cachy-asahi-setup/.SRCINFO": {
       "mode": 420,
-      "sha256": "3b60863efc02077497206ce42a71163cac2e60286fc655c4375e575fb95b5b4e"
+      "sha256": "54691cd2b7a941fa4cc967789161757cfbe546cbb05eb9e0d4482e43e685543e"
     },
     "packages/settings/cachy-asahi-setup/LICENSE": {
       "mode": 420,
@@ -700,15 +712,15 @@
     },
     "packages/settings/cachy-asahi-setup/PKGBUILD": {
       "mode": 420,
-      "sha256": "1d4326ccfa5b0a68b4eb82351c29a99ca2c0ad8af7503e84aa01bcd3dd1cbe68"
+      "sha256": "5ee9111f43f049817e46faa5c883ea56ae5291095175e3f59674110dd0a46fab"
     },
     "packages/settings/cachy-asahi-setup/README.md": {
       "mode": 420,
-      "sha256": "434328ca04e757a2dc8bba78bea82c6ed52da64b139e88666a3ec2db52ba0e56"
+      "sha256": "47624410d7d02beacb0386c3f1448842277aa32ba71fae2434d17bcd1e656b78"
     },
     "packages/settings/cachy-asahi-setup/cachy-asahi-setup": {
       "mode": 493,
-      "sha256": "a6251142b9c7e54796285c1a301fb590599d8aaa1625ea0bfebd7fc21622fdc2"
+      "sha256": "3e652bff75f6202cd3c13c327e50a298f7b25149b3c5cb55cdf4912d35af5919"
     },
     "packages/settings/cachy-asahi-setup/check-packaged.py": {
       "mode": 420,
@@ -788,7 +800,7 @@
     },
     "packages/settings/cachy-asahi-setup/source-provenance.json": {
       "mode": 420,
-      "sha256": "3466cccc33c98f675af0779ebdc150636ed3544d78bc5c1543bd8d25c09aded7"
+      "sha256": "c1011858a1b8c778df26e07bf74a90ca970946bc685b83c2642bce6a39d6b489"
     },
     "packages/settings/cachy-asahi-setup/test-sync.py": {
       "mode": 420,
@@ -976,7 +988,7 @@
     },
     "scripts/ci/desktop_projection.py": {
       "mode": 420,
-      "sha256": "d2eab5230e2979e3cb9a39cd985c84018c5d38f430ed9c923e0577d3672d9203"
+      "sha256": "7b9acd474154bf77fc25e0d14c119e3f3596bde345d12992ea03a97b7ab5526b"
     },
     "scripts/ci/freeze.py": {
       "mode": 420,
@@ -1012,7 +1024,7 @@
     },
     "scripts/ci/recipes.lock.json": {
       "mode": 420,
-      "sha256": "20d846cdf289bfc233b0051bf33b677fd6e94e9f05d91a33595a2829a196fa63"
+      "sha256": "a5fb287b4dda2a90bf61d4fa8cbbc5d666dad8bb450a70544d00545b091f36e3"
     },
     "scripts/ci/repository_projection.py": {
       "mode": 420,
@@ -1036,7 +1048,7 @@
     },
     "scripts/ci/test_desktop_projection.py": {
       "mode": 420,
-      "sha256": "4871d91ecec77cfb38ec2f1350d4b7a33689186c46017161528156400b44ae48"
+      "sha256": "85b3c32105efce9a20e10eab813c3d804d1e99ca15565f5bcecda61925e03f2d"
     },
     "scripts/ci/test_installed_handoff.py": {
       "mode": 420,
@@ -1044,7 +1056,7 @@
     },
     "scripts/ci/test_integration.py": {
       "mode": 420,
-      "sha256": "ec4f03f1195a5336d1bbb070f67c383910c401f50fb6de0203d04304dbe34a2f"
+      "sha256": "1d76e688b409ab5afb748ece66aa8f80cbc1cd49dbb606c4b4968ea7de3b88d4"
     },
     "scripts/ci/test_integration_export.py": {
       "mode": 420,
@@ -1088,15 +1100,15 @@
     },
     "scripts/integration/desktop.py": {
       "mode": 420,
-      "sha256": "ed3a2c65a60fa070832061c69f7bf8ec7a616d34aacdf2e6b7080935c0bdde2f"
+      "sha256": "5320a10a198c9fad4650b7f5d5f510e63ec702e32a3c0dccffe19593892ae15a"
     },
     "scripts/integration/fixtures.py": {
       "mode": 420,
-      "sha256": "0042c17f99e5ff2d3af02ba343786c860d2a9c4c698dd67da2862cc203a60824"
+      "sha256": "c1a634b0d0c8d900d8809241c55ab12c09a03c3eb07ba20a6fc545cb2472252a"
     },
     "scripts/integration/lifecycle.py": {
       "mode": 420,
-      "sha256": "e408a540765ede2350a57abd311e8814d516ab379351fe28751a20250a3a8461"
+      "sha256": "ac0b1e0db088e55768388a312db91ebd3c15a49f8ea3c1cb10c1aaac8ac1e211"
     },
     "scripts/integration/onboarding.py": {
       "mode": 420,
@@ -1108,7 +1120,7 @@
     },
     "scripts/integration/test_desktop.py": {
       "mode": 420,
-      "sha256": "f960443c7e8bebaf40284905b9e43be5f1af9cf4339c27da96d88fc388972e18"
+      "sha256": "59f46ca3cf84a664726cd9dc50510d192972576fdd0f5241e18fe1ffa40d7d64"
     },
     "scripts/integration/test_fixtures.py": {
       "mode": 420,
@@ -1116,11 +1128,11 @@
     },
     "scripts/integration/test_lifecycle.py": {
       "mode": 420,
-      "sha256": "e19285c94a7fe1d28ce83169f78fb193c48093f88e9e519f1ecab72cf6ba6d2e"
+      "sha256": "498c79b54014d27ea21a7aab6bb1f401485cdc5209ed1a31d72745201952151e"
     },
     "scripts/integration/test_onboarding.py": {
       "mode": 420,
-      "sha256": "7aa6654ad188fe8bd6d6b8093167017994d563d0f11d3b6493ff29f01d5a8c13"
+      "sha256": "9b7fccb7fa075013e61fa303603d06c158a39320e8fb3e4745fd2b94d2b380f2"
     },
     "scripts/integration/test_repository.py": {
       "mode": 420,
@@ -1140,11 +1152,11 @@
     },
     "scripts/setup/setup.py": {
       "mode": 493,
-      "sha256": "a6251142b9c7e54796285c1a301fb590599d8aaa1625ea0bfebd7fc21622fdc2"
+      "sha256": "3e652bff75f6202cd3c13c327e50a298f7b25149b3c5cb55cdf4912d35af5919"
     },
     "scripts/setup/test_setup.py": {
       "mode": 420,
-      "sha256": "28a05a7b6b63ed9713bc8e52125f1a32905bade3c6567bfe5fb1fcd35b3a81d7"
+      "sha256": "7738057b82125bcdc08086686821fa9ce74a82b4131cdbbcdcb9ebc7d9cefb1b"
     },
     "tests/test_build_validation.py": {
       "mode": 420,
