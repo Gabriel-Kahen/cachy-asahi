@@ -66,7 +66,7 @@ INPUT_NAMES=('plan.json','packet.json','grant.json','runtime.json','prepared-ima
 MODULES=(('packet','scripts/ci/development/packet.py'),('common','scripts/ci/development/common.py'),
          ('development_p0_controller','scripts/ci/development/controller.py'),
          ('development_repository_handoff','scripts/ci/development/repository_handoff.py'))
-PROJECT_BOOTSTRAP_ROWS = {'scripts/ci/development/packet.py': {'bytes': 35461, 'mode': 420, 'sha256': '317635f02db5c9022633f336540558ef137d584e6dfb523072a831bcc0a50f0e'}, 'scripts/ci/development/common.py': {'bytes': 16893, 'mode': 420, 'sha256': 'a9fd67f8ca192a5d27f95377fae3804a2ae69f6675440b1104c4411a35dc8a12'}, 'scripts/ci/development/controller.py': {'bytes': 99521, 'mode': 420, 'sha256': '38782fdd8ce227c7f60866a6eb602cd98671d11e19f91358894328c70110f2d1'}, 'scripts/ci/development/repository_handoff.py': {'bytes': 146685, 'mode': 420, 'sha256': '156f9e20d9f9a27dc3b5320528ef8aa32196066e6ebbc553a9e4fb7e67b9a4aa'}}
+PROJECT_BOOTSTRAP_ROWS = {'scripts/ci/development/packet.py': {'bytes': 35461, 'mode': 420, 'sha256': '317635f02db5c9022633f336540558ef137d584e6dfb523072a831bcc0a50f0e'}, 'scripts/ci/development/common.py': {'bytes': 16893, 'mode': 420, 'sha256': 'a9fd67f8ca192a5d27f95377fae3804a2ae69f6675440b1104c4411a35dc8a12'}, 'scripts/ci/development/controller.py': {'bytes': 99521, 'mode': 420, 'sha256': '38782fdd8ce227c7f60866a6eb602cd98671d11e19f91358894328c70110f2d1'}, 'scripts/ci/development/repository_handoff.py': {'bytes': 147775, 'mode': 420, 'sha256': 'fea5348a93631157fa394ee12b9666ec54e2b667f5fc8f535a9aba9d634162db'}}
 
 
 def need(value,code):
