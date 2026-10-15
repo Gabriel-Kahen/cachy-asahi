@@ -409,9 +409,9 @@ class ExecutorTests(unittest.TestCase):
             def run(command, **kwargs):
                 calls.append(command)
                 return subprocess.CompletedProcess(command, 1, b'private failure')
-            runner = SimpleNamespace(run=run, deadline=time.monotonic()+8460)
+            runner = SimpleNamespace(run=run, deadline=time.monotonic()+8460, phase_scope=lambda end:nullcontext())
             report = {'phase': 'source'}
-            with patch.object(e, 'check_source_tree'), patch.object(e,'baseline_observe'), self.assertRaises(ValueError):
+            with patch.object(e.current_cache,'prefill'), patch.object(e, 'check_source_tree'), patch.object(e,'baseline_observe'), self.assertRaises(ValueError):
                 e.pipeline(SimpleNamespace(files={}), Path('/source'), private, owner,
                     SimpleNamespace(poll=lambda: None), runner, {}, {}, report, SimpleNamespace(check=lambda: None))
             self.assertEqual(len(calls), 1)
@@ -443,7 +443,8 @@ class ExecutorTests(unittest.TestCase):
                 stages.append(stage)
                 if stage=='after_cleanup': raise ValueError('baseline-changed')
             with ExitStack() as stack:
-                for target,name,value in ((e,'check_source_tree',lambda *a,**k:None),
+                for target,name,value in ((e.current_cache,'prefill',lambda *a,**k:None),
+                    (e,'check_source_tree',lambda *a,**k:None),
                     (e,'baseline_observe',observe),(e,'journal_rows',lambda *a:[]),
                     (e.contracts,'validate_producer',lambda *a,**k:producer),
                     (e.contracts,'validate_ksm_pair',lambda *a,**k:pair),
@@ -644,7 +645,7 @@ class ProducerRefusalTests(unittest.TestCase):
 
     def test_malformed_transport_keys_types_and_private_values_are_unknown(self):
         good=e.REFUSAL_PREFIX+json.dumps(self.record()).encode()+b'\n'
-        for raw in (b'',good[:-1],good+b'after\n',good+good,b'private path only\n',
+        for raw in (b'',good[:-1],good+good,b'private path only\n',
                     e.REFUSAL_PREFIX+b'{"schema_version":1,"schema_version":1}\n',
                     e.REFUSAL_PREFIX+b'{"schema_version":1e999}\n',
                     e.REFUSAL_PREFIX+b'\xff\n',e.REFUSAL_PREFIX+b' '*513+b'\n'):
@@ -653,7 +654,8 @@ class ProducerRefusalTests(unittest.TestCase):
                       self.record(last_source_gate='/private/path'),self.record(predicate='private exception'),
                       self.record(extra='password'),self.record(predicate=[])):
             self.assertIsNone(e.producer_refusal(self.result(value),self.observed()))
-        self.assertEqual(e.producer_refusal(self.result(raw=b'ordinary private log\n'+good),self.observed()),self.record())
+        for raw in (b'ordinary private log\n'+good, good+b'ordinary private log\n'):
+            self.assertEqual(e.producer_refusal(self.result(raw=raw),self.observed()),self.record())
 
     def test_observation_values_and_keys_never_invoke_foreign_equality(self):
         calls=[]
@@ -682,13 +684,13 @@ class ProducerRefusalTests(unittest.TestCase):
                 def run(command,**options):
                     events.append('run');runner.observation.__dict__.update(self.observed())
                     return self.result()
-                runner=SimpleNamespace(run=run,deadline=time.monotonic()+8460,observation=None)
+                runner=SimpleNamespace(run=run,deadline=time.monotonic()+8460,phase_scope=lambda end:nullcontext(),observation=None)
                 actual=e.producer_refusal
                 def decode(*args):
                     events.append('decode')
                     if fault is not None:raise fault
                     return actual(*args)
-                with patch.object(e,'baseline_observe'),patch.object(e,'journal_rows',return_value=[]),\
+                with patch.object(e.current_cache,'prefill'),patch.object(e,'baseline_observe'),patch.object(e,'journal_rows',return_value=[]),\
                      patch.object(e,'check_source_tree',side_effect=lambda *a,**k:events.append('source')),\
                      patch.object(e,'producer_refusal',side_effect=decode),\
                      patch.object(e.contracts,'validate_producer',side_effect=original),self.assertRaises(ValueError) as caught:
@@ -713,8 +715,8 @@ class ProducerObservationTests(unittest.TestCase):
                     commands.append((command,options))
                     if throws:raise BrokenPipeError('private RPC path')
                     return subprocess.CompletedProcess(command,7,b'private producer output')
-                runner=SimpleNamespace(run=run,deadline=time.monotonic()+8460,observation=prior)
-                with patch.object(e,'baseline_observe'),patch.object(e,'check_source_tree'),patch.object(e,'journal_rows',return_value=[]),\
+                runner=SimpleNamespace(run=run,deadline=time.monotonic()+8460,phase_scope=lambda end:nullcontext(),observation=prior)
+                with patch.object(e.current_cache,'prefill'),patch.object(e,'baseline_observe'),patch.object(e,'check_source_tree'),patch.object(e,'journal_rows',return_value=[]),\
                      patch.object(e.contracts,'validate_producer',side_effect=ValueError('unaccepted fixture')),\
                      self.assertRaises((BrokenPipeError,ValueError)):
                     e.pipeline(SimpleNamespace(files={}),Path('/source'),private,owner,
@@ -750,8 +752,8 @@ class ProducerObservationTests(unittest.TestCase):
                     observation.started=True;observation.before_cleanup=dict(sampled)
                     observation.reaping='COMPLETED';observation.reaped_code=reaped
                     raise original
-                runner=SimpleNamespace(run=run,deadline=time.monotonic()+8460,observation=prior)
-                with patch.object(e,'baseline_observe'),self.assertRaises(BrokenPipeError) as caught:
+                runner=SimpleNamespace(run=run,deadline=time.monotonic()+8460,phase_scope=lambda end:nullcontext(),observation=prior)
+                with patch.object(e.current_cache,'prefill'),patch.object(e,'baseline_observe'),self.assertRaises(BrokenPipeError) as caught:
                     e.pipeline(SimpleNamespace(files={}),Path('/source'),Path(temporary),owner,
                         SimpleNamespace(poll=lambda:None),runner,{}, {},report,SimpleNamespace(check=lambda:None))
                 self.assertIs(caught.exception,original);self.assertIs(runner.observation,prior)

@@ -9,6 +9,7 @@ import json
 import os
 from pathlib import Path
 import shutil
+import signal
 import subprocess
 import sys
 import tempfile
@@ -33,19 +34,29 @@ class _TestOnlyEntry(Exception):
 class _TestOnlyFacade:
     def __init__(self, module, original, calls, action=None):
         self.module,self.original,self.calls,self.action=module,original,calls,action
+        self.primary=None; self.refusals=[]
     def run(self,*args,**kwargs):
-        previous=sys.getprofile(); result=['reply']
+        previous=sys.getprofile(); previous_trace=sys.gettrace(); result=['reply']
+        self.primary=None; self.refusals=[]
+        def trace(frame,event,arg):
+            if event=='exception' and frame.f_globals is driver.__dict__ and type(arg[1]) is ValueError:
+                self.refusals.append(arg[1].args)
+            return trace
         def profile(frame,event,arg):
             if event=='call' and frame.f_code is self.original.__code__ and frame.f_globals is self.original.__globals__:
                 values=frame.f_locals
                 self.calls.append((values['command'],values['log'],values['timeout']))
                 if self.action is not None: result[0]=self.action(*self.calls[-1])
-                raise _TestOnlyEntry()
-        sys.setprofile(profile)
+                self.primary=_TestOnlyEntry()
+                raise self.primary
+        sys.setprofile(profile); sys.settrace(trace)
         try:
             try: return self.module.run(*args,**kwargs)
-            except _TestOnlyEntry: return result[0]
-        finally: sys.setprofile(previous)
+            except _TestOnlyEntry as error:
+                if error is not self.primary: raise
+                return result[0]
+        finally:
+            sys.settrace(previous_trace); sys.setprofile(previous)
 
 
 class DriverTests(unittest.TestCase):
@@ -199,9 +210,30 @@ class DriverTests(unittest.TestCase):
         facade,calls=self.wrapped(poison); self.subject=facade.module
         # This context intentionally fails at entry and again at exit; close it here.
         cleanup=self._cleanups.pop(); close,args,kwargs=cleanup
-        with self.assertRaises(ValueError): facade.run(COMMAND,timeout=60)
-        with self.assertRaises(ValueError): close(*args,**kwargs)
+        # The inert entry exception is the primary: held policy preserves it
+        # over a later custody refusal. Always close the graph, even if a test
+        # assertion fails, so quarantine cannot leak into the next import.
+        try:
+            self.assertEqual(facade.run(COMMAND,timeout=60),'late unreviewed result')
+            self.assertIsInstance(facade.primary,_TestOnlyEntry)
+            self.assertIn(('producer-code-custody',),facade.refusals)
+        finally:
+            with self.assertRaisesRegex(ValueError,'producer-code-custody'): close(*args,**kwargs)
         self.assertEqual(len(calls),1); self.assertNotIn(id(self.subject),driver._GRAPHS)
+
+    def test_late_fixture_assertion_failure_restores_caller_and_next_import(self):
+        before=self.state(); profile=sys.getprofile(); trace=sys.gettrace()
+        handlers={s:signal.getsignal(s) for s in (signal.SIGINT,signal.SIGTERM)}
+        mask=signal.pthread_sigmask(signal.SIG_BLOCK,set())
+        with self.assertRaisesRegex(AssertionError,'^injected fixture assertion$'):
+            with patch.object(self,'assertEqual',side_effect=AssertionError('injected fixture assertion')):
+                self.test_late_test_only_entry_poison_never_delegates_or_leaks()
+        self.assertEqual(self.state(),before)
+        self.assertIs(sys.getprofile(),profile); self.assertIs(sys.gettrace(),trace)
+        self.assertEqual({s:signal.getsignal(s) for s in handlers},handlers)
+        self.assertEqual(signal.pthread_sigmask(signal.SIG_BLOCK,set()),mask)
+        self.assertFalse(driver._GRAPHS); self.assertFalse(driver._GUARDS)
+        self.test_machinery_export_replacements_do_not_rebuild_trusted_hook()
 
     def test_role_expiry_still_restores_graph_and_caller_state(self):
         before=self.state(); end=self.end
@@ -328,7 +360,7 @@ print('trusted builtin identity, custom handlers, nonempty mask, real runtime de
 
     def test_source_mutation_restores_state_even_body_failure(self):
         p=self.root/'scripts/ci/native_arm.py'; before=self.state()
-        with self.assertRaises(ValueError):
+        with self.assertRaisesRegex(RuntimeError,'^body refused$'):
             with self.graph():
                 p.write_bytes(p.read_bytes()+b'\n# changed\n'); raise RuntimeError('body refused')
         self.assertEqual(self.state(),before)
@@ -344,7 +376,14 @@ print('trusted builtin identity, custom handlers, nonempty mask, real runtime de
         with self.graph() as (native,_):
             importer=native.__dict__['__builtins__']['__import__']
             for name,level in [('foreign_project',0),('integration',0),('package_checks',1)]:
-                with self.subTest(name=name,level=level),self.assertRaises(ValueError): importer(name,native.__dict__,fromlist=('recipe',),level=level)
+                expected=ValueError if level else ModuleNotFoundError
+                with self.subTest(name=name,level=level),self.assertRaises(expected) as caught:
+                    importer(name,native.__dict__,fromlist=('recipe',),level=level)
+                if not level:
+                    self.assertIs(type(caught.exception),ModuleNotFoundError)
+                    self.assertEqual(caught.exception.name,name)
+                    self.assertEqual(driver.refusal_record(caught.exception,'GRAPH_LOAD'),
+                        dict(schema_version=1,last_source_gate='GRAPH_LOAD',predicate='producer-unbound-import',rejected_import_root=name))
 
     def test_expired_graph_refuses_without_loading(self):
         self.end=time.monotonic()-1
@@ -416,7 +455,9 @@ print('trusted builtin identity, custom handlers, nonempty mask, real runtime de
     def test_image_post_forward_drift_refuses(self):
         def mutate(*args): (self.output/'image-id').write_text(IMAGE+' \n'); return 'late'
         module,_=self.wrapped(mutate)
-        with self.assertRaises(ValueError): module.run(COMMAND,timeout=60)
+        self.assertEqual(module.run(COMMAND,timeout=60),'late')
+        self.assertIsInstance(module.primary,_TestOnlyEntry)
+        self.assertIn(('producer-image-drift',),module.refusals)
 
     def test_private_parent_identity_drift_refuses_before_forward(self):
         module,calls=self.wrapped(); old=self.base/'old'; self.private.rename(old); self.private.mkdir(mode=0o700)
@@ -436,7 +477,9 @@ print('trusted builtin identity, custom handlers, nonempty mask, real runtime de
             return 'late'
         module,_=self.wrapped(late); old=driver.time
         try:
-            with self.assertRaises(ValueError): module.run(COMMAND,timeout=60)
+            self.assertEqual(module.run(COMMAND,timeout=60),'late')
+            self.assertIsInstance(module.primary,_TestOnlyEntry)
+            self.assertIn(('producer-deadline',),module.refusals)
         finally: driver.time=old
 
     def test_wrapper_refuses_forged_or_expired_module_identity_grants(self):
@@ -515,17 +558,22 @@ print('trusted builtin identity, custom handlers, nonempty mask, real runtime de
 
 
 class RefusalLeafTests(unittest.TestCase):
-    def issued(self, reason='producer-source-pin'):
-        try: driver.need(False,reason)
-        except ValueError as error: return error
+    def issued(self, reason='producer-source-pin', *, import_root=None):
+        try: driver.need(False,reason,import_root=import_root)
+        except (ValueError,ModuleNotFoundError) as error: return error
         self.fail('original refusal absent')
 
     def test_all_source_issued_tags_preserve_original_builtin_message(self):
         for reason in driver.REFUSAL_PREDICATES:
-            error=self.issued(reason)
-            self.assertIs(type(error),ValueError); self.assertEqual(error.args,(reason,))
-            self.assertEqual(driver.refusal_record(error,'GRAPH_LOAD'),
-                {'schema_version':1,'last_source_gate':'GRAPH_LOAD','predicate':reason})
+            unbound=reason=='producer-unbound-import'
+            error=self.issued(reason,import_root='foreign_project' if unbound else None)
+            self.assertIs(type(error),ModuleNotFoundError if unbound else ValueError)
+            self.assertEqual(error.args,(reason,))
+            expected={'schema_version':1,'last_source_gate':'GRAPH_LOAD','predicate':reason}
+            if unbound:
+                self.assertEqual(error.name,'foreign_project')
+                expected['rejected_import_root']='foreign_project'
+            self.assertEqual(driver.refusal_record(error,'GRAPH_LOAD'),expected)
         error=self.issued('foreign not in enum')
         self.assertEqual(error.args,('foreign not in enum',))
         self.assertEqual(driver.refusal_record(error,'GRAPH_LOAD')['predicate'],'UNKNOWN')

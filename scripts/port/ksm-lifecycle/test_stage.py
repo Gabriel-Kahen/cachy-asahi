@@ -420,6 +420,20 @@ class StageTests(unittest.TestCase):
                 s.phase_run(ENDPOINT, 'local-daemon', IMAGE, self.source, self.out, c, report, docker=docker)
         return report['phases'][0], commands, removals
 
+    def test_contract_mode_is_exact_under_restrictive_umask(self):
+        for mask in (0o022, 0o027, 0o077):
+            with self.subTest(umask=oct(mask)):
+                path = self.source / 'inputs.json'
+                path.unlink(missing_ok=True)
+                previous = os.umask(mask)
+                try:
+                    row, _, _ = self.phase()
+                finally:
+                    os.umask(previous)
+                self.assertEqual(row['status'], 'PASS')
+                self.assertEqual(path.stat().st_mode & 0o777, 0o644)
+                self.assertEqual(json.loads(path.read_bytes()), contract())
+
     def test_phase_pass_only_after_cleanup(self):
         row, _, removals = self.phase()
         self.assertEqual((row['status'], row['container_cleanup']), ('PASS', 'PASS'))

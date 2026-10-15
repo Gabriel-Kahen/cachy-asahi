@@ -303,7 +303,10 @@ def phase_run(endpoint, expected_daemon, image, source, output, contract, report
     nonce = contract['nonce']
     name = 'cachy-asahi-ksm-' + nonce + '-' + contract['phase']
     contract_data = json.dumps(contract, sort_keys=True).encode()
-    (source / 'inputs.json').write_bytes(contract_data)
+    flags = os.O_WRONLY | os.O_CREAT | os.O_TRUNC | os.O_NOFOLLOW | os.O_NONBLOCK | os.O_CLOEXEC
+    with os.fdopen(os.open(source / 'inputs.json', flags, 0o600), 'wb') as stream:
+        stream.write(contract_data)
+        os.fchmod(stream.fileno(), 0o644)  # Exact held output-grant mode, on the written descriptor.
     digest = sha(contract_data)
     cid, attempted = None, False
     row = {'phase': contract['phase'], 'status': 'FAIL', 'container_cleanup': 'NOT RUN'}
