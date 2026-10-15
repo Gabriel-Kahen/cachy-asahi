@@ -12,13 +12,13 @@ jobs:
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 80
     env:
-      SOURCE_COMMIT: 4ee5a99e6ce7a83e2e5a5bdf4b71a1080e91d21c
+      SOURCE_COMMIT: b183388a2bce3ccf9ec0cdbe90539bc4d2c07f82
       INPUTS_SHA256: beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f
       RECIPES_SHA256: a5fb287b4dda2a90bf61d4fa8cbbc5d666dad8bb450a70544d00545b091f36e3
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: 4ee5a99e6ce7a83e2e5a5bdf4b71a1080e91d21c
+          ref: b183388a2bce3ccf9ec0cdbe90539bc4d2c07f82
           persist-credentials: false
       - name: Seed the six frozen private cache objects before native work
         shell: bash
