@@ -75,6 +75,125 @@ def post_load_engine(alpm,configuration,gpgdir):
     return value
 
 
+ORIGINAL_VERIFY_LIMITS=(19,13,19,19,8,19,8,4)
+ORIGINAL_VERIFY_C = r'''/* TEST-only callback bridge: public alpm.h owns the va_list ABI. */
+#include <alpm.h>
+#include <errno.h>
+#include <gpgme.h>
+#include <stdarg.h>
+#include <stdint.h>
+#include <string.h>
+
+static int active;
+static uint64_t values[10];
+static const char *const summaries[]={"valid","green","red","key revoked","key expired",
+    "sig expired","key missing","crl missing","crl too old","bad policy","sys error","(empty)"};
+static const char *const validity[]={"unknown","undefined","never","marginal","full","ultimate","???"};
+static const int errors[]={GPG_ERR_NO_ERROR,GPG_ERR_GENERAL,GPG_ERR_BAD_SIGNATURE,GPG_ERR_NO_PUBKEY,
+    GPG_ERR_BAD_DATA,GPG_ERR_NO_DATA,GPG_ERR_INV_VALUE,GPG_ERR_INV_ENGINE,GPG_ERR_NO_AGENT,
+    GPG_ERR_NOT_SUPPORTED,GPG_ERR_UNSUPPORTED_PROTOCOL,GPG_ERR_KEY_EXPIRED,GPG_ERR_SIG_EXPIRED,
+    GPG_ERR_EOF,GPG_ERR_ENOENT,GPG_ERR_EACCES,GPG_ERR_EIO,GPG_ERR_ENOMEM};
+
+static unsigned token(const char *value,const char *const *allowed,unsigned count)
+{
+    for(unsigned i=0;value && i<count;i++) if(strcmp(value,allowed[i])==0) return i;
+    return count;
+}
+static unsigned error_class(const char *value)
+{
+    for(unsigned i=0;value && i<sizeof(errors)/sizeof(errors[0]);i++)
+        if(strcmp(value,gpgme_strerror(errors[i]))==0) return i;
+    return sizeof(errors)/sizeof(errors[0]);
+}
+static void record(const char *fmt,va_list args)
+{
+    static const char *const events[]={
+        "Signature verification will fail!\n","no signatures returned\n","key lookup failed, unknown key\n",
+        "signature timestamp is greater than system time.\n","missing optional signature\n",
+        "missing required signature\n","signature check failed\n","signature is valid\n",
+        "signature is fully trusted\n","signature is marginal trust\n","signature is unknown trust\n",
+        "signature should never be trusted\n","signature is not valid\n",
+        "required key missing from keyring\n"};
+    unsigned found=token(fmt,events,sizeof(events)/sizeof(events[0]));
+    if(found<sizeof(events)/sizeof(events[0])) {values[0]|=UINT64_C(1)<<found;return;}
+    if(strcmp(fmt,"checking signature for %s\n")==0) {values[0]|=UINT64_C(1)<<14;return;}
+    if(strcmp(fmt,"sig path %s could not be opened\n")==0) {values[0]|=UINT64_C(1)<<15;return;}
+    if(strcmp(fmt,"Public keyring not found; have you run '%s'?\n")==0) {values[0]|=UINT64_C(1)<<16;return;}
+    if(strcmp(fmt,"failed to read signature file: %s\n")==0) {values[0]|=UINT64_C(1)<<17;return;}
+    va_list copy;va_copy(copy,args);
+    if(strcmp(fmt,"summary: %s\n")==0) {
+        values[1]|=UINT64_C(1)<<token(va_arg(copy,const char *),summaries,sizeof(summaries)/sizeof(summaries[0]));
+    } else if(strcmp(fmt,"status: %s\n")==0) {
+        values[2]|=UINT64_C(1)<<error_class(va_arg(copy,const char *));
+    } else if(strcmp(fmt,"GPGME error: %s\n")==0) {
+        values[3]|=UINT64_C(1)<<error_class(va_arg(copy,const char *));
+    } else if(strcmp(fmt,"validity: %s; reason: %s\n")==0) {
+        values[4]|=UINT64_C(1)<<token(va_arg(copy,const char *),validity,sizeof(validity)/sizeof(validity[0]));
+        values[5]|=UINT64_C(1)<<error_class(va_arg(copy,const char *));
+    } else if(strcmp(fmt,"key: %s, %s, owner_trust %s, disabled %d\n")==0) {
+        (void)va_arg(copy,const char *);(void)va_arg(copy,const char *); /* Never inspect fpr/UID. */
+        values[6]|=UINT64_C(1)<<token(va_arg(copy,const char *),validity,sizeof(validity)/sizeof(validity[0]));
+        if(va_arg(copy,int)) values[0]|=UINT64_C(1)<<18;
+    } else if(strcmp(fmt,"%d signatures returned\n")==0) {
+        int count=va_arg(copy,int);values[7]|=UINT64_C(1)<<(count==0?0:count==1?1:count>1?2:3);
+    } else if(values[9]<4095) values[9]++;
+    va_end(copy);
+}
+static void capture(void *ctx,alpm_loglevel_t level,const char *fmt,va_list args)
+{
+    (void)ctx;(void)level;
+    if(!active || !fmt) return;
+    int saved=errno;
+    if(values[8]<4095) values[8]++;
+    record(fmt,args);
+    errno=saved;
+}
+int probe_install(alpm_handle_t *handle)
+{
+    if(alpm_option_get_logcb(handle)!=NULL) return 1;
+    return alpm_option_set_logcb(handle,capture,NULL)==0?0:2;
+}
+void probe_begin(void) {memset(values,0,sizeof(values));active=1;}
+void probe_end(void) {active=0;}
+uint64_t probe_read(unsigned index) {return index<10?values[index]:0;}
+'''
+
+
+def compile_original_probe(case):
+    """TEST-only fixed source; outside copied root/workspace; never fatal to load."""
+    try:
+        directory=case/'original-verification-bridge';directory.mkdir(mode=0o700)
+        output=directory/'probe.so'
+        result=subprocess.run(['/usr/bin/cc','-shared','-fPIC','-O2','-Wall','-Wextra','-Werror',
+            '-std=c11','-x','c','-','-o',str(output),'-lalpm','-lgpgme'],input=ORIGINAL_VERIFY_C.encode(),
+            capture_output=True,timeout=5,env={'PATH':'/usr/bin:/bin','LC_ALL':'C','TMPDIR':str(directory)})
+        return output if result.returncode==0 and len(result.stdout)+len(result.stderr)<=65536 else None
+    except Exception:return None
+
+
+def install_original_probe(path,alpm):
+    try:
+        if path is None:return None
+        bridge=C.CDLL(str(path))
+        bridge.probe_install.restype=C.c_int;bridge.probe_install.argtypes=[C.c_void_p]
+        bridge.probe_begin.restype=bridge.probe_end.restype=None
+        bridge.probe_begin.argtypes=bridge.probe_end.argtypes=[]
+        bridge.probe_read.restype=C.c_uint64;bridge.probe_read.argtypes=[C.c_uint]
+        return bridge if bridge.probe_install(alpm.handle)==0 else None
+    except Exception:return None
+
+
+def original_probe_result(bridge):
+    if bridge is None:return {'state':'UNAVAILABLE'}
+    try:
+        values=[bridge.probe_read(index) for index in range(10)]
+        if any(type(value) is not int or not 0<=value<2**bits for value,bits in zip(values,ORIGINAL_VERIFY_LIMITS)) or any(
+                type(value) is not int or not 0<=value<=4095 for value in values[8:]):
+            return {'state':'UNAVAILABLE'}
+        return dict(state='OBSERVED',bits=values)
+    except Exception:return {'state':'UNAVAILABLE'}
+
+
 class ScaleTransactions(unittest.TestCase):
     setUpClass = classmethod(legacy.ActualTransactions.setUpClass.__func__)
     assert_refused = legacy.ActualTransactions.assert_refused
@@ -146,6 +265,7 @@ class ScaleTransactions(unittest.TestCase):
                     row['test_scale_precommit_reached']=self._scale_drift_precommit_reached
                     row['test_scale_post_load_signature']=self._scale_drift_post_load_signature
                     row['test_scale_post_load_engine']=self._scale_drift_post_load_engine
+                    row['test_scale_original_verification']=self._scale_original_verification
                 with os.fdopen(write,'wb') as stream:stream.write(encoded(row))
             finally:os._exit(0)
         os.close(write)
@@ -220,13 +340,28 @@ class ScaleTransactions(unittest.TestCase):
         self._scale_drift_precommit_reached=False
         self._scale_drift_post_load_signature={'state':'NOT_RUN'}
         self._scale_drift_post_load_engine={'state':'NOT_RUN'}
+        self._scale_original_verification={'state':'NOT_RUN'}
+        bridge_path=compile_original_probe(self.case)
         class ObserveLoad(scale.roots.Alpm):
             def __init__(alpm,root,gpgdir,log,architecture='aarch64',*,limits):
                 super().__init__(root,gpgdir,log,architecture,limits=limits)
                 configuration=pre_load_handle(alpm,gpgdir)
+                # Retain the CDLL/callback until the owned handle is released.
+                bridge=alpm._test_original_bridge=install_original_probe(bridge_path,alpm)
                 load=alpm.alpm_pkg_load
                 def observed(handle,filename,full,level,package):
-                    code=load(handle,filename,full,level,package)
+                    active_bridge=bridge
+                    try:
+                        if active_bridge is not None:active_bridge.probe_begin()
+                    except Exception:active_bridge=None
+                    try:
+                        code=load(handle,filename,full,level,package)
+                    finally:
+                        # No ALPM calls here: setters/getters would clear failure errno.
+                        try:
+                            if active_bridge is not None:active_bridge.probe_end()
+                        except Exception:active_bridge=None
+                    self._scale_original_verification=original_probe_result(active_bridge)
                     try:
                         if code != 0 and alpm.alpm_strerror(alpm.alpm_errno(handle)) == b'invalid or corrupted package (PGP signature)':
                             self._scale_drift_post_load_engine=post_load_engine(alpm,configuration,gpgdir)
