@@ -335,11 +335,17 @@ static void observe(struct run *r,const char *file,const char *func,const char *
     const char *base=strrchr(file ? file : "",'/'); base=base ? base+1 : file;
     if (base && !strcmp(base,"filter-graph.c") && func && !strcmp(func,"impl_activate") &&
         !strncmp(line,"instantiate ",12)) {
-        char plugin[256],name[64]; int index; unsigned long rate;
-        if (sscanf(line,"instantiate %255s %63[^[][%d] rate:%lu",plugin,name,&index,&rate)!=4 || index!=0 || rate!=48000) { r->observer_bad=true; return; }
-        struct node *node=node_named(r,name); if (!node || node->observed) { r->observer_bad=true; return; }
-        if (strcmp(plugin,!strcmp(node->type,"lv2") ? node->uri : node->label)) { r->observer_bad=true; return; }
-        node->observed=true; r->current=node;
+        /* d->name is the descriptor label, empty for these label-less LV2
+         * nodes. URI identity is checked by metadata and the restricted loader. */
+        for (unsigned i=0;i<r->n_nodes;i++) {
+            struct node *node=&r->nodes[i]; char expected[256];
+            int n=snprintf(expected,sizeof(expected),"instantiate %s %s[0] rate:48000",node->label,node->name);
+            if (n<0 || n>=(int)sizeof(expected)) { r->observer_bad=true; return; }
+            if (strcmp(line,expected)) continue;
+            if (node->observed) { r->observer_bad=true; return; }
+            node->observed=true; r->current=node; return;
+        }
+        r->observer_bad=true; return;
     }
     if (base && !strcmp(base,"plugin_builtin.c") && func && !strcmp(func,"read_closest")) {
         if (!strncmp(line,"Can't open any sample file",26)) r->fir_unavailable=true;
