@@ -21,6 +21,59 @@ spec.loader.exec_module(guest)
 
 
 class GuestTests(unittest.TestCase):
+    def test_only_cleanly_retired_command_timeout_can_retry(self):
+        first = subprocess.TimeoutExpired('inert', 3)
+        logged = Mock()
+        logged.process.wait.side_effect = first
+        with patch.object(guest, 'Logged', return_value=logged), patch.object(guest, 'terminate') as retire:
+            self.assertIsNone(guest.command(['inert'], {}, Path('/inert'), 'inert', timeout=3, retry_timeout=True))
+            retire.assert_called_once_with(logged.process)
+            logged.finish.assert_called_once()
+            logged.finish.side_effect = ValueError('synthetic incomplete log cleanup')
+            with self.assertRaises(subprocess.TimeoutExpired) as caught:
+                guest.command(['inert'], {}, Path('/inert'), 'inert', timeout=3, retry_timeout=True)
+            self.assertIs(caught.exception, first)
+            logged.finish.side_effect = None
+            retire.side_effect = OSError('synthetic reap failure')
+            with self.assertRaises(subprocess.TimeoutExpired) as caught:
+                guest.command(['inert'], {}, Path('/inert'), 'inert', timeout=3, retry_timeout=True)
+            self.assertIs(caught.exception, first)
+
+    def test_client_mapping_probe_timeout_retries_within_existing_bound(self):
+        tree = ast.parse(inspect.getsource(guest.phase))
+        loop = next(node for node in ast.walk(tree) if isinstance(node, ast.For) and
+                    isinstance(node.iter, ast.Call) and isinstance(node.iter.func, ast.Name) and
+                    node.iter.func.id == 'range' and ast.literal_eval(node.iter.args[0]) == 20)
+        code = compile(ast.Module(body=[loop], type_ignores=[]), '<client-readiness-loop>', 'exec')
+        client, compositor = Mock(), Mock()
+        client.process.pid = 41
+        mapped = json.dumps([dict(pid=41, mapped=True, size=[420, 220])])
+        logged = Mock()
+        logged.process.wait.side_effect = [subprocess.TimeoutExpired('inert-hyprctl', 3), 0]
+        logged.process.returncode = 0
+        logged.paths = [Mock()]
+        logged.paths[0].read_text.return_value = mapped
+        with patch.object(guest, 'command', wraps=guest.command) as command, \
+             patch.object(guest, 'Logged', return_value=logged), patch.object(guest, 'terminate'), \
+             patch.object(guest.time, 'sleep'):
+            scope = dict(guest.__dict__, client=client, compositor=compositor,
+                         selected={}, logs=Path('/inert'), stage='minimal')
+            exec(code, scope)
+        self.assertEqual(command.call_count, 2)
+        self.assertEqual(client.healthy.call_count, 2)
+        self.assertEqual(compositor.healthy.call_count, 2)
+        self.assertTrue(all(call.kwargs == dict(timeout=3, retry_timeout=True) for call in command.call_args_list))
+        command = Mock(return_value=None)
+        scope['command'] = command
+        with self.assertRaisesRegex(ValueError, 'Wofi mapping deadline'):
+            exec(code, scope)
+        self.assertEqual(command.call_count, 20)
+        command.reset_mock(side_effect=True)
+        command.return_value = '{invalid JSON'
+        with self.assertRaises(json.JSONDecodeError):
+            exec(code, scope)
+        self.assertEqual(command.call_count, 1)
+
     def test_guard_refusal_never_opens_event_port_or_powers_off(self):
         console = io.StringIO()
         with patch.object(guest.sys, 'argv', ['guest', 'boot']), \
