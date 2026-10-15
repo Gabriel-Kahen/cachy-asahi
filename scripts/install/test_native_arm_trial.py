@@ -20,6 +20,7 @@ def loaded():
 
 class ReceiverTests(unittest.TestCase):
     def setUp(self):
+        self.enterContext(patch.dict(os.environ, {'GITHUB_RUN_ID':'123456', 'GITHUB_RUN_ATTEMPT':'1'}))
         self.m=loaded();self.tmp=tempfile.TemporaryDirectory(prefix='native-receiver-model-');self.addCleanup(self.tmp.cleanup);self.root=Path(self.tmp.name)
     def selection(self):
         sources={}
@@ -83,6 +84,14 @@ class ReceiverTests(unittest.TestCase):
         for flag in ('--network=none','--cap-drop=ALL','--security-opt=no-new-privileges','--read-only','--pull=never','--platform=linux/arm64'):self.assertIn(flag,cmd)
         self.assertFalse(any('privileged' in a or 'unconfined' in a or 'SYS_ADMIN' in a or 'docker.sock' in a for a in cmd))
         self.assertEqual(cmd[cmd.index('--user')+1],f'{os.getuid()}:{os.getgid()}')
+        self.assertIn('--security-opt=seccomp=/test/input/dev-seccomp.json',cmd)
+        self.assertIn('--security-opt=apparmor=cachy-asahi-p0-dev-123456-1',cmd)
+    def test_dev_profile_requires_exact_synthetic_job_context(self):
+        s=self.selection()
+        for values in ({}, {'GITHUB_RUN_ID':'123456','GITHUB_RUN_ATTEMPT':'../foreign'}):
+            with patch.dict(os.environ,values,clear=True),patch.object(self.m.os,'uname',return_value=types.SimpleNamespace(machine='aarch64')):
+                with self.assertRaisesRegex(ValueError,'CONTAINER_POLICY'):
+                    self.m.docker_command(s,Path('/s'),Path('/i'),Path('/o'))
     def test_x86_constructor_refuses_native_emulation_claim(self):
         with patch.object(self.m.os,'uname',return_value=types.SimpleNamespace(machine='x86_64')):
             with self.assertRaises(ValueError):self.m.docker_command(self.selection(),Path('/s'),Path('/i'),Path('/o'))

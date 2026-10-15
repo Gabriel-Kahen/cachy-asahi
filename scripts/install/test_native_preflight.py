@@ -14,6 +14,8 @@ import unittest
 from unittest.mock import patch
 
 ROOT=Path(__file__).absolute().parents[2]
+JOB_ENV={'GITHUB_RUN_ID':'123456','GITHUB_RUN_ATTEMPT':'1'}
+DEV_PROFILE='cachy-asahi-p0-dev-123456-1'
 
 def load(name,path):
     spec=importlib.util.spec_from_file_location(name,path); module=importlib.util.module_from_spec(spec)
@@ -216,19 +218,28 @@ class ContainerControls(unittest.TestCase):
         self.cid='a'*64;self.name='cachy-asahi-install-'+'b'*32
         self.trial={'image_id':'sha256:'+'c'*64,'nonce':'b'*32}
         self.paths=(Path('/model/source'),Path('/model/inputs'),Path('/model/output'))
-        self.row={'Id':self.cid,'Name':'/'+self.name,'Image':self.trial['image_id'],
+        self.row={'Id':self.cid,'Name':'/'+self.name,'Image':self.trial['image_id'],'AppArmorProfile':DEV_PROFILE,
             'Config':{'User':f'{os.getuid()}:{os.getgid()}','Entrypoint':['/usr/bin/python3'],
              'Cmd':['-I','-B','/source/scripts/install/native_arm_trial.py','--selection','/inputs/trial.json','--selection-sha256',P.sha(P.encoded(self.trial))],
              'Env':P.CONFIG['Env']+['CACHY_ASAHI_INSTALL_NONCE='+self.trial['nonce'],'CACHY_ASAHI_INSTALL_IMAGE='+self.trial['image_id']]},
             'HostConfig':dict(NetworkMode='none',CgroupnsMode='private',Privileged=False,ReadonlyRootfs=True,CapDrop=['ALL'],
                 CapAdd=[],Devices=[],DeviceRequests=[],Memory=2*1024**3,NanoCpus=2*10**9,PidsLimit=128,
-                SecurityOpt=['no-new-privileges'],Tmpfs={'/tmp':'rw,nosuid,nodev,exec,size=512m,mode=1777'},
+                SecurityOpt=['no-new-privileges','seccomp='+R.DEV_SECCOMP_BYTES.decode().rstrip('\n'),'apparmor='+DEV_PROFILE],Tmpfs={'/tmp':'rw,nosuid,nodev,exec,size=512m,mode=1777'},
                 PidMode='',IpcMode='private',UTSMode='',UsernsMode='',AutoRemove=False,
                 RestartPolicy={'Name':'no','MaximumRetryCount':0}),
             'Mounts':[dict(Type='bind',Source=str(path),Destination=target,RW=rw,Propagation='rprivate')
                       for path,target,rw in zip(self.paths,('/source','/inputs','/out'),(False,False,True))]}
-    def check(self,row): P.container_binding([row],self.cid,self.name,self.trial,*self.paths)
+    def check(self,row):
+        with patch.dict(os.environ,JOB_ENV): P.container_binding([row],self.cid,self.name,self.trial,*self.paths)
     def test_exact_created_container_model(self): self.check(self.row)
+    def test_exact_dev_profile_and_policy_are_mandatory(self):
+        for profile in ('docker-default','unconfined','cachy-asahi-p0-dev-123456-2',None):
+            row=copy.deepcopy(self.row);row['AppArmorProfile']=profile
+            with self.subTest(profile=profile),self.assertRaisesRegex(ValueError,'CONTAINER_BINDING'):self.check(row)
+        for options in (['no-new-privileges'],['no-new-privileges','seccomp=unconfined','apparmor='+DEV_PROFILE],
+                        self.row['HostConfig']['SecurityOpt'][:-1]+['apparmor=docker-default']):
+            row=copy.deepcopy(self.row);row['HostConfig']['SecurityOpt']=options
+            with self.assertRaisesRegex(ValueError,'CONTAINER_POLICY'):self.check(row)
     def test_foreign_container_identity_refuses(self):
         for key,value in [('Id','d'*64),('Name','/foreign'),('Image','sha256:'+'d'*64)]:
             with self.subTest(key=key):
@@ -391,6 +402,7 @@ class ResultControls(unittest.TestCase):
 class PipelineModels(unittest.TestCase):
     """Live grant and daemon events modeled explicitly; never actual owner authority."""
     def setUp(self):
+        self.enterContext(patch.dict(os.environ,JOB_ENV))
         self.tmp=tempfile.TemporaryDirectory(prefix='native-preflight-model-');self.addCleanup(self.tmp.cleanup)
         self.root=Path(self.tmp.name); self.source=self.root/'source';self.source.mkdir()
         self.native=self.root/'native';self.native.mkdir();self.view=self.root/'view';self.view.mkdir()
@@ -525,7 +537,7 @@ class LiveGraphBindingControls(unittest.TestCase):
         finally:sys.settrace(previous)
         raise AssertionError('native admission must not complete in a source model')
     def test_selected_issuer_pin_and_captured_graph_reach_only_source_gate(self):
-        self.assertEqual(P.ISSUER_SHA,'156f9e20d9f9a27dc3b5320528ef8aa32196066e6ebbc553a9e4fb7e67b9a4aa')
+        self.assertEqual(P.ISSUER_SHA,'fea5348a93631157fa394ee12b9666ec54e2b667f5fc8f535a9aba9d634162db')
         self.assertEqual(P.sha(BASE.read_bytes()),P.ISSUER_SHA)
         self.assertEqual(self.check(),'SOURCE_GATE_ONLY')
         self.assertIsNone(self.session.native_consumer_observation)
