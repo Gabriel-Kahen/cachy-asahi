@@ -83,8 +83,9 @@ def payload(build,reviewed):
          len(validation['artifacts'])==1 and 'Starting check()' in (build/'build.log').read_text(),'native recipe checks failed')
     rows=validation['artifacts'][0]['members'];actual={p:r for p,r in rows.items() if p not in PACKAGE_METADATA and r['type']!='5'}
     runtime=(['zsh-syntax-highlighting.zsh','.version','.revision-hash','opt-in.zsh']+
-             sorted(p for p in reviewed if p.startswith('highlighters/')))
-    expected={'usr/share/cachy-asahi/zsh-syntax-highlighting/'+p:p for p in runtime}
+             ['highlighters/'+name+'/'+name+'-highlighter.zsh' for name in
+              ('brackets','cursor','line','main','pattern','regexp','root')])
+    expected={'usr/share/cachy-asahi/zsh-syntax-highlighting/'+p:Path(p).name for p in runtime}
     expected.update({'usr/share/doc/'+Path(RECIPE).name+'/'+p:p for p in ('usage.md','README.md','INSTALL.md')})
     expected.update({'usr/share/licenses/'+Path(RECIPE).name+'/'+p:p for p in ('NOTICE','LICENSE.upstream','LICENSE.project')})
     need(len(expected)==17 and set(actual)==set(expected),'exact17 regular payload required')
