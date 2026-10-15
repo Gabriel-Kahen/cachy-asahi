@@ -87,44 +87,127 @@ class GuestTests(unittest.TestCase):
                 exec(code, guest.__dict__)
             resolve.assert_not_called()
 
-    def test_private_event_rule_and_initialized_drm_wait_are_held(self):
+    def test_drm_kernel_identity_refuses_wrong_type_number_and_ambiguity(self):
+        with tempfile.TemporaryDirectory() as directory:
+            sysfs, devices = Path(directory) / 'sysfs', Path(directory) / 'dev'
+            sysfs.mkdir(); devices.mkdir()
+            self.assertIsNone(guest.drm_card(sysfs, devices))
+            card = sysfs / 'card0'; card.mkdir()
+            (sysfs / 'card0-Virtual-1').mkdir()  # Connector is not a primary card.
+            (card / 'dev').write_text('226:0\n')
+            parent = card / 'device'; parent.mkdir()
+            (parent / 'vendor').write_text('0x1af4')
+            (parent / 'device').write_text('0x1050')
+            (parent / 'driver').symlink_to('/inert/virtio-pci')
+            child = parent / 'virtio2'; child.mkdir()
+            (child / 'driver').symlink_to('/inert/virtio_gpu')
+            self.assertIsNone(guest.drm_card(sysfs, devices))
+            node = devices / 'card0'; node.touch()
+            with self.assertRaisesRegex(ValueError, 'character-device identity'):
+                guest.drm_card(sysfs, devices)
+            value = SimpleNamespace(st_mode=stat.S_IFCHR | 0o600, st_rdev=guest.os.makedev(226, 0))
+            with patch.object(Path, 'lstat', return_value=value):
+                self.assertEqual(guest.drm_card(sysfs, devices), node)
+                for name, wrong in (('vendor', '0xffff'), ('device', '0x1042')):
+                    saved = (parent / name).read_text()
+                    (parent / name).write_text(wrong)
+                    with self.assertRaisesRegex(ValueError, 'wrong DRM PCI'):
+                        guest.drm_card(sysfs, devices)
+                    (parent / name).write_text(saved)
+                (child / 'driver').unlink()
+                self.assertIsNone(guest.drm_card(sysfs, devices))
+                (child / 'driver').symlink_to('/inert/other')
+                with self.assertRaisesRegex(ValueError, 'wrong DRM virtio driver'):
+                    guest.drm_card(sysfs, devices)
+                (child / 'driver').unlink()
+                (child / 'driver').symlink_to('/inert/virtio_gpu')
+                (parent / 'virtio3').mkdir()
+                with self.assertRaisesRegex(ValueError, 'ambiguous DRM virtio'):
+                    guest.drm_card(sysfs, devices)
+                (parent / 'virtio3').rmdir()
+                value.st_rdev = guest.os.makedev(226, 1)
+                with self.assertRaisesRegex(ValueError, 'character-device identity'):
+                    guest.drm_card(sysfs, devices)
+                value.st_rdev = guest.os.makedev(226, 0)
+                for text in ('227:0', '226:1', '226:64'):
+                    (card / 'dev').write_text(text)
+                    with self.assertRaisesRegex(ValueError, 'character-device identity'):
+                        guest.drm_card(sysfs, devices)
+            (card / 'dev').write_text('226:0')
+            node.unlink(); node.symlink_to('/inert')
+            with self.assertRaisesRegex(ValueError, 'character-device identity'):
+                guest.drm_card(sysfs, devices)
+            (devices / 'card1').touch()
+            with self.assertRaisesRegex(ValueError, 'ambiguous DRM'):
+                guest.drm_card(sysfs, devices)
+            (devices / 'card1').unlink()
+            (sysfs / 'card1').mkdir()
+            with self.assertRaisesRegex(ValueError, 'ambiguous DRM'):
+                guest.drm_card(sysfs, devices)
+
+    def test_drm_wait_keeps_twenty_second_deadline(self):
+        card = Path('/inert/card0')
+        with patch.object(guest, 'drm_card', side_effect=[None, card]) as probe, \
+             patch.object(guest.time, 'monotonic', side_effect=[0, 0, 19.9]), \
+             patch.object(guest.time, 'sleep'):
+            self.assertEqual(guest.wait_drm_card(), card)
+            self.assertEqual(probe.call_count, 2)
+        with patch.object(guest, 'drm_card', return_value=None) as probe, \
+             patch.object(guest.time, 'monotonic', side_effect=[0, 0, 20]), \
+             patch.object(guest.time, 'sleep'):
+            with self.assertRaisesRegex(ValueError, 'DRM readiness deadline'):
+                guest.wait_drm_card()
+            self.assertEqual(probe.call_count, 1)
+
+    def test_private_rules_and_kernel_readiness_before_drm_ownership(self):
         fixture = Path(guest.__file__).with_name('desktop574_fixture.sh').read_text()
         pre = [shlex.split(line.removeprefix('ExecStartPre=')) for line in fixture.splitlines()
                if line.startswith('ExecStartPre=')]
         self.assertEqual(pre, [['/usr/bin/modprobe', 'virtio_console']])
         self.assertIn('SUBSYSTEM=="virtio-ports", KERNEL=="vport*", ATTR{name}=="desktop574.events", '
                       'OWNER:="23001", GROUP:="23001", MODE:="0600"', fixture)
+        self.assertIn('SUBSYSTEM=="drm", KERNEL=="card[0-9]*", KERNEL!="card*-*", SUBSYSTEMS=="pci", ATTRS{vendor}=="0x1af4", ATTRS{device}=="0x1050", DRIVERS=="virtio-pci", '
+                      'OWNER:="23001", GROUP:="23001", MODE:="0600"', fixture)
         tree = ast.parse(inspect.getsource(guest.boot))
         body = next(node.body for node in tree.body[0].body if isinstance(node, ast.Try))
         index = next(i for i, node in enumerate(body) if isinstance(node, ast.Assign) and
-                     any(isinstance(target, ast.Name) and target.id == 'cards' for target in node.targets))
-        code = compile(ast.Module(body=body[index:index + 5], type_ignores=[]), '<drm-readiness>', 'exec')
-        card = MagicMock()
-        card.__str__.return_value = '/dev/dri/card0'
-        directory = Mock()
-        directory.glob.return_value = [card]
-        scope = dict(env={}, logs=Path('/inert'))
-        with patch.object(guest, 'Path', return_value=directory), \
-             patch.object(guest, 'command') as wait, patch.object(guest.os, 'chown') as chown:
-            exec(code, guest.__dict__, dict(scope))
-            wait.assert_called_once_with(['/usr/bin/udevadm', 'wait', '--timeout=20',
-                '--initialized=yes', '/dev/dri/card0'], {}, scope['logs'], 'udev')
+                     any(isinstance(target, ast.Name) and target.id == 'card' for target in node.targets))
+        code = compile(ast.Module(body=body[index:index + 3], type_ignores=[]), '<drm-readiness>', 'exec')
+        card = Mock()
+        with patch.object(guest, 'wait_drm_card', return_value=card) as wait, \
+             patch.object(guest.os, 'chown') as chown:
+            exec(code, guest.__dict__, {})
             chown.assert_called_once_with(card, 23001, 23001)
             card.chmod.assert_called_once_with(0o600)
-            chown.reset_mock()
-            card.chmod.reset_mock()
-            wait.side_effect = ValueError('synthetic device initialization failure')
-            with self.assertRaisesRegex(ValueError, 'initialization failure'):
-                exec(code, guest.__dict__, dict(scope))
-            chown.assert_not_called()
-            card.chmod.assert_not_called()
-            wait.reset_mock(side_effect=True)
-            for cards in ([], [card, card]):
-                directory.glob.return_value = cards
-                with self.assertRaisesRegex(ValueError, 'one virtio DRM card required'):
+            chown.reset_mock(); card.chmod.reset_mock()
+            wait.side_effect = ValueError('synthetic DRM readiness failure')
+            with self.assertRaisesRegex(ValueError, 'DRM readiness failure'):
+                exec(code, guest.__dict__, {})
+            chown.assert_not_called(); card.chmod.assert_not_called()
+        self.assertNotIn('udevadm', inspect.getsource(guest.boot))
+
+    def test_user_revalidates_private_drm_card_before_gbm(self):
+        body = ast.parse(inspect.getsource(guest.user)).body[0].body
+        start = next(i for i, node in enumerate(body) if isinstance(node, ast.Assign) and
+                     any(isinstance(target, ast.Name) and target.id == 'card' for target in node.targets))
+        code = compile(ast.Module(body=body[start:start + 5], type_ignores=[]), '<user-drm>', 'exec')
+        card = Mock()
+        value = SimpleNamespace(st_uid=23001, st_gid=23001, st_mode=stat.S_IFCHR | 0o600)
+        card.lstat.return_value = value
+        with patch.object(guest, 'drm_card', return_value=card) as resolve, \
+             patch.object(guest, 'command', return_value='{"status":"PASS"}') as command:
+            scope = dict(env={}, logs=Path('/inert'))
+            exec(code, guest.__dict__, dict(scope))
+            command.assert_called_once()
+            command.reset_mock()
+            for delta in (dict(st_uid=0), dict(st_gid=0), dict(st_mode=stat.S_IFCHR | 0o660)):
+                card.lstat.return_value = SimpleNamespace(**(value.__dict__ | delta))
+                with self.assertRaisesRegex(ValueError, 'private user DRM'):
                     exec(code, guest.__dict__, dict(scope))
-            wait.assert_not_called()
-            chown.assert_not_called()
+            resolve.return_value = None
+            with self.assertRaisesRegex(ValueError, 'DRM card unavailable'):
+                exec(code, guest.__dict__, dict(scope))
+            command.assert_not_called()
 
     def test_only_cleanly_retired_command_timeout_can_retry(self):
         first = subprocess.TimeoutExpired('inert', 3)
