@@ -19,7 +19,7 @@ sys.dont_write_bytecode = True
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
 PACKAGE = 'packages/tools/cachy-asahi-update/'
-READY_SHA = '1f69534f9877f26337e988b4b709632902ddfa4f7aea02d1e4352aaa1819b0bc'
+READY_SHA = 'a2b4872bec579306e2d22ebe14061ed479ae56f7c52756ee961ea70db1dbda00'
 BUDGET = {'total_seconds':6900, 'raw_retention_seconds':7100, 'materialize_seconds':910,
           'freeze_seconds':120, 'native_seconds':5400, 'projection_seconds':60,
           'export_seconds':60, 'cleanup_seconds':180, 'private_bytes':8*1024**3,
@@ -964,6 +964,56 @@ def capture_native_guardian(private,expected):
         return native_guardian_projection({'availability':'OBSERVED','reason':'bound','record':row})
     except Exception:return native_detail_unknown('invalid')
 
+PROJECTION_BOUNDARIES = frozenset(('arguments', 'input-contract', 'module-authentication',
+    'module-execution', 'projection-call', 'projection-result', 'output-tree', 'finalization', 'UNKNOWN'))
+
+
+def projection_unknown(reason='unavailable'):
+    need(type(reason) is str and reason in ('unavailable', 'invalid'), 'projection-unavailable')
+    return {'availability': 'NOT_OBSERVED', 'reason': reason, 'record': None}
+
+
+def projection_failure(value):
+    need(type(value) is dict and set(value) == {'availability', 'reason', 'record'}, 'projection-fields')
+    if value['availability'] == 'NOT_OBSERVED':
+        need(value == projection_unknown(value['reason']), 'projection-unobserved')
+        return dict(value)
+    need(value['availability'] == 'OBSERVED' and value['reason'] == 'bound', 'projection-observed')
+    row = value['record']
+    need(type(row) is dict and set(row) == {'schema_version', 'operation', 'boundary', 'manifest'}, 'projection-record')
+    need(type(row['schema_version']) is int and row['schema_version'] == 1 and row['operation'] == 'project', 'projection-operation')
+    need(type(row['boundary']) is str and row['boundary'] in PROJECTION_BOUNDARIES, 'projection-boundary')
+    manifest = row['manifest']
+    need(type(manifest) is dict and set(manifest) == {'availability', 'reason', 'accepted', 'rejected', 'missing', 'first_rejected'}, 'projection-manifest')
+    counts = tuple(manifest[key] for key in ('accepted', 'rejected', 'missing'))
+    first = manifest['first_rejected']
+    if manifest['availability'] == 'NOT_OBSERVED':
+        need(manifest['reason'] in ('not-returned', 'invalid') and counts == (None, None, None) and first is None, 'projection-no-manifest')
+        need(manifest['reason'] != 'invalid' or row['boundary'] == 'projection-result', 'projection-invalid-context')
+    else:
+        need(manifest['availability'] == 'OBSERVED' and row['boundary'] == 'projection-result', 'projection-manifest-context')
+        need(all(type(n) is int and 0 <= n <= 25 for n in counts) and sum(counts) in (24, 25), 'projection-counts')
+        if counts[1]:
+            need(manifest['reason'] == 'rejected-selector' and type(first) is int and 1 <= first <= 25, 'projection-selector')
+            need(first != 25 or sum(counts) == 25, 'projection-materializer-context')
+        else:
+            need(manifest['reason'] == 'no-accepted-selector' and counts[0] == 0 and first is None, 'projection-empty')
+    need(len(json.dumps(value, sort_keys=True, allow_nan=False).encode()) <= 2048, 'projection-bound')
+    return {'availability': 'OBSERVED', 'reason': 'bound', 'record': dict(row, manifest=dict(manifest))}
+
+
+def capture_projection_failure(path):
+    try:
+        raw, value = diagnostic_json(path, 4096)
+        need(raw == (json.dumps(value, sort_keys=True) + '\n').encode(), 'projection-canonical')
+        need(type(value) is dict and set(value) == {'status', 'operation', 'diagnostic'} and
+             value['status'] == 'FAIL' and value['operation'] == 'project', 'projection-worker-failure')
+        return projection_failure({'availability': 'OBSERVED', 'reason': 'bound', 'record': value['diagnostic']})
+    except OSError:
+        return projection_unknown('unavailable')
+    except (ValueError, TypeError, KeyError, UnicodeError, RecursionError, OverflowError):
+        return projection_unknown('invalid')
+
 def public_summary(receipt):
     """Fixed scalar/hash/typed lifecycle fields; no host paths, argv or raw logs."""
     allowed=('schema_version','status','phase','controller_sha256','ready_sha256','source_commit',
@@ -995,6 +1045,11 @@ def public_summary(receipt):
             need(result['native_child_failure']['availability']=='OBSERVED' and
                  result['native_child_failure']['failed_stage']=='worker-'+str(detail['record']['worker']),'native-worker-context')
     if 'storage' in receipt:result['storage']=storage_projection(receipt['storage'])
+    if 'projection_failure' in receipt:
+        need(receipt.get('status') in ('FAIL','CANCELLED') and receipt.get('failed_phase')=='public-projection'
+             and receipt.get('runtime_reason')=='process-failed' and type(receipt.get('runtime_returncode')) is int
+             and receipt['runtime_returncode']!=0,'projection-failure-context')
+        result['projection_failure']=projection_failure(receipt['projection_failure'])
     return result
 
 
@@ -1334,6 +1389,15 @@ def pipeline(root,controller,controller_sha,output,runner=None):
                 if type(error).__name__ in ('RuntimeCancelled','KeyboardInterrupt','BuildCancelled','SourceCancelled') and not cancelled:cancelled.append(0)
                 failure_diagnostics(receipt,receipt['phase'],getattr(error,'receipt',None),runtime)
                 failure=failure or error;receipt.update(status='FAIL',public_projection='FAIL',failure_class=type(failure).__name__)
+                if receipt.get('failed_phase')=='public-projection' and receipt.get('runtime_reason')=='process-failed' and \
+                   type(receipt.get('runtime_returncode')) is int and receipt['runtime_returncode']!=0:
+                    try:
+                        receipt['projection_failure']=projection_unknown()
+                        receipt['projection_failure']=capture_projection_failure(private/'logs/public-projection.stdout')
+                    except (KeyboardInterrupt, runtime.RuntimeCancelled):
+                        if not cancelled:cancelled.append(0)
+                    except BaseException:
+                        pass
             receipt['phase']='owned-cleanup';save(output/'result.json',receipt)
             cleanup_deadline=min(start+BUDGET['raw_retention_seconds'],time.monotonic()+BUDGET['cleanup_seconds'])
             storage_error=False
