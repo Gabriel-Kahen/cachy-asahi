@@ -361,8 +361,10 @@ native_build = "PASS"
 native_build_commit = "71af5525cd7a62775e82b84aac702d384cf66c58"
 native_evidence = "docs/validation/asahi-lsp-native-20261015.md"
 installation = "NOT RUN"
+runtime_validation = "PASS bounded generic native offline loader and 48 DSP-property cases / 96 instances"
+runtime_evidence = "docs/validation/asahi-lsp-offline-native-20261015.md"
 hardware_validation = "NOT RUN"
-next_step = "Headless native byte pair passed. This private build candidate overlaps the upstream LV2 bundle/URIs and is not an installation replacement. Resolve corresponding-source/relinking, complete binary-license and source-fixture terms; validate runtime plugin interfaces and audio separately. No M2, speaker or performance acceptance."
+next_step = "Native pair and bounded offline loading/control/silence/bypass/synthetic properties passed. Validate full graph and active algorithms separately; resolve corresponding-source/relinking and complete license/source-fixture terms. Candidate overlaps upstream LV2 URIs; no installation replacement, speaker safety, M2 or performance acceptance."
 
 [[packages]]
 name = "cachy-asahi-zsh-syntax-highlighting"
