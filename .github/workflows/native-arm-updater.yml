@@ -9,7 +9,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: native-arm-build
+  group: native-arm-updater
   cancel-in-progress: false
   queue: max
 jobs:
