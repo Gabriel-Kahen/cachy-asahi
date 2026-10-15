@@ -37,14 +37,18 @@ class LdconfigCheckpoint(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(); self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
-        for directory in ('usr/bin', 'usr/lib', 'etc/ld.so.conf.d', 'var/cache/ldconfig'):
+        for directory in ('usr/bin', 'usr/lib', 'usr/lib/ld.so.conf.d', 'usr/lib/libfakeroot', 'etc/ld.so.conf.d', 'var/cache/ldconfig'):
             (self.root / directory).mkdir(parents=True, exist_ok=True)
         for name, data in [('usr/bin/ldconfig', b'inert-helper'),
                            ('etc/ld.so.conf', b'# Dynamic linker/loader configuration.\n# See ld.so(8) and ldconfig(8) for details.\n\ninclude /etc/ld.so.conf.d/*.conf\ninclude /usr/lib/ld.so.conf.d/*.conf\n'),
                            ('usr/lib/libfixture.so.1.0', b'inert-library'),
+                           ('usr/lib/ld.so.conf.d/fakeroot.conf', b'/usr/lib/libfakeroot\n'),
+                           ('usr/lib/libfakeroot/libfakeroot-0.so', b'inert-fakeroot-library'),
                            ('etc/ld.so.cache', b'cache'), ('var/cache/ldconfig/aux-cache', b'aux-cache')]:
             (self.root / name).write_bytes(data)
         (self.root / 'usr/bin/ldconfig').chmod(0o755)
+        (self.root / 'usr/lib/ld.so.conf.d/fakeroot.conf').chmod(0o644)
+        (self.root / 'usr/lib/libfakeroot').chmod(0o755)
         (self.root / 'usr/lib/libfixture.so.1').symlink_to('libfixture.so.1.0')
         self.c = SimpleNamespace(pin=Mock(), need=container.need, run=Mock(side_effect=self.printed))
         self.real_node = audio.ld_node
@@ -151,6 +155,35 @@ class LdconfigCheckpoint(unittest.TestCase):
         after = copy.deepcopy(state); after['aliases']['/usr/lib/glibc-hwcaps/fixture']['mode'] = 0o777
         with self.assertRaisesRegex(ValueError, 'AUDIO_LDCONFIG_UNACCEPTED.*aliases'):
             self.checkpoint(after, state)
+
+    def test_exact_fakeroot_include_scans_fixed_regular_directory(self):
+        def mapping(argv):
+            self.assertEqual(argv[1:3], ['-p', '-C'])
+            return "1 libs found in cache `" + str(self.root / 'etc/ld.so.cache') + "'\n\tlibfakeroot-0.so (libc6,AArch64) => /usr/lib/libfakeroot/libfakeroot-0.so\n"
+        self.c.run.side_effect = mapping
+        state = self.observe()
+        self.assertEqual(state['configs'][audio.LD_FAKEROOT_CONF], audio.LD_FAKEROOT_NODE)
+        self.assertEqual(state['aliases'][audio.LD_FAKEROOT_DIR]['type'], 'directory')
+        self.assertIn('/usr/lib/libfakeroot/libfakeroot-0.so', state['scan'])
+        self.assertIs(self.checkpoint(state, copy.deepcopy(state)), state)
+
+    def test_fixed_fakeroot_content_metadata_location_and_alias_fail_closed(self):
+        conf = self.root / 'usr/lib/ld.so.conf.d/fakeroot.conf'
+        for data in (b'/usr/lib/libfakeroot/\n', b'/opt/lib\n', b'/usr/lib/libfakeroot\n/usr/lib\n'):
+            with self.subTest(data=data):
+                conf.write_bytes(data)
+                with self.assertRaisesRegex(ValueError, 'fixed-fakeroot-config'): self.observe()
+        conf.write_bytes(b'/usr/lib/libfakeroot\n'); conf.chmod(0o666)
+        with self.assertRaisesRegex(ValueError, 'fixed-fakeroot-config'): self.observe()
+        conf.chmod(0o644); conf.unlink()
+        with self.assertRaisesRegex(ValueError, 'missing-fixed-fakeroot-config'): self.observe()
+        conf.write_bytes(b'/usr/lib/libfakeroot\n')
+        other = self.root / 'etc/ld.so.conf.d/not-fakeroot.conf'; other.write_bytes(b'/usr/lib/libfakeroot\n')
+        with self.assertRaisesRegex(ValueError, 'unsupported-include'): self.observe()
+        other.unlink()
+        directory = self.root / 'usr/lib/libfakeroot'
+        (directory / 'libfakeroot-0.so').unlink(); directory.rmdir(); directory.symlink_to('.')
+        with self.assertRaisesRegex(ValueError, 'fixed-fakeroot-scan-directory'): self.observe()
 
 
 class Audio(unittest.TestCase):
