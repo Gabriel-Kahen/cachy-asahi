@@ -84,6 +84,16 @@ jobs:
             ${{ runner.temp }}/desktop574-runtime/guest.log
             ${{ runner.temp }}/desktop574-runtime/configuration.log
             ${{ runner.temp }}/desktop574-runtime/package-build.log
+            ${{ runner.temp }}/desktop574-runtime/package/build.log
+            ${{ runner.temp }}/desktop574-runtime/package/provenance.json
+            ${{ runner.temp }}/desktop574-runtime/package/validation.json
+            ${{ runner.temp }}/desktop574-runtime/package/expected-packages.lock
+            ${{ runner.temp }}/desktop574-runtime/package/artifacts/environment.txt
+            ${{ runner.temp }}/desktop574-runtime/package/artifacts/packages.lock
+            ${{ runner.temp }}/desktop574-runtime/package/artifacts/config.sha256
+            ${{ runner.temp }}/desktop574-runtime/package/artifacts/makepkg.conf
+            ${{ runner.temp }}/desktop574-runtime/package/artifacts/pacman.conf
+            ${{ runner.temp }}/desktop574-runtime/package/artifacts/generated.SRCINFO
             ${{ runner.temp }}/desktop574-runtime/runtime-image.log
             ${{ runner.temp }}/desktop574-runtime/fixture.log
             ${{ runner.temp }}/desktop574-runtime/config/desktop/
