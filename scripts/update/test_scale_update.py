@@ -18,6 +18,12 @@ legacy = module('legacy_tiny_transaction_tests',Path(__file__).with_name('test_b
 scale = module('scale_under_test',Path(__file__).with_name('scale_update.py'))
 
 
+# Fixed status tags only; signature identities/UIDs/arguments are never retained.
+SIGNATURE_STATUS = {'NEWSIG','KEY_CONSIDERED','SIG_ID','GOODSIG','VALIDSIG','BADSIG','ERRSIG','NO_PUBKEY',
+    'EXPSIG','EXPKEYSIG','REVKEYSIG','TRUST_UNDEFINED','TRUST_NEVER','TRUST_MARGINAL','TRUST_FULLY',
+    'TRUST_ULTIMATE','NODATA','FAILURE','ERROR','UNEXPECTED','KEYEXPIRED','SIGEXPIRED','KEYREVOKED'}
+
+
 class ScaleTransactions(unittest.TestCase):
     setUpClass = classmethod(legacy.ActualTransactions.setUpClass.__func__)
     assert_refused = legacy.ActualTransactions.assert_refused
@@ -87,6 +93,7 @@ class ScaleTransactions(unittest.TestCase):
                 row['synthetic_inode_budget_injected']=bool(override)
                 if hasattr(self,'_scale_drift_diagnostic'):
                     row['test_scale_precommit_reached']=self._scale_drift_precommit_reached
+                    row['test_scale_post_load_signature']=self._scale_drift_post_load_signature
                 with os.fdopen(write,'wb') as stream:stream.write(encoded(row))
             finally:os._exit(0)
         os.close(write)
@@ -99,6 +106,42 @@ class ScaleTransactions(unittest.TestCase):
         self.assertLessEqual(len(data),1024**2)
         if diagnostic is not None:diagnostic['stage']='child-json'
         return json.loads(data)
+
+    def post_load_signature(self,filename,gpgdir):
+        """TEST-only, after failed ALPM load, while its exact inputs still exist."""
+        value=dict(state='STARTED',gpg_exit='UNAVAILABLE',gpg_status=[],unknown_status=False,
+                   archive_equal='UNKNOWN',signature_equal='UNKNOWN',inputs_stable='UNKNOWN')
+        try:
+            path=Path(os.fsdecode(filename));gpgdir=Path(gpgdir)
+            name='fixture-1-1-any.pkg.tar.gz'
+            expected=gpgdir.parent/'authenticated/bundle/repo'/name
+            if path != expected or path.is_symlink() or Path(str(path)+'.sig').is_symlink():
+                value['state']='INPUT_REFUSED';return value
+            original=self.bundle/'repo'/name;signature=Path(str(path)+'.sig')
+            release=json.loads((self.bundle/'release.json').read_text())['files']
+            before=(digest(path),digest(signature))
+            value['archive_equal']=before[0] == digest(original) == release['repo/'+name]
+            value['signature_equal']=before[1] == digest(str(original)+'.sig') == release['repo/'+name+'.sig']
+            command=['/usr/bin/gpg','--no-options','--batch','--no-tty','--no-autostart',
+                '--homedir',str(gpgdir),'--no-auto-key-retrieve','--no-auto-key-import',
+                '--auto-key-locate','clear','--disable-dirmngr','--no-auto-check-trustdb',
+                '--status-fd','1','--verify',str(signature),str(path)]
+            result=subprocess.run(command,stdin=subprocess.DEVNULL,capture_output=True,timeout=5,
+                env={'PATH':'/usr/bin:/bin','HOME':str(gpgdir),'GNUPGHOME':str(gpgdir),'LC_ALL':'C'})
+            if len(result.stdout)+len(result.stderr)>65536:
+                value['state']='OUTPUT_BOUND';return value
+            value['gpg_exit']=result.returncode if result.returncode in (0,1,2) else 'OTHER'
+            statuses=set()
+            for line in result.stdout.splitlines():
+                parts=line.split(b' ',2)
+                token=parts[1].decode('ascii',errors='replace') if len(parts)>1 and parts[0]==b'[GNUPG:]' else None
+                if token in SIGNATURE_STATUS:statuses.add(token)
+                elif line:value['unknown_status']=True
+            value.update(state='OBSERVED',gpg_status=sorted(statuses),
+                         inputs_stable=before == (digest(path),digest(signature)))
+        except subprocess.TimeoutExpired:value.update(state='TIMEOUT',gpg_exit='TIMEOUT')
+        except (OSError,ValueError,KeyError,TypeError):value['state']='DIAGNOSTIC_ERROR'
+        return value
 
     def upgrade(self,compression):
         self.select(compression)
@@ -123,12 +166,26 @@ class ScaleTransactions(unittest.TestCase):
         # Only this test exposes finite diagnostic facts through native Results.
         diagnostic=self._scale_drift_diagnostic={'stage':'invoke','row':None}
         self._scale_drift_precommit_reached=False
+        self._scale_drift_post_load_signature={'state':'NOT_RUN'}
+        class ObserveLoad(scale.roots.Alpm):
+            def __init__(alpm,root,gpgdir,log,architecture='aarch64',*,limits):
+                super().__init__(root,gpgdir,log,architecture,limits=limits)
+                load=alpm.alpm_pkg_load
+                def observed(handle,filename,full,level,package):
+                    code=load(handle,filename,full,level,package)
+                    try:
+                        if code != 0 and alpm.alpm_strerror(alpm.alpm_errno(handle)) == b'invalid or corrupted package (PGP signature)':
+                            self._scale_drift_post_load_signature=self.post_load_signature(filename,gpgdir)
+                    except Exception:
+                        self._scale_drift_post_load_signature={'state':'DIAGNOSTIC_ERROR'}
+                    return code
+                alpm.alpm_pkg_load=observed
         precommit=scale.Runtime.precommit
         def change(runtime):
             self._scale_drift_precommit_reached=True
             Path(runtime.args.scale).write_bytes(Path(runtime.args.scale).read_bytes()+b' ')
             return precommit(runtime)
-        with mock.patch.object(scale.Runtime,'precommit',change):
+        with mock.patch.object(scale.roots,'Alpm',ObserveLoad), mock.patch.object(scale.Runtime,'precommit',change):
             value=self.invoke();diagnostic['row']=value
             # Preserve run_update/assert_refused checks and order, marking the
             # stage before every assertion, including the early trust checks.
