@@ -70,7 +70,7 @@ def main():
                 if not target.is_symlink():target.symlink_to('/dev/null')
         conf=work/'pacman.conf';conf.write_text('[options]\nArchitecture = aarch64\nSigLevel = Required\n'
             'LocalFileSigLevel = Required\nGPGDir = '+str(trust)+'\nHookDir = '+str(hooks)+'\n')
-        pacman=['pacman','--config',str(conf),'--noconfirm','--noscriptlet']
+        pacman=['pacman','--config',str(conf)]
         alarm=pwd.getpwnam('alarm');homes=[]
         for label in ('fresh','existing'):
             home=work/label;home.mkdir(mode=0o700)
@@ -89,7 +89,7 @@ def main():
             need(all(fingerprint(h)==old for h,old in homes),'user startup/history/configuration changed')
         for label,operation in (('install','-U'),('remove','-R'),('reinstall','-U'),('remove-final','-R')):
             result['phase']=label
-            run(pacman+[operation,str(package) if operation=='-U' else NAME])
+            run(pacman+['--noconfirm','--noscriptlet',operation,str(package) if operation=='-U' else NAME])
             need(inventory()==(expected if operation=='-U' else base),'transaction inventory differs')
             if operation=='-U':
                 run(pacman+['-Dk']);run(pacman+['-Qkk',NAME])
