@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 """Focused data/launch checks; no network, Docker, package or guest execution."""
+import ast
+import copy
 import importlib.util
 from pathlib import Path
 import tempfile
@@ -89,6 +91,41 @@ class RuntimeTests(unittest.TestCase):
         self.assertEqual(result, {'ok': True, 'base_image_present': False})
         self.assertEqual(cleanup.call_args_list[1].args[0], ['docker', 'image', 'rm', '--no-prune', reference])
         self.assertFalse(any('--force' in call.args[0] or '-f' in call.args[0] for call in cleanup.call_args_list))
+
+    def test_qemu_snapshot_uses_the_private_writable_tmpfs(self):
+        image = 'sha256:' + 'a' * 64
+        cmd = runtime.qemu_command(image, 'owned', Path('/task/out'), Path('/task/src'), Path('/task/runner'))
+        self.assertIn('--env=TMPDIR=/tmp', cmd[:cmd.index(image)])
+        self.assertIn('/tmp:rw,nosuid,nodev,exec,size=1g', cmd)
+        self.assertIn('snapshot=on', cmd[-1])
+        for flag in ('--network=none', '--read-only', '--cap-drop=ALL'):
+            self.assertIn(flag, cmd)
+        self.assertFalse(any(flag.startswith(('--device', '--privileged')) for flag in cmd))
+        ordinary = runtime.docker_args(image, 'config', Path('/task/out'), Path('/task/src'), Path('/task/runner'))
+        self.assertNotIn('--env=TMPDIR=/tmp', ordinary)
+
+    def test_actual_cleanup_loop_keeps_base_identity_for_alias_release(self):
+        # Execute the production finally statements together: helper-only tests
+        # missed the outer variable being overwritten before alias release.
+        module = ast.parse(Path(runtime.__file__).read_text())
+        main = next(node for node in module.body if isinstance(node, ast.FunctionDef) and node.name == 'main')
+        final = next(node.finalbody for node in main.body if isinstance(node, ast.Try) and node.finalbody)
+        loop = next(node for node in final if isinstance(node, ast.For) and isinstance(node.iter, ast.Name) and node.iter.id == 'images')
+        release = next(node for node in final if isinstance(node, ast.If) and
+                       any(isinstance(call, ast.Call) and isinstance(call.func, ast.Name) and call.func.id == 'release_local_base'
+                           for call in ast.walk(node)))
+        image = 'sha256:' + 'a' * 64
+        derived = 'sha256:' + 'b' * 64
+        reference = 'cachy-asahi-desktop574-base:' + 'c' * 32
+        cleanup = Mock(return_value=b'')
+        releaser = Mock(return_value={'ok': True, 'base_image_present': False})
+        scope = dict(image=image, images=[derived], base_reference=reference,
+                     cleanup=cleanup, release_local_base=releaser, report={'status': 'PASS'})
+        statements = ast.Module(body=copy.deepcopy([loop, release]), type_ignores=[])
+        exec(compile(ast.fix_missing_locations(statements), '<production cleanup>', 'exec'), scope)
+        releaser.assert_called_once_with(image, reference, cleanup)
+        cleanup.assert_called_once_with(['docker', 'image', 'rm', derived], 'remove-image:' + derived)
+        self.assertEqual(scope['image'], image)
 
     def test_root_fixture_capabilities_are_metadata_only(self):
         args = runtime.docker_args('sha256:' + 'a' * 64, 'owned', Path('/task/out'), Path('/task/src'), Path('/task/runner'), root=True)
