@@ -26,12 +26,13 @@ import job_runtime as jr
 import packet
 import evidence
 from base_broker import broker_class
+import current_cache
 
 HERE = Path(__file__).resolve().parent
 ENV_FIELDS = ('GITHUB_SHA', 'GITHUB_RUN_ID', 'GITHUB_RUN_ATTEMPT', 'GITHUB_REPOSITORY', 'RUNNER_ARCH', 'RUNNER_OS', 'ImageVersion', 'ImageOS')
 FDK_KEYS = {'schema_version', 'stage', 'status', 'phase', 'error_code', 'cancelled',
             'owned_container_absence', 'native_build', 'hardware', 'installation',
-            'selected_for_release', 'binary_publication', 'worker_diagnostics'}
+            'selected_for_release', 'binary_publication', 'worker_diagnostics', 'accepted_outputs'}
 FDK_ACTIONS = ('build-1', 'build-2', 'compare')
 FROZEN_VIM_FILES = (
     ('vim-9.2.1164-2-aarch64.pkg.tar.xz', 2086796, 'd4f857559e5f0af1cd5a9603d31437ddc8fe35957c11bc6b8670b9a58a80ea73'),
@@ -471,7 +472,7 @@ def output(path, root):
 def validate_fdk_record(record, validator):
     packet.need(validator is not None and type(record) is dict and set(record) == FDK_KEYS and
                 record['stage'] == 'fdk-native-development' and type(record['schema_version']) is int and
-                record['schema_version'] == 2 and record['hardware'] == record['installation'] ==
+                record['schema_version'] == 3 and record['hardware'] == record['installation'] ==
                 record['binary_publication'] == 'NOT RUN' and record['selected_for_release'] is False,
                 'FDK-public-schema')
     packet.need(record['status'] in ('PASS', 'FAIL') and
@@ -484,6 +485,10 @@ def validate_fdk_record(record, validator):
                                                             require_complete=record['status'] == 'PASS')
     packet.need(record['status'] != 'PASS' or record['phase'] == 'complete' and
                 record['cancelled'] is False and record['owned_container_absence'] is True, 'FDK-public-acceptance')
+    if record['status'] == 'PASS':
+        record['accepted_outputs'] = validator.validate_accepted_outputs(record['accepted_outputs'])
+    else:
+        packet.need(record['accepted_outputs'] is None, 'FDK-failed-output-provenance')
     return record
 
 
@@ -512,16 +517,16 @@ def fdk_public(private, report, state):
         record = packet.decode(json.dumps(captured).encode())
     except Exception:
         kind = 'UNAVAILABLE' if state.get('fdk_attempted') else 'NOT_RUN'
-        record = {'schema_version': 2, 'stage': 'fdk-native-development', 'status': 'FAIL', 'phase': 'preflight',
+        record = {'schema_version': 3, 'stage': 'fdk-native-development', 'status': 'FAIL', 'phase': 'preflight',
                   'error_code': 'fdk-stage-failed', 'cancelled': False, 'owned_container_absence': False,
                   'native_build': 'NOT ACCEPTED', 'hardware': 'NOT RUN', 'installation': 'NOT RUN',
-                  'selected_for_release': False, 'binary_publication': 'NOT RUN',
+                  'selected_for_release': False, 'binary_publication': 'NOT RUN', 'accepted_outputs': None,
                   'worker_diagnostics': {name: {'availability': kind,
                       'exit': {'kind': 'UNOBSERVED' if kind == 'UNAVAILABLE' else 'NOT_RUN', 'code': None},
                       'observation': None} for name in FDK_ACTIONS}}
     if evidence.public_status(report)['status'] != 'PASS':
         record.update(status='FAIL', native_build='NOT ACCEPTED', error_code='fdk-stage-failed',
-                      cancelled=record['cancelled'] or report['cancelled'])
+                      cancelled=record['cancelled'] or report['cancelled'], accepted_outputs=None)
     return record
 
 
@@ -631,6 +636,7 @@ def execute(args, state):
     root = args.source_root.absolute()
     packet.need(root == HERE.parents[2] and root == root.resolve(), 'job-source-location')
     carrier, carrier_pin = frozen_carrier_options(args, root)
+    packet.need(carrier is None, 'current-seed-separate-carrier-refused')
     out = output(args.output, root)
     private = out / 'private'
     report = {'status': 'FAIL', 'phase': 'preflight', 'cancelled': False,
@@ -663,6 +669,19 @@ def execute(args, state):
         packet.save(private / 'source-receipt.json', report['source'])
         state['recipes'] = snapshot / 'scripts/ci/recipes.lock.json'
         state['native_sha'] = packet.sha(packet.read(snapshot / 'scripts/ci/native_arm.py'))
+        # Source-owned seed transport spends the original runner endpoint only.
+        state['current_cache_runner'] = runner
+        try:
+            current_cache.seed(snapshot, private, runner, runner.deadline - args.deadline,
+                               report['source']['files_map'])
+        except BaseException as error:
+            state['current_cache_first'] = error
+            raise
+        finally:
+            observed = getattr(runner, 'current_cache_observation', None)
+            if type(observed) is dict:
+                report['cache_seed'] = dict(observed) # Private record only, no bodies.
+                if observed['cancelled']: report['cancelled'] = True
         if carrier is not None:
             packet.need(all(re.fullmatch(expression, os.environ.get(name, '')) for name, expression in
                 (('GITHUB_RUN_ID', '[1-9][0-9]{0,19}'), ('GITHUB_RUN_ATTEMPT', '[1-9][0-9]{0,9}'))), 'frozen-vim-carrier-job-identity')

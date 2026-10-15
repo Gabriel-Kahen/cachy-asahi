@@ -81,9 +81,9 @@
       "sha256": "bf3e762249027586195def2b2e904901b42c8b7fab455fc66bf365f70d08de6d"
     },
     "packages/libraries/cachy-asahi-fdk-aac/PKGBUILD": {
-      "bytes": 4765,
+      "bytes": 9068,
       "mode": 420,
-      "sha256": "cf2b66e6e3719d72eca27c09d0df50d08e76d693996e019ab2b07d54ecb990bc"
+      "sha256": "15766490a8efbcedbfe116ae6fae166fd7a78c02ae66ab7f0739e26a0b5035a5"
     },
     "packages/libraries/cachy-asahi-fdk-aac/PUBLICATION.md": {
       "bytes": 5723,
@@ -508,7 +508,7 @@
     "scripts/ci/inputs.lock.json": {
       "bytes": 328101,
       "mode": 420,
-      "sha256": "3c16c37d1b12cc84a88572e82ab8ad59e7f3b5ed0d08f09ddf72a69f4711d650"
+      "sha256": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f"
     },
     "scripts/ci/native_arm.py": {
       "bytes": 28318,
@@ -525,15 +525,35 @@
       "mode": 420,
       "sha256": "efad8d87d999890615b97a25d05da1f5538ed9b3b00930a096a5b6ddcb88455a"
     },
+    "scripts/port/fdk-native-job/cache_intake.py": {
+      "bytes": 18964,
+      "mode": 420,
+      "sha256": "07ada8534f4fd21def79ab98c62334e4e0e6a7f5b15a9da8c7eacf44376c334d"
+    },
+    "scripts/port/fdk-native-job/current_cache.py": {
+      "bytes": 7253,
+      "mode": 420,
+      "sha256": "47e45b4082e81c02996ccc0de91d14f85b086c8feb350f43644ecc0464817a0d"
+    },
+    "scripts/port/fdk-native-job/donor/current-controller.py": {
+      "bytes": 100623,
+      "mode": 420,
+      "sha256": "bbe279edb9743f98e8feed8365859abc221b2665924658e600775c902e18299e"
+    },
+    "scripts/port/fdk-native-job/donor/current-packet.json": {
+      "bytes": 94735,
+      "mode": 420,
+      "sha256": "9d5a7dc25fd44e127c457c72addb28272b1eb1f5391c4c5b8d5b0a226a3be048"
+    },
     "scripts/port/fdk-native-job/evidence.py": {
       "bytes": 35342,
       "mode": 420,
-      "sha256": "26f272f1199232429d50cb916faa3a08110818d13f28aa9d9d7ff6a2d7858cf9"
+      "sha256": "960b3b14868b483dcff4323aed27ea66900bc86cdfc5be044b09110bab375759"
     },
     "scripts/port/fdk-native-job/job.py": {
-      "bytes": 45747,
+      "bytes": 46831,
       "mode": 420,
-      "sha256": "5fc3bf09a68cbeb54855435c472b99d9e42e9bae8c88137a6d7fb64f5d5ccacf"
+      "sha256": "eda5a5011f55d1fff65039f0e484883038713f6560892ab65dd2fdba9255669b"
     },
     "scripts/port/fdk-native-job/job_runtime.py": {
       "bytes": 8884,
@@ -541,9 +561,9 @@
       "sha256": "99077fde24d060a3b73649f0d45803ec2d155ebc41e21d0de54be635c24cf631"
     },
     "scripts/port/fdk-native-job/packet.py": {
-      "bytes": 8171,
+      "bytes": 9696,
       "mode": 420,
-      "sha256": "8830335d6b8a11e68fdc85c58a9c8a3fa10d4b70cd3e7a27aa73b39dca4dde3f"
+      "sha256": "f5d4372001632b843184bd0cd834209d3b4384b33df8bbc571522e2deac30d03"
     },
     "scripts/port/fdk-native-job/producer.py": {
       "bytes": 26562,
@@ -586,9 +606,9 @@
       "sha256": "46e9abff104c46595d6e2dd5139827874d3ade2cd99d3ed3a846466e84e63bb1"
     },
     "scripts/port/fdk-native-stage/evidence.py": {
-      "bytes": 15035,
+      "bytes": 22634,
       "mode": 420,
-      "sha256": "aab9c7961bfe3cdd1fd298c7609cfcb5d9853201a110016a9f0348b6fe9fb175"
+      "sha256": "c65b1da75f6e4570bbfe28c921df25a24aa27aa03cbb0f94ae8992c56cf570e2"
     },
     "scripts/port/fdk-native-stage/inner_evidence.py": {
       "bytes": 14694,
@@ -598,7 +618,7 @@
     "scripts/port/fdk-native-stage/reviewed-inputs.json": {
       "bytes": 2254,
       "mode": 420,
-      "sha256": "43c5c8967f39687ee57fb59a17c7a6742ae4426b1b342bacb6486eea4cecc199"
+      "sha256": "1e0010aef08294051de95554baf8b85bddd507285ac6d697b16b4ad09f16bf93"
     },
     "scripts/port/fdk-native-stage/runtime.py": {
       "bytes": 8091,
@@ -608,17 +628,17 @@
     "scripts/port/fdk-native-stage/stage.lock.json": {
       "bytes": 7383,
       "mode": 420,
-      "sha256": "fbc0b0bbf0f3765729adb9193331b09903ad5b8c99d00871ece79218a8b36483"
+      "sha256": "8097ec71aeb4aa22d6c7cd6e65bd38377f7ace9f3714c9780ac95eaa9597bcd0"
     },
     "scripts/port/fdk-native-stage/stage.py": {
-      "bytes": 14558,
+      "bytes": 15325,
       "mode": 420,
-      "sha256": "85c257621ed9a3642bb444f76fa3cb0d18a5821f5e8748d23a4eb0fae0a06c43"
+      "sha256": "a3e5abd7fa01f1ee28948c1c38a3f48bf8b825963318a2a4f8f31f49aa600d6a"
     },
     "scripts/port/fdk-native-stage/template-inputs.json": {
       "bytes": 2147,
       "mode": 420,
-      "sha256": "4f852126968e6b61a6bc9bc186182c435fa723d00f4776a435395ec687388235"
+      "sha256": "271473fefbce924b437dbd8d34757fb4b0d0626bef7ea63313617c80b229b4b9"
     },
     "scripts/port/fdk-native-stage/test_broker.py": {
       "bytes": 27088,
@@ -656,9 +676,9 @@
       "sha256": "1f0af4373a69e122de9ad0ca09531204e320291f53c77b1f7534d95c783bb63f"
     },
     "scripts/port/fdk-native-stage/worker_evidence.py": {
-      "bytes": 25259,
+      "bytes": 31413,
       "mode": 420,
-      "sha256": "1feb23dce44872bc4e1a71c332b6e8a61a617c103081db936bc0f4530610ca98"
+      "sha256": "f2177f7ee038f8a2e19a45937c3e42e51f691ec08225639bb8bbe826a939eb2e"
     },
     "scripts/setup/setup.py": {
       "bytes": 29738,

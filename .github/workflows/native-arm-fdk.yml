@@ -11,6 +11,7 @@ permissions:
 concurrency:
   group: native-arm-build
   cancel-in-progress: false
+  queue: max
 jobs:
   fdk:
     if: github.repository == 'Gabriel-Kahen/cachy-asahi' && github.event.repository.private == false
@@ -103,7 +104,7 @@ jobs:
                   committed(root, commit, name, 0o644, data)
               packet = decode(read(root / PACKET, 1024**2))
               need(set(packet) == {'schema_version', 'files'} and type(packet['schema_version']) is int and
-                   packet['schema_version'] == 1 and type(packet['files']) is dict and len(packet['files']) == 133)
+                   packet['schema_version'] == 1 and type(packet['files']) is dict and len(packet['files']) == 137)
               total = 0
               for name, row in packet['files'].items():
                   need(type(name) is str and 0 < len(name) <= 512 and '\\' not in name and
@@ -158,6 +159,28 @@ jobs:
           PY
       - name: Execute finite original producer and accepted FDK stage
         id: native
+        env:
+          CACHY_OLD_FOUR_SCHEMA: '1'
+          CACHY_OLD_FOUR_SOURCE_EPOCH: '1791748800'
+          CACHY_OLD_FOUR_JBIGKIT_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_01 }}
+          CACHY_OLD_FOUR_JBIGKIT_02: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_02 }}
+          CACHY_OLD_FOUR_JBIGKIT_SIG_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_SIG_01 }}
+          CACHY_OLD_FOUR_LIBTIFF_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_01 }}
+          CACHY_OLD_FOUR_LIBTIFF_02: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_02 }}
+          CACHY_OLD_FOUR_LIBTIFF_03: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_03 }}
+          CACHY_OLD_FOUR_LIBTIFF_04: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_04 }}
+          CACHY_OLD_FOUR_LIBTIFF_05: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_05 }}
+          CACHY_OLD_FOUR_LIBTIFF_06: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_06 }}
+          CACHY_OLD_FOUR_LIBTIFF_07: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_07 }}
+          CACHY_OLD_FOUR_LIBTIFF_08: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_08 }}
+          CACHY_OLD_FOUR_LIBTIFF_09: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_09 }}
+          CACHY_OLD_FOUR_LIBTIFF_10: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_10 }}
+          CACHY_OLD_FOUR_LIBTIFF_11: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_11 }}
+          CACHY_OLD_FOUR_LIBTIFF_12: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_12 }}
+          CACHY_OLD_FOUR_LIBTIFF_13: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_13 }}
+          CACHY_OLD_FOUR_LIBTIFF_14: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_14 }}
+          CACHY_OLD_FOUR_LIBTIFF_15: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_15 }}
+          CACHY_OLD_FOUR_LIBTIFF_SIG_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_SIG_01 }}
         shell: bash
         run: |
           /usr/bin/python3 -I -B scripts/port/fdk-native-job/job.py --execute-native \
@@ -262,7 +285,7 @@ jobs:
                    git('ls-tree', '--format=%(objectmode)', commit, '--', prefix + 'packet.lock.json') == b'100644\n')
               manifest = decode(manifest_bytes)
               need(set(manifest) == {'schema_version', 'files'} and type(manifest['schema_version']) is int and
-                   manifest['schema_version'] == 1 and type(manifest['files']) is dict and len(manifest['files']) == 133)
+                   manifest['schema_version'] == 1 and type(manifest['files']) is dict and len(manifest['files']) == 137)
               captured = {}
               for name in (prefix + 'job.py', prefix + 'packet.py', adapter + 'stage.lock.json',
                            adapter + 'evidence.py', adapter + 'worker_evidence.py'):
@@ -299,7 +322,7 @@ jobs:
               exec(compile(ast.Module(body=functions, type_ignores=[]), 'captured-fdk-job-loader', 'exec'), scope)
               return scope['validator_from_bytes'](raw)
 
-          INPUTS_SHA = '3c16c37d1b12cc84a88572e82ab8ad59e7f3b5ed0d08f09ddf72a69f4711d650'
+          INPUTS_SHA = 'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f'
           RECIPES_SHA = '20d846cdf289bfc233b0051bf33b677fd6e94e9f05d91a33595a2829a196fa63'
           NATIVE_SHA = 'a8b6ed8971a38089a4499dcec605477c4e48d7a47c3de485d205f6a44678b898'
           NAMES = {'cachy-asahi-hyprland-settings', 'cachy-asahi-fish-config',
@@ -645,8 +668,8 @@ jobs:
                   fdk = files['fdk/status.json']
                   need(set(fdk) == {'schema_version', 'stage', 'status', 'phase', 'error_code', 'cancelled',
                                    'owned_container_absence', 'native_build', 'hardware', 'installation',
-                                   'selected_for_release', 'binary_publication', 'worker_diagnostics'} and
-                       type(fdk['schema_version']) is int and fdk['schema_version'] == 2 and
+                                   'selected_for_release', 'binary_publication', 'worker_diagnostics', 'accepted_outputs'} and
+                       type(fdk['schema_version']) is int and fdk['schema_version'] == 3 and
                        fdk['stage'] == 'fdk-native-development' and fdk['status'] == status['status'] and
                        fdk['hardware'] == fdk['installation'] == fdk['binary_publication'] == 'NOT RUN' and
                        fdk['selected_for_release'] is False and type(fdk['cancelled']) is bool and
@@ -658,6 +681,10 @@ jobs:
                       need(fdk['phase'] == 'complete' and not fdk['cancelled'] and fdk['owned_container_absence'])
                   need(validator is not None)
                   validator.validate_workers(fdk['worker_diagnostics'], require_complete=fdk['status'] == 'PASS')
+                  if fdk['status'] == 'PASS':
+                      validator.validate_accepted_outputs(fdk['accepted_outputs'])
+                  else:
+                      need(fdk['accepted_outputs'] is None)
               producer = {name.removeprefix('producer/'): value for name, value in files.items() if name.startswith('producer/')}
               if producer:
                   validate_producer(producer, raw, status['status'])

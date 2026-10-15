@@ -6,7 +6,7 @@ from pathlib import Path
 import re
 import stat
 
-from evidence import EPOCH, ENTRY_SHA, INPUTS_SHA, INVENTORY_SHA, RECIPE_SHA, TEMPLATE_SHA, decode, load, need, read, sha
+from evidence import EPOCH, ENTRY_SHA, INPUTS_SHA, INVENTORY_SHA, RECIPE_SHA, TEMPLATE_SHA, decode, load, need, read, sha, validate_accepted_output, validate_accepted_outputs
 
 LIMIT = 4096
 PROVENANCE_LIMIT = 32 * 1024**2
@@ -32,6 +32,97 @@ INNER_REASONS = frozenset(('UNKNOWN', 'NONZERO', 'TIMEOUT', 'CANCELLED', 'IO', '
 INNER_FIELDS = frozenset(('schema_version', 'binding_sha256', 'phase', 'first_failure', 'cancelled',
     'write_failed', 'compiler_attempted', 'compiler_attempt_count', 'compiler_natural_count',
     'first_compiler_attempt', 'first_compiler_natural', 'publication'))
+
+
+# Failure metadata only; Bash command status does not establish termination kind.
+BUILDER_FAILURE_PREFIX = b'__CACHY_ASAHI_FDK_FAILURE_V1__'
+BUILDER_FAILURE_STAGES = frozenset(('SOURCE_CHECK', 'CODEC_BUILD', 'BUILD_METADATA_COPY',
+    'CHECK_SOURCE', 'CHECK_BUILD', 'CHECK_PUBLICATION', 'CHECK_INNER_OBSERVATION',
+    'CHECK_DIRECTORY', 'CHECK_BUILT', 'SMOKE_COMPILE', 'SMOKE_RUN', 'PACKAGE_STAGE',
+    'PACKAGE_NOTICE', 'PACKAGE_DOCUMENT'))
+BUILDER_FAILURE_LINE_LIMIT = 96
+BUILDER_FAILURE_DETAIL_LIMIT = 128
+
+
+def validate_builder_failure_detail(value):
+    need(type(value) is dict and set(value) in ({'category', 'stage', 'exit_status'},
+         {'category', 'stage', 'exit_status', 'compiler_detail'}) and
+         type(value['category']) is str and value['category'] == 'COMMAND_NONZERO' and
+         type(value['stage']) is str and value['stage'] in BUILDER_FAILURE_STAGES and
+         type(value['exit_status']) is int and 1 <= value['exit_status'] <= 255,
+         'worker-builder-failure-detail')
+    if 'compiler_detail' in value:
+        need(value['stage'] == 'SMOKE_COMPILE' and type(value['compiler_detail']) is str and
+             value['compiler_detail'] in SMOKE_COMPILER_DETAILS, 'worker-smoke-compiler-detail')
+    need(len(json.dumps(value, sort_keys=True, separators=(',', ':'), allow_nan=False).encode()) <=
+         BUILDER_FAILURE_DETAIL_LIMIT, 'worker-builder-failure-bound')
+    return dict(value)
+
+
+def builder_failure_detail(raw):
+    """Unique closed line from already captured bytes; no log body is projected."""
+    if type(raw) is not bytes or len(raw) > LOG_LIMIT or raw.count(BUILDER_FAILURE_PREFIX) != 1:
+        return None
+    start = raw.find(BUILDER_FAILURE_PREFIX)
+    end = raw.find(b'\n', start)
+    if start and raw[start - 1:start] != b'\n' or end < 0 or end - start > BUILDER_FAILURE_LINE_LIMIT:
+        return None
+    match = re.fullmatch(rb'__CACHY_ASAHI_FDK_FAILURE_V1__ STAGE=([A-Z_]+) STATUS=([1-9][0-9]{0,2})', raw[start:end])
+    if match is None:
+        return None
+    stage, code = match[1].decode('ascii'), int(match[2])
+    if stage not in BUILDER_FAILURE_STAGES or code > 255:
+        return None
+    return validate_builder_failure_detail({'category': 'COMMAND_NONZERO', 'stage': stage, 'exit_status': code})
+
+
+SMOKE_BEGIN = b'__CACHY_ASAHI_FDK_SMOKE_V1__ BEGIN'
+SMOKE_COMPILER_DETAILS = frozenset(('C_FDK_AUDIO_UNUSED', 'C_SMOKE_ERROR', 'LINK_ERROR', 'DRIVER_ERROR'))
+
+
+def smoke_compiler_detail(raw, detail):
+    """Optional closed classification, never raw diagnostics or a cause assertion."""
+    if (type(raw) is not bytes or len(raw) > LOG_LIMIT or
+            detail != builder_failure_detail(raw) or detail is None or
+            detail['stage'] != 'SMOKE_COMPILE' or raw.count(SMOKE_BEGIN) != 1):
+        return None
+    start = raw.find(SMOKE_BEGIN)
+    if start and raw[start - 1:start] != b'\n': return None
+    start += len(SMOKE_BEGIN)
+    if raw[start:start + 1] != b'\n': return None
+    end = raw.find(BUILDER_FAILURE_PREFIX)
+    if end <= start or end - start > 65536: return None
+    found = set()
+    functions = {'FDKinitLibInfo': 'C_FDK_AUDIO_UNUSED',
+        'FDKlibInfo_getCapabilities': 'C_FDK_AUDIO_UNUSED',
+        'FDKlibInfo_lookup': 'C_FDK_AUDIO_UNUSED'}
+    locations = {'FDKinitLibInfo': 735, 'FDKlibInfo_getCapabilities': 745, 'FDKlibInfo_lookup': 757}
+    for line in raw[start + 1:end].splitlines():
+        if len(line) > 1024: return None
+        header = re.fullmatch(rb'(?:[^\r\n]*/)?FDK_audio\.h:([1-9][0-9]{0,4}):[1-9][0-9]{0,4}: error: .*\[-Werror=unused-function\]', line)
+        smoke = re.fullmatch(rb'(?:[^\r\n]*/)?codec-smoke\.c:([1-9][0-9]{0,4}):[1-9][0-9]{0,4}: (?:fatal )?error: .+', line)
+        if header:
+            names = [name for name in functions if re.search(rb'\b' + name.encode() + rb'\b', line)]
+            if len(names) != 1 or int(header[1]) != locations[names[0]]: return None
+            found.add(functions[names[0]])
+        elif smoke and int(smoke[1]) <= 139:
+            found.add('C_SMOKE_ERROR')
+        elif re.fullmatch(rb'collect2: error: ld returned [1-9][0-9]{0,2} exit status', line):
+            found.add('LINK_ERROR')
+        elif re.fullmatch(rb'cc: error: .+', line):
+            found.add('DRIVER_ERROR')
+    # Coalesce the three header warnings; mixed classes have no selected first.
+    return next(iter(found)) if len(found) == 1 else None
+
+
+
+def builder_failure_context(row):
+    builder, commands = row['builder'], row['commands']
+    attached, container = commands['attach'], commands['container']
+    return (builder['status'] == 'FAILED' and builder['reason'] == 'CONTAINER_EXIT' and
+        builder['provenance'] is not None and builder['log'] is not None and
+        attached == container and attached['kind'] == 'EXIT_NONZERO' and
+        type(attached['code']) is int and 1 <= attached['code'] <= 255)
 
 
 def inner_need(value):
@@ -162,7 +253,8 @@ def validate_fields(row):
         need(type(row[name]) is str and row[name] in allowed, 'worker-diagnostic-code')
     need((row['first_failed_predicate'] == 'NONE') == (row['failure_reason'] == 'NONE'), 'worker-first-failure')
     builder = row['builder']
-    need(type(builder) is dict and set(builder) == {'exit', 'status', 'reason', 'provenance', 'log'}, 'worker-builder')
+    need(type(builder) is dict and set(builder) in ({'exit', 'status', 'reason', 'provenance', 'log'},
+         {'exit', 'status', 'reason', 'provenance', 'log', 'failure_detail'}), 'worker-builder')
     validate_exit(builder['exit'])
     need(type(builder['status']) is str and builder['status'] in ('NOT_RUN', 'UNAVAILABLE', 'UNVERIFIED', 'FAILED', 'STATIC_PASS') and
          type(builder['reason']) is str and builder['reason'] in BUILDER_REASONS, 'worker-builder')
@@ -184,6 +276,9 @@ def validate_fields(row):
     for value in commands.values(): validate_exit(value)
     # These are actual daemon State codes, never shell signal return codes.
     need(commands['container']['kind'] != 'EXIT_SIGNAL', 'worker-container-state')
+    if 'failure_detail' in builder:
+        need(builder_failure_context(row), 'worker-builder-failure-context')
+        validate_builder_failure_detail(builder['failure_detail'])
     clean = row['cleanup']
     need(type(clean) is dict and set(clean) == {'status', 'absence', 'reason'} and
          type(clean['status']) is str and clean['status'] in ('NOT_RUN', 'PASS', 'FAIL') and
@@ -328,6 +423,7 @@ def builder_reason(error):
 def observe_builder(row, directory, config, reviewed):
     """Capture fixed provenance/log files once; no recursive export or raw text."""
     result = row['builder']; result.update(status='UNAVAILABLE', reason='NONE')
+    result.pop('failure_detail', None)  # Independently reparse; never retain receipt-injected metadata.
     captured = None
     try:
         raw, stamp = capture(Path(directory) / 'provenance.json', PROVENANCE_LIMIT)
@@ -369,6 +465,20 @@ def observe_builder(row, directory, config, reviewed):
         result['log'] = None
     if result['status'] == 'STATIC_PASS' and result['log'] is None:
         result.update(status='UNVERIFIED', reason='NONE')
+    try:
+        if (builder_failure_context(row) and captured is not None and
+                type(captured.get('exit_code')) is int and
+                captured['exit_code'] == row['commands']['attach']['code']):
+            detail = builder_failure_detail(log_bytes)
+            if detail is not None:
+                try: compiler = smoke_compiler_detail(log_bytes, detail)
+                except Exception: compiler = None  # Preserve the original closed stage/status.
+                if compiler is not None: detail['compiler_detail'] = compiler
+                result['failure_detail'] = validate_builder_failure_detail(detail)
+    except Exception:
+        # Ordinary diagnostic uncertainty leaves the old failed result intact.
+        result.pop('failure_detail', None)
+    # BaseException controls propagate into existing worker cancellation/cleanup policy.
     return captured, log_bytes
 
 

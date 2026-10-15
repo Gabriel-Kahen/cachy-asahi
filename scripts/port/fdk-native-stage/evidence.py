@@ -10,11 +10,11 @@ import re
 import stat
 import tempfile
 
-INVENTORY_SHA = '89bdb06fea1862b5a6e02b77a4b98f6e04755b02327d875a716bd792929f3a4f'
-INPUTS_SHA = '3c16c37d1b12cc84a88572e82ab8ad59e7f3b5ed0d08f09ddf72a69f4711d650'
+INVENTORY_SHA = 'fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25'
+INPUTS_SHA = 'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f'
 ORIGINALS_SHA = '20d846cdf289bfc233b0051bf33b677fd6e94e9f05d91a33595a2829a196fa63'
-TEMPLATE_SHA = '4f852126968e6b61a6bc9bc186182c435fa723d00f4776a435395ec687388235'
-RECIPE_SHA = '43c5c8967f39687ee57fb59a17c7a6742ae4426b1b342bacb6486eea4cecc199'
+TEMPLATE_SHA = '271473fefbce924b437dbd8d34757fb4b0d0626bef7ea63313617c80b229b4b9'
+RECIPE_SHA = '1e0010aef08294051de95554baf8b85bddd507285ac6d697b16b4ad09f16bf93'
 ENTRY_SHA = '89723f0a0b2ef80391160f451e877f15fb1e0c4d9a4fec6dbbb8e0d66d8d0f24'
 EPOCH = 1791748800
 IMAGE = re.compile(r'sha256:[0-9a-f]{64}\Z')
@@ -191,7 +191,10 @@ def verify_attempt(directory, reviewed, image, inspect_package, inspect_recipe, 
     need(recipe.get('errors') == [] and recipe.get('input_sha256') == reviewed and
          record.get('recipe_metadata') == recipe.get('metadata'), 'recipe-metadata-reparse')
     archive = directory / 'artifacts' / result['filename']
-    need(digest(archive) == result['sha256'], 'archive-drift')
+    archive_raw = read(archive, 64 * 1024**2)  # Same read and cap as the prior digest call.
+    archive_bytes = len(archive_raw)
+    need(sha(archive_raw) == result['sha256'], 'archive-drift')
+    del archive_raw
     need({p.name for p in (directory / 'artifacts').glob('*.pkg.tar.*')} == {result['filename']}, 'artifact-set')
     need(digest(directory / 'expected-packages.lock') == digest(directory / 'artifacts/packages.lock') == INVENTORY_SHA,
          'build-inventory-drift')
@@ -222,7 +225,8 @@ def verify_attempt(directory, reviewed, image, inspect_package, inspect_recipe, 
     need(len(frames) == 1 and 24 <= int(frames[0]) <= 40 and
          log.splitlines().count('PASS: xHE API 1.0AOSP configuration lifecycle; encoding/roundtrip NOT RUN') == 1,
          'native-smoke-receipt')
-    result.update(abi=libraries, classic_decoded_frames=int(frames[0]), xhe_scope='configuration-only', hardware='NOT RUN')
+    result.update(abi=libraries, classic_decoded_frames=int(frames[0]), xhe_scope='configuration-only', hardware='NOT RUN',
+                  accepted_output=project_accepted_output(package, reviewed, archive_bytes))
     return result
 
 
@@ -252,10 +256,125 @@ def finalstatus_public(report):
             row['observation']['current_predicate'] == 'COMPLETE' for row in workers.values()))
     if passed:
         workers = worker_diagnostic.validate_workers(workers, require_complete=True)
-    return {'schema_version': 2, 'stage': 'fdk-native-development', 'status': 'PASS' if passed else 'FAIL',
+    accepted_outputs = accepted_outputs_public(report) if passed else None
+    return {'schema_version': 3, 'stage': 'fdk-native-development', 'status': 'PASS' if passed else 'FAIL',
             'phase': report.get('phase') if report.get('phase') in {'preflight', 'base-probe', 'source', 'build-1', 'build-2', 'compare', 'complete'} else 'preflight',
             'error_code': None if passed else 'fdk-stage-failed', 'cancelled': report.get('cancelled') is True,
             'owned_container_absence': cleanup.get('absence_verified') is True,
             'native_build': 'PASS' if passed else 'NOT ACCEPTED', 'hardware': 'NOT RUN',
             'installation': 'NOT RUN', 'selected_for_release': False, 'binary_publication': 'NOT RUN',
-            'worker_diagnostics': workers}
+            'worker_diagnostics': workers, 'accepted_outputs': accepted_outputs}
+
+
+OUTPUT_SOURCE_NAMES = {
+    'recipe_sha256': 'PKGBUILD',
+    'selected_archive_sha256': 'fdk-aac-3.0.0-selected-source.tar',
+    'source_provenance_sha256': 'source-provenance.json',
+    'selected_manifest_sha256': 'selected-source-manifest.json',
+    'notice_classic_sha256': 'NOTICE.classic',
+    'notice_xhe_sha256': 'NOTICE.xhe-aac',
+    'copyrights_sha256': 'COPYRIGHTS-and-LICENSES',
+    'project_license_sha256': 'LICENSE.MIT',
+    'source_delivery_instructions_sha256': 'PUBLICATION.md',
+}
+# Populated from the existing independently pinned reviewed-input map.
+OUTPUT_SOURCE_PINS = {'recipe_sha256': '15766490a8efbcedbfe116ae6fae166fd7a78c02ae66ab7f0739e26a0b5035a5', 'selected_archive_sha256': '1065c4b30e0c2deee7965faa0257e10ac482a2516d51b5b8f17b1406b3ecb2f4', 'source_provenance_sha256': '2f5d3c3124bdc564e9183aac8a534e51ac03c078f8312395370b8454b435cae3', 'selected_manifest_sha256': '3eb66e2e1632cf65044f9250c7460b1effe0de3217f83b573b4e23885772fc29', 'notice_classic_sha256': '95ec80da40b4af12ad4c4f3158c9cfb80f2479f3246e4260cb600827cc8c7836', 'notice_xhe_sha256': 'bf3e762249027586195def2b2e904901b42c8b7fab455fc66bf365f70d08de6d', 'copyrights_sha256': 'a0a52a99bef6dea5c370711f17ed1c02e8b0989a4c167f4e54a36368987428c0', 'project_license_sha256': '4d263ff2b095160e3b9244a132d248234241b83eed71b849decef6a3ba3fa795', 'source_delivery_instructions_sha256': '0db09f321999befabe795066a388c271db786377d312a3f60c84424cb7685efa'}
+
+
+def output_keys(value, keys):
+    need(type(value) is dict and all(type(k) is str for k in value) and
+         set(value) == set(keys), 'accepted-output-keys')
+
+
+def validate_accepted_output(value):
+    output_keys(value, {'schema_version', 'archive', 'package', 'metadata', 'source'})
+    need(type(value['schema_version']) is int and value['schema_version'] == 1, 'accepted-output-schema')
+    archive = value['archive']
+    output_keys(archive, {'name', 'bytes', 'sha256'})
+    need(type(archive['name']) is str and PACKAGE.fullmatch(archive['name']) and
+         type(archive['bytes']) is int and 0 < archive['bytes'] <= 64 * 1024**2 and
+         type(archive['sha256']) is str and PIN.fullmatch(archive['sha256']), 'accepted-output-archive')
+    package = value['package']
+    output_keys(package, {'name', 'version', 'architecture'})
+    need(all(type(v) is str for v in package.values()) and
+         package == {'name': 'cachy-asahi-fdk-aac', 'version': '3.0.0-1', 'architecture': 'aarch64'},
+         'accepted-output-package')
+    metadata = value['metadata']
+    output_keys(metadata, {'PKGINFO', 'BUILDINFO'})
+    for row in metadata.values():
+        output_keys(row, {'bytes', 'sha256'})
+        need(type(row['bytes']) is int and 0 < row['bytes'] <= 128 * 1024**2 and
+             type(row['sha256']) is str and PIN.fullmatch(row['sha256']), 'accepted-output-metadata')
+    source = value['source']
+    output_keys(source, OUTPUT_SOURCE_NAMES)
+    need(all(type(v) is str and PIN.fullmatch(v) for v in source.values()) and
+         source == OUTPUT_SOURCE_PINS, 'accepted-output-source')
+    need(len(json.dumps(value, sort_keys=True, separators=(',', ':'), allow_nan=False).encode()) <= 2048,
+         'accepted-output-bound')
+    return json.loads(json.dumps(value, allow_nan=False))
+
+
+def project_accepted_output(package, reviewed, archive_bytes):
+    """Inputs have passed verify_attempt; no read/stat/archive parsing here."""
+    need(type(package) is dict and all(type(k) is str for k in package) and type(reviewed) is dict and
+         all(type(k) is str for k in reviewed), 'accepted-output-input')
+    metadata, members = package['metadata'], package['members']
+    need(type(metadata) is dict and all(type(k) is str for k in metadata) and
+         type(members) is dict and all(type(k) is str for k in members), 'accepted-output-input')
+    pkg, build = metadata['.PKGINFO'], metadata['.BUILDINFO']
+    need(type(pkg) is dict and all(type(k) is str for k in pkg) and
+         type(build) is dict and all(type(k) is str for k in build), 'accepted-output-input')
+    identity = {}
+    for source, target in (('pkgname', 'name'), ('pkgver', 'version'), ('arch', 'architecture')):
+        values = pkg[source]
+        need(type(values) is list and len(values) == 1 and type(values[0]) is str, 'accepted-output-identity')
+        identity[target] = values[0]
+    need(type(build['pkgbuild_sha256sum']) is list and all(type(v) is str for v in build['pkgbuild_sha256sum']) and
+         build['pkgbuild_sha256sum'] == [reviewed['PKGBUILD']],
+         'accepted-output-recipe')
+    stamps = {}
+    for name in ('PKGINFO', 'BUILDINFO'):
+        member = members['.' + name]
+        need(type(member) is dict and all(type(k) is str for k in member) and
+             type(member['type']) is str and member['type'] in ('0', '\x00'),
+             'accepted-output-member')
+        stamps[name] = {'bytes': member['size'], 'sha256': member['sha256']}
+    return validate_accepted_output({'schema_version': 1,
+        'archive': {'name': package['artifact'], 'bytes': archive_bytes, 'sha256': package['sha256']},
+        'package': identity, 'metadata': stamps,
+        'source': {key: reviewed[name] for key, name in OUTPUT_SOURCE_NAMES.items()}})
+
+
+def validate_accepted_outputs(value):
+    output_keys(value, {'schema_version', 'builds', 'comparison'})
+    need(type(value['schema_version']) is int and value['schema_version'] == 1, 'accepted-outputs-schema')
+    output_keys(value['builds'], {'build-1', 'build-2'})
+    rows = [validate_accepted_output(value['builds'][name]) for name in ('build-1', 'build-2')]
+    comparison = value['comparison']
+    output_keys(comparison, {'status', 'bytes', 'payload', 'PKGINFO', 'BUILDINFO'})
+    need(type(comparison['status']) is str and comparison['status'] == 'PASS' and
+         all(comparison[k] is True for k in ('bytes', 'payload', 'PKGINFO', 'BUILDINFO')),
+         'accepted-outputs-comparison')
+    need(rows[0] == rows[1], 'accepted-outputs-equality')
+    need(len(json.dumps(value, sort_keys=True, separators=(',', ':'), allow_nan=False).encode()) <= 4096,
+         'accepted-outputs-bound')
+    return {'schema_version': 1, 'builds': {'build-1': rows[0], 'build-2': rows[1]},
+            'comparison': {'status': 'PASS', 'bytes': True, 'payload': True, 'PKGINFO': True, 'BUILDINFO': True}}
+
+
+def accepted_outputs_public(report):
+    """Join two accepted workers with the comparator's revalidated attempts."""
+    rows = {}
+    for name in ('build-1', 'build-2'):
+        worker = report[name]
+        need(type(worker) is dict and worker['status'] == 'PASS' and worker['cancelled'] is False,
+             'accepted-outputs-worker')
+        rows[name] = validate_accepted_output(worker['artifact']['accepted_output'])
+    attempts = report['comparison_attempts']
+    need(type(attempts) is list and len(attempts) == 2, 'accepted-outputs-attempts')
+    for index, name in enumerate(('build-1', 'build-2')):
+        need(type(attempts[index]) is dict and
+             validate_accepted_output(attempts[index]['accepted_output']) == rows[name],
+             'accepted-outputs-revalidation')
+    return validate_accepted_outputs({'schema_version': 1, 'builds': rows,
+                                     'comparison': report['comparison']})
