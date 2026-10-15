@@ -74,6 +74,28 @@ class ContainerTests(unittest.TestCase):
     def rejects(self, value):
         with self.assertRaises(COMMON.Failure): c.validate_public(value)
 
+    def test_spa_metadata_flags_join_runtime_and_public_gate(self):
+        flags = ['-I/usr/include/pipewire-0.3', '-I/usr/include/spa-0.2', '-D_REENTRANT',
+                 '-fno-strict-aliasing', '-fno-strict-overflow', '-I/usr/include/lilv-0',
+                 '-I/usr/include/serd-0', '-lpipewire-0.3', '-llilv-0', '-lserd-0']
+        c.validate_package_flags(flags, 'pkg_config')
+        value = passing()
+        value['host']['compile_flags'] = ['-std=gnu11', *COMMON.FLAGS[1:], *flags, '-ldl', '-lm']
+        self.assertIs(c.validate_public(value), value)
+
+    def test_spa_flag_exception_is_literal_and_bounded(self):
+        required = ['-lpipewire-0.3', '-llilv-0', '-lserd-0']
+        bad = [[*required, flag] for flag in ('-fplugin=/tmp/a', '-fno-strict-aliasing=0',
+               '-fno-strict-overflowx', '-pthread', '-I/private', '-L/tmp', '-DOTHER',
+               '-Wl,-rpath,/tmp', '-include/tmp/a', 1)]
+        bad += [[], required[:-1], required + ['-D_REENTRANT'] * 38]
+        for flags in bad:
+            with self.subTest(flags=flags):
+                with self.assertRaises(COMMON.Failure): c.validate_package_flags(flags, 'pkg_config')
+                value = passing()
+                value['host']['compile_flags'] = ['-std=gnu11', *COMMON.FLAGS[1:], *flags, '-ldl', '-lm']
+                self.rejects(value)
+
     def test_complete_four_plus_eight_closed_projection(self):
         value = passing(); self.assertIs(c.validate_public(value), value)
         self.assertEqual(sum(x['counts']['nodes'] for x in value['positive_cases']), 36)
