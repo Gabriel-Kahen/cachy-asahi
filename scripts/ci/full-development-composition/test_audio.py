@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Finite audio selection/refusal/transaction-order fixtures; no system actors."""
 import copy
+import hashlib
 import importlib.util
 import json
 from pathlib import Path
@@ -27,7 +28,7 @@ container = load('audio_container_api', 'container.py')
 
 def ld_fixture():
     return {'helper': {'sha256': 'helper'}, 'configs': {'/etc/ld.so.conf': {'sha256': 'config'}},
-            'aliases': {}, 'scan': {'/usr/lib/libfixture.so.1': {'type': 'link', 'target': 'libfixture.so.1.0'}},
+            'aliases': {}, 'targets': {}, 'scan': {'/usr/lib/libfixture.so.1': {'type': 'link', 'target': 'libfixture.so.1.0'}},
             'caches': {'/etc/ld.so.cache': {'type': 'file', 'sha256': 'main', 'size': 5},
                        '/var/cache/ldconfig/aux-cache': {'type': 'file', 'sha256': 'aux', 'size': 5}},
             'mapping': ['first', 'second'], 'generator': []}
@@ -49,6 +50,13 @@ class LdconfigCheckpoint(unittest.TestCase):
         (self.root / 'usr/bin/ldconfig').chmod(0o755)
         (self.root / 'usr/lib/ld.so.conf.d/fakeroot.conf').chmod(0o644)
         (self.root / 'usr/lib/libfakeroot').chmod(0o755)
+        for name in audio.LD_TARGET_PARENTS:
+            path = self.root / name.lstrip('/'); path.mkdir(parents=True, exist_ok=True); path.chmod(0o755)
+        self.target_pins = {}
+        for number, name in enumerate(audio.LD_TARGETS):
+            data = ('inert fixed target ' + str(number)).encode()
+            path = self.root / name.lstrip('/'); path.write_bytes(data); path.chmod(0o755)
+            self.target_pins[name] = (len(data), hashlib.sha256(data).hexdigest())
         (self.root / 'usr/lib/libfixture.so.1').symlink_to('libfixture.so.1.0')
         self.c = SimpleNamespace(pin=Mock(), need=container.need, run=Mock(side_effect=self.printed))
         self.real_node = audio.ld_node
@@ -64,7 +72,7 @@ class LdconfigCheckpoint(unittest.TestCase):
 
     def observe(self, rows=None):
         # Only ownership is synthetic; real inert filesystem bytes/types are read.
-        with patch.object(audio, 'ld_node', side_effect=self.fixture_node):
+        with patch.object(audio, 'ld_node', side_effect=self.fixture_node), patch.object(audio, 'LD_TARGETS', self.target_pins):
             return audio.ld_state(self.c, rows or [], self.root)
 
     def checkpoint(self, state, baseline=None):
@@ -101,7 +109,7 @@ class LdconfigCheckpoint(unittest.TestCase):
 
     def test_ordered_mapping_config_helper_or_library_link_drift_unaccepted(self):
         before = ld_fixture()
-        for field in ('helper', 'configs', 'scan', 'mapping'):
+        for field in ('helper', 'configs', 'scan', 'targets', 'mapping'):
             with self.subTest(field=field):
                 after = copy.deepcopy(before)
                 if field == 'mapping': after[field].reverse()
@@ -184,6 +192,65 @@ class LdconfigCheckpoint(unittest.TestCase):
         directory = self.root / 'usr/lib/libfakeroot'
         (directory / 'libfakeroot-0.so').unlink(); directory.rmdir(); directory.symlink_to('.')
         with self.assertRaisesRegex(ValueError, 'fixed-fakeroot-scan-directory'): self.observe()
+
+    def target_mapping(self, paths):
+        return str(len(paths)) + " libs found in cache `" + str(self.root / 'etc/ld.so.cache') + "'\n" + ''.join(
+            '\tfixture' + str(number) + ' (libc6,AArch64) => ' + path + '\n' for number, path in enumerate(paths))
+
+    def test_three_explicit_targets_observed_without_expanding_scan_roots(self):
+        links = {'libnssckbi.so': 'pkcs11/p11-kit-trust.so',
+                 'libvapoursynth.so.4': 'python3.14/site-packages/vapoursynth/libvapoursynth.so.4',
+                 'libvapoursynth-script.so.0': 'python3.14/site-packages/vapoursynth/libvsscript.so',
+                 'libvsscript.so': 'libvapoursynth-script.so.0'}
+        for name, target in links.items(): (self.root / 'usr/lib' / name).symlink_to(target)
+        self.c.run.side_effect = lambda argv: self.target_mapping(['/usr/lib/' + name for name in links])
+        unrelated = self.root / 'usr/lib/python3.14/site-packages/vapoursynth/unobserved.so'
+        unrelated.write_bytes(b'not an explicitly observed target')
+        state = self.observe()
+        self.assertEqual(set(state['targets']), set(self.target_pins))
+        self.assertTrue(set(state['targets']).isdisjoint(state['scan']))
+        self.assertNotIn('/usr/lib/python3.14/site-packages/vapoursynth/unobserved.so', state['targets'])
+        for label in ('B1-593', 'B2-592', 'B3-587'):
+            with patch.object(audio, 'ld_state', return_value=copy.deepcopy(state)):
+                self.assertEqual(audio.ld_checkpoint(self.c, [], self.root, label, state), state)
+        for key in ('sha256', 'mode', 'uid', 'identity'):
+            changed = copy.deepcopy(state); changed['targets'][next(iter(self.target_pins))][key] = 'changed'
+            with self.assertRaisesRegex(ValueError, 'changed-state.*targets'): self.checkpoint(changed, state)
+        self.assertEqual(audio.ld_summary([state])['checkpoints'][0]['explicit_target_entries'], 3)
+
+    def test_target_files_and_parents_refuse_changed_nodes_before_helper(self):
+        target = self.root / next(iter(self.target_pins)).lstrip('/'); original = target.read_bytes()
+        target.write_bytes(b'x' * len(original))
+        with self.assertRaisesRegex(ValueError, 'fixed-target-node'): self.observe()
+        target.write_bytes(original); target.chmod(0o644)
+        with self.assertRaisesRegex(ValueError, 'fixed-target-node'): self.observe()
+        target.chmod(0o755); target.write_bytes(original + b'x')
+        with self.assertRaisesRegex(ValueError, 'fixed-target-size-type'): self.observe()
+        target.unlink(); target.symlink_to('missing.so')
+        with self.assertRaisesRegex(ValueError, 'fixed-target-size-type'): self.observe()
+        target.unlink(); target.write_bytes(original); target.chmod(0o755)
+        parent = target.parent; parent.chmod(0o777)
+        with self.assertRaisesRegex(ValueError, 'fixed-target-parent'): self.observe()
+        parent.chmod(0o755); renamed = parent.with_name('unconfigured-parent'); parent.rename(renamed)
+        parent.symlink_to(renamed.name)
+        with self.assertRaisesRegex(ValueError, 'fixed-target-parent'): self.observe()
+        self.c.run.assert_not_called()
+
+    def test_direct_nested_mapping_and_unobserved_intermediate_link_refused(self):
+        fixed = '/usr/lib/python3.14/site-packages/vapoursynth/libvsscript.so'
+        self.c.run.side_effect = lambda argv: self.target_mapping([fixed])
+        with self.assertRaisesRegex(ValueError, 'cache-target-shape'): self.observe()
+        directory = self.root / 'usr/lib/unconfigured'; directory.mkdir()
+        (directory / 'intermediate.so').symlink_to('../python3.14/site-packages/vapoursynth/libvsscript.so')
+        (self.root / 'usr/lib/libunobserved.so').symlink_to('unconfigured/intermediate.so')
+        self.c.run.side_effect = lambda argv: self.target_mapping(['/usr/lib/libunobserved.so'])
+        with self.assertRaisesRegex(ValueError, 'cache-target-shape'): self.observe()
+        (directory / 'redirect').symlink_to('..')
+        (self.root / 'usr/lib/libobserved.so').symlink_to('python3.14/site-packages/vapoursynth/libvsscript.so')
+        indirect = self.root / 'usr/lib/libunobserved.so'; indirect.unlink()
+        # Parent alias resolves into a scan root, but the alias itself is unobserved.
+        indirect.symlink_to('unconfigured/redirect/libobserved.so')
+        with self.assertRaisesRegex(ValueError, 'cache-target-shape'): self.observe()
 
 
 class Audio(unittest.TestCase):

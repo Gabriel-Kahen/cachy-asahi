@@ -147,8 +147,9 @@ with a16MiB per-cache cap; the auxiliary directory metadata is recorded too.
 Both temporary ~ leaves must be absent. Main-cache ordered mapping rows and
 generator text come from the pinned read-only `ldconfig -p -C /etc/ld.so.cache`
 branch under existing bounded c.run supervision and clean C locale. Every listed
-target must resolve to a recorded ordinary scanned library, not an unobserved
-nested/off-scan target. Duplicate priority/order is retained. Main bytes may
+target must resolve to a recorded ordinary scanned library under the existing
+guard, or use the new observed-root-link exception for an exact audited target
+below. Other nested targets remain refused. Duplicate priority/order is retained. Main bytes may
 change only while mapping/generator and other metadata including size stay equal;
 the new raw hash remains in the result. Auxiliary raw bytes/metadata must match
 B0 exactly: ANY byte difference is AUDIO_LDCONFIG_UNACCEPTED. No auxiliary semantic
@@ -206,3 +207,52 @@ extra regeneration, cache restore or ownership/payload/signature/lock relaxation
 is added. Existing587/593 inputs and exact locks remain held (original587 runtime
 checkpoint). Historical38797262875 remains a separate bounded older-input PASS;
 this failed attempt does not establish current audio install/removal/cache PASS.
+
+## Explicit target observation after38812382520
+
+Artifact-only correction against Sourceb44baf215b14c45b26e7a5f242060579d20f100c.
+That run passed the exact fakeroot config/directory gates, then refused the B0
+printed cache target /usr/lib/libvsscript.so. No audio install/removal or completed
+checkpoint occurred; no aux byte comparison was reached. The retained public
+error does not export the actual link chain or resolved target.
+
+The574 held archive/signature byte pins were rechecked; their bounded MTREE
+inventory has1714 direct scan-root symlinks, six resolving outside those roots:
+four vapoursynth library links, one NSS library link, and the terminfo directory
+link. Actual held vapoursynth/NSS/libp11-kit members confirm three regular root0755
+targets and their fixed ordinary root0755 parents. Two targets are in
+/usr/lib/python3.14/site-packages/vapoursynth; the third is
+/usr/lib/pkcs11/p11-kit-trust.so. Exact size/hash pins are in LD_TARGETS. This is
+expected package data, not a recovered observation of the destroyed container.
+The terminfo data directory is not admitted as a library target.
+
+Observe only those three exact files, with type/mode/UID/GID/size/hash and
+device/inode/ctime/mtime identity. Their size/count contribute to the existing
+2GiB/8192-entry observation bounds, and exact sizes are checked before hashing.
+Record the four fixed canonical ordinary parent nodes as metadata, without adding
+them to ldconfig scan roots or traversing their other children. Printed cache
+addresses must still have a configured scan-root parent. An off-scan resolution
+is accepted only at an exact pinned file and through at most16 already observed
+root symlinks; each link step must be another observed root link or the exact
+file. Unobserved intermediate links, parent aliases, direct nested cache paths,
+changed bytes/metadata, other files and unknown target directories remain refused.
+This added chain restriction applies to the new explicit-target exception; the
+pre-existing ordinary-scanned-file resolution guard is unchanged and does not
+independently record every intermediate off-scan alias returning to a scanned file.
+All root links remain in the original scan snapshot. New explicit target records
+join all three comparisons against B0; existing configs, ordered mappings, main
+cache hash policy and aux raw-byte refusal are unchanged. No decoder, recursive
+scan, regeneration, cache copy/restore, lock/payload/signature or ownership
+relaxation is added.
+
+The known fourteen additions were audited separately from retained metadata and
+pinned source. Four dependency archives/signatures match their lock, four current
+project validation maps contain no direct-root symlinks, FDK source defines only
+four links terminating within /usr/lib, and the data-package recipes install
+outside the scan roots. No additional outside-root link was identified there.
+Complete current project archive member maps are not all retained; notably the
+updater projection omits its member map and the pinned upstream Makefile bytes
+were unavailable locally. This gap is not reported as a complete fourteen-archive
+inventory, and no frames were decoded to fill it. Unknown actual targets continue
+to fail closed. Generic-native retry and all four checkpoint outcomes remain
+unestablished until Root adopts and tests a fresh source selection.
