@@ -28,8 +28,11 @@ recovery cleanup pass; daemon/cache retirement remains unverified. This
 establishes no accepted native package. A separate local Cargo reproduction
 finds a normal two-link executable rejected by the old reader; a scoped
 snapshot correction was independently reviewed. Four introduced descriptor,
-destination-parent and error-retirement gaps require a successor before another
-trial; the actual CI operand remains unknown.
+destination-parent and error-retirement gaps were corrected in successor
+`73587bc3`. Fresh independent review `3d81ac94` passes all four original
+countermodels and finds no new bounded defect. Root commits its seven-file
+91-role change as `b5869fa9`; actual Source review is pending before publication
+and another trial. The actual CI operand remains unknown.
 
 Kernel Source `2525f178` publishes seven retained-input changes after semantic
 `b0ed311f` and actual Source `d27c6b00` review. All 126 roles and the 124-row
@@ -55,9 +58,12 @@ uncertainty remain unchanged.
 
 P0 diagnostic Source `78f605be` is published. Actual Source review `f5422a2e`
 authenticates its four-file delta and corrected read-only freeze. The initial
-overwide publication-proof refusal remains retained. Next registration changes
-only the Root review/publication variables and default workflow; both templates
-and recipe `ebd58126` stay held. No new trial or P0 pass is claimed.
+overwide publication-proof refusal remains retained. Registration preparation
+`6813374d` and independent review `fb4dc84f` pass. Root applies default workflow
+`6b3f574f` and exactly two review/publication variable updates; all five literal
+values and the workflow read back exactly. Both templates and recipe `ebd58126`
+stay held. One changed trial `38676597240`, attempt 1, is selected. No P0 pass
+is claimed.
 
 Current client/repository convergence now passes all 48 host tests without skips.
 Root commits separate Code `c6d43be2` and Source `ba63d6d9`: the new explicit
@@ -65,7 +71,9 @@ baseline has 160 initial rows, 267 selected roles and sibling helper custody.
 Actual Source/Code review `418547fc` passes and both commits are published to
 dormant refs; no Data, registration or native acceptance is claimed. The closed
 receiver public-record diagnostic composition `22b2083e` passes 22 focused tests
-and is undergoing fresh whole-candidate review before selection. Historical four-package evidence
+and passes fresh whole-candidate review `1c4dd5da`. Root commits the six-file
+composition as Source `fb3c3b7d`; its actual Source/Data derivation review is
+pending before selection. Historical four-package evidence
 does not validate the current client product. Full R1–R5/M5–M9,
 installation/recovery, exact-machine and performance gates remain open.
 
