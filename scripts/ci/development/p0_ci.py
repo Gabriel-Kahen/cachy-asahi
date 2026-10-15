@@ -142,9 +142,10 @@ def mark_pipeline_failure(error, operation):
 
 DOWNLOAD_PREFIX='download-current-vim-v1-input-'
 DOWNLOAD_OPERATIONS=frozenset(DOWNLOAD_PREFIX+str(i).zfill(3) for i in range(501))
-DOWNLOAD_TYPES={'DL_HTTP_301': 'UNKNOWN', 'DL_HTTP_302': 'UNKNOWN', 'DL_HTTP_303': 'UNKNOWN', 'DL_HTTP_307': 'UNKNOWN', 'DL_HTTP_308': 'UNKNOWN', 'DL_HTTP_400': 'UNKNOWN', 'DL_HTTP_401': 'UNKNOWN', 'DL_HTTP_403': 'UNKNOWN', 'DL_HTTP_404': 'UNKNOWN', 'DL_HTTP_405': 'UNKNOWN', 'DL_HTTP_408': 'UNKNOWN', 'DL_HTTP_410': 'UNKNOWN', 'DL_HTTP_416': 'UNKNOWN', 'DL_HTTP_429': 'UNKNOWN', 'DL_HTTP_451': 'UNKNOWN', 'DL_HTTP_500': 'UNKNOWN', 'DL_HTTP_501': 'UNKNOWN', 'DL_HTTP_502': 'UNKNOWN', 'DL_HTTP_503': 'UNKNOWN', 'DL_HTTP_504': 'UNKNOWN', 'DL_HTTP_507': 'UNKNOWN', 'DL_HTTP_508': 'UNKNOWN', 'DL_HTTP_511': 'UNKNOWN', 'DL_HTTP_OTHER': 'UNKNOWN', 'DL_HTTP_UNKNOWN': 'UNKNOWN', 'DL_KBI_AFTER_PREP_ALRM': 'KeyboardInterrupt', 'DL_KBI_AFTER_UNATTRIBUTED': 'KeyboardInterrupt', 'DL_KBI_BEFORE_PREP_ALRM': 'KeyboardInterrupt', 'DL_KBI_BEFORE_UNATTRIBUTED': 'KeyboardInterrupt', 'DL_KBI_UNKNOWN_PREP_ALRM': 'KeyboardInterrupt', 'DL_KBI_UNKNOWN_UNATTRIBUTED': 'KeyboardInterrupt', 'DL_OSERROR': 'OSError', 'DL_OTHER': 'UNKNOWN', 'DL_RUNTIMEERROR': 'RuntimeError', 'DL_SYSTEMEXIT': 'SystemExit', 'DL_TIMEOUTERROR': 'OSError', 'DL_TYPEERROR': 'TypeError', 'DL_URLERROR': 'UNKNOWN', 'DL_VALUEERROR': 'ValueError', 'prep-download-cap': 'ValueError', 'prep-download-close-custody': 'ValueError', 'prep-download-domain': 'ValueError', 'prep-download-downgrade': 'ValueError', 'prep-download-fd': 'ValueError', 'prep-download-file': 'ValueError', 'prep-download-input': 'ValueError', 'prep-download-pin': 'ValueError', 'prep-download-progress': 'ValueError', 'prep-download-redirect': 'ValueError', 'prep-download-response-custody': 'ValueError', 'prep-download-target': 'ValueError', 'prep-fixed-four-no-HTTPS-fallback': 'ValueError'}
-DOWNLOAD_CODES=frozenset(('DL_HTTP_301', 'DL_HTTP_302', 'DL_HTTP_303', 'DL_HTTP_307', 'DL_HTTP_308', 'DL_HTTP_400', 'DL_HTTP_401', 'DL_HTTP_403', 'DL_HTTP_404', 'DL_HTTP_405', 'DL_HTTP_408', 'DL_HTTP_410', 'DL_HTTP_416', 'DL_HTTP_429', 'DL_HTTP_451', 'DL_HTTP_500', 'DL_HTTP_501', 'DL_HTTP_502', 'DL_HTTP_503', 'DL_HTTP_504', 'DL_HTTP_507', 'DL_HTTP_508', 'DL_HTTP_511', 'DL_HTTP_OTHER', 'DL_HTTP_UNKNOWN', 'DL_KBI_AFTER_PREP_ALRM', 'DL_KBI_AFTER_UNATTRIBUTED', 'DL_KBI_BEFORE_PREP_ALRM', 'DL_KBI_BEFORE_UNATTRIBUTED', 'DL_KBI_UNKNOWN_PREP_ALRM', 'DL_KBI_UNKNOWN_UNATTRIBUTED', 'DL_OSERROR', 'DL_OTHER', 'DL_RUNTIMEERROR', 'DL_SYSTEMEXIT', 'DL_TIMEOUTERROR', 'DL_TYPEERROR', 'DL_URLERROR', 'DL_VALUEERROR'))
+DOWNLOAD_TYPES= {'DL_HTTP_301': 'UNKNOWN', 'DL_HTTP_302': 'UNKNOWN', 'DL_HTTP_303': 'UNKNOWN', 'DL_HTTP_307': 'UNKNOWN', 'DL_HTTP_308': 'UNKNOWN', 'DL_HTTP_400': 'UNKNOWN', 'DL_HTTP_401': 'UNKNOWN', 'DL_HTTP_403': 'UNKNOWN', 'DL_HTTP_404': 'UNKNOWN', 'DL_HTTP_405': 'UNKNOWN', 'DL_HTTP_408': 'UNKNOWN', 'DL_HTTP_410': 'UNKNOWN', 'DL_HTTP_416': 'UNKNOWN', 'DL_HTTP_429': 'UNKNOWN', 'DL_HTTP_451': 'UNKNOWN', 'DL_HTTP_500': 'UNKNOWN', 'DL_HTTP_501': 'UNKNOWN', 'DL_HTTP_502': 'UNKNOWN', 'DL_HTTP_503': 'UNKNOWN', 'DL_HTTP_504': 'UNKNOWN', 'DL_HTTP_507': 'UNKNOWN', 'DL_HTTP_508': 'UNKNOWN', 'DL_HTTP_511': 'UNKNOWN', 'DL_HTTP_OTHER': 'UNKNOWN', 'DL_HTTP_UNKNOWN': 'UNKNOWN', 'DL_KBI_AFTER_PREP_ALRM': 'KeyboardInterrupt', 'DL_KBI_AFTER_UNATTRIBUTED': 'KeyboardInterrupt', 'DL_KBI_BEFORE_PREP_ALRM': 'KeyboardInterrupt', 'DL_KBI_BEFORE_UNATTRIBUTED': 'KeyboardInterrupt', 'DL_KBI_UNKNOWN_PREP_ALRM': 'KeyboardInterrupt', 'DL_KBI_UNKNOWN_UNATTRIBUTED': 'KeyboardInterrupt', 'DL_OSERROR': 'OSError', 'DL_OTHER': 'UNKNOWN', 'DL_RUNTIMEERROR': 'RuntimeError', 'DL_SYSTEMEXIT': 'SystemExit', 'DL_TIMEOUTERROR': 'OSError', 'DL_TYPEERROR': 'TypeError', 'DL_URLERROR': 'UNKNOWN', 'DL_VALUEERROR': 'ValueError', 'prep-download-cap': 'ValueError', 'prep-download-close-custody': 'ValueError', 'prep-download-domain': 'ValueError', 'prep-download-downgrade': 'ValueError', 'prep-download-fd': 'ValueError', 'prep-download-file': 'ValueError', 'prep-download-input': 'ValueError', 'prep-download-pin': 'ValueError', 'prep-download-progress': 'ValueError', 'prep-download-redirect': 'ValueError', 'prep-download-response-custody': 'ValueError', 'prep-download-target': 'ValueError', 'prep-fixed-four-no-HTTPS-fallback': 'ValueError', 'DL_GUARD_DEADLINE_BEFORE_OPEN': 'UNKNOWN', 'DL_GUARD_DEADLINE_BEFORE_CONNECT': 'UNKNOWN', 'DL_GUARD_DEADLINE_BEFORE_READ': 'UNKNOWN', 'DL_GUARD_DEADLINE_BEFORE_WRITE': 'UNKNOWN', 'DL_GUARD_DEADLINE_BEFORE_PUBLISH': 'UNKNOWN', 'DL_GUARD_DEADLINE_AFTER_PUBLISH': 'UNKNOWN'}
+DOWNLOAD_CODES=frozenset(('DL_HTTP_301', 'DL_HTTP_302', 'DL_HTTP_303', 'DL_HTTP_307', 'DL_HTTP_308', 'DL_HTTP_400', 'DL_HTTP_401', 'DL_HTTP_403', 'DL_HTTP_404', 'DL_HTTP_405', 'DL_HTTP_408', 'DL_HTTP_410', 'DL_HTTP_416', 'DL_HTTP_429', 'DL_HTTP_451', 'DL_HTTP_500', 'DL_HTTP_501', 'DL_HTTP_502', 'DL_HTTP_503', 'DL_HTTP_504', 'DL_HTTP_507', 'DL_HTTP_508', 'DL_HTTP_511', 'DL_HTTP_OTHER', 'DL_HTTP_UNKNOWN', 'DL_KBI_AFTER_PREP_ALRM', 'DL_KBI_AFTER_UNATTRIBUTED', 'DL_KBI_BEFORE_PREP_ALRM', 'DL_KBI_BEFORE_UNATTRIBUTED', 'DL_KBI_UNKNOWN_PREP_ALRM', 'DL_KBI_UNKNOWN_UNATTRIBUTED', 'DL_OSERROR', 'DL_OTHER', 'DL_RUNTIMEERROR', 'DL_SYSTEMEXIT', 'DL_TIMEOUTERROR', 'DL_TYPEERROR', 'DL_URLERROR', 'DL_VALUEERROR')) | frozenset(('DL_GUARD_DEADLINE_BEFORE_OPEN', 'DL_GUARD_DEADLINE_BEFORE_CONNECT', 'DL_GUARD_DEADLINE_BEFORE_READ', 'DL_GUARD_DEADLINE_BEFORE_WRITE', 'DL_GUARD_DEADLINE_BEFORE_PUBLISH', 'DL_GUARD_DEADLINE_AFTER_PUBLISH'))
 DOWNLOAD_GUARD_CODES=frozenset(('prep-download-cap', 'prep-download-close-custody', 'prep-download-domain', 'prep-download-downgrade', 'prep-download-fd', 'prep-download-file', 'prep-download-input', 'prep-download-pin', 'prep-download-progress', 'prep-download-redirect', 'prep-download-response-custody', 'prep-download-target', 'prep-fixed-four-no-HTTPS-fallback'))
+DOWNLOAD_GUARD_DEADLINES={'before-open': 'DL_GUARD_DEADLINE_BEFORE_OPEN', 'before-connect': 'DL_GUARD_DEADLINE_BEFORE_CONNECT', 'before-read': 'DL_GUARD_DEADLINE_BEFORE_READ', 'before-write': 'DL_GUARD_DEADLINE_BEFORE_WRITE', 'before-publish': 'DL_GUARD_DEADLINE_BEFORE_PUBLISH', 'after-publish': 'DL_GUARD_DEADLINE_AFTER_PUBLISH'}
 _DOWNLOAD_LATCH=None
 
 
@@ -674,7 +675,7 @@ class Preparation:
         except BaseException as error:
             if isinstance(error,KeyboardInterrupt):raise
 
-    def capture_download(self,error,ordinal,item):
+    def capture_download(self,error,ordinal,item,*,guard_phase=None):
         try:
             if self.download_failure is not None or type(ordinal) is not int or not 0<=ordinal<501:return
             if type(self.download_rows) is not tuple or len(self.download_rows)!=501 or item is not self.download_rows[ordinal]:return
@@ -705,9 +706,30 @@ class Preparation:
             if kind is ValueError:
                 args=BaseException.__dict__['args'].__get__(error)
                 if type(args) is tuple and len(args)==1 and type(args[0]) is str and args[0] in DOWNLOAD_GUARD_CODES:code=args[0]
+            # Only an exact Source-owned SDK deadline caught at this guard call.
+            if type(guard_phase) is str and guard_phase in DOWNLOAD_GUARD_DEADLINES:
+                owner_state=object.__getattribute__(self,'__dict__')
+                sdk=owner_state.get('sdk')
+                sdk_state=types.ModuleType.__dict__['__dict__'].__get__(sdk) if type(sdk) is types.ModuleType else None
+                if type(sdk_state) is dict and all(type(key) is str for key in sdk_state):
+                    refused=sdk_state.get('Refused')
+                    args=BaseException.__dict__['args'].__get__(error)
+                    if (type(refused) is type and kind is refused and type(args) is tuple and len(args)==1 and
+                        type(args[0]) is str and args[0]=='deadline'):
+                        code=DOWNLOAD_GUARD_DEADLINES[guard_phase]
             self.download_item=item
             self.download_failure=(error,ordinal,(DOWNLOAD_PREFIX+str(ordinal).zfill(3),code))
         except BaseException as secondary:download_fault(error,secondary)
+
+    def download_guard(self,ordinal,item,phase):
+        """Observe only a failure of this unchanged guard; never bypass its checks."""
+        try:self.guard()
+        except BaseException as error:
+            try:self.capture_download(error,ordinal,item,guard_phase=phase)
+            except BaseException as secondary:
+                try:download_fault(error,secondary)
+                except BaseException:pass
+            raise
 
     def cached(self,items,cache):
         need(cache==self.cache and len(items)==501 and len({item['filename'] for item in items})==501 and
@@ -733,7 +755,7 @@ class Preparation:
             need(type(item['size']) is int and 0<=item['size']<=2*1024**3 and
                  type(item['url']) is str and item['url'].startswith('https://'),'prep-download-input')
             need(item['filename'] not in OVERRIDE_ROWS,'prep-fixed-four-no-HTTPS-fallback')
-            pin(item['sha256']);self.guard()
+            pin(item['sha256']);self.download_guard(ordinal,item,'before-open')
             partial=target.with_name(target.name+'.'+self.plan['nonce']+'.partial')
             fd=held=response=response_held=None;first=None;opened=False;connecting=False
             try:
@@ -741,7 +763,7 @@ class Preparation:
                 node=os.fstat(fd);held=identity(node)[:6]
                 need(stat.S_ISREG(node.st_mode) and node.st_uid==os.geteuid() and node.st_nlink==1 and
                      stat.S_IMODE(node.st_mode)==0o600 and node.st_size==0,'prep-download-file')
-                self.guard();connecting=True
+                self.download_guard(ordinal,item,'before-connect');connecting=True
                 override=self.plan['url_overrides'].get(item['filename'])
                 url=override['url'] if override is not None else item['url']
                 domain=override['domain'] if override is not None else None
@@ -752,12 +774,12 @@ class Preparation:
                 if domain is not None:need(urllib.parse.urlsplit(response.url).hostname==domain,'prep-download-domain')
                 total=0;sha=hashlib.sha256()
                 while True:
-                    self.guard();chunk=response.read(65536)
+                    self.download_guard(ordinal,item,'before-read');chunk=response.read(65536)
                     if not chunk:break
                     total+=len(chunk);need(total<=item['size'],'prep-download-cap');sha.update(chunk)
                     offset=0
                     while offset<len(chunk):
-                        self.guard();need(identity(os.fstat(fd))[:6]==held,'prep-download-fd')
+                        self.download_guard(ordinal,item,'before-write');need(identity(os.fstat(fd))[:6]==held,'prep-download-fd')
                         count=os.write(fd,chunk[offset:]);need(type(count) is int and 0<count<=len(chunk)-offset,'prep-download-progress')
                         offset+=count
                 node=os.fstat(fd)
@@ -790,12 +812,12 @@ class Preparation:
             if first is not None:
                 mark_pipeline_failure(first, 'download-input')
                 raise first
-            self.guard();need(not target.exists() and not target.is_symlink() and identity(partial.lstat())==identity(node),
+            self.download_guard(ordinal,item,'before-publish');need(not target.exists() and not target.is_symlink() and identity(partial.lstat())==identity(node),
                               'prep-download-target')
             # Root-selected writer exclusion on the owned700 cache prevents a foreign replacement.
             try:partial.rename(target)
             except BaseException as error:raise merge(None,error)
-            self.guard()
+            self.download_guard(ordinal,item,'after-publish')
         except BaseException as error:
             self.capture_download(error,ordinal,item)
             mark_pipeline_failure(error,'download-input')
