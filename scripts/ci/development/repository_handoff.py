@@ -57,6 +57,31 @@ def need(value, reason):
         raise Refused(reason)
 
 
+GRANT_GUARDS = frozenset(['decode-duplicate', 'decode-number', 'decode-bytes', 'decode-object', 'grant-pin', 'grant-schema', 'contract-pin', 'job-identifier', 'original-view', 'policy-source-pin', 'policy-fields'])
+
+
+def attach_grant_guard(error, guard):
+    """Closed diagnostic only; preserve the existing refusal and its first label."""
+    try:
+        if type(error) is not Refused or type(guard) is not str or guard not in GRANT_GUARDS:
+            return
+        args = BaseException.__dict__['args'].__get__(error)
+        if type(args) is not tuple or len(args) != 1 or type(args[0]) is not str or args[0] != 'grant-refused':
+            return
+        state = BaseException.__dict__['__dict__'].__get__(error)
+        if type(state) is dict and all(type(key) is str for key in state) and 'nativeci_grant_guard' not in state:
+            state['nativeci_grant_guard'] = guard
+    except BaseException as secondary:
+        if type(secondary) is KeyboardInterrupt:
+            try:
+                state = BaseException.__dict__['__dict__'].__get__(error)
+                if type(state) is dict and all(type(key) is str for key in state):
+                    state['native_preflight_cancelled'] = True
+                    state['native_preflight_cleanup_uncertain'] = True
+            except BaseException:
+                pass
+
+
 def digest(raw):
     return hashlib.sha256(raw).hexdigest()
 
@@ -69,13 +94,30 @@ def decode(raw):
     def pairs(rows):
         value = {}
         for key, item in rows:
-            need(key not in value, 'grant-refused'); value[key] = item
+            try:
+                need(key not in value, 'grant-refused')
+            except BaseException as error:
+                attach_grant_guard(error, 'decode-duplicate')
+                raise
+            value[key] = item
         return value
     def invalid(_):
-        raise Refused('grant-refused')
-    need(type(raw) is bytes and 0 < len(raw) <= FILE_LIMIT, 'grant-refused')
+        try:
+            raise Refused('grant-refused')
+        except BaseException as error:
+            attach_grant_guard(error, 'decode-number')
+            raise
+    try:
+        need(type(raw) is bytes and 0 < len(raw) <= FILE_LIMIT, 'grant-refused')
+    except BaseException as error:
+        attach_grant_guard(error, 'decode-bytes')
+        raise
     value = json.loads(raw, object_pairs_hook=pairs, parse_float=invalid, parse_constant=invalid)
-    need(type(value) is dict, 'grant-refused')
+    try:
+        need(type(value) is dict, 'grant-refused')
+    except BaseException as error:
+        attach_grant_guard(error, 'decode-object')
+        raise
     return value
 
 
@@ -954,24 +996,40 @@ class Sources:
 def preflight(root, grant_raw, grant_pin, *, deadline):
     """Authenticate complete sources/maps/policy before executing project imports."""
     check(deadline)
-    need(type(grant_pin) is str and re.fullmatch('[0-9a-f]{64}', grant_pin) and
-         digest(grant_raw) == grant_pin, 'grant-refused')
+    try:
+        need(type(grant_pin) is str and re.fullmatch('[0-9a-f]{64}', grant_pin) and
+             digest(grant_raw) == grant_pin, 'grant-refused')
+    except BaseException as error:
+        attach_grant_guard(error, 'grant-pin')
+        raise
     grant = decode(grant_raw)
-    need(set(grant) == {'schema_version', 'purpose', 'source_peer_preflight', 'development_only',
-        'added_seconds', 'source_commit', 'recipe_source_commit', 'run_id', 'run_attempt',
-        'source_files', 'maps', 'callbacks', 'policy_path', 'license_path','actor_contract_sha256',
-        'initial_invocation_sha256','original_view'} and
-        type(grant['schema_version']) is int and grant['schema_version'] == 2 and
-        grant['purpose'] in (('reviewed-installer-P0-execution','reviewed-installer-P0-preparation') if type(grant.get('original_view')) is dict and grant['original_view'].get('purpose') == 'P0-157-held-2-overlay-copy-view' else ('reviewed-same-job-handoff-execution',)) and
-        grant['source_peer_preflight'] == 'PASS' and grant['development_only'] is True and
-        type(grant['added_seconds']) is int and grant['added_seconds'] == (0 if type(grant.get('original_view')) is dict and grant['original_view'].get('purpose') == 'P0-157-held-2-overlay-copy-view' else 1200) and
-        type(grant['maps']) is dict and set(grant['maps']) == set(PREFIXES) and
-        type(grant['callbacks']) is dict and set(grant['callbacks']) == CALLBACKS, 'grant-refused')
+    try:
+        need(set(grant) == {'schema_version', 'purpose', 'source_peer_preflight', 'development_only',
+            'added_seconds', 'source_commit', 'recipe_source_commit', 'run_id', 'run_attempt',
+            'source_files', 'maps', 'callbacks', 'policy_path', 'license_path','actor_contract_sha256',
+            'initial_invocation_sha256','original_view'} and
+            type(grant['schema_version']) is int and grant['schema_version'] == 2 and
+            grant['purpose'] in (('reviewed-installer-P0-execution','reviewed-installer-P0-preparation') if type(grant.get('original_view')) is dict and grant['original_view'].get('purpose') == 'P0-157-held-2-overlay-copy-view' else ('reviewed-same-job-handoff-execution',)) and
+            grant['source_peer_preflight'] == 'PASS' and grant['development_only'] is True and
+            type(grant['added_seconds']) is int and grant['added_seconds'] == (0 if type(grant.get('original_view')) is dict and grant['original_view'].get('purpose') == 'P0-157-held-2-overlay-copy-view' else 1200) and
+            type(grant['maps']) is dict and set(grant['maps']) == set(PREFIXES) and
+            type(grant['callbacks']) is dict and set(grant['callbacks']) == CALLBACKS, 'grant-refused')
+    except BaseException as error:
+        attach_grant_guard(error, 'grant-schema')
+        raise
     for key in ('actor_contract_sha256','initial_invocation_sha256'):
-        need(type(grant[key]) is str and re.fullmatch('[0-9a-f]{64}',grant[key]),'grant-refused')
+        try:
+            need(type(grant[key]) is str and re.fullmatch('[0-9a-f]{64}',grant[key]),'grant-refused')
+        except BaseException as error:
+            attach_grant_guard(error, 'contract-pin')
+            raise
     for key, pattern in {'source_commit':'[0-9a-f]{40}', 'recipe_source_commit':'[0-9a-f]{40}',
                         'run_id':'[1-9][0-9]{0,19}', 'run_attempt':'[1-9][0-9]{0,9}'}.items():
-        need(type(grant[key]) is str and re.fullmatch(pattern, grant[key]), 'grant-refused')
+        try:
+            need(type(grant[key]) is str and re.fullmatch(pattern, grant[key]), 'grant-refused')
+        except BaseException as error:
+            attach_grant_guard(error, 'job-identifier')
+            raise
     sources = Sources(root, grant, deadline)
     initial = 'scripts/ci/integration.lock.json'
     need(initial in sources.raw and digest(sources.raw[initial]) == INITIAL, 'source-refused')
@@ -982,21 +1040,33 @@ def preflight(root, grant_raw, grant_pin, *, deadline):
         need(all(grant['source_files'].get(P0_OVERLAY_SOURCE_IDS[name]) == row for name,row in P0_OVERLAY_ROWS.items()),'source-refused')
     view = grant['original_view']
     overlay_view = type(view) is dict and view.get('purpose') == 'P0-157-held-2-overlay-copy-view'
-    need(type(view) is dict and set(view) == {'schema_version','purpose','full_source_root','root',
-         'integration_lock_sha256','source_rows_sha256','file_count','argv_mode'} | ({'source_overlay'} if overlay_view else set()) and
-         type(view['schema_version']) is int and view['schema_version'] == 1 and
-         view['purpose'] == ('P0-157-held-2-overlay-copy-view' if overlay_view else 'original-159-copy-view') and
-        (not overlay_view or view['source_overlay'] == P0_OVERLAY_ROWS) and view['full_source_root'] == str(sources.root) and
-         type(view['root']) is str and Path(view['root']).is_absolute() and '..' not in Path(view['root']).parts and
-         view['integration_lock_sha256'] == INITIAL and
-         view['source_rows_sha256'] == digest(encoded(selected_view_rows(sources))) and
-         type(view['file_count']) is int and view['file_count'] == 160 and
-         view['argv_mode'] == ('absolute-P0-overlay-metadata' if overlay_view else 'absolute-view-metadata'),'grant-refused')
+    try:
+        need(type(view) is dict and set(view) == {'schema_version','purpose','full_source_root','root',
+             'integration_lock_sha256','source_rows_sha256','file_count','argv_mode'} | ({'source_overlay'} if overlay_view else set()) and
+             type(view['schema_version']) is int and view['schema_version'] == 1 and
+             view['purpose'] == ('P0-157-held-2-overlay-copy-view' if overlay_view else 'original-159-copy-view') and
+            (not overlay_view or view['source_overlay'] == P0_OVERLAY_ROWS) and view['full_source_root'] == str(sources.root) and
+             type(view['root']) is str and Path(view['root']).is_absolute() and '..' not in Path(view['root']).parts and
+             view['integration_lock_sha256'] == INITIAL and
+             view['source_rows_sha256'] == digest(encoded(selected_view_rows(sources))) and
+             type(view['file_count']) is int and view['file_count'] == 160 and
+             view['argv_mode'] == ('absolute-P0-overlay-metadata' if overlay_view else 'absolute-view-metadata'),'grant-refused')
+    except BaseException as error:
+        attach_grant_guard(error, 'original-view')
+        raise
     for path, pin in ((grant['policy_path'], POLICY), (grant['license_path'], LICENSE)):
-        need(relative(path) in sources.raw and digest(sources.raw[path]) == pin, 'grant-refused')
+        try:
+            need(relative(path) in sources.raw and digest(sources.raw[path]) == pin, 'grant-refused')
+        except BaseException as error:
+            attach_grant_guard(error, 'policy-source-pin')
+            raise
     policy = decode(sources.raw[grant['policy_path']])
-    need(policy.get('supported_models') == [] and policy.get('platform_scope') == 'generic-builder-only'
-         and policy.get('review_status') == 'ACCEPTED', 'grant-refused')
+    try:
+        need(policy.get('supported_models') == [] and policy.get('platform_scope') == 'generic-builder-only'
+             and policy.get('review_status') == 'ACCEPTED', 'grant-refused')
+    except BaseException as error:
+        attach_grant_guard(error, 'policy-fields')
+        raise
     for role, prefix in PREFIXES.items():
         row = grant['maps'][role]
         need(type(row) is dict and set(row) == {'path', 'sha256'} and relative(row['path']) in sources.raw

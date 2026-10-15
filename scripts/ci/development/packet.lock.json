@@ -1766,7 +1766,7 @@
     },
     "scripts/ci/development/p0_ci.py": {
       "mode": 420,
-      "sha256": "67021e3e4e8b7c23cb6db5ffef7b29b6032e5b8a996b04c1b814e17c3762365f"
+      "sha256": "96f0a063f42d51cb16aa6078e0201857bbb7b27a3eb1c5303860149c2caf659c"
     },
     "scripts/ci/development/p0_integration.py": {
       "mode": 420,
@@ -1786,7 +1786,7 @@
     },
     "scripts/ci/development/repository_handoff.py": {
       "mode": 420,
-      "sha256": "255bf682055f6095bdecba6fba3825e53dbffc38be5a75219135133939344ad1"
+      "sha256": "24b2f9d8bd8ee38f2d12010c0fc6ce3559cc868635a6b714c9dd2695ce0eece0"
     },
     "scripts/ci/development/test_base_stages.py": {
       "mode": 420,
@@ -1990,11 +1990,11 @@
     },
     "scripts/install/native_preflight.py": {
       "mode": 420,
-      "sha256": "9850f9bf89f7466efbaf26149d6c8e60f4dcd699b35a809737c98b89883bee15"
+      "sha256": "c0ae7e144d70e2d675be92f18579c9efa8182d34d087c0fefcd589c88c6ca1f7"
     },
     "scripts/install/p0_entry.py": {
       "mode": 420,
-      "sha256": "5ef2aa90ce866d7395f43e470ac9133785b3e6e78886714f79f2c59bf688f538"
+      "sha256": "147d09effa53be763ca49b47fa0838ad4bccf45353ef0f613e8141d8abff4f14"
     },
     "scripts/install/test_local_transaction.py": {
       "mode": 420,

@@ -35,11 +35,51 @@ INPUT_NAMES=('plan.json','packet.json','grant.json','runtime.json','prepared-ima
 MODULES=(('packet','scripts/ci/development/packet.py'),('common','scripts/ci/development/common.py'),
          ('development_p0_controller','scripts/ci/development/controller.py'),
          ('development_repository_handoff','scripts/ci/development/repository_handoff.py'))
-PROJECT_BOOTSTRAP_ROWS = {'scripts/ci/development/packet.py': {'bytes': 35461, 'mode': 420, 'sha256': '0f707c34abbf6ec4646368d643116d687394ebf743ead13d254c3c4688df5b34'}, 'scripts/ci/development/common.py': {'bytes': 16893, 'mode': 420, 'sha256': 'a9fd67f8ca192a5d27f95377fae3804a2ae69f6675440b1104c4411a35dc8a12'}, 'scripts/ci/development/controller.py': {'bytes': 99358, 'mode': 420, 'sha256': 'c3dffddf28c5fee3dd5d11d2de7fa14a78c17a61d0345864ae511b86bbcdeab5'}, 'scripts/ci/development/repository_handoff.py': {'bytes': 140653, 'mode': 420, 'sha256': '255bf682055f6095bdecba6fba3825e53dbffc38be5a75219135133939344ad1'}}
+PROJECT_BOOTSTRAP_ROWS = {'scripts/ci/development/packet.py': {'bytes': 35461, 'mode': 420, 'sha256': '0f707c34abbf6ec4646368d643116d687394ebf743ead13d254c3c4688df5b34'}, 'scripts/ci/development/common.py': {'bytes': 16893, 'mode': 420, 'sha256': 'a9fd67f8ca192a5d27f95377fae3804a2ae69f6675440b1104c4411a35dc8a12'}, 'scripts/ci/development/controller.py': {'bytes': 99358, 'mode': 420, 'sha256': 'c3dffddf28c5fee3dd5d11d2de7fa14a78c17a61d0345864ae511b86bbcdeab5'}, 'scripts/ci/development/repository_handoff.py': {'bytes': 143422, 'mode': 420, 'sha256': '24b2f9d8bd8ee38f2d12010c0fc6ce3559cc868635a6b714c9dd2695ce0eece0'}}
 
 
 def need(value,code):
     if not value:raise ValueError(code)
+
+
+SDK_GRANT_GUARDS = frozenset(['decode-duplicate', 'decode-number', 'decode-bytes', 'decode-object', 'grant-pin', 'grant-schema', 'contract-pin', 'job-identifier', 'original-view', 'policy-source-pin', 'policy-fields'])
+
+
+def attach_sdk_preflight(error, boundary):
+    """Closed boundary/guard facts only; foreign metadata grants no authority."""
+    try:
+        if type(boundary) is not str or boundary not in ('preparation-sdk-preflight', 'P0-sdk-preflight'):
+            return
+        state = BaseException.__dict__['__dict__'].__get__(error)
+        if type(state) is not dict or not all(type(key) is str for key in state) or 'nativeci_diagnostic' in state:
+            return
+        guard = state.get('nativeci_grant_guard')
+        operation = guard if type(guard) is str and guard in SDK_GRANT_GUARDS else 'preflight'
+        kind = 'UNKNOWN'
+        for exact, label in ((ValueError, 'ValueError'), (TypeError, 'TypeError'), (RuntimeError, 'RuntimeError'),
+            (OSError, 'OSError'), (FileNotFoundError, 'OSError'), (PermissionError, 'OSError'),
+            (IsADirectoryError, 'OSError'), (NotADirectoryError, 'OSError'), (BlockingIOError, 'OSError'),
+            (ChildProcessError, 'OSError'), (ProcessLookupError, 'OSError'), (TimeoutError, 'OSError'),
+            (ConnectionError, 'OSError'), (BrokenPipeError, 'OSError'), (ConnectionAbortedError, 'OSError'),
+            (ConnectionRefusedError, 'OSError'), (ConnectionResetError, 'OSError'),
+            (FileExistsError, 'OSError'), (InterruptedError, 'OSError'),
+            (KeyboardInterrupt, 'KeyboardInterrupt'), (SystemExit, 'SystemExit')):
+            if type(error) is exact:
+                kind = label
+                break
+        args = BaseException.__dict__['args'].__get__(error)
+        code = 'grant-refused' if type(args) is tuple and len(args) == 1 and type(args[0]) is str and args[0] == 'grant-refused' else 'UNKNOWN'
+        state['nativeci_diagnostic'] = {'schema_version': 1, 'stage': boundary, 'operation': operation,
+                                      'exception_type': kind, 'refusal_code': code}
+    except BaseException as secondary:
+        if type(secondary) is KeyboardInterrupt:
+            try:
+                state = BaseException.__dict__['__dict__'].__get__(error)
+                if type(state) is dict and all(type(key) is str for key in state):
+                    state['native_preflight_cancelled'] = True
+                    state['native_preflight_cleanup_uncertain'] = True
+            except BaseException:
+                pass
 
 
 def finite(value):
@@ -350,7 +390,11 @@ def run(*,entry,outer_end,expected_source_commit,source_root,private_root,output
         timer=True;signal.setitimer(signal.ITIMER_REAL,end-time.monotonic());live(end)
         need(packet.preflight_composed(root,root/packet.LOCK,input_pins['packet.json'],expected_source_commit,
              composition=COMPOSITION)==source_packet,'p0-packet-drift')
-        sources=sdk.preflight(root,raw['grant.json'],input_pins['grant.json'],deadline=end)
+        try:
+            sources=sdk.preflight(root,raw['grant.json'],input_pins['grant.json'],deadline=end)
+        except BaseException as error:
+            attach_sdk_preflight(error, 'P0-sdk-preflight')
+            raise
         need(grant['callbacks']['existing_consumers']=={'path':'scripts/ci/development/controller.py',
              'module':controller.__name__,'qualname':'Development.consume_p0'},'p0-callback')
         invocation=argv(output,cache,source_packet['metadata_pins'])
@@ -682,7 +726,11 @@ class Preparation:
 def prep_sources(root,source_packet,grant_raw,grant_pin,end,registered):
     """Select exactly authenticated Sources; no broad Session.execute is used."""
     # Fixed four-unit bootstrap is still literal/body-bound by the outer entry.
-    sdk=sys.modules['root_p0_prep_sdk'];sources=sdk.preflight(root,grant_raw,grant_pin,deadline=end)
+    try:
+        sdk=sys.modules['root_p0_prep_sdk'];sources=sdk.preflight(root,grant_raw,grant_pin,deadline=end)
+    except BaseException as error:
+        attach_sdk_preflight(error, 'preparation-sdk-preflight')
+        raise
     need(type(sources) is sdk.Sources and sources.grant['purpose']=='reviewed-installer-P0-preparation' and
          sources.grant['source_files']==source_packet['source_files'],'prep-authority')
     sources.guard(end)
