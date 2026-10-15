@@ -42,6 +42,8 @@ class ClientsReply(unittest.TestCase):
             env = {'XDG_RUNTIME_DIR': str(runtime)}
             with patch('guest.LoggedProcess', side_effect=launch), patch('guest.wait_for_ipc', return_value=env), \
                  patch('guest.image_decode_preflight'), patch('guest.bounded', side_effect=bounded), \
+                 patch('guest.capture_window', side_effect=lambda stage, monitors, clients, check: (check(), guest.emit('frame_ready', stage=stage, monitors=monitors, clients=clients))), \
+                 patch('guest.shutdown_compositor', side_effect=lambda env, compositor, check: (check(), compositor.wait(timeout=15))), \
                  patch('guest.query_clients', side_effect=query_clients), \
                  patch('guest.terminate', side_effect=terminate), patch('guest.time.monotonic', side_effect=clock), \
                  patch('guest.time.sleep'), patch('guest.emit') as events:

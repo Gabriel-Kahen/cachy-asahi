@@ -233,8 +233,9 @@ def mapped_client(row, pid):
             all(type(value) is int and value > 0 for value in size))
 
 
-def query_clients(env, deadline, check):
-    """Keep one private clients request alive within the original mapping budget."""
+def private_ipc(env, request, deadline, check, deadline_message):
+    """Only the two fixed proof requests, within their caller's existing budget."""
+    require(request in (b'j/clients', b'/dispatch hl.dsp.exit()'), 'unsupported private IPC request')
     runtime = Path(env['XDG_RUNTIME_DIR'])
     instance = env['HYPRLAND_INSTANCE_SIGNATURE']
     require(type(instance) is str and re.fullmatch(r'[A-Za-z0-9_.-]+', instance),
@@ -242,35 +243,67 @@ def query_clients(env, deadline, check):
     path = runtime / 'hypr' / instance / '.socket.sock'
     require(list(runtime.glob('hypr/*/.socket.sock')) == [path] and path.is_socket() and
             all(not p.is_symlink() for p in (path, *path.parents)), 'private compositor socket required')
-    start = time.monotonic()
     reply = bytearray()
     def remaining():
         check()
         value = deadline - time.monotonic()
-        require(value > 0, 'Wayland client mapping deadline')
+        require(value > 0, deadline_message)
         return value
     with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as connection:
         connection.settimeout(min(.25, remaining()))
         connection.connect(str(path))
         connection.settimeout(min(.25, remaining()))
-        connection.sendall(b'j/clients')
+        connection.sendall(request)
         while True:
             connection.settimeout(min(.25, remaining()))
             try:
                 block = connection.recv(min(65536, MAX_LOG + 1 - len(reply)))
             except TimeoutError:
                 continue
-            require(len(reply) + len(block) <= MAX_LOG, 'clients IPC reply overflow')
+            require(len(reply) + len(block) <= MAX_LOG, 'private IPC reply overflow')
             if not block:
                 break
             reply.extend(block)
         remaining()
+    return bytes(reply)
+
+
+def query_clients(env, deadline, check):
+    start = time.monotonic()
+    reply = private_ipc(env, b'j/clients', deadline, check, 'Wayland client mapping deadline')
     clients = json.loads(reply.decode('utf-8'))
     require(type(clients) is list and all(type(row) is dict for row in clients), 'invalid clients IPC reply')
-    remaining()
+    check()
+    require(time.monotonic() < deadline, 'Wayland client mapping deadline')
     emit('client_ipc', transport='private-unix-socket', request='j/clients',
          elapsed_ms=int((time.monotonic() - start) * 1000), stdout=reply.decode('utf-8'))
     return clients
+
+
+def capture_window(stage, monitors, clients, check):
+    # Spend the first 5s of the existing 15s live window before QMP capture.
+    # Mapping alone does not mean a queued output update is already visible.
+    start = time.monotonic()
+    until, emitted = start + 15, False
+    while time.monotonic() < until:
+        check()
+        now = time.monotonic()
+        require(now < until, 'capture window expired before snapshot')
+        if not emitted and now >= start + 5:
+            emit('frame_ready', stage=stage, monitors=monitors, clients=clients)
+            emitted = True
+        time.sleep(min(.25, max(0, until - time.monotonic())))
+    require(emitted, 'capture window expired before snapshot')
+
+
+def shutdown_compositor(env, compositor, check):
+    deadline = time.monotonic() + 15
+    reply = private_ipc(env, b'/dispatch hl.dsp.exit()', deadline, check, 'compositor shutdown deadline')
+    require(reply == b'ok', 'compositor exit acknowledgement differs')
+    remaining = deadline - time.monotonic()
+    require(remaining > 0, 'compositor shutdown deadline')
+    compositor.wait(timeout=remaining)
+    require(compositor.returncode == 0 and time.monotonic() < deadline, 'unclean compositor shutdown')
 
 
 def terminate(process):
@@ -379,23 +412,21 @@ def phase(stage, config, env, root, *, nonce=None):
             time.sleep(.5)
         else:
             raise ValueError('Wayland client mapping deadline')
-        emit('frame_ready', stage=stage, monitors=monitors, clients=clients)
-        # Fixed window for outer QMP capture; no network or host IPC.
-        until = time.monotonic() + 15
-        while time.monotonic() < until:
+        def check_capture():
             check_logs()
             require(alive() and
                     log.stat().st_size <= MAX_LOG and client_log.stat().st_size <= MAX_LOG,
                     'session failed/overflowed during capture window')
-            time.sleep(.25)
+        capture_window(stage, monitors, clients, check_capture)
         terminate(client)
         client = None
         collectors[-1].finish()
         retained(client_log, stage)
         client_retained = True
-        command(['/usr/bin/hyprctl', 'dispatch', 'exit'], env)
-        compositor.wait(timeout=15)
-        require(compositor.returncode == 0, 'unclean compositor shutdown')
+        def check_shutdown():
+            check_logs()
+            require(log.stat().st_size <= MAX_LOG, 'compositor log overflow during shutdown')
+        shutdown_compositor(env, compositor, check_shutdown)
         emit('phase_pass', stage=stage)
     finally:
         failure = sys.exc_info()[1]

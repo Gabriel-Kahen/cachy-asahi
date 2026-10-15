@@ -760,6 +760,8 @@ class GuestDiagnostics(unittest.TestCase):
                 with patch('guest.LoggedProcess', side_effect=launch), \
                         patch('guest.wait_for_ipc', side_effect=phase_failure, return_value=env), \
                         patch('guest.image_decode_preflight'), \
+                        patch('guest.capture_window', side_effect=lambda stage, monitors, clients, check: (check(), guest.emit('frame_ready', stage=stage, monitors=monitors, clients=clients))), \
+                        patch('guest.shutdown_compositor', side_effect=lambda env, compositor, check: (check(), command(['/usr/bin/hyprctl', 'dispatch', 'exit'], env), compositor.wait(timeout=15))), \
                         patch('guest.query_clients', side_effect=lambda env, deadline, check: (check(), json.loads(command(['/usr/bin/hyprctl', '-j', 'clients'], env)))[1]), \
                         patch('guest.command', side_effect=command), patch('guest.terminate', side_effect=reap), \
                         patch('guest.time.monotonic', side_effect=[0, 0, 0, 0, 16]), \
@@ -889,6 +891,8 @@ class GuestProcessDiagnostics(unittest.TestCase):
                 with patch('guest.LoggedProcess', side_effect=launch), \
                         patch('guest.wait_for_ipc', return_value={'XDG_RUNTIME_DIR': str(runtime)}), \
                         patch('guest.image_decode_preflight'), \
+                        patch('guest.capture_window', side_effect=lambda stage, monitors, clients, check: (check(), guest.emit('frame_ready', stage=stage, monitors=monitors, clients=clients))), \
+                        patch('guest.shutdown_compositor', side_effect=lambda env, compositor, check: (check(), command(['/usr/bin/hyprctl', 'dispatch', 'exit'], env), compositor.wait(timeout=15))), \
                         patch('guest.query_clients', side_effect=lambda env, deadline, check: (check(), json.loads(command(['/usr/bin/hyprctl', '-j', 'clients'], env)))[1]), \
                         patch('guest.command', side_effect=command), patch('guest.terminate', side_effect=terminate), \
                         patch('guest.time.monotonic', return_value=0), patch('guest.time.sleep'), \
