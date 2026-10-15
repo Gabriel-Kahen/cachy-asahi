@@ -2,6 +2,49 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 15, current integration frontier (Root snapshot):
+The corrected offline reader for failed desktop trial
+[38746698027](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38746698027)
+now reveals `LIFECYCLE_CONTRACT / VALIDATE_CONTRACT_16`. The
+[helper-inventory fix](https://github.com/Gabriel-Kahen/cachy-asahi/commit/16aefa06503a0cbfed5a0a223fe76501799924b9)
+is published on `codex/desktop-lifecycle-helper-v1`; no product rerun has occurred.
+Next: exercise the corrected lifecycle path in the native integration job.
+
+Updater trial
+[38748257957](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38748257957)
+failed at `private-scan / private-directory-identity`, reporting predicate group
+`OPEN_FD_IDENTITY/MODE/DESCENDANT`. Its cleanup component passed; compilation
+remains NOT ATTESTED. The [focused correction](https://github.com/Gabriel-Kahen/cachy-asahi/commit/7a9c65c729fd4839f85165642c8d5ab4cf483cef)
+is published on `codex/updater-directory-mode-v1`, with 20 passing focused tests
+and one independent review. Next: rerun the corrected native updater path.
+
+The [SQLite 3.54.0 source refresh](https://github.com/Gabriel-Kahen/cachy-asahi/commit/2643e1755d402399035976d1f12cd4e8296148bd)
+is published on `codex/seed93-sqlite-refresh-v1`. Actual93 authentication
+`sqlite02` finished with natural return 1: 91/93 verified, including SQLite and
+which, then zlib acquisition failed with HTTPError; its HTTP code was not
+exported. zstd is NOT RUN. The 91-item public cache was retained; separate fresh
+isolated-GPG child cleanup passed. The original attempt stopped at 89/93 with
+SQLite HTTP404. Next: resolve the exact pinned zlib location and complete the
+remaining authentication before using the full input set.
+
+The [P0 held-interval Source](https://github.com/Gabriel-Kahen/cachy-asahi/commit/e93aa99cc6e77dc522c7ae053e2c9aa131e6991a)
+is published on `codex/p0-held-source-interval-v1`. Its next ARM retry awaits
+the input carriers. Publication does not establish preparation, P0 or native
+matrix acceptance. Next: supply the carriers and run the changed ARM attempt.
+
+KSM trial
+[38753691479](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38753691479)
+is active after all five publication/dispatch stages returned naturally with
+zero. Next: inspect the actual lifecycle and cleanup outcome; stage returns
+alone do not establish native lifecycle acceptance.
+
+FDK's accepted historical native pair remains recorded, but the current recipe
+differs from that tested recipe. Current native_build stays NOT RUN and release
+selection stays false. Next: reconcile and build the exact current recipe;
+provider/PipeWire integration, target installation/removal/recovery, physical
+16KiB/M2 execution and measured performance remain unaccepted. The package
+inventory is unchanged. Full-roadmap and hardware gates remain unfinished.
+
 October 15, maintained desktop archive-authentication adapter:
 The current 341-to-574 metadata resolution now has a separately pinned adapter
 for the unchanged 233 added archives. It checks the exact current nine-file
