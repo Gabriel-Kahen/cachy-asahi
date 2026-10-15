@@ -28,9 +28,12 @@ The notice-only candidates speakersafetyd 2.0.1-3, bankstown 1.1.0-4 and
 triforce-lv2 0.3.2-3 add the same pinned notice input, copying only 3/3/4 regular
 mode 0644 license files. Their upstream sources, Cargo locks, vendor closure,
 J504 patch, exact 350-package toolchain and frozen/offline build flags remain
-unchanged. New native builds and byte pairs are NOT RUN. Run 38789573004 and
-the audio593 trial using the older archives remain evidence for
-2.0.1-2/1.1.0-3/0.3.2-2.
+unchanged. [Native run38801968699](../../docs/validation/asahi-audio-rust-notices-native-20261015.md)
+passes six builds and three byte-identical pairs, with all ten notices present
+and unchanged compiled payload hashes. This result does not execute or install
+the plugins/daemon. Run38789573004 and the historical audio593 transaction
+remain evidence for2.0.1-2/1.1.0-3/0.3.2-2; the current-version transaction is
+separate unfinished validation.
 
 Triforce's proposed package metadata summarizes the GNU GPLv3 combination and
 its Apache/MIT/Zlib/Unicode component terms; its upstream GPL-2.0-or-later
