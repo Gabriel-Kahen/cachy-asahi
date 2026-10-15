@@ -3,6 +3,8 @@
 import ast
 import copy
 import importlib.util
+import json
+import shlex
 from pathlib import Path
 import os
 import stat
@@ -17,6 +19,41 @@ spec.loader.exec_module(runtime)
 
 
 class RuntimeTests(unittest.TestCase):
+    def test_event_tail_preserves_partial_writes_and_rejects_malformed_records(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / 'events.log'
+            event = dict(event='process_exit', logs=[dict(tail_base64='A' * 6000)])
+            raw = (runtime.PREFIX + json.dumps(event) + '\n').encode()
+            path.write_bytes(raw[:4095])
+            offset, pending, events = runtime.read_events(path, 0, b'')
+            self.assertEqual((offset, pending, events), (4095, raw[:4095], []))
+            with path.open('ab') as stream:
+                stream.write(raw[4095:])
+                stream.write((runtime.PREFIX + '{"event":"boot"}\n').encode())
+            offset, pending, events = runtime.read_events(path, offset, pending)
+            self.assertEqual((offset, pending, events), (path.stat().st_size, b'', [event, dict(event='boot')]))
+            for bad in (b'DESKTOP574_EVENT {"event":\n', b'[45.46] [drm] kernel message\n'):
+                path.write_bytes(bad)
+                with self.assertRaises(ValueError):
+                    runtime.read_events(path, 0, b'')
+            path.write_bytes(b'12345')
+            with patch.object(runtime, 'MAX_EVENTS', 4):
+                with self.assertRaisesRegex(ValueError, 'event log overflow'):
+                    runtime.read_events(path, 0, b'')
+
+    def test_structured_events_have_a_separate_nonconsole_channel(self):
+        cmd = runtime.qemu_command('sha256:' + 'a' * 64, 'owned', Path('/task/out'), Path('/task/src'), Path('/task/runner'))
+        args = shlex.split(cmd[-1])
+        self.assertEqual(args[args.index('-serial') + 1], 'stdio')
+        self.assertEqual(args[args.index('-chardev') + 1], 'file,id=events,path=/out/events.log')
+        devices = [args[i + 1] for i, arg in enumerate(args) if arg == '-device']
+        self.assertIn('virtio-serial-pci,id=eventserial', devices)
+        self.assertIn('virtserialport,bus=eventserial.0,chardev=events,name=desktop574.events', devices)
+        kernel = args[args.index('-append') + 1].split()
+        self.assertIn('console=ttyAMA0', kernel)
+        self.assertIn('cachy_asahi_desktop574=1', kernel)
+        self.assertIn('cachy_asahi_virtual_proof=1', kernel)
+
     def test_inventory_rejects_duplicate_and_malformed_rows(self):
         for text in ('', 'a 1\na 2\n', 'a 1 extra\n'):
             with self.subTest(text=text), self.assertRaises(ValueError):

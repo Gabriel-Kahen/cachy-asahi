@@ -17,6 +17,7 @@ import time
 
 ENV = {'PATH': '/usr/bin:/bin', 'LANG': 'C.UTF-8', 'LC_ALL': 'C.UTF-8'}
 PREFIX = 'DESKTOP574_EVENT '
+MAX_EVENTS = 8 * 1024**2
 
 
 def require(ok, message):
@@ -52,6 +53,23 @@ def ppm(path):
             'sha256': hashlib.sha256(data).hexdigest()}
 
 
+def read_events(path, offset, pending):
+    """Tail complete records from the dedicated port; retain partial writes."""
+    with path.open('rb') as stream:
+        stream.seek(offset)
+        data = stream.read(MAX_EVENTS + 1 - offset)
+    offset += len(data)
+    require(offset <= MAX_EVENTS, 'guest event log overflow')
+    pending += data
+    events = []
+    while b'\n' in pending:
+        raw, pending = pending.split(b'\n', 1)
+        line = raw.decode().strip()
+        require(line.startswith(PREFIX), 'unexpected dedicated event record')
+        events.append(json.loads(line[len(PREFIX):]))
+    return offset, pending, events
+
+
 def log_complete(collector, path, offset):
     """Join the final output drain before treating a child exit as log EOF."""
     if collector.process.poll() is None:
@@ -85,7 +103,7 @@ def qemu_command(image, name, out, source, runner):
     """Keep QEMU snapshot files on the container's existing private tmpfs."""
     cmd = docker_args(image, name, out, source, runner)
     cmd[-2:-2] = ['--env=TMPDIR=/tmp/desktop574-qemu']
-    cmd += ['-c', 'mkdir -m 700 -- "$TMPDIR" && exec qemu-system-aarch64 -nodefaults -machine virt-11.1 -accel tcg -cpu max -smp 2 -m 4096 -kernel /out/Image -append "console=ttyAMA0 root=/dev/vda rw systemd.unit=desktop574.target cachy_asahi_desktop574=1 cachy_asahi_virtual_proof=1" -drive if=none,id=root,file=/out/guest.raw,format=raw,snapshot=on -device virtio-blk-pci,drive=root -device virtio-gpu-pci,id=gpu,xres=1024,yres=768 -nic none -display none -audiodev none,id=noaudio -monitor none -serial stdio -qmp unix:/out/qmp.sock,server=on,wait=off']
+    cmd += ['-c', 'mkdir -m 700 -- "$TMPDIR" && exec qemu-system-aarch64 -nodefaults -machine virt-11.1 -accel tcg -cpu max -smp 2 -m 4096 -kernel /out/Image -append "console=ttyAMA0 root=/dev/vda rw systemd.unit=desktop574.target cachy_asahi_desktop574=1 cachy_asahi_virtual_proof=1" -drive if=none,id=root,file=/out/guest.raw,format=raw,snapshot=on -device virtio-blk-pci,drive=root -device virtio-gpu-pci,id=gpu,xres=1024,yres=768 -nic none -display none -audiodev none,id=noaudio -monitor none -serial stdio -device virtio-serial-pci,id=eventserial -chardev file,id=events,path=/out/events.log -device virtserialport,bus=eventserial.0,chardev=events,name=desktop574.events -qmp unix:/out/qmp.sock,server=on,wait=off']
     return cmd
 
 
@@ -240,20 +258,15 @@ def main():
         name = 'desktop574-vm-' + os.urandom(8).hex(); containers.append(name)
         cmd = qemu_command(derived, name, fixture, source, runner)
         frames = out / 'frames'; frames.mkdir()
+        event_log = fixture / 'events.log'; event_log.touch(mode=0o600, exist_ok=False)
         active = common.LoggedProcess(cmd, out / 'guest.log', env=dict(os.environ), limit=8 * 1024**2)
         pending = b''; offset = 0; complete = False; phases = set(); deadline = time.monotonic() + 700
         while time.monotonic() < deadline:
             if qmp is None and (fixture / 'qmp.sock').exists():
                 qmp = virtual.QMP(fixture / 'qmp.sock')
-            with (out / 'guest.log').open('rb') as stream:
-                stream.seek(offset); data = stream.read(); offset += len(data)
-            pending += data
-            while b'\n' in pending:
-                raw, pending = pending.split(b'\n', 1)
-                line = raw.decode(errors='replace').strip()
-                if not line.startswith(PREFIX):
-                    continue
-                event = json.loads(line[len(PREFIX):]); report['events'].append(event)
+            offset, pending, events = read_events(event_log, offset, pending)
+            for event in events:
+                report['events'].append(event)
                 if event.get('event') == 'frame_ready':
                     stage = event.get('stage')
                     require(stage in ('minimal', 'overlay') and stage not in report['frames'] and qmp is not None, 'invalid frame stage')
@@ -262,13 +275,14 @@ def main():
                     shutil.copyfile(fixture / (stage + '.ppm'), frames / (stage + '.ppm'))
                 if event.get('event') == 'phase_pass': phases.add(event.get('stage'))
                 if event.get('event') == 'complete': complete = event.get('status') == 'PASS'
-                require(event.get('event') not in ('failed', 'failure'), 'guest failed; inspect guest.log')
+                require(event.get('event') not in ('failed', 'failure'), 'guest failed; inspect events.log and guest.log')
             require(active.error is None, 'guest log capture failed')
-            if log_complete(active, out / 'guest.log', offset):
+            if log_complete(active, event_log, offset):
                 break
             time.sleep(.1)
+        require(not pending, 'unterminated guest event record')
         require(active.process.poll() == 0 and complete and phases == {'minimal', 'overlay'} and
-                set(report['frames']) == phases, 'guest session incomplete; inspect guest.log')
+                set(report['frames']) == phases, 'guest session incomplete; inspect events.log and guest.log')
         active.finish(); active = None
         report['status'] = 'PASS_NATIVE_CONFIGURATION_AND_GENERIC_SOFTWARE_SESSION'
     except Exception as error:
@@ -307,6 +321,14 @@ def main():
         for owned_image in images:
             cleanup(['docker', 'image', 'rm', owned_image], 'remove-image:' + owned_image)
         fixture = out / 'fixture'
+        event_log = fixture / 'events.log'
+        if event_log.exists():
+            try:
+                with event_log.open('rb') as stream:
+                    (out / 'events.log').write_bytes(stream.read(MAX_EVENTS + 1))
+            except Exception as error:
+                report['event_log_error'] = type(error).__name__
+                report['status'] = 'FAIL_CLEANUP'
         if fixture.exists():
             try:
                 # Files were created by fixture root. Use its image for owned deletion;
