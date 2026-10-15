@@ -178,6 +178,44 @@ class GuestImageDecode(unittest.TestCase):
                 process.assert_called_once(); events.assert_called_once()
                 self.assertEqual(events.call_args.kwargs['error'], 'timeout')
 
+    def test_cancelled_probe_keeps_identity_across_diagnostic_failure(self):
+        for site in ('identity', 'bounded', 'parse', 'validate'):
+            for kind in (KeyboardInterrupt, SystemExit):
+                for sink_kind in (BrokenPipeError, KeyboardInterrupt):
+                    with self.subTest(site=site, kind=kind, sink=sink_kind), tempfile.TemporaryDirectory() as temporary:
+                        root = Path(temporary)
+                        first = kind('PRIVATE_PRIMARY_CANCELLATION')
+                        with self.capture(root) as (identity, process, events, _):
+                            events.side_effect = sink_kind('PRIVATE_SECONDARY_SINK')
+                            parse = guest.parse_report; validate = guest.validate_event
+                            if site == 'identity': identity.side_effect = first
+                            if site == 'bounded': process.side_effect = first
+                            with patch('guest.parse_report', side_effect=first if site == 'parse' else parse), \
+                                    patch('guest.validate_event', side_effect=first if site == 'validate' else validate):
+                                with self.assertRaises(kind) as caught:
+                                    guest.image_decode_preflight({}, root, self.nonce)
+                            self.assertIs(caught.exception, first)
+                        self.assertEqual(process.call_count, 0 if site == 'identity' else 1)
+                        events.assert_called_once()
+                        event = {'event': events.call_args.args[0], **events.call_args.kwargs}
+                        self.assertIsNone(image_decode_report.validate_event(event, self.nonce))
+                        self.assertNotIn('PRIVATE_', json.dumps(event))
+                        with self.capture(root) as (_, retry, _, _), self.assertRaises(FileExistsError):
+                            guest.image_decode_preflight({}, root, self.nonce)
+                        retry.assert_not_called()
+
+    def test_ordinary_probe_refusal_stays_closed_after_cancelled_diagnostic(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            with self.capture(root) as (identity, process, events, _):
+                identity.side_effect = ValueError('PRIVATE_IDENTITY_OPERAND')
+                events.side_effect = KeyboardInterrupt('PRIVATE_SECONDARY_SINK')
+                with self.assertRaisesRegex(ValueError, 'failed: identity') as caught:
+                    guest.image_decode_preflight({}, root, self.nonce)
+            process.assert_not_called()
+            self.assertNotIn('PRIVATE_', str(caught.exception))
+            self.assertNotIn('PRIVATE_', str(events.call_args))
+
     @contextmanager
     def installed(self):
         with tempfile.TemporaryDirectory() as temporary:
