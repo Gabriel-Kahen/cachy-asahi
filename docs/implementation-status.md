@@ -2,6 +2,45 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 15, current selections and primary recipe-lock repair:
+Client Source `fb3c3b7d`, Data `3ccf41c1` and Code `c6d43be2` are published.
+Actual Source review `8580f4c7`, historical planning-input reader `97fde0b9`
+and Source/Data/plan review `7ebc7e1b` pass. Two guarded plan-variable updates
+read back literally before execution ref 53→fb3 selects exactly one push trial
+`38678550956`, attempt 1. Its actual result review remains separate; no current
+native48 or installer success is claimed.
+
+Updater Source `56a90a7b` repairs two stale generator-lock hashes through an
+exact four-file pin cascade after reviews `352c1b70` and `47e7cff3`. All 21
+generator pins match; one changed trial is `38678420443`. Its preceding run
+`38676918007` is admitted under `fa76e91c`: materialize/process-failed/return1,
+native compilation NOT RUN, inner operand unknown, scoped cleanup reported
+PASS and daemon disposal NOT ATTESTED. The separate stale-lock proof does not
+identify that actual operand. KSM Source `b868cf05` publishes the required-five-
+field kernel-record compatibility correction after `2af7e4a1` and `65ba6bbf`;
+its changed trial is `38678792213`. Predecessor `38675975893`, admitted under
+`aa314cfc`, exports CALL_ASDICT TypeError, producer started/exit1 and zero RPCs.
+Deeper cause remains unknown; cleanup FAIL and ownership uncertainty stay held.
+
+Kernel run `38672997567`, admitted under `960f4fd6`, reports producer PASS,
+acquisition exit0, probe PASS and baseline build-command return0. Output
+verification then refuses CHECK_002, AArch64 ELF RELA metadata invalid; artifact
+and failed conjunct are unexported. Candidate NOT RUN; current scoped cleanup
+and bounded daemon preservation pass, legacy cache preservation is unestablished.
+A failure-only diagnostic is under review. P0 trial `38676597240` has its own
+terminal review; no policy/P0 entry or matrix pass is inferred from stage names.
+
+Hosted primary setup run `38677157047` fails 15 integration fixtures because
+the primary recipe lock still names the previous setup inputs. Correction
+`1794f905` refreshes exactly five of 72 hashes in one file, preserving the other
+67 and all fixture checks. Root rederives every current recipe hash and passes
+all 157 integration tests, including the real GPG fixture outside the restricted
+sandbox. Hosted validation of this correction remains pending. Primary
+integration/packet/donor snapshots remain a historical native baseline and will
+refuse the changed primary until a separately reviewed new baseline is prepared.
+Frozen fb3/Data3cc/C6 and recipe ebd remain intact; setup 0.1.0-3 still needs its
+own native build and target lifecycle validation. Full R1–R5/M5–M9 remain open.
+
 October 15, strict setup recovery parsing:
 The primary source and packaged mirror reject duplicate JSON fields, lexical
 floating/nonfinite numbers and non-integer schema versions in saved state and

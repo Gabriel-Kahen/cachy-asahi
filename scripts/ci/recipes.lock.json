@@ -12,12 +12,12 @@
     "waybar.json": "4c7adb2deb0403fefc4562d39105635cebfc44ce88e44fe84c4a90a00b2be3c0"
   },
   "packages/settings/cachy-asahi-setup": {
-    ".SRCINFO": "3b60863efc02077497206ce42a71163cac2e60286fc655c4375e575fb95b5b4e",
+    ".SRCINFO": "54691cd2b7a941fa4cc967789161757cfbe546cbb05eb9e0d4482e43e685543e",
     "LICENSE": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
     "NOTICE": "2c28b96b5e4dca86c8a71aa0df728a049820d5951812f20241be96e7000d9744",
-    "PKGBUILD": "1d4326ccfa5b0a68b4eb82351c29a99ca2c0ad8af7503e84aa01bcd3dd1cbe68",
-    "README.md": "434328ca04e757a2dc8bba78bea82c6ed52da64b139e88666a3ec2db52ba0e56",
-    "cachy-asahi-setup": "a6251142b9c7e54796285c1a301fb590599d8aaa1625ea0bfebd7fc21622fdc2",
+    "PKGBUILD": "5ee9111f43f049817e46faa5c883ea56ae5291095175e3f59674110dd0a46fab",
+    "README.md": "47624410d7d02beacb0386c3f1448842277aa32ba71fae2434d17bcd1e656b78",
+    "cachy-asahi-setup": "3e652bff75f6202cd3c13c327e50a298f7b25149b3c5cb55cdf4912d35af5919",
     "check-packaged.py": "a36c6b0c5e5e51cee5a88b2bc2d21b292de413e3ea5664936f4097ff52e55ca6",
     "check-sync.py": "ce66c6fc4b66d358378143f585fd3d1a708fddee80942e12900d5b76b2ff009b",
     "evidence/artifact-check-1.json": "f39576fe7d072cc964479d8b4477e547ef885a69f55b42b85fdbafc84f95226f",
@@ -37,7 +37,7 @@
     "evidence/superseded-c7d-host-validation.json": "1c4c1522612bb9f35c11745889d5cedabad6ea89b312f7812bbd65951d537ee3",
     "host-validation.json": "e64e15a48b1636216c1419074ba7ae3280bddd42c5db76b7954a3da882f7766c",
     "runtime-dependency-observation.json": "0f2382d15eb1c07c94826b1467492b248576350a43b96550cf23b94e018fa74c",
-    "source-provenance.json": "3466cccc33c98f675af0779ebdc150636ed3544d78bc5c1543bd8d25c09aded7",
+    "source-provenance.json": "c1011858a1b8c778df26e07bf74a90ca970946bc685b83c2642bce6a39d6b489",
     "test-sync.py": "f2694ef9e7ccca7201f444e5cad28aa524da374faae364e8bcbb75200149e6bb"
   },
   "packages/shells/cachy-asahi-fish-config": {
