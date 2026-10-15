@@ -222,6 +222,7 @@ def ld_aux_diagnostic(label, state):
         created = True
         with os.fdopen(descriptor, 'wb') as stream:
             ld_need(stream.write(data) == len(data), 'aux-diagnostic-write')
+            stream.flush(); os.fchmod(stream.fileno(), 0o644)
         record.update(status='CAPTURED', node=node, read_identity=identity(before),
                       helper_sha256=LD_HELPER[0], expected593_sha256=EXPECTED)
     except Exception as error:
@@ -239,6 +240,7 @@ def ld_aux_diagnostic(label, state):
         metadata_created = True
         with os.fdopen(descriptor, 'wb') as stream:
             ld_need(stream.write(encoded) == len(encoded), 'aux-diagnostic-metadata-write')
+            stream.flush(); os.fchmod(stream.fileno(), 0o644)
     except Exception as error:
         record['metadata_error'] = type(error).__name__
         if metadata_created:

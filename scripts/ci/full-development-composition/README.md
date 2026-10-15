@@ -280,7 +280,10 @@ alter the existing16MiB acceptance cache bound.
 
 Write only fresh /out/audio-aux-B0-587.bin and /out/audio-aux-B1-593.bin (each at
 most256KiB) with corresponding fixed-name JSON metadata companions (each at
-most4KiB), exclusive/nofollow0600 leaves. The existing public /out bind and bounded
+most4KiB), exclusive/nofollow leaves created0600. After writing and flushing,
+fchmod only those output descriptors0644 so the different-UID host exporter can
+read them under the existing private owned0700 parent. The original cache input
+and its recorded mode0600 remain unchanged. The existing public /out bind and bounded
 public-evidence bundle carry these four files without a workflow/exporter change.
 There is no user-supplied path, host/user-root read, package/key/source binary,
 directory sweep or additional helper command. At most512KiB of raw data is added;

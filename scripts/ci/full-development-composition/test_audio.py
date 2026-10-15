@@ -274,18 +274,37 @@ class AuxDiagnostic(unittest.TestCase):
 
     def test_b0_b1_raw_join_capture_precedes_unchanged_refusal(self):
         before = self.state()
-        with patch.object(audio, 'ld_state', return_value=before):
-            self.assertIs(audio.ld_checkpoint(None, [], self.root, 'B0-587'), before)
-        self.cache.write_bytes(b'raw-aux-B'); after = self.state()
-        with patch.object(audio, 'ld_state', return_value=after):
-            with self.assertRaisesRegex(ValueError, 'AUDIO_LDCONFIG_UNACCEPTED B1-593 aux-cache-byte-change'):
-                audio.ld_checkpoint(None, [], self.root, 'B1-593', before)
+        original_umask = os.umask(0o077)
+        try:
+            with patch.object(audio, 'ld_state', return_value=before):
+                self.assertIs(audio.ld_checkpoint(None, [], self.root, 'B0-587'), before)
+            self.cache.write_bytes(b'raw-aux-B'); after = self.state()
+            with patch.object(audio, 'ld_state', return_value=after):
+                with self.assertRaisesRegex(ValueError, 'AUDIO_LDCONFIG_UNACCEPTED B1-593 aux-cache-byte-change'):
+                    audio.ld_checkpoint(None, [], self.root, 'B1-593', before)
+        finally:
+            os.umask(original_umask)
         for label, data, state in [('B0-587', b'raw-aux-A', before), ('B1-593', b'raw-aux-B', after)]:
             path = self.output / ('audio-aux-' + label + '.bin'); row = self.metadata(label)
-            self.assertEqual(path.read_bytes(), data); self.assertEqual(path.stat().st_mode & 0o777, 0o600)
+            self.assertEqual(path.read_bytes(), data); self.assertEqual(path.stat().st_mode & 0o777, 0o644)
+            self.assertEqual((self.output / ('audio-aux-' + label + '.json')).stat().st_mode & 0o777, 0o644)
             self.assertEqual(row['status'], 'CAPTURED'); self.assertEqual(row['node'], state['caches'][audio.LD_AUX_NAME])
+            self.assertEqual(row['node']['mode'], 0o600)
             self.assertEqual(row['read_identity'][6], len(data))
         self.assertEqual(self.cache.read_bytes(), b'raw-aux-B')
+        self.assertEqual(self.cache.stat().st_mode & 0o777, 0o600)
+        spec = importlib.util.spec_from_file_location('aux_public_export', ROOT / 'scripts/ci/log_evidence.py')
+        exporter = importlib.util.module_from_spec(spec); spec.loader.exec_module(exporter)
+        real_open = exporter.tarfile.bltn_open
+        def host_reader(name, *args, **kwargs):
+            # Model the non-owner CI exporter's read boundary without changing UID.
+            if not Path(name).stat().st_mode & 0o004: raise PermissionError('host reader cannot open0600')
+            return real_open(name, *args, **kwargs)
+        with patch.object(exporter.tarfile, 'bltn_open', side_effect=host_reader):
+            self.assertTrue(exporter.bundle(self.output))
+            unreadable = self.output / 'audio-aux-B0-587.bin'; unreadable.chmod(0o600)
+            with self.assertRaises(PermissionError): exporter.bundle(self.output)
+            unreadable.chmod(0o644)
         audio.ld_aux_diagnostic('B2-592', after)
         self.assertEqual(len(list(self.output.iterdir())), 4)
 
