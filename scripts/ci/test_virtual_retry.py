@@ -47,17 +47,17 @@ class DirectRetry(unittest.TestCase):
             row = blob('package'+str(n)); signature = blob(row['filename']+'.sig')
             packages.append(row | {'signature_size': signature['size'], 'signature_sha256': signature['sha256']})
         (self.source/'tooling.lock.json').write_text(json.dumps({'keyring_files': keys, 'packages': packages}))
-        self.common = SimpleNamespace(BARRIER_PURPOSE='installer-barrier-only',
+        self.common = SimpleNamespace(TRANSACTION_PURPOSE='installer-transaction-only',
             BARRIER_SOURCE='d4313163538f51d85bc03e6a4adfde0c850cbc30',
-            BARRIER_TEST='test_actual_isolate_keeps_host_readonly_and_only_evidence_persistent', BARRIER_FILES={})
+            TRANSACTION_PROFILE={'path':'fixed','size':1,'sha256':'e'*64},TRANSACTION_LAUNCHER={'files':{},'aliases':{}}, TRANSACTION_FILES={})
         for name, data in (('scripts/install/local_transaction.py', b'inert worker'),
                            ('scripts/install/test_local_transaction.py', b'inert test'),
                            ('scripts/port/kernel-native-job/runtime.py', b'inert runtime')):
             path = self.repo / name; path.parent.mkdir(parents=True, exist_ok=True); path.write_bytes(data)
-            self.common.BARRIER_FILES[name] = {'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()}
+            self.common.TRANSACTION_FILES[name] = {'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()}
         common_patch = patch.dict(sys.modules, {'common': self.common})
         common_patch.start(); self.addCleanup(common_patch.stop)
-        self.result = {'status': 'PASS_BARRIER_ONLY', 'private_workspace_cleanup': 'PASS', 'cleanup': [{'status': 'PASS'}]}
+        self.result = {'status': 'PASS_TRANSACTION_ONLY', 'private_workspace_cleanup': 'PASS', 'cleanup': [{'status': 'PASS'}]}
         self.owner_passed = True
         self.owner = SimpleNamespace(CORE={}, AUDITOR_PIN='d'*64, main=self.owner_main)
         self.patch_root = patch.object(v.native, 'ROOT', self.repo)
@@ -84,12 +84,12 @@ class DirectRetry(unittest.TestCase):
         self.assertEqual(len(self.contract['files']), 10)
         self.assertEqual(self.contract['baseline'], self.c.rows['baseline'])
         self.assertEqual(self.contract['installed_image_id'], self.c.installed)
-        self.assertEqual(self.c.report['virtual']['status'], 'PASS_BARRIER_ONLY')
+        self.assertEqual(self.c.report['virtual']['status'], 'PASS_TRANSACTION_ONLY')
         self.assertEqual(self.c.report['virtual']['visual_review'], 'NOT RUN')
-        self.assertEqual(self.contract['purpose'], self.common.BARRIER_PURPOSE)
-        self.assertEqual(self.contract['barrier_fixture'], {'source_commit': self.common.BARRIER_SOURCE,
-            'test': self.common.BARRIER_TEST, 'files': self.common.BARRIER_FILES})
-        for name, row in self.common.BARRIER_FILES.items():
+        self.assertEqual(self.contract['purpose'], self.common.TRANSACTION_PURPOSE)
+        self.assertEqual(self.contract['transaction_fixture'], {'source_commit': self.c.commit,
+            'sources': self.common.TRANSACTION_FILES, 'tool_profile': self.common.TRANSACTION_PROFILE})
+        for name, row in self.common.TRANSACTION_FILES.items():
             path = self.output / 'inputs' / name
             self.assertEqual(path.stat().st_size, row['bytes'])
             self.assertEqual(v.native.sha(path), row['sha256'])
@@ -125,7 +125,7 @@ class DirectRetry(unittest.TestCase):
                     {'private_workspace_cleanup': 'FAIL'}, {'cleanup': [{'status': 'FAIL'}]}]
         for variant in variants:
             with self.subTest(variant=variant):
-                self.result = {'status': 'PASS_BARRIER_ONLY', 'private_workspace_cleanup': 'PASS', 'cleanup': [{'status': 'PASS'}]} | variant
+                self.result = {'status': 'PASS_TRANSACTION_ONLY', 'private_workspace_cleanup': 'PASS', 'cleanup': [{'status': 'PASS'}]} | variant
                 with self.assertRaisesRegex(ValueError, 'virtual trial failed'): self.consume()
                 self.assertEqual(self.c.report['virtual']['status'], 'FAIL')
                 self.assertEqual(self.c.report['virtual']['visual_review'], 'NOT RUN')
