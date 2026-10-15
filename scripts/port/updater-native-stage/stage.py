@@ -722,6 +722,128 @@ def diagnostic_json(path,limit):
     return raw,json.loads(raw,object_pairs_hook=unique,parse_constant=invalid)
 
 
+def native_diagnostic_need(value):
+    need(value, 'native-worker-diagnostic')
+
+
+NATIVE_DIAGNOSTIC_OPERATIONS = frozenset(('startup', 'entry-worker-import', 'entry-observe', 'entry-guard', 'entry-controller', 'entry-recipe-copy', 'entry-home', 'entry-builder-lock', 'entry-inventory', 'entry-config-copy', 'entry-srcinfo', 'entry-verifysource', 'entry-makepkg', 'entry-package', 'entry-log-copy', 'entry-receipt', 'metadata-observe', 'metadata-guard', 'metadata-paths', 'metadata-ambient', 'metadata-output', 'metadata-controller', 'metadata-builder', 'metadata-source', 'metadata-home', 'metadata-inventory', 'metadata-rust-version', 'metadata-target-cfg', 'metadata-cargo', 'metadata-recheck', 'metadata-receipt', 'compile-worker-import', 'compile-controller', 'compile-metadata', 'compile-gate', 'compile-target', 'compile-cargo', 'compile-elf', 'compile-units', 'compile-readelf', 'compile-copy', 'compile-receipt', 'complete'))
+NATIVE_DIAGNOSTIC_PREDICATES = frozenset(('UNKNOWN', 'worker-boundary', 'worker-identity', 'root-readonly', 'mount-contract', 'mount-nesting', 'private-tmpfs', 'unexpected-mount', 'mask-readonly', 'system-readonly', 'entry-readonly', 'runtime-filesystem', 'worker-limits', 'controller-hash-format', 'controller-input-paths', 'controller-digest', 'controller-binding', 'controller-hash-field', 'tool-ledger', 'builder-lock', 'tool-pin-path', 'tool-resolution', 'entry-digest', 'recipe-ledger', 'recipe-input', 'scratch-paths', 'ambient-cargo-config', 'metadata-output', 'builder-pin', 'source-pins', 'audit-lock', 'builder-inventory', 'forbidden-tool', 'rust-version', 'source-drift', 'vendor-ledger', 'vendor-directories', 'vendor-directory', 'vendor-registry', 'vendor-file-ledger', 'vendor-path', 'vendor-traversal', 'vendor-link', 'vendor-expanded', 'vendor-file', 'command-spawn', 'command-timeout', 'command-output-limit', 'command-nonzero', 'command-wait-timeout', 'command-cleanup', 'entry-inventory', 'entry-srcinfo', 'entry-package-count', 'fresh-target', 'unit-source', 'unit-build-script', 'unit-feature', 'unit-gettext', 'unit-system-deps', 'unit-complete', 'unit-build-script-record', 'compile-destination', 'compile-binary-drift', 'elf-read-symlink', 'elf-read-type-link-size', 'elf-read-bound', 'elf-read-drift', 'elf-header', 'elf-machine', 'elf-program-headers', 'elf-load-alignment', 'elf-load-bounds', 'elf-load-absent'))
+NATIVE_DIAGNOSTIC_COMMANDS = frozenset(('dependency-check-entry', 'inventory-entry', 'srcinfo', 'source-verification', 'makepkg', 'inventory', 'rustc-version', 'target-cfg', 'cargo-metadata', 'compile-gate', 'cargo-build', 'elf-inspection'))
+NATIVE_DIAGNOSTIC_ERROR_KINDS = frozenset(('ValueError', 'TypeError', 'KeyError', 'RuntimeError', 'OSError', 'TimeoutExpired', 'Cancelled', 'UNKNOWN'))
+NATIVE_DIAGNOSTIC_LIMIT = 4096
+NATIVE_DIAGNOSTIC_LOG_LIMIT = 16 * 1024 ** 2
+NATIVE_DIAGNOSTIC_FIELDS = frozenset(('schema_version', 'controller_sha256', 'image_id', 'entry_script_sha256', 'controller_validated', 'status', 'operation', 'first_failure', 'command', 'compiler_launch_attempted', 'compiler_return_observed', 'compiler_returncode', 'compilation_accepted', 'cancelled', 'diagnostic_write_failed', 'publication', 'hardware'))
+
+def native_diagnostic_encoded(value):
+    return json.dumps(value, sort_keys=True, separators=(',', ':'), allow_nan=False).encode() + b'\n'
+
+def native_diagnostic_nullable_hash(value, image=False):
+    native_diagnostic_need(value is None or (type(value) is str and re.fullmatch(('sha256:' if image else '') + '[0-9a-f]{64}', value)))
+
+def native_diagnostic_command(value):
+    if value is None:
+        return
+    native_diagnostic_need(type(value) is dict and set(value) == {'kind', 'launch_attempted', 'return_observed', 'returncode', 'stdout', 'stderr'})
+    native_diagnostic_need(type(value['kind']) is str and value['kind'] in NATIVE_DIAGNOSTIC_COMMANDS)
+    native_diagnostic_need(type(value['launch_attempted']) is type(value['return_observed']) is bool)
+    code = value['returncode']
+    native_diagnostic_need(code is None or (type(code) is int and -64 <= code <= 255))
+    native_diagnostic_need(value['return_observed'] == (code is not None) and (not value['return_observed'] or value['launch_attempted']))
+    total = 0
+    for key in ('stdout', 'stderr'):
+        row = value[key]
+        if row is not None:
+            native_diagnostic_need(type(row) is dict and set(row) == {'bytes', 'sha256'})
+            native_diagnostic_need(type(row['bytes']) is int and 0 <= row['bytes'] <= NATIVE_DIAGNOSTIC_LOG_LIMIT)
+            native_diagnostic_nullable_hash(row['sha256'])
+            native_diagnostic_need(row['sha256'] is not None)
+            total += row['bytes']
+    native_diagnostic_need(total <= NATIVE_DIAGNOSTIC_LOG_LIMIT)
+
+def native_diagnostic(value):
+    native_diagnostic_need(type(value) is dict and set(value) == NATIVE_DIAGNOSTIC_FIELDS and (type(value['schema_version']) is int) and (value['schema_version'] == 1))
+    for key in ('controller_sha256', 'entry_script_sha256'):
+        native_diagnostic_nullable_hash(value[key])
+    native_diagnostic_nullable_hash(value['image_id'], True)
+    for key in ('controller_validated', 'compiler_launch_attempted', 'compiler_return_observed', 'compilation_accepted', 'cancelled', 'diagnostic_write_failed'):
+        native_diagnostic_need(type(value[key]) is bool)
+    native_diagnostic_need(type(value['operation']) is str and value['operation'] in NATIVE_DIAGNOSTIC_OPERATIONS)
+    native_diagnostic_need(type(value['status']) is str and value['status'] in {'RUNNING', 'PASS', 'FAIL', 'CANCELLED'})
+    native_diagnostic_need(value['status'] != 'CANCELLED' or value['cancelled'])
+    native_diagnostic_need(value['publication'] == 'NOT ACCEPTED' and value['hardware'] == 'NOT RUN')
+    native_diagnostic_command(value['command'])
+    first = value['first_failure']
+    if first is not None:
+        native_diagnostic_need(type(first) is dict and set(first) == {'operation', 'predicate', 'error_kind', 'command'})
+        native_diagnostic_need(type(first['operation']) is str and first['operation'] in NATIVE_DIAGNOSTIC_OPERATIONS)
+        native_diagnostic_need(type(first['predicate']) is str and first['predicate'] in NATIVE_DIAGNOSTIC_PREDICATES)
+        native_diagnostic_need(type(first['error_kind']) is str and first['error_kind'] in NATIVE_DIAGNOSTIC_ERROR_KINDS)
+        native_diagnostic_command(first['command'])
+        native_diagnostic_need(value['status'] in {'FAIL', 'CANCELLED'})
+        if first['error_kind'] == 'Cancelled':
+            native_diagnostic_need(value['cancelled'] and value['status'] == 'CANCELLED')
+    elif value['status'] == 'FAIL':
+        native_diagnostic_need(value['diagnostic_write_failed'])
+    if value['controller_validated']:
+        native_diagnostic_need(all((value[key] is not None for key in ('controller_sha256', 'image_id', 'entry_script_sha256'))))
+    if value['status'] == 'PASS':
+        native_diagnostic_need(first is None and value['controller_validated'] and (not value['cancelled']) and (not value['diagnostic_write_failed']))
+    code = value['compiler_returncode']
+    native_diagnostic_need(code is None or (type(code) is int and -64 <= code <= 255))
+    native_diagnostic_need(value['compiler_return_observed'] == (code is not None))
+    native_diagnostic_need(not value['compiler_return_observed'] or value['compiler_launch_attempted'])
+    if value['compilation_accepted']:
+        native_diagnostic_need(value['compiler_launch_attempted'] and value['compiler_return_observed'] and (code == 0))
+    native_diagnostic_need(len(native_diagnostic_encoded(value)) <= NATIVE_DIAGNOSTIC_LIMIT)
+    return value
+
+
+NATIVE_DIAGNOSTIC_REASONS=frozenset(('not-observed','not-started','state-unavailable','missing','unavailable','source-invalid','invalid','unbound','bound'))
+
+
+def native_worker_diagnostic_unknown(reason='not-observed', checksum=None):
+    return {'availability':'NOT_OBSERVED','reason':reason,'sha256':checksum,'record':None}
+
+
+def native_worker_diagnostic_projection(value):
+    need(type(value) is dict and set(value)=={'availability','reason','sha256','record'}, 'native-worker-diagnostic-fields')
+    need(type(value['reason']) is str and value['reason'] in NATIVE_DIAGNOSTIC_REASONS, 'native-worker-diagnostic-reason')
+    native_diagnostic_nullable_hash(value['sha256'])
+    if value['availability']=='NOT_OBSERVED':
+        need(value['reason']!='bound' and value['record'] is None, 'native-worker-diagnostic-unknown')
+    else:
+        need(value['availability']=='OBSERVED' and value['reason']=='bound' and value['sha256'] is not None, 'native-worker-diagnostic-bound')
+        record=native_diagnostic(value['record'])
+        need(digest(native_diagnostic_encoded(record))==value['sha256'], 'native-worker-diagnostic-hash')
+    return dict(value)
+
+
+def capture_native_worker_diagnostic(value, controller_sha, image, entry_sha):
+    """Project only the already captured record; never reread a later diagnostic."""
+    try:
+        fields={'worker_diagnostic_status','worker_diagnostic_reason','worker_diagnostic_sha256','worker_diagnostic'}
+        present=set(value)&fields
+        if not present:return native_worker_diagnostic_unknown()
+        need(present==fields, 'native-worker-diagnostic-group')
+        status=value['worker_diagnostic_status'];reason=value['worker_diagnostic_reason'];checksum=value['worker_diagnostic_sha256']
+        need(type(status) is str and status in ('NOT OBSERVED','UNKNOWN','BOUND'), 'native-worker-diagnostic-status')
+        if status!='BOUND':
+            need(value['worker_diagnostic'] is None and reason!='bound', 'native-worker-diagnostic-unknown')
+            if status=='NOT OBSERVED':
+                need(reason=='not-started' and checksum is None and value.get('worker_launch_attempted') is False, 'native-worker-diagnostic-not-started')
+            else:need(reason not in ('not-started','not-observed'), 'native-worker-diagnostic-unknown')
+            return native_worker_diagnostic_projection(native_worker_diagnostic_unknown(reason,checksum))
+        need(reason=='bound' and value.get('worker_launch_attempted') is True, 'native-worker-diagnostic-bound')
+        result=native_worker_diagnostic_projection({'availability':'OBSERVED','reason':reason,'sha256':checksum,'record':value['worker_diagnostic']})
+        record=result['record'];state=value.get('worker_container_state')
+        need(type(state) is dict, 'native-worker-diagnostic-state')
+        if not (record['controller_sha256']==controller_sha==state.get('controller_sha256') and
+                record['image_id']==image==state.get('image_id') and record['entry_script_sha256']==entry_sha):
+            return native_worker_diagnostic_unknown('unbound',checksum)
+        return result
+    except Exception:return native_worker_diagnostic_unknown('invalid')
+
+
 def native_worker_projection(value):
     need(type(value) is dict and set(value)=={'availability','reason','record'},'native-worker-fields')
     if value['availability']=='NOT_OBSERVED':
@@ -729,7 +851,7 @@ def native_worker_projection(value):
     need(value['availability']=='OBSERVED' and value['reason']=='bound','native-worker-availability')
     row=value['record'];fields={'worker','failed_stage','error_type','worker_check','failure_code','worker_returncode',
         'launch_attempted','controller_sha256','retirement'}
-    need(type(row) is dict and set(row)==fields and type(row['worker']) is int and row['worker'] in (1,2),'native-worker-record')
+    need(type(row) is dict and set(row) in (fields,fields|{'diagnostic'}) and type(row['worker']) is int and row['worker'] in (1,2),'native-worker-record')
     need(type(row['failed_stage']) is str and row['failed_stage'] in NATIVE_WORKER_PHASES and
          type(row['error_type']) is str and row['error_type'] in NATIVE_CHILD_ERRORS,'native-worker-phase')
     check=row['worker_check'];cause=row['failure_code'];code=row['worker_returncode']
@@ -747,7 +869,13 @@ def native_worker_projection(value):
          and all(type(v) is bool for v in retirement.values()),'native-worker-retirement')
     need(retirement['complete']==(retirement['removed'] and retirement['absent']) and
          (retirement['attempted'] or not any(retirement.values())),'native-worker-retirement-coherence')
-    return {'availability':'OBSERVED','reason':'bound','record':dict(row,retirement=dict(retirement))}
+    result=dict(row,retirement=dict(retirement))
+    if 'diagnostic' in row:
+        result['diagnostic']=native_worker_diagnostic_projection(row['diagnostic'])
+        detail=result['diagnostic']
+        if detail['availability']=='OBSERVED':
+            need(detail['record']['controller_sha256']==row['controller_sha256'], 'native-worker-diagnostic-controller')
+    return {'availability':'OBSERVED','reason':'bound','record':result}
 
 
 def capture_native_worker(private,child,entry_sha):
@@ -778,6 +906,7 @@ def capture_native_worker(private,child,entry_sha):
             'controller_sha256':value['controller_sha256'],
             'retirement':{key:value.get(field) for key,field in (('attempted','container_cleanup_attempted'),
                 ('removed','container_removal_succeeded'),('absent','container_absence_verified'),('complete','container_cleanup_complete'))}}
+        result['diagnostic']=capture_native_worker_diagnostic(value,digest(raw),controller['image_id'],entry_sha)
         return native_worker_projection({'availability':'OBSERVED','reason':'bound','record':result})
     except Exception:return native_detail_unknown('invalid')
 GUARDIAN_PHASES = frozenset(('ADMISSION', 'SOCKET_PIN', 'EXECUTABLE_PIN', 'CLIENT_INTENT', 'SIGNAL_MASK', 'STORAGE_ADMISSION', 'SPAWN', 'CLIENT_REGISTER', 'SIGNAL_RESTORE', 'SELECTOR_SETUP', 'WAIT', 'CAPTURE', 'PROCESS_RETIRE', 'STDOUT_RETIRE', 'CLIENT_DONE'))

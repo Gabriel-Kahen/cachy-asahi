@@ -1823,5 +1823,88 @@ class NativeGuardianFailureDetailControls(unittest.TestCase):
                 with self.assertRaises(ValueError):stage.native_guardian_projection(dict(availability='OBSERVED',reason='bound',record=changed))
 
 
+class NativeWorkerDiagnosticTransportControls(unittest.TestCase):
+    """Captured bounded diagnostic transport only; no worker/provider execution."""
+    def model(self):
+        _, raw, value=NativeWorkerFailureDetailControls().model()
+        checksum=hashlib.sha256(raw).hexdigest()
+        diagnostic=dict(schema_version=1,controller_sha256=checksum,image_id=value['image_id'],
+            entry_script_sha256=value['entry_script_sha256'],controller_validated=False,status='FAIL',
+            operation='entry-guard',first_failure=dict(operation='entry-guard',predicate='worker-boundary',error_kind='ValueError',command=None),
+            command=None,compiler_launch_attempted=False,compiler_return_observed=False,compiler_returncode=None,
+            compilation_accepted=False,cancelled=False,diagnostic_write_failed=False,publication='NOT ACCEPTED',hardware='NOT RUN')
+        value.update(worker_diagnostic_status='BOUND',worker_diagnostic_reason='bound',
+            worker_diagnostic_sha256=stage.digest(stage.native_diagnostic_encoded(diagnostic)),worker_diagnostic=diagnostic,
+            worker_container_state=dict(controller_sha256=checksum,image_id=value['image_id']))
+        return value
+    def observe(self,value):return NativeWorkerFailureDetailControls().observe(value)
+    def test_bound_first_diagnostic_survives_worker_failure_terminal_projection(self):
+        value=self.model();captured=self.observe(value);detail=captured['record']['diagnostic']
+        self.assertEqual(detail['availability'],'OBSERVED');self.assertEqual(detail['record']['first_failure']['predicate'],'worker-boundary')
+        self.assertEqual(captured['record']['worker_returncode'],1);self.assertIsNone(detail['record']['compiler_returncode'])
+        receipt=dict(status='FAIL',failed_phase='native-pair',runtime_reason='process-failed',runtime_returncode=1,
+            native_child_failure=dict(availability='OBSERVED',failed_stage='worker-1',error_type='ValueError'),native_worker_failure=captured)
+        projected=stage.public_summary(receipt);self.assertEqual(projected['native_worker_failure']['record']['diagnostic'],detail)
+        self.assertNotIn(POISON.decode(),json.dumps(projected));self.assertEqual(projected['status'],'FAIL')
+    def test_absent_and_missing_stay_unknown_without_losing_wrapper_fact(self):
+        _,_,old=NativeWorkerFailureDetailControls().model()
+        self.assertEqual(self.observe(old)['record']['diagnostic']['reason'],'not-observed')
+        old.update(worker_diagnostic_status='UNKNOWN',worker_diagnostic_reason='missing',worker_diagnostic_sha256=None,worker_diagnostic=None)
+        result=self.observe(old)['record'];self.assertEqual(result['diagnostic']['reason'],'missing');self.assertEqual(result['worker_returncode'],1)
+        self.assertEqual(result['diagnostic']['availability'],'NOT_OBSERVED')
+    def test_snapshot_hash_drift_is_not_reread_or_promoted(self):
+        value=self.model();value['worker_diagnostic']['first_failure']['predicate']='controller-binding'
+        result=self.observe(value)['record'];self.assertEqual(result['diagnostic']['reason'],'invalid');self.assertEqual(result['worker_returncode'],1)
+    def test_controller_image_entry_and_inspected_state_joins(self):
+        for target,key in [('worker_diagnostic','controller_sha256'),('worker_diagnostic','image_id'),('worker_diagnostic','entry_script_sha256'),('worker_container_state','controller_sha256'),('worker_container_state','image_id')]:
+            value=self.model();value[target][key]=('sha256:' if key=='image_id' else '')+'c'*64
+            value['worker_diagnostic_sha256']=stage.digest(stage.native_diagnostic_encoded(value['worker_diagnostic']))
+            with self.subTest(target=target,key=key):self.assertEqual(self.observe(value)['record']['diagnostic']['reason'],'unbound')
+    def test_closed_diagnostic_fields_and_labels_reject_private_content(self):
+        for scope,key in [('root','operation'),('first','predicate'),('first','error_kind'),('root','private_argv')]:
+            value=self.model();record=value['worker_diagnostic'];target=record if scope=='root' else record['first_failure'];target[key]=POISON.decode()
+            value['worker_diagnostic_sha256']=stage.digest(stage.native_diagnostic_encoded(record));result=self.observe(value)
+            self.assertEqual(result['record']['diagnostic']['availability'],'NOT_OBSERVED');self.assertNotIn(POISON.decode(),json.dumps(result))
+    def test_partial_group_wrong_status_and_bool_returncode_stay_unknown(self):
+        for change in ('partial','status','reason','bool'):
+            value=self.model()
+            if change=='partial':value.pop('worker_diagnostic_reason')
+            elif change=='status':value['worker_diagnostic_status']=True
+            elif change=='reason':value['worker_diagnostic_reason']=POISON.decode()
+            else:
+                value['worker_diagnostic'].update(compiler_launch_attempted=True,compiler_return_observed=True,compiler_returncode=True)
+                value['worker_diagnostic_sha256']=stage.digest(stage.native_diagnostic_encoded(value['worker_diagnostic']))
+            with self.subTest(change=change):self.assertEqual(self.observe(value)['record']['diagnostic']['availability'],'NOT_OBSERVED')
+    def test_command_facts_are_closed_hashes_not_logs_or_argv(self):
+        value=self.model();command=dict(kind='inventory-entry',launch_attempted=True,return_observed=True,returncode=1,
+            stdout=dict(bytes=5,sha256='d'*64),stderr=dict(bytes=6,sha256='e'*64))
+        value['worker_diagnostic']['first_failure'].update(predicate='command-nonzero',command=command)
+        value['worker_diagnostic_sha256']=stage.digest(stage.native_diagnostic_encoded(value['worker_diagnostic']))
+        self.assertEqual(self.observe(value)['record']['diagnostic']['record']['first_failure']['command'],command)
+        command['stderr']['raw']=POISON.decode();value['worker_diagnostic_sha256']=stage.digest(stage.native_diagnostic_encoded(value['worker_diagnostic']))
+        self.assertEqual(self.observe(value)['record']['diagnostic']['availability'],'NOT_OBSERVED')
+    def test_public_transport_refuses_hash_controller_and_extra_fields(self):
+        result=self.observe(self.model());row=result['record']
+        for change in ('hash','controller','extra'):
+            altered=json.loads(json.dumps(result));item=altered['record']
+            if change=='hash':item['diagnostic']['sha256']='c'*64
+            elif change=='controller':item['controller_sha256']='c'*64
+            else:item['diagnostic']['private']=POISON.decode()
+            with self.subTest(change=change),self.assertRaises(ValueError):stage.native_worker_projection(altered)
+        self.assertTrue(row['retirement']['complete']);self.assertEqual(row['worker_returncode'],1)
+    def test_diagnostic_control_exception_keeps_identity(self):
+        first=KeyboardInterrupt()
+        with mock.patch.object(stage,'native_diagnostic',side_effect=first):
+            with self.assertRaises(KeyboardInterrupt) as caught:self.observe(self.model())
+        self.assertIs(caught.exception,first)
+    def test_successful_inner_diagnostic_does_not_promote_failed_wrapper(self):
+        value=self.model();value['worker_diagnostic'].update(controller_validated=True,status='PASS',operation='complete',first_failure=None,
+            compiler_launch_attempted=True,compiler_return_observed=True,compiler_returncode=0,compilation_accepted=True)
+        value['worker_diagnostic_sha256']=stage.digest(stage.native_diagnostic_encoded(value['worker_diagnostic']))
+        result=self.observe(value)['record'];self.assertEqual(result['worker_returncode'],1)
+        self.assertEqual(result['failure_code'],'worker-nonzero-returncode');self.assertEqual(result['diagnostic']['record']['compiler_returncode'],0)
+        self.assertNotIn('native_compilation',result)
+
+
 if __name__ == '__main__':
     unittest.main()
