@@ -6,13 +6,14 @@ import inspect
 import contextlib
 import io
 import json
+import shlex
 import tempfile
 from pathlib import Path
 import signal
 import stat
 import subprocess
 import unittest
-from unittest.mock import Mock, patch
+from unittest.mock import MagicMock, Mock, patch
 from types import SimpleNamespace
 
 spec = importlib.util.spec_from_file_location('desktop574_guest', Path(__file__).with_name('desktop574_guest.py'))
@@ -21,6 +22,45 @@ spec.loader.exec_module(guest)
 
 
 class GuestTests(unittest.TestCase):
+    def test_udev_readiness_waits_for_only_the_required_initialized_devices(self):
+        fixture = Path(guest.__file__).with_name('desktop574_fixture.sh').read_text()
+        pre = [shlex.split(line.removeprefix('ExecStartPre=')) for line in fixture.splitlines()
+               if line.startswith('ExecStartPre=')]
+        self.assertIn(['/usr/bin/udevadm', 'wait', '--timeout=20', '--initialized=yes',
+                       '/dev/virtio-ports/desktop574.events'], pre)
+        self.assertFalse(any('settle' in argv or '--settle' in argv for argv in pre))
+        tree = ast.parse(inspect.getsource(guest.boot))
+        body = next(node.body for node in tree.body[0].body if isinstance(node, ast.Try))
+        index = next(i for i, node in enumerate(body) if isinstance(node, ast.Assign) and
+                     any(isinstance(target, ast.Name) and target.id == 'cards' for target in node.targets))
+        code = compile(ast.Module(body=body[index:index + 5], type_ignores=[]), '<drm-readiness>', 'exec')
+        card = MagicMock()
+        card.__str__.return_value = '/dev/dri/card0'
+        directory = Mock()
+        directory.glob.return_value = [card]
+        scope = dict(env={}, logs=Path('/inert'))
+        with patch.object(guest, 'Path', return_value=directory), \
+             patch.object(guest, 'command') as wait, patch.object(guest.os, 'chown') as chown:
+            exec(code, guest.__dict__, dict(scope))
+            wait.assert_called_once_with(['/usr/bin/udevadm', 'wait', '--timeout=20',
+                '--initialized=yes', '/dev/dri/card0'], {}, scope['logs'], 'udev')
+            chown.assert_called_once_with(card, 23001, 23001)
+            card.chmod.assert_called_once_with(0o600)
+            chown.reset_mock()
+            card.chmod.reset_mock()
+            wait.side_effect = ValueError('synthetic device initialization failure')
+            with self.assertRaisesRegex(ValueError, 'initialization failure'):
+                exec(code, guest.__dict__, dict(scope))
+            chown.assert_not_called()
+            card.chmod.assert_not_called()
+            wait.reset_mock(side_effect=True)
+            for cards in ([], [card, card]):
+                directory.glob.return_value = cards
+                with self.assertRaisesRegex(ValueError, 'one virtio DRM card required'):
+                    exec(code, guest.__dict__, dict(scope))
+            wait.assert_not_called()
+            chown.assert_not_called()
+
     def test_only_cleanly_retired_command_timeout_can_retry(self):
         first = subprocess.TimeoutExpired('inert', 3)
         logged = Mock()
