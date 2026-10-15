@@ -724,7 +724,7 @@ class PipelineModels(unittest.TestCase):
 
 class LiveGraphBindingControls(unittest.TestCase):
     """Actual captured Session/Sources; stop before native context/frame admission."""
-    COMPOSITION='installer-preflight'
+    COMPOSITION='installer-preflight-maintained-v1'
     ADDITIONAL_SOURCES=(P.OWN,'scripts/install/test_native_preflight.py',*P.SOURCE_PATHS)
     @classmethod
     def setUpClass(cls):
@@ -746,7 +746,7 @@ class LiveGraphBindingControls(unittest.TestCase):
         finally:sys.settrace(previous)
         raise AssertionError('native admission must not complete in a source model')
     def test_selected_issuer_pin_and_captured_graph_reach_only_source_gate(self):
-        self.assertEqual(P.ISSUER_SHA,'b7b665bc8473c010321c88b00cd35350c03677ffadac02fd2a5ab4c16dc0ecce')
+        self.assertEqual(P.ISSUER_SHA,'55089b6af9458d00775d354cf3363386cf08ded1b851b89a5b621f79f348b671')
         self.assertEqual(P.sha(BASE.read_bytes()),P.ISSUER_SHA)
         self.assertEqual(self.check(),'SOURCE_GATE_ONLY')
         self.assertIsNone(self.session.native_consumer_observation)

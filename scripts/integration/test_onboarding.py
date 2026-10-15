@@ -169,6 +169,24 @@ class OnboardingTests(unittest.TestCase):
 
     def test_constructed_container_exposes_only_inputs_and_new_artifacts(self):
         args = self.args()
+        # Count frozen test sources independently of the changing project suites.
+        source_root = self.root / "source-fixture"
+        test_sources = {
+            "scripts/setup/setup.py": "# Inert setup source fixture.\n",
+            "scripts/setup/test_setup.py": ("import unittest\nclass SetupFixture(unittest.TestCase):\n"
+                                            "    def test_one(self): pass\n"),
+            "scripts/release/release.py": "# Inert release source fixture.\n",
+            "scripts/release/source_delivery.py": "# Inert source delivery fixture.\n",
+            "scripts/release/test_release.py": ("import unittest\nclass ReleaseFixture(unittest.TestCase):\n"
+                                                "    def test_one(self): pass\n"
+                                                "    def test_two(self): pass\n"),
+        }
+        sources = test_sources | {"scripts/build/build.py": "# Inert build fixture.\n",
+                                  "scripts/ci/native_arm.py": "# Inert native probe fixture.\n"}
+        for relative, text in sources.items():
+            target = source_root / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text(text)
         build = Mock(image_pin=lambda value: value)
         native = Mock()
         native.probe.return_value = {"architecture": "aarch64", "scope": "synthetic fixture"}
@@ -182,7 +200,9 @@ class OnboardingTests(unittest.TestCase):
             contract = json.loads((args.output / "inputs/contract.json").read_text())
             o.save(args.output / "artifacts/result.json", {"status": "SOFTWARE PASS", "contract": contract})
             return Mock(pid=999999999, returncode=0)
-        with patch.object(o, "load_tool", side_effect=[build, native]), patch.object(o.subprocess, "run", side_effect=simulated), patch.object(o.subprocess, "Popen", side_effect=launch):
+        with patch.object(o, "ROOT", source_root), patch.object(o, "load_tool", side_effect=[build, native]), \
+                patch.object(o.subprocess, "run", side_effect=simulated), \
+                patch.object(o.subprocess, "Popen", side_effect=launch):
             self.assertEqual(o.host(args), 0)
         command = commands[0]
         for flag in ("--network=none", "--read-only", "--cap-drop=ALL", "--security-opt=no-new-privileges", "--pull=never"):
@@ -195,7 +215,11 @@ class OnboardingTests(unittest.TestCase):
         self.assertIn("HOME=/tmp/onboarding/home", command)
         self.assertEqual(commands[1][:3], ["docker", "rm", "-f"])
         contract = json.loads((args.output / "inputs/contract.json").read_text())
-        self.assertEqual(contract["test_counts"], {"setup": 40, "release": 19})
+        self.assertEqual(contract["test_counts"], {"setup": 1, "release": 2})
+        self.assertEqual(contract["test_inputs"], {
+            relative: hashlib.sha256(text.encode()).hexdigest() for relative, text in test_sources.items()})
+        for relative, text in test_sources.items():
+            self.assertEqual((args.output / "inputs" / relative).read_bytes(), text.encode())
         self.assertEqual(contract["baseline_manifest_sha256"], args.baseline_manifest_sha256)
 
     def test_command_timeout_and_literal_argv_retain_raw_evidence(self):

@@ -1100,7 +1100,7 @@
     },
     "scripts/integration/onboarding.py": {
       "mode": 420,
-      "sha256": "e3412aedee16deca867a5e76f6ce90216904d4243f8197caff8c717fcd4613e9"
+      "sha256": "b693fa64f6a23149df348469587193a2f1eb425b1eb9d68c58fcd2995ad13c76"
     },
     "scripts/integration/repository.py": {
       "mode": 420,
@@ -1120,7 +1120,7 @@
     },
     "scripts/integration/test_onboarding.py": {
       "mode": 420,
-      "sha256": "f66078c1e1574a942eb28647407b2ddeb9d9d87c0547165fae4e6b5a59570aa8"
+      "sha256": "7aa6654ad188fe8bd6d6b8093167017994d563d0f11d3b6493ff29f01d5a8c13"
     },
     "scripts/integration/test_repository.py": {
       "mode": 420,

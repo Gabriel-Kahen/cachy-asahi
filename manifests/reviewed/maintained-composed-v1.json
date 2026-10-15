@@ -6,7 +6,9 @@
     "scripts/integration/test_repository.py",
     "scripts/release/release.py",
     "scripts/release/test_release.py",
-    "scripts/release/source_delivery.py"
+    "scripts/release/source_delivery.py",
+    "scripts/integration/onboarding.py",
+    "scripts/integration/test_onboarding.py"
   ],
   "current_product_native_validation": "NOT RUN",
   "generated_fixtures": 125,
@@ -16,7 +18,7 @@
   "historical_pair_evidence_scope": "UNCHANGED_RECIPE_INPUTS_ONLY_NOT_CURRENT_PRODUCT_ACCEPTANCE",
   "inputs_sha256": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f",
   "installation": "NOT RUN",
-  "integration_sha256": "50947880c7d72a982221d0416ba758fb922fb2595cbfe6ebbdc08db972ce504f",
+  "integration_sha256": "3cb330785c7721cefdc94448add0fe2ce08a23e13b7d6ac7f47886cebcf88132",
   "inventory_sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25",
   "lineage": "CURRENT_PRODUCT_SUCCESSOR_NOT_HISTORICAL_EVIDENCE",
   "native_sha256": "a8b6ed8971a38089a4499dcec605477c4e48d7a47c3de485d205f6a44678b898",
@@ -29,7 +31,7 @@
   "selected_for_release": false,
   "source_captures": 3,
   "source_date_epoch": 1791748800,
-  "unchanged_view_sources": 154,
+  "unchanged_view_sources": 152,
   "view_files": 161,
   "view_sources": 160
 }
