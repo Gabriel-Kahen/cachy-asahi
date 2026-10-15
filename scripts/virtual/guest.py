@@ -703,7 +703,7 @@ def transaction_test(module, source_paths, nonce, selection, source):
             super().__init__(); self.first_failure = None; self.methods = []; self.cancellation = None; self.cursor = 0; self.active = None; self.collected = False
         def history(self):
             value=getattr(cls,'execution_history',[])
-            require(type(value) is list and len(value)<=21, 'finite exact worker history required')
+            require(type(value) is list and len(value)<=22, 'finite exact worker history required')
             return value
         def startTest(self,test):
             require(test._testMethodName==TRANSACTION_TESTS[len(self.methods)] and
@@ -712,7 +712,7 @@ def transaction_test(module, source_paths, nonce, selection, source):
         def collect(self,test,complete):
             if test is not self.active or self.collected:return
             index=len(self.methods);entries=self.history()[self.cursor:]
-            require(index<16 and test._testMethodName==TRANSACTION_TESTS[index] and
+            require(index<17 and test._testMethodName==TRANSACTION_TESTS[index] and
                     len(entries)<=len(TRANSACTION_CASES[index][2]), 'selected method/history scope differs')
             calls=[]
             for hop,record in enumerate(entries):
@@ -754,7 +754,7 @@ def transaction_test(module, source_paths, nonce, selection, source):
         result.addError(None, sys.exc_info())
     finally:
         # KeyboardInterrupt can bypass unittest's remaining instance/class cleanup stacks.
-        # Retain the sixteen cases; finish each pending pinned duty once, independently.
+        # Retain the seventeen cases; finish each pending pinned duty once, independently.
         stacks = [(case, getattr(case, '_cleanups', [])) for case in cases]
         stacks.append((None, getattr(cls, '_class_cleanups', [])))
         for case, pending in stacks:
@@ -771,7 +771,7 @@ def transaction_test(module, source_paths, nonce, selection, source):
                'errors':len(result.errors),'skips':len(result.skipped),'status':'FAIL','methods':result.methods,
                'first_failure':result.first_failure,'class_cleanups_returned':not any(stack for case,stack in stacks) and not result.errors,
                'cancelled':result.cancellation is not None}
-        if result.testsRun == 16 and result.wasSuccessful() and not result.skipped and result.first_failure is None and len(result.history()) == 21:
+        if result.testsRun == 17 and result.wasSuccessful() and not result.skipped and result.first_failure is None and len(result.history()) == 22:
             row['status'] = 'PASS_TRANSACTION_ONLY'
         transaction_event(row, nonce, selection, source)
         emit('transaction_result', **{k:v for k,v in row.items() if k!='event'})
