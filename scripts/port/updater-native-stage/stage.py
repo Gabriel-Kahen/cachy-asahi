@@ -971,6 +971,17 @@ def public_summary(receipt):
              'failure_class','private_data_removed','raw_retention_within_budget','cleanup_status',
              'cancelled','public_bundle_sha256')
     result={k:receipt[k] for k in allowed if k in receipt}
+    if 'private_native_pair_verified' in receipt:
+        verified=receipt['private_native_pair_verified']
+        need(type(verified) is bool,'native-private-pair-type')
+        need(not verified or receipt.get('native_compilation') in ('NOT ATTESTED','PASS PRIVATE NATIVE PAIR'),
+             'native-private-pair-context')
+        need(receipt.get('native_compilation')!='PASS PRIVATE NATIVE PAIR' or verified,
+             'native-private-pair-unverified')
+        result['private_native_pair_verified']=verified
+    if receipt.get('native_compilation')=='NOT ATTESTED':
+        need(type(receipt.get('status')) is str and receipt['status'] in ('FAIL','CANCELLED'),
+             'native-unattested-final-status')
     result.update(diagnostic_projection(receipt));result.update(cleanup_projection(receipt))
     if 'native_child_failure' in receipt:
         need(receipt.get('status') in ('FAIL','CANCELLED') and receipt.get('failed_phase')=='native-pair'
@@ -1129,7 +1140,8 @@ def pipeline(root,controller,controller_sha,output,runner=None):
     guard=module(root/'scripts/ci/integration_export.py',rows['scripts/ci/integration_export.py']['sha256'])
     receipt={'schema_version':1,'status':'RUNNING','phase':'private-registration','controller_sha256':controller_sha,
              'ready_sha256':READY_SHA,'source_commit':contract['source']['source_commit'],
-             'native_compilation':'NOT RUN','publication':'NOT ACCEPTED','hardware':'NOT RUN',
+             'native_compilation':'NOT RUN','private_native_pair_verified':False,
+             'publication':'NOT ACCEPTED','hardware':'NOT RUN',
              'private_data_removed':False,'cleanup_status':'NOT RUN','raw_retention_within_budget':False,'processes':{}}
     info=output.stat()
     owner={'schema_version':1,'controller_sha256':controller_sha,'source_commit':receipt['source_commit'],
@@ -1249,11 +1261,12 @@ def pipeline(root,controller,controller_sha,output,runner=None):
                     cancelled.append(0)  # Existing unknown-number cancellation marker.
                 raise
             save(output/'result.json',receipt)
+            receipt['native_compilation']='NOT ATTESTED'
             command('native-pair',[python,'-I','-B',str(package/'updater-native.py'),'build','--candidate',str(candidate/'candidate.json'),
                                    '--candidate-sha256',candidate_sha,'--cache',str(private/'archives'),'--output',str(native)],BUDGET['native_seconds'],absolute_end=native_end)
             need(load(native/'result.json')['native_pair']=='PASS','native-pair-not-passed')
             source.verify(root,contract['source']);verify_snapshot(copied,contract['source'])
-            receipt['native_compilation']='PASS PRIVATE NATIVE PAIR'
+            receipt['private_native_pair_verified']=True
         except BaseException as error:
             failure=error;receipt['failure_class']=type(error).__name__
             if owner['private_record'] is None and getattr(error,'receipt',{}).get('registered'):
@@ -1306,6 +1319,17 @@ def pipeline(root,controller,controller_sha,output,runner=None):
                     need(load(output/'guarded/export-manifest.json')['evidence_export']=='PASS','credential-guard-failed')
                     receipt['public_bundle_sha256']=digest(regular(output/'public-evidence.tar.gz',8*1024**2))
                     receipt['public_projection']='PASS';receipt['credential_guard']='PASS'
+                    if receipt['private_native_pair_verified']:
+                        public_raw=regular(output/'guarded/native-result.json')
+                        public_rows=[row for row in load(output/'guarded/export-manifest.json')['accepted']
+                                     if row.get('path')=='native-result.json']
+                        need(len(public_rows)==1 and set(public_rows[0])=={'path','bytes','sha256'}
+                             and type(public_rows[0]['bytes']) is int and public_rows[0]['bytes']==len(public_raw)
+                             and public_rows[0]['sha256']==digest(public_raw),'public-native-pair-byte-join')
+                        public_native=json.loads(public_raw,object_pairs_hook=unique)
+                        need(type(public_native) is dict and public_native.get('native_pair')=='PASS',
+                             'public-native-pair-not-passed')
+                        receipt['native_compilation']='PASS PRIVATE NATIVE PAIR'
             except BaseException as error:
                 if type(error).__name__ in ('RuntimeCancelled','KeyboardInterrupt','BuildCancelled','SourceCancelled') and not cancelled:cancelled.append(0)
                 failure_diagnostics(receipt,receipt['phase'],getattr(error,'receipt',None),runtime)

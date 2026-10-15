@@ -22,7 +22,7 @@ jobs:
       REVIEWED_SOURCE_COMMIT: ${{ inputs.source_commit }}
       READY_SHA256: 1f69534f9877f26337e988b4b709632902ddfa4f7aea02d1e4352aaa1819b0bc
       # Reviewed storage/recovery checkpoint; coordinator Git/controller proof is separate.
-      STAGE_SHA256: bbc989c09c4b1ed1ae6c0866dce296fbbdd694c954e83a53a8d1f01bc51baf2f
+      STAGE_SHA256: 1a82fefa0b8ee95a13a92c5e2bab615697d85fb57a79530ae7dd0b152396e52e
       SOURCE_SHA256: 4d3e3fd9848aaed94154f786b04a5ae07c7816dcef82857b671b51555895eacb
     steps:
       - name: Start the shared deadline before checkout
@@ -409,7 +409,7 @@ jobs:
                   need(type(value.get('schema_version')) is int and value['schema_version'] == 1 and value.get('phase') == 'finalized' and value.get('status') in {'PASS','FAIL','CANCELLED'}, 'P072')
                   need(value.get('source_commit') == os.environ['REVIEWED_SOURCE_COMMIT'] == os.environ['GITHUB_SHA'] and value.get('controller_sha256') == os.environ['UPDATER_CONTROLLER_SHA256'] and value.get('ready_sha256') == os.environ['READY_SHA256'], 'P073')
                   need(value.get('publication') == 'NOT ACCEPTED' and value.get('hardware') == 'NOT RUN', 'P074')
-                  need(value.get('native_compilation') in {'NOT RUN','PASS PRIVATE NATIVE PAIR','NOT ATTESTED BY RECOVERY'} and value.get('cleanup_status') in {'PASS','FAIL','NOT RUN'}, 'P075')
+                  need(value.get('native_compilation') in {'NOT RUN','NOT ATTESTED','PASS PRIVATE NATIVE PAIR','NOT ATTESTED BY RECOVERY'} and value.get('cleanup_status') in {'PASS','FAIL','NOT RUN'}, 'P075')
                   need(all(type(value.get(k)) is bool for k in ('private_data_removed','cancelled')), 'P076')
                   if 'raw_retention_within_budget' in value: need(type(value['raw_retention_within_budget']) is bool, 'P077')
                   for key in ('candidate_sha256','public_bundle_sha256'):

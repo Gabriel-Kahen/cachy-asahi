@@ -338,6 +338,112 @@ class StageTests(unittest.TestCase):
         self.assertEqual(result['cancelled'], cancelled)
         for row in self.terminal(): self.assertNotEqual(row['status'], 'PASS')
 
+    def test_private_pair_progress_requires_public_pair_corroboration(self):
+        result = self.pipeline()
+        self.assertEqual(result['status'], 'PASS')
+        self.assertIs(result['private_native_pair_verified'], True)
+        self.assertEqual(result['native_compilation'], 'PASS PRIVATE NATIVE PAIR')
+        self.assertEqual(stage.load(self.output / 'guarded/native-result.json')['native_pair'], 'PASS')
+        for terminal in self.terminal():
+            self.assertIs(terminal['private_native_pair_verified'], True)
+            self.assertEqual(terminal['native_compilation'], 'PASS PRIVATE NATIVE PAIR')
+
+    def test_native_attempt_is_unattested_until_verified_and_failure_is_not_not_run(self):
+        self.mode = 'native-fail'; original = self.fake_run; observed = []
+        def observe(argv, stdout, stderr, deadline, env, cwd, **kwargs):
+            if stdout.stem == 'native-pair':
+                row = stage.load(self.output / 'result.json')
+                observed.append((row['native_compilation'], row['private_native_pair_verified']))
+            return original(argv, stdout, stderr, deadline, env, cwd, **kwargs)
+        with mock.patch.object(self, 'fake_run', side_effect=observe): result = self.pipeline()
+        self.assertEqual(observed, [('NOT ATTESTED', False)])
+        self.assert_clean_failure(result)
+        self.assertEqual(result['native_compilation'], 'NOT ATTESTED')
+        self.assertIs(result['private_native_pair_verified'], False)
+        self.assertEqual(result['failed_phase'], 'native-pair')
+        self.assertEqual(result['runtime_reason'], 'process-failed')
+        self.assertEqual(result['runtime_returncode'], 1)
+
+    def test_projection_failure_keeps_private_progress_without_claiming_public_pair(self):
+        self.project_fail = True; result = self.pipeline()
+        self.assert_clean_failure(result)
+        self.assertEqual(result['native_compilation'], 'NOT ATTESTED')
+        self.assertIs(result['private_native_pair_verified'], True)
+        self.assertEqual(stage.load(self.output / 'projected/native-result.json')['native_pair'], 'PASS')
+        self.assertFalse((self.output / 'guarded').exists())
+        self.assertNotIn('public-guard', self.commands)
+        for terminal in self.terminal():
+            self.assertEqual(terminal['native_compilation'], 'NOT ATTESTED')
+            self.assertIs(terminal['private_native_pair_verified'], True)
+            self.assertNotIn(POISON.decode(), json.dumps(terminal))
+
+    def test_guard_refusal_before_copy_keeps_private_progress_without_public_pass(self):
+        original = self.export
+        def refuse(raw, output):
+            if raw.name == 'projected':
+                raise self.runtime.RuntimeFailure(self.process_receipt('FAIL'))
+            return original(raw, output)
+        with mock.patch.object(self, 'export', side_effect=refuse): result = self.pipeline()
+        self.assert_clean_failure(result)
+        self.assertEqual(result['native_compilation'], 'NOT ATTESTED')
+        self.assertIs(result['private_native_pair_verified'], True)
+        self.assertFalse((self.output / 'guarded').exists())
+        self.assertNotIn('public-bundle', self.commands)
+
+    def test_missing_or_nonpass_guarded_pair_never_promotes_private_progress(self):
+        original = self.fake_run
+        for pair in (None, 'FAIL', 'STARTING'):
+            with self.subTest(pair=pair):
+                self.output = self.base / ('missing-pair' if pair is None else pair.lower() + '-pair')
+                def corrupt(argv, stdout, stderr, deadline, env, cwd, **kwargs):
+                    item = original(argv, stdout, stderr, deadline, env, cwd, **kwargs)
+                    if stdout.stem == 'public-bundle':
+                        path = self.output / 'guarded/native-result.json'
+                        if pair is None: path.unlink()
+                        else:
+                            row = stage.load(path); row['native_pair'] = pair; stage.save(path, row)
+                            manifest_path = self.output / 'guarded/export-manifest.json'
+                            manifest = stage.load(manifest_path)
+                            entries = [row for row in manifest['accepted'] if row['path'] == 'native-result.json']
+                            self.assertEqual(len(entries), 1); entry = entries[0]; data = path.read_bytes()
+                            manifest['accepted_bytes'] += len(data) - entry['bytes']
+                            entry.update(bytes=len(data), sha256=stage.digest(data)); stage.save(manifest_path, manifest)
+                    return item
+                with mock.patch.object(self, 'fake_run', side_effect=corrupt): result = self.pipeline()
+                self.assert_clean_failure(result)
+                self.assertEqual(result['native_compilation'], 'NOT ATTESTED')
+                self.assertIs(result['private_native_pair_verified'], True)
+                self.assertIn('public-bundle', self.commands)
+
+    def test_private_pair_progress_is_closed_boolean_and_cannot_override_public_status(self):
+        valid = {'status': 'FAIL', 'native_compilation': 'NOT ATTESTED',
+                 'private_native_pair_verified': True}
+        self.assertEqual(stage.public_summary(dict(valid, raw_env=POISON.decode())), valid)
+        self.assertEqual(stage.public_summary(dict(valid, private_native_pair_verified=False)),
+                         dict(valid, private_native_pair_verified=False))
+        invalid = [dict(valid, private_native_pair_verified=value) for value in (0, 1, 'true', None, {}, [])]
+        invalid += [dict(valid, status='PASS'),
+                    dict(valid, native_compilation='NOT RUN'),
+                    dict(valid, status='PASS', native_compilation='PASS PRIVATE NATIVE PAIR',
+                         private_native_pair_verified=False)]
+        for value in invalid:
+            with self.subTest(value=value), self.assertRaises(ValueError): stage.public_summary(value)
+
+    def test_guarded_pair_pass_with_unmanifested_bytes_cannot_promote_private_progress(self):
+        original = self.fake_run
+        def corrupt(argv, stdout, stderr, deadline, env, cwd, **kwargs):
+            item = original(argv, stdout, stderr, deadline, env, cwd, **kwargs)
+            if stdout.stem == 'public-bundle':
+                path = self.output / 'guarded/native-result.json'; row = stage.load(path)
+                self.assertEqual(row['native_pair'], 'PASS')
+                row['owned_unmanifested'] = True; stage.save(path, row)
+            return item
+        with mock.patch.object(self, 'fake_run', side_effect=corrupt): result = self.pipeline()
+        self.assert_clean_failure(result)
+        self.assertEqual(result['native_compilation'], 'NOT ATTESTED')
+        self.assertIs(result['private_native_pair_verified'], True)
+        self.assertEqual(stage.load(self.output / 'guarded/native-result.json')['native_pair'], 'PASS')
+
     def test_success_is_fixture_only_with_real_cleanup_and_guarded_projection(self):
         result = self.pipeline()
         self.assertEqual(result['status'], 'PASS')
@@ -597,14 +703,16 @@ class StageTests(unittest.TestCase):
     def test_projection_failure_invalidates_pass_native_pair(self):
         self.project_fail = True; result = self.pipeline()
         self.assert_clean_failure(result)
-        self.assertEqual(result['native_compilation'], 'PASS PRIVATE NATIVE PAIR')
+        self.assertEqual(result['native_compilation'], 'NOT ATTESTED')
+        self.assertIs(result['private_native_pair_verified'], True)
         self.assertEqual(result['public_projection'], 'FAIL')
         self.assertNotIn('public-guard', self.commands); self.assertNotIn('public-bundle', self.commands)
 
     def test_guard_failure_invalidates_pass_native_pair(self):
         self.guard_fail = True; result = self.pipeline()
         self.assert_clean_failure(result)
-        self.assertEqual(result['native_compilation'], 'PASS PRIVATE NATIVE PAIR')
+        self.assertEqual(result['native_compilation'], 'NOT ATTESTED')
+        self.assertIs(result['private_native_pair_verified'], True)
         self.assertNotIn('public-bundle', self.commands)
 
     def test_public_worker_cancellation_preserves_cancel_state_with_attested_cleanup(self):
