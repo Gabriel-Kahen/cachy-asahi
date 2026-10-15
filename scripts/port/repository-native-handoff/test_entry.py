@@ -16,6 +16,150 @@ from unittest.mock import patch
 import entry as e
 
 
+def signal_graph_probe(poison=False, fail=False):
+    """Owned isolated child only: actual graph setup, never runtime actors."""
+    import _signal
+    import importlib.util
+    import signal
+    numbers = (signal.SIGINT, signal.SIGTERM, signal.SIGALRM)
+    getter, setter = _signal.getsignal, _signal.signal
+    originals = {number: getter(number) for number in numbers}
+    original_module = sys.modules['_signal']
+    original_mask = signal.pthread_sigmask(signal.SIG_BLOCK, set())
+    original_pending = signal.sigpending()
+    original_timer = signal.getitimer(signal.ITIMER_REAL)
+    assert original_timer == (0.0, 0.0)
+    assert original_module is _signal is signal._signal
+    assert _signal.__spec__.origin == 'built-in'
+    assert getter.__self__ is _signal and e.machinery.BuiltinImporter.find_spec('_signal').origin == 'built-in'
+    root = Path(e.__file__).resolve().parents[3]
+    path = root/'scripts/ci/development/test_repository_handoff.py'
+    spec = importlib.util.spec_from_file_location('owned_signal_graph_fixture', path)
+    fixture = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = fixture
+    spec.loader.exec_module(fixture)
+    graph = DependencyGraphTests()
+    graph.setUp()
+    callbacks, result, calls = [], {}, []
+    def interrupt(number, frame):
+        callbacks.append(number)
+        raise KeyboardInterrupt()
+    def observed():
+        return [getter(number) is interrupt and signal.getsignal(number) is interrupt for number in numbers]
+    fake = types.ModuleType('_signal')
+    fake.__spec__ = types.SimpleNamespace(origin='built-in')
+    def forbidden(*args):
+        calls.append('foreign builtin callback')
+        raise AssertionError('foreign _signal executed')
+    fake.getsignal = fake.signal = forbidden
+    cleanup_done = False
+    try:
+        # Existing Sources.module checks still refuse an unlabelled pre-entry
+        # fake. A forged pre-entry bootstrap is outside its trust precondition.
+        unlabelled = types.ModuleType('_signal')
+        source = fixture.adapter.Sources.__new__(fixture.adapter.Sources)
+        source.root = root
+        rel = 'scripts/port/repository-native-handoff/entry.py'
+        source.raw = {rel: (root/rel).read_bytes()}
+        sys.modules['_signal'] = unlabelled
+        try:
+            source.module('unlabelled_signal_entry', rel)
+            result['unlabelled_preentry_refused'] = False
+        except fixture.adapter.Refused:
+            result['unlabelled_preentry_refused'] = True
+        finally:sys.modules['_signal'] = original_module
+        loaded = source.module('trusted_signal_entry', rel)
+        result['entry_keeps_genuine_builtin'] = loaded.BOOTSTRAP.get('_signal') is _signal
+        runtime, _ = e.authenticated(root/'scripts/port/repository-native-handoff/source-map.json',
+            hashlib.sha256((root/'scripts/port/repository-native-handoff/source-map.json').read_bytes()).hexdigest(),
+            source_root=root/'scripts/port/repository-native-handoff', deadline=time.monotonic()+20)
+        for number in numbers:setter(number, interrupt)
+        result['before_graph'] = observed()
+        if poison:sys.modules['_signal'] = fake
+        graph.load('collector', module=loaded);graph.load('phase', module=loaded)
+        result['after_graph'] = observed()
+        result['postentry_cache_slot_restored'] = sys.modules['_signal'] is (fake if poison else original_module)
+        target = graph.root/e.COLLECTOR_ROOT/'common.py';held = target.read_bytes()
+        target.write_bytes(held + b'\n# unrelated ungranted fixture change\n')
+        try:
+            graph.load('phase', module=loaded)
+            result['unrelated_source_drift_refused'] = False
+        except ValueError as error:
+            result['unrelated_source_drift_error'] = str(error)
+            result['unrelated_source_drift_refused'] = str(error) == 'source-bytes-mode'
+        finally:target.write_bytes(held)
+        if fail:raise RuntimeError('owned-probe-failure')
+        try:
+            with runtime['supervisor'].handlers(lambda *_: None):pass
+            result['supervisor_error'] = None
+        except BaseException as error:
+            result['supervisor_error'] = type(error).__name__
+        result['after_supervisor'] = observed()
+        result['fixture_cleanup_errors'] = 0 if graph.doCleanups() else 1
+        cleanup_done = True
+        result['after_cleanup'] = observed()
+        result['mask_pending_timer_held'] = (
+            signal.pthread_sigmask(signal.SIG_BLOCK, set()) == original_mask and
+            signal.sigpending() == original_pending and signal.getitimer(signal.ITIMER_REAL) == original_timer)
+    except RuntimeError as error:
+        if not fail or str(error) != 'owned-probe-failure':raise
+        result['deliberate_failure_observed'] = 'RuntimeError'
+    finally:
+        try:
+            if not cleanup_done:result['fixture_cleanup_errors'] = 0 if graph.doCleanups() else 1
+        finally:
+            result['foreign_callbacks'] = calls
+            result['signals_observed'] = callbacks
+            result['mask_pending_timer_held'] = (
+                signal.pthread_sigmask(signal.SIG_BLOCK, set()) == original_mask and
+                signal.sigpending() == original_pending and signal.getitimer(signal.ITIMER_REAL) == original_timer)
+            sys.modules['_signal'] = original_module
+            for number, original in originals.items():setter(number, original)
+            signal.setitimer(signal.ITIMER_REAL, *original_timer)
+            signal.pthread_sigmask(signal.SIG_SETMASK, original_mask)
+            result['original_handlers_restored'] = all(getter(n) is old for n, old in originals.items())
+            result['original_mask_pending_timer_restored'] = (
+                signal.pthread_sigmask(signal.SIG_BLOCK, set()) == original_mask and
+                signal.sigpending() == original_pending and signal.getitimer(signal.ITIMER_REAL) == original_timer)
+            assert result['original_handlers_restored'] and result['original_mask_pending_timer_restored']
+            sys.modules.pop(spec.name, None)
+    return result
+
+
+class SignalLoaderTests(unittest.TestCase):
+    def test_actual_graph_retains_custom_callbacks_and_quarantines_postentry_builtin_poison(self):
+        script = '''import importlib.util,json,sys
+from pathlib import Path
+path=Path(sys.argv[1]);sys.path.insert(0,str(path.parent))
+spec=importlib.util.spec_from_file_location('owned_signal_entry_tests',path)
+module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+print(json.dumps(module.signal_graph_probe(sys.argv[2]=='poison',sys.argv[2]=='failure'),sort_keys=True))
+'''
+        with tempfile.TemporaryDirectory(prefix='signal-loader-') as temporary:
+            env = dict(PATH='/usr/bin:/bin', HOME=temporary, TMPDIR=temporary, LC_ALL='C')
+            for mode in ('ordinary', 'poison', 'failure'):
+                with self.subTest(mode=mode):
+                    completed = subprocess.run([sys.executable, '-I', '-B', '-S', '-c', script,
+                        str(Path(__file__).resolve()), mode], cwd=temporary, env=env,
+                        capture_output=True, timeout=90)
+                    self.assertEqual(completed.returncode, 0, completed.stderr.decode(errors='replace'))
+                    self.assertLess(len(completed.stdout) + len(completed.stderr), 1024**2)
+                    result = json.loads(completed.stdout)
+                    keys = ('before_graph', 'after_graph') if mode == 'failure' else ('before_graph', 'after_graph', 'after_supervisor', 'after_cleanup')
+                    for key in keys:
+                        self.assertEqual(result[key], [True, True, True], result)
+                    for key in ('entry_keeps_genuine_builtin', 'unlabelled_preentry_refused',
+                                'postentry_cache_slot_restored', 'mask_pending_timer_held',
+                                'original_handlers_restored', 'original_mask_pending_timer_restored',
+                                'unrelated_source_drift_refused'):
+                        self.assertIs(result[key], True, result)
+                    if mode == 'failure':self.assertEqual(result['deliberate_failure_observed'], 'RuntimeError')
+                    else:self.assertIsNone(result['supervisor_error'])
+                    self.assertEqual(result['fixture_cleanup_errors'], 0)
+                    self.assertEqual(result['foreign_callbacks'], [])
+                    self.assertEqual(result['signals_observed'], [])
+
+
 class EntryTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
@@ -191,6 +335,36 @@ class DependencyGraphTests(unittest.TestCase):
             for name in [prefix + '/source-map.json', *names]: self.copy(name)
         for name in e.PREDECESSORS:
             self.copy(name); self.files.append(name)
+        self.bind_current_fixture_predecessors()
+    def bind_current_fixture_predecessors(self):
+        """Synthetic fixture pins only; never rebase an accepted runtime graph."""
+        self.PINS = dict(self.PINS)
+        fixed = ('scripts/release/release.py', 'scripts/client/client.py')
+        orchestrator = self.root/e.COLLECTOR_ROOT/'orchestrator.py'
+        declarations = e.literals(orchestrator.read_bytes(), ('HELD', 'DEPENDENCIES'))
+        self.assertEqual(set(declarations['DEPENDENCIES']), set(fixed))
+        pairs = [(declarations['DEPENDENCIES'][name], hashlib.sha256((self.root/name).read_bytes()).hexdigest()) for name in fixed]
+        historical = self.root/'scripts/port/repository-client-stage/adapter.py'
+        phase_adapter = self.root/e.PHASE_ROOT/'adapter.py'
+        dependency = self.root/e.PHASE_ROOT/'dependencies.py'
+        def replace(path, replacements):
+            raw = path.read_bytes()
+            for old, new in replacements:
+                self.assertEqual(raw.count(old.encode()), 1, (path.name, old))
+                raw = raw.replace(old.encode(), new.encode())
+            path.write_bytes(raw)
+        old_adapter = declarations['HELD']['adapter.py']
+        self.assertEqual(hashlib.sha256(historical.read_bytes()).hexdigest(), old_adapter)
+        replace(historical, pairs);new_adapter = hashlib.sha256(historical.read_bytes()).hexdigest()
+        old_orchestrator = self.manifests['collector']['orchestrator.py']['sha256']
+        replace(orchestrator, [*pairs, (old_adapter, new_adapter)])
+        new_orchestrator = hashlib.sha256(orchestrator.read_bytes()).hexdigest()
+        self.PINS['collector'] = self.repin('collector', 'orchestrator.py')
+        replace(phase_adapter, pairs)
+        replace(dependency, [*pairs, (old_adapter, new_adapter), (old_orchestrator, new_orchestrator),
+                             (type(self).PINS['collector'], self.PINS['collector'])])
+        self.repin('phase', 'adapter.py')
+        self.PINS['phase'] = self.repin('phase', 'dependencies.py')
     def copy(self, name):
         source, target = self.repo / name, self.root / name
         target.parent.mkdir(parents=True, exist_ok=True)

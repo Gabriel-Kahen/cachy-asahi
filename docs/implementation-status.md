@@ -2,6 +2,18 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 15, signal-loader correction:
+The native handoff now retains the genuine initial `_signal` module through its
+existing trusted bootstrap. A local countermodel showed that reinitializing the
+extension during quarantine lost three callbacks and broke the supervisor; the
+single import correction preserves those callbacks. Author and fresh peer each
+pass all 27 entry tests. The full suite remains failed: 12 failures and 10 errors
+across 144 methods, all also present in the unchanged baseline (143 methods,
+14 failures and 27 errors). A separate test-fixture repair is in development.
+The initial trusted startup remains a precondition; no intrinsic cache attestation
+or previous native failure cause is established. Historical packet locks remain
+unchanged and require refreezing before selection. Hardware remains NOT RUN.
+
 October 15, ARM transaction reopening and source-pin maintenance:
 The local transaction worker now preserves the selected architecture when it
 reopens ALPM after commit. The maintained regression checks both constructor
@@ -25,15 +37,21 @@ objects while preserving the remaining 497 acquisitions. Five maintained suites
 pass 353 tests independently with zero skips. After actual Source review and
 metadata freeze, default main `1339d7f6` registers exactly one workflow change.
 Four guarded variable replacements preserve the recipe Source and read back all
-five values after each write. One native ARM trial, `38690090964`, is running;
-preparation, signing pipeline and hardware acceptance remain unestablished.
+five values after each write. Native ARM trial `38690090964` failed during
+download-input with KeyboardInterrupt, cancelled=true and cleanup_uncertain=false.
+The actual trigger, selected input and HTTP status were not exported. Preparation,
+signing pipeline and hardware acceptance remain unestablished. Audit `ba50de56`
+confirms a diagnostic gap; bounded diagnostic implementation is in development.
 
 KSM run `38683848545`, admitted under `f2b723f4`, reports producer, both builds
 and comparison PASS before lifecycle / ValueError. The precise lifecycle step
 and operands were not exported. Cleanup FAIL and ownership uncertainty remain
 recorded despite reported absence of owned containers and image. Bounded daemon
-preservation passes; legacy cache absence remains unestablished. A source audit
-is active; these results do not establish completed package lifecycle acceptance.
+preservation passes; legacy cache absence remains unestablished. Reviewed
+Source `7f142623` makes lifecycle input modes explicit through their open FDs;
+148 lifecycle and 388 native-job tests pass. Changed ARM trial `38693637133` was
+last observed running. The previous actual failure cause remains unknown;
+completed package lifecycle acceptance is not established.
 
 October 15, signed-release dependency impact:
 Release comparison now reports unchanged runtime consumers of changed or removed
@@ -68,8 +86,11 @@ returned zero: output verification rejected
 `CHECK_002_IMAGE_REFERENCE_SYMBOL_TABLE_TYPE`. Root admits retained review
 `fe6a3d7d`; candidate and comparison did not run. The original ELF and offending
 relocation operands were not exported. Cleanup and daemon preservation report
-PASS; legacy build-cache absence remains unestablished. A separate source audit
-is checking valid image relocation semantics before any correction or retry.
+PASS; legacy build-cache absence remains unestablished. Reviewed Source
+`8d4fd456` accepts the pinned kernel's valid null-linked relative relocation form
+while retaining its type, symbol and range checks; real odd-offset LLVM fixtures
+and 59 verifier plus 27 packet tests pass. Changed trial `38690790542` was last
+observed running. The previous actual ELF and failure cause remain unavailable.
 See [actual failure review](reviews/kernel-relocation-check002-run-38680751411-20261015.md).
 
 October 15, updater Cargo stream correction:
@@ -82,8 +103,12 @@ after compiler return zero, then fails at entry-makepkg / ValueError with
 makepkg return four. The command output and exact inner step were not exported.
 Source audit `7930ea17` proves no static argument/path/configuration defect;
 version-specific exit-code interpretation does not identify the failing command.
-A bounded inner-step diagnostic is in development. Native package acceptance
-remains open, and the previous run's exact failing line and cause stay unknown.
+Reviewed diagnostic Source `ee50345d` then ran in ARM trial `38693348089`.
+It again accepted compilation and failed with makepkg return four, now observing
+build-package / package / return / 1. Root admits review `656b2285`; the precise
+package command and cause remain unknown. Scoped cleanup reports PASS and daemon
+disposal remains NOT ATTESTED. The package-function audit continues; native
+package acceptance and both historical failure causes remain open.
 
 October 15, current native package builds accepted:
 Run `38683309592`, Source `465bf535`, built all four selected recipes twice

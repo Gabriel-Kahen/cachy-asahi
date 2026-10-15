@@ -4,6 +4,7 @@
 import sys
 if __name__ == '__main__' and (not sys.flags.isolated or not sys.flags.dont_write_bytecode or not sys.flags.no_site):
     raise SystemExit('Launch requires python -I -B -S')
+import _signal
 import argparse
 import ast
 import builtins
