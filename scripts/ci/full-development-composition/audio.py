@@ -2,6 +2,7 @@
 """Six-package signed install/removal inside the existing offline ARM composition."""
 import hashlib
 import json
+import os
 from pathlib import Path
 import re
 import stat
@@ -23,6 +24,10 @@ LD_TARGETS = {
     '/usr/lib/python3.14/site-packages/vapoursynth/libvapoursynth.so.4': (3284304, 'd946d71543f23536392e568268f59f5e1f83f7a2767bb2fc1bcbf7c192973111'),
     '/usr/lib/python3.14/site-packages/vapoursynth/libvsscript.so': (67816, '3ba72b1bc64942269cc29de3343a6250fcfb0a1b89f9a5d615d2f78973b3e65c'),
 }
+LD_AUX_NAME = '/var/cache/ldconfig/aux-cache'
+LD_AUX_INPUT = Path(LD_AUX_NAME)
+LD_AUX_OUTPUT = Path('/out')
+LD_AUX_DIAGNOSTIC_LIMIT = 256 * 1024
 
 
 
@@ -193,12 +198,63 @@ def ld_state(c, rows, root=Path('/')):
             'caches': caches, 'mapping': mapping, 'generator': tail}
 
 
+def ld_aux_diagnostic(label, state):
+    """Two fixed diagnostic reads; never alter cache state or acceptance."""
+    if label not in ('B0-587', 'B1-593'): return
+    record = {'checkpoint': label, 'path': LD_AUX_NAME, 'status': 'UNAVAILABLE'}
+    destination = LD_AUX_OUTPUT / ('audio-aux-' + label + '.bin')
+    created = False
+    try:
+        identity = lambda info: [info.st_dev, info.st_ino, info.st_mode, info.st_nlink,
+                                 info.st_uid, info.st_gid, info.st_size, info.st_ctime_ns, info.st_mtime_ns]
+        descriptor = os.open(LD_AUX_INPUT, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK | os.O_CLOEXEC)
+        with os.fdopen(descriptor, 'rb') as stream:
+            before = os.fstat(stream.fileno())
+            ld_need(stat.S_ISREG(before.st_mode) and before.st_nlink == 1
+                    and 0 < before.st_size <= LD_AUX_DIAGNOSTIC_LIMIT, 'aux-diagnostic-type-size')
+            data = stream.read(before.st_size + 1)
+            ld_need(identity(before) == identity(os.fstat(stream.fileno())) == identity(LD_AUX_INPUT.lstat()),
+                    'aux-diagnostic-read-drift')
+        node = {'type': 'file', 'mode': stat.S_IMODE(before.st_mode), 'uid': before.st_uid,
+                'gid': before.st_gid, 'size': len(data), 'sha256': hashlib.sha256(data).hexdigest()}
+        ld_need(len(data) == before.st_size and node == state['caches'][LD_AUX_NAME], 'aux-diagnostic-node-join')
+        descriptor = os.open(destination, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW | os.O_CLOEXEC, 0o600)
+        created = True
+        with os.fdopen(descriptor, 'wb') as stream:
+            ld_need(stream.write(data) == len(data), 'aux-diagnostic-write')
+        record.update(status='CAPTURED', node=node, read_identity=identity(before),
+                      helper_sha256=LD_HELPER[0], expected593_sha256=EXPECTED)
+    except Exception as error:
+        record['reason'] = str(error) if isinstance(error, LdUnaccepted) else type(error).__name__
+        if created:
+            try: destination.unlink()
+            except OSError: record['partial_cleanup'] = 'FAILED'
+    metadata_path = LD_AUX_OUTPUT / ('audio-aux-' + label + '.json')
+    metadata_created = False
+    try:
+        encoded = json.dumps(record, sort_keys=True).encode() + b'\n'
+        ld_need(len(encoded) <= 4096, 'aux-diagnostic-metadata-bound')
+        descriptor = os.open(metadata_path,
+                             os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW | os.O_CLOEXEC, 0o600)
+        metadata_created = True
+        with os.fdopen(descriptor, 'wb') as stream:
+            ld_need(stream.write(encoded) == len(encoded), 'aux-diagnostic-metadata-write')
+    except Exception as error:
+        record['metadata_error'] = type(error).__name__
+        if metadata_created:
+            try: metadata_path.unlink()
+            except OSError: record['metadata_cleanup'] = 'FAILED'
+    try: print('AUDIO_AUX_DIAGNOSTIC ' + json.dumps(record, sort_keys=True), flush=True)
+    except Exception: pass
+
+
 def ld_checkpoint(c, rows, work, label, baseline=None):
     try:
         state = ld_state(c, rows)
         raw = json.dumps(state, sort_keys=True).encode()
         ld_need(len(raw) <= 2 * 1024**2, 'checkpoint-size')
         (work / ('audio-ldconfig-' + label + '.json')).write_bytes(raw)
+        ld_aux_diagnostic(label, state)
         changes = []
         if baseline is not None:
             aux = '/var/cache/ldconfig/aux-cache'
