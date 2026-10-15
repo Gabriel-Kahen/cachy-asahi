@@ -5,6 +5,8 @@ import fcntl
 import importlib.util
 import json
 import os
+import stat
+import types
 from pathlib import Path
 import subprocess
 import sys
@@ -223,5 +225,92 @@ class OwnershipTests(unittest.TestCase):
         fd=os.open(self.root,os.O_RDONLY|os.O_DIRECTORY);self.addCleanup(os.close,fd)
         fcntl.flock(fd,fcntl.LOCK_EX|fcntl.LOCK_NB)
 
+
+class CanonicalConfigureTests(unittest.TestCase):
+    def test_generated_producer_script_and_existing_transaction_policy(self):
+        inputs=json.loads((HERE/'maintained-desktop574-inputs.json').read_text())
+        with tempfile.TemporaryDirectory() as temporary:
+            context=Path(temporary);h.configure(inputs,context)
+            self.assertEqual((context/'finish-keyring.py').read_text(),h.KEYRING_FINALIZER)
+            self.assertEqual(len((context/'expected-packages.lock').read_text().splitlines()),574)
+            self.assertEqual(len((context/'disabled-hooks.txt').read_text().splitlines()),41)
+            self.assertEqual((context/'pacman.conf').read_text(),h.PACMAN)
+        self.assertEqual(h.DOCKERFILE.count('\nRUN '),1)
+        self.assertLess(h.DOCKERFILE.index('pacman-key --init'),h.DOCKERFILE.index('/usr/bin/python3 -B /tmp/finish-keyring.py'))
+        self.assertLess(h.DOCKERFILE.index('cmp /expected-packages.lock /builder-packages.lock'),h.DOCKERFILE.index('/usr/bin/python3 -B /tmp/finish-keyring.py'))
+        self.assertIn('--noscriptlet',h.DOCKERFILE)
+        self.assertNotIn('unlink(',h.KEYRING_FINALIZER)
+        self.assertNotIn("'all'",h.KEYRING_FINALIZER)
+
+class ProducerTests(unittest.TestCase):
+    def setUp(self):
+        self.api=types.ModuleType('inert_keyring_finalizer')
+        exec(compile(h.KEYRING_FINALIZER,'<generated-keyring-finalizer>','exec'),self.api.__dict__)
+        self.directory=types.SimpleNamespace(st_mode=stat.S_IFDIR|0o755,st_uid=0)
+
+    def finish(self,states,clock=(0,)):
+        with patch.object(Path,'lstat',return_value=self.directory), \
+             patch.object(self.api,'snapshot',side_effect=[{'fixed':'same'},{'fixed':'same'}]), \
+             patch.object(self.api,'present',side_effect=states), \
+             patch.object(self.api.subprocess,'run') as run, \
+             patch.object(self.api.time,'monotonic',side_effect=clock), \
+             patch.object(self.api.time,'sleep') as sleep:
+            self.api.finish()
+        return run,sleep
+
+    def test_stop_is_exact_home_once_before_absence_with_finite_wait(self):
+        run,sleep=self.finish([('S.gpg-agent',),('S.gpg-agent',),(),()],(10,10))
+        run.assert_called_once()
+        args,opts=run.call_args
+        self.assertEqual(args[0],['/usr/bin/gpgconf','--homedir','/etc/pacman.d/gnupg','--kill','gpg-agent'])
+        self.assertEqual(opts['timeout'],15);self.assertTrue(opts['check'])
+        self.assertEqual(opts['stdout'],self.api.subprocess.DEVNULL)
+        self.assertEqual(opts['stderr'],self.api.subprocess.DEVNULL)
+        self.assertNotIn('GNUPGHOME',opts['env']);sleep.assert_called_once_with(0.05)
+
+    def test_absent_producer_still_gets_one_home_scoped_stop(self):
+        run,sleep=self.finish([(),(),()])
+        run.assert_called_once();sleep.assert_not_called()
+
+    def test_failure_timeout_remaining_reappearance_or_trust_drift_refuses(self):
+        for mode in ('nonzero','timeout','remaining','reappeared','trust'):
+            with self.subTest(mode=mode),patch.object(Path,'lstat',return_value=self.directory), \
+                 patch.object(self.api,'snapshot',side_effect=[{'fixed':'same'},{'fixed':'changed' if mode=='trust' else 'same'}]), \
+                 patch.object(self.api,'present',side_effect=[('S.gpg-agent',),('S.gpg-agent',) if mode=='remaining' else (),('S.gpg-agent',) if mode=='reappeared' else ()]), \
+                 patch.object(self.api.subprocess,'run',side_effect=(self.api.subprocess.CalledProcessError(1,['inert']) if mode=='nonzero' else self.api.subprocess.TimeoutExpired(['inert'],15) if mode=='timeout' else None)), \
+                 patch.object(self.api.time,'monotonic',side_effect=[0,5]), \
+                 patch.object(self.api.time,'sleep'):
+                with self.assertRaises((ValueError,self.api.subprocess.SubprocessError)):self.api.finish()
+
+    def test_wrong_endpoint_type_and_unsafe_home_refuse_without_process(self):
+        for mode,uid in ((stat.S_IFREG|0o600,0),(stat.S_IFLNK|0o777,0),(stat.S_IFSOCK|0o600,1000)):
+            with patch.object(Path,'lstat',return_value=types.SimpleNamespace(st_mode=mode,st_uid=uid)):
+                with self.assertRaises(ValueError):self.api.present()
+        with patch.object(Path,'lstat',return_value=types.SimpleNamespace(st_mode=stat.S_IFDIR|0o777,st_uid=0)),patch.object(self.api.subprocess,'run') as run:
+            with self.assertRaises(ValueError):self.api.finish()
+        run.assert_not_called()
+
+    def test_snapshot_preserves_content_mode_owner_and_refuses_wrong_nodes(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root=Path(temporary);home=root/'gnupg';home.mkdir()
+            (home/'trustdb.gpg').write_bytes(b'inert public trust')
+            config=root/'pacman.conf';config.write_bytes(b'inert fixed configuration')
+            actual_path=Path
+            self.api.HOME=home
+            self.api.Path=lambda path:config if str(path)=='/etc/pacman.conf' else actual_path(path)
+            lstat=Path.lstat;fstat=os.fstat
+            def root_owned(info):
+                values={name:getattr(info,name)for name in ('st_dev','st_ino','st_mode','st_gid','st_nlink','st_size','st_mtime_ns','st_ctime_ns')}
+                return types.SimpleNamespace(**values,st_uid=0)
+            with patch.object(Path,'lstat',lambda path:root_owned(lstat(path))), \
+                 patch.object(os,'fstat',lambda fd:root_owned(fstat(fd))):
+                first=self.api.snapshot();self.assertEqual(self.api.snapshot(),first)
+                (home/'trustdb.gpg').write_bytes(b'changed inert public trust')
+                self.assertNotEqual(self.api.snapshot(),first)
+                (home/'public-keys.d').symlink_to(root,target_is_directory=True)
+                with self.assertRaisesRegex(ValueError,'public key directory'):self.api.snapshot()
+                (home/'public-keys.d').unlink()
+                (home/'pubring.kbx').symlink_to(config)
+                with self.assertRaises(ValueError):self.api.snapshot()
 
 if __name__=='__main__':unittest.main()

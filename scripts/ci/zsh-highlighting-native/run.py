@@ -20,7 +20,7 @@ import native_arm as native
 from package_checks import recipe,PACKAGE_METADATA
 
 RECIPE='packages/tools/cachy-asahi-zsh-syntax-highlighting'
-BUILDER_SHA='ebf62455e25b5471427224c4df9d75c0c1fd3a0f09a1864596171498740d4527'
+BUILDER_SHA='27ba4be42cf2bd41675073e07cccc917ae033f9d68b07a33cfd7f074ac27b760'
 INPUTS_SHA='b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9'
 PACKAGES_SHA='cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac'
 AUTOSUGGEST={'opt-in.zsh':'692bca1e9ba1a2e9bd32de08cb6ffa5d15b19f85b48e1c08d85a48e41fe6f768',
