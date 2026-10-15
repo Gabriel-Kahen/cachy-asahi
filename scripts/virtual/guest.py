@@ -9,6 +9,7 @@ from pathlib import Path
 import platform
 import re
 import signal
+import socket
 import stat
 import subprocess
 import sys
@@ -225,6 +226,86 @@ def wait_for_ipc(stage, compositor, env, log, check_logs):
     raise ValueError('compositor IPC deadline')
 
 
+def mapped_client(row, pid):
+    size = row.get('size')
+    return (row.get('pid') == pid and row.get('mapped') is True and
+            type(size) is list and len(size) == 2 and
+            all(type(value) is int and value > 0 for value in size))
+
+
+def private_ipc(env, request, deadline, check, deadline_message):
+    """Only the two fixed proof requests, within their caller's existing budget."""
+    require(request in (b'j/clients', b'/dispatch hl.dsp.exit()'), 'unsupported private IPC request')
+    runtime = Path(env['XDG_RUNTIME_DIR'])
+    instance = env['HYPRLAND_INSTANCE_SIGNATURE']
+    require(type(instance) is str and re.fullmatch(r'[A-Za-z0-9_.-]+', instance),
+            'invalid private compositor instance')
+    path = runtime / 'hypr' / instance / '.socket.sock'
+    require(list(runtime.glob('hypr/*/.socket.sock')) == [path] and path.is_socket() and
+            all(not p.is_symlink() for p in (path, *path.parents)), 'private compositor socket required')
+    reply = bytearray()
+    def remaining():
+        check()
+        value = deadline - time.monotonic()
+        require(value > 0, deadline_message)
+        return value
+    with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as connection:
+        connection.settimeout(min(.25, remaining()))
+        connection.connect(str(path))
+        connection.settimeout(min(.25, remaining()))
+        connection.sendall(request)
+        while True:
+            connection.settimeout(min(.25, remaining()))
+            try:
+                block = connection.recv(min(65536, MAX_LOG + 1 - len(reply)))
+            except TimeoutError:
+                continue
+            require(len(reply) + len(block) <= MAX_LOG, 'private IPC reply overflow')
+            if not block:
+                break
+            reply.extend(block)
+        remaining()
+    return bytes(reply)
+
+
+def query_clients(env, deadline, check):
+    start = time.monotonic()
+    reply = private_ipc(env, b'j/clients', deadline, check, 'Wayland client mapping deadline')
+    clients = json.loads(reply.decode('utf-8'))
+    require(type(clients) is list and all(type(row) is dict for row in clients), 'invalid clients IPC reply')
+    check()
+    require(time.monotonic() < deadline, 'Wayland client mapping deadline')
+    emit('client_ipc', transport='private-unix-socket', request='j/clients',
+         elapsed_ms=int((time.monotonic() - start) * 1000), stdout=reply.decode('utf-8'))
+    return clients
+
+
+def capture_window(stage, monitors, clients, check):
+    # Spend the first 5s of the existing 15s live window before QMP capture.
+    # Mapping alone does not mean a queued output update is already visible.
+    start = time.monotonic()
+    until, emitted = start + 15, False
+    while time.monotonic() < until:
+        check()
+        now = time.monotonic()
+        require(now < until, 'capture window expired before snapshot')
+        if not emitted and now >= start + 5:
+            emit('frame_ready', stage=stage, monitors=monitors, clients=clients)
+            emitted = True
+        time.sleep(min(.25, max(0, until - time.monotonic())))
+    require(emitted, 'capture window expired before snapshot')
+
+
+def shutdown_compositor(env, compositor, check):
+    deadline = time.monotonic() + 15
+    reply = private_ipc(env, b'/dispatch hl.dsp.exit()', deadline, check, 'compositor shutdown deadline')
+    require(reply == b'ok', 'compositor exit acknowledgement differs')
+    remaining = deadline - time.monotonic()
+    require(remaining > 0, 'compositor shutdown deadline')
+    compositor.wait(timeout=remaining)
+    require(compositor.returncode == 0 and time.monotonic() < deadline, 'unclean compositor shutdown')
+
+
 def terminate(process):
     try:
         os.killpg(process.pid, signal.SIGTERM)
@@ -309,42 +390,43 @@ def phase(stage, config, env, root, *, nonce=None):
         if stage == 'minimal':
             image_decode_preflight(env, root, nonce)
         client_log = root / (stage + '-client.log')
+        # Isolate the failed AT-SPI startup dependency in this disposable client.
+        # Protocol diagnostics share the existing bounded, reaped client log.
         collector = LoggedProcess(['/usr/bin/wofi', '--normal-window', '--show', 'dmenu', '--prompt', 'Generic ARM software proof', '--width', '420', '--height', '220'],
-                                  client_log, env=env, stdin=subprocess.PIPE)
+                                  client_log, env=dict(env, NO_AT_BRIDGE='1', WAYLAND_DEBUG='client'), stdin=subprocess.PIPE)
         collectors.append(collector)
         client_collector = collector
         client = collector.process
         client.stdin.write(b'cachy-asahi software proof\nNo Apple hardware claim\n')
         client.stdin.close()
         deadline = time.monotonic() + 45
-        while time.monotonic() < deadline:
+        def check_client():
             check_logs()
             require(alive(), 'client/compositor exited before frame')
             require(log.stat().st_size <= MAX_LOG and client_log.stat().st_size <= MAX_LOG, 'session/client log overflow')
-            clients = json.loads(command(['/usr/bin/hyprctl', '-j', 'clients'], env))
-            if any(c.get('pid') == client.pid and c.get('mapped') is True and
-                   all(x > 0 for x in c.get('size', [0, 0])) for c in clients):
+        while time.monotonic() < deadline:
+            clients = query_clients(env, deadline, check_client)
+            require(time.monotonic() < deadline, 'Wayland client mapping deadline')
+            if any(mapped_client(row, client.pid) for row in clients):
                 break
             time.sleep(.5)
         else:
             raise ValueError('Wayland client mapping deadline')
-        emit('frame_ready', stage=stage, monitors=monitors, clients=clients)
-        # Fixed window for outer QMP capture; no network or host IPC.
-        until = time.monotonic() + 15
-        while time.monotonic() < until:
+        def check_capture():
             check_logs()
             require(alive() and
                     log.stat().st_size <= MAX_LOG and client_log.stat().st_size <= MAX_LOG,
                     'session failed/overflowed during capture window')
-            time.sleep(.25)
+        capture_window(stage, monitors, clients, check_capture)
         terminate(client)
         client = None
         collectors[-1].finish()
         retained(client_log, stage)
         client_retained = True
-        command(['/usr/bin/hyprctl', 'dispatch', 'exit'], env)
-        compositor.wait(timeout=15)
-        require(compositor.returncode == 0, 'unclean compositor shutdown')
+        def check_shutdown():
+            check_logs()
+            require(log.stat().st_size <= MAX_LOG, 'compositor log overflow during shutdown')
+        shutdown_compositor(env, compositor, check_shutdown)
         emit('phase_pass', stage=stage)
     finally:
         failure = sys.exc_info()[1]
@@ -439,7 +521,7 @@ def run_user():
            'XDG_CACHE_HOME': '/home/virtual-proof/cache', 'XDG_SESSION_TYPE': 'wayland',
            'SEATD_SOCK': '/run/seatd.sock', 'LIBSEAT_BACKEND': 'seatd',
            'GBM_ALWAYS_SOFTWARE': '1', 'LIBGL_ALWAYS_SOFTWARE': '1', 'GALLIUM_DRIVER': 'llvmpipe',
-           'LP_NUM_THREADS': '2', 'CACHY_ASAHI_VIRTUAL_GUEST': '1',
+           'LP_NUM_THREADS': '2', 'GALLIVM_PERF': 'nopt', 'CACHY_ASAHI_VIRTUAL_GUEST': '1',
            'DBUS_SESSION_BUS_ADDRESS': os.environ['DBUS_SESSION_BUS_ADDRESS']}
     for name in ('config', 'cache'):
         (Path(env['HOME']) / name).mkdir(mode=0o700)
