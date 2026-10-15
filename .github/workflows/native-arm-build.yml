@@ -20,12 +20,12 @@ jobs:
     timeout-minutes: 150
     env:
       PYTHONDONTWRITEBYTECODE: '1'
-      SOURCE_COMMIT: 06688d3847b4d0381ab2474b2dcb2c7efc1fa6c0
+      SOURCE_COMMIT: bb1bd8502cab4a8d1c8dc98032642cc6f779fda4
     steps:
       - name: Check out reviewed offline Asahi graph source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
-          ref: 06688d3847b4d0381ab2474b2dcb2c7efc1fa6c0
+          ref: bb1bd8502cab4a8d1c8dc98032642cc6f779fda4
           path: audio-graph-source
           persist-credentials: false
       - name: Check out unchanged package APIs
