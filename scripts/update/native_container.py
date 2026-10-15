@@ -70,19 +70,28 @@ def main():
     try:
         guard()
         authorized = True
+        need(sys.argv[1:] in ([], ['--scale-fixtures']), 'unknown fixture selection')
+        scaled = sys.argv[1:] == ['--scale-fixtures']
+        selected = [('test_snapshot', 10), ('test_platform_policy', 10), ('test_bound_update', 19)]
+        if scaled:
+            selected += [('test_archive_stream', 20), ('test_full_root', 12), ('test_capacity', 4),
+                         ('test_supervision', 6), ('test_measure_copy', 5), ('test_generic_policy', 6),
+                         ('test_scale_update', 14)]
+        expected = sum(count for _, count in selected)
+        record['fixture_suite'] = 'synthetic-scale-and-tiny' if scaled else 'tiny'
         sys.path.insert(0, '/source/scripts/update')
         library = Path('/usr/lib/libalpm.so.16.0.1')
         record['libalpm_sha256'] = hashlib.sha256(library.read_bytes()).hexdigest()
         worker = load('bound_update')
         need(record['libalpm_sha256'] == worker.install.NATIVE_LIBRARY_SHA, 'native libalpm pin differs')
         suite = unittest.TestSuite()
-        for name, count in (('test_snapshot', 10), ('test_platform_policy', 10), ('test_bound_update', 19)):
+        for name, count in selected:
             tests = unittest.defaultTestLoader.loadTestsFromModule(load(name))
             need(tests.countTestCases() == count, 'existing suite case count differs')
             suite.addTests(tests)
         suite.run(result)
         record.update(tests=result.testsRun, failures=len(result.failures), errors=len(result.errors), skips=len(result.skipped))
-        need(result.wasSuccessful() and result.testsRun == 39 and not result.skipped, 'native tiny suite failed')
+        need(result.wasSuccessful() and result.testsRun == expected and not result.skipped, 'native fixture suite failed')
         record['status'] = 'PASS'
     except BaseException as error:
         record['error_type'] = type(error).__name__
