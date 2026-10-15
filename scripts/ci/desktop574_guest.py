@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 import platform
 import signal
+import stat
 import subprocess
 import sys
 import threading
@@ -15,7 +16,7 @@ import time
 SHARE = Path('/usr/local/share/desktop574')
 HOME = Path('/home/desktop574')
 RUNTIME = Path('/run/desktop574/runtime')
-SEAT = '/run/desktop574/seatd.sock'
+SEAT = '/run/seatd.sock'  # Pinned seatd 0.9.3 uses this compiled-in path inside the private VM.
 MAX_LOG = 256 * 1024
 ENV = {'PATH': '/usr/bin', 'LANG': 'C.UTF-8', 'LC_ALL': 'C.UTF-8'}
 
@@ -137,6 +138,15 @@ def command(argv, env, logs, name, timeout=20):
         raise first
     need(logged.process.returncode == 0, 'command failed: ' + name)
     return logged.paths[0].read_text()
+
+
+def ready_seat():
+    try:
+        value = Path(SEAT).lstat()
+    except FileNotFoundError:
+        return False
+    return (stat.S_ISSOCK(value.st_mode) and value.st_uid == value.st_gid == 23001 and
+            value.st_mode & 0o777 == 0o770)
 
 
 def ready_config(value):
@@ -289,10 +299,11 @@ def boot():
         need(len(cards) == 1, 'one virtio DRM card required')
         os.chown(cards[0], 23001, 23001)
         cards[0].chmod(0o600)
-        seatd = Logged(['/usr/bin/seatd', '-s', SEAT, '-u', 'desktop574', '-g', 'desktop574', '-l', 'info'],
+        need(not os.path.lexists(SEAT), 'preexisting seatd socket path')
+        seatd = Logged(['/usr/bin/seatd', '-u', 'desktop574', '-g', 'desktop574', '-l', 'info'],
                        'seatd', logs, env)
         until = time.monotonic() + 10
-        while not Path(SEAT).is_socket():
+        while not ready_seat():
             seatd.healthy()
             need(time.monotonic() < until, 'seatd readiness deadline')
             time.sleep(.1)
