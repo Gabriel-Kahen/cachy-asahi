@@ -14,6 +14,8 @@ import unittest
 from unittest.mock import patch
 
 ROOT=Path(__file__).absolute().parents[2]
+JOB_ENV={'GITHUB_RUN_ID':'123456','GITHUB_RUN_ATTEMPT':'1'}
+DEV_PROFILE='cachy-asahi-p0-dev-123456-1'
 
 def load(name,path):
     spec=importlib.util.spec_from_file_location(name,path); module=importlib.util.module_from_spec(spec)
@@ -21,8 +23,16 @@ def load(name,path):
 
 P=load('tested_native_preflight',ROOT/'scripts/install/native_preflight.py')
 R=load('tested_native_receiver',ROOT/'scripts/install/native_arm_trial.py')
-# Explicit peer-reviewed issuer fixture, rebinding the previous 7202 bootstrap.
+D=load('tested_p0_input_data',ROOT/'scripts/ci/development/p0_ci.py')
+# Exact composed issuer fixture; the independently pinned assertion is below.
 BASE=ROOT/P.HANDOFF
+
+
+def inventory(raw):
+    value=json.loads(raw)
+    expected={row['name'][0]:row['version'][0] for row in value['rootfs_packages']}
+    expected.update({row['name']:row['version'] for row in value['packages']})
+    return ''.join(f'{name} {version}\n' for name,version in sorted(expected.items())).encode()
 
 
 def record():
@@ -166,8 +176,11 @@ class SelfNamespaceControls(unittest.TestCase):
 class DataControls(unittest.TestCase):
     def setUp(self):
         self.controller=types.SimpleNamespace(image='sha256:'+'a'*64,commit='b'*40)
-        self.inputs=b'model-input'; self.packages=b'model-packages'
-        self.receiver=types.SimpleNamespace(INPUTS_SHA=P.sha(self.inputs),BASE_SHA=P.sha(self.packages))
+        self.inputs=(ROOT/'scripts/ci/inputs.lock.json').read_bytes()
+        self.packages=inventory(self.inputs)
+        self.receiver=R
+        self.assertEqual(P.sha(self.inputs),R.INPUTS_SHA)
+        self.assertEqual(P.sha(self.packages),R.BASE_SHA)
         self.image={'Id':self.controller.image,'Architecture':'arm64','Os':'linux','Config':copy.deepcopy(P.CONFIG)}
     def test_exact_image_config_model(self):
         handoff=P.image_handoff([self.image],self.controller,self.receiver,self.inputs,self.packages)
@@ -205,19 +218,28 @@ class ContainerControls(unittest.TestCase):
         self.cid='a'*64;self.name='cachy-asahi-install-'+'b'*32
         self.trial={'image_id':'sha256:'+'c'*64,'nonce':'b'*32}
         self.paths=(Path('/model/source'),Path('/model/inputs'),Path('/model/output'))
-        self.row={'Id':self.cid,'Name':'/'+self.name,'Image':self.trial['image_id'],
+        self.row={'Id':self.cid,'Name':'/'+self.name,'Image':self.trial['image_id'],'AppArmorProfile':DEV_PROFILE,
             'Config':{'User':f'{os.getuid()}:{os.getgid()}','Entrypoint':['/usr/bin/python3'],
              'Cmd':['-I','-B','/source/scripts/install/native_arm_trial.py','--selection','/inputs/trial.json','--selection-sha256',P.sha(P.encoded(self.trial))],
              'Env':P.CONFIG['Env']+['CACHY_ASAHI_INSTALL_NONCE='+self.trial['nonce'],'CACHY_ASAHI_INSTALL_IMAGE='+self.trial['image_id']]},
             'HostConfig':dict(NetworkMode='none',CgroupnsMode='private',Privileged=False,ReadonlyRootfs=True,CapDrop=['ALL'],
                 CapAdd=[],Devices=[],DeviceRequests=[],Memory=2*1024**3,NanoCpus=2*10**9,PidsLimit=128,
-                SecurityOpt=['no-new-privileges'],Tmpfs={'/tmp':'rw,nosuid,nodev,exec,size=512m,mode=1777'},
+                SecurityOpt=['no-new-privileges','seccomp='+R.DEV_SECCOMP_BYTES.decode().rstrip('\n'),'apparmor='+DEV_PROFILE],Tmpfs={'/tmp':'rw,nosuid,nodev,exec,size=512m,mode=1777'},
                 PidMode='',IpcMode='private',UTSMode='',UsernsMode='',AutoRemove=False,
                 RestartPolicy={'Name':'no','MaximumRetryCount':0}),
             'Mounts':[dict(Type='bind',Source=str(path),Destination=target,RW=rw,Propagation='rprivate')
                       for path,target,rw in zip(self.paths,('/source','/inputs','/out'),(False,False,True))]}
-    def check(self,row): P.container_binding([row],self.cid,self.name,self.trial,*self.paths)
+    def check(self,row):
+        with patch.dict(os.environ,JOB_ENV): P.container_binding([row],self.cid,self.name,self.trial,*self.paths)
     def test_exact_created_container_model(self): self.check(self.row)
+    def test_exact_dev_profile_and_policy_are_mandatory(self):
+        for profile in ('docker-default','unconfined','cachy-asahi-p0-dev-123456-2',None):
+            row=copy.deepcopy(self.row);row['AppArmorProfile']=profile
+            with self.subTest(profile=profile),self.assertRaisesRegex(ValueError,'CONTAINER_BINDING'):self.check(row)
+        for options in (['no-new-privileges'],['no-new-privileges','seccomp=unconfined','apparmor='+DEV_PROFILE],
+                        self.row['HostConfig']['SecurityOpt'][:-1]+['apparmor=docker-default']):
+            row=copy.deepcopy(self.row);row['HostConfig']['SecurityOpt']=options
+            with self.assertRaisesRegex(ValueError,'CONTAINER_POLICY'):self.check(row)
     def test_foreign_container_identity_refuses(self):
         for key,value in [('Id','d'*64),('Name','/foreign'),('Image','sha256:'+'d'*64)]:
             with self.subTest(key=key):
@@ -380,10 +402,11 @@ class ResultControls(unittest.TestCase):
 class PipelineModels(unittest.TestCase):
     """Live grant and daemon events modeled explicitly; never actual owner authority."""
     def setUp(self):
+        self.enterContext(patch.dict(os.environ,JOB_ENV))
         self.tmp=tempfile.TemporaryDirectory(prefix='native-preflight-model-');self.addCleanup(self.tmp.cleanup)
         self.root=Path(self.tmp.name); self.source=self.root/'source';self.source.mkdir()
         self.native=self.root/'native';self.native.mkdir();self.view=self.root/'view';self.view.mkdir()
-        self.output=self.root/'run';self.commands=[];self.mutation=None;self.closed=False
+        self.output=self.root/'run';self.commands=[];self.mutation=None;self.closed=False;self.input_successor=None
         raw=(ROOT/'scripts/ci/inputs.lock.json').read_bytes();lock=json.loads(raw)
         expected={r['name'][0]:r['version'][0] for r in lock['rootfs_packages']}
         expected.update({r['name']:r['version'] for r in lock['packages']})
@@ -429,7 +452,13 @@ class PipelineModels(unittest.TestCase):
             elif args[0]=='start':
                 if model.mutation=='actor-timeout':raise ValueError('modeled-actor-timeout')
                 trial=P.strict((model.output/'inputs/trial.json').read_bytes());model.assertEqual(trial['phase'],'preflight')
-                result['stdout']=P.encoded(record());(model.output/'child/result.json').write_bytes(result['stdout'])
+                value=record()
+                if model.input_successor is not None:
+                    value.update(input_successor=R.validate_input_successor(model.input_successor),
+                                 tool_profile_lineage=R.TOOL_PROFILE_LINEAGE)
+                    if model.mutation=='current-result-lineage':value['tool_profile_lineage']='FRESH_CURRENT_AUDIT'
+                    if model.mutation=='current-result-product':value['input_successor']['product']='foreign-product'
+                result['stdout']=P.encoded(value);(model.output/'child/result.json').write_bytes(result['stdout'])
                 if model.mutation=='actor-nonzero':result['exit_code']=1
             elif args[0]=='rm':
                 if model.mutation=='remove-failed':result['exit_code']=1
@@ -441,7 +470,12 @@ class PipelineModels(unittest.TestCase):
             'entry':None,'runtime':{'transport':types.SimpleNamespace(DockerTransport=CLI,supervise=supervise)},
             'collector':{},'phase':{},'original':{},'original_aliases':{},'native_preflight':P})
     def run_model(self):
-        with patch.object(P,'live',return_value={'root':self.view}),patch.object(P.os,'uname',return_value=types.SimpleNamespace(machine='aarch64')):
+        context={'root':self.view}
+        if self.input_successor is not None:
+            context.update(input_successor=R.validate_input_successor(self.input_successor),
+                           inputs_raw=self.current_inputs,packages_raw=self.current_packages,
+                           source_view_inputs_sha256=R.INPUTS_SHA)
+        with patch.object(P,'live',return_value=context),patch.object(P.os,'uname',return_value=types.SimpleNamespace(machine='aarch64')):
             return P.run(self.session,self.controller,self.output,deadline=time.monotonic()+300,nonce='b'*32,runtime_contract=self.runtime)
     def test_model_causal_create_inspect_preflight_remove_absence(self):
         result=self.run_model();self.assertEqual(result['status'],'PASS');self.assertEqual(result['native_matrix'],'NOT RUN')
@@ -503,7 +537,7 @@ class LiveGraphBindingControls(unittest.TestCase):
         finally:sys.settrace(previous)
         raise AssertionError('native admission must not complete in a source model')
     def test_selected_issuer_pin_and_captured_graph_reach_only_source_gate(self):
-        self.assertEqual(P.ISSUER_SHA,'b7b665bc8473c010321c88b00cd35350c03677ffadac02fd2a5ab4c16dc0ecce')
+        self.assertEqual(P.ISSUER_SHA,'fea5348a93631157fa394ee12b9666ec54e2b667f5fc8f535a9aba9d634162db')
         self.assertEqual(P.sha(BASE.read_bytes()),P.ISSUER_SHA)
         self.assertEqual(self.check(),'SOURCE_GATE_ONLY')
         self.assertIsNone(self.session.native_consumer_observation)
@@ -582,6 +616,133 @@ class LiveGraphBindingControls(unittest.TestCase):
         exec(compile(raw,str(BASE),'exec'),module.__dict__)
         with patch.object(P,'ISSUER_SHA','7202c974547c05ca8b7f0ad9772d4ac849d9d684d4105a979a3290e7d6622acb'):
             with self.assertRaisesRegex(ValueError,'^ISSUER_PIN$'):P.issuer(module,raw)
+
+
+class CurrentDataControls(unittest.TestCase):
+    """Real current/historical receiver guards; only public lock metadata is used."""
+    def setUp(self):
+        DataControls.setUp(self)
+        self.selector=R.validate_input_successor(dict(R.P0_CURRENT_CONTRACT))
+        self.current_inputs=D.current_inputs(self.inputs)
+        self.current_packages=inventory(self.current_inputs)
+        self.assertEqual(P.sha(self.current_inputs),'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f')
+        self.assertEqual(P.sha(self.current_packages),'fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25')
+    def handoff(self,*,inputs=None,packages=None,selector=None):
+        return P.image_handoff([self.image],self.controller,R,
+            self.current_inputs if inputs is None else inputs,
+            self.current_packages if packages is None else packages,
+            input_successor=self.selector if selector is None else selector)
+    def test_current_image_and_real_selection_bind_fixed_product_and_profile_lineage(self):
+        image=self.handoff()
+        sources=types.SimpleNamespace(raw={name:(ROOT/name).read_bytes() for name in P.SOURCE_PATHS})
+        trial=P.selection(sources,self.controller,R,image,'d'*32,input_successor=self.selector)
+        self.assertEqual(R.validate_selection(trial),trial)
+        self.assertEqual(image['inputs_sha256'],self.selector['inputs_sha256'])
+        self.assertEqual(image['packages_lock_sha256'],self.selector['packages_sha256'])
+        self.assertEqual(image['input_successor'],self.selector)
+        self.assertEqual(trial['input_successor'],self.selector)
+        self.assertEqual(trial['tool_profile_lineage'],R.TOOL_PROFILE_LINEAGE)
+        self.assertEqual(trial['phase'],'preflight')
+        self.assertEqual(trial['sources'][P.RECEIVER]['sha256'],P.RECEIVER_SHA)
+    def test_real_current_and_historical_pairs_require_their_own_selector(self):
+        for inputs,packages in ((self.inputs,self.packages),(self.inputs,self.current_packages),
+                                (self.current_inputs,self.packages)):
+            with self.subTest(inputs=P.sha(inputs),packages=P.sha(packages)):
+                with self.assertRaisesRegex(ValueError,'^IMAGE_BINDING$'):
+                    self.handoff(inputs=inputs,packages=packages)
+        with self.assertRaisesRegex(ValueError,'^IMAGE_BINDING$'):
+            P.image_handoff([self.image],self.controller,R,self.current_inputs,self.current_packages)
+        old=P.image_handoff([self.image],self.controller,R,self.inputs,self.packages)
+        self.assertNotIn('input_successor',old)
+        self.assertEqual(old['inputs_sha256'],R.INPUTS_SHA)
+    def test_contract_exact_fields_types_and_values_refuse_before_handoff(self):
+        for key,wanted in self.selector.items():
+            for value in (None,True,False,'foreign',float(wanted) if type(wanted) is int else 0):
+                if type(value) is type(wanted) and value==wanted:continue
+                with self.subTest(key=key,kind=type(value).__name__):
+                    with self.assertRaisesRegex(ValueError,'^INPUT_SUCCESSOR$'):
+                        self.handoff(selector={**self.selector,key:value})
+            missing=dict(self.selector);del missing[key]
+            with self.assertRaisesRegex(ValueError,'^INPUT_SUCCESSOR$'):self.handoff(selector=missing)
+        with self.assertRaisesRegex(ValueError,'^INPUT_SUCCESSOR$'):self.handoff(selector={**self.selector,'foreign':1})
+    def test_contract_foreign_keys_and_subclasses_use_no_hooks(self):
+        events=[]
+        class ForeignDict(dict):pass
+        class ForeignInt(int):
+            def __eq__(self,other):events.append('value-equality');raise AssertionError('foreign equality')
+        class ForeignStr(str):
+            def __eq__(self,other):events.append('value-equality');raise AssertionError('foreign equality')
+        class Key(str):
+            armed=False
+            def __hash__(self):
+                if self.armed:events.append('key-hash');raise AssertionError('foreign hash')
+                return super().__hash__()
+        key=Key('source_epoch');foreign={k:v for k,v in self.selector.items() if k!='source_epoch'}
+        foreign[key]=self.selector['source_epoch'];key.armed=True
+        cases=[ForeignDict(self.selector),foreign,{**self.selector,'packages':ForeignInt(341)},
+               {**self.selector,'product':ForeignStr(self.selector['product'])},
+               {**{k:v for k,v in self.selector.items() if k!='schema_version'},True:1}]
+        for value in cases:
+            with self.assertRaisesRegex(ValueError,'^INPUT_SUCCESSOR$'):self.handoff(selector=value)
+        self.assertEqual(events,[])
+    def test_current_selection_refuses_matrix_relabeling_and_handoff_drift(self):
+        image=self.handoff();sources=types.SimpleNamespace(raw={name:(ROOT/name).read_bytes() for name in P.SOURCE_PATHS})
+        trial=P.selection(sources,self.controller,R,image,'d'*32,input_successor=self.selector)
+        for patching in ({'phase':'matrix'},{'tool_profile_lineage':'FRESH_CURRENT_AUDIT'},
+                         {'native_inputs_sha256':R.INPUTS_SHA},{'builder_packages_sha256':R.BASE_SHA}):
+            with self.assertRaises(ValueError):R.validate_selection({**trial,**patching})
+        for patching in ({'input_successor':{**self.selector,'schema_version':True}},
+                         {'tool_profile_lineage':'FRESH_CURRENT_AUDIT'},
+                         {'inputs_sha256':R.INPUTS_SHA},{'packages_lock_sha256':R.BASE_SHA}):
+            with self.assertRaisesRegex(ValueError,'^INPUT_SUCCESSOR$'):
+                P.selection(sources,self.controller,R,{**image,**patching},'d'*32,input_successor=self.selector)
+    def test_historical_tool_profile_is_held_and_contains_no_changed_vim_tools(self):
+        profile=R.strict(R.PROFILE_BYTES)
+        self.assertEqual(P.sha(R.PROFILE_BYTES),'b7fbd65e357e132949432fb00e765a05e3c76ea29a41d1df93413870d9fd1ed8')
+        self.assertEqual(profile['inputs_sha256'],R.INPUTS_SHA)
+        self.assertEqual(len(profile['files']),136);self.assertEqual(len(profile['aliases']),137)
+        self.assertFalse(any('vim' in (row['owner']+' '+row['path']).lower() for row in profile['files']))
+        self.assertFalse(any('vim' in (key+value).lower() for key,value in profile['aliases'].items()))
+        self.assertFalse(any('vim' in value.lower() for value in profile['roots']))
+    def test_current_result_acceptance_cannot_inherit_historical_pass(self):
+        value={**record(),'input_successor':dict(self.selector),'tool_profile_lineage':R.TOOL_PROFILE_LINEAGE}
+        raw=R.public(value);end=time.monotonic()+60;cleanup={'remove_exit':0,'absent':True}
+        self.assertEqual(P.accept({'exit_code':0},raw,raw,R,cleanup,end,input_successor=self.selector),value)
+        old=R.public(record())
+        with self.assertRaisesRegex(ValueError,'^INPUT_SUCCESSOR$'):
+            P.accept({'exit_code':0},old,old,R,cleanup,end,input_successor=self.selector)
+        with self.assertRaisesRegex(ValueError,'^INPUT_SUCCESSOR$'):
+            P.accept({'exit_code':0},raw,raw,R,cleanup,end)
+        for field,bad in (('tool_profile_lineage','FRESH_CURRENT_AUDIT'),('input_successor',{**self.selector,'packages':True})):
+            badraw=P.encoded({**value,field:bad})
+            with self.assertRaises(ValueError):P.accept({'exit_code':0},badraw,badraw,R,cleanup,end,input_successor=self.selector)
+
+
+class CurrentPipelineModels(PipelineModels):
+    """Actual bridge with modeled daemon/owner; no Docker or receiver actor runs."""
+    def setUp(self):
+        super().setUp()
+        self.input_successor=R.validate_input_successor(dict(R.P0_CURRENT_CONTRACT))
+        self.current_inputs=D.current_inputs((self.native/'inputs.lock.json').read_bytes())
+        self.current_packages=inventory(self.current_inputs)
+        (self.native/'inputs.lock.json').write_bytes(self.current_inputs)
+        (self.native/'packages.lock').write_bytes(self.current_packages)
+    def test_current_pipeline_evidence_binds_current_metadata(self):
+        result=self.run_model()
+        self.assertEqual(result['input_successor'],self.input_successor)
+        self.assertEqual(result['receiver']['input_successor'],self.input_successor)
+        self.assertEqual(result['receiver']['tool_profile_lineage'],R.TOOL_PROFILE_LINEAGE)
+        self.assertEqual(P.strict((self.output/'inputs/image.json').read_bytes())['inputs_sha256'],self.input_successor['inputs_sha256'])
+    def test_current_materialized_input_drift_refuses_before_container_creation(self):
+        (self.native/'inputs.lock.json').write_bytes(b'foreign public metadata')
+        with self.assertRaisesRegex(ValueError,'^INPUT_SUCCESSOR$'):self.run_model()
+        self.assertNotIn('create',[row[0][0] for row in self.commands]);self.assertTrue(self.closed)
+    def test_current_result_product_and_lineage_refuse_after_owned_cleanup(self):
+        for mutation in ('current-result-lineage','current-result-product'):
+            with self.subTest(mutation=mutation):
+                self.output=self.root/mutation;self.commands=[];self.mutation=mutation
+                with self.assertRaises(ValueError):self.run_model()
+                self.assertEqual(self.commands[-2][0],['rm','-f','a'*64]);self.assertTrue(self.closed)
 
 
 if __name__=='__main__': unittest.main()

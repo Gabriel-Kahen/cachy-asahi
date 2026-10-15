@@ -2,6 +2,7 @@
 """Source/data/process mocks only; never launch native/GPG/namespace/package actors."""
 import contextlib
 import hashlib
+import io
 import json
 import os
 from pathlib import Path
@@ -19,6 +20,7 @@ def loaded():
 
 class ReceiverTests(unittest.TestCase):
     def setUp(self):
+        self.enterContext(patch.dict(os.environ, {'GITHUB_RUN_ID':'123456', 'GITHUB_RUN_ATTEMPT':'1'}))
         self.m=loaded();self.tmp=tempfile.TemporaryDirectory(prefix='native-receiver-model-');self.addCleanup(self.tmp.cleanup);self.root=Path(self.tmp.name)
     def selection(self):
         sources={}
@@ -82,6 +84,14 @@ class ReceiverTests(unittest.TestCase):
         for flag in ('--network=none','--cap-drop=ALL','--security-opt=no-new-privileges','--read-only','--pull=never','--platform=linux/arm64'):self.assertIn(flag,cmd)
         self.assertFalse(any('privileged' in a or 'unconfined' in a or 'SYS_ADMIN' in a or 'docker.sock' in a for a in cmd))
         self.assertEqual(cmd[cmd.index('--user')+1],f'{os.getuid()}:{os.getgid()}')
+        self.assertIn('--security-opt=seccomp=/test/input/dev-seccomp.json',cmd)
+        self.assertIn('--security-opt=apparmor=cachy-asahi-p0-dev-123456-1',cmd)
+    def test_dev_profile_requires_exact_synthetic_job_context(self):
+        s=self.selection()
+        for values in ({}, {'GITHUB_RUN_ID':'123456','GITHUB_RUN_ATTEMPT':'../foreign'}):
+            with patch.dict(os.environ,values,clear=True),patch.object(self.m.os,'uname',return_value=types.SimpleNamespace(machine='aarch64')):
+                with self.assertRaisesRegex(ValueError,'CONTAINER_POLICY'):
+                    self.m.docker_command(s,Path('/s'),Path('/i'),Path('/o'))
     def test_x86_constructor_refuses_native_emulation_claim(self):
         with patch.object(self.m.os,'uname',return_value=types.SimpleNamespace(machine='x86_64')):
             with self.assertRaises(ValueError):self.m.docker_command(self.selection(),Path('/s'),Path('/i'),Path('/o'))
@@ -273,6 +283,158 @@ class CompletePhaseProjectionTests(unittest.TestCase):
                 with self.subTest(status=status,phase=phase):
                     record=self.record();record.update(status=status,phase=phase,first_failure='INPUT_REFUSED')
                     self.assertEqual(json.loads(self.m.public(record)),record)
+
+
+class CurrentInputSuccessorTests(unittest.TestCase):
+    """Exercise the actual receiver; stop modeled environment checks before tool I/O."""
+    setUp=ReceiverTests.setUp
+    selection=ReceiverTests.selection
+    record=ReceiverTests.record
+
+    def current_selection(self):
+        value=self.selection();value.update(input_successor=dict(self.m.P0_CURRENT_CONTRACT),
+            tool_profile_lineage=self.m.TOOL_PROFILE_LINEAGE,
+            native_inputs_sha256=self.m.P0_CURRENT_CONTRACT['inputs_sha256'],
+            builder_packages_sha256=self.m.P0_CURRENT_CONTRACT['packages_sha256'])
+        return value
+
+    def inventory(self,current):
+        value=json.loads((HERE.parents[1]/'scripts/ci/inputs.lock.json').read_bytes())
+        names={row['name'][0]:row['version'][0] for row in value['rootfs_packages']}
+        names.update({row['name']:row['version'] for row in value['packages']})
+        if current:names.update(vim='9.2.1178-1',**{'vim-runtime':'9.2.1178-1'})
+        raw=''.join(name+' '+names[name]+'\n' for name in sorted(names)).encode()
+        expected=self.m.P0_CURRENT_CONTRACT['packages_sha256'] if current else self.m.BASE_SHA
+        self.assertEqual(self.m.sha(raw),expected)
+        return raw
+
+    def image(self,selection):
+        config={'ArgsEscaped':False,'Cmd':[],'Entrypoint':[],
+            'Env':['PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'],
+            'ExposedPorts':None,'Healthcheck':None,'Labels':{},'Shell':[],
+            'StopSignal':None,'User':'alarm','Volumes':None,'WorkingDir':'/tmp'}
+        value=dict(source_commit=selection['source_commit'],image_id=selection['image_id'],
+            inputs_sha256=selection['native_inputs_sha256'],packages_lock_sha256=selection['builder_packages_sha256'],
+            architecture='arm64',os='linux',Config=config)
+        if 'input_successor' in selection:value.update(input_successor=dict(selection['input_successor']),tool_profile_lineage=self.m.TOOL_PROFILE_LINEAGE)
+        selection['image_config_sha256']=self.m.sha((json.dumps(config,sort_keys=True)+'\n').encode())
+        return value
+
+    def environment_model(self,selection,image,packages):
+        """Real selection/image/inventory/profile checks; no actual tool or host trial."""
+        raw=(json.dumps(image,sort_keys=True)+'\n').encode();selection['native_handoff_sha256']=self.m.sha(raw);reads=[]
+        def read(path,*args):
+            reads.append(str(path))
+            if str(path)=='/inputs/image.json':return raw
+            if str(path)=='/builder-packages.lock':return packages
+            raise AssertionError('unexpected tool/payload read')
+        status=dict(NoNewPrivs='1',**{key:'0' for key in ('CapEff','CapPrm','CapInh','CapAmb','CapBnd')})
+        class ReachedToolAliases(Exception):pass
+        self.reached_tools=ReachedToolAliases
+        with contextlib.ExitStack() as stack:
+            stack.enter_context(patch.object(self.m,'read',side_effect=read))
+            stack.enter_context(patch.object(self.m,'proc_status',return_value=status))
+            stack.enter_context(patch.object(self.m.os,'uname',return_value=types.SimpleNamespace(machine='aarch64')))
+            for name in ('getuid','geteuid','getgid','getegid'):stack.enter_context(patch.object(self.m.os,name,return_value=1000))
+            stack.enter_context(patch.object(self.m.os,'environ',{'CACHY_ASAHI_INSTALL_NONCE':selection['nonce'],'CACHY_ASAHI_INSTALL_IMAGE':selection['image_id']}))
+            stack.enter_context(patch.object(self.m.Path,'resolve',side_effect=ReachedToolAliases))
+            try:self.m.verify_environment(selection,time.monotonic()+5)
+            except ReachedToolAliases:return reads
+        raise AssertionError('expected stop before tool alias and file audit')
+
+    def test_explicit_current_and_historical_routes_are_distinct(self):
+        old=self.selection();current=self.current_selection()
+        self.assertIs(self.m.validate_selection(old),old);self.assertIs(self.m.validate_selection(current),current)
+        self.assertEqual(self.m.input_selection(),(self.m.INPUTS_SHA,self.m.BASE_SHA))
+        self.assertEqual(self.m.input_selection(current['input_successor']),
+            (current['native_inputs_sha256'],current['builder_packages_sha256']))
+        self.assertNotEqual(self.m.input_selection(),self.m.input_selection(current['input_successor']))
+
+    def test_current_pair_cannot_enter_without_explicit_selector(self):
+        value=self.current_selection();del value['input_successor'];del value['tool_profile_lineage']
+        with self.assertRaisesRegex(ValueError,'PROFILE_PIN'):self.m.validate_selection(value)
+
+    def test_historical_or_mixed_hashes_refuse_current_selector(self):
+        for old_inputs,old_packages in ((True,True),(True,False),(False,True)):
+            value=self.current_selection()
+            if old_inputs:value['native_inputs_sha256']=self.m.INPUTS_SHA
+            if old_packages:value['builder_packages_sha256']=self.m.BASE_SHA
+            with self.subTest(inputs=old_inputs,packages=old_packages),self.assertRaisesRegex(ValueError,'PROFILE_PIN'):self.m.validate_selection(value)
+
+    def test_current_selector_is_closed_typed_and_version_pinned(self):
+        original=dict(self.m.P0_CURRENT_CONTRACT)
+        for key in original:
+            value=dict(original);value[key]='not selected'
+            with self.subTest(key=key),self.assertRaisesRegex(ValueError,'INPUT_SUCCESSOR'):self.m.validate_input_successor(value)
+        class Text(str):pass
+        class Number(int):pass
+        for value in ({**original,'schema_version':True},{**original,'schema_version':1.0},
+                {**original,'schema_version':Number(1)},{**original,'product':Text(original['product'])},
+                {**original,'extra':1}):
+            with self.assertRaisesRegex(ValueError,'INPUT_SUCCESSOR'):self.m.validate_input_successor(value)
+        value=dict(original);value[Text('product')]=value.pop('product')
+        with self.assertRaisesRegex(ValueError,'INPUT_SUCCESSOR'):self.m.validate_input_successor(value)
+
+    def test_current_matrix_mode_and_current_audit_profile_claim_refuse(self):
+        for key,value in (('phase','matrix'),('tool_profile_lineage','CURRENT_AUDIT')):
+            selection=self.current_selection();selection[key]=value
+            with self.subTest(key=key),self.assertRaisesRegex(ValueError,'PROFILE_LINEAGE'):self.m.validate_selection(selection)
+
+    def test_real_environment_validation_selects_current_inventory(self):
+        value=self.current_selection();image=self.image(value)
+        self.assertEqual(self.environment_model(value,image,self.inventory(True)),['/inputs/image.json','/builder-packages.lock'])
+
+    def test_real_environment_validation_preserves_historical_inventory_route(self):
+        value=self.selection();image=self.image(value)
+        self.assertEqual(self.environment_model(value,image,self.inventory(False)),['/inputs/image.json','/builder-packages.lock'])
+
+    def test_current_environment_rejects_old_image_or_inventory(self):
+        value=self.current_selection();image=self.image(value);image['inputs_sha256']=self.m.INPUTS_SHA
+        with self.assertRaisesRegex(ValueError,'IMAGE_HANDOFF_BINDING'):self.environment_model(value,image,self.inventory(True))
+        value=self.current_selection();image=self.image(value)
+        with self.assertRaisesRegex(ValueError,'BUILDER_INVENTORY'):self.environment_model(value,image,self.inventory(False))
+
+    def test_current_image_requires_selector_and_historical_profile_lineage(self):
+        for key in ('input_successor','tool_profile_lineage'):
+            value=self.current_selection();image=self.image(value);del image[key]
+            with self.subTest(key=key),self.assertRaisesRegex(ValueError,'IMAGE_SUCCESSOR'):self.environment_model(value,image,self.inventory(True))
+
+    def test_profile_bytes_are_historical_whitelist_not_new_tool_audit(self):
+        profile=json.loads(self.m.PROFILE_BYTES)
+        self.assertEqual(profile['inputs_sha256'],self.m.INPUTS_SHA)
+        self.assertNotEqual(profile['inputs_sha256'],self.m.P0_CURRENT_CONTRACT['inputs_sha256'])
+        self.assertEqual(self.m.sha(self.m.PROFILE_BYTES),'b7fbd65e357e132949432fb00e765a05e3c76ea29a41d1df93413870d9fd1ed8')
+        self.assertFalse(any(row['owner'].split()[0] in ('vim','vim-runtime') for row in profile['files']))
+        value=self.current_selection();image=self.image(value);profile['inputs_sha256']=self.m.P0_CURRENT_CONTRACT['inputs_sha256']
+        with patch.object(self.m,'PROFILE_BYTES',(json.dumps(profile,sort_keys=True)+'\n').encode()):
+            with self.assertRaisesRegex(ValueError,'PROFILE_PIN|PROFILE_LINEAGE'):self.environment_model(value,image,self.inventory(True))
+
+    def test_current_public_result_retains_exact_selector_and_profile_lineage(self):
+        record=self.record();record.update(input_successor=dict(self.m.P0_CURRENT_CONTRACT),tool_profile_lineage=self.m.TOOL_PROFILE_LINEAGE)
+        self.assertEqual(json.loads(self.m.public(record)),record)
+        for key in ('input_successor','tool_profile_lineage'):
+            bad=dict(record);del bad[key]
+            with self.subTest(key=key),self.assertRaisesRegex(ValueError,'PROFILE_LINEAGE'):self.m.public(bad)
+
+    def test_main_refusal_after_current_selection_retains_product_provenance(self):
+        selection=self.current_selection();raw=(json.dumps(selection,sort_keys=True)+'\n').encode();output=io.BytesIO()
+        with patch.object(self.m.sys,'argv',['receiver','--selection','/inputs/trial.json','--selection-sha256',self.m.sha(raw)]),\
+             patch.object(self.m.sys,'stdout',types.SimpleNamespace(buffer=output)),\
+             patch.object(self.m,'read',return_value=raw),patch.object(self.m,'execute',side_effect=ValueError('inert pre-actor refusal')) as actor:
+            code=self.m.main()
+        value=json.loads(output.getvalue());self.assertEqual(code,2);actor.assert_called_once()
+        self.assertEqual(value['status'],'REFUSED');self.assertEqual(value['input_successor'],self.m.P0_CURRENT_CONTRACT)
+        self.assertEqual(value['tool_profile_lineage'],self.m.TOOL_PROFILE_LINEAGE)
+
+    def test_main_invalid_selector_refuses_before_execute_without_current_provenance(self):
+        selection=self.current_selection();selection['input_successor']['inputs_sha256']=self.m.INPUTS_SHA
+        raw=(json.dumps(selection,sort_keys=True)+'\n').encode();output=io.BytesIO()
+        with patch.object(self.m.sys,'argv',['receiver','--selection','/inputs/trial.json','--selection-sha256',self.m.sha(raw)]),\
+             patch.object(self.m.sys,'stdout',types.SimpleNamespace(buffer=output)),\
+             patch.object(self.m,'read',return_value=raw),patch.object(self.m,'execute',side_effect=AssertionError('actor forbidden')) as actor:
+            code=self.m.main()
+        value=json.loads(output.getvalue());self.assertEqual(code,2);actor.assert_not_called()
+        self.assertEqual(value['status'],'REFUSED');self.assertNotIn('input_successor',value);self.assertNotIn('tool_profile_lineage',value)
 
 
 if __name__=='__main__':unittest.main()

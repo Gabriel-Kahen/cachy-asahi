@@ -109,17 +109,46 @@ def source_blobs(selection, source, end):
     return result
 
 
+P0_CURRENT_CONTRACT = {'schema_version': 1, 'product': 'installer-P0-vim-9.2.1178-1-input-successor-v1', 'lineage': 'CURRENT_PRODUCT_SUCCESSOR_NOT_HISTORICAL_EVIDENCE', 'historical_inputs_sha256': '3c16c37d1b12cc84a88572e82ab8ad59e7f3b5ed0d08f09ddf72a69f4711d650', 'historical_packages_sha256': '89bdb06fea1862b5a6e02b77a4b98f6e04755b02327d875a716bd792929f3a4f', 'inputs_sha256': 'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f', 'packages_sha256': 'fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25', 'inputs_bytes': 328101, 'packages_bytes': 6674, 'acquisitions': 501, 'packages': 341, 'recipe_source_commit': 'ebd5812640b0b69f5c09a47752b739e37e338754', 'source_epoch': 1791748800}
+TOOL_PROFILE_LINEAGE = 'HISTORICAL_REQUIRED_TOOL_WHITELIST_NOT_CURRENT_AUDIT'
+
+
+def validate_input_successor(value):
+    require(type(value) is dict and len(value) == 13 and all(type(key) is str for key in value) and
+            set(value) == set(P0_CURRENT_CONTRACT) and
+            all(type(value[key]) is type(wanted) and value[key] == wanted
+                for key, wanted in P0_CURRENT_CONTRACT.items()), 'INPUT_SUCCESSOR')
+    return dict(value)
+
+
+def input_selection(input_successor=None):
+    if input_successor is None:
+        return INPUTS_SHA, BASE_SHA
+    selected = validate_input_successor(input_successor)
+    return selected['inputs_sha256'], selected['packages_sha256']
+
+
 def validate_selection(value):
     fields={'schema_version','purpose','phase','source_commit','sources','tool_profile_sha256','native_inputs_sha256',
             'builder_packages_sha256','image_id','image_config_sha256','native_handoff_sha256','nonce'}
-    require(type(value) is dict and set(value)==fields and type(value['schema_version']) is int and value['schema_version']==1,
+    require(type(value) is dict and all(type(key) is str for key in value), 'SELECTION_SCHEMA')
+    current = 'input_successor' in value
+    if current: fields |= {'input_successor', 'tool_profile_lineage'}
+    require(set(value)==fields and type(value['schema_version']) is int and value['schema_version']==1,
             'SELECTION_SCHEMA')
+    selected = validate_input_successor(value['input_successor']) if current else None
+    if current:
+        require(type(value['phase']) is str and value['phase'] == 'preflight' and
+                all(type(value[key]) is str for key in ('native_inputs_sha256', 'builder_packages_sha256', 'tool_profile_sha256')) and
+                type(value['tool_profile_lineage']) is str and
+                value['tool_profile_lineage'] == TOOL_PROFILE_LINEAGE, 'PROFILE_LINEAGE')
     require(value['purpose']=='native-arm-synthetic-installer' and value['phase'] in ('preflight','matrix'), 'SELECTION_SCOPE')
     for key,n in (('source_commit',40),('image_config_sha256',64),('native_handoff_sha256',64),('nonce',32)):
         require(type(value[key]) is str and len(value[key])==n and all(c in '0123456789abcdef' for c in value[key]), 'SELECTION_PIN')
     require(type(value['image_id']) is str and len(value['image_id'])==71 and value['image_id'].startswith('sha256:') and
             all(c in '0123456789abcdef' for c in value['image_id'][7:]), 'IMAGE_PIN')
-    require(value['native_inputs_sha256']==INPUTS_SHA and value['builder_packages_sha256']==BASE_SHA and
+    inputs_sha, packages_sha = input_selection(selected)
+    require(value['native_inputs_sha256']==inputs_sha and value['builder_packages_sha256']==packages_sha and
             value['tool_profile_sha256']==sha(PROFILE_BYTES), 'PROFILE_PIN')
     return value
 
@@ -131,7 +160,7 @@ def docker_command(selection, source, inputs, output):
             'NATIVE_HOST_REQUIRED')
     args=['docker','run','--name','cachy-asahi-install-'+selection['nonce'],'--pull=never','--platform=linux/arm64',
           '--user',f'{os.getuid()}:{os.getgid()}','--network=none','--cgroupns=private','--cap-drop=ALL',
-          '--security-opt=no-new-privileges','--read-only','--pids-limit=128','--memory=2g','--cpus=2',
+          '--security-opt=no-new-privileges','--security-opt=seccomp='+str(Path(inputs)/'dev-seccomp.json'),'--security-opt=apparmor='+dev_apparmor_name(),'--read-only','--pids-limit=128','--memory=2g','--cpus=2',
           '--tmpfs','/tmp:rw,nosuid,nodev,exec,size=512m,mode=1777']
     for path,target,ro in ((source,'/source',True),(inputs,'/inputs',True),(output,'/out',False)):
         require(Path(path).is_absolute() and not any(c in str(path) for c in ',\n\0'), 'BIND_PATH')
@@ -150,12 +179,22 @@ def proc_status(end):
 
 
 def verify_environment(selection, end):
+    validate_selection(selection)
+    selected = selection.get('input_successor')
+    inputs_sha, packages_sha = input_selection(selected)
     image_raw=read('/inputs/image.json',1024**2,end)
     require(sha(image_raw)==selection['native_handoff_sha256'], 'IMAGE_HANDOFF_HASH')
     image=strict(image_raw)
-    require(type(image) is dict and set(image)=={'source_commit','image_id','inputs_sha256','packages_lock_sha256','architecture','os','Config'} and
+    fields = {'source_commit','image_id','inputs_sha256','packages_lock_sha256','architecture','os','Config'}
+    if selected is not None:
+        fields |= {'input_successor', 'tool_profile_lineage'}
+        require(type(image) is dict and image.get('input_successor') == selected and
+                type(image.get('tool_profile_lineage')) is str and
+                image['tool_profile_lineage'] == TOOL_PROFILE_LINEAGE, 'IMAGE_SUCCESSOR')
+        validate_input_successor(image['input_successor'])
+    require(type(image) is dict and set(image)==fields and
             image['source_commit']==selection['source_commit'] and image['image_id']==selection['image_id'] and
-            image['inputs_sha256']==INPUTS_SHA and image['packages_lock_sha256']==BASE_SHA and
+            image['inputs_sha256']==inputs_sha and image['packages_lock_sha256']==packages_sha and
             image['architecture']=='arm64' and image['os']=='linux', 'IMAGE_HANDOFF_BINDING')
     config=image['Config']
     require(type(config) is dict and sha((json.dumps(config,sort_keys=True)+'\n').encode())==selection['image_config_sha256'], 'IMAGE_CONFIG_HASH')
@@ -171,8 +210,17 @@ def verify_environment(selection, end):
             os.environ.get('CACHY_ASAHI_INSTALL_IMAGE')==selection['image_id'], 'CONTAINER_HANDOFF')
     status=proc_status(end)
     require(status.get('NoNewPrivs','').strip()=='1' and all(int(status[k].strip(),16)==0 for k in ('CapEff','CapPrm','CapInh','CapAmb','CapBnd')), 'OUTER_CAPS')
-    require(sha(read('/builder-packages.lock',65536,end))==BASE_SHA, 'BUILDER_INVENTORY')
+    packages = read('/builder-packages.lock',65536,end)
+    require(sha(packages)==packages_sha, 'BUILDER_INVENTORY')
+    if selected is not None:
+        require(len(packages) == selected['packages_bytes'] and len(packages.splitlines()) == selected['packages'],
+                'BUILDER_INVENTORY')
     profile=strict(PROFILE_BYTES)
+    if selected is not None:
+        require(profile['inputs_sha256'] == INPUTS_SHA and
+                sha(PROFILE_BYTES) == 'b7fbd65e357e132949432fb00e765a05e3c76ea29a41d1df93413870d9fd1ed8' and
+                all(not row['owner'].split()[0] in ('vim', 'vim-runtime') for row in profile['files']),
+                'PROFILE_LINEAGE')
     for alias,target in profile['aliases'].items():
         check_time(end);require(str(Path(alias).resolve(strict=True))==target, 'TOOL_ALIAS')
     for row in profile['files']:
@@ -266,6 +314,13 @@ def public(record):
             all(type(value[k]) is int and 0<=value[k]<=26 for k in ('tests','failures','errors','skips')), 'PUBLIC_SCHEMA')
     require(value['status']!='PASS_NATIVE_PREFLIGHT_ONLY' or value['phase']=='complete' and value['barrier']=='PASS' and value['ABI']==value['matrix']=='NOT_RUN' and value['tests']==1 and value['owned_child_cleanup']=='PASS' and value['first_failure']=='NONE' and not any(value[k] for k in ('failures','errors','skips','termination')), 'PUBLIC_PASS')
     require(value['status']!='PASS_NATIVE_FIXTURE_ONLY' or value['phase']=='complete' and value['barrier']==value['ABI']==value['matrix']=='PASS' and value['tests']==26 and value['owned_child_cleanup']=='PASS' and value['first_failure']=='NONE' and not any(value[k] for k in ('failures','errors','skips','termination')), 'PUBLIC_PASS')
+    if 'tool_profile_lineage' in record:
+        require('input_successor' in record, 'PROFILE_LINEAGE')
+    if 'input_successor' in record:
+        value['input_successor'] = validate_input_successor(record['input_successor'])
+        require(type(record.get('tool_profile_lineage')) is str and
+                record['tool_profile_lineage'] == TOOL_PROFILE_LINEAGE, 'PROFILE_LINEAGE')
+        value['tool_profile_lineage'] = TOOL_PROFILE_LINEAGE
     data=(json.dumps(value,sort_keys=True)+'\n').encode();require(len(data)<=4096,'PUBLIC_CAP');return data
 
 
@@ -277,6 +332,9 @@ def execute(selection,source,output,end,preflight_end):
     # No actor or CDLL has occurred before all required source/tool/profile checks.
     record=dict(schema_version=1,status='FAIL',phase='preflight',barrier='NOT_RUN',ABI='NOT_RUN',matrix='NOT_RUN',
                 tests=0,failures=0,errors=0,skips=0,termination=False,owned_child_cleanup='UNKNOWN',first_failure='NONE')
+    if 'input_successor' in selection:
+        record.update(input_successor=validate_input_successor(selection['input_successor']),
+                      tool_profile_lineage=TOOL_PROFILE_LINEAGE)
     output=Path(output);require(output.is_dir() and not output.is_symlink() and output.stat().st_uid==os.getuid() and
                                 stat.S_IMODE(output.stat().st_mode)==0o700,'OUTPUT_DIRECTORY')
     worker=module(blobs[SOURCE_PATHS[0]],source/SOURCE_PATHS[0],'selected_installer');rt=worker.runtime()
@@ -366,10 +424,13 @@ def execute(selection,source,output,end,preflight_end):
 def main():
     parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--selection',type=Path,required=True)
     parser.add_argument('--selection-sha256',required=True);args=parser.parse_args();start=time.monotonic()
+    accepted_successor = None
     try:
         require(args.selection==Path('/inputs/trial.json'),'SELECTION_PATH')
         raw=read(args.selection,1024**2,start+60);require(sha(raw)==args.selection_sha256,'SELECTION_HASH')
         selection=validate_selection(strict(raw));require(raw==(json.dumps(selection,sort_keys=True)+'\n').encode(),'SELECTION_CANONICAL')
+        if 'input_successor' in selection:
+            accepted_successor = validate_input_successor(selection['input_successor'])
         end=start+(60 if selection['phase']=='preflight' else 1800)
         record=execute(selection,Path('/source'),Path('/out'),end,start+60);sys.stdout.buffer.write(public(record));sys.stdout.buffer.flush()
         return int(record['status'] not in ('PASS_NATIVE_PREFLIGHT_ONLY','PASS_NATIVE_FIXTURE_ONLY'))
@@ -379,7 +440,21 @@ def main():
             if record['first_failure']=='NONE':record['first_failure']='PUBLICATION_FAILED'
             if TERMINAL_LEASE is not None:TERMINAL_LEASE.revoke(record)
         else:record=dict(schema_version=1,status='REFUSED',phase='inputs',barrier='NOT_RUN',ABI='NOT_RUN',matrix='NOT_RUN',tests=0,failures=0,errors=0,skips=0,termination=False,owned_child_cleanup='NOT_STARTED',first_failure='INPUT_REFUSED')
+        if accepted_successor is not None:
+            record.update(input_successor=accepted_successor, tool_profile_lineage=TOOL_PROFILE_LINEAGE)
         sys.stdout.buffer.write(public(record));sys.stdout.buffer.flush();return 2
 
+
+# DEV synthetic worker only: pinned Moby28.0.4 baseline plus three namespace/mount syscall names.
+DEV_SECCOMP_BYTES = b'{"defaultAction":"SCMP_ACT_ERRNO","defaultErrnoRet":1,"archMap":[{"architecture":"SCMP_ARCH_X86_64","subArchitectures":["SCMP_ARCH_X86","SCMP_ARCH_X32"]},{"architecture":"SCMP_ARCH_AARCH64","subArchitectures":["SCMP_ARCH_ARM"]},{"architecture":"SCMP_ARCH_MIPS64","subArchitectures":["SCMP_ARCH_MIPS","SCMP_ARCH_MIPS64N32"]},{"architecture":"SCMP_ARCH_MIPS64N32","subArchitectures":["SCMP_ARCH_MIPS","SCMP_ARCH_MIPS64"]},{"architecture":"SCMP_ARCH_MIPSEL64","subArchitectures":["SCMP_ARCH_MIPSEL","SCMP_ARCH_MIPSEL64N32"]},{"architecture":"SCMP_ARCH_MIPSEL64N32","subArchitectures":["SCMP_ARCH_MIPSEL","SCMP_ARCH_MIPSEL64"]},{"architecture":"SCMP_ARCH_S390X","subArchitectures":["SCMP_ARCH_S390"]},{"architecture":"SCMP_ARCH_RISCV64","subArchitectures":null}],"syscalls":[{"names":["accept","accept4","access","adjtimex","alarm","bind","brk","cachestat","capget","capset","chdir","chmod","chown","chown32","clock_adjtime","clock_adjtime64","clock_getres","clock_getres_time64","clock_gettime","clock_gettime64","clock_nanosleep","clock_nanosleep_time64","close","close_range","connect","copy_file_range","creat","dup","dup2","dup3","epoll_create","epoll_create1","epoll_ctl","epoll_ctl_old","epoll_pwait","epoll_pwait2","epoll_wait","epoll_wait_old","eventfd","eventfd2","execve","execveat","exit","exit_group","faccessat","faccessat2","fadvise64","fadvise64_64","fallocate","fanotify_mark","fchdir","fchmod","fchmodat","fchmodat2","fchown","fchown32","fchownat","fcntl","fcntl64","fdatasync","fgetxattr","flistxattr","flock","fork","fremovexattr","fsetxattr","fstat","fstat64","fstatat64","fstatfs","fstatfs64","fsync","ftruncate","ftruncate64","futex","futex_requeue","futex_time64","futex_wait","futex_waitv","futex_wake","futimesat","getcpu","getcwd","getdents","getdents64","getegid","getegid32","geteuid","geteuid32","getgid","getgid32","getgroups","getgroups32","getitimer","getpeername","getpgid","getpgrp","getpid","getppid","getpriority","getrandom","getresgid","getresgid32","getresuid","getresuid32","getrlimit","get_robust_list","getrusage","getsid","getsockname","getsockopt","get_thread_area","gettid","gettimeofday","getuid","getuid32","getxattr","inotify_add_watch","inotify_init","inotify_init1","inotify_rm_watch","io_cancel","ioctl","io_destroy","io_getevents","io_pgetevents","io_pgetevents_time64","ioprio_get","ioprio_set","io_setup","io_submit","ipc","kill","landlock_add_rule","landlock_create_ruleset","landlock_restrict_self","lchown","lchown32","lgetxattr","link","linkat","listen","listxattr","llistxattr","_llseek","lremovexattr","lseek","lsetxattr","lstat","lstat64","madvise","map_shadow_stack","membarrier","memfd_create","memfd_secret","mincore","mkdir","mkdirat","mknod","mknodat","mlock","mlock2","mlockall","mmap","mmap2","mprotect","mq_getsetattr","mq_notify","mq_open","mq_timedreceive","mq_timedreceive_time64","mq_timedsend","mq_timedsend_time64","mq_unlink","mremap","msgctl","msgget","msgrcv","msgsnd","msync","munlock","munlockall","munmap","name_to_handle_at","nanosleep","newfstatat","_newselect","open","openat","openat2","pause","pidfd_open","pidfd_send_signal","pipe","pipe2","pkey_alloc","pkey_free","pkey_mprotect","poll","ppoll","ppoll_time64","prctl","pread64","preadv","preadv2","prlimit64","process_mrelease","pselect6","pselect6_time64","pwrite64","pwritev","pwritev2","read","readahead","readlink","readlinkat","readv","recv","recvfrom","recvmmsg","recvmmsg_time64","recvmsg","remap_file_pages","removexattr","rename","renameat","renameat2","restart_syscall","rmdir","rseq","rt_sigaction","rt_sigpending","rt_sigprocmask","rt_sigqueueinfo","rt_sigreturn","rt_sigsuspend","rt_sigtimedwait","rt_sigtimedwait_time64","rt_tgsigqueueinfo","sched_getaffinity","sched_getattr","sched_getparam","sched_get_priority_max","sched_get_priority_min","sched_getscheduler","sched_rr_get_interval","sched_rr_get_interval_time64","sched_setaffinity","sched_setattr","sched_setparam","sched_setscheduler","sched_yield","seccomp","select","semctl","semget","semop","semtimedop","semtimedop_time64","send","sendfile","sendfile64","sendmmsg","sendmsg","sendto","setfsgid","setfsgid32","setfsuid","setfsuid32","setgid","setgid32","setgroups","setgroups32","setitimer","setpgid","setpriority","setregid","setregid32","setresgid","setresgid32","setresuid","setresuid32","setreuid","setreuid32","setrlimit","set_robust_list","setsid","setsockopt","set_thread_area","set_tid_address","setuid","setuid32","setxattr","shmat","shmctl","shmdt","shmget","shutdown","sigaltstack","signalfd","signalfd4","sigprocmask","sigreturn","socketcall","socketpair","splice","stat","stat64","statfs","statfs64","statx","symlink","symlinkat","sync","sync_file_range","syncfs","sysinfo","tee","tgkill","time","timer_create","timer_delete","timer_getoverrun","timer_gettime","timer_gettime64","timer_settime","timer_settime64","timerfd_create","timerfd_gettime","timerfd_gettime64","timerfd_settime","timerfd_settime64","times","tkill","truncate","truncate64","ugetrlimit","umask","uname","unlink","unlinkat","utime","utimensat","utimensat_time64","utimes","vfork","vmsplice","wait4","waitid","waitpid","write","writev"],"action":"SCMP_ACT_ALLOW"},{"names":["process_vm_readv","process_vm_writev","ptrace"],"action":"SCMP_ACT_ALLOW","includes":{"minKernel":"4.8"}},{"names":["socket"],"action":"SCMP_ACT_ALLOW","args":[{"index":0,"value":40,"op":"SCMP_CMP_NE"}]},{"names":["personality"],"action":"SCMP_ACT_ALLOW","args":[{"index":0,"value":0,"op":"SCMP_CMP_EQ"}]},{"names":["personality"],"action":"SCMP_ACT_ALLOW","args":[{"index":0,"value":8,"op":"SCMP_CMP_EQ"}]},{"names":["personality"],"action":"SCMP_ACT_ALLOW","args":[{"index":0,"value":131072,"op":"SCMP_CMP_EQ"}]},{"names":["personality"],"action":"SCMP_ACT_ALLOW","args":[{"index":0,"value":131080,"op":"SCMP_CMP_EQ"}]},{"names":["personality"],"action":"SCMP_ACT_ALLOW","args":[{"index":0,"value":4294967295,"op":"SCMP_CMP_EQ"}]},{"names":["sync_file_range2","swapcontext"],"action":"SCMP_ACT_ALLOW","includes":{"arches":["ppc64le"]}},{"names":["arm_fadvise64_64","arm_sync_file_range","sync_file_range2","breakpoint","cacheflush","set_tls"],"action":"SCMP_ACT_ALLOW","includes":{"arches":["arm","arm64"]}},{"names":["arch_prctl"],"action":"SCMP_ACT_ALLOW","includes":{"arches":["amd64","x32"]}},{"names":["modify_ldt"],"action":"SCMP_ACT_ALLOW","includes":{"arches":["amd64","x32","x86"]}},{"names":["s390_pci_mmio_read","s390_pci_mmio_write","s390_runtime_instr"],"action":"SCMP_ACT_ALLOW","includes":{"arches":["s390","s390x"]}},{"names":["riscv_flush_icache"],"action":"SCMP_ACT_ALLOW","includes":{"arches":["riscv64"]}},{"names":["open_by_handle_at"],"action":"SCMP_ACT_ALLOW","includes":{"caps":["CAP_DAC_READ_SEARCH"]}},{"names":["bpf","clone","clone3","fanotify_init","fsconfig","fsmount","fsopen","fspick","lookup_dcookie","mount","mount_setattr","move_mount","open_tree","perf_event_open","quotactl","quotactl_fd","setdomainname","sethostname","setns","syslog","umount","umount2","unshare"],"action":"SCMP_ACT_ALLOW","includes":{"caps":["CAP_SYS_ADMIN"]}},{"names":["clone"],"action":"SCMP_ACT_ALLOW","args":[{"index":0,"value":2114060288,"op":"SCMP_CMP_MASKED_EQ"}],"excludes":{"caps":["CAP_SYS_ADMIN"],"arches":["s390","s390x"]}},{"names":["clone"],"action":"SCMP_ACT_ALLOW","args":[{"index":1,"value":2114060288,"op":"SCMP_CMP_MASKED_EQ"}],"comment":"s390 parameter ordering for clone is different","includes":{"arches":["s390","s390x"]},"excludes":{"caps":["CAP_SYS_ADMIN"]}},{"names":["clone3"],"action":"SCMP_ACT_ERRNO","errnoRet":38,"excludes":{"caps":["CAP_SYS_ADMIN"]}},{"names":["reboot"],"action":"SCMP_ACT_ALLOW","includes":{"caps":["CAP_SYS_BOOT"]}},{"names":["chroot"],"action":"SCMP_ACT_ALLOW","includes":{"caps":["CAP_SYS_CHROOT"]}},{"names":["delete_module","init_module","finit_module"],"action":"SCMP_ACT_ALLOW","includes":{"caps":["CAP_SYS_MODULE"]}},{"names":["acct"],"action":"SCMP_ACT_ALLOW","includes":{"caps":["CAP_SYS_PACCT"]}},{"names":["kcmp","pidfd_getfd","process_madvise","process_vm_readv","process_vm_writev","ptrace"],"action":"SCMP_ACT_ALLOW","includes":{"caps":["CAP_SYS_PTRACE"]}},{"names":["iopl","ioperm"],"action":"SCMP_ACT_ALLOW","includes":{"caps":["CAP_SYS_RAWIO"]}},{"names":["settimeofday","stime","clock_settime","clock_settime64"],"action":"SCMP_ACT_ALLOW","includes":{"caps":["CAP_SYS_TIME"]}},{"names":["vhangup"],"action":"SCMP_ACT_ALLOW","includes":{"caps":["CAP_SYS_TTY_CONFIG"]}},{"names":["get_mempolicy","mbind","set_mempolicy","set_mempolicy_home_node"],"action":"SCMP_ACT_ALLOW","includes":{"caps":["CAP_SYS_NICE"]}},{"names":["syslog"],"action":"SCMP_ACT_ALLOW","includes":{"caps":["CAP_SYSLOG"]}},{"names":["bpf"],"action":"SCMP_ACT_ALLOW","includes":{"caps":["CAP_BPF"]}},{"names":["perf_event_open"],"action":"SCMP_ACT_ALLOW","includes":{"caps":["CAP_PERFMON"]}},{"action":"SCMP_ACT_ALLOW","args":[{"index":0,"op":"SCMP_CMP_MASKED_EQ","value":18446744071830372351,"valueTwo":0}],"includes":{"arches":["arm64"]},"names":["unshare"]},{"action":"SCMP_ACT_ALLOW","args":[{"index":3,"op":"SCMP_CMP_EQ","value":2}],"includes":{"arches":["arm64"]},"names":["mount"]},{"action":"SCMP_ACT_ALLOW","args":[{"index":3,"op":"SCMP_CMP_EQ","value":6}],"includes":{"arches":["arm64"]},"names":["mount"]},{"action":"SCMP_ACT_ALLOW","args":[{"index":3,"op":"SCMP_CMP_EQ","value":14}],"includes":{"arches":["arm64"]},"names":["mount"]},{"action":"SCMP_ACT_ALLOW","args":[{"index":3,"op":"SCMP_CMP_EQ","value":4096}],"includes":{"arches":["arm64"]},"names":["mount"]},{"action":"SCMP_ACT_ALLOW","args":[{"index":3,"op":"SCMP_CMP_EQ","value":4131}],"includes":{"arches":["arm64"]},"names":["mount"]},{"action":"SCMP_ACT_ALLOW","args":[{"index":3,"op":"SCMP_CMP_EQ","value":4134}],"includes":{"arches":["arm64"]},"names":["mount"]},{"action":"SCMP_ACT_ALLOW","args":[{"index":3,"op":"SCMP_CMP_EQ","value":4135}],"includes":{"arches":["arm64"]},"names":["mount"]},{"action":"SCMP_ACT_ALLOW","args":[{"index":3,"op":"SCMP_CMP_EQ","value":20480}],"includes":{"arches":["arm64"]},"names":["mount"]},{"action":"SCMP_ACT_ALLOW","args":[{"index":3,"op":"SCMP_CMP_EQ","value":278528}],"includes":{"arches":["arm64"]},"names":["mount"]},{"action":"SCMP_ACT_ALLOW","args":[{"index":2,"op":"SCMP_CMP_EQ","value":32768}],"includes":{"arches":["arm64"]},"names":["mount_setattr"]}]}\n'
+
+DEV_APPARMOR_TEMPLATE = '\n#include <tunables/global>\n\nprofile @@PROFILE@@ flags=(attach_disconnected,mediate_deleted) {\n  #include <abstractions/base>\n\n  network,\n  capability,\n  file,\n  umount,\n  # Host (privileged) processes may send signals to container processes.\n  signal (receive) peer=unconfined,\n  # runc may send signals to container processes (for "docker stop").\n  signal (receive) peer=runc,\n  # crun may send signals to container processes (for "docker stop" when used with crun OCI runtime).\n  signal (receive) peer=crun,\n  # dockerd may send signals to container processes (for "docker kill").\n  signal (receive) peer=@@DAEMON@@,\n  # Container processes may send signals amongst themselves.\n  signal (send,receive) peer=@@PROFILE@@,\n\n  deny @{PROC}/* w,   # deny write for all files directly in /proc (not in a subdir)\n  # deny write to files not in /proc/<number>/** or /proc/sys/**\n  deny @{PROC}/{[^1-9],[^1-9][^0-9],[^1-9s][^0-9y][^0-9s],[^1-9][^0-9][^0-9][^0-9/]*}/** w,\n  deny @{PROC}/sys/[^k]** w,  # deny /proc/sys except /proc/sys/k* (effectively /proc/sys/kernel)\n  deny @{PROC}/sys/kernel/{?,??,[^s][^h][^m]**} w,  # deny everything except shm* in /proc/sys/kernel/\n  deny @{PROC}/sysrq-trigger rwklx,\n  deny @{PROC}/kcore rwklx,\n\n  # DEV synthetic worker only; no parent-namespace capabilities are granted.\n  userns create,\n  # Unshare propagation and the worker\'s recursive bind of its private root.\n  mount options=(rw,rprivate) -> /,\n  mount options=(rw,rbind) / -> /,\n  # util-linux --mount-proc; no arbitrary proc destination.\n  mount fstype=proc options=(rw,nosuid,nodev,noexec) proc -> /proc/,\n  # Private scratch; existing outer memory cap still limits tmpfs allocations.\n  mount fstype=tmpfs options=(rw,nosuid,nodev) tmpfs -> /tmp/caa-install-{barrier,test-case,test-next}-*/,\n  mount fstype=tmpfs options=(rw,nosuid) tmpfs -> /dev/,\n  # FD sources are resolved by AppArmor; destination and syscall flags are bounded.\n  mount options=(rw,bind) /** -> /tmp/caa-install-{barrier,test-case,test-next}-*/evidence/,\n  mount options=(rw,remount,bind,nosuid,nodev) -> /tmp/caa-install-{barrier,test-case,test-next}-*/evidence/,\n  mount options=(rw,bind) /** -> /dev/{null,zero,random,urandom},\n  mount options=(ro,remount,bind,nosuid) -> /dev/{null,zero,random,urandom},\n  mount options=(rw,bind) /tmp/caa-install-{barrier,test-case,test-next}-*/inputs/ -> /tmp/caa-install-{barrier,test-case,test-next}-*/inputs/,\n  mount options=(ro,remount,bind,nosuid,nodev) -> /tmp/caa-install-{barrier,test-case,test-next}-*/inputs/,\n\n  deny /sys/[^f]*/** wklx,\n  deny /sys/f[^s]*/** wklx,\n  deny /sys/fs/[^c]*/** wklx,\n  deny /sys/fs/c[^g]*/** wklx,\n  deny /sys/fs/cg[^r]*/** wklx,\n  deny /sys/firmware/** rwklx,\n  deny /sys/devices/virtual/powercap/** rwklx,\n  deny /sys/kernel/security/** rwklx,\n\n  # suppress ptrace denials when using \'docker ps\' or using \'ps\' inside a container\n  ptrace (trace,read,tracedby,readby) peer=@@PROFILE@@,\n}\n'
+
+def dev_apparmor_name():
+    """Unique DEV job identity; arbitrary host profile selectors are refused."""
+    parts = (os.environ.get('GITHUB_RUN_ID'), os.environ.get('GITHUB_RUN_ATTEMPT'))
+    if not all(type(v) is str and 0 < len(v) <= 20 and all('0' <= c <= '9' for c in v) for v in parts):
+        raise ValueError('CONTAINER_POLICY')
+    return 'cachy-asahi-p0-dev-' + '-'.join(parts)
 
 if __name__=='__main__':raise SystemExit(main())

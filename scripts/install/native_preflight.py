@@ -19,9 +19,9 @@ import types
 
 HANDOFF = 'scripts/ci/development/repository_handoff.py'
 # Root must rebind after any separately reviewed issuer change.
-ISSUER_SHA = '5a4a6d7cd7a58b40a89428da76fd882ab5d80bb12b6457844354589242469c0e'
+ISSUER_SHA = 'fea5348a93631157fa394ee12b9666ec54e2b667f5fc8f535a9aba9d634162db'
 RECEIVER = 'scripts/install/native_arm_trial.py'
-RECEIVER_SHA = 'fe2becb4fe6c22e50903ab390db5a79aae311b7284fc71bf4b1c4b79e99824c4'
+RECEIVER_SHA = '90aaedaad6ea79c1c9a172d12c7e8383c4375aa8f75ec81558dbcad26077a77d'
 PROFILE_SHA = 'b7fbd65e357e132949432fb00e765a05e3c76ea29a41d1df93413870d9fd1ed8'
 OWN = 'scripts/install/native_preflight.py'
 SOURCE_PATHS = ('scripts/install/local_transaction.py', 'scripts/install/test_local_transaction.py',
@@ -172,36 +172,70 @@ def live(session, controller, end):
     need(sha(sources.raw[RECEIVER]) == RECEIVER_SHA, 'RECEIVER_PIN')
     for name in (OWN,*SOURCE_PATHS):
         need(name in sources.raw and name in sources.grant['source_files'], 'REGISTRATION_REQUIRED')
+    if state.get('p0_scope') is not None:
+        current = vars(type(session))['p0_context'](session)
+        selected = vars(module)['validate_input_successor'](current['input_successor'])
+        need(selected == grant['input_successor'] and
+             current['source_view_inputs_sha256'] == selected['historical_inputs_sha256'] and
+             type(current['inputs_raw']) is bytes and len(current['inputs_raw']) == selected['inputs_bytes'] and
+             sha(current['inputs_raw']) == selected['inputs_sha256'] and
+             type(current['packages_raw']) is bytes and len(current['packages_raw']) == selected['packages_bytes'] and
+             sha(current['packages_raw']) == selected['packages_sha256'], 'INPUT_SUCCESSOR')
+        context = {**context, 'input_successor': selected, 'inputs_raw': current['inputs_raw'],
+                   'packages_raw': current['packages_raw'],
+                   'source_view_inputs_sha256': current['source_view_inputs_sha256']}
     tick(end); return context
 
 
-def image_handoff(observed, controller, receiver, inputs_raw, packages_raw):
+def image_handoff(observed, controller, receiver, inputs_raw, packages_raw, *, input_successor=None):
+    inputs_sha, packages_sha = receiver.input_selection(input_successor)
+    if input_successor is not None:
+        input_successor = receiver.validate_input_successor(input_successor)
+        need(type(inputs_raw) is bytes and len(inputs_raw) == input_successor['inputs_bytes'] and
+             type(packages_raw) is bytes and len(packages_raw) == input_successor['packages_bytes'], 'INPUT_SUCCESSOR')
     need(type(observed) is list and len(observed)==1 and type(observed[0]) is dict, 'IMAGE_INSPECT')
     image = observed[0]
     need(image.get('Id') == controller.image and image.get('Architecture') == 'arm64' and
-         image.get('Os') == 'linux' and sha(inputs_raw) == receiver.INPUTS_SHA and
-         sha(packages_raw) == receiver.BASE_SHA, 'IMAGE_BINDING')
+         image.get('Os') == 'linux' and sha(inputs_raw) == inputs_sha and
+         sha(packages_raw) == packages_sha, 'IMAGE_BINDING')
     full_config = image.get('Config'); need(type(full_config) is dict, 'IMAGE_CONFIG')
-    # Project the receiver's complete twelve execution-policy fields; preserve values.
+    # Project execution policy, normalizing only absent/empty execution defaults.
     config = {key:full_config.get(key) for key in CONFIG}
+    for key in ('Cmd', 'Entrypoint', 'Shell'):
+        if config[key] is None: config[key] = []
+    if config['ArgsEscaped'] is None: config['ArgsEscaped'] = False
     canonical = dict(config)
     if canonical.get('Entrypoint') == ['']: canonical['Entrypoint'] = []
     if canonical.get('Labels') is None: canonical['Labels'] = {}
     changed=[key+':'+type_label(canonical[key]) for key in CONFIG
-             if canonical[key]!=CONFIG[key] or key=='ArgsEscaped' and type(canonical[key]) is not bool]
+             if (key in ('Cmd', 'Entrypoint', 'Shell') and type(canonical[key]) is not list) or
+             (key=='ArgsEscaped' and type(canonical[key]) is not bool) or canonical[key]!=CONFIG[key]]
     need(not changed, 'IMAGE_CONFIG '+','.join(changed))
-    return dict(source_commit=controller.commit,image_id=controller.image,inputs_sha256=receiver.INPUTS_SHA,
-                packages_lock_sha256=receiver.BASE_SHA,architecture='arm64',os='linux',Config=config)
+    value = dict(source_commit=controller.commit,image_id=controller.image,inputs_sha256=inputs_sha,
+                 packages_lock_sha256=packages_sha,architecture='arm64',os='linux',Config=config)
+    if input_successor is not None:
+        value.update(input_successor=input_successor, tool_profile_lineage=receiver.TOOL_PROFILE_LINEAGE)
+    return value
 
 
-def selection(sources, controller, receiver, handoff, nonce):
+def selection(sources, controller, receiver, handoff, nonce, *, input_successor=None):
+    inputs_sha, packages_sha = receiver.input_selection(input_successor)
     need(type(nonce) is str and re.fullmatch('[0-9a-f]{32}',nonce), 'NONCE')
     need(sha(receiver.PROFILE_BYTES) == PROFILE_SHA, 'PROFILE_PIN')
     value = dict(schema_version=1,purpose='native-arm-synthetic-installer',phase='preflight',
         source_commit=controller.commit,sources={name:{'size':len(sources.raw[name]),'sha256':sha(sources.raw[name])}
-        for name in SOURCE_PATHS},tool_profile_sha256=PROFILE_SHA,native_inputs_sha256=receiver.INPUTS_SHA,
-        builder_packages_sha256=receiver.BASE_SHA,image_id=controller.image,
+        for name in SOURCE_PATHS},tool_profile_sha256=PROFILE_SHA,native_inputs_sha256=inputs_sha,
+        builder_packages_sha256=packages_sha,image_id=controller.image,
         image_config_sha256=sha(encoded(handoff['Config'])),native_handoff_sha256=sha(encoded(handoff)),nonce=nonce)
+    if input_successor is not None:
+        selected = receiver.validate_input_successor(input_successor)
+        receiver.validate_input_successor(handoff.get('input_successor'))
+        need(handoff.get('input_successor') == selected and
+             type(handoff.get('tool_profile_lineage')) is str and
+             handoff.get('tool_profile_lineage') == receiver.TOOL_PROFILE_LINEAGE and
+             handoff.get('inputs_sha256') == inputs_sha and
+             handoff.get('packages_lock_sha256') == packages_sha, 'INPUT_SUCCESSOR')
+        value.update(input_successor=selected, tool_profile_lineage=receiver.TOOL_PROFILE_LINEAGE)
     receiver.validate_selection(value); return value
 
 
@@ -229,17 +263,17 @@ def container_binding(rows, cid, name, trial, source, inputs, output):
          type(restart['MaximumRetryCount']) is int and restart['MaximumRetryCount']==0,
          'CONTAINER_POLICY RestartPolicy:'+ (type_label(restart) if 'RestartPolicy' in host else 'missing'))
     need(row.get('Id')==cid and row.get('Name')=='/'+name and row.get('Image')==trial['image_id'] and
-         config.get('User')==f'{os.getuid()}:{os.getgid()}' and config.get('Entrypoint')==['/usr/bin/python3'] and
+         row.get('AppArmorProfile')==dev_apparmor_name() and config.get('User')==f'{os.getuid()}:{os.getgid()}' and config.get('Entrypoint')==['/usr/bin/python3'] and
          config.get('Cmd')==['-I','-B','/source/scripts/install/native_arm_trial.py','--selection','/inputs/trial.json',
                             '--selection-sha256',sha(encoded(trial))], 'CONTAINER_BINDING')
-    need(config.get('Env')==CONFIG['Env']+['CACHY_ASAHI_INSTALL_NONCE='+trial['nonce'],
-         'CACHY_ASAHI_INSTALL_IMAGE='+trial['image_id']] and not config.get('Volumes') and
+    need(environment_matches(config.get('Env'),CONFIG['Env']+['CACHY_ASAHI_INSTALL_NONCE='+trial['nonce'],
+         'CACHY_ASAHI_INSTALL_IMAGE='+trial['image_id']]) and not config.get('Volumes') and
          not config.get('Healthcheck'), 'CONTAINER_ENV')
     need(host.get('NetworkMode')=='none' and host.get('CgroupnsMode')=='private' and
          host.get('Privileged') is False and host.get('ReadonlyRootfs') is True and host.get('CapDrop')==['ALL'] and
          not host.get('CapAdd') and not host.get('Devices') and not host.get('DeviceRequests') and
          host.get('Memory')==2*1024**3 and host.get('NanoCpus')==2*10**9 and host.get('PidsLimit')==128 and
-         host.get('SecurityOpt') in (['no-new-privileges'],['no-new-privileges=true']), 'CONTAINER_POLICY')
+         dev_security_options(host.get('SecurityOpt')), 'CONTAINER_POLICY')
     need(host.get('Tmpfs')=={'/tmp':'rw,nosuid,nodev,exec,size=512m,mode=1777'}, 'CONTAINER_TMPFS')
     mounts=row.get('Mounts'); need(type(mounts) is list and len(mounts)==3, 'CONTAINER_MOUNTS')
     expected={(str(source),'/source',False),(str(inputs),'/inputs',False),(str(output),'/out',True)}
@@ -248,14 +282,20 @@ def container_binding(rows, cid, name, trial, source, inputs, output):
          {(m.get('Source'),m.get('Destination'),m.get('RW')) for m in mounts}==expected, 'CONTAINER_MOUNTS')
 
 
-def accept(result, public_raw, private_raw, receiver, cleanup, end):
+def accept(result, public_raw, private_raw, receiver, cleanup, end, *, input_successor=None):
     tick(end)
     record = strict(public_raw)
     need(receiver.public(record) == public_raw and strict(private_raw) == record, 'RECEIVER_RESULT')
-    need(type(result['exit_code']) is int and result['exit_code'] == 0 and record['status'] == 'PASS_NATIVE_PREFLIGHT_ONLY' and
+    if input_successor is not None:
+        selected = receiver.validate_input_successor(input_successor)
+        need(record.get('input_successor') == selected and
+             record.get('tool_profile_lineage') == receiver.TOOL_PROFILE_LINEAGE, 'INPUT_SUCCESSOR')
+    else:
+        need('input_successor' not in record and 'tool_profile_lineage' not in record, 'INPUT_SUCCESSOR')
+    need_preflight_result(type(result['exit_code']) is int and result['exit_code'] == 0 and record['status'] == 'PASS_NATIVE_PREFLIGHT_ONLY' and
          record['phase'] == 'complete' and record['ABI'] == record['matrix'] == 'NOT_RUN' and
          type(cleanup) is dict and cleanup == {'remove_exit':0,'absent':True} and
-         type(cleanup['remove_exit']) is int and type(cleanup['absent']) is bool, 'P0_REFUSED')
+         type(cleanup['remove_exit']) is int and type(cleanup['absent']) is bool, 'P0_REFUSED', record, receiver)
     return record
 
 
@@ -282,7 +322,7 @@ def run(session, controller, output, *, deadline, nonce, runtime_contract):
     child=output/'child'; child.mkdir(mode=0o700)
     need(type(nonce) is str and re.fullmatch('[0-9a-f]{32}',nonce), 'NONCE')
     name='cachy-asahi-install-'+nonce; cli=None; cid=None; cleanup={'remove_exit':None,'absent':False}
-    result=None; failure=None; report=None; command_rows=[]
+    result=None; failure=None; report=None; command_rows=[]; cancelled=False; cleanup_uncertain=False
     def guard(): live(session,controller,end); cli._preflight()
     def command(args, cutoff):
         tick(cutoff); live(session,controller,cutoff); cli._preflight()
@@ -308,9 +348,13 @@ def run(session, controller, output, *, deadline, nonce, runtime_contract):
         need(inspected['exit_code']==0,'IMAGE_INSPECT')
         raw,_,_=session.sources.module('_preflight_issuer',HANDOFF).read(Path(controller.native_out)/'inputs.lock.json',end)
         packages,_,_=session.sources.module('_preflight_issuer',HANDOFF).read(Path(controller.native_out)/'packages.lock',end)
-        image=image_handoff(strict(inspected['stdout']),controller,receiver,raw,packages)
-        trial=selection(sources,controller,receiver,image,nonce)
-        for path,data in ((inputs/'image.json',encoded(image)),(inputs/'trial.json',encoded(trial))):
+        input_successor = context.get('input_successor')
+        if input_successor is not None:
+            need(raw == context['inputs_raw'] and packages == context['packages_raw'], 'INPUT_SUCCESSOR')
+        image=image_handoff(strict(inspected['stdout']),controller,receiver,raw,packages,
+                            input_successor=input_successor)
+        trial=selection(sources,controller,receiver,image,nonce,input_successor=input_successor)
+        for path,data in ((inputs/'image.json',encoded(image)),(inputs/'trial.json',encoded(trial)),(inputs/'dev-seccomp.json',receiver.DEV_SECCOMP_BYTES)):
             with path.open('xb') as stream: stream.write(data)
             path.chmod(0o600)
         guard(); args=receiver.docker_command(trial,sources.root,inputs,child)
@@ -329,6 +373,7 @@ def run(session, controller, output, *, deadline, nonce, runtime_contract):
         result=command(['start','--attach',cid],end-10)
     except BaseException as error:
         failure=error
+        cancelled=isinstance(error,KeyboardInterrupt)
     finally:
         if cli is not None:
             if cid is not None:
@@ -336,14 +381,70 @@ def run(session, controller, output, *, deadline, nonce, runtime_contract):
                     removed=command(['rm','-f',cid],end-5); cleanup['remove_exit']=removed['exit_code']
                     remaining=command(['container','ls','-a','--no-trunc','--filter','id='+cid,'--format','{{.ID}}'],end)
                     cleanup['absent']=remaining['exit_code']==0 and remaining['stdout']==b''
-                except BaseException as error: failure=failure or error
+                except BaseException as error:
+                    cancelled |= isinstance(error,KeyboardInterrupt)
+                    cleanup_uncertain=True
+                    if failure is None:failure=error
             try: cli.close()
-            except BaseException as error: failure=failure or error
+            except BaseException as error:
+                cancelled |= isinstance(error,KeyboardInterrupt)
+                cleanup_uncertain=True
+                if failure is None:failure=error
     if failure is None:
         raw,_,_=session.sources.module('_preflight_issuer',HANDOFF).read(child/'result.json',end,limit=4096)
-        report=accept(result,result['stdout'],raw,receiver,cleanup,end)
+        report=accept(result,result['stdout'],raw,receiver,cleanup,end,input_successor=context.get('input_successor'))
         live(session,controller,end)
-    if failure is not None: raise failure
-    return {'status':'PASS','stage':'native-install-preflight','receiver':report,'cleanup':cleanup,
-            'elapsed_seconds':time.monotonic()-started,'ABI':'NOT RUN','native_matrix':'NOT RUN',
-            'hardware_validation':'NOT RUN','selected_for_release':False,'public':[]}
+    if failure is not None:
+        BaseException.__setattr__(failure,'native_preflight_cancelled',cancelled)
+        BaseException.__setattr__(failure,'native_preflight_cleanup_uncertain',cleanup_uncertain)
+        raise failure
+    value = {'status':'PASS','stage':'native-install-preflight','receiver':report,'cleanup':cleanup,
+             'elapsed_seconds':time.monotonic()-started,'ABI':'NOT RUN','native_matrix':'NOT RUN',
+             'hardware_validation':'NOT RUN','selected_for_release':False,'public':[]}
+    if context.get('input_successor') is not None:
+        value.update(input_successor=receiver.validate_input_successor(context['input_successor']),
+                     tool_profile_lineage=receiver.TOOL_PROFILE_LINEAGE)
+    return value
+
+
+def environment_matches(observed, expected):
+    """Unique exact entries; image/CLI environment merging may reorder them."""
+    return (type(observed) is list and len(observed) == len(expected) and
+            all(type(value) is str for value in observed) and set(observed) == set(expected))
+
+
+def need_preflight_result(value, code, record, receiver):
+    """Best-effort existing public fields only; original refusal remains primary."""
+    try:
+        need(value, code)
+    except BaseException as first:
+        try:
+            keys = ('schema_version','status','phase','barrier','ABI','matrix','tests',
+                    'failures','errors','skips','termination','owned_child_cleanup','first_failure')
+            sys.stderr.buffer.write(receiver.public({key: record[key] for key in keys}))
+            sys.stderr.buffer.flush()
+        except BaseException as error:
+            if isinstance(error, (KeyboardInterrupt, SystemExit)):
+                try:
+                    BaseException.__setattr__(first, 'native_preflight_cancelled', True)
+                    BaseException.__setattr__(first, 'native_preflight_cleanup_uncertain', True)
+                except BaseException:
+                    pass
+        raise
+
+
+def dev_security_options(value):
+    """Exact Docker CLI compacted policy; no arbitrary custom/unconfined policy."""
+    return (type(value) is list and len(value) == 3 and
+            value[0] in ('no-new-privileges', 'no-new-privileges=true') and
+            type(value[1]) is str and value[1].startswith('seccomp=') and
+            value[2] == 'apparmor=' + dev_apparmor_name() and
+            sha(value[1][8:].encode()) == 'd0996a8cdf2c8ed29a69dbcdea8c1b2ad905d2e820518c974af2baa555c7c9ad')
+
+
+def dev_apparmor_name():
+    """Unique DEV job identity; arbitrary host profile selectors are refused."""
+    parts = (os.environ.get('GITHUB_RUN_ID'), os.environ.get('GITHUB_RUN_ATTEMPT'))
+    if not all(type(v) is str and 0 < len(v) <= 20 and all('0' <= c <= '9' for c in v) for v in parts):
+        raise ValueError('CONTAINER_POLICY')
+    return 'cachy-asahi-p0-dev-' + '-'.join(parts)

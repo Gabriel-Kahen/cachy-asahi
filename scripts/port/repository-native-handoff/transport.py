@@ -424,3 +424,228 @@ class DockerTransport:
             if self.fd is not None:
                 fd=self.fd;self.fd=None;os.close(fd)
         finally:signal.pthread_sigmask(signal.SIG_SETMASK,mask)
+
+
+# Root-selected prep route only. Retain unknown/foreign stream objects and
+# unreaped Popen objects until this one-shot interpreter exits. This is local
+# resource custody, not an execution grant or a generic process registry.
+PREP_QUARANTINE=[]
+
+@contextmanager
+def prep_handlers(events,cleanup_end):
+    """Original selected handlers, finite pending drain and sticky first faults."""
+    need(threading.current_thread() is threading.main_thread(),'main-thread transport required')
+    mask=None;original={};first=None;uncertain=False;setup_started=False
+    try:
+        setup_started=True;mask=signal.pthread_sigmask(signal.SIG_BLOCK,SIGNALS)
+        for number in SIGNALS:original[number]=signal.getsignal(number)
+        for number in SIGNALS:signal.signal(number,events.handler)
+        signal.pthread_sigmask(signal.SIG_SETMASK,mask)
+        yield mask
+    except BaseException as error:
+        first=error;events.cancelled |= isinstance(error,KeyboardInterrupt)
+        if setup_started and mask is None:uncertain=True
+    finally:
+        def retain(error):
+            nonlocal first,uncertain
+            uncertain=True;events.cancelled |= isinstance(error,KeyboardInterrupt)
+            if first is None:first=error
+        try:signal.pthread_sigmask(signal.SIG_BLOCK,SIGNALS)
+        except BaseException as error:retain(error)
+        for number,handler in original.items():
+            try:signal.signal(number,handler)
+            except BaseException as error:retain(error)
+        try:
+            need(mask is not None,'preparation signal-mask custody')
+            pending=signal.sigpending() & (SIGNALS-set(mask));count=0
+            while pending:
+                alive(cleanup_end);need(count<4,'preparation pending-signal bound');count+=1
+                events.numbers.add(signal.sigwait(pending));events.cancelled=True
+                pending=signal.sigpending() & (SIGNALS-set(mask))
+        except BaseException as error:retain(error)
+        try:
+            need(mask is not None,'preparation signal-mask custody')
+            signal.pthread_sigmask(signal.SIG_SETMASK,mask)
+        except BaseException as error:retain(error)
+        for number in events.numbers:
+            if callable(original[number]):
+                try:original[number](number,None)
+                except BaseException as error:retain(error)
+        try:alive(cleanup_end)
+        except BaseException as error:retain(error)
+    if first is not None:
+        markers=BaseException.__getattribute__(first,'__dict__')
+        if type(markers) is dict:
+            events.cancelled |= markers.get('native_preflight_cancelled') is True
+            uncertain |= markers.get('native_preflight_cleanup_uncertain') is True
+        BaseException.__setattr__(first,'native_preflight_cancelled',events.cancelled)
+        BaseException.__setattr__(first,'native_preflight_cleanup_uncertain',uncertain)
+        raise first
+    if events.cancelled:raise Cancelled('preparation transport cancelled after teardown')
+
+def prep_supervise(argv, *, env, deadline, cleanup_end, limit, on_stdout=None, on_stdin=None, pass_fds=(), preflight=None):
+    """Finite duplex child supervision; forced teardown never reports exit zero.
+
+    No shell is used. argv is already authorized by the caller. This function
+    records direct-child reaping and group disposal separately from daemon facts.
+    """
+    import sys
+    module=sys.modules.get(__name__)
+    need(module is not None and module.__dict__ is globals(),'preparation module registry required')
+    need(sys.modules.get('root_p0_preparation_quarantine') in (None,module),'foreign preparation quarantine registry')
+    need(not PREP_QUARANTINE,'preparation quarantine forbids another birth')
+    alive(deadline)
+    need(type(cleanup_end) in (int,float) and math.isfinite(cleanup_end) and deadline < cleanup_end,
+         'original preparation work/cleanup endpoints required')
+    need(type(limit) is int and 0 < limit <= MAX_BYTES, 'finite pipe byte bound required')
+    need(on_stdin is None or callable(on_stdout) and callable(on_stdin), 'duplex callbacks required')
+    events = Events(); process = None; streams = []; stream_nodes={}; retired=set(); quarantined=[]; birth_attempted=False; output = [bytearray(), bytearray()]
+    cleanup_fault=False
+    forced = False; natural = None; teardown = None; fault = None; stdin_bytes = 0; writes = 0
+    observation = {'execution': 'bounded-local-child', 'pid': None, 'natural_returncode': None,
+                   'teardown_returncode': None, 'forced_teardown': False, 'direct_child_reaped': False,
+                   'group_disposal_requested': False, 'stdin_bytes': 0, 'stdin_writes': 0, 'cancelled': False}
+    try:
+        with prep_handlers(events,cleanup_end) as original_mask:
+            try:
+                if preflight: preflight()
+                alive(deadline)
+                blocked = signal.pthread_sigmask(signal.SIG_BLOCK, SIGNALS)
+                try:
+                    birth_attempted=True
+                    process = subprocess.Popen(argv, stdin=subprocess.PIPE if on_stdin else subprocess.DEVNULL,
+                        stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=env, start_new_session=True,
+                        pass_fds=pass_fds, preexec_fn=lambda: signal.pthread_sigmask(signal.SIG_SETMASK, original_mask))
+                    observation['pid'] = process.pid
+                    streams = [stream for stream in (process.stdin, process.stdout, process.stderr) if stream is not None]
+                finally:
+                    signal.pthread_sigmask(signal.SIG_SETMASK, blocked)
+                for stream in streams:
+                    stream_nodes[id(stream)]=(stream.fileno(),identity(os.fstat(stream.fileno())))
+                    os.set_blocking(stream.fileno(),False)
+                queue = bytearray(); ack_count = 0; stdin_registered = False; stdin_closed = False; read_open = 2
+                with selectors.DefaultSelector() as selector:
+                    selector.register(process.stdout, selectors.EVENT_READ, 0)
+                    selector.register(process.stderr, selectors.EVENT_READ, 1)
+                    while read_open:
+                        alive(deadline)
+                        if events.cancelled: raise Cancelled('sticky transport cancellation')
+                        if on_stdin and not stdin_closed:
+                            message = on_stdin()
+                            if message is not None:
+                                need(isinstance(message, bytes) and 0 < len(message) <= 65536 and ack_count < 2,
+                                     'finite typed ACK required')
+                                ack_count += 1; queue.extend(message)
+                            if queue and not stdin_registered:
+                                selector.register(process.stdin, selectors.EVENT_WRITE, 2); stdin_registered = True
+                        if natural is None:
+                            natural = exited(process)
+                            if natural is not None:
+                                need(not queue, 'producer exited before queued ACK delivery')
+                                alive(cleanup_end)
+                                group_signal(process.pid, signal.SIGKILL)
+                                observation['group_disposal_requested'] = True
+                        for key, _ in selector.select(min(.05, max(0, deadline-time.monotonic()))):
+                            if key.data == 2:
+                                try: count = os.write(key.fd, queue)
+                                except BlockingIOError: continue
+                                except BrokenPipeError as error: raise Refused('producer stdin closed before ACK') from error
+                                need(count > 0, 'zero ACK write'); del queue[:count]
+                                stdin_bytes += count; writes += 1
+                                if not queue:
+                                    selector.unregister(process.stdin); stdin_registered = False
+                            else:
+                                try: chunk = os.read(key.fd, min(65536, limit+1-len(output[0])-len(output[1])))
+                                except BlockingIOError: continue
+                                if not chunk:
+                                    selector.unregister(key.fileobj); read_open -= 1
+                                else:
+                                    output[key.data].extend(chunk)
+                                    need(len(output[0])+len(output[1]) <= limit, 'child output byte bound')
+                                    if key.data == 0 and on_stdout: on_stdout(chunk)
+                        alive(deadline)
+                    need(not queue, 'EOF before ACK delivery')
+                    if natural is None:
+                        while natural is None:
+                            alive(deadline); time.sleep(min(.01, max(0, deadline-time.monotonic())))
+                            natural = exited(process)
+                    alive(deadline)
+            except BaseException as error:
+                fault = error
+                events.cancelled |= isinstance(error,KeyboardInterrupt)
+            finally:
+                blocked=None;events.deferring=True
+                def retain(error):
+                    nonlocal fault,cleanup_fault
+                    cleanup_fault=True;events.cancelled |= isinstance(error,KeyboardInterrupt)
+                    if fault is None:fault=error
+                try:
+                    try:blocked=signal.pthread_sigmask(signal.SIG_BLOCK,SIGNALS)
+                    except BaseException as error:retain(error)
+                    try:
+                        if process is not None:
+                            if natural is None:natural=exited(process)
+                            forced=fault is not None or natural is None
+                            alive(cleanup_end)
+                            group_signal(process.pid,signal.SIGTERM if forced else signal.SIGKILL)
+                            observation['group_disposal_requested']=True
+                            end=min(cleanup_end,time.monotonic()+.2)
+                            while exited(process) is None and time.monotonic()<end:
+                                alive(cleanup_end);time.sleep(min(.005,cleanup_end-time.monotonic()))
+                            alive(cleanup_end);group_signal(process.pid,signal.SIGKILL)
+                            alive(cleanup_end);teardown=process.wait(timeout=min(2,cleanup_end-time.monotonic()))
+                            observation['direct_child_reaped']=True
+                            need(forced or teardown==natural,'preparation natural/reaped status mismatch')
+                            alive(cleanup_end)
+                    except BaseException as error:retain(error)
+                finally:
+                    # Each actual stream remains referenced. Unknown/foreign identities
+                    # are quarantined, never blindly numeric-closed or GC-released.
+                    for stream in streams:
+                        try:
+                            need(id(stream) not in retired,'preparation stream-close retry')
+                            before=stream_nodes.get(id(stream))
+                            need(before is not None and stream.fileno()==before[0] and
+                                 identity(os.fstat(before[0]))==before[1],'preparation stream custody')
+                            retired.add(id(stream));stream.close()
+                        except BaseException as error:
+                            quarantined.append(stream);retain(error)
+                    events.deferring=False
+                    if blocked is not None:
+                        try:signal.pthread_sigmask(signal.SIG_SETMASK,blocked)
+                        except BaseException as error:retain(error)
+    except BaseException as error:
+        events.cancelled |= isinstance(error,KeyboardInterrupt)
+        cleanup_fault=True
+        if fault is None:fault=error
+    observation.update(natural_returncode=natural, teardown_returncode=teardown, forced_teardown=forced,
+                       stdin_bytes=stdin_bytes, stdin_writes=writes, cancelled=events.cancelled)
+    code = natural if natural is not None and not forced and not events.cancelled and fault is None else (
+        teardown if teardown is not None and teardown != 0 else -1)
+    result = {'exit_code': code, 'stdout': bytes(output[0]), 'stderr': bytes(output[1])}
+    if preflight:
+        try: preflight()
+        except BaseException as error:
+            events.cancelled |= isinstance(error,KeyboardInterrupt)
+            cleanup_fault=True
+            if fault is None:fault=error
+    if fault is not None:
+        if result['exit_code'] == 0: result['exit_code'] = -1
+        markers=BaseException.__getattribute__(fault,'__dict__')
+        if type(markers) is dict:
+            events.cancelled |= markers.get('native_preflight_cancelled') is True
+            cleanup_fault |= markers.get('native_preflight_cleanup_uncertain') is True
+        observation['cancelled']=events.cancelled
+        if quarantined or birth_attempted and not observation['direct_child_reaped']:
+            PREP_QUARANTINE.append((process if not observation['direct_child_reaped'] else None,tuple(quarantined)))
+            sys.modules['root_p0_preparation_quarantine']=module
+        BaseException.__setattr__(fault,'result',result)
+        BaseException.__setattr__(fault,'observation',observation)
+        BaseException.__setattr__(fault,'native_preflight_cancelled',events.cancelled)
+        BaseException.__setattr__(fault,'native_preflight_cleanup_uncertain',cleanup_fault or birth_attempted and not observation['direct_child_reaped'])
+        BaseException.__setattr__(fault,'native_preparation_streams',tuple(quarantined))
+        BaseException.__setattr__(fault,'native_preparation_process',process if not observation['direct_child_reaped'] else None)
+        raise fault
+    alive(cleanup_end)
+    return result, observation
+

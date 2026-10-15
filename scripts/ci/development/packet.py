@@ -28,12 +28,13 @@ PINS = {INITIAL, 'scripts/ci/inputs.lock.json', 'scripts/ci/recipes.lock.json',
         'scripts/virtual/tooling-audit.json', 'manifests/reviewed/ksmctl.json'}
 COMPOSITION = 'repository-svg'
 INSTALLER_COMPOSITION = 'installer-preflight'
+P0_OVERLAY_ROWS = {'scripts/ci/native_arm.py': {'mode': 420, 'sha256': '14de79257ed432fc851299682cec3ab197a4f5a208058aea950ca7e6c98b4b80'}, 'scripts/ci/integration.py': {'mode': 420, 'sha256': 'e448e2074ccca91d49fd07c115b9caa341efccebb3326f826b9eb0bc342ce9d4'}}
 ZSH_COMPOSITION = 'repository-svg-zsh'
 ZSH_CONTRACT = 'manifests/reviewed/zsh-native-addon.json'
 ZSH_EXTRA = frozenset(('scripts/ci/development/zsh_addon.py', 'scripts/ci/development/test_zsh_addon.py',
     'scripts/ci/development/zsh_session.py', 'scripts/ci/development/test_zsh_session.py', ZSH_CONTRACT))
 COMPOSED_MODES = (COMPOSITION, INSTALLER_COMPOSITION, ZSH_COMPOSITION)
-INSTALLER_EXTRA = frozenset(('scripts/install/local_transaction.py', 'scripts/install/native_arm_trial.py', 'scripts/install/native_preflight.py', 'scripts/install/test_local_transaction.py', 'scripts/install/test_native_arm_trial.py', 'scripts/install/test_native_preflight.py', 'scripts/port/kernel-native-job/runtime.py'))
+INSTALLER_EXTRA = frozenset(('scripts/ci/development/p0_ci.py', 'scripts/install/local_transaction.py', 'scripts/install/native_arm_trial.py', 'scripts/install/native_preflight.py', 'scripts/install/p0_entry.py', 'scripts/ci/development/p0_native_arm.py', 'scripts/ci/development/p0_integration.py', 'scripts/install/test_local_transaction.py', 'scripts/install/test_native_arm_trial.py', 'scripts/install/test_native_preflight.py', 'scripts/port/kernel-native-job/runtime.py'))
 GENERIC_POLICY = 'manifests/reviewed/repository-generic-policy.json'
 COMPOSED_EXTRA = frozenset('''
 .github/workflows/native-arm-development.yml
@@ -377,8 +378,8 @@ def composed_paths(initial, composition=COMPOSITION):
     paths = set(initial['source_files']) | COMPOSED_EXTRA
     if composition == INSTALLER_COMPOSITION:paths |= INSTALLER_EXTRA
     if composition == ZSH_COMPOSITION:paths |= ZSH_EXTRA
-    need(len(INSTALLER_EXTRA) == 7 and len(ZSH_EXTRA) == 5 and
-         len(paths) == {COMPOSITION:258, INSTALLER_COMPOSITION:265, ZSH_COMPOSITION:263}[composition],
+    need(len(INSTALLER_EXTRA) == 11 and len(ZSH_EXTRA) == 5 and
+         len(paths) == {COMPOSITION:258, INSTALLER_COMPOSITION:269, ZSH_COMPOSITION:263}[composition],
          'composed-source-selection-refused')
     return paths
 
@@ -402,7 +403,10 @@ def composed_scan(root, initial, composition=COMPOSITION):
         need(len(entries) <= PATH_LIMIT and '__pycache__' not in entries and
              not any(name.endswith('.pyc') for name in entries), 'source-python-cache-refused')
     actual = rows(root, paths)
-    need(all(actual[name] == row for name, row in initial['source_files'].items()), 'initial-source-map-drift')
+    need(all(actual[name] == row for name,row in initial['source_files'].items()), 'initial-source-map-drift')
+    if composition == INSTALLER_COMPOSITION:
+        variants = {'scripts/ci/native_arm.py':'scripts/ci/development/p0_native_arm.py','scripts/ci/integration.py':'scripts/ci/development/p0_integration.py'}
+        need(all(actual[variants[name]] == row for name,row in P0_OVERLAY_ROWS.items()),'P0-variant-source-drift')
     locked, recipes = recipe_paths(root)
     need(len(recipes) == 4 and len(locked) == 71 and locked <= set(initial['source_files']),
          'composed-original-recipes-refused')
