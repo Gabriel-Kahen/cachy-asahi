@@ -2,6 +2,14 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 15, updater Cargo stream correction:
+The updater source now removes Cargo's verbose flag while retaining strict JSON
+parsing. Its exact-command maintained test is corrected with the same one-element
+change; both author and independent runs pass all 51 tests with zero skips.
+Actual Source `5ae872c6` is published after complete eight-file and 91-role review.
+Native ARM trial `38685664071` has been dispatched once; native acceptance is
+pending. The previous run's exact failing line and cause remain unexported.
+
 October 15, current native package builds accepted:
 Run `38683309592`, Source `465bf535`, built all four selected recipes twice
 on native ARM CI. Root admits review `a5bef078`: eight original archives and
