@@ -13,24 +13,37 @@ resource retirement remains unknown. Package lifecycle, M2/Hyprland/Asahi,
 16K hardware, performance and full-port acceptance remain open.
 See the [finite Root admission](reviews/screenshot-native-region-cancel-root-admission-20261014.md).
 
-Retained-input installer Source `148f8a98`, bound Data `2b312bf8` and held Code
-`677d3ba9` pass independent actual registration review `8d14e179`; plan
-`3d3cd660` reads back exactly. Three new recovered-input Secret names are
-registered; all nineteen old names and timestamps remain held. The single
-changed installer trial `38668263227` is running. Updater Source `51af5b59`
-passes actual-source review `c404e810`; its single changed trial `38668405842`
-is queued and still requires an actual native freeze. Neither trial has new
-acceptance credit yet.
+October 15, retained-input composed trial reviewed:
+Source `148f8a98`, Data `2b312bf8` and Code `677d3ba9` run
+`38668263227` passes all 501 acquisition pins, 249 input signatures, four
+original native development-package build pairs and seven initial integration
+components. Actual review `626bc101` and Root's read-only seal check authenticate
+191 files, 72 inputs and 549 Git inputs. Installer preflight still fails at
+`RECEIVER_ACCEPT / P0_REFUSED`; its precise private cause was not exported.
+Scoped cleanup passes separately. Handoff acceptance/restaging and later
+components remain unrun, and phase publication fails. See the
+[Root admission](reviews/composed-retained-bubblewrap-root-admission-20261015.md).
+The new three recovered-input chunks are supported by mandatory authenticated
+seed control flow and downstream cache/signature evidence; raw Secret value
+readback remains unavailable. The old nineteen names and timestamps are held.
+Updater Source `51af5b59` trial `38668405842` is terminal FAIL; strict actual
+retention and fresh native-freeze authentication are in progress.
 
-P0 run `38667054387` remains FAIL with reported preparation SDK policy-source
-refusal; actual operands and first cause remain unknown. Strict review
-`004629fb` and Root's303-file/402-input authentication retain that outcome.
-A separate static mismatch is confirmed: the selected policy path is absent,
-while the reviewed policy exists at its manifest path with the expected hash.
-The independently reviewed correction is published as Source `8d01dff4`, with
-three exact changes, unchanged269-file packet and a passing read-only freezer.
-Fresh committed-source admission and intentional selection of both corrected
-templates remain required before any new trial.
+P0 run `38667054387` retains its unknown policy-source refusal operands and
+cause. A separate confirmed static path mismatch is corrected in Source
+`8d01dff4`: three exact changes, unchanged 269-file packet and passing read-only
+freezer. Committed-source peer `7768a3ae`, default workflow `14131f8f`, paired
+corrected templates and all five variable readbacks pass. The single selected
+trial `38669119568` is running; no new P0 acceptance is claimed.
+
+KSM Source `c843b30e` is published with exactly three reviewed changes after
+semantic peer `d463a1ae`, actual-source peer `c452de4a` and Root's complete
+160-role Git/physical verification. Inline finalizers partially preserve pending
+primary errors; generator-close restoration errors remain outward. Covered
+secondary diagnostics can be lost. The single changed native trial
+`38670087832` is running. The earlier `CALL_ASDICT` cause remains unknown and
+its cleanup failure/ownership uncertainty remain recorded. See the
+[committed-source review](reviews/ksm-first-cause-actual-source-peer-20261015.md).
 
 October 14, complete static prerequisites pass hosted validation:
 The primary workflow installs shell/editor/compiler and repository tools before
