@@ -8,6 +8,7 @@ import importlib.util
 import math
 import os
 from pathlib import Path
+import posixpath
 import stat
 import time
 
@@ -196,10 +197,40 @@ def node(root, relative, *, limits):
         os.close(descriptor)
 
 
-def observe(root, *, limits):
+
+def absolute_target_class(nodes, name, limits):
+    """Trace only the observed node map for diagnostics; never authorize a path."""
+    pending, parts, seen = name.split('/'), [], set()
+    for _ in range(4096):
+        limits.tick()
+        if not pending: break
+        part = pending.pop(0)
+        if part in ('', '.'): continue
+        if part == '..':
+            if not parts: break
+            parts.pop(); continue
+        parts.append(part); current = '/'.join(parts)
+        node = nodes.get(current, {})
+        if node.get('type') != 'symlink': continue
+        if current in seen or len(seen) >= 40: break
+        seen.add(current); target = node['target']
+        if target.startswith('/'):
+            value = posixpath.normpath(target).strip('/')
+            prefix = value.split('/', 1)[0]
+            return {'usr': 'usr-path', 'etc': 'etc-path', 'var': 'var-path', 'opt': 'opt-path',
+                    'run': 'runtime-run', 'proc': 'runtime-proc', 'sys': 'runtime-sys',
+                    'dev': 'runtime-dev', 'tmp': 'runtime-tmp', 'root': 'root-home',
+                    'home': 'user-home', '': 'filesystem-root'}.get(prefix, 'other-absolute')
+        parts.pop(); pending = target.split('/') + pending
+    return 'unclassified-chain'
+
+
+def observe(root, *, limits, shape_examples=0):
     """Measure a root without following links; incomplete/unsupported is ineligible."""
     limits.tick()
+    need(type(shape_examples) is int and 0 <= shape_examples <= 16, 'bounded shape samples required')
     nodes, problems, counts = {}, [], {}
+    categories, target_classes, auxiliary_paths = {}, {}, []
     allocated_inodes, hardlinked_inodes = set(), set()
     footprint = {'nodes': 0, 'bytes': 0, 'largest_file_bytes': 0, 'hardlinks': 0,
                  'hardlink_entries': 0, 'hardlink_inodes': 0, 'hardlink_declared_links': 0,
@@ -225,6 +256,20 @@ def observe(root, *, limits):
         counts[reason] = counts.get(reason, 0) + 1
         if len(problems) < limits.max_unsupported:
             problems.append({'reason': reason, 'path': name[:4096]})
+        if shape_examples:
+            category = reason if reason in ('hardlink', 'absolute-symlink', 'auxiliary-present',
+                'special-node', 'cross-device', 'escaping-symlink', 'cyclic-symlink', 'unsupported-symlink') else 'observation-error'
+            row = categories.setdefault(category, {'count': 0, 'examples': []})
+            row['count'] += 1
+            target_class = None
+            if reason == 'absolute-symlink':
+                target_class = absolute_target_class(nodes, name, limits)
+                target_classes[target_class] = target_classes.get(target_class, 0) + 1
+            if reason == 'auxiliary-present': auxiliary_paths.append(name)
+            if len(row['examples']) < shape_examples:
+                sample = {'path': name[:1024], 'path_truncated': len(name) > 1024}
+                if target_class is not None: sample['target_class'] = target_class
+                row['examples'].append(sample)
 
     def walk(directory, prefix='', depth=0):
         limits.tick()
@@ -330,6 +375,15 @@ def observe(root, *, limits):
         problem(reason, '')
     finally:
         os.close(descriptor)
+    if shape_examples:
+        for row in categories.values():
+            row['examples_complete'] = report['complete'] and len(row['examples']) == row['count'] and not any(x['path_truncated'] for x in row['examples'])
+        report['shape_diagnostics'] = {'sample_limit_per_category': shape_examples, 'sample_path_char_limit': 1024,
+            'categories': categories, 'absolute_target_classes': target_classes,
+            'auxiliary_paths': auxiliary_paths, 'auxiliary_paths_complete': report['complete'],
+            'absolute_classes_complete': report['complete'] and sum(target_classes.values()) == counts.get('absolute-symlink', 0),
+            'target_values': 'OMITTED',
+            'scope': 'observed node-map diagnostics only; no policy permission'}
     report['eligible'] = report['complete'] and not counts
     footprint['complete'] = report['complete'] and 'cross-device' not in counts
     return report

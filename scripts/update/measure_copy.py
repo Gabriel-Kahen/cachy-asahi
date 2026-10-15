@@ -21,9 +21,11 @@ def need(ok,reason):
     if not ok:raise ValueError(reason)
 
 
-def copy_data(source,target,*,limits,excluded=(),reserve_bytes=16*1024**2,reserve_inodes=1024):
+def copy_data(source,target,*,limits,excluded=(),reserve_bytes=16*1024**2,reserve_inodes=1024,shape_examples=0):
     """No source mutation. Symlinks/hardlinks are preserved as data, never followed."""
     limits.tick()
+    need(type(shape_examples) is int and 0 <= shape_examples <= 16,'bounded shape samples required')
+    special_examples=[]
     source,target=Path(source),Path(target)
     need(not target.exists() and not target.is_symlink(),'fresh private copy required')
     # Reserve the configured upper bound before allocating any copy content.
@@ -90,6 +92,11 @@ def copy_data(source,target,*,limits,excluded=(),reserve_bytes=16*1024**2,reserv
                 os.chown(name,info.st_uid,info.st_gid,dir_fd=dst,follow_symlinks=False)
             else:
                 key='special-node';report['unsupported_counts'][key]=report['unsupported_counts'].get(key,0)+1
+                if shape_examples and len(special_examples)<shape_examples:
+                    kind = ('socket' if stat.S_ISSOCK(info.st_mode) else 'fifo' if stat.S_ISFIFO(info.st_mode)
+                            else 'character-device' if stat.S_ISCHR(info.st_mode) else 'block-device' if stat.S_ISBLK(info.st_mode)
+                            else 'other-special')
+                    special_examples.append({'path':path[:1024],'path_truncated':len(path)>1024,'kind':kind})
                 report['copy_complete']=False
             need(identity(os.stat(name,dir_fd=src,follow_symlinks=False))==identity(info),'named copy source drift')
         need(identity(os.fstat(src))==identity(before),'source directory content drift')
@@ -97,10 +104,16 @@ def copy_data(source,target,*,limits,excluded=(),reserve_bytes=16*1024**2,reserv
         walk(source_fd,destination_fd)
         need(identity(os.fstat(source_fd))==identity(root_stat),'source root drift')
     finally:os.close(destination_fd);os.close(source_fd)
-    observation=roots.observe(target,limits=limits)
+    observation=roots.observe(target,limits=limits,shape_examples=shape_examples)
     report.update(footprint=observation['footprint'],observation_complete=observation['complete'],
                   unsupported_observation=observation['unsupported_counts'],
                   unsupported_examples=observation['unsupported'],eligible=observation['eligible'] and report['copy_complete'])
+    if shape_examples:
+        report['shape_diagnostics']=observation['shape_diagnostics']
+        count=report['unsupported_counts'].get('special-node',0)
+        report['source_special_samples']={'count':count,'examples':special_examples,
+            'examples_complete':count<=shape_examples and not any(x['path_truncated'] for x in special_examples),
+            'sample_limit':shape_examples,'sample_path_char_limit':1024}
     return report
 
 
@@ -146,6 +159,7 @@ def main():
     parser.add_argument('--expected-lock-sha256',required=True)
     parser.add_argument('--max-bytes',type=int,required=True);parser.add_argument('--max-nodes',type=int,required=True)
     parser.add_argument('--max-file-bytes',type=int,required=True);parser.add_argument('--seconds',type=int,default=900)
+    parser.add_argument('--shape-examples-per-category',type=int,default=0,help='Optional bounded path/kind and target-class diagnostics; no target values')
     args=parser.parse_args();workspace=args.workspace
     need(os.getuid()==os.geteuid()==0 and os.uname().machine=='aarch64' and Path('/.dockerenv').is_file()
          and re.fullmatch('[0-9a-f]{32}',os.environ.get('CACHY_ASAHI_BOUND_UPDATE','')),'marked native owned container required')
@@ -153,6 +167,7 @@ def main():
          and workspace.stat().st_uid==0 and stat.S_IMODE(workspace.stat().st_mode)==0o700,'owned private workspace required')
     interfaces={line.split(':',1)[0].strip() for line in Path('/proc/net/dev').read_text().splitlines() if ':' in line}
     need(interfaces=={'lo'} and os.environ.get('PATH')=='/usr/bin:/bin','network-none clean container required')
+    need(type(args.shape_examples_per_category) is int and 0<=args.shape_examples_per_category<=16,'bounded shape samples required')
     need(0<args.seconds<=3600 and 0<args.max_bytes<=64*1024**3 and 0<args.max_nodes<=4000000
          and 0<args.max_file_bytes<=args.max_bytes,'finite copy bounds required')
     raw=roots.installer.bounded_read(args.expected_lock,1024**2);need(hashlib.sha256(raw).hexdigest()==args.expected_lock_sha256,
@@ -174,7 +189,7 @@ def main():
     excluded.add(workspace.as_posix().lstrip('/'))
     limits=roots.Limits(deadline=time.monotonic()+args.seconds,max_nodes=args.max_nodes,
                         max_bytes=args.max_bytes,max_file_bytes=args.max_file_bytes)
-    report=copy_data(Path('/'),workspace/'root',limits=limits,excluded=excluded)
+    report=copy_data(Path('/'),workspace/'root',limits=limits,excluded=excluded,shape_examples=args.shape_examples_per_category)
     need(actual()==before,'package inventory changed during copy')
     copied=copied_inventory(workspace/'root')
     need(copied==expected,'copied package database differs from actual587 lock')
