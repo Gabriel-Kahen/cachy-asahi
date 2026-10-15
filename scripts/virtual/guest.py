@@ -9,6 +9,7 @@ from pathlib import Path
 import platform
 import re
 import signal
+import socket
 import stat
 import subprocess
 import sys
@@ -41,16 +42,9 @@ def emit(event, **data):
     print(PREFIX + json.dumps({'event': event, **data}, sort_keys=True), flush=True)
 
 
-class ClientIPCReplyTimeout(ValueError):
-    """Only the observed Hyprland clients reply timeout is retryable."""
-
-
 def command(argv, env=None, timeout=30):
     result = bounded(argv, env=env, timeout=timeout, limit=MAX_LOG)
     emit('command', argv=argv, **result)
-    if argv == ['/usr/bin/hyprctl', '-j', 'clients'] and result == {
-            'returncode': 6, 'error': None, 'stdout': IPC_TIMEOUT_REPLY, 'stderr': ''}:
-        raise ClientIPCReplyTimeout('Hyprland clients reply timeout')
     require(result['error'] is None and result['returncode'] == 0, 'command failed/overflowed: ' + argv[0])
     return result['stdout']
 
@@ -232,6 +226,53 @@ def wait_for_ipc(stage, compositor, env, log, check_logs):
     raise ValueError('compositor IPC deadline')
 
 
+def mapped_client(row, pid):
+    size = row.get('size')
+    return (row.get('pid') == pid and row.get('mapped') is True and
+            type(size) is list and len(size) == 2 and
+            all(type(value) is int and value > 0 for value in size))
+
+
+def query_clients(env, deadline, check):
+    """Keep one private clients request alive within the original mapping budget."""
+    runtime = Path(env['XDG_RUNTIME_DIR'])
+    instance = env['HYPRLAND_INSTANCE_SIGNATURE']
+    require(type(instance) is str and re.fullmatch(r'[A-Za-z0-9_.-]+', instance),
+            'invalid private compositor instance')
+    path = runtime / 'hypr' / instance / '.socket.sock'
+    require(list(runtime.glob('hypr/*/.socket.sock')) == [path] and path.is_socket() and
+            all(not p.is_symlink() for p in (path, *path.parents)), 'private compositor socket required')
+    start = time.monotonic()
+    reply = bytearray()
+    def remaining():
+        check()
+        value = deadline - time.monotonic()
+        require(value > 0, 'Wayland client mapping deadline')
+        return value
+    with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as connection:
+        connection.settimeout(min(.25, remaining()))
+        connection.connect(str(path))
+        connection.settimeout(min(.25, remaining()))
+        connection.sendall(b'j/clients')
+        while True:
+            connection.settimeout(min(.25, remaining()))
+            try:
+                block = connection.recv(min(65536, MAX_LOG + 1 - len(reply)))
+            except TimeoutError:
+                continue
+            require(len(reply) + len(block) <= MAX_LOG, 'clients IPC reply overflow')
+            if not block:
+                break
+            reply.extend(block)
+        remaining()
+    clients = json.loads(reply.decode('utf-8'))
+    require(type(clients) is list and all(type(row) is dict for row in clients), 'invalid clients IPC reply')
+    remaining()
+    emit('client_ipc', transport='private-unix-socket', request='j/clients',
+         elapsed_ms=int((time.monotonic() - start) * 1000), stdout=reply.decode('utf-8'))
+    return clients
+
+
 def terminate(process):
     try:
         os.killpg(process.pid, signal.SIGTERM)
@@ -326,18 +367,14 @@ def phase(stage, config, env, root, *, nonce=None):
         client.stdin.write(b'cachy-asahi software proof\nNo Apple hardware claim\n')
         client.stdin.close()
         deadline = time.monotonic() + 45
-        while time.monotonic() < deadline:
+        def check_client():
             check_logs()
             require(alive(), 'client/compositor exited before frame')
             require(log.stat().st_size <= MAX_LOG and client_log.stat().st_size <= MAX_LOG, 'session/client log overflow')
-            clients = []
-            try:
-                clients = json.loads(command(['/usr/bin/hyprctl', '-j', 'clients'], env))
-            except ClientIPCReplyTimeout:
-                pass
+        while time.monotonic() < deadline:
+            clients = query_clients(env, deadline, check_client)
             require(time.monotonic() < deadline, 'Wayland client mapping deadline')
-            if any(c.get('pid') == client.pid and c.get('mapped') is True and
-                   all(x > 0 for x in c.get('size', [0, 0])) for c in clients):
+            if any(mapped_client(row, client.pid) for row in clients):
                 break
             time.sleep(.5)
         else:

@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-"""Regressions for the retained MIME-cache and first-client-reply failures."""
+"""Regressions for retained MIME-cache and mapping acceptance failures."""
 import json
 from pathlib import Path
 import socket
@@ -31,14 +31,18 @@ class ClientsReply(unittest.TestCase):
             replies = iter(results)
             def bounded(argv, **options):
                 if argv[-1] == 'monitors': text = '[{"width":1024,"height":768}]'
-                elif argv[-1] == 'clients': return next(replies)
                 else: text = ''
                 return {'returncode': 0, 'error': None, 'stdout': text, 'stderr': ''}
+            def query_clients(env, deadline, check):
+                check()
+                result = next(replies)
+                return json.loads(result['stdout'])
             def terminate(process): process.poll.return_value = -15
             compositor.wait.side_effect = lambda **options: setattr(compositor.poll, 'return_value', 0)
             env = {'XDG_RUNTIME_DIR': str(runtime)}
             with patch('guest.LoggedProcess', side_effect=launch), patch('guest.wait_for_ipc', return_value=env), \
                  patch('guest.image_decode_preflight'), patch('guest.bounded', side_effect=bounded), \
+                 patch('guest.query_clients', side_effect=query_clients), \
                  patch('guest.terminate', side_effect=terminate), patch('guest.time.monotonic', side_effect=clock), \
                  patch('guest.time.sleep'), patch('guest.emit') as events:
                 try: guest.phase('minimal', root/'config', env, root)
@@ -48,38 +52,22 @@ class ClientsReply(unittest.TestCase):
             self.assertEqual(collectors[1].finish.call_count, 2 if failure is None else 1)
             return failure, events.call_args_list
 
-    def test_exact_first_reply_timeout_recovers_then_requires_real_mapped_client(self):
-        timeout = {'returncode': 6, 'error': None, 'stdout': guest.IPC_TIMEOUT_REPLY, 'stderr': ''}
+    def test_empty_reply_retries_then_requires_real_mapped_client(self):
+        empty = {'returncode': 0, 'error': None, 'stdout': '[]', 'stderr': ''}
         mapped = {'returncode': 0, 'error': None, 'stdout': '[{"pid":42,"mapped":true,"size":[420,220]}]', 'stderr': ''}
-        failure, events = self.phase([timeout, mapped], [0, 0, 1, 2, 3, 3, 20])
+        failure, events = self.phase([empty, mapped], [0, 0, 1, 2, 3, 3, 20])
         self.assertIsNone(failure)
-        clients = [row.kwargs for row in events if row.args == ('command',)
-                   and row.kwargs['argv'][-1] == 'clients']
-        self.assertEqual([row['returncode'] for row in clients], [6, 0])
         self.assertEqual(sum(row.args == ('frame_ready',) for row in events), 1)
         self.assertEqual(sum(row.args == ('phase_pass',) for row in events), 1)
 
     def test_timeout_cannot_accept_mapping_after_original_deadline(self):
-        timeout = {'returncode': 6, 'error': None, 'stdout': guest.IPC_TIMEOUT_REPLY, 'stderr': ''}
-        failure, events = self.phase([timeout], [0, 0, 45])
+        empty = {'returncode': 0, 'error': None, 'stdout': '[]', 'stderr': ''}
+        failure, events = self.phase([empty], [0, 0, 45])
         self.assertEqual(str(failure), 'Wayland client mapping deadline')
         self.assertFalse(any(row.args == ('frame_ready',) for row in events))
         states = [row.kwargs['boundary'] for row in events if row.args == ('process_state',)]
         self.assertEqual(states, ['before_cleanup', 'after_cleanup'])
 
-    def test_only_exact_observed_clients_timeout_gets_retryable_exception(self):
-        timeout = {'returncode': 6, 'error': None, 'stdout': guest.IPC_TIMEOUT_REPLY, 'stderr': ''}
-        with patch('guest.bounded', return_value=timeout), patch('guest.emit'):
-            with self.assertRaises(guest.ClientIPCReplyTimeout):
-                guest.command(['/usr/bin/hyprctl', '-j', 'clients'])
-        for argv, changes in ((['/usr/bin/hyprctl', '-j', 'configerrors'], {}),
-                              (['/usr/bin/hyprctl', '-j', 'clients'], {'stderr': 'warning'}),
-                              (['/usr/bin/hyprctl', '-j', 'clients'], {'stdout': 'different failure'}),
-                              (['/usr/bin/hyprctl', '-j', 'clients'], {'returncode': -9, 'error': 'timeout'})):
-            with self.subTest(argv=argv, changes=changes), patch('guest.bounded', return_value=timeout|changes), \
-                 patch('guest.emit'):
-                with self.assertRaises(ValueError) as caught: guest.command(argv)
-                self.assertNotIsInstance(caught.exception, guest.ClientIPCReplyTimeout)
 
 
 class MimeMetadata(unittest.TestCase):
