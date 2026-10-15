@@ -23,6 +23,15 @@ DIAGNOSTIC_STAGES['preparation-sdk-preflight'] = ['preflight', 'decode-duplicate
 DIAGNOSTIC_STAGES['P0-sdk-preflight'] = ['preflight', 'decode-duplicate', 'decode-number', 'decode-bytes', 'decode-object', 'grant-pin', 'grant-schema', 'contract-pin', 'job-identifier', 'original-view', 'policy-source-pin', 'policy-fields']
 DIAGNOSTIC_CODES = {'launcher': frozenset(['Root-close-custody', 'Root-file-cap', 'Root-file-drift', 'Root-file-replaced', 'Root-file-shape', 'Root-job-Source', 'Root-owned-private-directory', 'Root-private-input-pin', 'Root-private-path', 'Root-proof-Source', 'Root-proof-pin', 'Root-proof-row-table', 'Root-publication-required', 'Root-resource-body', 'Root-resource-provision', 'Root-socket-identity', 'committed269-lock-mismatch', 'committed269-lock-required', 'mandatory19-and-schema', 'native-AARCH64-ELF', 'native-Linux-ARM', 'one-shot-Root-administration', 'original-end', 'original-entry', 'physical269-lock-mismatch', 'seed-environment-drift', 'selected-driver-body']), 'freezer': frozenset(['Git-blob-identity-refused', 'Git-blob-mode-refused', 'Git-exact270-refused', 'Git-output-limit', 'Git-read-failed', 'Git-tree-refused', 'P0-variant-drift', 'Root-Git-body-refused', 'Root-Source-required', 'Root-checkout-required', 'Root-publication-Source-refused', 'Root-publication-hash-refused', 'Root-publication-required-rows', 'Root-publication-row-drift', 'Root-publication-table-refused', 'Source-file-limit', 'Source-literal-refused', 'Source-map-leaf-drift', 'Source-map-refused', 'Source-path-refused', 'Source-row-refused', 'Source-selector-refused', 'Source-total-limit', 'checkout-HEAD-refused', 'close-Source-FD-drift', 'closed-Git-read-required', 'data-output-limit', 'data-write-incomplete', 'data-write-readback-drift', 'exact269-selector-refused', 'experiment-exporter-drift', 'experiment-map-drift', 'final-HEAD-drift', 'final-held-Source-drift', 'final-physical-Source-drift', 'fresh-data-output-required', 'fresh-data-write-required', 'generic-policy-refused', 'held-Source-drift', 'metadata-contract-refused', 'original-contract-refused', 'original-endpoint-expired', 'original-endpoint-required', 'original-entry-expired', 'original-entry-required', 'original-four-recipes-required', 'original159-drift', 'original71-inputs-required', 'owned-data-file-drift', 'owned-data-file-required', 'pending-data-FD-unbound', 'physical-Git-Source-drift', 'publication644-required', 'recipe-input-drift', 'recipe-map-refused', 'regular-Source-leaf-required', 'selector-changed-during-freeze', 'unresolved-prior-Git-custody', 'unresolved-prior-read-custody', 'virtual-metadata-drift']), 'materializer': frozenset(['Root-callback-slot', 'Root-input-pin', 'Root-materializer-row', 'Root-selected-data', 'Root-selected-helper-code', 'Root-selection', 'Root-socket-selection', 'Source-body-pin', 'Source-body-set', 'Source-row', 'Source-total', 'actual-adopted-Source-row', 'actual-packet269', 'actual-publication', 'close-custody', 'distinct-purpose0', 'docker-socket-drift', 'docker-socket-shape', 'duplicate-key', 'explicit-Root-review-decision', 'file-cap', 'file-drift', 'file-replaced', 'file-shape', 'first-entry', 'fixed-preparation-selection', 'hash-pin', 'held-original159', 'held-scope', 'held-template-schema', 'independent-runtime-pin', 'independent-socket-selection', 'json-bound', 'json-object', 'materializer-paths', 'metadata-pin', 'narrow-map-join', 'no-fabricated-image', 'nonfinite-json', 'observed-endpoint6', 'observed-runtime-pin', 'original-end', 'original3c16', 'packed-template-cap', 'packet-row-join', 'pipeline-P0-null-slot', 'pipeline-gpg-env-null', 'pipeline-image-null-slot', 'pipeline-owned-slot', 'pipeline-plan-null-slot', 'pipeline-private-env-null', 'pipeline-publication-closure', 'pipeline-publication-row', 'private-close-custody', 'private-directory', 'private-readback', 'private-write-custody', 'private-write-drift', 'private-write-progress', 'private-write-shape', 'published-270-rows', 'published-job-Source', 'recipe-Source', 'runtime-row', 'runtime-selection', 'source-path', 'template-output-set', 'unfilled-gpg', 'unfilled-runtime']), 'pipeline': frozenset(['p0-actual-packages', 'p0-actual-preparation', 'p0-bootstrap-body', 'p0-bootstrap-custody', 'p0-bootstrap-unfilled', 'p0-callback', 'p0-duplicate-key', 'p0-environment', 'p0-existing-timer', 'p0-frame', 'p0-grant-scope', 'p0-input-ancestor', 'p0-input-cap', 'p0-input-close-custody', 'p0-input-drift', 'p0-input-file', 'p0-input-path', 'p0-input-pin', 'p0-input-replaced', 'p0-input-set', 'p0-invocation', 'p0-job-context', 'p0-json-number', 'p0-module-collision', 'p0-original-end', 'p0-original-entry', 'p0-output-boundary', 'p0-packages', 'p0-packet-drift', 'p0-preparation-origin', 'p0-preparation-route', 'p0-preparation-template', 'p0-prepared-image', 'p0-private-cap', 'p0-private-close-custody', 'p0-private-created', 'p0-private-custody', 'p0-private-final-custody', 'p0-private-fresh', 'p0-private-template', 'p0-private-write-custody', 'p0-private-write-progress', 'p0-publication', 'p0-publication-closure', 'p0-publication-row', 'p0-registry-retirement', 'p0-result', 'p0-runtime-contract', 'p0-runtime-selection', 'p0-source-commit', 'p0-source-path', 'p0-source-row', 'p0-source-total', 'p0-sticky-cancel', 'p0-template', 'p0-template-frame', 'p0-template-job-field', 'p0-template-packages', 'p0-template-pin', 'p0-template-scope', 'p0-template-view', 'prep-P0-complete', 'prep-authority', 'prep-bootstrap-body', 'prep-build-outcome-unknown', 'prep-cache-custody', 'prep-cache-selection', 'prep-cache-set', 'prep-callback', 'prep-command-count', 'prep-command-exit', 'prep-command-frame', 'prep-command-retirement', 'prep-complete', 'prep-container-custody', 'prep-container-retirement', 'prep-daemon-ARM', 'prep-docker-argv', 'prep-docker-close-custody', 'prep-docker-operation', 'prep-download-cap', 'prep-download-close-custody', 'prep-download-domain', 'prep-download-downgrade', 'prep-download-fd', 'prep-download-file', 'prep-download-input', 'prep-download-pin', 'prep-download-progress', 'prep-download-redirect', 'prep-download-response-custody', 'prep-download-target', 'prep-environment', 'prep-existing-timer', 'prep-fixed-four-bytes', 'prep-fixed-four-cache-custody', 'prep-fixed-four-cache-drift', 'prep-fixed-four-chunk', 'prep-fixed-four-count', 'prep-fixed-four-inputs', 'prep-fixed-four-no-HTTPS-fallback', 'prep-fixed-four-readback', 'prep-fixed-four-schema', 'prep-fixed-four-seed-no-URLs', 'prep-fixed-four-seed-required', 'prep-fixed-four-total', 'prep-gpg-argv', 'prep-gpg-close-custody', 'prep-gpg-drift', 'prep-gpg-operation', 'prep-gpg-pin', 'prep-grant-scope', 'prep-host-ARM', 'prep-image-id', 'prep-inputs', 'prep-inventory-container-absence', 'prep-inventory-name-must-be-absent', 'prep-job-context', 'prep-materialized-input-pin', 'prep-materialized-input-readback', 'prep-module-collision', 'prep-original-entry', 'prep-original-frame', 'prep-output-custody', 'prep-output-drift', 'prep-override-content', 'prep-owned-tag', 'prep-package-retirement', 'prep-packages', 'prep-packet-drift', 'prep-paths', 'prep-private-fresh', 'prep-private-template', 'prep-publication', 'prep-publication-closure', 'prep-publication-row', 'prep-quarantine', 'prep-registry-retirement', 'prep-runtime', 'prep-selection', 'prep-source-owner', 'prep-source-path', 'prep-source-total', 'prep-tag-custody', 'prep-tag-must-be-absent', 'prep-tag-retirement', 'prep-template', 'prep-template-job', 'prep-template-nonce', 'prep-template-pin', 'prep-view', 'prep-warm-cache', 'prep-warm-cache-required', 'template-decoded-cap', 'template-packed', 'template-packed-cap']), 'packet': frozenset(['P0-variant-source-drift', 'composed-map-binding-drift', 'composed-original-contract-refused', 'composed-original-recipes-refused', 'composed-packet-contract-refused', 'composed-policy-refused', 'composed-source-selection-refused', 'duplicate-json-key', 'exact-composed-metadata-pins-required', 'exact-metadata-pins-required', 'exact-reviewed-ksm-inputs-required', 'experiment-exporter-binding-drift', 'experiment-lock-refused', 'experiment-source-binding-drift', 'fixed-packet-path-required', 'full-github-sha-required', 'full-sha256-required', 'git-packet-binding-drift', 'git-packet-mode-refused', 'git-source-bytes-or-mode-drift', 'git-source-entry-refused', 'git-source-output-exceeded', 'git-source-path-count-exceeded', 'git-source-path-set-drift', 'git-source-query-failed', 'git-source-query-unavailable', 'github-checkout-commit-drift', 'ignored-executable-source-refused', 'initial-lock-binding-required', 'initial-lock-contract-refused', 'initial-recipe-binding-refused', 'initial-runner-tests-missing', 'initial-source-map-drift', 'invalid-git-source-tree', 'invalid-recipe-map', 'invalid-source-json', 'invalid-source-mode', 'invalid-source-row', 'metadata-pin-drift', 'new-external-snapshot-required', 'new-packet-output-required', 'nonfinite-json', 'packet-contract-refused', 'packet-initial-lock-binding-drift', 'packet-metadata-pin-drift', 'packet-size-exceeded', 'packet-source-map-drift', 'packet-source-tests-required', 'packet-write-failed', 'private-source-path', 'readonly-git-query-required', 'recipe-input-drift', 'recipe-input-omitted', 'recipe-map-required', 'required-source-tree-missing', 'reviewed-ksm-input-drift', 'reviewed-ksm-map-required', 'runtime-metadata-pins-drift', 'runtime-packet-path-required', 'singly-linked-source-required', 'snapshot-copy-drift', 'snapshot-copy-failed', 'snapshot-packet-binding-drift', 'snapshot-packet-required', 'snapshot-source-drift', 'snapshot-source-map-drift', 'source-changed-during-read', 'source-descriptor-close-failed', 'source-drift-during-freeze', 'source-drift-during-preflight', 'source-map-required', 'source-mode-or-size-refused', 'source-path-count-exceeded', 'source-python-cache-refused', 'source-read-failed', 'source-replaced-before-read', 'source-total-size-exceeded', 'source-unavailable', 'symlink-source-directory', 'symlink-source-refused', 'unreviewed-development-file', 'unsafe-source-path', 'virtual-metadata-binding-drift']), 'sdk': frozenset(['acceptance-failed', 'authority-failed', 'baseline-failed', 'callback-refused', 'cleanup-failed', 'crypto-failed', 'deadline', 'grant-refused', 'initial-failed', 'public-receiver-failed', 'restage-failed', 'source-refused', 'status-persistence-failed']), 'transport': frozenset(['Docker CLI bytes/owner/mode differ', 'EOF before ACK delivery', 'ancestor identity drift', 'bound typed Docker command required', 'bounded regular single-link input required', 'canonical literal bind required', 'child output byte bound', 'child supervision refused', 'closed transport', 'duplex callbacks required', 'empty private tool-state required', 'explicit allowlisted environment required', 'explicit duplex callbacks required', 'external Docker CLI pin required', 'externally observed endpoint identity required', 'finite pipe byte bound required', 'finite typed ACK required', 'finite unexpired transport deadline required', 'fixed endpoint socket identity drift', 'fixed local Docker environment required', 'foreign preparation quarantine registry', 'fresh CID file required', 'full private Docker CID required', 'input byte bound', 'input identity drift', 'literal bind differs', 'literal create mounts differ', 'literal original producer inputs differ', 'literal root-wrapper create policy differs', 'literal wrapper environment/entry differs', 'literal wrapper suffix differs', 'main-thread transport required', 'one exact repository scope required', 'original preparation work/cleanup endpoints required', 'owned private CID directory required', 'owned private tool-state mode required', 'parent traversal refused', 'pinned CLI identity drift', 'preparation module registry required', 'preparation natural/reaped status mismatch', 'preparation pending-signal bound', 'preparation quarantine forbids another birth', 'preparation signal-mask custody', 'preparation stream custody', 'preparation stream-close retry', 'private creation CID path differs', 'private tool-state directory required', 'private tool-state identity drift', 'producer exited before queued ACK delivery', 'producer stdin closed before ACK', 'registered create/source guard required', 'registered literal create validation required', 'unexpected Docker configuration/helper input', 'unsupported Docker operation', 'zero ACK write'])}
 DIAGNOSTIC_TYPES = {'ValueError', 'TypeError', 'RuntimeError', 'OSError', 'KeyboardInterrupt', 'SystemExit', 'UNKNOWN'}
+LEGACY_DIAGNOSTIC_CODES = frozenset().union(*DIAGNOSTIC_CODES.values())
+
+# The selector and ordinal domain are fixed by the current reviewed input contract.
+DOWNLOAD_OPERATIONS = frozenset('download-current-vim-v1-input-' + str(i).zfill(3) for i in range(501))
+DOWNLOAD_CODE_TYPES = {'DL_HTTP_301': 'UNKNOWN', 'DL_HTTP_302': 'UNKNOWN', 'DL_HTTP_303': 'UNKNOWN', 'DL_HTTP_307': 'UNKNOWN', 'DL_HTTP_308': 'UNKNOWN', 'DL_HTTP_400': 'UNKNOWN', 'DL_HTTP_401': 'UNKNOWN', 'DL_HTTP_403': 'UNKNOWN', 'DL_HTTP_404': 'UNKNOWN', 'DL_HTTP_405': 'UNKNOWN', 'DL_HTTP_408': 'UNKNOWN', 'DL_HTTP_410': 'UNKNOWN', 'DL_HTTP_416': 'UNKNOWN', 'DL_HTTP_429': 'UNKNOWN', 'DL_HTTP_451': 'UNKNOWN', 'DL_HTTP_500': 'UNKNOWN', 'DL_HTTP_501': 'UNKNOWN', 'DL_HTTP_502': 'UNKNOWN', 'DL_HTTP_503': 'UNKNOWN', 'DL_HTTP_504': 'UNKNOWN', 'DL_HTTP_507': 'UNKNOWN', 'DL_HTTP_508': 'UNKNOWN', 'DL_HTTP_511': 'UNKNOWN', 'DL_HTTP_OTHER': 'UNKNOWN', 'DL_HTTP_UNKNOWN': 'UNKNOWN', 'DL_KBI_AFTER_PREP_ALRM': 'KeyboardInterrupt', 'DL_KBI_AFTER_UNATTRIBUTED': 'KeyboardInterrupt', 'DL_KBI_BEFORE_PREP_ALRM': 'KeyboardInterrupt', 'DL_KBI_BEFORE_UNATTRIBUTED': 'KeyboardInterrupt', 'DL_KBI_UNKNOWN_PREP_ALRM': 'KeyboardInterrupt', 'DL_KBI_UNKNOWN_UNATTRIBUTED': 'KeyboardInterrupt', 'DL_OSERROR': 'OSError', 'DL_OTHER': 'UNKNOWN', 'DL_RUNTIMEERROR': 'RuntimeError', 'DL_SYSTEMEXIT': 'SystemExit', 'DL_TIMEOUTERROR': 'OSError', 'DL_TYPEERROR': 'TypeError', 'DL_URLERROR': 'UNKNOWN', 'DL_VALUEERROR': 'ValueError', 'prep-download-cap': 'ValueError', 'prep-download-close-custody': 'ValueError', 'prep-download-domain': 'ValueError', 'prep-download-downgrade': 'ValueError', 'prep-download-fd': 'ValueError', 'prep-download-file': 'ValueError', 'prep-download-input': 'ValueError', 'prep-download-pin': 'ValueError', 'prep-download-progress': 'ValueError', 'prep-download-redirect': 'ValueError', 'prep-download-response-custody': 'ValueError', 'prep-download-target': 'ValueError', 'prep-fixed-four-no-HTTPS-fallback': 'ValueError'}
+DOWNLOAD_CODES = frozenset(code for code in DOWNLOAD_CODE_TYPES if code.startswith('DL_'))
+DOWNLOAD_GUARD_CODES = frozenset(DOWNLOAD_CODE_TYPES) - DOWNLOAD_CODES
+DIAGNOSTIC_STAGES['pipeline'] = DIAGNOSTIC_STAGES['pipeline'] | DOWNLOAD_OPERATIONS
+DIAGNOSTIC_CODES['pipeline'] = DIAGNOSTIC_CODES['pipeline'] | DOWNLOAD_CODES
 
 
 def exception_state(error):
@@ -35,7 +44,7 @@ def exception_state(error):
 
 def diagnostic(error, stage, operation, domain):
     """Pure closed facts; no error text, paths, arguments, payload or runtime rows."""
-    need(stage in DIAGNOSTIC_STAGES and operation in DIAGNOSTIC_STAGES[stage] and domain in DIAGNOSTIC_CODES,
+    need(stage in DIAGNOSTIC_STAGES and operation in DIAGNOSTIC_STAGES[stage] and operation not in DOWNLOAD_OPERATIONS and domain in DIAGNOSTIC_CODES,
          'diagnostic-shape')
     kind = 'UNKNOWN'
     for exact, label in ((ValueError, 'ValueError'), (TypeError, 'TypeError'), (RuntimeError, 'RuntimeError'),
@@ -52,38 +61,95 @@ def diagnostic(error, stage, operation, domain):
     code = 'UNKNOWN'
     # Observed literal only: this does not attest exception class or Source origin.
     args = BaseException.__dict__['args'].__get__(error)
-    if type(args) is tuple and len(args) == 1 and type(args[0]) is str and 0 < len(args[0]) <= 160 and args[0] in set().union(*DIAGNOSTIC_CODES.values()):
+    if type(args) is tuple and len(args) == 1 and type(args[0]) is str and 0 < len(args[0]) <= 160 and args[0] in LEGACY_DIAGNOSTIC_CODES:
         code = args[0]
     return {'schema_version': 1, 'stage': stage, 'operation': operation, 'exception_type': kind, 'refusal_code': code}
 
 
 
-def attach_diagnostic(error, stage, operation, domain):
-    """Never replace the primary; first closed record survives later collection."""
+def validate_diagnostic(value):
+    """Closed carrier only; shape does not authenticate indexed-record origin."""
+    if type(value) is not dict or len(value) != 5 or any(type(key) is not str for key in value) or set(value) != {'schema_version', 'stage', 'operation', 'exception_type', 'refusal_code'}:
+        return None
+    if type(value['schema_version']) is not int or value['schema_version'] != 1:
+        return None
+    if any(type(value[key]) is not str or not 0 < len(value[key]) <= 160 for key in ('stage', 'operation', 'exception_type', 'refusal_code')):
+        return None
+    if value['stage'] not in DIAGNOSTIC_STAGES or value['operation'] not in DIAGNOSTIC_STAGES[value['stage']] or value['exception_type'] not in DIAGNOSTIC_TYPES or value['refusal_code'] not in LEGACY_DIAGNOSTIC_CODES | DOWNLOAD_CODES | {'UNKNOWN'}:
+        return None
+    if value['operation'] in DOWNLOAD_OPERATIONS:
+        if value['stage'] != 'pipeline' or value['refusal_code'] not in DOWNLOAD_CODE_TYPES or value['exception_type'] != DOWNLOAD_CODE_TYPES[value['refusal_code']]:
+            return None
+    elif value['refusal_code'] in DOWNLOAD_CODES:
+        return None
+    return {key: value[key] for key in ('schema_version', 'stage', 'operation', 'exception_type', 'refusal_code')}
+
+
+def capture_download_accessor(module):
+    """Capture only the plain function from the already authenticated driver body."""
+    if type(module) is not types.ModuleType:
+        return None
+    state = types.ModuleType.__dict__['__dict__'].__get__(module)
+    if type(state) is not dict or len(state) > 512 or any(type(key) is not str for key in state):
+        return None
+    function = state.get('download_diagnostic')
+    if type(state.get('__name__')) is not str or state['__name__'] != 'development_p0_ci' or type(function) is not types.FunctionType:
+        return None
+    code = function.__code__
+    if function.__globals__ is not state or type(function.__module__) is not str or function.__module__ != 'development_p0_ci' or type(function.__name__) is not str or function.__name__ != 'download_diagnostic' or type(function.__qualname__) is not str or function.__qualname__ != 'download_diagnostic' or function.__defaults__ is not None or function.__kwdefaults__ is not None or function.__closure__ is not None or code.co_argcount != 1 or code.co_kwonlyargcount or code.co_flags & 12:
+        return None
+    return module, state, function, code
+
+
+def attach_diagnostic(error, stage, operation, domain, *, driver_accessor=None, accepted_context=None):
+    """First closed record wins; only source-owned context authenticates indexing."""
+    old = None
+    legacy = None
     try:
         state = exception_state(error)
         if type(state) is not dict or not all(type(key) is str for key in state):
             return
-        old = state.get('nativeci_diagnostic')
-        if type(old) is dict and all(type(key) is str for key in old) and set(old) == {'schema_version', 'stage', 'operation', 'exception_type', 'refusal_code'} and \
-           type(old['schema_version']) is int and old['schema_version'] == 1 and all(type(old[key]) is str for key in ('stage', 'operation', 'exception_type', 'refusal_code')) and old['stage'] in DIAGNOSTIC_STAGES and \
-           old['operation'] in DIAGNOSTIC_STAGES[old['stage']] and old['exception_type'] in DIAGNOSTIC_TYPES and \
-           old['refusal_code'] in {'UNKNOWN'} | set().union(*DIAGNOSTIC_CODES.values()):
+        old = validate_diagnostic(state.get('nativeci_diagnostic'))
+        if old is not None and old['operation'] not in DOWNLOAD_OPERATIONS:
             return
-        # A selected driver reports a closed inner operation; it grants no authority.
+        # The public run wrapper owns this bounded context; exception attrs do not.
+        if type(accepted_context) is list and len(accepted_context) == 1:
+            primary, record = accepted_context[0]
+            accepted = validate_diagnostic(record)
+            if error is primary and accepted is not None and accepted['operation'] in DOWNLOAD_OPERATIONS:
+                state['nativeci_diagnostic'] = accepted
+                return accepted
         inner = state.get('nativeci_pipeline_operation')
-        if stage == 'pipeline' and operation == 'run-pipeline' and type(inner) is str and inner in DIAGNOSTIC_STAGES['pipeline'] - {'run-pipeline', 'prepare-pipeline-arguments'}:
+        fallback = stage == 'pipeline' and operation == 'run-pipeline'
+        if fallback and type(inner) is str and inner in DIAGNOSTIC_STAGES['pipeline'] - DOWNLOAD_OPERATIONS - {'run-pipeline', 'prepare-pipeline-arguments'}:
             operation = inner
-        state['nativeci_diagnostic'] = diagnostic(error, stage, operation, domain)
+        legacy = diagnostic(error, stage, operation, domain)
+        if fallback and operation in {'download-input', 'download-http-error', 'download-url-error', 'download-timeout'} and (legacy['refusal_code'] == 'UNKNOWN' or legacy['refusal_code'] in DOWNLOAD_GUARD_CODES) and type(driver_accessor) is tuple and len(driver_accessor) == 4:
+            module, module_state, function, code = driver_accessor
+            captured = capture_download_accessor(module)
+            if captured is not None and all(actual is expected for actual, expected in zip(captured, driver_accessor)):
+                projected = validate_diagnostic(function(error))
+                if projected is not None and projected['operation'] in DOWNLOAD_OPERATIONS and projected['exception_type'] == legacy['exception_type'] and (legacy['refusal_code'] not in DOWNLOAD_GUARD_CODES or projected['refusal_code'] == legacy['refusal_code']):
+                    if type(accepted_context) is list and not accepted_context:
+                        accepted_context.append((error, dict(projected)))
+                    state['nativeci_diagnostic'] = projected
+                    return projected
+        state['nativeci_diagnostic'] = legacy
     except BaseException as secondary:
-        if type(secondary) is KeyboardInterrupt:
-            try:
-                state = exception_state(error)
-                if state is not None:
-                    state['native_preflight_cancelled'] = True
-                    state['native_preflight_cleanup_uncertain'] = True
-            except BaseException:
-                pass
+        # Restore the closed fallback independently of optional cancellation facts.
+        try:
+            state = exception_state(error)
+            if state is not None and (old is None or old['operation'] in DOWNLOAD_OPERATIONS):
+                state['nativeci_diagnostic'] = legacy if legacy is not None else diagnostic(error, stage, operation, domain)
+        except BaseException:
+            pass
+        try:
+            state = exception_state(error)
+            if state is not None and any(base is KeyboardInterrupt for base in type.__dict__['__mro__'].__get__(type(secondary))):
+                state['native_preflight_cancelled'] = True
+                state['native_preflight_cleanup_uncertain'] = True
+        except BaseException:
+            pass
 
 
 
@@ -243,12 +309,12 @@ def require_committed_packet(freezer, git, tree, root, commit, frozen, end):
 
 
 def _run(*, entry, outer_end, root, scratch, cache, proof_raw, proof_sha256, preparation_raw,
-        preparation_sha256, P0_raw, P0_sha256, review_raw, review_sha256, environment):
+        preparation_sha256, P0_raw, P0_sha256, review_raw, review_sha256, environment, _download_context=None):
     need(type(entry) in (int, float) and math.isfinite(entry) and entry <= time.monotonic()
          and type(outer_end) in (int, float) and math.isfinite(outer_end), 'original-entry')
     end = min(entry + 60, outer_end - 90); live(end)
     captured = capture_four(environment)  # Before helper/provider/project code.
-    first = None; result = None
+    first = None; result = None; driver_accessor = None
     stage, operation, domain = 'selection', 'validate-selection', 'launcher'
     try:
         stage, operation, domain = 'selection', 'validate-selection', 'launcher'
@@ -324,6 +390,7 @@ def _run(*, entry, outer_end, root, scratch, cache, proof_raw, proof_sha256, pre
         module = types.ModuleType('development_p0_ci'); module.__file__ = str(root / DRIVER)
         sys.modules[module.__name__] = module; sys.__dict__[ANCHOR].append(module)
         exec(compile(body, module.__file__, 'exec', dont_inherit=True), module.__dict__)
+        driver_accessor = capture_download_accessor(module)
         need(not any(key.startswith(('CACHY_OLD_FOUR_', 'CACHY_RETAINED_')) for key in environment), 'seed-environment-drift')
         environment.update(captured)
         # No new preparation entry: all administration consumed its original frame.
@@ -338,7 +405,7 @@ def _run(*, entry, outer_end, root, scratch, cache, proof_raw, proof_sha256, pre
         result = pipeline_callable(**pipeline_arguments)
     except BaseException as error:
         first = error
-        attach_diagnostic(first, stage, operation, domain)
+        attach_diagnostic(first, stage, operation, domain, driver_accessor=driver_accessor, accepted_context=_download_context)
     finally:
         try:
             captured.clear()
@@ -357,11 +424,12 @@ def _run(*, entry, outer_end, root, scratch, cache, proof_raw, proof_sha256, pre
 
 def run(*, entry, outer_end, root, scratch, cache, proof_raw, proof_sha256, preparation_raw,
         preparation_sha256, P0_raw, P0_sha256, review_raw, review_sha256, environment):
+    accepted_context = []
     try:
         return _run(entry=entry, outer_end=outer_end, root=root, scratch=scratch, cache=cache,
             proof_raw=proof_raw, proof_sha256=proof_sha256, preparation_raw=preparation_raw,
             preparation_sha256=preparation_sha256, P0_raw=P0_raw, P0_sha256=P0_sha256,
-            review_raw=review_raw, review_sha256=review_sha256, environment=environment)
+            review_raw=review_raw, review_sha256=review_sha256, environment=environment, _download_context=accepted_context)
     except BaseException as error:
-        attach_diagnostic(error, 'entry', 'validate-entry', 'launcher')
+        attach_diagnostic(error, 'entry', 'validate-entry', 'launcher', accepted_context=accepted_context)
         raise

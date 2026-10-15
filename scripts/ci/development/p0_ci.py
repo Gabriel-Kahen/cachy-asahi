@@ -140,6 +140,73 @@ def mark_pipeline_failure(error, operation):
             except BaseException:
                 pass
 
+DOWNLOAD_PREFIX='download-current-vim-v1-input-'
+DOWNLOAD_OPERATIONS=frozenset(DOWNLOAD_PREFIX+str(i).zfill(3) for i in range(501))
+DOWNLOAD_TYPES={'DL_HTTP_301': 'UNKNOWN', 'DL_HTTP_302': 'UNKNOWN', 'DL_HTTP_303': 'UNKNOWN', 'DL_HTTP_307': 'UNKNOWN', 'DL_HTTP_308': 'UNKNOWN', 'DL_HTTP_400': 'UNKNOWN', 'DL_HTTP_401': 'UNKNOWN', 'DL_HTTP_403': 'UNKNOWN', 'DL_HTTP_404': 'UNKNOWN', 'DL_HTTP_405': 'UNKNOWN', 'DL_HTTP_408': 'UNKNOWN', 'DL_HTTP_410': 'UNKNOWN', 'DL_HTTP_416': 'UNKNOWN', 'DL_HTTP_429': 'UNKNOWN', 'DL_HTTP_451': 'UNKNOWN', 'DL_HTTP_500': 'UNKNOWN', 'DL_HTTP_501': 'UNKNOWN', 'DL_HTTP_502': 'UNKNOWN', 'DL_HTTP_503': 'UNKNOWN', 'DL_HTTP_504': 'UNKNOWN', 'DL_HTTP_507': 'UNKNOWN', 'DL_HTTP_508': 'UNKNOWN', 'DL_HTTP_511': 'UNKNOWN', 'DL_HTTP_OTHER': 'UNKNOWN', 'DL_HTTP_UNKNOWN': 'UNKNOWN', 'DL_KBI_AFTER_PREP_ALRM': 'KeyboardInterrupt', 'DL_KBI_AFTER_UNATTRIBUTED': 'KeyboardInterrupt', 'DL_KBI_BEFORE_PREP_ALRM': 'KeyboardInterrupt', 'DL_KBI_BEFORE_UNATTRIBUTED': 'KeyboardInterrupt', 'DL_KBI_UNKNOWN_PREP_ALRM': 'KeyboardInterrupt', 'DL_KBI_UNKNOWN_UNATTRIBUTED': 'KeyboardInterrupt', 'DL_OSERROR': 'OSError', 'DL_OTHER': 'UNKNOWN', 'DL_RUNTIMEERROR': 'RuntimeError', 'DL_SYSTEMEXIT': 'SystemExit', 'DL_TIMEOUTERROR': 'OSError', 'DL_TYPEERROR': 'TypeError', 'DL_URLERROR': 'UNKNOWN', 'DL_VALUEERROR': 'ValueError', 'prep-download-cap': 'ValueError', 'prep-download-close-custody': 'ValueError', 'prep-download-domain': 'ValueError', 'prep-download-downgrade': 'ValueError', 'prep-download-fd': 'ValueError', 'prep-download-file': 'ValueError', 'prep-download-input': 'ValueError', 'prep-download-pin': 'ValueError', 'prep-download-progress': 'ValueError', 'prep-download-redirect': 'ValueError', 'prep-download-response-custody': 'ValueError', 'prep-download-target': 'ValueError', 'prep-fixed-four-no-HTTPS-fallback': 'ValueError'}
+DOWNLOAD_CODES=frozenset(('DL_HTTP_301', 'DL_HTTP_302', 'DL_HTTP_303', 'DL_HTTP_307', 'DL_HTTP_308', 'DL_HTTP_400', 'DL_HTTP_401', 'DL_HTTP_403', 'DL_HTTP_404', 'DL_HTTP_405', 'DL_HTTP_408', 'DL_HTTP_410', 'DL_HTTP_416', 'DL_HTTP_429', 'DL_HTTP_451', 'DL_HTTP_500', 'DL_HTTP_501', 'DL_HTTP_502', 'DL_HTTP_503', 'DL_HTTP_504', 'DL_HTTP_507', 'DL_HTTP_508', 'DL_HTTP_511', 'DL_HTTP_OTHER', 'DL_HTTP_UNKNOWN', 'DL_KBI_AFTER_PREP_ALRM', 'DL_KBI_AFTER_UNATTRIBUTED', 'DL_KBI_BEFORE_PREP_ALRM', 'DL_KBI_BEFORE_UNATTRIBUTED', 'DL_KBI_UNKNOWN_PREP_ALRM', 'DL_KBI_UNKNOWN_UNATTRIBUTED', 'DL_OSERROR', 'DL_OTHER', 'DL_RUNTIMEERROR', 'DL_SYSTEMEXIT', 'DL_TIMEOUTERROR', 'DL_TYPEERROR', 'DL_URLERROR', 'DL_VALUEERROR'))
+DOWNLOAD_GUARD_CODES=frozenset(('prep-download-cap', 'prep-download-close-custody', 'prep-download-domain', 'prep-download-downgrade', 'prep-download-fd', 'prep-download-file', 'prep-download-input', 'prep-download-pin', 'prep-download-progress', 'prep-download-redirect', 'prep-download-response-custody', 'prep-download-target', 'prep-fixed-four-no-HTTPS-fallback'))
+_DOWNLOAD_LATCH=None
+
+
+def download_fault(primary, secondary):
+    try:
+        lineage=type.__dict__['__mro__'].__get__(type(secondary))
+        if any(base is KeyboardInterrupt for base in lineage):
+            state=BaseException.__dict__['__dict__'].__get__(primary)
+            if type(state) is dict and all(type(key) is str for key in state):
+                state['native_preflight_cancelled']=True
+                state['native_preflight_cleanup_uncertain']=True
+    except BaseException:pass
+
+
+def download_clock(sample,end):
+    if type(sample) not in (int,float) or type(end) not in (int,float):return 'UNKNOWN'
+    try:
+        if not math.isfinite(sample) or not math.isfinite(end):return 'UNKNOWN'
+    except OverflowError:return 'UNKNOWN'
+    return 'BEFORE' if sample<end else 'AFTER'
+
+
+def download_item(item):
+    if type(item) is not dict or any(type(key) is not str for key in item):return None
+    if not all(key in item for key in ('filename','size','sha256','url')):return None
+    if any(type(item[key]) is not str for key in ('filename','sha256','url')) or type(item['size']) is not int:return None
+    return tuple(item[key] for key in ('filename','size','sha256','url'))
+
+
+def download_diagnostic(error):
+    """Consume only this actual driver's final same-primary diagnostic latch."""
+    global _DOWNLOAD_LATCH
+    row=_DOWNLOAD_LATCH
+    if type(row) is not tuple or len(row)!=3 or error is not row[0]:return None
+    operation,code=row[1:]
+    if type(operation) is not str or operation not in DOWNLOAD_OPERATIONS or type(code) is not str or code not in DOWNLOAD_TYPES:return None
+    result={'schema_version':1,'stage':'pipeline','operation':operation,
+            'exception_type':DOWNLOAD_TYPES[code],'refusal_code':code}
+    _DOWNLOAD_LATCH=None
+    return result
+
+
+def latch_download(owner,error):
+    global _DOWNLOAD_LATCH
+    try:
+        if type(owner) is not Preparation:return
+        context=owner.download_failure
+        if type(context) is not tuple or len(context)!=3 or error is not context[0]:return
+        ordinal,frozen=context[1:]
+        if type(ordinal) is not int or not 0<=ordinal<501 or type(owner.download_rows) is not tuple or len(owner.download_rows)!=501:return
+        if owner.download_item is not owner.download_rows[ordinal] or type(frozen) is not tuple or len(frozen)!=2:return
+        if type(owner.download_binding) is not tuple or len(owner.download_binding)!=2 or owner.download_rows is not owner.download_binding[0] or owner.download_pins is not owner.download_binding[1]:return
+        if type(owner.download_pins) is not tuple or len(owner.download_pins)!=501 or download_item(owner.download_item)!=owner.download_pins[ordinal]:return
+        operation,code=frozen
+        if type(operation) is not str or operation!=DOWNLOAD_PREFIX+str(ordinal).zfill(3) or type(code) is not str or code not in DOWNLOAD_TYPES:return
+        state=BaseException.__dict__['__dict__'].__get__(error)
+        if type(state) is not dict or any(type(key) is not str for key in state):return
+        marker=state.get('nativeci_pipeline_operation')
+        if type(marker) is not str or marker not in ('download-input','download-http-error','download-url-error','download-timeout'):return
+        _DOWNLOAD_LATCH=(error,operation,code)
+    except BaseException as secondary:download_fault(error,secondary)
+
 
 def finite(value):
     return type(value) in (int,float) and math.isfinite(value)
@@ -551,6 +618,7 @@ class Preparation:
         self.tag_absent=False;self.tag_confirmed=False;self.inventory_cid=None
         self.build_started=False;self.inventory_started=False;self.tag_retired=False
         self.commands=0;self.cancelled=False;self.uncertain=False;self.retained=[]
+        self.download_rows=self.download_pins=self.download_binding=self.download_item=self.download_failure=self.alarm_interrupt=None
 
     def guard(self,cleanup=False):
         end=self.cleanup_end if cleanup else self.deadline
@@ -589,6 +657,58 @@ class Preparation:
             raise
         return result
 
+    def bind_download_rows(self,items):
+        self.download_rows=self.download_pins=self.download_binding=None
+        try:
+            raw=self.current_inputs_raw
+            if type(raw) is not bytes or len(raw)!=328101 or digest(raw)!=INPUTS_SHA:return
+            inputs=decode(raw);expected=list(inputs['keyring_files'])
+            for item in (inputs['rootfs'],*inputs['packages']):
+                expected.extend((item,{'filename':item['filename']+'.sig','size':item['signature_size'],
+                    'sha256':item['signature_sha256'],'url':item['url']+'.sig'}))
+            if type(items) is not list or len(items)!=501 or len(expected)!=501:return
+            actual=tuple(download_item(item) for item in items)
+            if None in actual or actual!=tuple(download_item(item) for item in expected):return
+            self.download_rows=tuple(items);self.download_pins=actual
+            self.download_binding=(self.download_rows,self.download_pins)
+        except BaseException as error:
+            if isinstance(error,KeyboardInterrupt):raise
+
+    def capture_download(self,error,ordinal,item):
+        try:
+            if self.download_failure is not None or type(ordinal) is not int or not 0<=ordinal<501:return
+            if type(self.download_rows) is not tuple or len(self.download_rows)!=501 or item is not self.download_rows[ordinal]:return
+            if type(self.download_binding) is not tuple or len(self.download_binding)!=2 or self.download_rows is not self.download_binding[0] or self.download_pins is not self.download_binding[1]:return
+            if type(self.download_pins) is not tuple or len(self.download_pins)!=501 or download_item(item)!=self.download_pins[ordinal]:return
+            self.download_item=item;self.download_failure=(error,ordinal,None)
+            kind=type(error);code='DL_OTHER'
+            if kind is urllib.error.HTTPError:
+                state=BaseException.__dict__['__dict__'].__get__(error)
+                status=state.get('code') if type(state) is dict and all(type(key) is str for key in state) else None
+                label=str(status) if type(status) is int and 100<=status<=599 else 'UNKNOWN'
+                if 'DL_HTTP_'+label not in DOWNLOAD_CODES:label='OTHER' if label!='UNKNOWN' else label
+                code='DL_HTTP_'+label
+            elif kind is KeyboardInterrupt:
+                relation='UNKNOWN'
+                try:relation=download_clock(time.monotonic(),self.deadline)
+                except BaseException as secondary:download_fault(error,secondary)
+                path='PREP_ALRM' if error is self.alarm_interrupt else 'UNATTRIBUTED'
+                code='DL_KBI_'+relation+'_'+path
+            else:
+                for exact,label in ((urllib.error.URLError,'URLERROR'),(TimeoutError,'TIMEOUTERROR'),
+                    (ValueError,'VALUEERROR'),(TypeError,'TYPEERROR'),(RuntimeError,'RUNTIMEERROR'),(SystemExit,'SYSTEMEXIT')):
+                    if kind is exact:code='DL_'+label;break
+                else:
+                    if any(kind is exact for exact in (OSError,BlockingIOError,ChildProcessError,ConnectionError,BrokenPipeError,
+                        ConnectionAbortedError,ConnectionRefusedError,ConnectionResetError,FileExistsError,
+                        FileNotFoundError,InterruptedError,IsADirectoryError,NotADirectoryError,PermissionError,ProcessLookupError)):code='DL_OSERROR'
+            if kind is ValueError:
+                args=BaseException.__dict__['args'].__get__(error)
+                if type(args) is tuple and len(args)==1 and type(args[0]) is str and args[0] in DOWNLOAD_GUARD_CODES:code=args[0]
+            self.download_item=item
+            self.download_failure=(error,ordinal,(DOWNLOAD_PREFIX+str(ordinal).zfill(3),code))
+        except BaseException as secondary:download_fault(error,secondary)
+
     def cached(self,items,cache):
         need(cache==self.cache and len(items)==501 and len({item['filename'] for item in items})==501 and
              sum(item['size'] for item in items)<=2*1024**3,'prep-cache-set')
@@ -596,83 +716,90 @@ class Preparation:
         need(stat.S_ISDIR(node.st_mode) and node.st_uid==os.geteuid() and stat.S_IMODE(node.st_mode)==0o700,'prep-cache-custody')
         rows={item['filename']:(item['size'],item['sha256']) for item in items}
         need(all(rows.get(name)==row for name,row in OVERRIDE_ROWS.items()),'prep-override-content')
-        for item in items:
+        self.bind_download_rows(items)
+        for ordinal,item in enumerate(items):
             self.guard();name=self.native.input_name(item['filename']);path=cache/name
             if not path.exists():
                 need(name not in OVERRIDE_ROWS,'prep-fixed-four-seed-required')
                 need(self.plan['cache_mode']=='selected-HTTPS','prep-warm-cache-required')
-                self.fetch(item,path)
+                self.fetch(item,path,ordinal=ordinal)
             need(path.is_file() and not path.is_symlink() and path.stat().st_size==item['size'] and
                  self.native.sha(path)==item['sha256'],'prep-warm-cache')
         self.guard()
 
-    def fetch(self,item,target):
+    def fetch(self,item,target,*,ordinal=None):
         """Original pinned HTTPS semantics with original-frame owned partial custody."""
-        need(type(item['size']) is int and 0<=item['size']<=2*1024**3 and
-             type(item['url']) is str and item['url'].startswith('https://'),'prep-download-input')
-        need(item['filename'] not in OVERRIDE_ROWS,'prep-fixed-four-no-HTTPS-fallback')
-        pin(item['sha256']);self.guard()
-        partial=target.with_name(target.name+'.'+self.plan['nonce']+'.partial')
-        fd=held=response=response_held=None;first=None;opened=False;connecting=False
         try:
-            opened=True;fd=os.open(partial,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW|os.O_CLOEXEC,0o600)
-            node=os.fstat(fd);held=identity(node)[:6]
-            need(stat.S_ISREG(node.st_mode) and node.st_uid==os.geteuid() and node.st_nlink==1 and
-                 stat.S_IMODE(node.st_mode)==0o600 and node.st_size==0,'prep-download-file')
-            self.guard();connecting=True
-            override=self.plan['url_overrides'].get(item['filename'])
-            url=override['url'] if override is not None else item['url']
-            domain=override['domain'] if override is not None else None
-            opener=urllib.request.build_opener(urllib.request.ProxyHandler({}),HTTPSRedirect(domain))
-            response=opener.open(url,timeout=min(60,self.deadline-time.monotonic()))
-            response_held=identity(os.fstat(response.fileno()))[:6]
-            need(type(response.url) is str and response.url.startswith('https://'),'prep-download-redirect')
-            if domain is not None:need(urllib.parse.urlsplit(response.url).hostname==domain,'prep-download-domain')
-            total=0;sha=hashlib.sha256()
-            while True:
-                self.guard();chunk=response.read(65536)
-                if not chunk:break
-                total+=len(chunk);need(total<=item['size'],'prep-download-cap');sha.update(chunk)
-                offset=0
-                while offset<len(chunk):
-                    self.guard();need(identity(os.fstat(fd))[:6]==held,'prep-download-fd')
-                    count=os.write(fd,chunk[offset:]);need(type(count) is int and 0<count<=len(chunk)-offset,'prep-download-progress')
-                    offset+=count
-            node=os.fstat(fd)
-            need(total==item['size'] and sha.hexdigest()==item['sha256'] and identity(node)[:6]==held and
-                 node.st_size==total and identity(partial.lstat())==identity(node),'prep-download-pin')
+            need(type(item['size']) is int and 0<=item['size']<=2*1024**3 and
+                 type(item['url']) is str and item['url'].startswith('https://'),'prep-download-input')
+            need(item['filename'] not in OVERRIDE_ROWS,'prep-fixed-four-no-HTTPS-fallback')
+            pin(item['sha256']);self.guard()
+            partial=target.with_name(target.name+'.'+self.plan['nonce']+'.partial')
+            fd=held=response=response_held=None;first=None;opened=False;connecting=False
+            try:
+                opened=True;fd=os.open(partial,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW|os.O_CLOEXEC,0o600)
+                node=os.fstat(fd);held=identity(node)[:6]
+                need(stat.S_ISREG(node.st_mode) and node.st_uid==os.geteuid() and node.st_nlink==1 and
+                     stat.S_IMODE(node.st_mode)==0o600 and node.st_size==0,'prep-download-file')
+                self.guard();connecting=True
+                override=self.plan['url_overrides'].get(item['filename'])
+                url=override['url'] if override is not None else item['url']
+                domain=override['domain'] if override is not None else None
+                opener=urllib.request.build_opener(urllib.request.ProxyHandler({}),HTTPSRedirect(domain))
+                response=opener.open(url,timeout=min(60,self.deadline-time.monotonic()))
+                response_held=identity(os.fstat(response.fileno()))[:6]
+                need(type(response.url) is str and response.url.startswith('https://'),'prep-download-redirect')
+                if domain is not None:need(urllib.parse.urlsplit(response.url).hostname==domain,'prep-download-domain')
+                total=0;sha=hashlib.sha256()
+                while True:
+                    self.guard();chunk=response.read(65536)
+                    if not chunk:break
+                    total+=len(chunk);need(total<=item['size'],'prep-download-cap');sha.update(chunk)
+                    offset=0
+                    while offset<len(chunk):
+                        self.guard();need(identity(os.fstat(fd))[:6]==held,'prep-download-fd')
+                        count=os.write(fd,chunk[offset:]);need(type(count) is int and 0<count<=len(chunk)-offset,'prep-download-progress')
+                        offset+=count
+                node=os.fstat(fd)
+                need(total==item['size'] and sha.hexdigest()==item['sha256'] and identity(node)[:6]==held and
+                     node.st_size==total and identity(partial.lstat())==identity(node),'prep-download-pin')
+            except BaseException as error:
+                first=error
+                self.capture_download(error,ordinal,item)
+                if (opened and fd is None) or (connecting and response is None):
+                    first=merge(first,error);self.retained.append(error)
+            finally:
+                if response is not None:
+                    try:
+                        # HTTPResponse closes its own fp on a natural length/EOF.
+                        # In that state no numeric FD is closed a second time.
+                        if not response.isclosed():
+                            need(response_held is not None and identity(os.fstat(response.fileno()))[:6]==response_held,
+                                 'prep-download-response-custody')
+                            response.close()
+                    except BaseException as error:
+                        self.retained.append(response);first=merge(first,error)
+                if fd is not None:
+                    try:
+                        need(held is not None and identity(os.fstat(fd))[:6]==held,'prep-download-close-custody')
+                        os.close(fd)
+                    except BaseException as error:first=merge(first,error)
+                if first is not None and BaseException.__getattribute__(first,'__dict__').get('native_preflight_cleanup_uncertain') is True:
+                    if self not in PREPARATION_QUARANTINE:PREPARATION_QUARANTINE.append(self)
+                    sys.modules['root_p0_preparation_owner_quarantine']=sys.modules[__name__]
+            if first is not None:
+                mark_pipeline_failure(first, 'download-input')
+                raise first
+            self.guard();need(not target.exists() and not target.is_symlink() and identity(partial.lstat())==identity(node),
+                              'prep-download-target')
+            # Root-selected writer exclusion on the owned700 cache prevents a foreign replacement.
+            try:partial.rename(target)
+            except BaseException as error:raise merge(None,error)
+            self.guard()
         except BaseException as error:
-            first=error
-            if (opened and fd is None) or (connecting and response is None):
-                first=merge(first,error);self.retained.append(error)
-        finally:
-            if response is not None:
-                try:
-                    # HTTPResponse closes its own fp on a natural length/EOF.
-                    # In that state no numeric FD is closed a second time.
-                    if not response.isclosed():
-                        need(response_held is not None and identity(os.fstat(response.fileno()))[:6]==response_held,
-                             'prep-download-response-custody')
-                        response.close()
-                except BaseException as error:
-                    self.retained.append(response);first=merge(first,error)
-            if fd is not None:
-                try:
-                    need(held is not None and identity(os.fstat(fd))[:6]==held,'prep-download-close-custody')
-                    os.close(fd)
-                except BaseException as error:first=merge(first,error)
-            if first is not None and BaseException.__getattribute__(first,'__dict__').get('native_preflight_cleanup_uncertain') is True:
-                if self not in PREPARATION_QUARANTINE:PREPARATION_QUARANTINE.append(self)
-                sys.modules['root_p0_preparation_owner_quarantine']=sys.modules[__name__]
-        if first is not None:
-            mark_pipeline_failure(first, 'download-input')
-            raise first
-        self.guard();need(not target.exists() and not target.is_symlink() and identity(partial.lstat())==identity(node),
-                          'prep-download-target')
-        # Root-selected writer exclusion on the owned700 cache prevents a foreign replacement.
-        try:partial.rename(target)
-        except BaseException as error:raise merge(None,error)
-        self.guard()
+            self.capture_download(error,ordinal,item)
+            mark_pipeline_failure(error,'download-input')
+            raise
 
     def gpg(self,args,log=None):
         base=['gpg','--batch','--no-options','--no-autostart','--homedir',str(self.out/'gpg'),'--no-auto-key-retrieve']
@@ -1002,6 +1129,8 @@ def packed_template(value):
 
 def pipeline(*,entry,outer_end,expected_source_commit,source_root,work_root,cache,prep_template_raw,prep_template_sha256):
     """Future Root-selected preparation, fresh P0, and original-bound tag retirement."""
+    global _DOWNLOAD_LATCH
+    _DOWNLOAD_LATCH=None
     need(finite(entry) and finite(outer_end) and entry<=time.monotonic()<outer_end,'prep-original-entry')
     root=Path(source_root);output=Path(work_root);cache=Path(cache)
     need(root==Path.cwd().resolve() and all(p.is_absolute() and '..' not in p.parts for p in (output,cache)) and
@@ -1041,7 +1170,10 @@ def pipeline(*,entry,outer_end,expected_source_commit,source_root,work_root,cach
         owner=Preparation(sources,sdk,transport,native,plan,runtime,output,cache,end,cleanup_end,private_chunks)
         need(signal.getitimer(signal.ITIMER_REAL)==(0.0,0.0),'prep-existing-timer')
         alarm_handler=signal.getsignal(signal.SIGALRM);alarm_saved=True
-        def expired(number,frame):raise KeyboardInterrupt('prep-original-end')
+        def expired(number,frame):
+            error=KeyboardInterrupt('prep-original-end')
+            if owner.alarm_interrupt is None:owner.alarm_interrupt=error
+            raise error
         try:signal.signal(signal.SIGALRM,expired)
         except BaseException as error:raise merge(None,error)
         timer_attempted=True
@@ -1105,6 +1237,7 @@ def pipeline(*,entry,outer_end,expected_source_commit,source_root,work_root,cach
             if owner.uncertain:BaseException.__setattr__(first,'native_preflight_cleanup_uncertain',True)
     if first is not None:
         mark_pipeline_failure(first, 'pipeline-cleanup')
+        latch_download(owner,first)
         raise first
     need(owner is not None and owner.tag_retired and type(result) is dict and result.get('status')=='PASS_P0_ONLY','prep-P0-complete')
     return {'status':'PASS_PREPARATION_AND_P0','P0':result,'image_tag_retired':True,
