@@ -57,6 +57,51 @@ def wait_event_port():
     raise ValueError('event port readiness deadline')
 
 
+def drm_card(sysfs=Path('/sys/class/drm'), devices=Path('/dev/dri')):
+    """Match one primary DRM node to its kernel device number, without udev DB."""
+    def primary(path):
+        suffix = path.name.removeprefix('card')
+        return path.name.startswith('card') and suffix.isascii() and suffix.isdecimal()
+    cards = [path for path in sysfs.glob('card*') if primary(path)]
+    nodes = [path for path in devices.glob('card*') if primary(path)]
+    need(len(cards) <= 1 and len(nodes) <= 1, 'ambiguous DRM cards')
+    if not cards or not nodes:
+        return None
+    card = cards[0]
+    device = devices / card.name
+    try:
+        major, minor = map(int, (card / 'dev').read_text().strip().split(':'))
+        # Linux7.2.10 attaches this DRM minor to the virtio GPU's PCI parent.
+        parent = card / 'device'
+        need((parent / 'vendor').read_text().strip() == '0x1af4' and
+             (parent / 'device').read_text().strip() == '0x1050' and
+             Path(os.readlink(parent / 'driver')).name == 'virtio-pci',
+             'wrong DRM PCI transport')
+        children = list(parent.glob('virtio[0-9]*'))
+        need(len(children) <= 1, 'ambiguous DRM virtio devices')
+        if not children:
+            return None
+        need(Path(os.readlink(children[0] / 'driver')).name == 'virtio_gpu',
+             'wrong DRM virtio driver')
+        value = device.lstat()
+    except FileNotFoundError:
+        return None
+    need(nodes == [device] and stat.S_ISCHR(value.st_mode) and major == 226 and
+         0 <= minor < 64 and minor == int(card.name[4:]) and value.st_rdev == os.makedev(major, minor),
+         'DRM character-device identity differs')
+    return device
+
+
+def wait_drm_card():
+    until = time.monotonic() + 20
+    while time.monotonic() < until:
+        device = drm_card()
+        if device is not None:
+            return device
+        time.sleep(.1)
+    raise ValueError('DRM readiness deadline')
+
+
 def emit(event, **values):
     # A dedicated non-console port keeps printk out of structured records.
     need(EVENTS is not None, 'event port unavailable')
@@ -307,9 +352,12 @@ def user():
                LIBGL_ALWAYS_SOFTWARE='1', GBM_ALWAYS_SOFTWARE='1', GALLIUM_DRIVER='llvmpipe',
                LP_NUM_THREADS='2', CACHY_ASAHI_VIRTUAL_GUEST='1',
                DBUS_SESSION_BUS_ADDRESS=os.environ['DBUS_SESSION_BUS_ADDRESS'])
-    cards = list(Path('/dev/dri').glob('card*'))
-    need(len(cards) == 1, 'one virtio DRM card required')
-    probe = json.loads(command(['/usr/local/bin/gbm-probe', str(cards[0])], env, logs, 'gbm', timeout=30))
+    card = drm_card()
+    need(card is not None, 'DRM card unavailable')
+    card_stat = card.lstat()
+    need(card_stat.st_uid == card_stat.st_gid == 23001 and card_stat.st_mode & 0o777 == 0o600,
+         'private user DRM card required')
+    probe = json.loads(command(['/usr/local/bin/gbm-probe', str(card)], env, logs, 'gbm', timeout=30))
     need(probe.get('status') == 'PASS', 'GBM software probe failed')
     emit('gbm_pass', probe=probe)
     for stage, config in [('minimal', SHARE / 'minimal.lua'),
@@ -346,12 +394,9 @@ def boot():
         need(sorted(actual.splitlines()) == sorted((SHARE / 'expected.lock').read_text().splitlines()),
              'installed package inventory differs')
         command(['/usr/bin/modprobe', 'virtio_gpu'], env, logs, 'virtio-gpu')
-        cards = list(Path('/dev/dri').glob('card*'))
-        need(len(cards) == 1, 'one virtio DRM card required')
-        command(['/usr/bin/udevadm', 'wait', '--timeout=20', '--initialized=yes', str(cards[0])],
-                env, logs, 'udev')
-        os.chown(cards[0], 23001, 23001)
-        cards[0].chmod(0o600)
+        card = wait_drm_card()
+        os.chown(card, 23001, 23001)
+        card.chmod(0o600)
         need(not os.path.lexists(SEAT), 'preexisting seatd socket path')
         seatd = Logged(['/usr/bin/seatd', '-u', 'desktop574', '-g', 'desktop574', '-l', 'info'],
                        'seatd', logs, env)
