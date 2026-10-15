@@ -867,11 +867,15 @@ class Preparation:
         need(identity(self.out.lstat())[:6]==held,'prep-output-drift')
         self.guard()
         self.seed_four()
+        need(os.uname().sysname=='Linux' and os.uname().machine=='aarch64','prep-host-ARM')
+        items=list(self.plan['inputs']['keyring_files'])
+        for item in (self.plan['inputs']['rootfs'],*self.plan['inputs']['packages']):
+            items.extend((item,self.native.signature_item(item)))
+        self.cached(items,self.cache)
         self.cli=self.transport.DockerTransport(**self.runtime['docker'],create_validator=lambda _:None)
         self.gpg_file=self.transport.read_file('/usr/bin/gpg',hold=True)
         need(self.gpg_file['sha256']==self.runtime['gpg_sha256'] and self.gpg_file['identity'][3:5]==(0,0) and
              stat.S_IMODE(self.gpg_file['identity'][2])==0o755,'prep-gpg-pin')
-        need(os.uname().sysname=='Linux' and os.uname().machine=='aarch64','prep-host-ARM')
         daemon=decode(self.invoke(self.cli.fd,['info','--format','{{json .}}'],self.cli.env)['stdout'])
         need(type(daemon) is dict and daemon.get('OSType')=='linux' and daemon.get('Architecture') in ('aarch64','arm64'),
              'prep-daemon-ARM')

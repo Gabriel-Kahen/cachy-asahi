@@ -1340,6 +1340,83 @@ class DownloadDiagnosticSdkTests(unittest.TestCase):
         self.driver._DOWNLOAD_LATCH=None
         self.addCleanup(setattr,self.driver,'_DOWNLOAD_LATCH',None)
 
+    def prepare_admission(self, *, system='Linux', machine='aarch64', acquisition_error=None):
+        """Actual prepare admission; inert owner/FS adapters stop before any tool actor."""
+        import ast
+        from types import MethodType
+        inputs=self.driver.decode(self.owner.current_inputs_raw)
+        events=[];captured=[];stop=RuntimeError('inert tool-constructor boundary')
+        temporary=tempfile.TemporaryDirectory();self.addCleanup(temporary.cleanup)
+        out=Path(temporary.name);out.chmod(0o700)
+        owner=SimpleNamespace(sources=SimpleNamespace(raw=self.sources.raw),deadline=self.owner.deadline,
+            plan={'inputs':inputs,'current_inputs_raw':self.owner.current_inputs_raw,
+                  'input_successor':dict(self.driver.INPUT_SUCCESSOR)},out=out,cache=out/'cache',
+            runtime={'docker':{}},cli=None,gpg_file=None,current_inputs_raw=None)
+        def callback(name,method,deadline):
+            self.assertEqual(name,'existing_consumers');self.assertIs(method.__func__,self.driver.Preparation.prepare)
+            self.assertEqual(deadline,owner.deadline);events.append('callback')
+        def cached(items,cache):
+            self.assertIs(cache,owner.cache);self.assertIsNone(owner.cli);self.assertIsNone(owner.gpg_file)
+            events.append('cached');captured.extend(items)
+            if acquisition_error is not None:raise acquisition_error
+        def tool(**kwargs):
+            events.append('tool-boundary');self.assertEqual(set(kwargs),{'create_validator'})
+            raise stop
+        tree=ast.parse(Path(__file__).with_name('p0_native_arm.py').read_bytes())
+        signature=next(node for node in tree.body if isinstance(node,ast.FunctionDef) and node.name=='signature_item')
+        self.assertFalse(any(isinstance(node,(ast.Call,ast.Import,ast.ImportFrom)) for node in ast.walk(signature)))
+        native={}
+        exec(compile(ast.Module([signature],type_ignores=[]),'<pure-native-signature-data>','exec'),native)
+        owner.sources.callback=callback
+        owner.prepare=MethodType(self.driver.Preparation.prepare,owner)
+        owner.guard=lambda:events.append('guard')
+        owner.seed_four=lambda:events.append('seed')
+        owner.cached=cached
+        owner.native=SimpleNamespace(signature_item=native['signature_item'])
+        owner.transport=SimpleNamespace(DockerTransport=tool,
+            read_file=lambda *a,**k:self.fail('GPG tool was opened before boundary'))
+        def write(path,raw,deadline):
+            self.assertEqual(path,out/'inputs.lock.json');self.assertEqual(raw,self.owner.current_inputs_raw)
+            self.assertEqual(deadline,owner.deadline);events.append('write-inputs')
+        def read(path,deadline,**kwargs):
+            self.assertEqual(path,out/'inputs.lock.json');self.assertTrue(kwargs['private'])
+            self.assertEqual(deadline,owner.deadline);events.append('read-inputs');return self.owner.current_inputs_raw
+        with patch.object(self.driver,'write_private',side_effect=write), \
+             patch.object(self.driver,'read',side_effect=read), \
+             patch.object(self.driver.os,'uname',return_value=SimpleNamespace(sysname=system,machine=machine)):
+            try:owner.prepare()
+            except BaseException as error:caught=error
+            else:self.fail('inert constructor boundary not reached')
+        return owner,captured,events,caught,stop
+
+    def test_prepare_acquires_exact_current_rows_before_tool_construction(self):
+        owner,items,events,caught,stop=self.prepare_admission()
+        self.assertIs(caught,stop);self.assertEqual(items,self.items);self.assertEqual(len(items),501)
+        self.assertEqual(len({item['filename'] for item in items}),501)
+        self.assertIs(items[3],owner.plan['inputs']['rootfs'])
+        for i,item in enumerate(owner.plan['inputs']['packages']):self.assertIs(items[5+2*i],item)
+        self.assertEqual(events,['callback','guard','write-inputs','read-inputs','guard','seed','cached','tool-boundary'])
+        self.assertIsNone(owner.cli);self.assertIsNone(owner.gpg_file)
+
+    def test_prepare_wrong_platform_refuses_before_acquisition_and_tools(self):
+        for system,machine in (('Darwin','aarch64'),('Linux','x86_64'),('Linux','arm64')):
+            with self.subTest(system=system,machine=machine):
+                owner,items,events,caught,stop=self.prepare_admission(system=system,machine=machine)
+                self.assertIs(type(caught),ValueError);self.assertEqual(caught.args,('prep-host-ARM',))
+                self.assertEqual(items,[]);self.assertNotIn('cached',events);self.assertNotIn('tool-boundary',events)
+                self.assertIsNone(owner.cli);self.assertIsNone(owner.gpg_file)
+
+    def test_prepare_acquisition_preserves_exact_primary_cause_and_cancel_flags(self):
+        for first in (ValueError('PRIVATE ACQUISITION'),KeyboardInterrupt('prep-original-end')):
+            with self.subTest(kind=type(first)):
+                prior=RuntimeError('PRIOR');first.__cause__=prior
+                first.native_preflight_cancelled=True;first.native_preflight_cleanup_uncertain=True
+                owner,items,events,caught,stop=self.prepare_admission(acquisition_error=first)
+                self.assertIs(caught,first);self.assertIs(first.__cause__,prior)
+                self.assertTrue(first.native_preflight_cancelled);self.assertTrue(first.native_preflight_cleanup_uncertain)
+                self.assertEqual(items,self.items);self.assertNotIn('tool-boundary',events)
+                self.assertIsNone(owner.cli);self.assertIsNone(owner.gpg_file)
+
     def capture(self,error,ordinal=0,sample=None):
         with patch.object(self.driver.time,'monotonic',return_value=self.owner.deadline-1 if sample is None else sample):
             self.owner.capture_download(error,ordinal,self.items[ordinal])
