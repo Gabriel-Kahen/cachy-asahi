@@ -265,7 +265,7 @@ def public_diagnostics(error):
     """Closed failure observations only; no worker bytes or outcome authority."""
     try:
         value = BaseException.__dict__['__dict__'].__get__(error,type(error)).get('_pair_guardian_diagnostics')
-        keys = {'schema_version','first_failure_phase','launched','eof_observed','wait_returned',
+        keys = {'worker_report','worker_reported_phase','worker_reported_error_type','schema_version','first_failure_phase','launched','eof_observed','wait_returned',
             'return_code','termination','signal_number','wait_origin','sigterm_attempted','sigkill_attempted',
             'natural_exit','handoff_json','handoff_validated','direct_retire_reached','direct_retire_returned',
             'root_cleanup_reached','root_cleanup_returned'}
@@ -273,7 +273,7 @@ def public_diagnostics(error):
             'OUTPUT_READ','DIRECT_RETIRE','HANDOFF','CLI_ABSENCE','WORK_ROOT','ROOT_CLEANUP','ROOT_FINALIZE',
             'PRIVATE_PUBLISH','UNKNOWN'}
         if type(value) is not dict or any(type(k) is not str for k in value) or set(value) != keys:return None
-        if type(value['schema_version']) is not int or value['schema_version'] != 1:return None
+        if type(value['schema_version']) is not int or value['schema_version'] != 2:return None
         if type(value['first_failure_phase']) is not str or value['first_failure_phase'] not in phases:return None
         flags = ('launched','eof_observed','wait_returned','sigterm_attempted','sigkill_attempted',
             'handoff_validated','direct_retire_reached','direct_retire_returned','root_cleanup_reached','root_cleanup_returned')
@@ -298,5 +298,12 @@ def public_diagnostics(error):
         if value['direct_retire_returned'] and not (value['direct_retire_reached'] and value['wait_returned']):return None
         if value['root_cleanup_reached'] and not (value['handoff_validated'] and value['direct_retire_returned']):return None
         if value['root_cleanup_returned'] and not value['root_cleanup_reached']:return None
+        report=value['worker_report'];phase=value['worker_reported_phase'];kind=value['worker_reported_error_type']
+        if type(report)is not str or report not in {'NOT_OBSERVED','VALID','INVALID','AMBIGUOUS'}:return None
+        if type(phase)is not str or type(kind)is not str:return None
+        if report=='VALID':
+            if phase not in ('ARGUMENTS', 'CLOCK', 'PACKET_READ', 'PACKET_VALIDATE', 'DRIVER_READ', 'DRIVER_COMPILE', 'DRIVER_INITIALIZE', 'DRIVER_EXECUTE', 'HANDOFF_SERIALIZE', 'PRIVATE_WRITE') or kind not in ('ValueError', 'TypeError', 'OSError', 'RuntimeError', 'KeyError', 'ImportError', 'SystemExit', 'KeyboardInterrupt', 'OTHER'):return None
+        elif phase!='UNKNOWN' or kind!='UNKNOWN':return None
+        if report!='NOT_OBSERVED' and not (value['eof_observed'] and value['wait_returned'] and type(code)is int and code!=0):return None
         return dict(value)
     except BaseException:return None

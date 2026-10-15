@@ -85,6 +85,28 @@ def _attach_diagnostics(error, observations):
     except BaseException:pass  # Optional failure metadata cannot replace the first error.
 
 
+def _worker_failure_report(raw, observations):
+    """Untrusted optional worker report, never handoff or cleanup evidence."""
+    try:
+        if not (observations['eof_observed'] and observations['wait_returned'] and
+                type(observations['return_code']) is int and observations['return_code'] != 0):return
+        prefix=b'\x1ePAIR_WORKER_FAILURE_V1 '
+        lines=raw.split(b'\n')
+        rows=[(line,index<len(lines)-1) for index,line in enumerate(lines) if line.startswith(prefix)]
+        if not rows:return
+        if len(rows)!=1:
+            _diagnostic_update(observations,worker_report='AMBIGUOUS');return
+        line,complete=rows[0]
+        fields=line[len(prefix):].split(b' ')
+        phases=(b'ARGUMENTS', b'CLOCK', b'PACKET_READ', b'PACKET_VALIDATE', b'DRIVER_READ', b'DRIVER_COMPILE', b'DRIVER_INITIALIZE', b'DRIVER_EXECUTE', b'HANDOFF_SERIALIZE', b'PRIVATE_WRITE')
+        kinds=(b'ValueError', b'TypeError', b'OSError', b'RuntimeError', b'KeyError', b'ImportError', b'SystemExit', b'KeyboardInterrupt', b'OTHER')
+        if not complete or len(fields)!=2 or fields[0] not in phases or fields[1] not in kinds:
+            _diagnostic_update(observations,worker_report='INVALID');return
+        _diagnostic_update(observations,worker_report='VALID',
+            worker_reported_phase=fields[0].decode('ascii'),worker_reported_error_type=fields[1].decode('ascii'))
+    except BaseException:pass  # Metadata cannot replace or extend first-cause handling.
+
+
 class Budget:
     def __init__(self, authority, start, J):
         need(type(start) in (int,float) and type(J) in (int,float) and
@@ -314,7 +336,8 @@ def launch(spec,*,process_owner,python_tool,contract,authority,observer,docker_c
     observer and tools and restores controls before its separate public write.
     """
     value=spec['value'];b=Budget(authority,value['original_entry'],value['workflow_end'])
-    diagnostics = dict(schema_version=1,phase='ADMISSION',first_failure_phase=None,
+    diagnostics = dict(schema_version=2,worker_report='NOT_OBSERVED',
+        worker_reported_phase='UNKNOWN',worker_reported_error_type='UNKNOWN',phase='ADMISSION',first_failure_phase=None,
         launched=False,eof_observed=False,wait_returned=False,return_code=None,termination='NOT_OBSERVED',
         signal_number=None,wait_origin='NOT_OBSERVED',sigterm_attempted=False,sigkill_attempted=False,
         natural_exit='UNKNOWN',handoff_json='NOT_OBSERVED',handoff_validated=False,
@@ -431,5 +454,6 @@ def launch(spec,*,process_owner,python_tool,contract,authority,observer,docker_c
         slot['private_stdout']=bytes(output);slot['budget']=b
         try:b.first.retained_pair_guardian=slot
         except BaseException:pass
+        _worker_failure_report(bytes(output),diagnostics)
         _attach_diagnostics(b.first,diagnostics)
         raise b.first
