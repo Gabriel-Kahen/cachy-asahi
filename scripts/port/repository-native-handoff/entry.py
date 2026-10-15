@@ -191,7 +191,7 @@ def authenticated(map_path, pin, *, deadline, source_root=None):
 def original_modules(root, lock_path, lock_pin, *, deadline, verification_deadline):
     lock = obj(pinned(lock_path, lock_pin, deadline=deadline))
     identities = {}
-    data = captures(root, lock['source_files'], count=159, deadline=deadline, identities=identities)
+    data = captures(root, lock['source_files'], count=160, deadline=deadline, identities=identities)
     if not set(ORIGINAL.values()) <= set(data):
         raise ValueError('original-module-closure')
     before, paths = {name: sys.modules.get(name) for name in ORIGINAL}, list(sys.path)

@@ -1160,7 +1160,7 @@
     "scripts/port/repository-client-native/source-map.json": "98e7bf51ddf0f716043fe61538b444c59adfa29a703f66062d289e0a9357527e",
     "scripts/port/repository-client-phase-stage/dependencies.py": "6e8a539f60e0170434e7e833127e4c38746cae7172c1b7af3a48061ecfb3ee9c",
     "scripts/port/repository-client-phase-stage/source-map.json": "162fd6a31703c3bd5628b085e6084d4d2084a6781226e90413c611240d820c80",
-    "scripts/port/repository-native-handoff/source-map.json": "3a7fb74c30c41daefd88cc6b69e6f621ce80c5e8414f75a2be6b7ba7014cb59c",
+    "scripts/port/repository-native-handoff/source-map.json": "6b8281e68f484185eb920b82ca023a2b1246e5700934bf481bc0fa7bbacfa6a9",
     "scripts/virtual/tooling-audit.json": "d3289a52f3269ba44f1437b69a112dcbd2086ee16ebe8d44658e65e7fb8e2095",
     "scripts/virtual/tooling.lock.json": "c18afc5bde9868594d41bd576a956960a7b01b190d148ba03ca4c41d4394e1b0"
   },
@@ -2134,7 +2134,7 @@
     },
     "scripts/port/repository-native-handoff/entry.py": {
       "mode": 420,
-      "sha256": "1cd5f0749fdd347b380538afe123af50d7f14aea33c949f159401e2efe2ece1a"
+      "sha256": "05c9b95ec725c9f93aac391d1a19a6c81c7cad24b673ddf74a87c1c7e534c1af"
     },
     "scripts/port/repository-native-handoff/launch.py": {
       "mode": 420,
@@ -2146,7 +2146,7 @@
     },
     "scripts/port/repository-native-handoff/source-map.json": {
       "mode": 420,
-      "sha256": "3a7fb74c30c41daefd88cc6b69e6f621ce80c5e8414f75a2be6b7ba7014cb59c"
+      "sha256": "6b8281e68f484185eb920b82ca023a2b1246e5700934bf481bc0fa7bbacfa6a9"
     },
     "scripts/port/repository-native-handoff/supervisor.py": {
       "mode": 420,
