@@ -1,0 +1,113 @@
+{
+  "archive_GPG_rootfs_cache_body_reads_or_actors": 0,
+  "check_names": [
+    "exact older expected5f184 core physical body",
+    "older selected proposal core snapshot pin matches",
+    "older passive observation records exact oldcore digest",
+    "historical exact held name/version sqlite",
+    "historical held metadata semantic join sqlite ARCH",
+    "historical held metadata semantic join sqlite DEPENDS",
+    "historical held metadata semantic join sqlite PROVIDES",
+    "historical held metadata semantic join sqlite CONFLICTS",
+    "historical held metadata semantic join sqlite REPLACES",
+    "historical held metadata semantic join sqlite LICENSE",
+    "historical held metadata semantic join sqlite URL",
+    "complete historical17field declared row sqlite",
+    "historical exact held name/version zlib",
+    "historical held metadata semantic join zlib ARCH",
+    "historical held metadata semantic join zlib DEPENDS",
+    "historical held metadata semantic join zlib PROVIDES",
+    "historical held metadata semantic join zlib CONFLICTS",
+    "historical held metadata semantic join zlib REPLACES",
+    "historical held metadata semantic join zlib LICENSE",
+    "historical held metadata semantic join zlib URL",
+    "complete historical17field declared row zlib"
+  ],
+  "checks": 21,
+  "current2_fresh233_rows_unchanged": true,
+  "current2_seed_inventory_and_metadata_unchanged": true,
+  "network": 0,
+  "old_tmp_paths": {
+    "/tmp/cachy-port-migration-snapshots/core.db": "ABSENT_AT_THIS_REVIEW",
+    "/tmp/cachy-port-migration-snapshots/extra.db": "ABSENT_AT_THIS_REVIEW"
+  },
+  "records": [
+    {
+      "provenance": {
+        "metadata_group": "sqlite-3.53.4-1",
+        "path": "artifacts/platform/target-metadata-20261012/core.db",
+        "scope": "UNSIGNED_HISTORICAL_REPOSITORY_METADATA_DECLARATION_NOT_PACKAGE_AUTHENTICATION",
+        "snapshot_sha256": "5f184763bad034ac02662ee37d87edad8124244c8609f4a441947da1855b0b08"
+      },
+      "row": {
+        "arch": "aarch64",
+        "conflicts": [],
+        "depends": [
+          "readline",
+          "zlib",
+          "glibc"
+        ],
+        "filename": "sqlite-3.53.4-1-aarch64.pkg.tar.xz",
+        "isize": 21161566,
+        "license": [
+          "LicenseRef-Sqlite"
+        ],
+        "name": "sqlite",
+        "provides": [
+          "sqlite3=3.53.4",
+          "libsqlite3.so=0-64"
+        ],
+        "replaces": [
+          "sqlite3"
+        ],
+        "repo": "core",
+        "sha256": "9512d37af4ac6910e10e2a8e6f85078ab72a2ece17a8e6b51755898f50b900ba",
+        "signature_sha256": "3ebd5713a768e6de587faf3869485fb2563346d2570afc9cdf6d3549ce28a762",
+        "signature_size": 566,
+        "size": 1850368,
+        "source_url": [
+          "https://www.sqlite.org/"
+        ],
+        "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/sqlite-3.53.4-1-aarch64.pkg.tar.xz",
+        "version": "3.53.4-1"
+      }
+    },
+    {
+      "provenance": {
+        "metadata_group": "zlib-1:1.3.2-3",
+        "path": "artifacts/platform/target-metadata-20261012/core.db",
+        "scope": "UNSIGNED_HISTORICAL_REPOSITORY_METADATA_DECLARATION_NOT_PACKAGE_AUTHENTICATION",
+        "snapshot_sha256": "5f184763bad034ac02662ee37d87edad8124244c8609f4a441947da1855b0b08"
+      },
+      "row": {
+        "arch": "aarch64",
+        "conflicts": [],
+        "depends": [
+          "glibc"
+        ],
+        "filename": "zlib-1:1.3.2-3-aarch64.pkg.tar.xz",
+        "isize": 257244,
+        "license": [
+          "Zlib"
+        ],
+        "name": "zlib",
+        "provides": [
+          "libz.so=1-64"
+        ],
+        "replaces": [],
+        "repo": "core",
+        "sha256": "7e31b465e09e8e61375578b8e26ed883906e126e0c0ef1c75b7ccccfa95a58c4",
+        "signature_sha256": "ec8d454359ded82cd5dfe368de1cb16303e88ca2b180fba9bcb44ba75a6a7e9d",
+        "signature_size": 566,
+        "size": 77320,
+        "source_url": [
+          "https://www.zlib.net/"
+        ],
+        "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/zlib-1:1.3.2-3-aarch64.pkg.tar.xz",
+        "version": "1:1.3.2-3"
+      }
+    }
+  ],
+  "status": "PASS_EXACT_HELD_TWO_HISTORICAL_METADATA_IDENTITIES_FOUND",
+  "whole574_trust": false
+}

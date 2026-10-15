@@ -1,0 +1,62 @@
+{
+  "GPG_install_build_native_actors": 0,
+  "actors_permitted": false,
+  "archive_body_reads": 0,
+  "counts": {
+    "declared_individual_identities": 574,
+    "fresh_addition17_rows": 233,
+    "held_builder15_rows": 248,
+    "missing_held_identities": 0,
+    "new_seed17_rows": 93,
+    "new_seed_from_current2": 91,
+    "new_seed_from_historical_core": 2
+  },
+  "existing_current2_13roles_unchanged": true,
+  "final_inventory_rewrite": false,
+  "held_233_actor_generalized": false,
+  "held_current2_authentication_source_rewrite": false,
+  "held_version_gap_names": [],
+  "historical_builder_version_disagreements": [
+    "bubblewrap",
+    "jbigkit",
+    "libtiff"
+  ],
+  "historical_two_names": [
+    "sqlite",
+    "zlib"
+  ],
+  "input_role_map": "input-pins.json",
+  "new_adapter_profile_requires_independent_review": true,
+  "new_input_role": {
+    "bytes": 256696,
+    "mode": 384,
+    "name": "historical-core.db",
+    "path": "artifacts/platform/target-metadata-20261012/core.db",
+    "sha256": "5f184763bad034ac02662ee37d87edad8124244c8609f4a441947da1855b0b08"
+  },
+  "outputs": [
+    "seed-pin-enrichment93.json",
+    "per-name provenance and refusal ledger"
+  ],
+  "public_metadata_network_queries": 0,
+  "rules": [
+    "Authenticate exact13 current2 input bytes/origins and the Root metadata-only admission; do not inherit an archive or actor grant.",
+    "Require seed341 and final574 exact memberships/versions and all held seed metadata. Rejoin all233 addition17-field rows to their pinned repository records.",
+    "For each seed already named in builder.packages, conserve its entire15-field row and join name/version/arch/dependencies/provides/conflicts/replacements/licenses/URL/filename/SHA to held seed. Mark historical/current snapshot disagreement; do not overwrite it with fresh current objects.",
+    "For each other seed, find a unique selected same-name database record. Only unchanged version plus exact ARCH/DEPENDS/PROVIDES/CONFLICTS/REPLACES/LICENSE/URL permits proposed enrichment; existing nonempty filename/SHA must match.",
+    "Eligible new metadata rows retain complete17-field declarations, including snapshot/repository, filename/SHA, compressed/uncompressed size, declared PGPSIG size/hash and dependency/provider/license/source URL. PGPSIG declaration is not verification.",
+    "Missing name, duplicate/invalid identity, version mismatch, same-version semantic mismatch or held-pin mismatch emits a named bounded refusal/gap; never changes the held inventory or silently selects a newer package.",
+    "Permit the exact two-name historical fallback only for sqlite3.53.4-1 and zlib1:1.3.2-3, from separately literal-pinned old core5f184. All identity/semantic/pin joins remain unchanged; no general latest-version or arbitrary historical snapshot fallback. Preserve current2 DB/proposal/seed/final metadata bytes.",
+    "Emit per-row provenance:91 rows from current2 core/extra,2 from historical core; never rewrite their provenance as one atomic/current snapshot. The held248 builder rows remain15-field declarations. A574 metadata-identity count is not574 verified package bodies/signatures or usable archive URLs.",
+    "Return PARTIAL while any identity is missing. No READY/whole574 trust/PASS acquisition result can be derived from metadata completeness.",
+    "The248 held builder rows have15 fields and no declared isize/repo; preserve their schema/provenance. Do not fabricate absent sizes or pass them through the current2 exact17-field233 validator.",
+    "Before any future trust attempt, separately review row-schema/actor/cache/GPG ABI, full574 complete membership, exact signature policy/key pins, guarded whole-invocation supervisor/layout/caps/cleanup, partial-failure evidence, independent Source peer and explicit Root selection.",
+    "Asahi target integration is a separate transaction with preserved Apple boot/kernel/firmware/Mesa/audio/speaker components and exact target baseline. Generic host574 cannot supply target acceptance.",
+    "The already Root-admitted current233 authentication remains separate retained authority; do not replay it or imply that a metadata93 patch grants authority to authenticate the seed341. Obtain fresh whole-process custody/operational selection before actors."
+  ],
+  "schema": "PROPOSED_METADATA_ONLY_SEED_PIN_ADAPTER_HISTORICAL_V1",
+  "seed_metadata_rewrite": false,
+  "selected": false,
+  "status": "PROPOSED_METADATA_IDENTITY_COMPLETENESS_574_NOT_TRUST",
+  "uncompressed_size_unavailable_in_held_builder_rows": 248
+}

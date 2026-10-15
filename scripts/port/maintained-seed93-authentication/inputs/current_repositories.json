@@ -1,0 +1,16 @@
+[
+  {
+    "name": "core",
+    "sha256": "91b52f917c664d5c6c16686b4749b2c4bb3f2673b49097f736d145ba88016364",
+    "signed": false,
+    "size": 256689,
+    "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/core.db"
+  },
+  {
+    "name": "extra",
+    "sha256": "f26b9c8dfd9211400ac605d7a2c0d08b7cfbd2de88b595b97b8e7d8af64dcffd",
+    "signed": false,
+    "size": 10610805,
+    "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/extra.db"
+  }
+]

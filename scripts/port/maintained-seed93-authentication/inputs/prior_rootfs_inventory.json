@@ -1,0 +1,3845 @@
+[
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc",
+      "gmp"
+    ],
+    "license": [
+      "GPL-3.0-or-later",
+      "LGPL-3.0-or-later"
+    ],
+    "name": [
+      "mpfr"
+    ],
+    "provides": [
+      "libmpfr.so=6-64"
+    ],
+    "version": [
+      "4.2.2-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "bash",
+      "libgpg-error",
+      "glibc"
+    ],
+    "license": [
+      "GPL-2.0-only",
+      "GPL-3.0-only",
+      "LGPL-3.0-only"
+    ],
+    "name": [
+      "libksba"
+    ],
+    "provides": [],
+    "version": [
+      "1.8.0-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc",
+      "openssl",
+      "sh",
+      "systemd-libs"
+    ],
+    "license": [
+      "BSD-2-Clause"
+    ],
+    "name": [
+      "dhcpcd"
+    ],
+    "provides": [
+      "dhcp-client"
+    ],
+    "version": [
+      "10.3.2-1"
+    ]
+  },
+  {
+    "arch": [
+      "any"
+    ],
+    "depends": [
+      "awk",
+      "mkinitcpio-busybox",
+      "kmod",
+      "util-linux",
+      "libarchive",
+      "coreutils",
+      "bash",
+      "binutils",
+      "diffutils",
+      "findutils",
+      "grep",
+      "gzip",
+      "filesystem",
+      "zstd",
+      "systemd"
+    ],
+    "license": [
+      "GPL-2.0-only"
+    ],
+    "name": [
+      "mkinitcpio"
+    ],
+    "provides": [
+      "initramfs"
+    ],
+    "version": [
+      "41-4"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "acl",
+      "attr",
+      "glibc",
+      "gmp",
+      "libcap",
+      "openssl"
+    ],
+    "license": [
+      "GPL-3.0-or-later",
+      "GFDL-1.3-or-later"
+    ],
+    "name": [
+      "coreutils"
+    ],
+    "provides": [],
+    "version": [
+      "9.11-2"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc>=2.27",
+      "libgcc",
+      "libstdc++"
+    ],
+    "license": [
+      "GPL-3.0-or-later WITH GCC-exception-3.1",
+      "GFDL-1.3-or-later"
+    ],
+    "name": [
+      "libubsan"
+    ],
+    "provides": [
+      "libubsan.so=1-64"
+    ],
+    "version": [
+      "16.1.1+r12+g301eb08fa2c5-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "bzip2",
+      "glibc",
+      "readline",
+      "zlib"
+    ],
+    "license": [
+      "BSD-2-Clause",
+      "BSD-3-Clause WITH PCRE2-exception"
+    ],
+    "name": [
+      "pcre2"
+    ],
+    "provides": [
+      "libpcre2-8.so=0-64",
+      "libpcre2-16.so=0-64",
+      "libpcre2-32.so=0-64",
+      "libpcre2-posix.so=3-64"
+    ],
+    "version": [
+      "10.47-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "libmnl"
+    ],
+    "license": [
+      "GPL2"
+    ],
+    "name": [
+      "libnftnl"
+    ],
+    "provides": [],
+    "version": [
+      "1.3.1-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc"
+    ],
+    "license": [
+      "MIT"
+    ],
+    "name": [
+      "json-c"
+    ],
+    "provides": [
+      "libjson-c.so=5-64"
+    ],
+    "version": [
+      "0.19-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc"
+    ],
+    "license": [
+      "GPL-2.0-or-later",
+      "LicenseRef-BSDvariant",
+      "LicenseRef-leancrypto"
+    ],
+    "name": [
+      "leancrypto"
+    ],
+    "provides": [],
+    "version": [
+      "1.8.0-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc",
+      "sh",
+      "readline",
+      "libreadline.so=8-64"
+    ],
+    "license": [
+      "GPL-3.0-or-later"
+    ],
+    "name": [
+      "gdbm"
+    ],
+    "provides": [
+      "libgdbm_compat.so=4-64",
+      "libgdbm.so=6-64"
+    ],
+    "version": [
+      "1.26-2"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc",
+      "gnutls",
+      "libgcrypt",
+      "libgpg-error",
+      "libksba",
+      "libldap",
+      "libusb",
+      "pinentry",
+      "sh",
+      "sqlite",
+      "tpm2-tss",
+      "zlib",
+      "bzip2",
+      "libbz2.so=1.0-64",
+      "libassuan",
+      "libassuan.so=9-64",
+      "npth",
+      "libnpth.so=0-64",
+      "readline",
+      "libreadline.so=8-64"
+    ],
+    "license": [
+      "BSD-2-Clause",
+      "BSD-3-Clause",
+      "BSD-4-Clause",
+      "CC0-1.0",
+      "GPL-2.0-or-later",
+      "GPL-3.0-or-later",
+      "LGPL-2.1-or-later",
+      "LGPL-3.0-or-later OR GPL-2.0-or-later",
+      "MIT",
+      "Unicode-TOU"
+    ],
+    "name": [
+      "gnupg"
+    ],
+    "provides": [],
+    "version": [
+      "2.4.9-2"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc",
+      "libnl",
+      "sh",
+      "libdbus-1.so=3-64"
+    ],
+    "license": [
+      "BSD-3-Clause"
+    ],
+    "name": [
+      "libpcap"
+    ],
+    "provides": [
+      "libpcap.so=1-64"
+    ],
+    "version": [
+      "1.10.6-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc>=2.27",
+      "libgcc"
+    ],
+    "license": [
+      "GPL-3.0-or-later WITH GCC-exception-3.1",
+      "GFDL-1.3-or-later"
+    ],
+    "name": [
+      "libquadmath"
+    ],
+    "provides": [
+      "libquadmath.so"
+    ],
+    "version": [
+      "16.1.1+r12+g301eb08fa2c5-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "readline",
+      "zlib",
+      "glibc"
+    ],
+    "license": [
+      "LicenseRef-Sqlite"
+    ],
+    "name": [
+      "sqlite"
+    ],
+    "provides": [
+      "sqlite3=3.53.4",
+      "libsqlite3.so=0-64"
+    ],
+    "version": [
+      "3.53.4-1"
+    ]
+  },
+  {
+    "arch": [
+      "any"
+    ],
+    "depends": [
+      "linux-firmware-whence"
+    ],
+    "license": [
+      "LicenseRef-WHENCE",
+      "LicenseRef-realtek"
+    ],
+    "name": [
+      "linux-firmware-realtek"
+    ],
+    "provides": [],
+    "version": [
+      "20260622-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc",
+      "libgpg-error",
+      "sh"
+    ],
+    "license": [
+      "FSFULLR",
+      "GPL-2.0-or-later",
+      "LGPL-2.1-or-later"
+    ],
+    "name": [
+      "libassuan"
+    ],
+    "provides": [
+      "libassuan.so=9-64"
+    ],
+    "version": [
+      "3.0.0-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc"
+    ],
+    "license": [
+      "Zlib"
+    ],
+    "name": [
+      "zlib"
+    ],
+    "provides": [
+      "libz.so=1-64"
+    ],
+    "version": [
+      "1:1.3.2-3"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc"
+    ],
+    "license": [
+      "custom:OpenLDAP"
+    ],
+    "name": [
+      "lmdb"
+    ],
+    "provides": [],
+    "version": [
+      "0.9.35-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc",
+      "bzip2",
+      "libbz2.so=1.0-64",
+      "libseccomp",
+      "libseccomp.so=2-64",
+      "xz",
+      "liblzma.so=5-64",
+      "zlib",
+      "libz.so=1-64",
+      "zstd",
+      "libzstd.so=1-64"
+    ],
+    "license": [
+      "BSD-2-Clause-Darwin"
+    ],
+    "name": [
+      "file"
+    ],
+    "provides": [
+      "libmagic.so=1-64"
+    ],
+    "version": [
+      "5.48-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "coreutils",
+      "glibc",
+      "libtasn1",
+      "libp11-kit=0.26.4-1",
+      "libp11-kit.so=0-64"
+    ],
+    "license": [
+      "BSD-3-Clause"
+    ],
+    "name": [
+      "p11-kit"
+    ],
+    "provides": [],
+    "version": [
+      "0.26.4-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc"
+    ],
+    "license": [
+      "GPL-2.0-or-later"
+    ],
+    "name": [
+      "lz4"
+    ],
+    "provides": [
+      "liblz4.so=1-64"
+    ],
+    "version": [
+      "1:1.10.0-2"
+    ]
+  },
+  {
+    "arch": [
+      "any"
+    ],
+    "depends": [
+      "pacman"
+    ],
+    "license": [
+      "GPL-3.0-or-later"
+    ],
+    "name": [
+      "archlinux-keyring"
+    ],
+    "provides": [],
+    "version": [
+      "20260727-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "libgpg-error",
+      "glibc"
+    ],
+    "license": [
+      "BSD-3-Clause",
+      "BSD-3-Clause OR GPL-2.0-only",
+      "GPL-2.0-or-later",
+      "LGPL-2.0-or-later",
+      "LGPL-2.1-or-later",
+      "X11",
+      "LicenseRef-scancode-public-domain",
+      "LicenseRef-OCB1"
+    ],
+    "name": [
+      "libgcrypt"
+    ],
+    "provides": [],
+    "version": [
+      "1.12.2-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc"
+    ],
+    "license": [
+      "LGPL-2.1-or-later AND GPL-2.0-or-later"
+    ],
+    "name": [
+      "acl"
+    ],
+    "provides": [
+      "libacl.so=1-64"
+    ],
+    "version": [
+      "2.4.0-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "audit",
+      "expat",
+      "glibc",
+      "libcap-ng",
+      "systemd-libs",
+      "libaudit.so=1-64",
+      "libcap-ng.so=0-64",
+      "libexpat.so=1-64",
+      "libsystemd.so=0-64"
+    ],
+    "license": [
+      "AFL-2.1 OR GPL-2.0-or-later"
+    ],
+    "name": [
+      "dbus"
+    ],
+    "provides": [
+      "libdbus",
+      "libdbus-1.so=3-64"
+    ],
+    "version": [
+      "1.16.2-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [],
+    "license": [
+      "LicenseRef-tz"
+    ],
+    "name": [
+      "tzdata"
+    ],
+    "provides": [],
+    "version": [
+      "2026c-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "util-linux-libs=2.42.2",
+      "coreutils",
+      "file",
+      "libmagic.so=1-64",
+      "glibc",
+      "libcap-ng",
+      "libgcc",
+      "libgcc_s.so=1-64",
+      "libxcrypt",
+      "libcrypt.so=2-64",
+      "ncurses",
+      "libncursesw.so=6-64",
+      "pam",
+      "readline",
+      "shadow",
+      "systemd-libs",
+      "libsystemd.so=0-64",
+      "libudev.so=1-64",
+      "zlib"
+    ],
+    "license": [
+      "BSD-2-Clause",
+      "BSD-3-Clause",
+      "BSD-4-Clause-UC",
+      "GPL-2.0-only",
+      "GPL-2.0-or-later",
+      "GPL-3.0-or-later",
+      "ISC",
+      "LGPL-2.1-or-later",
+      "LicenseRef-PublicDomain"
+    ],
+    "name": [
+      "util-linux"
+    ],
+    "provides": [
+      "rfkill",
+      "hardlink"
+    ],
+    "version": [
+      "2.42.2-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc",
+      "sh"
+    ],
+    "license": [
+      "LGPL-2.1-or-later",
+      "BSD-3-Clause OR LGPL-2.1-or-later",
+      "FSFULLR",
+      "GPL-2.0-or-later"
+    ],
+    "name": [
+      "libgpg-error"
+    ],
+    "provides": [],
+    "version": [
+      "1.61-1"
+    ]
+  },
+  {
+    "arch": [
+      "any"
+    ],
+    "depends": [
+      "bash",
+      "coreutils",
+      "findutils",
+      "p11-kit"
+    ],
+    "license": [
+      "GPL-2.0-or-later"
+    ],
+    "name": [
+      "ca-certificates-utils"
+    ],
+    "provides": [
+      "ca-certificates",
+      "ca-certificates-java"
+    ],
+    "version": [
+      "20240618-1"
+    ]
+  },
+  {
+    "arch": [
+      "any"
+    ],
+    "depends": [],
+    "license": [
+      "LicenseRef-None"
+    ],
+    "name": [
+      "licenses"
+    ],
+    "provides": [],
+    "version": [
+      "20240728-1"
+    ]
+  },
+  {
+    "arch": [
+      "any"
+    ],
+    "depends": [],
+    "license": [
+      "GPL-2.0-or-later"
+    ],
+    "name": [
+      "hwdata"
+    ],
+    "provides": [],
+    "version": [
+      "0.410-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc",
+      "sh"
+    ],
+    "license": [
+      "LGPL-2.1-or-later"
+    ],
+    "name": [
+      "npth"
+    ],
+    "provides": [
+      "libnpth.so=0-64"
+    ],
+    "version": [
+      "1.8-1"
+    ]
+  },
+  {
+    "arch": [
+      "any"
+    ],
+    "depends": [
+      "bash",
+      "vim"
+    ],
+    "license": [
+      "0BSD"
+    ],
+    "name": [
+      "ex-vi-compat"
+    ],
+    "provides": [
+      "edit",
+      "ex",
+      "vedit",
+      "vi",
+      "view"
+    ],
+    "version": [
+      "3-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc"
+    ],
+    "license": [
+      "GPL"
+    ],
+    "name": [
+      "libnfnetlink"
+    ],
+    "provides": [],
+    "version": [
+      "1.0.2-2"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [],
+    "license": [
+      "BSD-2-Clause-Patent"
+    ],
+    "name": [
+      "libsysprof-capture"
+    ],
+    "provides": [],
+    "version": [
+      "50.0-4"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc",
+      "libassuan",
+      "libassuan.so=9-64",
+      "libgpg-error",
+      "gnupg>=2"
+    ],
+    "license": [
+      "GPL-2.0-or-later",
+      "LGPL-2.0-or-later",
+      "LGPL-2.1-or-later",
+      "MIT"
+    ],
+    "name": [
+      "gpgme"
+    ],
+    "provides": [
+      "libgpgme.so=45-64"
+    ],
+    "version": [
+      "2.1.2-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc>=2.27"
+    ],
+    "license": [
+      "GPL-3.0-or-later WITH GCC-exception-3.1",
+      "GFDL-1.3-or-later"
+    ],
+    "name": [
+      "libgcc"
+    ],
+    "provides": [
+      "libgcc_s.so=1-64"
+    ],
+    "version": [
+      "16.1.1+r12+g301eb08fa2c5-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc",
+      "libtirpc"
+    ],
+    "license": [
+      "LGPL-2.1-only"
+    ],
+    "name": [
+      "libnsl"
+    ],
+    "provides": [
+      "libnsl.so=3-64"
+    ],
+    "version": [
+      "2.0.1-2"
+    ]
+  },
+  {
+    "arch": [
+      "any"
+    ],
+    "depends": [
+      "filesystem",
+      "gcc-libs",
+      "glibc",
+      "bash",
+      "coreutils",
+      "file",
+      "findutils",
+      "gawk",
+      "grep",
+      "procps-ng",
+      "sed",
+      "tar",
+      "gettext",
+      "pciutils",
+      "psmisc",
+      "shadow",
+      "util-linux",
+      "bzip2",
+      "gzip",
+      "xz",
+      "licenses",
+      "pacman",
+      "archlinux-keyring",
+      "systemd",
+      "systemd-sysvcompat",
+      "iputils",
+      "iproute2"
+    ],
+    "license": [
+      "GPL"
+    ],
+    "name": [
+      "base"
+    ],
+    "provides": [],
+    "version": [
+      "3-3"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc",
+      "libxcrypt"
+    ],
+    "license": [
+      "GPL"
+    ],
+    "name": [
+      "mkinitcpio-busybox"
+    ],
+    "provides": [],
+    "version": [
+      "1.36.1-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "ncurses"
+    ],
+    "license": [
+      "GPL"
+    ],
+    "name": [
+      "psmisc"
+    ],
+    "provides": [],
+    "version": [
+      "23.7-2"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "ca-certificates",
+      "brotli",
+      "libbrotlidec.so=1-64",
+      "krb5",
+      "libgssapi_krb5.so=2-64",
+      "libidn2",
+      "libidn2.so=0-64",
+      "libnghttp2",
+      "libnghttp2.so=14-64",
+      "libnghttp3",
+      "libnghttp3.so=9-64",
+      "libngtcp2",
+      "libngtcp2.so=16-64",
+      "libpsl",
+      "libpsl.so=5-64",
+      "libssh2",
+      "libssh2.so=1-64",
+      "openssl",
+      "libcrypto.so=3-64",
+      "libssl.so=3-64",
+      "zlib",
+      "libz.so=1-64",
+      "zstd",
+      "libzstd.so=1-64"
+    ],
+    "license": [
+      "MIT"
+    ],
+    "name": [
+      "curl"
+    ],
+    "provides": [
+      "libcurl.so=4-64"
+    ],
+    "version": [
+      "8.21.0-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc>=2.27",
+      "libgcc",
+      "libstdc++"
+    ],
+    "license": [
+      "GPL-3.0-or-later WITH GCC-exception-3.1",
+      "GFDL-1.3-or-later"
+    ],
+    "name": [
+      "libtsan"
+    ],
+    "provides": [
+      "libtsan.so=2-64"
+    ],
+    "version": [
+      "16.1.1+r12+g301eb08fa2c5-1"
+    ]
+  },
+  {
+    "arch": [
+      "any"
+    ],
+    "depends": [
+      "linux-firmware-whence"
+    ],
+    "license": [
+      "LicenseRef-WHENCE",
+      "LicenseRef-nvidia"
+    ],
+    "name": [
+      "linux-firmware-nvidia"
+    ],
+    "provides": [],
+    "version": [
+      "20260622-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc",
+      "zlib",
+      "openssl",
+      "xz",
+      "zstd"
+    ],
+    "license": [
+      "LGPL-2.1-or-later",
+      "GPL-2.0-or-later"
+    ],
+    "name": [
+      "kmod"
+    ],
+    "provides": [
+      "libkmod.so=2-64"
+    ],
+    "version": [
+      "34.2-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc"
+    ],
+    "license": [
+      "GPL-3.0-or-later"
+    ],
+    "name": [
+      "findutils"
+    ],
+    "provides": [],
+    "version": [
+      "4.11.0-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "linux-api-headers>=4.10",
+      "tzdata",
+      "filesystem"
+    ],
+    "license": [
+      "GPL-2.0-or-later",
+      "LGPL-2.1-or-later"
+    ],
+    "name": [
+      "glibc"
+    ],
+    "provides": [],
+    "version": [
+      "2.43+r22+g8362e8ce10b2-2"
+    ]
+  },
+  {
+    "arch": [
+      "any"
+    ],
+    "depends": [
+      "pacman"
+    ],
+    "license": [
+      "GPL"
+    ],
+    "name": [
+      "archlinuxarm-keyring"
+    ],
+    "provides": [],
+    "version": [
+      "20240419-2"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc"
+    ],
+    "license": [
+      "LGPL"
+    ],
+    "name": [
+      "libxcrypt"
+    ],
+    "provides": [
+      "libcrypt.so=2-64"
+    ],
+    "version": [
+      "4.5.2-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "ca-certificates-utils>=20181109-3"
+    ],
+    "license": [
+      "MPL-2.0"
+    ],
+    "name": [
+      "ca-certificates-mozilla"
+    ],
+    "provides": [],
+    "version": [
+      "3.126-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc"
+    ],
+    "license": [
+      "MIT"
+    ],
+    "name": [
+      "jansson"
+    ],
+    "provides": [],
+    "version": [
+      "2.15.0-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "libsasl"
+    ],
+    "license": [
+      "custom"
+    ],
+    "name": [
+      "libldap"
+    ],
+    "provides": [],
+    "version": [
+      "2.6.13-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "bash",
+      "glibc",
+      "icu",
+      "readline",
+      "zlib",
+      "libicuuc.so=78-64"
+    ],
+    "license": [
+      "MIT"
+    ],
+    "name": [
+      "libxml2"
+    ],
+    "provides": [
+      "libxml2.so=16-64"
+    ],
+    "version": [
+      "2.15.3-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc",
+      "gcc-libs"
+    ],
+    "license": [
+      "LGPL-2.1-only"
+    ],
+    "name": [
+      "libnl"
+    ],
+    "provides": [
+      "libnl-3.so=200-64",
+      "libnl-cli-3.so=200-64",
+      "libnl-genl-3.so=200-64",
+      "libnl-idiag-3.so=200-64",
+      "libnl-nf-3.so=200-64",
+      "libnl-route-3.so=200-64",
+      "libnl-xfrm-3.so=200-64"
+    ],
+    "version": [
+      "3.12.0-1"
+    ]
+  },
+  {
+    "arch": [
+      "any"
+    ],
+    "depends": [],
+    "license": [
+      "LicenseRef-WHENCE"
+    ],
+    "name": [
+      "linux-firmware-whence"
+    ],
+    "provides": [],
+    "version": [
+      "20260622-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc"
+    ],
+    "license": [
+      "GPL-2.0-or-later",
+      "LGPL-3.0-or-later"
+    ],
+    "name": [
+      "libunistring"
+    ],
+    "provides": [
+      "libunistring.so=5-64"
+    ],
+    "version": [
+      "1.4.2-1"
+    ]
+  },
+  {
+    "arch": [
+      "any"
+    ],
+    "depends": [
+      "linux-firmware-whence"
+    ],
+    "license": [
+      "LicenseRef-WHENCE",
+      "LicenseRef-broadcom"
+    ],
+    "name": [
+      "linux-firmware-broadcom"
+    ],
+    "provides": [
+      "linux-firmware-bnx2x"
+    ],
+    "version": [
+      "20260622-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "audit",
+      "expat",
+      "glibc",
+      "libcap-ng",
+      "libgcc",
+      "systemd-libs",
+      "libaudit.so=1-64",
+      "libcap-ng.so=0-64",
+      "libexpat.so=1-64",
+      "libsystemd.so=0-64"
+    ],
+    "license": [
+      "Apache-2.0"
+    ],
+    "name": [
+      "dbus-broker"
+    ],
+    "provides": [],
+    "version": [
+      "37-3"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc",
+      "openssl",
+      "libssl.so=3-64",
+      "gnutls"
+    ],
+    "license": [
+      "MIT"
+    ],
+    "name": [
+      "libngtcp2"
+    ],
+    "provides": [
+      "libngtcp2.so=16-64",
+      "libngtcp2_crypto_gnutls.so=8-64",
+      "libngtcp2_crypto_ossl.so=0-64"
+    ],
+    "version": [
+      "1.25.0-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc",
+      "bash"
+    ],
+    "license": [
+      "GPL-3.0-or-later"
+    ],
+    "name": [
+      "diffutils"
+    ],
+    "provides": [],
+    "version": [
+      "3.12-2"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "bash",
+      "glibc",
+      "libmnl",
+      "libnetfilter_conntrack",
+      "libnfnetlink",
+      "libnftnl",
+      "libpcap",
+      "nftables"
+    ],
+    "license": [
+      "GPL-2.0-only"
+    ],
+    "name": [
+      "iptables"
+    ],
+    "provides": [
+      "iptables-nft",
+      "libip4tc.so=2-64",
+      "libip6tc.so=2-64",
+      "libipq.so=0-64",
+      "libxtables.so=12-64",
+      "arptables",
+      "ebtables"
+    ],
+    "version": [
+      "1:1.8.13-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc"
+    ],
+    "license": [
+      "LGPL2.1"
+    ],
+    "name": [
+      "libmnl"
+    ],
+    "provides": [],
+    "version": [
+      "1.0.5-2"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "bzip2",
+      "libbz2.so=1.0-64",
+      "curl",
+      "libcurl.so=4-64",
+      "glibc",
+      "json-c",
+      "xz",
+      "liblzma.so=5-64",
+      "zlib",
+      "zstd",
+      "libzstd.so=1-64"
+    ],
+    "license": [
+      "GPL-2.0-or-later OR LGPL-3.0-or-later"
+    ],
+    "name": [
+      "libelf"
+    ],
+    "provides": [],
+    "version": [
+      "0.195-1"
+    ]
+  },
+  {
+    "arch": [
+      "any"
+    ],
+    "depends": [],
+    "license": [
+      "LGPL-2.0-or-later"
+    ],
+    "name": [
+      "gnulib-l10n"
+    ],
+    "provides": [],
+    "version": [
+      "20241231-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc"
+    ],
+    "license": [
+      "GPL-2.0-or-later",
+      "LGPL-2.1-or-later"
+    ],
+    "name": [
+      "libcap-ng"
+    ],
+    "provides": [
+      "libcap-ng.so=0-64",
+      "libdrop_ambient.so=0-64"
+    ],
+    "version": [
+      "0.9.3-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "libunistring",
+      "libunistring.so=5-64"
+    ],
+    "license": [
+      "GPL2",
+      "LGPL3"
+    ],
+    "name": [
+      "libidn2"
+    ],
+    "provides": [
+      "libidn2.so=0-64"
+    ],
+    "version": [
+      "2.3.8-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc"
+    ],
+    "license": [
+      "GPL2"
+    ],
+    "name": [
+      "net-tools"
+    ],
+    "provides": [],
+    "version": [
+      "2.10-3"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc",
+      "pcre2"
+    ],
+    "license": [
+      "GPL3"
+    ],
+    "name": [
+      "grep"
+    ],
+    "provides": [],
+    "version": [
+      "3.12-2"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc"
+    ],
+    "license": [
+      "GPL-3.0-or-later",
+      "LGPL-2.1-or-later",
+      "GFDL-1.3-or-later"
+    ],
+    "name": [
+      "libtasn1"
+    ],
+    "provides": [],
+    "version": [
+      "4.21.0-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc",
+      "sh"
+    ],
+    "license": [
+      "BSD"
+    ],
+    "name": [
+      "bzip2"
+    ],
+    "provides": [
+      "libbz2.so=1.0-64"
+    ],
+    "version": [
+      "1.0.8-6"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc>=2.27"
+    ],
+    "license": [
+      "GPL-3.0-or-later WITH GCC-exception-3.1",
+      "GFDL-1.3-or-later"
+    ],
+    "name": [
+      "libatomic"
+    ],
+    "provides": [
+      "libatomic.so=1-64"
+    ],
+    "version": [
+      "16.1.1+r12+g301eb08fa2c5-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "device-mapper",
+      "libdevmapper.so=1.02-64",
+      "glibc",
+      "openssl",
+      "libcrypto.so=3-64",
+      "popt",
+      "util-linux-libs",
+      "libblkid.so=1-64",
+      "libuuid.so=1-64",
+      "json-c",
+      "libjson-c.so=5-64"
+    ],
+    "license": [
+      "GPL-2.0-or-later"
+    ],
+    "name": [
+      "cryptsetup"
+    ],
+    "provides": [
+      "libcryptsetup.so=12-64"
+    ],
+    "version": [
+      "2.8.7-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [],
+    "license": [
+      "GPL-2.0-only"
+    ],
+    "name": [
+      "linux-api-headers"
+    ],
+    "provides": [],
+    "version": [
+      "7.1-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc",
+      "libgcc",
+      "libstdc++",
+      "zlib",
+      "xz",
+      "lz4"
+    ],
+    "license": [
+      "BSD-3-Clause",
+      "GPL-2.0-only"
+    ],
+    "name": [
+      "zstd"
+    ],
+    "provides": [
+      "libzstd.so=1-64"
+    ],
+    "version": [
+      "1.5.7-3"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc",
+      "libxtables.so=12-64",
+      "libcap",
+      "libcap.so=2-64",
+      "libelf",
+      "libbpf",
+      "libbpf.so=1-64"
+    ],
+    "license": [
+      "GPL-2.0-or-later"
+    ],
+    "name": [
+      "iproute2"
+    ],
+    "provides": [
+      "iproute"
+    ],
+    "version": [
+      "7.1.0-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc",
+      "sqlite"
+    ],
+    "license": [
+      "BSD-2-Clause",
+      "BSD-3-Clause",
+      "BSD-4-Clause-UC",
+      "GPL-2.0-only",
+      "GPL-2.0-or-later",
+      "GPL-3.0-or-later",
+      "ISC",
+      "LGPL-2.1-or-later",
+      "LicenseRef-PublicDomain"
+    ],
+    "name": [
+      "util-linux-libs"
+    ],
+    "provides": [
+      "libutil-linux",
+      "libblkid.so=1-64",
+      "libfdisk.so=1-64",
+      "libmount.so=1-64",
+      "libsmartcols.so=1-64",
+      "libuuid.so=1-64"
+    ],
+    "version": [
+      "2.42.2-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "krb5",
+      "glibc"
+    ],
+    "license": [
+      "SISSL",
+      "BSD-3-Clause"
+    ],
+    "name": [
+      "libtirpc"
+    ],
+    "provides": [],
+    "version": [
+      "1.3.7-1"
+    ]
+  },
+  {
+    "arch": [
+      "any"
+    ],
+    "depends": [
+      "iana-etc"
+    ],
+    "license": [
+      "0BSD"
+    ],
+    "name": [
+      "filesystem"
+    ],
+    "provides": [],
+    "version": [
+      "2025.10.12-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glib2",
+      "glibc",
+      "libgcrypt",
+      "tpm2-tss"
+    ],
+    "license": [
+      "LGPL-2.1-or-later"
+    ],
+    "name": [
+      "libsecret"
+    ],
+    "provides": [
+      "libsecret-1.so=0-64"
+    ],
+    "version": [
+      "0.21.7-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc",
+      "gmp"
+    ],
+    "license": [
+      "LGPL-3.0-or-later OR GPL-2.0-or-later"
+    ],
+    "name": [
+      "nettle"
+    ],
+    "provides": [
+      "libnettle.so=9-64",
+      "libhogweed.so=7-64"
+    ],
+    "version": [
+      "4.0-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc",
+      "gmp",
+      "libtasn1",
+      "zlib",
+      "nettle",
+      "leancrypto",
+      "libstdc++",
+      "libgcc",
+      "libp11-kit",
+      "libidn2",
+      "zstd",
+      "libidn2.so=0-64",
+      "libunistring",
+      "brotli"
+    ],
+    "license": [
+      "GPL-3.0-or-later AND LGPL-2.1-or-later"
+    ],
+    "name": [
+      "gnutls"
+    ],
+    "provides": [],
+    "version": [
+      "3.8.13-2"
+    ]
+  },
+  {
+    "arch": [
+      "any"
+    ],
+    "depends": [],
+    "license": [
+      "GPL"
+    ],
+    "name": [
+      "pacman-mirrorlist"
+    ],
+    "provides": [],
+    "version": [
+      "20260411-2"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc"
+    ],
+    "license": [
+      "LGPL-2.1-only"
+    ],
+    "name": [
+      "libseccomp"
+    ],
+    "provides": [
+      "libseccomp.so=2-64"
+    ],
+    "version": [
+      "2.6.0-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "bash",
+      "glibc",
+      "libgcc",
+      "libgcc_s.so=1-64",
+      "systemd-libs",
+      "libudev.so=1-64"
+    ],
+    "license": [
+      "GPL-2.0-only",
+      "LGPL-2.1-only"
+    ],
+    "name": [
+      "device-mapper"
+    ],
+    "provides": [
+      "libdevmapper.so=1.02-64",
+      "libdevmapper-event.so=1.02-64"
+    ],
+    "version": [
+      "2.03.41-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "libcap",
+      "libidn2"
+    ],
+    "license": [
+      "BSD-3-Clause",
+      "GPL-2.0-or-later"
+    ],
+    "name": [
+      "iputils"
+    ],
+    "provides": [],
+    "version": [
+      "20250605-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "brotli",
+      "glibc",
+      "zlib",
+      "zstd"
+    ],
+    "license": [
+      "Apache-2.0"
+    ],
+    "name": [
+      "openssl"
+    ],
+    "provides": [
+      "libcrypto.so=3-64",
+      "libssl.so=3-64"
+    ],
+    "version": [
+      "3.6.3-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc",
+      "jansson",
+      "libelf",
+      "libgcc",
+      "libstdc++",
+      "zlib",
+      "zstd"
+    ],
+    "license": [
+      "GPL-2.0-or-later",
+      "GPL-3.0-or-later",
+      "LGPL-2.0-or-later",
+      "LGPL-3.0-or-later",
+      "GFDL-1.3",
+      "FSFAP"
+    ],
+    "name": [
+      "binutils"
+    ],
+    "provides": [
+      "libctf.so=0-64",
+      "libgprofng.so=0-64",
+      "libsframe.so=3-64"
+    ],
+    "version": [
+      "2.46+r70+g155188ea10a7-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc",
+      "libncursesw.so=6-64",
+      "ncurses"
+    ],
+    "license": [
+      "BSD-3-Clause"
+    ],
+    "name": [
+      "libedit"
+    ],
+    "provides": [
+      "libedit.so=0-64"
+    ],
+    "version": [
+      "20260512_3.1-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "bash",
+      "glibc"
+    ],
+    "license": [
+      "GPL-3.0-or-later"
+    ],
+    "name": [
+      "which"
+    ],
+    "provides": [],
+    "version": [
+      "2.25-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc",
+      "gdbm",
+      "libgdbm.so=6-64",
+      "openssl",
+      "libcrypto.so=3-64"
+    ],
+    "license": [
+      "BSD-3-Clause-Attribution"
+    ],
+    "name": [
+      "libsasl"
+    ],
+    "provides": [
+      "libsasl2.so=3-64"
+    ],
+    "version": [
+      "2.1.28-5"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc",
+      "hwdata",
+      "kmod",
+      "systemd-libs"
+    ],
+    "license": [
+      "GPL-2.0-only"
+    ],
+    "name": [
+      "pciutils"
+    ],
+    "provides": [],
+    "version": [
+      "3.15.0-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [],
+    "license": [
+      "custom:vim"
+    ],
+    "name": [
+      "vim-runtime"
+    ],
+    "provides": [],
+    "version": [
+      "9.2.0849-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc",
+      "acl"
+    ],
+    "license": [
+      "GPL-3.0-or-later"
+    ],
+    "name": [
+      "sed"
+    ],
+    "provides": [],
+    "version": [
+      "4.10-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "vim-runtime=9.2.0849-1",
+      "gpm",
+      "acl",
+      "glibc",
+      "libgcrypt",
+      "zlib"
+    ],
+    "license": [
+      "custom:vim"
+    ],
+    "name": [
+      "vim"
+    ],
+    "provides": [
+      "xxd",
+      "vim-minimal",
+      "vim-plugin-runtime"
+    ],
+    "version": [
+      "9.2.0849-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc",
+      "gmp",
+      "jansson",
+      "libmnl",
+      "libnftnl",
+      "readline"
+    ],
+    "license": [
+      "GPL-2.0-only"
+    ],
+    "name": [
+      "nftables"
+    ],
+    "provides": [],
+    "version": [
+      "1:1.1.6-3"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc>=2.27",
+      "libgcc"
+    ],
+    "license": [
+      "GPL-3.0-or-later WITH GCC-exception-3.1",
+      "GFDL-1.3-or-later"
+    ],
+    "name": [
+      "libobjc"
+    ],
+    "provides": [
+      "libobjc.so=4-64"
+    ],
+    "version": [
+      "16.1.1+r12+g301eb08fa2c5-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "acl",
+      "bzip2",
+      "glibc",
+      "libxml2",
+      "lz4",
+      "openssl",
+      "xz",
+      "zlib",
+      "zstd",
+      "libacl.so=1-64",
+      "libbz2.so=1.0-64",
+      "libxml2.so=16-64",
+      "libcrypto.so=3-64",
+      "liblzma.so=5-64",
+      "libz.so=1-64",
+      "libzstd.so=1-64"
+    ],
+    "license": [
+      "BSD-2-Clause",
+      "BSD-4-Clause-UC",
+      "Apache-2.0 OR CC0-1.0 OR OpenSSL"
+    ],
+    "name": [
+      "libarchive"
+    ],
+    "provides": [
+      "libarchive.so=13-64"
+    ],
+    "version": [
+      "3.8.9-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc",
+      "libffi",
+      "libtasn1"
+    ],
+    "license": [
+      "BSD-3-Clause"
+    ],
+    "name": [
+      "libp11-kit"
+    ],
+    "provides": [
+      "libp11-kit.so=0-64"
+    ],
+    "version": [
+      "0.26.4-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "ncurses",
+      "file",
+      "glibc"
+    ],
+    "license": [
+      "GPL-3.0-or-later"
+    ],
+    "name": [
+      "nano"
+    ],
+    "provides": [],
+    "version": [
+      "9.1-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc>=2.27",
+      "libgcc",
+      "libstdc++"
+    ],
+    "license": [
+      "GPL-3.0-or-later WITH GCC-exception-3.1",
+      "GFDL-1.3-or-later"
+    ],
+    "name": [
+      "libasan"
+    ],
+    "provides": [
+      "libasan.so=8-64"
+    ],
+    "version": [
+      "16.1.1+r12+g301eb08fa2c5-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc"
+    ],
+    "license": [
+      "MIT"
+    ],
+    "name": [
+      "libnghttp2"
+    ],
+    "provides": [
+      "libnghttp2.so=14-64"
+    ],
+    "version": [
+      "1.70.0-1"
+    ]
+  },
+  {
+    "arch": [
+      "any"
+    ],
+    "depends": [
+      "linux-firmware-whence"
+    ],
+    "license": [
+      "LicenseRef-WHENCE",
+      "Apache-2.0",
+      "GPL-2.0-only",
+      "LicenseRef-intel"
+    ],
+    "name": [
+      "linux-firmware-intel"
+    ],
+    "provides": [],
+    "version": [
+      "20260622-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "acl",
+      "attr",
+      "curl",
+      "glibc",
+      "json-c",
+      "libgcc",
+      "libgomp",
+      "libstdc++",
+      "gnulib-l10n",
+      "libunistring",
+      "libxml2",
+      "ncurses",
+      "sh"
+    ],
+    "license": [
+      "GFDL-1.2-only",
+      "GPL-2.0-only",
+      "GPL-2.0-or-later",
+      "LGPL-2.0-only"
+    ],
+    "name": [
+      "gettext"
+    ],
+    "provides": [],
+    "version": [
+      "1.0-2"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc",
+      "sh"
+    ],
+    "license": [
+      "GPL-2.0-or-later AND 0BSD AND LicenseRef-Public-Domain AND LGPL-2.1-or-later"
+    ],
+    "name": [
+      "xz"
+    ],
+    "provides": [
+      "liblzma.so=5-64"
+    ],
+    "version": [
+      "5.8.3-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc",
+      "libstdc++",
+      "libgcc",
+      "sh"
+    ],
+    "license": [
+      "LicenseRef-Unicode-3.0",
+      "BSD-2-Clause",
+      "BSD-3-Clause",
+      "NAIST-2003"
+    ],
+    "name": [
+      "icu"
+    ],
+    "provides": [
+      "libicudata.so=78-64",
+      "libicui18n.so=78-64",
+      "libicuio.so=78-64",
+      "libicutest.so=78-64",
+      "libicutu.so=78-64",
+      "libicuuc.so=78-64"
+    ],
+    "version": [
+      "78.3-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc>=2.27",
+      "libasan",
+      "libatomic",
+      "libgcc",
+      "libgfortran",
+      "libgomp",
+      "liblsan",
+      "libobjc",
+      "libquadmath",
+      "libstdc++",
+      "libtsan",
+      "libubsan"
+    ],
+    "license": [
+      "GPL-3.0-or-later WITH GCC-exception-3.1",
+      "GFDL-1.3-or-later"
+    ],
+    "name": [
+      "gcc-libs"
+    ],
+    "provides": [],
+    "version": [
+      "16.1.1+r12+g301eb08fa2c5-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc"
+    ],
+    "license": [
+      "custom"
+    ],
+    "name": [
+      "popt"
+    ],
+    "provides": [],
+    "version": [
+      "1.19-2"
+    ]
+  },
+  {
+    "arch": [
+      "any"
+    ],
+    "depends": [
+      "linux-firmware-whence"
+    ],
+    "license": [
+      "LicenseRef-WHENCE",
+      "LicenseRef-mediatek"
+    ],
+    "name": [
+      "linux-firmware-mediatek"
+    ],
+    "provides": [],
+    "version": [
+      "20260622-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "libgcc",
+      "libstdc++",
+      "glibc"
+    ],
+    "license": [
+      "GPL-2.0-or-later",
+      "LGPL-3.0-or-later"
+    ],
+    "name": [
+      "gmp"
+    ],
+    "provides": [],
+    "version": [
+      "6.3.0-3"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc",
+      "libelf",
+      "linux-api-headers",
+      "zlib"
+    ],
+    "license": [
+      "LGPL-2.1-only OR BSD-2-Clause"
+    ],
+    "name": [
+      "libbpf"
+    ],
+    "provides": [
+      "libbpf.so=1-64"
+    ],
+    "version": [
+      "1.7.0-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "dbus",
+      "dbus-broker"
+    ],
+    "license": [
+      "Apache-2.0"
+    ],
+    "name": [
+      "dbus-broker-units"
+    ],
+    "provides": [
+      "dbus-units"
+    ],
+    "version": [
+      "37-3"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc"
+    ],
+    "license": [
+      "LGPL-2.1-or-later AND GPL-2.0-or-later"
+    ],
+    "name": [
+      "attr"
+    ],
+    "provides": [
+      "libattr.so=1-64"
+    ],
+    "version": [
+      "2.6.0-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc",
+      "ncurses",
+      "libassuan",
+      "libsecret",
+      "glib2",
+      "libglib-2.0.so=0-64",
+      "libncursesw.so=6-64",
+      "libsecret-1.so=0-64"
+    ],
+    "license": [
+      "GPL"
+    ],
+    "name": [
+      "pinentry"
+    ],
+    "provides": [],
+    "version": [
+      "1.3.3-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "bash",
+      "coreutils",
+      "curl",
+      "libcurl.so=4-64",
+      "gawk",
+      "gettext",
+      "glibc",
+      "gnupg",
+      "gpgme",
+      "libgpgme.so=45-64",
+      "grep",
+      "libarchive",
+      "libarchive.so=13-64",
+      "openssl",
+      "libcrypto.so=3-64",
+      "pacman-mirrorlist",
+      "systemd",
+      "libmakepkg-dropins"
+    ],
+    "license": [
+      "GPL-2.0-or-later"
+    ],
+    "name": [
+      "pacman"
+    ],
+    "provides": [
+      "libalpm.so=16-64"
+    ],
+    "version": [
+      "7.1.0.r9.g54d9411-2"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc",
+      "systemd-libs",
+      "libudev.so=1-64"
+    ],
+    "license": [
+      "LGPL-2.1-or-later"
+    ],
+    "name": [
+      "libusb"
+    ],
+    "provides": [
+      "libusb-1.0.so=0-64"
+    ],
+    "version": [
+      "1.0.30-1"
+    ]
+  },
+  {
+    "arch": [
+      "any"
+    ],
+    "depends": [
+      "linux-firmware-whence"
+    ],
+    "license": [
+      "LicenseRef-WHENCE",
+      "LicenseRef-radeon"
+    ],
+    "name": [
+      "linux-firmware-radeon"
+    ],
+    "provides": [],
+    "version": [
+      "20260622-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc"
+    ],
+    "license": [
+      "MIT"
+    ],
+    "name": [
+      "libffi"
+    ],
+    "provides": [
+      "libffi.so=8-64"
+    ],
+    "version": [
+      "3.7.1-1"
+    ]
+  },
+  {
+    "arch": [
+      "any"
+    ],
+    "depends": [],
+    "license": [
+      "GPL-3.0-or-later"
+    ],
+    "name": [
+      "pambase"
+    ],
+    "provides": [],
+    "version": [
+      "20260616-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "libidn2",
+      "libunistring",
+      "libidn2.so=0-64",
+      "libunistring.so=5-64"
+    ],
+    "license": [
+      "MIT"
+    ],
+    "name": [
+      "libpsl"
+    ],
+    "provides": [
+      "libpsl.so=5-64"
+    ],
+    "version": [
+      "0.21.5-2"
+    ]
+  },
+  {
+    "arch": [
+      "any"
+    ],
+    "depends": [
+      "linux-firmware-amdgpu",
+      "linux-firmware-atheros",
+      "linux-firmware-broadcom",
+      "linux-firmware-cirrus",
+      "linux-firmware-intel",
+      "linux-firmware-mediatek",
+      "linux-firmware-nvidia",
+      "linux-firmware-other",
+      "linux-firmware-radeon",
+      "linux-firmware-realtek"
+    ],
+    "license": [
+      "CC0-1.0"
+    ],
+    "name": [
+      "linux-firmware"
+    ],
+    "provides": [],
+    "version": [
+      "20260622-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "systemd=261.2"
+    ],
+    "license": [
+      "LGPL-2.1-or-later"
+    ],
+    "name": [
+      "systemd-resolvconf"
+    ],
+    "provides": [
+      "openresolv",
+      "resolvconf"
+    ],
+    "version": [
+      "261.2-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc>=2.27"
+    ],
+    "license": [
+      "GPL-3.0-or-later WITH GCC-exception-3.1",
+      "GFDL-1.3-or-later"
+    ],
+    "name": [
+      "libgomp"
+    ],
+    "provides": [
+      "libgomp.so=1-64"
+    ],
+    "version": [
+      "16.1.1+r12+g301eb08fa2c5-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "audit",
+      "glibc",
+      "libaudit.so=1-64",
+      "libcrypt.so=2-64",
+      "libnsl",
+      "libtirpc",
+      "libxcrypt",
+      "pambase",
+      "systemd-libs"
+    ],
+    "license": [
+      "GPL-2.0-only"
+    ],
+    "name": [
+      "pam"
+    ],
+    "provides": [
+      "libpam.so=0-64",
+      "libpamc.so=0-64",
+      "libpam_misc.so=0-64"
+    ],
+    "version": [
+      "1.7.2-2"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc>=2.27",
+      "libgcc",
+      "libstdc++"
+    ],
+    "license": [
+      "GPL-3.0-or-later WITH GCC-exception-3.1",
+      "GFDL-1.3-or-later"
+    ],
+    "name": [
+      "liblsan"
+    ],
+    "provides": [
+      "liblsan.so=0-64"
+    ],
+    "version": [
+      "16.1.1+r12+g301eb08fa2c5-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc>=2.27",
+      "libgcc"
+    ],
+    "license": [
+      "GPL-3.0-or-later WITH GCC-exception-3.1",
+      "GFDL-1.3-or-later"
+    ],
+    "name": [
+      "libstdc++"
+    ],
+    "provides": [
+      "libstdc++.so=6-64"
+    ],
+    "version": [
+      "16.1.1+r12+g301eb08fa2c5-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc",
+      "acl",
+      "libacl.so=1-64",
+      "audit",
+      "libaudit.so=1-64",
+      "libxcrypt",
+      "libcrypt.so=2-64",
+      "pam",
+      "libpam.so=0-64",
+      "libpam_misc.so=0-64"
+    ],
+    "license": [
+      "0BSD",
+      "BSD-3-Clause"
+    ],
+    "name": [
+      "shadow"
+    ],
+    "provides": [],
+    "version": [
+      "4.20.0.arch1-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc",
+      "krb5",
+      "libkrb5.so=3-64",
+      "libgssapi_krb5.so=2-64",
+      "libedit",
+      "libedit.so=0-64",
+      "libxcrypt",
+      "libcrypt.so=2-64",
+      "openssl",
+      "libcrypto.so=3-64",
+      "pam",
+      "libpam.so=0-64",
+      "zlib",
+      "libz.so=1-64"
+    ],
+    "license": [
+      "0BSD",
+      "BSD-2-Clause",
+      "BSD-3-Clause",
+      "ISC",
+      "LicenseRef-Public-Domain",
+      "MIT"
+    ],
+    "name": [
+      "openssh"
+    ],
+    "provides": [],
+    "version": [
+      "10.4p1-3"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc",
+      "openssl"
+    ],
+    "license": [
+      "BSD-3-Clause-Modification"
+    ],
+    "name": [
+      "libevent"
+    ],
+    "provides": [
+      "libevent-2.1.so=7-64",
+      "libevent_core-2.1.so=7-64",
+      "libevent_extra-2.1.so=7-64",
+      "libevent_openssl-2.1.so=7-64",
+      "libevent_pthreads-2.1.so=7-64"
+    ],
+    "version": [
+      "2.1.13-2"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc"
+    ],
+    "license": [
+      "MIT"
+    ],
+    "name": [
+      "libnghttp3"
+    ],
+    "provides": [
+      "libnghttp3.so=9-64"
+    ],
+    "version": [
+      "1.18.0-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc",
+      "pam"
+    ],
+    "license": [
+      "BSD-3-Clause OR GPL-2.0-only"
+    ],
+    "name": [
+      "libcap"
+    ],
+    "provides": [
+      "libcap.so=2-64",
+      "libpsx.so=2-64"
+    ],
+    "version": [
+      "2.78-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc",
+      "sh"
+    ],
+    "license": [
+      "GPL-2.0-or-later",
+      "LGPL-2.1-or-later"
+    ],
+    "name": [
+      "keyutils"
+    ],
+    "provides": [
+      "libkeyutils.so=1-64"
+    ],
+    "version": [
+      "1.6.3-4"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc>=2.27",
+      "libgcc"
+    ],
+    "license": [
+      "GPL-3.0-or-later WITH GCC-exception-3.1",
+      "GFDL-1.3-or-later"
+    ],
+    "name": [
+      "libgfortran"
+    ],
+    "provides": [
+      "libgfortran.so=5-64"
+    ],
+    "version": [
+      "16.1.1+r12+g301eb08fa2c5-1"
+    ]
+  },
+  {
+    "arch": [
+      "any"
+    ],
+    "depends": [],
+    "license": [
+      "LicenseRef-WHENCE"
+    ],
+    "name": [
+      "linux-firmware-other"
+    ],
+    "provides": [],
+    "version": [
+      "20260622-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc",
+      "acl"
+    ],
+    "license": [
+      "GPL3"
+    ],
+    "name": [
+      "tar"
+    ],
+    "provides": [],
+    "version": [
+      "1.35-2"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "sh",
+      "util-linux-libs"
+    ],
+    "license": [
+      "GPL",
+      "LGPL",
+      "MIT"
+    ],
+    "name": [
+      "e2fsprogs"
+    ],
+    "provides": [
+      "libcom_err.so=2-64",
+      "libe2p.so=2-64",
+      "libext2fs.so=2-64",
+      "libss.so=2-64"
+    ],
+    "version": [
+      "1.47.4-1"
+    ]
+  },
+  {
+    "arch": [
+      "any"
+    ],
+    "depends": [
+      "linux-firmware-whence"
+    ],
+    "license": [
+      "LicenseRef-WHENCE",
+      "LicenseRef-amdgpu",
+      "MIT"
+    ],
+    "name": [
+      "linux-firmware-amdgpu"
+    ],
+    "provides": [],
+    "version": [
+      "20260622-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc",
+      "openssl",
+      "zlib"
+    ],
+    "license": [
+      "BSD-3-Clause"
+    ],
+    "name": [
+      "libssh2"
+    ],
+    "provides": [
+      "libssh2.so=1-64"
+    ],
+    "version": [
+      "1.11.1-7"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "curl",
+      "json-c",
+      "openssl",
+      "libjson-c.so=5-64"
+    ],
+    "license": [
+      "BSD-2-Clause"
+    ],
+    "name": [
+      "tpm2-tss"
+    ],
+    "provides": [
+      "libtss2-esys.so=0-64",
+      "libtss2-fapi.so=1-64",
+      "libtss2-mu.so=0-64",
+      "libtss2-rc.so=0-64",
+      "libtss2-sys.so=1-64",
+      "libtss2-tctildr.so=0-64"
+    ],
+    "version": [
+      "4.1.3-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc",
+      "gzip",
+      "pam"
+    ],
+    "license": [
+      "GPL-2.0-or-later"
+    ],
+    "name": [
+      "kbd"
+    ],
+    "provides": [
+      "vlock"
+    ],
+    "version": [
+      "2.10.0-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "bash",
+      "e2fsprogs",
+      "glibc",
+      "keyutils",
+      "libldap",
+      "libverto-module-base",
+      "openssl",
+      "lmdb",
+      "libcom_err.so=2-64",
+      "libkeyutils.so=1-64",
+      "libss.so=2-64",
+      "libverto.so=1-64"
+    ],
+    "license": [
+      "custom"
+    ],
+    "name": [
+      "krb5"
+    ],
+    "provides": [
+      "libgssapi_krb5.so=2-64",
+      "libgssrpc.so=4-64",
+      "libk5crypto.so=3-64",
+      "libkadm5clnt_mit.so=12-64",
+      "libkadm5srv_mit.so=12-64",
+      "libkdb5.so=10-64",
+      "libkdb_ldap.so=1-64",
+      "libkrad.so=0-64",
+      "libkrb5.so=3-64",
+      "libkrb5support.so=0-64"
+    ],
+    "version": [
+      "1.22.2-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "readline",
+      "libreadline.so=8-64",
+      "glibc",
+      "ncurses"
+    ],
+    "license": [
+      "GPL-3.0-or-later"
+    ],
+    "name": [
+      "bash"
+    ],
+    "provides": [
+      "sh"
+    ],
+    "version": [
+      "5.3.15-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "dbus-broker-units"
+    ],
+    "license": [
+      "CC0-1.0"
+    ],
+    "name": [
+      "dbus-units"
+    ],
+    "provides": [],
+    "version": [
+      "37-3"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc",
+      "libevent"
+    ],
+    "license": [
+      "MIT"
+    ],
+    "name": [
+      "libverto"
+    ],
+    "provides": [
+      "libverto.so=1-64",
+      "libverto-libevent.so=1-64",
+      "libverto-module-base"
+    ],
+    "version": [
+      "0.3.2-6"
+    ]
+  },
+  {
+    "arch": [
+      "any"
+    ],
+    "depends": [
+      "ca-certificates-mozilla"
+    ],
+    "license": [
+      "GPL-2.0-or-later"
+    ],
+    "name": [
+      "ca-certificates"
+    ],
+    "provides": [],
+    "version": [
+      "20240618-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc",
+      "bash",
+      "coreutils",
+      "sed",
+      "grep"
+    ],
+    "license": [
+      "GPL-3.0-or-later"
+    ],
+    "name": [
+      "gzip"
+    ],
+    "provides": [],
+    "version": [
+      "1.14-2"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "sh",
+      "glibc",
+      "mpfr"
+    ],
+    "license": [
+      "GPL-3.0-or-later"
+    ],
+    "name": [
+      "gawk"
+    ],
+    "provides": [
+      "awk"
+    ],
+    "version": [
+      "5.4.1-1"
+    ]
+  },
+  {
+    "arch": [
+      "any"
+    ],
+    "depends": [
+      "linux-firmware-whence"
+    ],
+    "license": [
+      "LicenseRef-WHENCE",
+      "LicenseRef-cirrus"
+    ],
+    "name": [
+      "linux-firmware-cirrus"
+    ],
+    "provides": [],
+    "version": [
+      "20260622-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "bash",
+      "procps-ng"
+    ],
+    "license": [
+      "GPL"
+    ],
+    "name": [
+      "gpm"
+    ],
+    "provides": [
+      "libgpm.so=2-64"
+    ],
+    "version": [
+      "1.20.7.r38.ge82d1a6-6"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc"
+    ],
+    "license": [
+      "MIT"
+    ],
+    "name": [
+      "brotli"
+    ],
+    "provides": [
+      "libbrotlicommon.so=1-64",
+      "libbrotlidec.so=1-64",
+      "libbrotlienc.so=1-64"
+    ],
+    "version": [
+      "1.2.0-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc",
+      "libgcc",
+      "libgcc_s.so=1-64",
+      "libgcrypt",
+      "lz4",
+      "xz",
+      "zstd"
+    ],
+    "license": [
+      "LGPL-2.1-or-later",
+      "CC0-1.0",
+      "GPL-2.0-or-later WITH Linux-syscall-note"
+    ],
+    "name": [
+      "systemd-libs"
+    ],
+    "provides": [
+      "libsystemd",
+      "libsystemd.so=0-64",
+      "libudev.so=1-64"
+    ],
+    "version": [
+      "261.2-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "systemd=261.2"
+    ],
+    "license": [
+      "LGPL-2.1-or-later"
+    ],
+    "name": [
+      "systemd-sysvcompat"
+    ],
+    "provides": [],
+    "version": [
+      "261.2-1"
+    ]
+  },
+  {
+    "arch": [
+      "any"
+    ],
+    "depends": [
+      "awk",
+      "bash",
+      "coreutils",
+      "findutils",
+      "grep",
+      "sed",
+      "binutils"
+    ],
+    "license": [
+      "GPL-2.0-or-later"
+    ],
+    "name": [
+      "libmakepkg-dropins"
+    ],
+    "provides": [],
+    "version": [
+      "20-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "systemd-libs=261.2",
+      "acl",
+      "bash",
+      "cryptsetup",
+      "dbus",
+      "dbus-units",
+      "kbd",
+      "kmod",
+      "hwdata",
+      "libgcrypt",
+      "libxcrypt",
+      "libidn2",
+      "lz4",
+      "pam",
+      "libelf",
+      "libseccomp",
+      "util-linux",
+      "xz",
+      "pcre2",
+      "audit",
+      "openssl"
+    ],
+    "license": [
+      "LGPL-2.1-or-later",
+      "CC0-1.0",
+      "GPL-2.0-or-later",
+      "MIT-0"
+    ],
+    "name": [
+      "systemd"
+    ],
+    "provides": [
+      "nss-myhostname",
+      "systemd-tools=261.2",
+      "udev=261.2"
+    ],
+    "version": [
+      "261.2-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc",
+      "ncurses",
+      "libncursesw.so=6-64",
+      "systemd-libs"
+    ],
+    "license": [
+      "GPL",
+      "LGPL"
+    ],
+    "name": [
+      "procps-ng"
+    ],
+    "provides": [
+      "procps",
+      "sysvinit-tools",
+      "libproc2.so=1-64"
+    ],
+    "version": [
+      "4.0.6-3"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc",
+      "libnfnetlink",
+      "libmnl"
+    ],
+    "license": [
+      "GPL-2.0-or-later"
+    ],
+    "name": [
+      "libnetfilter_conntrack"
+    ],
+    "provides": [],
+    "version": [
+      "1.1.1-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc",
+      "libncursesw.so=6-64",
+      "ncurses"
+    ],
+    "license": [
+      "GPL-3.0-or-later"
+    ],
+    "name": [
+      "readline"
+    ],
+    "provides": [
+      "libhistory.so=8-64",
+      "libreadline.so=8-64"
+    ],
+    "version": [
+      "8.3.003-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "coreutils",
+      "kmod",
+      "mkinitcpio>=0.7"
+    ],
+    "license": [
+      "GPL-2.0-only"
+    ],
+    "name": [
+      "linux-aarch64"
+    ],
+    "provides": [
+      "linux=7.1.6",
+      "KSMBD-MODULE",
+      "WIREGUARD-MODULE"
+    ],
+    "version": [
+      "7.1.6-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc"
+    ],
+    "license": [
+      "MIT"
+    ],
+    "name": [
+      "expat"
+    ],
+    "provides": [
+      "libexpat.so=1-64"
+    ],
+    "version": [
+      "2.8.2-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "bash",
+      "glibc",
+      "krb5",
+      "libkrb5.so=3-64",
+      "libgssapi_krb5.so=2-64",
+      "libcap-ng",
+      "libcap-ng.so=0-64"
+    ],
+    "license": [
+      "GPL-2.0-or-later",
+      "LGPL-2.0-or-later"
+    ],
+    "name": [
+      "audit"
+    ],
+    "provides": [
+      "libaudit.so=1-64",
+      "libauparse.so=0-64"
+    ],
+    "version": [
+      "4.2.1-1"
+    ]
+  },
+  {
+    "arch": [
+      "any"
+    ],
+    "depends": [
+      "linux-firmware-whence"
+    ],
+    "license": [
+      "LicenseRef-WHENCE",
+      "GPL-2.0-only",
+      "LicenseRef-atheros"
+    ],
+    "name": [
+      "linux-firmware-atheros"
+    ],
+    "provides": [],
+    "version": [
+      "20260622-1"
+    ]
+  },
+  {
+    "arch": [
+      "any"
+    ],
+    "depends": [
+      "coreutils",
+      "iproute2",
+      "resolvconf",
+      "systemd>=233"
+    ],
+    "license": [
+      "GPL"
+    ],
+    "name": [
+      "netctl"
+    ],
+    "provides": [],
+    "version": [
+      "1.29-2"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "bash",
+      "glibc",
+      "libffi",
+      "libsysprof-capture",
+      "pcre2",
+      "util-linux-libs",
+      "zlib",
+      "libffi.so=8-64",
+      "libmount.so=1-64"
+    ],
+    "license": [
+      "LGPL-2.1-or-later"
+    ],
+    "name": [
+      "glib2"
+    ],
+    "provides": [
+      "libglib-2.0.so=0-64",
+      "libgio-2.0.so=0-64",
+      "libgirepository-2.0.so=0-64",
+      "libgmodule-2.0.so=0-64",
+      "libgobject-2.0.so=0-64",
+      "libgthread-2.0.so=0-64"
+    ],
+    "version": [
+      "2.88.3-1"
+    ]
+  },
+  {
+    "arch": [
+      "aarch64"
+    ],
+    "depends": [
+      "glibc",
+      "libgcc",
+      "libstdc++"
+    ],
+    "license": [
+      "MIT-open-group"
+    ],
+    "name": [
+      "ncurses"
+    ],
+    "provides": [
+      "libncurses++w.so=6-64",
+      "libformw.so=6-64",
+      "libmenuw.so=6-64",
+      "libpanelw.so=6-64",
+      "libncursesw.so=6-64"
+    ],
+    "version": [
+      "6.6-2"
+    ]
+  },
+  {
+    "arch": [
+      "any"
+    ],
+    "depends": [],
+    "license": [
+      "custom:none"
+    ],
+    "name": [
+      "iana-etc"
+    ],
+    "provides": [],
+    "version": [
+      "20260530-1"
+    ]
+  }
+]

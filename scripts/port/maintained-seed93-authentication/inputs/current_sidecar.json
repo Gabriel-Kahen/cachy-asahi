@@ -1,0 +1,14 @@
+{
+  "Root_admission": null,
+  "actor_emitted_package_row_digest": false,
+  "archive_lock_sha256": "f8f4a3748a962e2f793702207cbaf32ed6106a635ad35f70a0f5551d7c6a2362",
+  "archive_package_rows_canonical_sha256": "555de8ac36cebde79960eb74e962afcbcc55dca2c8d9fdcc6d165fe3e9b1a896",
+  "canonical_encoding": "Name-sorted package-row array, json.dumps(sort_keys=True,separators=(comma,colon),allow_nan=False) plus newline",
+  "outer_or_completion_proof": null,
+  "package_rows_count": 233,
+  "parent_receipt_sha256": "7e097a62b708190384b6cc142f59a9c86d2fd579995bce072ee2b1a487d4c07e",
+  "purpose": "DERIVED_METADATA_SIDECAR_NOT_ACTOR_EMITTED_OR_ADMISSION",
+  "schema_version": 1,
+  "transaction_archive_rows_file_sha256": "94461a58979d9c4a8ca6982bee06cdb27ec9535df79a2c77100a5d29172f2fa5",
+  "worker_receipt_sha256": "d536a11eb27a3cade695351c3f6475d438de865b4240d9990207e42146abeca0"
+}

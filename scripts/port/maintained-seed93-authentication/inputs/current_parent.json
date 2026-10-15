@@ -1,0 +1,14 @@
+{
+  "archive_acquisition": "NOT RUN",
+  "cleanup_seconds": 4,
+  "cleanup_verified": true,
+  "installation": "NOT RUN",
+  "native_Asahi_M2": "NOT RUN",
+  "natural_exit": true,
+  "observed_elapsed_seconds": 2.061819874914363,
+  "source_sha256": "f481a05c24a88176f7df92cbe71f4644ce0a566ee05ff49edfcbd0a31be1418d",
+  "status": "PASS_FRESH_GENERIC_METADATA_RESOLUTION_PARENT",
+  "work_seconds": 300,
+  "worker_exit": 0,
+  "worker_receipt_sha256": "d536a11eb27a3cade695351c3f6475d438de865b4240d9990207e42146abeca0"
+}

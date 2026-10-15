@@ -1,0 +1,91 @@
+{
+  "actual233": {
+    "Root_admission_sha256": "860e7da809aef71d6bc7922df27f04dc6a04596dda47937b4d1aff8f4f70f488",
+    "admitted_scope": "generic archive authentication only",
+    "strict_peer_sha256": "b2356270bea66d9ed1559fdf91081a6f7a52ff5dbb3f1a3bae5daca19f308f45"
+  },
+  "canonical_shared_manifest_and_prior_seal_writes": 0,
+  "captured_input_records_including_owned": 93,
+  "children": {
+    "historical-two-peer": {
+      "checks": 722,
+      "receipt": {
+        "bytes": 6776,
+        "mode": 420,
+        "sha256": "e23abd759adcf3045e03666fb334c77f486e5d515d221e662a1fffcda03de893"
+      },
+      "status": "SEALED_PASS_PASSIVE_HISTORICAL_TWO_METADATA_REVIEW"
+    },
+    "independent-review": {
+      "checks": 3455,
+      "receipt": {
+        "bytes": 7222,
+        "mode": 420,
+        "sha256": "030445c37fec65a8ea85871fe4cbf233746c2027e8d788757fbdf193d4829914"
+      },
+      "status": "SEALED_PASS_PASSIVE_METADATA_GAP_AUDIT"
+    },
+    "seed-audit": {
+      "checks": 1130,
+      "receipt": {
+        "bytes": 2111,
+        "mode": 420,
+        "sha256": "d9685b18f94cae20730edead552c09a0afc4470912c134147ff58fde2e99b1eb"
+      },
+      "status": "PASS_FINAL_PASSIVE_SEED341_TRUST_PROVENANCE_AUDIT_WITH_LIMITS"
+    },
+    "transaction-audit": {
+      "checks": 3621,
+      "receipt": {
+        "bytes": 17991,
+        "mode": 420,
+        "sha256": "d7510aaa77173c1a526995930cfa979d23abd1d978113dffe6b2715b0e8ed6b8"
+      },
+      "status": "FINAL_PASS_PASSIVE_TRANSACTION_AUDIT_SOFTWARE_METADATA_PROPOSAL_TRUST_BLOCKED"
+    }
+  },
+  "composition_assertions_including_parent": 2315,
+  "counts": {
+    "builder_archives": 248,
+    "current233_GPG_hash_algorithms": {
+      "10": 176,
+      "8": 57
+    },
+    "dependency_occurrences": 2933,
+    "distinct_relations": 743,
+    "fresh_additions": 233,
+    "individual_archive_descriptors": 481,
+    "projection": 574,
+    "rootfs_builder_overlap": 72,
+    "rootfs_inventory": 165,
+    "rootfs_only_without_individual_archive_pins": 93,
+    "rootfs_overlap_selected_version_differs": 71,
+    "seed": 341
+  },
+  "external_inputs": 76,
+  "index": {
+    "bytes": 10348,
+    "mode": 420,
+    "sha256": "d97e0213da925f8c7d70c9795391fde2618d8f7e69ba34a06f3b32547c41d765"
+  },
+  "input_drift": 0,
+  "metadata_identity_gaps_after_proposal": [],
+  "new_actor_grant": false,
+  "new_package_archive_cache_rootfs_bodies_GPG_install_native_Git_CI_network_actions": 0,
+  "new_seed_declarations": 93,
+  "new_seed_declared_package_signature_bytes": 56462822,
+  "owned_files": 61,
+  "parent_assertions": 2123,
+  "proposal_descriptor_rows": 574,
+  "schema_version": 1,
+  "scoped_blockers": [
+    "independent Source/profile/ABI and provenance-composition review",
+    "Root separately frozen whole-invocation supervisor, layout, limits, cache and failure evidence",
+    "actual selected-key archive verification and passive package inspection of exact new93; availability untested",
+    "exact retained248 plus admitted233 plus new93 evidence composition with partial failures preserved",
+    "separate source/legal, payload/ABI, Asahi platform transaction, native lifecycle and M2/release gates"
+  ],
+  "seed_versions_changed": 0,
+  "status": "FINAL_PASS_PASSIVE_WHOLE574_GAP_AND_COMPLETE_DECLARATION_PROPOSAL_WITH_TRUST_BLOCKERS",
+  "whole574_trust": "NOT_ESTABLISHED"
+}

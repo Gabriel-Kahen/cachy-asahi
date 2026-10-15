@@ -1,0 +1,35 @@
+{
+  "Root_admitted": true,
+  "Source": "c7def52db6ee7622024813d20a04461985fb4f1b",
+  "actor_grant": false,
+  "archive_observations": 233,
+  "attempts": 1,
+  "bytes": 286573342,
+  "cancelled": false,
+  "current_pairs": 233,
+  "elapsed_seconds": 24.728028771001846,
+  "files": 466,
+  "first_failure": null,
+  "fresh_GPG_records": 233,
+  "limits": {
+    "Asahi_transaction": "NOT_RUN",
+    "M2_compatibility": "NOT_RUN",
+    "corresponding_source_license_clearance": "NOT_ESTABLISHED",
+    "global_cleanup": "NOT_ESTABLISHED",
+    "installation": "NOT_RUN",
+    "native_execution": "NOT_RUN",
+    "previous_actual02_cleanup": "UNCHANGED_UNVERIFIED",
+    "whole574_trust": "NOT_ESTABLISHED"
+  },
+  "peer": {
+    "path": "/home/gabe/Documents/ChatGPT/cachy-asahi/artifacts/reviews/maintained-desktop-current2-authentication-actual-region-peer-20261015/receipt.json",
+    "sha256": "b2356270bea66d9ed1559fdf91081a6f7a52ff5dbb3f1a3bae5daca19f308f45"
+  },
+  "review_complete": true,
+  "runtime": "artifacts/maintained-desktop-authentication-current2-run-20261015-actual01",
+  "runtime_consumed": true,
+  "schema_version": 1,
+  "scoped_child_cleanup": "PASS",
+  "status": "ROOT_ADMITTED_ACTUAL_CURRENT2_233_GENERIC_ARCHIVE_AUTHENTICATION",
+  "whole_guardian_exit": 0
+}

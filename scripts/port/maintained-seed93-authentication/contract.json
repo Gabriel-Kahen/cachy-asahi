@@ -1,0 +1,105 @@
+{
+  "GPG_fields": [
+    "exit",
+    "status",
+    "diagnostic"
+  ],
+  "acquisition_fields": {
+    "archive": [
+      "sha256",
+      "bytes"
+    ],
+    "signature": [
+      "sha256",
+      "bytes"
+    ]
+  },
+  "actual_execution_boundary": "No bare execution CLI; future separately reviewed Root operational plan supplies pinned actor caller/cache/runtime/supervisor/deadline. Source methods may exist dormant. Tests use inert ports or pure data only.",
+  "admission_fields": [
+    "schema",
+    "status",
+    "scope",
+    "report_sha256",
+    "profile_sha256",
+    "source_manifest_sha256",
+    "strict_peer_sha256",
+    "Root_admitted",
+    "review_complete",
+    "whole_guardian_exit",
+    "scoped_child_cleanup",
+    "cancelled",
+    "first_failure",
+    "actor_grant",
+    "limits"
+  ],
+  "admission_schema": "seed93-external-admission-v1",
+  "admission_status": "ROOT_ADMITTED_ACTUAL_SEED93_GENERIC_ARCHIVE_AUTHENTICATION",
+  "authority": "External expected_admission_sha256 supplied by Root-approved frozen caller; report cannot self-authorize. Current slots null and future actual NOT_RUN. Require exact strict peer bytes hashbound by admission. JSON shapes are not intrinsic proof of actual execution.",
+  "complete_terminal_state": "RETURNED",
+  "limits": [
+    "whole574_trust",
+    "public_key_owner",
+    "source_legal",
+    "payload_ABI",
+    "Asahi_transaction",
+    "M2",
+    "installation",
+    "native_execution",
+    "release",
+    "global_cleanup"
+  ],
+  "observation": "Exact held observe11 top-level fields; eight PKGINFO comparison fields; no executed hooks. Complete inline observation plus canonical sorted compact JSON newline SHA256. No body extraction/execution.",
+  "package_fields": [
+    "name",
+    "version",
+    "archive_sha256",
+    "signature_sha256",
+    "status",
+    "acquisition",
+    "gpg",
+    "observation",
+    "observation_sha256"
+  ],
+  "package_success_status": "VERIFIED_AND_OBSERVED",
+  "producer_evidence_scope": "ACTOR_REPORTED_REQUIRES_EXTERNAL_RUNTIME_PEER_AND_ROOT_ADMISSION",
+  "report_complete_status": "REPORTED_COMPLETE_PENDING_ROOT_ADMISSION",
+  "report_fields": [
+    "schema",
+    "scope",
+    "status",
+    "profile_sha256",
+    "source_manifest_sha256",
+    "archive_package_rows_canonical_sha256",
+    "expected_count",
+    "verified_count",
+    "packages",
+    "failures",
+    "cancelled",
+    "first_failure",
+    "terminal_state",
+    "producer_evidence_scope",
+    "limits"
+  ],
+  "report_schema": "seed93-authentication-report-v1",
+  "schema": "seed93-evidence-contract-v1",
+  "scope": "GENERIC-held-seed93-data-authentication",
+  "strict_peer_fields": [
+    "schema",
+    "status",
+    "scope",
+    "report_sha256",
+    "profile_sha256",
+    "source_manifest_sha256",
+    "actual_archive_pairs",
+    "actual_primary_GPG_records",
+    "actual_archive_observations",
+    "whole_guardian_exit",
+    "scoped_child_cleanup",
+    "cancelled",
+    "first_failure",
+    "final",
+    "limits"
+  ],
+  "strict_peer_schema": "seed93-strict-runtime-peer-v1",
+  "strict_peer_status": "FINAL_PASS_ACTUAL_SEED93_GENERIC_ARCHIVE_AUTHENTICATION"
+}

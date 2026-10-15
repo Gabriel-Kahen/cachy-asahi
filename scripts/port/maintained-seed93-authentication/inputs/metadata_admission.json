@@ -1,0 +1,24 @@
+{
+  "status": "ROOT_ADMITTED_METADATA_ONLY_AFTER_FRESH_PEER",
+  "author": "f6da549b7c520802896fe7cb7c1a4704bb8b1817c4c92707ba1c50a65e5a3680",
+  "peer": "a4c75f425806a8acc824a2de367adf155b0fcd7902ce76e4c4607e35a693bd48",
+  "peerReadback": {
+    "files": 70,
+    "inputs": 1272,
+    "opaqueInputs": 3
+  },
+  "records": 574,
+  "heldSeed": 341,
+  "additionRecords": 233,
+  "historicalArchiveIdentitiesChanged": 3,
+  "dependencyOccurrences": 2933,
+  "distinctExpressions": 743,
+  "negativeControls": 78,
+  "trustScope": "unsigned repository metadata plus retained seed; not archive authentication or atomic upstream snapshot",
+  "adapter": "UNINSPECTED_SEPARATE_PROPOSAL_PENDING",
+  "archiveAuthentication": false,
+  "installation": false,
+  "AsahiTargetSelection": false,
+  "hardwareAcceptance": false,
+  "actorGrant": false
+}

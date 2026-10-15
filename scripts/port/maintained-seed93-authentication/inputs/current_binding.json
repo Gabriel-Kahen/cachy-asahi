@@ -1,0 +1,30 @@
+{
+  "Asahi_M2_source_legal_release": "NOT_ESTABLISHED",
+  "archive_lock_raw_sha256": "f8f4a3748a962e2f793702207cbaf32ed6106a635ad35f70a0f5551d7c6a2362",
+  "archive_package_rows_canonical_sha256": "555de8ac36cebde79960eb74e962afcbcc55dca2c8d9fdcc6d165fe3e9b1a896",
+  "authenticated_count": 233,
+  "effective_archive_lock_canonical_sha256": "20e627c362a62f4ba419be78d274afdbd9cfe82dfe574fe372f7b0412cd54f66",
+  "expected_count": 233,
+  "inputs_sha256": {
+    "archive-lock.json": "f8f4a3748a962e2f793702207cbaf32ed6106a635ad35f70a0f5551d7c6a2362",
+    "binding-sidecar.json": "90aa6719a47b3a62a025b846b17a472b44d24cb78439d4c157d438a03e4a042f",
+    "builder-input.json": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f",
+    "core.db": "91b52f917c664d5c6c16686b4749b2c4bb3f2673b49097f736d145ba88016364",
+    "desktop-proposal.json": "a7a83e750112446026a05fcd0a1a410a8c7aac218afeeed30e106a181ab9aca7",
+    "extra.db": "f26b9c8dfd9211400ac605d7a2c0d08b7cfbd2de88b595b97b8e7d8af64dcffd",
+    "final.lock": "adf91712422e86817d027c4c8089023df980c53dede701e8599402e743dd0641",
+    "parent-receipt.json": "7e097a62b708190384b6cc142f59a9c86d2fd579995bce072ee2b1a487d4c07e",
+    "projection-metadata.json": "2214b5170d8f2f0e0e86d7f1a88efc8a421c40d7186263d5c0c9913686d5a00a",
+    "repositories.json": "f00e7e39141d125400c30108994a46cf52ff57e3b03a6d8cab72dfc1fcdee033",
+    "seed-metadata.json": "a0e0dc168ceccddf80eff3de57f9515973f0c6810f021425813d46d9425a3e88",
+    "seed.lock": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25",
+    "worker-receipt.json": "d536a11eb27a3cade695351c3f6475d438de865b4240d9990207e42146abeca0"
+  },
+  "metadata_parent_proof_sha256": "7e097a62b708190384b6cc142f59a9c86d2fd579995bce072ee2b1a487d4c07e",
+  "profile_canonical_sha256": "61223e6610e0e2a953b076084b296d34fc9b1a2527b8132a9157f84afbd57d70",
+  "schema_version": 1,
+  "scope": "maintained-current2-generic-archive-authentication-v1",
+  "status": "PASS-current2-maintained-authenticated-archives",
+  "whole574_trust": "NOT_ESTABLISHED",
+  "whole_invocation_proof": "SEPARATE_ROOT_SELECTED_GUARDIAN_REQUIRED"
+}

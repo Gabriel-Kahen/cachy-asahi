@@ -1,0 +1,10 @@
+{
+  "bootstrap_script_sha256": "a8b6ed8971a38089a4499dcec605477c4e48d7a47c3de485d205f6a44678b898",
+  "hardware_validation": "NOT RUN",
+  "mode": "audit",
+  "native_build": "NOT RUN",
+  "reviewed_inputs_sha256": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f",
+  "reviewed_recipes_sha256": "20d846cdf289bfc233b0051bf33b677fd6e94e9f05d91a33595a2829a196fa63",
+  "status": "signed-input-audit-pass",
+  "verified_signed_packages": 248
+}

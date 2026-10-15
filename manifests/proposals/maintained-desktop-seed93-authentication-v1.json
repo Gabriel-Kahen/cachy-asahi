@@ -1,0 +1,3097 @@
+{
+  "bounds": {
+    "aggregate_deadline": "UNASSIGNED_SEPARATE_ROOT_PLAN",
+    "operation_timeout_seconds": 60,
+    "package_bytes": 56410184,
+    "package_signature_bytes": 56462822,
+    "packages": 93,
+    "signature_bytes": 52638
+  },
+  "contract_sha256": "b86c6a1c2af3ea0d5180db8fc03ca72e4f70e1f366da74ed49e75d20c3a936f4",
+  "execution": {
+    "Root_selection": null,
+    "Source_admission": null,
+    "metadata_release_admission": null,
+    "whole_invocation_plan": null
+  },
+  "input_roles": {
+    "builder": {
+      "bytes": 328101,
+      "filename": "inputs/builder.json",
+      "origin": "artifacts/reviews/maintained-desktop-current2-authentication-source-20261015/inputs/builder-input.json",
+      "sha256": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f"
+    },
+    "current_actual_admission": {
+      "bytes": 1260,
+      "filename": "inputs/current_actual_admission.json",
+      "origin": "artifacts/reviews/maintained-desktop-current2-authentication-root-actual-admission-20261015/admission.json",
+      "sha256": "860e7da809aef71d6bc7922df27f04dc6a04596dda47937b4d1aff8f4f70f488"
+    },
+    "current_actual_peer": {
+      "bytes": 1967,
+      "filename": "inputs/current_actual_peer.json",
+      "origin": "artifacts/reviews/maintained-desktop-current2-authentication-actual-region-peer-20261015/receipt.json",
+      "sha256": "b2356270bea66d9ed1559fdf91081a6f7a52ff5dbb3f1a3bae5daca19f308f45"
+    },
+    "current_archives": {
+      "bytes": 215830,
+      "filename": "inputs/current_archives.json",
+      "origin": "artifacts/reviews/maintained-desktop-current2-authentication-source-20261015/inputs/archive-lock.json",
+      "sha256": "f8f4a3748a962e2f793702207cbaf32ed6106a635ad35f70a0f5551d7c6a2362"
+    },
+    "current_authentication": {
+      "bytes": 361603,
+      "filename": "inputs/current_authentication.json",
+      "origin": "artifacts/maintained-desktop-authentication-current2-run-20261015-actual01/work/result/authentication/authentication-receipt.json",
+      "sha256": "11cb72325d5a73a1a57ad9cfc8c0930df8f3c47309e0666847609babec1cf3c8"
+    },
+    "current_binding": {
+      "bytes": 2118,
+      "filename": "inputs/current_binding.json",
+      "origin": "artifacts/maintained-desktop-authentication-current2-run-20261015-actual01/work/result/maintained-binding.json",
+      "sha256": "5064c4dcea0ee3f45f82e41b7470d822eacd84aebf9a58fd155149667b06ffa0"
+    },
+    "current_core": {
+      "bytes": 256689,
+      "filename": "inputs/current_core.db",
+      "origin": "artifacts/reviews/maintained-desktop-current2-authentication-source-20261015/inputs/core.db",
+      "sha256": "91b52f917c664d5c6c16686b4749b2c4bb3f2673b49097f736d145ba88016364"
+    },
+    "current_extra": {
+      "bytes": 10610805,
+      "filename": "inputs/current_extra.db",
+      "origin": "artifacts/reviews/maintained-desktop-current2-authentication-source-20261015/inputs/extra.db",
+      "sha256": "f26b9c8dfd9211400ac605d7a2c0d08b7cfbd2de88b595b97b8e7d8af64dcffd"
+    },
+    "current_parent": {
+      "bytes": 511,
+      "filename": "inputs/current_parent.json",
+      "origin": "artifacts/reviews/maintained-desktop-current2-authentication-source-20261015/inputs/parent-receipt.json",
+      "sha256": "7e097a62b708190384b6cc142f59a9c86d2fd579995bce072ee2b1a487d4c07e"
+    },
+    "current_proposal": {
+      "bytes": 4959,
+      "filename": "inputs/current_proposal.json",
+      "origin": "artifacts/reviews/maintained-desktop-current2-authentication-source-20261015/inputs/desktop-proposal.json",
+      "sha256": "a7a83e750112446026a05fcd0a1a410a8c7aac218afeeed30e106a181ab9aca7"
+    },
+    "current_repositories": {
+      "bytes": 456,
+      "filename": "inputs/current_repositories.json",
+      "origin": "artifacts/reviews/maintained-desktop-current2-authentication-source-20261015/inputs/repositories.json",
+      "sha256": "f00e7e39141d125400c30108994a46cf52ff57e3b03a6d8cab72dfc1fcdee033"
+    },
+    "current_sidecar": {
+      "bytes": 878,
+      "filename": "inputs/current_sidecar.json",
+      "origin": "artifacts/reviews/maintained-desktop-current2-authentication-source-20261015/inputs/binding-sidecar.json",
+      "sha256": "90aa6719a47b3a62a025b846b17a472b44d24cb78439d4c157d438a03e4a042f"
+    },
+    "current_worker": {
+      "bytes": 989543,
+      "filename": "inputs/current_worker.json",
+      "origin": "artifacts/reviews/maintained-desktop-current2-authentication-source-20261015/inputs/worker-receipt.json",
+      "sha256": "d536a11eb27a3cade695351c3f6475d438de865b4240d9990207e42146abeca0"
+    },
+    "enrichment93": {
+      "bytes": 92476,
+      "filename": "inputs/enrichment93.json",
+      "origin": "artifacts/reviews/maintained-desktop-current2-whole574-trust-gap-audit-20261015/transaction-audit/seed-pin-enrichment93.json",
+      "sha256": "14a85c194f4312879a239a8a6e728af3fa94b464c8ef3b6485be8ee74b51538d"
+    },
+    "enrichment_spec": {
+      "bytes": 4520,
+      "filename": "inputs/enrichment_spec.json",
+      "origin": "artifacts/reviews/maintained-desktop-current2-whole574-trust-gap-audit-20261015/transaction-audit/adapter-spec-historical-successor.json",
+      "sha256": "f086a35eba4d01ed91336e994dfa7f27d8778a3723db991d3c2ab16a3522bb6b"
+    },
+    "final_lock": {
+      "bytes": 11117,
+      "filename": "inputs/final_lock.lock",
+      "origin": "artifacts/reviews/maintained-desktop-current2-authentication-source-20261015/inputs/final.lock",
+      "sha256": "adf91712422e86817d027c4c8089023df980c53dede701e8599402e743dd0641"
+    },
+    "gap_receipt": {
+      "bytes": 3318,
+      "filename": "inputs/gap_receipt.json",
+      "origin": "artifacts/reviews/maintained-desktop-current2-whole574-trust-gap-audit-20261015/receipt.json",
+      "sha256": "9b54841b28632db431a5163d7122873a38afec36d83b131135293a4fbd22cff2"
+    },
+    "historical_core": {
+      "bytes": 256696,
+      "filename": "inputs/historical_core.db",
+      "origin": "artifacts/platform/target-metadata-20261012/core.db",
+      "sha256": "5f184763bad034ac02662ee37d87edad8124244c8609f4a441947da1855b0b08"
+    },
+    "historical_two": {
+      "bytes": 4197,
+      "filename": "inputs/historical_two.json",
+      "origin": "artifacts/reviews/maintained-desktop-current2-whole574-trust-gap-audit-20261015/transaction-audit/historicaltwo.json",
+      "sha256": "445f70b2c202cea6c3aa7b8d76530272820f05ab1986e899addb96a075352d66"
+    },
+    "key_archlinuxarm-revoked": {
+      "bytes": 0,
+      "filename": "inputs/archlinuxarm-revoked",
+      "origin": "artifacts/reviews/maintained-desktop-current2-authentication-operational-reader-preparation-20261015/layout/frozen/public-keys/archlinuxarm-revoked",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "key_archlinuxarm-trusted": {
+      "bytes": 44,
+      "filename": "inputs/archlinuxarm-trusted",
+      "origin": "artifacts/reviews/maintained-desktop-current2-authentication-operational-reader-preparation-20261015/layout/frozen/public-keys/archlinuxarm-trusted",
+      "sha256": "f2a7250f2a2b77542f82f4219b2bae7895f27b3dcfdf350b497e2be306af776d"
+    },
+    "key_archlinuxarm.gpg": {
+      "bytes": 3098,
+      "filename": "inputs/archlinuxarm.gpg",
+      "origin": "artifacts/reviews/maintained-desktop-current2-authentication-operational-reader-preparation-20261015/layout/frozen/public-keys/archlinuxarm.gpg",
+      "sha256": "6ce771e853f04a38a5b533cb33e61f877b9b06b58b6db051eb8a15d737a2332f"
+    },
+    "legacy_authenticate": {
+      "bytes": 17452,
+      "filename": "inputs/legacy_authenticate.py",
+      "origin": "artifacts/reviews/maintained-desktop-current2-authentication-operational-reader-preparation-20261015/layout/frozen/source/scripts/port/authenticate.py",
+      "sha256": "241cd67370eb593bdf948a25788f006ecf470c645ba5d198bc9c318119ebfe10"
+    },
+    "legacy_native": {
+      "bytes": 28489,
+      "filename": "inputs/legacy_native.py",
+      "origin": "artifacts/reviews/maintained-desktop-current2-authentication-operational-reader-preparation-20261015/layout/frozen/source/scripts/ci/native_arm.py",
+      "sha256": "1a5369e007193fafce355ca6d20f4e771a0f342e0176bfd80f95a718328a0d10"
+    },
+    "legacy_preview": {
+      "bytes": 19736,
+      "filename": "inputs/legacy_preview.py",
+      "origin": "artifacts/reviews/maintained-desktop-current2-authentication-operational-reader-preparation-20261015/layout/frozen/source/scripts/port/preview.py",
+      "sha256": "d737c51474e05cc2c4db2e87fc021f50328eea7744983dd4076d44751fce7383"
+    },
+    "metadata_admission": {
+      "bytes": 823,
+      "filename": "inputs/metadata_admission.json",
+      "origin": "artifacts/reviews/maintained-desktop-current-resolution2-root-admission-20261015/admission.json",
+      "sha256": "978a6486c9028edd1086ac7f3fb1e9e84b9f6dd751a1f5774220b7f41b4dff7b"
+    },
+    "prior_completion": {
+      "bytes": 25830,
+      "filename": "inputs/prior_completion.json",
+      "origin": "artifacts/platform/maintained-baseline-audit-actual01-20261013/completion.json",
+      "sha256": "1302243720fb2e621431fd9ed71f249aabad7979c8ea31b6990ae0f471087b8d"
+    },
+    "prior_input": {
+      "bytes": 328101,
+      "filename": "inputs/prior_input.json",
+      "origin": "artifacts/platform/audit01/out/inputs.lock.json",
+      "sha256": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f"
+    },
+    "prior_package_audit": {
+      "bytes": 6347750,
+      "filename": "inputs/prior_package_audit.json",
+      "origin": "artifacts/platform/audit01/out/package-audit.json",
+      "sha256": "d737215476f92511fc2d268aa02ad64b45b2011e473d4102dadc4d5dce2c6dd7"
+    },
+    "prior_peer": {
+      "bytes": 29431,
+      "filename": "inputs/prior_peer.json",
+      "origin": "artifacts/reviews/maintained-baseline-audit-actual01-root-peer-20261013/receipt.json",
+      "sha256": "07144f43ba37aeb4f83f94882a9841549c69fb45b0352b15a3eed63c0d1007af"
+    },
+    "prior_result": {
+      "bytes": 451,
+      "filename": "inputs/prior_result.json",
+      "origin": "artifacts/platform/audit01/out/result.json",
+      "sha256": "bd0dee3a57cd7003b850d8b70e9579e534395dfef0afe0748a352996a1b0cd12"
+    },
+    "prior_rootfs_inventory": {
+      "bytes": 56107,
+      "filename": "inputs/prior_rootfs_inventory.json",
+      "origin": "artifacts/platform/audit01/out/rootfs-inventory.json",
+      "sha256": "72bbef83fd87e3da228b3cdc0105b0051b86f9c7c3d7c4eed90b264eb755267f"
+    },
+    "prior_signatures": {
+      "bytes": 388022,
+      "filename": "inputs/prior_signatures.json",
+      "origin": "artifacts/platform/audit01/out/signatures.json",
+      "sha256": "203d46d3eb69b9eb4e4a849d070376edb2a94ea103314aaa93ce24ae251500f8"
+    },
+    "projection": {
+      "bytes": 661251,
+      "filename": "inputs/projection.json",
+      "origin": "artifacts/reviews/maintained-desktop-current2-authentication-source-20261015/inputs/projection-metadata.json",
+      "sha256": "2214b5170d8f2f0e0e86d7f1a88efc8a421c40d7186263d5c0c9913686d5a00a"
+    },
+    "proposal574": {
+      "bytes": 589943,
+      "filename": "inputs/proposal574.json",
+      "origin": "artifacts/reviews/maintained-desktop-current2-whole574-trust-gap-audit-20261015/proposed-whole574-descriptors.json",
+      "sha256": "b853ef2e4568cdf0e4c669515e6dcd6eaa60cedd2c14d7228ee24cf1914bd07a"
+    },
+    "seed": {
+      "bytes": 229285,
+      "filename": "inputs/seed.json",
+      "origin": "artifacts/reviews/maintained-desktop-current2-authentication-source-20261015/inputs/seed-metadata.json",
+      "sha256": "a0e0dc168ceccddf80eff3de57f9515973f0c6810f021425813d46d9425a3e88"
+    },
+    "seed_lock": {
+      "bytes": 6674,
+      "filename": "inputs/seed_lock.lock",
+      "origin": "artifacts/reviews/maintained-desktop-current2-authentication-source-20261015/inputs/seed.lock",
+      "sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25"
+    }
+  },
+  "keyring_files": [
+    {
+      "filename": "archlinuxarm.gpg",
+      "sha256": "6ce771e853f04a38a5b533cb33e61f877b9b06b58b6db051eb8a15d737a2332f",
+      "size": 3098,
+      "url": "https://raw.githubusercontent.com/archlinuxarm/PKGBUILDs/29432c01130efc4ad297dfe8f487d5b79cbaf8e9/core/archlinuxarm-keyring/archlinuxarm.gpg"
+    },
+    {
+      "filename": "archlinuxarm-trusted",
+      "sha256": "f2a7250f2a2b77542f82f4219b2bae7895f27b3dcfdf350b497e2be306af776d",
+      "size": 44,
+      "url": "https://raw.githubusercontent.com/archlinuxarm/PKGBUILDs/29432c01130efc4ad297dfe8f487d5b79cbaf8e9/core/archlinuxarm-keyring/archlinuxarm-trusted"
+    },
+    {
+      "filename": "archlinuxarm-revoked",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0,
+      "url": "https://raw.githubusercontent.com/archlinuxarm/PKGBUILDs/29432c01130efc4ad297dfe8f487d5b79cbaf8e9/core/archlinuxarm-keyring/archlinuxarm-revoked"
+    }
+  ],
+  "package_rows_sha256": "3e99edd9604b04a42db9db093ccfde98c74dfb7216cff9245b7d6f8a53127f8e",
+  "packages": [
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc"
+      ],
+      "filename": "acl-2.4.0-1-aarch64.pkg.tar.xz",
+      "isize": 497040,
+      "license": [
+        "LGPL-2.1-or-later AND GPL-2.0-or-later"
+      ],
+      "name": "acl",
+      "provides": [
+        "libacl.so=1-64"
+      ],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "8d400d781a3fd765f0f7c98183492850f830da3d3efb05518b5927b446387350",
+      "signature_sha256": "f32a36149697857cc1ee8d9db2119c701246f94db3cef61cd73864b84c5473d9",
+      "signature_size": 566,
+      "size": 143708,
+      "source_url": [
+        "https://savannah.nongnu.org/projects/acl"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/acl-2.4.0-1-aarch64.pkg.tar.xz",
+      "version": "2.4.0-1"
+    },
+    {
+      "arch": "any",
+      "conflicts": [],
+      "depends": [
+        "pacman"
+      ],
+      "filename": "archlinuxarm-keyring-20240419-2-any.pkg.tar.xz",
+      "isize": 3142,
+      "license": [
+        "GPL"
+      ],
+      "name": "archlinuxarm-keyring",
+      "provides": [],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "3cb36869edfe413672a6e932cc55d7f8386e1a9d3b38663cfb3bc6fe0d146e21",
+      "signature_sha256": "ab95689f59593510ab044a127bf466f8aad0284f5c3d3755705aa91a8da28be7",
+      "signature_size": 566,
+      "size": 5160,
+      "source_url": [
+        "http://archlinuxarm.org"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/archlinuxarm-keyring-20240419-2-any.pkg.tar.xz",
+      "version": "20240419-2"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc"
+      ],
+      "filename": "attr-2.6.0-1-aarch64.pkg.tar.xz",
+      "isize": 412510,
+      "license": [
+        "LGPL-2.1-or-later AND GPL-2.0-or-later"
+      ],
+      "name": "attr",
+      "provides": [
+        "libattr.so=1-64"
+      ],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "7d0a27bb1761e2b5c329da6fee515af4d174869f303009283fbc6b74497d267c",
+      "signature_sha256": "fc48ba723a840696fa6e5e0faa61e68cbb9b17fe2edf159af659a0357ebb9e10",
+      "signature_size": 566,
+      "size": 69708,
+      "source_url": [
+        "https://savannah.nongnu.org/projects/attr"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/attr-2.6.0-1-aarch64.pkg.tar.xz",
+      "version": "2.6.0-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "bash",
+        "glibc",
+        "krb5",
+        "libkrb5.so=3-64",
+        "libgssapi_krb5.so=2-64",
+        "libcap-ng",
+        "libcap-ng.so=0-64"
+      ],
+      "filename": "audit-4.2.1-1-aarch64.pkg.tar.xz",
+      "isize": 1586666,
+      "license": [
+        "GPL-2.0-or-later",
+        "LGPL-2.0-or-later"
+      ],
+      "name": "audit",
+      "provides": [
+        "libaudit.so=1-64",
+        "libauparse.so=0-64"
+      ],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "f2535b990835b668f1c587586617f3663ef33dd495bef14a9be5d680a58bda43",
+      "signature_sha256": "b10c229c54ad783a1a93a1e69d4dd69565e801f60ec63f5f90d87d9ed6510cf7",
+      "signature_size": 566,
+      "size": 382336,
+      "source_url": [
+        "https://github.com/linux-audit/audit-userspace"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/audit-4.2.1-1-aarch64.pkg.tar.xz",
+      "version": "4.2.1-1"
+    },
+    {
+      "arch": "any",
+      "conflicts": [],
+      "depends": [
+        "filesystem",
+        "gcc-libs",
+        "glibc",
+        "bash",
+        "coreutils",
+        "file",
+        "findutils",
+        "gawk",
+        "grep",
+        "procps-ng",
+        "sed",
+        "tar",
+        "gettext",
+        "pciutils",
+        "psmisc",
+        "shadow",
+        "util-linux",
+        "bzip2",
+        "gzip",
+        "xz",
+        "licenses",
+        "pacman",
+        "archlinux-keyring",
+        "systemd",
+        "systemd-sysvcompat",
+        "iputils",
+        "iproute2"
+      ],
+      "filename": "base-3-3-any.pkg.tar.xz",
+      "isize": 0,
+      "license": [
+        "GPL"
+      ],
+      "name": "base",
+      "provides": [],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "66af0072b148b2607e3a36b550a20811f1935688c87b807e69297eb585ead483",
+      "signature_sha256": "25ae71397f712302362d1dd6eff727fd62a16751a1090f5cc23263a3c0e7922d",
+      "signature_size": 566,
+      "size": 2384,
+      "source_url": [
+        "https://www.archlinux.org"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/base-3-3-any.pkg.tar.xz",
+      "version": "3-3"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "jansson",
+        "libelf",
+        "libgcc",
+        "libstdc++",
+        "zlib",
+        "zstd"
+      ],
+      "filename": "binutils-2.46+r70+g155188ea10a7-1-aarch64.pkg.tar.xz",
+      "isize": 53968435,
+      "license": [
+        "GPL-2.0-or-later",
+        "GPL-3.0-or-later",
+        "LGPL-2.0-or-later",
+        "LGPL-3.0-or-later",
+        "GFDL-1.3",
+        "FSFAP"
+      ],
+      "name": "binutils",
+      "provides": [
+        "libctf.so=0-64",
+        "libgprofng.so=0-64",
+        "libsframe.so=3-64"
+      ],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "1acb6074f546ee662f29937897ab80bd87b0dcdd66c714381e8488d79cd53fcc",
+      "signature_sha256": "0b9331d39529b34f3b0d15f7ea6f1949fa027b7dba9ea504be1621aa3ba429b9",
+      "signature_size": 566,
+      "size": 7845808,
+      "source_url": [
+        "https://www.gnu.org/software/binutils/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/binutils-2.46+r70+g155188ea10a7-1-aarch64.pkg.tar.xz",
+      "version": "2.46+r70+g155188ea10a7-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc"
+      ],
+      "filename": "brotli-1.2.0-1-aarch64.pkg.tar.xz",
+      "isize": 1258287,
+      "license": [
+        "MIT"
+      ],
+      "name": "brotli",
+      "provides": [
+        "libbrotlicommon.so=1-64",
+        "libbrotlidec.so=1-64",
+        "libbrotlienc.so=1-64"
+      ],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "5bc65da23452fe0408341a1c626c9a322ffb0890bcf83aae9902fd6092213356",
+      "signature_sha256": "44e4a6c08e0f791d39282c804d94485d7abe0b17a920c90a8e322fa57a7adef9",
+      "signature_size": 566,
+      "size": 392180,
+      "source_url": [
+        "https://github.com/google/brotli"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/brotli-1.2.0-1-aarch64.pkg.tar.xz",
+      "version": "1.2.0-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "sh"
+      ],
+      "filename": "bzip2-1.0.8-6-aarch64.pkg.tar.xz",
+      "isize": 139951,
+      "license": [
+        "BSD"
+      ],
+      "name": "bzip2",
+      "provides": [
+        "libbz2.so=1.0-64"
+      ],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "b11f21c0bc3d1193dd02040644cd604d49cc89184db1b7bc76a623532fcb0dcb",
+      "signature_sha256": "9c158bb7e6a276bdb7754a372c6e81363f191db912b653dca55f0c74b39125eb",
+      "signature_size": 566,
+      "size": 56252,
+      "source_url": [
+        "https://sourceware.org/bzip2/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/bzip2-1.0.8-6-aarch64.pkg.tar.xz",
+      "version": "1.0.8-6"
+    },
+    {
+      "arch": "any",
+      "conflicts": [
+        "ca-certificates-cacert<=20140824-4"
+      ],
+      "depends": [
+        "ca-certificates-mozilla"
+      ],
+      "filename": "ca-certificates-20240618-1-any.pkg.tar.xz",
+      "isize": 0,
+      "license": [
+        "GPL-2.0-or-later"
+      ],
+      "name": "ca-certificates",
+      "provides": [],
+      "replaces": [
+        "ca-certificates-cacert<=20140824-4"
+      ],
+      "repo": "core",
+      "sha256": "09cfa7af79ca8120572e737c34080580ddc50c5e33a03a686c5c55032f02b575",
+      "signature_sha256": "d5bd19f2f64cbc35cb347e68c5538ff6d3e2b5c16327edfd82cb09db480dcc80",
+      "signature_size": 566,
+      "size": 2152,
+      "source_url": [
+        "https://src.fedoraproject.org/rpms/ca-certificates"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/ca-certificates-20240618-1-any.pkg.tar.xz",
+      "version": "20240618-1"
+    },
+    {
+      "arch": "any",
+      "conflicts": [
+        "ca-certificates-java"
+      ],
+      "depends": [
+        "bash",
+        "coreutils",
+        "findutils",
+        "p11-kit"
+      ],
+      "filename": "ca-certificates-utils-20240618-1-any.pkg.tar.xz",
+      "isize": 13956,
+      "license": [
+        "GPL-2.0-or-later"
+      ],
+      "name": "ca-certificates-utils",
+      "provides": [
+        "ca-certificates",
+        "ca-certificates-java"
+      ],
+      "replaces": [
+        "ca-certificates-java"
+      ],
+      "repo": "core",
+      "sha256": "c60483cb5fb3002acfe4cbee8966e9c13936ea9bff3db9db360d8d638f013c8b",
+      "signature_sha256": "d4a92a084a1feb16c523ac4b02117f5a9be5fe4997deba74470e3cf5442552ed",
+      "signature_size": 566,
+      "size": 10884,
+      "source_url": [
+        "https://src.fedoraproject.org/rpms/ca-certificates"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/ca-certificates-utils-20240618-1-any.pkg.tar.xz",
+      "version": "20240618-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [
+        "libdbus"
+      ],
+      "depends": [
+        "audit",
+        "expat",
+        "glibc",
+        "libcap-ng",
+        "systemd-libs",
+        "libaudit.so=1-64",
+        "libcap-ng.so=0-64",
+        "libexpat.so=1-64",
+        "libsystemd.so=0-64"
+      ],
+      "filename": "dbus-1.16.2-1-aarch64.pkg.tar.xz",
+      "isize": 1606438,
+      "license": [
+        "AFL-2.1 OR GPL-2.0-or-later"
+      ],
+      "name": "dbus",
+      "provides": [
+        "libdbus",
+        "libdbus-1.so=3-64"
+      ],
+      "replaces": [
+        "libdbus"
+      ],
+      "repo": "core",
+      "sha256": "1aa0bc2be4fa083ec0cb678f05223f55b0c8e498351ad781dc4b7a0987b62bcc",
+      "signature_sha256": "1fad87ab65995d5983479d9f2210185d84ee3c71d4865e073b35ad4a9d832317",
+      "signature_size": 566,
+      "size": 301132,
+      "source_url": [
+        "https://www.freedesktop.org/wiki/Software/dbus/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/dbus-1.16.2-1-aarch64.pkg.tar.xz",
+      "version": "1.16.2-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "audit",
+        "expat",
+        "glibc",
+        "libcap-ng",
+        "libgcc",
+        "systemd-libs",
+        "libaudit.so=1-64",
+        "libcap-ng.so=0-64",
+        "libexpat.so=1-64",
+        "libsystemd.so=0-64"
+      ],
+      "filename": "dbus-broker-37-3-aarch64.pkg.tar.xz",
+      "isize": 476931,
+      "license": [
+        "Apache-2.0"
+      ],
+      "name": "dbus-broker",
+      "provides": [],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "d6784e1adefd64ef5b5a92bc3a8d34e8df09e9ba80ef81d1238073914b6589d5",
+      "signature_sha256": "1405b44ade90a9e584211a9767f67bf241150a5e657b7c70fe14e1bb2e688ef3",
+      "signature_size": 566,
+      "size": 137404,
+      "source_url": [
+        "https://github.com/bus1/dbus-broker/wiki"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/dbus-broker-37-3-aarch64.pkg.tar.xz",
+      "version": "37-3"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [
+        "dbus-daemon-units"
+      ],
+      "depends": [
+        "dbus",
+        "dbus-broker"
+      ],
+      "filename": "dbus-broker-units-37-3-aarch64.pkg.tar.xz",
+      "isize": 0,
+      "license": [
+        "Apache-2.0"
+      ],
+      "name": "dbus-broker-units",
+      "provides": [
+        "dbus-units"
+      ],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "0d7592d10d84e9fccfa808e9e46de39d8cff2ebfc12b33e4d2c58223d0f0912d",
+      "signature_sha256": "b16c58d02d41168fb253ccc452cb98e5a7811c36784845b466730204dd7bc144",
+      "signature_size": 566,
+      "size": 2536,
+      "source_url": [
+        "https://github.com/bus1/dbus-broker/wiki"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/dbus-broker-units-37-3-aarch64.pkg.tar.xz",
+      "version": "37-3"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "dbus-broker-units"
+      ],
+      "filename": "dbus-units-37-3-aarch64.pkg.tar.xz",
+      "isize": 0,
+      "license": [
+        "CC0-1.0"
+      ],
+      "name": "dbus-units",
+      "provides": [],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "5d7444e570219667a9789589e9ccbf8535d78d1dae954c22e487af226237b125",
+      "signature_sha256": "16b1fe9e787a8d649e6107f0294613aa1dcac9af2b59be0bb49b432a6008d580",
+      "signature_size": 566,
+      "size": 2276,
+      "source_url": [
+        "https://github.com/bus1/dbus-broker/wiki"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/dbus-units-37-3-aarch64.pkg.tar.xz",
+      "version": "37-3"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "sh",
+        "util-linux-libs"
+      ],
+      "filename": "e2fsprogs-1.47.4-1-aarch64.pkg.tar.xz",
+      "isize": 6537466,
+      "license": [
+        "GPL",
+        "LGPL",
+        "MIT"
+      ],
+      "name": "e2fsprogs",
+      "provides": [
+        "libcom_err.so=2-64",
+        "libe2p.so=2-64",
+        "libext2fs.so=2-64",
+        "libss.so=2-64"
+      ],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "153046071f8abf1caf546a0352c7d268fb07a5b0ba0abd996de382adc8692842",
+      "signature_sha256": "018eba506dfd3743fbba1bc40ce290bacc01a8e5d8977e7df174f911a3d1fc52",
+      "signature_size": 566,
+      "size": 1195448,
+      "source_url": [
+        "http://e2fsprogs.sourceforge.net"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/e2fsprogs-1.47.4-1-aarch64.pkg.tar.xz",
+      "version": "1.47.4-1"
+    },
+    {
+      "arch": "any",
+      "conflicts": [
+        "vi"
+      ],
+      "depends": [
+        "bash",
+        "vim"
+      ],
+      "filename": "ex-vi-compat-3-1-any.pkg.tar.xz",
+      "isize": 1208,
+      "license": [
+        "0BSD"
+      ],
+      "name": "ex-vi-compat",
+      "provides": [
+        "edit",
+        "ex",
+        "vedit",
+        "vi",
+        "view"
+      ],
+      "replaces": [
+        "vi"
+      ],
+      "repo": "extra",
+      "sha256": "7d5d99f383a190485a868e61bf6522611f0148f805ab7d7f3cd55c17dc6ce8e5",
+      "signature_sha256": "2788758615f483e1840a72532c4920ca66f5086fa76d96166383f233297620fd",
+      "signature_size": 566,
+      "size": 3480,
+      "source_url": [
+        "https://gitlab.archlinux.org/archlinux/packaging/packages/ex-vi-compat"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/ex-vi-compat-3-1-any.pkg.tar.xz",
+      "version": "3-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "bzip2",
+        "libbz2.so=1.0-64",
+        "libseccomp",
+        "libseccomp.so=2-64",
+        "xz",
+        "liblzma.so=5-64",
+        "zlib",
+        "libz.so=1-64",
+        "zstd",
+        "libzstd.so=1-64"
+      ],
+      "filename": "file-5.48-1-aarch64.pkg.tar.xz",
+      "isize": 11090666,
+      "license": [
+        "BSD-2-Clause-Darwin"
+      ],
+      "name": "file",
+      "provides": [
+        "libmagic.so=1-64"
+      ],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "252f52d77890f17c8321d26f9ddefcbb34aef7f4e8b701c6bfea1e81a5f0bc88",
+      "signature_sha256": "b8a88d93876b440531589b38c20ec4149f17fabf91427a3af8012f2a6f699a30",
+      "signature_size": 566,
+      "size": 431204,
+      "source_url": [
+        "https://www.darwinsys.com/file/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/file-5.48-1-aarch64.pkg.tar.xz",
+      "version": "5.48-1"
+    },
+    {
+      "arch": "any",
+      "conflicts": [],
+      "depends": [
+        "iana-etc"
+      ],
+      "filename": "filesystem-2025.10.12-1-any.pkg.tar.xz",
+      "isize": 24508,
+      "license": [
+        "0BSD"
+      ],
+      "name": "filesystem",
+      "provides": [],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "228b63ef4a88501a68856231a19325a1ad31d92016a692d0a8be181edc70703f",
+      "signature_sha256": "6296ed0b98138a8e3859c4dbb9d679403908b2ab498fc2f9a9bcab2dea6dbb91",
+      "signature_size": 566,
+      "size": 14864,
+      "source_url": [
+        "https://archlinux.org"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/filesystem-2025.10.12-1-any.pkg.tar.xz",
+      "version": "2025.10.12-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc"
+      ],
+      "filename": "findutils-4.11.0-1-aarch64.pkg.tar.xz",
+      "isize": 2088196,
+      "license": [
+        "GPL-3.0-or-later"
+      ],
+      "name": "findutils",
+      "provides": [],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "83bacaa55d1b28e5d800adf969221458695f0eb5cf7d300e2cb26a7b78f9c321",
+      "signature_sha256": "6998fe43f0b6db1281424245e5c2e82179a0f1ec9fbbe31b5a9d602048114484",
+      "signature_size": 566,
+      "size": 509248,
+      "source_url": [
+        "https://www.gnu.org/software/findutils/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/findutils-4.11.0-1-aarch64.pkg.tar.xz",
+      "version": "4.11.0-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "sh",
+        "glibc",
+        "mpfr"
+      ],
+      "filename": "gawk-5.4.1-1-aarch64.pkg.tar.xz",
+      "isize": 5114836,
+      "license": [
+        "GPL-3.0-or-later"
+      ],
+      "name": "gawk",
+      "provides": [
+        "awk"
+      ],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "340dcceea87ca9274cf7e6597b8c87aa495b4cdcb9470dc9ef4428a27612d6ca",
+      "signature_sha256": "a3aeff99da3da77ae8f54166a04437f964401200c1a8ada785ad96622b6076f8",
+      "signature_size": 566,
+      "size": 1450720,
+      "source_url": [
+        "https://www.gnu.org/software/gawk/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/gawk-5.4.1-1-aarch64.pkg.tar.xz",
+      "version": "5.4.1-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc>=2.27",
+        "libasan",
+        "libatomic",
+        "libgcc",
+        "libgfortran",
+        "libgomp",
+        "liblsan",
+        "libobjc",
+        "libquadmath",
+        "libstdc++",
+        "libtsan",
+        "libubsan"
+      ],
+      "filename": "gcc-libs-16.1.1+r12+g301eb08fa2c5-1-aarch64.pkg.tar.xz",
+      "isize": 0,
+      "license": [
+        "GPL-3.0-or-later WITH GCC-exception-3.1",
+        "GFDL-1.3-or-later"
+      ],
+      "name": "gcc-libs",
+      "provides": [],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "28dc936393f6ba45fee433a58fb1c6c0648aa4500131087fded719c22e2fc222",
+      "signature_sha256": "50ebd8403ad5fcae02c54248deacc3c200378b292c2f72a97087674f934dd6d8",
+      "signature_size": 566,
+      "size": 2552,
+      "source_url": [
+        "https://gcc.gnu.org"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/gcc-libs-16.1.1+r12+g301eb08fa2c5-1-aarch64.pkg.tar.xz",
+      "version": "16.1.1+r12+g301eb08fa2c5-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "sh",
+        "readline",
+        "libreadline.so=8-64"
+      ],
+      "filename": "gdbm-1.26-2-aarch64.pkg.tar.xz",
+      "isize": 1014364,
+      "license": [
+        "GPL-3.0-or-later"
+      ],
+      "name": "gdbm",
+      "provides": [
+        "libgdbm_compat.so=4-64",
+        "libgdbm.so=6-64"
+      ],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "123df7945d23eb31262dc108bdf057b74cd93f13e782b99dfe077c51daabd222",
+      "signature_sha256": "a74caf962e7ad3b671a1d4496fc66e587a76819d7fab053172cf16bed356e87d",
+      "signature_size": 566,
+      "size": 246820,
+      "source_url": [
+        "https://www.gnu.org/software/gdbm/gdbm.html"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/gdbm-1.26-2-aarch64.pkg.tar.xz",
+      "version": "1.26-2"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "acl",
+        "attr",
+        "curl",
+        "glibc",
+        "json-c",
+        "libgcc",
+        "libgomp",
+        "libstdc++",
+        "gnulib-l10n",
+        "libunistring",
+        "libxml2",
+        "ncurses",
+        "sh"
+      ],
+      "filename": "gettext-1.0-2-aarch64.pkg.tar.xz",
+      "isize": 23978767,
+      "license": [
+        "GFDL-1.2-only",
+        "GPL-2.0-only",
+        "GPL-2.0-or-later",
+        "LGPL-2.0-only"
+      ],
+      "name": "gettext",
+      "provides": [],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "7669379e3f21f475e1d67122b0b2a401de5fa2c5769b1605df3cf3094e4fd28e",
+      "signature_sha256": "893ca28c31715972f2809e33f0b169b31eedb4541f6422ff59b25649536da55b",
+      "signature_size": 566,
+      "size": 3228328,
+      "source_url": [
+        "https://www.gnu.org/software/gettext/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/gettext-1.0-2-aarch64.pkg.tar.xz",
+      "version": "1.0-2"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "linux-api-headers>=4.10",
+        "tzdata",
+        "filesystem"
+      ],
+      "filename": "glibc-2.43+r22+g8362e8ce10b2-2-aarch64.pkg.tar.xz",
+      "isize": 60014558,
+      "license": [
+        "GPL-2.0-or-later",
+        "LGPL-2.1-or-later"
+      ],
+      "name": "glibc",
+      "provides": [],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "8fac217e98c6e4342326726b2640ac254e8c82032f06f30bfa13ebbcc4fcb25b",
+      "signature_sha256": "82501115482ffeb93cce58cbc36372d917159f9dd60e3b98fd465e94e16c2103",
+      "signature_size": 566,
+      "size": 9676568,
+      "source_url": [
+        "https://www.gnu.org/software/libc"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/glibc-2.43+r22+g8362e8ce10b2-2-aarch64.pkg.tar.xz",
+      "version": "2.43+r22+g8362e8ce10b2-2"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "libgcc",
+        "libstdc++",
+        "glibc"
+      ],
+      "filename": "gmp-6.3.0-3-aarch64.pkg.tar.xz",
+      "isize": 946243,
+      "license": [
+        "GPL-2.0-or-later",
+        "LGPL-3.0-or-later"
+      ],
+      "name": "gmp",
+      "provides": [],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "720607bed2249dd8cd0304b6cf4102884fa2ca24c21444f007bc12af542ea6c5",
+      "signature_sha256": "aa38f8c53d59e5477994f90f9f386e46ecd4e2ad4992fdd73846b37d0d709c9a",
+      "signature_size": 566,
+      "size": 380364,
+      "source_url": [
+        "https://gmplib.org/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/gmp-6.3.0-3-aarch64.pkg.tar.xz",
+      "version": "6.3.0-3"
+    },
+    {
+      "arch": "any",
+      "conflicts": [],
+      "depends": [],
+      "filename": "gnulib-l10n-20241231-1-any.pkg.tar.xz",
+      "isize": 644166,
+      "license": [
+        "LGPL-2.0-or-later"
+      ],
+      "name": "gnulib-l10n",
+      "provides": [],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "327f76bf5e7c211ee8b16f9ea29458426bfe18fa153d66dcd2557a38f369f608",
+      "signature_sha256": "df1fc252f83db784c2180796de926dbab9b4ae514ff5bc23c81695f7e77094b0",
+      "signature_size": 566,
+      "size": 109488,
+      "source_url": [
+        "https://www.gnu.org/software/gnulib/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/gnulib-l10n-20241231-1-any.pkg.tar.xz",
+      "version": "20241231-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "pcre2"
+      ],
+      "filename": "grep-3.12-2-aarch64.pkg.tar.xz",
+      "isize": 961145,
+      "license": [
+        "GPL3"
+      ],
+      "name": "grep",
+      "provides": [],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "7578277966710eeba59f82665ab6f33984ca11d6c2ab74deccc6f681d61c2027",
+      "signature_sha256": "804d4159ee56d1ec5da30af84d2ca8b3ebd0d1c6e71713522f0b2d1be034dd14",
+      "signature_size": 566,
+      "size": 225556,
+      "source_url": [
+        "https://www.gnu.org/software/grep/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/grep-3.12-2-aarch64.pkg.tar.xz",
+      "version": "3.12-2"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "libstdc++",
+        "libgcc",
+        "sh"
+      ],
+      "filename": "icu-78.3-1-aarch64.pkg.tar.xz",
+      "isize": 46822662,
+      "license": [
+        "LicenseRef-Unicode-3.0",
+        "BSD-2-Clause",
+        "BSD-3-Clause",
+        "NAIST-2003"
+      ],
+      "name": "icu",
+      "provides": [
+        "libicudata.so=78-64",
+        "libicui18n.so=78-64",
+        "libicuio.so=78-64",
+        "libicutest.so=78-64",
+        "libicutu.so=78-64",
+        "libicuuc.so=78-64"
+      ],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "314cb2fecde9fd2a64ca9b6652c4c0e517bec0dceeafaf7e6a0cd578c607357f",
+      "signature_sha256": "bf9b97d0633e5640e7e235686300853be2cef5d0eaf87762fda46ab618845221",
+      "signature_size": 566,
+      "size": 10800876,
+      "source_url": [
+        "https://icu.unicode.org"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/icu-78.3-1-aarch64.pkg.tar.xz",
+      "version": "78.3-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [
+        "arptables",
+        "ebtables"
+      ],
+      "depends": [
+        "bash",
+        "glibc",
+        "libmnl",
+        "libnetfilter_conntrack",
+        "libnfnetlink",
+        "libnftnl",
+        "libpcap",
+        "nftables"
+      ],
+      "filename": "iptables-1:1.8.13-1-aarch64.pkg.tar.xz",
+      "isize": 8863127,
+      "license": [
+        "GPL-2.0-only"
+      ],
+      "name": "iptables",
+      "provides": [
+        "iptables-nft",
+        "libip4tc.so=2-64",
+        "libip6tc.so=2-64",
+        "libipq.so=0-64",
+        "libxtables.so=12-64",
+        "arptables",
+        "ebtables"
+      ],
+      "replaces": [
+        "iptables-nft"
+      ],
+      "repo": "core",
+      "sha256": "94b6e7d28d0eff8c19cea84562883a37d0e6baf58552b3d984d63675f3ff9001",
+      "signature_sha256": "1a22af3cf94ea15c3909942bf62275e5cdbe86f7fcf13bd1461204ddad02d4f6",
+      "signature_size": 566,
+      "size": 417784,
+      "source_url": [
+        "https://www.netfilter.org/projects/iptables/index.html"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/iptables-1:1.8.13-1-aarch64.pkg.tar.xz",
+      "version": "1:1.8.13-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [
+        "arping",
+        "netkit-base"
+      ],
+      "depends": [
+        "libcap",
+        "libidn2"
+      ],
+      "filename": "iputils-20250605-1-aarch64.pkg.tar.xz",
+      "isize": 873375,
+      "license": [
+        "BSD-3-Clause",
+        "GPL-2.0-or-later"
+      ],
+      "name": "iputils",
+      "provides": [],
+      "replaces": [
+        "netkit-base"
+      ],
+      "repo": "core",
+      "sha256": "fa3b748379ca7e5375350be9d3446c91166ddff45f082f304ccf3bf1f01c5f89",
+      "signature_sha256": "62eff2e513565387c1b9093bd7d753c5348957893f57b55812d22711a067e65e",
+      "signature_size": 566,
+      "size": 133200,
+      "source_url": [
+        "https://github.com/iputils/iputils"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/iputils-20250605-1-aarch64.pkg.tar.xz",
+      "version": "20250605-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc"
+      ],
+      "filename": "json-c-0.19-1-aarch64.pkg.tar.xz",
+      "isize": 252370,
+      "license": [
+        "MIT"
+      ],
+      "name": "json-c",
+      "provides": [
+        "libjson-c.so=5-64"
+      ],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "233dd80f44789cd2581ea7879593d230b5a322559cdde43ce73c9719cd7e19c6",
+      "signature_sha256": "b2d91a6a21afb54344972318830d704e3b23813f71ea93b5c65af5179db019ce",
+      "signature_size": 566,
+      "size": 58664,
+      "source_url": [
+        "https://github.com/json-c/json-c/wiki"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/json-c-0.19-1-aarch64.pkg.tar.xz",
+      "version": "0.19-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [
+        "vlock"
+      ],
+      "depends": [
+        "glibc",
+        "gzip",
+        "pam"
+      ],
+      "filename": "kbd-2.10.0-1-aarch64.pkg.tar.xz",
+      "isize": 5049233,
+      "license": [
+        "GPL-2.0-or-later"
+      ],
+      "name": "kbd",
+      "provides": [
+        "vlock"
+      ],
+      "replaces": [
+        "vlock"
+      ],
+      "repo": "core",
+      "sha256": "05072eacf9417bc06c1369f91de46561682ccdd895767248ed8147abe679fe87",
+      "signature_sha256": "fa4a5efdda7bb05b8d93331e443294a224c53a212c6d4d6a0ad6f8a92940200d",
+      "signature_size": 566,
+      "size": 1312688,
+      "source_url": [
+        "http://www.kbd-project.org"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/kbd-2.10.0-1-aarch64.pkg.tar.xz",
+      "version": "2.10.0-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "sh"
+      ],
+      "filename": "keyutils-1.6.3-4-aarch64.pkg.tar.xz",
+      "isize": 342481,
+      "license": [
+        "GPL-2.0-or-later",
+        "LGPL-2.1-or-later"
+      ],
+      "name": "keyutils",
+      "provides": [
+        "libkeyutils.so=1-64"
+      ],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "7ee05c67895771b838dc035219290095e79866c61ce63bd726b002df7dfbfdd5",
+      "signature_sha256": "7b1ba95d717c7b683b80053e0ae399239a0e36ff4d8eabe7863b34f4f5ddde87",
+      "signature_size": 566,
+      "size": 102664,
+      "source_url": [
+        "https://www.kernel.org/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/keyutils-1.6.3-4-aarch64.pkg.tar.xz",
+      "version": "1.6.3-4"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "zlib",
+        "openssl",
+        "xz",
+        "zstd"
+      ],
+      "filename": "kmod-34.2-1-aarch64.pkg.tar.xz",
+      "isize": 408326,
+      "license": [
+        "LGPL-2.1-or-later",
+        "GPL-2.0-or-later"
+      ],
+      "name": "kmod",
+      "provides": [
+        "libkmod.so=2-64"
+      ],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "ab893e67b19546aed1d3ad537649b3bdbfbd709f9d00e8e61c6f091ac925a9ed",
+      "signature_sha256": "af46d36840b5d0aeb71a8753f2eb9f4603bb90103a33bdfd2156e771495bc6a6",
+      "signature_size": 566,
+      "size": 117112,
+      "source_url": [
+        "https://git.kernel.org/pub/scm/utils/kernel/kmod/kmod.git"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/kmod-34.2-1-aarch64.pkg.tar.xz",
+      "version": "34.2-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "bash",
+        "e2fsprogs",
+        "glibc",
+        "keyutils",
+        "libldap",
+        "libverto-module-base",
+        "openssl",
+        "lmdb",
+        "libcom_err.so=2-64",
+        "libkeyutils.so=1-64",
+        "libss.so=2-64",
+        "libverto.so=1-64"
+      ],
+      "filename": "krb5-1.22.2-1-aarch64.pkg.tar.xz",
+      "isize": 6924090,
+      "license": [
+        "custom"
+      ],
+      "name": "krb5",
+      "provides": [
+        "libgssapi_krb5.so=2-64",
+        "libgssrpc.so=4-64",
+        "libk5crypto.so=3-64",
+        "libkadm5clnt_mit.so=12-64",
+        "libkadm5srv_mit.so=12-64",
+        "libkdb5.so=10-64",
+        "libkdb_ldap.so=1-64",
+        "libkrad.so=0-64",
+        "libkrb5.so=3-64",
+        "libkrb5support.so=0-64"
+      ],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "8b4e743a45590b49ea98a16b3ce339a663908bf67eb3a3965374aabac3c69511",
+      "signature_sha256": "c552292960a9c96be89800a39843e8d03c3aad17c6a4efc8ad01fc4ab7e09a1d",
+      "signature_size": 566,
+      "size": 1257028,
+      "source_url": [
+        "https://web.mit.edu/kerberos/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/krb5-1.22.2-1-aarch64.pkg.tar.xz",
+      "version": "1.22.2-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "acl",
+        "bzip2",
+        "glibc",
+        "libxml2",
+        "lz4",
+        "openssl",
+        "xz",
+        "zlib",
+        "zstd",
+        "libacl.so=1-64",
+        "libbz2.so=1.0-64",
+        "libxml2.so=16-64",
+        "libcrypto.so=3-64",
+        "liblzma.so=5-64",
+        "libz.so=1-64",
+        "libzstd.so=1-64"
+      ],
+      "filename": "libarchive-3.8.9-1-aarch64.pkg.tar.xz",
+      "isize": 1485356,
+      "license": [
+        "BSD-2-Clause",
+        "BSD-4-Clause-UC",
+        "Apache-2.0 OR CC0-1.0 OR OpenSSL"
+      ],
+      "name": "libarchive",
+      "provides": [
+        "libarchive.so=13-64"
+      ],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "030848f1d81d2558f3efacbf7d435f53f8809266c22d4744354ed90f8f46fe4d",
+      "signature_sha256": "f8153448fa459fe3fd7eb65f0741b14352af77f9d32634b49f85bba5fc68f247",
+      "signature_size": 566,
+      "size": 513496,
+      "source_url": [
+        "https://libarchive.org/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libarchive-3.8.9-1-aarch64.pkg.tar.xz",
+      "version": "3.8.9-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc>=2.27",
+        "libgcc",
+        "libstdc++"
+      ],
+      "filename": "libasan-16.1.1+r12+g301eb08fa2c5-1-aarch64.pkg.tar.xz",
+      "isize": 1851004,
+      "license": [
+        "GPL-3.0-or-later WITH GCC-exception-3.1",
+        "GFDL-1.3-or-later"
+      ],
+      "name": "libasan",
+      "provides": [
+        "libasan.so=8-64"
+      ],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "246617f4696ca770e4b36c7ceac2849517a68e19b5d5875a11d6844e212a1b83",
+      "signature_sha256": "e0ee820ec28111b0cac810b9713405e1d37f0c5f2d820783fdc5f733938df5df",
+      "signature_size": 566,
+      "size": 408016,
+      "source_url": [
+        "https://gcc.gnu.org"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libasan-16.1.1+r12+g301eb08fa2c5-1-aarch64.pkg.tar.xz",
+      "version": "16.1.1+r12+g301eb08fa2c5-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "libgpg-error",
+        "sh"
+      ],
+      "filename": "libassuan-3.0.0-1-aarch64.pkg.tar.xz",
+      "isize": 298380,
+      "license": [
+        "FSFULLR",
+        "GPL-2.0-or-later",
+        "LGPL-2.1-or-later"
+      ],
+      "name": "libassuan",
+      "provides": [
+        "libassuan.so=9-64"
+      ],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "122424f6f1c3c53f04b53af87802eec595290545b31c8fbb8ee22877421b5831",
+      "signature_sha256": "a842bc358ef7e8eb9ddc54ed95e58a747de6bcad3f2d7ddead1f09dd5b809c14",
+      "signature_size": 566,
+      "size": 111600,
+      "source_url": [
+        "https://www.gnupg.org/related_software/libassuan/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libassuan-3.0.0-1-aarch64.pkg.tar.xz",
+      "version": "3.0.0-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc>=2.27"
+      ],
+      "filename": "libatomic-16.1.1+r12+g301eb08fa2c5-1-aarch64.pkg.tar.xz",
+      "isize": 70772,
+      "license": [
+        "GPL-3.0-or-later WITH GCC-exception-3.1",
+        "GFDL-1.3-or-later"
+      ],
+      "name": "libatomic",
+      "provides": [
+        "libatomic.so=1-64"
+      ],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "7eae53e2e1a42ebc21d78eb923f9e249a4008098473c61a3d9db1c7fb5de36d3",
+      "signature_sha256": "8adfa6b89c1956dace6aebb96af220f666ffbd8e14ad6833cfb683c28d0031f8",
+      "signature_size": 566,
+      "size": 12944,
+      "source_url": [
+        "https://gcc.gnu.org"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libatomic-16.1.1+r12+g301eb08fa2c5-1-aarch64.pkg.tar.xz",
+      "version": "16.1.1+r12+g301eb08fa2c5-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "libelf",
+        "linux-api-headers",
+        "zlib"
+      ],
+      "filename": "libbpf-1.7.0-1-aarch64.pkg.tar.xz",
+      "isize": 955038,
+      "license": [
+        "LGPL-2.1-only OR BSD-2-Clause"
+      ],
+      "name": "libbpf",
+      "provides": [
+        "libbpf.so=1-64"
+      ],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "192657eccc1b03e0adb5d5a0403a157af8da624d99a27173d32a7b27418712b6",
+      "signature_sha256": "9e5283efbde4bccfd6c4426aa48d8a3638d65ce58490b5b6580cc1c5d65d1774",
+      "signature_size": 566,
+      "size": 251032,
+      "source_url": [
+        "https://github.com/libbpf/libbpf"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libbpf-1.7.0-1-aarch64.pkg.tar.xz",
+      "version": "1.7.0-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "pam"
+      ],
+      "filename": "libcap-2.78-1-aarch64.pkg.tar.xz",
+      "isize": 2632280,
+      "license": [
+        "BSD-3-Clause OR GPL-2.0-only"
+      ],
+      "name": "libcap",
+      "provides": [
+        "libcap.so=2-64",
+        "libpsx.so=2-64"
+      ],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "828383fe196cb3bbd4ea0a7cb4385e8184ea8b281b8833eee613837eda507643",
+      "signature_sha256": "cb1f9b73122fd8b4d454709743fecec29944497d5947b670a30b956b9fc6bbfb",
+      "signature_size": 566,
+      "size": 715424,
+      "source_url": [
+        "https://sites.google.com/site/fullycapable/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libcap-2.78-1-aarch64.pkg.tar.xz",
+      "version": "2.78-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "libncursesw.so=6-64",
+        "ncurses"
+      ],
+      "filename": "libedit-20260512_3.1-1-aarch64.pkg.tar.xz",
+      "isize": 317208,
+      "license": [
+        "BSD-3-Clause"
+      ],
+      "name": "libedit",
+      "provides": [
+        "libedit.so=0-64"
+      ],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "9900ef2ce4c8bddc1066a89951ff0e0dead005f168a9ac402ac487047961f2e5",
+      "signature_sha256": "0f736bfee5003703dc6791ba117ee8c40830dc6281c9dcb103d5dcf542b68e83",
+      "signature_size": 566,
+      "size": 107492,
+      "source_url": [
+        "https://thrysoee.dk/editline/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libedit-20260512_3.1-1-aarch64.pkg.tar.xz",
+      "version": "20260512_3.1-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "openssl"
+      ],
+      "filename": "libevent-2.1.13-2-aarch64.pkg.tar.xz",
+      "isize": 1444882,
+      "license": [
+        "BSD-3-Clause-Modification"
+      ],
+      "name": "libevent",
+      "provides": [
+        "libevent-2.1.so=7-64",
+        "libevent_core-2.1.so=7-64",
+        "libevent_extra-2.1.so=7-64",
+        "libevent_openssl-2.1.so=7-64",
+        "libevent_pthreads-2.1.so=7-64"
+      ],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "616950e746a507c7371d6643249e7dbb96934612c0cf0df8760acedd94411183",
+      "signature_sha256": "08434cc21c49558e72fca58bb1b57c4d32653175db5da72af10b214fbfa1f9b9",
+      "signature_size": 566,
+      "size": 245152,
+      "source_url": [
+        "https://libevent.org/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libevent-2.1.13-2-aarch64.pkg.tar.xz",
+      "version": "2.1.13-2"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc>=2.27"
+      ],
+      "filename": "libgcc-16.1.1+r12+g301eb08fa2c5-1-aarch64.pkg.tar.xz",
+      "isize": 136916,
+      "license": [
+        "GPL-3.0-or-later WITH GCC-exception-3.1",
+        "GFDL-1.3-or-later"
+      ],
+      "name": "libgcc",
+      "provides": [
+        "libgcc_s.so=1-64"
+      ],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "0f98bdf94a6e2f6758b9ffe98cbc9391a109326ed23bd264cabe0a81a04d7ae4",
+      "signature_sha256": "2e0a80f6d65b5820520c126aa0508f5c9159e2df8c45c5559745d07019e08f44",
+      "signature_size": 566,
+      "size": 55204,
+      "source_url": [
+        "https://gcc.gnu.org"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libgcc-16.1.1+r12+g301eb08fa2c5-1-aarch64.pkg.tar.xz",
+      "version": "16.1.1+r12+g301eb08fa2c5-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc>=2.27",
+        "libgcc"
+      ],
+      "filename": "libgfortran-16.1.1+r12+g301eb08fa2c5-1-aarch64.pkg.tar.xz",
+      "isize": 1906836,
+      "license": [
+        "GPL-3.0-or-later WITH GCC-exception-3.1",
+        "GFDL-1.3-or-later"
+      ],
+      "name": "libgfortran",
+      "provides": [
+        "libgfortran.so=5-64"
+      ],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "08b86638b136c637713115b5de78e04fb25310eaf16fe4db21a16510c591cc12",
+      "signature_sha256": "88adfb9ebfc126f4cf035ff97f85d460c1c74380d21f1ec2c456b40928e0a03d",
+      "signature_size": 566,
+      "size": 387916,
+      "source_url": [
+        "https://gcc.gnu.org"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libgfortran-16.1.1+r12+g301eb08fa2c5-1-aarch64.pkg.tar.xz",
+      "version": "16.1.1+r12+g301eb08fa2c5-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc>=2.27"
+      ],
+      "filename": "libgomp-16.1.1+r12+g301eb08fa2c5-1-aarch64.pkg.tar.xz",
+      "isize": 480065,
+      "license": [
+        "GPL-3.0-or-later WITH GCC-exception-3.1",
+        "GFDL-1.3-or-later"
+      ],
+      "name": "libgomp",
+      "provides": [
+        "libgomp.so=1-64"
+      ],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "117e58e103b45888561d7e39b69b5632ee16ac0b2e6e36c6f91f51f70ff85183",
+      "signature_sha256": "f0cd7e4db80d96dc236a3be1f5b1a723b13e0cdfcdc8ff482f81dbbee8560b18",
+      "signature_size": 566,
+      "size": 212292,
+      "source_url": [
+        "https://gcc.gnu.org"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libgomp-16.1.1+r12+g301eb08fa2c5-1-aarch64.pkg.tar.xz",
+      "version": "16.1.1+r12+g301eb08fa2c5-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "sh"
+      ],
+      "filename": "libgpg-error-1.61-1-aarch64.pkg.tar.xz",
+      "isize": 1268909,
+      "license": [
+        "LGPL-2.1-or-later",
+        "BSD-3-Clause OR LGPL-2.1-or-later",
+        "FSFULLR",
+        "GPL-2.0-or-later"
+      ],
+      "name": "libgpg-error",
+      "provides": [],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "e6ea4251e2d6919f861a08ac09b2c72a6a687e208a495341893dba5839b00b5d",
+      "signature_sha256": "ed4c33f28a551061ec980fd9efaced6e08f58953b944b32ffadb10d62780037c",
+      "signature_size": 566,
+      "size": 254104,
+      "source_url": [
+        "https://www.gnupg.org"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libgpg-error-1.61-1-aarch64.pkg.tar.xz",
+      "version": "1.61-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "libunistring",
+        "libunistring.so=5-64"
+      ],
+      "filename": "libidn2-2.3.8-1-aarch64.pkg.tar.xz",
+      "isize": 491056,
+      "license": [
+        "GPL2",
+        "LGPL3"
+      ],
+      "name": "libidn2",
+      "provides": [
+        "libidn2.so=0-64"
+      ],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "43224d721d0afb6bc99af5c7a546dd0c7cff44b597224fc5f5f8d6c5a7c14d89",
+      "signature_sha256": "441136335459adb7c9c821b252592d4975eca93c4e628514c269c666b9f01a04",
+      "signature_size": 566,
+      "size": 146036,
+      "source_url": [
+        "https://www.gnu.org/software/libidn/#libidn2"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libidn2-2.3.8-1-aarch64.pkg.tar.xz",
+      "version": "2.3.8-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc>=2.27",
+        "libgcc",
+        "libstdc++"
+      ],
+      "filename": "liblsan-16.1.1+r12+g301eb08fa2c5-1-aarch64.pkg.tar.xz",
+      "isize": 605748,
+      "license": [
+        "GPL-3.0-or-later WITH GCC-exception-3.1",
+        "GFDL-1.3-or-later"
+      ],
+      "name": "liblsan",
+      "provides": [
+        "liblsan.so=0-64"
+      ],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "4e109ab2ab62d922bd3453593f5c8824cadbdf445c4a37000c2636f272e05c78",
+      "signature_sha256": "0d440dbf7b5c6461e52b9b5756c0d3be01bf927d316f37ca9c659525ef8f0a1b",
+      "signature_size": 566,
+      "size": 193756,
+      "source_url": [
+        "https://gcc.gnu.org"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/liblsan-16.1.1+r12+g301eb08fa2c5-1-aarch64.pkg.tar.xz",
+      "version": "16.1.1+r12+g301eb08fa2c5-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc"
+      ],
+      "filename": "libmnl-1.0.5-2-aarch64.pkg.tar.xz",
+      "isize": 30820,
+      "license": [
+        "LGPL2.1"
+      ],
+      "name": "libmnl",
+      "provides": [],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "26ffbdeef8a4a694541bb09e44bf0132c862a36773e1cfbff18ae42511509753",
+      "signature_sha256": "baac29e4ee4de34ce6671a9ad397fafb9b4e211ac100594b1c474c7a19308911",
+      "signature_size": 566,
+      "size": 10664,
+      "source_url": [
+        "https://www.netfilter.org/projects/libmnl/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libmnl-1.0.5-2-aarch64.pkg.tar.xz",
+      "version": "1.0.5-2"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "libnfnetlink",
+        "libmnl"
+      ],
+      "filename": "libnetfilter_conntrack-1.1.1-1-aarch64.pkg.tar.xz",
+      "isize": 172017,
+      "license": [
+        "GPL-2.0-or-later"
+      ],
+      "name": "libnetfilter_conntrack",
+      "provides": [],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "52fc6dbcbf56604b4410ca93c3864d2a176c5b593eee380fe35e3e9fbe5fb0ac",
+      "signature_sha256": "55690b00715ae5e592dceafaa6cc2e6736ebf8efb7f345d09591e19de1f4b26b",
+      "signature_size": 566,
+      "size": 46188,
+      "source_url": [
+        "https://www.netfilter.org/projects/libnetfilter_conntrack/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libnetfilter_conntrack-1.1.1-1-aarch64.pkg.tar.xz",
+      "version": "1.1.1-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc"
+      ],
+      "filename": "libnfnetlink-1.0.2-2-aarch64.pkg.tar.xz",
+      "isize": 42932,
+      "license": [
+        "GPL"
+      ],
+      "name": "libnfnetlink",
+      "provides": [],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "1dc20210dccb048867d758a0e7bf34674636472fbbc8c2b1162ba1b5ca0f157b",
+      "signature_sha256": "65cff12c00d408ba0b240b12ec1c7d6781ea0ebe849fe2e3045187a5195a4511",
+      "signature_size": 566,
+      "size": 16012,
+      "source_url": [
+        "https://www.netfilter.org/projects/libnfnetlink/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libnfnetlink-1.0.2-2-aarch64.pkg.tar.xz",
+      "version": "1.0.2-2"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [
+        "nghttp2<1.20.0-2"
+      ],
+      "depends": [
+        "glibc"
+      ],
+      "filename": "libnghttp2-1.70.0-1-aarch64.pkg.tar.xz",
+      "isize": 445211,
+      "license": [
+        "MIT"
+      ],
+      "name": "libnghttp2",
+      "provides": [
+        "libnghttp2.so=14-64"
+      ],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "4d7fdbd963e5ff7a293079e35750cbd535ad846581e1a7926035b34968b40c0e",
+      "signature_sha256": "2a802dddc0fa822dcd9f373343c3bbd1aef1ca1aa294314cc9f495c64404a79c",
+      "signature_size": 566,
+      "size": 95812,
+      "source_url": [
+        "https://nghttp2.org/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libnghttp2-1.70.0-1-aarch64.pkg.tar.xz",
+      "version": "1.70.0-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc"
+      ],
+      "filename": "libnghttp3-1.18.0-1-aarch64.pkg.tar.xz",
+      "isize": 331262,
+      "license": [
+        "MIT"
+      ],
+      "name": "libnghttp3",
+      "provides": [
+        "libnghttp3.so=9-64"
+      ],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "b5eb225b96c3c3fcb33c8715b9987b9eaff742214964662befbc88df4d5bea65",
+      "signature_sha256": "4d3e4b27a8bfa5c1b8732f858c7ace9184f7a505c6fd25976b0f2adbfe214099",
+      "signature_size": 566,
+      "size": 79488,
+      "source_url": [
+        "https://github.com/ngtcp2/nghttp3"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libnghttp3-1.18.0-1-aarch64.pkg.tar.xz",
+      "version": "1.18.0-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "openssl",
+        "libssl.so=3-64",
+        "gnutls"
+      ],
+      "filename": "libngtcp2-1.25.0-1-aarch64.pkg.tar.xz",
+      "isize": 851049,
+      "license": [
+        "MIT"
+      ],
+      "name": "libngtcp2",
+      "provides": [
+        "libngtcp2.so=16-64",
+        "libngtcp2_crypto_gnutls.so=8-64",
+        "libngtcp2_crypto_ossl.so=0-64"
+      ],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "f69a124bd047616904c7e6bb980b8d3fec0a3550b5e35f1b7097b7645dfc5116",
+      "signature_sha256": "813008d3b2aae31e0e773aa87063a9bb45312aec391146205c784224065ac297",
+      "signature_size": 566,
+      "size": 185240,
+      "source_url": [
+        "https://github.com/ngtcp2/ngtcp2"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libngtcp2-1.25.0-1-aarch64.pkg.tar.xz",
+      "version": "1.25.0-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "gcc-libs"
+      ],
+      "filename": "libnl-3.12.0-1-aarch64.pkg.tar.xz",
+      "isize": 5654805,
+      "license": [
+        "LGPL-2.1-only"
+      ],
+      "name": "libnl",
+      "provides": [
+        "libnl-3.so=200-64",
+        "libnl-cli-3.so=200-64",
+        "libnl-genl-3.so=200-64",
+        "libnl-idiag-3.so=200-64",
+        "libnl-nf-3.so=200-64",
+        "libnl-route-3.so=200-64",
+        "libnl-xfrm-3.so=200-64"
+      ],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "90940a51b3614f618d5e7e32552745fcf5c2495cbdde207d81737e7b09e875f3",
+      "signature_sha256": "118795feb60fef82480630999f22fc71e8420a275e3dafc20dea57369a232440",
+      "signature_size": 566,
+      "size": 395236,
+      "source_url": [
+        "https://github.com/thom311/libnl/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libnl-3.12.0-1-aarch64.pkg.tar.xz",
+      "version": "3.12.0-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "libtirpc"
+      ],
+      "filename": "libnsl-2.0.1-2-aarch64.pkg.tar.xz",
+      "isize": 108730,
+      "license": [
+        "LGPL-2.1-only"
+      ],
+      "name": "libnsl",
+      "provides": [
+        "libnsl.so=3-64"
+      ],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "4f37f2ed67a79d76458e3af7b8bcdb0fef0cf35e0ba71569b7fbb0388d592619",
+      "signature_sha256": "387d094f8c65f037c35549e4ee503a468cc55d14b1d75351fff9c977a0664c72",
+      "signature_size": 566,
+      "size": 21044,
+      "source_url": [
+        "https://github.com/thkukuk/libnsl"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libnsl-2.0.1-2-aarch64.pkg.tar.xz",
+      "version": "2.0.1-2"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc>=2.27",
+        "libgcc"
+      ],
+      "filename": "libobjc-16.1.1+r12+g301eb08fa2c5-1-aarch64.pkg.tar.xz",
+      "isize": 138964,
+      "license": [
+        "GPL-3.0-or-later WITH GCC-exception-3.1",
+        "GFDL-1.3-or-later"
+      ],
+      "name": "libobjc",
+      "provides": [
+        "libobjc.so=4-64"
+      ],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "61742f90c1cc572aed5c1f0068387a4e860e6a779e89e9fd1b1b3a7e61fb1c1c",
+      "signature_sha256": "4ac2a8424b3420bcde454b9be473ffd3648bd71c1f872b34f5652a1820833090",
+      "signature_size": 566,
+      "size": 33740,
+      "source_url": [
+        "https://gcc.gnu.org"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libobjc-16.1.1+r12+g301eb08fa2c5-1-aarch64.pkg.tar.xz",
+      "version": "16.1.1+r12+g301eb08fa2c5-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "libidn2",
+        "libunistring",
+        "libidn2.so=0-64",
+        "libunistring.so=5-64"
+      ],
+      "filename": "libpsl-0.21.5-2-aarch64.pkg.tar.xz",
+      "isize": 330334,
+      "license": [
+        "MIT"
+      ],
+      "name": "libpsl",
+      "provides": [
+        "libpsl.so=5-64"
+      ],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "8b565fcb0128be8c4c16ab82b3f9379348db6aeeffc3c639937eeedbe00fa500",
+      "signature_sha256": "366a16f00c231acbdb3f162d08b6e29d94e9a1b0641d49664bf1003cb853a753",
+      "signature_size": 566,
+      "size": 84892,
+      "source_url": [
+        "https://github.com/rockdaboot/libpsl"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libpsl-0.21.5-2-aarch64.pkg.tar.xz",
+      "version": "0.21.5-2"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc>=2.27",
+        "libgcc"
+      ],
+      "filename": "libquadmath-16.1.1+r12+g301eb08fa2c5-1-aarch64.pkg.tar.xz",
+      "isize": 3324,
+      "license": [
+        "GPL-3.0-or-later WITH GCC-exception-3.1",
+        "GFDL-1.3-or-later"
+      ],
+      "name": "libquadmath",
+      "provides": [
+        "libquadmath.so"
+      ],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "d97f0d43fe0212774d591a6d43b05da78590e4261af71b7a1b26097e63dc57eb",
+      "signature_sha256": "70e2e931068b20e13d3f3d17f94dff1231779ad7c9a7cd14c0db7b87c4c932b0",
+      "signature_size": 566,
+      "size": 4168,
+      "source_url": [
+        "https://gcc.gnu.org"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libquadmath-16.1.1+r12+g301eb08fa2c5-1-aarch64.pkg.tar.xz",
+      "version": "16.1.1+r12+g301eb08fa2c5-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "gdbm",
+        "libgdbm.so=6-64",
+        "openssl",
+        "libcrypto.so=3-64"
+      ],
+      "filename": "libsasl-2.1.28-5-aarch64.pkg.tar.xz",
+      "isize": 986051,
+      "license": [
+        "BSD-3-Clause-Attribution"
+      ],
+      "name": "libsasl",
+      "provides": [
+        "libsasl2.so=3-64"
+      ],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "5ec2f2ec119161f9e0f93a91f0f7001f9f401d5eb6dd1d7769988ee0308f92b2",
+      "signature_sha256": "c092e129c50bd9a36537650540f6176efa7ff931f9b2891c00e8c07f43c61f2e",
+      "signature_size": 566,
+      "size": 139992,
+      "source_url": [
+        "https://www.cyrusimap.org/sasl/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libsasl-2.1.28-5-aarch64.pkg.tar.xz",
+      "version": "2.1.28-5"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc"
+      ],
+      "filename": "libseccomp-2.6.0-1-aarch64.pkg.tar.xz",
+      "isize": 390540,
+      "license": [
+        "LGPL-2.1-only"
+      ],
+      "name": "libseccomp",
+      "provides": [
+        "libseccomp.so=2-64"
+      ],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "ebb62cc156a605aa3f024a6d2c9dd99ba66db6f50d9aeb75b8bb336316f0a2f5",
+      "signature_sha256": "29b784624a5e3ab915d37f926995f2b955a263270e2b648481aefc3d32432cf2",
+      "signature_size": 566,
+      "size": 91404,
+      "source_url": [
+        "https://github.com/seccomp/libseccomp"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libseccomp-2.6.0-1-aarch64.pkg.tar.xz",
+      "version": "2.6.0-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "openssl",
+        "zlib"
+      ],
+      "filename": "libssh2-1.11.1-7-aarch64.pkg.tar.xz",
+      "isize": 526906,
+      "license": [
+        "BSD-3-Clause"
+      ],
+      "name": "libssh2",
+      "provides": [
+        "libssh2.so=1-64"
+      ],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "cea0b5138a28b5b4d8eff76e2cc1665f030f109074d88c3962d19aa09921f3b3",
+      "signature_sha256": "31d5aa7a82b9198f2d1fbf8a7fc14f20523d2efe1fa69ccce5a6417b8e161e05",
+      "signature_size": 566,
+      "size": 242204,
+      "source_url": [
+        "https://www.libssh2.org/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libssh2-1.11.1-7-aarch64.pkg.tar.xz",
+      "version": "1.11.1-7"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc>=2.27",
+        "libgcc"
+      ],
+      "filename": "libstdc++-16.1.1+r12+g301eb08fa2c5-1-aarch64.pkg.tar.xz",
+      "isize": 3021979,
+      "license": [
+        "GPL-3.0-or-later WITH GCC-exception-3.1",
+        "GFDL-1.3-or-later"
+      ],
+      "name": "libstdc++",
+      "provides": [
+        "libstdc++.so=6-64"
+      ],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "19832a38b2c4820695d28289f1c4f371955586d39fb893d8cbc0d8dbb09a4383",
+      "signature_sha256": "c6b2fff6cfab7404c071f3a2478626ff81d4fb24c55f424d52a978958928747f",
+      "signature_size": 566,
+      "size": 694148,
+      "source_url": [
+        "https://gcc.gnu.org"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libstdc++-16.1.1+r12+g301eb08fa2c5-1-aarch64.pkg.tar.xz",
+      "version": "16.1.1+r12+g301eb08fa2c5-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc"
+      ],
+      "filename": "libtasn1-4.21.0-1-aarch64.pkg.tar.xz",
+      "isize": 476757,
+      "license": [
+        "GPL-3.0-or-later",
+        "LGPL-2.1-or-later",
+        "GFDL-1.3-or-later"
+      ],
+      "name": "libtasn1",
+      "provides": [],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "96ef7088790462586eec0b5ba2aacdcbd1fc71bfd2a6dbe8bd7c20b03ed298a8",
+      "signature_sha256": "ab5e8cc870b8ba2ab5c8a904880487b7de0b6f80eff32dc37a502192074f2765",
+      "signature_size": 566,
+      "size": 132184,
+      "source_url": [
+        "https://www.gnu.org/software/libtasn1/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libtasn1-4.21.0-1-aarch64.pkg.tar.xz",
+      "version": "4.21.0-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc>=2.27",
+        "libgcc",
+        "libstdc++"
+      ],
+      "filename": "libtsan-16.1.1+r12+g301eb08fa2c5-1-aarch64.pkg.tar.xz",
+      "isize": 1539732,
+      "license": [
+        "GPL-3.0-or-later WITH GCC-exception-3.1",
+        "GFDL-1.3-or-later"
+      ],
+      "name": "libtsan",
+      "provides": [
+        "libtsan.so=2-64"
+      ],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "8ac217aab99e465455309957031c4b058f37560be337a1fe1f2dac3ab9e0218d",
+      "signature_sha256": "13814e16417376f95f510cf65eaa4d7defb83f59129810281186be3e4cf61999",
+      "signature_size": 566,
+      "size": 380256,
+      "source_url": [
+        "https://gcc.gnu.org"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libtsan-16.1.1+r12+g301eb08fa2c5-1-aarch64.pkg.tar.xz",
+      "version": "16.1.1+r12+g301eb08fa2c5-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc>=2.27",
+        "libgcc",
+        "libstdc++"
+      ],
+      "filename": "libubsan-16.1.1+r12+g301eb08fa2c5-1-aarch64.pkg.tar.xz",
+      "isize": 540516,
+      "license": [
+        "GPL-3.0-or-later WITH GCC-exception-3.1",
+        "GFDL-1.3-or-later"
+      ],
+      "name": "libubsan",
+      "provides": [
+        "libubsan.so=1-64"
+      ],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "6b0f5501898077d3f9533edf75aded85072890f85c1713fde79ed99230d8e5bb",
+      "signature_sha256": "e7a8a92e147a3bfcf9951fb61f38d0709b3ae9aad3f72935e07d0465c415eb39",
+      "signature_size": 566,
+      "size": 176464,
+      "source_url": [
+        "https://gcc.gnu.org"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libubsan-16.1.1+r12+g301eb08fa2c5-1-aarch64.pkg.tar.xz",
+      "version": "16.1.1+r12+g301eb08fa2c5-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc"
+      ],
+      "filename": "libunistring-1.4.2-1-aarch64.pkg.tar.xz",
+      "isize": 2907448,
+      "license": [
+        "GPL-2.0-or-later",
+        "LGPL-3.0-or-later"
+      ],
+      "name": "libunistring",
+      "provides": [
+        "libunistring.so=5-64"
+      ],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "106ac7728ff2cc498ffa49d7623e64cf9002eea15c5026ec54fab8cd6a294134",
+      "signature_sha256": "7f401a61724c36e8bd987dd723386a7073a80e1f395c963b86ae3b186cbf8adb",
+      "signature_size": 566,
+      "size": 595644,
+      "source_url": [
+        "https://www.gnu.org/software/libunistring/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libunistring-1.4.2-1-aarch64.pkg.tar.xz",
+      "version": "1.4.2-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "systemd-libs",
+        "libudev.so=1-64"
+      ],
+      "filename": "libusb-1.0.30-1-aarch64.pkg.tar.xz",
+      "isize": 242752,
+      "license": [
+        "LGPL-2.1-or-later"
+      ],
+      "name": "libusb",
+      "provides": [
+        "libusb-1.0.so=0-64"
+      ],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "111d33e208469750439bbb7b472554784a39a6ee3948632b719fd715a1c5836d",
+      "signature_sha256": "f05eb204d0bef60002c63767eda84a47bff278b59c60654d8390996b56775e39",
+      "signature_size": 566,
+      "size": 74064,
+      "source_url": [
+        "https://libusb.info/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libusb-1.0.30-1-aarch64.pkg.tar.xz",
+      "version": "1.0.30-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [
+        "krb5<1.19.3-2",
+        "libverto-libevent<0.3.2-4"
+      ],
+      "depends": [
+        "glibc",
+        "libevent"
+      ],
+      "filename": "libverto-0.3.2-6-aarch64.pkg.tar.xz",
+      "isize": 164278,
+      "license": [
+        "MIT"
+      ],
+      "name": "libverto",
+      "provides": [
+        "libverto.so=1-64",
+        "libverto-libevent.so=1-64",
+        "libverto-module-base"
+      ],
+      "replaces": [
+        "libverto-libevent<0.3.2-4"
+      ],
+      "repo": "core",
+      "sha256": "6b39f3feb66c1421dd4cfee2bbb339543db112c624a1eb8990ca9c9b36710dbc",
+      "signature_sha256": "41a43efc01134eb8694c5168ed59d16d779f2b6c1d3d115aab8c9db106eeb32a",
+      "signature_size": 566,
+      "size": 18160,
+      "source_url": [
+        "https://github.com/latchset/libverto"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libverto-0.3.2-6-aarch64.pkg.tar.xz",
+      "version": "0.3.2-6"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc"
+      ],
+      "filename": "libxcrypt-4.5.2-1-aarch64.pkg.tar.xz",
+      "isize": 224297,
+      "license": [
+        "LGPL"
+      ],
+      "name": "libxcrypt",
+      "provides": [
+        "libcrypt.so=2-64"
+      ],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "e699156589561ac0c6bfc7da42891e3945647ecdd178b907f7742696fb01a0c5",
+      "signature_sha256": "f43f32f8e8ac5f68ae71510b3aa307dc4b669eb2fbf893cf219e5f91df24a42b",
+      "signature_size": 566,
+      "size": 89676,
+      "source_url": [
+        "https://github.com/besser82/libxcrypt/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/libxcrypt-4.5.2-1-aarch64.pkg.tar.xz",
+      "version": "4.5.2-1"
+    },
+    {
+      "arch": "any",
+      "conflicts": [],
+      "depends": [],
+      "filename": "licenses-20240728-1-any.pkg.tar.xz",
+      "isize": 1617309,
+      "license": [
+        "LicenseRef-None"
+      ],
+      "name": "licenses",
+      "provides": [],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "a5c4e6248f2b733a5def2ea84c885a8a6a538406bacd1ebd0fd241e37cf0b56b",
+      "signature_sha256": "2db57153855cee18a4d2b4e2f73b933140c52c6520c42389a2f616940c4234aa",
+      "signature_size": 566,
+      "size": 104732,
+      "source_url": [
+        "https://www.archlinux.org/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/licenses-20240728-1-any.pkg.tar.xz",
+      "version": "20240728-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc"
+      ],
+      "filename": "lmdb-0.9.35-1-aarch64.pkg.tar.xz",
+      "isize": 747057,
+      "license": [
+        "custom:OpenLDAP"
+      ],
+      "name": "lmdb",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "6aff3bd58fbb98dbca71a83554be4b47d39ff01b3dbe4f724ba140416aa8486e",
+      "signature_sha256": "342c24d44e0aa0ebdb5b73aec200d5e2e891756833d9ace2d152313f327a85ae",
+      "signature_size": 566,
+      "size": 86632,
+      "source_url": [
+        "https://symas.com/lmdb"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/lmdb-0.9.35-1-aarch64.pkg.tar.xz",
+      "version": "0.9.35-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc"
+      ],
+      "filename": "lz4-1:1.10.0-2-aarch64.pkg.tar.xz",
+      "isize": 571428,
+      "license": [
+        "GPL-2.0-or-later"
+      ],
+      "name": "lz4",
+      "provides": [
+        "liblz4.so=1-64"
+      ],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "2734da8aa931852a6d82f5a90edbc5fd4e21cdbefc8752ab49db4228959d45d0",
+      "signature_sha256": "47c965018d9623039079a7accf80898c0f2ed0ba96ed8bc3473bfa6de5f046f4",
+      "signature_size": 566,
+      "size": 128668,
+      "source_url": [
+        "https://lz4.github.io/lz4/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/lz4-1:1.10.0-2-aarch64.pkg.tar.xz",
+      "version": "1:1.10.0-2"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "libxcrypt"
+      ],
+      "filename": "mkinitcpio-busybox-1.36.1-1-aarch64.pkg.tar.xz",
+      "isize": 573672,
+      "license": [
+        "GPL"
+      ],
+      "name": "mkinitcpio-busybox",
+      "provides": [],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "04c5c1713d2eea3fc42049a669ca1edf37ef711495e58d189b25536bb5181d63",
+      "signature_sha256": "2743266ffec0cd0b355c532ecc98b395e4b67c8b3b6bf60d4e4deff6f472114b",
+      "signature_size": 566,
+      "size": 255352,
+      "source_url": [
+        "https://www.busybox.net/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/mkinitcpio-busybox-1.36.1-1-aarch64.pkg.tar.xz",
+      "version": "1.36.1-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "gmp"
+      ],
+      "filename": "mpfr-4.2.2-1-aarch64.pkg.tar.xz",
+      "isize": 1043056,
+      "license": [
+        "GPL-3.0-or-later",
+        "LGPL-3.0-or-later"
+      ],
+      "name": "mpfr",
+      "provides": [
+        "libmpfr.so=6-64"
+      ],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "6ae04b170fe6aed89519f0b2cba2f60a34e8a8ea74963e8f3619b12ddefc5117",
+      "signature_sha256": "b51d1826324165185ab18d8e837922c8ce9040e93f53594aa02844927f9eff7b",
+      "signature_size": 566,
+      "size": 392596,
+      "source_url": [
+        "https://www.mpfr.org/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/mpfr-4.2.2-1-aarch64.pkg.tar.xz",
+      "version": "4.2.2-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "libgcc",
+        "libstdc++"
+      ],
+      "filename": "ncurses-6.6-2-aarch64.pkg.tar.xz",
+      "isize": 6495475,
+      "license": [
+        "MIT-open-group"
+      ],
+      "name": "ncurses",
+      "provides": [
+        "libncurses++w.so=6-64",
+        "libformw.so=6-64",
+        "libmenuw.so=6-64",
+        "libpanelw.so=6-64",
+        "libncursesw.so=6-64"
+      ],
+      "replaces": [
+        "alacritty-terminfo",
+        "rio-terminfo",
+        "wezterm-terminfo"
+      ],
+      "repo": "core",
+      "sha256": "e7b4f3c2190e3ebb559d288b05aba70094efae63738343521a5669e64ab4bfa6",
+      "signature_sha256": "562abee2f8d99799ac2b338fbcf2b51dd948f380b1f28d9e27894fe78d2fd09b",
+      "signature_size": 566,
+      "size": 1423256,
+      "source_url": [
+        "https://invisible-island.net/ncurses/ncurses.html"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/ncurses-6.6-2-aarch64.pkg.tar.xz",
+      "version": "6.6-2"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc"
+      ],
+      "filename": "net-tools-2.10-3-aarch64.pkg.tar.xz",
+      "isize": 978180,
+      "license": [
+        "GPL2"
+      ],
+      "name": "net-tools",
+      "provides": [],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "cf58e2500e04424fc622deb9cf788835f485afc66fa82bd5438be9bbadbd3c6a",
+      "signature_sha256": "9456dd95673060a9499b636813dced5d2fd983a31d18f98c2d45338328dc8cfb",
+      "signature_size": 566,
+      "size": 137436,
+      "source_url": [
+        "http://net-tools.sourceforge.net/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/net-tools-2.10-3-aarch64.pkg.tar.xz",
+      "version": "2.10-3"
+    },
+    {
+      "arch": "any",
+      "conflicts": [],
+      "depends": [
+        "coreutils",
+        "iproute2",
+        "resolvconf",
+        "systemd>=233"
+      ],
+      "filename": "netctl-1.29-2-any.pkg.tar.xz",
+      "isize": 98665,
+      "license": [
+        "GPL"
+      ],
+      "name": "netctl",
+      "provides": [],
+      "replaces": [],
+      "repo": "extra",
+      "sha256": "5028a8e9697d820f32e37e7c83f2d72658ff77f74978efe54c3734a6595bf1a6",
+      "signature_sha256": "fa4557b76e2dec2d0393223197e4df5a9342b391c339431aa5b537c64aed50e5",
+      "signature_size": 566,
+      "size": 40672,
+      "source_url": [
+        "https://gitlab.archlinux.org/archlinux/netctl"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/extra/netctl-1.29-2-any.pkg.tar.xz",
+      "version": "1.29-2"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "gmp"
+      ],
+      "filename": "nettle-4.0-1-aarch64.pkg.tar.xz",
+      "isize": 1398466,
+      "license": [
+        "LGPL-3.0-or-later OR GPL-2.0-or-later"
+      ],
+      "name": "nettle",
+      "provides": [
+        "libnettle.so=9-64",
+        "libhogweed.so=7-64"
+      ],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "0912dee3f6f20361e607e7101f39345af7ca9fe7bc51a4ba34620468f8949300",
+      "signature_sha256": "7997c704dd94c86f17e09159b944eb28d622248a8b270a0d530f5d314333930a",
+      "signature_size": 566,
+      "size": 450528,
+      "source_url": [
+        "https://www.lysator.liu.se/~nisse/nettle"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/nettle-4.0-1-aarch64.pkg.tar.xz",
+      "version": "4.0-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "sh"
+      ],
+      "filename": "npth-1.8-1-aarch64.pkg.tar.xz",
+      "isize": 133165,
+      "license": [
+        "LGPL-2.1-or-later"
+      ],
+      "name": "npth",
+      "provides": [
+        "libnpth.so=0-64"
+      ],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "195fb844c1a24b3f38353b4331ce460ddd3fd57ac053ab4ff2567da175f17a98",
+      "signature_sha256": "16965f39c7994ceb64dafce32df588ddd7f288e264ac2054c2f9e6322cd56449",
+      "signature_size": 566,
+      "size": 27372,
+      "source_url": [
+        "https://www.gnupg.org/software/npth/index.html"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/npth-1.8-1-aarch64.pkg.tar.xz",
+      "version": "1.8-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "bash",
+        "coreutils",
+        "curl",
+        "libcurl.so=4-64",
+        "gawk",
+        "gettext",
+        "glibc",
+        "gnupg",
+        "gpgme",
+        "libgpgme.so=45-64",
+        "grep",
+        "libarchive",
+        "libarchive.so=13-64",
+        "openssl",
+        "libcrypto.so=3-64",
+        "pacman-mirrorlist",
+        "systemd",
+        "libmakepkg-dropins"
+      ],
+      "filename": "pacman-7.1.0.r9.g54d9411-2-aarch64.pkg.tar.xz",
+      "isize": 5569823,
+      "license": [
+        "GPL-2.0-or-later"
+      ],
+      "name": "pacman",
+      "provides": [
+        "libalpm.so=16-64"
+      ],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "0e7a5a731727b50e5453f9946afed63456ca6d7015ec0044426489dc78134e3d",
+      "signature_sha256": "86824e704f0f19a7e065b63a8e553c9cadf3b4c49dbeb3f367435d2f557ac26f",
+      "signature_size": 566,
+      "size": 904012,
+      "source_url": [
+        "https://www.archlinux.org/pacman/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/pacman-7.1.0.r9.g54d9411-2-aarch64.pkg.tar.xz",
+      "version": "7.1.0.r9.g54d9411-2"
+    },
+    {
+      "arch": "any",
+      "conflicts": [],
+      "depends": [],
+      "filename": "pacman-mirrorlist-20260411-2-any.pkg.tar.xz",
+      "isize": 1129,
+      "license": [
+        "GPL"
+      ],
+      "name": "pacman-mirrorlist",
+      "provides": [],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "b79b0c0117f394085922ec393aa8bc3e264147377ed90448db928d1142e76ad5",
+      "signature_sha256": "72a900ddc30d2b14fcf48ebb234759e3d572cbd84917b5eee5b733105d49aa64",
+      "signature_size": 566,
+      "size": 2640,
+      "source_url": [
+        "https://www.archlinuxarm.org/about/mirrors"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/pacman-mirrorlist-20260411-2-any.pkg.tar.xz",
+      "version": "20260411-2"
+    },
+    {
+      "arch": "any",
+      "conflicts": [],
+      "depends": [],
+      "filename": "pambase-20260616-1-any.pkg.tar.xz",
+      "isize": 2794,
+      "license": [
+        "GPL-3.0-or-later"
+      ],
+      "name": "pambase",
+      "provides": [],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "8824b4ddde15770edd4a760901b4c73add68bb18f639ded8316024bc1ab0210f",
+      "signature_sha256": "6dabc64fcd7d5c1888079d3ce73ea6a26894f4b153b7d1658f2aa99a3a342b32",
+      "signature_size": 566,
+      "size": 3360,
+      "source_url": [
+        "https://www.archlinux.org"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/pambase-20260616-1-any.pkg.tar.xz",
+      "version": "20260616-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "hwdata",
+        "kmod",
+        "systemd-libs"
+      ],
+      "filename": "pciutils-3.15.0-1-aarch64.pkg.tar.xz",
+      "isize": 551072,
+      "license": [
+        "GPL-2.0-only"
+      ],
+      "name": "pciutils",
+      "provides": [],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "57e4440f20a6ab0ea94a8c8725b569c1beac5d2952a793ddf80fdee1067c5a84",
+      "signature_sha256": "fb93ab2e8fd1b671322093e87f575a9d53b6796b5bfecc854ea1674abc9b9dc1",
+      "signature_size": 566,
+      "size": 138264,
+      "source_url": [
+        "https://mj.ucw.cz/sw/pciutils/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/pciutils-3.15.0-1-aarch64.pkg.tar.xz",
+      "version": "3.15.0-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "ncurses",
+        "libassuan",
+        "libsecret",
+        "glib2",
+        "libglib-2.0.so=0-64",
+        "libncursesw.so=6-64",
+        "libsecret-1.so=0-64"
+      ],
+      "filename": "pinentry-1.3.3-1-aarch64.pkg.tar.xz",
+      "isize": 888419,
+      "license": [
+        "GPL"
+      ],
+      "name": "pinentry",
+      "provides": [],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "a4e7aea581effe0bcd2c90ad7062597ac83bab88116cf31cda21940ca626a1c1",
+      "signature_sha256": "93233d8c9c91d3befc01b49d825db43f4ef4909084e38580c073c668d2d65069",
+      "signature_size": 566,
+      "size": 140248,
+      "source_url": [
+        "https://gnupg.org/related_software/pinentry/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/pinentry-1.3.3-1-aarch64.pkg.tar.xz",
+      "version": "1.3.3-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc"
+      ],
+      "filename": "popt-1.19-2-aarch64.pkg.tar.xz",
+      "isize": 263444,
+      "license": [
+        "custom"
+      ],
+      "name": "popt",
+      "provides": [],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "92da201e571426ab38ac690107e97e870862c005be9b1ecb3e1ab699ac20a022",
+      "signature_sha256": "4c640a8fcdeee20e49f73024c81c719ed132be2269bc429eb43c9246cde35946",
+      "signature_size": 566,
+      "size": 69940,
+      "source_url": [
+        "https://github.com/rpm-software-management/popt"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/popt-1.19-2-aarch64.pkg.tar.xz",
+      "version": "1.19-2"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "ncurses"
+      ],
+      "filename": "psmisc-23.7-2-aarch64.pkg.tar.xz",
+      "isize": 1053865,
+      "license": [
+        "GPL"
+      ],
+      "name": "psmisc",
+      "provides": [],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "53d210ce6f840aa3c02f1b7ee32effcc1dc3584674cfbc254a1582845a04476c",
+      "signature_sha256": "e9bc7b2307d4453a87c3f2442d22cb1b99256d379a21ee433eb8d82ee9845704",
+      "signature_size": 566,
+      "size": 254984,
+      "source_url": [
+        "https://gitlab.com/psmisc/psmisc"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/psmisc-23.7-2-aarch64.pkg.tar.xz",
+      "version": "23.7-2"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "acl",
+        "libacl.so=1-64",
+        "audit",
+        "libaudit.so=1-64",
+        "libxcrypt",
+        "libcrypt.so=2-64",
+        "pam",
+        "libpam.so=0-64",
+        "libpam_misc.so=0-64"
+      ],
+      "filename": "shadow-4.20.0.arch1-1-aarch64.pkg.tar.xz",
+      "isize": 5105397,
+      "license": [
+        "0BSD",
+        "BSD-3-Clause"
+      ],
+      "name": "shadow",
+      "provides": [],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "66b4175a7dbfcde481a4cbed256f2f36ef18f760f599395efb954fe15564ae19",
+      "signature_sha256": "a09a16b1f43e1d3b0820411f704962d4d0ab69e1970870ea492053da645a8b76",
+      "signature_size": 566,
+      "size": 1218964,
+      "source_url": [
+        "https://github.com/shadow-maint/shadow"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/shadow-4.20.0.arch1-1-aarch64.pkg.tar.xz",
+      "version": "4.20.0.arch1-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "readline",
+        "zlib",
+        "glibc"
+      ],
+      "filename": "sqlite-3.53.4-1-aarch64.pkg.tar.xz",
+      "isize": 21161566,
+      "license": [
+        "LicenseRef-Sqlite"
+      ],
+      "name": "sqlite",
+      "provides": [
+        "sqlite3=3.53.4",
+        "libsqlite3.so=0-64"
+      ],
+      "replaces": [
+        "sqlite3"
+      ],
+      "repo": "core",
+      "sha256": "9512d37af4ac6910e10e2a8e6f85078ab72a2ece17a8e6b51755898f50b900ba",
+      "signature_sha256": "3ebd5713a768e6de587faf3869485fb2563346d2570afc9cdf6d3549ce28a762",
+      "signature_size": 566,
+      "size": 1850368,
+      "source_url": [
+        "https://www.sqlite.org/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/sqlite-3.53.4-1-aarch64.pkg.tar.xz",
+      "version": "3.53.4-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "bash",
+        "glibc"
+      ],
+      "filename": "which-2.25-1-aarch64.pkg.tar.xz",
+      "isize": 72274,
+      "license": [
+        "GPL-3.0-or-later"
+      ],
+      "name": "which",
+      "provides": [],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "f42abbf2990fa1c1dc5bfdf3ea0d14481429e3d913b7fa24a91bad4e0e5da999",
+      "signature_sha256": "68a6d600962bdf5ba2de16ddcd130cf638a72f5eafb54c205bd830d9412b08d0",
+      "signature_size": 566,
+      "size": 16588,
+      "source_url": [
+        "https://savannah.gnu.org/projects/which/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/which-2.25-1-aarch64.pkg.tar.xz",
+      "version": "2.25-1"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc"
+      ],
+      "filename": "zlib-1:1.3.2-3-aarch64.pkg.tar.xz",
+      "isize": 257244,
+      "license": [
+        "Zlib"
+      ],
+      "name": "zlib",
+      "provides": [
+        "libz.so=1-64"
+      ],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "7e31b465e09e8e61375578b8e26ed883906e126e0c0ef1c75b7ccccfa95a58c4",
+      "signature_sha256": "ec8d454359ded82cd5dfe368de1cb16303e88ca2b180fba9bcb44ba75a6a7e9d",
+      "signature_size": 566,
+      "size": 77320,
+      "source_url": [
+        "https://www.zlib.net/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/zlib-1:1.3.2-3-aarch64.pkg.tar.xz",
+      "version": "1:1.3.2-3"
+    },
+    {
+      "arch": "aarch64",
+      "conflicts": [],
+      "depends": [
+        "glibc",
+        "libgcc",
+        "libstdc++",
+        "zlib",
+        "xz",
+        "lz4"
+      ],
+      "filename": "zstd-1.5.7-3-aarch64.pkg.tar.xz",
+      "isize": 1631101,
+      "license": [
+        "BSD-3-Clause",
+        "GPL-2.0-only"
+      ],
+      "name": "zstd",
+      "provides": [
+        "libzstd.so=1-64"
+      ],
+      "replaces": [],
+      "repo": "core",
+      "sha256": "c3b907c36049b338bda0c6d85260251e48d17e2be6c0e11ddc0dfd4cf9d2e89a",
+      "signature_sha256": "26b15a5f3e277d74a6ce12462b7971ef6ac25ebc19e5348fa7c1da5bba0d0ed0",
+      "signature_size": 566,
+      "size": 436532,
+      "source_url": [
+        "https://facebook.github.io/zstd/"
+      ],
+      "url": "https://ca.us.mirror.archlinuxarm.org/aarch64/core/zstd-1.5.7-3-aarch64.pkg.tar.xz",
+      "version": "1.5.7-3"
+    }
+  ],
+  "schema": "seed93-authentication-profile-v1",
+  "scope": "GENERIC-held-seed93-data-authentication",
+  "signer_fingerprint": "68B3537F39A313B3E574D06777193F152BDBE6A6",
+  "source_manifest_sha256": "7e3d53110cc868f4e7783cd8d494a5efdd9bca6e9008f447d9399ce0cf782cc7"
+}
