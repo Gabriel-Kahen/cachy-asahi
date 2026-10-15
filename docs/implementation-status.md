@@ -2,6 +2,48 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 14, admitted screenshot software results and continuing ARM work:
+Independent Root review `01e19ab9` authenticates both completed screenshot runs,
+11 evidence graphs and 366 files. Native ARM full capture `38656985498` passes
+230,400 independently decoded pixels; x86 region run `38655970029` passes
+311,507 pixels, including the exact 4,307-pixel crop. Four expected refusals
+per run and scoped owned process/runtime/container cleanup pass. Native region
+selection, live cancellation, broader host resource retirement and M2/Hyprland
+acceptance remain open. The earlier failed runs retain their original evidence.
+See [Root admission](reviews/screenshot-native-region-root-admission-20261014.md).
+
+The [read-only endpoint recipient](release/endpoint-client.md) passes20 local
+tests and eight independent countermodels under review `3c110325`. It verifies
+copied generations, signed stable/promotion/withdrawal records and Source
+associations without changing trust or installing packages. Snapshot identity
+does not establish freshness. Current client adapter pins now match48 declared
+tests, including explicit Source-delivery custody;41 portable adapter tests
+pass. The exact no-skip CI runner passes release82 and client109 locally.
+Independent adapter review `bbf1227d` passes41 portable tests and15 additional
+controls, preserving28 functions and the original execution/cleanup boundaries.
+Hosted execution of the strengthened workflow remains pending publication.
+
+Changed updater run `38658811819` and independent library run `38659049827` are
+terminal FAIL; strict actual reviews are in progress. Library scheduling does
+not require an earlier successful P0 run; its same-job native/original/callback
+and cleanup gates remain mandatory. P0 Source `fa3eb103` publishes the exact
+two-file reviewed diagnostic successor; Root verifies273 Git/physical roles and
+runs the read-only freezer successfully. Actual-source peer `47f8c635`, guarded
+default workflow registration `21cfb9c6` and five literal variable readbacks
+pass. One explicitly selected Source-branch trial `38660515263` terminates FAIL;
+its closed footer reports pipeline/run-pipeline and literal `grant-refused`
+with exception type UNKNOWN. That literal is diagnostic metadata, not proof
+of Source origin or permission failure. Strict actual review is assigned.
+
+The published exporter CI run `38658694908` succeeds, but its exporter/release
+fixtures skip because Arch package tools are absent. Root's local exporter26
+and recipient20 tests pass without skips. A strengthened CI candidate provisions
+disposable-runner tools and rejects skipped or empty release/client suites.
+Its first local execution passes release82 but exposes stale frozen37 client
+adapter pins against current client48. The corrected local execution now passes
+release82 and client109; independent adapter admission passes.
+No passing CI result is substituted for those missing tests or native acceptance.
+
 October 14, local repository exporter integrated:
 The [repository endpoint exporter](repository-endpoint.md) materializes verified
 signed stable bundles into retained local generations and atomically selects
