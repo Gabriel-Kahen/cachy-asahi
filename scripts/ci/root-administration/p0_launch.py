@@ -11,7 +11,7 @@ import sys
 import time
 import types
 
-RESOURCE_ROWS = {'scripts/ci/root-administration/p0_source_freeze.py': {'bytes': 23683, 'mode': 420, 'sha256': '6090d96cfea26e01bfb8f401e281a12ec224b102d564c228bda92f6c59cb2399'}, 'scripts/ci/root-administration/p0_materializer.py': {'bytes': 25870, 'mode': 420, 'sha256': '250f316b57d756a4f1fac09dadc50ca0dc4fd800e1a8f529877f05e398ea1eeb'}}
+RESOURCE_ROWS = {'scripts/ci/root-administration/p0_source_freeze.py': {'bytes': 23683, 'mode': 420, 'sha256': '6090d96cfea26e01bfb8f401e281a12ec224b102d564c228bda92f6c59cb2399'}, 'scripts/ci/root-administration/p0_materializer.py': {'bytes': 27154, 'mode': 420, 'sha256': 'f6f734f1cfed83984c48cd70ee7fdbcd3d519b484fd9e5e7120e63e371a42549'}}
 DRIVER = 'scripts/ci/development/p0_ci.py'
 WF = '.github/workflows/native-arm-p0.yml'
 QUARANTINE = []
