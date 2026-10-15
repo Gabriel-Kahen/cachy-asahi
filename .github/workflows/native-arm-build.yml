@@ -1,4 +1,4 @@
-name: native-arm-full-composition-updater-v2
+name: native-arm-full-composition-setup4-footprint
 on:
   workflow_dispatch:
     inputs:
@@ -23,7 +23,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: native-arm-development-composition-updater-v2
+  group: native-arm-development-composition-setup4-footprint
   cancel-in-progress: false
 jobs:
   native:
