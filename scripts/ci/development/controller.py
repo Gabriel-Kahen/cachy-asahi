@@ -566,10 +566,11 @@ class Development:
                 stage='installer-P0',entry=context['entry'],deadline=end,nonce=self.clock_nonce,
                 runtime_contract=self.runtime_contract,preflight_raw=session.sources.raw[INSTALLER_PATH])
             within(end);owner.Session.p0_context(session)
-            require(type(value) is dict and set(value) == {'schema_version','status','stage','receiver','cleanup','ABI','matrix','hardware_validation'} and
+            require(type(value) is dict and set(value) == {'schema_version','status','stage','receiver','cleanup','ABI','matrix','hardware_validation','input_successor'} and
                     value['schema_version'] == 1 and type(value['schema_version']) is int and
                     value['status'] == 'PASS_P0_ONLY' and value['stage'] == 'installer-P0' and
-                    value['ABI'] == value['matrix'] == value['hardware_validation'] == 'NOT_RUN','installer-result-refused')
+                    value['ABI'] == value['matrix'] == value['hardware_validation'] == 'NOT_RUN' and
+                    owner.validate_input_successor(value['input_successor']) == context['input_successor'],'installer-result-refused')
             self.report['stages']['native-install-preflight'] = dict(value)
             return value
         except BaseException as error:
@@ -589,7 +590,7 @@ class Development:
             raise
         finally:self.persist_p0()
 
-    def run_p0(self, session, runtime_contract, argv, *, entry, image, packages_raw):
+    def run_p0(self, session, runtime_contract, argv, *, entry, image, inputs_raw, packages_raw):
         """Root's explicit independent callable; old run_composed is unchanged."""
         composed_mode(self.packet,self.composition)
         module = sys.modules.get('development_repository_handoff')
@@ -603,7 +604,7 @@ class Development:
         session.sources.class_state(session.sources,'scripts/ci/development/repository_handoff.py',module)
         session.sources.guard(self.deadline)
         self.repository_session = session
-        return session.execute_p0(argv,self.consume_p0,runtime_contract,entry=entry,image=image,packages_raw=packages_raw)
+        return session.execute_p0(argv,self.consume_p0,runtime_contract,entry=entry,image=image,inputs_raw=inputs_raw,packages_raw=packages_raw)
 
     def consume_installer(self, controller):
         """P0 is a limited result; unrelated broad roles remain NOT RUN."""

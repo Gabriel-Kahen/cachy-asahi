@@ -1238,7 +1238,8 @@ class EarlyEntryModels(unittest.TestCase):
             self.assertEqual(dispatch.call_args.kwargs,{'entry':self.entry})
             self.assertIs(type(dispatch.call_args.args[0].controller_entry_monotonic),float)
             self.assertEqual(dispatch.call_args.args[0].controller_entry_monotonic,self.early)
-        self.assertEqual(events,['entry','parser','entry','parser'])
+            self.assertEqual(events[-2:],['entry','parser'])
+        self.assertEqual(events,['entry','parser']*len(controller.packet.COMPOSED_MODES))
 
     def test_legacy_explicit_flag_refuses_before_any_packet_read(self):
         for early in (self.early,'nan','inf'):

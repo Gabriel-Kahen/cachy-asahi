@@ -19,9 +19,9 @@ import types
 
 HANDOFF = 'scripts/ci/development/repository_handoff.py'
 # Root must rebind after any separately reviewed issuer change.
-ISSUER_SHA = '24b2f9d8bd8ee38f2d12010c0fc6ce3559cc868635a6b714c9dd2695ce0eece0'
+ISSUER_SHA = '156f9e20d9f9a27dc3b5320528ef8aa32196066e6ebbc553a9e4fb7e67b9a4aa'
 RECEIVER = 'scripts/install/native_arm_trial.py'
-RECEIVER_SHA = 'fe2becb4fe6c22e50903ab390db5a79aae311b7284fc71bf4b1c4b79e99824c4'
+RECEIVER_SHA = '35a6a82137a9c49c54821a6a6ea50d4f0f25518d9e51d1eace7a83916f94a361'
 PROFILE_SHA = 'b7fbd65e357e132949432fb00e765a05e3c76ea29a41d1df93413870d9fd1ed8'
 OWN = 'scripts/install/native_preflight.py'
 SOURCE_PATHS = ('scripts/install/local_transaction.py', 'scripts/install/test_local_transaction.py',
@@ -172,15 +172,32 @@ def live(session, controller, end):
     need(sha(sources.raw[RECEIVER]) == RECEIVER_SHA, 'RECEIVER_PIN')
     for name in (OWN,*SOURCE_PATHS):
         need(name in sources.raw and name in sources.grant['source_files'], 'REGISTRATION_REQUIRED')
+    if state.get('p0_scope') is not None:
+        current = vars(type(session))['p0_context'](session)
+        selected = vars(module)['validate_input_successor'](current['input_successor'])
+        need(selected == grant['input_successor'] and
+             current['source_view_inputs_sha256'] == selected['historical_inputs_sha256'] and
+             type(current['inputs_raw']) is bytes and len(current['inputs_raw']) == selected['inputs_bytes'] and
+             sha(current['inputs_raw']) == selected['inputs_sha256'] and
+             type(current['packages_raw']) is bytes and len(current['packages_raw']) == selected['packages_bytes'] and
+             sha(current['packages_raw']) == selected['packages_sha256'], 'INPUT_SUCCESSOR')
+        context = {**context, 'input_successor': selected, 'inputs_raw': current['inputs_raw'],
+                   'packages_raw': current['packages_raw'],
+                   'source_view_inputs_sha256': current['source_view_inputs_sha256']}
     tick(end); return context
 
 
-def image_handoff(observed, controller, receiver, inputs_raw, packages_raw):
+def image_handoff(observed, controller, receiver, inputs_raw, packages_raw, *, input_successor=None):
+    inputs_sha, packages_sha = receiver.input_selection(input_successor)
+    if input_successor is not None:
+        input_successor = receiver.validate_input_successor(input_successor)
+        need(type(inputs_raw) is bytes and len(inputs_raw) == input_successor['inputs_bytes'] and
+             type(packages_raw) is bytes and len(packages_raw) == input_successor['packages_bytes'], 'INPUT_SUCCESSOR')
     need(type(observed) is list and len(observed)==1 and type(observed[0]) is dict, 'IMAGE_INSPECT')
     image = observed[0]
     need(image.get('Id') == controller.image and image.get('Architecture') == 'arm64' and
-         image.get('Os') == 'linux' and sha(inputs_raw) == receiver.INPUTS_SHA and
-         sha(packages_raw) == receiver.BASE_SHA, 'IMAGE_BINDING')
+         image.get('Os') == 'linux' and sha(inputs_raw) == inputs_sha and
+         sha(packages_raw) == packages_sha, 'IMAGE_BINDING')
     full_config = image.get('Config'); need(type(full_config) is dict, 'IMAGE_CONFIG')
     # Project the receiver's complete twelve execution-policy fields; preserve values.
     config = {key:full_config.get(key) for key in CONFIG}
@@ -190,18 +207,31 @@ def image_handoff(observed, controller, receiver, inputs_raw, packages_raw):
     changed=[key+':'+type_label(canonical[key]) for key in CONFIG
              if canonical[key]!=CONFIG[key] or key=='ArgsEscaped' and type(canonical[key]) is not bool]
     need(not changed, 'IMAGE_CONFIG '+','.join(changed))
-    return dict(source_commit=controller.commit,image_id=controller.image,inputs_sha256=receiver.INPUTS_SHA,
-                packages_lock_sha256=receiver.BASE_SHA,architecture='arm64',os='linux',Config=config)
+    value = dict(source_commit=controller.commit,image_id=controller.image,inputs_sha256=inputs_sha,
+                 packages_lock_sha256=packages_sha,architecture='arm64',os='linux',Config=config)
+    if input_successor is not None:
+        value.update(input_successor=input_successor, tool_profile_lineage=receiver.TOOL_PROFILE_LINEAGE)
+    return value
 
 
-def selection(sources, controller, receiver, handoff, nonce):
+def selection(sources, controller, receiver, handoff, nonce, *, input_successor=None):
+    inputs_sha, packages_sha = receiver.input_selection(input_successor)
     need(type(nonce) is str and re.fullmatch('[0-9a-f]{32}',nonce), 'NONCE')
     need(sha(receiver.PROFILE_BYTES) == PROFILE_SHA, 'PROFILE_PIN')
     value = dict(schema_version=1,purpose='native-arm-synthetic-installer',phase='preflight',
         source_commit=controller.commit,sources={name:{'size':len(sources.raw[name]),'sha256':sha(sources.raw[name])}
-        for name in SOURCE_PATHS},tool_profile_sha256=PROFILE_SHA,native_inputs_sha256=receiver.INPUTS_SHA,
-        builder_packages_sha256=receiver.BASE_SHA,image_id=controller.image,
+        for name in SOURCE_PATHS},tool_profile_sha256=PROFILE_SHA,native_inputs_sha256=inputs_sha,
+        builder_packages_sha256=packages_sha,image_id=controller.image,
         image_config_sha256=sha(encoded(handoff['Config'])),native_handoff_sha256=sha(encoded(handoff)),nonce=nonce)
+    if input_successor is not None:
+        selected = receiver.validate_input_successor(input_successor)
+        receiver.validate_input_successor(handoff.get('input_successor'))
+        need(handoff.get('input_successor') == selected and
+             type(handoff.get('tool_profile_lineage')) is str and
+             handoff.get('tool_profile_lineage') == receiver.TOOL_PROFILE_LINEAGE and
+             handoff.get('inputs_sha256') == inputs_sha and
+             handoff.get('packages_lock_sha256') == packages_sha, 'INPUT_SUCCESSOR')
+        value.update(input_successor=selected, tool_profile_lineage=receiver.TOOL_PROFILE_LINEAGE)
     receiver.validate_selection(value); return value
 
 
@@ -248,10 +278,16 @@ def container_binding(rows, cid, name, trial, source, inputs, output):
          {(m.get('Source'),m.get('Destination'),m.get('RW')) for m in mounts}==expected, 'CONTAINER_MOUNTS')
 
 
-def accept(result, public_raw, private_raw, receiver, cleanup, end):
+def accept(result, public_raw, private_raw, receiver, cleanup, end, *, input_successor=None):
     tick(end)
     record = strict(public_raw)
     need(receiver.public(record) == public_raw and strict(private_raw) == record, 'RECEIVER_RESULT')
+    if input_successor is not None:
+        selected = receiver.validate_input_successor(input_successor)
+        need(record.get('input_successor') == selected and
+             record.get('tool_profile_lineage') == receiver.TOOL_PROFILE_LINEAGE, 'INPUT_SUCCESSOR')
+    else:
+        need('input_successor' not in record and 'tool_profile_lineage' not in record, 'INPUT_SUCCESSOR')
     need(type(result['exit_code']) is int and result['exit_code'] == 0 and record['status'] == 'PASS_NATIVE_PREFLIGHT_ONLY' and
          record['phase'] == 'complete' and record['ABI'] == record['matrix'] == 'NOT_RUN' and
          type(cleanup) is dict and cleanup == {'remove_exit':0,'absent':True} and
@@ -308,8 +344,12 @@ def run(session, controller, output, *, deadline, nonce, runtime_contract):
         need(inspected['exit_code']==0,'IMAGE_INSPECT')
         raw,_,_=session.sources.module('_preflight_issuer',HANDOFF).read(Path(controller.native_out)/'inputs.lock.json',end)
         packages,_,_=session.sources.module('_preflight_issuer',HANDOFF).read(Path(controller.native_out)/'packages.lock',end)
-        image=image_handoff(strict(inspected['stdout']),controller,receiver,raw,packages)
-        trial=selection(sources,controller,receiver,image,nonce)
+        input_successor = context.get('input_successor')
+        if input_successor is not None:
+            need(raw == context['inputs_raw'] and packages == context['packages_raw'], 'INPUT_SUCCESSOR')
+        image=image_handoff(strict(inspected['stdout']),controller,receiver,raw,packages,
+                            input_successor=input_successor)
+        trial=selection(sources,controller,receiver,image,nonce,input_successor=input_successor)
         for path,data in ((inputs/'image.json',encoded(image)),(inputs/'trial.json',encoded(trial))):
             with path.open('xb') as stream: stream.write(data)
             path.chmod(0o600)
@@ -348,12 +388,16 @@ def run(session, controller, output, *, deadline, nonce, runtime_contract):
                 if failure is None:failure=error
     if failure is None:
         raw,_,_=session.sources.module('_preflight_issuer',HANDOFF).read(child/'result.json',end,limit=4096)
-        report=accept(result,result['stdout'],raw,receiver,cleanup,end)
+        report=accept(result,result['stdout'],raw,receiver,cleanup,end,input_successor=context.get('input_successor'))
         live(session,controller,end)
     if failure is not None:
         BaseException.__setattr__(failure,'native_preflight_cancelled',cancelled)
         BaseException.__setattr__(failure,'native_preflight_cleanup_uncertain',cleanup_uncertain)
         raise failure
-    return {'status':'PASS','stage':'native-install-preflight','receiver':report,'cleanup':cleanup,
-            'elapsed_seconds':time.monotonic()-started,'ABI':'NOT RUN','native_matrix':'NOT RUN',
-            'hardware_validation':'NOT RUN','selected_for_release':False,'public':[]}
+    value = {'status':'PASS','stage':'native-install-preflight','receiver':report,'cleanup':cleanup,
+             'elapsed_seconds':time.monotonic()-started,'ABI':'NOT RUN','native_matrix':'NOT RUN',
+             'hardware_validation':'NOT RUN','selected_for_release':False,'public':[]}
+    if context.get('input_successor') is not None:
+        value.update(input_successor=receiver.validate_input_successor(context['input_successor']),
+                     tool_profile_lineage=receiver.TOOL_PROFILE_LINEAGE)
+    return value

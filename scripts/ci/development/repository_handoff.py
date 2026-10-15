@@ -57,6 +57,27 @@ def need(value, reason):
         raise Refused(reason)
 
 
+P0_CURRENT_CONTRACT = {'schema_version': 1, 'product': 'installer-P0-vim-9.2.1178-1-input-successor-v1', 'lineage': 'CURRENT_PRODUCT_SUCCESSOR_NOT_HISTORICAL_EVIDENCE', 'historical_inputs_sha256': '3c16c37d1b12cc84a88572e82ab8ad59e7f3b5ed0d08f09ddf72a69f4711d650', 'historical_packages_sha256': '89bdb06fea1862b5a6e02b77a4b98f6e04755b02327d875a716bd792929f3a4f', 'inputs_sha256': 'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f', 'packages_sha256': 'fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25', 'inputs_bytes': 328101, 'packages_bytes': 6674, 'acquisitions': 501, 'packages': 341, 'recipe_source_commit': 'ebd5812640b0b69f5c09a47752b739e37e338754', 'source_epoch': 1791748800}
+
+
+def validate_input_successor(value):
+    """One explicit P0 product; no arbitrary current-input selection."""
+    need(type(value) is dict and len(value) == 13 and all(type(key) is str for key in value) and
+         set(value) == set(P0_CURRENT_CONTRACT) and
+         all(type(value[key]) is type(expected) and value[key] == expected
+             for key, expected in P0_CURRENT_CONTRACT.items()), 'grant-refused')
+    return dict(P0_CURRENT_CONTRACT)
+
+
+def validate_current_inputs(inputs_raw, packages_raw, input_successor):
+    contract = validate_input_successor(input_successor)
+    need(type(inputs_raw) is bytes and len(inputs_raw) == contract['inputs_bytes'] and
+         digest(inputs_raw) == contract['inputs_sha256'] and
+         type(packages_raw) is bytes and len(packages_raw) == contract['packages_bytes'] and
+         digest(packages_raw) == contract['packages_sha256'], 'source-refused')
+    return contract
+
+
 GRANT_GUARDS = frozenset(['decode-duplicate', 'decode-number', 'decode-bytes', 'decode-object', 'grant-pin', 'grant-schema', 'contract-pin', 'job-identifier', 'original-view', 'policy-source-pin', 'policy-fields'])
 
 
@@ -180,7 +201,7 @@ def code_objects(code):
             yield from code_objects(item)
 
 
-P0_OVERLAY_ROWS = {'scripts/ci/native_arm.py': {'mode': 420, 'sha256': '3ec0b15feb4b401e0426def2187576c8b3e7450552eb0824403e77ca5108bf0a'}, 'scripts/ci/integration.py': {'mode': 420, 'sha256': 'e448e2074ccca91d49fd07c115b9caa341efccebb3326f826b9eb0bc342ce9d4'}}
+P0_OVERLAY_ROWS = {'scripts/ci/native_arm.py': {'mode': 420, 'sha256': '14de79257ed432fc851299682cec3ab197a4f5a208058aea950ca7e6c98b4b80'}, 'scripts/ci/integration.py': {'mode': 420, 'sha256': 'e448e2074ccca91d49fd07c115b9caa341efccebb3326f826b9eb0bc342ce9d4'}}
 
 P0_OVERLAY_SOURCE_IDS = {'scripts/ci/native_arm.py': 'scripts/ci/development/p0_native_arm.py', 'scripts/ci/integration.py': 'scripts/ci/development/p0_integration.py'}
 
@@ -1007,13 +1028,16 @@ def preflight(root, grant_raw, grant_pin, *, deadline):
         need(set(grant) == {'schema_version', 'purpose', 'source_peer_preflight', 'development_only',
             'added_seconds', 'source_commit', 'recipe_source_commit', 'run_id', 'run_attempt',
             'source_files', 'maps', 'callbacks', 'policy_path', 'license_path','actor_contract_sha256',
-            'initial_invocation_sha256','original_view'} and
+            'initial_invocation_sha256','original_view'} | ({'input_successor'} if type(grant.get('original_view')) is dict and grant['original_view'].get('purpose') == 'P0-157-held-2-overlay-copy-view' else set()) and
             type(grant['schema_version']) is int and grant['schema_version'] == 2 and
             grant['purpose'] in (('reviewed-installer-P0-execution','reviewed-installer-P0-preparation') if type(grant.get('original_view')) is dict and grant['original_view'].get('purpose') == 'P0-157-held-2-overlay-copy-view' else ('reviewed-same-job-handoff-execution',)) and
             grant['source_peer_preflight'] == 'PASS' and grant['development_only'] is True and
             type(grant['added_seconds']) is int and grant['added_seconds'] == (0 if type(grant.get('original_view')) is dict and grant['original_view'].get('purpose') == 'P0-157-held-2-overlay-copy-view' else 1200) and
             type(grant['maps']) is dict and set(grant['maps']) == set(PREFIXES) and
             type(grant['callbacks']) is dict and set(grant['callbacks']) == CALLBACKS, 'grant-refused')
+        if grant['purpose'] in ('reviewed-installer-P0-execution', 'reviewed-installer-P0-preparation'):
+            validate_input_successor(grant['input_successor'])
+            need(grant['recipe_source_commit'] == P0_CURRENT_CONTRACT['recipe_source_commit'], 'grant-refused')
     except BaseException as error:
         attach_grant_guard(error, 'grant-schema')
         raise
@@ -1752,7 +1776,7 @@ class Session:
         self.sources.class_state(self,'scripts/ci/development/repository_handoff.py',issuer)
         self.sources.class_state(self.sources,'scripts/ci/development/repository_handoff.py',issuer)
         scope = self.p0_scope
-        need(type(scope) is tuple and len(scope) == 4 and self.used is True and
+        need(type(scope) is tuple and len(scope) == 5 and self.used is True and
              self.composition == 'installer-preflight','grant-refused')
         frame = sys._getframe();active = None
         for _ in range(64):
@@ -1762,12 +1786,16 @@ class Session:
             frame = frame.f_back
             if frame is None:break
         need(active is not None,'source-refused')
-        entry,end,image,packages_raw = scope
+        entry,end,image,packages_raw,inputs_raw = scope
         check(end,self.cancelled);self.sources.guard(end,self.cancelled)
+        contract = validate_current_inputs(inputs_raw,packages_raw,self.sources.grant['input_successor'])
+        need(digest(self.sources.raw['scripts/ci/inputs.lock.json']) == contract['historical_inputs_sha256'] and
+             self.sources.grant['recipe_source_commit'] == contract['recipe_source_commit'], 'source-refused')
         lock = decode(self.sources.raw['scripts/ci/integration.lock.json'])
         lock = {**lock,'source_files':selected_view_rows(self.sources)}
         return {'entry':entry,'end':end,'image':image,'packages_raw':packages_raw,
-                'inputs_raw':self.sources.raw['scripts/ci/inputs.lock.json'],'lock':lock,
+                'inputs_raw':inputs_raw,'input_successor':contract,
+                'source_view_inputs_sha256':contract['historical_inputs_sha256'],'lock':lock,
                 'source_commit':self.sources.grant['source_commit']}
 
     def p0_controller(self, controller):
@@ -1794,12 +1822,12 @@ class Session:
         controller.report.update(status='PASS_P0_ONLY',execution_scope='installer-P0',stages={'native-install-preflight':self.p0_result})
         return True
 
-    def execute_p0(self, argv, consumer, runtime_contract, *, entry, image, packages_raw):
+    def execute_p0(self, argv, consumer, runtime_contract, *, entry, image, inputs_raw, packages_raw):
         """Independent actual owner/main/run stage, one original60 budget."""
         need(self.used is False and self.composition == 'installer-preflight' and
              type(entry) in (int,float) and math.isfinite(entry) and
              type(image) is str and re.fullmatch('sha256:[0-9a-f]{64}',image) and
-             type(packages_raw) is bytes and len(packages_raw) <= 1024**2,'grant-refused')
+             type(inputs_raw) is bytes and type(packages_raw) is bytes and len(packages_raw) <= 1024**2,'grant-refused')
         end = min(self.job_deadline,entry+60);check(end,self.cancelled)
         need(entry <= time.monotonic() < end and
              os.getuid() == os.geteuid() > 0 and os.getgid() == os.getegid() > 0 and
@@ -1808,13 +1836,16 @@ class Session:
              all(type(a) is str and len(a) <= 4096 and '\0' not in a for a in argv) and
              type(runtime_contract) is dict and set(runtime_contract) == {'cli_sha256','endpoint_identity','env'},'grant-refused')
         grant = self.sources.grant
+        contract = validate_current_inputs(inputs_raw,packages_raw,grant['input_successor'])
+        need(digest(self.sources.raw['scripts/ci/inputs.lock.json']) == contract['historical_inputs_sha256'] and
+             grant['recipe_source_commit'] == contract['recipe_source_commit'], 'source-refused')
         need(grant['purpose'] == 'reviewed-installer-P0-execution' and grant['original_view']['purpose'] == 'P0-157-held-2-overlay-copy-view' and
              digest(encoded({'argv':argv,'output':str(self.output)})) == grant['initial_invocation_sha256'] and
              digest(encoded(runtime_contract)) == grant['actor_contract_sha256'],'grant-refused')
         need(all(os.environ.get(env) == grant[key] for env,key in
              (('GITHUB_SHA','source_commit'),('GITHUB_RUN_ID','run_id'),('GITHUB_RUN_ATTEMPT','run_attempt'))),'grant-refused')
         self.sources.callback('existing_consumers',consumer,end)
-        scope = (entry,end,image,packages_raw)
+        scope = (entry,end,image,packages_raw,inputs_raw)
         self.p0_scope = scope;self.end = self.work_end = end;self.used = True
         first = None;cancelled = uncertain = False;result = None
         try:
@@ -1831,15 +1862,19 @@ class Session:
             self.prepare_view(view_root)
             self.register_native_preflight();self.register_p0_entry()
             receiver = self.sources.module('native_install_receiver','scripts/install/native_arm_trial.py')
-            need(digest(packages_raw) == receiver.BASE_SHA and
-                 digest(self.sources.raw['scripts/ci/inputs.lock.json']) == receiver.INPUTS_SHA,'source-refused')
+            need(receiver.validate_input_successor(contract) == contract and
+                 receiver.input_selection(contract) == (contract['inputs_sha256'],contract['packages_sha256']) and
+                 digest(packages_raw) == contract['packages_sha256'] and
+                 digest(inputs_raw) == contract['inputs_sha256'],'source-refused')
             self.sources.source_graph(self,capture=True)
             def callback(controller):
                 self.observe_native_consumer(controller)
                 self.sources.callback('existing_consumers',consumer,end)
                 value = consumer(controller)
                 self.sources.callback('existing_consumers',consumer,end)
-                need(type(value) is dict and value.get('status') == 'PASS_P0_ONLY' and value.get('matrix') == value.get('ABI') == 'NOT_RUN','source-refused')
+                need(type(value) is dict and set(value) == {'schema_version','status','stage','receiver','cleanup','ABI','matrix','hardware_validation','input_successor'} and
+                     value.get('status') == 'PASS_P0_ONLY' and value.get('matrix') == value.get('ABI') == 'NOT_RUN' and
+                     validate_input_successor(value['input_successor']) == contract,'source-refused')
                 self.p0_result = value
             self.original_scope = loader.original_modules(view_root,view_root/'scripts/ci/integration.lock.json',INITIAL,deadline=end,verification_deadline=end,source_overlay=P0_OVERLAY_ROWS)
             with self.original_scope as original:

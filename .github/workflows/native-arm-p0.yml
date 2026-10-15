@@ -51,6 +51,9 @@ jobs:
           PREPARATION_TRUSTED_OUTER_END: ${{ vars.P0_PREPARATION_TRUSTED_OUTER_END }}
           ROOT_P0_TEMPLATE_ZLIB_B64: ${{ vars.P0_PRIVATE_INPUT_TEMPLATE_ZLIB_B64 }}
           ROOT_P0_TEMPLATE_SHA256: ${{ inputs.private_bundle_sha256 }}
+          CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01 }}
+          CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02 }}
+          CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01 }}
           CACHY_OLD_FOUR_SCHEMA: '1'
           CACHY_OLD_FOUR_SOURCE_EPOCH: '1791748800'
           CACHY_OLD_FOUR_JBIGKIT_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_01 }}
@@ -78,7 +81,7 @@ jobs:
           import base64,hashlib,json,math,os,stat,sys,types,zlib
           from pathlib import Path
           # Capture before helper Git/project/tool constructors; never pass to providers.
-          captured={k:os.environ.pop(k) for k in tuple(os.environ) if k.startswith('CACHY_OLD_FOUR_')}
+          captured={k:os.environ.pop(k) for k in tuple(os.environ) if k.startswith(('CACHY_OLD_FOUR_', 'CACHY_RETAINED_'))}
           expected=os.environ['EXPECTED_SOURCE_COMMIT']
           if expected!=os.environ['GITHUB_SHA'] or expected!=os.environ['GITHUB_WORKFLOW_SHA'] or len(expected)!=40 or any(c not in '0123456789abcdef' for c in expected):raise ValueError('Root Source context refused')
           outer_end=entry+1890
@@ -209,7 +212,7 @@ jobs:
           if proof.get('Source')!=expected or proof.get('remote')!=expected or sum(k in proof for k in ('rows','files'))!=1:raise ValueError('Root proof Source refused')
           rows=proof.get('rows',proof.get('files'))
           root=Path(os.environ['GITHUB_WORKSPACE']).resolve();relative='scripts/ci/root-administration/p0_launch.py'
-          wanted={'bytes': 34143, 'mode': 420, 'sha256': 'b557bb99da537a66e39a07076a46f2564ba11a7c0aa15e8e44dc9109b5fc5a1b'}
+          wanted={'bytes': 34625, 'mode': 420, 'sha256': '5d85423546cf204719cff31f2fee112e8004f0cd07fa978bf70899e9de60aea8'}
           if rows.get(relative)!=wanted:raise ValueError('Root launch publication refused')
           path=root/relative
           def ident(n):return tuple(getattr(n,k) for k in ('st_dev','st_ino','st_mode','st_uid','st_gid','st_nlink','st_size','st_mtime_ns','st_ctime_ns'))
@@ -262,5 +265,5 @@ jobs:
           finally:
               captured.clear()
               for k in tuple(os.environ):
-                  if k.startswith('CACHY_OLD_FOUR_'):os.environ.pop(k)
+                  if k.startswith(('CACHY_OLD_FOUR_', 'CACHY_RETAINED_')):os.environ.pop(k)
           print(json.dumps(result,sort_keys=True,allow_nan=False))

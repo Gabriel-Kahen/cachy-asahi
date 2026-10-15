@@ -14,7 +14,7 @@ OWN='scripts/install/p0_entry.py'
 BRIDGE='scripts/install/native_preflight.py'
 BRIDGE_NAME='native_install_preflight'
 STAGE='installer-P0'
-SOURCE_ROWS = {'scripts/install/native_preflight.py': {'bytes': 22585, 'mode': 420, 'sha256': 'c0ae7e144d70e2d675be92f18579c9efa8182d34d087c0fefcd589c88c6ca1f7'}, 'scripts/install/local_transaction.py': {'bytes': 82312, 'mode': 420, 'sha256': '966aedf602511bedfc8ee8e12c29f21a7ff6b79523e4c5800b2a22a2af826eca'}, 'scripts/install/test_local_transaction.py': {'bytes': 114659, 'mode': 420, 'sha256': 'ea5299f12b4d325035ebca1476feb2832e0d8e95980a456910ac302e845aefdb'}, 'scripts/install/native_arm_trial.py': {'bytes': 74929, 'mode': 420, 'sha256': 'fe2becb4fe6c22e50903ab390db5a79aae311b7284fc71bf4b1c4b79e99824c4'}, 'scripts/install/test_native_arm_trial.py': {'bytes': 18875, 'mode': 420, 'sha256': 'e7d9564548819d340852923d704abd6c234f3f61d9aaad2624be34c974ccbc55'}, 'scripts/port/kernel-native-job/runtime.py': {'bytes': 11345, 'mode': 420, 'sha256': '8a7cd5e73cf383b2d81ad577b8513c6fd7d49f9fd2572961c73ae9d289cab821'}, 'scripts/ci/development/repository_handoff.py': {'bytes': 143422, 'mode': 420, 'sha256': '24b2f9d8bd8ee38f2d12010c0fc6ce3559cc868635a6b714c9dd2695ce0eece0'}, 'scripts/ci/development/controller.py': {'bytes': 99358, 'mode': 420, 'sha256': 'c3dffddf28c5fee3dd5d11d2de7fa14a78c17a61d0345864ae511b86bbcdeab5'}}
+SOURCE_ROWS = {'scripts/install/native_preflight.py': {'bytes': 25840, 'mode': 420, 'sha256': '037a463ce92f45b61e7dbdba4755d0e95bde0a001dcddfd12267418e564da63f'}, 'scripts/install/local_transaction.py': {'bytes': 82312, 'mode': 420, 'sha256': '966aedf602511bedfc8ee8e12c29f21a7ff6b79523e4c5800b2a22a2af826eca'}, 'scripts/install/test_local_transaction.py': {'bytes': 114659, 'mode': 420, 'sha256': 'ea5299f12b4d325035ebca1476feb2832e0d8e95980a456910ac302e845aefdb'}, 'scripts/install/native_arm_trial.py': {'bytes': 79110, 'mode': 420, 'sha256': '35a6a82137a9c49c54821a6a6ea50d4f0f25518d9e51d1eace7a83916f94a361'}, 'scripts/install/test_native_arm_trial.py': {'bytes': 29974, 'mode': 420, 'sha256': '0e6c55746c5e160c42cb462de8ba32534c5c54690f478c454861ef13fdd64e24'}, 'scripts/port/kernel-native-job/runtime.py': {'bytes': 11345, 'mode': 420, 'sha256': '8a7cd5e73cf383b2d81ad577b8513c6fd7d49f9fd2572961c73ae9d289cab821'}, 'scripts/ci/development/repository_handoff.py': {'bytes': 146685, 'mode': 420, 'sha256': '156f9e20d9f9a27dc3b5320528ef8aa32196066e6ebbc553a9e4fb7e67b9a4aa'}, 'scripts/ci/development/controller.py': {'bytes': 99521, 'mode': 420, 'sha256': '38782fdd8ce227c7f60866a6eb602cd98671d11e19f91358894328c70110f2d1'}}
 
 
 def need(value,code):
@@ -52,9 +52,29 @@ def authenticate(bridge,session,controller,end):
     return sources
 
 
-def projection(value):
+P0_CURRENT_CONTRACT = {'schema_version': 1, 'product': 'installer-P0-vim-9.2.1178-1-input-successor-v1', 'lineage': 'CURRENT_PRODUCT_SUCCESSOR_NOT_HISTORICAL_EVIDENCE', 'historical_inputs_sha256': '3c16c37d1b12cc84a88572e82ab8ad59e7f3b5ed0d08f09ddf72a69f4711d650', 'historical_packages_sha256': '89bdb06fea1862b5a6e02b77a4b98f6e04755b02327d875a716bd792929f3a4f', 'inputs_sha256': 'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f', 'packages_sha256': 'fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25', 'inputs_bytes': 328101, 'packages_bytes': 6674, 'acquisitions': 501, 'packages': 341, 'recipe_source_commit': 'ebd5812640b0b69f5c09a47752b739e37e338754', 'source_epoch': 1791748800}
+TOOL_PROFILE_LINEAGE = 'HISTORICAL_REQUIRED_TOOL_WHITELIST_NOT_CURRENT_AUDIT'
+
+
+def validate_input_successor(value):
+    need(type(value) is dict and len(value) == 13 and all(type(key) is str for key in value) and
+            set(value) == set(P0_CURRENT_CONTRACT) and
+            all(type(value[key]) is type(wanted) and value[key] == wanted
+                for key, wanted in P0_CURRENT_CONTRACT.items()), 'INPUT_SUCCESSOR')
+    return dict(value)
+
+
+def projection(value, *, input_successor=None):
     keys={'status','stage','receiver','cleanup','elapsed_seconds','ABI','native_matrix',
           'hardware_validation','selected_for_release','public'}
+    if input_successor is not None:
+        input_successor = validate_input_successor(input_successor)
+        keys |= {'input_successor', 'tool_profile_lineage'}
+        need(type(value) is dict, 'P0_INPUT_SUCCESSOR')
+        validate_input_successor(value.get('input_successor'))
+        need(value.get('input_successor') == input_successor and
+             type(value.get('tool_profile_lineage')) is str and
+             value.get('tool_profile_lineage') == TOOL_PROFILE_LINEAGE, 'P0_INPUT_SUCCESSOR')
     need(type(value) is dict and set(value)==keys and value['status']=='PASS' and
          value['stage']=='native-install-preflight' and value['ABI']==value['native_matrix']==
          value['hardware_validation']=='NOT RUN' and value['selected_for_release'] is False and
@@ -67,11 +87,19 @@ def projection(value):
     expected=dict(schema_version=1,status='PASS_NATIVE_PREFLIGHT_ONLY',phase='complete',barrier='PASS',
         ABI='NOT_RUN',matrix='NOT_RUN',tests=1,failures=0,errors=0,skips=0,
         termination=False,owned_child_cleanup='PASS',first_failure='NONE')
+    if input_successor is not None:
+        expected.update(input_successor=input_successor, tool_profile_lineage=TOOL_PROFILE_LINEAGE)
+        need(type(row) is dict, 'P0_INPUT_SUCCESSOR')
+        validate_input_successor(row.get('input_successor'))
+        need(type(row.get('tool_profile_lineage')) is str, 'P0_INPUT_SUCCESSOR')
     need(type(row) is dict and row==expected and set(row)==set(expected) and
          all(type(row[k]) is int for k in ('schema_version','tests','failures','errors','skips')) and
          type(row['termination']) is bool,'P0_COMPLETE_PHASE')
-    return dict(schema_version=1,status='PASS_P0_ONLY',stage=STAGE,receiver=dict(row),
+    result = dict(schema_version=1,status='PASS_P0_ONLY',stage=STAGE,receiver=dict(row),
         cleanup=dict(value['cleanup']),ABI='NOT_RUN',matrix='NOT_RUN',hardware_validation='NOT_RUN')
+    if input_successor is not None:
+        result.update(input_successor=input_successor)
+    return result
 
 
 def run(session,controller,output,*,token,stage,entry,deadline,nonce,runtime_contract,preflight_raw):
@@ -83,7 +111,9 @@ def run(session,controller,output,*,token,stage,entry,deadline,nonce,runtime_con
     now=time.monotonic();need(entry<=now<end,'P0_ORIGINAL_FRAME')
     bridge=verified_bridge(preflight_raw)
     authenticate(bridge,session,controller,end)
+    context = bridge.live(session,controller,end)
+    selected = validate_input_successor(context.get('input_successor'))
     # Existing run retains end-10 launch, end-5 removal and end final checks.
     value=bridge.run(session,controller,output,deadline=end,nonce=nonce,runtime_contract=runtime_contract)
     bridge.tick(end);authenticate(bridge,session,controller,end)
-    return projection(value)
+    return projection(value,input_successor=selected)

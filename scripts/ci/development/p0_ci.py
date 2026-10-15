@@ -25,18 +25,48 @@ import urllib.parse
 OWN='scripts/ci/development/p0_ci.py'
 WORKFLOW='.github/workflows/native-arm-p0.yml'
 COMPOSITION='installer-preflight'
-INPUTS_SHA='3c16c37d1b12cc84a88572e82ab8ad59e7f3b5ed0d08f09ddf72a69f4711d650'
-PACKAGES_SHA='89bdb06fea1862b5a6e02b77a4b98f6e04755b02327d875a716bd792929f3a4f'
+SOURCE_INPUTS_SHA='3c16c37d1b12cc84a88572e82ab8ad59e7f3b5ed0d08f09ddf72a69f4711d650'
+INPUTS_SHA='beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f'
+PACKAGES_SHA='fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25'
+INPUT_SUCCESSOR={'schema_version':1,'product':'installer-P0-vim-9.2.1178-1-input-successor-v1',
+    'lineage':'CURRENT_PRODUCT_SUCCESSOR_NOT_HISTORICAL_EVIDENCE','historical_inputs_sha256':SOURCE_INPUTS_SHA,
+    'historical_packages_sha256':'89bdb06fea1862b5a6e02b77a4b98f6e04755b02327d875a716bd792929f3a4f',
+    'inputs_sha256':INPUTS_SHA,'packages_sha256':PACKAGES_SHA,'inputs_bytes':328101,'packages_bytes':6674,
+    'acquisitions':501,'packages':341,'recipe_source_commit':'ebd5812640b0b69f5c09a47752b739e37e338754',
+    'source_epoch':1791748800}
+# Exact public records from fb3c3b7d115e8a40d104a7cad4ebad5412dcdd47,
+# scripts/ci/maintained-native/locks/inputs-successor.lock.json (beca39e0...).
+CURRENT_VIM_ROWS=(
+    {'arch':'aarch64','conflicts':['gvim','vim-minimal'],
+     'depends':['vim-runtime=9.2.1178-1','gpm','acl','glibc','libgcrypt','zlib'],
+     'filename':'vim-9.2.1178-1-aarch64.pkg.tar.xz','license':['custom:vim'],'name':'vim',
+     'provides':['xxd','vim-minimal','vim-plugin-runtime'],'replaces':['vim-minimal'],
+     'sha256':'e6dac872c70975d71550af934402f4e603bb0ebe444310440bc89f4e8c8e76c4',
+     'signature_sha256':'28d7e145d8f47626e574fc7412cd45d866392a8557adda3002362ff42bb993aa',
+     'signature_size':566,'size':2084600,'source_url':['https://www.vim.org'],
+     'url':'https://ca.us.mirror.archlinuxarm.org/aarch64/extra/vim-9.2.1178-1-aarch64.pkg.tar.xz',
+     'version':'9.2.1178-1'},
+    {'arch':'aarch64','conflicts':[],'depends':[],
+     'filename':'vim-runtime-9.2.1178-1-aarch64.pkg.tar.xz','license':['custom:vim'],'name':'vim-runtime',
+     'provides':[],'replaces':[],
+     'sha256':'340ee0b85995517e50832aea2e69224044ff77b384fc5c8e017959bcdcfc78f8',
+     'signature_sha256':'466eca3dc6734a3d10ea8f90f1a5d9ca15e339290995557d3120f03690399bf4',
+     'signature_size':566,'size':7703748,'source_url':['https://www.vim.org'],
+     'url':'https://ca.us.mirror.archlinuxarm.org/aarch64/extra/vim-runtime-9.2.1178-1-aarch64.pkg.tar.xz',
+     'version':'9.2.1178-1'})
 OVERRIDE_ROWS={
     'jbigkit-2.1-8-aarch64.pkg.tar.xz':(48816,'ecaddb099f4a1f1bcbc1497fd0f3dc98581552b9eacaa17c5568211c38bec1db'),
     'jbigkit-2.1-8-aarch64.pkg.tar.xz.sig':(566,'f00be593f9ab5855f9e450d054e6cacd319ec834ef7fc97c51bcf3be3ebfdb1f'),
     'libtiff-4.7.2-1-aarch64.pkg.tar.xz':(354480,'02a5d2d74019b39befd6cf63d9bde95a2d16f91b4d0d56939498375e0e491ffd'),
-    'libtiff-4.7.2-1-aarch64.pkg.tar.xz.sig':(566,'8dae1efda531e3ac7db09512cfe0c619eaae6787cc16fdea1315588b4fc340fa')}
-INPUT_NAMES=('plan.json','packet.json','grant.json','runtime.json','prepared-image.json','packages.lock','source-publication.json')
+    'libtiff-4.7.2-1-aarch64.pkg.tar.xz.sig':(566,'8dae1efda531e3ac7db09512cfe0c619eaae6787cc16fdea1315588b4fc340fa'),
+    'bubblewrap-0.13.0-1-aarch64.pkg.tar.xz':(40428,'4866e25c5a7c33c3ded9f221058b5f4136cdbd991f3dc77a2f7a740368c95a61'),
+    'bubblewrap-0.13.0-1-aarch64.pkg.tar.xz.sig':(566,'dc7ad4f478d7b196b5189e670e2d80f3e68ad28aa869b0bee697d2c5309064fa')}
+INPUT_NAMES=('plan.json','packet.json','grant.json','runtime.json','prepared-image.json','packages.lock',
+             'current-inputs.lock.json','source-publication.json')
 MODULES=(('packet','scripts/ci/development/packet.py'),('common','scripts/ci/development/common.py'),
          ('development_p0_controller','scripts/ci/development/controller.py'),
          ('development_repository_handoff','scripts/ci/development/repository_handoff.py'))
-PROJECT_BOOTSTRAP_ROWS = {'scripts/ci/development/packet.py': {'bytes': 35461, 'mode': 420, 'sha256': '0f707c34abbf6ec4646368d643116d687394ebf743ead13d254c3c4688df5b34'}, 'scripts/ci/development/common.py': {'bytes': 16893, 'mode': 420, 'sha256': 'a9fd67f8ca192a5d27f95377fae3804a2ae69f6675440b1104c4411a35dc8a12'}, 'scripts/ci/development/controller.py': {'bytes': 99358, 'mode': 420, 'sha256': 'c3dffddf28c5fee3dd5d11d2de7fa14a78c17a61d0345864ae511b86bbcdeab5'}, 'scripts/ci/development/repository_handoff.py': {'bytes': 143422, 'mode': 420, 'sha256': '24b2f9d8bd8ee38f2d12010c0fc6ce3559cc868635a6b714c9dd2695ce0eece0'}}
+PROJECT_BOOTSTRAP_ROWS = {'scripts/ci/development/packet.py': {'bytes': 35461, 'mode': 420, 'sha256': '317635f02db5c9022633f336540558ef137d584e6dfb523072a831bcc0a50f0e'}, 'scripts/ci/development/common.py': {'bytes': 16893, 'mode': 420, 'sha256': 'a9fd67f8ca192a5d27f95377fae3804a2ae69f6675440b1104c4411a35dc8a12'}, 'scripts/ci/development/controller.py': {'bytes': 99521, 'mode': 420, 'sha256': '38782fdd8ce227c7f60866a6eb602cd98671d11e19f91358894328c70110f2d1'}, 'scripts/ci/development/repository_handoff.py': {'bytes': 146685, 'mode': 420, 'sha256': '156f9e20d9f9a27dc3b5320528ef8aa32196066e6ebbc553a9e4fb7e67b9a4aa'}}
 
 
 def need(value,code):
@@ -136,6 +166,26 @@ def decode(raw):
     return json.loads(raw,object_pairs_hook=pairs,parse_constant=lambda _:need(False,'p0-json-number'))
 
 
+def input_successor(value):
+    need(type(value) is dict and len(value)==len(INPUT_SUCCESSOR) and all(type(key) is str for key in value) and set(value)==set(INPUT_SUCCESSOR) and
+         all(type(value[key]) is type(wanted) and value[key]==wanted for key,wanted in INPUT_SUCCESSOR.items()),
+         'p0-runtime-selection')
+
+
+def current_inputs(raw):
+    """Derive only this fixed Vim successor; Source159 remains historical3c16."""
+    need(type(raw) is bytes and len(raw)==328101 and digest(raw)==SOURCE_INPUTS_SHA,'prep-inputs')
+    value=decode(raw);changed=[]
+    for index,row in enumerate(value['packages']):
+        for replacement in CURRENT_VIM_ROWS:
+            if row['name']==replacement['name']:
+                value['packages'][index]=decode(encoded(replacement));changed.append(row['name'])
+    need(changed==['vim','vim-runtime'],'prep-inputs')
+    result=encoded(value)
+    need(len(result)==328101 and digest(result)==INPUTS_SHA,'prep-inputs')
+    return result
+
+
 def pin(value):
     need(type(value) is str and re.fullmatch('[0-9a-f]{64}',value),'p0-input-pin')
     return value
@@ -202,7 +252,7 @@ def contract(plan,prepared,runtime,*,entry,expected_source_commit,environment):
     """Validate Root-supplied data; this function neither creates nor grants actors."""
     need(type(expected_source_commit) is str and re.fullmatch('[0-9a-f]{40}',expected_source_commit), 'p0-source-commit')
     need(type(plan) is dict and set(plan)=={'schema_version','purpose','source_commit','run_id','run_attempt',
-         'outer_end','nonce','input_pins','preparation_plan_sha256','preparation_source_rows_sha256'} and
+         'outer_end','nonce','input_pins','preparation_plan_sha256','preparation_source_rows_sha256','input_successor'} and
          type(plan['schema_version']) is int and plan['schema_version']==1 and
          plan['purpose']=='reviewed-installer-P0-ci-execution','p0-runtime-selection')
     need(plan['source_commit']==expected_source_commit==environment.get('GITHUB_SHA')==environment.get('GITHUB_WORKFLOW_SHA') and
@@ -214,16 +264,19 @@ def contract(plan,prepared,runtime,*,entry,expected_source_commit,environment):
          type(plan['run_attempt']) is str and re.fullmatch('[1-9][0-9]{0,9}',plan['run_attempt']) and
          finite(entry) and finite(plan['outer_end']) and entry<plan['outer_end'] and
          type(plan['nonce']) is str and re.fullmatch('[0-9a-f]{32}',plan['nonce']),'p0-frame')
-    need(type(plan['input_pins']) is dict and set(plan['input_pins'])==set(INPUT_NAMES)-{'plan.json'},'p0-input-set')
+    input_successor(plan['input_successor'])
+    need(type(plan['input_pins']) is dict and set(plan['input_pins'])==set(INPUT_NAMES)-{'plan.json'} and
+         plan['input_pins']['current-inputs.lock.json']==INPUTS_SHA,'p0-input-set')
     for value in (*plan['input_pins'].values(),plan['preparation_plan_sha256'],plan['preparation_source_rows_sha256']):pin(value)
     need(type(prepared) is dict and set(prepared)=={'schema_version','purpose','source_commit','run_id','run_attempt','image',
-         'inputs_sha256','packages_sha256','preparation_plan_sha256','preparation_source_rows_sha256','base_image_owner'} and
+         'inputs_sha256','packages_sha256','preparation_plan_sha256','preparation_source_rows_sha256','base_image_owner','input_successor'} and
          type(prepared['schema_version']) is int and prepared['schema_version']==1 and
          prepared['purpose']=='Root-same-job-prepared-P0-image' and
          all(prepared[key]==plan[key] for key in ('source_commit','run_id','run_attempt','preparation_plan_sha256','preparation_source_rows_sha256')) and
          prepared['inputs_sha256']==INPUTS_SHA and prepared['packages_sha256']==PACKAGES_SHA and
          prepared['base_image_owner']=='EXTERNAL_ROOT_BORROWED' and type(prepared['image']) is str and
          re.fullmatch('sha256:[0-9a-f]{64}',prepared['image']), 'p0-prepared-image')
+    input_successor(prepared['input_successor'])
     need(type(runtime) is dict and set(runtime)=={'cli_sha256','endpoint_identity','env'} and
          type(runtime['endpoint_identity']) in (tuple,list) and len(runtime['endpoint_identity'])==6 and
          all(type(v) is int and v>=0 for v in runtime['endpoint_identity']) and type(runtime['env']) is dict,
@@ -297,7 +350,7 @@ def materialize(*,entry,outer_end,root,private,output,cache,expected_source_comm
     need(finite(entry) and finite(outer_end),'p0-frame');end=min(outer_end,entry+60);live(end)
     need(type(bundle_raw) is bytes and 0<len(bundle_raw)<=2*1024**2 and digest(bundle_raw)==pin(bundle_sha256),'p0-template-pin')
     bundle=decode(bundle_raw)
-    need(type(bundle) is dict and set(bundle)=={'schema_version','purpose','plan','packet','grant','runtime','prepared_image','packages_b64','publication'} and
+    need(type(bundle) is dict and set(bundle)=={'schema_version','purpose','plan','packet','grant','runtime','prepared_image','packages_b64','current_inputs_b64','publication'} and
          type(bundle['schema_version']) is int and bundle['schema_version']==1 and
          bundle['purpose']=='Root-selected-P0-private-input-template','p0-template')
     plan=bundle['plan'];packet=bundle['packet'];grant=bundle['grant'];prepared=bundle['prepared_image'];runtime=bundle['runtime']
@@ -308,12 +361,15 @@ def materialize(*,entry,outer_end,root,private,output,cache,expected_source_comm
          packet.get('composition')==COMPOSITION and type(packet.get('source_files')) is dict and
          len(packet['source_files'])==269 and OWN in packet['source_files'] and
          grant.get('source_files')==packet['source_files'],'p0-template-scope')
+    for value in (plan,grant,prepared):input_successor(value.get('input_successor'))
     actual_preparation(preparation,expected_source_commit,environment,entry)
     for key in ('preparation_plan_sha256','preparation_source_rows_sha256'):
         need(plan.get(key,'ABSENT') is None and prepared.get(key,'ABSENT') is None,'p0-preparation-template')
         plan[key]=prepared[key]=preparation[key]
-    need(prepared.get('image','ABSENT') is None and bundle['packages_b64'] is None,'p0-preparation-template')
+    need(prepared.get('image','ABSENT') is None and bundle['packages_b64'] is None and
+         bundle['current_inputs_b64'] is None,'p0-preparation-template')
     prepared['image']=preparation['image'];bundle['packages_b64']=preparation['packages_b64']
+    bundle['current_inputs_b64']=preparation['current_inputs_b64']
     need(type(runtime['env']) is dict and set(runtime['env'])=={'PATH','HOME','DOCKER_CONFIG','DOCKER_HOST','DOCKER_BUILDKIT','LC_ALL','TMPDIR'} and
          runtime['env']['PATH']=='/usr/bin:/bin' and runtime['env']['LC_ALL']=='C' and
          runtime['env']['DOCKER_HOST']=='unix:///run/docker.sock' and runtime['env']['DOCKER_BUILDKIT']=='0','p0-environment')
@@ -341,8 +397,13 @@ def materialize(*,entry,outer_end,root,private,output,cache,expected_source_comm
     need(type(bundle['packages_b64']) is str,'p0-template-packages')
     packages=base64.b64decode(bundle['packages_b64'],validate=True)
     need(len(packages)==6674 and digest(packages)==PACKAGES_SHA,'p0-template-packages')
+    need(type(bundle['current_inputs_b64']) is str and len(bundle['current_inputs_b64'])==437468,'p0-input-pin')
+    current_raw=base64.b64decode(bundle['current_inputs_b64'],validate=True)
+    need(len(current_raw)==328101 and digest(current_raw)==INPUTS_SHA and
+         base64.b64encode(current_raw).decode('ascii')==bundle['current_inputs_b64'],'p0-input-pin')
     data={'packet.json':encoded(packet),'grant.json':encoded(grant),'runtime.json':encoded(runtime),
-          'prepared-image.json':encoded(prepared),'packages.lock':packages,'source-publication.json':encoded(bundle['publication'])}
+          'prepared-image.json':encoded(prepared),'packages.lock':packages,'current-inputs.lock.json':current_raw,
+          'source-publication.json':encoded(bundle['publication'])}
     plan['input_pins']={name:digest(raw) for name,raw in data.items()}
     contract(plan,prepared,runtime,entry=entry,expected_source_commit=expected_source_commit,environment=environment)
     data['plan.json']=encoded(plan)
@@ -357,6 +418,7 @@ def materialize(*,entry,outer_end,root,private,output,cache,expected_source_comm
     for name,raw in data.items():
         live(end);need(0<len(raw)<=2**20,'p0-private-cap')
         write_private(private/name,raw,end);live(end)
+        need(read(private/name,end,private=True,limit=2**20)==raw,'p0-input-drift')
     return {name:digest(raw) for name,raw in data.items()}
 
 
@@ -373,12 +435,15 @@ def run(*,entry,outer_end,expected_source_commit,source_root,private_root,output
     end=contract(plan,prepared,runtime,entry=entry,expected_source_commit=expected_source_commit,environment=os.environ)
     need(plan['input_pins']=={k:v for k,v in input_pins.items() if k!='plan.json'},'p0-frame')
     live(end);need(digest(raw['packages.lock'])==PACKAGES_SHA and len(raw['packages.lock'])==6674,'p0-packages')
+    current_inputs_raw=raw['current-inputs.lock.json']
+    need(len(current_inputs_raw)==328101 and digest(current_inputs_raw)==INPUTS_SHA,'p0-input-pin')
     source_packet=decode(raw['packet.json']);grant=decode(raw['grant.json'])
     need(type(source_packet) is dict and source_packet.get('composition')==COMPOSITION and
          type(source_packet.get('source_files')) is dict and len(source_packet['source_files'])==269 and
          OWN in source_packet['source_files'] and type(grant) is dict and
          grant.get('purpose')=='reviewed-installer-P0-execution' and type(grant.get('added_seconds')) is int and
          grant['added_seconds']==0 and grant.get('source_files')==source_packet['source_files'],'p0-grant-scope')
+    input_successor(grant.get('input_successor'))
     need(root.is_absolute() and root==Path.cwd().resolve() and
          all(p.is_absolute() and '..' not in p.parts for p in (private,output,cache)) and
          not any(a.is_relative_to(b) for a,b in ((private,root),(output,root),(cache,root),(output,cache),(cache,output))) and
@@ -435,7 +500,8 @@ def run(*,entry,outer_end,expected_source_commit,source_root,private_root,output
         development=controller.Development(root,output,cache,source_packet,deadline=end,composition=COMPOSITION,
              clock_nonce=plan['nonce'],runtime_contract=runtime)
         sources.callback('existing_consumers',development.consume_p0,end)
-        result=development.run_p0(session,runtime,invocation,entry=entry,image=prepared['image'],packages_raw=raw['packages.lock'])
+        result=development.run_p0(session,runtime,invocation,entry=entry,image=prepared['image'],
+            inputs_raw=current_inputs_raw,packages_raw=raw['packages.lock'])
         live(end);need(type(result) is dict and result.get('status')=='PASS_P0_ONLY','p0-result')
     except BaseException as error:first=error
     finally:
@@ -481,7 +547,7 @@ class Preparation:
         self.deadline,self.cleanup_end=deadline,cleanup_end
         self.private_chunks=private_chunks
         self.tag='cachy-asahi-p0-prep:'+plan['nonce'];self.inventory_name='cachy-asahi-p0-inventory-'+plan['nonce']
-        self.cli=self.gpg_file=None;self.image=None;self.packages=None
+        self.cli=self.gpg_file=None;self.image=None;self.packages=None;self.current_inputs_raw=None
         self.tag_absent=False;self.tag_confirmed=False;self.inventory_cid=None
         self.build_started=False;self.inventory_started=False;self.tag_retired=False
         self.commands=0;self.cancelled=False;self.uncertain=False;self.retained=[]
@@ -650,7 +716,10 @@ class Preparation:
         bridge=self.sources.module('_prep_config','scripts/install/native_preflight.py')
         receiver=self.sources.module('_prep_receiver','scripts/install/native_arm_trial.py')
         data=types.SimpleNamespace(image=image,commit=self.sources.grant['source_commit'])
-        bridge.image_handoff([inspected],data,receiver,self.sources.raw['scripts/ci/inputs.lock.json'],packages)
+        input_successor(self.plan['input_successor'])
+        need(type(self.current_inputs_raw) is bytes and len(self.current_inputs_raw)==328101 and
+             digest(self.current_inputs_raw)==INPUTS_SHA,'prep-inputs')
+        bridge.image_handoff([inspected],data,receiver,self.current_inputs_raw,packages,input_successor=INPUT_SUCCESSOR)
         gone=self.invoke(self.cli.fd,['container','ls','-a','--no-trunc','--filter','name=^/'+self.inventory_name+'$','--format','{{.ID}}'],self.cli.env)
         need(gone['stdout']==b'','prep-inventory-container-absence')
         self.tag_confirmed=True;self.packages=packages
@@ -658,8 +727,10 @@ class Preparation:
     def prepare(self):
         self.sources.callback('existing_consumers',self.prepare,self.deadline)
         self.guard()
-        raw=self.sources.raw['scripts/ci/inputs.lock.json']
-        need(type(raw) is bytes and digest(raw)==INPUTS_SHA,'prep-materialized-input-pin')
+        input_successor(self.plan['input_successor'])
+        raw=current_inputs(self.sources.raw['scripts/ci/inputs.lock.json'])
+        need(raw==self.plan['current_inputs_raw'] and decode(raw)==self.plan['inputs'],'prep-materialized-input-pin')
+        self.current_inputs_raw=raw
         directory=self.out.lstat();held=identity(directory)[:6]
         need(stat.S_ISDIR(directory.st_mode) and directory.st_uid==os.geteuid() and
              stat.S_IMODE(directory.st_mode)==0o700,'prep-output-custody')
@@ -687,6 +758,8 @@ class Preparation:
         return {'schema_version':1,'purpose':'ACTUAL_SAME_JOB_P0_PREPARATION','Source':self.sources.grant['source_commit'],
             'run_id':self.sources.grant['run_id'],'run_attempt':self.sources.grant['run_attempt'],'tag':self.tag,
             'image':self.image,'packages_b64':base64.b64encode(self.packages).decode(),'packages_sha256':PACKAGES_SHA,
+            'current_inputs_b64':base64.b64encode(self.current_inputs_raw).decode(),
+            'input_successor':decode(encoded(INPUT_SUCCESSOR)),
             'inputs_sha256':INPUTS_SHA,'cleanup_end':self.cleanup_end,'inventory_name':self.inventory_name,
             'tag_before_absent':True,'tag_after_id':self.image,'global_digest_owned':False,
             'preparation_plan_sha256':self.plan['plan_sha256'],'preparation_source_rows_sha256':digest(encoded(self.sources.grant['source_files']))}
@@ -694,7 +767,7 @@ class Preparation:
     def seed_four(self):
         self.guard()
         captured=self.private_chunks
-        decoded=decode_four(captured,self.sources.raw['scripts/ci/inputs.lock.json'],self.deadline)
+        decoded=decode_four(captured,self.current_inputs_raw,self.deadline)
         parent=self.cache.lstat();held=identity(parent)[:6]
         need(stat.S_ISDIR(parent.st_mode) and parent.st_uid==os.geteuid() and
              stat.S_IMODE(parent.st_mode)==0o700,'prep-fixed-four-cache-custody')
@@ -808,12 +881,13 @@ def preparation_template(raw,wanted,*,entry,outer_end,expected,environment,outpu
          value['schema_version']==1 and value['purpose']=='Root-selected-P0-preparation-template','prep-template')
     plan,grant,runtime=value['plan'],value['grant'],value['runtime']
     need(all(type(value[key]) is dict for key in ('plan','packet','grant','runtime','publication')) and
-         set(plan)=={'schema_version','purpose','source_commit','run_id','run_attempt','nonce','work_seconds','cleanup_seconds','cache_mode','url_overrides'} and
+         set(plan)=={'schema_version','purpose','source_commit','run_id','run_attempt','nonce','work_seconds','cleanup_seconds','cache_mode','url_overrides','input_successor'} and
          plan['schema_version']==1 and plan['purpose']=='reviewed-installer-P0-preparation' and
          type(plan['work_seconds']) is int and plan['work_seconds']==1800 and
          type(plan['cleanup_seconds']) is int and plan['cleanup_seconds']==1890 and
          plan['cache_mode'] in ('warm-only','selected-HTTPS'),'prep-selection')
     need(type(plan['url_overrides']) is dict and not plan['url_overrides'],'prep-fixed-four-seed-no-URLs')
+    input_successor(plan['input_successor']);input_successor(grant.get('input_successor'))
     need(expected==environment.get('GITHUB_SHA')==environment.get('GITHUB_WORKFLOW_SHA') and
          type(expected) is str and re.fullmatch('[0-9a-f]{40}',expected) and
          environment.get('GITHUB_REPOSITORY')=='Gabriel-Kahen/cachy-asahi' and
@@ -897,7 +971,7 @@ def actual_preparation(value,expected,environment,entry):
     owner.sources.guard(min(entry+60,owner.cleanup_end))
     fields={'schema_version','purpose','Source','run_id','run_attempt','tag','image','packages_b64','packages_sha256',
         'inputs_sha256','cleanup_end','inventory_name','tag_before_absent','tag_after_id','global_digest_owned',
-        'preparation_plan_sha256','preparation_source_rows_sha256'}
+        'preparation_plan_sha256','preparation_source_rows_sha256','current_inputs_b64','input_successor'}
     need(type(value) is dict and set(value)==fields and value['schema_version']==1 and
          value['purpose']=='ACTUAL_SAME_JOB_P0_PREPARATION' and value['Source']==expected and
          value['run_id']==environment.get('GITHUB_RUN_ID') and value['run_attempt']==environment.get('GITHUB_RUN_ATTEMPT') and
@@ -905,10 +979,16 @@ def actual_preparation(value,expected,environment,entry):
          value['tag_before_absent'] is True and value['global_digest_owned'] is False and
          value['tag_after_id']==value['image'] and re.fullmatch('sha256:[0-9a-f]{64}',value['image']) and
          finite(value['cleanup_end']) and entry<value['cleanup_end'],'p0-actual-preparation')
+    input_successor(value['input_successor'])
     for key in ('preparation_plan_sha256','preparation_source_rows_sha256'):pin(value[key])
     packages=base64.b64decode(value['packages_b64'],validate=True)
     need(len(packages)==6674 and digest(packages)==PACKAGES_SHA and packages==owner.packages,
          'p0-actual-packages')
+    need(type(value['current_inputs_b64']) is str and len(value['current_inputs_b64'])==437468,'p0-input-pin')
+    current_raw=base64.b64decode(value['current_inputs_b64'],validate=True)
+    need(len(current_raw)==328101 and digest(current_raw)==INPUTS_SHA and current_raw==owner.current_inputs_raw and
+         current_raw==current_inputs(owner.sources.raw['scripts/ci/inputs.lock.json']) and
+         base64.b64encode(current_raw).decode('ascii')==value['current_inputs_b64'],'p0-input-pin')
     return packages
 
 
@@ -954,9 +1034,10 @@ def pipeline(*,entry,outer_end,expected_source_commit,source_root,work_root,cach
         for name in (*runtime['docker']['env'].values(),*runtime['gpg_env'].values()):
             if type(name) is str and name.startswith(str(output)+'/'):
                 path=Path(name);live(end);need(not path.exists() and not path.is_symlink(),'prep-private-fresh');path.mkdir(mode=0o700)
-        plan={**selection['plan'],'inputs':decode(sources.raw['scripts/ci/inputs.lock.json']),
+        current_raw=current_inputs(sources.raw['scripts/ci/inputs.lock.json'])
+        plan={**selection['plan'],'inputs':decode(current_raw),'current_inputs_raw':current_raw,
               'plan_sha256':digest(encoded(selection['plan']))}
-        need(digest(sources.raw['scripts/ci/inputs.lock.json'])==INPUTS_SHA,'prep-inputs')
+        need(digest(sources.raw['scripts/ci/inputs.lock.json'])==SOURCE_INPUTS_SHA,'prep-inputs')
         owner=Preparation(sources,sdk,transport,native,plan,runtime,output,cache,end,cleanup_end,private_chunks)
         need(signal.getitimer(signal.ITIMER_REAL)==(0.0,0.0),'prep-existing-timer')
         alarm_handler=signal.getsignal(signal.SIGALRM);alarm_saved=True
@@ -1031,11 +1112,12 @@ def pipeline(*,entry,outer_end,expected_source_commit,source_root,work_root,cach
 
 
 def take_four(environment):
-    return {name:environment.pop(name) for name in tuple(environment) if name.startswith('CACHY_OLD_FOUR_')}
+    return {name:environment.pop(name) for name in tuple(environment)
+            if name.startswith(('CACHY_OLD_FOUR_','CACHY_RETAINED_'))}
 
 
 def decode_four(captured,raw,deadline):
-    """Exact old four byte pins, new3c16 binding, inherited original deadline."""
+    """Separate exact old-four and retained-bubblewrap schemas in the original frame."""
     live(deadline);need(type(raw) is bytes and digest(raw)==INPUTS_SHA,'prep-fixed-four-inputs')
     rows=(('jbigkit-2.1-8-aarch64.pkg.tar.xz','JBIGKIT',2),
           ('jbigkit-2.1-8-aarch64.pkg.tar.xz.sig','JBIGKIT_SIG',1),
@@ -1044,9 +1126,15 @@ def decode_four(captured,raw,deadline):
     prefix='CACHY_OLD_FOUR_'
     headers={prefix+'SCHEMA',prefix+'SOURCE_EPOCH'}
     names={prefix+tag+'_'+str(index).zfill(2) for _,tag,count in rows for index in range(1,count+1)}
-    need(type(captured) is dict and len(captured)==21 and set(captured)==names|headers and
+    need(type(captured) is dict and all(type(name) is str for name in captured) and
+         {name for name in captured if name.startswith(prefix)}==names|headers and
          captured[prefix+'SCHEMA']=='1' and captured[prefix+'SOURCE_EPOCH']=='1791748800',
          'prep-fixed-four-schema')
+    retained='CACHY_RETAINED_BUBBLEWRAP_V1_'
+    retained_rows=(('bubblewrap-0.13.0-1-aarch64.pkg.tar.xz','PACKAGE',2),
+                   ('bubblewrap-0.13.0-1-aarch64.pkg.tar.xz.sig','SIGNATURE',1))
+    retained_names={retained+tag+'_'+str(index).zfill(2) for _,tag,count in retained_rows for index in range(1,count+1)}
+    need(set(captured)==names|headers|retained_names,'prep-fixed-four-schema')
     decoded=[]
     try:
         for name,tag,count in rows:
@@ -1063,5 +1151,19 @@ def decode_four(captured,raw,deadline):
                  'prep-fixed-four-bytes')
             decoded.append((name,body))
         need(sum(len(body) for _,body in decoded)==404428,'prep-fixed-four-total')
+        for name,tag,count in retained_rows:
+            live(deadline);size,wanted=OVERRIDE_ROWS[name];length=4*((size+2)//3)
+            need(count==(length+32767)//32768,'prep-fixed-four-count')
+            parts=[]
+            for index in range(1,count+1):
+                live(deadline);part=captured.pop(retained+tag+'_'+str(index).zfill(2))
+                need(type(part) is str and len(part)==min(32768,length-(index-1)*32768) and
+                     re.fullmatch('[A-Za-z0-9+/]*={0,2}',part) is not None,'prep-fixed-four-chunk')
+                parts.append(part)
+            text=''.join(parts);body=base64.b64decode(text.encode('ascii'),validate=True);live(deadline)
+            need(base64.b64encode(body).decode('ascii')==text and len(body)==size and digest(body)==wanted,
+                 'prep-fixed-four-bytes')
+            decoded.append((name,body))
+        need(sum(len(body) for _,body in decoded)==445422,'prep-fixed-four-total')
         live(deadline);return decoded
     finally:captured.clear()

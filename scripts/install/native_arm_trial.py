@@ -109,17 +109,46 @@ def source_blobs(selection, source, end):
     return result
 
 
+P0_CURRENT_CONTRACT = {'schema_version': 1, 'product': 'installer-P0-vim-9.2.1178-1-input-successor-v1', 'lineage': 'CURRENT_PRODUCT_SUCCESSOR_NOT_HISTORICAL_EVIDENCE', 'historical_inputs_sha256': '3c16c37d1b12cc84a88572e82ab8ad59e7f3b5ed0d08f09ddf72a69f4711d650', 'historical_packages_sha256': '89bdb06fea1862b5a6e02b77a4b98f6e04755b02327d875a716bd792929f3a4f', 'inputs_sha256': 'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f', 'packages_sha256': 'fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25', 'inputs_bytes': 328101, 'packages_bytes': 6674, 'acquisitions': 501, 'packages': 341, 'recipe_source_commit': 'ebd5812640b0b69f5c09a47752b739e37e338754', 'source_epoch': 1791748800}
+TOOL_PROFILE_LINEAGE = 'HISTORICAL_REQUIRED_TOOL_WHITELIST_NOT_CURRENT_AUDIT'
+
+
+def validate_input_successor(value):
+    require(type(value) is dict and len(value) == 13 and all(type(key) is str for key in value) and
+            set(value) == set(P0_CURRENT_CONTRACT) and
+            all(type(value[key]) is type(wanted) and value[key] == wanted
+                for key, wanted in P0_CURRENT_CONTRACT.items()), 'INPUT_SUCCESSOR')
+    return dict(value)
+
+
+def input_selection(input_successor=None):
+    if input_successor is None:
+        return INPUTS_SHA, BASE_SHA
+    selected = validate_input_successor(input_successor)
+    return selected['inputs_sha256'], selected['packages_sha256']
+
+
 def validate_selection(value):
     fields={'schema_version','purpose','phase','source_commit','sources','tool_profile_sha256','native_inputs_sha256',
             'builder_packages_sha256','image_id','image_config_sha256','native_handoff_sha256','nonce'}
-    require(type(value) is dict and set(value)==fields and type(value['schema_version']) is int and value['schema_version']==1,
+    require(type(value) is dict and all(type(key) is str for key in value), 'SELECTION_SCHEMA')
+    current = 'input_successor' in value
+    if current: fields |= {'input_successor', 'tool_profile_lineage'}
+    require(set(value)==fields and type(value['schema_version']) is int and value['schema_version']==1,
             'SELECTION_SCHEMA')
+    selected = validate_input_successor(value['input_successor']) if current else None
+    if current:
+        require(type(value['phase']) is str and value['phase'] == 'preflight' and
+                all(type(value[key]) is str for key in ('native_inputs_sha256', 'builder_packages_sha256', 'tool_profile_sha256')) and
+                type(value['tool_profile_lineage']) is str and
+                value['tool_profile_lineage'] == TOOL_PROFILE_LINEAGE, 'PROFILE_LINEAGE')
     require(value['purpose']=='native-arm-synthetic-installer' and value['phase'] in ('preflight','matrix'), 'SELECTION_SCOPE')
     for key,n in (('source_commit',40),('image_config_sha256',64),('native_handoff_sha256',64),('nonce',32)):
         require(type(value[key]) is str and len(value[key])==n and all(c in '0123456789abcdef' for c in value[key]), 'SELECTION_PIN')
     require(type(value['image_id']) is str and len(value['image_id'])==71 and value['image_id'].startswith('sha256:') and
             all(c in '0123456789abcdef' for c in value['image_id'][7:]), 'IMAGE_PIN')
-    require(value['native_inputs_sha256']==INPUTS_SHA and value['builder_packages_sha256']==BASE_SHA and
+    inputs_sha, packages_sha = input_selection(selected)
+    require(value['native_inputs_sha256']==inputs_sha and value['builder_packages_sha256']==packages_sha and
             value['tool_profile_sha256']==sha(PROFILE_BYTES), 'PROFILE_PIN')
     return value
 
@@ -150,12 +179,22 @@ def proc_status(end):
 
 
 def verify_environment(selection, end):
+    validate_selection(selection)
+    selected = selection.get('input_successor')
+    inputs_sha, packages_sha = input_selection(selected)
     image_raw=read('/inputs/image.json',1024**2,end)
     require(sha(image_raw)==selection['native_handoff_sha256'], 'IMAGE_HANDOFF_HASH')
     image=strict(image_raw)
-    require(type(image) is dict and set(image)=={'source_commit','image_id','inputs_sha256','packages_lock_sha256','architecture','os','Config'} and
+    fields = {'source_commit','image_id','inputs_sha256','packages_lock_sha256','architecture','os','Config'}
+    if selected is not None:
+        fields |= {'input_successor', 'tool_profile_lineage'}
+        require(type(image) is dict and image.get('input_successor') == selected and
+                type(image.get('tool_profile_lineage')) is str and
+                image['tool_profile_lineage'] == TOOL_PROFILE_LINEAGE, 'IMAGE_SUCCESSOR')
+        validate_input_successor(image['input_successor'])
+    require(type(image) is dict and set(image)==fields and
             image['source_commit']==selection['source_commit'] and image['image_id']==selection['image_id'] and
-            image['inputs_sha256']==INPUTS_SHA and image['packages_lock_sha256']==BASE_SHA and
+            image['inputs_sha256']==inputs_sha and image['packages_lock_sha256']==packages_sha and
             image['architecture']=='arm64' and image['os']=='linux', 'IMAGE_HANDOFF_BINDING')
     config=image['Config']
     require(type(config) is dict and sha((json.dumps(config,sort_keys=True)+'\n').encode())==selection['image_config_sha256'], 'IMAGE_CONFIG_HASH')
@@ -171,8 +210,17 @@ def verify_environment(selection, end):
             os.environ.get('CACHY_ASAHI_INSTALL_IMAGE')==selection['image_id'], 'CONTAINER_HANDOFF')
     status=proc_status(end)
     require(status.get('NoNewPrivs','').strip()=='1' and all(int(status[k].strip(),16)==0 for k in ('CapEff','CapPrm','CapInh','CapAmb','CapBnd')), 'OUTER_CAPS')
-    require(sha(read('/builder-packages.lock',65536,end))==BASE_SHA, 'BUILDER_INVENTORY')
+    packages = read('/builder-packages.lock',65536,end)
+    require(sha(packages)==packages_sha, 'BUILDER_INVENTORY')
+    if selected is not None:
+        require(len(packages) == selected['packages_bytes'] and len(packages.splitlines()) == selected['packages'],
+                'BUILDER_INVENTORY')
     profile=strict(PROFILE_BYTES)
+    if selected is not None:
+        require(profile['inputs_sha256'] == INPUTS_SHA and
+                sha(PROFILE_BYTES) == 'b7fbd65e357e132949432fb00e765a05e3c76ea29a41d1df93413870d9fd1ed8' and
+                all(not row['owner'].split()[0] in ('vim', 'vim-runtime') for row in profile['files']),
+                'PROFILE_LINEAGE')
     for alias,target in profile['aliases'].items():
         check_time(end);require(str(Path(alias).resolve(strict=True))==target, 'TOOL_ALIAS')
     for row in profile['files']:
@@ -266,6 +314,13 @@ def public(record):
             all(type(value[k]) is int and 0<=value[k]<=26 for k in ('tests','failures','errors','skips')), 'PUBLIC_SCHEMA')
     require(value['status']!='PASS_NATIVE_PREFLIGHT_ONLY' or value['phase']=='complete' and value['barrier']=='PASS' and value['ABI']==value['matrix']=='NOT_RUN' and value['tests']==1 and value['owned_child_cleanup']=='PASS' and value['first_failure']=='NONE' and not any(value[k] for k in ('failures','errors','skips','termination')), 'PUBLIC_PASS')
     require(value['status']!='PASS_NATIVE_FIXTURE_ONLY' or value['phase']=='complete' and value['barrier']==value['ABI']==value['matrix']=='PASS' and value['tests']==26 and value['owned_child_cleanup']=='PASS' and value['first_failure']=='NONE' and not any(value[k] for k in ('failures','errors','skips','termination')), 'PUBLIC_PASS')
+    if 'tool_profile_lineage' in record:
+        require('input_successor' in record, 'PROFILE_LINEAGE')
+    if 'input_successor' in record:
+        value['input_successor'] = validate_input_successor(record['input_successor'])
+        require(type(record.get('tool_profile_lineage')) is str and
+                record['tool_profile_lineage'] == TOOL_PROFILE_LINEAGE, 'PROFILE_LINEAGE')
+        value['tool_profile_lineage'] = TOOL_PROFILE_LINEAGE
     data=(json.dumps(value,sort_keys=True)+'\n').encode();require(len(data)<=4096,'PUBLIC_CAP');return data
 
 
@@ -277,6 +332,9 @@ def execute(selection,source,output,end,preflight_end):
     # No actor or CDLL has occurred before all required source/tool/profile checks.
     record=dict(schema_version=1,status='FAIL',phase='preflight',barrier='NOT_RUN',ABI='NOT_RUN',matrix='NOT_RUN',
                 tests=0,failures=0,errors=0,skips=0,termination=False,owned_child_cleanup='UNKNOWN',first_failure='NONE')
+    if 'input_successor' in selection:
+        record.update(input_successor=validate_input_successor(selection['input_successor']),
+                      tool_profile_lineage=TOOL_PROFILE_LINEAGE)
     output=Path(output);require(output.is_dir() and not output.is_symlink() and output.stat().st_uid==os.getuid() and
                                 stat.S_IMODE(output.stat().st_mode)==0o700,'OUTPUT_DIRECTORY')
     worker=module(blobs[SOURCE_PATHS[0]],source/SOURCE_PATHS[0],'selected_installer');rt=worker.runtime()
@@ -366,10 +424,13 @@ def execute(selection,source,output,end,preflight_end):
 def main():
     parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--selection',type=Path,required=True)
     parser.add_argument('--selection-sha256',required=True);args=parser.parse_args();start=time.monotonic()
+    accepted_successor = None
     try:
         require(args.selection==Path('/inputs/trial.json'),'SELECTION_PATH')
         raw=read(args.selection,1024**2,start+60);require(sha(raw)==args.selection_sha256,'SELECTION_HASH')
         selection=validate_selection(strict(raw));require(raw==(json.dumps(selection,sort_keys=True)+'\n').encode(),'SELECTION_CANONICAL')
+        if 'input_successor' in selection:
+            accepted_successor = validate_input_successor(selection['input_successor'])
         end=start+(60 if selection['phase']=='preflight' else 1800)
         record=execute(selection,Path('/source'),Path('/out'),end,start+60);sys.stdout.buffer.write(public(record));sys.stdout.buffer.flush()
         return int(record['status'] not in ('PASS_NATIVE_PREFLIGHT_ONLY','PASS_NATIVE_FIXTURE_ONLY'))
@@ -379,6 +440,8 @@ def main():
             if record['first_failure']=='NONE':record['first_failure']='PUBLICATION_FAILED'
             if TERMINAL_LEASE is not None:TERMINAL_LEASE.revoke(record)
         else:record=dict(schema_version=1,status='REFUSED',phase='inputs',barrier='NOT_RUN',ABI='NOT_RUN',matrix='NOT_RUN',tests=0,failures=0,errors=0,skips=0,termination=False,owned_child_cleanup='NOT_STARTED',first_failure='INPUT_REFUSED')
+        if accepted_successor is not None:
+            record.update(input_successor=accepted_successor, tool_profile_lineage=TOOL_PROFILE_LINEAGE)
         sys.stdout.buffer.write(public(record));sys.stdout.buffer.flush();return 2
 
 

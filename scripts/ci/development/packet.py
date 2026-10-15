@@ -28,7 +28,7 @@ PINS = {INITIAL, 'scripts/ci/inputs.lock.json', 'scripts/ci/recipes.lock.json',
         'scripts/virtual/tooling-audit.json', 'manifests/reviewed/ksmctl.json'}
 COMPOSITION = 'repository-svg'
 INSTALLER_COMPOSITION = 'installer-preflight'
-P0_OVERLAY_ROWS = {'scripts/ci/native_arm.py': {'mode': 420, 'sha256': '3ec0b15feb4b401e0426def2187576c8b3e7450552eb0824403e77ca5108bf0a'}, 'scripts/ci/integration.py': {'mode': 420, 'sha256': 'e448e2074ccca91d49fd07c115b9caa341efccebb3326f826b9eb0bc342ce9d4'}}
+P0_OVERLAY_ROWS = {'scripts/ci/native_arm.py': {'mode': 420, 'sha256': '14de79257ed432fc851299682cec3ab197a4f5a208058aea950ca7e6c98b4b80'}, 'scripts/ci/integration.py': {'mode': 420, 'sha256': 'e448e2074ccca91d49fd07c115b9caa341efccebb3326f826b9eb0bc342ce9d4'}}
 ZSH_COMPOSITION = 'repository-svg-zsh'
 ZSH_CONTRACT = 'manifests/reviewed/zsh-native-addon.json'
 ZSH_EXTRA = frozenset(('scripts/ci/development/zsh_addon.py', 'scripts/ci/development/test_zsh_addon.py',

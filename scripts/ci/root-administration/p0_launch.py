@@ -11,12 +11,7 @@ import sys
 import time
 import types
 
-RESOURCE_ROWS = {
-    'scripts/ci/root-administration/p0_source_freeze.py': {
-        'bytes': 23683, 'mode': 0o644, 'sha256': '6090d96cfea26e01bfb8f401e281a12ec224b102d564c228bda92f6c59cb2399'},
-    'scripts/ci/root-administration/p0_materializer.py': {
-        'bytes': 24261, 'mode': 0o644, 'sha256': '5e6f42e74fb9c1a23fbaabe00736e669779a872edd4c9ee60b285ae41582126e'},
-}
+RESOURCE_ROWS = {'scripts/ci/root-administration/p0_source_freeze.py': {'bytes': 23683, 'mode': 420, 'sha256': '6090d96cfea26e01bfb8f401e281a12ec224b102d564c228bda92f6c59cb2399'}, 'scripts/ci/root-administration/p0_materializer.py': {'bytes': 25870, 'mode': 420, 'sha256': '250f316b57d756a4f1fac09dadc50ca0dc4fd800e1a8f529877f05e398ea1eeb'}}
 DRIVER = 'scripts/ci/development/p0_ci.py'
 WF = '.github/workflows/native-arm-p0.yml'
 QUARANTINE = []
@@ -206,12 +201,20 @@ def capture_four(environment):
 
 
 def _capture_four(environment):
-    captured = {key: environment.pop(key) for key in tuple(environment) if key.startswith('CACHY_OLD_FOUR_')}
+    captured = {key: environment.pop(key) for key in tuple(environment) if key.startswith(('CACHY_OLD_FOUR_', 'CACHY_RETAINED_'))}
     expected = {'CACHY_OLD_FOUR_SCHEMA', 'CACHY_OLD_FOUR_SOURCE_EPOCH'}
     for tag, count in (('JBIGKIT', 2), ('JBIGKIT_SIG', 1), ('LIBTIFF', 15), ('LIBTIFF_SIG', 1)):
         expected.update('CACHY_OLD_FOUR_' + tag + '_' + str(index).zfill(2) for index in range(1, count + 1))
+    retained = {'CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01': 32768,
+                'CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02': 21136,
+                'CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01': 756}
+    expected.update(retained)
     need(set(captured) == expected and captured['CACHY_OLD_FOUR_SCHEMA'] == '1'
          and captured['CACHY_OLD_FOUR_SOURCE_EPOCH'] == '1791748800', 'mandatory19-and-schema')
+    for key, size in retained.items():
+        value = captured[key]
+        need(type(value) is str and len(value) == size and
+             re.fullmatch('[A-Za-z0-9+/]*={0,2}', value) is not None, 'mandatory19-and-schema')
     return captured
 
 
@@ -321,7 +324,7 @@ def _run(*, entry, outer_end, root, scratch, cache, proof_raw, proof_sha256, pre
         module = types.ModuleType('development_p0_ci'); module.__file__ = str(root / DRIVER)
         sys.modules[module.__name__] = module; sys.__dict__[ANCHOR].append(module)
         exec(compile(body, module.__file__, 'exec', dont_inherit=True), module.__dict__)
-        need(not any(key.startswith('CACHY_OLD_FOUR_') for key in environment), 'seed-environment-drift')
+        need(not any(key.startswith(('CACHY_OLD_FOUR_', 'CACHY_RETAINED_')) for key in environment), 'seed-environment-drift')
         environment.update(captured)
         # No new preparation entry: all administration consumed its original frame.
         stage, operation, domain = 'pipeline', 'prepare-pipeline-arguments', 'pipeline'
@@ -340,7 +343,7 @@ def _run(*, entry, outer_end, root, scratch, cache, proof_raw, proof_sha256, pre
         try:
             captured.clear()
             for key in tuple(environment):
-                if key.startswith('CACHY_OLD_FOUR_'):
+                if key.startswith(('CACHY_OLD_FOUR_', 'CACHY_RETAINED_')):
                     environment.pop(key)
         except BaseException as error:
             if first is None:

@@ -1227,4 +1227,93 @@ class InstallerGraphFixtures(unittest.TestCase):
             self.assertNotIn('native_preflight',session.source_graph)
 
 
+class CurrentP0InputContractTests(unittest.TestCase):
+    """Actual current SDK guards over public Source metadata; no actor substitutes."""
+    @classmethod
+    def setUpClass(cls):
+        cls.contract = copy.deepcopy(adapter.P0_CURRENT_CONTRACT)
+        driver_path = PATH.with_name('p0_ci.py')
+        driver_spec = importlib.util.spec_from_file_location('p0_current_inputs_test_driver', driver_path)
+        driver = importlib.util.module_from_spec(driver_spec)
+        driver_spec.loader.exec_module(driver)
+        cls.historical = (PATH.parents[1] / 'inputs.lock.json').read_bytes()
+        cls.current = driver.current_inputs(cls.historical)
+        value = json.loads(cls.current)
+        versions = {row['name'][0]: row['version'][0] for row in value['rootfs_packages']}
+        versions.update({row['name']: row['version'] for row in value['packages']})
+        cls.packages = ''.join(name + ' ' + versions[name] + '\n' for name in sorted(versions)).encode()
+        cls.historical_packages = (PATH.parents[2] / 'port/refreshed-desktop/proposed-builder-inventory.lock').read_bytes()
+
+    def test_current_metadata_pair_is_distinct_from_held_historical_source(self):
+        self.assertEqual(adapter.digest(self.historical), self.contract['historical_inputs_sha256'])
+        self.assertEqual(adapter.digest(self.historical_packages), self.contract['historical_packages_sha256'])
+        self.assertEqual(adapter.digest(self.current), self.contract['inputs_sha256'])
+        self.assertEqual(adapter.digest(self.packages), self.contract['packages_sha256'])
+        self.assertEqual((len(self.current), len(self.packages), len(self.packages.splitlines())), (328101, 6674, 341))
+        before, after = json.loads(self.historical), json.loads(self.current)
+        self.assertEqual([old['name'] for old, new in zip(before['packages'], after['packages']) if old != new],
+                         ['vim', 'vim-runtime'])
+        self.assertEqual({k:v for k,v in before.items() if k != 'packages'},
+                         {k:v for k,v in after.items() if k != 'packages'})
+        self.assertEqual(adapter.validate_current_inputs(self.current, self.packages, self.contract), self.contract)
+
+    def test_selector_requires_exact_closed_builtin_types_without_hooks(self):
+        class DictSubclass(dict): pass
+        class IntSubclass(int): pass
+        class StrSubclass(str): pass
+        class ForeignValue:
+            def __eq__(self, other): raise AssertionError('foreign equality executed')
+        valid = adapter.validate_input_successor(self.contract)
+        self.assertEqual(valid, self.contract)
+        self.assertIsNot(valid, self.contract)
+        cases = [DictSubclass(self.contract), {**self.contract, 'extra': None},
+                 {**self.contract, 'product': ForeignValue()},
+                 {**self.contract, 'inputs_sha256': self.contract['historical_inputs_sha256']}]
+        for key, value in self.contract.items():
+            missing = dict(self.contract); missing.pop(key); cases.append(missing)
+            cases.append({**self.contract, key: True if type(value) is int else StrSubclass(value)})
+            if type(value) is int: cases.append({**self.contract, key: IntSubclass(value)})
+        bad_key = dict(self.contract); bad_key.pop('product'); bad_key[StrSubclass('product')] = self.contract['product']
+        cases.append(bad_key)
+        for index, value in enumerate(cases):
+            with self.subTest(index=index), self.assertRaises(adapter.Refused):
+                adapter.validate_input_successor(value)
+
+    def test_current_byte_guard_refuses_historical_mixed_mutable_and_tampered_data(self):
+        cases = [(self.historical, self.historical_packages), (self.historical, self.packages),
+                 (self.current, self.historical_packages), (bytearray(self.current), self.packages),
+                 (self.current, bytearray(self.packages)),
+                 (bytes([self.current[0] ^ 1]) + self.current[1:], self.packages),
+                 (self.current, bytes([self.packages[0] ^ 1]) + self.packages[1:])]
+        for index, (inputs, packages) in enumerate(cases):
+            with self.subTest(index=index), self.assertRaisesRegex(adapter.Refused, 'source-refused'):
+                adapter.validate_current_inputs(inputs, packages, self.contract)
+
+    def test_p0_selector_and_exact_recipe_refuse_before_real_source_construction(self):
+        class PathBoundary(Exception): pass
+        class UnusableRoot:
+            def __fspath__(self): raise PathBoundary('no Source reads allowed in metadata model')
+        grant = dict(schema_version=2, purpose='reviewed-installer-P0-execution',
+            source_peer_preflight='PASS', development_only=True, added_seconds=0,
+            source_commit='a'*40, recipe_source_commit=self.contract['recipe_source_commit'], run_id='1', run_attempt='1',
+            source_files={}, maps=dict.fromkeys(adapter.PREFIXES, {}), callbacks=dict.fromkeys(adapter.CALLBACKS, None),
+            policy_path='held', license_path='held', actor_contract_sha256='b'*64, initial_invocation_sha256='c'*64,
+            original_view={'purpose':'P0-157-held-2-overlay-copy-view'}, input_successor=self.contract)
+        def invoke(value):
+            raw = adapter.encoded(value)
+            return adapter.preflight(UnusableRoot(), raw, adapter.digest(raw), deadline=time.monotonic()+5)
+        for purpose in ('reviewed-installer-P0-preparation', 'reviewed-installer-P0-execution'):
+            selected = {**grant, 'purpose': purpose}
+            with self.subTest(purpose=purpose), self.assertRaises(PathBoundary): invoke(selected)
+            missing = dict(selected); missing.pop('input_successor')
+            for invalid in (missing, {**selected, 'input_successor':{**self.contract, 'packages': True}},
+                            {**selected, 'recipe_source_commit':'0'*40}):
+                with self.subTest(purpose=purpose), self.assertRaisesRegex(adapter.Refused, 'grant-refused'): invoke(invalid)
+        legacy = {**grant, 'purpose':'reviewed-same-job-handoff-execution', 'added_seconds':1200,
+                  'original_view':{'purpose':'original-159-copy-view'}}
+        with self.assertRaisesRegex(adapter.Refused, 'grant-refused'): invoke(legacy)
+        legacy.pop('input_successor')
+        with self.assertRaises(PathBoundary): invoke(legacy)
+
+
 if __name__ == '__main__':unittest.main()

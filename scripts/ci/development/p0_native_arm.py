@@ -465,6 +465,14 @@ def main(argv=None, integration_consumers=None, *, installer_p0_owner=None):
     try:
         if args.mode == 'installer-P0':
             import integration
+            input_successor = owner.validate_input_successor(p0_context['input_successor'])
+            if (args.inputs_sha256 != input_successor['historical_inputs_sha256'] or
+                    p0_context['source_view_inputs_sha256'] != input_successor['historical_inputs_sha256']):
+                raise ValueError('P0-current-inputs-binding')
+            record.update(reviewed_source_inputs_sha256=args.inputs_sha256,
+                          reviewed_inputs_sha256=input_successor['inputs_sha256'],
+                          reviewed_packages_sha256=input_successor['packages_sha256'],
+                          input_successor=input_successor)
             image = p0_context['image']
             integration_lock = p0_context['lock']
             accepted_commit = p0_context['source_commit']

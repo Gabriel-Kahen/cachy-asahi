@@ -21,12 +21,21 @@ PREFIXES = {'runtime': 'scripts/port/repository-native-handoff',
 MAPS = {role: prefix + '/source-map.json' for role, prefix in PREFIXES.items()}
 OVERLAY = {'scripts/ci/native_arm.py': 'scripts/ci/development/p0_native_arm.py',
            'scripts/ci/integration.py': 'scripts/ci/development/p0_integration.py'}
+P0_CURRENT_CONTRACT = {'schema_version': 1, 'product': 'installer-P0-vim-9.2.1178-1-input-successor-v1', 'lineage': 'CURRENT_PRODUCT_SUCCESSOR_NOT_HISTORICAL_EVIDENCE', 'historical_inputs_sha256': '3c16c37d1b12cc84a88572e82ab8ad59e7f3b5ed0d08f09ddf72a69f4711d650', 'historical_packages_sha256': '89bdb06fea1862b5a6e02b77a4b98f6e04755b02327d875a716bd792929f3a4f', 'inputs_sha256': 'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f', 'packages_sha256': 'fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25', 'inputs_bytes': 328101, 'packages_bytes': 6674, 'acquisitions': 501, 'packages': 341, 'recipe_source_commit': 'ebd5812640b0b69f5c09a47752b739e37e338754', 'source_epoch': 1791748800}
 QUARANTINE = []  # Root process retains unknown descriptor custody until exit.
 
 
 def need(value, code):
     if not value:
         raise ValueError(code)
+
+
+def validate_input_successor(value):
+    need(type(value) is dict and len(value) == len(P0_CURRENT_CONTRACT) and
+         all(type(key) is str for key in value) and set(value) == set(P0_CURRENT_CONTRACT) and
+         all(type(value[key]) is type(wanted) and value[key] == wanted
+             for key, wanted in P0_CURRENT_CONTRACT.items()), 'held-template-schema')
+    return dict(value)
 
 
 def digest(raw):
@@ -164,7 +173,7 @@ def selection_contract(value, environment):
          == environment.get('GITHUB_WORKFLOW_SHA') and environment.get('GITHUB_REPOSITORY') == 'Gabriel-Kahen/cachy-asahi'
          and environment.get('GITHUB_WORKFLOW_REF') == 'Gabriel-Kahen/cachy-asahi/' + WORKFLOW
          + '@refs/heads/codex/signer-native-runtime-v1', 'published-job-Source')
-    need(type(value['recipe_source_commit']) is str and re.fullmatch('[0-9a-f]{40}', value['recipe_source_commit']), 'recipe-Source')
+    need(type(value['recipe_source_commit']) is str and value['recipe_source_commit'] == P0_CURRENT_CONTRACT['recipe_source_commit'], 'recipe-Source')
     for key in ('packet_sha256', 'publication_sha256', 'preparation_template_sha256', 'P0_template_sha256', 'source_review_sha256'):
         pin(value[key])
     need(type(value['runtime_rows']) is dict and set(value['runtime_rows']) == {'docker', 'gpg'}, 'runtime-selection')
@@ -233,8 +242,13 @@ def bind(selection, packet, publication, preparation, p0, bodies, observation):
     prep = copy.deepcopy(preparation); future_p0 = copy.deepcopy(p0)
     need(set(prep) == {'schema_version', 'purpose', 'plan', 'packet', 'grant', 'runtime', 'publication'}
          and prep['schema_version'] == 1 and prep['purpose'] == 'Root-selected-P0-preparation-template'
-         and set(future_p0) == {'schema_version', 'purpose', 'plan', 'packet', 'grant', 'runtime', 'publication', 'prepared_image', 'packages_b64'}
+         and set(future_p0) == {'schema_version', 'purpose', 'plan', 'packet', 'grant', 'runtime', 'publication', 'prepared_image', 'packages_b64', 'current_inputs_b64'}
          and future_p0['schema_version'] == 1 and future_p0['purpose'] == 'Root-selected-P0-private-input-template', 'held-template-schema')
+    for target in (prep['plan'], prep['grant'], future_p0['plan'], future_p0['grant'], future_p0['prepared_image']):
+        validate_input_successor(target.get('input_successor'))
+    need(future_p0['current_inputs_b64'] is None and
+         future_p0['prepared_image'].get('inputs_sha256') == P0_CURRENT_CONTRACT['inputs_sha256'] and
+         future_p0['prepared_image'].get('packages_sha256') == P0_CURRENT_CONTRACT['packages_sha256'], 'held-template-schema')
     for plan in (prep['plan'], future_p0['plan']):
         for key in ('source_commit', 'run_id', 'run_attempt', 'nonce'):
             need(plan.get(key, 'ABSENT') is None, 'pipeline-plan-null-slot')
