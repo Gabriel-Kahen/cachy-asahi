@@ -6,6 +6,9 @@ if __name__ == '__main__' and not (sys.flags.isolated and sys.flags.dont_write_b
     sys.stdout.write('{"status":"BLOCKED","error_code":"grant-refused","actors":"NOT RUN"}\n')
     raise SystemExit(1)
 import argparse
+import _imp
+import importlib._bootstrap as frozen_bootstrap
+import importlib._bootstrap_external as frozen_external
 import ast
 import builtins
 from contextlib import contextmanager
@@ -201,6 +204,19 @@ def code_objects(code):
             yield from code_objects(item)
 
 
+def frozen_import_function(function):
+    """Recognize real bootstrap code/globals, never trust a pseudo-filename."""
+    if type(function) is not types.FunctionType or type(function.__module__) is not str:
+        return False
+    for module, name in ((frozen_bootstrap, '_frozen_importlib'),
+                         (frozen_external, '_frozen_importlib_external')):
+        if (function.__globals__ is vars(module) and function.__module__ in (module.__name__, name) and
+                sys.modules.get(name) is module and sys.modules.get(module.__name__) is module and
+                _imp.is_frozen(name)):
+            return any(function.__code__ == code for code in code_objects(_imp.get_frozen_object(name)))
+    return False
+
+
 P0_OVERLAY_ROWS = {'scripts/ci/native_arm.py': {'mode': 420, 'sha256': '14de79257ed432fc851299682cec3ab197a4f5a208058aea950ca7e6c98b4b80'}, 'scripts/ci/integration.py': {'mode': 420, 'sha256': 'e448e2074ccca91d49fd07c115b9caa341efccebb3326f826b9eb0bc342ce9d4'}}
 
 P0_OVERLAY_SOURCE_IDS = {'scripts/ci/native_arm.py': 'scripts/ci/development/p0_native_arm.py', 'scripts/ci/integration.py': 'scripts/ci/development/p0_integration.py'}
@@ -345,6 +361,7 @@ class Sources:
                                                       filename.is_relative_to(self.original_root))
 
     def global_function(self, function):
+        if frozen_import_function(function): return
         filename = Path(function.__code__.co_filename).absolute()
         if filename.is_relative_to(sysconfig.get_path('stdlib')):return
         path = self.locate(filename)
@@ -592,7 +609,7 @@ class Sources:
                 for name,item in sorted(value.__dict__.items()):
                     if type(item) is types.FunctionType:
                         filename = Path(getattr(item,'__wrapped__',item).__code__.co_filename).absolute()
-                        if self.project_file(filename):
+                        if self.project_file(filename) and not frozen_import_function(getattr(item,'__wrapped__',item)):
                             if filename == Path(origin).absolute():
                                 need(getattr(item,'__wrapped__',item).__globals__ is value.__dict__,'callback-refused')
                             items.append((name,observe(item,depth+1)))
@@ -603,7 +620,8 @@ class Sources:
                 return ('module',id(value),tuple(items))
             if type(value) is types.FunctionType:
                 origin = Path(value.__code__.co_filename).absolute()
-                if self.project_file(origin):
+                frozen = frozen_import_function(value)
+                if self.project_file(origin) and not frozen:
                     path = self.locate(origin)
                     if path in self.raw and str(origin) not in compiled:
                         compiled[str(origin)] = tuple(code_objects(compile(self.namespace_source(path,str(origin)),str(origin),'exec')))
@@ -611,7 +629,7 @@ class Sources:
                          any(value.__code__ == code for code in compiled.get(str(origin),())),
                          'callback-refused')
                     functions.append(value)
-                else:need(origin.is_relative_to(sysconfig.get_path('stdlib')),'callback-refused')
+                else:need(frozen or origin.is_relative_to(sysconfig.get_path('stdlib')),'callback-refused')
                 cells = []
                 for name,cell in zip(value.__code__.co_freevars,value.__closure__ or ()):
                     # These three source-owned caches grow when captured imports run.
@@ -676,7 +694,7 @@ class Sources:
             if type(value) is types.FunctionType:
                 unwrapped = getattr(value,'__wrapped__',value)
                 filename = Path(unwrapped.__code__.co_filename).absolute()
-                if self.project_file(filename):
+                if self.project_file(filename) and not frozen_import_function(unwrapped):
                     function_path = self.locate(filename)
                     need(function_path in modules,'callback-refused')
                     self.graph_function(unwrapped,module if function_path == path else modules[function_path],cache)
