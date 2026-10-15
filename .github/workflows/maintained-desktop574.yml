@@ -50,6 +50,21 @@ jobs:
           python3 -I -B scripts/ci/maintained_desktop574.py seed
           --inputs scripts/ci/maintained-desktop574-inputs.json
           --output "$RUNNER_TEMP/desktop574"
+      - name: Checkout exact retained public input source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # existing pinned checkout
+        with:
+          ref: 88a88bc5f3be3998e992881bf090137df16f1aae
+          path: retained-public-inputs
+          persist-credentials: false
+      - name: Seed twelve exact public ARM input files
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C "$GITHUB_WORKSPACE/retained-public-inputs" rev-parse HEAD)" = 88a88bc5f3be3998e992881bf090137df16f1aae
+          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$HOME" LANG=C.UTF-8 TZ=UTC \
+            TMPDIR="$RUNNER_TEMP" \
+            python3 -I -B "$GITHUB_WORKSPACE/retained-public-inputs/seed.py" \
+              --cache "$RUNNER_TEMP/desktop574/context/deps"
       - name: Reconstruct pinned inputs and run offline native574 transaction
         timeout-minutes: 40
         run: >-
