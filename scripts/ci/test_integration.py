@@ -1018,6 +1018,35 @@ class Boundaries(unittest.TestCase):
         self.assertEqual(order,['stages','consumer','cleanup','summary'])
         self.assertIsNone(controller.installed)
 
+    def test_package_only_runs_lifecycle_repository_and_desktop_without_broad_suites(self):
+        controller = self.controller()
+        controller.package_only = True
+        controller.installed = 'sha256:' + 'a'*64
+        seen = []
+        def stage(name, action):
+            seen.append(name)
+            controller.report['stages'][name] = {'status': 'PASS'}
+            return True
+        with patch.object(controller, 'stage', side_effect=stage):
+            controller.run_stages()
+        self.assertEqual(seen, ['fixtures', 'signer', 'lifecycle', 'repository', 'desktop'])
+        self.assertEqual(controller.report['stages']['source-suites']['status'], 'NOT RUN')
+        self.assertEqual(controller.report['stages']['onboarding']['status'], 'NOT RUN')
+        self.assertTrue(controller.finish())
+
+    def test_package_only_cannot_pass_failed_lifecycle(self):
+        controller = self.controller()
+        controller.package_only = True
+        controller.installed = None
+        def stage(name, action):
+            passed = name != 'lifecycle'
+            controller.report['stages'][name] = {'status': 'PASS' if passed else 'FAIL'}
+            return passed
+        with patch.object(controller, 'stage', side_effect=stage):
+            controller.run_stages()
+        self.assertFalse(controller.finish())
+        self.assertEqual(controller.report['stages']['desktop']['status'], 'NOT RUN')
+
     def test_final_owned_image_cleanup_failure_and_consumer_failure_cannot_preserve_pass(self):
         controller=self.controller();controller.image='sha256:'+'b'*64;controller.installed=None
         for stage in ('fixtures','signer','lifecycle','repository','onboarding','desktop','source-suites'):
