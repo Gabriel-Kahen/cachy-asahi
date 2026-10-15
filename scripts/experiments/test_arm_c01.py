@@ -537,6 +537,27 @@ class ControllerTests(IsolatedTests):
                 a.host(args)
             self.assertFalse(args.output.exists())
 
+    def test_only_approved_local_endpoints_reach_daemon_probe(self):
+        endpoints = ('unix:///var/run/docker.sock', 'unix:///run/docker.sock',
+                     'unix:///run/user/1000/docker.sock', 'tcp://remote:2375',
+                     'unix:///tmp/unreviewed.sock')
+        for index, endpoint in enumerate(endpoints):
+            args = self.args(); args.output = self.root / f'endpoint-{index}'
+            calls = []
+            def command(runner, name, argv, **kwargs):
+                calls.append((name, argv))
+                if name == 'context':
+                    return json.dumps([{'Endpoints': {'docker': {'Host': endpoint}}}]).encode()
+                raise ValueError('stop after approved endpoint; no daemon contacted')
+            with self.subTest(endpoint=endpoint), patch.object(a.platform, 'machine', return_value='aarch64'), \
+                 patch.object(a, 'SOURCE_SHA', a.sha(args.source)), \
+                 patch.object(a.Commands, 'run', autospec=True, side_effect=command), \
+                 patch.object(a.Commands, 'stop', return_value=True), patch.object(a.sys, 'stdout', io.StringIO()):
+                self.assertEqual(a.host(args), 1)
+            self.assertEqual([name for name, _ in calls], ['context', 'daemon'] if index < 3 else ['context'])
+            if index < 3:
+                self.assertEqual(calls[-1][1][:2], ['docker', '--host=' + endpoint])
+
     def test_native_changed_source_pin_refuses_before_output_or_commands(self):
         args = self.args()
         with patch.object(a.platform, "machine", return_value="aarch64"), patch.object(a.os, "getuid", return_value=1000), patch.object(a, "SOURCE_SHA", "0" * 64), self.assertRaisesRegex(ValueError, "hash differs"):
