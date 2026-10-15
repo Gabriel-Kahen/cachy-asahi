@@ -15,6 +15,10 @@ done
 glib-compile-schemas --strict "$root/usr/share/glib-2.0/schemas"
 [[ -f "$root/usr/share/glib-2.0/schemas/gschemas.compiled" && -s "$root/usr/share/glib-2.0/schemas/gschemas.compiled" ]]
 chmod 0644 "$root/usr/share/glib-2.0/schemas/gschemas.compiled"
+# GTK image loader selection needs the MIME index suppressed by the package hook.
+(umask 022; update-mime-database "$root/usr/share/mime")
+[[ -f "$root/usr/share/mime/mime.cache" && -s "$root/usr/share/mime/mime.cache" ]]
+chmod 0644 "$root/usr/share/mime/mime.cache"
 mkdir -p "$root"/{dev,proc,sys,run,tmp,home/desktop574,usr/local/bin,usr/local/share/desktop574}
 chmod 1777 "$root/tmp"
 ! awk -F: '$1 == "desktop574" || $3 == 23001 {found=1} END {exit !found}' "$root/etc/passwd"
