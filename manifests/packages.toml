@@ -183,10 +183,12 @@ license = "LicenseRef-Fraunhofer; LicenseRef-Fraunhofer-xHE-AAC; MIT"
 audit = "docs/workstreams/fdk-aac.md"
 selected_for_development = true
 selected_for_release = false
-native_build = "NOT RUN"
+native_build = "PASS"
+native_build_commit = "804b418f14459e82031046fb28a0308b4cb9348e"
+native_evidence = "docs/validation/fdk-current-native-20261015.md"
 installation = "NOT RUN"
 hardware_validation = "NOT RUN"
-next_step = "Build/rebuild the reviewed selected-source packet natively, then verify the explicit libfdk-aac provider substitution and PipeWire AAC integration before selecting a release transaction."
+next_step = "Native ARM build pair and codec smoke passed. Verify explicit libfdk-aac provider substitution and PipeWire AAC integration, then actual target lifecycle before release selection."
 
 [[packages]]
 name = "cachy-asahi-zsh-autosuggestions"
