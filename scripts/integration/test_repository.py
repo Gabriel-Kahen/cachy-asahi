@@ -919,28 +919,33 @@ class RepositoryTests(unittest.TestCase):
         return path
 
     def test_reviewed_desktop_screenshot_has_exact_scope_and_header(self):
-        inspected = self.runner.metadata(self.screenshot_archive())
-        member = 'usr/bin/cachy-asahi-screenshot'
-        self.assertEqual(inspected['name'], 'cachy-asahi-hyprland-settings')
-        self.assertEqual(inspected['version'], '0.1.0-2')
-        self.assertEqual(inspected['payload_sha256'][member],
-                         '5a920a5dd7a40463417a9b15e64a6620acfe7b2328960bf7014c9f587c4b69a8')
-        self.assertEqual(inspected['payload_metadata'][member], {'mode': 0o755, 'uid': 0, 'gid': 0})
+        for version in ('0.1.0-2', '0.1.1-1'):
+            with self.subTest(version=version):
+                inspected = self.runner.metadata(self.screenshot_archive(version=version))
+                member = 'usr/bin/cachy-asahi-screenshot'
+                self.assertEqual(inspected['name'], 'cachy-asahi-hyprland-settings')
+                self.assertEqual(inspected['version'], version)
+                self.assertEqual(inspected['payload_sha256'][member],
+                                 '5a920a5dd7a40463417a9b15e64a6620acfe7b2328960bf7014c9f587c4b69a8')
+                self.assertEqual(inspected['payload_metadata'][member], {'mode': 0o755, 'uid': 0, 'gid': 0})
 
     def test_screenshot_scope_refuses_identity_content_and_header_drift(self):
-        for change in ({'name': 'cachy-asahi-setup'}, {'version': '0.1.0-3'}, {'arch': 'aarch64'},
-                       {'license': 'GPL'}, {'data': b'unreviewed helper'}, {'mode': 0o644},
-                       {'mode': 0o4755}, {'uid': 1}, {'gid': 1}, {'type': tarfile.DIRTYPE},
-                       {'type': tarfile.SYMTYPE}, {'type': tarfile.LNKTYPE}):
-            with self.subTest(change=change), self.assertRaises(r.Refused):
-                self.runner.metadata(self.screenshot_archive(**change))
+        for version in ('0.1.0-2', '0.1.1-1'):
+            for change in ({'name': 'cachy-asahi-setup'}, {'version': '0.1.0-3'},
+                           {'version': '0.1.1-2'}, {'version': '0.1.2-1'}, {'arch': 'aarch64'},
+                           {'license': 'GPL'}, {'data': b'unreviewed helper'}, {'mode': 0o644},
+                           {'mode': 0o4755}, {'uid': 1}, {'gid': 1}, {'type': tarfile.DIRTYPE},
+                           {'type': tarfile.SYMTYPE}, {'type': tarfile.LNKTYPE}):
+                with self.subTest(version=version, change=change), self.assertRaises(r.Refused):
+                    self.runner.metadata(self.screenshot_archive(**(dict(version=version) | change)))
 
     def test_screenshot_admission_does_not_admit_other_paths_or_hooks(self):
-        for member in ('usr/bin/cachy-asahi-screenshot-extra', 'usr/bin/other',
-                       'usr/lib/cachy-asahi-screenshot', 'usr/share/libalpm/hooks/test.hook',
-                       '.INSTALL', '../usr/bin/cachy-asahi-screenshot', '/usr/bin/cachy-asahi-screenshot'):
-            with self.subTest(member=member), self.assertRaises(r.Refused):
-                self.runner.metadata(self.screenshot_archive(member=member))
+        for version in ('0.1.0-2', '0.1.1-1'):
+            for member in ('usr/bin/cachy-asahi-screenshot-extra', 'usr/bin/other',
+                           'usr/lib/cachy-asahi-screenshot', 'usr/share/libalpm/hooks/test.hook',
+                           '.INSTALL', '../usr/bin/cachy-asahi-screenshot', '/usr/bin/cachy-asahi-screenshot'):
+                with self.subTest(version=version, member=member), self.assertRaises(r.Refused):
+                    self.runner.metadata(self.screenshot_archive(version=version, member=member))
 
     def normalized_destination_fixture(self, names, listing, *, contents=False):
         # Inert listing/selector observations only; no archive command or helper runs.
