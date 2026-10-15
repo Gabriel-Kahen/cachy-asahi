@@ -27,6 +27,7 @@ PURPOSE = 'ksm-diagnostic-development-lifecycle'
 SCOPE = 'DEVELOPMENT TEST ONLY'
 DOCKER_CLI = Path('/usr/bin/docker')
 MAX_CLI = 128 * 1024**2
+LIFECYCLE_CAPS = ('CHOWN', 'DAC_OVERRIDE', 'FOWNER', 'SETUID', 'SETGID')
 CHECKS = {
     'sign': {'guard', 'bindings', 'package-contract', 'baseline', 'signature', 'sign'},
     'lifecycle': {'guard', 'bindings', 'package-contract', 'baseline', 'signature', 'install',
@@ -367,7 +368,7 @@ def container_command(endpoint, image, name, source, output, uid, phase, nonce, 
                                '--user', f'{owner}:{owner}', '--cpus=2', '--memory=' + memory,
                                '--memory-swap=' + memory, '--pids-limit=' + str(pids), '--ulimit=nofile=256:256')
     if root:
-        argv += ['--cap-add=' + cap for cap in ('CHOWN', 'DAC_OVERRIDE', 'FOWNER', 'SETUID', 'SETGID')]
+        argv += ['--cap-add=' + cap for cap in LIFECYCLE_CAPS]
     else:
         argv += ['--read-only']
     argv += ['--tmpfs', f'/tmp:rw,nosuid,nodev,exec,size=256m,mode={"1777" if root else "0700"},uid={owner},gid={owner}',
@@ -387,6 +388,15 @@ def inspect_owned(record, contract_sha, nonce, image):
          and labels.get('cachy-asahi.ksm.contract') == contract_sha, 'unowned-container-refused')
 
 
+def capabilities_match(value, expected):
+    """Accept Docker's optional CAP_ spelling, requiring the exact effective set."""
+    if value is None:
+        return not expected
+    return (type(value) is list and len(value) == len(expected) and
+            all(type(cap) is str for cap in value) and
+            {cap.removeprefix('CAP_') for cap in value} == set(expected))
+
+
 def inspect_isolation(record, contract, source, output):
     c, h = record['Config'], record['HostConfig']
     root = contract['phase'] == 'lifecycle'
@@ -403,7 +413,7 @@ def inspect_isolation(record, contract, source, output):
     need(not h['UTSMode'], 'sandbox-isolation-uts-mode-drift')
     need(not h['Privileged'], 'sandbox-isolation-privileged-drift')
     need(h['CapDrop'] == ['ALL'], 'sandbox-isolation-cap-drop-drift')
-    need(set(h.get('CapAdd') or []) == ({'CHOWN', 'DAC_OVERRIDE', 'FOWNER', 'SETUID', 'SETGID'} if root else set()), 'sandbox-isolation-cap-add-drift')
+    need(capabilities_match(h.get('CapAdd'), LIFECYCLE_CAPS if root else ()), 'sandbox-isolation-cap-add-drift')
     need(h['SecurityOpt'] in (['no-new-privileges'], ['no-new-privileges:true']), 'sandbox-isolation-security-opt-drift')
     need(h['Memory'] == h['MemorySwap'] == memory, 'sandbox-isolation-memory-and-swap-drift')
     need(h['NanoCpus'] == 2 * 10 ** 9, 'sandbox-isolation-nano-cpus-drift')
