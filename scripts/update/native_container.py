@@ -50,7 +50,47 @@ SCALE_DRIFT_ERRORS = {'ValueError','Invalid','OSError','TimeoutError','RuntimeEr
 SCALE_DRIFT_REASONS = {'scale configuration changed':'SCALE_DRIFT',
     'root observation deadline':'ROOT_DEADLINE','archive deadline exhausted':'ARCHIVE_DEADLINE',
     'insufficient or unknown filesystem free inode count':'CAPACITY_INODES',
-    'insufficient future transaction bytes/inodes':'CAPACITY_FUTURE'}
+    'insufficient future transaction bytes/inodes':'CAPACITY_FUTURE',
+    # Runtime.tree wraps observation failures; retain the known deadline label.
+    'unsupported root observation: root observation deadline':'ROOT_DEADLINE',
+    'release exceeds tiny-root package limit':'PREPARE_PACKAGE_LIMIT',
+    'aggregate package inputs exceed tiny-root limit':'PREPARE_INPUT_LIMIT',
+    'archive exceeds tiny-root caller limit':'PREPARE_ARCHIVE_LIMIT',
+    'package writes protected platform/trust path':'PREPARE_PROTECTED_PATH',
+    'package writes protected service':'PREPARE_PROTECTED_SERVICE',
+    'package payload overlap':'PREPARE_PAYLOAD_OVERLAP',
+    'loaded package identity differs':'PREPARE_PACKAGE_IDENTITY',
+    'selected package writes actual protected ownership':'PREPARE_PROTECTED_OWNERSHIP',
+    'prepared add inventory differs':'PREPARED_ADD',
+    'prepared remove inventory differs':'PREPARED_REMOVE',
+    'base trust changed before commit':'PRECOMMIT_BASE_TRUST',
+    'protected payload changed before commit':'PRECOMMIT_PROTECTED_PAYLOAD',
+    'update configuration changed':'PRECOMMIT_UPDATE_CONFIGURATION',
+    'original bundle drifted':'SNAPSHOT_SOURCE_BUNDLE',
+    'original input identity drifted':'SNAPSHOT_SOURCE_IDENTITY',
+    'original input bytes drifted':'SNAPSHOT_SOURCE_BYTES',
+    'authenticated snapshot drifted':'SNAPSHOT_AUTHENTICATED',
+    'authenticated result changed':'SNAPSHOT_RESULT',
+    'metadata is expired or issued in the future':'METADATA_TIME',
+    'projected node limit':'PROJECTED_NODES',
+    'projected depth limit':'PROJECTED_DEPTH',
+    'unsupported projected shape':'PROJECTED_SHAPE',
+    'projected file byte limit':'PROJECTED_FILE_BYTES',
+    'projected file content observation missing':'PROJECTED_FILE_OBSERVATION',
+    'invalid projected symlink':'PROJECTED_SYMLINK',
+    'projected byte limit':'PROJECTED_BYTES',
+    'unaudited auxiliary executable or alias refused':'PROJECTED_AUXILIARY',
+    'platform policy release mismatch':'PLATFORM_RELEASE',
+    'complete bounded protected inventory required':'PLATFORM_INVENTORY',
+    'protected package change refused':'PLATFORM_CHANGE',
+    'protected kernel ownership change refused':'PLATFORM_KERNEL_OWNERSHIP',
+    'platform transition release evidence mismatch':'PLATFORM_RELEASE_EVIDENCE',
+    'platform transition validation absent from signed release':'PLATFORM_VALIDATION_EVIDENCE'}
+# These prefixes are composed by the existing Alpm.ok / Runtime.tree / authorize
+# calls. Export only the call-site label, never their runtime suffix or operands.
+SCALE_DRIFT_PREPARE_PREFIXES = (('signed package load: ','ALPM_SIGNED_LOAD'),
+    ('add authenticated package: ','ALPM_ADD'),('prepare immutable transaction: ','ALPM_PREPARE'),
+    ('unsupported root observation: ','ROOT_OBSERVATION'),('platform policy refused: ','PLATFORM_POLICY'))
 
 
 def scale_drift_diagnostic(test):
@@ -64,10 +104,15 @@ def scale_drift_diagnostic(test):
     def fact(value):
         return value if type(value) is bool or type(value) is str and value == 'UNKNOWN' else 'UNAVAILABLE'
     error=row.get('error')
+    category='UNAVAILABLE'
+    if type(error) is str:
+        category=SCALE_DRIFT_REASONS.get(error)
+        if category is None:
+            category=next((label for prefix,label in SCALE_DRIFT_PREPARE_PREFIXES if error.startswith(prefix)),'OTHER')
     return dict(stage=label(raw.get('stage'),SCALE_DRIFT_STAGES),
         status=label(row.get('status'),{'PASS','FAIL'}),phase=label(row.get('phase'),SCALE_DRIFT_PHASES),
         error_type=label(row.get('error_type'),SCALE_DRIFT_ERRORS),
-        error_category=SCALE_DRIFT_REASONS.get(error,'OTHER') if type(error) is str else 'UNAVAILABLE',
+        error_category=category,
         commit_started=fact(row.get('commit_started')),packages_committed=fact(row.get('packages_committed')),
         checkpoint_changed=fact(row.get('checkpoint_changed')),callback_reached=fact(row.get('test_scale_precommit_reached')))
 
