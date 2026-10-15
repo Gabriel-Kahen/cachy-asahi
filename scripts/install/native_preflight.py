@@ -21,7 +21,7 @@ HANDOFF = 'scripts/ci/development/repository_handoff.py'
 # Root must rebind after any separately reviewed issuer change.
 ISSUER_SHA = 'fea5348a93631157fa394ee12b9666ec54e2b667f5fc8f535a9aba9d634162db'
 RECEIVER = 'scripts/install/native_arm_trial.py'
-RECEIVER_SHA = '35a6a82137a9c49c54821a6a6ea50d4f0f25518d9e51d1eace7a83916f94a361'
+RECEIVER_SHA = '90aaedaad6ea79c1c9a172d12c7e8383c4375aa8f75ec81558dbcad26077a77d'
 PROFILE_SHA = 'b7fbd65e357e132949432fb00e765a05e3c76ea29a41d1df93413870d9fd1ed8'
 OWN = 'scripts/install/native_preflight.py'
 SOURCE_PATHS = ('scripts/install/local_transaction.py', 'scripts/install/test_local_transaction.py',
@@ -263,7 +263,7 @@ def container_binding(rows, cid, name, trial, source, inputs, output):
          type(restart['MaximumRetryCount']) is int and restart['MaximumRetryCount']==0,
          'CONTAINER_POLICY RestartPolicy:'+ (type_label(restart) if 'RestartPolicy' in host else 'missing'))
     need(row.get('Id')==cid and row.get('Name')=='/'+name and row.get('Image')==trial['image_id'] and
-         config.get('User')==f'{os.getuid()}:{os.getgid()}' and config.get('Entrypoint')==['/usr/bin/python3'] and
+         row.get('AppArmorProfile')==dev_apparmor_name() and config.get('User')==f'{os.getuid()}:{os.getgid()}' and config.get('Entrypoint')==['/usr/bin/python3'] and
          config.get('Cmd')==['-I','-B','/source/scripts/install/native_arm_trial.py','--selection','/inputs/trial.json',
                             '--selection-sha256',sha(encoded(trial))], 'CONTAINER_BINDING')
     need(environment_matches(config.get('Env'),CONFIG['Env']+['CACHY_ASAHI_INSTALL_NONCE='+trial['nonce'],
@@ -273,7 +273,7 @@ def container_binding(rows, cid, name, trial, source, inputs, output):
          host.get('Privileged') is False and host.get('ReadonlyRootfs') is True and host.get('CapDrop')==['ALL'] and
          not host.get('CapAdd') and not host.get('Devices') and not host.get('DeviceRequests') and
          host.get('Memory')==2*1024**3 and host.get('NanoCpus')==2*10**9 and host.get('PidsLimit')==128 and
-         host.get('SecurityOpt') in (['no-new-privileges'],['no-new-privileges=true']), 'CONTAINER_POLICY')
+         dev_security_options(host.get('SecurityOpt')), 'CONTAINER_POLICY')
     need(host.get('Tmpfs')=={'/tmp':'rw,nosuid,nodev,exec,size=512m,mode=1777'}, 'CONTAINER_TMPFS')
     mounts=row.get('Mounts'); need(type(mounts) is list and len(mounts)==3, 'CONTAINER_MOUNTS')
     expected={(str(source),'/source',False),(str(inputs),'/inputs',False),(str(output),'/out',True)}
@@ -354,7 +354,7 @@ def run(session, controller, output, *, deadline, nonce, runtime_contract):
         image=image_handoff(strict(inspected['stdout']),controller,receiver,raw,packages,
                             input_successor=input_successor)
         trial=selection(sources,controller,receiver,image,nonce,input_successor=input_successor)
-        for path,data in ((inputs/'image.json',encoded(image)),(inputs/'trial.json',encoded(trial))):
+        for path,data in ((inputs/'image.json',encoded(image)),(inputs/'trial.json',encoded(trial)),(inputs/'dev-seccomp.json',receiver.DEV_SECCOMP_BYTES)):
             with path.open('xb') as stream: stream.write(data)
             path.chmod(0o600)
         guard(); args=receiver.docker_command(trial,sources.root,inputs,child)
@@ -431,3 +431,20 @@ def need_preflight_result(value, code, record, receiver):
                 except BaseException:
                     pass
         raise
+
+
+def dev_security_options(value):
+    """Exact Docker CLI compacted policy; no arbitrary custom/unconfined policy."""
+    return (type(value) is list and len(value) == 3 and
+            value[0] in ('no-new-privileges', 'no-new-privileges=true') and
+            type(value[1]) is str and value[1].startswith('seccomp=') and
+            value[2] == 'apparmor=' + dev_apparmor_name() and
+            sha(value[1][8:].encode()) == 'd0996a8cdf2c8ed29a69dbcdea8c1b2ad905d2e820518c974af2baa555c7c9ad')
+
+
+def dev_apparmor_name():
+    """Unique DEV job identity; arbitrary host profile selectors are refused."""
+    parts = (os.environ.get('GITHUB_RUN_ID'), os.environ.get('GITHUB_RUN_ATTEMPT'))
+    if not all(type(v) is str and 0 < len(v) <= 20 and all('0' <= c <= '9' for c in v) for v in parts):
+        raise ValueError('CONTAINER_POLICY')
+    return 'cachy-asahi-p0-dev-' + '-'.join(parts)
