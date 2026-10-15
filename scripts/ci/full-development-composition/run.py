@@ -303,17 +303,30 @@ def compose(args, raw, public, result):
     if lifecycle: plan['lifecycle'] = lifecycle
     if successor: plan['updater_v2'] = successor
     if setup4: plan['setup4'] = setup4
+    if getattr(args, 'measure_footprint', False):
+        footprint = module('composition_footprint', HERE / 'footprint.py')
+        assert setup4 and successor is None and setup4['expected_inventory_sha256'] == footprint.EXPECTED
+        footprint.prepare(HERE.parents[2], raw / 'footprint-source')
+        plan['footprint'] = {'limits': footprint.LIMITS, 'sources': footprint.SOURCES}
     save(inputs / 'plan.json', plan)
     save(public / 'packages.json', {r['name']: {'version': r['version'], 'sha256': r['sha256']} for r in rows})
     result['phase'] = 'signed-offline-composition'
     name = 'cachy-asahi-composition-' + uuid.uuid4().hex
-    save(args.output / 'owned.json', {'container': name})
+    owned = {'container': name}
+    save(args.output / 'owned.json', owned)
+    if getattr(args, 'measure_footprint', False):
+        volume = 'cachy-asahi-footprint-' + uuid.uuid4().hex
+        assert footprint.volume_present(volume) == [], 'fresh footprint volume required'
+        owned['footprint_volume'] = volume
+        save(args.output / 'owned.json', owned)  # Track an unknown create outcome for scoped cleanup.
+        footprint.create_volume(volume)
     argv = ['docker', 'run', '--rm', '--name', name, '--pull=never', '--platform=linux/arm64', '--user=0:0',
         '--network=none', '--cap-drop=ALL', '--security-opt=no-new-privileges', '--pids-limit=256',
         '--memory=2g', '--cpus=2', '--tmpfs=/tmp:rw,nosuid,nodev,exec,size=512m',
         '--env=CACHY_ASAHI_COMPOSITION=' + uuid.uuid4().hex, '--env=LC_ALL=C', '--env=PYTHONDONTWRITEBYTECODE=1']
     for cap in ('CHOWN', 'DAC_OVERRIDE', 'FOWNER', 'SETUID', 'SETGID', 'SYS_CHROOT', 'SETFCAP'): argv.append('--cap-add=' + cap)
     if lifecycle or setup4: argv.append('--cap-add=KILL')
+    if getattr(args, 'measure_footprint', False): argv.append('--cap-add=FSETID')  # Preserve copied setgid modes.
     for source, target, ro in ((inputs, '/inputs', True), (HERE / 'container.py', '/runner.py', True), (public, '/out', False)):
         argv += ['--mount', f'type=bind,src={source},dst={target}' + (',readonly' if ro else '')]
     if lifecycle or successor or setup4:
@@ -323,8 +336,12 @@ def compose(args, raw, public, result):
                  '--env=CACHY_ASAHI_UPDATER_RUNTIME=' + uuid.uuid4().hex]
     if setup4:
         argv += ['--mount', f'type=bind,src={HERE / "setup4.py"},dst=/setup4.py,readonly']
+    if getattr(args, 'measure_footprint', False):
+        argv += ['--mount', f'type=volume,src={owned["footprint_volume"]},dst=/measurement,volume-nocopy',
+                 '--mount', f'type=bind,src={raw / "footprint-source"},dst=/measurement-source,readonly',
+                 '--mount', f'type=bind,src={HERE / "footprint.py"},dst=/footprint.py,readonly']
     command(argv + ['--entrypoint=/usr/bin/python3', image, '-I', '-B', '/runner.py'],
-            public / 'transaction.log', 1200 if lifecycle or successor or setup4 else 480)
+            public / 'transaction.log', 2400 if getattr(args, 'measure_footprint', False) else 1200 if lifecycle or successor or setup4 else 480)
     result['composition'] = json.loads((public / 'result.json').read_text())
     assert result['composition']['status'] == 'PASS'
     if lifecycle:
@@ -337,6 +354,8 @@ def compose(args, raw, public, result):
         assert result['composition']['final_inventory_sha256'] == FINAL
     if setup4:
         assert result['composition']['setup4']['status'] == 'PASS'
+        if getattr(args, 'measure_footprint', False):
+            assert result['composition']['setup4']['footprint']['status'] == 'MEASURED_SCOPED_COPY'
         assert result['composition']['installed_inventory_sha256'] == checkpoint_sha
         assert result['composition']['final_package_count'] == 587
         assert result['composition']['final_inventory_sha256'] == checkpoint_sha
@@ -349,7 +368,10 @@ def main():
     mode.add_argument('--lifecycle', action='store_true', help='Run the explicit disposable lifecycle after v1 composition checks')
     mode.add_argument('--updater-v2-source', type=Path, help='Exact Source480053 checkout for v1 upgrade, real Check and v1 rollback')
     parser.add_argument('--setup4-pair', type=Path, help='Retained Source98 native pair for the explicit setup3-to-4-to-3 development trial; with approved v2 source, select v2 in the initial checkpoint')
+    parser.add_argument('--measure-footprint', action='store_true', help='Measure the exact setup4/updater-v2 scoped copy on a private disk-backed volume')
     args = parser.parse_args()
+    if getattr(args, 'measure_footprint', False) and not (args.setup4_pair and args.updater_v2_source):
+        parser.error('--measure-footprint requires --setup4-pair and --updater-v2-source')
     if args.setup4_pair and args.lifecycle:
         parser.error('--setup4-pair is incompatible with --lifecycle')
     if args.setup4_pair:
@@ -391,14 +413,24 @@ def main():
                 retain_updater(args.updater_v2_source, raw / 'updater-v2', public / 'updater-v2')
             except Exception: failures.append('updater-v2-public-projection')
         owned = args.output / 'owned.json'
+        container_absent = False
         if owned.exists():
-            name = json.loads(owned.read_text())['container']
+            ownership = json.loads(owned.read_text())
+            name = ownership['container']
             try:
                 subprocess.run(['docker', 'rm', '-f', name], capture_output=True, timeout=20)
             except (OSError, subprocess.SubprocessError): failures.append('container-remove')
             try:
                 assert subprocess.check_output(['docker', 'container', 'ls', '-a', '--filter', 'name=^/' + name + '$', '--format', '{{.ID}}'], timeout=20) == b''
+                container_absent = True
             except (OSError, subprocess.SubprocessError, AssertionError): failures.append('container-absence')
+        if owned.exists() and ownership.get('footprint_volume'):
+            try:
+                assert container_absent, 'container absence required before volume cleanup'
+                module('composition_footprint_cleanup', HERE / 'footprint.py').remove_volume(ownership['footprint_volume'])
+                result['footprint_volume_cleanup'] = 'PASS-absence-verified'
+            except (OSError, ValueError, KeyError, subprocess.SubprocessError, AssertionError):
+                failures.append('owned-footprint-volume')
         removed = set()
         for relative in ('updater/native/image-id', 'desktop574/image-id', 'updater-v2/updater/native/image-id'):
             path = raw / relative
@@ -419,7 +451,8 @@ def main():
                 try: subprocess.run(['gpgconf', '--homedir', str(home), '--kill', 'all'], check=True, capture_output=True, timeout=15)
                 except (OSError, subprocess.SubprocessError): failures.append('owned-gpg')
         result['cleanup'] = {'status': 'FAIL' if failures else 'PASS', 'failures': failures,
-                             'scope': 'owned composition container, selected new builder images and private trial files'}
+                             'scope': 'owned composition container, selected new builder images and private trial files'
+                                      + (' and exact owned footprint volume' if getattr(args, 'measure_footprint', False) else '')}
         if failures: result['status'] = 'FAIL'
         else: shutil.rmtree(raw)
         save(public / 'coordinator.json', result)
