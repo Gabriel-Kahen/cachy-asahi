@@ -4,6 +4,7 @@ import hashlib
 import importlib.util
 import json
 from pathlib import Path
+from types import SimpleNamespace
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -63,7 +64,7 @@ def passing():
                                       full_equality=True, converter='spa-json-dump') for r in c.s.cases().values()],
                 positive_cases=[host_row(r) for r in c.s.cases().values()],
                 negative_controls=[host_row(c.s.cases()['j413-speakers'], name) for name in c.s.CONTROLS],
-                host_children=12, converter_children=4, safety=copy.deepcopy(c.SAFETY))
+                host_children=12, converter_children=4, first_host_failure=None, safety=copy.deepcopy(c.SAFETY))
 
 
 class ContainerTests(unittest.TestCase):
@@ -73,6 +74,58 @@ class ContainerTests(unittest.TestCase):
 
     def rejects(self, value):
         with self.assertRaises(COMMON.Failure): c.validate_public(value)
+
+    def failed_host_raw(self):
+        row = host_row(c.s.cases()['j413-speakers']); row.pop('raw_sha256')
+        row.update(status='FAIL', failure_class='metadata', libraries=['/private/library.so'],
+                   fir_selections=[{'path': '/private/fir.wav'}])
+        row['gates']['metadata'] = False
+        return json.dumps(row).encode()
+
+    def test_failure_snapshot_is_finite_and_cannot_credit_a_positive(self):
+        case = c.s.cases()['j413-speakers']; raw = self.failed_host_raw()
+        with self.assertRaises(COMMON.Failure): c.project_host(raw, case, 'positive', Path('/graph'), {})
+        row = c.capture_host_failure(raw, case, 'positive', 'host_gates')
+        self.assertEqual(row['host_failure_class'], 'metadata')
+        self.assertEqual(row['projection_failure_class'], 'host_gates')
+        self.assertNotIn('/private', json.dumps(row))
+        value = passing(); value.update(status='FAIL', stage='host', failure_class='host_gates',
+                                        host_children=1, positive_cases=[], negative_controls=[], first_host_failure=row)
+        self.assertIs(c.validate_public(value), value)
+        for mutate in (lambda v: v.update(status='PASS'), lambda v: v.update(host_children=2),
+                       lambda v: v['first_host_failure'].update(case='j415-mic'),
+                       lambda v: v['first_host_failure'].update(raw_log='/private/log'),
+                       lambda v: v['first_host_failure']['gates'].update(retired=1)):
+            bad = copy.deepcopy(value); mutate(bad); self.rejects(bad)
+
+    def test_malformed_failure_diagnostic_is_refused(self):
+        case = c.s.cases()['j413-speakers']
+        for raw in (b'{}', b'{bad', self.failed_host_raw().replace(b'"metadata"', b'"/private/error"')):
+            self.assertIsNone(c.capture_host_failure(raw, case, 'positive', 'host_gates'))
+
+    def test_main_preserves_projection_failure_and_finite_host_evidence(self):
+        expected = passing(); headers = {path: digest for path, digest in {**COMMON.HEADERS, **c.GRAPH_HEADERS}.values()}
+        def command(args, name, *unused, **kwargs):
+            if name == 'pkg-config': return b'-lpipewire-0.3 -llilv-0 -lserd-0'
+            if name == 'compile': return b''
+            if name.startswith('parse-'): return json.dumps(c.s.cases()[name[6:]]['expected']).encode()
+            if name == 'host-j413-speakers': return self.failed_host_raw()
+            self.fail('unexpected mocked actor: ' + name)
+        with tempfile.TemporaryDirectory(dir=HERE) as tmp, patch.object(c, 'OUT', Path(tmp)), \
+             patch.object(COMMON, 'assert_isolation'), patch.object(COMMON, 'mount_readonly', return_value=True), \
+             patch.object(COMMON, 'inventory', return_value=c.s.LOCK), \
+             patch.object(c, 'check_inputs', return_value=({}, {})), patch.object(c, 'regular', side_effect=Path), \
+             patch.object(c, 'fixture', side_effect=lambda name, original, case: Path(tmp) / (name + '.json')), \
+             patch.object(COMMON, 'digest', side_effect=lambda p: headers.get(str(p), 'a' * 64)), \
+             patch.object(c.s, 'load', return_value=SimpleNamespace(elf_check=None)), \
+             patch.object(COMMON, 'elf_observation', side_effect=lambda p, name, checker: expected['elf'][name[6:]]), \
+             patch.object(c, 'command', side_effect=command):
+            self.assertEqual(c.main(), 1)
+            report = json.loads((Path(tmp) / 'observations.json').read_bytes())
+            self.assertEqual(report['failure_class'], 'host_gates')
+            self.assertEqual(report['first_host_failure']['host_failure_class'], 'metadata')
+            self.assertEqual(report['host_children'], 1)
+            self.assertEqual(report['positive_cases'], [])
 
     def test_spa_metadata_flags_join_runtime_and_public_gate(self):
         flags = ['-I/usr/include/pipewire-0.3', '-I/usr/include/spa-0.2', '-D_REENTRANT',
