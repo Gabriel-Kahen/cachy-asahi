@@ -199,13 +199,17 @@ def image_handoff(observed, controller, receiver, inputs_raw, packages_raw, *, i
          image.get('Os') == 'linux' and sha(inputs_raw) == inputs_sha and
          sha(packages_raw) == packages_sha, 'IMAGE_BINDING')
     full_config = image.get('Config'); need(type(full_config) is dict, 'IMAGE_CONFIG')
-    # Project the receiver's complete twelve execution-policy fields; preserve values.
+    # Project execution policy, normalizing only absent/empty execution defaults.
     config = {key:full_config.get(key) for key in CONFIG}
+    for key in ('Cmd', 'Entrypoint', 'Shell'):
+        if config[key] is None: config[key] = []
+    if config['ArgsEscaped'] is None: config['ArgsEscaped'] = False
     canonical = dict(config)
     if canonical.get('Entrypoint') == ['']: canonical['Entrypoint'] = []
     if canonical.get('Labels') is None: canonical['Labels'] = {}
     changed=[key+':'+type_label(canonical[key]) for key in CONFIG
-             if canonical[key]!=CONFIG[key] or key=='ArgsEscaped' and type(canonical[key]) is not bool]
+             if (key in ('Cmd', 'Entrypoint', 'Shell') and type(canonical[key]) is not list) or
+             (key=='ArgsEscaped' and type(canonical[key]) is not bool) or canonical[key]!=CONFIG[key]]
     need(not changed, 'IMAGE_CONFIG '+','.join(changed))
     value = dict(source_commit=controller.commit,image_id=controller.image,inputs_sha256=inputs_sha,
                  packages_lock_sha256=packages_sha,architecture='arm64',os='linux',Config=config)
