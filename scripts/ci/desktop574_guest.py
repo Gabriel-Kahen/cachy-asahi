@@ -255,11 +255,16 @@ class Logged:
         for thread in self.threads:
             thread.join(timeout=2)
         need(all(not t.is_alive() for t in self.threads), 'log drain incomplete')
-        emit('process_exit', name=self.paths[0].name.removesuffix('.stdout'),
-             returncode=self.process.returncode,
-             logs=[dict(path=str(p), bytes=p.stat().st_size,
-                        sha256=hashlib.sha256(p.read_bytes()).hexdigest(),
-                        tail_base64=base64.b64encode(p.read_bytes()[-4096:]).decode()) for p in self.paths])
+        name = self.paths[0].name.removesuffix('.stdout')
+        logs = [dict(path=str(p), bytes=p.stat().st_size,
+                     sha256=hashlib.sha256(p.read_bytes()).hexdigest(),
+                     tail_base64=base64.b64encode(p.read_bytes()[-4096:]).decode()) for p in self.paths]
+        wofi = name in ('minimal-wofi', 'overlay-wofi')
+        if wofi:
+            logs[1].update(content_base64=base64.b64encode(self.paths[1].read_bytes()).decode(),
+                           capture_complete=not self.errors and not self.overflow)
+        emit('process_exit', name=name, returncode=self.process.returncode, logs=logs,
+             **(dict(pid=self.process.pid) if wofi else {}))
         need(not self.errors and not self.overflow, 'process log overflow/failure')
 
 
@@ -449,12 +454,12 @@ def phase(stage, config, env, logs):
         selected['WAYLAND_DISPLAY'] = sockets[0].name
         client = Logged(['/usr/bin/wofi', '--normal-window', '--show', 'dmenu', '--prompt',
                          'Generic ARM desktop574', '--width', '420', '--height', '220'],
-                        stage + '-wofi', logs, selected, stdin=subprocess.PIPE)
+                        stage + '-wofi', logs, dict(selected, WAYLAND_DEBUG='client'), stdin=subprocess.PIPE)
         client.process.stdin.write(b'574 packages: generic ARM software session\nNo Apple hardware claim\n')
         client.process.stdin.close()
         for attempt in range(20):
             client.healthy(); compositor.healthy()
-            response = command(['/usr/bin/hyprctl', '-j', 'clients'], selected, logs,
+            response = command(['/usr/bin/hyprctl', '-j', 'clients', '-a'], selected, logs,
                                stage + '-clients-' + str(attempt), timeout=3, retry_timeout=True)
             if response is None:
                 continue
