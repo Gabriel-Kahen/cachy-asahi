@@ -133,7 +133,9 @@ def check_profile_output(core, data):
                             r'cannot access directory|is not a directory|incorrect gcov version|'
                             r'mismatch|skipping|counter overflow|read error', text, re.IGNORECASE),
               'gcov-tool profile decoding diagnostic refused')
-    names = re.findall(r'^[ \t]*reading file:[ \t]+(?:\./)?([^\r\n]*?)[ \t]*$', text, re.MULTILINE)
+    # stdout progress can lack a newline before stderr's reader record when
+    # both streams share the retained log. Keep the exact filename/end boundary.
+    names = re.findall(r'reading file:[ \t]+(?:\./)?([^\r\n]*?)[ \t]*$', text, re.MULTILINE)
     core.need(len(names) == 2 * len(PROFILE_NAMES) and set(names) == set(PROFILE_NAMES)
               and all(names.count(name) == 2 for name in PROFILE_NAMES),
               'complete exact gcov-tool profile reader coverage required')

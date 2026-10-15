@@ -19,6 +19,14 @@ stage = load('c03_export_fixture', 'stage.py', {'arm_c01': a})
 PROFILE_OK = ''.join('reading file: ./' + name + '\n' for _ in range(2) for name in pgo.PROFILE_NAMES).encode()
 
 
+def adjacent_progress_output():
+    output = PROFILE_OK
+    for name, number in (('example', 658392598), ('trees', 2037507)):
+        record = ('reading file: ./#tmp#build#' + name + '.gcda\n').encode()
+        output = output.replace(record, ('tag one function id=' + str(number)).encode() + record, 1)
+    return output
+
+
 class C03Tests(fixtures.IsolatedTests):
     def setUp(self):
         super().setUp()
@@ -92,6 +100,12 @@ class C03Tests(fixtures.IsolatedTests):
         for output in malformed:
             with self.subTest(output=output), self.assertRaisesRegex(ValueError, 'gcov-tool'):
                 pgo.check_profile_output(a, output)
+
+    def test_decoder_accepts_two_actual_shaped_progress_reader_adjacencies(self):
+        output = adjacent_progress_output()
+        self.assertIn(b'tag one function id=658392598reading file: ./#tmp#build#example.gcda\n', output)
+        self.assertIn(b'tag one function id=2037507reading file: ./#tmp#build#trees.gcda\n', output)
+        self.assertIsNone(pgo.check_profile_output(a, output))
 
     def test_training_role_bytes_and_extra_train_are_refused(self):
         manifest = self.manifest()
@@ -379,6 +393,27 @@ class C03Tests(fixtures.IsolatedTests):
         report['profile']['restores'][1]['profiles'] = []; a.save(raw / 'result.json', report)
         with self.assertRaisesRegex(ValueError, 'unchanged first-attempt'):
             a.verify_result(raw, contract)
+
+    def test_receiver_accepts_adjacent_reader_records_but_refuses_missing_extra_renamed_or_errors(self):
+        raw, contract, _, _, commands = self.receipt()
+        row = next(r for r in commands if r['name'].endswith('-profile-check'))
+        log = raw / row['log']
+        output = adjacent_progress_output()
+        def retain(data):
+            log.write_bytes(data)
+            row.update(log_sha256=a.sha(log), log_bytes=log.stat().st_size)
+            a.save(raw / 'commands.json', commands)
+        retain(output)
+        self.assertEqual(a.verify_result(raw, contract)['receiver_verification']['command_count'], 523)
+        record = b'reading file: ./#tmp#build#example.gcda\n'
+        invalid = [output.replace(record, b'', 1), output + record,
+                   output.replace(record, b'reading file: ./renamed.gcda\n', 1),
+                   output + b'tag one function id=42cannot open ./input.gcda\n',
+                   output + b'tag one function id=42cfg_checksum mismatch, skipping\n']
+        for data in invalid:
+            retain(data)
+            with self.subTest(output=data), self.assertRaisesRegex(ValueError, 'gcov-tool'):
+                a.verify_result(raw, contract)
 
     def test_receiver_rejects_excess_training_time_and_changed_source(self):
         raw, contract, report, _, _ = self.receipt()
