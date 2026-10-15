@@ -1357,7 +1357,9 @@ class InstallerCallBoundaryModels(unittest.TestCase):
             def __setitem__(self,key,value):
                 if diagnostic_fault is not None and value['status']=='FAIL':value=FaultRecord(value)
                 super().__setitem__(key,value)
-        namespace={'cancelled':lambda controller:False,'within':within,'require':require,'sys':sys,'CANCELLED':False,
+        namespace={'INSTALLER_RUN_STAGES':controller.INSTALLER_RUN_STAGES,
+            'INSTALLER_RUN_PREDICATES':controller.INSTALLER_RUN_PREDICATES,
+            'cancelled':lambda controller:False,'within':within,'require':require,'sys':sys,'CANCELLED':False,
             'finite':lambda number:type(number) in (int,float) and math.isfinite(number)}
         exec(compile(ast.Module(body=[self.helper,self.persist,node],type_ignores=[]),'<inert-consume-installer>','exec',dont_inherit=True),namespace)
         state=SimpleNamespace(report={'stages':Stages() if diagnostic_fault is not None else {}},callback_entered=False,repository_session=None,
@@ -1428,3 +1430,55 @@ class InstallerCallBoundaryModels(unittest.TestCase):
     def test_success_report_is_unchanged(self):
         old,previous,_,_=self.model(self.previous);new,current,_,namespace=self.model(self.current)
         self.assertIsNone(previous);self.assertIsNone(current);self.assertEqual(new.report,old.report);self.assertTrue(new.callback_entered);self.assertFalse(namespace['CANCELLED'])
+
+class ContainerPredicateDiagnosticModels(unittest.TestCase):
+    """Current exact controller methods with inert callbacks; no obsolete fixture."""
+    model=InstallerCallBoundaryModels.model
+
+    @classmethod
+    def setUpClass(cls):
+        import ast
+        tree=ast.parse(Path(__file__).with_name('controller.py').read_bytes())
+        owner=next(n for n in tree.body if isinstance(n,ast.ClassDef) and n.name=='Development')
+        cls.current=next(n for n in owner.body if isinstance(n,ast.FunctionDef) and n.name=='consume_installer')
+        cls.persist=next(n for n in owner.body if isinstance(n,ast.FunctionDef) and n.name=='persist_installer')
+        cls.helper=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='retain_installer_control')
+        cls.diagnostic_line=next(n.lineno for n in ast.walk(cls.current) if isinstance(n,ast.Assign) and
+            any(isinstance(c,ast.Constant) and c.value=='call_boundary' for c in ast.walk(n)))
+
+    def test_closed_container_selectors_project_without_values_or_exception_changes(self):
+        for suffix in ('ENV_EQUALITY','VOLUMES_FALSEY','HEALTHCHECK_FALSEY'):
+            original=ValueError('CONTAINER_ENV');prior=OSError('PRIVATE_PRIOR');original.__cause__=prior
+            original.native_preflight_run_fact={'schema_version':2,'stage':'CONTAINER_BINDING',
+                'predicate':'CONTAINER_ENV_'+suffix,'image_config':None}
+            state,caught,persists,_=self.model(self.current,'RUN',original)
+            self.assertIs(caught,original);self.assertEqual(caught.args,('CONTAINER_ENV',));self.assertIs(caught.__cause__,prior)
+            self.assertEqual(state.report['stages']['native-install-preflight']['diagnostic'],
+                {'schema_version':3,'call_boundary':'RUN','run_stage':'CONTAINER_BINDING',
+                 'run_predicate':'CONTAINER_ENV_'+suffix,'capture':'PASS','image_config':None})
+            self.assertEqual(state.report['status'],'FAIL');self.assertEqual(len(persists),1)
+            self.assertNotIn('PRIVATE',json.dumps(state.report))
+
+    def test_container_selectors_refuse_wrong_stage_detail_and_unknown_values(self):
+        for suffix in ('ENV_EQUALITY','VOLUMES_FALSEY','HEALTHCHECK_FALSEY'):
+            variants=[{'schema_version':2,'stage':stage,'predicate':'CONTAINER_ENV_'+suffix,'image_config':None}
+                for stage in controller.INSTALLER_RUN_STAGES if stage!='CONTAINER_BINDING']
+            variants.extend([{'schema_version':2,'stage':'CONTAINER_BINDING','predicate':'CONTAINER_ENV_'+suffix,'image_config':{'PRIVATE':'secret'}},
+                {'schema_version':2,'stage':'CONTAINER_BINDING','predicate':'CONTAINER_ENV_PRIVATE','image_config':None}])
+            for fact in variants:
+                original=ValueError('CONTAINER_ENV');original.native_preflight_run_fact=fact
+                state,caught,_,_=self.model(self.current,'RUN',original)
+                self.assertIs(caught,original)
+                diagnostic=state.report['stages']['native-install-preflight']['diagnostic']
+                self.assertEqual(diagnostic,{'schema_version':1,'call_boundary':'RUN'})
+                self.assertNotIn('PRIVATE',json.dumps(state.report))
+
+    def test_container_selector_control_during_diagnostic_preserves_first_failure(self):
+        for control in (KeyboardInterrupt('PRIVATE'),SystemExit(9),BaseException('PRIVATE')):
+            original=ValueError('CONTAINER_ENV')
+            original.native_preflight_run_fact={'schema_version':2,'stage':'CONTAINER_BINDING',
+                'predicate':'CONTAINER_ENV_ENV_EQUALITY','image_config':None}
+            state,caught,_,namespace=self.model(self.current,'RUN',original,trace_control=control)
+            self.assertIs(caught,original);self.assertIs(caught.__cause__,control)
+            self.assertTrue(state.report['cancelled']);self.assertTrue(namespace['CANCELLED'])
+            self.assertEqual(caught.args,('CONTAINER_ENV',));self.assertNotIn('PRIVATE',json.dumps(state.report))

@@ -324,6 +324,166 @@ class ContainerControls(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError,'CONTAINER_BINDING'): self.check(row)
 
 
+class ContainerEnvironmentDiagnosticControls(unittest.TestCase):
+    setUp=ContainerControls.setUp
+    check=ContainerControls.check
+
+    def refusal(self, row, field):
+        with self.assertRaises(ValueError) as caught:self.check(row)
+        error=caught.exception
+        self.assertEqual(error.args,('CONTAINER_ENV',))
+        fact=P.run_failure_fact(error,'CONTAINER_BINDING')
+        self.assertEqual(fact,{'schema_version':2,'stage':'CONTAINER_BINDING',
+            'predicate':'CONTAINER_ENV_'+field,'image_config':None})
+        self.assertNotIn('PRIVATE',json.dumps(fact))
+        return error
+
+    def test_exact_environment_and_existing_falsey_defaults_accept(self):
+        for value in (None,False,0,0.0,'',[],{}):
+            for key in ('Volumes','Healthcheck'):
+                with self.subTest(key=key,value=value):
+                    row=copy.deepcopy(self.row);row['Config'][key]=value;self.check(row)
+        self.check(self.row)
+
+    def test_wrong_missing_extra_and_duplicate_environment_refuse(self):
+        env=self.row['Config']['Env']
+        variants=[None,[],{},False,'PRIVATE_ENV',env[:-1],env+['PRIVATE_EXTRA=secret'],
+            env+[env[0]],
+            [env[0],'CACHY_ASAHI_INSTALL_NONCE=PRIVATE_NONCE',env[2]],
+            [env[0],env[1],'CACHY_ASAHI_INSTALL_IMAGE=PRIVATE_IMAGE']]
+        for value in variants:
+            with self.subTest(value=value):
+                row=copy.deepcopy(self.row);row['Config']['Env']=value;self.refusal(row,'ENV_EQUALITY')
+        row=copy.deepcopy(self.row);del row['Config']['Env'];self.refusal(row,'ENV_EQUALITY')
+
+    def test_nonempty_volume_and_healthcheck_refuse_without_private_values(self):
+        for key,field in (('Volumes','VOLUMES_FALSEY'),('Healthcheck','HEALTHCHECK_FALSEY')):
+            for value in ({'PRIVATE_PATH':{}},['PRIVATE_VALUE'],'PRIVATE_SECRET',True,1):
+                with self.subTest(key=key,value=value):
+                    row=copy.deepcopy(self.row);row['Config'][key]=value;self.refusal(row,field)
+
+    def test_first_refusal_wins_when_multiple_fields_are_wrong(self):
+        row=copy.deepcopy(self.row);row['Config'].update(Env=['PRIVATE'],Volumes={'PRIVATE':{}},Healthcheck={'PRIVATE':True})
+        self.refusal(row,'ENV_EQUALITY')
+        row['Config']['Env']=self.row['Config']['Env'];self.refusal(row,'VOLUMES_FALSEY')
+        row['Config']['Volumes']=None;self.refusal(row,'HEALTHCHECK_FALSEY')
+
+    def test_later_operands_are_not_observed_after_refusal(self):
+        for failed,expected in (('Env',['Env']),('Volumes',['Env','Volumes']),('Healthcheck',['Env','Volumes','Healthcheck']),
+                                (None,['Env','Volumes','Healthcheck'])):
+            calls=[];values={'Env':self.row['Config']['Env'],'Volumes':None,'Healthcheck':None}
+            if failed=='Env':values['Env']=[]
+            elif failed is not None:values[failed]={'PRIVATE':True}
+            class Config:
+                def get(self,key):calls.append(key);return values[key]
+            if failed is None:P.container_environment(Config(),self.trial)
+            else:
+                with self.assertRaises(ValueError):P.container_environment(Config(),self.trial)
+            self.assertEqual(calls,expected)
+
+    def test_original_exception_identity_args_cause_and_controls_survive(self):
+        class FalseError(ValueError):
+            def __bool__(self):return False
+        row=copy.deepcopy(self.row);row['Config']['Env']=[]
+        for error in (ValueError('CONTAINER_ENV'),FalseError('CONTAINER_ENV'),KeyboardInterrupt('PRIVATE'),SystemExit(7)):
+            prior=OSError('PRIVATE_PRIOR');error.__cause__=prior
+            with patch.object(P,'need',side_effect=error):
+                with self.assertRaises(BaseException) as caught:P.container_environment(row['Config'],self.trial)
+            self.assertIs(caught.exception,error);self.assertIs(error.__cause__,prior)
+
+    def test_untrusted_metadata_wrong_stage_and_wrong_error_class_are_redacted(self):
+        class ForeignString(str):
+            def __hash__(self):raise AssertionError('PRIVATE_HASH')
+            def __eq__(self,other):raise AssertionError('PRIVATE_EQUALITY')
+        class ForeignError(ValueError):pass
+        for value in ('PRIVATE_SECRET','Env','CONTAINER_ENV_ENV_EQUALITY',None,False,{},[],ForeignString('ENV_EQUALITY')):
+            error=ValueError('CONTAINER_ENV');error.native_preflight_container_field=value
+            self.assertEqual(P.run_failure_fact(error,'CONTAINER_BINDING')['predicate'],'CONTAINER_ENV')
+        for field in ('ENV_EQUALITY','VOLUMES_FALSEY','HEALTHCHECK_FALSEY'):
+            error=ValueError('CONTAINER_ENV');error.native_preflight_container_field=field
+            for stage in P.RUN_DIAGNOSTIC_STAGES:
+                expected='CONTAINER_ENV_'+field if stage=='CONTAINER_BINDING' else 'CONTAINER_ENV'
+                self.assertEqual(P.run_failure_fact(error,stage)['predicate'],expected)
+            for kind in (ForeignError,RuntimeError,KeyboardInterrupt,SystemExit):
+                other=kind('CONTAINER_ENV');other.native_preflight_container_field=field
+                self.assertEqual(P.run_failure_fact(other,'CONTAINER_BINDING')['predicate'],'OTHER')
+            forged=ValueError('CONTAINER_ENV_'+field)
+            self.assertEqual(P.run_failure_fact(forged,'CONTAINER_BINDING')['predicate'],'OTHER')
+
+
+
+class ContainerEnvironmentOrderControls(unittest.TestCase):
+    setUp=ContainerControls.setUp
+    check=ContainerControls.check
+    refusal=ContainerEnvironmentDiagnosticControls.refusal
+
+    def test_all_six_exact_permutations_accept_and_preserve_raw_inspect(self):
+        import itertools
+        for env in itertools.permutations(self.row['Config']['Env']):
+            row=copy.deepcopy(self.row);row['Config']['Env']=list(env);before=copy.deepcopy(row)
+            self.check(row);self.assertEqual(row,before)
+            self.assertEqual(P.sha(P.encoded(row)),P.sha(P.encoded(before)))
+
+    def test_outer_and_entry_type_pollution_refuses_without_foreign_hooks(self):
+        class ForeignList(list):
+            def __iter__(self):raise AssertionError('PRIVATE_ITER')
+            def __len__(self):raise AssertionError('PRIVATE_LEN')
+        class ForeignString(str):
+            def __eq__(self,other):raise AssertionError('PRIVATE_EQ')
+            def __lt__(self,other):raise AssertionError('PRIVATE_LT')
+            def __hash__(self):raise AssertionError('PRIVATE_HASH')
+        class Equal:
+            def __eq__(self,other):raise AssertionError('PRIVATE_EQ')
+            def __lt__(self,other):raise AssertionError('PRIVATE_LT')
+        env=self.row['Config']['Env']
+        values=[tuple(env),set(env),dict.fromkeys(env),ForeignList(env)]
+        values.extend([[env[0],env[1],item] for item in (ForeignString(env[2]),Equal(),None,False,0,1.0,b'PRIVATE',[],{})])
+        for value in values:
+            row=copy.deepcopy(self.row);row['Config']['Env']=value;self.refusal(row,'ENV_EQUALITY')
+
+    def test_exact_keys_values_and_single_occurrences_are_required(self):
+        env=self.row['Config']['Env']
+        variants=[env[:2],env+['HTTPS_PROXY=PRIVATE'],[env[0],env[1],env[1]],
+            [env[0],env[1],'CACHY_ASAHI_INSTALL_NONCE=PRIVATE'],
+            [env[0],env[1],env[2].replace('CACHY_ASAHI_INSTALL_IMAGE=','cachy_asahi_install_image=')],
+            [env[0]+' ',env[1],env[2]],[env[0],env[1]+'=PRIVATE',env[2]],
+            [env[0],env[1].replace('=', ' =',1),env[2]],
+            [env[0],env[1],env[2]+'\nPRIVATE=secret']]
+        for value in variants:
+            row=copy.deepcopy(self.row);row['Config']['Env']=value;self.refusal(row,'ENV_EQUALITY')
+
+    def test_every_permutation_keeps_original_volume_healthcheck_acceptance(self):
+        import itertools
+        for env in itertools.permutations(self.row['Config']['Env']):
+            for volumes,health in itertools.product((None,False,0,0.0,'',[],{}),repeat=2):
+                row=copy.deepcopy(self.row);row['Config'].update(Env=list(env),Volumes=volumes,Healthcheck=health);self.check(row)
+            row=copy.deepcopy(self.row);row['Config'].update(Env=list(env),Volumes={'PRIVATE':{}},Healthcheck={'PRIVATE':True})
+            self.refusal(row,'VOLUMES_FALSEY');row['Config']['Volumes']=None;self.refusal(row,'HEALTHCHECK_FALSEY')
+
+    def test_reordering_scope_does_not_extend_to_commands_or_mounts(self):
+        row=copy.deepcopy(self.row);row['Config']['Env'].reverse();self.check(row)
+        row['Config']['Cmd'].reverse()
+        with self.assertRaisesRegex(ValueError,'^CONTAINER_BINDING$'):self.check(row)
+        row=copy.deepcopy(self.row);row['Config']['Env'].reverse();row['Mounts'][0]['RW']=True
+        with self.assertRaisesRegex(ValueError,'^CONTAINER_MOUNTS$'):self.check(row)
+
+    def test_environment_is_read_once_and_never_sorted_in_place(self):
+        calls=[];env=list(reversed(self.row['Config']['Env']));before=list(env)
+        class Config:
+            def get(self,key):calls.append(key);return env if key=='Env' else None
+        P.container_environment(Config(),self.trial)
+        self.assertEqual(calls,['Env','Volumes','Healthcheck']);self.assertEqual(env,before)
+
+    def test_corrected_permutation_still_preserves_original_refusal_identity(self):
+        error=ValueError('CONTAINER_ENV');prior=OSError('PRIVATE_PRIOR');error.__cause__=prior
+        row=copy.deepcopy(self.row);row['Config']['Env'].reverse();row['Config']['Healthcheck']={'PRIVATE':True}
+        with patch.object(P,'need',side_effect=error):
+            with self.assertRaises(ValueError) as caught:P.container_environment(row['Config'],self.trial)
+        self.assertIs(caught.exception,error);self.assertIs(error.__cause__,prior)
+        self.assertEqual(P.run_failure_fact(error,'CONTAINER_BINDING')['predicate'],'CONTAINER_ENV_HEALTHCHECK_FALSEY')
+
+
+
 class NamespaceLifecycleControls(unittest.TestCase):
     setUp=ContainerControls.setUp
     check=ContainerControls.check

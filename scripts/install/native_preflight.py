@@ -222,6 +222,25 @@ def type_label(value):
     return 'UNKNOWN'
 
 
+def container_environment(config, trial):
+    """Require each exact Env entry once, allowing only its documented reordering."""
+    env = config.get('Env')
+    expected = CONFIG['Env']+['CACHY_ASAHI_INSTALL_NONCE='+trial['nonce'],
+        'CACHY_ASAHI_INSTALL_IMAGE='+trial['image_id']]
+    if not (type(env) is list and len(env)==len(expected) and
+            all(type(entry) is str for entry in env) and sorted(env)==sorted(expected)):field = 'ENV_EQUALITY'
+    elif config.get('Volumes'):field = 'VOLUMES_FALSEY'
+    elif config.get('Healthcheck'):field = 'HEALTHCHECK_FALSEY'
+    else:field = None
+    try:need(field is None, 'CONTAINER_ENV')
+    except ValueError as error:
+        try:
+            state = BaseException.__dict__['__dict__'].__get__(error,type(error))
+            state['native_preflight_container_field'] = field
+        except BaseException as secondary:retain_failure(error, secondary)
+        raise
+
+
 def container_binding(rows, cid, name, trial, source, inputs, output):
     need(type(rows) is list and len(rows)==1 and type(rows[0]) is dict, 'CONTAINER_INSPECT')
     row=rows[0]; config=row.get('Config',{}); host=row.get('HostConfig',{})
@@ -241,9 +260,7 @@ def container_binding(rows, cid, name, trial, source, inputs, output):
          config.get('User')==f'{os.getuid()}:{os.getgid()}' and config.get('Entrypoint')==['/usr/bin/python3'] and
          config.get('Cmd')==['-I','-B','/source/scripts/install/native_arm_trial.py','--selection','/inputs/trial.json',
                             '--selection-sha256',sha(encoded(trial))], 'CONTAINER_BINDING')
-    need(config.get('Env')==CONFIG['Env']+['CACHY_ASAHI_INSTALL_NONCE='+trial['nonce'],
-         'CACHY_ASAHI_INSTALL_IMAGE='+trial['image_id']] and not config.get('Volumes') and
-         not config.get('Healthcheck'), 'CONTAINER_ENV')
+    container_environment(config, trial)
     need(host.get('NetworkMode')=='none' and host.get('CgroupnsMode')=='private' and
          host.get('Privileged') is False and host.get('ReadonlyRootfs') is True and host.get('CapDrop')==['ALL'] and
          not host.get('CapAdd') and not host.get('Devices') and not host.get('DeviceRequests') and
@@ -295,6 +312,11 @@ def run_failure_fact(error, stage):
         if value in RUN_DIAGNOSTIC_PREDICATES:predicate = value
         elif value.startswith('IMAGE_CONFIG '):predicate = 'IMAGE_CONFIG'
         elif value.startswith('CONTAINER_POLICY '):predicate = 'CONTAINER_POLICY'
+        if stage == 'CONTAINER_BINDING' and predicate == 'CONTAINER_ENV':
+            state = BaseException.__dict__['__dict__'].__get__(error,type(error))
+            field = state.get('native_preflight_container_field')
+            if type(field) is str and field in ('ENV_EQUALITY','VOLUMES_FALSEY','HEALTHCHECK_FALSEY'):
+                predicate = 'CONTAINER_ENV_'+field
         if stage == 'IMAGE_HANDOFF' and predicate == 'IMAGE_CONFIG':
             image_config = {'boundary':'UNKNOWN','fields':[]}
             if value == 'IMAGE_CONFIG':
