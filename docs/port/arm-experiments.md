@@ -1,10 +1,6 @@
 # Bounded native ARM compiler experiments
 
-October 11, 2026. **ARM-C01 runner implemented; native execution NOT RUN.** No native experiment artifact, ARM
-correctness run, profile, timing comparison, installation or M2 acceptance has
-been produced here. This is bounded implementation input for M7/R2 and A14;
-it cannot complete R1–R5 or replace final-system A07 measurements. The four
-configuration packages contain no relevant compiled workload.
+October 15, 2026. **ARM-C01 passed hosted native build, correctness and within-variant byte reproduction.** The [actual run record](../validation/arm-c01-native-20261015.md) covers four builds and the complete 505-command graph on a generic 4 KiB ARM builder. C02–C04, physical 16 KiB execution, optimized package installation, M2 validation and performance acceptance remain unfinished. This bounded M7/R2 work cannot complete R1–R5 or replace final-system A07 measurements. The original experimental contract below remains in force.
 
 ## First code workload and retrievable inputs
 
@@ -173,8 +169,7 @@ source/image/tool hashes, full inventories, command/exit/timeout/cleanup records
 four C01 artifacts, correctness outputs and reproducibility results. Performance
 owner and physical operators supply later exact-machine plans and measurements.
 Missing artifacts, profiles, hardware or sensors remain named unfinished gates.
-Current results: **C01–C04 NOT RUN; 4K correctness NOT RUN; 16K execution NOT RUN;
-both M2 performance records NOT RUN; release selection false.**
+Current results: **C01 hosted native 4 KiB correctness/build/rebuild PASS; C02–C04 NOT RUN; 16 KiB execution NOT RUN; both M2 performance records NOT RUN; release selection false.** See the [actual C01 record](../validation/arm-c01-native-20261015.md).
 
 The retained source cache is
 `/tmp/cachy-asahi-zlib-audit-5bqceen9/zlib-1.3.2.tar.gz`; actual download hash
