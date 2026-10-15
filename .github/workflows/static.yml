@@ -66,6 +66,8 @@ jobs:
               if not result.wasSuccessful() or result.skipped or result.testsRun == 0:
                   raise SystemExit(f'{directory}: failures, skips, or empty suite')
           PY
+      - name: Check fixed build-only Asahi data candidate boundaries
+        run: python3 -B scripts/ci/asahi-audio-data/test_run.py
       - name: Inspect recipes without sourcing them
         run: python3 scripts/checks/package_checks.py recipes --require-recipes
       - name: Check recipe syntax without executing it

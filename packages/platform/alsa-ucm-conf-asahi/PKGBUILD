@@ -1,0 +1,25 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 cachy-asahi contributors.
+# BUILD-ONLY development candidate; upstream platform data is unchanged.
+pkgname=alsa-ucm-conf-asahi
+pkgver=10
+pkgrel=2
+pkgdesc='Selected Apple silicon ALSA UCM configuration (development candidate)'
+arch=('any')
+url='https://github.com/AsahiLinux/alsa-ucm-conf-asahi'
+license=('BSD-3-Clause' 'MIT')
+depends=('alsa-ucm-conf>=1.2.7.2')
+source=('alsa-ucm-conf-asahi-10.tar.gz' 'NOTICE' 'README.md' 'PACKAGING.LICENSE' 'source-provenance.json')
+sha256sums=('4cbf77e7113dbe3981c1aa271bc12f30c8af1ac3326db8e261ee8aa25cf37295' 'ea8d4dd8a097645b45a7d45cfe9db156b096ccad34f53095dad82ffe7c1df40a' '1d62c3c6df227893b4dde9ec9fc9ff13167eab99339629a652abfbf14162973f' '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7' '809c68fcf459c27ba8fb617d917a1913e5b1502daed2e106e0ddaf0f7f8442f2')
+
+package() {
+    cd "$srcdir/alsa-ucm-conf-asahi-10"
+    while IFS= read -r -d '' file; do
+        install -Dm644 "$file" "$pkgdir/usr/share/alsa/$file"
+    done < <(find ucm2/conf.d/macaudio ucm2/conf.d/aop_audio -type f -print0)
+    install -Dm644 LICENSE.asahi "$pkgdir/usr/share/licenses/$pkgname/LICENSE.asahi"
+    install -Dm644 "$srcdir/PACKAGING.LICENSE" "$pkgdir/usr/share/licenses/$pkgname/PACKAGING.LICENSE"
+    install -Dm644 "$srcdir/NOTICE" "$pkgdir/usr/share/licenses/$pkgname/NOTICE"
+    install -Dm644 "$srcdir/README.md" "$pkgdir/usr/share/doc/$pkgname/README.md"
+    install -Dm644 "$srcdir/source-provenance.json" "$pkgdir/usr/share/doc/$pkgname/source-provenance.json"
+}

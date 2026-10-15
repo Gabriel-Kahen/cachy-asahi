@@ -1,0 +1,13 @@
+Development-only independently packaged Asahi platform data.
+Upstream source and its grant are unchanged. No Asahi/CachyOS endorsement is claimed.
+
+alsa-ucm-conf-asahi 10 source: AsahiLinux/alsa-ucm-conf-asahi
+Tag v10; commit 1473329acab595dfef039f38c384ce16674d6b15
+Archive SHA-256 4cbf77e7113dbe3981c1aa271bc12f30c8af1ac3326db8e261ee8aa25cf37295
+
+Upstream BSD-3-Clause grant and copyright are installed as LICENSE.asahi.
+Independent packaging/documentation: Copyright (c) 2026 cachy-asahi contributors.
+The project MIT grant is installed as PACKAGING.LICENSE.
+Reference community recipe: asahi-alarm/PKGBUILDs commit
+9717359f2feac55830f8d57e50e4746e98ba6e99; maintainers Jos Dehaes and Matthias Kurz.
+The recipe reference does not authorize this candidate as a supported platform release.

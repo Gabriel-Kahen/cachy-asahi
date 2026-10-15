@@ -1,0 +1,25 @@
+{
+  "development_candidate": true,
+  "selected_for_release": false,
+  "source": {
+    "repository": "AsahiLinux/alsa-ucm-conf-asahi",
+    "tag": "v10",
+    "revision": "1473329acab595dfef039f38c384ce16674d6b15",
+    "url": "https://github.com/AsahiLinux/alsa-ucm-conf-asahi/archive/refs/tags/v10.tar.gz",
+    "archive": "alsa-ucm-conf-asahi-10.tar.gz",
+    "sha256": "4cbf77e7113dbe3981c1aa271bc12f30c8af1ac3326db8e261ee8aa25cf37295"
+  },
+  "reference_recipe": {
+    "repository": "asahi-alarm/PKGBUILDs",
+    "revision": "9717359f2feac55830f8d57e50e4746e98ba6e99",
+    "path": "alsa-ucm-conf-asahi/PKGBUILD"
+  },
+  "adaptation": "Independent offline data-only recipe; unchanged upstream source/payload, complete upstream license plus packaging notices",
+  "build": "make/install/coreutils only for asahi-audio; install/find/coreutils for ALSA; no runtime loading",
+  "validation_at_preparation": {
+    "native_build": "NOT RUN",
+    "installation": "NOT RUN",
+    "services": "NOT RUN",
+    "hardware": "NOT RUN"
+  }
+}
