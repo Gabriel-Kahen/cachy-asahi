@@ -1004,5 +1004,44 @@ class RelocationPublicTests(unittest.TestCase):
         with self.assertRaises(ValueError):public.project(encoded(bad),COMMIT,PIN,'failure')
 
 
+class AcquisitionFailurePublicTests(unittest.TestCase):
+    def value(self):
+        value=receipt();value.update(schema_version=4,status='FAIL',phase='cleanup',producer='FAIL',kernel_probe='NOT RUN',baseline='NOT RUN',candidate='NOT RUN',cleanup='FAIL',native_compilation='NOT RUN',first_failed_phase='parallel',failure_reason='BOTH_CHILDREN_EXIT',producer_exit=public.exit_record(-15),acquisition_exit=public.exit_record(1),kernel_child=dict(availability='NOT_RUN',exit=dict(kind='NOT_RUN',code=None),diagnostics=None))
+        value['daemon_baseline'].update(producer_mutation='UNCERTAIN',owned_absence='UNVERIFIED')
+        return value
+
+    def record(self):
+        return dict(schema_version=1,purpose='kernel-acquisition-failure',binding_sha256='a'*64,phase='PACKAGE_FETCH',input_ordinal=0,error_kind='DATA_REFUSAL',refusal='HTTP_CHILD')
+
+    def group(self):
+        record=self.record();raw=json.dumps(record,sort_keys=True,separators=(',',':')).encode()+b'\n'
+        return dict(availability='VERIFIED',reason='OBSERVED',sha256=hashlib.sha256(raw).hexdigest(),diagnostic=record)
+
+    def test_bound_diagnostic_roundtrip_cannot_upgrade_outcome_or_cleanup(self):
+        value=self.value();value['acquisition_failure']=self.group()
+        for outcome in ('success','failure','cancelled'):
+            result=public.project(encoded(value),COMMIT,PIN,outcome)
+            self.assertEqual(result['acquisition_failure'],value['acquisition_failure'])
+            self.assertEqual((result['status'],result['cleanup'],result['native_compilation']),('FAIL','FAIL','NOT RUN'))
+            self.assertEqual((result['first_failed_phase'],result['failure_reason']),('parallel','BOTH_CHILDREN_EXIT'))
+        with self.assertRaises(ValueError):public.project(encoded(dict(value,acquisition_exit=public.exit_record(0))),COMMIT,PIN,'failure')
+
+    def test_missing_and_invalid_are_distinct_and_no_native_acceptance(self):
+        for availability,reason in [('UNAVAILABLE','MISSING'),('REFUSED','INVALID')]:
+            value=self.value();value['acquisition_failure']=dict(availability=availability,reason=reason,sha256=None,diagnostic=None)
+            self.assertEqual(public.project(encoded(value),COMMIT,PIN,'failure')['acquisition_failure'],value['acquisition_failure'])
+        value=self.value();value['acquisition_failure']=self.group();value['acquisition_failure']['sha256']='b'*64
+        with self.assertRaises(ValueError):public.project(encoded(value),COMMIT,PIN,'failure')
+
+    def test_phase_ordinal_type_and_private_metadata_matrix(self):
+        for ordinal in range(35):
+            record=self.record();record.update(phase='PACKAGE_FETCH' if ordinal<30 else 'ARCHIVE_FETCH' if ordinal==30 else 'PATCH_FETCH' if ordinal==31 else 'KEY_FETCH',input_ordinal=ordinal)
+            self.assertEqual(public.acquisition_failure_record(record),record)
+        changes=[dict(input_ordinal=True),dict(input_ordinal=30),dict(phase='KEY_FETCH',input_ordinal=31),dict(phase='SOURCE_PINS'),dict(raw_error='/private'),dict(binding_sha256='x'*64),dict(error_kind='IO'),dict(phase='/home/private')]
+        for change in changes:
+            record=dict(self.record(),**change)
+            with self.assertRaises(ValueError):public.acquisition_failure_record(record)
+
+
 if __name__ == '__main__':
     unittest.main()

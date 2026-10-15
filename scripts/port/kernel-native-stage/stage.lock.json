@@ -29,7 +29,7 @@
     },
     "scripts/port/kernel-native-stage/acquisition.py": {
       "mode": 493,
-      "sha256": "5d28f0a9150ccee743032953f19f50eae3e6b15264e68237e3d18b4e128f6013"
+      "sha256": "52f0a793f6720f9715699d73c8467e35ae6093c933767d0f980965571238f94c"
     },
     "scripts/port/kernel-native-stage/broker.py": {
       "mode": 420,
@@ -77,7 +77,7 @@
     },
     "scripts/port/kernel-native-stage/test_acquisition.py": {
       "mode": 420,
-      "sha256": "786f5bb957079e60f08f6203d37985664d6cf166db6c93dc855276a964a8b00f"
+      "sha256": "f829d4b09644fb24f0a66f06088d1f8774671e86d91b6bf9a4a5d07867907eef"
     },
     "scripts/port/kernel-native-stage/test_broker.py": {
       "mode": 420,

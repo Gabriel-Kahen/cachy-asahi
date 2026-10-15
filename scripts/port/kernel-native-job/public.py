@@ -44,11 +44,54 @@ DAEMON_BASELINE_KEYS = {'initial_container_count', 'initial_image_id_count',
                         'pre_identity_sha256', 'post_identity_sha256', 'preservation',
                         'owned_absence', 'producer_mutation', 'legacy_build_cache'}
 CHILDREN = ('producer', 'kernel_probe', 'baseline', 'candidate')
+ACQUISITION_PHASES = frozenset(('ROOT_PREFLIGHT', 'SOURCE_PINS', 'INPUT_CONTRACT',
+    'CONFIG_PIN', 'CACHE_PREFLIGHT', 'OUTPUT_PREPARE', 'PACKAGE_FETCH', 'ARCHIVE_FETCH',
+    'PATCH_FETCH', 'KEY_FETCH', 'SIGNATURES', 'CONFIG_COPY', 'BASELINE_SLICE',
+    'CANDIDATE_SLICE', 'PATCH_LOGS', 'FINAL_BUDGET', 'RECEIPT_SAVE'))
+ACQUISITION_REFUSALS = frozenset(('UNKNOWN', 'SOURCE_PIN', 'INPUT_CONTRACT', 'SIZE_HASH',
+    'DEADLINE', 'BYTE_CAP', 'PATH', 'HTTP_RETURN', 'HTTP_CHILD', 'SIGNATURE', 'CONFIG', 'PATCH', 'STORAGE'))
 
 
 def need(value):
     if not value:
         raise ValueError('public-boundary')
+
+
+def acquisition_failure_record(value):
+    need(type(value) is dict and set(value) == {'schema_version', 'purpose', 'binding_sha256',
+         'phase', 'input_ordinal', 'error_kind', 'refusal'})
+    need(type(value['schema_version']) is int and value['schema_version'] == 1 and
+         value['purpose'] == 'kernel-acquisition-failure' and type(value['binding_sha256']) is str and
+         re.fullmatch('[0-9a-f]{64}', value['binding_sha256']))
+    phase, ordinal = value['phase'], value['input_ordinal']
+    need(type(phase) is str and phase in ACQUISITION_PHASES)
+    if phase in ('PACKAGE_FETCH', 'ARCHIVE_FETCH', 'PATCH_FETCH', 'KEY_FETCH'):
+        need(type(ordinal) is int and (0 <= ordinal < 30 if phase == 'PACKAGE_FETCH' else
+             ordinal == 30 if phase == 'ARCHIVE_FETCH' else ordinal == 31 if phase == 'PATCH_FETCH'
+             else 32 <= ordinal <= 34))
+    else:
+        need(ordinal is None)
+    need(type(value['error_kind']) is str and value['error_kind'] in ('DATA_REFUSAL', 'IO', 'TIMEOUT', 'OTHER') and
+         type(value['refusal']) is str and value['refusal'] in ACQUISITION_REFUSALS and
+         (value['error_kind'] == 'DATA_REFUSAL' or value['refusal'] == 'UNKNOWN'))
+    need(len(json.dumps(value,sort_keys=True,separators=(',',':'),allow_nan=False).encode()) <= 512)
+    return value
+
+
+def acquisition_failure(value):
+    if 'acquisition_failure' not in value: return
+    need(value['schema_version'] == 4 and value['status'] == 'FAIL' and
+         value['first_failed_phase'] == 'parallel' and value['failure_reason'] in ('ACQUISITION_EXIT', 'BOTH_CHILDREN_EXIT') and
+         value['acquisition_exit']['kind'] in ('EXIT_NONZERO', 'EXIT_SIGNAL'))
+    group=value['acquisition_failure']
+    need(type(group) is dict and set(group) == {'availability', 'reason', 'sha256', 'diagnostic'})
+    need((group['availability'],group['reason']) in (('VERIFIED','OBSERVED'),('UNAVAILABLE','MISSING'),('REFUSED','INVALID')))
+    if group['availability'] == 'VERIFIED':
+        record=acquisition_failure_record(group['diagnostic'])
+        encoded=json.dumps(record,sort_keys=True,separators=(',',':'),allow_nan=False).encode()+b'\n'
+        need(type(group['sha256']) is str and hashlib.sha256(encoded).hexdigest() == group['sha256'])
+    else:
+        need(group['sha256'] is group['diagnostic'] is None)
 
 
 def failure_pair(phase, reason):
@@ -578,7 +621,7 @@ def project(data, commit, pin, outcome):
     value = decode(data)
     need(type(value['schema_version']) is int and
          ((value['schema_version'] == 3 and set(value) == LEGACY_KEYS) or
-          (value['schema_version'] == 4 and set(value) in (KEYS, KEYS | {'parallel_first_failure'}))) and value['stage'] == 'kernel-native-development-job' and
+          (value['schema_version'] == 4 and set(value) - {'parallel_first_failure', 'acquisition_failure'} == KEYS)) and value['stage'] == 'kernel-native-development-job' and
          type(value['cancelled']) is bool and value['selected_for_release'] is False and
          value['source_commit'] == commit and value['packet_sha256'] == pin)
     need(value['status'] in {'PASS', 'FAIL'} and value['phase'] in PHASES and
@@ -591,6 +634,7 @@ def project(data, commit, pin, outcome):
     diagnostics(value)
     daemon_baseline(value)
     parallel_failure(value)
+    acquisition_failure(value)
     if value['schema_version'] == 4:
         kernel_child(value['kernel_child'])
     accepted = (value['phase'] == 'complete' and not value['cancelled'] and

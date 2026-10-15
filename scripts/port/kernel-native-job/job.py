@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: MIT
 """Finite disposable hosted job using the original producer and held kernel stage."""
 import argparse
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -70,6 +71,27 @@ def observe_parallel_first_failure(status, runner):
         if codes is not None:status['parallel_first_failure']=public.parallel_failure_record(codes)
     except Exception:
         return
+
+
+def observe_acquisition_failure(status, result, nonce):
+    """Only the exact captured acquisition process, with a fresh parent binding."""
+    group={'availability':'UNAVAILABLE','reason':'MISSING','sha256':None,'diagnostic':None}
+    try:
+        packet.need(type(nonce) is str and re.fullmatch('[0-9a-f]{32}',nonce), 'acquisition-diagnostic-binding')
+        data=result.stdout
+        packet.need(type(data) is bytes and len(data)<=runtime.MAX_OUTPUT,'acquisition-diagnostic-output')
+        marker=b'KERNEL_ACQUISITION_FAILURE_V1 '
+        found=[line[len(marker):] for line in data.splitlines() if line.startswith(marker)]
+        if found:
+            packet.need(len(found)==1 and len(found[0])<=512,'acquisition-diagnostic-record')
+            record=packet.decode(found[0]);public.acquisition_failure_record(record)
+            packet.need(record['binding_sha256']==hashlib.sha256(nonce.encode('ascii')).hexdigest(),'acquisition-diagnostic-binding')
+            canonical=json.dumps(record,sort_keys=True,separators=(',',':'),allow_nan=False).encode()
+            packet.need(found[0]==canonical,'acquisition-diagnostic-format')
+            group={'availability':'VERIFIED','reason':'OBSERVED','sha256':hashlib.sha256(canonical+b'\n').hexdigest(),'diagnostic':record}
+    except Exception:
+        group={'availability':'REFUSED','reason':'INVALID','sha256':None,'diagnostic':None}
+    status['acquisition_failure']=group
 
 
 def failure_reason(error, phase, fallback):
@@ -655,8 +677,10 @@ def work(args, terminal, start):
         packet.need(DEADLINE - (time.monotonic() - start) >= PARALLEL + KERNEL_ENVELOPE + CLEANUP + GUARD, 'producer-time-reserve')
         status['phase'] = 'producer'
         context = ('parallel', 'PARALLEL_RUN_FAILED')
+        acquisition_nonce=secrets.token_hex(16)
         commands = [producer_command(snapshot, private), ['/usr/bin/python3', '-I', '-B',
-            str(snapshot / (packet.KERNEL + 'acquisition.py')), '--root', str(snapshot), '--output', str(private / 'kernel-inputs')]]
+            str(snapshot / (packet.KERNEL + 'acquisition.py')), '--root', str(snapshot),
+            '--diagnostic-nonce', acquisition_nonce, '--output', str(private / 'kernel-inputs')]]
         # Acquisition requires owned artifact placement relative to its snapshot.
         commands[1][-1] = str(snapshot / 'artifacts/kernel-native-stage/acquisition')
         phase = runtime.Runner(PARALLEL, env, private / 'phase-logs')
@@ -675,6 +699,7 @@ def work(args, terminal, start):
             if failed[0]: status['producer'] = 'FAIL'
             reason = 'BOTH_CHILDREN_EXIT' if all(failed) else 'PRODUCER_EXIT' if failed[0] else 'ACQUISITION_EXIT'
             public.record_failure(status, 'parallel', reason)
+            if failed[1]: observe_acquisition_failure(status, results[1], acquisition_nonce)
         packet.need(not any(failed), 'producer-or-acquisition-failed')
         context = ('producer', 'PRODUCER_RECEIPT_REJECTED')
         status['daemon_baseline']['producer_mutation'] = 'COMPLETE_REJECTED'
