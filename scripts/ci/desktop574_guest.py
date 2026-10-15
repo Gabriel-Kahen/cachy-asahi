@@ -440,9 +440,114 @@ def ipc(stage, compositor, env, logs):
     raise ValueError('IPC readiness attempts exhausted')
 
 
+def owned_thread_state(process, deadline, proc=Path('/proc')):
+    """Read only this parent's owned child; an unfinished daemon is never a sample."""
+    deadline = min(deadline, time.monotonic() + .5)
+    if time.monotonic() >= deadline:
+        return dict(status='incomplete', pid=process.pid, reason='thread observation deadline')
+    result = {}
+    def observe():
+        row = dict(status='incomplete', pid=process.pid, threads=[], bytes_read=0,
+                   started=time.monotonic(), thread_limit=32, file_limit=4096, byte_limit=128 * 1024)
+        def read(directory, name):
+            need(time.monotonic() < deadline, 'thread observation deadline')
+            left = row['byte_limit'] - row['bytes_read']
+            need(left > 0, 'thread observation byte limit')
+            fd = os.open(name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=directory)
+            try:
+                raw = os.read(fd, min(4096, left))
+            finally:
+                os.close(fd)
+            row['bytes_read'] += len(raw)
+            need(time.monotonic() < deadline, 'thread observation deadline')
+            need(len(raw) < min(4096, left), 'thread observation file/byte limit')
+            return raw.decode('ascii').strip()
+        def state(directory, pid):
+            raw = read(directory, 'stat')
+            prefix, fields = raw.rsplit(') ', 1)
+            fields = fields.split()
+            need(int(prefix.split(' ', 1)[0]) == pid, 'thread identity differs')
+            return dict(pid=pid, state=fields[0], ppid=int(fields[1]), utime=int(fields[11]),
+                        stime=int(fields[12]), starttime=int(fields[19]))
+        def identity(directory):
+            need(os.fstat(directory).st_uid == os.geteuid(), 'owned process uid differs')
+            value = state(directory, process.pid)
+            need(value['ppid'] == os.getpid(), 'owned process parent differs')
+            return dict(pid=value['pid'], starttime=value['starttime'], uid=os.geteuid())
+        try:
+            need(type(process.pid) is int and process.pid > 0 and process.returncode is None,
+                 'owned process unavailable')
+            directory = os.open(str(proc / str(process.pid)), os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+            try:
+                row['identity_before'] = identity(directory)
+                tasks = os.open('task', os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=directory)
+                try:
+                    tids = []
+                    with os.scandir(tasks) as entries:
+                        for entry in entries:
+                            need(time.monotonic() < deadline, 'thread observation deadline')
+                            need(entry.name.isascii() and entry.name.isdecimal(), 'invalid owned thread id')
+                            if len(tids) == 32:
+                                row['threads_truncated'] = True
+                                break
+                            tids.append(int(entry.name))
+                    for tid in sorted(tids):
+                        item = dict(tid=tid, status='unavailable')
+                        row['threads'].append(item)
+                        thread = None
+                        try:
+                            thread = os.open(str(tid), os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=tasks)
+                            need(os.fstat(thread).st_uid == row['identity_before']['uid'], 'thread uid differs')
+                            item['before'] = state(thread, tid)
+                            for name in ('wchan', 'syscall'):
+                                try:
+                                    value = read(thread, name)
+                                    need(bool(value), 'empty thread observation')
+                                    if name == 'syscall':
+                                        item[name] = dict(status='running') if value == 'running' else dict(
+                                            status='observed', values=[int(x, 0) for x in value.split()])
+                                    else:
+                                        item[name] = dict(status='unavailable' if value in ('', '0') else 'observed', value=value)
+                                except (OSError, ValueError, UnicodeError) as error:
+                                    item[name] = dict(status='unavailable', error_type=type(error).__name__,
+                                                      errno=getattr(error, 'errno', None), reason=str(error)[:128])
+                            item['after'] = state(thread, tid)
+                            need(item['before']['starttime'] == item['after']['starttime'], 'thread identity changed')
+                            item['status'] = 'observed'
+                        except (OSError, ValueError, UnicodeError, IndexError) as error:
+                            item.update(error_type=type(error).__name__, errno=getattr(error, 'errno', None), reason=str(error)[:128])
+                        finally:
+                            if thread is not None:
+                                os.close(thread)
+                finally:
+                    os.close(tasks)
+                row['identity_after'] = identity(directory)
+                need(row['identity_before'] == row['identity_after'], 'owned process identity changed')
+                row['status'] = 'observed' if not row.get('threads_truncated') and all(
+                    x['status'] == 'observed' and all(x[k]['status'] != 'unavailable' for k in ('wchan', 'syscall'))
+                    for x in row['threads']) else 'incomplete'
+            finally:
+                os.close(directory)
+        except (OSError, ValueError, UnicodeError, IndexError) as error:
+            row.update(error_type=type(error).__name__, errno=getattr(error, 'errno', None), reason=str(error)[:128])
+        row['finished'] = time.monotonic()
+        result['row'] = row
+    try:
+        worker = threading.Thread(target=observe, daemon=True)
+        worker.start()
+        worker.join(timeout=max(0, min(.5, deadline - time.monotonic())))
+    except Exception as error:
+        return dict(status='unavailable', pid=process.pid, error_type=type(error).__name__)
+    if worker.is_alive():
+        return dict(status='incomplete', pid=process.pid, reason='thread observation deadline', worker_unjoined=True)
+    return result.get('row', dict(status='unavailable', pid=process.pid, reason='thread observation failed'))
+
+
 def phase(stage, config, env, logs):
     compositor = client = None
     first = None
+    observation_started = False
+    observations = []
     try:
         need(not any(p.is_socket() for p in RUNTIME.glob('wayland-*')), 'stale Wayland socket')
         compositor = Logged(['/usr/bin/Hyprland', '--config', str(config)], stage, logs, env)
@@ -457,6 +562,8 @@ def phase(stage, config, env, logs):
                         stage + '-wofi', logs, dict(selected, WAYLAND_DEBUG='client'), stdin=subprocess.PIPE)
         client.process.stdin.write(b'574 packages: generic ARM software session\nNo Apple hardware claim\n')
         client.process.stdin.close()
+        observation_started = True
+        observations.append(dict(point='mapping_start', **owned_thread_state(compositor.process, time.monotonic() + .5)))
         for attempt in range(20):
             client.healthy(); compositor.healthy()
             response = command(['/usr/bin/hyprctl', '-j', 'clients', '-a'], selected, logs,
@@ -480,6 +587,15 @@ def phase(stage, config, env, logs):
         need(compositor.process.returncode == 0, 'unclean Hyprland exit')
     except BaseException as error:
         first = error
+        if observation_started:
+            try:
+                snapshot = owned_thread_state(compositor.process, time.monotonic() + .5)
+                initial = observations[0].get('identity_before') if observations else None
+                if initial is not None and snapshot.get('identity_before') not in (None, initial):
+                    snapshot.update(status='incomplete', reason='owned process identity changed between samples')
+                observations.append(dict(point='pre_cleanup_failure', **snapshot))
+            except BaseException:
+                observations.append(dict(point='pre_cleanup_failure', status='unavailable'))
     finally:
         before_cleanup = 'unavailable'
         if compositor is not None:
@@ -501,12 +617,12 @@ def phase(stage, config, env, logs):
             try:
                 emit('phase_diagnostic', stage=stage, pid=compositor.process.pid,
                      error_type=type(first).__name__, reason=str(first)[:512],
-                     returncode_before_cleanup=before_cleanup)
+                     returncode_before_cleanup=before_cleanup, thread_states=observations)
                 collect_phase_diagnostics(stage, compositor.process.pid)
             except BaseException:
                 pass  # The original phase failure remains primary even if diagnostics fail.
         raise first
-    emit('phase_pass', stage=stage)
+    emit('phase_pass', stage=stage, thread_states=observations)
 
 
 def user():
