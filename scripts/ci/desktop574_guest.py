@@ -249,6 +249,102 @@ def mapped_client(value, pid):
         all(type(n) is int and n > 0 for n in row['size']) for row in value)
 
 
+def diagnostic_directory(path):
+    """Open the fixed guest diagnostic parents without following any symlinks."""
+    need(path.is_absolute() and '..' not in path.parts, 'invalid diagnostic parent')
+    descriptor = os.open('/', os.O_RDONLY | os.O_DIRECTORY | os.O_CLOEXEC)
+    try:
+        for part in path.parts[1:]:
+            child = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC,
+                            dir_fd=descriptor)
+            old, descriptor = descriptor, child
+            os.close(old)
+        need(os.fstat(descriptor).st_uid == 23001, 'unowned diagnostic parent')
+        result, descriptor = descriptor, None
+        return result
+    finally:
+        if descriptor is not None:
+            os.close(descriptor)
+
+
+def diagnostic_file(directory, name):
+    need(type(name) is str and name not in ('', '.', '..') and '/' not in name and '\0' not in name,
+         'invalid diagnostic filename')
+    descriptor = os.open(name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK | os.O_CLOEXEC,
+                         dir_fd=directory)
+    try:
+        before = os.fstat(descriptor)
+        need(stat.S_ISREG(before.st_mode) and before.st_uid == 23001 and before.st_nlink == 1,
+             'unsupported diagnostic file')
+        size = before.st_size
+        need(size >= 0, 'invalid diagnostic size')
+        spans = [(0, size)] if size <= MAX_LOG else [(0, MAX_LOG // 2), (size - MAX_LOG // 2, MAX_LOG // 2)]
+        chunks = []
+        for offset, length in spans:
+            os.lseek(descriptor, offset, os.SEEK_SET)
+            data = os.read(descriptor, length)
+            need(len(data) == length, 'short diagnostic read')
+            chunks.append(data)
+        def identity(value):
+            return tuple(getattr(value, field) for field in ('st_dev', 'st_ino', 'st_mode', 'st_uid',
+                'st_gid', 'st_nlink', 'st_size', 'st_mtime_ns', 'st_ctime_ns'))
+        try:
+            named = os.stat(name, dir_fd=directory, follow_symlinks=False)
+        except FileNotFoundError:
+            raise ValueError('diagnostic file changed') from None
+        need(identity(before) == identity(os.fstat(descriptor)) == identity(named), 'diagnostic file changed')
+        raw = b''.join(chunks)
+        digest = hashlib.sha256(raw).hexdigest()
+        result = dict(status='present', source_bytes=size, retained_bytes=len(raw), truncated=size > MAX_LOG,
+                      segments=[dict(offset=offset, bytes=length) for offset, length in spans],
+                      retained_sha256=digest, content_base64=base64.b64encode(raw).decode())
+        if size <= MAX_LOG:
+            result['full_sha256'] = digest
+        return result
+    finally:
+        os.close(descriptor)
+
+
+def collect_phase_diagnostics(stage, pid):
+    need(stage in ('minimal', 'overlay') and type(pid) is int and pid > 0, 'invalid diagnostic phase')
+    for kind in ('crash', 'compositor'):
+        directory = None
+        name = 'hyprlandCrashReport' + str(pid) + '.txt'
+        path = str(HOME / 'cache/hyprland' / name) if kind == 'crash' else None
+        try:
+            parent = HOME / 'cache/hyprland' if kind == 'crash' else RUNTIME / 'hypr'
+            directory = diagnostic_directory(parent)
+            if kind == 'compositor':
+                with os.scandir(directory) as entries:
+                    names = []
+                    for entry in entries:
+                        names.append(entry.name)
+                        if len(names) == 2:
+                            break
+                if not names:
+                    raise FileNotFoundError()
+                need(len(names) == 1, 'ambiguous diagnostic instances')
+                child = os.open(names[0], os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC,
+                                dir_fd=directory)
+                old, directory = directory, child
+                os.close(old)
+                need(os.fstat(directory).st_uid == 23001, 'unowned diagnostic instance')
+                name = 'hyprland.log'
+                path = str(parent / names[0] / name)
+            record = diagnostic_file(directory, name)
+        except FileNotFoundError:
+            record = dict(status='absent')
+        except (OSError, ValueError):
+            record = dict(status='error', reason='diagnostic collection failed')
+        finally:
+            if directory is not None:
+                try:
+                    os.close(directory)
+                except OSError:
+                    record = dict(status='error', reason='diagnostic close failed')
+        emit('diagnostic_file', stage=stage, pid=pid, name=kind, path=path, **record)
+
+
 def ipc(stage, compositor, env, logs):
     deadline = time.monotonic() + 90
     for attempt in range(30):
@@ -317,6 +413,12 @@ def phase(stage, config, env, logs):
     except BaseException as error:
         first = error
     finally:
+        before_cleanup = 'unavailable'
+        if compositor is not None:
+            try:
+                before_cleanup = compositor.process.poll()
+            except BaseException:
+                pass  # Diagnostic metadata must not interfere with retiring owned processes.
         for logged in (client, compositor):
             if logged is None:
                 continue
@@ -327,6 +429,14 @@ def phase(stage, config, env, logs):
                 if first is None:
                     first = error
     if first is not None:
+        if compositor is not None:
+            try:
+                emit('phase_diagnostic', stage=stage, pid=compositor.process.pid,
+                     error_type=type(first).__name__, reason=str(first)[:512],
+                     returncode_before_cleanup=before_cleanup)
+                collect_phase_diagnostics(stage, compositor.process.pid)
+            except BaseException:
+                pass  # The original phase failure remains primary even if diagnostics fail.
         raise first
     emit('phase_pass', stage=stage)
 

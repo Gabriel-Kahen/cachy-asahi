@@ -1,5 +1,7 @@
 """Inert readiness/cleanup controls: no guest tools or child processes."""
 import ast
+import base64
+import hashlib
 import getopt
 import importlib.util
 import inspect
@@ -15,6 +17,7 @@ import subprocess
 import unittest
 from unittest.mock import MagicMock, Mock, patch
 from types import SimpleNamespace
+from contextlib import ExitStack
 
 spec = importlib.util.spec_from_file_location('desktop574_guest', Path(__file__).with_name('desktop574_guest.py'))
 guest = importlib.util.module_from_spec(spec)
@@ -404,6 +407,262 @@ class GuestTests(unittest.TestCase):
             self.assertIs(caught.exception, first)
             retire.assert_called_once_with(logged.process)
             logged.finish.assert_called_once()
+
+
+class DiagnosticTests(unittest.TestCase):
+    @staticmethod
+    def metadata(data, **delta):
+        return SimpleNamespace(**(dict(st_dev=1, st_ino=2, st_mode=stat.S_IFREG | 0o600,
+            st_uid=23001, st_gid=23001, st_nlink=1, st_size=len(data),
+            st_mtime_ns=3, st_ctime_ns=4) | delta))
+
+    def read_file(self, data, *, before=None, after=None, named=None, named_error=None,
+                  read_error=None, short=False):
+        before = before or self.metadata(data)
+        after = after or before
+        named = named or after
+        position, lengths = [0], []
+        def seek(fd, offset, mode):
+            self.assertEqual((fd, mode), (17, guest.os.SEEK_SET))
+            position[0] = offset
+        def read(fd, size):
+            lengths.append(size)
+            if read_error is not None:
+                raise read_error
+            result = data[position[0]:position[0] + size]
+            return result[:-1] if short and result else result
+        with ExitStack() as stack:
+            opened = stack.enter_context(patch.object(guest.os, 'open', return_value=17))
+            stack.enter_context(patch.object(guest.os, 'fstat', side_effect=[before, after]))
+            stack.enter_context(patch.object(guest.os, 'stat', return_value=named, side_effect=named_error))
+            stack.enter_context(patch.object(guest.os, 'lseek', side_effect=seek))
+            stack.enter_context(patch.object(guest.os, 'read', side_effect=read))
+            closed = stack.enter_context(patch.object(guest.os, 'close'))
+            try:
+                result = guest.diagnostic_file(11, 'hyprland.log')
+            finally:
+                closed.assert_called_once_with(17)
+            self.assertEqual(opened.call_args.kwargs, {'dir_fd': 11})
+            flags = opened.call_args.args[1]
+            self.assertTrue(flags & guest.os.O_NOFOLLOW and flags & guest.os.O_NONBLOCK)
+            self.assertFalse(flags & guest.os.O_CREAT)
+        return result, lengths
+
+    def test_full_and_empty_file_hashes_are_truthful(self):
+        for raw in (b'', b'actual synthetic diagnostic\n', b'x' * guest.MAX_LOG):
+            with self.subTest(size=len(raw)):
+                result, lengths = self.read_file(raw)
+                self.assertEqual(result['status'], 'present')
+                self.assertEqual(base64.b64decode(result['content_base64']), raw)
+                self.assertEqual(result['source_bytes'], len(raw))
+                self.assertEqual(result['retained_bytes'], len(raw))
+                self.assertFalse(result['truncated'])
+                self.assertEqual(result['full_sha256'], hashlib.sha256(raw).hexdigest())
+                self.assertEqual(result['retained_sha256'], result['full_sha256'])
+                self.assertEqual(result['segments'], [dict(offset=0, bytes=len(raw))])
+                self.assertLessEqual(sum(lengths), guest.MAX_LOG)
+
+    def test_oversize_retains_only_head_tail_without_full_hash(self):
+        half = guest.MAX_LOG // 2
+        raw = b'h' * half + b'not retained' * 100 + b't' * half
+        result, lengths = self.read_file(raw)
+        retained = raw[:half] + raw[-half:]
+        self.assertTrue(result['truncated'])
+        self.assertEqual(result['source_bytes'], len(raw))
+        self.assertEqual(result['retained_bytes'], guest.MAX_LOG)
+        self.assertEqual(result['segments'], [dict(offset=0, bytes=half),
+                         dict(offset=len(raw) - half, bytes=half)])
+        self.assertEqual(base64.b64decode(result['content_base64']), retained)
+        self.assertEqual(result['retained_sha256'], hashlib.sha256(retained).hexdigest())
+        self.assertNotIn('full_sha256', result)
+        self.assertEqual(lengths, [half, half])
+
+    def test_file_shape_drift_and_read_failures_refuse_and_close(self):
+        raw = b'diagnostic'
+        for delta in (dict(st_uid=0), dict(st_nlink=2), dict(st_mode=stat.S_IFIFO | 0o600),
+                      dict(st_mode=stat.S_IFLNK | 0o600)):
+            with self.subTest(delta=delta), self.assertRaises(ValueError):
+                self.read_file(raw, before=self.metadata(raw, **delta))
+        for field in ('st_ino', 'st_size', 'st_mtime_ns', 'st_ctime_ns'):
+            with self.subTest(field=field), self.assertRaises(ValueError):
+                value = getattr(self.metadata(raw), field)
+                self.read_file(raw, after=self.metadata(raw, **{field: value + 1}))
+        with self.assertRaises(ValueError):
+            self.read_file(raw, named=self.metadata(raw, st_ino=99))
+        with self.assertRaises(ValueError):
+            self.read_file(raw, short=True)
+        with self.assertRaises(ValueError):
+            self.read_file(raw, named_error=FileNotFoundError())
+        failure = OSError('synthetic read failure')
+        with self.assertRaises(OSError) as caught:
+            self.read_file(raw, read_error=failure)
+        self.assertIs(caught.exception, failure)
+        for name in ('', '.', '..', '../other', '/other', 'bad\x00name'):
+            with patch.object(guest.os, 'open') as opened, self.assertRaises(ValueError):
+                guest.diagnostic_file(11, name)
+            opened.assert_not_called()
+
+    def test_directory_walk_is_nofollow_owned_and_retires_current_fd(self):
+        with patch.object(guest.os, 'open', side_effect=[10, 11, 12]) as opened, \
+             patch.object(guest.os, 'fstat', return_value=SimpleNamespace(st_uid=23001)), \
+             patch.object(guest.os, 'close') as closed:
+            self.assertEqual(guest.diagnostic_directory(Path('/fixed/leaf')), 12)
+            self.assertEqual([call.args[0] for call in closed.call_args_list], [10, 11])
+            for call in opened.call_args_list[1:]:
+                self.assertTrue(call.args[1] & guest.os.O_NOFOLLOW)
+                self.assertTrue(call.args[1] & guest.os.O_DIRECTORY)
+        for owner in (0, 23002):
+            with patch.object(guest.os, 'open', side_effect=[10, 11]), \
+                 patch.object(guest.os, 'fstat', return_value=SimpleNamespace(st_uid=owner)), \
+                 patch.object(guest.os, 'close') as closed, self.assertRaises(ValueError):
+                guest.diagnostic_directory(Path('/leaf'))
+            self.assertEqual([call.args[0] for call in closed.call_args_list], [10, 11])
+        with patch.object(guest.os, 'open', side_effect=[10, 11]), \
+             patch.object(guest.os, 'close', side_effect=[OSError('synthetic old close'), None]) as closed:
+            with self.assertRaises(OSError):
+                guest.diagnostic_directory(Path('/leaf'))
+            self.assertEqual([call.args[0] for call in closed.call_args_list], [10, 11])
+        for path in (Path('relative'), Path('/fixed/../other')):
+            with patch.object(guest.os, 'open') as opened, self.assertRaises(ValueError):
+                guest.diagnostic_directory(path)
+            opened.assert_not_called()
+
+    def test_collector_exact_pid_and_only_one_instance(self):
+        records, paths, files = [], [], []
+        def directory(path):
+            paths.append(path)
+            return 11 if len(paths) == 1 else 12
+        def file(directory, name):
+            files.append((directory, name))
+            return dict(status='present', source_bytes=0, retained_bytes=0)
+        entries = Mock()
+        entries.__enter__ = Mock(return_value=iter([SimpleNamespace(name='sole-instance')]))
+        entries.__exit__ = Mock(return_value=False)
+        with patch.object(guest, 'diagnostic_directory', side_effect=directory), \
+             patch.object(guest, 'diagnostic_file', side_effect=file), \
+             patch.object(guest.os, 'scandir', return_value=entries), \
+             patch.object(guest.os, 'open', return_value=13) as opened, \
+             patch.object(guest.os, 'fstat', return_value=SimpleNamespace(st_uid=23001)), \
+             patch.object(guest.os, 'close'), \
+             patch.object(guest, 'emit', side_effect=lambda event, **row: records.append((event, row))):
+            guest.collect_phase_diagnostics('minimal', 42)
+        self.assertEqual(paths, [guest.HOME / 'cache/hyprland', guest.RUNTIME / 'hypr'])
+        self.assertEqual(files, [(11, 'hyprlandCrashReport42.txt'), (13, 'hyprland.log')])
+        self.assertEqual(opened.call_args.args[0], 'sole-instance')
+        self.assertTrue(opened.call_args.args[1] & guest.os.O_NOFOLLOW)
+        self.assertEqual([row['name'] for _, row in records], ['crash', 'compositor'])
+        self.assertTrue(all(event == 'diagnostic_file' and row['pid'] == 42 for event, row in records))
+        self.assertEqual([row['path'] for _, row in records],
+                         [str(guest.HOME / 'cache/hyprland/hyprlandCrashReport42.txt'),
+                          str(guest.RUNTIME / 'hypr/sole-instance/hyprland.log')])
+
+    def test_collector_absence_errors_and_ambiguous_scan_are_bounded(self):
+        records = []
+        consumed = []
+        def entries():
+            for name in ('first', 'second', 'never-inspect-third'):
+                consumed.append(name)
+                yield SimpleNamespace(name=name)
+        scan = MagicMock()
+        scan.__enter__.return_value = entries()
+        with patch.object(guest, 'diagnostic_directory', return_value=11), \
+             patch.object(guest, 'diagnostic_file', side_effect=FileNotFoundError()), \
+             patch.object(guest.os, 'scandir', return_value=scan), \
+             patch.object(guest.os, 'close'), \
+             patch.object(guest, 'emit', side_effect=lambda event, **row: records.append(row)):
+            guest.collect_phase_diagnostics('overlay', 42)
+        self.assertEqual(consumed, ['first', 'second'])
+        self.assertEqual([row['status'] for row in records], ['absent', 'error'])
+        self.assertEqual(records[1]['reason'], 'diagnostic collection failed')
+        records.clear()
+        with patch.object(guest, 'diagnostic_directory', side_effect=OSError('private path must not escape')), \
+             patch.object(guest, 'emit', side_effect=lambda event, **row: records.append(row)):
+            guest.collect_phase_diagnostics('minimal', 42)
+        self.assertEqual([row['status'] for row in records], ['error', 'error'])
+        self.assertNotIn('private path', repr(records))
+
+    def test_phase_observes_before_cleanup_and_diagnostics_keep_falsey_primary(self):
+        class FalseyError(ValueError):
+            def __bool__(self):
+                return False
+        first = FalseyError('synthetic first')
+        for diagnostic_fault in (None, OSError('synthetic collection'), KeyboardInterrupt()):
+            with self.subTest(fault=type(diagnostic_fault).__name__):
+                order, records = [], []
+                compositor = Mock()
+                compositor.process.pid = 42
+                compositor.process.poll.side_effect = lambda: order.append('poll') or None
+                compositor.finish.side_effect = lambda: order.append('finish')
+                def retire(process):
+                    order.append('terminate')
+                    process.returncode = -15
+                def collect(stage, pid):
+                    order.append('collect')
+                    if diagnostic_fault is not None:
+                        raise diagnostic_fault
+                def emit(event, **row):
+                    order.append(event)
+                    records.append((event, row))
+                runtime = Mock()
+                runtime.glob.return_value = []
+                with patch.object(guest, 'RUNTIME', runtime), \
+                     patch.object(guest, 'Logged', return_value=compositor), \
+                     patch.object(guest, 'ipc', side_effect=first), \
+                     patch.object(guest, 'terminate', side_effect=retire), \
+                     patch.object(guest, 'collect_phase_diagnostics', side_effect=collect), \
+                     patch.object(guest, 'emit', side_effect=emit):
+                    with self.assertRaises(FalseyError) as caught:
+                        guest.phase('minimal', Path('/inert/config'), {}, Path('/inert/logs'))
+                self.assertIs(caught.exception, first)
+                self.assertEqual(order, ['poll', 'terminate', 'finish', 'phase_diagnostic', 'collect'])
+                self.assertIsNone(records[0][1]['returncode_before_cleanup'])
+                self.assertFalse(any(event in ('failed', 'failure', 'phase_pass') for event, _ in records))
+
+    def test_phase_poll_and_event_faults_cannot_replace_primary_or_skip_retirement(self):
+        first = ValueError('synthetic primary')
+        compositor = Mock()
+        compositor.process.pid = 42
+        compositor.process.poll.side_effect = OSError('synthetic poll fault')
+        runtime = Mock()
+        runtime.glob.return_value = []
+        with patch.object(guest, 'RUNTIME', runtime), \
+             patch.object(guest, 'Logged', return_value=compositor), \
+             patch.object(guest, 'ipc', side_effect=first), \
+             patch.object(guest, 'terminate') as retire, \
+             patch.object(guest, 'emit', side_effect=KeyboardInterrupt()), \
+             patch.object(guest, 'collect_phase_diagnostics') as collect:
+            with self.assertRaises(ValueError) as caught:
+                guest.phase('minimal', Path('/inert/config'), {}, Path('/inert/logs'))
+        self.assertIs(caught.exception, first)
+        retire.assert_called_once_with(compositor.process)
+        compositor.finish.assert_called_once()
+        collect.assert_not_called()
+
+    def test_successful_phase_keeps_acceptance_and_does_not_collect(self):
+        compositor, client = Mock(), Mock()
+        compositor.process.returncode = 0
+        compositor.process.poll.return_value = 0
+        client.process.pid = 43
+        socket = Mock(name='private_wayland_socket')
+        socket.name = 'wayland-1'
+        socket.is_socket.return_value = True
+        runtime = Mock()
+        runtime.glob.side_effect = [[], [socket]]
+        replies = [json.dumps([dict(width=1024, height=768)]),
+                   json.dumps([dict(pid=43, mapped=True, size=[420, 220])]), '']
+        with patch.object(guest, 'RUNTIME', runtime), \
+             patch.object(guest, 'Logged', side_effect=[compositor, client]), \
+             patch.object(guest, 'ipc', return_value={}), \
+             patch.object(guest, 'command', side_effect=replies), \
+             patch.object(guest.time, 'monotonic', side_effect=[0, 9]), \
+             patch.object(guest, 'terminate'), patch.object(guest, 'emit') as emit, \
+             patch.object(guest, 'collect_phase_diagnostics') as collect:
+            guest.phase('minimal', Path('/inert/config'), {}, Path('/inert/logs'))
+        self.assertEqual([call.args[0] for call in emit.call_args_list], ['frame_ready', 'phase_pass'])
+        compositor.process.wait.assert_called_once_with(timeout=10)
+        compositor.finish.assert_called_once()
+        client.finish.assert_called_once()
+        collect.assert_not_called()
 
 
 if __name__ == '__main__':
