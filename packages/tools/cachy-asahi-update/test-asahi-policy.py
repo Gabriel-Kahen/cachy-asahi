@@ -27,7 +27,7 @@ def module(name, filename):
 
 policy_module = module("asahi_policy", "asahi-policy.py")
 upstream = module("upstream", "test-upstream.py")
-BEHAVIOR_SHA = "08a781eeae66881359207ed93cbe808f3fdff884de646ec09c9bc640ad527db6"
+BEHAVIOR_SHA = "29fb848c84049f62d07cbf96cbe01f55e473ed6d790b045fda5ece539e57e29e"
 APPLE_SHA = "8201ed41b9790cbb004f3ce62d80ce1e9f25d314e7ef685ffea44d2f1594b783"
 FULL_SHA = "103c965d6d7b86b558b3fc686975a3a649de3cc2e0b94f7dee608c7bdaeaef0a"
 
