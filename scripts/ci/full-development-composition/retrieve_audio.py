@@ -147,7 +147,22 @@ def decode(zip_path, log_name, expected_frames, wanted, policy, output):
                  and kind in (0, stat.S_IFREG) and 0 <= member.file_size <= 96 * MIB
                  and member.compress_type in (zipfile.ZIP_STORED, zipfile.ZIP_DEFLATED), 'zip-entry-refused')
             names.add(member.filename)
-        need(log_name in names, 'fixed-retention-step-missing')
+        if log_name not in names:
+            # Fixed run-log API aggregate shape only; no fuzzy member selection.
+            if any(r[1] == log_name for r in RUNS) and names == {'0_native.txt', 'native/system.txt'}:
+                log_name = '0_native.txt'
+            else:
+                # Only bounded public Actions step labels, never log contents or URLs.
+                labels = sorted(n for n in names if len(n) <= 200 and re.fullmatch(
+                    r'(?:[0-9]{1,3}_[A-Za-z0-9 _.,@()+=~-]+|[A-Za-z0-9 _().-]{1,64}/(?:system|[0-9]{1,3}_[A-Za-z0-9 _.,@()+=~-]+))\.txt', n))
+                with zip_path.open('rb') as stream: digest = hashlib.file_digest(stream, 'sha256').hexdigest()
+                error = Refused('fixed-retention-step-missing')
+                error.lookup = dict(run_id=next((r[0] for r in RUNS if r[1] == log_name), 'UNRECOGNIZED'),
+                    expected_step=log_name if any(r[1] == log_name for r in RUNS) else 'UNRECOGNIZED',
+                    zip_bytes=zip_path.stat().st_size, zip_sha256=digest, member_count=len(names),
+                    public_step_labels=labels[:16], other_members=len(names)-len(labels),
+                    labels_truncated=len(labels)>16)
+                raise error
         seen, decoded, active, chunks, encoded_size = set(), set(), None, [], 0
         with archive.open(log_name) as stream:
             while True:
@@ -215,6 +230,8 @@ def main():
     try: retrieve(args.output)
     except Exception as error:
         # Do not expose signed redirect URLs, tokens, logs, source or binary data.
+        if isinstance(error, Refused) and hasattr(error, 'lookup'):
+            print('AUDIO_INPUT_RETRIEVAL_LOOKUP=' + json.dumps(error.lookup, sort_keys=True))
         print('AUDIO_INPUT_RETRIEVAL=FAIL ' + (str(error) if isinstance(error, Refused) else type(error).__name__))
         return 1
     print('AUDIO_INPUT_RETRIEVAL=PASS five-retained-outputs one-official-archive-and-signature private-only')
