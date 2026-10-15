@@ -17,7 +17,7 @@ import uuid
 HERE = Path(__file__).resolve().parent
 SOURCES = {'product': 'a58fca33c4db5f2ab3ea6111f4d7842a932cc336',
            'updater': '1aea667aec50a62ba0ab2dad44be24a4dc3bd098',
-           'desktop': '8d8e2f5d5a94ab3ebee2d8b1cc20aecf98e435e2'}
+           'desktop': '9a2e520dbdfce7e4af417595ff3de9e6a284ef04'}
 BASE = 'fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25'
 FULL = 'cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac'
 FINAL = 'c309aaeb12e2e2d51cb0aceb1b4acc9e5b95cbba87df1880936bc2bf1b125463'
