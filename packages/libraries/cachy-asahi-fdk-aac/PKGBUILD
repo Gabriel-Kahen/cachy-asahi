@@ -37,10 +37,10 @@ check() {
     cd "$srcdir/codec-build"
     python -B "$startdir/check-built.py"
     cc -std=c11 -Wall -Wextra -Werror \
-        -I"$srcdir/fdk-aac-3.0.0/cpp/libAACenc/include" \
-        -I"$srcdir/fdk-aac-3.0.0/cpp/libAACdec/include" \
-        -I"$srcdir/fdk-aac-3.0.0/cpp/libSYS/include" \
-        -I"$srcdir/fdk-aac-3.0.0/xhe-aac/xHEAACEnc/include" \
+        -isystem "$srcdir/fdk-aac-3.0.0/cpp/libAACenc/include" \
+        -isystem "$srcdir/fdk-aac-3.0.0/cpp/libAACdec/include" \
+        -isystem "$srcdir/fdk-aac-3.0.0/cpp/libSYS/include" \
+        -isystem "$srcdir/fdk-aac-3.0.0/xhe-aac/xHEAACEnc/include" \
         "$startdir/codec-smoke.c" -L. -lfdk-aac -lfdk-xhe-aac -o "$srcdir/codec-smoke"
     LD_LIBRARY_PATH="$srcdir/codec-build" timeout 60 "$srcdir/codec-smoke"
 }
