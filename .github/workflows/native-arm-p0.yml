@@ -90,18 +90,42 @@ jobs:
           end=min(entry+60,outer_end-90)
           def live():
               if time.monotonic()>=end:raise ValueError('original Root endpoint refused')
-          DIAGNOSTIC_STAGES = {'UNKNOWN': ['UNKNOWN'], 'cleanup': ['erase-seed'], 'driver': ['load-driver'], 'entry': ['validate-entry'], 'freeze': ['freeze-source', 'initialize-git'], 'materializer': ['materialize-templates', 'read-environment'], 'observation': ['observe-docker', 'observe-git', 'observe-gpg', 'observe-socket', 'validate-host'], 'packet': ['verify-committed-packet'], 'pipeline': ['run-pipeline'], 'private': ['write-selection'], 'resource': ['load-freezer', 'load-materializer'], 'seed': ['capture-seed'], 'selection': ['validate-selection'], 'WORKFLOW_ARGUMENT_DECODE': ['bootstrap.unpack']}
+          DIAGNOSTIC_STAGES = {'UNKNOWN': ['UNKNOWN'], 'cleanup': ['erase-seed'], 'driver': ['load-driver'], 'entry': ['validate-entry'], 'freeze': ['freeze-source', 'initialize-git'], 'materializer': ['materialize-templates', 'read-environment'], 'observation': ['observe-docker', 'observe-git', 'observe-gpg', 'observe-socket', 'validate-host'], 'packet': ['verify-committed-packet'], 'pipeline': ['run-pipeline', 'prepare-pipeline-arguments'], 'private': ['write-selection'], 'resource': ['load-freezer', 'load-materializer'], 'seed': ['capture-seed'], 'selection': ['validate-selection'], 'WORKFLOW_ARGUMENT_DECODE': ['bootstrap.unpack']}
           DIAGNOSTIC_CODES = frozenset(['Git-blob-identity-refused', 'Git-blob-mode-refused', 'Git-exact270-refused', 'Git-output-limit', 'Git-read-failed', 'Git-tree-refused', 'P0-variant-drift', 'Root decoded input cap', 'Root packed input cap', 'Root-Git-body-refused', 'Root-Source-required', 'Root-callback-slot', 'Root-checkout-required', 'Root-close-custody', 'Root-file-cap', 'Root-file-drift', 'Root-file-replaced', 'Root-file-shape', 'Root-input-pin', 'Root-job-Source', 'Root-materializer-row', 'Root-owned-private-directory', 'Root-private-input-pin', 'Root-private-path', 'Root-proof-Source', 'Root-proof-pin', 'Root-proof-row-table', 'Root-publication-Source-refused', 'Root-publication-hash-refused', 'Root-publication-required', 'Root-publication-required-rows', 'Root-publication-row-drift', 'Root-publication-table-refused', 'Root-resource-body', 'Root-resource-provision', 'Root-selected-data', 'Root-selected-helper-code', 'Root-selection', 'Root-socket-identity', 'Root-socket-selection', 'Source-body-pin', 'Source-body-set', 'Source-file-limit', 'Source-literal-refused', 'Source-map-leaf-drift', 'Source-map-refused', 'Source-path-refused', 'Source-row', 'Source-row-refused', 'Source-selector-refused', 'Source-total', 'Source-total-limit', 'UNKNOWN', 'actual-adopted-Source-row', 'actual-packet269', 'actual-publication', 'checkout-HEAD-refused', 'close-Source-FD-drift', 'close-custody', 'closed-Git-read-required', 'committed269-lock-mismatch', 'committed269-lock-required', 'data-output-limit', 'data-write-incomplete', 'data-write-readback-drift', 'distinct-purpose0', 'docker-socket-drift', 'docker-socket-shape', 'duplicate-key', 'exact269-selector-refused', 'experiment-exporter-drift', 'experiment-map-drift', 'explicit-Root-review-decision', 'file-cap', 'file-drift', 'file-replaced', 'file-shape', 'final-HEAD-drift', 'final-held-Source-drift', 'final-physical-Source-drift', 'first-entry', 'fixed-preparation-selection', 'fresh-data-output-required', 'fresh-data-write-required', 'generic-policy-refused', 'hash-pin', 'held-Source-drift', 'held-original159', 'held-scope', 'held-template-schema', 'independent-runtime-pin', 'independent-socket-selection', 'json-bound', 'json-object', 'mandatory19-and-schema', 'materializer-paths', 'metadata-contract-refused', 'metadata-pin', 'narrow-map-join', 'native-AARCH64-ELF', 'native-Linux-ARM', 'no-fabricated-image', 'nonfinite-json', 'observed-endpoint6', 'observed-runtime-pin', 'one-shot-Root-administration', 'original Root endpoint refused', 'original-contract-refused', 'original-end', 'original-endpoint-expired', 'original-endpoint-required', 'original-entry', 'original-entry-expired', 'original-entry-required', 'original-four-recipes-required', 'original159-drift', 'original3c16', 'original71-inputs-required', 'owned-data-file-drift', 'owned-data-file-required', 'p0-actual-packages', 'p0-actual-preparation', 'p0-bootstrap-body', 'p0-bootstrap-custody', 'p0-bootstrap-unfilled', 'p0-callback', 'p0-duplicate-key', 'p0-environment', 'p0-existing-timer', 'p0-frame', 'p0-grant-scope', 'p0-input-ancestor', 'p0-input-cap', 'p0-input-close-custody', 'p0-input-drift', 'p0-input-file', 'p0-input-path', 'p0-input-pin', 'p0-input-replaced', 'p0-input-set', 'p0-invocation', 'p0-job-context', 'p0-json-number', 'p0-module-collision', 'p0-original-end', 'p0-original-entry', 'p0-output-boundary', 'p0-packages', 'p0-packet-drift', 'p0-preparation-origin', 'p0-preparation-route', 'p0-preparation-template', 'p0-prepared-image', 'p0-private-cap', 'p0-private-close-custody', 'p0-private-created', 'p0-private-custody', 'p0-private-final-custody', 'p0-private-fresh', 'p0-private-template', 'p0-private-write-custody', 'p0-private-write-progress', 'p0-publication', 'p0-publication-closure', 'p0-publication-row', 'p0-registry-retirement', 'p0-result', 'p0-runtime-contract', 'p0-runtime-selection', 'p0-source-commit', 'p0-source-path', 'p0-source-row', 'p0-source-total', 'p0-sticky-cancel', 'p0-template', 'p0-template-frame', 'p0-template-job-field', 'p0-template-packages', 'p0-template-pin', 'p0-template-scope', 'p0-template-view', 'packed-template-cap', 'packet-row-join', 'pending-data-FD-unbound', 'physical-Git-Source-drift', 'physical269-lock-mismatch', 'pipeline-P0-null-slot', 'pipeline-gpg-env-null', 'pipeline-image-null-slot', 'pipeline-owned-slot', 'pipeline-plan-null-slot', 'pipeline-private-env-null', 'pipeline-publication-closure', 'pipeline-publication-row', 'prep-P0-complete', 'prep-authority', 'prep-bootstrap-body', 'prep-build-outcome-unknown', 'prep-cache-custody', 'prep-cache-selection', 'prep-cache-set', 'prep-callback', 'prep-command-count', 'prep-command-exit', 'prep-command-frame', 'prep-command-retirement', 'prep-complete', 'prep-container-custody', 'prep-container-retirement', 'prep-daemon-ARM', 'prep-docker-argv', 'prep-docker-close-custody', 'prep-docker-operation', 'prep-download-cap', 'prep-download-close-custody', 'prep-download-domain', 'prep-download-downgrade', 'prep-download-fd', 'prep-download-file', 'prep-download-input', 'prep-download-pin', 'prep-download-progress', 'prep-download-redirect', 'prep-download-response-custody', 'prep-download-target', 'prep-environment', 'prep-existing-timer', 'prep-fixed-four-bytes', 'prep-fixed-four-cache-custody', 'prep-fixed-four-cache-drift', 'prep-fixed-four-chunk', 'prep-fixed-four-count', 'prep-fixed-four-inputs', 'prep-fixed-four-no-HTTPS-fallback', 'prep-fixed-four-readback', 'prep-fixed-four-schema', 'prep-fixed-four-seed-no-URLs', 'prep-fixed-four-seed-required', 'prep-fixed-four-total', 'prep-gpg-argv', 'prep-gpg-close-custody', 'prep-gpg-drift', 'prep-gpg-operation', 'prep-gpg-pin', 'prep-grant-scope', 'prep-host-ARM', 'prep-image-id', 'prep-inputs', 'prep-inventory-container-absence', 'prep-inventory-name-must-be-absent', 'prep-job-context', 'prep-materialized-input-pin', 'prep-materialized-input-readback', 'prep-module-collision', 'prep-original-entry', 'prep-original-frame', 'prep-output-custody', 'prep-output-drift', 'prep-override-content', 'prep-owned-tag', 'prep-package-retirement', 'prep-packages', 'prep-packet-drift', 'prep-paths', 'prep-private-fresh', 'prep-private-template', 'prep-publication', 'prep-publication-closure', 'prep-publication-row', 'prep-quarantine', 'prep-registry-retirement', 'prep-runtime', 'prep-selection', 'prep-source-owner', 'prep-source-path', 'prep-source-total', 'prep-tag-custody', 'prep-tag-must-be-absent', 'prep-tag-retirement', 'prep-template', 'prep-template-job', 'prep-template-nonce', 'prep-template-pin', 'prep-view', 'prep-warm-cache', 'prep-warm-cache-required', 'private-close-custody', 'private-directory', 'private-readback', 'private-write-custody', 'private-write-drift', 'private-write-progress', 'private-write-shape', 'publication644-required', 'published-270-rows', 'published-job-Source', 'recipe-Source', 'recipe-input-drift', 'recipe-map-refused', 'regular-Source-leaf-required', 'runtime-row', 'runtime-selection', 'seed-environment-drift', 'selected-driver-body', 'selector-changed-during-freeze', 'source-path', 'template-decoded-cap', 'template-output-set', 'template-packed', 'template-packed-cap', 'unfilled-gpg', 'unfilled-runtime', 'unresolved-prior-Git-custody', 'unresolved-prior-read-custody', 'virtual-metadata-drift'])
           DIAGNOSTIC_TYPES = frozenset(['KeyboardInterrupt', 'OSError', 'RuntimeError', 'SystemExit', 'TypeError', 'UNKNOWN', 'ValueError'])
           WORKFLOW_CODES = frozenset(['original Root endpoint refused', 'Root packed input cap', 'Root decoded input cap'])
+          def consult_launcher_codes(module):
+              # Root already authenticated this exact Source before compile/exec.
+              global DIAGNOSTIC_CODES
+              if type(module) is not types.ModuleType:
+                  raise ValueError('Root diagnostic enum refused')
+              state = types.ModuleType.__dict__['__dict__'].__get__(module)
+              if type(state) is not dict or len(state) > 512 or any(type(key) is not str for key in state):
+                  raise ValueError('Root diagnostic enum refused')
+              table = state.get('DIAGNOSTIC_CODES')
+              domains = {'launcher','freezer','materializer','pipeline','sdk','packet','transport'}
+              if type(table) is not dict or len(table) != 7 or any(type(key) is not str for key in table) or set(table) != domains:
+                  raise ValueError('Root diagnostic enum refused')
+              selected = set(DIAGNOSTIC_CODES)
+              for literals in table.values():
+                  if type(literals) is not frozenset or len(literals) > 512:
+                      raise ValueError('Root diagnostic enum refused')
+                  for literal in literals:
+                      if type(literal) is not str or not 0 < len(literal) <= 160 or any(not 32 <= ord(c) < 127 for c in literal):
+                          raise ValueError('Root diagnostic enum refused')
+                      selected.add(literal)
+                      if len(selected) > 512:
+                          raise ValueError('Root diagnostic enum refused')
+              # Commit only a complete validated builtin table; no function/provider call.
+              DIAGNOSTIC_CODES = frozenset(selected)
           def exception_state(error):
               """Read builtin exception storage without subclass descriptors or hooks."""
               state = BaseException.__dict__['__dict__'].__get__(error)
               if type(state) is dict and all(type(key) is str for key in state):
                   return state
               return None
-
-
+          
+          
           def exception_kind(error):
               kind = type(error)
               for builtin, label in ((ValueError,'ValueError'),(TypeError,'TypeError'),(RuntimeError,'RuntimeError'),(KeyboardInterrupt,'KeyboardInterrupt'),(SystemExit,'SystemExit')):
@@ -144,7 +168,7 @@ jobs:
                               flags['native_preflight_cleanup_uncertain'] = True
                       except BaseException:
                           pass
-
+          
           def public_failure(error):
               flags = {}; value = None; sink_cancelled = False; sink_uncertain = False
               try:
@@ -165,7 +189,7 @@ jobs:
               if value is None:
                   value = {'schema_version':1,'stage':'UNKNOWN','operation':'UNKNOWN','exception_type':'UNKNOWN','refusal_code':'UNKNOWN'}
               return {'status':'FAIL_ROOT_SELECTION_OR_PREPARATION_OR_P0','cancelled':type(error) is KeyboardInterrupt or sink_cancelled,'cleanup_uncertain':sink_uncertain,'actual_matrix':'NOT_RUN','global_digest_absence_claimed':False,'diagnostic':value}
-
+          
           def unpack(value):
               try:
                   live();raw=base64.b64decode(value,validate=True)
@@ -182,7 +206,7 @@ jobs:
           if proof.get('Source')!=expected or proof.get('remote')!=expected or sum(k in proof for k in ('rows','files'))!=1:raise ValueError('Root proof Source refused')
           rows=proof.get('rows',proof.get('files'))
           root=Path(os.environ['GITHUB_WORKSPACE']).resolve();relative='scripts/ci/root-administration/p0_launch.py'
-          wanted={'bytes': 27729, 'mode': 420, 'sha256': '8e8156c396c296c3c2c4b74bd3f2d837aac032860b51c1abfb4deb7ae6faef8c'}
+          wanted={'bytes': 32880, 'mode': 420, 'sha256': 'aade5297d3b1b482dc8fff99feb1d8e70584fb67be800e68512dd7b696e7d152'}
           if rows.get(relative)!=wanted:raise ValueError('Root launch publication refused')
           path=root/relative
           def ident(n):return tuple(getattr(n,k) for k in ('st_dev','st_ino','st_mode','st_uid','st_gid','st_nlink','st_size','st_mtime_ns','st_ctime_ns'))
@@ -221,6 +245,7 @@ jobs:
           # The already-popped chunks are handed directly, never inherited by Git.
           os.environ.update(captured)
           try:
+              consult_launcher_codes(module)
               result=module.run(entry=entry,outer_end=outer_end,root=root,
                   scratch=Path(os.environ['RUNNER_TEMP'])/('Root-P0-'+os.environ['GITHUB_RUN_ID']+'-'+os.environ['GITHUB_RUN_ATTEMPT']),
                   cache=Path(os.environ['RUNNER_TEMP'])/('3c16-cache-'+os.environ['GITHUB_RUN_ID']+'-'+os.environ['GITHUB_RUN_ATTEMPT']),
