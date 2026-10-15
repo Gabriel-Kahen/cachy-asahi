@@ -330,7 +330,7 @@ class GuestImageDecode(unittest.TestCase):
             identity.assert_called_once_with(self.nonce, actual_inventory={'fixture-package': '1-1'})
             seatd.assert_not_called(); user.assert_not_called()
 
-    def test_valid_observation_precedes_same_env_client_and_survives_original_phase_failure(self):
+    def test_valid_observation_precedes_isolated_client_and_survives_original_phase_failure(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary); runtime = root / 'runtime'; runtime.mkdir()
             wayland = socket.socket(socket.AF_UNIX); wayland.bind(str(runtime / 'wayland-0'))
@@ -350,7 +350,10 @@ class GuestImageDecode(unittest.TestCase):
                     self.assertRaises(ValueError) as caught:
                 guest.phase('minimal', root / 'config', env, root, nonce=self.nonce)
             self.assertIs(caught.exception, original)
-            self.assertEqual(client_env, [env]); self.assertIs(client_env[0], process.call_args.kwargs['env'])
+            self.assertIs(env, process.call_args.kwargs['env'])
+            self.assertIsNot(client_env[0], env)
+            self.assertEqual(client_env[0], dict(env, NO_AT_BRIDGE='1', WAYLAND_DEBUG='client'))
+            self.assertNotIn('NO_AT_BRIDGE', env); self.assertNotIn('WAYLAND_DEBUG', env)
             self.assertEqual(client_env[0]['WAYLAND_DISPLAY'], 'wayland-0')
             delivered = [{'event': call.args[0], **call.kwargs} for call in events.call_args_list]
             self.assertEqual(delivered[0]['event'], 'image_decode_probe')
@@ -757,8 +760,11 @@ class GuestDiagnostics(unittest.TestCase):
                 with patch('guest.LoggedProcess', side_effect=launch), \
                         patch('guest.wait_for_ipc', side_effect=phase_failure, return_value=env), \
                         patch('guest.image_decode_preflight'), \
+                        patch('guest.capture_window', side_effect=lambda stage, monitors, clients, check: (check(), guest.emit('frame_ready', stage=stage, monitors=monitors, clients=clients))), \
+                        patch('guest.shutdown_compositor', side_effect=lambda env, compositor, check: (check(), command(['/usr/bin/hyprctl', 'dispatch', 'exit'], env), compositor.wait(timeout=15))), \
+                        patch('guest.query_clients', side_effect=lambda env, deadline, check: (check(), json.loads(command(['/usr/bin/hyprctl', '-j', 'clients'], env)))[1]), \
                         patch('guest.command', side_effect=command), patch('guest.terminate', side_effect=reap), \
-                        patch('guest.time.monotonic', side_effect=[0, 0, 0, 16]), \
+                        patch('guest.time.monotonic', side_effect=[0, 0, 0, 0, 16]), \
                         patch('guest.emit', side_effect=emit), \
                         patch('guest.print', side_effect=summary_failure if closed_summary else None) as summary:
                     try: guest.phase('minimal', root / 'config', env, root)
@@ -885,6 +891,9 @@ class GuestProcessDiagnostics(unittest.TestCase):
                 with patch('guest.LoggedProcess', side_effect=launch), \
                         patch('guest.wait_for_ipc', return_value={'XDG_RUNTIME_DIR': str(runtime)}), \
                         patch('guest.image_decode_preflight'), \
+                        patch('guest.capture_window', side_effect=lambda stage, monitors, clients, check: (check(), guest.emit('frame_ready', stage=stage, monitors=monitors, clients=clients))), \
+                        patch('guest.shutdown_compositor', side_effect=lambda env, compositor, check: (check(), command(['/usr/bin/hyprctl', 'dispatch', 'exit'], env), compositor.wait(timeout=15))), \
+                        patch('guest.query_clients', side_effect=lambda env, deadline, check: (check(), json.loads(command(['/usr/bin/hyprctl', '-j', 'clients'], env)))[1]), \
                         patch('guest.command', side_effect=command), patch('guest.terminate', side_effect=terminate), \
                         patch('guest.time.monotonic', return_value=0), patch('guest.time.sleep'), \
                         patch('guest.emit', side_effect=emit), patch('guest.print'):
