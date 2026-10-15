@@ -1,0 +1,34 @@
+{
+  "development_candidate": true,
+  "selected_for_release": false,
+  "source": {
+    "repository": "AsahiLinux/asahi-audio",
+    "tag": "v4.1",
+    "revision": "687d8cd0f6dc4b12fc0d9c3aebe360656de2882e",
+    "url": "https://github.com/AsahiLinux/asahi-audio/archive/refs/tags/v4.1.tar.gz",
+    "archive": "asahi-audio-4.1.tar.gz",
+    "sha256": "e2c3887fe20481675698ac8174f53b66276f75a2b3c0853daf9b1a70dda690c5"
+  },
+  "reference_recipe": {
+    "repository": "asahi-alarm/PKGBUILDs",
+    "revision": "9717359f2feac55830f8d57e50e4746e98ba6e99",
+    "path": "asahi-audio/PKGBUILD"
+  },
+  "adaptation": "Independent offline data-only recipe; unchanged upstream source/payload, complete upstream license plus packaging notices",
+  "build": "make/install/coreutils only for asahi-audio; install/find/coreutils for ALSA; no runtime loading",
+  "validation_at_preparation": {
+    "native_build": "NOT RUN",
+    "installation": "NOT RUN",
+    "services": "NOT RUN",
+    "hardware": "NOT RUN"
+  },
+  "runtime_floor_corrections": {
+    "wireplumber": ">=0.5.2",
+    "triforce-lv2": ">=0.2.0",
+    "basis": "selected v4.1 upstream README; older community recipe had weaker floors"
+  },
+  "external_platform_prerequisites": {
+    "kernel": "retained source README: linux-asahi>=6.12.12-1; M3>=7.1.6-1",
+    "selection": "coordinated target policy; no kernel package replacement selected by this data recipe"
+  }
+}
