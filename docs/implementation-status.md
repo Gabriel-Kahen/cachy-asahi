@@ -2,6 +2,16 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 15, signed release comparison:
+The maintainer command `scripts/release/compare_releases.py` verifies both signed
+release bundles and reports package/version/artifact, dependency, coordinated-set
+and policy changes without changing either bundle or the current selection.
+Version ordering uses ALPM vercmp. All 100 release tests pass with zero skips,
+including 13 new comparison tests using real disposable TEST signatures and
+signed-manifest replacement controls. The command requires the same pinned
+signer and immutable retained directories; promotion, withdrawal, freshness and
+hardware eligibility remain separate. See [operator usage](release-comparison.md).
+
 October 15, current selections and primary recipe-lock repair:
 Client Source `fb3c3b7d`, Data `3ccf41c1` and Code `c6d43be2` are published.
 Actual Source review `8580f4c7`, historical planning-input reader `97fde0b9`
