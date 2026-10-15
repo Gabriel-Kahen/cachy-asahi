@@ -27,10 +27,10 @@ import time
 BASE = Path(__file__).resolve().parent
 ROOT = BASE.parents[2]
 PINS = {
-    'scripts/ci/inputs.lock.json': '3c16c37d1b12cc84a88572e82ab8ad59e7f3b5ed0d08f09ddf72a69f4711d650',
-    'scripts/port/updater-extension/builder-extension.lock.json': '988a74e39f5d3b74cee18dcd53e78733c38872fe2143ccf4e2f4e95d5a5f8776',
+    'scripts/ci/inputs.lock.json': 'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f',
+    'scripts/port/updater-extension/builder-extension.lock.json': '287b627528f3fd9cf4a63ef3a3bbf269e83f83d35c87dd3b3efd69e91a92a56f',
     'scripts/port/updater-extension/extension-receipt.json': 'f48c3fa41de8df649260e3c16fa3361f0c4b65e28c70e431baee8d887bcf4490',
-    'scripts/port/updater-extension/expected-packages.lock': 'd5e2b02a4af36b763c24c0eded8d4b7326874448996f94126fbfc3f787946271',
+    'scripts/port/updater-extension/expected-packages.lock': '5c72ffef2fadecc631861ef12ab7f48e083694a402d0428a395da64fa592dcee',
     # Runtime pin awaits a coordinator-reviewed checkpoint; tests use retained data.
     'scripts/ci/native_arm.py': 'a8b6ed8971a38089a4499dcec605477c4e48d7a47c3de485d205f6a44678b898',
 }
@@ -164,9 +164,27 @@ def merge(base, extension, receipt, expected):
     merged['packages'] += copy.deepcopy(additions)
     final = inventory(merged)
     need(len(final) == 354 and inventory_bytes(final) == expected and hashlib.sha256(expected).hexdigest() == extension['expected_inventory_sha256'], 'exact 354-package inventory differs')
-    need(receipt['extension_lock_sha256'] == PINS['scripts/port/updater-extension/builder-extension.lock.json']
-         and receipt['expected_inventory_sha256'] == extension['expected_inventory_sha256']
-         and receipt['base_inputs_lock_sha256'] == extension['base_inputs_lock_sha256'], 'authenticated receipt binding differs')
+    historical = extension['historical_extension_binding']
+    need(type(historical) is dict and historical == {
+        'extension_lock_sha256': '988a74e39f5d3b74cee18dcd53e78733c38872fe2143ccf4e2f4e95d5a5f8776',
+        'base_inputs_lock_sha256': '3c16c37d1b12cc84a88572e82ab8ad59e7f3b5ed0d08f09ddf72a69f4711d650',
+        'expected_inventory_sha256': 'd5e2b02a4af36b763c24c0eded8d4b7326874448996f94126fbfc3f787946271',
+        'receipt_sha256': PINS['scripts/port/updater-extension/extension-receipt.json']},
+        'historical extension binding differs')
+    need(all(receipt[k] == historical[k] for k in ('extension_lock_sha256',
+         'expected_inventory_sha256', 'base_inputs_lock_sha256')), 'authenticated receipt binding differs')
+    need(extension['current_dependency_validation'] == {
+        'status': 'REQUIRED_NATIVE_WORKER_NOT_RUN', 'argv': ['/usr/bin/pacman', '-Dk'],
+        'required_returncode': 0,
+        'scope': 'each exact new354 worker before compilation; old deptest is historical only'},
+        'current dependency gate differs')
+    authenticated = {row['name']: row for row in receipt['packages']}
+    need(len(authenticated) == len(receipt['packages']) == 13 and set(authenticated) == {row['name'] for row in additions},
+         'historical authenticated additions differ')
+    need(all(authenticated[row['name']]['version'] == row['version'] and
+             authenticated[row['name']]['archive_sha256'] == row['sha256'] and
+             authenticated[row['name']]['signature_sha256'] == row['signature_sha256'] for row in additions),
+         'historical signed addition tuple differs')
     need(not any(receipt[k] for k in ('baseline_changes', 'conflicts', 'removals', 'failures', 'unsatisfied', 'deptest_missing'))
          and receipt['deptest_exit'] == 0 and receipt['verified_count'] == 13, 'extension has unresolved transaction evidence')
     # Historical first-successful builder is distinct from this refreshed baseline.

@@ -324,8 +324,8 @@ tpm2-tss 4.2.0-2
 tzdata 2026e-1
 util-linux 2.42.4-1
 util-linux-libs 2.42.4-1
-vim 9.2.1164-2
-vim-runtime 9.2.1164-2
+vim 9.2.1178-1
+vim-runtime 9.2.1178-1
 wayland 1.26.0-1
 wayland-protocols 1.49-1
 which 2.25-1
