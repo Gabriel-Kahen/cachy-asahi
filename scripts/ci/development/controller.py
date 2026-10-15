@@ -46,6 +46,27 @@ INSTALLER_RUN_STAGES = ('ENTRY', 'LIVE_OWNER', 'ACTOR_CONTRACT', 'NATIVE_HOST', 
 INSTALLER_RUN_PREDICATES = ('ACTIVE_NATIVE_OWNER_REQUIRED', 'ACTOR_CONTRACT', 'BRIDGE_NAMESPACE', 'COMMAND_CLEANUP', 'COMMAND_COUNT', 'CONTAINER_BINDING', 'CONTAINER_CREATE', 'CONTAINER_ENV', 'CONTAINER_ENV_ENV_EQUALITY', 'CONTAINER_ENV_VOLUMES_FALSEY', 'CONTAINER_ENV_HEALTHCHECK_FALSEY', 'CONTAINER_ID', 'CONTAINER_INSPECT', 'CONTAINER_INSPECT_SHAPE', 'CONTAINER_MOUNTS', 'CONTAINER_NAME', 'CONTAINER_POLICY', 'CONTAINER_TMPFS', 'DEADLINE', 'IMAGE_BINDING', 'IMAGE_CONFIG', 'IMAGE_INSPECT', 'ISSUER_BUILTINS', 'ISSUER_CLASS', 'ISSUER_CODE', 'ISSUER_CONSTANT', 'ISSUER_IMPORT', 'ISSUER_PIN', 'ISSUER_WRAPPER', 'JSON_DUPLICATE', 'JSON_NONFINITE', 'LIVE_GRAPH_REQUIRED', 'LIVE_OWNER_REQUIRED', 'NATIVE_LOCAL_DAEMON', 'NATIVE_ORDINARY_HOST', 'NONCE', 'OUTPUT_BOUNDARY', 'P0_REFUSED', 'PROFILE_PIN', 'RECEIVER_PIN', 'RECEIVER_RESULT', 'REGISTRATION_REQUIRED', 'OTHER')
 
 
+def receiver_public_record(record, public_sha256):
+    """Closed receiver.public schema and canonical-byte binding; no acceptance grant."""
+    keys=('schema_version','status','phase','barrier','ABI','matrix','tests','failures','errors','skips','termination','owned_child_cleanup','first_failure')
+    if (type(record) is not dict or not all(type(key) is str for key in record) or set(record)!=set(keys) or
+            type(public_sha256) is not str or len(public_sha256)!=64):return None
+    if not all(type(record[key]) is str for key in ('status','phase','barrier','ABI','matrix','owned_child_cleanup','first_failure')):return None
+    if not (type(record['schema_version']) is int and record['schema_version']==1 and
+            record['status'] in ('REFUSED','FAIL','PASS_NATIVE_PREFLIGHT_ONLY','PASS_NATIVE_FIXTURE_ONLY') and
+            record['phase'] in ('inputs','preflight','ABI','matrix','complete') and
+            all(record[key] in ('NOT_RUN','PASS') for key in ('barrier','ABI','matrix')) and
+            record['first_failure'] in ('NONE','INPUT_REFUSED','BARRIER_FAILED','ABI_FAILED','MATRIX_FAILED','CANCELLED','SOURCE_DRIFT','CHILD_CLEANUP','IO_OR_TOOL_FAILED','PUBLICATION_FAILED','INTERNAL') and
+            record['owned_child_cleanup'] in ('UNKNOWN','NOT_STARTED','PASS','FAIL') and type(record['termination']) is bool and
+            all(type(record[key]) is int and 0<=record[key]<=26 for key in ('tests','failures','errors','skips'))):return None
+    if record['status']=='PASS_NATIVE_PREFLIGHT_ONLY' and not (record['phase']=='complete' and record['barrier']=='PASS' and record['ABI']==record['matrix']=='NOT_RUN' and record['tests']==1 and record['owned_child_cleanup']=='PASS' and record['first_failure']=='NONE' and not any(record[key] for key in ('failures','errors','skips','termination'))):return None
+    if record['status']=='PASS_NATIVE_FIXTURE_ONLY' and not (record['phase']=='complete' and record['barrier']==record['ABI']==record['matrix']=='PASS' and record['tests']==26 and record['owned_child_cleanup']=='PASS' and record['first_failure']=='NONE' and not any(record[key] for key in ('failures','errors','skips','termination'))):return None
+    value={key:record[key] for key in keys}
+    raw=(json.dumps(value,sort_keys=True)+'\n').encode()
+    if len(raw)>4096 or hashlib.sha256(raw).hexdigest()!=public_sha256:return None
+    return value
+
+
 def retain_installer_control(first, secondary):
     """Keep a newly delivered control distinct from an established first failure."""
     global CANCELLED
@@ -938,7 +959,7 @@ class Development:
                     if fact is not None:
                         require(type(fact) is dict and all(type(key) is str for key in fact) and set(fact) in ({'schema_version','stage','predicate','image_config'},
                             {'schema_version','stage','predicate','image_config','receiver_accept'}) and
-                            type(fact['schema_version']) is int and fact['schema_version']==(3 if 'receiver_accept' in fact else 2) and
+                            type(fact['schema_version']) is int and fact['schema_version'] in ((3,4) if 'receiver_accept' in fact else (2,)) and
                             type(fact['stage']) is str and fact['stage'] in INSTALLER_RUN_STAGES and
                             type(fact['predicate']) is str and fact['predicate'] in INSTALLER_RUN_PREDICATES,
                             'installer-diagnostic-refused')
@@ -950,10 +971,17 @@ class Development:
                             keys=('start_success','receiver_preflight_only','native_cleanup_pass')
                             require(fact['stage']=='RECEIVER_ACCEPT' and fact['predicate']=='P0_REFUSED' and
                                 fact['image_config'] is None and type(receiver_detail) is dict and
-                                all(type(key) is str for key in receiver_detail) and set(receiver_detail)==set(keys) and
-                                all(type(receiver_detail[key]) is bool for key in keys) and not all(receiver_detail.values()),
+                                all(type(key) is str for key in receiver_detail) and
+                                set(receiver_detail)==(set(keys)|{'receiver_public','receiver_public_sha256'} if fact['schema_version']==4 else set(keys)) and
+                                all(type(receiver_detail[key]) is bool for key in keys) and not all(receiver_detail[key] for key in keys),
                                 'installer-receiver-diagnostic-refused')
-                            receiver_detail={key:receiver_detail[key] for key in keys}
+                            projected={key:receiver_detail[key] for key in keys}
+                            if fact['schema_version']==4:
+                                public=receiver_public_record(receiver_detail['receiver_public'],receiver_detail['receiver_public_sha256'])
+                                require(public is not None and receiver_detail['receiver_preflight_only'] is (public['status']=='PASS_NATIVE_PREFLIGHT_ONLY' and public['phase']=='complete' and public['ABI']==public['matrix']=='NOT_RUN'),
+                                    'installer-receiver-diagnostic-refused')
+                                projected.update(receiver_public=public,receiver_public_sha256=receiver_detail['receiver_public_sha256'])
+                            receiver_detail=projected
                         detail = fact['image_config']
                         if fact['stage'] == 'IMAGE_HANDOFF' and fact['predicate'] == 'IMAGE_CONFIG':
                             names = ('ArgsEscaped','Cmd','Entrypoint','Env','ExposedPorts','Healthcheck','Labels','Shell','StopSignal','User','Volumes','WorkingDir')
@@ -974,7 +1002,7 @@ class Development:
                             'run_predicate':fact['predicate'],'capture':'PASS','image_config':detail}
                         if receiver_detail is not None:
                             self.report['stages']['native-install-preflight']['diagnostic'].update(
-                                schema_version=4,receiver_accept=receiver_detail)
+                                schema_version=5 if 'receiver_public' in receiver_detail else 4,receiver_accept=receiver_detail)
                     elif state.get('native_preflight_run_fact_failed') is True:
                         self.report['stages']['native-install-preflight']['diagnostic'] = {
                             'schema_version':2,'call_boundary':boundary,'run_stage':None,

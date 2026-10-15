@@ -847,8 +847,11 @@ class ReceiverAcceptanceDiagnosticControls(unittest.TestCase):
                 if all(flags):self.assertIsNone(error);continue
                 self.assertIs(type(error),ValueError);self.assertEqual(error.args,('P0_REFUSED',))
                 fact=P.run_failure_fact(error,'RECEIVER_ACCEPT')
-                self.assertEqual(fact,{'schema_version':3,'stage':'RECEIVER_ACCEPT','predicate':'P0_REFUSED',
-                    'image_config':None,'receiver_accept':self.detail(*flags)})
+                value=record()
+                if not flags[1]:value.update(status='FAIL',phase='preflight',barrier='NOT_RUN',tests=0,first_failure='BARRIER_FAILED',owned_child_cleanup='NOT_STARTED')
+                detail=dict(self.detail(*flags),receiver_public=value,receiver_public_sha256=P.sha(R.public(value)))
+                self.assertEqual(fact,{'schema_version':4,'stage':'RECEIVER_ACCEPT','predicate':'P0_REFUSED',
+                    'image_config':None,'receiver_accept':detail})
                 self.assertNotIn('PRIVATE',json.dumps(fact))
 
     def test_invalid_detail_types_extra_keys_and_all_true_stay_coarse(self):
@@ -888,6 +891,91 @@ class ReceiverAcceptanceDiagnosticControls(unittest.TestCase):
                 self.assertEqual(error.args,('P0_REFUSED',));self.assertIs(error.__cause__,control)
                 self.assertTrue(error.native_preflight_cancelled)
                 self.assertNotIn('PRIVATE',json.dumps(P.run_failure_fact(error,'RECEIVER_ACCEPT')))
+
+
+class ReceiverPublicRecordDiagnosticControls(unittest.TestCase):
+    def failure(self,value,*,code=1,public_raw=None,private_raw=None,cleanup=None):
+        raw=R.public(value) if public_raw is None else public_raw
+        private=raw if private_raw is None else private_raw
+        with patch.object(P,'tick',lambda end:None):
+            try:P.accept({'exit_code':code,'stdout':b'PRIVATE','stderr':b'PRIVATE'},raw,private,R,
+                         {'remove_exit':0,'absent':True} if cleanup is None else cleanup,123.)
+            except ValueError as error:return error
+        return None
+
+    def refused(self,first='BARRIER_FAILED'):
+        value=record();value.update(status='FAIL',phase='preflight',barrier='NOT_RUN',tests=0,
+                                   first_failure=first,owned_child_cleanup='NOT_STARTED');return value
+
+    def test_all_existing_failure_tokens_preserve_complete_public_record(self):
+        for first in R.FAILURES:
+            value=self.refused(first);raw=R.public(value);error=self.failure(value)
+            fact=P.run_failure_fact(error,'RECEIVER_ACCEPT');detail=fact['receiver_accept']
+            self.assertEqual(fact['schema_version'],4);self.assertEqual(detail['receiver_public'],value)
+            self.assertEqual(detail['receiver_public_sha256'],P.sha(raw))
+            self.assertEqual(set(detail),{'start_success','receiver_preflight_only','native_cleanup_pass','receiver_public','receiver_public_sha256'})
+            self.assertEqual(error.args,('P0_REFUSED',));self.assertNotIn('PRIVATE',json.dumps(fact))
+
+    def test_canonical_public_private_equality_is_still_required_before_projection(self):
+        value=self.refused();raw=R.public(value)
+        for public,private in ((b' '+raw,raw),(raw,R.public(self.refused('INPUT_REFUSED'))),
+                               (raw,raw.replace(b'{',b'{"tests":0,',1)),
+                               (raw,raw.replace(b'"tests": 0',b'"tests": NaN'))):
+            error=self.failure(value,public_raw=public,private_raw=private)
+            self.assertNotEqual(error.args,('P0_REFUSED',));self.assertFalse(hasattr(error,'native_preflight_receiver_accept'))
+
+    def test_opaque_extra_public_fields_are_not_authenticated(self):
+        value=self.refused();raw=(json.dumps(dict(value,private_path='PRIVATE'))+'\n').encode()
+        error=self.failure(value,public_raw=raw)
+        self.assertEqual(error.args,('RECEIVER_RESULT',));self.assertFalse(hasattr(error,'native_preflight_receiver_accept'))
+
+    def test_existing_public_encoder_and_projection_agree(self):
+        for value in (record(),self.refused(),dict(self.refused(),status='REFUSED',phase='inputs'),
+                      dict(record(),status='PASS_NATIVE_FIXTURE_ONLY',ABI='PASS',matrix='PASS',tests=26)):
+            raw=R.public(value);self.assertEqual(P.receiver_public_record(value,P.sha(raw)),value)
+        for key in record():
+            for replacement in (None,[],{},'PRIVATE'):
+                value=dict(record(),**{key:replacement})
+                try:raw=R.public(value)
+                except (ValueError,TypeError):pass
+                else:self.assertNotIn('PRIVATE',raw.decode())
+                binding=P.sha((json.dumps(value,sort_keys=True)+'\n').encode())
+                self.assertIsNone(P.receiver_public_record(value,binding))
+
+    def test_forged_public_payload_and_binding_stay_coarse(self):
+        value=self.refused();error=self.failure(value);valid=error.native_preflight_receiver_accept
+        variants=[dict(valid,receiver_public=dict(value,PRIVATE='body')),dict(valid,receiver_public_sha256='0'*64),
+                  dict(valid,receiver_public=None),dict(valid,receiver_preflight_only=True)]
+        for key in value:
+            changed=dict(value);changed.pop(key);variants.append(dict(valid,receiver_public=changed))
+        for detail in variants:
+            first=ValueError('P0_REFUSED');first.native_preflight_receiver_accept=detail
+            self.assertEqual(P.run_failure_fact(first,'RECEIVER_ACCEPT'),
+                {'schema_version':2,'stage':'RECEIVER_ACCEPT','predicate':'P0_REFUSED','image_config':None})
+
+    def test_bool_counts_and_foreign_scalar_subclasses_are_refused(self):
+        class ForeignStr(str):
+            def __hash__(self):raise AssertionError('foreign hash')
+            def __eq__(self,other):raise AssertionError('foreign compare')
+        for key,value in (('status',ForeignStr('FAIL')),('tests',True),('schema_version',True),
+                          ('termination',1),('tests',27),('tests',-1),('phase','PRIVATE'),('first_failure','PRIVATE')):
+            candidate=dict(self.refused(),**{key:value})
+            binding=P.sha((json.dumps(candidate,sort_keys=True)+'\n').encode())
+            self.assertIsNone(P.receiver_public_record(candidate,binding))
+
+    def test_secondary_binding_failure_preserves_primary_and_control(self):
+        for secondary in (OSError('PRIVATE'),KeyboardInterrupt('PRIVATE'),SystemExit(7),BaseException('PRIVATE')):
+            with patch.object(P,'sha',side_effect=secondary):error=self.failure(self.refused())
+            self.assertEqual(error.args,('P0_REFUSED',));self.assertIs(error.__cause__,secondary)
+            self.assertEqual(getattr(error,'native_preflight_cancelled',False),not isinstance(secondary,Exception))
+            self.assertNotIn('PRIVATE',json.dumps(P.run_failure_fact(error,'RECEIVER_ACCEPT')))
+
+    def test_full_success_and_old_boolean_fallback_are_held(self):
+        self.assertIsNone(self.failure(record(),code=0))
+        error=ValueError('P0_REFUSED');error.native_preflight_receiver_accept=dict(
+            start_success=False,receiver_preflight_only=True,native_cleanup_pass=True)
+        fact=P.run_failure_fact(error,'RECEIVER_ACCEPT');self.assertEqual(fact['schema_version'],3)
+        self.assertNotIn('receiver_public',fact['receiver_accept'])
 
 
 if __name__=='__main__': unittest.main()

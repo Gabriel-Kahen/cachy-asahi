@@ -1360,7 +1360,8 @@ class InstallerCallBoundaryModels(unittest.TestCase):
         namespace={'INSTALLER_RUN_STAGES':controller.INSTALLER_RUN_STAGES,
             'INSTALLER_RUN_PREDICATES':controller.INSTALLER_RUN_PREDICATES,
             'cancelled':lambda controller:False,'within':within,'require':require,'sys':sys,'CANCELLED':False,
-            'finite':lambda number:type(number) in (int,float) and math.isfinite(number)}
+            'finite':lambda number:type(number) in (int,float) and math.isfinite(number),
+            'receiver_public_record':controller.receiver_public_record}
         exec(compile(ast.Module(body=[self.helper,self.persist,node],type_ignores=[]),'<inert-consume-installer>','exec',dont_inherit=True),namespace)
         state=SimpleNamespace(report={'stages':Stages() if diagnostic_fault is not None else {}},callback_entered=False,repository_session=None,
             output=Path('/inert-boundary-model'),deadline=123,clock_nonce='a'*32,runtime_contract={},installer_module=register)
@@ -1566,3 +1567,67 @@ class CurrentProductSuccessorCountModels(unittest.TestCase):
                 bad=value(count);bad[key]='HISTORICAL_OR_FOREIGN'
                 with self.subTest(mode=mode,key=key),self.assertRaisesRegex(ValueError,'composed-packet-contract-refused'):
                     controller.composed_mode(bad,mode)
+
+
+class ReceiverPublicRecordProjectionModels(unittest.TestCase):
+    model=InstallerCallBoundaryModels.model
+
+    @classmethod
+    def setUpClass(cls):ReceiverAcceptanceProjectionModels.setUpClass.__func__(cls)
+
+    def record(self,first='BARRIER_FAILED'):
+        return dict(schema_version=1,status='FAIL',phase='preflight',barrier='NOT_RUN',ABI='NOT_RUN',matrix='NOT_RUN',
+                    tests=0,failures=0,errors=0,skips=0,termination=False,owned_child_cleanup='NOT_STARTED',first_failure=first)
+
+    def fact(self,value=None):
+        import hashlib
+        value=self.record() if value is None else value
+        detail=dict(start_success=False,receiver_preflight_only=False,native_cleanup_pass=True,
+                    receiver_public=value,receiver_public_sha256=hashlib.sha256((json.dumps(value,sort_keys=True)+'\n').encode()).hexdigest())
+        return dict(schema_version=4,stage='RECEIVER_ACCEPT',predicate='P0_REFUSED',image_config=None,receiver_accept=detail)
+
+    def project(self,fact):
+        original=ValueError('P0_REFUSED');original.native_preflight_run_fact=fact
+        state,caught,persists,namespace=self.model(self.current,'RUN',original)
+        self.assertIs(caught,original);self.assertEqual(len(persists),1)
+        self.assertEqual(state.report['status'],'FAIL');self.assertNotIn('PRIVATE',json.dumps(state.report))
+        return state.report['stages']['native-install-preflight']['diagnostic']
+
+    def test_complete_public_record_and_canonical_binding_reach_schema5(self):
+        for first in ('NONE','INPUT_REFUSED','BARRIER_FAILED','ABI_FAILED','MATRIX_FAILED','CANCELLED','SOURCE_DRIFT',
+                      'CHILD_CLEANUP','IO_OR_TOOL_FAILED','PUBLICATION_FAILED','INTERNAL'):
+            fact=self.fact(self.record(first));diagnostic=self.project(fact)
+            self.assertEqual(diagnostic,dict(schema_version=5,call_boundary='RUN',run_stage='RECEIVER_ACCEPT',
+                run_predicate='P0_REFUSED',capture='PASS',image_config=None,receiver_accept=fact['receiver_accept']))
+
+    def test_malformed_payload_digest_version_and_cross_field_claims_fall_back(self):
+        import copy
+        variants=[];base=self.fact()
+        for key,value in (('receiver_public',dict(self.record(),PRIVATE='body')),('receiver_public_sha256','a'*64),
+                          ('receiver_preflight_only',True),('start_success',1),('PRIVATE','body')):
+            candidate=copy.deepcopy(base);candidate['receiver_accept'][key]=value;variants.append(candidate)
+        candidate=copy.deepcopy(base);candidate['schema_version']=3;variants.append(candidate)
+        candidate=copy.deepcopy(base);candidate['stage']='RETURN';variants.append(candidate)
+        candidate=copy.deepcopy(base);candidate['receiver_accept'].pop('receiver_public_sha256');variants.append(candidate)
+        for fact in variants:self.assertEqual(self.project(fact),{'schema_version':1,'call_boundary':'RUN'})
+
+    def test_all_eight_complete_record_boolean_combinations_stay_failed(self):
+        import itertools
+        for start,outcome,cleanup in itertools.product((False,True),repeat=3):
+            value=self.record()
+            if outcome:value.update(status='PASS_NATIVE_PREFLIGHT_ONLY',phase='complete',barrier='PASS',tests=1,
+                                    owned_child_cleanup='PASS',first_failure='NONE')
+            fact=self.fact(value);fact['receiver_accept'].update(start_success=start,receiver_preflight_only=outcome,native_cleanup_pass=cleanup)
+            diagnostic=self.project(fact)
+            if start and outcome and cleanup:self.assertEqual(diagnostic,{'schema_version':1,'call_boundary':'RUN'})
+            else:self.assertEqual(diagnostic['receiver_accept'],fact['receiver_accept']);self.assertEqual(diagnostic['schema_version'],5)
+
+    def test_projection_fault_keeps_first_failure_and_control_semantics(self):
+        for secondary in (OSError('PRIVATE'),KeyboardInterrupt('PRIVATE'),SystemExit(9),BaseException('PRIVATE')):
+            original=ValueError('P0_REFUSED');original.native_preflight_run_fact=self.fact()
+            with patch.object(controller,'receiver_public_record',side_effect=secondary):
+                state,caught,_,namespace=self.model(self.current,'RUN',original)
+            self.assertIs(caught,original);self.assertEqual(original.args,('P0_REFUSED',))
+            self.assertEqual(state.report['status'],'FAIL');self.assertNotIn('PRIVATE',json.dumps(state.report))
+            if isinstance(secondary,Exception):self.assertFalse(namespace['CANCELLED'])
+            else:self.assertIs(original.__cause__,secondary);self.assertTrue(namespace['CANCELLED']);self.assertTrue(state.report['cancelled'])

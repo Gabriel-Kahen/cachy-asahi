@@ -274,6 +274,27 @@ def container_binding(rows, cid, name, trial, source, inputs, output):
          {(m.get('Source'),m.get('Destination'),m.get('RW')) for m in mounts}==expected, 'CONTAINER_MOUNTS')
 
 
+def receiver_public_record(record, public_sha256):
+    """Closed receiver.public schema and canonical-byte binding; no acceptance grant."""
+    keys=('schema_version','status','phase','barrier','ABI','matrix','tests','failures','errors','skips','termination','owned_child_cleanup','first_failure')
+    if (type(record) is not dict or not all(type(key) is str for key in record) or set(record)!=set(keys) or
+            type(public_sha256) is not str or len(public_sha256)!=64):return None
+    if not all(type(record[key]) is str for key in ('status','phase','barrier','ABI','matrix','owned_child_cleanup','first_failure')):return None
+    if not (type(record['schema_version']) is int and record['schema_version']==1 and
+            record['status'] in ('REFUSED','FAIL','PASS_NATIVE_PREFLIGHT_ONLY','PASS_NATIVE_FIXTURE_ONLY') and
+            record['phase'] in ('inputs','preflight','ABI','matrix','complete') and
+            all(record[key] in ('NOT_RUN','PASS') for key in ('barrier','ABI','matrix')) and
+            record['first_failure'] in ('NONE','INPUT_REFUSED','BARRIER_FAILED','ABI_FAILED','MATRIX_FAILED','CANCELLED','SOURCE_DRIFT','CHILD_CLEANUP','IO_OR_TOOL_FAILED','PUBLICATION_FAILED','INTERNAL') and
+            record['owned_child_cleanup'] in ('UNKNOWN','NOT_STARTED','PASS','FAIL') and type(record['termination']) is bool and
+            all(type(record[key]) is int and 0<=record[key]<=26 for key in ('tests','failures','errors','skips'))):return None
+    if record['status']=='PASS_NATIVE_PREFLIGHT_ONLY' and not (record['phase']=='complete' and record['barrier']=='PASS' and record['ABI']==record['matrix']=='NOT_RUN' and record['tests']==1 and record['owned_child_cleanup']=='PASS' and record['first_failure']=='NONE' and not any(record[key] for key in ('failures','errors','skips','termination'))):return None
+    if record['status']=='PASS_NATIVE_FIXTURE_ONLY' and not (record['phase']=='complete' and record['barrier']==record['ABI']==record['matrix']=='PASS' and record['tests']==26 and record['owned_child_cleanup']=='PASS' and record['first_failure']=='NONE' and not any(record[key] for key in ('failures','errors','skips','termination'))):return None
+    value={key:record[key] for key in keys}
+    raw=(json.dumps(value,sort_keys=True)+'\n').encode()
+    if len(raw)>4096 or hashlib.sha256(raw).hexdigest()!=public_sha256:return None
+    return value
+
+
 def receiver_acceptance_fact(result, record, cleanup):
     """Three closed acceptance booleans; no raw child result or diagnostics."""
     if not all(type(value) is dict and all(type(key) is str for key in value)
@@ -301,6 +322,7 @@ def accept(result, public_raw, private_raw, receiver, cleanup, end):
         try:
             detail=receiver_acceptance_fact(result,record,cleanup)
             if detail is not None:
+                detail.update(receiver_public=dict(record),receiver_public_sha256=sha(public_raw))
                 state=BaseException.__dict__['__dict__'].__get__(error,type(error))
                 state['native_preflight_receiver_accept']=detail
         except BaseException as secondary:retain_failure(error,secondary)
@@ -355,10 +377,16 @@ def run_failure_fact(error, stage):
         state=BaseException.__dict__['__dict__'].__get__(error,type(error))
         detail=state.get('native_preflight_receiver_accept')
         keys=('start_success','receiver_preflight_only','native_cleanup_pass')
-        if (type(detail) is dict and all(type(key) is str for key in detail) and set(detail)==set(keys) and
-                all(type(detail[key]) is bool for key in keys) and not all(detail.values())):
-            return {'schema_version':3,'stage':stage,'predicate':predicate,'image_config':None,
-                    'receiver_accept':{key:detail[key] for key in keys}}
+        if (type(detail) is dict and all(type(key) is str for key in detail) and set(detail) in (set(keys),set(keys)|{'receiver_public','receiver_public_sha256'}) and
+                all(type(detail[key]) is bool for key in keys) and not all(detail[key] for key in keys)):
+            projected={key:detail[key] for key in keys}
+            if 'receiver_public' in detail:
+                public=receiver_public_record(detail['receiver_public'],detail['receiver_public_sha256'])
+                if public is None or detail['receiver_preflight_only'] is not (public['status']=='PASS_NATIVE_PREFLIGHT_ONLY' and public['phase']=='complete' and public['ABI']==public['matrix']=='NOT_RUN'):
+                    return {'schema_version':2,'stage':stage,'predicate':predicate,'image_config':image_config}
+                projected.update(receiver_public=public,receiver_public_sha256=detail['receiver_public_sha256'])
+            return {'schema_version':4 if 'receiver_public' in projected else 3,'stage':stage,'predicate':predicate,'image_config':None,
+                    'receiver_accept':projected}
     return {'schema_version':2,'stage':stage,'predicate':predicate,'image_config':image_config}
 
 
