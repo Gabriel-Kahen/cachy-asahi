@@ -75,6 +75,15 @@ def snapshot(root, *, metadata=False):
     return rows
 
 
+def capture(argv, *, data=None, env=None, timeout=45):
+    process = subprocess.run(argv, input=data, capture_output=True,
+                             timeout=timeout, env=env)
+    # The 1,113 installed notice paths alone exceed 64 KiB.
+    limit = 1024**2 if argv == ['/usr/bin/pacman', '-Qlq', 'cachy-asahi-update'] else 65536
+    need(len(process.stdout) + len(process.stderr) <= limit, 'diagnostic exceeds bound')
+    return process
+
+
 def exercise(work, signing, fingerprint):
     """Return bounded status; only the caller's disposable container is mutated."""
     result = {'status': 'FAIL', 'scope': 'disposable-native-software-check',
@@ -84,9 +93,7 @@ def exercise(work, signing, fingerprint):
     trust = root = home = None
 
     def run(argv, *, data=None, env=None, expected=0, timeout=45):
-        process = subprocess.run(argv, input=data, capture_output=True,
-                                 timeout=timeout, env=env)
-        need(len(process.stdout) + len(process.stderr) <= 65536, 'diagnostic exceeds bound')
+        process = capture(argv, data=data, env=env, timeout=timeout)
         if expected is not None and process.returncode != expected:
             result['failed_command_exit'] = process.returncode
         need(expected is None or process.returncode == expected,
@@ -145,6 +152,7 @@ def exercise(work, signing, fingerprint):
         need(pacman_conf.is_file() and not pacman_conf.is_symlink(), 'regular container config required')
         original_conf = pacman_conf.read_bytes()
         pacman_conf.write_text(configuration(repo, trust))
+        result['phase'] = 'signed-baseline-installation'
         run(['/usr/bin/pacman', '-U', '--noconfirm', str(packages['0.1.0-1'])])
         installed = run(['/usr/bin/pacman', '-Q']).stdout
         need(set(installed.splitlines()) == set(before.splitlines()) | {f'{NAME} 0.1.0-1'.encode()},
@@ -153,6 +161,7 @@ def exercise(work, signing, fingerprint):
              'baseline payload missing')
         db_before = snapshot(Path('/var/lib/pacman'))
         payload_before = PAYLOAD.read_bytes()
+        result['phase'] = 'installed-updater-payload-snapshot'
         owned_paths = run(['/usr/bin/pacman', '-Qlq', 'cachy-asahi-update']).stdout.decode().splitlines()
         updater_before = {name: hashlib.sha256(Path(name).read_bytes()).hexdigest()
                           for name in owned_paths if Path(name).is_file() and not Path(name).is_symlink()}
@@ -160,6 +169,7 @@ def exercise(work, signing, fingerprint):
              'installed Apple protection helper missing')
 
         def repository(version):
+            result['phase'] = 'signed-local-repository-preparation'
             for path in repo.iterdir():
                 path.unlink()
             package = packages[version]
