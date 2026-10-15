@@ -316,8 +316,10 @@ def phase(stage, config, env, root, *, nonce=None):
         if stage == 'minimal':
             image_decode_preflight(env, root, nonce)
         client_log = root / (stage + '-client.log')
+        # Isolate the failed AT-SPI startup dependency in this disposable client.
+        # Protocol diagnostics share the existing bounded, reaped client log.
         collector = LoggedProcess(['/usr/bin/wofi', '--normal-window', '--show', 'dmenu', '--prompt', 'Generic ARM software proof', '--width', '420', '--height', '220'],
-                                  client_log, env=env, stdin=subprocess.PIPE)
+                                  client_log, env=dict(env, NO_AT_BRIDGE='1', WAYLAND_DEBUG='client'), stdin=subprocess.PIPE)
         collectors.append(collector)
         client_collector = collector
         client = collector.process
