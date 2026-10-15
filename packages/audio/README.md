@@ -23,3 +23,20 @@ closure remain unfinished. No daemon or plugin was run or loaded. Runtime
 installation/dependency closure, service/udev behavior, speaker safety, both M2
 Air sizes and coordinated platform updates remain untested. Release selection
 remains false; preserve the working Asahi platform stack.
+
+The notice-only candidates speakersafetyd 2.0.1-3, bankstown 1.1.0-4 and
+triforce-lv2 0.3.2-3 add the same pinned notice input, copying only 3/3/4 regular
+mode 0644 license files. Their upstream sources, Cargo locks, vendor closure,
+J504 patch, exact 350-package toolchain and frozen/offline build flags remain
+unchanged. New native builds and byte pairs are NOT RUN. Run 38789573004 and
+the audio593 trial using the older archives remain evidence for
+2.0.1-2/1.1.0-3/0.3.2-2.
+
+Triforce's proposed package metadata summarizes the GNU GPLv3 combination and
+its Apache/MIT/Zlib/Unicode component terms; its upstream GPL-2.0-or-later
+source declarations and original license are unchanged. This is a distribution
+proposal, not an exhaustive file-level legal verdict. The notice text records
+configparser's MIT and wide's Zlib choices and colored's exact MPL source URL.
+The later wmidi MIT text association, macro workspace manifest difference,
+compiler recipe correspondence and complete release-source delivery remain
+open review limits; release selection remains false.

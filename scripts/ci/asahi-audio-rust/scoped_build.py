@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT/'scripts/checks'))
 import package_checks as checks
 
-RECIPES_SHA = 'a93fe987785b4876adacc5d07812f5b19e57549abca70786f738df7ba7f46a11'
+RECIPES_SHA = '1b1b966ab8e537f98f3e962555385f6764bb5a64511198757c762a5f9a7704c6'
 POLICY = Path(__file__).with_name('recipes.json')
 if checks.digest(POLICY) != RECIPES_SHA: raise ValueError('fixed audio recipes changed')
 RECIPES = json.loads(POLICY.read_text())
