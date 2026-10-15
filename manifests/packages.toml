@@ -72,14 +72,16 @@ license = "MIT"
 audit = "docs/audits/desktop.md"
 selected_for_development = true
 selected_for_release = false
-native_build = "NOT RUN"
+native_build = "PASS"
+native_build_commit = "465bf53545e1d83053bf3c412e210493961b74ae"
+native_evidence = "docs/validation/native-arm.md"
 candidate_version = "0.1.0-2"
 historical_native_build = "PASS"
 historical_native_build_commit = "ebd5812640b0b69f5c09a47752b739e37e338754"
 historical_native_evidence = "docs/validation/native-arm.md"
 installation = "NOT RUN"
 hardware_validation = "NOT RUN"
-next_step = "Build the exact 0.1.0-2 screenshot-helper candidate natively; reuse the existing grim/slurp provider proposals, freeze the Asahi-compatible dependency transaction, and verify installation/removal plus explicit full/region capture on both M2 Air sizes. Earlier pkgrel1 build evidence remains historical."
+next_step = "Two clean current native ARM builds and exact archive comparison passed in run 38683309592; verify the selected dependency transaction and installation/removal plus full/region screenshot capture on both M2 Air sizes."
 
 [[packages]]
 name = "cachy-asahi-fish-config"
@@ -125,14 +127,16 @@ license = "MIT"
 audit = "docs/setup-tooling.md"
 selected_for_development = true
 selected_for_release = false
-native_build = "NOT RUN"
+native_build = "PASS"
+native_build_commit = "465bf53545e1d83053bf3c412e210493961b74ae"
+native_evidence = "docs/validation/native-arm.md"
 candidate_version = "0.1.0-3"
 historical_native_build = "PASS"
 historical_native_build_commit = "ebd5812640b0b69f5c09a47752b739e37e338754"
 historical_native_evidence = "docs/validation/native-arm.md"
 installation = "NOT RUN"
 hardware_validation = "NOT RUN"
-next_step = "Build the exact 0.1.0-3 strict recovery JSON candidate natively, then verify package/setup/removal/recovery and independent onboarding on both Air sizes. Earlier native build evidence remains historical."
+next_step = "Two clean current native ARM builds and exact archive comparison passed in run 38683309592; verify package/setup/removal/recovery and independent onboarding on both M2 Air sizes."
 
 [[packages]]
 name = "cachy-asahi-ksmctl"

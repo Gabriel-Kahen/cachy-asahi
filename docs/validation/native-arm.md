@@ -106,3 +106,33 @@ rebuilds after checking the logged bundle, all eight provenance records, source
 and installed inventory bindings, artifact contents and comparisons. No material
 inconsistency was found. See [final native review](../reviews/native-execution-review.md).
 This acceptance is limited to the documented hosted ARM package execution.
+
+## Current desktop and setup native builds
+
+[Run 38683309592](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38683309592),
+at Source `465bf53545e1d83053bf3c412e210493961b74ae`, passed eight native ARM
+builds and four exact original-archive comparisons. Root verified and admitted
+retained review `a5bef078ad21c0f76cbb8fa14ddba5e0e345805316cd73f451d42128ff55e289`.
+The input lock is `beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f`;
+the recipe lock is `a5fb287b4dda2a90bf61d4fa8cbbc5d666dad8bb450a70544d00545b091f36e3`.
+
+| Package | Version | Bytes | SHA256 of each original archive |
+| --- | --- | ---: | --- |
+| cachy-asahi-fish-config | 0.1.0-1 | 5396 | `38e766158d13a0e13b8f811766119d10c018ccc256f5d99c3561b74c99d12705` |
+| cachy-asahi-hyprland-settings | 0.1.0-2 | 12740 | `0b22b778ec83d8b98d98d06fa4f016bd4e3f581b69efa83d6526c5265c2adf5e` |
+| cachy-asahi-setup | 0.1.0-3 | 14496 | `85ab7b964cd628ef21f5df6133aa9d046d32ea35cd6af3de0e5b888341550f0c` |
+| cachy-asahi-zsh-config | 0.1.0-1 | 6244 | `be2ef8ed4f0263720ed6290bff9992d5df53c7bf689a40478f2be329ba2d50e7` |
+
+The retained records contain 501 successful checksum acquisitions, 249 successful
+detached-signature GPG checks, and the selected 341-package builder inventory
+`fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25`.
+Root verified package metadata, source payload joins and matching comparison
+reports through the bounded retained-evidence review. This review did not rerun
+GPG or package builds. [Detailed evidence review](../reviews/setup-current-native-build-run-38683309592-20261015.md).
+
+This establishes native build and byte-comparison acceptance for these versions.
+Installation, upgrades, removal, recovery, Asahi target dependency/trust
+transactions, both M2 Air sizes, 16K-page execution and performance remain open.
+Final container/image/daemon/cache absence is not established; retained-cache
+finish records a handoff. Historical integration snapshots remain unselected
+and must be refreshed explicitly before accepting the current package set.

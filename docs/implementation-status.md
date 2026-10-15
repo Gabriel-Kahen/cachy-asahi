@@ -2,6 +2,16 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 15, current native package builds accepted:
+Run `38683309592`, Source `465bf535`, built all four selected recipes twice
+on native ARM CI. Root admits review `a5bef078`: eight original archives and
+four byte-identical pairs, including desktop settings 0.1.0-2 and setup 0.1.0-3.
+The retained acquisition and GPG records report 501 checksum passes and 249
+signature successes; the builder inventory contains the exact selected 341
+packages. Installation, recovery, both M2 Air models and 16K-page execution remain
+unvalidated. Final container/image/cache absence is not established. See
+[current build details](validation/native-arm.md#current-desktop-and-setup-native-builds).
+
 October 15, isolated comparison import correction:
 The shared build comparator now explicitly resolves its selected sibling helper
 when run with Python isolated/site-disabled flags. A focused regression runs the
