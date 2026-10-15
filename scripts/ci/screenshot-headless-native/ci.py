@@ -109,6 +109,27 @@ def fetch_package(row,target):
             count+=len(chunk);need(count<=row['bytes'],'package size overflow');digest.update(chunk);out.write(chunk)
     need(count==row['bytes'] and digest.hexdigest()==row['sha256'],'package exact bytes/hash')
 
+def region_checks(result):
+    positive=result.get('region',{});cancel=result.get('live_cancel',{})
+    need(positive.get('status')=='REAL_REGION_PIXEL_ORIGIN_PASS' and positive.get('first_failure') is None,'actual native region pass')
+    need(cancel.get('status')=='REAL_LIVE_SELECTION_CANCEL_PASS' and cancel.get('first_failure') is None,'actual live selector cancellation pass')
+    for case,code in ((positive,0),(cancel,1)):
+        reaping=case.get('slurp_reaping',{})
+        need(type(reaping.get('returncode')) is int and reaping['returncode']==code and reaping.get('direct_child_waited') is True and reaping.get('absent_from_parent_child_table') is True,'direct selector exit and reaping')
+        need(case.get('selection_retirement',{}).get('acknowledged') is True and case.get('custody_socket_retired') is True and case.get('pointer_retired_capabilities')==0,'selector surface/channel/pointer retirement')
+        need(case.get('seat_capabilities')=={'before':0,'with_virtual_pointer':1},'observed active virtual pointer capability')
+    crop=positive.get('region_capture',{})
+    need(positive.get('actual_slurp_geometry')=='31,47 73x59' and positive.get('pointer_retired_before_capture')==0,'exact positive geometry and pointer retirement before capture')
+    need(crop.get('status')=='PASS_PNG_CONTENT_ONLY' and (crop.get('width'),crop.get('height'),crop.get('pixels'))==(73,59,4307) and crop.get('colors')==[{'alpha':255,'pixels':4307,'rgb':[18,52,86]}],'actual complete region PNG pixels')
+    need(positive.get('full_pattern_capture',{}).get('pixels_checked')==76800,'actual full pattern origin pixels')
+    helper=cancel.get('helper_result',{});selector=cancel.get('slurp_result',{})
+    diagnostic='No region captured: selection cancelled or slurp failed. No full-screen fallback.\n'
+    need(helper.get('returncode')==1 and helper.get('stdout_bytes')==0 and helper.get('stderr')==diagnostic,'actual helper cancellation streams')
+    need(selector.get('returncode')==1 and selector.get('stdout_bytes')==0 and selector.get('cancel_diagnostic_lines')==1,'actual selector cancellation result')
+    need(type(cancel.get('motion_count_before')) is int and cancel['motion_count_before']==cancel.get('motion_count_after') and cancel.get('slurp_protocol_evidence',{}).get('buttons')==[1,0],'actual stationary click without motion')
+    need(cancel.get('capture_files_before')==cancel.get('capture_files_after')==5 and cancel.get('no_output_delta') is True and cancel.get('external_sentinel_preserved') is True,'live cancellation preserves all captures and sentinel')
+    return {'native_ARM_region':True,'native_live_cancel':True}
+
 def main():
     plan=registration(os.environ);runtime=verify_source(plan)
     # Registration and all Source checks precede downloads, Docker or evidence mutation.
@@ -182,7 +203,8 @@ def main():
         result=json.loads((evidence/'result.json').read_bytes())
         need(result['status']=='SOFTWARE_SCREENSHOT_PASS' and result['positive_capture']=='THREE_REAL_COLOR_CHECKED_CAPTURES' and result['first_failure'] is None and result['runtime_remaining']==[],'actual capture and cleanup results')
         need(result['native_execution']['system']=='Linux' and result['native_execution']['machine'] in ('aarch64','arm64') and result['native_execution']['interpreter']['e_machine']==183 and result['native_execution']['loader']['e_machine']==183,'running native ARM interpreter evidence')
-        checks={'trial_pass':True,'image_id':image,'container_exit':0,'native_execution':result['native_execution'],'native_archive_helper':archive['helper']}
+        region=region_checks(result)
+        checks={'trial_pass':True,'image_id':image,'container_exit':0,'native_execution':result['native_execution'],'native_archive_helper':archive['helper'],**region}
     except BaseException as error:
         first={'type':type(error).__name__,'message':str(error)}
         try:
@@ -222,7 +244,7 @@ def main():
                 if first is None:first={'type':type(error).__name__,'message':str(error)}
                 else:checks['cleanup_failure']=str(error)
         passed=first is None and checks.get('container_retired') is True
-        (evidence/'ci-result.json').write_text(json.dumps({'status':'SOFTWARE_SCREENSHOT_PASS' if passed else 'SOFTWARE_SCREENSHOT_FAIL','first_failure':first,'checks':checks,'commands':commands,'elapsed_seconds':time.monotonic()-start,'native_ARM_capture':passed,'Hyprland_M2_hardware_acceptance':False,'full_settings_installation':'NOT_RUN'},sort_keys=True,indent=2)+'\n')
+        (evidence/'ci-result.json').write_text(json.dumps({'status':'SOFTWARE_SCREENSHOT_PASS' if passed else 'SOFTWARE_SCREENSHOT_FAIL','first_failure':first,'checks':checks,'commands':commands,'elapsed_seconds':time.monotonic()-start,'native_ARM_capture':passed,'native_ARM_region':passed and checks.get('native_ARM_region') is True,'native_live_cancel':passed and checks.get('native_live_cancel') is True,'Hyprland_M2_hardware_acceptance':False,'full_settings_installation':'NOT_RUN'},sort_keys=True,indent=2)+'\n')
     return 0 if passed else 1
 
 if __name__=='__main__':raise SystemExit(main())

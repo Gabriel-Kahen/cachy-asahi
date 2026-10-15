@@ -6,6 +6,7 @@ import json
 import os
 import platform
 import resource
+import runpy
 import signal
 import socket
 import stat
@@ -69,7 +70,7 @@ def native_execution():
 def main():
     start=time.monotonic();end=start+LIMIT
     records=[];owned=[];logs=[];first=None;cleanup=[];success=False
-    result={'scope':'native ARM64 standalone archived helper Sway headless pixman behavior only','positive_capture':'NOT_RUN','Hyprland_M2_hardware_acceptance':False,'full_settings_installation':'NOT_RUN'}
+    result={'scope':'native ARM64 standalone archived helper Sway headless pixman behavior only','positive_capture':'NOT_RUN','region':{'status':'NOT_RUN'},'live_cancel':{'status':'NOT_RUN'},'Hyprland_M2_hardware_acceptance':False,'full_settings_installation':'NOT_RUN'}
     def left(cap):
         n=end-time.monotonic();need(n>0,'trial deadline');return min(n,cap)
     def call(args,env,cap=40):
@@ -82,10 +83,30 @@ def main():
         records.append({'argv':args,'code':r.returncode,'stdout':r.stdout.decode(errors='replace'),'stderr':r.stderr.decode(errors='replace')})
         return r
     def log_limit():resource.setrlimit(resource.RLIMIT_FSIZE,(2*1024**2,2*1024**2))
-    def spawn(args,env,name):
-        f=open(EVIDENCE/(name+'.log'),'xb');logs.append(f)
-        p=subprocess.Popen(args,env=env,stdin=subprocess.DEVNULL,stdout=f,stderr=subprocess.STDOUT,start_new_session=True,preexec_fn=log_limit)
-        owned.append((name,p));return p
+    def spawn(args,env,name,split=False):
+        need(type(split) is bool and name in {'sway','background-A','background-B','region-background','region-positive-helper','region-cancel-helper'},'bounded owned process log role')
+        f=open(EVIDENCE/(name+('.stdout' if split else '.log')),'xb');os.fchmod(f.fileno(),0o600);logs.append(f)
+        err=subprocess.STDOUT
+        if split:
+            err=open(EVIDENCE/(name+'.stderr'),'xb');os.fchmod(err.fileno(),0o600);logs.append(err)
+        old_mask=None
+        def limits():
+            signal.pthread_sigmask(signal.SIG_SETMASK,old_mask)
+            log_limit()
+        old_mask=signal.pthread_sigmask(signal.SIG_BLOCK,{signal.SIGINT,signal.SIGTERM,signal.SIGHUP})
+        creation_error=None
+        try:
+            p=subprocess.Popen(args,env=env,stdin=subprocess.DEVNULL,stdout=f,stderr=err,start_new_session=True,preexec_fn=limits)
+            owned.append((name,p))
+        except BaseException as error:
+            creation_error=error;raise
+        finally:
+            try:signal.pthread_sigmask(signal.SIG_SETMASK,old_mask)
+            except BaseException as error:
+                if creation_error is None:raise
+                try:cleanup.append({'name':name,'phase':'spawn-mask-restore','fault':str(error)})
+                except BaseException:pass
+        return p
     def socket_node(p):
         s=p.lstat();need(stat.S_ISSOCK(s.st_mode) and s.st_uid==os.getuid() and p.parent==RUNTIME,'private owned socket');return [s.st_dev,s.st_ino]
     def ipc(kind,payload=''):
@@ -174,6 +195,9 @@ def main():
         bg=spawn(['/usr/bin/swaybg','-o',output,'-c','#654321'],client,'background-B')
         ipc(3);time.sleep(min(0.25,left(0.25)));capture('#654321')
         result['captures']=captures;result['positive_capture']='THREE_REAL_COLOR_CHECKED_CAPTURES'
+        region=runpy.run_path(str(SOURCE/'scripts/ci/screenshot-headless-native/region_trial.py'))
+        result['region']=region['exercise'](sway,output,client,shots,end,owned,previous,call,spawn,retire,file_record)
+        result['live_cancel']=region['exercise_cancel'](sway,output,client,shots,end,owned,previous,call,spawn,retire,file_record)
         offline=Path('/tmp/screenshot-offline');private(offline)
         absent={**client,'XDG_RUNTIME_DIR':str(offline),'WAYLAND_DISPLAY':str(offline/'absent')}
         before={str(p):file_record(p) for p in shots.iterdir()}
