@@ -68,15 +68,15 @@ jobs:
           from contextlib import contextmanager
 
           REPOSITORY = 'Gabriel-Kahen/cachy-asahi'
-          CODE_COMMIT = '05547e4716a4f3d61410da434d3e454d817e1e9a'
+          CODE_COMMIT = 'b489e54b5c526525cc083fba0bdcf89962951d00'
           LAUNCHER_PATH = '.github/bootstrap/development-launcher.py'
-          LAUNCHER_SHA = 'bc4a604aabe5a1702631de68bb231415ce9d38ec17efd9714c2cecddf7cfb575'
+          LAUNCHER_SHA = 'c592842869d15bbae7833df7671b934cd62207df6ddf17dff640b3d72ca1a5be'
           LAUNCHER_BYTES = 26685
-          BOOTSTRAP_SHA = '6d0e6e4ccd0d0c06f36fcbed204d7a8d6542e0ec461c409eda9e8ce9245215dc'
+          BOOTSTRAP_SHA = '3aacfc9c397c30cb2bf713ddc28f4d9a06bfa74cbf416bf5a452bd07de7ba836'
           ISSUER_SHA = '9e3271b8cb21e7be1940c2aa9f17f84357d0a438ed45a19ad34ae226ec9d4581'
           EXECUTION_REF = 'refs/heads/codex/maintained-composed-execution-v1'
           COMPOSITION = 'installer-preflight-maintained-v1'
-          PACKET_SHA = '56552fbaa54d5b30dd002cd5a4b462806a5672062bf11b3db0e4ed25ef2bfde5'
+          PACKET_SHA = 'a989941b2b7c0a342a002838c1c8bc47cec17d4a3a0f767c82b6a8c9bf96825b'
           PLAN_ENV = 'ROOT_REGISTERED_MAINTAINED_COMPOSED_PLAN_B64'
           PIN_ENV = 'ROOT_REGISTERED_MAINTAINED_COMPOSED_PLAN_SHA256'
 
