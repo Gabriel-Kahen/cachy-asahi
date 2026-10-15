@@ -141,11 +141,14 @@ def _open_root(root):
     try:
         for part in root.parts[1:]:
             child = os.open(part, flags, dir_fd=descriptor)
-            os.close(descriptor)
-            descriptor = child
+            previous, descriptor = descriptor, child
+            os.close(previous)
         return descriptor
-    except BaseException:
-        os.close(descriptor)
+    except BaseException as error:
+        try:
+            os.close(descriptor)
+        except OSError:
+            error.add_note('root descriptor cleanup failed')
         raise
 
 

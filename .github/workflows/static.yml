@@ -74,6 +74,8 @@ jobs:
         run: |
           python3 -B scripts/update/test_full_root.py
           python3 -B scripts/update/test_full_root_hardlinks.py
+          python3 -B scripts/update/test_measure_copy.py
+          python3 -B scripts/update/test_measure_copy_hardlinks.py
       - name: Check isolated offline LV2 caller boundaries without actors
         run: |
           python3 -B scripts/ci/asahi-lsp-offline/test_container.py
