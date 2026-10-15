@@ -5,6 +5,7 @@ from types import SimpleNamespace
 import tempfile
 import time
 import unittest
+from unittest import mock
 
 import broker as b
 import capture as c
@@ -233,9 +234,12 @@ class BrokerTests(unittest.TestCase):
             put(controller.native_out / 'inputs.lock.json', c.encoded({'snapshot_id': 'foreign-snapshot'}))
             with self.assertRaises(c.Refused): assemble()
     def test_create_approval_binds_only_exact_original_transformation(self):
-        from test_launch import LaunchTests
-        case = LaunchTests(); case.setUp()
+        from test_launch import LaunchTests, FIXTURE_RUNNER, FROZEN_RUNNER
+        case = LaunchTests()
         try:
+            case.setUp()
+            self.assertEqual(b.launch.ORIGINAL_PIN, FROZEN_RUNNER)
+            self.enterContext(mock.patch.object(b.launch, 'ORIGINAL_PIN', FIXTURE_RUNNER))
             end = time.monotonic() + 20
             pending = b.Pending(case.private, b'# MODELED observer\n', c.digest(b'# MODELED observer\n'), job_deadline=end)
             bindings = []; pending.transport = SimpleNamespace(bind=lambda *args: bindings.append(args))

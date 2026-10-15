@@ -19,6 +19,9 @@ ROOT = Path(__file__).resolve().parents[3]
 spec = importlib.util.spec_from_file_location('handoff_launch', Path(__file__).with_name('launch.py'))
 launch = importlib.util.module_from_spec(spec); spec.loader.exec_module(launch)
 CID = 'c' * 64
+# Synthetic current-runner fixture binding; production remains frozen at49c87.
+FIXTURE_RUNNER = 'f860ff970093c7aac0788571d36ab32f1617e2dc9b2a703e42e16782f10a7641'
+FROZEN_RUNNER = '49c87f41bbb2fe1288251f16019f12aaeabb98d81ff5339387873e88e903b940'
 
 
 def response(raw=b'', code=0):
@@ -106,6 +109,9 @@ class LaunchTests(unittest.TestCase):
         self.output = self.root/'out'; self.private = self.root/'private'
         for path in (self.inputs, self.runner, self.output, self.private): path.mkdir(mode=0o700)
         shutil.copyfile(ROOT/'scripts/integration/repository.py', self.runner/'repository.py')
+        self.assertEqual(launch.digest((self.runner/'repository.py').read_bytes()), FIXTURE_RUNNER)
+        self.assertEqual(launch.ORIGINAL_PIN, FROZEN_RUNNER)
+        self.enterContext(mock.patch.object(launch, 'ORIGINAL_PIN', FIXTURE_RUNNER))
         (self.runner/'producer.py').write_bytes(b'# MODELED observer bytes\n')
         self.pin = launch.digest((self.runner/'producer.py').read_bytes())
         self.contract = {'schema_version': 1, 'purpose': 'disposable-generic-repository-test',
@@ -153,6 +159,14 @@ class LaunchTests(unittest.TestCase):
 
     def test_runner_or_manifest_drift_refused(self):
         (self.runner/'repository.py').write_bytes(b'wrong')
+        with self.assertRaises(launch.Refused):self.execute()
+        self.assertFalse(self.transport.calls)
+
+    def test_mixed_frozen_manifest_and_current_fixture_runner_refuse_before_transport(self):
+        self.contract['script_sha256'] = FROZEN_RUNNER
+        (self.inputs/'manifest.json').write_bytes(launch.encoded(self.contract))
+        index = self.command.index('--inputs-sha256') + 1
+        self.command[index] = launch.digest((self.inputs/'manifest.json').read_bytes())
         with self.assertRaises(launch.Refused):self.execute()
         self.assertFalse(self.transport.calls)
 

@@ -21,6 +21,9 @@ producer = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(producer)
 ROOT = Path(__file__).resolve().parents[3]
 NONCE = 'a' * 32
+# Only these explicitly modeled tests bind the current public fixture bytes.
+FIXTURE_RUNNER = 'f860ff970093c7aac0788571d36ab32f1617e2dc9b2a703e42e16782f10a7641'
+FROZEN_RUNNER = '49c87f41bbb2fe1288251f16019f12aaeabb98d81ff5339387873e88e903b940'
 
 
 class ModeledProtocol:
@@ -131,7 +134,9 @@ class ModelTests(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory(prefix='MODELED-handoff-producer-'); self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
         source = (ROOT / 'scripts/integration/repository.py').read_bytes()
-        self.assertEqual(producer.digest(source), producer.SOURCE_SHA256)
+        self.assertEqual(producer.digest(source), FIXTURE_RUNNER)
+        self.assertEqual(producer.SOURCE_SHA256, FROZEN_RUNNER)
+        self.enterContext(mock.patch.object(producer, 'SOURCE_SHA256', FIXTURE_RUNNER))
         self.original = types.ModuleType('frozen_repository_functions_only')
         self.original.__file__ = str(ROOT / 'scripts/integration/repository.py')
         exec(compile(source, self.original.__file__, 'exec'), self.original.__dict__)
@@ -340,6 +345,9 @@ class GuardAndReadTests(unittest.TestCase):
         # Replaces only the compiled module's main with an explicit model. No
         # guard-positive frozen worker, GPG, Docker or native actor is executed.
         original_argv = sys.argv
+        self.assertEqual(producer.digest((ROOT/'scripts/integration/repository.py').read_bytes()), FIXTURE_RUNNER)
+        self.assertEqual(producer.SOURCE_SHA256, FROZEN_RUNNER)
+        self.enterContext(mock.patch.object(producer, 'SOURCE_SHA256', FIXTURE_RUNNER))
         for after_write in (False, True):
             with self.subTest(after_write=after_write), tempfile.TemporaryDirectory() as directory:
                 terminal = Path(directory)/'MODELED-private-original-result.json'
@@ -384,6 +392,27 @@ class GuardAndReadTests(unittest.TestCase):
             os.link(path,root/'hardlink')
             with self.assertRaises(producer.Refused):producer.read(path)
             with self.assertRaises(producer.Refused):producer.read(path,1)
+
+    def test_owned_byte_mode_and_same_byte_inode_changes_during_read_refuse(self):
+        actual = producer.os.fstat
+        for change in ('bytes', 'mode', 'inode'):
+            with self.subTest(change=change), tempfile.TemporaryDirectory() as name:
+                path = Path(name)/'fixture';path.write_bytes(b'original');path.chmod(0o644)
+                original = path.stat();fired = []
+                def observe(fd):
+                    info = actual(fd)
+                    if (info.st_dev, info.st_ino) == (original.st_dev, original.st_ino) and not fired:
+                        fired.append(change)
+                        if change == 'bytes':path.write_bytes(b'mutated!')
+                        elif change == 'mode':path.chmod(0o600)
+                        else:
+                            other = path.with_name('replacement');other.write_bytes(path.read_bytes());other.chmod(0o644)
+                            os.replace(other, path)
+                    return info
+                with mock.patch.object(producer.os, 'fstat', side_effect=observe), \
+                        self.assertRaisesRegex(producer.Refused, 'checkpoint-read-drift'):
+                    producer.read(path)
+                self.assertEqual(fired, [change])
 
     def test_real_int_and_term_handlers_restore_original_pair(self):
         originals = {number: signal.getsignal(number) for number in producer.SIGNALS}

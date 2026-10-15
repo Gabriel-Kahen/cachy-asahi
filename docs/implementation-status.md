@@ -2,6 +2,17 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 15, native-handoff test fixture repair:
+Three maintained test fixtures now bind their explicitly modeled runner to the
+authenticated current public bytes and restore the fixture module's pin during
+cleanup. Production runner pins and validation algorithms are unchanged. Author
+and fresh peer each pass the full 146-test handoff suite with zero failures,
+errors or skips. Mixed frozen/current inputs and byte, mode and inode drift still
+refuse. This supersedes the fixture failures recorded below; the frozen initial
+159-file operational closure remains stale and unaccepted. Hosted static checks
+for the preceding signal correction also pass 926 tests with zero skips. Native
+or target installation acceptance does not follow from these fixture results.
+
 October 15, signal-loader correction:
 The native handoff now retains the genuine initial `_signal` module through its
 existing trusted bootstrap. A local countermodel showed that reinitializing the
