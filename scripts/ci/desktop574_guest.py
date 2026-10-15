@@ -96,10 +96,73 @@ def wait_drm_card():
     until = time.monotonic() + 20
     while time.monotonic() < until:
         device = drm_card()
-        if device is not None:
+        if device is not None and drm_render_node(device) is not None:
             return device
         time.sleep(.1)
     raise ValueError('DRM readiness deadline')
+
+
+def drm_render_node(card, sysfs=Path('/sys/class/drm'), devices=Path('/dev/dri')):
+    """Required render node of the already verified sole virtio GPU, or not ready."""
+    def render(path):
+        suffix = path.name.removeprefix('renderD')
+        return path.name.startswith('renderD') and suffix.isascii() and suffix.isdecimal()
+    entries = list(sysfs.glob('renderD*'))
+    nodes = list(devices.glob('renderD*'))
+    need(all(render(path) for path in entries + nodes), 'invalid DRM render node name')
+    need(len(entries) <= 1 and len(nodes) <= 1, 'ambiguous DRM render nodes')
+    if not entries or not nodes:
+        return None
+    entry = entries[0]
+    device = devices / entry.name
+    try:
+        major, minor = map(int, (entry / 'dev').read_text().strip().split(':'))
+        value = device.lstat()
+        primary_parent = (sysfs / card.name / 'device').stat()
+        render_parent = (entry / 'device').stat()
+    except FileNotFoundError:
+        return None
+    need((primary_parent.st_dev, primary_parent.st_ino) == (render_parent.st_dev, render_parent.st_ino),
+         'DRM render node belongs to another GPU')
+    need(nodes == [device] and stat.S_ISCHR(value.st_mode) and major == 226 and
+         minor >= 128 and minor == int(entry.name[7:]) and value.st_rdev == os.makedev(major, minor),
+         'DRM render character-device identity differs')
+    return device
+
+
+def render_access(card):
+    identity = dict(device=None)
+    try:
+        device = drm_render_node(card)
+        need(device is not None, 'required DRM render node unavailable')
+        before = device.lstat()
+        identity = dict(device=str(device), major=os.major(before.st_rdev), minor=os.minor(before.st_rdev),
+                        uid=before.st_uid, gid=before.st_gid, mode=stat.S_IMODE(before.st_mode))
+        need(stat.S_ISCHR(before.st_mode) and before.st_uid == before.st_gid == 23001 and
+             before.st_mode & 0o777 == 0o600, 'private user renderer node required')
+        descriptor = os.open(device, os.O_RDWR | os.O_NOFOLLOW | os.O_CLOEXEC)
+        first = None
+        try:
+            opened = os.fstat(descriptor)
+            need(all(getattr(before, field) == getattr(opened, field) for field in
+                     ('st_dev', 'st_ino', 'st_mode', 'st_uid', 'st_gid', 'st_rdev')),
+                 'opened renderer node identity differs')
+        except BaseException as error:
+            first = error
+        try:
+            os.close(descriptor)
+        except BaseException as error:
+            if first is None:
+                first = error
+        if first is not None:
+            raise first
+    except (OSError, ValueError) as error:
+        try:
+            emit('render_access', status='FAIL', errno=error.errno if isinstance(error, OSError) else None, **identity)
+        except BaseException:
+            pass
+        raise
+    emit('render_access', status='PASS', errno=0, **identity)
 
 
 def emit(event, **values):
@@ -470,6 +533,7 @@ def user():
     probe = json.loads(command(['/usr/local/bin/gbm-probe', str(card)], env, logs, 'gbm', timeout=30))
     need(probe.get('status') == 'PASS', 'GBM software probe failed')
     emit('gbm_pass', probe=probe)
+    render_access(card)  # Hyprland may open this distinct node after its GBM fallback.
     for stage, config in [('minimal', SHARE / 'minimal.lua'),
                           ('overlay', Path('/usr/share/cachy-asahi/hyprland/hyprland.lua'))]:
         phase(stage, config, env, logs)
@@ -507,6 +571,10 @@ def boot():
         card = wait_drm_card()
         os.chown(card, 23001, 23001)
         card.chmod(0o600)
+        render = drm_render_node(card)
+        need(render is not None, 'required DRM render node unavailable')
+        os.chown(render, 23001, 23001)
+        render.chmod(0o600)
         need(not os.path.lexists(SEAT), 'preexisting seatd socket path')
         seatd = Logged(['/usr/bin/seatd', '-u', 'desktop574', '-g', 'desktop574', '-l', 'info'],
                        'seatd', logs, env)

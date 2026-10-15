@@ -31,6 +31,7 @@ mkdir -p "$root/etc/udev/rules.d"
 printf '%s\n' 'SUBSYSTEM=="virtio-ports", KERNEL=="vport*", ATTR{name}=="desktop574.events", OWNER:="23001", GROUP:="23001", MODE:="0600"' > "$root/etc/udev/rules.d/99-desktop574-events.rules"
 # Keep the private VM's primary virtio DRM card private through late udev work.
 printf '%s\n' 'SUBSYSTEM=="drm", KERNEL=="card[0-9]*", KERNEL!="card*-*", SUBSYSTEMS=="pci", ATTRS{vendor}=="0x1af4", ATTRS{device}=="0x1050", DRIVERS=="virtio-pci", OWNER:="23001", GROUP:="23001", MODE:="0600"' > "$root/etc/udev/rules.d/99-desktop574-drm.rules"
+printf '%s\n' 'SUBSYSTEM=="drm", KERNEL=="renderD[0-9]*", SUBSYSTEMS=="pci", ATTRS{vendor}=="0x1af4", ATTRS{device}=="0x1050", DRIVERS=="virtio-pci", OWNER:="23001", GROUP:="23001", MODE:="0600"' >> "$root/etc/udev/rules.d/99-desktop574-drm.rules"
 chown 23001:23001 "$root/home/desktop574"
 chmod 700 "$root/home/desktop574"
 cp /runner/desktop574_guest.py "$root/usr/local/share/desktop574/guest.py"
