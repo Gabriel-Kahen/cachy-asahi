@@ -168,11 +168,11 @@ audit = "docs/workstreams/cachy-update.md"
 selected_for_development = true
 selected_for_release = false
 native_build = "PASS"
-native_build_commit = "1aea667aec50a62ba0ab2dad44be24a4dc3bd098"
-native_evidence = "docs/validation/updater-current-native-20261015.md"
+native_build_commit = "480053c0866a922138d85af2b9880fb0e10d7b2c"
+native_evidence = "docs/validation/updater-real-check-native-20261015.md"
 installation = "NOT RUN"
 hardware_validation = "NOT RUN"
-next_step = "Native ARM pair, signed complete runtime installation and installed private-D-Bus tray behavior passed; see docs/validation/updater-runtime-native-20261015.md. Test actual updater checks, target lifecycle and coordinated Apple updates; release notice closure remains required."
+next_step = "Version 4.4.2-2 native pair, signed disposable installation and seven actual Check/refusal cases pass; see docs/validation/updater-real-check-native-20261015.md. Earlier v1 tray behavior is separate. Implement bound full-update transaction, combined v2/target lifecycle and coordinated Apple updates; release notice closure remains required."
 
 [[packages]]
 name = "cachy-asahi-fdk-aac"
