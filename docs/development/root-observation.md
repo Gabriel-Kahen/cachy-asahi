@@ -50,3 +50,23 @@ root checks remain applicable. Static CI runs both files. Actual bind mounts,
 full 587-package activation, ALPM transactions through this opt-in, physical 16 KiB/M2 and
 performance are untested. The measured full root remains ineligible; absolute
 links, specials, auxiliary execution and copy integration remain open.
+
+
+## Owned data copies
+
+`measure_copy.copy_data(..., hardlinks='generic-development-internal')` now
+supports complete supported subtrees with no exclusions. Its private destination
+must be new, disjoint, and beneath an owned parent that others cannot write.
+It copies one anchor and creates internal aliases using checked parent descriptors
+and basenames. It verifies every source alias and compares complete source
+observations before/after with independent destination readback. This makes three
+source-content passes and one destination pass under one deadline; no speed gain
+is claimed. Default copying retains its previous schema and refusal behavior.
+
+The copy increment passes 14 focused methods and the five existing copy checks,
+including descriptor acquisition/close faults and partial/zero writes. The root
+opening helper now transfers ownership before closing a parent, so a close error
+cannot strand its newly opened child or trigger a blind close retry. These are
+bounded local filesystem checks. The CLI and full-root updater do not opt in;
+source/destination quiescence, cross-pass inode continuity, atomicity and crash
+recovery remain caller obligations or unestablished properties.
