@@ -13,6 +13,7 @@ import os
 from pathlib import Path
 import re
 import signal
+import subprocess
 import stat
 import sys
 import time
@@ -71,6 +72,34 @@ def attach_sdk_preflight(error, boundary):
         code = 'grant-refused' if type(args) is tuple and len(args) == 1 and type(args[0]) is str and args[0] == 'grant-refused' else 'UNKNOWN'
         state['nativeci_diagnostic'] = {'schema_version': 1, 'stage': boundary, 'operation': operation,
                                       'exception_type': kind, 'refusal_code': code}
+    except BaseException as secondary:
+        if type(secondary) is KeyboardInterrupt:
+            try:
+                state = BaseException.__dict__['__dict__'].__get__(error)
+                if type(state) is dict and all(type(key) is str for key in state):
+                    state['native_preflight_cancelled'] = True
+                    state['native_preflight_cleanup_uncertain'] = True
+            except BaseException:
+                pass
+
+
+PIPELINE_FAILURE_OPERATIONS = frozenset(['load-preparation', 'verify-preparation-packet', 'load-preparation-sources', 'initialize-preparation', 'prepare-image', 'finish-preparation', 'materialize-P0', 'run-P0', 'pipeline-cleanup', 'download-input', 'download-http-error', 'download-url-error', 'download-timeout', 'supervise-child', 'supervise-child-timeout', 'check-child-outcome'])
+
+
+def mark_pipeline_failure(error, operation):
+    """First closed operation only; no arguments, paths, rows or child output."""
+    try:
+        if type(operation) is not str or operation not in PIPELINE_FAILURE_OPERATIONS:
+            return
+        if operation == 'supervise-child' and type(error) is subprocess.TimeoutExpired:
+            operation = 'supervise-child-timeout'
+        elif operation == 'download-input':
+            if type(error) is urllib.error.HTTPError:operation = 'download-http-error'
+            elif type(error) is urllib.error.URLError:operation = 'download-url-error'
+            elif type(error) is TimeoutError:operation = 'download-timeout'
+        state = BaseException.__dict__['__dict__'].__get__(error)
+        if type(state) is dict and all(type(key) is str for key in state) and 'nativeci_pipeline_operation' not in state:
+            state['nativeci_pipeline_operation'] = operation
     except BaseException as secondary:
         if type(secondary) is KeyboardInterrupt:
             try:
@@ -478,15 +507,20 @@ class Preparation:
                 deadline=work,cleanup_end=self.cleanup_end,limit=16*1024**2,pass_fds=(fd,),
                 preflight=lambda:self.guard(cleanup))
         except BaseException as error:
+            mark_pipeline_failure(error, 'supervise-child')
             markers=BaseException.__getattribute__(error,'__dict__')
             self.cancelled |= isinstance(error,KeyboardInterrupt) or markers.get('native_preflight_cancelled') is True
             self.uncertain |= markers.get('native_preflight_cleanup_uncertain') is True
             if markers.get('native_preparation_process') is not None or markers.get('native_preparation_streams'):
                 self.retained.append(error)
             raise
-        need(observation['direct_child_reaped'] is True and observation['group_disposal_requested'] is True and
-             observation['forced_teardown'] is False and observation['cancelled'] is False,'prep-command-retirement')
-        if not accept_nonzero:need(result['exit_code']==0,'prep-command-exit')
+        try:
+            need(observation['direct_child_reaped'] is True and observation['group_disposal_requested'] is True and
+                 observation['forced_teardown'] is False and observation['cancelled'] is False,'prep-command-retirement')
+            if not accept_nonzero:need(result['exit_code']==0,'prep-command-exit')
+        except BaseException as error:
+            mark_pipeline_failure(error, 'check-child-outcome')
+            raise
         return result
 
     def cached(self,items,cache):
@@ -564,7 +598,9 @@ class Preparation:
             if first is not None and BaseException.__getattribute__(first,'__dict__').get('native_preflight_cleanup_uncertain') is True:
                 if self not in PREPARATION_QUARANTINE:PREPARATION_QUARANTINE.append(self)
                 sys.modules['root_p0_preparation_owner_quarantine']=sys.modules[__name__]
-        if first is not None:raise first
+        if first is not None:
+            mark_pipeline_failure(first, 'download-input')
+            raise first
         self.guard();need(not target.exists() and not target.is_symlink() and identity(partial.lstat())==identity(node),
                           'prep-download-target')
         # Root-selected writer exclusion on the owned700 cache prevents a foreign replacement.
@@ -899,13 +935,17 @@ def pipeline(*,entry,outer_end,expected_source_commit,source_root,work_root,cach
     registered={};owner=None;first=None;result=None;prepared=None
     alarm_handler=None;alarm_saved=False;timer_attempted=False
     previous_path=list(sys.path)
+    operation='load-preparation'
     try:
         packet=load_preparation(bodies,root,registered)
+        operation='verify-preparation-packet'
         # Actual repository/Source relation is checked by the existing verifier before actor construction.
         need(packet.preflight_composed(root,root/packet.LOCK,digest(encoded(packet_data)),expected_source_commit,
              composition=COMPOSITION)==packet_data,'prep-packet-drift')
+        operation='load-preparation-sources'
         sdk,sources,transport,native=prep_sources(root,packet_data,encoded(selection['grant']),
             digest(encoded(selection['grant'])),end,registered)
+        operation='initialize-preparation'
         live(end);output.mkdir(mode=0o700)
         if not cache.exists():
             need(selection['plan']['cache_mode']=='selected-HTTPS' and not cache.is_symlink(),'prep-cache-selection')
@@ -926,7 +966,9 @@ def pipeline(*,entry,outer_end,expected_source_commit,source_root,work_root,cach
         timer_attempted=True
         try:signal.setitimer(signal.ITIMER_REAL,end-time.monotonic())
         except BaseException as error:raise merge(None,error)
+        operation='prepare-image'
         with transport.prep_handlers(transport.Events(),cleanup_end):prepared=owner.prepare()
+        operation='finish-preparation'
         try:signal.setitimer(signal.ITIMER_REAL,0)
         except BaseException as error:raise merge(None,error)
         timer_attempted=False
@@ -940,14 +982,18 @@ def pipeline(*,entry,outer_end,expected_source_commit,source_root,work_root,cach
         del registered['package_checks']
         p0_entry=time.monotonic()  # First P0 timestamp, before any P0 bundle read/decode.
         p0_end=min(p0_entry+60,cleanup_end-15);live(p0_end)
+        operation='materialize-P0'
         bundle=packed_template(os.environ['P0_PRIVATE_BUNDLE_ZLIB_B64'])
         private=output/'p0-private';p0_output=output/'p0';p0_cache=output/'p0-cache'
         pins=materialize(entry=p0_entry,outer_end=p0_end,root=root,private=private,output=p0_output,cache=p0_cache,
             expected_source_commit=expected_source_commit,bundle_raw=bundle,
             bundle_sha256=os.environ['P0_PRIVATE_BUNDLE_SHA256'],environment=os.environ,preparation=prepared)
+        operation='run-P0'
         result=run(entry=p0_entry,outer_end=p0_end,expected_source_commit=expected_source_commit,source_root=root,
             private_root=private,output=p0_output,cache=p0_cache,input_pins=pins)
-    except BaseException as error:first=error
+    except BaseException as error:
+        first=error
+        mark_pipeline_failure(first, operation)
     finally:
         private_chunks.clear()
         if timer_attempted:
@@ -976,7 +1022,9 @@ def pipeline(*,entry,outer_end,expected_source_commit,source_root,work_root,cach
             if first is None:first=ValueError('prep-sticky-failure')
             if owner.cancelled:BaseException.__setattr__(first,'native_preflight_cancelled',True)
             if owner.uncertain:BaseException.__setattr__(first,'native_preflight_cleanup_uncertain',True)
-    if first is not None:raise first
+    if first is not None:
+        mark_pipeline_failure(first, 'pipeline-cleanup')
+        raise first
     need(owner is not None and owner.tag_retired and type(result) is dict and result.get('status')=='PASS_P0_ONLY','prep-P0-complete')
     return {'status':'PASS_PREPARATION_AND_P0','P0':result,'image_tag_retired':True,
             'global_digest_absence_claimed':False,'ABI':'NOT_RUN','matrix':'NOT_RUN'}
