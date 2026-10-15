@@ -136,7 +136,7 @@ historical_native_build_commit = "ebd5812640b0b69f5c09a47752b739e37e338754"
 historical_native_evidence = "docs/validation/native-arm.md"
 installation = "NOT RUN"
 hardware_validation = "NOT RUN"
-next_step = "Native setup4 pair and exact archives passed in run 38782193131; exercise installed setup3-to4 enrollment/removal/reinstall, then Asahi setup/recovery and independent onboarding on both Air sizes."
+next_step = "Native setup4 pair and installed3-to4/enrollment/remove/reinstall/disable lifecycle passed (runs38782193131/38785474034); verify real Asahi trust/setup/recovery and independent onboarding on both Air sizes."
 
 [[packages]]
 name = "cachy-asahi-ksmctl"

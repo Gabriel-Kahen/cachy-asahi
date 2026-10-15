@@ -26,7 +26,28 @@ observations below remain historical; their bytes are unchanged. See the
 [current binding reconciliation](../reviews/maintained-desktop-resolver-current-source-20261015.md)
 and [earlier metadata review](../reviews/full-port-coverage-reconciliation-root-review.md).
 
-## Current evidence and the target boundary
+## October 15 implementation update
+
+The source audit and 341-package gap table below describe the earlier builder.
+They are historical inputs, rather than the current installed development set.
+The [signed native 574-package transaction](../validation/maintained-desktop574-native-20261015.md)
+and [ten-project 587-package composition](../validation/full-composition-native-20261015.md)
+now pass their finite generic ARM installation checks. The latter also passes
+[its v1 lifecycle](../validation/full-composition-lifecycle-native-20261015.md).
+Ten development recipes are selected in the current manifest, with release
+selection still false. The exact 587 lock includes PipeWire audio/Pulse,
+WirePlumber and pavucontrol; their absence in the earlier table applies to the
+341-package builder. Installed package presence does not establish a running
+audio graph or device behavior.
+
+The tested 574/587 selection still lacks asahi-audio and speakersafetyd. Separate
+source/input preparation is underway, with no installed protected audio or
+hardware acceptance. The generic kernel/Mesa set, physical platform integration,
+both M2 Air sizes, complete source/maintenance coverage and release gates remain
+open. Use the [current implementation status](../implementation-status.md) for
+active trial results; preserve the earlier audit's distinctions below.
+
+## Earlier builder evidence and the target boundary
 
 The [manifest](../../manifests/packages.toml) selects four development candidates,
 all MIT original project material: desktop templates, Fish templates, Zsh
