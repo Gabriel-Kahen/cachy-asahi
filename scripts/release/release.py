@@ -3,6 +3,7 @@
 # Copyright (c) 2026 cachy-asahi contributors
 """Local signed pacman staging. Never installs, uploads, or edits pacman trust."""
 import argparse
+import base64
 import contextlib
 import fcntl
 import hashlib
@@ -235,6 +236,22 @@ def verify_signature(path, key, env):
     require(good, f"signature does not match pinned fingerprint: {path.name}")
 
 
+def add_database(database, packages, key, env):
+    probe_env = dict(env, LC_ALL="C")
+    version = run(["repo-add", "--version"], env=probe_env).splitlines()
+    match = re.fullmatch(rb"repo-add \(pacman\) (\d+)\.(\d+)\.(\d+)(?:\.r\d+\.g[0-9a-f]+)?(?:-\d+)?",
+                         version[0] if version else b"")
+    require(match is not None, "unrecognized repo-add version")
+    family = tuple(int(value) for value in match.groups()[:2])
+    # Upstream 6.0 embeds signatures by default; 6.1 introduced the opt-in.
+    require(family in {(6, 0), (6, 1), (7, 0), (7, 1)}, "unsupported repo-add version")
+    help_text = run(["repo-add", "--help"], env=probe_env)
+    advertised = re.search(rb"(?<![\w-])--include-sigs(?![\w-])", help_text) is not None
+    options = ["--include-sigs"] if family != (6, 0) or advertised else []
+    # A failed database command is terminal: never retry with weaker options.
+    run(["repo-add", *options, "--sign", "--key", key, database, *packages], env=env)
+
+
 def database_check(directory, repo_name, packages):
     db = directory / f"{repo_name}.db.tar.gz"
     members = archive_members(db)
@@ -245,7 +262,9 @@ def database_check(directory, repo_name, packages):
         info, key = {}, None
         for line in run(["bsdtar", "-xOf", db, member]).decode().splitlines():
             if line.startswith("%") and line.endswith("%"):
-                key = line.strip("%")
+                require(re.fullmatch(r"%[A-Z0-9_]+%", line), "malformed repository database field header")
+                key = line[1:-1]
+                require(key not in info, "duplicate repository database field")
                 info[key] = []
             elif line and key:
                 info[key].append(line)
@@ -260,7 +279,9 @@ def database_check(directory, repo_name, packages):
                               "DEPENDS": package["depend"], "PROVIDES": package["provides"],
                               "CONFLICTS": package["conflict"], "REPLACES": package["replaces"]}.items():
             require(record.get(field, []) == values, f"repository database field mismatch: {field}")
-        require(record.get("PGPSIG"), "package signature missing from database")
+        signature = Path(str(directory / package["filename"]) + ".sig").read_bytes()
+        require(record.get("PGPSIG") == [base64.b64encode(signature).decode("ascii")],
+                "repository database package signature mismatch")
 
 
 def payload_files(directory):
@@ -431,8 +452,8 @@ def stage(args, root, key, env):
         source_associations(out, {'packages': packages, 'files': payload_files(out)}, spec)
         for p in packages:
             sign(out / "repo" / p["filename"], key, env)
-        run(["repo-add", "--include-sigs", "--sign", "--key", key,
-             out / "repo" / f"{repo}.db.tar.gz", *[out / "repo" / p["filename"] for p in packages]], env=env)
+        add_database(out / "repo" / f"{repo}.db.tar.gz",
+                     [out / "repo" / p["filename"] for p in packages], key, env)
         # repo-add signs the .files archive on current pacman; explicitly handle older versions.
         files_db = out / "repo" / f"{repo}.files.tar.gz"
         if not Path(str(files_db) + ".sig").exists():

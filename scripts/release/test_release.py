@@ -3,6 +3,7 @@
 # Copyright (c) 2026 cachy-asahi contributors
 """Synthetic unit/integration tests. No native build or hardware evidence."""
 import argparse
+import base64
 import copy
 import hashlib
 import importlib.util
@@ -11,6 +12,7 @@ import json
 import os
 from pathlib import Path
 import shutil
+import re
 import subprocess
 import sys
 import tarfile
@@ -22,6 +24,44 @@ sys.dont_write_bytecode = True
 spec = importlib.util.spec_from_file_location("release", Path(__file__).with_name("release.py"))
 r = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(r)
+
+
+class RepoAddCapabilityTests(unittest.TestCase):
+    def test_known_versions_and_advertised_option_construct_one_command(self):
+        for version, help_text, include in [
+                (b"6.0.2", b"  --sign\n", False),
+                (b"6.0.2", b"  --include-sigs  include signatures\n", True),
+                (b"6.0.2", b"  --include-sigs-foreign\n", False),
+                (b"6.1.0", b"  --sign\n", True),
+                (b"7.0.0", b"  --sign\n", True),
+                (b"7.1.0", b"  --sign\n", True),
+                (b"7.1.0.r9.g54d9411", b"  --include-sigs\n", True)]:
+            with self.subTest(version=version, help=help_text):
+                env = {"GNUPGHOME": "fixture", "LC_ALL": "fixture"}
+                with mock.patch.object(r, "run", side_effect=[b"repo-add (pacman) " + version + b"\n", help_text, b""]) as run:
+                    r.add_database("fixture.db.tar.gz", ["fixture.pkg.tar.gz"], "fixture-key", env)
+                expected = ["repo-add", *(["--include-sigs"] if include else []), "--sign", "--key",
+                            "fixture-key", "fixture.db.tar.gz", "fixture.pkg.tar.gz"]
+                self.assertEqual(run.call_args_list, [
+                    mock.call(["repo-add", "--version"], env={**env, "LC_ALL": "C"}),
+                    mock.call(["repo-add", "--help"], env={**env, "LC_ALL": "C"}),
+                    mock.call(expected, env=env)])
+
+    def test_unknown_version_refuses_before_database_command(self):
+        for version in (b"", b"repo-add (pacman) unknown\n", b"repo-add (pacman) 8.0.0\n",
+                        b"foreign-tool 6.0.2\n", b"repo-add (pacman) 6.0\n"):
+            with self.subTest(version=version), mock.patch.object(r, "run", return_value=version) as run:
+                with self.assertRaises(r.Error):r.add_database("fixture.db.tar.gz", [], "key", {})
+                self.assertEqual(run.call_count, 1)
+
+    def test_probe_and_database_errors_preserve_first_error_without_retry(self):
+        for preceding in ([], [b"repo-add (pacman) 6.0.2\n"],
+                          [b"repo-add (pacman) 7.1.0\n", b"  --sign\n"]):
+            error = r.Error("first command failure")
+            with self.subTest(phase=len(preceding)), mock.patch.object(r, "run", side_effect=[*preceding, error]) as run:
+                with self.assertRaises(r.Error) as caught:r.add_database("fixture.db.tar.gz", [], "key", {})
+                self.assertIs(caught.exception, error)
+                self.assertEqual(run.call_count, len(preceding) + 1)
 
 
 class ReleaseTests(unittest.TestCase):
@@ -299,6 +339,95 @@ class ReleaseTests(unittest.TestCase):
         self.verify()
         self.assertTrue((self.directory / "repo/fixture.db").is_symlink())
         self.assertTrue((self.directory / "repo/fixture.files.tar.gz.sig").is_file())
+
+    def test_resigned_database_requires_exact_detached_package_signature(self):
+        self.stage()
+        db = self.directory / "repo/fixture.db.tar.gz"
+        original = db.read_bytes()
+        package = self.directory / "repo" / self.archive.name
+        expected = base64.b64encode(Path(str(package) + ".sig").read_bytes()).decode("ascii")
+        # A real, valid signature of different material still cannot identify this package.
+        foreign = base64.b64encode(Path(str(db) + ".sig").read_bytes()).decode("ascii")
+        self.assertNotEqual(expected, foreign)
+        variants = {"missing": "", "changed": base64.b64encode(b"altered detached signature").decode("ascii"),
+                    "foreign-valid": foreign, "duplicate": expected + "\n" + expected}
+        for name, value in variants.items():
+            with self.subTest(variant=name):
+                with tarfile.open(fileobj=io.BytesIO(original), mode="r:gz") as source:
+                    rows = [(member, source.extractfile(member).read() if member.isfile() else None)
+                            for member in source.getmembers()]
+                with tarfile.open(db, "w:gz") as output:
+                    for member, data in rows:
+                        if member.name.endswith("/desc"):
+                            data = re.sub(rb"%PGPSIG%\n[^%]*", b"%PGPSIG%\n" + value.encode() + b"\n\n", data)
+                            member.size = len(data)
+                        output.addfile(member, io.BytesIO(data) if data is not None else None)
+                Path(str(db) + ".sig").unlink()  # Replace only this owned synthetic signature.
+                r.sign(db, self.key, self.env)
+                manifest = r.load(self.directory / "release.json")
+                manifest["files"] = r.payload_files(self.directory)
+                r.write(self.directory / "release.json", manifest)
+                (self.directory / "release.json.sig").unlink()
+                r.sign(self.directory / "release.json", self.key, self.env)
+                r.verify_signature(db, self.key, self.env)
+                r.verify_signature(self.directory / "release.json", self.key, self.env)
+                r.verify_signature(package, self.key, self.env)
+                with self.assertRaisesRegex(r.Error, "database package signature mismatch"):
+                    self.verify()
+
+    def test_resigned_database_rejects_duplicate_and_malformed_field_headers(self):
+        self.stage()
+        db = self.directory / "repo/fixture.db.tar.gz"
+        original = db.read_bytes()
+        package = self.directory / "repo" / self.archive.name
+        foreign = base64.b64encode(Path(str(db) + ".sig").read_bytes())
+        variants = []
+        for field, wrong in [(b"PGPSIG", foreign), (b"NAME", b"foreign"), (b"SHA256SUM", b"0" * 64)]:
+            for order in ("before", "after"):
+                variants.append((field, order, wrong, "duplicate repository database field"))
+        variants.append((b"UNUSED_1", "extra-duplicate", b"fixture", "duplicate repository database field"))
+        for alias in (b"%%PGPSIG%%", b"%PGPSIG%%", b"%%PGPSIG%", b"%pgpsig%",
+                      b"%PGPSIG-%", b"%%NAME%%"):
+            variants.append((b"NAME" if alias == b"%%NAME%%" else b"PGPSIG", "alias", alias,
+                             "malformed repository database field header"))
+        # Leading '%' without a closing '%' is an ordinary descriptor value.
+        for value in (b"% savings", b"%PGPSIG"):
+            variants.append((b"DESC", "ordinary-value", value, None))
+        for field, kind, value, refusal in variants:
+            with self.subTest(field=field, variant=kind, value=value):
+                with tarfile.open(fileobj=io.BytesIO(original), mode="r:gz") as source:
+                    rows = [(member, source.extractfile(member).read() if member.isfile() else None)
+                            for member in source.getmembers()]
+                with tarfile.open(db, "w:gz") as output:
+                    for member, data in rows:
+                        if member.name.endswith("/desc"):
+                            header = b"%" + field + b"%"
+                            if kind == "alias":
+                                self.assertEqual(data.count(header + b"\n"), 1)
+                                data = data.replace(header + b"\n", value + b"\n")
+                            elif kind == "extra-duplicate":
+                                data += b"\n" + header + b"\nfirst\n\n" + header + b"\nsecond\n\n"
+                            elif kind == "ordinary-value":
+                                data = re.sub(re.escape(header) + rb"\n[^%]*", header + b"\n" + value + b"\n\n", data)
+                            else:
+                                block = re.search(re.escape(header) + rb"\n[^%]*", data).group()
+                                duplicate = header + b"\n" + value + b"\n\n"
+                                data = data.replace(block, duplicate + block if kind == "before" else block + duplicate)
+                            member.size = len(data)
+                        output.addfile(member, io.BytesIO(data) if data is not None else None)
+                Path(str(db) + ".sig").unlink()  # Only these disposable fixture signatures are replaced.
+                r.sign(db, self.key, self.env)
+                manifest = r.load(self.directory / "release.json")
+                manifest["files"] = r.payload_files(self.directory)
+                r.write(self.directory / "release.json", manifest)
+                (self.directory / "release.json.sig").unlink()
+                r.sign(self.directory / "release.json", self.key, self.env)
+                for signed in (db, self.directory / "release.json", package):
+                    r.verify_signature(signed, self.key, self.env)
+                if refusal is None:
+                    self.verify()
+                else:
+                    with self.assertRaisesRegex(r.Error, refusal):self.verify()
 
     def test_artifact_tamper(self):
         self.stage()

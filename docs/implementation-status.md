@@ -2,6 +2,23 @@
 
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
+October 14, repository compatibility correction ready for hosted validation:
+Hosted run `38660953536` failed because Ubuntu's repo-add6.0.2 rejects
+`--include-sigs`; its release fixtures ran rather than skipping. The corrected
+implementation selects the reviewed signature behavior for known repo-add
+versions, never retries a failed database command with weaker options, and
+verifies the embedded signature against the separately verified package
+signature. Duplicate and malformed database field headers refuse. Ordinary
+leading-percent description values remain supported.
+Author validation passes87 release and109 client tests without skips; fresh
+independent review `191e7d66` passes479 checks,87 release fixtures and a
+separately re-signed duplicate-header refusal control. Root authenticates all31
+review files and108 inputs. The client adapter changes only the two affected
+source pins. Successor hosted CI remains pending; native ARM, target installation
+and M2 acceptance are not established by these local tests.
+See the [correction](reviews/repo-add-database-field-correction.md) and
+[independent review](reviews/repo-add-signature-capability-nativeci-peer-correction.md).
+
 October 14, admitted screenshot software results and continuing ARM work:
 Independent Root review `01e19ab9` authenticates both completed screenshot runs,
 11 evidence graphs and 366 files. Native ARM full capture `38656985498` passes

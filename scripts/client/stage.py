@@ -31,8 +31,8 @@ PACKAGES_SHA = '89bdb06fea1862b5a6e02b77a4b98f6e04755b02327d875a716bd792929f3a4f
 FROZEN = {
     'scripts/client/client.py': '48f936fc28536f8d5c2cac25c77ddb591b6bd029062d4b4fe2ce901533e8fdb7',
     'scripts/client/test_client.py': '74ec58c2e442ba941d040d0bd8f52d74538ea38a4ccd6d2404729834e9795cd8',
-    'scripts/release/release.py': '2616b92ec96613e616ab30fbf54d335bc292b5a0ba9e79d51ccbff0594fe1b57',
-    'scripts/release/test_release.py': '601db8fb46298f9a1c9637fe0d5bc5926ecb23cbb4569b311ccea4012f79d7fb',
+    'scripts/release/release.py': '750a214003cbc921ab53c4e818feb8bb9d82876285b03816e109fc34d2a88d32',
+    'scripts/release/test_release.py': '0f980201c7a01d40861c8af98b4914beca097cf94959a9ee37e6e134e4509247',
     'scripts/release/source_delivery.py': '8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e',
 }
 TOOLS = ('python', 'gpg', 'gpgconf', 'repo-add', 'bsdtar', 'vercmp', 'pacman')
