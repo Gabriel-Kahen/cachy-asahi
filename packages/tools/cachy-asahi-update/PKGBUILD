@@ -95,9 +95,15 @@ prepare() {
     _makepkg_exit prepare 0
 }
 
+# Observe real worker identity while the package shell retains fakeroot.
+_review_python() (
+    unset "${!LD_@}" FAKEROOTKEY || return
+    exec /usr/bin/python -I -B "$@"
+)
+
 _review_gate() {
     local tree="$srcdir/cachy-update-e2b1b7144be71cf392809f48d1440f8da1d9c81a"
-    python /inputs/recipe/build-gate.py \
+    _review_python /inputs/recipe/build-gate.py \
         --metadata /out/target-metadata/cargo-metadata.stdout \
         --worker /out/target-metadata/worker.json \
         --cfg /out/target-metadata/target-cfg.stdout \
