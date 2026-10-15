@@ -294,6 +294,8 @@ def validate_contract(contract):
 def allowed_file(package, path):
     component = PACKAGES[package]
     prefixes = (f'usr/share/licenses/{package}/', f'usr/share/doc/{package}/')
+    if package == 'cachy-asahi-hyprland-settings' and path == 'usr/bin/cachy-asahi-screenshot':
+        return True
     if component == 'setup':
         return path == 'usr/bin/cachy-asahi-setup' or path.startswith(prefixes)
     return path.startswith((*prefixes, f'usr/share/cachy-asahi/{component}/'))
