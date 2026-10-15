@@ -15,7 +15,7 @@ RESOURCE_ROWS = {
     'scripts/ci/root-administration/p0_source_freeze.py': {
         'bytes': 23683, 'mode': 0o644, 'sha256': '6090d96cfea26e01bfb8f401e281a12ec224b102d564c228bda92f6c59cb2399'},
     'scripts/ci/root-administration/p0_materializer.py': {
-        'bytes': 24250, 'mode': 0o644, 'sha256': 'f5efc5ca4a178cce8165337a925518feadb93922787fc867813d79ecc0b6e9cc'},
+        'bytes': 24261, 'mode': 0o644, 'sha256': '5e6f42e74fb9c1a23fbaabe00736e669779a872edd4c9ee60b285ae41582126e'},
 }
 DRIVER = 'scripts/ci/development/p0_ci.py'
 WF = '.github/workflows/native-arm-p0.yml'

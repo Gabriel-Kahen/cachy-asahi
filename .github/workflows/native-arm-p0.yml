@@ -208,7 +208,7 @@ jobs:
           if proof.get('Source')!=expected or proof.get('remote')!=expected or sum(k in proof for k in ('rows','files'))!=1:raise ValueError('Root proof Source refused')
           rows=proof.get('rows',proof.get('files'))
           root=Path(os.environ['GITHUB_WORKSPACE']).resolve();relative='scripts/ci/root-administration/p0_launch.py'
-          wanted={'bytes': 33373, 'mode': 420, 'sha256': '596bc2d337ded2ef4c75a60467ab5218488f1e634c643385ab468191afdf29ba'}
+          wanted={'bytes': 33373, 'mode': 420, 'sha256': '61109cd9f6f2a53c22247f9a227add2ab8f72732b44da47530e2d37dd0cdc237'}
           if rows.get(relative)!=wanted:raise ValueError('Root launch publication refused')
           path=root/relative
           def ident(n):return tuple(getattr(n,k) for k in ('st_dev','st_ino','st_mode','st_uid','st_gid','st_nlink','st_size','st_mtime_ns','st_ctime_ns'))

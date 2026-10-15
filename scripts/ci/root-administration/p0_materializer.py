@@ -258,7 +258,7 @@ def bind(selection, packet, publication, preparation, p0, bodies, observation):
         callback = {'path': OWN, 'module': 'development_p0_ci', 'qualname': 'Preparation.prepare'} if bundle is prep else {
             'path': 'scripts/ci/development/controller.py', 'module': 'development_p0_controller', 'qualname': 'Development.consume_p0'}
         need(grant['callbacks']['existing_consumers'] == callback and grant['development_only'] is True
-             and grant['policy_path'] == 'scripts/ci/generic-builder-policy.json' and grant['license_path'] == 'LICENSE', 'held-scope')
+             and grant['policy_path'] == 'manifests/reviewed/repository-generic-policy.json' and grant['license_path'] == 'LICENSE', 'held-scope')
         for key in ('source_commit', 'run_id', 'run_attempt', 'actor_contract_sha256', 'initial_invocation_sha256'):
             need(grant[key] is None, 'pipeline-owned-slot')
         need(grant['source_files'] is None and grant['maps'] is None and grant['original_view'] is None
