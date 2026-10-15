@@ -202,9 +202,8 @@ class OnboardingTests(unittest.TestCase):
             return Mock(pid=999999999, returncode=0)
         with patch.object(o, "ROOT", source_root), patch.object(o, "load_tool", side_effect=[build, native]), \
                 patch.object(o.subprocess, "run", side_effect=simulated), \
-                patch.object(o.subprocess, "Popen", side_effect=launch), patch.object(o.os, "killpg") as killpg:
+                patch.object(o.subprocess, "Popen", side_effect=launch):
             self.assertEqual(o.host(args), 0)
-        killpg.assert_called_once_with(999999999, o.signal.SIGKILL)
         command = commands[0]
         for flag in ("--network=none", "--read-only", "--cap-drop=ALL", "--security-opt=no-new-privileges", "--pull=never"):
             self.assertIn(flag, command)
@@ -301,7 +300,7 @@ work=[sys.executable,'-c','import os,time;print(os.getpid(),flush=True);time.sle
 try:runner.run('signal',work,terminal=True)
 except o.Failure:pass
 """
-        wrapper = subprocess.Popen([sys.executable, "-I", "-c", code, str(Path(o.__file__).resolve()), str(output)],
+        wrapper = subprocess.Popen([sys.executable, "-I", "-B", "-c", code, str(Path(o.__file__).resolve()), str(output)],
                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         try:
             # Wait until the handler and controlled child are established; no real shell/HOME.

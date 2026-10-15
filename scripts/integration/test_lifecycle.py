@@ -128,6 +128,56 @@ class LifecycleTests(unittest.TestCase):
         with self.assertRaises(lifecycle.Error):
             lifecycle.validate_contract(value)
 
+    def test_contract_accepts_packaged_hyprland_screenshot_helper(self):
+        value = contract()
+        for stage in ('baseline', 'upgrade'):
+            row = next(row for row in value[stage] if row['name'] == 'cachy-asahi-hyprland-settings')
+            row['payload_sha256']['usr/bin/cachy-asahi-screenshot'] = '3' * 64
+        lifecycle.validate_contract(value)
+
+    def test_screenshot_helper_exception_preserves_package_scope_and_pins(self):
+        helper = 'usr/bin/cachy-asahi-screenshot'
+        cases = [('cachy-asahi-hyprland-settings', helper, 'bad-pin')]
+        cases += [('cachy-asahi-hyprland-settings', path, '3' * 64) for path in (
+            helper + '-other', helper + '/child', 'usr/bin/other-helper',
+            'usr/bin/../bin/cachy-asahi-screenshot', 'etc/pacman.conf', 'usr/lib/modules/test.ko')]
+        cases += [(name, helper, '3' * 64) for name in lifecycle.PACKAGES
+                  if name != 'cachy-asahi-hyprland-settings']
+        for package, path, digest in cases:
+            with self.subTest(package=package, path=path, digest=digest):
+                value = contract()
+                row = next(row for row in value['baseline'] if row['name'] == package)
+                row['payload_sha256'][path] = digest
+                with self.assertRaises(lifecycle.Error):
+                    lifecycle.validate_contract(value)
+
+    def test_archive_accepts_pinned_screenshot_script_but_rejects_tampering_and_elf(self):
+        row = contract()['baseline'][0]
+        helper = 'usr/bin/cachy-asahi-screenshot'
+        script = b'#!/usr/bin/env python3\nprint("screenshot fixture")\n'
+        payload = {lifecycle.PRIMARY_FILES[row['name']]: b'return {}\n', helper: script}
+        row['payload_sha256'] = {name: hashlib.sha256(data).hexdigest() for name, data in payload.items()}
+        contents = {'.PKGINFO': f"pkgname = {row['name']}\npkgver = {row['version']}\narch = any\nlicense = MIT\n".encode(),
+                    '.BUILDINFO': b'format = 2\n', '.MTREE': b'mtree fixture', **payload}
+        path = self.root / 'screenshot.pkg.tar'
+        for data in (script, b'changed script', b'\x7fELFfake'):
+            with self.subTest(pinned_script=data == script):
+                with tarfile.open(path, 'w') as archive:
+                    for name, body in {**contents, helper: data}.items():
+                        member = tarfile.TarInfo(name)
+                        member.size, member.mode = len(body), 0o755 if name == helper else 0o644
+                        archive.addfile(member, io.BytesIO(body))
+                if data == script:
+                    audit = lifecycle.inspect_archive(path, row)
+                    self.assertEqual(audit['files'][helper], 0o755)
+                elif data.startswith(b'\x7fELF'):
+                    row['payload_sha256'][helper] = hashlib.sha256(data).hexdigest()
+                    with self.assertRaisesRegex(lifecycle.Error, 'unexpected hook/platform/executable payload'):
+                        lifecycle.inspect_archive(path, row)
+                else:
+                    with self.assertRaisesRegex(lifecycle.Error, 'archive payload differs from reviewed map'):
+                        lifecycle.inspect_archive(path, row)
+
     def test_pins_reject_tampered_symlink_and_hardlink_inputs(self):
         path = self.root / 'input'
         path.write_bytes(b'original')
@@ -258,7 +308,7 @@ class LifecycleTests(unittest.TestCase):
         changed = contract()
         row = next(r for r in changed['baseline'] if r['name'] == 'cachy-asahi-setup')
         row['payload_sha256']['usr/bin/cachy-asahi-setup'] = '0' * 64
-        with self.assertRaisesRegex(lifecycle.Error, 'original accepted'): lifecycle.validate_contract(changed)
+        with self.assertRaisesRegex(lifecycle.Error, r'^reviewed strict setup 0\.1\.0-3 baseline required$'): lifecycle.validate_contract(changed)
 
     def test_public_cert_retarget_rejected_before_import(self):
         inputs = self.root / 'inputs'
@@ -578,6 +628,55 @@ class LifecycleTests(unittest.TestCase):
             changed['mounts'][path] = entry
             with self.subTest(path=path, entry=entry), self.assertRaises(lifecycle.Error):
                 lifecycle.environment_guard(changed)
+
+
+class HandoffDiagnosticTests(unittest.TestCase):
+    def setUp(self):
+        lifecycle.handoff_diagnostic_start()
+
+    def test_first_refusal_and_later_cancellation_are_closed(self):
+        lifecycle.handoff_diagnostic_site('COMMIT')
+        with self.assertRaises(lifecycle.Error):
+            lifecycle.require(False, 'private fixture input', diagnostic='LOAD_01')
+        lifecycle.handoff_diagnostic_site('OUTPUT')
+        lifecycle.handoff_diagnostic_failure('HANDOFF_INIT_10')
+        lifecycle.handoff_diagnostic_cancel()
+        stream = io.StringIO()
+        with contextlib.redirect_stderr(stream):
+            lifecycle.handoff_diagnostic_emit()
+            lifecycle.handoff_diagnostic_emit()
+        lines = stream.getvalue().splitlines()
+        self.assertEqual(len(lines), 1)
+        value = json.loads(lines[0][len(lifecycle.HANDOFF_DIAGNOSTIC_PREFIX):])
+        self.assertEqual(value, {'schema_version': 1, 'operation': 'COMMIT',
+                                'refusal': 'LOAD_01', 'cancelled': True})
+        self.assertNotIn('private fixture', stream.getvalue())
+
+    def test_refusal_recorder_baseexceptions_preserve_original_guard(self):
+        for secondary in (RuntimeError('recorder'), KeyboardInterrupt(), SystemExit(), BaseException()):
+            lifecycle.handoff_diagnostic_start()
+            with self.subTest(kind=type(secondary)), patch.object(lifecycle, 'handoff_diagnostic_failure', side_effect=secondary):
+                with self.assertRaises(lifecycle.Error) as raised:
+                    lifecycle.require(False, 'original guard', diagnostic='LOAD_01')
+                self.assertEqual(raised.exception.args, ('original guard',))
+            if type(secondary) is KeyboardInterrupt:
+                self.assertTrue(lifecycle._HANDOFF_DIAGNOSTIC['cancelled'])
+
+    def test_unknown_labels_are_projected_and_malformed_state_not_emitted(self):
+        lifecycle.handoff_diagnostic_site('private arbitrary text')
+        lifecycle.handoff_diagnostic_failure('private arbitrary text')
+        self.assertEqual(lifecycle._HANDOFF_DIAGNOSTIC['first']['operation'], 'UNKNOWN')
+        self.assertEqual(lifecycle._HANDOFF_DIAGNOSTIC['first']['refusal'], 'UNKNOWN')
+        lifecycle._HANDOFF_DIAGNOSTIC['first']['path'] = '/private'
+        stream = io.StringIO()
+        with contextlib.redirect_stderr(stream):
+            lifecycle.handoff_diagnostic_emit()
+        self.assertEqual(stream.getvalue(), '')
+
+    def test_successful_require_never_calls_optional_recorder(self):
+        with patch.object(lifecycle, 'handoff_diagnostic_failure', side_effect=KeyboardInterrupt()) as observer:
+            lifecycle.require(True, 'held guard', diagnostic='LOAD_01')
+        observer.assert_not_called()
 
 
 if __name__ == '__main__':

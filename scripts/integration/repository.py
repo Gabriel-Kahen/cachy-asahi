@@ -377,13 +377,16 @@ class Integration:
         listing = self.command('archive-types', ['bsdtar', '--numeric-owner', '-tvf', path]).splitlines()
         need(len(entries) == len(listing) == len(set(entries)) and all(x[:1] in {'-', 'd'} for x in listing),
              'nonregular/duplicate or inconsistent package member listings')
+        destinations = set()
         for name in entries:
             normalized = name.removeprefix('./').rstrip('/')
             need(normalized and not normalized.startswith('/') and '..' not in Path(normalized).parts and
                  Path(normalized).as_posix() == normalized, 'unsafe archive path')
+            need(normalized not in destinations, 'duplicate normalized package destination')
+            destinations.add(normalized)
             need(normalized in {'.PKGINFO', '.BUILDINFO', '.MTREE'} or normalized in {'usr', 'usr/bin', 'usr/share',
                  'usr/share/doc', 'usr/share/licenses'} or normalized.startswith(('usr/share/cachy-asahi',
-                 'usr/share/doc/cachy-asahi', 'usr/share/licenses/cachy-asahi')) or normalized == 'usr/bin/cachy-asahi-setup',
+                 'usr/share/doc/cachy-asahi', 'usr/share/licenses/cachy-asahi')) or normalized in {'usr/bin/cachy-asahi-setup', 'usr/bin/cachy-asahi-screenshot'},
                  'package writes outside reviewed original/TEST data scope or includes a hook')
         info = {}
         member = next((x for x in entries if x.removeprefix('./') == '.PKGINFO'), None)
@@ -401,6 +404,13 @@ class Integration:
                 data = self.command('payload-read', ['bsdtar', '-xOf', path, name], binary=True)
                 payload[normalized] = hashlib.sha256(data).hexdigest()
                 attributes[normalized] = archive_metadata(description)
+        screenshot = 'usr/bin/cachy-asahi-screenshot'
+        if any(name.removeprefix('./').rstrip('/') == screenshot for name in entries):
+            need(info['pkgname'] == ['cachy-asahi-hyprland-settings'] and info['pkgver'][0] in {'0.1.0-2', '0.1.1-1'} and
+                 info['arch'] == ['any'] and
+                 payload.get(screenshot) == '5a920a5dd7a40463417a9b15e64a6620acfe7b2328960bf7014c9f587c4b69a8' and
+                 attributes.get(screenshot) == {'mode': 0o755, 'uid': 0, 'gid': 0},
+                 'screenshot differs from reviewed desktop package identity/content/header')
         return {'name': info['pkgname'][0], 'version': info['pkgver'][0], 'sha256': sha(path), 'path': path,
                 'payload_sha256': payload, 'payload_metadata': attributes,
                 'relations': {k: info.get(k, []) for k in ('depend', 'provides', 'conflict', 'replaces')}}
