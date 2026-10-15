@@ -82,6 +82,23 @@ jobs:
             --source-commit "$SOURCE_COMMIT" --source "$GITHUB_WORKSPACE/audio-graph-source" \
             --product "$GITHUB_WORKSPACE/product-api" --desktop "$GITHUB_WORKSPACE/desktop-base" \
             --root "$RUNNER_TEMP/audio-graph-job" >"$RUNNER_TEMP/audio-graph-job/seed-controller.log" 2>&1
+      - name: Checkout exact retained public input source
+        timeout-minutes: 2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 88a88bc5f3be3998e992881bf090137df16f1aae
+          path: retained-public-inputs
+          persist-credentials: false
+      - name: Seed twelve exact public ARM input files in the existing graph cache
+        timeout-minutes: 2
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C "$GITHUB_WORKSPACE/retained-public-inputs" rev-parse HEAD)" = 88a88bc5f3be3998e992881bf090137df16f1aae
+          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP/audio-graph-job/home" LANG=C.UTF-8 TZ=UTC \
+            TMPDIR="$RUNNER_TEMP/audio-graph-job" \
+            python3 -I -B "$GITHUB_WORKSPACE/retained-public-inputs/seed.py" \
+              --cache "$RUNNER_TEMP/audio-graph-job/base/context/deps"
       - name: Prepare only the unchanged signed574 builder
         timeout-minutes: 40
         shell: bash
