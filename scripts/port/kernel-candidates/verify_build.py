@@ -277,9 +277,13 @@ class ELF:
         self.symbols = sym
         for row in self.sections:
             if row['type'] in (4, 9):
-                harness.need(row['type'] == 4 and row['entsize'] == 24 and row['size'] % 24 == 0 and
-                             self.sections[row['link']]['type'] in (2, 11) and row['info'] < shnum and
-                             (kind != 1 or row['info'] > 0), 'AArch64 ELF RELA metadata invalid')
+                relocation_role = 'IMAGE_REFERENCE' if artifact_role == 'arm64-image-reference' else 'RELOCATABLE' if kind == 1 else 'ELF'
+                harness.need(row['type'] == 4, 'AArch64 ELF RELA metadata invalid [' + relocation_role + '_TYPE_RELA]')
+                harness.need(row['entsize'] == 24, 'AArch64 ELF RELA metadata invalid [' + relocation_role + '_ENTRY_SIZE]')
+                harness.need(row['size'] % 24 == 0, 'AArch64 ELF RELA metadata invalid [' + relocation_role + '_SIZE_MULTIPLE]')
+                harness.need(self.sections[row['link']]['type'] in (2, 11), 'AArch64 ELF RELA metadata invalid [' + relocation_role + '_SYMBOL_TABLE_TYPE]')
+                harness.need(row['info'] < shnum, 'AArch64 ELF RELA metadata invalid [' + relocation_role + '_TARGET_INDEX]')
+                harness.need(kind != 1 or row['info'] > 0, 'AArch64 ELF RELA metadata invalid [' + relocation_role + '_MODULE_TARGET]')
                 linked = self.sections[row['link']]
                 harness.need(linked['entsize'] == 24 and linked['size'] % 24 == 0, 'relocation symbol table invalid')
                 target = self.sections[row['info']]

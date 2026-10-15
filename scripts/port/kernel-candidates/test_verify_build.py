@@ -687,5 +687,47 @@ class SourceBindings(unittest.TestCase):
                 with self.assertRaises(ValueError): verifier.source_evidence(source)
 
 
+class RelocationConjunctDiagnosticTests(unittest.TestCase):
+    """Exact ordered CHECK_002 block over owned scalar metadata; no ELF replay."""
+    @classmethod
+    def setUpClass(cls):
+        import ast
+        tree=ast.parse(Path(verifier.__file__).read_bytes())
+        owner=next(n for n in tree.body if isinstance(n,ast.ClassDef) and n.name=='ELF')
+        parse=next(n for n in owner.body if isinstance(n,ast.FunctionDef) and n.name=='parse')
+        branch=next(n for n in ast.walk(parse) if isinstance(n,ast.If) and ast.unparse(n.test)=="row['type'] in (4, 9)")
+        cls.block=branch.body[:7]
+        cls.tree=ast
+
+    def check(self,row,kind,role,section_type=2):
+        node=self.tree.parse('def check(self,row,shnum,kind,artifact_role):\n pass').body[0]
+        node.body=self.block;namespace={'harness':harness}
+        exec(compile(self.tree.fix_missing_locations(self.tree.Module([node],[])),'<exact-relocation-block>','exec',dont_inherit=True),namespace)
+        namespace['check'](SimpleNamespace(sections=[{'type':0},{'type':section_type},{'type':1}]),row,3,kind,role)
+
+    def test_exact_first_failed_conjunct_per_reachable_artifact_role(self):
+        cases=(('TYPE_RELA',dict(type=9),2),('ENTRY_SIZE',dict(entsize=16),2),
+               ('SIZE_MULTIPLE',dict(size=25),2),('SYMBOL_TABLE_TYPE',{},1),
+               ('TARGET_INDEX',dict(info=3),2))
+        for kind,role,label in ((2,'arm64-image-reference','IMAGE_REFERENCE'),(1,'elf','RELOCATABLE'),(2,'elf','ELF')):
+            for check,updates,linked in cases:
+                row=dict(type=4,entsize=24,size=24,link=1,info=1);row.update(updates)
+                with self.subTest(role=label,check=check),self.assertRaisesRegex(ValueError,r'\['+label+'_'+check+r'\]$'):
+                    self.check(row,kind,role,linked)
+        with self.assertRaisesRegex(ValueError,r'\[RELOCATABLE_MODULE_TARGET\]$'):
+            self.check(dict(type=4,entsize=24,size=24,link=1,info=0),1,'elf')
+
+    def test_valid_metadata_and_ordered_first_failure(self):
+        for kind,role in ((2,'arm64-image-reference'),(3,'arm64-image-reference'),(1,'elf'),(2,'elf'),(3,'elf')):
+            self.check(dict(type=4,entsize=24,size=0,link=1,info=1),kind,role)
+        for kind in (2,3):self.check(dict(type=4,entsize=24,size=0,link=1,info=0),kind,'elf')
+        seen=[]
+        class Observed(dict):
+            def __getitem__(self,key):seen.append(key);return super().__getitem__(key)
+        with self.assertRaisesRegex(ValueError,r'\[RELOCATABLE_TYPE_RELA\]$'):
+            self.check(Observed(type=9,entsize=0,size=1,link=1,info=3),1,'elf',1)
+        self.assertEqual(seen,['type'])
+
+
 if __name__ == '__main__':
     unittest.main()
