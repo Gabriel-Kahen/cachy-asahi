@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 import types
 import unittest
+from unittest.mock import patch
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -18,7 +19,15 @@ spec.loader.exec_module(launcher)
 
 def workflow_codec():
     lines = WORKFLOW.read_text().splitlines()
-    start = next(i for i, line in enumerate(lines) if line.strip() == 'run: |') + 1
+    selected = [i for i, line in enumerate(lines) if line ==
+                '      - name: Root observe, freeze and materialize, then prepare signed inputs and enter P0']
+    if len(selected) != 1:
+        raise ValueError('exact Root P0 workflow step required')
+    stop = next((i for i in range(selected[0] + 1, len(lines)) if lines[i].startswith('      - ')), len(lines))
+    starts = [i for i in range(selected[0] + 1, stop) if lines[i].strip() == 'run: |']
+    if len(starts) != 1:
+        raise ValueError('exact Root P0 workflow body required')
+    start = starts[0] + 1
     script = []
     for line in lines[start:]:
         if line.strip() and not line.startswith(' ' * 10):
@@ -45,6 +54,22 @@ class ImageDiagnosticTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.workflow_validate, cls.wanted = workflow_codec()
+
+    def test_codec_uses_unique_named_root_step_with_other_python_steps(self):
+        raw = WORKFLOW.read_text()
+        prefix = '      - name: Other Python preparation\n        run: |\n          unrelated = True\n'
+        with patch.object(Path, 'read_text', return_value=prefix + raw):
+            validate, wanted = workflow_codec()
+            self.assertEqual(wanted, type(self).wanted)
+            self.assertEqual(validate({'stage':'pipeline', 'operation':'prepare-image',
+                'exception_type':'ValueError', 'refusal_code':'UNKNOWN', 'domain':'pipeline'}),
+                type(self).workflow_validate({'stage':'pipeline', 'operation':'prepare-image',
+                'exception_type':'ValueError', 'refusal_code':'UNKNOWN', 'domain':'pipeline'}))
+        name = '      - name: Root observe, freeze and materialize, then prepare signed inputs and enter P0'
+        for changed in (raw.replace(name, '      - name: Unselected'), raw + '\n' + name + '\n'):
+            with self.subTest(kind='missing' if 'Unselected' in changed else 'duplicate'):
+                with patch.object(Path, 'read_text', return_value=changed), self.assertRaises(ValueError):
+                    workflow_codec()
 
     def project(self, error, operation='prepare-image'):
         original_args = error.args

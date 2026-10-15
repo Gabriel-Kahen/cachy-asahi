@@ -319,6 +319,118 @@ jobs:
               for k in tuple(os.environ):
                   if k.startswith(('CACHY_OLD_FOUR_', 'CACHY_RETAINED_')):os.environ.pop(k)
           print(json.dumps(result,sort_keys=True,allow_nan=False))
+      - name: Observe closed own-profile kernel denials and barrier failure
+        if: ${{ always() && steps.dev_apparmor.outputs.directory != '' }}
+        continue-on-error: true
+        shell: /usr/bin/python3 -I -B -S {0}
+        run: |
+          """Proposed read-only Actions diagnostic; never prints raw kernel/private messages."""
+          import contextlib,json,os,re,stat,subprocess
+          from pathlib import Path
+          
+          def target_class(value):
+              fixed={'/':'ROOT','/proc':'PROC_ROOT','/proc/':'PROC_ROOT','/dev':'DEV_ROOT','/dev/':'DEV_ROOT',
+                     '/dev/null':'DEVICE_FIXED','/dev/zero':'DEVICE_FIXED','/dev/random':'DEVICE_FIXED','/dev/urandom':'DEVICE_FIXED'}
+              if value is None:return 'UNSPECIFIED'
+              if value in fixed:return fixed[value]
+              if re.fullmatch(r'/tmp/caa-install-(barrier|test-case|test-next)-[^/]+/?',value):return 'WORKSPACE'
+              if re.fullmatch(r'/tmp/caa-install-(barrier|test-case|test-next)-[^/]+/evidence/?',value):return 'WORKSPACE_EVIDENCE'
+              if re.fullmatch(r'/tmp/caa-install-(barrier|test-case|test-next)-[^/]+/inputs/?',value):return 'WORKSPACE_INPUTS'
+              if re.fullmatch(r'/proc/(self|[0-9]+)/fd/[0-9]+',value):return 'PROC_FD'
+              return 'OTHER'
+          
+          def projected(message,name):
+              fields={}
+              for found in re.finditer(r'(?:^|\s)([a-z_]+)=("(?:[^"\\]|\\.)*"|[^\s]+)',message):
+                  key,value=found.groups()
+                  if key in fields:raise ValueError('duplicate audit key')
+                  try:fields[key]=json.loads(value) if value.startswith('"') else value
+                  except ValueError:raise ValueError('malformed audit field') from None
+              if fields.get('apparmor')!='DENIED' or fields.get('profile')!=name:return None
+              def closed(key,allowed):
+                  value=fields.get(key);return value if value in allowed else 'UNKNOWN' if value is None else 'OTHER'
+              error=fields.get('error','');error=int(error) if re.fullmatch(r'-[0-9]{1,4}',error) and -4095<=int(error)<0 else 'UNKNOWN'
+              def mask(key):
+                  value=fields.get(key)
+                  if value in ('create','mount','umount','pivotroot','send','receive','read','write','trace','readby','tracedby'):return value
+                  return ''.join(sorted(set(value))) if type(value) is str and 0<len(value)<=8 and set(value)<=set('rwklmaxcdbn') else 'UNKNOWN'
+              known={'rw','ro','nosuid','nodev','noexec','remount','bind','rbind','private','rprivate','silent','relatime','noatime'}
+              flags=[x.strip() for x in fields.get('flags','').split(',') if x.strip()]
+              return dict(operation=closed('operation',{'mount','userns_create','capable','open','file_mmap','exec','ptrace','signal','umount','pivotroot','move_mount'}),
+                  error=error,requested_mask=mask('requested_mask'),denied_mask=mask('denied_mask'),
+                  fstype=closed('fstype',{'proc','tmpfs','overlay','sysfs','cgroup','cgroup2','none'}),
+                  flags=sorted(set(flags)&known),flags_other=bool(set(flags)-known),
+                  target=target_class(fields.get('name')),source=target_class(fields.get('srcname')))
+          
+          def barrier_record(raw):
+              lines=raw.decode('utf-8','replace').splitlines()
+              fixed={'ValueError: recursive read-only barrier refused':'RECURSIVE_READONLY_REFUSED',
+                     'ValueError: actual namespace identity/map refused':'NAMESPACE_IDENTITY_REFUSED',
+                     'ValueError: mount propagation is not private':'PROPAGATION_REFUSED',
+                     'ValueError: unexpected writable inherited mount':'WRITABLE_MOUNT_REFUSED',
+                     'ValueError: private writable mounts missing':'PRIVATE_MOUNTS_MISSING',
+                     'ValueError: unexpected exposed device':'DEVICE_SET_REFUSED',
+                     'ValueError: guest device identity differs':'DEVICE_IDENTITY_REFUSED',
+                     'ValueError: DEADLINE':'DEADLINE',
+                     'AssertionError: 1 != 0 : unshare: unshare failed: Operation not permitted':'UNSHARE_EPERM'}
+              for line in lines:
+                  if line in fixed:return {'trace_category':fixed[line]}
+                  found=re.fullmatch(r'ValueError: namespace mount refused: ([0-9]{1,4})',line)
+                  if found and 0<int(found[1])<=4095:return {'trace_category':'NAMESPACE_MOUNT_REFUSED','errno':int(found[1])}
+              return {'trace_category':'OTHER_OR_NOT_EXPORTED'}
+          
+          def read_barrier(base,parts):
+              # Exact documented leaf only; no search, recursive traversal or private bundle reads.
+              if not base.is_absolute() or '..' in base.parts:raise ValueError('diagnostic root refused')
+              path=base/('prepared-P0-'+'-'.join(parts))/'p0/native-install-preflight/child/preflight.log'
+              with contextlib.ExitStack() as stack:
+                  fd=os.open('/',os.O_RDONLY|os.O_DIRECTORY);stack.callback(os.close,fd)
+                  for index,component in enumerate(path.parts[1:-1],1):
+                      fd=os.open(component,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW,dir_fd=fd);stack.callback(os.close,fd)
+                      node=os.fstat(fd)
+                      if index>=len(base.parts) and (node.st_uid!=os.getuid() or node.st_mode&0o022):raise ValueError('owned directory refused')
+                  leaf=os.open(path.name,os.O_RDONLY|os.O_NOFOLLOW|os.O_NONBLOCK,dir_fd=fd);stack.callback(os.close,leaf)
+                  before=os.fstat(leaf)
+                  if not stat.S_ISREG(before.st_mode) or before.st_uid!=os.getuid() or stat.S_IMODE(before.st_mode)!=0o600 or before.st_nlink!=1 or before.st_size>256*1024:raise ValueError('private diagnostic file refused')
+                  raw=b''
+                  while len(raw)<=256*1024:
+                      chunk=os.read(leaf,32768)
+                      if not chunk:break
+                      raw+=chunk
+                  after=os.fstat(leaf)
+                  stable=lambda v:(v.st_dev,v.st_ino,v.st_mode,v.st_uid,v.st_gid,v.st_size,v.st_mtime_ns,v.st_ctime_ns,v.st_nlink)
+                  if len(raw)!=before.st_size or stable(before)!=stable(after):raise ValueError('private diagnostic file changed')
+                  return barrier_record(raw)
+          
+          def main():
+              result={'scope':'OWN_DEV_PROFILE_ONLY','journal':'UNAVAILABLE','denials':[],'barrier_log':{'trace_category':'UNAVAILABLE'}}
+              parts=(os.environ.get('GITHUB_RUN_ID',''),os.environ.get('GITHUB_RUN_ATTEMPT',''))
+              if not all(re.fullmatch('[0-9]{1,20}',v) for v in parts):print(json.dumps(result,sort_keys=True));return
+              name='cachy-asahi-p0-dev-'+'-'.join(parts)
+              try:
+                  p=subprocess.run(['sudo','-n','/usr/bin/journalctl','--dmesg','--boot=0','--no-pager','--quiet','--lines=128',
+                                    '--output=json','--output-fields=MESSAGE','--grep=profile="'+name+'"'],
+                                   stdin=subprocess.DEVNULL,capture_output=True,timeout=5)
+                  if p.returncode==0 and len(p.stdout)<=1024*1024 and len(p.stderr)<=8192:
+                      rows=p.stdout.splitlines();result['journal']='BOUNDED_WINDOW_NO_MATCH';partial=False
+                      for raw in rows:
+                          try:
+                              row=json.loads(raw);message=row.get('MESSAGE')
+                              if type(message) is not str:raise ValueError('no text')
+                              record=projected(message,name)
+                          except Exception:partial=True;continue
+                          if record is not None:
+                              result['journal']='OBSERVED'
+                              if len(result['denials'])<32:result['denials'].append(record)
+                              else:partial=True
+                      result['journal_partial']=partial;result['journal_window_limit']=128
+                      result['journal_window_full']=len(rows)==128
+              except Exception:result['journal']='UNAVAILABLE'
+              try:result['barrier_log']=read_barrier(Path(os.environ['RUNNER_TEMP']),parts)
+              except Exception:pass
+              print(json.dumps(result,sort_keys=True))
+          
+          if __name__=='__main__':main()
       - name: Remove only job-owned DEV profile after container retirement
         if: ${{ always() && steps.dev_apparmor.outputs.directory != '' }}
         shell: /usr/bin/python3 -I -B -S {0}
