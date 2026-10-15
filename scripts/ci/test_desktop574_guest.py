@@ -151,6 +151,7 @@ class GuestTests(unittest.TestCase):
     def test_drm_wait_keeps_twenty_second_deadline(self):
         card = Path('/inert/card0')
         with patch.object(guest, 'drm_card', side_effect=[None, card]) as probe, \
+             patch.object(guest, 'drm_render_node', return_value=Path('/inert/renderD128')), \
              patch.object(guest.time, 'monotonic', side_effect=[0, 0, 19.9]), \
              patch.object(guest.time, 'sleep'):
             self.assertEqual(guest.wait_drm_card(), card)
@@ -663,6 +664,214 @@ class DiagnosticTests(unittest.TestCase):
         compositor.finish.assert_called_once()
         client.finish.assert_called_once()
         collect.assert_not_called()
+
+
+class RenderNodeTests(unittest.TestCase):
+    @staticmethod
+    def attributes(**delta):
+        return SimpleNamespace(**(dict(st_dev=1, st_ino=2, st_mode=stat.S_IFCHR | 0o600,
+            st_uid=23001, st_gid=23001, st_rdev=guest.os.makedev(226, 128)) | delta))
+
+    def test_missing_required_node_is_not_ready_and_never_a_primary_fallback(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            sysfs, devices = root / 'sysfs', root / 'dev'
+            sysfs.mkdir(); devices.mkdir()
+            card = devices / 'card0'
+            self.assertIsNone(guest.drm_render_node(card, sysfs, devices))
+            (sysfs / 'renderD128').mkdir()
+            self.assertIsNone(guest.drm_render_node(card, sysfs, devices))
+            (sysfs / 'renderD128').rmdir()
+            (devices / 'renderD128').touch()
+            self.assertIsNone(guest.drm_render_node(card, sysfs, devices))
+            (devices / 'renderD128').unlink()
+            (sysfs / 'renderDwrong').mkdir()
+            with self.assertRaises(ValueError):
+                guest.drm_render_node(card, sysfs, devices)
+
+    def test_same_gpu_identity_and_all_mismatches(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            sysfs, devices = root / 'sysfs', root / 'dev'
+            sysfs.mkdir(); devices.mkdir()
+            primary = sysfs / 'card0'; primary.mkdir()
+            parent = primary / 'device'; parent.mkdir()
+            entry = sysfs / 'renderD128'; entry.mkdir()
+            (entry / 'device').symlink_to(parent, target_is_directory=True)
+            (entry / 'dev').write_text('226:128\n')
+            node = devices / 'renderD128'; node.touch()
+            card = devices / 'card0'
+            with self.assertRaises(ValueError):
+                guest.drm_render_node(card, sysfs, devices)
+            with patch.object(Path, 'lstat', return_value=self.attributes()):
+                self.assertEqual(guest.drm_render_node(card, sysfs, devices), node)
+                for text in ('227:128', '226:127', '226:192', '226:129'):
+                    (entry / 'dev').write_text(text)
+                    with self.assertRaises(ValueError):
+                        guest.drm_render_node(card, sysfs, devices)
+                (entry / 'dev').write_text('226:128')
+                other = root / 'other-gpu'; other.mkdir()
+                (entry / 'device').unlink()
+                (entry / 'device').symlink_to(other, target_is_directory=True)
+                with self.assertRaisesRegex(ValueError, 'another GPU'):
+                    guest.drm_render_node(card, sysfs, devices)
+                (entry / 'device').unlink()
+                (entry / 'device').symlink_to(parent, target_is_directory=True)
+                (devices / 'renderD129').touch()
+                with self.assertRaises(ValueError):
+                    guest.drm_render_node(card, sysfs, devices)
+                (devices / 'renderD129').unlink()
+                (sysfs / 'renderD129').mkdir()
+                with self.assertRaises(ValueError):
+                    guest.drm_render_node(card, sysfs, devices)
+                (sysfs / 'renderD129').rmdir()
+            for mode, number in ((stat.S_IFREG | 0o600, 0), (stat.S_IFLNK | 0o600, 0),
+                                 (stat.S_IFCHR | 0o600, guest.os.makedev(226, 129))):
+                with patch.object(Path, 'lstat', return_value=self.attributes(st_mode=mode, st_rdev=number)), \
+                     self.assertRaises(ValueError):
+                    guest.drm_render_node(card, sysfs, devices)
+
+    def test_required_pair_readiness_uses_only_original_twenty_seconds(self):
+        card, render = Path('/inert/card0'), Path('/inert/renderD128')
+        with patch.object(guest, 'drm_card', return_value=card) as primary, \
+             patch.object(guest, 'drm_render_node', side_effect=[None, render]) as rendering, \
+             patch.object(guest.time, 'monotonic', side_effect=[0, 0, 19.9]), \
+             patch.object(guest.time, 'sleep'):
+            self.assertEqual(guest.wait_drm_card(), card)
+            self.assertEqual(primary.call_count, 2)
+            self.assertEqual(rendering.call_count, 2)
+        with patch.object(guest, 'drm_card', return_value=card), \
+             patch.object(guest, 'drm_render_node', return_value=None) as rendering, \
+             patch.object(guest.time, 'monotonic', side_effect=[0, 0, 20]), \
+             patch.object(guest.time, 'sleep'):
+            with self.assertRaisesRegex(ValueError, 'DRM readiness deadline'):
+                guest.wait_drm_card()
+            rendering.assert_called_once_with(card)
+
+    def test_render_access_opens_only_required_render_fd_and_reports_identity(self):
+        card, render = Mock(), Mock()
+        render.lstat.return_value = self.attributes()
+        with patch.object(guest, 'drm_render_node', return_value=render), \
+             patch.object(guest.os, 'open', return_value=17) as opened, \
+             patch.object(guest.os, 'fstat', return_value=self.attributes()), \
+             patch.object(guest.os, 'close') as closed, patch.object(guest, 'emit') as emit:
+            guest.render_access(card)
+        self.assertEqual(opened.call_args.args,
+            (render, guest.os.O_RDWR | guest.os.O_NOFOLLOW | guest.os.O_CLOEXEC))
+        closed.assert_called_once_with(17)
+        emit.assert_called_once_with('render_access', status='PASS', errno=0,
+            device=str(render), major=226, minor=128, uid=23001, gid=23001, mode=0o600)
+        with patch.object(guest, 'drm_render_node', return_value=None), \
+             patch.object(guest.os, 'open') as opened, patch.object(guest, 'emit') as emit:
+            with self.assertRaisesRegex(ValueError, 'required DRM render node unavailable'):
+                guest.render_access(card)
+        opened.assert_not_called()
+        card.lstat.assert_not_called()
+        emit.assert_called_once_with('render_access', status='FAIL', errno=None, device=None)
+
+    def test_render_access_refuses_private_and_opened_identity_changes(self):
+        card, render = Mock(), Mock()
+        for delta in (dict(st_uid=0), dict(st_gid=0), dict(st_mode=stat.S_IFCHR | 0o666),
+                      dict(st_mode=stat.S_IFREG | 0o600)):
+            render.lstat.return_value = self.attributes(**delta)
+            with patch.object(guest, 'drm_render_node', return_value=render), \
+                 patch.object(guest.os, 'open') as opened, self.assertRaises(ValueError):
+                guest.render_access(card)
+            opened.assert_not_called()
+        render.lstat.return_value = self.attributes()
+        for delta in (dict(st_dev=2), dict(st_ino=99), dict(st_mode=stat.S_IFREG | 0o600),
+                      dict(st_uid=0), dict(st_gid=0), dict(st_rdev=guest.os.makedev(226, 129))):
+            with patch.object(guest, 'drm_render_node', return_value=render), \
+                 patch.object(guest.os, 'open', return_value=17), \
+                 patch.object(guest.os, 'fstat', return_value=self.attributes(**delta)), \
+                 patch.object(guest.os, 'close') as closed, patch.object(guest, 'emit') as emit, \
+                 self.assertRaises(ValueError):
+                guest.render_access(card)
+            closed.assert_called_once_with(17)
+            self.assertEqual(emit.call_args.kwargs['status'], 'FAIL')
+        first = PermissionError(13, 'synthetic inaccessible renderer')
+        with patch.object(guest, 'drm_render_node', return_value=render), \
+             patch.object(guest.os, 'open', side_effect=first), \
+             patch.object(guest.os, 'close') as closed, patch.object(guest, 'emit') as emit:
+            with self.assertRaises(PermissionError) as caught:
+                guest.render_access(card)
+        self.assertIs(caught.exception, first)
+        closed.assert_not_called()
+        self.assertEqual(emit.call_args.kwargs['status'], 'FAIL')
+        self.assertEqual(emit.call_args.kwargs['errno'], 13)
+        self.assertNotIn('inaccessible', repr(emit.call_args))
+        first = OSError(5, 'synthetic fstat primary')
+        with patch.object(guest, 'drm_render_node', return_value=render), \
+             patch.object(guest.os, 'open', return_value=17), \
+             patch.object(guest.os, 'fstat', side_effect=first), \
+             patch.object(guest.os, 'close', side_effect=OSError(9, 'synthetic close secondary')) as closed, \
+             patch.object(guest, 'emit') as emit:
+            with self.assertRaises(OSError) as caught:
+                guest.render_access(card)
+        self.assertIs(caught.exception, first)
+        closed.assert_called_once_with(17)
+        self.assertEqual(emit.call_args.kwargs['errno'], 5)
+
+    def test_root_prepares_only_matched_required_render_node(self):
+        tree = ast.parse(inspect.getsource(guest.boot))
+        body = next(node.body for node in tree.body[0].body if isinstance(node, ast.Try))
+        start = next(i for i, node in enumerate(body) if isinstance(node, ast.Assign) and
+            any(isinstance(target, ast.Name) and target.id == 'render' for target in node.targets))
+        code = compile(ast.Module(body=body[start:start + 4], type_ignores=[]), '<prepare-render>', 'exec')
+        card, render = Mock(), Mock()
+        for result in (None, render):
+            with patch.object(guest, 'drm_render_node', return_value=result) as resolve, \
+                 patch.object(guest.os, 'chown') as chown:
+                if result is None:
+                    with self.assertRaises(ValueError):
+                        exec(code, guest.__dict__, {'card': card})
+                else:
+                    exec(code, guest.__dict__, {'card': card})
+            resolve.assert_called_once_with(card)
+            if result is None:
+                chown.assert_not_called()
+            else:
+                chown.assert_called_once_with(render, 23001, 23001)
+                render.chmod.assert_called_once_with(0o600)
+        render.chmod.reset_mock()
+        with patch.object(guest, 'drm_render_node', side_effect=ValueError('synthetic wrong GPU')), \
+             patch.object(guest.os, 'chown') as chown, self.assertRaises(ValueError):
+            exec(code, guest.__dict__, {'card': card})
+        chown.assert_not_called(); render.chmod.assert_not_called()
+
+    def test_user_preflight_is_after_gbm_pass_and_before_phase(self):
+        body = ast.parse(inspect.getsource(guest.user)).body[0].body
+        start = next(i for i, node in enumerate(body) if isinstance(node, ast.Expr) and
+                     isinstance(node.value, ast.Call) and isinstance(node.value.func, ast.Name)
+                     and node.value.func.id == 'render_access')
+        self.assertEqual(body[start - 1].value.args[0].value, 'gbm_pass')
+        code = compile(ast.Module(body=body[start:start + 3], type_ignores=[]), '<user-render-boundary>', 'exec')
+        card = Mock()
+        with patch.object(guest, 'render_access') as access, patch.object(guest, 'phase') as phase, \
+             patch.object(guest, 'emit'):
+            scope = dict(card=card, env={}, logs=Path('/inert/logs'))
+            exec(code, guest.__dict__, dict(scope))
+            access.assert_called_once_with(card)
+            self.assertEqual(phase.call_count, 2)
+            phase.reset_mock()
+            failure = PermissionError('synthetic render open')
+            access.side_effect = failure
+            with self.assertRaises(PermissionError) as caught:
+                exec(code, guest.__dict__, dict(scope))
+        self.assertIs(caught.exception, failure)
+        phase.assert_not_called()
+
+    def test_fixture_three_exact_rules_keep_previous_access_scopes(self):
+        fixture = Path(guest.__file__).with_name('desktop574_fixture.sh').read_text()
+        rules = [line for line in fixture.splitlines() if line.startswith('printf') and 'OWNER:=' in line]
+        self.assertEqual(len(rules), 3)
+        render = next(line for line in rules if 'KERNEL=="renderD[0-9]*"' in line)
+        for part in ('SUBSYSTEM=="drm"', 'SUBSYSTEMS=="pci"', 'ATTRS{vendor}=="0x1af4"',
+                     'ATTRS{device}=="0x1050"', 'DRIVERS=="virtio-pci"',
+                     'OWNER:="23001"', 'GROUP:="23001"', 'MODE:="0600"'):
+            self.assertIn(part, render)
+        self.assertIn('ATTR{name}=="desktop574.events"', rules[0])
+        self.assertIn('KERNEL=="card[0-9]*"', rules[1])
 
 
 if __name__ == '__main__':
