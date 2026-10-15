@@ -1485,7 +1485,7 @@ class IsolationSelectorTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, '^sandbox-isolation-user-drift$'):
                 self.run_record(c, bad)
 
-    def test_memory_and_swap_remain_one_chained_predicate_and_no_normalization_added(self):
+    def test_memory_and_swap_remain_one_chained_predicate_and_other_limits_stay_exact(self):
         for phase in ('sign', 'lifecycle'):
             c, record = self.record(phase)
             for field in ('Memory', 'MemorySwap'):
@@ -1513,8 +1513,68 @@ class IsolationSelectorTests(unittest.TestCase):
                 self.assertEqual(caught.exception.args, (field,))
             bad = copy.deepcopy(record)
             bad['HostConfig']['CapAdd'] = [['not-hashable']]
-            with self.assertRaises(TypeError):
+            with self.assertRaisesRegex(ValueError, '^sandbox-isolation-cap-add-drift$'):
                 self.run_record(c, bad)
+
+
+
+class CapabilityInspectionTests(unittest.TestCase):
+    """Exercise the real isolation predicate; no Docker or native actor."""
+
+    record = IsolationSelectorTests.record
+    run_record = IsolationSelectorTests.run_record
+    CASES = IsolationSelectorTests.CASES
+
+    def test_create_flags_and_all_optional_prefix_combinations_agree(self):
+        c, record = self.record('lifecycle')
+        command = s.container_command(ENDPOINT, IMAGE, 'fixture', Path('/fixture-source'),
+            Path('/fixture-out'), c['uid'], c['phase'], c['nonce'], '5' * 64)
+        requested = [arg.removeprefix('--cap-add=') for arg in command if arg.startswith('--cap-add=')]
+        self.assertEqual(requested, ['CHOWN', 'DAC_OVERRIDE', 'FOWNER', 'SETUID', 'SETGID'])
+        for mask in range(1 << len(requested)):
+            caps = [('CAP_' if mask & (1 << index) else '') + cap
+                    for index, cap in enumerate(requested)]
+            with self.subTest(mask=mask):
+                record['HostConfig']['CapAdd'] = list(reversed(caps))
+                self.run_record(c, record)
+
+    def test_capabilities_are_exact_and_malformed_or_duplicate_values_refuse(self):
+        c, record = self.record('lifecycle')
+        expected = ['CHOWN', 'DAC_OVERRIDE', 'FOWNER', 'SETUID', 'SETGID']
+        invalid = [None, [], False, 0, '', 'CHOWN', {}, tuple(expected), [['CHOWN']],
+            expected[:-1], expected + ['SYS_ADMIN'], expected + ['CAP_CHOWN'],
+            expected[:-1] + ['CAP_CHOWN'], expected[:-1] + ['SYS_ADMIN'],
+            expected[:-1] + [1], expected[:-1] + ['cap_setgid'],
+            expected[:-1] + ['CAP_CAP_SETGID'], expected[:-1] + [' SETGID']]
+        for value in invalid:
+            with self.subTest(value=value):
+                record['HostConfig']['CapAdd'] = value
+                with self.assertRaisesRegex(ValueError, '^sandbox-isolation-cap-add-drift$') as caught:
+                    self.run_record(c, record)
+                self.assertIs(caught.exception._ksm_check[0], s._CHECK_PROVENANCE)
+
+    def test_signer_still_has_no_added_capabilities(self):
+        c, record = self.record('sign')
+        for value in (None, []):
+            record['HostConfig']['CapAdd'] = value
+            self.run_record(c, record)
+        for value in (['CHOWN'], ['CAP_CHOWN'], ['SYS_ADMIN'], False, 0, '', {}, ()):
+            with self.subTest(value=value):
+                record['HostConfig']['CapAdd'] = value
+                with self.assertRaisesRegex(ValueError, '^sandbox-isolation-cap-add-drift$'):
+                    self.run_record(c, record)
+
+    def test_prefixed_caps_do_not_bypass_other_isolation_checks(self):
+        c, record = self.record('lifecycle')
+        record['HostConfig']['CapAdd'] = ['CAP_' + cap for cap in s.LIFECYCLE_CAPS]
+        for section, field, value, suffix in self.CASES:
+            if field == 'CapAdd':
+                continue
+            with self.subTest(field=field):
+                bad = copy.deepcopy(record)
+                bad[section][field] = value
+                with self.assertRaisesRegex(ValueError, '^sandbox-isolation-' + suffix + '-drift$'):
+                    self.run_record(c, bad)
 
 
 if __name__ == '__main__':
