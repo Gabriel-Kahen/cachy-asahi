@@ -86,6 +86,11 @@ jobs:
           python3 -B scripts/ci/asahi-lsp-offline/test_container.py
           python3 -B scripts/ci/asahi-lsp-offline/test_run.py
           python3 -B scripts/ci/asahi-lsp-offline/test_job.py
+      - name: Check fixed Rust LV2 caller boundaries without plugin execution
+        run: |
+          python3 -B scripts/ci/asahi-rust-lv2-offline/test_container.py
+          python3 -B scripts/ci/asahi-rust-lv2-offline/test_run.py
+          python3 -B scripts/ci/asahi-rust-lv2-offline/test_job.py
       - name: Inspect recipes without sourcing them
         run: python3 scripts/checks/package_checks.py recipes --require-recipes
       - name: Check recipe syntax without executing it
