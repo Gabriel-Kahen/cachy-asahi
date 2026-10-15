@@ -19,8 +19,8 @@ corrects the older recipe's incorrect MIT declaration.
 Six native builds and three byte pairs passed on a hosted4KiB ARM builder.
 Structural16KiB ELF checks do not establish execution on a16KiB kernel.
 Compiler source correspondence and complete transitive license/notice/source
-closure remain unfinished. No daemon or plugin was run or loaded. Runtime
-installation/dependency closure, service/udev behavior, speaker safety, both M2
+closure remain unfinished. Those build trials did not run a daemon or load a
+plugin. Current-version installation, service/udev behavior, speaker safety, both M2
 Air sizes and coordinated platform updates remain untested. Release selection
 remains false; preserve the working Asahi platform stack.
 
@@ -34,6 +34,14 @@ and unchanged compiled payload hashes. This result does not execute or install
 the plugins/daemon. Run38789573004 and the historical audio593 transaction
 remain evidence for2.0.1-2/1.1.0-3/0.3.2-2; the current-version transaction is
 separate unfinished validation.
+
+[Offline native run38810834920](../../docs/validation/asahi-rust-lv2-offline-native-20261015.md)
+separately loads the current Bankstown and Triforce libraries and passes60 fixed
+property cases in120 fresh instances, sixteen controls and scoped normal cleanup.
+All36 repeat pairs report zero numerical error and equal sample hashes. The
+retained metadata reconciles; samples/private binaries were not exported for
+independent replay. Full DSP graphs, PipeWire policy, speakersafetyd, real-time
+behavior, acoustics and physical16KiB/M2 execution remain unestablished.
 
 Triforce's proposed package metadata summarizes the GNU GPLv3 combination and
 its Apache/MIT/Zlib/Unicode component terms; its upstream GPL-2.0-or-later
