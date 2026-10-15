@@ -196,10 +196,18 @@ def scale_drift_diagnostic(test):
     for key in ('handle_getter_available','handle_home_matches','engine_getter_available','engine_home_matches',
                 'engine_home_default','engine_binary_matches'):
         engine_probe[key]=fact(engine.get(key))
+    original=row.get('test_scale_original_verification');original=original if type(original) is dict else {}
+    bits=original.get('bits');limits=(19,13,19,19,8,19,8,4)
+    valid=(type(bits) is list and len(bits)==10 and
+        all(type(value) is int and 0<=value<2**bound for value,bound in zip(bits,limits)) and
+        all(type(value) is int and 0<=value<=4095 for value in bits[8:]))
+    original_probe=dict(state=label(original.get('state'),{'NOT_RUN','UNAVAILABLE','OBSERVED'}),bits=bits if valid else [])
+    if original_probe['state']=='OBSERVED' and not valid:original_probe['state']='UNAVAILABLE'
     return dict(stage=label(raw.get('stage'),SCALE_DRIFT_STAGES),
         status=label(row.get('status'),{'PASS','FAIL'}),phase=label(row.get('phase'),SCALE_DRIFT_PHASES),
         error_type=label(row.get('error_type'),SCALE_DRIFT_ERRORS),
         error_category=category,alpm_errno=alpm_errno,post_load_signature=signature_probe,post_load_engine=engine_probe,
+        original_verification=original_probe,
         commit_started=fact(row.get('commit_started')),packages_committed=fact(row.get('packages_committed')),
         checkpoint_changed=fact(row.get('checkpoint_changed')),callback_reached=fact(row.get('test_scale_precommit_reached')))
 
