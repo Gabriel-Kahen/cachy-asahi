@@ -1554,6 +1554,7 @@ if __name__=='__main__':
     parser.add_argument('--ownership-sha256')
     parser.add_argument('--output',type=Path,required=True)
     args=parser.parse_args()
+    exit_code=0
     try:
         if args.mode=='freeze':
             checksum=freeze(args.root,args.source_commit,args.ready_sha256,args.output,
@@ -1561,9 +1562,12 @@ if __name__=='__main__':
             print(json.dumps({'source_freeze':'PASS','controller_sha256':checksum,'native_compilation':'NOT RUN'}))
         elif args.mode=='run':
             result=pipeline(args.root,args.controller,args.controller_sha256,args.output)
-            print(json.dumps(public_summary(result),sort_keys=True));sys.exit(0 if result['status']=='PASS' else 1)
+            print(json.dumps(public_summary(result),sort_keys=True))
+            exit_code=0 if result['status']=='PASS' else 1
         else:
             result=recover(args.root,args.controller,args.controller_sha256,args.output,args.ownership_sha256)
-            print(json.dumps(public_summary(result),sort_keys=True));sys.exit(0 if result['status']=='PASS' else 1)
+            print(json.dumps(public_summary(result),sort_keys=True))
+            exit_code=0 if result['status']=='PASS' else 1
     except BaseException as error:
         print(json.dumps({'status':'FAIL','failure_class':type(error).__name__}));sys.exit(1)
+    sys.exit(exit_code)
