@@ -28,12 +28,16 @@ class TransactionMode(unittest.TestCase):
         return dict(purpose=common.TRANSACTION_PURPOSE,source_commit=self.source,
             transaction_fixture=dict(source_commit=self.source,sources=copy.deepcopy(common.TRANSACTION_FILES),
                 tool_profile=copy.deepcopy(common.TRANSACTION_PROFILE)),transaction_launcher=copy.deepcopy(common.TRANSACTION_LAUNCHER))
+    def call(self,pattern):
+        positive=pattern in ('PAIR','ADD','REMOVE','UPGRADE','PROTECTED_ADD')
+        phase='complete' if positive else dict(REFUSED='NOT_REPORTED',CONFLICT='commit',SNAPSHOT='snapshot',PREPARE='prepare').get(pattern,'isolated')
+        return dict(returncode=0 if positive else 2,worker_status='PASS-disposable-payload-transaction' if positive else 'REFUSED' if pattern=='REFUSED' else 'FAIL',
+                    phase=phase,commit_started=positive or pattern=='CONFLICT',committed=positive)
     def methods(self):
-        return [dict(method=name,returncode=0 if i==0 else 2,worker_status='PASS-disposable-payload-transaction' if i==0 else 'FAIL',
-            phase=('complete','isolated','prepare')[i],commit_started=i==0,committed=i==0) for i,name in enumerate(common.TRANSACTION_SELECTORS)]
+        return [dict(method=name,calls=[self.call(p) for p in patterns]) for name,method,patterns in common.TRANSACTION_CASES]
     def event(self):
         return dict(event='transaction_result',nonce=self.nonce,selection_sha256=self.selection,fixture_source=self.source,
-            uid=23001,gid=23001,tests=3,failures=0,errors=0,skips=0,status='PASS_TRANSACTION_ONLY',methods=self.methods(),
+            uid=23001,gid=23001,tests=16,failures=0,errors=0,skips=0,status='PASS_TRANSACTION_ONLY',methods=self.methods(),
             first_failure=None,class_cleanups_returned=True,cancelled=False)
     def boot(self):
         return dict(event='boot',nonce=self.nonce,arch='aarch64',page_size=4096,kernel=common.KERNEL)
@@ -64,7 +68,7 @@ class TransactionMode(unittest.TestCase):
             e=self.event();e[key]=value
             with self.subTest(key=key),self.assertRaises(ValueError):common.transaction_event(e,self.nonce,self.selection,self.source)
         for index in (0,1,2):
-            e=self.event();e['methods'][index]['committed']=not e['methods'][index]['committed']
+            e=self.event();e['methods'][index]['calls'][0]['committed']=not e['methods'][index]['calls'][0]['committed']
             with self.assertRaises(ValueError):common.transaction_event(e,self.nonce,self.selection,self.source)
     def test_completion_requires_exact_order_natural_exit_and_source(self):
         good=[self.boot(),self.event(),self.exited()]
@@ -78,6 +82,7 @@ class TransactionMode(unittest.TestCase):
     def fake_module(self, *, fail=None, cleanup_fail=None, skip=False, method_fail=None):
         owner=self;observed=[]
         class Cases(unittest.TestCase):
+            execution_history=[]
             @classmethod
             def setUpClass(cls):
                 cls.addClassCleanup(lambda:observed.append('last-cleanup'))
@@ -94,18 +99,21 @@ class TransactionMode(unittest.TestCase):
                     self.addCleanup(cleanup)
                     raise method_fail
                 if skip:self.skipTest('PRIVATE REASON')
-                type(self).last_execution={'test':self._testMethodName}
+                index=common.TRANSACTION_TESTS.index(self._testMethodName)
+                type(self).execution_history.extend(dict(test=self._testMethodName) for p in common.TRANSACTION_CASES[index][2])
                 observed.append(self._testMethodName)
         for name in common.TRANSACTION_TESTS:setattr(Cases,name,Cases.selected)
         return types.SimpleNamespace(ActualTransactionTests=Cases),observed
     def run_model(self,module):
         emitted=[];self.last_emitted=emitted
-        def project(record,index):return self.methods()[index]
+        def project(record,index,hop):
+            self.assertEqual(record['test'],common.TRANSACTION_TESTS[index])
+            return self.methods()[index]['calls'][hop]
         with patch.object(guest,'transaction_execution',side_effect=project),patch.object(guest,'emit',side_effect=lambda name,**row:emitted.append(dict(event=name,**row))), \
                 patch.object(guest.os,'geteuid',return_value=23001),patch.object(guest.os,'getegid',return_value=23001):
             result=guest.transaction_test(module,{},self.nonce,self.selection,self.source)
         return result,emitted
-    def test_real_testsuite_model_orders_three_and_runs_class_cleanup(self):
+    def test_real_testsuite_model_orders_sixteen_and_runs_class_cleanup(self):
         module,seen=self.fake_module();result,emitted=self.run_model(module)
         self.assertEqual(seen,[*common.TRANSACTION_TESTS,'first-cleanup','last-cleanup'])
         self.assertEqual(result['status'],'PASS_TRANSACTION_ONLY');self.assertEqual(len(emitted),1)
@@ -126,15 +134,15 @@ class TransactionMode(unittest.TestCase):
             with self.subTest(kw=kw),self.assertRaises(ValueError):self.run_model(module)
             self.assertEqual(seen[-2:],['first-cleanup','last-cleanup'])
     def test_original_invalid_signature_needs_verify_failure_not_import_failure(self):
-        record=dict(test=common.TRANSACTION_TESTS[1],worker_sha256=common.TRANSACTION_FILES['scripts/install/local_transaction.py']['sha256'],
+        record=dict(test=common.TRANSACTION_TESTS[3],worker_sha256=common.TRANSACTION_FILES['scripts/install/local_transaction.py']['sha256'],
                     worker_after_sha256=common.TRANSACTION_FILES['scripts/install/local_transaction.py']['sha256'],returncode=2,
                     report=dict(status='FAIL',phase='isolated',commit_started=False,committed=False),retained_evidence='/inert')
         for operation in ('--verify','--import'):
             auth=dict(argv=['/usr/bin/gpg','--batch',operation,'sig','archive'],returncode=2)
             with patch.object(guest,'identity_bytes',return_value=json.dumps(auth).encode()):
-                if operation=='--verify':self.assertEqual(guest.transaction_execution(record,1)['method'],'INVALID_SIGNATURE')
+                if operation=='--verify':self.assertEqual(guest.transaction_execution(record,3)['phase'],'isolated')
                 else:
-                    with self.assertRaises(ValueError):guest.transaction_execution(record,1)
+                    with self.assertRaises(ValueError):guest.transaction_execution(record,3)
     def test_boot_real_drop_flags_private_output_and_declared_child_budget(self):
         c=dict(purpose=common.TRANSACTION_PURPOSE,nonce=self.nonce,proof_contract_sha256=self.selection,fixture_source=self.source)
         result=dict(stdout=guest.PREFIX+json.dumps(self.event())+'\n',stderr='',returncode=0,error=None)
@@ -217,6 +225,95 @@ class TransactionMode(unittest.TestCase):
             with patch.object(prepare,'transaction_launcher') as launcher,patch.object(prepare,'changed') as changed,self.assertRaises(ValueError):
                 prepare.stage_transaction(Path(tmp),self.contract(),path,'0'*64,{})
             launcher.assert_not_called();changed.assert_not_called()
+
+    def record(self,index,hop=0):
+        pattern=common.TRANSACTION_CASES[index][2][hop];call=self.call(pattern)
+        body=dict(status=call.pop('worker_status'),**{k:v for k,v in call.items() if k!='returncode'})
+        a,b='caa-install-fixture-a','caa-install-fixture-b'
+        maps={'PAIR':({},{a:'1.0-1',b:'1.0-1'}),'ADD':({},{a:'1.0-1'}),'REMOVE':({a:'1.0-1'},{}),
+              'UPGRADE':({a:'1.0-1'},{a:'2.0-1'}),'PROTECTED_ADD':({a:'1.0-1'},{a:'1.0-1',b:'1.0-1'})}
+        if pattern in maps:body.update(before=maps[pattern][0],after=maps[pattern][1],installed_payload_verified=True,parent_export_verified=True)
+        if pattern=='REFUSED':body.pop('phase')
+        pin=common.TRANSACTION_FILES['scripts/install/local_transaction.py']['sha256']
+        return dict(test=common.TRANSACTION_TESTS[index],worker_sha256=pin,worker_after_sha256=pin,
+                    returncode=call['returncode'],report=body,retained_evidence='/inert')
+    def test_fixed_definition_order_excludes_only_extra_contract_control(self):
+        tree=ast.parse((Path(__file__).resolve().parents[1]/'install/test_local_transaction.py').read_text())
+        cls=next(n for n in tree.body if isinstance(n,ast.ClassDef) and n.name=='ActualTransactionTests')
+        methods=[n.name for n in cls.body if isinstance(n,ast.FunctionDef) and n.name.startswith('test_')]
+        self.assertEqual(len(methods),17)
+        self.assertEqual(tuple(n for n in methods if n.startswith('test_actual_')),common.TRANSACTION_TESTS)
+        self.assertEqual(sum(len(p) for _,_,p in common.TRANSACTION_CASES),21)
+        self.assertEqual(len(json.dumps(self.event())),len(json.dumps(common.transaction_event(self.event(),self.nonce,self.selection,self.source))))
+        self.assertLess(len(json.dumps(self.event())),8192)
+    def test_every_positive_hop_requires_exact_maps_payload_and_export(self):
+        for index,(_,_,patterns) in enumerate(common.TRANSACTION_CASES):
+            for hop,pattern in enumerate(patterns):
+                if pattern not in ('PAIR','ADD','REMOVE','UPGRADE','PROTECTED_ADD'):continue
+                record=self.record(index,hop);guest.transaction_execution(record,index,hop)
+                for key,value in (('before',{'foreign':'1'}),('after',{'foreign':'1'}),('installed_payload_verified',False),('parent_export_verified',False)):
+                    bad=copy.deepcopy(record);bad['report'][key]=value
+                    with self.subTest(index=index,hop=hop,key=key),self.assertRaises(ValueError):guest.transaction_execution(bad,index,hop)
+    def test_conflict_started_and_refused_phase_not_invented(self):
+        self.assertTrue(guest.transaction_execution(self.record(9),9)['commit_started'])
+        for index in (10,11):
+            row=guest.transaction_execution(self.record(index,1),index,1)
+            self.assertEqual(row['phase'],'NOT_REPORTED');self.assertFalse(row['commit_started'])
+            bad=self.record(index,1);bad['report']['phase']='prepare'
+            with self.assertRaises(ValueError):guest.transaction_execution(bad,index,1)
+    def test_signed_wrong_signer_and_escaping_require_original_verify_success(self):
+        for index,message in ((2,'signature signer/status refused'),(7,'noncanonical payload path')):
+            record=self.record(index);record['report']['error']=message
+            for rc in (0,2):
+                auth=dict(argv=['/usr/bin/gpg','--batch','--verify','sig','archive'],returncode=rc)
+                with patch.object(guest,'identity_bytes',return_value=json.dumps(auth).encode()):
+                    if rc==0:guest.transaction_execution(record,index)
+                    else:
+                        with self.assertRaises(ValueError):guest.transaction_execution(record,index)
+            record['report']['error']='PRIVATE arbitrary reason'
+            with patch.object(guest,'identity_bytes',return_value=json.dumps(dict(argv=['/usr/bin/gpg','--batch','--verify','s','a'],returncode=0)).encode()),self.assertRaises(ValueError):guest.transaction_execution(record,index)
+    def test_secret_certificate_projection_does_not_invent_deciding_reason(self):
+        record=self.record(4);record['report']['error']='PRIVATE import or key policy reason'
+        row=guest.transaction_execution(record,4);self.assertEqual(row,self.call('SECRET'))
+        self.assertNotIn('PRIVATE',json.dumps(row))
+    def test_stale_history_refuses_before_class_setup(self):
+        module,seen=self.fake_module();module.ActualTransactionTests.execution_history=[dict(test='stale')]
+        with self.assertRaises(ValueError):self.run_model(module)
+        self.assertEqual(seen,[]);self.assertEqual(self.last_emitted[0]['tests'],0)
+    def test_wrong_method_record_or_extra_hop_cannot_pass(self):
+        for kind in ('wrong','extra','missing'):
+            module,seen=self.fake_module();original=module.ActualTransactionTests.selected
+            def changed(test):
+                original(test)
+                if kind=='wrong':test.execution_history[-1]['test']='foreign'
+                elif kind=='extra':test.execution_history.append(dict(test=test._testMethodName))
+                else:test.execution_history.pop()
+            setattr(module.ActualTransactionTests,common.TRANSACTION_TESTS[0],changed)
+            with self.subTest(kind=kind),self.assertRaises((ValueError,AssertionError)):self.run_model(module)
+            self.assertEqual(self.last_emitted[0]['status'],'FAIL')
+    def test_later_two_hop_failure_retains_seed_prefix_and_class_cleanup(self):
+        module,seen=self.fake_module()
+        def partial(test):
+            type(test).execution_history.append(dict(test=test._testMethodName))
+            raise AssertionError('PRIVATE second operation missing')
+        setattr(module.ActualTransactionTests,common.TRANSACTION_TESTS[10],partial)
+        with self.assertRaises(ValueError):self.run_model(module)
+        event=self.last_emitted[0]
+        self.assertEqual(len(event['methods']),11);self.assertEqual(len(event['methods'][-1]['calls']),1)
+        self.assertEqual(event['methods'][-1]['method'],'PROTECTED_UPGRADE')
+        self.assertEqual(seen[-2:],['first-cleanup','last-cleanup']);self.assertNotIn('PRIVATE',json.dumps(event))
+    def test_projection_cancellation_after_prior_methods_is_sticky(self):
+        module,seen=self.fake_module();primary=KeyboardInterrupt()
+        emitted=[]
+        def project(record,index,hop):
+            if index==10 and hop==1:raise primary
+            return self.methods()[index]['calls'][hop]
+        with patch.object(guest,'transaction_execution',side_effect=project),patch.object(guest,'emit',side_effect=lambda name,**row:emitted.append(row)), \
+             patch.object(guest.os,'geteuid',return_value=23001),patch.object(guest.os,'getegid',return_value=23001),self.assertRaises(KeyboardInterrupt) as caught:
+            guest.transaction_test(module,{},self.nonce,self.selection,self.source)
+        self.assertIs(caught.exception,primary);self.assertTrue(emitted[0]['cancelled'])
+        self.assertEqual(len(emitted[0]['methods'][-1]['calls']),1)
+        self.assertEqual(seen[-2:],['first-cleanup','last-cleanup'])
 
 
 if __name__=='__main__':unittest.main()
