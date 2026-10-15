@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """One disposable, signed, offline development composition transaction."""
 import hashlib
+import importlib.util
 import json
 import os
 from pathlib import Path, PurePosixPath
@@ -14,6 +15,8 @@ PROJECTS = {'cachy-asahi-' + name for name in (
     'hyprland-settings', 'fish-config', 'zsh-config', 'setup', 'ksmctl', 'update',
     'fdk-aac', 'zsh-autosuggestions', 'topmem', 'fish-bang-bang')}
 EXTRAS = {'htmlq', 'pacman-contrib', 'archlinux-contrib', 'pyalpm'}
+HELPERS = {'core-lifecycle.py': 'c3223a1bd4002683071f4442e1f5b9caf439c68c4e231da10039cc9cebcdb52b',
+           'provider-helpers.py': 'b10bc7037d2994538fa5bd853a2b98cd549a55b6d30c8b84354a369f67980672'}
 
 
 def need(ok, message):
@@ -108,6 +111,24 @@ def install(pacman, archives, expected):
     return actual
 
 
+def load(name, path):
+    spec = importlib.util.spec_from_file_location(name, path)
+    value = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(value)
+    return value
+
+
+def lifecycle_helpers(plan, source):
+    need(set(plan['helpers']) == set(HELPERS), 'exact existing lifecycle/provider helpers required')
+    values = {}
+    for name, digest in HELPERS.items():
+        row = plan['helpers'][name]
+        need(row['sha256'] == digest, 'existing lifecycle helper pin differs')
+        pin(source / name, digest, row['size'])
+        values[name] = load(name.replace('-', '_'), source / name)
+    return values['core-lifecycle.py'], values['provider-helpers.py']
+
+
 def main():
     result = {'status': 'FAIL', 'phase': 'container-guard', 'scope': 'generic-offline-composition',
               'hardware': 'NOT RUN', 'target_lifecycle': 'NOT RUN', 'app_sessions': 'NOT RUN',
@@ -164,6 +185,12 @@ def main():
         conf.write_text('[options]\nArchitecture = aarch64\nSigLevel = Required\n'
                         'LocalFileSigLevel = Required\nHookDir = ' + str(hooks) + '\nGPGDir = ' + str(trust) + '\n')
         pacman = ['pacman', '--config', str(conf)]
+        lifecycle = None
+        if 'lifecycle' in plan:
+            core, provider = lifecycle_helpers(plan['lifecycle'], source)
+            lifecycle = load('composition_lifecycle', Path('/lifecycle.py'))
+            import sys
+            upstream_before = lifecycle.baseline(pacman, sys.modules[__name__], provider)
         result['phase'] = 'required-signature-offline-transaction'
         installed = install(pacman, [str(source / r['filename']) for r in plan['packages']], expected)
         result['phase'] = 'installed-dependencies-and-ownership'
@@ -186,12 +213,23 @@ def main():
         run(['python', '-I', '-B', '-c', 'import pyalpm,ctypes; '
              'assert pyalpm.Handle("/", "/var/lib/pacman"); '
              'ctypes.CDLL("/usr/lib/libfdk-aac.so.2"); ctypes.CDLL("/usr/lib/libfdk-xhe-aac.so.0")'])
-        result.update(status='PASS', phase='completed', project_sha256={p['name']: p['sha256'] for p in plan['projects']},
+        result.update(phase='completed', project_sha256={p['name']: p['sha256'] for p in plan['projects']},
                       installed_inventory_sha256=hashlib.sha256(''.join(k + ' ' + v + '\n' for k, v in sorted(installed.items())).encode()).hexdigest(),
                       package_count=len(installed), dependency_checks='PASS-no-waivers', payload_ownership='PASS',
                       pyalpm='PASS-native-import', fdk='PASS-installed-provider-load', scriptlets='DISABLED', hooks='MASKED')
+        if lifecycle:
+            result['phase'] = 'composed-package-configuration-lifecycle'
+            result['composition_checks'] = 'PASS-exact587-before-lifecycle'
+            result['lifecycle'] = lifecycle.run(pacman, plan, base, expected, source, work,
+                                                sys.modules[__name__], core, provider, upstream_before)
+            need(result['lifecycle']['status'] == 'PASS', 'composed lifecycle did not pass')
+            final = inventory()
+            need(final == base, 'lifecycle final inventory differs from original574')
+            result.update(phase='completed', final_package_count=len(final),
+                          final_inventory_sha256=hashlib.sha256(''.join(k + ' ' + v + '\n' for k, v in sorted(final.items())).encode()).hexdigest())
+        result['status'] = 'PASS'
     except Exception as error:
-        result.update(error_type=type(error).__name__, error=str(error)[:2048])
+        result.update(status='FAIL', error_type=type(error).__name__, error=str(error)[:2048])
     finally:
         if work:
             try:
