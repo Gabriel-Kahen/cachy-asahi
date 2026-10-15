@@ -936,13 +936,24 @@ class Development:
                     state = BaseException.__dict__['__dict__'].__get__(error,type(error))
                     fact = state.get('native_preflight_run_fact')
                     if fact is not None:
-                        require(type(fact) is dict and all(type(key) is str for key in fact) and set(fact)=={'schema_version','stage','predicate','image_config'} and
-                            type(fact['schema_version']) is int and fact['schema_version']==2 and
+                        require(type(fact) is dict and all(type(key) is str for key in fact) and set(fact) in ({'schema_version','stage','predicate','image_config'},
+                            {'schema_version','stage','predicate','image_config','receiver_accept'}) and
+                            type(fact['schema_version']) is int and fact['schema_version']==(3 if 'receiver_accept' in fact else 2) and
                             type(fact['stage']) is str and fact['stage'] in INSTALLER_RUN_STAGES and
                             type(fact['predicate']) is str and fact['predicate'] in INSTALLER_RUN_PREDICATES,
                             'installer-diagnostic-refused')
                         if fact['predicate'] in ('CONTAINER_ENV_ENV_EQUALITY', 'CONTAINER_ENV_VOLUMES_FALSEY', 'CONTAINER_ENV_HEALTHCHECK_FALSEY'):
                             require(fact['stage']=='CONTAINER_BINDING','installer-container-diagnostic-refused')
+                        receiver_detail=None
+                        if 'receiver_accept' in fact:
+                            receiver_detail=fact['receiver_accept']
+                            keys=('start_success','receiver_preflight_only','native_cleanup_pass')
+                            require(fact['stage']=='RECEIVER_ACCEPT' and fact['predicate']=='P0_REFUSED' and
+                                fact['image_config'] is None and type(receiver_detail) is dict and
+                                all(type(key) is str for key in receiver_detail) and set(receiver_detail)==set(keys) and
+                                all(type(receiver_detail[key]) is bool for key in keys) and not all(receiver_detail.values()),
+                                'installer-receiver-diagnostic-refused')
+                            receiver_detail={key:receiver_detail[key] for key in keys}
                         detail = fact['image_config']
                         if fact['stage'] == 'IMAGE_HANDOFF' and fact['predicate'] == 'IMAGE_CONFIG':
                             names = ('ArgsEscaped','Cmd','Entrypoint','Env','ExposedPorts','Healthcheck','Labels','Shell','StopSignal','User','Volumes','WorkingDir')
@@ -961,6 +972,9 @@ class Development:
                         self.report['stages']['native-install-preflight']['diagnostic'] = {
                             'schema_version':3,'call_boundary':boundary,'run_stage':fact['stage'],
                             'run_predicate':fact['predicate'],'capture':'PASS','image_config':detail}
+                        if receiver_detail is not None:
+                            self.report['stages']['native-install-preflight']['diagnostic'].update(
+                                schema_version=4,receiver_accept=receiver_detail)
                     elif state.get('native_preflight_run_fact_failed') is True:
                         self.report['stages']['native-install-preflight']['diagnostic'] = {
                             'schema_version':2,'call_boundary':boundary,'run_stage':None,

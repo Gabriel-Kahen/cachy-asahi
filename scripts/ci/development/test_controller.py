@@ -1482,3 +1482,70 @@ class ContainerPredicateDiagnosticModels(unittest.TestCase):
             self.assertIs(caught,original);self.assertIs(caught.__cause__,control)
             self.assertTrue(state.report['cancelled']);self.assertTrue(namespace['CANCELLED'])
             self.assertEqual(caught.args,('CONTAINER_ENV',));self.assertNotIn('PRIVATE',json.dumps(state.report))
+
+
+class ReceiverAcceptanceProjectionModels(unittest.TestCase):
+    model=InstallerCallBoundaryModels.model
+
+    @classmethod
+    def setUpClass(cls):
+        import ast
+        tree=ast.parse(Path(__file__).with_name('controller.py').read_bytes())
+        owner=next(n for n in tree.body if isinstance(n,ast.ClassDef) and n.name=='Development')
+        cls.current=next(n for n in owner.body if isinstance(n,ast.FunctionDef) and n.name=='consume_installer')
+        cls.persist=next(n for n in owner.body if isinstance(n,ast.FunctionDef) and n.name=='persist_installer')
+        cls.helper=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='retain_installer_control')
+        cls.diagnostic_line=next(n.lineno for n in ast.walk(cls.current) if isinstance(n,ast.Assign) and
+            any(isinstance(c,ast.Constant) and c.value=='call_boundary' for c in ast.walk(n)))
+
+    def fact(self,detail):
+        return {'schema_version':3,'stage':'RECEIVER_ACCEPT','predicate':'P0_REFUSED','image_config':None,'receiver_accept':detail}
+
+    def test_all_eight_boolean_projections_keep_overall_fail_and_scope(self):
+        import itertools
+        for flags in itertools.product((False,True),repeat=3):
+            detail=dict(zip(('start_success','receiver_preflight_only','native_cleanup_pass'),flags))
+            original=ValueError('P0_REFUSED');prior=OSError('PRIVATE');original.__cause__=prior
+            original.native_preflight_run_fact=self.fact(detail)
+            state,caught,persists,_=self.model(self.current,'RUN',original)
+            self.assertIs(caught,original);self.assertIs(caught.__cause__,prior);self.assertEqual(caught.args,('P0_REFUSED',))
+            diagnostic=state.report['stages']['native-install-preflight']['diagnostic']
+            if all(flags):self.assertEqual(diagnostic,{'schema_version':1,'call_boundary':'RUN'})
+            else:self.assertEqual(diagnostic,{'schema_version':4,'call_boundary':'RUN','run_stage':'RECEIVER_ACCEPT',
+                'run_predicate':'P0_REFUSED','capture':'PASS','image_config':None,'receiver_accept':detail})
+            self.assertEqual(state.report['status'],'FAIL');self.assertEqual(len(persists),1)
+            self.assertEqual(state.report['stages']['native-install-preflight']['scope'],'preflight-only')
+            self.assertNotIn('PRIVATE',json.dumps(state.report))
+
+    def test_invalid_types_shapes_and_wrong_boundaries_are_not_projected(self):
+        valid={'start_success':False,'receiver_preflight_only':True,'native_cleanup_pass':True}
+        variants=[self.fact(dict(valid,PRIVATE='body')),self.fact({}),self.fact(None)]
+        for key in valid:
+            for value in (0,1,None,'PRIVATE',[],{}):variants.append(self.fact(dict(valid,**{key:value})))
+        variants.extend([dict(self.fact(valid),stage='RETURN'),dict(self.fact(valid),predicate='OTHER'),
+                         dict(self.fact(valid),schema_version=2),dict(self.fact(valid),image_config={'PRIVATE':'body'})])
+        for fact in variants:
+            original=ValueError('P0_REFUSED');original.native_preflight_run_fact=fact
+            state,caught,_,_=self.model(self.current,'RUN',original)
+            self.assertIs(caught,original)
+            self.assertEqual(state.report['stages']['native-install-preflight']['diagnostic'],{'schema_version':1,'call_boundary':'RUN'})
+            self.assertNotIn('PRIVATE',json.dumps(state.report))
+
+    def test_old_coarse_and_generic_failures_remain_old_schema(self):
+        for predicate in ('P0_REFUSED','OTHER'):
+            original=ValueError('PRIVATE');original.native_preflight_run_fact={
+                'schema_version':2,'stage':'RECEIVER_ACCEPT','predicate':predicate,'image_config':None}
+            state,caught,_,_=self.model(self.current,'RUN',original)
+            self.assertIs(caught,original)
+            self.assertEqual(state.report['stages']['native-install-preflight']['diagnostic'],{
+                'schema_version':3,'call_boundary':'RUN','run_stage':'RECEIVER_ACCEPT','run_predicate':predicate,'capture':'PASS','image_config':None})
+            self.assertNotIn('PRIVATE',json.dumps(state.report))
+
+    def test_projection_control_keeps_first_failure_and_sticky_cancel(self):
+        for control in (KeyboardInterrupt('PRIVATE'),SystemExit(9),BaseException('PRIVATE')):
+            original=ValueError('P0_REFUSED');original.native_preflight_run_fact=self.fact(
+                {'start_success':False,'receiver_preflight_only':True,'native_cleanup_pass':True})
+            state,caught,_,namespace=self.model(self.current,'RUN',original,trace_control=control)
+            self.assertIs(caught,original);self.assertIs(caught.__cause__,control)
+            self.assertTrue(state.report['cancelled']);self.assertTrue(namespace['CANCELLED'])
+            self.assertNotIn('PRIVATE',json.dumps(state.report))

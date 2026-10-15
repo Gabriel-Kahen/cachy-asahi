@@ -827,4 +827,67 @@ class LiveGraphBindingControls(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,'^ISSUER_PIN$'):P.issuer(module,raw)
 
 
+class ReceiverAcceptanceDiagnosticControls(unittest.TestCase):
+    def detail(self,start=True,outcome=True,cleanup=True):
+        return {'start_success':start,'receiver_preflight_only':outcome,'native_cleanup_pass':cleanup}
+
+    def failure(self,start,outcome,cleanup):
+        value=record()
+        if not outcome:value.update(status='FAIL',phase='preflight',barrier='NOT_RUN',tests=0,first_failure='BARRIER_FAILED',owned_child_cleanup='NOT_STARTED')
+        raw=R.public(value);clean={'remove_exit':0 if cleanup else 1,'absent':True}
+        try:P.accept({'exit_code':0 if start else 1},raw,raw,R,clean,123.)
+        except ValueError as error:return error
+        return None
+
+    def test_all_eight_actual_group_combinations_preserve_acceptance(self):
+        import itertools
+        with patch.object(P,'tick',lambda end:None):
+            for flags in itertools.product((False,True),repeat=3):
+                error=self.failure(*flags)
+                if all(flags):self.assertIsNone(error);continue
+                self.assertIs(type(error),ValueError);self.assertEqual(error.args,('P0_REFUSED',))
+                fact=P.run_failure_fact(error,'RECEIVER_ACCEPT')
+                self.assertEqual(fact,{'schema_version':3,'stage':'RECEIVER_ACCEPT','predicate':'P0_REFUSED',
+                    'image_config':None,'receiver_accept':self.detail(*flags)})
+                self.assertNotIn('PRIVATE',json.dumps(fact))
+
+    def test_invalid_detail_types_extra_keys_and_all_true_stay_coarse(self):
+        for key in self.detail():
+            for value in (0,1,None,'PRIVATE',[],{}):
+                error=ValueError('P0_REFUSED');detail=self.detail(False,False,False);detail[key]=value
+                error.native_preflight_receiver_accept=detail
+                self.assertEqual(P.run_failure_fact(error,'RECEIVER_ACCEPT'),
+                    {'schema_version':2,'stage':'RECEIVER_ACCEPT','predicate':'P0_REFUSED','image_config':None})
+        for detail in (self.detail(),dict(self.detail(False),PRIVATE='body'),{},None):
+            error=ValueError('P0_REFUSED');error.native_preflight_receiver_accept=detail
+            self.assertNotIn('receiver_accept',P.run_failure_fact(error,'RECEIVER_ACCEPT'))
+
+    def test_generic_or_old_failure_without_detail_is_unchanged(self):
+        for error in (ValueError('P0_REFUSED'),ValueError('PRIVATE'),TypeError('PRIVATE')):
+            fact=P.run_failure_fact(error,'RECEIVER_ACCEPT')
+            self.assertEqual(fact['schema_version'],2);self.assertNotIn('receiver_accept',fact)
+            self.assertNotIn('PRIVATE',json.dumps(fact))
+        error=ValueError('P0_REFUSED');error.native_preflight_receiver_accept=self.detail(False)
+        self.assertNotIn('receiver_accept',P.run_failure_fact(error,'RETURN'))
+
+    def test_no_raw_child_operand_or_foreign_hooks_are_exported(self):
+        class ForeignInt(int):
+            def __eq__(self,other):raise AssertionError('foreign comparison')
+        value=record();detail=P.receiver_acceptance_fact({'exit_code':ForeignInt(0)},value,{'remove_exit':0,'absent':True})
+        self.assertEqual(detail,self.detail(False))
+        detail=P.receiver_acceptance_fact({'exit_code':1,'stderr':b'PRIVATE'},value,{'remove_exit':1,'absent':True})
+        self.assertEqual(detail,self.detail(False,True,False));self.assertNotIn('PRIVATE',json.dumps(detail))
+        class ForeignDict(dict):
+            def get(self,*args):raise AssertionError('foreign get')
+        self.assertIsNone(P.receiver_acceptance_fact(ForeignDict(),value,{'remove_exit':0,'absent':True}))
+
+    def test_secondary_capture_control_retains_primary_and_cancellation(self):
+        with patch.object(P,'tick',lambda end:None):
+            for control in (KeyboardInterrupt('PRIVATE'),SystemExit(7),BaseException('PRIVATE')):
+                with patch.object(P,'receiver_acceptance_fact',side_effect=control):error=self.failure(False,True,True)
+                self.assertEqual(error.args,('P0_REFUSED',));self.assertIs(error.__cause__,control)
+                self.assertTrue(error.native_preflight_cancelled)
+                self.assertNotIn('PRIVATE',json.dumps(P.run_failure_fact(error,'RECEIVER_ACCEPT')))
+
+
 if __name__=='__main__': unittest.main()

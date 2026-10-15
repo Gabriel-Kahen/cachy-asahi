@@ -274,14 +274,37 @@ def container_binding(rows, cid, name, trial, source, inputs, output):
          {(m.get('Source'),m.get('Destination'),m.get('RW')) for m in mounts}==expected, 'CONTAINER_MOUNTS')
 
 
+def receiver_acceptance_fact(result, record, cleanup):
+    """Three closed acceptance booleans; no raw child result or diagnostics."""
+    if not all(type(value) is dict and all(type(key) is str for key in value)
+               for value in (result,record,cleanup)): return None
+    code=result.get('exit_code')
+    if not all(type(record.get(key)) is str for key in ('status','phase','ABI','matrix')):return None
+    remove=cleanup.get('remove_exit');absent=cleanup.get('absent')
+    return {'start_success':type(code) is int and code==0,
+            'receiver_preflight_only':record['status']=='PASS_NATIVE_PREFLIGHT_ONLY' and
+                record['phase']=='complete' and record['ABI']==record['matrix']=='NOT_RUN',
+            'native_cleanup_pass':set(cleanup)=={'remove_exit','absent'} and
+                type(remove) is int and remove==0 and type(absent) is bool and absent is True}
+
+
 def accept(result, public_raw, private_raw, receiver, cleanup, end):
     tick(end)
     record = strict(public_raw)
     need(receiver.public(record) == public_raw and strict(private_raw) == record, 'RECEIVER_RESULT')
-    need(type(result['exit_code']) is int and result['exit_code'] == 0 and record['status'] == 'PASS_NATIVE_PREFLIGHT_ONLY' and
-         record['phase'] == 'complete' and record['ABI'] == record['matrix'] == 'NOT_RUN' and
-         type(cleanup) is dict and cleanup == {'remove_exit':0,'absent':True} and
-         type(cleanup['remove_exit']) is int and type(cleanup['absent']) is bool, 'P0_REFUSED')
+    try:
+        need(type(result['exit_code']) is int and result['exit_code'] == 0 and record['status'] == 'PASS_NATIVE_PREFLIGHT_ONLY' and
+             record['phase'] == 'complete' and record['ABI'] == record['matrix'] == 'NOT_RUN' and
+             type(cleanup) is dict and cleanup == {'remove_exit':0,'absent':True} and
+             type(cleanup['remove_exit']) is int and type(cleanup['absent']) is bool, 'P0_REFUSED')
+    except ValueError as error:
+        try:
+            detail=receiver_acceptance_fact(result,record,cleanup)
+            if detail is not None:
+                state=BaseException.__dict__['__dict__'].__get__(error,type(error))
+                state['native_preflight_receiver_accept']=detail
+        except BaseException as secondary:retain_failure(error,secondary)
+        raise
     return record
 
 
@@ -328,6 +351,14 @@ def run_failure_fact(error, stage):
                     names = [part[0] for part in parts]
                     if len(set(names)) == len(names) and tuple(names) == tuple(name for name in CONFIG if name in names):
                         image_config = {'boundary':'POLICY_FIELDS','fields':[{'name':name,'kind':kind} for name,kind in parts]}
+    if stage=='RECEIVER_ACCEPT' and predicate=='P0_REFUSED':
+        state=BaseException.__dict__['__dict__'].__get__(error,type(error))
+        detail=state.get('native_preflight_receiver_accept')
+        keys=('start_success','receiver_preflight_only','native_cleanup_pass')
+        if (type(detail) is dict and all(type(key) is str for key in detail) and set(detail)==set(keys) and
+                all(type(detail[key]) is bool for key in keys) and not all(detail.values())):
+            return {'schema_version':3,'stage':stage,'predicate':predicate,'image_config':None,
+                    'receiver_accept':{key:detail[key] for key in keys}}
     return {'schema_version':2,'stage':stage,'predicate':predicate,'image_config':image_config}
 
 

@@ -1766,7 +1766,7 @@
     },
     "scripts/ci/development/controller.py": {
       "mode": 420,
-      "sha256": "b9b73146f78beb73f0b46e669368bfedcaca677639057f8f7f9471d83bba24fd"
+      "sha256": "7166fa083969adaafb7ad61fcab0fb09706daf63a9b144ffc100660b4b7601fa"
     },
     "scripts/ci/development/initial_artifacts.py": {
       "mode": 420,
@@ -1794,7 +1794,7 @@
     },
     "scripts/ci/development/test_controller.py": {
       "mode": 420,
-      "sha256": "aabb2a1001dce812c445b6e7a56a3fe57bcc88126cc00cbf4c6971966163c59a"
+      "sha256": "b76fd4129678eb22cdaa46aab62fdc66ac834540b7b64762cc1fff27ab9011f8"
     },
     "scripts/ci/development/test_initial_artifacts.py": {
       "mode": 420,
@@ -1986,7 +1986,7 @@
     },
     "scripts/install/native_preflight.py": {
       "mode": 420,
-      "sha256": "2282acd6882800670f9cf46791c50b07d7b9484c8c63cdfdf1434a57f015bcb6"
+      "sha256": "23305749dc60fdf27ebb9fd124548cb1d2ddb2ae9707b8e9bcff0335c135d196"
     },
     "scripts/install/test_local_transaction.py": {
       "mode": 420,
@@ -1998,7 +1998,7 @@
     },
     "scripts/install/test_native_preflight.py": {
       "mode": 420,
-      "sha256": "f68fa08d2a5d0884607232d77e1f29692432288e95060ff193c3c230eb7c652b"
+      "sha256": "770ba4ea7f4616db0ce5e5f6ec55bccc4a65455bd6ace965c98642e4a9b0d79a"
     },
     "scripts/integration/desktop.py": {
       "mode": 420,
