@@ -575,6 +575,10 @@ def generic_preflight(vm_contract, vm_sha256, worker_sha256):
     return value
 
 
+class GenericDeclaredAfterMismatch(ValueError):
+    """Closed generic fixture declaration refusal, before actors or commit."""
+
+
 def validate_contract(contract, selection_sha256=None, *, generic_vm_contract_sha256=None):
     fields = {'schema_version', 'scope', 'workspace', 'architecture', 'before', 'after', 'protected',
               'add', 'remove', 'keyring', 'timeout_seconds', 'libalpm_sha256'}
@@ -609,9 +613,14 @@ def validate_contract(contract, selection_sha256=None, *, generic_vm_contract_sh
         need(row['name'] not in planned and type(row['signer']) is str and FPR.fullmatch(row['signer']), 'duplicate add or signer refused')
         planned[row['name']] = row['version']
     if native or generic:
-        need(all(name.startswith('caa-install-fixture-') for rows in (before, after, protected, remove, planned) for name in rows),
+        need(all(name.startswith('caa-install-fixture-') or (generic and kind == 'after' and
+                 name == 'undeclared-extra' and rows[name] == '1')
+                 for kind, rows in (('before', before), ('after', after), ('protected', protected),
+                                   ('remove', remove), ('planned', planned)) for name in rows),
              'native profile admits inert fixture identities only')
-    need(declared_after(before, planned, remove) == after, 'declared full after map differs')
+    after_matches = declared_after(before, planned, remove) == after
+    if generic and not after_matches: raise GenericDeclaredAfterMismatch('declared full after map differs')
+    need(after_matches, 'declared full after map differs')
     need(all(before.get(n) == after.get(n) == v and n not in planned and n not in remove for n, v in protected.items()), 'protected delta refused')
     need(type(contract['workspace']) is str, 'workspace required')
     return contract
@@ -1348,6 +1357,7 @@ def execute(contract_path, contract_sha256, output_path, *, worker_source_sha256
 
 def cli_failure(error):
     record = {'status': 'REFUSED', 'commit_started': False, 'committed': False, 'output': None}
+    if type(error) is GenericDeclaredAfterMismatch: record['phase'] = 'declaration-after'
     if isinstance(OWNED_OUTPUT, Evidence) and OWNED_OUTPUT.fd is not None:
         record.update(status='FAIL', commit_started='UNKNOWN' if ENGINE_STARTED else False,
                       committed='UNKNOWN' if ENGINE_STARTED else False, output=str(OWNED_OUTPUT), evidence_identity=list(OWNED_OUTPUT.identity))
