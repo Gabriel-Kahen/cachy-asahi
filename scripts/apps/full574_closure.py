@@ -13,6 +13,9 @@ import importlib.util
 _spec=importlib.util.spec_from_file_location("_apps574_file_capabilities",Path(__file__).with_name("file_capabilities.py"))
 caps=importlib.util.module_from_spec(_spec);sys.modules[_spec.name]=caps;_spec.loader.exec_module(caps)
 
+_copy_spec=importlib.util.spec_from_file_location("_apps574_copy_scope",Path(__file__).with_name("full574_copy.py"))
+copy_scope=importlib.util.module_from_spec(_copy_spec);sys.modules[_copy_spec.name]=copy_scope;_copy_spec.loader.exec_module(copy_scope)
+
 PURPOSE='APPS_ORIGINAL574_READONLY_CLOSURE'
 LOCK_SHA256='cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac'
 VERSIONS={'cachy-asahi-apps':'0.1.0-5','cachy-asahi-repository-runtime':'0.1.0-1',
@@ -199,7 +202,7 @@ class Adapter:
     def copy(self,source,target,**kwargs):
         need(Path(source)==self.source,'copy-source-lease')
         self.source_check()
-        value=aux_copy.copy_data(source,target,**kwargs)
+        value=copy_scope.copy_data(source,target,**kwargs)
         observation=measure(target,kwargs['limits'])
         baseline_nodes(self.source_check()[0]['nodes'],observation['nodes'],self.payloads)
         restored=caps.restore(target,observation['nodes'],self.policy['source_capabilities'],kwargs['limits'])

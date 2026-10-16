@@ -114,10 +114,10 @@ class Capabilities(unittest.TestCase):
         nodes={'inert':{'type':'file'}};adapter.source_check=lambda:({'nodes':nodes},{})
         calls=[]
         def restore(root,actual,wanted,budget):calls.append((root,actual,wanted));return wanted
-        with patch.object(C.aux_copy,'copy_data',return_value={'copied':True}),patch.object(C,'measure',return_value={'nodes':nodes}),patch.object(C,'baseline_nodes'),patch.object(C.caps,'restore',side_effect=restore):
+        with patch.object(C.copy_scope,'copy_data',return_value={'copied':True}),patch.object(C,'measure',return_value={'nodes':nodes}),patch.object(C,'baseline_nodes'),patch.object(C.caps,'restore',side_effect=restore):
             value=adapter.copy(adapter.source,Path('/owned'),limits=T.limits())
         self.assertEqual(len(calls),1);self.assertEqual(value['security_capabilities'],'EXACT_SOURCE_MAP_RESTORED_AND_VERIFIED');self.assertEqual(value['apps_full574_binding'],adapter.binding)
-        with patch.object(C.aux_copy,'copy_data',return_value={}),patch.object(C,'measure',return_value={'nodes':nodes}),patch.object(C,'baseline_nodes'),patch.object(C.caps,'restore',side_effect=ValueError('unexpected capability')):
+        with patch.object(C.copy_scope,'copy_data',return_value={}),patch.object(C,'measure',return_value={'nodes':nodes}),patch.object(C,'baseline_nodes'),patch.object(C.caps,'restore',side_effect=ValueError('unexpected capability')):
             with self.assertRaisesRegex(ValueError,'unexpected capability'):adapter.copy(adapter.source,Path('/owned'),limits=T.limits())
     def test_real_temp_unknown_xattr_refuses_without_running_file(self):
         with tempfile.TemporaryDirectory() as temporary:
