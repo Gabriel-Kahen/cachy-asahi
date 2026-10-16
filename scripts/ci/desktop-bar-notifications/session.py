@@ -13,6 +13,7 @@ import time
 SUMMARY = 'Cachy Asahi desktop'
 BODY = 'Waybar and Mako: generic ARM software check'
 APP = 'cachy-asahi-smoke'
+RENDERING_MODE = 'reload-assisted'
 MAKO_NAMESPACE = 'notifications'  # Pinned Mako wayland.c, not its executable name.
 TEMPLATES = Path('/usr/share/cachy-asahi/hyprland')
 BUS = ['/usr/bin/busctl', '--user', '--auto-start=no', '--timeout=5s', 'call']
@@ -185,7 +186,17 @@ def phase(stage, config, env, logs):
             b = owned_layer(value, MAKO_NAMESPACE, mako.process.pid)
             return dict(bar=a, mako=b, notification=notice) if a and b else None
 
-        wait_ready(visible, healthy, 60, 'visible bar and notification')
+        initial = wait_ready(visible, healthy, 60, 'visible bar and notification')
+        base.emit('notification_render_snapshot', stage=stage, point='before_reload',
+                  rendering_mode=RENDERING_MODE, reload_count=0, **initial,
+                  waybar_pid=bar.process.pid, mako_pid=mako.process.pid)
+        # Rebuild Mako's surface once after initial mapping; keep the same payload.
+        command(['/usr/bin/makoctl', 'reload'], 'redraw')
+        redrawn = wait_ready(visible, healthy, 30, 'redrawn bar and notification')
+        need(redrawn['notification'] == initial['notification'], 'notification changed during reload')
+        base.emit('notification_render_snapshot', stage=stage, point='after_reload',
+                  rendering_mode=RENDERING_MODE, reload_count=1, **redrawn,
+                  waybar_pid=bar.process.pid, mako_pid=mako.process.pid)
         start = time.monotonic()
         while time.monotonic() - start < 5:
             healthy()
@@ -193,6 +204,7 @@ def phase(stage, config, env, logs):
         current = visible()
         need(current is not None, 'clients disappeared before capture')
         base.emit('frame_ready', stage=stage, monitors=monitors, **current,
+                  rendering_mode=RENDERING_MODE, cold_start_body_rendering='NOT_ESTABLISHED',
                   capture_after_ms=int((time.monotonic() - start) * 1000),
                   waybar_pid=bar.process.pid, mako_pid=mako.process.pid)
         after = time.monotonic() + 8
@@ -237,4 +249,5 @@ def phase(stage, config, env, logs):
                 first = error
     if first is not None:
         raise first
-    base.emit('phase_pass', stage=stage, waybar='PASS', mako='PASS', config_preserved=True)
+    base.emit('phase_pass', stage=stage, waybar='PASS', mako='PASS', config_preserved=True,
+              rendering_mode=RENDERING_MODE, cold_start_body_rendering='NOT_ESTABLISHED')
