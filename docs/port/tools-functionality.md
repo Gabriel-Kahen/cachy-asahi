@@ -56,6 +56,20 @@ composition, 16-KiB/M2 operation or release admission. No whole Cachy Zsh config
 or unresolved source grant is reused.
 
 
+October16 implementation: the mirror candidate0.2.0 now has explicit activation
+and restoration for caller-selected paths, a durable prior-state journal and
+conflict refusal. All29 host controls pass, including real tempfile CLI and
+SIGKILL recovery. Locks are advisory; external writers must stop during an
+operation. POSIX bytes/mode/uid/gid are covered; ACLs/xattrs/timestamps, storage
+power loss and actual base integration remain outside this evidence.
+
+The separate MIT Fish autopair candidate retains the exact audited upstream pin
+and five unchanged editing helpers. An independent opt-in wrapper avoids upstream
+startup/rebinder hooks and preserves existing keys/namespaces. The worker's14
+real host Fish4.9.3 controls/57 editor snapshots and eleven-file staging pass;
+no native/package-manager/16K/M2 acceptance is claimed. Older hosted Fish gets
+source/syntax checking only. Whole Fish configuration and M6 remain open.
+
 ## Scope and decision vocabulary
 
 Coverage includes the pinned Cachy-branded tool/configuration recipe catalog,
