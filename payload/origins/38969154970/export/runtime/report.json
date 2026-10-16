@@ -1,0 +1,477 @@
+{
+  "base_count": 574,
+  "base_image": "sha256:ae983734f574ef113118765b903778fc383e08f5b0204350ab4021d1b84f88b6",
+  "base_lock_sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac",
+  "commands": [
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--name",
+        "cachy-asahi-product-probe-fa1a190058d5f217bf79fb74f69ec793",
+        "--pull=never",
+        "--platform=linux/arm64",
+        "--network=none",
+        "--cap-drop=ALL",
+        "--security-opt=no-new-privileges",
+        "--pids-limit=256",
+        "--memory=3g",
+        "--cpus=4",
+        "--user",
+        "1001:1001",
+        "--tmpfs",
+        "/tmp:rw,nosuid,nodev,exec,size=2g",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/orphans-native-runtime,dst=/out",
+        "--read-only",
+        "--label=org.cachy-asahi.orphans-native.job=daba0c273518b9725df5f1aefe2584cc",
+        "--entrypoint=/bin/bash",
+        "sha256:ae983734f574ef113118765b903778fc383e08f5b0204350ab4021d1b84f88b6",
+        "-c",
+        "/usr/bin/pacman -T \"$@\" >/dev/null && /usr/bin/pacman -Q",
+        "orphans-dependencies",
+        "pacman",
+        "python>=3.11"
+      ],
+      "log": "base-inventory.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--name",
+        "cachy-asahi-product-fb334e2d09be9b0a16055217fe73beaf",
+        "--pull=never",
+        "--platform=linux/arm64",
+        "--network=none",
+        "--cap-drop=ALL",
+        "--security-opt=no-new-privileges",
+        "--pids-limit=256",
+        "--memory=3g",
+        "--cpus=4",
+        "--user",
+        "1001:1001",
+        "--tmpfs",
+        "/tmp:rw,nosuid,nodev,exec,size=2g",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/orphans-native-runtime/cachy-asahi-orphans-a/artifacts,dst=/out",
+        "--read-only",
+        "--label=org.cachy-asahi.orphans-native.job=daba0c273518b9725df5f1aefe2584cc",
+        "--env=CACHY_ASAHI_CONTAINER=1",
+        "--env=SOURCE_DATE_EPOCH=1791748800",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/orphans-native-runtime/cachy-asahi-orphans-a/inputs,dst=/inputs,readonly",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/orphans-native-runtime/cachy-asahi-orphans-a/expected-packages.lock,dst=/expected-packages.lock,readonly",
+        "--mount",
+        "type=bind,src=/home/runner/work/cachy-asahi/cachy-asahi/scripts/build/container-entry.sh,dst=/builder-entry.sh,readonly",
+        "--entrypoint=/bin/bash",
+        "sha256:ae983734f574ef113118765b903778fc383e08f5b0204350ab4021d1b84f88b6",
+        "/builder-entry.sh"
+      ],
+      "log": "cachy-asahi-orphans-a/build.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--name",
+        "cachy-asahi-product-86458e413504c53929655d037003d04f",
+        "--pull=never",
+        "--platform=linux/arm64",
+        "--network=none",
+        "--cap-drop=ALL",
+        "--security-opt=no-new-privileges",
+        "--pids-limit=256",
+        "--memory=3g",
+        "--cpus=4",
+        "--user",
+        "1001:1001",
+        "--tmpfs",
+        "/tmp:rw,nosuid,nodev,exec,size=2g",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/orphans-native-runtime/cachy-asahi-orphans-b/artifacts,dst=/out",
+        "--read-only",
+        "--label=org.cachy-asahi.orphans-native.job=daba0c273518b9725df5f1aefe2584cc",
+        "--env=CACHY_ASAHI_CONTAINER=1",
+        "--env=SOURCE_DATE_EPOCH=1791748800",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/orphans-native-runtime/cachy-asahi-orphans-b/inputs,dst=/inputs,readonly",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/orphans-native-runtime/cachy-asahi-orphans-b/expected-packages.lock,dst=/expected-packages.lock,readonly",
+        "--mount",
+        "type=bind,src=/home/runner/work/cachy-asahi/cachy-asahi/scripts/build/container-entry.sh,dst=/builder-entry.sh,readonly",
+        "--entrypoint=/bin/bash",
+        "sha256:ae983734f574ef113118765b903778fc383e08f5b0204350ab4021d1b84f88b6",
+        "/builder-entry.sh"
+      ],
+      "log": "cachy-asahi-orphans-b/build.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--name",
+        "cachy-asahi-product-lifecycle-728195310fb1f04c99213f71415ac13f",
+        "--pull=never",
+        "--platform=linux/arm64",
+        "--network=none",
+        "--cap-drop=ALL",
+        "--security-opt=no-new-privileges",
+        "--pids-limit=256",
+        "--memory=3g",
+        "--cpus=4",
+        "--user",
+        "0:0",
+        "--tmpfs",
+        "/tmp:rw,nosuid,nodev,exec,size=2g",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/orphans-native-runtime/lifecycle-output,dst=/out",
+        "--cap-add=CHOWN",
+        "--cap-add=DAC_OVERRIDE",
+        "--cap-add=FOWNER",
+        "--cap-add=FSETID",
+        "--cap-add=SETUID",
+        "--cap-add=SETGID",
+        "--label=org.cachy-asahi.orphans-native.job=daba0c273518b9725df5f1aefe2584cc",
+        "--env=CACHY_ASAHI_ORPHANS_OPERATION=lifecycle",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/orphans-native-runtime/lifecycle-inputs,dst=/inputs,readonly",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/orphans-native-runtime/lifecycle-inputs/runner,dst=/runner,readonly",
+        "--entrypoint=/usr/bin/python3",
+        "sha256:ae983734f574ef113118765b903778fc383e08f5b0204350ab4021d1b84f88b6",
+        "-I",
+        "-B",
+        "/runner/lifecycle.py"
+      ],
+      "log": "lifecycle.log"
+    }
+  ],
+  "dependencies": [
+    "pacman",
+    "python>=3.11"
+  ],
+  "hardware": "NOT_RUN",
+  "lifecycle": {
+    "architecture": "aarch64",
+    "base574_preserved": true,
+    "base_count": 574,
+    "base_manifest_sha256": "7057a60e86184bfe6bbbe65f09cbc6f82774e3f765f81c466797987ce8c3d1e7",
+    "events": [
+      {
+        "base574_preserved": true,
+        "count": 575,
+        "observations": [
+          {
+            "apply_supported": false,
+            "base_protected": true,
+            "db_preserved": true,
+            "default_database": "PASS_EXACT575_METADATA_ONLY",
+            "default_dbpath": "/var/lib/pacman",
+            "default_root": "/",
+            "fixture": "PASS_VERSIONED_PROVIDED_OPTIONAL_CYCLE_PROTECTED",
+            "foreign_lock": "PASS_REFUSAL_PRESERVED",
+            "home": "orphans-home-fresh",
+            "plan_verify": "PASS_NOT_APPLIED",
+            "readonly_enforced": "UNPRIVILEGED_NO_DB_WRITE_ACCESS",
+            "reports": {
+              "default-assessment.json": "54fb01bc6951e5bc8dad2252af0dba962db71cee9124468d46b4221bd737e7d3",
+              "fixture-assessment.json": "fd956e7665ad6be5246ca6cd1e345d2abf8a760382e7d4981c324688dc0ddd8d",
+              "fixture-observation.json": "e8996dcd02eb06128a22b419a5338b96c102907ebb93d199925c3ecc829371bd",
+              "fixture-plan.json": "3cd23193a8a7f9bf4cd1c7727c47ee40ebc1011ea08e38dd87cc5026aa91bf28"
+            }
+          },
+          {
+            "apply_supported": false,
+            "base_protected": true,
+            "db_preserved": true,
+            "default_database": "PASS_EXACT575_METADATA_ONLY",
+            "default_dbpath": "/var/lib/pacman",
+            "default_root": "/",
+            "fixture": "PASS_VERSIONED_PROVIDED_OPTIONAL_CYCLE_PROTECTED",
+            "foreign_lock": "PASS_REFUSAL_PRESERVED",
+            "home": "orphans-home-existing",
+            "plan_verify": "PASS_NOT_APPLIED",
+            "readonly_enforced": "UNPRIVILEGED_NO_DB_WRITE_ACCESS",
+            "reports": {
+              "default-assessment.json": "54fb01bc6951e5bc8dad2252af0dba962db71cee9124468d46b4221bd737e7d3",
+              "fixture-assessment.json": "b887f5d3a2ea97e8e2c1dfd78f7a9f7cc162db617d0271ec60c52a1c73044871",
+              "fixture-observation.json": "495be89f8e1851ce5d54b74d238d3c864ac2887356c401397b56dd5ef1266651",
+              "fixture-plan.json": "218ee7f12392bfdc7aa2225a0e9b0829053f5124560fd7dde434c01be58a6efd"
+            }
+          }
+        ],
+        "phase": "install",
+        "user_preserved": true
+      },
+      {
+        "base574_preserved": true,
+        "count": 575,
+        "observations": [
+          {
+            "apply_supported": false,
+            "base_protected": true,
+            "db_preserved": true,
+            "default_database": "PASS_EXACT575_METADATA_ONLY",
+            "default_dbpath": "/var/lib/pacman",
+            "default_root": "/",
+            "fixture": "PASS_VERSIONED_PROVIDED_OPTIONAL_CYCLE_PROTECTED",
+            "foreign_lock": "PASS_REFUSAL_PRESERVED",
+            "home": "orphans-home-fresh",
+            "plan_verify": "PASS_NOT_APPLIED",
+            "readonly_enforced": "UNPRIVILEGED_NO_DB_WRITE_ACCESS",
+            "reports": {
+              "default-assessment.json": "43f79f3497ad5c078a8d447e0a7b8de80df788a9ca917e389e7fc0886992c521",
+              "fixture-assessment.json": "2e5a9d15bf4c01a1ace745d859e921e937aa632aa3c2fa6eeb319f1612aec107",
+              "fixture-observation.json": "ad443c2438840f3fb11d3bc229c83366f7fd68dad8451eea8a9bab378d45684a",
+              "fixture-plan.json": "c728035574374f0312e2ea5be39274568921aafa76e627c0a018ea84550525c9"
+            }
+          },
+          {
+            "apply_supported": false,
+            "base_protected": true,
+            "db_preserved": true,
+            "default_database": "PASS_EXACT575_METADATA_ONLY",
+            "default_dbpath": "/var/lib/pacman",
+            "default_root": "/",
+            "fixture": "PASS_VERSIONED_PROVIDED_OPTIONAL_CYCLE_PROTECTED",
+            "foreign_lock": "PASS_REFUSAL_PRESERVED",
+            "home": "orphans-home-existing",
+            "plan_verify": "PASS_NOT_APPLIED",
+            "readonly_enforced": "UNPRIVILEGED_NO_DB_WRITE_ACCESS",
+            "reports": {
+              "default-assessment.json": "43f79f3497ad5c078a8d447e0a7b8de80df788a9ca917e389e7fc0886992c521",
+              "fixture-assessment.json": "7b0bcb7355aad32ba7225f86e86bb08231028e14346f9392fd6145b3a60f1475",
+              "fixture-observation.json": "ad4903d440858d95e3be86aa29c6178471cdceb69332498c4f7db31986312c6c",
+              "fixture-plan.json": "64021e4eed62bdc156c947c54eef93144793dc6c92139d50ac539f3ca42e8dcc"
+            }
+          }
+        ],
+        "phase": "same-version-reinstall",
+        "user_preserved": true
+      },
+      {
+        "base574_preserved": true,
+        "count": 574,
+        "payloads_absent": true,
+        "phase": "remove",
+        "user_preserved": true
+      },
+      {
+        "base574_preserved": true,
+        "count": 575,
+        "observations": [
+          {
+            "apply_supported": false,
+            "base_protected": true,
+            "db_preserved": true,
+            "default_database": "PASS_EXACT575_METADATA_ONLY",
+            "default_dbpath": "/var/lib/pacman",
+            "default_root": "/",
+            "fixture": "PASS_VERSIONED_PROVIDED_OPTIONAL_CYCLE_PROTECTED",
+            "foreign_lock": "PASS_REFUSAL_PRESERVED",
+            "home": "orphans-home-fresh",
+            "plan_verify": "PASS_NOT_APPLIED",
+            "readonly_enforced": "UNPRIVILEGED_NO_DB_WRITE_ACCESS",
+            "reports": {
+              "default-assessment.json": "1c4036cdbf13fd03c1bb54f44e96f45ea1f0bdbc08b806cc3db80e6e9d0b9427",
+              "fixture-assessment.json": "0f88e43f7dd346a5ea639b2146b7e5b1dd5e0eb9048bcfac5875414da21d4387",
+              "fixture-observation.json": "8d1aa950fab4ab61eca4faec9beafa42a5f6bf64edfd3ea16d3965021f1dc961",
+              "fixture-plan.json": "1c8c67e74cdf1b66d04d2b87becb36387e235875bc11c34d2d35ec0305ee2252"
+            }
+          },
+          {
+            "apply_supported": false,
+            "base_protected": true,
+            "db_preserved": true,
+            "default_database": "PASS_EXACT575_METADATA_ONLY",
+            "default_dbpath": "/var/lib/pacman",
+            "default_root": "/",
+            "fixture": "PASS_VERSIONED_PROVIDED_OPTIONAL_CYCLE_PROTECTED",
+            "foreign_lock": "PASS_REFUSAL_PRESERVED",
+            "home": "orphans-home-existing",
+            "plan_verify": "PASS_NOT_APPLIED",
+            "readonly_enforced": "UNPRIVILEGED_NO_DB_WRITE_ACCESS",
+            "reports": {
+              "default-assessment.json": "1c4036cdbf13fd03c1bb54f44e96f45ea1f0bdbc08b806cc3db80e6e9d0b9427",
+              "fixture-assessment.json": "e5d938640f6070c85f5d2d549fccc0f16817fe743f63b9ebe95140d704f51466",
+              "fixture-observation.json": "37f4fa5c65a3734783d260856a77ae3ad378d4ffa37cb389f482c04f3a8a8d8a",
+              "fixture-plan.json": "caafbadf2311c5acbfcc7d6caf36056080ef772e75e466656f91f92d8d8c1082"
+            }
+          }
+        ],
+        "phase": "reinstall-after-removal",
+        "user_preserved": true
+      },
+      {
+        "base574_preserved": true,
+        "count": 574,
+        "payloads_absent": true,
+        "phase": "final-remove",
+        "user_preserved": true
+      }
+    ],
+    "hardware": "NOT_RUN",
+    "installed_count": 575,
+    "page_size": 4096,
+    "preserved_nodes": 114738,
+    "preserved_reports": 24,
+    "release": "NOT_ADMITTED",
+    "removal": "NOT_IMPLEMENTED",
+    "reports_preserved": true,
+    "status": "PASS_ORPHANS_INSTALLED_READONLY_LIFECYCLE",
+    "user_preserved": true
+  },
+  "original_selected_inventory": "UNCHANGED",
+  "ownership_token": "daba0c273518b9725df5f1aefe2584cc",
+  "performance": "NOT_MEASURED",
+  "products": {
+    "cachy-asahi-orphans": {
+      "builds": [
+        {
+          "archive": "cachy-asahi-orphans-0.1.0-1-any.pkg.tar.xz",
+          "payload": {
+            "usr/bin/cachy-asahi-orphans": {
+              "gid": 0,
+              "link": "",
+              "mode": 493,
+              "mtime": 1791748800,
+              "sha256": "2d7d6914482a76f963603ad71aab38f87693a1c7c7ad15f7ae54bf50a3c1d629",
+              "size": 19417,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/cachy-asahi-orphans/protection-floor.json": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "0d6dfbf3cd550fe72ddad30058693007f8bb86214de1e83442580677db5005f2",
+              "size": 10489,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/doc/cachy-asahi-orphans/README.md": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "421e83c8dd3f482ae0d35edf8565d09fa1d3cc2f9f4eb7e5459376b26a54991a",
+              "size": 8282,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/licenses/cachy-asahi-orphans/LICENSE": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+              "size": 1081,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/licenses/cachy-asahi-orphans/NOTICE": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "326f699857d31b8cd4462081aea074d4349721fb9c48965db6208c793a086720",
+              "size": 759,
+              "type": "0",
+              "uid": 0
+            }
+          },
+          "sha256": "21b13501d8ed5de828e7ac47ff8c8ec2132ca3f0af68bb7062f22852ef640bea",
+          "tests": {
+            "count": 18,
+            "status": "PASS_18_CHECKS_NO_SKIPS"
+          }
+        },
+        {
+          "archive": "cachy-asahi-orphans-0.1.0-1-any.pkg.tar.xz",
+          "payload": {
+            "usr/bin/cachy-asahi-orphans": {
+              "gid": 0,
+              "link": "",
+              "mode": 493,
+              "mtime": 1791748800,
+              "sha256": "2d7d6914482a76f963603ad71aab38f87693a1c7c7ad15f7ae54bf50a3c1d629",
+              "size": 19417,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/cachy-asahi-orphans/protection-floor.json": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "0d6dfbf3cd550fe72ddad30058693007f8bb86214de1e83442580677db5005f2",
+              "size": 10489,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/doc/cachy-asahi-orphans/README.md": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "421e83c8dd3f482ae0d35edf8565d09fa1d3cc2f9f4eb7e5459376b26a54991a",
+              "size": 8282,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/licenses/cachy-asahi-orphans/LICENSE": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+              "size": 1081,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/licenses/cachy-asahi-orphans/NOTICE": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "326f699857d31b8cd4462081aea074d4349721fb9c48965db6208c793a086720",
+              "size": 759,
+              "type": "0",
+              "uid": 0
+            }
+          },
+          "sha256": "21b13501d8ed5de828e7ac47ff8c8ec2132ca3f0af68bb7062f22852ef640bea",
+          "tests": {
+            "count": 18,
+            "status": "PASS_18_CHECKS_NO_SKIPS"
+          }
+        }
+      ],
+      "comparison": {
+        "errors": [],
+        "hardware_status": "NOT RUN",
+        "independence_limit": "Distinct recorded container runs; independent machine execution is not attested.",
+        "packages": {
+          "cachy-asahi-orphans-0.1.0-1-any.pkg.tar.xz": {
+            "buildinfo_equal": true,
+            "bytes_equal": true,
+            "installed_contents_equal": true,
+            "pkginfo_equal": true
+          }
+        },
+        "status": "contents-reproduced"
+      },
+      "version": "0.1.0-1"
+    }
+  },
+  "removal": "NOT_IMPLEMENTED",
+  "scope": "ONE_UNSELECTED_READONLY_ORPHAN_CANDIDATE",
+  "signer": {
+    "authority": "EPHEMERAL_TEST_ONLY_OUTSIDE_UNTRUSTED_ACTORS",
+    "fingerprint": "B89BEF9A105521F3A596778C1796A1011274E291"
+  },
+  "status": "PASS_NATIVE_ORPHANS_PAIR_AND_READONLY_LIFECYCLE"
+}
