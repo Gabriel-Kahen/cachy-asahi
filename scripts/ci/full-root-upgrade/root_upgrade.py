@@ -258,6 +258,7 @@ def run(args, *, runtime_module, copy_module, constructor, prepare_copy=None):
             generic.read_policy(args.policy, args.policy_sha256)
             args.state_dir = str(data / 'state'); Path(args.state_dir).mkdir(mode=0o700)
             settings = dict(schema_version=1, purpose='disposable-generic-bound-update', namespace=args.namespace,
+                release_synthetic=False,
                 signer=release['signer'], minimum_sequence=args.sequence, release_id=release['release_id'],
                 repo_name=release['repo_name'], metadata_sha256=sha(Path(args.metadata).read_bytes()),
                 release_sha256=sha((Path(args.bundle) / 'release.json').read_bytes()),

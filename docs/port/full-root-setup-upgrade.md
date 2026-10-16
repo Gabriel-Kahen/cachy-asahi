@@ -27,6 +27,18 @@ All24 auxiliary controls pass in an isolated user namespace. The actual failed
 path was not retained; future errors include its name, and a retry must confirm
 whether this source-demonstrated mismatch explains the actual refusal.
 
+Actual38867099756 passes the complete124745-node copy, its one-shot initializer
+(observed helper exit0), prepared baseline, repository construction, unchanged
+persistent source and owned-copy/outer cleanup. It then refuses snapshot
+authentication because the helper requires synthetic metadata while this
+constructor correctly declares actual provenance. Upgrade commit flags remain
+false; aggregate transaction count remains UNKNOWN. The correction selects an
+explicit hash-bound `release_synthetic=false` only for this generic disposable
+repository-update context. Both metadata and semantically verified spec must
+match; signature and semantic verification remain mandatory. Legacy synthetic
+defaults pass all19 real signed update and10 snapshot controls;15 new selection
+controls and34 caller controls pass. A real upgrade retry is still required.
+
 The successor is the retained setup package with SHA256
 `c817c01aad875fcf5a34073d4c9d0e830c577301189148b3c0e0969f001bea1a`.
 The constructor keeps its real341-package build identity separate from the587
