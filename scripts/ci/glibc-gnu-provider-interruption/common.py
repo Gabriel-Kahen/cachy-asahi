@@ -59,11 +59,12 @@ def helpers(root):
     for name,row in manifest['files'].items():
         raw=read(HERE/relative(name));need(len(raw)==row['bytes'] and sha(raw)==row['sha256'],'lifecycle source changed: '+name)
     dependencies=json.loads(read(HERE/'dependencies.json'))
+    need({'scripts/apps/file_capabilities.py','scripts/ci/apps-full574-native/export_extract.py','scripts/ci/glibc-gnu-provider-lifecycle-owner/snapshot.py','scripts/ci/glibc-gnu-provider-lifecycle/capabilities.py'}<=dependencies['files'].keys(),'capability-aware frozen helper closure required')
     for n,row in dependencies['files'].items():
         raw=read(root/relative(n));need(len(raw)==row['bytes'] and sha(raw)==row['sha256'],'held helper changed: '+n)
     sys.path.insert(0,str(root/'scripts/update'))
     import full_root,aux_copy
-    return dict(roots=full_root,copy=aux_copy,db=load('database',root/'scripts/ci/full-root-upgrade/root_upgrade.py'),
+    return dict(caps=load('file_capabilities',root/'scripts/apps/file_capabilities.py'),capabilities=load('capability_bridge',root/'scripts/ci/glibc-gnu-provider-lifecycle/capabilities.py'),roots=full_root,copy=aux_copy,db=load('database',root/'scripts/ci/full-root-upgrade/root_upgrade.py'),
         runtime=load('runtime',root/'scripts/ci/glibc-owned-runtime/runner.py'))
 
 
@@ -81,6 +82,7 @@ def archive(path):
         for m in stream:
             n=relative(m.name.rstrip('/'));need(n not in nodes and len(nodes)<60000 and m.uid==m.gid==0 and not m.mode&0o7000,'package member identity/mode')
             need(m.isfile() or m.isdir() or m.issym(),'ordinary package member')
+            need(set(m.pax_headers)<={'path','linkpath','mtime','atime','ctime'},'provider/held package xattrs or unknown PAX refused')
             row=dict(type='directory' if m.isdir() else 'symlink' if m.issym() else 'file',mode=m.mode,uid=m.uid,gid=m.gid)
             if m.issym():
                 need(not m.linkname.startswith('/') and '\x00' not in m.linkname,'relative package link');row['target']=m.linkname
@@ -117,6 +119,8 @@ def configuration(inputs,pin):
     producer=json.loads(read(ref(inputs,value['producer_report'])))
     need(producer['status']=='PASS_NATIVE_OFFLINE_574_TRANSACTION' and producer['image']==value['image_id'] and producer['packages']==574 and producer['ownership']['token']==value['producer_token'],'existing owned original574 producer binding')
     need(re.fullmatch('[0-9a-f]{64}',value['source_nodes_sha256']),'frozen source node-map hash')
+    capmap=value['source_capabilities'];capraw=(json.dumps(capmap,sort_keys=True,indent=2,allow_nan=False)+'\n').encode()
+    need(type(capmap) is dict and len(capraw)<=1024**2 and re.fullmatch('[0-9a-f]{64}',value['source_capabilities_sha256']) and sha(capraw)==value['source_capabilities_sha256'],'frozen complete original574 capability map/hash')
     lock=ref(inputs,value['base_lock'],65536);need(sha(read(lock,65536))==BASE_LOCK,'exact original574 lock')
     base=dict(line.split(' ',1) for line in read(lock).decode().splitlines());need(len(base)==574 and 'glibc' in base,'574 held provider baseline')
     private=json.loads(read(ref(inputs,value['private16k'])))

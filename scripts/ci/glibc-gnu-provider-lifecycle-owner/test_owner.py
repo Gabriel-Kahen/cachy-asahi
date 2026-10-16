@@ -109,12 +109,12 @@ class Controls(unittest.TestCase):
         p=dict(files={'private.json':{k:v for k,v in job.ref(packet,proof).items() if k!='path'}},private16k=job.ref(packet,proof),provider_pair=job.ref(packet,proof),probe_receipt=job.ref(packet,proof),held=job.ref(packet,proof),archives={'a':job.ref(packet,proof),'b':job.ref(packet,proof)},probes={},provider_pkgbuild_sha256='c'*64)
         base=self.root/'base';base.mkdir();(base/'installed-packages.lock').write_bytes(b'fixture lock');job.save(base/'report.json',dict(status='fixture'))
         output=self.root/'output';output.mkdir();job.save(output/'owner.json',{})
-        report=dict(image='sha256:'+'d'*64,token='e'*32,producer_token='f'*16,source_snapshot=dict(observation=dict(node_sha256='0'*64)))
+        report=dict(image='sha256:'+'d'*64,token='e'*32,producer_token='f'*16,source_snapshot=dict(observation=dict(node_sha256='0'*64,security_capabilities={'usr/bin/INERT':'0100000240000000000000000000000000000000'},source_capabilities_sha256=hashlib.sha256((json.dumps({'usr/bin/INERT':'0100000240000000000000000000000000000000'},sort_keys=True,indent=2)+'\n').encode()).hexdigest())))
         inputs,runner=job.materialize(workspace,base,packet,p,output,report)
         self.assertEqual((lane/'common.py').read_bytes(),(runner/'common.py').read_bytes());self.assertEqual(job.read(lane/'input-policy.json')['status'],'UNBOUND_DO_NOT_EXECUTE')
         self.assertEqual(job.read(runner/'input-policy.json')['binding']['index_sha256'],job.sha(inputs/'lifecycle-input.json'))
         changed=job.read(runner/'source-manifest.json');self.assertEqual(changed['files']['common.py'],original['files']['common.py'])
-        self.assertEqual(report['private_binding']['changed_files'],['input-policy.json','source-manifest.json'])
+        self.assertEqual(report['private_binding']['changed_files'],['input-policy.json','source-manifest.json']);self.assertEqual(job.read(inputs/'lifecycle-input.json')['source_capabilities'],report['source_snapshot']['observation']['security_capabilities'])
 
     def test_unknown_consumer_blocks_producer_cleanup(self):
         output=self.root/'owner';output.mkdir();(output/'owner.lock').touch()
@@ -141,5 +141,17 @@ class Controls(unittest.TestCase):
         args=NS(workspace=self.root,proof=proof,receipt=cleanup,base=self.root/'base',output=output,packet_root=packet,public=self.root/'public')
         with patch.object(job,'selection'),patch.object(job,'packet',return_value=(packet,dict(files={}))):job.retain(args)
         files=job.read(args.public/'export.json')['files'];self.assertFalse(any('source.tar' in n or 'original574/' in n for n in files))
+
+
+    def test_setfcap_grant_is_only_the_exact_extraction_actor(self):
+        for role in ('extract','source-cleanup','inner-scrub'):
+            output=self.root/role;output.mkdir();report=dict(token='a'*32,image='sha256:'+'b'*64,actors=[],snapshot_point=dict(archive_sha256='c'*64));command=unittest.mock.Mock(return_value=dict(code=0))
+            with patch.object(job,'inspect',side_effect=[None,{}]),patch.object(job,'verify_actor',return_value='d'*64):job.observer(self.root,output,report,command,role,'/runner/capability_snapshot.py')
+            argv=command.call_args.args[0];self.assertEqual('--cap-add=SETFCAP' in argv,role=='extract');self.assertIn('--network=none',argv);self.assertIn('--security-opt=no-new-privileges',argv)
+
+    def test_capability_wrapper_is_isolated_and_original_extractors_are_unchanged(self):
+        repo=next(p for p in Path(__file__).resolve().parents if (p/'manifests/packages.toml').is_file())
+        original=repo/'scripts/ci/glibc-gnu-provider-lifecycle-owner/snapshot.py';self.assertEqual(job.sha(original),'9738acb125ce6d468d5359ecfbd5540454826567fd4ac4481576ec31da37190c')
+        text=(job.HERE/'capability_snapshot.py').read_text();self.assertIn("scripts/ci/apps-full574-native/export_extract.py",text);self.assertIn("old=derivative.isolated",text);self.assertIn("api['caps'].restore",text)
 
 if __name__=='__main__':unittest.main()

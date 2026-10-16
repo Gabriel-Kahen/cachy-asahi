@@ -109,12 +109,12 @@ class Controls(unittest.TestCase):
         p=dict(files={'private.json':{k:v for k,v in job.ref(packet,proof).items() if k!='path'}},private16k=job.ref(packet,proof),provider_pair=job.ref(packet,proof),probe_receipt=job.ref(packet,proof),held=job.ref(packet,proof),archives={'a':job.ref(packet,proof),'b':job.ref(packet,proof)},probes={},provider_pkgbuild_sha256='c'*64)
         base=self.root/'base';base.mkdir();(base/'installed-packages.lock').write_bytes(b'fixture lock');job.save(base/'report.json',dict(status='fixture'))
         output=self.root/'output';output.mkdir();job.save(output/'owner.json',{})
-        report=dict(image='sha256:'+'d'*64,token='e'*32,producer_token='f'*16,source_snapshot=dict(observation=dict(node_sha256='0'*64)))
+        report=dict(image='sha256:'+'d'*64,token='e'*32,producer_token='f'*16,source_snapshot=dict(observation=dict(node_sha256='0'*64,security_capabilities={'usr/bin/INERT':'0100000240000000000000000000000000000000'},source_capabilities_sha256=hashlib.sha256((json.dumps({'usr/bin/INERT':'0100000240000000000000000000000000000000'},sort_keys=True,indent=2)+'\n').encode()).hexdigest())))
         inputs,runner=job.materialize(workspace,base,packet,p,output,report)
         self.assertEqual((lane/'common.py').read_bytes(),(runner/'common.py').read_bytes());self.assertEqual(job.read(lane/'input-policy.json')['status'],'UNBOUND_DO_NOT_EXECUTE')
         self.assertEqual(job.read(runner/'input-policy.json')['binding']['index_sha256'],job.sha(inputs/'interruption-input.json'))
         changed=job.read(runner/'source-manifest.json');self.assertEqual(changed['files']['common.py'],original['files']['common.py'])
-        self.assertEqual(report['private_binding']['changed_files'],['input-policy.json','source-manifest.json'])
+        self.assertEqual(report['private_binding']['changed_files'],['input-policy.json','source-manifest.json']);self.assertEqual(job.read(inputs/'interruption-input.json')['source_capabilities'],report['source_snapshot']['observation']['security_capabilities'])
 
     def consumer_fixture(self):
         output=self.root/'complete-owner';public=output/'inner/public';public.mkdir(parents=True)
@@ -128,12 +128,13 @@ class Controls(unittest.TestCase):
                 lock_recovery=dict(status='PASS_EXACT_OWNED_STALE_LOCK_REMOVED_AFTER_GROUP_ABSENCE'),
                 outer_runtime_before=dict(synthetic='only'),outer_runtime_after=dict(synthetic='only'))
             row=dict(status='PASS_INTERRUPTED_RECOVERED_NORMAL_PROVIDER_SEQUENCE',source_before=observation,
-                     source_after=observation,copy_lifetime=dict(cleanup='PASS-owned-workspace-removed'),interruption=interrupted)
+                     source_after=observation,copy_lifetime=dict(cleanup='PASS-owned-workspace-removed',security_capabilities='EXACT_SOURCE_MAP_RESTORED_AND_VERIFIED',source_capabilities_sha256=hashlib.sha256(b'{}\n').hexdigest()),interruption=interrupted,capability_checks={})
             for name in ('before_runtime','recovered_runtime','provider_runtime','reinstalled_runtime','held_runtime'):
                 row[name]=dict(normal_parent_and_child=True,result=dict(status='PASS',cases=8,page_size=4096))
             cases[case]=row
             for stage in ('source-before','source-after','clone','before574','precommit-refused',
                           'interrupted-before-unlock','recovered-held574','provider574','reinstalled574','held574'):
+                row['capability_checks'][case+'-'+stage]=dict(status='EXACT_SOURCE_MAP_PRESERVED',sha256=hashlib.sha256(b'{}\n').hexdigest(),paths=0)
                 (public/(case+'-'+stage+'-root.json.gz')).write_bytes(b'synthetic observation fixture only')
         value=dict(status='PASS_GENERIC_ARM_PROVIDER_INTERRUPTION_RECOVERY',hardware='NOT_RUN',
                    interrupted_in_progress_replacement='REMOVE_PHASE_ONLY_CANDIDATE_EXTRACTION_NOT_TESTED',cases=cases)
@@ -207,12 +208,13 @@ class Controls(unittest.TestCase):
     def retain_fixture(self,missing_binding=False):
         output,source,value=self.consumer_fixture()
         job.save(output/'owner.json',dict(status='PASS_INTERRUPTION_PENDING_ORDERED_PRODUCER_CLEANUP',
-                 consumer_cleanup='PASS_ALL_ACTORS_CLONES_AND_SOURCE_DATA_RETIRED',source_snapshot=dict(observation=dict(node_sha256=source))))
+                 consumer_cleanup='PASS_ALL_ACTORS_CLONES_AND_SOURCE_DATA_RETIRED',source_snapshot=dict(observation=dict(node_sha256=source,security_capabilities={},source_capabilities_sha256=hashlib.sha256(b'{}\n').hexdigest())),capabilities=dict(status='EXACT_SOURCE_MAP_PRESERVED',source_capabilities_sha256=hashlib.sha256(b'{}\n').hexdigest(),paths=0,cases=2,stages=10)))
         job.save(output/'inner/owner.json',dict(synthetic=True))
         (output/'snapshot-public').mkdir();job.save(output/'snapshot-public/snapshot.json',dict(synthetic=True))
         (output/'snapshot-public/original574-root.json.gz').write_bytes(b'synthetic observation only')
         (output/'inputs').mkdir();(output/'interruption-runner').mkdir()
-        if not missing_binding:job.save(output/'inputs/interruption-input.json',dict(synthetic=True))
+        if not missing_binding:job.save(output/'inputs/interruption-input.json',dict(synthetic=True,source_capabilities={},source_capabilities_sha256=hashlib.sha256(b'{}\n').hexdigest()))
+        repo=next(p for p in Path(__file__).resolve().parents if (p/'manifests/packages.toml').is_file());relative=Path('scripts/ci/glibc-gnu-provider-lifecycle/capabilities.py');target=self.root/relative;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes((repo/relative).read_bytes())
         for name in ('input-policy.json','source-manifest.json'):job.save(output/'interruption-runner'/name,dict(synthetic=True))
         proof=self.root/'proof.json';job.save(proof,{})
         receipt=self.root/'ordered.json';job.save(receipt,dict(status='PASS_ORDERED_ALL_CONSUMERS_THEN_PRODUCER'))
@@ -260,5 +262,17 @@ class Controls(unittest.TestCase):
         args=NS(workspace=self.root,proof=proof,receipt=cleanup,base=self.root/'base',output=output,packet_root=packet,public=self.root/'public')
         with patch.object(job,'selection'),patch.object(job,'packet',return_value=(packet,dict(files={}))):job.retain(args)
         files=job.read(args.public/'export.json')['files'];self.assertFalse(any('source.tar' in n or 'original574/' in n for n in files))
+
+
+    def test_setfcap_grant_is_only_the_exact_extraction_actor(self):
+        for role in ('extract','source-cleanup','inner-scrub'):
+            output=self.root/role;output.mkdir();report=dict(token='a'*32,image='sha256:'+'b'*64,actors=[],snapshot_point=dict(archive_sha256='c'*64));command=unittest.mock.Mock(return_value=dict(code=0))
+            with patch.object(job,'inspect',side_effect=[None,{}]),patch.object(job,'verify_actor',return_value='d'*64):job.observer(self.root,output,report,command,role,'/runner/capability_snapshot.py')
+            argv=command.call_args.args[0];self.assertEqual('--cap-add=SETFCAP' in argv,role=='extract');self.assertIn('--network=none',argv);self.assertIn('--security-opt=no-new-privileges',argv)
+
+    def test_capability_wrapper_is_isolated_and_original_extractors_are_unchanged(self):
+        repo=next(p for p in Path(__file__).resolve().parents if (p/'manifests/packages.toml').is_file())
+        original=repo/'scripts/ci/glibc-gnu-provider-lifecycle-owner/snapshot.py';self.assertEqual(job.sha(original),'9738acb125ce6d468d5359ecfbd5540454826567fd4ac4481576ec31da37190c')
+        text=(job.HERE/'capability_snapshot.py').read_text();self.assertIn("scripts/ci/apps-full574-native/export_extract.py",text);self.assertIn("old=derivative.isolated",text);self.assertIn("api['caps'].restore",text)
 
 if __name__=='__main__':unittest.main()

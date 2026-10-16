@@ -17,3 +17,33 @@ Root adoption: copy this new owner directory and `.github/workflows/native-arm-g
 Run `python3 -I -B scripts/ci/glibc-gnu-provider-interruption-owner/test_owner.py`. Tests use synthetic temporary records and prohibit subprocess actors. The separate interruption consumer retains its own12 inert and18 focused controls; two of those are bounded synthetic private POSIX stop/kill controls, never native ALPM evidence.
 
 Execution is unrun. Scope remains generic ARM4096 removal-phase transaction interruption/recovery plus normal installed-provider probes. Candidate-extraction interruption, arbitrary interruption states, power loss/reboot durability, production hook automation, system-provider16K, M2/Asahi hardware, source-key/expiry authority, historical source/recipe correspondence, security, performance and release admission remain open.
+
+
+## Capability-preserving snapshot successor
+
+`capability_snapshot.py` replaces the invoked observer entry point; the original
+`snapshot.py` remains byte-identical. The wrapper reuses the canonical Apps
+one-anchor, hash-pinned isolated extractor over the exact original lifecycle
+extractor SHA9738acb125ce6d468d5359ecfbd5540454826567fd4ac4481576ec31da37190c.
+It accepts only validated `SCHILY.xattr.security.capability` on regular files,
+retains all other unknown-PAX refusals and every original extraction check,
+then restores/verifies the complete map across actual extracted nodes before
+snapshot PASS. Hardlink alias values are explicit. Original/adapted extractor
+hashes and complete map/hash enter retained snapshot evidence. No capability
+bearing file is executed as metadata proof. Only the outer `extract` role gains
+SETFCAP; cleanup/scrub retain original capabilities.
+
+The runtime-only private input carries that actual map/hash; the existing held
+189MB provider packet, its Root acceptance and publication approval are unchanged.
+The copied-root consumer rechecks the complete source/copy/stage maps. Outer
+execute and retain independently join source observation, private input and all
+stage/restoration records before existing success/teardown statuses can pass.
+
+After adoption Root must add the exact four dependency paths listed in the
+private handoff's `dependency-additions.json` to BOTH lane dependency manifests,
+refresh each lane source manifest, and refresh both owner integration manifests
+including their new wrapper and complete lane/dependency closure. Root then
+refreshes the two existing manual workflow bootstrap job/manifest SHA literals.
+The canonical inner policy remains UNBOUND and the existing private binding
+changes only input-policy and its manifest entry. No native execution or packet
+publication occurs as part of this source implementation.

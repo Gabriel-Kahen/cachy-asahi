@@ -57,7 +57,7 @@ def main():
         argv=['/usr/bin/docker','run','--name',name,'--label',C.LABEL+'='+index['token'],'--pull=never','--platform=linux/arm64','--user=0:0','--network=none','--read-only',
             '--cap-drop=ALL','--security-opt=no-new-privileges','--pids-limit=512','--memory=4g','--cpus=2','--ulimit=nofile=8192:8192','--tmpfs=/tmp:rw,nosuid,nodev,size=128m',
             '--env=CACHY_GNU_PROVIDER_INTERRUPTION=1','--env=INPUT_INDEX_SHA256='+args.input_sha256,'--env=OUTPUT_UID='+str(os.getuid()),'--env=OUTPUT_GID='+str(os.getgid()),'--env=PYTHONDONTWRITEBYTECODE=1']
-        caps=('CHOWN','DAC_OVERRIDE','FOWNER','SETUID','SETGID','SYS_CHROOT','SYS_ADMIN') if role=='trial' else ('CHOWN','DAC_OVERRIDE','FOWNER')
+        caps=('CHOWN','DAC_OVERRIDE','FOWNER','SETUID','SETGID','SYS_CHROOT','SYS_ADMIN','SETFCAP') if role=='trial' else ('CHOWN','DAC_OVERRIDE','FOWNER')
         argv+=['--cap-add='+cap for cap in caps]
         mounts=[(args.inputs,'/inputs',True),(args.source_root,'/source',True),(args.held_root,'/held',True),(C.HERE,'/runner',True),(private,'/work',False),(public,'/out',False)]
         for source,target,readonly in mounts:argv+=['--mount','type=bind,src='+str(source)+',dst='+target+(',readonly' if readonly else '')]
@@ -83,6 +83,9 @@ def main():
         save();result=launch('trial','container.py',3600)
         C.need(result['code']==0,'installed provider lifecycle child failed')
         child=json.loads(C.read(public/'result.json',8*1024**2));C.need(child['status']=='PASS_GENERIC_ARM_PROVIDER_INTERRUPTION_RECOVERY' and set(child['cases'])==set(C.CASES) and all(r['status']=='PASS_INTERRUPTED_RECOVERED_NORMAL_PROVIDER_SEQUENCE' and r['copy_lifetime']['cleanup']=='PASS-owned-workspace-removed' and r['interruption']['status']=='PASS_ACTUAL_REMOVE_PHASE_KILL_AND_EXTERNAL_RECOVERY' and r['interruption']['writer']['group_absence_verified'] is True and r['source_before']==r['source_after']==index['source_nodes_sha256'] for r in child['cases'].values()),'complete child lifecycle result')
+        expected_stages=('source-before','clone','before574','precommit-refused','provider574','reinstalled574','held574','source-after')
+        expected_stages+=('interrupted-before-unlock','recovered-held574')
+        report['capabilities']=api['capabilities'].records(index,child['cases'],expected_stages)
         report['lifecycle']='PASS'
     except BaseException as caught:error=caught;report.update(error_type=type(caught).__name__,error=str(caught)[:512])
     finally:

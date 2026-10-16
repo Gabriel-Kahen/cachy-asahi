@@ -63,6 +63,8 @@ def selection(workspace):
     packet=policy['packet'];need(set(packet)=={'ref','directory','index_sha256'} and re.fullmatch('[0-9a-f]{40}',packet['ref']) and re.fullmatch('[0-9a-f]{64}',packet['index_sha256']),'one exact future immutable input packet')
     relative(packet['directory'])
     manifest=read(HERE/'integration-manifest.json')
+    needed={'scripts/apps/file_capabilities.py','scripts/ci/apps-full574-native/export_extract.py','scripts/ci/glibc-gnu-provider-lifecycle-owner/snapshot.py','scripts/ci/glibc-gnu-provider-lifecycle/capabilities.py'}|{HERE.relative_to(workspace).as_posix()+'/capability_snapshot.py'}
+    need(needed<=manifest['files'].keys(),'capability-aware frozen owner closure required')
     for name,row in manifest['files'].items():reference(workspace,dict(path=name,**row),16*1024**2)
     return policy
 
@@ -174,6 +176,7 @@ def observer(workspace,output,report,command,role,script,extra=()):
     row=reserve(report,output,role);need(inspect(row['name'],command) is None,'fresh outer actor name')
     argv=['/usr/bin/docker','run','--name',row['name'],'--label',LABEL+'='+report['token'],'--pull=never','--platform=linux/arm64','--network=none','--read-only','--user=0:0','--cap-drop=ALL','--security-opt=no-new-privileges','--pids-limit=128','--memory=4g','--cpus=2','--ulimit=nofile=8192:8192']
     argv+=['--cap-add='+n for n in ('CHOWN','DAC_OVERRIDE','FOWNER','FSETID')]
+    if role=='extract':argv+=['--cap-add=SETFCAP']
     argv+=['--env=CACHY_GNU_PROVIDER_SNAPSHOT=1','--env=CACHY_GNU_PROVIDER_LIFECYCLE=1','--env=OWNER_TOKEN='+report['token'],'--env=OUTPUT_UID='+str(os.getuid()),'--env=OUTPUT_GID='+str(os.getgid()),'--env=PYTHONDONTWRITEBYTECODE=1']
     if role=='extract':argv+=['--env=SOURCE_TAR_SHA256='+report['snapshot_point']['archive_sha256']]
     data=output/'data';public=output/'snapshot-public';public.mkdir(mode=0o700,exist_ok=True)
@@ -202,9 +205,21 @@ def snapshot_source(workspace,output,report,command):
     need(after['State']==value['State'],'export never ran a source-root actor')
     report['snapshot_point']=dict(container=cid,image=report['image'],state=value['State'],archive_bytes=source.stat().st_size,archive_sha256=sha(source),kind='NEVER_STARTED_ORIGINAL574_IMAGE_ROOTFS')
     save(output/'owner.json',report);retire([row],report['image'],LABEL,report['token'],command,output,report)
-    observer(workspace,output,report,command,'extract','/runner/snapshot.py')
+    observer(workspace,output,report,command,'extract','/runner/capability_snapshot.py')
     snapshot=read(output/'snapshot-public/snapshot.json');need(snapshot['status']=='PASS_ORIGINAL574_DATA_SNAPSHOT' and snapshot['observation']['database_sha256']==LOCK and snapshot['extraction']['archive_sha256']==report['snapshot_point']['archive_sha256'],'actual complete original574 snapshot and archive join')
+    need(snapshot['extraction']['capability_restoration']==snapshot['observation']['capabilities']=='PRESERVED_AND_COMPLETE_NODE_MAP_VERIFIED' and snapshot['extraction']['security_capabilities']==snapshot['observation']['security_capabilities'] and snapshot['extraction']['security_capabilities_sha256']==snapshot['observation']['source_capabilities_sha256'],'exact restored original574 capability snapshot')
     report['source_snapshot']=snapshot;save(output/'owner.json',report)
+
+
+def capability_records(workspace,output,report):
+    observation=report['source_snapshot']['observation'];mapping=observation['security_capabilities']
+    index=read(output/'inputs/lifecycle-input.json')
+    need(index['source_capabilities']==mapping and index['source_capabilities_sha256']==observation['source_capabilities_sha256'],'extraction/private input capability join')
+    bridge=load('capability_records',workspace/'scripts/ci/glibc-gnu-provider-lifecycle/capabilities.py')
+    child=read(output/'inner/public/result.json',8*1024**2)
+    stages=('source-before','clone','before574','precommit-refused','provider574','reinstalled574','held574','source-after')
+
+    return bridge.records(index,child['cases'],stages)
 
 
 def materialize(workspace,base,packet_root,packet_value,output,report):
@@ -213,7 +228,7 @@ def materialize(workspace,base,packet_root,packet_value,output,report):
         source=reference(packet_root,dict(path=name,**row));target=inputs/name;target.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(source,target)
     for name,source in [('base.lock',base/'installed-packages.lock'),('producer.json',base/'report.json')]:shutil.copyfile(source,inputs/name)
     value=dict(schema_version=1,status='ROOT_BOUND_UNSELECTED_PROVIDER_LIFECYCLE',package='cachy-asahi-glibc-gnu-provider',version='2.43.caa1-1',base_lock_sha256=LOCK,
-        image_id=report['image'],token=report['token'],producer_token=report['producer_token'],source_nodes_sha256=report['source_snapshot']['observation']['node_sha256'],
+        image_id=report['image'],token=report['token'],producer_token=report['producer_token'],source_nodes_sha256=report['source_snapshot']['observation']['node_sha256'],source_capabilities=report['source_snapshot']['observation']['security_capabilities'],source_capabilities_sha256=report['source_snapshot']['observation']['source_capabilities_sha256'],
         private16k=packet_value['private16k'],provider_pair=packet_value['provider_pair'],probe_receipt=packet_value['probe_receipt'],held=packet_value['held'],archives=packet_value['archives'],probes=packet_value['probes'],
         private16k_archive_sha256=read(reference(inputs,packet_value['private16k']))['candidate_package_sha256'],provider_pair_archive_sha256=packet_value['archives']['a']['sha256'],provider_pkgbuild_sha256=packet_value['provider_pkgbuild_sha256'],
         base_lock=ref(inputs,inputs/'base.lock'),producer_report=ref(inputs,inputs/'producer.json'))
@@ -257,6 +272,7 @@ def execute_leased(args):
             inputs,runner=materialize(args.workspace,args.base,packet_root,packet_value,args.output,report)
             result=command([sys.executable,'-I','-B',str(runner/'run.py'),'--inputs',str(inputs),'--input-sha256',sha(inputs/'lifecycle-input.json'),'--source-root',str(args.workspace),'--held-root',str(args.output/'data/original574'),'--output',str(args.output/'inner')],False,3800)
             inner=read(args.output/'inner/owner.json');need(result['code']==0 and inner['status']=='PASS_GENERIC_ARM_INSTALLED_PROVIDER_AND_TEARDOWN','actual installed lifecycle and inner teardown')
+            report['capabilities']=capability_records(args.workspace,args.output,report)
             report['status']='PASS_LIFECYCLE_PENDING_ORDERED_PRODUCER_CLEANUP'
         except BaseException as error:report.update(error_type=type(error).__name__,error=str(error)[:512])
         finally:
@@ -290,7 +306,7 @@ def cleanup(args):
                     retire(report['actors'],report['image'],LABEL,report['token'],command,args.output,report)
                     need(not any((args.output/'inner/private').iterdir()),'inner clone data remains');(args.output/'inner/private').rmdir()
                 if (args.output/'data/original574').exists():
-                    observer(args.workspace,args.output,report,command,'source-cleanup','/runner/snapshot.py',('--cleanup',))
+                    observer(args.workspace,args.output,report,command,'source-cleanup','/runner/capability_snapshot.py',('--cleanup',))
                     retire(report['actors'],report['image'],LABEL,report['token'],command,args.output,report)
                 need(not (args.output/'data/original574').exists(),'original data snapshot remains')
                 archive=args.output/'data/source.tar'
@@ -346,6 +362,8 @@ def retain(args):
     except BaseException as error:result['errors'].append(dict(file='input-packet',error=str(error)[:256]))
     try:
         owner=read(args.output/'owner.json');ordered=read(args.receipt)
+        result['capabilities']=capability_records(args.workspace,args.output,owner)
+        need(result['capabilities']==owner['capabilities'],'executed/exported capability records join')
         need(owner['status']=='PASS_LIFECYCLE_PENDING_ORDERED_PRODUCER_CLEANUP' and owner['consumer_cleanup']=='PASS_ALL_ACTORS_CLONES_AND_SOURCE_DATA_RETIRED' and ordered['status']=='PASS_ORDERED_ALL_CONSUMERS_THEN_PRODUCER' and not result['errors'],'closed native lifecycle and ordered teardown')
         result['status']='PASS_CLOSED_GENERIC_ARM_INSTALLED_PROVIDER_LIFECYCLE'
     except BaseException as error:result['errors'].append(dict(file='acceptance',error=str(error)[:256]))

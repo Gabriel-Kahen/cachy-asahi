@@ -25,8 +25,11 @@ def limits(api,seconds=600):return api['roots'].Limits(deadline=time.monotonic()
 
 
 def snapshot(api,root,label):
-    value=api['roots'].observe(root,limits=limits(api),hardlinks='generic-development-internal')
+    budget=limits(api);value=api['roots'].observe(root,limits=budget,hardlinks='generic-development-internal')
     C.need(value['complete'] is True and set(value['unsupported_counts'])<={'absolute-symlink','auxiliary-present'},'complete bounded root observation')
+    mapping=api['capabilities'].observe(api,root,value['nodes'],api['capability_index'],budget)
+    api['capability_checks'][label]=dict(status='EXACT_SOURCE_MAP_PRESERVED',sha256=api['capabilities'].digest(mapping),paths=len(mapping))
+    value['security_capabilities']=mapping
     raw=(json.dumps(value,sort_keys=True,separators=(',',':'))+'\n').encode();C.need(len(raw)<=256*1024**2,'root snapshot bound')
     compressed=gzip.compress(raw,mtime=0);C.need(len(compressed)<=64*1024**2,'compressed root snapshot bound')
     C.need(sum(p.stat().st_size for p in OUT.iterdir())+len(compressed)<=512*1024**2,'aggregate lifecycle evidence bound')
@@ -34,7 +37,7 @@ def snapshot(api,root,label):
     return value
 
 
-def same(before,after):return before['nodes']==after['nodes'] and before.get('hardlink_groups')==after.get('hardlink_groups')
+def same(before,after):return before['nodes']==after['nodes'] and before.get('hardlink_groups')==after.get('hardlink_groups') and before.get('security_capabilities')==after.get('security_capabilities')
 
 
 def database(api,root):return api['db'].database(root,max_packages=574,max_files=100000,max_nodes=500000)
@@ -223,12 +226,13 @@ def guard():
 
 def run_case(api,commands,index,base,new,old,case,report):
     C.need(case in C.CASES,'exact configuration case')
+    api['capability_checks']={};report['capability_checks']=api['capability_checks']
     report['source_before']=C.sha(json.dumps(snapshot(api,HELD,case+'-source-before')['nodes'],sort_keys=True).encode())
     C.need(report['source_before']==index['source_nodes_sha256'],'frozen original574 source node snapshot')
     C.need(inventory(database(api,HELD))==base,'exact source574 database')
     lifetime=None
     try:
-        with api['copy'].copied_root(HELD,WORK/case,limits=limits(api),cleanup_seconds=120) as (root,lifetime):
+        with api['capabilities'].copied_root(api,HELD,WORK/case,index,limits=limits(api),cleanup_seconds=120) as (root,lifetime):
             initial=snapshot(api,root,case+'-clone');rows=database(api,root);C.need(inventory(rows)==base,'before574 clone')
             report['intersections']=collisions(new,rows)
             C.need(ownership(rows).get('lib')=='filesystem' and ownership(rows).get('usr/bin/tzselect')=='tzdata','filesystem/tzdata owners preserved')
@@ -295,6 +299,7 @@ def run_case(api,commands,index,base,new,old,case,report):
 
 def main():
     guard();index,base,new,old=C.configuration(INPUTS,os.environ['INPUT_INDEX_SHA256']);api=C.helpers(SOURCE)
+    api['capability_index']=index;api['capabilities'].disjoint(index,old,new)
     os.chown(WORK,0,0);WORK.chmod(0o700)
     report=dict(status='FAIL',scope='OWNED_CONVENTIONAL_GNU_PROVIDER_GENERIC_ARM_ONLY',commands=[],cases={},hardware='NOT_RUN',security_release_admission=False,Asahi='NOT_RUN',generic16K_provider='NOT_RUN',interrupted_in_progress_replacement='NOT_RUN')
     commands=Commands(api,report)
