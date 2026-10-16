@@ -146,6 +146,58 @@ def uart_observation(raw,nonce):
     report['complete']=len(raw)<=65536;return report
 
 
+def failed_substring_diagnostic(output,nonce,release,receipt):
+    s.need(len(output)<=1024**2,'bounded UART diagnostic required')
+    rows=[line[len(b'TOOLS16K_DIAGNOSTIC '):] for line in output.replace(b'\r',b'').splitlines() if line.startswith(b'TOOLS16K_DIAGNOSTIC ')]
+    if not rows:return None
+    s.need(len(rows)==1 and len(rows[0])<=65536,'one bounded substring diagnostic required')
+    value=json.loads(rows[0]);names=('noninteractive','editing','preexisting-function','preexisting-widget','preexisting-private','coexist')
+    argv=['/usr/bin/python3','-I','-B','/fixtures/substring.py','--module-dir',
+        '/usr/share/cachy-asahi/zsh-history-substring-search','--work','/tmp/tools16k/substring',
+        '--highlight-wrapper','/usr/share/cachy-asahi/zsh-syntax-highlighting/opt-in.zsh']
+    identities=('guest.py','fixtures/substring.py','usr/bin/zsh',
+        'usr/share/cachy-asahi/zsh-history-substring-search/opt-in.zsh',
+        'usr/share/cachy-asahi/zsh-history-substring-search/zsh-history-substring-search.zsh',
+        'usr/share/cachy-asahi/zsh-syntax-highlighting/opt-in.zsh')
+    s.need(value['schema_version']==1 and value['status']=='SUBSTRING_FAILURE_DIAGNOSTIC_ONLY' and
+        value['acceptance_credit'] is False and value['nonce']==nonce and value['kernel']==release and
+        value['architecture']=='aarch64' and value['page_size']==16384 and value['uid']==value['gid']==[23001]*3 and value['groups']==[] and
+        value['source_commit']==receipt['source_commit'] and value['payload_manifest_sha256']==s.sha((json.dumps(receipt,sort_keys=True,indent=2)+'\n').encode()) and
+        value['identities']=={n:receipt['files'][n] for n in identities} and value['argv']==argv and
+        value['product_change']=='NONE' and value['rerun']=='NOT_RUN','substring diagnostic identity/scope differs')
+    s.need(set(value['cases'])==set(names),'all six fixed substring case observations required')
+    samples=[(value['original_receipt'],16384)]
+    for case in value['cases'].values():
+        present=case['snapshot_numbers_present'];latest=case['latest_snapshot'];files=case['files']
+        s.need(type(present) is list and all(type(n) is int and 1<=n<=10 for n in present) and present==sorted(set(present)) and
+            latest==(present[-1] if present else None) and {'terminal.log','ready','prompt-sequence'}<=set(files)<=
+            {'terminal.log','ready','prompt-sequence','latest_snapshot'},'bounded fixed substring file allowlist required')
+        samples.extend((row,1536 if leaf=='terminal.log' else 4096 if leaf=='latest_snapshot' else 64) for leaf,row in files.items())
+    command=value.get('command')
+    if command is not None:
+        s.need(command['argv']==argv and command['expected_exit']==0 and command['natural_exit'] is True and
+            type(command['exit']) is int and type(command['group_absent']) is bool and
+            (command['exit']!=0 or command['group_absent'] is False) and
+            type(command['pid']) is int and command['pid']>0 and command['pgid']==command['pid'],
+            'original failed substring command/group required')
+        for name in ('stdout','stderr'):
+            row=value[name];s.need(row['bytes']==command[name+'_bytes'] and row['sha256']==command[name+'_sha256'],
+                'original command output/sample join differs');samples.append((row,1024))
+    for row,limit in samples:
+        if row.get('status') in ('ABSENT','UNAVAILABLE'):continue
+        raw=base64.b64decode(row['sample_base64'],validate=True)
+        s.need(type(row['bytes']) is int and 0<=row['bytes']<=131072 and len(raw)<=limit and s.sha(raw)==row['sample_sha256'] and
+            type(row['sample_offset']) is int and 0<=row['sample_offset']<=row['bytes'] and row['sample_offset']+len(raw)<=row['bytes'] and
+            type(row['sample_complete']) is bool and re.fullmatch('[0-9a-f]{64}',row['sha256']), 'bounded hashed substring diagnostic sample required')
+        if row.get('status')=='FILE':s.need(row['uid']==23001 and row['gid']==23001,'private diagnostic file identity differs')
+        if row['sample_complete']:s.need(row['sample_offset']==0 and len(raw)==row['bytes'] and s.sha(raw)==row['sha256'],
+            'complete substring diagnostic bytes/hash differ')
+    original=value['original_receipt'];decoded=None
+    if original.get('status')=='FILE' and original['sample_complete']:
+        decoded=json.loads(base64.b64decode(original['sample_base64'],validate=True))
+    return dict(value=value,fixture_receipt=decoded,bytes=len(rows[0]),sha256=s.sha(rows[0]),acceptance_credit=False)
+
+
 def query(argv):
     row=subprocess.run(list(map(str,argv)),capture_output=True,timeout=25)
     s.need(row.returncode==0 and len(row.stdout)+len(row.stderr)<=65536,'bounded local query failed')
@@ -271,7 +323,7 @@ exec /smoke poweroff
 
 def guest_report(output,code,nonce,release,receipt):
     s.need(code==0 and len(output)<=1024**2 and not any(message in output for message in
-           (b'TOOLS16K FAIL',b'TOOLS16K_ERROR',b'Kernel panic',b'Attempted to kill init')),
+           (b'TOOLS16K FAIL',b'TOOLS16K_ERROR',b'TOOLS16K_DIAGNOSTIC',b'Kernel panic',b'Attempted to kill init')),
            'natural bounded guest exit0 required')
     lines=output.replace(b'\r',b'').splitlines();markers=[f'UNAME16K aarch64 {release}'.encode(),b'GETCONF16K 16384',
         b'SMOKE16K: mmap,mprotect,file-offset PASS',f'TOOLS16K PASS {nonce}'.encode()]
@@ -427,8 +479,11 @@ def trial(args):
                 path=args.private/filename
                 if path.exists():
                     data=s.read(path,1024**2);tail=data[-8192:]
-                    if filename=='uart.log' and 'boot_inputs' in report:report['uart_observation']=uart_observation(data,report['boot_inputs']['nonce'])
                     report['log_tails'][filename]=dict(bytes=len(data),tail_sha256=s.sha(tail),tail_base64=base64.b64encode(tail).decode())
+                    if filename=='uart.log' and 'boot_inputs' in report:
+                        report['uart_observation']=uart_observation(data,report['boot_inputs']['nonce'])
+                        diagnostic=failed_substring_diagnostic(data,report['boot_inputs']['nonce'],report['kernel']['kernel_release'],report['capture'])
+                        if diagnostic is not None:report['failed_substring_diagnostic']=diagnostic
         except BaseException as error:report.update(status='FAIL',log_export_error=type(error).__name__)
         old=signal.getsignal(signal.SIGALRM)
         def expired(*_):raise TimeoutError('owned consumer cleanup deadline')

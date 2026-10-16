@@ -1,5 +1,7 @@
 # Implementation and acceptance status
 
+October16 GNU16K result: [actual38941180852](validation/glibc-generic16k-native-20261016.md) now passes all eight private-loader cases on actual16384-byte guest pages, with both parent/child provider and file identities,13 compile plus one runtime command, preserved inputs and complete owned cleanup. Root joins32 source pins and nineteen runtime file records. Conventional provider installation, M2, security and release admission remain separate.
+
 October16 managed16K implementation: the separate [complete managed Welcome GUI lane](../scripts/ci/managed-gui-generic16k/README.md) preserves both profiles, fourteen first captures/actions, real systemd user management, normal owned exits and cleanup. It derives a separate16K kernel with the concrete rootdisk/virtio graphics/systemd capabilities and checks the full staged ELF closure. Root passes35 lane and9 scanner controls; the native kernel build, boot,14-frame visual check and target hardware remain pending.
 
 October16 current development: ordinary managed Waybar/Mako startup now passes in38938127725 with logging disabled, both original first frames Root viewed, complete event replay and cleanup. Setup5-generated RCs pass all six real host-module cases, including default async Zsh, repeat/remove and edited-file preservation; a dedicated native installed581 integration is being implemented. Current600 retains setup3.

@@ -417,8 +417,8 @@
       "sha256": "d00305ba890be1d7e721d2ec4fa27917edd0c5bedd83408251b3d3d82043d2c6"
     },
     "scripts/ci/tools-generic16k/guest.py": {
-      "bytes": 11481,
-      "sha256": "578ec5a8f30c931c726db4d072dd241e1ea83a0f518f9ff11f3cb5af969d31fd"
+      "bytes": 15571,
+      "sha256": "8b1997ca5453f56fabb0d4647d3e846f44568eadc2d9fdef60d0bcb4877af9ab"
     },
     "scripts/ci/tools-generic16k/kernel.fragment": {
       "bytes": 815,
@@ -437,8 +437,8 @@
       "sha256": "bddb14537790a484d770215e55cc2c59de50c764d15e4d677f6fbcaab84cd735"
     },
     "scripts/ci/tools-generic16k/run.py": {
-      "bytes": 35530,
-      "sha256": "ebcba02e2549ea1cd41c8f24a873fccda6c8584db718eeea7992d4b0047046e9"
+      "bytes": 40417,
+      "sha256": "8316502cc410d934a4adb40141dfae84f5a603bc1661ac63f5c43bbd520104c1"
     },
     "scripts/ci/tools-generic16k/support.py": {
       "bytes": 2994,
@@ -467,6 +467,10 @@
     "scripts/ci/tools-generic16k/test_smoke.py": {
       "bytes": 26767,
       "sha256": "891c15e6ac7eb9fb72d068411aa2fb91634baadd2772b3a8032d1a7a48642b50"
+    },
+    "scripts/ci/tools-generic16k/test_substring_diagnostic.py": {
+      "bytes": 11557,
+      "sha256": "87e5a6f49a2e20a16f00dffd7de3a9800e2840dd84ec1f3b7dc956230f1957d2"
     },
     "scripts/ci/tools-native/highlighting_fixture.py": {
       "bytes": 3073,

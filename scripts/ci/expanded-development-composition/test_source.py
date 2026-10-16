@@ -144,6 +144,18 @@ class Inputs(unittest.TestCase):
 
 
 class Adapters(unittest.TestCase):
+    def test_ld_checkpoint_adapter_preserves_pin_and_bounded_read_command(self):
+        import lifecycle
+        adapter=lifecycle.ld_adapter()
+        with tempfile.TemporaryDirectory() as directory:
+            helper=Path(directory)/'helper';helper.write_bytes(b'original')
+            adapter.pin(helper,C.sha(helper),8)
+            with self.assertRaises(ValueError):adapter.pin(helper,'0'*64,8)
+        argv=[sys.executable,'-I','-B','-c','import sys; print(" ".join(sys.argv[1:]))','-p','-C','/private/cache']
+        self.assertEqual(adapter.run(argv),'-p -C /private/cache\n')
+        with self.assertRaisesRegex(ValueError,'command failed'):
+            adapter.run([sys.executable,'-I','-B','-c','raise SystemExit(3)'])
+
     def test_accepted_bang_helper_one_exact_path_anchor(self):
         import inspect
         helper=C.load('control_accepted_builder',ROOT/'scripts/ci/welcome-native/run.py')
