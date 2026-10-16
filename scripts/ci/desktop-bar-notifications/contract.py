@@ -4,7 +4,7 @@ import hashlib
 import json
 import re
 from pathlib import Path
-from session import owned_layer, notifications, MAKO_NAMESPACE
+from session import owned_layer, notifications, MAKO_NAMESPACE, environment_values, SESSION_ENV
 from capture import request_digest
 import managed_contract
 
@@ -41,6 +41,12 @@ def verify_result(events):
         identity = {key: user[key] for key in ('address', 'uid', 'manager_pid', 'default_target')}
         if frame.get('managed_identity') != identity or frame.get('activation') != 'normal-shipped-config-no-reload':
             raise ValueError('normal managed activation evidence absent')
+        activation=frame.get('activation_environment')
+        if (type(activation) is not dict or set(activation)!={'values','manager_pid','systemd_verified','dbus_updated'} or
+            activation['manager_pid']!=identity['manager_pid'] or activation['systemd_verified'] is not True or
+            activation['dbus_updated'] is not True or type(activation['values']) is not dict or
+            set(activation['values'])!=set(SESSION_ENV) or environment_values(activation['values'])!=activation['values']):
+            raise ValueError('verified owned activation environment absent')
         if type(frame.get('notification_timeout_ms')) is not int or frame['notification_timeout_ms'] != 0:
             raise ValueError('nonexpiring visual fixture must be explicit')
         pids = [frame.get(key) for key in ('waybar_pid', 'mako_pid', 'compositor_pid')]

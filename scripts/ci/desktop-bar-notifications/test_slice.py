@@ -32,7 +32,9 @@ def managed_events(events):
             dict(event='managed_user_ready',status='PASS',**identity)]
     for event in copy.deepcopy(events):
         if event.get('event')=='frame_ready':
-            event.update(managed_identity=identity,activation='normal-shipped-config-no-reload',notification_timeout_ms=0,compositor_pid=3)
+            event.update(managed_identity=identity,activation='normal-shipped-config-no-reload',notification_timeout_ms=0,compositor_pid=3,
+                activation_environment=dict(values=dict(WAYLAND_DISPLAY='wayland-1',HYPRLAND_INSTANCE_SIGNATURE='fixture_'+event['stage'],
+                    XDG_SESSION_TYPE='wayland',XDG_CURRENT_DESKTOP='Hyprland'),manager_pid=777,systemd_verified=True,dbus_updated=True))
         result.append(event)
         if event.get('event')=='frame_ready':
             result.append(dict(event='frame_captured',stage=event['stage'],request_sha256=contract.request_digest(event),
@@ -156,15 +158,15 @@ class PhaseTests(unittest.TestCase):
         self.root=Path(self.tmp.name);self.config=self.root/'config';self.config.mkdir()
         (self.config/'user').write_text('preserve')
         self.processes=[];self.emitted=[];self.commands=[];self.notice=False;self.ticks=0
-        self.wrong_owner=False;self.bad_payload=False;self.bad_stop=False;self.mutate=False;self.bad_finish=False
-        self.helper=SimpleNamespace(Logged=self.launch,command=self.command,ipc=lambda *a:dict(a[2]),
+        self.bad_environment=False;self.bad_activation_reply=False;self.activation_values={};self.wrong_owner=False;self.bad_payload=False;self.bad_stop=False;self.mutate=False;self.bad_finish=False
+        self.helper=SimpleNamespace(Logged=self.launch,command=self.command,ipc=lambda *a:dict(a[2],HYPRLAND_INSTANCE_SIGNATURE='fixture_instance'),
             usable_monitors=lambda x:True,emit=lambda name,**data:self.emitted.append(dict(event=name,**data)),
             terminate=self.terminate,RUNTIME=Mock())
         socket=Mock();socket.is_socket.return_value=True;socket.name='wayland-1'
         self.helper.RUNTIME.glob.side_effect=lambda _: [] if not self.processes else [socket]
 
     def launch(self,argv,name,logs,env):
-        item=SimpleNamespace(argv=argv,name=name,process=FakeProcess(101+len(self.processes)))
+        item=SimpleNamespace(argv=argv,name=name,process=FakeProcess(101+len(self.processes)),command_count=len(self.commands))
         item.healthy=lambda: self.assertIsNone(item.process.returncode)
         def finish():
             self.assertIsNotNone(item.process.returncode)
@@ -186,6 +188,15 @@ class PhaseTests(unittest.TestCase):
 
     def command(self,argv,env,logs,name,timeout):
         self.commands.append(argv)
+        if argv[:3]==['/usr/bin/systemctl','--user','set-environment']:
+            self.activation_values=dict(x.split('=',1) for x in argv[3:]);return ''
+        if argv[:3]==['/usr/bin/systemctl','--user','show-environment']:
+            values=self.activation_values|({'WAYLAND_DISPLAY':'stale'} if self.bad_environment else {})
+            return ''.join(k+'='+v+'\n' for k,v in values.items())
+        if 'UpdateActivationEnvironment' in argv:
+            fields=argv[argv.index('a{ss}')+1:]
+            self.assertEqual(fields[0],'4');self.assertEqual(dict(zip(fields[1::2],fields[2::2])),self.activation_values)
+            return 'unexpected' if self.bad_activation_reply else ''
         if argv[0]=='/usr/bin/hyprctl':
             if 'monitors' in argv:return json.dumps([dict(width=1024,height=768,scale=1)])
             if 'layers' in argv:
@@ -230,10 +241,27 @@ class PhaseTests(unittest.TestCase):
         self.assertGreaterEqual(self.emitted[0]['capture_after_ms'],5000)
         self.assertTrue(self.emitted[-1]['config_preserved'])
         self.assertEqual((self.config/'user').read_text(),'preserve')
-        self.assertFalse(any('systemctl' in ' '.join(cmd) for cmd in self.commands))
+        self.assertEqual(len([c for c in self.commands if c[0]=='/usr/bin/systemctl']),2)
+        self.assertEqual(self.emitted[0]['activation_environment']['values'],self.activation_values)
         self.assertIn('--config',self.processes[1].argv)
         self.assertEqual(self.processes[1].argv[-1],str(session.TEMPLATES/'waybar.css'))
         self.assertGreater(self.ticks,13)
+
+    def test_activation_environment_is_verified_before_any_bar_or_mako_launch(self):
+        self.run_phase();self.assert_retired()
+        updated=[i for i,c in enumerate(self.commands) if c[0]=='/usr/bin/systemctl' or 'UpdateActivationEnvironment' in c]
+        self.assertEqual(len(updated),3);self.assertLess(max(updated),self.processes[1].command_count)
+        self.assertEqual(self.activation_values['WAYLAND_DISPLAY'],'wayland-1')
+
+    def test_stale_manager_environment_fails_before_clients_and_cleans_compositor(self):
+        self.bad_environment=True
+        with self.assertRaisesRegex(ValueError,'managed activation environment differs'):self.run_phase()
+        self.assert_retired();self.assertEqual(len(self.processes),1);self.assertEqual(self.emitted,[])
+
+    def test_bad_activation_reply_fails_before_clients_and_preserves_failure(self):
+        self.bad_activation_reply=True
+        with self.assertRaisesRegex(ValueError,'D-Bus activation update reply differs'):self.run_phase()
+        self.assert_retired();self.assertEqual(len(self.processes),1);self.assertEqual(self.emitted,[])
 
     def test_foreign_notification_owner_refuses_and_retires_all(self):
         self.wrong_owner=True
