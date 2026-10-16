@@ -71,6 +71,41 @@ static void walk(AtspiAccessible *node, guint depth)
     g_free(name);
 }
 
+
+static void select_guide_tab(guint pid)
+{
+    const char *guides[] = { "First steps", "Updates", "Recovery" };
+    gint expected = -1;
+    for (guint i = 0; i < G_N_ELEMENTS(guides); i++)
+        if (!strcmp(wanted, guides[i])) expected = (gint)i;
+    check(expected >= 0, "guide tab allowlist");
+    check(atspi_accessible_get_process_id(target, &error) == pid, "guide tab process");
+    AtspiAccessible *parent = atspi_accessible_get_parent(target, &error); check(parent != NULL, "guide tab parent");
+    check(atspi_accessible_get_process_id(parent, &error) == pid, "notebook process");
+    check(atspi_accessible_get_role(parent, &error) == ATSPI_ROLE_PAGE_TAB_LIST, "notebook role");
+    AtspiStateSet *states = atspi_accessible_get_state_set(parent);
+    check(state(states, ATSPI_STATE_SHOWING) && state(states, ATSPI_STATE_ENABLED) &&
+          state(states, ATSPI_STATE_SENSITIVE), "notebook state");
+    if (states) g_object_unref(states);
+    gint count = atspi_accessible_get_child_count(parent, &error); check(count == 3, "guide tab count");
+    gint index = atspi_accessible_get_index_in_parent(target, &error);
+    check(index == expected && index >= 0 && index < count, "guide tab index");
+    AtspiAccessible *child = atspi_accessible_get_child_at_index(parent, index, &error); check(child != NULL, "indexed guide tab");
+    check(atspi_accessible_get_process_id(child, &error) == pid &&
+          atspi_accessible_get_role(child, &error) == ATSPI_ROLE_PAGE_TAB, "indexed guide tab identity");
+    char *name = atspi_accessible_get_name(child, &error); check(name != NULL && !strcmp(name, wanted), "indexed guide tab name");
+    g_free(name); g_object_unref(child);
+    AtspiSelection *selection = atspi_accessible_get_selection_iface(parent); check(selection != NULL, "notebook selection interface");
+    check(atspi_selection_select_child(selection, index, &error), "guide tab selection");
+    check(atspi_selection_is_child_selected(selection, index, &error) &&
+          atspi_selection_get_n_selected_children(selection, &error) == 1, "selected guide tab");
+    printf("{\"status\":\"PASS\",\"pid\":%u,\"actions\":1,\"action_name\":\"select-child\","
+           "\"interface\":\"Selection\",\"target_role\":%u,\"parent_role\":%u,\"child_index\":%d,"
+           "\"child_count\":%d,\"selected\":true,\"selected_count\":1}\n",
+           pid, (guint)ATSPI_ROLE_PAGE_TAB, (guint)ATSPI_ROLE_PAGE_TAB_LIST, index, count);
+    g_object_unref(parent);
+}
+
 int main(int argc, char **argv)
 {
     const char *labels[] = { "Welcome", "System", "Guides", "First steps", "Updates", "Recovery",
@@ -106,19 +141,23 @@ int main(int argc, char **argv)
     if (snapshot) puts("]}");
     else {
         check(matches == 1 && target, "one showing control required");
-        AtspiAction *action = atspi_accessible_get_action_iface(target); check(action != NULL, "action interface");
-        gint count = atspi_action_get_n_actions(action, &error); check(count > 0 && count <= 8, "action count");
-        gint selected = -1; char *selected_name = NULL;
-        for (gint i = 0; i < count; i++) {
-            char *name = atspi_action_get_action_name(action, i, &error); check(name != NULL, "action name");
-            if (!strcmp(name, "click") || !strcmp(name, "activate") || !strcmp(name, "press") || !strcmp(name, "switch")) {
-                check(selected < 0, "ambiguous action"); selected = i; selected_name = g_strdup(name);
+        AtspiRole role = atspi_accessible_get_role(target, &error); check(TRUE, "control role");
+        if (role == ATSPI_ROLE_PAGE_TAB) select_guide_tab((guint)pid);
+        else {
+            AtspiAction *action = atspi_accessible_get_action_iface(target); check(action != NULL, "action interface");
+            gint count = atspi_action_get_n_actions(action, &error); check(count > 0 && count <= 8, "action count");
+            gint selected = -1; char *selected_name = NULL;
+            for (gint i = 0; i < count; i++) {
+                char *name = atspi_action_get_action_name(action, i, &error); check(name != NULL, "action name");
+                if (!strcmp(name, "click") || !strcmp(name, "activate") || !strcmp(name, "press") || !strcmp(name, "switch")) {
+                    check(selected < 0, "ambiguous action"); selected = i; selected_name = g_strdup(name);
+                }
+                g_free(name);
             }
-            g_free(name);
+            check(selected >= 0 && atspi_action_do_action(action, selected, &error), "control activation");
+            printf("{\"status\":\"PASS\",\"pid\":%u,\"actions\":1,\"action_name\":\"%s\"}\n", (guint)pid, selected_name);
+            g_free(selected_name);
         }
-        check(selected >= 0 && atspi_action_do_action(action, selected, &error), "control activation");
-        printf("{\"status\":\"PASS\",\"pid\":%u,\"actions\":1,\"action_name\":\"%s\"}\n", (guint)pid, selected_name);
-        g_free(selected_name);
     }
     if (target) g_object_unref(target);
     g_object_unref(application); g_object_unref(desktop); atspi_exit(); return 0;

@@ -129,9 +129,9 @@ def phase(stage,config,env,logs):
         return wait(ready,healthy,45,'Welcome '+view+' accessibility state')
 
     def click(label):
-        result=a11y('activate',label);C.need(result.get('actions')==1,'one real accessibility action required')
+        result=a11y('activate',label);method=C.validate_action(result,welcome.process.pid,label)
         base.emit('welcome_action',stage=stage,label=label,welcome_pid=welcome.process.pid,proof=result,
-                  method='installed GTK AT-SPI action',physical_input='NOT_RUN')
+                  method=method,physical_input='NOT_RUN')
 
     def capture(view,semantic,action_pid=None,action_identity=None):
         started=time.monotonic()

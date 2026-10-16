@@ -19,8 +19,8 @@ ROOT=HERE.parents[2]
 ASSETS=Path(os.environ.get('WELCOME_GUI_ASSETS',str(ROOT/'artifacts/development/welcome-native-inputs-20261016/payload')))
 
 
-def node(name, *, selected=False, text=None):
-    row=dict(name_base64=base64.b64encode(name.encode()).decode(),role=42,showing=True,selected=selected,checked=False)
+def node(name, *, selected=False, text=None, role=42):
+    row=dict(name_base64=base64.b64encode(name.encode()).decode(),role=role,showing=True,selected=selected,checked=False)
     if text is not None:row.update(text_sha256=G.sha(text),text_bytes=len(text),prefix_base64=base64.b64encode(text[:192]).decode())
     return row
 
@@ -89,6 +89,34 @@ class Transport(unittest.TestCase):
 
 
 class Semantic(unittest.TestCase):
+
+    def test_selection_is_qualified_and_bound_to_known_guide_tab_index(self):
+        for label,index in (('First steps',0),('Updates',1),('Recovery',2)):
+            proof=dict(status='PASS',pid=551,actions=1,action_name='select-child',interface='Selection',
+                       target_role=37,parent_role=38,child_index=index,child_count=3,selected=True,selected_count=1)
+            self.assertEqual(G.validate_action(proof,551,label),'installed GTK AT-SPI notebook selection')
+        ordinary=dict(status='PASS',pid=551,actions=1,action_name='click')
+        self.assertEqual(G.validate_action(ordinary,551,'System'),'installed GTK AT-SPI action')
+
+    def test_real_guide_role_selection_and_visible_text_are_independent_requirements(self):
+        text=b'installed guide\n'
+        value=dict(status='PASS',pid=551,nodes=[node('Updates',selected=True,role=37),node('text',text=text)])
+        G.validate_snapshot(value,551,'updates',G.sha(text))
+        for role,selected,hash_ in ((42,True,G.sha(text)),(37,False,G.sha(text)),(37,True,'0'*64)):
+            value['nodes'][0].update(role=role,selected=selected)
+            with self.assertRaises(G.ViewPending):G.validate_snapshot(value,551,'updates',hash_)
+
+    def test_arbitrary_select_or_wrong_notebook_identity_state_and_index_refused(self):
+        proof=dict(status='PASS',pid=551,actions=1,action_name='select-child',interface='Selection',
+                   target_role=37,parent_role=38,child_index=1,child_count=3,selected=True,selected_count=1)
+        for change in (dict(action_name='select'),dict(interface='Action'),dict(pid=999),dict(target_role=42),
+                       dict(parent_role=37),dict(child_index=2),dict(child_index=True),dict(child_count=192),
+                       dict(selected=False),dict(selected_count=2),dict(actions=2),dict(actions=True)):
+            with self.subTest(change=change),self.assertRaises(ValueError):G.validate_action(proof|change,551,'Updates')
+        for label in ('System','Guides','Open Terminal','Open Files','Refresh system status'):
+            with self.subTest(label=label),self.assertRaises(ValueError):G.validate_action(proof,551,label)
+
+
     def test_layout_is_idempotent_for_actual_floating_to_action_transition(self):
         row=window(566,'welcome');calls=[]
         def command(argv,label):
@@ -115,7 +143,7 @@ class Semantic(unittest.TestCase):
         self.assertEqual(len(calls),3)
 
     def test_visible_selected_guide_requires_exact_full_installed_text(self):
-        text=b'installed guide\n';value=dict(status='PASS',pid=10,nodes=[node('First steps',selected=True),node('text',text=text)])
+        text=b'installed guide\n';value=dict(status='PASS',pid=10,nodes=[node('First steps',selected=True,role=37),node('text',text=text)])
         result=G.validate_snapshot(value,10,'first-steps',G.sha(text));self.assertIn(G.sha(text),result['showing_text_sha256'])
         with self.assertRaises(G.ViewPending):G.validate_snapshot(value,10,'first-steps','0'*64)
         with self.assertRaises(ValueError):G.validate_snapshot(value,11,'first-steps',G.sha(text))

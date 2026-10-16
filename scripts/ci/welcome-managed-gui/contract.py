@@ -61,11 +61,9 @@ def verify_result(events,lock):
         C.need([e.get('label') for e in actions]==['Open Terminal','Open Files','System','Refresh system status',
             'Welcome','First steps','Updates','Recovery'],'eight exact GTK actions required')
         for action in actions:
-            C.need(action.get('welcome_pid')==welcome_pid and action.get('method')=='installed GTK AT-SPI action' and
-                   action['proof'].get('status')=='PASS' and action['proof'].get('pid')==welcome_pid and
-                   action['proof'].get('actions')==1 and action['proof'].get('action_name') in ('click','activate','press','switch') and
-                   action.get('physical_input')=='NOT_RUN',
-                   'actual owned GTK action proof differs')
+            C.need(action.get('welcome_pid')==welcome_pid and
+                   action.get('method')==C.validate_action(action['proof'],welcome_pid,action['label']) and
+                   action.get('physical_input')=='NOT_RUN','actual owned GTK action/guide selection proof differs')
         identity=retired.get('identity');opened=frames[1]['action_identity']
         C.need(identity==opened and identity.get('uid')==[23001]*4 and identity.get('executable')=='/usr/bin/alacritty' and
                identity.get('pid')==frames[1]['windows']['action']['pid'] and type(identity.get('starttime')) is int and
