@@ -85,12 +85,23 @@ def inspect(path,expected_tree,limits):
 
 
 RELEASE='2.43'
+PREFIX='/opt/caa/g243a1'
 ARCHIVE='glibc-2.43.tar.gz'
 ARCHIVE_SHA='e1e622cbd635019090fa23260e5d9ec219b12f97ae7ae02f033d4ae42cf2c004'
 PAYLOAD_TREE='97ac10e146c65ecbd22d36e3743eb5b5e9166ae9'
 PRIMARY='35B17DF5752577CA0C541CEB94BFDF4484AD142F'
 SUBKEY='FD19E6D31B192EE4DC63EAD3DC2B16215ED5412A'
 LIMITS=dict(seconds=180,source_compressed=96*1024**2,source_bytes=512*1024**2,source_members=60000,source_file=64*1024**2)
+
+
+PATCH_FILES={'0001-mount-macro-guards.patch': '09117692cd3a1d5838ea700df68b512f9f625a6d2af497a1afcf92046deca8f5', '0002-held-builder-test-expectations.patch': 'f730c778ba51f9e525c9f6a7949a76af00364d49f41eedb5d73b8e86a3d4c132'}
+
+def verify_patches(recipe,lock):
+    rows=lock['patch_order']
+    need(type(rows) is list and all(type(r) is dict for r in rows) and [r.get('path') for r in rows]==list(PATCH_FILES),'exact reviewed patch order required')
+    for row in rows:
+        name=row['path'];path=Path(recipe)/name
+        need(row.get('sha256')==PATCH_FILES[name] and path.is_file() and not path.is_symlink() and sha(path)==PATCH_FILES[name], 'reviewed patch bytes differ: '+name)
 
 
 def signature_status(text,returncode):
@@ -109,8 +120,10 @@ def verify_release(inputs,lock):
     import subprocess,tempfile
     need(inputs is not None,'MISSING_PREREQUISITE: three exact official release inputs')
     inputs=Path(inputs).resolve(strict=True)
+    need(lock['prefix']==PREFIX and lock['version']=='2.43.caa1' and lock['pkgrel']==2 and
+         lock['layout']['gettext_catalogs']==PREFIX+'/l' and len((PREFIX+'/l').encode())+1==18, 'ABI-preserving private layout required')
     need(lock['release']==RELEASE and lock['source']['sha256']==ARCHIVE_SHA and lock['payload_tree']==PAYLOAD_TREE and
-         lock['name']=='cachy-asahi-glibc-official-release' and lock['patch_order']==[],'separate official release identity required')
+         lock['name']=='cachy-asahi-glibc-official-release' and [r.get('path') for r in lock['patch_order']]==list(PATCH_FILES),'separate official release identity required')
     for row in lock['public_inputs']:
         need(Path(row['path']).name==row['path'],'flat public input required')
         path=inputs/row['path']
@@ -132,6 +145,7 @@ def materialize(recipe,inputs,output):
     recipe=Path(recipe).resolve(strict=True);output=Path(output).absolute()
     need(not output.exists() and not output.is_symlink() and not any(p.is_symlink() for p in output.parents),'fresh ordinary bundle required')
     lock=json.loads((recipe/'source-lock.json').read_bytes())
+    verify_patches(recipe,lock)
     observed,auth=verify_release(inputs,lock)
     output.mkdir(mode=0o700)
     try:
@@ -142,7 +156,7 @@ def materialize(recipe,inputs,output):
         (output/'source-authentication.json').write_text(json.dumps(auth,sort_keys=True,indent=2)+'\n')
         files={p.name:dict(bytes=p.stat().st_size,sha256=sha(p)) for p in sorted(output.iterdir())}
         receipt=dict(schema_version=1,status='SOURCE_BUNDLE_READY_UNSELECTED_OFFICIAL_RELEASE',release=RELEASE,payload_tree=PAYLOAD_TREE,
-                     source=observed,authentication=auth,files=files,native_build='NOT RUN',old_binary_source_gap='UNRESOLVED')
+                     source=observed,authentication=auth,files=files,declared_patches=lock['patch_order'],configured_layout=lock['layout'],native_build='NOT RUN',old_binary_source_gap='UNRESOLVED')
         (output/'bundle.json').write_text(json.dumps(receipt,sort_keys=True,indent=2)+'\n');return receipt
     except BaseException:shutil.rmtree(output);raise
 

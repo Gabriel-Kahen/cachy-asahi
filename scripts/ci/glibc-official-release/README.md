@@ -105,3 +105,16 @@ Docker, package, recipe, host installation, CI dispatch or Git actor runs during
 preparation. The retained real source inspection and gpgv validation are data and
 cryptographic evidence. Root owns adoption, actual native builds and any later
 lifecycle/platform/security/trust/admission decisions.
+
+
+The check-repair revision uses the shorter versioned private prefix
+/opt/caa/g243a1 and explicit catalog localedir /opt/caa/g243a1/l. The resulting
+17-byte string plus NUL preserves the original18-byte _nl_default_dirname ABI
+object without changing an ABI list or ABI comparator. stage.py/run.py and
+package identity track pkgrel2 and that exact private root. Source materialization
+requires the two exact declared patches as well as the unchanged signed GNU
+release inputs and payload identity. The full GNU check/check-abi and collector's
+strict FAIL/XPASS/ERROR policy remain. The only timeout scale is one named malloc
+variant's standard TIMEOUTFACTOR=5. Five stale expected-failure annotations are
+removed, so regressions become FAIL rather than acceptable XFAIL. Native repair
+results are NOT_RUN; original actual38898464517 remains failed.

@@ -13,7 +13,7 @@ HERE=Path(__file__).resolve().parent
 LOCK='cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac'
 RUNTIME='8a7cd5e73cf383b2d81ad577b8513c6fd7d49f9fd2572961c73ae9d289cab821'
 SMOKE='e10336aef200731c7dd4b06546b718e095c1ecf7718e4a25fa57d6bbed6270a6'
-PREFIX='opt/cachy-asahi/glibc-official-release/2.43-caa1'
+PREFIX='opt/caa/g243a1'
 LABEL='org.cachy-asahi.glibc-official-release.job'
 CASES={'allocation','dlopen_dlsym','pthread_tls_join','utf8_iconv_locale','numeric_math',
        'fd_stat_clock_random','numeric_address_lookup','fork_exec_wait'}
@@ -62,7 +62,10 @@ def inputs(bundle,pin):
     # Git blob/tree identities before any container or recipe actor exists.
     spec=importlib.util.spec_from_file_location('glibc_source_inspector',HERE/'materialize.py')
     inspector=importlib.util.module_from_spec(spec);spec.loader.exec_module(inspector)
-    observed,auth=inspector.verify_release(bundle,read_json(bundle/'source-lock.json'))
+    source_lock=read_json(bundle/'source-lock.json')
+    inspector.verify_patches(bundle,source_lock)
+    observed,auth=inspector.verify_release(bundle,source_lock)
+    need(value['declared_patches']==source_lock['patch_order'] and value['configured_layout']==source_lock['layout'],'source patch/layout receipt differs')
     need(auth==value['authentication'],'retained GNU verification status differs')
     need(value['source']==observed,'source receipt differs from complete verified tree')
     return value
@@ -149,7 +152,7 @@ def execute(args,selected,smoke,harness,runtime):
     lease=os.open(out/'consumer.lock',os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_CLOEXEC|os.O_NOFOLLOW,0o600);fcntl.flock(lease,fcntl.LOCK_EX|fcntl.LOCK_NB)
     (out/'home').mkdir();env=dict(ENV,HOME=str(out/'home'));containers=[];success=False
     report=dict(status='FAIL',scope='UNSELECTED_OWNED_GLIBC_SUCCESSOR',upstream_release=selected['release'],release_payload_tree=selected['payload_tree'],source_authentication=selected['authentication'],
-                old_binary_recipe='UNRESOLVED-no-waiver',base_image=image,base_lock_sha256=LOCK,ownership_token=token,hardware='NOT RUN',
+                declared_patches=selected['declared_patches'],configured_layout=selected['configured_layout'],old_binary_recipe='UNRESOLVED-no-waiver',base_image=image,base_lock_sha256=LOCK,ownership_token=token,hardware='NOT RUN',
                 performance='NOT MEASURED',package_admission='NOT REQUESTED',builds=[],cleanup=[],
                 source_bundle_manifest_sha256=args.bundle_manifest_sha256,harness_manifest_sha256=args.harness_manifest_sha256,
                 smoke_manifest_sha256=SMOKE)

@@ -21,12 +21,16 @@
 #include <sys/stat.h>
 #include <sys/socket.h>
 #include <sys/mman.h>
+#include <sys/mount.h>
+#include <linux/mount.h>
 #include <sys/auxv.h>
 #include <linux/types.h>
 #include <gnu/libc-version.h>
 #if __GLIBC__ != 2 || __GLIBC_MINOR__ != 43
 #error Candidate GNU 2.43 headers required
 #endif
+_Static_assert(OPEN_TREE_CLONE == 1, "preserved mount clone flag");
+_Static_assert(OPEN_TREE_CLOEXEC == O_CLOEXEC, "preserved mount close-on-exec flag");
 _Static_assert(sizeof(void *) == 8 && sizeof(ssize_t) == 8, "aarch64 LP64 headers");
 _Static_assert(sizeof(pthread_t) == 8, "aarch64 pthread handle");
 void candidate_header_probe(void) {
