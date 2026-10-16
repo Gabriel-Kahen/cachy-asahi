@@ -5,8 +5,8 @@
       "sha256": "52ee7217b9aa22c12d88519adc7f1a94a827e6ae0ab4656b8c49b3c2be687950"
     },
     "scripts/ci/setup5-expanded600/README.md": {
-      "bytes": 4977,
-      "sha256": "71d3eeab4e0c587c83569ed49ad09c33951dab6bed83a967053237f24c2d627d"
+      "bytes": 5434,
+      "sha256": "3aff48960339e03c670b2635101f18b5b6e4d60f7956e2c4254dcf12232f38db"
     },
     "scripts/ci/setup5-expanded600/freeze.py": {
       "bytes": 1014,
@@ -25,8 +25,8 @@
       "sha256": "77f101edd82b00d71f62d5bbbf651d32e72ad000ae64653e4bb87f94e0f35602"
     },
     "scripts/ci/setup5-expanded600/lifecycle.py": {
-      "bytes": 11447,
-      "sha256": "7f4bddda4b4c7bcadad5db78d77764dac5dd80798b5e17699fe5ae134fcb8056"
+      "bytes": 12172,
+      "sha256": "59ac52bffb04e180e17cf251babe3c54a2cdb7b2556582db0be3c1519d08cfca"
     },
     "scripts/ci/setup5-expanded600/policy.py": {
       "bytes": 7888,
@@ -45,8 +45,8 @@
       "sha256": "cbe979dcfcb5920fc2c4b027dd181f887b87081e393d767412668a45240b1c70"
     },
     "scripts/ci/setup5-expanded600/test_source.py": {
-      "bytes": 17130,
-      "sha256": "59703b0ce07e1c9fa26290bbe5ed38d4a95fd6cc6d8069e9168f3389967d0d5b"
+      "bytes": 20072,
+      "sha256": "f7caadd251023a47b09afea2ff5de14dd42b270d5b4523710b35fb1ddc61cf66"
     }
   },
   "hardware": "NOT_RUN",

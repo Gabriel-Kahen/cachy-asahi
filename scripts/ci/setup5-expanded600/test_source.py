@@ -89,6 +89,49 @@ class Contracts(unittest.TestCase):
         with self.assertRaises(ValueError):host.packet_snapshot(self.work)
 
 
+class PayloadTransition(unittest.TestCase):
+    def setUp(self):
+        self.old={'usr/bin/cachy-asahi-setup','usr/share/doc/cachy-asahi-setup/README.md',
+                  'usr/share/licenses/cachy-asahi-setup/LICENSE','usr/share/licenses/cachy-asahi-setup/NOTICE'}
+        self.added={'usr/bin/cachy-asahi-repository','usr/share/doc/cachy-asahi-setup/repository-enrollment.md'}
+        self.full=dict(ownership={P.SETUP:sorted(self.old|{'usr/bin'})},
+                       nodes={p:dict(type='file') for p in self.old}|{'usr/bin':dict(type='directory')})
+        self.product=dict(payload={p:dict(type='0') for p in self.old|self.added})
+
+    def test_signed_setup3_four_to_accepted_setup5_six_paths(self):
+        self.assertNotEqual(set(self.product['payload']),self.old)  # Actual failed equality is reproduced.
+        before,added=T.payload_transition(self.full,self.product)
+        self.assertEqual(before,self.old);self.assertEqual(set(added),self.added)
+        self.assertEqual(len(self.product['payload']),6)
+
+    def test_missing_held_path_or_unexpected_setup5_path_refuses(self):
+        for remove,extra in [('usr/bin/cachy-asahi-setup',None),(None,'usr/bin/unaccepted-tool')]:
+            product=copy.deepcopy(self.product)
+            if remove:del product['payload'][remove]
+            if extra:product['payload'][extra]=dict(type='0')
+            with self.subTest(remove=remove,extra=extra),self.assertRaises(ValueError):T.payload_transition(self.full,product)
+
+    def test_missing_new_path_or_wrong_old_shape_refuses(self):
+        product=copy.deepcopy(self.product);del product['payload']['usr/bin/cachy-asahi-repository']
+        with self.assertRaises(ValueError):T.payload_transition(self.full,product)
+        full=copy.deepcopy(self.full);full['ownership'][P.SETUP].append('usr/bin/old-extra');full['nodes']['usr/bin/old-extra']=dict(type='file')
+        with self.assertRaises(ValueError):T.payload_transition(full,self.product)
+
+    def test_new_paths_cannot_replace_any_other_signed600_payload(self):
+        for path in self.added:
+            full=copy.deepcopy(self.full);full['nodes'][path]=dict(type='file');full['ownership']['other599-package']=[path]
+            with self.subTest(path=path),self.assertRaisesRegex(ValueError,'collide with signed full600'):
+                T.payload_transition(full,self.product)
+
+    def test_real_unowned_collision_or_leftover_after_rollback_refuses(self):
+        for phase in ('before upgrade','after Setup3 rollback'):
+            with patch.object(T,'L',SimpleNamespace(node=lambda path:dict(type='file'))):
+                with self.subTest(phase=phase),self.assertRaisesRegex(ValueError,'must be absent'):
+                    T.added_absent(self.added,phase)
+        with patch.object(T,'L',SimpleNamespace(node=lambda path:dict(type='absent'))):
+            T.added_absent(self.added,'before upgrade');T.added_absent(self.added,'after Setup3 rollback')
+
+
 class PacketSources(unittest.TestCase):
     def setUp(self):
         self.tmp=tempfile.TemporaryDirectory();self.addCleanup(self.tmp.cleanup);self.root=Path(self.tmp.name)

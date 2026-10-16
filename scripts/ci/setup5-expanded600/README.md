@@ -71,3 +71,10 @@ Local controls use temporary fixtures, mocked actors and AST comparisons:
 `python -B -m unittest discover -s scripts/ci/setup5-expanded600 -p test_source.py`.
 No native actors execute in these tests. Root owns final input/source binding,
 workflow publication, freeze, dispatch and acceptance.
+
+Actual38954354310 passed baseline587 and signed600 installation, then failed
+the incorrect Setup3/Setup5 equal-file-set guard. Setup3 owns four payload
+files; genuine Setup5 adds only the repository helper and enrollment guide.
+The corrected lane permits precisely that two-file addition, refuses existing
+signed/live collisions, and requires both added files absent after rollback.
+All31 focused controls pass; the corrected native retry remains pending.
