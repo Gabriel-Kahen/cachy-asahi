@@ -564,6 +564,7 @@ selected_for_release = false
 host_validation = "PASS 38 standalone checks plus real574 archive-derived 7MB metadata fixture: readonly ALPM9 inventory, signed collector-to-plan integration and eight-file staging"
 native_build = "PASS native pair38970264456:22088bytes/SHA2569ec47f6cf506c5d2b6da3ac6f4f42e00ce98b8d1985b1b9eca065c38058c1580;39 checks each"
 installation = "PASS signed574to577/repeat/remove/reinstall/final574; installed signed catalog/plans and complete577 metadata collection38970264456"
+native_generic16k_cli = "PASS generic16384 private data-staged CLI/helper cases38978464494; NOT ALPM-installed inVM; docs/validation/management-generic16k-20261016.md"
 hardware_validation = "NOT RUN"
 next_step = "Complete generic16K management integration, copied-root authenticated application transactions and both M2 workflows. Apps plans remain NOT_APPLIED; see docs/validation/management-native-20261016.md."
 
@@ -581,6 +582,7 @@ selected_for_release = false
 host_validation = "PASS exact three original helpers, eight-file staging and real installed-layout planner calls in standalone25-check suite"
 native_build = "PASS native ARM pair38967303862: both 28888-byte archives/BUILDINFO byte-identical; Root original comparison replay passes"
 installation = "PASS signed dependency image575 and combined574to577/repeat/remove/reinstall/final574 lifecycle38970264456"
+native_generic16k_helpers = "PASS generic16384 private data-staged CLI/helper cases38978464494; NOT ALPM-installed inVM; docs/validation/management-generic16k-20261016.md"
 hardware_validation = "NOT RUN"
 next_step = "Complete generic16K management integration and both M2 workflows; see docs/validation/management-native-20261016.md. Runtime helpers authenticate development inputs; release selection false."
 
@@ -598,6 +600,7 @@ selected_for_release = false
 host_validation = "PASS 27 temporary-target checks with real libalpm16 exclusion, selected cleanup, concurrent refusal and interruption; four-file staging"
 native_build = "PASS native pair38970264456:18304bytes/SHA256450706e2899f57b44ca2f446560c8aeab710a4726a13561d09a2cb4a8bf1da40;27 checks each"
 installation = "PASS signed package lifecycle and six ordinary installed real-ALPM selected cleanup/foreign-lock fixture observations38970264456"
+native_generic16k_cli = "PASS generic16384 private data-staged CLI/helper cases38978464494; NOT ALPM-installed inVM; docs/validation/management-generic16k-20261016.md"
 hardware_validation = "NOT RUN"
 next_step = "Complete generic16K management integration and both M2 workflows. Cache apply passed only disposable explicit fixtures; physical reclaimed bytes remain NOT_MEASURED. See docs/validation/management-native-20261016.md."
 
@@ -615,5 +618,6 @@ selected_for_release = false
 host_validation = "PASS 18 real-libALPM temporary metadata checks and five-file staging; explicit assessment/plan/verify preserve DB"
 native_build = "PASS native pair38969154970,18540bytes/SHA25621b13501d8ed5de828e7ac47ff8c8ec2132ca3f0af68bb7062f22852ef640bea;18 checks each"
 installation = "PASS signed574to575/repeat/remove/reinstall/final574 and readonly installed CLI lifecycle38969154970"
+native_generic16k_cli = "PASS generic16384 private data-staged CLI/helper cases38978464494; NOT ALPM-installed inVM; docs/validation/management-generic16k-20261016.md"
 hardware_validation = "NOT RUN"
 next_step = "Native pair and installed readonly lifecycle pass; see docs/validation/orphans-native-20261016.md. Complete generic16K management integration and both M2 workflows. Actual orphan removal remains unimplemented; release selection false."
