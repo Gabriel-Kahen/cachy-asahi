@@ -98,10 +98,17 @@ reported separately from the required normal Fish/Mako/client exits.
 Done naturally expires in three seconds. The first request now follows the real
 Notify/reply immediately, before launching live Mako list/layer processes.
 Those fresh observations follow request emission and carry its exact digest in
-a separate frame_visibility event and the final transport receipt. Host capture
-stores the one original QMP frame first, then checks its original RGB bytes
-against that fresh owned geometry. The original five-second observation bound
-includes waiting for visibility and pixel verification; there is no recapture.
+a separate frame_visibility event and the final transport receipt. The host
+arms the immutable request without taking pixels. Only that fresh event's
+actual notification ID/payload, owned fully visible bar/Mako layers and matching
+identity can trigger the single original QMP frame. The original RGB is checked
+immediately against the same fresh geometry. No prior geometry is reused.
+The five-second observation budget starts at host request receipt and includes
+waiting, capture and RGB verification. Host receipt/readiness/QMP clocks are
+retained separately. This is layer-readiness synchronization, not a claimed
+presentation fence; original pixels and Root viewing still decide acceptance.
+A recognized guest failure before visibility can retain one explicitly
+unaccepted first diagnostic frame. There is no replacement or recapture.
 Foreground caller continuation, recipient-owner recheck and the three manager
 identity queries remain required afterward, with exact PTY bytes and normal
 process exits. No host capture acknowledgement is invented. The original two

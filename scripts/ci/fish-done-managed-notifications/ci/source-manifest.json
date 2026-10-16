@@ -2,10 +2,16 @@
   "background_cancellation": "NOT_RUN",
   "background_duplicate_watch": "NOT_RUN",
   "background_failure": "NOT_RUN",
-  "basis_source": "18cc8df67eb7e8c5095e9f4db129c36e4a600648",
+  "basis_source": "7247b4241052beb9b72e943fdc9034746d3d63f7",
   "done_packet": {
     "archive_sha256": "9ce3c7ba89467f04660014c1b12056dce28bd0c4e69b4cab8a9c2c98e1cce54f",
     "ref": "de35c384a2e5b14b664d4156897f271b81e467ba"
+  },
+  "early_capture_failure": {
+    "correction": "ARM_EARLY_REQUEST_CAPTURE_ONCE_AFTER_FRESH_OWNED_LAYER_READINESS_WITHIN_SAME_HOST_BUDGET",
+    "root_visual": "FAIL_ORIGINAL_MINIMAL_FRAME_NO_NOTIFICATION",
+    "run": 38964210522,
+    "source": "7247b4241052beb9b72e943fdc9034746d3d63f7"
   },
   "files": {
     "packages/desktop/cachy-asahi-hyprland-settings/.SRCINFO": {
@@ -181,24 +187,24 @@
       "sha256": "5e3540a853c96616f6767e86df152a87747299c6f8b5c36f41cc51ae7f3403cd"
     },
     "scripts/ci/fish-done-managed-notifications/README.md": {
-      "bytes": 13084,
-      "sha256": "49b71f5b3e4a6997ad09a6ceeac214e6e8e79522befe2d92f2168bebc379ad3a"
+      "bytes": 13610,
+      "sha256": "7a88f5d773853ab2ced6400bd7a11f20f9abffc5aaee2b33a23e9252e4ea3107"
     },
     "scripts/ci/fish-done-managed-notifications/bar_helpers.py": {
       "bytes": 20986,
       "sha256": "3389f3ea1cc6193941c9394e0888748694cd33306956fedb7de805279d0572e5"
     },
     "scripts/ci/fish-done-managed-notifications/capture.py": {
-      "bytes": 6919,
-      "sha256": "b07cb242c65a0aa149afd9d39a699accd22e79119fbe9be0e7d7b1876458b244"
+      "bytes": 11269,
+      "sha256": "97fb4ae37816a59b6d145591ff4e9de53c286bbe28c4b86589944ceeb760dfd8"
     },
     "scripts/ci/fish-done-managed-notifications/ci/caller.py": {
       "bytes": 11530,
       "sha256": "0ce387df491eb5406493d523c4fb04cc4f3ef95ea1ceec46a3090ffbe0516dd4"
     },
     "scripts/ci/fish-done-managed-notifications/contract.py": {
-      "bytes": 8689,
-      "sha256": "b0faa75d9b3c62289d4727c047ba75987076d8c057ec5db34bcae99a0c0f6653"
+      "bytes": 9337,
+      "sha256": "8b7ea5308dfb8eafa63854b250e58d225254831c833f84a860247188dc8aa1b1"
     },
     "scripts/ci/fish-done-managed-notifications/desktop574_guest.py": {
       "bytes": 2722,
@@ -257,8 +263,8 @@
       "sha256": "4d65aec6b7200136a346d38acad9ea11387bc836881058a1484797f06fba5088"
     },
     "scripts/ci/fish-done-managed-notifications/prepare.py": {
-      "bytes": 4425,
-      "sha256": "d974c674e10156bba8097c507708a3162bc2e02afee67b96e0b7b0888a56bb1b"
+      "bytes": 4920,
+      "sha256": "acc9c1ac9cb47dc7d1d96431ab81fdcc02bcae848fb7e6a2405e26e2fa16977d"
     },
     "scripts/ci/fish-done-managed-notifications/session.py": {
       "bytes": 12648,
@@ -266,11 +272,11 @@
     },
     "scripts/ci/fish-done-managed-notifications/source-pins.json": {
       "bytes": 9840,
-      "sha256": "b8f35525f78d0fccb5c031165b2b77fbfad928107ee5a20cf0dea92baf2aba0b"
+      "sha256": "bb0b8eb63e3e5c07477c3314b854000053d3eee75f325864ec09cef122a748aa"
     },
     "scripts/ci/fish-done-managed-notifications/test_source.py": {
-      "bytes": 44173,
-      "sha256": "5553409bdb1f82b502b77863380a5e814da1c87f156edcbded496302d24a2eb2"
+      "bytes": 50187,
+      "sha256": "b8e195717045e72e44fe7d5139aab468751f09dfa08f61ca0c4a5758b7f4e979"
     },
     "scripts/ci/maintained-desktop574-inputs.json": {
       "bytes": 623664,
@@ -347,12 +353,12 @@
       "sha256": "c550258599842df55464068e955373842acc5884c3f640eb07dc3a077aeb6313"
     },
     "capture.py": {
-      "bytes": 6919,
-      "sha256": "b07cb242c65a0aa149afd9d39a699accd22e79119fbe9be0e7d7b1876458b244"
+      "bytes": 11269,
+      "sha256": "97fb4ae37816a59b6d145591ff4e9de53c286bbe28c4b86589944ceeb760dfd8"
     },
     "contract.py": {
-      "bytes": 8689,
-      "sha256": "b0faa75d9b3c62289d4727c047ba75987076d8c057ec5db34bcae99a0c0f6653"
+      "bytes": 9337,
+      "sha256": "8b7ea5308dfb8eafa63854b250e58d225254831c833f84a860247188dc8aa1b1"
     },
     "desktop574_fixture.sh": {
       "bytes": 5114,
@@ -363,8 +369,8 @@
       "sha256": "721548482de143d5bae8a99b745c7225dee60440da10a1d43a8df34da78708b9"
     },
     "desktop574_runtime.py": {
-      "bytes": 22774,
-      "sha256": "4739f0285bfde95975daf99df4be59ec1728460d53f9037284471280f024d0b1"
+      "bytes": 22924,
+      "sha256": "d9dcc4247151d03231f10e461eccaa76325eb6bcf94ae51aad27d8eb74b9d108"
     },
     "done-lock.json": {
       "bytes": 2717,
@@ -412,7 +418,7 @@
     },
     "source-pins.json": {
       "bytes": 9840,
-      "sha256": "b8f35525f78d0fccb5c031165b2b77fbfad928107ee5a20cf0dea92baf2aba0b"
+      "sha256": "bb0b8eb63e3e5c07477c3314b854000053d3eee75f325864ec09cef122a748aa"
     },
     "test_desktop574_runtime.py": {
       "bytes": 12245,
