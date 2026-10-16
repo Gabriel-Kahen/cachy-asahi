@@ -1,0 +1,49 @@
+{
+  "files": {
+    ".github/workflows/native-arm-generic16k-audio-userspace.yml": {
+      "bytes": 6266,
+      "sha256": "334d036a30166ca7b923ea4d8f5ec5e9d5cff0fc33ced3519746803fff7f3fee"
+    },
+    "scripts/ci/generic16k-audio-userspace/HANDOFF.md": {
+      "bytes": 10805,
+      "sha256": "48a0ddc5a53969ae6991990a6632b3be820fef0001763f76eb5fb3bdaacecef1"
+    },
+    "scripts/ci/generic16k-audio-userspace/ci_sequence.sh": {
+      "bytes": 5558,
+      "sha256": "b16766a887e396e569cd66a1198f75bd1aba244e2374a99425a3bc318d06673f"
+    },
+    "scripts/ci/generic16k-audio-userspace/dependencies.json": {
+      "bytes": 4595,
+      "sha256": "278df712ed4cd8e42fe1095179ca07756e0682e544f5fc32491da7c6aa56cee1"
+    },
+    "scripts/ci/generic16k-audio-userspace/deps.py": {
+      "bytes": 1322,
+      "sha256": "2ab1e08e0cc872eb6febf28928fdcc542b4deb89fc549aefa36c2362302055ed"
+    },
+    "scripts/ci/generic16k-audio-userspace/job.py": {
+      "bytes": 5424,
+      "sha256": "78ba1a7e2104fa3848b0aa9867c8bf0c6da2221ad6ee80a3c15df766913df641"
+    },
+    "scripts/ci/generic16k-audio-userspace/native_capture.py": {
+      "bytes": 8204,
+      "sha256": "3f7e5d689e7e6800e095a850b723ff47e6c1c5aaa6bfe7a0dbd213ed877e8f73"
+    },
+    "scripts/ci/generic16k-audio-userspace/payload_vm.py": {
+      "bytes": 12182,
+      "sha256": "a7dcde271c8837e33132d48f38c0019b6e859083e4c5b791c252bff90693edd6"
+    },
+    "scripts/ci/generic16k-audio-userspace/run.py": {
+      "bytes": 7081,
+      "sha256": "e67af7a82a788f53dd7461b385db5ef4e38c44f876316a7348c7f75adf82c0ad"
+    },
+    "scripts/ci/generic16k-audio-userspace/test-data/runtime.json": {
+      "bytes": 49472,
+      "sha256": "c6a73865953cf5ff12a3556a400b47bf5a53a293ef5fa6e068c706727a0def95"
+    },
+    "scripts/ci/generic16k-audio-userspace/test_audio16k.py": {
+      "bytes": 11432,
+      "sha256": "0ac563f2461c7dd5d007b652ecd0bc16bb1d94a2e8d25375b804997b1652c6e3"
+    }
+  },
+  "schema": 1
+}

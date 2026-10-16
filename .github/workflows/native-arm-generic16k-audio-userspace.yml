@@ -1,0 +1,119 @@
+name: native-arm-generic16k-audio-userspace
+on:
+  workflow_dispatch:
+    inputs:
+      source_commit:
+        description: Reviewed full source commit containing the isolated audio16K candidate
+        required: true
+        type: string
+      candidate_sha256:
+        description: Reviewed SHA256 of scripts/ci/generic16k-audio-userspace/candidate-files.json
+        required: true
+        type: string
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: native-arm-generic16k-audio-userspace
+  cancel-in-progress: false
+jobs:
+  audio16k:
+    if: github.repository == 'Gabriel-Kahen/cachy-asahi' && github.event.repository.private == false
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 195
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      AUDIO16K_SOURCE_COMMIT: ${{ inputs.source_commit }}
+      AUDIO16K_CANDIDATE_SHA256: ${{ inputs.candidate_sha256 }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 5
+        with:
+          ref: ${{ inputs.source_commit }}
+          path: audio-source
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 5
+        with:
+          ref: db1010de321cc056a01672f006e6cc25d3c8a8b7
+          path: product-api
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 5
+        with:
+          ref: 8d8e2f5d5a94ab3ebee2d8b1cc20aecf98e435e2
+          path: desktop-base
+          persist-credentials: false
+      - name: Authenticate complete candidate and run portable controls
+        timeout-minutes: 2
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C audio-source rev-parse HEAD)" = "$AUDIO16K_SOURCE_COMMIT"
+          python3 -I -B - <<'PY'
+          import hashlib,json,os,pathlib,re
+          root=pathlib.Path('audio-source').resolve()
+          raw=(root/'scripts/ci/generic16k-audio-userspace/candidate-files.json').read_bytes()
+          expected=os.environ['AUDIO16K_CANDIDATE_SHA256']
+          assert re.fullmatch('[0-9a-f]{64}',expected) and hashlib.sha256(raw).hexdigest()==expected
+          manifest=json.loads(raw);assert manifest['schema']==1 and len(manifest['files'])<=24
+          for name,row in manifest['files'].items():
+              assert not name.startswith('/') and all(p not in ('','.','..') for p in name.split('/'))
+              path=root/name;assert not path.is_symlink() and path.resolve().is_relative_to(root)
+              data=path.read_bytes();assert len(data)==row['bytes']<=262144 and hashlib.sha256(data).hexdigest()==row['sha256']
+          PY
+          python3 -B -Werror::ResourceWarning -m unittest discover \
+            -s audio-source/scripts/ci/generic16k-audio-userspace -p 'test_*.py' -v
+      - name: Provision tools only on disposable Ubuntu ARM runner
+        timeout-minutes: 8
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$RUNNER_ARCH" = ARM64
+          docker version >/dev/null
+          timeout --kill-after=10s 180s sudo apt-get -o Acquire::Retries=0 -o Acquire::http::Timeout=30 update -qq
+          timeout --kill-after=10s 240s sudo env DEBIAN_FRONTEND=noninteractive apt-get \
+            -o Acquire::Retries=0 -o Acquire::http::Timeout=30 install -y --no-install-recommends \
+            build-essential bc clang lld llvm flex bison libssl-dev libelf-dev python3 qemu-system-arm zstd ca-certificates
+      - name: Same-job native574 host capture and diagnostic16K LV2 correctness
+        timeout-minutes: 156
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01 }}
+          CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02 }}
+          CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01 }}
+          CACHY_OLD_FOUR_JBIGKIT_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_01 }}
+          CACHY_OLD_FOUR_JBIGKIT_02: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_02 }}
+          CACHY_OLD_FOUR_JBIGKIT_SIG_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_SIG_01 }}
+          CACHY_OLD_FOUR_LIBTIFF_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_01 }}
+          CACHY_OLD_FOUR_LIBTIFF_02: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_02 }}
+          CACHY_OLD_FOUR_LIBTIFF_03: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_03 }}
+          CACHY_OLD_FOUR_LIBTIFF_04: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_04 }}
+          CACHY_OLD_FOUR_LIBTIFF_05: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_05 }}
+          CACHY_OLD_FOUR_LIBTIFF_06: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_06 }}
+          CACHY_OLD_FOUR_LIBTIFF_07: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_07 }}
+          CACHY_OLD_FOUR_LIBTIFF_08: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_08 }}
+          CACHY_OLD_FOUR_LIBTIFF_09: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_09 }}
+          CACHY_OLD_FOUR_LIBTIFF_10: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_10 }}
+          CACHY_OLD_FOUR_LIBTIFF_11: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_11 }}
+          CACHY_OLD_FOUR_LIBTIFF_12: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_12 }}
+          CACHY_OLD_FOUR_LIBTIFF_13: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_13 }}
+          CACHY_OLD_FOUR_LIBTIFF_14: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_14 }}
+          CACHY_OLD_FOUR_LIBTIFF_15: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_15 }}
+          CACHY_OLD_FOUR_LIBTIFF_SIG_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_SIG_01 }}
+        run: |
+          set -euo pipefail
+          timeout --signal=TERM --kill-after=240s 9000s bash \
+            "$GITHUB_WORKSPACE/audio-source/scripts/ci/generic16k-audio-userspace/ci_sequence.sh" \
+            "$GITHUB_WORKSPACE/audio-source" "$GITHUB_WORKSPACE/product-api" "$GITHUB_WORKSPACE/desktop-base" \
+            "$RUNNER_TEMP/audio16k-owner" "$RUNNER_TEMP/audio16k-kernel-work"
+      - name: Retain only bounded public metadata
+        if: always()
+        timeout-minutes: 2
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -d "$RUNNER_TEMP/audio16k-owner/public" ]; then
+            python3 "$GITHUB_WORKSPACE/product-api/scripts/ci/log_evidence.py" "$RUNNER_TEMP/audio16k-owner/public"
+          fi
