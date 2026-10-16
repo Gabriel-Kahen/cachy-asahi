@@ -159,6 +159,11 @@ jobs:
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/welcome-native/ci -p 'test_*.py'
       - name: Check unselected glibc runtime smoke contracts without candidate execution
         run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/glibc-owned-runtime -p 'test_*.py'
+      - name: Check virtual keyboard contracts without VM actors
+        run: |
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/desktop-virtual-keyboard -p test_keyboard.py
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/desktop-virtual-keyboard -p test_phase.py
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/desktop-virtual-keyboard/ci -p test_caller.py
       - name: Check installed Welcome managed GUI contracts without actors
         run: |
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/welcome-managed-gui -p test_gui.py
