@@ -22,7 +22,7 @@ def prepare(source,output,assets):
     output.mkdir(mode=0o700)
     lock=candidates.stage(source,assets,output/'candidates')
     shutil.copyfile(output/'candidates/candidate-lock.json',output/'candidate-lock.json')
-    names=('session.py','doctor_worker.py','gui_contract.py','observed.py','a11y_driver.c','desktop574_guest.py',
+    names=('compositor_log.py','session.py','doctor_worker.py','gui_contract.py','observed.py','a11y_driver.c','desktop574_guest.py',
            'contract.py','candidates.py','transport.json','managed_session.py','managed_contract.py',
            'terminal_session.py','terminal_workflow.py','source-pins.json')
     for name in names:shutil.copyfile(HERE/name,output/name)
@@ -36,7 +36,7 @@ def prepare(source,output,assets):
         'Requires=basic.target systemd-udevd.service systemd-udev-trigger.service systemd-user-sessions.service')
     fixture=replace(fixture,'After=basic.target systemd-udev-trigger.service',
         'After=basic.target systemd-udev-trigger.service systemd-user-sessions.service')
-    guest_files=('base_guest.py','session.py','doctor_worker.py','gui_contract.py','observed.py','candidate-lock.json',
+    guest_files=('compositor_log.py','base_guest.py','session.py','doctor_worker.py','gui_contract.py','observed.py','candidate-lock.json',
                  'managed_session.py','terminal_session.py','terminal_workflow.py')
     fixture=replace(fixture,'cp /runner/desktop574_guest.py "$root/usr/local/share/desktop574/guest.py"',
         'cp /runner/desktop574_guest.py "$root/usr/local/share/desktop574/guest.py"\n'+

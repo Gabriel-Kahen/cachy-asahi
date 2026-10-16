@@ -18,17 +18,30 @@ def verify_result(events,lock):
     expected_identity={k:user[k] for k in ('address','uid','manager_pid','default_target')}
     C.need(lock['status']=='VERIFIED_NATIVE_CANDIDATES' and lock['eligibility']=='PRIVATE_GUI_TRIAL_ONLY' and
            set(lock['products'])=={'cachy-asahi-welcome','cachy-asahi-doctor'},'verified trial candidates required')
-    phases=[]
+    phases=[];compositor_logs={}
     for stage in ('minimal','overlay'):
         def one(name):
             rows=[e for e in events if e.get('event')==name and e.get('stage')==stage]
             C.need(len(rows)==1,'one installed GUI event required: '+name);return rows[0]
         doctor=one('doctor_result');phase=one('phase_pass');retired=one('welcome_terminal_retired');files_retired=one('welcome_files_retired');phases.append(phase)
+        log=one('compositor_log_summary');streams=log.get('streams')
+        C.need(log.get('returncode')==0 and type(log.get('returncode')) is int and
+               log.get('overflow') is False and log.get('drain_errors')==0 and type(log.get('drain_errors')) is int and
+               log.get('drains_complete') is True and type(streams) is list and len(streams)==2,
+               'clean bounded compositor logs required')
+        for stream,suffix,limit in zip(streams,('stdout','stderr'),(2*1024*1024,256*1024)):
+            C.need(stream.get('path')=='/home/desktop574/logs/'+stage+'.'+suffix and
+                   type(stream.get('limit_bytes')) is int and stream['limit_bytes']==limit and
+                   type(stream.get('observed_bytes')) is int and 0<=stream['observed_bytes']<=limit,
+                   'compositor stream identity/budget differs')
+        compositor_logs[stage]=log
         frames=[e for e in events if e.get('event')=='frame_ready' and e.get('stage')==stage]
         C.need([e.get('view') for e in frames]==list(C.VIEWS),'seven exact ordered GUI captures required')
         raw=(json.dumps(doctor['proof'],sort_keys=True,indent=2)+'\n').encode()
         C.need(C.sha(raw)==doctor['proof_sha256'],'Doctor proof digest differs')
         pid=frames[0]['doctor_pid'];welcome_pid=frames[0]['welcome_pid'];comp=frames[0]['compositor_pid']
+        C.need(type(log.get('pid')) is int and log['pid']==comp and
+               events.index(frames[-1])<events.index(log)<events.index(phase),'owned compositor log receipt/order differs')
         proof=doctor['proof'];C.validate_doctor(proof,stage,proof['nonce'],pid)
         indices=[events.index(e) for e in (user,doctor,*frames,phase,session)]
         C.need(indices==sorted(indices),'managed Doctor/GUI/capture order differs')
@@ -81,5 +94,5 @@ def verify_result(events,lock):
     C.need(all(session.get(k)=='PASS' for k in ('welcome_gui','doctor_report','guide_navigation','launch_actions')) and
            session.get('managed_session')=='SELECTED_REAL_USER_MANAGER' and session.get('physical_input')=='NOT_RUN',
            'managed GUI session acceptance absent')
-    return dict(managed_session=managed,producer_lifecycle=lock['producer_lifecycle'],
+    return dict(managed_session=managed,compositor_logs=compositor_logs,producer_lifecycle=lock['producer_lifecycle'],
                 GUI='NATIVE_METADATA_PASS_PIXELS_PENDING_REVIEW',hardware='NOT_RUN')

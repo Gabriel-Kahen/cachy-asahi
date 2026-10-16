@@ -19,6 +19,7 @@ C=load('welcome_phase_contract','gui_contract.py')
 S=load('welcome_phase_startup','terminal_session.py')
 M=load('welcome_phase_managed','managed_session.py')
 O=load('welcome_phase_observed','observed.py')
+L=load('welcome_phase_compositor_log','compositor_log.py')
 base=None
 
 
@@ -151,7 +152,7 @@ def phase(stage,config,env,logs):
 
     try:
         C.need(not any(p.is_socket() for p in base.RUNTIME.glob('wayland-*')),'stale Wayland socket')
-        compositor=base.Logged(['/usr/bin/Hyprland','--config',str(config)],stage,logs,env)
+        compositor=L.launch(base,stage,config,logs,env)
         selected=base.ipc(stage,compositor,env,logs)
         monitors=json.loads(command(['/usr/bin/hyprctl','-j','monitors'],'monitors'))
         C.need(len(monitors)==1 and monitors[0].get('width')==1024 and monitors[0].get('height')==768 and monitors[0].get('scale')==1,
