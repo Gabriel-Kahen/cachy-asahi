@@ -133,5 +133,233 @@ class Mirrors(unittest.TestCase):
         self.assertEqual(sorted(p.name for p in self.root.iterdir()), ['alias', 'existing'])
 
 
+
+class Activation(unittest.TestCase):
+    def setUp(self):
+        import os
+        self.os = os
+        self.tmp = tempfile.TemporaryDirectory(); self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name)
+        self.catalog = self.root/'catalog.json'; self.catalog.write_text(json.dumps(fixture()))
+        self.config, self.digest = M['catalog'](self.catalog)
+        self.candidate = self.root/'candidate'
+        raw = ('# Separate candidate; selected repository: core\n# Exact catalog SHA256: ' + self.digest + '\n' +
+               'Server = https://two.example/$arch/$repo\nServer = https://one.example/$arch/$repo\n').encode()
+        M['publish'](self.candidate, raw)
+        self.target = self.root/'mirrorlist'; self.target.write_bytes(b'# existing user configuration\nServer = original\n'); self.target.chmod(0o640)
+        self.before = self.target.read_bytes(); self.metadata = self.meta()
+        self.state = self.root/'journal.json'
+
+    def meta(self):
+        s = self.target.stat(); return (s.st_mode, s.st_uid, s.st_gid)
+
+    def activate(self, checkpoint=None):
+        return M['activate'](self.catalog, self.candidate, self.target, self.state, 'core', checkpoint)
+
+    def restore(self, checkpoint=None):
+        return M['restore'](self.target, self.state, 'core', checkpoint)
+
+    def journal(self):
+        return json.loads(self.state.read_bytes())
+
+    def interrupt(self, operation, phase):
+        import os, signal, time
+        pid = os.fork()
+        if pid == 0:
+            def checkpoint(name):
+                if name == phase: os.kill(os.getpid(), signal.SIGKILL)
+            try: operation(checkpoint)
+            except BaseException: os._exit(98)
+            os._exit(99)
+        until = time.monotonic() + 5
+        try:
+            while time.monotonic() < until:
+                done, status = os.waitpid(pid, os.WNOHANG)
+                if done:
+                    self.assertTrue(os.WIFSIGNALED(status)); self.assertEqual(os.WTERMSIG(status), signal.SIGKILL)
+                    return
+                time.sleep(.01)
+            self.fail('private temporary-file child deadline')
+        finally:
+            try:
+                os.kill(pid, signal.SIGKILL); os.waitpid(pid, 0)
+            except ProcessLookupError: pass
+            except ChildProcessError: pass
+
+    def test_real_atomic_activation_backup_metadata_and_explicit_restore(self):
+        with self.target.open('rb') as original:
+            inode = self.target.stat().st_ino
+            result = self.activate()
+            self.assertEqual(result['status'], 'PASS_ACTIVATED')
+            self.assertEqual(original.read(), self.before)
+            self.assertNotEqual(self.target.stat().st_ino, inode)
+        self.assertEqual(self.target.read_bytes(), self.candidate.read_bytes()); self.assertEqual(self.meta(), self.metadata)
+        self.assertEqual(self.state.stat().st_mode & 0o777, 0o600)
+        import base64
+        self.assertEqual(base64.b64decode(self.journal()['before']['data']), self.before)
+        self.assertEqual(self.journal()['phase'], 'ACTIVE')
+        self.restore(); self.assertEqual(self.target.read_bytes(), self.before); self.assertEqual(self.meta(), self.metadata)
+        self.assertEqual(self.journal()['phase'], 'RESTORED')
+        self.assertFalse(any(f.name.endswith('.tmp') for f in self.root.iterdir()))
+
+    def test_retries_do_not_replace_backup_or_overwrite_completed_user_edits(self):
+        self.activate(); first = self.journal()['before']; active_inode = self.target.stat().st_ino
+        self.activate(); self.assertEqual(self.journal()['before'], first); self.assertEqual(self.target.stat().st_ino, active_inode)
+        self.restore(); restored_inode = self.target.stat().st_ino
+        self.restore(); self.assertEqual(self.target.stat().st_ino, restored_inode)
+        self.target.write_bytes(b'user edit after restore')
+        with self.assertRaises(ValueError): self.restore()
+        self.assertEqual(self.target.read_bytes(), b'user edit after restore')
+        with self.assertRaises(ValueError): self.activate()
+
+    def test_restore_refuses_content_mode_and_replacement_conflicts(self):
+        for change in ('content', 'mode', 'replacement'):
+            with self.subTest(change=change):
+                self.state = self.root/(change+'.json'); self.target.write_bytes(self.before); self.target.chmod(0o640)
+                self.activate()
+                if change == 'content': self.target.write_bytes(b'user changed active target')
+                elif change == 'mode': self.target.chmod(0o644)
+                else:
+                    other = self.root/'new'; other.write_bytes(self.candidate.read_bytes()); other.chmod(0o640); other.replace(self.target)
+                raw, meta, inode = self.target.read_bytes(), self.meta(), self.target.stat().st_ino
+                with self.assertRaises(ValueError): self.restore()
+                self.assertEqual((self.target.read_bytes(), self.meta(), self.target.stat().st_ino), (raw, meta, inode))
+                self.assertEqual(self.journal()['phase'], 'ACTIVE')
+
+    def test_candidate_catalog_repository_and_unknown_server_binding(self):
+        original = self.candidate.read_bytes()
+        for change in ('catalog', 'repository', 'server', 'duplicate', 'mode'):
+            self.candidate.write_bytes(original); self.candidate.chmod(0o600)
+            if change == 'catalog': self.candidate.write_bytes(original.replace(self.digest.encode(), b'a'*64))
+            elif change == 'repository': self.candidate.write_bytes(original.replace(b'repository: core', b'repository: extra'))
+            elif change == 'server': self.candidate.write_bytes(original.replace(b'two.example', b'bad.example'))
+            elif change == 'duplicate': self.candidate.write_bytes(original+original.splitlines(keepends=True)[-1])
+            else: self.candidate.chmod(0o644)
+            with self.subTest(change=change), self.assertRaises(ValueError): self.activate()
+            self.assertEqual(self.target.read_bytes(), self.before); self.assertFalse(self.state.exists())
+
+    def test_symlink_hardlink_parent_and_state_alias_refused(self):
+        for which in ('target', 'candidate', 'state'):
+            original = getattr(self, which); alias = self.root/(which+'-alias'); alias.symlink_to(original.name)
+            setattr(self, which, alias)
+            with self.subTest(which=which), self.assertRaises((ValueError, OSError)): self.activate()
+            setattr(self, which, original); alias.unlink()
+        hard = self.root/'hard'; self.os.link(self.target, hard)
+        with self.assertRaises(ValueError): self.activate()
+        hard.unlink()
+        alias = self.root/'parent-alias'; alias.symlink_to(self.root, target_is_directory=True)
+        original = self.target; self.target = alias/original.name
+        with self.assertRaises(OSError): self.activate()
+        self.target = original; self.assertEqual(self.target.read_bytes(), self.before)
+
+    def test_candidate_and_journal_hardlinks_are_refused_with_real_inodes(self):
+        hard = self.root/'candidate-hard'; self.os.link(self.candidate, hard)
+        with self.assertRaises(ValueError): self.activate()
+        hard.unlink(); self.activate()
+        hard = self.root/'journal-hard'; self.os.link(self.state, hard)
+        active = self.target.read_bytes()
+        with self.assertRaises(ValueError): self.restore()
+        self.assertEqual(self.target.read_bytes(), active)
+        hard.unlink(); self.restore(); self.assertEqual(self.target.read_bytes(), self.before)
+
+    def test_restore_after_uncommitted_publish_and_pending_edit_conflict(self):
+        self.interrupt(self.activate, 'activated'); self.restore()
+        self.assertEqual(self.target.read_bytes(), self.before)
+        self.state = self.root/'edited-prepared.json'; self.interrupt(self.activate, 'prepared')
+        self.target.write_bytes(b'user changed original before publish')
+        with self.assertRaises(ValueError): self.activate()
+        with self.assertRaises(ValueError): self.restore()
+        self.assertEqual(self.target.read_bytes(), b'user changed original before publish')
+
+    def test_edit_after_restore_intent_is_refused_and_preserved(self):
+        self.activate()
+        def edit(phase):
+            if phase == 'restoring': self.target.write_bytes(b'user edit after restore intent')
+        with self.assertRaises(ValueError): self.restore(edit)
+        self.assertEqual(self.target.read_bytes(), b'user edit after restore intent')
+        self.assertEqual(self.journal()['phase'], 'RESTORING')
+
+    def test_absent_target_restore_and_later_creation_conflict(self):
+        self.target.unlink(); self.activate()
+        self.assertEqual(self.target.stat().st_mode & 0o777, 0o600); self.assertIsNone(self.journal()['before'])
+        self.restore(); self.assertFalse(self.target.exists()); self.restore()
+        self.target.write_bytes(b'new user file')
+        with self.assertRaises(ValueError): self.restore()
+        self.assertEqual(self.target.read_bytes(), b'new user file')
+
+    def test_prepared_interruption_retries_or_cancels_without_losing_original(self):
+        self.interrupt(self.activate, 'prepared')
+        self.assertEqual(self.journal()['phase'], 'PREPARED'); self.assertEqual(self.target.read_bytes(), self.before)
+        self.activate(); self.assertEqual(self.journal()['phase'], 'ACTIVE'); self.restore()
+        self.state = self.root/'cancel.json'; self.interrupt(self.activate, 'prepared'); self.restore()
+        self.assertEqual(self.journal()['phase'], 'RESTORED'); self.assertEqual(self.target.read_bytes(), self.before)
+        self.assertFalse(any(f.name.endswith('.tmp') for f in self.root.iterdir()))
+
+    def test_activation_kill_after_replace_recovers_and_preserves_original_journal(self):
+        self.interrupt(self.activate, 'activated')
+        self.assertEqual(self.journal()['phase'], 'PREPARED'); self.assertEqual(self.target.read_bytes(), self.candidate.read_bytes())
+        self.activate(); self.assertEqual(self.journal()['phase'], 'ACTIVE'); self.restore()
+        self.assertEqual(self.target.read_bytes(), self.before); self.assertEqual(self.meta(), self.metadata)
+
+    def test_restore_kill_before_and_after_replace_recovers(self):
+        for phase in ('restoring', 'restored'):
+            with self.subTest(phase=phase):
+                self.state = self.root/(phase+'.json'); self.activate(); self.interrupt(self.restore, phase)
+                self.assertEqual(self.journal()['phase'], 'RESTORING'); self.restore()
+                self.assertEqual(self.target.read_bytes(), self.before); self.assertEqual(self.meta(), self.metadata)
+                self.assertEqual(self.journal()['phase'], 'RESTORED')
+
+    def test_user_edit_after_interruption_is_preserved(self):
+        self.interrupt(self.activate, 'activated'); self.target.write_bytes(b'user changed pending target')
+        with self.assertRaises(ValueError): self.activate()
+        with self.assertRaises(ValueError): self.restore()
+        self.assertEqual(self.target.read_bytes(), b'user changed pending target')
+
+    def test_journal_corruption_foreign_metadata_and_repo_mismatch_refused(self):
+        self.activate(); original = self.state.read_bytes()
+        for change in ('uid', 'bytes', 'phase', 'repo', 'restore-data'):
+            value = json.loads(original)
+            if change == 'uid': value['before']['uid'] += 1
+            elif change == 'bytes': value['before']['data'] = 'dGFtcGVy'
+            elif change == 'phase': value['phase'] = 'UNKNOWN'
+            elif change == 'repo': value['repository'] = 'extra'
+            else: value['phase'] = 'RESTORING'; value['restored'] = None
+            self.state.write_text(json.dumps(value)); current = self.target.read_bytes()
+            with self.subTest(change=change), self.assertRaises(ValueError): self.restore()
+            self.assertEqual(self.target.read_bytes(), current)
+        self.state.write_bytes(original); self.restore()
+
+    def test_explicit_cli_roundtrip_uses_only_real_temporary_paths(self):
+        import subprocess, sys
+        script = str(Path(__file__).with_name('cachy-asahi-mirrors'))
+        common = ['--repository','core','--target',str(self.target),'--state',str(self.state)]
+        args = [sys.executable,'-B',script,'activate',str(self.catalog),'--candidate',str(self.candidate)]+common
+        row = subprocess.run(args, capture_output=True, timeout=5)
+        self.assertEqual(row.returncode,0,row.stderr); self.assertEqual(json.loads(row.stdout)['status'],'PASS_ACTIVATED')
+        self.assertEqual(self.target.read_bytes(),self.candidate.read_bytes())
+        row = subprocess.run([sys.executable,'-B',script,'restore']+common, capture_output=True, timeout=5)
+        self.assertEqual(row.returncode,0,row.stderr); self.assertEqual(json.loads(row.stdout)['status'],'PASS_RESTORED')
+        self.assertEqual(self.target.read_bytes(),self.before); self.assertEqual(self.meta(),self.metadata)
+
+    def test_bounded_backup_and_nonprivate_mutable_parent_refused(self):
+        self.target.write_bytes(b'x'*65537)
+        with self.assertRaises(ValueError): self.activate()
+        self.assertFalse(self.state.exists())
+        self.target.write_bytes(self.before); self.root.chmod(0o777)
+        try:
+            with self.assertRaises(ValueError): self.activate()
+        finally: self.root.chmod(0o700)
+
+    def test_target_lock_serializes_different_journals_without_target_changes(self):
+        import fcntl, os
+        path = self.target.with_name(self.target.name+'.caa-lock')
+        handle = os.open(path, os.O_RDWR|os.O_CREAT, 0o600)
+        try:
+            fcntl.flock(handle, fcntl.LOCK_EX|fcntl.LOCK_NB)
+            with self.assertRaises(BlockingIOError): self.activate()
+            self.assertEqual(self.target.read_bytes(), self.before); self.assertFalse(self.state.exists())
+        finally: os.close(handle)
+
+
 if __name__ == '__main__':
     unittest.main()

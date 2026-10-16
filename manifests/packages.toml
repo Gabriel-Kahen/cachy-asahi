@@ -441,14 +441,14 @@ status = "candidate"
 source = "local-original"
 recipe = "packages/tools/cachy-asahi-mirrors/PKGBUILD"
 license = "MIT"
-candidate_version = "0.1.0-1"
+candidate_version = "0.2.0-1"
 selected_for_development = false
 selected_for_release = false
-host_validation = "PASS twelve mocked-network catalog/byte-match/candidate preservation controls"
+host_validation = "PASS 29 host controls, including actual tempfile CLI activation/restore and SIGKILL recovery"
 native_build = "NOT RUN"
 installation = "NOT RUN"
 hardware_validation = "NOT RUN"
-next_step = "Run native package/lifecycle checks and an independently trusted current ARM catalog; implement reviewed activation/restoration separately before complete mirror-management acceptance."
+next_step = "Run native package/lifecycle checks for the implemented rank/activate/restore workflow and use an independently verified current ARM catalog; physical filesystem power-loss/base integration remains untested."
 
 # Coordinator proposal only; shared manifests have not been edited.
 [[packages]]
@@ -467,3 +467,19 @@ native_build = "NOT RUN"
 installation = "NOT RUN"
 hardware_validation = "NOT RUN"
 next_step = "Source-pinned opt-in implementation and real x86_64 Zsh 5.9.2 PTYs pass; seven-file pure staging only. Root may register the isolated native ARM build/lifecycle lane. Verify selected composition, generic16K runtime, supported target workflows and signed release integration separately. Manual key choices only; existing module namespaces and custom bindings take precedence."
+
+# Proposed inventory addition only; coordinator owns shared manifests.
+[[packages]]
+name = "cachy-asahi-fish-autopair"
+phase = "complete-port-tools"
+status = "candidate"
+source = "https://github.com/jorgebucaran/autopair.fish"
+upstream_commit = "4d1752ff5b39819ab58d7337c69220342e9de0e2"
+recipe = "packages/tools/cachy-asahi-fish-autopair/PKGBUILD"
+license = "MIT"
+selected_for_development = false
+selected_for_release = false
+native_build = "NOT RUN"
+installation = "NOT RUN"
+hardware_validation = "NOT RUN"
+next_step = "Separate follow-up candidate. Host Fish 4.9.3 real PTY, syntax and pure staging pass; run native ARM pair and package lifecycle before selection, then generic 16K and both M2 Air workflows. Keep current three-package native lane unchanged."
