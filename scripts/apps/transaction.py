@@ -23,7 +23,11 @@ need=I.need
 sha=lambda raw:hashlib.sha256(raw).hexdigest()
 encoded=lambda value:(json.dumps(value,sort_keys=True,indent=2,allow_nan=False)+'\n').encode()
 
-def limits():return F.Limits(deadline=time.monotonic()+SECONDS)
+def execution_seconds(args=None):
+ if args is None or not any(getattr(args,n,None) for n in ('full574_policy','full574_policy_sha256','full574_lease','full574_lease_sha256')):return SECONDS
+ module=load('apps_full574_budget',Path(__file__).with_name('full574_closure.py'))
+ return module.execution_seconds(args,sys.modules[__name__])
+def limits(args=None):return F.Limits(deadline=time.monotonic()+execution_seconds(args))
 def inode(path):
  info=path.lstat();return [info.st_dev,info.st_ino]
 def environment_guard():
@@ -93,7 +97,7 @@ def prepare_copy(args):
  token=environment_guard();app,c,r=app_source(args);source=Path(args.source).absolute();workspace=Path(args.workspace).absolute()
  need(source!=Path('/') and not source.is_relative_to(workspace) and not workspace.is_relative_to(source),'disjoint explicit seed/copy required')
  I.private(workspace.parent,0);need(not workspace.exists(),'fresh copied workspace required')
- budget=limits();closure=closure_for(args,budget)
+ budget=limits(args);closure=closure_for(args,budget)
  inventory=app.inventory_reader().collect(source/DB,c,lambda row:app.package(row,r))
  if closure is not None:
   need(source==closure.source,'explicit leased original574 source required');closure.source_inventory(inventory)
@@ -184,7 +188,7 @@ def apply(args):
  result=dict(status='FAIL',phase='guard',commit_started=False,packages_committed=False,rollback='NOT_ATTEMPTED_DISPOSABLE_COPY_ONLY',hardware='NOT_RUN',release='NOT_ADMITTED',cleanup='NOT_ESTABLISHED')
  try:
   need(args.confirm_disposable_transaction is True,'explicit disposable transaction confirmation required')
-  workspace,root,owner=root_guard(args);app,c,r=app_source(args);budget=limits();closure=closure_for(args,budget)
+  workspace,root,owner=root_guard(args);app,c,r=app_source(args);budget=limits(args);closure=closure_for(args,budget)
   need(closure is not None or 'apps_full574_binding' not in owner['copy'],'full574 copy requires original explicit policy/lease')
   if closure is not None:closure.owner(owner)
   with locked(workspace),tempfile.TemporaryDirectory(prefix='apps-tx-',dir=workspace) as temp:
@@ -287,7 +291,7 @@ def main():
  try:
   if a.action=='prepare-copy':result=prepare_copy(a)
   elif a.action=='inspect':
-   workspace,root,owner=root_guard(a);app,c,r=app_source(a);budget=limits();closure=closure_for(a,budget)
+   workspace,root,owner=root_guard(a);app,c,r=app_source(a);budget=limits(a);closure=closure_for(a,budget)
    need(closure is not None or 'apps_full574_binding' not in owner['copy'],'full574 copy requires original explicit policy/lease')
    with locked(workspace):
     inventory=app.inventory_reader().collect(root/DB,c,lambda row:app.package(row,r))
@@ -302,7 +306,7 @@ def main():
   elif a.worker:result=apply(a)
   else:
    root_guard(a);need(a.confirm_disposable_transaction,'explicit confirmation required')
-   row=SUP.run([sys.executable,'-I','-B',str(Path(__file__).resolve()),*sys.argv[1:],'--worker'],env=dict(os.environ),cwd=str(Path(a.workspace).absolute()),timeout=SECONDS,output_limit=1024**2)
+   row=SUP.run([sys.executable,'-I','-B',str(Path(__file__).resolve()),*sys.argv[1:],'--worker'],env=dict(os.environ),cwd=str(Path(a.workspace).absolute()),timeout=execution_seconds(a),output_limit=1024**2)
    need(row['termination'] is None and row['direct_child_reaped'] and row['returncode'] in (0,1),'transaction worker failed or interrupted; dispose owned copy, commit outcome unknown')
    result=I.decode(row['stdout']);need(result.get('status')=='FAIL' if row['returncode'] else result.get('status')=='PASS_OWNED_DISPOSABLE_APPS_TRANSACTION','worker outcome differs');result['worker']={k:row[k] for k in ('returncode','termination','direct_child_reaped','group_kill_sent')}
   print(encoded(result).decode(),end='');return int(result['status']=='FAIL')

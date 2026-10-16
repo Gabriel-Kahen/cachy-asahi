@@ -71,7 +71,14 @@ state, must match the source on every observation. Additional nodes are limited
 to exact candidate payloads and current-version local ALPM `desc/files/mtree`
 records. The transient ALPM lock is checked separately by the original backend;
 no stale lock deletion or lock bypass is added. Existing finite bounds remain
-587 packages, 500000 nodes, 8 GiB and a 300-second worker.
+587 packages, 500000 nodes and 8 GiB. The dedicated full574 worker has600
+seconds with a610-second caller; the generic/small executor remains300 seconds.
+Both hash-pinned policy and native lease must carry exactly
+`execution_budget={"backend_seconds":600,"caller_seconds":610}`. Missing, legacy
+or mixed budgets refuse before source traversal; the copy marker binds the
+policy/lease and exact budget. The interrupted full574 worker uses600 seconds
+and its original5-second reap bound. Whole lifecycle3000-second and interruption
+actor900-second caps remain finite and unchanged.
 
 Absolute links must pass the unchanged finite measured87 literal/endpoint policy;
 unknown paths and endpoint shapes refuse. The existing held helper, configs,
@@ -115,7 +122,8 @@ Unknown or conflicting existing values refuse; no deletion/overwrite/rollback
 path is added. Restore failure leaves an unaccepted owned copy for disposal.
 
 Only extract/lifecycle/interruption actors receive SETFCAP; other grants, NNP,
-network isolation and original resource/deadline/output limits remain unchanged.
+network isolation, resource limits and output limits remain unchanged.
+Only the dedicated full574 deadline described above differs.
 The failed interrupted copy is inspected after its worker group is gone, while
 commit outcome remains UNKNOWN; teardown still requires outer consumer absence.
 The original64KiB policy/lease limit is unchanged. Namespace-visible capability
@@ -163,3 +171,10 @@ Actual38979455129 timed out at its original310-second caller limit with no phase
 output; it remains FAIL with no completed-copy/commit/source-after claim.
 Temporary-data controls establish behavior and scoped query mechanics only.
 Native performance, successful copying and transactions need a new actual run.
+
+Actual38981475599 remains FAIL: complete copy-data and postcopy observation
+finished, then final source capability scanning reached the300-second backend
+deadline; caller terminated at310.031862 seconds before an ownership marker or
+commit. This finite capacity correction skips no independent observation, hash,
+node, identity, xattr, trust or cleanup check. Success/performance remains native
+pending; no duplicate check was removed.

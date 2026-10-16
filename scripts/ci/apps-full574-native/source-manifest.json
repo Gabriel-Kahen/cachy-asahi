@@ -149,16 +149,16 @@
       "sha256": "80cda05980b064a9cb2ad47e5525ddba03dbaefaf350d44d18a27c63ac1ffbaf"
     },
     "scripts/apps/FULL574.md": {
-      "bytes": 10726,
-      "sha256": "754fb94b957684d5b50c90c3a547dc66ef103779a684e3dd79fcaee72af8e1f9"
+      "bytes": 11734,
+      "sha256": "3b247e6bc9ae8598ae0b22c49f25e577f227339a54a5ba7409a57e48e4bcb5cb"
     },
     "scripts/apps/file_capabilities.py": {
       "bytes": 13562,
       "sha256": "498a3beec0327b9335dcd6d80ed5919fa2edebebd3284e9ee8b97770328e26a2"
     },
     "scripts/apps/full574_closure.py": {
-      "bytes": 16406,
-      "sha256": "78a6dd2c9d2868831699cbc3d2135c2433b82419caae194dbf8087fca6e597c9"
+      "bytes": 17186,
+      "sha256": "182ef86bbfee65bf56bf2b6b9dcc514b55bb252f7e99eb2846ea1e74989935ac"
     },
     "scripts/apps/full574_copy.py": {
       "bytes": 7799,
@@ -172,9 +172,13 @@
       "bytes": 8282,
       "sha256": "b8bdbc6cc0cd88b8bd36aec492e8551d0e923cb614c43bc04aa03d29f6b443ae"
     },
+    "scripts/apps/test_full574_budget.py": {
+      "bytes": 6370,
+      "sha256": "b1c60ca87170faf7657c8e086509f370ad2a603143dd9a6965e3c355880de4ca"
+    },
     "scripts/apps/test_full574_closure.py": {
-      "bytes": 18100,
-      "sha256": "93dedc97e4cef89c3ba8ceb6b0d4a9d74840d689adc5a9cb11c505e59870f420"
+      "bytes": 18142,
+      "sha256": "a900bc7d1e99231350b3a5b6a173cdec7af20721e1f696df32a386e841d9cc0d"
     },
     "scripts/apps/test_full574_copy.py": {
       "bytes": 8786,
@@ -189,8 +193,8 @@
       "sha256": "86451cbc351c630110c6d7b336a10b4ebf158f443ebfac0be2db4a78d8682d01"
     },
     "scripts/apps/transaction.py": {
-      "bytes": 25141,
-      "sha256": "b1665fc6bd112f45c5cb9d63da25037d57b2f431ef8fd4a831f431c39e4b596a"
+      "bytes": 25522,
+      "sha256": "12231752bd96711951dc98b6277880e2b334058b1066639fc5fb2b78a982734e"
     },
     "scripts/checks/package_checks.py": {
       "bytes": 17706,
@@ -205,8 +209,8 @@
       "sha256": "a4c64251cd1e0d0051a057ea15e409f1b2cd252501e6465ee21f3996a8aa1623"
     },
     "scripts/ci/apps-full574-native/dependency-paths.json": {
-      "bytes": 3680,
-      "sha256": "0223ee3f7b9ec1a01614088cf41a1a6bfc3bad95f2b30080fcbcf49f54da174c"
+      "bytes": 3723,
+      "sha256": "844ffc23c98d562c21fff7e0c1ab5a590574a17f16518b1b01a1610d7d464fea"
     },
     "scripts/ci/apps-full574-native/export_extract.py": {
       "bytes": 2410,
@@ -222,15 +226,15 @@
     },
     "scripts/ci/apps-full574-native/input-policy.json": {
       "bytes": 636,
-      "sha256": "acd645d2ec89b14a85ca4fe312049b73857537c2a18278179225023a7d018094"
+      "sha256": "c4a1f243fd59be4735ac834c4b908f1d516de199056d42a74dd4c8fb79c21cf8"
     },
     "scripts/ci/apps-full574-native/job.py": {
-      "bytes": 24907,
-      "sha256": "18a6a18a4e439aa1e769ef4c72d9781aa4c9eb431db107ca43d1fbcb75ebafd1"
+      "bytes": 24954,
+      "sha256": "c07a0e689679eb916fbf6934414c662fbec349b96b94a456b2b3c30d27fb4224"
     },
     "scripts/ci/apps-full574-native/lifecycle.py": {
-      "bytes": 13084,
-      "sha256": "fbbb675b783125e8afc7449833f433914305849186d1187818378244aa4e8548"
+      "bytes": 13091,
+      "sha256": "4195f6e47d85feaf7c75f410ce35b05eb2e05e52b4a47625f6abf24408f1d3db"
     },
     "scripts/ci/apps-full574-native/scrub.py": {
       "bytes": 1883,
@@ -245,8 +249,8 @@
       "sha256": "fe5670055f2b309640e80049d077ad16022f3a86100f2429104034cfe1ad554b"
     },
     "scripts/ci/apps-full574-native/test_lane.py": {
-      "bytes": 22358,
-      "sha256": "a9ec8d4db49dd29dcb4d2e86ed93a1f655bafdc848432974d38c508c03dacb6a"
+      "bytes": 22582,
+      "sha256": "0dec52dbcf5b387b9e64952e0f700f0382755871975959270c45032a1cbea004"
     },
     "scripts/ci/expanded600-installer-vm/observer600.py": {
       "bytes": 2784,

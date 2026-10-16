@@ -89,7 +89,7 @@ class Policy(unittest.TestCase):
 
 class Capabilities(unittest.TestCase):
     def test_map_hash_and_lease_hash_must_agree_before_source_lookup(self):
-        common=dict(schema_version=1,purpose=C.PURPOSE,**{n:'a'*64 for n in ('snapshot_sha256','extraction_receipt_sha256','source_tree_sha256','source_packages_sha256','source_closure_sha256','source_capabilities_sha256')})
+        common=dict(schema_version=1,purpose=C.PURPOSE,execution_budget=dict(C.EXECUTION_BUDGET),**{n:'a'*64 for n in ('snapshot_sha256','extraction_receipt_sha256','source_tree_sha256','source_packages_sha256','source_closure_sha256','source_capabilities_sha256')})
         policy=dict(common,baseline_lock_sha256=C.LOCK_SHA256,candidates={n:dict(version=v,archive_sha256='b'*64,payload_sha256=C.digest(C.current_payloads()[n])) for n,v in C.VERSIONS.items()},source_capabilities={})
         lease=dict(common,token='c'*32,source='/INERT-MUST-NOT-LOOK-UP',source_identity=[1,2]);args=SimpleNamespace(full574_policy='policy',full574_policy_sha256='d'*64,full574_lease='lease',full574_lease_sha256='e'*64)
         with patch.object(C,'pinned_json',side_effect=[policy,lease]),self.assertRaisesRegex(ValueError,'source-capability-map-pin'):C.Adapter(args,T,T.limits())
