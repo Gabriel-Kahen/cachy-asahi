@@ -129,6 +129,32 @@ def lifecycle_helpers(plan, source):
     return values['core-lifecycle.py'], values['provider-helpers.py']
 
 
+
+def measure_only(pacman, plan, checkpoint, source, work):
+    """Construct the same setup4 checkpoint, then measure; no setup lifecycle."""
+    import sys
+    need(plan.get('measurement_only') is True and 'setup4' in plan and 'footprint' in plan
+         and not ({'audio', 'lifecycle', 'updater_v2'} & set(plan)),
+         'explicit setup4 measurement-only selection required')
+    setup = load('composition_setup4', Path('/setup4.py'))
+    measurement = load('composition_footprint', Path('/footprint.py'))
+    core, _provider = lifecycle_helpers(plan['setup4'], source)
+    row, expected = setup.inputs(plan, checkpoint, source, sys.modules[__name__])
+    run(pacman + ['--noconfirm', '--noscriptlet', '-U', str(source / row['filename'])])
+    need(inventory() == expected, 'measurement-only exact setup4 checkpoint differs')
+    run(pacman + ['-Dk'])
+    quiescence = setup._quiesce_system_keyring(plan, expected, sys.modules[__name__], core, measurement)
+    footprint = measurement.collect(plan, expected, source, sys.modules[__name__])
+    need(footprint['status'] == 'MEASURED_SCOPED_COPY'
+         and footprint['source_inventory_preserved'] is True
+         and footprint['source_database_preserved'] is True,
+         'measurement-only footprint incomplete')
+    return {'status': 'MEASURED_SCOPED_COPY', 'scope': 'setup4-checkpoint-scoped-copy-diagnostic',
+            'footprint': footprint, 'keyring_quiescence': quiescence,
+            'setup_lifecycle': 'NOT RUN', 'payload_ownership': 'NOT RUN',
+            'transaction_acceptance': 'NOT ESTABLISHED', 'hardware': 'NOT RUN'}
+
+
 def main():
     result = {'status': 'FAIL', 'phase': 'container-guard', 'scope': 'generic-offline-composition',
               'hardware': 'NOT RUN', 'target_lifecycle': 'NOT RUN', 'app_sessions': 'NOT RUN',
@@ -194,6 +220,11 @@ def main():
             upstream_before = lifecycle.baseline(pacman, sys.modules[__name__], provider)
         result['phase'] = 'required-signature-offline-transaction'
         installed = install(pacman, [str(source / r['filename']) for r in plan['packages']], expected)
+        if plan.get('measurement_only') is True:
+            result['phase'] = 'measurement-only-setup4-checkpoint'
+            result.update(measure_only(pacman, plan, expected, source, work))
+            result['phase'] = 'completed'
+            return 0
         result['phase'] = 'installed-dependencies-and-ownership'
         run(pacman + ['-Dk'])
         depends = sorted({dep for fields in metadata.values() for dep in fields.get('depend', [])})

@@ -308,6 +308,7 @@ def compose(args, raw, public, result):
         assert setup4 and successor is None and setup4['expected_inventory_sha256'] == footprint.EXPECTED
         footprint.prepare(HERE.parents[2], raw / 'footprint-source')
         plan['footprint'] = {'limits': footprint.LIMITS, 'sources': footprint.SOURCES}
+    if getattr(args, 'measure_footprint_only', False): plan['measurement_only'] = True
     save(inputs / 'plan.json', plan)
     save(public / 'packages.json', {r['name']: {'version': r['version'], 'sha256': r['sha256']} for r in rows})
     result['phase'] = 'signed-offline-composition'
@@ -343,6 +344,12 @@ def compose(args, raw, public, result):
     command(argv + ['--entrypoint=/usr/bin/python3', image, '-I', '-B', '/runner.py'],
             public / 'transaction.log', 2400 if getattr(args, 'measure_footprint', False) else 1200 if lifecycle or successor or setup4 else 480)
     result['composition'] = json.loads((public / 'result.json').read_text())
+    if getattr(args, 'measure_footprint_only', False):
+        assert result['composition']['status'] == 'MEASURED_SCOPED_COPY'
+        assert result['composition']['footprint']['status'] == 'MEASURED_SCOPED_COPY'
+        assert result['composition']['footprint']['source_inventory_preserved'] is True
+        assert result['composition']['footprint']['source_database_preserved'] is True
+        return
     assert result['composition']['status'] == 'PASS'
     if lifecycle:
         assert result['composition']['lifecycle']['status'] == 'PASS'
@@ -369,7 +376,11 @@ def main():
     mode.add_argument('--updater-v2-source', type=Path, help='Exact Source480053 checkout for v1 upgrade, real Check and v1 rollback')
     parser.add_argument('--setup4-pair', type=Path, help='Retained Source98 native pair for the explicit setup3-to-4-to-3 development trial; with approved v2 source, select v2 in the initial checkpoint')
     parser.add_argument('--measure-footprint', action='store_true', help='Measure the exact setup4/updater-v2 scoped copy on a private disk-backed volume')
+    parser.add_argument('--measure-footprint-only', action='store_true',
+                        help='Construct the exact setup4 checkpoint and measure before ownership/lifecycle checks')
     args = parser.parse_args()
+    if args.measure_footprint_only and not args.measure_footprint:
+        parser.error('--measure-footprint-only requires --measure-footprint')
     if getattr(args, 'measure_footprint', False) and not (args.setup4_pair and args.updater_v2_source):
         parser.error('--measure-footprint requires --setup4-pair and --updater-v2-source')
     if args.setup4_pair and args.lifecycle:
@@ -397,7 +408,10 @@ def main():
     previous = signal.signal(signal.SIGTERM, lambda *_: (_ for _ in ()).throw(KeyboardInterrupt()))
     try:
         compose(args, raw, public, result)
-        result.update(status='PASS', phase='completed')
+        result.update(status='MEASURED_SCOPED_COPY' if args.measure_footprint_only else 'PASS', phase='completed')
+        if args.measure_footprint_only:
+            result.update(scope='setup4-checkpoint-scoped-copy-diagnostic',
+                          setup_lifecycle='NOT RUN', transaction_acceptance='NOT ESTABLISHED')
     except BaseException as error:
         result['error_type'] = type(error).__name__
         raise
