@@ -12,6 +12,21 @@ established. The corrected parser retains empty metapackages and still rejects
 missing records or nonempty records without a FILES field. Five focused controls
 and34 caller controls pass; an actual successful commit remains pending.
 
+Retry38862588064 passes initial/postdriver persistent-source and staging checks:
+124745 nodes,587 packages and113759 package-owned non-directory paths, with the
+same complete manifest digest before and after. It then fails copy preflight at
+the auxiliary library-link closure check. Upgrade commit flags remain false;
+reported commit count and driver copy cleanup are UNKNOWN. Outer cleanup and
+owned-volume absence pass. No capacity or deadline failed.
+
+The checkpoint incorrectly applies its library-only endpoint rule to every link
+in ordinary scan directories. The correction follows the pinned glibc DSO-name
+predicate, while preserving non-library links and their contained dependency
+targets in the checked state. DSO/hwcaps closure and all limits remain held.
+All24 auxiliary controls pass in an isolated user namespace. The actual failed
+path was not retained; future errors include its name, and a retry must confirm
+whether this source-demonstrated mismatch explains the actual refusal.
+
 The successor is the retained setup package with SHA256
 `c817c01aad875fcf5a34073d4c9d0e830c577301189148b3c0e0969f001bea1a`.
 The constructor keeps its real341-package build identity separate from the587

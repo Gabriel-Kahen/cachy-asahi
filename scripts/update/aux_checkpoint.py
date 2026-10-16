@@ -167,7 +167,7 @@ def metadata(row):
 def checkpoint(root, observation, limits):
     reader = Reader(root, observation, limits)
     state = {'helper': {}, 'configs': {}, 'aliases': {}, 'scan': {}, 'targets': {}, 'caches': {}}
-    closure, scan = set(), set()
+    closure, scan, hwcaps_scan = set(), set(), set()
     for name in HELPER_PATHS:
         endpoint, trace = reader.resolve(name)
         need(endpoint == HELPER_NODE, 'helper-alias')
@@ -218,6 +218,7 @@ def checkpoint(root, observation, limits):
             row = reader.capture(child); state['aliases'][child] = metadata(row); closure.add(child)
             need(re.fullmatch('[A-Za-z0-9_.-]{1,100}',child.rsplit('/',1)[1]) and row['node']['type'] == 'directory', 'hwcaps-child')
             scan.add(child)
+            hwcaps_scan.add(child)
     count, total = 0, 0
     for directory in sorted(scan):
         for name in reader.children(directory,8192):
@@ -231,13 +232,7 @@ def checkpoint(root, observation, limits):
         row = reader.capture(name); state['targets'][name] = row; closure.add(name)
         need(row['node'] == dict(type='file', mode=0o755, uid=0, gid=0, bytes=size, sha256=digest), 'target-pin')
         total += size; count += 1; need(total <= 2*1024**3 and count <= 8192, 'target-budget')
-    for name,row in state['scan'].items():
-        if row['node']['type'] != 'symlink': continue
-        endpoint, trace = reader.resolve(name)
-        need(endpoint in TARGETS or endpoint.rpartition('/')[0] in scan
-             and state['scan'].get(endpoint,{}).get('node',{}).get('type') == 'file', 'library-link-closure')
-        for dependency in trace:
-            if dependency: closure.add(dependency)
+    scan_link_closure(reader, state, scan, closure, hwcaps_scan)
     for name, bound in ((MAIN_CACHE,16*1024**2),(AUX_CACHE,256*1024)):
         row = reader.capture(name,data_limit=bound)
         need(row['node']['type'] == 'file' and row['node']['uid'] == row['node']['gid'] == 0
@@ -281,3 +276,27 @@ def live_keys(state, comparator):
     records = comparator.parse(state['aux_bytes'])
     need(all(key in available for key, _value in records), 'stale-or-unobserved-aux-key')
     return {'records':len(records), 'live_library_keys':len(available)}
+
+
+def scan_link_closure(reader, state, scan, closure, hwcaps):
+    for name, row in state['scan'].items():
+        if row['node']['type'] != 'symlink': continue
+        endpoint, trace = reader.resolve(name)
+        directory, _, basename = name.rpartition('/')
+        # glibc8362e8ce, elf/dl-is_dso.h; ldconfig.c:734 keeps a
+        # separate non-regular-entry rule in glibc-hwcaps directories.
+        dso = ((basename.startswith(('lib', 'ld-')) and '.so' in basename)
+               or basename.startswith(('ld.so.', 'ld64.so.')))
+        if directory not in hwcaps and not dso:
+            # Keep ignored links and their contained target metadata in the
+            # checkpoint; no library endpoint or live-cache key is admitted.
+            for dependency in trace:
+                if dependency:
+                    state['aliases'][dependency] = metadata(reader.literal(dependency))
+                    closure.add(dependency)
+            continue
+        need(endpoint in TARGETS or endpoint.rpartition('/')[0] in scan
+             and state['scan'].get(endpoint, {}).get('node', {}).get('type') == 'file',
+             'library-link-closure: ' + name)
+        for dependency in trace:
+            if dependency: closure.add(dependency)

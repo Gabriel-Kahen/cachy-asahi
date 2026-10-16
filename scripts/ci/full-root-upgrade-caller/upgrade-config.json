@@ -26,7 +26,7 @@
     "scripts/release/release.py": "e4ab44f7cc020ae1d705b64362e8b1b05fa0c29c19ce64d886116055619c0435",
     "scripts/release/source_delivery.py": "8fc7757579bb0e97ccee1f3e1634ad3f827899c8ace6823cfda9f226214df36e",
     "scripts/update/archive_stream.py": "10f1a4c0ac5b98852d9ebb150af28f9ce345c800935a64fa463bc90f72fcb838",
-    "scripts/update/aux_checkpoint.py": "e2e53d25b6a94aaa11a41b9d4b54629c45fe407dc72f5565267c7f74f369ec28",
+    "scripts/update/aux_checkpoint.py": "d51179ca24c981bafd817d7db082c0ceb3b2f5deb922004bfe97d1e2007edda7",
     "scripts/update/aux_copy.py": "bff93c029e21f9fce0868c80566396984443c8d3438264fac8a91c985175f05b",
     "scripts/update/aux_initialize.py": "ebdfefb242e439ec8cd6e955eecbdacd6ddc60f2f9303e8176309ff65bf5a8f7",
     "scripts/update/aux_runtime.py": "4d0ee6d0040686cf4b4e2f7aca28f255f1d67c272f9d4e846b9c125dc78961b1",

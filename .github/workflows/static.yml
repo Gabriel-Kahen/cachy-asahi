@@ -114,7 +114,7 @@ jobs:
           controls_root=$(sudo -n mktemp -d /tmp/cachy-root-controls.XXXXXX)
           trap 'sudo -n rm -rf -- "$controls_root"' EXIT
           git archive HEAD | sudo -n tar -x -C "$controls_root"
-          for suite in test_disposable_copy.py test_internal_runtime.py test_auxiliary.py test_copy_links.py test_root_link_selection.py test_mtab_copy.py; do
+          for suite in test_disposable_copy.py test_internal_runtime.py test_auxiliary.py test_aux_scan_links.py test_copy_links.py test_root_link_selection.py test_mtab_copy.py; do
             sudo -n unshare --user --map-root-user --mount --net --fork --wd="$controls_root" \
               env -i PATH=/usr/bin:/bin HOME=/tmp TMPDIR=/tmp LC_ALL=C PYTHONDONTWRITEBYTECODE=1 \
               python3 -B -m unittest discover -s scripts/update -p "$suite" -v
