@@ -666,12 +666,14 @@ class DiagnosticTests(unittest.TestCase):
              patch.object(guest, 'Logged', side_effect=[compositor, client]) as launch, \
              patch.object(guest, 'ipc', return_value=selected), \
              patch.object(guest, 'command', side_effect=replies) as command, \
-             patch.object(guest.time, 'monotonic', side_effect=[0, 0, 9]), \
+             patch.object(guest.time, 'monotonic', return_value=0), \
              patch.object(guest, 'owned_thread_state', return_value=dict(status='unavailable')), \
              patch.object(guest, 'terminate'), patch.object(guest, 'emit') as emit, \
+             patch.object(guest, 'capture_window', side_effect=lambda *a: guest.emit('frame_ready')) as capture, \
              patch.object(guest, 'collect_phase_diagnostics') as collect:
             guest.phase('minimal', Path('/inert/config'), env, Path('/inert/logs'))
         self.assertIs(launch.call_args_list[0].args[3], env)
+        capture.assert_called_once_with('minimal', [dict(width=1024, height=768)], client, compositor, selected, Path('/inert/logs'))
         wofi = launch.call_args_list[1]
         self.assertEqual(wofi.args[3], dict(selected, WAYLAND_DEBUG='client'))
         self.assertIsNot(wofi.args[3], selected)
@@ -692,6 +694,75 @@ class DiagnosticTests(unittest.TestCase):
         compositor.finish.assert_called_once()
         client.finish.assert_called_once()
         collect.assert_not_called()
+
+
+class CaptureWindowTests(unittest.TestCase):
+    def exercise(self, reply, *, latency=0, unhealthy=False):
+        now, events = [10.0], []
+        client, compositor = Mock(), Mock()
+        client.process.pid = 43
+        if unhealthy:
+            compositor.healthy.side_effect = ValueError('synthetic compositor exit')
+        def query(*args, **kwargs):
+            self.assertGreaterEqual(now[0], 15)
+            self.assertLess(now[0], 16)
+            self.assertLessEqual(kwargs['timeout'], 16 - now[0])
+            now[0] += latency
+            return json.dumps(reply)
+        with patch.object(guest.time, 'monotonic', side_effect=lambda: now[0]), \
+             patch.object(guest.time, 'sleep', side_effect=lambda seconds: now.__setitem__(0, now[0] + seconds)), \
+             patch.object(guest, 'command', side_effect=query) as command, \
+             patch.object(guest, 'emit', side_effect=lambda event, **row: events.append((now[0], event, row))):
+            try:
+                guest.capture_window('overlay', [dict(width=1024, height=768)], client,
+                                     compositor, dict(AT_BRIDGE='held'), Path('/inert/logs'))
+            except Exception as error:
+                failure = error
+            else:
+                failure = None
+        return failure, now[0], events, command, client, compositor
+
+    def test_capture_waits_rechecks_and_finishes_in_existing_eight_seconds(self):
+        reply = [dict(pid=43, mapped=True, size=[420, 220], visible=True, hidden=False, xwayland=False)]
+        failure, end, events, command, client, compositor = self.exercise(reply)
+        self.assertIsNone(failure)
+        self.assertAlmostEqual(end, 18)
+        self.assertEqual(len(events), 1)
+        sampled, event, row = events[0]
+        self.assertGreaterEqual(sampled, 15)
+        self.assertLess(sampled, 16)
+        self.assertGreaterEqual(end - sampled, 2)
+        self.assertEqual(event, 'frame_ready')
+        self.assertEqual(row['clients'], reply)
+        self.assertGreaterEqual(row['capture_after_ms'], 5000)
+        command.assert_called_once()
+        self.assertEqual(command.call_args.args[0], ['/usr/bin/hyprctl', '-j', 'clients', '-a'])
+        self.assertEqual(command.call_args.args[1], dict(AT_BRIDGE='held'))
+        self.assertEqual(command.call_args.args[3], 'overlay-capture-clients')
+        self.assertEqual(set(command.call_args.kwargs), {'timeout'})
+        self.assertGreater(client.healthy.call_count, 10)
+        self.assertEqual(client.healthy.call_count, compositor.healthy.call_count)
+
+    def test_capture_refuses_wrong_hidden_unmapped_scaled_or_ambiguous_client(self):
+        good = dict(pid=43, mapped=True, size=[420, 220], visible=True, hidden=False, xwayland=False)
+        replies = [[good | change] for change in (dict(pid=44), dict(mapped=False),
+                   dict(pid=43.0), dict(size=[96, 54]), dict(size=[420.0, 220]), dict(visible=False),
+                   dict(hidden=True), dict(xwayland=True))] + [[good, good], [], {}]
+        for reply in replies:
+            with self.subTest(reply=reply):
+                failure, _, events, *_ = self.exercise(reply)
+                self.assertIsInstance(failure, ValueError)
+                self.assertEqual(events, [])
+
+    def test_capture_deadline_and_unhealthy_process_never_emit_ready(self):
+        good = [dict(pid=43, mapped=True, size=[420, 220], visible=True, hidden=False, xwayland=False)]
+        failure, _, events, *_ = self.exercise(good, latency=1.1)
+        self.assertEqual(str(failure), 'capture readiness deadline')
+        self.assertEqual(events, [])
+        failure, _, events, command, *_ = self.exercise(good, unhealthy=True)
+        self.assertEqual(str(failure), 'synthetic compositor exit')
+        self.assertEqual(events, [])
+        command.assert_not_called()
 
 
 class WofiLogTests(unittest.TestCase):
