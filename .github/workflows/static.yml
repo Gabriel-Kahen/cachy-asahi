@@ -171,6 +171,7 @@ jobs:
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/apps -p 'test_*.py'
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/orphans -p 'test_*.py'
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/apps-full574-native -p 'test_*.py'
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/expanded600-root-upgrade -p 'test_*.py'
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/management-tools-generic16k -p 'test_*.py'
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/welcome-management-native -p 'test_*.py'
       - name: Check generic 16K tools contracts without VM actors
