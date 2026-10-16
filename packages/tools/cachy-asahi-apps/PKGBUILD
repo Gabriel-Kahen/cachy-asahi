@@ -2,7 +2,7 @@
 # Original planner with exact three-helper installed runtime dependency.
 pkgname=cachy-asahi-apps
 pkgver=0.1.0
-pkgrel=4
+pkgrel=5
 pkgdesc='Offline signed ARM development application catalog and explicit readonly package plans'
 arch=('any')
 url='https://github.com/Gabriel-Kahen/cachy-asahi'
@@ -14,10 +14,10 @@ sha256sums=(
     'b64e3fd6fae67bca64fdd804278b7d88b9851eb92da26636ed2beb723e9a4781'
     '4e9c078c2e05cc00cb6479d5fff23b92cbcabd8d6b3ff970f6181e6467921630'
     '33a5e11e6d12df984e07c437c68ee581527cc4c95f3327bc44cbc09e0e29948a'
-    '49f372a7898ed25f4a8446ef030285ed22e0a9e9827824ae079cf0e33ad73662'
-    'b84c1d8a187a0b4ed2c8b31d4086c8f63e803823efd319e1db5edf992bda6d0c'
+    '65f0fd7f8940fe8e4ce875a96ee3d1918dda421825cdc8a140d53174b166ff46'
+    '155e343a2a02acf3f229fa56721f52142b488f7474ed8fedc59f8f28905c3999'
     '4a2da8edd21fb610e94be3a2c28a2ff7db00da0537ca28476b5e7d50dca17fca'
-    'ef0740f115d673df626d6992911a6ea3b082e7fb2ae15c1f099b9658f2e23bb4'
+    '8740ffa1e432e2275840aa81d28136b9bcce0db0106d429db4ed30889e24383c'
     '425c36c2e9ad688b398d8fbcb2fd8f972420a1db5e0d4b19e9d24021346d4239'
     '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7'
     '76bc1977cf402872816a430156541c0ccd41273e9080730d2ace7838ffa74214'
@@ -26,13 +26,28 @@ sha256sums=(
     '986c8baea2921cf3f58f98c2e76a1adad9013fbe4b1f47743d12397e9e6c2516'
 )
 
+# makepkg links local sources into srcdir; the strict preparer accepts regular files.
+_stage_check_sources() {
+    local staged i name
+    staged=$(mktemp -d "$srcdir/check-source.XXXXXXXX") || return
+    for i in "${!source[@]}"; do
+        name=${source[$i]}
+        [[ $name != */* && $name != . && $name != .. && ${sha256sums[$i]} =~ ^[0-9a-f]{64}$ ]] || return 1
+        install -m600 -- "$srcdir/$name" "$staged/$name" || return
+        printf '%s  %s\n' "${sha256sums[$i]}" "$staged/$name" | sha256sum --check >&2 || return
+    done
+    printf '%s\n' "$staged"
+}
+
 check() {
-    python -I -B "$srcdir/prepare-check-inputs.py" \
-        --archive "$srcdir/check-inputs.tar.gz" --index "$srcdir/check-inputs.json" --output "$srcdir/check-inputs" || return
-    local source="${CACHY_ASAHI_REPOSITORY_SOURCE:-$srcdir/check-inputs/repository}"
-    local runtime="${CACHY_ASAHI_RUNTIME_RECIPE:-$srcdir/check-inputs/runtime-recipe}"
-    python -I -B "$srcdir/check_source.py" --recipe-root "$startdir" --repository-source "$source" || return
-    python -I -B "$srcdir/test_apps.py" --repository-source "$source" --runtime-recipe-root "$runtime" --app-recipe-root "$startdir"
+    local staged
+    staged=$(_stage_check_sources) || return
+    python -I -B "$staged/prepare-check-inputs.py" \
+        --archive "$staged/check-inputs.tar.gz" --index "$staged/check-inputs.json" --output "$staged/check-inputs" || return
+    local source="${CACHY_ASAHI_REPOSITORY_SOURCE:-$staged/check-inputs/repository}"
+    local runtime="${CACHY_ASAHI_RUNTIME_RECIPE:-$staged/check-inputs/runtime-recipe}"
+    python -I -B "$staged/check_source.py" --recipe-root "$startdir" --repository-source "$source" || return
+    python -I -B "$staged/test_apps.py" --repository-source "$source" --runtime-recipe-root "$runtime" --app-recipe-root "$startdir"
 }
 package() {
     [[ -n $pkgdir && $pkgdir != / ]] || return 1
