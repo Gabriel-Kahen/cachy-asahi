@@ -25,13 +25,28 @@ class SeedTests(unittest.TestCase):
     def test_exact_copy_repeat_and_unrelated_cache_preservation(self):
         (self.cache / 'existing-unrelated').write_bytes(b'preserve')
         result = seed.seed(self.source, self.cache)
-        self.assertEqual((result['files'], result['bytes'], result['copied']), (12, 4045396, 12))
-        self.assertEqual(seed.seed(self.source, self.cache)['existing'], 12)
+        self.assertEqual((result['files'], result['bytes'], result['copied']), (14, 4123282, 14))
+        self.assertEqual(seed.seed(self.source, self.cache)['existing'], 14)
         for name in self.names:
             self.assertEqual((self.source / 'inputs' / name).read_bytes(), (self.cache / name).read_bytes())
             self.assertEqual((self.cache / name).stat().st_nlink, 1)
         self.assertEqual((self.cache / 'existing-unrelated').read_bytes(), b'preserve')
         self.assertFalse(list(self.cache.glob('.retained-public-*')))
+
+    def test_original_twelve_cache_gets_only_the_exact_zlib_pair(self):
+        added = {name for name in self.names if name.startswith('zlib-1:1.3.2-3-')}
+        self.assertEqual(len(added), 2)
+        held = {}
+        for name in set(self.names) - added:
+            target = self.cache / name
+            shutil.copyfile(self.source / 'inputs' / name, target)
+            held[name] = target.stat().st_ino
+        result = seed.seed(self.source, self.cache)
+        self.assertEqual((result['copied'], result['existing'], result['files']), (2, 12, 14))
+        for name, inode in held.items():
+            self.assertEqual((self.cache / name).stat().st_ino, inode)
+        for name in added:
+            self.assertEqual((self.cache / name).read_bytes(), (self.source / 'inputs' / name).read_bytes())
 
     def test_missing_signature_or_extra_source_fails_before_cache_writes(self):
         signature = next(name for name in self.names if name.endswith('.sig'))

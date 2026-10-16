@@ -1,6 +1,6 @@
 # Retained public ARM development inputs
 
-Twelve unchanged upstream public ALARM archive/signature files (six packages), retained for the existing frozen native345 and desktop574 development inputs. Total original binary/signature bytes: **4,045,396** (about3.86MiB). Nothing is rebuilt, repacked, installed, executed or resigned here. These are CI data, not project-built packages, a supported system or a production release.
+Fourteen unchanged upstream public ALARM archive/signature files (seven packages), retained for the existing frozen native345 and desktop574 development inputs. Total original binary/signature bytes: **4,123,282** (about3.93MiB). Nothing is rebuilt, repacked, installed, executed or resigned here. These are CI data, not project-built packages, a supported system or a production release.
 
 Locked mirror requests failed with404 in producer38818723463, audio auxiliary38820239504 or transaction16 actual38820921623. Exact held copies were checked against unchanged native345 lock beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f and desktop574 lock b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9. Original signatures are retained. Byte checks are not fresh GPG authentication; native signature gates remain mandatory.
 
@@ -19,6 +19,17 @@ Locked mirror requests failed with404 in producer38818723463, audio auxiliary388
 | xorg-server-common-21.1.25-1-aarch64.pkg.tar.xz | 27344 | `6cc9149138662041aa13c6ec027c074c67ee411848e38c349232acd9d97fca98` | https://ca.us.mirror.archlinuxarm.org/aarch64/extra/xorg-server-common-21.1.25-1-aarch64.pkg.tar.xz |
 | xorg-server-common-21.1.25-1-aarch64.pkg.tar.xz.sig | 566 | `cb12e8a377cd9a8f4718faa270f7b5ca0834e7b72b70c073338f57bfea31b4d3` | https://ca.us.mirror.archlinuxarm.org/aarch64/extra/xorg-server-common-21.1.25-1-aarch64.pkg.tar.xz.sig |
 
+## Additive zlib pair for desktop574
+
+Actual38852742618 failed acquisition of the unchanged zlib1:1.3.2-3 pair at its pinned ca.us URL. The original twelve source rows/bytes are unchanged. The two appended files match the frozen desktop574 input row and both retained local copies exactly:
+
+| Original file | Bytes | SHA256 |
+| --- | ---: | --- |
+| zlib-1:1.3.2-3-aarch64.pkg.tar.xz | 77320 | `7e31b465e09e8e61375578b8e26ed883906e126e0c0ef1c75b7ccccfa95a58c4` |
+| zlib-1:1.3.2-3-aarch64.pkg.tar.xz.sig | 566 | `ec8d454359ded82cd5dfe368de1cb16303e88ca2b180fba9bcb44ba75a6a7e9d` |
+
+Declared license Zlib, dependency glibc, project https://www.zlib.net/. Locked origin is https://ca.us.mirror.archlinuxarm.org/aarch64/core/ with these exact filenames. Existing retained acquisition notes also record byte-identical files from the Archboot October2026 release archive; that is provenance context, not a new mirror or trust policy. No new download or signature verification was performed for this additive proposal. The prior twelve rows' joint native345/desktop574 joins remain unchanged; the new pair was checked against the exact desktop574 input row here.
+
 ## Declared licenses and source association limits
 
 | Package | Declared licenses | Recorded project URL |
@@ -36,8 +47,10 @@ Recorded versions/project URLs associate binaries with upstream projects; they d
 
 ## Exact seed use
 
-Select this isolated source with a full immutable40-hex commit through the already pinned actions/checkout action, then run `python3 -I -B retained-public-inputs/seed.py --cache "$RUNNER_TEMP/alarm-cache"` before early native acquisition. The stdlib-only script verifies the fixed index and all twelve source files, then validates existing same-name cache entries before copying missing ones. It preserves unrelated cache files and never overwrites an existing target. An interrupted publish may leave a valid prefix; the next invocation checks every file again. It does not claim atomic publication of the whole set.
+Desktop, audio and measurement workflows can select the same new immutable asset commit and run this same seed.py. The interface remains only --cache; each workflow keeps its existing private build-cache destination and commands. For the maintained desktop574 workflow that destination is "$RUNNER_TEMP/desktop574/context/deps". The index retains the exact native574 input-lock SHA256 b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9. There is no job-specific logic or new secret.
+
+Select this isolated source with a full immutable40-hex commit through the already pinned actions/checkout action, then run `python3 -I -B retained-public-inputs/seed.py --cache "$RUNNER_TEMP/alarm-cache"` before early native acquisition. The stdlib-only script verifies the fixed index and all fourteen source files, then validates existing same-name cache entries before copying missing ones. It preserves unrelated cache files and never overwrites an existing target. An interrupted publish may leave a valid prefix; the next invocation checks every file again. It does not claim atomic publication of the whole set.
 
 The fixed index is SHA256-bound in seed.py. Source symlinks, missing/extra source files, mismatched bytes, unsafe cache directories and existing conflicting targets fail. No downloader, new secrets, mirror fallback, package installation, whole574 rehost or version/lock/signature-policy change is introduced. Both early native345 and later desktop574 consume this same existing cache. Existing producer/downstream/trust/payload gates stay unchanged.
 
-The complete source consists only of twelve original input files, index.json, seed.py, test_seed.py and this README (sixteen files). Root owns commit creation, publication and CI dispatch. Tests use copied file fixtures; no package content is executed.
+The complete source consists only of fourteen original input files, index.json, seed.py, test_seed.py and this README (eighteen files). Root owns commit creation, publication and CI dispatch. Tests use copied file fixtures; no package content is executed.

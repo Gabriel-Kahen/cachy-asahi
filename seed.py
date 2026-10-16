@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Copy twelve exact public input files to the existing private CI cache."""
+"""Copy fourteen exact public input files to the existing private CI cache."""
 import argparse
 import hashlib
 import json
@@ -8,9 +8,9 @@ from pathlib import Path
 import stat
 import tempfile
 
-INDEX_BYTES = 2394
-INDEX_SHA256 = '758ec321b51183d32cffef26648ac9d805c680d44580cd035f22c1b39e37bb66'
-TOTAL_BYTES = 4045396
+INDEX_BYTES = 2740
+INDEX_SHA256 = 'a388c8c8ba8e06cb92fd2be598b86e433c4e403b6e71a0f15b1eaec381bb7300'
+TOTAL_BYTES = 4123282
 
 
 def read_exact(path, size, digest):
@@ -42,14 +42,14 @@ def seed(source, cache):
         raise ValueError('owned private existing cache required')
     index = json.loads(read_exact(source / 'index.json', INDEX_BYTES, INDEX_SHA256))
     rows = index['files']
-    if (index['schema_version'] != 1 or len(rows) != 12
+    if (index['schema_version'] != 1 or len(rows) != 14
             or sum(row['size'] for row in rows) != TOTAL_BYTES or index['total_bytes'] != TOTAL_BYTES):
-        raise ValueError('fixed twelve input index required')
+        raise ValueError('fixed fourteen input index required')
     names = {row['filename'] for row in rows}
-    if len(names) != 12 or any(Path(name).name != name or name.startswith('.') for name in names):
+    if len(names) != 14 or any(Path(name).name != name or name.startswith('.') for name in names):
         raise ValueError('fixed input names required')
     if {path.name for path in (source / 'inputs').iterdir()} != names:
-        raise ValueError('exact twelve source files required')
+        raise ValueError('exact fourteen source files required')
     data, missing = {}, []
     for row in rows:
         name = row['filename']
@@ -68,8 +68,8 @@ def seed(source, cache):
             with staged.open('xb') as stream:
                 stream.write(data[name]); stream.flush(); os.fsync(stream.fileno())
             os.link(staged, cache / name)
-    return {'status': 'SEEDED_EXACT_PUBLIC_INPUTS', 'files': 12, 'bytes': TOTAL_BYTES,
-            'copied': len(missing), 'existing': 12 - len(missing),
+    return {'status': 'SEEDED_EXACT_PUBLIC_INPUTS', 'files': 14, 'bytes': TOTAL_BYTES,
+            'copied': len(missing), 'existing': 14 - len(missing),
             'signature_authentication': 'NOT RUN; unchanged native gate required'}
 
 

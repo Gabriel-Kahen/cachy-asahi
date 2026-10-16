@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "total_bytes": 4045396,
+  "total_bytes": 4123282,
   "native345_lock_sha256": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f",
   "desktop574_lock_sha256": "b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9",
   "files": [
@@ -63,6 +63,16 @@
       "filename": "xorg-server-common-21.1.25-1-aarch64.pkg.tar.xz.sig",
       "size": 566,
       "sha256": "cb12e8a377cd9a8f4718faa270f7b5ca0834e7b72b70c073338f57bfea31b4d3"
+    },
+    {
+      "filename": "zlib-1:1.3.2-3-aarch64.pkg.tar.xz",
+      "size": 77320,
+      "sha256": "7e31b465e09e8e61375578b8e26ed883906e126e0c0ef1c75b7ccccfa95a58c4"
+    },
+    {
+      "filename": "zlib-1:1.3.2-3-aarch64.pkg.tar.xz.sig",
+      "size": 566,
+      "sha256": "ec8d454359ded82cd5dfe368de1cb16303e88ca2b180fba9bcb44ba75a6a7e9d"
     }
   ]
 }
