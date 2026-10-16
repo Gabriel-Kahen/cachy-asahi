@@ -1,8 +1,24 @@
 {
   "files": {
+    "scripts/apps/file_capabilities.py": {
+      "bytes": 13562,
+      "sha256": "498a3beec0327b9335dcd6d80ed5919fa2edebebd3284e9ee8b97770328e26a2"
+    },
+    "scripts/ci/apps-full574-native/export_extract.py": {
+      "bytes": 2410,
+      "sha256": "c7a09bc3996b9bff97dd57a8244d82d562566f1135b0618f87d90fbf09c58978"
+    },
     "scripts/ci/full-root-upgrade/root_upgrade.py": {
       "bytes": 23555,
       "sha256": "fe1232ae6b510021910b4fb80016ac3b4668c6e4386cdae45e7b95196e400756"
+    },
+    "scripts/ci/glibc-gnu-provider-lifecycle-owner/snapshot.py": {
+      "bytes": 9397,
+      "sha256": "9738acb125ce6d468d5359ecfbd5540454826567fd4ac4481576ec31da37190c"
+    },
+    "scripts/ci/glibc-gnu-provider-lifecycle/capabilities.py": {
+      "bytes": 2718,
+      "sha256": "4a54441140eeeedc04ee42013e67bfde9765f0bac6f7e1018b6777244573e0ba"
     },
     "scripts/ci/glibc-owned-runtime/exec_child.c": {
       "bytes": 913,

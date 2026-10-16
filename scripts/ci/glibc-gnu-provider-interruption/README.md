@@ -26,3 +26,38 @@ python3 -I -B scripts/ci/glibc-gnu-provider-interruption/run.py --inputs /absolu
 ```
 
 `input-interface.json` describes the closed input. Root sets policy.status BOUND_BY_ROOT and exact index_sha256/token/image_id, then refreshes this lane's source manifest and exact-source freeze before dispatch. The dedicated run.py is the concrete consumer; integration into the Root-owned packet/producer workflow remains Root's responsibility. No workflow or actor is dispatched here. `alpm-semantics.json` records the retained source audit and its unresolved build-recipe correspondence gap; the pinned actual binary and observed callback/filesystem/kernel checks remain mandatory.
+
+
+## Exact file-capability preservation successor
+
+The native snapshot supplies `source_capabilities` and
+`source_capabilities_sha256` in the private runtime input, under its existing
+index/policy hash binding. Values are exact namespace-visible raw Linux
+revision2/3 bytes in lowercase hex, canonical sorted indent2 JSON plus newline.
+Maps include every hardlink alias. The existing2MiB input limit remains; the
+map's additional bound is1MiB/4096 paths inherited from the Apps primitive.
+
+The dedicated `capabilities.py` bridge (shared only by these two GNU consumers)
+reuses unchanged `scripts/apps/file_capabilities.py`. The ordinary data copier
+still omits xattrs: inside its original owned lifetime, before the first caller
+yield, the bridge restores and independently verifies the exact baseline map.
+Failure propagates into the original disposal path, with no metadata stripping,
+conflicting-value overwrite or rollback claim. Source and every existing stage
+snapshot now inspect all actual nodes for exact capabilities and unknown attrs,
+with the same600-second snapshot budget shared with the full-content scan.
+Original copy, transaction, process, output and cleanup budgets are unchanged.
+
+Both provider/held archive parsers reject capability or other unknown PAX attrs.
+Their selected non-directory paths must be disjoint from the original574 map;
+no candidate capability grant is introduced. Every expected stage and the copy
+restoration receipt must bind the same map/hash. Source-before/source-after,
+config/backup/pacsave, payload, ALPM dependency, normal-loader/runtime, raw
+interruption checkpoint, group reaping and external recovery checks remain.
+SETFCAP is added only to the inner `trial` actor, with original NNP/network and
+other grants unchanged; scrub/cleanup actors do not receive it.
+
+This source change establishes no native Docker, aarch64, generic16K, M2,
+security-release, durability or performance acceptance. In particular the
+interruption test remains remove-phase-only, not candidate extraction or power
+loss recovery. Original strict owner extractors, shared copier/full_root and
+interruption writer/lock/group algorithms remain unchanged.

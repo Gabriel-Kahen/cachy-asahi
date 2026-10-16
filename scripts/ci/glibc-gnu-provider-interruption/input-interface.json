@@ -3,6 +3,7 @@
     "a": "reference",
     "b": "reference"
   },
+  "capability_scope": "Unknown xattrs/PAX refuse; all source/copy/stage maps exact; selected provider/held package files must be capability-free and disjoint from original map",
   "held_root": "Separate ordinary complete original574 source root, mounted readonly; prepared by Root owned producer/export handshake, not by inspecting host /",
   "input_file": "interruption-input.json",
   "mode": "DESCRIPTION_ONLY_NO_BOUND_INPUT",
@@ -44,6 +45,8 @@
     "provider_pair_archive_sha256": "Actual NEW conventional provider package pair hash",
     "provider_pkgbuild_sha256": "Actual .BUILDINFO PKGBUILD SHA",
     "schema_version": "integer1",
+    "source_capabilities": "Complete actual original574 path -> lowercase20/24-byte raw capability hex; includes all hardlink aliases, never a path allowlist",
+    "source_capabilities_sha256": "sha256(sorted indent2 canonical JSON capability map plus newline); runtime-only original snapshot-derived",
     "source_nodes_sha256": "sha256(json.dumps(full_root observed source nodes,sort_keys=True).encode())",
     "status": "ROOT_BOUND_UNSELECTED_PROVIDER_INTERRUPTION",
     "token": "32 lowercase hex interruption consumer token",

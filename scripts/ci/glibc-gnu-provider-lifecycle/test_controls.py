@@ -148,4 +148,60 @@ class Controls(unittest.TestCase):
         self.assertNotEqual(before,lane.configs(self.root));(self.root/'etc/gai.conf').unlink()
         self.assertNotEqual(before,lane.configs(self.root))
 
+
+    def capability_api(self):
+        repo=next(p for p in Path(__file__).resolve().parents if (p/'manifests/packages.toml').is_file())
+        bridge=C.load('control_capability_bridge',repo/'scripts/ci/glibc-gnu-provider-lifecycle/capabilities.py');caps=C.load('control_capability_primitive',repo/'scripts/apps/file_capabilities.py')
+        sys.path.insert(0,str(repo/'scripts/update'));import full_root
+        return dict(capabilities=bridge,caps=caps,roots=full_root)
+
+    def test_complete_tempfile_capability_map_and_unknown_attribute_refusal(self):
+        api=self.capability_api();path=self.root/'inert';path.write_bytes(b'never executed');budget=lane.limits(api);nodes=api['roots'].observe(self.root,limits=budget,hardlinks='generic-development-internal')['nodes'];index=dict(source_capabilities={},source_capabilities_sha256=api['capabilities'].digest({}))
+        self.assertEqual(api['capabilities'].observe(api,self.root,nodes,index,budget),{})
+        os.setxattr(path,'user.UNIT-inert',b'refuse')
+        with self.assertRaisesRegex(ValueError,'unknown xattr'):api['capabilities'].observe(api,self.root,nodes,index,budget)
+        os.removexattr(path,'user.UNIT-inert');self.assertEqual(api['caps'].restore(self.root,nodes,{},budget),{})
+
+    def test_copy_restore_happens_before_yield_and_refusal_keeps_original_cleanup(self):
+        from contextlib import contextmanager
+        api=self.capability_api();bridge=api['capabilities'];mapping={'inert':'0100000240000000000000000000000000000000'};index=dict(source_capabilities=mapping,source_capabilities_sha256=bridge.digest(mapping));events=[];lifetime={}
+        @contextmanager
+        def copied(source,workspace,**kwargs):
+            events.append('copy')
+            try:yield self.root,lifetime
+            finally:events.append('original-cleanup')
+        api['copy']=NS(copied_root=copied);api['roots']=NS(observe=lambda *a,**k:{'nodes':{'inert':{}}})
+        with patch.object(api['caps'],'restore',side_effect=lambda *a:(events.append('restore') or mapping)):
+            with bridge.copied_root(api,Path('/INERT-source'),self.root,index,limits=NS(),cleanup_seconds=120):events.append('accepted-yield')
+        self.assertEqual(events,['copy','restore','accepted-yield','original-cleanup']);self.assertEqual(lifetime['source_capabilities_sha256'],index['source_capabilities_sha256'])
+        events.clear()
+        with patch.object(api['caps'],'restore',side_effect=ValueError('unexpected capability')),self.assertRaisesRegex(ValueError,'unexpected capability'):
+            with bridge.copied_root(api,Path('/INERT-source'),self.root,index,limits=NS(),cleanup_seconds=120):self.fail('must never accept copy')
+        self.assertEqual(events,['copy','original-cleanup'])
+
+    def test_source_map_hash_and_selected_provider_overlap_refuse(self):
+        bridge=self.capability_api()['capabilities'];mapping={'usr/bin/UNIT-cap':'0100000240000000000000000000000000000000'};index=dict(source_capabilities=mapping,source_capabilities_sha256=bridge.digest(mapping));empty=dict(nodes={})
+        bridge.disjoint(index,empty,empty)
+        with self.assertRaisesRegex(ValueError,'selected provider'):bridge.disjoint(index,empty,dict(nodes={'usr/bin/UNIT-cap':dict(type='file')}))
+        with self.assertRaisesRegex(ValueError,'map/hash'):bridge.binding(dict(index,source_capabilities_sha256='f'*64))
+
+    def test_all_stage_capability_hashes_and_copy_receipt_are_required(self):
+        bridge=self.capability_api()['capabilities'];index=dict(source_capabilities={},source_capabilities_sha256=bridge.digest({}));stages=('source-before','clone','held574','source-after')
+        cases={case:dict(copy_lifetime=dict(security_capabilities='EXACT_SOURCE_MAP_RESTORED_AND_VERIFIED',source_capabilities_sha256=index['source_capabilities_sha256']),capability_checks={case+'-'+stage:dict(status='EXACT_SOURCE_MAP_PRESERVED',sha256=index['source_capabilities_sha256'],paths=0) for stage in stages}) for case in ('pristine','modified')}
+        self.assertEqual(bridge.records(index,cases,stages)['cases'],2)
+        for kind in ('missing','changed','copy'):
+            bad=copy.deepcopy(cases)
+            if kind=='missing':del bad['pristine']['capability_checks']['pristine-held574']
+            elif kind=='changed':bad['pristine']['capability_checks']['pristine-held574']['sha256']='f'*64
+            else:bad['pristine']['copy_lifetime']['security_capabilities']='NOT_RESTORED'
+            with self.subTest(kind=kind),self.assertRaises(ValueError):bridge.records(index,bad,stages)
+
+    def test_provider_and_held_archive_metadata_cannot_introduce_capabilities(self):
+        import io,tarfile
+        for pax in ({'SCHILY.xattr.security.capability':bytes.fromhex('0100000240000000000000000000000000000000').decode('utf8','surrogateescape')},{'SCHILY.xattr.user.UNIT':'unknown'}):
+            path=self.root/'inert.tar'
+            with tarfile.open(path,'w',format=tarfile.PAX_FORMAT) as archive:
+                member=tarfile.TarInfo('usr/bin/inert');member.pax_headers=pax;archive.addfile(member,io.BytesIO(b''))
+            with self.assertRaisesRegex(ValueError,'package xattrs'):C.archive(path)
+
 if __name__=='__main__':unittest.main()
