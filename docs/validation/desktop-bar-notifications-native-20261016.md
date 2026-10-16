@@ -26,9 +26,13 @@ Its declared public files total5231542 bytes; Root checks their byte/hash joins
 and views lossless previews. Logs are170409 bytes, SHA256
 `6bfcadace9fcc16eaf22a8134957f91e496f6c26a125a48da7302f2970e2c958`.
 
-A separate branch selects one source-supported Mako reload per phase to
-investigate repaint behavior. It explicitly labels any later result
-reload-assisted and leaves normal cold-start body rendering unestablished.
-The canonical unassisted lane is preserved. No graphics acceleration, managed
+A separate reload-assisted [actual38867362181](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38867362181)
+passes its metadata, event and cleanup checks. Root sees the complete notification
+body in its overlay frame, but the minimal notification is nearly transparent.
+Overall visual acceptance remains INCOMPLETE; this does not establish normal
+cold-start body rendering or a successful repair. Its Source/workflow is
+`688dc894b1a46d10b9bb4a35abdb255ad39aa71e`. The diagnostic remains isolated on
+`codex/bar-notification-reload-v1`; the canonical unassisted lane is preserved.
+No graphics acceleration, managed
 user-session, battery/network hardware, physical M2 or release acceptance follows
 from this trial.
