@@ -429,3 +429,19 @@ native_build = "PASS native ARM byte-identical pairs in38884680631 and3888678150
 native_cli_lifecycle = "PASS fresh/existing users, install/reinstall/remove/report preservation in38886781500"
 hardware_validation = "NOT RUN"
 next_step = "Exercise the installed read-only report with unavailable model/bus and real managed session states; complete signed admission and target validation before selection."
+
+[[packages]]
+name = "cachy-asahi-mirrors"
+phase = "tools-experience"
+status = "candidate"
+source = "local-original"
+recipe = "packages/tools/cachy-asahi-mirrors/PKGBUILD"
+license = "MIT"
+candidate_version = "0.1.0-1"
+selected_for_development = false
+selected_for_release = false
+host_validation = "PASS twelve mocked-network catalog/byte-match/candidate preservation controls"
+native_build = "NOT RUN"
+installation = "NOT RUN"
+hardware_validation = "NOT RUN"
+next_step = "Run native package/lifecycle checks and an independently trusted current ARM catalog; implement reviewed activation/restoration separately before complete mirror-management acceptance."
