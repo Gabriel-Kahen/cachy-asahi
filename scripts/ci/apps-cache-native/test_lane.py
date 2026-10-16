@@ -53,12 +53,13 @@ class SourceControls(unittest.TestCase):
         policy.update(status='ROOT_BOUND_FINAL_PRODUCT_SOURCES',candidate_source='a'*40)
         policy['products']['cache']=dict(name=C.ROLES['cache'],version=None,recipe_sha256=None,source_files={},payload={},check_markers=[])
         with patch.object(C,'read',return_value=policy),self.assertRaises(ValueError):C.policy()
-    def test_adopted_runtime_pins_match_0bdf_and_current_sources(self):
+    def test_adopted_runtime_pins_match_checked_out_tree_and_published_source(self):
         policy=C.read(C.HERE/'input-policy.json');ref='0bdf02dae0f6dfff284c723c3a0b8bf30594c646'
+        self.assertEqual(policy['products']['runtime']['source_sha'],ref)
         for role,version,count in (('runtime','0.1.0-1',8),):
             row=policy['products'][role];self.assertEqual(row['source_sha'],ref);self.assertEqual(row['version'],version);self.assertEqual(len(row['payload']),count)
             for name,pin in row['source_files'].items():
-                path='packages/tools/'+row['name']+'/'+name;raw=subprocess.check_output(['git','-C',str(ROOT),'show',ref+':'+path],timeout=15)
+                path='packages/tools/'+row['name']+'/'+name;raw=subprocess.check_output(['git','-C',str(ROOT),'show','HEAD:'+path],timeout=15)
                 self.assertEqual(raw,(ROOT/path).read_bytes());self.assertEqual(len(raw),pin['bytes']);self.assertEqual(C.digest(ROOT/path),pin['sha256'])
     def test_all_final_recipe_source_joins_pass_with_only_an_in_memory_bound_status(self):
         original=C.read;policy=copy.deepcopy(original(C.HERE/'input-policy.json'));original_status=policy['status'];policy['status']='ROOT_BOUND_FINAL_PRODUCT_SOURCES'
