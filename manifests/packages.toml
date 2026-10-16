@@ -416,16 +416,17 @@ candidate_version = "0.1.0-2"
 selected_for_development = false
 selected_for_release = false
 host_validation = "PASS32 x86_64 functional checks, separate real mapped-root guard, private Xvfb GTK fixture and exact9-file staging for0.1.0-2"
-native_build = "NOT RUN for0.1.0-2; historical0.1.0-1 native pair and GUI evidence remain separate"
-native_cli_lifecycle = "HISTORICAL0.1.0-1: PASS fresh/existing users, install/reinstall/remove/report preservation in38886781500"
+native_build = "PASS byte-identical0.1.0-2 native ARM pair38974893566:31496bytes/SHA25661d6b2b2ec09dbbdaa29908cb8797527fd347c4f8c8dc23967dc161b57014280"
+native_cli_lifecycle = "PASS0.1.0-2 signed577/577/574/577/574 fresh/existing users and36rawCLIreports38974893566; overallrunGUIFAIL"
 native_generic16k_cli = "HISTORICAL0.1.0-1: PASS unchanged unpacked CLI payloads in38904917140; not installed or GUI"
 native_generic_managed_gui = "HISTORICAL0.1.0-1: PASS fourteen Root-viewed captures and actual GTK actions in38905814219"
 native_generic16k_managed_gui = "HISTORICAL0.1.0-1: PASS installed593, sixteen GTK actions and fourteen Root-viewed first frames in38952428172; docs/validation/managed-gui-generic16k-native-20261016.md"
 hardware_validation = "NOT RUN"
-next_step = "Welcome2 adds explicit ordinary-user Doctor/Orphans Management panel.32 hostchecks, separate real mapped-root refusal and private Xvfb GUI fixtures pass; native/installed-tool/GUI successor lane in development. Preserve old1 evidence; both M2 workflows remain open."
+native_evidence = "docs/validation/welcome2-native-cli-20261016.md"
+next_step = "Native pair and CLI/install lifecycle accepted separately from failedGUI38974893566. Isolated guest imports are fixed; new actual38978526784 must establish all24frames/actions. Complete604 integration, current16K runtime and both M2 workflows; historical Welcome1 evidence stays separate."
 
 
-installation = "NOT RUN for0.1.0-2; historical0.1.0-1 lifecycle and managed GUI accepted"
+installation = "PASS0.1.0-2 native installed CLI lifecycle; current managed GUI remains unaccepted"
 [[packages]]
 name = "cachy-asahi-doctor"
 phase = "tools-experience"
