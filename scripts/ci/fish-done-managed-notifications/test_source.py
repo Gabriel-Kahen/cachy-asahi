@@ -18,7 +18,7 @@ MODULES=Path(os.environ.get('DONE_MANAGED_INPUTS',ROOT/'artifacts/development/se
 def messages(outcome=0):
     title='Done in 5s' if outcome==0 else 'Failed (7) after 5s'
     call=dict(type='method_call',sender=':1.9',destination='org.freedesktop.Notifications',path='/org/freedesktop/Notifications',interface='org.freedesktop.Notifications',member='Notify',cookie=42,
-              payload=dict(type='susssasa{sv}i',data=['fish',0,'utilities-terminal',title,'Foreground command completed.',[],{'urgency':{'type':'y','data':1 if outcome==0 else 2},'transient':{'type':'i','data':1}},3000]))
+              payload=dict(type='susssasa{sv}i',data=['fish',0,'',title,'Foreground command completed.',[],{'image-path':{'type':'s','data':'utilities-terminal'},'urgency':{'type':'y','data':1 if outcome==0 else 2},'transient':{'type':'i','data':1}},3000]))
     reply=dict(type='method_return',sender=':1.7',destination=':1.9',reply_cookie=42,payload=dict(type='u',data=[23]))
     return [call,reply]
 
@@ -98,6 +98,45 @@ class Protocol(unittest.TestCase):
     def test_wire_sender_and_listing_cannot_be_replaced_by_boolean(self):
         events=self.fixture();next(e for e in events if e['event']=='done_transport')['wire']=dict(status='PASS')
         with self.assertRaises(ValueError):C.verify_result(events)
+
+
+class ActualWire38952906070(unittest.TestCase):
+    def rows(self):
+        raw=(HERE/'fixtures/run38952906070-bus.jsonl').read_bytes()
+        self.assertEqual(len(raw),8505)
+        self.assertEqual(hashlib.sha256(raw).hexdigest(),'925095fdbf524d07785869e4bf24ed78a17f304d0914b324d9e59122028c3f52')
+        return O.messages(raw)
+
+    def test_original_real_notify_uses_empty_icon_and_typed_image_path(self):
+        calls=[r for r in self.rows() if r.get('member')=='Notify']
+        self.assertEqual(len(calls),1);call=calls[0];data=call['payload']['data']
+        self.assertEqual((call['sender'],call['destination'],call['cookie']),(':1.73',':1.25',9))
+        self.assertEqual(data[2],'');self.assertEqual(data[6]['image-path'],dict(type='s',data='utilities-terminal'))
+        self.assertEqual(data[7],3000)
+
+    def test_actual_incomplete_monitor_requires_reply_and_cannot_pass_run(self):
+        rows=self.rows();self.assertIsNone(O.notify(rows,':1.25',0))
+        with self.assertRaises(ValueError):C.verify_result(rows)
+
+    def test_original_call_with_constructed_reply_is_only_a_parser_control(self):
+        rows=self.rows()
+        # This reply did NOT occur in the retained prefix. It exercises the parser
+        # only and is never saved as an actual run, delivery or frame receipt.
+        rows.append(dict(type='method_return',sender=':1.25',destination=':1.73',reply_cookie=9,payload=dict(type='u',data=[23])))
+        wire=O.notify(rows,':1.25',0)
+        self.assertEqual((wire['sender'],wire['recipient'],wire['summary'],wire['body']),(':1.73',':1.25','Done in 5s','Foreground command completed.'))
+        with self.assertRaises(ValueError):C.verify_result(rows)
+
+    def test_icon_hint_cannot_be_missing_wrong_type_or_different_icon(self):
+        for hint in (None,dict(type='s',data='wrong'),dict(type='i',data=1)):
+            rows=self.rows();call=next(r for r in rows if r.get('member')=='Notify')
+            if hint is None:call['payload']['data'][6].pop('image-path')
+            else:call['payload']['data'][6]['image-path']=hint
+            with self.subTest(hint=hint),self.assertRaises(ValueError):O.notify(rows,':1.25',0)
+
+    def test_nonempty_icon_field_cannot_replace_actual_pinned_wire_format(self):
+        rows=self.rows();next(r for r in rows if r.get('member')=='Notify')['payload']['data'][2]='utilities-terminal'
+        with self.assertRaises(ValueError):O.notify(rows,':1.25',0)
 
 
 class HostedProof(unittest.TestCase):

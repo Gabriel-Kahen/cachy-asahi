@@ -35,7 +35,7 @@ jobs:
         timeout-minutes: 2
         run: |
           set -euo pipefail
-          printf '%s  %s\n' '8733a3e6b109ed45e8aabeeabcd0a2b31268a8d720c4aa29fc60e1c63f802f2f' "$SLICE/ci/caller.py" 'b5fec55ebceb49a84bea84defb1cd1e1ac7a3d4275db65a24df5b8c5dc6b52d7' "$SLICE/ci/source-manifest.json" | sha256sum --check
+          printf '%s  %s\n' '8733a3e6b109ed45e8aabeeabcd0a2b31268a8d720c4aa29fc60e1c63f802f2f' "$SLICE/ci/caller.py" '9458304dfc75c1580ff1d95f290407462e849dbd5428f2873166275131ca8401' "$SLICE/ci/source-manifest.json" | sha256sum --check
           python3 -I -B "$SLICE/ci/caller.py" proof --workspace "$GITHUB_WORKSPACE" --manifest "$SLICE/ci/source-manifest.json" --proof "$RUNNER_TEMP/fish-done-managed-source-proof.json"
       - name: Checkout only the exact Root accepted six-module packet
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
