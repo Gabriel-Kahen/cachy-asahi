@@ -2,8 +2,8 @@
 
 `prepare.py` only reads and copies data. It neither builds nor installs anything,
 executes exported code, calls Git, starts actors, changes the owner policy, nor
-creates Root decisions. It is bounded to native run `38953883080`, source
-`c21ba12e7e6f10a499458350eb6235096a0e5189`. A running/failed run or absent explicit
+creates Root decisions. It is bounded to native run `38960150458`, source
+`0056a7c1b83ff325f1368d3659cfeb8e5a5c8358`. A running/failed run or absent explicit
 Root acceptance refuses before output creation.
 
 After Root collects and accepts the actual successful run, invoke from the
