@@ -393,16 +393,16 @@
       "sha256": "ff0c7a3701dec1b1997853106024cbeb1f3fddd67b77b08d050a630af084833b"
     },
     "scripts/ci/management-tools-generic16k/guest.py": {
-      "bytes": 17697,
-      "sha256": "845f761ac2f29126b300515e6f91ceef1dfe7686625c8c8b2f2c4920daf8818d"
+      "bytes": 19889,
+      "sha256": "897f0f434ae6a4a21345b85aaf9a896f0105fa8f4c52aa53e99ee4af3300b0e4"
     },
     "scripts/ci/management-tools-generic16k/input-policy.json": {
       "bytes": 466,
       "sha256": "a6fa49dff5a42a12497a1d12d82f60b0c118f784c742023681633a5875219fa0"
     },
     "scripts/ci/management-tools-generic16k/run.py": {
-      "bytes": 21398,
-      "sha256": "ed47901771ec0032d7ac4ecc4aab9d06298540d73865f9ac39aff31ac69e77b1"
+      "bytes": 24134,
+      "sha256": "f1d1b615f7fd881bea20d3aefd3c61f8fabc76f331583c73d99176b8cba0c5d4"
     },
     "scripts/ci/management-tools-generic16k/signature_observer.py": {
       "bytes": 9009,
@@ -413,12 +413,16 @@
       "sha256": "264c04d0467709bc6f7e60aa9fb83cdd5f72ca36c7f7d9daf5c4c977a6958a49"
     },
     "scripts/ci/management-tools-generic16k/test_lane.py": {
-      "bytes": 22516,
-      "sha256": "ba32c6ebcba98220aec2f6a8f917df3d11b323d707f4a70787c8fd9233cdf6b9"
+      "bytes": 22912,
+      "sha256": "83d483573d64dd48853b81a0607fb78e74f058b169a025df6fb9ed5518d755c3"
     },
     "scripts/ci/management-tools-generic16k/test_signature_observer.py": {
       "bytes": 6873,
       "sha256": "4e138fd7c456583fbca8c07fbd34bf7eddc2fb89f14eaf4c6a805e82743f2a33"
+    },
+    "scripts/ci/management-tools-generic16k/test_startup_clock.py": {
+      "bytes": 4135,
+      "sha256": "9c981221d852d7eda60612e42423fdfb600725f96661fbecf23f8300aeaacf0e"
     },
     "scripts/ci/old_four_seed.py": {
       "bytes": 29048,

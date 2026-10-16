@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT
 """Actual ordinary 16K CLI execution, explicit physical temporary fixtures only."""
-import base64,re,ctypes,hashlib,importlib.machinery,importlib.util,io,json,os,shutil,stat,sys,tarfile
+import base64,re,ctypes,hashlib,importlib.machinery,importlib.util,io,json,os,shutil,stat,sys,tarfile,time
 from pathlib import Path
 
 def need(ok,why):
@@ -8,6 +8,23 @@ def need(ok,why):
 def sha(raw):return hashlib.sha256(raw).hexdigest()
 def load(name,path):
     loader=importlib.machinery.SourceFileLoader(name,str(path));spec=importlib.util.spec_from_loader(name,loader);module=importlib.util.module_from_spec(spec);loader.exec_module(module);return module
+
+def startup_clock(raw,nonce,manifest):
+    """Initialize only this marked VM's real clock from an observed runner UTC."""
+    need(os.getuid()==os.geteuid()==0 and os.uname().machine=='aarch64' and os.sysconf('SC_PAGE_SIZE')==16384 and
+        'management16k=1' in Path('/proc/cmdline').read_text().split(),'marked root management16K clock startup required')
+    need(len(raw)<=4096,'clock seed bound');seed=json.loads(raw)
+    fields={'schema_version','purpose','source_commit','job_token','nonce','payload_manifest_sha256','host_realtime_ns','host_monotonic_ns'}
+    need(set(seed)==fields and type(seed['schema_version']) is int and seed['schema_version']==1 and seed['purpose']=='MANAGEMENT16K_OBSERVED_RUNNER_UTC_STARTUP' and
+        seed['source_commit']==manifest['source_commit'] and seed['nonce']==nonce and seed['payload_manifest_sha256']==sha((json.dumps(manifest,sort_keys=True,indent=2)+'\n').encode()) and
+        re.fullmatch('[0-9a-f]{16}',seed['job_token']) and all(type(seed[n]) is int and 0<seed[n]<2**63 for n in ('host_realtime_ns','host_monotonic_ns')),'exact source/nonce/payload/clock seed required')
+    before=dict(realtime_ns=time.time_ns(),monotonic_ns=time.monotonic_ns())
+    time.clock_settime_ns(time.CLOCK_REALTIME,seed['host_realtime_ns'])
+    after=dict(realtime_ns=time.time_ns(),monotonic_ns=time.monotonic_ns())
+    elapsed=after['monotonic_ns']-before['monotonic_ns']
+    need(0<=elapsed<=5*10**9 and seed['host_realtime_ns']<=after['realtime_ns']<=seed['host_realtime_ns']+elapsed+10**9,'VM real clock initialization/readback failed')
+    return dict(status='SET_VM_REALTIME_FROM_OBSERVED_RUNNER_UTC',seed=seed,seed_sha256=sha(raw),before=before,after=after,
+        uid=0,authority='RECORDED_STARTUP_ANCHOR_NOT_CONTINUOUS_UTC_SYNCHRONIZATION')
 
 def fixture(raw,target):
     """Extract only the finite public signing fixture; no hardlinks/authority."""
@@ -118,6 +135,9 @@ def exercise(nonce,release):
     need(os.getuid()==os.geteuid()==0 and os.uname().machine=='aarch64' and os.uname().release==release and os.sysconf('SC_PAGE_SIZE')==16384 and
         'management16k=1' in Path('/proc/cmdline').read_text().split(),'marked actual generic16384 guest required')
     original=load('management16k_original_guest','/original_guest.py');raw=Path('/payload.json').read_bytes();manifest=json.loads(raw);original.payload_identity(manifest)
+    clock_path=Path('/clock-seed.json');clock_info=clock_path.lstat()
+    need(stat.S_ISREG(clock_info.st_mode) and clock_info.st_uid==clock_info.st_gid==0 and clock_info.st_nlink==1 and stat.S_IMODE(clock_info.st_mode)==0o444 and clock_info.st_size<=4096,'root-owned readonly startup clock seed required')
+    clock_setup=startup_clock(clock_path.read_bytes(),nonce,manifest)
     for name in manifest['files']:
         info=(Path('/')/name).lstat();need(info.st_uid==info.st_gid==0 and info.st_nlink==1 and not info.st_mode&0o022,'root-owned readonly captured payload required')
     work=Path('/tmp/management16k');work.mkdir(mode=0o700);os.chown(work,23001,23001)
@@ -152,7 +172,7 @@ def exercise(nonce,release):
         need(len(commands)==19,'finite nineteen-command set differs')
         result=dict(status='PASS_GENERIC16K_MANAGEMENT_CLI_PRIVATE_FIXTURES_ONLY',nonce=nonce,kernel=release,architecture='aarch64',page_size=16384,
             uid=23001,gid=23001,groups=[],NNP=True,capabilities_zero=True,commands=commands,results=results,payload_manifest_sha256=sha(raw),payload_preserved=True,
-            user_config_preserved=True,owned_processes_absent=True,fixture_archive_sha256=manifest['fixture_archive_sha256'],
+            user_config_preserved=True,owned_processes_absent=True,fixture_archive_sha256=manifest['fixture_archive_sha256'],clock_setup=clock_setup,
             package_registration='DATA_STAGED_PRIVATE_ROOT_NOT_ALPM_INSTALLATION',GUI='NOT_RUN',hardware='NOT_RUN',native_ALPM_lifecycle='SEPARATE_INPUT_EVIDENCE',release_admission=False)
     finally:
         original.owned_absent()
