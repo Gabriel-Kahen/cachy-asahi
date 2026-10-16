@@ -2,10 +2,33 @@
 # SPDX-License-Identifier: MIT
 """Manual source/accepted-input proof; requires Root's genuine original600 acceptance."""
 import argparse
+import hashlib
+import os
+import stat
 from pathlib import Path
 import shutil
 import sys
 import policy as P
+
+
+def packet_source(root,ref):
+    # Empty raw packet records are copied too; acceptance/archive references
+    # keep the original positive-byte P.checked contract.
+    if type(ref) is not dict or ref.get('bytes')!=0:return P.checked(root,ref)
+    P.need(set(ref)=={'path','bytes','sha256'} and type(ref['bytes']) is int and
+        type(ref['path']) is str and ref['path'] and not ref['path'].startswith('/') and
+        all(part not in ('','.','..') for part in ref['path'].split('/')) and
+        ref['sha256']==hashlib.sha256(b'').hexdigest(),'exact empty packet record reference required')
+    path=P.safe(root/ref['path']);before=path.lstat()
+    P.need(stat.S_ISREG(before.st_mode) and before.st_nlink==1 and before.st_size==0,
+        'ordinary single-link empty packet record required')
+    identity=lambda info:(info.st_dev,info.st_ino,info.st_mode,info.st_nlink,info.st_uid,
+        info.st_gid,info.st_size,info.st_mtime_ns,info.st_ctime_ns)
+    with path.open('rb') as stream:
+        P.need(identity(os.fstat(stream.fileno()))==identity(before) and stream.read(1)==b'' and
+            identity(os.fstat(stream.fileno()))==identity(before),'empty packet record changed during read')
+    P.need(identity(path.lstat())==identity(before),'empty packet record path changed')
+    return path
 
 
 def stage_packet(checkout,out,probe):
@@ -14,7 +37,7 @@ def stage_packet(checkout,out,probe):
     P.need(len(value.get('files',{}))==147,'exact accepted Setup5 packet required')
     out.mkdir(mode=0o700);target=out/'setup5';target.mkdir(mode=0o700)
     for name,row in [('index.json',P.ref(index)),*value['files'].items()]:
-        source=P.checked(checkout,dict(path=name,bytes=row['bytes'],sha256=row['sha256']))
+        source=packet_source(checkout,dict(path=name,bytes=row['bytes'],sha256=row['sha256']))
         dest=target/name;dest.parent.mkdir(parents=True,exist_ok=True,mode=0o700);shutil.copyfile(source,dest)
     readme=P.safe(checkout/'README.md');P.need(readme.is_file() and readme.stat().st_size==345,'accepted outer README shape')
     shutil.copyfile(readme,target/'README.md');proof=out/'passive-check';proof.mkdir(mode=0o700)
