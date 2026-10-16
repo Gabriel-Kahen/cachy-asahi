@@ -389,16 +389,36 @@
       "sha256": "e5d7dc11d1a59cf37a273e9a7103c7e55b169335b17c599990946f4e677ca974"
     },
     "scripts/ci/tools-generic16k/acquire_kernel.py": {
-      "bytes": 3510,
-      "sha256": "09601f994f25601b7242cb36f38c6b0ead58ab5188d61e27ffe813c737a854b3"
+      "bytes": 8844,
+      "sha256": "4a372e1f4bfbd1f8604579873fc6fbdec91ac2555bb36f028646017b44b8c23f"
     },
     "scripts/ci/tools-generic16k/build_kernel.py": {
       "bytes": 12822,
       "sha256": "3d1f25edbdd8d4ac4f48f5efcc756854e56d93cbaadeaefba3bdab2a1d32e9b1"
     },
+    "scripts/ci/tools-generic16k/cache-action.json": {
+      "bytes": 661,
+      "sha256": "ccb3e967a5b4b08b54886fc388d8a696a7c122984c20093d96347cfe6cec01f6"
+    },
     "scripts/ci/tools-generic16k/kernel.fragment": {
       "bytes": 815,
       "sha256": "6d91180b80138d2d8039efafaaa9ca31349baea22b90430cbb15e07bce02e8f6"
+    },
+    "scripts/ci/tools-generic16k/retained-kernel-asset.json": {
+      "bytes": 523,
+      "sha256": "96f578b9f82e3ed334330482746b730c1867b1de7634d3ac9519727e48325102"
+    },
+    "scripts/ci/tools-generic16k/retained_kernel.py": {
+      "bytes": 5419,
+      "sha256": "04a374fe025528a84249b318035d65b182c21d882402409053c0764d572373c6"
+    },
+    "scripts/ci/tools-generic16k/test_cache.py": {
+      "bytes": 13059,
+      "sha256": "58d031e9202b5903e11a62540ff7020d2a585c6d64b0904b36ca4674be32164b"
+    },
+    "scripts/ci/tools-generic16k/test_retained.py": {
+      "bytes": 6556,
+      "sha256": "72a1bfa077fda965a1aba48997e86c876fa73008eb299a7824b57bf873e9a7b1"
     },
     "scripts/ci/tools-native/highlighting_fixture.py": {
       "bytes": 3073,

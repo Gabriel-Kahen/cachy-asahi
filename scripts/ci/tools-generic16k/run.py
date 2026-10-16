@@ -12,6 +12,8 @@ import secrets
 import selectors
 import shutil
 import signal
+import socket
+import struct
 import stat
 import subprocess
 import sys
@@ -21,13 +23,18 @@ sys.path.insert(0,str(Path(__file__).resolve().parent))
 import support as s
 
 
-def supervise(argv,log,seconds,cap=1024**2):
+def supervise(argv,log,seconds,cap=1024**2,diagnostic=None):
     child=subprocess.Popen(argv,stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,start_new_session=True)
-    poll=selectors.DefaultSelector();data=bytearray();started=time.monotonic();natural=False
+    poll=selectors.DefaultSelector();data=bytearray();started=time.monotonic();natural=False;observed=False
     try:
         os.set_blocking(child.stdout.fileno(),False);poll.register(child.stdout,selectors.EVENT_READ)
         while poll.get_map() or os.waitid(os.P_PID,child.pid,os.WEXITED|os.WNOHANG|os.WNOWAIT) is None:
             s.need(time.monotonic()-started<seconds,'owned actor deadline')
+            remaining=started+seconds-time.monotonic()
+            if diagnostic is not None and not observed and time.monotonic()-started>=min(60,seconds-5) and remaining>3:
+                observed=True;state,collect=diagnostic
+                try:state.update(collect(child,bytes(data),min(started+seconds-1,time.monotonic()+2)))
+                except Exception as error:state.update(status='UNAVAILABLE',error_type=type(error).__name__,reason=str(error)[:160])
             for key,_ in poll.select(.05):
                 raw=os.read(key.fd,65536)
                 if not raw:poll.unregister(key.fileobj);continue
@@ -45,6 +52,98 @@ def supervise(argv,log,seconds,cap=1024**2):
     s.need(natural and absent,'natural actor exit and complete group retirement required')
     return code,bytes(data),dict(argv=list(map(str,argv)),exit=code,natural_exit=natural,group_absent=absent,
         seconds=round(time.monotonic()-started,6),bytes=len(data),sha256=s.sha(data))
+
+
+
+PROGRESS=('INIT_ENTER','PROC_BEGIN','PROC_READY','DEV_BEGIN','DEV_READY','PTS_BEGIN','PTS_READY',
+    'UNAME_BEGIN','UNAME_READY','PAGE_PROBE_BEGIN','PAGE_PROBE_READY','PYTHON_BEGIN','PYTHON_ENTER',
+    'PAYLOAD_BEGIN','PAYLOAD_READY','UID_READY','HIGHLIGHTING_BEGIN','HIGHLIGHTING_READY',
+    'SUBSTRING_BEGIN','SUBSTRING_READY','AUTOPAIR_BEGIN','AUTOPAIR_READY','MIRRORS_BEGIN','MIRRORS_READY','PYTHON_READY')
+
+
+def progress(raw,nonce):
+    rows=[]
+    for line in raw.replace(b'\r',b'').splitlines():
+        if not line.startswith(b'TOOLS16K_PROGRESS '):continue
+        words=line.decode('ascii').split()
+        s.need(len(words)==3 and words[1]==nonce and words[2] in PROGRESS and len(rows)<len(PROGRESS),
+               'bounded exact progress diagnostic required')
+        rows.append(words[2])
+    s.need(len(set(rows))==len(rows) and [PROGRESS.index(x) for x in rows]==sorted(PROGRESS.index(x) for x in rows),
+           'progress ordering/uniqueness differs')
+    return dict(markers=rows,last=rows[-1] if rows else None,acceptance_credit=False)
+
+
+def kernel_location(registers,receipt,config):
+    found=re.findall(r'(?:^|\s)PC=(?:0x)?([0-9a-fA-F]{8,16})(?:\s|$)',registers)
+    if len(found)!=1:return dict(status='NO_UNIQUE_PC')
+    pc=int(found[0],16)
+    if 'CONFIG_RANDOMIZE_BASE=y' in config.splitlines():return dict(status='KASLR_NOT_SYMBOLIZED',PC=hex(pc))
+    if not any(line in config.splitlines() for line in ('# CONFIG_RANDOMIZE_BASE is not set','CONFIG_RANDOMIZE_BASE=n')):
+        return dict(status='KASLR_STATE_UNCONFIRMED',PC=hex(pc))
+    path=Path(receipt['config']['path']).with_name('System.map');row=receipt['system_map']
+    s.need(path==Path(row['path']),'exact completed kernel symbol-map path required')
+    raw=s.read(path,2*1024**2);s.need(len(raw)==row['bytes'] and s.sha(raw)==row['sha256'],'actual symbol map differs')
+    symbols=[]
+    for line in raw.decode('ascii').splitlines():
+        fields=line.split();s.need(len(fields)==3 and re.fullmatch('[0-9a-fA-F]{8,16}',fields[0]),'symbol map row differs')
+        symbols.append((int(fields[0],16),fields[1],fields[2]))
+    s.need(len(symbols)<=100000 and symbols==sorted(symbols,key=lambda x:x[0]),'bounded ordered kernel symbols required')
+    lower=[row for row in symbols if row[0]<=pc];upper=[row for row in symbols if row[0]>pc]
+    if not lower or not upper:return dict(status='PC_OUTSIDE_SYMBOL_MAP',PC=hex(pc),map_sha256=s.sha(raw))
+    return dict(status='NEAREST_SYMBOL_ONLY_NOT_CALLSTACK',PC=hex(pc),map_sha256=s.sha(raw),KASLR='DISABLED',
+        lower=[dict(address=hex(a),type=t,name=n,offset=pc-a) for a,t,n in lower[-3:]],
+        upper=[dict(address=hex(a),type=t,name=n) for a,t,n in upper[:2]])
+
+
+def vm_observation(child,path,receipt,config,raw,nonce,deadline):
+    result=dict(status='UNAVAILABLE',acceptance_credit=False,progress=progress(raw,nonce))
+    info=path.lstat();s.need(stat.S_ISSOCK(info.st_mode) and info.st_uid==os.getuid() and
+        not any(p.is_symlink() for p in (path,*path.parents)),'exact private QMP socket required')
+    s.need(os.waitid(os.P_PID,child.pid,os.WEXITED|os.WNOHANG|os.WNOWAIT) is None,'live unreaped QEMU required')
+    with socket.socket(socket.AF_UNIX,socket.SOCK_STREAM) as stream:
+        pending=b'';total=0;messages=0
+        def bound():
+            remaining=deadline-time.monotonic();s.need(remaining>0,'QMP observation deadline');stream.settimeout(min(.5,remaining))
+        bound();stream.connect(str(path))
+        peer=struct.unpack('3i',stream.getsockopt(socket.SOL_SOCKET,socket.SO_PEERCRED,struct.calcsize('3i')))
+        s.need(peer==(child.pid,os.getuid(),os.getgid()),'QMP peer is not the exact owned QEMU')
+        def receive():
+            nonlocal pending,total,messages
+            while b'\n' not in pending:
+                bound();part=stream.recv(4096);s.need(part,'QMP observation EOF');total+=len(part)
+                s.need(total<=65536,'whole QMP observation byte bound');pending+=part
+            line,pending=pending.split(b'\n',1);messages+=1;s.need(messages<=24,'QMP observation message bound')
+            value=json.loads(line);s.need(type(value) is dict,'QMP object required');return value
+        s.need(type(receive().get('QMP')) is dict,'QMP greeting required')
+        def call(name,identifier,arguments=None):
+            value=dict(execute=name,id=identifier)
+            if arguments is not None:value['arguments']=arguments
+            bound();stream.sendall((json.dumps(value)+'\n').encode())
+            while True:
+                response=receive()
+                if 'event' in response:continue
+                s.need(response.get('id')==identifier and 'return' in response and 'error' not in response,'exact QMP response required')
+                return response['return']
+        call('qmp_capabilities',1)
+        result.update(peer=dict(pid=peer[0],uid=peer[1],gid=peer[2]),qemu_status=call('query-status',2),
+            cpus=call('query-cpus-fast',3))
+        registers=call('human-monitor-command',4,dict(command_line='info registers'))
+        s.need(type(registers) is str and len(registers.encode())<=16384,'bounded read-only register response required')
+        result.update(status='READ_ONLY_OWNED_QEMU_OBSERVED',registers=registers)
+        try:result['kernel_location']=kernel_location(registers,receipt,config)
+        except Exception as error:result['kernel_location']=dict(status='UNAVAILABLE',error_type=type(error).__name__,reason=str(error)[:160])
+        s.need(os.waitid(os.P_PID,child.pid,os.WEXITED|os.WNOHANG|os.WNOWAIT) is None,'QEMU exited during observation')
+        s.need(len(json.dumps(result).encode())<=65536,'whole VM observation receipt bound')
+    return result
+
+
+def uart_observation(raw,nonce):
+    s.need(len(raw)<=1024**2,'existing UART bound')
+    report=dict(bytes=len(raw),sha256=s.sha(raw),progress=progress(raw,nonce),acceptance_credit=False)
+    samples=[(0,raw)] if len(raw)<=65536 else [(0,raw[:8192]),(len(raw)-8192,raw[-8192:])]
+    report['samples']=[dict(offset=offset,bytes=len(data),sha256=s.sha(data),base64=base64.b64encode(data).decode()) for offset,data in samples]
+    report['complete']=len(raw)<=65536;return report
 
 
 def query(argv):
@@ -137,20 +236,34 @@ def init(nonce,release):
     return f'''#!/usr/bin/bash
 export PATH=/usr/bin:/bin HOME=/tmp LC_ALL=C LANG=C PYTHONDONTWRITEBYTECODE=1
 fail() {{ printf 'TOOLS16K FAIL {nonce}\\n'; exec /smoke poweroff; }}
+progress() {{ printf 'TOOLS16K_PROGRESS {nonce} %s\\n' \"$1\"; }}
+progress INIT_ENTER
+progress PROC_BEGIN
 /usr/bin/mount -t proc -o nosuid,nodev,noexec proc /proc || fail
+progress PROC_READY
+progress DEV_BEGIN
 /usr/bin/mount -t devtmpfs -o nosuid devtmpfs /dev || fail
+progress DEV_READY
 /usr/bin/mkdir -m 0755 /dev/pts || fail
+progress PTS_BEGIN
 /usr/bin/mount -t devpts -o newinstance,ptmxmode=0666,mode=0620 devpts /dev/pts || fail
 /usr/bin/rm -f /dev/ptmx || fail
 /usr/bin/ln -s pts/ptmx /dev/ptmx || fail
 /usr/bin/ln -s /proc/self/fd /dev/fd || fail
+progress PTS_READY
+progress UNAME_BEGIN
 machine=$(/usr/bin/uname -m) || fail
 release=$(/usr/bin/uname -r) || fail
 page=$(/usr/bin/getconf PAGESIZE) || fail
 printf 'UNAME16K %s %s\\nGETCONF16K %s\\n' "$machine" "$release" "$page"
 [[ "$machine" == aarch64 && "$release" == '{release}' && "$page" == 16384 ]] || fail
+progress UNAME_READY
+progress PAGE_PROBE_BEGIN
 /smoke || fail
+progress PAGE_PROBE_READY
+progress PYTHON_BEGIN
 /usr/bin/python3 -I -B /guest.py '{nonce}' '{release}' || fail
+progress PYTHON_READY
 printf 'TOOLS16K PASS {nonce}\\n'
 exec /smoke poweroff
 '''.encode()
@@ -291,12 +404,18 @@ def trial(args):
             'etc/nsswitch.conf':(stat.S_IFREG|0o644,b'passwd: files\ngroup: files\n'),
             'proc':(stat.S_IFDIR|0o555,b''),'dev':(stat.S_IFDIR|0o755,b''),'tmp':(stat.S_IFDIR|0o1777,b'')})
         ramfs=args.private/'initramfs.cpio';ramfs.write_bytes(generic.cpio(files))
+        report['boot_inputs']=dict(nonce=nonce,init=dict(mode=stat.S_IMODE(files['init'][0]),bytes=len(files['init'][1]),sha256=s.sha(files['init'][1]),text=files['init'][1].decode()),
+            payload_manifest=dict(bytes=len(raw),sha256=s.sha(raw)),initramfs=dict(bytes=ramfs.stat().st_size,sha256=s.sha(s.read(ramfs,300*1024**2))),
+            captured_python=receipt['files']['usr/bin/python3'],guest_script=receipt['files']['guest.py'])
         argv=[qemu,'-nodefaults','-machine','virt','-accel','tcg','-cpu','max','-smp','1','-m','1024','-kernel',str(copied),
               '-initrd',str(ramfs),'-append',generic.boot_arguments(True)+' tools16k=1',
-              '-nic','none','-display','none','-monitor','none','-serial','stdio','-no-reboot']
-        report.update(qemu_argv=argv,tools={n:s.sha(s.read(p,64*1024**2)) for n,p in (('clang',Path(clang).resolve()),('ld.lld',Path(linker).resolve()),('qemu',Path(qemu).resolve()))},
+              '-nic','none','-display','none','-monitor','none','-serial','stdio','-no-reboot',
+              '-qmp','unix:'+str(args.private/'qmp.sock')+',server=on,wait=off']
+        report.update(qemu_argv=argv,qemu_argv_sha256=s.sha((json.dumps(argv,separators=(',',':'))+'\n').encode()),tools={n:s.sha(s.read(p,64*1024**2)) for n,p in (('clang',Path(clang).resolve()),('ld.lld',Path(linker).resolve()),('qemu',Path(qemu).resolve()))},
                       initramfs_sha256=s.sha(s.read(ramfs,300*1024**2)),page_probe_sha256=s.sha(binary))
-        code,uart,actor=supervise(argv,args.private/'uart.log',900);report['actors'].append(actor)
+        report['vm_observation']=dict(status='NOT_ATTEMPTED',acceptance_credit=False)
+        diagnostic=(report['vm_observation'],lambda child,raw,deadline:vm_observation(child,args.private/'qmp.sock',kr,report['kernel_config'],raw,nonce,deadline))
+        code,uart,actor=supervise(argv,args.private/'uart.log',900,diagnostic=diagnostic);report['actors'].append(actor)
         report.update(guest=guest_report(uart,code,nonce,release,receipt),natural_VM_exit=True,QEMU_exit=code,
                       uart=dict(bytes=len(uart),sha256=s.sha(uart)),status='PASS_SMOKE_AWAITING_PRODUCER_RETIREMENT')
     except BaseException as error:
@@ -308,6 +427,7 @@ def trial(args):
                 path=args.private/filename
                 if path.exists():
                     data=s.read(path,1024**2);tail=data[-8192:]
+                    if filename=='uart.log' and 'boot_inputs' in report:report['uart_observation']=uart_observation(data,report['boot_inputs']['nonce'])
                     report['log_tails'][filename]=dict(bytes=len(data),tail_sha256=s.sha(tail),tail_base64=base64.b64encode(tail).decode())
         except BaseException as error:report.update(status='FAIL',log_export_error=type(error).__name__)
         old=signal.getsignal(signal.SIGALRM)

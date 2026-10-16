@@ -1,8 +1,8 @@
 {
   "files": {
     ".github/workflows/native-arm-fish-done-generic16k.yml": {
-      "bytes": 11937,
-      "sha256": "0aea381f91ef714e30d89e24f4e7d189ef5a305d092892064e191f6bf07b4e58"
+      "bytes": 16062,
+      "sha256": "4b683514a58f336122797078d43fc3f09cabb4ccb4c92d6b66a8898119d43e69"
     },
     "packages/desktop/cachy-asahi-hyprland-settings/.SRCINFO": {
       "bytes": 1811,
@@ -213,8 +213,8 @@
       "sha256": "5e3540a853c96616f6767e86df152a87747299c6f8b5c36f41cc51ae7f3403cd"
     },
     "scripts/ci/fish-done-generic16k/README.md": {
-      "bytes": 10050,
-      "sha256": "021f4b683d687526ab3f3055ebd5f156d243ff103bf6e05c8ad8f0564fa38e1a"
+      "bytes": 13448,
+      "sha256": "03cd4a49c85a9e1e6ae27b337ba3899a5ae43c8a55055291aff66771c46130f9"
     },
     "scripts/ci/fish-done-generic16k/acquire_kernel.py": {
       "bytes": 3510,
@@ -225,8 +225,8 @@
       "sha256": "ded9590581244daeadf3a47d20b5f11577a0f1088708814cb914091e5d81f37b"
     },
     "scripts/ci/fish-done-generic16k/dependencies.json": {
-      "bytes": 12611,
-      "sha256": "c3140cbf712024d8b0a3d36ee4a2872624bd18e9c37e263fb323011aa461ba96"
+      "bytes": 13611,
+      "sha256": "66e0e38c8c18a99000a735fafa3fcceb36341447e9f24c0a5e70695ebea885de"
     },
     "scripts/ci/fish-done-generic16k/guest.py": {
       "bytes": 13647,
@@ -276,13 +276,37 @@
       "bytes": 19082,
       "sha256": "e5d7dc11d1a59cf37a273e9a7103c7e55b169335b17c599990946f4e677ca974"
     },
+    "scripts/ci/tools-generic16k/acquire_kernel.py": {
+      "bytes": 8844,
+      "sha256": "4a372e1f4bfbd1f8604579873fc6fbdec91ac2555bb36f028646017b44b8c23f"
+    },
     "scripts/ci/tools-generic16k/build_kernel.py": {
       "bytes": 12822,
       "sha256": "3d1f25edbdd8d4ac4f48f5efcc756854e56d93cbaadeaefba3bdab2a1d32e9b1"
     },
+    "scripts/ci/tools-generic16k/cache-action.json": {
+      "bytes": 661,
+      "sha256": "ccb3e967a5b4b08b54886fc388d8a696a7c122984c20093d96347cfe6cec01f6"
+    },
     "scripts/ci/tools-generic16k/kernel.fragment": {
       "bytes": 815,
       "sha256": "6d91180b80138d2d8039efafaaa9ca31349baea22b90430cbb15e07bce02e8f6"
+    },
+    "scripts/ci/tools-generic16k/retained-kernel-asset.json": {
+      "bytes": 523,
+      "sha256": "96f578b9f82e3ed334330482746b730c1867b1de7634d3ac9519727e48325102"
+    },
+    "scripts/ci/tools-generic16k/retained_kernel.py": {
+      "bytes": 5419,
+      "sha256": "04a374fe025528a84249b318035d65b182c21d882402409053c0764d572373c6"
+    },
+    "scripts/ci/tools-generic16k/test_cache.py": {
+      "bytes": 13059,
+      "sha256": "58d031e9202b5903e11a62540ff7020d2a585c6d64b0904b36ca4674be32164b"
+    },
+    "scripts/ci/tools-generic16k/test_retained.py": {
+      "bytes": 6556,
+      "sha256": "72a1bfa077fda965a1aba48997e86c876fa73008eb299a7824b57bf873e9a7b1"
     },
     "scripts/ci/welcome-managed-gui/candidates.py": {
       "bytes": 6435,
@@ -351,5 +375,5 @@
   },
   "schema_version": 1,
   "scope": "PRIVATE_GENERIC_ARM64_16K_FISH_DONE_RECORDER_PTY_ONLY",
-  "status": "SOURCE_ONLY_FAILED_DRIVER_DIAGNOSTIC_NO_PRODUCT_CHANGE_ACTUAL_NOT_RUN"
+  "status": "SOURCE_ONLY_EXACT_KERNEL_CACHE_AND_RETAINED_ASSET_SEED_ACTUAL_NOT_RUN"
 }

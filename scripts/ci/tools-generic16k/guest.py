@@ -82,14 +82,23 @@ def owned_absent():
     return True
 
 
+
+def progress(nonce,phase):
+    need(len(nonce)==32 and all(c in '0123456789abcdef' for c in nonce),'progress nonce differs')
+    print('TOOLS16K_PROGRESS '+nonce+' '+phase,flush=True)
+
+
 def exercise(nonce,release):
     need(os.geteuid()==0 and os.uname().machine=='aarch64' and os.uname().release==release and
          os.sysconf('SC_PAGE_SIZE')==16384 and 'tools16k=1' in Path('/proc/cmdline').read_text().split(),
          'marked generic16K guest required')
+    progress(nonce,'PYTHON_ENTER');progress(nonce,'PAYLOAD_BEGIN')
     manifest_raw=read(Path('/payload.json'),1024**2);manifest=json.loads(manifest_raw);payload_identity(manifest)
+    progress(nonce,'PAYLOAD_READY')
     root=Path('/tmp/tools16k');root.mkdir(mode=0o700);os.chown(root,23001,23001)
     os.setgroups([]);os.setgid(23001);os.setuid(23001)
     need(os.getuid()==os.geteuid()==os.getgid()==23001,'private unprivileged guest identity')
+    progress(nonce,'UID_READY')
     owned_absent()
     home=root/'user';home.mkdir(mode=0o700)
     for name in ('config','cache','data','state','runtime'):
@@ -103,10 +112,13 @@ def exercise(nonce,release):
     def call(argv,expected=0,seconds=30):
         row,out=command(argv,env,expected,seconds);row['owned_processes_absent']=owned_absent();commands.append(row);return out
     fixtures={}
+    progress(nonce,'HIGHLIGHTING_BEGIN')
     highlight=root/'highlighting';highlight.mkdir(mode=0o700)
     fixtures['highlighting']=json.loads(call(['/usr/bin/python3','-I','-B','/fixtures/highlighting.py',str(highlight)],seconds=180))
     need(fixtures['highlighting']['status']=='PASS_INSTALLED_ZLE' and fixtures['highlighting']['natural_exit']==0 and
          len(fixtures['highlighting']['snapshots'])==2,'real mapped highlighting fixture failed')
+    progress(nonce,'HIGHLIGHTING_READY')
+    progress(nonce,'SUBSTRING_BEGIN')
     substring=root/'substring';substring.mkdir(mode=0o700)
     call(['/usr/bin/python3','-I','-B','/fixtures/substring.py','--module-dir',
           '/usr/share/cachy-asahi/zsh-history-substring-search','--work',str(substring),
@@ -114,6 +126,8 @@ def exercise(nonce,release):
     fixtures['substring']=json.loads(read(substring/'receipt.json'))
     need(fixtures['substring']['status']=='PASS_HOST_ZSH_PTY_CONTROLS' and len(fixtures['substring']['tests'])==6 and
          all(r['status']=='PASS' and r['exit']==0 for r in fixtures['substring']['tests']),'complete substring fixtures failed')
+    progress(nonce,'SUBSTRING_READY')
+    progress(nonce,'AUTOPAIR_BEGIN')
     autopair=root/'autopair'
     call(['/usr/bin/python3','-I','-B','/fixtures/autopair.py','--source',
           '/usr/share/cachy-asahi/fish-autopair','--output',str(autopair)],seconds=180)
@@ -121,6 +135,8 @@ def exercise(nonce,release):
     cases=fixtures['autopair']['cases']
     need(fixtures['autopair']['status']=='PASS' and len(cases)==14 and all(r['exit']==0 for r in cases.values()) and
          sum(len(r.get('snapshots',[])) for r in cases.values())==57,'complete real Fish pair editing failed')
+    progress(nonce,'AUTOPAIR_READY')
+    progress(nonce,'MIRRORS_BEGIN')
     mirror=root/'mirrors';mirror.mkdir(mode=0o700)
     catalog=mirror/'catalog.json';candidate=mirror/'candidate';target=mirror/'mirrorlist';state=mirror/'journal.json'
     config=dict(schema_version=1,architecture='aarch64',base='asahi-alarm',repository='core',
@@ -151,6 +167,7 @@ def exercise(nonce,release):
          json.loads(read(conflict))['phase']=='ACTIVE','mirror edited target was overwritten or journal intent lost')
     need(snapshot(home)==protected,'caller configuration changed');payload_identity(manifest);owned_absent()
     need(len(commands)==11,'complete finite tool command set required')
+    progress(nonce,'MIRRORS_READY')
     return dict(status='PASS_GENERIC_16K_MAPPED_TOOLS_PTY_CLI_ONLY',nonce=nonce,architecture='aarch64',page_size=16384,
         kernel=release,uid=os.getuid(),commands=commands,fixtures=fixtures,
         mirrors=dict(version='0.2.0',catalog_sha256=catalog_sha,candidate_sha256=sha(raw),original_sha256=sha(original),
