@@ -28,6 +28,19 @@ def prepare(source,output,assets):
     for name in ('native_contract.py','input-policy.json','infrastructure-pins.json','installed.py','management_contract.py','management_phase.py','management_root.py','a11y_driver.c','candidates.py'):
         shutil.copyfile(HERE/name,output/name)
     shutil.copyfile(source/'scripts/ci/welcome-native/lifecycle.py',output/'accepted_lifecycle.py')
+    # Both guest.py and the independent Doctor terminal use python -I. Register
+    # only these pinned siblings through their existing file loader, in order.
+    for filename,anchor,names in (
+        ('desktop574_guest.py','\ndef main():',('management_contract','management_root','management_phase')),
+        ('doctor_worker.py',"\nC=load('doctor_gui_contract','gui_contract.py')",('management_contract','management_root')),
+    ):
+        text=(output/filename).read_text()
+        if filename=='doctor_worker.py':
+            text=replace(text,'import time\n','import time\nimport sys\n')
+            text=replace(text,'module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module);return module',
+                'module=importlib.util.module_from_spec(spec);sys.modules[name]=module;spec.loader.exec_module(module);return module')
+        imports=''.join("\nload(%r,%r)"%(name,name+'.py') for name in names)
+        (output/filename).write_text(replace(text,anchor,imports+'\n'+anchor))
     # Adapter contracts are materialized independently of archive bytes, then hash-bound below.
     gui=(output/'gui_contract.py').read_text()
     gui=replace(gui,"version='0.1.0-1'","version=('0.1.0-2' if name=='cachy-asahi-welcome' else '0.1.0-1')")

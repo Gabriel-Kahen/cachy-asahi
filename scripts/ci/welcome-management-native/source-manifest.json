@@ -429,16 +429,16 @@
       "sha256": "23d19817d7751ce73ab1e772f5c7724305fb8e91723c273b15f41f947cb6c81f"
     },
     "scripts/ci/welcome-management-native/prepare.py": {
-      "bytes": 8788,
-      "sha256": "3c39f4ae3c9118502212bf6e832c9dc635d1a54b06d5f95a4f420117e2c8ad75"
+      "bytes": 9797,
+      "sha256": "fdf722cf964ff7f7ae5c72b731661a4ead006c637f6db4929b22f662b48e9031"
     },
     "scripts/ci/welcome-management-native/run.py": {
       "bytes": 12928,
       "sha256": "f04a8ebada6892d1119fc3b43dd83809c9cde75cef5b8eebb417b635819bdbe7"
     },
     "scripts/ci/welcome-management-native/test_gui.py": {
-      "bytes": 13795,
-      "sha256": "be63229d9505f2929f49d2d22099bd389bfbf80cba2c60214de5a2cdc7a92e04"
+      "bytes": 15715,
+      "sha256": "95efee5c2a30b9937e5f4dc32f4b3e5983aed7f06cd977c7bbf753c60e39a311"
     },
     "scripts/ci/welcome-management-native/test_native.py": {
       "bytes": 23645,
