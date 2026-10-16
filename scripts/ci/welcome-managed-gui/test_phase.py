@@ -47,6 +47,31 @@ def managed_events(first):
             runtime_absent=True,owned_units_stopped=True),dict(event='complete',status='PASS')]
 
 
+class AccessibilityResult(unittest.TestCase):
+    def test_actual_nonzero_empty_stdout_retains_command_and_stderr(self):
+        stderr=b'Welcome accessibility failure: one showing control required: contract refused\n'
+        with self.assertRaisesRegex(ValueError,'activate System; exit=2; stderr=Welcome accessibility failure: one showing control required'):
+            S.accessibility_result(b'',stderr,2,551,'activate','System')
+
+    def test_zero_exit_empty_malformed_and_nonobject_json_stay_fatal(self):
+        for raw in (b'',b' \n',b'not-json',b'{',b'\xff',b'null',b'[]'):
+            with self.subTest(raw=raw),self.assertRaises(ValueError):S.accessibility_result(raw,b'',0,551,'snapshot')
+
+    def test_success_cannot_override_nonzero_exit_wrong_pid_or_status(self):
+        for code,value in ((2,dict(status='PASS',pid=551)),(0,dict(status='PASS',pid=999)),(0,dict(status='FAIL',pid=551))):
+            with self.subTest(code=code,value=value),self.assertRaises(ValueError):
+                S.accessibility_result(json.dumps(value).encode(),b'',code,551,'activate','System')
+
+    def test_owned_success_and_exact_initial_pending_contract(self):
+        raw=b'{"status":"PASS","pid":551,"actions":1}'
+        self.assertEqual(S.accessibility_result(raw,b'',0,551,'activate','System'),json.loads(raw))
+        waiting=b'{"status":"WAITING_FOR_OWNED_WELCOME"}\n'
+        self.assertIsNone(S.accessibility_result(waiting,b'',75,551,'snapshot',pending=True))
+        for output,stderr,pending in ((waiting,b'',False),(waiting,b'error',True),(b'',b'',True),(raw,b'',True)):
+            with self.subTest(output=output,stderr=stderr,pending=pending),self.assertRaises(ValueError):
+                S.accessibility_result(output,stderr,75,551,'snapshot',pending=pending)
+
+
 class Phase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -202,7 +227,7 @@ class Phase(unittest.TestCase):
 
     def test_failed_gtk_action_retires_every_actor_without_phase_pass(self):
         self.bad_action='Updates'
-        with self.assertRaisesRegex(ValueError,'accessibility operation failed'):self.run_phase()
+        with self.assertRaisesRegex(ValueError,'accessibility command failed'):self.run_phase()
         self.retired();self.assertNotIn('phase_pass',[e['event'] for e in self.events])
 
     def test_worker_failure_reason_is_retained_before_welcome_and_after_cleanup(self):

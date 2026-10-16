@@ -46,6 +46,21 @@ def failure(stage,checkpoint,error,workspace):
     return result
 
 
+def accessibility_result(raw,stderr,code,pid,operation,label=None,pending=False):
+    if pending and code==75 and not stderr:
+        try:value=json.loads(raw)
+        except (ValueError,UnicodeError):value=None
+        if value==dict(status='WAITING_FOR_OWNED_WELCOME'):return None
+    C.need(code==0,'owned Welcome accessibility command failed: '+operation+' '+(label or '')+
+           '; exit='+str(code)+'; stderr='+stderr.decode(errors='replace').strip()[:512])
+    C.need(raw.strip(),'owned Welcome accessibility command returned empty JSON')
+    try:value=json.loads(raw)
+    except (ValueError,UnicodeError):raise ValueError('owned Welcome accessibility command returned malformed JSON') from None
+    C.need(type(value) is dict and value.get('status')=='PASS' and value.get('pid')==pid,
+           'owned Welcome accessibility operation failed')
+    return value
+
+
 def phase(stage,config,env,logs):
     compositor=doctor=welcome=settings=thunar=observed=None;first=None;sequence=0;selected=None
     checkpoint='startup'
@@ -100,11 +115,8 @@ def phase(stage,config,env,logs):
                 except BaseException as caught:
                     if error is None:error=caught
         if error is not None:raise error
-        value=json.loads(C.read(actor.paths[0]));stderr=C.read(actor.paths[1])
-        if pending and actor.process.returncode==75 and value==dict(status='WAITING_FOR_OWNED_WELCOME') and not stderr:return None
-        C.need(actor.process.returncode==0 and value.get('status')=='PASS' and value.get('pid')==welcome.process.pid,
-               'owned Welcome accessibility operation failed')
-        return value
+        return accessibility_result(C.read(actor.paths[0]),C.read(actor.paths[1]),actor.process.returncode,
+                                    welcome.process.pid,operation,label,pending)
 
     def page(view,text_sha=None,initial=False):
         def ready():

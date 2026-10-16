@@ -25,6 +25,13 @@ static gboolean state(AtspiStateSet *states, AtspiStateType value)
     return states && atspi_state_set_contains(states, value);
 }
 
+static gboolean control_role(AtspiRole role, const char *name)
+{
+    return role == ATSPI_ROLE_BUTTON || role == ATSPI_ROLE_TOGGLE_BUTTON || role == ATSPI_ROLE_PAGE_TAB ||
+        (role == ATSPI_ROLE_RADIO_BUTTON &&
+         (!strcmp(name, "Welcome") || !strcmp(name, "System") || !strcmp(name, "Guides")));
+}
+
 static void walk(AtspiAccessible *node, guint depth)
 {
     check(depth <= 12 && nodes < 192, "tree bound");
@@ -33,8 +40,7 @@ static void walk(AtspiAccessible *node, guint depth)
     AtspiRole role = atspi_accessible_get_role(node, &error); check(TRUE, "node role");
     AtspiStateSet *states = atspi_accessible_get_state_set(node);
     gboolean showing = state(states, ATSPI_STATE_SHOWING);
-    if (wanted && showing && !strcmp(name, wanted) &&
-        (role == ATSPI_ROLE_BUTTON || role == ATSPI_ROLE_TOGGLE_BUTTON || role == ATSPI_ROLE_PAGE_TAB)) {
+    if (wanted && showing && !strcmp(name, wanted) && control_role(role, name)) {
         check(state(states, ATSPI_STATE_ENABLED) && state(states, ATSPI_STATE_SENSITIVE), "disabled control");
         matches++; if (!target) target = g_object_ref(node);
     }
