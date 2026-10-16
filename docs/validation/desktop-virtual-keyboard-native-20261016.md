@@ -1,5 +1,17 @@
 # Virtual keyboard native trial
 
+## Complete virtual-keyboard acceptance38906151222
+
+[Actual38906151222](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38906151222) **PASS** for the complete generic ARM virtual-keyboard workflow in both minimal and shipped overlay profiles. Source/workflow `4ea252fa227ff2af6f2577f4ad3b2a43a7e61c3a`, parent `2af636741b4b801015ac650a9e19be3f25f2a998`, workflow SHA256 `e51572661474492efc3c0d7c4710d795e7db85a688cc1430ad08b6d4355d599b`,51-source manifest `12720855621640e9eef42eade791d9d68f6314e4564b079935034622475b1298`. Root joins all51 frozen sources/17 generated runner files and independently replays all215 retained events.
+
+Root independently views all six original captures from this actual: shell output, interactive Vim saved editor text and concatenated result in each profile. All expected nonce-bearing text is readable. Eighteen exact request/receipt pairs use QMP input-send-event through the QEMU virtio keyboard. The shipped SUPER+RETURN shortcut launches Alacritty/Bash; key-only cd is independently joined to the owned Bash cwd; exact shell file bytes pass. Real Vim receives, edits and saves exact40-byte text, quits through typed keys, and the shell's concatenated result passes exact readback. SUPER+Q retires the owned terminal/shell. Process/PTY/focus/input-device/managed-bus/configuration joins and all capture ordering pass.
+
+Shell, Vim and Terminal are observed nonchildren: exit codes remain `UNOBSERVED_NONCHILD`, with pidfd retirement and absence verified. Both compositor exits are normal0. Minimal stdout393199 bytes/overlay2614 bytes are below2MiB; both stderr1088 bytes are below256KiB, with complete drains and no errors/overflow. Managed unit/runtime retirement, all14 runtime cleanup records, image/base-reference cleanup and owned574 producer image/probe absence pass. Runtime package count is591.
+
+Logs:224363 bytes/SHA256 `06c89cc758d0e3a58a70a9827769bdc48bae940724bbf084e0cd836005b2c05d`. Artifact12049468112:305203 compressed bytes/SHA256 `627e8ed385a847f85c3cca6f3202b9888f360c0680b66eb3dfbd97d2482cb96d`; all46 closed files/15010395 raw bytes join. All six original PPMs are2359312 bytes each. Root's separate verification supplies visual acceptance; original retention metadata remains truthfully pending that external visual step.
+
+This is generic aarch64/4096-byte-page keyboard-route software acceptance. The500ms chord spacing and10s initial settle are explicit VM test policy, not measured latency or performance. No host desktop input is used. Physical Apple keyboard/trackpad, M2/16K GUI, acceleration and release admission remain NOT RUN. Earlier failed actuals remain FAIL.
+
 ## Shell delivery passes; compositor log retry queued
 
 [Actual38904379501](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38904379501) passes the key-only workspace change, passive owned Bash cwd join, exact39-byte shell file and first minimal shell capture. Root views the shell capture: the nonce and command are readable. The workflow reaches Vim, sends editor text/save, then fails the compositor logger's256KiB stdout cap. The first failure diagnostic finds no edit file yet; the later diagnostic image shows Vim's40-byte write acknowledgement. That later image does not establish file hash acceptance. Root views it as diagnostic evidence only. Hyprland is killed during failure cleanup and exits-9; no normal retirement is claimed. All14 outer runtime cleanup records pass.
