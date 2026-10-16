@@ -1,0 +1,135 @@
+{
+  "schema_version": 1,
+  "status": "built-package-static-pass",
+  "hardware_status": "NOT RUN",
+  "mode": "native",
+  "image": "sha256:c7a2f6a39e128983128a3c10cb2c6ba1ffcad0ade6917a1dfc041e8b9324ba25",
+  "source_date_epoch": 1791748800,
+  "network": "none",
+  "started_utc": "2026-10-15T16:02:58.741661+00:00",
+  "recipe_inputs": {
+    ".SRCINFO": "fd7ce4ce1c33534b1b168bfe6166463cd8d74ce602f0469b62d5f9d475081504",
+    "LICENSE.project": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+    "LICENSE.upstream": "4598a6be0b8d7f2b708da5259d2a30d4e15e59b3c66781bab9e27744a9f859d8",
+    "NOTICE": "9171e9a773c8b7c60ae8e489608f7ef4a4dba3a762156aa57e4673960ab2c921",
+    "PKGBUILD": "dbcd109f38f75e8bda2c79a5b368961319a57ea7c618987d242cb90b79185408",
+    "README.md": "775d480926b42496f937aaa019978ae26db6d21cbfa331ef33999f1874c1e4fd",
+    "check-module.py": "fa81e94383b3d7caa1522ea6be165579ba7a4d0775f6cc7f1e14c343fb6946bc",
+    "integration-proposal.json": "40949e6667a2859c7fbc8ce82b78183db3bf353669e2ea1291ff47c2551d6c3d",
+    "opt-in.zsh": "692bca1e9ba1a2e9bd32de08cb6ffa5d15b19f85b48e1c08d85a48e41fe6f768",
+    "source-provenance.json": "0e46b589fefba600766591e8cc02897111c5f45e17415f4a2aac004d46418f36",
+    "usage.md": "3b43dee6a8f3c20796bb6e0965fd60b3b2e7b7e8c2d508efc011ba36aada6760",
+    "zsh-autosuggestions.zsh": "eec7ba8f7a71414ace0ea0fab0908d005b24cf65d83b169c0ff97815d3cfc51a"
+  },
+  "recipe_metadata": {
+    "pkgbase": [
+      "cachy-asahi-zsh-autosuggestions"
+    ],
+    "pkgdesc": [
+      "Opt-in pinned Zsh history autosuggestions for cachy-asahi"
+    ],
+    "pkgver": [
+      "0.7.1"
+    ],
+    "pkgrel": [
+      "1"
+    ],
+    "url": [
+      "https://github.com/zsh-users/zsh-autosuggestions"
+    ],
+    "arch": [
+      "any"
+    ],
+    "license": [
+      "MIT"
+    ],
+    "depends": [
+      "zsh>=4.3.11"
+    ],
+    "optdepends": [
+      "coreutils: stty for upstream optional completion suggestions"
+    ],
+    "source": [
+      "zsh-autosuggestions.zsh",
+      "opt-in.zsh",
+      "usage.md",
+      "NOTICE",
+      "LICENSE.upstream",
+      "LICENSE.project"
+    ],
+    "sha256sums": [
+      "eec7ba8f7a71414ace0ea0fab0908d005b24cf65d83b169c0ff97815d3cfc51a",
+      "692bca1e9ba1a2e9bd32de08cb6ffa5d15b19f85b48e1c08d85a48e41fe6f768",
+      "3b43dee6a8f3c20796bb6e0965fd60b3b2e7b7e8c2d508efc011ba36aada6760",
+      "9171e9a773c8b7c60ae8e489608f7ef4a4dba3a762156aa57e4673960ab2c921",
+      "4598a6be0b8d7f2b708da5259d2a30d4e15e59b3c66781bab9e27744a9f859d8",
+      "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    ],
+    "pkgname": [
+      "cachy-asahi-zsh-autosuggestions"
+    ]
+  },
+  "builder_host_arch": "aarch64",
+  "image_id": "sha256:c7a2f6a39e128983128a3c10cb2c6ba1ffcad0ade6917a1dfc041e8b9324ba25",
+  "expected_packages_sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25",
+  "entry_script_sha256": "89723f0a0b2ef80391160f451e877f15fb1e0c4d9a4fec6dbbb8e0d66d8d0f24",
+  "command": [
+    "docker",
+    "run",
+    "--rm",
+    "--name",
+    "cachy-asahi-435574ec880f4ad8",
+    "--pull=never",
+    "--platform",
+    "linux/arm64",
+    "--user",
+    "1001:1001",
+    "--cap-drop=ALL",
+    "--security-opt=no-new-privileges",
+    "--read-only",
+    "--pids-limit",
+    "512",
+    "--memory",
+    "4g",
+    "--cpus",
+    "4",
+    "--network",
+    "none",
+    "--tmpfs",
+    "/tmp:rw,nosuid,nodev,exec,size=4g",
+    "--env",
+    "CACHY_ASAHI_CONTAINER=1",
+    "--env",
+    "SOURCE_DATE_EPOCH=1791748800",
+    "--mount",
+    "type=bind,src=/home/runner/work/_temp/tools-evidence/cachy-asahi-zsh-autosuggestions/current-1/inputs,dst=/inputs,readonly",
+    "--mount",
+    "type=bind,src=/home/runner/work/_temp/tools-evidence/cachy-asahi-zsh-autosuggestions/current-1/artifacts,dst=/out",
+    "--mount",
+    "type=bind,src=/home/runner/work/cachy-asahi/cachy-asahi/scripts/build/container-entry.sh,dst=/builder-entry.sh,readonly",
+    "--mount",
+    "type=bind,src=/home/runner/work/_temp/tools-evidence/cachy-asahi-zsh-autosuggestions/current-1/expected-packages.lock,dst=/expected-packages.lock,readonly",
+    "--entrypoint",
+    "/bin/bash",
+    "sha256:c7a2f6a39e128983128a3c10cb2c6ba1ffcad0ade6917a1dfc041e8b9324ba25",
+    "/builder-entry.sh"
+  ],
+  "clean_environment_id": "cachy-asahi-435574ec880f4ad8",
+  "exit_code": 0,
+  "artifacts": {
+    "cachy-asahi-zsh-autosuggestions-0.7.1-1-any.pkg.tar.xz": "ff59a185f52e80dc4fd08c666d093cccefa3e57f2513085c900602da597f29b9"
+  },
+  "files": {
+    "artifacts/cachy-asahi-zsh-autosuggestions-0.7.1-1-any.pkg.tar.xz": "ff59a185f52e80dc4fd08c666d093cccefa3e57f2513085c900602da597f29b9",
+    "artifacts/config.sha256": "8309cb4c0409ccdc1ca922475dde9377aec434911efc453299f41e8fadb234ec",
+    "artifacts/environment.txt": "2eb8d352e61787147b0ee727b67a8afeb62ef255af69708d0baac042b8aaf6a8",
+    "artifacts/generated.SRCINFO": "fd7ce4ce1c33534b1b168bfe6166463cd8d74ce602f0469b62d5f9d475081504",
+    "artifacts/makepkg.conf": "cfcf0bd2601d887724c5ca7d9a48ac5dd347abad9e8ac5efa436080e45822a60",
+    "artifacts/packages.lock": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25",
+    "artifacts/pacman.conf": "14d304eeb83baf1379279356c232580fd095c2d508b41c74677347801a0bafe7",
+    "expected-packages.lock": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25",
+    "build.log": "5abacae27fa831fc21826f5ee23e91ce06a2f1b6aa098d2c38543ab0157a59da",
+    "validation.json": "f00969ad81e090a1e58fb20e1103b1bd0a68455c5e45ba73fe46e304f06e2dcc"
+  },
+  "finished_utc": "2026-10-15T16:03:02.917054+00:00"
+}

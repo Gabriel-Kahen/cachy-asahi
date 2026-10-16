@@ -1,0 +1,20 @@
+{
+  "actual_suggestions_PTY": "NOT_ATTESTED_BY_THIS_RUN",
+  "cleanup": "Normal Docker --rm path; final named rm attempted; no independent resource absence record",
+  "distinct_containers": [
+    "cachy-asahi-435574ec880f4ad8",
+    "cachy-asahi-5d978678d75bd246"
+  ],
+  "hardware": "NOT_RUN",
+  "lifecycle": "PASS_ORIGINAL_THREE_TOOL_NORMAL_LIFECYCLE_WITH_EXACT_AUTOSUGGESTIONS_ARCHIVE",
+  "log_frame": {
+    "ZIP_CRC": "PASS",
+    "bytes": 437181,
+    "sha256": "05ac35a2c613fced89b723fd5dff161fb3f3c4152ff16779d83ee84429e467ce",
+    "step_log": "native/7_Retain complete bounded tools evidence and show lifecycle results.txt",
+    "zip_sha256": "074d4ef0b99c0da784207ebace633210cf6927f0f3891bb076e9ec46792d8e2b"
+  },
+  "native_pair": "PASS_BYTES_AND_BUILDINFO_IDENTICAL",
+  "release_selection": false,
+  "status": "PASS_PASSIVE_NATIVE_PAIR_JOIN_PENDING_ROOT_DECISION"
+}

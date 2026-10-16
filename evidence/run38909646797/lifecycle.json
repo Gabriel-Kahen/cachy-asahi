@@ -1,0 +1,1494 @@
+{
+  "status": "PASS_TOOLS_INSTALLED_CLI_PTY_LIFECYCLE",
+  "events": [
+    {
+      "phase": "install",
+      "status": "PASS",
+      "inventory_count": 577,
+      "observations": [
+        {
+          "home": "tools-home-fresh",
+          "mirrors": {
+            "activate_restore": true,
+            "all_failed_no_output": true,
+            "candidate_sha256": "cf16f3a3c47ce9fb9d7508a5c2f4aeb223f63025c4f4a350167fa1f89d89eb69",
+            "exact_and_mismatched_snapshots": true,
+            "explicit_target": "OWNED_FIXTURE_ONLY",
+            "external_network": "NONE",
+            "no_overwrite": true,
+            "prior_mode_restored": true,
+            "real_TLS": true,
+            "real_cli": true,
+            "repeat_activation_preserved": true,
+            "repeat_restore_preserved": true,
+            "restore_conflict_preserved": true,
+            "snapshot_trust": "FIXTURE_ONLY",
+            "status": "PASS_OFFLINE_TLS_CLI",
+            "symlink_preserved": true
+          },
+          "highlighting": {
+            "status": "PASS_INSTALLED_ZLE",
+            "natural_exit": 0,
+            "noninteractive_noop": true,
+            "preexisting_module_wins": true,
+            "repeated_source": true,
+            "custom_binding_preserved": true,
+            "unknown_token_highlight": true,
+            "snapshots": [
+              [
+                "caa_tools_nonexistent_command_92",
+                "0 32 fg=red memo=zsh-syntax-highlighting"
+              ],
+              [
+                "custom-preserved",
+                "0 16 fg=red memo=zsh-syntax-highlighting"
+              ]
+            ]
+          },
+          "substring": {
+            "status": "PASS_HOST_ZSH_PTY_CONTROLS",
+            "cases": 6,
+            "host_architecture": "aarch64"
+          },
+          "substring_proof": {
+            "hardware": "NOT RUN",
+            "host_architecture": "aarch64",
+            "native_ARM": "NOT RUN",
+            "page16K": "NOT RUN",
+            "status": "PASS_HOST_ZSH_PTY_CONTROLS",
+            "system_install": "NOT RUN",
+            "tests": [
+              {
+                "exit": 0,
+                "name": "noninteractive",
+                "status": "PASS"
+              },
+              {
+                "exit": 0,
+                "highlighting": false,
+                "name": "editing",
+                "output_bytes": 1453,
+                "snapshots": [
+                  {
+                    "buffer": "printf multi-needle\nprintf second-line",
+                    "cursor": 38,
+                    "input_hex": "6e6565646c651815"
+                  },
+                  {
+                    "buffer": "printf needle-new",
+                    "cursor": 17,
+                    "input_hex": "1815"
+                  },
+                  {
+                    "buffer": "printf needle-old",
+                    "cursor": 17,
+                    "input_hex": "1815"
+                  },
+                  {
+                    "buffer": "printf needle-new",
+                    "cursor": 17,
+                    "input_hex": "180e"
+                  },
+                  {
+                    "buffer": "printf 'quoted [a]*? $HOME $(touch PWNED)'",
+                    "cursor": 42,
+                    "input_hex": "2771756f746564205b615d2a3f2024484f4d45202428746f7563682050574e454429271815"
+                  },
+                  {
+                    "buffer": "unmatched-token",
+                    "cursor": 15,
+                    "input_hex": "756e6d6174636865642d746f6b656e1815"
+                  },
+                  {
+                    "buffer": "first line\nsecond line",
+                    "cursor": 16,
+                    "input_hex": "180d"
+                  },
+                  {
+                    "buffer": "first line\nsecond line",
+                    "cursor": 5,
+                    "input_hex": "1815"
+                  },
+                  {
+                    "buffer": "custom-up",
+                    "cursor": 9,
+                    "input_hex": "1b5b41"
+                  },
+                  {
+                    "buffer": "custom-down",
+                    "cursor": 11,
+                    "input_hex": "1b5b42"
+                  }
+                ],
+                "status": "PASS"
+              },
+              {
+                "exit": 0,
+                "highlighting": false,
+                "name": "preexisting-function",
+                "output_bytes": 629,
+                "snapshots": [
+                  {
+                    "buffer": "custom-up",
+                    "cursor": 9,
+                    "input_hex": "1b5b41"
+                  },
+                  {
+                    "buffer": "custom-down",
+                    "cursor": 11,
+                    "input_hex": "1b5b42"
+                  }
+                ],
+                "status": "PASS"
+              },
+              {
+                "exit": 0,
+                "highlighting": false,
+                "name": "preexisting-widget",
+                "output_bytes": 625,
+                "snapshots": [
+                  {
+                    "buffer": "custom-up",
+                    "cursor": 9,
+                    "input_hex": "1b5b41"
+                  },
+                  {
+                    "buffer": "custom-down",
+                    "cursor": 11,
+                    "input_hex": "1b5b42"
+                  }
+                ],
+                "status": "PASS"
+              },
+              {
+                "exit": 0,
+                "highlighting": false,
+                "name": "preexisting-private",
+                "output_bytes": 619,
+                "snapshots": [
+                  {
+                    "buffer": "custom-up",
+                    "cursor": 9,
+                    "input_hex": "1b5b41"
+                  },
+                  {
+                    "buffer": "custom-down",
+                    "cursor": 11,
+                    "input_hex": "1b5b42"
+                  }
+                ],
+                "status": "PASS"
+              },
+              {
+                "exit": 0,
+                "highlighting": true,
+                "name": "coexist",
+                "output_bytes": 2524,
+                "snapshots": [
+                  {
+                    "buffer": "printf multi-needle\nprintf second-line",
+                    "cursor": 38,
+                    "input_hex": "6e6565646c651815"
+                  },
+                  {
+                    "buffer": "printf needle-new",
+                    "cursor": 17,
+                    "input_hex": "1815"
+                  },
+                  {
+                    "buffer": "printf needle-old",
+                    "cursor": 17,
+                    "input_hex": "1815"
+                  },
+                  {
+                    "buffer": "printf needle-new",
+                    "cursor": 17,
+                    "input_hex": "180e"
+                  },
+                  {
+                    "buffer": "printf 'quoted [a]*? $HOME $(touch PWNED)'",
+                    "cursor": 42,
+                    "input_hex": "2771756f746564205b615d2a3f2024484f4d45202428746f7563682050574e454429271815"
+                  },
+                  {
+                    "buffer": "unmatched-token",
+                    "cursor": 15,
+                    "input_hex": "756e6d6174636865642d746f6b656e1815"
+                  },
+                  {
+                    "buffer": "first line\nsecond line",
+                    "cursor": 16,
+                    "input_hex": "180d"
+                  },
+                  {
+                    "buffer": "first line\nsecond line",
+                    "cursor": 5,
+                    "input_hex": "1815"
+                  },
+                  {
+                    "buffer": "custom-up",
+                    "cursor": 9,
+                    "input_hex": "1b5b41"
+                  },
+                  {
+                    "buffer": "custom-down",
+                    "cursor": 11,
+                    "input_hex": "1b5b42"
+                  }
+                ],
+                "status": "PASS"
+              }
+            ],
+            "upstream_sha256": "0b864862a3b48992d7316cc7e585a1315fa389d730c17bf16e2f2bd5918089f3",
+            "wrapper_sha256": "2eedaa32f3504b5301afc7e8c302ef91d3c60fa1c1a532ab59c4d11915fedea5",
+            "zsh_sha256": "353042495fa063f13499b4449d4126b7423d3f5b5ab829bf329b2b6a66bc979f",
+            "zsh_version": "zsh 5.9.2 (aarch64-unknown-linux-gnu)"
+          },
+          "substring_receipt_sha256": "fd62f839f7d8250689f7593678018bb6711a1fc74fb8fda7a9a4dd6299ce0055"
+        },
+        {
+          "home": "tools-home-existing",
+          "mirrors": {
+            "activate_restore": true,
+            "all_failed_no_output": true,
+            "candidate_sha256": "74affd3eb365c1967d1201fbc9919597cf6f77ce0ac5290ba548a7e43e7e154b",
+            "exact_and_mismatched_snapshots": true,
+            "explicit_target": "OWNED_FIXTURE_ONLY",
+            "external_network": "NONE",
+            "no_overwrite": true,
+            "prior_mode_restored": true,
+            "real_TLS": true,
+            "real_cli": true,
+            "repeat_activation_preserved": true,
+            "repeat_restore_preserved": true,
+            "restore_conflict_preserved": true,
+            "snapshot_trust": "FIXTURE_ONLY",
+            "status": "PASS_OFFLINE_TLS_CLI",
+            "symlink_preserved": true
+          },
+          "highlighting": {
+            "status": "PASS_INSTALLED_ZLE",
+            "natural_exit": 0,
+            "noninteractive_noop": true,
+            "preexisting_module_wins": true,
+            "repeated_source": true,
+            "custom_binding_preserved": true,
+            "unknown_token_highlight": true,
+            "snapshots": [
+              [
+                "caa_tools_nonexistent_command_92",
+                "0 32 fg=red memo=zsh-syntax-highlighting"
+              ],
+              [
+                "custom-preserved",
+                "0 16 fg=red memo=zsh-syntax-highlighting"
+              ]
+            ]
+          },
+          "substring": {
+            "status": "PASS_HOST_ZSH_PTY_CONTROLS",
+            "cases": 6,
+            "host_architecture": "aarch64"
+          },
+          "substring_proof": {
+            "hardware": "NOT RUN",
+            "host_architecture": "aarch64",
+            "native_ARM": "NOT RUN",
+            "page16K": "NOT RUN",
+            "status": "PASS_HOST_ZSH_PTY_CONTROLS",
+            "system_install": "NOT RUN",
+            "tests": [
+              {
+                "exit": 0,
+                "name": "noninteractive",
+                "status": "PASS"
+              },
+              {
+                "exit": 0,
+                "highlighting": false,
+                "name": "editing",
+                "output_bytes": 1458,
+                "snapshots": [
+                  {
+                    "buffer": "printf multi-needle\nprintf second-line",
+                    "cursor": 38,
+                    "input_hex": "6e6565646c651815"
+                  },
+                  {
+                    "buffer": "printf needle-new",
+                    "cursor": 17,
+                    "input_hex": "1815"
+                  },
+                  {
+                    "buffer": "printf needle-old",
+                    "cursor": 17,
+                    "input_hex": "1815"
+                  },
+                  {
+                    "buffer": "printf needle-new",
+                    "cursor": 17,
+                    "input_hex": "180e"
+                  },
+                  {
+                    "buffer": "printf 'quoted [a]*? $HOME $(touch PWNED)'",
+                    "cursor": 42,
+                    "input_hex": "2771756f746564205b615d2a3f2024484f4d45202428746f7563682050574e454429271815"
+                  },
+                  {
+                    "buffer": "unmatched-token",
+                    "cursor": 15,
+                    "input_hex": "756e6d6174636865642d746f6b656e1815"
+                  },
+                  {
+                    "buffer": "first line\nsecond line",
+                    "cursor": 16,
+                    "input_hex": "180d"
+                  },
+                  {
+                    "buffer": "first line\nsecond line",
+                    "cursor": 5,
+                    "input_hex": "1815"
+                  },
+                  {
+                    "buffer": "custom-up",
+                    "cursor": 9,
+                    "input_hex": "1b5b41"
+                  },
+                  {
+                    "buffer": "custom-down",
+                    "cursor": 11,
+                    "input_hex": "1b5b42"
+                  }
+                ],
+                "status": "PASS"
+              },
+              {
+                "exit": 0,
+                "highlighting": false,
+                "name": "preexisting-function",
+                "output_bytes": 635,
+                "snapshots": [
+                  {
+                    "buffer": "custom-up",
+                    "cursor": 9,
+                    "input_hex": "1b5b41"
+                  },
+                  {
+                    "buffer": "custom-down",
+                    "cursor": 11,
+                    "input_hex": "1b5b42"
+                  }
+                ],
+                "status": "PASS"
+              },
+              {
+                "exit": 0,
+                "highlighting": false,
+                "name": "preexisting-widget",
+                "output_bytes": 631,
+                "snapshots": [
+                  {
+                    "buffer": "custom-up",
+                    "cursor": 9,
+                    "input_hex": "1b5b41"
+                  },
+                  {
+                    "buffer": "custom-down",
+                    "cursor": 11,
+                    "input_hex": "1b5b42"
+                  }
+                ],
+                "status": "PASS"
+              },
+              {
+                "exit": 0,
+                "highlighting": false,
+                "name": "preexisting-private",
+                "output_bytes": 625,
+                "snapshots": [
+                  {
+                    "buffer": "custom-up",
+                    "cursor": 9,
+                    "input_hex": "1b5b41"
+                  },
+                  {
+                    "buffer": "custom-down",
+                    "cursor": 11,
+                    "input_hex": "1b5b42"
+                  }
+                ],
+                "status": "PASS"
+              },
+              {
+                "exit": 0,
+                "highlighting": true,
+                "name": "coexist",
+                "output_bytes": 3064,
+                "snapshots": [
+                  {
+                    "buffer": "printf multi-needle\nprintf second-line",
+                    "cursor": 38,
+                    "input_hex": "6e6565646c651815"
+                  },
+                  {
+                    "buffer": "printf needle-new",
+                    "cursor": 17,
+                    "input_hex": "1815"
+                  },
+                  {
+                    "buffer": "printf needle-old",
+                    "cursor": 17,
+                    "input_hex": "1815"
+                  },
+                  {
+                    "buffer": "printf needle-new",
+                    "cursor": 17,
+                    "input_hex": "180e"
+                  },
+                  {
+                    "buffer": "printf 'quoted [a]*? $HOME $(touch PWNED)'",
+                    "cursor": 42,
+                    "input_hex": "2771756f746564205b615d2a3f2024484f4d45202428746f7563682050574e454429271815"
+                  },
+                  {
+                    "buffer": "unmatched-token",
+                    "cursor": 15,
+                    "input_hex": "756e6d6174636865642d746f6b656e1815"
+                  },
+                  {
+                    "buffer": "first line\nsecond line",
+                    "cursor": 16,
+                    "input_hex": "180d"
+                  },
+                  {
+                    "buffer": "first line\nsecond line",
+                    "cursor": 5,
+                    "input_hex": "1815"
+                  },
+                  {
+                    "buffer": "custom-up",
+                    "cursor": 9,
+                    "input_hex": "1b5b41"
+                  },
+                  {
+                    "buffer": "custom-down",
+                    "cursor": 11,
+                    "input_hex": "1b5b42"
+                  }
+                ],
+                "status": "PASS"
+              }
+            ],
+            "upstream_sha256": "0b864862a3b48992d7316cc7e585a1315fa389d730c17bf16e2f2bd5918089f3",
+            "wrapper_sha256": "2eedaa32f3504b5301afc7e8c302ef91d3c60fa1c1a532ab59c4d11915fedea5",
+            "zsh_sha256": "353042495fa063f13499b4449d4126b7423d3f5b5ab829bf329b2b6a66bc979f",
+            "zsh_version": "zsh 5.9.2 (aarch64-unknown-linux-gnu)"
+          },
+          "substring_receipt_sha256": "a67d5e9c0a1f3f642f342c09365f43848b265c983b7171e56ffc0f1497d08cb2"
+        }
+      ],
+      "config_preserved": true
+    },
+    {
+      "phase": "same-version-reinstall",
+      "status": "PASS",
+      "inventory_count": 577,
+      "observations": [
+        {
+          "home": "tools-home-fresh",
+          "mirrors": {
+            "activate_restore": true,
+            "all_failed_no_output": true,
+            "candidate_sha256": "921763d1cf0510c12e73805f60740925bc817effd05c037f87f5a379459d93c1",
+            "exact_and_mismatched_snapshots": true,
+            "explicit_target": "OWNED_FIXTURE_ONLY",
+            "external_network": "NONE",
+            "no_overwrite": true,
+            "prior_mode_restored": true,
+            "real_TLS": true,
+            "real_cli": true,
+            "repeat_activation_preserved": true,
+            "repeat_restore_preserved": true,
+            "restore_conflict_preserved": true,
+            "snapshot_trust": "FIXTURE_ONLY",
+            "status": "PASS_OFFLINE_TLS_CLI",
+            "symlink_preserved": true
+          },
+          "highlighting": {
+            "status": "PASS_INSTALLED_ZLE",
+            "natural_exit": 0,
+            "noninteractive_noop": true,
+            "preexisting_module_wins": true,
+            "repeated_source": true,
+            "custom_binding_preserved": true,
+            "unknown_token_highlight": true,
+            "snapshots": [
+              [
+                "caa_tools_nonexistent_command_92",
+                "0 32 fg=red memo=zsh-syntax-highlighting"
+              ],
+              [
+                "custom-preserved",
+                "0 16 fg=red memo=zsh-syntax-highlighting"
+              ]
+            ]
+          },
+          "substring": {
+            "status": "PASS_HOST_ZSH_PTY_CONTROLS",
+            "cases": 6,
+            "host_architecture": "aarch64"
+          },
+          "substring_proof": {
+            "hardware": "NOT RUN",
+            "host_architecture": "aarch64",
+            "native_ARM": "NOT RUN",
+            "page16K": "NOT RUN",
+            "status": "PASS_HOST_ZSH_PTY_CONTROLS",
+            "system_install": "NOT RUN",
+            "tests": [
+              {
+                "exit": 0,
+                "name": "noninteractive",
+                "status": "PASS"
+              },
+              {
+                "exit": 0,
+                "highlighting": false,
+                "name": "editing",
+                "output_bytes": 1482,
+                "snapshots": [
+                  {
+                    "buffer": "printf multi-needle\nprintf second-line",
+                    "cursor": 38,
+                    "input_hex": "6e6565646c651815"
+                  },
+                  {
+                    "buffer": "printf needle-new",
+                    "cursor": 17,
+                    "input_hex": "1815"
+                  },
+                  {
+                    "buffer": "printf needle-old",
+                    "cursor": 17,
+                    "input_hex": "1815"
+                  },
+                  {
+                    "buffer": "printf needle-new",
+                    "cursor": 17,
+                    "input_hex": "180e"
+                  },
+                  {
+                    "buffer": "printf 'quoted [a]*? $HOME $(touch PWNED)'",
+                    "cursor": 42,
+                    "input_hex": "2771756f746564205b615d2a3f2024484f4d45202428746f7563682050574e454429271815"
+                  },
+                  {
+                    "buffer": "unmatched-token",
+                    "cursor": 15,
+                    "input_hex": "756e6d6174636865642d746f6b656e1815"
+                  },
+                  {
+                    "buffer": "first line\nsecond line",
+                    "cursor": 16,
+                    "input_hex": "180d"
+                  },
+                  {
+                    "buffer": "first line\nsecond line",
+                    "cursor": 5,
+                    "input_hex": "1815"
+                  },
+                  {
+                    "buffer": "custom-up",
+                    "cursor": 9,
+                    "input_hex": "1b5b41"
+                  },
+                  {
+                    "buffer": "custom-down",
+                    "cursor": 11,
+                    "input_hex": "1b5b42"
+                  }
+                ],
+                "status": "PASS"
+              },
+              {
+                "exit": 0,
+                "highlighting": false,
+                "name": "preexisting-function",
+                "output_bytes": 659,
+                "snapshots": [
+                  {
+                    "buffer": "custom-up",
+                    "cursor": 9,
+                    "input_hex": "1b5b41"
+                  },
+                  {
+                    "buffer": "custom-down",
+                    "cursor": 11,
+                    "input_hex": "1b5b42"
+                  }
+                ],
+                "status": "PASS"
+              },
+              {
+                "exit": 0,
+                "highlighting": false,
+                "name": "preexisting-widget",
+                "output_bytes": 647,
+                "snapshots": [
+                  {
+                    "buffer": "custom-up",
+                    "cursor": 9,
+                    "input_hex": "1b5b41"
+                  },
+                  {
+                    "buffer": "custom-down",
+                    "cursor": 11,
+                    "input_hex": "1b5b42"
+                  }
+                ],
+                "status": "PASS"
+              },
+              {
+                "exit": 0,
+                "highlighting": false,
+                "name": "preexisting-private",
+                "output_bytes": 649,
+                "snapshots": [
+                  {
+                    "buffer": "custom-up",
+                    "cursor": 9,
+                    "input_hex": "1b5b41"
+                  },
+                  {
+                    "buffer": "custom-down",
+                    "cursor": 11,
+                    "input_hex": "1b5b42"
+                  }
+                ],
+                "status": "PASS"
+              },
+              {
+                "exit": 0,
+                "highlighting": true,
+                "name": "coexist",
+                "output_bytes": 3088,
+                "snapshots": [
+                  {
+                    "buffer": "printf multi-needle\nprintf second-line",
+                    "cursor": 38,
+                    "input_hex": "6e6565646c651815"
+                  },
+                  {
+                    "buffer": "printf needle-new",
+                    "cursor": 17,
+                    "input_hex": "1815"
+                  },
+                  {
+                    "buffer": "printf needle-old",
+                    "cursor": 17,
+                    "input_hex": "1815"
+                  },
+                  {
+                    "buffer": "printf needle-new",
+                    "cursor": 17,
+                    "input_hex": "180e"
+                  },
+                  {
+                    "buffer": "printf 'quoted [a]*? $HOME $(touch PWNED)'",
+                    "cursor": 42,
+                    "input_hex": "2771756f746564205b615d2a3f2024484f4d45202428746f7563682050574e454429271815"
+                  },
+                  {
+                    "buffer": "unmatched-token",
+                    "cursor": 15,
+                    "input_hex": "756e6d6174636865642d746f6b656e1815"
+                  },
+                  {
+                    "buffer": "first line\nsecond line",
+                    "cursor": 16,
+                    "input_hex": "180d"
+                  },
+                  {
+                    "buffer": "first line\nsecond line",
+                    "cursor": 5,
+                    "input_hex": "1815"
+                  },
+                  {
+                    "buffer": "custom-up",
+                    "cursor": 9,
+                    "input_hex": "1b5b41"
+                  },
+                  {
+                    "buffer": "custom-down",
+                    "cursor": 11,
+                    "input_hex": "1b5b42"
+                  }
+                ],
+                "status": "PASS"
+              }
+            ],
+            "upstream_sha256": "0b864862a3b48992d7316cc7e585a1315fa389d730c17bf16e2f2bd5918089f3",
+            "wrapper_sha256": "2eedaa32f3504b5301afc7e8c302ef91d3c60fa1c1a532ab59c4d11915fedea5",
+            "zsh_sha256": "353042495fa063f13499b4449d4126b7423d3f5b5ab829bf329b2b6a66bc979f",
+            "zsh_version": "zsh 5.9.2 (aarch64-unknown-linux-gnu)"
+          },
+          "substring_receipt_sha256": "c99180117e8d303af0f4ffac792b6fef8919a8e42f545d97cd19ba8de99ac12c"
+        },
+        {
+          "home": "tools-home-existing",
+          "mirrors": {
+            "activate_restore": true,
+            "all_failed_no_output": true,
+            "candidate_sha256": "0addfe0ca5e0dafc552176f2be72c5e78dd319f3c6c83955fc77a2a2b4646ed0",
+            "exact_and_mismatched_snapshots": true,
+            "explicit_target": "OWNED_FIXTURE_ONLY",
+            "external_network": "NONE",
+            "no_overwrite": true,
+            "prior_mode_restored": true,
+            "real_TLS": true,
+            "real_cli": true,
+            "repeat_activation_preserved": true,
+            "repeat_restore_preserved": true,
+            "restore_conflict_preserved": true,
+            "snapshot_trust": "FIXTURE_ONLY",
+            "status": "PASS_OFFLINE_TLS_CLI",
+            "symlink_preserved": true
+          },
+          "highlighting": {
+            "status": "PASS_INSTALLED_ZLE",
+            "natural_exit": 0,
+            "noninteractive_noop": true,
+            "preexisting_module_wins": true,
+            "repeated_source": true,
+            "custom_binding_preserved": true,
+            "unknown_token_highlight": true,
+            "snapshots": [
+              [
+                "caa_tools_nonexistent_command_92",
+                "0 32 fg=red memo=zsh-syntax-highlighting"
+              ],
+              [
+                "custom-preserved",
+                "0 16 fg=red memo=zsh-syntax-highlighting"
+              ]
+            ]
+          },
+          "substring": {
+            "status": "PASS_HOST_ZSH_PTY_CONTROLS",
+            "cases": 6,
+            "host_architecture": "aarch64"
+          },
+          "substring_proof": {
+            "hardware": "NOT RUN",
+            "host_architecture": "aarch64",
+            "native_ARM": "NOT RUN",
+            "page16K": "NOT RUN",
+            "status": "PASS_HOST_ZSH_PTY_CONTROLS",
+            "system_install": "NOT RUN",
+            "tests": [
+              {
+                "exit": 0,
+                "name": "noninteractive",
+                "status": "PASS"
+              },
+              {
+                "exit": 0,
+                "highlighting": false,
+                "name": "editing",
+                "output_bytes": 1488,
+                "snapshots": [
+                  {
+                    "buffer": "printf multi-needle\nprintf second-line",
+                    "cursor": 38,
+                    "input_hex": "6e6565646c651815"
+                  },
+                  {
+                    "buffer": "printf needle-new",
+                    "cursor": 17,
+                    "input_hex": "1815"
+                  },
+                  {
+                    "buffer": "printf needle-old",
+                    "cursor": 17,
+                    "input_hex": "1815"
+                  },
+                  {
+                    "buffer": "printf needle-new",
+                    "cursor": 17,
+                    "input_hex": "180e"
+                  },
+                  {
+                    "buffer": "printf 'quoted [a]*? $HOME $(touch PWNED)'",
+                    "cursor": 42,
+                    "input_hex": "2771756f746564205b615d2a3f2024484f4d45202428746f7563682050574e454429271815"
+                  },
+                  {
+                    "buffer": "unmatched-token",
+                    "cursor": 15,
+                    "input_hex": "756e6d6174636865642d746f6b656e1815"
+                  },
+                  {
+                    "buffer": "first line\nsecond line",
+                    "cursor": 16,
+                    "input_hex": "180d"
+                  },
+                  {
+                    "buffer": "first line\nsecond line",
+                    "cursor": 5,
+                    "input_hex": "1815"
+                  },
+                  {
+                    "buffer": "custom-up",
+                    "cursor": 9,
+                    "input_hex": "1b5b41"
+                  },
+                  {
+                    "buffer": "custom-down",
+                    "cursor": 11,
+                    "input_hex": "1b5b42"
+                  }
+                ],
+                "status": "PASS"
+              },
+              {
+                "exit": 0,
+                "highlighting": false,
+                "name": "preexisting-function",
+                "output_bytes": 657,
+                "snapshots": [
+                  {
+                    "buffer": "custom-up",
+                    "cursor": 9,
+                    "input_hex": "1b5b41"
+                  },
+                  {
+                    "buffer": "custom-down",
+                    "cursor": 11,
+                    "input_hex": "1b5b42"
+                  }
+                ],
+                "status": "PASS"
+              },
+              {
+                "exit": 0,
+                "highlighting": false,
+                "name": "preexisting-widget",
+                "output_bytes": 661,
+                "snapshots": [
+                  {
+                    "buffer": "custom-up",
+                    "cursor": 9,
+                    "input_hex": "1b5b41"
+                  },
+                  {
+                    "buffer": "custom-down",
+                    "cursor": 11,
+                    "input_hex": "1b5b42"
+                  }
+                ],
+                "status": "PASS"
+              },
+              {
+                "exit": 0,
+                "highlighting": false,
+                "name": "preexisting-private",
+                "output_bytes": 655,
+                "snapshots": [
+                  {
+                    "buffer": "custom-up",
+                    "cursor": 9,
+                    "input_hex": "1b5b41"
+                  },
+                  {
+                    "buffer": "custom-down",
+                    "cursor": 11,
+                    "input_hex": "1b5b42"
+                  }
+                ],
+                "status": "PASS"
+              },
+              {
+                "exit": 0,
+                "highlighting": true,
+                "name": "coexist",
+                "output_bytes": 3086,
+                "snapshots": [
+                  {
+                    "buffer": "printf multi-needle\nprintf second-line",
+                    "cursor": 38,
+                    "input_hex": "6e6565646c651815"
+                  },
+                  {
+                    "buffer": "printf needle-new",
+                    "cursor": 17,
+                    "input_hex": "1815"
+                  },
+                  {
+                    "buffer": "printf needle-old",
+                    "cursor": 17,
+                    "input_hex": "1815"
+                  },
+                  {
+                    "buffer": "printf needle-new",
+                    "cursor": 17,
+                    "input_hex": "180e"
+                  },
+                  {
+                    "buffer": "printf 'quoted [a]*? $HOME $(touch PWNED)'",
+                    "cursor": 42,
+                    "input_hex": "2771756f746564205b615d2a3f2024484f4d45202428746f7563682050574e454429271815"
+                  },
+                  {
+                    "buffer": "unmatched-token",
+                    "cursor": 15,
+                    "input_hex": "756e6d6174636865642d746f6b656e1815"
+                  },
+                  {
+                    "buffer": "first line\nsecond line",
+                    "cursor": 16,
+                    "input_hex": "180d"
+                  },
+                  {
+                    "buffer": "first line\nsecond line",
+                    "cursor": 5,
+                    "input_hex": "1815"
+                  },
+                  {
+                    "buffer": "custom-up",
+                    "cursor": 9,
+                    "input_hex": "1b5b41"
+                  },
+                  {
+                    "buffer": "custom-down",
+                    "cursor": 11,
+                    "input_hex": "1b5b42"
+                  }
+                ],
+                "status": "PASS"
+              }
+            ],
+            "upstream_sha256": "0b864862a3b48992d7316cc7e585a1315fa389d730c17bf16e2f2bd5918089f3",
+            "wrapper_sha256": "2eedaa32f3504b5301afc7e8c302ef91d3c60fa1c1a532ab59c4d11915fedea5",
+            "zsh_sha256": "353042495fa063f13499b4449d4126b7423d3f5b5ab829bf329b2b6a66bc979f",
+            "zsh_version": "zsh 5.9.2 (aarch64-unknown-linux-gnu)"
+          },
+          "substring_receipt_sha256": "9e9ad29ffcc1f3bd8aa350a73d7dea7d39ec07cf1127834ad0aaeb8e0eae2895"
+        }
+      ],
+      "config_preserved": true
+    },
+    {
+      "phase": "remove",
+      "status": "PASS",
+      "inventory_count": 574,
+      "config_preserved": true,
+      "guarded_opt_in_absent": true
+    },
+    {
+      "phase": "reinstall-after-removal",
+      "status": "PASS",
+      "inventory_count": 577,
+      "observations": [
+        {
+          "home": "tools-home-fresh",
+          "mirrors": {
+            "activate_restore": true,
+            "all_failed_no_output": true,
+            "candidate_sha256": "2a9f504449f6d04833f5ce1a3f9d8ff85ec532bb96ac8579c0e5d2fa8873f874",
+            "exact_and_mismatched_snapshots": true,
+            "explicit_target": "OWNED_FIXTURE_ONLY",
+            "external_network": "NONE",
+            "no_overwrite": true,
+            "prior_mode_restored": true,
+            "real_TLS": true,
+            "real_cli": true,
+            "repeat_activation_preserved": true,
+            "repeat_restore_preserved": true,
+            "restore_conflict_preserved": true,
+            "snapshot_trust": "FIXTURE_ONLY",
+            "status": "PASS_OFFLINE_TLS_CLI",
+            "symlink_preserved": true
+          },
+          "highlighting": {
+            "status": "PASS_INSTALLED_ZLE",
+            "natural_exit": 0,
+            "noninteractive_noop": true,
+            "preexisting_module_wins": true,
+            "repeated_source": true,
+            "custom_binding_preserved": true,
+            "unknown_token_highlight": true,
+            "snapshots": [
+              [
+                "caa_tools_nonexistent_command_92",
+                "0 32 fg=red memo=zsh-syntax-highlighting"
+              ],
+              [
+                "custom-preserved",
+                "0 16 fg=red memo=zsh-syntax-highlighting"
+              ]
+            ]
+          },
+          "substring": {
+            "status": "PASS_HOST_ZSH_PTY_CONTROLS",
+            "cases": 6,
+            "host_architecture": "aarch64"
+          },
+          "substring_proof": {
+            "hardware": "NOT RUN",
+            "host_architecture": "aarch64",
+            "native_ARM": "NOT RUN",
+            "page16K": "NOT RUN",
+            "status": "PASS_HOST_ZSH_PTY_CONTROLS",
+            "system_install": "NOT RUN",
+            "tests": [
+              {
+                "exit": 0,
+                "name": "noninteractive",
+                "status": "PASS"
+              },
+              {
+                "exit": 0,
+                "highlighting": false,
+                "name": "editing",
+                "output_bytes": 1484,
+                "snapshots": [
+                  {
+                    "buffer": "printf multi-needle\nprintf second-line",
+                    "cursor": 38,
+                    "input_hex": "6e6565646c651815"
+                  },
+                  {
+                    "buffer": "printf needle-new",
+                    "cursor": 17,
+                    "input_hex": "1815"
+                  },
+                  {
+                    "buffer": "printf needle-old",
+                    "cursor": 17,
+                    "input_hex": "1815"
+                  },
+                  {
+                    "buffer": "printf needle-new",
+                    "cursor": 17,
+                    "input_hex": "180e"
+                  },
+                  {
+                    "buffer": "printf 'quoted [a]*? $HOME $(touch PWNED)'",
+                    "cursor": 42,
+                    "input_hex": "2771756f746564205b615d2a3f2024484f4d45202428746f7563682050574e454429271815"
+                  },
+                  {
+                    "buffer": "unmatched-token",
+                    "cursor": 15,
+                    "input_hex": "756e6d6174636865642d746f6b656e1815"
+                  },
+                  {
+                    "buffer": "first line\nsecond line",
+                    "cursor": 16,
+                    "input_hex": "180d"
+                  },
+                  {
+                    "buffer": "first line\nsecond line",
+                    "cursor": 5,
+                    "input_hex": "1815"
+                  },
+                  {
+                    "buffer": "custom-up",
+                    "cursor": 9,
+                    "input_hex": "1b5b41"
+                  },
+                  {
+                    "buffer": "custom-down",
+                    "cursor": 11,
+                    "input_hex": "1b5b42"
+                  }
+                ],
+                "status": "PASS"
+              },
+              {
+                "exit": 0,
+                "highlighting": false,
+                "name": "preexisting-function",
+                "output_bytes": 661,
+                "snapshots": [
+                  {
+                    "buffer": "custom-up",
+                    "cursor": 9,
+                    "input_hex": "1b5b41"
+                  },
+                  {
+                    "buffer": "custom-down",
+                    "cursor": 11,
+                    "input_hex": "1b5b42"
+                  }
+                ],
+                "status": "PASS"
+              },
+              {
+                "exit": 0,
+                "highlighting": false,
+                "name": "preexisting-widget",
+                "output_bytes": 657,
+                "snapshots": [
+                  {
+                    "buffer": "custom-up",
+                    "cursor": 9,
+                    "input_hex": "1b5b41"
+                  },
+                  {
+                    "buffer": "custom-down",
+                    "cursor": 11,
+                    "input_hex": "1b5b42"
+                  }
+                ],
+                "status": "PASS"
+              },
+              {
+                "exit": 0,
+                "highlighting": false,
+                "name": "preexisting-private",
+                "output_bytes": 651,
+                "snapshots": [
+                  {
+                    "buffer": "custom-up",
+                    "cursor": 9,
+                    "input_hex": "1b5b41"
+                  },
+                  {
+                    "buffer": "custom-down",
+                    "cursor": 11,
+                    "input_hex": "1b5b42"
+                  }
+                ],
+                "status": "PASS"
+              },
+              {
+                "exit": 0,
+                "highlighting": true,
+                "name": "coexist",
+                "output_bytes": 3056,
+                "snapshots": [
+                  {
+                    "buffer": "printf multi-needle\nprintf second-line",
+                    "cursor": 38,
+                    "input_hex": "6e6565646c651815"
+                  },
+                  {
+                    "buffer": "printf needle-new",
+                    "cursor": 17,
+                    "input_hex": "1815"
+                  },
+                  {
+                    "buffer": "printf needle-old",
+                    "cursor": 17,
+                    "input_hex": "1815"
+                  },
+                  {
+                    "buffer": "printf needle-new",
+                    "cursor": 17,
+                    "input_hex": "180e"
+                  },
+                  {
+                    "buffer": "printf 'quoted [a]*? $HOME $(touch PWNED)'",
+                    "cursor": 42,
+                    "input_hex": "2771756f746564205b615d2a3f2024484f4d45202428746f7563682050574e454429271815"
+                  },
+                  {
+                    "buffer": "unmatched-token",
+                    "cursor": 15,
+                    "input_hex": "756e6d6174636865642d746f6b656e1815"
+                  },
+                  {
+                    "buffer": "first line\nsecond line",
+                    "cursor": 16,
+                    "input_hex": "180d"
+                  },
+                  {
+                    "buffer": "first line\nsecond line",
+                    "cursor": 5,
+                    "input_hex": "1815"
+                  },
+                  {
+                    "buffer": "custom-up",
+                    "cursor": 9,
+                    "input_hex": "1b5b41"
+                  },
+                  {
+                    "buffer": "custom-down",
+                    "cursor": 11,
+                    "input_hex": "1b5b42"
+                  }
+                ],
+                "status": "PASS"
+              }
+            ],
+            "upstream_sha256": "0b864862a3b48992d7316cc7e585a1315fa389d730c17bf16e2f2bd5918089f3",
+            "wrapper_sha256": "2eedaa32f3504b5301afc7e8c302ef91d3c60fa1c1a532ab59c4d11915fedea5",
+            "zsh_sha256": "353042495fa063f13499b4449d4126b7423d3f5b5ab829bf329b2b6a66bc979f",
+            "zsh_version": "zsh 5.9.2 (aarch64-unknown-linux-gnu)"
+          },
+          "substring_receipt_sha256": "13a8acf60c293e7633181a5b2c96a46da922a87b818dfc5a91b6f8a17e278324"
+        },
+        {
+          "home": "tools-home-existing",
+          "mirrors": {
+            "activate_restore": true,
+            "all_failed_no_output": true,
+            "candidate_sha256": "5c8eb8a21d9c1ea4432b1351b05ea12f06ae0af91fa29bf98ee5779dee67ae0f",
+            "exact_and_mismatched_snapshots": true,
+            "explicit_target": "OWNED_FIXTURE_ONLY",
+            "external_network": "NONE",
+            "no_overwrite": true,
+            "prior_mode_restored": true,
+            "real_TLS": true,
+            "real_cli": true,
+            "repeat_activation_preserved": true,
+            "repeat_restore_preserved": true,
+            "restore_conflict_preserved": true,
+            "snapshot_trust": "FIXTURE_ONLY",
+            "status": "PASS_OFFLINE_TLS_CLI",
+            "symlink_preserved": true
+          },
+          "highlighting": {
+            "status": "PASS_INSTALLED_ZLE",
+            "natural_exit": 0,
+            "noninteractive_noop": true,
+            "preexisting_module_wins": true,
+            "repeated_source": true,
+            "custom_binding_preserved": true,
+            "unknown_token_highlight": true,
+            "snapshots": [
+              [
+                "caa_tools_nonexistent_command_92",
+                "0 32 fg=red memo=zsh-syntax-highlighting"
+              ],
+              [
+                "custom-preserved",
+                "0 16 fg=red memo=zsh-syntax-highlighting"
+              ]
+            ]
+          },
+          "substring": {
+            "status": "PASS_HOST_ZSH_PTY_CONTROLS",
+            "cases": 6,
+            "host_architecture": "aarch64"
+          },
+          "substring_proof": {
+            "hardware": "NOT RUN",
+            "host_architecture": "aarch64",
+            "native_ARM": "NOT RUN",
+            "page16K": "NOT RUN",
+            "status": "PASS_HOST_ZSH_PTY_CONTROLS",
+            "system_install": "NOT RUN",
+            "tests": [
+              {
+                "exit": 0,
+                "name": "noninteractive",
+                "status": "PASS"
+              },
+              {
+                "exit": 0,
+                "highlighting": false,
+                "name": "editing",
+                "output_bytes": 1490,
+                "snapshots": [
+                  {
+                    "buffer": "printf multi-needle\nprintf second-line",
+                    "cursor": 38,
+                    "input_hex": "6e6565646c651815"
+                  },
+                  {
+                    "buffer": "printf needle-new",
+                    "cursor": 17,
+                    "input_hex": "1815"
+                  },
+                  {
+                    "buffer": "printf needle-old",
+                    "cursor": 17,
+                    "input_hex": "1815"
+                  },
+                  {
+                    "buffer": "printf needle-new",
+                    "cursor": 17,
+                    "input_hex": "180e"
+                  },
+                  {
+                    "buffer": "printf 'quoted [a]*? $HOME $(touch PWNED)'",
+                    "cursor": 42,
+                    "input_hex": "2771756f746564205b615d2a3f2024484f4d45202428746f7563682050574e454429271815"
+                  },
+                  {
+                    "buffer": "unmatched-token",
+                    "cursor": 15,
+                    "input_hex": "756e6d6174636865642d746f6b656e1815"
+                  },
+                  {
+                    "buffer": "first line\nsecond line",
+                    "cursor": 16,
+                    "input_hex": "180d"
+                  },
+                  {
+                    "buffer": "first line\nsecond line",
+                    "cursor": 5,
+                    "input_hex": "1815"
+                  },
+                  {
+                    "buffer": "custom-up",
+                    "cursor": 9,
+                    "input_hex": "1b5b41"
+                  },
+                  {
+                    "buffer": "custom-down",
+                    "cursor": 11,
+                    "input_hex": "1b5b42"
+                  }
+                ],
+                "status": "PASS"
+              },
+              {
+                "exit": 0,
+                "highlighting": false,
+                "name": "preexisting-function",
+                "output_bytes": 667,
+                "snapshots": [
+                  {
+                    "buffer": "custom-up",
+                    "cursor": 9,
+                    "input_hex": "1b5b41"
+                  },
+                  {
+                    "buffer": "custom-down",
+                    "cursor": 11,
+                    "input_hex": "1b5b42"
+                  }
+                ],
+                "status": "PASS"
+              },
+              {
+                "exit": 0,
+                "highlighting": false,
+                "name": "preexisting-widget",
+                "output_bytes": 655,
+                "snapshots": [
+                  {
+                    "buffer": "custom-up",
+                    "cursor": 9,
+                    "input_hex": "1b5b41"
+                  },
+                  {
+                    "buffer": "custom-down",
+                    "cursor": 11,
+                    "input_hex": "1b5b42"
+                  }
+                ],
+                "status": "PASS"
+              },
+              {
+                "exit": 0,
+                "highlighting": false,
+                "name": "preexisting-private",
+                "output_bytes": 665,
+                "snapshots": [
+                  {
+                    "buffer": "custom-up",
+                    "cursor": 9,
+                    "input_hex": "1b5b41"
+                  },
+                  {
+                    "buffer": "custom-down",
+                    "cursor": 11,
+                    "input_hex": "1b5b42"
+                  }
+                ],
+                "status": "PASS"
+              },
+              {
+                "exit": 0,
+                "highlighting": true,
+                "name": "coexist",
+                "output_bytes": 3096,
+                "snapshots": [
+                  {
+                    "buffer": "printf multi-needle\nprintf second-line",
+                    "cursor": 38,
+                    "input_hex": "6e6565646c651815"
+                  },
+                  {
+                    "buffer": "printf needle-new",
+                    "cursor": 17,
+                    "input_hex": "1815"
+                  },
+                  {
+                    "buffer": "printf needle-old",
+                    "cursor": 17,
+                    "input_hex": "1815"
+                  },
+                  {
+                    "buffer": "printf needle-new",
+                    "cursor": 17,
+                    "input_hex": "180e"
+                  },
+                  {
+                    "buffer": "printf 'quoted [a]*? $HOME $(touch PWNED)'",
+                    "cursor": 42,
+                    "input_hex": "2771756f746564205b615d2a3f2024484f4d45202428746f7563682050574e454429271815"
+                  },
+                  {
+                    "buffer": "unmatched-token",
+                    "cursor": 15,
+                    "input_hex": "756e6d6174636865642d746f6b656e1815"
+                  },
+                  {
+                    "buffer": "first line\nsecond line",
+                    "cursor": 16,
+                    "input_hex": "180d"
+                  },
+                  {
+                    "buffer": "first line\nsecond line",
+                    "cursor": 5,
+                    "input_hex": "1815"
+                  },
+                  {
+                    "buffer": "custom-up",
+                    "cursor": 9,
+                    "input_hex": "1b5b41"
+                  },
+                  {
+                    "buffer": "custom-down",
+                    "cursor": 11,
+                    "input_hex": "1b5b42"
+                  }
+                ],
+                "status": "PASS"
+              }
+            ],
+            "upstream_sha256": "0b864862a3b48992d7316cc7e585a1315fa389d730c17bf16e2f2bd5918089f3",
+            "wrapper_sha256": "2eedaa32f3504b5301afc7e8c302ef91d3c60fa1c1a532ab59c4d11915fedea5",
+            "zsh_sha256": "353042495fa063f13499b4449d4126b7423d3f5b5ab829bf329b2b6a66bc979f",
+            "zsh_version": "zsh 5.9.2 (aarch64-unknown-linux-gnu)"
+          },
+          "substring_receipt_sha256": "4ae9b1cd0b8c42d8fb69e9359eb0f7c0d1a7b5f97211a0d756d0e620e80061e2"
+        }
+      ],
+      "config_preserved": true
+    },
+    {
+      "phase": "final-remove",
+      "status": "PASS",
+      "inventory_count": 574,
+      "config_preserved": true,
+      "guarded_opt_in_absent": true
+    }
+  ],
+  "base_count": 574,
+  "installed_count": 577,
+  "user_config_preserved": true,
+  "system_config_preserved": true,
+  "user_outputs_preserved": true,
+  "masked_hooks": 41,
+  "actual_page_size": 4096,
+  "hardware": "NOT_RUN",
+  "native_architecture": "aarch64",
+  "trust": "UNSIGNED_LOCAL_CANDIDATES_ONLY",
+  "mirror_network": "OWNED_LOOPBACK_TLS_ONLY"
+}

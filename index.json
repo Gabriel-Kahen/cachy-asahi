@@ -1,0 +1,1870 @@
+{
+  "hardware": "NOT_RUN",
+  "packages": {
+    "cachy-asahi-fish-autopair": {
+      "acceptance": {
+        "bytes": 702,
+        "path": "evidence/run38918809286/cachy-asahi-fish-autopair-root-acceptance.json",
+        "sha256": "7ce094cf72271110ae63958297f5c42c247cd94e53f225c53db7d8bc691b30a3"
+      },
+      "evidence": {
+        "bytes": 5777,
+        "path": "evidence/docs/fish-candidates-native-20261016.md",
+        "sha256": "76a9f1984865d5f791a85010f6b5232c1507c9b2231371267330b312a7915500"
+      },
+      "files": {
+        "a": {
+          "bytes": 11024,
+          "path": "packages/cachy-asahi-fish-autopair-a/cachy-asahi-fish-autopair-0.1.0-1-any.pkg.tar.xz",
+          "sha256": "ea5dbb98856e8226b133b08ab2332b170244edb743248a5a98d8c2c3930f9f78"
+        },
+        "b": {
+          "bytes": 11024,
+          "path": "packages/cachy-asahi-fish-autopair-b/cachy-asahi-fish-autopair-0.1.0-1-any.pkg.tar.xz",
+          "sha256": "ea5dbb98856e8226b133b08ab2332b170244edb743248a5a98d8c2c3930f9f78"
+        }
+      },
+      "metadata": {
+        "arch": [
+          "any"
+        ],
+        "depends": [
+          "fish>=4.9.3"
+        ],
+        "license": [
+          "MIT"
+        ],
+        "makedepends": [
+          "python"
+        ],
+        "pkgdesc": [
+          "Explicitly enabled pinned Fish pair editing for cachy-asahi"
+        ],
+        "pkgname": [
+          "cachy-asahi-fish-autopair"
+        ],
+        "pkgrel": [
+          "1"
+        ],
+        "pkgver": [
+          "0.1.0"
+        ],
+        "sha256sums": [
+          "eb5f42b837a98e721ec5f60f6c05df5fc709c9b8852317823b576d053ea9e0d8",
+          "15739503faea70699ce121742bbfd59cf0ba64fb4ac044119aaeb644ec7019f1",
+          "eaadbfd4cf10a40dfbe5eaf522f0d7d01a1e4538a6e9fbd591c35cc7a517744d",
+          "ac34fd6de9b0c79e4499ace389d3bd61e2984087126a040bccd68d336050c23f",
+          "dd298673353cc7d48b9fd988932594685888aaa8406b2ca0e64946fce261b068",
+          "77d5122d6fc5a9e933f15425946b806a9273b3ead3bb52a1ac1d81a698ee4a21",
+          "cbcb974c8cb0c2b1bf262a8c0f9166ed11f37f06666efd003a204c0859c76294",
+          "5672092ff0515fcab67ebd3b83a0e71333908c2dc4732324f9c1d74e0894630f",
+          "850512269f1b560b47d7e34145af65d6b05b360a86d0295e8c6d957678e35d6b",
+          "6c73e4ccb627a7d8d1541dfeb99821105b3f22276c304972c81c0eafc6c019ba",
+          "f101c761d255d0dddc77dd8a9327733b03d381798ec54a1bb718367207b48a8e",
+          "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+        ],
+        "source": [
+          "_autopair_backspace.fish",
+          "_autopair_insert_left.fish",
+          "_autopair_insert_right.fish",
+          "_autopair_insert_same.fish",
+          "_autopair_tab.fish",
+          "opt-in.fish",
+          "check-module.py",
+          "usage.md",
+          "source-provenance.json",
+          "NOTICE",
+          "LICENSE.upstream",
+          "LICENSE.project"
+        ],
+        "url": [
+          "https://github.com/jorgebucaran/autopair.fish"
+        ]
+      },
+      "native_run": 38918809286,
+      "native_source": "32a254b29a8171176b7d192dcaab8f7076c3f977",
+      "payload": {
+        "usr/share/cachy-asahi/fish-autopair/README.md": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "5672092ff0515fcab67ebd3b83a0e71333908c2dc4732324f9c1d74e0894630f",
+          "size": 2941,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/cachy-asahi/fish-autopair/_autopair_backspace.fish": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "eb5f42b837a98e721ec5f60f6c05df5fc709c9b8852317823b576d053ea9e0d8",
+          "size": 323,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/cachy-asahi/fish-autopair/_autopair_insert_left.fish": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "15739503faea70699ce121742bbfd59cf0ba64fb4ac044119aaeb644ec7019f1",
+          "size": 403,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/cachy-asahi/fish-autopair/_autopair_insert_right.fish": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "eaadbfd4cf10a40dfbe5eaf522f0d7d01a1e4538a6e9fbd591c35cc7a517744d",
+          "size": 330,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/cachy-asahi/fish-autopair/_autopair_insert_same.fish": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "ac34fd6de9b0c79e4499ace389d3bd61e2984087126a040bccd68d336050c23f",
+          "size": 776,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/cachy-asahi/fish-autopair/_autopair_tab.fish": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "dd298673353cc7d48b9fd988932594685888aaa8406b2ca0e64946fce261b068",
+          "size": 279,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/cachy-asahi/fish-autopair/opt-in.fish": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "77d5122d6fc5a9e933f15425946b806a9273b3ead3bb52a1ac1d81a698ee4a21",
+          "size": 4383,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/cachy-asahi/fish-autopair/source-provenance.json": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "850512269f1b560b47d7e34145af65d6b05b360a86d0295e8c6d957678e35d6b",
+          "size": 2262,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/licenses/cachy-asahi-fish-autopair/LICENSE.project": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+          "size": 1081,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/licenses/cachy-asahi-fish-autopair/LICENSE.upstream": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "f101c761d255d0dddc77dd8a9327733b03d381798ec54a1bb718367207b48a8e",
+          "size": 1080,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/licenses/cachy-asahi-fish-autopair/NOTICE": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "6c73e4ccb627a7d8d1541dfeb99821105b3f22276c304972c81c0eafc6c019ba",
+          "size": 629,
+          "type": "0",
+          "uid": 0
+        }
+      },
+      "qualification": "PASS_NATIVE_PAIR_AND_INSTALLED_LIFECYCLE_WITH_ORIGINAL_EXPORT_ORDER_FAILURE",
+      "raw_lifecycle": {
+        "bytes": 69755,
+        "path": "evidence/run38918809286/lifecycle.json",
+        "sha256": "dd3f78aa12d6c202f250e7bfb15491fdee4c8e5ebf04b6ca6cd10161a1382267"
+      },
+      "recipe_inputs": {
+        ".SRCINFO": "ab11b83a075f544d53dbd9974cdc5152649703db8f3c0dd6c7be02f65b6c0615",
+        "LICENSE.project": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+        "LICENSE.upstream": "f101c761d255d0dddc77dd8a9327733b03d381798ec54a1bb718367207b48a8e",
+        "NOTICE": "6c73e4ccb627a7d8d1541dfeb99821105b3f22276c304972c81c0eafc6c019ba",
+        "PKGBUILD": "97deb29c2a2c011a2b95c8bf505d7d00c5e4fa6f376c8fbf7e0ff07ec7c852f1",
+        "README.md": "7ce816bc658576bf7d0bc5a42384751ead891feb97bf9ad3b40b02fd683e5a52",
+        "_autopair_backspace.fish": "eb5f42b837a98e721ec5f60f6c05df5fc709c9b8852317823b576d053ea9e0d8",
+        "_autopair_insert_left.fish": "15739503faea70699ce121742bbfd59cf0ba64fb4ac044119aaeb644ec7019f1",
+        "_autopair_insert_right.fish": "eaadbfd4cf10a40dfbe5eaf522f0d7d01a1e4538a6e9fbd591c35cc7a517744d",
+        "_autopair_insert_same.fish": "ac34fd6de9b0c79e4499ace389d3bd61e2984087126a040bccd68d336050c23f",
+        "_autopair_tab.fish": "dd298673353cc7d48b9fd988932594685888aaa8406b2ca0e64946fce261b068",
+        "check-module.py": "cbcb974c8cb0c2b1bf262a8c0f9166ed11f37f06666efd003a204c0859c76294",
+        "opt-in.fish": "77d5122d6fc5a9e933f15425946b806a9273b3ead3bb52a1ac1d81a698ee4a21",
+        "source-provenance.json": "850512269f1b560b47d7e34145af65d6b05b360a86d0295e8c6d957678e35d6b",
+        "usage.md": "5672092ff0515fcab67ebd3b83a0e71333908c2dc4732324f9c1d74e0894630f"
+      },
+      "sources": {
+        ".SRCINFO": {
+          "bytes": 1591,
+          "path": "sources/cachy-asahi-fish-autopair/.SRCINFO",
+          "sha256": "ab11b83a075f544d53dbd9974cdc5152649703db8f3c0dd6c7be02f65b6c0615"
+        },
+        "LICENSE.project": {
+          "bytes": 1081,
+          "path": "sources/cachy-asahi-fish-autopair/LICENSE.project",
+          "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+        },
+        "LICENSE.upstream": {
+          "bytes": 1080,
+          "path": "sources/cachy-asahi-fish-autopair/LICENSE.upstream",
+          "sha256": "f101c761d255d0dddc77dd8a9327733b03d381798ec54a1bb718367207b48a8e"
+        },
+        "NOTICE": {
+          "bytes": 629,
+          "path": "sources/cachy-asahi-fish-autopair/NOTICE",
+          "sha256": "6c73e4ccb627a7d8d1541dfeb99821105b3f22276c304972c81c0eafc6c019ba"
+        },
+        "PKGBUILD": {
+          "bytes": 2592,
+          "path": "sources/cachy-asahi-fish-autopair/PKGBUILD",
+          "sha256": "97deb29c2a2c011a2b95c8bf505d7d00c5e4fa6f376c8fbf7e0ff07ec7c852f1"
+        },
+        "README.md": {
+          "bytes": 1317,
+          "path": "sources/cachy-asahi-fish-autopair/README.md",
+          "sha256": "7ce816bc658576bf7d0bc5a42384751ead891feb97bf9ad3b40b02fd683e5a52"
+        },
+        "_autopair_backspace.fish": {
+          "bytes": 323,
+          "path": "sources/cachy-asahi-fish-autopair/_autopair_backspace.fish",
+          "sha256": "eb5f42b837a98e721ec5f60f6c05df5fc709c9b8852317823b576d053ea9e0d8"
+        },
+        "_autopair_insert_left.fish": {
+          "bytes": 403,
+          "path": "sources/cachy-asahi-fish-autopair/_autopair_insert_left.fish",
+          "sha256": "15739503faea70699ce121742bbfd59cf0ba64fb4ac044119aaeb644ec7019f1"
+        },
+        "_autopair_insert_right.fish": {
+          "bytes": 330,
+          "path": "sources/cachy-asahi-fish-autopair/_autopair_insert_right.fish",
+          "sha256": "eaadbfd4cf10a40dfbe5eaf522f0d7d01a1e4538a6e9fbd591c35cc7a517744d"
+        },
+        "_autopair_insert_same.fish": {
+          "bytes": 776,
+          "path": "sources/cachy-asahi-fish-autopair/_autopair_insert_same.fish",
+          "sha256": "ac34fd6de9b0c79e4499ace389d3bd61e2984087126a040bccd68d336050c23f"
+        },
+        "_autopair_tab.fish": {
+          "bytes": 279,
+          "path": "sources/cachy-asahi-fish-autopair/_autopair_tab.fish",
+          "sha256": "dd298673353cc7d48b9fd988932594685888aaa8406b2ca0e64946fce261b068"
+        },
+        "check-module.py": {
+          "bytes": 11719,
+          "path": "sources/cachy-asahi-fish-autopair/check-module.py",
+          "sha256": "cbcb974c8cb0c2b1bf262a8c0f9166ed11f37f06666efd003a204c0859c76294"
+        },
+        "opt-in.fish": {
+          "bytes": 4383,
+          "path": "sources/cachy-asahi-fish-autopair/opt-in.fish",
+          "sha256": "77d5122d6fc5a9e933f15425946b806a9273b3ead3bb52a1ac1d81a698ee4a21"
+        },
+        "source-provenance.json": {
+          "bytes": 2262,
+          "path": "sources/cachy-asahi-fish-autopair/source-provenance.json",
+          "sha256": "850512269f1b560b47d7e34145af65d6b05b360a86d0295e8c6d957678e35d6b"
+        },
+        "usage.md": {
+          "bytes": 2941,
+          "path": "sources/cachy-asahi-fish-autopair/usage.md",
+          "sha256": "5672092ff0515fcab67ebd3b83a0e71333908c2dc4732324f9c1d74e0894630f"
+        }
+      },
+      "version": "0.1.0-1"
+    },
+    "cachy-asahi-fish-bang-bang": {
+      "acceptance": {
+        "bytes": 975,
+        "path": "evidence/run38935093520/passive-pair-join.json",
+        "sha256": "8a5344fbe48a07be0ff9902ff78afccf28c40a73b74ce847efbc9da4048b9d65"
+      },
+      "evidence": {
+        "bytes": 7001,
+        "path": "evidence/run38935093520/report.json",
+        "sha256": "48e0b3fd037c4dfb79c16023c18fcd5d4993d07a86da110feaa2820d25448556"
+      },
+      "files": {
+        "a": {
+          "bytes": 9652,
+          "path": "evidence/run38935093520/cachy-asahi-fish-bang-bang-a/artifacts/cachy-asahi-fish-bang-bang-0.1.0-2-any.pkg.tar.xz",
+          "sha256": "542585b5c6d50f379deca86cc394afbb0eca51174ee9e11d7ec895181ef73f8e"
+        },
+        "b": {
+          "bytes": 9652,
+          "path": "evidence/run38935093520/cachy-asahi-fish-bang-bang-b/artifacts/cachy-asahi-fish-bang-bang-0.1.0-2-any.pkg.tar.xz",
+          "sha256": "542585b5c6d50f379deca86cc394afbb0eca51174ee9e11d7ec895181ef73f8e"
+        }
+      },
+      "metadata": {
+        "arch": [
+          "any"
+        ],
+        "depends": [
+          "fish>=4.0"
+        ],
+        "license": [
+          "MIT"
+        ],
+        "optdepends": [
+          "cachy-asahi-fish-config: separately enabled original shell helpers"
+        ],
+        "pkgbase": [
+          "cachy-asahi-fish-bang-bang"
+        ],
+        "pkgdesc": [
+          "Explicitly enabled pinned Fish history expansion for cachy-asahi"
+        ],
+        "pkgname": [
+          "cachy-asahi-fish-bang-bang"
+        ],
+        "pkgrel": [
+          "2"
+        ],
+        "pkgver": [
+          "0.1.0"
+        ],
+        "sha256sums": [
+          "d34b75125a34199775eaa74dd47ae37488c4e67f95f40f71b101b6a8f6f32e50",
+          "4e72dcce435d0fe1cf332fb339ed9608f10b29295b28f85ed6e7411ef8c05b64",
+          "47570d644a1525a7c85cb5cfa2d8fc36f9cd1a06b5ef2090d32e4da2e8af0f5e",
+          "bc79cd125d6fb923b49e9868e56c0b97f527d99abf8e22b8537dc3fda993b574",
+          "0704c1ff8bcd8c94ad40888b35c5e25468ea9152b5781e7722ff0d04fb8aa879",
+          "14c6826a7e33a6c74194ece88b26b5f5aee8473474001946a73d0f298b69fce0",
+          "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+        ],
+        "source": [
+          "__history_previous_command.fish",
+          "__history_previous_command_arguments.fish",
+          "opt-in.fish",
+          "usage.md",
+          "NOTICE",
+          "LICENSE.upstream",
+          "LICENSE.project"
+        ],
+        "url": [
+          "https://github.com/oh-my-fish/plugin-bang-bang"
+        ]
+      },
+      "native_run": 38935093520,
+      "native_source": "22c095c85cb6fd79d5de0f0ee43ca012c32c2aeb",
+      "payload": {
+        "usr/share/cachy-asahi/fish-bang-bang/README.md": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "bc79cd125d6fb923b49e9868e56c0b97f527d99abf8e22b8537dc3fda993b574",
+          "size": 3411,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/cachy-asahi/fish-bang-bang/__history_previous_command.fish": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "d34b75125a34199775eaa74dd47ae37488c4e67f95f40f71b101b6a8f6f32e50",
+          "size": 170,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/cachy-asahi/fish-bang-bang/__history_previous_command_arguments.fish": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "4e72dcce435d0fe1cf332fb339ed9608f10b29295b28f85ed6e7411ef8c05b64",
+          "size": 198,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/cachy-asahi/fish-bang-bang/opt-in.fish": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "47570d644a1525a7c85cb5cfa2d8fc36f9cd1a06b5ef2090d32e4da2e8af0f5e",
+          "size": 3290,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/licenses/cachy-asahi-fish-bang-bang/LICENSE.project": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+          "size": 1081,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/licenses/cachy-asahi-fish-bang-bang/LICENSE.upstream": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "14c6826a7e33a6c74194ece88b26b5f5aee8473474001946a73d0f298b69fce0",
+          "size": 1108,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/licenses/cachy-asahi-fish-bang-bang/NOTICE": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "0704c1ff8bcd8c94ad40888b35c5e25468ea9152b5781e7722ff0d04fb8aa879",
+          "size": 811,
+          "type": "0",
+          "uid": 0
+        }
+      },
+      "proof_files": {
+        "a/artifacts/cachy-asahi-fish-bang-bang-0.1.0-2-any.pkg.tar.xz": {
+          "bytes": 9652,
+          "path": "evidence/run38935093520/cachy-asahi-fish-bang-bang-a/artifacts/cachy-asahi-fish-bang-bang-0.1.0-2-any.pkg.tar.xz",
+          "sha256": "542585b5c6d50f379deca86cc394afbb0eca51174ee9e11d7ec895181ef73f8e"
+        },
+        "a/artifacts/config.sha256": {
+          "bytes": 167,
+          "path": "evidence/run38935093520/cachy-asahi-fish-bang-bang-a/artifacts/config.sha256",
+          "sha256": "8309cb4c0409ccdc1ca922475dde9377aec434911efc453299f41e8fadb234ec"
+        },
+        "a/artifacts/environment.txt": {
+          "bytes": 11501,
+          "path": "evidence/run38935093520/cachy-asahi-fish-bang-bang-a/artifacts/environment.txt",
+          "sha256": "a3bcb02edcc3a851112f310b11d2839e900dcd36f31ccdcac14dadb6b298017e"
+        },
+        "a/artifacts/generated.SRCINFO": {
+          "bytes": 1120,
+          "path": "evidence/run38935093520/cachy-asahi-fish-bang-bang-a/artifacts/generated.SRCINFO",
+          "sha256": "09b008c0acc48a0d6dcfee54e978fce880f08389012892345aa412e4e395e908"
+        },
+        "a/artifacts/makepkg.conf": {
+          "bytes": 6651,
+          "path": "evidence/run38935093520/cachy-asahi-fish-bang-bang-a/artifacts/makepkg.conf",
+          "sha256": "cfcf0bd2601d887724c5ca7d9a48ac5dd347abad9e8ac5efa436080e45822a60"
+        },
+        "a/artifacts/packages.lock": {
+          "bytes": 11117,
+          "path": "evidence/run38935093520/cachy-asahi-fish-bang-bang-a/artifacts/packages.lock",
+          "sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac"
+        },
+        "a/artifacts/pacman.conf": {
+          "bytes": 116,
+          "path": "evidence/run38935093520/cachy-asahi-fish-bang-bang-a/artifacts/pacman.conf",
+          "sha256": "14d304eeb83baf1379279356c232580fd095c2d508b41c74677347801a0bafe7"
+        },
+        "a/build.log": {
+          "bytes": 2025,
+          "path": "evidence/run38935093520/cachy-asahi-fish-bang-bang-a/build.log",
+          "sha256": "36c4039bcdf0942c8b228523ea2c6747a7eaf4a28e587865371f9b9cf22aac6f"
+        },
+        "a/expected-packages.lock": {
+          "bytes": 11117,
+          "path": "evidence/run38935093520/cachy-asahi-fish-bang-bang-a/expected-packages.lock",
+          "sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac"
+        },
+        "a/validation.json": {
+          "bytes": 31781,
+          "path": "evidence/run38935093520/cachy-asahi-fish-bang-bang-a/validation.json",
+          "sha256": "0335a48e6260c524b143fbcf84298d9ec36e33b1628e7613bcde18f1feb0aa10"
+        },
+        "b/artifacts/cachy-asahi-fish-bang-bang-0.1.0-2-any.pkg.tar.xz": {
+          "bytes": 9652,
+          "path": "evidence/run38935093520/cachy-asahi-fish-bang-bang-b/artifacts/cachy-asahi-fish-bang-bang-0.1.0-2-any.pkg.tar.xz",
+          "sha256": "542585b5c6d50f379deca86cc394afbb0eca51174ee9e11d7ec895181ef73f8e"
+        },
+        "b/artifacts/config.sha256": {
+          "bytes": 167,
+          "path": "evidence/run38935093520/cachy-asahi-fish-bang-bang-b/artifacts/config.sha256",
+          "sha256": "8309cb4c0409ccdc1ca922475dde9377aec434911efc453299f41e8fadb234ec"
+        },
+        "b/artifacts/environment.txt": {
+          "bytes": 11501,
+          "path": "evidence/run38935093520/cachy-asahi-fish-bang-bang-b/artifacts/environment.txt",
+          "sha256": "61d206723e42b4a830ff1ca5bb401b1546c1997605115ef34afb080feaff5a94"
+        },
+        "b/artifacts/generated.SRCINFO": {
+          "bytes": 1120,
+          "path": "evidence/run38935093520/cachy-asahi-fish-bang-bang-b/artifacts/generated.SRCINFO",
+          "sha256": "09b008c0acc48a0d6dcfee54e978fce880f08389012892345aa412e4e395e908"
+        },
+        "b/artifacts/makepkg.conf": {
+          "bytes": 6651,
+          "path": "evidence/run38935093520/cachy-asahi-fish-bang-bang-b/artifacts/makepkg.conf",
+          "sha256": "cfcf0bd2601d887724c5ca7d9a48ac5dd347abad9e8ac5efa436080e45822a60"
+        },
+        "b/artifacts/packages.lock": {
+          "bytes": 11117,
+          "path": "evidence/run38935093520/cachy-asahi-fish-bang-bang-b/artifacts/packages.lock",
+          "sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac"
+        },
+        "b/artifacts/pacman.conf": {
+          "bytes": 116,
+          "path": "evidence/run38935093520/cachy-asahi-fish-bang-bang-b/artifacts/pacman.conf",
+          "sha256": "14d304eeb83baf1379279356c232580fd095c2d508b41c74677347801a0bafe7"
+        },
+        "b/build.log": {
+          "bytes": 2025,
+          "path": "evidence/run38935093520/cachy-asahi-fish-bang-bang-b/build.log",
+          "sha256": "6c29542548e4cb175eba4d966ed7e49ece158b483590508afb77a8354fd2225c"
+        },
+        "b/expected-packages.lock": {
+          "bytes": 11117,
+          "path": "evidence/run38935093520/cachy-asahi-fish-bang-bang-b/expected-packages.lock",
+          "sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac"
+        },
+        "b/validation.json": {
+          "bytes": 31781,
+          "path": "evidence/run38935093520/cachy-asahi-fish-bang-bang-b/validation.json",
+          "sha256": "b00d001a1de50546666da30b3e4fb5addb5f8687db677f1aca0518ff4deee181"
+        },
+        "bang-comparison.json": {
+          "bytes": 406,
+          "path": "evidence/run38935093520/bang-comparison.json",
+          "sha256": "bf55349bbde00d2b52decdd50cb45e579a69b86645bab9755e06855a703b2e0c"
+        },
+        "containers.json": {
+          "bytes": 480,
+          "path": "evidence/run38935093520/containers.json",
+          "sha256": "62619da3e69a79da078b8b2e70db6455a96df5ce0a39bda645daa46670c62316"
+        },
+        "producer-cleanup.json": {
+          "bytes": 257,
+          "path": "evidence/run38935093520/producer-cleanup.json",
+          "sha256": "a67be9d400972a9b1ac2417594e9c0f1b0123454cb0338cb500e7c99af605bfd"
+        },
+        "provenance_a": {
+          "bytes": 5469,
+          "path": "evidence/run38935093520/cachy-asahi-fish-bang-bang-a/provenance.json",
+          "sha256": "741a16937ed9aee98294b706a337ad05c701d207bb76f383736151e757740992"
+        },
+        "provenance_b": {
+          "bytes": 5469,
+          "path": "evidence/run38935093520/cachy-asahi-fish-bang-bang-b/provenance.json",
+          "sha256": "b2271789b7f6a5bd5213065ae2e8233cd9cfb651ce4b8a24fa05ae79276ca761"
+        },
+        "report.json": {
+          "bytes": 7001,
+          "path": "evidence/run38935093520/report.json",
+          "sha256": "48e0b3fd037c4dfb79c16023c18fcd5d4993d07a86da110feaa2820d25448556"
+        }
+      },
+      "qualification": "PASS_NATIVE_PAIR_ONLY_OVERALL_EXPANDED600_FAIL_INSTALLED600_NOT_RUN",
+      "recipe_inputs": {
+        ".SRCINFO": "09b008c0acc48a0d6dcfee54e978fce880f08389012892345aa412e4e395e908",
+        "LICENSE.project": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+        "LICENSE.upstream": "14c6826a7e33a6c74194ece88b26b5f5aee8473474001946a73d0f298b69fce0",
+        "NOTICE": "0704c1ff8bcd8c94ad40888b35c5e25468ea9152b5781e7722ff0d04fb8aa879",
+        "PKGBUILD": "224ca0a1485a11d5c13f479d2ba3855a5c2dbdc9a3c9676b5112a4e6d54feb53",
+        "README.md": "5e95126ffc5be69a17675a3e07d097201e8e2ac593eb5bac68b2abe208713ad3",
+        "__history_previous_command.fish": "d34b75125a34199775eaa74dd47ae37488c4e67f95f40f71b101b6a8f6f32e50",
+        "__history_previous_command_arguments.fish": "4e72dcce435d0fe1cf332fb339ed9608f10b29295b28f85ed6e7411ef8c05b64",
+        "integration-proposal.json": "951ef1f566e2b1e524bba9dd2a8f4945cc6087f0727d2623566dfce6422c5de6",
+        "opt-in.fish": "47570d644a1525a7c85cb5cfa2d8fc36f9cd1a06b5ef2090d32e4da2e8af0f5e",
+        "source-provenance.json": "199b09174a92e887091479bef47ac1124bab17743d1ff0d77747a6a1dc66e4d3",
+        "usage.md": "bc79cd125d6fb923b49e9868e56c0b97f527d99abf8e22b8537dc3fda993b574"
+      },
+      "source_snapshot_origin": "Current canonical files independently identical to BOTH actual provenance recipe_inputs; original inputs directories were not exported",
+      "sources": {
+        ".SRCINFO": {
+          "bytes": 1120,
+          "path": "sources/cachy-asahi-fish-bang-bang/.SRCINFO",
+          "sha256": "09b008c0acc48a0d6dcfee54e978fce880f08389012892345aa412e4e395e908"
+        },
+        "LICENSE.project": {
+          "bytes": 1081,
+          "path": "sources/cachy-asahi-fish-bang-bang/LICENSE.project",
+          "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+        },
+        "LICENSE.upstream": {
+          "bytes": 1108,
+          "path": "sources/cachy-asahi-fish-bang-bang/LICENSE.upstream",
+          "sha256": "14c6826a7e33a6c74194ece88b26b5f5aee8473474001946a73d0f298b69fce0"
+        },
+        "NOTICE": {
+          "bytes": 811,
+          "path": "sources/cachy-asahi-fish-bang-bang/NOTICE",
+          "sha256": "0704c1ff8bcd8c94ad40888b35c5e25468ea9152b5781e7722ff0d04fb8aa879"
+        },
+        "PKGBUILD": {
+          "bytes": 2123,
+          "path": "sources/cachy-asahi-fish-bang-bang/PKGBUILD",
+          "sha256": "224ca0a1485a11d5c13f479d2ba3855a5c2dbdc9a3c9676b5112a4e6d54feb53"
+        },
+        "README.md": {
+          "bytes": 2721,
+          "path": "sources/cachy-asahi-fish-bang-bang/README.md",
+          "sha256": "5e95126ffc5be69a17675a3e07d097201e8e2ac593eb5bac68b2abe208713ad3"
+        },
+        "__history_previous_command.fish": {
+          "bytes": 170,
+          "path": "sources/cachy-asahi-fish-bang-bang/__history_previous_command.fish",
+          "sha256": "d34b75125a34199775eaa74dd47ae37488c4e67f95f40f71b101b6a8f6f32e50"
+        },
+        "__history_previous_command_arguments.fish": {
+          "bytes": 198,
+          "path": "sources/cachy-asahi-fish-bang-bang/__history_previous_command_arguments.fish",
+          "sha256": "4e72dcce435d0fe1cf332fb339ed9608f10b29295b28f85ed6e7411ef8c05b64"
+        },
+        "integration-proposal.json": {
+          "bytes": 984,
+          "path": "sources/cachy-asahi-fish-bang-bang/integration-proposal.json",
+          "sha256": "951ef1f566e2b1e524bba9dd2a8f4945cc6087f0727d2623566dfce6422c5de6"
+        },
+        "opt-in.fish": {
+          "bytes": 3290,
+          "path": "sources/cachy-asahi-fish-bang-bang/opt-in.fish",
+          "sha256": "47570d644a1525a7c85cb5cfa2d8fc36f9cd1a06b5ef2090d32e4da2e8af0f5e"
+        },
+        "source-provenance.json": {
+          "bytes": 1908,
+          "path": "sources/cachy-asahi-fish-bang-bang/source-provenance.json",
+          "sha256": "199b09174a92e887091479bef47ac1124bab17743d1ff0d77747a6a1dc66e4d3"
+        },
+        "usage.md": {
+          "bytes": 3411,
+          "path": "sources/cachy-asahi-fish-bang-bang/usage.md",
+          "sha256": "bc79cd125d6fb923b49e9868e56c0b97f527d99abf8e22b8537dc3fda993b574"
+        }
+      },
+      "version": "0.1.0-2"
+    },
+    "cachy-asahi-fish-done": {
+      "acceptance": {
+        "bytes": 678,
+        "path": "evidence/run38921031485/cachy-asahi-fish-done-root-acceptance.json",
+        "sha256": "833d7cdc5b59c1d9c14acdc04fe754e239790086a44ad6d47393762f98725566"
+      },
+      "evidence": {
+        "bytes": 5777,
+        "path": "evidence/docs/fish-candidates-native-20261016.md",
+        "sha256": "76a9f1984865d5f791a85010f6b5232c1507c9b2231371267330b312a7915500"
+      },
+      "files": {
+        "a": {
+          "bytes": 15380,
+          "path": "packages/cachy-asahi-fish-done-a/cachy-asahi-fish-done-0.1.0-2-any.pkg.tar.xz",
+          "sha256": "9ce3c7ba89467f04660014c1b12056dce28bd0c4e69b4cab8a9c2c98e1cce54f"
+        },
+        "b": {
+          "bytes": 15380,
+          "path": "packages/cachy-asahi-fish-done-b/cachy-asahi-fish-done-0.1.0-2-any.pkg.tar.xz",
+          "sha256": "9ce3c7ba89467f04660014c1b12056dce28bd0c4e69b4cab8a9c2c98e1cce54f"
+        }
+      },
+      "metadata": {
+        "arch": [
+          "any"
+        ],
+        "depends": [
+          "fish>=4.9.3",
+          "libnotify",
+          "coreutils"
+        ],
+        "license": [
+          "MIT"
+        ],
+        "makedepends": [
+          "python"
+        ],
+        "pkgdesc": [
+          "Explicitly enabled Fish command and selected child-job notifications"
+        ],
+        "pkgname": [
+          "cachy-asahi-fish-done"
+        ],
+        "pkgrel": [
+          "2"
+        ],
+        "pkgver": [
+          "0.1.0"
+        ],
+        "sha256sums": [
+          "f545413bd75a3017b8d11a5ca7fe7394f326babbc8c18618323c39fbd8d0a0d4",
+          "4aa68e18104966509dd0bfd6f7378423e212781d0674dae85fd38b1d30e30372",
+          "6ff60eef9f211819833b0d94a9fef15a2982835c84d868d7b0d55200e37b6a20",
+          "79a869d9adc6405a07ac647d01be905f99cc1e8dedd0821f38680fc504b919dd",
+          "e338eec57d00f5f85dcfea84b33eda11bbf3d3174e41abf957246d8a94d3d622",
+          "b78395517588426f45ede5953d30ca8c449fec77ef4b633ad53246031e4465e1",
+          "cb000928dc0f592c00ee4a8df16659b8aab326b235effd6ea208aaecf319f4c3",
+          "d3a6b9e81b93ce9b59c72355867b03f15e9ec186ad9d6b96e0a96374fa3d4c30",
+          "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+        ],
+        "source": [
+          "done.fish",
+          "done.upstream.fish",
+          "opt-in.fish",
+          "check-module.py",
+          "usage.md",
+          "source-provenance.json",
+          "NOTICE",
+          "LICENSE.upstream",
+          "LICENSE.project"
+        ],
+        "url": [
+          "https://github.com/franciscolourenco/done"
+        ]
+      },
+      "native_run": 38921031485,
+      "native_source": "6c691098cd7be3ad4a4b2acb9acfb4fdc653cf53",
+      "payload": {
+        "usr/share/cachy-asahi/fish-done/README.md": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "e338eec57d00f5f85dcfea84b33eda11bbf3d3174e41abf957246d8a94d3d622",
+          "size": 5792,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/cachy-asahi/fish-done/done.fish": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "f545413bd75a3017b8d11a5ca7fe7394f326babbc8c18618323c39fbd8d0a0d4",
+          "size": 5011,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/cachy-asahi/fish-done/done.upstream.fish": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "4aa68e18104966509dd0bfd6f7378423e212781d0674dae85fd38b1d30e30372",
+          "size": 13815,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/cachy-asahi/fish-done/opt-in.fish": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "6ff60eef9f211819833b0d94a9fef15a2982835c84d868d7b0d55200e37b6a20",
+          "size": 908,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/cachy-asahi/fish-done/source-provenance.json": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "b78395517588426f45ede5953d30ca8c449fec77ef4b633ad53246031e4465e1",
+          "size": 2478,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/licenses/cachy-asahi-fish-done/LICENSE.project": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+          "size": 1081,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/licenses/cachy-asahi-fish-done/LICENSE.upstream": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "d3a6b9e81b93ce9b59c72355867b03f15e9ec186ad9d6b96e0a96374fa3d4c30",
+          "size": 1092,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/licenses/cachy-asahi-fish-done/NOTICE": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "cb000928dc0f592c00ee4a8df16659b8aab326b235effd6ea208aaecf319f4c3",
+          "size": 1213,
+          "type": "0",
+          "uid": 0
+        }
+      },
+      "qualification": "PASS_NATIVE_PAIR_AND_INSTALLED_LOCAL_RECORDER_LIFECYCLE",
+      "raw_lifecycle": {
+        "bytes": 113183,
+        "path": "evidence/run38921031485/lifecycle.json",
+        "sha256": "e6659b624e45020a87b4052f667e306c9a33a5b517af16edc4f2a4f97cb19356"
+      },
+      "recipe_inputs": {
+        ".SRCINFO": "9b769ac2155a0d74550daaaa7d81ec6d098ce8e1dfe47cb06dbcfd227b3541df",
+        "LICENSE.project": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+        "LICENSE.upstream": "d3a6b9e81b93ce9b59c72355867b03f15e9ec186ad9d6b96e0a96374fa3d4c30",
+        "NOTICE": "cb000928dc0f592c00ee4a8df16659b8aab326b235effd6ea208aaecf319f4c3",
+        "PKGBUILD": "d76f7d27959e79af0f78945ff6bae247e796b235ae6326abf8c3ae3de04ca28d",
+        "README.md": "8781f844987d1bcc677d9b3a69f23970840104d345f3698f5d44639bff797015",
+        "check-module.py": "79a869d9adc6405a07ac647d01be905f99cc1e8dedd0821f38680fc504b919dd",
+        "done.fish": "f545413bd75a3017b8d11a5ca7fe7394f326babbc8c18618323c39fbd8d0a0d4",
+        "done.upstream.fish": "4aa68e18104966509dd0bfd6f7378423e212781d0674dae85fd38b1d30e30372",
+        "opt-in.fish": "6ff60eef9f211819833b0d94a9fef15a2982835c84d868d7b0d55200e37b6a20",
+        "source-provenance.json": "b78395517588426f45ede5953d30ca8c449fec77ef4b633ad53246031e4465e1",
+        "usage.md": "e338eec57d00f5f85dcfea84b33eda11bbf3d3174e41abf957246d8a94d3d622"
+      },
+      "sources": {
+        ".SRCINFO": {
+          "bytes": 1266,
+          "path": "sources/cachy-asahi-fish-done/.SRCINFO",
+          "sha256": "9b769ac2155a0d74550daaaa7d81ec6d098ce8e1dfe47cb06dbcfd227b3541df"
+        },
+        "LICENSE.project": {
+          "bytes": 1081,
+          "path": "sources/cachy-asahi-fish-done/LICENSE.project",
+          "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+        },
+        "LICENSE.upstream": {
+          "bytes": 1092,
+          "path": "sources/cachy-asahi-fish-done/LICENSE.upstream",
+          "sha256": "d3a6b9e81b93ce9b59c72355867b03f15e9ec186ad9d6b96e0a96374fa3d4c30"
+        },
+        "NOTICE": {
+          "bytes": 1213,
+          "path": "sources/cachy-asahi-fish-done/NOTICE",
+          "sha256": "cb000928dc0f592c00ee4a8df16659b8aab326b235effd6ea208aaecf319f4c3"
+        },
+        "PKGBUILD": {
+          "bytes": 2099,
+          "path": "sources/cachy-asahi-fish-done/PKGBUILD",
+          "sha256": "d76f7d27959e79af0f78945ff6bae247e796b235ae6326abf8c3ae3de04ca28d"
+        },
+        "README.md": {
+          "bytes": 2462,
+          "path": "sources/cachy-asahi-fish-done/README.md",
+          "sha256": "8781f844987d1bcc677d9b3a69f23970840104d345f3698f5d44639bff797015"
+        },
+        "check-module.py": {
+          "bytes": 18968,
+          "path": "sources/cachy-asahi-fish-done/check-module.py",
+          "sha256": "79a869d9adc6405a07ac647d01be905f99cc1e8dedd0821f38680fc504b919dd"
+        },
+        "done.fish": {
+          "bytes": 5011,
+          "path": "sources/cachy-asahi-fish-done/done.fish",
+          "sha256": "f545413bd75a3017b8d11a5ca7fe7394f326babbc8c18618323c39fbd8d0a0d4"
+        },
+        "done.upstream.fish": {
+          "bytes": 13815,
+          "path": "sources/cachy-asahi-fish-done/done.upstream.fish",
+          "sha256": "4aa68e18104966509dd0bfd6f7378423e212781d0674dae85fd38b1d30e30372"
+        },
+        "opt-in.fish": {
+          "bytes": 908,
+          "path": "sources/cachy-asahi-fish-done/opt-in.fish",
+          "sha256": "6ff60eef9f211819833b0d94a9fef15a2982835c84d868d7b0d55200e37b6a20"
+        },
+        "source-provenance.json": {
+          "bytes": 2478,
+          "path": "sources/cachy-asahi-fish-done/source-provenance.json",
+          "sha256": "b78395517588426f45ede5953d30ca8c449fec77ef4b633ad53246031e4465e1"
+        },
+        "usage.md": {
+          "bytes": 5792,
+          "path": "sources/cachy-asahi-fish-done/usage.md",
+          "sha256": "e338eec57d00f5f85dcfea84b33eda11bbf3d3174e41abf957246d8a94d3d622"
+        }
+      },
+      "version": "0.1.0-2"
+    },
+    "cachy-asahi-zsh-autosuggestions": {
+      "acceptance": {
+        "bytes": 871,
+        "path": "evidence/run38765227491/passive-pair-join.json",
+        "sha256": "d5f3cdcb6601643fbb0790c9416a6332ca0688b3c614705de2dc6549c0d28503"
+      },
+      "evidence": {
+        "bytes": 8747,
+        "path": "evidence/docs/tools-batch-native-20261015.md",
+        "sha256": "f41b452f9ff68ea2f4117d1fdf685ea73cd6dc3d4a2ffb9cc1f3f0d9d45cd0eb"
+      },
+      "files": {
+        "a": {
+          "bytes": 13652,
+          "path": "evidence/run38765227491/cachy-asahi-zsh-autosuggestions-a/artifacts/cachy-asahi-zsh-autosuggestions-0.7.1-1-any.pkg.tar.xz",
+          "sha256": "ff59a185f52e80dc4fd08c666d093cccefa3e57f2513085c900602da597f29b9"
+        },
+        "b": {
+          "bytes": 13652,
+          "path": "evidence/run38765227491/cachy-asahi-zsh-autosuggestions-b/artifacts/cachy-asahi-zsh-autosuggestions-0.7.1-1-any.pkg.tar.xz",
+          "sha256": "ff59a185f52e80dc4fd08c666d093cccefa3e57f2513085c900602da597f29b9"
+        }
+      },
+      "metadata": {
+        "arch": [
+          "any"
+        ],
+        "depends": [
+          "zsh>=4.3.11"
+        ],
+        "license": [
+          "MIT"
+        ],
+        "optdepends": [
+          "coreutils: stty for upstream optional completion suggestions"
+        ],
+        "pkgbase": [
+          "cachy-asahi-zsh-autosuggestions"
+        ],
+        "pkgdesc": [
+          "Opt-in pinned Zsh history autosuggestions for cachy-asahi"
+        ],
+        "pkgname": [
+          "cachy-asahi-zsh-autosuggestions"
+        ],
+        "pkgrel": [
+          "1"
+        ],
+        "pkgver": [
+          "0.7.1"
+        ],
+        "sha256sums": [
+          "eec7ba8f7a71414ace0ea0fab0908d005b24cf65d83b169c0ff97815d3cfc51a",
+          "692bca1e9ba1a2e9bd32de08cb6ffa5d15b19f85b48e1c08d85a48e41fe6f768",
+          "3b43dee6a8f3c20796bb6e0965fd60b3b2e7b7e8c2d508efc011ba36aada6760",
+          "9171e9a773c8b7c60ae8e489608f7ef4a4dba3a762156aa57e4673960ab2c921",
+          "4598a6be0b8d7f2b708da5259d2a30d4e15e59b3c66781bab9e27744a9f859d8",
+          "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+        ],
+        "source": [
+          "zsh-autosuggestions.zsh",
+          "opt-in.zsh",
+          "usage.md",
+          "NOTICE",
+          "LICENSE.upstream",
+          "LICENSE.project"
+        ],
+        "url": [
+          "https://github.com/zsh-users/zsh-autosuggestions"
+        ]
+      },
+      "native_run": 38765227491,
+      "native_source": "4ee5a99e6ce7a83e2e5a5bdf4b71a1080e91d21c",
+      "payload": {
+        "usr/share/cachy-asahi/zsh-autosuggestions/README.md": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "3b43dee6a8f3c20796bb6e0965fd60b3b2e7b7e8c2d508efc011ba36aada6760",
+          "size": 2776,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/cachy-asahi/zsh-autosuggestions/opt-in.zsh": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "692bca1e9ba1a2e9bd32de08cb6ffa5d15b19f85b48e1c08d85a48e41fe6f768",
+          "size": 253,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/cachy-asahi/zsh-autosuggestions/zsh-autosuggestions.zsh": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "eec7ba8f7a71414ace0ea0fab0908d005b24cf65d83b169c0ff97815d3cfc51a",
+          "size": 27017,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/licenses/cachy-asahi-zsh-autosuggestions/LICENSE.project": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+          "size": 1081,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/licenses/cachy-asahi-zsh-autosuggestions/LICENSE.upstream": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "4598a6be0b8d7f2b708da5259d2a30d4e15e59b3c66781bab9e27744a9f859d8",
+          "size": 1096,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/licenses/cachy-asahi-zsh-autosuggestions/NOTICE": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "9171e9a773c8b7c60ae8e489608f7ef4a4dba3a762156aa57e4673960ab2c921",
+          "size": 633,
+          "type": "0",
+          "uid": 0
+        }
+      },
+      "proof_files": {
+        "a/artifacts/cachy-asahi-zsh-autosuggestions-0.7.1-1-any.pkg.tar.xz": {
+          "bytes": 13652,
+          "path": "evidence/run38765227491/cachy-asahi-zsh-autosuggestions-a/artifacts/cachy-asahi-zsh-autosuggestions-0.7.1-1-any.pkg.tar.xz",
+          "sha256": "ff59a185f52e80dc4fd08c666d093cccefa3e57f2513085c900602da597f29b9"
+        },
+        "a/artifacts/config.sha256": {
+          "bytes": 167,
+          "path": "evidence/run38765227491/cachy-asahi-zsh-autosuggestions-a/artifacts/config.sha256",
+          "sha256": "8309cb4c0409ccdc1ca922475dde9377aec434911efc453299f41e8fadb234ec"
+        },
+        "a/artifacts/environment.txt": {
+          "bytes": 7058,
+          "path": "evidence/run38765227491/cachy-asahi-zsh-autosuggestions-a/artifacts/environment.txt",
+          "sha256": "2eb8d352e61787147b0ee727b67a8afeb62ef255af69708d0baac042b8aaf6a8"
+        },
+        "a/artifacts/generated.SRCINFO": {
+          "bytes": 981,
+          "path": "evidence/run38765227491/cachy-asahi-zsh-autosuggestions-a/artifacts/generated.SRCINFO",
+          "sha256": "fd7ce4ce1c33534b1b168bfe6166463cd8d74ce602f0469b62d5f9d475081504"
+        },
+        "a/artifacts/makepkg.conf": {
+          "bytes": 6651,
+          "path": "evidence/run38765227491/cachy-asahi-zsh-autosuggestions-a/artifacts/makepkg.conf",
+          "sha256": "cfcf0bd2601d887724c5ca7d9a48ac5dd347abad9e8ac5efa436080e45822a60"
+        },
+        "a/artifacts/packages.lock": {
+          "bytes": 6674,
+          "path": "evidence/run38765227491/cachy-asahi-zsh-autosuggestions-a/artifacts/packages.lock",
+          "sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25"
+        },
+        "a/artifacts/pacman.conf": {
+          "bytes": 116,
+          "path": "evidence/run38765227491/cachy-asahi-zsh-autosuggestions-a/artifacts/pacman.conf",
+          "sha256": "14d304eeb83baf1379279356c232580fd095c2d508b41c74677347801a0bafe7"
+        },
+        "a/build.log": {
+          "bytes": 1789,
+          "path": "evidence/run38765227491/cachy-asahi-zsh-autosuggestions-a/build.log",
+          "sha256": "5abacae27fa831fc21826f5ee23e91ce06a2f1b6aa098d2c38543ab0157a59da"
+        },
+        "a/expected-packages.lock": {
+          "bytes": 6674,
+          "path": "evidence/run38765227491/cachy-asahi-zsh-autosuggestions-a/expected-packages.lock",
+          "sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25"
+        },
+        "a/validation.json": {
+          "bytes": 21208,
+          "path": "evidence/run38765227491/cachy-asahi-zsh-autosuggestions-a/validation.json",
+          "sha256": "f00969ad81e090a1e58fb20e1103b1bd0a68455c5e45ba73fe46e304f06e2dcc"
+        },
+        "b/artifacts/cachy-asahi-zsh-autosuggestions-0.7.1-1-any.pkg.tar.xz": {
+          "bytes": 13652,
+          "path": "evidence/run38765227491/cachy-asahi-zsh-autosuggestions-b/artifacts/cachy-asahi-zsh-autosuggestions-0.7.1-1-any.pkg.tar.xz",
+          "sha256": "ff59a185f52e80dc4fd08c666d093cccefa3e57f2513085c900602da597f29b9"
+        },
+        "b/artifacts/config.sha256": {
+          "bytes": 167,
+          "path": "evidence/run38765227491/cachy-asahi-zsh-autosuggestions-b/artifacts/config.sha256",
+          "sha256": "8309cb4c0409ccdc1ca922475dde9377aec434911efc453299f41e8fadb234ec"
+        },
+        "b/artifacts/environment.txt": {
+          "bytes": 7058,
+          "path": "evidence/run38765227491/cachy-asahi-zsh-autosuggestions-b/artifacts/environment.txt",
+          "sha256": "830f2afd7c0fff716920a75f95aea1e899fec17e4cf16131bc8eccf07c180550"
+        },
+        "b/artifacts/generated.SRCINFO": {
+          "bytes": 981,
+          "path": "evidence/run38765227491/cachy-asahi-zsh-autosuggestions-b/artifacts/generated.SRCINFO",
+          "sha256": "fd7ce4ce1c33534b1b168bfe6166463cd8d74ce602f0469b62d5f9d475081504"
+        },
+        "b/artifacts/makepkg.conf": {
+          "bytes": 6651,
+          "path": "evidence/run38765227491/cachy-asahi-zsh-autosuggestions-b/artifacts/makepkg.conf",
+          "sha256": "cfcf0bd2601d887724c5ca7d9a48ac5dd347abad9e8ac5efa436080e45822a60"
+        },
+        "b/artifacts/packages.lock": {
+          "bytes": 6674,
+          "path": "evidence/run38765227491/cachy-asahi-zsh-autosuggestions-b/artifacts/packages.lock",
+          "sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25"
+        },
+        "b/artifacts/pacman.conf": {
+          "bytes": 116,
+          "path": "evidence/run38765227491/cachy-asahi-zsh-autosuggestions-b/artifacts/pacman.conf",
+          "sha256": "14d304eeb83baf1379279356c232580fd095c2d508b41c74677347801a0bafe7"
+        },
+        "b/build.log": {
+          "bytes": 1789,
+          "path": "evidence/run38765227491/cachy-asahi-zsh-autosuggestions-b/build.log",
+          "sha256": "edf1120fcf3f2f7ef1a7664e06b12fdbfe0688e642b4b45e046bc96d15fb77df"
+        },
+        "b/expected-packages.lock": {
+          "bytes": 6674,
+          "path": "evidence/run38765227491/cachy-asahi-zsh-autosuggestions-b/expected-packages.lock",
+          "sha256": "fc853bd6890b76f05178eba69436da434dd6b99daf166301f692b725d7c39e25"
+        },
+        "b/validation.json": {
+          "bytes": 21208,
+          "path": "evidence/run38765227491/cachy-asahi-zsh-autosuggestions-b/validation.json",
+          "sha256": "f00969ad81e090a1e58fb20e1103b1bd0a68455c5e45ba73fe46e304f06e2dcc"
+        },
+        "comparison": {
+          "bytes": 411,
+          "path": "evidence/run38765227491/autosuggestions-comparison.json",
+          "sha256": "5b9ccc76d600705bafcc6faca4f79ab9d1a10873577893c7c0cb7f2d9d9d5c7b"
+        },
+        "local_validation": {
+          "bytes": 5984,
+          "path": "evidence/run38765227491/original-local-validation.json",
+          "sha256": "d23d7fa3fac38dac3a879975d4451ef1b8eff67fd950c4b33fa1157a4873c02b"
+        },
+        "provenance_a": {
+          "bytes": 5544,
+          "path": "evidence/run38765227491/cachy-asahi-zsh-autosuggestions-a/provenance.json",
+          "sha256": "63ac9a5878882f63bb98160d9e57c6d69febe27ff2c4cb9bbce7d7a5cd124068"
+        },
+        "provenance_b": {
+          "bytes": 5544,
+          "path": "evidence/run38765227491/cachy-asahi-zsh-autosuggestions-b/provenance.json",
+          "sha256": "05e258573f7389cbf68f8f2d28afab7401293b63bd1581a86be9cf176a5ec8de"
+        }
+      },
+      "qualification": "PASS_NATIVE_PAIR_AND_ORIGINAL_INSTALLED_LIFECYCLE_NORMAL_PATH_CLEANUP_ONLY",
+      "raw_lifecycle": {
+        "bytes": 107,
+        "path": "evidence/run38765227491/lifecycle.log",
+        "sha256": "cac45bc6fb2da047200f6b22128ad5f06601ab6a9da934edefc67541b1cf0626"
+      },
+      "recipe_inputs": {
+        ".SRCINFO": "fd7ce4ce1c33534b1b168bfe6166463cd8d74ce602f0469b62d5f9d475081504",
+        "LICENSE.project": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+        "LICENSE.upstream": "4598a6be0b8d7f2b708da5259d2a30d4e15e59b3c66781bab9e27744a9f859d8",
+        "NOTICE": "9171e9a773c8b7c60ae8e489608f7ef4a4dba3a762156aa57e4673960ab2c921",
+        "PKGBUILD": "dbcd109f38f75e8bda2c79a5b368961319a57ea7c618987d242cb90b79185408",
+        "README.md": "775d480926b42496f937aaa019978ae26db6d21cbfa331ef33999f1874c1e4fd",
+        "check-module.py": "fa81e94383b3d7caa1522ea6be165579ba7a4d0775f6cc7f1e14c343fb6946bc",
+        "integration-proposal.json": "40949e6667a2859c7fbc8ce82b78183db3bf353669e2ea1291ff47c2551d6c3d",
+        "opt-in.zsh": "692bca1e9ba1a2e9bd32de08cb6ffa5d15b19f85b48e1c08d85a48e41fe6f768",
+        "source-provenance.json": "0e46b589fefba600766591e8cc02897111c5f45e17415f4a2aac004d46418f36",
+        "usage.md": "3b43dee6a8f3c20796bb6e0965fd60b3b2e7b7e8c2d508efc011ba36aada6760",
+        "zsh-autosuggestions.zsh": "eec7ba8f7a71414ace0ea0fab0908d005b24cf65d83b169c0ff97815d3cfc51a"
+      },
+      "source_snapshot_origin": "Exact original current-1 inputs independently joined to current-2/current source snapshots",
+      "sources": {
+        ".SRCINFO": {
+          "bytes": 981,
+          "path": "sources/cachy-asahi-zsh-autosuggestions/.SRCINFO",
+          "sha256": "fd7ce4ce1c33534b1b168bfe6166463cd8d74ce602f0469b62d5f9d475081504"
+        },
+        "LICENSE.project": {
+          "bytes": 1081,
+          "path": "sources/cachy-asahi-zsh-autosuggestions/LICENSE.project",
+          "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+        },
+        "LICENSE.upstream": {
+          "bytes": 1096,
+          "path": "sources/cachy-asahi-zsh-autosuggestions/LICENSE.upstream",
+          "sha256": "4598a6be0b8d7f2b708da5259d2a30d4e15e59b3c66781bab9e27744a9f859d8"
+        },
+        "NOTICE": {
+          "bytes": 633,
+          "path": "sources/cachy-asahi-zsh-autosuggestions/NOTICE",
+          "sha256": "9171e9a773c8b7c60ae8e489608f7ef4a4dba3a762156aa57e4673960ab2c921"
+        },
+        "PKGBUILD": {
+          "bytes": 1745,
+          "path": "sources/cachy-asahi-zsh-autosuggestions/PKGBUILD",
+          "sha256": "dbcd109f38f75e8bda2c79a5b368961319a57ea7c618987d242cb90b79185408"
+        },
+        "README.md": {
+          "bytes": 3269,
+          "path": "sources/cachy-asahi-zsh-autosuggestions/README.md",
+          "sha256": "775d480926b42496f937aaa019978ae26db6d21cbfa331ef33999f1874c1e4fd"
+        },
+        "check-module.py": {
+          "bytes": 13447,
+          "path": "sources/cachy-asahi-zsh-autosuggestions/check-module.py",
+          "sha256": "fa81e94383b3d7caa1522ea6be165579ba7a4d0775f6cc7f1e14c343fb6946bc"
+        },
+        "integration-proposal.json": {
+          "bytes": 1130,
+          "path": "sources/cachy-asahi-zsh-autosuggestions/integration-proposal.json",
+          "sha256": "40949e6667a2859c7fbc8ce82b78183db3bf353669e2ea1291ff47c2551d6c3d"
+        },
+        "opt-in.zsh": {
+          "bytes": 253,
+          "path": "sources/cachy-asahi-zsh-autosuggestions/opt-in.zsh",
+          "sha256": "692bca1e9ba1a2e9bd32de08cb6ffa5d15b19f85b48e1c08d85a48e41fe6f768"
+        },
+        "source-provenance.json": {
+          "bytes": 1482,
+          "path": "sources/cachy-asahi-zsh-autosuggestions/source-provenance.json",
+          "sha256": "0e46b589fefba600766591e8cc02897111c5f45e17415f4a2aac004d46418f36"
+        },
+        "usage.md": {
+          "bytes": 2776,
+          "path": "sources/cachy-asahi-zsh-autosuggestions/usage.md",
+          "sha256": "3b43dee6a8f3c20796bb6e0965fd60b3b2e7b7e8c2d508efc011ba36aada6760"
+        },
+        "zsh-autosuggestions.zsh": {
+          "bytes": 27017,
+          "path": "sources/cachy-asahi-zsh-autosuggestions/zsh-autosuggestions.zsh",
+          "sha256": "eec7ba8f7a71414ace0ea0fab0908d005b24cf65d83b169c0ff97815d3cfc51a"
+        }
+      },
+      "version": "0.7.1-1"
+    },
+    "cachy-asahi-zsh-history-substring-search": {
+      "acceptance": {
+        "bytes": 691,
+        "path": "evidence/run38909646797/cachy-asahi-zsh-history-substring-search-root-acceptance.json",
+        "sha256": "2120bbd80f4fbc909ad686364d942820dfb798fd4df9f37bb4067f67d2db78f1"
+      },
+      "evidence": {
+        "bytes": 4891,
+        "path": "evidence/docs/tools-candidates-native-20261016.md",
+        "sha256": "b9c09b1174f60204851b41d7500f98117d95f0fe9aaae140bd0d4df2f06cf8b9"
+      },
+      "files": {
+        "a": {
+          "bytes": 15728,
+          "path": "packages/cachy-asahi-zsh-history-substring-search-a/cachy-asahi-zsh-history-substring-search-0.1.0-1-any.pkg.tar.xz",
+          "sha256": "dc5cdffcc7d59bd93986bfbb5279aaff3760f469dc3ce4a2eb5244e1e80ceb15"
+        },
+        "b": {
+          "bytes": 15728,
+          "path": "packages/cachy-asahi-zsh-history-substring-search-b/cachy-asahi-zsh-history-substring-search-0.1.0-1-any.pkg.tar.xz",
+          "sha256": "dc5cdffcc7d59bd93986bfbb5279aaff3760f469dc3ce4a2eb5244e1e80ceb15"
+        }
+      },
+      "metadata": {
+        "arch": [
+          "any"
+        ],
+        "depends": [
+          "zsh>=5.9"
+        ],
+        "license": [
+          "BSD-3-Clause",
+          "MIT"
+        ],
+        "makedepends": [
+          "python"
+        ],
+        "pkgdesc": [
+          "Explicit opt-in pinned Zsh history substring search for cachy-asahi"
+        ],
+        "pkgname": [
+          "cachy-asahi-zsh-history-substring-search"
+        ],
+        "pkgrel": [
+          "1"
+        ],
+        "pkgver": [
+          "0.1.0"
+        ],
+        "sha256sums": [
+          "0b864862a3b48992d7316cc7e585a1315fa389d730c17bf16e2f2bd5918089f3",
+          "2eedaa32f3504b5301afc7e8c302ef91d3c60fa1c1a532ab59c4d11915fedea5",
+          "5ff7ca69e03cd53ddb51dc53a21e1737f9aae96ea12fa7e2a5a509fc9c19b7e3",
+          "36bc69d4b18cbef88cf8770cb01a8a91db018fef85170a458a9a5315511d9c08",
+          "95f239dd39d079d2546aaefee371d09f3f423d6902e85e64787ae0bc5f441a33",
+          "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+          "f79eb322f34617d43ae13deaaac057f431e8e81f11a23e8a79876158c37dff00",
+          "298036481160566fa28bb2a728285b95307c0b11b77cc3e4a5f22656e105c3f7"
+        ],
+        "source": [
+          "zsh-history-substring-search.zsh",
+          "opt-in.zsh",
+          "usage.md",
+          "NOTICE",
+          "LICENSE.upstream",
+          "LICENSE.project",
+          "check-module.py",
+          "source-provenance.json"
+        ],
+        "url": [
+          "https://github.com/zsh-users/zsh-history-substring-search"
+        ]
+      },
+      "native_run": 38909646797,
+      "native_source": "8276f19463d1b58ab593ca90f259d1fadc3672f7",
+      "payload": {
+        "usr/share/cachy-asahi/zsh-history-substring-search/opt-in.zsh": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "2eedaa32f3504b5301afc7e8c302ef91d3c60fa1c1a532ab59c4d11915fedea5",
+          "size": 874,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/cachy-asahi/zsh-history-substring-search/zsh-history-substring-search.zsh": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "0b864862a3b48992d7316cc7e585a1315fa389d730c17bf16e2f2bd5918089f3",
+          "size": 29692,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/doc/cachy-asahi-zsh-history-substring-search/source-provenance.json": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "298036481160566fa28bb2a728285b95307c0b11b77cc3e4a5f22656e105c3f7",
+          "size": 1721,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/doc/cachy-asahi-zsh-history-substring-search/usage.md": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "5ff7ca69e03cd53ddb51dc53a21e1737f9aae96ea12fa7e2a5a509fc9c19b7e3",
+          "size": 2659,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/licenses/cachy-asahi-zsh-history-substring-search/LICENSE.project": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+          "size": 1081,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/licenses/cachy-asahi-zsh-history-substring-search/LICENSE.upstream": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "95f239dd39d079d2546aaefee371d09f3f423d6902e85e64787ae0bc5f441a33",
+          "size": 1943,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/licenses/cachy-asahi-zsh-history-substring-search/NOTICE": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "36bc69d4b18cbef88cf8770cb01a8a91db018fef85170a458a9a5315511d9c08",
+          "size": 834,
+          "type": "0",
+          "uid": 0
+        }
+      },
+      "qualification": "PASS_WITH_EXPLICIT_FROZEN_SOURCE_PATH_SUPPLEMENT",
+      "raw_lifecycle": {
+        "bytes": 51949,
+        "path": "evidence/run38909646797/lifecycle.json",
+        "sha256": "c8331cebf33b16d52987f8f910ad395245e4108d8bdd5dfc6e8c79a373a68fe3"
+      },
+      "recipe_inputs": {
+        ".SRCINFO": "7493fe67908465a0d097bf40869de539ed7d53db3327a1c7d2173b29e21421b9",
+        "LICENSE.project": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+        "LICENSE.upstream": "95f239dd39d079d2546aaefee371d09f3f423d6902e85e64787ae0bc5f441a33",
+        "NOTICE": "36bc69d4b18cbef88cf8770cb01a8a91db018fef85170a458a9a5315511d9c08",
+        "PKGBUILD": "0f6096dd9a56da87221d6b9d1ac67ecb6471e6e7fb56e01335e21024a41dbf5b",
+        "README.md": "4e16b965d8253b82a3be486df0cb358eec0958fe653c860cc451cb7fbe645e88",
+        "check-module.py": "f79eb322f34617d43ae13deaaac057f431e8e81f11a23e8a79876158c37dff00",
+        "opt-in.zsh": "2eedaa32f3504b5301afc7e8c302ef91d3c60fa1c1a532ab59c4d11915fedea5",
+        "source-provenance.json": "298036481160566fa28bb2a728285b95307c0b11b77cc3e4a5f22656e105c3f7",
+        "usage.md": "5ff7ca69e03cd53ddb51dc53a21e1737f9aae96ea12fa7e2a5a509fc9c19b7e3",
+        "zsh-history-substring-search.zsh": "0b864862a3b48992d7316cc7e585a1315fa389d730c17bf16e2f2bd5918089f3"
+      },
+      "sources": {
+        ".SRCINFO": {
+          "bytes": 1212,
+          "path": "sources/cachy-asahi-zsh-history-substring-search/.SRCINFO",
+          "sha256": "7493fe67908465a0d097bf40869de539ed7d53db3327a1c7d2173b29e21421b9"
+        },
+        "LICENSE.project": {
+          "bytes": 1081,
+          "path": "sources/cachy-asahi-zsh-history-substring-search/LICENSE.project",
+          "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+        },
+        "LICENSE.upstream": {
+          "bytes": 1943,
+          "path": "sources/cachy-asahi-zsh-history-substring-search/LICENSE.upstream",
+          "sha256": "95f239dd39d079d2546aaefee371d09f3f423d6902e85e64787ae0bc5f441a33"
+        },
+        "NOTICE": {
+          "bytes": 834,
+          "path": "sources/cachy-asahi-zsh-history-substring-search/NOTICE",
+          "sha256": "36bc69d4b18cbef88cf8770cb01a8a91db018fef85170a458a9a5315511d9c08"
+        },
+        "PKGBUILD": {
+          "bytes": 1973,
+          "path": "sources/cachy-asahi-zsh-history-substring-search/PKGBUILD",
+          "sha256": "0f6096dd9a56da87221d6b9d1ac67ecb6471e6e7fb56e01335e21024a41dbf5b"
+        },
+        "README.md": {
+          "bytes": 2331,
+          "path": "sources/cachy-asahi-zsh-history-substring-search/README.md",
+          "sha256": "4e16b965d8253b82a3be486df0cb358eec0958fe653c860cc451cb7fbe645e88"
+        },
+        "check-module.py": {
+          "bytes": 12038,
+          "path": "sources/cachy-asahi-zsh-history-substring-search/check-module.py",
+          "sha256": "f79eb322f34617d43ae13deaaac057f431e8e81f11a23e8a79876158c37dff00"
+        },
+        "opt-in.zsh": {
+          "bytes": 874,
+          "path": "sources/cachy-asahi-zsh-history-substring-search/opt-in.zsh",
+          "sha256": "2eedaa32f3504b5301afc7e8c302ef91d3c60fa1c1a532ab59c4d11915fedea5"
+        },
+        "source-provenance.json": {
+          "bytes": 1721,
+          "path": "sources/cachy-asahi-zsh-history-substring-search/source-provenance.json",
+          "sha256": "298036481160566fa28bb2a728285b95307c0b11b77cc3e4a5f22656e105c3f7"
+        },
+        "usage.md": {
+          "bytes": 2659,
+          "path": "sources/cachy-asahi-zsh-history-substring-search/usage.md",
+          "sha256": "5ff7ca69e03cd53ddb51dc53a21e1737f9aae96ea12fa7e2a5a509fc9c19b7e3"
+        },
+        "zsh-history-substring-search.zsh": {
+          "bytes": 29692,
+          "path": "sources/cachy-asahi-zsh-history-substring-search/zsh-history-substring-search.zsh",
+          "sha256": "0b864862a3b48992d7316cc7e585a1315fa389d730c17bf16e2f2bd5918089f3"
+        }
+      },
+      "version": "0.1.0-1"
+    },
+    "cachy-asahi-zsh-syntax-highlighting": {
+      "acceptance": {
+        "bytes": 698,
+        "path": "evidence/run38909646797/cachy-asahi-zsh-syntax-highlighting-root-acceptance.json",
+        "sha256": "3c4336390976c939f66abf8927972b0f53d1f7599849281194246d358a96c747"
+      },
+      "evidence": {
+        "bytes": 4891,
+        "path": "evidence/docs/tools-candidates-native-20261016.md",
+        "sha256": "b9c09b1174f60204851b41d7500f98117d95f0fe9aaae140bd0d4df2f06cf8b9"
+      },
+      "files": {
+        "a": {
+          "bytes": 35720,
+          "path": "packages/cachy-asahi-zsh-syntax-highlighting-a/cachy-asahi-zsh-syntax-highlighting-0.8.1.dev.e6683f2-1-any.pkg.tar.xz",
+          "sha256": "1b253d7676a4ab48f1c423d163f5a4614a01fac9d884d3c253db84c6a72b84a6"
+        },
+        "b": {
+          "bytes": 35720,
+          "path": "packages/cachy-asahi-zsh-syntax-highlighting-b/cachy-asahi-zsh-syntax-highlighting-0.8.1.dev.e6683f2-1-any.pkg.tar.xz",
+          "sha256": "1b253d7676a4ab48f1c423d163f5a4614a01fac9d884d3c253db84c6a72b84a6"
+        }
+      },
+      "metadata": {
+        "arch": [
+          "any"
+        ],
+        "depends": [
+          "zsh>=4.3.11"
+        ],
+        "license": [
+          "BSD-3-Clause",
+          "MIT"
+        ],
+        "pkgdesc": [
+          "Explicit opt-in pinned Zsh syntax highlighting for cachy-asahi"
+        ],
+        "pkgname": [
+          "cachy-asahi-zsh-syntax-highlighting"
+        ],
+        "pkgrel": [
+          "1"
+        ],
+        "pkgver": [
+          "0.8.1.dev.e6683f2"
+        ],
+        "sha256sums": [
+          "156ebe9530eb991dcef54d476967e2ff4338d35dabaaff9e5462673a287cc63b",
+          "97fd9d491486c9c26ce918b0ad429584dddd807f34655f2342872d8175383094",
+          "0e4e0c3aaec5a3efe933c7b41cb940fe5e6c28874f5075a9f68427f63135abde",
+          "b3ac4a66edf133b8f029332e787b7d36e2e1d7cabec0d271f7e5fe6724490dd3",
+          "bd6ef3aae900fee57ff132360b3dd9d68df5aab150a33e32259fd5adbe8efd49",
+          "1a12c094770bc00276395dc71a398a63fd768c433453d35f4e47e5d315dfacf0",
+          "1f59176bc1e5fd8ac8eaa85dd7a4cd2a95083ee7c689a430ff4a5e2e9eee0061",
+          "c2d5b50db13936421672b5ce16c0d7ec4f1abfeded34ea3a23bb39d2499b953b",
+          "f567458da4fb89cae8ea220b8febea11ed67ab6f6c8f5e0d6723ea7285e932e7",
+          "7a038444d4cd60f9eaf07993b6a14d0055ad8706e09a32780cb65ea0a90530ee",
+          "cfcc482c9472e863339e9d7f29d7d2f5786e467bb8818a1371176d55c2ce845c",
+          "82e14a392ca112706be631a513bfdb17a46b64d2ae461a696f7694cee0181b75",
+          "7cf98b55b87529321d0f708e04ca143601322e865c3a2efd5a2a629ab6678411",
+          "0b5861730a9f2b1ba4b49f86531dd59e6f6e7241185c40ddc4b5722833129008",
+          "a60bb4e9f334489676c8e67d256da8486c8e0674778597b05971c39448b3e307",
+          "d810908db3cb75d30e46f5e55b18c8f483e1bc625b8f7dc5a581f5ad353af82e",
+          "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+        ],
+        "source": [
+          "zsh-syntax-highlighting.zsh",
+          ".version",
+          ".revision-hash",
+          "brackets-highlighter.zsh",
+          "cursor-highlighter.zsh",
+          "line-highlighter.zsh",
+          "main-highlighter.zsh",
+          "pattern-highlighter.zsh",
+          "regexp-highlighter.zsh",
+          "root-highlighter.zsh",
+          "opt-in.zsh",
+          "usage.md",
+          "README.md",
+          "INSTALL.md",
+          "NOTICE",
+          "LICENSE.upstream",
+          "LICENSE.project"
+        ],
+        "url": [
+          "https://github.com/zsh-users/zsh-syntax-highlighting"
+        ]
+      },
+      "native_run": 38909646797,
+      "native_source": "8276f19463d1b58ab593ca90f259d1fadc3672f7",
+      "payload": {
+        "usr/share/cachy-asahi/zsh-syntax-highlighting/.revision-hash": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "0e4e0c3aaec5a3efe933c7b41cb940fe5e6c28874f5075a9f68427f63135abde",
+          "size": 41,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/cachy-asahi/zsh-syntax-highlighting/.version": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "97fd9d491486c9c26ce918b0ad429584dddd807f34655f2342872d8175383094",
+          "size": 10,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/cachy-asahi/zsh-syntax-highlighting/highlighters/brackets/brackets-highlighter.zsh": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "b3ac4a66edf133b8f029332e787b7d36e2e1d7cabec0d271f7e5fe6724490dd3",
+          "size": 4436,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/cachy-asahi/zsh-syntax-highlighting/highlighters/cursor/cursor-highlighter.zsh": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "bd6ef3aae900fee57ff132360b3dd9d68df5aab150a33e32259fd5adbe8efd49",
+          "size": 2492,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/cachy-asahi/zsh-syntax-highlighting/highlighters/line/line-highlighter.zsh": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "1a12c094770bc00276395dc71a398a63fd768c433453d35f4e47e5d315dfacf0",
+          "size": 2318,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/cachy-asahi/zsh-syntax-highlighting/highlighters/main/main-highlighter.zsh": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "1f59176bc1e5fd8ac8eaa85dd7a4cd2a95083ee7c689a430ff4a5e2e9eee0061",
+          "size": 70110,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/cachy-asahi/zsh-syntax-highlighting/highlighters/pattern/pattern-highlighter.zsh": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "c2d5b50db13936421672b5ce16c0d7ec4f1abfeded34ea3a23bb39d2499b953b",
+          "size": 2867,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/cachy-asahi/zsh-syntax-highlighting/highlighters/regexp/regexp-highlighter.zsh": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "f567458da4fb89cae8ea220b8febea11ed67ab6f6c8f5e0d6723ea7285e932e7",
+          "size": 2873,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/cachy-asahi/zsh-syntax-highlighting/highlighters/root/root-highlighter.zsh": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "7a038444d4cd60f9eaf07993b6a14d0055ad8706e09a32780cb65ea0a90530ee",
+          "size": 2349,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/cachy-asahi/zsh-syntax-highlighting/opt-in.zsh": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "cfcc482c9472e863339e9d7f29d7d2f5786e467bb8818a1371176d55c2ce845c",
+          "size": 242,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/cachy-asahi/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "156ebe9530eb991dcef54d476967e2ff4338d35dabaaff9e5462673a287cc63b",
+          "size": 23776,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/doc/cachy-asahi-zsh-syntax-highlighting/INSTALL.md": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "0b5861730a9f2b1ba4b49f86531dd59e6f6e7241185c40ddc4b5722833129008",
+          "size": 6822,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/doc/cachy-asahi-zsh-syntax-highlighting/README.md": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "7cf98b55b87529321d0f708e04ca143601322e865c3a2efd5a2a629ab6678411",
+          "size": 3779,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/doc/cachy-asahi-zsh-syntax-highlighting/usage.md": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "82e14a392ca112706be631a513bfdb17a46b64d2ae461a696f7694cee0181b75",
+          "size": 2936,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/licenses/cachy-asahi-zsh-syntax-highlighting/LICENSE.project": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+          "size": 1081,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/licenses/cachy-asahi-zsh-syntax-highlighting/LICENSE.upstream": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "d810908db3cb75d30e46f5e55b18c8f483e1bc625b8f7dc5a581f5ad353af82e",
+          "size": 1544,
+          "type": "0",
+          "uid": 0
+        },
+        "usr/share/licenses/cachy-asahi-zsh-syntax-highlighting/NOTICE": {
+          "gid": 0,
+          "link": "",
+          "mode": 420,
+          "mtime": 1791748800,
+          "sha256": "a60bb4e9f334489676c8e67d256da8486c8e0674778597b05971c39448b3e307",
+          "size": 623,
+          "type": "0",
+          "uid": 0
+        }
+      },
+      "qualification": "PASS_WITH_EXPLICIT_FROZEN_SOURCE_PATH_SUPPLEMENT",
+      "raw_lifecycle": {
+        "bytes": 51949,
+        "path": "evidence/run38909646797/lifecycle.json",
+        "sha256": "c8331cebf33b16d52987f8f910ad395245e4108d8bdd5dfc6e8c79a373a68fe3"
+      },
+      "recipe_inputs": {
+        ".SRCINFO": "57342eb05727803deb5cbac427d4391f67641f5463bf1b7d252770e68311bf81",
+        ".revision-hash": "0e4e0c3aaec5a3efe933c7b41cb940fe5e6c28874f5075a9f68427f63135abde",
+        ".version": "97fd9d491486c9c26ce918b0ad429584dddd807f34655f2342872d8175383094",
+        "INSTALL.md": "0b5861730a9f2b1ba4b49f86531dd59e6f6e7241185c40ddc4b5722833129008",
+        "LICENSE.project": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+        "LICENSE.upstream": "d810908db3cb75d30e46f5e55b18c8f483e1bc625b8f7dc5a581f5ad353af82e",
+        "NOTICE": "a60bb4e9f334489676c8e67d256da8486c8e0674778597b05971c39448b3e307",
+        "PKGBUILD": "b43ea648a3bde440eebcee7c2d1c52ee1d383e863348bf64eb396226a4e6cf5c",
+        "README.md": "7cf98b55b87529321d0f708e04ca143601322e865c3a2efd5a2a629ab6678411",
+        "brackets-highlighter.zsh": "b3ac4a66edf133b8f029332e787b7d36e2e1d7cabec0d271f7e5fe6724490dd3",
+        "cursor-highlighter.zsh": "bd6ef3aae900fee57ff132360b3dd9d68df5aab150a33e32259fd5adbe8efd49",
+        "line-highlighter.zsh": "1a12c094770bc00276395dc71a398a63fd768c433453d35f4e47e5d315dfacf0",
+        "main-highlighter.zsh": "1f59176bc1e5fd8ac8eaa85dd7a4cd2a95083ee7c689a430ff4a5e2e9eee0061",
+        "opt-in.zsh": "cfcc482c9472e863339e9d7f29d7d2f5786e467bb8818a1371176d55c2ce845c",
+        "pattern-highlighter.zsh": "c2d5b50db13936421672b5ce16c0d7ec4f1abfeded34ea3a23bb39d2499b953b",
+        "regexp-highlighter.zsh": "f567458da4fb89cae8ea220b8febea11ed67ab6f6c8f5e0d6723ea7285e932e7",
+        "root-highlighter.zsh": "7a038444d4cd60f9eaf07993b6a14d0055ad8706e09a32780cb65ea0a90530ee",
+        "source-provenance.json": "89326cf6d03154bed7f8743f07ae3dcf001e1c85e43e34c66ca5cb160688761a",
+        "usage.md": "82e14a392ca112706be631a513bfdb17a46b64d2ae461a696f7694cee0181b75",
+        "zsh-syntax-highlighting.zsh": "156ebe9530eb991dcef54d476967e2ff4338d35dabaaff9e5462673a287cc63b"
+      },
+      "sources": {
+        ".SRCINFO": {
+          "bytes": 2145,
+          "path": "sources/cachy-asahi-zsh-syntax-highlighting/.SRCINFO",
+          "sha256": "57342eb05727803deb5cbac427d4391f67641f5463bf1b7d252770e68311bf81"
+        },
+        ".revision-hash": {
+          "bytes": 41,
+          "path": "sources/cachy-asahi-zsh-syntax-highlighting/.revision-hash",
+          "sha256": "0e4e0c3aaec5a3efe933c7b41cb940fe5e6c28874f5075a9f68427f63135abde"
+        },
+        ".version": {
+          "bytes": 10,
+          "path": "sources/cachy-asahi-zsh-syntax-highlighting/.version",
+          "sha256": "97fd9d491486c9c26ce918b0ad429584dddd807f34655f2342872d8175383094"
+        },
+        "INSTALL.md": {
+          "bytes": 6822,
+          "path": "sources/cachy-asahi-zsh-syntax-highlighting/INSTALL.md",
+          "sha256": "0b5861730a9f2b1ba4b49f86531dd59e6f6e7241185c40ddc4b5722833129008"
+        },
+        "LICENSE.project": {
+          "bytes": 1081,
+          "path": "sources/cachy-asahi-zsh-syntax-highlighting/LICENSE.project",
+          "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+        },
+        "LICENSE.upstream": {
+          "bytes": 1544,
+          "path": "sources/cachy-asahi-zsh-syntax-highlighting/LICENSE.upstream",
+          "sha256": "d810908db3cb75d30e46f5e55b18c8f483e1bc625b8f7dc5a581f5ad353af82e"
+        },
+        "NOTICE": {
+          "bytes": 623,
+          "path": "sources/cachy-asahi-zsh-syntax-highlighting/NOTICE",
+          "sha256": "a60bb4e9f334489676c8e67d256da8486c8e0674778597b05971c39448b3e307"
+        },
+        "PKGBUILD": {
+          "bytes": 3556,
+          "path": "sources/cachy-asahi-zsh-syntax-highlighting/PKGBUILD",
+          "sha256": "b43ea648a3bde440eebcee7c2d1c52ee1d383e863348bf64eb396226a4e6cf5c"
+        },
+        "README.md": {
+          "bytes": 3779,
+          "path": "sources/cachy-asahi-zsh-syntax-highlighting/README.md",
+          "sha256": "7cf98b55b87529321d0f708e04ca143601322e865c3a2efd5a2a629ab6678411"
+        },
+        "brackets-highlighter.zsh": {
+          "bytes": 4436,
+          "path": "sources/cachy-asahi-zsh-syntax-highlighting/brackets-highlighter.zsh",
+          "sha256": "b3ac4a66edf133b8f029332e787b7d36e2e1d7cabec0d271f7e5fe6724490dd3"
+        },
+        "cursor-highlighter.zsh": {
+          "bytes": 2492,
+          "path": "sources/cachy-asahi-zsh-syntax-highlighting/cursor-highlighter.zsh",
+          "sha256": "bd6ef3aae900fee57ff132360b3dd9d68df5aab150a33e32259fd5adbe8efd49"
+        },
+        "line-highlighter.zsh": {
+          "bytes": 2318,
+          "path": "sources/cachy-asahi-zsh-syntax-highlighting/line-highlighter.zsh",
+          "sha256": "1a12c094770bc00276395dc71a398a63fd768c433453d35f4e47e5d315dfacf0"
+        },
+        "main-highlighter.zsh": {
+          "bytes": 70110,
+          "path": "sources/cachy-asahi-zsh-syntax-highlighting/main-highlighter.zsh",
+          "sha256": "1f59176bc1e5fd8ac8eaa85dd7a4cd2a95083ee7c689a430ff4a5e2e9eee0061"
+        },
+        "opt-in.zsh": {
+          "bytes": 242,
+          "path": "sources/cachy-asahi-zsh-syntax-highlighting/opt-in.zsh",
+          "sha256": "cfcc482c9472e863339e9d7f29d7d2f5786e467bb8818a1371176d55c2ce845c"
+        },
+        "pattern-highlighter.zsh": {
+          "bytes": 2867,
+          "path": "sources/cachy-asahi-zsh-syntax-highlighting/pattern-highlighter.zsh",
+          "sha256": "c2d5b50db13936421672b5ce16c0d7ec4f1abfeded34ea3a23bb39d2499b953b"
+        },
+        "regexp-highlighter.zsh": {
+          "bytes": 2873,
+          "path": "sources/cachy-asahi-zsh-syntax-highlighting/regexp-highlighter.zsh",
+          "sha256": "f567458da4fb89cae8ea220b8febea11ed67ab6f6c8f5e0d6723ea7285e932e7"
+        },
+        "root-highlighter.zsh": {
+          "bytes": 2349,
+          "path": "sources/cachy-asahi-zsh-syntax-highlighting/root-highlighter.zsh",
+          "sha256": "7a038444d4cd60f9eaf07993b6a14d0055ad8706e09a32780cb65ea0a90530ee"
+        },
+        "source-provenance.json": {
+          "bytes": 3484,
+          "path": "sources/cachy-asahi-zsh-syntax-highlighting/source-provenance.json",
+          "sha256": "89326cf6d03154bed7f8743f07ae3dcf001e1c85e43e34c66ca5cb160688761a"
+        },
+        "usage.md": {
+          "bytes": 2936,
+          "path": "sources/cachy-asahi-zsh-syntax-highlighting/usage.md",
+          "sha256": "82e14a392ca112706be631a513bfdb17a46b64d2ae461a696f7694cee0181b75"
+        },
+        "zsh-syntax-highlighting.zsh": {
+          "bytes": 23776,
+          "path": "sources/cachy-asahi-zsh-syntax-highlighting/zsh-syntax-highlighting.zsh",
+          "sha256": "156ebe9530eb991dcef54d476967e2ff4338d35dabaaff9e5462673a287cc63b"
+        }
+      },
+      "version": "0.8.1.dev.e6683f2-1"
+    }
+  },
+  "purpose": "Immutable original native package pairs for future real installed581 Setup5 six-module integration",
+  "release": "NOT_SELECTED",
+  "schema_version": 1,
+  "scope": "Six exact development package pairs; source/proof closure only",
+  "status": "PREPARED_PASSIVE_SIX_MODULE_INPUTS_PENDING_ROOT_FREEZE"
+}

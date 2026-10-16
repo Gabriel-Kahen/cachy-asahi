@@ -1,0 +1,2268 @@
+{
+  "status": "PASS_FISH_AUTOPAIR_INSTALLED_LIFECYCLE",
+  "events": [
+    {
+      "phase": "install",
+      "status": "PASS",
+      "inventory_count": 575,
+      "observations": [
+        {
+          "home": "fish-home-fresh",
+          "proof": {
+            "status": "PASS",
+            "platform": "aarch64",
+            "fish": "fish, version 4.9.3",
+            "wrapper_sha256": "77d5122d6fc5a9e933f15425946b806a9273b3ead3bb52a1ac1d81a698ee4a21",
+            "cases": {
+              "noninteractive": {
+                "exit": 0
+              },
+              "default": {
+                "exit": 0,
+                "activation": "enabled",
+                "snapshots": [
+                  {
+                    "case": "round-open",
+                    "buffer": "()",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "square-open",
+                    "buffer": "[]",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "brace-open",
+                    "buffer": "{}",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "double-open",
+                    "buffer": "\"\"",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "single-open",
+                    "buffer": "''",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "nested",
+                    "buffer": "([{}])",
+                    "cursor": 3
+                  },
+                  {
+                    "case": "closer-skip",
+                    "buffer": "()",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "quote-skip",
+                    "buffer": "\"\"",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "pair-backspace",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "pair-ctrl-h",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "brace-delete",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "quote-delete",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "single-delete",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "nested-skip",
+                    "buffer": "([{}])",
+                    "cursor": 6
+                  },
+                  {
+                    "case": "text-delete",
+                    "buffer": "\"\"",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "escaped-quote",
+                    "buffer": "\\\"",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "escaped-bracket",
+                    "buffer": "\\()",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "quoted-data",
+                    "buffer": "\"$HOME $(touch PWNED)\"",
+                    "cursor": 21
+                  },
+                  {
+                    "case": "tab-basic",
+                    "buffer": "zz_no_such_command_123",
+                    "cursor": 22
+                  }
+                ]
+              },
+              "vi": {
+                "exit": 0,
+                "activation": "enabled",
+                "snapshots": [
+                  {
+                    "case": "round-open",
+                    "buffer": "()",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "square-open",
+                    "buffer": "[]",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "brace-open",
+                    "buffer": "{}",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "double-open",
+                    "buffer": "\"\"",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "single-open",
+                    "buffer": "''",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "nested",
+                    "buffer": "([{}])",
+                    "cursor": 3
+                  },
+                  {
+                    "case": "closer-skip",
+                    "buffer": "()",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "quote-skip",
+                    "buffer": "\"\"",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "pair-backspace",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "pair-ctrl-h",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "brace-delete",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "quote-delete",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "single-delete",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "nested-skip",
+                    "buffer": "([{}])",
+                    "cursor": 6
+                  },
+                  {
+                    "case": "text-delete",
+                    "buffer": "\"\"",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "escaped-quote",
+                    "buffer": "\\\"",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "escaped-bracket",
+                    "buffer": "\\()",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "quoted-data",
+                    "buffer": "\"$HOME $(touch PWNED)\"",
+                    "cursor": 21
+                  },
+                  {
+                    "case": "tab-basic",
+                    "buffer": "zz_no_such_command_123",
+                    "cursor": 22
+                  }
+                ]
+              },
+              "hybrid": {
+                "exit": 0,
+                "activation": "enabled",
+                "snapshots": [
+                  {
+                    "case": "round-open",
+                    "buffer": "()",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "square-open",
+                    "buffer": "[]",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "brace-open",
+                    "buffer": "{}",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "double-open",
+                    "buffer": "\"\"",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "single-open",
+                    "buffer": "''",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "nested",
+                    "buffer": "([{}])",
+                    "cursor": 3
+                  },
+                  {
+                    "case": "closer-skip",
+                    "buffer": "()",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "quote-skip",
+                    "buffer": "\"\"",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "pair-backspace",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "pair-ctrl-h",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "brace-delete",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "quote-delete",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "single-delete",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "nested-skip",
+                    "buffer": "([{}])",
+                    "cursor": 6
+                  },
+                  {
+                    "case": "text-delete",
+                    "buffer": "\"\"",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "escaped-quote",
+                    "buffer": "\\\"",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "escaped-bracket",
+                    "buffer": "\\()",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "quoted-data",
+                    "buffer": "\"$HOME $(touch PWNED)\"",
+                    "cursor": 21
+                  },
+                  {
+                    "case": "tab-basic",
+                    "buffer": "zz_no_such_command_123",
+                    "cursor": 22
+                  }
+                ]
+              },
+              "custom-key": {
+                "exit": 0,
+                "activation": "yielded",
+                "snapshots": []
+              },
+              "custom-prefix": {
+                "exit": 0,
+                "activation": "yielded",
+                "snapshots": []
+              },
+              "custom-generic": {
+                "exit": 0,
+                "activation": "yielded",
+                "snapshots": []
+              },
+              "custom-tab": {
+                "exit": 0,
+                "activation": "yielded",
+                "snapshots": []
+              },
+              "preset-key": {
+                "exit": 0,
+                "activation": "yielded",
+                "snapshots": []
+              },
+              "existing-function": {
+                "exit": 0,
+                "activation": "yielded",
+                "snapshots": []
+              },
+              "existing-autoload": {
+                "exit": 0,
+                "activation": "yielded",
+                "snapshots": []
+              },
+              "existing-variable": {
+                "exit": 0,
+                "activation": "yielded",
+                "snapshots": []
+              },
+              "custom-keymap": {
+                "exit": 0,
+                "activation": "yielded",
+                "snapshots": []
+              },
+              "existing-wrapper": {
+                "exit": 0,
+                "activation": "yielded",
+                "snapshots": []
+              }
+            }
+          },
+          "receipt_sha256": "f5a53913b3a6fbd1da1d14c3ccfa145f84f2cf7b98b04069fd42299dc21e883c",
+          "fish_sha256": "676028c5be037d08361e1c95affc92f3c7548293d809cb6d19c3a4a2bb9b2583"
+        },
+        {
+          "home": "fish-home-existing",
+          "proof": {
+            "status": "PASS",
+            "platform": "aarch64",
+            "fish": "fish, version 4.9.3",
+            "wrapper_sha256": "77d5122d6fc5a9e933f15425946b806a9273b3ead3bb52a1ac1d81a698ee4a21",
+            "cases": {
+              "noninteractive": {
+                "exit": 0
+              },
+              "default": {
+                "exit": 0,
+                "activation": "enabled",
+                "snapshots": [
+                  {
+                    "case": "round-open",
+                    "buffer": "()",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "square-open",
+                    "buffer": "[]",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "brace-open",
+                    "buffer": "{}",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "double-open",
+                    "buffer": "\"\"",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "single-open",
+                    "buffer": "''",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "nested",
+                    "buffer": "([{}])",
+                    "cursor": 3
+                  },
+                  {
+                    "case": "closer-skip",
+                    "buffer": "()",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "quote-skip",
+                    "buffer": "\"\"",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "pair-backspace",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "pair-ctrl-h",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "brace-delete",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "quote-delete",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "single-delete",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "nested-skip",
+                    "buffer": "([{}])",
+                    "cursor": 6
+                  },
+                  {
+                    "case": "text-delete",
+                    "buffer": "\"\"",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "escaped-quote",
+                    "buffer": "\\\"",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "escaped-bracket",
+                    "buffer": "\\()",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "quoted-data",
+                    "buffer": "\"$HOME $(touch PWNED)\"",
+                    "cursor": 21
+                  },
+                  {
+                    "case": "tab-basic",
+                    "buffer": "zz_no_such_command_123",
+                    "cursor": 22
+                  }
+                ]
+              },
+              "vi": {
+                "exit": 0,
+                "activation": "enabled",
+                "snapshots": [
+                  {
+                    "case": "round-open",
+                    "buffer": "()",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "square-open",
+                    "buffer": "[]",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "brace-open",
+                    "buffer": "{}",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "double-open",
+                    "buffer": "\"\"",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "single-open",
+                    "buffer": "''",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "nested",
+                    "buffer": "([{}])",
+                    "cursor": 3
+                  },
+                  {
+                    "case": "closer-skip",
+                    "buffer": "()",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "quote-skip",
+                    "buffer": "\"\"",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "pair-backspace",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "pair-ctrl-h",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "brace-delete",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "quote-delete",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "single-delete",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "nested-skip",
+                    "buffer": "([{}])",
+                    "cursor": 6
+                  },
+                  {
+                    "case": "text-delete",
+                    "buffer": "\"\"",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "escaped-quote",
+                    "buffer": "\\\"",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "escaped-bracket",
+                    "buffer": "\\()",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "quoted-data",
+                    "buffer": "\"$HOME $(touch PWNED)\"",
+                    "cursor": 21
+                  },
+                  {
+                    "case": "tab-basic",
+                    "buffer": "zz_no_such_command_123",
+                    "cursor": 22
+                  }
+                ]
+              },
+              "hybrid": {
+                "exit": 0,
+                "activation": "enabled",
+                "snapshots": [
+                  {
+                    "case": "round-open",
+                    "buffer": "()",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "square-open",
+                    "buffer": "[]",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "brace-open",
+                    "buffer": "{}",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "double-open",
+                    "buffer": "\"\"",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "single-open",
+                    "buffer": "''",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "nested",
+                    "buffer": "([{}])",
+                    "cursor": 3
+                  },
+                  {
+                    "case": "closer-skip",
+                    "buffer": "()",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "quote-skip",
+                    "buffer": "\"\"",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "pair-backspace",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "pair-ctrl-h",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "brace-delete",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "quote-delete",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "single-delete",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "nested-skip",
+                    "buffer": "([{}])",
+                    "cursor": 6
+                  },
+                  {
+                    "case": "text-delete",
+                    "buffer": "\"\"",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "escaped-quote",
+                    "buffer": "\\\"",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "escaped-bracket",
+                    "buffer": "\\()",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "quoted-data",
+                    "buffer": "\"$HOME $(touch PWNED)\"",
+                    "cursor": 21
+                  },
+                  {
+                    "case": "tab-basic",
+                    "buffer": "zz_no_such_command_123",
+                    "cursor": 22
+                  }
+                ]
+              },
+              "custom-key": {
+                "exit": 0,
+                "activation": "yielded",
+                "snapshots": []
+              },
+              "custom-prefix": {
+                "exit": 0,
+                "activation": "yielded",
+                "snapshots": []
+              },
+              "custom-generic": {
+                "exit": 0,
+                "activation": "yielded",
+                "snapshots": []
+              },
+              "custom-tab": {
+                "exit": 0,
+                "activation": "yielded",
+                "snapshots": []
+              },
+              "preset-key": {
+                "exit": 0,
+                "activation": "yielded",
+                "snapshots": []
+              },
+              "existing-function": {
+                "exit": 0,
+                "activation": "yielded",
+                "snapshots": []
+              },
+              "existing-autoload": {
+                "exit": 0,
+                "activation": "yielded",
+                "snapshots": []
+              },
+              "existing-variable": {
+                "exit": 0,
+                "activation": "yielded",
+                "snapshots": []
+              },
+              "custom-keymap": {
+                "exit": 0,
+                "activation": "yielded",
+                "snapshots": []
+              },
+              "existing-wrapper": {
+                "exit": 0,
+                "activation": "yielded",
+                "snapshots": []
+              }
+            }
+          },
+          "receipt_sha256": "f5a53913b3a6fbd1da1d14c3ccfa145f84f2cf7b98b04069fd42299dc21e883c",
+          "fish_sha256": "676028c5be037d08361e1c95affc92f3c7548293d809cb6d19c3a4a2bb9b2583"
+        }
+      ],
+      "config_preserved": true
+    },
+    {
+      "phase": "same-version-reinstall",
+      "status": "PASS",
+      "inventory_count": 575,
+      "observations": [
+        {
+          "home": "fish-home-fresh",
+          "proof": {
+            "status": "PASS",
+            "platform": "aarch64",
+            "fish": "fish, version 4.9.3",
+            "wrapper_sha256": "77d5122d6fc5a9e933f15425946b806a9273b3ead3bb52a1ac1d81a698ee4a21",
+            "cases": {
+              "noninteractive": {
+                "exit": 0
+              },
+              "default": {
+                "exit": 0,
+                "activation": "enabled",
+                "snapshots": [
+                  {
+                    "case": "round-open",
+                    "buffer": "()",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "square-open",
+                    "buffer": "[]",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "brace-open",
+                    "buffer": "{}",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "double-open",
+                    "buffer": "\"\"",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "single-open",
+                    "buffer": "''",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "nested",
+                    "buffer": "([{}])",
+                    "cursor": 3
+                  },
+                  {
+                    "case": "closer-skip",
+                    "buffer": "()",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "quote-skip",
+                    "buffer": "\"\"",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "pair-backspace",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "pair-ctrl-h",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "brace-delete",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "quote-delete",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "single-delete",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "nested-skip",
+                    "buffer": "([{}])",
+                    "cursor": 6
+                  },
+                  {
+                    "case": "text-delete",
+                    "buffer": "\"\"",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "escaped-quote",
+                    "buffer": "\\\"",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "escaped-bracket",
+                    "buffer": "\\()",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "quoted-data",
+                    "buffer": "\"$HOME $(touch PWNED)\"",
+                    "cursor": 21
+                  },
+                  {
+                    "case": "tab-basic",
+                    "buffer": "zz_no_such_command_123",
+                    "cursor": 22
+                  }
+                ]
+              },
+              "vi": {
+                "exit": 0,
+                "activation": "enabled",
+                "snapshots": [
+                  {
+                    "case": "round-open",
+                    "buffer": "()",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "square-open",
+                    "buffer": "[]",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "brace-open",
+                    "buffer": "{}",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "double-open",
+                    "buffer": "\"\"",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "single-open",
+                    "buffer": "''",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "nested",
+                    "buffer": "([{}])",
+                    "cursor": 3
+                  },
+                  {
+                    "case": "closer-skip",
+                    "buffer": "()",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "quote-skip",
+                    "buffer": "\"\"",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "pair-backspace",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "pair-ctrl-h",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "brace-delete",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "quote-delete",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "single-delete",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "nested-skip",
+                    "buffer": "([{}])",
+                    "cursor": 6
+                  },
+                  {
+                    "case": "text-delete",
+                    "buffer": "\"\"",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "escaped-quote",
+                    "buffer": "\\\"",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "escaped-bracket",
+                    "buffer": "\\()",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "quoted-data",
+                    "buffer": "\"$HOME $(touch PWNED)\"",
+                    "cursor": 21
+                  },
+                  {
+                    "case": "tab-basic",
+                    "buffer": "zz_no_such_command_123",
+                    "cursor": 22
+                  }
+                ]
+              },
+              "hybrid": {
+                "exit": 0,
+                "activation": "enabled",
+                "snapshots": [
+                  {
+                    "case": "round-open",
+                    "buffer": "()",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "square-open",
+                    "buffer": "[]",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "brace-open",
+                    "buffer": "{}",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "double-open",
+                    "buffer": "\"\"",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "single-open",
+                    "buffer": "''",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "nested",
+                    "buffer": "([{}])",
+                    "cursor": 3
+                  },
+                  {
+                    "case": "closer-skip",
+                    "buffer": "()",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "quote-skip",
+                    "buffer": "\"\"",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "pair-backspace",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "pair-ctrl-h",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "brace-delete",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "quote-delete",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "single-delete",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "nested-skip",
+                    "buffer": "([{}])",
+                    "cursor": 6
+                  },
+                  {
+                    "case": "text-delete",
+                    "buffer": "\"\"",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "escaped-quote",
+                    "buffer": "\\\"",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "escaped-bracket",
+                    "buffer": "\\()",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "quoted-data",
+                    "buffer": "\"$HOME $(touch PWNED)\"",
+                    "cursor": 21
+                  },
+                  {
+                    "case": "tab-basic",
+                    "buffer": "zz_no_such_command_123",
+                    "cursor": 22
+                  }
+                ]
+              },
+              "custom-key": {
+                "exit": 0,
+                "activation": "yielded",
+                "snapshots": []
+              },
+              "custom-prefix": {
+                "exit": 0,
+                "activation": "yielded",
+                "snapshots": []
+              },
+              "custom-generic": {
+                "exit": 0,
+                "activation": "yielded",
+                "snapshots": []
+              },
+              "custom-tab": {
+                "exit": 0,
+                "activation": "yielded",
+                "snapshots": []
+              },
+              "preset-key": {
+                "exit": 0,
+                "activation": "yielded",
+                "snapshots": []
+              },
+              "existing-function": {
+                "exit": 0,
+                "activation": "yielded",
+                "snapshots": []
+              },
+              "existing-autoload": {
+                "exit": 0,
+                "activation": "yielded",
+                "snapshots": []
+              },
+              "existing-variable": {
+                "exit": 0,
+                "activation": "yielded",
+                "snapshots": []
+              },
+              "custom-keymap": {
+                "exit": 0,
+                "activation": "yielded",
+                "snapshots": []
+              },
+              "existing-wrapper": {
+                "exit": 0,
+                "activation": "yielded",
+                "snapshots": []
+              }
+            }
+          },
+          "receipt_sha256": "f5a53913b3a6fbd1da1d14c3ccfa145f84f2cf7b98b04069fd42299dc21e883c",
+          "fish_sha256": "676028c5be037d08361e1c95affc92f3c7548293d809cb6d19c3a4a2bb9b2583"
+        },
+        {
+          "home": "fish-home-existing",
+          "proof": {
+            "status": "PASS",
+            "platform": "aarch64",
+            "fish": "fish, version 4.9.3",
+            "wrapper_sha256": "77d5122d6fc5a9e933f15425946b806a9273b3ead3bb52a1ac1d81a698ee4a21",
+            "cases": {
+              "noninteractive": {
+                "exit": 0
+              },
+              "default": {
+                "exit": 0,
+                "activation": "enabled",
+                "snapshots": [
+                  {
+                    "case": "round-open",
+                    "buffer": "()",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "square-open",
+                    "buffer": "[]",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "brace-open",
+                    "buffer": "{}",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "double-open",
+                    "buffer": "\"\"",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "single-open",
+                    "buffer": "''",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "nested",
+                    "buffer": "([{}])",
+                    "cursor": 3
+                  },
+                  {
+                    "case": "closer-skip",
+                    "buffer": "()",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "quote-skip",
+                    "buffer": "\"\"",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "pair-backspace",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "pair-ctrl-h",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "brace-delete",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "quote-delete",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "single-delete",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "nested-skip",
+                    "buffer": "([{}])",
+                    "cursor": 6
+                  },
+                  {
+                    "case": "text-delete",
+                    "buffer": "\"\"",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "escaped-quote",
+                    "buffer": "\\\"",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "escaped-bracket",
+                    "buffer": "\\()",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "quoted-data",
+                    "buffer": "\"$HOME $(touch PWNED)\"",
+                    "cursor": 21
+                  },
+                  {
+                    "case": "tab-basic",
+                    "buffer": "zz_no_such_command_123",
+                    "cursor": 22
+                  }
+                ]
+              },
+              "vi": {
+                "exit": 0,
+                "activation": "enabled",
+                "snapshots": [
+                  {
+                    "case": "round-open",
+                    "buffer": "()",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "square-open",
+                    "buffer": "[]",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "brace-open",
+                    "buffer": "{}",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "double-open",
+                    "buffer": "\"\"",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "single-open",
+                    "buffer": "''",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "nested",
+                    "buffer": "([{}])",
+                    "cursor": 3
+                  },
+                  {
+                    "case": "closer-skip",
+                    "buffer": "()",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "quote-skip",
+                    "buffer": "\"\"",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "pair-backspace",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "pair-ctrl-h",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "brace-delete",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "quote-delete",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "single-delete",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "nested-skip",
+                    "buffer": "([{}])",
+                    "cursor": 6
+                  },
+                  {
+                    "case": "text-delete",
+                    "buffer": "\"\"",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "escaped-quote",
+                    "buffer": "\\\"",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "escaped-bracket",
+                    "buffer": "\\()",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "quoted-data",
+                    "buffer": "\"$HOME $(touch PWNED)\"",
+                    "cursor": 21
+                  },
+                  {
+                    "case": "tab-basic",
+                    "buffer": "zz_no_such_command_123",
+                    "cursor": 22
+                  }
+                ]
+              },
+              "hybrid": {
+                "exit": 0,
+                "activation": "enabled",
+                "snapshots": [
+                  {
+                    "case": "round-open",
+                    "buffer": "()",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "square-open",
+                    "buffer": "[]",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "brace-open",
+                    "buffer": "{}",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "double-open",
+                    "buffer": "\"\"",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "single-open",
+                    "buffer": "''",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "nested",
+                    "buffer": "([{}])",
+                    "cursor": 3
+                  },
+                  {
+                    "case": "closer-skip",
+                    "buffer": "()",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "quote-skip",
+                    "buffer": "\"\"",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "pair-backspace",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "pair-ctrl-h",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "brace-delete",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "quote-delete",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "single-delete",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "nested-skip",
+                    "buffer": "([{}])",
+                    "cursor": 6
+                  },
+                  {
+                    "case": "text-delete",
+                    "buffer": "\"\"",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "escaped-quote",
+                    "buffer": "\\\"",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "escaped-bracket",
+                    "buffer": "\\()",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "quoted-data",
+                    "buffer": "\"$HOME $(touch PWNED)\"",
+                    "cursor": 21
+                  },
+                  {
+                    "case": "tab-basic",
+                    "buffer": "zz_no_such_command_123",
+                    "cursor": 22
+                  }
+                ]
+              },
+              "custom-key": {
+                "exit": 0,
+                "activation": "yielded",
+                "snapshots": []
+              },
+              "custom-prefix": {
+                "exit": 0,
+                "activation": "yielded",
+                "snapshots": []
+              },
+              "custom-generic": {
+                "exit": 0,
+                "activation": "yielded",
+                "snapshots": []
+              },
+              "custom-tab": {
+                "exit": 0,
+                "activation": "yielded",
+                "snapshots": []
+              },
+              "preset-key": {
+                "exit": 0,
+                "activation": "yielded",
+                "snapshots": []
+              },
+              "existing-function": {
+                "exit": 0,
+                "activation": "yielded",
+                "snapshots": []
+              },
+              "existing-autoload": {
+                "exit": 0,
+                "activation": "yielded",
+                "snapshots": []
+              },
+              "existing-variable": {
+                "exit": 0,
+                "activation": "yielded",
+                "snapshots": []
+              },
+              "custom-keymap": {
+                "exit": 0,
+                "activation": "yielded",
+                "snapshots": []
+              },
+              "existing-wrapper": {
+                "exit": 0,
+                "activation": "yielded",
+                "snapshots": []
+              }
+            }
+          },
+          "receipt_sha256": "f5a53913b3a6fbd1da1d14c3ccfa145f84f2cf7b98b04069fd42299dc21e883c",
+          "fish_sha256": "676028c5be037d08361e1c95affc92f3c7548293d809cb6d19c3a4a2bb9b2583"
+        }
+      ],
+      "config_preserved": true
+    },
+    {
+      "phase": "remove",
+      "status": "PASS",
+      "inventory_count": 574,
+      "config_preserved": true,
+      "guarded_opt_in_absent": true
+    },
+    {
+      "phase": "reinstall-after-removal",
+      "status": "PASS",
+      "inventory_count": 575,
+      "observations": [
+        {
+          "home": "fish-home-fresh",
+          "proof": {
+            "status": "PASS",
+            "platform": "aarch64",
+            "fish": "fish, version 4.9.3",
+            "wrapper_sha256": "77d5122d6fc5a9e933f15425946b806a9273b3ead3bb52a1ac1d81a698ee4a21",
+            "cases": {
+              "noninteractive": {
+                "exit": 0
+              },
+              "default": {
+                "exit": 0,
+                "activation": "enabled",
+                "snapshots": [
+                  {
+                    "case": "round-open",
+                    "buffer": "()",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "square-open",
+                    "buffer": "[]",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "brace-open",
+                    "buffer": "{}",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "double-open",
+                    "buffer": "\"\"",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "single-open",
+                    "buffer": "''",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "nested",
+                    "buffer": "([{}])",
+                    "cursor": 3
+                  },
+                  {
+                    "case": "closer-skip",
+                    "buffer": "()",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "quote-skip",
+                    "buffer": "\"\"",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "pair-backspace",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "pair-ctrl-h",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "brace-delete",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "quote-delete",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "single-delete",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "nested-skip",
+                    "buffer": "([{}])",
+                    "cursor": 6
+                  },
+                  {
+                    "case": "text-delete",
+                    "buffer": "\"\"",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "escaped-quote",
+                    "buffer": "\\\"",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "escaped-bracket",
+                    "buffer": "\\()",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "quoted-data",
+                    "buffer": "\"$HOME $(touch PWNED)\"",
+                    "cursor": 21
+                  },
+                  {
+                    "case": "tab-basic",
+                    "buffer": "zz_no_such_command_123",
+                    "cursor": 22
+                  }
+                ]
+              },
+              "vi": {
+                "exit": 0,
+                "activation": "enabled",
+                "snapshots": [
+                  {
+                    "case": "round-open",
+                    "buffer": "()",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "square-open",
+                    "buffer": "[]",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "brace-open",
+                    "buffer": "{}",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "double-open",
+                    "buffer": "\"\"",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "single-open",
+                    "buffer": "''",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "nested",
+                    "buffer": "([{}])",
+                    "cursor": 3
+                  },
+                  {
+                    "case": "closer-skip",
+                    "buffer": "()",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "quote-skip",
+                    "buffer": "\"\"",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "pair-backspace",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "pair-ctrl-h",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "brace-delete",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "quote-delete",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "single-delete",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "nested-skip",
+                    "buffer": "([{}])",
+                    "cursor": 6
+                  },
+                  {
+                    "case": "text-delete",
+                    "buffer": "\"\"",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "escaped-quote",
+                    "buffer": "\\\"",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "escaped-bracket",
+                    "buffer": "\\()",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "quoted-data",
+                    "buffer": "\"$HOME $(touch PWNED)\"",
+                    "cursor": 21
+                  },
+                  {
+                    "case": "tab-basic",
+                    "buffer": "zz_no_such_command_123",
+                    "cursor": 22
+                  }
+                ]
+              },
+              "hybrid": {
+                "exit": 0,
+                "activation": "enabled",
+                "snapshots": [
+                  {
+                    "case": "round-open",
+                    "buffer": "()",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "square-open",
+                    "buffer": "[]",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "brace-open",
+                    "buffer": "{}",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "double-open",
+                    "buffer": "\"\"",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "single-open",
+                    "buffer": "''",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "nested",
+                    "buffer": "([{}])",
+                    "cursor": 3
+                  },
+                  {
+                    "case": "closer-skip",
+                    "buffer": "()",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "quote-skip",
+                    "buffer": "\"\"",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "pair-backspace",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "pair-ctrl-h",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "brace-delete",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "quote-delete",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "single-delete",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "nested-skip",
+                    "buffer": "([{}])",
+                    "cursor": 6
+                  },
+                  {
+                    "case": "text-delete",
+                    "buffer": "\"\"",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "escaped-quote",
+                    "buffer": "\\\"",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "escaped-bracket",
+                    "buffer": "\\()",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "quoted-data",
+                    "buffer": "\"$HOME $(touch PWNED)\"",
+                    "cursor": 21
+                  },
+                  {
+                    "case": "tab-basic",
+                    "buffer": "zz_no_such_command_123",
+                    "cursor": 22
+                  }
+                ]
+              },
+              "custom-key": {
+                "exit": 0,
+                "activation": "yielded",
+                "snapshots": []
+              },
+              "custom-prefix": {
+                "exit": 0,
+                "activation": "yielded",
+                "snapshots": []
+              },
+              "custom-generic": {
+                "exit": 0,
+                "activation": "yielded",
+                "snapshots": []
+              },
+              "custom-tab": {
+                "exit": 0,
+                "activation": "yielded",
+                "snapshots": []
+              },
+              "preset-key": {
+                "exit": 0,
+                "activation": "yielded",
+                "snapshots": []
+              },
+              "existing-function": {
+                "exit": 0,
+                "activation": "yielded",
+                "snapshots": []
+              },
+              "existing-autoload": {
+                "exit": 0,
+                "activation": "yielded",
+                "snapshots": []
+              },
+              "existing-variable": {
+                "exit": 0,
+                "activation": "yielded",
+                "snapshots": []
+              },
+              "custom-keymap": {
+                "exit": 0,
+                "activation": "yielded",
+                "snapshots": []
+              },
+              "existing-wrapper": {
+                "exit": 0,
+                "activation": "yielded",
+                "snapshots": []
+              }
+            }
+          },
+          "receipt_sha256": "f5a53913b3a6fbd1da1d14c3ccfa145f84f2cf7b98b04069fd42299dc21e883c",
+          "fish_sha256": "676028c5be037d08361e1c95affc92f3c7548293d809cb6d19c3a4a2bb9b2583"
+        },
+        {
+          "home": "fish-home-existing",
+          "proof": {
+            "status": "PASS",
+            "platform": "aarch64",
+            "fish": "fish, version 4.9.3",
+            "wrapper_sha256": "77d5122d6fc5a9e933f15425946b806a9273b3ead3bb52a1ac1d81a698ee4a21",
+            "cases": {
+              "noninteractive": {
+                "exit": 0
+              },
+              "default": {
+                "exit": 0,
+                "activation": "enabled",
+                "snapshots": [
+                  {
+                    "case": "round-open",
+                    "buffer": "()",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "square-open",
+                    "buffer": "[]",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "brace-open",
+                    "buffer": "{}",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "double-open",
+                    "buffer": "\"\"",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "single-open",
+                    "buffer": "''",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "nested",
+                    "buffer": "([{}])",
+                    "cursor": 3
+                  },
+                  {
+                    "case": "closer-skip",
+                    "buffer": "()",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "quote-skip",
+                    "buffer": "\"\"",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "pair-backspace",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "pair-ctrl-h",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "brace-delete",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "quote-delete",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "single-delete",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "nested-skip",
+                    "buffer": "([{}])",
+                    "cursor": 6
+                  },
+                  {
+                    "case": "text-delete",
+                    "buffer": "\"\"",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "escaped-quote",
+                    "buffer": "\\\"",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "escaped-bracket",
+                    "buffer": "\\()",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "quoted-data",
+                    "buffer": "\"$HOME $(touch PWNED)\"",
+                    "cursor": 21
+                  },
+                  {
+                    "case": "tab-basic",
+                    "buffer": "zz_no_such_command_123",
+                    "cursor": 22
+                  }
+                ]
+              },
+              "vi": {
+                "exit": 0,
+                "activation": "enabled",
+                "snapshots": [
+                  {
+                    "case": "round-open",
+                    "buffer": "()",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "square-open",
+                    "buffer": "[]",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "brace-open",
+                    "buffer": "{}",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "double-open",
+                    "buffer": "\"\"",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "single-open",
+                    "buffer": "''",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "nested",
+                    "buffer": "([{}])",
+                    "cursor": 3
+                  },
+                  {
+                    "case": "closer-skip",
+                    "buffer": "()",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "quote-skip",
+                    "buffer": "\"\"",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "pair-backspace",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "pair-ctrl-h",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "brace-delete",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "quote-delete",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "single-delete",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "nested-skip",
+                    "buffer": "([{}])",
+                    "cursor": 6
+                  },
+                  {
+                    "case": "text-delete",
+                    "buffer": "\"\"",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "escaped-quote",
+                    "buffer": "\\\"",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "escaped-bracket",
+                    "buffer": "\\()",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "quoted-data",
+                    "buffer": "\"$HOME $(touch PWNED)\"",
+                    "cursor": 21
+                  },
+                  {
+                    "case": "tab-basic",
+                    "buffer": "zz_no_such_command_123",
+                    "cursor": 22
+                  }
+                ]
+              },
+              "hybrid": {
+                "exit": 0,
+                "activation": "enabled",
+                "snapshots": [
+                  {
+                    "case": "round-open",
+                    "buffer": "()",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "square-open",
+                    "buffer": "[]",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "brace-open",
+                    "buffer": "{}",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "double-open",
+                    "buffer": "\"\"",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "single-open",
+                    "buffer": "''",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "nested",
+                    "buffer": "([{}])",
+                    "cursor": 3
+                  },
+                  {
+                    "case": "closer-skip",
+                    "buffer": "()",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "quote-skip",
+                    "buffer": "\"\"",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "pair-backspace",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "pair-ctrl-h",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "brace-delete",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "quote-delete",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "single-delete",
+                    "buffer": "",
+                    "cursor": 0
+                  },
+                  {
+                    "case": "nested-skip",
+                    "buffer": "([{}])",
+                    "cursor": 6
+                  },
+                  {
+                    "case": "text-delete",
+                    "buffer": "\"\"",
+                    "cursor": 1
+                  },
+                  {
+                    "case": "escaped-quote",
+                    "buffer": "\\\"",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "escaped-bracket",
+                    "buffer": "\\()",
+                    "cursor": 2
+                  },
+                  {
+                    "case": "quoted-data",
+                    "buffer": "\"$HOME $(touch PWNED)\"",
+                    "cursor": 21
+                  },
+                  {
+                    "case": "tab-basic",
+                    "buffer": "zz_no_such_command_123",
+                    "cursor": 22
+                  }
+                ]
+              },
+              "custom-key": {
+                "exit": 0,
+                "activation": "yielded",
+                "snapshots": []
+              },
+              "custom-prefix": {
+                "exit": 0,
+                "activation": "yielded",
+                "snapshots": []
+              },
+              "custom-generic": {
+                "exit": 0,
+                "activation": "yielded",
+                "snapshots": []
+              },
+              "custom-tab": {
+                "exit": 0,
+                "activation": "yielded",
+                "snapshots": []
+              },
+              "preset-key": {
+                "exit": 0,
+                "activation": "yielded",
+                "snapshots": []
+              },
+              "existing-function": {
+                "exit": 0,
+                "activation": "yielded",
+                "snapshots": []
+              },
+              "existing-autoload": {
+                "exit": 0,
+                "activation": "yielded",
+                "snapshots": []
+              },
+              "existing-variable": {
+                "exit": 0,
+                "activation": "yielded",
+                "snapshots": []
+              },
+              "custom-keymap": {
+                "exit": 0,
+                "activation": "yielded",
+                "snapshots": []
+              },
+              "existing-wrapper": {
+                "exit": 0,
+                "activation": "yielded",
+                "snapshots": []
+              }
+            }
+          },
+          "receipt_sha256": "f5a53913b3a6fbd1da1d14c3ccfa145f84f2cf7b98b04069fd42299dc21e883c",
+          "fish_sha256": "676028c5be037d08361e1c95affc92f3c7548293d809cb6d19c3a4a2bb9b2583"
+        }
+      ],
+      "config_preserved": true
+    },
+    {
+      "phase": "final-remove",
+      "status": "PASS",
+      "inventory_count": 574,
+      "config_preserved": true,
+      "guarded_opt_in_absent": true
+    }
+  ],
+  "base_count": 574,
+  "installed_count": 575,
+  "user_config_preserved": true,
+  "system_config_preserved": true,
+  "user_outputs_preserved": true,
+  "masked_hooks": 41,
+  "actual_page_size": 4096,
+  "hardware": "NOT_RUN",
+  "native_architecture": "aarch64",
+  "wrapper_sha256": "77d5122d6fc5a9e933f15425946b806a9273b3ead3bb52a1ac1d81a698ee4a21",
+  "trust": "UNSIGNED_LOCAL_CANDIDATE_ONLY"
+}

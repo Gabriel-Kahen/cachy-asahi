@@ -1,0 +1,22 @@
+{
+  "container_absence": "PASS_ACTUAL_RECORDED_ABSENCE",
+  "distinct_containers": [
+    "cachy-asahi-product-a9b6ad906fed6b5b47677208d258969e",
+    "cachy-asahi-product-336daa68c8b372a697eec27a34069a4e"
+  ],
+  "hardware": "NOT_RUN",
+  "installed600": "NOT_RUN",
+  "log_frame": {
+    "ZIP_CRC": "PASS",
+    "bytes": 58965,
+    "sha256": "b5393ea81ce16bd29e2e4700ad75d4722839c9ec1042d51f1fe2ba920f2cd938",
+    "step_log": "native/23_Retain only the closed public expanded600 export.txt",
+    "zip_sha256": "55cbfd58856c05431a9ea3a9623b757fe9b1b7fa1d3308dc6d2cb5fdea16a3f5"
+  },
+  "native_pair": "PASS_BYTES_AND_BUILDINFO_IDENTICAL",
+  "original_check": "PASS_MAKEPKG_CHECK_EXIT",
+  "original_run_status": "FAIL",
+  "release_selection": false,
+  "source_snapshot_origin": "Current canonical files independently identical to BOTH actual provenance recipe_inputs; original inputs directories were not exported",
+  "status": "PASS_PASSIVE_NATIVE_PAIR_JOIN_PENDING_ROOT_DECISION"
+}
