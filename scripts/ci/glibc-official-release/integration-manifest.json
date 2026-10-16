@@ -13,8 +13,8 @@
       "sha256": "b22a69aa3f80a5201818c66cb0df0f25f9fa13cf5861b0093a058dbd12d50dce"
     },
     "packages/core/cachy-asahi-glibc-official-release/PKGBUILD": {
-      "bytes": 3474,
-      "sha256": "59233bf8493e8371d30aecc5cfb9a389ef0f3962278f0d05db2edc795341a84d"
+      "bytes": 3447,
+      "sha256": "6ab549731b37138fe062474e794f4eeae9f8cd3f831820b61232de1c7bebd1f4"
     },
     "packages/core/cachy-asahi-glibc-official-release/README.md": {
       "bytes": 2958,
@@ -23,6 +23,10 @@
     "packages/core/cachy-asahi-glibc-official-release/source-lock.json": {
       "bytes": 2821,
       "sha256": "bd07116a50af3b030e781eec9694691d95b637cd5637c2fc821d018f12b48dba"
+    },
+    "packages/core/cachy-asahi-glibc-rebuild/PKGBUILD.in": {
+      "bytes": 5681,
+      "sha256": "b76404eeeaacffb7510c478a3350a0c225990030d6d3f23ccd0f316d30c9dbb9"
     },
     "scripts/ci/glibc-official-release/LICENSE": {
       "bytes": 1081,
@@ -41,8 +45,8 @@
       "sha256": "c10b5d9414dec148343a273c658d0f5c6345b8710b341865de6af829c3520312"
     },
     "scripts/ci/glibc-official-release/build-entry.sh": {
-      "bytes": 1715,
-      "sha256": "8830c09d61a908bf8a441a0fc2e47915f9e734ae762ef270cd64623c8ae8fdf4"
+      "bytes": 1739,
+      "sha256": "3f585147898f2a4c9335c3889cfbe71f2d8c5b9328daaf7b9a0d2fcf7adc6bc4"
     },
     "scripts/ci/glibc-official-release/collect_tests.py": {
       "bytes": 3093,
@@ -69,8 +73,8 @@
       "sha256": "f4a84ee7b806ce83754a996cb7f4d81cc9ac344714a72243dcbafe1d7d538d31"
     },
     "scripts/ci/glibc-official-release/source-manifest.json": {
-      "bytes": 1962,
-      "sha256": "3051c1c7ca2b759f7fcb0bf14afa4e54f5b4d90e4ae421f8d3f5f7257fb7aa85"
+      "bytes": 2105,
+      "sha256": "8ffa96c77112ecbebded0edf55689e3adacf3f4f9d1bf0aa5b98d6da60ef5eb2"
     },
     "scripts/ci/glibc-official-release/stage.py": {
       "bytes": 4971,
@@ -83,6 +87,10 @@
     "scripts/ci/glibc-official-release/test_job.py": {
       "bytes": 6533,
       "sha256": "ebe6e4f60349d9356db65578fbbcd36d554319518c491be2ff43eb0fbdca9481"
+    },
+    "scripts/ci/glibc-official-release/test_makepkg_config.py": {
+      "bytes": 4707,
+      "sha256": "e2c823e946e7e2f0664b4d82dfaabeb11aa1a31557ce0664cdaa349139b6013d"
     },
     "scripts/ci/glibc-owned-runtime/LICENSE": {
       "bytes": 1081,

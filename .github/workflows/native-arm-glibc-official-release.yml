@@ -38,7 +38,7 @@ jobs:
           [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]
           test "$SOURCE_SHA" = "$WORKFLOW_SHA"
           test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
-          printf '%s  %s\n' 'cb7877460a00f2a5fb61af9049e38804c4fba8894e20dbe6335e33326ac5d667' "$SLICE/job.py" '124552a121694d420245fef06f7f7768ed6d0524434e5d7ec375d3507c8a2ca1' "$SLICE/integration-manifest.json" | sha256sum --check
+          printf '%s  %s\n' 'cb7877460a00f2a5fb61af9049e38804c4fba8894e20dbe6335e33326ac5d667' "$SLICE/job.py" '38a80b67cab6dde8951b707e457f23a4818edf861768f7a0fded4fd69c369f21' "$SLICE/integration-manifest.json" | sha256sum --check
           python3 -I -B "$SLICE/job.py" proof --workspace "$GITHUB_WORKSPACE" --manifest "$SLICE/integration-manifest.json" --proof "$RUNNER_TEMP/glibc-proof.json"
       - name: Focused inert controls before native actors
         timeout-minutes: 3
@@ -116,7 +116,7 @@ jobs:
           set -euo pipefail
           env -i PATH=/usr/bin:/bin HOME="$RUNNER_TEMP" LC_ALL=C TZ=UTC python3 -B "$SLICE/run.py" \
             --bundle "$RUNNER_TEMP/glibc-source-bundle" --bundle-manifest-sha256 "$(sha256sum "$RUNNER_TEMP/glibc-source-bundle/bundle.json" | cut -d ' ' -f 1)" \
-            --harness-manifest-sha256 '3051c1c7ca2b759f7fcb0bf14afa4e54f5b4d90e4ae421f8d3f5f7257fb7aa85' --owner-token "$CONSUMER_TOKEN" \
+            --harness-manifest-sha256 '8ffa96c77112ecbebded0edf55689e3adacf3f4f9d1bf0aa5b98d6da60ef5eb2' --owner-token "$CONSUMER_TOKEN" \
             --base-dir "$RUNNER_TEMP/desktop574" --source-root "$GITHUB_WORKSPACE" \
             --smoke-dir "$GITHUB_WORKSPACE/scripts/ci/glibc-owned-runtime" --smoke-manifest "$GITHUB_WORKSPACE/scripts/ci/glibc-owned-runtime/source-manifest.json" \
             --output "$RUNNER_TEMP/glibc-runtime" --execute

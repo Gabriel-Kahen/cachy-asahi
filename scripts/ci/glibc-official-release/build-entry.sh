@@ -23,10 +23,11 @@ CXXFLAGS='-O2 -g'
 LDFLAGS=''
 MAKEFLAGS='-j4'
 BUILDENV=(!distcc !color !ccache check !sign)
-OPTIONS=(staticlibs !strip !debug !lto !buildflags !makeflags)
-PACKAGER='cachy-asahi project-owned rebuild'
+OPTIONS=(staticlibs !strip !debug !lto)
+PACKAGER='cachy-asahi project-owned rebuild <build@cachy-asahi.invalid>'
 INTEGRITY_CHECK=(sha256)
 PKGEXT=.pkg.tar.xz
+SRCEXT=.src.tar.xz
 COMPRESSXZ=(xz -c -T1 -6)
 CONF
 export MAKEPKG_CONF=/work/makepkg.conf
