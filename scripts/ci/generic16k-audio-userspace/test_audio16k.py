@@ -28,6 +28,61 @@ def elf(align=16384):
 
 
 class Audio16KControls(unittest.TestCase):
+    def test_public_seed_bytes_are_verified_before_execution(self):
+        self.assertEqual(job.PUBLIC_SEED_COMMIT,'04a4a74e16e1e1bc939ea74791bf1f1bf7b46bbd')
+        self.assertEqual(job.PUBLIC_SEED_PINS, {
+            'seed.py':'a7857658af224984065e575f6ffed8308ea85027d46eace8bda146d9033e93b3',
+            'index.json':'a388c8c8ba8e06cb92fd2be598b86e433c4e403b6e71a0f15b1eaec381bb7300'})
+        with tempfile.TemporaryDirectory() as temporary:
+            root=Path(temporary);files={'seed.py':b'inert source','index.json':b'fixed index'}
+            for name,raw in files.items():(root/name).write_bytes(raw)
+            with patch.object(job,'PUBLIC_SEED_PINS',{name:d.sha(raw) for name,raw in files.items()}):
+                self.assertEqual(len(job.verify_public_seed(root)['files']),2)
+                (root/'index.json').write_bytes(b'drift')
+                with self.assertRaises(ValueError):job.verify_public_seed(root)
+
+    def test_public_seed_order_and_immutable_workflow_checkout(self):
+        script=(d.HERE/'ci_sequence.sh').read_text()
+        secret=script.index('"$task_dir/job.py" seed')
+        verify=script.index('job.verify_public_seed(')
+        public=script.index('"$task_public_inputs/seed.py" --cache "$task_owner/base/context/deps"')
+        build=script.index('"$task_dir/job.py" build')
+        self.assertTrue(secret < verify < public < build)
+        workflow=(ROOT/'.github/workflows/native-arm-generic16k-audio-userspace.yml').read_text()
+        self.assertIn('ref: '+job.PUBLIC_SEED_COMMIT,workflow)
+        self.assertIn('path: retained-public-inputs',workflow)
+        self.assertIn('"$GITHUB_WORKSPACE/retained-public-inputs"',workflow)
+
+    def test_failed574_report_is_retained_before_owner_cleanup_without_waiving_unknown(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root=Path(temporary);(root/'base').mkdir();(root/'public').mkdir()
+            report={'status':'FAILED','native_build':'NOT_RUN','packages':574,'acquired':1151,
+                    'error_kind':'ValueError','failures':[{'filename':'one.pkg.tar.xz','kind':'HTTPError',
+                    'http_status':404,'url':'https://example.invalid/private-url-not-selected'}]}
+            (root/'base/report.json').write_text(json.dumps(report))
+            (root/'build.log').write_bytes(b'x'*9000+b'fixed final diagnostic')
+            def save(path,value):path.write_text(json.dumps(value))
+            def cleanup(args,interrupted):
+                (root/'base/report.json').unlink();(root/'base').rmdir();(root/'build.log').unlink()
+                save(root/'public/result.json',{'status':'FAIL','owner_cleanup':{'bootstrap_retirement':'UNKNOWN'}})
+                return 1
+            owner=SimpleNamespace(phase=lambda _:None,cleanup=cleanup,save=save)
+            code=job.bind(owner,ROOT).cleanup(SimpleNamespace(root=root),[])
+            value=json.loads((root/'public/result.json').read_text())
+            self.assertEqual(code,1);self.assertEqual(value['status'],'FAIL')
+            self.assertEqual(value['owner_cleanup']['bootstrap_retirement'],'UNKNOWN')
+            record=value['bootstrap_diagnostics'];self.assertEqual(record['report']['failures'][0]['http_status'],404)
+            self.assertEqual(record['build_log']['tail_bytes'],8192)
+            self.assertNotIn('private-url-not-selected',json.dumps(record))
+
+    def test_bootstrap_diagnostic_refuses_oversize_and_malformed_reports(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root=Path(temporary);(root/'base').mkdir();p=root/'base/report.json'
+            for raw in (b'x'*(1024**2+1),json.dumps({'failures':'not-list'}).encode(),
+                        json.dumps({'acquired':True,'failures':[]}).encode()):
+                p.write_bytes(raw)
+                self.assertEqual(job.bootstrap_diagnostics(root)['report']['status'],'REFUSED_BOUNDED_PROJECTION')
+
     def test_new_native_producer_uses_one_unchanged_host_compile_recipe(self):
         common = d.load(ROOT, 'scripts/ci/asahi-lsp-offline/container.py')
         commands = []

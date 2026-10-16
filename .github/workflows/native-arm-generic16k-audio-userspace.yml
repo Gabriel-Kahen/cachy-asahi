@@ -64,6 +64,13 @@ jobs:
           PY
           python3 -B -Werror::ResourceWarning -m unittest discover \
             -s audio-source/scripts/ci/generic16k-audio-userspace -p 'test_*.py' -v
+      - name: Check out exact fourteen-file public input seed
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 2
+        with:
+          ref: 04a4a74e16e1e1bc939ea74791bf1f1bf7b46bbd
+          path: retained-public-inputs
+          persist-credentials: false
       - name: Provision tools only on disposable Ubuntu ARM runner
         timeout-minutes: 8
         shell: bash
@@ -107,7 +114,7 @@ jobs:
           timeout --signal=TERM --kill-after=240s 9000s bash \
             "$GITHUB_WORKSPACE/audio-source/scripts/ci/generic16k-audio-userspace/ci_sequence.sh" \
             "$GITHUB_WORKSPACE/audio-source" "$GITHUB_WORKSPACE/product-api" "$GITHUB_WORKSPACE/desktop-base" \
-            "$RUNNER_TEMP/audio16k-owner" "$RUNNER_TEMP/audio16k-kernel-work"
+            "$RUNNER_TEMP/audio16k-owner" "$RUNNER_TEMP/audio16k-kernel-work" "$GITHUB_WORKSPACE/retained-public-inputs"
       - name: Retain only bounded public metadata
         if: always()
         timeout-minutes: 2
