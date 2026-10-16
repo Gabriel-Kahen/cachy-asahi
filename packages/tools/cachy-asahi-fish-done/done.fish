@@ -75,7 +75,7 @@ function __done_notify --argument-names duration outcome kind detail
         set message "$kind: $text"
     end
     # No eval, shell interpolation of command text, sound or desktop probing.
-    command timeout --signal=TERM --kill-after=1s 2s notify-send \
+    command timeout --foreground --signal=TERM --kill-after=1s 2s notify-send \
         --hint=int:transient:1 --urgency=$urgency --icon=utilities-terminal \
         --app-name=fish --expire-time=3000 -- "$title" "$message" >/dev/null 2>&1
 end

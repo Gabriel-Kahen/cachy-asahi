@@ -39,6 +39,25 @@ def receipt():
             (('install',575),('same-version-reinstall',575),('remove',574),('reinstall-after-removal',575),('final-remove',574))])
 
 
+class RetainedReceiptOrder(unittest.TestCase):
+    def test_sorted_report_joins_original_receipt_without_changing_its_digest(self):
+        actual=receipt()
+        report=json.loads(json.dumps(dict(lifecycle=actual),sort_keys=True))
+        with self.assertRaisesRegex(ValueError,'receipt bytes/digest join differs'):
+            C.validate_lifecycle(report['lifecycle'])
+        C.validate_retained_lifecycle(report,actual)
+        self.assertIn("C.validate_retained_lifecycle(report,read(runtime/'lifecycle.json',4*1024**2))",prepare.source('job',ROOT))
+
+    def test_changed_proof_or_original_receipt_digest_is_refused(self):
+        actual=receipt();report=json.loads(json.dumps(dict(lifecycle=actual),sort_keys=True))
+        report['lifecycle']['events'][0]['observations'][0]['proof']['cases']['default']['exit']=1
+        with self.assertRaisesRegex(ValueError,'parent/standalone lifecycle mismatch'):
+            C.validate_retained_lifecycle(report,actual)
+        actual['events'][0]['observations'][0]['receipt_sha256']='0'*64
+        with self.assertRaisesRegex(ValueError,'receipt bytes/digest join differs'):
+            C.validate_retained_lifecycle(dict(lifecycle=actual),actual)
+
+
 class Source(unittest.TestCase):
     def test_exact_final15_source_and11_payload_bindings(self):
         result=C.recipe(ROOT);self.assertEqual(len(result['input_sha256']),15);self.assertEqual(len(C.files()),11)

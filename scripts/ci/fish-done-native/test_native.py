@@ -1,6 +1,8 @@
 """Source and inert receipt/daemon controls; no Fish or package/container actors."""
 import ast
 import copy
+import contextlib
+import io
 import fcntl
 import hashlib
 import json
@@ -73,6 +75,19 @@ class Source(unittest.TestCase):
         self.assertEqual(len(shims),1);self.assertEqual(hashlib.sha256(shims[0].encode()).hexdigest(),C.RECORDER_SHA)
         self.assertIn("PATH=str(home/'bin')",text);self.assertIn("home/'not-a-real-bus'",text)
         self.assertIn("missing = kind if kind in ('notify-send', 'timeout') else None",text)
+
+    def test_foreground_monitor_keeps_named_bound_and_strict_pid_absence(self):
+        product=ROOT/'packages/tools'/C.PACKAGE
+        self.assertIn('command timeout --foreground --signal=TERM --kill-after=1s 2s notify-send',(product/'done.fish').read_text())
+        self.assertIn("need(not Path(f'/proc/{pid}').exists(), 'timed-out notification process survived')",(product/'check-module.py').read_text())
+        self.assertEqual(C.version(ROOT),'0.1.0-2')
+
+    def test_previous_pkgrel_cannot_claim_new_frozen_identity(self):
+        with tempfile.TemporaryDirectory() as root:
+            target=Path(root);product=target/'packages/tools'/C.PACKAGE
+            shutil.copytree(ROOT/'packages/tools'/C.PACKAGE,product)
+            recipe=product/'PKGBUILD';recipe.write_text(recipe.read_text().replace('pkgrel=2','pkgrel=1'))
+            with self.assertRaises(ValueError):C.recipe(target)
 
     def test_exact_final12_source_and8_payload_bindings(self):
         result=C.recipe(ROOT);self.assertEqual(len(result['input_sha256']),12);self.assertEqual(len(C.files()),8)
@@ -162,6 +177,34 @@ class Source(unittest.TestCase):
 
 
 class Receipt(unittest.TestCase):
+    def export_lifecycle(self,actual,reported):
+        # Execute the exact adapted export gate statements, without other actors.
+        tree=ast.parse(prepare.source('job',ROOT))
+        block=next(node for node in ast.walk(tree) if isinstance(node,ast.Try) and any(
+            isinstance(row,ast.Assign) and any(isinstance(target,ast.Name) and target.id=='actual_lifecycle' for target in row.targets)
+            for row in node.body))
+        start=next(i for i,row in enumerate(block.body) if isinstance(row,ast.Assign) and any(
+            isinstance(target,ast.Name) and target.id=='actual_lifecycle' for target in row.targets))
+        gate=ast.fix_missing_locations(ast.Module(body=block.body[start:start+3],type_ignores=[]))
+        with tempfile.TemporaryDirectory() as root:
+            path=Path(root);(path/'lifecycle.json').write_text(json.dumps(actual,indent=2)+'\n')
+            namespace=dict(C=C,runtime=path,report=dict(lifecycle=reported),read=prepare.adapter('job',ROOT)['read'])
+            exec(compile(gate,'exact-export-lifecycle-gate','exec'),namespace)
+
+    def test_sorted_parent_report_joins_original_unsorted_receipt_without_rewriting_digest(self):
+        value=receipt();sorted_report=json.loads(json.dumps(value,sort_keys=True))
+        self.assertEqual(value,sorted_report)
+        C.validate_lifecycle(value)
+        with self.assertRaisesRegex(ValueError,'receipt byte/digest join differs'):C.validate_lifecycle(sorted_report)
+        self.export_lifecycle(value,sorted_report)
+
+    def test_export_semantic_tamper_and_receipt_digest_tamper_remain_fatal(self):
+        value=receipt();changed=copy.deepcopy(value);changed['user_outputs_preserved']=False
+        with self.assertRaisesRegex(ValueError,'report lifecycle differs'):self.export_lifecycle(value,changed)
+        value['events'][0]['observations'][0]['receipt_sha256']='f'*64
+        with self.assertRaisesRegex(ValueError,'receipt byte/digest join differs'):
+            self.export_lifecycle(value,json.loads(json.dumps(value,sort_keys=True)))
+
     def test_complete_eighteen_case_local_recorder_lifecycle(self):
         value=proof();C.validate_pty(value,value['wrapper_sha256'],value['runtime_sha256'])
         C.validate_recorders(recorders(value),value);C.validate_lifecycle(receipt())
@@ -287,6 +330,54 @@ class Cleanup(unittest.TestCase):
         self.owner['containers']=['cachy-asahi-product-'+str(i)*32 for i in range(5)]
         self.J['save'](self.runtime/'owner.json',self.owner)
         with self.assertRaises(ValueError):self.J['retire_consumers'](self.runtime,self.base,self.proof,self.daemon)
+
+
+class AbsenceProbe(unittest.TestCase):
+    def setUp(self):
+        self.tmp=tempfile.TemporaryDirectory();self.addCleanup(self.tmp.cleanup);self.root=Path(self.tmp.name)
+        self.home=self.root/'home';self.home.mkdir();self.output=self.root/'output';self.output.mkdir()
+        self.L=C.load('absent_preservation_fixture',ROOT/'scripts/ci/welcome-native/lifecycle.py')
+        self.M=C.load('absent_fish_fixture',ROOT/'scripts/ci/fish-done-native/lifecycle.py')
+        self.session=self.L.session_paths(self.home,self.output)
+        (self.session/'fish-config').mkdir(mode=0o700)
+        (self.output/'outside').write_text('keep outside')
+
+    def test_only_probe_config_endpoint_changes_not_home_or_other_xdg_state(self):
+        original=self.L.user_environment(self.home,self.session)
+        selected=self.M.absent_environment(self.L,self.home,self.session)
+        self.assertEqual({k for k in original if original[k]!=selected[k]},{'XDG_CONFIG_HOME'})
+        self.assertEqual(selected['HOME'],str(self.home))
+        path=Path(selected['XDG_CONFIG_HOME']);self.assertTrue(path.is_relative_to(self.output))
+        self.assertFalse(path.is_relative_to(self.home));self.assertEqual(path.stat().st_mode&0o777,0o700)
+
+    def test_observed_fish_initialization_reproduces_strict_home_failure(self):
+        before=self.L.snapshot(self.home);outside=self.L.entry(self.output/'outside')
+        config=Path(self.L.user_environment(self.home,self.session)['XDG_CONFIG_HOME'])/'fish'
+        config.mkdir()
+        for name in ('completions','conf.d','functions'):(config/name).mkdir()
+        (config/'config.fish').write_text('# generated by Fish startup')
+        with contextlib.redirect_stdout(io.StringIO()),self.assertRaisesRegex(ValueError,'user config/outside changed'):
+            self.L.preservation_check(self.home,before,self.output,outside)
+
+    def test_isolated_fish_initialization_preserves_fresh_and_existing_home(self):
+        for existing in (False,True):
+            if existing:
+                config=self.home/'.config/fish';config.mkdir();(config/'config.fish').write_text('keep custom')
+                (config/'config-alias').symlink_to('config.fish')
+            before=self.L.snapshot(self.home);outside=self.L.entry(self.output/'outside')
+            selected=self.M.absent_environment(self.L,self.home,self.session)
+            config=Path(selected['XDG_CONFIG_HOME'])/'fish';config.mkdir(exist_ok=True)
+            for name in ('completions','conf.d','functions'):(config/name).mkdir(exist_ok=True)
+            (config/'config.fish').write_text('# generated private probe config')
+            self.L.preservation_check(self.home,before,self.output,outside)
+
+    def test_protected_home_mutation_still_fails_after_probe_isolation(self):
+        before=self.L.snapshot(self.home);outside=self.L.entry(self.output/'outside')
+        self.M.absent_environment(self.L,self.home,self.session)
+        (self.home/'.config/unexpected').write_text('must fail')
+        with contextlib.redirect_stdout(io.StringIO()),self.assertRaises(ValueError):
+            self.L.preservation_check(self.home,before,self.output,outside)
+
 
 
 if __name__=='__main__':unittest.main()

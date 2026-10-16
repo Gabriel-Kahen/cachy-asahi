@@ -483,12 +483,12 @@ recipe = "packages/tools/cachy-asahi-fish-autopair/PKGBUILD"
 license = "MIT"
 selected_for_development = false
 selected_for_release = false
-native_build = "NOT RUN"
-installation = "NOT RUN"
+native_build = "PASS byte-identical native ARM pair in38918809286; exporter-order failure explicitly qualified"
+installation = "PASS all five native ALPM lifecycle phases and six installed14-case PTY observations in38918809286"
 hardware_validation = "NOT RUN"
-next_step = "Separate follow-up candidate. Host Fish 4.9.3 real PTY, syntax and pure staging pass; run native ARM pair and package lifecycle before selection, then generic 16K and both M2 Air workflows. Keep current three-package native lane unchanged."
+native_evidence = "docs/validation/fish-candidates-native-20261016.md"
+next_step = "Native pair/installed lifecycle accepted from original exact receipts with an explicit export-validator ordering failure. Integrate the development composition, complete generic16K and both M2 Air workflows; no release selection."
 
-# Proposed addition only; Root owns shared manifests and selection.
 [[packages]]
 name = "cachy-asahi-fish-done"
 phase = "complete-port-tools"

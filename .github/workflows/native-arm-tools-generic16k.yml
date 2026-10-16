@@ -126,9 +126,10 @@ jobs:
           root=pathlib.Path(sys.argv[1]);sys.path.insert(0,str(root/sys.argv[2]));import support as s
           s.check_source(root);work=pathlib.Path(sys.argv[3]);work.mkdir(mode=0o700);(work/'inputs').mkdir(mode=0o700)
           fetch=s.load(root,'scripts/virtual/generic16k/fetch_inputs.py')
-          manifest,_=fetch.load_manifest(root/'scripts/virtual/generic16k/inputs.json')
-          with fetch.deadline_alarm(300):receipt=fetch.fetch_one(manifest['inputs'][0],work/'inputs',time.monotonic()+300)
-          s.save(work/'kernel-input.json',receipt);helper=work/'helper';helper.mkdir(mode=0o700)
+          manifest,manifest_sha=fetch.load_manifest(root/'scripts/virtual/generic16k/inputs.json')
+          acquire=s.load(root,'scripts/ci/tools-generic16k/acquire_kernel.py')
+          acquire.acquire(fetch,manifest['inputs'][0],work/'inputs',manifest_sha,work/'kernel-input.json')
+          helper=work/'helper';helper.mkdir(mode=0o700)
           for name in ('build_kernel.py','kernel.fragment'):shutil.copyfile(s.HERE/name,helper/name)
           PYCODE
       - name: Build separate derived diagnostic16K PTY kernel
@@ -180,6 +181,9 @@ jobs:
               if log.is_file():
                   with log.open('rb') as stream:stream.seek(max(0,log.stat().st_size-8192));raw=stream.read(8192)
                   tails[name]=dict(bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest(),base64=base64.b64encode(raw).decode())
+          acquisition=root/'tools16k-kernel/kernel-input.json'
+          if acquisition.is_file():
+              data=acquisition.read_bytes();assert len(data)<=16384;value['kernel_acquisition']=json.loads(data)
           value['kernel_log_tails']=tails;raw=(json.dumps(value,sort_keys=True,indent=2)+'\n').encode();assert len(raw)<=2*1024**2
           path.write_bytes(raw);assert set(p.name for p in out.iterdir())=={'runtime.json'}
           PYCODE

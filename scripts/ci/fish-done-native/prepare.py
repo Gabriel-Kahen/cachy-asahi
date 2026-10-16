@@ -22,6 +22,8 @@ def source(kind,root):
             ("len(owner['containers'])==8","len(owner['containers'])==4",1),
             ("len(ordered['consumer']['containers'])==8","len(ordered['consumer']['containers'])==4",1),
             ('all eight owned consumers','all four owned consumers',1),
+            ("C.validate_lifecycle(report['lifecycle'])",
+             "actual_lifecycle=read(runtime/'lifecycle.json',4*1024**2);C.need(report['lifecycle']==actual_lifecycle,'report lifecycle differs');C.validate_lifecycle(actual_lifecycle)",1),
             ('scripts/ci/tools-native','scripts/ci/fish-done-native',2),('tools-consumer:','fish-done-consumer:',1),
             ('PASS_NATIVE_TOOLS_CANDIDATES_CLI_PTY_LIFECYCLE','PASS_NATIVE_FISH_DONE_CANDIDATE_LIFECYCLE',2),
             ("    for path in sorted((source/'scripts/ci/fish-done-native').iterdir()):\n        if path.is_file():copy(path,'harness/'+path.name,2*1024**2)",

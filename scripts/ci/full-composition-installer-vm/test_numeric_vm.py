@@ -318,6 +318,64 @@ class RootReadbackControls(unittest.TestCase):
         proxy,worker,result,c,raw,payload,roots,driver=self.context();result['process_retirement']=False
         with patch.object(n,'root_guard'),self.assertRaisesRegex(ValueError,'proof incomplete'):n.verify_export(proxy,worker,result,c)
         roots.observe.assert_not_called()
+    def test_partial_observation_refuses_before_database_and_retains_original_reason(self):
+        proxy,worker,result,c,raw,payload,roots,driver=self.context()
+        raw.update(complete=False,unsupported_counts={'root observation deadline':1})
+        with patch.object(n,'root_guard'),self.assertRaisesRegex(ValueError,'mapped root observation incomplete'):
+            n.verify_export(proxy,worker,result,c)
+        driver.database.assert_not_called()
+        self.assertFalse((self.evidence/'installed-packages.lock').exists())
+        diagnostic=result['root_guest_observation']
+        self.assertIs(diagnostic['complete'],False)
+        self.assertEqual(diagnostic['unsupported_counts'],{'root observation deadline':1})
+        self.assertEqual(diagnostic['deadline_seconds'],600)
+        self.assertEqual(diagnostic['missing_database_nodes'],3)
+    def test_actual_shared_partial_observer_reproduces_misleading_missing_database_error(self):
+        roots=load('installer_partial_observer_repro',ROOT/'scripts/update/full_root.py')
+        driver=load('installer_partial_database_repro',ROOT/'scripts/ci/full-root-upgrade/root_upgrade.py')
+        target=self.trial/'partial';local=target/'var/lib/pacman/local';local.mkdir(parents=True)
+        version=local/'ALPM_DB_VERSION';version.write_bytes(b'9\n');calls=[]
+        def tick(limit):
+            calls.append(True)
+            if len(calls)>1:raise ValueError('root observation deadline')
+        limits=roots.Limits(deadline=10**15)
+        with patch.object(roots.Limits,'tick',tick):
+            observed=roots.observe(target,limits=limits,hardlinks='generic-development-internal')
+        self.assertTrue(version.is_file());self.assertIs(observed['complete'],False)
+        self.assertEqual(observed['unsupported_counts'],{'root observation deadline':1})
+        with self.assertRaisesRegex(ValueError,'database record absent from root observation'):
+            driver.database(target,observed=observed['nodes'])
+    def test_unsupported_complete_observation_refuses_before_database(self):
+        proxy,worker,result,c,raw,payload,roots,driver=self.context()
+        raw['unsupported_counts']={'filesystem-observation-failed':1}
+        with patch.object(n,'root_guard'),self.assertRaisesRegex(ValueError,'mapped root observation incomplete'):
+            n.verify_export(proxy,worker,result,c)
+        driver.database.assert_not_called()
+        self.assertEqual(result['root_guest_observation']['unsupported_counts'],{'filesystem-observation-failed':1})
+    def test_payload_failure_is_not_hidden_by_database_failure(self):
+        proxy,worker,result,c,raw,payload,roots,driver=self.context()
+        raw['nodes']['helper']['sha256']='f'*64
+        driver.database.side_effect=ValueError('database record absent from root observation')
+        with patch.object(n,'root_guard'),self.assertRaisesRegex(ValueError,'installed payload differs'):
+            n.verify_export(proxy,worker,result,c)
+        driver.database.assert_not_called()
+        self.assertTrue(result['root_guest_observation']['complete'])
+    def test_complete_observation_still_requires_strict_database_readback(self):
+        proxy,worker,result,c,raw,payload,roots,driver=self.context()
+        driver.database.side_effect=ValueError('database record absent from root observation')
+        with patch.object(n,'root_guard'),self.assertRaisesRegex(ValueError,'database record absent'):
+            n.verify_export(proxy,worker,result,c)
+        self.assertTrue(result['root_guest_observation']['complete'])
+        self.assertFalse((self.evidence/'installed-packages.lock').exists())
+    def test_diagnostics_are_bounded_metadata_with_no_node_contents(self):
+        proxy,worker,result,c,raw,payload,roots,driver=self.context()
+        raw['unsupported_counts']={('r'*200)+str(i):1 for i in range(24)}
+        raw['nodes']['helper']['contents']='must-not-export'
+        value=n.observation_summary(proxy,raw,payload,0)
+        self.assertLessEqual(len(p.encoded(value)),8192)
+        self.assertEqual(value['unsupported_reasons_omitted'],8)
+        self.assertEqual(len(value['unsupported_counts']),16)
+        self.assertNotIn('must-not-export',p.encoded(value).decode())
     def test_disk_receipt_changed_is_refused_before_promotion(self):
         proxy,worker,result,c,*_=self.context();self.file('result.json',p.encoded(dict(result,phase='changed')))
         with patch.object(n,'root_guard'),self.assertRaisesRegex(ValueError,'result bytes changed'):n.verify_export(proxy,worker,result,c)

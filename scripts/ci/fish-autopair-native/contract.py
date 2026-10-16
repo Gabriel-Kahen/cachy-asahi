@@ -128,6 +128,13 @@ def validate_pty(value,wrapper_sha):
     need(snapshots==57,'all57 installed editing snapshots required')
 
 
+def validate_retained_lifecycle(report, actual):
+    need(report.get('lifecycle') == actual, 'parent/standalone lifecycle mismatch')
+    # The report is sorted JSON; only the original record retains the receipt's
+    # serialized field order needed by its exact byte digest.
+    validate_lifecycle(actual)
+
+
 def validate_lifecycle(value):
     need(value.get('status')=='PASS_FISH_AUTOPAIR_INSTALLED_LIFECYCLE' and value.get('base_count')==574 and
          value.get('installed_count')==575 and value.get('user_config_preserved') is True and

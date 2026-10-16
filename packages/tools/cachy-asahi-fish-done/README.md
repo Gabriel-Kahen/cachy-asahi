@@ -26,3 +26,13 @@ installer, desktop controller, startup download, eval override or compiler is
 used. arch any describes the text payload; ARM/package-manager/16K/M2/performance
 validation remains NOT RUN. This follow-up does not expand either prior frozen
 three-tool or autopair native lane.
+
+
+Pkgrel2 corrects notification-monitor lifetime with timeout --foreground. It
+retains the2s+1s named-process bound and exact PID-absence assertion. A controlled
+private host subreaper probe establishes prior monitorSIGKILL/adopted-zombie
+behavior and foreground monitor reaping; all18 real host PTY controls are rerun.
+The native0.1.0-1 actual failed its first installed transport-timeout control,
+although both makepkg18case checks and the build pair passed. Its failed process
+state was not retained, so the zombie relationship is source/host evidence,
+not claimed direct native observation. Corrected native lifecycle remains open.
