@@ -17,6 +17,7 @@ _copy_spec=importlib.util.spec_from_file_location("_apps574_copy_scope",Path(__f
 copy_scope=importlib.util.module_from_spec(_copy_spec);sys.modules[_copy_spec.name]=copy_scope;_copy_spec.loader.exec_module(copy_scope)
 
 PURPOSE='APPS_ORIGINAL574_READONLY_CLOSURE'
+EXECUTION_BUDGET=dict(backend_seconds=600,caller_seconds=610)
 LOCK_SHA256='cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac'
 VERSIONS={'cachy-asahi-apps':'0.1.0-5','cachy-asahi-repository-runtime':'0.1.0-1',
           'cachy-asahi-cache':'0.2.0-1','cachy-asahi-orphans':'0.1.0-1'}
@@ -149,18 +150,30 @@ def pinned_json(path,pin,read):
         return result
     value=json.loads(raw,object_pairs_hook=unique);need(type(value) is dict,'policy-or-lease-object');return value
 
+def policy_pair(args,backend):
+    values=[getattr(args,n,None) for n in ('full574_policy','full574_policy_sha256','full574_lease','full574_lease_sha256')]
+    need(all(values),'explicit-policy-and-lease-required')
+    read=backend.B.client.read_path
+    p=pinned_json(args.full574_policy,args.full574_policy_sha256,read)
+    l=pinned_json(args.full574_lease,args.full574_lease_sha256,read)
+    common={'schema_version','purpose','snapshot_sha256','extraction_receipt_sha256','source_tree_sha256','source_packages_sha256','source_closure_sha256','source_capabilities_sha256','execution_budget'}
+    need(set(p)==common|{'baseline_lock_sha256','candidates','source_capabilities'} and set(l)==common|{'token','source','source_identity'},'policy-or-lease-fields')
+    need(type(p['schema_version']) is type(l['schema_version']) is int and p['schema_version']==l['schema_version']==1 and p['purpose']==l['purpose']==PURPOSE,'policy-or-lease-purpose')
+    need(all(type(v) is dict and set(v)==set(EXECUTION_BUDGET) and all(type(n) is int for n in v.values())
+             for v in (p['execution_budget'],l['execution_budget'])) and
+         p['execution_budget']==l['execution_budget']==EXECUTION_BUDGET,'full574-exact-execution-budget')
+    for key in common-{'schema_version','purpose','execution_budget'}:
+        need(type(p[key]) is str and re.fullmatch('[0-9a-f]{64}',p[key]) and l[key]==p[key],'policy-lease-'+key)
+    return p,l
+
+def execution_seconds(args,backend):
+    return policy_pair(args,backend)[0]['execution_budget']['backend_seconds']
+
 class Adapter:
     def __init__(self,args,backend,budget):
         self.t,self.limits=backend,budget
-        read=backend.B.client.read_path
-        self.policy=pinned_json(args.full574_policy,args.full574_policy_sha256,read)
-        self.lease=pinned_json(args.full574_lease,args.full574_lease_sha256,read)
+        self.policy,self.lease=policy_pair(args,backend)
         p,l=self.policy,self.lease
-        common={'schema_version','purpose','snapshot_sha256','extraction_receipt_sha256','source_tree_sha256','source_packages_sha256','source_closure_sha256','source_capabilities_sha256'}
-        need(set(p)==common|{'baseline_lock_sha256','candidates','source_capabilities'} and set(l)==common|{'token','source','source_identity'},'policy-or-lease-fields')
-        need(type(p['schema_version']) is type(l['schema_version']) is int and p['schema_version']==l['schema_version']==1 and p['purpose']==l['purpose']==PURPOSE,'policy-or-lease-purpose')
-        for key in common-{'schema_version','purpose'}:
-            need(type(p[key]) is str and re.fullmatch('[0-9a-f]{64}',p[key]) and l[key]==p[key],'policy-lease-'+key)
         need(p['baseline_lock_sha256']==LOCK_SHA256 and type(p['candidates']) is dict and set(p['candidates'])==set(VERSIONS),'finite-original574-selection')
         need(type(p['source_capabilities']) is dict and digest(p['source_capabilities'])==p['source_capabilities_sha256'],'source-capability-map-pin')
         self.payloads=current_payloads()
@@ -173,7 +186,7 @@ class Adapter:
             type(l['source_identity']) is list and len(l['source_identity'])==2 and all(type(n) is int and n>=0 for n in l['source_identity']) and
             l['source_identity']==backend.inode(self.source),'source-native-lease')
         self.binding=dict(policy_sha256=args.full574_policy_sha256,lease_sha256=args.full574_lease_sha256,
-            snapshot_sha256=p['snapshot_sha256'],extraction_receipt_sha256=p['extraction_receipt_sha256'],source_capabilities_sha256=p['source_capabilities_sha256'])
+            snapshot_sha256=p['snapshot_sha256'],extraction_receipt_sha256=p['extraction_receipt_sha256'],source_capabilities_sha256=p['source_capabilities_sha256'],execution_budget=dict(EXECUTION_BUDGET))
         self.comparator=aux.load_comparator(ROOT/'scripts/ci/full-development-composition/audio_aux.py',budget)
         self.source_check()
 

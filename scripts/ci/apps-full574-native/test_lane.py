@@ -56,11 +56,11 @@ class Controls(unittest.TestCase):
  def test_policy_binding_uses_actual_snapshot_not_future_receipt(self):
   inputs=self.root/'inputs';inputs.mkdir();pub=self.root/'snapshot-public';pub.mkdir();extraction=dict(archive_sha256='a'*64,nodes=42,capability_restoration='PRESERVED_AND_COMPLETE_NODE_MAP_VERIFIED',security_capabilities={'usr/bin/UNIT-inert':'0100000240000000000000000000000000000000'},security_capabilities_sha256=C.sha(C.encoded({'usr/bin/UNIT-inert':'0100000240000000000000000000000000000000'})));C.save(pub/'extraction.json',extraction);C.save(pub/'base.json',dict(inert=True))
   snapshot=dict(status='PASS_ORIGINAL574_APPS_CLOSURE_SNAPSHOT',tree_sha256='b'*64,source_packages_sha256='c'*64,source_closure_sha256='d'*64,source_inode=[1,2],source_capabilities={'usr/bin/UNIT-inert':'0100000240000000000000000000000000000000'},source_capabilities_sha256=C.sha(C.encoded({'usr/bin/UNIT-inert':'0100000240000000000000000000000000000000'})));C.save(pub/'snapshot.json',snapshot)
-  module=SimpleNamespace(PURPOSE='APPS_ORIGINAL574_READONLY_CLOSURE',digest=lambda v:C.sha(C.encoded(v)),current_payloads=lambda:{n:{'inert':n} for n in C.VERSIONS})
+  module=SimpleNamespace(PURPOSE='APPS_ORIGINAL574_READONLY_CLOSURE',EXECUTION_BUDGET=dict(backend_seconds=600,caller_seconds=610),digest=lambda v:C.sha(C.encoded(v)),current_payloads=lambda:{n:{'inert':n} for n in C.VERSIONS})
   packet=dict(packages={n:dict(files=dict(a=dict(sha256='e'*64))) for n in C.VERSIONS});report=dict(token='f'*32,snapshot_point=dict(archive_sha256='a'*64))
   with patch.object(C,'adapter',return_value=module):job.bind(self.root,self.root,report,packet)
   policy=C.decode(C.read(inputs/'full574-policy.json'));lease=C.decode(C.read(inputs/'full574-lease.json'))
-  self.assertEqual(policy['snapshot_sha256'],'a'*64);self.assertEqual(policy['extraction_receipt_sha256'],C.sha(C.encoded(extraction)));self.assertEqual(lease['source'],'/seed');self.assertEqual(lease['source_identity'],[1,2]);self.assertEqual(set(policy['candidates']),set(C.VERSIONS));self.assertEqual(policy['source_tree_sha256'],snapshot['tree_sha256']);self.assertEqual(policy['source_capabilities'],snapshot['source_capabilities']);self.assertEqual(policy['source_capabilities_sha256'],lease['source_capabilities_sha256'])
+  self.assertEqual(policy['execution_budget'],dict(backend_seconds=600,caller_seconds=610));self.assertEqual(policy['execution_budget'],lease['execution_budget']);self.assertEqual(policy['snapshot_sha256'],'a'*64);self.assertEqual(policy['extraction_receipt_sha256'],C.sha(C.encoded(extraction)));self.assertEqual(lease['source'],'/seed');self.assertEqual(lease['source_identity'],[1,2]);self.assertEqual(set(policy['candidates']),set(C.VERSIONS));self.assertEqual(policy['source_tree_sha256'],snapshot['tree_sha256']);self.assertEqual(policy['source_capabilities'],snapshot['source_capabilities']);self.assertEqual(policy['source_capabilities_sha256'],lease['source_capabilities_sha256'])
  def test_actor_mounts_no_authority_in_consumers_no_privileged_or_network(self):
   report=dict(token='a'*32,image='sha256:'+'b'*64,actors=[],commands=[]);api=SimpleNamespace(inspect=Mock(side_effect=[None,dict(actual=True)]),verify_actor=Mock(return_value='c'*64));command=Mock(return_value=dict(code=0))
   job.actor(self.root,self.root,report,command,api,'lifecycle','lifecycle.py');argv=command.call_args.args[0]
@@ -73,11 +73,11 @@ class Controls(unittest.TestCase):
   with patch.object(C,'source'),patch.object(job,'owner_api',return_value=api),patch.object(job,'actor',side_effect=AssertionError('disposal actor before absence')):
    value=job.cleanup(args)
   self.assertEqual(value['status'],'FAIL');self.assertEqual(value['producer'],'PRESERVED');self.assertEqual(value['authority'],'PRESERVED')
- def test_true_plan_keeps_default_runtime_and_original_backend_bounds(self):
+ def test_true_plan_keeps_default_runtime_and_dedicated_backend_bounds(self):
   with patch.object(C,'read',return_value=b'inert'):
    args=life.backend('apply',self.root,'a'*64)
   self.assertEqual(args[:4],['/usr/bin/python3','-I','-B','/source/scripts/apps/transaction.py']);self.assertIn('--full574-lease-sha256',args);self.assertIn('--ownership-sha256',args)
-  text=(HERE/'lifecycle.py').read_text();self.assertIn("'--worker'",text);self.assertIn('time.monotonic()+300',text);self.assertIn('signal.SIGSTOP',text);self.assertIn("'rollback'",C.encoded(dict(rollback='NOT_CLAIMED')).decode().replace('"',"'"))
+  text=(HERE/'lifecycle.py').read_text();self.assertIn("'--worker'",text);self.assertIn('time.monotonic()+600',text);self.assertIn('signal.SIGSTOP',text);self.assertIn("'rollback'",C.encoded(dict(rollback='NOT_CLAIMED')).decode().replace('"',"'"))
   self.assertNotIn('--nodeps',text);self.assertNotIn('--overwrite',text);self.assertNotIn('db.lck\').unlink',text)
  def test_interruption_retains_real_pending_copy_after_group_reap_model(self):
   workspace=self.root/'copy';(workspace/'root/var/lib/pacman').mkdir(parents=True);lock=workspace/'root/var/lib/pacman/db.lck';lock.write_bytes(b'');C.save(workspace/'apps-pending.json',dict(status='ATTEMPT_STARTED_COMMIT_OUTCOME_NOT_RECORDED'))

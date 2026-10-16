@@ -42,6 +42,7 @@
     "scripts/apps/full574_copy.py",
     "scripts/apps/full574_statx.py",
     "scripts/apps/test_file_capabilities.py",
+    "scripts/apps/test_full574_budget.py",
     "scripts/apps/test_full574_closure.py",
     "scripts/apps/test_full574_copy.py",
     "scripts/apps/test_full574_statx.py",

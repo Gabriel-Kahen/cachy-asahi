@@ -9,7 +9,7 @@ SOURCE=Path('/source');SEED=Path('/seed');WORK=Path('/work');OUT=Path('/out');IN
 class Calls:
  def __init__(self):
   self.api=C.load('original_group_runner',SOURCE/'scripts/ci/glibc-owned-runtime/runner.py');self.rows=[]
- def call(self,argv,*,seconds=310,expected=0):
+ def call(self,argv,*,seconds=610,expected=0):
   n=len(self.rows);C.need(n<64,'closed command count');row,out,err,error=self.api.run_command(list(map(str,argv)),WORK,dict(C.ENV,HOME='/tmp',CACHY_ASAHI_APPS_TRANSACTION=os.environ['OWNER_TOKEN']),seconds,1024**2)
   self.rows.append(row);C.save(OUT/'commands.json',self.rows);(OUT/('command-%02d.stdout'%n)).write_bytes(out);(OUT/('command-%02d.stderr'%n)).write_bytes(err)
   C.need(error is None and row['group_absence_verified'] and row['exit_code']==expected,'bounded actual command failed: '+str(argv[0]));return C.decode(out)
@@ -50,11 +50,11 @@ def zero(value):
 
 def interrupted(calls,workspace,owner,argv):
  # The original --worker body is directly supervised here: one private process
- # group, unchanged 300s budget and1MiB output cap. No synthetic commit result.
+ # group, dedicated full574600s budget and1MiB output cap. No synthetic commit result.
  streams=[(OUT/('interrupted-'+side)).open('w+b') for side in ('stdout','stderr')];process=None;absent=False;seen=None;started=time.monotonic()
  try:
   process=subprocess.Popen([*argv,'--worker'],cwd=WORK,env=dict(C.ENV,HOME='/tmp',CACHY_ASAHI_APPS_TRANSACTION=os.environ['OWNER_TOKEN']),stdin=subprocess.DEVNULL,stdout=streams[0],stderr=streams[1],start_new_session=True)
-  end=time.monotonic()+300;pending=workspace/'apps-pending.json'
+  end=time.monotonic()+600;pending=workspace/'apps-pending.json'
   while True:
    C.need(time.monotonic()<end and sum(os.fstat(f.fileno()).st_size for f in streams)<=1024**2,'bounded interrupted attempt')
    C.need(os.waitid(os.P_PID,process.pid,os.WEXITED|os.WNOHANG|os.WNOWAIT) is None,'attempt ended before interruption point')
@@ -80,7 +80,7 @@ def interrupted(calls,workspace,owner,argv):
   for stream in streams:stream.close()
  C.need(output_bytes<=1024**2,'interrupted worker final output cap')
  C.need(absent and process.returncode==-signal.SIGKILL and (workspace/'apps-pending.json').is_file() and workspace.is_dir(),'interrupted owned copy must remain pending and retained')
- value=dict(status='FAIL_INTERRUPTED_OWNED_COPY_RETAINED',time_limit=300,reap_limit=5,seconds=round(time.monotonic()-started,6),outputs={side:C.ref(OUT,OUT/('interrupted-'+side)) for side in ('stdout','stderr')},commit_started='UNKNOWN',packages_committed='UNKNOWN',rollback='NOT_CLAIMED',pending=seen,worker_group_absent=True,direct_child_reaped=True,workspace=str(workspace),ownership_sha256=owner,disposal='ONLY_OUTER_OWNER_AFTER_CONSUMER_ABSENCE',raw_lock='NOT_READ_OR_DELETED',real_lock_observed=dict(device=lock.st_dev,inode=lock.st_ino,mode=stat.S_IMODE(lock.st_mode),bytes=lock.st_size))
+ value=dict(status='FAIL_INTERRUPTED_OWNED_COPY_RETAINED',time_limit=600,reap_limit=5,seconds=round(time.monotonic()-started,6),outputs={side:C.ref(OUT,OUT/('interrupted-'+side)) for side in ('stdout','stderr')},commit_started='UNKNOWN',packages_committed='UNKNOWN',rollback='NOT_CLAIMED',pending=seen,worker_group_absent=True,direct_child_reaped=True,workspace=str(workspace),ownership_sha256=owner,disposal='ONLY_OUTER_OWNER_AFTER_CONSUMER_ABSENCE',raw_lock='NOT_READ_OR_DELETED',real_lock_observed=dict(device=lock.st_dev,inode=lock.st_ino,mode=stat.S_IMODE(lock.st_mode),bytes=lock.st_size))
  C.save(OUT/'interruption.json',value);return value
 
 def main():
