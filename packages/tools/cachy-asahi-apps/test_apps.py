@@ -16,6 +16,8 @@ from unittest.mock import patch
 sys.dont_write_bytecode=True
 HERE=Path(__file__).absolute().parent
 parser=argparse.ArgumentParser();parser.add_argument('--repository-source',type=Path,required=True)
+parser.add_argument('--app-recipe-root',type=Path,default=HERE)
+parser.add_argument('--runtime-recipe-root',type=Path,default=HERE.parent/'cachy-asahi-repository-runtime')
 options,rest=parser.parse_known_args();SOURCE=options.repository_source.absolute()
 spec=importlib.util.spec_from_file_location('apps',HERE/'apps.py');a=importlib.util.module_from_spec(spec);spec.loader.exec_module(a)
 c,r,PINS=a.helpers(SOURCE)
@@ -117,6 +119,46 @@ class PlannerTests(unittest.TestCase):
         with patch.object(a,'ordinary',side_effect=changed),self.assertRaisesRegex(a.Refusal,'helper differs'):a.helpers(SOURCE)
 
 
+class CheckInputsTests(unittest.TestCase):
+    def setUp(self):
+        spec=importlib.util.spec_from_file_location('check_inputs',HERE/'prepare-check-inputs.py')
+        self.prepare=importlib.util.module_from_spec(spec);spec.loader.exec_module(self.prepare)
+        self.temp=tempfile.TemporaryDirectory(prefix='apps-check-data-');self.addCleanup(self.temp.cleanup);self.root=Path(self.temp.name)
+        self.archive=HERE/'check-inputs.tar.gz';self.index=HERE/'check-inputs.json'
+    def test_exact_closed_check_tree_and_original_source_bytes(self):
+        output=self.root/'inputs';value=self.prepare.prepare(self.archive,self.index,output)
+        self.assertEqual(value['files'],16);self.assertEqual(value['code_execution'],'NONE')
+        self.assertEqual({p.relative_to(output).as_posix() for p in output.rglob('*') if p.is_file()},self.prepare.MEMBERS)
+        for name in PINS:self.assertEqual((output/'repository'/name).read_bytes(),(SOURCE/name).read_bytes())
+        self.assertEqual((output/'repository/scripts/release/test_release.py').read_bytes(),(SOURCE/'scripts/release/test_release.py').read_bytes())
+    def test_bad_archive_hash_existing_output_and_symlink_refuse(self):
+        wrong=self.root/'bad.tar.gz';wrong.write_bytes(self.archive.read_bytes()+b'changed')
+        with self.assertRaises(ValueError):self.prepare.prepare(wrong,self.index,self.root/'bad')
+        existing=self.root/'existing';existing.mkdir()
+        with self.assertRaises(ValueError):self.prepare.prepare(self.archive,self.index,existing)
+        link=self.root/'alias';link.symlink_to(self.archive)
+        with self.assertRaises(ValueError):self.prepare.prepare(link,self.index,self.root/'bad')
+        self.assertFalse((self.root/'bad').exists())
+    def test_duplicate_link_escape_and_missing_members_refuse_before_writing(self):
+        import io,tarfile
+        with tarfile.open(self.archive,'r:gz') as archive:
+            records=[(copy.deepcopy(m),archive.extractfile(m).read()) for m in archive]
+        original=json.loads(self.index.read_bytes())
+        for variant in ('duplicate','link','escape','missing'):
+            rows=copy.deepcopy(records)
+            if variant=='duplicate':rows.append(rows[0])
+            elif variant=='link':rows[0][0].type=tarfile.SYMTYPE;rows[0][0].linkname='../../escape';rows[0][0].size=0
+            elif variant=='escape':rows[0][0].name='../escape'
+            else:rows.pop()
+            data=io.BytesIO()
+            with tarfile.open(fileobj=data,mode='w:gz',format=tarfile.USTAR_FORMAT) as archive:
+                for member,raw in rows:archive.addfile(member,io.BytesIO(raw) if member.type==tarfile.REGTYPE else None)
+            path=self.root/(variant+'.tar.gz');path.write_bytes(data.getvalue());index=copy.deepcopy(original)
+            index['archive']=self.prepare.digest(data.getvalue());pin=self.root/(variant+'.json');pin.write_bytes(a.encoded(index))
+            with self.subTest(variant=variant),self.assertRaises(ValueError):self.prepare.prepare(path,pin,self.root/variant)
+            self.assertFalse((self.root/variant).exists())
+
+
 class SignedTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -144,6 +186,32 @@ class SignedTests(unittest.TestCase):
         self.catalog.write_bytes(a.encoded(self.value));Path(str(self.catalog)+'.sig').unlink(missing_ok=True);self.fixture.r.sign(self.catalog,self.case.key,self.case.env)
         if hasattr(self,'args'):self.args.catalog_sha256=a.digest(self.catalog.read_bytes())
     def held(self):return {str(p):p.read_bytes() for p in self.root.rglob('*') if p.is_file() and not p.is_symlink()}
+    def test_staged_default_lookup_without_checkout_and_companion_failures(self):
+        stage=self.root/'installed';stage.mkdir()
+        for recipe in (options.app_recipe_root.absolute(),options.runtime_recipe_root.absolute()):
+            env=dict(PATH='/usr/bin:/bin',srcdir=str(recipe),pkgdir=str(stage))
+            staged=subprocess.run(['/bin/bash','--noprofile','--norc','-c','source "$1"; package','stage',str(recipe/'PKGBUILD')],
+                                  env=env,capture_output=True,text=True,timeout=30)
+            self.assertEqual(staged.returncode,0,staged.stderr)
+        target=stage/'usr/bin/cachy-asahi-apps';runtime=stage/'usr/share/cachy-asahi/repository-runtime'
+        self.assertEqual({p.relative_to(runtime).as_posix() for p in runtime.rglob('*') if p.is_file()},set(PINS))
+        home=self.root/'staged-private-home';home.mkdir();cwd=self.root/'empty-cwd';cwd.mkdir()
+        cli=[str(target)]
+        for name in ('release','release-sha256','catalog','catalog-sha256','catalog-signature','keyring','signer','installed','installed-sha256'):
+            cli+=['--'+name,str(getattr(self.args,name.replace('-','_')))]
+        self.assertNotIn('--repository-source',cli)
+        env=dict(PATH='/usr/bin:/bin',HOME=str(home),XDG_RUNTIME_DIR=str(home),LC_ALL='C')
+        def run(command):return subprocess.run(cli+command,capture_output=True,text=True,timeout=60,env=env,cwd=cwd)
+        for command in (['list'],['search','synthetic'],['show','fixture'],['plan','install','fixture'],['plan','remove','fixture']):
+            result=run(command);self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+            value=json.loads(result.stdout);self.assertEqual(value['applied'],'NOT_APPLIED');self.assertTrue(value['synthetic'])
+            if command[:2]==['plan','install']:self.assertEqual(value['plan']['additions'][0]['name'],'fixture')
+        helper=runtime/'scripts/client/client.py';raw=helper.read_bytes()
+        helper.unlink();missing=run(['list']);self.assertNotEqual(missing.returncode,0)
+        helper.write_bytes(raw+b'\nchanged');changed=run(['list']);self.assertNotEqual(changed.returncode,0)
+        self.assertIn('helper differs',json.loads(changed.stdout)['error']);helper.write_bytes(raw)
+        self.assertEqual(list(home.iterdir()),[]);self.assertFalse((stage/'.git').exists())
+
     def test_actual_signed_install_list_search_show_and_no_source_change(self):
         before=self.held();result=a.execute(self.args)
         self.assertEqual(result['status'],'PLANNED');self.assertEqual(result['applied'],'NOT_APPLIED');self.assertFalse(result['installer_authority'])

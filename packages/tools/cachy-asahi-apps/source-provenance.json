@@ -6,6 +6,29 @@
     "relations": "release.relation and release.satisfies with preinstalled ALPM vercmp",
     "semantics": "release.verify_release, pkginfo, database_check, provenance_check, source associations and dependency_check"
   },
+  "check_inputs": {
+    "archive": {
+      "bytes": 61046,
+      "sha256": "6d38353fe33e0ce595df507ad9b928d80d3e1d6fe5d45d5418f927e9f50fe6d2"
+    },
+    "bytes": 229223,
+    "execution": "data-only extraction; original test fixture is invoked only by explicit package check",
+    "files": 16,
+    "index": {
+      "bytes": 4127,
+      "sha256": "5cd338eb2ab9f4579825f3dd30de0f25d54a73ee1090737b0a21a506d12caad8"
+    },
+    "installed": false,
+    "license": "MIT",
+    "preparer": {
+      "bytes": 3321,
+      "sha256": "76bc1977cf402872816a430156541c0ccd41273e9080730d2ace7838ffa74214"
+    },
+    "source_roots": [
+      "exact existing scripts/release/test_release.py and three helper files",
+      "exact proposed companion recipe sources"
+    ]
+  },
   "copyright": "2026 cachy-asahi contributors",
   "external_helpers": {
     "scripts/client/client.py": {
@@ -30,14 +53,20 @@
     "native_build": "NOT_RUN",
     "release_acceptance": "NOT_ESTABLISHED"
   },
+  "runtime_dependency": {
+    "default_root": "/usr/share/cachy-asahi/repository-runtime",
+    "development_override": "--repository-source",
+    "package": "cachy-asahi-repository-runtime",
+    "version": "0.1.0-1"
+  },
   "runtime_sources": {
     "apps.py": {
-      "bytes": 20258,
-      "sha256": "6ce521a2e8d5152b94164a52d84e60190065d5b6a8c4c4e1db576a40751efa56"
+      "bytes": 20529,
+      "sha256": "e9e59528007dc315e2ee4a0f742a324e0c23d1932e008ac03d579cda8554535b"
     },
     "cachy-asahi-apps": {
-      "bytes": 77,
-      "sha256": "9828b3772cb1272371df8847160f94ba08eab1caa232c45d0102b43f3fdef0f6"
+      "bytes": 310,
+      "sha256": "4e9c078c2e05cc00cb6479d5fff23b92cbcabd8d6b3ff970f6181e6467921630"
     },
     "helper-pins.json": {
       "bytes": 493,
@@ -45,6 +74,6 @@
     }
   },
   "schema_version": 1,
-  "source_kind": "original project source; three existing repository helpers are external exact source dependencies",
-  "version": "0.1.0-1"
+  "source_kind": "original project planner with exact installed three-helper runtime dependency",
+  "version": "0.1.0-2"
 }
