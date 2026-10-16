@@ -1,62 +1,45 @@
-name: native-arm-build
+name: desktop-managed-user-session
 on:
   workflow_dispatch:
     inputs:
-      mode:
-        description: Probe, audit, original builds, or frozen development-only integration
+      source:
+        description: Full Root-frozen source commit containing the exact managed lane
         required: true
-        default: probe
-        type: choice
-        options: [probe, audit, build, integration]
-      inputs_sha256:
-        description: Reviewed SHA-256 of selected input lock (build uses maintained successor)
         type: string
-        default: ''
-      recipes_sha256:
-        description: Reviewed SHA-256 of selected four-package recipe lock (build)
-        type: string
-        default: ''
-      integration_sha256:
-        description: Reviewed SHA-256 of scripts/ci/integration.lock.json (integration)
-        type: string
-        default: ''
 permissions:
   contents: read
 concurrency:
-  group: native-arm-build
+  group: native-arm-managed-user-session
   cancel-in-progress: false
-  queue: max
 jobs:
   native:
-    if: github.repository == 'Gabriel-Kahen/cachy-asahi' && github.event.repository.private == false
+    if: github.repository == 'Gabriel-Kahen/cachy-asahi'
     runs-on: ubuntu-24.04-arm
-    timeout-minutes: 50
+    timeout-minutes: 90
     env:
       PYTHONDONTWRITEBYTECODE: '1'
-      BUILD_MODE: ${{ inputs.mode }}
-      INPUTS_SHA256: ${{ inputs.inputs_sha256 }}
-      RECIPES_SHA256: ${{ inputs.recipes_sha256 }}
-      INTEGRATION_SHA256: ${{ inputs.integration_sha256 }}
+      SOURCE_COMMIT: ${{ inputs.source }}
+      LANE: scripts/ci/desktop-user-session
+      MANIFEST_SHA256: 'f1c6da489829738801c5c59cd2d89f6512fdebcb70a0891db0b126732c80ccd2'
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1, verified upstream ref
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 2
         with:
+          ref: ${{ inputs.source }}
           persist-credentials: false
-      - name: Record native runner evidence
+      - name: Verify exact source and stage the opt-in managed runner
+        timeout-minutes: 2
         shell: bash
         run: |
           set -euo pipefail
-          install -d -m 700 "$RUNNER_TEMP/native-home"
-          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP/native-home" LANG=C.UTF-8 TZ=UTC \
-            RUNNER_TEMP="$RUNNER_TEMP" TMPDIR="$RUNNER_TEMP" PYTHONDONTWRITEBYTECODE=1 \
-            RUNNER_ARCH="$RUNNER_ARCH" RUNNER_OS="$RUNNER_OS" \
-            ImageVersion="${ImageVersion:-}" ImageOS="${ImageOS:-}" \
-            GITHUB_SHA="$GITHUB_SHA" GITHUB_REPOSITORY="$GITHUB_REPOSITORY" \
-            GITHUB_RUN_ID="$GITHUB_RUN_ID" GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" \
-            python3 -B scripts/ci/native_arm.py probe \
-            --cache "$RUNNER_TEMP/alarm-cache" --output "$RUNNER_TEMP/native-probe"
-      - name: Seed the six frozen private cache objects before native work
-        if: inputs.mode == 'build'
-        shell: bash
+          export BASE="$RUNNER_TEMP/desktop-managed-base" TRIAL="$RUNNER_TEMP/desktop-managed-trial"
+          printf 'BASE=%s\nTRIAL=%s\n' "$BASE" "$TRIAL" >> "$GITHUB_ENV"
+          [[ "$SOURCE_COMMIT" =~ ^[0-9a-f]{40}$ ]]
+          test "$(git rev-parse HEAD)" = "$SOURCE_COMMIT"
+          printf '%s  %s\n' 'cf866f9890bf67f7edd4f9f08561986b9ecaed462c8c6574fc3a3091c9aa0271' "$LANE/ci/caller.py" "$MANIFEST_SHA256" "$LANE/ci/source-manifest.json" | sha256sum --check
+          python3 -I -B "$LANE/ci/caller.py" prepare --source "$GITHUB_WORKSPACE" --manifest "$GITHUB_WORKSPACE/$LANE/ci/source-manifest.json" --manifest-sha256 "$MANIFEST_SHA256" --trial "$TRIAL" --base "$BASE" --source-commit "$SOURCE_COMMIT"
+      - name: Seed the six exact retained inputs using existing secrets only
+        timeout-minutes: 2
         env:
           CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01 }}
           CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02 }}
@@ -82,74 +65,80 @@ jobs:
           CACHY_OLD_FOUR_LIBTIFF_14: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_14 }}
           CACHY_OLD_FOUR_LIBTIFF_15: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_15 }}
           CACHY_OLD_FOUR_LIBTIFF_SIG_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_SIG_01 }}
-        run: |
-          set -euo pipefail
-          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
-          test "$INPUTS_SHA256" = beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f
-          test "$(sha256sum scripts/ci/maintained-native/locks/inputs-successor.lock.json | cut -d ' ' -f 1)" = "$INPUTS_SHA256"
-          timeout --signal=TERM --kill-after=5s 75s python3 -B - <<'PYSEED'
-          import hashlib
-          import os
-          from pathlib import Path
-          import sys
-          sys.path.insert(0, 'scripts/ci')
-          from old_four_seed import (OLD_FOUR_PRIVATE_ROWS, RETAINED_BUBBLEWRAP_PRIVATE_ROWS,
-                                     seed_current_build_cache)
-          pin = 'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f'
-          if hashlib.sha256(Path('scripts/ci/inputs.lock.json').read_bytes()).hexdigest() != pin:
-              raise SystemExit('private-cache-input-binding-refused')
-          names = {'CACHY_OLD_FOUR_' + f'{tag}_{i:02d}'
-                   for _, _, _, tag, count in OLD_FOUR_PRIVATE_ROWS for i in range(1, count + 1)}
-          retained = {'CACHY_RETAINED_BUBBLEWRAP_V1_' + f'{tag}_{i:02d}'
-                      for _, _, _, tag, sizes in RETAINED_BUBBLEWRAP_PRIVATE_ROWS
-                      for i in range(1, len(sizes) + 1)}
-          names |= retained
-          if len(names) != 22 or len(retained) != 3 or not all(os.environ.get(name) for name in names):
-              raise SystemExit('private-cache-required-secrets-missing')
-          cache = Path(os.environ['RUNNER_TEMP']) / 'alarm-cache'
-          cache.mkdir(mode=0o700)
-          keep = names | {'CACHY_OLD_FOUR_SCHEMA', 'CACHY_OLD_FOUR_SOURCE_EPOCH'}
-          for name in tuple(os.environ):
-              if name not in keep:
-                  os.environ.pop(name)
-          seed_current_build_cache(cache, pin)
-          PYSEED
-      - name: Authenticate inputs or build in isolated native containers
-        if: inputs.mode != 'probe'
+        run: >-
+          python3 -I -B scripts/ci/maintained_desktop574.py seed
+          --inputs scripts/ci/maintained-desktop574-inputs.json
+          --output "$BASE"
+      - name: Checkout exact retained public input source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 2
+        with:
+          ref: 04a4a74e16e1e1bc939ea74791bf1f1bf7b46bbd
+          path: retained-public-inputs
+          persist-credentials: false
+      - name: Seed the same fourteen exact public input files
+        timeout-minutes: 2
         shell: bash
-        env:
-          NATIVE_RECIPES_PATH: ${{ inputs.mode == 'build' && 'scripts/ci/setup-0.1.0-4-recipes.lock.json' || 'scripts/ci/recipes.lock.json' }}
-          NATIVE_INPUTS_PATH: ${{ inputs.mode == 'build' && 'scripts/ci/maintained-native/locks/inputs-successor.lock.json' || 'scripts/ci/inputs.lock.json' }}
         run: |
           set -euo pipefail
-          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP/native-home" LANG=C.UTF-8 TZ=UTC \
-            RUNNER_TEMP="$RUNNER_TEMP" TMPDIR="$RUNNER_TEMP" PYTHONDONTWRITEBYTECODE=1 \
-            RUNNER_ARCH="$RUNNER_ARCH" RUNNER_OS="$RUNNER_OS" \
-            ImageVersion="${ImageVersion:-}" ImageOS="${ImageOS:-}" \
-            GITHUB_SHA="$GITHUB_SHA" GITHUB_REPOSITORY="$GITHUB_REPOSITORY" \
-            GITHUB_RUN_ID="$GITHUB_RUN_ID" GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" \
-            python3 -B scripts/ci/native_arm.py "$BUILD_MODE" \
-            --inputs "$NATIVE_INPUTS_PATH" --inputs-sha256 "$INPUTS_SHA256" \
-            --recipes "$NATIVE_RECIPES_PATH" --recipes-sha256 "$RECIPES_SHA256" \
-            --integration-sha256 "$INTEGRATION_SHA256" \
-            --integration-output "$RUNNER_TEMP/integration-evidence" \
-            --cache "$RUNNER_TEMP/alarm-cache" --output "$RUNNER_TEMP/native-evidence"
-      - name: Retain bounded evidence and package artifacts in free workflow logs
-        if: always()
+          test "$(git -C retained-public-inputs rev-parse HEAD)" = 04a4a74e16e1e1bc939ea74791bf1f1bf7b46bbd
+          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$HOME" LANG=C.UTF-8 TZ=UTC TMPDIR="$RUNNER_TEMP" \
+            python3 -I -B "$GITHUB_WORKSPACE/retained-public-inputs/seed.py" --cache "$BASE/context/deps"
+      - name: Build the accepted exact574 with its existing owned-image API
+        timeout-minutes: 40
+        shell: bash
         run: |
-          evidence_status=0
-          python3 scripts/ci/log_evidence.py "$RUNNER_TEMP/native-probe" || evidence_status=1
-          if [ -d "$RUNNER_TEMP/native-evidence" ]; then
-            python3 scripts/ci/log_evidence.py "$RUNNER_TEMP/native-evidence" || evidence_status=1
+          set -euo pipefail
+          python3 -I -B "$LANE/ci/caller.py" verify --source "$GITHUB_WORKSPACE" --manifest "$GITHUB_WORKSPACE/$LANE/ci/source-manifest.json" --manifest-sha256 "$MANIFEST_SHA256" --trial "$TRIAL" --base "$BASE"
+          timeout --signal=TERM --kill-after=10s 2300s \
+            python3 -I -B scripts/ci/maintained_desktop574.py build \
+              --inputs scripts/ci/maintained-desktop574-inputs.json --output "$BASE" \
+              --job-token "$(cat "$TRIAL/job-token")" 2>&1 | tail -c 262144 > "$TRIAL/base-build.log"
+      - name: Run focused source controls
+        timeout-minutes: 2
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -I -B scripts/ci/test_maintained_desktop574.py
+          python3 -I -B scripts/ci/test_desktop574_runtime.py
+          python3 -I -B scripts/ci/test_desktop574_guest.py
+          python3 -I -B -m unittest discover -s "$LANE" -p test_managed.py
+          python3 -I -B -m unittest discover -s "$LANE/ci" -p test_caller.py
+          bash -n "$TRIAL/runner/desktop574_fixture.sh"
+      - name: One native managed591 VM trial with the accepted runtime budgets
+        timeout-minutes: 35
+        shell: bash
+        run: |
+          set -euo pipefail
+          timeout --signal=TERM --kill-after=30s 2050s \
+            python3 -I -B "$LANE/ci/caller.py" runtime --source "$GITHUB_WORKSPACE" --manifest "$GITHUB_WORKSPACE/$LANE/ci/source-manifest.json" --manifest-sha256 "$MANIFEST_SHA256" --trial "$TRIAL" --base "$BASE" 2>&1 | tail -c 262144 > "$TRIAL/managed-runtime.log"
+      - name: Retire the owned574 base only after its consumers
+        if: always()
+        timeout-minutes: 2
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -I -B "$LANE/ci/caller.py" verify --source "$GITHUB_WORKSPACE" --manifest "$GITHUB_WORKSPACE/$LANE/ci/source-manifest.json" --manifest-sha256 "$MANIFEST_SHA256" --trial "$TRIAL" --base "$BASE"
+          if [[ -f "$BASE/report.json" && -f "$TRIAL/job-token" ]]; then
+            python3 -I -B scripts/ci/maintained_desktop574.py cleanup \
+              --inputs scripts/ci/maintained-desktop574-inputs.json --output "$BASE" \
+              --job-token "$(cat "$TRIAL/job-token")" 2>&1 | tail -c 65536 > "$TRIAL/base-cleanup.log"
+          else
+            echo 'OWNED_BASE_CLEANUP=NOT_STARTED_OR_NO_REPORT'
           fi
-          if [ -d "$RUNNER_TEMP/integration-evidence/public" ]; then
-            for stage in "$RUNNER_TEMP/integration-evidence/public"/*; do
-              if [ -d "$stage" ]; then
-                python3 scripts/ci/log_evidence.py "$stage" || evidence_status=1
-              fi
-            done
-            if [ -f "$RUNNER_TEMP/integration-evidence/public/summary/result.json" ]; then
-              cat "$RUNNER_TEMP/integration-evidence/public/summary/result.json"
-            fi
-          fi
-          exit "$evidence_status"
+      - name: Retain bounded diagnostics and exact frames and check recorded outcome
+        if: always()
+        timeout-minutes: 2
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -I -B "$LANE/ci/caller.py" retain --source "$GITHUB_WORKSPACE" --manifest "$GITHUB_WORKSPACE/$LANE/ci/source-manifest.json" --manifest-sha256 "$MANIFEST_SHA256" --trial "$TRIAL" --base "$BASE"
+      - name: Keep only selected public diagnostics and both actual PPM frames
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        timeout-minutes: 3
+        with:
+          name: managed-user-session-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 3
+          if-no-files-found: warn
+          path: ${{ runner.temp }}/desktop-managed-trial/public/
