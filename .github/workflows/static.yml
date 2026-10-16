@@ -119,7 +119,7 @@ jobs:
           bash -n scripts/ci/maintained574-active-trial/ci_sequence.sh
       - name: Check read-only diagnostic product fixtures
         run: python3 -B -Werror::ResourceWarning packages/tools/cachy-asahi-doctor/test_doctor.py
-      - name: Check original welcome package source and payload contract
+      - name: Check current Welcome2 package source and payload contract
         run: python3 -B packages/tools/cachy-asahi-welcome/check_source.py --root packages/tools/cachy-asahi-welcome
       - name: Check combined managed desktop app workflow without actors
         run: |
@@ -205,7 +205,18 @@ jobs:
         run: |
           python3 -B -Werror::ResourceWarning packages/tools/cachy-asahi-mirrors/test_mirrors.py
           bash -n packages/tools/cachy-asahi-mirrors/PKGBUILD
-      - name: Check Welcome and Doctor native product contracts without actors
+      - name: Checkout immutable historical Welcome1 product source
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          ref: 09717a45388e5b90ca80fd3fef327444101c108f
+          path: .ci-inputs/welcome1-source
+          persist-credentials: false
+      - name: Stage historical Welcome1 with current helper sources
+        run: |
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/welcome1-static-replay -p 'test_*.py'
+          python3 -B scripts/ci/welcome1-static-replay/prepare.py --current-root "$GITHUB_WORKSPACE" --historical-root "$GITHUB_WORKSPACE/.ci-inputs/welcome1-source" --output "$RUNNER_TEMP/welcome1-static"
+      - name: Check historical Welcome1 and Doctor native contracts without actors
+        working-directory: ${{ runner.temp }}/welcome1-static
         run: |
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/welcome-native -p 'test_*.py'
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/welcome-native/ci -p 'test_*.py'
@@ -230,12 +241,14 @@ jobs:
           ref: 8a38b3fd5963e61fc94707dd87e5dcd626a518a3
           path: .ci-inputs/welcome-native
           persist-credentials: false
-      - name: Check Welcome Doctor 16K CLI contracts without actors
+      - name: Check historical Welcome1 Doctor 16K CLI contracts without actors
+        working-directory: ${{ runner.temp }}/welcome1-static
         env:
-          WELCOME16K_SOURCE_ROOT: ${{ github.workspace }}
+          WELCOME16K_SOURCE_ROOT: ${{ runner.temp }}/welcome1-static
           WELCOME16K_ASSETS: ${{ github.workspace }}/.ci-inputs/welcome-native
         run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/welcome-doctor-generic16k -p 'test_*.py'
-      - name: Check installed Welcome managed GUI contracts without actors
+      - name: Check historical Welcome1 installed managed GUI contracts without actors
+        working-directory: ${{ runner.temp }}/welcome1-static
         env:
           WELCOME_GUI_ASSETS: ${{ github.workspace }}/.ci-inputs/welcome-native
         run: |
