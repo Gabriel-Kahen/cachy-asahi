@@ -102,3 +102,40 @@ status/privacy/timeout report replay, input preservation, host/guest guards,
 finite session retirement and foreign cleanup refusal. Actual kernel acquisition,
 build/capture/guest, native package lifecycle, Asahi/M2 hardware, performance and
 release admission remain unrun by this worker.
+
+Actual 38924172936 booted 16384 and passed the static page probe, but the unchanged
+Done driver exited 1 at its first foreground notification-count assertion. The
+retained UART did not include the original receipt or recorder rows, so it cannot
+distinguish zero notifications from surplus notifications or establish a cause.
+No product or timing change follows from that evidence.
+
+A failed outer driver now emits one nonce/source/page/UID-bound
+DONE16K_DIAGNOSTIC JSON record, at most 64KiB. It retains the original failed
+receipt byte/hash sample, exact parsed recorder count and bounded PID/row samples,
+fixed status/prompt/events files
+and terminal tails for at most the last two known fixture cases. Script/shim bytes
+are never exported, only identity metadata. Full file hashes/lengths, sample
+completeness/offsets and explicit unavailable/omitted states distinguish exact
+retained bytes from bounded tails. Stdout/stderr remain under the existing 128KiB
+command limit; their diagnostic samples are additionally capped. The same
+TERM/KILL, unreaped-leader and group-absence sequence remains in force. Natural
+exit and actual driver exit code are recorded separately, with bounded fixed
+/proc status fields for only UID 23001 before/after teardown. A Fish normal exit
+is not directly re-observed; the unchanged driver's finally block checks exit 0
+before propagating its original foreground assertion. That is a source inference,
+not an added acceptance result.
+
+The host parses the diagnostic from the complete bounded UART before private
+cleanup and keeps it inside the existing runtime.json, rather than relying on
+an 8KiB UART tail to retain a larger record. Exactly one valid marker and byte-sample
+joins are required. A diagnostic marker is always fatal to the existing PASS
+gate, even if all other success markers are present. Failure remains failure;
+all eighteen original cases, product 3-second transport bound, kernel/page, input
+preservation, process absence and ordered cleanup requirements are unchanged.
+No failed command is retried and no default/real notification transport is added.
+The diagnostic successor remains source-only; a new actual is NOT RUN.
+
+On an outer monitor deadline/output failure, the original TERM/KILL-only cleanup
+path stays unchanged. The failure-only group_absent field is null when that
+original path performs no post-error group query; bounded /proc observations
+remain separate. This cannot earn any process-absence or PASS credit.

@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: MIT
 """Runs only inside the marked diskless generic 16 KiB guest, without a GUI."""
 import hashlib
+import base64
 import json
 import os
 from pathlib import Path
@@ -34,31 +35,112 @@ def snapshot(root):
     return result
 
 
+class CommandFailure(ValueError):
+    def __init__(self,reason,row,stdout,stderr):
+        super().__init__(reason)
+        self.row,self.stdout,self.stderr=row,stdout,stderr
+
+
+def proc_snapshot(leader,proc=Path('/proc')):
+    # Never inspect unrelated host users when this pure helper is imported.
+    if proc==Path('/proc') and os.getuid()!=23001:return dict(status='OUTSIDE_PRIVATE_UID',processes=[])
+    rows=[];scanned=0
+    try:
+        for path in sorted(proc.iterdir(),key=lambda p:int(p.name) if p.name.isdecimal() else -1):
+            if not path.name.isdecimal() or int(path.name)==os.getpid():continue
+            scanned+=1
+            if scanned>128:break
+            try:
+                text=read(path/'status',16384).decode();fields={line.split(':',1)[0]:line.split(':',1)[1].strip() for line in text.splitlines() if ':' in line}
+                if '23001' not in fields.get('Uid','').split():continue
+                selected={k:fields[k] for k in ('Name','State','Pid','PPid','Uid','Gid','Threads','SigPnd','ShdPnd','SigBlk','SigIgn','SigCgt') if k in fields}
+                need(all(len(v)<=128 for v in selected.values()),'bounded private proc field')
+                rows.append(dict(pid=int(path.name),fields=selected))
+                if len(rows)==16:break
+            except (OSError,ValueError,UnicodeError):continue
+        return dict(status='OBSERVED_PRIVATE_UID_ONLY',leader=leader,leader_observed=any(r['pid']==leader for r in rows),processes=rows,limited=scanned>128 or len(rows)==16)
+    except OSError:return dict(status='UNAVAILABLE',processes=[])
+
+
+def sample(raw,limit,tail=False):
+    value=raw[-limit:] if tail and limit else raw[:limit]
+    return dict(bytes=len(raw),sha256=sha(raw),sample_base64=base64.b64encode(value).decode(),sample_complete=len(value)==len(raw),sample_offset=len(raw)-len(value) if tail and limit else 0)
+
+
+def diagnostic_file(path,limit=0,tail=False,cap=65536):
+    try:
+        if not path.exists() and not path.is_symlink():return dict(status='ABSENT')
+        need(not any(p.is_symlink() for p in (path,*path.parents)),'diagnostic alias refused')
+        info=path.lstat();need(info.st_nlink==1,'diagnostic hardlink refused');raw=read(path,cap)
+        result=dict(status='FILE',mode=stat.S_IMODE(info.st_mode),uid=info.st_uid,gid=info.st_gid,**sample(raw,limit,tail))
+        if path.name=='notifications.jsonl':
+            try:
+                records=[json.loads(line) for line in raw.splitlines()]
+                result.update(jsonl_valid=True,record_count=len(records),recorded_pids=[r['pid'] for r in records if isinstance(r,dict) and type(r.get('pid')) is int][:16])
+            except (ValueError,KeyError):result.update(jsonl_valid=False,record_count=None)
+        return result
+    except (OSError,ValueError,UnicodeError) as error:return dict(status='UNAVAILABLE',error_type=type(error).__name__)
+
+
+def failure_diagnostic(error,root,nonce,release,manifest_raw,home,before):
+    names=('noninteractive','foreground','background','watch-rejection','disown','repeat-preserve','command-data','transport-failure','transport-timeout','disable','existing-function','existing-autoload','existing-variable','existing-wrapper','existing-public','no-bus','notify-send','timeout')
+    cases=root/'cases';present=[n for n in names if (cases/n).is_dir() and not (cases/n).is_symlink()]
+    leaves={'notifications.jsonl':(2048,False),'terminal.log':(2048,True),'events':(1024,True),
+            'load-status':(128,False),'setup-status':(128,False),'status-1':(128,False),'status-2':(128,False),
+            'prompt-1':(128,False),'prompt-2':(128,False),'notify-mode':(128,False),'bin/notify-send':(0,False)}
+    observed={n:{leaf:diagnostic_file(cases/n/leaf,limit,tail) for leaf,(limit,tail) in leaves.items()} for n in present[-2:]}
+    try:preserved=snapshot(home)==before
+    except (OSError,ValueError):preserved=False
+    value=dict(schema_version=1,status='FAILED_DRIVER_DIAGNOSTIC_ONLY',nonce=nonce,kernel=release,architecture=os.uname().machine,
+        page_size=os.sysconf('SC_PAGE_SIZE'),uid=os.getuid(),acceptance_credit=False,payload_manifest_sha256=sha(manifest_raw),
+        driver=error.row,stdout=sample(error.stdout,1024),stderr=sample(error.stderr,4096,True),
+        original_receipt=diagnostic_file(cases/'receipt.json',8192),case_directories_present=present,cases=observed,
+        outer_config_preserved_observed=preserved,
+        fish_normal_exit='NOT_DIRECTLY_RECORDED; original driver finally asserts exit0 before propagating the foreground assertion',
+        product_change='NONE',notification_manager='NOT_RUN')
+    raw=json.dumps(value,sort_keys=True,separators=(',',':'))
+    if len(raw.encode())>65536:
+        # Keep exact receipt and process/exit metadata; explicitly limit transcripts.
+        value['cases']={};value['transcripts_omitted_for_total_cap']=True
+        raw=json.dumps(value,sort_keys=True,separators=(',',':'))
+    need(len(raw.encode())<=65536,'failed-driver diagnostic total bound')
+    return raw
+
+
 def command(argv,env,expected=0,seconds=30):
     process=subprocess.Popen(argv,env=env,stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.PIPE,start_new_session=True)
-    poll=selectors.DefaultSelector();parts=[bytearray(),bytearray()];start=time.monotonic()
+    poll=selectors.DefaultSelector();parts=[bytearray(),bytearray()];start=time.monotonic();last=start;natural=False;error=None;before={}
     try:
         for n,pipe in enumerate((process.stdout,process.stderr)):
             os.set_blocking(pipe.fileno(),False);poll.register(pipe,selectors.EVENT_READ,n)
         while poll.get_map() or os.waitid(os.P_PID,process.pid,os.WEXITED|os.WNOHANG|os.WNOWAIT) is None:
-            need(time.monotonic()-start<seconds,'guest command deadline')
+            last=time.monotonic();need(last-start<seconds,'guest command deadline')
             for key,_ in poll.select(.05):
                 data=os.read(key.fd,8192)
                 if not data:poll.unregister(key.fileobj);continue
                 need(sum(map(len,parts))+len(data)<=131072,'guest command output bound');parts[key.data].extend(data)
+        natural=True
+    except BaseException as caught:error=caught
     finally:
+        before=proc_snapshot(process.pid)
         # Keep the leader unreaped until group signals, so its PID cannot be reused.
         for sig in (signal.SIGTERM,signal.SIGKILL):
             try:os.killpg(process.pid,sig)
             except ProcessLookupError:pass
         code=process.wait(timeout=5);poll.close();process.stdout.close();process.stderr.close()
-    try:os.killpg(process.pid,0)
-    except ProcessLookupError:absent=True
-    else:absent=False
-    need(code==expected and absent,'guest command exit/group differs: '+str(code)+' '+repr(argv[:5])+' '+repr(bytes(parts[0][-256:])+bytes(parts[1][-256:])))
+    absent=None  # Preserve the original no-extra-signal path on monitor failure.
+    if error is None:
+        try:os.killpg(process.pid,0)
+        except ProcessLookupError:absent=True
+        else:absent=False
     out,err=map(bytes,parts)
-    return dict(argv=argv,exit=code,group_absent=absent,seconds=round(time.monotonic()-start,6),
-                stdout_bytes=len(out),stdout_sha256=sha(out),stderr_bytes=len(err),stderr_sha256=sha(err)),out
+    row=dict(argv=argv,exit=code,expected_exit=expected,natural_exit=natural,group_absent=absent,seconds=round((last if error else time.monotonic())-start,6),
+             stdout_bytes=len(out),stdout_sha256=sha(out),stderr_bytes=len(err),stderr_sha256=sha(err))
+    if error is not None or code!=expected or not absent:
+        row.update(error_type=type(error).__name__ if error else None,reason=str(error)[:160] if error else 'guest command exit/group differs',
+                   proc_before_teardown=before,proc_after_teardown=proc_snapshot(process.pid))
+        raise CommandFailure(row['reason'],row,out,err)
+    return row,out
 
 
 def payload_identity(manifest):
@@ -99,7 +181,11 @@ def exercise(nonce,release):
         XDG_CONFIG_HOME=str(home/'config'),XDG_CACHE_HOME=str(home/'cache'),XDG_DATA_HOME=str(home/'data'),
         XDG_STATE_HOME=str(home/'state'),XDG_RUNTIME_DIR=str(home/'runtime'))
     argv=['/usr/bin/python3','-I','-B','/fixtures/done.py','--source','/usr/share/cachy-asahi/fish-done','--output',str(root/'cases')]
-    row,out=command(argv,env,seconds=240);row['owned_processes_absent']=owned_absent()
+    try:row,out=command(argv,env,seconds=240)
+    except CommandFailure as error:
+        print('DONE16K_DIAGNOSTIC '+failure_diagnostic(error,root,nonce,release,manifest_raw,home,before),flush=True)
+        raise
+    row['owned_processes_absent']=owned_absent()
     summary=json.loads(out);proof_raw=read(root/'cases/receipt.json');proof=json.loads(proof_raw)
     need(summary['status']=='PASS' and summary['cases']==18 and summary['receipt']==str(root/'cases/receipt.json') and
          proof['status']=='PASS' and len(proof['cases'])==18 and all(v['exit']==0 for v in proof['cases'].values()),

@@ -155,9 +155,34 @@ exec /smoke poweroff
 '''.encode()
 
 
+def failed_driver_diagnostic(output,nonce,release,receipt):
+    s.need(len(output)<=1024**2,'bounded UART diagnostic required')
+    rows=[line[len(b'DONE16K_DIAGNOSTIC '):] for line in output.replace(b'\r',b'').splitlines() if line.startswith(b'DONE16K_DIAGNOSTIC ')]
+    if not rows:return None
+    s.need(len(rows)==1 and len(rows[0])<=65536,'one bounded failed-driver diagnostic required')
+    value=json.loads(rows[0]);s.need(value['schema_version']==1 and value['status']=='FAILED_DRIVER_DIAGNOSTIC_ONLY' and
+        value['nonce']==nonce and value['kernel']==release and value['architecture']=='aarch64' and value['page_size']==16384 and value['uid']==23001 and
+        value['acceptance_credit'] is False and value['product_change']=='NONE' and value['notification_manager']=='NOT_RUN' and
+        value['payload_manifest_sha256']==s.sha((json.dumps(receipt,sort_keys=True,indent=2)+'\n').encode()),'failed-driver diagnostic identity/scope differs')
+    # Validate byte samples without turning diagnostic observations into acceptance.
+    samples=[value['stdout'],value['stderr'],value['original_receipt']]
+    allowed={'notifications.jsonl','terminal.log','events','load-status','setup-status','status-1','status-2','prompt-1','prompt-2','notify-mode','bin/notify-send'}
+    s.need(type(value['cases']) is dict and len(value['cases'])<=2,'bounded fixed diagnostic cases required')
+    for case,files in value['cases'].items():
+        s.need(case in value['case_directories_present'] and set(files)==allowed,'fixed diagnostic file allowlist required');samples.extend(files.values())
+    for row in samples:
+        if row.get('status') in ('ABSENT','UNAVAILABLE'):continue
+        raw=base64.b64decode(row['sample_base64'],validate=True)
+        s.need(type(row['bytes']) is int and 0<=row['bytes']<=131072 and len(raw)<=8192 and
+            type(row['sample_offset']) is int and 0<=row['sample_offset']<=row['bytes'] and row['sample_offset']+len(raw)<=row['bytes'] and
+            re.fullmatch('[0-9a-f]{64}',row['sha256']),'bounded diagnostic file sample required')
+        if row['sample_complete']:s.need(row['sample_offset']==0 and len(raw)==row['bytes'] and s.sha(raw)==row['sha256'],'complete diagnostic bytes/hash differ')
+    return dict(value=value,bytes=len(rows[0]),sha256=s.sha(rows[0]))
+
+
 def guest_report(output,code,nonce,release,receipt):
     s.need(code==0 and len(output)<=1024**2 and not any(message in output for message in
-           (b'DONE16K FAIL',b'DONE16K_ERROR',b'Kernel panic',b'Attempted to kill init')),
+           (b'DONE16K FAIL',b'DONE16K_ERROR',b'DONE16K_DIAGNOSTIC',b'Kernel panic',b'Attempted to kill init')),
            'natural bounded guest exit0 required')
     lines=output.replace(b'\r',b'').splitlines();markers=[f'UNAME16K aarch64 {release}'.encode(),b'GETCONF16K 16384',
         b'SMOKE16K: mmap,mprotect,file-offset PASS',f'DONE16K PASS {nonce}'.encode()]
@@ -291,6 +316,8 @@ def trial(args):
         report.update(qemu_argv=argv,tools={n:s.sha(s.read(p,64*1024**2)) for n,p in (('clang',Path(clang).resolve()),('ld.lld',Path(linker).resolve()),('qemu',Path(qemu).resolve()))},
                       initramfs_sha256=s.sha(s.read(ramfs,300*1024**2)),page_probe_sha256=s.sha(binary))
         code,uart,actor=supervise(argv,args.private/'uart.log',600);report['actors'].append(actor)
+        diagnostic=failed_driver_diagnostic(uart,nonce,release,receipt)
+        if diagnostic is not None:report['failed_driver_diagnostic']=diagnostic
         report.update(guest=guest_report(uart,code,nonce,release,receipt),natural_VM_exit=True,QEMU_exit=code,
                       uart=dict(bytes=len(uart),sha256=s.sha(uart)),status='PASS_SMOKE_AWAITING_PRODUCER_RETIREMENT')
     except BaseException as error:
