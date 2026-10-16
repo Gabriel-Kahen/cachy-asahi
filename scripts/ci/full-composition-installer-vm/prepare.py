@@ -27,6 +27,7 @@ Type=oneshot
 Environment=CACHY_ASAHI_FULL_INSTALLER_GUEST=1
 ExecStart=/usr/bin/python3 /usr/local/share/full-installer/guest.py boot
 TimeoutStartSec=5200
+LimitNOFILE=8192
 StandardOutput=tty
 StandardError=tty
 TTYPath=/dev/ttyAMA0
@@ -228,7 +229,7 @@ def disk(c, common, command, report):
         with source.open('rb') as src, target.open('xb') as dst: shutil.copyfileobj(src,dst,1024**2)
         target.chmod(0o444)
         need(common.digest(target)==row['sha256'], 'staged input changed')
-    for name in ('guest.py','installer.py','profile.py','payload.json'):
+    for name in ('guest.py','installer.py','profile.py','numeric_vm.py','payload.json'):
         change(root,SHARED+'/'+name,checked_file('/candidate',name,c['runner_files'][name],common).read_bytes(),report)
     profile = checked_file('/candidate','installer-profile.json',c['runner_files']['installer-profile.json'],common)
     change(root,SHARED+'/installer-profile.json',profile.read_bytes(),report)

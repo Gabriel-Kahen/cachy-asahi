@@ -164,7 +164,7 @@
     },
     "scripts/ci/welcome-native/source-pins.json": {
       "bytes": 3826,
-      "sha256": "9f94275e1f02a5cd8f177c57f1dc23db2420a732badea357292057750bb054fc"
+      "sha256": "2ad26df57af7206b6e188cd592a374aaaf3aa4b9a9ef7d7fa902371d7b0d401a"
     },
     "scripts/ci/welcome-native/test_native.py": {
       "bytes": 9082,
@@ -176,7 +176,7 @@
     },
     "scripts/virtual/common.py": {
       "bytes": 84361,
-      "sha256": "4b61b407344ac7209a5d2ebd036a57143ee23525b6550aada6ff7488b5aab6a0"
+      "sha256": "aef2b4f09a91c4cfd66dd4504e69ef18396a94214c82ae0ec0a43c2716894a03"
     }
   }
 }

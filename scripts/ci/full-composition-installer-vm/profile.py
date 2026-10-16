@@ -18,6 +18,47 @@ GIB = 1024**3
 EXPECTED = '2198942a546f4714587c810fe174d4457121960f3a7b1dbaa276e9f970f322c7'
 SHARED = Path('/usr/local/share/full-installer')
 MAX_JSON = 96 * 1024**2
+NUMERIC_VM = dict(purpose='full-installer-owned-vm-numeric-groups-v1',uid_map=[[0,23001,1]],
+    gid_map=[[0,23001,1],[5,23005,1],[11,23011,1],[50,23050,1],[81,23081,1],[102,23102,1]])
+
+
+# Exact signed archive identities from the held574 input manifest and passive
+# header audit. All other nonroot ownership remains refused, including uid!=0.
+GROUP_METADATA = {
+    ('dbus','1.16.2-1','1aa0bc2be4fa083ec0cb678f05223f55b0c8e498351ad781dc4b7a0987b62bcc'): {
+        'usr/lib/dbus-daemon-launch-helper': (b'0',0,81,0o4110,152400)},
+    ('filesystem','2025.10.12-1','228b63ef4a88501a68856231a19325a1ad31d92016a692d0a8be181edc70703f'): {
+        'srv/ftp': (b'5',0,11,0o555,0), 'var/games': (b'5',0,50,0o775,0)},
+    ('polkit','127-3','dbfa3447df79d526968deb0117ff73580969b1f02ce678270a0ba2f1b134244a'): {
+        'etc/polkit-1/rules.d': (b'5',0,102,0o750,0)},
+    ('util-linux','2.42.4-1','a9ab17512f0f4d1cf7614574e8407561bebd632a50e568111199da0633955046'): {
+        'usr/bin/wall': (b'0',0,5,0o2755,67800), 'usr/bin/write': (b'0',0,5,0o2755,67800)},
+}
+
+
+def numeric_metadata(member, name, declared):
+    expected=declared.get(name)
+    actual=(member.type,member.uid,member.gid,member.mode,member.size)
+    if expected is not None:
+        need(actual==expected,'declared numeric metadata differs: '+name)
+    else:
+        need(member.uid==member.gid==0,'undeclared nonroot numeric ownership: '+name)
+    return {'mode':member.mode & 0o7777,'uid':member.uid,'gid':member.gid}
+
+
+def numeric_ids(payload):
+    return dict(uids=sorted({n['uid'] for n in payload['nodes'].values()}),
+                gids=sorted({n['gid'] for n in payload['nodes'].values()}))
+
+
+def require_single_id_backend(payload):
+    # The default unprivileged --map-root-user engine and parent observer map
+    # only0 to guest23001. They cannot chown/map the six declared group entries.
+    # Metadata is never flattened to make a single-ID backend appear compatible.
+    ids=numeric_ids(payload)
+    need(set(ids['uids'])<={0} and set(ids['gids'])<={0},
+         'FULL_INSTALLER_NUMERIC_ID_ADAPTER_REQUIRED: uid/gid preservation exceeds the single-ID backend; gids='+str(ids['gids']))
+    return ids
 
 
 def need(value, reason):
@@ -124,7 +165,7 @@ def manifest(ready, *, protected=False):
     return value, row, expected
 
 
-def archive(path, stream_module, limits, accounting):
+def archive(path, stream_module, limits, accounting, *, package=None):
     """Inspect signed tar bytes, retaining literal links and closed hardlink sets.
 
     Uses the held bounded decompressor. Unlike the tiny fixture, this distinct
@@ -132,6 +173,9 @@ def archive(path, stream_module, limits, accounting):
     No path is extracted and no archive value can increase the fixed budgets.
     """
     rows, hard, seen, headers, ended = {}, {}, set(), 0, False
+    key=None if package is None else (package['name'],package['version'],package['sha256'])
+    declared=GROUP_METADATA.get(key,{})
+    if declared:need(sha(path)==key[2],'numeric metadata archive bytes differ')
     class Header(tarfile.TarInfo):
         @classmethod
         def _fromtarfile(cls, obj, *, dircheck=True):
@@ -168,12 +212,13 @@ def archive(path, stream_module, limits, accounting):
                 if name in ('', '.'):
                     need(member.isdir(), 'tar root must be directory'); continue
                 relative(name)
-                need(name not in seen and member.uid == member.gid == 0 and not member.sparse and
+                need(name not in seen and not member.sparse and
                      not any(k.startswith('GNU.sparse') for k in member.pax_headers), 'duplicate/nonroot/sparse payload')
                 seen.add(name); need(0 <= member.size <= limits.file_bytes,'file byte limit')
+                numeric=numeric_metadata(member,name,declared)
                 if name.startswith('.'):
                     need(name in stream_module.CONTROLS and member.isfile() and member.size <= 4*1024**2,'unknown/oversized control member'); continue
-                row={'mode':member.mode & 0o7777,'uid':0,'gid':0}
+                row=numeric
                 if member.isdir(): row['type']='directory'
                 elif member.isfile():
                     data=tar.extractfile(member); digest=hashlib.sha256(); consumed=0
@@ -191,6 +236,7 @@ def archive(path, stream_module, limits, accounting):
             while block:=tar.fileobj.read(65536):
                 limits_tick(); need(not any(block),'trailing tar body'); tail+=len(block)
             need(tail>=512 and decoded.total%512==0 and decoded.done,'incomplete tar padding/frame')
+    need(set(declared)<=seen,'declared numeric metadata entry missing')
     groups={}
     for name in hard:
         target=hard[name]; visited={name}
@@ -209,7 +255,7 @@ def payload(ready, rows, code):
     limits=module.Limits(256*1024**2,4*GIB,8*GIB,500000,GIB,64*1024**2,time.monotonic()+3600)
     accounting={'bytes':0,'nodes':0,'compressed_bytes':0}; nodes={}; owners={}; groups=[]
     for row in rows:
-        incoming,links=archive(Path(ready)/row['archive'],module,limits,accounting)
+        incoming,links=archive(Path(ready)/row['archive'],module,limits,accounting,package=row)
         owners[row['name']]=sorted(incoming)
         for name,node in incoming.items():
             need(name not in nodes or nodes[name]['type']==node['type']=='directory' and nodes[name]==node,
@@ -244,11 +290,13 @@ def build(ready, code, output):
     tool_bytes=constants_['TRANSACTION_PROFILE_BYTES']
     pins=constants(code/'scripts/install/local_transaction.py',{'NATIVE_PROFILE_SHA'})
     need(hashlib.sha256(tool_bytes).hexdigest()==pins['NATIVE_PROFILE_SHA'],'held tool-profile pin differs')
-    data=payload(ready,value['packages'],code); raw=encoded(data)
+    data=payload(ready,value['packages'],code)
+    need(numeric_ids(data)==dict(uids=[0],gids=[0,5,11,50,81,102]),'exact signed numeric identity set required')
+    raw=encoded(data)
     need(len(raw)<=MAX_JSON,'payload contract byte bound'); (output/'payload.json').write_bytes(raw)
     tool=decode(tool_bytes); need(len(tool['files'])==136 and sum(r['size'] for r in tool['files'])==85445048,'held tool closure differs')
     profile=dict(schema_version=1,purpose='full-composition-installer-vm',architecture='aarch64',
-        expected_lock_sha256=EXPECTED,expected=expected,manifest=manifest_ref,code_files=refs,
+        expected_lock_sha256=EXPECTED,expected=expected,manifest=manifest_ref,code_files=refs,numeric_vm=NUMERIC_VM,
         payload=reference(output/'payload.json'),tools=tool,tool_profile_sha256=pins['NATIVE_PROFILE_SHA'],
         launcher=constants_['TRANSACTION_LAUNCHER'],limits=dict(packages=587,nodes=200000,bytes=6*GIB,file_bytes=GIB,seconds=4500),
         scope='fresh signed initial587 transaction plus declared user fixtures in generic4K VM',

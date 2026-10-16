@@ -31,5 +31,5 @@
   "scripts/ci/old_four_seed.py": "a14e0318549d24a9bc91ceeb03ec2c1fa2d12f2b3a4f9b0a4cccfb64be34b2b7",
   "scripts/ci/test_maintained_desktop574.py": "e5d7dc11d1a59cf37a273e9a7103c7e55b169335b17c599990946f4e677ca974",
   "scripts/port/preview.py": "d737c51474e05cc2c4db2e87fc021f50328eea7744983dd4076d44751fce7383",
-  "scripts/virtual/common.py": "4b61b407344ac7209a5d2ebd036a57143ee23525b6550aada6ff7488b5aab6a0"
+  "scripts/virtual/common.py": "aef2b4f09a91c4cfd66dd4504e69ef18396a94214c82ae0ec0a43c2716894a03"
 }

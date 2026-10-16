@@ -28,7 +28,7 @@
     },
     "scripts/virtual/common.py": {
       "bytes": 84361,
-      "sha256": "4b61b407344ac7209a5d2ebd036a57143ee23525b6550aada6ff7488b5aab6a0"
+      "sha256": "aef2b4f09a91c4cfd66dd4504e69ef18396a94214c82ae0ec0a43c2716894a03"
     },
     "scripts/virtual/run.py": {
       "bytes": 29448,
@@ -148,7 +148,7 @@
     },
     "scripts/ci/desktop-bar-notifications/source-pins.json": {
       "bytes": 3133,
-      "sha256": "1258f1413c4c083bd8e0be73353c698bd083bd699142d51a95df485881913976"
+      "sha256": "506e17dd8e652b74a8e99b366c382acd08827b9adb180e827842174d1541c348"
     },
     "scripts/ci/desktop-bar-notifications/check_inputs.py": {
       "bytes": 4796,
