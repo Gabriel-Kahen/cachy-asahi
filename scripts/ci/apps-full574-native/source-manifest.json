@@ -9,8 +9,8 @@
       "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
     },
     "manifests/packages.toml": {
-      "bytes": 33890,
-      "sha256": "d2e8eacf91cea3d13939836aa3f9b0c86753024dcad88f116d08df9a652ec2fb"
+      "bytes": 34047,
+      "sha256": "215b5c32999f2bf671b10ff674cf7f00acf725bca3fe2da7976a36d601f38c69"
     },
     "packages/tools/cachy-asahi-apps/.SRCINFO": {
       "bytes": 1775,
@@ -237,8 +237,8 @@
       "sha256": "f86af098fdb0fc9a57a8b78b351341395ce13f9977464783f6f8133626e85698"
     },
     "scripts/ci/glibc-gnu-provider-lifecycle-owner/job.py": {
-      "bytes": 28310,
-      "sha256": "0bfc259b171b00348398fa631819c86f80bb650792636b2e1b59b64cc3e0a04e"
+      "bytes": 30357,
+      "sha256": "31e56973d8de5afc78cb1e8121a2ce91b609b7fcf4d62819d9d5caedf7d6b21a"
     },
     "scripts/ci/glibc-gnu-provider-lifecycle-owner/snapshot.py": {
       "bytes": 9397,
