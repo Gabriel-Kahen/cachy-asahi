@@ -1,5 +1,7 @@
 # Implementation and acceptance status
 
+October16 active development: published `b0ef18da839227cd843f7f5cdd9e7dccd8033fa8` implements exact derived-SONAME postconditions for the full587 installer and complete QMP key-chord batches with an independent Bash cwd barrier. All160 installer and53 keyboard/generated controls pass. Native retries [38904382289](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38904382289) and [38904379501](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38904379501) are pending. The [official GNU2.43 actual](validation/glibc-official-release-native-20261016.md) now completes native compilation but fails upstream checks; no candidate package/runtime/reproducibility acceptance. The [Welcome GUI actual](validation/welcome-managed-gui-native-20261016.md) captures all seven minimal views, then fails cleanup before overlay. GNU-check, GUI-cleanup and generic16K Welcome/Doctor implementation continue in parallel. No failed actual is relabeled PASS; both M2 models and full release acceptance remain open.
+
 October 12, 2026. This record tracks the complete `outline.md` scope; an implementation artifact is not a passed release gate.
 
 October 16, resumed development:

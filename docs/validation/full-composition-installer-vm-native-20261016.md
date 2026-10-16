@@ -1,5 +1,11 @@
 # Full587 installation inside a generic ARM VM
 
+## Exact derived-link retry38904382289
+
+Commit `b0ef18da839227cd843f7f5cdd9e7dccd8033fa8` predicts and verifies exactly one derived SONAME link: `usr/lib/libvsscript.so -> libvapoursynth-script.so.0`, root-owned0777. The complete passive574-archive scan predicts only this addition. The builder recomputes the full actual587 input set before starting the VM and refuses a different projection. Both ordinary and independent root-guest observers require the exact selected metadata; default unexpected-output refusal is unchanged. The actual link metadata from38891384087 remains unobserved. A bounded exact-node diagnostic is retained by the new implementation if the next observation differs.
+
+All160 lane controls pass. [Retry38904382289](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38904382289) selects Source/workflow `8c5e6b4595db8bd4419a090268e33cb076ef877c`, workflow SHA256 `17977d48d4a88b2df115fc5a9c5ea70ace96485281b848ce9088247e795db777`. Final installation/readback and cleanup acceptance remain pending; this grants no physical installation, protected-stack or hardware credit.
+
 ## Coherent SQLite retry38891384087
 
 [Actual38891384087](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38891384087), Source/workflow `f20dad059b75d208028931d93561af4c1c5fe6b4`, passes the corrected SQLite preflight and namespace barrier, then performs a real587-package commit in the generic ARM VM. Post-install verification fails `unexpected installed output: usr/lib/libvsscript.so`. UART reports `commit_started=true`, `committed=true`, `phase=commit`, package_count587 and expected lock `2198942a546f4714587c810fe174d4457121960f3a7b1dbaa276e9f970f322c7`. The ordinary installer/guarded parent remain failed; this is not a successful installation or final ownership/readback acceptance.
