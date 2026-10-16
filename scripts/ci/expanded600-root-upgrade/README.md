@@ -1,6 +1,6 @@
 # Separate600 copied-root production updater
 
-Source proposal only. Policy is deliberately UNBOUND. No native actor, VM, CI dispatch, hardware check, promotion, rollback or boot/recovery claim is supplied by these source controls.
+Root has bound all three actual prerequisites: native600 composition38948569244, signed600 fresh installer38965999704 and Setup5-on600 lifecycle38964311175. The immutable decision carrier is fd42f51b6c32a1cca69df5699760ed2a9e39329f. The three updater cases are implemented and source-checked; their actual execution remains pending. Hardware, promotion and boot/recovery acceptance remain open.
 
 The three manual selections are `normal`, `precommit-exit86` and `postcommit-exit87`. Each gets its own fresh signed600 producer, container, disk-backed volume and complete persistent copy. The initial lock is exactly `d263a3ca9089c204603f2e12b80dc4f209ee6e636f10da940a514040b636db79`; the sole selected change is the genuine accepted Setup3 to Setup5 archive `1aafee365e3bcb04e1fce694c110a997914a07f4359697df5e017375897385fc`, giving the same600 names at `04fabc5702c8389b7b2a53f6ed6168cc45931f6628c158e7e74b073349327c35`.
 
