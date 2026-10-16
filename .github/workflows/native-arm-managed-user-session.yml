@@ -20,7 +20,7 @@ jobs:
       PYTHONDONTWRITEBYTECODE: '1'
       SOURCE_COMMIT: ${{ inputs.source }}
       LANE: scripts/ci/desktop-user-session
-      MANIFEST_SHA256: 'a427398c1aa6411b46737d8e78f4fb711000b101460d9faa13497e442c12b45f'
+      MANIFEST_SHA256: 'f4f09df4b4cae444520566cd986bb01be8ed1c35a057e09520630ae58bb1aee6'
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         timeout-minutes: 2
