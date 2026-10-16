@@ -1,0 +1,75 @@
+{
+  "bootstrap": {
+    "glibc": "2.43+r22+g8362e8ce10b2-2",
+    "inventory_sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac",
+    "packages": 574
+  },
+  "epoch_basis": "uniform release archive member timestamp",
+  "feature_choices": {
+    "gd": "not in accepted bootstrap; optional memusagestat unavailable",
+    "locales": "upstream test locales; no ALARM locale-gen scripts copied",
+    "nscd": "disabled",
+    "systemtap": "disabled; no external sdt headers"
+  },
+  "licenses": [
+    "GPL-2.0-or-later",
+    "LGPL-2.1-or-later",
+    "LicenseRef-glibc-notices"
+  ],
+  "limits": {
+    "seconds": 180,
+    "source_bytes": 536870912,
+    "source_compressed": 100663296,
+    "source_file": 67108864,
+    "source_members": 60000
+  },
+  "name": "cachy-asahi-glibc-official-release",
+  "old_binary_recipe_correspondence": "UNRESOLVED; unrelated official release successor; old GNU8362 lock unchanged",
+  "patch_order": [],
+  "payload_identity_scope": "derived exact release archive payload tree; not an upstream Git revision",
+  "payload_tree": "97ac10e146c65ecbd22d36e3743eb5b5e9166ae9",
+  "pkgrel": 1,
+  "prefix": "/opt/cachy-asahi/glibc-official-release/2.43-caa1",
+  "public_inputs": [
+    {
+      "bytes": 40287809,
+      "path": "glibc-2.43.tar.gz",
+      "sha256": "e1e622cbd635019090fa23260e5d9ec219b12f97ae7ae02f033d4ae42cf2c004",
+      "url": "https://ftp.gnu.org/gnu/glibc/glibc-2.43.tar.gz"
+    },
+    {
+      "bytes": 1018,
+      "path": "glibc-2.43.tar.gz.sig",
+      "sha256": "bfd0c5a9924e4f084281cd2f3ba96e5c6e87a6d363113e7a0f98c5151463c9e3",
+      "url": "https://ftp.gnu.org/gnu/glibc/glibc-2.43.tar.gz.sig"
+    },
+    {
+      "bytes": 3698125,
+      "path": "gnu-keyring.gpg",
+      "sha256": "0fe55175b96a8ea1c4b670cc3fe11d56b341e4eff81b161ea49958ae550be6ca",
+      "url": "https://ftp.gnu.org/gnu/gnu-keyring.gpg"
+    }
+  ],
+  "purpose": "UNSELECTED_GNU_OFFICIAL_RELEASE_NATIVE_CANDIDATE",
+  "release": "2.43",
+  "release_evidence": {
+    "announcement": "https://sourceware.org/pipermail/libc-announce/2026/000052.html",
+    "directory": "https://ftp.gnu.org/gnu/glibc/"
+  },
+  "schema_version": 1,
+  "signing": {
+    "primary": "35B17DF5752577CA0C541CEB94BFDF4484AD142F",
+    "publisher_keyring_guidance": "https://ftp.gnu.org/pub/README",
+    "signature_epoch": 1769208137,
+    "subkey": "FD19E6D31B192EE4DC63EAD3DC2B16215ED5412A",
+    "trust": "UNSELECTED: current retained signer expiration; independent pretrusted fingerprint authority not established; GNU HTTPS publisher keyring only"
+  },
+  "source": {
+    "bytes": 40287809,
+    "path": "glibc-2.43.tar.gz",
+    "sha256": "e1e622cbd635019090fa23260e5d9ec219b12f97ae7ae02f033d4ae42cf2c004",
+    "url": "https://ftp.gnu.org/gnu/glibc/glibc-2.43.tar.gz"
+  },
+  "source_date_epoch": 1769201640,
+  "version": "2.43.caa1"
+}

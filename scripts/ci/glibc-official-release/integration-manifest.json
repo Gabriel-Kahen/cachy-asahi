@@ -1,0 +1,153 @@
+{
+  "files": {
+    "packages/core/cachy-asahi-glibc-official-release/COPYING.LESSERv2": {
+      "bytes": 26419,
+      "sha256": "20e50fe7aae3e56378ebf0417d9de904f55a0e61e4df315333e632a4d3555d95"
+    },
+    "packages/core/cachy-asahi-glibc-official-release/COPYINGv2": {
+      "bytes": 17984,
+      "sha256": "edaef632cbb643e4e7a221717a6c441a4c1a7c918e6e4d56debc3d8739b233f6"
+    },
+    "packages/core/cachy-asahi-glibc-official-release/LICENSES": {
+      "bytes": 19665,
+      "sha256": "b22a69aa3f80a5201818c66cb0df0f25f9fa13cf5861b0093a058dbd12d50dce"
+    },
+    "packages/core/cachy-asahi-glibc-official-release/PKGBUILD": {
+      "bytes": 3474,
+      "sha256": "59233bf8493e8371d30aecc5cfb9a389ef0f3962278f0d05db2edc795341a84d"
+    },
+    "packages/core/cachy-asahi-glibc-official-release/README.md": {
+      "bytes": 2958,
+      "sha256": "a8d76da93f4270a74fd0bfb1e30c7e7d4a89cd15a57a9011f983776237d42d58"
+    },
+    "packages/core/cachy-asahi-glibc-official-release/source-lock.json": {
+      "bytes": 2821,
+      "sha256": "bd07116a50af3b030e781eec9694691d95b637cd5637c2fc821d018f12b48dba"
+    },
+    "scripts/ci/glibc-official-release/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "scripts/ci/glibc-official-release/README.md": {
+      "bytes": 6810,
+      "sha256": "274bf55b09a918d5ea08ffe72ee811b754b0f00474b891eb2bfeb99704987027"
+    },
+    "scripts/ci/glibc-official-release/abi.py": {
+      "bytes": 4061,
+      "sha256": "b2ae51e792fc125fa664ba116794827fe5350912861256df8cdad1de479d5ff0"
+    },
+    "scripts/ci/glibc-official-release/acquire.py": {
+      "bytes": 2446,
+      "sha256": "c10b5d9414dec148343a273c658d0f5c6345b8710b341865de6af829c3520312"
+    },
+    "scripts/ci/glibc-official-release/build-entry.sh": {
+      "bytes": 1715,
+      "sha256": "8830c09d61a908bf8a441a0fc2e47915f9e734ae762ef270cd64623c8ae8fdf4"
+    },
+    "scripts/ci/glibc-official-release/collect_tests.py": {
+      "bytes": 3093,
+      "sha256": "cdbe9af94b0ca142e802267ce7d9af7ae006bde8ab55d4b81399a065b79f6c79"
+    },
+    "scripts/ci/glibc-official-release/header_check.py": {
+      "bytes": 4336,
+      "sha256": "29f2c9e2530f6bfcc6542ec5256fb6c0732808e85c999942a01b836144107358"
+    },
+    "scripts/ci/glibc-official-release/header_probe.c": {
+      "bytes": 1181,
+      "sha256": "c3947cf0075cbaf97213a4b614c5448ffcb026222a9f0266d9a79a8d67bbbe18"
+    },
+    "scripts/ci/glibc-official-release/job.py": {
+      "bytes": 13763,
+      "sha256": "cb7877460a00f2a5fb61af9049e38804c4fba8894e20dbe6335e33326ac5d667"
+    },
+    "scripts/ci/glibc-official-release/materialize.py": {
+      "bytes": 9906,
+      "sha256": "3d7af7d79f3fca6d6f227b88ba8e303401dee84cfc02ee8db050925e9c12cd9c"
+    },
+    "scripts/ci/glibc-official-release/run.py": {
+      "bytes": 19427,
+      "sha256": "f4a84ee7b806ce83754a996cb7f4d81cc9ac344714a72243dcbafe1d7d538d31"
+    },
+    "scripts/ci/glibc-official-release/source-manifest.json": {
+      "bytes": 1962,
+      "sha256": "3051c1c7ca2b759f7fcb0bf14afa4e54f5b4d90e4ae421f8d3f5f7257fb7aa85"
+    },
+    "scripts/ci/glibc-official-release/stage.py": {
+      "bytes": 4971,
+      "sha256": "6e397b86704cc824bcfcbe059c0de299bdc9470a2ac2dc1ab465423431d4c311"
+    },
+    "scripts/ci/glibc-official-release/test_controls.py": {
+      "bytes": 21227,
+      "sha256": "59a4584321bf427f78da2734189285093aed40677ac1b0b7c55b1e0d9590981c"
+    },
+    "scripts/ci/glibc-official-release/test_job.py": {
+      "bytes": 6533,
+      "sha256": "ebe6e4f60349d9356db65578fbbcd36d554319518c491be2ff43eb0fbdca9481"
+    },
+    "scripts/ci/glibc-owned-runtime/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "scripts/ci/glibc-owned-runtime/README.md": {
+      "bytes": 5874,
+      "sha256": "82b6f3ca302f897edeefeae7aebf8e76e70f5c02f8c1d8ccecddafd4da86e7b4"
+    },
+    "scripts/ci/glibc-owned-runtime/abi_smoke.c": {
+      "bytes": 12469,
+      "sha256": "f131a4f11693b15d7916170a685f9c4f6158596134bf5414f3d8ee472be1a9af"
+    },
+    "scripts/ci/glibc-owned-runtime/exec_child.c": {
+      "bytes": 913,
+      "sha256": "0a2b48762f8f7ec6d942ca9fb4af4f04a50fd93d2d7dff42407adfea13b1e4cc"
+    },
+    "scripts/ci/glibc-owned-runtime/plugin.c": {
+      "bytes": 320,
+      "sha256": "d0ce5506b261b5b4582aa35651b68afbf6257e8f4a990155dcac9d4e4596b654"
+    },
+    "scripts/ci/glibc-owned-runtime/probe.c": {
+      "bytes": 5974,
+      "sha256": "8bc857277840264c29845764b6c4d34e40c3d1dcdb91592acbb31ae5dfeb80b6"
+    },
+    "scripts/ci/glibc-owned-runtime/probe.h": {
+      "bytes": 270,
+      "sha256": "3806c2a05e640b8860a2c81e4eba55ae8bf416fcb84637e93a7b3d9b71476724"
+    },
+    "scripts/ci/glibc-owned-runtime/runner.py": {
+      "bytes": 16274,
+      "sha256": "4d9aa954d95032ab9ea9085ced784efc81a5db42e2f1f3401e679ee861c16090"
+    },
+    "scripts/ci/glibc-owned-runtime/source-manifest.json": {
+      "bytes": 1274,
+      "sha256": "e10336aef200731c7dd4b06546b718e095c1ecf7718e4a25fa57d6bbed6270a6"
+    },
+    "scripts/ci/glibc-owned-runtime/test_runner.py": {
+      "bytes": 11922,
+      "sha256": "239646c25007415cdac6b74df32e190eb848ebb54440d991dffbdc858a6841e5"
+    },
+    "scripts/ci/inputs.lock.json": {
+      "bytes": 328101,
+      "sha256": "beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f"
+    },
+    "scripts/ci/maintained-desktop574-inputs.json": {
+      "bytes": 623664,
+      "sha256": "b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9"
+    },
+    "scripts/ci/maintained_desktop574.py": {
+      "bytes": 22367,
+      "sha256": "27ba4be42cf2bd41675073e07cccc917ae033f9d68b07a33cfd7f074ac27b760"
+    },
+    "scripts/ci/old_four_seed.py": {
+      "bytes": 29048,
+      "sha256": "a14e0318549d24a9bc91ceeb03ec2c1fa2d12f2b3a4f9b0a4cccfb64be34b2b7"
+    },
+    "scripts/ci/test_maintained_desktop574.py": {
+      "bytes": 19082,
+      "sha256": "e5d7dc11d1a59cf37a273e9a7103c7e55b169335b17c599990946f4e677ca974"
+    },
+    "scripts/port/kernel-native-job/runtime.py": {
+      "bytes": 11345,
+      "sha256": "8a7cd5e73cf383b2d81ad577b8513c6fd7d49f9fd2572961c73ae9d289cab821"
+    }
+  },
+  "schema_version": 1
+}
