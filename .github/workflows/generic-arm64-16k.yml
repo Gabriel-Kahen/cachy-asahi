@@ -6,6 +6,10 @@ on:
         description: Reviewed SHA256 of scripts/virtual/generic16k/ci-files.json
         required: true
         type: string
+      boot_diagnostics:
+        description: Trace named initcall entry/return and retain exact bounded UART
+        type: boolean
+        default: false
 permissions:
   contents: read
 concurrency:
@@ -19,6 +23,7 @@ jobs:
     env:
       PYTHONDONTWRITEBYTECODE: '1'
       CANDIDATE_SHA256: ${{ inputs.candidate_sha256 }}
+      BOOT_DIAGNOSTICS: ${{ inputs.boot_diagnostics }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # existing reviewed repository pin
         timeout-minutes: 5
@@ -64,9 +69,11 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          diagnostic_args=()
+          if [ "$BOOT_DIAGNOSTICS" = true ]; then diagnostic_args=(--boot-diagnostics); fi
           timeout --signal=TERM --kill-after=30s 4800s python3 -B scripts/virtual/generic16k/ci_call.py \
             --source-root "$GITHUB_WORKSPACE" --manifest-sha256 "$CANDIDATE_SHA256" \
-            --run-name "ci-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT" --execute
+            --run-name "ci-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT" --execute "${diagnostic_args[@]}"
       - name: Publish bounded receipts, configuration, licenses and log tails
         if: always()
         timeout-minutes: 2

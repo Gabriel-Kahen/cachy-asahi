@@ -13,6 +13,26 @@ import ci_call as caller
 
 
 class CallerControls(unittest.TestCase):
+    def test_exact_full_uart_export_requires_opt_in_and_stays_bounded(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            run = Path(temporary); public = run / 'public'; public.mkdir()
+            uart = b'0123456789abcdef\n' * 20000
+            for diagnostics in (True, False):
+                caller_raw = json.dumps({'boot_diagnostics': diagnostics}).encode()
+                files = {'caller.json': caller_raw, 'uart.full.log': uart}
+                rows = []
+                for name, raw in files.items():
+                    (public/name).write_bytes(raw)
+                    rows.append({'name':name, 'bytes':len(raw), 'sha256':caller.digest(raw)})
+                (public/'index.json').write_text(json.dumps(rows))
+                with contextlib.redirect_stdout(io.StringIO()) as output:
+                    if diagnostics:
+                        caller.publish(run)
+                        frame = json.loads(output.getvalue().splitlines()[1])
+                        self.assertEqual(frame['files'][1]['sha256'], caller.digest(uart))
+                    else:
+                        with self.assertRaises(ValueError): caller.publish(run)
+
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory(dir=caller.HERE)
         self.addCleanup(self.tmp.cleanup)

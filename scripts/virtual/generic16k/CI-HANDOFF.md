@@ -41,3 +41,14 @@ python3 -B -Werror::ResourceWarning -m unittest discover \
 ```
 
 The added controls check exact input/schema/origin/length/hash refusals, partial cleanup/deadlines, source manifest tampering, public-frame byte bindings, and real owned-child normal/failure/TERM cleanup. They do not fetch the large inputs or run QEMU. `ci-controls.log` records the final combined result. `CI-SHA256.txt` holds the manifest SHA for Root's adoption check.
+
+
+## Opt-in boot diagnostics after actual 38862416370
+
+That actual verified both exact inputs and built the native 16 KiB Image, then timed out in QEMU before any userspace marker. Its complete 4934-byte UART capture ends at entry to `clk_disable_unused`; it does not prove that callback failed to return. This candidate adds observability, not a proven boot repair.
+
+Dispatch with `boot_diagnostics=true` (default false). The caller forwards `--boot-diagnostics` to both build and VM. Only that build overlays `CONFIG_KALLSYMS=y` and `CONFIG_PRINTK_TIME=y` in a new owned `diagnostic.fragment`, retaining its identity in the build receipt. The fixture requires the matching diagnostic receipt/config and adds `initcall_debug ignore_loglevel printk.time=1` to the existing command line. Named, timestamped initcall entry/return pairs localize the last entered or unreturned callback; the global pre-init waits remain separately identifiable by completed initcalls and absence of Run /init.
+
+Diagnostic selection additionally exports the exact captured `uart.full.log` file (at most the existing 1 MiB capture bound) and effective diagnostic fragment. The diagnostic public raw-content budget is 2 MiB; default publication remains 256 KiB. UART capture/VM execution still stops at 1 MiB or 180 seconds, and reaching either limit remains failure. A capture limited by output-budget failure is a bounded prefix, never a claim of a complete unbounded stream. Frame rows bind exact retained file bytes with length and SHA256. The registered workflow alias must retain the same changed body as the manifest-bound original workflow; Root owns this duplication and dispatch.
+
+No source input pin, timeout, marker requirement, natural-QEMU-exit requirement, cleanup or hardware/performance gate is relaxed. No diagnostic build or VM has run locally.

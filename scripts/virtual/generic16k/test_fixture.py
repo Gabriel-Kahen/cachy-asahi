@@ -20,6 +20,19 @@ f = importlib.util.module_from_spec(spec); spec.loader.exec_module(f)
 
 
 class Controls(unittest.TestCase):
+    def test_opt_in_boot_traces_do_not_replace_userspace_success(self):
+        base = 'console=ttyAMA0 rdinit=/init panic=-1'
+        self.assertEqual(f.boot_arguments(), base)
+        traced = f.boot_arguments(True)
+        self.assertTrue(traced.startswith(base + ' '))
+        for flag in ('initcall_debug', 'ignore_loglevel', 'printk.time=1'):
+            self.assertIn(flag, traced.split())
+        kernel_only = b'[ 0.1] calling clk_disable_unused+0x0/0x100 @ 1\n'
+        with self.assertRaises(ValueError): f.validate_output(kernel_only, 0, 'a'*32, '7.0-fixture')
+        good = (b'UNAME16K aarch64 7.0-fixture\nGETCONF16K 16384\n'
+                b'SMOKE16K: mmap,mprotect,file-offset PASS\nFIXTURE16K PASS ' + b'a'*32 + b'\n')
+        f.validate_output(kernel_only + good, 0, 'a'*32, '7.0-fixture')
+
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(prefix='fixture-controls-', dir=HERE)
         self.addCleanup(self.temp.cleanup); self.root = Path(self.temp.name)

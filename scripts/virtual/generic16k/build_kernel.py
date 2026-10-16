@@ -23,6 +23,7 @@ COMMIT = '94fb23346d522edf53722357c426a3e58030beea'
 TOOLS = ('make', 'clang', 'clang++', 'ld.lld', 'llvm-ar', 'llvm-nm', 'llvm-strip',
          'llvm-objcopy', 'llvm-objdump', 'llvm-readelf', 'bison', 'flex', 'bc', 'perl', 'sh')
 TOTAL_LIMIT = 16 * 1024**3
+DIAGNOSTIC_FRAGMENT = 'CONFIG_KALLSYMS=y\nCONFIG_PRINTK_TIME=y\n'
 
 
 def require(ok, reason):
@@ -41,13 +42,16 @@ def identity(path):
     return {'path': str(path), 'bytes': path.stat().st_size, 'sha256': sha(path)}
 
 
-def config_check(path):
+def config_check(path, boot_diagnostics=False):
     values = {}
     for line in Path(path).read_text().splitlines():
         if line.startswith('CONFIG_'):
             key, value = line.split('=', 1)
             values[key] = value
-    for line in (HERE / 'kernel.fragment').read_text().splitlines():
+    expected = (HERE / 'kernel.fragment').read_text()
+    if boot_diagnostics:
+        expected += DIAGNOSTIC_FRAGMENT
+    for line in expected.splitlines():
         key, value = line.split('=', 1)
         require(values.get(key, 'n') == value, 'generated configuration differs: ' + key)
     require(values.get('CONFIG_ARM64_4K_PAGES', 'n') == 'n' and
@@ -138,6 +142,7 @@ def main():
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--build', action='store_true', help='explicitly execute build-only Makefile targets')
     parser.add_argument('--configure-only', action='store_true', help='configure and check without compiling Image')
+    parser.add_argument('--boot-diagnostics', action='store_true')
     args = parser.parse_args()
     report = {'status': 'INPUTS_CHECKED', 'kernel_build': 'NOT RUN', 'guest_boot': 'NOT RUN',
               'hardware': 'NOT RUN', 'performance': 'NOT RUN', 'source_commit': COMMIT,
@@ -145,6 +150,7 @@ def main():
               'source_license': 'GPL-2.0-only WITH Linux-syscall-note', 'commands': []}
     require(args.archive.stat().st_size == ARCHIVE_BYTES and sha(args.archive) == ARCHIVE_SHA,
             'source archive identity differs')
+    report['boot_diagnostics'] = args.boot_diagnostics
     report['archive'] = identity(args.archive)
     report['fragment'] = identity(HERE / 'kernel.fragment')
     report['helper'] = identity(__file__)
@@ -173,15 +179,20 @@ def main():
         source = output / ARCHIVE_ROOT
         build = output / 'build'
         build.mkdir()
+        fragment = HERE / 'kernel.fragment'
+        if args.boot_diagnostics:
+            fragment = output / 'diagnostic.fragment'
+            fragment.write_text((HERE / 'kernel.fragment').read_text() + DIAGNOSTIC_FRAGMENT)
+            report['diagnostic_fragment'] = identity(fragment)
         env = {'PATH': '/usr/bin:/bin', 'HOME': str(output), 'TMPDIR': str(output), 'LC_ALL': 'C',
                'TZ': 'UTC', 'ARCH': 'arm64', 'LLVM': '1', 'KBUILD_BUILD_USER': 'generic16k',
                'KBUILD_BUILD_HOST': 'owned-build-fixture', 'KBUILD_BUILD_VERSION': '1',
                'KBUILD_BUILD_TIMESTAMP': 'Fri Oct 16 00:00:00 UTC 2026',
-               'KCONFIG_ALLCONFIG': str(HERE / 'kernel.fragment')}
+               'KCONFIG_ALLCONFIG': str(fragment)}
         argv = ['/usr/bin/make', '-C', str(source), 'O=' + str(build), 'ARCH=arm64', 'LLVM=1']
         deadline = time.monotonic() + 3600
         run(argv + ['allnoconfig'], output / 'configure.log', env, output, deadline, report['commands'])
-        report['config_check'] = config_check(build / '.config')
+        report['config_check'] = config_check(build / '.config', args.boot_diagnostics)
         report['config'] = identity(build / '.config')
         if args.configure_only:
             report['status'] = 'CONFIGURED_ONLY'
