@@ -172,6 +172,21 @@ jobs:
           de04c6b102890218da4f0b77e938315d601e824f
           001f0484ab8b599ddc03a84e62fd81af315a2a03
           4b803ba7daa0eacd978a5bf86d62346363c3b6dc
+      - name: Checkout exact accepted Setup5 pair for passive updater checks
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 79d8d2f53510e4f3a04f39c1b1e24c999aa32e44
+          path: .ci-inputs/setup5-accepted-pair
+          persist-credentials: false
+      - name: Stage the149 original Setup5 pair data members
+        run: |
+          set -euo pipefail
+          test "$(git -C .ci-inputs/setup5-accepted-pair rev-parse HEAD)" = 79d8d2f53510e4f3a04f39c1b1e24c999aa32e44
+          target=artifacts/development/setup5-accepted-pair-inputs-20261016/payload
+          test ! -e "$target"
+          install -d -m 700 "$target"
+          git -C .ci-inputs/setup5-accepted-pair archive --format=tar 79d8d2f53510e4f3a04f39c1b1e24c999aa32e44 | tar -xf - -C "$target"
+          printf '%s  %s\n' b1e4208d2f32935f2e5cb1c1e3535cc49f44c7bfe08e7d64692b8ac3781d5a5d "$target/index.json" | sha256sum --check
       - name: Check Apps transactions and management source contracts
         run: |
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/apps -p 'test_*.py'
