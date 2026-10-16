@@ -79,8 +79,8 @@
       "sha256": "1c697087f1d18a7424d9cd173efed6aecea1e9e47459141792bee29f1b0277b1"
     },
     "scripts/ci/desktop-bar-notifications/desktop574_guest.py": {
-      "bytes": 2050,
-      "sha256": "ab027d125f8d844f5639d2d7c31815f2f975bc50c7391ba9382635bdb8c3e4fb"
+      "bytes": 2191,
+      "sha256": "c63527ea7fc82f2d22a8e0e8f29f3e0ab0040f8e37519e2d7770cde748c847d4"
     },
     "scripts/ci/desktop-bar-notifications/managed_contract.py": {
       "bytes": 3790,
@@ -209,6 +209,10 @@
     "scripts/virtual/tooling.lock.json": {
       "bytes": 31183,
       "sha256": "c18afc5bde9868594d41bd576a956960a7b01b190d148ba03ca4c41d4394e1b0"
+    },
+    "scripts/ci/desktop-bar-notifications/test_boot.py": {
+      "bytes": 3272,
+      "sha256": "0200e008c9cae95b41234f42c51e5a1f230dccbf3f59f845b4586a7d551124ee"
     }
   },
   "generated_runner": {
@@ -229,8 +233,8 @@
       "sha256": "c6760b2e474e23e431bcd14c65f8f8b800487fc66ffed82b4235f6b3b2e75a5d"
     },
     "desktop574_guest.py": {
-      "bytes": 2050,
-      "sha256": "ab027d125f8d844f5639d2d7c31815f2f975bc50c7391ba9382635bdb8c3e4fb"
+      "bytes": 2191,
+      "sha256": "c63527ea7fc82f2d22a8e0e8f29f3e0ab0040f8e37519e2d7770cde748c847d4"
     },
     "desktop574_runtime.py": {
       "bytes": 21585,

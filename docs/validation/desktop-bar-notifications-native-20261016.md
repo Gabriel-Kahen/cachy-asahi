@@ -1,5 +1,7 @@
 # Waybar and notification runtime trial
 
+Managed normal-session actual38918314726, Source/workflow `a6b78b6f7c835ead74f5b994f0af9b61cfdb131d`, fails before its first event/frame: isolated Python loads session.py without registering the already-loaded `managed_session` API module. The retained trace is `ModuleNotFoundError: No module named 'managed_session'`; subsequent gpio-keys boot output is not the diagnosed cause. The adapter now registers the same exact pinned API object before importing session.py. Both isolated import regression cases and all37 source/caller controls pass; capture, managed identity, templates, budgets and cleanup gates remain unchanged. The failed run grants no managed visibility acceptance.
+
 [Actual38863671739](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38863671739)
 passes its native metadata and cleanup gates. **Normal generic component
 visibility is PASS:** Root now verifies a readable bar and complete notification

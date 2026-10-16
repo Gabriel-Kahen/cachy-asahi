@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: MIT
 """Adapter for the new optional-client lane using a pinned guest helper."""
 import importlib.util
+import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -17,6 +18,8 @@ def main():
     base = load('slice_base_guest', 'base_guest.py')
     api = load('slice_managed_api', 'managed_session.py')
     api.bind(base)
+    # Isolated Python excludes this directory; bind the exact loaded API for session.py.
+    sys.modules['managed_session'] = api
     session = load('slice_session', 'session.py')
     original_guard, original_emit = base.guard, base.emit
     completed = set()
