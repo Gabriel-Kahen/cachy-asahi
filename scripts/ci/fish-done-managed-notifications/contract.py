@@ -32,7 +32,7 @@ def verify_result(events):
             rows=[r for r in events if r.get('event')==kind and r.get('stage')==stage]
             O.need(len(rows)==1,'one real Done '+kind+' required');return rows[0]
         frame=one('frame_ready');observed=one('frame_captured');visible=one('frame_visibility');transport=one('done_transport');phase=one('phase_pass')
-        O.need([events.index(r) for r in (frame,observed,visible,transport,phase)]==sorted(events.index(r) for r in (frame,observed,visible,transport,phase)),'normal first capture/retirement order differs')
+        O.need([events.index(r) for r in (frame,visible,observed,transport,phase)]==sorted(events.index(r) for r in (frame,visible,observed,transport,phase)),'normal first capture/retirement order differs')
         O.need(frame['case']==transport['case']==phase['case']==case and frame['outcome']==outcome and frame['managed_identity']==identity and frame['activation']=='normal-shipped-config-no-reload' and frame['trace_waybar'] is False and frame['notification_timeout_ms']==3000 and 0<=frame['notification_age_ms']<=2000 and frame['capture_after_ms']>=5000,'real normal Done phase provenance differs')
         timing=frame['timing'];O.need(timing==O.capture_timing(frame['wire'],timing['request_realtime_us'],timing['request_monotonic_ns']) and frame['notification_age_ms']==timing['age_ms'] and frame.get('caller_pending') is True and 'caller' not in frame,'accurate pre-emission Notify age and deferred caller required')
         O.need(transport['capture_request_sha256']==request_digest(frame) and transport['post_request_identity']==identity,'post-request caller/manager join differs')
@@ -49,6 +49,12 @@ def verify_result(events):
         from capture import verify_pixel_receipt
         verify_pixel_receipt(observed.get('notification_pixels'),visibility['mako'],observed['sha256'])
         O.need(type(observed.get('host_started_realtime_us')) is int and observed['host_started_realtime_us']<=observed['host_qmp_returned_realtime_us']<=observed['host_finished_realtime_us'] and type(observed.get('host_started_monotonic_ns')) is int,'host capture clocks absent')
+        O.need(observed.get('scheduled_visibility_sha256')==request_digest(visibility) and 'diagnostic_only' not in observed and
+             type(observed.get('host_received_realtime_us')) is int and
+             observed['host_received_realtime_us']<=observed['host_visibility_received_realtime_us']<=observed['host_started_realtime_us'] and
+             type(observed.get('host_received_monotonic_ns')) is int and
+             observed['host_received_monotonic_ns']<=observed['host_visibility_received_monotonic_ns']<=observed['host_started_monotonic_ns'],
+             'actual host visibility readiness before original first capture required')
         for name,namespace in (('bar','waybar'),('mako',MAKO_NAMESPACE)):
             row=visibility[name];O.need(owned_layer({row['monitor']:{'levels':{row['level']:[row]}}},namespace,frame['waybar_pid' if name=='bar' else 'mako_pid']) is not None,'visible owned client layer required')
         monitor=transport['monitor'];raw=base64.b64decode(monitor['raw_base64'],validate=True)

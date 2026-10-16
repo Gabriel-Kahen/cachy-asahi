@@ -91,7 +91,8 @@ class Protocol(unittest.TestCase):
                 child=dict(pid=206,parent_pid=205,process_group=206,start_ticks=1234,executable='/usr/bin/sleep',argv=['sleep','8'])
                 caller.update(command=F.BACKGROUND_COMMAND,watch=dict(child=child,registration_status=0,handler_registered=True,caller_before_completion=True))
                 pty=b'\nFDM_WATCH_206_0\n'+pty+b'\nFDM_BG_RETIRED_206\n'
-            events.extend([frame,dict(event='frame_captured',stage=stage,first_capture=True,request_sha256=C.request_digest(frame),managed_identity=identity,visual_review='NOT_RUN',capture_ms=20,sha256='a'*64,visibility_sha256=C.request_digest(visibility),notification_pixels=dict(status='PASS_PIXEL_PRESENCE_PENDING_READABILITY',frame_sha256='a'*64,roi={k:visibility['mako'][k] for k in ('x','y','w','h')},roi_sha256='b'*64,pixels=30000,counts=dict(background=20000,border=2000,text=200),color_tolerance=6,style_sha256=P.STYLE_SHA256,visual_review='NOT_RUN'),host_started_realtime_us=3000000,host_qmp_returned_realtime_us=3001000,host_finished_realtime_us=3002000,host_started_monotonic_ns=345678),dict(event='frame_visibility',stage=stage,case=case,wire=wire,visibility=visibility,capture_request_sha256=C.request_digest(frame),managed_identity=identity),dict(event='done_transport',stage=stage,case=case,wire=wire,caller=caller,visibility=visibility,capture_request_sha256=C.request_digest(frame),post_request_identity=identity,monitor=dict(raw_base64=base64.b64encode(raw).decode(),bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest(),exit=0),fish=dict(exit=0,pty_base64=base64.b64encode(pty).decode(),pty_bytes=len(pty),pty_sha256=hashlib.sha256(pty).hexdigest()),mako_exit=0,payload_preserved=True,user_config_preserved=True),dict(event='phase_pass',stage=stage,case=case,config_preserved=True,fish='PASS')])
+            events.extend([frame,dict(event='frame_captured',stage=stage,first_capture=True,request_sha256=C.request_digest(frame),managed_identity=identity,visual_review='NOT_RUN',capture_ms=20,sha256='a'*64,visibility_sha256=C.request_digest(visibility),notification_pixels=dict(status='PASS_PIXEL_PRESENCE_PENDING_READABILITY',frame_sha256='a'*64,roi={k:visibility['mako'][k] for k in ('x','y','w','h')},roi_sha256='b'*64,pixels=30000,counts=dict(background=20000,border=2000,text=200),color_tolerance=6,style_sha256=P.STYLE_SHA256,visual_review='NOT_RUN'),host_started_realtime_us=3000000,host_qmp_returned_realtime_us=3001000,host_finished_realtime_us=3002000,host_started_monotonic_ns=345678,host_received_realtime_us=2999000,host_received_monotonic_ns=245678,host_visibility_received_realtime_us=2999500,host_visibility_received_monotonic_ns=300678,scheduled_visibility_sha256=C.request_digest(visibility)),dict(event='frame_visibility',stage=stage,case=case,wire=wire,visibility=visibility,capture_request_sha256=C.request_digest(frame),managed_identity=identity),dict(event='done_transport',stage=stage,case=case,wire=wire,caller=caller,visibility=visibility,capture_request_sha256=C.request_digest(frame),post_request_identity=identity,monitor=dict(raw_base64=base64.b64encode(raw).decode(),bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest(),exit=0),fish=dict(exit=0,pty_base64=base64.b64encode(pty).decode(),pty_bytes=len(pty),pty_sha256=hashlib.sha256(pty).hexdigest()),mako_exit=0,payload_preserved=True,user_config_preserved=True),dict(event='phase_pass',stage=stage,case=case,config_preserved=True,fish='PASS')])
+            events[-4],events[-3]=events[-3],events[-4]
             if stage=='background':
                 events[-2]['fish']['watch_retirement']=dict(child=child,handler_absent=True,pid_absent=True,process_group_absent=True)
         stopped={n:dict(Id=n,LoadState='loaded',ActiveState='inactive',SubState='dead',MainPID=0) for n in ('user@23001.service','user-runtime-dir@23001.service')}
@@ -487,18 +488,104 @@ class EarlyCapture(unittest.TestCase):
         transport['visibility']=copy.deepcopy(transport['visibility']);transport['visibility']['notification']['body']='different'
         with self.assertRaises(ValueError):C.verify_result(events)
 
-    def test_generated_host_finalizes_visibility_before_phase_acceptance(self):
-        runner=Path(os.environ['DONE_MANAGED_PREPARED_RUNNER'])
-        text=(runner/'desktop574_runtime.py').read_text()
-        self.assertEqual(text.count('from capture import capture_frame'),1)
-        text=text.replace('from capture import capture_frame','from capture import capture_frame,finalize_capture')
-        anchor="                if event.get('event') == 'phase_pass':"
-        self.assertEqual(text.count(anchor),1)
-        text=text.replace(anchor,"                if event.get('event') == 'frame_visibility': finalize_capture(event,frames,report)\n"+anchor)
-        ast.parse(text)
-        self.assertLess(text.index('finalize_capture(event,frames,report)'),text.index(anchor))
-        self.assertIn('deadline = time.monotonic() + 900',text)
-        self.assertIn('signal.setitimer(signal.ITIMER_REAL, 1750)',text)
+    def test_generated_host_schedules_visibility_before_phase_acceptance(self):
+        text=Path(P.__file__).with_name('prepare.py').read_text()
+        self.assertIn('arm_capture(event,fixture,frames,report)',text)
+        self.assertIn("frame_visibility': capture_ready(event,qmp,fixture,frames,report,ppm)",text)
+        self.assertIn("capture_pending_failure(qmp,fixture,frames,report,ppm)",text)
+        runtime=(Path(os.environ['DONE_MANAGED_PREPARED_RUNNER'])/'desktop574_runtime.py').read_text()
+        self.assertIn('deadline = time.monotonic() + 900',runtime)
+        self.assertIn('signal.setitimer(signal.ITIMER_REAL, 1750)',runtime)
+
+
+class RenderSynchronization(unittest.TestCase):
+    def setUp(self):
+        self.tmp=tempfile.TemporaryDirectory();self.addCleanup(self.tmp.cleanup);self.root=Path(self.tmp.name)
+        self.fixture=self.root/'fixture';self.frames=self.root/'frames';self.fixture.mkdir();self.frames.mkdir()
+        blocked=patch.object(subprocess,'Popen',side_effect=AssertionError('no actual actor'));blocked.start();self.addCleanup(blocked.stop)
+        events=Protocol().fixture();self.request=next(e for e in events if e.get('event')=='frame_ready')
+        self.visible=next(e for e in events if e.get('event')=='frame_visibility')
+        self.pixels=copy.deepcopy(next(e for e in events if e.get('event')=='frame_captured')['notification_pixels'])
+        self.report=dict(events=[self.request],frames={});self.calls=[];self.data=b'original first diagnostic bytes'
+        from types import SimpleNamespace
+        def execute(method,args):
+            self.calls.append((method,args));(self.fixture/'minimal.ppm').write_bytes(self.data)
+        self.qmp=SimpleNamespace(execute=execute)
+        self.decode=lambda path:dict(sha256=hashlib.sha256(path.read_bytes()).hexdigest())
+        self.pixels['frame_sha256']=hashlib.sha256(self.data).hexdigest()
+
+    def arm(self):P.arm_capture(self.request,self.fixture,self.frames,self.report)
+
+    def capture(self):
+        self.report['events'].append(self.visible)
+        with patch.object(P,'notification_pixels',return_value=self.pixels):
+            P.capture_ready(self.visible,self.qmp,self.fixture,self.frames,self.report,self.decode)
+
+    def test_request_arms_without_any_qmp_or_image(self):
+        self.arm();self.assertFalse(self.calls);self.assertFalse(any(self.frames.iterdir()))
+        self.assertEqual(self.report['capture_requests']['minimal']['request_sha256'],C.request_digest(self.request))
+
+    def test_first_qmp_waits_for_valid_fresh_owned_visibility(self):
+        self.arm();self.capture();self.assertEqual(len(self.calls),1)
+        observer=self.report['frames']['minimal']['observer']
+        self.assertEqual(observer['scheduled_visibility_sha256'],C.request_digest(self.visible['visibility']))
+        self.assertLessEqual(observer['host_received_monotonic_ns'],observer['host_visibility_received_monotonic_ns'])
+        self.assertLessEqual(observer['host_visibility_received_monotonic_ns'],observer['host_started_monotonic_ns'])
+        self.assertEqual((self.frames/'minimal.ppm').read_bytes(),self.data)
+
+    def test_duplicate_arm_or_visibility_cannot_recapture(self):
+        self.arm()
+        with self.assertRaises(ValueError):self.arm()
+        self.capture()
+        with self.assertRaises(ValueError):self.capture()
+        self.assertEqual(len(self.calls),1)
+
+    def test_foreign_or_stale_geometry_cannot_trigger_accepted_capture(self):
+        self.arm();original=copy.deepcopy(self.visible)
+        for key,value in [('pid',999),('alpha',.5)]:
+            self.visible=copy.deepcopy(original);self.visible['visibility']['mako'][key]=value
+            with self.subTest(key=key),self.assertRaises(ValueError):self.capture()
+        self.visible=copy.deepcopy(original);self.visible['visibility']['realtime_us']=1
+        with self.assertRaises(ValueError):self.capture()
+        self.assertFalse(self.calls)
+
+    def test_bad_request_or_live_notification_join_cannot_trigger_capture(self):
+        self.arm();original=copy.deepcopy(self.visible)
+        self.visible['capture_request_sha256']='bad'
+        with self.assertRaises(ValueError):self.capture()
+        self.visible=copy.deepcopy(original);self.visible['visibility']['notification']['body']='other'
+        with self.assertRaises(ValueError):self.capture()
+        self.assertFalse(self.calls)
+
+    def test_one_first_diagnostic_survives_missing_visibility_failure(self):
+        self.arm();P.capture_pending_failure(self.qmp,self.fixture,self.frames,self.report,self.decode)
+        self.assertEqual(len(self.calls),1);self.assertEqual((self.frames/'minimal.ppm').read_bytes(),self.data)
+        self.assertEqual(self.report['frames']['minimal']['observer']['diagnostic_only'],'NO_ACCEPTED_FRESH_VISIBILITY')
+        P.capture_pending_failure(self.qmp,self.fixture,self.frames,self.report,self.decode)
+        self.assertEqual(len(self.calls),1)
+
+    def test_rgb_failure_keeps_first_original_and_cannot_recapture(self):
+        self.arm();self.pixels.update(status='FAIL_NOTIFICATION_PIXELS_ABSENT',counts=dict(background=0,border=0,text=0))
+        with self.assertRaises(ValueError):self.capture()
+        self.assertEqual((self.frames/'minimal.ppm').read_bytes(),self.data)
+        with self.assertRaises(ValueError):self.capture()
+        self.assertEqual(len(self.calls),1)
+
+    def test_waiting_for_readiness_uses_original_five_second_total(self):
+        import time
+        self.arm();self.report['capture_requests']['minimal']['host_received_monotonic_ns']=time.monotonic_ns()-6_000_000_000
+        with self.assertRaisesRegex(ValueError,'five-second observation budget'):self.capture()
+        self.assertEqual(len(self.calls),1);self.assertTrue((self.frames/'minimal.ppm').is_file())
+
+    def test_old_capture_before_visibility_order_cannot_pass(self):
+        events=Protocol().fixture();visible=next(e for e in events if e.get('event')=='frame_visibility');captured=next(e for e in events if e.get('event')=='frame_captured')
+        a,b=events.index(visible),events.index(captured);events[a],events[b]=events[b],events[a]
+        with self.assertRaises(ValueError):C.verify_result(events)
+
+    def test_diagnostic_or_missing_host_readiness_proof_never_passes(self):
+        for change in ({'diagnostic_only':'NO_ACCEPTED_FRESH_VISIBILITY'},{'scheduled_visibility_sha256':'bad'},{'host_visibility_received_monotonic_ns':999999}):
+            events=Protocol().fixture();next(e for e in events if e.get('event')=='frame_captured').update(change)
+            with self.subTest(change=change),self.assertRaises(ValueError):C.verify_result(events)
 
 
 class HostedProof(unittest.TestCase):
