@@ -168,7 +168,7 @@ class PhaseTests(unittest.TestCase):
         self.helper.RUNTIME.glob.side_effect=lambda _: [] if not self.processes else [socket]
 
     def launch(self,argv,name,logs,env):
-        item=SimpleNamespace(argv=argv,name=name,process=FakeProcess(101+len(self.processes)),command_count=len(self.commands))
+        item=SimpleNamespace(argv=argv,name=name,process=FakeProcess(101+len(self.processes)),env=dict(env),command_count=len(self.commands))
         item.healthy=lambda: self.assertIsNone(item.process.returncode)
         def finish():
             self.assertIsNotNone(item.process.returncode)
@@ -226,12 +226,12 @@ class PhaseTests(unittest.TestCase):
         if 'CloseNotification' in argv:self.notice=False;return ''
         raise AssertionError(argv)
 
-    def run_phase(self):
+    def run_phase(self,trace_waybar=False):
         with patch.object(session,'base',self.helper),patch.object(session.os,'killpg',self.signal),\
              patch.object(session.time,'monotonic',self.now),patch.object(session.time,'sleep',self.sleep),\
              patch.dict(session.os.environ,{'CACHY_MANAGED_MANAGER_PID':'777'}),\
              patch.object(session.managed,'bus_probe',return_value=dict(address=session.managed.ADDRESS,uid=23001,manager_pid=777,default_target='GetUnit-PASS')):
-            session.phase('minimal',Path('/explicit.lua'),dict(XDG_CONFIG_HOME=str(self.config),XDG_RUNTIME_DIR=str(session.managed.RUNTIME),DBUS_SESSION_BUS_ADDRESS=session.managed.ADDRESS),self.root)
+            session.phase('minimal',Path('/explicit.lua'),dict(XDG_CONFIG_HOME=str(self.config),XDG_RUNTIME_DIR=str(session.managed.RUNTIME),DBUS_SESSION_BUS_ADDRESS=session.managed.ADDRESS),self.root,trace_waybar=trace_waybar)
 
     def assert_retired(self):
         self.assertTrue(all(p.process.poll() is not None and p.finished for p in self.processes))

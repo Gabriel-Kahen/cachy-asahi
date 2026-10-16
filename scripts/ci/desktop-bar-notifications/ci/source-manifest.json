@@ -163,8 +163,8 @@
       "sha256": "fdfa7582e0d871818a01e3d4e149901c7e2f37edc2430055c2e90b3a4cb4124b"
     },
     "scripts/ci/desktop-bar-notifications/desktop574_guest.py": {
-      "bytes": 2191,
-      "sha256": "c63527ea7fc82f2d22a8e0e8f29f3e0ab0040f8e37519e2d7770cde748c847d4"
+      "bytes": 2286,
+      "sha256": "94fe4dec5316326d7184c3c706d24cf7243b3bc5f02271fddec6bc6b1fdcb7f2"
     },
     "scripts/ci/desktop-bar-notifications/managed_contract.py": {
       "bytes": 3790,
@@ -179,12 +179,12 @@
       "sha256": "0790b69c56c73d546f6d0069bb26bd212467f5eed6835fec0d2b2f5109d7bf54"
     },
     "scripts/ci/desktop-bar-notifications/prepare.py": {
-      "bytes": 4832,
-      "sha256": "7d86366ab26c670eca07b47972865becb71ce71f2860d9d3e2a47c02c2a37ce7"
+      "bytes": 5816,
+      "sha256": "1a0b09e0929f6cd0856d8150f1b70175bf707a569ad99f79a7590fb32166ad88"
     },
     "scripts/ci/desktop-bar-notifications/session.py": {
-      "bytes": 19904,
-      "sha256": "8d0275f8949137b9e6f4363b9028c6776b79172f4401d1ab602fa087b9d7138b"
+      "bytes": 20986,
+      "sha256": "3389f3ea1cc6193941c9394e0888748694cd33306956fedb7de805279d0572e5"
     },
     "scripts/ci/desktop-bar-notifications/source-pins.json": {
       "bytes": 3620,
@@ -195,8 +195,8 @@
       "sha256": "0200e008c9cae95b41234f42c51e5a1f230dccbf3f59f845b4586a7d551124ee"
     },
     "scripts/ci/desktop-bar-notifications/test_call_trace.py": {
-      "bytes": 4745,
-      "sha256": "9bb18e677b9e4ea354c4c6dded6b0cdee98ec675735c62d3191330dc17dd5688"
+      "bytes": 7862,
+      "sha256": "7ff2555a7d96dc0ea798eb0ca50078f6805894160c54dbdc5a436ff2ea8730bc"
     },
     "scripts/ci/desktop-bar-notifications/test_completion.py": {
       "bytes": 6686,
@@ -207,8 +207,8 @@
       "sha256": "79a03c8a25035e5501ddb335fd4153d5773e64d05d726388b84c7be26e3f6fa5"
     },
     "scripts/ci/desktop-bar-notifications/test_slice.py": {
-      "bytes": 17986,
-      "sha256": "5a3b950ea9f065f4b8ea4d521b5a99928c2b624eed5b9e51bb417f8bdc6e5927"
+      "bytes": 18045,
+      "sha256": "e26ebc968ddd0abfd4396b40faf13d4146d7c180bb90d3909fd5ee73554f35cc"
     },
     "scripts/ci/desktop-bar-notifications/upstream/mako-package-LICENSE": {
       "bytes": 1065,
@@ -325,12 +325,12 @@
       "sha256": "c6760b2e474e23e431bcd14c65f8f8b800487fc66ffed82b4235f6b3b2e75a5d"
     },
     "desktop574_guest.py": {
-      "bytes": 2191,
-      "sha256": "c63527ea7fc82f2d22a8e0e8f29f3e0ab0040f8e37519e2d7770cde748c847d4"
+      "bytes": 2286,
+      "sha256": "94fe4dec5316326d7184c3c706d24cf7243b3bc5f02271fddec6bc6b1fdcb7f2"
     },
     "desktop574_runtime.py": {
-      "bytes": 21585,
-      "sha256": "a9012412a4edf441237fba91fd923c7b11a21500d91c2b7498493ef69d991122"
+      "bytes": 21990,
+      "sha256": "9b21ad358ecd19cbb81f8d08d8186282cc6f995b9a581130100c73ded3f04981"
     },
     "managed_contract.py": {
       "bytes": 3790,
@@ -345,8 +345,8 @@
       "sha256": "0790b69c56c73d546f6d0069bb26bd212467f5eed6835fec0d2b2f5109d7bf54"
     },
     "session.py": {
-      "bytes": 19904,
-      "sha256": "8d0275f8949137b9e6f4363b9028c6776b79172f4401d1ab602fa087b9d7138b"
+      "bytes": 20986,
+      "sha256": "3389f3ea1cc6193941c9394e0888748694cd33306956fedb7de805279d0572e5"
     },
     "source-pins.json": {
       "bytes": 3620,

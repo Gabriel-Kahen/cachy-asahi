@@ -22,7 +22,7 @@ class CallTrace(unittest.TestCase):
 
     def test_only_logging_key_is_added_without_changing_session_or_backend(self):
         selected=dict(WAYLAND_DISPLAY='wayland-1',XDG_SESSION_TYPE='wayland',DISPLAY=':0',GDK_BACKEND='fixture')
-        original=dict(selected);result=S.waybar_environment(selected)
+        original=dict(selected);result=S.waybar_environment(selected,trace_waybar=True)
         self.assertEqual(selected,original);self.assertEqual(result,original|dict(G_DBUS_DEBUG='call'))
 
     def test_complete_trace_survives_beyond_the_original_4k_tail(self):
@@ -59,7 +59,7 @@ class CallTrace(unittest.TestCase):
         try:
             phase.bad_payload=True
             with patch.object(S,'retain_waybar_trace',side_effect=RuntimeError('secondary trace fault')) as trace:
-                with self.assertRaisesRegex(ValueError,'notification payload differs'):phase.run_phase()
+                with self.assertRaisesRegex(ValueError,'notification payload differs'):phase.run_phase(trace_waybar=True)
                 trace.assert_called_once();self.assertIs(trace.call_args.args[1],phase.processes[1])
             phase.assert_retired();self.assertNotIn('phase_pass',[e['event'] for e in phase.emitted])
         finally:phase.doCleanups()
@@ -70,6 +70,51 @@ class CallTrace(unittest.TestCase):
             with patch.object(S,'retain_waybar_trace',side_effect=AssertionError('success trace forbidden')) as trace:
                 phase.run_phase();trace.assert_not_called()
             phase.assert_retired();self.assertEqual([e['event'] for e in phase.emitted],['frame_ready','phase_pass'])
+        finally:phase.doCleanups()
+
+
+    def test_default_is_unlogged_and_only_explicit_true_reproduces_call_logging(self):
+        selected=dict(WAYLAND_DISPLAY='wayland-1',G_DBUS_DEBUG='all',DISPLAY=':0')
+        original=dict(selected)
+        self.assertEqual(S.waybar_environment(selected),dict(WAYLAND_DISPLAY='wayland-1',DISPLAY=':0'))
+        self.assertEqual(S.waybar_environment(selected,True),original|dict(G_DBUS_DEBUG='call'))
+        self.assertEqual(selected,original)
+        for invalid in ('true',1,None):
+            with self.assertRaises(ValueError):S.waybar_environment(selected,invalid)
+
+    def test_closed_guest_marker_and_host_command_transport(self):
+        command=['docker','run','-c','qemu -append "cachy_asahi_bar_notifications=1 other=1"']
+        self.assertEqual(S.trace_command(command),command);self.assertIsNot(S.trace_command(command),command)
+        traced=S.trace_command(command,True);self.assertNotEqual(traced,command)
+        self.assertEqual(traced[-1].count(S.TRACE_MARKER),1);self.assertNotIn(S.TRACE_MARKER,command[-1])
+        self.assertFalse(S.trace_requested('other=1 cachy_asahi_bar_notifications=1'))
+        self.assertTrue(S.trace_requested('other=1 '+S.TRACE_MARKER))
+        for text in (S.TRACE_MARKER+' '+S.TRACE_MARKER,'cachy_asahi_waybar_trace=0','cachy_asahi_waybar_trace=all'):
+            with self.assertRaises(ValueError):S.trace_requested(text)
+        for argv,enabled in ((traced,True),(command,'true'),(['missing-marker'],False)):
+            with self.assertRaises(ValueError):S.trace_command(argv,enabled)
+
+    def test_both_startup_modes_keep_owned_phase_gates_and_limit_trace_to_waybar(self):
+        for enabled in (False,True):
+            phase=fixtures.PhaseTests('test_full_owned_lifecycle_capture_dismissal_clean_stops_and_preservation');phase.setUp()
+            try:
+                phase.run_phase(trace_waybar=enabled);phase.assert_retired()
+                compositor,bar,mako=phase.processes
+                self.assertEqual(bar.env.get('G_DBUS_DEBUG'),'call' if enabled else None)
+                self.assertNotIn('G_DBUS_DEBUG',compositor.env);self.assertNotIn('G_DBUS_DEBUG',mako.env)
+                self.assertEqual(phase.emitted[0]['trace_waybar'],enabled)
+                self.assertEqual([e['event'] for e in phase.emitted],['frame_ready','phase_pass'])
+                self.assertEqual((phase.config/'user').read_text(),'preserve')
+            finally:phase.doCleanups()
+
+    def test_ordinary_failure_keeps_original_error_and_skips_call_trace_export(self):
+        phase=fixtures.PhaseTests('test_changed_notification_payload_refuses_and_retires_all');phase.setUp()
+        try:
+            phase.bad_payload=True
+            with patch.object(S,'retain_waybar_trace',side_effect=AssertionError('ordinary trace forbidden')) as trace:
+                with self.assertRaisesRegex(ValueError,'notification payload differs'):phase.run_phase()
+                trace.assert_not_called()
+            phase.assert_retired();self.assertNotIn('phase_pass',[e['event'] for e in phase.emitted])
         finally:phase.doCleanups()
 
 
