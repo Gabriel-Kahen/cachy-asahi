@@ -41,6 +41,16 @@ def vm_retired(output):
         except (OSError,ValueError): return False
 
 
+def selected_tooling_inputs(ready, lock, preparation, auditor):
+    manifest=json.loads((ready/'manifest.json').read_bytes())
+    builder=ready/'builder-packages.lock'
+    need(manifest['builder_lock']['path']==builder.name and
+         sha(builder)==manifest['builder_lock']['sha256']==preparation.BUILDER_LOCK,
+         'exact original574 builder lock required before tooling acquisition')
+    base=dict(line.split() for line in builder.read_text().splitlines())
+    return preparation.tooling_inputs(base,lock,auditor.signature)
+
+
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     for name in ('code','preparation-source','product','updater','desktop','updater-v2-source',
@@ -71,7 +81,8 @@ def main():
         auditor=load('tooling_auditor',args.code/'scripts/virtual/audit_tooling.py')
         lock=json.loads((args.code/'scripts/virtual/tooling.lock.json').read_bytes()); auditor.validate_lock(lock)
         cache=args.output/'tooling-cache'; cache.mkdir()
-        downloads=lock['keyring_files']+[item for row in lock['packages'] for item in (row,auditor.signature(row))]
+        preparation=load('prepare',HERE/'prepare.py')
+        downloads=selected_tooling_inputs(ready,lock,preparation,auditor)
         need(len(downloads)<=64 and len({r['filename'] for r in downloads})==len(downloads),'bounded distinct tooling inputs required')
         with ThreadPoolExecutor(max_workers=4) as pool:
             list(pool.map(lambda row:auditor.fetch(row,cache,True),downloads))

@@ -3,6 +3,7 @@
 """Private full-composition guest builder; invoked only by the owned controller."""
 import argparse
 import importlib
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -42,16 +43,33 @@ def need(ok, reason):
     if not ok: raise ValueError(reason)
 
 
-def union_inventory(base, rows):
+# The accepted desktop574 runtime preserves existing packages and adds only16
+# missing tooling rows. This sole known version difference is not a downgrade
+# request: admit it only on the exact original574 inventory and keep its version.
+BUILDER_LOCK = 'cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac'
+PRESERVED_TOOLING_TUPLE = ('snappy', '1.3.1-1', '1.2.2-3')
+
+
+def tooling_additions(base, rows):
     need(type(base) is dict and len(base) == 574, 'exact producer builder574 required')
     need(type(rows) is list and len(rows) == 21 and len({r['name'] for r in rows}) == 21,
          'exact held 21 tooling rows required')
-    result = dict(base)
     for row in rows:
-        need(row['name'] not in result or result[row['name']] == row['version'],
+        if row['name'] not in base or base[row['name']] == row['version']: continue
+        selected = (row['name'], base[row['name']], row['version'])
+        digest = hashlib.sha256(''.join(n+' '+v+'\n' for n,v in sorted(base.items())).encode()).hexdigest()
+        need(selected == PRESERVED_TOOLING_TUPLE and digest == BUILDER_LOCK,
              'tooling version replacement refused: ' + row['name'])
-        result[row['name']] = row['version']
-    return result
+    return [row for row in rows if row['name'] not in base]
+
+
+def union_inventory(base, rows):
+    return dict(base, **{row['name']:row['version'] for row in tooling_additions(base, rows)})
+
+
+def tooling_inputs(base, lock, signature):
+    return lock['keyring_files'] + [item for row in tooling_additions(base, lock['packages'])
+                                   for item in (row, signature(row))]
 
 
 def checked_file(root, name, row, common):
@@ -118,7 +136,8 @@ def tooling(c, lock, common, command, report):
     auditor = importlib.import_module('audit_tooling')
     auditor.validate_lock(lock)
     installed(common, c['builder_inventory'])
-    for row in lock['keyring_files'] + [x for r in lock['packages'] for x in (r, auditor.signature(r))]:
+    additions = tooling_additions(c['builder_inventory'], lock['packages'])
+    for row in tooling_inputs(c['builder_inventory'], lock, auditor.signature):
         checked_file('/tooling-cache', row['filename'], {'sha256':row['sha256'],'bytes':row['size']}, common)
     temporary = Path(tempfile.mkdtemp(prefix='full-installer-trust-', dir='/tmp'))
     keyring, hooks, conf = temporary/'keys', temporary/'hooks', temporary/'pacman.conf'
@@ -134,12 +153,11 @@ def tooling(c, lock, common, command, report):
         command(['/usr/bin/pacman-key','--gpgdir',str(keyring),'--init'], 120)
         command(['/usr/bin/pacman-key','--gpgdir',str(keyring),'--add','/tooling-cache/archlinuxarm.gpg'])
         command(['/usr/bin/pacman-key','--gpgdir',str(keyring),'--lsign-key',lock['signer_fingerprint']])
-        for row in lock['packages']:
+        for row in additions:
             result = command(['/usr/bin/gpg','--batch','--homedir',str(keyring),'--status-fd','1',
                  '--verify','/tooling-cache/'+row['filename']+'.sig','/tooling-cache/'+row['filename']])
             auditor.verify(result['stdout'], lock['signer_fingerprint'])
             need(not auditor.inspect(Path('/tooling-cache')/row['filename'],row)['hooks'], 'tooling hooks refused')
-        additions = [r for r in lock['packages'] if r['name'] not in c['builder_inventory']]
         if additions:
             command(['/usr/bin/pacman','--config',str(conf),'--noconfirm','--noscriptlet',
                      '--logfile',str(temporary/'pacman.log'),'-U',
@@ -150,7 +168,10 @@ def tooling(c, lock, common, command, report):
         # Agent retirement must succeed before committing this private image.
         command(['/usr/bin/gpgconf','--homedir',str(keyring),'--kill','all'])
         shutil.rmtree(temporary)
-    report.update(status='TOOLING_READY', trust_cleanup='PASS')
+    report.update(status='TOOLING_READY', trust_cleanup='PASS',
+        added_tooling=[row['name'] for row in additions],
+        preserved_tooling={row['name']:c['builder_inventory'][row['name']]
+                           for row in lock['packages'] if row['name'] in c['builder_inventory']})
 
 
 def change(root, name, data, report, mode=0o644):
