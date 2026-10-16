@@ -43,7 +43,7 @@ class Controls(unittest.TestCase):
 
     def test_exact_source_only_map_and_entry(self):
         s.check_source(ROOT);mapping=s.mapping()
-        self.assertEqual(len(mapping['products']),4);self.assertEqual(len(mapping['fixtures']),4)
+        self.assertEqual(len(mapping['products']),4);self.assertEqual(len(mapping['fixtures']),5)
         self.assertEqual(sum(len(r['payload']) for r in mapping['products'].values()),39)
         value=run.trial(SimpleNamespace(source_root=ROOT,execute=False))
         self.assertEqual(value['status'],'SOURCE_INPUTS_VERIFIED_NOT_EXECUTED');self.assertEqual(len(value['products']),4)
@@ -95,7 +95,7 @@ class Controls(unittest.TestCase):
         return archive,receipt
 
     def test_closed_payload_and_manifest_hashes_are_required(self):
-        archive,receipt=self.payload_fixture();self.assertEqual(len(run.payload(archive,receipt,self.generic)),56)
+        archive,receipt=self.payload_fixture();self.assertEqual(len(run.payload(archive,receipt,self.generic)),57)
         for field in ('inventory_sha256','payload_map_sha256'):
             bad=copy.deepcopy(receipt);bad[field]='0'*64
             with self.assertRaises(ValueError):run.payload(archive,bad,self.generic)
@@ -128,7 +128,7 @@ class Controls(unittest.TestCase):
         work='/tmp/tools16k';paths=work+'/mirrors/';mirror='/usr/bin/cachy-asahi-mirrors';prefix=['/usr/bin/python3','-I','-B']
         activate=[mirror,'activate',paths+'catalog.json','--candidate',paths+'candidate','--repository','core','--target',paths+'mirrorlist','--state']
         restore=[mirror,'restore','--repository','core','--target',paths+'mirrorlist','--state']
-        args=[prefix+['/fixtures/highlighting.py',work+'/highlighting'],prefix+['/fixtures/substring.py','--module-dir',
+        args=[prefix+['/fixtures/highlighting.py',work+'/highlighting'],prefix+['/fixtures/substring_observer.py','--module-dir',
             '/usr/share/cachy-asahi/zsh-history-substring-search','--work',work+'/substring','--highlight-wrapper',
             '/usr/share/cachy-asahi/zsh-syntax-highlighting/opt-in.zsh'],prefix+['/fixtures/autopair.py','--source',
             '/usr/share/cachy-asahi/fish-autopair','--output',work+'/autopair'],[mirror,'--version'],[mirror,'check',paths+'catalog.json'],

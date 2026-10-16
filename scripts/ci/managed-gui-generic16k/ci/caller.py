@@ -51,6 +51,12 @@ def verify_files(workspace, files):
         need(info.st_size == row['bytes'] and digest(target) == row['sha256'], 'source pin differs: ' + relative)
 
 
+def verify_kernel_contract_pin(manifest):
+    source = manifest['files'].get(SLICE + '/kernel_contract.py')
+    need(source is not None and manifest.get('generated_runner', {}).get('kernel_contract.py') == source,
+         'copied kernel_contract.py source/generated pins differ')
+
+
 def prove(workspace, manifest, environment):
     source = environment['SOURCE_SHA']
     need(re.fullmatch('[0-9a-f]{40}', source) and
@@ -60,6 +66,7 @@ def prove(workspace, manifest, environment):
     run, attempt = environment['GITHUB_RUN_ID'], environment['GITHUB_RUN_ATTEMPT']
     need(re.fullmatch('[1-9][0-9]{0,19}', run) and re.fullmatch('[1-9][0-9]{0,9}', attempt), 'run identity differs')
     verify_files(workspace, manifest['files'])
+    verify_kernel_contract_pin(manifest)
     token = hashlib.sha256(('managed-gui-generic16k:' + run + ':' + attempt + ':' + source).encode()).hexdigest()[:16]
     return dict(status='SOURCE_PROOF_PASS', source_sha=source, workflow_sha=source,
                 run_id=run, run_attempt=attempt, source_files=len(manifest['files']), job_token=token)

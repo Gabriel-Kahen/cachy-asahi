@@ -412,6 +412,10 @@
       "bytes": 5444,
       "sha256": "bddb14537790a484d770215e55cc2c59de50c764d15e4d677f6fbcaab84cd735"
     },
+    "scripts/ci/tools-generic16k/substring_observer.py": {
+      "bytes": 8349,
+      "sha256": "4aaf1a417ad3b1b7b9e8b594f4514a743ea1304edaf9b9e1aecf310497149738"
+    },
     "scripts/ci/tools-generic16k/test_cache.py": {
       "bytes": 13059,
       "sha256": "58d031e9202b5903e11a62540ff7020d2a585c6d64b0904b36ca4674be32164b"
