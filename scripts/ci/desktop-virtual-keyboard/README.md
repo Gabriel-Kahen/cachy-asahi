@@ -94,3 +94,16 @@ Actual38896363801 proved launch and acknowledged shell input, then failed the
 exact output deadline. Its retained data lacks terminal text/workspace contents;
 character fidelity and the cause remain unproven. This change adds evidence,
 without a speculative timing/mapping change or weaker result criterion.
+
+
+Startup client snapshots may contain at most two quiescent anonymous XWayland
+setup surfaces: both unmapped/invisible, zero geometry, no workspace/monitor,
+empty current/initial class/title and no focus/fullscreen/floating/pinning.
+Addresses must differ and their one PID must join to the exact owned Hyprland
+process or its direct UID23001 Xwayland child by executable/parent/starttime.
+Any preexisting application, named/visible/mapped surface, foreign process,
+third record or changed shape fails before input. A complete initial snapshot
+is required; the existing narrow IPC readiness retry remains bounded90s.
+The accepted startup records and process proof are emitted in keyboard_ready
+and replayed by the public contract. Subsequent sole focused native terminal,
+nonce bytes and all diagnostic/capture/cleanup gates remain unchanged.

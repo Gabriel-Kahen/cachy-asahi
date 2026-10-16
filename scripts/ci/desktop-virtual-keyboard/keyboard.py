@@ -123,3 +123,31 @@ def verify_keyboards(keyboards,board=None):
     need(type(board.get('event')) is str and re.fullmatch('event[0-9]{1,6}',board['event']) and
          board.get('node')=='/dev/input/'+board['event'] and type(board.get('major')) is int and board['major']==13 and
          type(board.get('minor')) is int and 0<=board['minor']<2**20,'board input character-device join absent')
+
+
+def verify_startup(proof):
+    """Only anonymous, quiescent surfaces owned by this compositor/XWayland."""
+    need(type(proof) is dict,'startup ownership proof required')
+    compositor=proof.get('compositor');owner=proof.get('owner');rows=proof.get('records')
+    def process(row,executable):
+        need(type(row) is dict and type(row.get('pid')) is int and 0<row['pid']<2**32 and
+             row.get('uid')==[23001]*4 and row.get('executable')==executable and
+             type(row.get('starttime')) is int and row['starttime']>0 and
+             type(row.get('parent_pid')) is int and row['parent_pid']>0,'startup process identity differs')
+    process(compositor,'/usr/bin/Hyprland')
+    need(type(rows) is list and len(rows)<=2 and all(type(r) is dict for r in rows),'bounded startup clients required')
+    if not rows:
+        need(owner is None,'unjoined startup owner');return
+    if owner!=compositor:
+        process(owner,'/usr/bin/Xwayland');need(owner['parent_pid']==compositor['pid'],'foreign XWayland owner')
+    fixed=dict(mapped=False,visible=False,hidden=False,xwayland=True,at=[0,0],size=[0,0],monitor=-1,
+               workspace=dict(id=-1,name=''),focusHistoryID=-1,floating=False,pinned=False,fullscreen=0,
+               fullscreenClient=0,**{'class':'','title':'','initialClass':'','initialTitle':''})
+    addresses=set()
+    for row in rows:
+        need(type(row.get('pid')) is int and row['pid']==owner['pid'] and
+             all(type(row.get(k)) is type(v) and row[k]==v for k,v in fixed.items()),'preexisting application window refused')
+        address=row.get('address')
+        need(type(address) is str and re.fullmatch('0x[0-9a-f]{1,16}',address) and int(address,16)>0 and address not in addresses,
+             'startup surface address duplicate/invalid')
+        addresses.add(address)

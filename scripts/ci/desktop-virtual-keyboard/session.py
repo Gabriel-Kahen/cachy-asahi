@@ -83,6 +83,20 @@ def child(parent,executable):
 
 
 
+
+def startup_clients(rows,compositor_pid):
+    """Join setup surfaces to the owned process before admitting any input."""
+    K.need(type(rows) is list and len(rows)<=2 and all(type(r) is dict for r in rows),'bounded startup client list required')
+    compositor=descendant(compositor_pid,os.getpid(),'/usr/bin/Hyprland')
+    owner=None
+    if rows:
+        pid=rows[0].get('pid')
+        K.need(type(pid) is int and 0<pid<2**32,'startup owner PID required')
+        owner=compositor if pid==compositor_pid else descendant(pid,compositor_pid,'/usr/bin/Xwayland')
+    proof=dict(compositor=compositor,owner=owner,records=rows)
+    K.verify_startup(proof);return proof
+
+
 def failure_files(workspace):
     """Only the three known nonce-workspace leaves; no enumeration or PTY read."""
     rows={}
@@ -178,8 +192,9 @@ def phase(stage,config,env,logs):
         K.need(type(keyboards) is list and all(type(k) is dict for k in keyboards),'typed keyboard rows required')
         board=board_input() if any(k.get('name')=='gpio-keys' for k in keyboards) else None
         K.verify_keyboards(keyboards,board)
-        K.need(clients(initial=True) in (None,[]),'preexisting window refused')
-        base.emit('keyboard_ready',stage=stage,nonce=nonce,kernel_device=device,keyboards=keyboards,board_device=board,monitors=monitors,
+        initial=wait(lambda:clients(initial=True),'initial clients snapshot',90)
+        startup=startup_clients(initial,compositor.process.pid)
+        base.emit('keyboard_ready',stage=stage,nonce=nonce,kernel_device=device,keyboards=keyboards,board_device=board,monitors=monitors,startup_windows=startup,
                   shortcut_policy='SHIPPED_UNCHANGED' if stage=='overlay' else 'DECLARED_MINIMAL_SUPER_RETURN_SUPER_Q',
                   user_configuration_sha256=K.sha(K.encoded(before)),configuration_sha256=K.sha(T.read(config)))
         request('launch')

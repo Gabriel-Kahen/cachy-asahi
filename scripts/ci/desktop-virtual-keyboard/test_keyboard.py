@@ -22,6 +22,19 @@ def board():
         poweroff_linux_code_hex='00000074',key_bitmap='10000000000000 0')
 
 
+
+def setup_surface(pid=90,address='0x1'):
+    return dict(pid=pid,address=address,mapped=False,visible=False,hidden=False,xwayland=True,
+        at=[0,0],size=[0,0],monitor=-1,workspace=dict(id=-1,name=''),focusHistoryID=-1,
+        floating=False,pinned=False,fullscreen=0,fullscreenClient=0,**{'class':'','title':'','initialClass':'','initialTitle':''})
+
+
+def startup_proof(rows=None,child=False):
+    compositor=dict(pid=90,uid=[23001]*4,starttime=1,executable='/usr/bin/Hyprland',parent_pid=70)
+    owner=dict(pid=91,uid=[23001]*4,starttime=2,executable='/usr/bin/Xwayland',parent_pid=90) if child else compositor
+    return dict(compositor=compositor,owner=owner if rows else None,records=rows or [])
+
+
 def events():
     # The accepted managed contract fixture is a modeled lifecycle, not a native run.
     unit=lambda name,sub,pid:dict(Id=name,LoadState='loaded',ActiveState='active',SubState=sub,Result='success',ExecMainStatus=0,MainPID=pid)
@@ -35,7 +48,7 @@ def events():
         terminal=proc(100,'alacritty');shell=proc(101,'bash')|dict(parent_pid=100,pty='/dev/pts/0');editor=proc(102,'vim')|dict(parent_pid=101)
         window=dict(pid=100,**{'class':'Alacritty'},mapped=True,visible=True,hidden=False,xwayland=False,focusHistoryID=0,at=[12,12],size=[1000,740])
         add('keyboard_ready',stage=stage,nonce=nonce,shortcut_policy='SHIPPED_UNCHANGED' if stage=='overlay' else 'DECLARED_MINIMAL_SUPER_RETURN_SUPER_Q',
-            kernel_device=dict(name='QEMU Virtio Keyboard',driver='virtio_input'),keyboards=[dict(name='qemu-virtio-keyboard',layout='us',capsLock=False)],configuration_sha256=json.loads((HERE/'source-pins.json').read_text())['packages/desktop/cachy-asahi-hyprland-settings/hyprland.lua'])
+            startup_windows=startup_proof(),kernel_device=dict(name='QEMU Virtio Keyboard',driver='virtio_input'),keyboards=[dict(name='qemu-virtio-keyboard',layout='us',capsLock=False)],configuration_sha256=json.loads((HERE/'source-pins.json').read_text())['packages/desktop/cachy-asahi-hyprland-settings/hyprland.lua'])
         file=lambda name:dict(name=name,bytes=len(K.expected(nonce)[name]),sha256=K.sha(K.expected(nonce)[name]))
         for step in K.STEPS:
             plan=K.plan(stage,nonce,step);pin=K.sha(K.encoded(plan))
@@ -188,6 +201,33 @@ class KeyboardTests(unittest.TestCase):
         self.assertEqual(run(),board())
         data[device+'/capabilities/key']=b'1'*257
         with self.assertRaisesRegex(ValueError,'byte limit'):run()
+
+
+
+    def test_only_owned_quiescent_xwayland_setup_records_are_admitted(self):
+        for child in (False,True):
+            pid=91 if child else 90
+            for count in (0,1,2):K.verify_startup(startup_proof([setup_surface(pid,'0x'+str(i+1)) for i in range(count)],child))
+        rows=events()
+        for r in rows:
+            if r['event']=='keyboard_ready':r['startup_windows']=startup_proof([setup_surface(90,'0x1'),setup_surface(90,'0x2')])
+        self.assertEqual(C.verify_result(rows)['frames'],6)
+
+    def test_preexisting_or_identified_windows_are_never_setup_exceptions(self):
+        for key,value in (('mapped',True),('visible',True),('xwayland',False),('hidden',True),
+                          ('class','Alacritty'),('title','app'),('initialClass','app'),('initialTitle','app'),
+                          ('at',[1,0]),('size',[1,1]),('monitor',0),('workspace',dict(id=1,name='1')),
+                          ('focusHistoryID',0),('pid',200),('fullscreen',1),('floating',True),('mapped',0)):
+            with self.subTest(key=key),self.assertRaises(ValueError):K.verify_startup(startup_proof([setup_surface()|{key:value}]))
+        with self.assertRaises(ValueError):K.verify_startup(startup_proof([setup_surface(),setup_surface(),setup_surface()]))
+        with self.assertRaises(ValueError):K.verify_startup(startup_proof([setup_surface(),setup_surface()]))
+
+    def test_foreign_setup_process_or_event_tamper_refused(self):
+        for key,value in (('uid',[0]*4),('executable','/usr/bin/alacritty'),('parent_pid',123),('starttime',0)):
+            proof=startup_proof([setup_surface(91)],True);proof['owner'][key]=value
+            with self.subTest(key=key),self.assertRaises(ValueError):K.verify_startup(proof)
+        rows=events();next(r for r in rows if r['event']=='keyboard_ready')['startup_windows']=startup_proof([setup_surface()|dict(visible=True)])
+        with self.assertRaises(ValueError):C.verify_result(rows)
 
 
 if __name__=='__main__':unittest.main()
