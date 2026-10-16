@@ -306,5 +306,79 @@ class Controls(unittest.TestCase):
         self.assertNotIn('ThreadPoolExecutor',Path(job.__file__).read_text())
         self.assertNotIn('audit_tooling.fetch',Path(job.__file__).read_text())
 
+    def producer_graph(self,tagged=True,borrowed_parent=False):
+        token='d'*32;image='sha256:'+'e'*64;borrowed='sha256:'+'f'*64;child='sha256:'+'a'*64
+        tag=job.producer_tag(token)
+        out=self.root/'producer-graph';(out/'native').mkdir(parents=True)
+        (out/'native/image-id').write_text(image)
+        job.save(out/'producer-owner.json',dict(token=token,before_images=[borrowed],tag=tag,tag_absent_before=True))
+        class Graph:
+            def __init__(self):
+                self.calls=[]
+                self.images={borrowed:dict(tags=[],labels={},parent=None),
+                             image:dict(tags=[tag] if tagged else [],labels={job.LABEL:token},parent=borrowed if borrowed_parent else None),
+                             child:dict(tags=['cachy-asahi-private-installed:'+'b'*32],labels={},parent=image)}
+            def remove(self,identity,prune):
+                parent=self.images.pop(identity)['parent']
+                if prune and parent in self.images and not self.images[parent]['tags'] and not any(r['parent']==parent for r in self.images.values()):
+                    self.remove(parent,True)
+            def run(self,argv,**kw):
+                self.calls.append(argv)
+                if argv[:3]==['docker','image','inspect']:
+                    if argv[3] not in self.images:raise subprocess.CalledProcessError(1,argv,stderr='No such image')
+                    row=self.images[argv[3]]
+                    return json.dumps([dict(Id=argv[3],RepoTags=row['tags'],Config=dict(Labels=row['labels']))])
+                if argv[:3]==['docker','image','rm']:
+                    target=argv[-1]
+                    identity=target if target in self.images else next(i for i,r in self.images.items() if target in r['tags'])
+                    self.remove(identity,'--no-prune' not in argv);return ''
+                if argv[:3]==['docker','image','ls']:
+                    if '--filter' in argv:
+                        target=argv[-1].removeprefix('reference=')
+                        return '\n'.join(i for i,r in self.images.items() if target in r['tags'])
+                    return '\n'.join(self.images)
+                raise AssertionError('unexpected actor in inert graph: '+str(argv))
+        return Graph(),out,token,image,borrowed,child
+
+    def test_producer_tag_survives_default_child_retirement_until_explicit_cleanup(self):
+        graph,out,token,image,borrowed,child=self.producer_graph()
+        graph.run(['docker','image','rm',child])
+        self.assertIn(image,graph.images)
+        result=job.cleanup_image(graph,out,token,True)
+        self.assertEqual(result['status'],'PASS');self.assertTrue(result['tag_absence_verified'])
+        self.assertFalse(result['parent_pruning']);self.assertEqual(set(graph.images),{borrowed})
+        self.assertIn(['docker','image','rm','--no-prune',job.producer_tag(token)],graph.calls)
+
+    def test_untagged_ancestor_graph_reproduces_absent_producer_without_converting_it_to_pass(self):
+        graph,out,token,image,borrowed,child=self.producer_graph(tagged=False)
+        graph.run(['docker','image','rm',child]);self.assertNotIn(image,graph.images)
+        with self.assertRaises(subprocess.CalledProcessError):job.cleanup_image(graph,out,token,True)
+        self.assertIn(borrowed,graph.images)
+
+    def test_final_producer_removal_never_prunes_a_borrowed_untagged_ancestor(self):
+        graph,out,token,image,borrowed,child=self.producer_graph(borrowed_parent=True)
+        graph.run(['docker','image','rm',child]);result=job.cleanup_image(graph,out,token,True)
+        self.assertTrue(result['borrowed_images_preserved']);self.assertEqual(set(graph.images),{borrowed})
+
+    def test_cleanup_refuses_unsafe_or_foreign_tag_image_and_label_before_removal(self):
+        graph,out,token,image,borrowed,child=self.producer_graph();original=job.read(out/'producer-owner.json')
+        for variant in ('unsafe','foreign-tag','not-fresh','borrowed-image','foreign-label','extra-tag'):
+            with self.subTest(variant=variant):
+                ledger=copy.deepcopy(original);graph.images[image]['labels']={job.LABEL:token};graph.images[image]['tags']=[job.producer_tag(token)]
+                if variant=='foreign-tag':ledger['tag']='cachy-asahi-full26-producer:'+'c'*32
+                elif variant=='not-fresh':ledger['tag_absent_before']=False
+                elif variant=='borrowed-image':ledger['before_images'].append(image)
+                elif variant=='foreign-label':graph.images[image]['labels']={job.LABEL:'c'*32}
+                elif variant=='extra-tag':graph.images[image]['tags'].append('borrowed:keep')
+                job.save(out/'producer-owner.json',ledger)
+                with self.assertRaises(ValueError):job.cleanup_image(graph,out,token,variant!='unsafe')
+                self.assertIn(image,graph.images)
+        self.assertFalse(any(argv[:3]==['docker','image','rm'] for argv in graph.calls))
+
+    def test_producer_lease_tag_requires_exact_run_token(self):
+        self.assertEqual(job.producer_tag('a'*32),'cachy-asahi-full26-producer:'+'a'*32)
+        for token in ('','a'*31,'A'*32,'../foreign','a'*32+':foreign'):
+            with self.subTest(token=token),self.assertRaises(ValueError):job.producer_tag(token)
+
 
 if __name__=='__main__':unittest.main()
