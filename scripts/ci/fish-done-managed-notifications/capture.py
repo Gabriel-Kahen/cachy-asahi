@@ -23,7 +23,7 @@ def capture_frame(event, qmp, fixture, frames, report, decode):
         raise ValueError('fresh capture paths required')
     started = time.monotonic();started_ns=time.monotonic_ns();started_us=time.time_ns()//1000
     import observation
-    timing=event['timing'];observation.need(timing==observation.capture_timing(event['wire'],timing['request_realtime_us'],timing['request_monotonic_ns']),'original request Notify timing differs')
+    timing=event['timing'];observation.need(timing==observation.capture_timing_facts(event['wire'],timing['request_realtime_us'],timing['request_monotonic_ns']),'original request Notify timing differs')
     qmp.execute('screendump', {'filename': '/out/' + stage + '.ppm'})
     qmp_us=time.time_ns()//1000
     if source.is_symlink() or not source.is_file() or source.stat().st_size > 8 * 1024**2:
@@ -31,18 +31,35 @@ def capture_frame(event, qmp, fixture, frames, report, decode):
     # Keep even a decoder-rejected first image for bounded failure evidence.
     shutil.copyfile(source, target)
     frame = decode(target)
-    presence=notification_pixels(target,event['mako'])
     elapsed = int((time.monotonic() - started) * 1000)
     if elapsed < 0 or elapsed > 5000:
         raise ValueError('first QMP capture exceeded five-second observation budget')
     observer = dict(event='frame_captured', stage=stage, request_sha256=request_digest(event),
                     first_capture=True, capture_ms=elapsed, sha256=frame['sha256'],
                     managed_identity=event['managed_identity'], visual_review='NOT_RUN',
-                    notification_pixels=presence,host_started_realtime_us=started_us,host_qmp_returned_realtime_us=qmp_us,
+                    host_started_realtime_us=started_us,host_qmp_returned_realtime_us=qmp_us,
                     host_finished_realtime_us=time.time_ns()//1000,host_started_monotonic_ns=started_ns)
     report['frames'][stage] = dict(frame, observer=observer)
     report['events'].append(observer)
-    verify_pixel_receipt(presence,event['mako'],frame['sha256'])
+    # Always retain the first original frame before rejecting a late request.
+    observation.capture_timing(event['wire'],timing['request_realtime_us'],timing['request_monotonic_ns'])
+
+
+def finalize_capture(event,frames,report):
+    """Join post-request live geometry to the unchanged first image, never recapture."""
+    stage=event['stage']
+    requests=[r for r in report['events'] if r.get('event')=='frame_ready' and r.get('stage')==stage]
+    if len(requests)!=1 or stage not in report['frames']:raise ValueError('one original request/frame before visibility required')
+    request=requests[0];frame=report['frames'][stage];observer=frame['observer']
+    if 'notification_pixels' in observer:raise ValueError('one visibility finalization per original frame')
+    visibility=event.get('visibility')
+    if not isinstance(visibility,dict) or visibility.get('request_sha256')!=request_digest(request) or event.get('capture_request_sha256')!=request_digest(request) or observer['request_sha256']!=request_digest(request) or event.get('wire')!=request['wire']:
+        raise ValueError('late visibility/original request join differs')
+    presence=notification_pixels(Path(frames)/(stage+'.ppm'),visibility['mako'])
+    elapsed=(time.monotonic_ns()-observer['host_started_monotonic_ns'])//1_000_000
+    observer.update(notification_pixels=presence,visibility_sha256=request_digest(visibility),capture_ms=elapsed,pixels_finished_realtime_us=time.time_ns()//1000)
+    if elapsed<0 or elapsed>5000:raise ValueError('first QMP capture/visibility exceeded five-second observation budget')
+    verify_pixel_receipt(presence,visibility['mako'],frame['sha256'])
 
 
 # Shipped mako.conf is source-pinned. This detects presence, not readable text.

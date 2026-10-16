@@ -119,15 +119,10 @@ def phase(stage,config,env,logs,**options):
         while wire is None:
             healthy();wire=O.notify(observer.rows(),owner,outcome,kind)
             O.need(time.monotonic()<deadline,'real Done delivery deadline')
-        def visible():
-            row=O.listing(notices(),wire)
-            display=layers();a=B.owned_layer(display,'waybar',bar.process.pid);b=B.owned_layer(display,B.MAKO_NAMESPACE,mako.process.pid)
-            return dict(bar=a,mako=b,notification=row) if row and a and b else None
-        current=B.wait_ready(visible,healthy,2,'Done natural-expiry visible notification')
-        # Request the one original frame before terminal/manager queries consume
-        # the notice's fixed lifetime. Age includes real Notify -> reply latency.
-        timing=O.capture_timing(wire,time.time_ns()//1000,time.monotonic_ns())
-        request=dict(stage=stage,case=case,outcome=outcome,monitors=monitors,**current,
+        # Request immediately after real Notify/reply. Fresh visibility queries
+        # follow emission; no host-capture acknowledgement is invented.
+        timing=O.capture_timing_facts(wire,time.time_ns()//1000,time.monotonic_ns())
+        request=dict(stage=stage,case=case,outcome=outcome,monitors=monitors,
             capture_after_ms=int((time.monotonic()-settled)*1000),notification_age_ms=timing['age_ms'],
             timing=timing,caller_pending=True,
             waybar_pid=bar.process.pid,mako_pid=mako.process.pid,compositor_pid=compositor.process.pid,
@@ -137,6 +132,13 @@ def phase(stage,config,env,logs,**options):
         base.emit('frame_ready',**request)
         request_sha=hashlib.sha256(json.dumps(dict(event='frame_ready',**request),sort_keys=True,separators=(',',':')).encode()).hexdigest()
         # This is after request emission, not a claimed host-capture ACK.
+        def visible():
+            row=O.listing(notices(),wire)
+            display=layers();a=B.owned_layer(display,'waybar',bar.process.pid);b=B.owned_layer(display,B.MAKO_NAMESPACE,mako.process.pid)
+            return dict(bar=a,mako=b,notification=row) if row and a and b else None
+        current=B.wait_ready(visible,healthy,2,'Done natural-expiry visible notification')
+        visibility=dict(current,request_sha256=request_sha,realtime_us=time.time_ns()//1000,monotonic_ns=time.monotonic_ns())
+        base.emit('frame_visibility',stage=stage,case=case,wire=wire,visibility=visibility,capture_request_sha256=request_sha,managed_identity=managed_identity)
         continuation=terminal.continuation(outcome)
         O.need(owner_pid()==mako.process.pid,'recipient owner changed')
         post_identity=identity();O.need(post_identity==managed_identity,'managed endpoint changed')
@@ -178,5 +180,5 @@ def phase(stage,config,env,logs,**options):
         except BaseException as error:
             if first is None:first=error
     if first is not None:raise first
-    base.emit('done_transport',stage=stage,case=case,wire=wire,monitor=monitor_result,fish=fish_result,caller=continuation,capture_request_sha256=request_sha,post_request_identity=post_identity,mako_exit=mako.process.returncode,payload_preserved=True,user_config_preserved=True)
+    base.emit('done_transport',stage=stage,case=case,wire=wire,monitor=monitor_result,fish=fish_result,caller=continuation,visibility=visibility,capture_request_sha256=request_sha,post_request_identity=post_identity,mako_exit=mako.process.returncode,payload_preserved=True,user_config_preserved=True)
     base.emit('phase_pass',stage=stage,waybar='PASS',mako='PASS',fish='PASS',case=case,config_preserved=True)

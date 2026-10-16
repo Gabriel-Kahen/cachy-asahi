@@ -44,6 +44,10 @@ def prepare(source,modules,output):
     runtime=replace(runtime,'cachy_asahi_bar_notifications=1','cachy_asahi_bar_notifications=1 cachy_asahi_done_managed=1')
     runtime=replace(runtime,"stage in ('minimal', 'overlay') and stage not", "stage in ('minimal', 'overlay', 'background') and stage not")
     runtime=replace(runtime,"phases == {'minimal', 'overlay'}", "phases == {'minimal', 'overlay', 'background'}")
+    runtime=replace(runtime,'from capture import capture_frame','from capture import capture_frame,finalize_capture')
+    runtime=replace(runtime,"                if event.get('event') == 'phase_pass':",
+        "                if event.get('event') == 'frame_visibility': finalize_capture(event,frames,report)\n"
+        "                if event.get('event') == 'phase_pass':")
     (output/'desktop574_runtime.py').write_text(runtime)
     return output
 
