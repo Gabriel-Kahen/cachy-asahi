@@ -154,6 +154,7 @@ def transaction(root, keys, work, factory=install.Alpm):
 
 def apply(args, *, adapter=None):
     runtime = adapter if adapter is not None else install
+    resolve_nodes = getattr(runtime, 'resolve_nodes', install.resolve_nodes)
     result = {'status': 'FAIL', 'phase': 'configuration', 'commit_started': False, 'packages_committed': False,
               'checkpoint_changed': False, 'scope': 'scaled-disposable-root' if adapter is not None else 'tiny-disposable-generic-root',
               'target_safety': 'NOT ESTABLISHED'}
@@ -190,13 +191,13 @@ def apply(args, *, adapter=None):
                         preserved = {path: runtime.node(root / path) for path in alpm.owned_files(protected)}
                         before_files = files(alpm, policy)
                         old_paths = alpm.owned_files(set(desired) & set(before))
-                        protected_paths = set(preserved) | {install.resolve_nodes(seed, path) for path in preserved}
+                        protected_paths = set(preserved) | {resolve_nodes(seed, path) for path in preserved}
                         old_payload = {path: runtime.node(root / path) for path in old_paths}
                         need(all(target not in protected_paths or node['type'] == 'directory' and seed.get(target) == node
                                  for path, node in old_payload.items()
-                                 for target in {path, install.resolve_nodes(seed, path)}), 'selected package removes actual protected ownership')
+                                 for target in {path, resolve_nodes(seed, path)}), 'selected package removes actual protected ownership')
                         protected_payload(old_payload, policy, seed)
-                        protected_payload({install.resolve_nodes(seed, path): value
+                        protected_payload({resolve_nodes(seed, path): value
                                            for path, value in old_payload.items()}, policy, seed)
                         compare = alpm.lib.alpm_pkg_vercmp
                         compare.restype, compare.argtypes = C.c_int, [C.c_char_p, C.c_char_p]
@@ -229,11 +230,11 @@ def apply(args, *, adapter=None):
                             alpm.ok(alpm.alpm_add_pkg(alpm.handle, package), 'add authenticated package')
                             added[row['name']] = row['version']
                         projected = runtime.projected_paths(seed, payload)
-                        protected_payload({install.resolve_nodes(projected, path): value
+                        protected_payload({resolve_nodes(projected, path): value
                                            for path, value in payload.items()}, policy, seed)
                         need(all(target not in protected_paths or node['type'] == 'directory' and seed.get(target) == node
                                  for path, node in payload.items()
-                                 for target in {path, install.resolve_nodes(projected, path)}), 'selected package writes actual protected ownership')
+                                 for target in {path, resolve_nodes(projected, path)}), 'selected package writes actual protected ownership')
                         if adapter is None:
                             need(shutil.disk_usage(workspace).free >= sum(row.get('bytes', 0) for row in projected.values())
                                  + 8 * 1024**2, 'insufficient disposable transaction capacity')
