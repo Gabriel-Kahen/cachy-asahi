@@ -48,6 +48,25 @@ def other599(before_db,before_records,after_db,after_records):
         'other599 ALPM records changed')
 
 
+SETUP5_ADDED=frozenset({'usr/bin/cachy-asahi-repository',
+                        'usr/share/doc/cachy-asahi-setup/repository-enrollment.md'})
+
+
+def payload_transition(full,product):
+    paths={p for p in full['ownership'][P.SETUP] if full['nodes'][p]['type']!='directory'}
+    P.need(len(paths)==4 and not paths&SETUP5_ADDED and
+        set(product['payload'])==paths|SETUP5_ADDED,
+        'exact four Setup3 paths plus two accepted Setup5 additions required')
+    P.need(not SETUP5_ADDED&set(full['nodes']),
+        'Setup5 added paths collide with signed full600 payload')
+    return paths,SETUP5_ADDED
+
+
+def added_absent(paths,phase):
+    P.need(all(L.node(Path('/')/p)==dict(type='absent') for p in paths),
+        'Setup5 added payload must be absent '+phase)
+
+
 def ordinary_absent(uid):
     entries=list(Path('/proc').iterdir());P.need(len(entries)<512,'bounded owned process namespace required')
     for path in entries:
@@ -80,8 +99,8 @@ def trial(context):
     rollback=Path('/original')/old['archive']
     full=P.read(Path('/plan/full600-payload.json'),64*1024**2)
     P.need(full['packages']==after,'exact signed complete600 payload map required')
-    setup_paths=set(full['ownership'][P.SETUP]);setup_paths={p for p in setup_paths if full['nodes'][p]['type']!='directory'}
-    P.need(set(product['payload'])==setup_paths,'Setup5 trial must use the same six owned Setup3 paths')
+    setup_paths,added_paths=payload_transition(full,product)
+    added_absent(added_paths,'before upgrade')
     before_db,before_records=L.database();P.need({n:r['version'] for n,r in before_db.items()}==after,'real600 database required')
     held={p:L.node(Path('/')/p) for n,paths in full['ownership'].items() if n!=P.SETUP for p in paths
           if full['nodes'][p]['type']!='directory'}
@@ -102,6 +121,7 @@ def trial(context):
         selected=product if version=='0.1.0-5' else dict(name=P.SETUP,version='0.1.0-3',
             payload={p:full['nodes'][p] for p in setup_paths})
         L.check_incoming([selected],desired,db)
+        if version=='0.1.0-3':added_absent(added_paths,'after Setup3 rollback')
         L.run(pacman+['-Dk']);L.run(pacman+['-T',*sorted({d for r in db.values() for d in r['depend']})])
         if user_state is not None:P.need(workspace()==user_state,'complete generated/edited user workspace changed')
         context['ld_checkpoint'](phase)
