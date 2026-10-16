@@ -1,5 +1,17 @@
 # Isolated official GNU libc candidate
 
+## GNU suite passes; exact bootstrap ABI gate fails38906503054
+
+[Actual38906503054](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38906503054) completes the first native package build and passes both GNU `check` and `check-abi` with exit0. The retained collector records6938 PASS,13 expected XFAIL,107 named UNSUPPORTED, and zero FAIL/XPASS/ERROR/malformed results. GNU's built-library tests execute; the separate project candidate-header/runtime smoke remains gated. No source test/assertion was removed to obtain this result.
+
+The first `2.43.caa1-2` archive is19439480 bytes/SHA256 `237e55634d72012175ac2610dfdd9538725581764a27d2a5934994a5669a0922`. The stricter independent bootstrap comparison then fails exactly five libc exports: memchr, memcpy, memmove, memset and strlen at GLIBC_2.17. Candidate symbols are IFUNC/GLOBAL versus baseline FUNC; memchr and strlen also differ from baseline WEAK binding. Public names/version/counts remain2777. The other ten libraries' declared public symbol sets match. The native result remains FAIL; second build, pair comparison and project candidate-header/runtime acceptance are NOT RUN.
+
+The worker's passive ELF/source inspection confirms the multiarch implementation selection behind these differences. A baseline-compatible generic build correction is in progress, with exact type/binding/object-size checks retained. Neither changing expected ABI records nor a blanket FUNC/IFUNC waiver is accepted. The existing short private locale layout, mount-header patch, strict GNU suite and source/trust limitations stay in force.
+
+Runtime cleanup retires the three created consumers; the independent ordered check confirms all five exact consumer names absent before owned producer image/probe retirement. Ordered cleanup and source preservation pass. The export step reports incomplete native result, not failed producer cleanup.
+
+Logs:97413 bytes/SHA256 `d08942be390a6339ad04908dd03b9f9d9c3e506e5cb46672b2af2644c772d9c8`. Artifact12050487244:66599951 compressed bytes/SHA256 `5973d0344acb208ac7ab8ed0c74cd610f21d9583e28119f3af0442fe028c599e`. All55 closed files/66580264 raw bytes join hashes/sizes; hidden metadata is included in this GNU upload. The complete original source, declared patches and first package are retained. This establishes a built package and GNU-suite progress, not full compatibility, corresponding-source reconstruction, production admission or M2/performance acceptance.
+
 ## Corrected candidate2 native retry38906503054
 
 Commit `250a49a51f3f3065ba22ccaee837f3032f15ac8d` implements candidate `2.43.caa1-2`. Its versioned private prefix is `/opt/caa/g243a1`; gettext catalogs are `/opt/caa/g243a1/l`,17 ASCII bytes plus NUL. This preserves the exact18-byte `_nl_default_dirname` ABI object without changing GNU abilists, mapping catalogs to the base, or adding external aliases. Compiled C.utf8 and all other candidate files stay within that prefix. Both GNU and independent static ABI gates remain strict.
