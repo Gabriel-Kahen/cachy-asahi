@@ -400,11 +400,16 @@ class Audio(unittest.TestCase):
             run=Mock(side_effect=command), pin=Mock(side_effect=ValueError('signature drift') if signature_failure else None),
             archive_metadata=lambda row, source: row['metadata'])
         helper = SimpleNamespace(payloads=Mock(side_effect=lambda *args: events.append(('payload', len(state)))))
+        def checkpoint(*args, auxiliary, **kwargs):
+            auxiliary.setdefault('transitions', []).append({'checkpoint': args[3], 'kind': 'INERT_FIXTURE'})
+            return ld_fixture()
         with patch.object(audio, 'database', return_value={}), patch.object(audio.Path, 'exists', return_value=False), \
-                patch.object(audio, 'ld_checkpoint', return_value=ld_fixture()) as checkpoints:
+                patch.object(audio, 'ld_checkpoint', side_effect=checkpoint) as checkpoints:
             result = audio.run(['pacman', '--config', '/inert/private.conf'], plan, self.before, self.root, self.root, c, helper)
         if result['status'] == 'PASS':
             self.assertEqual([call.args[3] for call in checkpoints.call_args_list], ['B0-587', 'B1-593', 'B2-592', 'B3-587'])
+            self.assertEqual(len({id(call.kwargs['auxiliary']) for call in checkpoints.call_args_list}), 1)
+            self.assertEqual(len(result['ldconfig_state']['auxiliary_transitions']), 4)
         return result, events, c
 
     def test_signed_install_dependency_aware_removal_restores_original587(self):
