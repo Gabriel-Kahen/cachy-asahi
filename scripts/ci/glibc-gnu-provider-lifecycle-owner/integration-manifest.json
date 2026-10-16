@@ -1,0 +1,158 @@
+{
+  "files": {
+    "scripts/ci/full-root-upgrade/root_upgrade.py": {
+      "bytes": 23555,
+      "sha256": "fe1232ae6b510021910b4fb80016ac3b4668c6e4386cdae45e7b95196e400756"
+    },
+    "scripts/ci/glibc-gnu-provider-lifecycle-owner/README.md": {
+      "bytes": 4031,
+      "sha256": "cccfa63f1ae16e3c36468bea0bc61cca3c304dd8280c9f2d4cfbcccd3738ca05"
+    },
+    "scripts/ci/glibc-gnu-provider-lifecycle-owner/job.py": {
+      "bytes": 28310,
+      "sha256": "0bfc259b171b00348398fa631819c86f80bb650792636b2e1b59b64cc3e0a04e"
+    },
+    "scripts/ci/glibc-gnu-provider-lifecycle-owner/packet-interface.json": {
+      "bytes": 1951,
+      "sha256": "d919225a1afb25f89ae694bde724a3615615aa2db27640bb968b74d73a4853ab"
+    },
+    "scripts/ci/glibc-gnu-provider-lifecycle-owner/policy.json": {
+      "bytes": 519,
+      "sha256": "835fcbe526bd57ef51b7c714664f8b4567643cca3f56b9f7ebdd956c941f1b3c"
+    },
+    "scripts/ci/glibc-gnu-provider-lifecycle-owner/snapshot.py": {
+      "bytes": 9397,
+      "sha256": "9738acb125ce6d468d5359ecfbd5540454826567fd4ac4481576ec31da37190c"
+    },
+    "scripts/ci/glibc-gnu-provider-lifecycle-owner/test_owner.py": {
+      "bytes": 10541,
+      "sha256": "ad7453d00dd12e047e3d794ca83a58fe38fe0e64b02e8d02868b8383da0655c8"
+    },
+    "scripts/ci/glibc-gnu-provider-lifecycle/README.md": {
+      "bytes": 3078,
+      "sha256": "5c36a7b86f9351c32060c68719d321f7116345fd20e41cf6c9587ab468807d49"
+    },
+    "scripts/ci/glibc-gnu-provider-lifecycle/common.py": {
+      "bytes": 9925,
+      "sha256": "5af002505349f62643759898defe66f24655f4a29329f8ab48a0df9213f589e4"
+    },
+    "scripts/ci/glibc-gnu-provider-lifecycle/container.py": {
+      "bytes": 23328,
+      "sha256": "163e73312df30f78fc111e31dcbfb58ac8d6a3563d214eeca661687160f7fe8d"
+    },
+    "scripts/ci/glibc-gnu-provider-lifecycle/dependencies.json": {
+      "bytes": 2685,
+      "sha256": "d8e87ce4e5ee499d422483a048954e0f06f05d7ca2c4b093064fb8cb41320b05"
+    },
+    "scripts/ci/glibc-gnu-provider-lifecycle/input-interface.json": {
+      "bytes": 2077,
+      "sha256": "979b2c5828f65e4d874b8f3035a169b03e2c667b52249ed8f8f8957566db697d"
+    },
+    "scripts/ci/glibc-gnu-provider-lifecycle/input-policy.json": {
+      "bytes": 436,
+      "sha256": "d777931e61834ab8accd6a80a2b00368080703fa050e8e20a206e959514ebd6b"
+    },
+    "scripts/ci/glibc-gnu-provider-lifecycle/normal-exec-change.json": {
+      "bytes": 839,
+      "sha256": "9d3769704396a33acc0c144cc1519d10230a5fb07d2f7b135dcfd0ba1ab6a68b"
+    },
+    "scripts/ci/glibc-gnu-provider-lifecycle/run.py": {
+      "bytes": 7901,
+      "sha256": "074282e3a163000dfff5b2379a1eba76a28ae9e9419972e60ab659ae2b69cfb2"
+    },
+    "scripts/ci/glibc-gnu-provider-lifecycle/scrub.py": {
+      "bytes": 846,
+      "sha256": "bfac8896427c5fdcdd172a94af925dc5771452e150b44f27f4e16c498c548359"
+    },
+    "scripts/ci/glibc-gnu-provider-lifecycle/smoke-normal.c": {
+      "bytes": 12437,
+      "sha256": "a766bc7cd31cce18fe7e564432de4e4b63db49763608ae70ef8fab61cd29116c"
+    },
+    "scripts/ci/glibc-gnu-provider-lifecycle/source-manifest.json": {
+      "bytes": 1524,
+      "sha256": "2e5abcbc7e8bdda772da24fb594512dd19eb8bd8035af8c9ca51c3bc07569252"
+    },
+    "scripts/ci/glibc-gnu-provider-lifecycle/test_controls.py": {
+      "bytes": 9932,
+      "sha256": "8061adcbb667423ca71b4c81e21a32519be4fb1bcef1c650db225207b7b63f05"
+    },
+    "scripts/ci/glibc-owned-runtime/exec_child.c": {
+      "bytes": 913,
+      "sha256": "0a2b48762f8f7ec6d942ca9fb4af4f04a50fd93d2d7dff42407adfea13b1e4cc"
+    },
+    "scripts/ci/glibc-owned-runtime/plugin.c": {
+      "bytes": 320,
+      "sha256": "d0ce5506b261b5b4582aa35651b68afbf6257e8f4a990155dcac9d4e4596b654"
+    },
+    "scripts/ci/glibc-owned-runtime/probe.c": {
+      "bytes": 5974,
+      "sha256": "8bc857277840264c29845764b6c4d34e40c3d1dcdb91592acbb31ae5dfeb80b6"
+    },
+    "scripts/ci/glibc-owned-runtime/probe.h": {
+      "bytes": 270,
+      "sha256": "3806c2a05e640b8860a2c81e4eba55ae8bf416fcb84637e93a7b3d9b71476724"
+    },
+    "scripts/ci/glibc-owned-runtime/runner.py": {
+      "bytes": 16274,
+      "sha256": "4d9aa954d95032ab9ea9085ced784efc81a5db42e2f1f3401e679ee861c16090"
+    },
+    "scripts/ci/maintained-desktop574-inputs.json": {
+      "bytes": 623664,
+      "sha256": "b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9"
+    },
+    "scripts/ci/maintained_desktop574.py": {
+      "bytes": 22367,
+      "sha256": "27ba4be42cf2bd41675073e07cccc917ae033f9d68b07a33cfd7f074ac27b760"
+    },
+    "scripts/ci/old_four_seed.py": {
+      "bytes": 29048,
+      "sha256": "a14e0318549d24a9bc91ceeb03ec2c1fa2d12f2b3a4f9b0a4cccfb64be34b2b7"
+    },
+    "scripts/install/local_transaction.py": {
+      "bytes": 93752,
+      "sha256": "14381d049506b52770059bf7af415f7a079f69872543e74417aca11ce24ac3c5"
+    },
+    "scripts/install/native_arm_trial.py": {
+      "bytes": 74929,
+      "sha256": "fe2becb4fe6c22e50903ab390db5a79aae311b7284fc71bf4b1c4b79e99824c4"
+    },
+    "scripts/update/aux_checkpoint.py": {
+      "bytes": 18456,
+      "sha256": "d51179ca24c981bafd817d7db082c0ceb3b2f5deb922004bfe97d1e2007edda7"
+    },
+    "scripts/update/aux_copy.py": {
+      "bytes": 3736,
+      "sha256": "bff93c029e21f9fce0868c80566396984443c8d3438264fac8a91c985175f05b"
+    },
+    "scripts/update/capacity.py": {
+      "bytes": 1449,
+      "sha256": "dcb9899cd24daa21f75e6da6b0214393f093d140a70769092da091e0cfdf7c87"
+    },
+    "scripts/update/disposable_copy.py": {
+      "bytes": 6098,
+      "sha256": "fb05d12a0d67a598cc940e0bc7edb5aa9ffc8cf87ce7b9f695ba5fbd26747667"
+    },
+    "scripts/update/full_root.py": {
+      "bytes": 35970,
+      "sha256": "cece1c597b2e2eb98b0e3087cc7e7c148b54332f8a1c4f18e04e4552a71fb51d"
+    },
+    "scripts/update/measure_copy.py": {
+      "bytes": 25734,
+      "sha256": "e582245bd114b0b9d83f2de4fdc81a35d2f48493ba6147879871af794476813b"
+    },
+    "scripts/update/root_link_selection.py": {
+      "bytes": 25684,
+      "sha256": "4b47223e9c66874193c2b38a620aa892871e93e556178c478dac1929d2540db9"
+    },
+    "scripts/update/root_path.py": {
+      "bytes": 3435,
+      "sha256": "2efcbc1057e117a406488f05a3e0213751b00ab09f845a7830a71a4cf60fd2b4"
+    },
+    "scripts/update/supervision.py": {
+      "bytes": 3293,
+      "sha256": "f18bcbd2a6279cff8fe6c7e9c9f80fc01c9818844b01df8c4e97b83d61704b10"
+    }
+  },
+  "schema_version": 1,
+  "scope": "OWNED574_STOPPED_EXPORT_AND_CONVENTIONAL_PROVIDER_LIFECYCLE_ONLY"
+}
