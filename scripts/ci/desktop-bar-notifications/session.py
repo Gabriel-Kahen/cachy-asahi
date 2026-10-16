@@ -113,6 +113,36 @@ def clean_stop(logged, sig):
     need(logged.process.returncode == 0, 'client did not exit cleanly')
 
 
+SESSION_ENV=('WAYLAND_DISPLAY','HYPRLAND_INSTANCE_SIGNATURE','XDG_SESSION_TYPE','XDG_CURRENT_DESKTOP')
+
+
+def environment_values(selected):
+    values={name:selected.get(name) for name in SESSION_ENV}
+    need(all(type(v) is str for v in values.values()) and
+         re.fullmatch(r'wayland-[0-9]{1,5}',values['WAYLAND_DISPLAY']) and
+         re.fullmatch(r'[A-Za-z0-9_.-]{1,256}',values['HYPRLAND_INSTANCE_SIGNATURE']) and
+         values['XDG_SESSION_TYPE']=='wayland' and values['XDG_CURRENT_DESKTOP']=='Hyprland',
+         'explicit owned Wayland activation environment required')
+    return values
+
+
+def activate_environment(command,dbus,selected,manager_pid):
+    values=environment_values(selected)
+    command(['/usr/bin/systemctl','--user','set-environment',*[k+'='+v for k,v in values.items()]],'activation-set',timeout=5)
+    reply=dbus('org.freedesktop.DBus','/org/freedesktop/DBus','org.freedesktop.DBus',
+        'UpdateActivationEnvironment','a{ss}',str(len(values)),*[x for pair in values.items() for x in pair])
+    need(reply.strip()=='','D-Bus activation update reply differs')
+    raw=command(['/usr/bin/systemctl','--user','show-environment'],'activation-read',timeout=5)
+    found={}
+    for line in raw.splitlines():
+        name,separator,value=line.partition('=')
+        if name in values:
+            need(separator and name not in found,'duplicate activation environment value')
+            found[name]=value
+    need(found==values,'managed activation environment differs')
+    return dict(values=values,manager_pid=manager_pid,systemd_verified=True,dbus_updated=True)
+
+
 def phase(stage, config, env, logs):
     compositor = bar = mako = None
     first = None
@@ -160,7 +190,9 @@ def phase(stage, config, env, logs):
              and monitors[0].get('scale') == 1, 'fixed generic smoke monitor required')
         sockets = [p for p in base.RUNTIME.glob('wayland-*') if p.is_socket()]
         need(len(sockets) == 1, 'one owned Wayland socket required')
-        selected['WAYLAND_DISPLAY'] = sockets[0].name
+        selected.update(WAYLAND_DISPLAY=sockets[0].name,XDG_SESSION_TYPE='wayland',XDG_CURRENT_DESKTOP='Hyprland')
+        activation=activate_environment(command,dbus,selected,identity['manager_pid'])
+        need(managed_identity()==identity,'managed identity changed during activation update')
         need(not any(r.get('namespace') in ('waybar', MAKO_NAMESPACE) for r in layer_rows(layers())),
              'preexisting bar/notification layer')
         has_owner = lambda: dbus('org.freedesktop.DBus', '/org/freedesktop/DBus',
@@ -205,7 +237,7 @@ def phase(stage, config, env, logs):
                   capture_after_ms=int((time.monotonic() - start) * 1000),
                   waybar_pid=bar.process.pid, mako_pid=mako.process.pid,
                   compositor_pid=compositor.process.pid, managed_identity=identity,
-                  activation='normal-shipped-config-no-reload', notification_timeout_ms=0)
+                  activation='normal-shipped-config-no-reload', notification_timeout_ms=0,activation_environment=activation)
         after = time.monotonic() + 8
         while time.monotonic() < after:
             healthy()

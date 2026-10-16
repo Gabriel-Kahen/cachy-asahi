@@ -32,7 +32,7 @@ class Completion(unittest.TestCase):
         self.assertTrue(all(e['visual_review']=='NOT_RUN' for e in events() if e['event']=='frame_captured'))
 
     def test_no_private_bus_reload_or_metadata_only_acceptance(self):
-        for mutation in ('private','reload','owner','missing','late','digest','visual','expiry','order'):
+        for mutation in ('private','reload','owner','missing','late','digest','visual','expiry','order','activation-environment'):
             data=events();request=next(e for e in data if e['event']=='frame_ready');observed=next(e for e in data if e['event']=='frame_captured')
             if mutation=='private':request['managed_identity']['address']='unix:path=/tmp/private'
             elif mutation=='reload':request['activation']='reload-assisted'
@@ -42,6 +42,7 @@ class Completion(unittest.TestCase):
             elif mutation=='digest':observed['request_sha256']='0'*64
             elif mutation=='visual':observed['visual_review']='PASS'
             elif mutation=='expiry':request['notification_timeout_ms']=5000
+            elif mutation=='activation-environment':request['activation_environment']['systemd_verified']=False
             else:data.remove(observed);data.append(observed)
             with self.subTest(mutation=mutation),self.assertRaises(ValueError):contract.verify_result(data)
 
