@@ -1,0 +1,128 @@
+name: maintained-desktop574
+on:
+  workflow_dispatch:
+  push:
+    paths: ['.github/workflows/maintained-desktop574.yml']
+permissions:
+  contents: read
+concurrency:
+  group: native-arm-build
+  cancel-in-progress: false
+jobs:
+  native:
+    if: github.repository == 'Gabriel-Kahen/cachy-asahi'
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 80
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Focused hosted entry tests
+        run: python3 -I -B scripts/ci/test_maintained_desktop574.py
+      - name: Seed the six exact retained inputs using existing secrets only
+        timeout-minutes: 2
+        env:
+          CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01 }}
+          CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02 }}
+          CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01 }}
+          CACHY_OLD_FOUR_SCHEMA: '1'
+          CACHY_OLD_FOUR_SOURCE_EPOCH: '1791748800'
+          CACHY_OLD_FOUR_JBIGKIT_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_01 }}
+          CACHY_OLD_FOUR_JBIGKIT_02: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_02 }}
+          CACHY_OLD_FOUR_JBIGKIT_SIG_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_SIG_01 }}
+          CACHY_OLD_FOUR_LIBTIFF_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_01 }}
+          CACHY_OLD_FOUR_LIBTIFF_02: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_02 }}
+          CACHY_OLD_FOUR_LIBTIFF_03: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_03 }}
+          CACHY_OLD_FOUR_LIBTIFF_04: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_04 }}
+          CACHY_OLD_FOUR_LIBTIFF_05: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_05 }}
+          CACHY_OLD_FOUR_LIBTIFF_06: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_06 }}
+          CACHY_OLD_FOUR_LIBTIFF_07: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_07 }}
+          CACHY_OLD_FOUR_LIBTIFF_08: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_08 }}
+          CACHY_OLD_FOUR_LIBTIFF_09: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_09 }}
+          CACHY_OLD_FOUR_LIBTIFF_10: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_10 }}
+          CACHY_OLD_FOUR_LIBTIFF_11: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_11 }}
+          CACHY_OLD_FOUR_LIBTIFF_12: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_12 }}
+          CACHY_OLD_FOUR_LIBTIFF_13: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_13 }}
+          CACHY_OLD_FOUR_LIBTIFF_14: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_14 }}
+          CACHY_OLD_FOUR_LIBTIFF_15: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_15 }}
+          CACHY_OLD_FOUR_LIBTIFF_SIG_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_SIG_01 }}
+        run: >-
+          python3 -I -B scripts/ci/maintained_desktop574.py seed
+          --inputs scripts/ci/maintained-desktop574-inputs.json
+          --output "$RUNNER_TEMP/desktop574"
+      - name: Checkout exact retained public input source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # existing pinned checkout
+        with:
+          ref: 04a4a74e16e1e1bc939ea74791bf1f1bf7b46bbd
+          path: retained-public-inputs
+          persist-credentials: false
+      - name: Seed fourteen exact public ARM input files
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C "$GITHUB_WORKSPACE/retained-public-inputs" rev-parse HEAD)" = 04a4a74e16e1e1bc939ea74791bf1f1bf7b46bbd
+          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$HOME" LANG=C.UTF-8 TZ=UTC \
+            TMPDIR="$RUNNER_TEMP" \
+            python3 -I -B "$GITHUB_WORKSPACE/retained-public-inputs/seed.py" \
+              --cache "$RUNNER_TEMP/desktop574/context/deps"
+      - name: Reconstruct pinned inputs and run offline native574 transaction
+        timeout-minutes: 40
+        run: >-
+          timeout --signal=TERM --kill-after=10s 2300s
+          python3 -I -B scripts/ci/maintained_desktop574.py build
+          --inputs scripts/ci/maintained-desktop574-inputs.json
+          --output "$RUNNER_TEMP/desktop574"
+# Insert after successful native574 transaction, before final always metadata step.
+# Raise overall native job timeout-minutes from 50 to 80.
+      - name: Focused runtime checks
+        run: |
+          python3 -I -B scripts/ci/test_desktop574_runtime.py
+          python3 -I -B scripts/ci/test_desktop574_guest.py
+          bash -n scripts/ci/desktop574_fixture.sh
+      - name: Native configuration and generic ARM compositor session
+        timeout-minutes: 35
+        run: >-
+          timeout --signal=TERM --kill-after=30s 2050s
+          python3 -I -B scripts/ci/desktop574_runtime.py
+          --source "$GITHUB_WORKSPACE"
+          --base-dir "$RUNNER_TEMP/desktop574"
+          --output "$RUNNER_TEMP/desktop574-runtime"
+      - name: Keep ordinary runtime diagnostics and actual frames
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: desktop574-runtime-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 3
+          if-no-files-found: ignore
+          path: |
+            ${{ runner.temp }}/desktop574-runtime/runtime.json
+            ${{ runner.temp }}/desktop574-runtime/guest.log
+            ${{ runner.temp }}/desktop574-runtime/events.log
+            ${{ runner.temp }}/desktop574-runtime/configuration.log
+            ${{ runner.temp }}/desktop574-runtime/package-build.log
+            ${{ runner.temp }}/desktop574-runtime/package/build.log
+            ${{ runner.temp }}/desktop574-runtime/package/provenance.json
+            ${{ runner.temp }}/desktop574-runtime/package/validation.json
+            ${{ runner.temp }}/desktop574-runtime/package/expected-packages.lock
+            ${{ runner.temp }}/desktop574-runtime/package/artifacts/environment.txt
+            ${{ runner.temp }}/desktop574-runtime/package/artifacts/packages.lock
+            ${{ runner.temp }}/desktop574-runtime/package/artifacts/config.sha256
+            ${{ runner.temp }}/desktop574-runtime/package/artifacts/makepkg.conf
+            ${{ runner.temp }}/desktop574-runtime/package/artifacts/pacman.conf
+            ${{ runner.temp }}/desktop574-runtime/package/artifacts/generated.SRCINFO
+            ${{ runner.temp }}/desktop574-runtime/base-reference.log
+            ${{ runner.temp }}/desktop574-runtime/runtime-image.log
+            ${{ runner.temp }}/desktop574-runtime/fixture.log
+            ${{ runner.temp }}/desktop574-runtime/config/desktop/
+            ${{ runner.temp }}/desktop574-runtime/frames/*.ppm
+# Keep the existing final metadata step. Do not upload context/, fixture/,
+# package/, home/, original input caches or guest disks.
+
+      - name: Retain bounded metadata only; never upload the input cache
+        if: always()
+        run: |
+          for name in seed-report.json report.json installed-packages.lock; do
+            if [ -f "$RUNNER_TEMP/desktop574/$name" ]; then
+              cat "$RUNNER_TEMP/desktop574/$name"
+            fi
+          done
