@@ -2,7 +2,7 @@
   "background_cancellation": "NOT_RUN",
   "background_duplicate_watch": "NOT_RUN",
   "background_failure": "NOT_RUN",
-  "basis_source": "7247b4241052beb9b72e943fdc9034746d3d63f7",
+  "basis_source": "437144dde76a6e727b8cbf982694d2b09bc3616a",
   "done_packet": {
     "archive_sha256": "9ce3c7ba89467f04660014c1b12056dce28bd0c4e69b4cab8a9c2c98e1cce54f",
     "ref": "de35c384a2e5b14b664d4156897f271b81e467ba"
@@ -187,16 +187,16 @@
       "sha256": "5e3540a853c96616f6767e86df152a87747299c6f8b5c36f41cc51ae7f3403cd"
     },
     "scripts/ci/fish-done-managed-notifications/README.md": {
-      "bytes": 13610,
-      "sha256": "7a88f5d773853ab2ced6400bd7a11f20f9abffc5aaee2b33a23e9252e4ea3107"
+      "bytes": 14914,
+      "sha256": "a00a35bb3ba1170e1fe403fa7cf020b0fbc5cf65313f035feb46e29b37e4fc89"
     },
     "scripts/ci/fish-done-managed-notifications/bar_helpers.py": {
       "bytes": 20986,
       "sha256": "3389f3ea1cc6193941c9394e0888748694cd33306956fedb7de805279d0572e5"
     },
     "scripts/ci/fish-done-managed-notifications/capture.py": {
-      "bytes": 11269,
-      "sha256": "97fb4ae37816a59b6d145591ff4e9de53c286bbe28c4b86589944ceeb760dfd8"
+      "bytes": 12086,
+      "sha256": "283160761381a55b441396b4c3aa8049ee240f5c78656c26165d62c2efc56cbc"
     },
     "scripts/ci/fish-done-managed-notifications/ci/caller.py": {
       "bytes": 11530,
@@ -251,8 +251,8 @@
       "sha256": "7704da1b060e739f63e4d7062a02938e64bcfbe1c10b4d6581532ded2f194de0"
     },
     "scripts/ci/fish-done-managed-notifications/observation.py": {
-      "bytes": 4830,
-      "sha256": "f99faa094bf7acab43dd0804b21b9d777fa074da9485435828a6515d8f3b0dc7"
+      "bytes": 5952,
+      "sha256": "7597fe61649d3f70b2a8e37da756aa775378c19661f47efe4a46e25940cd89b5"
     },
     "scripts/ci/fish-done-managed-notifications/package-inputs.json": {
       "bytes": 355174,
@@ -263,20 +263,20 @@
       "sha256": "4d65aec6b7200136a346d38acad9ea11387bc836881058a1484797f06fba5088"
     },
     "scripts/ci/fish-done-managed-notifications/prepare.py": {
-      "bytes": 4920,
-      "sha256": "acc9c1ac9cb47dc7d1d96431ab81fdcc02bcae848fb7e6a2405e26e2fa16977d"
+      "bytes": 5125,
+      "sha256": "b37dd0c0d89910c7e2ad6680db12e3282fe359a978f644ce52d54879291de005"
     },
     "scripts/ci/fish-done-managed-notifications/session.py": {
-      "bytes": 12648,
-      "sha256": "9785707ccffaf0735275e41cd31b4e45e4dc932eb31273b282f59e1240d66358"
+      "bytes": 15171,
+      "sha256": "4064834a2fcb19c9c16fe3bf7e82822ca2a7ea9f2305f64aa0a1f20b2f38c97c"
     },
     "scripts/ci/fish-done-managed-notifications/source-pins.json": {
       "bytes": 9840,
-      "sha256": "bb0b8eb63e3e5c07477c3314b854000053d3eee75f325864ec09cef122a748aa"
+      "sha256": "bbeeb34b513d377d8df77310b83e412db9f8859c11c1351e3744c7cfbc105dc5"
     },
     "scripts/ci/fish-done-managed-notifications/test_source.py": {
-      "bytes": 50187,
-      "sha256": "b8e195717045e72e44fe7d5139aab468751f09dfa08f61ca0c4a5758b7f4e979"
+      "bytes": 56488,
+      "sha256": "4695bb291560eec4f5269cb4515538bedbaf444f33e1e94645dc2b7978ab0292"
     },
     "scripts/ci/maintained-desktop574-inputs.json": {
       "bytes": 623664,
@@ -343,6 +343,12 @@
     "proposal": "fish-done-managed-actual-fix-20261016",
     "raw_sha256": "925095fdbf524d07785869e4bf24ed78a17f304d0914b324d9e59122028c3f52"
   },
+  "fresh_layer_failure": {
+    "correction": "DRAIN_ORIGINAL_TRANSPORT_AFTER_TYPED_PIXEL_REJECTION_STILL_FAIL",
+    "root_visual": "FAIL_ORIGINAL_FIRST_FRAME_NO_NOTIFICATION",
+    "run": 38966726962,
+    "source": "437144dde76a6e727b8cbf982694d2b09bc3616a"
+  },
   "generated_runner": {
     "bar_helpers.py": {
       "bytes": 20986,
@@ -353,8 +359,8 @@
       "sha256": "c550258599842df55464068e955373842acc5884c3f640eb07dc3a077aeb6313"
     },
     "capture.py": {
-      "bytes": 11269,
-      "sha256": "97fb4ae37816a59b6d145591ff4e9de53c286bbe28c4b86589944ceeb760dfd8"
+      "bytes": 12086,
+      "sha256": "283160761381a55b441396b4c3aa8049ee240f5c78656c26165d62c2efc56cbc"
     },
     "contract.py": {
       "bytes": 9337,
@@ -369,8 +375,8 @@
       "sha256": "721548482de143d5bae8a99b745c7225dee60440da10a1d43a8df34da78708b9"
     },
     "desktop574_runtime.py": {
-      "bytes": 22924,
-      "sha256": "d9dcc4247151d03231f10e461eccaa76325eb6bcf94ae51aad27d8eb74b9d108"
+      "bytes": 23002,
+      "sha256": "b5a3fd974dd2c28fd096524d1dc2773df55cbba0f588c6100843d9e5b11db24b"
     },
     "done-lock.json": {
       "bytes": 2717,
@@ -405,20 +411,20 @@
       "sha256": "7704da1b060e739f63e4d7062a02938e64bcfbe1c10b4d6581532ded2f194de0"
     },
     "observation.py": {
-      "bytes": 4830,
-      "sha256": "f99faa094bf7acab43dd0804b21b9d777fa074da9485435828a6515d8f3b0dc7"
+      "bytes": 5952,
+      "sha256": "7597fe61649d3f70b2a8e37da756aa775378c19661f47efe4a46e25940cd89b5"
     },
     "package-inputs.json": {
       "bytes": 355174,
       "sha256": "0790b69c56c73d546f6d0069bb26bd212467f5eed6835fec0d2b2f5109d7bf54"
     },
     "session.py": {
-      "bytes": 12648,
-      "sha256": "9785707ccffaf0735275e41cd31b4e45e4dc932eb31273b282f59e1240d66358"
+      "bytes": 15171,
+      "sha256": "4064834a2fcb19c9c16fe3bf7e82822ca2a7ea9f2305f64aa0a1f20b2f38c97c"
     },
     "source-pins.json": {
       "bytes": 9840,
-      "sha256": "bb0b8eb63e3e5c07477c3314b854000053d3eee75f325864ec09cef122a748aa"
+      "sha256": "bbeeb34b513d377d8df77310b83e412db9f8859c11c1351e3744c7cfbc105dc5"
     },
     "test_desktop574_runtime.py": {
       "bytes": 12245,
@@ -457,7 +463,7 @@
     "frames": "NONE",
     "run": 38958627308
   },
-  "status": "PROPOSED_FIRST_VISIBLE_FRAME_FIX_NOT_EXECUTED",
+  "status": "DIAGNOSTIC_COMPLETENESS_NOT_RENDER_FIX_NOT_EXECUTED",
   "visual": "NOT_RUN",
   "watched_background": "NOT_RUN_SUCCESSOR",
   "workflow_target": ".github/workflows/native-arm-fish-done-managed-notifications.yml"

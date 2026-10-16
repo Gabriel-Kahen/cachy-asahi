@@ -134,6 +134,25 @@ Lossless original RGB subregions from accepted bar38938127725 and Root-rejected
 Done38954684654 provide positive/negative regression data. They are not new
 screenshots, constructed images or Done acceptance evidence.
 
+A pixel-presence rejection is now retained with its original failed receipt while
+the host drains the original bounded guest sequence. Only that typed visual
+absence is deferred: bad hashes, clocks, identity, geometry, resources and other
+errors still fail immediately. After transport/normal shutdown, the mandatory
+host gate raises the same original pixel error before any runtime acceptance;
+independent contract/public replay also rejects the failed pixels. No missing
+or failed image becomes a pass and no image is recaptured.
+
+The original post-capture caller, full bus bytes and normal manager transport
+can therefore survive a visual failure. Diagnostic-only fields retain Python
+main-thread CPU/wall/iteration facts for the unchanged Notify wait, end-to-end
+list/layer query clocks, matching raw NotificationClosed signals and exact
+existing normal compositor stdout/stderr (each remains bounded at256KiB).
+These facts confer no expiry or presentation acceptance. Missing close signals
+are explicitly unobserved; reason codes stay raw. No service logging flag,
+private bus, new sleep, presentation fence or scheduling change is introduced.
+The existing20ms PTY/bus selectors rule out an unsupported claim of an obvious
+unbounded busy-spin; actual CPU/scheduler pressure remains to be measured.
+
 This pixel test establishes presence only. Root must view all three original
 first PPMs for readable foreground success/failure and watched-job success
 summary/body. No extra capture, replacement image, longer expiry, disabled

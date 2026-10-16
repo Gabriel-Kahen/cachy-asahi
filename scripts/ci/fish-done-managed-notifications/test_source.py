@@ -566,8 +566,9 @@ class RenderSynchronization(unittest.TestCase):
 
     def test_rgb_failure_keeps_first_original_and_cannot_recapture(self):
         self.arm();self.pixels.update(status='FAIL_NOTIFICATION_PIXELS_ABSENT',counts=dict(background=0,border=0,text=0))
-        with self.assertRaises(ValueError):self.capture()
+        self.capture()
         self.assertEqual((self.frames/'minimal.ppm').read_bytes(),self.data)
+        with self.assertRaisesRegex(P.PixelPresenceFailure,'no shipped Mako'):P.raise_deferred_capture_failure(self.report)
         with self.assertRaises(ValueError):self.capture()
         self.assertEqual(len(self.calls),1)
 
@@ -586,6 +587,97 @@ class RenderSynchronization(unittest.TestCase):
         for change in ({'diagnostic_only':'NO_ACCEPTED_FRESH_VISIBILITY'},{'scheduled_visibility_sha256':'bad'},{'host_visibility_received_monotonic_ns':999999}):
             events=Protocol().fixture();next(e for e in events if e.get('event')=='frame_captured').update(change)
             with self.subTest(change=change),self.assertRaises(ValueError):C.verify_result(events)
+
+
+class PresentationDiagnostics(unittest.TestCase):
+    def test_only_visual_absence_waits_for_original_transport_then_still_fails(self):
+        fixture=RenderSynchronization();fixture.setUp()
+        try:
+            fixture.arm();fixture.pixels.update(status='FAIL_NOTIFICATION_PIXELS_ABSENT',counts=dict(background=0,border=0,text=0))
+            fixture.capture()
+            reached=[];reached.append('original caller/bus/manager drain remains reachable')
+            self.assertEqual(fixture.report['frames']['minimal']['observer']['notification_pixels']['status'],'FAIL_NOTIFICATION_PIXELS_ABSENT')
+            self.assertEqual(fixture.report['deferred_capture_failures'][0]['scope'],'DIAGNOSTIC_DRAIN_ONLY_STILL_FAIL')
+            with self.assertRaisesRegex(P.PixelPresenceFailure,'original first frame has no shipped Mako notification pixels'):
+                P.raise_deferred_capture_failure(fixture.report)
+            self.assertEqual(len(reached),1);self.assertEqual(len(fixture.calls),1)
+        finally:fixture.doCleanups()
+
+    def test_frame_identity_or_clock_errors_are_not_deferred(self):
+        fixture=RenderSynchronization();fixture.setUp()
+        try:
+            fixture.arm();fixture.pixels['frame_sha256']='b'*64
+            with self.assertRaises(ValueError):fixture.capture()
+            self.assertFalse(fixture.report.get('deferred_capture_failures'))
+        finally:fixture.doCleanups()
+
+    def test_deferred_error_never_clears_or_changes_original_failure(self):
+        report=dict(deferred_capture_failures=[dict(stage='minimal',error='original first frame has no shipped Mako notification pixels')])
+        for _ in range(2):
+            with self.assertRaisesRegex(P.PixelPresenceFailure,'no shipped Mako'):P.raise_deferred_capture_failure(report)
+        self.assertEqual(len(report['deferred_capture_failures']),1)
+        P.raise_deferred_capture_failure({})
+
+    def test_diagnostics_cannot_turn_failed_pixels_into_metadata_pass(self):
+        events=Protocol().fixture();observed=next(e for e in events if e.get('event')=='frame_captured')
+        observed['notification_pixels'].update(status='FAIL_NOTIFICATION_PIXELS_ABSENT',counts=dict(background=0,border=0,text=0))
+        next(e for e in events if e.get('event')=='done_transport')['diagnostics']=dict(scope='DIAGNOSTIC_ONLY',all_transport_collected=True)
+        with self.assertRaisesRegex(P.PixelPresenceFailure,'no shipped Mako'):C.verify_result(events)
+
+    def close(self,wire,reason=1,sender=':1.7',identifier=23,timestamp=5000000):
+        return dict(type='signal',path='/org/freedesktop/Notifications',interface='org.freedesktop.Notifications',member='NotificationClosed',
+                    sender=sender,**{'timestamp-realtime':timestamp},payload=dict(type='uu',data=[identifier,reason]))
+
+    def test_matching_raw_closed_signal_and_same_guest_clock_delta_retained(self):
+        wire=O.notify(messages(),':1.7',0);closed=self.close(wire)
+        facts=O.closure_facts((json.dumps(closed)+'\n').encode(),wire)
+        self.assertEqual(facts['matching_closed_signals'][0]['signal'],closed)
+        self.assertEqual(facts['matching_closed_signals'][0]['notify_to_closed_realtime_us'],4000000)
+        self.assertIn('NO_EXPIRY_OR_PRESENTATION_ACCEPTANCE',facts['scope'])
+
+    def test_missing_foreign_or_other_id_signal_is_not_inferred_expiry(self):
+        wire=O.notify(messages(),':1.7',0)
+        for rows in ([],[self.close(wire,sender=':1.foreign')],[self.close(wire,identifier=99)]):
+            raw=b'\n'.join(json.dumps(r).encode() for r in rows)
+            facts=O.closure_facts(raw,wire)
+            self.assertEqual(facts['status'],'NO_MATCHING_CLOSED_SIGNAL_OBSERVED')
+            self.assertFalse(facts['matching_closed_signals'])
+
+    def test_close_reason_is_preserved_raw_without_presentation_credit(self):
+        wire=O.notify(messages(),':1.7',0);closed=self.close(wire,reason=999)
+        facts=O.closure_facts(json.dumps(closed).encode(),wire)
+        self.assertEqual(facts['matching_closed_signals'][0]['signal']['payload']['data'],[23,999])
+        self.assertNotIn('PASS',facts['status'])
+
+    def test_existing_normal_output_is_byte_exact_and_bounded(self):
+        from types import SimpleNamespace
+        with tempfile.TemporaryDirectory() as directory:
+            paths=[Path(directory)/name for name in ('normal.stdout','normal.stderr')]
+            for path,raw in zip(paths,(b'existing normal compositor bytes',b'')):path.write_bytes(raw)
+            result=S.normal_compositor_output(SimpleNamespace(paths=paths))
+            self.assertIn('DIAGNOSTIC_ONLY',result['scope'])
+            for path,record in zip(paths,result['streams']):
+                self.assertEqual(base64.b64decode(record['raw_base64']),path.read_bytes())
+                self.assertEqual(record['sha256'],hashlib.sha256(path.read_bytes()).hexdigest())
+            paths[0].write_bytes(b'x'*(256*1024+1))
+            with self.assertRaises(ValueError):S.normal_compositor_output(SimpleNamespace(paths=paths))
+
+    def test_ordinary_wait_is_measured_without_new_sleep_or_selector(self):
+        tree=ast.parse(Path(S.__file__).read_bytes())
+        loop=next(n for n in ast.walk(tree) if isinstance(n,ast.While) and isinstance(n.test,ast.Compare) and ast.unparse(n.test)=='wire is None')
+        text=ast.unparse(loop)
+        self.assertIn('wait_iterations += 1',text);self.assertIn('healthy()',text);self.assertIn('O.notify(observer.rows()',text)
+        self.assertNotIn('sleep',text)
+        source=Path(S.__file__).read_text();self.assertIn('time.thread_time_ns()-wait_cpu_started_ns',source)
+        self.assertIn("deadline=time.monotonic()+15",source)
+        self.assertIn("while time.monotonic()<until:healthy();time.sleep(.1)",source)
+
+    def test_host_failure_gate_is_before_any_metadata_acceptance(self):
+        source=Path(P.__file__).with_name('prepare.py').read_text()
+        self.assertIn("raise_deferred_capture_failure(report)\n",source.replace('\\n','\n'))
+        self.assertIn("verify_result(report['events'])",source)
+        self.assertIn('raise_deferred_capture_failure',source)
+        self.assertIn('capture_ready(event,qmp,fixture,frames,report,ppm)',source)
 
 
 class HostedProof(unittest.TestCase):

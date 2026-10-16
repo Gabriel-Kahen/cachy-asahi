@@ -7,6 +7,15 @@ import shutil
 import time
 
 
+class PixelPresenceFailure(ValueError):
+    """An original image failed pixel presence; never an acceptance result."""
+
+
+def raise_deferred_capture_failure(report):
+    failures=report.get('deferred_capture_failures',[])
+    if failures:raise PixelPresenceFailure(failures[0]['error'])
+
+
 def request_digest(event):
     return hashlib.sha256(json.dumps(event, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
 
@@ -54,7 +63,13 @@ def capture_ready(event,qmp,fixture,frames,report,decode):
                  host_visibility_received_realtime_us=time.time_ns()//1000,
                  host_visibility_received_monotonic_ns=time.monotonic_ns())
     capture_frame(request,qmp,fixture,frames,report,decode,armed=armed)
-    finalize_capture(event,frames,report)
+    try:finalize_capture(event,frames,report)
+    except PixelPresenceFailure as error:
+        failures=report.setdefault('deferred_capture_failures',[])
+        if len(failures)>=3 or any(r['stage']==stage for r in failures):raise ValueError('one pixel rejection per original phase')
+        failures.append(dict(stage=stage,error=str(error),scope='DIAGNOSTIC_DRAIN_ONLY_STILL_FAIL',
+                             frame_sha256=report['frames'][stage]['sha256'],request_sha256=digest,
+                             visibility_sha256=request_digest(visibility)))
 
 
 def capture_pending_failure(qmp,fixture,frames,report,decode):
@@ -160,4 +175,4 @@ def verify_pixel_receipt(receipt,box,frame_sha256):
     if receipt.get('pixels')!=area or set(counts)!=set(COLORS) or not all(type(n) is int and 0<=n<=area for n in counts.values()) or re.fullmatch('[0-9a-f]{64}',receipt.get('roi_sha256','')) is None:
         raise ValueError('original pixel statistics absent')
     if receipt.get('status')!='PASS_PIXEL_PRESENCE_PENDING_READABILITY' or counts['background']*100<area*45 or counts['border']*100<area or counts['text']*1000<area*2:
-        raise ValueError('original first frame has no shipped Mako notification pixels')
+        raise PixelPresenceFailure('original first frame has no shipped Mako notification pixels')

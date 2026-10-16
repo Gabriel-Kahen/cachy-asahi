@@ -44,7 +44,7 @@ def prepare(source,modules,output):
     runtime=replace(runtime,'cachy_asahi_bar_notifications=1','cachy_asahi_bar_notifications=1 cachy_asahi_done_managed=1')
     runtime=replace(runtime,"stage in ('minimal', 'overlay') and stage not", "stage in ('minimal', 'overlay', 'background') and stage not")
     runtime=replace(runtime,"phases == {'minimal', 'overlay'}", "phases == {'minimal', 'overlay', 'background'}")
-    runtime=replace(runtime,'from capture import capture_frame','from capture import arm_capture,capture_ready,capture_pending_failure')
+    runtime=replace(runtime,'from capture import capture_frame','from capture import arm_capture,capture_ready,capture_pending_failure,raise_deferred_capture_failure')
     runtime=replace(runtime,'capture_frame(event, qmp, fixture, frames, report, ppm)','arm_capture(event,fixture,frames,report)')
     runtime=replace(runtime,"                if event.get('event') == 'phase_pass':",
         "                if event.get('event') == 'frame_visibility': capture_ready(event,qmp,fixture,frames,report,ppm)\n"
@@ -52,6 +52,8 @@ def prepare(source,modules,output):
     runtime=replace(runtime,"                require(event.get('event') not in ('failed', 'failure'),",
         "                if event.get('event') in ('done_failure','failed','failure'): capture_pending_failure(qmp,fixture,frames,report,ppm)\n"
         "                require(event.get('event') not in ('failed', 'failure'),")
+    runtime=replace(runtime,"        verify_result(report['events'])\n",
+        "        raise_deferred_capture_failure(report)\n        verify_result(report['events'])\n")
     (output/'desktop574_runtime.py').write_text(runtime)
     return output
 
