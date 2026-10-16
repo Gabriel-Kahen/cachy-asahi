@@ -1,5 +1,7 @@
 # Implementation and acceptance status
 
+October16 expanded installation: the separate [signed600 installer source lane](../scripts/ci/expanded600-installer-vm/README.md) preserves the original numeric ownership, private signing roles, ordinary-parent retirement and independent root readback while selecting the exact600 inventory. Root passes25 source controls. It remains blocked before secrets/native actors until original587 root-readback acceptance, native600 lifecycle/coexistence and immutable eight-pair inputs are available; no600 fresh-install result is claimed.
+
 October16 setup feature: [candidate0.1.0-5](validation/setup-shell-modules-host-20261016.md) implements six explicit optional shell-module selections with deterministic order, grouped atomic-file recovery and legacy state/journal handling. Root replays68 setup tests plus10 synchronization controls. Its identical native build pair now passes; a lifecycle staging-path error remains under correction. Target execution remains pending, and the current600 run keeps its frozen setup3 baseline.
 
 October16 combined shell implementation: [all six host cases pass](validation/shell-coexistence-host-20261016.md) for the three Fish and three Zsh modules, including typed editing, suggestions/highlighting/search, caller continuation, private Done invocation and preserved configuration. A concrete bang-bang caller-return bug is fixed in0.1.0-2; its fresh native build/installed acceptance will be exercised in the expanded600 composition. Existing0.1.0-1/587 evidence remains unchanged.
