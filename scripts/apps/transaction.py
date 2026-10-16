@@ -37,8 +37,13 @@ def environment_guard():
  need(os.environ.get('PATH')=='/usr/bin:/bin' and not any(k.startswith(('LD_','GPG_','ALPM_','PACMAN_')) for k in os.environ),'clean command environment required')
  return token
 
-def observe(root,budget):
+def observe(root,budget,closure=None):
+ if closure is not None:return closure.observe(root,budget)
  value=F.observe(root,limits=budget,hardlinks='generic-development-internal');F.require_eligible(value);return value
+
+def closure_for(args,budget):
+ module=load('apps_full574_closure',Path(__file__).with_name('full574_closure.py')) if any(getattr(args,n,None) for n in ('full574_policy','full574_policy_sha256','full574_lease','full574_lease_sha256')) else None
+ return module.connect(args,sys.modules[__name__],budget) if module else None
 
 def pins(observation,inventory):
  nodes=observation['nodes'];database={n:r for n,r in nodes.items() if n==DB or n.startswith(DB+'/')}
@@ -88,14 +93,18 @@ def prepare_copy(args):
  token=environment_guard();app,c,r=app_source(args);source=Path(args.source).absolute();workspace=Path(args.workspace).absolute()
  need(source!=Path('/') and not source.is_relative_to(workspace) and not workspace.is_relative_to(source),'disjoint explicit seed/copy required')
  I.private(workspace.parent,0);need(not workspace.exists(),'fresh copied workspace required')
- budget=limits();app.inventory_reader().collect(source/DB,c,lambda row:app.package(row,r));before=observe(source,budget);workspace.mkdir(mode=0o700);identity=inode(workspace)
+ budget=limits();closure=closure_for(args,budget)
+ inventory=app.inventory_reader().collect(source/DB,c,lambda row:app.package(row,r))
+ if closure is not None:
+  need(source==closure.source,'explicit leased original574 source required');closure.source_inventory(inventory)
+ before=observe(source,budget,closure);workspace.mkdir(mode=0o700);identity=inode(workspace)
  try:
   # The copier reserves its declared maxima. Tighten that reservation to the
   # measured seed plus the existing bounded archive/ALPM-metadata headroom.
   copy_bytes=min(budget.max_bytes,before['footprint']['bytes']+I.MAX_TREE+64*1024**2)
   copy_budget=F.Limits(deadline=budget.deadline,max_packages=budget.max_packages,max_nodes=min(budget.max_nodes,len(before['nodes'])+30000),max_bytes=copy_bytes,max_file_bytes=min(budget.max_file_bytes,copy_bytes))
-  report=COPY.copy_data(source,workspace/'root',limits=copy_budget,hardlinks='generic-development-internal')
-  root=workspace/'root';observation=observe(root,budget);need(observation['nodes']==before['nodes'],'complete copy differs')
+  report=(closure.copy if closure else COPY.copy_data)(source,workspace/'root',limits=copy_budget,hardlinks='generic-development-internal')
+  root=workspace/'root';observation=observe(root,budget,closure);need(observation['nodes']==before['nodes'],'complete copy differs')
   inventory=app.inventory_reader().collect(root/DB,c,lambda row:app.package(row,r))
   need(len(inventory['packages'])<=budget.max_packages,'full-root package bound')
   owner=dict(schema_version=1,purpose=PURPOSE,token=token,workspace=identity,root=inode(root),source=str(source),source_tree_sha256=sha(encoded(before['nodes'])),copy=report)
@@ -175,12 +184,15 @@ def apply(args):
  result=dict(status='FAIL',phase='guard',commit_started=False,packages_committed=False,rollback='NOT_ATTEMPTED_DISPOSABLE_COPY_ONLY',hardware='NOT_RUN',release='NOT_ADMITTED',cleanup='NOT_ESTABLISHED')
  try:
   need(args.confirm_disposable_transaction is True,'explicit disposable transaction confirmation required')
-  workspace,root,owner=root_guard(args);app,c,r=app_source(args);budget=limits()
+  workspace,root,owner=root_guard(args);app,c,r=app_source(args);budget=limits();closure=closure_for(args,budget)
+  need(closure is not None or 'apps_full574_binding' not in owner['copy'],'full574 copy requires original explicit policy/lease')
+  if closure is not None:closure.owner(owner)
   with locked(workspace),tempfile.TemporaryDirectory(prefix='apps-tx-',dir=workspace) as temp:
    work=Path(temp);result['phase']='observe-before'
-   inventory=app.inventory_reader().collect(root/DB,c,lambda row:app.package(row,r));before=observe(root,budget);actual=pins(before,inventory)
+   inventory=app.inventory_reader().collect(root/DB,c,lambda row:app.package(row,r));before=observe(root,budget,closure);actual=pins(before,inventory)
    need(actual==dict(tree_sha256=args.before_tree_sha256,database_sha256=args.before_database_sha256,packages_sha256=args.before_packages_sha256,inventory_sha256=args.before_inventory_sha256),'complete before snapshot differs')
    need(len(inventory['packages'])<=budget.max_packages,'full-root package bound')
+   if closure is not None:closure.capture(root,before)
    plan_raw=c.read_path(Path(args.plan).absolute(),MAX_PLAN);need(sha(plan_raw)==args.plan_sha256,'caller plan SHA256 differs')
    copied=snapshot_inputs(args,work,c);iv=work/'installed.json';iv.write_bytes(app.encoded(inventory));copied.installed=str(iv);copied.installed_sha256=sha(iv.read_bytes());copied.command='plan'
    result['phase']='authenticate-and-replan';fresh=app.execute(copied);need(app.encoded(fresh)==plan_raw,'authenticated plan differs from actual copied root')
@@ -192,6 +204,7 @@ def apply(args):
     protected=set(context['base'])|set(context['spec']['policy']['protected_packages'])
     add={row['name']:row['version'] for row in plan['additions']+[x['after'] for x in plan['upgrades']]};remove={row['name']:row['version'] for row in plan['removals']}
     changed=set(add)|set(remove);need(not changed&protected,'base/platform selection refused')
+    if closure is not None:closure.selection(add,remove,inventory,before['nodes'])
     payload={};archives={};accounting=dict(bytes=0,nodes=0)
     for row in context['release']['packages']:
      if row['name'] not in add:continue
@@ -201,6 +214,7 @@ def apply(args):
      pkginfo=r.run(['bsdtar','-xOf',path,members['.PKGINFO']]).decode()
      need(not any(line.startswith('backup = ') for line in pkginfo.splitlines()),'backup/pacsave semantics outside Apps copy scope')
      payload_guard(nodes,before['nodes'])
+     if closure is not None:closure.archive(row['name'],path,nodes)
      for name,node in nodes.items():need(name not in payload or node==payload[name] and node['type']=='directory','signed payload overlap');payload[name]=node
      archives[row['name']]=path
     for name in payload:
@@ -225,14 +239,16 @@ def apply(args):
       need(not (package/'install').exists(),'installed scriptlet outside Apps copy scope')
       files=app.inventory_reader().sections(c.read_path(package/'files',4*1024**2),{'FILES','BACKUP'})
       need(not files.get('BACKUP'),'installed backup/pacsave semantics outside Apps copy scope')
-     old={n:before['nodes'][n] for n in old_paths-others};payload_guard(old,before['nodes']);need(not any('hardlink_group' in n for n in old.values()),'selected hardlink mutation refused')
+     old={n:before['nodes'][n] for n in old_paths-others}
+     if closure is not None:closure.old_payload(old)
+     payload_guard(old,before['nodes']);need(not any('hardlink_group' in n for n in old.values()),'selected hardlink mutation refused')
      for n,node in payload.items():
       need(n not in before['nodes'] or n in old or node['type']=='directory' and node==before['nodes'][n],'unowned or unselected payload collision')
      removed={n for n,node in old.items() if node['type']!='directory' and n not in payload}
-     projected=F.projected_internal_hardlinks(before,payload,selected_old_paths=set(old),removed_paths=removed,protected_paths=set(before['nodes'])-set(old),limits=budget)
+     projected=(closure.project if closure else F.projected_internal_hardlinks)(before,payload,selected_old_paths=set(old),removed_paths=removed,protected_paths=set(before['nodes'])-set(old),limits=budget)
      need(len(projected)+4*len(add)<=budget.max_nodes and sum(n.get('bytes',0) for n in projected.values())+64*1024**2<=budget.max_bytes,'projected payload plus bounded ALPM metadata exceeds root budget')
      result['capacity_precommit']=COPY.check_capacity([dict(path=str(workspace),bytes=sum(n.get('bytes',0) for n in payload.values())+80*1024**2,inodes=len(payload)+4*len(add)+1024)])
-     checkpoint=observe(root,budget)['nodes'];lock=checkpoint.pop(DB+'/db.lck',None);need(lock is not None and lock['type']=='file' and lock['bytes']==0 and checkpoint==before['nodes'],'root changed before prepare')
+     checkpoint=observe(root,budget,closure)['nodes'];lock=checkpoint.pop(DB+'/db.lck',None);need(lock is not None and lock['type']=='file' and lock['bytes']==0 and checkpoint==before['nodes'],'root changed before prepare')
      need(sha(c.read_path(Path(args.plan).absolute(),MAX_PLAN))==args.plan_sha256,'caller plan changed')
      # Private authenticated inputs and complete root bytes are rechecked before commit.
      source=c.directory(copied.release)
@@ -242,11 +258,14 @@ def apply(args):
      commit(alpm,add,remove,archives,architecture,result)
      need(alpm.inventory()=={n:p['version'] for n,p in expected.items()},'actual after ALPM inventory differs')
     result['phase']='verify-after'
-    after_inventory=app.inventory_reader().collect(root/DB,c,lambda row:app.package(row,r));after=observe(root,budget)
+    after_inventory=app.inventory_reader().collect(root/DB,c,lambda row:app.package(row,r));after=observe(root,budget,closure)
     need(app.indexed(after_inventory['packages'],r)==expected,'actual normalized after inventory differs')
     db_changes={DB+'/local/'+name+'-'+version for name in changed for version in {versions.get(name),expected.get(name,{}).get('version')} if version is not None}
     check_preservation(before['nodes'],after['nodes'],old,payload,db_changes)
-    F.check_hardlink_preservation(before,after,protected_paths=set(before['nodes'])-set(old),limits=budget)
+    if closure is not None:
+     result['full574_closure']=closure.preserve(root,before,after,protected_paths=set(before['nodes'])-set(old),limits=budget)
+     result['full574_binding']=closure.binding
+    else:F.check_hardlink_preservation(before,after,protected_paths=set(before['nodes'])-set(old),limits=budget)
     result.update(status='PASS_OWNED_DISPOSABLE_APPS_TRANSACTION',phase='completed',scope='DEVELOPMENT_OWNED_OFFLINE_COPIED_ROOT_ONLY',synthetic=fresh['synthetic'],stable_accepted=False,freshness='NOT_ESTABLISHED',architecture=architecture,apps_provenance_sha256=args.apps_provenance_sha256,helper_pins=fresh['helper_pins'],operation=args.operation,prepared_add=add,prepared_remove=remove,before=actual,after=pins(after,after_inventory),plan_sha256=args.plan_sha256,binding=fresh['binding'],hooks='DISABLED_AND_NO_CANDIDATE_HOOKS',scriptlets='DISABLED_AND_NO_CANDIDATE_SCRIPTLETS',dependency_checks='ORDINARY_LIBALPM',copy_retained='EXPLICIT_OWNER_MUST_DISPOSE')
   result['cleanup']='OWNED_WORKSPACE_TEMP_AND_ALPM_HANDLE_LOCK_RELEASED'
   need(not (root/DB/'db.lck').exists(),'ALPM lock remains; no deletion attempted')
@@ -261,14 +280,19 @@ def main():
  p=argparse.ArgumentParser(description=__doc__);p.add_argument('action',choices=('prepare-copy','inspect','apply','dispose-copy'))
  p.add_argument('--workspace',required=True);p.add_argument('--source');p.add_argument('--ownership-sha256')
  p.add_argument('--apps-source',required=True);p.add_argument('--apps-provenance-sha256',required=True);p.add_argument('--repository-source',required=True)
+ for name in ('full574-policy','full574-policy-sha256','full574-lease','full574-lease-sha256'):p.add_argument('--'+name)
  for name in ('release','release-sha256','catalog','catalog-sha256','catalog-signature','keyring','signer','plan','plan-sha256','before-tree-sha256','before-database-sha256','before-packages-sha256','before-inventory-sha256'):p.add_argument('--'+name)
  p.add_argument('--operation',choices=('install','remove'));p.add_argument('--applications',nargs='+');p.add_argument('--confirm-disposable-transaction',action='store_true');p.add_argument('--worker',action='store_true',help=argparse.SUPPRESS)
  a=p.parse_args()
  try:
   if a.action=='prepare-copy':result=prepare_copy(a)
   elif a.action=='inspect':
-   workspace,root,_=root_guard(a);app,c,r=app_source(a)
-   with locked(workspace):result=dict(status='OBSERVED_OWNED_COPY',before=pins(observe(root,limits()),app.inventory_reader().collect(root/DB,c,lambda row:app.package(row,r))))
+   workspace,root,owner=root_guard(a);app,c,r=app_source(a);budget=limits();closure=closure_for(a,budget)
+   need(closure is not None or 'apps_full574_binding' not in owner['copy'],'full574 copy requires original explicit policy/lease')
+   with locked(workspace):
+    inventory=app.inventory_reader().collect(root/DB,c,lambda row:app.package(row,r))
+    if closure is not None:closure.owner(owner);closure.selection({},{},inventory,observe(root,budget,closure)['nodes'])
+    result=dict(status='OBSERVED_OWNED_COPY',before=pins(observe(root,budget,closure),inventory))
   elif a.action=='dispose-copy':
    workspace,root,owner=root_guard(a)
    with locked(workspace):
