@@ -393,16 +393,16 @@
       "sha256": "e5d7dc11d1a59cf37a273e9a7103c7e55b169335b17c599990946f4e677ca974"
     },
     "scripts/ci/tools-generic16k/README.md": {
-      "bytes": 8884,
-      "sha256": "1fe7fbd3dff8856b67aab70284d0815e913a69b9847839457fc20d55f3f0b493"
+      "bytes": 8973,
+      "sha256": "9ef36ac1c7e539b1cd759e3192f8d961bc18936d1727d7f388b6e33f38e78b54"
     },
     "scripts/ci/tools-generic16k/acquire_kernel.py": {
       "bytes": 3510,
       "sha256": "09601f994f25601b7242cb36f38c6b0ead58ab5188d61e27ffe813c737a854b3"
     },
     "scripts/ci/tools-generic16k/build_kernel.py": {
-      "bytes": 11091,
-      "sha256": "c6ae177cb7487d86bcdd428994ce0ae3ccf5375262da622cd4bd27f9564758e5"
+      "bytes": 11126,
+      "sha256": "8205e49fcb9cdaf9bb6aaa356401697a51388b9673f1fc38c51c4605421f6836"
     },
     "scripts/ci/tools-generic16k/capture.py": {
       "bytes": 8770,
@@ -410,7 +410,7 @@
     },
     "scripts/ci/tools-generic16k/dependencies.json": {
       "bytes": 20409,
-      "sha256": "b74ccc0fa6ed7fd0f431752854ef26053040ba64ed34a790d455d2bb891de2cf"
+      "sha256": "49dcfe590a896bd2c00e5524591da5c4baa974f1e22d0536452b2e0308b78cba"
     },
     "scripts/ci/tools-generic16k/guest.py": {
       "bytes": 10855,
@@ -425,8 +425,8 @@
       "sha256": "83b324fd7b459f7ad48585a97f32d9a36c5131b92f50f4920c284b16c1be518e"
     },
     "scripts/ci/tools-generic16k/run.py": {
-      "bytes": 27318,
-      "sha256": "36484192187032f973d7448a4086e61103f5bae813ccc087c658552181abd249"
+      "bytes": 27335,
+      "sha256": "fac685eb1c0a944435fea457c1ab6166470851c92b703b1621cfe9af457d3a5b"
     },
     "scripts/ci/tools-generic16k/support.py": {
       "bytes": 2994,
@@ -437,8 +437,8 @@
       "sha256": "71a6154536fa94d7d004c7b8ab24f8d732ea0756321c4e49735a2ac02d993f6e"
     },
     "scripts/ci/tools-generic16k/test_smoke.py": {
-      "bytes": 24954,
-      "sha256": "41f2869d6377b71c023c9e6abaf851597903bc02c6214e51b1fd12a80b3f5c8d"
+      "bytes": 25078,
+      "sha256": "5204f2c7af3dec529d0843b9228e4ce7cf22ed314a4d2f1f1028c9d418af0dae"
     },
     "scripts/ci/tools-native/highlighting_fixture.py": {
       "bytes": 3073,

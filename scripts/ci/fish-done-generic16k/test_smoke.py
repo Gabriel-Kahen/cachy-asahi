@@ -262,14 +262,14 @@ class Controls(unittest.TestCase):
         self.assertTrue(all(before[k]==after[k] for k in before if k!='main'))
         self.assertEqual((ROOT/'scripts/ci/tools-generic16k/kernel.fragment').read_bytes(),(ROOT/'scripts/virtual/generic16k/kernel.fragment').read_bytes())
         helper=s.load(ROOT,'scripts/ci/tools-generic16k/build_kernel.py')
-        self.assertEqual(helper.DIAGNOSTIC_FRAGMENT,'CONFIG_KALLSYMS=y\nCONFIG_PRINTK_TIME=y\nCONFIG_UNIX98_PTYS=y\n')
+        self.assertEqual(helper.DIAGNOSTIC_FRAGMENT,'CONFIG_KALLSYMS=y\nCONFIG_PRINTK_TIME=y\nCONFIG_UNIX98_PTYS=y\nCONFIG_EVENTFD=y\n')
 
     def kernel_fixture(self):
         helper=s.load(ROOT,'scripts/ci/tools-generic16k/build_kernel.py');config=self.root/'config';image=self.root/'Image'
         base=(ROOT/'scripts/ci/tools-generic16k/kernel.fragment').read_bytes();config.write_bytes(base+helper.DIAGNOSTIC_FRAGMENT.encode())
         raw=bytearray(64);raw[56:60]=b'ARM\x64';struct.pack_into('<Q',raw,24,4);image.write_bytes(raw)
         return dict(profile='TOOLS16K_PTY_DERIVED_DIAGNOSTIC',derivation=dict(base_helper_sha256=s.pins()['files']['scripts/virtual/generic16k/build_kernel.py']['sha256'],
-            diagnostic_extension='CONFIG_UNIX98_PTYS=y',accepted_profile_modified=False),status='BUILT_ONLY',kernel_build='PASS',boot_diagnostics=True,
+            diagnostic_extension='CONFIG_UNIX98_PTYS=y;CONFIG_EVENTFD=y',accepted_profile_modified=False),status='BUILT_ONLY',kernel_build='PASS',boot_diagnostics=True,
             image_check=dict(header_page_size=16384),module_policy=dict(CONFIG_MODULES='n'),archive=dict(sha256='874ef68d04ac8c831b90bb01a387cfabb58fceb60842c49a0d0e58bcd6c146ad'),
             source_commit='94fb23346d522edf53722357c426a3e58030beea',helper=dict(sha256=s.sha((ROOT/'scripts/ci/tools-generic16k/build_kernel.py').read_bytes())),
             fragment=dict(sha256=s.sha(base)),diagnostic_fragment=dict(sha256=s.sha(base+helper.DIAGNOSTIC_FRAGMENT.encode())),
@@ -279,9 +279,11 @@ class Controls(unittest.TestCase):
         receipt=self.kernel_fixture();self.assertEqual(run.kernel(receipt,ROOT),self.root/'Image')
         bad=copy.deepcopy(receipt);bad['derivation']['accepted_profile_modified']=True
         with self.assertRaises(ValueError):run.kernel(bad,ROOT)
-        config=self.root/'config';config.write_text(config.read_text().replace('CONFIG_UNIX98_PTYS=y','CONFIG_UNIX98_PTYS=n'))
-        receipt['config']['sha256']=s.sha(config.read_bytes())
-        with self.assertRaisesRegex(ValueError,'CONFIG_UNIX98_PTYS'):run.kernel(receipt,ROOT)
+        config=self.root/'config';original=config.read_text()
+        for key in ('CONFIG_UNIX98_PTYS','CONFIG_EVENTFD'):
+            config.write_text(original.replace(key+'=y','# '+key+' is not set'))
+            receipt['config']['sha256']=s.sha(config.read_bytes())
+            with self.subTest(key=key),self.assertRaisesRegex(ValueError,key):run.kernel(receipt,ROOT)
 
     def test_init_mounts_devpts_in_private_vm_and_requires_actual_page_geometry(self):
         raw=run.init('a'*32,'test-generic16k').decode()
