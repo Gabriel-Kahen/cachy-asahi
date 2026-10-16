@@ -19,7 +19,19 @@ import job
 import snapshot
 
 
+def synthetic_copy_scope(case):
+    repo=next(p for p in Path(__file__).resolve().parents if (p/'manifests/packages.toml').is_file());sys.path.insert(0,str(repo/'scripts/update'))
+    scope=job.load('fixture_copy_scope',repo/'scripts/ci/glibc-gnu-provider-lifecycle/copy_scope.py');derived=scope.qualified()
+    return dict(proof=dict(status='PROVED_DISJOINT_READONLY_SOURCE_AND_OWNED_WORK_BIND_ROOTS',source='/held',destination_parent='/work/'+case),checkpoints=7,apps_proof_sha256=scope.PROOF_SHA256,gnu_proof_sha256=derived.gnu_proof_sha256,lifetime_sha256=scope.aux_copy.LIFETIME_SHA256,original_copier_sha256=scope.aux_copy.COPY_SHA256,adapted_copier_sha256=scope.ADAPTED_COPIER_SHA256)
+
+
 class Controls(unittest.TestCase):
+    def test_000_outer_owner_can_load_bridge_without_inner_helper_setup(self):
+        # This runs first in the isolated mandatory owner suite: no common.helpers.
+        repo=next(p for p in Path(__file__).resolve().parents if (p/'manifests/packages.toml').is_file())
+        bridge=job.load('cold_copy_scope_bridge',repo/'scripts/ci/glibc-gnu-provider-lifecycle/capabilities.py')
+        self.assertEqual(bridge.scope.qualified().SOURCE,Path('/held'))
+
     def setUp(self):
         self.tmp=tempfile.TemporaryDirectory();self.addCleanup(self.tmp.cleanup);self.root=Path(self.tmp.name)
         no=patch.object(subprocess,'Popen',side_effect=AssertionError('no actual actor'));no.start();self.addCleanup(no.stop)
@@ -128,7 +140,7 @@ class Controls(unittest.TestCase):
                 lock_recovery=dict(status='PASS_EXACT_OWNED_STALE_LOCK_REMOVED_AFTER_GROUP_ABSENCE'),
                 outer_runtime_before=dict(synthetic='only'),outer_runtime_after=dict(synthetic='only'))
             row=dict(status='PASS_INTERRUPTED_RECOVERED_NORMAL_PROVIDER_SEQUENCE',source_before=observation,
-                     source_after=observation,copy_lifetime=dict(cleanup='PASS-owned-workspace-removed',security_capabilities='EXACT_SOURCE_MAP_RESTORED_AND_VERIFIED',source_capabilities_sha256=hashlib.sha256(b'{}\n').hexdigest()),interruption=interrupted,capability_checks={})
+                     source_after=observation,copy_lifetime=dict(copy={'gnu_bind_scope':synthetic_copy_scope(case)},cleanup='PASS-owned-workspace-removed',security_capabilities='EXACT_SOURCE_MAP_RESTORED_AND_VERIFIED',source_capabilities_sha256=hashlib.sha256(b'{}\n').hexdigest()),interruption=interrupted,capability_checks={})
             for name in ('before_runtime','recovered_runtime','provider_runtime','reinstalled_runtime','held_runtime'):
                 row[name]=dict(normal_parent_and_child=True,result=dict(status='PASS',cases=8,page_size=4096))
             cases[case]=row
@@ -208,13 +220,15 @@ class Controls(unittest.TestCase):
     def retain_fixture(self,missing_binding=False):
         output,source,value=self.consumer_fixture()
         job.save(output/'owner.json',dict(status='PASS_INTERRUPTION_PENDING_ORDERED_PRODUCER_CLEANUP',
-                 consumer_cleanup='PASS_ALL_ACTORS_CLONES_AND_SOURCE_DATA_RETIRED',source_snapshot=dict(observation=dict(node_sha256=source,security_capabilities={},source_capabilities_sha256=hashlib.sha256(b'{}\n').hexdigest())),capabilities=dict(status='EXACT_SOURCE_MAP_PRESERVED',source_capabilities_sha256=hashlib.sha256(b'{}\n').hexdigest(),paths=0,cases=2,stages=10)))
+                 consumer_cleanup='PASS_ALL_ACTORS_CLONES_AND_SOURCE_DATA_RETIRED',source_snapshot=dict(observation=dict(node_sha256=source,security_capabilities={},source_capabilities_sha256=hashlib.sha256(b'{}\n').hexdigest())),capabilities=dict(status='EXACT_SOURCE_MAP_PRESERVED',source_capabilities_sha256=hashlib.sha256(b'{}\n').hexdigest(),paths=0,cases=2,stages=10,copy_scope_sha256={case:hashlib.sha256((json.dumps(synthetic_copy_scope(case),sort_keys=True,indent=2)+'\n').encode()).hexdigest() for case in ('pristine','modified')})))
         job.save(output/'inner/owner.json',dict(synthetic=True))
         (output/'snapshot-public').mkdir();job.save(output/'snapshot-public/snapshot.json',dict(synthetic=True))
         (output/'snapshot-public/original574-root.json.gz').write_bytes(b'synthetic observation only')
         (output/'inputs').mkdir();(output/'interruption-runner').mkdir()
         if not missing_binding:job.save(output/'inputs/interruption-input.json',dict(synthetic=True,source_capabilities={},source_capabilities_sha256=hashlib.sha256(b'{}\n').hexdigest()))
-        repo=next(p for p in Path(__file__).resolve().parents if (p/'manifests/packages.toml').is_file());relative=Path('scripts/ci/glibc-gnu-provider-lifecycle/capabilities.py');target=self.root/relative;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes((repo/relative).read_bytes())
+        repo=next(p for p in Path(__file__).resolve().parents if (p/'manifests/packages.toml').is_file());(self.root/'manifests').mkdir(exist_ok=True);(self.root/'manifests/packages.toml').write_bytes(b'# inert source-shape fixture only\n')
+        for relative in ('scripts/ci/glibc-gnu-provider-lifecycle/capabilities.py','scripts/ci/glibc-gnu-provider-lifecycle/copy_scope.py','scripts/apps/full574_copy.py'):
+            target=self.root/relative;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes((repo/relative).read_bytes())
         for name in ('input-policy.json','source-manifest.json'):job.save(output/'interruption-runner'/name,dict(synthetic=True))
         proof=self.root/'proof.json';job.save(proof,{})
         receipt=self.root/'ordered.json';job.save(receipt,dict(status='PASS_ORDERED_ALL_CONSUMERS_THEN_PRODUCER'))

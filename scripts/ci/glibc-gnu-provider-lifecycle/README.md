@@ -48,3 +48,40 @@ security-release, durability or performance acceptance. In particular the
 interruption test remains remove-phase-only, not candidate extraction or power
 loss recovery. Original strict owner extractors, shared copier/full_root and
 interruption writer/lock/group algorithms remain unchanged.
+
+
+## Qualified original574 copy bind scope
+
+`copy_scope.py` now binds the unchanged isolated disposable lifetime to a
+source-pinned derivative of Apps `full574_copy.py` (7799B,
+SHA33d49316c28dee344e78e17d7e7ffa409c9d7ad09bb48a82651f7d44f1cb61a0).
+Exactly two constant anchors change: source `/seed` becomes `/held`, and the
+allowed destination-parent pair becomes `/work/pristine`, `/work/modified`.
+All proof, mount inventory, backing-root disjointness, readonly source/writable
+owned work, named/held descriptor identities, distinct mount IDs, seven stable
+checkpoints, per-node content/metadata/hardlink and deadline checks remain.
+Other sources/workspaces refuse. Shared generic copy ambiguity refusal remains.
+
+The owner already makes `/work` owned before each case. The derived copier
+runs inside the original hash-pinned disposable lifetime, followed by unchanged
+capability restoration/verification before first yield. No global helper is
+patched. `copy_lifetime.copy.gnu_bind_scope` retains the complete actual proof,
+seven checkpoints, original Apps/adapted GNU proof hashes, original/adapted
+copier hashes and unchanged lifetime hash. Stage acceptance validates exact
+case paths/pins/counts; complete receipt digests join existing execute/export
+capability records. Failed copies still use the existing disposal/actor gates.
+
+Both lane dependency manifests and both owner integration closures must add
+`copy_scope.py` and canonical `scripts/apps/full574_copy.py`, retain all existing
+pins and refresh adopted bytes. Lifecycle source manifest must include the new
+12-control `test_copy_scope.py`; run that focused suite in each manual owner's
+existing control step along with all original suites. Root refreshes workflow
+bootstrap hashes after metadata adoption. No source/profile/deadline/crypto or
+capability grant changes are introduced by this copy-scope successor.
+
+Host controls use real inert tempfile copies with MODELED readonly mount/ID
+metadata, plus overlap, shadow/alias, source-pin, drift, descriptor retirement
+and exact receipt refusals. They establish no real native bind-mount proof.
+Apps actual38977834026 exposed the original guard; the qualified Apps native
+successor and these GNU native consumers remain separate pending actuals.
+No GNU packet publication/dispatch or hardware/performance credit follows.
