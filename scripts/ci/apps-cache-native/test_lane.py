@@ -147,6 +147,38 @@ class SourceControls(unittest.TestCase):
         self.assertRegex(text,r'(?:@MANIFEST_SHA256@|[0-9a-f]{64})[^\n]+\$SLICE/source-manifest.json')
         self.assertIn('ubuntu-24.04-arm',text);self.assertIn('cancel-in-progress: false',text)
 
+    def test_actual_pacman_subcommand_vectors_keep_transaction_flags_off_queries(self):
+        prefix=['/usr/bin/pacman','--config','/tmp/apps-cache-pacman.conf','--noconfirm','--noscriptlet']
+        helper=ast.parse((C.HERE/'installed.py').read_text())
+        factory=next(node for node in helper.body if isinstance(node,ast.FunctionDef) and node.name=='pacman')
+        returned=next(node for node in reversed(factory.body) if isinstance(node,ast.Return))
+        self.assertEqual(eval(compile(ast.Expression(returned.value),'installed.py','eval'),{'config':'/tmp/apps-cache-pacman.conf'}),prefix)
+        seen=[]
+        def command(argv,**kwargs):
+            operation=next(arg for arg in argv if arg in ('-Dk','-T','-U','-R'))
+            self.assertEqual(argv[:3],prefix[:3])
+            if operation in ('-Dk','-T'):
+                self.assertNotIn('--noscriptlet',argv);self.assertNotIn('--noconfirm',argv)
+            else:self.assertEqual(argv[:5],prefix)
+            seen.append(operation)
+        # Evaluate only the actual prefix assignment and pacman command expressions;
+        # no container main(), package manager, filesystem mutation or subprocess runs.
+        for name in ('runtime_image.py','lifecycle.py'):
+            tree=ast.parse((C.HERE/name).read_text())
+            main=next(node for node in tree.body if isinstance(node,ast.FunctionDef) and node.name=='main')
+            scope=dict(pacman=list(prefix),L=NS(command=command),archive='/inputs/runtime.pkg.tar.xz',
+                archives=['/inputs/product.pkg.tar.xz'],selected=['inert-product'],control={'apps_dependencies':['python>=3.11']})
+            assignment=next(node for node in main.body if isinstance(node,ast.Assign) and
+                isinstance(node.targets[0],ast.Name) and node.targets[0].id=='query')
+            exec(compile(ast.Module(body=[assignment],type_ignores=[]),name,'exec'),scope)
+            for node in ast.walk(main):
+                if not isinstance(node,ast.Call) or not isinstance(node.func,ast.Attribute) or node.func.attr!='command' or not node.args:continue
+                first=node.args[0]
+                if isinstance(first,ast.BinOp) and isinstance(first.left,ast.Name) and first.left.id in ('pacman','query'):
+                    eval(compile(ast.Expression(node),name,'eval'),scope)
+        self.assertEqual(seen.count('-Dk'),2);self.assertEqual(seen.count('-T'),1)
+        self.assertEqual(seen.count('-U'),4);self.assertEqual(seen.count('-R'),2)
+
 
 class LifecycleControls(unittest.TestCase):
     def test_exact_three_products_without_unneeded_dependency(self):

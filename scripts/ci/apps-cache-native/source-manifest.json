@@ -181,20 +181,20 @@
       "sha256": "9a88aa45a16a5a6056d719828a1bae8b04a3cb3b32a2768b5aecb8167ef2adda"
     },
     "scripts/ci/apps-cache-native/lifecycle.py": {
-      "bytes": 16540,
-      "sha256": "15ebb28039f3fec1541afba64186eb491f7b8eafb57ff7b05e00d3e3744e8eb1"
+      "bytes": 16624,
+      "sha256": "971cd386da65cbe247e93f4fbbc6ce6a6c6f9e77aadbc6f6b1df6d39c049e45c"
     },
     "scripts/ci/apps-cache-native/run.py": {
       "bytes": 15349,
       "sha256": "d3cdf95b0757e1f2ebd04cb8bc56f90888ff8c17f615e9ca6e65357c4462b56e"
     },
     "scripts/ci/apps-cache-native/runtime_image.py": {
-      "bytes": 1974,
-      "sha256": "7389ad3eac50b1f004591a0553de7d3d47b5bc9f4e704efcd8cdf7394cc35bb6"
+      "bytes": 2057,
+      "sha256": "a682b64a5326fc7edf0d2347c37ae50805f9b7773c2683f1fbae1769c18fa023"
     },
     "scripts/ci/apps-cache-native/test_lane.py": {
-      "bytes": 17368,
-      "sha256": "8218c6af06709a310a1675572796cad5752883fca16f084c6e9a123ac5411884"
+      "bytes": 19853,
+      "sha256": "b6e4ec79ebf781ff5009394d88427920db905dead938c7692d577ea0e9ada9fe"
     },
     "scripts/ci/full-development-composition/run.py": {
       "bytes": 29738,
