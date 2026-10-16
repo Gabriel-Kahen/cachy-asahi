@@ -1,5 +1,7 @@
 # Fish candidate native results
 
+Bang-bang0.1.0-2 now has two byte-identical native archives in [actual38935093520](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38935093520), source `592e87e0ac1381455ef4460ace13dcd9c1b3471a`:9652bytes/SHA256 `542585b5c6d50f379deca86cc394afbb0eca51174ee9e11d7ec895181ef73f8e`. Both native574 containers, source/BUILDINFO, all seven installed source/license members, makepkg check logs and container absence join. Root replays the bounded preparation against the original closed26-file export. The later600 plan fails with KeyError name, before signed composition or installed module execution; those results remain unaccepted. The retained-name fix passes27 controls and corrected actual38940098372 is running.
+
 Both candidates remain unselected. Autopair now has native pair and installed lifecycle acceptance with the export-validator defect below explicitly qualified. Done0.1.0-2 also passes its native pair and installed local-recorder lifecycle. Real desktop notifications, generic16K and M2 compatibility remain open.
 
 | Actual | Exact source/workflow | Native builds | Installed lifecycle |

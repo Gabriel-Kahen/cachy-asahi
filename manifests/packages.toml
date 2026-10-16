@@ -241,13 +241,14 @@ license = "MIT"
 audit = "docs/workstreams/fish-history-module.md"
 selected_for_development = true
 selected_for_release = false
-native_build = "NOT RUN for0.1.0-2; historical0.1.0-1 PASS"
+native_build = "PASS byte-identical0.1.0-2 native pair in38935093520"
+native_build_commit = "592e87e0ac1381455ef4460ace13dcd9c1b3471a"
 prior_native_build_commit = "4ee5a99e6ce7a83e2e5a5bdf4b71a1080e91d21c"
 native_evidence = "docs/validation/tools-batch-native-20261015.md"
 installation = "NOT RUN for0.1.0-2; historical0.1.0-1 installed lifecycle/PTY PASS"
 hardware_validation = "NOT RUN"
 host_evidence = "docs/validation/shell-coexistence-host-20261016.md"
-next_step = "Caller-guard successor0.1.0-2 passes standalone and combined real host shell checks. Build its fresh native pair and execute installed combined modules inside the expanded600 composition; preserve historical0.1.0-1 evidence and both M2 requirements."
+next_step = "Caller-guard successor0.1.0-2 passes host checks and two native builds (9652bytes/SHA256542585b5c6d50f379deca86cc394afbb0eca51174ee9e11d7ec895181ef73f8e). Original600 run fails later constructing the installation plan; execute installed coexistence in the corrected600 and Setup5 flows. Preserve historical0.1.0-1 and both M2 requirements."
 
 [[packages]]
 name = "asahi-audio"
