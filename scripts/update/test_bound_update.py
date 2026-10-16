@@ -93,7 +93,7 @@ class ActualTransactions(unittest.TestCase):
         if pid == 0:
             os.close(read)
             try:
-                data = encoded(bound.apply(self.args))
+                data = encoded(bound.apply(self.args, adapter=getattr(self, 'adapter', None)))
                 with os.fdopen(write, 'wb') as stream:
                     stream.write(data)
             finally:
@@ -259,6 +259,19 @@ class ActualTransactions(unittest.TestCase):
         (self.root / 'alias').symlink_to('etc/pacman.d')
         path = self.root / 'var/lib/pacman/local/fixture-0-1/files'
         path.write_text(path.read_text().rstrip() + '\nalias/base-public\n\n')
+        self.assert_refused(self.run_update(), 'protected platform/trust path')
+
+        # An opt-in root adapter may resolve aliases the tiny-root resolver refuses.
+        # Its protected result must feed the same pre-removal policy checks.
+        path.write_text('%FILES%\n' + self.owned['fixture'][0] + '\n\n')
+        adapter = mock.Mock(wraps=bound.install)
+        adapter.policy_module = bound.module('adapter_policy', bound.ROOT / 'scripts/update/platform_policy.py')
+        adapter.selection = lambda *_: None
+        original = bound.install.resolve_nodes
+        def resolve(nodes, name):
+            return 'etc/pacman.d/base-public' if name == self.owned['fixture'][0] else original(nodes, name)
+        adapter.resolve_nodes = resolve
+        self.adapter = adapter
         self.assert_refused(self.run_update(), 'protected platform/trust path')
 
     def test_signed_package_downgrade_refused(self):
