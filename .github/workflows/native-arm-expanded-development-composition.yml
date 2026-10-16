@@ -375,13 +375,14 @@ jobs:
               archive.extractall(target,filter='data')
           PYPAIR
       - name: Retrieve only the six exact accepted audio objects
+        id: audio_inputs
         if: ${{ !cancelled() && steps.fdk_pair.outcome == 'success' }}
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          python3 -B expanded-code/scripts/ci/full-development-composition/retrieve_audio.py --output "$RUNNER_TEMP/expanded-audio"
+          python3 -B expanded-code/scripts/ci/full-development-composition/retrieve_audio.py --output "$RUNNER_TEMP/audio-archives"
       - name: Required native pair and exact600 installed lifecycle
         id: composition
         if: ${{ always() && !cancelled() }}
@@ -389,10 +390,12 @@ jobs:
         shell: bash
         env:
           FDK_PAIR_OUTCOME: ${{ steps.fdk_pair.outcome }}
+          AUDIO_INPUT_OUTCOME: ${{ steps.audio_inputs.outcome }}
           EXPANDED_SOURCE: ${{ inputs.source }}
         run: |
           set -euo pipefail
           test "$FDK_PAIR_OUTCOME" = success
+          test "$AUDIO_INPUT_OUTCOME" = success
           install -d -m 700 "$RUNNER_TEMP/expanded-home"
           timeout --signal=TERM --kill-after=180s 7200s \
             env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP/expanded-home" LANG=C.UTF-8 TZ=UTC \
@@ -406,7 +409,7 @@ jobs:
               --desktop "$GITHUB_WORKSPACE/composition-desktop" \
               --native "$RUNNER_TEMP/native-evidence" --fdk "$RUNNER_TEMP/fdk-evidence" --cache "$RUNNER_TEMP/alarm-cache" \
               --script-source "$GITHUB_WORKSPACE/expanded-inputs" --bang-source "$GITHUB_WORKSPACE/expanded-modules" \
-              --combined-source "$GITHUB_WORKSPACE/expanded-modules" --audio-inputs "$RUNNER_TEMP/expanded-audio" \
+              --combined-source "$GITHUB_WORKSPACE/expanded-modules" --audio-inputs "$RUNNER_TEMP/audio-archives" \
               --output "/tmp/cachy-asahi-expanded600-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
       - name: Retain only the closed public expanded600 export
         if: always()

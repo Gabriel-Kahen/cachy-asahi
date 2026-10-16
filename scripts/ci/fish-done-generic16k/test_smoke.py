@@ -259,7 +259,8 @@ class Controls(unittest.TestCase):
         def functions(tree):return {n.name:ast.dump(n,include_attributes=False) for n in tree.body if isinstance(n,ast.FunctionDef)}
         before,after=functions(old),functions(new)
         self.assertEqual(set(before),set(after))
-        self.assertTrue(all(before[k]==after[k] for k in before if k!='main'))
+        self.assertEqual({k for k in before if before[k]!=after[k]},{'main','usage','run'})
+        self.assertTrue(all(before[k]==after[k] for k in before if k not in ('main','usage','run')))
         self.assertEqual((ROOT/'scripts/ci/tools-generic16k/kernel.fragment').read_bytes(),(ROOT/'scripts/virtual/generic16k/kernel.fragment').read_bytes())
         helper=s.load(ROOT,'scripts/ci/tools-generic16k/build_kernel.py')
         self.assertEqual(helper.DIAGNOSTIC_FRAGMENT,'CONFIG_KALLSYMS=y\nCONFIG_PRINTK_TIME=y\nCONFIG_UNIX98_PTYS=y\nCONFIG_EVENTFD=y\n')
@@ -269,7 +270,8 @@ class Controls(unittest.TestCase):
         base=(ROOT/'scripts/ci/tools-generic16k/kernel.fragment').read_bytes();config.write_bytes(base+helper.DIAGNOSTIC_FRAGMENT.encode())
         raw=bytearray(64);raw[56:60]=b'ARM\x64';struct.pack_into('<Q',raw,24,4);image.write_bytes(raw)
         return dict(profile='TOOLS16K_PTY_DERIVED_DIAGNOSTIC',derivation=dict(base_helper_sha256=s.pins()['files']['scripts/virtual/generic16k/build_kernel.py']['sha256'],
-            diagnostic_extension='CONFIG_UNIX98_PTYS=y;CONFIG_EVENTFD=y',accepted_profile_modified=False),status='BUILT_ONLY',kernel_build='PASS',boot_diagnostics=True,
+            diagnostic_extension='CONFIG_UNIX98_PTYS=y;CONFIG_EVENTFD=y',
+               workspace_scan='ACTIVE_CHILD_COMPILER_OUTPUT_ENOENT_ONLY_STRICT_FINAL',accepted_profile_modified=False),status='BUILT_ONLY',kernel_build='PASS',boot_diagnostics=True,
             image_check=dict(header_page_size=16384),module_policy=dict(CONFIG_MODULES='n'),archive=dict(sha256='874ef68d04ac8c831b90bb01a387cfabb58fceb60842c49a0d0e58bcd6c146ad'),
             source_commit='94fb23346d522edf53722357c426a3e58030beea',helper=dict(sha256=s.sha((ROOT/'scripts/ci/tools-generic16k/build_kernel.py').read_bytes())),
             fragment=dict(sha256=s.sha(base)),diagnostic_fragment=dict(sha256=s.sha(base+helper.DIAGNOSTIC_FRAGMENT.encode())),

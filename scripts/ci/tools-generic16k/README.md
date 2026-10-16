@@ -55,7 +55,7 @@ page probe remain pinned and unchanged.
 
 This directory's `build_kernel.py` derives from accepted helper SHA256
 `e94adb4474183feea30ce1e2949b55c03e4969eeb1addb4c36892e8664ba9aaa`.
-Its diagnostic fragment gains `CONFIG_UNIX98_PTYS=y` and `CONFIG_EVENTFD=y`; main records both. The EVENTFD addition follows the actual Fish eventfd ENOSYS failure in run38921035059. Every other function body and the base `kernel.fragment` are unchanged.
+Its diagnostic fragment gains `CONFIG_UNIX98_PTYS=y` and `CONFIG_EVENTFD=y`; main records both. The EVENTFD addition follows the actual Fish eventfd ENOSYS failure in run38921035059. The derived `usage` and `run` functions now also apply the bounded compiler-output scan correction below; all other function bodies except `main` and the base `kernel.fragment` are unchanged.
 The original `scripts/virtual/generic16k` helper/fragment and the accepted
 Welcome/Doctor lane are untouched. The derived receipt uses profile
 `TOOLS16K_PTY_DERIVED_DIAGNOSTIC`, binds base/derived fragment, helper, Image and
@@ -139,3 +139,5 @@ provenance, host/guest guards, finite supervision, preservation/report replay an
 foreign cleanup refusal. They establish source behavior only. Actual kernel
 build/capture/VM execution, native package checks, Asahi integration, M2 hardware,
 performance and release admission remain unrun by this worker.
+
+The derived kernel helper records `workspace_scan=ACTIVE_CHILD_COMPILER_OUTPUT_ENOENT_ONLY_STRICT_FINAL`. During an active child only, an ENOENT below the exact private compiler output `build/` can be transient. Source, workspace and compiler-root absence, permission and other errors remain fatal. Completed-command and final allocation scans are strict. The periodic aggregate quota, per-file limits, log cap, build deadline and cleanup policy are unchanged. This follows the scanner failure on `.bitrev.o.d` during actual tools run38924169611; it is not evidence of a successful replacement build.

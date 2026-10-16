@@ -139,3 +139,5 @@ On an outer monitor deadline/output failure, the original TERM/KILL-only cleanup
 path stays unchanged. The failure-only group_absent field is null when that
 original path performs no post-error group query; bounded /proc observations
 remain separate. This cannot earn any process-absence or PASS credit.
+
+The derived kernel helper records `workspace_scan=ACTIVE_CHILD_COMPILER_OUTPUT_ENOENT_ONLY_STRICT_FINAL`. During an active child only, an ENOENT below the exact private compiler output `build/` can be transient. Source, workspace and compiler-root absence, permission and other errors remain fatal. Completed-command and final allocation scans are strict. The periodic aggregate quota, per-file limits, log cap, build deadline and cleanup policy are unchanged. This follows the scanner failure on `.bitrev.o.d` during actual tools run38924169611; it is not evidence of a successful replacement build.

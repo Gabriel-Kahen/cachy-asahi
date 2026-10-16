@@ -87,8 +87,47 @@ def extract(archive, destination):
     return {'members': len(members), 'logical_bytes': total}
 
 
-def usage(path):
-    return sum(p.lstat().st_blocks * 512 for p in path.rglob('*') if not p.is_symlink())
+def usage(path, active_child=None):
+    path = Path(path)
+    root = path.lstat()
+    require(stat.S_ISDIR(root.st_mode), 'ordinary workspace root required')
+    compiler = path / 'build'
+    compiler_root = compiler.lstat() if active_child is not None else None
+    if compiler_root is not None:
+        require(stat.S_ISDIR(compiler_root.st_mode), 'ordinary compiler output root required')
+    def transient(missing):
+        return (active_child is not None and missing != compiler and missing.is_relative_to(compiler)
+                and active_child.poll() is None)
+    total = 0
+    pending = [path]
+    while pending:
+        directory = pending.pop()
+        try:
+            with os.scandir(directory) as stream:
+                entries = [Path(entry.path) for entry in stream]
+        except FileNotFoundError:
+            if transient(directory):
+                continue
+            raise
+        for entry in entries:
+            try:
+                info = entry.lstat()
+            except FileNotFoundError:
+                if transient(entry):
+                    continue
+                raise
+            if stat.S_ISLNK(info.st_mode):
+                continue
+            total += info.st_blocks * 512
+            if stat.S_ISDIR(info.st_mode):
+                pending.append(entry)
+    final = path.lstat()
+    require((final.st_dev, final.st_ino) == (root.st_dev, root.st_ino), 'workspace root changed')
+    if compiler_root is not None:
+        final = compiler.lstat()
+        require((final.st_dev, final.st_ino) == (compiler_root.st_dev, compiler_root.st_ino),
+                'compiler output root changed')
+    return total
 
 
 def limits():
@@ -107,7 +146,7 @@ def run(argv, log, env, workspace, deadline, records):
             while child.poll() is None:
                 require(time.monotonic() < deadline, 'whole build deadline exceeded')
                 require(log.stat().st_size <= 16 * 1024**2, 'command log limit exceeded')
-                require(usage(workspace) <= TOTAL_LIMIT, 'workspace allocation limit exceeded')
+                require(usage(workspace, active_child=child) <= TOTAL_LIMIT, 'workspace allocation limit exceeded')
                 time.sleep(2)
             record['returncode'] = child.returncode
             require(child.returncode == 0, 'build command failed: ' + log.name)
@@ -152,7 +191,9 @@ def main():
             'source archive identity differs')
     report['profile'] = 'TOOLS16K_PTY_DERIVED_DIAGNOSTIC'
     report['derivation'] = {'base_helper_sha256': 'e94adb4474183feea30ce1e2949b55c03e4969eeb1addb4c36892e8664ba9aaa',
-                            'diagnostic_extension': 'CONFIG_UNIX98_PTYS=y;CONFIG_EVENTFD=y', 'accepted_profile_modified': False}
+                            'diagnostic_extension': 'CONFIG_UNIX98_PTYS=y;CONFIG_EVENTFD=y',
+                            'workspace_scan': 'ACTIVE_CHILD_COMPILER_OUTPUT_ENOENT_ONLY_STRICT_FINAL',
+                            'accepted_profile_modified': False}
     report['boot_diagnostics'] = args.boot_diagnostics
     report['archive'] = identity(args.archive)
     report['fragment'] = identity(HERE / 'kernel.fragment')

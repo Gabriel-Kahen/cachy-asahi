@@ -393,8 +393,8 @@
       "sha256": "09601f994f25601b7242cb36f38c6b0ead58ab5188d61e27ffe813c737a854b3"
     },
     "scripts/ci/tools-generic16k/build_kernel.py": {
-      "bytes": 11126,
-      "sha256": "8205e49fcb9cdaf9bb6aaa356401697a51388b9673f1fc38c51c4605421f6836"
+      "bytes": 12822,
+      "sha256": "3d1f25edbdd8d4ac4f48f5efcc756854e56d93cbaadeaefba3bdab2a1d32e9b1"
     },
     "scripts/ci/tools-generic16k/kernel.fragment": {
       "bytes": 815,

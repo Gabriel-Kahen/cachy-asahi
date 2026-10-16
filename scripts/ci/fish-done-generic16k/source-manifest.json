@@ -213,8 +213,8 @@
       "sha256": "5e3540a853c96616f6767e86df152a87747299c6f8b5c36f41cc51ae7f3403cd"
     },
     "scripts/ci/fish-done-generic16k/README.md": {
-      "bytes": 9448,
-      "sha256": "f100d940725dc2b5c145b571459940f6d4346d9ea87010b154405848fe6bb511"
+      "bytes": 10050,
+      "sha256": "021f4b683d687526ab3f3055ebd5f156d243ff103bf6e05c8ad8f0564fa38e1a"
     },
     "scripts/ci/fish-done-generic16k/acquire_kernel.py": {
       "bytes": 3510,
@@ -226,7 +226,7 @@
     },
     "scripts/ci/fish-done-generic16k/dependencies.json": {
       "bytes": 12611,
-      "sha256": "d7b80f113a6e651ba8978c2063ea7bb8bf33b0c51077281eed544c892c19a8b0"
+      "sha256": "c3140cbf712024d8b0a3d36ee4a2872624bd18e9c37e263fb323011aa461ba96"
     },
     "scripts/ci/fish-done-generic16k/guest.py": {
       "bytes": 13647,
@@ -237,8 +237,8 @@
       "sha256": "5086924e408225aa6cabd8d3b7dae6cf1840be7d7b80c8eef2b35e67304e3389"
     },
     "scripts/ci/fish-done-generic16k/run.py": {
-      "bytes": 28909,
-      "sha256": "b54ba4f132584c618bb35fa6f34e033517fcccc2e2578f0eff66fe8aa8b18910"
+      "bytes": 28996,
+      "sha256": "c01f26373e33c438ca7cd2ad7533ba2cff860275d52d9ff2a7c01b8dc1964dec"
     },
     "scripts/ci/fish-done-generic16k/support.py": {
       "bytes": 3041,
@@ -253,8 +253,8 @@
       "sha256": "929f5f1318b82bd1574ebd487a3f1bc0ab0c10288c1ea3de1f6af78b38738555"
     },
     "scripts/ci/fish-done-generic16k/test_smoke.py": {
-      "bytes": 25172,
-      "sha256": "e68198a2cec827495259723dab55f7a519d94b87a1573ee5918f992fdf8c4ad3"
+      "bytes": 25373,
+      "sha256": "4b4522dcfdee7d135850599f09be73d4a7a8ea2415564c575be98740b7abc3e4"
     },
     "scripts/ci/maintained-desktop574-inputs.json": {
       "bytes": 623664,
@@ -277,8 +277,8 @@
       "sha256": "e5d7dc11d1a59cf37a273e9a7103c7e55b169335b17c599990946f4e677ca974"
     },
     "scripts/ci/tools-generic16k/build_kernel.py": {
-      "bytes": 11126,
-      "sha256": "8205e49fcb9cdaf9bb6aaa356401697a51388b9673f1fc38c51c4605421f6836"
+      "bytes": 12822,
+      "sha256": "3d1f25edbdd8d4ac4f48f5efcc756854e56d93cbaadeaefba3bdab2a1d32e9b1"
     },
     "scripts/ci/tools-generic16k/kernel.fragment": {
       "bytes": 815,
