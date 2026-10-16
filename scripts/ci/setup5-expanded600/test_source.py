@@ -4,6 +4,8 @@ import ast
 import copy
 import importlib.util
 import json
+import hashlib
+import os
 from pathlib import Path
 import tempfile
 import unittest
@@ -85,6 +87,54 @@ class Contracts(unittest.TestCase):
         path.write_bytes(b'changed');self.assertNotEqual(host.packet_snapshot(self.work),before)
         path.unlink();path.symlink_to('/unowned')
         with self.assertRaises(ValueError):host.packet_snapshot(self.work)
+
+
+class PacketSources(unittest.TestCase):
+    def setUp(self):
+        self.tmp=tempfile.TemporaryDirectory();self.addCleanup(self.tmp.cleanup);self.root=Path(self.tmp.name)
+        self.path=self.root/'empty.log';self.path.write_bytes(b'')
+        self.ref=dict(path='empty.log',bytes=0,sha256=hashlib.sha256(b'').hexdigest())
+
+    def test_genuine_empty_raw_record_retained_without_positive_contract_change(self):
+        self.assertEqual(gate.packet_source(self.root,self.ref),self.path)
+        self.assertEqual(self.path.read_bytes(),b'')
+        with self.assertRaisesRegex(ValueError,'exact bounded byte reference'):P.checked(self.root,self.ref)
+
+    def test_empty_hash_type_shape_and_path_forgery_refuses(self):
+        for change in (dict(sha256='0'*64),dict(bytes=False),dict(bytes=0.0),dict(path='../empty.log'),dict(path='/empty.log'),dict(extra='field')):
+            with self.subTest(change=change),self.assertRaises(ValueError):gate.packet_source(self.root,self.ref|change)
+
+    def test_declared_empty_nonempty_source_refuses(self):
+        self.path.write_bytes(b'changed original data')
+        with self.assertRaisesRegex(ValueError,'ordinary single-link empty'):gate.packet_source(self.root,self.ref)
+
+    def test_empty_missing_symlink_and_ancestor_alias_refuse(self):
+        self.path.unlink()
+        with self.assertRaises(FileNotFoundError):gate.packet_source(self.root,self.ref)
+        target=self.root/'target';target.write_bytes(b'');self.path.symlink_to(target)
+        with self.assertRaisesRegex(ValueError,'ordinary absolute'):gate.packet_source(self.root,self.ref)
+        directory=self.root/'directory';directory.mkdir();(directory/'empty.log').write_bytes(b'')
+        (self.root/'alias').symlink_to(directory,target_is_directory=True)
+        with self.assertRaises(ValueError):gate.packet_source(self.root,self.ref|dict(path='alias/empty.log'))
+
+    def test_empty_hardlink_and_special_node_refuse_before_read(self):
+        os.link(self.path,self.root/'alias.log')
+        with self.assertRaisesRegex(ValueError,'single-link'):gate.packet_source(self.root,self.ref)
+        self.path.unlink();os.mkfifo(self.path)
+        with self.assertRaisesRegex(ValueError,'ordinary single-link'):gate.packet_source(self.root,self.ref)
+
+    def test_positive_records_delegate_to_unmodified_checked(self):
+        self.path.write_bytes(b'original positive bytes');ref=P.ref(self.path)
+        with patch.object(P,'checked',wraps=P.checked) as checked:
+            self.assertEqual(gate.packet_source(self.root,ref),self.path)
+        checked.assert_called_once_with(self.root,ref)
+        with self.assertRaises(ValueError):gate.packet_source(self.root,ref|dict(sha256='0'*64))
+
+    def test_stage_rejects_existing_output_before_packet_read_or_overwrite(self):
+        out=self.root/'already-exists';out.mkdir();sentinel=out/'sentinel';sentinel.write_bytes(b'preserve')
+        with patch.object(P,'checked',side_effect=AssertionError('read must not occur')):
+            with self.assertRaisesRegex(ValueError,'fresh metadata-free'):gate.stage_packet(self.root,out,ROOT)
+        self.assertEqual(sentinel.read_bytes(),b'preserve')
 
 
 class Source(unittest.TestCase):

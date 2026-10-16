@@ -31,7 +31,7 @@ jobs:
           set -euo pipefail
           test "$SOURCE_SHA" = "$WORKFLOW_SHA"
           test "$SOURCE_SHA" = "$GITHUB_SHA"
-          test "$(sha256sum scripts/ci/installer-full26-generic-vm/job.py | cut -d ' ' -f 1)" = 90463a28595d3c539835552914c7e1ce660d74482d45f01bcc16569fbe624349
+          test "$(sha256sum scripts/ci/installer-full26-generic-vm/job.py | cut -d ' ' -f 1)" = e6031394231a107f9ada6b8409017687684f414e9adcfd816fc6bd1c2f311e75
           python3 -I -B scripts/ci/installer-full26-generic-vm/job.py proof \
             --workspace "$GITHUB_WORKSPACE" --proof "$RUNNER_TEMP/full26-proof.json"
       - name: Checkout the exact Root-bound original producer

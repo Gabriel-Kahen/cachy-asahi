@@ -225,13 +225,13 @@ def retain(source,output):
     selected=['source-proof.json','result.json','producer-owner.json','producer-build.json','engine/adapter.json','native/result.json','native/bootstrap.json',
               'integration/result.json','vm/owner-public/result.json','vm/owner-public/guest-events.json']
     selected += ['vm/owner-public/'+n+'-container.log' for n in ('tooling','verify','prepare','runtime')]
-    adapter=source/'engine/adapter.json'
+    adapter=source/'engine/adapter.json';pinned_sources=set()
     if adapter.exists():
         for name,row in read(adapter)['files'].items():
             A.need(name in {*('scripts/virtual/'+n for n in A.VIRTUAL),'scripts/install/local_transaction.py',
                            'scripts/install/test_local_transaction.py','scripts/port/kernel-native-job/runtime.py'}, 'finite engine export source')
             A.need(A.digest(A.read(source/'engine'/name))==row['after'],'actual private engine after-hash')
-            selected.append('engine/'+name)
+            selected.append('engine/'+name);pinned_sources.add('engine/'+name)
     contract=source/'vm/inputs/controller-contract.json'
     if contract.exists():
         value=read(contract);selected.append('vm/inputs/controller-contract.json')
@@ -250,7 +250,13 @@ def retain(source,output):
         origin=source/name
         if not origin.exists():continue
         try:
-            raw=A.read(origin,8*1024**2);total+=len(raw);A.need(total<=64*1024**2 and b'PRIVATE KEY' not in raw,'closed public bound/privacy')
+            raw=A.read(origin,8*1024**2);total+=len(raw)
+            # Immutable source contains assertions/filter code spelling PRIVATE
+            # KEY. It is not runtime key material. Still reject actual armor
+            # delimiters in source, and retain the strict runtime/log filter.
+            private=(re.search(rb'-----BEGIN (?:PGP PRIVATE KEY BLOCK|(?:RSA |EC |DSA |OPENSSH |ENCRYPTED )?PRIVATE KEY)-----',raw)
+                     if name in pinned_sources else b'PRIVATE KEY' in raw)
+            A.need(total<=64*1024**2 and not private,'closed public bound/privacy')
             target=output/name;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(raw);result['files'][name]=A.digest(raw)
         except (OSError,ValueError) as error:result['errors'].append(name+': '+str(error)[:128])
     need_result=read(source/'result.json')

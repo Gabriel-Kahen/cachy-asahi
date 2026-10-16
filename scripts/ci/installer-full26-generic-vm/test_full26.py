@@ -201,5 +201,26 @@ class Controls(unittest.TestCase):
         value=job.retain(source,self.root/'bare-public')
         self.assertEqual(value['status'],'FAIL_OR_INCOMPLETE_FULL26_EVIDENCE');self.assertTrue(value['errors'])
 
+    def test_export_retains_all14_pinned_sources_despite_filter_assertion_literals(self):
+        source=self.root/'source-export';source.mkdir();A.prepare(ROOT,source/'engine')
+        (source/'result.json').write_bytes(A.encoded(dict(status='FAIL')))
+        value=job.retain(source,self.root/'source-public')
+        self.assertEqual(value['errors'],[])
+        self.assertEqual(sum(n.startswith('engine/scripts/') for n in value['files']),14)
+        self.assertEqual((self.root/'source-public/engine/scripts/install/test_local_transaction.py').read_bytes(),
+                         (ROOT/'scripts/install/test_local_transaction.py').read_bytes())
+
+    def test_source_literal_exception_still_refuses_runtime_private_marker_and_source_armor(self):
+        source=self.root/'privacy';(source/'engine/scripts/virtual').mkdir(parents=True)
+        name='scripts/virtual/controller.py';raw=b'# -----BEGIN PGP PRIVATE KEY BLOCK-----\n'
+        (source/'engine'/name).write_bytes(raw)
+        (source/'engine/adapter.json').write_bytes(A.encoded(dict(files={name:dict(after=A.digest(raw))})))
+        (source/'result.json').write_bytes(A.encoded(dict(status='FAIL')))
+        (source/'native').mkdir();(source/'native/result.json').write_bytes(b'{"error":"PRIVATE KEY"}')
+        value=job.retain(source,self.root/'privacy-public')
+        self.assertTrue(any(n.startswith('engine/'+name+':') for n in value['errors']))
+        self.assertTrue(any(n.startswith('native/result.json:') for n in value['errors']))
+        self.assertNotIn('engine/'+name,value['files']);self.assertNotIn('native/result.json',value['files'])
+
 
 if __name__=='__main__':unittest.main()

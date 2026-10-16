@@ -13,8 +13,8 @@
       "sha256": "ac866e92f2c066774ff780a45535d394d7d0c0839b76fc27a6441b11e4581cc9"
     },
     "scripts/ci/setup5-expanded600/gate.py": {
-      "bytes": 3346,
-      "sha256": "12a207f81ee03dfa61f1cbe7518554e29709fecbbc033d7cd5aefbdcf7ed2ab5"
+      "bytes": 4688,
+      "sha256": "65259da0bdf9cfdea37f8f3154524c9f7963d62dfe35d71f660fc8d25b25e9fa"
     },
     "scripts/ci/setup5-expanded600/host.py": {
       "bytes": 8130,
@@ -45,8 +45,8 @@
       "sha256": "cbe979dcfcb5920fc2c4b027dd181f887b87081e393d767412668a45240b1c70"
     },
     "scripts/ci/setup5-expanded600/test_source.py": {
-      "bytes": 13943,
-      "sha256": "33d1edfb465581977928721a493d342f763e6191b2052513844ffcc1f4b2bc75"
+      "bytes": 17130,
+      "sha256": "59703b0ce07e1c9fa26290bbe5ed38d4a95fd6cc6d8069e9168f3389967d0d5b"
     }
   },
   "hardware": "NOT_RUN",
