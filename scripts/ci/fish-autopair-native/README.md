@@ -82,3 +82,21 @@ The development handoff's source controls and generated-code checks are
 separate from actual native build/installation,16K execution, M2 hardware,
 performance, signatures or release admission. Those remain NOT_RUN until
 their respective actual evidence exists.
+
+
+Actual38915141096 builds both candidate packages with all14 native makepkg PTY
+cases passing, but its full lifecycle remains FAIL: the first removal's absent
+probe invoked Fish against the protected fresh HOME's .config. Despite
+--no-config, Fish initialized fish/{completions,conf.d,functions,config.fish},
+and the strict preservation check correctly refused the added files/timestamp.
+The correction is harness-only: removal probes retain their actual HOME and
+all other environment fields, but direct XDG_CONFIG_HOME to a fixture-owned
+0700 fish-config directory in the declared external session output tree, owned
+by the ordinary test account before launching it. The installed14-case suites,
+all five ALPM transitions, strict full-home/system/receipt/outside snapshots and
+ordered cleanup remain unchanged. No snapshot reseeding, new ignore entry,
+package/runtime change or product version bump is introduced. Both removal
+probes still execute real Fish and assert guarded source usability and module
+absence. Source/data-only controls reproduce the old write shape, prove new
+containment for fresh/existing homes and show real protected mutation remains
+fatal. Corrected native lifecycle execution is NOT_RUN until the next actual.
