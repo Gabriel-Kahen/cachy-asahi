@@ -1,0 +1,61 @@
+{
+  "files": {
+    ".github/workflows/generic-arm64-16k.yml": {
+      "bytes": 3539,
+      "sha256": "ab0a5261278fcf171036a3d17411ec8ff3b9ce10b5a1034eda8c6f69f3ace51a"
+    },
+    "scripts/virtual/generic16k/CI-HANDOFF.md": {
+      "bytes": 6178,
+      "sha256": "7cc3cf2afcd6c40742498d195dad23ea136b4366965eeb7bb56150016559b1af"
+    },
+    "scripts/virtual/generic16k/FIXTURE.md": {
+      "bytes": 3720,
+      "sha256": "2e9e706d80523cbeda2bde224a21ed0f42ce987872a4df46087b62871621e031"
+    },
+    "scripts/virtual/generic16k/build_kernel.py": {
+      "bytes": 10184,
+      "sha256": "6a639f825d0226fb6ffc6b831c6dc4be8f31d022a94fb77c798ec1bea381161e"
+    },
+    "scripts/virtual/generic16k/ci_call.py": {
+      "bytes": 11262,
+      "sha256": "e4ed9d6188b78018608a14f157748ea5fd48700109f7c038edb12f20da5d3131"
+    },
+    "scripts/virtual/generic16k/fetch_inputs.py": {
+      "bytes": 7768,
+      "sha256": "212a0a9efc7c386158526ce40683a3646a899a9c7fd2c3140d6e24a02d778043"
+    },
+    "scripts/virtual/generic16k/fixture.py": {
+      "bytes": 14595,
+      "sha256": "378b8dfddf330a3809ac380e79cc727ed008588c17eb2b67e180024c27f29096"
+    },
+    "scripts/virtual/generic16k/inputs.json": {
+      "bytes": 1057,
+      "sha256": "bdfa44ed1d017c0d0e15c1f3af87bdf4a91923c20e812c861ca522d2cf428492"
+    },
+    "scripts/virtual/generic16k/kernel.fragment": {
+      "bytes": 815,
+      "sha256": "6d91180b80138d2d8039efafaaa9ca31349baea22b90430cbb15e07bce02e8f6"
+    },
+    "scripts/virtual/generic16k/smoke.c": {
+      "bytes": 1720,
+      "sha256": "b71adf10496d563a20eed7cecef8074cb82dd103a63e47f48462a1bd5d18f23d"
+    },
+    "scripts/virtual/generic16k/test_build_kernel.py": {
+      "bytes": 3604,
+      "sha256": "826cc79407fada6375c1c05b792a1c1747d2e5a87cce1fc6ac0722cb0e448aaa"
+    },
+    "scripts/virtual/generic16k/test_ci_call.py": {
+      "bytes": 3228,
+      "sha256": "8431db374993b8e960b9306a93ee08bc7a0ee8462c72a94d171fe8c203d084d3"
+    },
+    "scripts/virtual/generic16k/test_fetch_inputs.py": {
+      "bytes": 5315,
+      "sha256": "f64756e0acd347b69458ff36575494a03a8d5ecdb73e1be66e5d3fdc33414c55"
+    },
+    "scripts/virtual/generic16k/test_fixture.py": {
+      "bytes": 6025,
+      "sha256": "6d8323b15f2dcefcb67972e04c5cdb54f248685f70869ebf52176661a7bb5d8b"
+    }
+  },
+  "schema": 1
+}

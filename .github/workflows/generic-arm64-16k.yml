@@ -1,0 +1,78 @@
+name: generic-arm64-16k
+on:
+  workflow_dispatch:
+    inputs:
+      candidate_sha256:
+        description: Reviewed SHA256 of scripts/virtual/generic16k/ci-files.json
+        required: true
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: generic-arm64-16k
+  cancel-in-progress: false
+jobs:
+  generic16k:
+    if: github.repository == 'Gabriel-Kahen/cachy-asahi' && github.event.repository.private == false
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 100
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      CANDIDATE_SHA256: ${{ inputs.candidate_sha256 }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # existing reviewed repository pin
+        timeout-minutes: 5
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Authenticate complete candidate before runner provisioning
+        timeout-minutes: 2
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$GITHUB_WORKFLOW_SHA" = "$GITHUB_SHA"
+          python3 -I -B - <<'PY'
+          import hashlib,json,os,pathlib,re
+          root=pathlib.Path(os.environ['GITHUB_WORKSPACE']).resolve()
+          raw=(root/'scripts/virtual/generic16k/ci-files.json').read_bytes()
+          expected=os.environ['CANDIDATE_SHA256']
+          assert re.fullmatch('[0-9a-f]{64}',expected) and hashlib.sha256(raw).hexdigest()==expected
+          manifest=json.loads(raw)
+          assert manifest['schema']==1 and 1<=len(manifest['files'])<=32
+          for name,row in manifest['files'].items():
+              assert not name.startswith('/') and all(x not in ('','.','..') for x in name.split('/'))
+              path=root/name
+              assert not path.is_symlink() and path.resolve().is_relative_to(root)
+              data=path.read_bytes()
+              assert len(data)==row['bytes']<=262144 and hashlib.sha256(data).hexdigest()==row['sha256']
+          PY
+      - name: Install build and QEMU prerequisites only on disposable Ubuntu runner
+        timeout-minutes: 8
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$RUNNER_ARCH" = ARM64
+          test "$RUNNER_OS" = Linux
+          test "$(uname -m)" = aarch64
+          timeout --kill-after=10s 180s sudo apt-get -o Acquire::Retries=0 -o Acquire::http::Timeout=30 update -qq
+          timeout --kill-after=10s 240s sudo env DEBIAN_FRONTEND=noninteractive apt-get \
+            -o Acquire::Retries=0 -o Acquire::http::Timeout=30 install -y --no-install-recommends \
+            build-essential bc clang lld llvm flex bison libssl-dev libelf-dev python3 qemu-system-arm ca-certificates
+      - name: One native 16 KiB Image build and owned diskless TCG trial
+        timeout-minutes: 82
+        shell: bash
+        run: |
+          set -euo pipefail
+          timeout --signal=TERM --kill-after=30s 4800s python3 -B scripts/virtual/generic16k/ci_call.py \
+            --source-root "$GITHUB_WORKSPACE" --manifest-sha256 "$CANDIDATE_SHA256" \
+            --run-name "ci-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT" --execute
+      - name: Publish bounded receipts, configuration, licenses and log tails
+        if: always()
+        timeout-minutes: 2
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -B scripts/virtual/generic16k/ci_call.py \
+            --source-root "$GITHUB_WORKSPACE" --manifest-sha256 "$CANDIDATE_SHA256" \
+            --run-name "ci-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT" --publish
