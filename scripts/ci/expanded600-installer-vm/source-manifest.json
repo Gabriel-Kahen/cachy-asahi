@@ -4,8 +4,8 @@
     "sha256": "31bf9edea0381122d84ba99f1dcadd38d3ec8e4e9e70a6d91a70347bb80695e6"
   },
   "scripts/ci/expanded600-installer-vm/README.md": {
-    "bytes": 6098,
-    "sha256": "b2cc24d11a1e9332a9863d057a5df78ac87958f4e6c82fb1f7ed8ef3241bb3c9"
+    "bytes": 6126,
+    "sha256": "042f61d152af12a4bfc51ac2c1784cae2dd4814cc7305b9582a31ada8874c493"
   },
   "scripts/ci/expanded600-installer-vm/adapter-rules.json": {
     "bytes": 3895,
@@ -40,8 +40,8 @@
     "sha256": "2f7fbedf016639b87014da77f335ce82f0f01732b5c98fcef118d4fd7b91e8f7"
   },
   "scripts/ci/expanded600-installer-vm/input-policy.json": {
-    "bytes": 698,
-    "sha256": "0d2cfe42c585e08d634bec1d0322b37d69c94d3d3e861437f5eb2946dbe41e99"
+    "bytes": 1164,
+    "sha256": "b1f92bef726b5ee1d6c7265a4480c9c61d3733327071598d6549d4b41539d5ed"
   },
   "scripts/ci/expanded600-installer-vm/legacy-pins.json": {
     "bytes": 12884,
@@ -52,7 +52,7 @@
     "sha256": "595e53962345923c6cc8e6e01a611389cb7701cb916ab7757c7614a3b7935d56"
   },
   "scripts/ci/expanded600-installer-vm/test_source.py": {
-    "bytes": 15227,
-    "sha256": "7f5394fc547cab3c67eaa6ccb878fe3e03b5102a5f23057bc1ae94b34bfcfe16"
+    "bytes": 15792,
+    "sha256": "0c992bef42ef9d6b3056edffe2e59f9bf278059817c5be250a53c145ca42e657"
   }
 }

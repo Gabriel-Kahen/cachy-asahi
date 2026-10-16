@@ -23,14 +23,23 @@ SEVEN=Path(os.environ['EXPANDED600_SEVEN_ROOT'])
 
 
 class Selection(unittest.TestCase):
+    def pending(self):
+        actual=C.read
+        value=copy.deepcopy(C.policy(bound=False))
+        value.update(status='AWAITING_ROOT_PREREQUISITES_AND_EIGHT_PAIR_INPUT',eight_pair_source=None,eight_pair_index=None,
+                     prerequisites=dict(observer587=None,native600=None))
+        return patch.object(C,'read',side_effect=lambda path,*args,**kwargs:
+                            copy.deepcopy(value) if Path(path)==C.HERE/'input-policy.json' else actual(path,*args,**kwargs))
+
     def test_exact_inventory_keeps_setup3_updater2_only_bang_changes(self):
         old,new=C.locks();self.assertEqual(len(new),600)
         self.assertEqual({n for n in old if old[n]!=new[n]},{C.BANG})
         self.assertEqual(new['cachy-asahi-setup'],'0.1.0-3')
 
     def test_missing_root_bindings_fail(self):
-        self.assertEqual(C.policy(bound=False)['eight_pair_source'],None)
-        with self.assertRaisesRegex(ValueError,'pending Root'):C.policy()
+        with self.pending():
+            self.assertEqual(C.policy(bound=False)['eight_pair_source'],None)
+            with self.assertRaisesRegex(ValueError,'pending Root'):C.policy()
 
     def test_pending_ci_creates_no_output_or_actors(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -39,7 +48,7 @@ class Selection(unittest.TestCase):
                          'native','fdk','cache','setup4-pair','seven-pairs','eight-pairs','audio-inputs'):
                 argv += ['--'+name,directory]
             argv += ['--output',str(output),'--implementation-revision','a'*40]
-            with patch.object(sys,'argv',argv),patch.object(C,'load') as actors,self.assertRaisesRegex(ValueError,'pending Root'):
+            with self.pending(),patch.object(sys,'argv',argv),patch.object(C,'load') as actors,self.assertRaisesRegex(ValueError,'pending Root'):
                 ci.main()
             self.assertFalse(output.exists());actors.assert_not_called()
 
@@ -47,7 +56,7 @@ class Selection(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             output=Path(directory)/'github-output'
             argv=['gate.py','--implementation',directory,'--source','a'*40,'--workflow-sha','a'*40,'--preflight']
-            with patch.object(sys,'argv',argv),patch.dict(os.environ,GITHUB_OUTPUT=str(output)),self.assertRaisesRegex(ValueError,'pending Root'):
+            with self.pending(),patch.object(sys,'argv',argv),patch.dict(os.environ,GITHUB_OUTPUT=str(output)),self.assertRaisesRegex(ValueError,'pending Root'):
                 gate.main()
             self.assertFalse(output.exists())
 
