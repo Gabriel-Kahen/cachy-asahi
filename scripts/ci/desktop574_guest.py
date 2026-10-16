@@ -544,34 +544,31 @@ def owned_thread_state(process, deadline, proc=Path('/proc')):
 
 
 def capture_window(stage, monitors, client, compositor, env, logs):
-    # Mapping reports goal geometry. Let normal animations run before capture,
-    # spending the first five seconds of the existing eight-second live window.
-    # Recheck before second six, retaining two seconds for the host screendump.
+    # Let normal animations run before the fresh capture query. The normal
+    # command timeout and post-event live interval are separate from settling;
+    # all of this still consumes the root's existing 480-second session ceiling.
     start = time.monotonic()
-    until, capture_until, captured = start + 8, start + 6, False
+    until = start + 5
     while time.monotonic() < until:
         client.healthy(); compositor.healthy()
-        now = time.monotonic()
-        need(now < until, 'capture window deadline')
-        if not captured and now >= start + 5:
-            need(now < capture_until, 'capture readiness deadline')
-            clients = json.loads(command(['/usr/bin/hyprctl', '-j', 'clients', '-a'], env, logs,
-                                         stage + '-capture-clients', timeout=min(3, capture_until - now)))
-            need(type(clients) is list, 'invalid capture clients reply')
-            client.healthy(); compositor.healthy()
-            sampled = time.monotonic()
-            need(sampled < capture_until, 'capture readiness deadline')
-            owned = [row for row in clients if type(row) is dict and
-                     type(row.get('pid')) is int and row['pid'] == client.process.pid]
-            need(len(owned) == 1 and mapped_client(owned, client.process.pid) and
-                 owned[0]['size'] == [420, 220] and owned[0].get('visible') is True and
-                 owned[0].get('hidden') is False and owned[0].get('xwayland') is False,
-                 'owned Wofi not fully mapped/visible at capture')
-            emit('frame_ready', stage=stage, monitors=monitors, clients=clients,
-                 capture_after_ms=int((sampled - start) * 1000))
-            captured = True
         time.sleep(min(.2, max(0, until - time.monotonic())))
-    need(captured, 'capture window deadline')
+    client.healthy(); compositor.healthy()
+    clients = json.loads(command(['/usr/bin/hyprctl', '-j', 'clients', '-a'], env, logs,
+                                 stage + '-capture-clients', timeout=20))
+    need(type(clients) is list, 'invalid capture clients reply')
+    client.healthy(); compositor.healthy()
+    owned = [row for row in clients if type(row) is dict and
+             type(row.get('pid')) is int and row['pid'] == client.process.pid]
+    need(len(owned) == 1 and mapped_client(owned, client.process.pid) and
+         owned[0]['size'] == [420, 220] and owned[0].get('visible') is True and
+         owned[0].get('hidden') is False and owned[0].get('xwayland') is False,
+         'owned Wofi not fully mapped/visible at capture')
+    emit('frame_ready', stage=stage, monitors=monitors, clients=clients,
+         capture_after_ms=int((time.monotonic() - start) * 1000))
+    until = time.monotonic() + 8
+    while time.monotonic() < until:
+        client.healthy(); compositor.healthy()
+        time.sleep(min(.2, max(0, until - time.monotonic())))
 
 
 def phase(stage, config, env, logs):
