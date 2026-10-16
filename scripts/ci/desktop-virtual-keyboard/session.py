@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 import time
 import keyboard as K
+import compositor_log
 import terminal_workflow as T
 import terminal_session as W
 import managed_session as M
@@ -194,7 +195,7 @@ def phase(stage,config,env,logs):
     try:
         K.need(not any(p.is_socket() for p in base.RUNTIME.glob('wayland-*')),'stale Wayland socket')
         device=input_device()
-        compositor=base.Logged(['/usr/bin/Hyprland','--config',str(config)],stage,logs,env)
+        compositor=compositor_log.launch(base,stage,config,logs,env)
         selected=base.ipc(stage,compositor,env,logs)
         sockets=[p for p in base.RUNTIME.glob('wayland-*') if p.is_socket()]
         K.need(len(sockets)==1,'one managed Wayland socket required');selected['WAYLAND_DISPLAY']=sockets[0].name

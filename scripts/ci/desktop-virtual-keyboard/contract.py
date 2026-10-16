@@ -102,6 +102,20 @@ def verify_result(events):
                and passed.get('nonce')==nonce and passed.get('configuration_preserved') is True,'keyboard close/preservation failed')
         exits=[r for r in events[closed_at:passed_at] if r.get('event')=='process_exit' and r.get('name')==stage]
         K.need(len(exits)==1 and exits[0].get('returncode')==0,'compositor retirement failed')
+        log_at,log=one('compositor_log_summary',stage)
+        K.need(closed_at<log_at<passed_at and type(log.get('pid')) is int and
+               log['pid']==ready['startup_windows']['compositor']['pid'] and
+               type(log.get('returncode')) is int and log['returncode']==0 and
+               log.get('overflow') is False and type(log.get('drain_errors')) is int and
+               log['drain_errors']==0 and log.get('drains_complete') is True,
+               'clean owned compositor log receipt required')
+        streams=log.get('streams')
+        K.need(type(streams) is list and len(streams)==2,'two compositor log streams required')
+        for stream,suffix,limit in zip(streams,('stdout','stderr'),(2*1024*1024,256*1024)):
+            K.need(stream.get('path')=='/home/desktop574/logs/'+stage+'.'+suffix and
+                   type(stream.get('limit_bytes')) is int and stream['limit_bytes']==limit and
+                   type(stream.get('observed_bytes')) is int and 0<=stream['observed_bytes']<=limit,
+                   'compositor log stream identity/bound differs')
         previous=passed_at
     K.need(len([r for r in events if r.get('event')=='keyboard_request'])==18 and
            len([r for r in events if r.get('event')=='qmp_keyboard_input'])==18 and

@@ -141,3 +141,14 @@ An uncertain QMP reply triggers one emergency release-only batch and remains
 fatal; there is no replay of presses. Whole-chord delivery can still fail, so
 QMP calls/key-event counts and policy acknowledgements never replace the cwd
 barrier, exact result bytes or independent visible captures.
+
+The longer typed workflow selects the same finite owned-compositor logger as
+Welcome's seven-view exercise: stdout2MiB, stderr256KiB, no filtering, observed
+byte counts and fatal overflow/drain errors. Only Hyprland gets this budget;
+other actors retain their bounds. Replay requires the two exact stream bounds,
+owned PID, normal exit0 and ordered complete-drain receipt for each profile.
+Actual38904379501 passes separate key-only cd, exact shell output and its first
+capture, then fails on compositor log overflow during editor-save. Its later
+forced cleanup exit-9 is not normal shutdown. The adapter does not turn that
+actual into PASS. All six successful captures and original keyboard gates remain
+required; no physical-input or performance result is implied.
