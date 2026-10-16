@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Optional container-owned 574 transaction; never replaces the held build guard."""
 import argparse
+import base64
 import fcntl
 import hashlib
 import importlib.util
@@ -24,6 +25,22 @@ ENV = {'PATH':'/usr/bin:/bin', 'LANG':'C.UTF-8', 'LC_ALL':'C.UTF-8'}
 
 class ClientFenceError(ValueError):
     """The caller must preserve daemon resources when child reaping failed."""
+
+
+class ClientCommandError(ValueError):
+    def __init__(self, code, log):
+        super().__init__('owned client command failed')
+        self.diagnostic = None
+        try:
+            with log.open('rb') as stream:
+                size = os.fstat(stream.fileno()).st_size
+                stream.seek(max(0, size - 4096))
+                tail = stream.read(4096)
+            self.diagnostic = dict(returncode=code, log_bytes=size,
+                tail_bytes=len(tail), tail_sha256=hashlib.sha256(tail).hexdigest(),
+                tail_base64=base64.b64encode(tail).decode('ascii'))
+        except OSError:
+            pass
 
 
 def need(ok, message):
@@ -76,7 +93,8 @@ def command(argv, log, env, seconds):
         pending = None
         try:
             code = child.wait(timeout=seconds)
-            need(code == 0, 'owned client command failed')
+            if code != 0:
+                raise ClientCommandError(code, log)
         except BaseException as error:
             pending = error
             raise
@@ -302,6 +320,10 @@ def execute(owner, prepared, transaction, lock, out):
     except BaseException as error:
         pending = error
         result.update(error_kind=type(error).__name__,cancelled=isinstance(error,KeyboardInterrupt) or getattr(error,'cancelled',False))
+        # Only this fixed public-input transaction's output is eligible. Other
+        # commands and seed/controller logs stay outside the public projection.
+        if result['phase'] == 'active-build' and isinstance(error, ClientCommandError) and error.diagnostic is not None:
+            result['build_failure'] = error.diagnostic
         # Start/attach does not create resources: an exact CID already fences its executor.
         # Other client failures can leave an unobservable in-flight import/create/commit/copy.
         fenced = result['phase'] in ('active-build','active-probe') and not isinstance(error,ClientFenceError)

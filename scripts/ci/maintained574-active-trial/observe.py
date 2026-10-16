@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Native optional-owner normal/cancellation trial with independent daemon reads."""
 import argparse
+import base64
 import json
 import os
 from pathlib import Path
@@ -58,6 +59,20 @@ def project_owner(value):
     if 'error_kind' in value:
         s.need(type(value['error_kind']) is str and re.fullmatch('[A-Za-z0-9_]{1,64}',value['error_kind']),'owner_error_kind')
         result['error_kind']=value['error_kind']
+    if 'build_failure' in value:
+        failure=value['build_failure']
+        s.need(value['phase']=='active-build' and value['status']=='FAIL' and
+               type(failure) is dict and set(failure)=={'returncode','log_bytes','tail_bytes','tail_sha256','tail_base64'},
+               'build_diagnostic_shape')
+        s.need(type(failure['returncode']) is int and failure['returncode']!=0 and
+               type(failure['log_bytes']) is int and failure['log_bytes']>=0 and
+               type(failure['tail_bytes']) is int and 0<=failure['tail_bytes']<=4096 and
+               type(failure['tail_base64']) is str and len(failure['tail_base64'])<=5464,
+               'build_diagnostic_bound')
+        raw=base64.b64decode(failure['tail_base64'],validate=True)
+        s.need(len(raw)==failure['tail_bytes']==min(failure['log_bytes'],4096) and
+               s.sha(raw)==failure['tail_sha256'],'build_diagnostic_join')
+        result['build_failure']=dict(failure)
     cleanup=value['cleanup']
     s.need(cleanup['status'] in ('PASS','FAIL') and type(cleanup['client_fenced']) is bool and
            type(cleanup['initial_image_ids_preserved']) is bool,'cleanup_contract')
