@@ -154,6 +154,11 @@ def retain(base, runtime, proof, output, runner, manifest):
                  'first normal capture receipt absent')
             observed = [e for e in report['events'] if e.get('event') == 'frame_captured' and e.get('stage') == stage]
             need(observed == [observer], 'retained capture/event identity differs')
+            from capture import notification_pixels,verify_pixel_receipt
+            request=next(e for e in report['events'] if e.get('event')=='frame_ready' and e.get('stage')==stage)
+            pixels=notification_pixels(runtime/'frames'/(stage+'.ppm'),request['mako'])
+            need(pixels==observer['notification_pixels'],'retained first PPM/pixel receipt differs')
+            verify_pixel_receipt(pixels,request['mako'],result['frames'][stage]['sha256'])
             result['frames'][stage]['observer'] = observer
         need(not result['errors'], 'public retention incomplete')
         result['status'] = 'PASS_NATIVE_METADATA_PIXELS_PENDING_VISUAL_REVIEW'

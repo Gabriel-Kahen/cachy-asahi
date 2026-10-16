@@ -69,3 +69,15 @@ def listing(value,wire):
     row=found[0]
     need(all(row.get(k)==wire[k] for k in ('app_name','summary','body')),'Mako listing/wire payload differs')
     return row
+
+
+def capture_timing(wire,request_realtime_us,request_monotonic_ns):
+    """One guest clock domain: busctl message time -> immediately before emit."""
+    call=wire['call'].get('timestamp-realtime');reply=wire['reply'].get('timestamp-realtime')
+    need(all(type(v) is int and v>0 for v in (call,reply,request_realtime_us,request_monotonic_ns)) and
+         call<=reply<=request_realtime_us,'actual guest Notify/reply/request timestamps required')
+    age=request_realtime_us-call
+    need(age<=2_000_000,'first capture request has less than one second of original TTL reserved')
+    return dict(basis='GUEST_REALTIME_NOTIFY_TO_PRE_EMISSION',notify_realtime_us=call,reply_realtime_us=reply,
+                request_realtime_us=request_realtime_us,request_monotonic_ns=request_monotonic_ns,
+                age_us=age,age_ms=(age+999)//1000,original_expiry_ms=3000,reserve_us=3_000_000-age)
