@@ -20,6 +20,7 @@ ACTIVE_TOOLS = {'pacman','pacman-key','gpg','gpg-agent','ldconfig'}
 TRUST_PATHS = tuple('/etc/pacman.d/gnupg/'+name for name in (
     'pubring.kbx','pubring.gpg','trustdb.gpg','tofu.db','gpg.conf','gpg-agent.conf',
     'common.conf','public-keys.d/pubring.db')) + ('/etc/pacman.conf',)
+COPY_CONTROLS=('/etc/pacman.conf','/tmp/finish-keyring.py','/tmp/disabled-hooks.txt','/expected-packages.lock')
 
 
 def image_list(values):
@@ -86,6 +87,31 @@ def project_owner(value):
         projected[key]=resource_rows(cleanup[key],token,'containers' in key)
     s.need(projected['initial_image_ids']==result['initial_image_ids'],'baseline_receipt_join')
     result['cleanup']=projected
+    if value['phase'] in ('active-build','commit','probe-create','active-probe','completed'):
+        s.need('copy_metadata' in value,'verified_copy_required_before_execution')
+    if 'copy_metadata' in value:
+        copy=value['copy_metadata']
+        s.need(type(copy) is dict and set(copy)=={'status','container','archive','files_verified','directories_verified',
+               'uid','gid','members_sha256','controls'} and copy['status']=='PASS_ROOT_OWNED_COPY' and
+               type(copy['files_verified']) is int and copy['files_verified']==1155 and
+               type(copy['directories_verified']) is int and copy['directories_verified']==1 and
+               type(copy['uid']) is int and type(copy['gid']) is int and copy['uid']==copy['gid']==0 and
+               type(copy['members_sha256']) is str and re.fullmatch('[0-9a-f]{64}',copy['members_sha256']),'copy_metadata_contract')
+        container=resource_rows([copy['container']],token,True)[0]
+        s.need(container in projected['captured_containers'] and container['name'].endswith('-build'),'copy_container_join')
+        archive=copy['archive']
+        s.need(type(archive) is dict and set(archive)=={'bytes','sha256'} and type(archive['bytes']) is int and
+               0<archive['bytes']<=2*1024**3 and type(archive['sha256']) is str and
+               re.fullmatch('[0-9a-f]{64}',archive['sha256']),'copy_archive_bound')
+        controls=copy['controls'];s.need(type(controls) is list and len(controls)==4,'copy_controls_count')
+        for row,path in zip(controls,COPY_CONTROLS):
+            s.need(type(row) is dict and set(row)=={'path','uid','gid','type','mode','bytes','sha256'} and
+                   row['path']==path and row['type']=='regular' and type(row['uid']) is int and type(row['gid']) is int and
+                   row['uid']==row['gid']==0 and type(row['mode']) is int and 0<=row['mode']<=0o7777 and
+                   (path not in COPY_CONTROLS[:2] or row['mode']==0o644) and type(row['bytes']) is int and
+                   0<=row['bytes']<=1024**2 and type(row['sha256']) is str and re.fullmatch('[0-9a-f]{64}',row['sha256']),'copy_control_metadata')
+        s.need(controls[-1]['sha256']=='cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac','copied_inventory_lock')
+        result['copy_metadata']={**copy,'container':container,'archive':dict(archive),'controls':[dict(row) for row in controls]}
     if 'trust_metadata' in value:
         metadata=value['trust_metadata']
         s.need('build_failure' in result and b'ValueError: ordinary bounded producer trust/config required' in raw and

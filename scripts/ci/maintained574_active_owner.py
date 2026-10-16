@@ -2,13 +2,14 @@
 """Optional container-owned 574 transaction; never replaces the held build guard."""
 import argparse
 import base64
+from contextlib import ExitStack
 import fcntl
 import hashlib
 import http.client
 import importlib.util
 import json
 import os
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 import platform
 import re
 import signal
@@ -29,6 +30,8 @@ TRUST_PATHS = tuple('/etc/pacman.d/gnupg/'+name for name in (
     'pubring.kbx','pubring.gpg','trustdb.gpg','tofu.db','gpg.conf','gpg-agent.conf',
     'common.conf','public-keys.d/pubring.db')) + ('/etc/pacman.conf',)
 TRUST_FAILURE = b'ValueError: ordinary bounded producer trust/config required'
+COPY_CONTROLS = ('/etc/pacman.conf','/tmp/finish-keyring.py','/tmp/disabled-hooks.txt','/expected-packages.lock')
+COPY_LIMIT = 2*1024**3
 
 
 class MetadataConnection(http.client.HTTPConnection):
@@ -40,9 +43,9 @@ class MetadataConnection(http.client.HTTPConnection):
 
 
 class HeaderReader:
-    def __init__(self, response):
+    def __init__(self, response, limit=65536):
         self.response = response
-        self.remaining = 65536
+        self.remaining = limit
 
     def read(self, size=-1):
         need(self.remaining > 0, 'archive header bound')
@@ -77,7 +80,7 @@ def trust_header(cid, path):
         client.close()
 
 
-def trust_identity(owner, row):
+def trust_identity(owner, row, created=False):
     """Recheck the stopped owner through the same read-only Unix connection."""
     client = MetadataConnection('local-docker',timeout=3)
     response = None
@@ -91,7 +94,9 @@ def trust_identity(owner, row):
         need(value['Id']==row['cid'] and value['Name']=='/'+row['name'] and value['Image']==row['image'] and
              (value['Config'].get('Labels') or {}).get(LABEL)==owner.token,'container metadata identity differs')
         state = value['State']
-        need(state['Running'] is False and type(state['ExitCode']) is int and state['ExitCode']!=0,'stopped failed build required')
+        need(state['Running'] is False and type(state['ExitCode']) is int,'stopped container required')
+        if created: need(state['ExitCode']==0 and state['Status']=='created','unstarted build required')
+        else: need(state['ExitCode']!=0,'failed build required')
     finally:
         if response is not None: response.close()
         client.close()
@@ -186,10 +191,13 @@ def save(path, value):
     temporary.replace(path)
 
 
-def command(argv, log, env, seconds):
+def command(argv, log, env, seconds, stdin_path=None):
     """Fence our child session; a daemon executor is fenced separately by CID."""
-    with log.open('xb') as stream:
-        child = subprocess.Popen(argv, stdin=subprocess.DEVNULL, stdout=stream, stderr=subprocess.STDOUT,
+    with ExitStack() as stack:
+        stream = stack.enter_context(log.open('xb'))
+        if stdin_path is not None: regular(stdin_path)
+        incoming = stack.enter_context(stdin_path.open('rb')) if stdin_path is not None else subprocess.DEVNULL
+        child = subprocess.Popen(argv, stdin=incoming, stdout=stream, stderr=subprocess.STDOUT,
                                  env=env, start_new_session=True)
         pending = None
         try:
@@ -245,11 +253,14 @@ class Docker:
         self.serial = 0
         self.uncertain = False
 
-    def run(self, *args, seconds=20, raw=False):
+    def run(self, *args, seconds=20, raw=False, stdin_path=None):
         self.serial += 1
         log = self.out / ('client-%03d.log' % self.serial)
         self.uncertain = True
-        command(['/usr/bin/docker', *map(str,args)], log, self.env, seconds)
+        if stdin_path is None:
+            command(['/usr/bin/docker', *map(str,args)], log, self.env, seconds)
+        else:
+            command(['/usr/bin/docker', *map(str,args)], log, self.env, seconds, stdin_path=stdin_path)
         self.uncertain = False
         need(log.stat().st_size <= 1024**2, 'bounded client output required')
         text = log.read_text()
@@ -376,6 +387,98 @@ def context(here, path):
     return transaction, lock
 
 
+def copy_archive(prepared, path):
+    """Encode COPY's container-root ownership, never chown host source files."""
+    members = {}
+    deps = prepared/'deps'; private(deps); private(prepared/'keys')
+    members['/tmp/deps'] = {'type':'directory','mode':stat.S_IMODE(deps.stat().st_mode),'bytes':0,'sha256':None}
+    sources = []
+    for folder,target in (('keys','/usr/share/pacman/keyrings'),('deps','/tmp/deps')):
+        for source in sorted((prepared/folder).iterdir()): sources.append((source,target+'/'+source.name))
+    for target in COPY_CONTROLS: sources.append((prepared/Path(target).name,target))
+    need(len(sources)<=1155 and len({target for _,target in sources})==len(sources),'copy member bound')
+    total = 0
+    for source,target in sources:
+        regular(source); info=source.stat(); total+=info.st_size
+        need(total<=COPY_LIMIT,'copy byte bound')
+        mode = 0o644 if target in COPY_CONTROLS[:2] else stat.S_IMODE(info.st_mode)
+        members[target] = {'type':'regular','mode':mode,'bytes':info.st_size,'sha256':digest(source)}
+    with path.open('xb') as output:
+        path.chmod(0o600)
+        with tarfile.open(fileobj=output,mode='w',format=tarfile.PAX_FORMAT) as archive:
+            for target,row in members.items():
+                member=tarfile.TarInfo(target.lstrip('/'))
+                member.uid=member.gid=0; member.uname=member.gname='root'; member.mtime=0
+                member.mode=row['mode']; member.size=row['bytes']
+                if row['type']=='directory':
+                    member.type=tarfile.DIRTYPE;archive.addfile(member)
+                else:
+                    source=next(source for source,destination in sources if destination==target)
+                    with source.open('rb') as stream: archive.addfile(member,stream)
+    need(path.stat().st_size<=COPY_LIMIT,'copy archive bound')
+    return members,{'bytes':path.stat().st_size,'sha256':digest(path)}
+
+
+def verify_copy_scope(cid, path, expected):
+    """Stream back owned COPY members; no extraction or payload retention."""
+    scopes=('/usr/share/pacman/keyrings','/tmp/deps',*COPY_CONTROLS)
+    need(re.fullmatch('[0-9a-f]{64}',cid) and path in scopes,'fixed copy scope required')
+    client=MetadataConnection('local-docker',timeout=15);response=None;seen=set()
+    try:
+        client.request('GET','/containers/'+cid+'/archive?path='+quote(path,safe=''))
+        response=client.getresponse();need(response.status==200,'copied scope unavailable')
+        limit=COPY_LIMIT if path=='/tmp/deps' else 64*1024**2 if path==scopes[0] else 1024**2
+        with tarfile.open(fileobj=HeaderReader(response,limit),mode='r|') as archive:
+            for member in archive:
+                name=member.name.rstrip('/');parts=PurePosixPath(name)
+                need(name==str(parts) and not parts.is_absolute() and '..' not in parts.parts,'copied archive path differs')
+                root=Path(path).name
+                need(name==root or name.startswith(root+'/'),'copied archive root differs')
+                target=path+name[len(root):]
+                if target not in expected:
+                    # COPY merges these three keys into the imported keyring directory.
+                    # Retain unrelated preexisting keys; never claim them as our copy.
+                    need(path==scopes[0],'unexpected copied member')
+                    continue
+                row=expected[target]
+                need(target not in seen and member.uid==member.gid==0 and member.mode==row['mode'] and
+                     member.size==row['bytes'],'copied ownership/mode/size differs')
+                need(member.isdir() if row['type']=='directory' else member.isreg(),'copied type differs')
+                if member.isreg():
+                    hasher=hashlib.sha256()
+                    with archive.extractfile(member) as stream:
+                        while block:=stream.read(1024**2):hasher.update(block)
+                    need(hasher.hexdigest()==row['sha256'],'copied bytes differ')
+                seen.add(target)
+        return seen
+    finally:
+        if response is not None:response.close()
+        client.close()
+
+
+def verify_copy(owner, expected, archive):
+    need(len(owner.containers)==1,'one copy executor required')
+    row=owner.containers[0];need(row['name']==owner.names['build'],'copy executor name differs')
+    previous=signal.getsignal(signal.SIGALRM);timer=signal.setitimer(signal.ITIMER_REAL,0)
+    def expired(*_):raise TimeoutError('copy verification deadline')
+    try:
+        signal.signal(signal.SIGALRM,expired);signal.setitimer(signal.ITIMER_REAL,300)
+        trust_identity(owner,row,created=True)
+        seen=set()
+        for path in ('/usr/share/pacman/keyrings','/tmp/deps',*COPY_CONTROLS):
+            observed=verify_copy_scope(row['cid'],path,expected)
+            need(not seen&observed,'duplicate copy observation');seen.update(observed)
+        need(seen==set(expected),'copied member set differs')
+        trust_identity(owner,row,created=True)
+        return {'status':'PASS_ROOT_OWNED_COPY','container':dict(row),'archive':archive,
+                'files_verified':sum(v['type']=='regular' for v in expected.values()),'directories_verified':1,
+                'uid':0,'gid':0,'members_sha256':hashlib.sha256(json.dumps(expected,sort_keys=True).encode()).hexdigest(),
+                'controls':[dict(path=path,uid=0,gid=0,**expected[path]) for path in COPY_CONTROLS]}
+    finally:
+        signal.setitimer(signal.ITIMER_REAL,0);signal.signal(signal.SIGALRM,previous)
+        signal.setitimer(signal.ITIMER_REAL,*timer)
+
+
 def execute(owner, prepared, transaction, lock, out):
     result = {'status':'FAIL','scope':'OPTIONAL_CONTAINER_OWNED_574_TRANSACTION','hardware':'NOT_RUN',
               'cancelled':False,'phase':'root-import','helper_sha256':HELPER,'inputs_sha256':INPUTS,
@@ -391,15 +494,10 @@ def execute(owner, prepared, transaction, lock, out):
         result['phase'] = 'build-create'
         cid = owner.create('build',image,['/bin/sh','-ec',transaction])
         result['phase'] = 'build-copy'
-        transfer = out/'transfer'; transfer.mkdir(mode=0o700)
-        for name in ('pacman.conf','finish-keyring.py'):
-            (transfer/name).write_bytes((prepared/name).read_bytes())
-            (transfer/name).chmod(0o644)  # Held Dockerfile's two explicit COPY --chmod directives.
-        for name,target in (('keys/.','/usr/share/pacman/keyrings/'),('deps','/tmp/'),('pacman.conf','/etc/pacman.conf'),
-                            ('disabled-hooks.txt','/tmp/disabled-hooks.txt'),('expected-packages.lock','/expected-packages.lock'),
-                            ('finish-keyring.py','/tmp/finish-keyring.py')):
-            source = str(transfer/name) if name in ('pacman.conf','finish-keyring.py') else str(prepared)+'/'+name
-            owner.d.run('container','cp',source,cid+':'+target,seconds=120)
+        transfer=out/'copy-inputs.tar'
+        expected,archive=copy_archive(prepared,transfer)
+        owner.d.run('container','cp','--archive','-',cid+':/',seconds=240,stdin_path=transfer)
+        result['copy_metadata']=verify_copy(owner,expected,archive)
         # Unlike opaque `docker build`, this daemon executor has a known CID.
         result.update(phase='active-build',active_executor=dict(owner.containers[-1]))
         save(out/'result.json',result)

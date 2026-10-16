@@ -7,8 +7,8 @@ from pathlib import Path
 import re
 
 PINS = {
-    'maintained574_active_owner.py':'5cceb8bc88442e9990ac263b7fc1d64999b0b991f4baeb33200755005854408e',
-    'test_maintained574_active_owner.py':'1251c25ccdba68aa64fc8e3c059924b2ecf08a40efddcf12cdf6409c714612c7',
+    'maintained574_active_owner.py':'cd8fb96126f78a7a7d3e41909da7fb29a75c6637b1e3bd267577efa5cbb17eab',
+    'test_maintained574_active_owner.py':'bc93c04878995b9a2708078ba479df4cb27cf51f6fb3ad3c3619369edddf73d6',
     'maintained_desktop574.py':'27ba4be42cf2bd41675073e07cccc917ae033f9d68b07a33cfd7f074ac27b760',
     'maintained-desktop574-inputs.json':'b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9',
     'old_four_seed.py':'a14e0318549d24a9bc91ceeb03ec2c1fa2d12f2b3a4f9b0a4cccfb64be34b2b7',
