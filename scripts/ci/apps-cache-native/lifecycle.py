@@ -18,6 +18,7 @@ def main():
     L.need(not any(Path(path).exists() for path in ('/source','/repository-source','/.git','/workspace')),
         'installed CLI must not depend on a mounted Git/source checkout')
     control=json.loads(Path('/inputs/control.json').read_bytes());pacman=I.pacman(L,control['signer'])
+    query=pacman[:-2]  # Keep the same config; transaction flags stay on -U/-R only.
     state=I.base_state(L,driver);base_digest=I.preserve_base(L,state)
     archives=[]
     for name,row in products.items():
@@ -45,7 +46,7 @@ def main():
         for path,expected in output_pins.items():L.need(L.entry(path)==expected,'preexisting generated user output changed')
     def installed(phase):
         L.need(L.inventory()==base|selected,'complete installed inventory differs')
-        I.payloads(L,products);L.command(pacman+['-Dk'])
+        I.payloads(L,products);L.command(query+['-Dk'])
         for relative,digest in C.HELPERS.items():L.need(L.sha(C.RUNTIME/relative)==digest,'installed default runtime helper bytes differ')
         fixture=Path('/inputs/catalog-fixture');signed=json.loads((fixture/'control.json').read_bytes())
         observations=[]
