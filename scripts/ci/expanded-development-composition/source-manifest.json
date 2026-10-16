@@ -32,8 +32,8 @@
     "sha256": "039aa924ca9fd22d12cd49f718d0cd3d21e93ff16c776b93b90b73f096f492b3"
   },
   "scripts/ci/expanded-development-composition/lifecycle.py": {
-    "bytes": 15739,
-    "sha256": "2886d329e22aa84738596c4cef3d16e04d5530097880bd63a560f0a1b995e104"
+    "bytes": 15723,
+    "sha256": "6b109e874e3611cd933e8fbeb73407d143b61a2eb659d12789f72b6d071b4201"
   },
   "scripts/ci/expanded-development-composition/owned.py": {
     "bytes": 3594,
@@ -48,7 +48,7 @@
     "sha256": "abc46fbd749a65ec89ce6f38f434ab3ea02b3c2e67bd82d0ef46a400378a9b07"
   },
   "scripts/ci/expanded-development-composition/test_source.py": {
-    "bytes": 17457,
-    "sha256": "d6ed2bc34a2b9ce9cf6fc1012b6c19dde96becfe207f526fd51f35d626b9057d"
+    "bytes": 19854,
+    "sha256": "a55d4c49664a5d5068cc1351344cde1e618195c7adc548256ed073806a0c63e3"
   }
 }

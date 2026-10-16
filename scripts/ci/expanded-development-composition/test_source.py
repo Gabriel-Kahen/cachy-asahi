@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: MIT
 """Inert input, transaction, receipt and owned-resource refusal controls."""
+import ast
 import copy
 import importlib.util
 import json
@@ -187,6 +188,45 @@ class Adapters(unittest.TestCase):
                 adapter.installed_join(ROOT,driver)
                 Path(mapping['bang']).write_text('# wrong installed wrapper\n')
                 with self.assertRaises(ValueError):adapter.installed_join(ROOT,driver)
+
+
+class PacmanPlan(unittest.TestCase):
+    def install(self,command):
+        # Exercise the actual nested install body without entering the root
+        # lifecycle or invoking pacman, trust setup, hooks or filesystem actors.
+        path=Path(__file__).with_name('lifecycle.py');tree=ast.parse(path.read_bytes())
+        functions=[n for n in ast.walk(tree) if isinstance(n,ast.FunctionDef) and n.name=='install']
+        self.assertEqual(len(functions),1)
+        rows=[dict(name='addon-one',version='1-1'),dict(name=C.UPGRADE,version=C.NEW)]
+        pacman=['pacman','--config','/private/pacman.conf'];archives=['/addons/one.pkg.tar.xz','/addons/bang2.pkg.tar.xz']
+        namespace=dict(run=command,C=C,pacman=pacman,addon_paths=archives,rows=rows)
+        exec(compile(ast.Module(body=functions,type_ignores=[]),str(path),'exec'),namespace)
+        return namespace['install'],pacman,archives
+
+    def test_print_query_never_carries_mutation_only_scriptlet_flag(self):
+        calls=[]
+        def command(argv):
+            calls.append(argv)
+            if '--print' in argv:
+                if '--noscriptlet' in argv:raise ValueError("invalid option: '--print' and '--noscriptlet' may not be used together")
+                return 'addon-one 1-1\n'+C.UPGRADE+' '+C.NEW+'\n'
+            self.assertIn('--noscriptlet',argv);return ''
+        install,pacman,archives=self.install(command);install()
+        self.assertEqual(calls,[pacman+['--noconfirm','-U','--print','--print-format','%n %v',*archives],
+                                pacman+['--noconfirm','--noscriptlet','-U',*archives]])
+
+    def test_query_plan_version_mismatch_stops_before_mutation(self):
+        from unittest.mock import Mock
+        command=Mock(return_value='addon-one 1-1\n'+C.UPGRADE+' '+C.OLD+'\n')
+        install,_,_=self.install(command)
+        with self.assertRaisesRegex(ValueError,'dependency/conflict preflight differs'):install()
+        self.assertEqual(command.call_count,1);self.assertIn('--print',command.call_args.args[0])
+
+    def test_query_error_stops_before_mutation(self):
+        from unittest.mock import Mock
+        command=Mock(side_effect=ValueError('query failed'));install,_,_=self.install(command)
+        with self.assertRaisesRegex(ValueError,'query failed'):install()
+        self.assertEqual(command.call_count,1);self.assertIn('--print',command.call_args.args[0])
 
 
 class Receipts(unittest.TestCase):

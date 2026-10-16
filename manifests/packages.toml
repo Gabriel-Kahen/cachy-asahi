@@ -508,7 +508,7 @@ native_build = "PASS byte-identical0.1.0-2 native ARM pair in38921031485"
 installation = "PASS all five native package phases and six installed18-case local-recorder observations in38921031485"
 hardware_validation = "NOT RUN"
 native_evidence = "docs/validation/fish-candidates-native-20261016.md"
-next_step = "Integrate the complete development composition and combined shell workflow. Separate generic16K recorder actual38921698057 is running; real notification-manager, M2 and performance acceptance remain open. Candidate stays unselected."
+next_step = "Generic16K actual38946660799 passes all18 original case bodies with an explicitly adapted native C private recorder, unchanged product timeout and complete cleanup. Integrate the complete600 composition and real notification-manager delivery; both M2 Air sizes, performance and release admission remain open. Candidate stays unselected."
 
 [[packages]]
 name = "cachy-asahi-glibc-official-release"
