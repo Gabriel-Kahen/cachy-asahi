@@ -1,0 +1,121 @@
+# Installed Fish Done notifications on the real managed desktop
+
+This separate manual generic4K lane tests the actual installed opt-in Done
+module with real interactive Fish, real `/usr/bin/notify-send`, the real systemd
+user manager/bus and normal shipped-config Mako/Waybar. No notification recorder,
+shim, mock API, private bus, direct fixture Notify call or logging-enabled startup
+can satisfy its runtime contract. No existing bar, Done or product source changes.
+Current status is source/data controls only; no native run or readable-frame
+acceptance is claimed.
+
+## Exact inputs and assembly
+
+Root-accepted ordinary bar run38938127725, Source
+c8d3741816999a78a205b5a331d73d9589ee8c3a, established real managed delivery and
+two original first readable frames. This lane derives that exact current source
+pattern and keeps its systemd-user API, kernel7.2.10/4096-byte page contract,
+software compositor, original helpers, defaults, configs and first-frame capture.
+Its actual accepted composition was591 packages, not584/587. The same exact574
+producer and591 desktop runtime are reused, with only the retained Done package
+added: this lane explicitly expects592. No other package/version selection changes.
+
+The Done input is the existing 0.1.0-2 native pair from run38921031485, Source
+6c691098cd7be3ad4a4b2acb9acfb4fdc653cf53. Both archives are15380 bytes, SHA256
+9ce3c7ba89467f04660014c1b12056dce28bd0c4e69b4cab8a9c2c98e1cce54f.
+The immutable six-module checkout is de35c384a2e5b14b664d4156897f271b81e467ba;
+its index is78603 bytes, SHA256
+f73f84b9be6317aa6a95eafae6801cab435220c98ad5b416b5280729bfbac704.
+
+`packet.py` performs data-only assembly before any guest/image creation. It
+verifies the exact index, both original archive hashes, full retained recipe
+inputs, original acceptance/lifecycle references, actual PKGINFO/BUILDINFO/source
+bindings and all eight ordinary source/license payload files through the existing
+package inspectors. It stages one unchanged archive and a closed Done payload
+lock. It never executes a recipe, compiler or backend. The producer's existing
+private project package assembly installs that one reviewed local archive in the
+disposable derived image before its guest filesystem is made; the source builder
+and host are not modified. The existing locally reviewed-project signature policy
+is used for the desktop and Done archives only; this is no signed release admission.
+
+Inside each guest phase, real pacman queries must report the installed version
+and exact file ownership. Every payload node's type, mode, root ownership, size
+and SHA256 is checked against the original native archive, before and after the
+case. Real Fish/notify-send/timeout executables are required to be AArch64 ELF;
+their actual byte identities are retained. No source payload copied outside a
+package installation is treated as installed Done.
+
+## Two bounded foreground cases
+
+The initial scope is the explicitly permitted two foreground cases:
+
+| Profile | Actual interactive command | Expected caller status |
+| --- | --- | ---: |
+| minimal | `command sleep 5.25` | 0 |
+| overlay | `command sh -c 'sleep 5.25; exit 7'` | 7 |
+
+Each is typed into an actual owned controlling PTY running
+`/usr/bin/fish --no-config --private --interactive`. The installed
+`/usr/share/cachy-asahi/fish-done/opt-in.fish` is explicitly sourced. The module's
+default5000ms threshold, generic command privacy body, normal/critical urgency,
+transient hint and3000ms expiry remain unchanged. Prompts record the actual
+post-command status; a following user command records caller continuation; Fish
+must then exit normally with0. A raw bounded PTY transcript and hashes join those
+records. This is actual fish_postexec behavior, not calling __done_notify directly.
+Watched background notifications remain NOT_RUN in this first lane and are not
+silently counted as covered.
+
+Hyprland, Waybar and Mako start from their normal shipped configs on the real
+systemd-owned UID23001 runtime/bus. The desktop settles for the original five
+seconds before Fish is triggered. A separate real `busctl --json=short monitor`
+observes the service; a harmless real GetCapabilities roundtrip establishes that
+the monitor is ready. Only the installed module's actual notify-send can produce
+the accepted Notify. Its unique sender, destination, cookie, exact signature,
+summary/body/app/icon/hints/expiry and Mako's unique-owner method reply/ID must
+join Mako's actual live list and fully visible owned layer. The recipient's real
+unique name/PID joins the owned Mako child, and managed-bus identity is rechecked.
+Complete bounded monitor stdout and its hash are retained, not a Boolean delivery
+assertion. The monitor is stopped explicitly with SIGINT; its stop status is
+reported separately from the required normal Fish/Mako/client exits.
+
+## First pixels and preservation
+
+Done naturally expires in three seconds, unlike the old bar fixture's explicit
+nonexpiring notice. This lane settles the desktop before the command and requests
+its first capture immediately after real visible delivery and caller continuation,
+within2500ms of observing the reply. It keeps the original one-shot QMP PPM path,
+original bytes, geometry/nonuniform checks, five-second host observation bound,
+request hash and managed identity join. It does not extend expiry, reload clients,
+increase opacity, retry or replace a frame. A delayed or unreadable first frame
+cannot be rescued; Root must view both original first PPMs for readable actual
+success/failure summary and body. Metadata success remains pixels pending review.
+
+Both phases require installed payload preservation, existing user config sentinels
+(including Fish), exact caller statuses, ordinary0 Fish/Mako/Waybar/compositor
+exits, process retirement and the original manager/unit/socket cleanup. Bounded
+failure records retain available raw Fish and bus bytes without masking the first
+error. Retention independently replays the generated contract after verifying all
+generated runner hashes; private legacy Done lifecycle/recorder results cannot
+satisfy real-manager acceptance.
+
+The accepted resources and650/850/900/1750/2050s session/service/controller/cleanup
+budgets,2CPU/4GiB software guest,14 runtime cleanup records, base/probe/image
+retirement and128MiB closed public export remain. No new native helper/compiler
+is added; the accepted fixture's existing GBM helper path is reused. There are no
+hardware, M2, acceleration, performance,16K or release claims. Separate16K and
+background coverage are future work.
+
+## Source controls and Root dispatch
+
+Source-only preparation and focused controls:
+
+```sh
+python3 -B scripts/ci/fish-done-managed-notifications/prepare.py --source "$PWD" --modules /exact/six-module-checkout --output /fresh/private/runner
+DONE_MANAGED_SOURCE_ROOT="$PWD" DONE_MANAGED_INPUTS=/exact/six-module-checkout DONE_MANAGED_PREPARED_RUNNER=/fresh/private/runner python3 -B scripts/ci/fish-done-managed-notifications/test_source.py
+```
+
+The manual workflow is native-arm-fish-done-managed-notifications.yml. Root owns
+final source/generated-runner pins, caller/manifest hash stamping, exact source
+commit and actual dispatch. Its read-only packet checkout is pinned before any
+existing secret seed/native actor. Source proof requires the exact workflow SHA;
+stage proof compares every generated file. Packet/payload verification and unit
+protocol examples are source/data checks, never real-manager execution evidence.
