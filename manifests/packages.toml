@@ -259,10 +259,11 @@ selected_for_release = false
 native_build = "PASS"
 native_build_commit = "56b44dfde8d9b86ac9c48b830fa678ef1778232c"
 native_evidence = "docs/validation/asahi-audio-data-native-20261015.md"
-installation = "PASS generic native ARM signed install/removal; actual38797262875, historical exact versions"
-installation_evidence = "docs/validation/full-composition-audio-native-20261015.md"
+installation = "PASS generic native ARM current-version signed install/removal and recorded cache-state preservation; actual38857117019"
+installation_evidence = "docs/validation/full-composition-audio-padding-native-20261016.md"
 hardware_validation = "NOT RUN"
-next_step = "Signed generic native installation/removal passed for the exact old archives in actual38797262875. Audio/plugin/service execution, source/license closure, implicit ldconfig effects and M2 acceptance remain open."
+next_step = "Current signed generic installation/removal and recorded cache-state preservation passed. Validate live services, routing and M2 hardware integration; complete corresponding-source/license delivery before production selection."
+
 
 [[packages]]
 name = "alsa-ucm-conf-asahi"
@@ -278,10 +279,11 @@ selected_for_release = false
 native_build = "PASS"
 native_build_commit = "56b44dfde8d9b86ac9c48b830fa678ef1778232c"
 native_evidence = "docs/validation/asahi-audio-data-native-20261015.md"
-installation = "PASS generic native ARM signed install/removal; actual38797262875, historical exact versions"
-installation_evidence = "docs/validation/full-composition-audio-native-20261015.md"
+installation = "PASS generic native ARM current-version signed install/removal and recorded cache-state preservation; actual38857117019"
+installation_evidence = "docs/validation/full-composition-audio-padding-native-20261016.md"
 hardware_validation = "NOT RUN"
-next_step = "Signed generic native installation/removal passed for the exact old archives in actual38797262875. Audio/plugin/service execution, source/license closure, implicit ldconfig effects and M2 acceptance remain open."
+next_step = "Current signed generic installation/removal and recorded cache-state preservation passed. Validate live services, routing and M2 hardware integration; complete corresponding-source/license delivery before production selection."
+
 
 [[packages]]
 name = "speakersafetyd"
@@ -299,10 +301,11 @@ native_build_commit = "b83c0f539034f10112a2d1e9743810344f13bb9d"
 native_evidence = "docs/validation/asahi-audio-rust-notices-native-20261015.md"
 prior_native_build_commit = "6983455c92ac39064909923836d7c5122d423f0f"
 prior_native_evidence = "docs/validation/asahi-audio-rust-native-20261015.md"
-installation = "PASS generic native ARM signed install/removal; actual38797262875, historical 2.0.1-2"
-installation_evidence = "docs/validation/full-composition-audio-native-20261015.md"
+installation = "PASS generic native ARM current-version signed install/removal and recorded cache-state preservation; actual38857117019"
+installation_evidence = "docs/validation/full-composition-audio-padding-native-20261016.md"
 hardware_validation = "NOT RUN"
-next_step = "Current notice-bearing native pair passed. Validate installation/removal of this exact version and implicit ldconfig state; the earlier audio593 transaction covers the old version only. Audio/service execution, complete source/license delivery and M2 acceptance remain open."
+next_step = "Current notice-bearing native pair and exact-version installation/removal passed. Validate daemon lifecycle and supported M2 safety behavior; complete corresponding-source/license delivery before production selection."
+
 
 [[packages]]
 name = "bankstown"
@@ -320,10 +323,13 @@ native_build_commit = "b83c0f539034f10112a2d1e9743810344f13bb9d"
 native_evidence = "docs/validation/asahi-audio-rust-notices-native-20261015.md"
 prior_native_build_commit = "6983455c92ac39064909923836d7c5122d423f0f"
 prior_native_evidence = "docs/validation/asahi-audio-rust-native-20261015.md"
-installation = "PASS generic native ARM signed install/removal; actual38797262875, historical 1.1.0-3"
-installation_evidence = "docs/validation/full-composition-audio-native-20261015.md"
+installation = "PASS generic native ARM current-version signed install/removal and recorded cache-state preservation; actual38857117019"
+installation_evidence = "docs/validation/full-composition-audio-padding-native-20261016.md"
+runtime_validation = "PASS bounded native offline DSP and four official graph synthetic processing"
+runtime_evidence = "docs/validation/asahi-audio-graph-processing-native-20261016.md"
 hardware_validation = "NOT RUN"
-next_step = "Current notice-bearing native pair passed. Validate installation/removal of this exact version and implicit ldconfig state; the earlier audio593 transaction covers the old version only. Audio/service execution, complete source/license delivery and M2 acceptance remain open."
+next_step = "Current signed installation/removal and bounded native DSP/full-graph processing passed. Validate live services, routing, acoustics and M2 hardware; complete corresponding-source/license delivery before production selection."
+
 
 [[packages]]
 name = "triforce-lv2"
@@ -341,10 +347,13 @@ native_build_commit = "b83c0f539034f10112a2d1e9743810344f13bb9d"
 native_evidence = "docs/validation/asahi-audio-rust-notices-native-20261015.md"
 prior_native_build_commit = "6983455c92ac39064909923836d7c5122d423f0f"
 prior_native_evidence = "docs/validation/asahi-audio-rust-native-20261015.md"
-installation = "PASS generic native ARM signed install/removal; actual38797262875, historical 0.3.2-2"
-installation_evidence = "docs/validation/full-composition-audio-native-20261015.md"
+installation = "PASS generic native ARM current-version signed install/removal and recorded cache-state preservation; actual38857117019"
+installation_evidence = "docs/validation/full-composition-audio-padding-native-20261016.md"
+runtime_validation = "PASS bounded native offline DSP and four official graph synthetic processing"
+runtime_evidence = "docs/validation/asahi-audio-graph-processing-native-20261016.md"
 hardware_validation = "NOT RUN"
-next_step = "Current notice-bearing native pair passed. Validate installation/removal of this exact version and implicit ldconfig state; the earlier audio593 transaction covers the old version only. Audio/service execution, complete source/license delivery and M2 acceptance remain open."
+next_step = "Current signed installation/removal and bounded native DSP/full-graph processing passed. Validate live services, routing, acoustics and M2 hardware; complete corresponding-source/license delivery before production selection."
+
 
 [[packages]]
 name = "lsp-plugins-lv2-headless-development"
