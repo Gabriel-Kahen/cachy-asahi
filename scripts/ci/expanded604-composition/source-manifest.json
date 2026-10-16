@@ -104,13 +104,17 @@
       "bytes": 15973,
       "sha256": "583f78fc192cced2671d2576712bcb04f1977509bbb12e736fccffcc35dcb7bc"
     },
+    "scripts/ci/expanded604-composition/test_carrier_paths.py": {
+      "bytes": 1015,
+      "sha256": "2e63651b617134046f5b9f9520bfc291fccac89292a942bc6a6b773f12a5d3c5"
+    },
     "scripts/ci/expanded604-composition/test_core.py": {
       "bytes": 8653,
       "sha256": "6d50b56dad107ad8b98504589179f1f03d1217eff3b0b5a403b80ff857f0beab"
     },
     "scripts/ci/expanded604-composition/test_inputs.py": {
-      "bytes": 11155,
-      "sha256": "2e7cda22d874537b8b60458a201c539fbbe25ed51c155e45c073fbfe9cdfe7e2"
+      "bytes": 11905,
+      "sha256": "2838d37c0681579412441b1a2e2551879bad0dc16cb94fac7790c24f4d87af74"
     },
     "scripts/ci/expanded604-composition/test_lifecycle.py": {
       "bytes": 7690,

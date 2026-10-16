@@ -190,4 +190,16 @@ class Inputs(unittest.TestCase):
             self.assertEqual(row['files']['a']['sha256'],row['files']['b']['sha256'])
 
 
+    def test_original_welcome2_native_pair_and_cli_receipt(self):
+        root=self.packet_root('EXPANDED604_WELCOME_ROOT',SOURCE/'artifacts/development/welcome2-native-inputs-20261016/payload')
+        policy=C.read(HERE/'input-policy.json')
+        checks,bind=I.tools(SOURCE)
+        with tempfile.TemporaryDirectory() as directory:
+            staged=I.stage_packet(root,Path(directory)/'welcome2',policy['welcome']['index'])
+            row=I.welcome_pair(SOURCE,staged,policy['welcome'],checks,bind)
+            self.assertEqual(row['version'],'0.1.0-2');self.assertEqual(len(row['sources']),24)
+            self.assertEqual(row['native_run'],38974893566)
+            self.assertEqual(row['files']['a']['sha256'],row['files']['b']['sha256'])
+
+
 if __name__=='__main__':unittest.main()
