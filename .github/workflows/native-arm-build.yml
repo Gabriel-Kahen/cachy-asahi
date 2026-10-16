@@ -1,68 +1,85 @@
-name: native-arm-build
+name: native-arm-maintained574-active-cancellation
 on:
   workflow_dispatch:
     inputs:
-      mode:
-        description: Probe, audit, original builds, or frozen development-only integration
+      source_commit:
+        description: Reviewed full Source containing owner and trial adapter
         required: true
-        default: probe
+        type: string
+      candidate_sha256:
+        description: Reviewed SHA256 of scripts/ci/maintained574-active-trial/candidate-files.json
+        required: true
+        type: string
+      trial_mode:
+        description: Normal optional owner first, then genuinely running transaction cancellation
+        required: true
         type: choice
-        options: [probe, audit, build, integration]
-      inputs_sha256:
-        description: Reviewed SHA-256 of selected input lock (build uses maintained successor)
-        type: string
-        default: ''
-      recipes_sha256:
-        description: Reviewed SHA-256 of selected four-package recipe lock (build)
-        type: string
-        default: ''
-      integration_sha256:
-        description: Reviewed SHA-256 of scripts/ci/integration.lock.json (integration)
-        type: string
-        default: ''
+        default: both
+        options: [both, normal, cancel]
 permissions:
   contents: read
 concurrency:
-  group: native-arm-build
+  group: native-arm-maintained574-active-cancellation
   cancel-in-progress: false
-  queue: max
 jobs:
-  native:
+  active574:
     if: github.repository == 'Gabriel-Kahen/cachy-asahi' && github.event.repository.private == false
     runs-on: ubuntu-24.04-arm
-    timeout-minutes: 50
+    timeout-minutes: 195
     env:
       PYTHONDONTWRITEBYTECODE: '1'
-      BUILD_MODE: ${{ inputs.mode }}
-      INPUTS_SHA256: ${{ inputs.inputs_sha256 }}
-      RECIPES_SHA256: ${{ inputs.recipes_sha256 }}
-      INTEGRATION_SHA256: ${{ inputs.integration_sha256 }}
+      ACTIVE574_SOURCE_COMMIT: ${{ inputs.source_commit }}
+      ACTIVE574_CANDIDATE_SHA256: ${{ inputs.candidate_sha256 }}
+      ACTIVE574_TRIAL_MODE: ${{ inputs.trial_mode }}
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1, verified upstream ref
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 5
         with:
+          ref: ${{ inputs.source_commit }}
+          path: active-source
           persist-credentials: false
-      - name: Record native runner evidence
+      - name: Authenticate complete candidate and held dependencies; run inert controls
+        timeout-minutes: 3
         shell: bash
         run: |
           set -euo pipefail
-          install -d -m 700 "$RUNNER_TEMP/native-home"
-          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP/native-home" LANG=C.UTF-8 TZ=UTC \
-            RUNNER_TEMP="$RUNNER_TEMP" TMPDIR="$RUNNER_TEMP" PYTHONDONTWRITEBYTECODE=1 \
-            RUNNER_ARCH="$RUNNER_ARCH" RUNNER_OS="$RUNNER_OS" \
-            ImageVersion="${ImageVersion:-}" ImageOS="${ImageOS:-}" \
-            GITHUB_SHA="$GITHUB_SHA" GITHUB_REPOSITORY="$GITHUB_REPOSITORY" \
-            GITHUB_RUN_ID="$GITHUB_RUN_ID" GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" \
-            python3 -B scripts/ci/native_arm.py probe \
-            --cache "$RUNNER_TEMP/alarm-cache" --output "$RUNNER_TEMP/native-probe"
-      - name: Seed the six frozen private cache objects before native work
-        if: inputs.mode == 'build'
+          test "$(git -C active-source rev-parse HEAD)" = "$ACTIVE574_SOURCE_COMMIT"
+          python3 -I -B - <<'PY'
+          import hashlib,json,os,pathlib,re,sys
+          root=pathlib.Path('active-source').resolve()
+          assert re.fullmatch('[0-9a-f]{40}',os.environ['ACTIVE574_SOURCE_COMMIT'])
+          raw=(root/'scripts/ci/maintained574-active-trial/candidate-files.json').read_bytes()
+          pin=os.environ['ACTIVE574_CANDIDATE_SHA256']
+          assert re.fullmatch('[0-9a-f]{64}',pin) and hashlib.sha256(raw).hexdigest()==pin
+          manifest=json.loads(raw);assert manifest['schema']==1 and 1<=len(manifest['files'])<=24
+          for name,row in manifest['files'].items():
+              assert not name.startswith('/') and all(p not in ('','.','..') for p in name.split('/'))
+              path=root/name;assert not path.is_symlink() and path.resolve().is_relative_to(root)
+              data=path.read_bytes();assert len(data)==row['bytes']<=262144 and hashlib.sha256(data).hexdigest()==row['sha256']
+          sys.path.insert(0,str(root/'scripts/ci/maintained574-active-trial'))
+          import support
+          for name,pin in support.PINS.items():support.pinned(root/'scripts/ci'/name,pin)
+          PY
+          python3 -B -Werror::ResourceWarning -m unittest discover \
+            -s active-source/scripts/ci -p 'test_maintained574_active_owner.py' -v
+          python3 -B -Werror::ResourceWarning -m unittest discover \
+            -s active-source/scripts/ci/maintained574-active-trial -p 'test_*.py' -v
+          test "$RUNNER_ARCH" = ARM64
+          docker version >/dev/null
+      - name: Check out exact fourteen-file public seed
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        timeout-minutes: 3
+        with:
+          ref: 04a4a74e16e1e1bc939ea74791bf1f1bf7b46bbd
+          path: retained-public-inputs
+          persist-credentials: false
+      - name: Prepare exact context; normal optional owner and running transaction cancellation
+        timeout-minutes: 179
         shell: bash
         env:
           CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_01 }}
           CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_PACKAGE_02 }}
           CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01: ${{ secrets.CACHY_RETAINED_BUBBLEWRAP_V1_SIGNATURE_01 }}
-          CACHY_OLD_FOUR_SCHEMA: '1'
-          CACHY_OLD_FOUR_SOURCE_EPOCH: '1791748800'
           CACHY_OLD_FOUR_JBIGKIT_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_01 }}
           CACHY_OLD_FOUR_JBIGKIT_02: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_02 }}
           CACHY_OLD_FOUR_JBIGKIT_SIG_01: ${{ secrets.CACHY_OLD_FOUR_JBIGKIT_SIG_01 }}
@@ -84,72 +101,24 @@ jobs:
           CACHY_OLD_FOUR_LIBTIFF_SIG_01: ${{ secrets.CACHY_OLD_FOUR_LIBTIFF_SIG_01 }}
         run: |
           set -euo pipefail
-          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
-          test "$INPUTS_SHA256" = beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f
-          test "$(sha256sum scripts/ci/maintained-native/locks/inputs-successor.lock.json | cut -d ' ' -f 1)" = "$INPUTS_SHA256"
-          timeout --signal=TERM --kill-after=5s 75s python3 -B - <<'PYSEED'
-          import hashlib
-          import os
-          from pathlib import Path
-          import sys
-          sys.path.insert(0, 'scripts/ci')
-          from old_four_seed import (OLD_FOUR_PRIVATE_ROWS, RETAINED_BUBBLEWRAP_PRIVATE_ROWS,
-                                     seed_current_build_cache)
-          pin = 'beca39e04e125a0fa72dedab2dd772e048655d80c36c216a031df0a0c3852e8f'
-          if hashlib.sha256(Path('scripts/ci/inputs.lock.json').read_bytes()).hexdigest() != pin:
-              raise SystemExit('private-cache-input-binding-refused')
-          names = {'CACHY_OLD_FOUR_' + f'{tag}_{i:02d}'
-                   for _, _, _, tag, count in OLD_FOUR_PRIVATE_ROWS for i in range(1, count + 1)}
-          retained = {'CACHY_RETAINED_BUBBLEWRAP_V1_' + f'{tag}_{i:02d}'
-                      for _, _, _, tag, sizes in RETAINED_BUBBLEWRAP_PRIVATE_ROWS
-                      for i in range(1, len(sizes) + 1)}
-          names |= retained
-          if len(names) != 22 or len(retained) != 3 or not all(os.environ.get(name) for name in names):
-              raise SystemExit('private-cache-required-secrets-missing')
-          cache = Path(os.environ['RUNNER_TEMP']) / 'alarm-cache'
-          cache.mkdir(mode=0o700)
-          keep = names | {'CACHY_OLD_FOUR_SCHEMA', 'CACHY_OLD_FOUR_SOURCE_EPOCH'}
-          for name in tuple(os.environ):
-              if name not in keep:
-                  os.environ.pop(name)
-          seed_current_build_cache(cache, pin)
-          PYSEED
-      - name: Authenticate inputs or build in isolated native containers
-        if: inputs.mode != 'probe'
+          bash "$GITHUB_WORKSPACE/active-source/scripts/ci/maintained574-active-trial/ci_sequence.sh" \
+            "$GITHUB_WORKSPACE/active-source" "$GITHUB_WORKSPACE/retained-public-inputs" \
+            "$RUNNER_TEMP/active574-trial" "$ACTIVE574_TRIAL_MODE"
+      - name: Retain only bounded sanitized public metadata
+        if: always()
+        timeout-minutes: 2
         shell: bash
-        env:
-          NATIVE_RECIPES_PATH: ${{ inputs.mode == 'build' && 'scripts/ci/setup-0.1.0-4-recipes.lock.json' || 'scripts/ci/recipes.lock.json' }}
-          NATIVE_INPUTS_PATH: ${{ inputs.mode == 'build' && 'scripts/ci/maintained-native/locks/inputs-successor.lock.json' || 'scripts/ci/inputs.lock.json' }}
         run: |
           set -euo pipefail
-          env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$RUNNER_TEMP/native-home" LANG=C.UTF-8 TZ=UTC \
-            RUNNER_TEMP="$RUNNER_TEMP" TMPDIR="$RUNNER_TEMP" PYTHONDONTWRITEBYTECODE=1 \
-            RUNNER_ARCH="$RUNNER_ARCH" RUNNER_OS="$RUNNER_OS" \
-            ImageVersion="${ImageVersion:-}" ImageOS="${ImageOS:-}" \
-            GITHUB_SHA="$GITHUB_SHA" GITHUB_REPOSITORY="$GITHUB_REPOSITORY" \
-            GITHUB_RUN_ID="$GITHUB_RUN_ID" GITHUB_RUN_ATTEMPT="$GITHUB_RUN_ATTEMPT" \
-            python3 -B scripts/ci/native_arm.py "$BUILD_MODE" \
-            --inputs "$NATIVE_INPUTS_PATH" --inputs-sha256 "$INPUTS_SHA256" \
-            --recipes "$NATIVE_RECIPES_PATH" --recipes-sha256 "$RECIPES_SHA256" \
-            --integration-sha256 "$INTEGRATION_SHA256" \
-            --integration-output "$RUNNER_TEMP/integration-evidence" \
-            --cache "$RUNNER_TEMP/alarm-cache" --output "$RUNNER_TEMP/native-evidence"
-      - name: Retain bounded evidence and package artifacts in free workflow logs
-        if: always()
-        run: |
-          evidence_status=0
-          python3 scripts/ci/log_evidence.py "$RUNNER_TEMP/native-probe" || evidence_status=1
-          if [ -d "$RUNNER_TEMP/native-evidence" ]; then
-            python3 scripts/ci/log_evidence.py "$RUNNER_TEMP/native-evidence" || evidence_status=1
+          python3 -I -B - <<'PY'
+          import hashlib,pathlib
+          path=pathlib.Path('active-source/scripts/ci/log_evidence.py')
+          assert path.is_file() and not path.is_symlink() and hashlib.sha256(path.read_bytes()).hexdigest()=='a25f0089759c12afae3eea23bab8b22fa05cf5bbaa9eddc1611ce78b0405f8f5'
+          public=pathlib.Path(__import__('os').environ['RUNNER_TEMP'])/'active574-trial/public'
+          if public.is_dir():
+              files=list(public.iterdir())
+              assert 1<=len(files)<=4 and all(p.is_file() and not p.is_symlink() and p.name in ('sequence.json','public-seed.json','preparation.json','trial.json') and p.stat().st_size<=131072 for p in files)
+          PY
+          if [ -d "$RUNNER_TEMP/active574-trial/public" ]; then
+            python3 -I -B "$GITHUB_WORKSPACE/active-source/scripts/ci/log_evidence.py" "$RUNNER_TEMP/active574-trial/public"
           fi
-          if [ -d "$RUNNER_TEMP/integration-evidence/public" ]; then
-            for stage in "$RUNNER_TEMP/integration-evidence/public"/*; do
-              if [ -d "$stage" ]; then
-                python3 scripts/ci/log_evidence.py "$stage" || evidence_status=1
-              fi
-            done
-            if [ -f "$RUNNER_TEMP/integration-evidence/public/summary/result.json" ]; then
-              cat "$RUNNER_TEMP/integration-evidence/public/summary/result.json"
-            fi
-          fi
-          exit "$evidence_status"
