@@ -13,7 +13,7 @@
       },
       "scripts/ci/tools-generic16k/dependencies.json": {
         "bytes": 21413,
-        "sha256": "1a0899a3f8e08f2640df071d290c877212049bbc2f3d1a5de8e73d9404f549c5"
+        "sha256": "4230eb9b270033919c2f346d5bef0e77841713b57275045fe25c197f75b6cab3"
       },
       "scripts/ci/tools-generic16k/retained_kernel.py": {
         "bytes": 5444,
