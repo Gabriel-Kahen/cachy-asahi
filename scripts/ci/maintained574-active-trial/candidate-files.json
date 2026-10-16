@@ -1,0 +1,37 @@
+{
+  "files": {
+    ".github/workflows/native-arm-maintained574-active-cancellation.yml": {
+      "bytes": 6827,
+      "sha256": "df83243a0dbcc47335a53a5c02fc3aa9633f64c08322ed7cd641d314691065b9"
+    },
+    "scripts/ci/maintained574-active-trial/ci_sequence.sh": {
+      "bytes": 3550,
+      "sha256": "61a894a0487402b6d85bbc9aa8b4d34a85c87715a3abc3937f6656cb852f8f9b"
+    },
+    "scripts/ci/maintained574-active-trial/observe.py": {
+      "bytes": 16886,
+      "sha256": "0752a9bcd71035e69e7889119e4b4234392f6cae2429515efe1514976cc495e0"
+    },
+    "scripts/ci/maintained574-active-trial/prepare.py": {
+      "bytes": 4110,
+      "sha256": "dc2505268c736e220be49ab25111316fda75ad82bb04f1649c9f492e52f27696"
+    },
+    "scripts/ci/maintained574-active-trial/support.py": {
+      "bytes": 3385,
+      "sha256": "836d8f838098ed96790c4a8ed7638ecfc091655b445f78b1f2eb79838cbee0ab"
+    },
+    "scripts/ci/maintained574-active-trial/test_trial.py": {
+      "bytes": 16882,
+      "sha256": "114998762f2d73583f02ab5cb85326493ef056ac5ab25ef011bed07037133c3a"
+    },
+    "scripts/ci/maintained574_active_owner.py": {
+      "bytes": 17934,
+      "sha256": "71f228c6b73911b97be63fe8bf1062c5de43e7ef4c8fd89bf7913b41d324c713"
+    },
+    "scripts/ci/test_maintained574_active_owner.py": {
+      "bytes": 12821,
+      "sha256": "9d0cc5767a4fdc82a5a0ac3d71203c7e7b898865429620acc171aa9e19ba5aa1"
+    }
+  },
+  "schema": 1
+}
