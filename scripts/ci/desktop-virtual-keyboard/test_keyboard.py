@@ -1,0 +1,136 @@
+# SPDX-License-Identifier: MIT
+import copy
+import importlib.util
+import json
+from pathlib import Path
+import sys
+import tempfile
+import unittest
+from unittest.mock import patch
+HERE=Path(__file__).resolve().parent
+sys.path.insert(0,str(HERE))
+import keyboard as K
+import contract as C
+import session as S
+
+
+def events():
+    # The accepted managed contract fixture is a modeled lifecycle, not a native run.
+    unit=lambda name,sub,pid:dict(Id=name,LoadState='loaded',ActiveState='active',SubState=sub,Result='success',ExecMainStatus=0,MainPID=pid)
+    bus=dict(address=C.M_ADDRESS,uid=23001,manager_pid=80,default_target='GetUnit-PASS')
+    units={n:unit(n,sub,pid) for n,sub,pid in [('systemd-user-sessions.service','exited',0),('user-runtime-dir@23001.service','exited',0),('user@23001.service','running',80)]}
+    result=[dict(event='managed_session_ready',status='PASS',units=units,**bus),dict(event='managed_user_ready',status='PASS',**bus)]
+    def add(event,**kw):result.append(dict(event=event,**kw))
+    for stage in ('minimal','overlay'):
+        nonce=('a' if stage=='minimal' else 'b')*32
+        proc=lambda pid,exe:dict(pid=pid,uid=[23001]*4,starttime=2,executable='/usr/bin/'+exe)
+        terminal=proc(100,'alacritty');shell=proc(101,'bash')|dict(parent_pid=100,pty='/dev/pts/0');editor=proc(102,'vim')|dict(parent_pid=101)
+        window=dict(pid=100,**{'class':'Alacritty'},mapped=True,visible=True,hidden=False,xwayland=False,focusHistoryID=0,at=[12,12],size=[1000,740])
+        add('keyboard_ready',stage=stage,nonce=nonce,shortcut_policy='SHIPPED_UNCHANGED' if stage=='overlay' else 'DECLARED_MINIMAL_SUPER_RETURN_SUPER_Q',
+            kernel_device=dict(name='QEMU Virtio Keyboard',driver='virtio_input'),keyboards=[dict(name='qemu-virtio-keyboard',layout='us',capsLock=False)],configuration_sha256=json.loads((HERE/'source-pins.json').read_text())['packages/desktop/cachy-asahi-hyprland-settings/hyprland.lua'])
+        file=lambda name:dict(name=name,bytes=len(K.expected(nonce)[name]),sha256=K.sha(K.expected(nonce)[name]))
+        for step in K.STEPS:
+            plan=K.plan(stage,nonce,step);pin=K.sha(K.encoded(plan))
+            add('keyboard_request',stage=stage,step=step,nonce=nonce,plan_sha256=pin)
+            add('qmp_keyboard_input',stage=stage,step=step,nonce=nonce,plan_sha256=pin,chords=len(plan),qmp_calls=sum(2*len(c) for c in plan),
+                all_keys_released=True,route='input-send-event/virtio-keyboard-pci')
+            if step=='launch':add('keyboard_terminal',stage=stage,nonce=nonce,terminal=terminal,shell=shell,window=window)
+            if step in ('shell','editor-save','result'):
+                view={'shell':'shell','editor-save':'editor','result':'result'}[step]
+                proof=dict(shell=shell)
+                if view=='result':proof['files']=[file(name) for name in K.expected(nonce)]
+                else:proof['file']=file('shell.txt' if view=='shell' else 'edit.txt')
+                if view=='editor':proof['editor']=editor
+                add('frame_ready',stage=stage+'-'+view,phase=stage,view=view,nonce=nonce,terminal=window,terminal_identity=terminal,
+                    capture_after_ms=5001,physical_input='NOT_RUN',hardware='NOT_RUN',managed_bus=bus,proof=proof)
+            if step=='editor-quit':add('keyboard_editor_closed',stage=stage,nonce=nonce,editor=editor,pidfd_exited=True,exit='UNOBSERVED_NONCHILD')
+        add('keyboard_closed',stage=stage,nonce=nonce,terminal=terminal,shell=shell,shell_pidfd_exited=True,exit='UNOBSERVED_NONCHILD',pidfd_exited=True,window_absent=True,method='SUPER_Q_QMP')
+        add('process_exit',name=stage,returncode=0)
+        add('phase_pass',stage=stage,nonce=nonce,configuration_preserved=True)
+    scope=dict(status='PASS',virtual_keyboard='PASS',editor_ui='PASS_QMP_TYPED_VIM',physical_input='NOT_RUN',hardware='NOT_RUN')
+    add('session_pass',**scope)
+    cleanup_units=['user@23001.service','user-runtime-dir@23001.service']
+    add('managed_session_cleanup',status='PASS',runtime_absent=True,owned_units_stopped=True,units=cleanup_units,
+        unit_states={n:dict(Id=n,LoadState='loaded',ActiveState='inactive',SubState='dead',MainPID=0) for n in cleanup_units})
+    add('complete',**scope)
+    return result
+
+
+class QMP:
+    def __init__(self,fail=None):self.calls=[];self.fail=fail
+    def execute(self,name,args=None):
+        self.calls.append((name,args))
+        if self.fail==len(self.calls):raise TimeoutError('uncertain reply')
+        if name=='query-commands':return [dict(name='input-send-event')]
+        if name=='query-status':return dict(status='running')
+        return {}
+
+
+class KeyboardTests(unittest.TestCase):
+    def test_fixed_shortcuts_and_nonce_data(self):
+        self.assertEqual(K.plan('overlay','a'*32,'launch'),[['meta_l','ret']])
+        self.assertEqual(K.plan('overlay','a'*32,'close'),[['meta_l','q']])
+        for bad in ('a'*31,'x'*32,'a'*32+';poweroff'):
+            with self.assertRaises(ValueError):K.plan('overlay',bad,'shell')
+        with self.assertRaises(ValueError):K.qcodes('λ')
+        self.assertEqual(K.qcodes('|'),['shift','backslash'])
+        self.assertEqual(K.qcodes('\x1b'),['esc'])
+
+    def test_send_is_only_key_events_and_releases_reverse_order(self):
+        q=QMP();self.assertEqual(K.send(q,[['meta_l','ret']],pause=lambda _:None),4)
+        self.assertTrue(all(name=='input-send-event' for name,args in q.calls))
+        self.assertEqual([a['events'][0]['data']['key']['data'] for _,a in q.calls],['meta_l','ret','ret','meta_l'])
+        self.assertEqual([a['events'][0]['data']['down'] for _,a in q.calls],[True,True,False,False])
+
+    def test_uncertain_press_is_released_and_error_stays_failed(self):
+        q=QMP(fail=2)
+        with self.assertRaises(TimeoutError):K.send(q,[['meta_l','ret']],pause=lambda _:None)
+        self.assertEqual([a['events'][0]['data']['down'] for _,a in q.calls],[True,True,False,False])
+
+    def test_controller_rejects_duplicate_reordered_changed_nonce(self):
+        c=K.Controller();q=QMP()
+        def request(step,nonce='a'*32):return dict(stage='minimal',step=step,nonce=nonce,plan_sha256=K.sha(K.encoded(K.plan('minimal',nonce,step))))
+        with patch.object(K,'send',return_value=4):c.handle(q,request('launch'))
+        for r in (request('launch'),request('result'),request('shell','b'*32),request('shell')|dict(plan_sha256='0'*64)):
+            with self.assertRaises(ValueError):c.handle(q,r)
+
+    def test_full_modeled_route_replays(self):
+        self.assertEqual(C.verify_result(events())['frames'],6)
+
+    def test_missing_qmp_or_nonce_and_faked_physical_claim_refused(self):
+        for change in ('qmp','nonce','physical','driver','policy','file','pid','release','shell-close','vim-close','managed','process-exit'):
+            rows=copy.deepcopy(events())
+            if change=='qmp':rows.pop(next(i for i,r in enumerate(rows) if r['event']=='qmp_keyboard_input'))
+            elif change=='nonce':next(r for r in rows if r['event']=='qmp_keyboard_input')['nonce']='c'*32
+            elif change=='physical':next(r for r in rows if r['event']=='complete')['physical_input']='PASS'
+            elif change=='driver':next(r for r in rows if r['event']=='keyboard_ready')['kernel_device']['driver']='host-evdev'
+            elif change=='policy':next(r for r in rows if r.get('stage')=='overlay' and r['event']=='keyboard_ready')['shortcut_policy']='REPLACED'
+            elif change=='file':next(r for r in rows if r['event']=='frame_ready')['proof']['file']['sha256']='0'*64
+            elif change=='pid':next(r for r in rows if r['event']=='keyboard_terminal')['terminal']['uid']=[0]*4
+            elif change=='release':next(r for r in rows if r['event']=='qmp_keyboard_input')['all_keys_released']=False
+            elif change=='shell-close':next(r for r in rows if r['event']=='keyboard_closed')['shell_pidfd_exited']=False
+            elif change=='vim-close':next(r for r in rows if r['event']=='keyboard_editor_closed')['pidfd_exited']=False
+            elif change=='managed':next(r for r in rows if r['event']=='managed_session_cleanup')['runtime_absent']=False
+            else:next(r for r in rows if r['event']=='process_exit')['returncode']=1
+            with self.subTest(change=change),self.assertRaises(ValueError):C.verify_result(rows)
+
+    def test_reordered_frame_or_shortcut_result_refused(self):
+        rows=events();a=next(i for i,r in enumerate(rows) if r['event']=='frame_ready');b=next(i for i,r in enumerate(rows) if r['event']=='keyboard_request' and r['step']=='shell')
+        rows[a],rows[b]=rows[b],rows[a]
+        with self.assertRaises(ValueError):C.verify_result(rows)
+
+    def test_observer_contains_no_payload_launch_or_pty_write(self):
+        text=(HERE/'session.py').read_text()
+        self.assertNotIn('Popen',text);self.assertNotIn('write_text',text);self.assertNotIn('atspi',text)
+        self.assertNotIn("['/usr/bin/alacritty'",text);self.assertNotIn("['/usr/bin/vim'",text)
+        self.assertIn("request('launch')",text);self.assertIn("request('close')",text)
+
+    def test_prerequisites_are_existing_exact_input_packages(self):
+        lock=json.loads((HERE/'prerequisites.json').read_text())
+        self.assertEqual(lock['additional_binary_packages'],[])
+        self.assertEqual([r['package']['name'] for r in lock['rows']],['qemu-system-aarch64','linux-aarch64'])
+        config=(HERE/'upstream-kernel.config').read_text()
+        for setting in ('CONFIG_INPUT=y','CONFIG_INPUT_EVDEV=y','CONFIG_VIRTIO_PCI=y','CONFIG_VIRTIO_INPUT=m'):self.assertIn(setting+'\n',config)
+
+
+if __name__=='__main__':unittest.main()
