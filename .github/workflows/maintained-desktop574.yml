@@ -53,14 +53,14 @@ jobs:
       - name: Checkout exact retained public input source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # existing pinned checkout
         with:
-          ref: 88a88bc5f3be3998e992881bf090137df16f1aae
+          ref: 04a4a74e16e1e1bc939ea74791bf1f1bf7b46bbd
           path: retained-public-inputs
           persist-credentials: false
-      - name: Seed twelve exact public ARM input files
+      - name: Seed fourteen exact public ARM input files
         shell: bash
         run: |
           set -euo pipefail
-          test "$(git -C "$GITHUB_WORKSPACE/retained-public-inputs" rev-parse HEAD)" = 88a88bc5f3be3998e992881bf090137df16f1aae
+          test "$(git -C "$GITHUB_WORKSPACE/retained-public-inputs" rev-parse HEAD)" = 04a4a74e16e1e1bc939ea74791bf1f1bf7b46bbd
           env -i PATH=/usr/local/bin:/usr/bin:/bin HOME="$HOME" LANG=C.UTF-8 TZ=UTC \
             TMPDIR="$RUNNER_TEMP" \
             python3 -I -B "$GITHUB_WORKSPACE/retained-public-inputs/seed.py" \
