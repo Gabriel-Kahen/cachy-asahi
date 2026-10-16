@@ -119,6 +119,10 @@ jobs:
           bash -n scripts/ci/maintained574-active-trial/ci_sequence.sh
       - name: Check original welcome package source and payload contract
         run: python3 -B packages/tools/cachy-asahi-welcome/check_source.py --root packages/tools/cachy-asahi-welcome
+      - name: Check combined managed desktop app workflow without actors
+        run: |
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/desktop-managed-workflow -p 'test_*.py'
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/desktop-managed-workflow/ci -p 'test_*.py'
       - name: Check synthetic graph processing controls without plugins
         run: |
           python3 -I -B -m unittest discover -s scripts/ci/asahi-audio-graph-processing -p 'test_*.py'
