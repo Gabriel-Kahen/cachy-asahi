@@ -60,8 +60,8 @@ jobs:
           WORKFLOW_SOURCE: ${{ github.sha }}
         run: |
           set -euo pipefail
-          test "$(sha256sum expanded604-installer/scripts/ci/expanded604-installer-vm/ci.py | cut -d ' ' -f 1)" = @OWNER_SHA256@
-          test "$(sha256sum expanded604-installer/scripts/ci/expanded604-installer-vm/source-manifest.json | cut -d ' ' -f 1)" = @MANIFEST_SHA256@
+          test "$(sha256sum expanded604-installer/scripts/ci/expanded604-installer-vm/ci.py | cut -d ' ' -f 1)" = 931f731b6b580153f5be116ed6c5782aaeda06804ff8105fae19cf9af4ca66d3
+          test "$(sha256sum expanded604-installer/scripts/ci/expanded604-installer-vm/source-manifest.json | cut -d ' ' -f 1)" = d5cd947d9c921b2c3159b48f2293cf4a90d7fd64a24120f2a475f9aa283d0564
           python3 -B expanded604-installer/scripts/ci/expanded604-installer-vm/gate.py \
             --implementation "$GITHUB_WORKSPACE/expanded604-installer" --source "$IMPLEMENTATION_SOURCE" \
             --workflow-sha "$WORKFLOW_SOURCE" --preflight
