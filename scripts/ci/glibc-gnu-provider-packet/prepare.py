@@ -33,6 +33,23 @@ SMOKE = 'e10336aef200731c7dd4b06546b718e095c1ecf7718e4a25fa57d6bbed6270a6'
 GNU = {'glibc-2.43.tar.gz':dict(bytes=40287809,sha256='e1e622cbd635019090fa23260e5d9ec219b12f97ae7ae02f033d4ae42cf2c004'),
        'glibc-2.43.tar.gz.sig':dict(bytes=1018,sha256='bfd0c5a9924e4f084281cd2f3ba96e5c6e87a6d363113e7a0f98c5151463c9e3'),
        'gnu-keyring.gpg':dict(bytes=3698125,sha256='0fe55175b96a8ea1c4b670cc3fe11d56b341e4eff81b161ea49958ae550be6ca')}
+# Literal byte identities read from SOURCE; validation never executes Git.
+FROZEN_RECIPE = {'build-harness/expected.SRCINFO': {'bytes': 1302,
+                                    'sha256': '7d6cef16f2a0e5833569dcf2d9c07849278171577744166bb63c377c7d9533e5'},
+ 'source/0001-mount-macro-guards.patch': {'bytes': 905,
+                                          'sha256': '09117692cd3a1d5838ea700df68b512f9f625a6d2af497a1afcf92046deca8f5'},
+ 'source/0002-held-builder-test-expectations.patch': {'bytes': 1169,
+                                                      'sha256': 'f730c778ba51f9e525c9f6a7949a76af00364d49f41eedb5d73b8e86a3d4c132'},
+ 'source/COPYING.LESSERv2': {'bytes': 26419,
+                             'sha256': '20e50fe7aae3e56378ebf0417d9de904f55a0e61e4df315333e632a4d3555d95'},
+ 'source/COPYINGv2': {'bytes': 17984,
+                      'sha256': 'edaef632cbb643e4e7a221717a6c441a4c1a7c918e6e4d56debc3d8739b233f6'},
+ 'source/LICENSES': {'bytes': 19665, 'sha256': 'b22a69aa3f80a5201818c66cb0df0f25f9fa13cf5861b0093a058dbd12d50dce'},
+ 'source/PKGBUILD': {'bytes': 3733, 'sha256': 'a2d08f4786879a86af14cccf1cffe21811aa8dfa4428559848fa4cede839ab64'},
+ 'source/README.md': {'bytes': 3346, 'sha256': '78e75a94748863b80b00ae24ea8b3b3d384e8c2c096a8fe1b98d4b12550c2449'},
+ 'source/source-lock.json': {'bytes': 6600,
+                             'sha256': 'f01bfcaefdbd32b440cdde5b4efda7c5c6902f34998ad34d9298663bc3155941'},
+ 'source/stage.py': {'bytes': 8147, 'sha256': '43b1b441dcc384379ab80c4864bbf7ffd898d56e4ba629c0faa966c25a979e6c'}}
 BINARIES = {'smoke-normal', 'exec-child', 'plugin.so'}
 ABI_LIBRARIES = {'ld-linux-aarch64.so.1','libc.so.6','libm.so.6','libresolv.so.2','libdl.so.2',
                  'libpthread.so.0','librt.so.1','libutil.so.1','libanl.so.1','libBrokenLocale.so.1','libthread_db.so.1'}
@@ -285,8 +302,12 @@ def native(files, run):
         for name, row in manifest['files'].items():
             need('/' not in path(name), 'flat original source member'); exact(row, files[directory+name])
     recipe = digest(files['source/PKGBUILD'])['sha256']
-    need(fields(files['source/.SRCINFO']) == fields(files['build-harness/expected.SRCINFO']),
-         'actual source recipe SRCINFO expectation')
+    need(set(bundle['files']) == {n.removeprefix('source/') for n in FROZEN_RECIPE if n.startswith('source/')} |
+         set(GNU) | {'source-authentication.json'}, 'exact frozen recipe/source bundle closure')
+    for name, identity in FROZEN_RECIPE.items():
+        exact(identity, files[name])
+    # makepkg generated metadata is retained per build, never a source bundle input.
+    need('source/.SRCINFO' not in files, 'generated SRCINFO belongs to native evidence')
     for name, row in GNU.items(): exact(row, files['source/'+name])
     original_licenses = licenses(files['source/glibc-2.43.tar.gz'])
     policy = read('build-harness/normal-client-policy.json')
@@ -327,7 +348,8 @@ def native(files, run):
         need(receipt['status'] == 'PASS_COMPILED_NORMAL_INTERPRETER_CLIENTS_NOT_EXECUTED' and
              receipt['policy_sha256'] == digest(files['build-harness/normal-client-policy.json'])['sha256'] and
              receipt['runtime_manifest_sha256'] == SMOKE and receipt['sources']['abi_smoke.c'] == policy['patched_abi_smoke'] and
-             receipt['original_sources'] == runtime['sources'] and set(receipt['sources']) == set(runtime['sources']) and
+             receipt['original_sources'] == {n:{k:r[k] for k in ('bytes','sha256')}
+                                             for n,r in runtime['sources'].items()} and set(receipt['sources']) == set(runtime['sources']) and
              all(receipt['sources'][n] == receipt['original_sources'][n] for n in receipt['sources'] if n != 'abi_smoke.c') and
              receipt['bootstrap_headers'] and set(receipt['compiled_files']) == BINARIES and
              row['normal_compile_receipt_sha256'] == digest(files[prefix+'normal-clients/receipt.json'])['sha256'], 'normal compiler/source receipt join')
