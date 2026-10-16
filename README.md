@@ -1,0 +1,1 @@
+Exact retained GNU2.43.caa1-3 pair from native run38915137670, source d1055cf95f7d236fc55396db36b432df5191ff2a. Root accepted native4K ABI/header/runtime only. Original pair, metadata and cleanup/source evidence are retained byte-for-byte. This input-only checkout neither executes a package nor admits it for installation/release. See index.json for all bytes and qualifications.

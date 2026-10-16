@@ -1,0 +1,12 @@
+{
+  "consumer_token": "53700235506844c4c1679cfc303c6290",
+  "hardware": "NOT RUN",
+  "job_token": "4ca8dc3d009fec15",
+  "manifest_sha256": "78be78b00b940f7fcf0c2b6fedff802f9a9ca3a138f97ef4e9c6a859ca94b02b",
+  "run_attempt": "1",
+  "run_id": "38915137670",
+  "selection": "UNSELECTED",
+  "source_sha": "d1055cf95f7d236fc55396db36b432df5191ff2a",
+  "status": "SOURCE_PROOF_PASS",
+  "workflow_sha": "d1055cf95f7d236fc55396db36b432df5191ff2a"
+}
