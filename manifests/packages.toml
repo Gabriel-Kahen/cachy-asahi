@@ -136,10 +136,10 @@ candidate_version = "0.1.0-5"
 historical_native_build = "PASS"
 historical_native_build_commit = "ebd5812640b0b69f5c09a47752b739e37e338754"
 historical_native_evidence = "docs/validation/native-arm.md"
-installation = "NOT RUN for0.1.0-5; historical3-to4/enrollment/lifecycle PASS"
+installation = "PASS native581 generated-RC38946664234 and native600 Setup3to5/repeat/rollback38964311175; generic4K only"
 hardware_validation = "NOT RUN"
 host_evidence = "docs/validation/setup-shell-modules-host-20261016.md"
-next_step = "Explicit optional module setup5 passes68 host setup tests and10 synchronization controls. Run separate native pair/4-to5-to4 package and user-config lifecycle; preserve frozen setup3/4/587/600 evidence. Both M2 trust/setup/recovery and independent onboarding remain open."
+next_step = "Native Setup5 pair, legacy lifecycle, six real generated-RC cases and full600 upgrade/repeat/rollback pass; see docs/validation/setup5-expanded600-native-20261016.md. Complete signed600 fresh installation and full600 production updater; both M2 onboarding/trust/setup/recovery remain open."
 
 [[packages]]
 name = "cachy-asahi-ksmctl"
