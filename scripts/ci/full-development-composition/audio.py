@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
 """Six-package signed install/removal inside the existing offline ARM composition."""
 import hashlib
+import importlib.util
 import json
 import os
 from pathlib import Path
 import re
 import stat
+
+_spec = importlib.util.spec_from_file_location('audio_aux_order', Path(__file__).with_name('audio_aux.py'))
+aux_order = importlib.util.module_from_spec(_spec); _spec.loader.exec_module(aux_order)
 
 NAMES = {'asahi-audio', 'alsa-ucm-conf-asahi', 'speakersafetyd', 'bankstown', 'triforce-lv2', 'lsp-plugins-lv2'}
 BASE = 'c309aaeb12e2e2d51cb0aceb1b4acc9e5b95cbba87df1880936bc2bf1b125463'
@@ -198,32 +202,38 @@ def ld_state(c, rows, root=Path('/')):
             'caches': caches, 'mapping': mapping, 'generator': tail}
 
 
-def ld_aux_diagnostic(label, state):
+def ld_aux_read(state):
+    """Bounded stable descriptor read, joined to this checkpoint node/hash."""
+    identity = lambda info: [info.st_dev, info.st_ino, info.st_mode, info.st_nlink,
+                             info.st_uid, info.st_gid, info.st_size, info.st_ctime_ns, info.st_mtime_ns]
+    descriptor = os.open(LD_AUX_INPUT, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK | os.O_CLOEXEC)
+    with os.fdopen(descriptor, 'rb') as stream:
+        before = os.fstat(stream.fileno())
+        ld_need(stat.S_ISREG(before.st_mode) and before.st_nlink == 1
+                and 0 < before.st_size <= LD_AUX_DIAGNOSTIC_LIMIT, 'aux-diagnostic-type-size')
+        data = stream.read(before.st_size + 1)
+        ld_need(identity(before) == identity(os.fstat(stream.fileno())) == identity(LD_AUX_INPUT.lstat()),
+                'aux-diagnostic-read-drift')
+    node = {'type': 'file', 'mode': stat.S_IMODE(before.st_mode), 'uid': before.st_uid,
+            'gid': before.st_gid, 'size': len(data), 'sha256': hashlib.sha256(data).hexdigest()}
+    ld_need(len(data) == before.st_size and node == state['caches'][LD_AUX_NAME], 'aux-diagnostic-node-join')
+    return data, node, identity(before)
+
+
+def ld_aux_diagnostic(label, state, capture=None):
     """Two fixed diagnostic reads; never alter cache state or acceptance."""
     if label not in ('B0-587', 'B1-593'): return
     record = {'checkpoint': label, 'path': LD_AUX_NAME, 'status': 'UNAVAILABLE'}
     destination = LD_AUX_OUTPUT / ('audio-aux-' + label + '.bin')
     created = False
     try:
-        identity = lambda info: [info.st_dev, info.st_ino, info.st_mode, info.st_nlink,
-                                 info.st_uid, info.st_gid, info.st_size, info.st_ctime_ns, info.st_mtime_ns]
-        descriptor = os.open(LD_AUX_INPUT, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK | os.O_CLOEXEC)
-        with os.fdopen(descriptor, 'rb') as stream:
-            before = os.fstat(stream.fileno())
-            ld_need(stat.S_ISREG(before.st_mode) and before.st_nlink == 1
-                    and 0 < before.st_size <= LD_AUX_DIAGNOSTIC_LIMIT, 'aux-diagnostic-type-size')
-            data = stream.read(before.st_size + 1)
-            ld_need(identity(before) == identity(os.fstat(stream.fileno())) == identity(LD_AUX_INPUT.lstat()),
-                    'aux-diagnostic-read-drift')
-        node = {'type': 'file', 'mode': stat.S_IMODE(before.st_mode), 'uid': before.st_uid,
-                'gid': before.st_gid, 'size': len(data), 'sha256': hashlib.sha256(data).hexdigest()}
-        ld_need(len(data) == before.st_size and node == state['caches'][LD_AUX_NAME], 'aux-diagnostic-node-join')
+        data, node, read_identity = capture if capture is not None else ld_aux_read(state)
         descriptor = os.open(destination, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW | os.O_CLOEXEC, 0o600)
         created = True
         with os.fdopen(descriptor, 'wb') as stream:
             ld_need(stream.write(data) == len(data), 'aux-diagnostic-write')
             stream.flush(); os.fchmod(stream.fileno(), 0o644)
-        record.update(status='CAPTURED', node=node, read_identity=identity(before),
+        record.update(status='CAPTURED', node=node, read_identity=read_identity,
                       helper_sha256=LD_HELPER[0], expected593_sha256=EXPECTED)
     except Exception as error:
         record['reason'] = str(error) if isinstance(error, LdUnaccepted) else type(error).__name__
@@ -250,36 +260,59 @@ def ld_aux_diagnostic(label, state):
     except Exception: pass
 
 
-def ld_checkpoint(c, rows, work, label, baseline=None):
+def ld_checkpoint(c, rows, work, label, baseline=None, auxiliary=None):
     try:
         state = ld_state(c, rows)
+        capture = None
+        if auxiliary is not None:
+            ld_need(LD_HELPER[0] == aux_order.HELPER_SHA256, 'aux-order-helper-pin')
+            prior = {'B0-587': None, 'B1-593': 'B0-587', 'B2-592': 'B1-593', 'B3-587': 'B2-592'}
+            ld_need(label in prior and auxiliary.get('label') == prior[label]
+                    and (baseline is None) == (label == 'B0-587'), 'aux-order-checkpoint-sequence')
+            capture = ld_aux_read(state)
         raw = json.dumps(state, sort_keys=True).encode()
         ld_need(len(raw) <= 2 * 1024**2, 'checkpoint-size')
         (work / ('audio-ldconfig-' + label + '.json')).write_bytes(raw)
-        ld_aux_diagnostic(label, state)
+        if capture is None: ld_aux_diagnostic(label, state)
+        else: ld_aux_diagnostic(label, state, capture)
+        transition = None
+        if auxiliary is not None:
+            transition = ({'kind': 'BASELINE'} if baseline is None
+                          else aux_order.compare(auxiliary['data'], capture[0]))
         changes = []
         if baseline is not None:
             aux = '/var/cache/ldconfig/aux-cache'
-            ld_need(baseline['caches'][aux]['sha256'] == state['caches'][aux]['sha256'],
-                    'aux-cache-byte-change ' + json.dumps({'before': baseline['caches'][aux], 'after': state['caches'][aux]}, sort_keys=True))
+            if auxiliary is None:
+                ld_need(baseline['caches'][aux]['sha256'] == state['caches'][aux]['sha256'],
+                        'aux-cache-byte-change ' + json.dumps({'before': baseline['caches'][aux], 'after': state['caches'][aux]}, sort_keys=True))
             for field in ('helper', 'configs', 'aliases', 'scan', 'targets', 'mapping', 'generator', 'caches'):
                 before, after = baseline[field], state[field]
                 if field == 'caches':
-                    before = {k: {a: v for a, v in n.items() if a != 'sha256' or k != '/etc/ld.so.cache'} for k, n in before.items()}
-                    after = {k: {a: v for a, v in n.items() if a != 'sha256' or k != '/etc/ld.so.cache'} for k, n in after.items()}
+                    # Only the already-proved auxiliary transition may exempt its hash.
+                    ignored_hashes = {'/etc/ld.so.cache'}
+                    if auxiliary is not None: ignored_hashes.add(aux)
+                    before = {k: {a: v for a, v in n.items() if a != 'sha256' or k not in ignored_hashes} for k, n in before.items()}
+                    after = {k: {a: v for a, v in n.items() if a != 'sha256' or k not in ignored_hashes} for k, n in after.items()}
                 if before != after:
                     keys = sorted(k for k in set(before) | set(after) if before.get(k) != after.get(k)) if isinstance(before, dict) else ['ordered-records']
                     changes.append({'field': field, 'paths': keys[:12], 'before_sha256': hashlib.sha256(json.dumps(before, sort_keys=True).encode()).hexdigest(),
                                     'after_sha256': hashlib.sha256(json.dumps(after, sort_keys=True).encode()).hexdigest()})
         ld_need(not changes, 'changed-state ' + json.dumps(changes)[:1400])
+        if auxiliary is not None:
+            auxiliary.update(label=label, data=capture[0])
+            auxiliary.setdefault('transitions', []).append(dict(checkpoint=label, **transition))
         return state
     except Exception as error:
-        raise ValueError('AUDIO_LDCONFIG_UNACCEPTED ' + label + ' ' + (str(error)[:1600] if isinstance(error, LdUnaccepted) else type(error).__name__)) from None
+        raise ValueError('AUDIO_LDCONFIG_UNACCEPTED ' + label + ' ' + (str(error)[:1600] if isinstance(error, (LdUnaccepted, aux_order.Refused)) else type(error).__name__)) from None
 
 
-def ld_summary(states):
+def ld_summary(states, auxiliary=None):
+    if auxiliary is not None:
+        ld_need([row['checkpoint'] for row in auxiliary.get('transitions', [])]
+                == ['B0-587', 'B1-593', 'B2-592', 'B3-587'], 'aux-order-incomplete-checkpoints')
     return {'status': 'PASS-recorded-state-preserved', 'auxiliary_exit_status': 'NOT OBSERVED',
-            'scope': 'four audio checkpoints; no extra regeneration; aux raw bytes equal',
+            'scope': 'four audio checkpoints; no extra regeneration; aux raw-equal or exact prior load/save order with physical padding held',
+            'auxiliary_transitions': auxiliary['transitions'] if auxiliary is not None else [],
             'checkpoints': [{'state_sha256': hashlib.sha256(json.dumps(s, sort_keys=True).encode()).hexdigest(),
                              'main_sha256': s['caches']['/etc/ld.so.cache']['sha256'],
                              'aux_sha256': s['caches']['/var/cache/ldconfig/aux-cache']['sha256'],
@@ -345,7 +378,8 @@ def run(pacman, plan, before, source, work, c, payload_helper):
                     c.need(stat.S_ISDIR(info.st_mode), 'audio ancestor is not an ordinary directory')
                     directories[parent] = (info.st_mode, info.st_uid, info.st_gid)
     c.need(len(paths) == len(set(paths)), 'incoming audio file ownership collision')
-    ld_states = [ld_checkpoint(c, rows, work, 'B0-587')]
+    auxiliary = {}
+    ld_states = [ld_checkpoint(c, rows, work, 'B0-587', auxiliary=auxiliary)]
     # Private trust already contains the exact upstream certificate and TEST signer.
     # Five new detached signatures use TEST; LSP keeps its pinned official signature.
     # Three ALPM mutations below retain implicit ldconfig (if present); its
@@ -353,17 +387,17 @@ def run(pacman, plan, before, source, work, c, payload_helper):
     # they do not observe the helper exit status or normalize a stale baseline.
     c.run(pacman + ['--noconfirm', '--noscriptlet', '-U', *[str(source / r['filename']) for r in rows]])
     c.need(c.inventory() == after, 'actual audio inventory differs from exact593')
-    ld_states.append(ld_checkpoint(c, rows, work, 'B1-593', ld_states[0]))
+    ld_states.append(ld_checkpoint(c, rows, work, 'B1-593', ld_states[0], auxiliary=auxiliary))
     c.run(pacman + ['-Dk']); c.run(pacman + ['-T', *sorted(dependencies)])
     payload_helper.payloads(pacman, rows, c)
     originals_preserved(saved, db, c)
     # Remove the dependent first, then its five additions together. No -Rdd/-Rs.
     c.run(pacman + ['--noconfirm', '--noscriptlet', '-R', 'asahi-audio'])
     c.need(c.inventory() == {k: v for k, v in after.items() if k != 'asahi-audio'}, 'dependent removal changed unrelated packages')
-    ld_states.append(ld_checkpoint(c, rows, work, 'B2-592', ld_states[0]))
+    ld_states.append(ld_checkpoint(c, rows, work, 'B2-592', ld_states[0], auxiliary=auxiliary))
     c.run(pacman + ['--noconfirm', '--noscriptlet', '-R', *sorted(NAMES - {'asahi-audio'})])
     c.need(c.inventory() == before, 'audio removal did not restore original587')
-    ld_states.append(ld_checkpoint(c, rows, work, 'B3-587', ld_states[0]))
+    ld_states.append(ld_checkpoint(c, rows, work, 'B3-587', ld_states[0], auxiliary=auxiliary))
     c.run(pacman + ['-Dk'])
     originals_preserved(saved, db, c, final=True)
     c.need(all(not p.exists() and not p.is_symlink() for p in paths), 'audio package file remains after removal')
@@ -372,7 +406,7 @@ def run(pacman, plan, before, source, work, c, payload_helper):
         c.need((info.st_mode, info.st_uid, info.st_gid) == original, 'pre-existing audio directory changed')
     payload_helper.payloads(pacman, plan['projects'], c)
     c.need(not Path('/dev/snd').exists() and not Path('/run/systemd/system').exists(), 'audio isolation changed')
-    return {'status': 'PASS', 'installed_count': 593, 'installed_inventory_sha256': EXPECTED, 'ldconfig_state': ld_summary(ld_states),
+    return {'status': 'PASS', 'installed_count': 593, 'installed_inventory_sha256': EXPECTED, 'ldconfig_state': ld_summary(ld_states, auxiliary),
         'final_count': 587, 'final_inventory_sha256': BASE, 'dependencies': 'PASS-no-waivers',
         'payload_hashes_modes_ownership': 'PASS-six-additions-and-original-projects',
         'original587_database': 'PRESERVED', 'pre_existing_payload_directories': 'PRESERVED',
