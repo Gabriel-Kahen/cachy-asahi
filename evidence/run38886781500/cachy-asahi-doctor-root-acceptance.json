@@ -1,0 +1,16 @@
+{
+  "archive_sha256": "06898669fdd6c9e5bdcc9909e6b0e75e958bdbd57520a7082c0e9f5f7fac7482",
+  "evidence": "docs/validation/welcome-doctor-native-20261016.md",
+  "hardware": "NOT_RUN",
+  "name": "cachy-asahi-doctor",
+  "native_lifecycle": "PASS",
+  "native_pair": "PASS_BYTES_IDENTICAL",
+  "native_run": 38886781500,
+  "qualification": "PASS_NATIVE_PAIR_AND_INSTALLED_CLI_LIFECYCLE_IDENTICAL_BYTES_REUSED",
+  "raw_lifecycle_sha256": "2014b0b5cf8d62df3ee67b18bdc1727b13b4f599c8568af5a732774caa3c1e7e",
+  "release_selection": false,
+  "run_id": "38886781500",
+  "source_sha": "09717a45388e5b90ca80fd3fef327444101c108f",
+  "status": "ROOT_ACCEPTED_NATIVE_CANDIDATE",
+  "version": "0.1.0-1"
+}

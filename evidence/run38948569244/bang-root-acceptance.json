@@ -1,0 +1,15 @@
+{
+  "archive_sha256": "542585b5c6d50f379deca86cc394afbb0eca51174ee9e11d7ec895181ef73f8e",
+  "hardware": "NOT_RUN",
+  "name": "cachy-asahi-fish-bang-bang",
+  "native_lifecycle": "PASS",
+  "native_pair": "PASS_BYTES_IDENTICAL",
+  "native_run": 38948569244,
+  "qualification": "PASS_NATIVE_PAIR_AND_INSTALLED_EXPANDED600_LIFECYCLE",
+  "raw_lifecycle_sha256": "b3baf6e131f870e77fbaf9bd24399fdb7160c34a80d3a7be28725bf40ab7b4a0",
+  "release_selection": false,
+  "run_id": "38948569244",
+  "source_sha": "22c095c85cb6fd79d5de0f0ee43ca012c32c2aeb",
+  "status": "ROOT_ACCEPTED_NATIVE_CANDIDATE",
+  "version": "0.1.0-2"
+}
