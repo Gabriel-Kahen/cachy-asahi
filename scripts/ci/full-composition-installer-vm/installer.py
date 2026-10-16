@@ -54,6 +54,9 @@ def checked_inputs(*, protected):
     payload=p.decode((SHARED/'payload.json').read_bytes())
     p.need(payload['schema_version']==1 and len(payload['nodes'])<=200000 and
            set(payload['ownership'])==set(expected) and payload['packages']==expected,'payload map/count differs')
+    held=p.constants(SHARED/'code/scripts/virtual/common.py',{'TRANSACTION_PROFILE_BYTES'})['TRANSACTION_PROFILE_BYTES']
+    p.validate_tools(profile,value,payload,c['builder_inventory'],held)
+    p.need(c['tooling_inventory'].get('sqlite')=='3.54.0-1','preserved tooling SQLite inventory differs')
     return c,profile,value,payload
 
 
@@ -81,11 +84,14 @@ def ordinary_preflight(namespace_fd=None,lease_sha256=None):
     # JSON formatting is not reinterpreted as authority: compare its semantic map
     # with the source-held exact bytes before examining the actual tools.
     held=p.constants(SHARED/'code/scripts/virtual/common.py',{'TRANSACTION_PROFILE_BYTES','TRANSACTION_LAUNCHER'})
-    p.need(p.decode(held['TRANSACTION_PROFILE_BYTES'])==tools and
-           hashlib.sha256(held['TRANSACTION_PROFILE_BYTES']).hexdigest()==base.NATIVE_PROFILE_SHA==profile['tool_profile_sha256'], 'held tool profile differs')
+    p.need(p.coherent_tools(held['TRANSACTION_PROFILE_BYTES'])==tools and
+           hashlib.sha256(held['TRANSACTION_PROFILE_BYTES']).hexdigest()==base.NATIVE_PROFILE_SHA==profile['base_tool_profile_sha256'] and
+           profile['tool_profile_sha256']==p.COHERENT_TOOL_PROFILE_SHA, 'held tool profile differs')
     p.need(tools['architecture']=='aarch64' and tools['libalpm_expected_abi']=='16.0.1' and len(tools['files'])==136,'tool roles differ')
     for alias,target in tools['aliases'].items(): p.need(str(Path(alias).resolve(strict=True))==target,'tool alias differs')
-    for row in tools['files']: base.generic_readonly(row['path'],row['size'],row['sha256'],64*1024**2,single=False)
+    for row in tools['files']:
+        raw=base.generic_readonly(row['path'],row['size'],row['sha256'],64*1024**2,single=False)
+        if row['path']==p.NEW_SQLITE['path']:p.sqlite_elf(raw)
     for alias,target in profile['launcher']['aliases'].items(): p.need(str(Path(alias).resolve(strict=True))==target,'launcher alias differs')
     for name,row in profile['launcher']['files'].items():
         p.checked(Path('/'),name.lstrip('/'),row,maximum=64*1024**2,protected=True)
