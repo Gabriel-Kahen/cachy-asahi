@@ -15,10 +15,10 @@ ROOT=Path(os.environ.get('DONE_MANAGED_SOURCE_ROOT',Path.cwd())).resolve()
 MODULES=Path(os.environ.get('DONE_MANAGED_INPUTS',ROOT/'artifacts/development/setup5-six-module-inputs-20261016/payload')).resolve()
 
 
-def messages(outcome=0):
+def messages(outcome=0,kind='Foreground command'):
     title='Done in 5s' if outcome==0 else 'Failed (7) after 5s'
     call=dict(type='method_call',sender=':1.9',destination='org.freedesktop.Notifications',path='/org/freedesktop/Notifications',interface='org.freedesktop.Notifications',member='Notify',cookie=42,
-              payload=dict(type='susssasa{sv}i',data=['fish',0,'',title,'Foreground command completed.',[],{'image-path':{'type':'s','data':'utilities-terminal'},'urgency':{'type':'y','data':1 if outcome==0 else 2},'transient':{'type':'i','data':1}},3000]))
+              payload=dict(type='susssasa{sv}i',data=['fish',0,'',title,kind+' completed.',[],{'image-path':{'type':'s','data':'utilities-terminal'},'urgency':{'type':'y','data':1 if outcome==0 else 2},'transient':{'type':'i','data':1}},3000]))
     reply=dict(type='method_return',sender=':1.7',destination=':1.9',reply_cookie=42,payload=dict(type='u',data=[23]))
     return [call,reply]
 
@@ -75,16 +75,23 @@ class Protocol(unittest.TestCase):
         units={n:dict(Id=n,LoadState='loaded',ActiveState='active',SubState=s,Result='success',ExecMainStatus=0,MainPID=101 if n=='user@23001.service' else 0) for n,s in (('systemd-user-sessions.service','exited'),('user-runtime-dir@23001.service','exited'),('user@23001.service','running'))}
         events=[dict(event='boot',architecture='aarch64',kernel='7.2.10-1-aarch64-ARCH',page_size=4096),dict(event='managed_session_ready',status='PASS',units=units,**identity),dict(event='managed_user_ready',status='PASS',**identity)]
         for stage,(case,outcome) in O.CASES.items():
-            wire=O.notify(messages(outcome),':1.7',outcome)
+            kind='Watched job' if stage=='background' else 'Foreground command'
+            wire=O.notify(messages(outcome,kind),':1.7',outcome,kind)
             row=lambda namespace,pid,x,y,w,h:dict(namespace=namespace,pid=pid,x=x,y=y,w=w,h=h,alpha=1,level='2',monitor='Virtual-1')
             activation=dict(values=dict(WAYLAND_DISPLAY='wayland-1',HYPRLAND_INSTANCE_SIGNATURE='test-owned',XDG_SESSION_TYPE='wayland',XDG_CURRENT_DESKTOP='Hyprland'),manager_pid=101,systemd_verified=True,dbus_updated=True)
             installed=dict(status='PASS_ACTUAL_INSTALLED_DONE_PAYLOAD_METADATA',version='0.1.0-2',archive_sha256='9ce3c7ba89467f04660014c1b12056dce28bd0c4e69b4cab8a9c2c98e1cce54f',files={str(i):'a'*64 for i in range(8)},executables={n:{} for n in ('fish','notify-send','timeout')})
             caller=dict(pid=205,outcome=outcome,prompt_status=outcome,caller_continuation=outcome)
             frame=dict(event='frame_ready',stage=stage,case=case,outcome=outcome,managed_identity=identity,activation='normal-shipped-config-no-reload',trace_waybar=False,notification_timeout_ms=3000,notification_age_ms=100,capture_after_ms=5000,activation_environment=activation,compositor_pid=201,waybar_pid=202,mako_pid=203,fish_pid=205,bar=row('waybar',202,0,0,1024,30),mako=row('notifications',203,650,40,300,100),wire=wire,notification={k:wire[k] for k in ('id','app_name','summary','body')},recipient=dict(service='org.freedesktop.Notifications',unique=':1.7',pid=203,owner_reply='s ":1.7"'),caller=caller,installed=installed)
-            raw=b'\n'.join(json.dumps(r).encode() for r in messages(outcome))+b'\n';pty=('FDM_PROMPT_2_'+str(outcome)+'\nFDM_CONT_'+str(outcome)).encode()
+            raw=b'\n'.join(json.dumps(r).encode() for r in messages(outcome,kind))+b'\n';pty=('FDM_PROMPT_2_'+str(outcome)+'\nFDM_CONT_'+str(outcome)).encode()
+            if stage=='background':
+                child=dict(pid=206,parent_pid=205,process_group=206,start_ticks=1234,executable='/usr/bin/sleep',argv=['sleep','8'])
+                caller.update(command=F.BACKGROUND_COMMAND,watch=dict(child=child,registration_status=0,handler_registered=True,caller_before_completion=True))
+                pty=b'\nFDM_WATCH_206_0\n'+pty+b'\nFDM_BG_RETIRED_206\n'
             events.extend([frame,dict(event='frame_captured',stage=stage,first_capture=True,request_sha256=C.request_digest(frame),managed_identity=identity,visual_review='NOT_RUN',capture_ms=20),dict(event='done_transport',stage=stage,case=case,wire=wire,caller=caller,monitor=dict(raw_base64=base64.b64encode(raw).decode(),bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest(),exit=0),fish=dict(exit=0,pty_base64=base64.b64encode(pty).decode(),pty_bytes=len(pty),pty_sha256=hashlib.sha256(pty).hexdigest()),mako_exit=0,payload_preserved=True,user_config_preserved=True),dict(event='phase_pass',stage=stage,case=case,config_preserved=True,fish='PASS')])
+            if stage=='background':
+                events[-2]['fish']['watch_retirement']=dict(child=child,handler_absent=True,pid_absent=True,process_group_absent=True)
         stopped={n:dict(Id=n,LoadState='loaded',ActiveState='inactive',SubState='dead',MainPID=0) for n in ('user@23001.service','user-runtime-dir@23001.service')}
-        events.extend([dict(event='session_pass',status='PASS',fish_done='PASS_REAL_MANAGED_FOREGROUND_TWO_CASES'),dict(event='managed_session_cleanup',status='PASS',runtime_absent=True,owned_units_stopped=True,units=list(stopped),unit_states=stopped),dict(event='complete',status='PASS')])
+        events.extend([dict(event='session_pass',status='PASS',fish_done='PASS_REAL_MANAGED_FOREGROUND_TWO_CASES',watched_background='PASS_REAL_MANAGED_SINGLE_SUCCESS'),dict(event='managed_session_cleanup',status='PASS',runtime_absent=True,owned_units_stopped=True,units=list(stopped),unit_states=stopped),dict(event='complete',status='PASS')])
         return events
 
     def test_complete_synthetic_protocol_is_metadata_only(self):
@@ -98,6 +105,95 @@ class Protocol(unittest.TestCase):
     def test_wire_sender_and_listing_cannot_be_replaced_by_boolean(self):
         events=self.fixture();next(e for e in events if e['event']=='done_transport')['wire']=dict(status='PASS')
         with self.assertRaises(ValueError):C.verify_result(events)
+
+
+class Background(unittest.TestCase):
+    def events(self):return Protocol().fixture()
+
+    def test_actual_body_is_watched_job_and_cannot_be_foreground(self):
+        wire=O.notify(messages(0,'Watched job'),':1.7',0,'Watched job')
+        self.assertEqual(wire['body'],'Watched job completed.')
+        with self.assertRaises(ValueError):O.notify(messages(),':1.7',0,'Watched job')
+        with self.assertRaises(ValueError):O.notify(messages(0,'Watched job'),':1.7',0)
+
+    def test_single_positive_case_has_no_failure_or_cancellation_credit(self):
+        result=C.verify_result(self.events())
+        self.assertEqual(result['foreground_cases'],2);self.assertEqual(result['background_cases'],1)
+        for key in ('background_failure','background_cancellation','background_duplicate_watch','visual_review'):
+            self.assertEqual(result[key],'NOT_RUN')
+
+    def test_missing_background_phase_cannot_pass(self):
+        events=[e for e in self.events() if e.get('stage')!='background']
+        with self.assertRaises(ValueError):C.verify_result(events)
+
+    def test_background_receipt_cannot_substitute_foreground_receipt(self):
+        events=self.events();frame=next(e for e in events if e.get('stage')=='background' and e['event']=='frame_ready')
+        frame['caller'].pop('watch')
+        with self.assertRaises((ValueError,KeyError)):C.verify_result(events)
+
+    def test_actual_handler_pid_group_and_child_must_retire(self):
+        for key in ('handler_absent','pid_absent','process_group_absent'):
+            events=self.events();row=next(e for e in events if e.get('stage')=='background' and e['event']=='done_transport')
+            row['fish']['watch_retirement'][key]=False
+            with self.subTest(key=key),self.assertRaises(ValueError):C.verify_result(events)
+
+    def test_child_cannot_be_fish_or_foreign_or_wrong_executable(self):
+        for key,value in (('pid',205),('parent_pid',999),('process_group',205),('executable','/tmp/notify-shim'),('argv',['sleep','0.1']),('start_ticks',0)):
+            events=self.events();frame=next(e for e in events if e.get('stage')=='background' and e['event']=='frame_ready')
+            frame['caller']['watch']['child'][key]=value
+            with self.subTest(key=key),self.assertRaises(ValueError):C.verify_result(events)
+
+    def test_no_caller_continuation_after_completion_can_claim_live_job(self):
+        events=self.events();frame=next(e for e in events if e.get('stage')=='background' and e['event']=='frame_ready')
+        frame['caller']['watch']['caller_before_completion']=False
+        with self.assertRaises(ValueError):C.verify_result(events)
+
+    def test_raw_watch_marker_binds_one_successful_exact_pid(self):
+        self.assertEqual(F.watched_pid(b'\nFDM_WATCH_206_0\n'),206)
+        self.assertEqual(F.retired_pid(b'\nFDM_BG_RETIRED_206\n'),206)
+        with self.assertRaises(ValueError):F.retired_pid(b'\nFDM_BG_RETIRED_206\nFDM_BG_RETIRED_207\n')
+        for raw in (b'FDM_WATCH_%s_%s',b'\nFDM_WATCH_206_7\n',b'\nFDM_WATCH_206_0\nFDM_WATCH_207_0\n'):
+            with self.subTest(raw=raw),self.assertRaises(ValueError):F.watched_pid(raw)
+
+    def test_registration_and_retirement_markers_cannot_be_reordered_or_rebound(self):
+        events=self.events();frame=next(e for e in events if e.get('stage')=='background' and e['event']=='frame_ready')
+        row=next(e for e in events if e.get('stage')=='background' and e['event']=='done_transport')
+        raw=base64.b64decode(row['fish']['pty_base64']);watch=frame['caller']['watch'];retired=row['fish']['watch_retirement']
+        F.verify_background(watch,205,raw,retired)
+        for bad in (raw.replace(b'FDM_BG_RETIRED_206',b'FDM_BG_RETIRED_2060'),b'\nFDM_BG_RETIRED_206\nFDM_PROMPT_2_0\nFDM_CONT_0\nFDM_WATCH_206_0\n'):
+            with self.subTest(raw=bad),self.assertRaises(ValueError):F.verify_background(watch,205,bad,retired)
+        watch['registration_status']=False
+        with self.assertRaises(ValueError):F.verify_background(watch,205,raw,retired)
+
+    def test_foreground_terminal_init_commands_and_methods_unchanged(self):
+        baseline=HERE/'fixtures/foreground-fish-terminal.py.txt'
+        self.assertTrue((HERE/'fish_terminal.py').read_bytes().startswith(baseline.read_bytes()))
+        old=ast.parse(baseline.read_bytes());new=ast.parse((HERE/'fish_terminal.py').read_bytes())
+        for name in ('COMMANDS','INIT','Terminal'):
+            def select(tree):
+                return next(n for n in tree.body if isinstance(n,ast.ClassDef) and n.name==name or isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id==name for t in n.targets))
+            self.assertEqual(ast.dump(select(old)),ast.dump(select(new)),name)
+        self.assertEqual(O.CASES['minimal'],('foreground-success',0));self.assertEqual(O.CASES['overlay'],('foreground-failure',7))
+
+    def test_capture_only_adds_one_background_stage_to_original_helper(self):
+        text=(HERE/'capture.py').read_text().replace("('minimal', 'overlay', 'background')","('minimal', 'overlay')")
+        self.assertEqual(text,(ROOT/'scripts/ci/desktop-bar-notifications/capture.py').read_text())
+
+    def test_actual_original_watch_function_and_default_timing_preserved(self):
+        self.assertIn('caa_done_watch $__fdm_job',F.BACKGROUND_COMMAND)
+        self.assertIn('command sleep 8 &;',F.BACKGROUND_COMMAND)
+        self.assertNotIn('__done_notify',F.BACKGROUND_COMMAND)
+        self.assertNotIn('caa_done_min_duration',F.INIT+F.BACKGROUND_COMMAND)
+        self.assertTrue(issubclass(F.BackgroundTerminal,F.Terminal))
+        tree=ast.parse((HERE/'fish_terminal.py').read_bytes())
+        self.assertFalse(any(isinstance(n,ast.FunctionDef) and n.name.startswith('__done') for n in ast.walk(tree)))
+
+    def test_generated_and_guest_controller_require_third_first_frame(self):
+        text=(Path(os.environ['DONE_MANAGED_PREPARED_RUNNER'])/'desktop574_runtime.py').read_text()
+        self.assertIn("phases == {'minimal', 'overlay', 'background'}",text)
+        self.assertIn("stage in ('minimal', 'overlay', 'background')",text)
+        self.assertIn("session.phase('background',config,env,logs,trace_waybar=False)",(HERE/'desktop574_guest.py').read_text())
+        self.assertIn("for stage in ('minimal', 'overlay', 'background'):",(HERE/'ci/caller.py').read_text())
 
 
 class ActualWire38952906070(unittest.TestCase):
@@ -191,7 +287,7 @@ class Data(unittest.TestCase):
         with patch.object(packet,'read',return_value=json.dumps(original).encode()),self.assertRaises(ValueError):packet.policy()
 
     def test_shared_manager_capture_and_bar_helpers_unchanged(self):
-        for name,original in (('bar_helpers.py','desktop-bar-notifications/session.py'),('capture.py','desktop-bar-notifications/capture.py'),('managed_session.py','desktop-user-session/managed_session.py'),('managed_contract.py','desktop-user-session/managed_contract.py')):
+        for name,original in (('bar_helpers.py','desktop-bar-notifications/session.py'),('managed_session.py','desktop-user-session/managed_session.py'),('managed_contract.py','desktop-user-session/managed_contract.py')):
             self.assertEqual((HERE/name).read_bytes(),(ROOT/'scripts/ci'/original).read_bytes(),name)
 
     def test_pty_uses_installed_opt_in_default_threshold_and_real_transport(self):

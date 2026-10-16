@@ -2,7 +2,10 @@
 """Strict joins of real busctl-monitor calls/replies and Mako's live listing."""
 import json,re
 
-CASES={'minimal':('foreground-success',0),'overlay':('foreground-failure',7)}
+CASES={'minimal':('foreground-success',0),'overlay':('foreground-failure',7),'background':('watched-background-success',0)}
+
+
+def body(stage):return 'Watched job completed.' if stage=='background' else 'Foreground command completed.'
 
 
 def need(ok,why):
@@ -26,7 +29,8 @@ def summary(value,outcome):
          any(c.isdigit() for c in value[len(prefix):]),'actual Done summary differs')
 
 
-def notify(rows,owner,outcome):
+def notify(rows,owner,outcome,kind='Foreground command'):
+    need(kind in ('Foreground command','Watched job'),'fixed notification kind required')
     calls=[r for r in rows if r.get('type')=='method_call' and r.get('interface')=='org.freedesktop.Notifications' and r.get('member')=='Notify']
     need(len(calls)<=1,'duplicate notification call')
     if not calls:return None
@@ -36,7 +40,7 @@ def notify(rows,owner,outcome):
          call['sender']!=owner and type(call.get('cookie')) is int,'notification sender/recipient/cookie differs')
     payload=call.get('payload');need(type(payload) is dict and payload.get('type')=='susssasa{sv}i','Notify signature differs')
     data=payload.get('data');need(type(data) is list and len(data)==8 and data[0]=='fish' and data[1]==0 and
-         data[2]=='' and data[4]=='Foreground command completed.' and data[5]==[] and data[7]==3000,
+         data[2]=='' and data[4]==kind+' completed.' and data[5]==[] and data[7]==3000,
          'unmodified Done Notify data/expiry differs')
     summary(data[3],outcome)
     hints=data[6];need(type(hints) is dict and hints.get('urgency')==dict(type='y',data=1 if outcome==0 else 2) and

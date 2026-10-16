@@ -13,7 +13,7 @@ def request_digest(event):
 
 def capture_frame(event, qmp, fixture, frames, report, decode):
     stage = event.get('stage')
-    if stage not in ('minimal', 'overlay') or stage in report['frames']:
+    if stage not in ('minimal', 'overlay', 'background') or stage in report['frames']:
         raise ValueError('one first frame per phase required')
     if event.get('activation') != 'normal-shipped-config-no-reload':
         raise ValueError('normal activation request required')

@@ -35,7 +35,7 @@ jobs:
         timeout-minutes: 2
         run: |
           set -euo pipefail
-          printf '%s  %s\n' '8733a3e6b109ed45e8aabeeabcd0a2b31268a8d720c4aa29fc60e1c63f802f2f' "$SLICE/ci/caller.py" '9458304dfc75c1580ff1d95f290407462e849dbd5428f2873166275131ca8401' "$SLICE/ci/source-manifest.json" | sha256sum --check
+          printf '%s  %s\n' '11d6f052843bb09f2c54f433fe59a86e2e3eff5479791b9d6979bb0c2af023a2' "$SLICE/ci/caller.py" '852da60f2741234512301db1f9b4332d579a0775dc2a9b546ad8b6c8929ce8de' "$SLICE/ci/source-manifest.json" | sha256sum --check
           python3 -I -B "$SLICE/ci/caller.py" proof --workspace "$GITHUB_WORKSPACE" --manifest "$SLICE/ci/source-manifest.json" --proof "$RUNNER_TEMP/fish-done-managed-source-proof.json"
       - name: Checkout only the exact Root accepted six-module packet
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
@@ -134,12 +134,12 @@ jobs:
           if [ -f "$RUNNER_TEMP/desktop574/report.json" ]; then
             timeout --signal=TERM --kill-after=10s 120s python3 -I -B scripts/ci/maintained_desktop574.py cleanup --inputs scripts/ci/maintained-desktop574-inputs.json --output "$RUNNER_TEMP/desktop574" --job-token "$JOB_TOKEN"
           fi
-      - name: Retain bounded public diagnostics and both QMP pixels
+      - name: Retain bounded public diagnostics and all three original QMP frames
         if: always() && steps.proof.outcome == 'success'
         timeout-minutes: 2
         run: |
           set -euo pipefail
-          printf '%s  %s\n' '8733a3e6b109ed45e8aabeeabcd0a2b31268a8d720c4aa29fc60e1c63f802f2f' "$SLICE/ci/caller.py" | sha256sum --check
+          printf '%s  %s\n' '11d6f052843bb09f2c54f433fe59a86e2e3eff5479791b9d6979bb0c2af023a2' "$SLICE/ci/caller.py" | sha256sum --check
           python3 -I -B "$SLICE/ci/caller.py" retain --proof "$RUNNER_TEMP/fish-done-managed-source-proof.json" --base "$RUNNER_TEMP/desktop574" --runtime "$RUNNER_TEMP/fish-done-managed-runtime" --output "$RUNNER_TEMP/fish-done-managed-public" --runner "$RUNNER_TEMP/fish-done-managed-runner" --manifest "$SLICE/ci/source-manifest.json"
       - name: Upload only the bounded public evidence directory
         if: always()

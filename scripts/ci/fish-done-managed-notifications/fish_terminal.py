@@ -90,3 +90,109 @@ class Terminal:
             except ProcessLookupError:pass
             else:raise ValueError('owned Fish process group remains')
         finally:os.close(self.master);self.closed=True
+
+
+# The product's original watch function owns its PROCESS_EXIT handler and Notify.
+# These commands only launch/register a real child and observe caller/retirement.
+BACKGROUND_COMMAND=("command sleep 8 &; set -g __fdm_job $last_pid; caa_done_watch $__fdm_job; "
+    "set -g __fdm_watch_status $status; test $__fdm_watch_status -eq 0; or exit 93; "
+    "functions --query __done_job_$__fdm_job; or exit 94; "
+    "printf '\\nFDM_WATCH_%s_%s\\n' $__fdm_job $__fdm_watch_status")
+RETIRE_COMMAND=("not functions --query __done_job_$__fdm_job; or exit 95; "
+    "test -d /proc/$__fdm_job; and exit 96; "
+    "printf '\\nFDM_BG_RETIRED_%s\\n' $__fdm_job")
+
+
+def watched_pid(raw):
+    rows=re.findall(rb'(?:^|[\r\n])FDM_WATCH_([1-9][0-9]{0,9})_0(?=[\r\n]|$)',raw)
+    need(len(rows)==1,'one successful real watch registration required');return int(rows[0])
+
+
+def retired_pid(raw):
+    rows=re.findall(rb'(?:^|[\r\n])FDM_BG_RETIRED_([1-9][0-9]{0,9})(?=[\r\n]|$)',raw)
+    need(len(rows)==1,'one exact watched job retirement marker required');return int(rows[0])
+
+
+def child_identity(pid,parent):
+    path=Path('/proc')/str(pid)
+    raw=(path/'stat').read_bytes();need(len(raw)<=4096,'bounded child identity required')
+    fields=raw[raw.rfind(b')')+2:].split()
+    args=(path/'cmdline').read_bytes();need(len(args)<=4096,'bounded child arguments required')
+    exe=os.readlink(path/'exe')
+    need(int(fields[1])==parent and int(fields[2])==pid and exe=='/usr/bin/sleep' and
+         args.split(b'\0') in ([b'sleep',b'8',b''],[b'/usr/bin/sleep',b'8',b'']),
+         'actual single-process owned sleep job required')
+    return dict(pid=pid,parent_pid=parent,process_group=pid,start_ticks=int(fields[19]),executable=exe,argv=['sleep','8'])
+
+
+def verify_background(watch,fish_pid,raw,retired):
+    need(type(watch) is dict and type(watch.get('registration_status')) is int and watch['registration_status']==0 and watch.get('handler_registered') is True and watch.get('caller_before_completion') is True,
+         'actual watched handler registration required')
+    child=watch.get('child');need(type(child) is dict and type(child.get('pid')) is int and child['pid']>0 and
+         child['pid']!=fish_pid and child.get('parent_pid')==fish_pid and child.get('process_group')==child['pid'] and
+         type(child.get('start_ticks')) is int and child['start_ticks']>0 and child.get('executable')=='/usr/bin/sleep' and
+         child.get('argv')==['sleep','8'],'actual owned watched job identity required')
+    need(watched_pid(raw)==child['pid'] and retired_pid(raw)==child['pid'],
+         'actual watch registration/retirement bytes required')
+    markers=[('FDM_WATCH_'+str(child['pid'])+'_0').encode(),b'FDM_PROMPT_2_0',b'FDM_CONT_0',('FDM_BG_RETIRED_'+str(child['pid'])).encode()]
+    need(all(m in raw for m in markers) and [raw.index(m) for m in markers]==sorted(raw.index(m) for m in markers),
+         'watch, prompt, independent caller and retirement order differs')
+    need(type(retired) is dict and retired.get('child')==child and retired.get('handler_absent') is True and
+         retired.get('pid_absent') is True and retired.get('process_group_absent') is True,
+         'owned watched handler/job retirement required')
+
+
+class BackgroundTerminal(Terminal):
+    def __init__(self,env):
+        self.job=None;self.retired=None;super().__init__(env)
+
+    def start(self,outcome):
+        need(outcome==0,'one positive background case only')
+        self.send(BACKGROUND_COMMAND+'\n');self.wait(b'FDM_PROMPT_2_0',15)
+        pid=watched_pid(bytes(self.output));self.job=child_identity(pid,self.process.pid)
+        self._caller=super().continuation(outcome)
+        need(child_identity(pid,self.process.pid)==self.job,'job completed before independent Fish continuation')
+        self.watch=dict(child=self.job,registration_status=0,handler_registered=True,caller_before_completion=True)
+        self._caller.update(command=BACKGROUND_COMMAND,watch=self.watch)
+
+    def continuation(self,outcome):
+        need(outcome==0,'one positive background continuation only');return self._caller
+
+    def finish(self):
+        self.send(RETIRE_COMMAND+'\n');self.wait(('FDM_BG_RETIRED_'+str(self.job['pid'])).encode(),5)
+        need(not (Path('/proc')/str(self.job['pid'])).exists(),'watched job PID remained')
+        try:os.killpg(self.job['process_group'],0)
+        except ProcessLookupError:pass
+        else:raise ValueError('watched job process group remained')
+        self.retired=dict(child=self.job,handler_absent=True,pid_absent=True,process_group_absent=True)
+        result=super().finish();result['watch_retirement']=self.retired;return result
+
+    def close(self):
+        if self.closed:return
+        first=None
+        try:
+            # Registration may fail before its marker is read. Discover only this
+            # Fish's one exact sleep8 child while the parent is still owned/live.
+            if self.job is None and self.process.poll() is None:
+                children=Path('/proc')/str(self.process.pid)/'task'/str(self.process.pid)/'children'
+                raw=children.read_bytes();need(len(raw)<=4096,'bounded owned-child discovery required')
+                found=[]
+                for token in raw.split():
+                    try:found.append(child_identity(int(token),self.process.pid))
+                    except (ValueError,FileNotFoundError,ProcessLookupError):pass
+                need(len(found)<=1,'ambiguous owned sleep child');self.job=found[0] if found else None
+            if self.job and (Path('/proc')/str(self.job['pid'])).exists():
+                need(child_identity(self.job['pid'],self.process.pid)==self.job,'owned background PID reused')
+                os.kill(self.job['pid'],signal.SIGTERM)
+                until=time.monotonic()+2
+                while (Path('/proc')/str(self.job['pid'])).exists() and time.monotonic()<until:self.pump()
+                if (Path('/proc')/str(self.job['pid'])).exists():os.kill(self.job['pid'],signal.SIGKILL)
+        except BaseException as error:first=error
+        try:super().close()
+        except BaseException as error:
+            if first is None:first=error
+        if self.job:
+            until=time.monotonic()+2
+            while (Path('/proc')/str(self.job['pid'])).exists() and time.monotonic()<until:time.sleep(.02)
+            if (Path('/proc')/str(self.job['pid'])).exists() and first is None:first=ValueError('owned watched job survived Fish cleanup')
+        if first is not None:raise first

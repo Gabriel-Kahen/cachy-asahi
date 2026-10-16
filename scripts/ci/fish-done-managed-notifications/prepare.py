@@ -42,6 +42,8 @@ def prepare(source,modules,output):
     runtime=replace(runtime,'/tmp/project/desktop.pkg.tar.zst && ldconfig','/tmp/project/desktop.pkg.tar.zst /tmp/project/done.pkg.tar.xz && ldconfig')
     runtime=runtime.replace('PASS_BAR_NOTIFICATION_GENERIC_ARM_SMOKE','PASS_FISH_DONE_REAL_MANAGED_NOTIFICATION_METADATA')
     runtime=replace(runtime,'cachy_asahi_bar_notifications=1','cachy_asahi_bar_notifications=1 cachy_asahi_done_managed=1')
+    runtime=replace(runtime,"stage in ('minimal', 'overlay') and stage not", "stage in ('minimal', 'overlay', 'background') and stage not")
+    runtime=replace(runtime,"phases == {'minimal', 'overlay'}", "phases == {'minimal', 'overlay', 'background'}")
     (output/'desktop574_runtime.py').write_text(runtime)
     return output
 
