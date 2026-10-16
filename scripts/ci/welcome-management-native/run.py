@@ -28,6 +28,18 @@ def pair_gate(result):
                for row in result['packages'].values()),'both payload and complete archive bytes must reproduce')
 
 
+def load_builder(source):
+    # The accepted script imports a generic sibling name before its C can be rebound.
+    # Bind the selected lane contract only for that import, preserving the caller's namespace.
+    missing=object();previous=sys.modules.get('contract',missing)
+    try:
+        sys.modules['contract']=C
+        return C.load('management_accepted_welcome_builder',source/'scripts/ci/welcome-native/run.py')
+    finally:
+        if previous is missing:sys.modules.pop('contract',None)
+        else:sys.modules['contract']=previous
+
+
 def execute(source,base_dir,out,token):
     C.policy()
     C.need(platform.system()=='Linux' and platform.machine()=='aarch64' and os.getuid()==os.geteuid()>0 and
@@ -39,7 +51,7 @@ def execute(source,base_dir,out,token):
     original=json.loads((base_dir/'report.json').read_text());image=(base_dir/'image-id').read_text().strip()
     C.need(original.get('status')=='PASS_NATIVE_OFFLINE_574_TRANSACTION' and original['image']==image and
            re.fullmatch('sha256:[0-9a-f]{64}',image),'accepted owned574 image required')
-    shared=C.load('accepted_orphans_build',source/'scripts/ci/welcome-native/run.py');shared.C=C
+    shared=load_builder(source)
     common=C.load('orphans_logged',source/'scripts/virtual/common.py')
     checks=C.load('orphans_checks',source/'scripts/checks/package_checks.py')
     sys.path[:0]=[str(source/'scripts/build'),str(source/'scripts/checks')]

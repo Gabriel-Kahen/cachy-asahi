@@ -3,6 +3,7 @@ import copy
 import fcntl
 import json
 import os
+import sys
 from pathlib import Path
 import tempfile
 from types import SimpleNamespace
@@ -51,6 +52,29 @@ def receipt():
 
 
 class SourceControls(unittest.TestCase):
+    def test_accepted_builder_imports_selected_contract_without_ambient_module(self):
+        for ambient in (None,SimpleNamespace(marker='foreign contract')):
+            with self.subTest(ambient=ambient),patch.dict(sys.modules):
+                sys.modules.pop('contract',None)
+                if ambient is not None:sys.modules['contract']=ambient
+                before=list(sys.path)
+                builder=R.load_builder(ROOT)
+                self.assertIs(builder.C,C)
+                self.assertEqual(Path(builder.__file__),ROOT/'scripts/ci/welcome-native/run.py')
+                self.assertEqual(builder.inventory('fixture-package 1-1\n'),{'fixture-package':'1-1'})
+                self.assertEqual(sys.path,before)
+                if ambient is None:self.assertNotIn('contract',sys.modules)
+                else:self.assertIs(sys.modules['contract'],ambient)
+
+    def test_accepted_builder_import_failure_restores_generic_module(self):
+        for ambient in (None,SimpleNamespace(marker='foreign contract')):
+            with self.subTest(ambient=ambient),patch.dict(sys.modules),patch.object(C,'load',side_effect=RuntimeError('fixture import failure')):
+                sys.modules.pop('contract',None)
+                if ambient is not None:sys.modules['contract']=ambient
+                with self.assertRaisesRegex(RuntimeError,'fixture import failure'):R.load_builder(ROOT)
+                if ambient is None:self.assertNotIn('contract',sys.modules)
+                else:self.assertIs(sys.modules['contract'],ambient)
+
     def test_unbound_refuses_before_any_native_observer_or_output(self):
         unbound=C.policy(False);unbound.update(status='UNBOUND_FIXTURE',candidate_source=None)
         with patch.object(C,'read',return_value=unbound),patch.object(R.platform,'system',side_effect=AssertionError('actor reached')):
