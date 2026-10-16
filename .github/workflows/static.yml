@@ -166,6 +166,11 @@ jobs:
         run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/fish-done-native -p 'test_*.py'
       - name: Check setup5 native upgrade contracts without container actors
         run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/setup5-native -p 'test_*.py'
+      - name: Check Apps transactions and management source contracts
+        run: |
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/apps -p 'test_*.py'
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/management-tools-generic16k -p 'test_*.py'
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/welcome-management-native -p 'test_*.py'
       - name: Check generic 16K tools contracts without VM actors
         run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/tools-generic16k -p 'test_*.py'
       - name: Check Fish Done generic 16K contracts without VM actors
