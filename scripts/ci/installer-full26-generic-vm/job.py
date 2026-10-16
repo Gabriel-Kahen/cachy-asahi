@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: MIT
 """Fresh owned original producer -> private full26 generic VM -> ordered teardown."""
 import argparse
-from concurrent.futures import ThreadPoolExecutor
 from contextlib import contextmanager
 import fcntl
 import hashlib
@@ -86,6 +85,47 @@ def vm_retired(output):
     except (OSError,ValueError,KeyError):return False
 
 
+def tooling_packet(source,engine,output):
+    """Copy the exact retained 21-package tooling closure; never fetch URLs."""
+    A.need(isinstance(source,Path) and source.is_absolute() and source.is_dir() and
+           not any(p.is_symlink() for p in (source,*source.parents)) and
+           not output.exists() and not output.is_symlink(),'ordinary immutable tooling packet/fresh cache')
+    lock_path=engine/'scripts/virtual/tooling.lock.json';lock=read(lock_path)
+    A.need(lock['schema_version']==1 and lock['base_package_count']==341 and
+           len(lock['packages'])==21 and lock['expected_package_count']==362,'exact21 original tooling lock')
+    rows=lock['keyring_files']+[v for r in lock['packages'] for v in
+        (r,dict(filename=r['filename']+'.sig',size=r['signature_size'],sha256=r['signature_sha256']))]
+    files={r['filename']:dict(bytes=r['size'],sha256=r['sha256']) for r in rows}
+    A.need(len(rows)==len(files)==45 and all(Path(n).name==n for n in files),'flat45 tooling closure')
+    expected=dict(schema_version=1,purpose='installer-full26-generic-vm-tooling-inputs',
+                  tooling_lock_sha256=sha(lock_path),files=files)
+    A.need(read(source/'index.json')==expected and
+           {p.name for p in source.iterdir()}=={'index.json',*files},'closed exact tooling index')
+    # Validate the complete borrowed packet before materializing any cache.
+    for name,row in files.items():
+        A.need(A.digest(A.read(source/name))==row,'retained tooling byte/hash differs: '+name)
+    output.mkdir(mode=0o700)
+    for name,row in files.items():
+        raw=A.read(source/name);A.need(A.digest(raw)==row,'tooling input changed during copy')
+        (output/name).write_bytes(raw)
+    receipt=dict(status='EXACT_RETAINED_TOOLING_INPUTS',files=files,
+                 index=A.digest(A.read(source/'index.json')),tooling_lock_sha256=sha(lock_path),
+                 count=45,bytes=sum(r['bytes'] for r in files.values()),network='NOT_USED')
+    save(output.parent/'tooling-inputs.json',receipt)
+    return receipt
+
+
+def producer_safe(controller,integration_started,vm_started,vm):
+    if vm_started and (not integration_started or not vm_retired(vm)):return False
+    if controller is None:return not integration_started
+    if not integration_started:
+        # The pinned constructor only snapshots source and creates directories.
+        # Do not infer retirement after a run or any acquired consumer image.
+        return (not vm_started and controller.installed is None and controller.installed_owned is None and
+                controller.report.get('stages')=={})
+    return controller.report.get('owned_image_cleanup',{}).get('status')=='PASS'
+
+
 def consume(controller,engine,cache,output,implementation):
     A.need(controller.report['stages']['lifecycle']['status']=='PASS' and re.fullmatch('sha256:[0-9a-f]{64}',controller.installed),
            'fresh successful installed original-four lifecycle required')
@@ -163,7 +203,7 @@ def run(args):
     save(output/'source-proof.json',source)
     result=dict(status='FAIL',scope='GENERIC_ARM_FULL26_ORIGINAL_METHODS_SOFTWARE_ONLY',native_P0='UNCHANGED_FAILED',hardware='NOT_RUN',
                 source_sha=source['source_sha'],producer_ref=binding['ref'],VM='NOT_STARTED',producer_cleanup='NOT_STARTED')
-    engine=output/'engine';A.prepare(args.workspace,engine);vm=output/'vm';started=False;controller=None
+    engine=output/'engine';A.prepare(args.workspace,engine);vm=output/'vm';started=False;integration_started=False;controller=None
     def interrupted(*_):raise InterruptedError('full26 owner cancelled')
     prior={sig:signal.signal(sig,interrupted) for sig in (signal.SIGTERM,signal.SIGINT)}
     names=('native_arm','integration','integration_export','lifecycle_inventory','repository_projection','desktop_projection','commit_image','package_checks')
@@ -174,6 +214,8 @@ def run(args):
         try:
             inputs=read(args.producer/'scripts/ci/inputs.lock.json')
             lock=integration.preflight(args.producer,args.producer/'scripts/ci/integration.lock.json',binding['integration_sha256'],binding['recipes_sha256'],inputs['source_date_epoch'])
+            tooling=output/'tooling-cache'
+            tooling_packet(args.tooling_inputs,engine,tooling)  # Before any native/Docker producer actor.
             probe=output/'probe';probe.mkdir();native.probe(probe)
             before=set(native.run(['docker','image','ls','-a','--no-trunc','-q'],timeout=30).splitlines())
             save(output/'producer-owner.json',dict(schema_version=1,token=source['token'],before_images=sorted(before),label=LABEL))
@@ -189,12 +231,6 @@ def run(args):
             A.need(code==0,'fresh original native pair producer failed')
             image=(output/'native/image-id').read_text().strip();A.need(image not in before,'fresh token-labeled image required')
             controller=integration.Controller(image,output/'native',output/'integration',lock,binding['ref'],package_only=True)
-            tooling=output/'tooling-cache';tooling.mkdir()
-            with modules(engine/'scripts/virtual',('common','audit_tooling','image_decode_report')):
-                import audit_tooling
-                tooling_lock=read(engine/'scripts/virtual/tooling.lock.json');audit_tooling.validate_lock(tooling_lock)
-                rows=tooling_lock['keyring_files']+[r for row in tooling_lock['packages'] for r in (row,audit_tooling.signature(row))]
-                with ThreadPoolExecutor(max_workers=4) as pool:list(pool.map(lambda row:audit_tooling.fetch(row,tooling,True),rows))
             def retained_derivative(owned,base):
                 if started and not vm_retired(vm):return dict(status='FAIL',absence_verified=False,cleanup_uncertain=True,reason='RETAINED_FULL26_VM_RETIREMENT_UNKNOWN')
                 return original_remove(owned,base)
@@ -203,6 +239,7 @@ def run(args):
                 nonlocal started
                 started=True;result['VM']='STARTED';save(output/'result.json',result)
                 consume(current,engine,tooling,vm,source['source_sha'])
+            integration_started=True
             A.need(controller.run(consumers=consumer),'producer integration/full26 consumer failed')
             result.update(status='PASS',VM=A.PASS)
         except BaseException as error:result.update(status='FAIL',error_type=type(error).__name__,error=str(error)[:512])
@@ -210,7 +247,7 @@ def run(args):
             pending=[]
             for sig in prior:signal.signal(sig,lambda n,f:pending.append(n))
             native.run=original_run;integration.remove_derivative=original_remove
-            safe=(not started or vm_retired(vm)) and (controller is None or controller.report.get('owned_image_cleanup',{}).get('status')=='PASS')
+            safe=producer_safe(controller,integration_started,started,vm)
             try:
                 result['producer_cleanup']=cleanup_image(native,output,source['token'],safe)
             except BaseException as error:result.update(status='FAIL',producer_cleanup=dict(status='RETAINED_OR_FAILED',error=str(error)[:256]))
@@ -222,7 +259,7 @@ def run(args):
 
 def retain(source,output):
     A.need(not output.exists(),'fresh closed public evidence directory');output.mkdir(mode=0o700)
-    selected=['source-proof.json','result.json','producer-owner.json','producer-build.json','engine/adapter.json','native/result.json','native/bootstrap.json',
+    selected=['source-proof.json','result.json','producer-owner.json','producer-build.json','engine/adapter.json','native/result.json','native/bootstrap.json','tooling-inputs.json',
               'integration/result.json','vm/owner-public/result.json','vm/owner-public/guest-events.json']
     selected += ['vm/owner-public/'+n+'-container.log' for n in ('tooling','verify','prepare','runtime')]
     adapter=source/'engine/adapter.json';pinned_sources=set()
@@ -263,7 +300,7 @@ def retain(source,output):
     if need_result['status']=='PASS':
         try:
             required={'source-proof.json','producer-owner.json','producer-build.json','engine/adapter.json',
-                      'native/result.json','native/bootstrap.json','integration/result.json','vm/owner-public/result.json',
+                      'native/result.json','native/bootstrap.json','tooling-inputs.json','integration/result.json','vm/owner-public/result.json',
                       'vm/owner-public/guest-events.json','vm/inputs/controller-contract.json'}
             A.need(required<=set(result['files']) and vm_retired(source/'vm') and
                    need_result['producer_cleanup']['status']=='PASS' and
@@ -288,7 +325,7 @@ def read_list(path):
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('phase',choices=('proof','run','retain'))
-    for name in ('workspace','proof','producer','cache','output','source'):parser.add_argument('--'+name,type=Path)
+    for name in ('workspace','proof','producer','cache','output','source','tooling-inputs'):parser.add_argument('--'+name,type=Path)
     args=parser.parse_args()
     try:
         value=proof(args.workspace,args.proof) if args.phase=='proof' else run(args) if args.phase=='run' else retain(args.source,args.output)
