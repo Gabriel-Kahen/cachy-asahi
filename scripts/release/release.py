@@ -201,7 +201,7 @@ def provenance_check(p, record, digest, spec):
     require(build.get("execution") in {"native", "cross", "emulated", "synthetic"}, "build execution not labeled")
     text_field(build, "architecture")
     text_field(build, "environment")
-    require(build.get("snapshot_id") == spec["base"]["snapshot_id"], "build base snapshot mismatch")
+    valid_name(build.get("snapshot_id"))
 
 
 def gpg_env(home, root):
@@ -516,7 +516,7 @@ def gates_check(directory, manifest, spec, gates_path):
         for attempt in (1, 2):
             r = record("native-build", package=p["name"], attempt=attempt)
             require(r.get("execution") == "native" and r.get("architecture") == "aarch64", "emulation/cross build is not native")
-            require(r.get("artifact_sha256") == p["sha256"] and r.get("snapshot_id") == spec["base"]["snapshot_id"], "build checksum/base mismatch")
+            require(r.get("artifact_sha256") == p["sha256"] and r.get("snapshot_id") == prov["build"]["snapshot_id"], "build checksum/snapshot mismatch")
             require(re.fullmatch(r"sha256:[0-9a-f]{64}", r.get("environment_digest", "")), "builder image not digest pinned")
             raw = load(evidence(r["build_record"]))
             require(raw.get("schema_version") == 1 and raw.get("status") == "built-package-static-pass" and
@@ -547,7 +547,7 @@ def gates_check(directory, manifest, spec, gates_path):
             operators.add(r["operator"])
             logs.update(r["logs"])
             lock = load(evidence(r["dependency_lock"]))
-            require(lock.get("schema_version") == 1 and lock.get("snapshot_id") == spec["base"]["snapshot_id"] and
+            require(lock.get("schema_version") == 1 and lock.get("snapshot_id") == prov["build"]["snapshot_id"] and
                     lock.get("packages") and lock.get("retrievable_inputs"), "dependency lock/input retention missing")
             for dep in lock["packages"]:
                 text_field(dep, "name")

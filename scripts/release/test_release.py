@@ -150,6 +150,7 @@ class ReleaseTests(unittest.TestCase):
 
     def complete_modeled_evidence(self):
         """Model schema completion only. These records are fabricated test inputs."""
+        build_snapshot = r.load(self.inputs / "provenance.json")["build"]["snapshot_id"]
         def add(eid, value):
             if isinstance(value, str):
                 (self.inputs / eid).write_text(value)
@@ -160,7 +161,7 @@ class ReleaseTests(unittest.TestCase):
             add(eid, "SYNTHETIC TEST DATA; no commands executed on a native builder or M2.\n")
         shutil.copyfile(self.archive, self.inputs / "second.pkg.tar.gz")
         self.release_spec["evidence"].append(dict(self.ref("second.pkg.tar.gz"), id="second.pkg.tar.gz"))
-        add("lock.json", {"schema_version": 1, "snapshot_id": "synthetic-snapshot",
+        add("lock.json", {"schema_version": 1, "snapshot_id": build_snapshot,
             "packages": [{"name": "runtime", "version": "2", "sha256": "d" * 64}],
             "retrievable_inputs": [{"uri": "fixture://synthetic", "sha256": "e" * 64}]})
         add("contract.json", {"sleep_wake_repetitions": 3})
@@ -192,7 +193,7 @@ class ReleaseTests(unittest.TestCase):
                           f"artifacts/{self.archive.name}": self.digest},
                 "expected_packages_sha256": r.sha(self.inputs / "packages.lock")})
             record("native-build", [f"build-{n}.log"], package="fixture", attempt=n, execution="native",
-                   architecture="aarch64", artifact_sha256=self.digest, snapshot_id="synthetic-snapshot",
+                   architecture="aarch64", artifact_sha256=self.digest, snapshot_id=build_snapshot,
                    environment_digest="sha256:" + "f" * 64, clean_environment_id=f"synthetic-clean-{n}",
                    dependency_lock="lock.json", build_record=f"build-{n}.json", builder_package_lock="packages.lock",
                    file_bindings={"build.log": f"build-{n}.log", "validation.json": "validation.json",
@@ -339,6 +340,35 @@ class ReleaseTests(unittest.TestCase):
         self.verify()
         self.assertTrue((self.directory / "repo/fixture.db").is_symlink())
         self.assertTrue((self.directory / "repo/fixture.files.tar.gz.sig").is_file())
+
+    def test_builder_snapshot_is_independent_and_build_evidence_stays_bound(self):
+        provenance = r.load(self.inputs / "provenance.json")
+        provenance["build"]["snapshot_id"] = "synthetic-builder-341"
+        self.put("provenance.json", provenance)
+        self.release_spec["packages"][0]["provenance"] = self.ref("provenance.json")
+        gates = self.complete_modeled_evidence()
+        wrong_lock = r.load(self.inputs / "lock.json")
+        wrong_lock["snapshot_id"] = self.release_spec["base"]["snapshot_id"]
+        self.put("wrong-lock.json", wrong_lock)
+        self.release_spec["evidence"].append(dict(self.ref("wrong-lock.json"), id="wrong-lock.json"))
+        self.stage()
+        manifest, specification = self.verify()
+        self.assertEqual(specification["base"]["snapshot_id"], "synthetic-snapshot")
+        self.assertEqual(r.load(self.directory / manifest["packages"][0]["provenance"])["build"]["snapshot_id"],
+                         "synthetic-builder-341")
+        gates["release_sha256"] = r.sha(self.directory / "release.json")
+        # Fabricated gate inputs exercise matching only; the signed fixture stays synthetic.
+        specification["synthetic"] = gates["synthetic"] = False
+        gate_path = self.inputs / "gates.json"
+        r.write(gate_path, gates)
+        r.gates_check(self.directory, manifest, specification, gate_path)
+        for field, value, error in (("snapshot_id", "synthetic-snapshot", "build checksum/snapshot"),
+                                    ("dependency_lock", "wrong-lock.json", "dependency lock/input")):
+            changed = copy.deepcopy(gates)
+            next(row for row in changed["records"] if row["kind"] == "native-build")[field] = value
+            r.write(gate_path, changed)
+            with self.subTest(field=field), self.assertRaisesRegex(r.Error, error):
+                r.gates_check(self.directory, manifest, specification, gate_path)
 
     def test_resigned_database_requires_exact_detached_package_signature(self):
         self.stage()

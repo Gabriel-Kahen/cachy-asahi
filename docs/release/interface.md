@@ -76,7 +76,7 @@ Per-artifact release provenance is:
   "licenses": ["MIT"],
   "sources": [{"url": "upstream URL", "commit": "40-hex upstream commit"}],
   "build": {"execution": "native", "architecture": "aarch64",
-            "environment": "pinned builder description", "snapshot_id": "BASE_SNAPSHOT"}
+            "environment": "pinned builder description", "snapshot_id": "BUILD_SNAPSHOT"}
 }
 ```
 
@@ -163,6 +163,8 @@ Required records:
 `native-build.build_record` is the evidence ID of the build worker's actual `provenance.json` from `scripts/build/build.py`. Release validation requires `schema_version: 1`, `status: "built-package-static-pass"`, `mode: "native"`, `builder_host_arch: "aarch64"`/`"arm64"`, a digest-pinned `image`, matching `image_id`, `clean_environment_id`, `exit_code: 0`, exact `artifacts: {archive_filename: digest}`, and `recipe_inputs.PKGBUILD` matching release provenance.
 
 `file_bindings` maps **every** original raw-provenance `files` path to its staged evidence ID; every file digest is rechecked. The raw files must include `build.log`, `validation.json`, and the actual `artifacts/ARCHIVE_FILENAME`; each attempt's actual build log must appear in its record's `logs` and use a distinct evidence ID. The raw build command is required. `recipe_bindings` maps **every** raw-provenance `recipe_inputs` path to its staged evidence ID, likewise checked. `builder_package_lock` identifies the actual sorted `pacman -Q` lock whose digest equals raw `expected_packages_sha256`. Retain original path-to-ID mappings in release assembly review. This directly consumes raw build output without editing the build worker's files or trusting a PASS flag alone.
+
+Each package’s provenance `build.snapshot_id` identifies its actual build inventory. It may differ from the installation `base.snapshot_id`; native-build records and dependency locks must match the package’s build identity. Target dependency, conflict and compatibility checks still use the complete installation base.
 
 `dependency_lock` is a release-side JSON augmentation: `{schema_version: 1, snapshot_id, packages: [{name, version, sha256}], retrievable_inputs: [{uri, sha256}]}`. Record **all transitive build dependencies**, source/OCI inputs and verified artifact locations; the package-transaction `base.json` serves a different purpose. The augmented package/version set must exactly match the original builder package lock, without duplicates. This CLI checks fields/checksums, not remote retention availability. The custodian verifies availability and security suitability in the release-review evidence.
 
