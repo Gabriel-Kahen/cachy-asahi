@@ -51,9 +51,10 @@ def flat_inputs(ready,raw,target,old):
     for row in rows:
         name=Path(row['archive']).name;sig=Path(row['signature']).name
         C.need(name not in {r['filename'] for r in packages} and sig==name+'.sig','distinct archive basenames required')
-        for relative,size,digest,destination in ((row['archive'],row['size'],row['sha256'],name),
-            (row['signature'],row['signature_size'],row['signature_sha256'],sig)):
-            path=C.checked(ready,dict(path=relative,bytes=size,sha256=digest));shutil.copyfile(path,target/destination)
+        # Package archives have a separate bound; JSON and detached signatures keep the default4MiB.
+        archive=C.checked(ready,dict(path=row['archive'],bytes=row['size'],sha256=row['sha256']),cap=8*1024**2)
+        signature=C.checked(ready,dict(path=row['signature'],bytes=row['signature_size'],sha256=row['signature_sha256']))
+        shutil.copyfile(archive,target/name);shutil.copyfile(signature,target/sig)
         packages.append(dict(name=row['name'],version=row['version'],filename=name,size=row['size'],sha256=row['sha256'],
                              signature_size=row['signature_size'],signature_sha256=row['signature_sha256']))
     for name in ('expectedbase.lock','core-lifecycle.py','provider-helpers.py','TEST-public.asc','archlinuxarm.gpg'):

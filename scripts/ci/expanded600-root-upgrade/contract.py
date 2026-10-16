@@ -46,9 +46,9 @@ def read(path,cap=4*1024**2):
     return json.loads(path.read_bytes(),object_pairs_hook=pairs,parse_constant=lambda _:need(False,'nonfinite JSON'))
 
 
-def checked(root,row):
-    need(type(row) is dict and set(row)=={'path','bytes','sha256'} and type(row['bytes']) is int and
-         0<row['bytes']<=4*1024**2 and re.fullmatch('[0-9a-f]{64}',row['sha256'] or ''),'closed byte reference required')
+def checked(root,row,*,cap=4*1024**2):
+    need(type(cap) is int and 0<cap<=8*1024**2 and type(row) is dict and
+         set(row)=={'path','bytes','sha256'} and type(row['bytes']) is int and 0<row['bytes']<=cap and re.fullmatch('[0-9a-f]{64}',row['sha256'] or ''),'closed byte reference required')
     name=Path(row['path']);need(not name.is_absolute() and name.parts and all(p not in ('.','..') for p in name.parts),'relative reference required')
     path=safe(Path(root)/name);info=path.lstat()
     need(stat.S_ISREG(info.st_mode) and info.st_nlink==1 and info.st_size==row['bytes'] and sha(path)==row['sha256'],
