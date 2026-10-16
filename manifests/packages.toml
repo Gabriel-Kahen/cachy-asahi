@@ -396,3 +396,19 @@ native_evidence = "docs/validation/zsh-highlighting-native-20261015.md"
 installation = "PASS generic native ARM signed install/remove/reinstall"
 hardware_validation = "NOT RUN"
 next_step = "Manual opt-in only; existing user module wins. Native byte pair, four lifecycle checkpoints, four installed PTYs and user-file preservation passed. Integrate a future selected composition explicitly; target workflows, arbitrary plugin ordering and production release remain open."
+
+
+[[packages]]
+name = "cachy-asahi-welcome"
+phase = "tools-experience"
+status = "candidate"
+source = "local-original"
+recipe = "packages/tools/cachy-asahi-welcome/PKGBUILD"
+license = "MIT"
+candidate_version = "0.1.0-1"
+selected_for_development = false
+selected_for_release = false
+host_validation = "PASS x86_64 C build, seven status fixtures, five executable CLI controls, exact nine-file staging"
+native_build = "NOT RUN"
+hardware_validation = "NOT RUN"
+next_step = "Build two native ARM packages and validate the welcome GUI, local guides and app launches in the managed desktop; complete signed lifecycle and target validation before selection."
