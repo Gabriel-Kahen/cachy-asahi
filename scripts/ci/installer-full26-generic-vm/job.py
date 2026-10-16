@@ -168,6 +168,11 @@ def consume(controller,engine,cache,output,implementation):
     controller.report['virtual']=dict(status=A.PASS,scope='GENERIC_ARM_FULL26_ORIGINAL_METHODS_SOFTWARE_ONLY',native_P0='UNCHANGED_FAILED',hardware='NOT_RUN')
 
 
+def producer_tag(token):
+    A.need(re.fullmatch('[0-9a-f]{32}',token) is not None,'exact producer lease token')
+    return 'cachy-asahi-full26-producer:'+token
+
+
 def cleanup_image(native,output,token,safe):
     path=output/'native/image-id'
     if not path.exists():
@@ -175,12 +180,20 @@ def cleanup_image(native,output,token,safe):
         return dict(status='RETAINED_CREATION_UNKNOWN' if attempted else 'NOT_CREATED',absence_verified=not attempted)
     image=path.read_text().strip();ledger=read(output/'producer-owner.json')
     A.need(safe and ledger['token']==token and image not in ledger['before_images'],'consumers must retire before new producer cleanup')
+    tag=producer_tag(token)
+    A.need(re.fullmatch('sha256:[0-9a-f]{64}',image) is not None and ledger.get('tag')==tag and
+           ledger.get('tag_absent_before') is True,'exact freshly owned producer tag/image lease')
     rows=json.loads(native.run(['docker','image','inspect',image],timeout=30))
-    A.need(len(rows)==1 and rows[0]['Id']==image and rows[0]['Config']['Labels'].get(LABEL)==token,'foreign/borrowed producer preserved')
-    native.run(['docker','image','rm',image],timeout=60)
+    A.need(len(rows)==1 and rows[0]['Id']==image and rows[0]['Config']['Labels'].get(LABEL)==token and
+           rows[0].get('RepoTags')==[tag],'foreign/borrowed producer or tag preserved')
+    # Child image removal may prune untagged parents. The run-private tag keeps
+    # this producer alive until consumers retire; final removal must not prune.
+    native.run(['docker','image','rm','--no-prune',tag],timeout=60)
     remaining=native.run(['docker','image','ls','-a','--no-trunc','-q'],timeout=30).splitlines()
-    A.need(image not in remaining and set(ledger['before_images'])<=set(remaining),'producer absence/borrowed images preserved')
-    return dict(status='PASS',image=image,absence_verified=True,borrowed_images_preserved=True)
+    tagged=native.run(['docker','image','ls','-a','--no-trunc','--quiet','--filter','reference='+tag],timeout=30).splitlines()
+    A.need(image not in remaining and not tagged and set(ledger['before_images'])<=set(remaining),'producer/tag absence/borrowed images preserved')
+    return dict(status='PASS',image=image,tag=tag,absence_verified=True,tag_absence_verified=True,
+                borrowed_images_preserved=True,parent_pruning=False)
 
 
 def run(args):
@@ -218,12 +231,16 @@ def run(args):
             tooling_packet(args.tooling_inputs,engine,tooling)  # Before any native/Docker producer actor.
             probe=output/'probe';probe.mkdir();native.probe(probe)
             before=set(native.run(['docker','image','ls','-a','--no-trunc','-q'],timeout=30).splitlines())
-            save(output/'producer-owner.json',dict(schema_version=1,token=source['token'],before_images=sorted(before),label=LABEL))
+            tag=producer_tag(source['token'])
+            tagged=native.run(['docker','image','ls','-a','--no-trunc','--quiet','--filter','reference='+tag],timeout=30).splitlines()
+            A.need(not tagged,'producer lease tag already exists; borrowed tag preserved')
+            save(output/'producer-owner.json',dict(schema_version=1,token=source['token'],before_images=sorted(before),
+                                                  label=LABEL,tag=tag,tag_absent_before=True))
             def owned_command(argv,*pos,**kw):
                 if argv[:2]==['docker','build']:
-                    A.need(argv.count('--iidfile')==1,'original owned producer build anchor')
-                    argv=[*argv[:2],'--label',LABEL+'='+source['token'],*argv[2:]]
-                    save(output/'producer-build.json',dict(argv=argv,token=source['token'],scope='fresh original341+4 producer only'))
+                    A.need(argv.count('--iidfile')==1 and '--tag' not in argv and '-t' not in argv,'original owned producer build anchor')
+                    argv=[*argv[:2],'--label',LABEL+'='+source['token'],'--tag',tag,*argv[2:]]
+                    save(output/'producer-build.json',dict(argv=argv,token=source['token'],tag=tag,scope='fresh original341+4 producer only'))
                 return original_run(argv,*pos,**kw)
             native.run=owned_command
             code=native.main(['build','--inputs-sha256',binding['inputs_sha256'],'--recipes-sha256',binding['recipes_sha256'],

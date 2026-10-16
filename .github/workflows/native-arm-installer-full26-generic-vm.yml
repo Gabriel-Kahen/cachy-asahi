@@ -37,7 +37,7 @@ jobs:
           test "$SOURCE_SHA" = "$WORKFLOW_SHA"
           test "$SOURCE_SHA" = "$GITHUB_SHA"
           [[ "$TOOLING_SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]
-          test "$(sha256sum scripts/ci/installer-full26-generic-vm/job.py | cut -d ' ' -f 1)" = 6b904a19b9c9892ef0bbe1d8492ae6c9c18457199933ef5183ed0e5711ed64e5
+          test "$(sha256sum scripts/ci/installer-full26-generic-vm/job.py | cut -d ' ' -f 1)" = 42bb213dc126dad63d9c6e9a7cddfe50c9af343300b93139afae295fd75ed2a5
           python3 -I -B scripts/ci/installer-full26-generic-vm/job.py proof \
             --workspace "$GITHUB_WORKSPACE" --proof "$RUNNER_TEMP/full26-proof.json"
       - name: Checkout the exact retained tooling packet
