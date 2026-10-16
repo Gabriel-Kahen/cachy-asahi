@@ -95,6 +95,10 @@ jobs:
           python3 -B scripts/ci/test_desktop574_guest.py
           python3 -B scripts/ci/test_desktop574_runtime.py
           bash -n scripts/ci/desktop574_fixture.sh
+      - name: Check optional bar and notification session controls without actors
+        run: |
+          python3 -B -m unittest discover -s scripts/ci/desktop-bar-notifications -p test_slice.py
+          python3 -B -m unittest discover -s scripts/ci/desktop-bar-notifications/ci -p test_caller.py
       - name: Check synthetic graph processing controls without plugins
         run: |
           python3 -I -B -m unittest discover -s scripts/ci/asahi-audio-graph-processing -p 'test_*.py'
