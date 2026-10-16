@@ -39,7 +39,7 @@ jobs:
           [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]
           test "$SOURCE_SHA" = "$WORKFLOW_SHA"
           test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
-          printf '%s  %s\n' '81fdb4a33e77ba6ad4fdf0358107603dfc9f583b8fa47dfd571ce717665202e3' "$SLICE/job.py" '02031662c337a41f39f7d2a3817be7f280b7af69f750b1ac1abdeed8a428f4c1' "$SLICE/integration-manifest.json" | sha256sum --check
+          printf '%s  %s\n' '81fdb4a33e77ba6ad4fdf0358107603dfc9f583b8fa47dfd571ce717665202e3' "$SLICE/job.py" 'f79f423eee42f0a2458c8321fcb2a9a3e53bb2c64049c5294b22e9f989cc6fbc' "$SLICE/integration-manifest.json" | sha256sum --check
           python3 -I -B "$SLICE/job.py" proof --workspace "$GITHUB_WORKSPACE" --manifest "$SLICE/integration-manifest.json" --proof "$RUNNER_TEMP/glibc-proof.json"
       - name: Checkout only the Root bound complete GNU source packet
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
@@ -127,7 +127,7 @@ jobs:
           set -euo pipefail
           env -i PATH=/usr/bin:/bin HOME="$RUNNER_TEMP" LC_ALL=C TZ=UTC python3 -B "$SLICE/run.py" \
             --bundle "$RUNNER_TEMP/glibc-source-bundle" --bundle-manifest-sha256 "$(sha256sum "$RUNNER_TEMP/glibc-source-bundle/bundle.json" | cut -d ' ' -f 1)" \
-            --harness-manifest-sha256 'afd2727bbddd7928c9d6144b44bbf5f7a394cf8a5f12473ce73b1423cfddbaa0' --owner-token "$CONSUMER_TOKEN" \
+            --harness-manifest-sha256 '676b0e38a178f578c47f4ed8c6c1dbd15ebb7d8127b764890879c1d83808925e' --owner-token "$CONSUMER_TOKEN" \
             --base-dir "$RUNNER_TEMP/desktop574" --source-root "$GITHUB_WORKSPACE" \
             --smoke-dir "$GITHUB_WORKSPACE/scripts/ci/glibc-owned-runtime" --smoke-manifest "$GITHUB_WORKSPACE/scripts/ci/glibc-owned-runtime/source-manifest.json" \
             --output "$RUNNER_TEMP/glibc-runtime" --execute

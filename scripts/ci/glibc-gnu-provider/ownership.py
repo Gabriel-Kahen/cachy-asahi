@@ -9,7 +9,7 @@ import time
 LOCK='cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac'
 HELD='2.43+r22+g8362e8ce10b2-2'
 # Exact held574 archives contain only .PKGINFO/.BUILDINFO/.MTREE for these packages.
-FILELESS={'base':'3-3','ca-certificates':'20240618-1','dbus-units':'37-3',
+FILELESS={'base':'3-3','base-devel':'1-2','ca-certificates':'20240618-1','dbus-units':'37-3',
           'gcc-libs':'16.1.1+r12+g301eb08fa2c5-1','linux-firmware':'20260916-1'}
 
 
@@ -53,7 +53,7 @@ def check(database,lock,payload):
         raw=read(directory/'files',4*1024**2);total+=len(raw);need(total<=64*1024**2,'aggregate ALPM file bound')
         # ALPM serializes a genuinely fileless package with a zero-byte files record.
         paths=[] if raw==b'' and FILELESS.get(name)==seen[name] else blocks(raw).get('%FILES%')
-        need(paths is not None and len(paths)<=200000,'bounded ALPM file list required')
+        need(paths is not None and len(paths)<=200000,'bounded ALPM file list required: '+name+' '+seen[name])
         for path in paths:
             need(path and not path.startswith('/') and all(p not in ('','.','..') for p in path.rstrip('/').split('/')),'canonical ALPM payload path required')
             if path.endswith('/') or path not in payload:continue
