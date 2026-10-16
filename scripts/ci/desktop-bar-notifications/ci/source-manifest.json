@@ -1,6 +1,90 @@
 {
-  "schema": 1,
-  "scope": "SINGLE_MANUAL_NORMAL_BAR_NOTIFICATION_REAL_MANAGED_BUS_ARM_TRIAL",
+  "accepted_workflow": {
+    "actual_run": "38856669542",
+    "held_path": "artifacts/development/desktop574-zlib-run38853601785/review/timing-fix/held-workflow.yml",
+    "sha256": "3002cda3ab06fd142c49f09f9533edc8c51365abfc98fe2a5b0e6a3da3e8de45",
+    "source": "073d3bb7012dbde129498ec65c3edd81e77b5bbb"
+  },
+  "adoption": [
+    {
+      "bytes": 3491,
+      "sha256": "956b4eedb7a15211c2332ab75b2c124dccc0f515e93fc6ef31b7fdf86bd42bcc",
+      "source": "artifacts/development/desktop-bar-notifications-20261016/prepare.py",
+      "target": "scripts/ci/desktop-bar-notifications/prepare.py"
+    },
+    {
+      "bytes": 3239,
+      "sha256": "46289d47a4397a8f8ffd26fe8f3484a91ba802bb607d0fccab9d53bb22fd0b37",
+      "source": "artifacts/development/desktop-bar-notifications-20261016/contract.py",
+      "target": "scripts/ci/desktop-bar-notifications/contract.py"
+    },
+    {
+      "bytes": 11088,
+      "sha256": "44d8165788d89b1258f555591b6283be16bc4e4828df99a7612c495c80634e30",
+      "source": "artifacts/development/desktop-bar-notifications-20261016/session.py",
+      "target": "scripts/ci/desktop-bar-notifications/session.py"
+    },
+    {
+      "bytes": 1973,
+      "sha256": "4cc7668f588050324a1e2d0566c892842ff05d17cfab54abdbf8f674b8b95520",
+      "source": "artifacts/development/desktop-bar-notifications-20261016/desktop574_guest.py",
+      "target": "scripts/ci/desktop-bar-notifications/desktop574_guest.py"
+    },
+    {
+      "bytes": 12799,
+      "sha256": "a92671214b4cf60666bd382f2a7380cdc6788f46515745064ecfaf7b30879da5",
+      "source": "artifacts/development/desktop-bar-notifications-20261016/test_slice.py",
+      "target": "scripts/ci/desktop-bar-notifications/test_slice.py"
+    },
+    {
+      "bytes": 355174,
+      "sha256": "0790b69c56c73d546f6d0069bb26bd212467f5eed6835fec0d2b2f5109d7bf54",
+      "source": "artifacts/development/desktop-bar-notifications-20261016/package-inputs.json",
+      "target": "scripts/ci/desktop-bar-notifications/package-inputs.json"
+    },
+    {
+      "bytes": 3133,
+      "sha256": "1258f1413c4c083bd8e0be73353c698bd083bd699142d51a95df485881913976",
+      "source": "artifacts/development/desktop-bar-notifications-20261016/source-pins.json",
+      "target": "scripts/ci/desktop-bar-notifications/source-pins.json"
+    },
+    {
+      "bytes": 4796,
+      "sha256": "9e38fea49b61ae4f5fec0c937a709a6baf70c3ad346199b5518c2df2c21c59b4",
+      "source": "artifacts/development/desktop-bar-notifications-20261016/check_inputs.py",
+      "target": "scripts/ci/desktop-bar-notifications/check_inputs.py"
+    },
+    {
+      "bytes": 24255,
+      "sha256": "bc07e438c9e28eb67303cc7b44cb709de9c1c6ec80b9bb7ac5575039b99e4f85",
+      "source": "artifacts/development/desktop-bar-notifications-20261016/upstream/mako-wayland.c",
+      "target": "scripts/ci/desktop-bar-notifications/upstream/mako-wayland.c"
+    },
+    {
+      "bytes": 1061,
+      "sha256": "cf9f7af35361d9e0af784fb60a1ed8be5bb939233fbd70671575a90e458db00e",
+      "source": "artifacts/development/desktop-bar-notifications-20261016/upstream/waybar-package-LICENSE",
+      "target": "scripts/ci/desktop-bar-notifications/upstream/waybar-package-LICENSE"
+    },
+    {
+      "bytes": 1065,
+      "sha256": "3ac22677b8ed454296793da5eabf995925e1e018f2b7ab8342d9ef0c8d4201f0",
+      "source": "artifacts/development/desktop-bar-notifications-20261016/upstream/mako-package-LICENSE",
+      "target": "scripts/ci/desktop-bar-notifications/upstream/mako-package-LICENSE"
+    },
+    {
+      "bytes": 9082,
+      "sha256": "8f2fcb60ce0a0bffd4112b5d1fb95615a0cc155e71dc387dc90449b650f12eba",
+      "source": "artifacts/development/desktop-bar-notifications-20261016/ci/caller.py",
+      "target": "scripts/ci/desktop-bar-notifications/ci/caller.py"
+    },
+    {
+      "bytes": 7430,
+      "sha256": "977b1d89dae54535c23991a9c2b0dce0e3fae419060361fb04979485ff73f55e",
+      "source": "artifacts/development/desktop-bar-notifications-20261016/ci/test_caller.py",
+      "target": "scripts/ci/desktop-bar-notifications/ci/test_caller.py"
+    }
+  ],
   "files": {
     "packages/desktop/cachy-asahi-hyprland-settings/.SRCINFO": {
       "bytes": 1811,
@@ -99,20 +183,28 @@
       "sha256": "7d86366ab26c670eca07b47972865becb71ce71f2860d9d3e2a47c02c2a37ce7"
     },
     "scripts/ci/desktop-bar-notifications/session.py": {
-      "bytes": 13753,
-      "sha256": "4294ae87aa4d19ea5e8fddd87d364f7905b43e1d3a656f9a302c9b85220cce75"
+      "bytes": 18328,
+      "sha256": "5f4c09039c53933431cd96a26257e9bfd1cff070228e1adcf12c50914e079979"
     },
     "scripts/ci/desktop-bar-notifications/source-pins.json": {
       "bytes": 3620,
       "sha256": "66f9fc39fbd4e4522392de399539b68b3976d5daa6eb5c3e66e16b642972bfc0"
     },
+    "scripts/ci/desktop-bar-notifications/test_boot.py": {
+      "bytes": 3272,
+      "sha256": "0200e008c9cae95b41234f42c51e5a1f230dccbf3f59f845b4586a7d551124ee"
+    },
     "scripts/ci/desktop-bar-notifications/test_completion.py": {
       "bytes": 6686,
       "sha256": "f59d262fdaacca8b0d26baf42282d40eaa27b839f353f25c320b80878d6f235f"
     },
+    "scripts/ci/desktop-bar-notifications/test_observation.py": {
+      "bytes": 3964,
+      "sha256": "79a03c8a25035e5501ddb335fd4153d5773e64d05d726388b84c7be26e3f6fa5"
+    },
     "scripts/ci/desktop-bar-notifications/test_slice.py": {
-      "bytes": 17247,
-      "sha256": "02d45d87a978eda554aaabe8a548d063f33e958e87986fe5d71dcfc69f6259ef"
+      "bytes": 17986,
+      "sha256": "5a3b950ea9f065f4b8ea4d521b5a99928c2b624eed5b9e51bb417f8bdc6e5927"
     },
     "scripts/ci/desktop-bar-notifications/upstream/mako-package-LICENSE": {
       "bytes": 1065,
@@ -209,10 +301,6 @@
     "scripts/virtual/tooling.lock.json": {
       "bytes": 31183,
       "sha256": "c18afc5bde9868594d41bd576a956960a7b01b190d148ba03ca4c41d4394e1b0"
-    },
-    "scripts/ci/desktop-bar-notifications/test_boot.py": {
-      "bytes": 3272,
-      "sha256": "0200e008c9cae95b41234f42c51e5a1f230dccbf3f59f845b4586a7d551124ee"
     }
   },
   "generated_runner": {
@@ -253,8 +341,8 @@
       "sha256": "0790b69c56c73d546f6d0069bb26bd212467f5eed6835fec0d2b2f5109d7bf54"
     },
     "session.py": {
-      "bytes": 13753,
-      "sha256": "4294ae87aa4d19ea5e8fddd87d364f7905b43e1d3a656f9a302c9b85220cce75"
+      "bytes": 18328,
+      "sha256": "5f4c09039c53933431cd96a26257e9bfd1cff070228e1adcf12c50914e079979"
     },
     "source-pins.json": {
       "bytes": 3620,
@@ -265,96 +353,12 @@
       "sha256": "e14dc90b5e3b6bedb7a791c128e05ec886127922549c38f2e97760510ab21cdf"
     }
   },
-  "adoption": [
-    {
-      "source": "artifacts/development/desktop-bar-notifications-20261016/prepare.py",
-      "target": "scripts/ci/desktop-bar-notifications/prepare.py",
-      "bytes": 3491,
-      "sha256": "956b4eedb7a15211c2332ab75b2c124dccc0f515e93fc6ef31b7fdf86bd42bcc"
-    },
-    {
-      "source": "artifacts/development/desktop-bar-notifications-20261016/contract.py",
-      "target": "scripts/ci/desktop-bar-notifications/contract.py",
-      "bytes": 3239,
-      "sha256": "46289d47a4397a8f8ffd26fe8f3484a91ba802bb607d0fccab9d53bb22fd0b37"
-    },
-    {
-      "source": "artifacts/development/desktop-bar-notifications-20261016/session.py",
-      "target": "scripts/ci/desktop-bar-notifications/session.py",
-      "bytes": 11088,
-      "sha256": "44d8165788d89b1258f555591b6283be16bc4e4828df99a7612c495c80634e30"
-    },
-    {
-      "source": "artifacts/development/desktop-bar-notifications-20261016/desktop574_guest.py",
-      "target": "scripts/ci/desktop-bar-notifications/desktop574_guest.py",
-      "bytes": 1973,
-      "sha256": "4cc7668f588050324a1e2d0566c892842ff05d17cfab54abdbf8f674b8b95520"
-    },
-    {
-      "source": "artifacts/development/desktop-bar-notifications-20261016/test_slice.py",
-      "target": "scripts/ci/desktop-bar-notifications/test_slice.py",
-      "bytes": 12799,
-      "sha256": "a92671214b4cf60666bd382f2a7380cdc6788f46515745064ecfaf7b30879da5"
-    },
-    {
-      "source": "artifacts/development/desktop-bar-notifications-20261016/package-inputs.json",
-      "target": "scripts/ci/desktop-bar-notifications/package-inputs.json",
-      "bytes": 355174,
-      "sha256": "0790b69c56c73d546f6d0069bb26bd212467f5eed6835fec0d2b2f5109d7bf54"
-    },
-    {
-      "source": "artifacts/development/desktop-bar-notifications-20261016/source-pins.json",
-      "target": "scripts/ci/desktop-bar-notifications/source-pins.json",
-      "bytes": 3133,
-      "sha256": "1258f1413c4c083bd8e0be73353c698bd083bd699142d51a95df485881913976"
-    },
-    {
-      "source": "artifacts/development/desktop-bar-notifications-20261016/check_inputs.py",
-      "target": "scripts/ci/desktop-bar-notifications/check_inputs.py",
-      "bytes": 4796,
-      "sha256": "9e38fea49b61ae4f5fec0c937a709a6baf70c3ad346199b5518c2df2c21c59b4"
-    },
-    {
-      "source": "artifacts/development/desktop-bar-notifications-20261016/upstream/mako-wayland.c",
-      "target": "scripts/ci/desktop-bar-notifications/upstream/mako-wayland.c",
-      "bytes": 24255,
-      "sha256": "bc07e438c9e28eb67303cc7b44cb709de9c1c6ec80b9bb7ac5575039b99e4f85"
-    },
-    {
-      "source": "artifacts/development/desktop-bar-notifications-20261016/upstream/waybar-package-LICENSE",
-      "target": "scripts/ci/desktop-bar-notifications/upstream/waybar-package-LICENSE",
-      "bytes": 1061,
-      "sha256": "cf9f7af35361d9e0af784fb60a1ed8be5bb939233fbd70671575a90e458db00e"
-    },
-    {
-      "source": "artifacts/development/desktop-bar-notifications-20261016/upstream/mako-package-LICENSE",
-      "target": "scripts/ci/desktop-bar-notifications/upstream/mako-package-LICENSE",
-      "bytes": 1065,
-      "sha256": "3ac22677b8ed454296793da5eabf995925e1e018f2b7ab8342d9ef0c8d4201f0"
-    },
-    {
-      "source": "artifacts/development/desktop-bar-notifications-20261016/ci/caller.py",
-      "target": "scripts/ci/desktop-bar-notifications/ci/caller.py",
-      "bytes": 9082,
-      "sha256": "8f2fcb60ce0a0bffd4112b5d1fb95615a0cc155e71dc387dc90449b650f12eba"
-    },
-    {
-      "source": "artifacts/development/desktop-bar-notifications-20261016/ci/test_caller.py",
-      "target": "scripts/ci/desktop-bar-notifications/ci/test_caller.py",
-      "bytes": 7430,
-      "sha256": "977b1d89dae54535c23991a9c2b0dce0e3fae419060361fb04979485ff73f55e"
-    }
-  ],
-  "workflow_target": ".github/workflows/native-arm-desktop-bar-notifications.yml",
   "public_seed": {
+    "index_sha256": "a388c8c8ba8e06cb92fd2be598b86e433c4e403b6e71a0f15b1eaec381bb7300",
     "ref": "04a4a74e16e1e1bc939ea74791bf1f1bf7b46bbd",
-    "seed_sha256": "a7857658af224984065e575f6ffed8308ea85027d46eace8bda146d9033e93b3",
-    "index_sha256": "a388c8c8ba8e06cb92fd2be598b86e433c4e403b6e71a0f15b1eaec381bb7300"
+    "seed_sha256": "a7857658af224984065e575f6ffed8308ea85027d46eace8bda146d9033e93b3"
   },
-  "accepted_workflow": {
-    "held_path": "artifacts/development/desktop574-zlib-run38853601785/review/timing-fix/held-workflow.yml",
-    "sha256": "3002cda3ab06fd142c49f09f9533edc8c51365abfc98fe2a5b0e6a3da3e8de45",
-    "actual_run": "38856669542",
-    "source": "073d3bb7012dbde129498ec65c3edd81e77b5bbb"
-  }
+  "schema": 1,
+  "scope": "SINGLE_MANUAL_NORMAL_BAR_NOTIFICATION_REAL_MANAGED_BUS_ARM_TRIAL",
+  "workflow_target": ".github/workflows/native-arm-desktop-bar-notifications.yml"
 }

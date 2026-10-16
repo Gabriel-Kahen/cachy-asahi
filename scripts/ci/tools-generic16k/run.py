@@ -114,7 +114,8 @@ def payload(archive,receipt,generic):
 def kernel(receipt,root):
     s.need(receipt['profile']=='TOOLS16K_PTY_DERIVED_DIAGNOSTIC' and
            receipt['derivation']==dict(base_helper_sha256=s.pins()['files']['scripts/virtual/generic16k/build_kernel.py']['sha256'],
-               diagnostic_extension='CONFIG_UNIX98_PTYS=y;CONFIG_EVENTFD=y',accepted_profile_modified=False) and receipt['status']=='BUILT_ONLY' and receipt['kernel_build']=='PASS' and receipt['boot_diagnostics'] is True and
+               diagnostic_extension='CONFIG_UNIX98_PTYS=y;CONFIG_EVENTFD=y',
+               workspace_scan='ACTIVE_CHILD_COMPILER_OUTPUT_ENOENT_ONLY_STRICT_FINAL',accepted_profile_modified=False) and receipt['status']=='BUILT_ONLY' and receipt['kernel_build']=='PASS' and receipt['boot_diagnostics'] is True and
            receipt['image_check']['header_page_size']==16384 and receipt['module_policy']['CONFIG_MODULES']=='n' and
            receipt['archive']['sha256']=='874ef68d04ac8c831b90bb01a387cfabb58fceb60842c49a0d0e58bcd6c146ad' and
            receipt['source_commit']=='94fb23346d522edf53722357c426a3e58030beea' and

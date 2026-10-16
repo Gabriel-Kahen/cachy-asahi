@@ -154,6 +154,8 @@ class FakeProcess:
 
 class PhaseTests(unittest.TestCase):
     def setUp(self):
+        observer=patch.object(session,'process_observation',return_value=dict(scope='MOCKED_OWNED_PROCESS'))
+        observer.start();self.addCleanup(observer.stop)
         self.tmp=tempfile.TemporaryDirectory();self.addCleanup(self.tmp.cleanup)
         self.root=Path(self.tmp.name);self.config=self.root/'config';self.config.mkdir()
         (self.config/'user').write_text('preserve')
@@ -256,21 +258,27 @@ class PhaseTests(unittest.TestCase):
     def test_stale_manager_environment_fails_before_clients_and_cleans_compositor(self):
         self.bad_environment=True
         with self.assertRaisesRegex(ValueError,'managed activation environment differs'):self.run_phase()
-        self.assert_retired();self.assertEqual(len(self.processes),1);self.assertEqual(self.emitted,[])
+        self.assert_retired();self.assertEqual(len(self.processes),1);self.assertEqual([e['event'] for e in self.emitted],['bar_phase_diagnostic'])
 
     def test_bad_activation_reply_fails_before_clients_and_preserves_failure(self):
         self.bad_activation_reply=True
         with self.assertRaisesRegex(ValueError,'D-Bus activation update reply differs'):self.run_phase()
-        self.assert_retired();self.assertEqual(len(self.processes),1);self.assertEqual(self.emitted,[])
+        self.assert_retired();self.assertEqual(len(self.processes),1);self.assertEqual([e['event'] for e in self.emitted],['bar_phase_diagnostic'])
 
     def test_foreign_notification_owner_refuses_and_retires_all(self):
         self.wrong_owner=True
         with self.assertRaisesRegex(ValueError,'foreign notification owner'):self.run_phase()
-        self.assert_retired();self.assertEqual(self.emitted,[])
+        self.assert_retired();self.assertEqual([e['event'] for e in self.emitted],['bar_phase_diagnostic'])
 
     def test_changed_notification_payload_refuses_and_retires_all(self):
         self.bad_payload=True
         with self.assertRaisesRegex(ValueError,'payload differs'):self.run_phase()
+        self.assert_retired();self.assertEqual([e['event'] for e in self.emitted],['bar_phase_diagnostic'])
+
+    def test_secondary_observation_failure_preserves_original_and_all_retirement(self):
+        self.bad_payload=True
+        with patch.object(session,'failure_observation',side_effect=RuntimeError('secondary diagnostic failure')):
+            with self.assertRaisesRegex(ValueError,'notification payload differs'):self.run_phase()
         self.assert_retired();self.assertEqual(self.emitted,[])
 
     def test_unclean_client_stop_is_not_phase_pass(self):

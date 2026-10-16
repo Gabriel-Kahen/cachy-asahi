@@ -393,16 +393,16 @@
       "sha256": "e5d7dc11d1a59cf37a273e9a7103c7e55b169335b17c599990946f4e677ca974"
     },
     "scripts/ci/tools-generic16k/README.md": {
-      "bytes": 8973,
-      "sha256": "9ef36ac1c7e539b1cd759e3192f8d961bc18936d1727d7f388b6e33f38e78b54"
+      "bytes": 9695,
+      "sha256": "1f9ab6bf605df789d9d8e1e2610f22fbbee5c0673ac76c62d934b7c79ae60e3a"
     },
     "scripts/ci/tools-generic16k/acquire_kernel.py": {
       "bytes": 3510,
       "sha256": "09601f994f25601b7242cb36f38c6b0ead58ab5188d61e27ffe813c737a854b3"
     },
     "scripts/ci/tools-generic16k/build_kernel.py": {
-      "bytes": 11126,
-      "sha256": "8205e49fcb9cdaf9bb6aaa356401697a51388b9673f1fc38c51c4605421f6836"
+      "bytes": 12822,
+      "sha256": "3d1f25edbdd8d4ac4f48f5efcc756854e56d93cbaadeaefba3bdab2a1d32e9b1"
     },
     "scripts/ci/tools-generic16k/capture.py": {
       "bytes": 8770,
@@ -410,7 +410,7 @@
     },
     "scripts/ci/tools-generic16k/dependencies.json": {
       "bytes": 20409,
-      "sha256": "49dcfe590a896bd2c00e5524591da5c4baa974f1e22d0536452b2e0308b78cba"
+      "sha256": "029039520b6b0a3946fa8b0ebb54afaa94dd930603d3ba1cb322d394e0704295"
     },
     "scripts/ci/tools-generic16k/guest.py": {
       "bytes": 10855,
@@ -425,8 +425,8 @@
       "sha256": "83b324fd7b459f7ad48585a97f32d9a36c5131b92f50f4920c284b16c1be518e"
     },
     "scripts/ci/tools-generic16k/run.py": {
-      "bytes": 27335,
-      "sha256": "fac685eb1c0a944435fea457c1ab6166470851c92b703b1621cfe9af457d3a5b"
+      "bytes": 27422,
+      "sha256": "ff579b9ae5d0d3e54f276f07aed7391a5ae7a38c55e9ff6354d63bb400beb1b3"
     },
     "scripts/ci/tools-generic16k/support.py": {
       "bytes": 2994,
@@ -436,9 +436,13 @@
       "bytes": 5604,
       "sha256": "71a6154536fa94d7d004c7b8ab24f8d732ea0756321c4e49735a2ac02d993f6e"
     },
+    "scripts/ci/tools-generic16k/test_scan.py": {
+      "bytes": 4655,
+      "sha256": "a65282399fe25c87e44974bad23ceb70cfb4fd7264f2999b16ac69fbb44b84d4"
+    },
     "scripts/ci/tools-generic16k/test_smoke.py": {
-      "bytes": 25078,
-      "sha256": "5204f2c7af3dec529d0843b9228e4ce7cf22ed314a4d2f1f1028c9d418af0dae"
+      "bytes": 25279,
+      "sha256": "a7dd6494cbeb8b19bc669eaf374b23ca98c301195ef23b7f7fa35fe30f1dba13"
     },
     "scripts/ci/tools-native/highlighting_fixture.py": {
       "bytes": 3073,

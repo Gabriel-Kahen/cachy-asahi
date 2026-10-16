@@ -143,10 +143,77 @@ def activate_environment(command,dbus,selected,manager_pid):
     return dict(values=values,manager_pid=manager_pid,systemd_verified=True,dbus_updated=True)
 
 
+
+OBSERVE_ENV=(*SESSION_ENV,'DISPLAY','GDK_BACKEND','GSETTINGS_BACKEND','GTK_USE_PORTAL')
+
+
+def process_observation(logged,expected,proc=Path('/proc')):
+    """One bounded read of an already-owned unreaped child; no attach or signals."""
+    pid=logged.process.pid
+    need(type(pid) is int and pid>0 and logged.process.poll() is None,'owned live diagnostic child required')
+    root=proc/str(pid)
+    def read(path,cap):
+        with path.open('rb') as stream:raw=stream.read(cap+1)
+        need(len(raw)<=cap,'proc diagnostic field bound')
+        return raw
+    def identity():
+        text=read(root/'stat',4096).decode();fields=text[text.rfind(')')+2:].split()
+        need(len(fields)>=20 and text.startswith(str(pid)+' ('),'proc diagnostic stat identity')
+        uid=next(line.split()[1:] for line in read(root/'status',8192).decode().splitlines() if line.startswith('Uid:'))
+        need(uid==['23001']*4 and os.readlink(root/'exe')==expected,'foreign diagnostic process')
+        return dict(pid=pid,starttime=int(fields[19]),uid=[23001]*4,executable=expected)
+    before=identity();environment={}
+    for row in read(root/'environ',65536).split(b'\0'):
+        name,separator,value=row.partition(b'=')
+        key=name.decode(errors='replace')
+        if key in OBSERVE_ENV:
+            need(separator and key not in environment and len(value)<=512,'diagnostic environment value bound')
+            environment[key]=value.decode(errors='replace')
+    fields={}
+    for name,cap in (('wchan',256),('syscall',1024)):
+        try:fields[name]=read(root/name,cap).decode(errors='replace')
+        except (OSError,ValueError) as error:fields[name]=dict(unavailable=type(error).__name__)
+    threads=[];tasks=sorted(int(p.name) for p in (root/'task').iterdir() if p.name.isdecimal())
+    need(len(tasks)<=256,'diagnostic task count bound')
+    for tid in tasks[:16]:
+        row=dict(tid=tid)
+        for name,cap in (('comm',256),('wchan',256),('syscall',1024),('stack',2048)):
+            try:row[name]=read(root/'task'/str(tid)/name,cap).decode(errors='replace')
+            except (OSError,ValueError) as error:row[name]=dict(unavailable=type(error).__name__)
+        threads.append(row)
+    after=identity();need(after==before and logged.process.poll() is None,'diagnostic process changed')
+    return dict(identity=before,environment=environment,**fields,threads=threads,total_threads=len(tasks),
+                threads_truncated=len(tasks)>16,scope='READ_ONLY_OWNED_CHILD_NO_ATTACH')
+
+
+def failure_observation(stage,error,actors,command,selected,activation):
+    """Observe once on failure before ordinary retirement; preserve the first error."""
+    value=dict(stage=stage,error_type=type(error).__name__,reason=str(error)[:512],activation=activation,processes={})
+    for name,logged,expected in actors:
+        if logged is None:continue
+        try:value['processes'][name]=process_observation(logged,expected)
+        except BaseException as problem:value['processes'][name]=dict(unavailable=type(problem).__name__,reason=str(problem)[:128])
+    if selected is not None:
+        for key,argv in (
+            ('activation_now',['/usr/bin/systemctl','--user','show-environment']),
+            ('portal_units',['/usr/bin/systemctl','--user','show','xdg-desktop-portal.service','xdg-desktop-portal-gtk.service',
+                '--property=Id,ActiveState,SubState,MainPID,Result,ExecMainStatus']),
+            ('activation_journal',['/usr/bin/journalctl','--user','--no-pager','-b','-n','32','-o','short-monotonic',
+                '-u','xdg-desktop-portal.service','-u','xdg-desktop-portal-gtk.service','-u','dbus.service'])):
+            try:
+                raw=command(argv,'diagnostic-'+key,timeout=5)
+                if key=='activation_now':
+                    raw='\n'.join(line for line in raw.splitlines() if line.partition('=')[0] in OBSERVE_ENV)
+                need(len(raw.encode())<=8192,'diagnostic command response bound');value[key]=raw
+            except BaseException as problem:value[key]=dict(unavailable=type(problem).__name__,reason=str(problem)[:128])
+    need(len(json.dumps(value).encode())<=256*1024,'whole diagnostic receipt bound')
+    base.emit('bar_phase_diagnostic',**value)
+
+
 def phase(stage, config, env, logs):
     compositor = bar = mako = None
     first = None
-    selected = None
+    selected = activation = None
     before = snapshot(Path(env['XDG_CONFIG_HOME']))
     sequence = 0
 
@@ -265,6 +332,11 @@ def phase(stage, config, env, logs):
         need(compositor.process.returncode == 0, 'unclean compositor exit')
     except BaseException as error:
         first = error
+        try:
+            failure_observation(stage,error,(('compositor',compositor,'/usr/bin/Hyprland'),
+                ('waybar',bar,'/usr/bin/waybar'),('mako',mako,'/usr/bin/mako')),command,selected,activation)
+        except BaseException:
+            pass  # A diagnostic failure must never mask the original failure or retirement.
     finally:
         for logged in (mako, bar, compositor):
             if logged is not None:

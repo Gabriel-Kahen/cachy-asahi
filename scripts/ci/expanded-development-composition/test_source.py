@@ -29,6 +29,22 @@ class Inputs(unittest.TestCase):
     def test_actual_retained_archives_buildinfo_payload(self):
         self.assertEqual(set(inputs.retained(BUNDLE,self.index,ROOT)),C.SCRIPTS)
 
+    def test_audio_output_matches_held_retriever_before_native_work(self):
+        helper=C.load('expanded_audio_path_control',ROOT/'scripts/ci/full-development-composition/retrieve_audio.py')
+        with tempfile.TemporaryDirectory() as directory,patch.dict(os.environ,RUNNER_TEMP=directory,GH_TOKEN=''):
+            temporary=Path(directory)
+            with self.assertRaisesRegex(helper.Refused,'new-private-audio-archives-required'):
+                helper.retrieve(temporary/'expanded-audio')
+            with self.assertRaisesRegex(helper.Refused,'workflow-actions-read-token-required'):
+                helper.retrieve(temporary/'audio-archives')
+            self.assertFalse(any(temporary.iterdir()))
+        workflow=(ROOT/'.github/workflows/native-arm-expanded-development-composition.yml').read_text()
+        self.assertIn('--output "$RUNNER_TEMP/audio-archives"',workflow)
+        self.assertIn('--audio-inputs "$RUNNER_TEMP/audio-archives"',workflow)
+        self.assertNotIn('$RUNNER_TEMP/expanded-audio',workflow)
+        composition=workflow.split('- name: Required native pair and exact600 installed lifecycle',1)[1]
+        self.assertLess(composition.index('test "$AUDIO_INPUT_OUTCOME" = success'),composition.index('python3 -B'))
+
     def test_entry_points_use_input_checkout_root(self):
         import argparse
         import shutil
