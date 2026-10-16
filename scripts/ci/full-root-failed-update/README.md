@@ -1,11 +1,11 @@
 # Full587 controlled failed-update/disposal lane
 
-**Native failure case remains unaccepted.** Run38877815636 stopped during the
-child's initial observation, before the controlled exit witness. Its nested
-copy disposal and outer cleanup passed. The frozen Runner's128 descriptor limit
-cannot cover the actual1048 hardlink groups. A real Linux fixture reproduces
-incomplete observation at128 and complete observation at8192 for1048 closed groups.
-This identifies a source-proven prerequisite; the native inner error was not exported.
+**Native case PASS at frozen Source001f0484 in actual38885492612.**
+It establishes one verified precommit-exit86 case, zero commits, unchanged
+checkpoint/source, complete owned-copy disposal and outer resource absence.
+[Exact evidence and limits](../../../docs/validation/full-root-precommit-failure-native-20261016.md)
+keep normal upgrade and hardware recovery separate. Earlier observation/XZ
+failures are retained; later source revisions need their own execution evidence.
 
 Adopt `integration.patch` at **`scripts/ci/full-root-failed-update/`**. This adds
 three MIT-licensed modules, two focused test modules and a separate lane config.
@@ -106,6 +106,6 @@ make the lane FAIL. Outer coordinator cleanup and volume absence must also pass.
 
 Run `python3 -B -m unittest discover -s scripts/ci/full-root-failed-update -p 'test_*.py'`
 after adoption. `verify_candidate.py` additionally runs the unchanged14 internal
-runtime,5 empty-record and12 current-driver controls:28 new +31 existing =59.
+runtime,5 empty-record and12 current-driver controls:32 lane +31 existing =63.
 All signing/process/package actions in the new controls are mocks; native
-execution and resource-retirement results remain **NOT RUN**.
+hardware execution remains **NOT RUN**; the exact frozen native case above has separate acceptance.
