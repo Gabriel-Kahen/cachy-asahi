@@ -527,7 +527,7 @@ native_build_commit = "d1055cf95f7d236fc55396db36b432df5191ff2a"
 native_evidence = "docs/validation/glibc-official-release-native-20261016.md"
 installation = "NOT RUN package lifecycle; explicit private-loader runtime smoke PASS"
 hardware_validation = "NOT RUN"
-next_step = "Unselected private-prefix experiment only. Complete16K/M2 and broader compatibility, independent source-key authority and maintenance/security admission; preserve older held-binary source gap and make no performance claim."
+next_step = "Unselected private-prefix experiment only. Generic16K eight-case runtime now passes38941180852. Complete conventional provider installation, M2 and broader compatibility, independent source-key authority and maintenance/security admission; preserve older held-binary source gap and make no performance claim."
 
 [[packages]]
 name = "cachy-asahi-glibc-gnu-provider"

@@ -35,6 +35,12 @@ def snapshot(root):
     return result
 
 
+class CommandFailure(ValueError):
+    def __init__(self,reason,row,stdout,stderr):
+        super().__init__(reason)
+        self.row,self.stdout,self.stderr=row,stdout,stderr
+
+
 def command(argv,env,expected=0,seconds=30):
     process=subprocess.Popen(argv,env=env,stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.PIPE,start_new_session=True)
     poll=selectors.DefaultSelector();parts=[bytearray(),bytearray()];start=time.monotonic()
@@ -56,10 +62,83 @@ def command(argv,env,expected=0,seconds=30):
     try:os.killpg(process.pid,0)
     except ProcessLookupError:absent=True
     else:absent=False
-    need(code==expected and absent,'guest command exit/group differs: '+str(code)+' '+repr(argv[:5])+' '+repr(bytes(parts[0][-256:])+bytes(parts[1][-256:])))
     out,err=map(bytes,parts)
-    return dict(argv=argv,exit=code,group_absent=absent,seconds=round(time.monotonic()-start,6),
-                stdout_bytes=len(out),stdout_sha256=sha(out),stderr_bytes=len(err),stderr_sha256=sha(err)),out
+    row=dict(argv=argv,exit=code,group_absent=absent,seconds=round(time.monotonic()-start,6),
+             stdout_bytes=len(out),stdout_sha256=sha(out),stderr_bytes=len(err),stderr_sha256=sha(err))
+    if code!=expected or not absent:
+        row.update(expected_exit=expected,natural_exit=True,pid=process.pid,pgid=process.pid)
+        raise CommandFailure('guest command exit/group differs: '+str(code),row,out,err)
+    return row,out
+
+
+SUBSTRING_CASES=('noninteractive','editing','preexisting-function','preexisting-widget','preexisting-private','coexist')
+SUBSTRING_IDENTITIES=('guest.py','fixtures/substring.py','usr/bin/zsh',
+    'usr/share/cachy-asahi/zsh-history-substring-search/opt-in.zsh',
+    'usr/share/cachy-asahi/zsh-history-substring-search/zsh-history-substring-search.zsh',
+    'usr/share/cachy-asahi/zsh-syntax-highlighting/opt-in.zsh')
+
+
+def sample(raw,limit,tail=False):
+    data=raw[-limit:] if tail else raw[:limit]
+    return dict(bytes=len(raw),sha256=sha(raw),sample_sha256=sha(data),sample_base64=base64.b64encode(data).decode(),
+        sample_offset=len(raw)-len(data) if tail else 0,sample_complete=len(data)==len(raw))
+
+
+def diagnostic_file(path,limit,tail=False,cap=65536):
+    try:
+        need(not any(p.is_symlink() for p in (path,*path.parents)),'diagnostic alias refused')
+        info=path.lstat()
+        need(info.st_uid==os.getuid() and info.st_nlink==1,'private diagnostic ownership/link differs')
+        raw=read(path,cap)
+        return dict(status='FILE',uid=info.st_uid,gid=info.st_gid,mode=stat.S_IMODE(info.st_mode),**sample(raw,limit,tail))
+    except FileNotFoundError:return dict(status='ABSENT')
+    except (OSError,ValueError) as error:return dict(status='UNAVAILABLE',error_type=type(error).__name__)
+
+
+def substring_diagnostic(error,work,nonce,release,manifest_raw,argv):
+    # Read only fixed leaves from the original private fixture, never histories or setup scripts.
+    manifest=json.loads(manifest_raw);cases={}
+    for name in SUBSTRING_CASES:
+        case=work/name;files={leaf:diagnostic_file(case/leaf,limit,tail) for leaf,limit,tail in
+            (('terminal.log',1536,True),('ready',64,False),('prompt-sequence',64,False))}
+        present=[i for i in range(1,11) if (case/('snapshot-'+str(i))).exists()]
+        latest=present[-1] if present else None
+        if latest is not None:files['latest_snapshot']=diagnostic_file(case/('snapshot-'+str(latest)),4096)
+        cases[name]=dict(snapshot_numbers_present=present,latest_snapshot=latest,files=files)
+    value=dict(schema_version=1,status='SUBSTRING_FAILURE_DIAGNOSTIC_ONLY',acceptance_credit=False,
+        nonce=nonce,kernel=release,architecture=os.uname().machine,page_size=os.sysconf('SC_PAGE_SIZE'),
+        uid=list(os.getresuid()),gid=list(os.getresgid()),groups=os.getgroups(),source_commit=manifest['source_commit'],
+        payload_manifest_sha256=sha(manifest_raw),identities={n:manifest['files'][n] for n in SUBSTRING_IDENTITIES},
+        argv=argv,error_type=type(error).__name__,reason=str(error)[:256],
+        original_receipt=diagnostic_file(work/'receipt.json',16384,cap=16384),cases=cases,
+        product_change='NONE',rerun='NOT_RUN')
+    if isinstance(error,CommandFailure):
+        value.update(command=error.row,stdout=sample(error.stdout,1024),stderr=sample(error.stderr,1024))
+    raw=json.dumps(value,sort_keys=True,separators=(',',':'))
+    # Receipt and case names survive even if all raw terminal/snapshot samples hit the cap.
+    if len(raw.encode())>65536:
+        for case in value['cases'].values():case['files']={k:v for k,v in case['files'].items() if k!='latest_snapshot'}
+        value['snapshot_samples_omitted_for_total_cap']=True
+        raw=json.dumps(value,sort_keys=True,separators=(',',':'))
+    need(len(raw.encode())<=65536,'substring diagnostic total bound')
+    return raw
+
+
+def run_substring(call,work,nonce,release,manifest_raw):
+    argv=['/usr/bin/python3','-I','-B','/fixtures/substring.py','--module-dir',
+        '/usr/share/cachy-asahi/zsh-history-substring-search','--work',str(work),
+        '--highlight-wrapper','/usr/share/cachy-asahi/zsh-syntax-highlighting/opt-in.zsh']
+    try:
+        call(argv,seconds=180)
+        value=json.loads(read(work/'receipt.json'))
+        need(value['status']=='PASS_HOST_ZSH_PTY_CONTROLS' and len(value['tests'])==6 and
+             all(r['status']=='PASS' and r['exit']==0 for r in value['tests']),'complete substring fixtures failed')
+        return value
+    except BaseException as error:
+        try:print('TOOLS16K_DIAGNOSTIC '+substring_diagnostic(error,work,nonce,release,manifest_raw,argv),flush=True)
+        except Exception as diagnostic_error:
+            print('TOOLS16K_DIAGNOSTIC_UNAVAILABLE '+type(diagnostic_error).__name__,flush=True)
+        raise
 
 
 def payload_identity(manifest):
@@ -120,12 +199,7 @@ def exercise(nonce,release):
     progress(nonce,'HIGHLIGHTING_READY')
     progress(nonce,'SUBSTRING_BEGIN')
     substring=root/'substring';substring.mkdir(mode=0o700)
-    call(['/usr/bin/python3','-I','-B','/fixtures/substring.py','--module-dir',
-          '/usr/share/cachy-asahi/zsh-history-substring-search','--work',str(substring),
-          '--highlight-wrapper','/usr/share/cachy-asahi/zsh-syntax-highlighting/opt-in.zsh'],seconds=180)
-    fixtures['substring']=json.loads(read(substring/'receipt.json'))
-    need(fixtures['substring']['status']=='PASS_HOST_ZSH_PTY_CONTROLS' and len(fixtures['substring']['tests'])==6 and
-         all(r['status']=='PASS' and r['exit']==0 for r in fixtures['substring']['tests']),'complete substring fixtures failed')
+    fixtures['substring']=run_substring(call,substring,nonce,release,manifest_raw)
     progress(nonce,'SUBSTRING_READY')
     progress(nonce,'AUTOPAIR_BEGIN')
     autopair=root/'autopair'

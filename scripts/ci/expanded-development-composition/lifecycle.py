@@ -26,6 +26,12 @@ def run(argv,data=None):
     return result.stdout
 
 
+def ld_adapter():
+    return type('Adapter',(),dict(
+        pin=staticmethod(lambda p,d,s:C.need(p.stat().st_size==s and C.sha(p)==d,'helper pin differs')),
+        run=staticmethod(run)))
+
+
 def inventory():
     raw=run(['pacman','-Q']).encode();return C.lock(raw,len(raw.splitlines()))
 
@@ -166,7 +172,7 @@ def main():
             for name in row['payload']:
                 if row['name']!=C.UPGRADE:C.need(node(Path('/')/name)['type']=='absent','incoming path already exists: '+name)
         audio=C.load('expanded_ld_state',CODE/'scripts/ci/full-development-composition/audio.py')
-        adapter=type('Adapter',(),dict(pin=staticmethod(lambda p,d,s:C.need(p.stat().st_size==s and C.sha(p)==d,'helper pin differs'))))
+        adapter=ld_adapter()
         audio_rows=[r for r in C.read(CODE/'scripts/ci/full-development-composition/audio-inputs.json')]
         previous_ld=None;previous_aux=None
         ld_receipts=[]

@@ -18,7 +18,7 @@
     },
     "scripts/ci/glibc-generic16k/dependencies.json": {
       "bytes": 3096,
-      "sha256": "c177db52cdd950186bb3ab0cfb222851632b15a7428603fe867a18f08ba33be0"
+      "sha256": "5b81f1e81c62f6204e9baf626c62e56fa3b1ab24f5748c0153339ea6b2b1d7f0"
     },
     "scripts/ci/glibc-generic16k/gate.py": {
       "bytes": 2028,
@@ -97,8 +97,8 @@
       "sha256": "bddb14537790a484d770215e55cc2c59de50c764d15e4d677f6fbcaab84cd735"
     },
     "scripts/ci/tools-generic16k/run.py": {
-      "bytes": 35530,
-      "sha256": "ebcba02e2549ea1cd41c8f24a873fccda6c8584db718eeea7992d4b0047046e9"
+      "bytes": 40417,
+      "sha256": "8316502cc410d934a4adb40141dfae84f5a603bc1661ac63f5c43bbd520104c1"
     },
     "scripts/ci/tools-generic16k/support.py": {
       "bytes": 2994,
