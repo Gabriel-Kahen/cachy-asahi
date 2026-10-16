@@ -131,8 +131,8 @@
       "sha256": "151e51b83df9216ccb41eb793698bdaf57bf72f7f82d82afcd4deea29422f0ef"
     },
     "scripts/ci/desktop-managed-workflow/source-pins.json": {
-      "bytes": 5071,
-      "sha256": "00ff15b19838b45f226d9f279f01e99541e38d89db39e40308c7b26e4be4baa6"
+      "bytes": 4838,
+      "sha256": "8abc68b3483cfb825a6d2ffb5d5b330704a54a3ef0bc9a397f5cd9f567187f7d"
     },
     "scripts/ci/desktop-managed-workflow/terminal_session.py": {
       "bytes": 8051,
@@ -210,10 +210,6 @@
       "bytes": 623664,
       "sha256": "b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9"
     },
-    "scripts/ci/maintained574_active_owner.py": {
-      "bytes": 18928,
-      "sha256": "2866945706975c5a99d0e6c2286372f16c6d62948fa12c3a233c3fe5befc67eb"
-    },
     "scripts/ci/maintained_desktop574.py": {
       "bytes": 22367,
       "sha256": "27ba4be42cf2bd41675073e07cccc917ae033f9d68b07a33cfd7f074ac27b760"
@@ -229,10 +225,6 @@
     "scripts/ci/test_desktop574_runtime.py": {
       "bytes": 12245,
       "sha256": "e14dc90b5e3b6bedb7a791c128e05ec886127922549c38f2e97760510ab21cdf"
-    },
-    "scripts/ci/test_maintained574_active_owner.py": {
-      "bytes": 13775,
-      "sha256": "a78668dd26aad91f9e4027248926ec1ad518946f1609ec11e9296a945c9aafed"
     },
     "scripts/ci/test_maintained_desktop574.py": {
       "bytes": 19082,
@@ -321,8 +313,8 @@
       "sha256": "151e51b83df9216ccb41eb793698bdaf57bf72f7f82d82afcd4deea29422f0ef"
     },
     "source-pins.json": {
-      "bytes": 5071,
-      "sha256": "00ff15b19838b45f226d9f279f01e99541e38d89db39e40308c7b26e4be4baa6"
+      "bytes": 4838,
+      "sha256": "8abc68b3483cfb825a6d2ffb5d5b330704a54a3ef0bc9a397f5cd9f567187f7d"
     },
     "terminal_session.py": {
       "bytes": 8051,
