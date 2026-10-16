@@ -6,8 +6,8 @@ from pathlib import Path,PurePosixPath
 import tarfile,time
 
 NAME='cachy-asahi-glibc-official-release'
-VERSION='2.43.caa1-1'
-PREFIX='opt/cachy-asahi/glibc-official-release/2.43-caa1'
+VERSION='2.43.caa1-2'
+PREFIX='opt/caa/g243a1'
 
 def need(ok,reason):
     if not ok:raise ValueError(reason)

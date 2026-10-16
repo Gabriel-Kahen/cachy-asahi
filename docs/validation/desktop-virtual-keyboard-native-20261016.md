@@ -1,5 +1,13 @@
 # Virtual keyboard native trial
 
+## Shell delivery passes; compositor log retry queued
+
+[Actual38904379501](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38904379501) passes the key-only workspace change, passive owned Bash cwd join, exact39-byte shell file and first minimal shell capture. Root views the shell capture: the nonce and command are readable. The workflow reaches Vim, sends editor text/save, then fails the compositor logger's256KiB stdout cap. The first failure diagnostic finds no edit file yet; the later diagnostic image shows Vim's40-byte write acknowledgement. That later image does not establish file hash acceptance. Root views it as diagnostic evidence only. Hyprland is killed during failure cleanup and exits-9; no normal retirement is claimed. All14 outer runtime cleanup records pass.
+
+Logs:167087 bytes/SHA256 `74dedae5b67ea391ad8f69b06ce6f5fa66d31106011896807ea8dfb3923734e1`. Artifact12047797266:367130 compressed bytes/SHA256 `b82ae9578abba352c6e9f937c6bff3bca370235f0504ef3c9b6d0ecd7866ff6d`; all42 declared files/5239260 raw bytes join. Failure PPM SHA256 `43b57b9a4c24ee71f31a79390104a81cbc6f7d388a1d30e82e1fa311084af559`.
+
+Commit `2af636741b4b801015ac650a9e19be3f25f2a998` selects the byte-identical owned-compositor logger used by the full Welcome exercise: stdout2MiB, stderr256KiB, continuous unfiltered drain, explicit byte/cap receipts, fatal overflow/error, required normal exit0 and receipt/PID/order joins. Forty-one focused keyboard/phase/caller controls pass; the adapter's ten byte-stream controls pass with the same exact source. Input/timing/expected-byte/six-capture gates are unchanged. The next frozen Source/workflow is `4ea252fa227ff2af6f2577f4ad3b2a43a7e61c3a`, workflow SHA256 `e51572661474492efc3c0d7c4710d795e7db85a688cc1430ad08b6d4355d599b`, source manifest `12720855621640e9eef42eade791d9d68f6314e4564b079935034622475b1298`; native acceptance remains pending.
+
 ## Batched input retry38904379501
 
 [Actual38901031090](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38901031090) passes the explicit board-device and owned startup-surface checks, launches the terminal/Bash through the shipped shortcut, and receives QMP acknowledgements. Its retained failure capture shows corrupted initial `cd` input; the later nonce and command text arrive. Bash stays in the original directory and `tee` fails there. All three expected workspace files are absent. This is failed input delivery, not an ownership or permission correction.

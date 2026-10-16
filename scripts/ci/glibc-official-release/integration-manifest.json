@@ -1,5 +1,13 @@
 {
   "files": {
+    "packages/core/cachy-asahi-glibc-official-release/0001-mount-macro-guards.patch": {
+      "bytes": 905,
+      "sha256": "09117692cd3a1d5838ea700df68b512f9f625a6d2af497a1afcf92046deca8f5"
+    },
+    "packages/core/cachy-asahi-glibc-official-release/0002-held-builder-test-expectations.patch": {
+      "bytes": 1169,
+      "sha256": "f730c778ba51f9e525c9f6a7949a76af00364d49f41eedb5d73b8e86a3d4c132"
+    },
     "packages/core/cachy-asahi-glibc-official-release/COPYING.LESSERv2": {
       "bytes": 26419,
       "sha256": "20e50fe7aae3e56378ebf0417d9de904f55a0e61e4df315333e632a4d3555d95"
@@ -13,16 +21,16 @@
       "sha256": "b22a69aa3f80a5201818c66cb0df0f25f9fa13cf5861b0093a058dbd12d50dce"
     },
     "packages/core/cachy-asahi-glibc-official-release/PKGBUILD": {
-      "bytes": 3447,
-      "sha256": "6ab549731b37138fe062474e794f4eeae9f8cd3f831820b61232de1c7bebd1f4"
+      "bytes": 3932,
+      "sha256": "5065ee9d3f85a3435843488f43523676c7bbb9fca5548841832ad8dce26ef1bd"
     },
     "packages/core/cachy-asahi-glibc-official-release/README.md": {
-      "bytes": 2958,
-      "sha256": "a8d76da93f4270a74fd0bfb1e30c7e7d4a89cd15a57a9011f983776237d42d58"
+      "bytes": 4513,
+      "sha256": "69e0e483cd3d08e7203ba47e71ff535126e857049ac4b160a7de5d51109c97ee"
     },
     "packages/core/cachy-asahi-glibc-official-release/source-lock.json": {
-      "bytes": 2821,
-      "sha256": "bd07116a50af3b030e781eec9694691d95b637cd5637c2fc821d018f12b48dba"
+      "bytes": 4569,
+      "sha256": "93085f0f00eaf005d24a5a012d6c5c6b1ac33ccd40f484293f2d97df292868f1"
     },
     "packages/core/cachy-asahi-glibc-rebuild/PKGBUILD.in": {
       "bytes": 5681,
@@ -33,8 +41,8 @@
       "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
     },
     "scripts/ci/glibc-official-release/README.md": {
-      "bytes": 6810,
-      "sha256": "274bf55b09a918d5ea08ffe72ee811b754b0f00474b891eb2bfeb99704987027"
+      "bytes": 7660,
+      "sha256": "2f42f0c45674ee40baa1e958dcd31af3ea68fe77dfce5abfb09d0cb4659dda67"
     },
     "scripts/ci/glibc-official-release/abi.py": {
       "bytes": 4061,
@@ -57,32 +65,36 @@
       "sha256": "29f2c9e2530f6bfcc6542ec5256fb6c0732808e85c999942a01b836144107358"
     },
     "scripts/ci/glibc-official-release/header_probe.c": {
-      "bytes": 1181,
-      "sha256": "c3947cf0075cbaf97213a4b614c5448ffcb026222a9f0266d9a79a8d67bbbe18"
+      "bytes": 1383,
+      "sha256": "ccc07c323632f9f916c1bed436d0a97f530fca25d9dd59bb489489c093790e7f"
     },
     "scripts/ci/glibc-official-release/job.py": {
       "bytes": 13763,
-      "sha256": "cb7877460a00f2a5fb61af9049e38804c4fba8894e20dbe6335e33326ac5d667"
+      "sha256": "534746723b897418dab3067aef4586ca76b670d04a2412d6a7887b09a0ffec77"
     },
     "scripts/ci/glibc-official-release/materialize.py": {
-      "bytes": 9906,
-      "sha256": "3d7af7d79f3fca6d6f227b88ba8e303401dee84cfc02ee8db050925e9c12cd9c"
+      "bytes": 10989,
+      "sha256": "1c058d8ad15d3cdf3c7037ff8d4e620dc63d026469479af481cfced0c2a49960"
     },
     "scripts/ci/glibc-official-release/run.py": {
-      "bytes": 19427,
-      "sha256": "f4a84ee7b806ce83754a996cb7f4d81cc9ac344714a72243dcbafe1d7d538d31"
+      "bytes": 19720,
+      "sha256": "6055a409c925f6f76ca98adae129303c7315c3f2564a2ec9afc6a0332a9ac951"
     },
     "scripts/ci/glibc-official-release/source-manifest.json": {
-      "bytes": 2105,
-      "sha256": "8ffa96c77112ecbebded0edf55689e3adacf3f4f9d1bf0aa5b98d6da60ef5eb2"
+      "bytes": 2247,
+      "sha256": "58bc95811d31e11cb0044b9f8179668fe7e36b8b191f7eb235937c127a3da34e"
     },
     "scripts/ci/glibc-official-release/stage.py": {
-      "bytes": 4971,
-      "sha256": "6e397b86704cc824bcfcbe059c0de299bdc9470a2ac2dc1ab465423431d4c311"
+      "bytes": 4937,
+      "sha256": "4e89ff1aa58d163bac4045426ef7e00986493e1267f3a2022342c3e4e8cef721"
+    },
+    "scripts/ci/glibc-official-release/test_check_repair.py": {
+      "bytes": 5394,
+      "sha256": "a6f29a8b27ff408fa9ae774155032a1c5d44b0dc684bc641547572fb70da304a"
     },
     "scripts/ci/glibc-official-release/test_controls.py": {
-      "bytes": 21227,
-      "sha256": "59a4584321bf427f78da2734189285093aed40677ac1b0b7c55b1e0d9590981c"
+      "bytes": 21356,
+      "sha256": "5c3f421d8323dc42c92f91daa410719e986da5a5310ea02b11266aeb8f6fccb2"
     },
     "scripts/ci/glibc-official-release/test_job.py": {
       "bytes": 6533,

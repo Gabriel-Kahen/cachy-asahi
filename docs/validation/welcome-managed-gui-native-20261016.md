@@ -1,5 +1,11 @@
 # Installed Welcome GUI native trials
 
+## Longer-exercise compositor log correction
+
+The retained38902823702 process-exit record identifies Hyprland as the overflowing actor: exit0, stdout clamped262144 bytes/SHA256 `33b170a40ce3dd4f0396ae3a4040e36c0742c45d73b1b3abc0a9d6f8373578b6`, stderr1088 bytes. Its retained tail repeats DEBUG/EGL diagnostics. The full original stdout total is unknown. Commit `3b55b050a949fc3e09bf0830b00e9f38eecf584a` gives only that owned actor a finite2MiB stdout cap; stderr and all other actors keep their old bounds. It counts all bytes without filtering and retains fatal overflow/drain-error checks. Both phase receipts must join exact bounds, owned compositor PID, normal exit0 and ordering after seven captures/before acceptance. Fifty-three focused controls and generated closure/shell syntax pass.
+
+[Retry38905814219](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38905814219) selects Source/workflow `0afba008bee41fd0acb2001fd5e9e61fede9ad2a`, workflow SHA256 `bdb9c9c698971edaed683f11336419ecd067d5d60099d71c197d64df6cac2799`, manifest `d12d829b54b82efd0123c8b4eb086eeb4e1a761021fa8ea0c6bad17800feeb12`. This allowance has not yet been demonstrated sufficient by a native run. Full two-profile actions/captures and cleanup remain pending; the earlier actual remains FAIL.
+
 ## Notebook retry38902823702 reaches all seven minimal views
 
 [Actual38902823702](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38902823702), Source/workflow `1fe6effd851f6cd6053edb626ca2d2cd9e1bd3b7`, passes actual GTK notebook Selection operations, reaches and captures all seven minimal views and passes the Doctor report. Root independently views the new Updates and Recovery captures: the selected guide text and Doctor are readable. It then fails at cleanup with `process log overflow/failure`, before overlay. Repeated post-capture client queries also record bounded IPC timeouts; a causal relationship is not yet established. All14 outer runtime cleanup records, managed unit/runtime retirement and producer image/probe absence pass. This remains failed GUI acceptance.

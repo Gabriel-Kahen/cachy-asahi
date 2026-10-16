@@ -5,7 +5,7 @@ import argparse,fcntl,hashlib,json,os,platform,re,stat,subprocess
 from pathlib import Path
 
 LABEL='org.cachy-asahi.glibc-official-release.job'
-PACKAGE='cachy-asahi-glibc-official-release-2.43.caa1-1-aarch64.pkg.tar.xz'
+PACKAGE='cachy-asahi-glibc-official-release-2.43.caa1-2-aarch64.pkg.tar.xz'
 MAX_TOTAL=768*1024**2
 
 
