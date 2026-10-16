@@ -17,8 +17,8 @@
       "sha256": "d919225a1afb25f89ae694bde724a3615615aa2db27640bb968b74d73a4853ab"
     },
     "scripts/ci/glibc-gnu-provider-lifecycle-owner/policy.json": {
-      "bytes": 519,
-      "sha256": "835fcbe526bd57ef51b7c714664f8b4567643cca3f56b9f7ebdd956c941f1b3c"
+      "bytes": 704,
+      "sha256": "d64fb809c69a3a32d41efc74d6c431ef240b94774d760b7d835793277572ce3c"
     },
     "scripts/ci/glibc-gnu-provider-lifecycle-owner/snapshot.py": {
       "bytes": 9397,

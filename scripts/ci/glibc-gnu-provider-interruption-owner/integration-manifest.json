@@ -17,8 +17,8 @@
       "sha256": "3991396521ef3847054522e04b36200cefccf0921a06e851e6780f1b00a2052c"
     },
     "scripts/ci/glibc-gnu-provider-interruption-owner/policy.json": {
-      "bytes": 534,
-      "sha256": "32afcb09a56b1f58702559c49700633b33b9132a377f8bdf38306b688c89b7f9"
+      "bytes": 719,
+      "sha256": "d0dfae1856033bccc8cd22c41d30330276308d6353f37af0f50eb979a1005de5"
     },
     "scripts/ci/glibc-gnu-provider-interruption-owner/snapshot.py": {
       "bytes": 9400,

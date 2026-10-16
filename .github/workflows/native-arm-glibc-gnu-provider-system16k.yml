@@ -49,11 +49,11 @@ jobs:
           set -euo pipefail
           test "$RUNNER_ARCH" = ARM64
           test "$RUNNER_OS" = Linux
-          python3 -B "$SLICE/gate.py" --source-root "$GITHUB_WORKSPACE" --pair-root "$GITHUB_WORKSPACE/provider-packet-inputs" --source "$SOURCE_SHA" --manifest "$MANIFEST_SHA256"
+          python3 -B "$SLICE/gate.py" --source-root "$GITHUB_WORKSPACE" --pair-root "$GITHUB_WORKSPACE/provider-packet-inputs/payload" --source "$SOURCE_SHA" --manifest "$MANIFEST_SHA256"
       - name: Inert direct slice controls only
         timeout-minutes: 3
         env:
-          GLIBC_SYSTEM16K_PACKET_ROOT: ${{ github.workspace }}/provider-packet-inputs
+          GLIBC_SYSTEM16K_PACKET_ROOT: ${{ github.workspace }}/provider-packet-inputs/payload
           GLIBC_SYSTEM16K_SOURCE_ROOT: ${{ github.workspace }}
         run: python3 -B -Werror::ResourceWarning -m unittest discover -s "$SLICE" -p test_source.py -v
       - name: Provision accepted kernel and QEMU tools on disposable runner
@@ -194,7 +194,7 @@ jobs:
         run: >-
           timeout --signal=TERM --kill-after=120s 1400s python3 -B "$SLICE/run.py" trial
           --source-root "$GITHUB_WORKSPACE" --source-commit "$SOURCE_SHA"
-          --pair-root "$GITHUB_WORKSPACE/provider-packet-inputs" --base-dir "$RUNNER_TEMP/desktop574"
+          --pair-root "$GITHUB_WORKSPACE/provider-packet-inputs/payload" --base-dir "$RUNNER_TEMP/desktop574"
           --kernel-receipt "$RUNNER_TEMP/tools16k-kernel/helper/build/build-receipt.json"
           --private "$RUNNER_TEMP/glibc-system16k-private" --output "$RUNNER_TEMP/glibc-system16k-public" --job-token "$JOB_TOKEN" --execute
       - name: Retire owned574 only after verified consumer absence
