@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "status": "ROOT_ACCEPTED_UNSELECTED_NATIVE_GNU_PAIR_INPUTS",
+  "native_run": 38915137670,
+  "native_source": "d1055cf95f7d236fc55396db36b432df5191ff2a",
+  "package": "cachy-asahi-glibc-official-release",
+  "version": "2.43.caa1-3",
+  "prefix": "/opt/caa/g243a1",
+  "source_artifact_id": 12056233433,
+  "source_artifact_sha256": "c4e5507601c3ef1c5bbed3b1bbb60d066d1fc2e8f36bfd53ba6944f8ff93002c",
+  "files": {
+    "ordered-cleanup.json": {
+      "bytes": 1242,
+      "sha256": "66143e68d07324cabdb5384b67f9638a61db69daf2adadb4bce0554c083f5bad"
+    },
+    "source-proof.json": {
+      "bytes": 441,
+      "sha256": "9e0d9ebd7c8729824149fff488e2716a251b9dc14ecb7080aafe098a542ab49c"
+    },
+    "packages/a/cachy-asahi-glibc-official-release-2.43.caa1-3-aarch64.pkg.tar.xz": {
+      "bytes": 19400096,
+      "sha256": "04e481dc5b3ac711760ca42749044b0be85283b3aa9c9c631cb6738ac7d699fb"
+    },
+    "runtime/a/evidence/generated.SRCINFO": {
+      "bytes": 1064,
+      "sha256": "61e2a1ca8a8a91c5f3c066c68b4f997a65e88541f1cf778d411d38daddb189e7"
+    },
+    "runtime/a/package-metadata/.BUILDINFO": {
+      "bytes": 22912,
+      "sha256": "3c4708a5262d858e26944f7c40c2a1a4af51490b93a80be0227a43fac6eae36c"
+    },
+    "runtime/a/package-metadata/.PKGINFO": {
+      "bytes": 783,
+      "sha256": "57df2145a86b6be7474f76615552cf6be266c28e78502000bb74f5649f597134"
+    },
+    "packages/b/cachy-asahi-glibc-official-release-2.43.caa1-3-aarch64.pkg.tar.xz": {
+      "bytes": 19400096,
+      "sha256": "04e481dc5b3ac711760ca42749044b0be85283b3aa9c9c631cb6738ac7d699fb"
+    },
+    "runtime/b/evidence/generated.SRCINFO": {
+      "bytes": 1064,
+      "sha256": "61e2a1ca8a8a91c5f3c066c68b4f997a65e88541f1cf778d411d38daddb189e7"
+    },
+    "runtime/b/package-metadata/.BUILDINFO": {
+      "bytes": 22912,
+      "sha256": "3c4708a5262d858e26944f7c40c2a1a4af51490b93a80be0227a43fac6eae36c"
+    },
+    "runtime/b/package-metadata/.PKGINFO": {
+      "bytes": 783,
+      "sha256": "57df2145a86b6be7474f76615552cf6be266c28e78502000bb74f5649f597134"
+    },
+    "evidence/root-verification.json": {
+      "bytes": 2583,
+      "sha256": "ad07c0ff3209d693fc852e822f71797bddbcc64cde1a6f0506efdbbc9a65479d"
+    }
+  },
+  "hardware": "NOT_RUN",
+  "performance": "NOT_MEASURED",
+  "release": "NOT_ADMITTED",
+  "scope": "Exact accepted native pair and original metadata; no installation or 16K acceptance. GNU key authority and old-binary source gaps remain open."
+}

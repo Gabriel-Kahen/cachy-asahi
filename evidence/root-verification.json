@@ -1,0 +1,76 @@
+{
+  "status": "PASS_UNSELECTED_NATIVE_PAIR_UPSTREAM_ABI_C_HEADERS_RUNTIME",
+  "source": "d1055cf95f7d236fc55396db36b432df5191ff2a",
+  "closed_files": 139,
+  "closed_bytes": 89185813,
+  "integration_files": 43,
+  "harness_files": 17,
+  "package_sha256": "04e481dc5b3ac711760ca42749044b0be85283b3aa9c9c631cb6738ac7d699fb",
+  "package_bytes": 19400096,
+  "baseline_archive_sha256": "8fac217e98c6e4342326726b2640ac254e8c82032f06f30bfa13ebbcc4fcb25b",
+  "passive_abi_libraries": {
+    "ld-linux-aarch64.so.1": {
+      "symbols": 9,
+      "set_sha256": "c17dfc5d70618ae7b4d8a73e0e693e8d4e0e176052d81d04dcad096db37c8d37"
+    },
+    "libc.so.6": {
+      "symbols": 2777,
+      "set_sha256": "e62aeb6762e53adf92679d6d19f7f15e36603a485bc8d4fa69f781822e050e8b"
+    },
+    "libm.so.6": {
+      "symbols": 1339,
+      "set_sha256": "9a204b456a550c54d07afed876537fe4a0bf4acf416c38abb74988dcb4eded9c"
+    },
+    "libresolv.so.2": {
+      "symbols": 67,
+      "set_sha256": "9f217f13f11df1cf8b17603961982a066ca87547bc6a8ec94c5c396bfb4aaf20"
+    },
+    "libdl.so.2": {
+      "symbols": 1,
+      "set_sha256": "f7ba3ae8b7d74af10a172c5e083fb0ee347819e75b5c60da430a4d19bb02a411"
+    },
+    "libpthread.so.0": {
+      "symbols": 5,
+      "set_sha256": "425a7b129257a757fa9deb0a134ff80792fa62a7b35411fec362fd30715d77dd"
+    },
+    "librt.so.1": {
+      "symbols": 1,
+      "set_sha256": "00d23720f898acfcf72cf729a539418a7065eeb4bac2f1695be54549967a76f3"
+    },
+    "libutil.so.1": {
+      "symbols": 1,
+      "set_sha256": "e9ac17dcfed858f1a68d4df3d9dcca4ed44ed5e7b1bf466c620ccec1ff9ad84a"
+    },
+    "libanl.so.1": {
+      "symbols": 1,
+      "set_sha256": "a08421e3897b88f60cd7397c1dacb95204ba3f539613b079d1711a5da0eb203f"
+    },
+    "libBrokenLocale.so.1": {
+      "symbols": 1,
+      "set_sha256": "af9fcab48c8fcc703eea4392654afbd36b60b44bf1f1e5e6f3368b6cfae4035c"
+    },
+    "libthread_db.so.1": {
+      "symbols": 40,
+      "set_sha256": "7f1e57fbb46dcf9231a141bcdb758db9d5eb65d4943bf3e0c092186e102f0e54"
+    }
+  },
+  "upstream_per_build": {
+    "ERROR": 0,
+    "FAIL": 0,
+    "PASS": 6938,
+    "UNSUPPORTED": 107,
+    "XFAIL": 13,
+    "XPASS": 0
+  },
+  "upstream_results_per_build": 7058,
+  "C_header_dependencies_per_build": 172,
+  "runtime_cases_per_build": 8,
+  "runtime_commands_per_build": 14,
+  "ordered_consumers": 5,
+  "ordered_cleanup": "PASS",
+  "old_binary_recipe": "UNRESOLVED-no-waiver",
+  "source_trust": "GNU publisher keyring/current key expiration reported; independent authority unresolved",
+  "hardware": "NOT_RUN",
+  "performance": "NOT_MEASURED",
+  "selection": "UNSELECTED"
+}
