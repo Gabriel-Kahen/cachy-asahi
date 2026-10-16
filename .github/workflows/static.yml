@@ -157,6 +157,10 @@ jobs:
         run: |
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/welcome-native -p 'test_*.py'
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/welcome-native/ci -p 'test_*.py'
+      - name: Check official GNU release source and native build contracts without actors
+        run: |
+          python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/glibc-official-release -p 'test_*.py'
+          bash -n scripts/ci/glibc-official-release/build-entry.sh packages/core/cachy-asahi-glibc-official-release/PKGBUILD
       - name: Check unselected glibc source and build contracts without actors
         run: |
           python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/glibc-owned-rebuild -p test_controls.py
