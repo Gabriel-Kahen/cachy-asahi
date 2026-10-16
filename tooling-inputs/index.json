@@ -1,0 +1,187 @@
+{
+  "files": {
+    "archlinuxarm-revoked": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "archlinuxarm-trusted": {
+      "bytes": 44,
+      "sha256": "f2a7250f2a2b77542f82f4219b2bae7895f27b3dcfdf350b497e2be306af776d"
+    },
+    "archlinuxarm.gpg": {
+      "bytes": 3098,
+      "sha256": "6ce771e853f04a38a5b533cb33e61f877b9b06b58b6db051eb8a15d737a2332f"
+    },
+    "capstone-5.0.9-1-aarch64.pkg.tar.xz": {
+      "bytes": 1402616,
+      "sha256": "f96ad05de152308112c6f895e42d52669942d5698d5a7491caeb853128fda3a9"
+    },
+    "capstone-5.0.9-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "d3bceb44f8df6cc1a728ef56f3e8955cf33f1892c001bf594189a1c474ab50d3"
+    },
+    "dtc-1:1.8.1-1-aarch64.pkg.tar.xz": {
+      "bytes": 150444,
+      "sha256": "c60faaee0f149ef74fc9feb9aba5cc564d971e021c5bff523568ae0fb257a319"
+    },
+    "dtc-1:1.8.1-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "562081f2fef5b0bd99ce3d5c405b0190df2af584d2b4df4a0a5a6ba45ade2a9a"
+    },
+    "fuse-common-3.18.3-1-aarch64.pkg.tar.xz": {
+      "bytes": 2868,
+      "sha256": "f8a67e6a893e09ece9d9611112b46259df1d947b8d57ac9f118a00eb955780b9"
+    },
+    "fuse-common-3.18.3-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "846fa0db2dd76d4e805b19b010143412522a630eb5235f9b00692c1541bba957"
+    },
+    "fuse3-3.18.3-1-aarch64.pkg.tar.xz": {
+      "bytes": 133600,
+      "sha256": "ea1a152ebe20cecf157378c8917e04b976e89287e2471dd20117b3923b3f0ebb"
+    },
+    "fuse3-3.18.3-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "da757cee8ccfe106f13a7fa9fdb285d43eda5598090de98b4e1487afd149769c"
+    },
+    "libaio-0.3.113-5-aarch64.pkg.tar.xz": {
+      "bytes": 23840,
+      "sha256": "18af1ae9233952a6a505f09cc632b09b2eff5898ebff7e1e931829146169de47"
+    },
+    "libaio-0.3.113-5-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "10fbfd57bb3df9569f86615e14da6683d2a61aeb37ae0ffc778b37c5308ab4ed"
+    },
+    "libslirp-4.9.5-1-aarch64.pkg.tar.xz": {
+      "bytes": 64840,
+      "sha256": "ca402058ef0080a83dd386fe550ef4659f3caad96c8017531df3535e578a4e94"
+    },
+    "libslirp-4.9.5-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "7fd4517fa54d162d793416b1012ab2f2df177c0c1e5d76f54509215c1a655f91"
+    },
+    "libtraceevent-1:1.9.0-1-aarch64.pkg.tar.xz": {
+      "bytes": 168080,
+      "sha256": "413357116a57a128084aa28513951ad2ebd5b18215d3b9de2eb5fb01856acd20"
+    },
+    "libtraceevent-1:1.9.0-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "0eda57e4363bac64004317cbe67b3b1b44ff3954a9c17bae06db5da09f9678e9"
+    },
+    "libtracefs-1.8.3-1-aarch64.pkg.tar.xz": {
+      "bytes": 225796,
+      "sha256": "b41dc9bb609f2f72ab6078f111fedf7c4b559f3a2ab8b42c5dac65c0f1fe12ac"
+    },
+    "libtracefs-1.8.3-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "539e6127e8756e55e5e997ab8393b9861a107c1f6045383b2bb48be0ce85e70e"
+    },
+    "liburing-2.15-1-aarch64.pkg.tar.xz": {
+      "bytes": 271192,
+      "sha256": "efb67ef7eed7b30bebebbe9420fbf67bbfd0676c2b731f30e47e544cdb73feaf"
+    },
+    "liburing-2.15-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "3a42d42b719abe319f541f2110fa2a77893ed21dfe9456df915d217b75b8e068"
+    },
+    "libxdp-1.6.3-2-aarch64.pkg.tar.xz": {
+      "bytes": 95740,
+      "sha256": "536cca5cad699995dcc464d842e923acb8b18dff0aa665e1a17fc11e322ea45c"
+    },
+    "libxdp-1.6.3-2-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "0925fa82c07f14acd0630bfbf0475c28b459d5b03654962c33b482922a3bcda3"
+    },
+    "libyaml-0.2.5-3-aarch64.pkg.tar.xz": {
+      "bytes": 53220,
+      "sha256": "f96d25c8898b27d3364034336630363bcf48eb968c90d5d5c240e4b237ae153b"
+    },
+    "libyaml-0.2.5-3-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "998f7e827e1bbf718b704dbdc8d871b1fb101f2c73d9065410204706bfa94c9c"
+    },
+    "ndctl-85-1-aarch64.pkg.tar.xz": {
+      "bytes": 374404,
+      "sha256": "5090e80deb3566e2530d6115b036215216b2e0fd7c1a2205161203d59a34aae9"
+    },
+    "ndctl-85-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "0dbb686d324b365b93ada668cb286b6238313814f9629f9f44d54da86913b2f0"
+    },
+    "numactl-2.0.19-1-aarch64.pkg.tar.xz": {
+      "bytes": 83656,
+      "sha256": "b28ebc082254c63fbbd9aac1e2ec9bae8e78fe7243682e875df537906ecb5971"
+    },
+    "numactl-2.0.19-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "334df3c15796e8571a5539c4ea111372dc1f7e5c2c699c942824c2a505b95803"
+    },
+    "qemu-common-11.1.2-1-aarch64.pkg.tar.xz": {
+      "bytes": 2100404,
+      "sha256": "f71da9d341459b24a0bf608d566421cad8788a3e8b3d0a93aa82f28066173be3"
+    },
+    "qemu-common-11.1.2-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "8e465e8970fd1a74732ff6a97bb198314ac6c78e44044c51dff93af67ca0a808"
+    },
+    "qemu-hw-display-virtio-gpu-11.1.2-1-aarch64.pkg.tar.xz": {
+      "bytes": 36236,
+      "sha256": "e4729661997f1f5879522a7866c872c80b90b8a67b90f5e500a7c70e6a516fcc"
+    },
+    "qemu-hw-display-virtio-gpu-11.1.2-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "671fafcb82b172089ebd162a6b620e433eea0cb8eec67647ae62e1de6b24c363"
+    },
+    "qemu-hw-display-virtio-gpu-pci-11.1.2-1-aarch64.pkg.tar.xz": {
+      "bytes": 16676,
+      "sha256": "9dbb3bdffbeed7e8714ed6ee5693126fafdebc7082bbaa1618b3c12aa04d9ba4"
+    },
+    "qemu-hw-display-virtio-gpu-pci-11.1.2-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "a75573abb0b98ff517c2068a13b4634368fa27ba1716a8b5b86279929fcfbbc3"
+    },
+    "qemu-system-aarch64-11.1.2-1-aarch64.pkg.tar.xz": {
+      "bytes": 5109200,
+      "sha256": "989a142989ab9c6696593af4561d6d7cb40c408d6a5eb2a4eaee0fdacbdb127d"
+    },
+    "qemu-system-aarch64-11.1.2-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "9d7fc11edd3b7cd27a9d0d3af05db75b48e523280d785a2a9968c9ff5955aca7"
+    },
+    "rdma-core-65.0-1-aarch64.pkg.tar.xz": {
+      "bytes": 1992600,
+      "sha256": "5031f9cbf8e98963c2b1b3e1a221e02e4f6962160cf8042afbe962577b236295"
+    },
+    "rdma-core-65.0-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "1408e0824093ce4c92744a983e0ecfe674ebc91882bebed44b249607fd8bf711"
+    },
+    "snappy-1.2.2-3-aarch64.pkg.tar.xz": {
+      "bytes": 32008,
+      "sha256": "19e057413b812c31b2e540261480a7c1088c80c7d2999e3754953f3710cadaf0"
+    },
+    "snappy-1.2.2-3-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "ad04db6157f685e4b97806d260de7d3a4cdca0fae8892a0ed9d0ff28787c436e"
+    },
+    "vde2-2.3.3-10-aarch64.pkg.tar.xz": {
+      "bytes": 199088,
+      "sha256": "3448c3a49d23407ac32f3dbd7fed4fefce406a4acc4cc150af3faaccc51cf77c"
+    },
+    "vde2-2.3.3-10-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "8a92dfec49a8c69d50917062b493917679667fdab5e0fc16165cd918d1cbd0f6"
+    },
+    "wolfssl-5.9.4-1-aarch64.pkg.tar.xz": {
+      "bytes": 1178536,
+      "sha256": "4a332bc1b879e3ef5619b012334a18393355297107dcba00e1c6daea8bee2704"
+    },
+    "wolfssl-5.9.4-1-aarch64.pkg.tar.xz.sig": {
+      "bytes": 566,
+      "sha256": "cd31ea4466eb54167f574f860ca4571fb7bdbd5772b945bd40118ae3ae97682e"
+    }
+  },
+  "purpose": "installer-full26-generic-vm-tooling-inputs",
+  "schema_version": 1,
+  "tooling_lock_sha256": "c18afc5bde9868594d41bd576a956960a7b01b190d148ba03ca4c41d4394e1b0"
+}
