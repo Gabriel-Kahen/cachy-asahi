@@ -24,6 +24,15 @@ edited. All newly proposed tools below are **not built, not installed, not
 hardware-tested**. Both exact M2 Air sizes, lifecycle/recovery and maintained
 release evidence remain required.
 
+October16 implementation: the original MIT `cachy-asahi-mirrors` candidate now
+checks explicit asahi-alarm/aarch64 catalogs and ranks mirrors only after exact
+selected-snapshot database byte matches. It writes a separate0600 candidate,
+never modifies pacman configuration, and refuses redirects, wrong snapshots and
+existing output. Twelve mocked-network controls and exact four-file isolated
+host staging pass. No live mirror ranking, native package build, catalog trust,
+activation/restoration, target or complete mirror-management acceptance is
+claimed. See [candidate source](../../packages/tools/cachy-asahi-mirrors/README.md).
+
 ## Scope and decision vocabulary
 
 Coverage includes the pinned Cachy-branded tool/configuration recipe catalog,

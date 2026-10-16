@@ -1,0 +1,181 @@
+#!/usr/bin/env python3
+# SPDX-License-Identifier: MIT
+"""Check exact ARM repository snapshot bytes; write a separate mirror candidate."""
+import argparse
+import hashlib
+import json
+import os
+from pathlib import Path
+import re
+import tempfile
+import time
+import urllib.error
+import urllib.parse
+import urllib.request
+
+
+class MirrorError(ValueError):
+    pass
+
+
+def need(ok, reason):
+    if not ok:
+        raise MirrorError(reason)
+
+
+def catalog(path):
+    with Path(path).open('rb') as stream:
+        raw = stream.read(65537)
+    need(len(raw) <= 65536, 'catalog exceeds 64 KiB')
+
+    def pairs(rows):
+        result = {}
+        for key, value in rows:
+            need(key not in result, 'duplicate catalog key')
+            result[key] = value
+        return result
+
+    value = json.loads(raw, object_pairs_hook=pairs)
+    need(type(value) is dict and set(value) == {
+        'schema_version', 'architecture', 'base', 'repository', 'database', 'mirrors'},
+        'catalog fields differ')
+    need(value['schema_version'] == 1 and value['architecture'] == 'aarch64' and
+         value['base'] == 'asahi-alarm', 'explicit asahi-alarm/aarch64 catalog required')
+    need(type(value['repository']) is str and
+         re.fullmatch(r'[a-z][a-z0-9_-]{0,63}', value['repository']), 'invalid repository')
+    db = value['database']
+    need(type(db) is dict and set(db) == {'bytes', 'sha256'} and
+         type(db['bytes']) is int and 0 < db['bytes'] <= 32 * 1024**2 and
+         type(db['sha256']) is str and re.fullmatch('[0-9a-f]{64}', db['sha256']),
+         'exact bounded database reference required')
+    mirrors = value['mirrors']
+    need(type(mirrors) is list and 1 <= len(mirrors) <= 16, 'one to sixteen mirrors required')
+    identifiers, servers = set(), set()
+    for row in mirrors:
+        need(type(row) is dict and set(row) == {'id', 'server'}, 'invalid mirror fields')
+        name, server = row['id'], row['server']
+        need(type(name) is str and re.fullmatch('[a-zA-Z0-9_-]{1,48}', name) and
+             name not in identifiers, 'invalid or duplicate mirror id')
+        need(type(server) is str and len(server) <= 2048 and server.isascii() and
+             all(33 <= ord(c) < 127 for c in server) and server not in servers,
+             'invalid or duplicate server')
+        need(server.count('$arch') == server.count('$repo') == 1 and
+             '$' not in server.replace('$arch', '').replace('$repo', ''),
+             'server requires exactly $arch and $repo')
+        url = urllib.parse.urlsplit(server)
+        need(url.scheme == 'https' and url.hostname and url.username is None and
+             url.password is None and not url.query and not url.fragment and
+             not server.endswith('/') and '\\' not in server and '%' not in server and
+             all(part not in ('.', '..') for part in url.path.split('/')),
+             'plain HTTPS server template required')
+        # Also validate malformed ports and host/template placement now.
+        need(url.port is None or 1 <= url.port <= 65535, 'invalid port')
+        need('$' not in url.netloc, 'templates belong in the URL path')
+        need(url.path.split('/').count('$arch') == url.path.split('/').count('$repo') == 1,
+             'templates must be complete path segments')
+        identifiers.add(name)
+        servers.add(server)
+    return value, hashlib.sha256(raw).hexdigest()
+
+
+class NoRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, request, fp, code, message, headers, newurl):
+        raise MirrorError('redirect refused; catalog must name the final server')
+
+
+def probe(row, config, opener, deadline):
+    started = time.monotonic()
+    result = dict(id=row['id'], server=row['server'], status='FAIL')
+    try:
+        remaining = deadline - started
+        need(remaining > 0, 'total ranking deadline reached')
+        base = row['server'].replace('$arch', 'aarch64').replace('$repo', config['repository'])
+        request = urllib.request.Request(base + '/' + config['repository'] + '.db',
+            headers={'Accept-Encoding': 'identity', 'User-Agent': 'cachy-asahi-mirrors/0.1'})
+        expected = config['database']
+        with opener.open(request, timeout=min(10, remaining)) as response:
+            need(response.status == 200, 'HTTP status differs from 200')
+            need(response.headers.get('Content-Encoding', 'identity') == 'identity',
+                 'encoded response refused')
+            declared = response.headers.get('Content-Length')
+            need(declared is None or declared == str(expected['bytes']), 'database length differs')
+            digest, count = hashlib.sha256(), 0
+            while True:
+                need(time.monotonic() < deadline, 'total ranking deadline reached')
+                data = response.read(min(65536, expected['bytes'] + 1 - count))
+                if not data:
+                    break
+                count += len(data)
+                need(count <= expected['bytes'], 'database exceeds selected snapshot size')
+                digest.update(data)
+            need(count == expected['bytes'] and digest.hexdigest() == expected['sha256'],
+                 'database does not match selected snapshot')
+        result.update(status='PASS_EXACT_SNAPSHOT', bytes=count, sha256=digest.hexdigest())
+    except (MirrorError, OSError, urllib.error.URLError) as error:
+        result['reason'] = str(error)[:200]
+    result['elapsed_seconds'] = round(time.monotonic() - started, 6)
+    return result
+
+
+def publish(path, raw):
+    """Atomic no-replace publication; never activate a system mirror list."""
+    path = Path(path)
+    temporary = None
+    try:
+        fd, temporary = tempfile.mkstemp(prefix='.cachy-asahi-mirrors-', dir=path.parent)
+        with os.fdopen(fd, 'wb') as stream:
+            stream.write(raw)
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.link(temporary, path, follow_symlinks=False)
+    finally:
+        if temporary is not None:
+            os.unlink(temporary)
+
+
+def rank(config, catalog_sha, output):
+    opener = urllib.request.build_opener(urllib.request.ProxyHandler({}), NoRedirect())
+    deadline = time.monotonic() + 120
+    results = [probe(row, config, opener, deadline) for row in config['mirrors']]
+    passing = sorted((r for r in results if r['status'] == 'PASS_EXACT_SNAPSHOT'),
+                     key=lambda r: (r['elapsed_seconds'], r['id']))
+    report = dict(schema_version=1, status='FAIL', catalog_sha256=catalog_sha,
+        base=config['base'], architecture='aarch64', repository=config['repository'],
+        results=results, activation='NOT_PERFORMED', hardware='NOT_TESTED')
+    if passing:
+        raw = ('# Separate candidate; selected repository: ' + config['repository'] + '\n' +
+               '# Exact catalog SHA256: ' + catalog_sha + '\n' +
+               ''.join('Server = ' + row['server'] + '\n' for row in passing)).encode('ascii')
+        publish(output, raw)
+        report.update(status='PASS_CANDIDATE_WRITTEN', candidate=dict(path=str(output),
+            bytes=len(raw), sha256=hashlib.sha256(raw).hexdigest(), mode='0600'))
+    return report
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--version', action='version', version='cachy-asahi-mirrors 0.1.0')
+    sub = parser.add_subparsers(dest='command', required=True)
+    check = sub.add_parser('check', help='validate a local catalog without network access')
+    check.add_argument('catalog', type=Path)
+    run = sub.add_parser('rank', help='fetch exact snapshot databases and write a new candidate')
+    run.add_argument('catalog', type=Path)
+    run.add_argument('--output', type=Path, required=True)
+    args = parser.parse_args()
+    try:
+        config, digest = catalog(args.catalog)
+        if args.command == 'check':
+            result = dict(status='PASS_CATALOG_SYNTAX', catalog_sha256=digest,
+                          mirrors=len(config['mirrors']), network='NOT_USED', trust='NOT_ESTABLISHED')
+        else:
+            need(not args.output.exists() and not args.output.is_symlink(), 'output already exists')
+            result = rank(config, digest, args.output)
+        print(json.dumps(result, sort_keys=True))
+        return 0 if result['status'].startswith('PASS_') else 1
+    except (MirrorError, OSError, ValueError, TypeError, KeyError) as error:
+        print(json.dumps(dict(status='FAIL', reason=str(error)[:200]), sort_keys=True))
+        return 1
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())

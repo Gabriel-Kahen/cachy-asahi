@@ -1,0 +1,28 @@
+# SPDX-License-Identifier: MIT
+pkgname=cachy-asahi-mirrors
+pkgver=0.1.0
+pkgrel=1
+pkgdesc='Exact ARM repository snapshot mirror checker and separate candidate writer'
+arch=('any')
+url='https://github.com/Gabriel-Kahen/cachy-asahi'
+license=('MIT')
+depends=('python>=3.11' 'ca-certificates')
+source=('cachy-asahi-mirrors' 'test_mirrors.py' 'README.md' 'NOTICE' 'LICENSE')
+sha256sums=(
+  '0d94d26a25487f17427fc7685543f1cda5c57f785ba2cbd9f32b8b1a8fac2c19'
+  'af1fb17559fd941262c136b2c5f8d87060632087f3df20655659743d45dfba37'
+  'b546a94b80966df2227dd1e074de94b93ace4d605332eced0a09e5255b27c1fd'
+  'adb0cb8dcd123c5fb6cd905abd3245a6decf34cda55fd901a633b772987a747a'
+  '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7'
+)
+
+check() {
+    python -B "$srcdir/test_mirrors.py"
+}
+
+package() {
+    install -Dm755 "$srcdir/cachy-asahi-mirrors" "$pkgdir/usr/bin/cachy-asahi-mirrors"
+    install -Dm644 "$srcdir/README.md" "$pkgdir/usr/share/doc/$pkgname/README.md"
+    install -Dm644 "$srcdir/NOTICE" "$pkgdir/usr/share/licenses/$pkgname/NOTICE"
+    install -Dm644 "$srcdir/LICENSE" "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}
