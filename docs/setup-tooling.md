@@ -21,6 +21,12 @@ Blocks are delimited with `# >>> cachy-asahi setup COMPONENT v1 >>>` and the mat
 
 The readability guards let shell startup continue after package templates disappear. Fresh shells pick up package template upgrades. Already-running shells retain functions/completion state until restarted; setup/removal does not execute a shell reset command.
 
+### Optional packaged shell modules
+
+Candidate0.1.0-5 also accepts the six explicit module component names listed in the [package guide](../packages/settings/cachy-asahi-setup/README.md). They enable none by default. Select only installed modules you want, preview, then apply with the same flags above. Setup adds guarded source blocks in deterministic shell order, preserving highlighting before substring search and every user-owned edit. Missing selected modules fail before configuration/state mutation. Module wrappers keep their own runtime, binding and notification policies.
+
+New modules and shared-file journal groups require the new CLI for recovery/removal. Old setup3/4 state and single-entry journals remain supported; old CLIs safely refuse new ownership. Complete recovery/removal before downgrading. See [host validation](validation/setup-shell-modules-host-20261016.md) for tested scope; native setup5 package/upgrade and target workflows remain pending.
+
 ### Explicit Hyprland configuration
 
 Activation copies `/usr/share/cachy-asahi/hyprland/hyprland.lua` to the separate `${XDG_CONFIG_HOME:-$HOME/.config}/cachy-asahi/hyprland.lua`. It never creates or replaces the base's `hypr/hyprland.conf`, `hyprland.lua`, launcher configuration or UWSM contract. An existing untracked file at the separate destination is preserved even if its bytes happen to match the template.

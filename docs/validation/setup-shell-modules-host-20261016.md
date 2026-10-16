@@ -1,0 +1,9 @@
+# Explicit shell-module setup candidate
+
+Candidate0.1.0-5 adds six explicit components: fish-bang-bang, fish-autopair, fish-done, zsh-autosuggestions, zsh-syntax-highlighting and zsh-history-substring-search. Existing fish/zsh/hyprland selections enable none of them. Setup writes guarded source blocks only; it does not install packages, declare keybindings, change a login shell, enable services or alter repository trust. Missing selected module sources fail before lock/state creation.
+
+Multiple selections sharing a shell file form a validated joined journal chain and one atomic write per file. Every group is checked before writes. Deterministic ordering preserves highlighting-before-substring across separate activations. Edited anchors/order/user bytes are preserved through refusal. Existing integer1 state and single-entry journals remain readable; old helpers safely refuse new records/groups. Recover or remove with the new CLI before downgrading. Atomic-file recovery is not a multi-file or storage power-loss guarantee.
+
+Root replays all68 setup tests (46 unchanged plus22 focused), all10 synchronization controls and exact canonical/package/license provenance matching. Actual private child exits after fsynced writes exercise CLI recovery; generated Fish/Zsh guards execute against inert fixture modules. The worker also retains22 actual legacy setup3/4 CLI/checkpoint checks, six existing packaged refusal regressions, source/checksum joins and exact six-file pure staging. No live HOME or system configuration is touched.
+
+The six real module products have their separate combined host driver and native composition. These setup fixture tests do not establish their package installation, native setup5 builds/upgrades, actual profiles, M2, performance or release admission. The held setup3/4 and original587/expanded600 selections remain on their frozen sources.
