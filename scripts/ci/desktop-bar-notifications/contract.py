@@ -3,7 +3,7 @@
 import hashlib
 import json
 from pathlib import Path
-from session import owned_layer, notifications, MAKO_NAMESPACE
+from session import owned_layer, notifications, MAKO_NAMESPACE, RENDERING_MODE
 
 
 def digest(path):
@@ -33,6 +33,25 @@ def verify_result(events):
             if key not in frames[0]:
                 raise ValueError('bar/notification capture evidence absent')
         frame = frames[0]
+        for event in (frame, phases[0]):
+            if event.get('rendering_mode') != RENDERING_MODE or event.get('cold_start_body_rendering') != 'NOT_ESTABLISHED':
+                raise ValueError('reload-assisted qualification absent')
+        snapshots = [e for e in events if e.get('event') == 'notification_render_snapshot' and e.get('stage') == stage]
+        if len(snapshots) != 2 or [e.get('point') for e in snapshots] != ['before_reload', 'after_reload'] or \
+                [e.get('reload_count') for e in snapshots] != [0, 1]:
+            raise ValueError('pre/post reload identity evidence absent')
+        if not (events.index(snapshots[0]) < events.index(snapshots[1]) < events.index(frame)):
+            raise ValueError('reload/capture order differs')
+        for snapshot in snapshots:
+            if snapshot.get('rendering_mode') != RENDERING_MODE or any(
+                    snapshot.get(key) != frame[key] for key in ('waybar_pid', 'mako_pid', 'notification')):
+                raise ValueError('reload ownership/payload changed')
+            for key, namespace, pid in (('bar', 'waybar', snapshot['waybar_pid']),
+                                        ('mako', MAKO_NAMESPACE, snapshot['mako_pid'])):
+                row = snapshot[key]
+                value = {row['monitor']: {'levels': {row['level']: [row]}}}
+                if owned_layer(value, namespace, pid) is None:
+                    raise ValueError('reload snapshot client not visible')
         if type(frame.get('capture_after_ms')) is not int or frame['capture_after_ms'] < 5000:
             raise ValueError('capture settle evidence absent')
         if frame['waybar_pid'] == frame['mako_pid']:
@@ -49,6 +68,9 @@ def verify_result(events):
     sessions = [e for e in events if e.get('event') == 'session_pass']
     if len(sessions) != 1 or any(sessions[0].get(k) != 'PASS' for k in ('waybar', 'mako', 'status')):
         raise ValueError('bar/notification session acceptance absent')
+    if sessions[0].get('rendering_mode') != RENDERING_MODE or \
+            sessions[0].get('cold_start_body_rendering') != 'NOT_ESTABLISHED':
+        raise ValueError('reload-assisted session qualification absent')
 
 
 def verify_package_input(proposal, installed):

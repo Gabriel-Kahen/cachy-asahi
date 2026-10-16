@@ -77,7 +77,8 @@ def retain(base, runtime, proof, output):
     need(not output.exists() and not output.is_symlink(), 'fresh public retention directory required')
     output.mkdir(mode=0o700)
     result = dict(status='NOT_ACCEPTED', files={}, frames={}, errors=[], native_scope='GENERIC_ARM_ONLY',
-                  hardware='NOT_RUN', battery='NOT_RUN', audio='NOT_RUN', visual_review='NOT_RUN')
+                  hardware='NOT_RUN', battery='NOT_RUN', audio='NOT_RUN', visual_review='NOT_RUN',
+                  rendering_mode='reload-assisted', cold_start_body_rendering='NOT_ESTABLISHED')
     total = 0
 
     def copy(source, relative, cap, required=False):
@@ -127,8 +128,10 @@ def retain(base, runtime, proof, output):
         need(original['ownership']['token'] == source_proof['job_token'], 'base owner token differs')
         need(original['owned_cleanup']['image'] == dict(id=original['image'], absence_verified=True) and
              original['owned_cleanup']['probe']['absence_verified'] is True, 'base resource absence unproved')
-        need(report['status'] == 'PASS_BAR_NOTIFICATION_GENERIC_ARM_SMOKE' and
-             report['configuration'] == 'desktop-container-verifier-pass', 'new runtime acceptance absent')
+        need(report['status'] == 'PASS_RELOAD_ASSISTED_BAR_NOTIFICATION_DIAGNOSTIC' and
+             report['configuration'] == 'desktop-container-verifier-pass' and
+             report.get('rendering_mode') == 'reload-assisted' and
+             report.get('cold_start_body_rendering') == 'NOT_ESTABLISHED', 'qualified diagnostic acceptance absent')
         need(report['base_image'] == original['image'] and report['runtime_package_count'] == 591,
              'base/runtime composition differs')
         need(len(report['cleanup']) == 14 and report['base_reference_cleanup']['ok'] is True and
@@ -137,7 +140,7 @@ def retain(base, runtime, proof, output):
         for stage in ('minimal', 'overlay'):
             need(result['frames'][stage]['sha256'] == report['frames'][stage]['sha256'], 'captured frame hash differs')
         need(not result['errors'], 'public retention incomplete')
-        result['status'] = 'PASS_NATIVE_METADATA_PIXELS_PENDING_VISUAL_REVIEW'
+        result['status'] = 'PASS_RELOAD_ASSISTED_METADATA_PIXELS_PENDING_VISUAL_REVIEW'
     except Exception as error:
         result['errors'].append(str(error)[:512])
     result['total_bytes'] = total
@@ -173,7 +176,7 @@ def main():
     else:
         result = retain(args.base, args.runtime, args.proof, args.output)
     print(json.dumps(result, indent=2))
-    return int(result['status'] not in ('SOURCE_PROOF_PASS', 'PASS_NATIVE_METADATA_PIXELS_PENDING_VISUAL_REVIEW'))
+    return int(result['status'] not in ('SOURCE_PROOF_PASS', 'PASS_RELOAD_ASSISTED_METADATA_PIXELS_PENDING_VISUAL_REVIEW'))
 
 
 if __name__ == '__main__':

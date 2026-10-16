@@ -43,7 +43,8 @@ class CallerTests(unittest.TestCase):
         original=dict(status='PASS_NATIVE_OFFLINE_574_TRANSACTION',image=image,ownership=dict(token='b'*16),
             owned_cleanup=dict(status='PASS',image=dict(id=image,absence_verified=True),probe=dict(absence_verified=True)))
         (base/'report.json').write_text(json.dumps(original));(base/'installed-packages.lock').write_text('waybar 0.15.0-3\n')
-        report=dict(status='PASS_BAR_NOTIFICATION_GENERIC_ARM_SMOKE',configuration='desktop-container-verifier-pass',
+        report=dict(status='PASS_RELOAD_ASSISTED_BAR_NOTIFICATION_DIAGNOSTIC',configuration='desktop-container-verifier-pass',
+            rendering_mode='reload-assisted',cold_start_body_rendering='NOT_ESTABLISHED',
             base_image=image,runtime_package_count=591,base_reference_cleanup=dict(ok=True,base_image_present=True),
             cleanup=[dict(exit=0) for _ in range(13)]+[dict(guest_disk_removed=True)],frames={})
         (runtime/'frames').mkdir()
@@ -61,7 +62,7 @@ class CallerTests(unittest.TestCase):
     def test_both_actual_ppm_bytes_and_pending_visual_metadata_are_retained(self):
         base,runtime,proof,_,_=self.make_result();output=self.root/'public'
         result=caller.retain(base,runtime,proof,output)
-        self.assertEqual(result['status'],'PASS_NATIVE_METADATA_PIXELS_PENDING_VISUAL_REVIEW')
+        self.assertEqual(result['status'],'PASS_RELOAD_ASSISTED_METADATA_PIXELS_PENDING_VISUAL_REVIEW')
         for stage in ('minimal','overlay'):
             self.assertEqual((output/'frames'/(stage+'.ppm')).read_bytes(),(runtime/'frames'/(stage+'.ppm')).read_bytes())
             self.assertEqual(result['frames'][stage]['visual_review'],'NOT_RUN')
@@ -83,6 +84,19 @@ class CallerTests(unittest.TestCase):
                     base,runtime,proof,_,report=self.make_result()
                     if mutation=='hash':report['frames']['minimal']['sha256']='0'*64
                     else:report['status']='PASS_NATIVE_CONFIGURATION_AND_GENERIC_SOFTWARE_SESSION'
+                    (runtime/'runtime.json').write_text(json.dumps(report))
+                    self.assertEqual(caller.retain(base,runtime,proof,self.root/'public')['status'],'NOT_ACCEPTED')
+                finally:self.root=previous
+
+    def test_unqualified_or_cold_start_pass_claims_are_refused(self):
+        for mutation in ('unassisted','mode','cold'):
+            with tempfile.TemporaryDirectory() as directory:
+                previous=self.root;self.root=Path(directory)
+                try:
+                    base,runtime,proof,_,report=self.make_result()
+                    if mutation=='unassisted':report['status']='PASS_BAR_NOTIFICATION_GENERIC_ARM_SMOKE'
+                    elif mutation=='mode':report.pop('rendering_mode')
+                    else:report['cold_start_body_rendering']='PASS'
                     (runtime/'runtime.json').write_text(json.dumps(report))
                     self.assertEqual(caller.retain(base,runtime,proof,self.root/'public')['status'],'NOT_ACCEPTED')
                 finally:self.root=previous

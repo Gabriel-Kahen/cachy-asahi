@@ -34,6 +34,9 @@ def prepare(source, output):
     fixture = replace(fixture, 'TimeoutStartSec=650', 'TimeoutStartSec=850')
     (output / 'desktop574_fixture.sh').write_text(fixture)
     runtime = (source / 'scripts/ci/desktop574_runtime.py').read_text()
+    runtime = replace(runtime, "report = {'status': 'FAIL',",
+        "report = {'status': 'FAIL', 'rendering_mode': 'reload-assisted', "
+        "'cold_start_body_rendering': 'NOT_ESTABLISHED',")
     runtime = replace(runtime, 'import time\n', 'import time\nfrom contract import verify_source, verify_result, verify_package_input\n')
     runtime = replace(runtime, '    require(not out.exists()', '    verify_source(source)\n    require(not out.exists()')
     runtime = replace(runtime, "        observed = inventory(",
@@ -47,9 +50,9 @@ def prepare(source, output):
     if runtime.count('PASS_NATIVE_CONFIGURATION_AND_GENERIC_SOFTWARE_SESSION') != 2:
         raise ValueError('base acceptance anchors differ')
     runtime = runtime.replace('PASS_NATIVE_CONFIGURATION_AND_GENERIC_SOFTWARE_SESSION',
-                              'PASS_BAR_NOTIFICATION_GENERIC_ARM_SMOKE')
+                              'PASS_RELOAD_ASSISTED_BAR_NOTIFICATION_DIAGNOSTIC')
     runtime = replace(runtime, 'Same-job native574 configuration and generic QEMU software session exercise.',
-        'Separate optional Waybar/Mako generic ARM smoke; no hardware claim.')
+        'Reload-assisted Waybar/Mako diagnostic; cold-start body rendering NOT_ESTABLISHED.')
     (output / 'desktop574_runtime.py').write_text(runtime)
     shutil.copyfile(source / 'scripts/ci/test_desktop574_runtime.py', output / 'test_desktop574_runtime.py')
     return output

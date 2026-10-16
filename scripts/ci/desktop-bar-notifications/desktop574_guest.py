@@ -42,6 +42,8 @@ def main():
             if event == 'session_pass':
                 base.need(completed == {'minimal', 'overlay'}, 'both client phases required')
             values.update(waybar='PASS', mako='PASS', battery='NOT_RUN', audio='NOT_RUN')
+        if event in ('session_pass', 'complete', 'failed'):
+            values.update(rendering_mode='reload-assisted', cold_start_body_rendering='NOT_ESTABLISHED')
         original_emit(event, **values)
 
     session.base = base

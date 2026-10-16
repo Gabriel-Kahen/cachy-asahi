@@ -99,24 +99,34 @@ class DataTests(unittest.TestCase):
             events += [dict(event='frame_ready',stage=stage),dict(event='phase_pass',stage=stage)]
         with self.assertRaises(ValueError):contract.verify_result(events)
 
-    def test_new_result_needs_two_phases_and_preserved_config(self):
+    def test_qualified_result_requires_pre_post_identity_and_does_not_accept_cold_claim(self):
         events=[]
         for stage in ('minimal','overlay'):
-            events += [dict(event='frame_ready',stage=stage,
+            frame=dict(event='frame_ready',stage=stage,
                 bar=row(pid=1)|dict(monitor='Virtual-1',level='2'),
                 mako=row('notifications',2)|dict(monitor='Virtual-1',level='3',x=684,y=40,w=330,h=100),
                 notification=dict(id=7,app_name=session.APP,summary=session.SUMMARY,body=session.BODY),
-                waybar_pid=1,mako_pid=2,capture_after_ms=5000),
-                dict(event='phase_pass',stage=stage,waybar='PASS',mako='PASS',config_preserved=True)]
-        events.append(dict(event='session_pass',status='PASS',waybar='PASS',mako='PASS'))
+                waybar_pid=1,mako_pid=2,capture_after_ms=5000,rendering_mode='reload-assisted',
+                cold_start_body_rendering='NOT_ESTABLISHED')
+            snapshots=[copy.deepcopy(frame)|dict(event='notification_render_snapshot',point=point,reload_count=count)
+                       for count,point in enumerate(('before_reload','after_reload'))]
+            phase=dict(event='phase_pass',stage=stage,waybar='PASS',mako='PASS',config_preserved=True,
+                       rendering_mode='reload-assisted',cold_start_body_rendering='NOT_ESTABLISHED')
+            events.extend([*snapshots,frame,phase])
+        events.append(dict(event='session_pass',status='PASS',waybar='PASS',mako='PASS',
+            rendering_mode='reload-assisted',cold_start_body_rendering='NOT_ESTABLISHED'))
         contract.verify_result(events)
-        for mutation in ('duplicate','configuration','session','owner','hidden'):
+        for mutation in ('duplicate','configuration','session','owner','hidden','unqualified','changed','order','cold'):
             value=copy.deepcopy(events)
-            if mutation=='duplicate':value.append(value[0])
-            elif mutation=='configuration':value[1]['config_preserved']=1
+            if mutation=='duplicate':value.append(value[2])
+            elif mutation=='configuration':value[3]['config_preserved']=1
             elif mutation=='session':value[-1]['mako']='NOT_RUN'
-            elif mutation=='owner':value[0]['mako']['pid']=22
-            else:value[0]['bar']['alpha']=.5
+            elif mutation=='owner':value[0]['mako_pid']=22
+            elif mutation=='hidden':value[2]['bar']['alpha']=.5
+            elif mutation=='unqualified':value[2].pop('rendering_mode')
+            elif mutation=='changed':value[1]['notification']['body']='changed'
+            elif mutation=='order':value[0],value[1]=value[1],value[0]
+            else:value[-1]['cold_start_body_rendering']='PASS'
             with self.assertRaises(ValueError):contract.verify_result(value)
 
 
@@ -135,6 +145,7 @@ class PhaseTests(unittest.TestCase):
         (self.config/'user').write_text('preserve')
         self.processes=[];self.emitted=[];self.commands=[];self.notice=False;self.ticks=0
         self.wrong_owner=False;self.bad_payload=False;self.bad_stop=False;self.mutate=False;self.bad_finish=False
+        self.reloads=0;self.lose_owner_on_reload=False;self.reload_error=False
         self.helper=SimpleNamespace(Logged=self.launch,command=self.command,ipc=lambda *a:dict(a[2]),
             usable_monitors=lambda x:True,emit=lambda name,**data:self.emitted.append(dict(event=name,**data)),
             terminate=self.terminate,RUNTIME=Mock())
@@ -177,6 +188,12 @@ class PhaseTests(unittest.TestCase):
                 return json.dumps({'Virtual-1':{'levels':{'2':rows}}})
             if 'dispatch' in argv:
                 self.processes[0].process.returncode=0;return 'ok\n'
+        if argv[:2]==['/usr/bin/makoctl','reload']:
+            if self.reload_error:raise ValueError('reload command failed')
+            self.assertTrue(self.notice)
+            self.reloads+=1
+            if self.lose_owner_on_reload:self.wrong_owner=True
+            return ''
         if argv[0]=='/usr/bin/makoctl':
             return json.dumps([dict(id=7,app_name=session.APP,summary=session.SUMMARY,
                 body='wrong' if self.bad_payload else session.BODY)] if self.notice else [])
@@ -201,15 +218,34 @@ class PhaseTests(unittest.TestCase):
 
     def test_full_owned_lifecycle_capture_dismissal_clean_stops_and_preservation(self):
         self.run_phase();self.assert_retired()
+        self.assertEqual(self.reloads,1)
         self.assertEqual([p.process.returncode for p in self.processes],[0,0,0])
-        self.assertEqual([e['event'] for e in self.emitted],['frame_ready','phase_pass'])
-        self.assertGreaterEqual(self.emitted[0]['capture_after_ms'],5000)
+        self.assertEqual([e['event'] for e in self.emitted],['notification_render_snapshot','notification_render_snapshot','frame_ready','phase_pass'])
+        pre,post,frame,_=self.emitted
+        self.assertEqual((pre['point'],post['point']),('before_reload','after_reload'))
+        self.assertEqual(pre['notification'],post['notification'])
+        self.assertEqual(pre['mako_pid'],post['mako_pid'])
+        self.assertEqual(frame['rendering_mode'],'reload-assisted')
+        self.assertEqual(frame['cold_start_body_rendering'],'NOT_ESTABLISHED')
+        self.assertGreaterEqual(frame['capture_after_ms'],5000)
         self.assertTrue(self.emitted[-1]['config_preserved'])
         self.assertEqual((self.config/'user').read_text(),'preserve')
         self.assertFalse(any('systemctl' in ' '.join(cmd) for cmd in self.commands))
         self.assertIn('--config',self.processes[1].argv)
         self.assertEqual(self.processes[1].argv[-1],str(session.TEMPLATES/'waybar.css'))
         self.assertGreater(self.ticks,13)
+
+    def test_redraw_failure_cannot_emit_frame_or_pass_and_retires_all(self):
+        self.reload_error=True
+        with self.assertRaisesRegex(ValueError,'reload command failed'):self.run_phase()
+        self.assert_retired()
+        self.assertEqual([e['point'] for e in self.emitted],['before_reload'])
+
+    def test_redraw_rechecks_owner_before_capture(self):
+        self.lose_owner_on_reload=True
+        with self.assertRaisesRegex(ValueError,'ownership changed'):self.run_phase()
+        self.assert_retired()
+        self.assertEqual([e['point'] for e in self.emitted],['before_reload'])
 
     def test_foreign_notification_owner_refuses_and_retires_all(self):
         self.wrong_owner=True
