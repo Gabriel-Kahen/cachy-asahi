@@ -217,12 +217,12 @@
       "sha256": "a14e0318549d24a9bc91ceeb03ec2c1fa2d12f2b3a4f9b0a4cccfb64be34b2b7"
     },
     "scripts/ci/setup5-native/README.md": {
-      "bytes": 6479,
-      "sha256": "066fd641900ed0c0b01a0117891ca861c325050b09183136a36790b37e091b71"
+      "bytes": 7942,
+      "sha256": "b85e4eb88fce95ba51bd312ab5da2c28d638950fd063ccc1983ca6c660a0281b"
     },
     "scripts/ci/setup5-native/contract.py": {
-      "bytes": 10073,
-      "sha256": "69aff15501647d928fd3f760c6ceacc9f8b07512e6bfe6120da54f753ae737e7"
+      "bytes": 10085,
+      "sha256": "59761adacc10ce0d86a8f4f70408a879834ffbea0d556492dc3be0954ee6ee5a"
     },
     "scripts/ci/setup5-native/exercise.py": {
       "bytes": 7751,
@@ -258,11 +258,11 @@
     },
     "scripts/ci/setup5-native/source-pins.json": {
       "bytes": 4568,
-      "sha256": "1021070a70c55417f442ee740e1e019e09e7b69777758458305c32c119604161"
+      "sha256": "c48fb74ffb975eff5bb6ef8a7e59e6e101e79e91231c9c15f0c94580eb2011c4"
     },
     "scripts/ci/setup5-native/test_native.py": {
-      "bytes": 15416,
-      "sha256": "048318d21be7497b07d50a931d2664736be324f5c60797724c73d80a70f66c0d"
+      "bytes": 18640,
+      "sha256": "c9da46f4e11b3f11886daa7522aed97698535465d68801f1643f17173f86d8ab"
     },
     "scripts/ci/test_maintained_desktop574.py": {
       "bytes": 19082,
