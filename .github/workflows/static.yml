@@ -134,6 +134,8 @@ jobs:
           python3 -B -m unittest discover -s scripts/ci/full-root-upgrade-caller -p 'test_*.py'
           python3 -B -m unittest discover -s scripts/ci/full-root-upgrade -p 'test_*.py'
           python3 -B -m unittest discover -s scripts/update -p test_snapshot_selection.py
+      - name: Check controlled complete-root failure and disposal without actors
+        run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/full-root-failed-update -p 'test_*.py'
       - name: Check full-composition installer VM contracts without actors
         run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/full-composition-installer-vm -p 'test_*.py'
       - name: Check generic 16 KiB build and fixture controls without kernel or VM actors
