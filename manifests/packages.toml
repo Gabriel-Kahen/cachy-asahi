@@ -556,11 +556,28 @@ status = "candidate-source-only"
 source = "local-original"
 recipe = "packages/tools/cachy-asahi-apps/PKGBUILD"
 license = "MIT"
-candidate_version = "0.1.0-1"
+candidate_version = "0.1.0-2"
 selected_for_development = false
 selected_for_release = false
-host_validation = "PASS 21 host checks including isolated signed synthetic catalog/release plans; seven-file disposable staging"
+host_validation = "PASS 25 checks from standalone standard build layout, signed synthetic catalog/plans and installed default helper lookup; seven-file staging"
 native_build = "NOT RUN"
 installation = "NOT RUN"
 hardware_validation = "NOT RUN"
-next_step = "Complete packaged helper distribution, finite supported signed catalog, native pair and installed lifecycle; planner only, every result NOT_APPLIED and caller inventory is not host attestation."
+next_step = "Complete finite supported signed catalog, native pair and installed lifecycle; planner only, every result NOT_APPLIED and caller inventory is not host attestation."
+
+
+[[packages]]
+name = "cachy-asahi-repository-runtime"
+phase = "tools-experience"
+status = "candidate-source-only"
+source = "local-original-pinned-project-helpers"
+recipe = "packages/tools/cachy-asahi-repository-runtime/PKGBUILD"
+license = "MIT"
+candidate_version = "0.1.0-1"
+selected_for_development = false
+selected_for_release = false
+host_validation = "PASS exact three original helpers, eight-file staging and real installed-layout planner calls in standalone25-check suite"
+native_build = "NOT RUN"
+installation = "NOT RUN"
+hardware_validation = "NOT RUN"
+next_step = "Native build pair and disposable dependency-checked installation/removal with apps; runtime helpers authenticate development inputs and provide no package apply or production trust authority."

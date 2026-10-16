@@ -1,32 +1,38 @@
 # SPDX-License-Identifier: MIT
-# Original planner; existing repository helper Source is a separate pinned runtime input.
+# Original planner with exact three-helper installed runtime dependency.
 pkgname=cachy-asahi-apps
 pkgver=0.1.0
-pkgrel=1
+pkgrel=2
 pkgdesc='Offline signed ARM development application catalog and explicit readonly package plans'
 arch=('any')
 url='https://github.com/Gabriel-Kahen/cachy-asahi'
 license=('MIT')
-depends=('python>=3.11' 'gnupg' 'libarchive' 'pacman')
-source=('apps.py' 'cachy-asahi-apps' 'helper-pins.json' 'test_apps.py' 'check_source.py' 'README.md' 'source-provenance.json' 'NOTICE' 'LICENSE')
+depends=('python>=3.11' 'gnupg' 'libarchive' 'pacman' 'cachy-asahi-repository-runtime=0.1.0-1')
+source=('apps.py' 'cachy-asahi-apps' 'helper-pins.json' 'test_apps.py' 'check_source.py' 'README.md' 'source-provenance.json' 'NOTICE' 'LICENSE' 'prepare-check-inputs.py' 'check-inputs.json' 'check-inputs.tar.gz')
+noextract=('check-inputs.tar.gz')
 sha256sums=(
-    '6ce521a2e8d5152b94164a52d84e60190065d5b6a8c4c4e1db576a40751efa56'
-    '9828b3772cb1272371df8847160f94ba08eab1caa232c45d0102b43f3fdef0f6'
+    'e9e59528007dc315e2ee4a0f742a324e0c23d1932e008ac03d579cda8554535b'
+    '4e9c078c2e05cc00cb6479d5fff23b92cbcabd8d6b3ff970f6181e6467921630'
     '33a5e11e6d12df984e07c437c68ee581527cc4c95f3327bc44cbc09e0e29948a'
-    'c2d8601ff3427984cee06c0c33c25d90f20dde632e608ed85f1aedc5b6af089c'
-    '0d5e7c680598e01196f438c1f2d106d9d2170e14ad13caf5bc1da88162f06e75'
-    'ccc1b7f5c4f36dc8fbf9cfc6a8375f19f859ff1bb3060dd5f51a177597b25c7a'
-    '4e0ce803a383d0aaf1df6e34d6374838f535c817f0d5c23bb3913adb5c9c4d38'
-    '6254a92059555a314249d4657fdd160634d2348f14b592908fc588587b5f267c'
+    '6b6eebd31a552f7b9b987eec858012866bcafb5dd09a64655c051c4c11dd0ea1'
+    '860c61c337dcb2738c5c80604a630690ba5b36880282d5076c3a7d7325623229'
+    'bc0f120503f73ed69ebd2b53d77317735628a599a03d16567a4a5e3067da429e'
+    'f244dd02f411c028bc9ad9d4196f655851f6b92697dab054da02316e2dbefe7e'
+    '412e8a466d1f53fd69026960453d536c234be46655713746de2c3ca9f4d59439'
     '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7'
+    '76bc1977cf402872816a430156541c0ccd41273e9080730d2ace7838ffa74214'
+    '5cd338eb2ab9f4579825f3dd30de0f25d54a73ee1090737b0a21a506d12caad8'
+    '6d38353fe33e0ce595df507ad9b928d80d3e1d6fe5d45d5418f927e9f50fe6d2'
 )
 
 check() {
-    [[ -n ${CACHY_ASAHI_REPOSITORY_SOURCE:-} ]] || return 1
-    python -I -B "$srcdir/check_source.py" --recipe-root "$startdir" --repository-source "$CACHY_ASAHI_REPOSITORY_SOURCE" || return
-    python -I -B "$srcdir/test_apps.py" --repository-source "$CACHY_ASAHI_REPOSITORY_SOURCE"
+    python -I -B "$srcdir/prepare-check-inputs.py" \
+        --archive "$srcdir/check-inputs.tar.gz" --index "$srcdir/check-inputs.json" --output "$srcdir/check-inputs" || return
+    local source="${CACHY_ASAHI_REPOSITORY_SOURCE:-$srcdir/check-inputs/repository}"
+    local runtime="${CACHY_ASAHI_RUNTIME_RECIPE:-$srcdir/check-inputs/runtime-recipe}"
+    python -I -B "$srcdir/check_source.py" --recipe-root "$startdir" --repository-source "$source" || return
+    python -I -B "$srcdir/test_apps.py" --repository-source "$source" --runtime-recipe-root "$runtime" --app-recipe-root "$startdir"
 }
-
 package() {
     [[ -n $pkgdir && $pkgdir != / ]] || return 1
     install -Dm755 "$srcdir/cachy-asahi-apps" "$pkgdir/usr/bin/cachy-asahi-apps" || return

@@ -20,6 +20,7 @@ from types import ModuleType
 
 sys.dont_write_bytecode=True
 HERE=Path(__file__).absolute().parent
+DEFAULT_REPOSITORY_SOURCE=Path(__file__).absolute().parents[2]/'share/cachy-asahi/repository-runtime'
 META=('name','version','arch','depend','provides','conflict','replaces','files')
 MAX_PACKAGES=4096
 MAX_MATCHES=65536
@@ -294,7 +295,9 @@ def execute(args):
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
-    for name in ('repository-source','release','release-sha256','catalog','catalog-sha256','catalog-signature','keyring','signer'):
+    parser.add_argument('--repository-source',default=str(DEFAULT_REPOSITORY_SOURCE),
+                        help='exact runtime helper tree; defaults to the installed companion package')
+    for name in ('release','release-sha256','catalog','catalog-sha256','catalog-signature','keyring','signer'):
         parser.add_argument('--'+name,required=True)
     parser.add_argument('--installed');parser.add_argument('--installed-sha256')
     sub=parser.add_subparsers(dest='command',required=True);sub.add_parser('list')

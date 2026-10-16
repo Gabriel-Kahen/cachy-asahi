@@ -2,7 +2,7 @@
 
 Offline application list/search/show and explicit install/remove **plans** over a finite signed ARM development catalog. Every successful output says `NOT_APPLIED`; there is no apply, download, cache deletion, orphan cleanup or host package transaction. Plans are not installer authority. No supported production application set is selected by this package.
 
-The runtime requires an explicit `--repository-source` tree containing the three exact helpers in helper-pins.json: scripts/client/client.py, scripts/release/release.py and scripts/release/source_delivery.py. These MIT helpers are reused as source integration dependencies, not bundled. A different helper snapshot refuses before source execution. An installed interpreter, GPG, bsdtar and ALPM vercmp are required. This pure Python package is architecture independent; catalog/release/inventory inputs must be aarch64/any.
+The exact `cachy-asahi-repository-runtime=0.1.0-1` dependency installs the three unchanged MIT helpers identified by helper-pins.json: scripts/client/client.py, scripts/release/release.py and scripts/release/source_delivery.py. The default helper root is `/usr/share/cachy-asahi/repository-runtime`, resolved relative to the installed app prefix. No Git checkout is required. An explicit `--repository-source /absolute/development-source` override remains available. A different helper snapshot refuses before source execution. An installed interpreter, GPG, bsdtar and ALPM vercmp are required. This pure Python package is architecture independent; catalog/release/inventory inputs must be aarch64/any.
 
 Supply a local development release created by scripts/release/release.py, an external public keyring and full externally pinned primary fingerprint. Both release.json and the separate catalog need valid signatures from that same fingerprint. The client helper rejects missing/bad/expired/revoked/weak signatures in an isolated temporary public verification home, without importing into user/system trust. The release helper checks package archives, provenance, repository metadata, source delivery when declared and full signed release dependency consistency. Semantic readers consume a private snapshot of the exact signed payload. Unsigned files outside that map are never consumed. No previous verification JSON is accepted. Freshness/withdrawal status is NOT_ESTABLISHED; production/stable acceptance and hardware compatibility are not inferred.
 
@@ -20,8 +20,7 @@ Catalog package names must exist in the authenticated release. The catalog canno
 Use common options on every invocation:
 
 ```sh
-cachy-asahi-apps --repository-source /absolute/repository-source \
-  --release /absolute/signed-development-release --release-sha256 RELEASE_SHA256 \
+cachy-asahi-apps --release /absolute/signed-development-release --release-sha256 RELEASE_SHA256 \
   --catalog /absolute/catalog.json --catalog-sha256 CATALOG_SHA256 \
   --catalog-signature /absolute/catalog.json.sig \
   --keyring /absolute/external-public.gpg --signer FULL_PRIMARY_FINGERPRINT list
@@ -42,4 +41,4 @@ python3 -I -B check_source.py --repository-source /absolute/repository-source
 python3 -I -B test_apps.py --repository-source /absolute/repository-source
 ```
 
-Tests use real isolated GPG/repo-add synthetic fixtures plus dependency/selection failure cases; they never install packages. They need gpg-agent's private local socket for test-only signing, and retire the owned signing agent afterward. For makepkg check, set `CACHY_ASAHI_REPOSITORY_SOURCE` explicitly; absence fails. No build/native pair/installed lifecycle/hardware acceptance is claimed by this proposal.
+Tests use real isolated GPG/repo-add synthetic fixtures plus dependency/selection failure cases; they never install packages. They need gpg-agent's private local socket for test-only signing, and retire the owned signing agent afterward. For standard makepkg check, all inputs are local pinned recipe sources: check-inputs.tar.gz contains exactly16 bounded MIT data files (the release fixture,3 helpers, license and complete companion recipe). noextract prevents automatic extraction; prepare-check-inputs.py verifies the closed archive/member hashes and writes a fresh private check tree before tests. No checkout, forwarded variable or undeclared sibling recipe is required. Optional CACHY_ASAHI_REPOSITORY_SOURCE and CACHY_ASAHI_RUNTIME_RECIPE development overrides remain available. check-only inputs and fixtures are not installed. The focused suite stages both package recipes, executes the staged app using default lookup without a checkout argument, and refuses a missing/tampered companion. No build/native pair/installed lifecycle/hardware acceptance is claimed by this proposal.
