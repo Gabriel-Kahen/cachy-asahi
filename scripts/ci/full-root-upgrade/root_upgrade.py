@@ -126,12 +126,15 @@ def database(root, *, max_packages=587, max_files=1000000, max_nodes=4000000, ob
             try:
                 initial = identity(os.fstat(fd))
                 desc = fields(read_record(fd, 'desc', expected=expected(name + '/desc')))
-                owned = fields(read_record(fd, 'files', expected=expected(name + '/files')))
+                ownership_raw = read_record(fd, 'files', expected=expected(name + '/files'))
+                owned = fields(ownership_raw)
                 need(all(len(desc.get(key, [])) == 1 for key in ('NAME', 'VERSION', 'ARCH')), 'installed package identity missing')
                 package, version, arch = (desc[key][0] for key in ('NAME', 'VERSION', 'ARCH'))
                 need(LABEL.fullmatch(package) and 0 < len(version) <= 128 and not any(c.isspace() or c == '\0' for c in version), 'invalid installed identity')
                 need(name == package + '-' + version and arch in ('aarch64', 'any'), 'installed directory/architecture differs')
-                paths = owned.get('FILES'); need(type(paths) is list, 'installed ownership missing')
+                # ALPM writes a present, zero-byte files record for metapackages.
+                paths = owned.get('FILES', [] if ownership_raw == b'' else None)
+                need(type(paths) is list, 'installed ownership missing: ' + package)
                 need(len(paths) <= max_files, 'package ownership bound')
                 need(len(paths) == len(set(paths)), 'duplicate installed ownership')
                 for path in paths: relative(path[:-1] if path.endswith('/') else path)

@@ -3,8 +3,13 @@
 The separate caller in `scripts/ci/full-root-upgrade-caller/` prepares the signed
 initial587-package composition with updater4.4.2-2 and setup0.1.0-3. It stages
 the complete persistent data, then uses `scripts/ci/full-root-upgrade/` to perform
-one real signed setup0.1.0-4 upgrade in a second, owned copy. The native trial is
-pending. Local controls and source pins do not establish a successful commit.
+one real signed setup0.1.0-4 upgrade in a second, owned copy. The first native
+trial38858858112 failed before staging because its ownership parser rejected
+a valid zero-byte ALPM files record. No upgrade commit began; outer cleanup and
+owned-volume absence passed. Full persistent-source preservation was not
+established. The corrected parser retains empty metapackages and still rejects
+missing records or nonempty records without a FILES field. Five focused controls
+and34 caller controls pass; an actual successful commit remains pending.
 
 The successor is the retained setup package with SHA256
 `c817c01aad875fcf5a34073d4c9d0e830c577301189148b3c0e0969f001bea1a`.
