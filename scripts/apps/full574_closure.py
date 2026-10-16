@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT
 """Explicit original574 Apps-only data closure. Never execute or refresh ldconfig."""
-import hashlib,json,os,re,stat,sys
+import hashlib,io,json,os,re,stat,sys,tarfile
 from pathlib import Path
 ROOT=next(p for p in Path(__file__).resolve().parents if (p/'manifests/packages.toml').is_file())
 sys.path.insert(0,str(ROOT/'scripts/update'))
@@ -8,6 +8,10 @@ import aux_checkpoint as aux
 import aux_copy
 import full_root as roots
 import root_link_selection as links
+# Dedicated Apps helper; shared observers and copiers remain unchanged.
+import importlib.util
+_spec=importlib.util.spec_from_file_location("_apps574_file_capabilities",Path(__file__).with_name("file_capabilities.py"))
+caps=importlib.util.module_from_spec(_spec);sys.modules[_spec.name]=caps;_spec.loader.exec_module(caps)
 
 PURPOSE='APPS_ORIGINAL574_READONLY_CLOSURE'
 LOCK_SHA256='cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac'
@@ -55,6 +59,15 @@ def current_payloads():
         result[package]=files
     return result
 
+def candidate_metadata(raw):
+    """Current four archives are script/data only, including their PAX metadata."""
+    with tarfile.open(fileobj=io.BytesIO(raw),mode='r|*') as stream:
+        count=0
+        for member in stream:
+            count+=1
+            need(count<=128 and set(member.pax_headers)<={'path','linkpath','mtime','atime','ctime'},'candidate-xattrs-or-unknown-pax-refused')
+    return 'NO_CAPABILITIES_OR_OTHER_XATTRS'
+
 def _measure(root,limits):
     value=roots.observe(root,limits=limits,hardlinks='generic-development-internal')
     links.check(value,limits);return value,aux.checkpoint(root,value,limits)
@@ -62,6 +75,11 @@ def _measure(root,limits):
 def measure(root,limits):
     """Read-only raw observation; measured ineligible flags are not rewritten."""
     return _measure(root,limits)[0]
+
+def capability_map(root,observation,limits,expected=None):
+    mapping=caps.observe(root,observation['nodes'],limits)
+    need(expected is None or mapping==expected,'original574-security-capabilities-changed')
+    return mapping
 
 def canonical_state(state):
     """Content closure across data copies; inode identities stay in live comparisons."""
@@ -128,12 +146,13 @@ class Adapter:
         self.policy=pinned_json(args.full574_policy,args.full574_policy_sha256,read)
         self.lease=pinned_json(args.full574_lease,args.full574_lease_sha256,read)
         p,l=self.policy,self.lease
-        common={'schema_version','purpose','snapshot_sha256','extraction_receipt_sha256','source_tree_sha256','source_packages_sha256','source_closure_sha256'}
-        need(set(p)==common|{'baseline_lock_sha256','candidates'} and set(l)==common|{'token','source','source_identity'},'policy-or-lease-fields')
+        common={'schema_version','purpose','snapshot_sha256','extraction_receipt_sha256','source_tree_sha256','source_packages_sha256','source_closure_sha256','source_capabilities_sha256'}
+        need(set(p)==common|{'baseline_lock_sha256','candidates','source_capabilities'} and set(l)==common|{'token','source','source_identity'},'policy-or-lease-fields')
         need(type(p['schema_version']) is type(l['schema_version']) is int and p['schema_version']==l['schema_version']==1 and p['purpose']==l['purpose']==PURPOSE,'policy-or-lease-purpose')
         for key in common-{'schema_version','purpose'}:
             need(type(p[key]) is str and re.fullmatch('[0-9a-f]{64}',p[key]) and l[key]==p[key],'policy-lease-'+key)
         need(p['baseline_lock_sha256']==LOCK_SHA256 and type(p['candidates']) is dict and set(p['candidates'])==set(VERSIONS),'finite-original574-selection')
+        need(type(p['source_capabilities']) is dict and digest(p['source_capabilities'])==p['source_capabilities_sha256'],'source-capability-map-pin')
         self.payloads=current_payloads()
         for name,row in p['candidates'].items():
             need(set(row)=={'version','archive_sha256','payload_sha256'} and row['version']==VERSIONS[name] and
@@ -144,7 +163,7 @@ class Adapter:
             type(l['source_identity']) is list and len(l['source_identity'])==2 and all(type(n) is int and n>=0 for n in l['source_identity']) and
             l['source_identity']==backend.inode(self.source),'source-native-lease')
         self.binding=dict(policy_sha256=args.full574_policy_sha256,lease_sha256=args.full574_lease_sha256,
-            snapshot_sha256=p['snapshot_sha256'],extraction_receipt_sha256=p['extraction_receipt_sha256'])
+            snapshot_sha256=p['snapshot_sha256'],extraction_receipt_sha256=p['extraction_receipt_sha256'],source_capabilities_sha256=p['source_capabilities_sha256'])
         self.comparator=aux.load_comparator(ROOT/'scripts/ci/full-development-composition/audio_aux.py',budget)
         self.source_check()
 
@@ -154,6 +173,7 @@ class Adapter:
         try:need(os.fstatvfs(fd).f_flag&os.ST_RDONLY,'leased-source-must-be-readonly')
         finally:os.close(fd)
         observation,state=_measure(self.source,self.limits)
+        capability_map(self.source,observation,self.limits,self.policy['source_capabilities'])
         aux.need(len(self.comparator.parse(state['aux_bytes']))>0,'source-aux-parse')
         need(digest(observation['nodes'])==self.policy['source_tree_sha256'] and
             digest(canonical_state(state))==self.policy['source_closure_sha256'],'native-source-snapshot-or-closure')
@@ -163,6 +183,7 @@ class Adapter:
         value,state=_measure(root,budget)
         original,source_state=self.source_check()
         baseline_nodes(original['nodes'],value['nodes'],self.payloads)
+        capability_map(root,value,budget,self.policy['source_capabilities'])
         need(digest(canonical_state(scan_view(state)))==digest(canonical_state(scan_view(source_state))),'copy-baseline-closure')
         self.comparator.parse(state['aux_bytes'])
         return value
@@ -177,7 +198,14 @@ class Adapter:
 
     def copy(self,source,target,**kwargs):
         need(Path(source)==self.source,'copy-source-lease')
-        value=aux_copy.copy_data(source,target,**kwargs);value['apps_full574_binding']=self.binding;return value
+        self.source_check()
+        value=aux_copy.copy_data(source,target,**kwargs)
+        observation=measure(target,kwargs['limits'])
+        baseline_nodes(self.source_check()[0]['nodes'],observation['nodes'],self.payloads)
+        restored=caps.restore(target,observation['nodes'],self.policy['source_capabilities'],kwargs['limits'])
+        need(restored==self.policy['source_capabilities'],'copied-capability-map')
+        value.update(apps_full574_binding=self.binding,security_capabilities='EXACT_SOURCE_MAP_RESTORED_AND_VERIFIED',source_capabilities_sha256=digest(restored))
+        return value
 
     def selection(self,add,remove,inventory,before):
         inventory_check(inventory)
@@ -187,7 +215,9 @@ class Adapter:
             need(all(before.get(n)==v for n,v in self.payloads[name].items()),'installed-current-candidate-payload')
 
     def archive(self,name,path,nodes):
-        need(name in VERSIONS and nodes==self.payloads[name] and sha(self.t.B.client.read_path(path,self.t.I.MAX_ARCHIVE))==self.policy['candidates'][name]['archive_sha256'],'exact-current-candidate-archive-payload')
+        raw=self.t.B.client.read_path(path,self.t.I.MAX_ARCHIVE)
+        need(name in VERSIONS and nodes==self.payloads[name] and sha(raw)==self.policy['candidates'][name]['archive_sha256'],'exact-current-candidate-archive-payload')
+        candidate_metadata(raw)
 
     def old_payload(self,nodes):
         allowed={n:row for payload in self.payloads.values() for n,row in payload.items()}
@@ -201,10 +231,14 @@ class Adapter:
         roots.check_hardlink_preservation(links.view(before,self.limits),links.view(after,self.limits),**kwargs)
         state=aux.checkpoint(root,after,self.limits)
         need(hasattr(self,'baseline'),'missing-before-closure')
-        return unchanged(self.baseline,state,self.comparator)
+        capability_map(root,after,self.limits,self.baseline_caps)
+        result=unchanged(self.baseline,state,self.comparator)
+        result.update(security_capabilities='EXACT_SOURCE_MAP_PRESERVED',source_capabilities_sha256=digest(self.baseline_caps))
+        return result
 
     def capture(self,root,observation):
         self.baseline=aux.checkpoint(root,observation,self.limits)
+        self.baseline_caps=capability_map(root,observation,self.limits,self.policy['source_capabilities'])
 
 def connect(args,backend,budget):
     values=[getattr(args,n,None) for n in ('full574_policy','full574_policy_sha256','full574_lease','full574_lease_sha256')]

@@ -80,11 +80,16 @@ def interrupted(calls,workspace,owner,argv):
 def main():
  C.need(os.getuid()==os.geteuid()==0 and os.uname().machine=='aarch64' and Path('/.dockerenv').is_file() and os.environ.get('CACHY_APPS574_LIFECYCLE')=='1' and {p.name for p in Path('/sys/class/net').iterdir()}=={'lo'},'dedicated owned native offline transaction actor required')
  C.source(SOURCE);C.need(SEED.is_mount() and WORK.is_mount(),'separate readonly source and disk workspace required');os.chown(WORK,0,0);WORK.chmod(0o700)
- adapter=C.adapter(SOURCE);T=C.load('source_transaction',SOURCE/'scripts/apps/transaction.py');before=adapter.measure(SEED,T.limits());before_hash=T.sha(T.encoded(before['nodes']));calls=Calls();report=dict(status='FAIL',hardware='NOT_RUN',source_preserved=False,workspaces_disposed=False,rollback='NOT_CLAIMED')
+ adapter=C.adapter(SOURCE);T=C.load('source_transaction',SOURCE/'scripts/apps/transaction.py');before=adapter.measure(SEED,T.limits());before_hash=T.sha(T.encoded(before['nodes']));source_caps=adapter.capability_map(SEED,before,T.limits());source_caps_sha=adapter.digest(source_caps);calls=Calls();report=dict(status='FAIL',hardware='NOT_RUN',source_preserved=False,workspaces_disposed=False,rollback='NOT_CLAIMED')
  try:
   workspace=WORK/('interrupted' if '--interrupt' in sys.argv else 'main');prepared=calls.call([*backend('prepare-copy',workspace),'--source','/seed']);C.need(prepared['status']=='OWNED_COPY_PREPARED' and prepared['source_preserved'] is True,'actual original copy required');owner=prepared['ownership_sha256']
   if '--interrupt' in sys.argv:
-   path,plan=planned(calls,workspace,'interrupted-install','install',['cache']);argv=apply_args(calls,workspace,owner,path,plan);interrupted(calls,workspace,owner,argv);return
+   path,plan=planned(calls,workspace,'interrupted-install','install',['cache']);argv=apply_args(calls,workspace,owner,path,plan);interruption=interrupted(calls,workspace,owner,argv)
+   # Original outcome stays UNKNOWN; independently inspect only immutable baseline xattrs.
+   interrupted_nodes=adapter.measure(workspace/'root',T.limits())
+   adapter.capability_map(workspace/'root',interrupted_nodes,T.limits(),source_caps)
+   interruption.update(security_capabilities='EXACT_SOURCE_MAP_PRESERVED_AFTER_GROUP_ABSENCE',source_capabilities_sha256=source_caps_sha)
+   C.save(OUT/'interruption.json',interruption);return
   user_nodes={n:v for n,v in before['nodes'].items() if n.startswith('home/') and v['type'] in ('file','symlink')}
   C.need(user_nodes,'actual original574 user-owned data coverage required')
   path,plan=planned(calls,workspace,'install','install',['apps','cache','orphans']);argv=apply_args(calls,workspace,owner,path,plan);refusals={}
@@ -103,8 +108,8 @@ def main():
    path,plan=planned(calls,workspace,label,'remove',names);args=apply_args(calls,workspace,owner,path,plan);transactions.append(calls.call(args));rows=count(workspace);counts.append(len(rows));C.need(len(rows)==expected,'actual explicit removal count differs')
    if expected==575:C.need(rows['cachy-asahi-repository-runtime']=='0.1.0-1' and all(n not in rows for n in C.VERSIONS if n!='cachy-asahi-repository-runtime'),'Runtime dependency must remain without explicit selection')
   disposed=calls.call(backend('dispose-copy',workspace,owner),seconds=75);C.need(disposed['status']=='OWNED_COPY_DISPOSED' and not workspace.exists(),'normal owned workspace disposal required')
-  after=adapter.measure(SEED,T.limits());C.need(T.sha(T.encoded(after['nodes']))==before_hash,'readonly source full bytes changed')
-  report.update(status='PASS_NATIVE574_APPS_ACTUAL_TRANSACTIONS',base_count=574,counts=counts,transactions=transactions,refusals=refusals,source_preserved=True,user_trust_protected_preserved=True,workspaces_disposed=True,interrupted_copy='NOT_RUN_SEPARATE_ACTOR_REQUIRED',source_tree_sha256=before_hash,package_selection='FOUR_CURRENT_SCRIPT_DATA_ONLY',original_user_nodes=len(user_nodes),original_user_nodes_sha256=C.sha(C.encoded(user_nodes)),aux_inode_liveness='NOT_ESTABLISHED_NEVER_EXECUTED_OR_CONSUMED')
+  after=adapter.measure(SEED,T.limits());adapter.capability_map(SEED,after,T.limits(),source_caps);C.need(T.sha(T.encoded(after['nodes']))==before_hash,'readonly source full bytes changed')
+  report.update(status='PASS_NATIVE574_APPS_ACTUAL_TRANSACTIONS',base_count=574,counts=counts,transactions=transactions,refusals=refusals,source_preserved=True,user_trust_protected_preserved=True,workspaces_disposed=True,interrupted_copy='NOT_RUN_SEPARATE_ACTOR_REQUIRED',source_tree_sha256=before_hash,source_capabilities_sha256=source_caps_sha,security_capabilities='EXACT_SOURCE_MAP_PRESERVED',package_selection='FOUR_CURRENT_SCRIPT_DATA_ONLY',original_user_nodes=len(user_nodes),original_user_nodes_sha256=C.sha(C.encoded(user_nodes)),aux_inode_liveness='NOT_ESTABLISHED_NEVER_EXECUTED_OR_CONSUMED')
   C.result(report)
  except BaseException as error:report.update(error=str(error)[:1024],error_type=type(error).__name__);raise
  finally:

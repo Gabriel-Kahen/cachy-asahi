@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT
 """Real temporary data + pure policy controls; never an original574 acceptance."""
-import copy,importlib.util,json,os,struct,sys,tempfile,time,unittest
+import copy,importlib.util,io,json,os,struct,sys,tarfile,tempfile,time,unittest
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
@@ -86,6 +86,48 @@ class Policy(unittest.TestCase):
             with self.assertRaises(ValueError):T.observe(root,T.limits())
             with self.assertRaises(ValueError):C.measure(root,T.limits())
         self.assertIs(C.roots.require_eligible,function);self.assertEqual(C.links.LINK_NODES,selection)
+
+class Capabilities(unittest.TestCase):
+    def test_map_hash_and_lease_hash_must_agree_before_source_lookup(self):
+        common=dict(schema_version=1,purpose=C.PURPOSE,**{n:'a'*64 for n in ('snapshot_sha256','extraction_receipt_sha256','source_tree_sha256','source_packages_sha256','source_closure_sha256','source_capabilities_sha256')})
+        policy=dict(common,baseline_lock_sha256=C.LOCK_SHA256,candidates={n:dict(version=v,archive_sha256='b'*64,payload_sha256=C.digest(C.current_payloads()[n])) for n,v in C.VERSIONS.items()},source_capabilities={})
+        lease=dict(common,token='c'*32,source='/INERT-MUST-NOT-LOOK-UP',source_identity=[1,2]);args=SimpleNamespace(full574_policy='policy',full574_policy_sha256='d'*64,full574_lease='lease',full574_lease_sha256='e'*64)
+        with patch.object(C,'pinned_json',side_effect=[policy,lease]),self.assertRaisesRegex(ValueError,'source-capability-map-pin'):C.Adapter(args,T,T.limits())
+        lease['source_capabilities_sha256']='f'*64
+        with patch.object(C,'pinned_json',side_effect=[policy,lease]),self.assertRaisesRegex(ValueError,'policy-lease-source_capabilities_sha256'):C.Adapter(args,T,T.limits())
+    def test_current_candidate_archives_refuse_capability_pax_before_install(self):
+        for pax in ({},{'SCHILY.xattr.security.capability':bytes.fromhex('0100000240000000000000000000000000000000').decode('utf8','surrogateescape')},{'SCHILY.xattr.user.fixture':'unknown'}):
+            output=io.BytesIO()
+            with tarfile.open(fileobj=output,mode='w',format=tarfile.PAX_FORMAT) as stream:
+                member=tarfile.TarInfo('usr/bin/inert');member.pax_headers=pax;stream.addfile(member,io.BytesIO(b''))
+            if pax:
+                with self.assertRaisesRegex(ValueError,'candidate-xattrs'):C.candidate_metadata(output.getvalue())
+            else:self.assertEqual(C.candidate_metadata(output.getvalue()),'NO_CAPABILITIES_OR_OTHER_XATTRS')
+    def test_complete_map_comparison_detects_candidate_and_original_changes(self):
+        expected={'usr/bin/original':'0100000240000000000000000000000000000000'}
+        with patch.object(C.caps,'observe',return_value=expected):
+            self.assertEqual(C.capability_map('/INERT',{'nodes':{}},T.limits(),expected),expected)
+        for actual in ({},expected|{'usr/bin/cachy-asahi-apps':next(iter(expected.values()))}):
+            with patch.object(C.caps,'observe',return_value=actual),self.assertRaisesRegex(ValueError,'security-capabilities-changed'):C.capability_map('/INERT',{'nodes':{}},T.limits(),expected)
+    def test_copy_restores_and_verifies_before_binding_can_be_returned(self):
+        adapter=object.__new__(C.Adapter);adapter.source=Path('/seed');adapter.payloads={};adapter.policy={'source_capabilities':{'inert':'0100000240000000000000000000000000000000'}};adapter.binding={'source_capabilities_sha256':C.digest(adapter.policy['source_capabilities'])}
+        nodes={'inert':{'type':'file'}};adapter.source_check=lambda:({'nodes':nodes},{})
+        calls=[]
+        def restore(root,actual,wanted,budget):calls.append((root,actual,wanted));return wanted
+        with patch.object(C.aux_copy,'copy_data',return_value={'copied':True}),patch.object(C,'measure',return_value={'nodes':nodes}),patch.object(C,'baseline_nodes'),patch.object(C.caps,'restore',side_effect=restore):
+            value=adapter.copy(adapter.source,Path('/owned'),limits=T.limits())
+        self.assertEqual(len(calls),1);self.assertEqual(value['security_capabilities'],'EXACT_SOURCE_MAP_RESTORED_AND_VERIFIED');self.assertEqual(value['apps_full574_binding'],adapter.binding)
+        with patch.object(C.aux_copy,'copy_data',return_value={}),patch.object(C,'measure',return_value={'nodes':nodes}),patch.object(C,'baseline_nodes'),patch.object(C.caps,'restore',side_effect=ValueError('unexpected capability')):
+            with self.assertRaisesRegex(ValueError,'unexpected capability'):adapter.copy(adapter.source,Path('/owned'),limits=T.limits())
+    def test_real_temp_unknown_xattr_refuses_without_running_file(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root=Path(temporary);path=root/'inert';path.write_bytes(b'never executed')
+            nodes=C.roots.observe(root,limits=T.limits(),hardlinks='generic-development-internal')['nodes']
+            self.assertEqual(C.capability_map(root,{'nodes':nodes},T.limits(),{}),{})
+            os.setxattr(path,'user.UNIT-inert',b'unknown metadata')
+            with self.assertRaisesRegex(ValueError,'unknown xattr'):C.capability_map(root,{'nodes':nodes},T.limits(),{})
+            os.removexattr(path,'user.UNIT-inert')
+            self.assertEqual(C.caps.restore(root,nodes,{},T.limits()),{})
 
 class DataClosure(unittest.TestCase):
     def setUp(self):

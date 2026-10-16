@@ -28,12 +28,13 @@ available even when policy validation fails.
 ```
 
 Both JSON documents have exact field sets. Common fields are `schema_version`
-(integer 1), `purpose` (`APPS_ORIGINAL574_READONLY_CLOSURE`), and five hashes:
+(integer 1), `purpose` (`APPS_ORIGINAL574_READONLY_CLOSURE`), and six hashes:
 `snapshot_sha256`, `extraction_receipt_sha256`, `source_tree_sha256`,
-`source_packages_sha256`, `source_closure_sha256`. All must be lowercase SHA256
+`source_packages_sha256`, `source_closure_sha256`, `source_capabilities_sha256`. All must be lowercase SHA256
 and equal between policy and lease.
 The policy additionally has `baseline_lock_sha256` (the fixed hash above) and
-`candidates`. The lease additionally has `token` (the existing 32-hex
+`candidates` and `source_capabilities` (the complete canonical path→raw-hex map). Its
+`C.digest(source_capabilities)` must equal the shared capability hash. The lease additionally has `token` (the existing 32-hex
 `CACHY_ASAHI_APPS_TRANSACTION` token), `source` (canonical consumer path, e.g.
 `/seed`), and `source_identity` (`[st_dev, st_ino]` at that path).
 
@@ -53,6 +54,8 @@ source_tree_sha256 = C.digest(observation['nodes'])
 source_packages_sha256 = C.digest(inventory['packages'])
 state = C.aux.checkpoint(source, observation, budget)
 source_closure_sha256 = C.digest(C.canonical_state(state))
+source_capabilities = C.capability_map(source, observation, budget)
+source_capabilities_sha256 = C.digest(source_capabilities)
 ```
 
 `canonical_state` removes only inode identities for cross-copy content joining;
@@ -88,3 +91,34 @@ configuration, provider, library path or cache, and cannot consume this helper.
 
 Failures keep the backend's existing commit uncertainty/pending marker and
 owned-copy disposal recovery. No interrupted commit is described as rollback.
+
+Only the Apps-specific `export_extract.py` derivative accepts
+`SCHILY.xattr.security.capability`, with exact Linux revision2/3 value validation.
+It compiles the exact shared extractor SHA
+`9738acb125ce6d468d5359ecfbd5540454826567fd4ac4481576ec31da37190c`
+in an isolated namespace, replacing one hash-bound metadata predicate. Every
+other metadata/path/content/hash bound remains; all other unknown PAX/xattrs and
+nonregular capability carriers refuse. Original and adapted source hashes are
+retained. The ordinary extractor initially produces data without xattrs; it may
+not report success until the complete header map, including hardlink aliases,
+has been restored and independently observed over every extracted node.
+
+`file_capabilities.py` checks every supplied node, including directories,
+symlinks and candidate additions, for unknown attributes and exact capability
+bytes with nofollow descriptors, mount/identity/drift/hardlink checks and the
+existing deadline. It never executes a capability-bearing file. Every source,
+copy and before/after transaction map must exactly equal the leased source map;
+current candidate archives are separately checked for absent xattrs before actors
+and before installation. The unchanged `aux_copy` omits xattrs, so the dedicated
+adapter restores and verifies them before returning a copy ownership receipt.
+Unknown or conflicting existing values refuse; no deletion/overwrite/rollback
+path is added. Restore failure leaves an unaccepted owned copy for disposal.
+
+Only extract/lifecycle/interruption actors receive SETFCAP; other grants, NNP,
+network isolation and original resource/deadline/output limits remain unchanged.
+The failed interrupted copy is inspected after its worker group is gone, while
+commit outcome remains UNKNOWN; teardown still requires outer consumer absence.
+The original64KiB policy/lease limit is unchanged. Namespace-visible capability
+bytes must compare exactly; rev2/rev3 translations are never normalized to pass.
+This is a preserving source proposal following actual diagnostic38975802137;
+native extraction/transactions with these new grants and hardware remain NOT_RUN.

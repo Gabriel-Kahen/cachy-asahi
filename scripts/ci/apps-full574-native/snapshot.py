@@ -12,7 +12,7 @@ def metadata_failure(error,extractor):
  trace=error.__traceback__;frame=None
  for _ in range(32):
   if trace is None:break
-  if trace.tb_frame.f_code is extractor.records.__code__ and trace.tb_frame.f_globals is vars(extractor):frame=trace.tb_frame;break
+  if trace.tb_frame.f_code is getattr(extractor,'apps_original_records',extractor.records).__code__ and trace.tb_frame.f_globals is vars(extractor):frame=trace.tb_frame;break
   trace=trace.tb_next
  if frame is None:return None
  member=frame.f_locals.get('member')
@@ -26,7 +26,9 @@ def metadata_failure(error,extractor):
   return dict(type='parsed-text-utf8-surrogateescape',bytes=size,sha256=digest.hexdigest(),complete=size<=cap,prefix_base64=base64.b64encode(prefix).decode())
  def scalar(value):
   return dict(type=type(value).__name__,repr=text(repr(value),128))
- allowed={'path','linkpath','mtime','atime','ctime'};pax=member.pax_headers
+ allowed={'path','linkpath','mtime','atime','ctime'}
+ if hasattr(extractor,'apps_original_records'):allowed.add('SCHILY.xattr.security.capability')
+ pax=member.pax_headers
  if type(pax) is not dict:return None
  entries=[];unknown=[]
  for key,value in pax.items():
@@ -37,12 +39,14 @@ def metadata_failure(error,extractor):
   predicates=dict(uid_nonnegative=member.uid>=0,gid_nonnegative=member.gid>=0,mtime_finite=math.isfinite(member.mtime),mode_in_range=0<=member.mode<=0o7777,pax_keys_allowed=set(pax)<=allowed),
   pax=dict(count=len(pax),entries=entries,entries_omitted=max(0,len(pax)-8),unknown_keys_count=len(set(pax)-allowed),unknown_keys=unknown),
   semantics='OBSERVATION_ONLY_ORIGINAL_EXCEPTION_REFUSAL_UNCHANGED_NO_ARCHIVE_REREAD_NO_METADATA_STRIP')
+ if hasattr(extractor,'apps_adapted_source_sha256'):value['adapted_extractor_source_sha256']=extractor.apps_adapted_source_sha256
  raw=C.encoded(value);C.need(len(raw)<=65536,'bounded first-header diagnostic')
  return dict(bytes=len(raw),sha256=C.sha(raw),value=value)
 
 def main():
  C.need(os.getuid()==os.geteuid()==0 and os.uname().machine=='aarch64' and Path('/.dockerenv').is_file() and os.environ.get('CACHY_APPS574_SNAPSHOT')=='1' and {p.name for p in Path('/sys/class/net').iterdir()}=={'lo'},'owned native offline snapshot actor required')
- source=Path('/source');C.source(source);old=C.load('original_export',source/'scripts/ci/glibc-gnu-provider-lifecycle-owner/snapshot.py')
+ source=Path('/source');C.source(source);adapter=C.adapter(source)
+ derivative=C.load('apps_export_derivative',Path(__file__).with_name('export_extract.py'));old=derivative.isolated(source,adapter.caps,C.read)
  old.DATA=Path('/data');old.ROOT=ROOT
  if '--cleanup' in sys.argv:
   old.cleanup();return
@@ -51,9 +55,17 @@ def main():
   verify='--verify' in sys.argv
   original=C.decode(C.read(Path('/out/snapshot.json'))) if verify else None
   result['extraction']=original['extraction'] if verify else old.extract(Path('/data/source.tar'),ROOT,os.environ['SOURCE_TAR_SHA256'])
-  if not verify:Path('/out/extraction.json').write_bytes(C.encoded(result['extraction']))
-  adapter=C.adapter(source);T=C.load('transaction_observer',source/'scripts/apps/transaction.py');budget=T.limits();observed=adapter.measure(ROOT,budget)
+  T=C.load('transaction_observer',source/'scripts/apps/transaction.py');budget=T.limits();observed=adapter.measure(ROOT,budget)
   C.need(observed['complete'] is True,'complete original574 closure observation')
+  capabilities=result['extraction']['security_capabilities']
+  if not verify:
+   restored=adapter.caps.restore(ROOT,observed['nodes'],capabilities,budget)
+   C.need(restored==capabilities,'extracted full capability map')
+   result['extraction']['capability_restoration']='PRESERVED_AND_COMPLETE_NODE_MAP_VERIFIED'
+   result['extraction']['security_capabilities_sha256']=adapter.digest(restored)
+   Path('/out/extraction.json').write_bytes(C.encoded(result['extraction']))
+  actual_caps=adapter.capability_map(ROOT,observed,budget,capabilities)
+  C.need(result['extraction']['capability_restoration']=='PRESERVED_AND_COMPLETE_NODE_MAP_VERIFIED' and adapter.digest(actual_caps)==result['extraction']['security_capabilities_sha256'],'exact extracted source capability map receipt')
   apps=C.load('observed_apps',Path('/inputs/apps-source/apps.py'));client,release,_=apps.helpers(Path('/inputs/candidate/usr/share/cachy-asahi/repository-runtime'))
   inventory=apps.inventory_reader().collect(ROOT/T.DB,client,lambda row:apps.package(row,release));rows={r['name']:r['version'] for r in inventory['packages']}
   lock=''.join(n+' '+v+'\n' for n,v in sorted(rows.items())).encode();C.need(len(rows)==574 and C.sha(lock)==C.BASE,'exact actual574 database lock')
@@ -63,8 +75,8 @@ def main():
   if not verify:
    Path('/out/source-observation.json.gz').write_bytes(compressed);Path('/out/base.json').write_bytes(C.encoded(base));Path('/out/observed-inventory.json').write_bytes(apps.encoded(inventory))
   result.update(status='PASS_ORIGINAL574_APPS_CLOSURE_SNAPSHOT',tree_sha256=T.sha(T.encoded(observed['nodes'])),node_count=len(observed['nodes']),footprint=observed['footprint'],database_lock_sha256=C.sha(lock),source_inode=T.inode(ROOT),
-   aux_inode_liveness='NOT_ESTABLISHED_NEVER_EXECUTED_OR_CONSUMED',raw_source_observation_sha256=C.sha(raw),compressed_source_observation_sha256=C.sha(compressed),base_sha256=C.sha(C.encoded(base)),source_packages_sha256=adapter.digest(inventory['packages']),source_closure_sha256=closure)
-  if verify:C.need(all(result[k]==original[k] for k in ('tree_sha256','source_inode','source_packages_sha256','source_closure_sha256','database_lock_sha256','base_sha256')),'source changed after consumers')
+   aux_inode_liveness='NOT_ESTABLISHED_NEVER_EXECUTED_OR_CONSUMED',raw_source_observation_sha256=C.sha(raw),compressed_source_observation_sha256=C.sha(compressed),base_sha256=C.sha(C.encoded(base)),source_packages_sha256=adapter.digest(inventory['packages']),source_closure_sha256=closure,source_capabilities=actual_caps,source_capabilities_sha256=adapter.digest(actual_caps),capability_execution='NOT_RUN_METADATA_ONLY')
+  if verify:C.need(all(result[k]==original[k] for k in ('tree_sha256','source_inode','source_packages_sha256','source_closure_sha256','database_lock_sha256','base_sha256','source_capabilities','source_capabilities_sha256')),'source changed after consumers')
  except BaseException as error:
   result.update(error=str(error)[:1024],error_type=type(error).__name__)
   try:

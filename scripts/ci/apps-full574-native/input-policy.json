@@ -1,8 +1,8 @@
 {
   "adapter": {
-    "bytes": 13267,
+    "bytes": 15567,
     "path": "scripts/apps/full574_closure.py",
-    "sha256": "22cc0a0321dd6370cb5540f1887c84d39d1e85e3f2d5b6195b52bfbabaa102c6"
+    "sha256": "c1f5ac3fcddc9a3a4c3b0123cdf4da1449ea00417f2efb76c7405cbd066855ea"
   },
   "packet_index": {
     "bytes": 104659,
