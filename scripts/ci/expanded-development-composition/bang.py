@@ -57,7 +57,7 @@ def build(source,code,out,base,image,lock,epoch,policy,execute):
         recipe=lambda s,n:reviewed,digest=C.sha,payload=payload,NAME='NO_ELF_BRANCH',
         check_log=lambda log,n:dict(status='PASS_MAKEPKG_CHECK_EXIT',log_sha256=C.sha(log)))
     namespace=dict(C=bridge,save=original.save,shutil=original.shutil,os=original.os,docker=original.docker,
-                   subprocess=original.subprocess,tarfile=original.tarfile)
+                   subprocess=original.subprocess,tarfile=original.tarfile,inventory=original.inventory)
     exec(compile(tree,'<accepted-build-shell-path-adapter>','exec'),namespace)
     containers=[]
     pair=[namespace['build'](source,out,base,image,lock,C.UPGRADE,side,epoch,execute,containers,checks,bind)

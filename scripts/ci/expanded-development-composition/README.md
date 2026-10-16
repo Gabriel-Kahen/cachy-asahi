@@ -88,3 +88,5 @@ full installer and has no installer/VM stage. A native600 PASS means only this
 generic offline software composition and recorded installed behavior. Services,
 audio devices, real desktop notifications, M2/16K behavior, performance,
 hardware acceptance and release admission remain unestablished.
+
+Actual38931212471 retrieves all held audio inputs and produces the first native bang2 archive, then fails before its second build because the exact build adapter omitted the accepted inventory parser from its globals. The adapter now imports that unchanged parser. Root replays the full adapted builder with the actual first-build archive/metadata as explicit non-native fixtures, passing source, inventory, static archive and comparison paths. Those duplicated fixture bytes do not establish a native pair or600 lifecycle; both still require a fresh actual.

@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: MIT
 """Owned Waybar/Mako phase, called only by the disposable ARM guest adapter."""
 import hashlib
+import base64
 import json
 import math
 import os
@@ -144,7 +145,7 @@ def activate_environment(command,dbus,selected,manager_pid):
 
 
 
-OBSERVE_ENV=(*SESSION_ENV,'DISPLAY','GDK_BACKEND','GSETTINGS_BACKEND','GTK_USE_PORTAL')
+OBSERVE_ENV=(*SESSION_ENV,'DISPLAY','GDK_BACKEND','GSETTINGS_BACKEND','GTK_USE_PORTAL','G_DBUS_DEBUG')
 
 
 def process_observation(logged,expected,proc=Path('/proc')):
@@ -210,6 +211,30 @@ def failure_observation(stage,error,actors,command,selected,activation):
     base.emit('bar_phase_diagnostic',**value)
 
 
+
+def waybar_environment(selected):
+    # GLib call logging only; preserve every session/backend/config value.
+    return dict(selected,G_DBUS_DEBUG='call')
+
+
+def retain_waybar_trace(stage,logged):
+    """Called only after the original failure and completed owned log retirement."""
+    need(logged.process.poll() is not None and not logged.errors and not logged.overflow and
+         all(not thread.is_alive() for thread in logged.threads),'completed bounded Waybar logs required')
+    rows=[]
+    for path in logged.paths:
+        info=path.lstat()
+        need(stat.S_ISREG(info.st_mode) and not any(p.is_symlink() for p in (path,*path.parents)) and
+             info.st_size<=base.MAX_LOG,'ordinary existing-cap Waybar trace required')
+        with path.open('rb') as stream:raw=stream.read(base.MAX_LOG+1)
+        need(len(raw)==info.st_size and len(raw)<=base.MAX_LOG,'Waybar trace changed or exceeded existing log cap')
+        rows.append(dict(path=str(path),bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest(),
+            content_base64=base64.b64encode(raw).decode(),capture_complete=True))
+    need(len(rows)==2,'exact Waybar stdout/stderr required')
+    base.emit('waybar_call_trace',stage=stage,pid=logged.process.pid,returncode=logged.process.returncode,
+        logging=dict(G_DBUS_DEBUG='call'),diagnostic_only=True,logs=rows)
+
+
 def phase(stage, config, env, logs):
     compositor = bar = mako = None
     first = None
@@ -239,6 +264,11 @@ def phase(stage, config, env, logs):
     def listing():
         return json.loads(command(['/usr/bin/makoctl', 'list', '-j'], 'list'))
 
+    def finish_observed(logged):
+        logged.finish()
+        if logged is bar and first is not None:
+            retain_waybar_trace(stage,logged)
+
     def managed_identity():
         need(selected.get('DBUS_SESSION_BUS_ADDRESS') == managed.ADDRESS and
              selected.get('XDG_RUNTIME_DIR') == str(managed.RUNTIME), 'managed capture endpoint differs')
@@ -266,7 +296,7 @@ def phase(stage, config, env, logs):
             'org.freedesktop.DBus', 'NameHasOwner', 's', 'org.freedesktop.Notifications').strip()
         need(has_owner() == 'b false', 'preexisting notification owner')
         bar = base.Logged(['/usr/bin/waybar', '--config', str(TEMPLATES / 'waybar.json'),
-            '--style', str(TEMPLATES / 'waybar.css')], stage + '-waybar', logs, selected)
+            '--style', str(TEMPLATES / 'waybar.css')], stage + '-waybar', logs, waybar_environment(selected))
         mako = base.Logged(['/usr/bin/mako', '--config', str(TEMPLATES / 'mako.conf')],
             stage + '-mako', logs, selected)
 
@@ -340,7 +370,7 @@ def phase(stage, config, env, logs):
     finally:
         for logged in (mako, bar, compositor):
             if logged is not None:
-                for cleanup in (lambda item=logged: base.terminate(item.process), logged.finish):
+                for cleanup in (lambda item=logged: base.terminate(item.process), lambda item=logged: finish_observed(item)):
                     try:
                         cleanup()
                     except BaseException as error:

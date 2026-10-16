@@ -4,12 +4,12 @@
     "sha256": "ab8f4568bc57ba474ccc15b1e48bbf83445f35de588d4ee280c3c63e53184bcf"
   },
   "scripts/ci/expanded-development-composition/README.md": {
-    "bytes": 5597,
-    "sha256": "aaa423de88c84c036937486b3dd29566a35b824f33115c13fb880e1417188c62"
+    "bytes": 6157,
+    "sha256": "2326c53b278e63289fb24d597b5ff16f33bfafdc1108206dc84490faa2a0b86b"
   },
   "scripts/ci/expanded-development-composition/bang.py": {
-    "bytes": 4472,
-    "sha256": "b80e7ae138e6919eefaf828ca70d6e2c54617e4720362de3c56af5171fd5c47b"
+    "bytes": 4501,
+    "sha256": "3be797a2d6ccbc0d4bcdba94cab77f046c8c3bf06322da834355a98251704073"
   },
   "scripts/ci/expanded-development-composition/contract.py": {
     "bytes": 14393,
