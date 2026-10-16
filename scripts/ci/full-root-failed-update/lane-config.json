@@ -22,7 +22,7 @@
     "scripts/client/client.py": "48f936fc28536f8d5c2cac25c77ddb591b6bd029062d4b4fe2ce901533e8fdb7",
     "scripts/client/endpoint.py": "e94520d9cc6ee0bb8ac007227dc51bc677de9efff7464f453ad7682eaa026e79",
     "scripts/client/stage.py": "1a182e1bfaf9e3e7aa80d608fbc59805865fdd67e3aed0f460667abe8d626283",
-    "scripts/install/local_transaction.py": "c34202676e30a5085828f92d413cad0aaeacda1c9ac95e86155952db430d62d2",
+    "scripts/install/local_transaction.py": "14381d049506b52770059bf7af415f7a079f69872543e74417aca11ce24ac3c5",
     "scripts/install/native_arm_trial.py": "fe2becb4fe6c22e50903ab390db5a79aae311b7284fc71bf4b1c4b79e99824c4",
     "scripts/install/native_preflight.py": "d240f9959e25851f8688ada75257de54dde40db492b8a2cf9780216bb53bf8eb",
     "scripts/port/kernel-native-job/runtime.py": "8a7cd5e73cf383b2d81ad577b8513c6fd7d49f9fd2572961c73ae9d289cab821",
@@ -57,7 +57,7 @@
   "copy_seconds": 600,
   "driver_seconds": 2400,
   "external_pins": {
-    "/footprint.py": "78391cd0e009bdf165cffdb26ba911642f5fec81ec6bd7feab65654fcf776387",
+    "/footprint.py": "55152bfd0795ae88a305b1d8b8aa4df23953c57c2fdac1826c1c6847e479eab3",
     "/persistent_scope.py": "cd1f23bd252b77e9b3a9e907e1c0defd5141025408e92ae5c2500152076b6f3a",
     "/setup4.py": "aa9bcc4eff8208c9724de7d7f6490055404dc9e11979f6cbae372d98fd83d379"
   },

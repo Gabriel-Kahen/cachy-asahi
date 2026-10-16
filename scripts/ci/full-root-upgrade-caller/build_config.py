@@ -29,7 +29,7 @@ def build(code, driver, scope):
         pins['scripts/ci/full-root-upgrade/' + name] = sha(driver / name)
     return dict(schema_version=1, purpose='actual587-persistent-root-setup4-test', code_pins=pins,
         external_pins={'/setup4.py': 'aa9bcc4eff8208c9724de7d7f6490055404dc9e11979f6cbae372d98fd83d379',
-                       '/footprint.py': '78391cd0e009bdf165cffdb26ba911642f5fec81ec6bd7feab65654fcf776387',
+                       '/footprint.py': '55152bfd0795ae88a305b1d8b8aa4df23953c57c2fdac1826c1c6847e479eab3',
                        '/persistent_scope.py': sha(scope)},
         stage_seconds=900, verify_seconds=600, copy_seconds=600, driver_seconds=1800,
         scale=dict(schema_version=1, purpose='disposable-bound-update-scale',
