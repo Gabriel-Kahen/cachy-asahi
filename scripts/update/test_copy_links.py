@@ -33,6 +33,10 @@ class Connections(unittest.TestCase):
 
     def setUp(self):
         fixtures.Closure.setUp(self)
+        # These tests select synthetic fixtures explicitly, independently of the
+        # now nonempty source-frozen real87 production selection.
+        for name,value in (('CHAIN_PATHS',()),('LINK_NODES',{}),('RESOLVED_ENDPOINTS',{}),('DATA_ONLY_ENDPOINTS',{}),('MTAB_TARGETS',())):
+            selected=patch.object(links,name,value); selected.start(); self.addCleanup(selected.stop)
         self.copy_work=self.base/'copied-work'
         original,real_statvfs=capacity.check,os.statvfs
         def fixture_space(path):

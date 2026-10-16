@@ -49,8 +49,29 @@ Worker checked retained runtime/events/guest metadata only; Root owns pixels
 under artifacts/development/desktop574-capture-order-run38855002243/frames/frames/. No worker fetch, actor, Git or canonical edit.
 
 The five successful guest, fixture, runtime and test files are adopted on the
-integration branch. All44 guest and13 runtime controls pass there. The existing
-maintained builder and virtual APIs are preserved; their direct compatibility
-checks pass, but native execution of this new canonical combination remains
-NOT RUN until a separate trial. The accepted feature trial above keeps its own
-Source identity.
+integration branch; all44 guest and13 runtime controls pass. A separate
+[canonical trial38856669542](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38856669542)
+now passes with Source/workflow `073d3bb7012dbde129498ec65c3edd81e77b5bbb`
+(canonical `e042795` plus the unchanged native workflow). It uses the preserved
+current maintained-builder and virtual APIs. Both strict captures pass at
+5211/6035ms, both compositors exit0, the session passes and the guest powers down.
+All13 cleanup commands exit0, the guest disk is removed and the base image is
+absent. Root independently views both1024×768 frames with readable420×220 Wofi
+and the overlay wallpaper. Minimal PPM SHA256:
+`b09f85f887cb33717d83bbdcda288253ef73220f838ac649853d74af1a14addc`;
+overlay: `40562cec49fb1aac9e978204ce319b56fd006c9d069d83939aa42d4e4b946fe9`.
+
+Canonical logs193486bytes/SHA256
+`d49b75ae27aaea7edcd5d02dc8d850f12cfbd826f462057148408838ac1bfe1c`;
+artifact12027523265,732691bytes/SHA256
+`3a9e82e21dc289f56cb52e4ee3ebb411afc4d85d10fc9463206660dc0a91ba10`.
+The canonical native-runtime gate is closed within the bounded591 scope. The
+user-manager startup failure and untested services/hardware remain separate.
+
+The earlier faint segmentation-fault text is not runtime-crash evidence. The
+hash-held Hyprland binary contains that exact literal among joke strings, along
+with the AUR joke visible in the same position in the canonical minimal frame.
+Their binary strings and visual placement strongly identify splash messages;
+no rendering call-site source proof is claimed. The canonical owned-process
+records contain no signal11 exit. This correction does not erase the separately
+recorded user-service failure or software-renderer warnings.
