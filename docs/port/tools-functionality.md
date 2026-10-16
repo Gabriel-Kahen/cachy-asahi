@@ -70,6 +70,15 @@ real host Fish4.9.3 controls/57 editor snapshots and eleven-file staging pass;
 no native/package-manager/16K/M2 acceptance is claimed. Older hosted Fish gets
 source/syntax checking only. Whole Fish configuration and M6 remain open.
 
+October16 implementation: the separate Fish Done MIT adaptation now provides
+explicit foreground completion and single-process background watching, private
+notification text by default, bounded notification-command execution and preserved
+existing hooks/bindings. Root replays all18 real host Fish4.9.3 PTY controls using
+a local notify-send recorder. This establishes invocation/failure/timeout handling,
+not real D-Bus or visible notifications. Eight-file staging passes separately;
+native package/lifecycle, generic16K and M2 remain open. Full upstream source and
+reviewable adaptation are retained in the package provenance.
+
 ## Scope and decision vocabulary
 
 Coverage includes the pinned Cachy-branded tool/configuration recipe catalog,

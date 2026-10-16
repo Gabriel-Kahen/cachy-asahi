@@ -394,6 +394,8 @@ native_build = "PASS"
 native_build_commit = "e486ee56ceaac16d558e896b94f515ada19000a4"
 native_evidence = "docs/validation/zsh-highlighting-native-20261015.md"
 installation = "PASS generic native ARM signed install/remove/reinstall"
+native_combined_tools_lifecycle = "PASS new mirror/substr coexistence and byte-identical pair in38909646797"
+native_combined_tools_evidence = "docs/validation/tools-candidates-native-20261016.md"
 hardware_validation = "NOT RUN"
 next_step = "Manual opt-in only; existing user module wins. Native byte pair, four lifecycle checkpoints, four installed PTYs and user-file preservation passed. Integrate a future selected composition explicitly; target workflows, arbitrary plugin ordering and production release remain open."
 
@@ -445,8 +447,9 @@ candidate_version = "0.2.0-1"
 selected_for_development = false
 selected_for_release = false
 host_validation = "PASS 29 host controls, including actual tempfile CLI activation/restore and SIGKILL recovery"
-native_build = "NOT RUN"
-installation = "NOT RUN"
+native_build = "PASS byte-identical native ARM pairs in38909646797"
+installation = "PASS generic ARM five-transition CLI/PTY preservation lifecycle in38909646797"
+native_evidence = "docs/validation/tools-candidates-native-20261016.md"
 hardware_validation = "NOT RUN"
 next_step = "Run native package/lifecycle checks for the implemented rank/activate/restore workflow and use an independently verified current ARM catalog; physical filesystem power-loss/base integration remains untested."
 
@@ -463,8 +466,9 @@ candidate_version = "0.1.0-1"
 audit = "packages/tools/cachy-asahi-zsh-history-substring-search/README.md"
 selected_for_development = false
 selected_for_release = false
-native_build = "NOT RUN"
-installation = "NOT RUN"
+native_build = "PASS byte-identical native ARM pairs in38909646797"
+installation = "PASS generic ARM five-transition CLI/PTY preservation lifecycle in38909646797"
+native_evidence = "docs/validation/tools-candidates-native-20261016.md"
 hardware_validation = "NOT RUN"
 next_step = "Source-pinned opt-in implementation and real x86_64 Zsh 5.9.2 PTYs pass; seven-file pure staging only. Root may register the isolated native ARM build/lifecycle lane. Verify selected composition, generic16K runtime, supported target workflows and signed release integration separately. Manual key choices only; existing module namespaces and custom bindings take precedence."
 
@@ -483,3 +487,19 @@ native_build = "NOT RUN"
 installation = "NOT RUN"
 hardware_validation = "NOT RUN"
 next_step = "Separate follow-up candidate. Host Fish 4.9.3 real PTY, syntax and pure staging pass; run native ARM pair and package lifecycle before selection, then generic 16K and both M2 Air workflows. Keep current three-package native lane unchanged."
+
+# Proposed addition only; Root owns shared manifests and selection.
+[[packages]]
+name = "cachy-asahi-fish-done"
+phase = "complete-port-tools"
+status = "candidate"
+source = "https://github.com/franciscolourenco/done"
+upstream_commit = "b86292a52a2b8f646ef8d25daa3cc01ccab60b62"
+recipe = "packages/tools/cachy-asahi-fish-done/PKGBUILD"
+license = "MIT"
+selected_for_development = false
+selected_for_release = false
+native_build = "NOT RUN"
+installation = "NOT RUN"
+hardware_validation = "NOT RUN"
+next_step = "Separate opt-in Linux adaptation. Host Fish 4.9.3 real PTY foreground/single-process-background and local notification-command recorder: 18 controls PASS; syntax, source locks and pure staging PASS. Native ARM pair/package lifecycle and generic 16K/real notification-manager/M2 workflows remain open. Keep existing frozen native lanes unchanged."
