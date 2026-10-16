@@ -69,8 +69,8 @@
       "sha256": "cf866f9890bf67f7edd4f9f08561986b9ecaed462c8c6574fc3a3091c9aa0271"
     },
     "scripts/ci/desktop-user-session/ci/test_caller.py": {
-      "bytes": 8866,
-      "sha256": "8fc956833cdc7500fc1c384ba4e28e500079751e3c85d9b956c38c7799885185"
+      "bytes": 11194,
+      "sha256": "58d6fe92a4fcf99c068be5336b4ad14b90c8ff4306ee655a8ff46b5fe1f933d1"
     },
     "scripts/ci/desktop-user-session/managed_contract.py": {
       "bytes": 3790,
