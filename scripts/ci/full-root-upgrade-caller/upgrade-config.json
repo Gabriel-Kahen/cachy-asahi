@@ -12,7 +12,7 @@
     "scripts/ci/full-development-composition/run.py": "f86af098fdb0fc9a57a8b78b351341395ce13f9977464783f6f8133626e85698",
     "scripts/ci/full-development-composition/setup4_inputs.py": "320aee2bd98f841a3ef36490bec38da9eebcd6e78838c1e6b351ba29583a7ccc",
     "scripts/ci/full-root-upgrade/construct_repository.py": "9f01f7d0b3af067e1d3775e66138ebabbd73a00963568f692cc606ac2d27ee1c",
-    "scripts/ci/full-root-upgrade/root_upgrade.py": "195079b51cc67074cd6022b8306a572be0054a570ec4f9403d7a5865bf2d8412",
+    "scripts/ci/full-root-upgrade/root_upgrade.py": "ba92a358c2d0f25aec1dc2833c8c5f88b8d4cfcabfc8381032f29a0fb08a8a21",
     "scripts/client/client.py": "48f936fc28536f8d5c2cac25c77ddb591b6bd029062d4b4fe2ce901533e8fdb7",
     "scripts/client/endpoint.py": "e94520d9cc6ee0bb8ac007227dc51bc677de9efff7464f453ad7682eaa026e79",
     "scripts/client/stage.py": "1a182e1bfaf9e3e7aa80d608fbc59805865fdd67e3aed0f460667abe8d626283",
