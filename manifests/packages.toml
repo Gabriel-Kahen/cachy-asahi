@@ -598,3 +598,20 @@ native_build = "NOT RUN"
 installation = "NOT RUN"
 hardware_validation = "NOT RUN"
 next_step = "Native pair and disposable installed cleanup with protected rollback archives and ordered lifecycle; no automatic obsolete selection, stale unlock, orphan removal, physical-space or recovery claim."
+
+
+[[packages]]
+name = "cachy-asahi-orphans"
+phase = "tools-experience"
+status = "candidate-source-only"
+source = "local-original"
+recipe = "packages/tools/cachy-asahi-orphans/PKGBUILD"
+license = "MIT"
+candidate_version = "0.1.0-1"
+selected_for_development = false
+selected_for_release = false
+host_validation = "PASS 18 real-libALPM temporary metadata checks and five-file staging; explicit assessment/plan/verify preserve DB"
+native_build = "NOT RUN"
+installation = "NOT RUN"
+hardware_validation = "NOT RUN"
+next_step = "Native pair and installed readonly workflow; authenticated updater integration and explicit removal remain unfinished. Conservative reference protection floor is not an accepted target or release policy."

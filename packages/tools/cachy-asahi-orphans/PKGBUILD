@@ -1,0 +1,31 @@
+# SPDX-License-Identifier: MIT
+pkgname=cachy-asahi-orphans
+pkgver=0.1.0
+pkgrel=1
+pkgdesc='Read-only libalpm orphan assessment and protected explicit removal planning'
+arch=('any')
+url='https://github.com/Gabriel-Kahen/cachy-asahi'
+license=('MIT')
+depends=('python>=3.11' 'pacman')
+source=('cachy-asahi-orphans' 'test_orphans.py' 'protection-floor.json' 'README.md' 'NOTICE' 'LICENSE')
+sha256sums=(
+  '2d7d6914482a76f963603ad71aab38f87693a1c7c7ad15f7ae54bf50a3c1d629'
+  'f862b853e90a79314cbf221f440ddd2f679d21d8e94ee002d736b1f26b1ee83c'
+  '0d6dfbf3cd550fe72ddad30058693007f8bb86214de1e83442580677db5005f2'
+  '421e83c8dd3f482ae0d35edf8565d09fa1d3cc2f9f4eb7e5459376b26a54991a'
+  '326f699857d31b8cd4462081aea074d4349721fb9c48965db6208c793a086720'
+  '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7'
+)
+
+check() {
+    python -B "$srcdir/test_orphans.py"
+    python -B "$srcdir/cachy-asahi-orphans" --help >/dev/null
+}
+
+package() {
+    install -Dm755 "$srcdir/cachy-asahi-orphans" "$pkgdir/usr/bin/cachy-asahi-orphans"
+    install -Dm644 "$srcdir/README.md" "$pkgdir/usr/share/doc/$pkgname/README.md"
+    install -Dm644 "$srcdir/protection-floor.json" "$pkgdir/usr/share/$pkgname/protection-floor.json"
+    install -Dm644 "$srcdir/NOTICE" "$pkgdir/usr/share/licenses/$pkgname/NOTICE"
+    install -Dm644 "$srcdir/LICENSE" "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}
