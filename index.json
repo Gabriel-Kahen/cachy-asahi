@@ -1,0 +1,19 @@
+{
+  "accepted_native_run": 38915137670,
+  "files": {
+    "glibc-2.43.tar.gz": {
+      "bytes": 40287809,
+      "sha256": "e1e622cbd635019090fa23260e5d9ec219b12f97ae7ae02f033d4ae42cf2c004"
+    },
+    "glibc-2.43.tar.gz.sig": {
+      "bytes": 1018,
+      "sha256": "bfd0c5a9924e4f084281cd2f3ba96e5c6e87a6d363113e7a0f98c5151463c9e3"
+    },
+    "gnu-keyring.gpg": {
+      "bytes": 3698125,
+      "sha256": "0fe55175b96a8ea1c4b670cc3fe11d56b341e4eff81b161ea49958ae550be6ca"
+    }
+  },
+  "schema_version": 1,
+  "status": "ROOT_BOUND_COMPLETE_GNU243_INPUT_PACKET"
+}
