@@ -1,0 +1,63 @@
+{
+  "status": "ROOT_ACCEPTED_FULL587_INSTALLER_SOFTWARE",
+  "run_id": "38921039131",
+  "source_sha": "52bc53f05b9eb4cbb125f76fd53b9ba5aae6d72c",
+  "ordinary_parent_retired": "PASS",
+  "independent_root_readback": "PASS",
+  "cleanup": "PASS",
+  "hardware": "NOT_RUN",
+  "package_count": 587,
+  "expected_lock_sha256": "2198942a546f4714587c810fe174d4457121960f3a7b1dbaa276e9f970f322c7",
+  "nonce": "093f9a548d044cfaaa2e86ddff330bc2",
+  "ordinary_and_root_flags": {
+    "committed": true,
+    "namespace_barrier": true,
+    "payload_verified": true,
+    "ownership_verified": true,
+    "database_verified": true,
+    "preservation_verified": true,
+    "private_trust_verified": true,
+    "parent_inventory_preserved": true,
+    "source_cache_preserved": true,
+    "process_retirement": true,
+    "ordinary_parent_nnp_cap0": true,
+    "numeric_namespace_verified": true,
+    "root_guest_payload_verified": true,
+    "parent_payload_verified": true,
+    "numeric_ownership_verified": true
+  },
+  "root_observation": {
+    "complete": true,
+    "deadline_seconds": 600,
+    "elapsed_ms": 593819,
+    "footprint": {
+      "bytes": 4882156918,
+      "database_bytes": 11732088,
+      "database_files": 1790,
+      "hardlink_inodes": 1048,
+      "nodes": 123866
+    },
+    "missing_database_nodes": 0,
+    "missing_database_samples": [],
+    "observed_nodes": 123866,
+    "required_database_nodes": 1175,
+    "unsupported_counts": {
+      "absolute-symlink": 24,
+      "auxiliary-present": 3
+    },
+    "unsupported_reasons_omitted": 0
+  },
+  "qemu_seconds": 3721.634,
+  "qemu_natural_exit": true,
+  "closed_files": 9,
+  "closed_bytes": 120435,
+  "log_archive": {
+    "bytes": 3116119,
+    "sha256": "85042d1545c9468c0c8137a051bc3fdd09f613d77f37ca65fd3f4606f0c4865d"
+  },
+  "public_frame": {
+    "bytes": 32280,
+    "sha256": "8927a7eb466448ddc26d95fee5bafba4e5f3bb7e030be1bc6beb305a295814fb"
+  },
+  "scope": "Full signed587 generic4K fresh software installation. Exact raw protocol and nested receipts checked; no physical install, target boot, hooks/scriptlets, native-container P0 or performance acceptance. Full private disk/package tree was checked by the guest and is not exported."
+}

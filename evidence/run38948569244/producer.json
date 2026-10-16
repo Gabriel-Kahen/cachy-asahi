@@ -1,0 +1,9 @@
+{
+  "installer": "NOT RUN",
+  "manifest_sha256": "88ffbb7ecf554b0fec28c7f1714822982b52daf84c2e0a813166eccd0264ffee",
+  "owned_resources": "RETAINED-UNTIL-VM-FINISHES",
+  "phase": "export-completed",
+  "ready": "/tmp/expanded600-producer-3e66ba699af77083c156ebaad53237b8/private/ready",
+  "status": "READY_SIGNED_INITIAL587",
+  "upgrade": "NOT RUN"
+}

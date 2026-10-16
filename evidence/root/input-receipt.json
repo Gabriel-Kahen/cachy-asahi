@@ -1,0 +1,33 @@
+{
+  "files": {
+    "bang_acceptance": {
+      "bytes": 612,
+      "path": "artifacts/development/expanded600-run38948569244/bang-root-acceptance.json",
+      "sha256": "17c6f2b101dc188974bb613222970b4f28f67d431de4e3fe70a5272abb7bb4ac"
+    },
+    "native600": {
+      "bytes": 1445,
+      "path": "artifacts/development/expanded600-run38948569244/root-verification.json",
+      "sha256": "85723d4edc3f03e44973fbc36df2612de5b6ebe47154e6b5238ac69d0784713c"
+    },
+    "observer587": {
+      "bytes": 2182,
+      "path": "artifacts/development/full-installer-vm-run38921039131/root-verification.json",
+      "sha256": "99dfcc4036f4ba751a8c81642ffb5d954c93f3b90bf29f0a3e433ccbe5f95f38"
+    },
+    "report": {
+      "bytes": 18316,
+      "path": "artifacts/development/expanded600-run38948569244/public/report.json",
+      "sha256": "a38727ecf106a1deb0d4d278a80884a9d69eddd8c29264f46a585042bef6fd45"
+    },
+    "run": {
+      "bytes": 357,
+      "path": "artifacts/development/expanded600-run38948569244/run-metadata.json",
+      "sha256": "f3f8361a8208f70bd4aef272c7a00db3ba926d3c26ad97e8d823d7be52c81095"
+    }
+  },
+  "run_id": "38948569244",
+  "schema_version": 1,
+  "source_sha": "8cc0a67295dc68772fc86ad81148eac3bec9eb56",
+  "status": "ROOT_BOUND_EXPANDED600_FINAL_INPUTS"
+}

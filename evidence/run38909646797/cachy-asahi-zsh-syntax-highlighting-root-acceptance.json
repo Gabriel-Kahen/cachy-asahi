@@ -1,0 +1,16 @@
+{
+  "archive_sha256": "1b253d7676a4ab48f1c423d163f5a4614a01fac9d884d3c253db84c6a72b84a6",
+  "evidence": "docs/validation/tools-candidates-native-20261016.md",
+  "hardware": "NOT_RUN",
+  "name": "cachy-asahi-zsh-syntax-highlighting",
+  "native_lifecycle": "PASS",
+  "native_pair": "PASS_BYTES_IDENTICAL",
+  "native_run": 38909646797,
+  "qualification": "PASS_WITH_EXPLICIT_FROZEN_SOURCE_PATH_SUPPLEMENT",
+  "raw_lifecycle_sha256": "c8331cebf33b16d52987f8f910ad395245e4108d8bdd5dfc6e8c79a373a68fe3",
+  "release_selection": false,
+  "run_id": "38909646797",
+  "source_sha": "8276f19463d1b58ab593ca90f259d1fadc3672f7",
+  "status": "ROOT_ACCEPTED_NATIVE_CANDIDATE",
+  "version": "0.8.1.dev.e6683f2-1"
+}

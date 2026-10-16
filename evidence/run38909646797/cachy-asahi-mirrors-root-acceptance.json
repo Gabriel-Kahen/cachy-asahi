@@ -1,0 +1,16 @@
+{
+  "archive_sha256": "003ed932012ecc4ebb2f5a43c911db8eece30d532dc8e6d3f54c4bf249668c3c",
+  "evidence": "docs/validation/tools-candidates-native-20261016.md",
+  "hardware": "NOT_RUN",
+  "name": "cachy-asahi-mirrors",
+  "native_lifecycle": "PASS",
+  "native_pair": "PASS_BYTES_IDENTICAL",
+  "native_run": 38909646797,
+  "qualification": "PASS_WITH_EXPLICIT_FROZEN_SOURCE_PATH_SUPPLEMENT",
+  "raw_lifecycle_sha256": "c8331cebf33b16d52987f8f910ad395245e4108d8bdd5dfc6e8c79a373a68fe3",
+  "release_selection": false,
+  "run_id": "38909646797",
+  "source_sha": "8276f19463d1b58ab593ca90f259d1fadc3672f7",
+  "status": "ROOT_ACCEPTED_NATIVE_CANDIDATE",
+  "version": "0.2.0-1"
+}

@@ -1,0 +1,12 @@
+{
+  "conclusion": "success",
+  "original_api": {
+    "bytes": 14296,
+    "path": "artifacts/development/expanded600-run38948569244/run.json",
+    "sha256": "7ecfec0d6b98d2bf50e3a7ce666b28d834420bb99c3830ccb8059b6ca7692ea9"
+  },
+  "run_attempt": 1,
+  "run_id": "38948569244",
+  "source": "8cc0a67295dc68772fc86ad81148eac3bec9eb56",
+  "status": "completed"
+}
