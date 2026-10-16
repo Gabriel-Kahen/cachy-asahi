@@ -556,14 +556,14 @@ status = "candidate-source-only"
 source = "local-original"
 recipe = "packages/tools/cachy-asahi-apps/PKGBUILD"
 license = "MIT"
-candidate_version = "0.1.0-4"
+candidate_version = "0.1.0-5"
 selected_for_development = false
 selected_for_release = false
 host_validation = "PASS 38 standalone checks plus real574 archive-derived 7MB metadata fixture: readonly ALPM9 inventory, signed collector-to-plan integration and eight-file staging"
 native_build = "NOT RUN"
 installation = "NOT RUN"
 hardware_validation = "NOT RUN"
-next_step = "Complete finite supported signed catalog, native pair and installed lifecycle; planner only, every result NOT_APPLIED; observed local DB metadata is not payload or hardware attestation."
+next_step = "Apps0.1.0-5 stages checksum-verified ordinary makepkg check inputs; actual source-link extraction and all39 checks pass. Native pair and installed full577 lifecycle pending; signed plans remain NOT_APPLIED. Preserve both M2 requirements."
 
 
 [[packages]]
@@ -603,7 +603,7 @@ next_step = "Native pair and disposable installed cleanup with protected rollbac
 [[packages]]
 name = "cachy-asahi-orphans"
 phase = "tools-experience"
-status = "candidate-source-only"
+status = "candidate"
 source = "local-original"
 recipe = "packages/tools/cachy-asahi-orphans/PKGBUILD"
 license = "MIT"
@@ -611,7 +611,7 @@ candidate_version = "0.1.0-1"
 selected_for_development = false
 selected_for_release = false
 host_validation = "PASS 18 real-libALPM temporary metadata checks and five-file staging; explicit assessment/plan/verify preserve DB"
-native_build = "NOT RUN"
-installation = "NOT RUN"
+native_build = "PASS native pair38969154970,18540bytes/SHA25621b13501d8ed5de828e7ac47ff8c8ec2132ca3f0af68bb7062f22852ef640bea;18 checks each"
+installation = "PASS signed574to575/repeat/remove/reinstall/final574 and readonly installed CLI lifecycle38969154970"
 hardware_validation = "NOT RUN"
-next_step = "Native pair and installed readonly workflow; authenticated updater integration and explicit removal remain unfinished. Conservative reference protection floor is not an accepted target or release policy."
+next_step = "Native pair and installed readonly lifecycle pass; see docs/validation/orphans-native-20261016.md. Complete generic16K management integration and both M2 workflows. Actual orphan removal remains unimplemented; release selection false."

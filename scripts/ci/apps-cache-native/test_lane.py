@@ -84,9 +84,9 @@ class SourceControls(unittest.TestCase):
                 self.assertEqual(result['metadata']['arch'],['any'])
     def test_adopted_apps_v4_has_exact_collector_and_38_check_marker(self):
         policy=C.read(C.HERE/'input-policy.json');row=policy['products']['apps']
-        self.assertEqual(row['version'],'0.1.0-4');self.assertEqual(len(row['source_files']),15);self.assertEqual(len(row['payload']),8)
+        self.assertEqual(row['version'],'0.1.0-5');self.assertEqual(len(row['source_files']),15);self.assertEqual(len(row['payload']),8)
         self.assertEqual(row['source_files']['inventory.py']['sha256'],'986c8baea2921cf3f58f98c2e76a1adad9013fbe4b1f47743d12397e9e6c2516')
-        self.assertIn('Ran 38 tests',row['check_markers'])
+        self.assertIn('Ran 39 tests',row['check_markers'])
         for name,pin in row['source_files'].items():C.checked(ROOT/'packages/tools/cachy-asahi-apps',name,pin)
     def test_adopted_cache_v2_exact_source_and_no_pyalpm_dependency(self):
         policy=C.read(C.HERE/'input-policy.json');row=policy['products']['cache']

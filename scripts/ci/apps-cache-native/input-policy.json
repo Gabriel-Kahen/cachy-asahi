@@ -1,6 +1,6 @@
 {
   "base_inventory_sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac",
-  "candidate_source": "877070c2b65a38ca4eee09e626cc7f0898ebf201",
+  "candidate_source": "ae475a4ef8d0d1994567e37064ef35c2dcbfac60",
   "dependency": null,
   "dependency_source": null,
   "helper_pins": {
@@ -21,7 +21,7 @@
     "apps": {
       "check_markers": [
         "PASS_SOURCE_AND_STAGING_CONTRACT",
-        "Ran 38 tests",
+        "Ran 39 tests",
         "OK"
       ],
       "name": "cachy-asahi-apps",
@@ -59,11 +59,11 @@
           420
         ]
       },
-      "recipe_sha256": "2156f2287d35653758b239dec804781c6f008b5fff76c432bc0bd5e6ca679d61",
+      "recipe_sha256": "09c36bc7d0c34e455b945088ce22d41f01aea5ebdbba0e918c83e4ea30034525",
       "source_files": {
         ".SRCINFO": {
           "bytes": 1775,
-          "sha256": "15791882438abac4c1840c48ec41de1c100a86fd518d41a5397697d36edf19ed"
+          "sha256": "721cae0ca221c6160b730cf253d38568e20806531949abcf619e14f6be2dbeb8"
         },
         "LICENSE": {
           "bytes": 1081,
@@ -74,8 +74,8 @@
           "sha256": "425c36c2e9ad688b398d8fbcb2fd8f972420a1db5e0d4b19e9d24021346d4239"
         },
         "PKGBUILD": {
-          "bytes": 3067,
-          "sha256": "2156f2287d35653758b239dec804781c6f008b5fff76c432bc0bd5e6ca679d61"
+          "bytes": 3700,
+          "sha256": "09c36bc7d0c34e455b945088ce22d41f01aea5ebdbba0e918c83e4ea30034525"
         },
         "README.md": {
           "bytes": 9856,
@@ -99,7 +99,7 @@
         },
         "check_source.py": {
           "bytes": 3393,
-          "sha256": "b84c1d8a187a0b4ed2c8b31d4086c8f63e803823efd319e1db5edf992bda6d0c"
+          "sha256": "155e343a2a02acf3f229fa56721f52142b488f7474ed8fedc59f8f28905c3999"
         },
         "helper-pins.json": {
           "bytes": 493,
@@ -115,15 +115,15 @@
         },
         "source-provenance.json": {
           "bytes": 3619,
-          "sha256": "ef0740f115d673df626d6992911a6ea3b082e7fb2ae15c1f099b9658f2e23bb4"
+          "sha256": "8740ffa1e432e2275840aa81d28136b9bcce0db0106d429db4ed30889e24383c"
         },
         "test_apps.py": {
-          "bytes": 33130,
-          "sha256": "49f372a7898ed25f4a8446ef030285ed22e0a9e9827824ae079cf0e33ad73662"
+          "bytes": 35272,
+          "sha256": "65f0fd7f8940fe8e4ce875a96ee3d1918dda421825cdc8a140d53174b166ff46"
         }
       },
-      "source_sha": "877070c2b65a38ca4eee09e626cc7f0898ebf201",
-      "version": "0.1.0-4"
+      "source_sha": "ae475a4ef8d0d1994567e37064ef35c2dcbfac60",
+      "version": "0.1.0-5"
     },
     "cache": {
       "check_markers": [
