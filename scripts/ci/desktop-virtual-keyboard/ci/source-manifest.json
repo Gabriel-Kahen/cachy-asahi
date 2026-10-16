@@ -59,8 +59,8 @@
       "sha256": "a70885622a36fe1ba764ea7d0846933b639ef04dc3c532598fb92ceb73ffe00b"
     },
     "scripts/ci/desktop-virtual-keyboard/README.md": {
-      "bytes": 6405,
-      "sha256": "5a03d11130ae2f9944c7059d4214ce8102e3aaac95aeffbd575b7c4b80a87872"
+      "bytes": 7248,
+      "sha256": "bd625f195cd8d09bd9afe8b8a09389229400ee654d2b33c8036ab0b9eb63113f"
     },
     "scripts/ci/desktop-virtual-keyboard/ci/HANDOFF.md": {
       "bytes": 2023,
@@ -75,16 +75,16 @@
       "sha256": "0d7d58f585368d23210d6c6c5a09820249b75892a6963c2b57cc3aef66a445ec"
     },
     "scripts/ci/desktop-virtual-keyboard/contract.py": {
-      "bytes": 8170,
-      "sha256": "9ce1996608f2465b9d6d6a1867b1384af066f09c16f803e5cdf23488501b3905"
+      "bytes": 8225,
+      "sha256": "6082e7fe32d3cd05a23221eecd456e079f9053c4be37c1c4f8e72281ebf0f42f"
     },
     "scripts/ci/desktop-virtual-keyboard/desktop574_guest.py": {
       "bytes": 2079,
       "sha256": "6dd0d79bf9260908825dfe7408b81a174b5d5c697a8fe33373c79f1c34274a5a"
     },
     "scripts/ci/desktop-virtual-keyboard/keyboard.py": {
-      "bytes": 6618,
-      "sha256": "0e88df12218a7ba5408d6cb646e7d003eb9e81b26b7d08836e2063ee28cce1a9"
+      "bytes": 8448,
+      "sha256": "44522a3513c3f205062e0e064fd92b44eceaef83f82a70ad825664038751a667"
     },
     "scripts/ci/desktop-virtual-keyboard/managed_contract.py": {
       "bytes": 3790,
@@ -111,8 +111,8 @@
       "sha256": "04396684a6d41968718e4280eff288dda45000512ece2d749e87326adb3994a3"
     },
     "scripts/ci/desktop-virtual-keyboard/session.py": {
-      "bytes": 14839,
-      "sha256": "aea5dede51df924460b20b09c5572d6ca1a0131785b899ca95ae9434e84ec0a0"
+      "bytes": 15597,
+      "sha256": "aa70a8ae62548c19c045632a5af9766c01a8069aaecfb36cb52eb68dadfd989a"
     },
     "scripts/ci/desktop-virtual-keyboard/source-pins.json": {
       "bytes": 3464,
@@ -127,12 +127,12 @@
       "sha256": "ca73da754373cf68148ac992f1c2281b03b604703f112a2c4fd24d4604033e87"
     },
     "scripts/ci/desktop-virtual-keyboard/test_keyboard.py": {
-      "bytes": 13372,
-      "sha256": "6fc19f22f9c163d5fbc2783181db615520038c8bcdfeb00dd8fc7f3e6a2c78af"
+      "bytes": 16064,
+      "sha256": "346ce4b1c8b018d3128580788814f15bc30aac7a9472d15f839bd10c62ece860"
     },
     "scripts/ci/desktop-virtual-keyboard/test_phase.py": {
-      "bytes": 14175,
-      "sha256": "ebda3c6825685784853ef9fda8bfb1637b43cfafe97e3bb193c754c59ffaa042"
+      "bytes": 15781,
+      "sha256": "3646ceee4cc4c3ebf7570a0fe9664cb75f3620fd7c8b3e434f5eab98d3fdfbdb"
     },
     "scripts/ci/desktop-virtual-keyboard/upstream-kernel.config": {
       "bytes": 328264,
@@ -209,8 +209,8 @@
       "sha256": "d4508db6fd4312bf1e052ffcc904c563d62dfceeab09b8654e05dec6ff1d99e5"
     },
     "contract.py": {
-      "bytes": 8170,
-      "sha256": "9ce1996608f2465b9d6d6a1867b1384af066f09c16f803e5cdf23488501b3905"
+      "bytes": 8225,
+      "sha256": "6082e7fe32d3cd05a23221eecd456e079f9053c4be37c1c4f8e72281ebf0f42f"
     },
     "desktop574_fixture.sh": {
       "bytes": 5331,
@@ -225,8 +225,8 @@
       "sha256": "edb2700b33e63ded19122b2bbbf15885001abe42d850cfaa99e4a810377091d0"
     },
     "keyboard.py": {
-      "bytes": 6618,
-      "sha256": "0e88df12218a7ba5408d6cb646e7d003eb9e81b26b7d08836e2063ee28cce1a9"
+      "bytes": 8448,
+      "sha256": "44522a3513c3f205062e0e064fd92b44eceaef83f82a70ad825664038751a667"
     },
     "managed_contract.py": {
       "bytes": 3790,
@@ -249,8 +249,8 @@
       "sha256": "04396684a6d41968718e4280eff288dda45000512ece2d749e87326adb3994a3"
     },
     "session.py": {
-      "bytes": 14839,
-      "sha256": "aea5dede51df924460b20b09c5572d6ca1a0131785b899ca95ae9434e84ec0a0"
+      "bytes": 15597,
+      "sha256": "aa70a8ae62548c19c045632a5af9766c01a8069aaecfb36cb52eb68dadfd989a"
     },
     "source-pins.json": {
       "bytes": 3464,

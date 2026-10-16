@@ -8,7 +8,7 @@ import tempfile
 from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
-from test_keyboard import board
+from test_keyboard import board,setup_surface,startup_proof
 import session as S
 import keyboard as K
 
@@ -17,7 +17,7 @@ class Phase(unittest.TestCase):
     def setUp(self):
         self.tmp=tempfile.TemporaryDirectory();self.addCleanup(self.tmp.cleanup);self.root=Path(self.tmp.name)
         self.config=self.root/'config';self.config.mkdir();(self.config/'sentinel').write_text('preserve')
-        self.events=[];self.actors=[];self.observed=[];self.step=None;self.clock=0;self.workspace=None
+        self.startup=[];self.events=[];self.actors=[];self.observed=[];self.step=None;self.clock=0;self.workspace=None
         self.original_stat=Path.stat
         (self.root/'minimal.lua').write_text('declared minimal fixture')
         self.fail_close=self.config_drift=self.bad_input=self.bad_capture=self.gpio=self.bad_shell=self.diagnostic_fail=False
@@ -40,7 +40,8 @@ class Phase(unittest.TestCase):
     def terminate(self,process):
         if process.returncode is None:process.returncode=-15
     def rows(self):
-        if self.step is None or self.step=='close' and not self.fail_close:return []
+        if self.step is None:return copy.deepcopy(self.startup)
+        if self.step=='close' and not self.fail_close:return []
         return [copy.deepcopy(self.row)]
     def command(self,argv,env,logs,label,timeout=20):
         if 'monitors' in argv:return json.dumps([dict(width=1024,height=768,scale=1)])
@@ -89,7 +90,7 @@ class Phase(unittest.TestCase):
              patch.object(S,'input_device',return_value=dict(name='QEMU Virtio Keyboard',driver='virtio_input')),\
              patch.object(S,'board_input',return_value=board()),\
              patch.object(Path,'stat',lambda path,*a,**kw:self.guest_stat(path,*a,**kw)),\
-             patch.object(Path,'lstat',lambda path,*a,**kw:self.guest_stat(path,follow_symlinks=False)),patch.object(S,'child',self.child),patch.object(S,'descendant',return_value=self.editor),\
+             patch.object(Path,'lstat',lambda path,*a,**kw:self.guest_stat(path,follow_symlinks=False)),patch.object(S,'child',self.child),patch.object(S,'descendant',side_effect=lambda pid,parent,exe:startup_proof()['compositor'] if exe=='/usr/bin/Hyprland' else startup_proof([setup_surface(91)],True)['owner'] if exe=='/usr/bin/Xwayland' else self.editor),\
              patch.object(S.os,'readlink',return_value='/dev/pts/0'),\
              patch.object(S.W,'startup_clients',side_effect=lambda *a:self.rows()),\
              patch.object(S.time,'monotonic',self.now),patch.object(S.time,'sleep',lambda _:None),\
@@ -193,6 +194,28 @@ class Phase(unittest.TestCase):
         env['qmp']=SimpleNamespace(execute=failed);exec(code,env)
         self.assertEqual(env['report']['status'],'FAIL');self.assertEqual(env['report']['frames'],{})
         self.assertIn('optional QMP failure',env['report']['failure_frame_errors'][0])
+
+
+
+    def test_two_anonymous_owned_xwayland_records_allow_unchanged_workflow(self):
+        self.startup=[setup_surface(90,'0x1'),setup_surface(90,'0x2')];self.run_phase()
+        ready=next(r for r in self.events if r['event']=='keyboard_ready')
+        self.assertEqual(ready['startup_windows']['records'],self.startup)
+        self.assertEqual([r['step'] for r in self.events if r['event']=='keyboard_request'],list(K.STEPS))
+        self.assertTrue(all(p.closed and p.retired for p in self.observed))
+
+    def test_owned_xwayland_child_setup_records_allow_workflow(self):
+        self.startup=[setup_surface(91,'0x1'),setup_surface(91,'0x2')];self.run_phase()
+        ready=next(r for r in self.events if r['event']=='keyboard_ready')
+        self.assertEqual(ready['startup_windows']['owner']['parent_pid'],90)
+        self.assertTrue(self.actors[0].finished)
+
+    def test_preexisting_mapped_or_named_application_refused_before_input(self):
+        for change in (dict(mapped=True),dict(visible=True),{'class':'app'},dict(pid=200)):
+            self.startup=[setup_surface()|change]
+            with self.subTest(change=change),self.assertRaises(ValueError):self.run_phase()
+            self.assertFalse(any(r['event']=='keyboard_request' for r in self.events));self.assertTrue(self.actors[-1].finished)
+            self.events=[];self.actors=[]
 
 
 if __name__=='__main__':unittest.main()

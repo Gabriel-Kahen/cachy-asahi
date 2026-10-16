@@ -33,6 +33,7 @@ def verify_result(events):
         K.need(ready.get('shortcut_policy')==expected_policy and
                ready.get('kernel_device',{}).get('name')=='QEMU Virtio Keyboard' and
                ready['kernel_device'].get('driver')=='virtio_input','virtual input/shortcut policy absent')
+        K.verify_startup(ready.get('startup_windows'))
         keyboards=ready.get('keyboards')
         K.verify_keyboards(keyboards,ready.get('board_device'))
         if stage=='overlay':
