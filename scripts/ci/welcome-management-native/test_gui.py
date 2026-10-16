@@ -34,6 +34,17 @@ def child(tool='orphans',pid=100,parent=90,welcome=80,stopped=False):
         argv=argv,raw_argv=['/usr/bin/python3',*argv],exe='/usr/bin/python3.14',original_executable=argv[0])
 
 
+def scroll_proof(label,pid=80):
+    chain=[dict(pid=pid,role=role,visible=True,showing=True,rect=rect) for role,rect in
+        ((43,[44,401,202,34]),(68,[5,97,990,448]),(49,[5,97,990,448]),(23,[0,0,1000,550]))]
+    proof=dict(status='PASS',pid=pid,actions=0,interface='Component',action_name='ensure-visible',scroll_called=True,
+        scroll_returned=False,focus_called=False,focused=False,unclipped_after_scroll=True,method='ALREADY_UNCLIPPED',
+        coordinate_space='ATSPI_SCREEN',name_base64=base64.b64encode(label.encode()).decode(),chain=chain)
+    window=dict(pid=pid,mapped=True,visible=True,floating=True,hidden=False,xwayland=False,at=[12,12],size=[1000,550],
+        title='cachy-asahi Welcome',**{'class':'cachy-asahi-welcome'},address='0x123')
+    return proof,window
+
+
 def events():
     inventory={'fixture-'+str(i):'1' for i in range(594)}
     doctor=dict(tool='cachy-asahi-doctor',scope='local observations only',checks=[dict(state='checked')],coverage=dict(checked=1,unknown=0,unavailable=0))
@@ -43,9 +54,8 @@ def events():
     for stage in ('minimal','overlay'):
         reports={};actions=[]
         for label,scope,scroll in C.action_plan(UI):
-            proof=dict(status='PASS',pid=80,actions=0 if scroll else 1,action_name='scroll-anywhere' if scroll else 'click')
-            if scroll:proof['interface']='Component'
-            actions.append(dict(event='management_action',stage=stage,sequence=len(actions)+1,pid=80,label=label,scope=scope,scroll=scroll,proof=proof,physical_input='NOT_RUN'))
+            proof,window=scroll_proof(label) if scroll else (dict(status='PASS',pid=80,actions=1,action_name='click'),None)
+            actions.append(dict(event='management_action',stage=stage,sequence=len(actions)+1,pid=80,label=label,scope=scope,scroll=scroll,proof=proof,window=window,physical_input='NOT_RUN'))
         rows.extend(actions[:2])
         for view in C.MANAGEMENT_VIEWS:
             kind=view.removeprefix('management-')
@@ -75,6 +85,28 @@ def result(rows):return next(e for e in rows if e['event']=='management_result')
 
 
 class Semantics(unittest.TestCase):
+    def test_visibility_requires_genuine_component_or_unclipped_or_focused_geometry(self):
+        label=UI['labels']['orphans'];proof,window=scroll_proof(label)
+        C.visible_control(proof,80,label,window)
+        proof.update(method='COMPONENT_SCROLL',scroll_returned=True);C.visible_control(proof,80,label,window)
+        proof.update(method='FOCUS_SCROLL',scroll_returned=False,focus_called=True,focused=True,unclipped_after_scroll=False)
+        C.visible_control(proof,80,label,window)
+        for field,value in (('focused',False),('focus_called',False),('unclipped_after_scroll',True)):
+            bad=copy.deepcopy(proof);bad[field]=value
+            with self.subTest(field=field),self.assertRaises(ValueError):C.visible_control(bad,80,label,window)
+    def test_false_scroll_cannot_hide_clipping_sentinel_missing_owner_or_window(self):
+        label=UI['labels']['orphans'];proof,window=scroll_proof(label)
+        for edit in ('clipped','sentinel','hidden','foreign','missing-viewport','name','old-proof','window'):
+            bad=copy.deepcopy(proof);native=copy.deepcopy(window)
+            if edit=='clipped':bad['chain'][1]['rect']=[5,97,990,300]
+            elif edit=='sentinel':bad['chain'][1]['rect'][0]=-2147483648
+            elif edit=='hidden':bad['chain'][1]['showing']=False
+            elif edit=='foreign':bad['chain'][1]['pid']=81
+            elif edit=='missing-viewport':bad['chain'].pop(1)
+            elif edit=='name':bad['name_base64']=base64.b64encode(b'Run Doctor').decode()
+            elif edit=='old-proof':bad=dict(status='PASS',pid=80,actions=0,interface='Component',action_name='scroll-anywhere')
+            else:native['mapped']=False
+            with self.subTest(edit=edit),self.assertRaises(ValueError):C.visible_control(bad,80,label,native)
     def test_final_ui_binding_required(self):
         C.interface(dict(ui=UI))
         for key in UI:

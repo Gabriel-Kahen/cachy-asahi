@@ -99,10 +99,50 @@ def action_plan(ui):
     return rows+[(labels['orphans'],None,True),(labels['orphans'],None,False)]
 
 
+def visible_control(proof,pid,label,window):
+    need(proof.get('status')=='PASS' and proof.get('pid')==pid and proof.get('interface')=='Component' and
+         proof.get('action_name')=='ensure-visible' and proof.get('actions')==0 and proof.get('scroll_called') is True and
+         proof.get('coordinate_space')=='ATSPI_SCREEN' and
+         all(type(proof.get(k)) is bool for k in ('scroll_returned','focus_called','focused','unclipped_after_scroll')),
+         'actual bounded component visibility operation required')
+    need(base64.b64decode(proof.get('name_base64',''),validate=True).decode('utf8')==label,'visible action target name differs')
+    method=proof.get('method')
+    need((method=='COMPONENT_SCROLL' and proof['scroll_returned'] and not proof['focus_called'] and proof['unclipped_after_scroll']) or
+         (method=='ALREADY_UNCLIPPED' and not proof['scroll_returned'] and not proof['focus_called'] and proof['unclipped_after_scroll']) or
+         (method=='FOCUS_SCROLL' and proof['focus_called'] and proof['focused'] and not proof['unclipped_after_scroll']),
+         'scroll return/focus/visibility evidence differs')
+    chain=proof.get('chain');need(type(chain) is list and 3<=len(chain)<=13,'complete owned component ancestor chain required')
+    def rectangle(row):
+        need(type(row) is dict and row.get('pid')==pid and row.get('visible') is True and row.get('showing') is True and
+             type(row.get('role')) is int,'visible owned ancestor required')
+        rect=row.get('rect');need(type(rect) is list and len(rect)==4 and all(type(v) is int for v in rect) and
+             all(-32768<=v<=32768 for v in rect[:2]) and all(0<v<=8192 for v in rect[2:]),'valid actual component rectangle required')
+        return rect
+    target=rectangle(chain[0]);tx,ty,tw,th=target
+    roles=[]
+    for row in chain:
+        x,y,w,h=rectangle(row);roles.append(row['role'])
+        need(x<=tx and y<=ty and tx+tw<=x+w and ty+th<=y+h,'action target clipped by an ancestor')
+    need(roles[0]==43 and roles[-1]==23 and roles.count(23)==1 and 68 in roles and 49 in roles,
+         'button, viewport, scroll pane and owned top-level frame required')
+    # AT-SPI screen origins can differ from Wayland global origins. Join the
+    # owned frame's relative target position to the independently checked client.
+    need(type(window) is dict and window.get('pid')==pid and
+         all(window.get(k) is True for k in ('mapped','visible','floating')) and
+         all(window.get(k) is False for k in ('hidden','xwayland')) and window.get('at')==[12,12] and window.get('size')==[1000,550] and
+         window.get('title')=='cachy-asahi Welcome' and window.get('class') in
+         ('io.github.GabrielKahen.CachyAsahiWelcome','cachy-asahi-welcome') and
+         re.fullmatch('0x[0-9a-fA-F]{1,16}',window.get('address','')),
+         'actual fixed visible native Welcome action window required')
+    fx,fy,_,_=chain[-1]['rect']
+    need(0<=tx-fx and 0<=ty-fy and tx-fx+tw<=1000 and ty-fy+th<=550,
+         'target outside actual compositor client area')
+
+
 def action(row,pid,label,scope,scroll):
     proof=row['proof'];need(row.get('pid')==pid and row.get('label')==label and row.get('scope')==scope and row.get('scroll') is scroll and
         row.get('physical_input')=='NOT_RUN' and proof.get('status')=='PASS' and proof.get('pid')==pid,'actual management action identity differs')
-    if scroll:need(proof.get('interface')=='Component' and proof.get('action_name')=='scroll-anywhere' and proof.get('actions')==0,'actual management scroll differs')
+    if scroll:visible_control(proof,pid,label,row.get('window'))
     else:need('interface' not in proof and proof.get('actions')==1 and proof.get('action_name') in ('click','activate','press','switch'),'actual management GTK action differs')
 
 
