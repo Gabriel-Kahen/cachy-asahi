@@ -36,11 +36,12 @@ def notify(rows,owner,outcome):
          call['sender']!=owner and type(call.get('cookie')) is int,'notification sender/recipient/cookie differs')
     payload=call.get('payload');need(type(payload) is dict and payload.get('type')=='susssasa{sv}i','Notify signature differs')
     data=payload.get('data');need(type(data) is list and len(data)==8 and data[0]=='fish' and data[1]==0 and
-         data[2]=='utilities-terminal' and data[4]=='Foreground command completed.' and data[5]==[] and data[7]==3000,
+         data[2]=='' and data[4]=='Foreground command completed.' and data[5]==[] and data[7]==3000,
          'unmodified Done Notify data/expiry differs')
     summary(data[3],outcome)
     hints=data[6];need(type(hints) is dict and hints.get('urgency')==dict(type='y',data=1 if outcome==0 else 2) and
-         hints.get('transient')==dict(type='i',data=1),'Done urgency/transient hints differ')
+         hints.get('transient')==dict(type='i',data=1) and
+         hints.get('image-path')==dict(type='s',data='utilities-terminal'),'Done urgency/transient hints differ')
     replies=[]
     for row in rows:
         if row.get('type')!='method_return':continue

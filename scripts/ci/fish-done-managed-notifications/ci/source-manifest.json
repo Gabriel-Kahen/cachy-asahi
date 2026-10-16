@@ -3,6 +3,11 @@
     "archive_sha256": "9ce3c7ba89467f04660014c1b12056dce28bd0c4e69b4cab8a9c2c98e1cce54f",
     "ref": "de35c384a2e5b14b664d4156897f271b81e467ba"
   },
+  "failed_actual": {
+    "first_failure": "icon representation in Notify validator; no frames/reply/continuation acceptance",
+    "run": 38952906070,
+    "source": "1f0c9619dc8b6300ee882fc82d3baebe594dd866"
+  },
   "files": {
     "packages/desktop/cachy-asahi-hyprland-settings/.SRCINFO": {
       "bytes": 1811,
@@ -204,6 +209,10 @@
       "bytes": 4303,
       "sha256": "905f684bdc2f10a95494d4de6a1cf546c7925c6272dbc3d3b1df6e8da98f10d4"
     },
+    "scripts/ci/fish-done-managed-notifications/fixtures/run38952906070-bus.jsonl": {
+      "bytes": 8505,
+      "sha256": "925095fdbf524d07785869e4bf24ed78a17f304d0914b324d9e59122028c3f52"
+    },
     "scripts/ci/fish-done-managed-notifications/input-policy.json": {
       "bytes": 645,
       "sha256": "43289418676778ffb5b830c79d1bd2127bc56ec3bc546110d24b8c1491f306d5"
@@ -225,8 +234,8 @@
       "sha256": "7704da1b060e739f63e4d7062a02938e64bcfbe1c10b4d6581532ded2f194de0"
     },
     "scripts/ci/fish-done-managed-notifications/observation.py": {
-      "bytes": 3438,
-      "sha256": "09b563572993a4b35118eeccf86beaece4cd23ecd97851d46f72edbb342a3f65"
+      "bytes": 3499,
+      "sha256": "b145a9cb4f4bfea3d2b3f136c23edbfb3584e52dd25f72ca4f0466c942c7ff86"
     },
     "scripts/ci/fish-done-managed-notifications/package-inputs.json": {
       "bytes": 355174,
@@ -245,12 +254,12 @@
       "sha256": "20aaf3da471611779c96fc8153a92a7f14dd90f5386c291445f63f892a8c24d5"
     },
     "scripts/ci/fish-done-managed-notifications/source-pins.json": {
-      "bytes": 9214,
-      "sha256": "b48940b3720196a23b8f91f7e6514768058867c62faa339d4a203c734774dddd"
+      "bytes": 9364,
+      "sha256": "4024ac59b914036e6afcd57f88a8086157735c9e4fbf56e66635e0e8526c84bd"
     },
     "scripts/ci/fish-done-managed-notifications/test_source.py": {
-      "bytes": 15059,
-      "sha256": "0371393f09a6727653a983d1b4dacd73470193e2eccdfe55ea80d65fef41f627"
+      "bytes": 17528,
+      "sha256": "465f98b8f3457196526aa2c17311bf91dec181a8efe7aead78481df663c80552"
     },
     "scripts/ci/maintained-desktop574-inputs.json": {
       "bytes": 623664,
@@ -371,8 +380,8 @@
       "sha256": "7704da1b060e739f63e4d7062a02938e64bcfbe1c10b4d6581532ded2f194de0"
     },
     "observation.py": {
-      "bytes": 3438,
-      "sha256": "09b563572993a4b35118eeccf86beaece4cd23ecd97851d46f72edbb342a3f65"
+      "bytes": 3499,
+      "sha256": "b145a9cb4f4bfea3d2b3f136c23edbfb3584e52dd25f72ca4f0466c942c7ff86"
     },
     "package-inputs.json": {
       "bytes": 355174,
@@ -383,8 +392,8 @@
       "sha256": "20aaf3da471611779c96fc8153a92a7f14dd90f5386c291445f63f892a8c24d5"
     },
     "source-pins.json": {
-      "bytes": 9214,
-      "sha256": "b48940b3720196a23b8f91f7e6514768058867c62faa339d4a203c734774dddd"
+      "bytes": 9364,
+      "sha256": "4024ac59b914036e6afcd57f88a8086157735c9e4fbf56e66635e0e8526c84bd"
     },
     "test_desktop574_runtime.py": {
       "bytes": 12245,
@@ -396,7 +405,7 @@
   "root_freeze": "ROOT_STAMPS_CALLER_MANIFEST_HASHES_AND_EXACT_SOURCE",
   "schema": 1,
   "scope": "MANUAL_GENERIC4K_INSTALLED_DONE_REAL_MANAGED_TWO_FOREGROUND_CASES",
-  "status": "PROPOSED_SOURCE_DATA_ONLY_NOT_EXECUTED",
+  "status": "PROPOSED_ACTUAL_WIRE_ICON_CORRECTION_NOT_EXECUTED",
   "visual": "NOT_RUN",
   "watched_background": "NOT_RUN",
   "workflow_target": ".github/workflows/native-arm-fish-done-managed-notifications.yml"
