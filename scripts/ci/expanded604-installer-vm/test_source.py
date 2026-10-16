@@ -170,6 +170,16 @@ class Workflow(unittest.TestCase):
         self.assertIn('test "$AUDIO_INPUTS_OUTCOME" = success',text)
         self.assertIn('--kill-after=60s 15600s',text);self.assertIn('timeout-minutes: 350',text)
 
+    def test_nested_carriers_use_payload_in_preflight_and_native_call(self):
+        text=self.text()
+        for role in ('management','welcome'):
+            base='--'+role+'-source "$GITHUB_WORKSPACE/expanded604-'+role+'-source'
+            self.assertEqual(text.count(base+'/payload"'),2)
+            self.assertNotIn(base+'"',text)
+        for role in ('legacy','seven','eight'):
+            self.assertEqual(text.count('--'+role+'-source "$GITHUB_WORKSPACE/expanded604-'+role+'"'),2)
+        self.assertEqual(text.count('--setup-source "$GITHUB_WORKSPACE/expanded604-setup-source"'),2)
+
     def test_all_literal_shell_blocks_are_syntax_checked(self):
         lines=self.text().splitlines();blocks=[];i=0
         while i<len(lines):

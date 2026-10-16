@@ -181,8 +181,8 @@
       "sha256": "d8867c4eeb570b02a5c3d651de424cb65eb413f92e759bc083fad20da56d07d2"
     },
     "scripts/ci/expanded604-installer-vm/test_source.py": {
-      "bytes": 12239,
-      "sha256": "134452063aa83969c2fe3bf893f488aa5db7fe50198e5be7236080340403ddce"
+      "bytes": 12832,
+      "sha256": "5aaa5b4f08c1b7a1f1eb7ce63d288d27592cc148c4eed80b7e90cd881f6f156b"
     },
     "scripts/ci/full-composition-installer-vm/producer.py": {
       "bytes": 19096,
