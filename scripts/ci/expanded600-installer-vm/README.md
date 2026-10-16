@@ -1,8 +1,8 @@
-# Future signed600 full-installer VM lane
+# Signed600 full-installer VM lane
 
-This separate proposal is **blocked pending Root evidence/bindings**. It is not
-an accepted native result or dispatch-ready freeze. The original587 installer
-and the already-dispatched600 composition remain unchanged.
+Root has bound accepted native600 run38948569244, the accepted independent587
+observer and immutable final eight-pair inputs. Native fresh600 installation
+remains pending. The original587 installer and600 composition remain unchanged.
 
 The legacy helper/source checkout is exactly
 b6b17e5f6b322f160f7eeb22c8a01380a3c854cd. Its83 consumed source/data files are
@@ -17,7 +17,7 @@ acceptance or an invented archive checksum.
 Before any output/native actor, ci.py and gate.py require Root acceptance of
 (1) the original587 ordinary-parent retirement and independent root readback,
 (2) the native600 pair/installed lifecycle/six-module coexistence and cleanup,
-and (3) an immutable final eight-pair index. Their bindings remain null in
+and (3) an immutable final eight-pair index. Their exact bindings are recorded in
 input-policy.json. The manual workflow has an early policy gate and a second
 actual-byte gate before any secrets/native bootstrap. It is intentionally
 non-dispatchable while policy is pending. The final implementation source must
@@ -91,5 +91,5 @@ python3 -B -m unittest discover -s scripts/ci/expanded600-installer-vm -p test_s
 
 These checks exercise source transformations and failure gates with explicitly
 synthetic protocol/decision fixtures; those fixtures cannot authorize main(),
-whose real policy remains pending. Full materialization/signing/profile/VM
+whose real policy requires Root-bound inputs. Full materialization/signing/profile/VM
 integration still needs the actual final accepted inputs and Root's CI run.
