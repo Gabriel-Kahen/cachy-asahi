@@ -36,6 +36,12 @@ def apply_args(calls,workspace,owner,path,plan):
  before=calls.call(backend('inspect',workspace,owner))['before']
  return [*backend('apply',workspace,owner),*credentials(),'--operation',plan['plan']['operation'],'--applications',*plan['plan']['requested_applications'],'--plan',str(path),'--plan-sha256',C.sha(C.read(path)),
   *[part for key,value in before.items() for part in ('--before-'+key.replace('_','-'),value)],'--confirm-disposable-transaction']
+def retain_copy(workspace,owner):
+ raw=C.read(workspace/'apps-copy.json',65536);C.need(C.sha(raw)==owner,'original copy marker hash differs')
+ value=C.decode(raw);scope=value['copy']['apps_bind_scope']
+ C.need(scope['proof']['status']=='PROVED_DISJOINT_READONLY_SOURCE_AND_OWNED_WORK_BIND_ROOTS' and scope['proof']['source']=='/seed' and scope['proof']['destination_parent']==str(workspace) and type(scope['checkpoints']) is int and scope['checkpoints']==7 and value['copy']['security_capabilities']=='EXACT_SOURCE_MAP_RESTORED_AND_VERIFIED','actual scoped complete capability copy proof required')
+ (OUT/(workspace.name+'-copy.json')).write_bytes(raw)
+
 def count(workspace):
  app=C.load('inventory_apps',INPUTS/'apps-source/apps.py');c,r,_=app.helpers(INPUTS/'candidate/usr/share/cachy-asahi/repository-runtime')
  return {p['name']:p['version'] for p in app.inventory_reader().collect(workspace/'root/var/lib/pacman',c,lambda row:app.package(row,r))['packages']}
@@ -83,6 +89,7 @@ def main():
  adapter=C.adapter(SOURCE);T=C.load('source_transaction',SOURCE/'scripts/apps/transaction.py');before=adapter.measure(SEED,T.limits());before_hash=T.sha(T.encoded(before['nodes']));source_caps=adapter.capability_map(SEED,before,T.limits());source_caps_sha=adapter.digest(source_caps);calls=Calls();report=dict(status='FAIL',hardware='NOT_RUN',source_preserved=False,workspaces_disposed=False,rollback='NOT_CLAIMED')
  try:
   workspace=WORK/('interrupted' if '--interrupt' in sys.argv else 'main');prepared=calls.call([*backend('prepare-copy',workspace),'--source','/seed']);C.need(prepared['status']=='OWNED_COPY_PREPARED' and prepared['source_preserved'] is True,'actual original copy required');owner=prepared['ownership_sha256']
+  retain_copy(workspace,owner)
   if '--interrupt' in sys.argv:
    path,plan=planned(calls,workspace,'interrupted-install','install',['cache']);argv=apply_args(calls,workspace,owner,path,plan);interruption=interrupted(calls,workspace,owner,argv)
    # Original outcome stays UNKNOWN; independently inspect only immutable baseline xattrs.

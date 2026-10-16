@@ -122,3 +122,23 @@ The original64KiB policy/lease limit is unchanged. Namespace-visible capability
 bytes must compare exactly; rev2/rev3 translations are never normalized to pass.
 This is a preserving source proposal following actual diagnostic38975802137;
 native extraction/transactions with these new grants and hardware remain NOT_RUN.
+
+The Apps-only `full574_copy.py` binding handles the native owner’s same-device
+readonly `/seed` and writable `/work` bind mounts. It changes only the exact
+hash-pinned copier’s ambiguous-bind predicate, in a private module, into a
+bounded proof from the current mount namespace. Only `/work/main/root` and
+`/work/interrupted/root` are supported. Source/work mount IDs must remain
+distinct; their device and filesystem must match, and their canonical backing
+roots must be strictly disjoint. Missing, escaped, nested, shadowed, overlapping
+or changed mounts refuse. Source/parent/work named and held descriptors, mount
+flags and backing rows are rechecked at all five original root checkpoints and
+after copying. All original per-node mount/identity/hash/hardlink checks remain.
+The generic copier’s same-device guard remains unchanged.
+
+The original and derived copier hashes, actual mount-root proof and seven
+checkpoints are kept in the copied ownership marker. The native lifecycle
+retains that exact hash-bound marker as `main-copy.json`/`interrupted-copy.json`
+before proceeding. Capability restoration and complete-map verification still
+finish before the marker exists. Actual38977834026 remains FAIL before commit;
+its successful capability-preserving snapshot alone is not a transaction pass.
+This correction has only source and temporary-data evidence pending a new run.
