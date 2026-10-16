@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: MIT
 """One owned native600 production-updater copy; three explicitly separate cases."""
 import argparse
+import json
 import os
 from pathlib import Path
 import platform
@@ -15,14 +16,34 @@ import adapter
 import gate
 
 
-def flat_inputs(ready,raw,target):
+def prepare_with_plan(producer,args):
+    """Keep the real pre-volume plan that the held producer passes to its exporter."""
+    original=producer.export_ready;captured={}
+    def exporting(raw,ready,held,*arguments,**keywords):
+        C.need(not captured,'one original producer export required')
+        captured['attempted']=True
+        C.need(raw==args.output/'private' and held['inputs']==raw/'inputs' and
+               ready==raw/'ready' and type(held['plan']) is dict,'owned original producer plan origin differs')
+        plan=C.encoded(held['plan']);C.need(0<len(plan)<=4*1024**2,'bounded original producer plan required')
+        result=original(raw,ready,held,*arguments,**keywords)
+        C.need(result==ready and C.encoded(held['plan'])==plan,'original producer plan/export changed')
+        captured.update(ready=ready,plan=plan)
+        return result
+    producer.export_ready=exporting
+    try:ready=producer.prepare(args)
+    finally:producer.export_ready=original
+    C.need(captured.get('ready')==ready and 'plan' in captured,'successful original export must precede plan use')
+    return ready,json.loads(captured['plan'],parse_constant=lambda _:C.need(False,'nonfinite producer plan'))
+
+
+def flat_inputs(ready,raw,target,old):
     """Install exactly574 minus upstream FDK plus27 signed additions, yielding600."""
     C.need(not target.exists(),'fresh flat inputs required')
     value=C.read(ready/'manifest.json');before,_=C.locks()
     C.need(value['status']=='READY_SIGNED_EXPANDED600' and len(value['packages'])==600 and
          {r['name']:r['version'] for r in value['packages']}==before and
          C.sha(ready/'expected-installed.lock')==C.BEFORE,'exact signed600 cache required')
-    old=C.read(raw/'inputs/plan.json');projects={r['name'] for r in value['projects']}
+    projects={r['name'] for r in value['projects']}
     names=projects|{'htmlq','pacman-contrib','archlinux-contrib','pyalpm'}|adapter.AUDIO
     rows=[r for r in value['packages'] if r['name'] in names]
     C.need(len(projects)==17 and len(rows)==27 and {r['name'] for r in rows}==names,'exact17 projects and27 additions required')
@@ -117,9 +138,9 @@ def main():
             package=pair/'packages/cachy-asahi-setup-a/cachy-asahi-setup-0.1.0-5-any.pkg.tar.xz',
             provenance=pair/'runtime/cachy-asahi-setup-a/provenance.json'))
         original=SimpleNamespace(**vars(a),code=a.legacy_source,code_revision=IC.LEGACY);original.output=producer_output
-        ready=producer.prepare(original);result['producer']='READY_SIGNED_INITIAL587'
+        ready,original_plan=prepare_with_plan(producer,original);result['producer']='READY_SIGNED_INITIAL587'
         materializer.prepare(ready,producer_output,a.eight_pairs,a.seven_pairs,a.audio_inputs,a.legacy_source,expanded,installer_policy)
-        raw=producer_output/'private';inputs=flat_inputs(expanded,raw,output/'inputs')
+        raw=producer_output/'private';inputs=flat_inputs(expanded,raw,output/'inputs',original_plan)
         old=C.load('_root600_original_owner',a.upgrader_source/'scripts/ci/full-root-upgrade-caller/run.py')
         old.CALLER=caller;old.HERE=a.preparation_source/'scripts/ci/full-development-composition'
         footprint=C.load('_root600_volume_owner',old.HERE/'footprint.py');footprint.prepare(a.preparation_source,raw/'footprint-source')
