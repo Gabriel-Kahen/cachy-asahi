@@ -25,6 +25,18 @@ def marker(path,nonce,seconds):
 
 
 def exercise(base,workspace,stage,nonce,pid,env):
+    processes=[];original_emit=base.emit
+    def record(event,**values):
+        C.need(event=='process_exit' and len(processes)<4,'bounded Doctor process events required')
+        processes.append(dict(event=event,**values))
+    base.emit=record
+    try:return commands(base,workspace,stage,nonce,pid,env,processes)
+    except BaseException as error:
+        error.doctor_processes=processes;raise
+    finally:base.emit=original_emit
+
+
+def commands(base,workspace,stage,nonce,pid,env,processes):
     records=[];count=0
     def command(args,expected=0):
         nonlocal count
@@ -40,6 +52,8 @@ def exercise(base,workspace,stage,nonce,pid,env):
         if error is not None:raise error
         C.need(actor.process.returncode==expected,'installed Doctor command exit differs')
         stdout=C.read(actor.paths[0]);stderr=C.read(actor.paths[1])
+        C.need(len(processes)==count and processes[-1].get('name')=='doctor-'+str(count) and
+               processes[-1].get('returncode')==expected,'Doctor process exit proof differs')
         records.append(dict(argv=['/usr/bin/cachy-asahi-doctor',*args],returncode=actor.process.returncode,
                             stdout_sha256=C.sha(stdout),stderr_sha256=C.sha(stderr)))
         return stdout
@@ -53,7 +67,7 @@ def exercise(base,workspace,stage,nonce,pid,env):
     C.need(C.sha(C.read(report))==pin and C.sha(C.read(outside))==protected,'Doctor overwrite/outside preservation failed')
     result=dict(status='PASS_INSTALLED_DOCTOR_REPORT',stage=stage,nonce=nonce,terminal_pid=pid,worker_pid=os.getpid(),
         terminal_isatty=os.isatty(0) and os.isatty(1),pty=os.ttyname(1),doctor=data,printed_doctor=printed,report_sha256=pin,
-        report_mode='0600',no_overwrite='PASS',symlink_refusal='PASS',commands=records)
+        report_mode='0600',no_overwrite='PASS',symlink_refusal='PASS',commands=records,processes=processes)
     C.validate_doctor(result,stage,nonce,pid)
     checks={r['check']:r for r in data['checks']};machine=checks['platform']['value']
     model=checks['apple-model'];coverage=data['coverage']
@@ -87,7 +101,8 @@ def main():
         C.publish(workspace/'result.json',result);marker(workspace/'release.json',args.nonce,450);return 0
     except BaseException as error:
         if not (workspace/'result.json').exists():
-            C.publish(workspace/'result.json',dict(status='FAIL',reason=str(error)[:512],error_type=type(error).__name__))
+            C.publish(workspace/'result.json',dict(status='FAIL',reason=str(error)[:512],error_type=type(error).__name__,
+                      processes=getattr(error,'doctor_processes',[])))
         print('DOCTOR REPORT FAILED: '+str(error)[:512],flush=True);return 1
 
 
