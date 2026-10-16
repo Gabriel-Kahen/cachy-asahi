@@ -1,5 +1,14 @@
 # Full587 installation inside a generic ARM VM
 
+## Coherent SQLite retry38891384087
+
+[Actual38891384087](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38891384087), Source/workflow `f20dad059b75d208028931d93561af4c1c5fe6b4`, passes the corrected SQLite preflight and namespace barrier, then performs a real587-package commit in the generic ARM VM. Post-install verification fails `unexpected installed output: usr/lib/libvsscript.so`. UART reports `commit_started=true`, `committed=true`, `phase=commit`, package_count587 and expected lock `2198942a546f4714587c810fe174d4457121960f3a7b1dbaa276e9f970f322c7`. The ordinary installer/guarded parent remain failed; this is not a successful installation or final ownership/readback acceptance.
+
+Guest profile SHA256 is `c07327a6fbf637e6a7ca71d4a66b97b81dd3f8d1bd9674de2c3d7c4cf4b54851`. Guest cleanup reports FAIL. QEMU exits naturally after2332.709 seconds; QEMU, controller container/image/private work, producer and caller-private cleanup pass. Coarse outer `vm/guest NOT RUN` fields do not erase the UART's observed boot/barrier/commit, and outer disposal does not convert guest cleanup to PASS. The new path's literal target/type/mode/owner were not exported; a source-derived narrow correction and exact node diagnostic are in development. No arbitrary unexpected-file allowance is accepted.
+
+Root collects only nine closed files from the dedicated full-installer-public frame. Logs:3107478 bytes/SHA256 `cd756420c695525d24aeee4824f826efda72fc659fbb476c52c0ba93c67597b8`; public frame:28679 compressed bytes/SHA256 `b59ecd3748d7652980d71499989308bf5cf8b7faee9effd7ff502915eb0055c3`. Other package/private frames and whole caches are not decoded. Production installation, native-container P0 and actual M2/hardware acceptance remain unchanged.
+
+
 [Numeric-ownership actual38886078908](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38886078908)
 now reaches a real aarch64/4096-byte guest boot on kernel7.2.10-1-aarch64-ARCH,
 then fails the ordinary installer's tool preflight: the held profile names
