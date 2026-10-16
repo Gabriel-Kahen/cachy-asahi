@@ -55,6 +55,7 @@ def apply(args,*,comparator_path):
         delegated=True
         result=scale.bound.apply(args,adapter=runtime)
         result.update(scope='opt-in-setup-selected-links-disposable-root',auxiliary_checks=runtime.auxiliary_checks,
+            selected_link_variant=links.variant_report(runtime.baseline['nodes'] if runtime.baseline is not None else None),
             auxiliary_exit_status='NOT OBSERVED',full587_composition='NOT ESTABLISHED',apple_acceptance='NOT ESTABLISHED',hardware='NOT RUN')
         return result
     except BaseException as error:

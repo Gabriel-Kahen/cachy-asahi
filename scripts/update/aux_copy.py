@@ -52,6 +52,12 @@ def _copy_binding(limits):
         return roots.check_hardlink_preservation(links.view(before,limits),links.view(after,limits),
                                                 protected_paths=protected_paths,limits=limits)
     facade.observe,facade.require_eligible,facade.check_hardlink_preservation=observe,eligible,groups
+    original_report=module._copy_report
+    def report(value,observation,*args,**kwargs):
+        result=original_report(value,observation,*args,**kwargs)
+        result['selected_link_variant']=links.variant_report(observation['nodes'])
+        return result
+    module._copy_report=report
     module.roots=facade
     return module
 
