@@ -93,3 +93,15 @@ These checks exercise source transformations and failure gates with explicitly
 synthetic protocol/decision fixtures; those fixtures cannot authorize main(),
 whose real policy requires Root-bound inputs. Full materialization/signing/profile/VM
 integration still needs the actual final accepted inputs and Root's CI run.
+
+
+The first full600 trial38953671228 committed and ordinary-validated all600 packages,
+but the independent full readback stopped incomplete at600104ms. It remains failed.
+The dedicated600 adapter now wraps only that readback call with the pinned
+observer600.py backend embedded in generated numeric_vm.py. It clones the original
+walker globals and substitutes live descriptor statx mount-ID queries, cross-checks
+the first result against fdinfo, and falls back to original fdinfo on unsupported
+APIs. Full hashing, closed hardlink groups, mount/drift checks and every original
+limit remain unchanged, including600seconds. All83 legacy pins and the original587
+implementation remain byte-identical. Host measurements and complete-snapshot
+equality motivate the change; a fresh native VM result must establish completion.

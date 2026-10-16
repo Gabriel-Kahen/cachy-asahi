@@ -4,16 +4,16 @@
     "sha256": "31bf9edea0381122d84ba99f1dcadd38d3ec8e4e9e70a6d91a70347bb80695e6"
   },
   "scripts/ci/expanded600-installer-vm/README.md": {
-    "bytes": 6126,
-    "sha256": "042f61d152af12a4bfc51ac2c1784cae2dd4814cc7305b9582a31ada8874c493"
+    "bytes": 6946,
+    "sha256": "3a94d0723597ea1c78f58ffbc2f8466546d39438003d74df609a09a97194bf53"
   },
   "scripts/ci/expanded600-installer-vm/adapter-rules.json": {
     "bytes": 3895,
     "sha256": "384a41d4db2159686736208fd2e0707a0c579816ac3190007c38a8c1dd63d7e1"
   },
   "scripts/ci/expanded600-installer-vm/adapter.py": {
-    "bytes": 4075,
-    "sha256": "418e96671b051af0794b2fae86305f11401365e8339334ff12612989bb1f2b5d"
+    "bytes": 5094,
+    "sha256": "df60573ea722d4ccd9312b0be132bdc302ded9fd3fc8e2473e0077920731a100"
   },
   "scripts/ci/expanded600-installer-vm/call-rules.json": {
     "bytes": 98,
@@ -50,6 +50,14 @@
   "scripts/ci/expanded600-installer-vm/materializer.py": {
     "bytes": 11186,
     "sha256": "595e53962345923c6cc8e6e01a611389cb7701cb916ab7757c7614a3b7935d56"
+  },
+  "scripts/ci/expanded600-installer-vm/observer600.py": {
+    "bytes": 2784,
+    "sha256": "c3d804e7f2927c7889835ad187a39a3d7c618a4651700f57b0c5413c46612607"
+  },
+  "scripts/ci/expanded600-installer-vm/test_observer600.py": {
+    "bytes": 10942,
+    "sha256": "6fedfd937e7af2de21aa998efcbf83dc403eed9b52a59723c7c3411151c44222"
   },
   "scripts/ci/expanded600-installer-vm/test_source.py": {
     "bytes": 15792,
