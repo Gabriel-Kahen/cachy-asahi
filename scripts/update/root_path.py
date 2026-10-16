@@ -73,7 +73,7 @@ def resolve(nodes, path, *, limits):
         node = nodes.get(name)
         need(type(node) is dict and type(node.get('type')) is str and
              node['type'] in ('file', 'directory', 'symlink'),
-             'root path node missing or unsupported')
+             'root path node missing or unsupported: ' + name)
         record(name)
         if node['type'] != 'symlink':
             parts.append(part)

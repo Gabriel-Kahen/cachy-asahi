@@ -194,6 +194,10 @@ DATA_ONLY_ENDPOINTS = {
 }
 MTAB_PATH = 'etc/mtab'
 MTAB_TARGETS = ('/proc/mounts', '/proc/self/mounts')
+# filesystem-2025.10.12-1, archive228b63ef4a88501a68856231a19325a1ad31d92016a692d0a8be181edc70703f.
+# The persistent stage deliberately empties run. This is only an inert name for
+# protected-write comparisons, separate from the measured87 absolute chains.
+VAR_LOCK = {'type':'symlink','mode':0o777,'uid':0,'gid':0,'target':'../run/lock'}
 
 
 
@@ -273,6 +277,13 @@ def view(observation,limits):
 def protection_endpoint(nodes,name,limits):
     # Data-only endpoints are names for protected-write comparison, never paths
     # granted to Reader, node(), archive extraction or helper execution.
+    if name == 'var/lock':
+        limits.tick()
+        ordinary = dict(type='directory',mode=0o755,uid=0,gid=0)
+        aux.need(nodes.get(name)==VAR_LOCK and nodes.get('var')==ordinary
+                 and nodes.get('run')==ordinary and 'run/lock' not in nodes,
+                 'selected-var-lock-data-shape')
+        return 'run/lock'
     if name in DATA_ONLY_ENDPOINTS:
         for path,expected in LINK_NODES.items():
             limits.tick(); aux.need(_literal_matches(path,nodes.get(path)),'selected-literal-link-drift')
