@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT
 """Inert native owner/data controls. No signing, daemon, namespace or libalpm actors."""
-import copy,contextlib,json,os,subprocess,sys,tempfile,unittest
+import base64,copy,contextlib,io,json,os,subprocess,sys,tarfile,tempfile,unittest
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import Mock,patch
@@ -108,6 +108,30 @@ class Controls(unittest.TestCase):
    elif kind=='cache-rewrite':bad['transactions'][0]['full574_closure']['auxiliary_transition']['kind']='WAIVED'
    else:bad['refusals']['wrong-plan-sha']['commit_started']=True
    with self.subTest(kind=kind),self.assertRaises(ValueError):C.result(bad)
+ def rejected_header(self,*,pax=None,uid=0,mtime=0,mode=0o644):
+  old=C.load('original_extraction_diagnostic',ROOT/'scripts/ci/glibc-gnu-provider-lifecycle-owner/snapshot.py');path=self.root/'unit-metadata.tar'
+  with tarfile.open(path,'w',format=tarfile.PAX_FORMAT) as stream:
+   member=tarfile.TarInfo('UNIT-inert-not-actual-header');member.uid=uid;member.mtime=mtime;member.mode=mode;member.pax_headers=pax or {};stream.addfile(member,io.BytesIO(b''))
+  try:old.records(path)
+  except ValueError as error:
+   # The archive must not be reopened/read by diagnostics after original refusal.
+   snap=C.load('Apps_metadata_diagnostic',HERE/'snapshot.py')
+   with patch.object(tarfile,'open',side_effect=AssertionError('archive replay forbidden')):value=snap.metadata_failure(error,old)
+   self.assertEqual(str(error),'plain archive metadata; xattrs/unknown PAX refused');self.assertEqual(value['bytes'],len(C.encoded(value['value'])));self.assertEqual(value['sha256'],C.sha(C.encoded(value['value'])));self.assertLessEqual(value['bytes'],65536)
+   self.assertEqual(value['value']['extractor_source_sha256'],C.sha(C.read(ROOT/'scripts/ci/glibc-gnu-provider-lifecycle-owner/snapshot.py')));return value['value']
+  self.fail('original metadata refusal required; no fixture accepted')
+ def test_failed_metadata_uses_exact_original_frame_without_archive_replay(self):
+  value=self.rejected_header(pax={'UNIT.unknown-pax':'inert original parsed value'})
+  self.assertFalse(value['predicates']['pax_keys_allowed']);self.assertTrue(value['predicates']['mode_in_range']);self.assertEqual(value['pax']['count'],1)
+  self.assertEqual(base64.b64decode(value['member']['name']['prefix_base64']),b'UNIT-inert-not-actual-header');self.assertEqual(value['member']['type_hex'],'30')
+  self.assertEqual(base64.b64decode(value['pax']['entries'][0]['value']['prefix_base64']),b'inert original parsed value')
+ def test_combined_guard_diagnostic_does_not_infer_pax_from_numeric_failure(self):
+  value=self.rejected_header(uid=-1);self.assertFalse(value['predicates']['uid_nonnegative'])
+  value=self.rejected_header(pax={'mtime':'inf'});self.assertFalse(value['predicates']['mtime_finite']);self.assertTrue(value['predicates']['pax_keys_allowed']);self.assertEqual(base64.b64decode(value['pax']['entries'][0]['key']['prefix_base64']),b'mtime')
+ def test_large_metadata_values_are_bounded_hashed_and_other_exceptions_ignored(self):
+  raw='x'*20000;value=self.rejected_header(pax={'UNIT.large':raw});row=value['pax']['entries'][0]['value'];self.assertFalse(row['complete']);self.assertEqual(row['bytes'],20000);self.assertEqual(row['sha256'],C.sha(raw.encode()));self.assertEqual(len(base64.b64decode(row['prefix_base64'])),512)
+  snap=C.load('Apps_metadata_diagnostic_other',HERE/'snapshot.py');old=C.load('original_extraction_other',ROOT/'scripts/ci/glibc-gnu-provider-lifecycle-owner/snapshot.py')
+  self.assertIsNone(snap.metadata_failure(ValueError('unrelated failure'),old));self.assertIsNone(snap.metadata_failure(ValueError('plain archive metadata; xattrs/unknown PAX refused'),old))
  def test_workflow_source_packet_gates_before_secret_seed(self):
   path=HERE.parents[2]/'.github/workflows/native-arm-apps-full574-transaction.yml'
   if not path.exists():path=ROOT/'.github/workflows/native-arm-apps-full574-transaction.yml'
