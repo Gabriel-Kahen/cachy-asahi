@@ -1,0 +1,225 @@
+{
+  "dependencies": [
+    {
+      "native_check": "MANDATORY_PACMAN_T_AND_STANDARD_MAKEPKG",
+      "provider": "python",
+      "relation": "python>=3.11",
+      "version": "3.14.8-1"
+    },
+    {
+      "native_check": "MANDATORY_PACMAN_T_AND_STANDARD_MAKEPKG",
+      "provider": "pacman",
+      "relation": "pacman",
+      "version": "7.1.0.r9.g54d9411-2"
+    }
+  ],
+  "files": {
+    "packages/tools/cachy-asahi-orphans/.SRCINFO": {
+      "bytes": 914,
+      "sha256": "1d171298c87606d351e4dc26a5cb83bd66719b419b619f17e82bcbd097fc0188"
+    },
+    "packages/tools/cachy-asahi-orphans/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "packages/tools/cachy-asahi-orphans/NOTICE": {
+      "bytes": 759,
+      "sha256": "326f699857d31b8cd4462081aea074d4349721fb9c48965db6208c793a086720"
+    },
+    "packages/tools/cachy-asahi-orphans/PKGBUILD": {
+      "bytes": 1379,
+      "sha256": "b7c6055622f57dd3a30101ee418301a2cb3e910f03ccbb99a25ebbbed4cb9391"
+    },
+    "packages/tools/cachy-asahi-orphans/README.md": {
+      "bytes": 8282,
+      "sha256": "421e83c8dd3f482ae0d35edf8565d09fa1d3cc2f9f4eb7e5459376b26a54991a"
+    },
+    "packages/tools/cachy-asahi-orphans/cachy-asahi-orphans": {
+      "bytes": 19417,
+      "sha256": "2d7d6914482a76f963603ad71aab38f87693a1c7c7ad15f7ae54bf50a3c1d629"
+    },
+    "packages/tools/cachy-asahi-orphans/protection-floor.json": {
+      "bytes": 10489,
+      "sha256": "0d6dfbf3cd550fe72ddad30058693007f8bb86214de1e83442580677db5005f2"
+    },
+    "packages/tools/cachy-asahi-orphans/test_orphans.py": {
+      "bytes": 12730,
+      "sha256": "f862b853e90a79314cbf221f440ddd2f679d21d8e94ee002d736b1f26b1ee83c"
+    },
+    "scripts/build/build.py": {
+      "bytes": 11299,
+      "sha256": "e520b37e5dfc285914203cfab99daecc80543505fef7ded6704b3fb06f001d45"
+    },
+    "scripts/build/compare.py": {
+      "bytes": 5820,
+      "sha256": "4198864c264642b196a090a67b36185e5c194e38edc4cb928d08eb65b9f710cd"
+    },
+    "scripts/build/container-entry.sh": {
+      "bytes": 1787,
+      "sha256": "89723f0a0b2ef80391160f451e877f15fb1e0c4d9a4fec6dbbb8e0d66d8d0f24"
+    },
+    "scripts/checks/package_checks.py": {
+      "bytes": 17706,
+      "sha256": "e01eb55ee54133b60a7b73121ad8926d45769937ab058aac0868db0df60b6cd8"
+    },
+    "scripts/ci/full-development-composition/run.py": {
+      "bytes": 29738,
+      "sha256": "f86af098fdb0fc9a57a8b78b351341395ce13f9977464783f6f8133626e85698"
+    },
+    "scripts/ci/full-root-upgrade/root_upgrade.py": {
+      "bytes": 23555,
+      "sha256": "fe1232ae6b510021910b4fb80016ac3b4668c6e4386cdae45e7b95196e400756"
+    },
+    "scripts/ci/maintained-desktop574-inputs.json": {
+      "bytes": 623664,
+      "sha256": "b2a234c76c3a820382238023203a8b699a503153f63b938376fd16433c4d90f9"
+    },
+    "scripts/ci/maintained_desktop574.py": {
+      "bytes": 22367,
+      "sha256": "27ba4be42cf2bd41675073e07cccc917ae033f9d68b07a33cfd7f074ac27b760"
+    },
+    "scripts/ci/old_four_seed.py": {
+      "bytes": 29048,
+      "sha256": "a14e0318549d24a9bc91ceeb03ec2c1fa2d12f2b3a4f9b0a4cccfb64be34b2b7"
+    },
+    "scripts/ci/orphans-native/README.md": {
+      "bytes": 5467,
+      "sha256": "d3451a18d4b140916c393086d97a26620072d9e7525c4d6c4f7786a3ca1e9ca9"
+    },
+    "scripts/ci/orphans-native/contract.py": {
+      "bytes": 8555,
+      "sha256": "1b23b33606ef8ef6e1b5c96d0c27ac7ccbe47a8f348fe58b1260620372669ad3"
+    },
+    "scripts/ci/orphans-native/fixture.py": {
+      "bytes": 7874,
+      "sha256": "9965e67042ea975f60c8d9623c2ba847c67b79da1f78feed82e63b939812b393"
+    },
+    "scripts/ci/orphans-native/freeze.py": {
+      "bytes": 2332,
+      "sha256": "a8eea75299a2efc47c8b45b94f0124b854c9194a88d2f1cae3be659cd53f26f5"
+    },
+    "scripts/ci/orphans-native/infrastructure-pins.json": {
+      "bytes": 2076,
+      "sha256": "8178d829d6c8628ca254915a65f02123b8ff4008b57d103ec7f7135b7e8e78dd"
+    },
+    "scripts/ci/orphans-native/input-policy.json": {
+      "bytes": 1942,
+      "sha256": "9166195d9b545fbc54fce8881909aef658cf17ab3a1e9875b2845266b9592a30"
+    },
+    "scripts/ci/orphans-native/installed.py": {
+      "bytes": 4910,
+      "sha256": "3ff891775ebf9e6dff35c567837b98c064a9172c43daf3733c34e5baab10bddf"
+    },
+    "scripts/ci/orphans-native/job.py": {
+      "bytes": 15616,
+      "sha256": "2c797aa55db02f6733b6f7607dd070b69d8ce04c623171b9ecdfa006a6360c6a"
+    },
+    "scripts/ci/orphans-native/lifecycle.py": {
+      "bytes": 5721,
+      "sha256": "30bc409f7cb82578620928ea93122c0fb14840d6c2a037f50573adee9c0744ce"
+    },
+    "scripts/ci/orphans-native/run.py": {
+      "bytes": 10208,
+      "sha256": "992469fcfb5fcd1072d6d675d256c4bab7cfafbcf03c25dae6a3510c0c2b29bf"
+    },
+    "scripts/ci/orphans-native/test_fixture.py": {
+      "bytes": 3978,
+      "sha256": "c1d682ddce97e13085864a6ff5c808d302cf2141d2b21e90ee60f692a1446702"
+    },
+    "scripts/ci/orphans-native/test_native.py": {
+      "bytes": 14921,
+      "sha256": "8c145933177e7a5cc5761f3caaa9c75c84f1c71eded459fadc655cba68816adb"
+    },
+    "scripts/ci/test_maintained_desktop574.py": {
+      "bytes": 19082,
+      "sha256": "e5d7dc11d1a59cf37a273e9a7103c7e55b169335b17c599990946f4e677ca974"
+    },
+    "scripts/ci/welcome-native/ci/caller.py": {
+      "bytes": 8363,
+      "sha256": "cf80f438eff180b73ae9676e2145b56ba6a358fd9a69bb219e0a7a6f53ff01df"
+    },
+    "scripts/ci/welcome-native/lifecycle.py": {
+      "bytes": 12278,
+      "sha256": "b87831eea710dbf18cb3ab3aa7bf49856d26bebbd3e684861dcab7dc1d337c74"
+    },
+    "scripts/ci/welcome-native/run.py": {
+      "bytes": 12766,
+      "sha256": "52112b49ea98b5aef131b8bcbcc188bcc59cc3a4827161091d4e86af14d2757c"
+    },
+    "scripts/virtual/common.py": {
+      "bytes": 84361,
+      "sha256": "aef2b4f09a91c4cfd66dd4504e69ef18396a94214c82ae0ec0a43c2716894a03"
+    }
+  },
+  "hardware": "NOT_RUN",
+  "native": "NOT_RUN",
+  "recipes": {
+    "cachy-asahi-orphans": {
+      "errors": [],
+      "input_sha256": {
+        ".SRCINFO": "1d171298c87606d351e4dc26a5cb83bd66719b419b619f17e82bcbd097fc0188",
+        "LICENSE": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+        "NOTICE": "326f699857d31b8cd4462081aea074d4349721fb9c48965db6208c793a086720",
+        "PKGBUILD": "b7c6055622f57dd3a30101ee418301a2cb3e910f03ccbb99a25ebbbed4cb9391",
+        "README.md": "421e83c8dd3f482ae0d35edf8565d09fa1d3cc2f9f4eb7e5459376b26a54991a",
+        "cachy-asahi-orphans": "2d7d6914482a76f963603ad71aab38f87693a1c7c7ad15f7ae54bf50a3c1d629",
+        "protection-floor.json": "0d6dfbf3cd550fe72ddad30058693007f8bb86214de1e83442580677db5005f2",
+        "test_orphans.py": "f862b853e90a79314cbf221f440ddd2f679d21d8e94ee002d736b1f26b1ee83c"
+      },
+      "metadata": {
+        "arch": [
+          "any"
+        ],
+        "depends": [
+          "python>=3.11",
+          "pacman"
+        ],
+        "license": [
+          "MIT"
+        ],
+        "pkgbase": [
+          "cachy-asahi-orphans"
+        ],
+        "pkgdesc": [
+          "Read-only libalpm orphan assessment and protected explicit removal planning"
+        ],
+        "pkgname": [
+          "cachy-asahi-orphans"
+        ],
+        "pkgrel": [
+          "1"
+        ],
+        "pkgver": [
+          "0.1.0"
+        ],
+        "sha256sums": [
+          "2d7d6914482a76f963603ad71aab38f87693a1c7c7ad15f7ae54bf50a3c1d629",
+          "f862b853e90a79314cbf221f440ddd2f679d21d8e94ee002d736b1f26b1ee83c",
+          "0d6dfbf3cd550fe72ddad30058693007f8bb86214de1e83442580677db5005f2",
+          "421e83c8dd3f482ae0d35edf8565d09fa1d3cc2f9f4eb7e5459376b26a54991a",
+          "326f699857d31b8cd4462081aea074d4349721fb9c48965db6208c793a086720",
+          "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+        ],
+        "source": [
+          "cachy-asahi-orphans",
+          "test_orphans.py",
+          "protection-floor.json",
+          "README.md",
+          "NOTICE",
+          "LICENSE"
+        ],
+        "url": [
+          "https://github.com/Gabriel-Kahen/cachy-asahi"
+        ]
+      },
+      "recipe": "/home/gabe/Documents/ChatGPT/cachy-asahi/packages/tools/cachy-asahi-orphans/PKGBUILD",
+      "review": [
+        "PKGBUILD body and metadata consistency require independent review; static checks are not a shell sandbox"
+      ],
+      "status": "static-pass"
+    }
+  },
+  "schema_version": 1,
+  "scope": "ONE_UNSELECTED_READONLY_ORPHAN_CANDIDATE",
+  "status": "FROZEN_ROOT_FINAL_SOURCE"
+}
