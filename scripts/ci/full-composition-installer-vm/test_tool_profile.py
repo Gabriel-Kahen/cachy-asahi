@@ -84,14 +84,18 @@ class CoherentProfileControls(unittest.TestCase):
             config.write_text('{"code_pins":{}}')
             for name in ('scripts/virtual/common.py','scripts/virtual/tooling.lock.json','scripts/virtual/audit_tooling.py'):
                 path=code/name;path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(b'{}')
+            for name in ('scripts/platform/elf_audit.py','scripts/update/root_path.py'):
+                path=code/name;path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes((ROOT/name).read_bytes())
             builder=ready/'builder-packages.lock';builder.write_text(''.join(n+' '+v+'\n' for n,v in sorted(BASE.items())))
             manifest,payload,base=selection();manifest['builder_lock']=dict(path=builder.name,size=builder.stat().st_size,sha256=p.BUILDER_LOCK)
             for gid in (0,5,11,50,81,102):payload['nodes']['inert-'+str(gid)]=dict(type='directory',uid=0,gid=gid,mode=0o755)
             expected=dict(line.split() for line in (ROOT/'scripts/ci/full-development-composition/expected-updater-v2.lock').read_text().splitlines())
             def constants(path,names):
                 return {'NATIVE_PROFILE_SHA':p.BASE_TOOL_PROFILE_SHA} if names=={'NATIVE_PROFILE_SHA'} else dict(TRANSACTION_PROFILE_BYTES=HELD,TRANSACTION_LAUNCHER={})
-            with patch.object(p,'manifest',return_value=(manifest,{},expected)),patch.object(p,'payload',return_value=payload),patch.object(p,'constants',side_effect=constants):
+            with patch.object(p,'manifest',return_value=(manifest,{},expected)),patch.object(p,'payload',return_value=payload),patch.object(p,'constants',side_effect=constants),\
+                 patch.object(p,'project_sonames',return_value={'outputs':{}}),patch.object(p,'soname_selection',return_value={'purpose':'inert-separate-SONAME-control'}):
                 profile=p.build(ready,code,output)
+            self.assertEqual(profile['derived_output_binding'],{'purpose':'inert-separate-SONAME-control'})
             self.assertEqual(profile['tool_profile_sha256'],p.COHERENT_TOOL_PROFILE_SHA)
             self.assertEqual(profile['base_tool_profile_sha256'],p.BASE_TOOL_PROFILE_SHA)
             self.assertEqual(profile['tool_profile_binding']['archive'],p.SQLITE_ARCHIVE)

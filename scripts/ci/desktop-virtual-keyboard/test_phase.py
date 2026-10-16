@@ -17,7 +17,7 @@ class Phase(unittest.TestCase):
     def setUp(self):
         self.tmp=tempfile.TemporaryDirectory();self.addCleanup(self.tmp.cleanup);self.root=Path(self.tmp.name)
         self.config=self.root/'config';self.config.mkdir();(self.config/'sentinel').write_text('preserve')
-        self.startup=[];self.events=[];self.actors=[];self.observed=[];self.step=None;self.clock=0;self.workspace=None
+        self.in_workspace=False;self.bad_workspace=False;self.startup=[];self.events=[];self.actors=[];self.observed=[];self.step=None;self.clock=0;self.workspace=None
         self.original_stat=Path.stat
         (self.root/'minimal.lua').write_text('declared minimal fixture')
         self.fail_close=self.config_drift=self.bad_input=self.bad_capture=self.gpio=self.bad_shell=self.diagnostic_fail=False
@@ -60,6 +60,7 @@ class Phase(unittest.TestCase):
         self.events.append(dict(event=event,**copy.deepcopy(kw)))
         if event!='keyboard_request':return
         self.step=kw['step'];self.workspace=self.root/('keyboard-minimal-'+kw['nonce'])
+        if self.step=='workspace' and not self.bad_workspace:self.in_workspace=True
         if self.step in ('shell','editor-save','result'):
             name={'shell':'shell.txt','editor-save':'edit.txt','result':'result.txt'}[self.step]
             (self.workspace/name).write_bytes(b'observed wrong bytes\n' if self.bad_shell and name=='shell.txt' else K.expected(kw['nonce'])[name])
@@ -67,6 +68,10 @@ class Phase(unittest.TestCase):
         if self.step=='editor-quit':next(p for p in self.observed if p.proof['pid']==102).retired=True
         if self.step=='close' and not self.fail_close:
             for p in self.observed:p.retired=True
+    def readlink(self,path):
+        if str(path).endswith('/fd/0'):return '/dev/pts/0'
+        if str(path).endswith('/cwd'):return str(self.workspace) if self.in_workspace else '/'
+        raise AssertionError(path)
     def observed_factory(self,pid,executable='/usr/bin/alacritty'):
         proof=next(p for p in (self.terminal,self.shell,self.editor) if p['pid']==pid)
         proof={k:v for k,v in proof.items() if k!='parent_pid'}
@@ -91,7 +96,7 @@ class Phase(unittest.TestCase):
              patch.object(S,'board_input',return_value=board()),\
              patch.object(Path,'stat',lambda path,*a,**kw:self.guest_stat(path,*a,**kw)),\
              patch.object(Path,'lstat',lambda path,*a,**kw:self.guest_stat(path,follow_symlinks=False)),patch.object(S,'child',self.child),patch.object(S,'descendant',side_effect=lambda pid,parent,exe:startup_proof()['compositor'] if exe=='/usr/bin/Hyprland' else startup_proof([setup_surface(91)],True)['owner'] if exe=='/usr/bin/Xwayland' else self.editor),\
-             patch.object(S.os,'readlink',return_value='/dev/pts/0'),\
+             patch.object(S.os,'readlink',side_effect=self.readlink),\
              patch.object(S.W,'startup_clients',side_effect=lambda *a:self.rows()),\
              patch.object(S.time,'monotonic',self.now),patch.object(S.time,'sleep',lambda _:None),\
              patch.dict(S.os.environ,{'CACHY_MANAGED_MANAGER_PID':'80'}):
@@ -216,6 +221,26 @@ class Phase(unittest.TestCase):
             with self.subTest(change=change),self.assertRaises(ValueError):self.run_phase()
             self.assertFalse(any(r['event']=='keyboard_request' for r in self.events));self.assertTrue(self.actors[-1].finished)
             self.events=[];self.actors=[]
+
+
+
+    def test_workspace_cwd_barrier_precedes_output_command_and_stable_settle_is_recorded(self):
+        self.run_phase()
+        ready=next(r for r in self.events if r['event']=='keyboard_terminal')
+        self.assertGreaterEqual(ready['initial_settle_ms'],10000)
+        workspace=next(r for r in self.events if r['event']=='keyboard_workspace')
+        self.assertEqual(workspace['method'],'passive-proc-cwd')
+        self.assertEqual(workspace['cwd'],dict(status='READ',path=str(self.workspace)))
+        self.assertLess(self.events.index(workspace),next(i for i,r in enumerate(self.events) if r['event']=='keyboard_request' and r['step']=='shell'))
+
+    def test_wrong_cd_never_sends_outcome_command_or_retries_input(self):
+        self.bad_workspace=True
+        with self.assertRaisesRegex(ValueError,'typed workspace cd deadline'):self.run_phase()
+        self.assertEqual([r['step'] for r in self.events if r['event']=='keyboard_request'],['launch','workspace'])
+        self.assertFalse(any(r['event'] in ('frame_ready','phase_pass','keyboard_workspace') for r in self.events))
+        diagnostic=next(r for r in self.events if r['event']=='keyboard_failure_diagnostic')
+        self.assertEqual(diagnostic['last_step'],'workspace');self.assertEqual(diagnostic['shell_cwd'],dict(status='READ',path='/'))
+        self.assertTrue(all(p.closed for p in self.observed));self.assertTrue(self.actors[0].finished)
 
 
 if __name__=='__main__':unittest.main()

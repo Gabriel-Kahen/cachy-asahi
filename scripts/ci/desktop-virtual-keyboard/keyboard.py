@@ -5,10 +5,12 @@ import json
 import re
 import time
 
-STEPS=('launch','shell','editor-open','editor-type','editor-save','editor-quit','result','close')
+STEPS=('launch','workspace','shell','editor-open','editor-type','editor-save','editor-quit','result','close')
 VIEWS=('shell','editor','result')
 FRAMES=tuple(s+'-'+v for s in ('minimal','overlay') for v in VIEWS)
 STATUS='PASS_MANAGED_VIRTUAL_KEYBOARD_METADATA'
+# Declared conservative generic-VM test policy; never a measured input latency claim.
+DELIVERY_POLICY=dict(name='vm-chord-batch-workspace-v1',batch='press-release',gap_ms=500,initial_settle_ms=10000)
 
 
 def need(ok,message):
@@ -31,7 +33,8 @@ def plan(stage,nonce,step):
     expected(nonce)
     workspace='/home/desktop574/keyboard-'+stage+'-'+nonce
     text={
-        'shell':"cd "+workspace+"; export PS1='keyboard> '; printf 'shell-"+nonce+"\\n' | tee shell.txt\n",
+        'workspace':'cd '+workspace+'\n',
+        'shell':"export PS1='keyboard> '; printf 'shell-"+nonce+"\\n' | tee shell.txt\n",
         'editor-open':'vim -u NONE -i NONE -n edit.txt\n',
         'editor-type':'ieditor-'+nonce,
         'editor-save':'\x1b:w\n',
@@ -59,22 +62,19 @@ def qcodes(char):
 def send(qmp,chords,*,pause=time.sleep):
     need(type(chords) is list and 1<=len(chords)<=512,'finite key plan required')
     calls=0
+    def event(key,down):return dict(type='key',data=dict(down=down,key=dict(type='qcode',data=key)))
     for chord in chords:
-        down=[]
+        need(type(chord) is list and 1<=len(chord)<=2 and all(type(key) is str for key in chord) and
+             len(set(chord))==len(chord),'bounded unique chord required')
+        events=[event(key,True) for key in chord]+[event(key,False) for key in reversed(chord)]
         try:
-            for key in chord:
-                # Mark uncertainty before sending: an interrupted reply may follow an accepted press.
-                down.append(key)
-                qmp.execute('input-send-event',{'events':[dict(type='key',data=dict(down=True,key=dict(type='qcode',data=key)))]});calls+=1
-            pause(.04)
-        finally:
-            first=None
-            for key in reversed(down):
-                try:qmp.execute('input-send-event',{'events':[dict(type='key',data=dict(down=False,key=dict(type='qcode',data=key)))]});calls+=1
-                except BaseException as error:
-                    if first is None:first=error
-            if first is not None:raise first
-        pause(.04)
+            # The pinned QMP handler syncs once after the complete list: one virtio report.
+            qmp.execute('input-send-event',{'events':events});calls+=1
+        except BaseException:
+            try:qmp.execute('input-send-event',{'events':[event(key,False) for key in reversed(chord)]})
+            except BaseException:pass  # The uncertain primary reply stays fatal; no input retry.
+            raise
+        pause(DELIVERY_POLICY['gap_ms']/1000)
     return calls
 
 
@@ -92,8 +92,8 @@ class Controller:
             need(qmp.execute('query-status').get('status')=='running','QEMU is not running')
         count=send(qmp,chords)
         proof=dict(event='qmp_keyboard_input',stage=stage,step=row['step'],nonce=nonce,
-                   plan_sha256=sha(encoded(chords)),chords=len(chords),qmp_calls=count,
-                   route='input-send-event/virtio-keyboard-pci',all_keys_released=True)
+                   plan_sha256=sha(encoded(chords)),chords=len(chords),qmp_calls=count,key_events=sum(2*len(c) for c in chords),
+                   route='input-send-event/virtio-keyboard-pci',all_keys_released=True,delivery_policy=dict(DELIVERY_POLICY))
         self.records.append(proof)
         self.index+=1
         if self.index==len(STEPS):self.index=0;self.stage_index+=1

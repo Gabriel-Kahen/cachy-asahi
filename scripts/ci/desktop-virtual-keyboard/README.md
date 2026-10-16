@@ -29,24 +29,29 @@ BUS_HOST, joined event character node and KEY_POWER-only bitmap. Its DT poweroff
 code must be116; unknown, duplicate or alphabet-capable companions fail. The
 compositor may report that power button as main; actual nonce-bound input
 delivery remains required through the QEMU virtual keyboard. The host uses supported QMP input-send-event qcodes
-through the existing owned QMP socket. Press/release pairs are paced40ms each;
+through the existing owned QMP socket. The explicit VM policy sends each complete press/release chord in one QMP
+events batch, followed by a500ms gap;
 modifiers release in reverse order even after an uncertain command reply.
 No PTY write, clipboard paste, accessibility action or exec callback supplies
 workflow results. The guest observer only launches Hyprland and read-only
 hyprctl/busctl probes; its final explicit compositor exit is cleanup.
 
-Fixed eight-step route per phase:
+Fixed nine-step route per phase:
 
 1. SUPER+RETURN creates the actual default Alacritty; UID/executable/starttime/
    pidfd and focused native window join it to an actual Bash child and PTY.
-2. Type cd, a prompt setting and printf/tee command. The shell creates shell.txt
+   A10s initial settle holds both actors alive and rechecks terminal focus.
+2. Type only cd <nonce-workspace> and Enter. Independently observe the stable
+   Bash PID's /proc/PID/cwd at exactly that path before sending further input.
+   No cd retry, injected command or observer chdir is available.
+3. Type the prompt setting and printf/tee command. The shell creates shell.txt
    containing shell-<nonce>; only exact bounded bytes/UID/single-link qualify.
-3. Type vim -u NONE -i NONE -n edit.txt; join the interactive Vim child to Bash.
-4. Type i and editor-<nonce> into the real modal editor.
-5. Escape, :w and Enter save exact expected edit.txt bytes while Vim stays live.
-6. Type :q and Enter; require Vim pidfd retirement and no remaining Vim child.
-7. Type cat shell.txt edit.txt | tee result.txt; require exact two-line result.
-8. SUPER+Q closes the actual window; require Alacritty and Bash pidfd exits and
+4. Type vim -u NONE -i NONE -n edit.txt; join the interactive Vim child to Bash.
+5. Type i and editor-<nonce> into the real modal editor.
+6. Escape, :w and Enter save exact expected edit.txt bytes while Vim stays live.
+7. Type :q and Enter; require Vim pidfd retirement and no remaining Vim child.
+8. Type cat shell.txt edit.txt | tee result.txt; require exact two-line result.
+9. SUPER+Q closes the actual window; require Alacritty and Bash pidfd exits and
    mapped-window absence. Their nonchild exit codes are UNOBSERVED_NONCHILD.
 
 Shell output, saved live editor and final shell readback each get one unchanged
@@ -107,3 +112,32 @@ is required; the existing narrow IPC readiness retry remains bounded90s.
 The accepted startup records and process proof are emitted in keyboard_ready
 and replayed by the public contract. Subsequent sole focused native terminal,
 nonce bytes and all diagnostic/capture/cleanup gates remain unchanged.
+
+
+Delivery policy vm-chord-batch-workspace-v1 is an explicit conservative generic
+VM test condition, not a latency or throughput claim. Each QMP receipt records
+that exact policy; keyboard_terminal records actual initial settle elapsed time.
+keyboard_workspace independently records the owned Bash cwd before the outcome
+command, and public replay requires its nonce/shell/path/method/order. Failed
+cd stops before printf/tee; it cannot be bypassed by permission changes or a
+blind input retry. Failure diagnostics also include a bounded identity-checked
+shell cwd observation; fixed file diagnostics and optional QMP image remain.
+
+Actual38901031090 shows repeated c characters replacing the initial cd/path
+prefix, followed by correct later command text and exact printed nonce. That
+failed cd left the expected workspace files absent. Its screenshot does not
+establish which layer corrupted delivery. Pinned QEMU source has a64-descriptor
+virtio event queue and discards a report when descriptors are unavailable;
+there is no runtime queue-full trace establishing that condition in this run.
+Single-report chords, slower pacing and initial settle are a testable mitigation, not a claimed
+proven root cause. No product, package, kernel, access mode or default workdir
+changes. The next native actual must establish received character fidelity.
+
+The pinned qmp_input_send_event handler sends the supplied events in order and
+synchronizes once afterwards. The virtio HID sync adds one SYN_REPORT; the
+virtio input code reserves all descriptors before exposing that report. Each
+chord therefore carries its own reverse-order key releases in the same report.
+An uncertain QMP reply triggers one emergency release-only batch and remains
+fatal; there is no replay of presses. Whole-chord delivery can still fail, so
+QMP calls/key-event counts and policy acknowledgements never replace the cwd
+barrier, exact result bytes or independent visible captures.

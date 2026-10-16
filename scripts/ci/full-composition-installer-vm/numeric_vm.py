@@ -229,7 +229,7 @@ def verify_export(p,worker,result,c):
     for row in records:
         expected={n for n in payload['ownership'][row['name']] if payload['nodes'][n]['type']!='directory'}
         need(set(row['files'])==expected,'mapped observer package ownership differs: '+row['name'])
-    worker.compare_payload(normalize(observation),payload)
+    worker.compare_payload(normalize(observation),payload,derived_output_binding=profile.get('derived_output_binding'))
     guest=driver.database(Path('/'),max_packages=1024,max_files=500000,max_nodes=1000000)
     need({r['name']:r['version'] for r in guest}==c['tooling_inventory'],'mapped observer parent inventory differs')
     fd=evidence_directory(worker)
