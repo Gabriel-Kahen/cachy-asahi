@@ -1,0 +1,16 @@
+{
+  "archive_sha256": "dc5cdffcc7d59bd93986bfbb5279aaff3760f469dc3ce4a2eb5244e1e80ceb15",
+  "evidence": "docs/validation/tools-candidates-native-20261016.md",
+  "hardware": "NOT_RUN",
+  "name": "cachy-asahi-zsh-history-substring-search",
+  "native_lifecycle": "PASS",
+  "native_pair": "PASS_BYTES_IDENTICAL",
+  "native_run": 38909646797,
+  "qualification": "PASS_WITH_EXPLICIT_FROZEN_SOURCE_PATH_SUPPLEMENT",
+  "raw_lifecycle_sha256": "c8331cebf33b16d52987f8f910ad395245e4108d8bdd5dfc6e8c79a373a68fe3",
+  "release_selection": false,
+  "run_id": "38909646797",
+  "source_sha": "8276f19463d1b58ab593ca90f259d1fadc3672f7",
+  "status": "ROOT_ACCEPTED_NATIVE_CANDIDATE",
+  "version": "0.1.0-1"
+}

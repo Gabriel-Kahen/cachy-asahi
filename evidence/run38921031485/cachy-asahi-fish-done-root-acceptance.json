@@ -1,0 +1,16 @@
+{
+  "archive_sha256": "9ce3c7ba89467f04660014c1b12056dce28bd0c4e69b4cab8a9c2c98e1cce54f",
+  "evidence": "docs/validation/fish-candidates-native-20261016.md",
+  "hardware": "NOT_RUN",
+  "name": "cachy-asahi-fish-done",
+  "native_lifecycle": "PASS",
+  "native_pair": "PASS_BYTES_IDENTICAL",
+  "native_run": 38921031485,
+  "qualification": "PASS_NATIVE_PAIR_AND_INSTALLED_LOCAL_RECORDER_LIFECYCLE",
+  "raw_lifecycle_sha256": "e6659b624e45020a87b4052f667e306c9a33a5b517af16edc4f2a4f97cb19356",
+  "release_selection": false,
+  "run_id": "38921031485",
+  "source_sha": "6c691098cd7be3ad4a4b2acb9acfb4fdc653cf53",
+  "status": "ROOT_ACCEPTED_NATIVE_CANDIDATE",
+  "version": "0.1.0-2"
+}
