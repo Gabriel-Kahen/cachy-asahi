@@ -107,6 +107,24 @@ class StageTests(unittest.TestCase):
         path.unlink()
         with self.assertRaises(FileNotFoundError):s.source_pins(self.root, stage_sha, s.GUARD_SHA)
 
+    def test_release_helper_pair_pins_reject_byte_drift(self):
+        root = Path(__file__).resolve().parents[2]
+        stage_sha = s.digest(s.read(root / 'scripts/client/stage.py'))
+        files, pins = s.source_pins(root, stage_sha, s.GUARD_SHA)
+        for name, data in files.items():
+            path = self.root / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(data)
+        for name in ('scripts/release/release.py', 'scripts/release/test_release.py'):
+            with self.subTest(source=name):
+                self.assertEqual(s.digest(files[name]), s.FROZEN[name])
+                path = self.root / name
+                path.write_bytes(files[name] + b'\n# unreviewed release-helper drift\n')
+                with self.assertRaisesRegex(ValueError, 'input-pin-mismatch'):
+                    s.source_pins(self.root, stage_sha, s.GUARD_SHA)
+                path.write_bytes(files[name])
+        self.assertEqual(s.source_pins(self.root, stage_sha, s.GUARD_SHA)[1], pins)
+
     def test_live_host_worker_refusal_precedes_input_or_write(self):
         with mock.patch.object(s, 'worker_guard') as guard:
             with self.assertRaises(ValueError):s.worker(argparse.Namespace())
