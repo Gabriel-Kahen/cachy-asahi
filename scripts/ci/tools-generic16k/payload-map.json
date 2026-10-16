@@ -18,6 +18,12 @@
       "sha256": "f79eb322f34617d43ae13deaaac057f431e8e81f11a23e8a79876158c37dff00",
       "source": "packages/tools/cachy-asahi-zsh-history-substring-search/check-module.py"
     },
+    "fixtures/substring_observer.py": {
+      "bytes": 8349,
+      "mode": 420,
+      "sha256": "4aaf1a417ad3b1b7b9e8b594f4514a743ea1304edaf9b9e1aecf310497149738",
+      "source": "scripts/ci/tools-generic16k/substring_observer.py"
+    },
     "highlighting-fixture/terminal.py": {
       "bytes": 9842,
       "mode": 420,

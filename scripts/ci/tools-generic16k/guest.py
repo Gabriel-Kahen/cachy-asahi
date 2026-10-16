@@ -72,7 +72,7 @@ def command(argv,env,expected=0,seconds=30):
 
 
 SUBSTRING_CASES=('noninteractive','editing','preexisting-function','preexisting-widget','preexisting-private','coexist')
-SUBSTRING_IDENTITIES=('guest.py','fixtures/substring.py','usr/bin/zsh',
+SUBSTRING_IDENTITIES=('guest.py','fixtures/substring.py','fixtures/substring_observer.py','usr/bin/zsh',
     'usr/share/cachy-asahi/zsh-history-substring-search/opt-in.zsh',
     'usr/share/cachy-asahi/zsh-history-substring-search/zsh-history-substring-search.zsh',
     'usr/share/cachy-asahi/zsh-syntax-highlighting/opt-in.zsh')
@@ -101,6 +101,7 @@ def substring_diagnostic(error,work,nonce,release,manifest_raw,argv):
     for name in SUBSTRING_CASES:
         case=work/name;files={leaf:diagnostic_file(case/leaf,limit,tail) for leaf,limit,tail in
             (('terminal.log',1536,True),('ready',64,False),('prompt-sequence',64,False))}
+        files['terminal-exit.json']=diagnostic_file(case/'terminal-exit.json',3072,cap=3072)
         present=[i for i in range(1,11) if (case/('snapshot-'+str(i))).exists()]
         latest=present[-1] if present else None
         if latest is not None:files['latest_snapshot']=diagnostic_file(case/('snapshot-'+str(latest)),4096)
@@ -120,12 +121,22 @@ def substring_diagnostic(error,work,nonce,release,manifest_raw,argv):
         for case in value['cases'].values():case['files']={k:v for k,v in case['files'].items() if k!='latest_snapshot'}
         value['snapshot_samples_omitted_for_total_cap']=True
         raw=json.dumps(value,sort_keys=True,separators=(',',':'))
+    if len(raw.encode())>65536:
+        for case in value['cases'].values():
+            row=case['files']['terminal.log']
+            if row.get('status')!='FILE':continue
+            data=base64.b64decode(row['sample_base64'],validate=True);tail=data[-512:]
+            row.update(sample_base64=base64.b64encode(tail).decode(),sample_sha256=sha(tail),
+                sample_offset=row['sample_offset']+len(data)-len(tail),
+                sample_complete=row['sample_complete'] and len(tail)==len(data))
+        value['terminal_tails_reduced_for_total_cap']=True
+        raw=json.dumps(value,sort_keys=True,separators=(',',':'))
     need(len(raw.encode())<=65536,'substring diagnostic total bound')
     return raw
 
 
 def run_substring(call,work,nonce,release,manifest_raw):
-    argv=['/usr/bin/python3','-I','-B','/fixtures/substring.py','--module-dir',
+    argv=['/usr/bin/python3','-I','-B','/fixtures/substring_observer.py','--module-dir',
         '/usr/share/cachy-asahi/zsh-history-substring-search','--work',str(work),
         '--highlight-wrapper','/usr/share/cachy-asahi/zsh-syntax-highlighting/opt-in.zsh']
     try:

@@ -21,7 +21,7 @@ class SubstringDiagnostic(unittest.TestCase):
         self.nonce='a'*32;self.release='test-generic16k'
         self.manifest=dict(source_commit='e'*40,files={n:dict(bytes=3,mode=420,sha256=guest.sha(b'pin')) for n in guest.SUBSTRING_IDENTITIES})
         self.manifest_raw=(json.dumps(self.manifest,sort_keys=True,indent=2)+'\n').encode()
-        self.argv=['/usr/bin/python3','-I','-B','/fixtures/substring.py','--module-dir',
+        self.argv=['/usr/bin/python3','-I','-B','/fixtures/substring_observer.py','--module-dir',
             '/usr/share/cachy-asahi/zsh-history-substring-search','--work','/tmp/tools16k/substring',
             '--highlight-wrapper','/usr/share/cachy-asahi/zsh-syntax-highlighting/opt-in.zsh']
         self.receipt=dict(status='FAIL',host_architecture='aarch64',tests=[dict(name=n,status='FAIL' if n=='editing' else 'PASS',
@@ -146,6 +146,44 @@ class SubstringDiagnostic(unittest.TestCase):
         self.assertLessEqual(len(raw.encode()),65536);self.assertEqual(value['fixture_receipt'],self.receipt)
         self.assertTrue(value['value']['snapshot_samples_omitted_for_total_cap'])
         self.assertTrue(all(case['latest_snapshot']==10 for case in value['value']['cases'].values()))
+
+    def terminal_files(self,padded=False):
+        for name in guest.SUBSTRING_CASES:
+            value=dict(schema_version=1,status='NO_PTY_ORIGINAL_NONINTERACTIVE_CASE' if name=='noninteractive' else 'TERMINAL_OBSERVATION_ONLY',
+                acceptance_credit=False,case=name,fixture_sha256=guest.sha(b'pin'),observer_sha256=guest.sha(b'pin'),
+                observer_reaping='NONE',observer_signals='NONE')
+            if name!='noninteractive':
+                point=dict(elapsed_ns=1,status='OBSERVED_UNREAPED_CHILD',returncode=None,waitid=None,
+                    uid=[23001]*4,gid=[23001]*4,cpu_limit=[10,10],proc=dict(pid=300,ppid=200,pgid=300,sid=300,state='R',utime=990,stime=9,start=7))
+                value.update(pid=300,parent_pid=200,uid=23001,gid=23001,clock_ticks=100,initial=point,
+                    events=[dict(point,stage='BEFORE_ORIGINAL_CLOSE',elapsed_ns=2),
+                            dict(stage='AFTER_ORIGINAL_CLOSE',elapsed_ns=3,status='ORIGINAL_ALREADY_REAPED',returncode=-15)])
+            if padded:value['padding']='x'*(3059-len(json.dumps(value,sort_keys=True,separators=(',',':')).encode()))
+            raw=json.dumps(value,sort_keys=True,separators=(',',':')).encode();self.assertLessEqual(len(raw),3072)
+            (self.work/name/'terminal-exit.json').write_bytes(raw)
+
+    def test_terminal_observations_join_all_six_fixed_files_without_acceptance_credit(self):
+        self.terminal_files();value=self.parse(self.raw())
+        self.assertEqual(set(value['terminal_exit']),set(guest.SUBSTRING_CASES))
+        self.assertEqual(value['terminal_exit']['coexist']['initial']['cpu_limit'],[10,10])
+        self.assertFalse(value['acceptance_credit']);self.assertEqual(value['fixture_receipt'],self.receipt)
+
+    def test_terminal_observation_source_forgery_and_oversize_are_not_accepted(self):
+        self.terminal_files();path=self.work/'coexist/terminal-exit.json';value=json.loads(path.read_bytes())
+        value['observer_sha256']='0'*64;path.write_text(json.dumps(value))
+        with self.assertRaisesRegex(ValueError,'source/case/scope'):self.parse(self.raw())
+        path.write_bytes(b'x'*3073);value=self.parse(self.raw())
+        self.assertEqual(value['value']['cases']['coexist']['files']['terminal-exit.json']['status'],'UNAVAILABLE')
+        self.assertNotIn('coexist',value['terminal_exit'])
+
+    def test_all_file_caps_keep_cpu_observations_and_original_receipt_under_uart_cap(self):
+        self.terminal_files(padded=True);self.receipt['padding']='x'*14000
+        (self.work/'receipt.json').write_text(json.dumps(self.receipt))
+        for name in guest.SUBSTRING_CASES:(self.work/name/'snapshot-10').write_bytes(b'x'*4096)
+        raw=self.raw();value=self.parse(raw)
+        self.assertLessEqual(len(raw.encode()),65536);self.assertEqual(set(value['terminal_exit']),set(guest.SUBSTRING_CASES))
+        self.assertEqual(value['fixture_receipt'],self.receipt)
+        self.assertTrue(value['value']['snapshot_samples_omitted_for_total_cap'])
 
     def test_valid_original_success_is_unchanged_and_emits_no_diagnostic(self):
         value=dict(status='PASS_HOST_ZSH_PTY_CONTROLS',tests=[dict(status='PASS',exit=0) for _ in range(6)])

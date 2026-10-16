@@ -146,16 +146,71 @@ def uart_observation(raw,nonce):
     report['complete']=len(raw)<=65536;return report
 
 
+def terminal_observation(value,case,receipt):
+    """Diagnostic-only joins; never supplies guest/fixture acceptance credit."""
+    s.need(type(value) is dict and value.get('schema_version')==1 and value.get('case')==case and
+        value.get('acceptance_credit') is False and value.get('observer_reaping')==value.get('observer_signals')=='NONE' and
+        value.get('fixture_sha256')==receipt['files']['fixtures/substring.py']['sha256'] and
+        value.get('observer_sha256')==receipt['files']['fixtures/substring_observer.py']['sha256'],
+        'terminal observation source/case/scope differs')
+    if case=='noninteractive':
+        s.need(value.get('status')=='NO_PTY_ORIGINAL_NONINTERACTIVE_CASE','original noninteractive observation differs');return
+    integer=lambda n:type(n) is int and 0<=n<2**63
+    pid=lambda n:type(n) is int and 1<n<2**31
+    s.need(value.get('status')=='TERMINAL_OBSERVATION_ONLY' and pid(value.get('pid')) and pid(value.get('parent_pid')) and
+        value.get('uid')==value.get('gid')==23001 and type(value.get('clock_ticks')) is int and 0<value['clock_ticks']<=100000,
+        'bounded terminal identity/clock required')
+    events=value.get('events');stages=('WAIT_FAILURE_BEFORE_ORIGINAL_CLOSE','BEFORE_ORIGINAL_CLOSE','AFTER_ORIGINAL_CLOSE')
+    s.need(type(events) is list and len(events)<=3 and all(e.get('stage') in stages for e in events) and
+        [stages.index(e['stage']) for e in events]==sorted(set(stages.index(e['stage']) for e in events)),
+        'fixed ordered terminal observations required')
+    for event in events:
+        if event['stage']=='WAIT_FAILURE_BEFORE_ORIGINAL_CLOSE':
+            s.need(integer(event.get('wait_elapsed_ns')) and event['wait_elapsed_ns']<=180*10**9 and
+                (event.get('original_read_return') is None or type(event['original_read_return']) is bool) and
+                type(event.get('original_read_calls')) is int and 0<=event['original_read_calls']<=1000000 and
+                type(event.get('error_type')) is str and type(event.get('reason')) is str and len(event['reason'])<=96,
+                'bounded original wait failure observation required')
+    points=[value['initial']]+([value['last_wait_before']] if 'last_wait_before' in value else [])+events
+    starts=set();original_code=None;peeked_code=None;elapsed=-1
+    for point in points:
+        s.need(integer(point.get('elapsed_ns')) and (point.get('returncode') is None or type(point['returncode']) is int),
+            'terminal elapsed/status required')
+        s.need(point['elapsed_ns']>=elapsed,'terminal observation time moved backwards');elapsed=point['elapsed_ns']
+        if original_code is not None:s.need(point['returncode']==original_code,'original terminal returncode changed after reaping')
+        if point['returncode'] is not None:
+            original_code=point['returncode']
+            if peeked_code is not None:s.need(original_code==peeked_code,'non-reaping and original terminal exit disagree')
+        status=point.get('status')
+        s.need(status in ('ORIGINAL_ALREADY_REAPED','OBSERVED_UNREAPED_CHILD','UNAVAILABLE'),'terminal observation status differs')
+        if status=='ORIGINAL_ALREADY_REAPED':s.need(type(point['returncode']) is int,'original reaped status absent');continue
+        if status=='UNAVAILABLE':continue
+        node=point['proc'];starts.add(node['start'])
+        s.need(point['returncode'] is None and node['pid']==node['pgid']==node['sid']==value['pid'] and
+            node['ppid']==value['parent_pid'] and point['uid']==point['gid']==[23001]*4 and
+            all(integer(node[k]) for k in ('utime','stime','start')) and type(node['state']) is str and len(node['state'])==1 and
+            type(point['cpu_limit']) is list and len(point['cpu_limit'])==2 and all(integer(n) for n in point['cpu_limit']),
+            'original terminal PID/start/UID/CPU identity differs')
+        waited=point.get('waitid')
+        if waited is not None:
+            s.need(type(waited) is dict and set(waited)=={'code','status'} and waited['code'] in (1,2,3) and
+                type(waited['status']) is int and (0<=waited['status']<=255 if waited['code']==1 else 1<=waited['status']<=64),
+                'non-reaping terminal exit observation differs')
+            observed=waited['status'] if waited['code']==1 else -waited['status']
+            s.need(peeked_code in (None,observed),'non-reaping terminal exit changed');peeked_code=observed
+    s.need(len(starts)<=1,'terminal child starttime changed')
+
+
 def failed_substring_diagnostic(output,nonce,release,receipt):
     s.need(len(output)<=1024**2,'bounded UART diagnostic required')
     rows=[line[len(b'TOOLS16K_DIAGNOSTIC '):] for line in output.replace(b'\r',b'').splitlines() if line.startswith(b'TOOLS16K_DIAGNOSTIC ')]
     if not rows:return None
     s.need(len(rows)==1 and len(rows[0])<=65536,'one bounded substring diagnostic required')
     value=json.loads(rows[0]);names=('noninteractive','editing','preexisting-function','preexisting-widget','preexisting-private','coexist')
-    argv=['/usr/bin/python3','-I','-B','/fixtures/substring.py','--module-dir',
+    argv=['/usr/bin/python3','-I','-B','/fixtures/substring_observer.py','--module-dir',
         '/usr/share/cachy-asahi/zsh-history-substring-search','--work','/tmp/tools16k/substring',
         '--highlight-wrapper','/usr/share/cachy-asahi/zsh-syntax-highlighting/opt-in.zsh']
-    identities=('guest.py','fixtures/substring.py','usr/bin/zsh',
+    identities=('guest.py','fixtures/substring.py','fixtures/substring_observer.py','usr/bin/zsh',
         'usr/share/cachy-asahi/zsh-history-substring-search/opt-in.zsh',
         'usr/share/cachy-asahi/zsh-history-substring-search/zsh-history-substring-search.zsh',
         'usr/share/cachy-asahi/zsh-syntax-highlighting/opt-in.zsh')
@@ -170,9 +225,9 @@ def failed_substring_diagnostic(output,nonce,release,receipt):
     for case in value['cases'].values():
         present=case['snapshot_numbers_present'];latest=case['latest_snapshot'];files=case['files']
         s.need(type(present) is list and all(type(n) is int and 1<=n<=10 for n in present) and present==sorted(set(present)) and
-            latest==(present[-1] if present else None) and {'terminal.log','ready','prompt-sequence'}<=set(files)<=
-            {'terminal.log','ready','prompt-sequence','latest_snapshot'},'bounded fixed substring file allowlist required')
-        samples.extend((row,1536 if leaf=='terminal.log' else 4096 if leaf=='latest_snapshot' else 64) for leaf,row in files.items())
+            latest==(present[-1] if present else None) and {'terminal.log','ready','prompt-sequence','terminal-exit.json'}<=set(files)<=
+            {'terminal.log','ready','prompt-sequence','latest_snapshot','terminal-exit.json'},'bounded fixed substring file allowlist required')
+        samples.extend((row,1536 if leaf=='terminal.log' else 4096 if leaf=='latest_snapshot' else 3072 if leaf=='terminal-exit.json' else 64) for leaf,row in files.items())
     command=value.get('command')
     if command is not None:
         s.need(command['argv']==argv and command['expected_exit']==0 and command['natural_exit'] is True and
@@ -195,7 +250,14 @@ def failed_substring_diagnostic(output,nonce,release,receipt):
     original=value['original_receipt'];decoded=None
     if original.get('status')=='FILE' and original['sample_complete']:
         decoded=json.loads(base64.b64decode(original['sample_base64'],validate=True))
-    return dict(value=value,fixture_receipt=decoded,bytes=len(rows[0]),sha256=s.sha(rows[0]),acceptance_credit=False)
+    terminal_exit={}
+    for name,case in value['cases'].items():
+        row=case['files'].get('terminal-exit.json',{})
+        if row.get('status')!='FILE':continue
+        s.need(row['sample_complete'] and row['bytes']<=3072,'complete bounded terminal observation required')
+        observation=json.loads(base64.b64decode(row['sample_base64'],validate=True))
+        terminal_observation(observation,name,receipt);terminal_exit[name]=observation
+    return dict(value=value,fixture_receipt=decoded,terminal_exit=terminal_exit,bytes=len(rows[0]),sha256=s.sha(rows[0]),acceptance_credit=False)
 
 
 def query(argv):
@@ -372,7 +434,7 @@ def guest_report(output,code,nonce,release,receipt):
     work='/tmp/tools16k';prefix=['/usr/bin/python3','-I','-B'];mirror='/usr/bin/cachy-asahi-mirrors'
     paths=work+'/mirrors/';activate=[mirror,'activate',paths+'catalog.json','--candidate',paths+'candidate','--repository','core','--target',paths+'mirrorlist','--state']
     restore=[mirror,'restore','--repository','core','--target',paths+'mirrorlist','--state']
-    expected=[prefix+['/fixtures/highlighting.py',work+'/highlighting'],prefix+['/fixtures/substring.py','--module-dir',
+    expected=[prefix+['/fixtures/highlighting.py',work+'/highlighting'],prefix+['/fixtures/substring_observer.py','--module-dir',
         '/usr/share/cachy-asahi/zsh-history-substring-search','--work',work+'/substring','--highlight-wrapper',
         '/usr/share/cachy-asahi/zsh-syntax-highlighting/opt-in.zsh'],prefix+['/fixtures/autopair.py','--source',
         '/usr/share/cachy-asahi/fish-autopair','--output',work+'/autopair'],[mirror,'--version'],[mirror,'check',paths+'catalog.json'],

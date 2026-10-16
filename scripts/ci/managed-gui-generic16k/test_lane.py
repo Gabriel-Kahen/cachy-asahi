@@ -71,7 +71,7 @@ class Lane(unittest.TestCase):
         raw=(cls.runner/'kernel-profile.json').read_bytes()
         cls.events.insert(0,dict(event='boot',architecture='aarch64',kernel=K.RELEASE,page_size=16384,kernel_profile_sha256=s.sha(raw)))
         cls.contract=load('control_generated_contract',cls.runner/'contract.py')
-        cls.caller=load('control_gui16k_caller',s.HERE/'ci/caller.py')
+        cls.caller=load('control_gui16k_caller',Path(__file__).resolve().parent/'ci/caller.py')
 
     def setUp(self):
         self.temp=tempfile.TemporaryDirectory();self.addCleanup(self.temp.cleanup);self.work=Path(self.temp.name)
@@ -84,6 +84,9 @@ class Lane(unittest.TestCase):
     def test_02_generated_sources_parse_and_fixture_shell(self):
         for path in self.runner.glob('*.py'):ast.parse(path.read_text())
         subprocess.run(['bash','-n',str(self.runner/'desktop574_fixture.sh')],check=True)
+        manifest=json.loads(s.read(s.HERE/'ci/source-manifest.json'))
+        self.caller.verify_kernel_contract_pin(manifest)
+        self.caller.verify_files(self.runner,manifest['generated_runner'])
 
     def test_03_only_main_usage_run_change_kernel_helper_functions(self):
         old=ast.parse((SOURCE/'scripts/virtual/generic16k/build_kernel.py').read_text());new=ast.parse((s.HERE/'build_kernel.py').read_text())
@@ -186,6 +189,10 @@ class Lane(unittest.TestCase):
 
     def test_19_source_identity_and_arm_runner_required(self):
         p=self.work/'file';p.write_text('fixed');mf=dict(files={'file':dict(bytes=5,sha256=s.sha(b'fixed'))})
+        name=self.caller.SLICE+'/kernel_contract.py';target=self.work/name
+        target.parent.mkdir(parents=True);target.write_text('contract fixture')
+        row=dict(bytes=target.stat().st_size,sha256=s.sha(target.read_bytes()))
+        mf['files'][name]=row;mf['generated_runner']={'kernel_contract.py':dict(row)}
         env=dict(SOURCE_SHA='a'*40,GITHUB_SHA='a'*40,GITHUB_WORKFLOW_SHA='a'*40,RUNNER_ARCH='ARM64',RUNNER_OS='Linux',GITHUB_RUN_ID='1',GITHUB_RUN_ATTEMPT='1')
         self.assertEqual(self.caller.prove(self.work,mf,env)['status'],'SOURCE_PROOF_PASS')
         for change in ({'GITHUB_WORKFLOW_SHA':'b'*40},{'RUNNER_ARCH':'X64'},{'SOURCE_SHA':'main'}):
@@ -395,6 +402,29 @@ class Lane(unittest.TestCase):
             s.save(seed,common|change)
             result=self.caller.retain(base,runtime,proof,self.work/('bad-seed-'+str(index)),self.runner,manifest,acquisition=self.acquisition,seed=seed)
             self.assertEqual(result['status'],'NOT_ACCEPTED')
+
+
+    def test_36_copied_contract_stale_or_missing_pin_refused_before_source_proof(self):
+        name=self.caller.SLICE+'/kernel_contract.py';row=dict(bytes=4659,sha256='a'*64)
+        good=dict(files={name:row},generated_runner={'kernel_contract.py':dict(row)})
+        self.caller.verify_kernel_contract_pin(good)
+        for changed in ({'bytes':4659,'sha256':'b'*64},{'bytes':1,'sha256':'a'*64},None):
+            bad=copy.deepcopy(good)
+            if changed is None:bad['generated_runner'].pop('kernel_contract.py')
+            else:bad['generated_runner']['kernel_contract.py']=changed
+            with self.subTest(changed=changed),self.assertRaisesRegex(ValueError,'source/generated pins differ'):
+                self.caller.verify_kernel_contract_pin(bad)
+        env=dict(SOURCE_SHA='a'*40,GITHUB_SHA='a'*40,GITHUB_WORKFLOW_SHA='a'*40,RUNNER_ARCH='ARM64',RUNNER_OS='Linux',GITHUB_RUN_ID='1',GITHUB_RUN_ATTEMPT='1')
+        with patch.object(self.caller,'verify_files'),self.assertRaisesRegex(ValueError,'source/generated pins differ'):
+            self.caller.prove(self.work,bad,env)
+
+    def test_37_generated_contract_bytes_still_checked_after_consistent_pin(self):
+        target=self.work/'kernel_contract.py';shutil.copyfile(self.runner/'kernel_contract.py',target)
+        row=dict(bytes=target.stat().st_size,sha256=s.sha(target.read_bytes()))
+        self.caller.verify_files(self.work,{'kernel_contract.py':row})
+        target.write_bytes(target.read_bytes()+b'\n# drift\n')
+        with self.assertRaisesRegex(ValueError,'source pin differs: kernel_contract.py'):
+            self.caller.verify_files(self.work,{'kernel_contract.py':row})
 
 
 if __name__=='__main__':

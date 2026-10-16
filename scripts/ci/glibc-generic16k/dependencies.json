@@ -45,12 +45,12 @@
       "sha256": "6d91180b80138d2d8039efafaaa9ca31349baea22b90430cbb15e07bce02e8f6"
     },
     "scripts/ci/tools-generic16k/run.py": {
-      "bytes": 40417,
-      "sha256": "8316502cc410d934a4adb40141dfae84f5a603bc1661ac63f5c43bbd520104c1"
+      "bytes": 45543,
+      "sha256": "3a38f1037817d4087f455e859511246bb4a3fd90efac31d0b5258e3632703052"
     },
     "scripts/ci/tools-generic16k/support.py": {
       "bytes": 2994,
-      "sha256": "94215d08ded23746b7d86b890491db5b09332b41eccf6b1bca994c31bd0195f3"
+      "sha256": "68021f907105843fd65549f00da1480e0d7dc13de4f82655a02033dac1a89b68"
     },
     "scripts/virtual/generic16k/build_kernel.py": {
       "bytes": 10781,

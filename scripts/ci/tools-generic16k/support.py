@@ -8,7 +8,7 @@ import stat
 
 HERE=Path(__file__).resolve().parent
 LOCK='cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac'
-MAP_SHA='83b324fd7b459f7ad48585a97f32d9a36c5131b92f50f4920c284b16c1be518e'
+MAP_SHA='eb903b15cc9be6fb0b549d710bb54e6bf12628a244253801bbfe38a389376460'
 TOOLS=('bash','env','uname','getconf','mount','python3','zsh','fish','cmp','mkdir','rm','ln')
 SCOPE='PRIVATE_GENERIC_ARM64_16K_MAPPED_TOOLS_PTY_CLI_ONLY'
 
