@@ -4,6 +4,7 @@ from contextlib import ExitStack
 import copy
 import importlib.util
 import json
+import itertools
 from pathlib import Path
 import stat
 import sys
@@ -42,6 +43,7 @@ class Backend:
         self.fail = False
         self.preexisting = False
         self.bus_uid, self.bus_pid = m.UID, 422
+        self.owner, self.owner_replies = True, [True]
         self.target = 'o "/org/freedesktop/systemd1/unit/default_2etarget"\n'
 
     def emit(self, event, **values):
@@ -67,7 +69,11 @@ class Backend:
         if 'stop' in argv:
             self.stopped = True
             return ''
+        if 'NameHasOwner' in argv:
+            self.owner = self.owner_replies.pop(0) if len(self.owner_replies) > 1 else self.owner_replies[0]
+            return 'b ' + str(self.owner).lower() + '\n'
         if 'GetConnectionUnixUser' in argv:
+            if not self.owner: raise ValueError('Call failed: The connection does not exist')
             return 'u ' + str(self.bus_uid) + '\n'
         if 'GetConnectionUnixProcessID' in argv:
             return 'u ' + str(self.bus_pid) + '\n'
@@ -94,7 +100,7 @@ class Managed(unittest.TestCase):
         self.assertEqual(env['XDG_RUNTIME_DIR'], '/run/user/23001')
         self.assertEqual(env['CACHY_MANAGED_MANAGER_PID'], '422')
         calls = [argv for argv, _, _, _ in self.base.commands if '/usr/bin/busctl' in argv]
-        self.assertEqual(len(calls), 3)
+        self.assertEqual(len(calls), 4)
         self.assertTrue(all(argv[:len(m.SETPRIV)] == m.SETPRIV for argv in calls))
         self.assertTrue(all('--address=' + m.ADDRESS in argv and '--auto-start=no' in argv for argv in calls))
         self.manager.stop()
@@ -113,6 +119,29 @@ class Managed(unittest.TestCase):
         self.manager.stop()
         self.assertTrue(self.base.stopped)
         self.assertNotIn('managed_session_ready', [e['event'] for e in self.base.events])
+
+    def test_manager_active_before_bus_name_registration_waits_then_checks_identity(self):
+        self.base.owner = False
+        self.base.owner_replies = [False,True]
+        with patch.object(m.time,'sleep'):
+            env = self.manager.start()
+        calls = [argv for argv, *_ in self.base.commands if '/usr/bin/busctl' in argv]
+        methods = [next(name for name in ('NameHasOwner','GetConnectionUnixUser',
+                   'GetConnectionUnixProcessID','GetUnit') if name in argv) for argv in calls]
+        self.assertEqual(methods,['NameHasOwner','NameHasOwner','GetConnectionUnixUser',
+                                  'GetConnectionUnixProcessID','GetUnit'])
+        self.assertEqual(env['CACHY_MANAGED_MANAGER_PID'],'422')
+        self.assertEqual(len([e for e in self.base.events if e['event']=='managed_session_ready']),1)
+
+    def test_permanently_unowned_bus_name_expires_without_identity_or_success(self):
+        self.base.owner = False;self.base.owner_replies = [False]
+        self.manager.seconds = 1
+        clock = itertools.count(0,.1)
+        with patch.object(m.time,'monotonic',side_effect=lambda:next(clock)),patch.object(m.time,'sleep'):
+            with self.assertRaisesRegex(ValueError,'deadline'):self.manager.start()
+        self.assertTrue(self.manager.owned)
+        self.assertFalse(any('GetConnectionUnixUser' in argv for argv, *_ in self.base.commands))
+        self.assertNotIn('managed_session_ready',[e['event'] for e in self.base.events])
 
     def test_preexisting_manager_refuses_without_stop_or_runtime_removal(self):
         self.base.preexisting = True
@@ -193,6 +222,12 @@ class Managed(unittest.TestCase):
 
 
 class TypesAndIdentity(unittest.TestCase):
+    def test_name_owner_probe_refuses_malformed_reply_and_transport_failure(self):
+        self.assertFalse(m.bus_owner_ready(Mock(return_value='b false\n')))
+        self.assertTrue(m.bus_owner_ready(Mock(return_value='b true\n')))
+        for value in ('s "false"','b 1','b false extra','b true\nb false'):
+            with self.subTest(value=value),self.assertRaises(ValueError):m.bus_owner_ready(Mock(return_value=value))
+        with self.assertRaises(TimeoutError):m.bus_owner_ready(Mock(side_effect=TimeoutError('transport failed')))
     def test_adapter_binding_keeps_phase_hooks_and_does_not_need_module_registration(self):
         base = SimpleNamespace(guard=Mock(),phase=Mock(),emit=Mock())
         phase, emit = base.phase, base.emit
