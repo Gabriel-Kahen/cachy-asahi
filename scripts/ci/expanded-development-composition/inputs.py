@@ -37,7 +37,7 @@ def retained(root,index,code):
             pair.append(report)
         C.need(pair[0]['metadata']['.BUILDINFO']==pair[1]['metadata']['.BUILDINFO'],
                'retained pair BUILDINFO differs')
-        result[name]=dict(row,archive=str(C.checked(root,row['files']['a'],8*1024**2)),
+        result[name]=dict(row,name=name,archive=str(C.checked(root,row['files']['a'],8*1024**2)),
                           inspected=pair[0])
     return result
 
