@@ -1,0 +1,39 @@
+# SPDX-License-Identifier: MIT
+# Original planner; existing repository helper Source is a separate pinned runtime input.
+pkgname=cachy-asahi-apps
+pkgver=0.1.0
+pkgrel=1
+pkgdesc='Offline signed ARM development application catalog and explicit readonly package plans'
+arch=('any')
+url='https://github.com/Gabriel-Kahen/cachy-asahi'
+license=('MIT')
+depends=('python>=3.11' 'gnupg' 'libarchive' 'pacman')
+source=('apps.py' 'cachy-asahi-apps' 'helper-pins.json' 'test_apps.py' 'check_source.py' 'README.md' 'source-provenance.json' 'NOTICE' 'LICENSE')
+sha256sums=(
+    '6ce521a2e8d5152b94164a52d84e60190065d5b6a8c4c4e1db576a40751efa56'
+    '9828b3772cb1272371df8847160f94ba08eab1caa232c45d0102b43f3fdef0f6'
+    '33a5e11e6d12df984e07c437c68ee581527cc4c95f3327bc44cbc09e0e29948a'
+    'c2d8601ff3427984cee06c0c33c25d90f20dde632e608ed85f1aedc5b6af089c'
+    '0d5e7c680598e01196f438c1f2d106d9d2170e14ad13caf5bc1da88162f06e75'
+    'ccc1b7f5c4f36dc8fbf9cfc6a8375f19f859ff1bb3060dd5f51a177597b25c7a'
+    '4e0ce803a383d0aaf1df6e34d6374838f535c817f0d5c23bb3913adb5c9c4d38'
+    '6254a92059555a314249d4657fdd160634d2348f14b592908fc588587b5f267c'
+    '51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7'
+)
+
+check() {
+    [[ -n ${CACHY_ASAHI_REPOSITORY_SOURCE:-} ]] || return 1
+    python -I -B "$srcdir/check_source.py" --recipe-root "$startdir" --repository-source "$CACHY_ASAHI_REPOSITORY_SOURCE" || return
+    python -I -B "$srcdir/test_apps.py" --repository-source "$CACHY_ASAHI_REPOSITORY_SOURCE"
+}
+
+package() {
+    [[ -n $pkgdir && $pkgdir != / ]] || return 1
+    install -Dm755 "$srcdir/cachy-asahi-apps" "$pkgdir/usr/bin/cachy-asahi-apps" || return
+    install -Dm644 "$srcdir/apps.py" "$pkgdir/usr/lib/cachy-asahi-apps/apps.py" || return
+    install -Dm644 "$srcdir/helper-pins.json" "$pkgdir/usr/lib/cachy-asahi-apps/helper-pins.json" || return
+    install -Dm644 "$srcdir/README.md" "$pkgdir/usr/share/doc/$pkgname/README.md" || return
+    install -Dm644 "$srcdir/source-provenance.json" "$pkgdir/usr/share/doc/$pkgname/source-provenance.json" || return
+    install -Dm644 "$srcdir/NOTICE" "$pkgdir/usr/share/licenses/$pkgname/NOTICE" || return
+    install -Dm644 "$srcdir/LICENSE" "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}
