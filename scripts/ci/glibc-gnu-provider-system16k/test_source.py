@@ -40,11 +40,14 @@ class Controls(unittest.TestCase):
         self.temp=tempfile.TemporaryDirectory();self.addCleanup(self.temp.cleanup);self.root=Path(self.temp.name)
 
     def test_unbound_policy_refuses_trial_before_any_output_or_actor(self):
-        with self.assertRaisesRegex(ValueError,'UNBOUND'):c.bindings()
-        lane=run.namespace(ROOT)
-        with self.assertRaisesRegex(ValueError,'UNBOUND'):lane['trial'](NS())
-        with self.assertRaisesRegex(ValueError,'UNBOUND'):lane['finalize'](NS())
-        self.assertEqual(list(self.root.iterdir()),[])
+        unbound=dict(schema_version=1,status='UNBOUND_DO_NOT_EXECUTE',binding=None)
+        original=c.bindings
+        with patch.object(c,'bindings',side_effect=lambda:original(unbound)):
+            with self.assertRaisesRegex(ValueError,'UNBOUND'):c.bindings()
+            lane=run.namespace(ROOT)
+            with self.assertRaisesRegex(ValueError,'UNBOUND'):lane['trial'](NS())
+            with self.assertRaisesRegex(ValueError,'UNBOUND'):lane['finalize'](NS())
+            self.assertEqual(list(self.root.iterdir()),[])
 
     def test_frozen_source_closure_is_exact(self):c.check_source(ROOT)
 
