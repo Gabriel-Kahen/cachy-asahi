@@ -15,6 +15,8 @@ def load(name, filename):
 
 def main():
     base = load('slice_base_guest', 'base_guest.py')
+    api = load('slice_managed_api', 'managed_session.py')
+    api.bind(base)
     session = load('slice_session', 'session.py')
     original_guard, original_emit = base.guard, base.emit
     completed = set()

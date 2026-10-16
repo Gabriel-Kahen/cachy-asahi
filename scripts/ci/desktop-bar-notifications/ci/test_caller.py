@@ -45,12 +45,14 @@ class CallerTests(unittest.TestCase):
         (base/'report.json').write_text(json.dumps(original));(base/'installed-packages.lock').write_text('waybar 0.15.0-3\n')
         report=dict(status='PASS_BAR_NOTIFICATION_GENERIC_ARM_SMOKE',configuration='desktop-container-verifier-pass',
             base_image=image,runtime_package_count=591,base_reference_cleanup=dict(ok=True,base_image_present=True),
-            cleanup=[dict(exit=0) for _ in range(13)]+[dict(guest_disk_removed=True)],frames={})
+            cleanup=[dict(exit=0) for _ in range(13)]+[dict(guest_disk_removed=True)],frames={},events=[])
         (runtime/'frames').mkdir()
         for stage in ('minimal','overlay'):
             file=runtime/'frames'/(stage+'.ppm')
             file.write_bytes(b'P6\n1024 768\n255\n'+b'\0'*(1024*768*3))
-            report['frames'][stage]=dict(sha256=caller.digest(file),width=1024,height=768)
+            observer=dict(event='frame_captured',stage=stage,sha256=caller.digest(file),first_capture=True,visual_review='NOT_RUN')
+            report['frames'][stage]=dict(sha256=caller.digest(file),width=1024,height=768,observer=observer)
+            report['events'].append(observer)
         (runtime/'runtime.json').write_text(json.dumps(report))
         for name in ('guest.log','events.log'):(runtime/name).write_text('bounded diagnostic\n')
         # These are deliberately excluded even though they exist next to allowlisted files.
@@ -76,13 +78,15 @@ class CallerTests(unittest.TestCase):
         self.assertTrue((self.root/'public/runtime/guest.log').exists())
 
     def test_hash_mismatch_and_old_runtime_result_fail_closed(self):
-        for mutation in ('hash','old'):
+        for mutation in ('hash','old','observer','event'):
             with tempfile.TemporaryDirectory() as directory:
                 previous=self.root;self.root=Path(directory)
                 try:
                     base,runtime,proof,_,report=self.make_result()
                     if mutation=='hash':report['frames']['minimal']['sha256']='0'*64
-                    else:report['status']='PASS_NATIVE_CONFIGURATION_AND_GENERIC_SOFTWARE_SESSION'
+                    elif mutation=='old':report['status']='PASS_NATIVE_CONFIGURATION_AND_GENERIC_SOFTWARE_SESSION'
+                    elif mutation=='observer':report['frames']['minimal'].pop('observer')
+                    else:report['events'].clear()
                     (runtime/'runtime.json').write_text(json.dumps(report))
                     self.assertEqual(caller.retain(base,runtime,proof,self.root/'public')['status'],'NOT_ACCEPTED')
                 finally:self.root=previous
