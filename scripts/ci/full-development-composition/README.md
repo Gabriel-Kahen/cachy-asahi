@@ -304,14 +304,16 @@ output names are refused rather than overwritten. Root owns source selection,
 publication and any next actual run.
 
 
-## Exact prior-capture auxiliary serialization correction after38824669218
+## Exact auxiliary serialization with source-defined padding classification after38854180036
 
-Artifact-only candidate against Source e06f187d1e20b63eece858d82369ee3696cba4d5
-and workflow c3226390b6419d06db3adb863b3405d4f0544163. This supersedes the historical
-raw-only auxiliary policy described above; earlier actual runs remain FAIL.
-The retained B0/B1 pair has identical995-entry named maps and exactly the order
-predicted by retained glibc cache.c, with unchanged physical trailing bytes.
-That finite finding supports only the following deliberately narrow transition.
+Artifact-only successor to Source78e278383e10e5cd063db66a0a911a7123e3fe63.
+This supersedes the earlier agent-selected physical-padding equality requirement;
+earlier actual runs remain FAIL. Both retained actual B0/B1 pairs have identical
+995-entry named maps and the exact order predicted by retained glibc cache.c.
+Actual38854180036 additionally changes3854 bytes across all995 trailing slots.
+The pinned producer/consumer and supported AArch64 ABI classify those four bytes
+as alignment padding, not semantic fields. This supports the following bounded
+representation check; it is not general cache normalization.
 
 At B0/B1/B2/B3, take a bounded stable read of the one fixed auxiliary path and join
 its complete node/hash to that checkpoint. Retain only its raw bytes in memory
@@ -334,11 +336,17 @@ The separate data-only audio_aux.py comparator uses the retained source's fixed
 prime table (not mathematical next-prime), uint64 hash arithmetic followed by
 uint32 return, head-insertion load, and ascending-bucket/list save order. Each
 after-record's44 named bytes and each placed SONAME/NUL sequence must equal the
-expected bytes exactly. All four unknown trailing bytes in every physical record
-slot must equal the previous capture at that same slot. They are never ignored,
-zeroed, or moved with their keys. Arbitrary permutations, changed keys/values,
-added/removed or duplicate entries, malformed strings and changed padding refuse.
-No accepting normalized-cache output is produced.
+expected bytes exactly. The pinned source declares44 named bytes at offsets0–43;
+the supported AArch64 ABI aligns the record to48, leaving offsets44–47 as tail
+padding. save_aux_cache allocates the buffer and assigns named fields, without
+explicitly initializing that tail. load_aux_cache reads named fields/strings and
+uses record size for traversal; it does not consume padding contents semantically.
+Changed padding is classified only after all exact initialized-byte/order checks
+pass. Results report physical slots/bytes changed and SHA256 of both physical
+padding sequences. No real cache is changed or padding zeroed/moved. Arbitrary
+permutations, changed keys/values, added/removed or duplicate entries, malformed
+strings, unknown layouts and every changed initialized byte still refuse. No
+accepting normalized-cache output is produced.
 
 Only after that check succeeds may the auxiliary raw hash differ from B0. Its
 complete type/mode/UID/GID/size and auxiliary-directory metadata still compare to
