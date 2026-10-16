@@ -447,3 +447,21 @@ native_build = "NOT RUN"
 installation = "NOT RUN"
 hardware_validation = "NOT RUN"
 next_step = "Run native package/lifecycle checks and an independently trusted current ARM catalog; implement reviewed activation/restoration separately before complete mirror-management acceptance."
+
+# Coordinator proposal only; shared manifests have not been edited.
+[[packages]]
+name = "cachy-asahi-zsh-history-substring-search"
+phase = "tools-candidate"
+status = "candidate"
+source = "https://github.com/zsh-users/zsh-history-substring-search"
+upstream_commit = "a0bdb0d47dbaba31dba2db7af8c48a5d9c74049a"
+recipe = "packages/tools/cachy-asahi-zsh-history-substring-search/PKGBUILD"
+license = "BSD-3-Clause AND MIT"
+candidate_version = "0.1.0-1"
+audit = "packages/tools/cachy-asahi-zsh-history-substring-search/README.md"
+selected_for_development = false
+selected_for_release = false
+native_build = "NOT RUN"
+installation = "NOT RUN"
+hardware_validation = "NOT RUN"
+next_step = "Source-pinned opt-in implementation and real x86_64 Zsh 5.9.2 PTYs pass; seven-file pure staging only. Root may register the isolated native ARM build/lifecycle lane. Verify selected composition, generic16K runtime, supported target workflows and signed release integration separately. Manual key choices only; existing module namespaces and custom bindings take precedence."

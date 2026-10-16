@@ -1,5 +1,13 @@
 # Isolated official GNU libc candidate
 
+## Corrected candidate2 native retry38906503054
+
+Commit `250a49a51f3f3065ba22ccaee837f3032f15ac8d` implements candidate `2.43.caa1-2`. Its versioned private prefix is `/opt/caa/g243a1`; gettext catalogs are `/opt/caa/g243a1/l`,17 ASCII bytes plus NUL. This preserves the exact18-byte `_nl_default_dirname` ABI object without changing GNU abilists, mapping catalogs to the base, or adding external aliases. Compiled C.utf8 and all other candidate files stay within that prefix. Both GNU and independent static ABI gates remain strict.
+
+Two declared patches adapt the complete original source: mount macro guards resolve the held Linux-header interaction, and five demonstrated passing tests lose stale XFAIL annotations so future regressions must fail. Unknown XPASS/FAIL/ERROR remain fatal. Only the timed-out hugepage variant gets GNU's standard `TIMEOUTFACTOR=5` (20s to100s); its assertions/mode and all outer budgets remain unchanged. No slow-test cause or performance gain is inferred. Original archive identity is unchanged; source lock records ordered patches and exact three-file before/after hashes. Expected patched payload identity is `b55538c80b7228c1adcd0a85cc7af1ac13bec3d0`; this is a source identity, not a native build result.
+
+All77 source controls,16 source/42 integration joins and recipe/build-entry syntax pass. Root byte-joins all12 materialized bundle members; bundle6236 bytes/SHA256 `2de5a5b1cae6e30712801ff6b05fc8d4d20b5feeaa5c312daff1120c5d602a53`. [Retry38906503054](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38906503054) selects Source/workflow `0647acc27a5c5f1dcc81f6bcc33d76dcd59e1695`, workflow SHA256 `cc274fe7f9b8cc357d428c4331189094d22c1c285ec22c414c03c79629d48a31`, integration SHA256 `8bf3b74acfe91fff5d440cc81f626c7b93b5cb26b7517e6888f3d7af4409909b`. Full check/check-abi, package pair, headers and candidate runtime remain pending. The older GNU8362 corresponding-source and signer trust limitations are unchanged.
+
 ## Native compilation completed; upstream checks failed
 
 [Actual38898464517](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38898464517), Source/workflow `bc1cd2d8c8d6b10639a8275dcbc11840ae8b745a`, completes native GNU compilation, info and locale generation after the makepkg configuration correction. `check()` fails with three named failures: `elf/check-abi-libc` (`_nl_default_dirname` size0x12 versus0x43 under the private prefix), `malloc/tst-malloc-too-large-malloc-hugetlb2` (20s timeout), and Linux-header compatibility (`OPEN_TREE_CLONE` redefinition). Five XPASS results and107 UNSUPPORTED results remain recorded. The make summary reports6815 PASS; the collector counts6930 PASS across its wider7058-result set. These counts are not interchangeable.
@@ -8,7 +16,7 @@ Both GNU check and check-abi exit2; no failure is waived. The second build, pack
 
 Logs:92965 bytes/SHA256 `dee48bb380091dfdcf9a0a3e6f62e504d4b6fc9a9d386e38a530837575cdc094`. Artifact12046579016:47030066 compressed bytes/SHA256 `106be153076d7b0dc024be0f1ea8a076106d2e190fa6f2c42c1be9c3049c0471`. All45 declared files/47014192 raw bytes join their hashes and sizes. No source correspondence, production selection,16K execution or M2/performance acceptance is established.
 
-The separately named `cachy-asahi-glibc-official-release 2.43.caa1-1` uses an unmodified complete GNU2.43 release in a versioned private prefix. It does not replace/provide the base libc. The old GNU8362 binary/source correspondence gap remains unresolved. No later stable/security fixes, production trust or hardware acceptance are claimed.
+The first separately named `cachy-asahi-glibc-official-release 2.43.caa1-1` used an unmodified complete GNU2.43 release in a versioned private prefix. It does not replace/provide the base libc. The old GNU8362 binary/source correspondence gap remains unresolved. No later stable/security fixes, production trust or hardware acceptance are claimed.
 
 The complete official archive is40287809 bytes/SHA256 `e1e622cbd635019090fa23260e5d9ec219b12f97ae7ae02f033d4ae42cf2c004`, with20740 payload files/267112798 bytes and derived payload-tree identity `97ac10e146c65ecbd22d36e3743eb5b5e9166ae9`. This derived identity is not an upstream Git revision. GNU's published keyring validates the detached signature, while reporting current retained key expiry. An independent pretrusted fingerprint authority is unestablished. The candidate remains unselected.
 

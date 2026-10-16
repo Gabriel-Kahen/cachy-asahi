@@ -33,6 +33,29 @@ host staging pass. No live mirror ranking, native package build, catalog trust,
 activation/restoration, target or complete mirror-management acceptance is
 claimed. See [candidate source](../../packages/tools/cachy-asahi-mirrors/README.md).
 
+# Proposed required-function coverage note
+
+Root owns edits to `docs/port/tools-functionality.md` and shared inventories.
+Keep the overall shell feature rows and target/integration gates open.
+
+Add a bounded progress note to the history/search/keybindings and individually
+licensed module coverage: `cachy-asahi-zsh-history-substring-search` now has a
+complete unchanged BSD-3-Clause runtime from commit
+`a0bdb0d47dbaba31dba2db7af8c48a5d9c74049a`, an independent MIT interactive opt-in
+wrapper, a local-source recipe and real x86_64 Zsh 5.9.2 PTY evidence. It performs
+literal substring search over in-memory history, including multiline/quoted
+cases. Existing public/private substring namespaces, ordinary custom Up/Down
+bindings and unrelated widgets are preserved; repeated source and noninteractive
+source do not activate it. Bindings are explicitly manual and documented.
+
+Six host controls pass, including actual ZLE editing and coexistence with the
+staged pinned syntax-highlighting module loaded first. The recipe's five-case
+check body and seven-file pure staging pass. These are host source/staging
+results, not native ARM packages, a package-manager lifecycle, a selected full
+composition, 16-KiB/M2 operation or release admission. No whole Cachy Zsh config
+or unresolved source grant is reused.
+
+
 ## Scope and decision vocabulary
 
 Coverage includes the pinned Cachy-branded tool/configuration recipe catalog,

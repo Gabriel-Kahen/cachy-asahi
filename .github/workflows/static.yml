@@ -153,6 +153,13 @@ jobs:
         run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/full-root-postcommit-failure -p 'test_*.py'
       - name: Check full-composition installer VM contracts without actors
         run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/full-composition-installer-vm -p 'test_*.py'
+      - name: Check opt-in Zsh substring module without changing user bindings
+        run: |
+          work=$(mktemp -d "$RUNNER_TEMP/substring.XXXXXX")
+          trap 'rm -rf -- "$work"' EXIT
+          python3 -B -Werror::ResourceWarning packages/tools/cachy-asahi-zsh-history-substring-search/check-module.py --module-dir "$GITHUB_WORKSPACE/packages/tools/cachy-asahi-zsh-history-substring-search" --work "$work"
+          zsh -fn packages/tools/cachy-asahi-zsh-history-substring-search/opt-in.zsh
+          bash -n packages/tools/cachy-asahi-zsh-history-substring-search/PKGBUILD
       - name: Check ARM mirror candidate behavior with mocked network
         run: |
           python3 -B -Werror::ResourceWarning packages/tools/cachy-asahi-mirrors/test_mirrors.py
