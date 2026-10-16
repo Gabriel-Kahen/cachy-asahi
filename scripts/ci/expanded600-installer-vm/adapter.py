@@ -53,7 +53,19 @@ def transform(raw,name):
             return node
     C.need(ast.dump(Expected().visit(tree),include_attributes=False)==ast.dump(ast.parse(output),include_attributes=False),
            'undeclared adapter mutation refused')
-    return output,dict(file=name,edits=len(edits),rules=rules,inventory_calls=call_counts)
+    backend_receipt=None
+    if name=='numeric_vm.py':
+        backend=(Path(__file__).resolve().parent/'observer600.py').read_bytes()
+        C.need(len(backend)==2784 and __import__('hashlib').sha256(backend).hexdigest()=='c3d804e7f2927c7889835ad187a39a3d7c618a4651700f57b0c5413c46612607',
+               'dedicated600 observer backend bytes differ')
+        anchor=b"    observation=roots.observe(target,limits=limits,hardlinks='generic-development-internal')\n"
+        C.need(output.count(anchor)==1,'dedicated600 observer call anchor differs')
+        output=output.replace(anchor,anchor.replace(b'roots.observe(',b'_observer600(roots,'))+b'\n'+backend
+        compile(output,'<expanded600-numeric-mount-id>','exec')
+        backend_receipt=dict(bytes=len(backend),sha256=__import__('hashlib').sha256(backend).hexdigest(),
+            scope='INDEPENDENT600_ROOT_READBACK_MOUNT_QUERY_ONLY',deadline_seconds=600,
+            fallback='ORIGINAL_FDINFO_NO_BUDGET_OR_CHECK_WAIVER')
+    return output,dict(file=name,edits=len(edits),rules=rules,inventory_calls=call_counts,mount_query_backend=backend_receipt)
 
 
 def materialize(legacy,out):
