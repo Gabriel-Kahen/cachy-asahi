@@ -5,10 +5,12 @@
     "bytes": 2293,
     "sha256": "e34bc0071a2303f0d066c9c010a0908c2c4e3297b561600c09baa2b0176ecaf1"
   },
+  "changes": "Original wrapper guard returns scoped inside erased private function; caller continuation fixed. Upstream helpers/license/NOTICE unchanged; new native/16K/M2 NOT RUN.",
   "excluded_upstream_auto_hooks": [
     "conf.d/plugin-bang-bang.fish",
     "hooks/uninstall.fish"
   ],
+  "integration_revision": "0.1.0-2",
   "local_recipe_sources": {
     "LICENSE.project": {
       "bytes": 1081,
@@ -31,12 +33,12 @@
       "sha256": "4e72dcce435d0fe1cf332fb339ed9608f10b29295b28f85ed6e7411ef8c05b64"
     },
     "opt-in.fish": {
-      "bytes": 2599,
-      "sha256": "d4dbd9dc123ebb31f821afd78c4b55554b4f17929d214baff35e405436e4cce7"
+      "bytes": 3290,
+      "sha256": "47570d644a1525a7c85cb5cfa2d8fc36f9cd1a06b5ef2090d32e4da2e8af0f5e"
     },
     "usage.md": {
-      "bytes": 2810,
-      "sha256": "37a52ff036984a5beb4f42b8837a78f3de3391081240b470177ecc0b03aa6890"
+      "bytes": 3411,
+      "sha256": "bc79cd125d6fb923b49e9868e56c0b97f527d99abf8e22b8537dc3fda993b574"
     }
   },
   "package_installation": false,
