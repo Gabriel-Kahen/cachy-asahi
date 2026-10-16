@@ -12,7 +12,7 @@ import full_root as roots
 import measure_copy as copy
 import root_path
 
-COMPARATOR_SHA256 = '172e255313801e9f1ee6472e50b73879ee078d7b2b00925130f644457bc75b49'
+COMPARATOR_SHA256 = '3e9b0f0f153a1fade1ff98606dafd93a654730eea0a8e44464415112922fc552'
 HELPER = ('8794bf13f7a651963a219d8031fe04800d06ac6e44a29fbdfd81b64855b2bd98', 865664)
 MAIN_CONF = '785c6c3614a27ae6115a27c1ca55bbf333654780997c4ba7e181172b021d1bf3'
 HELPER_PATHS = ('usr/bin/ldconfig', 'usr/sbin/ldconfig', 'sbin/ldconfig')
