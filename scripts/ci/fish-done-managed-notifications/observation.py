@@ -86,3 +86,20 @@ def capture_timing(wire,request_realtime_us,request_monotonic_ns):
     facts=capture_timing_facts(wire,request_realtime_us,request_monotonic_ns)
     need(facts['age_us']<=2_000_000,'first capture request has less than one second of original TTL reserved')
     return facts
+
+
+def closure_facts(raw,wire):
+    """Raw matching close-signal facts only; no inferred expiry/presentation pass."""
+    rows=messages(raw)
+    closed=[r for r in rows if r.get('type')=='signal' and r.get('path')=='/org/freedesktop/Notifications' and
+            r.get('interface')=='org.freedesktop.Notifications' and r.get('member')=='NotificationClosed']
+    matching=[]
+    for row in closed:
+        payload=row.get('payload',{});data=payload.get('data')
+        if row.get('sender')==wire['recipient'] and payload.get('type')=='uu' and type(data) is list and len(data)==2 and data[0]==wire['id']:
+            timestamp=row.get('timestamp-realtime')
+            delta=timestamp-wire['call']['timestamp-realtime'] if type(timestamp) is int else None
+            matching.append(dict(signal=row,notify_to_closed_realtime_us=delta))
+    return dict(scope='DIAGNOSTIC_ONLY_NO_EXPIRY_OR_PRESENTATION_ACCEPTANCE',
+                matching_closed_signals=matching,other_closed_signals=len(closed)-len(matching),
+                status='MATCHING_CLOSED_SIGNAL_OBSERVED' if matching else 'NO_MATCHING_CLOSED_SIGNAL_OBSERVED')

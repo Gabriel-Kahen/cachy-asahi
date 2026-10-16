@@ -48,6 +48,15 @@ def startup_layers(api,env,logs,name):
     return None
 
 
+def normal_compositor_output(logged):
+    """Retain already-captured normal output; enable no new service logging."""
+    streams=[]
+    for path in logged.paths:
+        raw=path.read_bytes();O.need(len(raw)<=256*1024,'existing compositor output cap')
+        streams.append(dict(path=str(path),bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest(),raw_base64=base64.b64encode(raw).decode()))
+    return dict(scope='DIAGNOSTIC_ONLY_EXISTING_NORMAL_UNLOGGED_OUTPUT',streams=streams)
+
+
 def phase(stage,config,env,logs,**options):
     O.need(options.get('trace_waybar',False) is False and stage in O.CASES,'fixed ordinary Done phase required')
     B.base=base;first=None;compositor=bar=mako=terminal=observer=None;selected=None;sequence=0
@@ -115,10 +124,19 @@ def phase(stage,config,env,logs,**options):
         terminal=(fish_terminal.BackgroundTerminal if stage=='background' else fish_terminal.Terminal)(selected);fish_pid=terminal.process.pid
         O.need(os.readlink('/proc/'+str(fish_pid)+'/exe')=='/usr/bin/fish','actual Fish executable differs')
         terminal.start(outcome);wire=None
+        wait_started_ns=time.monotonic_ns();wait_cpu_started_ns=time.thread_time_ns();wait_iterations=0
+        max_wait_step_wall_ns=max_wait_step_cpu_ns=last_wait_step_wall_ns=last_wait_step_cpu_ns=0
         deadline=time.monotonic()+15
         while wire is None:
+            wait_iterations+=1;step_wall=time.monotonic_ns();step_cpu=time.thread_time_ns()
             healthy();wire=O.notify(observer.rows(),owner,outcome,kind)
+            last_wait_step_wall_ns=time.monotonic_ns()-step_wall;last_wait_step_cpu_ns=time.thread_time_ns()-step_cpu
+            max_wait_step_wall_ns=max(max_wait_step_wall_ns,last_wait_step_wall_ns);max_wait_step_cpu_ns=max(max_wait_step_cpu_ns,last_wait_step_cpu_ns)
             O.need(time.monotonic()<deadline,'real Done delivery deadline')
+        delivery_wait=dict(scope='DIAGNOSTIC_ONLY_GUEST_PYTHON_MAIN_THREAD',iterations=wait_iterations,
+                           wall_ns=time.monotonic_ns()-wait_started_ns,cpu_ns=time.thread_time_ns()-wait_cpu_started_ns,
+                           max_step_wall_ns=max_wait_step_wall_ns,max_step_cpu_ns=max_wait_step_cpu_ns,
+                           last_step_wall_ns=last_wait_step_wall_ns,last_step_cpu_ns=last_wait_step_cpu_ns)
         # Request immediately after real Notify/reply. Fresh visibility queries
         # follow emission; no host-capture acknowledgement is invented.
         timing=O.capture_timing_facts(wire,time.time_ns()//1000,time.monotonic_ns())
@@ -132,9 +150,17 @@ def phase(stage,config,env,logs,**options):
         base.emit('frame_ready',**request)
         request_sha=hashlib.sha256(json.dumps(dict(event='frame_ready',**request),sort_keys=True,separators=(',',':')).encode()).hexdigest()
         # This is after request emission, not a claimed host-capture ACK.
+        visibility_queries=[];visibility_attempts=0
         def visible():
+            nonlocal visibility_attempts
+            visibility_attempts+=1
+            clocks=dict(start_realtime_us=time.time_ns()//1000,start_monotonic_ns=time.monotonic_ns())
             row=O.listing(notices(),wire)
-            display=layers();a=B.owned_layer(display,'waybar',bar.process.pid);b=B.owned_layer(display,B.MAKO_NAMESPACE,mako.process.pid)
+            clocks.update(list_return_realtime_us=time.time_ns()//1000,list_return_monotonic_ns=time.monotonic_ns())
+            display=layers()
+            clocks.update(layers_return_realtime_us=time.time_ns()//1000,layers_return_monotonic_ns=time.monotonic_ns())
+            if len(visibility_queries)<16:visibility_queries.append(clocks)
+            a=B.owned_layer(display,'waybar',bar.process.pid);b=B.owned_layer(display,B.MAKO_NAMESPACE,mako.process.pid)
             return dict(bar=a,mako=b,notification=row) if row and a and b else None
         current=B.wait_ready(visible,healthy,2,'Done natural-expiry visible notification')
         visibility=dict(current,request_sha256=request_sha,realtime_us=time.time_ns()//1000,monotonic_ns=time.monotonic_ns())
@@ -180,5 +206,9 @@ def phase(stage,config,env,logs,**options):
         except BaseException as error:
             if first is None:first=error
     if first is not None:raise first
-    base.emit('done_transport',stage=stage,case=case,wire=wire,monitor=monitor_result,fish=fish_result,caller=continuation,visibility=visibility,capture_request_sha256=request_sha,post_request_identity=post_identity,mako_exit=mako.process.returncode,payload_preserved=True,user_config_preserved=True)
+    diagnostics=dict(scope='DIAGNOSTIC_ONLY_NO_PRESENTATION_OR_ACCEPTANCE_CREDIT',delivery_wait=delivery_wait,
+                     visibility_queries=dict(attempts=visibility_attempts,clocks=visibility_queries,truncated=visibility_attempts>len(visibility_queries)),
+                     notification_closed=O.closure_facts(base64.b64decode(monitor_result['raw_base64']),wire),
+                     compositor_output=normal_compositor_output(compositor))
+    base.emit('done_transport',stage=stage,case=case,wire=wire,diagnostics=diagnostics,monitor=monitor_result,fish=fish_result,caller=continuation,visibility=visibility,capture_request_sha256=request_sha,post_request_identity=post_identity,mako_exit=mako.process.returncode,payload_preserved=True,user_config_preserved=True)
     base.emit('phase_pass',stage=stage,waybar='PASS',mako='PASS',fish='PASS',case=case,config_preserved=True)
