@@ -1,0 +1,41 @@
+{
+  "consumer": {
+    "containers": [
+      {
+        "container": "caa-glibc-provider-6c17f0c4ef51cca315038dbdadf6892d-b-smoke",
+        "status": "PASS-absence-verified"
+      },
+      {
+        "container": "caa-glibc-provider-6c17f0c4ef51cca315038dbdadf6892d-b",
+        "status": "PASS-absence-verified"
+      },
+      {
+        "container": "caa-glibc-provider-6c17f0c4ef51cca315038dbdadf6892d-a-smoke",
+        "status": "PASS-absence-verified"
+      },
+      {
+        "container": "caa-glibc-provider-6c17f0c4ef51cca315038dbdadf6892d-a",
+        "status": "PASS-absence-verified"
+      },
+      {
+        "container": "caa-glibc-provider-6c17f0c4ef51cca315038dbdadf6892d-probe",
+        "status": "PASS-absence-verified"
+      }
+    ],
+    "status": "PASS_CONSUMERS_RETIRED"
+  },
+  "producer": {
+    "build": "COMPLETED",
+    "image": {
+      "absence_verified": true,
+      "id": "sha256:938709f3643957417fc728e5324da5ee9c6dd4cfd1bd55b63b2ec95e87b001b8"
+    },
+    "probe": {
+      "absence_verified": true,
+      "cid": "a5609f04a2137081d2edd03d7e1ddf568dddc92e4fa882d05ef11727139687b6",
+      "name": "cachy-asahi-574-probe-a70ed68b882cf668"
+    },
+    "status": "PASS"
+  },
+  "status": "PASS_ORDERED_CONSUMER_THEN_PRODUCER_CLEANUP"
+}

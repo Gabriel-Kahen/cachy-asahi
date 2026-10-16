@@ -1,0 +1,10 @@
+{
+  "checked_packages": 574,
+  "inventory_sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac",
+  "other_owner_collisions": {},
+  "overlapping_removed_glibc_paths": 1464,
+  "replaced_owner": "glibc",
+  "replaced_version": "2.43+r22+g8362e8ce10b2-2",
+  "scope": "archive ownership only; no dependency transaction or installed lifecycle credit",
+  "status": "PASS_HELD574_PROVIDER_FILE_OWNERSHIP"
+}

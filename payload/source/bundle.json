@@ -1,0 +1,130 @@
+{
+  "authentication": {
+    "current_key_expiration_reported": true,
+    "diagnostic": "gpgv: Signature made Fri Jan 23 22:42:17 2026 UTC\ngpgv:                using RSA key FD19E6D31B192EE4DC63EAD3DC2B16215ED5412A\ngpgv: Good signature from \"Andreas K. Huettel (at work) <mail@akhuettel.de>\"\ngpgv:                 aka \"Andreas K. Huettel (at work) <andreas.huettel@ur.de>\"\ngpgv:                 aka \"Andreas K. Huettel (at work) <andreas.huettel@physik.uni-r.de>\"\ngpgv:                 aka \"Andreas K. Huettel (at work) <andreas.huettel@physik.uni-regensburg.de>\"\ngpgv:                 aka \"Andreas K. Huettel (at work) <huettel@gmail.com>\"\ngpgv:                 aka \"Andreas K. Huettel (at work) <dilfridge@gentoo.org>\"\ngpgv:                 aka \"Andreas K. Huettel (at work) <andreas.huettel@maximilianeum.de>\"\ngpgv:                 aka \"Andreas K. Huettel <andreas@akhuettel.de>\"\ngpgv:                 aka \"Andreas K. Huettel <akhuettel@web.de>\"\ngpgv:                 aka \"Andreas K. Huettel <akhuettel@cpan.org>\"\ngpgv:                 aka \"Andreas K. Huettel <dilfridge@sourceware.org>\"\ngpgv:                 aka \"Dr. Andreas Klaus H\ufffdttel <mail@akhuettel.de>\"\n",
+    "gpg_status": "[GNUPG:] NEWSIG\n[GNUPG:] KEYEXPIRED 1775499647\n[GNUPG:] KEYEXPIRED 1775499647\n[GNUPG:] KEYEXPIRED 1775499647\n[GNUPG:] KEYEXPIRED 1775499585\n[GNUPG:] KEYEXPIRED 1775499647\n[GNUPG:] KEYEXPIRED 1775499647\n[GNUPG:] KEYEXPIRED 1775499585\n[GNUPG:] KEY_CONSIDERED 35B17DF5752577CA0C541CEB94BFDF4484AD142F 0\n[GNUPG:] KEYEXPIRED 1775499585\n[GNUPG:] SIG_ID uAZTuuwZzymeTBlupnI/Pix5J0E 2026-01-23 1769208137\n[GNUPG:] EXPKEYSIG DC2B16215ED5412A Andreas K. Huettel (at work) <mail@akhuettel.de>\n[GNUPG:] NOTATION_NAME issuer-fpr@notations.openpgp.fifthhorseman.net\n[GNUPG:] NOTATION_FLAGS 0 1\n[GNUPG:] NOTATION_DATA FD19E6D31B192EE4DC63EAD3DC2B16215ED5412A\n[GNUPG:] NOTATION_NAME manu\n[GNUPG:] NOTATION_FLAGS 0 1\n[GNUPG:] NOTATION_DATA 2,2.5+1.11,2,2\n[GNUPG:] VALIDSIG FD19E6D31B192EE4DC63EAD3DC2B16215ED5412A 2026-01-23 1769208137 0 4 0 1 10 00 35B17DF5752577CA0C541CEB94BFDF4484AD142F\n",
+    "primary_fingerprint": "35B17DF5752577CA0C541CEB94BFDF4484AD142F",
+    "returncode": 0,
+    "status": "CRYPTOGRAPHICALLY_VALID_GNU_PUBLISHER_KEYRING",
+    "subkey_fingerprint": "FD19E6D31B192EE4DC63EAD3DC2B16215ED5412A",
+    "trust": "UNSELECTED; GNU HTTPS publisher keyring, no independent pretrusted fingerprint authority"
+  },
+  "configured_features": {
+    "gd": "not in accepted bootstrap; optional memusagestat unavailable",
+    "locales": "GNU source C.utf8 only; no ALARM locale-gen/memusagestat copied; broader locale migration not implemented",
+    "multiarch": "disabled",
+    "multiarch_reason": "--disable-multi-arch selects baseline AArch64 assembly FUNC symbols and memchr/strlen WEAK aliases; actual38906503054 multiarch IFUNC/GLOBAL differs. No ABI waiver or performance claim.",
+    "nscd": "disabled",
+    "systemtap": "disabled; no external sdt headers",
+    "test_timeout": "Only tst-malloc-too-large-malloc-hugetlb2: TIMEOUTFACTOR=5, full assertions retained; still bounded/fatal"
+  },
+  "configured_layout": {
+    "abi_expectations": "UNMODIFIED strict GNU abilists and bootstrap OBJECT/TLS-size checks",
+    "compiled_locales": "/usr/lib/locale",
+    "configured_dirname_ascii_bytes": 17,
+    "exported_dirname_object_bytes": 18,
+    "gettext_catalogs": "/usr/share/locale",
+    "loader": "/usr/lib/ld-linux-aarch64.so.1",
+    "localstatedir": "/var",
+    "multiarch": "disabled",
+    "shared_libraries": "/usr/lib",
+    "sysconfdir": "/etc",
+    "versioned_prefix": null
+  },
+  "declared_patches": [
+    {
+      "files": {
+        "sysdeps/unix/sysv/linux/sys/mount.h": {
+          "after_sha256": "a27e7916298ff67cd88fec0724087c7e25345cb40f796e82e187f07bcd58fd1b",
+          "before_sha256": "9b1e75adf0cc9b43968fd7f39ee02f7bd8c6154fc0a0b5a61c5c098874291835"
+        }
+      },
+      "origin": "project GNU2.43 adaptation of upstream8d6fbb22cdd54660056408ca0e9682a8cedbf055",
+      "path": "0001-mount-macro-guards.patch",
+      "sha256": "09117692cd3a1d5838ea700df68b512f9f625a6d2af497a1afcf92046deca8f5"
+    },
+    {
+      "files": {
+        "conform/Makefile": {
+          "after_sha256": "769227ad708ad0ab72d865001793af02a9d989289a6d5e44e3349a14392cacd7",
+          "before_sha256": "f6fc77a91b386fd4b19e7b76de83c33bb0f7e1000e83045b108d526df9898eff"
+        },
+        "elf/Makefile": {
+          "after_sha256": "23eb42d01f9a1787680223604aa556f02941276f759a9e8d4ba943613c6571a2",
+          "before_sha256": "9fd3b071751bccb8116d05e8b703172962ebdc437692a81c98578db5d60299ad"
+        }
+      },
+      "origin": "project held-builder expectation correction; actual38898464517",
+      "path": "0002-held-builder-test-expectations.patch",
+      "sha256": "f730c778ba51f9e525c9f6a7949a76af00364d49f41eedb5d73b8e86a3d4c132"
+    }
+  ],
+  "files": {
+    "0001-mount-macro-guards.patch": {
+      "bytes": 905,
+      "sha256": "09117692cd3a1d5838ea700df68b512f9f625a6d2af497a1afcf92046deca8f5"
+    },
+    "0002-held-builder-test-expectations.patch": {
+      "bytes": 1169,
+      "sha256": "f730c778ba51f9e525c9f6a7949a76af00364d49f41eedb5d73b8e86a3d4c132"
+    },
+    "COPYING.LESSERv2": {
+      "bytes": 26419,
+      "sha256": "20e50fe7aae3e56378ebf0417d9de904f55a0e61e4df315333e632a4d3555d95"
+    },
+    "COPYINGv2": {
+      "bytes": 17984,
+      "sha256": "edaef632cbb643e4e7a221717a6c441a4c1a7c918e6e4d56debc3d8739b233f6"
+    },
+    "LICENSES": {
+      "bytes": 19665,
+      "sha256": "b22a69aa3f80a5201818c66cb0df0f25f9fa13cf5861b0093a058dbd12d50dce"
+    },
+    "PKGBUILD": {
+      "bytes": 3733,
+      "sha256": "a2d08f4786879a86af14cccf1cffe21811aa8dfa4428559848fa4cede839ab64"
+    },
+    "README.md": {
+      "bytes": 3346,
+      "sha256": "78e75a94748863b80b00ae24ea8b3b3d384e8c2c096a8fe1b98d4b12550c2449"
+    },
+    "glibc-2.43.tar.gz": {
+      "bytes": 40287809,
+      "sha256": "e1e622cbd635019090fa23260e5d9ec219b12f97ae7ae02f033d4ae42cf2c004"
+    },
+    "glibc-2.43.tar.gz.sig": {
+      "bytes": 1018,
+      "sha256": "bfd0c5a9924e4f084281cd2f3ba96e5c6e87a6d363113e7a0f98c5151463c9e3"
+    },
+    "gnu-keyring.gpg": {
+      "bytes": 3698125,
+      "sha256": "0fe55175b96a8ea1c4b670cc3fe11d56b341e4eff81b161ea49958ae550be6ca"
+    },
+    "source-authentication.json": {
+      "bytes": 2417,
+      "sha256": "48dab18fcd934b91ded119ed21b2c22933b632ef18464631ebece641aad91bc2"
+    },
+    "source-lock.json": {
+      "bytes": 6600,
+      "sha256": "f01bfcaefdbd32b440cdde5b4efda7c5c6902f34998ad34d9298663bc3155941"
+    },
+    "stage.py": {
+      "bytes": 8147,
+      "sha256": "43b1b441dcc384379ab80c4864bbf7ffd898d56e4ba629c0faa966c25a979e6c"
+    }
+  },
+  "native_build": "NOT RUN",
+  "old_binary_source_gap": "UNRESOLVED",
+  "package_version": "2.43.caa1-1",
+  "payload_tree": "97ac10e146c65ecbd22d36e3743eb5b5e9166ae9",
+  "release": "2.43",
+  "schema_version": 1,
+  "source": {
+    "bytes": 267112798,
+    "files": 20740,
+    "payload_tree": "97ac10e146c65ecbd22d36e3743eb5b5e9166ae9",
+    "root": "glibc-2.43",
+    "sha256": "e1e622cbd635019090fa23260e5d9ec219b12f97ae7ae02f033d4ae42cf2c004"
+  },
+  "status": "SOURCE_BUNDLE_READY_UNSELECTED_GNU_PROVIDER"
+}

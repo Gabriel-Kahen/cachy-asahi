@@ -1,0 +1,8 @@
+{
+  "dirname_object_bytes": 18,
+  "elf_files": 300,
+  "entries": 1608,
+  "loadable_files": 291,
+  "scope": "staged layout and static ELF checks only; no build/runtime/admission credit",
+  "status": "PASS_INERT_PROVIDER_STAGING"
+}

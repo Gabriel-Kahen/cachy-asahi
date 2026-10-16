@@ -1,0 +1,21 @@
+{
+  "gconv_directory": "usr/lib/gconv",
+  "libc": {
+    "path": "usr/lib/libc.so.6",
+    "sha256": "2983c0aa9b762809ca816bc6df305cbb99d2f8a4153466aff702ef8d5f793d1b"
+  },
+  "libm": {
+    "path": "usr/lib/libm.so.6",
+    "sha256": "a750d1b22f7388af5ad26f690dc2390b65fb894f37460b97b59ebdb173f6b3fc"
+  },
+  "library_directories": [
+    "usr/lib"
+  ],
+  "loader": {
+    "path": "usr/lib/ld-linux-aarch64.so.1",
+    "sha256": "6411ab98ccf289a4dad0fbca981cde9ff2571b28fdda9b8238af8bd9258f2023"
+  },
+  "locale_directory": "usr/lib/locale",
+  "schema_version": 1,
+  "stage_root": "/work/stage/root"
+}

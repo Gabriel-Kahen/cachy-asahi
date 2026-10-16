@@ -1,0 +1,25 @@
+Linux 29b4cb66e7d6 6.17.0-1022-azure #22-Ubuntu SMP Mon Jul 27 17:12:01 UTC 2026 aarch64 GNU/Linux
+4096
+Using built-in specs.
+COLLECT_GCC=gcc
+COLLECT_LTO_WRAPPER=/usr/lib/gcc/aarch64-unknown-linux-gnu/16.1.1/lto-wrapper
+Target: aarch64-unknown-linux-gnu
+Configured with: /build/gcc/src/gcc/configure --enable-languages=c,c++,d,fortran,go,lto,m2,objc,obj-c++,rust,cobol --enable-bootstrap --prefix=/usr --libdir=/usr/lib --libexecdir=/usr/lib --mandir=/usr/share/man --infodir=/usr/share/info --with-bugurl=https://github.com/archlinuxarm/PKGBUILDs/issues --with-linker-hash-style=gnu --with-system-zlib --enable-checking=release --enable-clocale=gnu --enable-default-pie --enable-default-ssp --enable-gnu-indirect-function --enable-gnu-unique-object --enable-libstdcxx-backtrace --enable-linker-build-id --enable-lto --enable-plugin --enable-shared --enable-threads=posix --disable-libssp --disable-libstdcxx-pch --disable-multilib --disable-werror --disable-fixincludes --host=aarch64-unknown-linux-gnu --build=aarch64-unknown-linux-gnu --with-arch=armv8-a
+Thread model: posix
+Supported LTO compression algorithms: zlib zstd
+gcc version 16.1.1 20260430 (GCC) 
+GNU ld (GNU Binutils) 2.46.0
+Copyright (C) 2026 Free Software Foundation, Inc.
+This program is free software; you may redistribute it under the terms of
+the GNU General Public License version 3 or (at your option) a later version.
+This program has absolutely no warranty.
+GNU Make 4.4.1
+Built for aarch64-unknown-linux-gnu
+Copyright (C) 1988-2023 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+741ced8152a820a28ab88603dd1ceb2343245728ac784839e4b5390f2411890e  /usr/bin/gcc
+b07b094ae88efa267dda9314058a805a0e05a6133c6f5a88fd524dbe37e32dac  /usr/bin/ld
+6ab264fb4e8df9942b0fb75b48fcd5c30b2f081d8dfaa6c25d7be1d3fce5b2ab  /usr/lib/libc.so.6
+b1f2738bdb51e6419d7062f96c8a44bd68853698dc5ac624fa6ca9f9b03d456d  /usr/lib/ld-linux-aarch64.so.1

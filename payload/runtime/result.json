@@ -1,0 +1,175 @@
+{
+  "archive_bytes_reproduced": true,
+  "base_image": "sha256:938709f3643957417fc728e5324da5ee9c6dd4cfd1bd55b63b2ec95e87b001b8",
+  "base_lock_sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac",
+  "builds": [
+    {
+      "candidate_headers": "PASS_CANDIDATE_C_HEADERS_COMPILE_ONLY",
+      "container": "caa-glibc-provider-6c17f0c4ef51cca315038dbdadf6892d-a",
+      "makepkg_exit": 0,
+      "normal_clients": {
+        "exec-child": "d2e92fef3ad68e4ad0b2b45d13f9ce452aa92c0c711851f26f61825ef31e6c4b",
+        "plugin.so": "c91a0dab73c81b601484b319de60951d455e456430812f0430f5231c544859c1",
+        "smoke-normal": "f9ee2ae4e6b283cc2531b244ef26a7ca596d38b04740d29885cdc0b4cc10bb93"
+      },
+      "normal_compile_receipt_sha256": "e8a560a5d157bc438265fd6cf395788bae755e15e91b57c3250ac719228615cf",
+      "package": "cachy-asahi-glibc-gnu-provider-2.43.caa1-1-aarch64.pkg.tar.xz",
+      "runtime": "PASS_OWNED_CANDIDATE_GLIBC_RUNTIME_SMOKE",
+      "runtime_receipt_sha256": "401f9ce858c641976aed3381e88e58163c69c73f5cfe704771cdf8651056c6af",
+      "sha256": "b852e3fc647d63699c5f42003a748cbd2268991dc2615a494dc3cdda4d757d12",
+      "side": "a",
+      "static_abi": "PASS_STATIC_PUBLIC_ABI",
+      "status": "PASS_NATIVE_BUILD_TEST_ABI_RUNTIME",
+      "upstream_tests": {
+        "ERROR": 0,
+        "FAIL": 0,
+        "PASS": 6939,
+        "UNSUPPORTED": 106,
+        "XFAIL": 13,
+        "XPASS": 0
+      }
+    },
+    {
+      "candidate_headers": "PASS_CANDIDATE_C_HEADERS_COMPILE_ONLY",
+      "container": "caa-glibc-provider-6c17f0c4ef51cca315038dbdadf6892d-b",
+      "makepkg_exit": 0,
+      "normal_clients": {
+        "exec-child": "d2e92fef3ad68e4ad0b2b45d13f9ce452aa92c0c711851f26f61825ef31e6c4b",
+        "plugin.so": "c91a0dab73c81b601484b319de60951d455e456430812f0430f5231c544859c1",
+        "smoke-normal": "f9ee2ae4e6b283cc2531b244ef26a7ca596d38b04740d29885cdc0b4cc10bb93"
+      },
+      "normal_compile_receipt_sha256": "b35cf51b012fbc4c1d087c2b5136fa017c6defcf1c77e433ac524061221844f2",
+      "package": "cachy-asahi-glibc-gnu-provider-2.43.caa1-1-aarch64.pkg.tar.xz",
+      "runtime": "PASS_OWNED_CANDIDATE_GLIBC_RUNTIME_SMOKE",
+      "runtime_receipt_sha256": "172893ceddc42f52fc887742bbe8d24d060ae74b8b1b718c1eadac93fea35f8f",
+      "sha256": "b852e3fc647d63699c5f42003a748cbd2268991dc2615a494dc3cdda4d757d12",
+      "side": "b",
+      "static_abi": "PASS_STATIC_PUBLIC_ABI",
+      "status": "PASS_NATIVE_BUILD_TEST_ABI_RUNTIME",
+      "upstream_tests": {
+        "ERROR": 0,
+        "FAIL": 0,
+        "PASS": 6939,
+        "UNSUPPORTED": 106,
+        "XFAIL": 13,
+        "XPASS": 0
+      }
+    }
+  ],
+  "cleanup": [
+    {
+      "container": "caa-glibc-provider-6c17f0c4ef51cca315038dbdadf6892d-b-smoke",
+      "status": "PASS-absence-verified"
+    },
+    {
+      "container": "caa-glibc-provider-6c17f0c4ef51cca315038dbdadf6892d-b",
+      "status": "PASS-absence-verified"
+    },
+    {
+      "container": "caa-glibc-provider-6c17f0c4ef51cca315038dbdadf6892d-a-smoke",
+      "status": "PASS-absence-verified"
+    },
+    {
+      "container": "caa-glibc-provider-6c17f0c4ef51cca315038dbdadf6892d-a",
+      "status": "PASS-absence-verified"
+    },
+    {
+      "container": "caa-glibc-provider-6c17f0c4ef51cca315038dbdadf6892d-probe",
+      "status": "PASS-absence-verified"
+    }
+  ],
+  "configured_features": {
+    "gd": "not in accepted bootstrap; optional memusagestat unavailable",
+    "locales": "GNU source C.utf8 only; no ALARM locale-gen/memusagestat copied; broader locale migration not implemented",
+    "multiarch": "disabled",
+    "multiarch_reason": "--disable-multi-arch selects baseline AArch64 assembly FUNC symbols and memchr/strlen WEAK aliases; actual38906503054 multiarch IFUNC/GLOBAL differs. No ABI waiver or performance claim.",
+    "nscd": "disabled",
+    "systemtap": "disabled; no external sdt headers",
+    "test_timeout": "Only tst-malloc-too-large-malloc-hugetlb2: TIMEOUTFACTOR=5, full assertions retained; still bounded/fatal"
+  },
+  "configured_layout": {
+    "abi_expectations": "UNMODIFIED strict GNU abilists and bootstrap OBJECT/TLS-size checks",
+    "compiled_locales": "/usr/lib/locale",
+    "configured_dirname_ascii_bytes": 17,
+    "exported_dirname_object_bytes": 18,
+    "gettext_catalogs": "/usr/share/locale",
+    "loader": "/usr/lib/ld-linux-aarch64.so.1",
+    "localstatedir": "/var",
+    "multiarch": "disabled",
+    "shared_libraries": "/usr/lib",
+    "sysconfdir": "/etc",
+    "versioned_prefix": null
+  },
+  "declared_patches": [
+    {
+      "files": {
+        "sysdeps/unix/sysv/linux/sys/mount.h": {
+          "after_sha256": "a27e7916298ff67cd88fec0724087c7e25345cb40f796e82e187f07bcd58fd1b",
+          "before_sha256": "9b1e75adf0cc9b43968fd7f39ee02f7bd8c6154fc0a0b5a61c5c098874291835"
+        }
+      },
+      "origin": "project GNU2.43 adaptation of upstream8d6fbb22cdd54660056408ca0e9682a8cedbf055",
+      "path": "0001-mount-macro-guards.patch",
+      "sha256": "09117692cd3a1d5838ea700df68b512f9f625a6d2af497a1afcf92046deca8f5"
+    },
+    {
+      "files": {
+        "conform/Makefile": {
+          "after_sha256": "769227ad708ad0ab72d865001793af02a9d989289a6d5e44e3349a14392cacd7",
+          "before_sha256": "f6fc77a91b386fd4b19e7b76de83c33bb0f7e1000e83045b108d526df9898eff"
+        },
+        "elf/Makefile": {
+          "after_sha256": "23eb42d01f9a1787680223604aa556f02941276f759a9e8d4ba943613c6571a2",
+          "before_sha256": "9fd3b071751bccb8116d05e8b703172962ebdc437692a81c98578db5d60299ad"
+        }
+      },
+      "origin": "project held-builder expectation correction; actual38898464517",
+      "path": "0002-held-builder-test-expectations.patch",
+      "sha256": "f730c778ba51f9e525c9f6a7949a76af00364d49f41eedb5d73b8e86a3d4c132"
+    }
+  ],
+  "frozen_sources_preserved": true,
+  "hardware": "NOT RUN",
+  "harness_manifest_sha256": "676b0e38a178f578c47f4ed8c6c1dbd15ebb7d8127b764890879c1d83808925e",
+  "installation": "NOT RUN_STAGED_EXPLICIT_LOADER_ONLY",
+  "normal_client_bytes_reproduced": true,
+  "old_binary_recipe": "UNRESOLVED-no-waiver",
+  "ownership_token": "6c17f0c4ef51cca315038dbdadf6892d",
+  "package_admission": "NOT REQUESTED",
+  "package_version": "2.43.caa1-1",
+  "performance": "NOT MEASURED",
+  "private16k_admission": {
+    "attempt": 1,
+    "bytes": 494981,
+    "gnu_source_ref": "5303b00e8bb66a3e58f2792fa1b60306d464e540",
+    "path": "artifacts/development/glibc16k-run38941180852/runtime.json",
+    "qualification": "Raw complete UART, private compiled clients, bootstrap payload and actual kernel config/Image are not exported. Their execution/content checks are enforced by the exact frozen source; retained parsed records and candidate package bytes independently join here.",
+    "root_verification": {
+      "bytes": 924,
+      "path": "artifacts/development/glibc16k-run38941180852/root-verification.json",
+      "sha256": "3600cee58367ace3291e26d1be39ef5b858c10c9f438c52766ee9a4bc9fe578b"
+    },
+    "run": 38941180852,
+    "sha256": "259d4ff751055f6b45854da6c8de7fcb72a80554d08871ea097392ae53b5e8f2",
+    "source": "308c9b0cba5ad6c90530e4b10f0e3fb3e01dcbfb",
+    "status": "PASS_BOUND_ROOT_ACCEPTED_PRIVATE16K"
+  },
+  "release_payload_tree": "97ac10e146c65ecbd22d36e3743eb5b5e9166ae9",
+  "scope": "UNSELECTED_OWNED_CONVENTIONAL_USR_GLIBC_PROVIDER",
+  "security": "NOT_REVIEWED_NO_PATCH_EQUIVALENCE",
+  "smoke_manifest_sha256": "e10336aef200731c7dd4b06546b718e095c1ecf7718e4a25fa57d6bbed6270a6",
+  "source_authentication": {
+    "current_key_expiration_reported": true,
+    "diagnostic": "gpgv: Signature made Fri Jan 23 22:42:17 2026 UTC\ngpgv:                using RSA key FD19E6D31B192EE4DC63EAD3DC2B16215ED5412A\ngpgv: Good signature from \"Andreas K. Huettel (at work) <mail@akhuettel.de>\"\ngpgv:                 aka \"Andreas K. Huettel (at work) <andreas.huettel@ur.de>\"\ngpgv:                 aka \"Andreas K. Huettel (at work) <andreas.huettel@physik.uni-r.de>\"\ngpgv:                 aka \"Andreas K. Huettel (at work) <andreas.huettel@physik.uni-regensburg.de>\"\ngpgv:                 aka \"Andreas K. Huettel (at work) <huettel@gmail.com>\"\ngpgv:                 aka \"Andreas K. Huettel (at work) <dilfridge@gentoo.org>\"\ngpgv:                 aka \"Andreas K. Huettel (at work) <andreas.huettel@maximilianeum.de>\"\ngpgv:                 aka \"Andreas K. Huettel <andreas@akhuettel.de>\"\ngpgv:                 aka \"Andreas K. Huettel <akhuettel@web.de>\"\ngpgv:                 aka \"Andreas K. Huettel <akhuettel@cpan.org>\"\ngpgv:                 aka \"Andreas K. Huettel <dilfridge@sourceware.org>\"\ngpgv:                 aka \"Dr. Andreas Klaus H\ufffdttel <mail@akhuettel.de>\"\n",
+    "gpg_status": "[GNUPG:] NEWSIG\n[GNUPG:] KEYEXPIRED 1775499647\n[GNUPG:] KEYEXPIRED 1775499647\n[GNUPG:] KEYEXPIRED 1775499647\n[GNUPG:] KEYEXPIRED 1775499585\n[GNUPG:] KEYEXPIRED 1775499647\n[GNUPG:] KEYEXPIRED 1775499647\n[GNUPG:] KEYEXPIRED 1775499585\n[GNUPG:] KEY_CONSIDERED 35B17DF5752577CA0C541CEB94BFDF4484AD142F 0\n[GNUPG:] KEYEXPIRED 1775499585\n[GNUPG:] SIG_ID uAZTuuwZzymeTBlupnI/Pix5J0E 2026-01-23 1769208137\n[GNUPG:] EXPKEYSIG DC2B16215ED5412A Andreas K. Huettel (at work) <mail@akhuettel.de>\n[GNUPG:] NOTATION_NAME issuer-fpr@notations.openpgp.fifthhorseman.net\n[GNUPG:] NOTATION_FLAGS 0 1\n[GNUPG:] NOTATION_DATA FD19E6D31B192EE4DC63EAD3DC2B16215ED5412A\n[GNUPG:] NOTATION_NAME manu\n[GNUPG:] NOTATION_FLAGS 0 1\n[GNUPG:] NOTATION_DATA 2,2.5+1.11,2,2\n[GNUPG:] VALIDSIG FD19E6D31B192EE4DC63EAD3DC2B16215ED5412A 2026-01-23 1769208137 0 4 0 1 10 00 35B17DF5752577CA0C541CEB94BFDF4484AD142F\n",
+    "primary_fingerprint": "35B17DF5752577CA0C541CEB94BFDF4484AD142F",
+    "returncode": 0,
+    "status": "CRYPTOGRAPHICALLY_VALID_GNU_PUBLISHER_KEYRING",
+    "subkey_fingerprint": "FD19E6D31B192EE4DC63EAD3DC2B16215ED5412A",
+    "trust": "UNSELECTED; GNU HTTPS publisher keyring, no independent pretrusted fingerprint authority"
+  },
+  "source_bundle_manifest_sha256": "a927c35281cf3c44d288364bee325010efcc31900c3ee73115e60d898d804242",
+  "source_bundle_preserved": true,
+  "status": "PASS_UNSELECTED_NATIVE_PAIR",
+  "upstream_release": "2.43"
+}
