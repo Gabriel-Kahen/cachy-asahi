@@ -2,6 +2,7 @@
 """Runs only inside the marked diskless generic 16 KiB guest, without a GUI."""
 import hashlib
 import base64
+import importlib.util
 import json
 import os
 from pathlib import Path
@@ -163,6 +164,62 @@ def owned_absent():
     return True
 
 
+def foreground_probe(fixture,source,root):
+    """Separate diagnostic only: preserve original driver, workload and product bytes."""
+    need(not root.exists() and root.parent.is_dir(),'fresh private probe output required')
+    root.mkdir(mode=0o700)
+    os.umask(0o077)
+    spec=importlib.util.spec_from_file_location('done16k_original_fixture',fixture)
+    module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+    fish=__import__('shutil').which('fish');need(fish is not None,'Fish unavailable')
+    session=None
+    result=dict(schema_version=1,status='FOREGROUND_PROBE_ONLY',acceptance_credit=False,product_change='NONE',
+        fixture_sha256=sha(read(fixture)),runtime_sha256=sha(read(source/'done.fish')),
+        wrapper_sha256=sha(read(source/'opt-in.fish')),workload='sleep .12',threshold=80,
+        intervention='Additional fixture event observers and exec-preserving timeout stderr recorder; separate fresh private case')
+    try:
+        session=module.Session.__new__(module.Session)
+        session.__init__(fish,source/'opt-in.fish',root,'foreground');home=session.home
+        # Observe the actual duration/activation without replacing product functions.
+        observer='''function fixture_diagnostic_pre --on-event fish_preexec
+if test "$argv[1]" = 'sleep .12'
+functions --query __done_ended __done_notify caa_done_watch caa_done_disable
+printf '%s' $status > "$HOME/probe-enabled"
+printf '%s\\n' $caa_done_min_duration > "$HOME/probe-threshold"
+printf '%s\\n' $caa_done_exclude > "$HOME/probe-exclusions"
+end
+end
+function fixture_diagnostic_post --on-event fish_postexec
+set -l outcome $status
+if test "$argv[1]" = 'sleep .12'
+printf '%s\\t%s\\n' "$CMD_DURATION" "$outcome" > "$HOME/probe-completion"
+end
+end'''
+        # A single submitted line keeps the original fixture sequence/prompt contract.
+        session.run(observer.replace('\n','; '))
+        timeout=home/'bin/timeout';real=timeout.resolve(strict=True);timeout.unlink()
+        import shlex
+        timeout.write_text('#!/usr/bin/sh\nprintf T >> "$HOME/probe-timeout-entered"\nexec '+shlex.quote(str(real))+' "$@" 2>> "$HOME/probe-timeout-stderr"\n')
+        timeout.chmod(0o700)
+        before=len(module.rows(home));started=time.monotonic()
+        rows=session.run('sleep .12');result.update(notifications_before=before,notifications_after=len(rows),
+            notification_delta=len(rows)-before,seconds=round(time.monotonic()-started,6))
+        leaves=('probe-enabled','probe-threshold','probe-exclusions','probe-completion','probe-timeout-entered','probe-timeout-stderr','notifications.jsonl')
+        result['files']={leaf:diagnostic_file(home/leaf,2048) for leaf in leaves}
+    except BaseException as error:
+        result.update(error_type=type(error).__name__,reason=str(error)[:160])
+    finally:
+        if session is not None:
+            try:session.close();result['fish_normal_exit']=True
+            except BaseException as error:
+                result.update(fish_normal_exit=False,close_error_type=type(error).__name__,close_reason=str(error)[:160])
+                try:session.term.close()
+                except OSError:pass
+    need(sha(read(fixture))==result['fixture_sha256'] and sha(read(source/'done.fish'))==result['runtime_sha256'] and
+         sha(read(source/'opt-in.fish'))==result['wrapper_sha256'],'probe source bytes changed')
+    return result
+
+
 def exercise(nonce,release):
     need(os.geteuid()==0 and os.uname().machine=='aarch64' and os.uname().release==release and
          os.sysconf('SC_PAGE_SIZE')==16384 and 'fish_done16k=1' in Path('/proc/cmdline').read_text().split(),
@@ -183,7 +240,20 @@ def exercise(nonce,release):
     argv=['/usr/bin/python3','-I','-B','/fixtures/done.py','--source','/usr/share/cachy-asahi/fish-done','--output',str(root/'cases')]
     try:row,out=command(argv,env,seconds=240)
     except CommandFailure as error:
-        print('DONE16K_DIAGNOSTIC '+failure_diagnostic(error,root,nonce,release,manifest_raw,home,before),flush=True)
+        diagnostic=json.loads(failure_diagnostic(error,root,nonce,release,manifest_raw,home,before))
+        # Collect the original failure first, then one separate bounded decisive probe.
+        original=diagnostic['original_receipt']
+        if original.get('sample_complete') and json.loads(base64.b64decode(original['sample_base64'])).get('error')=='long success did not notify once':
+            probe_argv=['/usr/bin/python3','-I','-B','/guest.py','--foreground-probe',str(root/'foreground-probe')]
+            try:
+                probe_row,probe_out=command(probe_argv,env,seconds=25)
+                diagnostic['foreground_probe']=dict(command=probe_row,value=json.loads(probe_out),owned_processes_absent=owned_absent())
+            except CommandFailure as probe_error:
+                diagnostic['foreground_probe']=dict(command=probe_error.row,stdout=sample(probe_error.stdout,4096),stderr=sample(probe_error.stderr,4096,True))
+            except (OSError,ValueError) as probe_error:
+                diagnostic['foreground_probe_collection_error']=dict(error_type=type(probe_error).__name__,reason=str(probe_error)[:160])
+        raw=json.dumps(diagnostic,sort_keys=True,separators=(',',':'));need(len(raw.encode())<=65536,'combined diagnostic byte bound')
+        print('DONE16K_DIAGNOSTIC '+raw,flush=True)
         raise
     row['owned_processes_absent']=owned_absent()
     summary=json.loads(out);proof_raw=read(root/'cases/receipt.json');proof=json.loads(proof_raw)
@@ -214,8 +284,13 @@ def exercise(nonce,release):
 
 if __name__=='__main__':
     try:
-        need(len(sys.argv)==3 and len(sys.argv[1])==32,'guest arguments')
-        value=exercise(sys.argv[1],sys.argv[2]);raw=json.dumps(value,sort_keys=True,separators=(',',':'))
-        need(len(raw.encode())<=65536,'guest report byte bound');print('DONE16K_REPORT '+raw,flush=True)
+        if len(sys.argv)==3 and sys.argv[1]=='--foreground-probe':
+            value=foreground_probe(Path('/fixtures/done.py'),Path('/usr/share/cachy-asahi/fish-done'),Path(sys.argv[2]))
+            raw=json.dumps(value,sort_keys=True,separators=(',',':'));need(len(raw.encode())<=16384,'foreground probe byte bound')
+            print(raw,flush=True)
+        else:
+            need(len(sys.argv)==3 and len(sys.argv[1])==32,'guest arguments')
+            value=exercise(sys.argv[1],sys.argv[2]);raw=json.dumps(value,sort_keys=True,separators=(',',':'))
+            need(len(raw.encode())<=65536,'guest report byte bound');print('DONE16K_REPORT '+raw,flush=True)
     except BaseException as error:
         print('DONE16K_ERROR '+type(error).__name__+': '+str(error)[:160],flush=True);raise

@@ -90,10 +90,10 @@ def bindings(value=None):
     need(set(cache.get('files',{}))=={'scripts/ci/tools-generic16k/acquire_kernel.py','scripts/ci/tools-generic16k/retained_kernel.py','scripts/ci/tools-generic16k/dependencies.json'} and
          all(set(r)=={'bytes','sha256'} and type(r['bytes']) is int and r['bytes']>0 and
              re.fullmatch('[0-9a-f]{64}',r['sha256']) for r in cache['files'].values()) and
-         value.get('kernel_helper_sha256')=='3d1f25edbdd8d4ac4f48f5efcc756854e56d93cbaadeaefba3bdab2a1d32e9b1',
+         value.get('kernel_helper_sha256')=='3c8695685dcae7eded7406ccbf0f8152f6f5820f87ef47f4e791b577c2d3b55a',
          'exact final shared cache/source bindings and derived kernel helper required')
     need(cache['files']['scripts/ci/tools-generic16k/acquire_kernel.py']==dict(bytes=8844,sha256='4a372e1f4bfbd1f8604579873fc6fbdec91ac2555bb36f028646017b44b8c23f') and
-         cache['files']['scripts/ci/tools-generic16k/retained_kernel.py']==dict(bytes=5419,sha256='04a374fe025528a84249b318035d65b182c21d882402409053c0764d572373c6'),
+         cache['files']['scripts/ci/tools-generic16k/retained_kernel.py']==dict(bytes=5444,sha256='bddb14537790a484d770215e55cc2c59de50c764d15e4d677f6fbcaab84cd735'),
          'Root final cache/retained asset helpers differ')
     return value
 

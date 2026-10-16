@@ -55,7 +55,13 @@ page probe remain pinned and unchanged.
 
 This directory's `build_kernel.py` derives from accepted helper SHA256
 `e94adb4474183feea30ce1e2949b55c03e4969eeb1addb4c36892e8664ba9aaa`.
-Its diagnostic fragment gains `CONFIG_UNIX98_PTYS=y` and `CONFIG_EVENTFD=y`; main records both. The EVENTFD addition follows the actual Fish eventfd ENOSYS failure in run38921035059. The derived `usage` and `run` functions now also apply the bounded compiler-output scan correction below; all other function bodies except `main` and the base `kernel.fragment` are unchanged.
+Its diagnostic fragment gains `CONFIG_UNIX98_PTYS=y`, `CONFIG_EVENTFD=y` and
+`CONFIG_FILE_LOCKING=y`; the derivation receipt records all three. File locking
+is required by the mirror product's unchanged `fcntl.flock(LOCK_EX|LOCK_NB)`
+transaction locks. Actual Tools run38937106018 reached mirror activation with
+`CONFIG_FILE_LOCKING` disabled and failed with errno38/ENOSYS. The source-audited
+correction enables locking only in this separate diagnostic profile; a future
+actual build/runtime must establish whether mirror lifecycle then passes. The EVENTFD addition follows the actual Fish eventfd ENOSYS failure in run38921035059. The derived `usage` and `run` functions now also apply the bounded compiler-output scan correction below; all other function bodies except `main` and the base `kernel.fragment` are unchanged.
 The original `scripts/virtual/generic16k` helper/fragment and the accepted
 Welcome/Doctor lane are untouched. The derived receipt uses profile
 `TOOLS16K_PTY_DERIVED_DIAGNOSTIC`, binds base/derived fragment, helper, Image and
@@ -181,7 +187,7 @@ This implementation avoids refetch only when that exact verified cache entry is
 visible; it does not by itself solve cross-ref first-miss HTTP 429 failures. It
 never borrows or edits an active run to seed cache storage.
 
-On a true miss the workflow now uses Root's exact draft CI-source asset 647949735
+On a true miss the workflow now uses Root's exact public CI-only prerelease source asset 647949735
 from release 415175342 (ci-kernel-source-874ef68d04ac), through the fixed
 https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/releases/assets/647949735
 endpoint. retained-kernel-asset.json records its exact size/digest. A read-only

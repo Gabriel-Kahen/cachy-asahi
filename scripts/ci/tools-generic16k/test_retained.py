@@ -84,7 +84,7 @@ class Retained(unittest.TestCase):
         metadata=json.loads(Path(__file__).with_name('retained-kernel-asset.json').read_text())
         self.assertEqual(r.ASSET_ID,647949735);self.assertEqual(r.RELEASE_ID,415175342);self.assertEqual(metadata['asset']['url'],r.URL)
         self.assertEqual(r.URL,'https://api.github.com/repos/Gabriel-Kahen/cachy-asahi/releases/assets/647949735');self.assertEqual(r.COMMAND,['gh','api','-H','Accept: application/octet-stream',r.URL])
-        self.assertTrue(metadata['release_draft']);self.assertEqual(metadata['asset']['size'],262965559);self.assertEqual(metadata['asset']['digest'],'sha256:874ef68d04ac8c831b90bb01a387cfabb58fceb60842c49a0d0e58bcd6c146ad')
+        self.assertFalse(metadata['release_draft']);self.assertTrue(metadata['release_prerelease']);self.assertEqual(metadata['asset']['size'],262965559);self.assertEqual(metadata['asset']['digest'],'sha256:874ef68d04ac8c831b90bb01a387cfabb58fceb60842c49a0d0e58bcd6c146ad')
 
 
 if __name__=='__main__':unittest.main()

@@ -13,17 +13,17 @@
       },
       "scripts/ci/tools-generic16k/dependencies.json": {
         "bytes": 21243,
-        "sha256": "56a3e36d1268feb4e2ad4e28f967716cdfc32ef036dae5a6706fd6eacbddac33"
+        "sha256": "d00305ba890be1d7e721d2ec4fa27917edd0c5bedd83408251b3d3d82043d2c6"
       },
       "scripts/ci/tools-generic16k/retained_kernel.py": {
-        "bytes": 5419,
-        "sha256": "04a374fe025528a84249b318035d65b182c21d882402409053c0764d572373c6"
+        "bytes": 5444,
+        "sha256": "bddb14537790a484d770215e55cc2c59de50c764d15e4d677f6fbcaab84cd735"
       }
     },
     "key": "asahi-kernel-source-v1-874ef68d04ac8c831b90bb01a387cfabb58fceb60842c49a0d0e58bcd6c146ad-262965559",
     "retained_asset": 647949735
   },
-  "kernel_helper_sha256": "3d1f25edbdd8d4ac4f48f5efcc756854e56d93cbaadeaefba3bdab2a1d32e9b1",
+  "kernel_helper_sha256": "3c8695685dcae7eded7406ccbf0f8152f6f5820f87ef47f4e791b577c2d3b55a",
   "pair_source": "18569401aa28e2be86f4ada20489913f28739b92",
   "schema_version": 1,
   "status": "ROOT_BOUND_PAIR_AND_TOOLS_CACHE_HANDOFF"

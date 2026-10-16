@@ -23,7 +23,7 @@ COMMIT = '94fb23346d522edf53722357c426a3e58030beea'
 TOOLS = ('make', 'clang', 'clang++', 'ld.lld', 'llvm-ar', 'llvm-nm', 'llvm-strip',
          'llvm-objcopy', 'llvm-objdump', 'llvm-readelf', 'bison', 'flex', 'bc', 'perl', 'sh')
 TOTAL_LIMIT = 16 * 1024**3
-DIAGNOSTIC_FRAGMENT = 'CONFIG_KALLSYMS=y\nCONFIG_PRINTK_TIME=y\nCONFIG_UNIX98_PTYS=y\nCONFIG_EVENTFD=y\n'
+DIAGNOSTIC_FRAGMENT = 'CONFIG_KALLSYMS=y\nCONFIG_PRINTK_TIME=y\nCONFIG_UNIX98_PTYS=y\nCONFIG_EVENTFD=y\nCONFIG_FILE_LOCKING=y\n'
 
 
 def require(ok, reason):
@@ -191,7 +191,7 @@ def main():
             'source archive identity differs')
     report['profile'] = 'TOOLS16K_PTY_DERIVED_DIAGNOSTIC'
     report['derivation'] = {'base_helper_sha256': 'e94adb4474183feea30ce1e2949b55c03e4969eeb1addb4c36892e8664ba9aaa',
-                            'diagnostic_extension': 'CONFIG_UNIX98_PTYS=y;CONFIG_EVENTFD=y',
+                            'diagnostic_extension': 'CONFIG_UNIX98_PTYS=y;CONFIG_EVENTFD=y;CONFIG_FILE_LOCKING=y',
                             'workspace_scan': 'ACTIVE_CHILD_COMPILER_OUTPUT_ENOENT_ONLY_STRICT_FINAL',
                             'accepted_profile_modified': False}
     report['boot_diagnostics'] = args.boot_diagnostics

@@ -226,19 +226,19 @@
     },
     "scripts/ci/fish-done-generic16k/dependencies.json": {
       "bytes": 13611,
-      "sha256": "66e0e38c8c18a99000a735fafa3fcceb36341447e9f24c0a5e70695ebea885de"
+      "sha256": "a8750f64dad0c89ffabb4f6f727254fae010c138d39a5dff749152b7776acbe3"
     },
     "scripts/ci/fish-done-generic16k/guest.py": {
-      "bytes": 13647,
-      "sha256": "21468da702485926be656e69353b5ab7826db2ec365845c1c0eaa203b51372ec"
+      "bytes": 18648,
+      "sha256": "434747c17f41707ad680af379fa099b8dc9ce438a03388d4981294dd95a13c7b"
     },
     "scripts/ci/fish-done-generic16k/payload-map.json": {
       "bytes": 2714,
       "sha256": "5086924e408225aa6cabd8d3b7dae6cf1840be7d7b80c8eef2b35e67304e3389"
     },
     "scripts/ci/fish-done-generic16k/run.py": {
-      "bytes": 28996,
-      "sha256": "c01f26373e33c438ca7cd2ad7533ba2cff860275d52d9ff2a7c01b8dc1964dec"
+      "bytes": 31045,
+      "sha256": "9e42425c217f94b6821c192c988a2d45f9ece522d580d393367a294223b67a46"
     },
     "scripts/ci/fish-done-generic16k/support.py": {
       "bytes": 3041,
@@ -252,9 +252,13 @@
       "bytes": 9527,
       "sha256": "929f5f1318b82bd1574ebd487a3f1bc0ab0c10288c1ea3de1f6af78b38738555"
     },
+    "scripts/ci/fish-done-generic16k/test_foreground_probe.py": {
+      "bytes": 4185,
+      "sha256": "e779b0d7cd35290212ae28c346f4c3dbba8b930cb32fc701fce314fd25488327"
+    },
     "scripts/ci/fish-done-generic16k/test_smoke.py": {
-      "bytes": 25373,
-      "sha256": "4b4522dcfdee7d135850599f09be73d4a7a8ea2415564c575be98740b7abc3e4"
+      "bytes": 25440,
+      "sha256": "62547180b618e39886242e3a28bb331d3b21fecbc3a98a70dfb697437e6086e7"
     },
     "scripts/ci/maintained-desktop574-inputs.json": {
       "bytes": 623664,
@@ -281,8 +285,8 @@
       "sha256": "4a372e1f4bfbd1f8604579873fc6fbdec91ac2555bb36f028646017b44b8c23f"
     },
     "scripts/ci/tools-generic16k/build_kernel.py": {
-      "bytes": 12822,
-      "sha256": "3d1f25edbdd8d4ac4f48f5efcc756854e56d93cbaadeaefba3bdab2a1d32e9b1"
+      "bytes": 12867,
+      "sha256": "3c8695685dcae7eded7406ccbf0f8152f6f5820f87ef47f4e791b577c2d3b55a"
     },
     "scripts/ci/tools-generic16k/cache-action.json": {
       "bytes": 661,
@@ -293,20 +297,20 @@
       "sha256": "6d91180b80138d2d8039efafaaa9ca31349baea22b90430cbb15e07bce02e8f6"
     },
     "scripts/ci/tools-generic16k/retained-kernel-asset.json": {
-      "bytes": 523,
-      "sha256": "96f578b9f82e3ed334330482746b730c1867b1de7634d3ac9519727e48325102"
+      "bytes": 554,
+      "sha256": "48933c549a846694ecd0e33d5f32f954d54ad9c6dd6747427d58d1089009bea2"
     },
     "scripts/ci/tools-generic16k/retained_kernel.py": {
-      "bytes": 5419,
-      "sha256": "04a374fe025528a84249b318035d65b182c21d882402409053c0764d572373c6"
+      "bytes": 5444,
+      "sha256": "bddb14537790a484d770215e55cc2c59de50c764d15e4d677f6fbcaab84cd735"
     },
     "scripts/ci/tools-generic16k/test_cache.py": {
       "bytes": 13059,
       "sha256": "58d031e9202b5903e11a62540ff7020d2a585c6d64b0904b36ca4674be32164b"
     },
     "scripts/ci/tools-generic16k/test_retained.py": {
-      "bytes": 6556,
-      "sha256": "72a1bfa077fda965a1aba48997e86c876fa73008eb299a7824b57bf873e9a7b1"
+      "bytes": 6605,
+      "sha256": "f9a0d87169d43a11e8539c447ad9fb47ae4f20066ba5134c6c32a67cdc8bfe53"
     },
     "scripts/ci/welcome-managed-gui/candidates.py": {
       "bytes": 6435,
