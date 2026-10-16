@@ -1,5 +1,34 @@
 # Full587 installation inside a generic ARM VM
 
+[Numeric-ownership actual38886078908](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38886078908)
+now reaches a real aarch64/4096-byte guest boot on kernel7.2.10-1-aarch64-ARCH,
+then fails the ordinary installer's tool preflight: the held profile names
+`/usr/lib/libsqlite3.so.3.53.4`, which is absent from the preserved current
+builder/tooling root. Source/workflow is
+`22f889590dc0b483c67d3e739b1ca870ce9f689a`. No installer engine/ALPM transaction
+is reached and no fresh587 installation is accepted. A lane-private coherent
+tool-profile correction is in development; the original574 will not be downgraded.
+
+The numeric namespace/readback implementation is integrated with178 controls.
+Its separate real x86 subordinate-namespace component preserves all six numeric
+entries,04110/02755 modes,8192 descriptors and1048 hardlink groups, with cap0
+ordinary parent and independent readback; only the host classification guards
+are substituted in that fixture. These component results do not establish the
+ARM target transaction. The current actual's guest result is FAIL/preflight and
+its exit cleanup is FAIL. QEMU exits naturally after150.101 seconds; QEMU,
+container, image, private-work, producer and caller-private cleanup pass. The
+outer wrapper's coarse `vm: NOT RUN` field does not erase its exported boot and
+preflight events or provide guest-cleanup credit.
+
+Logs are3106813 bytes,
+`24562981c6814ed559f7c6318504bbd6c6219ad04b94bd264cd3339c7e4e2b15`.
+Only the dedicated full-installer-public frame is decoded:28101 compressed bytes,
+`aafd8c46a53024a3b987426e8acdb004ddb7079fe451ceaa935ba49234543a88`,
+nine declared bounded files, including the serial tail. Local evidence is under
+`artifacts/development/full-installer-vm-run38886078908/`.
+Earlier acquisition/group-profile failures remain below.
+
+
 [First actual38873658126](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38873658126)
 **fails tooling acquisition before VM execution**. Source/workflow is
 `7ba73cf1dbf8a396b0dd2598479817db97f1b161`. The producer reaches
