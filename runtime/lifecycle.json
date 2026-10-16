@@ -1,0 +1,604 @@
+{
+  "status": "PASS_SETUP5_INSTALLED_LEGACY_LIFECYCLE",
+  "base_count": 574,
+  "events": [
+    {
+      "phase": "install-setup4",
+      "status": "PASS",
+      "inventory_count": 575,
+      "homes_preserved": true,
+      "database_check": true
+    },
+    {
+      "phase": "upgrade-setup5",
+      "status": "PASS",
+      "inventory_count": 575,
+      "homes_preserved": true,
+      "database_check": true
+    },
+    {
+      "phase": "same-version-reinstall-setup5",
+      "status": "PASS",
+      "inventory_count": 575,
+      "homes_preserved": true,
+      "database_check": true
+    },
+    {
+      "phase": "rollback-setup4",
+      "status": "PASS",
+      "inventory_count": 575,
+      "homes_preserved": true,
+      "database_check": true
+    },
+    {
+      "phase": "forward-setup5",
+      "status": "PASS",
+      "inventory_count": 575,
+      "homes_preserved": true,
+      "database_check": true
+    },
+    {
+      "phase": "remove-setup5",
+      "status": "PASS",
+      "inventory_count": 574,
+      "homes_preserved": true,
+      "database_check": true
+    },
+    {
+      "phase": "reinstall-setup5",
+      "status": "PASS",
+      "inventory_count": 575,
+      "homes_preserved": true,
+      "database_check": true
+    },
+    {
+      "phase": "final-remove-setup5",
+      "status": "PASS",
+      "inventory_count": 574,
+      "homes_preserved": true,
+      "database_check": true
+    }
+  ],
+  "proofs": [
+    {
+      "profile": "state",
+      "cases": {
+        "legacy-state-journal": "PASS",
+        "preview-readonly": "PASS",
+        "apply": "PASS",
+        "repeat": "PASS",
+        "custom-config": "PASS",
+        "missing-preview": "PASS",
+        "missing-module": "PASS",
+        "edited-module": "PASS",
+        "rollback-refusal": "PASS",
+        "new-interruption-recovery": "PASS"
+      },
+      "uid": 1000,
+      "installed_helper_sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd"
+    },
+    {
+      "profile": "journal-before",
+      "cases": {
+        "legacy-state-journal": "PASS",
+        "preview-readonly": "PASS",
+        "apply": "PASS",
+        "repeat": "PASS",
+        "custom-config": "PASS",
+        "missing-preview": "PASS",
+        "missing-module": "PASS",
+        "edited-module": "PASS",
+        "rollback-refusal": "PASS",
+        "new-interruption-recovery": "PASS"
+      },
+      "uid": 1000,
+      "installed_helper_sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd"
+    },
+    {
+      "profile": "journal-after",
+      "cases": {
+        "legacy-state-journal": "PASS",
+        "preview-readonly": "PASS",
+        "apply": "PASS",
+        "repeat": "PASS",
+        "custom-config": "PASS",
+        "missing-preview": "PASS",
+        "missing-module": "PASS",
+        "edited-module": "PASS",
+        "rollback-refusal": "PASS",
+        "new-interruption-recovery": "PASS"
+      },
+      "uid": 1000,
+      "installed_helper_sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd"
+    },
+    {
+      "profile": "journal-commit",
+      "cases": {
+        "legacy-state-journal": "PASS",
+        "preview-readonly": "PASS",
+        "apply": "PASS",
+        "repeat": "PASS",
+        "custom-config": "PASS",
+        "missing-preview": "PASS",
+        "missing-module": "PASS",
+        "edited-module": "PASS",
+        "rollback-refusal": "PASS",
+        "new-interruption-recovery": "PASS"
+      },
+      "uid": 1000,
+      "installed_helper_sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd"
+    },
+    {
+      "profile": "remove-journal",
+      "cases": {
+        "legacy-state-journal": "PASS",
+        "preview-readonly": "PASS",
+        "apply": "PASS",
+        "repeat": "PASS",
+        "custom-config": "PASS",
+        "missing-preview": "PASS",
+        "missing-module": "PASS",
+        "edited-module": "PASS",
+        "rollback-refusal": "PASS",
+        "new-interruption-recovery": "PASS"
+      },
+      "uid": 1000,
+      "installed_helper_sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd"
+    },
+    {
+      "profile": "new-grouped-journal",
+      "cases": {
+        "legacy-state-journal": "PASS",
+        "preview-readonly": "PASS",
+        "apply": "PASS",
+        "repeat": "PASS",
+        "custom-config": "PASS",
+        "missing-preview": "PASS",
+        "missing-module": "PASS",
+        "edited-module": "PASS",
+        "rollback-refusal": "PASS",
+        "new-interruption-recovery": "PASS"
+      },
+      "uid": 1000,
+      "installed_helper_sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd"
+    }
+  ],
+  "actual_observations": [
+    {
+      "phase": "legacy",
+      "profile": "state",
+      "sha256": "3e652bff75f6202cd3c13c327e50a298f7b25149b3c5cb55cdf4912d35af5919",
+      "proof": {
+        "status": "PASS",
+        "phase": "legacy",
+        "profile": "state",
+        "cases": {
+          "legacy-state-journal": "PASS"
+        },
+        "uid": 1000,
+        "installed_helper_sha256": "3e652bff75f6202cd3c13c327e50a298f7b25149b3c5cb55cdf4912d35af5919",
+        "fixture_scope": "INERT_NAMESPACED_MODULE_FIXTURES_ONLY"
+      }
+    },
+    {
+      "phase": "legacy",
+      "profile": "journal-before",
+      "sha256": "3e652bff75f6202cd3c13c327e50a298f7b25149b3c5cb55cdf4912d35af5919",
+      "proof": {
+        "status": "PASS",
+        "phase": "legacy",
+        "profile": "journal-before",
+        "cases": {
+          "legacy-state-journal": "PASS"
+        },
+        "uid": 1000,
+        "installed_helper_sha256": "3e652bff75f6202cd3c13c327e50a298f7b25149b3c5cb55cdf4912d35af5919",
+        "fixture_scope": "INERT_NAMESPACED_MODULE_FIXTURES_ONLY"
+      }
+    },
+    {
+      "phase": "legacy",
+      "profile": "journal-after",
+      "sha256": "3e652bff75f6202cd3c13c327e50a298f7b25149b3c5cb55cdf4912d35af5919",
+      "proof": {
+        "status": "PASS",
+        "phase": "legacy",
+        "profile": "journal-after",
+        "cases": {
+          "legacy-state-journal": "PASS"
+        },
+        "uid": 1000,
+        "installed_helper_sha256": "3e652bff75f6202cd3c13c327e50a298f7b25149b3c5cb55cdf4912d35af5919",
+        "fixture_scope": "INERT_NAMESPACED_MODULE_FIXTURES_ONLY"
+      }
+    },
+    {
+      "phase": "legacy",
+      "profile": "journal-commit",
+      "sha256": "3e652bff75f6202cd3c13c327e50a298f7b25149b3c5cb55cdf4912d35af5919",
+      "proof": {
+        "status": "PASS",
+        "phase": "legacy",
+        "profile": "journal-commit",
+        "cases": {
+          "legacy-state-journal": "PASS"
+        },
+        "uid": 1000,
+        "installed_helper_sha256": "3e652bff75f6202cd3c13c327e50a298f7b25149b3c5cb55cdf4912d35af5919",
+        "fixture_scope": "INERT_NAMESPACED_MODULE_FIXTURES_ONLY"
+      }
+    },
+    {
+      "phase": "legacy",
+      "profile": "remove-journal",
+      "sha256": "3e652bff75f6202cd3c13c327e50a298f7b25149b3c5cb55cdf4912d35af5919",
+      "proof": {
+        "status": "PASS",
+        "phase": "legacy",
+        "profile": "remove-journal",
+        "cases": {
+          "legacy-state-journal": "PASS"
+        },
+        "uid": 1000,
+        "installed_helper_sha256": "3e652bff75f6202cd3c13c327e50a298f7b25149b3c5cb55cdf4912d35af5919",
+        "fixture_scope": "INERT_NAMESPACED_MODULE_FIXTURES_ONLY"
+      }
+    },
+    {
+      "phase": "legacy",
+      "profile": "new-grouped-journal",
+      "sha256": "3e652bff75f6202cd3c13c327e50a298f7b25149b3c5cb55cdf4912d35af5919",
+      "proof": {
+        "status": "PASS",
+        "phase": "legacy",
+        "profile": "new-grouped-journal",
+        "cases": {
+          "legacy-state-journal": "PASS"
+        },
+        "uid": 1000,
+        "installed_helper_sha256": "3e652bff75f6202cd3c13c327e50a298f7b25149b3c5cb55cdf4912d35af5919",
+        "fixture_scope": "INERT_NAMESPACED_MODULE_FIXTURES_ONLY"
+      }
+    },
+    {
+      "phase": "upgrade",
+      "profile": "state",
+      "sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd",
+      "proof": {
+        "status": "PASS",
+        "phase": "upgrade",
+        "profile": "state",
+        "cases": {
+          "preview-readonly": "PASS",
+          "apply": "PASS",
+          "repeat": "PASS",
+          "custom-config": "PASS",
+          "missing-preview": "PASS",
+          "missing-module": "PASS",
+          "edited-module": "PASS",
+          "legacy-state-journal": "PASS"
+        },
+        "uid": 1000,
+        "installed_helper_sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd",
+        "fixture_scope": "INERT_NAMESPACED_MODULE_FIXTURES_ONLY"
+      }
+    },
+    {
+      "phase": "upgrade",
+      "profile": "journal-before",
+      "sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd",
+      "proof": {
+        "status": "PASS",
+        "phase": "upgrade",
+        "profile": "journal-before",
+        "cases": {
+          "preview-readonly": "PASS",
+          "apply": "PASS",
+          "repeat": "PASS",
+          "custom-config": "PASS",
+          "missing-preview": "PASS",
+          "missing-module": "PASS",
+          "edited-module": "PASS",
+          "legacy-state-journal": "PASS"
+        },
+        "uid": 1000,
+        "installed_helper_sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd",
+        "fixture_scope": "INERT_NAMESPACED_MODULE_FIXTURES_ONLY"
+      }
+    },
+    {
+      "phase": "upgrade",
+      "profile": "journal-after",
+      "sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd",
+      "proof": {
+        "status": "PASS",
+        "phase": "upgrade",
+        "profile": "journal-after",
+        "cases": {
+          "preview-readonly": "PASS",
+          "apply": "PASS",
+          "repeat": "PASS",
+          "custom-config": "PASS",
+          "missing-preview": "PASS",
+          "missing-module": "PASS",
+          "edited-module": "PASS",
+          "legacy-state-journal": "PASS"
+        },
+        "uid": 1000,
+        "installed_helper_sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd",
+        "fixture_scope": "INERT_NAMESPACED_MODULE_FIXTURES_ONLY"
+      }
+    },
+    {
+      "phase": "upgrade",
+      "profile": "journal-commit",
+      "sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd",
+      "proof": {
+        "status": "PASS",
+        "phase": "upgrade",
+        "profile": "journal-commit",
+        "cases": {
+          "preview-readonly": "PASS",
+          "apply": "PASS",
+          "repeat": "PASS",
+          "custom-config": "PASS",
+          "missing-preview": "PASS",
+          "missing-module": "PASS",
+          "edited-module": "PASS",
+          "legacy-state-journal": "PASS"
+        },
+        "uid": 1000,
+        "installed_helper_sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd",
+        "fixture_scope": "INERT_NAMESPACED_MODULE_FIXTURES_ONLY"
+      }
+    },
+    {
+      "phase": "upgrade",
+      "profile": "remove-journal",
+      "sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd",
+      "proof": {
+        "status": "PASS",
+        "phase": "upgrade",
+        "profile": "remove-journal",
+        "cases": {
+          "preview-readonly": "PASS",
+          "apply": "PASS",
+          "repeat": "PASS",
+          "custom-config": "PASS",
+          "missing-preview": "PASS",
+          "missing-module": "PASS",
+          "edited-module": "PASS",
+          "legacy-state-journal": "PASS"
+        },
+        "uid": 1000,
+        "installed_helper_sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd",
+        "fixture_scope": "INERT_NAMESPACED_MODULE_FIXTURES_ONLY"
+      }
+    },
+    {
+      "phase": "upgrade",
+      "profile": "new-grouped-journal",
+      "sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd",
+      "proof": {
+        "status": "PASS",
+        "phase": "upgrade",
+        "profile": "new-grouped-journal",
+        "cases": {
+          "preview-readonly": "PASS",
+          "apply": "PASS",
+          "repeat": "PASS",
+          "custom-config": "PASS",
+          "missing-preview": "PASS",
+          "missing-module": "PASS",
+          "edited-module": "PASS",
+          "legacy-state-journal": "PASS"
+        },
+        "uid": 1000,
+        "installed_helper_sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd",
+        "fixture_scope": "INERT_NAMESPACED_MODULE_FIXTURES_ONLY"
+      }
+    },
+    {
+      "phase": "rollback",
+      "profile": "state",
+      "sha256": "3e652bff75f6202cd3c13c327e50a298f7b25149b3c5cb55cdf4912d35af5919",
+      "proof": {
+        "status": "PASS",
+        "phase": "rollback",
+        "profile": "state",
+        "cases": {
+          "rollback-refusal": "PASS"
+        },
+        "uid": 1000,
+        "installed_helper_sha256": "3e652bff75f6202cd3c13c327e50a298f7b25149b3c5cb55cdf4912d35af5919",
+        "fixture_scope": "INERT_NAMESPACED_MODULE_FIXTURES_ONLY"
+      }
+    },
+    {
+      "phase": "rollback",
+      "profile": "journal-before",
+      "sha256": "3e652bff75f6202cd3c13c327e50a298f7b25149b3c5cb55cdf4912d35af5919",
+      "proof": {
+        "status": "PASS",
+        "phase": "rollback",
+        "profile": "journal-before",
+        "cases": {
+          "rollback-refusal": "PASS"
+        },
+        "uid": 1000,
+        "installed_helper_sha256": "3e652bff75f6202cd3c13c327e50a298f7b25149b3c5cb55cdf4912d35af5919",
+        "fixture_scope": "INERT_NAMESPACED_MODULE_FIXTURES_ONLY"
+      }
+    },
+    {
+      "phase": "rollback",
+      "profile": "journal-after",
+      "sha256": "3e652bff75f6202cd3c13c327e50a298f7b25149b3c5cb55cdf4912d35af5919",
+      "proof": {
+        "status": "PASS",
+        "phase": "rollback",
+        "profile": "journal-after",
+        "cases": {
+          "rollback-refusal": "PASS"
+        },
+        "uid": 1000,
+        "installed_helper_sha256": "3e652bff75f6202cd3c13c327e50a298f7b25149b3c5cb55cdf4912d35af5919",
+        "fixture_scope": "INERT_NAMESPACED_MODULE_FIXTURES_ONLY"
+      }
+    },
+    {
+      "phase": "rollback",
+      "profile": "journal-commit",
+      "sha256": "3e652bff75f6202cd3c13c327e50a298f7b25149b3c5cb55cdf4912d35af5919",
+      "proof": {
+        "status": "PASS",
+        "phase": "rollback",
+        "profile": "journal-commit",
+        "cases": {
+          "rollback-refusal": "PASS"
+        },
+        "uid": 1000,
+        "installed_helper_sha256": "3e652bff75f6202cd3c13c327e50a298f7b25149b3c5cb55cdf4912d35af5919",
+        "fixture_scope": "INERT_NAMESPACED_MODULE_FIXTURES_ONLY"
+      }
+    },
+    {
+      "phase": "rollback",
+      "profile": "remove-journal",
+      "sha256": "3e652bff75f6202cd3c13c327e50a298f7b25149b3c5cb55cdf4912d35af5919",
+      "proof": {
+        "status": "PASS",
+        "phase": "rollback",
+        "profile": "remove-journal",
+        "cases": {
+          "rollback-refusal": "PASS"
+        },
+        "uid": 1000,
+        "installed_helper_sha256": "3e652bff75f6202cd3c13c327e50a298f7b25149b3c5cb55cdf4912d35af5919",
+        "fixture_scope": "INERT_NAMESPACED_MODULE_FIXTURES_ONLY"
+      }
+    },
+    {
+      "phase": "rollback",
+      "profile": "new-grouped-journal",
+      "sha256": "3e652bff75f6202cd3c13c327e50a298f7b25149b3c5cb55cdf4912d35af5919",
+      "proof": {
+        "status": "PASS",
+        "phase": "rollback",
+        "profile": "new-grouped-journal",
+        "cases": {
+          "rollback-refusal": "PASS"
+        },
+        "uid": 1000,
+        "installed_helper_sha256": "3e652bff75f6202cd3c13c327e50a298f7b25149b3c5cb55cdf4912d35af5919",
+        "fixture_scope": "INERT_NAMESPACED_MODULE_FIXTURES_ONLY"
+      }
+    },
+    {
+      "phase": "forward",
+      "profile": "state",
+      "sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd",
+      "proof": {
+        "status": "PASS",
+        "phase": "forward",
+        "profile": "state",
+        "cases": {
+          "new-interruption-recovery": "PASS"
+        },
+        "uid": 1000,
+        "installed_helper_sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd",
+        "fixture_scope": "INERT_NAMESPACED_MODULE_FIXTURES_ONLY"
+      }
+    },
+    {
+      "phase": "forward",
+      "profile": "journal-before",
+      "sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd",
+      "proof": {
+        "status": "PASS",
+        "phase": "forward",
+        "profile": "journal-before",
+        "cases": {
+          "new-interruption-recovery": "PASS"
+        },
+        "uid": 1000,
+        "installed_helper_sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd",
+        "fixture_scope": "INERT_NAMESPACED_MODULE_FIXTURES_ONLY"
+      }
+    },
+    {
+      "phase": "forward",
+      "profile": "journal-after",
+      "sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd",
+      "proof": {
+        "status": "PASS",
+        "phase": "forward",
+        "profile": "journal-after",
+        "cases": {
+          "new-interruption-recovery": "PASS"
+        },
+        "uid": 1000,
+        "installed_helper_sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd",
+        "fixture_scope": "INERT_NAMESPACED_MODULE_FIXTURES_ONLY"
+      }
+    },
+    {
+      "phase": "forward",
+      "profile": "journal-commit",
+      "sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd",
+      "proof": {
+        "status": "PASS",
+        "phase": "forward",
+        "profile": "journal-commit",
+        "cases": {
+          "new-interruption-recovery": "PASS"
+        },
+        "uid": 1000,
+        "installed_helper_sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd",
+        "fixture_scope": "INERT_NAMESPACED_MODULE_FIXTURES_ONLY"
+      }
+    },
+    {
+      "phase": "forward",
+      "profile": "remove-journal",
+      "sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd",
+      "proof": {
+        "status": "PASS",
+        "phase": "forward",
+        "profile": "remove-journal",
+        "cases": {
+          "new-interruption-recovery": "PASS"
+        },
+        "uid": 1000,
+        "installed_helper_sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd",
+        "fixture_scope": "INERT_NAMESPACED_MODULE_FIXTURES_ONLY"
+      }
+    },
+    {
+      "phase": "forward",
+      "profile": "new-grouped-journal",
+      "sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd",
+      "proof": {
+        "status": "PASS",
+        "phase": "forward",
+        "profile": "new-grouped-journal",
+        "cases": {
+          "new-interruption-recovery": "PASS"
+        },
+        "uid": 1000,
+        "installed_helper_sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd",
+        "fixture_scope": "INERT_NAMESPACED_MODULE_FIXTURES_ONLY"
+      }
+    }
+  ],
+  "system_config_preserved": true,
+  "user_state_preserved_on_alpm": true,
+  "full574_restored": true,
+  "actual_page_size": 4096,
+  "native_architecture": "aarch64",
+  "masked_hooks": 41,
+  "hardware": "NOT_RUN",
+  "trust": "UNSIGNED_LOCAL_CANDIDATES_ONLY",
+  "fixture_scope": "INERT_NAMESPACED_MODULE_FIXTURES_ONLY",
+  "real_module_acceptance": "NOT_RUN"
+}

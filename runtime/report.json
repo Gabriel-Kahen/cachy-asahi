@@ -1,0 +1,932 @@
+{
+  "base_count": 574,
+  "base_image": "sha256:abe1441d4e1edba42255899a46cb33fcb832efdedbb5ce97ea7bdcdb9e434bdb",
+  "base_lock_sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac",
+  "commands": [
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--name",
+        "cachy-asahi-product-probe-f8cdcb77366e1211fedff19595d13c63",
+        "--pull=never",
+        "--platform=linux/arm64",
+        "--network=none",
+        "--cap-drop=ALL",
+        "--security-opt=no-new-privileges",
+        "--pids-limit=256",
+        "--memory=3g",
+        "--cpus=4",
+        "--user",
+        "1001:1001",
+        "--tmpfs",
+        "/tmp:rw,nosuid,nodev,exec,size=2g",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/setup5-native-runtime,dst=/out",
+        "--read-only",
+        "--label=org.cachy-asahi.setup5-native.job=97993bcac399c85f5a85aea3ead4703c",
+        "--entrypoint=/bin/bash",
+        "sha256:abe1441d4e1edba42255899a46cb33fcb832efdedbb5ce97ea7bdcdb9e434bdb",
+        "-c",
+        "/usr/bin/pacman -T \"$@\" >/dev/null && /usr/bin/pacman -Q",
+        "tools-dependencies",
+        "gnupg",
+        "pacman",
+        "python>=3.11"
+      ],
+      "log": "base-inventory.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--name",
+        "cachy-asahi-product-b42569b2bdc758cc6febc3e0aa4c042b",
+        "--pull=never",
+        "--platform=linux/arm64",
+        "--network=none",
+        "--cap-drop=ALL",
+        "--security-opt=no-new-privileges",
+        "--pids-limit=256",
+        "--memory=3g",
+        "--cpus=4",
+        "--user",
+        "1001:1001",
+        "--tmpfs",
+        "/tmp:rw,nosuid,nodev,exec,size=2g",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/setup5-native-runtime/cachy-asahi-setup-a/artifacts,dst=/out",
+        "--read-only",
+        "--label=org.cachy-asahi.setup5-native.job=97993bcac399c85f5a85aea3ead4703c",
+        "--env=CACHY_ASAHI_CONTAINER=1",
+        "--env=SOURCE_DATE_EPOCH=1791748800",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/setup5-native-runtime/cachy-asahi-setup-a/inputs,dst=/inputs,readonly",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/setup5-native-runtime/cachy-asahi-setup-a/expected-packages.lock,dst=/expected-packages.lock,readonly",
+        "--mount",
+        "type=bind,src=/home/runner/work/cachy-asahi/cachy-asahi/scripts/build/container-entry.sh,dst=/builder-entry.sh,readonly",
+        "--entrypoint=/bin/bash",
+        "sha256:abe1441d4e1edba42255899a46cb33fcb832efdedbb5ce97ea7bdcdb9e434bdb",
+        "/builder-entry.sh"
+      ],
+      "log": "cachy-asahi-setup-a/build.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--name",
+        "cachy-asahi-product-10536fac8c5fac8be5b5ee33507721ce",
+        "--pull=never",
+        "--platform=linux/arm64",
+        "--network=none",
+        "--cap-drop=ALL",
+        "--security-opt=no-new-privileges",
+        "--pids-limit=256",
+        "--memory=3g",
+        "--cpus=4",
+        "--user",
+        "1001:1001",
+        "--tmpfs",
+        "/tmp:rw,nosuid,nodev,exec,size=2g",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/setup5-native-runtime/cachy-asahi-setup-b/artifacts,dst=/out",
+        "--read-only",
+        "--label=org.cachy-asahi.setup5-native.job=97993bcac399c85f5a85aea3ead4703c",
+        "--env=CACHY_ASAHI_CONTAINER=1",
+        "--env=SOURCE_DATE_EPOCH=1791748800",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/setup5-native-runtime/cachy-asahi-setup-b/inputs,dst=/inputs,readonly",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/setup5-native-runtime/cachy-asahi-setup-b/expected-packages.lock,dst=/expected-packages.lock,readonly",
+        "--mount",
+        "type=bind,src=/home/runner/work/cachy-asahi/cachy-asahi/scripts/build/container-entry.sh,dst=/builder-entry.sh,readonly",
+        "--entrypoint=/bin/bash",
+        "sha256:abe1441d4e1edba42255899a46cb33fcb832efdedbb5ce97ea7bdcdb9e434bdb",
+        "/builder-entry.sh"
+      ],
+      "log": "cachy-asahi-setup-b/build.log"
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--name",
+        "cachy-asahi-product-lifecycle-d44126a245ec602f220c2be122de1273",
+        "--pull=never",
+        "--platform=linux/arm64",
+        "--network=none",
+        "--cap-drop=ALL",
+        "--security-opt=no-new-privileges",
+        "--pids-limit=256",
+        "--memory=3g",
+        "--cpus=4",
+        "--user",
+        "0:0",
+        "--tmpfs",
+        "/tmp:rw,nosuid,nodev,exec,size=2g",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/setup5-native-runtime,dst=/out",
+        "--cap-add=CHOWN",
+        "--cap-add=DAC_OVERRIDE",
+        "--cap-add=FOWNER",
+        "--cap-add=FSETID",
+        "--cap-add=SETUID",
+        "--cap-add=SETGID",
+        "--label=org.cachy-asahi.setup5-native.job=97993bcac399c85f5a85aea3ead4703c",
+        "--env=CACHY_ASAHI_SETUP5_LIFECYCLE=1",
+        "--mount",
+        "type=bind,src=/home/runner/work/_temp/setup5-native-runtime/lifecycle-inputs,dst=/inputs,readonly",
+        "--mount",
+        "type=bind,src=/home/runner/work/cachy-asahi/cachy-asahi/scripts/ci/welcome-native,dst=/accepted,readonly",
+        "--mount",
+        "type=bind,src=/home/runner/work/cachy-asahi/cachy-asahi/scripts/ci/setup5-native,dst=/runner,readonly",
+        "--entrypoint=/usr/bin/python3",
+        "sha256:abe1441d4e1edba42255899a46cb33fcb832efdedbb5ce97ea7bdcdb9e434bdb",
+        "-I",
+        "-B",
+        "/runner/lifecycle.py"
+      ],
+      "log": "lifecycle.log"
+    }
+  ],
+  "dependencies": [
+    "gnupg",
+    "pacman",
+    "python>=3.11"
+  ],
+  "hardware": "NOT_RUN",
+  "lifecycle": {
+    "actual_observations": [
+      {
+        "phase": "legacy",
+        "profile": "state",
+        "proof": {
+          "cases": {
+            "legacy-state-journal": "PASS"
+          },
+          "fixture_scope": "INERT_NAMESPACED_MODULE_FIXTURES_ONLY",
+          "installed_helper_sha256": "3e652bff75f6202cd3c13c327e50a298f7b25149b3c5cb55cdf4912d35af5919",
+          "phase": "legacy",
+          "profile": "state",
+          "status": "PASS",
+          "uid": 1000
+        },
+        "sha256": "3e652bff75f6202cd3c13c327e50a298f7b25149b3c5cb55cdf4912d35af5919"
+      },
+      {
+        "phase": "legacy",
+        "profile": "journal-before",
+        "proof": {
+          "cases": {
+            "legacy-state-journal": "PASS"
+          },
+          "fixture_scope": "INERT_NAMESPACED_MODULE_FIXTURES_ONLY",
+          "installed_helper_sha256": "3e652bff75f6202cd3c13c327e50a298f7b25149b3c5cb55cdf4912d35af5919",
+          "phase": "legacy",
+          "profile": "journal-before",
+          "status": "PASS",
+          "uid": 1000
+        },
+        "sha256": "3e652bff75f6202cd3c13c327e50a298f7b25149b3c5cb55cdf4912d35af5919"
+      },
+      {
+        "phase": "legacy",
+        "profile": "journal-after",
+        "proof": {
+          "cases": {
+            "legacy-state-journal": "PASS"
+          },
+          "fixture_scope": "INERT_NAMESPACED_MODULE_FIXTURES_ONLY",
+          "installed_helper_sha256": "3e652bff75f6202cd3c13c327e50a298f7b25149b3c5cb55cdf4912d35af5919",
+          "phase": "legacy",
+          "profile": "journal-after",
+          "status": "PASS",
+          "uid": 1000
+        },
+        "sha256": "3e652bff75f6202cd3c13c327e50a298f7b25149b3c5cb55cdf4912d35af5919"
+      },
+      {
+        "phase": "legacy",
+        "profile": "journal-commit",
+        "proof": {
+          "cases": {
+            "legacy-state-journal": "PASS"
+          },
+          "fixture_scope": "INERT_NAMESPACED_MODULE_FIXTURES_ONLY",
+          "installed_helper_sha256": "3e652bff75f6202cd3c13c327e50a298f7b25149b3c5cb55cdf4912d35af5919",
+          "phase": "legacy",
+          "profile": "journal-commit",
+          "status": "PASS",
+          "uid": 1000
+        },
+        "sha256": "3e652bff75f6202cd3c13c327e50a298f7b25149b3c5cb55cdf4912d35af5919"
+      },
+      {
+        "phase": "legacy",
+        "profile": "remove-journal",
+        "proof": {
+          "cases": {
+            "legacy-state-journal": "PASS"
+          },
+          "fixture_scope": "INERT_NAMESPACED_MODULE_FIXTURES_ONLY",
+          "installed_helper_sha256": "3e652bff75f6202cd3c13c327e50a298f7b25149b3c5cb55cdf4912d35af5919",
+          "phase": "legacy",
+          "profile": "remove-journal",
+          "status": "PASS",
+          "uid": 1000
+        },
+        "sha256": "3e652bff75f6202cd3c13c327e50a298f7b25149b3c5cb55cdf4912d35af5919"
+      },
+      {
+        "phase": "legacy",
+        "profile": "new-grouped-journal",
+        "proof": {
+          "cases": {
+            "legacy-state-journal": "PASS"
+          },
+          "fixture_scope": "INERT_NAMESPACED_MODULE_FIXTURES_ONLY",
+          "installed_helper_sha256": "3e652bff75f6202cd3c13c327e50a298f7b25149b3c5cb55cdf4912d35af5919",
+          "phase": "legacy",
+          "profile": "new-grouped-journal",
+          "status": "PASS",
+          "uid": 1000
+        },
+        "sha256": "3e652bff75f6202cd3c13c327e50a298f7b25149b3c5cb55cdf4912d35af5919"
+      },
+      {
+        "phase": "upgrade",
+        "profile": "state",
+        "proof": {
+          "cases": {
+            "apply": "PASS",
+            "custom-config": "PASS",
+            "edited-module": "PASS",
+            "legacy-state-journal": "PASS",
+            "missing-module": "PASS",
+            "missing-preview": "PASS",
+            "preview-readonly": "PASS",
+            "repeat": "PASS"
+          },
+          "fixture_scope": "INERT_NAMESPACED_MODULE_FIXTURES_ONLY",
+          "installed_helper_sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd",
+          "phase": "upgrade",
+          "profile": "state",
+          "status": "PASS",
+          "uid": 1000
+        },
+        "sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd"
+      },
+      {
+        "phase": "upgrade",
+        "profile": "journal-before",
+        "proof": {
+          "cases": {
+            "apply": "PASS",
+            "custom-config": "PASS",
+            "edited-module": "PASS",
+            "legacy-state-journal": "PASS",
+            "missing-module": "PASS",
+            "missing-preview": "PASS",
+            "preview-readonly": "PASS",
+            "repeat": "PASS"
+          },
+          "fixture_scope": "INERT_NAMESPACED_MODULE_FIXTURES_ONLY",
+          "installed_helper_sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd",
+          "phase": "upgrade",
+          "profile": "journal-before",
+          "status": "PASS",
+          "uid": 1000
+        },
+        "sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd"
+      },
+      {
+        "phase": "upgrade",
+        "profile": "journal-after",
+        "proof": {
+          "cases": {
+            "apply": "PASS",
+            "custom-config": "PASS",
+            "edited-module": "PASS",
+            "legacy-state-journal": "PASS",
+            "missing-module": "PASS",
+            "missing-preview": "PASS",
+            "preview-readonly": "PASS",
+            "repeat": "PASS"
+          },
+          "fixture_scope": "INERT_NAMESPACED_MODULE_FIXTURES_ONLY",
+          "installed_helper_sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd",
+          "phase": "upgrade",
+          "profile": "journal-after",
+          "status": "PASS",
+          "uid": 1000
+        },
+        "sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd"
+      },
+      {
+        "phase": "upgrade",
+        "profile": "journal-commit",
+        "proof": {
+          "cases": {
+            "apply": "PASS",
+            "custom-config": "PASS",
+            "edited-module": "PASS",
+            "legacy-state-journal": "PASS",
+            "missing-module": "PASS",
+            "missing-preview": "PASS",
+            "preview-readonly": "PASS",
+            "repeat": "PASS"
+          },
+          "fixture_scope": "INERT_NAMESPACED_MODULE_FIXTURES_ONLY",
+          "installed_helper_sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd",
+          "phase": "upgrade",
+          "profile": "journal-commit",
+          "status": "PASS",
+          "uid": 1000
+        },
+        "sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd"
+      },
+      {
+        "phase": "upgrade",
+        "profile": "remove-journal",
+        "proof": {
+          "cases": {
+            "apply": "PASS",
+            "custom-config": "PASS",
+            "edited-module": "PASS",
+            "legacy-state-journal": "PASS",
+            "missing-module": "PASS",
+            "missing-preview": "PASS",
+            "preview-readonly": "PASS",
+            "repeat": "PASS"
+          },
+          "fixture_scope": "INERT_NAMESPACED_MODULE_FIXTURES_ONLY",
+          "installed_helper_sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd",
+          "phase": "upgrade",
+          "profile": "remove-journal",
+          "status": "PASS",
+          "uid": 1000
+        },
+        "sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd"
+      },
+      {
+        "phase": "upgrade",
+        "profile": "new-grouped-journal",
+        "proof": {
+          "cases": {
+            "apply": "PASS",
+            "custom-config": "PASS",
+            "edited-module": "PASS",
+            "legacy-state-journal": "PASS",
+            "missing-module": "PASS",
+            "missing-preview": "PASS",
+            "preview-readonly": "PASS",
+            "repeat": "PASS"
+          },
+          "fixture_scope": "INERT_NAMESPACED_MODULE_FIXTURES_ONLY",
+          "installed_helper_sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd",
+          "phase": "upgrade",
+          "profile": "new-grouped-journal",
+          "status": "PASS",
+          "uid": 1000
+        },
+        "sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd"
+      },
+      {
+        "phase": "rollback",
+        "profile": "state",
+        "proof": {
+          "cases": {
+            "rollback-refusal": "PASS"
+          },
+          "fixture_scope": "INERT_NAMESPACED_MODULE_FIXTURES_ONLY",
+          "installed_helper_sha256": "3e652bff75f6202cd3c13c327e50a298f7b25149b3c5cb55cdf4912d35af5919",
+          "phase": "rollback",
+          "profile": "state",
+          "status": "PASS",
+          "uid": 1000
+        },
+        "sha256": "3e652bff75f6202cd3c13c327e50a298f7b25149b3c5cb55cdf4912d35af5919"
+      },
+      {
+        "phase": "rollback",
+        "profile": "journal-before",
+        "proof": {
+          "cases": {
+            "rollback-refusal": "PASS"
+          },
+          "fixture_scope": "INERT_NAMESPACED_MODULE_FIXTURES_ONLY",
+          "installed_helper_sha256": "3e652bff75f6202cd3c13c327e50a298f7b25149b3c5cb55cdf4912d35af5919",
+          "phase": "rollback",
+          "profile": "journal-before",
+          "status": "PASS",
+          "uid": 1000
+        },
+        "sha256": "3e652bff75f6202cd3c13c327e50a298f7b25149b3c5cb55cdf4912d35af5919"
+      },
+      {
+        "phase": "rollback",
+        "profile": "journal-after",
+        "proof": {
+          "cases": {
+            "rollback-refusal": "PASS"
+          },
+          "fixture_scope": "INERT_NAMESPACED_MODULE_FIXTURES_ONLY",
+          "installed_helper_sha256": "3e652bff75f6202cd3c13c327e50a298f7b25149b3c5cb55cdf4912d35af5919",
+          "phase": "rollback",
+          "profile": "journal-after",
+          "status": "PASS",
+          "uid": 1000
+        },
+        "sha256": "3e652bff75f6202cd3c13c327e50a298f7b25149b3c5cb55cdf4912d35af5919"
+      },
+      {
+        "phase": "rollback",
+        "profile": "journal-commit",
+        "proof": {
+          "cases": {
+            "rollback-refusal": "PASS"
+          },
+          "fixture_scope": "INERT_NAMESPACED_MODULE_FIXTURES_ONLY",
+          "installed_helper_sha256": "3e652bff75f6202cd3c13c327e50a298f7b25149b3c5cb55cdf4912d35af5919",
+          "phase": "rollback",
+          "profile": "journal-commit",
+          "status": "PASS",
+          "uid": 1000
+        },
+        "sha256": "3e652bff75f6202cd3c13c327e50a298f7b25149b3c5cb55cdf4912d35af5919"
+      },
+      {
+        "phase": "rollback",
+        "profile": "remove-journal",
+        "proof": {
+          "cases": {
+            "rollback-refusal": "PASS"
+          },
+          "fixture_scope": "INERT_NAMESPACED_MODULE_FIXTURES_ONLY",
+          "installed_helper_sha256": "3e652bff75f6202cd3c13c327e50a298f7b25149b3c5cb55cdf4912d35af5919",
+          "phase": "rollback",
+          "profile": "remove-journal",
+          "status": "PASS",
+          "uid": 1000
+        },
+        "sha256": "3e652bff75f6202cd3c13c327e50a298f7b25149b3c5cb55cdf4912d35af5919"
+      },
+      {
+        "phase": "rollback",
+        "profile": "new-grouped-journal",
+        "proof": {
+          "cases": {
+            "rollback-refusal": "PASS"
+          },
+          "fixture_scope": "INERT_NAMESPACED_MODULE_FIXTURES_ONLY",
+          "installed_helper_sha256": "3e652bff75f6202cd3c13c327e50a298f7b25149b3c5cb55cdf4912d35af5919",
+          "phase": "rollback",
+          "profile": "new-grouped-journal",
+          "status": "PASS",
+          "uid": 1000
+        },
+        "sha256": "3e652bff75f6202cd3c13c327e50a298f7b25149b3c5cb55cdf4912d35af5919"
+      },
+      {
+        "phase": "forward",
+        "profile": "state",
+        "proof": {
+          "cases": {
+            "new-interruption-recovery": "PASS"
+          },
+          "fixture_scope": "INERT_NAMESPACED_MODULE_FIXTURES_ONLY",
+          "installed_helper_sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd",
+          "phase": "forward",
+          "profile": "state",
+          "status": "PASS",
+          "uid": 1000
+        },
+        "sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd"
+      },
+      {
+        "phase": "forward",
+        "profile": "journal-before",
+        "proof": {
+          "cases": {
+            "new-interruption-recovery": "PASS"
+          },
+          "fixture_scope": "INERT_NAMESPACED_MODULE_FIXTURES_ONLY",
+          "installed_helper_sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd",
+          "phase": "forward",
+          "profile": "journal-before",
+          "status": "PASS",
+          "uid": 1000
+        },
+        "sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd"
+      },
+      {
+        "phase": "forward",
+        "profile": "journal-after",
+        "proof": {
+          "cases": {
+            "new-interruption-recovery": "PASS"
+          },
+          "fixture_scope": "INERT_NAMESPACED_MODULE_FIXTURES_ONLY",
+          "installed_helper_sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd",
+          "phase": "forward",
+          "profile": "journal-after",
+          "status": "PASS",
+          "uid": 1000
+        },
+        "sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd"
+      },
+      {
+        "phase": "forward",
+        "profile": "journal-commit",
+        "proof": {
+          "cases": {
+            "new-interruption-recovery": "PASS"
+          },
+          "fixture_scope": "INERT_NAMESPACED_MODULE_FIXTURES_ONLY",
+          "installed_helper_sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd",
+          "phase": "forward",
+          "profile": "journal-commit",
+          "status": "PASS",
+          "uid": 1000
+        },
+        "sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd"
+      },
+      {
+        "phase": "forward",
+        "profile": "remove-journal",
+        "proof": {
+          "cases": {
+            "new-interruption-recovery": "PASS"
+          },
+          "fixture_scope": "INERT_NAMESPACED_MODULE_FIXTURES_ONLY",
+          "installed_helper_sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd",
+          "phase": "forward",
+          "profile": "remove-journal",
+          "status": "PASS",
+          "uid": 1000
+        },
+        "sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd"
+      },
+      {
+        "phase": "forward",
+        "profile": "new-grouped-journal",
+        "proof": {
+          "cases": {
+            "new-interruption-recovery": "PASS"
+          },
+          "fixture_scope": "INERT_NAMESPACED_MODULE_FIXTURES_ONLY",
+          "installed_helper_sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd",
+          "phase": "forward",
+          "profile": "new-grouped-journal",
+          "status": "PASS",
+          "uid": 1000
+        },
+        "sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd"
+      }
+    ],
+    "actual_page_size": 4096,
+    "base_count": 574,
+    "events": [
+      {
+        "database_check": true,
+        "homes_preserved": true,
+        "inventory_count": 575,
+        "phase": "install-setup4",
+        "status": "PASS"
+      },
+      {
+        "database_check": true,
+        "homes_preserved": true,
+        "inventory_count": 575,
+        "phase": "upgrade-setup5",
+        "status": "PASS"
+      },
+      {
+        "database_check": true,
+        "homes_preserved": true,
+        "inventory_count": 575,
+        "phase": "same-version-reinstall-setup5",
+        "status": "PASS"
+      },
+      {
+        "database_check": true,
+        "homes_preserved": true,
+        "inventory_count": 575,
+        "phase": "rollback-setup4",
+        "status": "PASS"
+      },
+      {
+        "database_check": true,
+        "homes_preserved": true,
+        "inventory_count": 575,
+        "phase": "forward-setup5",
+        "status": "PASS"
+      },
+      {
+        "database_check": true,
+        "homes_preserved": true,
+        "inventory_count": 574,
+        "phase": "remove-setup5",
+        "status": "PASS"
+      },
+      {
+        "database_check": true,
+        "homes_preserved": true,
+        "inventory_count": 575,
+        "phase": "reinstall-setup5",
+        "status": "PASS"
+      },
+      {
+        "database_check": true,
+        "homes_preserved": true,
+        "inventory_count": 574,
+        "phase": "final-remove-setup5",
+        "status": "PASS"
+      }
+    ],
+    "fixture_scope": "INERT_NAMESPACED_MODULE_FIXTURES_ONLY",
+    "full574_restored": true,
+    "hardware": "NOT_RUN",
+    "masked_hooks": 41,
+    "native_architecture": "aarch64",
+    "proofs": [
+      {
+        "cases": {
+          "apply": "PASS",
+          "custom-config": "PASS",
+          "edited-module": "PASS",
+          "legacy-state-journal": "PASS",
+          "missing-module": "PASS",
+          "missing-preview": "PASS",
+          "new-interruption-recovery": "PASS",
+          "preview-readonly": "PASS",
+          "repeat": "PASS",
+          "rollback-refusal": "PASS"
+        },
+        "installed_helper_sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd",
+        "profile": "state",
+        "uid": 1000
+      },
+      {
+        "cases": {
+          "apply": "PASS",
+          "custom-config": "PASS",
+          "edited-module": "PASS",
+          "legacy-state-journal": "PASS",
+          "missing-module": "PASS",
+          "missing-preview": "PASS",
+          "new-interruption-recovery": "PASS",
+          "preview-readonly": "PASS",
+          "repeat": "PASS",
+          "rollback-refusal": "PASS"
+        },
+        "installed_helper_sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd",
+        "profile": "journal-before",
+        "uid": 1000
+      },
+      {
+        "cases": {
+          "apply": "PASS",
+          "custom-config": "PASS",
+          "edited-module": "PASS",
+          "legacy-state-journal": "PASS",
+          "missing-module": "PASS",
+          "missing-preview": "PASS",
+          "new-interruption-recovery": "PASS",
+          "preview-readonly": "PASS",
+          "repeat": "PASS",
+          "rollback-refusal": "PASS"
+        },
+        "installed_helper_sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd",
+        "profile": "journal-after",
+        "uid": 1000
+      },
+      {
+        "cases": {
+          "apply": "PASS",
+          "custom-config": "PASS",
+          "edited-module": "PASS",
+          "legacy-state-journal": "PASS",
+          "missing-module": "PASS",
+          "missing-preview": "PASS",
+          "new-interruption-recovery": "PASS",
+          "preview-readonly": "PASS",
+          "repeat": "PASS",
+          "rollback-refusal": "PASS"
+        },
+        "installed_helper_sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd",
+        "profile": "journal-commit",
+        "uid": 1000
+      },
+      {
+        "cases": {
+          "apply": "PASS",
+          "custom-config": "PASS",
+          "edited-module": "PASS",
+          "legacy-state-journal": "PASS",
+          "missing-module": "PASS",
+          "missing-preview": "PASS",
+          "new-interruption-recovery": "PASS",
+          "preview-readonly": "PASS",
+          "repeat": "PASS",
+          "rollback-refusal": "PASS"
+        },
+        "installed_helper_sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd",
+        "profile": "remove-journal",
+        "uid": 1000
+      },
+      {
+        "cases": {
+          "apply": "PASS",
+          "custom-config": "PASS",
+          "edited-module": "PASS",
+          "legacy-state-journal": "PASS",
+          "missing-module": "PASS",
+          "missing-preview": "PASS",
+          "new-interruption-recovery": "PASS",
+          "preview-readonly": "PASS",
+          "repeat": "PASS",
+          "rollback-refusal": "PASS"
+        },
+        "installed_helper_sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd",
+        "profile": "new-grouped-journal",
+        "uid": 1000
+      }
+    ],
+    "real_module_acceptance": "NOT_RUN",
+    "status": "PASS_SETUP5_INSTALLED_LEGACY_LIFECYCLE",
+    "system_config_preserved": true,
+    "trust": "UNSIGNED_LOCAL_CANDIDATES_ONLY",
+    "user_state_preserved_on_alpm": true
+  },
+  "original_selected_inventory": "UNCHANGED",
+  "ownership_token": "97993bcac399c85f5a85aea3ead4703c",
+  "performance": "NOT_MEASURED",
+  "products": {
+    "cachy-asahi-setup": {
+      "builds": [
+        {
+          "archive": "cachy-asahi-setup-0.1.0-5-any.pkg.tar.xz",
+          "payload": {
+            "usr/bin/cachy-asahi-repository": {
+              "gid": 0,
+              "link": "",
+              "mode": 493,
+              "mtime": 1791748800,
+              "sha256": "38db2d45955b569a4c74c3f31d6b6c79611126238e1bbe1e5cf819f81d0fb54f",
+              "size": 19778,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/bin/cachy-asahi-setup": {
+              "gid": 0,
+              "link": "",
+              "mode": 493,
+              "mtime": 1791748800,
+              "sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd",
+              "size": 36348,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/doc/cachy-asahi-setup/README.md": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "b5ab05066ad4b3cede6a300079f1a67a883dcc9f4b3f3a5d109280c9cba60221",
+              "size": 12485,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/doc/cachy-asahi-setup/repository-enrollment.md": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "a14a53311e7c995b468ddcec1e4996611d7cfe9bb08eb255e0cb6bfee6dcc7e1",
+              "size": 7786,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/licenses/cachy-asahi-setup/LICENSE": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+              "size": 1081,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/licenses/cachy-asahi-setup/NOTICE": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "a885656c42b81e413549976eb56fa1aad59018af1cad8954f00f45cbd1c2d018",
+              "size": 970,
+              "type": "0",
+              "uid": 0
+            }
+          },
+          "sha256": "1aafee365e3bcb04e1fce694c110a997914a07f4359697df5e017375897385fc",
+          "tests": {
+            "installed_behavior": "REQUIRED_SEPARATELY",
+            "status": "PASS_CHECK_EXIT",
+            "sync_controls": 10
+          }
+        },
+        {
+          "archive": "cachy-asahi-setup-0.1.0-5-any.pkg.tar.xz",
+          "payload": {
+            "usr/bin/cachy-asahi-repository": {
+              "gid": 0,
+              "link": "",
+              "mode": 493,
+              "mtime": 1791748800,
+              "sha256": "38db2d45955b569a4c74c3f31d6b6c79611126238e1bbe1e5cf819f81d0fb54f",
+              "size": 19778,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/bin/cachy-asahi-setup": {
+              "gid": 0,
+              "link": "",
+              "mode": 493,
+              "mtime": 1791748800,
+              "sha256": "ea505b6437a416c49e494e9ee0a16a9b160e95fed232ef920ad29aa510e28afd",
+              "size": 36348,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/doc/cachy-asahi-setup/README.md": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "b5ab05066ad4b3cede6a300079f1a67a883dcc9f4b3f3a5d109280c9cba60221",
+              "size": 12485,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/doc/cachy-asahi-setup/repository-enrollment.md": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "a14a53311e7c995b468ddcec1e4996611d7cfe9bb08eb255e0cb6bfee6dcc7e1",
+              "size": 7786,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/licenses/cachy-asahi-setup/LICENSE": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7",
+              "size": 1081,
+              "type": "0",
+              "uid": 0
+            },
+            "usr/share/licenses/cachy-asahi-setup/NOTICE": {
+              "gid": 0,
+              "link": "",
+              "mode": 420,
+              "mtime": 1791748800,
+              "sha256": "a885656c42b81e413549976eb56fa1aad59018af1cad8954f00f45cbd1c2d018",
+              "size": 970,
+              "type": "0",
+              "uid": 0
+            }
+          },
+          "sha256": "1aafee365e3bcb04e1fce694c110a997914a07f4359697df5e017375897385fc",
+          "tests": {
+            "installed_behavior": "REQUIRED_SEPARATELY",
+            "status": "PASS_CHECK_EXIT",
+            "sync_controls": 10
+          }
+        }
+      ],
+      "comparison": {
+        "errors": [],
+        "hardware_status": "NOT RUN",
+        "independence_limit": "Distinct recorded container runs; independent machine execution is not attested.",
+        "packages": {
+          "cachy-asahi-setup-0.1.0-5-any.pkg.tar.xz": {
+            "buildinfo_equal": true,
+            "bytes_equal": true,
+            "installed_contents_equal": true,
+            "pkginfo_equal": true
+          }
+        },
+        "status": "contents-reproduced"
+      },
+      "version": "0.1.0-5"
+    }
+  },
+  "scope": "ONE_UNSELECTED_SETUP5_CANDIDATE",
+  "status": "PASS_NATIVE_SETUP5_PAIR_AND_LEGACY_LIFECYCLE"
+}
