@@ -99,10 +99,7 @@ def capture(root,image,source):
         for lib in row['needed']:
             found=next((Path(folder)/lib for folder in ('/usr/lib','/lib') if (Path(folder)/lib).is_file()),None)
             c.need(found is not None,'bootstrap DT_NEEDED absent: '+lib);pending.append((str(found).lstrip('/'),found))
-    for name,row in elfs.items():
-        folders=(c.PREFIX+'/usr/lib/',) if row['scope']=='candidate' else ('usr/lib/','lib/')
-        c.need(not row['interpreter'] or row['interpreter'].lstrip('/') in files,'captured interpreter absent')
-        c.need(all(any(folder+lib in files for folder in folders) for lib in row['needed']),'closed ELF dependency absent')
+    c.elf_closure(elfs,files)
     c.need(inventory()==before and driver.runtime_inventory(spec)==runtime_before,'native574/runtime changed')
     receipt=dict(status='CAPTURED_GLIBC_CLIENTS_NOT_EXECUTED',image_id=image,inventory_sha256=before,source_commit=source,
                  files=rows,elf=elfs,compile=report,pair_sha256=c.PACKAGE_SHA,capture_page_size=os.sysconf('SC_PAGE_SIZE'))

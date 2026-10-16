@@ -54,15 +54,70 @@ class Inputs(unittest.TestCase):
         generic=c.load(ROOT,'scripts/virtual/generic16k/fixture.py')
         _,packages=c.pair(PAIR)
         with tempfile.TemporaryDirectory() as directory:
-            stage=Path(directory)/'candidate';rows=c.stage(packages[0],stage,generic);count=0
+            stage=Path(directory)/'candidate';rows=c.stage(packages[0],stage,generic);count=0;elfs={}
             self.assertEqual(len(rows),343)
             for name,row in rows.items():
                 self.assertFalse(name.endswith(('.o','.a')))
                 raw=(stage/name).read_bytes();self.assertEqual(c.sha(raw),row['sha256'])
-                if raw.startswith(b'\x7fELF'):c.aligned(raw,generic);count+=1
+                if raw.startswith(b'\x7fELF'):
+                    elfs[c.PREFIX+'/'+name]=dict(c.aligned(raw,generic),scope='candidate');count+=1
             self.assertEqual(count,287)
             for role,(name,digest) in c.ROLES.items():self.assertEqual(rows[name]['sha256'],digest)
             self.assertTrue(any(n.startswith('l/') for n in rows));self.assertTrue(any(n.startswith('usr/lib/locale/') for n in rows))
+            files={c.PREFIX+'/'+name for name in rows}
+            # These fourteen unchanged modules require the already-captured
+            # helper DSOs alongside them, not in the parent usr/lib directory.
+            importers=[name for name,row in elfs.items()
+                       if any(c.PREFIX+'/usr/lib/'+lib not in files for lib in row['needed'])]
+            self.assertEqual(len(importers),14)
+            self.assertIn(c.PREFIX+'/usr/lib/gconv/EUC-CN.so',importers)
+            c.elf_closure(elfs,files)
+
+    def test_private_gconv_origin_and_parent_libraries(self):
+        name=c.PREFIX+'/usr/lib/gconv/EUC-CN.so'
+        rows={name:dict(scope='candidate',interpreter=None,needed=['libGB.so','libc.so.6'])}
+        files={c.PREFIX+'/usr/lib/gconv/libGB.so',c.PREFIX+'/usr/lib/libc.so.6'}
+        c.elf_closure(rows,files)
+
+    def test_missing_gconv_helper_remains_fatal_with_importer_diagnostic(self):
+        name=c.PREFIX+'/usr/lib/gconv/EUC-CN.so'
+        with self.assertRaisesRegex(ValueError,'EUC-CN.so -> libGB.so'):
+            c.elf_closure({name:dict(scope='candidate',interpreter=None,needed=['libGB.so'])},set())
+
+    def test_private_gconv_cannot_fall_back_to_bootstrap_helper(self):
+        name=c.PREFIX+'/usr/lib/gconv/EUC-CN.so'
+        with self.assertRaises(ValueError):
+            c.elf_closure({name:dict(scope='candidate',interpreter=None,needed=['libGB.so'])},
+                          {'usr/lib/libGB.so','usr/lib/gconv/libGB.so','lib/libGB.so'})
+
+    def test_private_client_cannot_use_gconv_search_directory(self):
+        name='work/clients/smoke'
+        with self.assertRaises(ValueError):
+            c.elf_closure({name:dict(scope='candidate',interpreter=None,needed=['libGB.so'])},
+                          {c.PREFIX+'/usr/lib/gconv/libGB.so'})
+
+    def test_non_gconv_candidate_cannot_use_gconv_search_directory(self):
+        name=c.PREFIX+'/usr/lib/libc.so.6'
+        with self.assertRaises(ValueError):
+            c.elf_closure({name:dict(scope='candidate',interpreter=None,needed=['libGB.so'])},
+                          {c.PREFIX+'/usr/lib/gconv/libGB.so'})
+
+    def test_bootstrap_cannot_use_private_helper(self):
+        with self.assertRaises(ValueError):
+            c.elf_closure({'usr/bin/python3':dict(scope='bootstrap',interpreter=None,needed=['libGB.so'])},
+                          {c.PREFIX+'/usr/lib/gconv/libGB.so'})
+
+    def test_missing_interpreter_still_fatal(self):
+        with self.assertRaisesRegex(ValueError,'captured interpreter absent: work/clients/smoke'):
+            c.elf_closure({'work/clients/smoke':dict(scope='candidate',interpreter='/'+c.PREFIX+'/usr/lib/ld-linux-aarch64.so.1',needed=[])},set())
+
+    def test_capture_and_parent_use_same_closure_guard(self):
+        for name in ('capture.py','run.py'):
+            tree=ast.parse((c.HERE/name).read_bytes())
+            calls=[n for n in ast.walk(tree) if isinstance(n,ast.Call) and isinstance(n.func,ast.Attribute)
+                   and isinstance(n.func.value,ast.Name) and n.func.value.id=='c' and n.func.attr=='elf_closure']
+            self.assertEqual(len(calls),1,name)
+            self.assertEqual([ast.unparse(n) for n in calls[0].args],['elfs','files'])
 
     def test_4k_or_missing_load_segments_rejected(self):
         for loads in ([],[(0,0,100,4096)],[(4096,0,100,16384)]):
