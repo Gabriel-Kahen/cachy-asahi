@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
 """Manual UNBOUND management16K adapter; reuse held actor/kernel/ELF/cleanup APIs."""
-import argparse,base64,json,os,re,secrets,shutil,signal,stat,sys,tarfile
+import argparse,base64,json,os,re,secrets,shutil,signal,stat,sys,tarfile,time
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parent))
 import contract as C
@@ -74,6 +74,22 @@ def partial_commands(raw,nonce):
     if observations:result['signature_observations']=observations
     return result
 
+def startup_seed(source,job_token,nonce,receipt):
+    C.need(re.fullmatch('[0-9a-f]{40}',source) and re.fullmatch('[0-9a-f]{16}',job_token) and re.fullmatch('[0-9a-f]{32}',nonce),'startup clock source/job/nonce required')
+    return dict(schema_version=1,purpose='MANAGEMENT16K_OBSERVED_RUNNER_UTC_STARTUP',source_commit=source,job_token=job_token,nonce=nonce,
+        payload_manifest_sha256=C.sha(C.encoded(receipt)),host_realtime_ns=time.time_ns(),host_monotonic_ns=time.monotonic_ns())
+
+def clock_report(value,nonce,receipt):
+    seed=value['seed'];before=value['before'];after=value['after']
+    C.need(set(seed)=={'schema_version','purpose','source_commit','job_token','nonce','payload_manifest_sha256','host_realtime_ns','host_monotonic_ns'} and type(seed['schema_version']) is int and len(C.encoded(seed))<=4096 and
+        all(type(row[name]) is int and row[name]>=0 for row in (before,after) for name in ('realtime_ns','monotonic_ns')) and
+        value['status']=='SET_VM_REALTIME_FROM_OBSERVED_RUNNER_UTC' and value['uid']==0 and value['authority']=='RECORDED_STARTUP_ANCHOR_NOT_CONTINUOUS_UTC_SYNCHRONIZATION' and
+        value['seed_sha256']==C.sha(C.encoded(seed)) and seed['purpose']=='MANAGEMENT16K_OBSERVED_RUNNER_UTC_STARTUP' and seed['schema_version']==1 and
+        seed['nonce']==nonce and seed['source_commit']==receipt['source_commit'] and seed['payload_manifest_sha256']==C.sha(C.encoded(receipt)) and
+        all(type(seed[n]) is int and 0<seed[n]<2**63 for n in ('host_realtime_ns','host_monotonic_ns')) and re.fullmatch('[0-9a-f]{16}',seed['job_token']) and
+        0<=after['monotonic_ns']-before['monotonic_ns']<=5*10**9 and seed['host_realtime_ns']<=after['realtime_ns']<=seed['host_realtime_ns']+after['monotonic_ns']-before['monotonic_ns']+10**9,'recorded real startup clock/source readback differs')
+    return value
+
 def guest_report(raw,code,nonce,release,receipt):
     C.need(code==0 and len(raw)<=1024**2 and not any(v in raw for v in (b'MANAGEMENT16K_ERROR',b'TOOLS16K FAIL',b'Kernel panic',b'Attempted to kill init')),'natural bounded guest exit0 required')
     lines=raw.replace(b'\r',b'').splitlines();markers=[f'UNAME16K aarch64 {release}'.encode(),b'GETCONF16K 16384',b'SMOKE16K: mmap,mprotect,file-offset PASS',f'TOOLS16K PASS {nonce}'.encode()]
@@ -85,6 +101,7 @@ def guest_report(raw,code,nonce,release,receipt):
         result['package_registration']==C.SCOPE and result['payload_manifest_sha256']==C.sha(C.encoded(receipt)) and
         result['fixture_archive_sha256']==receipt['fixture_archive_sha256'] and result['GUI']==result['hardware']=='NOT_RUN' and result['release_admission'] is False and
         all(result[k] is True for k in ('payload_preserved','user_config_preserved','owned_processes_absent','private_fixtures_removed')),'ordinary guest/preservation/scope differs')
+    clock_report(result['clock_setup'],nonce,receipt)
     rows=[]
     for index,line in enumerate(lines):
         if not line.startswith(b'MANAGEMENT16K_COMMAND '):continue
@@ -139,17 +156,23 @@ def trial(args):
         smoke=args.private/'smoke';argv=[clang,'--target=aarch64-linux-gnu','-nostdlib','-static','-fuse-ld='+linker,'-O2','-fno-stack-protector','-fno-builtin','-Wl,-z,max-page-size=16384','-Wl,-e,_start',str(args.source_root/'scripts/virtual/generic16k/smoke.c'),'-o',str(smoke)]
         code,_,actor=base.supervise(argv,args.private/'compile.log',60);report['actors'].append(actor);C.need(code==0,'unchanged page probe build failed')
         binary=C.read(smoke);base.s.aligned(binary,generic);nonce=secrets.token_hex(16);release=kernel['kernel_release']
-        files.update({'init':(stat.S_IFREG|0o755,base.init(nonce,release)),'smoke':(stat.S_IFREG|0o755,binary),'payload.json':(stat.S_IFREG|0o644,raw),
+        clock_seed=startup_seed(args.source_commit,args.job_token,nonce,receipt);clock_raw=C.encoded(clock_seed)
+        files.update({'init':(stat.S_IFREG|0o755,base.init(nonce,release)),'smoke':(stat.S_IFREG|0o755,binary),'payload.json':(stat.S_IFREG|0o644,raw),'clock-seed.json':(stat.S_IFREG|0o444,clock_raw),
             'page-data':(stat.S_IFREG|0o444,b'A'*16384+b'B'*16384),'etc/passwd':(stat.S_IFREG|0o644,b'root:x:0:0:private init:/tmp:/usr/bin/bash\nfixture:x:23001:23001:private fixture:/tmp/management16k/home:/usr/bin/bash\n'),
             'etc/group':(stat.S_IFREG|0o644,b'root:x:0:\nfixture:x:23001:\n'),'etc/nsswitch.conf':(stat.S_IFREG|0o644,b'passwd: files\ngroup: files\n'),
             'proc':(stat.S_IFDIR|0o555,b''),'dev':(stat.S_IFDIR|0o755,b''),'tmp':(stat.S_IFDIR|0o1777,b'')})
         ramfs=args.private/'initramfs.cpio';ramfs.write_bytes(generic.cpio(files));C.need(ramfs.stat().st_size<=300*1024**2,'initramfs original byte bound')
-        report.update(boot_inputs=dict(nonce=nonce,init_sha256=C.sha(files['init'][1]),payload_manifest_sha256=C.sha(raw),initramfs_sha256=C.sha(C.read(ramfs,300*1024**2))),page_probe_sha256=C.sha(binary))
+        report.update(boot_inputs=dict(nonce=nonce,init_sha256=C.sha(files['init'][1]),payload_manifest_sha256=C.sha(raw),initramfs_sha256=C.sha(C.read(ramfs,300*1024**2)),clock_seed=clock_seed,clock_seed_sha256=C.sha(clock_raw)),page_probe_sha256=C.sha(binary))
         argv=[qemu,'-nodefaults','-machine','virt','-accel','tcg','-cpu','max','-smp','1','-m','1024','-kernel',str(copied),'-initrd',str(ramfs),'-append',generic.boot_arguments(True)+' tools16k=1 management16k=1','-nic','none','-display','none','-monitor','none','-serial','stdio','-no-reboot','-qmp','unix:'+str(args.private/'qmp.sock')+',server=on,wait=off']
         report['qemu_argv']=argv;report['tools']={n:C.sha(base.s.read(Path(p).resolve(),64*1024**2)) for n,p in [('clang',clang),('ld.lld',linker),('qemu',qemu)]};report['vm_observation']={}
         diagnostic=(report['vm_observation'],lambda child,output,deadline:base.vm_observation(child,args.private/'qmp.sock',kernel,config,output,nonce,deadline))
+        report['clock_dispatch']=dict(host_realtime_ns=time.time_ns(),host_monotonic_ns=time.monotonic_ns())
+        C.need(0<=report['clock_dispatch']['host_monotonic_ns']-clock_seed['host_monotonic_ns']<=30*10**9 and
+            0<=report['clock_dispatch']['host_realtime_ns']-clock_seed['host_realtime_ns']<=31*10**9,'startup clock seed stale or host clock moved backwards before VM dispatch')
         code,uart,actor=base.supervise(argv,args.private/'uart.log',900,diagnostic=diagnostic);report['actors'].append(actor)
-        guest,commands=guest_report(uart,code,nonce,release,receipt);report.update(guest=guest,raw_commands=commands,natural_VM_exit=True,QEMU_exit=code,status='PASS_SMOKE_AWAITING_PRODUCER_RETIREMENT')
+        guest,commands=guest_report(uart,code,nonce,release,receipt)
+        C.need(guest['clock_setup']['seed']==clock_seed and guest['clock_setup']['seed_sha256']==report['boot_inputs']['clock_seed_sha256'],'guest clock differs from original host-observed boot seed')
+        report.update(guest=guest,raw_commands=commands,natural_VM_exit=True,QEMU_exit=code,status='PASS_SMOKE_AWAITING_PRODUCER_RETIREMENT')
         inputs(args) # Exact external packet/source preservation, not a new acceptance receipt.
     except BaseException as error:report.update(status='FAIL',error_type=type(error).__name__,reason=str(error)[:256])
     finally:

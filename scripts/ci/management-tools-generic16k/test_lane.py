@@ -181,7 +181,9 @@ class ReportAndELF(unittest.TestCase):
     def setUp(self):
         actor=patch.object(subprocess,'Popen',side_effect=AssertionError('actor forbidden'));actor.start();self.addCleanup(actor.stop)
     def report(self):
-        nonce='a'*32;release='fixture-kernel';receipt=dict(fixture_archive_sha256='f'*64,fixture_authority=dict(signer='A'*40))
+        nonce='a'*32;release='fixture-kernel';receipt=dict(source_commit='a'*40,fixture_archive_sha256='f'*64,fixture_authority=dict(signer='A'*40))
+        seed=run.startup_seed('a'*40,'b'*16,nonce,receipt)
+        clock=dict(status='SET_VM_REALTIME_FROM_OBSERVED_RUNNER_UTC',seed=seed,seed_sha256=C.sha(C.encoded(seed)),before=dict(realtime_ns=0,monotonic_ns=1),after=dict(realtime_ns=seed['host_realtime_ns'],monotonic_ns=2),uid=0,authority='RECORDED_STARTUP_ANCHOR_NOT_CONTINUOUS_UTC_SYNCHRONIZATION')
         rows=[]
         for name in run.CASES:
             tool='apps' if name.startswith('apps-') else 'cache' if name.startswith('cache-') else 'orphans'
@@ -189,7 +191,7 @@ class ReportAndELF(unittest.TestCase):
             command=dict(case=name,argv=['/usr/bin/cachy-asahi-'+tool],exit=1 if name=='cache-concurrent-refusal' or name.startswith('orphans-refuse-') else 0,
                 stdout_bytes=len(raw),stdout_sha256=C.sha(raw),stderr_bytes=0,stderr_sha256=C.sha(b''),seconds=.1,group_absent=True,owned_processes_absent=True)
             rows.append(dict(case=name,command=command,stdout_base64=base64.b64encode(raw).decode()))
-        result=dict(status=C.STATUS,nonce=nonce,kernel=release,architecture='aarch64',page_size=16384,uid=23001,gid=23001,groups=[],NNP=True,capabilities_zero=True,
+        result=dict(clock_setup=clock,status=C.STATUS,nonce=nonce,kernel=release,architecture='aarch64',page_size=16384,uid=23001,gid=23001,groups=[],NNP=True,capabilities_zero=True,
             package_registration=C.SCOPE,payload_manifest_sha256=C.sha(C.encoded(receipt)),fixture_archive_sha256='f'*64,GUI='NOT_RUN',hardware='NOT_RUN',release_admission=False,
             payload_preserved=True,user_config_preserved=True,owned_processes_absent=True,private_fixtures_removed=True,commands=[r['command'] for r in rows],results=dict(
                 apps=dict(default_prefix=True,repository_override=False,Git_checkout=False,signer='A'*40,observed_plans=[dict(operation=n,not_applied=True,db_preserved=True,inventory=dict(observation=dict(payload_verified=False,hardware_verified=False)),inventory_sha256=C.sha(C.encoded(dict(observation=dict(payload_verified=False,hardware_verified=False))))) for n in ('install','remove')]),
