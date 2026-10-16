@@ -20,7 +20,7 @@ jobs:
       PYTHONDONTWRITEBYTECODE: '1'
       SOURCE_COMMIT: ${{ inputs.source }}
       LANE: scripts/ci/desktop-user-session
-      MANIFEST_SHA256: '393de9ecc97d61f4b9d81cba52f6315ca8212e54e10392c4c5ef605e9c2b5125'
+      MANIFEST_SHA256: 'f1c6da489829738801c5c59cd2d89f6512fdebcb70a0891db0b126732c80ccd2'
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         timeout-minutes: 2
@@ -37,7 +37,7 @@ jobs:
           [[ "$SOURCE_COMMIT" =~ ^[0-9a-f]{40}$ ]]
           test "$(git rev-parse HEAD)" = "$SOURCE_COMMIT"
           printf '%s  %s\n' 'cf866f9890bf67f7edd4f9f08561986b9ecaed462c8c6574fc3a3091c9aa0271' "$LANE/ci/caller.py" "$MANIFEST_SHA256" "$LANE/ci/source-manifest.json" | sha256sum --check
-          python3 -I -B "$LANE/ci/caller.py" prepare --source "$GITHUB_WORKSPACE" --manifest "$LANE/ci/source-manifest.json" --manifest-sha256 "$MANIFEST_SHA256" --trial "$TRIAL" --base "$BASE" --source-commit "$SOURCE_COMMIT"
+          python3 -I -B "$LANE/ci/caller.py" prepare --source "$GITHUB_WORKSPACE" --manifest "$GITHUB_WORKSPACE/$LANE/ci/source-manifest.json" --manifest-sha256 "$MANIFEST_SHA256" --trial "$TRIAL" --base "$BASE" --source-commit "$SOURCE_COMMIT"
       - name: Seed the six exact retained inputs using existing secrets only
         timeout-minutes: 2
         env:
@@ -89,7 +89,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python3 -I -B "$LANE/ci/caller.py" verify --source "$GITHUB_WORKSPACE" --manifest "$LANE/ci/source-manifest.json" --manifest-sha256 "$MANIFEST_SHA256" --trial "$TRIAL" --base "$BASE"
+          python3 -I -B "$LANE/ci/caller.py" verify --source "$GITHUB_WORKSPACE" --manifest "$GITHUB_WORKSPACE/$LANE/ci/source-manifest.json" --manifest-sha256 "$MANIFEST_SHA256" --trial "$TRIAL" --base "$BASE"
           timeout --signal=TERM --kill-after=10s 2300s \
             python3 -I -B scripts/ci/maintained_desktop574.py build \
               --inputs scripts/ci/maintained-desktop574-inputs.json --output "$BASE" \
@@ -111,14 +111,14 @@ jobs:
         run: |
           set -euo pipefail
           timeout --signal=TERM --kill-after=30s 2050s \
-            python3 -I -B "$LANE/ci/caller.py" runtime --source "$GITHUB_WORKSPACE" --manifest "$LANE/ci/source-manifest.json" --manifest-sha256 "$MANIFEST_SHA256" --trial "$TRIAL" --base "$BASE" 2>&1 | tail -c 262144 > "$TRIAL/managed-runtime.log"
+            python3 -I -B "$LANE/ci/caller.py" runtime --source "$GITHUB_WORKSPACE" --manifest "$GITHUB_WORKSPACE/$LANE/ci/source-manifest.json" --manifest-sha256 "$MANIFEST_SHA256" --trial "$TRIAL" --base "$BASE" 2>&1 | tail -c 262144 > "$TRIAL/managed-runtime.log"
       - name: Retire the owned574 base only after its consumers
         if: always()
         timeout-minutes: 2
         shell: bash
         run: |
           set -euo pipefail
-          python3 -I -B "$LANE/ci/caller.py" verify --source "$GITHUB_WORKSPACE" --manifest "$LANE/ci/source-manifest.json" --manifest-sha256 "$MANIFEST_SHA256" --trial "$TRIAL" --base "$BASE"
+          python3 -I -B "$LANE/ci/caller.py" verify --source "$GITHUB_WORKSPACE" --manifest "$GITHUB_WORKSPACE/$LANE/ci/source-manifest.json" --manifest-sha256 "$MANIFEST_SHA256" --trial "$TRIAL" --base "$BASE"
           if [[ -f "$BASE/report.json" && -f "$TRIAL/job-token" ]]; then
             python3 -I -B scripts/ci/maintained_desktop574.py cleanup \
               --inputs scripts/ci/maintained-desktop574-inputs.json --output "$BASE" \
@@ -132,7 +132,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python3 -I -B "$LANE/ci/caller.py" retain --source "$GITHUB_WORKSPACE" --manifest "$LANE/ci/source-manifest.json" --manifest-sha256 "$MANIFEST_SHA256" --trial "$TRIAL" --base "$BASE"
+          python3 -I -B "$LANE/ci/caller.py" retain --source "$GITHUB_WORKSPACE" --manifest "$GITHUB_WORKSPACE/$LANE/ci/source-manifest.json" --manifest-sha256 "$MANIFEST_SHA256" --trial "$TRIAL" --base "$BASE"
       - name: Keep only selected public diagnostics and both actual PPM frames
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9

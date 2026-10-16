@@ -4,7 +4,11 @@ import hashlib
 import importlib.util
 import json
 from pathlib import Path
+import shlex
 import shutil
+from string import Template
+import subprocess
+import sys
 import tempfile
 import unittest
 
@@ -66,6 +70,40 @@ class PinsAndPreparation(unittest.TestCase):
         self.assertEqual(workflow.count('if: always()'),3)
         self.assertIn('path: ${{ runner.temp }}/desktop-managed-trial/public/',workflow)
         self.assertNotIn('desktop-bar-notifications',workflow)
+
+    def test_emitted_workflow_cli_requires_absolute_manifest_and_prepares_in_isolation(self):
+        path=HERE/'workflow.yml'
+        if not path.is_file():path=ROOT/'.github/workflows/native-arm-managed-user-session.yml'
+        lines=[line.strip().split(' 2>&1',1)[0] for line in path.read_text().splitlines()
+               if 'python3 -I -B "$LANE/ci/caller.py" ' in line]
+        self.assertEqual(len(lines),5)
+        with tempfile.TemporaryDirectory() as directory:
+            trial=Path(directory)/'trial';base=Path(directory)/'base'
+            values=dict(LANE=c.LANE,GITHUB_WORKSPACE=str(SOURCE),MANIFEST_SHA256=self.pin,
+                        TRIAL=str(trial),BASE=str(base),SOURCE_COMMIT='a'*40)
+            commands=[]
+            for line in lines:
+                argv=[Template(word).substitute(values) for word in shlex.split(line)]
+                argv[0]=sys.executable
+                self.assertEqual(argv[1:3],['-I','-B'])
+                self.assertTrue(Path(argv[argv.index('--manifest')+1]).is_absolute())
+                commands.append(argv)
+            prepare=next(argv for argv in commands if argv[4]=='prepare')
+            legacy=list(prepare);legacy[legacy.index('--manifest')+1]=c.LANE+'/ci/source-manifest.json'
+            failed=subprocess.run(legacy,cwd=SOURCE,capture_output=True,text=True,timeout=20)
+            self.assertNotEqual(failed.returncode,0)
+            self.assertIn('ordinary absolute path required',failed.stderr)
+            self.assertFalse(trial.exists())
+            ready=subprocess.run(prepare,cwd=SOURCE,capture_output=True,text=True,timeout=20)
+            self.assertEqual(ready.returncode,0,ready.stderr)
+            self.assertEqual(json.loads(ready.stdout)['status'],'READY_NOT_RUN')
+            checked=subprocess.run(next(argv for argv in commands if argv[4]=='verify'),
+                                   cwd=SOURCE,capture_output=True,text=True,timeout=20)
+            self.assertEqual(checked.returncode,0,checked.stderr)
+            self.assertEqual(json.loads(checked.stdout)['status'],'PINNED_SOURCE_PASS')
+            self.assertTrue((trial/'runner/profile.json').is_file())
+            self.assertFalse((trial/'runtime').exists())
+            self.assertFalse(base.exists())
 
     def test_changed_source_or_source_alias_refuses_before_preparation(self):
         with tempfile.TemporaryDirectory() as directory:
