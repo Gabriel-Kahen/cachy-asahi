@@ -170,6 +170,16 @@ jobs:
         run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/fish-done-generic16k -p 'test_*.py'
       - name: Check combined shell source guards without interactive shell actors
         run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/shell-modules-coexistence -p test_source.py
+      - name: Checkout the frozen expanded composition inputs for passive checks
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 7fee76d68e5fd75437d8b49aaaced8376d2215cd
+          path: .ci-inputs/expanded-candidates
+          persist-credentials: false
+      - name: Check expanded composition contracts without native actors
+        env:
+          EXPANDED_INPUT_PAYLOAD: ${{ github.workspace }}/.ci-inputs/expanded-candidates
+        run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/expanded-development-composition -p test_source.py
       - name: Check native tool candidate contracts without container actors
         run: python3 -B -Werror::ResourceWarning -m unittest discover -s scripts/ci/tools-native -p test_native.py
       - name: Check Fish autopair source syntax without requiring newer host Fish runtime
