@@ -193,8 +193,8 @@
       "sha256": "7389ad3eac50b1f004591a0553de7d3d47b5bc9f4e704efcd8cdf7394cc35bb6"
     },
     "scripts/ci/apps-cache-native/test_lane.py": {
-      "bytes": 17281,
-      "sha256": "045c56cdcc78c9a4a743ffe06fc301a6374edecd83fd9298ec62df423f8b550e"
+      "bytes": 17368,
+      "sha256": "1bd97cab7471108efe00354d96e450c22501410037dff7c589c0ef5ab276fb7d"
     },
     "scripts/ci/full-development-composition/run.py": {
       "bytes": 29738,
