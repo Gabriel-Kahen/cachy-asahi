@@ -1,24 +1,28 @@
 {
   "files": {
     "README.md": {
-      "bytes": 5255,
-      "sha256": "455c813d99cbb001add616d3edd12a9f64f02b7ae45ac037d9092345826dd429"
+      "bytes": 7593,
+      "sha256": "d625eb5a6fb220166e20c56b76557fda19b9652af8d057f0dac2ae9f4a673fbe"
     },
     "capabilities.py": {
-      "bytes": 2718,
-      "sha256": "4a54441140eeeedc04ee42013e67bfde9765f0bac6f7e1018b6777244573e0ba"
+      "bytes": 3151,
+      "sha256": "bf2ed601cd42f72f06fde08095e73c9e41efad80a9524cf75df31fcd316ee2f9"
     },
     "common.py": {
-      "bytes": 10882,
-      "sha256": "3cceded87826d664f472329041946a171e3ae7d26aaf4c3ec32c9e0e1a1c5044"
+      "bytes": 10969,
+      "sha256": "82e80eb348ade098d9071d8d3bde139e021725374deb9ede250576c0e0d5a99a"
     },
     "container.py": {
       "bytes": 23878,
       "sha256": "816221f21e7a9f3f32c1f4cd1edc41a5c10912124dc6ce558f8c3f9e0be1d540"
     },
+    "copy_scope.py": {
+      "bytes": 3470,
+      "sha256": "605ead63553641641f3b7d4edd9d9af6d2bd6e43d338e367ea846359e09f6fba"
+    },
     "dependencies.json": {
-      "bytes": 3363,
-      "sha256": "024c2dca4a01937aaae047fad8ad44fd823802d9ae4c362d7fefda65598541a3"
+      "bytes": 3686,
+      "sha256": "3bf937827728540da6cf6a2cdb40bfb51c08499e40cd0e61d2814607ce3b7bcc"
     },
     "input-interface.json": {
       "bytes": 2558,
@@ -45,8 +49,12 @@
       "sha256": "a766bc7cd31cce18fe7e564432de4e4b63db49763608ae70ef8fab61cd29116c"
     },
     "test_controls.py": {
-      "bytes": 15107,
-      "sha256": "1a9963deb084bf0b05450147eb7855935404989de295c277104b539e1cd994f1"
+      "bytes": 15464,
+      "sha256": "ae3814f37572f2597a41b5d9e6556709372e675ba93db10abce6187b2dcdbf90"
+    },
+    "test_copy_scope.py": {
+      "bytes": 11657,
+      "sha256": "776b75f0db1d93389056f0a6d0e300435b4a020003a5008dd014f352cb3d208d"
     }
   },
   "schema_version": 1

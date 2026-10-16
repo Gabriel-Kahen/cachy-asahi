@@ -59,7 +59,7 @@ def helpers(root):
     for name,row in manifest['files'].items():
         raw=read(HERE/relative(name));need(len(raw)==row['bytes'] and sha(raw)==row['sha256'],'lifecycle source changed: '+name)
     dependencies=json.loads(read(HERE/'dependencies.json'))
-    need({'scripts/apps/file_capabilities.py','scripts/ci/apps-full574-native/export_extract.py','scripts/ci/glibc-gnu-provider-lifecycle-owner/snapshot.py','scripts/ci/glibc-gnu-provider-lifecycle/capabilities.py'}<=dependencies['files'].keys(),'capability-aware frozen helper closure required')
+    need({'scripts/apps/file_capabilities.py','scripts/ci/apps-full574-native/export_extract.py','scripts/ci/glibc-gnu-provider-lifecycle-owner/snapshot.py','scripts/ci/glibc-gnu-provider-lifecycle/capabilities.py','scripts/ci/glibc-gnu-provider-lifecycle/copy_scope.py','scripts/apps/full574_copy.py'}<=dependencies['files'].keys(),'capability-aware frozen helper closure required')
     for n,row in dependencies['files'].items():
         raw=read(root/relative(n));need(len(raw)==row['bytes'] and sha(raw)==row['sha256'],'held helper changed: '+n)
     sys.path.insert(0,str(root/'scripts/update'))
