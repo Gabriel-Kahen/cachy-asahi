@@ -1,0 +1,1036 @@
+{
+  "errors": [
+    "frames/minimal-home.ppm: [Errno 2] No such file or directory: '/home/runner/work/_temp/welcome-management-native-runtime/gui-runtime/frames/minimal-home.ppm'",
+    "frames/minimal-terminal-action.ppm: [Errno 2] No such file or directory: '/home/runner/work/_temp/welcome-management-native-runtime/gui-runtime/frames/minimal-terminal-action.ppm'",
+    "frames/minimal-files-action.ppm: [Errno 2] No such file or directory: '/home/runner/work/_temp/welcome-management-native-runtime/gui-runtime/frames/minimal-files-action.ppm'",
+    "frames/minimal-system.ppm: [Errno 2] No such file or directory: '/home/runner/work/_temp/welcome-management-native-runtime/gui-runtime/frames/minimal-system.ppm'",
+    "frames/minimal-first-steps.ppm: [Errno 2] No such file or directory: '/home/runner/work/_temp/welcome-management-native-runtime/gui-runtime/frames/minimal-first-steps.ppm'",
+    "frames/minimal-updates.ppm: [Errno 2] No such file or directory: '/home/runner/work/_temp/welcome-management-native-runtime/gui-runtime/frames/minimal-updates.ppm'",
+    "frames/minimal-recovery.ppm: [Errno 2] No such file or directory: '/home/runner/work/_temp/welcome-management-native-runtime/gui-runtime/frames/minimal-recovery.ppm'",
+    "frames/minimal-management-absent.ppm: [Errno 2] No such file or directory: '/home/runner/work/_temp/welcome-management-native-runtime/gui-runtime/frames/minimal-management-absent.ppm'",
+    "frames/minimal-management-doctor.ppm: [Errno 2] No such file or directory: '/home/runner/work/_temp/welcome-management-native-runtime/gui-runtime/frames/minimal-management-doctor.ppm'",
+    "frames/minimal-management-orphans.ppm: [Errno 2] No such file or directory: '/home/runner/work/_temp/welcome-management-native-runtime/gui-runtime/frames/minimal-management-orphans.ppm'",
+    "frames/minimal-management-failure.ppm: [Errno 2] No such file or directory: '/home/runner/work/_temp/welcome-management-native-runtime/gui-runtime/frames/minimal-management-failure.ppm'",
+    "frames/minimal-management-closing.ppm: [Errno 2] No such file or directory: '/home/runner/work/_temp/welcome-management-native-runtime/gui-runtime/frames/minimal-management-closing.ppm'",
+    "frames/overlay-home.ppm: [Errno 2] No such file or directory: '/home/runner/work/_temp/welcome-management-native-runtime/gui-runtime/frames/overlay-home.ppm'",
+    "frames/overlay-terminal-action.ppm: [Errno 2] No such file or directory: '/home/runner/work/_temp/welcome-management-native-runtime/gui-runtime/frames/overlay-terminal-action.ppm'",
+    "frames/overlay-files-action.ppm: [Errno 2] No such file or directory: '/home/runner/work/_temp/welcome-management-native-runtime/gui-runtime/frames/overlay-files-action.ppm'",
+    "frames/overlay-system.ppm: [Errno 2] No such file or directory: '/home/runner/work/_temp/welcome-management-native-runtime/gui-runtime/frames/overlay-system.ppm'",
+    "frames/overlay-first-steps.ppm: [Errno 2] No such file or directory: '/home/runner/work/_temp/welcome-management-native-runtime/gui-runtime/frames/overlay-first-steps.ppm'",
+    "frames/overlay-updates.ppm: [Errno 2] No such file or directory: '/home/runner/work/_temp/welcome-management-native-runtime/gui-runtime/frames/overlay-updates.ppm'",
+    "frames/overlay-recovery.ppm: [Errno 2] No such file or directory: '/home/runner/work/_temp/welcome-management-native-runtime/gui-runtime/frames/overlay-recovery.ppm'",
+    "frames/overlay-management-absent.ppm: [Errno 2] No such file or directory: '/home/runner/work/_temp/welcome-management-native-runtime/gui-runtime/frames/overlay-management-absent.ppm'",
+    "frames/overlay-management-doctor.ppm: [Errno 2] No such file or directory: '/home/runner/work/_temp/welcome-management-native-runtime/gui-runtime/frames/overlay-management-doctor.ppm'",
+    "frames/overlay-management-orphans.ppm: [Errno 2] No such file or directory: '/home/runner/work/_temp/welcome-management-native-runtime/gui-runtime/frames/overlay-management-orphans.ppm'",
+    "frames/overlay-management-failure.ppm: [Errno 2] No such file or directory: '/home/runner/work/_temp/welcome-management-native-runtime/gui-runtime/frames/overlay-management-failure.ppm'",
+    "frames/overlay-management-closing.ppm: [Errno 2] No such file or directory: '/home/runner/work/_temp/welcome-management-native-runtime/gui-runtime/frames/overlay-management-closing.ppm'",
+    "all eight owned consumers then producer must be retired"
+  ],
+  "files": {
+    "base/installed-packages.lock": {
+      "bytes": 11117,
+      "sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac"
+    },
+    "base/report.json": {
+      "bytes": 1650,
+      "sha256": "7dad0c87e324d36a7d93e835f59e6c8604f63b33a514d077eb27068ba3e8159f"
+    },
+    "generated-gui/a11y_driver.c": {
+      "bytes": 10924,
+      "sha256": "12893d9fd835a55f99a772d45c5b9ed9f56b5cd19ee6a8698c9402af910973a2"
+    },
+    "generated-gui/accepted_lifecycle.py": {
+      "bytes": 12278,
+      "sha256": "b87831eea710dbf18cb3ab3aa7bf49856d26bebbd3e684861dcab7dc1d337c74"
+    },
+    "generated-gui/base_guest.py": {
+      "bytes": 37724,
+      "sha256": "67ef6e2e3b1cb1d732116bb0db559a31a907d252937609579861de9af8c8507a"
+    },
+    "generated-gui/candidate-lock.json": {
+      "bytes": 19811,
+      "sha256": "33d911b1341a5a80997879993cafbcb79444ba7c133e5ce48ae39f8247540ffb"
+    },
+    "generated-gui/candidates.py": {
+      "bytes": 2530,
+      "sha256": "ccf540c1d1d0aa1e25b4e3830fcb84347d40a871dc5fe90243d72fa2b5c86dc3"
+    },
+    "generated-gui/compositor_log.py": {
+      "bytes": 2511,
+      "sha256": "f9a234315adfa9147c25f5f5fdc48d706fa4d3b2bb820485ddfc799dc81d235e"
+    },
+    "generated-gui/contract.py": {
+      "bytes": 1457,
+      "sha256": "abe2312ae56ca353901d45fb3b174522c05d155c95aa2b1ac3e277f4584b422c"
+    },
+    "generated-gui/desktop574_fixture.sh": {
+      "bytes": 5649,
+      "sha256": "691459e880be9900b476ee9db098866cdc95c1c53432e53940289fe59db28782"
+    },
+    "generated-gui/desktop574_guest.py": {
+      "bytes": 2061,
+      "sha256": "1666696e44635412115f8c9d6509d278f39e9262b477423ae2ad05871b038a2e"
+    },
+    "generated-gui/desktop574_runtime.py": {
+      "bytes": 24637,
+      "sha256": "f0f271ef23e4d1cb1e02eadcc3f2229032775852a67ec238e30980c08d4b5562"
+    },
+    "generated-gui/doctor_worker.py": {
+      "bytes": 6098,
+      "sha256": "7bd12feb10d2e56ff518c31d8e8e12ba913e3b6034302d3aedaac19cf9442ef5"
+    },
+    "generated-gui/gui_contract.py": {
+      "bytes": 8830,
+      "sha256": "249a121795ca72dabd49c958137ef09b55ee8f65618f9b84d28ba0df437e558d"
+    },
+    "generated-gui/infrastructure-pins.json": {
+      "bytes": 7943,
+      "sha256": "ed399e0f47ce8d18efb6dd8d838dc02b6110edec1a40f45148d7dd82c5acdb3a"
+    },
+    "generated-gui/input-policy.json": {
+      "bytes": 12357,
+      "sha256": "b48f1b718b529cda7f08487eda336bc377d69b9f11f523d929e4444deafde2d1"
+    },
+    "generated-gui/installed.py": {
+      "bytes": 4928,
+      "sha256": "ee8a67051a2b531e1fe321254e39b7271fe6b0dcc4b06a7ec63eeeb8938ba9c2"
+    },
+    "generated-gui/legacy_contract.py": {
+      "bytes": 7981,
+      "sha256": "1d8f0d5235c798e4ee5d4a3f05b8fab7c5726e12cf93f677a6e60d0b0a43fba0"
+    },
+    "generated-gui/managed_contract.py": {
+      "bytes": 3790,
+      "sha256": "0f6c7566afd2ffb4e283b7f2edd36433e13cca873c60e5d68a46afbd3c2d4218"
+    },
+    "generated-gui/managed_session.py": {
+      "bytes": 11255,
+      "sha256": "2187c47b3f5877d8585c66c806b0c5dd17efc38cee414c46bc746157f3c4d991"
+    },
+    "generated-gui/management_contract.py": {
+      "bytes": 12396,
+      "sha256": "6f4610d126deaa6caf6b34404fb9dbec15805304402b7b1501f745d917602681"
+    },
+    "generated-gui/management_phase.py": {
+      "bytes": 10126,
+      "sha256": "6f41de5fef13527f896c63019ad7b96f04b7efcb43bb6c300c2230492feea6bc"
+    },
+    "generated-gui/management_root.py": {
+      "bytes": 9782,
+      "sha256": "abf8ba25bd85e53c6283198a975d428cc5404356489801be3c52e6a85ca0406c"
+    },
+    "generated-gui/native_contract.py": {
+      "bytes": 14198,
+      "sha256": "23d19817d7751ce73ab1e772f5c7724305fb8e91723c273b15f41f947cb6c81f"
+    },
+    "generated-gui/observed.py": {
+      "bytes": 1997,
+      "sha256": "ae7a6b6e9479b6fc4575161d0ed03b807c58a4b11f8e374ec66d80451a6320b6"
+    },
+    "generated-gui/runner-proof.json": {
+      "bytes": 3982,
+      "sha256": "74325d242c67ec975acb415a186a564a60983a87be47e6d144e803fcc30812f1"
+    },
+    "generated-gui/session.py": {
+      "bytes": 19084,
+      "sha256": "6a290c9dff955e5799b5c9641eec06654005cb2cc358116c7b6a4a10bbdc7935"
+    },
+    "generated-gui/source-pins.json": {
+      "bytes": 5999,
+      "sha256": "70a7d8730fa8db1c5e570ede405ec035883f9f77341603480b36486ec568f470"
+    },
+    "generated-gui/terminal_session.py": {
+      "bytes": 8053,
+      "sha256": "4088ae86877da08df33a56c044ea82aad956da67a749e03b6e706685346ee222"
+    },
+    "generated-gui/terminal_workflow.py": {
+      "bytes": 5147,
+      "sha256": "ca73da754373cf68148ac992f1c2281b03b604703f112a2c4fd24d4604033e87"
+    },
+    "generated-gui/test_desktop574_runtime.py": {
+      "bytes": 12245,
+      "sha256": "e14dc90b5e3b6bedb7a791c128e05ec886127922549c38f2e97760510ab21cdf"
+    },
+    "generated-gui/transport.json": {
+      "bytes": 402,
+      "sha256": "1b8c1291e8ebe0265f46e5fa63032a7dc1e518901889fff109703cce8c2deb91"
+    },
+    "gui/base-reference.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "gui/config/desktop/command-0.txt": {
+      "bytes": 11561,
+      "sha256": "e8255647e79d158a73299320ea8a05c9b370333349096611e23f9b8f14df3fd9"
+    },
+    "gui/config/desktop/command-1.txt": {
+      "bytes": 1098,
+      "sha256": "2b0e23b8988099139784875b8e0472e4ac918dfe3a2e60459aa74da3823ad581"
+    },
+    "gui/config/desktop/command-10.txt": {
+      "bytes": 30,
+      "sha256": "3dfbe7a31eb9475bf9a4e6cb79d2c3265ed2e9e4d139205f526def073405846f"
+    },
+    "gui/config/desktop/command-11.txt": {
+      "bytes": 436,
+      "sha256": "4c7adb2deb0403fefc4562d39105635cebfc44ce88e44fe84c4a90a00b2be3c0"
+    },
+    "gui/config/desktop/command-12.txt": {
+      "bytes": 30,
+      "sha256": "3dfbe7a31eb9475bf9a4e6cb79d2c3265ed2e9e4d139205f526def073405846f"
+    },
+    "gui/config/desktop/command-13.txt": {
+      "bytes": 7738,
+      "sha256": "68fe115241e834594d8c43330b0564c4171e21f5c039dbd48f72ad27b8fbb17c"
+    },
+    "gui/config/desktop/command-14.txt": {
+      "bytes": 30,
+      "sha256": "3dfbe7a31eb9475bf9a4e6cb79d2c3265ed2e9e4d139205f526def073405846f"
+    },
+    "gui/config/desktop/command-15.txt": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "gui/config/desktop/command-16.txt": {
+      "bytes": 30,
+      "sha256": "3dfbe7a31eb9475bf9a4e6cb79d2c3265ed2e9e4d139205f526def073405846f"
+    },
+    "gui/config/desktop/command-17.txt": {
+      "bytes": 1406,
+      "sha256": "0c8c331ce87a95b154e0e83c358a5cafc39bf08f2129ecc5be2438c6a97a325c"
+    },
+    "gui/config/desktop/command-18.txt": {
+      "bytes": 30,
+      "sha256": "3dfbe7a31eb9475bf9a4e6cb79d2c3265ed2e9e4d139205f526def073405846f"
+    },
+    "gui/config/desktop/command-19.txt": {
+      "bytes": 571,
+      "sha256": "e0fb982b88d0017e13a5ee2697765a10c4c088eefc589bdc02656b9be7f2844f"
+    },
+    "gui/config/desktop/command-2.txt": {
+      "bytes": 605,
+      "sha256": "945e4fc83f7de5f9567fed3a2f081d80304559bfbda137667e3f54ce32806f46"
+    },
+    "gui/config/desktop/command-20.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "gui/config/desktop/command-21.txt": {
+      "bytes": 385,
+      "sha256": "6eb6aeeff4fe9770851e25252b70b8dcaabffccbe8e2eb6d28e7836f3bce248d"
+    },
+    "gui/config/desktop/command-22.txt": {
+      "bytes": 402,
+      "sha256": "72e1b7941f83dce659603c48043600cf826d32ca2469e3be5e0ad6c746e0ff20"
+    },
+    "gui/config/desktop/command-23.txt": {
+      "bytes": 75,
+      "sha256": "1f6771a848f197159870cdc7ce638f93f9911d7b5eaca5ab67b11e2ffaeaca8d"
+    },
+    "gui/config/desktop/command-3.txt": {
+      "bytes": 8523,
+      "sha256": "5a920a5dd7a40463417a9b15e64a6620acfe7b2328960bf7014c9f587c4b69a8"
+    },
+    "gui/config/desktop/command-4.txt": {
+      "bytes": 30,
+      "sha256": "3dfbe7a31eb9475bf9a4e6cb79d2c3265ed2e9e4d139205f526def073405846f"
+    },
+    "gui/config/desktop/command-5.txt": {
+      "bytes": 2875,
+      "sha256": "f75aebb1111123dc86c7f1a85e00bff0320edef6e6f071e28370fbabd6a40a6a"
+    },
+    "gui/config/desktop/command-6.txt": {
+      "bytes": 30,
+      "sha256": "3dfbe7a31eb9475bf9a4e6cb79d2c3265ed2e9e4d139205f526def073405846f"
+    },
+    "gui/config/desktop/command-7.txt": {
+      "bytes": 100,
+      "sha256": "c6ab55ae475611bf2df2b7120b97a924eed5d65c149561d4da4f12b5b8c25504"
+    },
+    "gui/config/desktop/command-8.txt": {
+      "bytes": 30,
+      "sha256": "3dfbe7a31eb9475bf9a4e6cb79d2c3265ed2e9e4d139205f526def073405846f"
+    },
+    "gui/config/desktop/command-9.txt": {
+      "bytes": 257,
+      "sha256": "a97930965a4e622adc920491c7d433a803173bb6e644c4c3c88efb79187e11d5"
+    },
+    "gui/config/desktop/desktop.json": {
+      "bytes": 53499,
+      "sha256": "1fdd13cdccf34560defa80f7609700dd39599d7163085a07b68edd99f8366136"
+    },
+    "gui/configuration.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "gui/events.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "gui/fixture.log": {
+      "bytes": 977,
+      "sha256": "034bcf12c141b4a20b860ad322525239b25951c8fc1d567666713d87cfaf2af3"
+    },
+    "gui/guest.log": {
+      "bytes": 45871,
+      "sha256": "469dc7c60d5504ae910556fe1aed44b97cd123ba58db3c5fd3f5e4f7369ff6a7"
+    },
+    "gui/package-build.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "gui/package/expected-packages.lock": {
+      "bytes": 11117,
+      "sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac"
+    },
+    "gui/package/provenance.json": {
+      "bytes": 6100,
+      "sha256": "4e314ef6168bfb763957b74fa6e9dc30c59b360748a4fd09f796b1d360c9c7f7"
+    },
+    "gui/package/validation.json": {
+      "bytes": 32882,
+      "sha256": "f98b27b5a3282d7f58a7532a7fedacb625824ca551b6d5fb98cc99bc0e5b8ba4"
+    },
+    "gui/runtime-image.log": {
+      "bytes": 6963,
+      "sha256": "c0c5b4e662f50cec4eb586c76f793edfaa908acdfd112df5cf8895ea96553a0d"
+    },
+    "gui/runtime.json": {
+      "bytes": 27393,
+      "sha256": "8e60b666111e1bd5102d425cb16281f86a987bf821aae5edf2b3659a889fb484"
+    },
+    "harness/README.md": {
+      "bytes": 6952,
+      "sha256": "3184b1dd802f9fc66a874f020919ac2090bf09c9ad1d109b396d147c9dccaf1d"
+    },
+    "harness/a11y_driver.c": {
+      "bytes": 10924,
+      "sha256": "12893d9fd835a55f99a772d45c5b9ed9f56b5cd19ee6a8698c9402af910973a2"
+    },
+    "harness/candidates.py": {
+      "bytes": 2530,
+      "sha256": "ccf540c1d1d0aa1e25b4e3830fcb84347d40a871dc5fe90243d72fa2b5c86dc3"
+    },
+    "harness/freeze.py": {
+      "bytes": 2496,
+      "sha256": "1b7c0fe0cf7a82516abf35f41eff3cf77938c590bfb8e386f9fc4164e7dab19a"
+    },
+    "harness/infrastructure-pins.json": {
+      "bytes": 7943,
+      "sha256": "ed399e0f47ce8d18efb6dd8d838dc02b6110edec1a40f45148d7dd82c5acdb3a"
+    },
+    "harness/input-policy.json": {
+      "bytes": 12357,
+      "sha256": "b48f1b718b529cda7f08487eda336bc377d69b9f11f523d929e4444deafde2d1"
+    },
+    "harness/installed.py": {
+      "bytes": 4928,
+      "sha256": "ee8a67051a2b531e1fe321254e39b7271fe6b0dcc4b06a7ec63eeeb8938ba9c2"
+    },
+    "harness/job.py": {
+      "bytes": 19775,
+      "sha256": "778fa175c19ddd591bcaa71796f3dd58df3d5c87bae8bc77fa4ae1d1254b3824"
+    },
+    "harness/lifecycle.py": {
+      "bytes": 10025,
+      "sha256": "6c111a3efb451688ef89419956b381e5e417809676efbe28496d15fa9ca1b231"
+    },
+    "harness/management_contract.py": {
+      "bytes": 12396,
+      "sha256": "6f4610d126deaa6caf6b34404fb9dbec15805304402b7b1501f745d917602681"
+    },
+    "harness/management_phase.py": {
+      "bytes": 10126,
+      "sha256": "6f41de5fef13527f896c63019ad7b96f04b7efcb43bb6c300c2230492feea6bc"
+    },
+    "harness/management_root.py": {
+      "bytes": 9782,
+      "sha256": "abf8ba25bd85e53c6283198a975d428cc5404356489801be3c52e6a85ca0406c"
+    },
+    "harness/native_contract.py": {
+      "bytes": 14198,
+      "sha256": "23d19817d7751ce73ab1e772f5c7724305fb8e91723c273b15f41f947cb6c81f"
+    },
+    "harness/prepare.py": {
+      "bytes": 8788,
+      "sha256": "3c39f4ae3c9118502212bf6e832c9dc635d1a54b06d5f95a4f420117e2c8ad75"
+    },
+    "harness/run.py": {
+      "bytes": 12928,
+      "sha256": "f04a8ebada6892d1119fc3b43dd83809c9cde75cef5b8eebb417b635819bdbe7"
+    },
+    "harness/source-manifest.json": {
+      "bytes": 30436,
+      "sha256": "00b15022daad761ffe5c21170c00447910d9533ea0af836827d4be2f431e02c0"
+    },
+    "harness/test_gui.py": {
+      "bytes": 13795,
+      "sha256": "be63229d9505f2929f49d2d22099bd389bfbf80cba2c60214de5a2cdc7a92e04"
+    },
+    "harness/test_native.py": {
+      "bytes": 23645,
+      "sha256": "90b1cda3b2101059724ddd86bcd012c4321a7b826f988a430fe34312e3ce4d80"
+    },
+    "ordered-cleanup.json": {
+      "bytes": 1786,
+      "sha256": "b992e790c45bdb84bbebcb2338c2dfb1fcf6e0dfe0f9a777d3407fc1b8ac1911"
+    },
+    "packages/cachy-asahi-doctor-a/cachy-asahi-doctor-0.1.0-1-any.pkg.tar.xz": {
+      "bytes": 13708,
+      "sha256": "06898669fdd6c9e5bdcc9909e6b0e75e958bdbd57520a7082c0e9f5f7fac7482"
+    },
+    "packages/cachy-asahi-doctor-b/cachy-asahi-doctor-0.1.0-1-any.pkg.tar.xz": {
+      "bytes": 13708,
+      "sha256": "06898669fdd6c9e5bdcc9909e6b0e75e958bdbd57520a7082c0e9f5f7fac7482"
+    },
+    "packages/cachy-asahi-orphans-a/cachy-asahi-orphans-0.1.0-1-any.pkg.tar.xz": {
+      "bytes": 18540,
+      "sha256": "21b13501d8ed5de828e7ac47ff8c8ec2132ca3f0af68bb7062f22852ef640bea"
+    },
+    "packages/cachy-asahi-orphans-b/cachy-asahi-orphans-0.1.0-1-any.pkg.tar.xz": {
+      "bytes": 18540,
+      "sha256": "21b13501d8ed5de828e7ac47ff8c8ec2132ca3f0af68bb7062f22852ef640bea"
+    },
+    "packages/cachy-asahi-welcome-a/cachy-asahi-welcome-0.1.0-2-aarch64.pkg.tar.xz": {
+      "bytes": 31496,
+      "sha256": "61d6b2b2ec09dbbdaa29908cb8797527fd347c4f8c8dc23967dc161b57014280"
+    },
+    "packages/cachy-asahi-welcome-b/cachy-asahi-welcome-0.1.0-2-aarch64.pkg.tar.xz": {
+      "bytes": 31496,
+      "sha256": "61d6b2b2ec09dbbdaa29908cb8797527fd347c4f8c8dc23967dc161b57014280"
+    },
+    "runtime/base-inventory.log": {
+      "bytes": 11117,
+      "sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac"
+    },
+    "runtime/cachy-asahi-doctor-a/artifacts/config.sha256": {
+      "bytes": 167,
+      "sha256": "8309cb4c0409ccdc1ca922475dde9377aec434911efc453299f41e8fadb234ec"
+    },
+    "runtime/cachy-asahi-doctor-a/artifacts/environment.txt": {
+      "bytes": 11501,
+      "sha256": "64bca935c4397e3a57ada917269d495067485068f64981d12367be6e6c2982d0"
+    },
+    "runtime/cachy-asahi-doctor-a/artifacts/generated.SRCINFO": {
+      "bytes": 808,
+      "sha256": "6eb3a106a899d701489d5a8903c15e57516544e164c40adebef2748de978284d"
+    },
+    "runtime/cachy-asahi-doctor-a/artifacts/makepkg.conf": {
+      "bytes": 6651,
+      "sha256": "cfcf0bd2601d887724c5ca7d9a48ac5dd347abad9e8ac5efa436080e45822a60"
+    },
+    "runtime/cachy-asahi-doctor-a/artifacts/packages.lock": {
+      "bytes": 11117,
+      "sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac"
+    },
+    "runtime/cachy-asahi-doctor-a/artifacts/pacman.conf": {
+      "bytes": 116,
+      "sha256": "14d304eeb83baf1379279356c232580fd095c2d508b41c74677347801a0bafe7"
+    },
+    "runtime/cachy-asahi-doctor-a/build.log": {
+      "bytes": 1700,
+      "sha256": "cedf5c8b98e46ef0413df49fe8250efa6789b2f9c1fd964dedef110305bdb3e9"
+    },
+    "runtime/cachy-asahi-doctor-a/expected-packages.lock": {
+      "bytes": 11117,
+      "sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac"
+    },
+    "runtime/cachy-asahi-doctor-a/provenance.json": {
+      "bytes": 4716,
+      "sha256": "d00e2d1628511244eb2d8e55a8c761c454a3aac8610e4e1c2827b74b87d1b70b"
+    },
+    "runtime/cachy-asahi-doctor-a/validation.json": {
+      "bytes": 29917,
+      "sha256": "eac39eb3d7395b1c30e87882c7bcc1da553cafeac631288f1ae91463b24f9275"
+    },
+    "runtime/cachy-asahi-doctor-b/artifacts/config.sha256": {
+      "bytes": 167,
+      "sha256": "8309cb4c0409ccdc1ca922475dde9377aec434911efc453299f41e8fadb234ec"
+    },
+    "runtime/cachy-asahi-doctor-b/artifacts/environment.txt": {
+      "bytes": 11501,
+      "sha256": "fd19635be507ff9785ec0745ccee3a97eff9943f7e2d88fac5f4455658a7aebb"
+    },
+    "runtime/cachy-asahi-doctor-b/artifacts/generated.SRCINFO": {
+      "bytes": 808,
+      "sha256": "6eb3a106a899d701489d5a8903c15e57516544e164c40adebef2748de978284d"
+    },
+    "runtime/cachy-asahi-doctor-b/artifacts/makepkg.conf": {
+      "bytes": 6651,
+      "sha256": "cfcf0bd2601d887724c5ca7d9a48ac5dd347abad9e8ac5efa436080e45822a60"
+    },
+    "runtime/cachy-asahi-doctor-b/artifacts/packages.lock": {
+      "bytes": 11117,
+      "sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac"
+    },
+    "runtime/cachy-asahi-doctor-b/artifacts/pacman.conf": {
+      "bytes": 116,
+      "sha256": "14d304eeb83baf1379279356c232580fd095c2d508b41c74677347801a0bafe7"
+    },
+    "runtime/cachy-asahi-doctor-b/build.log": {
+      "bytes": 1700,
+      "sha256": "f1afdb2b8932f96b687cc352b021599445aa5eb6ea814d7a143a4be18777c18b"
+    },
+    "runtime/cachy-asahi-doctor-b/expected-packages.lock": {
+      "bytes": 11117,
+      "sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac"
+    },
+    "runtime/cachy-asahi-doctor-b/provenance.json": {
+      "bytes": 4716,
+      "sha256": "d08f394c114c531727ad4eb02fe06c6b7a7e3e4f5aa72c274b46270ac88f2733"
+    },
+    "runtime/cachy-asahi-doctor-b/validation.json": {
+      "bytes": 29917,
+      "sha256": "eac39eb3d7395b1c30e87882c7bcc1da553cafeac631288f1ae91463b24f9275"
+    },
+    "runtime/cachy-asahi-doctor-comparison.json": {
+      "bytes": 398,
+      "sha256": "49d87872fae1f639bd8f0e14ff5a5456ff01fa6ff7fd3165910217e85f4536bc"
+    },
+    "runtime/cachy-asahi-orphans-a/artifacts/config.sha256": {
+      "bytes": 167,
+      "sha256": "8309cb4c0409ccdc1ca922475dde9377aec434911efc453299f41e8fadb234ec"
+    },
+    "runtime/cachy-asahi-orphans-a/artifacts/environment.txt": {
+      "bytes": 11501,
+      "sha256": "81a3ae3ca87805db18b993e8b2eb3f994f48cebe5430f772bf07af7ef26b168a"
+    },
+    "runtime/cachy-asahi-orphans-a/artifacts/generated.SRCINFO": {
+      "bytes": 914,
+      "sha256": "1d171298c87606d351e4dc26a5cb83bd66719b419b619f17e82bcbd097fc0188"
+    },
+    "runtime/cachy-asahi-orphans-a/artifacts/makepkg.conf": {
+      "bytes": 6651,
+      "sha256": "cfcf0bd2601d887724c5ca7d9a48ac5dd347abad9e8ac5efa436080e45822a60"
+    },
+    "runtime/cachy-asahi-orphans-a/artifacts/packages.lock": {
+      "bytes": 11117,
+      "sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac"
+    },
+    "runtime/cachy-asahi-orphans-a/artifacts/pacman.conf": {
+      "bytes": 116,
+      "sha256": "14d304eeb83baf1379279356c232580fd095c2d508b41c74677347801a0bafe7"
+    },
+    "runtime/cachy-asahi-orphans-a/build.log": {
+      "bytes": 1854,
+      "sha256": "4fb2f9349286040996df22b50a3520e697f0a51bcbb705074db732e90ecd1b83"
+    },
+    "runtime/cachy-asahi-orphans-a/expected-packages.lock": {
+      "bytes": 11117,
+      "sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac"
+    },
+    "runtime/cachy-asahi-orphans-a/provenance.json": {
+      "bytes": 4922,
+      "sha256": "1e1d0fdc621d6a91fe299fc94afdee7729a81a5f1a8cab74e380a5883753541b"
+    },
+    "runtime/cachy-asahi-orphans-a/validation.json": {
+      "bytes": 30734,
+      "sha256": "8786c0845f8260b81f842afe51a0cf7714ff794e8893cae06beb8460c39e472b"
+    },
+    "runtime/cachy-asahi-orphans-b/artifacts/config.sha256": {
+      "bytes": 167,
+      "sha256": "8309cb4c0409ccdc1ca922475dde9377aec434911efc453299f41e8fadb234ec"
+    },
+    "runtime/cachy-asahi-orphans-b/artifacts/environment.txt": {
+      "bytes": 11501,
+      "sha256": "5a96b003cbf1cc3bd2173f0cb74cd52b7209dd156f2c1401c7ad229323ce8e85"
+    },
+    "runtime/cachy-asahi-orphans-b/artifacts/generated.SRCINFO": {
+      "bytes": 914,
+      "sha256": "1d171298c87606d351e4dc26a5cb83bd66719b419b619f17e82bcbd097fc0188"
+    },
+    "runtime/cachy-asahi-orphans-b/artifacts/makepkg.conf": {
+      "bytes": 6651,
+      "sha256": "cfcf0bd2601d887724c5ca7d9a48ac5dd347abad9e8ac5efa436080e45822a60"
+    },
+    "runtime/cachy-asahi-orphans-b/artifacts/packages.lock": {
+      "bytes": 11117,
+      "sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac"
+    },
+    "runtime/cachy-asahi-orphans-b/artifacts/pacman.conf": {
+      "bytes": 116,
+      "sha256": "14d304eeb83baf1379279356c232580fd095c2d508b41c74677347801a0bafe7"
+    },
+    "runtime/cachy-asahi-orphans-b/build.log": {
+      "bytes": 1854,
+      "sha256": "ec8e4fb16212738162721d60c01d89a80be23eb6720ad550ffcc8a8b6794dbcc"
+    },
+    "runtime/cachy-asahi-orphans-b/expected-packages.lock": {
+      "bytes": 11117,
+      "sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac"
+    },
+    "runtime/cachy-asahi-orphans-b/provenance.json": {
+      "bytes": 4922,
+      "sha256": "5e8a9097363d52080a32e3e51a1a1ecd639db0f21b5bf264e87bf6c8aa9d7a10"
+    },
+    "runtime/cachy-asahi-orphans-b/validation.json": {
+      "bytes": 30734,
+      "sha256": "8786c0845f8260b81f842afe51a0cf7714ff794e8893cae06beb8460c39e472b"
+    },
+    "runtime/cachy-asahi-orphans-comparison.json": {
+      "bytes": 399,
+      "sha256": "b620bef826e4431b861294812f428c3ce4953ce2fe83f7c27988051d5bf3abba"
+    },
+    "runtime/cachy-asahi-welcome-a/artifacts/config.sha256": {
+      "bytes": 167,
+      "sha256": "8309cb4c0409ccdc1ca922475dde9377aec434911efc453299f41e8fadb234ec"
+    },
+    "runtime/cachy-asahi-welcome-a/artifacts/environment.txt": {
+      "bytes": 11501,
+      "sha256": "37464114cbeca870c899a1665eca9d0c87784ed857b1858ead18f8596690b6fa"
+    },
+    "runtime/cachy-asahi-welcome-a/artifacts/generated.SRCINFO": {
+      "bytes": 3092,
+      "sha256": "3a24b91a914ccbede4a15d47c9d71dcb3429f11c40de3c41699f86aa011a209c"
+    },
+    "runtime/cachy-asahi-welcome-a/artifacts/makepkg.conf": {
+      "bytes": 6651,
+      "sha256": "cfcf0bd2601d887724c5ca7d9a48ac5dd347abad9e8ac5efa436080e45822a60"
+    },
+    "runtime/cachy-asahi-welcome-a/artifacts/packages.lock": {
+      "bytes": 11117,
+      "sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac"
+    },
+    "runtime/cachy-asahi-welcome-a/artifacts/pacman.conf": {
+      "bytes": 116,
+      "sha256": "14d304eeb83baf1379279356c232580fd095c2d508b41c74677347801a0bafe7"
+    },
+    "runtime/cachy-asahi-welcome-a/build.log": {
+      "bytes": 9701,
+      "sha256": "8ff46c1a16310301a10ebcdbd80fb394d6004eb4efc2697db40350945bfcec55"
+    },
+    "runtime/cachy-asahi-welcome-a/expected-packages.lock": {
+      "bytes": 11117,
+      "sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac"
+    },
+    "runtime/cachy-asahi-welcome-a/provenance.json": {
+      "bytes": 8501,
+      "sha256": "5484a8275e2beb628a4885a1ddf529485c6dc48f97b197c5b4e7728f0a56c9d9"
+    },
+    "runtime/cachy-asahi-welcome-a/validation.json": {
+      "bytes": 36981,
+      "sha256": "92779eb18a7c65fb55145dcdf945846c020bb77a8672709bb1f0082a858bc098"
+    },
+    "runtime/cachy-asahi-welcome-b/artifacts/config.sha256": {
+      "bytes": 167,
+      "sha256": "8309cb4c0409ccdc1ca922475dde9377aec434911efc453299f41e8fadb234ec"
+    },
+    "runtime/cachy-asahi-welcome-b/artifacts/environment.txt": {
+      "bytes": 11501,
+      "sha256": "b85fcae6c0188c9a117cf5fcd488f18d822759f41939f02fcce018b783710c3a"
+    },
+    "runtime/cachy-asahi-welcome-b/artifacts/generated.SRCINFO": {
+      "bytes": 3092,
+      "sha256": "3a24b91a914ccbede4a15d47c9d71dcb3429f11c40de3c41699f86aa011a209c"
+    },
+    "runtime/cachy-asahi-welcome-b/artifacts/makepkg.conf": {
+      "bytes": 6651,
+      "sha256": "cfcf0bd2601d887724c5ca7d9a48ac5dd347abad9e8ac5efa436080e45822a60"
+    },
+    "runtime/cachy-asahi-welcome-b/artifacts/packages.lock": {
+      "bytes": 11117,
+      "sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac"
+    },
+    "runtime/cachy-asahi-welcome-b/artifacts/pacman.conf": {
+      "bytes": 116,
+      "sha256": "14d304eeb83baf1379279356c232580fd095c2d508b41c74677347801a0bafe7"
+    },
+    "runtime/cachy-asahi-welcome-b/build.log": {
+      "bytes": 9701,
+      "sha256": "a5aadf5b81ec394d6f53c2423d4e1dc45c495b12c3f43f5e89c0dc900784b3f3"
+    },
+    "runtime/cachy-asahi-welcome-b/expected-packages.lock": {
+      "bytes": 11117,
+      "sha256": "cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac"
+    },
+    "runtime/cachy-asahi-welcome-b/provenance.json": {
+      "bytes": 8501,
+      "sha256": "44a07f4b58d314c52ba5bdb459ddd1d525cdf30207557d816d55c55235773304"
+    },
+    "runtime/cachy-asahi-welcome-b/validation.json": {
+      "bytes": 36981,
+      "sha256": "92779eb18a7c65fb55145dcdf945846c020bb77a8672709bb1f0082a858bc098"
+    },
+    "runtime/cachy-asahi-welcome-comparison.json": {
+      "bytes": 403,
+      "sha256": "f591503bf425103e39925a937ac171b51509dc9eee25001cd2f440044342ae4d"
+    },
+    "runtime/gui-runtime.log": {
+      "bytes": 27393,
+      "sha256": "8e60b666111e1bd5102d425cb16281f86a987bf821aae5edf2b3659a889fb484"
+    },
+    "runtime/lifecycle.json": {
+      "bytes": 10910,
+      "sha256": "ac0998921e850911bdb216720b288bf539a0d22d4d4486ea22abf97b173f6f24"
+    },
+    "runtime/lifecycle.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "runtime/owner.json": {
+      "bytes": 737,
+      "sha256": "c815d315b1b4fed82a42296409d58b2651b7608dc414aa55fc73e2ff21474485"
+    },
+    "runtime/public-reports/existing/install/default-assessment.json": {
+      "bytes": 1345520,
+      "sha256": "fbea1d09077b497bdc0ac26cc6b06fc7e4ebb9d75044d337724c25c18278c864"
+    },
+    "runtime/public-reports/existing/install/doctor.json": {
+      "bytes": 11551,
+      "sha256": "0d8abbb06e95b8b286ba3c691aa43b2c8d4c9e7dea9ff16b806e9600e06bc847"
+    },
+    "runtime/public-reports/existing/install/fixture-assessment.json": {
+      "bytes": 19244,
+      "sha256": "d2b61fbbb11ff498f300afc2fb0f35662d9ba0b90946227a1948331e7db07b63"
+    },
+    "runtime/public-reports/existing/install/fixture-observation.json": {
+      "bytes": 1010,
+      "sha256": "59ea71e18a92b660d7476a3679d8c9347961d4e7d91c852cabaef42678137c48"
+    },
+    "runtime/public-reports/existing/install/fixture-plan.json": {
+      "bytes": 1589,
+      "sha256": "a594a6bc67859342a5943eca69bcef813c0a1ba8d6592844169d37c302a92f9d"
+    },
+    "runtime/public-reports/existing/install/welcome-status.json": {
+      "bytes": 589,
+      "sha256": "1218cfc4535379cf6eb90fa369493c5794feb36777b7a1bb5831b9975be00080"
+    },
+    "runtime/public-reports/existing/reinstall-after-removal/default-assessment.json": {
+      "bytes": 1345520,
+      "sha256": "621f835e35abbb34a5ebc36a491d334cc9700731b0b12372d7d3417e6a7ec237"
+    },
+    "runtime/public-reports/existing/reinstall-after-removal/doctor.json": {
+      "bytes": 11551,
+      "sha256": "a3bb1cb75d4e781307bd5700fd94bc7ac012e740fe102f8b7bf9c4f88fedd9c7"
+    },
+    "runtime/public-reports/existing/reinstall-after-removal/fixture-assessment.json": {
+      "bytes": 19276,
+      "sha256": "6864c189d8207aa021273467a74a97144dd98555c44f484267baef334d4790a7"
+    },
+    "runtime/public-reports/existing/reinstall-after-removal/fixture-observation.json": {
+      "bytes": 1010,
+      "sha256": "e2571e1dee2fe5a75a56edc613e5fb3758bccfbe86ff44ad329d9cbe27ed6f88"
+    },
+    "runtime/public-reports/existing/reinstall-after-removal/fixture-plan.json": {
+      "bytes": 1605,
+      "sha256": "eb13fdad0fe89e2c19402ab01b54a04aef91bf7dbed4cae747dd793447281458"
+    },
+    "runtime/public-reports/existing/reinstall-after-removal/welcome-status.json": {
+      "bytes": 589,
+      "sha256": "1218cfc4535379cf6eb90fa369493c5794feb36777b7a1bb5831b9975be00080"
+    },
+    "runtime/public-reports/existing/same-version-reinstall/default-assessment.json": {
+      "bytes": 1345520,
+      "sha256": "c2c9b92be1911798d68bdc85c9d28dbb304857e193828d6cbae522a3ac7f9b37"
+    },
+    "runtime/public-reports/existing/same-version-reinstall/doctor.json": {
+      "bytes": 11551,
+      "sha256": "6230e18ea8f0615b684616cff788af075c53a9b5fb23a3282c88e3c942a44652"
+    },
+    "runtime/public-reports/existing/same-version-reinstall/fixture-assessment.json": {
+      "bytes": 19274,
+      "sha256": "89ecdd74fe497876186918f5f095393bad4e7adbc6a43206413b2dd4b8f44834"
+    },
+    "runtime/public-reports/existing/same-version-reinstall/fixture-observation.json": {
+      "bytes": 1010,
+      "sha256": "5d9597530ce5e8e4641a11cba712b16113be134f7edee4712d0db8e544e31756"
+    },
+    "runtime/public-reports/existing/same-version-reinstall/fixture-plan.json": {
+      "bytes": 1604,
+      "sha256": "0a0aac71936bd911495e7646f507f8c81725cdbd28ae32152e6d62e19877b2b1"
+    },
+    "runtime/public-reports/existing/same-version-reinstall/welcome-status.json": {
+      "bytes": 589,
+      "sha256": "1218cfc4535379cf6eb90fa369493c5794feb36777b7a1bb5831b9975be00080"
+    },
+    "runtime/public-reports/fresh/install/default-assessment.json": {
+      "bytes": 1345520,
+      "sha256": "fbea1d09077b497bdc0ac26cc6b06fc7e4ebb9d75044d337724c25c18278c864"
+    },
+    "runtime/public-reports/fresh/install/doctor.json": {
+      "bytes": 11551,
+      "sha256": "45b7b451511c8120046cecfb99760a3b9940421b812cc2e8ffabe9c74fbc3bb2"
+    },
+    "runtime/public-reports/fresh/install/fixture-assessment.json": {
+      "bytes": 19238,
+      "sha256": "0eeb4552a873a3b233205d2eaa8da7b4b7bd846e92dbeb4ac61dc20101199094"
+    },
+    "runtime/public-reports/fresh/install/fixture-observation.json": {
+      "bytes": 1010,
+      "sha256": "af6164a35eee32519500809943419f6bf08d1d0619032d27b705b7a910453405"
+    },
+    "runtime/public-reports/fresh/install/fixture-plan.json": {
+      "bytes": 1586,
+      "sha256": "be749a42b9892a3b18505eda0ac2c82f49237f8c8b40f9715428514a152a47ce"
+    },
+    "runtime/public-reports/fresh/install/welcome-status.json": {
+      "bytes": 589,
+      "sha256": "1218cfc4535379cf6eb90fa369493c5794feb36777b7a1bb5831b9975be00080"
+    },
+    "runtime/public-reports/fresh/reinstall-after-removal/default-assessment.json": {
+      "bytes": 1345520,
+      "sha256": "621f835e35abbb34a5ebc36a491d334cc9700731b0b12372d7d3417e6a7ec237"
+    },
+    "runtime/public-reports/fresh/reinstall-after-removal/doctor.json": {
+      "bytes": 11551,
+      "sha256": "6121230bf4aac6fa39cf7c3a4d246030b408eb7fdba8f38cd181c27e61cde3bc"
+    },
+    "runtime/public-reports/fresh/reinstall-after-removal/fixture-assessment.json": {
+      "bytes": 19270,
+      "sha256": "2da985f5d04284f11687fdba5da19582d0aa37d9a90260c6b41f6ffed034e6cf"
+    },
+    "runtime/public-reports/fresh/reinstall-after-removal/fixture-observation.json": {
+      "bytes": 1010,
+      "sha256": "805ef32656c6d1c43faa29b341371121a505a19c57eeb747391ef2b28672c08a"
+    },
+    "runtime/public-reports/fresh/reinstall-after-removal/fixture-plan.json": {
+      "bytes": 1602,
+      "sha256": "4215e7886e615d842bc97d39efcafa53b006e881b8e634fd4deb99a7ce16eec0"
+    },
+    "runtime/public-reports/fresh/reinstall-after-removal/welcome-status.json": {
+      "bytes": 589,
+      "sha256": "1218cfc4535379cf6eb90fa369493c5794feb36777b7a1bb5831b9975be00080"
+    },
+    "runtime/public-reports/fresh/same-version-reinstall/default-assessment.json": {
+      "bytes": 1345520,
+      "sha256": "c2c9b92be1911798d68bdc85c9d28dbb304857e193828d6cbae522a3ac7f9b37"
+    },
+    "runtime/public-reports/fresh/same-version-reinstall/doctor.json": {
+      "bytes": 11551,
+      "sha256": "2b6bb5a8c5166c41304e5a23d4a63c75788ebdc6cb8851df35d3139e9e3987cc"
+    },
+    "runtime/public-reports/fresh/same-version-reinstall/fixture-assessment.json": {
+      "bytes": 19268,
+      "sha256": "76064370c7d80a9d5afcc60b2175188a420acf5cede72677e786b13ac41cd9ca"
+    },
+    "runtime/public-reports/fresh/same-version-reinstall/fixture-observation.json": {
+      "bytes": 1010,
+      "sha256": "0db10290fbc2dc9207599a366b3a3cf19ddf0835ed7a9c3c9f401edf1b1f6f02"
+    },
+    "runtime/public-reports/fresh/same-version-reinstall/fixture-plan.json": {
+      "bytes": 1601,
+      "sha256": "b29f28a74b9d1ab5873eb94e4d81bafa5e7e2b32857640e461f9712973e61dd6"
+    },
+    "runtime/public-reports/fresh/same-version-reinstall/welcome-status.json": {
+      "bytes": 589,
+      "sha256": "1218cfc4535379cf6eb90fa369493c5794feb36777b7a1bb5831b9975be00080"
+    },
+    "runtime/report.json": {
+      "bytes": 45868,
+      "sha256": "26cfd88ac51d7afe54580369658a90355238097c3efe2c86e511fc8c382eacc0"
+    },
+    "runtime/root-guard.json": {
+      "bytes": 1800,
+      "sha256": "1a38924028b32de9da63a1957a1c108ec9e4241ea8df1e9318fa9c8386b6853d"
+    },
+    "runtime/root-guard.tap": {
+      "bytes": 154,
+      "sha256": "5adcb3b5078ae8da0f66e043109ac6a68f4fe82e2327cb3731d5cff00d0697f1"
+    },
+    "signed/TEST-public.asc": {
+      "bytes": 429,
+      "sha256": "8023c17fc3287b3c3ea98f3342997561e63895c192fce94a87d6995f7bcdac02"
+    },
+    "signed/cachy-asahi-doctor-0.1.0-1-any.pkg.tar.xz": {
+      "bytes": 13708,
+      "sha256": "06898669fdd6c9e5bdcc9909e6b0e75e958bdbd57520a7082c0e9f5f7fac7482"
+    },
+    "signed/cachy-asahi-doctor-0.1.0-1-any.pkg.tar.xz.sig": {
+      "bytes": 119,
+      "sha256": "ee9157868e7500cf1d07f1363a9a62d493d9a7316e608ec58ad7363fc1507761"
+    },
+    "signed/cachy-asahi-orphans-0.1.0-1-any.pkg.tar.xz": {
+      "bytes": 18540,
+      "sha256": "21b13501d8ed5de828e7ac47ff8c8ec2132ca3f0af68bb7062f22852ef640bea"
+    },
+    "signed/cachy-asahi-orphans-0.1.0-1-any.pkg.tar.xz.sig": {
+      "bytes": 119,
+      "sha256": "e4c74392974d395bd6042ae676a512e399129abb0c77929d6cd832b4f17a870c"
+    },
+    "signed/cachy-asahi-welcome-0.1.0-2-aarch64.pkg.tar.xz": {
+      "bytes": 31496,
+      "sha256": "61d6b2b2ec09dbbdaa29908cb8797527fd347c4f8c8dc23967dc161b57014280"
+    },
+    "signed/cachy-asahi-welcome-0.1.0-2-aarch64.pkg.tar.xz.sig": {
+      "bytes": 119,
+      "sha256": "f7b0833bd586be513cd80fff7b30b2bd9147c7ede6023dc861f84d3c005aeb35"
+    },
+    "signed/control.json": {
+      "bytes": 59,
+      "sha256": "e32d8844738eca7c7e519cd9dddfe48f89c0fe2403edcdc8a4d0c894c228edc7"
+    },
+    "source-proof.json": {
+      "bytes": 321,
+      "sha256": "58b712c56da3b033358a0568e28de6eece18a7198d3d5e1baf6d949eea170fec"
+    },
+    "source/cachy-asahi-doctor/.SRCINFO": {
+      "bytes": 808,
+      "sha256": "6eb3a106a899d701489d5a8903c15e57516544e164c40adebef2748de978284d"
+    },
+    "source/cachy-asahi-doctor/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "source/cachy-asahi-doctor/NOTICE": {
+      "bytes": 563,
+      "sha256": "96aa4022dcf6b97ea2b55ef63d78d5c261bfcd39c303822bad184a33d09e5804"
+    },
+    "source/cachy-asahi-doctor/PKGBUILD": {
+      "bytes": 1195,
+      "sha256": "119e2b839195e0c18b885b0208928e234af63e2a5f958dbf4fc9edad5a2c04b1"
+    },
+    "source/cachy-asahi-doctor/README.md": {
+      "bytes": 3995,
+      "sha256": "8d1260424db6e54c8a68b008ab1d317d54a2a58d34655f34ae5059603cf19e4e"
+    },
+    "source/cachy-asahi-doctor/cachy-asahi-doctor": {
+      "bytes": 14695,
+      "sha256": "d8eb487bc81b5880aceb412360ef674cc214150d61733dfdc8d8654e0f54cf38"
+    },
+    "source/cachy-asahi-doctor/test_doctor.py": {
+      "bytes": 10694,
+      "sha256": "7d555c98f79204d91c759171273c1ef24564a51d3384d6e8eb10751ab1cc4281"
+    },
+    "source/cachy-asahi-orphans/.SRCINFO": {
+      "bytes": 914,
+      "sha256": "1d171298c87606d351e4dc26a5cb83bd66719b419b619f17e82bcbd097fc0188"
+    },
+    "source/cachy-asahi-orphans/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "source/cachy-asahi-orphans/NOTICE": {
+      "bytes": 759,
+      "sha256": "326f699857d31b8cd4462081aea074d4349721fb9c48965db6208c793a086720"
+    },
+    "source/cachy-asahi-orphans/PKGBUILD": {
+      "bytes": 1379,
+      "sha256": "b7c6055622f57dd3a30101ee418301a2cb3e910f03ccbb99a25ebbbed4cb9391"
+    },
+    "source/cachy-asahi-orphans/README.md": {
+      "bytes": 8282,
+      "sha256": "421e83c8dd3f482ae0d35edf8565d09fa1d3cc2f9f4eb7e5459376b26a54991a"
+    },
+    "source/cachy-asahi-orphans/cachy-asahi-orphans": {
+      "bytes": 19417,
+      "sha256": "2d7d6914482a76f963603ad71aab38f87693a1c7c7ad15f7ae54bf50a3c1d629"
+    },
+    "source/cachy-asahi-orphans/protection-floor.json": {
+      "bytes": 10489,
+      "sha256": "0d6dfbf3cd550fe72ddad30058693007f8bb86214de1e83442580677db5005f2"
+    },
+    "source/cachy-asahi-orphans/test_orphans.py": {
+      "bytes": 12730,
+      "sha256": "f862b853e90a79314cbf221f440ddd2f679d21d8e94ee002d736b1f26b1ee83c"
+    },
+    "source/cachy-asahi-welcome/.SRCINFO": {
+      "bytes": 3092,
+      "sha256": "3a24b91a914ccbede4a15d47c9d71dcb3429f11c40de3c41699f86aa011a209c"
+    },
+    "source/cachy-asahi-welcome/LICENSE": {
+      "bytes": 1081,
+      "sha256": "51a352b3e94757560538ca5866bef929de5ec4864e5893fc635f291f7a5926c7"
+    },
+    "source/cachy-asahi-welcome/Makefile": {
+      "bytes": 3045,
+      "sha256": "7bb33f82c36b6c1c07b94afe5eb1615e0896b9755242476f4aff43ac5a95c5e2"
+    },
+    "source/cachy-asahi-welcome/NOTICE": {
+      "bytes": 665,
+      "sha256": "71e80969d77f4079bff80b62c53c84866489d91206a420384fc1622319d8021a"
+    },
+    "source/cachy-asahi-welcome/PKGBUILD": {
+      "bytes": 2983,
+      "sha256": "071cada88855ac7e462df8cde264d4ae60263655da4706d9c2c9dc5af7b33f6b"
+    },
+    "source/cachy-asahi-welcome/README.md": {
+      "bytes": 4847,
+      "sha256": "dbc3716ed6fb6264d976e8b49cb07e7b35990f69fa1f190f773aa61384573e54"
+    },
+    "source/cachy-asahi-welcome/cachy-asahi-welcome.svg": {
+      "bytes": 531,
+      "sha256": "0db6f69c16766172942551b512e89842d086f4a04320a20bfd9a4473b17a1b73"
+    },
+    "source/cachy-asahi-welcome/check_source.py": {
+      "bytes": 3656,
+      "sha256": "a688d4373c2d69a69aa59b314cb1f83dbfb99ccbedd78d159928ead6e00fef5a"
+    },
+    "source/cachy-asahi-welcome/first-run.txt": {
+      "bytes": 1484,
+      "sha256": "2c123deef2cf02b586250c1128907ba294ced83a3671607dd2aef2f3cfa094eb"
+    },
+    "source/cachy-asahi-welcome/io.github.GabrielKahen.CachyAsahiWelcome.desktop": {
+      "bytes": 358,
+      "sha256": "2c2159a75c7b0303eebf47e77e89d6d1f6241372f7ecb006c6b11002135cb441"
+    },
+    "source/cachy-asahi-welcome/management-report.c": {
+      "bytes": 11343,
+      "sha256": "21bb131d48a34f86f5a7035b6b9032980bb9330afbc409dca69639a5f0ec9e86"
+    },
+    "source/cachy-asahi-welcome/management-report.h": {
+      "bytes": 647,
+      "sha256": "2caed0cedfc375577d05b8468ec1c54b98e2c23daa247f217671d033b68b739d"
+    },
+    "source/cachy-asahi-welcome/management.c": {
+      "bytes": 19484,
+      "sha256": "1703fe13c3055a3f35ec12b85c2ffcb3814a0c364fc9537caf4adf32d24d20b4"
+    },
+    "source/cachy-asahi-welcome/management.h": {
+      "bytes": 1564,
+      "sha256": "5e5e8f196321eb6da75224cbb9f48e9dab7ed20909af4569a9a910ac29f8c212"
+    },
+    "source/cachy-asahi-welcome/recovery.txt": {
+      "bytes": 1555,
+      "sha256": "09e5160543b0739b10f327972e338b01c16269d8bcfc6620325eceed0c6a26a2"
+    },
+    "source/cachy-asahi-welcome/status.c": {
+      "bytes": 6735,
+      "sha256": "2bfd5f64c724670546057d01312fc6b9591416f6113c65eae8cbb9a53f3909cf"
+    },
+    "source/cachy-asahi-welcome/status.h": {
+      "bytes": 833,
+      "sha256": "da0c71ef784debe9ea8ec0be34d8326afe5520ad463efc4a2d432805324b8b78"
+    },
+    "source/cachy-asahi-welcome/test_cli.py": {
+      "bytes": 3170,
+      "sha256": "722182698ca07b14b03787a52f5b3976f2f039ae048f142f2dee72e6176fa972"
+    },
+    "source/cachy-asahi-welcome/test_management.c": {
+      "bytes": 11388,
+      "sha256": "17a23fa7fce5562c3ddeab9a2dda2aa2853c4c2b40dc532bcd3e21fe9a67f18c"
+    },
+    "source/cachy-asahi-welcome/test_management_report.c": {
+      "bytes": 8746,
+      "sha256": "a75cf2d71536412cf315d9ab6b0d7337a1ee044847023058c6e40a53102971ed"
+    },
+    "source/cachy-asahi-welcome/test_management_ui.c": {
+      "bytes": 5571,
+      "sha256": "d8b74cffc68bf4cb1c4ed43de491f9abbf2e95a397aee2692ebb2e1dcde14e50"
+    },
+    "source/cachy-asahi-welcome/test_status.c": {
+      "bytes": 5152,
+      "sha256": "710eba6eafd4389bf2bf73bc39c7e727d4d60097cb783c035da60bc4ba8d740e"
+    },
+    "source/cachy-asahi-welcome/updates.txt": {
+      "bytes": 1445,
+      "sha256": "fcde7d9aa0c6f1a0fc8090c5dc26f405708f18ea760d74b664732e2824d403b8"
+    },
+    "source/cachy-asahi-welcome/welcome.c": {
+      "bytes": 21403,
+      "sha256": "3f7979e2e4d9d511628491d77e267a39a4a47936e23cd9c612b56f775b48f414"
+    },
+    "source/source-manifest.json": {
+      "bytes": 30436,
+      "sha256": "00b15022daad761ffe5c21170c00447910d9533ea0af836827d4be2f431e02c0"
+    }
+  },
+  "frames": {},
+  "hardware": "NOT_RUN",
+  "original_selected_inventory": "UNCHANGED",
+  "performance": "NOT_MEASURED",
+  "release_signatures": "EPHEMERAL_TEST_ONLY",
+  "removal": "NOT_IMPLEMENTED",
+  "selection": "UNSELECTED",
+  "status": "FAIL_OR_INCOMPLETE",
+  "total_bytes": 10056651
+}
