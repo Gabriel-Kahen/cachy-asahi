@@ -1,5 +1,17 @@
 # Isolated official GNU libc candidate
 
+## Generic implementation native pair38915137670
+
+[Actual38915137670](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38915137670), Source/workflow `d1055cf95f7d236fc55396db36b432df5191ff2a`, passes the complete unselected2.43.caa1-3 native pair. `--disable-multi-arch` restores the baseline AArch64 FUNC implementations and memchr/strlen WEAK bindings. Exact name/type/binding/visibility/version-defaultness and OBJECT/TLS-size checks remain unchanged. No ABI waiver is used.
+
+Both distinct build containers produce the identical19400096byte package, SHA256 `04e481dc5b3ac711760ca42749044b0be85283b3aa9c9c631cb6738ac7d699fb`. Each GNU suite retains7058 named results:6938 PASS,13 XFAIL,107 UNSUPPORTED and zero FAIL/XPASS/ERROR/malformed. Both makepkg/check/check-abi exits are0. All11 declared public symbol sets match; libc has2777 entries. Root independently parses the original candidate and hash-bound held baseline ELFs and recomputes every reported symbol-set digest.
+
+Each separate candidate C header check passes with172 exact dependencies:142 candidate headers,26 held kernel UAPI headers, three compiler builtins and the declared probe. Root joins those bytes to the actual candidate package and verified held baseline archives; no bootstrap libc header fallback occurs. This is the declared C surface, not complete header/C++ ABI acceptance. Each native explicit-loader smoke passes eight cases and14 bounded commands with normal0 exits/group absence: allocation, threads/TLS, dlopen/dlsym, fork/exec/wait, UTF8/iconv/locale, numeric lookup/math and FD/stat/clock/random. Candidate role/runtime-file hashes join the original package and compiled fixture records. Actual pages are4096. This establishes those software cases, not general application compatibility.
+
+All five owned consumer identities retire before the original producer image/probe. Source bundle and frozen inputs remain preserved. Root joins43 integration sources,17 harness files and all139 closed exported files/89185813raw bytes. Artifact12056233433 is89237425compressed bytes, SHA256 `c4e5507601c3ef1c5bbed3b1bbb60d066d1fc2e8f36bfd53ba6944f8ff93002c`; log ZIP102567bytes, SHA256 `8d91bae7ba6a3abd7f57cf13c475eeb23f4791c6c90915d266e17dd53366b996`.
+
+The complete official release and two declared patches remain a separately named private-prefix candidate. GNU publisher-keyring signature verification is cryptographically valid with current key expiration reported; independent pretrusted authority remains unresolved. This does not reconstruct the older held GNU8362 binary or establish its security-patch equivalence. The candidate stays unselected, with no system package replacement, installed lifecycle,16K/M2, performance or release admission.
+
 ## GNU suite passes; exact bootstrap ABI gate fails38906503054
 
 [Actual38906503054](https://github.com/Gabriel-Kahen/cachy-asahi/actions/runs/38906503054) completes the first native package build and passes both GNU `check` and `check-abi` with exit0. The retained collector records6938 PASS,13 expected XFAIL,107 named UNSUPPORTED, and zero FAIL/XPASS/ERROR/malformed results. GNU's built-library tests execute; the separate project candidate-header/runtime smoke remains gated. No source test/assertion was removed to obtain this result.

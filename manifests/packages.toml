@@ -506,3 +506,22 @@ installation = "PASS all five native package phases and six installed18-case loc
 hardware_validation = "NOT RUN"
 native_evidence = "docs/validation/fish-candidates-native-20261016.md"
 next_step = "Integrate the complete development composition and combined shell workflow. Separate generic16K recorder actual38921698057 is running; real notification-manager, M2 and performance acceptance remain open. Candidate stays unselected."
+
+[[packages]]
+name = "cachy-asahi-glibc-official-release"
+phase = "complete-port-core-experiment"
+status = "candidate"
+source = "https://ftp.gnu.org/gnu/glibc/glibc-2.43.tar.gz"
+upstream_release = "2.43"
+source_archive_sha256 = "e1e622cbd635019090fa23260e5d9ec219b12f97ae7ae02f033d4ae42cf2c004"
+recipe = "packages/core/cachy-asahi-glibc-official-release/PKGBUILD"
+license = "GPL-2.0-or-later; LGPL-2.1-or-later; LicenseRef-glibc-notices"
+selected_for_development = false
+selected_for_release = false
+candidate_version = "2.43.caa1-3"
+native_build = "PASS byte-identical native pair in38915137670"
+native_build_commit = "d1055cf95f7d236fc55396db36b432df5191ff2a"
+native_evidence = "docs/validation/glibc-official-release-native-20261016.md"
+installation = "NOT RUN package lifecycle; explicit private-loader runtime smoke PASS"
+hardware_validation = "NOT RUN"
+next_step = "Unselected private-prefix experiment only. Complete16K/M2 and broader compatibility, independent source-key authority and maintenance/security admission; preserve older held-binary source gap and make no performance claim."

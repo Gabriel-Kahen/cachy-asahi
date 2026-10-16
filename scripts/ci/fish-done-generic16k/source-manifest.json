@@ -213,8 +213,8 @@
       "sha256": "5e3540a853c96616f6767e86df152a87747299c6f8b5c36f41cc51ae7f3403cd"
     },
     "scripts/ci/fish-done-generic16k/README.md": {
-      "bytes": 6965,
-      "sha256": "6a6a9f891f38af5fa16acd71ed84a4e664fd5f1dc56eb096e83b5b497761bccc"
+      "bytes": 9448,
+      "sha256": "f100d940725dc2b5c145b571459940f6d4346d9ea87010b154405848fe6bb511"
     },
     "scripts/ci/fish-done-generic16k/acquire_kernel.py": {
       "bytes": 3510,
@@ -229,16 +229,16 @@
       "sha256": "d7b80f113a6e651ba8978c2063ea7bb8bf33b0c51077281eed544c892c19a8b0"
     },
     "scripts/ci/fish-done-generic16k/guest.py": {
-      "bytes": 7883,
-      "sha256": "31af5b1db3f11e952308512c674132c4e3d817c25659ba0c8225c73a7adab1c8"
+      "bytes": 13647,
+      "sha256": "21468da702485926be656e69353b5ab7826db2ec365845c1c0eaa203b51372ec"
     },
     "scripts/ci/fish-done-generic16k/payload-map.json": {
       "bytes": 2714,
       "sha256": "5086924e408225aa6cabd8d3b7dae6cf1840be7d7b80c8eef2b35e67304e3389"
     },
     "scripts/ci/fish-done-generic16k/run.py": {
-      "bytes": 26424,
-      "sha256": "a6a5770f5d829ce56309c553691afa75b4f8fa60222c835518047626a089e2e3"
+      "bytes": 28909,
+      "sha256": "b54ba4f132584c618bb35fa6f34e033517fcccc2e2578f0eff66fe8aa8b18910"
     },
     "scripts/ci/fish-done-generic16k/support.py": {
       "bytes": 3041,
@@ -247,6 +247,10 @@
     "scripts/ci/fish-done-generic16k/test_acquire.py": {
       "bytes": 5604,
       "sha256": "71a6154536fa94d7d004c7b8ab24f8d732ea0756321c4e49735a2ac02d993f6e"
+    },
+    "scripts/ci/fish-done-generic16k/test_diagnostics.py": {
+      "bytes": 9527,
+      "sha256": "929f5f1318b82bd1574ebd487a3f1bc0ab0c10288c1ea3de1f6af78b38738555"
     },
     "scripts/ci/fish-done-generic16k/test_smoke.py": {
       "bytes": 25172,
@@ -347,5 +351,5 @@
   },
   "schema_version": 1,
   "scope": "PRIVATE_GENERIC_ARM64_16K_FISH_DONE_RECORDER_PTY_ONLY",
-  "status": "SOURCE_ONLY_FINAL_DONE_0.1.0-2_ACTUAL_CI_NOT_RUN"
+  "status": "SOURCE_ONLY_FAILED_DRIVER_DIAGNOSTIC_NO_PRODUCT_CHANGE_ACTUAL_NOT_RUN"
 }
