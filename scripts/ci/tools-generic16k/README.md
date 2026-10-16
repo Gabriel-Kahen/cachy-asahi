@@ -55,8 +55,7 @@ page probe remain pinned and unchanged.
 
 This directory's `build_kernel.py` derives from accepted helper SHA256
 `e94adb4474183feea30ce1e2949b55c03e4969eeb1addb4c36892e8664ba9aaa`.
-Only its diagnostic fragment gains `CONFIG_UNIX98_PTYS=y`; main also records that
-derivation. Every other function body and the base `kernel.fragment` are unchanged.
+Its diagnostic fragment gains `CONFIG_UNIX98_PTYS=y` and `CONFIG_EVENTFD=y`; main records both. The EVENTFD addition follows the actual Fish eventfd ENOSYS failure in run38921035059. Every other function body and the base `kernel.fragment` are unchanged.
 The original `scripts/virtual/generic16k` helper/fragment and the accepted
 Welcome/Doctor lane are untouched. The derived receipt uses profile
 `TOOLS16K_PTY_DERIVED_DIAGNOSTIC`, binds base/derived fragment, helper, Image and

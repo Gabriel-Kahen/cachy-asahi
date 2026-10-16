@@ -23,7 +23,7 @@ COMMIT = '94fb23346d522edf53722357c426a3e58030beea'
 TOOLS = ('make', 'clang', 'clang++', 'ld.lld', 'llvm-ar', 'llvm-nm', 'llvm-strip',
          'llvm-objcopy', 'llvm-objdump', 'llvm-readelf', 'bison', 'flex', 'bc', 'perl', 'sh')
 TOTAL_LIMIT = 16 * 1024**3
-DIAGNOSTIC_FRAGMENT = 'CONFIG_KALLSYMS=y\nCONFIG_PRINTK_TIME=y\nCONFIG_UNIX98_PTYS=y\n'
+DIAGNOSTIC_FRAGMENT = 'CONFIG_KALLSYMS=y\nCONFIG_PRINTK_TIME=y\nCONFIG_UNIX98_PTYS=y\nCONFIG_EVENTFD=y\n'
 
 
 def require(ok, reason):
@@ -152,7 +152,7 @@ def main():
             'source archive identity differs')
     report['profile'] = 'TOOLS16K_PTY_DERIVED_DIAGNOSTIC'
     report['derivation'] = {'base_helper_sha256': 'e94adb4474183feea30ce1e2949b55c03e4969eeb1addb4c36892e8664ba9aaa',
-                            'diagnostic_extension': 'CONFIG_UNIX98_PTYS=y', 'accepted_profile_modified': False}
+                            'diagnostic_extension': 'CONFIG_UNIX98_PTYS=y;CONFIG_EVENTFD=y', 'accepted_profile_modified': False}
     report['boot_diagnostics'] = args.boot_diagnostics
     report['archive'] = identity(args.archive)
     report['fragment'] = identity(HERE / 'kernel.fragment')

@@ -29,12 +29,11 @@ notification manager, desktop, D-Bus service or socket is copied. Limits are
 
 The kernel uses the existing source-pinned
 `scripts/ci/tools-generic16k/build_kernel.py`, SHA256
-`c6ae177cb7487d86bcdd428994ce0ae3ccf5375262da622cd4bd27f9564758e5`, and its
+`8205e49fcb9cdaf9bb6aaa356401697a51388b9673f1fc38c51c4605421f6836`, and its
 unchanged base fragment SHA256
 `6d91180b80138d2d8039efafaaa9ca31349baea22b90430cbb15e07bce02e8f6`.
 They are copied to this job's private work directory, without editing either
-accepted lane. The existing profile `TOOLS16K_PTY_DERIVED_DIAGNOSTIC` adds only
-UNIX98 PTY support to the original accepted diagnostic configuration. Actual
+accepted lane. The existing profile `TOOLS16K_PTY_DERIVED_DIAGNOSTIC` adds UNIX98 PTY and EVENTFD support to the original accepted diagnostic configuration. EVENTFD follows the actual Fish eventfd ENOSYS failure in run38921035059. Actual
 helper/base/derived fragment, Image/config, modules-disabled and 16-KiB page
 checks remain mandatory. Original source license, tool, 3,600-second build and
 16-GiB workspace records remain intact.
