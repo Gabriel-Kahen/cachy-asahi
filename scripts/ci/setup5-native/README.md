@@ -116,3 +116,5 @@ control proves refusal without overwrite. All eight ALPM transitions,24 ordinary
 observations, complete pair/source/license/ownership/cleanup and user-preservation
 gates remain unchanged. No product version changes or native actors run here.
 The corrected native retry is NOT_RUN; the retained first actual remains FAIL.
+
+Actual38932971668 reaches the installed setup4 transition, then the first database query fails because --noscriptlet was incorrectly shared with read-only -D/-T/-Q operations. The correction confines that option to all -U/-R transactions; masked hooks, full database/dependency/payload checks and all eight transitions remain required. No product change or installed CLI acceptance follows from the failed run.

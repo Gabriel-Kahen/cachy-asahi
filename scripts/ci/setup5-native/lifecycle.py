@@ -26,7 +26,7 @@ def main():
         for path in Path(parent).glob('*.hook'):
             if path.name not in masked:(hooks/path.name).symlink_to('/dev/null');masked.add(path.name)
     config=Path('/tmp/setup5-pacman.conf');config.write_text('[options]\nArchitecture = aarch64\nSigLevel = Required\nLocalFileSigLevel = Optional\nHookDir = '+str(hooks)+'\n')
-    pacman=['/usr/bin/pacman','--config',str(config),'--noconfirm','--noscriptlet']
+    pacman=['/usr/bin/pacman','--config',str(config),'--noconfirm']
     protected_paths=[Path('/etc/pacman.conf'),Path('/etc/fish'),Path('/etc/zsh')]
     def system():return {str(p):dict(root=L.entry(p),tree=L.snapshot(p) if p.is_dir() else None) if p.exists() else None for p in protected_paths}
     protected=system();account=pwd.getpwnam('alarm');profiles=(*C.LEGACY,'new-grouped-journal');homes={};progress={p:{} for p in profiles};events=[];raw_proofs=[]
@@ -54,7 +54,7 @@ def main():
             path=Path('/')/relative;info=path.lstat();L.need(stat.S_ISREG(info.st_mode) and info.st_uid==info.st_gid==0 and stat.S_IMODE(info.st_mode)==row['mode'] and L.sha(path)==row['sha256'],'installed source/license bytes or mode differ')
     def transition(label,version=None):
         before=snapshots();check_system()
-        L.command(pacman+(['-U',str(archives[version])] if version else ['-R',C.PACKAGE]))
+        L.command(pacman+['--noscriptlet']+(['-U',str(archives[version])] if version else ['-R',C.PACKAGE]))
         if version:installed(version)
         else:
             L.need(L.inventory()==original,'full574 inventory not restored');L.command(pacman+['-Dk'])
