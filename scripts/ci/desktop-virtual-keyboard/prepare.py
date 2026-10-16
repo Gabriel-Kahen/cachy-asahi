@@ -19,7 +19,7 @@ def replace(text,old,new):
 def prepare(source,output):
     source,output=Path(source),Path(output);verify_source(source)
     K.need(not output.exists() and not output.is_symlink(),'fresh keyboard runner required');output.mkdir(mode=0o700)
-    names=('desktop574_guest.py','session.py','keyboard.py','observed.py','terminal_session.py','terminal_workflow.py',
+    names=('desktop574_guest.py','session.py','keyboard.py','compositor_log.py','observed.py','terminal_session.py','terminal_workflow.py',
            'managed_session.py','managed_contract.py','contract.py','source-pins.json','prerequisites.py','prerequisites.json')
     for name in names:shutil.copyfile(HERE/name,output/name)
     spec=importlib.util.spec_from_file_location('accepted_keyboard_managed_prepare',source/'scripts/ci/desktop-user-session/prepare.py')
@@ -38,7 +38,7 @@ def prepare(source,output):
                     'After=basic.target systemd-udev-trigger.service systemd-user-sessions.service')
     fixture=replace(fixture,'cp /runner/desktop574_guest.py "$root/usr/local/share/desktop574/guest.py"',
                     'cp /runner/desktop574_guest.py "$root/usr/local/share/desktop574/guest.py"\ncp '+
-                    ' '.join('/runner/'+n for n in ('base_guest.py','session.py','keyboard.py','observed.py','terminal_session.py',
+                    ' '.join('/runner/'+n for n in ('base_guest.py','session.py','keyboard.py','compositor_log.py','observed.py','terminal_session.py',
                     'terminal_workflow.py','managed_session.py'))+' "$root/usr/local/share/desktop574/"')
     fixture=replace(fixture,'> "$root/usr/local/share/desktop574/minimal.lua"',
                     '> "$root/usr/local/share/desktop574/minimal.lua"\n'+

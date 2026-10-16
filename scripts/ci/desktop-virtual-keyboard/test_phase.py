@@ -92,6 +92,7 @@ class Phase(unittest.TestCase):
         return value
     def run_phase(self):
         with patch.object(S,'base',self.base),patch.object(S,'ObservedTerminal',self.observed_factory),\
+             patch.object(S.compositor_log,'launch',side_effect=lambda base,stage,config,logs,env:self.launch(['/usr/bin/Hyprland','--config',str(config)],stage,logs,env)),\
              patch.object(S,'input_device',return_value=dict(name='QEMU Virtio Keyboard',driver='virtio_input')),\
              patch.object(S,'board_input',return_value=board()),\
              patch.object(Path,'stat',lambda path,*a,**kw:self.guest_stat(path,*a,**kw)),\

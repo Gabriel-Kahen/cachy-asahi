@@ -69,6 +69,9 @@ def events():
             if step=='editor-quit':add('keyboard_editor_closed',stage=stage,nonce=nonce,editor=editor,pidfd_exited=True,exit='UNOBSERVED_NONCHILD')
         add('keyboard_closed',stage=stage,nonce=nonce,terminal=terminal,shell=shell,shell_pidfd_exited=True,exit='UNOBSERVED_NONCHILD',pidfd_exited=True,window_absent=True,method='SUPER_Q_QMP')
         add('process_exit',name=stage,returncode=0)
+        add('compositor_log_summary',stage=stage,pid=90,returncode=0,overflow=False,drain_errors=0,
+            drains_complete=True,streams=[dict(path='/home/desktop574/logs/'+stage+'.'+suffix,
+                observed_bytes=100,limit_bytes=limit) for suffix,limit in [('stdout',2097152),('stderr',262144)]])
         add('phase_pass',stage=stage,nonce=nonce,configuration_preserved=True)
     scope=dict(status='PASS',virtual_keyboard='PASS',editor_ui='PASS_QMP_TYPED_VIM',physical_input='NOT_RUN',hardware='NOT_RUN')
     add('session_pass',**scope)
@@ -90,6 +93,18 @@ class QMP:
 
 
 class KeyboardTests(unittest.TestCase):
+    def test_compositor_log_receipt_rejects_overflow_wrong_owner_or_missing(self):
+        for change in ('missing','pid','overflow','drain_errors','cap','count','order'):
+            rows=events();row=next(r for r in rows if r['event']=='compositor_log_summary')
+            if change=='missing':rows.remove(row)
+            elif change=='order':rows.remove(row);rows.insert(0,row)
+            elif change=='cap':row['streams'][0]['limit_bytes']+=1
+            elif change=='count':row['streams'][0]['observed_bytes']=2097153
+            elif change=='pid':row['pid']=91
+            elif change=='overflow':row['overflow']=True
+            else:row['drain_errors']=1
+            with self.subTest(change=change),self.assertRaises(ValueError):C.verify_result(rows)
+
     def test_fixed_shortcuts_and_nonce_data(self):
         self.assertEqual(K.plan('overlay','a'*32,'launch'),[['meta_l','ret']])
         self.assertEqual(K.plan('overlay','a'*32,'close'),[['meta_l','q']])
