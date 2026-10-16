@@ -1,7 +1,7 @@
 # Unselected official GNU 2.43 build candidate
 
 This is the separate project-owned package
-`cachy-asahi-glibc-official-release 2.43.caa1-2`, aarch64. It uses the complete
+`cachy-asahi-glibc-official-release 2.43.caa1-3`, aarch64. It uses the complete
 official GNU 2.43 release archive plus two exact documented patches, not GNU8362 or a reconstruction of
 the held binary. Its private prefix is
 `/opt/caa/g243a1`.
@@ -68,3 +68,26 @@ or permit XPASS/unknown FAIL. A still-slow test or any new XPASS stays fatal.
 The source lock records exact patch order/hash/provenance. Patch application is
 fuzz-zero and checked. Native compilation/tests/ABI/pairs for this configuration
 remain NOT_RUN; no release/security/source-authority admission is implied.
+
+
+Pkgrel3 disables multiarch through the standard upstream --disable-multi-arch
+configure option. Actual38906503054 pkgrel2 completed GNU check/check-abi (both
+exit0:6938PASS,13XFAIL,107UNSUPPORTED,zeroFAIL/XPASS/ERROR) and built its first
+archive, but strict public ABI comparison failed. Passive inspection confirms
+memchr/memcpy/memmove/memset/strlen@@GLIBC_2.17 were IFUNC GLOBAL. The held
+baseline requires FUNC, with WEAK binding for memchr/strlen. All other ten
+libraries matched; libc retained2777 public symbol tuples but these five differed.
+The pinned non-multiarch AArch64 assembly ENTRY macros define ordinary function
+types, with weak_alias for memchr/strlen; memcpy.S defines both memcpy/memmove.
+This is a baseline build choice, not a symbol-type/binding waiver or a claim
+that IFUNC is generally incompatible with AArch64. Those assembly routines may
+still use ordinary ARMv8/Advanced SIMD instructions; no performance gain or M2
+compatibility is claimed. All GNU/independent ABI checks (including exact
+OBJECT/TLS size/default version/binding) and both previous patches stay strict.
+The short localedir/prefix and bounded single-test timeout remain unchanged.
+
+The source lock and materializer bind this configuration, pkgrel3 and package
+identity into source/runtime receipts. Native pkgrel3 GNU tests, strict ABI,
+header/runtime execution and build pair are NOT RUN. Pkgrel2's failed first
+static gate prevented candidate runtime execution and the second build. Passing
+upstream tests does not establish static/runtime ABI, installability or admission.

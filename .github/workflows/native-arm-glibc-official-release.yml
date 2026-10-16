@@ -38,7 +38,7 @@ jobs:
           [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]
           test "$SOURCE_SHA" = "$WORKFLOW_SHA"
           test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
-          printf '%s  %s\n' '534746723b897418dab3067aef4586ca76b670d04a2412d6a7887b09a0ffec77' "$SLICE/job.py" '8bf3b74acfe91fff5d440cc81f626c7b93b5cb26b7517e6888f3d7af4409909b' "$SLICE/integration-manifest.json" | sha256sum --check
+          printf '%s  %s\n' '9efbdb3bcca86fcfe18d554a719c059b75cfa065bbaca2f9c930f4a2fa7a71ef' "$SLICE/job.py" '78be78b00b940f7fcf0c2b6fedff802f9a9ca3a138f97ef4e9c6a859ca94b02b' "$SLICE/integration-manifest.json" | sha256sum --check
           python3 -I -B "$SLICE/job.py" proof --workspace "$GITHUB_WORKSPACE" --manifest "$SLICE/integration-manifest.json" --proof "$RUNNER_TEMP/glibc-proof.json"
       - name: Focused inert controls before native actors
         timeout-minutes: 3
@@ -116,7 +116,7 @@ jobs:
           set -euo pipefail
           env -i PATH=/usr/bin:/bin HOME="$RUNNER_TEMP" LC_ALL=C TZ=UTC python3 -B "$SLICE/run.py" \
             --bundle "$RUNNER_TEMP/glibc-source-bundle" --bundle-manifest-sha256 "$(sha256sum "$RUNNER_TEMP/glibc-source-bundle/bundle.json" | cut -d ' ' -f 1)" \
-            --harness-manifest-sha256 '58bc95811d31e11cb0044b9f8179668fe7e36b8b191f7eb235937c127a3da34e' --owner-token "$CONSUMER_TOKEN" \
+            --harness-manifest-sha256 '6b7eef2596f145368b540cce93a19d633102675d90b6d8f924da897516a5937f' --owner-token "$CONSUMER_TOKEN" \
             --base-dir "$RUNNER_TEMP/desktop574" --source-root "$GITHUB_WORKSPACE" \
             --smoke-dir "$GITHUB_WORKSPACE/scripts/ci/glibc-owned-runtime" --smoke-manifest "$GITHUB_WORKSPACE/scripts/ci/glibc-owned-runtime/source-manifest.json" \
             --output "$RUNNER_TEMP/glibc-runtime" --execute
@@ -125,14 +125,14 @@ jobs:
         timeout-minutes: 15
         run: |
           set -euo pipefail
-          printf '%s  %s\n' '534746723b897418dab3067aef4586ca76b670d04a2412d6a7887b09a0ffec77' "$SLICE/job.py" | sha256sum --check
+          printf '%s  %s\n' '9efbdb3bcca86fcfe18d554a719c059b75cfa065bbaca2f9c930f4a2fa7a71ef' "$SLICE/job.py" | sha256sum --check
           env -i PATH=/usr/bin:/bin HOME="$RUNNER_TEMP" LC_ALL=C TZ=UTC python3 -I -B "$SLICE/job.py" cleanup --workspace "$GITHUB_WORKSPACE" --manifest "$SLICE/integration-manifest.json" --proof "$RUNNER_TEMP/glibc-proof.json" --base "$RUNNER_TEMP/desktop574" --runtime "$RUNNER_TEMP/glibc-runtime" --output "$RUNNER_TEMP/glibc-cleanup.json"
       - name: Export closed bounded packages source and native evidence
         if: always() && steps.proof.outcome == 'success'
         timeout-minutes: 3
         run: |
           set -euo pipefail
-          printf '%s  %s\n' '534746723b897418dab3067aef4586ca76b670d04a2412d6a7887b09a0ffec77' "$SLICE/job.py" | sha256sum --check
+          printf '%s  %s\n' '9efbdb3bcca86fcfe18d554a719c059b75cfa065bbaca2f9c930f4a2fa7a71ef' "$SLICE/job.py" | sha256sum --check
           env -i PATH=/usr/bin:/bin HOME="$RUNNER_TEMP" LC_ALL=C TZ=UTC python3 -I -B "$SLICE/job.py" retain --workspace "$GITHUB_WORKSPACE" --proof "$RUNNER_TEMP/glibc-proof.json" --base "$RUNNER_TEMP/desktop574" --runtime "$RUNNER_TEMP/glibc-runtime" --bundle "$RUNNER_TEMP/glibc-source-bundle" --cleanup "$RUNNER_TEMP/glibc-cleanup.json" --output "$RUNNER_TEMP/glibc-public"
       - name: Upload only the closed public evidence
         if: always() && steps.proof.outcome == 'success'

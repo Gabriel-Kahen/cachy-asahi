@@ -27,7 +27,7 @@ class CheckRepair(unittest.TestCase):
         self.assertEqual('/'+S.PREFIX,lock['prefix']);self.assertEqual(lock['layout']['gettext_catalogs'],lock['prefix']+'/l')
         self.assertEqual(len(lock['layout']['gettext_catalogs'].encode('ascii'))+1,18)
         self.assertIn('--localedir="$_prefix/l"',recipe);self.assertNotIn('/usr/share/locale',recipe)
-        self.assertEqual(S.VERSION,'2.43.caa1-2');self.assertIn('pkgrel=2',recipe)
+        self.assertEqual(S.VERSION,'2.43.caa1-3');self.assertIn('pkgrel=3',recipe)
 
     def test_exact_reviewed_patch_order_and_bytes_are_required(self):
         lock=json.loads((RECIPE/'source-lock.json').read_text());M.verify_patches(RECIPE,lock)

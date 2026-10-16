@@ -118,3 +118,20 @@ strict FAIL/XPASS/ERROR policy remain. The only timeout scale is one named mallo
 variant's standard TIMEOUTFACTOR=5. Five stale expected-failure annotations are
 removed, so regressions become FAIL rather than acceptable XFAIL. Native repair
 results are NOT_RUN; original actual38898464517 remains failed.
+
+
+Pkgrel3 baseline multiarch correction: the recipe now explicitly configures
+--disable-multi-arch, selecting the pinned standard AArch64 assembly sources
+instead of IFUNC-dispatch multiarch wrappers. Actual38906503054 pkgrel2 passed
+GNU check/check-abi but failed the independent public-symbol gate for five
+FUNC->IFUNC changes; memchr/strlen also changed WEAK->GLOBAL. That actual stays
+FAIL, with the second build/header/runtime execution NOT RUN. All eleven-library
+static ABI gates and exact symbol binding/type/version/OBJECT/TLS checks remain
+unchanged. No .abilist or source assembly is patched. The source lock layout
+records multiarch=disabled; configured_features and package_version travel in
+bundle and runtime receipts and are checked before actors. PKGBUILD must contain
+the concrete option and pkgrel3; contradictory declarations are refused. Staging
+and closed retention accept only the exact new -3 archive identity. The source
+manifest and manual workflow pins bind the updated harness; native validation
+must rerun the complete tests/ABI/headers/runtime and pair. No performance,
+16KiB, physical M2, installation or admission credit follows from source audit.

@@ -14,6 +14,7 @@ LOCK='cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac'
 RUNTIME='8a7cd5e73cf383b2d81ad577b8513c6fd7d49f9fd2572961c73ae9d289cab821'
 SMOKE='e10336aef200731c7dd4b06546b718e095c1ecf7718e4a25fa57d6bbed6270a6'
 PREFIX='opt/caa/g243a1'
+PACKAGE='cachy-asahi-glibc-official-release-2.43.caa1-3-aarch64.pkg.tar.xz'
 LABEL='org.cachy-asahi.glibc-official-release.job'
 CASES={'allocation','dlopen_dlsym','pthread_tls_join','utf8_iconv_locale','numeric_math',
        'fd_stat_clock_random','numeric_address_lookup','fork_exec_wait'}
@@ -65,7 +66,9 @@ def inputs(bundle,pin):
     source_lock=read_json(bundle/'source-lock.json')
     inspector.verify_patches(bundle,source_lock)
     observed,auth=inspector.verify_release(bundle,source_lock)
+    inspector.verify_configuration(bundle,source_lock)
     need(value['declared_patches']==source_lock['patch_order'] and value['configured_layout']==source_lock['layout'],'source patch/layout receipt differs')
+    need(value.get('package_version')=='2.43.caa1-3' and value.get('configured_features')==source_lock['feature_choices'],'source feature/package receipt differs')
     need(auth==value['authentication'],'retained GNU verification status differs')
     need(value['source']==observed,'source receipt differs from complete verified tree')
     return value
@@ -152,7 +155,8 @@ def execute(args,selected,smoke,harness,runtime):
     lease=os.open(out/'consumer.lock',os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_CLOEXEC|os.O_NOFOLLOW,0o600);fcntl.flock(lease,fcntl.LOCK_EX|fcntl.LOCK_NB)
     (out/'home').mkdir();env=dict(ENV,HOME=str(out/'home'));containers=[];success=False
     report=dict(status='FAIL',scope='UNSELECTED_OWNED_GLIBC_SUCCESSOR',upstream_release=selected['release'],release_payload_tree=selected['payload_tree'],source_authentication=selected['authentication'],
-                declared_patches=selected['declared_patches'],configured_layout=selected['configured_layout'],old_binary_recipe='UNRESOLVED-no-waiver',base_image=image,base_lock_sha256=LOCK,ownership_token=token,hardware='NOT RUN',
+                declared_patches=selected['declared_patches'],configured_layout=selected['configured_layout'],configured_features=selected['configured_features'],
+                package_version=selected['package_version'],old_binary_recipe='UNRESOLVED-no-waiver',base_image=image,base_lock_sha256=LOCK,ownership_token=token,hardware='NOT RUN',
                 performance='NOT MEASURED',package_admission='NOT REQUESTED',builds=[],cleanup=[],
                 source_bundle_manifest_sha256=args.bundle_manifest_sha256,harness_manifest_sha256=args.harness_manifest_sha256,
                 smoke_manifest_sha256=SMOKE)
@@ -203,6 +207,7 @@ def execute(args,selected,smoke,harness,runtime):
             need((directory/'evidence/packages-before.lock').read_bytes()==(directory/'evidence/packages-after.lock').read_bytes()==lock.read_bytes(),'bootstrap inventory changed')
             artifacts=list((directory/'artifacts').glob('*.pkg.tar.xz'));need(len(artifacts)==1,'one separately named candidate package required')
             package=ordinary(artifacts[0]);need(package.is_file(),'ordinary candidate archive required')
+            need(package.name==PACKAGE,'exact pkgrel3 candidate archive identity required')
             package_hashes.append(sha(package));item.update(package=package.name,sha256=package_hashes[-1],upstream_tests=tests['counts'])
             smoke_name=name+'-smoke';containers.append(smoke_name)
             smoke_args=docker_args(image,smoke_name,token,directory,out/'inputs',out/'runner',lock,out/'passwd',out/'group',uid,gid,out/'smoke')

@@ -104,6 +104,15 @@ def verify_patches(recipe,lock):
         need(row.get('sha256')==PATCH_FILES[name] and path.is_file() and not path.is_symlink() and sha(path)==PATCH_FILES[name], 'reviewed patch bytes differ: '+name)
 
 
+def verify_configuration(recipe,lock):
+    text=(Path(recipe)/'PKGBUILD').read_text()
+    need(lock['pkgrel']==3 and lock['layout'].get('multiarch')=='disabled' and
+         lock['feature_choices'].get('multiarch')=='disabled', 'baseline non-multiarch policy required')
+    need(re.search(r'^pkgrel=3$',text,re.M) and text.count('--disable-multi-arch')==1 and
+         '\n    --disable-multi-arch \\\n' in text and '--enable-multi-arch' not in text,
+         'concrete pkgrel3 non-multiarch configure option required')
+
+
 def signature_status(text,returncode):
     rows=[line.removeprefix('[GNUPG:] ').split() for line in text.splitlines() if line.startswith('[GNUPG:] ')]
     valid=[row for row in rows if row[0]=='VALIDSIG']
@@ -120,7 +129,7 @@ def verify_release(inputs,lock):
     import subprocess,tempfile
     need(inputs is not None,'MISSING_PREREQUISITE: three exact official release inputs')
     inputs=Path(inputs).resolve(strict=True)
-    need(lock['prefix']==PREFIX and lock['version']=='2.43.caa1' and lock['pkgrel']==2 and
+    need(lock['prefix']==PREFIX and lock['version']=='2.43.caa1' and lock['pkgrel']==3 and lock['layout'].get('multiarch')=='disabled' and
          lock['layout']['gettext_catalogs']==PREFIX+'/l' and len((PREFIX+'/l').encode())+1==18, 'ABI-preserving private layout required')
     need(lock['release']==RELEASE and lock['source']['sha256']==ARCHIVE_SHA and lock['payload_tree']==PAYLOAD_TREE and
          lock['name']=='cachy-asahi-glibc-official-release' and [r.get('path') for r in lock['patch_order']]==list(PATCH_FILES),'separate official release identity required')
@@ -147,6 +156,7 @@ def materialize(recipe,inputs,output):
     lock=json.loads((recipe/'source-lock.json').read_bytes())
     verify_patches(recipe,lock)
     observed,auth=verify_release(inputs,lock)
+    verify_configuration(recipe,lock)
     output.mkdir(mode=0o700)
     try:
         for path in recipe.iterdir():
@@ -156,7 +166,8 @@ def materialize(recipe,inputs,output):
         (output/'source-authentication.json').write_text(json.dumps(auth,sort_keys=True,indent=2)+'\n')
         files={p.name:dict(bytes=p.stat().st_size,sha256=sha(p)) for p in sorted(output.iterdir())}
         receipt=dict(schema_version=1,status='SOURCE_BUNDLE_READY_UNSELECTED_OFFICIAL_RELEASE',release=RELEASE,payload_tree=PAYLOAD_TREE,
-                     source=observed,authentication=auth,files=files,declared_patches=lock['patch_order'],configured_layout=lock['layout'],native_build='NOT RUN',old_binary_source_gap='UNRESOLVED')
+                     source=observed,authentication=auth,files=files,declared_patches=lock['patch_order'],configured_layout=lock['layout'],
+                     configured_features=lock['feature_choices'],package_version='2.43.caa1-3',native_build='NOT RUN',old_binary_source_gap='UNRESOLVED')
         (output/'bundle.json').write_text(json.dumps(receipt,sort_keys=True,indent=2)+'\n');return receipt
     except BaseException:shutil.rmtree(output);raise
 
