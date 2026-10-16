@@ -30,10 +30,10 @@ class Daemon:
     def image(self, image, tag):
         return {'Id':image,'Os':'linux','Architecture':'arm64','Config':{'Labels':{m.LABEL:TOKEN}},'RepoTags':[tag],'RepoDigests':[]}
 
-    def run(self,*args,seconds=20,raw=False):
+    def run(self,*args,seconds=20,raw=False,stdin_path=None):
         args=tuple(map(str,args)); self.calls.append((args,seconds))
         phase = ('import' if args[:2]==('image','import') else 'commit' if args[:2]==('container','commit')
-                 else 'create' if args[:2]==('container','create') else
+                 else 'create' if args[:2]==('container','create') else 'copy' if args[:2]==('container','cp') else
                  ('build' if args[-1]==BUILD else 'probe') if args[:3]==('container','start','-a') else None)
         if self.fault and phase==self.fault[0]: raise self.fault[1]
         if args[:2]==('image','import'):
@@ -67,7 +67,9 @@ class Daemon:
             row=copy.deepcopy(self.container_rows[args[-1]])
             if self.bad_identity: row['Config']['Labels'][m.LABEL]='f'*16
             return json.dumps([row])
-        if args[:2]==('container','cp'): return ''
+        if args[:2]==('container','cp'):
+            self.copy_input=stdin_path
+            return ''
         if args[:3]==('container','start','-a'): return ('one 1\n' if raw else 'one 1') if args[-1]==PROBE else ''
         if args[:2]==('container','commit'):
             self.image_rows[FINAL]=self.image(FINAL,self.tags['result']); return FINAL
@@ -84,8 +86,18 @@ class Controls(unittest.TestCase):
         self.temp=tempfile.TemporaryDirectory(dir=HERE); self.addCleanup(self.temp.cleanup)
         self.out=Path(self.temp.name)/'out'; self.out.mkdir(mode=0o700)
         self.prepared=Path(self.temp.name)/'context'; self.prepared.mkdir(mode=0o700)
-        for name in ('pacman.conf','finish-keyring.py'): (self.prepared/name).write_text('inert\n')
+        for name in ('pacman.conf','finish-keyring.py','disabled-hooks.txt','expected-packages.lock'):
+            (self.prepared/name).write_text('inert\n');(self.prepared/name).chmod(0o600)
+        for name in ('keys','deps'):
+            (self.prepared/name).mkdir(mode=0o700);(self.prepared/name/'fixed').write_bytes(b'fixed data')
         self.d=Daemon(); self.owner=m.Owner(self.d,TOKEN)
+        verifier=patch.object(m,'verify_copy',side_effect=self.copy_observation)
+        self.verifier=verifier.start();self.addCleanup(verifier.stop)
+
+    def copy_observation(self,owner,expected,archive):
+        return {'status':'PASS_ROOT_OWNED_COPY','container':dict(owner.containers[0]),'archive':archive,
+                'files_verified':len(expected)-1,'directories_verified':1,'uid':0,'gid':0,
+                'members_sha256':'a'*64,'controls':[dict(path=path,uid=0,gid=0,**expected[path]) for path in m.COPY_CONTROLS]}
 
     def execute(self):
         return m.execute(self.owner,self.prepared,'exact held transaction','one 1\n',self.out)
@@ -131,8 +143,27 @@ class Controls(unittest.TestCase):
             if argv[:2]==('container','create'):
                 self.assertIn('--network=none',argv); self.assertIn(m.LABEL+'='+TOKEN,argv)
         copies=[a for a,_ in self.d.calls if a[:2]==('container','cp')]
-        self.assertTrue(any(a[2].endswith('/keys/.') for a in copies))
-        self.assertEqual((self.out/'transfer/pacman.conf').stat().st_mode&0o777,0o644)
+        self.assertEqual(copies,[('container','cp','--archive','-',BUILD+':/')])
+        self.assertEqual(self.d.copy_input,self.out/'copy-inputs.tar')
+        with tarfile.open(self.d.copy_input) as archive:
+            rows={entry.name:entry for entry in archive}
+        self.assertTrue(all(entry.uid==entry.gid==0 for entry in rows.values()))
+        self.assertEqual(rows['etc/pacman.conf'].mode,0o644)
+        self.assertEqual(rows['tmp/finish-keyring.py'].mode,0o644)
+        self.assertEqual((self.prepared/'pacman.conf').stat().st_mode&0o777,0o600)
+
+    def test_bad_copy_verification_cannot_start_transaction_or_waive_unknown(self):
+        self.verifier.side_effect=ValueError('metadata mismatch')
+        row=self.execute()
+        self.assertEqual(row['status'],'FAIL');self.assertEqual(row['phase'],'build-copy')
+        self.assertFalse(row['cleanup']['client_fenced']);self.assertEqual(self.mutations(),[])
+        self.assertFalse(any(a[:2]==('container','start') for a,_ in self.d.calls))
+
+    def test_interrupted_archive_transfer_preserves_copy_phase_uncertainty(self):
+        self.d.fault=('copy',subprocess.TimeoutExpired('inert',240))
+        row=self.execute();self.assertEqual(row['phase'],'build-copy');self.assertEqual(row['status'],'FAIL')
+        self.assertFalse(row['cleanup']['client_fenced']);self.verifier.assert_not_called()
+        self.assertEqual(self.mutations(),[])
 
     def test_active_build_keyboard_cancel_reaps_exact_daemon_executor(self):
         self.d.fault=('build',KeyboardInterrupt())
@@ -223,17 +254,117 @@ class Controls(unittest.TestCase):
         self.assertIn("owner['build_complete']and report['build_returncode']==0",(root/'scripts/ci/maintained_desktop574.py').read_text())
 
     def test_prepared_context_extra_members_cannot_enter_package_transaction(self):
-        wanted=set(self.prepared.iterdir()); m.membership(self.prepared,wanted)
+        wanted={p for p in self.prepared.rglob('*') if p.is_file()}; m.membership(self.prepared,wanted)
         extra=self.prepared/'unplanned.pkg.tar.xz'; extra.write_bytes(b'inert')
         with self.assertRaises(ValueError): m.membership(self.prepared,wanted)
         extra.unlink(); extra.symlink_to(self.prepared/'pacman.conf')
         with self.assertRaises(ValueError): m.membership(self.prepared,wanted)
 
     def test_context_extra_directories_and_writable_inputs_refused(self):
-        wanted=set(self.prepared.iterdir()); extra=self.prepared/'unplanned'; extra.mkdir()
+        wanted={p for p in self.prepared.rglob('*') if p.is_file()}; extra=self.prepared/'unplanned'; extra.mkdir()
         with self.assertRaises(ValueError): m.membership(self.prepared,wanted)
         extra.rmdir(); (self.prepared/'pacman.conf').chmod(0o666)
         with self.assertRaises(ValueError): m.membership(self.prepared,wanted)
+
+
+class CopyControls(unittest.TestCase):
+    def setUp(self):
+        for name in ('Popen','run','check_output'):
+            guard=patch.object(subprocess,name,side_effect=AssertionError('external actor forbidden'))
+            guard.start();self.addCleanup(guard.stop)
+        guard=patch.object(m.socket,'socket',side_effect=AssertionError('network actor forbidden'))
+        guard.start();self.addCleanup(guard.stop)
+        self.temp=tempfile.TemporaryDirectory(dir=HERE);self.addCleanup(self.temp.cleanup)
+        self.root=Path(self.temp.name);self.prepared=self.root/'context';self.prepared.mkdir(mode=0o700)
+        for name in ('keys','deps'):(self.prepared/name).mkdir(mode=0o700)
+        for name in ('archlinuxarm.gpg','archlinuxarm-trusted','archlinuxarm-revoked'):
+            (self.prepared/'keys'/name).write_bytes(b'public key fixture')
+        for name in ('package.pkg.tar.xz','package.pkg.tar.xz.sig'):(self.prepared/'deps'/name).write_bytes(b'package fixture')
+        for path in m.COPY_CONTROLS:
+            file=self.prepared/Path(path).name;file.write_bytes(b'control fixture');file.chmod(0o600)
+        self.archive=self.root/'input.tar';self.expected,self.archive_row=m.copy_archive(self.prepared,self.archive)
+
+    def response(self,data):
+        body=io.BytesIO(data);response=SimpleNamespace(status=200,read=Mock(side_effect=body.read),close=Mock())
+        client=Mock();client.getresponse.return_value=response
+        return client
+
+    def scope(self,path,change=None,extra=False):
+        result=io.BytesIO()
+        with tarfile.open(fileobj=result,mode='w') as output,tarfile.open(self.archive) as original:
+            for target,row in self.expected.items():
+                if target!=path and not target.startswith(path+'/'):continue
+                member=copy.copy(original.getmember(target.lstrip('/')))
+                member.name=Path(path).name+target[len(path):]
+                data=None
+                if member.isreg():
+                    with original.extractfile(original.getmember(target.lstrip('/'))) as stream:data=stream.read()
+                if change and target==change[0]:
+                    if change[1]=='data':data=b'x'*len(data)
+                    else:setattr(member,change[1],change[2])
+                output.addfile(member,io.BytesIO(data) if data is not None else None)
+            if extra:
+                member=tarfile.TarInfo(Path(path).name+'/existing-key');member.size=4
+                output.addfile(member,io.BytesIO(b'base'))
+        return result.getvalue()
+
+    def test_archive_root_ownership_modes_and_bytes_without_host_chown(self):
+        with tarfile.open(self.archive) as archive:
+            for member in archive:
+                self.assertEqual((member.uid,member.gid),(0,0))
+                row=self.expected['/'+member.name]
+                self.assertEqual(member.mode,row['mode'])
+                if member.isreg():
+                    with archive.extractfile(member) as stream:
+                        self.assertEqual(m.hashlib.sha256(stream.read()).hexdigest(),row['sha256'])
+        self.assertEqual(self.expected['/etc/pacman.conf']['mode'],0o644)
+        self.assertEqual(self.expected['/tmp/finish-keyring.py']['mode'],0o644)
+        self.assertEqual((self.prepared/'pacman.conf').stat().st_mode&0o777,0o600)
+        self.assertEqual(self.archive.stat().st_mode&0o777,0o600)
+        self.assertEqual(m.digest(self.archive),self.archive_row['sha256'])
+
+    def test_byte_bounds_and_symlink_source_refuse(self):
+        with patch.object(m,'COPY_LIMIT',5),self.assertRaises(ValueError):m.copy_archive(self.prepared,self.root/'too-large.tar')
+        file=self.prepared/'keys/escape';file.symlink_to(self.prepared/'pacman.conf')
+        with self.assertRaises(ValueError):m.copy_archive(self.prepared,self.root/'symlink.tar')
+
+    def test_each_scope_verifies_owned_metadata_and_content_and_preserves_base_keys(self):
+        seen=set()
+        for path in ('/usr/share/pacman/keyrings','/tmp/deps',*m.COPY_CONTROLS):
+            client=self.response(self.scope(path,extra=path=='/usr/share/pacman/keyrings'))
+            with patch.object(m,'MetadataConnection',return_value=client):seen.update(m.verify_copy_scope(BUILD,path,self.expected))
+        self.assertEqual(seen,set(self.expected))
+
+    def test_nonroot_mode_or_content_drift_refuses_before_start(self):
+        path='/etc/pacman.conf'
+        for change in ((path,'uid',1001),(path,'gid',1001),(path,'mode',0o600),(path,'data',None)):
+            client=self.response(self.scope(path,change))
+            with self.subTest(change=change),patch.object(m,'MetadataConnection',return_value=client),self.assertRaises(ValueError):
+                m.verify_copy_scope(BUILD,path,self.expected)
+        client=self.response(self.scope('/tmp/deps',extra=True))
+        with patch.object(m,'MetadataConnection',return_value=client),self.assertRaises(ValueError):
+            m.verify_copy_scope(BUILD,'/tmp/deps',self.expected)
+
+    def test_complete_copy_proof_is_bound_to_unstarted_executor(self):
+        row={'cid':BUILD,'name':'cachy-asahi-574-active-'+TOKEN+'-build','image':ROOT}
+        owner=SimpleNamespace(containers=[row],names={'build':row['name']})
+        def seen(cid,path,expected):return {target for target in expected if target==path or target.startswith(path+'/')}
+        with patch.object(m,'trust_identity') as identity,patch.object(m,'verify_copy_scope',side_effect=seen):
+            proof=m.verify_copy(owner,self.expected,self.archive_row)
+        self.assertEqual(identity.call_count,2)
+        self.assertEqual(identity.call_args.kwargs,{'created':True})
+        self.assertEqual(proof['status'],'PASS_ROOT_OWNED_COPY');self.assertEqual(proof['files_verified'],9)
+        self.assertEqual(proof['container'],row);self.assertEqual(len(proof['controls']),4)
+        self.assertNotIn('control fixture',json.dumps(proof))
+        with patch.object(m,'trust_identity'),patch.object(m,'verify_copy_scope',return_value=set()),self.assertRaises(ValueError):
+            m.verify_copy(owner,self.expected,self.archive_row)
+
+    def test_streamed_archive_stdin_is_closed_after_client_reaping(self):
+        child=Mock(pid=12345);child.wait.return_value=0;incoming=[]
+        def spawn(*_,**kwargs):incoming.append(kwargs['stdin']);self.assertEqual(kwargs['stdin'].read(512),self.archive.read_bytes()[:512]);return child
+        with patch.object(m.subprocess,'Popen',side_effect=spawn),patch.object(m.os,'killpg',side_effect=ProcessLookupError):
+            m.command(['inert'],self.root/'stdin.log',{},1,stdin_path=self.archive)
+        self.assertTrue(incoming[0].closed);self.assertEqual(child.wait.call_count,2)
 
 
 class MetadataControls(unittest.TestCase):
@@ -308,6 +439,17 @@ class MetadataControls(unittest.TestCase):
         with patch.object(m,'MetadataConnection',return_value=client):m.trust_identity(owner,identity)
         client.request.assert_called_once_with('GET','/containers/'+BUILD+'/json')
         response.close.assert_called_once()
+
+    def test_copy_boundary_requires_created_not_failed_or_already_running(self):
+        owner=self.owner();identity=owner.containers[0]
+        value={'Id':BUILD,'Name':'/'+identity['name'],'Image':ROOT,'Config':{'Labels':{m.LABEL:TOKEN}},
+               'State':{'Running':False,'ExitCode':0,'Status':'created'}}
+        client,_=self.connection(json.dumps(value).encode())
+        with patch.object(m,'MetadataConnection',return_value=client):m.trust_identity(owner,identity,created=True)
+        value['State']['Status']='exited';value['State']['ExitCode']=1
+        client,_=self.connection(json.dumps(value).encode())
+        with patch.object(m,'MetadataConnection',return_value=client),self.assertRaises(ValueError):
+            m.trust_identity(owner,identity,created=True)
 
     def test_fixed_nine_paths_and_timeout_preserve_partial_unknown(self):
         owner=self.owner();responses=[{'path':path,'status':'HTTP_ERROR','http_status':404} for path in m.TRUST_PATHS]

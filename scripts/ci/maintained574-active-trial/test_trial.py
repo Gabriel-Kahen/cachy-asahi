@@ -30,7 +30,12 @@ def receipt(normal=False):
     if normal:
         containers.append({'cid':PROBE,'name':NAME.removesuffix('build')+'probe','image':FINAL})
         images.append({'id':FINAL,'tag':TAG.removesuffix('root')+'result'})
-    return {'status':'PASS' if normal else 'FAIL','phase':'completed' if normal else 'active-build',
+    controls=[{'path':path,'uid':0,'gid':0,'type':'regular','mode':0o644 if index<2 else 0o600,
+               'bytes':116,'sha256':'a'*64} for index,path in enumerate(o.COPY_CONTROLS)]
+    controls[-1]['sha256']='cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac'
+    copy={'status':'PASS_ROOT_OWNED_COPY','container':dict(containers[0]),'archive':{'bytes':10240,'sha256':'b'*64},
+          'files_verified':1155,'directories_verified':1,'uid':0,'gid':0,'members_sha256':'c'*64,'controls':controls}
+    return {'status':'PASS' if normal else 'FAIL','phase':'completed' if normal else 'active-build','copy_metadata':copy,
         'cancelled':not normal,'token':TOKEN,'initial_image_ids':[OLD],
         'helper_sha256':s.PINS['maintained_desktop574.py'],'inputs_sha256':s.PINS['maintained-desktop574-inputs.json'],
         **({'packages':574,'inventory_sha256':'cfd4c76f8602164c1091aed121332d201d0bf9299d3a51aedfb67f79c834e0ac'} if normal else {}),
@@ -330,6 +335,25 @@ class TrustMetadataControls(unittest.TestCase):
         projected=o.project_owner(value)
         self.assertEqual(projected['status'],'FAIL');self.assertEqual(projected['trust_metadata']['rows'],[])
         value['trust_metadata']['private']='PRIVATE'
+        with self.assertRaises(s.Refused):o.project_owner(value)
+
+
+class CopyMetadataControls(unittest.TestCase):
+    def test_execution_requires_full_root_owned_copy_and_critical_control_modes(self):
+        value=receipt(normal=True)
+        self.assertEqual(o.project_owner(value)['copy_metadata'],value['copy_metadata'])
+        del value['copy_metadata']
+        with self.assertRaises(s.Refused):o.project_owner(value)
+
+    def test_wrong_owner_count_mode_hash_or_container_refuses(self):
+        for field,changed in (('uid',1001),('files_verified',1154),('archive',{'bytes':2**32,'sha256':'a'*64})):
+            value=receipt();value['copy_metadata'][field]=changed
+            with self.subTest(field=field),self.assertRaises(s.Refused):o.project_owner(value)
+        value=receipt();value['copy_metadata']['controls'][0]['mode']=0o600
+        with self.assertRaises(s.Refused):o.project_owner(value)
+        value=receipt();value['copy_metadata']['controls'][-1]['sha256']='0'*64
+        with self.assertRaises(s.Refused):o.project_owner(value)
+        value=receipt();value['copy_metadata']['container']['cid']='f'*64
         with self.assertRaises(s.Refused):o.project_owner(value)
 
 
