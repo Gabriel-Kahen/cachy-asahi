@@ -1,5 +1,7 @@
 # Implementation and acceptance status
 
+October16 managed16K implementation: the separate [complete managed Welcome GUI lane](../scripts/ci/managed-gui-generic16k/README.md) preserves both profiles, fourteen first captures/actions, real systemd user management, normal owned exits and cleanup. It derives a separate16K kernel with the concrete rootdisk/virtio graphics/systemd capabilities and checks the full staged ELF closure. Root passes35 lane and9 scanner controls; the native kernel build, boot,14-frame visual check and target hardware remain pending.
+
 October16 current development: ordinary managed Waybar/Mako startup now passes in38938127725 with logging disabled, both original first frames Root viewed, complete event replay and cleanup. Setup5-generated RCs pass all six real host-module cases, including default async Zsh, repeat/remove and edited-file preservation; a dedicated native installed581 integration is being implemented. Current600 retains setup3.
 
 The600 builder now produces an accepted byte-identical Bang2 pair; its subsequent missing-name plan bug is fixed with27 controls and actual38940098372 is running. Tools16K reached all three editing modules before mirror activation exposed missing CONFIG_FILE_LOCKING; the separate diagnostic kernel now enables it (85 controls), actual38940796613 running. Done16K has zero recorded notifications in its first failed case; the unchanged product now has a separate bounded duration/transport diagnostic (62 controls), actual38940799665 running. Neither failed run is promoted to a pass.
