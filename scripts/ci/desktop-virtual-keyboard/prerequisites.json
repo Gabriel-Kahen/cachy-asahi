@@ -141,6 +141,10 @@
         "usr/lib/modules/7.2.10-1-aarch64-ARCH/kernel/drivers/virtio/virtio_input.ko": {
           "bytes": 14864,
           "sha256": "95b975c2818e75f32d33efa136c8e28046b9399c54c9f9a25947113f87a908ad"
+        },
+        "usr/lib/modules/7.2.10-1-aarch64-ARCH/kernel/drivers/input/keyboard/gpio_keys.ko": {
+          "bytes": 26144,
+          "sha256": "17e32b90adf9536c1ff5fdae252cce987a93bf66eb3b56fd4125493aef55895b"
         }
       }
     }
@@ -153,7 +157,8 @@
       "CONFIG_INPUT=y",
       "CONFIG_INPUT_EVDEV=y",
       "CONFIG_VIRTIO_PCI=y",
-      "CONFIG_VIRTIO_INPUT=m"
+      "CONFIG_VIRTIO_INPUT=m",
+      "CONFIG_KEYBOARD_GPIO=m"
     ]
   }
 }

@@ -7,6 +7,7 @@ import tempfile
 from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
+from test_keyboard import board
 import session as S
 import keyboard as K
 
@@ -18,7 +19,7 @@ class Phase(unittest.TestCase):
         self.events=[];self.actors=[];self.observed=[];self.step=None;self.clock=0;self.workspace=None
         self.original_stat=Path.stat
         (self.root/'minimal.lua').write_text('declared minimal fixture')
-        self.fail_close=self.config_drift=self.bad_input=self.bad_capture=False
+        self.fail_close=self.config_drift=self.bad_input=self.bad_capture=self.gpio=False
         self.terminal=dict(pid=100,uid=[23001]*4,starttime=5,executable='/usr/bin/alacritty')
         self.shell=dict(pid=101,uid=[23001]*4,starttime=6,executable='/usr/bin/bash',parent_pid=100)
         self.editor=dict(pid=102,uid=[23001]*4,starttime=7,executable='/usr/bin/vim',parent_pid=101)
@@ -42,7 +43,7 @@ class Phase(unittest.TestCase):
         return [copy.deepcopy(self.row)]
     def command(self,argv,env,logs,label,timeout=20):
         if 'monitors' in argv:return json.dumps([dict(width=1024,height=768,scale=1)])
-        if 'devices' in argv:return json.dumps(dict(keyboards=[dict(name='host' if self.bad_input else 'qemu-virtio-keyboard',layout='us',capsLock=False)]))
+        if 'devices' in argv:return json.dumps(dict(keyboards=[dict(name='host' if self.bad_input else 'qemu-virtio-keyboard',layout='us',capsLock=False)]+([dict(name='gpio-keys',layout='us',capsLock=False,main=True)] if self.gpio else [])))
         if 'clients' in argv:
             if self.bad_capture and any(r['event']=='frame_ready' for r in self.events):raise ValueError('strict IPC capture failure')
             return json.dumps(self.rows())
@@ -84,6 +85,7 @@ class Phase(unittest.TestCase):
     def run_phase(self):
         with patch.object(S,'base',self.base),patch.object(S,'ObservedTerminal',self.observed_factory),\
              patch.object(S,'input_device',return_value=dict(name='QEMU Virtio Keyboard',driver='virtio_input')),\
+             patch.object(S,'board_input',return_value=board()),\
              patch.object(Path,'stat',lambda path,*a,**kw:self.guest_stat(path,*a,**kw)),patch.object(S,'child',self.child),patch.object(S,'descendant',return_value=self.editor),\
              patch.object(S.os,'readlink',return_value='/dev/pts/0'),\
              patch.object(S.W,'startup_clients',side_effect=lambda *a:self.rows()),\
@@ -108,12 +110,19 @@ class Phase(unittest.TestCase):
         self.assertTrue(all(p.closed for p in self.observed));self.assertTrue(self.actors[0].finished)
     def test_host_named_keyboard_refused_before_launch(self):
         self.bad_input=True
-        with self.assertRaisesRegex(ValueError,'virtual keyboard differs'):self.run_phase()
+        with self.assertRaisesRegex(ValueError,'unexpected or duplicate keyboard'):self.run_phase()
         self.assertFalse(any(r['event']=='keyboard_request' for r in self.events));self.assertTrue(self.actors[0].finished)
     def test_capture_ipc_failure_preserves_primary_and_cleans_owned(self):
         self.bad_capture=True
         with self.assertRaisesRegex(ValueError,'strict IPC capture'):self.run_phase()
         self.assertTrue(all(p.closed for p in self.observed));self.assertTrue(self.actors[0].finished)
 
+
+    def test_actual_gpio_companion_reaches_all_unchanged_input_and_cleanup_gates(self):
+        self.gpio=True;self.run_phase()
+        ready=next(r for r in self.events if r['event']=='keyboard_ready')
+        self.assertEqual(ready['board_device'],board());self.assertEqual(len(ready['keyboards']),2)
+        self.assertEqual([r['step'] for r in self.events if r['event']=='keyboard_request'],list(K.STEPS))
+        self.assertTrue(all(p.closed and p.retired for p in self.observed))
 
 if __name__=='__main__':unittest.main()

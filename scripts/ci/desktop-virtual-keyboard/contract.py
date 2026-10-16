@@ -34,8 +34,7 @@ def verify_result(events):
                ready.get('kernel_device',{}).get('name')=='QEMU Virtio Keyboard' and
                ready['kernel_device'].get('driver')=='virtio_input','virtual input/shortcut policy absent')
         keyboards=ready.get('keyboards')
-        K.need(type(keyboards) is list and len(keyboards)==1 and keyboards[0].get('name')=='qemu-virtio-keyboard'
-               and keyboards[0].get('layout')=='us' and keyboards[0].get('capsLock') is False,'compositor input recognition absent')
+        K.verify_keyboards(keyboards,ready.get('board_device'))
         if stage=='overlay':
             pins=json.loads(Path(__file__).with_name('source-pins.json').read_text())
             K.need(ready.get('configuration_sha256')==pins['packages/desktop/cachy-asahi-hyprland-settings/hyprland.lua'],'shipped overlay configuration bytes changed')
