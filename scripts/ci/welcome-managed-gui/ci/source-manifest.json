@@ -183,8 +183,8 @@
       "sha256": "8fb2a06390da307545b9c1a483b6f354d9d72bc9ebb232271583de67bc38c6a4"
     },
     "scripts/ci/welcome-managed-gui/a11y_driver.c": {
-      "bytes": 6391,
-      "sha256": "12d68c8168884553db14bf0dc879abb3e54fb4eaf8119b2f9dc49f3276497af5"
+      "bytes": 6624,
+      "sha256": "787611e9244820beafbb7616a5e8f99dee4f4b16d28746bcff8bf9b1c61ff2c5"
     },
     "scripts/ci/welcome-managed-gui/candidates.py": {
       "bytes": 6435,
@@ -235,8 +235,8 @@
       "sha256": "e3aa9caba37d5aa3087a99dff5f8f0ef50e139eaf409bb345a52924518acf178"
     },
     "scripts/ci/welcome-managed-gui/session.py": {
-      "bytes": 18261,
-      "sha256": "e4f82bbf96c0b9d5035ad478d44bae4fc4d3fbd794c7064358401f8b79eef7cf"
+      "bytes": 18913,
+      "sha256": "eeeb951f35fe6e5352e1a53295bce6b2c23cda30a7c7e050e635a54ad1e662fd"
     },
     "scripts/ci/welcome-managed-gui/source-pins.json": {
       "bytes": 5999,
@@ -259,8 +259,8 @@
       "sha256": "fc975de82fb9d89b800a4814d6cb507706871dbe1f0748d0dc6a49fff7ffa503"
     },
     "scripts/ci/welcome-managed-gui/test_phase.py": {
-      "bytes": 17902,
-      "sha256": "589424993d67ba8404a0ea961055eaf253a2977978db84753c9433f7b6586532"
+      "bytes": 19678,
+      "sha256": "a9444218cd90dd4bf6a5870857fbd69b685ce3d98d5ad666e0adf30180ee91e2"
     },
     "scripts/ci/welcome-managed-gui/transport.json": {
       "bytes": 402,
@@ -301,8 +301,8 @@
   },
   "generated_runner": {
     "a11y_driver.c": {
-      "bytes": 6391,
-      "sha256": "12d68c8168884553db14bf0dc879abb3e54fb4eaf8119b2f9dc49f3276497af5"
+      "bytes": 6624,
+      "sha256": "787611e9244820beafbb7616a5e8f99dee4f4b16d28746bcff8bf9b1c61ff2c5"
     },
     "base_guest.py": {
       "bytes": 37666,
@@ -365,8 +365,8 @@
       "sha256": "ae7a6b6e9479b6fc4575161d0ed03b807c58a4b11f8e374ec66d80451a6320b6"
     },
     "session.py": {
-      "bytes": 18261,
-      "sha256": "e4f82bbf96c0b9d5035ad478d44bae4fc4d3fbd794c7064358401f8b79eef7cf"
+      "bytes": 18913,
+      "sha256": "eeeb951f35fe6e5352e1a53295bce6b2c23cda30a7c7e050e635a54ad1e662fd"
     },
     "source-pins.json": {
       "bytes": 5999,
