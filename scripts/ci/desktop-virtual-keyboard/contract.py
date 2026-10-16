@@ -21,7 +21,7 @@ def identity(value,exe):
 
 def verify_result(events):
     managed=M.verify_result(events)
-    K.need(not any(r.get('event') in ('phase_failed','failure','failed') for r in events),'failed keyboard phase')
+    K.need(not any(r.get('event') in ('phase_failed','failure','failed','keyboard_failure_diagnostic') for r in events),'failed keyboard phase')
     def one(name,stage):
         rows=[(i,r) for i,r in enumerate(events) if r.get('event')==name and r.get('stage')==stage]
         K.need(len(rows)==1,'one '+stage+' '+name+' required');return rows[0]

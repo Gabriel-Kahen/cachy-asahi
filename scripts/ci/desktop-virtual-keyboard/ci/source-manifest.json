@@ -59,24 +59,24 @@
       "sha256": "a70885622a36fe1ba764ea7d0846933b639ef04dc3c532598fb92ceb73ffe00b"
     },
     "scripts/ci/desktop-virtual-keyboard/README.md": {
-      "bytes": 5315,
-      "sha256": "dd0f466de3ab1d893930609cb31a6056e6f1bfe9c3bcb946ef2545ebedb5c8a1"
+      "bytes": 6405,
+      "sha256": "5a03d11130ae2f9944c7059d4214ce8102e3aaac95aeffbd575b7c4b80a87872"
     },
     "scripts/ci/desktop-virtual-keyboard/ci/HANDOFF.md": {
       "bytes": 2023,
       "sha256": "ae6223c5c17e2e8606d4cab8be201f4cc63fbb404cfc925556747d0bf29a9c57"
     },
     "scripts/ci/desktop-virtual-keyboard/ci/caller.py": {
-      "bytes": 10381,
-      "sha256": "b6b0a7f22a7bd7a1c0aa27bce9a90ce9c6978d8545494253b2277d6d4e1f325a"
+      "bytes": 11034,
+      "sha256": "346ec47bcb17ebbda41522a6920b3c2828614a72d216823a285c0f186a9a62a7"
     },
     "scripts/ci/desktop-virtual-keyboard/ci/test_caller.py": {
-      "bytes": 5447,
-      "sha256": "b1b7d5160fa74c8ac1ab72d930e1fc46786809f7697eec6070e3db8eecfa1edd"
+      "bytes": 6536,
+      "sha256": "0d7d58f585368d23210d6c6c5a09820249b75892a6963c2b57cc3aef66a445ec"
     },
     "scripts/ci/desktop-virtual-keyboard/contract.py": {
-      "bytes": 8140,
-      "sha256": "1042dded9561f716eb587d7131c1b6973525b7550ec4d7344734f930a5ce3c80"
+      "bytes": 8170,
+      "sha256": "9ce1996608f2465b9d6d6a1867b1384af066f09c16f803e5cdf23488501b3905"
     },
     "scripts/ci/desktop-virtual-keyboard/desktop574_guest.py": {
       "bytes": 2079,
@@ -99,8 +99,8 @@
       "sha256": "97efdb4681e41225f71f7c4e452d792f4d7657eb1b2e34c6125092ad302f7800"
     },
     "scripts/ci/desktop-virtual-keyboard/prepare.py": {
-      "bytes": 6111,
-      "sha256": "b25592696ca7c2ff3f9e08f3db4079e5f041ba869e55e8e9dcfbf36daca9c94e"
+      "bytes": 7880,
+      "sha256": "adbef5ee135c6dbc82f6c733d2e1a46f66ab227be7f91f3b1b325183f9d265f7"
     },
     "scripts/ci/desktop-virtual-keyboard/prerequisites.json": {
       "bytes": 4951,
@@ -111,8 +111,8 @@
       "sha256": "04396684a6d41968718e4280eff288dda45000512ece2d749e87326adb3994a3"
     },
     "scripts/ci/desktop-virtual-keyboard/session.py": {
-      "bytes": 13013,
-      "sha256": "4b9788e0a2d85cb5e36d9840dc25f47f5e61c9785fc4ed3c7d203213415dbb31"
+      "bytes": 14839,
+      "sha256": "aea5dede51df924460b20b09c5572d6ca1a0131785b899ca95ae9434e84ec0a0"
     },
     "scripts/ci/desktop-virtual-keyboard/source-pins.json": {
       "bytes": 3464,
@@ -131,8 +131,8 @@
       "sha256": "6fc19f22f9c163d5fbc2783181db615520038c8bcdfeb00dd8fc7f3e6a2c78af"
     },
     "scripts/ci/desktop-virtual-keyboard/test_phase.py": {
-      "bytes": 8705,
-      "sha256": "49edc77a18df38394409eb115e28193440b1fac1cf26cfcdfa801660d9a8d3f1"
+      "bytes": 14175,
+      "sha256": "ebda3c6825685784853ef9fda8bfb1637b43cfafe97e3bb193c754c59ffaa042"
     },
     "scripts/ci/desktop-virtual-keyboard/upstream-kernel.config": {
       "bytes": 328264,
@@ -209,8 +209,8 @@
       "sha256": "d4508db6fd4312bf1e052ffcc904c563d62dfceeab09b8654e05dec6ff1d99e5"
     },
     "contract.py": {
-      "bytes": 8140,
-      "sha256": "1042dded9561f716eb587d7131c1b6973525b7550ec4d7344734f930a5ce3c80"
+      "bytes": 8170,
+      "sha256": "9ce1996608f2465b9d6d6a1867b1384af066f09c16f803e5cdf23488501b3905"
     },
     "desktop574_fixture.sh": {
       "bytes": 5331,
@@ -221,8 +221,8 @@
       "sha256": "6dd0d79bf9260908825dfe7408b81a174b5d5c697a8fe33373c79f1c34274a5a"
     },
     "desktop574_runtime.py": {
-      "bytes": 22227,
-      "sha256": "9c7ecac416821a1e691f8f016d408edadc75d7faf780dca2611e1a7648a143c7"
+      "bytes": 23494,
+      "sha256": "edb2700b33e63ded19122b2bbbf15885001abe42d850cfaa99e4a810377091d0"
     },
     "keyboard.py": {
       "bytes": 6618,
@@ -249,8 +249,8 @@
       "sha256": "04396684a6d41968718e4280eff288dda45000512ece2d749e87326adb3994a3"
     },
     "session.py": {
-      "bytes": 13013,
-      "sha256": "4b9788e0a2d85cb5e36d9840dc25f47f5e61c9785fc4ed3c7d203213415dbb31"
+      "bytes": 14839,
+      "sha256": "aea5dede51df924460b20b09c5572d6ca1a0131785b899ca95ae9434e84ec0a0"
     },
     "source-pins.json": {
       "bytes": 3464,

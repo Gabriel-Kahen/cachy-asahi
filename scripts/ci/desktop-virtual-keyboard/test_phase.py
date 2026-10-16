@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: MIT
 """Full observer lifecycle under mocked VM/app actors; never types on a host."""
+import base64
 import copy
 import json
 from pathlib import Path
@@ -19,7 +20,7 @@ class Phase(unittest.TestCase):
         self.events=[];self.actors=[];self.observed=[];self.step=None;self.clock=0;self.workspace=None
         self.original_stat=Path.stat
         (self.root/'minimal.lua').write_text('declared minimal fixture')
-        self.fail_close=self.config_drift=self.bad_input=self.bad_capture=self.gpio=False
+        self.fail_close=self.config_drift=self.bad_input=self.bad_capture=self.gpio=self.bad_shell=self.diagnostic_fail=False
         self.terminal=dict(pid=100,uid=[23001]*4,starttime=5,executable='/usr/bin/alacritty')
         self.shell=dict(pid=101,uid=[23001]*4,starttime=6,executable='/usr/bin/bash',parent_pid=100)
         self.editor=dict(pid=102,uid=[23001]*4,starttime=7,executable='/usr/bin/vim',parent_pid=101)
@@ -54,12 +55,13 @@ class Phase(unittest.TestCase):
         if argv[-1]=='hl.dsp.exit()':self.actors[0].process.returncode=0;return 'ok\n'
         raise AssertionError(argv)
     def emit(self,event,**kw):
+        if event=='keyboard_failure_diagnostic' and self.diagnostic_fail:raise RuntimeError('optional diagnostic failure')
         self.events.append(dict(event=event,**copy.deepcopy(kw)))
         if event!='keyboard_request':return
         self.step=kw['step'];self.workspace=self.root/('keyboard-minimal-'+kw['nonce'])
         if self.step in ('shell','editor-save','result'):
             name={'shell':'shell.txt','editor-save':'edit.txt','result':'result.txt'}[self.step]
-            (self.workspace/name).write_bytes(K.expected(kw['nonce'])[name])
+            (self.workspace/name).write_bytes(b'observed wrong bytes\n' if self.bad_shell and name=='shell.txt' else K.expected(kw['nonce'])[name])
         if self.step=='result' and self.config_drift:(self.config/'sentinel').write_text('changed')
         if self.step=='editor-quit':next(p for p in self.observed if p.proof['pid']==102).retired=True
         if self.step=='close' and not self.fail_close:
@@ -86,7 +88,8 @@ class Phase(unittest.TestCase):
         with patch.object(S,'base',self.base),patch.object(S,'ObservedTerminal',self.observed_factory),\
              patch.object(S,'input_device',return_value=dict(name='QEMU Virtio Keyboard',driver='virtio_input')),\
              patch.object(S,'board_input',return_value=board()),\
-             patch.object(Path,'stat',lambda path,*a,**kw:self.guest_stat(path,*a,**kw)),patch.object(S,'child',self.child),patch.object(S,'descendant',return_value=self.editor),\
+             patch.object(Path,'stat',lambda path,*a,**kw:self.guest_stat(path,*a,**kw)),\
+             patch.object(Path,'lstat',lambda path,*a,**kw:self.guest_stat(path,follow_symlinks=False)),patch.object(S,'child',self.child),patch.object(S,'descendant',return_value=self.editor),\
              patch.object(S.os,'readlink',return_value='/dev/pts/0'),\
              patch.object(S.W,'startup_clients',side_effect=lambda *a:self.rows()),\
              patch.object(S.time,'monotonic',self.now),patch.object(S.time,'sleep',lambda _:None),\
@@ -124,5 +127,72 @@ class Phase(unittest.TestCase):
         self.assertEqual(ready['board_device'],board());self.assertEqual(len(ready['keyboards']),2)
         self.assertEqual([r['step'] for r in self.events if r['event']=='keyboard_request'],list(K.STEPS))
         self.assertTrue(all(p.closed and p.retired for p in self.observed))
+
+
+    def test_shell_deadline_preserves_known_file_bytes_and_optional_frame_request_before_cleanup(self):
+        self.bad_shell=True
+        with self.assertRaisesRegex(ValueError,'typed shell output deadline'):self.run_phase()
+        diagnostic=next(r for r in self.events if r['event']=='keyboard_failure_diagnostic')
+        self.assertEqual(diagnostic['last_step'],'shell');self.assertTrue(diagnostic['capture_requested'])
+        self.assertTrue(diagnostic['diagnostic_only']);self.assertFalse(diagnostic['success_evidence'])
+        row=diagnostic['files']['shell.txt'];self.assertEqual(row['status'],'READ')
+        self.assertEqual(base64.b64decode(row['prefix_base64']),b'observed wrong bytes\n')
+        self.assertEqual(row['sha256'],K.sha(b'observed wrong bytes\n'))
+        self.assertEqual(diagnostic['files']['edit.txt'],dict(status='ABSENT'))
+        self.assertLess(self.events.index(diagnostic),next(i for i,r in enumerate(self.events) if r['event']=='process_exit'))
+        self.assertTrue(all(p.closed for p in self.observed));self.assertTrue(self.actors[0].finished)
+        self.assertFalse(any(r['event'] in ('frame_ready','phase_pass') for r in self.events))
+
+    def test_optional_diagnostic_failure_never_masks_original_or_skips_cleanup(self):
+        self.bad_shell=True;self.diagnostic_fail=True
+        with self.assertRaisesRegex(ValueError,'typed shell output deadline'):self.run_phase()
+        self.assertTrue(all(p.closed for p in self.observed));self.assertTrue(self.actors[0].finished)
+        self.assertEqual(self.events[-1]['detail'],'typed shell output deadline')
+
+    def test_file_diagnostics_only_fixed_safe_bounded_leaves(self):
+        workspace=self.root/'workspace';workspace.mkdir();(workspace/'unrequested.txt').write_text('private')
+        (workspace/'shell.txt').write_bytes(b'x'*1000);(workspace/'edit.txt').write_bytes(b'y'*1025)
+        (workspace/'result.txt').symlink_to(workspace/'unrequested.txt')
+        with patch.object(Path,'lstat',lambda path,*a,**kw:self.guest_stat(path,follow_symlinks=False)):
+            rows=S.failure_files(workspace)
+        self.assertEqual(set(rows),{'shell.txt','edit.txt','result.txt'})
+        self.assertEqual(rows['shell.txt']['prefix_bytes'],256);self.assertEqual(rows['shell.txt']['sha256'],K.sha(b'x'*1000))
+        self.assertEqual(len(base64.b64decode(rows['shell.txt']['prefix_base64'])),256)
+        self.assertEqual(rows['edit.txt']['status'],'OVERSIZED_NOT_READ')
+        self.assertEqual(rows['result.txt']['status'],'UNSAFE_NOT_READ')
+        self.assertNotIn('prefix_base64',rows['result.txt'])
+
+
+
+    def test_generated_host_failure_capture_is_optional_nonce_bound_and_separate(self):
+        import ast
+        import prepare
+        source=next(p for p in Path(__file__).resolve().parents if (p/'scripts/ci/maintained-desktop574-inputs.json').exists())
+        runner=self.root/'runner';prepare.prepare(source,runner)
+        tree=ast.parse((runner/'desktop574_runtime.py').read_text())
+        node=next(n for n in ast.walk(tree) if isinstance(n,ast.If) and isinstance(n.test,ast.Compare) and
+                  any(isinstance(v,ast.Constant) and v.value=='keyboard_failure_diagnostic' for v in n.test.comparators))
+        code=compile(ast.fix_missing_locations(ast.Module(body=[node],type_ignores=[])),'<generated-failure-capture>','exec')
+        fixture=self.root/'fixture';fixture.mkdir();frames=self.root/'frames';frames.mkdir()
+        calls=[]
+        def execute(name,args):
+            calls.append((name,args));(fixture/'minimal-failure.ppm').write_bytes(b'synthetic pixels')
+        env=dict(event=dict(event='keyboard_failure_diagnostic',stage='minimal',nonce='a'*32,last_step='shell',
+                            diagnostic_only=True,success_evidence=False,capture_requested=True),
+                 require=K.need,qmp=SimpleNamespace(execute=execute),keyboard_controller=SimpleNamespace(nonces=dict(minimal='a'*32)),
+                 report=dict(status='FAIL',frames={}),fixture=fixture,frames=frames,
+                 ppm=lambda path:dict(sha256=K.sha(path.read_bytes())),shutil=__import__('shutil'))
+        exec(code,env)
+        self.assertEqual(env['report']['frames'],{});self.assertEqual(set(env['report']['failure_frames']),{'minimal'})
+        self.assertEqual(calls,[('screendump',dict(filename='/out/minimal-failure.ppm'))]);self.assertEqual(env['report']['status'],'FAIL')
+        exec(code,env);self.assertEqual(len(calls),1);self.assertEqual(len(env['report']['failure_frame_errors']),1)
+        env['report']=dict(status='FAIL',frames={});env['event']['nonce']='b'*32
+        exec(code,env);self.assertEqual(len(calls),1);self.assertIn('failure_frame_errors',env['report'])
+        env['event']['nonce']='a'*32;env['report']=dict(status='FAIL',frames={})
+        def failed(*a):raise TimeoutError('optional QMP failure')
+        env['qmp']=SimpleNamespace(execute=failed);exec(code,env)
+        self.assertEqual(env['report']['status'],'FAIL');self.assertEqual(env['report']['frames'],{})
+        self.assertIn('optional QMP failure',env['report']['failure_frame_errors'][0])
+
 
 if __name__=='__main__':unittest.main()
